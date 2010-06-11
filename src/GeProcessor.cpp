@@ -188,8 +188,7 @@ bool GeProcessor::Process(RawEvent &event)
     cloverEnergy.assign(cloverEnergy.size(), 0);
 
     // find all beta and neutron signals for ge gating
-    if (scintSummary) {
-	
+    if (scintSummary) {	
 	for (vector<ChanEvent*>::const_iterator it = scintSummary->GetList().begin();
 	     it != scintSummary->GetList().end(); it++) {
 	    ChanEvent *chan = *it;

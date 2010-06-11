@@ -84,9 +84,9 @@ bool DssdProcessor::Process(RawEvent &event)
     int frontPos = -1, backPos = -1;
     double frontEnergy, backEnergy, frontTime = 0.;
 
-    bool hasFront = frontSummary->GetMult() > 0;
-    bool hasBack  = backSummary->GetMult() > 0;
-    bool hasMcp   = mcpSummary->GetMult() > 0;
+    bool hasFront = frontSummary && (frontSummary->GetMult() > 0);
+    bool hasBack  = backSummary && (backSummary->GetMult() > 0);
+    bool hasMcp   = mcpSummary && (mcpSummary->GetMult() > 0);
 
     if (hasFront) {
 	const ChanEvent *ch = frontSummary->GetMaxEvent();
