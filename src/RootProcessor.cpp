@@ -73,7 +73,7 @@ bool RootProcessor::Process(RawEvent &event)
 RootProcessor::~RootProcessor()
 {
     cout << "  saving " << tree->GetEntries() << " tree entries" << endl;
-    tree->AutoSave()
+    tree->AutoSave();
     file->Close();
 
     delete file;
