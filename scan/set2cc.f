@@ -30,23 +30,23 @@ C
       INTEGER*2    ICMP,        IMIN,        IMAX
       INTEGER*4                                           MAXOFF
 C     ------------------------------------------------------------------
-      INTEGER*4    ID,IX,IY,ICX,ICY,IC,NDX,IZ
+      INTEGER*4    ID,IX,IY,ICX,ICY,IC,NDX,IZ 
 C     ------------------------------------------------------------------
 C
       IF(NDIM(ID).LE.0)RETURN                !Check existance
 C
 C
-      ICX=RSHIFT(IX,ICMP(1,ID))              !COMPRESS DEC fortran
+C     ICX=RSHIFT(IX,ICMP(1,ID))              !COMPRESS DEC fortran
 
-C     ICX=ISHFT(IX,-ICMP(1,ID))              !COMPRESS ansi fortran
+      ICX=ISHFT(IX,-ICMP(1,ID))              !COMPRESS ansi fortran
 C
 C                                            ! CHECK X RANGE
       IF(ICX.LT.IMIN(1,ID).OR.ICX.GT.IMAX(1,ID))RETURN
       ICX=ICX-IMIN(1,ID)
       IC=ICX
       IF(NDIM(ID).EQ.2)THEN
-      ICY=RSHIFT(IY,ICMP(2,ID))              !COMPRESS DEC fortran
-C     ICY=ISHFT(IY,-ICMP(2,ID))              !COMPRESS ansi fortran
+C     ICY=RSHIFT(IY,ICMP(2,ID))              !COMPRESS DEC fortran
+      ICY=ISHFT(IY,-ICMP(2,ID))              !COMPRESS ansi fortran
 C
 C                                            ! CHECK Y RANGE
       IF(ICY.LT.IMIN(2,ID).OR.ICY.GT.IMAX(2,ID))RETURN
@@ -112,17 +112,17 @@ C
       IF(NDIM(ID).LE.0)RETURN                !Check existance
 C
 C
-      ICX=RSHIFT(IX,ICMP(1,ID))              !COMPRESS DEC fortran
+C     ICX=RSHIFT(IX,ICMP(1,ID))              !COMPRESS DEC fortran
 
-C     ICX=ISHFT(IX,-ICMP(1,ID))              !COMPRESS ansi fortran
+      ICX=ISHFT(IX,-ICMP(1,ID))              !COMPRESS ansi fortran
 C
 C                                            ! CHECK X RANGE
       IF(ICX.LT.IMIN(1,ID).OR.ICX.GT.IMAX(1,ID))RETURN
       ICX=ICX-IMIN(1,ID)
       IC=ICX
       IF(NDIM(ID).EQ.2)THEN
-      ICY=RSHIFT(IY,ICMP(2,ID))              !COMPRESS DEC fortran
-C     ICY=ISHFT(IY,-ICMP(2,ID))              !COMPRESS ansi fortran
+C     ICY=RSHIFT(IY,ICMP(2,ID))              !COMPRESS DEC fortran
+      ICY=ISHFT(IY,-ICMP(2,ID))              !COMPRESS ansi fortran
 C
 C                                            ! CHECK Y RANGE
       IF(ICY.LT.IMIN(2,ID).OR.ICY.GT.IMAX(2,ID))RETURN

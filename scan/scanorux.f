@@ -76,7 +76,9 @@ C
      &            (LUH,LUC(6)),
      &            (LUD,LUC(9))
 C
-      DATA NAMCMDS,IWD/40*'    '/
+      CHARACTER*4  CNAMCMDS(20),CIWD(20)
+      EQUIVALENCE (CNAMCMDS,NAMCMDS),(CIWD,IWD)
+      DATA CNAMCMDS,CIWD/40*'    '/
 C      
 
       SAVE

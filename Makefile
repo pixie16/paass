@@ -32,6 +32,8 @@ cxxSrcSuf = cxx
 
 #------- define compilers
 FC        = g77
+#uncomment to compile with gfortran (>=4.2) if required for the hhirf libs
+#FC       = gfortran
 GCC       = gcc 
 G++       = g++
 LINK.o    = $(FC) $(LDFLAGS) $(TARGET_ARCH)
@@ -54,8 +56,15 @@ endif
 CINCLUDEDIRS  = -Iinclude
 
 #------- basic linking instructions
-LDLIBS  += -lm -lgsl -lgslcblas -lstdc++ -lg2c
-LDFLAGS += $(G77FLAGS) -g77libs
+LDLIBS  += -lm -lstdc++
+#LDLIBS  += -lgsl -lgslcblas
+
+ifeq ($(FC),gfortran)
+FFLAGS	+= -fsecond-underscore
+LDLIBS	+= -lgfortran
+else
+LDLIBS	+= -lg2c
+endif
 
 #-------- define file variables -----------------------
 

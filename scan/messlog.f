@@ -25,8 +25,10 @@ C
       EQUIVALENCE  (MSS20,MSSG)
 C     ------------------------------------------------------------------
       INTEGER*4    BLANK
+      CHARACTER*4  CBLANK
 C
-      DATA         BLANK/'    '/
+      EQUIVALENCE  (BLANK,CBLANK)
+      DATA         CBLANK/'    '/
 C
       SAVE
 C

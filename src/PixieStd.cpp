@@ -623,16 +623,29 @@ void ScanList(vector<ChanEvent*> &eventList)
     HistoStats(id, diffTime, lastTime, BUFFER_START);
 
     //loop over the list of channels that fired in this buffer
-    for(; iEvent != eventList.end(); iEvent++) {
-        /* retrieve the current event time and determine the time difference 
+    for(; iEvent != eventList.end(); iEvent++) { 
+	id        = (*iEvent)->GetID();
+	if (id == U_DELIMITER) {
+	  cout << "pattern 0 ignore" << endl;
+	  continue;
+	}
+	if (id > numModules * NUMBER_OF_CHANNELS) {
+	  cout << "Unexpected channel id " << id << endl;
+	  Pixie16Error(1);
+	}
+	if (modChan[id].GetType() == "ignore") {
+	  continue;
+	}
+
+	// this is a channel we're interested in
+	chanTime  = (*iEvent)->GetTrigTime(); 
+	eventTime = (*iEvent)->GetEventTimeLo();
+
+       /* retrieve the current event time and determine the time difference 
 	   between the current and previous events. 
         */
 	currTime = (*iEvent)->GetTime();
         diffTime = currTime - lastTime;
-
-	id        = (*iEvent)->GetID();
-	chanTime  = (*iEvent)->GetTrigTime(); 
-	eventTime = (*iEvent)->GetEventTimeLo();
 
         /* if the time difference between the current and previous event is 
 	   larger than the event width, finalize the current event, otherwise
@@ -653,26 +666,9 @@ void ScanList(vector<ChanEvent*> &eventList)
 	    HistoStats(id, diffTime, currTime, EVENT_START);
 	} else HistoStats(id, diffTime, currTime, EVENT_CONTINUE);
 	plot(id + dammIds::misc::offsets::D_TIME, eventTime - chanTime);
-	
-	/*
-	  If the id falls within an acceptable range, continue processing info
-	*/
-	if( id >= 0 && id <= numModules*NUMBER_OF_CHANNELS ) {
-	    /*
-	      Check to make sure that this channel has not been set to
-	      ignore in the map.txt file
-	    */
-	    if(modChan[id].GetType() != "ignore") {
-		usedDetectors.insert(modChan[id].GetType());
-		rawev.AddChan(*iEvent);
-	    }
-	} // end id check
-	else if (id == U_DELIMITER) {
-	    cout << " pattern 0 ignore " << endl;
-	} else {
-	    cout << " crash " << id << endl;
-	    Pixie16Error(1);  // terminate program and print error
-	}
+
+	usedDetectors.insert(modChan[id].GetType());
+	rawev.AddChan(*iEvent);
 	    
         lastTime = currTime; // update the time of the last event
     } //end loop over event list
