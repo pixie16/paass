@@ -40,39 +40,10 @@ using namespace Display;
 
 static volatile bool isInterrupted = false;
 
-static void interrupt(int sig)
-{
-  isInterrupted = true;
-}
-
-bool SynchMods(PixieInterface &pif)
-{
-  static bool firstTime = true;
-  static char synchString[] = "IN_SYNCH";
-  static char waitString[] = "SYNCH_WAIT";
-
-  bool hadError = false;
-   
-  LeaderPrint("Synchronizing");
-
-  if (firstTime) {
-    // only need to set this in the first module once
-    if (!pif.WriteSglModPar(waitString, 1, 0))
-      hadError = true;
-    firstTime = false;
-  }
-  
-  for (unsigned int mod = 0; mod < pif.GetNumberCards(); mod++)
-    if (!pif.WriteSglModPar(synchString, 0, mod))
-      hadError = true;
-
-  if (!hadError)
-    cout << OkayStr() << endl;
-  else
-    cout << ErrorStr() << endl;
-
-  return !hadError;
-}
+// function prototypes
+static void interrupt(int sig);
+bool SynchMods(PixieInterface &pif);
+int SendData(PixieInterface::word_t *data, size_t nWords);
 
 int main(int argc, char **argv)
 {
@@ -82,6 +53,7 @@ int main(int argc, char **argv)
   const int listMode = LIST_MODE_RUN0; // full header w/ traces
   // read the FIFO when it is this full
   unsigned int threshPercent = 50;
+  int statsInterval = -1; // in seconds
 
   // values associated with the minimum timing between pixie calls (in us)
   const unsigned int endRunPause = 100;
@@ -92,12 +64,14 @@ int main(int argc, char **argv)
 
   int opt;
 
-  while ( (opt = getopt(argc,argv,"fqt:z?")) != -1) {
+  while ( (opt = getopt(argc,argv,"fqs:t:z?")) != -1) {
     switch(opt) {
     case 'f':
       fastBoot = true; break;
     case 'q':
       quiet = true; break;
+    case 's':
+      statsInterval = atoi(optarg); break;
     case 't':
       threshPercent = atoi(optarg); break;
     case 'z':
@@ -107,6 +81,7 @@ int main(int argc, char **argv)
       cout << "Usage: " << argv[0] << " [options]" << endl;
       cout << "  -f       Fast boot (false by default)" << endl;
       cout << "  -q       Run quietly (false by default)" << endl;
+      cout << "  -s <num> Output statistics data every num seconds" << endl;
       cout << "  -t <num> Sets FIFO read threshold to num% full ("
 	   << threshPercent << "% by default)" << endl;
       cout << "  -z       Zero clocks on each START_ACQ (false by default)" << endl;
@@ -116,7 +91,6 @@ int main(int argc, char **argv)
 
   const PixieInterface::word_t threshWords = 
     EXTERNAL_FIFO_LENGTH * threshPercent / 100;
-  data_pack acqBuf;
 
   spkt_connect(VME, PROTO_DATA);
   cout << "Connected to PAC-machine " << VME << endl;
@@ -168,6 +142,7 @@ int main(int argc, char **argv)
   double startTime;
   double spillTime, lastSpillTime, durSpill;
   double parseTime, waitTime, readTime, sendTime, pollTime;
+  double statsTime;
 
   bool runDone[nCards];
   bool isExiting = false;
@@ -246,8 +221,8 @@ int main(int argc, char **argv)
 	  }
 	  if (zeroClocks)
 	    SynchMods(pif);
-	  lastSpillTime = startTime = usGetTime(0);
-
+	  statsTime = lastSpillTime = startTime = usGetTime(0);
+	  
 	  if ( pif.StartListModeRun(listMode, NEW_RUN) ) {
 	    isStopped = false;
 	    waitCounter = 0;
@@ -476,49 +451,7 @@ int main(int argc, char **argv)
     lastSpillTime = spillTime;
 
     usGetDTime(); // start send timer
-    // now write to the shared memory
-    unsigned int nBufs     = dataWords / maxShmSizeL;
-    unsigned int wordsLeft = dataWords % maxShmSizeL;
-    
-    unsigned int totalBufs = nBufs + 1 + ((wordsLeft != 0) ? 1 : 0);
-    
-    PixieInterface::word_t *pWrite = (PixieInterface::word_t *)acqBuf.Data;
-    // chop the data and send it through the network
-    for (size_t buf=0; buf < nBufs; buf++) {
-      // get a long sized pointer to the data block for writing
-      // put a header on each shared memory buffer
-      acqBuf.BufLen = (maxShmSizeL + 3) * sizeof(PixieInterface::word_t);
-      pWrite[0] = acqBuf.BufLen; // size
-      pWrite[1] = totalBufs; // number of buffers we expect
-      pWrite[2] = buf;
-      memcpy(&pWrite[3], &fifoData[buf * maxShmSizeL], maxShmSize);
-      
-      send_buf(&acqBuf);
-    }
-      
-    // send the last fragment (if there is any)
-    if (wordsLeft != 0) {
-      acqBuf.BufLen = (wordsLeft + 3) * sizeof(PixieInterface::word_t);
-      pWrite[0] = acqBuf.BufLen;
-      pWrite[1] = totalBufs;
-      pWrite[2] = nBufs;
-      memcpy(&pWrite[3], &fifoData[nBufs * maxShmSizeL], 
-	     wordsLeft * sizeof(PixieInterface::word_t) );
-      
-      send_buf(&acqBuf);
-    }
-    
-    // send a buffer to say that we are done
-    acqBuf.BufLen = 5 * sizeof(PixieInterface::word_t);
-    pWrite[0] = acqBuf.BufLen;
-    pWrite[1] = totalBufs;
-    pWrite[2] = totalBufs - 1;
-    // pacman looks for the following data
-    pWrite[3] = 0x2; 
-    pWrite[4] = 0x270f; // vsn 9999
-    
-    send_buf(&acqBuf);
-    
+    int nBufs = SendData(fifoData, dataWords);
     sendTime = usGetDTime();
 
     if (!quiet) {
@@ -552,4 +485,88 @@ int main(int argc, char **argv)
   }
 
   return EXIT_SUCCESS;
+}
+
+static void interrupt(int sig)
+{
+  isInterrupted = true;
+}
+
+bool SynchMods(PixieInterface &pif)
+{
+  static bool firstTime = true;
+  static char synchString[] = "IN_SYNCH";
+  static char waitString[] = "SYNCH_WAIT";
+
+  bool hadError = false;
+   
+  LeaderPrint("Synchronizing");
+
+  if (firstTime) {
+    // only need to set this in the first module once
+    if (!pif.WriteSglModPar(waitString, 1, 0))
+      hadError = true;
+    firstTime = false;
+  }
+  
+  for (unsigned int mod = 0; mod < pif.GetNumberCards(); mod++)
+    if (!pif.WriteSglModPar(synchString, 0, mod))
+      hadError = true;
+
+  if (!hadError)
+    cout << OkayStr() << endl;
+  else
+    cout << ErrorStr() << endl;
+
+  return !hadError;
+}
+
+int SendData(PixieInterface::word_t *data, size_t nWords)
+{
+  static data_pack acqBuf;
+  
+  // now write to the shared memory
+  unsigned int nBufs     = nWords / maxShmSizeL;
+  unsigned int wordsLeft = nWords % maxShmSizeL;
+  
+  unsigned int totalBufs = nBufs + 1 + ((wordsLeft != 0) ? 1 : 0);
+    
+    PixieInterface::word_t *pWrite = (PixieInterface::word_t *)acqBuf.Data;
+    // chop the data and send it through the network
+    for (size_t buf=0; buf < nBufs; buf++) {
+      // get a long sized pointer to the data block for writing
+      // put a header on each shared memory buffer
+      acqBuf.BufLen = (maxShmSizeL + 3) * sizeof(PixieInterface::word_t);
+      pWrite[0] = acqBuf.BufLen; // size
+      pWrite[1] = totalBufs; // number of buffers we expect
+      pWrite[2] = buf;
+      memcpy(&pWrite[3], &data[buf * maxShmSizeL], maxShmSize);
+      
+      send_buf(&acqBuf);
+    }
+      
+    // send the last fragment (if there is any)
+    if (wordsLeft != 0) {
+      acqBuf.BufLen = (wordsLeft + 3) * sizeof(PixieInterface::word_t);
+      pWrite[0] = acqBuf.BufLen;
+      pWrite[1] = totalBufs;
+      pWrite[2] = nBufs;
+      memcpy(&pWrite[3], &data[nBufs * maxShmSizeL], 
+	     wordsLeft * sizeof(PixieInterface::word_t) );
+      
+      send_buf(&acqBuf);
+    }
+    
+    // send a buffer to say that we are done
+    acqBuf.BufLen = 5 * sizeof(PixieInterface::word_t);
+    pWrite[0] = acqBuf.BufLen;
+    pWrite[1] = totalBufs;
+    pWrite[2] = totalBufs - 1;
+    // pacman looks for the following data
+    pWrite[3] = 0x2; 
+    pWrite[4] = 0x270f; // vsn 9999
+    
+    send_buf(&acqBuf);  
+
+    return nBufs;
 }
