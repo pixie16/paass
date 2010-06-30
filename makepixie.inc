@@ -1,8 +1,8 @@
 # generic definitions required for building code dependent on pixie libs
-
+THISDIR      = $(dir $(lastword $(MAKEFILE_LIST)))
 PXI_ROOT     = $(HOME)/Pixie16RevD_General_1.4.3_Update_05072010
 LIB_ROOT     = $(HOME)/PLX/PlxSdk/Linux/PlxApi/Library/
-INTERFACE    = $(HOME)/PixieSuite/Interface
+INTERFACE    = $(realpath $(THISDIR)/Interface)
 INTERFACELIB = $(INTERFACE)/libPixieInterface.a
 
 INCLUDEDIRS += -I$(PXI_ROOT)/software/inc/ -I$(PXI_ROOT)/software/sys/ -I$(PXI_ROOT)/software/app/ -I./include -I$(INTERFACE)
