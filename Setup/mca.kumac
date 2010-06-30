@@ -1,0 +1,38 @@
+macro mca [1]=0 [2]=0 [3]=0
+sh ./mca_paw [3] 
+set xwin 0.1
+set ywin 0.2
+opt utit 
+if [2]<0 then
+DO k=0,15
+his=([1]+1)*100+[k]
+hi/del [his]
+message [his]
+ENDDO
+else
+his=([1]+1)*100+[2]
+hi/del [his]
+endif
+
+h/file 1 mca.dat
+if [2]<0 then
+hrin *
+close 1
+zone 4 4
+DO k=0,15
+his=([1]+1)*100+[k]
+hi/plo [his]
+ENDDO
+ELSE
+zone 1 1
+hrin [his]
+hi/plo [his]
+ENDIF
+
+
+
+
+close 1
+
+
+

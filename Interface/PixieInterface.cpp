@@ -1,0 +1,523 @@
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+
+#include <cstdlib>
+
+#include <sys/time.h>
+
+#include "pixie16app_export.h"
+
+#include "Display.h"
+#include "PixieInterface.h"
+
+using namespace std;
+using namespace Display;
+
+PixieInterface::PixieInterface(const char *fn) : lock("PixieInterface")
+{
+  SetColorTerm();
+  if (!ReadConfigurationFile(fn)) {
+    cout << ErrorStr("Error reading configuration file") << endl;
+    exit(EXIT_FAILURE);
+  }
+
+  for (unsigned int i=0; i < MAX_MODULES; i++) {
+    hasExtra[i] = false;
+    extraWord[i] = 0;
+  }
+}
+
+PixieInterface::~PixieInterface()
+{
+  if (!doneInit)
+    return;
+
+  if (CheckRunStatus())
+    EndRun();
+
+  LeaderPrint("Closing Pixie interface");
+
+  retval = Pixie16ExitSystem(numberCards);
+  CheckError();
+}
+
+bool PixieInterface::ReadConfigurationFile(const char *fn) 
+{
+  ifstream in(fn);
+  if (!in)    
+    return false;
+
+  string tag, value;
+  stringstream line;
+
+  do {
+    char buf[CONFIG_LINE_LENGTH];
+
+    in.getline(buf, CONFIG_LINE_LENGTH, '\n');
+    // ignore comment lines starting with a #
+    if (buf[0] == '#') {
+      continue;
+    }
+    line << buf;
+
+    // read a tag and value combination from file line by line
+    line >> tag >> value;
+    if (tag == "PixieBaseDir") {
+      pixieBaseDir = value;
+      cout << "Pixie base directory is " << InfoStr(pixieBaseDir) << endl;
+    } else if (tag == "SpFpgaFile") {
+      spFpgaFile = ConfigFileName(value);
+    } else if (tag == "ComFpgaFile") {
+      comFpgaFile = ConfigFileName(value);
+    } else if (tag == "TrigFpgaFile") {
+      trigFpgaFile = ConfigFileName(value);
+    } else if (tag == "DspConfFile") {
+      dspConfFile = ConfigFileName(value);
+    } else if (tag == "DspVarFile") {
+      dspVarFile =  ConfigFileName(value);
+    } else if (tag == "DspSetFile") {
+      dspSetFile =  ConfigFileName(value);
+    } else if (tag == "DspWorkingSetFile") {
+      dspWorkingSetFile = ConfigFileName(value);
+    } else if (tag == "ListModeFile") {
+      listModeFile = ConfigFileName(value);
+    } else if (tag == "SlotFile") {
+      slotFile =  ConfigFileName(value);
+    } else {
+      cout << "Unrecognized tag " << WarningStr(tag) << " in PixieInterface configuration file." << endl;
+    }
+    line.clear();
+  } while (!in.eof());
+
+  return true;
+}
+
+bool PixieInterface::GetSlots(const char *slotF)
+{
+  char restOfLine[CONFIG_LINE_LENGTH];
+
+  if (slotF == NULL)
+    slotF = slotFile.c_str();
+
+  ifstream in(slotF);
+
+  if (!in) {
+    cout << ErrorStr("Error opening slot definition file.") << endl;
+    exit(EXIT_FAILURE);
+  }
+
+  in >> numberCards;
+  in.getline(restOfLine, CONFIG_LINE_LENGTH, '\n');
+
+  if (numberCards > MAX_MODULES) {
+    cout << ErrorStr("Too many cards") << " : " << numberCards << " > " << MAX_MODULES << endl;
+    exit(EXIT_FAILURE);
+  }
+
+  for (int i = 0; i < numberCards; i++) {
+    in >> slotMap[i];
+    in.getline(restOfLine, CONFIG_LINE_LENGTH, '\n');
+    if (!in.good()) {
+      cout << ErrorStr("Error reading slot definition file.") << endl;
+      exit(EXIT_FAILURE);
+    }
+  }
+
+  cout << "Slot definition from " << InfoStr(slotF) << endl;
+  cout << "  System with " << numberCards << " cards" << endl;
+  cout << "  ";
+
+  for (int i = 0; i < numberCards; i++) {
+    cout << "||  M  S ";
+  }
+  cout << "|" << endl << "  ";
+
+  for (int i = 0; i < numberCards; i++) {
+    cout << "|| " << setw(2) << i << " " << setw(2) << slotMap[i] << " ";
+  }
+  cout << "|" << endl;
+  in.close();
+
+  return true;
+}
+
+bool PixieInterface::Init(bool offlineMode)
+{
+  LeaderPrint("Initializing Pixie");
+
+  retval = Pixie16InitSystem(numberCards, slotMap, offlineMode);
+  doneInit = !CheckError(true);
+
+  return doneInit;
+}
+
+bool PixieInterface::Boot(int mode, bool useWorkingSetFile) 
+{
+  string &setFile = useWorkingSetFile ? dspWorkingSetFile : dspSetFile;
+
+  LeaderPrint("Booting Pixie");
+
+  retval = Pixie16BootModule(&comFpgaFile[0], 
+			     &spFpgaFile[0], 
+			     &trigFpgaFile[0],
+			     &dspConfFile[0], 
+			     &setFile[0],
+			     &dspVarFile[0],
+			     numberCards, mode);
+
+  bool b = !CheckError(true);
+
+  cout << "  Used set file: " << InfoStr(setFile) << endl;
+  return b;
+}
+
+bool PixieInterface::WriteSglModPar(char *name, word_t val, int mod)
+{
+  retval = Pixie16WriteSglModPar(name, val, mod);
+  if (retval < 0) {
+    cout << "Error writing module parameter " << WarningStr(name) 
+	 << " for module " << mod << endl;
+    return false;      
+  }
+  return true;
+}
+
+bool PixieInterface::ReadSglModPar(char *name, word_t *val, int mod)
+{
+  retval = Pixie16ReadSglModPar(name, val, mod);
+  if (retval < 0) {
+    cout << "Error reading module parameter " << WarningStr(name) 
+	 << " for module " << mod << endl;
+    return false;      
+  }
+  return true;
+}
+
+void PixieInterface::PrintSglModPar(char *name, int mod)
+{
+  word_t val;
+
+  if (ReadSglModPar(name, &val, mod)) {    
+    cout << "  MOD " << setw(2) << mod 
+	 << "  " << setw(15) << name
+	 << "  " << val << endl;
+  }
+}
+
+bool PixieInterface::WriteSglChanPar(char *name, double val, int mod, int chan)
+{
+  retval = Pixie16WriteSglChanPar(name, val, mod, chan);
+  if (retval < 0) {
+    cout << "Error writing channel parameter " << WarningStr(name) 
+	 << " for module " << mod << ", channel " << chan << endl;
+    return false;      
+  }
+  return true;
+}
+
+bool PixieInterface::ReadSglChanPar(char *name, double *pval, int mod, int chan)
+{
+  retval = Pixie16ReadSglChanPar(name, pval, mod, chan);
+  if (retval < 0) {
+    cout << "Error reading channel parameter " << WarningStr(name) 
+	 << " for module " << mod << ", channel " << chan << endl;
+    return false;      
+  }
+  return true;
+}
+
+void PixieInterface::PrintSglChanPar(char *name, int mod, int chan)
+{
+  double val;
+
+  if (ReadSglChanPar(name, &val, mod, chan)) {    
+    cout << "  MOD " << setw(2) << mod 
+	 << "  CHAN " << setw(2) << chan
+	 << "  " << setw(15) << name
+	 << "  " << val << endl;
+  }
+}
+
+bool PixieInterface::SaveDSPParameters(char *fn)
+{
+  if (fn == NULL)
+    fn = &dspWorkingSetFile[0];
+
+  LeaderPrint("Writing DSP parameters");
+
+  retval = Pixie16SaveDSPParametersToFile(fn);
+  return !CheckError();
+}
+
+bool PixieInterface::AcquireTraces(int mod)
+{
+  retval = Pixie16AcquireADCTrace(mod);
+
+  if (retval < 0) {
+    cout << ErrorStr("Error acquiring ADC traces from module ") << mod << endl;
+    return false;
+  }
+
+  return true;
+}
+
+bool PixieInterface::ReadSglChanTrace(unsigned short *buf, unsigned long sz,
+				      unsigned short mod, unsigned short chan)
+{
+  if (sz > TRACE_LENGTH) {
+    cout << ErrorStr("Trace length too large.") << endl;
+    return false;
+  }
+
+  retval = Pixie16ReadSglChanADCTrace(buf, sz, mod, chan);
+
+  if (retval < 0) {
+    cout << ErrorStr("Error reading trace in module ") << mod << endl;
+    return false;
+  }
+
+  return true;
+}
+
+bool PixieInterface::GetStatistics(unsigned short mod)
+{
+  retval = Pixie16ReadStatisticsFromModule(statistics, mod);
+
+  if (retval < 0) {
+    cout << WarningStr("Error reading statistics from module ") << mod << endl;
+    return false;
+  } 
+
+  return true;
+}
+
+double PixieInterface::GetInputCountRate(int mod, int chan)
+{
+  return Pixie16ComputeInputCountRate(statistics,mod,chan);
+}
+
+double PixieInterface::GetOutputCountRate(int mod, int chan)
+{
+  return Pixie16ComputeOutputCountRate(statistics,mod,chan);
+}
+
+double PixieInterface::GetLiveTime(int mod, int chan)
+{
+  return Pixie16ComputeLiveTime(statistics,mod,chan);
+}
+
+double PixieInterface::GetRealTime(int mod)
+{
+  return Pixie16ComputeRealTime(statistics,mod);
+}
+
+double PixieInterface::GetProcessedEvents(int mod)
+{
+  return Pixie16ComputeProcessedEvents(statistics,mod);
+}
+
+bool PixieInterface::StartHistogramRun(unsigned short mode)
+{
+  LeaderPrint("Starting histogram run");
+  retval = Pixie16StartHistogramRun(numberCards,mode);
+
+  return !CheckError();
+}
+
+bool PixieInterface::StartHistogramRun(unsigned short mod, unsigned short mode)
+{
+  retval = Pixie16StartHistogramRun(mod,mode);
+
+  if (retval < 0) {
+    cout << ErrorStr("Error starting histogram run in module ") << mod << endl;
+    exit(EXIT_FAILURE);
+  }
+  return true;
+}
+
+bool PixieInterface::StartListModeRun(unsigned short listMode,
+				      unsigned short runMode)
+{
+  LeaderPrint("Starting list mode run");
+  retval = Pixie16StartListModeRun(numberCards, listMode, runMode);
+
+  return !CheckError();
+}
+
+bool PixieInterface::StartListModeRun(unsigned short mod, 
+				      unsigned short listMode,
+				      unsigned short runMode)
+{
+  retval = Pixie16StartListModeRun(mod, listMode, runMode);
+  
+  if (retval < 0) {
+    cout << ErrorStr("Error starting list mode run in module ") << mod << endl;
+    exit(EXIT_FAILURE);
+  }
+
+  return true;
+}
+
+bool PixieInterface::CheckRunStatus()
+{
+  for (int mod = 0; mod < numberCards; mod++) {
+    if (!CheckRunStatus(mod))
+      return false;
+  }
+
+  return true;
+}
+
+bool PixieInterface::CheckRunStatus(int mod)
+{
+  retval = Pixie16CheckRunStatus(mod);
+  
+  if (retval < 0) {
+    cout << WarningStr("Error checking run status in module ") << mod << endl;
+  }
+
+  return (retval == 1);
+}
+
+
+// only Rev. D has the external FIFO
+#if PIXIE16_REVISION == PIXIE16_REVD_GENERAL
+unsigned long PixieInterface::CheckFIFOWords(unsigned short mod)
+{
+  // word_t nWords;
+  unsigned int nWords;
+
+  retval = Pixie16CheckExternalFIFOStatus(&nWords, mod);
+
+  if (retval < 0) {
+    cout << WarningStr("Error checking FIFO status in module ") << mod << endl;
+    return 0;
+  }
+ 
+  return nWords + (hasExtra[mod] ? 1 : 0);
+}
+
+bool PixieInterface::ReadFIFOWords(word_t *buf, unsigned long nWords,
+				   unsigned short mod)
+{
+  if (nWords == 1) {
+    if (hasExtra[mod]) {
+      *buf = extraWord[mod];
+      hasExtra[mod] = false;
+      return true;
+    }
+    word_t minibuf[2];
+
+    retval = Pixie16ReadDataFromExternalFIFO(minibuf, 2, mod);
+    *buf = minibuf[0];
+    extraWord[mod] = minibuf[1];
+    hasExtra[mod] = true;
+  } else {
+    if (hasExtra[mod]) {
+      *buf++ = extraWord[mod];
+      hasExtra[mod] = false;
+      nWords--;
+    }
+    retval = Pixie16ReadDataFromExternalFIFO(buf, nWords, mod);
+  }
+
+  if (retval < 0) {
+    cout << WarningStr("Error reading words from FIFO in module ") << mod << endl;
+    return false;
+  }
+
+  return true;
+}
+#endif // Rev. D FIFO access
+
+bool PixieInterface::EndRun()
+{
+  bool b = true;
+
+  LeaderPrint("Ending run");
+
+  for (int mod=0; mod < numberCards; mod++)
+    if (!EndRun(mod))
+      b = false;
+
+  if (!b) {
+    cout << ErrorStr() << endl;
+  } else {
+    cout << OkayStr() << endl;
+  }
+
+  return b;
+}
+
+bool PixieInterface::EndRun(int mod)
+{
+  retval = Pixie16EndRun(mod);
+
+  if (retval < 0) {
+    cout << WarningStr("Failed to end run in module ") << mod << endl;
+    return false;
+  }
+
+  return true;
+}
+
+bool PixieInterface::RemovePresetRunLength(int mod)
+{
+  static char parName[] = "HOST_RT_PRESET";
+  unsigned long bigVal = Decimal2IEEEFloating(99999);
+
+  LeaderPrint("Removing preset run length");
+  
+  if (!WriteSglModPar(parName, bigVal, mod)) {
+    cout << ErrorStr() << endl;
+    return false;
+  }
+  cout << OkayStr() << endl;
+  return true;
+}
+
+bool PixieInterface::ReadHistogram(word_t *hist, unsigned long sz,
+				   unsigned short mod, unsigned short ch)
+{
+  if (sz > MAX_HISTOGRAM_LENGTH) {
+    cout << ErrorStr("Histogram length is too large.") << endl;
+    return false;
+  }
+
+  retval = Pixie16ReadHistogramFromModule(hist, sz, mod, ch);
+  
+  if (retval < 0) {
+    cout << ErrorStr("Failed to get histogram data from module ") << mod << endl;
+    return false;
+  }
+  return true;
+}
+
+bool PixieInterface::AdjustOffsets(unsigned short mod)
+{
+  LeaderPrint("Adjusting Offsets");
+  retval = Pixie16AdjustOffsets(mod);
+
+  return !CheckError();
+}
+
+// ### PRIVATE FUNCTIONS BELOW ### //
+
+string PixieInterface::ConfigFileName(const string &str) 
+{
+  if (str[0] == '.')
+    return str;
+  else
+    return pixieBaseDir + '/' + str;
+}
+
+bool PixieInterface::CheckError(bool exitOnError) const
+{
+  if (StatusPrint(retval < 0) && exitOnError) {
+    exit(EXIT_FAILURE); // or do something else
+  }
+
+  return (retval < 0);
+}

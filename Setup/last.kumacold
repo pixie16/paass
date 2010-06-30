@@ -1,0 +1,24 @@
+*** Begin of history file: Wed May 26 16:00:27 2010
+exe mca 10
+exe mc 10
+h/zo
+h/fit 100(14100:14400) g
+h/zo
+sh ./find_tau 0 0
+sh ./find_tau 0 0
+sh ./find_tau 0 0
+sh ./find_tau 0 0
+sh ./find_tau 0 0
+sh ./find_tau 0 0
+sh ./find_tau 0 0
+sh ./find_tau 0 0
+sh ./find_tau 0 0
+sh ./pwrite 0 -1 1.12193
+sh ./pwrite 0 -1 TAU 1.12193
+exe mca 10
+exe mc 60
+h/zo
+h/fit 100(14420:14580) g
+h/zo
+exit
+*** End   of history file: Thu May 27 11:16:48 2010

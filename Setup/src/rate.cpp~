@@ -1,0 +1,76 @@
+/********************************************************************/
+/*	rate.cpp   						    */
+/*		last updated: 10/02/09 DTM	     	       	    */
+/*			       					    */
+/********************************************************************/
+
+#include <cstdio>
+#include <cstdlib>
+
+#include "PixieInterface.h"
+
+int main(int argc, char *argv[])
+{
+  int ModNum, ChanNum;
+  double input_rate, output_rate, live_time, proc_events, real_time;
+
+  if (argc != 3) {
+    printf("usage: %s <module> <channel>\n", argv[0]);
+    exit(EXIT_FAILURE);
+  }
+
+  ModNum = atoi(argv[1]);
+  ChanNum = atoi(argv[2]);
+
+  PixieInterface pif("pixie.cfg");
+  pif.GetSlots();
+  pif.Init();
+  pif.Boot(0, true);
+
+  printf(" %2s %2s  %10s  %10s  %10s  %10s  %10s\n",
+	 "M", "C", "Input",  "Output", "Live_t", "Proc_ev", "Real_Time");
+
+  if (ModNum < 0) {
+    for (ModNum = 0; ModNum < pif.GetNumberCards(); ModNum++) {
+      if (pif.GetStatistics(ModNum)) {
+	for (ChanNum = 0; ChanNum < pif.GetNumberChannels(); ChanNum++) {
+	  input_rate  = pif.GetInputCountRate(ModNum, ChanNum);
+	  output_rate = pif.GetOutputCountRate(ModNum, ChanNum);
+	  live_time   = pif.GetLiveTime(ModNum, ChanNum);
+	  real_time   = pif.GetRealTime(ModNum);
+	  proc_events = pif.GetProcessedEvents(ModNum);
+
+	  printf(" %2u %2u  %10.1f  %10.1f  %10.1f  %10.0f  %10.1f \n", ModNum,
+		 ChanNum, input_rate, output_rate, live_time, proc_events,
+		 real_time);
+	} // for each channel
+      }	
+    } // for each module
+  } else if (ModNum >= 0 && pif.GetStatistics(ModNum)) {    
+    if (ChanNum >= 0) {
+      input_rate  = pif.GetInputCountRate(ModNum, ChanNum);
+      output_rate = pif.GetOutputCountRate(ModNum, ChanNum);
+      live_time   = pif.GetLiveTime(ModNum, ChanNum);
+      real_time   = pif.GetRealTime(ModNum);
+      proc_events = pif.GetProcessedEvents(ModNum);
+      
+      printf(" %2u %2u  %10.1f  %10.1f  %10.1f  %10.0f  %10.1f \n", ModNum,
+	     ChanNum, input_rate, output_rate, live_time, proc_events,
+	     real_time);
+    } else if (ChanNum < 0) {
+      for (ChanNum = 0; ChanNum < pif.GetNumberChannels(); ChanNum++) {
+	  input_rate  = pif.GetInputCountRate(ModNum, ChanNum);
+	  output_rate = pif.GetOutputCountRate(ModNum, ChanNum);
+	  live_time   = pif.GetLiveTime(ModNum, ChanNum);
+	  real_time   = pif.GetRealTime(ModNum);
+	  proc_events = pif.GetProcessedEvents(ModNum);
+
+	  printf(" %2u %2u  %10.1f  %10.1f  %10.1f  %10.0f  %10.1f \n", ModNum,
+		 ChanNum, input_rate, output_rate, live_time, proc_events,
+		 real_time);
+      } // for each channel     
+    } // if arg2 < 0
+  } // if arg1 >= 0
+
+  return EXIT_SUCCESS;
+}

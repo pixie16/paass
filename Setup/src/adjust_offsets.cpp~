@@ -1,0 +1,50 @@
+#include <cstdio>
+#include <cstdlib>
+
+#include "PixieInterface.h"
+
+int main(int argc, char **argv)
+{
+  int ModNum;
+  bool hadError = false;
+
+  if (argc != 2) {
+    printf("usage: %s <module>\n", argv[0]);
+    return EXIT_FAILURE;
+  }
+
+  ModNum = atoi(argv[1]);
+
+  PixieInterface pif("pixie.cfg");
+
+  pif.GetSlots();
+  pif.Init();
+  pif.Boot(PixieInterface::DownloadParameters |
+	   PixieInterface::ProgramFPGA |
+	   PixieInterface::SetDAC, true);
+
+  if (ModNum < 0) {
+    for (ModNum = 0; ModNum < pif.GetNumberCards(); ModNum++) {
+      if (pif.AdjustOffsets(ModNum)) {
+	for (size_t ChanNum = 0; ChanNum < pif.GetNumberChannels(); ChanNum++) {
+	  pif.PrintSglChanPar("VOFFSET", ModNum, ChanNum);
+	}
+      } else {
+	hadError = true;
+      }
+    }
+  } else {
+    if (pif.AdjustOffsets(ModNum)) {
+      for (size_t ChanNum = 0; ChanNum < pif.GetNumberChannels(); ChanNum++) {
+	pif.PrintSglChanPar("VOFFSET", ModNum, ChanNum);
+      }
+    } else {
+      hadError = true;
+    }
+  }
+
+  if (!hadError)
+    pif.SaveDSPParameters();
+
+  return EXIT_SUCCESS;
+}
