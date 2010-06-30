@@ -1,0 +1,21 @@
+#Red
+#echo -en '\E[47;34m'
+. ./smf;tput sgr0
+# echo  -e '\E[47;35m'  MODULE  $MOD
+# tput sgr0
+# removes leading ./W_ from the zeroth parameter
+SELF=${0#./W_}
+if [ -z $MOD ]
+then  echo "Define  MOD  (run SM) "
+exit
+fi
+if [ -z $CHA ]
+then  echo "Define  CHA (run SM) "
+exit  
+fi
+echo
+if  test  $1
+    then ./pwrite $MOD $CHA $SELF $1
+    else echo "GIVE PARAMETER VALUE "
+fi 
+

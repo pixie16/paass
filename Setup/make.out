@@ -1,0 +1,2622 @@
+g++ -L/home/pixie16/Pixie16RevD_General_1.4.3_Update_05072010/software -L/home/pixie16/PLX/PlxSdk/Linux/PlxApi/Library/ -L/usr/lib64/cernlib/2006/lib  trace_paw.o /home/pixie16/PixieSuite/Interface/libPixieInterface.a  -Wl,-static -lpacklib -lkernlib -Wl,-dy -lm -ldl -lPixie16App -lPixie16Sys -lPlxApi -lg2c -o trace_paw
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrput.o): In function `hrput_':
+(.text+0x89): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrput.o): In function `hrput_':
+(.text+0x1f9): undefined reference to `_gfortran_st_close'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrput.o): In function `hrput_':
+(.text+0x235): undefined reference to `_gfortran_os_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hbtit.o): In function `hbtit_':
+(.text+0x42): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hbug.o): In function `hbug_':
+(.text+0xc3): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hbug.o): In function `hbug_':
+(.text+0x125): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hbug.o): In function `hbug_':
+(.text+0x1aa): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hbug.o): In function `hbug_':
+(.text+0x23f): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hbug.o): In function `hbug_':
+(.text+0x385): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hbug.o): In function `hbug_':
+(.text+0x395): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hbug.o): In function `hbug_':
+(.text+0x39d): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hbug.o): In function `hbug_':
+(.text+0x3df): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hbug.o): In function `hbug_':
+(.text+0x3fd): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hbug.o): In function `hbug_':
+(.text+0x405): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hbug.o): In function `hbug_':
+(.text+0x4c8): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hbug.o): In function `hbug_':
+(.text+0x528): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hbug.o): In function `hbug_':
+(.text+0x5ad): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hbug.o): In function `hbug_':
+(.text+0x63b): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hbug.o): In function `hbug_':
+(.text+0x727): undefined reference to `_gfortran_os_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hlabeq.o): In function `hlabeq_':
+(.text+0x61): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hlabeq.o): In function `hlabeq_':
+(.text+0x83): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hmachi.o): In function `hmachi_':
+(.text+0x10a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hmachi.o): In function `hmachi_':
+(.text+0x11c): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hmachi.o): In function `hmachi_':
+(.text+0x12c): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hmachi.o): In function `hmachi_':
+(.text+0x1a2): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hmachi.o): In function `hmachi_':
+(.text+0x1b4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hmachi.o): In function `hmachi_':
+(.text+0x1bc): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hmachi.o): In function `hmachi_':
+(.text+0x216): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hmachi.o): In function `hmachi_':
+(.text+0x228): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hmachi.o): In function `hmachi_':
+(.text+0x230): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hmachi.o): In function `hmachi_':
+(.text+0x607): undefined reference to `_gfortran_pow_i4_i4'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzdrop.o): In function `mzdrop_':
+(.text+0x17e): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzdrop.o): In function `mzdrop_':
+(.text+0x190): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzdrop.o): In function `mzdrop_':
+(.text+0x1a2): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzdrop.o): In function `mzdrop_':
+(.text+0x1b4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzdrop.o): In function `mzdrop_':
+(.text+0x1c2): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzdrop.o): In function `mzdrop_':
+(.text+0x1ca): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzebra.o): In function `mzebra_':
+(.text+0x7a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzebra.o): In function `mzebra_':
+(.text+0x8c): undefined reference to `_gfortran_transfer_real'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzebra.o): In function `mzebra_':
+(.text+0x94): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzebra.o): In function `mzebra_':
+(.text+0xcd): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzebra.o): In function `mzebra_':
+(.text+0x104): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzebra.o): In function `mzebra_':
+(.text+0x27f): undefined reference to `_gfortran_os_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzlift.o): In function `mzlift_':
+(.text+0x8cb): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzlift.o): In function `mzlift_':
+(.text+0x8dd): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzlift.o): In function `mzlift_':
+(.text+0x8ef): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzlift.o): In function `mzlift_':
+(.text+0x901): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzlift.o): In function `mzlift_':
+(.text+0x913): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzlift.o): In function `mzlift_':
+(.text+0x925): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzlift.o):(.text+0x937): more undefined references to `_gfortran_transfer_integer' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzlift.o): In function `mzlift_':
+(.text+0x975): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzlink.o): In function `mzlink_':
+(.text+0x2aa): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzlink.o): In function `mzlink_':
+(.text+0x2f4): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzlink.o): In function `mzlink_':
+(.text+0x306): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzlink.o): In function `mzlink_':
+(.text+0x318): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzlink.o): In function `mzlink_':
+(.text+0x32a): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzlink.o): In function `mzlink_':
+(.text+0x332): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzneed.o): In function `mzneed_':
+(.text+0x16d): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzneed.o): In function `mzneed_':
+(.text+0x17f): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzneed.o): In function `mzneed_':
+(.text+0x191): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzneed.o): In function `mzneed_':
+(.text+0x1a3): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzneed.o): In function `mzneed_':
+(.text+0x1b5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzneed.o): In function `mzneed_':
+(.text+0x1c2): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzneed.o): In function `mzneed_':
+(.text+0x1ca): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzpush.o): In function `mzpush_':
+(.text+0x2a1): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzpush.o): In function `mzpush_':
+(.text+0x2b3): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzpush.o): In function `mzpush_':
+(.text+0x2c5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzpush.o): In function `mzpush_':
+(.text+0x2d7): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzpush.o): In function `mzpush_':
+(.text+0x2e9): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzpush.o): In function `mzpush_':
+(.text+0x2fb): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzpush.o):(.text+0x30d): more undefined references to `_gfortran_transfer_integer' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzpush.o): In function `mzpush_':
+(.text+0x31b): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzpush.o): In function `mzpush_':
+(.text+0x323): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzpush.o): In function `mzpush_':
+(.text+0xbe2): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzpush.o): In function `mzpush_':
+(.text+0xbf4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzpush.o): In function `mzpush_':
+(.text+0xc06): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzpush.o): In function `mzpush_':
+(.text+0xc18): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzpush.o): In function `mzpush_':
+(.text+0xc2a): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzpush.o): In function `mzpush_':
+(.text+0xc32): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzstor.o): In function `mzstor_':
+(.text+0x26f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzstor.o): In function `mzstor_':
+(.text+0x281): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzstor.o): In function `mzstor_':
+(.text+0x293): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzstor.o): In function `mzstor_':
+(.text+0x2a5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzstor.o): In function `mzstor_':
+(.text+0x2b7): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzstor.o): In function `mzstor_':
+(.text+0x2c9): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzstor.o):(.text+0x2db): more undefined references to `_gfortran_transfer_integer' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzstor.o): In function `mzstor_':
+(.text+0x397): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzstor.o): In function `mzstor_':
+(.text+0x83c): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzstor.o): In function `mzstor_':
+(.text+0x84e): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzstor.o): In function `mzstor_':
+(.text+0x860): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzstor.o): In function `mzstor_':
+(.text+0x868): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzvers.o): In function `mzvers_':
+(.text+0x88): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzvers.o): In function `mzvers_':
+(.text+0x9a): undefined reference to `_gfortran_transfer_real'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzvers.o): In function `mzvers_':
+(.text+0xac): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzvers.o): In function `mzvers_':
+(.text+0xbe): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzvers.o): In function `mzvers_':
+(.text+0xce): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzvers.o): In function `mzvers_':
+(.text+0x11c): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzvers.o): In function `mzvers_':
+(.text+0x12e): undefined reference to `_gfortran_transfer_real'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzvers.o): In function `mzvers_':
+(.text+0x136): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzvers.o): In function `mzvers_':
+(.text+0x186): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzvers.o): In function `mzvers_':
+(.text+0x198): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzvers.o): In function `mzvers_':
+(.text+0x1aa): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzvers.o): In function `mzvers_':
+(.text+0x1b2): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgar1.o): In function `mzgar1_':
+(.text+0x1a3): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgar1.o): In function `mzgar1_':
+(.text+0x1c3): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgar1.o): In function `mzgar1_':
+(.text+0x1e3): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgar1.o): In function `mzgar1_':
+(.text+0x1f5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgar1.o): In function `mzgar1_':
+(.text+0x207): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgar1.o): In function `mzgar1_':
+(.text+0x219): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgar1.o): In function `mzgar1_':
+(.text+0x221): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgar1.o): In function `mzgar1_':
+(.text+0x2ad): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgar1.o): In function `mzgar1_':
+(.text+0x2bf): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgar1.o): In function `mzgar1_':
+(.text+0x2d1): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgar1.o): In function `mzgar1_':
+(.text+0x2d9): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgar1.o): In function `mzgar1_':
+(.text+0x49f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgar1.o): In function `mzgar1_':
+(.text+0x4b1): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgar1.o): In function `mzgar1_':
+(.text+0x4b9): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mztabr.o): In function `mztabr_':
+(.text+0x3c5): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mztabr.o): In function `mztabr_':
+(.text+0x3cd): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzioch.o): In function `mzioch_':
+(.text+0x591): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzioch.o): In function `mzioch_':
+(.text+0x5a3): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzioch.o): In function `mzioch_':
+(.text+0x5b0): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzioch.o): In function `mzioch_':
+(.text+0x5b8): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0xd4): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0xe6): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0xf8): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x10a): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x112): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x1aa): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x1bc): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x1ce): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x1e0): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x1f2): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x1fa): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x29a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x2ac): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x2be): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x2d0): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x2d8): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x334): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x33c): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x38a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x39c): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x3ae): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x3b6): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x495): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x4b5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x4d5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x4dd): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x54a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x56a): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x58a): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x592): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x622): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x62a): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x682): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x68a): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x6ea): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x731): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x741): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x78f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x7ab): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x7c7): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x7e3): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatal.o): In function `zfatal_':
+(.text+0x7ff): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatam.o): In function `zfatam_':
+(.text+0xe3): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatam.o): In function `zfatam_':
+(.text+0xf0): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatam.o): In function `zfatam_':
+(.text+0xf8): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatam.o): In function `zfatam_':
+(.text+0x13f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatam.o): In function `zfatam_':
+(.text+0x14c): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zfatam.o): In function `zfatam_':
+(.text+0x154): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(ztell.o): In function `ztell_':
+(.text+0xc0): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(ztell.o): In function `ztell_':
+(.text+0xd2): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(ztell.o): In function `ztell_':
+(.text+0xe4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(ztell.o): In function `ztell_':
+(.text+0xec): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzcdir.o): In function `rzcdir_':
+(.text+0x703): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzcdir.o): In function `rzcdir_':
+(.text+0x728): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzcdir.o): In function `rzcdir_':
+(.text+0x730): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfdir.o): In function `rzfdir_':
+(.text+0x44): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfdir.o): In function `rzfdir_':
+(.text+0x232): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfdir.o): In function `rzfdir_':
+(.text+0x240): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfdir.o): In function `rzfdir_':
+(.text+0x265): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfdir.o): In function `rzfdir_':
+(.text+0x26d): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rziodo.o): In function `rziodo_':
+(.text+0x109): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rziodo.o): In function `rziodo_':
+(.text+0x148): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rziodo.o): In function `rziodo_':
+(.text+0x150): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rziodo.o): In function `rziodo_':
+(.text+0x3a2): undefined reference to `_gfortran_st_read'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rziodo.o): In function `rziodo_':
+(.text+0x3e9): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rziodo.o): In function `rziodo_':
+(.text+0x3f6): undefined reference to `_gfortran_st_read_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rziodo.o): In function `rziodo_':
+(.text+0x476): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rziodo.o): In function `rziodo_':
+(.text+0x488): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rziodo.o): In function `rziodo_':
+(.text+0x498): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rziodo.o): In function `rziodo_':
+(.text+0x4aa): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rziodo.o): In function `rziodo_':
+(.text+0x4b2): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzpaff.o): In function `rzpaff_':
+(.text+0x97): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzpaff.o): In function `rzpaff_':
+(.text+0x200): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzpaff.o): In function `rzpaff_':
+(.text+0x289): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzpaff.o): In function `rzpaff_':
+(.text+0x4b5): undefined reference to `_gfortran_os_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzpaff.o): In function `rzpaff_':
+(.text+0x4c1): undefined reference to `_gfortran_runtime_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzpath.o): In function `rzpath_':
+(.text+0x31e): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzpath.o): In function `rzpath_':
+(.text+0x36d): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzpath.o): In function `rzpath_':
+(.text+0x492): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzpath.o): In function `rzpath_':
+(.text+0x5c8): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzpath.o): In function `rzpath_':
+(.text+0x5ef): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzpath.o):(.text+0x6b4): more undefined references to `_gfortran_compare_string' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrir.o): In function `rzstrir_':
+(.text+0x182): undefined reference to `_gfortran_st_close'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrir.o): In function `rzstrir_':
+(.text+0x225): undefined reference to `_gfortran_st_open'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrendc.o): In function `master.0.hrendc_':
+(.text+0x70): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hropen.o): In function `hropen_':
+(.text+0x9d): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hropen.o): In function `hropen_':
+(.text+0xe1): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hropen.o): In function `hropen_':
+(.text+0x1ba): undefined reference to `_gfortran_st_close'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hropen.o): In function `hropen_':
+(.text+0x2cd): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrout.o): In function `hrout_':
+(.text+0x2c5): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrout.o): In function `hrout_':
+(.text+0x2fd): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrout.o): In function `hrout_':
+(.text+0x3d7): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrout.o): In function `hrout_':
+(.text+0x891): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrout.o): In function `hrout_':
+(.text+0x8c9): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrout.o):(.text+0x97f): more undefined references to `_gfortran_compare_string' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrzout.o): In function `hrzout_':
+(.text+0xc2): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrzout.o): In function `hrzout_':
+(.text+0xd2): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrzout.o): In function `hrzout_':
+(.text+0xe4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrzout.o): In function `hrzout_':
+(.text+0xf9): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrzout.o): In function `hrzout_':
+(.text+0x111): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrzout.o): In function `hrzout_':
+(.text+0x119): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hcdir.o): In function `hcdir_':
+(.text+0x1c3): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hcdir.o): In function `hcdir_':
+(.text+0x26e): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hcdir.o): In function `hcdir_':
+(.text+0x280): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hcdir.o): In function `hcdir_':
+(.text+0x288): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hcdir.o): In function `hcdir_':
+(.text+0x333): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hcdir.o): In function `hcdir_':
+(.text+0x345): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hcdir.o): In function `hcdir_':
+(.text+0x34d): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hcdir.o): In function `hcdir_':
+(.text+0x5fc): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hcdir.o): In function `hcdir_':
+(.text+0x617): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hcdir.o): In function `hcdir_':
+(.text+0x638): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hcdir.o): In function `hcdir_':
+(.text+0x6c2): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hcdir.o): In function `hcdir_':
+(.text+0x862): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hcdir.o): In function `hcdir_':
+(.text+0x8b2): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hcdir.o): In function `hcdir_':
+(.text+0x970): undefined reference to `_gfortran_os_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hcdir.o): In function `hcdir_':
+(.text+0x97c): undefined reference to `_gfortran_runtime_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hchnam.o): In function `hchnam_':
+(.text+0x42): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hchnam.o): In function `hchnam_':
+(.text+0xfa): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hchnam.o): In function `hchnam_':
+(.text+0x146): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hchnam.o): In function `hchnam_':
+(.text+0x171): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hchnam.o): In function `hchnam_':
+(.text+0x1fb): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hchnam.o): In function `hchnam_':
+(.text+0x2a6): undefined reference to `_gfortran_os_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hmdir.o): In function `hmdir_':
+(.text+0xcf): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hmdir.o): In function `hmdir_':
+(.text+0x1da): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hmdir.o): In function `hmdir_':
+(.text+0x217): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hmdir.o): In function `hmdir_':
+(.text+0x24e): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hmdir.o): In function `hmdir_':
+(.text+0x2a3): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hmdir.o): In function `hmdir_':
+(.text+0x57b): undefined reference to `_gfortran_os_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hpaff.o): In function `hpaff_':
+(.text+0x8a): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hpaff.o): In function `hpaff_':
+(.text+0x1f0): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hpaff.o): In function `hpaff_':
+(.text+0x279): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hpaff.o): In function `hpaff_':
+(.text+0x480): undefined reference to `_gfortran_os_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hpaff.o): In function `hpaff_':
+(.text+0x48c): undefined reference to `_gfortran_runtime_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hpath.o): In function `hpath_':
+(.text+0x2aa): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hpath.o): In function `hpath_':
+(.text+0x2c6): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hpath.o): In function `hpath_':
+(.text+0x2ce): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hpath.o): In function `hpath_':
+(.text+0x34f): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hpath.o): In function `hpath_':
+(.text+0x39e): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hpath.o): In function `hpath_':
+(.text+0x520): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hpath.o): In function `hpath_':
+(.text+0x5e3): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hpath.o): In function `hpath_':
+(.text+0x68c): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hpath.o):(.text+0x75a): more undefined references to `_gfortran_compare_string' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hlogpf.o): In function `hlogpf_':
+(.text+0x19f): undefined reference to `_gfortran_st_read'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hlogpf.o): In function `hlogpf_':
+(.text+0x1b1): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hlogpf.o): In function `hlogpf_':
+(.text+0x1b9): undefined reference to `_gfortran_st_read_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hlogpf.o): In function `hlogpf_':
+(.text+0x266): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hlogpf.o): In function `hlogpf_':
+(.text+0x284): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hlogpf.o): In function `hlogpf_':
+(.text+0x28c): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hitoc.o): In function `hitoc_':
+(.text+0x9c): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hitoc.o): In function `hitoc_':
+(.text+0xac): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hitoc.o): In function `hitoc_':
+(.text+0xb4): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hnbfwr.o): In function `hnbfwr_':
+(.text+0x265): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hnbfwr.o): In function `hnbfwr_':
+(.text+0x2a1): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hnbfwr.o): In function `hnbfwr_':
+(.text+0x3f2): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hntdel.o): In function `hntdel_':
+(.text+0x171): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0x18a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0x19c): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0x1ac): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0x1f6): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0x1fe): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0x892): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0x89a): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0x97e): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0x990): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0x9a2): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0x9b4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0x9c6): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0x9ce): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0xb44): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0xb4c): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0xbc7): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0xbd9): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0xbeb): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzin.o): In function `fzin_':
+(.text+0xbfd): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x352): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x364): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x376): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x388): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x39a): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x3a8): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x3b0): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x554): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x566): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x578): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x580): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x6da): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x6ec): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x6fe): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x706): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0xc3c): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0xc4e): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0xc60): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0xc68): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0xd9e): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0xdb0): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0xdb8): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0xee5): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0xef7): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0xeff): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x1102): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x1114): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x111c): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x1177): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x1189): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x119b): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x11ad): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x11bf): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x11d1): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o):(.text+0x11e3): more undefined references to `_gfortran_transfer_integer' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x11f1): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x11f9): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x1254): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x1266): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x1278): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzout.o): In function `fzout_':
+(.text+0x1280): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zend.o): In function `zend_':
+(.text+0x27): undefined reference to `_gfortran_stop_numeric'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zphase.o): In function `zphase_':
+(.text+0xcf): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zphase.o): In function `zphase_':
+(.text+0xd7): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zphase.o): In function `zphase_':
+(.text+0x11b): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zphase.o): In function `zphase_':
+(.text+0x12d): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zphase.o): In function `zphase_':
+(.text+0x135): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zphase.o): In function `zphase_':
+(.text+0x233): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zphase.o): In function `zphase_':
+(.text+0x245): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zphase.o): In function `zphase_':
+(.text+0x24d): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x75): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x85): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0xd3): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0xf9): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x11d): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x16b): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x191): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x1b5): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x203): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x262): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x272): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x2c0): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x310): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x320): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x36e): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x3b8): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x3c8): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x416): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x45d): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpostm.o): In function `zpostm_':
+(.text+0x465): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zshunt.o): In function `zshunt_':
+(.text+0x16c): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zshunt.o): In function `zshunt_':
+(.text+0x17e): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zshunt.o): In function `zshunt_':
+(.text+0x190): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zshunt.o): In function `zshunt_':
+(.text+0x1a2): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zshunt.o): In function `zshunt_':
+(.text+0x1b4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zshunt.o): In function `zshunt_':
+(.text+0x1c6): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zshunt.o):(.text+0x1d8): more undefined references to `_gfortran_transfer_integer' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zshunt.o): In function `zshunt_':
+(.text+0x1e0): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzclos.o): In function `rzclos_':
+(.text+0x6e): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzclos.o): In function `rzclos_':
+(.text+0x1f0): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzclos.o): In function `rzclos_':
+(.text+0x27d): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzclos.o): In function `rzclos_':
+(.text+0x28f): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzclos.o): In function `rzclos_':
+(.text+0x2a1): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzclos.o): In function `rzclos_':
+(.text+0x2b3): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzclos.o): In function `rzclos_':
+(.text+0x2bb): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzclos.o): In function `rzclos_':
+(.text+0x2e8): undefined reference to `_gfortran_st_close'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzclos.o): In function `rzclos_':
+(.text+0x331): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzclos.o): In function `rzclos_':
+(.text+0x343): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzclos.o): In function `rzclos_':
+(.text+0x355): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzclos.o): In function `rzclos_':
+(.text+0x367): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzclos.o): In function `rzclos_':
+(.text+0x36f): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzend.o): In function `rzend_':
+(.text+0x1ba): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzend.o): In function `rzend_':
+(.text+0x1c7): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzend.o): In function `rzend_':
+(.text+0x1cf): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzend.o): In function `rzend_':
+(.text+0x28a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzend.o): In function `rzend_':
+(.text+0x297): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzend.o): In function `rzend_':
+(.text+0x29f): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfree.o): In function `rzfree_':
+(.text+0x58a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfree.o): In function `rzfree_':
+(.text+0x592): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmdir.o): In function `rzmdir_':
+(.text+0x21a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmdir.o): In function `rzmdir_':
+(.text+0x222): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmdir.o): In function `rzmdir_':
+(.text+0xb2f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmdir.o): In function `rzmdir_':
+(.text+0xb3c): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmdir.o): In function `rzmdir_':
+(.text+0xb44): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmods.o): In function `rzmods_':
+(.text+0x177): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmods.o): In function `rzmods_':
+(.text+0x187): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmods.o): In function `rzmods_':
+(.text+0x194): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmods.o): In function `rzmods_':
+(.text+0x1bf): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmods.o): In function `rzmods_':
+(.text+0x1d1): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmods.o): In function `rzmods_':
+(.text+0x1ef): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmods.o): In function `rzmods_':
+(.text+0x201): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmods.o): In function `rzmods_':
+(.text+0x209): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x8a): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0xac): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0xce): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0xf0): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x112): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o):(.text+0x134): more undefined references to `_gfortran_string_index' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x3b2): undefined reference to `_gfortran_st_open'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x523): undefined reference to `_gfortran_st_close'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x5da): undefined reference to `_gfortran_st_inquire'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x6d6): undefined reference to `_gfortran_st_open'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x73c): undefined reference to `_gfortran_st_read'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x773): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x790): undefined reference to `_gfortran_st_read_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x7d7): undefined reference to `_gfortran_st_close'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0xac3): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0xad5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0xae5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0xaed): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0xb99): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0xbab): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0xbb3): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0xd7f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0xd96): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0xda3): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0xe0e): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0xe1b): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0xff9): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x1006): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x1071): undefined reference to `_gfortran_st_close'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x10d1): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x10de): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x11ab): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x11d0): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x11d8): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x1231): undefined reference to `_gfortran_st_close'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x12a0): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x12b2): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x12ba): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x1341): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x1353): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x135b): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x13ca): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x13dc): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x13e4): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x1433): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x1445): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x1467): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x1479): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x1481): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x14cc): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x14de): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x14e6): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzopen.o): In function `rzopen_':
+(.text+0x155b): undefined reference to `_gfortran_st_close'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x4da): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x4e2): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x64c): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x659): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x6ac): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x6c3): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x6d0): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x723): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x730): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0xbe6): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0xbf8): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0xc0a): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0xc12): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0xca6): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0xcae): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x117f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x1187): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x1699): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x16ab): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x16bd): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x16cf): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x16e1): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x16e9): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x175a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x176c): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzout.o): In function `rzout_':
+(.text+0x1774): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrip.o): In function `rzstrip_':
+(.text+0x93): undefined reference to `_gfortran_st_open'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrip.o): In function `rzstrip_':
+(.text+0xe4): undefined reference to `_gfortran_st_read'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrip.o): In function `rzstrip_':
+(.text+0xfb): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrip.o): In function `rzstrip_':
+(.text+0x108): undefined reference to `_gfortran_st_read_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrip.o): In function `rzstrip_':
+(.text+0x133): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrip.o): In function `rzstrip_':
+(.text+0x175): undefined reference to `_gfortran_st_close'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrip.o): In function `rzstrip_':
+(.text+0x206): undefined reference to `_gfortran_st_read'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrip.o): In function `rzstrip_':
+(.text+0x21b): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrip.o): In function `rzstrip_':
+(.text+0x232): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrip.o): In function `rzstrip_':
+(.text+0x247): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrip.o): In function `rzstrip_':
+(.text+0x25e): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrip.o): In function `rzstrip_':
+(.text+0x26b): undefined reference to `_gfortran_st_read_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrip.o): In function `rzstrip_':
+(.text+0x2f0): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrip.o): In function `rzstrip_':
+(.text+0x41d): undefined reference to `_gfortran_st_read'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrip.o): In function `rzstrip_':
+(.text+0x42f): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzstrip.o): In function `rzstrip_':
+(.text+0x437): undefined reference to `_gfortran_st_read_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrfile.o): In function `hrfile_':
+(.text+0x13f): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrfile.o): In function `hrfile_':
+(.text+0x1a6): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrfile.o): In function `hrfile_':
+(.text+0x1d8): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrfile.o): In function `hrfile_':
+(.text+0x231): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrfile.o): In function `hrfile_':
+(.text+0x3fc): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrfile.o): In function `hrfile_':
+(.text+0x68f): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrfile.o): In function `hrfile_':
+(.text+0x6f0): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrfile.o): In function `hrfile_':
+(.text+0x89f): undefined reference to `_gfortran_os_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(hrfile.o): In function `hrfile_':
+(.text+0x8ab): undefined reference to `_gfortran_runtime_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x7f): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x1c6): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x1d8): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x1ea): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x213): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x225): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x237): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o):(.text+0x249): more undefined references to `_gfortran_transfer_integer' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x3d5): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x4b1): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x4e4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x517): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x51f): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x7d2): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x7e4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x7f6): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x808): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x81a): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x83d): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o):(.text+0x860): more undefined references to `_gfortran_transfer_integer' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x868): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0xafe): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0xb10): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0xb33): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0xb3b): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0xbe3): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0xbf5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0xc07): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0xc0f): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0xdd2): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0xdfb): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0xe03): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x105b): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x106d): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x107f): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x1087): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x1133): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x1153): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x1173): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x1185): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x118d): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x129b): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x12ad): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x12bf): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x12c7): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x137b): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x138d): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x13ad): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x13b5): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x15db): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x15ed): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x15f5): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x179b): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x17ad): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzsnap.o): In function `dzsnap_':
+(.text+0x17b5): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dztext.o): In function `dztext_':
+(.text+0x38): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dztext.o): In function `dztext_':
+(.text+0x11f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dztext.o): In function `dztext_':
+(.text+0x131): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dztext.o): In function `dztext_':
+(.text+0x14f): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dztext.o): In function `dztext_':
+(.text+0x157): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dztext.o): In function `dztext_':
+(.text+0x1b1): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dztext.o): In function `dztext_':
+(.text+0x40d): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dztext.o): In function `dztext_':
+(.text+0x47d): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dztext.o): In function `dztext_':
+(.text+0x48f): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dztext.o): In function `dztext_':
+(.text+0x497): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dztext.o): In function `dztext_':
+(.text+0x511): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dztext.o): In function `dztext_':
+(.text+0x54a): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dztext.o): In function `dztext_':
+(.text+0x565): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dztext.o): In function `dztext_':
+(.text+0x5c0): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dztext.o): In function `dztext_':
+(.text+0x5c8): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dztext.o): In function `dztext_':
+(.text+0x5f3): undefined reference to `_gfortran_os_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpage.o): In function `zpage_':
+(.text+0xeb): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpage.o): In function `zpage_':
+(.text+0x132): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpage.o): In function `zpage_':
+(.text+0x144): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpage.o): In function `zpage_':
+(.text+0x156): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpage.o): In function `zpage_':
+(.text+0x168): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(zpage.o): In function `zpage_':
+(.text+0x170): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x2d8): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x2ea): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x2fc): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x30e): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x316): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x4d5): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x4e7): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x4ef): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x5aa): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x5bc): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x5c4): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x617): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x629): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x63b): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x64d): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x65f): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x671): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x6ae): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x6c9): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x7bf): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x7d1): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x7e3): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x7eb): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x862): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x874): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x87c): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x95c): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x96e): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidia.o): In function `fzidia_':
+(.text+0x976): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x252): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x272): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x284): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x296): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x29e): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x582): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x5a2): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x5b4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x5c6): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x5ce): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x7e2): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x802): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x814): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x826): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x82e): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x88a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x8aa): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x8f2): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x8fa): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0xcda): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0xd30): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0xd7a): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0xd82): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0xec5): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0xee5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0xef7): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0xf09): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0xf11): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x10fc): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x110e): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x1120): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x1130): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x117e): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x11b2): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x11cd): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x1389): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x139b): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x13ab): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x13f9): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x1429): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffn.o): In function `fziffn_':
+(.text+0x1444): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0xef): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x101): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x113): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x11b): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x24a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x25c): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x2b0): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x2b8): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x912): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x924): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x94a): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x95c): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x964): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0xb0a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0xb21): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0xb38): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0xb4f): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0xb66): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0xb73): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0xda9): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0xdbb): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0xdcd): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0xddd): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0xe2b): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0xe5f): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0xe7a): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x145f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x14a9): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x14f3): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x14fb): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x1842): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x1854): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x1864): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x18b2): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x18e2): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziffx.o): In function `fziffx_':
+(.text+0x18fd): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0x4d2): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0x4fe): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0x51a): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0x536): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0x552): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0x56d): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0x7b4): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0x7bc): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0xc6f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0xc81): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0xc9d): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0xca5): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0xcf8): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0xd0a): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0xd26): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0xd46): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0xd66): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzimtb.o): In function `fzimtb_':
+(.text+0xd6e): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0x57a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0x58c): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0x59e): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0x5b0): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0x5c2): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0x5d4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0x5dc): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0x902): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0x914): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0x926): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0x938): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0x940): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0x9aa): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0x9bc): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0x9ce): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0xa15): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0xa1d): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0xbbe): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0xbd0): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0xbd8): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0xc90): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0xca2): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0xcb4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0xcc6): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0xcd8): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzirec.o): In function `fzirec_':
+(.text+0xce0): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzoffn.o): In function `fzoffn_':
+(.text+0x5a7): undefined reference to `_gfortran_st_endfile'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzoffn.o): In function `fzoffn_':
+(.text+0x60f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzoffn.o): In function `fzoffn_':
+(.text+0x621): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzoffn.o): In function `fzoffn_':
+(.text+0x633): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzoffn.o): In function `fzoffn_':
+(.text+0x63b): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon1.o): In function `fzon1_':
+(.text+0x56): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon1.o): In function `fzon1_':
+(.text+0xa0): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon1.o): In function `fzon1_':
+(.text+0xdf): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon1.o): In function `fzon1_':
+(.text+0xe7): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon2.o): In function `fzon2_':
+(.text+0x85): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon2.o): In function `fzon2_':
+(.text+0xd5): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon2.o): In function `fzon2_':
+(.text+0x117): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon2.o): In function `fzon2_':
+(.text+0x156): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon2.o): In function `fzon2_':
+(.text+0x15e): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon3.o): In function `fzon3_':
+(.text+0x96): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon3.o): In function `fzon3_':
+(.text+0xf5): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon3.o): In function `fzon3_':
+(.text+0x143): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon3.o): In function `fzon3_':
+(.text+0x185): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon3.o): In function `fzon3_':
+(.text+0x1cc): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon3.o): In function `fzon3_':
+(.text+0x1d4): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon4.o): In function `fzon4_':
+(.text+0xa3): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon4.o): In function `fzon4_':
+(.text+0x102): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon4.o): In function `fzon4_':
+(.text+0x15e): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon4.o): In function `fzon4_':
+(.text+0x1ba): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon4.o): In function `fzon4_':
+(.text+0x201): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon4.o): In function `fzon4_':
+(.text+0x243): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon4.o): In function `fzon4_':
+(.text+0x24b): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon5.o): In function `fzon5_':
+(.text+0xc0): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon5.o): In function `fzon5_':
+(.text+0x11f): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon5.o): In function `fzon5_':
+(.text+0x17b): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon5.o): In function `fzon5_':
+(.text+0x1d7): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon5.o): In function `fzon5_':
+(.text+0x233): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon5.o): In function `fzon5_':
+(.text+0x280): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon5.o):(.text+0x2c7): more undefined references to `_gfortran_transfer_array' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon5.o): In function `fzon5_':
+(.text+0x2cf): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon6.o): In function `fzon6_':
+(.text+0xda): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon6.o): In function `fzon6_':
+(.text+0x139): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon6.o): In function `fzon6_':
+(.text+0x195): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon6.o): In function `fzon6_':
+(.text+0x1f1): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon6.o): In function `fzon6_':
+(.text+0x252): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon6.o): In function `fzon6_':
+(.text+0x2ae): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon6.o):(.text+0x301): more undefined references to `_gfortran_transfer_array' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzon6.o): In function `fzon6_':
+(.text+0x350): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzitrx.o): In function `fzitrx_':
+(.text+0x17e): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzitrx.o): In function `fzitrx_':
+(.text+0x190): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzitrx.o): In function `fzitrx_':
+(.text+0x1d7): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzitrx.o): In function `fzitrx_':
+(.text+0x1df): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzotrx.o): In function `fzotrx_':
+(.text+0x14c): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzotrx.o): In function `fzotrx_':
+(.text+0x15e): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzotrx.o): In function `fzotrx_':
+(.text+0x1a5): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzotrx.o): In function `fzotrx_':
+(.text+0x1ad): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzend.o): In function `mzend_':
+(.text+0x8f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzend.o): In function `mzend_':
+(.text+0xa1): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzend.o): In function `mzend_':
+(.text+0xa9): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzmaps.o): In function `mzmaps_':
+(.text+0xc2): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzmaps.o): In function `mzmaps_':
+(.text+0xd4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzmaps.o): In function `mzmaps_':
+(.text+0xe6): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzmaps.o): In function `mzmaps_':
+(.text+0xf8): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzmaps.o): In function `mzmaps_':
+(.text+0x10a): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzmaps.o): In function `mzmaps_':
+(.text+0x2c1): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzmaps.o): In function `mzmaps_':
+(.text+0x2d3): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzmaps.o): In function `mzmaps_':
+(.text+0x2e5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzmaps.o): In function `mzmaps_':
+(.text+0x2f7): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzmaps.o): In function `mzmaps_':
+(.text+0x309): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzmaps.o): In function `mzmaps_':
+(.text+0x31b): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzmaps.o):(.text+0x32d): more undefined references to `_gfortran_transfer_integer' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzmaps.o): In function `mzmaps_':
+(.text+0x3b3): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzwork.o): In function `mzwork_':
+(.text+0x25c): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzwork.o): In function `mzwork_':
+(.text+0x26e): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzwork.o): In function `mzwork_':
+(.text+0x280): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzwork.o): In function `mzwork_':
+(.text+0x292): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzwork.o): In function `mzwork_':
+(.text+0x2a4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzwork.o): In function `mzwork_':
+(.text+0x2ac): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgarb.o): In function `mzgarb_':
+(.text+0x19a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgarb.o): In function `mzgarb_':
+(.text+0x1ac): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgarb.o): In function `mzgarb_':
+(.text+0x1be): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgarb.o): In function `mzgarb_':
+(.text+0x1d0): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(mzgarb.o): In function `mzgarb_':
+(.text+0x1d8): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzallo.o): In function `rzallo_':
+(.text+0x1cd): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzallo.o): In function `rzallo_':
+(.text+0x1dd): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzallo.o): In function `rzallo_':
+(.text+0x1ed): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzallo.o): In function `rzallo_':
+(.text+0x1f5): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzallo.o): In function `rzallo_':
+(.text+0x2bb): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzallo.o): In function `rzallo_':
+(.text+0x2cb): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzallo.o): In function `rzallo_':
+(.text+0x2d3): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzdelk.o): In function `rzdelk_':
+(.text+0x83a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzdelk.o): In function `rzdelk_':
+(.text+0x842): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzdelk.o): In function `rzdelk_':
+(.text+0x8f7): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzdelk.o): In function `rzdelk_':
+(.text+0x8ff): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzdelk.o): In function `rzdelk_':
+(.text+0xb06): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzdelk.o): In function `rzdelk_':
+(.text+0xb0e): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfile.o): In function `rzfile_':
+(.text+0x186): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfile.o): In function `rzfile_':
+(.text+0x198): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfile.o): In function `rzfile_':
+(.text+0x1aa): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfile.o): In function `rzfile_':
+(.text+0x1b8): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfile.o): In function `rzfile_':
+(.text+0x1c0): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfile.o): In function `rzfile_':
+(.text+0x72a): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfile.o): In function `rzfile_':
+(.text+0x90c): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfile.o): In function `rzfile_':
+(.text+0x914): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfile.o): In function `rzfile_':
+(.text+0xe58): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfile.o): In function `rzfile_':
+(.text+0xe60): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzfile.o): In function `rzfile_':
+(.text+0xef7): undefined reference to `_gfortran_os_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzllok.o): In function `rzllok_':
+(.text+0x1a8): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzllok.o): In function `rzllok_':
+(.text+0x1b0): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzllok.o): In function `rzllok_':
+(.text+0x4c1): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzllok.o): In function `rzllok_':
+(.text+0x509): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzllok.o): In function `rzllok_':
+(.text+0x51b): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzllok.o): In function `rzllok_':
+(.text+0x52d): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzllok.o): In function `rzllok_':
+(.text+0x53f): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzllok.o): In function `rzllok_':
+(.text+0x547): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzlock.o): In function `rzlock_':
+(.text+0x28f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzlock.o): In function `rzlock_':
+(.text+0x297): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzlock.o): In function `rzlock_':
+(.text+0xc02): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzlock.o): In function `rzlock_':
+(.text+0xc4c): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzlock.o): In function `rzlock_':
+(.text+0xc54): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzlock.o): In function `rzlock_':
+(.text+0xce5): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzlock.o): In function `rzlock_':
+(.text+0xced): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzlock.o): In function `rzlock_':
+(.text+0xd48): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzlock.o): In function `rzlock_':
+(.text+0xd50): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzlock.o): In function `rzlock_':
+(.text+0xe02): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzlock.o): In function `rzlock_':
+(.text+0xe0a): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0x27b): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0x283): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0x2fa): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0x302): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0x392): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0x39a): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0x420): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0x432): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0x444): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0x456): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0x45e): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0x70f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0x734): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0x73c): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0xc5b): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0xc63): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0xe49): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0xe51): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0xea5): undefined reference to `_gfortran_st_inquire'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0x132a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzmake.o): In function `rzmake_':
+(.text+0x1332): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzveri.o): In function `rzveri_':
+(.text+0xcb): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzveri.o): In function `rzveri_':
+(.text+0xf9): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzveri.o): In function `rzveri_':
+(.text+0x127): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzveri.o): In function `rzveri_':
+(.text+0x153): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzveri.o): In function `rzveri_':
+(.text+0x392): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzveri.o): In function `rzveri_':
+(.text+0x3a4): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzveri.o): In function `rzveri_':
+(.text+0x3c3): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzveri.o): In function `rzveri_':
+(.text+0x3cb): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzveri.o): In function `rzveri_':
+(.text+0x5d0): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzveri.o): In function `rzveri_':
+(.text+0x5e7): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzveri.o): In function `rzveri_':
+(.text+0x60d): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzveri.o): In function `rzveri_':
+(.text+0x61a): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzveri.o): In function `rzveri_':
+(.text+0x701): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzveri.o): In function `rzveri_':
+(.text+0x713): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzveri.o): In function `rzveri_':
+(.text+0x71b): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzwrt.o): In function `rzwrt_':
+(.text+0x153): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzwrt.o): In function `rzwrt_':
+(.text+0x15b): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x29a): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x385): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x3a1): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x3c6): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x3ee): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x400): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x412): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x41a): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x4c5): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x6b0): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x6d5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x6fa): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x71e): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x735): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x74c): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o):(.text+0x763): more undefined references to `_gfortran_transfer_integer' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x770): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x8b3): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x8c5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x8d7): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x8df): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x911): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x9e0): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xa05): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xa2a): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xa4e): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xa65): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xa72): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xb4f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xb61): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xb69): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xd65): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xd85): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xda5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xdb9): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xdc1): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xe54): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xe66): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xe6e): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xf38): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xf5d): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xf82): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xfa6): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xfbd): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0xfd4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o):(.text+0xfeb): more undefined references to `_gfortran_transfer_integer' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x1073): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x1085): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x1097): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x109f): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x11a3): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x11c8): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x11ed): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x1211): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x1228): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x123f): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o):(.text+0x1256): more undefined references to `_gfortran_transfer_integer' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzare1.o): In function `dzare1_':
+(.text+0x1263): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x318): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x32a): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x349): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x36c): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x37e): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x386): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x498): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x4aa): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x4bc): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x4ce): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x4f0): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x4f8): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x5d3): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x5e5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x5f7): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x5ff): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x67d): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x75b): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x76b): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x77d): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x78f): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x797): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x84b): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x85d): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x86f): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x877): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkup.o): In function `dzbkup_':
+(.text+0x8b0): undefined reference to `_gfortran_os_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x2f1): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x3f5): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x405): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x417): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x433): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x43b): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x573): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x66b): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x67b): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x68d): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x69f): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x6a7): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x883): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x95d): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x96d): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x97f): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x991): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x999): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkxr.o): In function `dzbkxr_':
+(.text+0x9ff): undefined reference to `_gfortran_os_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x9b): undefined reference to `_gfortran_compare_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xfc): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x3f4): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x406): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x418): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x42a): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x44d): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x455): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x4e8): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x5c2): undefined reference to `_gfortran_concat_string'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x786): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x7ad): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x7ba): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x86b): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x899): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x8a6): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x935): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x95c): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x98a): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x997): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xa2d): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xa54): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xa82): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xa8f): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xb18): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xb38): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xb64): undefined reference to `_gfortran_transfer_real'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xb6c): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xbf8): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xc18): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xc44): undefined reference to `_gfortran_transfer_real'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xc4c): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xcdd): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xd04): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xd35): undefined reference to `_gfortran_transfer_real'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xd42): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xdd5): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xdfc): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xe2d): undefined reference to `_gfortran_transfer_real'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xe3a): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xeb5): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xed7): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xf02): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xf0c): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xfe6): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0xffd): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x100a): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x112c): undefined reference to `_gfortran_os_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzdata.o): In function `dzdata_':
+(.text+0x1138): undefined reference to `_gfortran_runtime_error'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzmap.o): In function `dzmap_':
+(.text+0x47c): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzmap.o): In function `dzmap_':
+(.text+0x48e): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzmap.o): In function `dzmap_':
+(.text+0x496): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzmap.o): In function `dzmap_':
+(.text+0x516): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzmap.o): In function `dzmap_':
+(.text+0x528): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzmap.o): In function `dzmap_':
+(.text+0x530): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzmap.o): In function `dzmap_':
+(.text+0x669): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzmap.o): In function `dzmap_':
+(.text+0x67b): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzmap.o): In function `dzmap_':
+(.text+0x6a0): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzmap.o): In function `dzmap_':
+(.text+0x6be): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzmap.o): In function `dzmap_':
+(.text+0x6c6): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzopt.o): In function `dzopt_':
+(.text+0x5e): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzshpr.o): In function `dzshpr_':
+(.text+0x3c3): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzshpr.o): In function `dzshpr_':
+(.text+0x3d5): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzshpr.o): In function `dzshpr_':
+(.text+0x3e5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzshpr.o): In function `dzshpr_':
+(.text+0x3ed): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzshpr.o): In function `dzshpr_':
+(.text+0x5c4): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzshpr.o): In function `dzshpr_':
+(.text+0x645): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzshpr.o): In function `dzshpr_':
+(.text+0x657): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzshpr.o): In function `dzshpr_':
+(.text+0x6a9): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzipha.o): In function `fzipha_':
+(.text+0x32f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzipha.o): In function `fzipha_':
+(.text+0x341): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzipha.o): In function `fzipha_':
+(.text+0x353): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzipha.o): In function `fzipha_':
+(.text+0x365): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzipha.o): In function `fzipha_':
+(.text+0x377): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzipha.o): In function `fzipha_':
+(.text+0x37f): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphd.o): In function `fziphd_':
+(.text+0x1e2): undefined reference to `_gfortran_st_read'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphd.o): In function `fziphd_':
+(.text+0x225): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphd.o): In function `fziphd_':
+(.text+0x241): undefined reference to `_gfortran_st_read_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphd.o): In function `fziphd_':
+(.text+0x392): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphd.o): In function `fziphd_':
+(.text+0x3a4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphd.o): In function `fziphd_':
+(.text+0x3b6): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphd.o): In function `fziphd_':
+(.text+0x3c8): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphd.o): In function `fziphd_':
+(.text+0x3da): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphd.o): In function `fziphd_':
+(.text+0x3ec): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphd.o): In function `fziphd_':
+(.text+0x3f4): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphm.o): In function `fziphm_':
+(.text+0x378): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphm.o): In function `fziphm_':
+(.text+0x395): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphm.o): In function `fziphm_':
+(.text+0x3a7): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphm.o): In function `fziphm_':
+(.text+0x3b9): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphm.o): In function `fziphm_':
+(.text+0x3cb): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphm.o): In function `fziphm_':
+(.text+0x3dd): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphm.o): In function `fziphm_':
+(.text+0x3e5): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphr.o): In function `fziphr_':
+(.text+0x398): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphr.o): In function `fziphr_':
+(.text+0x3aa): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphr.o): In function `fziphr_':
+(.text+0x3bc): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphr.o): In function `fziphr_':
+(.text+0x3ce): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphr.o): In function `fziphr_':
+(.text+0x3e0): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphr.o): In function `fziphr_':
+(.text+0x3f2): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziphr.o): In function `fziphr_':
+(.text+0x3fa): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziprl.o): In function `fziprl_':
+(.text+0x110): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziprl.o): In function `fziprl_':
+(.text+0x122): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziprl.o): In function `fziprl_':
+(.text+0x134): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fziprl.o): In function `fziprl_':
+(.text+0x13c): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzophr.o): In function `fzophr_':
+(.text+0x229): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzophr.o): In function `fzophr_':
+(.text+0x249): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzophr.o): In function `fzophr_':
+(.text+0x326): undefined reference to `_gfortran_st_endfile'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzophr.o): In function `fzophr_':
+(.text+0x38b): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzophr.o): In function `fzophr_':
+(.text+0x39d): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzophr.o): In function `fzophr_':
+(.text+0x3af): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzophr.o): In function `fzophr_':
+(.text+0x3b7): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzophr.o): In function `fzophr_':
+(.text+0x3e5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzophr.o): In function `fzophr_':
+(.text+0x4ef): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzophr.o): In function `fzophr_':
+(.text+0x52d): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzophr.o): In function `fzophr_':
+(.text+0x548): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0xbd): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0xcf): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0xeb): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0xf3): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x1d2): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x200): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x22e): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x25c): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x424): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x436): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x448): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x45a): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x462): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x581): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x5a1): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x5e7): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x602): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x97c): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x98e): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x9a0): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x9b2): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x9ba): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0xbd4): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0xbfa): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0xc0c): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0xc39): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0xc41): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0xe13): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0xe25): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0xe37): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0xe49): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0xe51): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x1096): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x10a8): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x10c9): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x10db): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x10ed): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x10f5): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x11cd): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x11e4): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x1205): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x121c): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x1233): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x1240): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x1330): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x1347): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x136b): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x1382): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x1399): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzver1.o): In function `rzver1_':
+(.text+0x13a6): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o): In function `dzbkhd_':
+(.text+0x12b): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o): In function `dzbkhd_':
+(.text+0x13d): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o): In function `dzbkhd_':
+(.text+0x160): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o): In function `dzbkhd_':
+(.text+0x183): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o): In function `dzbkhd_':
+(.text+0x195): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o): In function `dzbkhd_':
+(.text+0x1a7): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o): In function `dzbkhd_':
+(.text+0x1ef): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o): In function `dzbkhd_':
+(.text+0x23a): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o): In function `dzbkhd_':
+(.text+0x282): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o): In function `dzbkhd_':
+(.text+0x294): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o): In function `dzbkhd_':
+(.text+0x2a6): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o):(.text+0x2b8): more undefined references to `_gfortran_transfer_integer' follow
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o): In function `dzbkhd_':
+(.text+0x322): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o): In function `dzbkhd_':
+(.text+0x32a): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o): In function `dzbkhd_':
+(.text+0x4a3): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o): In function `dzbkhd_':
+(.text+0x4c6): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzbkhd.o): In function `dzbkhd_':
+(.text+0x4ce): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopr.o): In function `dziopr_':
+(.text+0x17f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopr.o): In function `dziopr_':
+(.text+0x191): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopr.o): In function `dziopr_':
+(.text+0x1a3): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopr.o): In function `dziopr_':
+(.text+0x1b5): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopr.o): In function `dziopr_':
+(.text+0x1d8): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopr.o): In function `dziopr_':
+(.text+0x1e0): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzichh.o): In function `fzichh_':
+(.text+0x1ac): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzichh.o): In function `fzichh_':
+(.text+0x1be): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzichh.o): In function `fzichh_':
+(.text+0x1e4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzichh.o): In function `fzichh_':
+(.text+0x200): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidum.o): In function `fzidum_':
+(.text+0x8e): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidum.o): In function `fzidum_':
+(.text+0xa0): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidum.o): In function `fzidum_':
+(.text+0xa8): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidum.o): In function `fzidum_':
+(.text+0xc4): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidum.o): In function `fzidum_':
+(.text+0x12a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidum.o): In function `fzidum_':
+(.text+0x13c): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzidum.o): In function `fzidum_':
+(.text+0x170): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzprnk.o): In function `rzprnk_':
+(.text+0x15b): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzprnk.o): In function `rzprnk_':
+(.text+0x16b): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzprnk.o): In function `rzprnk_':
+(.text+0x1b9): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzprnk.o): In function `rzprnk_':
+(.text+0x1e7): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzprnk.o): In function `rzprnk_':
+(.text+0x1f7): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzprnk.o): In function `rzprnk_':
+(.text+0x207): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzprnk.o): In function `rzprnk_':
+(.text+0x219): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzprnk.o): In function `rzprnk_':
+(.text+0x22b): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzprnk.o): In function `rzprnk_':
+(.text+0x233): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzprnk.o): In function `rzprnk_':
+(.text+0x3c8): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzprnk.o): In function `rzprnk_':
+(.text+0x3f7): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzprnk.o): In function `rzprnk_':
+(.text+0x3ff): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzprnk.o): In function `rzprnk_':
+(.text+0x60f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzprnk.o): In function `rzprnk_':
+(.text+0x635): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(rzprnk.o): In function `rzprnk_':
+(.text+0x63d): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x3b0): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x3ce): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x3e0): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x3e8): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x694): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x6a6): undefined reference to `_gfortran_transfer_real'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x6ae): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x73e): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x75c): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x76e): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x776): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x821): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x844): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x85b): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x868): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x911): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x934): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x94b): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x958): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0x9f9): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xa1c): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xa33): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xa40): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xae1): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xb04): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xb1b): undefined reference to `_gfortran_transfer_real'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xb28): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xce5): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xcf7): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xd1e): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xd30): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xd38): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xe51): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xe68): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xe95): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xeac): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dziopd.o): In function `dziopd_':
+(.text+0xeb9): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x234): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x244): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x24c): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x381): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x3a1): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x3a9): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x49e): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x4b0): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x4b8): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x5c9): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x5e0): undefined reference to `_gfortran_transfer_real'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x5ed): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x66e): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x685): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x692): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x725): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x73c): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x749): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x7dd): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x7f4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x801): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x88d): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x8a4): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x8b1): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x9dd): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0x9f4): undefined reference to `_gfortran_transfer_real'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0xa01): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0xb1a): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0xc58): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0xc80): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0xc92): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0xc9a): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0xd79): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0xd99): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(dzioph.o): In function `dzioph_':
+(.text+0xda1): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzialn.o): In function `fzialn_':
+(.text+0xc8): undefined reference to `_gfortran_st_read'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzialn.o): In function `fzialn_':
+(.text+0xda): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzialn.o): In function `fzialn_':
+(.text+0xe2): undefined reference to `_gfortran_st_read_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzialn.o): In function `fzialn_':
+(.text+0x1fa): undefined reference to `_gfortran_st_read'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzialn.o): In function `fzialn_':
+(.text+0x20c): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzialn.o): In function `fzialn_':
+(.text+0x214): undefined reference to `_gfortran_st_read_done'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzoaln.o): In function `fzoaln_':
+(.text+0x11f): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzoaln.o): In function `fzoaln_':
+(.text+0x131): undefined reference to `_gfortran_transfer_character'
+/usr/lib64/cernlib/2006/lib/libpacklib.a(fzoaln.o): In function `fzoaln_':
+(.text+0x139): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(cfopen.o): In function `cfopen_':
+(.text+0x4f): undefined reference to `_gfortran_string_len_trim'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(cfopen.o): In function `cfopen_':
+(.text+0xb2): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(cfopen.o): In function `cfopen_':
+(.text+0xdc): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(cfopen.o): In function `cfopen_':
+(.text+0x142): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(cfopen.o): In function `cfopen_':
+(.text+0x16c): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(cfopen.o): In function `cfopen_':
+(.text+0x196): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(cfstat.o): In function `cfstat_':
+(.text+0x22): undefined reference to `_gfortran_string_len_trim'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(traceq.o): In function `traceq_':
+(.text+0x64): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(traceq.o): In function `traceq_':
+(.text+0x6c): undefined reference to `_gfortran_st_write_done'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(uoptc.o): In function `uoptc_':
+(.text+0x70): undefined reference to `_gfortran_string_index'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(xinbf.o): In function `xinbf_':
+(.text+0x72): undefined reference to `_gfortran_st_read'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(xinbf.o): In function `xinbf_':
+(.text+0xb1): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(xinbf.o): In function `xinbf_':
+(.text+0xb9): undefined reference to `_gfortran_st_read_done'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(xinbs.o): In function `xinbs_':
+(.text+0x69): undefined reference to `_gfortran_st_read'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(xinbs.o): In function `xinbs_':
+(.text+0x7b): undefined reference to `_gfortran_transfer_integer'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(xinbs.o): In function `xinbs_':
+(.text+0xba): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(xinbs.o): In function `xinbs_':
+(.text+0xf8): undefined reference to `_gfortran_transfer_real'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(xinbs.o): In function `xinbs_':
+(.text+0x114): undefined reference to `_gfortran_st_read_done'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(gshowf.o): In function `gshowf_':
+(.text+0x6d): undefined reference to `_gfortran_st_write'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(gshowf.o): In function `gshowf_':
+(.text+0xb4): undefined reference to `_gfortran_transfer_array'
+/usr/lib64/cernlib/2006/lib/libkernlib.a(gshowf.o): In function `gshowf_':
+(.text+0xbc): undefined reference to `_gfortran_st_write_done'
+collect2: ld returned 1 exit status
+make[1]: *** [trace_paw] Error 1
+make: *** [paw] Error 2

@@ -1,0 +1,4 @@
+# ignore any archives creative by make dist
+*.tgz
+# ignore any temporaries
+*~

@@ -1,0 +1,22 @@
+include ../makepixie.inc
+include ../makepaw.inc
+
+vpath %.cpp src
+
+TRACEOBJS  = trace_paw.o
+MCAOBJS    = mca_paw.o
+OBJECTS    = $(TRACEOBJS) $(MCAOBJS)
+
+TARGETS = trace_paw mca_paw
+
+# cernlib defines a lot of functions which are unused
+CXXFLAGS += -Wno-unused-function
+
+.phony: all clean
+all: $(TARGETS)
+
+mca_paw: $(MCAOBJS) $(INTERFACELIB) $(INTERFACE)/Utility.o
+trace_paw: $(TRACEOBJS) $(INTERFACELIB)
+
+clean:
+	@$(RM) $(OBJECTS) $(TARGETS) *~

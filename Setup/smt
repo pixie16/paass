@@ -1,0 +1,10 @@
+mod=$1
+cha=$2
+mct=$3
+echo "MOD=$mod" > smf
+
+echo "CHA=$cha" >> smf
+echo -E 'echo M $MOD C $CHA' >> smf
+chmod a+x smf
+echo "exe tra.kumac $mod $cha" > trc.kumac
+echo "exe mca.kumac $mod $cha $mct" > mc.kumac
