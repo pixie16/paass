@@ -142,7 +142,7 @@ int main(int argc, char **argv)
   double startTime;
   double spillTime, lastSpillTime, durSpill;
   double parseTime, waitTime, readTime, sendTime, pollTime;
-  double statsTime;
+  double lastStatsTime, statsTime = 0;
 
   bool runDone[nCards];
   bool isExiting = false;
@@ -221,7 +221,7 @@ int main(int argc, char **argv)
 	  }
 	  if (zeroClocks)
 	    SynchMods(pif);
-	  statsTime = lastSpillTime = startTime = usGetTime(0);
+	  lastStatsTime = lastSpillTime = startTime = usGetTime(0);
 	  
 	  if ( pif.StartListModeRun(listMode, NEW_RUN) ) {
 	    isStopped = false;
@@ -257,6 +257,38 @@ int main(int argc, char **argv)
 
     parseTime = waitTime = readTime = 0.;
 
+    // check if it's time to dump statistics
+    if ( statsInterval != -1 && 
+	 usGetTime(startTime) > lastStatsTime + statsInterval * 1e6 ) {
+      usGetDTime(); // start timer
+      for (size_t mod = 0; mod < nCards; mod++) {
+	pif.GetStatistics(mod);
+	PixieInterface::stats_t &stats = pif.GetStatisticsData();
+	fifoData[dataWords++] = PixieInterface::STAT_SIZE + 3;
+	fifoData[dataWords++] = mod;
+	fifoData[dataWords++] = 
+	  ( (PixieInterface::STAT_SIZE + 1) << 17 ) & // event size
+	  ( 1 << 12 ) & // header length
+	  ( pif.GetSlotNumber(mod) << 4); // slot number
+	memcpy(&fifoData[dataWords], &stats, sizeof(stats));
+	dataWords += PixieInterface::STAT_SIZE;
+
+	if (quiet)
+	  cout << endl;
+
+	cout << "STATS " << mod << " : ICR ";
+	for (size_t ch = 0; ch < pif.GetNumberChannels(); ch++) {
+	  cout.precision(2);
+	  cout << " " << pif.GetInputCountRate(mod, ch);
+	}
+	cout << endl << flush;
+      
+      }
+      SendData(fifoData, dataWords);
+      dataWords = 0;
+      statsTime += usGetDTime();
+      lastStatsTime = usGetTime(startTime);
+    }
     // check whether we have any data
     usGetDTime(); // start timer
     for (unsigned int timeout = 0; timeout < (justEnded ? 1 : pollTries);
@@ -282,9 +314,10 @@ int main(int argc, char **argv)
     if ( *maxWords > threshWords || justEnded ) {
       // if not timed out, we have data to read	
       // read the data, starting with the module with the most words      
-      int mod = maxmod;
-      
+      int mod = maxmod;      
       mod = maxmod = 0; //! tmp, read out in a fixed order
+
+      usleep(readPause);
       do {
 	bool fullFIFO = (nWords[mod] == EXTERNAL_FIFO_LENGTH);
 
@@ -294,7 +327,6 @@ int main(int argc, char **argv)
 	  fifoData[dataWords++] = nWords[mod] + 2;
 	  fifoData[dataWords++] = mod;
 	  
-	  usleep(readPause);
 	  if (!pif.ReadFIFOWords(&fifoData[dataWords], nWords[mod], mod)) {
 	    cout << "Error reading FIFO, bailing out!" << endl;
 
@@ -337,7 +369,6 @@ int main(int argc, char **argv)
 	    if (parseWords > dataWords + nWords[mod]) {
 	      waitCounter++;
 	      // if we have ended the run, we should have all the words
-	      // if (false) { //! tmp
 	      if (justEnded) {
 		cout << ErrorStr("Words missing at end of run.") << endl;
 		return EXIT_FAILURE; // for now
@@ -360,7 +391,7 @@ int main(int argc, char **argv)
 		  
 		  usleep(waitPause);
 		  do {
-		    if (pif.CheckFIFOWords(mod) >= readWords)
+		    if ( pif.CheckFIFOWords(mod) >= max(readWords, 2U) )
 		      break;
 		    usleep(pollPause);
 		  } while (timeout++ < pollTries);
@@ -463,7 +494,11 @@ int main(int argc, char **argv)
 	   << " PARSE " << parseTime << " us," << endl
 	   << "    WAIT  " << waitTime << " us,"
 	   << " READ  " << readTime << " us,"
-	   << " SEND  " << sendTime << " us" << endl << endl;
+	   << " SEND  " << sendTime << " us" << endl;
+      if (statsInterval != -1) {
+	cout << " STATS  " << statsTime << " us" << endl;
+      }
+      cout << endl;
     } else {
       cout.setf(ios::scientific, ios::floatfield);
       cout.precision(1);
@@ -472,6 +507,7 @@ int main(int argc, char **argv)
     }
     // reset the number of words of fifo data
     dataWords = 0;
+    statsTime = 0;
     justEnded = false;
   }
 

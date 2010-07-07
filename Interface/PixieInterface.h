@@ -52,7 +52,7 @@ class PixieInterface
   // # #
   bool GetStatistics(unsigned short mod);
   // # GetStatistics must be called before calling these #
-  stats_t& GetStatisticsData(unsigned short mod) {return statistics;}
+  stats_t& GetStatisticsData(void) {return statistics;}
   double GetInputCountRate(int mod, int chan);
   double GetOutputCountRate(int mod, int chan);
   double GetLiveTime(int mod, int chan);
@@ -82,11 +82,11 @@ class PixieInterface
 		     unsigned short mod, unsigned short ch);
   bool AdjustOffsets(unsigned short mod);
   // accessors
-  unsigned short GetNumberCards(void) {return numberCards;};
+  unsigned short GetNumberCards(void) const {return numberCards;};
   static size_t GetNumberChannels(void) {return NUMBER_OF_CHANNELS;};
   static size_t GetTraceLength(void) {return TRACE_LENGTH;};
 
-  short GetSlotNumber(int mod) {return slotMap[mod];}
+  short GetSlotNumber(int mod) const {return slotMap[mod];}
   enum BootFlags {
     BootComm = 0x01, BootTrigger = 0x02, BootSignal = 0x04,
     BootDSP = 0x08, DownloadParameters = 0x10, ProgramFPGA = 0x20,
