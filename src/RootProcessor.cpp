@@ -34,19 +34,14 @@ bool RootProcessor::Init(DetectorDriver &driver)
     for (vector<EventProcessor *>::const_iterator it = drvProcess.begin();
 	 it != drvProcess.end(); it++) {
 	if ((*it)->AddBranch(tree)) {
-	    vecProcess.push_back(*it);
-	}
-    }
-    // always use when added independent of detectors
-
-    if (!vecProcess.empty()) {
-	initDone = true;
-	cout << "processor " << name << " initialized with "
-	     << vecProcess.size() << " detectors written to tree." << endl;
-	//? add raw event data branches
-    }
-
-    return initDone;
+	    vecProcess.push_back(*it);		
+	    set_union( (*it)->associatedTypes.begin(), 
+		       (*it)->associatedTypes.end(),
+		       associatedTypes.begin(), asssociatedTypes.end(),
+		       inserter(associatedTypes, associatedTypes.begin()) );
+	}	  
+    } 
+    return EventProcessor::Init(driver);
 }
 
 /** Fill the tree for each event, saving to file occasionally */
