@@ -22,13 +22,19 @@ RootProcessor::RootProcessor(const char *fileName, const char *treeName)
     : EventProcessor()
 {
     name = "RootProcessor";
-    tree = new TTree(treeName, treeName);
     file = new TFile(fileName, "recreate"); //! overwrite tree for now
+    tree = new TTree(treeName, treeName);    
 }
 
 /** Add branches to the tree from the event processors in the driver */
 bool RootProcessor::Init(DetectorDriver &driver)
 {
+  if (file == NULL || tree == NULL) {
+    cout << "Failed to create ROOT objects for "
+	 << name << " processor" << endl;
+    return false;
+  }
+
     const vector<EventProcessor *>& drvProcess = driver.GetProcessors();
 
     for (vector<EventProcessor *>::const_iterator it = drvProcess.begin();
@@ -67,14 +73,15 @@ bool RootProcessor::Process(RawEvent &event)
 /** Finish flushing the file to disk, and clean up memory */
 RootProcessor::~RootProcessor()
 {
+  if (tree != NULL) {
     cout << "  saving " << tree->GetEntries() << " tree entries" << endl;
     tree->AutoSave();
+  }
+  if (file != NULL) {
     file->Close();
 
-    delete file;
-    // for some reason, deleting the tree crashes the executable
-    //   hopefully the kernel will get the memory back
-//    delete tree;
+    delete file; // this also frees the tree
+  }
 }
 
 #endif // useroot
