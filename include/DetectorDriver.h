@@ -19,8 +19,6 @@
 
 #include "TraceAnalyzer.h"
 
-//powerful random number generator which is better than rand() and srand()
-#include "MersenneTwister.h"
 #include "param.h"
 
 // forward declarations
@@ -42,22 +40,14 @@ using std::vector;
 */
 class DetectorDriver {    
  private: 
-    static const size_t MAXRAND   = 1000000;
-    
     vector<EventProcessor *> vecProcess; /**< vector of processors to handle each event */
     
-    TraceAnalyzer traceSub; // 
+    TraceAnalyzer traceSub;     /**< object which analyzes traces of channels to extract
+				   energy and time information */
     set<string> knownDetectors; /**< list of valid detectors that can 
 				   be used as detector types */
-    double ranNum[MAXRAND]; /**<array for storage of random numbers */
-    size_t randomCounter;    /**<location in ran_num array*/
-    MTRand mtRand;           /**< Variable for creation of Mersenne Twister
-			       random number */
-
-    void RandomGenerate(void);
-    double GetRandom(void);
  public:    
-    vector<Calibration> cal;                 /**<the calibration vector*/ 
+    vector<Calibration> cal;    /**<the calibration vector*/ 
     
     int ProcessEvent(const string &);
     int ThreshAndCal(ChanEvent *);
@@ -105,6 +95,5 @@ class Calibration {
 
     friend void DetectorDriver::ReadCal(void);
 };
-
 
 #endif // __DETECTORDRIVER_H_

@@ -9,6 +9,7 @@
 #include <fstream>
 #include <iostream>
 
+#include <cmath>
 #include <cstdlib>
 
 #include "damm_plotids.h"

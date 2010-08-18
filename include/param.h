@@ -23,7 +23,7 @@ namespace pixie {
 
 /** buffer and module data are terminated with a "-1" value
  *   also used to indicate when a quantity is out of range or peculiar
- *   this should theoretically be the same as UINT_MAX in <climits>
+ *   this should theoretically be the same as UINT_MAX in climits header
  */
 const pixie::word_t U_DELIMITER = (pixie::word_t)-1;
 

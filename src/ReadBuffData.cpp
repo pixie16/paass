@@ -150,7 +150,7 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
 
 		      currentEvt->chanNum = ch;
                       currentEvt->modNum  = modNum;
-		      currentEvt->energy  = eventEnergy / ChanEvent::pixieEnergyContraction;
+		      currentEvt->energy  = eventEnergy;
 
 		      currentEvt->trigTime    = chanTrigTime;
 		      currentEvt->eventTimeHi = eventTime[0];

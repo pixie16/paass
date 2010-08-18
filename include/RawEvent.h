@@ -99,7 +99,7 @@ class ChanEvent {
     // make the front end responsible for reading the data able to set the channel data directly
     friend int ReadBuffData(unsigned int *, unsigned long *, vector<ChanEvent *> &);
  public:
-    static const double pixieEnergyContraction; // energies from pixie16 are contracted by this number
+    static const double pixieEnergyContraction; ///< energies from pixie16 are contracted by this number
 
 
     void SetEnergy(double a)    {energy = a;}    /**< Set the raw energy in case we want

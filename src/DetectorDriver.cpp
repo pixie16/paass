@@ -34,6 +34,7 @@
 #include <iterator>
 
 #include "DetectorDriver.h"
+#include "RandomPool.h"
 #include "RawEvent.h"
 
 #include "damm_plotids.h"
@@ -55,6 +56,9 @@ using namespace std;
  * driver relies on the respective DetectorSummary addresses remaining constant
  */
 extern RawEvent rawev;
+
+// pool of random numbers declared in RandomPool.cpp
+extern RandomPool randoms;
 
 /*!
   detector driver constructor
@@ -97,10 +101,10 @@ DetectorDriver::~DetectorDriver()
 */
 const set<string>& DetectorDriver::GetKnownDetectors()
 {   
-    const unsigned int detTypes = 9;
+    const unsigned int detTypes = 10;
     const string detectorStrings[detTypes] = {
 	"dssd_front", "dssd_back", "idssd_front", "position", "timeclass",
-	"ge", "si", "scint", "mcp"};
+	"ge", "si", "scint", "mcp", "generic"};
   
     // only call this once
     if (!knownDetectors.empty())
@@ -133,14 +137,11 @@ int DetectorDriver::Init(void)
 	(*it)->Init(*this);	
     }
 
-    srand((unsigned)time(0)); //crg 07092008  
-
     /*
       Read in the calibration parameters from the file cal.txt
     */
     //cout << "read in the calibration parameters" << endl;
     ReadCal();
-    RandomGenerate();
 
     return 0;
 }
@@ -233,17 +234,17 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
         plot(dammIds::misc::D_HAS_TRACE,id);
 	vector<double> values;
 
-        traceSub.Analyze(chan->GetTraceRef(), values, type, subtype);
-	energy = values[0];
+        traceSub.Analyze(chan->GetTraceRef(), type, subtype);
+	energy = traceSub.GetEnergy();
         chan->SetEnergy(energy);
     } else {
-	 // otherwise, use the Pixie on-board calculated energy
-	energy = chan->GetEnergy();
-    }
-    // add a random number to convert an integer value to a 
-    //   uniformly distributed floating point
-    energy += GetRandom();
+      // otherwise, use the Pixie on-board calculated energy
+      // add a random number to convert an integer value to a 
+      //   uniformly distributed floating point
 
+      energy = chan->GetEnergy() + randoms.Get();
+      energy /= ChanEvent::pixieEnergyContraction;
+    }
     /*
       Set the calibrated energy for this channel
     */
@@ -287,28 +288,6 @@ int DetectorDriver::PlotCal(const ChanEvent *chan) const
     return 0;
 }
 
-/*! Generate some random numbers using the Mersenne twister */
-void DetectorDriver::RandomGenerate(void)
-{
-    // since energies are precontracted by a factor $f$
-    //   generate a random number in range [0, 1/f) to have a
-    //   uniform distribution between Pixie energy bins
-
-    for (unsigned int i=0; i < MAXRAND; i++)
-	ranNum[i] = mtRand.rand(1 / ChanEvent::pixieEnergyContraction);
-    randomCounter = 0;
-}
-
-double DetectorDriver::GetRandom(void)
-{
-    double d = ranNum[randomCounter++];
-    
-    if (randomCounter == MAXRAND)
-	randomCounter = 0;
-
-    return d;
-}
-
 /*!
   Read in the calibration for each channel according to the data in cal.txt
 */
@@ -344,16 +323,18 @@ void DetectorDriver::ReadCal()
     unsigned int detLocation;
     string detType, detSubtype;
 
-    ifstream calFile("cal.txt");
+    const string calFilename("cal.txt");
+
+    ifstream calFile(calFilename.c_str());
 
     // make sure there is a generic calibration for each channel in the map
     cal.resize(modChan.size());
 
     if (!calFile) {
-        cout << "Can not open file 'cal.txt'" << endl;
+      cout << "Can not open file " << calFilename << endl;
     } else {
-        cout << "reading in calibrations from cal.txt" << endl;
-        while (calFile) {
+      cout << "reading in calibrations from " << calFilename << endl;
+      while (calFile) {
             /*
               While the end of the calibration file has not been reached,
               increment the number of lines read and if the first input on a
@@ -419,10 +400,11 @@ void DetectorDriver::ReadCal()
 		    //   map which has identical conditions
                     cout << endl;
                     cout << "The detector called '" << detType <<"'"<< endl;
-                    cout << "read in from the file 'cal.txt'" << endl;
+                    cout << "read in from the file " << calFilename << endl;
                     cout << "is unknown to this program!.  This is a" << endl;
-                    cout << "fatal error.  Program execution halted" << endl;
-                    cout << "Please check the 'cal.txt' file for errors" << endl;
+                    cout << "fatal error.  Program execution halted." << endl;
+                    cout << "Please check the " << calFilename 
+			 << " file for errors" << endl;
                     cout << "The currently known detectors include: " << endl;
 		    copy(knownDetectors.begin(), knownDetectors.end(),
 			 ostream_iterator<string>(cout, " "));
@@ -455,29 +437,31 @@ void DetectorDriver::ReadCal()
     */
     //cout << "calibration parameters are: " << cal.size() << endl;
     
-    cout << setw(3) << "mod";
-    cout << setw(5) << "chan";
-    cout << setw(4) << "loc";
-    cout << setw(10) << "type";
-    cout << setw(8) << "subtype";
-    cout << setw(5) << "cals";
-    cout << setw(6) << "order";
-    cout << setw(30) << "cal values:thresh, low - high";
-    cout << endl;
+    cout << setw(4)  << "mod" 
+         << setw(4)  << "ch"
+	 << setw(4)  << "loc"
+	 << setw(10) << "type"
+         << setw(8)  << "subtype"
+	 << setw(5)  << "cals"
+	 << setw(6)  << "order"
+	 << setw(31) << "cal values:thresh, low - high " << endl;
  
     //? calibration print command?
     for(size_t a = 0; a < cal.size(); a++){
-	cout << setw(3) << int(a/16) << setw(5) << (a % 16)
-	   << setw(4) << cal[a].detLocation << setw(10) <<cal[a].detType
-           << setw(8) << cal[a].detSubtype << setw(5) <<cal[a].numCal
-           << setw(6) << cal[a].polyOrder;
-        
+      cout << setw(4)  << int(a/16) 
+	   << setw(4)  << (a % 16)
+	   << setw(4)  << cal[a].detLocation 
+	   << setw(10) << cal[a].detType
+           << setw(8)  << cal[a].detSubtype 
+	   << setw(5)  << cal[a].numCal
+           << setw(6)  << cal[a].polyOrder;      
         for(unsigned int b = 0; b < cal[a].numCal; b++){
-	    cout << setw(6) <<cal[a].thresh[b];
+	    cout << setw(6) << cal[a].thresh[b];
             for(unsigned int c = 0; c < cal[a].polyOrder+1; c++){
-	      cout << setw(7)<< setprecision(6) <<cal[a].val[b*(cal[a].polyOrder+1)+c];
+	      cout << setw(7) << setprecision(5) 
+		   << cal[a].val[b*(cal[a].polyOrder+1)+c];
             }
-            cout << setw(7) << cal[a].thresh[b+1];
+            cout << setw(6) << cal[a].thresh[b+1];
         }
         
         cout << endl;
@@ -542,3 +526,4 @@ extern "C" void detectorend_()
 {
     //cout << "ending, no rootfile " << endl;       
 }
+

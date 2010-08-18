@@ -126,18 +126,16 @@ namespace dammIds {
     } // mtc namespace
     namespace trace {
 // in trace.cpp
-	const int DD_TRACE         = 850;
-	const int DD_FILTER1       = 851;
-	const int DD_FILTER2       = 852;
-	const int DD_FILTER3       = 853;
-	const int DD_AVERAGE_TRACE = 854;
-	const int DD_TRACE_COND            = 870; // dT > 250 ns
-	const int DD_ENERGY2__TDIFF        = 871;
-	const int DD_ENERGY2__ENERGY1      = 872;
-	const int DD_ENERGY2__ENERGY1_COND = 873; // dT > 250 ns
-	const int DD_ENERGY2__TDIFF_COND   = 874; // dT > 250 ns
-	const int D_ENERGY1 = 865;
-	const int D_ENERGY2 = 866;	
+	const int DD_TRACE            = 850;
+	const int DD_FILTER1          = 851;
+	const int DD_FILTER2          = 852;
+	const int DD_FILTER3          = 853;
+	const int DD_AVERAGE_TRACE    = 854;
+	const int D_ENERGY1           = 865;
+	const int D_ENERGY2           = 866;	
+	const int DD_DOUBLE_TRACE     = 870;
+	const int DD_ENERGY2__TDIFF   = 871;
+	const int DD_ENERGY2__ENERGY1 = 872;
     } // trace namespace
     namespace misc {
 // in detector_driver.cpp
