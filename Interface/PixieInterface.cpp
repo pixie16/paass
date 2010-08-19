@@ -4,6 +4,7 @@
 #include <sstream>
 
 #include <cstdlib>
+#include <cstring>
 
 #include <sys/time.h>
 
@@ -173,9 +174,11 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile)
   return b;
 }
 
-bool PixieInterface::WriteSglModPar(char *name, word_t val, int mod)
+bool PixieInterface::WriteSglModPar(const char *name, word_t val, int mod)
 {
-  retval = Pixie16WriteSglModPar(name, val, mod);
+  strncpy(tmpName, name, nameSize);
+
+  retval = Pixie16WriteSglModPar(tmpName, val, mod);
   if (retval < 0) {
     cout << "Error writing module parameter " << WarningStr(name) 
 	 << " for module " << mod << endl;
@@ -184,9 +187,11 @@ bool PixieInterface::WriteSglModPar(char *name, word_t val, int mod)
   return true;
 }
 
-bool PixieInterface::ReadSglModPar(char *name, word_t *val, int mod)
+bool PixieInterface::ReadSglModPar(const char *name, word_t *val, int mod)
 {
-  retval = Pixie16ReadSglModPar(name, val, mod);
+  strncpy(tmpName, name, nameSize);
+
+  retval = Pixie16ReadSglModPar(tmpName, val, mod);
   if (retval < 0) {
     cout << "Error reading module parameter " << WarningStr(name) 
 	 << " for module " << mod << endl;
@@ -195,20 +200,24 @@ bool PixieInterface::ReadSglModPar(char *name, word_t *val, int mod)
   return true;
 }
 
-void PixieInterface::PrintSglModPar(char *name, int mod)
+void PixieInterface::PrintSglModPar(const char *name, int mod)
 {
   word_t val;
 
-  if (ReadSglModPar(name, &val, mod)) {    
+  strncpy(tmpName, name, nameSize);
+
+  if (ReadSglModPar(tmpName, &val, mod)) {    
     cout << "  MOD " << setw(2) << mod 
 	 << "  " << setw(15) << name
 	 << "  " << val << endl;
   }
 }
 
-bool PixieInterface::WriteSglChanPar(char *name, double val, int mod, int chan)
+bool PixieInterface::WriteSglChanPar(const char *name, double val, int mod, int chan)
 {
-  retval = Pixie16WriteSglChanPar(name, val, mod, chan);
+  strncpy(tmpName, name, nameSize);
+
+  retval = Pixie16WriteSglChanPar(tmpName, val, mod, chan);
   if (retval < 0) {
     cout << "Error writing channel parameter " << WarningStr(name) 
 	 << " for module " << mod << ", channel " << chan << endl;
@@ -217,9 +226,11 @@ bool PixieInterface::WriteSglChanPar(char *name, double val, int mod, int chan)
   return true;
 }
 
-bool PixieInterface::ReadSglChanPar(char *name, double *pval, int mod, int chan)
+bool PixieInterface::ReadSglChanPar(const char *name, double *pval, int mod, int chan)
 {
-  retval = Pixie16ReadSglChanPar(name, pval, mod, chan);
+  strncpy(tmpName, name, nameSize);
+
+  retval = Pixie16ReadSglChanPar(tmpName, pval, mod, chan);
   if (retval < 0) {
     cout << "Error reading channel parameter " << WarningStr(name) 
 	 << " for module " << mod << ", channel " << chan << endl;
@@ -228,11 +239,12 @@ bool PixieInterface::ReadSglChanPar(char *name, double *pval, int mod, int chan)
   return true;
 }
 
-void PixieInterface::PrintSglChanPar(char *name, int mod, int chan)
+void PixieInterface::PrintSglChanPar(const char *name, int mod, int chan)
 {
   double val;
+  strncpy(tmpName, name, nameSize);
 
-  if (ReadSglChanPar(name, &val, mod, chan)) {    
+  if (ReadSglChanPar(tmpName, &val, mod, chan)) {    
     cout << "  MOD " << setw(2) << mod 
 	 << "  CHAN " << setw(2) << chan
 	 << "  " << setw(15) << name
@@ -240,14 +252,15 @@ void PixieInterface::PrintSglChanPar(char *name, int mod, int chan)
   }
 }
 
-bool PixieInterface::SaveDSPParameters(char *fn)
+bool PixieInterface::SaveDSPParameters(const char *fn)
 {
   if (fn == NULL)
     fn = &dspWorkingSetFile[0];
+  strncpy(tmpName, fn, nameSize);
 
   LeaderPrint("Writing DSP parameters");
 
-  retval = Pixie16SaveDSPParametersToFile(fn);
+  retval = Pixie16SaveDSPParametersToFile(tmpName);
   return !CheckError();
 }
 
@@ -383,7 +396,7 @@ bool PixieInterface::CheckRunStatus(int mod)
 
 
 // only Rev. D has the external FIFO
-#if PIXIE16_REVISION == PIXIE16_REVD_GENERAL
+#ifdef PIF_REVD
 unsigned long PixieInterface::CheckFIFOWords(unsigned short mod)
 {
   // word_t nWords;
@@ -465,12 +478,13 @@ bool PixieInterface::EndRun(int mod)
 
 bool PixieInterface::RemovePresetRunLength(int mod)
 {
-  static char parName[] = "HOST_RT_PRESET";
+  strncpy(tmpName, "HOST_RT_PRESET", nameSize);
+
   unsigned long bigVal = Decimal2IEEEFloating(99999);
 
   LeaderPrint("Removing preset run length");
   
-  if (!WriteSglModPar(parName, bigVal, mod)) {
+  if (!WriteSglModPar(tmpName, bigVal, mod)) {
     cout << ErrorStr() << endl;
     return false;
   }
@@ -503,7 +517,86 @@ bool PixieInterface::AdjustOffsets(unsigned short mod)
   return !CheckError();
 }
 
+bool PixieInterface::SwapGain(int mod, int chan)
+{
+  return SwapChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_ENARELAY);
+}
+
+bool PixieInterface::SwapGood(int mod, int chan)
+{
+  return SwapChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_GOOD);
+}
+
+bool PixieInterface::SwapPolarity(int mod, int chan)
+{
+  return SwapChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_POLARITY);
+}
+
+#ifdef PIF_REVD
+bool PixieInterface::SwapCatcherBit(int mod, int chan)
+{
+  CatcherMessage();
+  return SwapChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_CATCHER);
+}
+
+bool PixieInterface::SwapPileupBit(int mod, int chan)
+{
+  return SwapChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_PILEUP);
+}
+
+bool PixieInterface::SwapTraceCapture(int mod, int chan)
+{
+  return SwapChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_TRACEENA);
+}
+
+bool PixieInterface::SetProtonCatcherMode(int mod, int chan, CatcherModes mode)
+{
+  double dval;
+
+  CatcherMessage();
+
+  ReadSglChanPar("CHANNEL_CSRA", &dval, mod, chan);
+  unsigned int ival = (int)dval;
+
+  switch (mode) {
+  case PC_STANDARD:
+  case PC_HYBRID:
+    ival = APP32_ClrBit(CCSRA_PILEUP, ival);
+  case PC_REJECT:
+  case PC_ACCEPT:
+    ival = APP32_SetBit(CCSRA_PILEUP, ival);
+  }
+  switch (mode) {
+  case PC_STANDARD:
+  case PC_REJECT:
+    ival = APP32_ClrBit(CCSRA_CATCHER, ival);
+  case PC_HYBRID:
+  case PC_ACCEPT:
+    ival = APP32_SetBit(CCSRA_CATCHER, ival);
+  }
+  dval = ival;
+
+  return WriteSglChanPar("CHANNEL_CSRA", dval, mod, chan);
+}
+
+void PixieInterface::CatcherMessage(void)
+{
+  cout << WarningStr("Altering firmware dependent bit") << endl;
+}
+#endif
+
 // ### PRIVATE FUNCTIONS BELOW ### //
+bool PixieInterface::SwapChannelBit(int mod, int chan, const char *parameter, int bit)
+{
+  double dval;
+
+  ReadSglChanPar(parameter, &dval, mod, chan);
+  unsigned int ival = (int)dval;
+  ival ^= (1 << bit);
+  dval = ival;
+
+  return WriteSglChanPar(parameter, dval, mod, chan);
+}
 
 string PixieInterface::ConfigFileName(const string &str) 
 {
