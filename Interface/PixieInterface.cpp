@@ -168,10 +168,34 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile)
 			     &dspVarFile[0],
 			     numberCards, mode);
 
-  bool b = !CheckError(true);
+  bool goodBoot = !CheckError(true);
 
   cout << "  Used set file: " << InfoStr(setFile) << endl;
-  return b;
+
+  LeaderPrint("Checking SlotIDs");
+
+  bool hadError = false;
+  bool updated = false;
+
+  word_t val;
+
+  for (int i=0; i < numberCards; i++) {
+    if (!ReadSglModPar("SlotID", &val, i))
+      hadError = true;
+    if (val != slotMap[i]) {
+      updated = true;
+      if (!WriteSglModPar("SlotID", slotMap[i], i))
+	hadError = true;
+    }
+  }
+  if (hadError) 
+    cout << ErrorStr() << endl;
+  else if (updated)
+    cout << WarningStr("[UPDATED]") << endl;
+  else
+    cout << OkayStr() << endl;
+
+  return goodBoot && !hadError;
 }
 
 bool PixieInterface::WriteSglModPar(const char *name, word_t val, int mod)
