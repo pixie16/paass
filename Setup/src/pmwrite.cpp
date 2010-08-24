@@ -5,29 +5,35 @@
 /********************************************************************/
 
 #include <iostream>
+#include <map>
+#include <string>
 
 #include <cstdlib>
 
+#include "utilities.h"
 #include "PixieInterface.h"
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::pair;
+using std::string;
+
+class ParameterWriter : public PixieFunction< pair<string, unsigned long> >
+{
+  bool operator()(PixieFunctionParms< pair<string, unsigned long> > &par);
+};
 
 int main(int argc, char *argv[])
 {
-  unsigned int modNum;
-  unsigned long wpar;
-  char *name;
-  bool hadError = false;
-
   if (argc != 4) {
     cout << "usage: " << argv[0] << "<module> <parameter name> <value>" << endl;
     return EXIT_FAILURE;
   }
   PixieInterface pif("pixie.cfg");
 
-  modNum = atoi(argv[1]);
-  name = argv[2];
-  wpar = atol(argv[3]);
+  int    mod = atoi(argv[1]);
+  string parName(argv[2]);
+  unsigned long val = atol(argv[3]);
 
   pif.GetSlots();
   pif.Init();
@@ -35,26 +41,19 @@ int main(int argc, char *argv[])
 	   PixieInterface::ProgramFPGA |
 	   PixieInterface::SetDAC, true);
 
-  if (modNum < 0) {
-    // write to all modules
-    for (modNum = 0; modNum < pif.GetNumberCards(); modNum++) {
-      if (pif.WriteSglModPar(name, wpar, modNum))
-	pif.PrintSglModPar(name, modNum);
-      else
-	hadError = true;
-    }
-  } else if ( modNum < pif.GetNumberCards() ) {
-    if (pif.WriteSglModPar(name, wpar, modNum)) 
-      pif.PrintSglModPar(name, modNum);
-    else 
-      hadError = true;
-  } else {
-    cout << "Module number out of range." << endl;
-    hadError = true;
-  }
-
-  if (!hadError) 
-    pif.SaveDSPParameters();
+  ParameterWriter writer;
+  if ( forModule(pif, mod, writer, make_pair(parName, val) ) )
+      pif.SaveDSPParameters();
 
   return EXIT_SUCCESS;
+}
+
+bool ParameterWriter::operator()(PixieFunctionParms< pair<string, unsigned long> > &par)
+{
+  if (par.pif.WriteSglModPar(par.par.first.c_str(), par.par.second, par.mod)) {
+    par.pif.PrintSglModPar(par.par.first.c_str(), par.mod);
+    return true;
+  } else {
+    return false;
+  }
 }

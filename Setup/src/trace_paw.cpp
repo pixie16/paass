@@ -8,6 +8,7 @@
 #include <cstdlib>
 
 // pixie includes
+#include "utilities.h"
 #include "PixieInterface.h"
 
 // cernlib includes
@@ -32,19 +33,13 @@ extern "C" {
 }
 #endif
 
+class TraceGrabber : public PixieFunction<>
+{
+  bool operator()(PixieFunctionParms<> &par);
+};
+  
 int main(int argc, char *argv[])
 {
-  const size_t TRACE_LENGTH = 8000;
-  int ModNum;
-  unsigned int ChanNum;
-  
-  unsigned short Trace[TRACE_LENGTH];
-  
-  unsigned long trace_aver;
-  unsigned long trace_sig;
-  float xmin=0,xmax=TRACE_LENGTH;
-  unsigned int nhis;
-  
   HLIMIT(PAWC_SIZE);
 
   if (argc !=  3) {
@@ -52,8 +47,8 @@ int main(int argc, char *argv[])
     exit(EXIT_FAILURE);
   }
    
-  ModNum = atoi(argv[1]);
-  ChanNum = atoi(argv[2]);
+  int mod = atoi(argv[1]);
+  int ch  = atoi(argv[2]);
   
   PixieInterface pif("pixie.cfg");
   pif.GetSlots();
@@ -64,66 +59,52 @@ int main(int argc, char *argv[])
 	   PixieInterface::ProgramFPGA |
 	   PixieInterface::SetDAC, true);
   
-  char traceName[] = "test trace";
+
+  TraceGrabber grabber;
+  forChannel(pif, mod, ch, grabber);
+
   char traceFile[] = "trace.dat";
-
-  if (ModNum<0) {
-    for(ModNum = 0; ModNum < pif.GetNumberCards(); ModNum ++) {
-      if (!pif.AcquireTraces(ModNum))
-	continue;
-      for(ChanNum = 0; ChanNum < pif.GetNumberChannels(); ChanNum ++) {
-	 nhis=100*(ModNum+1)+ChanNum;
-	 HBOOK1(nhis,traceName,TRACE_LENGTH,xmin,xmax,0);
-	 if (!pif.ReadSglChanTrace(Trace, TRACE_LENGTH, ModNum, ChanNum))
-	   continue;
-
-	 trace_aver=0;
-	 trace_sig=0;
-	 for(size_t chan = 0; chan < TRACE_LENGTH; chan++) {
-	   trace_aver += Trace[chan];
-	   HF1(nhis,chan,Trace[chan]);
-	 }
-	 trace_aver /= TRACE_LENGTH;
-
-	 for(size_t chan = 0; chan < TRACE_LENGTH ; chan++) {
-	   trace_sig += (trace_aver-Trace[chan])*(trace_aver-Trace[chan]);
-	 }
-
-	 trace_sig=(long)sqrt(trace_sig / TRACE_LENGTH);
-
-	 printf("Trace ---- MOD/CHAN %u/%u AVER |-  %lu  -| SIG %lu \n",ModNum,ChanNum,trace_aver,trace_sig);
-         
-       } // loop over chans      
-     } // loop over mods
-   } else {
-     nhis=100*(ModNum+1)+ChanNum;
-     HBOOK1(nhis,traceName,TRACE_LENGTH,xmin,xmax,0);
-     usleep(200);
-     if (pif.AcquireTraces(ModNum)) {
-       if (pif.ReadSglChanTrace(Trace, TRACE_LENGTH, ModNum, ChanNum)) {
-	 usleep(200);
-	
-	 trace_aver=0;
-	 trace_sig=0;
-	 for(size_t chan = 0; chan < TRACE_LENGTH ; chan++) {
-	   trace_aver += Trace[chan];
-	   HF1(nhis,chan,Trace[chan]);
-	 }
-	 trace_aver /= TRACE_LENGTH;
-	 
-	 for(size_t chan = 0; chan < TRACE_LENGTH ; chan++) {
-	   trace_sig += (trace_aver-Trace[chan])*(trace_aver-Trace[chan]);
-	 }     
-	 trace_sig = (long)sqrt(trace_sig /TRACE_LENGTH);
-
-	 printf("Trace ---- MOD/CHAN %u/%u AVER |-  %lu  -| SIG %lu \n",ModNum,ChanNum,trace_aver,trace_sig);
-       }
-     }
-  } // if ModNum > 0
-  
   char fileOptions[] = "N";
 
   HRPUT (0, traceFile, fileOptions);
   
   return EXIT_SUCCESS;
 }
+
+bool TraceGrabber::operator()(PixieFunctionParms<> &par)
+{
+  char traceName[] = "test trace";
+  static unsigned int modRead = par.pif.GetNumberCards();
+
+  const size_t size = PixieInterface::GetTraceLength();
+  unsigned short trace[size];
+   
+  if (modRead != par.mod) {
+    par.pif.AcquireTraces(par.mod);
+    modRead = par.mod;
+  }
+  
+  unsigned int nhis = 100 * (par.mod + 1) + par.ch;
+
+  usleep(10);
+  if (par.pif.ReadSglChanTrace(trace, size, par.mod, par.ch)) {
+    HBOOK1(nhis,traceName,size,0,size,0);
+
+    unsigned long sum = 0;
+    unsigned long sumsq = 0;    
+    
+    for (size_t i=0; i < size; i++) {
+      sum += trace[i];
+      sumsq += trace[i] * trace[i];
+
+      HF1(nhis, i, trace[i]);
+    }
+    printf("Trace ---- MOD/CHAN %2u / %2u AVER |-  %4.1f -| SIG %2.1f \n",
+	   par.mod, par.ch, 
+	   (float)sum / size,
+	   (float)sqrt(size * sumsq - sum * sum) / size);
+
+    return true;
+  } else return false;
+}
+

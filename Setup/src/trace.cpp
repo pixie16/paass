@@ -10,19 +10,20 @@
 #include <cmath>
 
 // pixie includes
+#include "utilities.h"
 #include "PixieInterface.h"
 
 using std::cout;
 using std::endl;
 
+class TraceGrabber : public PixieFunction<>
+{
+  bool operator()(PixieFunctionParms<> &par);
+};
+
 int main(int argc, char **argv)
 {
-  unsigned int ModNum = -1, ChanNum = -1;
-  const size_t size = PixieInterface::GetTraceLength();
-
-  unsigned short Trace[size];
-  unsigned long trace_aver;
-  unsigned long trace_sig;
+  int mod = -1, ch = -1;
 
   PixieInterface pif("pixie.cfg");
 
@@ -30,71 +31,50 @@ int main(int argc, char **argv)
   pif.Init();
 
   if (argc > 1) {
-    ModNum = atoi(argv[1]);
+    mod = atoi(argv[1]);
     if (argc > 2) {
-      ChanNum = atoi(argv[2]);
+      ch = atoi(argv[2]);
     }
   }
   
   usleep(200);
-  /*
+
   pif.Boot(PixieInterface::DownloadParameters |
 	   PixieInterface::ProgramFPGA |
 	   PixieInterface::SetDAC, true);
-  */
-  pif.Boot(0x7f,true);
 
-  if (ModNum < pif.GetNumberCards()) {
-    pif.AcquireTraces(ModNum);
-    for (ChanNum = 4; ChanNum < 5; ChanNum++) {
-    //    for (ChanNum = 0; ChanNum < pif.GetNumberChannels(); ChanNum++) {
-      usleep(10);
-
-      if (!pif.ReadSglChanTrace(Trace, size, ModNum, ChanNum))
-	continue;
-
-      trace_aver = 0;
-      trace_sig = 0;
-      for (size_t chan = 0; chan < size; chan++) {
-	trace_aver += Trace[chan];
-	if (ChanNum == 4)
-	  cout << chan << " " << Trace[chan] << endl;
-
-      }
-      trace_aver /= size;
-
-      for (size_t chan = 0; chan < size; chan++) {
-	trace_sig += (Trace[chan] - trace_aver) * (Trace[chan] - trace_aver);
-      }
-      trace_sig = sqrt(trace_sig / size);
-
-      printf("Trace ---- MOD/CHAN %2u / %2u AVER |-  %4lu  -| SIG %2lu \n",ModNum,ChanNum,trace_aver,trace_sig);
-    }
-  } else {
-    for(ModNum = 0; ModNum < pif.GetNumberCards(); ModNum ++) {
-      pif.AcquireTraces(ModNum);
-      for(ChanNum = 0; ChanNum < pif.GetNumberChannels(); ChanNum ++) {
-	usleep(10);
-	if (!pif.ReadSglChanTrace(Trace, size ,ModNum, ChanNum))
-	  continue;
-	
-	trace_aver=0;
-	trace_sig=0;
-	for(size_t chan = 0; chan < size; chan ++) {
-	  trace_aver += Trace[chan];
-	}
-	trace_aver=trace_aver/size;
-	
-	
-	for(size_t chan = 0; chan < size; chan ++) {
-	  trace_sig += (trace_aver-Trace[chan])*(trace_aver-Trace[chan]);
-	}
-	trace_sig =(long)sqrt(trace_sig / size);
-
-	printf("Trace ---- MOD/CHAN %2u / %2u AVER |-  %4lu  -| SIG %2lu \n",ModNum,ChanNum,trace_aver,trace_sig);
-      }
-    }
-  }
+  TraceGrabber grabber;
+  forChannel(pif, mod, ch, grabber);
 
   return EXIT_SUCCESS;
+}
+
+bool TraceGrabber::operator()(PixieFunctionParms<> &par)
+{
+  static unsigned int modRead = par.pif.GetNumberCards();
+
+  const size_t size = PixieInterface::GetTraceLength();
+  unsigned short trace[size];
+   
+  if (modRead != par.mod) {
+    par.pif.AcquireTraces(par.mod);
+    modRead = par.mod;
+  }
+  
+  usleep(10);
+  if (par.pif.ReadSglChanTrace(trace, size, par.mod, par.ch)) {
+    unsigned long sum = 0;
+    unsigned long sumsq = 0;    
+    
+    for (size_t i=0; i < size; i++) {
+      sum += trace[i];
+      sumsq += trace[i] * trace[i];
+    }
+    printf("Trace ---- MOD/CHAN %2u / %2u AVER |-  %4.1f -| SIG %2.1f \n",
+	   par.mod, par.ch, 
+	   (float)sum / size,
+	   (float)sqrt(size * sumsq - sum * sum) / size);
+
+    return true;
+  } else return false;
 }

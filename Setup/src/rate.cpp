@@ -4,23 +4,28 @@
 /*			       					    */
 /********************************************************************/
 
+#include <iostream>
+
 #include <cstdio>
 #include <cstdlib>
 
+#include "utilities.h"
 #include "PixieInterface.h"
+
+class StatsReader : public PixieFunction<>
+{
+  bool operator()(PixieFunctionParms<> &par);
+};
 
 int main(int argc, char *argv[])
 {
-  int modNum, chanNum;
-  double inputRate, outputRate, liveTime, procEvents, realTime;
-
   if (argc != 3) {
     printf("usage: %s <module> <channel>\n", argv[0]);
     exit(EXIT_FAILURE);
   }
 
-  modNum  = atoi(argv[1]);
-  chanNum = atoi(argv[2]);
+  int mod = atoi(argv[1]);
+  int ch  = atoi(argv[2]);
 
   PixieInterface pif("pixie.cfg");
   pif.GetSlots();
@@ -29,48 +34,29 @@ int main(int argc, char *argv[])
 
   printf(" %2s %2s  %10s  %10s  %10s  %10s  %10s\n",
 	 "M", "C", "Input",  "Output", "Live_t", "Proc_ev", "RealTime");
-
-  if (modNum < 0) {
-    for (modNum = 0; modNum < pif.GetNumberCards(); modNum++) {
-      if (pif.GetStatistics(modNum)) {
-	for (unsigned int chanNum = 0; chanNum < pif.GetNumberChannels(); chanNum++) {
-	  inputRate  = pif.GetInputCountRate(modNum, chanNum);
-	  outputRate = pif.GetOutputCountRate(modNum, chanNum);
-	  liveTime   = pif.GetLiveTime(modNum, chanNum);
-	  realTime   = pif.GetRealTime(modNum);
-	  procEvents = pif.GetProcessedEvents(modNum);
-
-	  printf(" %2u %2u  %10.1f  %10.1f  %10.1f  %10.0f  %10.1f \n", modNum,
-		 chanNum, inputRate, outputRate, liveTime, procEvents,
-		 realTime);
-	} // for each channel
-      }	
-    } // for each module
-  } else if (modNum >= 0 && pif.GetStatistics(modNum)) {    
-    if (chanNum >= 0) {
-      inputRate  = pif.GetInputCountRate(modNum, chanNum);
-      outputRate = pif.GetOutputCountRate(modNum, chanNum);
-      liveTime   = pif.GetLiveTime(modNum, chanNum);
-      realTime   = pif.GetRealTime(modNum);
-      procEvents = pif.GetProcessedEvents(modNum);
-      
-      printf(" %2u %2u  %10.1f  %10.1f  %10.1f  %10.0f  %10.1f \n", modNum,
-	     chanNum, inputRate, outputRate, liveTime, procEvents,
-	     realTime);
-    } else if (chanNum < 0) {
-      for (unsigned int chanNum = 0; chanNum < pif.GetNumberChannels(); chanNum++) {
-	  inputRate  = pif.GetInputCountRate(modNum, chanNum);
-	  outputRate = pif.GetOutputCountRate(modNum, chanNum);
-	  liveTime   = pif.GetLiveTime(modNum, chanNum);
-	  realTime   = pif.GetRealTime(modNum);
-	  procEvents = pif.GetProcessedEvents(modNum);
-
-	  printf(" %2u %2u  %10.1f  %10.1f  %10.1f  %10.0f  %10.1f \n", modNum,
-		 chanNum, inputRate, outputRate, liveTime, procEvents,
-		 realTime);
-      } // for each channel     
-    } // if arg2 < 0
-  } // if arg1 >= 0
+  
+  StatsReader reader;
+  forChannel(pif, mod, ch, reader);
 
   return EXIT_SUCCESS;
+}
+
+bool StatsReader::operator()(PixieFunctionParms<> &par)
+{
+  static unsigned int modDataRead = par.pif.GetNumberCards();
+
+  if (modDataRead != par.mod)
+    par.pif.GetStatistics(par.mod);
+
+  printf(" %2u %2u  %10.1f  %10.1f  %10.0f  %10.0f  %10.1f \n",
+	 par.mod, par.ch, 
+	 par.pif.GetInputCountRate(par.mod, par.ch),
+	 par.pif.GetOutputCountRate(par.mod, par.ch),
+	 par.pif.GetLiveTime(par.mod, par.ch),
+	 par.pif.GetProcessedEvents(par.mod),
+	 par.pif.GetRealTime(par.mod) );
+
+  modDataRead = par.mod;
+
+  return true;
 }

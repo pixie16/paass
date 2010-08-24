@@ -1,12 +1,16 @@
 /********************************************************************/
 /*	mca_paw.cpp						    */
-/*		last updated: 10/02/09 DTM	     	       	    */
+/*		last updated: 08/23/10 DTM	     	       	    */
 /*			       					    */
 /********************************************************************/
-#include <cstdio>
+#include <iostream>
+
 #include <cstdlib>
 
+#include "utilities.h"
+
 // pixie includes
+#include "Display.h"
 #include "PixieInterface.h"
 #include "Utility.h"
 
@@ -31,13 +35,20 @@ extern "C" {
 }
 #endif
 
+class HistogramReader : public PixieFunction<>
+{
+public:
+  bool operator()(PixieFunctionParms<> &par);
+};
+
+using std::cout;
+using std::endl;
+using std::flush;
+
 int main(int argc, char *argv[])
 {
-  PixieInterface::word_t histo[HIS_SIZE];
-
-  int sec, time;
-  double timer, start_mca;
-
+  int time;
+ 
   if (argc >= 2) {
     time = atoi(argv[1]);
   } else {
@@ -57,49 +68,50 @@ int main(int argc, char *argv[])
 	   PixieInterface::ProgramFPGA |
 	   PixieInterface::SetDAC, true);
 
-  // pif.WriteSglModPar("HOST_RT_PRESET", Decimal2IEEEFloating(cmd1), 0);
   pif.RemovePresetRunLength(0);
-
+  Display::LeaderPrint("Starting MCA run");
   pif.StartHistogramRun();
-  start_mca = usGetTime(0);
-  printf("|Start MCA %32.1f us |\n", start_mca);
+  cout << Display::OkayStr() << endl;
+  usGetDTime();
 
   usleep(100);
-  for (sec = 0; sec < time; sec++) {
+  for (int sec = 0; sec < time; sec++) {
     sleep(1);
-    printf("|%u s |\n", sec);
+    cout << "|" << sec << " s |\r" << flush; 
     if (!pif.CheckRunStatus()) {
-      printf("Run \e[47;31mTERMINATED\e[0m\n");
+      cout << Display::ErrorStr("Run TERMINATED") << endl;
       break;
     }
   }
-  printf("\n");
-
+  cout << endl;
   pif.EndRun();
-
-  timer = usGetTime(start_mca);
-  printf("|Stop MCA %32.3f s |\n", timer / 1000000.);
+  Display::LeaderPrint("Run finished");
+  cout << usGetDTime() / 1e6 << " s " << endl;
 
   usleep(100);
 
-  char hisName[] = "test spectrum";
+  HistogramReader reader;
+  forChannel(pif, -1, -1, reader);
+
   char hisFile[] = "mca.dat";
-
-  for (size_t ModNum = 0; ModNum < pif.GetNumberCards(); ModNum++) {
-    for (size_t ChanNum = 0; ChanNum < pif.GetNumberChannels(); ChanNum++) {
-      pif.ReadHistogram(histo, HIS_SIZE, ModNum, ChanNum);
-      
-      unsigned short nhis = 100 * (ModNum + 1) + ChanNum;
-      HBOOK1(nhis, hisName, HIS_SIZE, 0, HIS_SIZE, 0);
-      for (size_t chan = 0; chan < HIS_SIZE; chan++) {
-	HF1(nhis, chan, histo[chan]);
-      }
-    }
-  }
-
   char fileOptions[] = "N";
-
   HRPUT(0, hisFile, fileOptions);
   
   return EXIT_SUCCESS;
+}
+
+bool HistogramReader::operator()(PixieFunctionParms<> &par)
+{
+  PixieInterface::word_t histo[HIS_SIZE];
+  char hisName[] = "test spectrum";
+
+  par.pif.ReadHistogram(histo, HIS_SIZE, par.mod, par.ch);
+
+  unsigned short nhis = 100 * (par.mod + 1) + par.ch;
+  HBOOK1(nhis, hisName, HIS_SIZE, 0, HIS_SIZE, 0);
+  for (size_t i=0; i < HIS_SIZE; i++) {
+    HF1(nhis, i, histo[i]);
+  }
+
+  return true;
 }
