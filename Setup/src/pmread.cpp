@@ -1,25 +1,33 @@
 /********************************************************************/
 /*	pmread.cpp	       				            */
-/*		last updated: 09/30/09 DTM	     	       	    */
+/*		last updated: 08/23/10 DTM	     	       	    */
 /*			       					    */
 /********************************************************************/
+#include <string>
+
 #include <cstdio>
 #include <cstdlib>
 
+#include "utilities.h"
+
 #include "PixieInterface.h"
+
+using std::string;
+
+class ParameterReader : public PixieFunction<string>
+{
+  bool operator()(PixieFunctionParms<string> &par);
+};
 
 int main(int argc, char *argv[])
 {
-  unsigned long ModNum;
-  char *NAME;
-
   if (argc != 3) {
     printf("usage: %s <module> <parameter name>\n", argv[0]);
     exit(EXIT_FAILURE);
   }
 
-  ModNum = atol(argv[1]);
-  NAME = argv[2];
+  int    mod = atoi(argv[1]);
+  string parName(argv[2]);
 
   PixieInterface pif("pixie.cfg");
 
@@ -29,14 +37,14 @@ int main(int argc, char *argv[])
 	   PixieInterface::ProgramFPGA |
 	   PixieInterface::SetDAC, true);
 
-  if (ModNum < 0) {
-    // print the parameter for all modules
-    for (ModNum = 0; ModNum < pif.GetNumberCards(); ModNum++) {
-      pif.PrintSglModPar(NAME, ModNum);
-    }
-  } else if (ModNum >= 0) {
-    pif.PrintSglModPar(NAME, ModNum);
-  }
+  ParameterReader reader;
+  forModule(pif, mod, reader, parName);
 
   return EXIT_SUCCESS;
+}
+
+bool ParameterReader::operator()(PixieFunctionParms<string> &par)
+{
+  par.pif.PrintSglModPar(par.par.c_str(), par.mod);
+  return true;
 }
