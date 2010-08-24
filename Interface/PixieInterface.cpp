@@ -586,17 +586,21 @@ bool PixieInterface::SetProtonCatcherMode(int mod, int chan, CatcherModes mode)
   case PC_STANDARD:
   case PC_HYBRID:
     ival = APP32_ClrBit(CCSRA_PILEUP, ival);
+    break;
   case PC_REJECT:
   case PC_ACCEPT:
     ival = APP32_SetBit(CCSRA_PILEUP, ival);
+    break;
   }
   switch (mode) {
   case PC_STANDARD:
   case PC_REJECT:
     ival = APP32_ClrBit(CCSRA_CATCHER, ival);
+    break;
   case PC_HYBRID:
   case PC_ACCEPT:
     ival = APP32_SetBit(CCSRA_CATCHER, ival);
+    break;
   }
   dval = ival;
 
@@ -605,7 +609,12 @@ bool PixieInterface::SetProtonCatcherMode(int mod, int chan, CatcherModes mode)
 
 void PixieInterface::CatcherMessage(void)
 {
-  cout << WarningStr("Altering firmware dependent bit") << endl;
+  // Only do this message once per program execution
+  static bool threwMessage = false;
+
+  if (false)
+    cout << WarningStr("Altering firmware dependent bit") << endl;
+  threwMessage = true;
 }
 #endif
 
