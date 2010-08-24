@@ -69,7 +69,7 @@ bool forChannel(PixieInterface &pif, int mod, int ch,
       }
     } else {
       parms.ch = ch;
-      hadError = f(parms);
+      hadError = !f(parms);
     }
   }
 
@@ -89,7 +89,7 @@ bool forModule(PixieInterface &pif, int mod, PixieFunction<T> &f, T par)
     }
   } else {
     parms.mod = mod;
-    hadError = f(parms);
+    hadError = !f(parms);
   }
 
   return !hadError;
