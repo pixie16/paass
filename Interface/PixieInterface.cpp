@@ -541,36 +541,36 @@ bool PixieInterface::AdjustOffsets(unsigned short mod)
   return !CheckError();
 }
 
-bool PixieInterface::SwapGain(int mod, int chan)
+bool PixieInterface::ToggleGain(int mod, int chan)
 {
-  return SwapChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_ENARELAY);
+  return ToggleChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_ENARELAY);
 }
 
-bool PixieInterface::SwapGood(int mod, int chan)
+bool PixieInterface::ToggleGood(int mod, int chan)
 {
-  return SwapChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_GOOD);
+  return ToggleChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_GOOD);
 }
 
-bool PixieInterface::SwapPolarity(int mod, int chan)
+bool PixieInterface::TogglePolarity(int mod, int chan)
 {
-  return SwapChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_POLARITY);
+  return ToggleChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_POLARITY);
 }
 
 #ifdef PIF_REVD
-bool PixieInterface::SwapCatcherBit(int mod, int chan)
+bool PixieInterface::ToggleCatcherBit(int mod, int chan)
 {
   CatcherMessage();
-  return SwapChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_CATCHER);
+  return ToggleChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_CATCHER);
 }
 
-bool PixieInterface::SwapPileupBit(int mod, int chan)
+bool PixieInterface::TogglePileupBit(int mod, int chan)
 {
-  return SwapChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_PILEUP);
+  return ToggleChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_PILEUP);
 }
 
-bool PixieInterface::SwapTraceCapture(int mod, int chan)
+bool PixieInterface::ToggleTraceCapture(int mod, int chan)
 {
-  return SwapChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_TRACEENA);
+  return ToggleChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_TRACEENA);
 }
 
 bool PixieInterface::SetProtonCatcherMode(int mod, int chan, CatcherModes mode)
@@ -610,7 +610,7 @@ void PixieInterface::CatcherMessage(void)
 #endif
 
 // ### PRIVATE FUNCTIONS BELOW ### //
-bool PixieInterface::SwapChannelBit(int mod, int chan, const char *parameter, int bit)
+bool PixieInterface::ToggleChannelBit(int mod, int chan, const char *parameter, int bit)
 {
   double dval;
 
