@@ -108,20 +108,20 @@ class PixieInterface
   };
 
   /** Handy functions for manipulating CSRA/B */
-  bool SwapGain(int mod, int chan);
-  bool SwapGood(int mod, int chan);
-  bool SwapPolarity(int mod, int chan);
+  bool ToggleGain(int mod, int chan);
+  bool ToggleGood(int mod, int chan);
+  bool TogglePolarity(int mod, int chan);
 
 #ifdef PIF_REVD
-  bool SwapCatcherBit(int mod, int chan);
-  bool SwapPileupBit(int mod, int chan);
-  bool SwapTraceCapture(int mod, int chan);
+  bool ToggleCatcherBit(int mod, int chan);
+  bool TogglePileupBit(int mod, int chan);
+  bool ToggleTraceCapture(int mod, int chan);
 
   bool SetProtonCatcherMode(int mod, int chan, CatcherModes mode);
 #endif
 
  private:
-  bool SwapChannelBit(int mod, int chan, const char *parameter, int bit);
+  bool ToggleChannelBit(int mod, int chan, const char *parameter, int bit);
 
   static const size_t MAX_MODULES = 14;
   static const size_t CONFIG_LINE_LENGTH = 80;
