@@ -43,5 +43,10 @@ int main(int argc, char *argv[])
 
 bool GoodToggler::operator()(PixieFunctionParms<> &par)
 {
-  return par.pif.ToggleGood(par.mod, par.ch);
+  if ( par.pif.ToggleGood(par.mod, par.ch) ) {
+    par.pif.PrintSglChanPar("CHANNEL_CSRA", par.mod, par.ch);
+    return true;
+  } else {
+    return false;
+  }
 }

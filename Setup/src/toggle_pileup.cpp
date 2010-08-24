@@ -46,7 +46,12 @@ int main(int argc, char **argv)
 bool PileupToggler::operator()(PixieFunctionParms<> &par)
 {
 #ifdef PIF_REVD
-  return par.pif.TogglePileupBit(par.mod, par.ch);
+  if ( par.pif.TogglePileupBit(par.mod, par.ch) ) {
+    par.pif.PrintSglChanPar("CHANNEL_CSRA", par.mod, par.ch);
+    return true;
+  } else {
+    return false;
+  }
 #else
   cout << "Toggling pileup acceptance only implemented for Rev. D" << endl;
   return false;

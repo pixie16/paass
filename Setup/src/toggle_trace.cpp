@@ -46,7 +46,12 @@ int main(int argc, char **argv)
 bool TraceToggler::operator()(PixieFunctionParms<> &par)
 {
 #ifdef PIF_REVD
-  return par.pif.ToggleTraceCapture(par.mod, par.ch);
+  if ( par.pif.ToggleTraceCapture(par.mod, par.ch) ) {
+    par.pif.PrintSglChanPar("CHANNEL_CSRA", par.mod, par.ch);
+    return true;
+  } else {
+    return false;
+  }
 #else
   cout << "Toggling trace capture only implemented for Rev. D" << endl;
   return false;

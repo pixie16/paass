@@ -48,8 +48,12 @@ int main(int argc, char **argv)
 bool HybridSetter::operator()(PixieFunctionParms<> &par)
 {
 #ifdef PIF_REVD
-  return par.pif.SetProtonCatcherMode(par.mod, par.ch, 
-				      PixieInterface::PC_HYBRID);
+  if ( par.pif.SetProtonCatcherMode(par.mod, par.ch, 
+				    PixieInterface::PC_HYBRID) ) {
+    par.pif.PrintSglChanPar("CHANNEL_CSRA", par.mod, par.ch);
+  } else {
+    return false;
+  }
 #else
   cout << "Proton catcher modes only implemented for Rev. D" << endl;
   return false;

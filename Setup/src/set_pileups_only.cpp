@@ -47,8 +47,13 @@ int main(int argc, char **argv)
 bool CatcherSetter::operator()(PixieFunctionParms<> &par)
 {
 #ifdef PIF_REVD
-  return par.pif.SetProtonCatcherMode(par.mod, par.ch, 
-				      PixieInterface::PC_ACCEPT);
+  if ( par.pif.SetProtonCatcherMode(par.mod, par.ch, 
+				    PixieInterface::PC_ACCEPT) ) {
+    par.pif.PrintSglChanPar("CHANNEL_CSRA", par.mod, par.ch);
+    return true;
+  } else {
+    return false;
+  }
 #else
   cout << "Proton catcher modes only implemented for Rev. D" << endl;
   return false;
