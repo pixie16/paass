@@ -70,7 +70,7 @@ bool TraceGrabber::operator()(PixieFunctionParms<> &par)
       sum += trace[i];
       sumsq += trace[i] * trace[i];
     }
-    printf("Trace ---- MOD/CHAN %2u / %2u AVER |-  %4.1f -| SIG %2.1f \n",
+    printf("Trace ---- MOD/CHAN %2u / %2u AVER |-  %6.1f -| SIG %4.1f \n",
 	   par.mod, par.ch, 
 	   (float)sum / size,
 	   (float)sqrt(size * sumsq - sum * sum) / size);

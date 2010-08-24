@@ -43,5 +43,10 @@ int main(int argc, char *argv[])
 
 bool PolarityToggler::operator()(PixieFunctionParms<> &par)
 {
-  return par.pif.TogglePolarity(par.mod, par.ch);
+  if ( par.pif.TogglePolarity(par.mod, par.ch) ) {
+    par.pif.PrintSglChanPar("CHANNEL_CSRA", par.mod, par.ch);
+    return true;
+  } else {
+    return false;
+  } 
 }

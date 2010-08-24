@@ -46,7 +46,12 @@ int main(int argc, char **argv)
 bool CatcherToggler::operator()(PixieFunctionParms<> &par)
 {
 #ifdef PIF_REVD
-  return par.pif.ToggleCatcherBit(par.mod, par.ch);
+  if ( par.pif.ToggleCatcherBit(par.mod, par.ch) ) {
+    par.pif.PrintSglChanPar("CHANNEL_CSRA", par.mod, par.ch);
+    return true;
+  } else {
+    return false;
+  }
 #else
   cout << "Toggling proton catcher only implemented for Rev. D" << endl;
   return false;
