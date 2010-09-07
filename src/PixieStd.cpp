@@ -466,30 +466,29 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
                 retval= ReadBuffData(&lbuf[nWords],&bufLen,eventList);
 
                 
-                /* If the return value is less than zero, reading the buffer
-		   failed for some reason.  Print error message and reset
-		   variables if necessary
+                /* If the return value is less than the error code, 
+		   reading the buffer failed for some reason.  
+		   Print error message and reset variables if necessary
                 */
-                if ( retval < 0 ) {
+                if ( retval <= readbuff::ERROR ) {
 		    cout << " READOUT PROBLEM " << retval 
 			 << " in event " << counter << endl;
-                    if ( retval > -50 ) {
+                    if ( retval == readbuff::ERROR ) {
 			cout << "  Remove list " << lastVsn << " " << vsn << endl;
                         RemoveList(eventList); 	                        
                     }
                     return;
-                }
-                if ( retval == 0 ) {
+                } else if ( retval == 0 ) {
 		    // empty buffers are regular in Rev. D data
 		    // cout << " EMPTY BUFFER" << endl;
 		  nWords += lenRec + 1;
+		  lastVsn = vsn;
 		  continue;
                   //  return;
-                }               
-
-                /* increment the total number of events observed */
-                numEvents += retval;
-                
+                } else if ( retval > 0 ) {		
+		  /* increment the total number of events observed */
+		  numEvents += retval;
+                }
                 /* Update the variables that are keeping track of what has been
 		   analyzed and increment the location in the current buffer
                 */

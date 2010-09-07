@@ -2,6 +2,8 @@
  *  \brief Stores statistics data from the data stream in its original format
  */
 
+#include <iostream>
+
 #include <cmath>
 
 #include "param.h"
@@ -11,16 +13,24 @@
 
 StatsData stats;
 
+using std::cout;
+using std::endl;
+
 using pixie::word_t;
 
-/// Clear the statistics data structures
+/** Clear the statistics data structures */
 StatsData::StatsData()
 {
+  cout << "Allocating " << sizeof(oldData) + sizeof(data) 
+       << " bytes for statistics data" << endl;
   bzero(oldData, sizeof(oldData));
   bzero(data, sizeof(data));
 }
 
-/// Copy the 
+/** Copy the statistics data from the data stream to a memory block,
+ *   preserving a copy of the old statistics data so that the incremental
+ *   change can be determined */
+ 
 void StatsData::DoStatisticsBlock(word_t *buf, int vsn)
 {
   if (memcmp(data[vsn], buf, sizeof(word_t)*statSize) != 0) {
@@ -29,6 +39,7 @@ void StatsData::DoStatisticsBlock(word_t *buf, int vsn)
   }
 }
 
+/** Return the most recent statistics live time for a given id */
 double StatsData::GetCurrTime(unsigned int id) const
 {
   // from Pixie15DSP_r15428.var  
@@ -49,6 +60,8 @@ double StatsData::GetCurrTime(unsigned int id) const
   return d;
 }
 
+/** Return the change in the number of fast peaks between the two most 
+ *  recent statistics blocks for a given id */
 double StatsData::GetDiffPeaks(unsigned int id) const
 {
   // from Pixie16DSP_r15428.var
@@ -68,6 +81,8 @@ double StatsData::GetDiffPeaks(unsigned int id) const
   return d;
 }
 
+/** Return the elapsed live time between the two most recent statistics 
+ *  blocks for a given channel */
 double StatsData::GetDiffTime(unsigned int id) const
 {
   // from Pixie15DSP_r15428.var  

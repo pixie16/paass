@@ -56,6 +56,8 @@ using pixie::halfword_t;
 using std::cout;
 using std::endl;
 
+extern StatsData stats;
+
 // define tst bit function from pixie16 files
 unsigned long TstBit(unsigned short bit, unsigned long value)
 {
@@ -107,6 +109,13 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
       // Rev. D header lengths not clearly defined in pixie16app_defs
       //! magic numbers here for now
       // make some sanity checks
+      if (headerLength == stats.headerLength) {
+	// this is a manual statistics block inserted by the poll program
+	stats.DoStatisticsBlock(&buf[1], modNum);
+	buf += eventLength;
+	numEvents = readbuff::STATS;
+	continue;
+      }
       if (headerLength != 4) {
 	cout << "  Unexpected header length: " << headerLength << endl;
 	cout << "    Buffer " << modNum << " of length " << *bufLen << endl;
@@ -164,7 +173,7 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
     cout << "ERROR BufNData " << *bufLen << endl;
     cout << "ERROR IN ReadBuffData" << endl;
     cout << "LIST UNKNOWN" << endl;
-    return -10;
+    return readbuff::ERROR;
   }
   
   return numEvents;

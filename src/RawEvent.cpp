@@ -228,3 +228,15 @@ DetectorSummary *RawEvent::GetSummary(const string& a)
     }
     return &(s->second);
 }
+
+const DetectorSummary *RawEvent::GetSummary(const string &a) const
+{
+    map<string, DetectorSummary>::const_iterator s = sumMap.find(a);
+  
+    if ( s == sumMap.end() ) {
+      cout << "Returning NULL detector summary for type " << a << endl;
+      return NULL;
+    }
+    return &(s->second);
+}
+

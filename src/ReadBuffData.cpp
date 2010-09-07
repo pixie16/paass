@@ -112,7 +112,7 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
 
           if (bufSkippedWords > bufNData) {
 	      cout << "Bad buffer " << totalSkippedWords << endl;
-              return(-10);
+              return readbuff::ERROR;
           }
 
           if( evtPattern != 0 ) {
@@ -125,7 +125,7 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
 
                           if( chanLength>10000 ) {
 			      cout << "Bad ChanLen " << chanLength << endl;
-                              return -10; 
+                              return readbuff::ERROR; 
                           }
                           
                           /* Read Channel trigger time */
@@ -144,7 +144,7 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
                           bufSkippedWords += 2;			   
                       } else {
 			  cout << "Run task read out is invalid " << runTask << endl;
-			  return(-4);
+			  return readbuff::ERROR;
 		      }
                       ChanEvent *currentEvt = new ChanEvent();
 
@@ -202,7 +202,7 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
       cout << "ERROR BufNData " << bufNData << endl;
       cout << "ERROR IN ReadBuffData" << endl;
       cout << "LIST UNKNOWN" << endl;
-      return -10;
+      return readbuff::ERROR;
   }
  
   return numEvents;

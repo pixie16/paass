@@ -16,6 +16,9 @@
 
 #include "Correlator.h"
 
+#include "pixie16app_defs.h"
+#include "param.h"
+
 using std::map;
 using std::set;
 using std::string;
@@ -203,8 +206,27 @@ class RawEvent {
     const set<string>& GetUsedDetectors() const 
 	{return usedDetectors;} /**< get the list of detectors in the map */
     DetectorSummary *GetSummary(const string& a);
+    const DetectorSummary *GetSummary(const string &a) const;
     const vector<ChanEvent *> &GetEventList(void) const
 	{return eventList;} /**< Get the list of events */
+};
+
+class StatsData {
+ private:
+  static const size_t statSize = N_DSP_PAR - DSP_IO_BORDER;
+  static const size_t maxVsn = 14;
+
+  pixie::word_t oldData[maxVsn][statSize]; /**< Older statistics data to calculate the change in statistics */
+  pixie::word_t data[maxVsn][statSize];    /**< Statistics data from each module */
+ public:
+  static const pixie::word_t headerLength = 1;
+
+  StatsData(void);
+  void DoStatisticsBlock(pixie::word_t *buf, int vsn);
+
+  double GetCurrTime(unsigned int id) const;
+  double GetDiffPeaks(unsigned int id) const;
+  double GetDiffTime(unsigned int id) const;
 };
 
 #endif // __RAWEVENT_H_

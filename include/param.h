@@ -27,4 +27,9 @@ namespace pixie {
  */
 const pixie::word_t U_DELIMITER = (pixie::word_t)-1;
 
+namespace readbuff {
+    const int STATS = -10;
+    const int ERROR = -100;
+}
+
 #endif // __PARAM_H_
