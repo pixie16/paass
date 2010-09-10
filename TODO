@@ -1,0 +1,2 @@
+Add GetProcessor(type) to DetectorDriver
+Add flag for whether a processor processed succesfully? Alternatively, store results of Process() call in DetectorDriver
