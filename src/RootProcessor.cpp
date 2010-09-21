@@ -35,19 +35,19 @@ bool RootProcessor::Init(DetectorDriver &driver)
     return false;
   }
 
-    const vector<EventProcessor *>& drvProcess = driver.GetProcessors();
+  const vector<EventProcessor *>& drvProcess = driver.GetProcessors();
 
-    for (vector<EventProcessor *>::const_iterator it = drvProcess.begin();
-	 it != drvProcess.end(); it++) {
-	if ((*it)->AddBranch(tree)) {
-	    vecProcess.push_back(*it);		
-	    set_union( (*it)->associatedTypes.begin(), 
-		       (*it)->associatedTypes.end(),
-		       associatedTypes.begin(), asssociatedTypes.end(),
-		       inserter(associatedTypes, associatedTypes.begin()) );
-	}	  
-    } 
-    return EventProcessor::Init(driver);
+  for (vector<EventProcessor *>::const_iterator it = drvProcess.begin();
+       it != drvProcess.end(); it++) {
+    if ((*it)->AddBranch(tree)) {
+      vecProcess.push_back(*it);		
+      set_union( (*it)->associatedTypes.begin(), 
+		 (*it)->associatedTypes.end(),
+		 associatedTypes.begin(), asssociatedTypes.end(),
+		 inserter(associatedTypes, associatedTypes.begin()) );
+    }	  
+  } 
+  return EventProcessor::Init(driver);
 }
 
 /** Fill the tree for each event, saving to file occasionally */

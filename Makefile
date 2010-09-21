@@ -1,8 +1,8 @@
-# GNUmakefile using implicit rules and standard definitions
+	# GNUmakefile using implicit rules and standard definitions
 SHELL=/bin/sh
 
 # uncomment the following line for root functionality
-#USEROOT = 1
+USEROOT = 1
 # uncomment this line if processing Rev. D data
 #REVISIOND = 1
 

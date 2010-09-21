@@ -2,7 +2,7 @@
 #define __PIXIE16APP_DEFS_H
 
 /*----------------------------------------------------------------------
- * Copyright (c) 2005,2006, XIA LLC
+ * Copyright (c) 2005 - 2009, XIA LLC
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, 
@@ -16,10 +16,10 @@
  *     above copyright notice, this list of conditions and the 
  *     following disclaimer in the documentation and/or other 
  *     materials provided with the distribution.
- *   * Neither the name of X-ray Instrumentation Associates 
- *     nor the names of its contributors may be used to endorse 
- *     or promote products derived from this software without 
- *     specific prior written permission.
+ *   * Neither the name of XIA LLC nor the names of its
+ *     contributors may be used to endorse or promote products
+ *     derived from this software without specific prior
+ *     written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND 
  * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
@@ -46,20 +46,8 @@
  *
  *		Constant definitions.
  *
- * Revision:
- *
- *		8-17-2006:
- *		  HT - defined constant DSP_CLOCK_MHZ
- *
- *		8-8-2006:
- *		  HT - defined MACRO: CAPTURE_SLOW_TRACE.
- *
- *		7-31-2006:
- *		  HT - defined MACROs: PIXIE16_REVISION, PIXIE16_APPAPI_VER.
- *
- *		5-16-2005:
- *		  HT - streamlined functions
- *
+ * $Rev: 13856 $
+ * $Id: pixie16app_defs.h 13856 2009-11-20 23:03:35Z htan $
  ******************************************************************************/
 
 /* If this is compiled by a C++ compiler, make it */
@@ -70,12 +58,34 @@ extern "C" {
 
 
 /*------------------------------------- 
-    Pixie16 hardware revisions
+  Pixie16 hardware revisions
   -------------------------------------*/
-#define PIXIE16_REVA          0
-#define PIXIE16_REVB          1
+#define PIXIE16_REVA        0
+#define PIXIE16_REVB        1
+#define PIXIE16_REVC_MSU    2
+#define PIXIE16_REVC_GENERAL 3
+#define PIXIE16_REVD_ITHEMBA 4
+#define PIXIE16_REVD_GENERAL 5
 // Changing PIXIE16_REVISION here affects the code globally
-#define PIXIE16_REVISION      PIXIE16_REVA
+#define PIXIE16_REVISION    PIXIE16_REVD_GENERAL
+
+
+/*------------------------------------- 
+    Define special operation modes
+	(normally requires a special firmware)
+  -------------------------------------*/
+#ifdef CAPTURE_SLOW_TRACE
+	#undef CAPTURE_SLOW_TRACE
+#endif
+#ifdef MSU_SEGA_MODE
+	#undef MSU_SEGA_MODE
+#endif
+#ifdef EXTENDED_FASTFILTER_LEN
+	#undef EXTENDED_FASTFILTER_LEN
+#endif
+#ifdef ORNL_PSD
+	#undef ORNL_PSD
+#endif
 
 
 /*------------------------------------- 
@@ -91,22 +101,12 @@ extern "C" {
 /*------------------------------------- 
     Define EXPORT macro
   -------------------------------------*/
-
 #if PIXIE16_APPAPI_VER == PIXIE16_WINDOWS_APPAPI
 	#define PIXIE16APP_EXPORT __declspec(dllexport)
 	#define PIXIE16APP_API _stdcall
 #elif PIXIE16_APPAPI_VER == PIXIE16_LINUX_APPAPI
 	#define PIXIE16APP_EXPORT  
 	#define PIXIE16APP_API  
-#endif
-
-
-/*------------------------------------- 
-    Define special operation modes
-  -------------------------------------*/
-
-#ifdef CAPTURE_SLOW_TRACE
-	#undef CAPTURE_SLOW_TRACE
 #endif
 
 
@@ -131,7 +131,7 @@ extern "C" {
 #define N_COM_FPGA_CONF            58614      // size of communications FPGA configuration (32-bit word)
 #define N_TRIG_FPGA_CONF           58614      // size of trigger FPGA configuration (32-bit word)
 #define N_SP_FPGA_CONF            127581      // size of signal processing FPGA configuration (32-bit word)
-#elif PIXIE16_REVISION == PIXIE16_REVB
+#elif PIXIE16_REVISION == PIXIE16_REVB || PIXIE16_REVISION == PIXIE16_REVC_MSU || PIXIE16_REVISION == PIXIE16_REVC_GENERAL
 #define N_COM_FPGA_CONF           162962      // size of communications FPGA configuration (32-bit word)
 #define N_SP_FPGA_CONF            162962      // size of signal processing FPGA configuration (32-bit word)
 #endif
@@ -143,14 +143,14 @@ extern "C" {
     module specifications
   -----------------------------------------------------------------*/
 
-#define PRESET_MAX_MODULES             7      // Preset maximum number of Pixie modules
+#define PRESET_MAX_MODULES            24      // Preset maximum number of Pixie modules
 #define NUMBER_OF_CHANNELS            16
 
 #define SYSTEM_CLOCK_MHZ             100      // system (ADC and FPGA) clock frequency in MHz
 
 #if PIXIE16_REVISION == PIXIE16_REVA
 #define DSP_CLOCK_MHZ                 80      // DSP clock frequency in MHz
-#elif PIXIE16_REVISION == PIXIE16_REVB
+#elif PIXIE16_REVISION == PIXIE16_REVB || PIXIE16_REVISION == PIXIE16_REVC_MSU || PIXIE16_REVISION == PIXIE16_REVC_GENERAL || PIXIE16_REVISION == PIXIE16_REVD_ITHEMBA || PIXIE16_REVISION == PIXIE16_REVD_GENERAL
 #define DSP_CLOCK_MHZ                100      // DSP clock frequency in MHz
 #endif
 
@@ -187,14 +187,24 @@ extern "C" {
 #define DSP_IMBUFFER_START_ADDR   0x40000     // 32-bit wide
 #define DSP_IMBUFFER_END_ADDR     0x5FFFF     // 32-bit wide
 
-#define DSP_EMBUFFER_START_ADDR  0x200000     // 32-bit wide
-#define DSP_EMBUFFER_END_ADDR    0x27FFFF     // 32-bit wide 
+#define DSP_EMBUFFER_START_ADDR       0x0     // 32-bit wide
+#if PIXIE16_REVISION == PIXIE16_REVA
+#define DSP_EMBUFFER_END_ADDR     0xFFFFF     // 32-bit wide 
+#else
+#define DSP_EMBUFFER_END_ADDR     0x7FFFF     // 32-bit wide 
+#endif
+
+#if PIXIE16_REVISION == PIXIE16_REVA
+#define EM_PINGPONGBUFA_ADDR      0x80000     // 32-bit wide 
+#define EM_PINGPONGBUFB_ADDR      0xC0000     // 32-bit wide 
+#endif
 
 #define DATA_MEMORY_ADDRESS      0x4A000      // DSP data memory address
 #define HISTOGRAM_MEMORY_ADDRESS     0x0      // histogram memory buffer in external memory   	
 #define MAX_HISTOGRAM_LENGTH       32768      // Maximum MCA histogram length
 #define IO_BUFFER_ADDRESS        0x50000      // Address of I/O output buffer
 #define IO_BUFFER_LENGTH           65536      // Length of I/O output buffer
+#define EXTERNAL_FIFO_LENGTH      131072      // Length of external FIFO
 
 #define BUFFER_HEAD_LENGTH             6      // Output buffer header length
 #define EVENT_HEAD_LENGTH              3      // Event header length
@@ -209,15 +219,49 @@ extern "C" {
 	Length limits for certain DSP parameters
  --------------------------------------*/ 
 
+#ifdef EXTENDED_FASTFILTER_LEN
+#define FASTFILTER_MAX_LEN 128
+#else
+#if (PIXIE16_REVISION == PIXIE16_REVD_ITHEMBA) || (PIXIE16_REVISION == PIXIE16_REVD_GENERAL)
+#define FASTFILTER_MAX_LEN 64
+#else
 #define FASTFILTER_MAX_LEN 32
+#endif
+#endif
 #define MIN_FASTLENGTH_LEN 1
 
 #define SLOWFILTER_MAX_LEN 128
 #define MIN_SLOWLENGTH_LEN 2
 #define MIN_SLOWGAP_LEN 3
 
+#ifdef EXTENDED_FASTFILTER_LEN
+#define FAST_THRESHOLD_MAX 65536
+#else
 #define FAST_THRESHOLD_MAX 16384
+#endif
 
+#if (PIXIE16_REVISION == PIXIE16_REVD_ITHEMBA) || (PIXIE16_REVISION == PIXIE16_REVD_GENERAL)
+#define CFDDELAY_MAX 63
+#define CFDDELAY_MIN 1
+
+#define EXTTRIGSTRETCH_MAX 4095
+#define EXTTRIGSTRETCH_MIN 1
+
+#define VETOSTRETCH_MAX 4095
+#define VETOSTRETCH_MIN 1
+
+#define FASTTRIGBACKLEN_MAX 4095
+#define FASTTRIGBACKLEN_MIN 1
+
+#define EXTDELAYLEN_MAX 255
+#define EXTDELAYLEN_MIN 1
+
+#define FASTTRIGBACKDELAY_MAX 127
+#define FASTTRIGBACKDELAY_MIN 0
+
+#define QDCLEN_MAX 32767
+#define QDCLEN_MIN 1
+#endif
 
 /*------------------------------------- 
 	CHANCSRA bits definitions
@@ -225,8 +269,11 @@ extern "C" {
 
 #define CCSRA_GOOD         2    // Channel may be read, good-channel bit
 #define CCSRA_POLARITY     5    // Control polarity: 1: negative, 0: positive
+#if (VARIANT == REVD_GENERAL)
+#define CCSRA_TRACEENA     8    // 1: enable trace capture and associated header data; 0: disable trace capture and associated header data
+#define CCSRA_QDCENA       9    // 1: enable QDC summing and associated header data; 0: dsiable QDC summing and associated header data
+#endif
 #define CCSRA_ENARELAY    14    // Control input relay: 1: connect, 0: disconnect
-
 
  /*------------------------------------- 
 	MODCSRB bits definitions
@@ -236,6 +283,15 @@ extern "C" {
 #define MODCSRB_BPCONNECTION  1  // Control BP_Connection: 1: connected, 0: disconnected
 #define MODCSRB_MASTERMODULE  2  // Control Master/Worker module: 1: Master module, 0: Worker module
 #define MODCSRB_FASTTRIGSRC   3  // Control fast trigger source in system FPGA: 1: Master module only, 0: all modules wired-or
+
+#define MODCSRB_DIRMOD        4  // Control Director module: 1: Director module; 0: other modules 
+#define MODCSRB_RECTRIGENA    5  // Enable Director module's record trigger (1) or disable it (0)
+#define MODCSRB_CHASSISMASTER 6  // Control chassis master module: 1: chassis master module; 0: chassis non-master module 
+#define MODCSRB_MWMOD         7  // Control Manger/Worker module: 1: Manger/Worker module; 0: other modules
+#define MODCSRB_RIGHTASTMOD   8  // Control Right Assistant module: 1: Right Assistant module; 0: other modules
+#define MODCSRB_LEFTASTMOD    9  // Control Left Assistant module: 1: Left Assistant module; 0: other modules
+#define MODCSRB_INHIBITENA   10  // Control external INHIBIT signal: 1: use INHIBIT; 0: don't use INHIBIT
+#define MODCSRB_MULTCRATES   11  // Distribute clock and triggers in multiple crates: multiple crates (1) or only single crate (0)
 
 /*------------------------------------- 
 	Control parameters
@@ -247,6 +303,12 @@ extern "C" {
 
 #define BASELINES_BLOCK_LEN     18  // Length of each baslines length (default: 2 timestamp words + 16 baselines)
 #define MAX_NUM_BASELINES     3640  // Maximum number of baselines available after each baseline acquisition run
+
+#define EXTFIFO_READ_THRESH   1024  // Reading out threshold for external FIFO watermmark level
+
+#if (PIXIE16_REVISION == PIXIE16_REVD_ITHEMBA) || (PIXIE16_REVISION == PIXIE16_REVD_GENERAL)
+#define PCI_STOPRUN_REGADDR   0x44  // PCI register address in the System FPGA for stopping run
+#endif
 
 /*------------------------------------- 
 	Frequently used Control Tasks
