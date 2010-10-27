@@ -29,8 +29,11 @@ extern "C" {
   } PAWC_DEF;
 #define PAWC COMMON_BLOCK(PAWC,pawc)
   COMMON_BLOCK_DEF(PAWC_DEF, PAWC);
-  
+
+#ifdef gfortran  
   PAWC_DEF pawc_;
+#endif
+
 #ifdef __cplusplus
 }
 #endif
@@ -69,9 +72,7 @@ int main(int argc, char *argv[])
 	   PixieInterface::SetDAC, true);
 
   pif.RemovePresetRunLength(0);
-  Display::LeaderPrint("Starting MCA run");
   pif.StartHistogramRun();
-  cout << Display::OkayStr() << endl;
   usGetDTime();
 
   usleep(100);
