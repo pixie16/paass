@@ -28,7 +28,10 @@ extern "C" {
 #define PAWC COMMON_BLOCK(PAWC,pawc)
   COMMON_BLOCK_DEF(PAWC_DEF, PAWC);
 
+#ifdef gfortran
   PAWC_DEF pawc_;
+#endif
+
 #ifdef __cplusplus
 }
 #endif
