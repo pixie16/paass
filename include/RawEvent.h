@@ -136,6 +136,26 @@ class ChanEvent {
 					    pixie module # * 16 + channel number */
     double GetTraceInfo(unsigned int a) const; /**< Get a specific value from the traceinfo */
 
+/****Added for SVP ****/
+    double TrcQDC, MaxValue;
+    double StdDevBaseline, Phase, AveBaseline; 
+    unsigned int MaxPos;
+    
+    void SetTrcQDC(double a) {TrcQDC=a;}       /**< Set the QDC From Integrating The Trace*/
+    void SetMaxValue(double a)  {MaxValue=a;}        /**< Set the Maximum Value from Trace*/
+    void SetStdDevBaseline(double a) {StdDevBaseline=a;}       /**< Set the Standard Deviation of the Baseline the Trace*/
+    void SetAveBaseline(double a)  {AveBaseline=a;}        /**< Set the Average of the baseline from Trace*/
+    void SetPhase(double a)    {Phase=a;}          /**< Set the Phase from Trace*/
+    void SetMaxPos(unsigned int a) {MaxPos=a;}           /**< Set the Position of the Maximum from Trace */
+    
+    double GetTrcQDC() const {return TrcQDC;} /**< Return the QDC From Integrating The Trace*/
+    double GetMaxValue()   {return MaxValue;}       /**< Return the Maximum Value from Trace*/
+    double GetStdDevBaseline() const {return StdDevBaseline;} /**< Return the Standard Deviation from  The Trace*/
+    double GetAveBaseline()   {return AveBaseline;}           /**< Return the Average of the Baseline from Trace*/
+    double GetPhase()   {return Phase;}       /**< Return the phase from Trace*/
+    unsigned int GetMaxPos() {return MaxPos;}        /**< Return position of Maximum in trace */
+/****END SVP ADDITIONS****/
+
     ChanEvent();
     void ZeroVar();
 };

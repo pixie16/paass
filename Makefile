@@ -1,10 +1,12 @@
-	# GNUmakefile using implicit rules and standard definitions
+# GNUmakefile using implicit rules and standard definitions
 SHELL=/bin/sh
 
 # uncomment the following line for root functionality
-USEROOT = 1
+#USEROOT = 1
 # uncomment this line if processing Rev. D data
 #REVISIOND = 1
+#Uncomment this line to use the Pulse Fitting routine
+#PULSEFIT = 1
 
 #------- instruct make to search through these
 #------- directories to find files
@@ -56,8 +58,12 @@ endif
 CINCLUDEDIRS  = -Iinclude
 
 #------- basic linking instructions
-LDLIBS  += -lm -lstdc++
-#LDLIBS  += -lgsl -lgslcblas
+ifdef PULSEFIT
+LDLIBS  += -lm -lgsl -lgslcblas -lstdc++ -lg2c
+CXXFLAGS+= -Dpulsefit
+else
+LDLIBS  += -lm -lstdc++ 
+endif
 
 ifeq ($(FC),gfortran)
 FFLAGS	+= -fsecond-underscore
@@ -91,6 +97,9 @@ RAWEVENTO        = RawEvent.$(ObjSuf)
 ROOTPROCESSORO   = RootProcessor.$(ObjSuf)
 RANDOMPOOLO      = RandomPool.$(ObjSuf)
 STATSDATAO       = StatsData.$(ObjSuf)
+WAVEFORMPROCESSORO = WaveformProcessor.$(ObjSuf)
+PULSERPROCESSORO   = PulserProcessor.$(ObjSuf)
+VANDLEPROCESSORO   = VandleProcessor.$(ObjSuf)
 
 ifdef USEROOT
 PIXIE            = pixie_ldf_c_root$(ExeSuf)
@@ -110,7 +119,9 @@ OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \
 	$(MESSLOGO) $(MILDATIMO) $(SCANORUXO) $(ACCUMULATORO) $(PIXIEO) \
 	$(HISTOGRAMMERO) $(EVENTPROCESSORO) $(SCINTPROCESSORO) \
 	$(GEPROCESSORO) $(SPLINEFITPROCESSORO) $(SPLINEPROCESSORO) \
-	$(DSSDPROCESSORO) $(RAWEVENTO) $(RANDOMPOOLO) $(STATSDATAO)
+	$(DSSDPROCESSORO) $(RAWEVENTO) $(RANDOMPOOLO) $(STATSDATAO) \
+	$(WAVEFORMPROCESSORO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO)
+
 ifdef USEROOT
 OBJS  += $(ROOTPROCESSORO)
 endif

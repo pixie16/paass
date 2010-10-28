@@ -89,15 +89,54 @@ namespace dammIds {
 	    }
 	} // neutr namespace
     } // scint namespace
-    // in SplineProcessor.cpp
-    namespace spline {
-	// 2-d hists
-	const int DD_TRACE_ALL  = 5100;
-	const int DD_TRACE_0    = 5101;
-	const int DD_TRACE_1    = 5102;
-	const int DD_TRACE_2    = 5103;
-	const int DD_TRACE_3    = 5104;
-    } // spline namespace
+    namespace vandle{ //in VandleProcessor.cpp
+	const int D_PROBLEMS  = 2600;
+	const int DD_PROBLEMSQDC = 2601;
+
+	//HISTOGRAMS FOR INDIVIDUAL ENDS OF BARS
+	const int DD_TQDCBARS         = 2000;
+	const int DD_MAXIMUMBARS      = 2001;
+	const int DD_TIMEDIFFBARS     = 2002;
+	const int DD_TOFBARS          = 2003;
+	const int DD_CORTOFBARS       = 2004;
+	const int DD_TQDCBETA         = 2005;
+	const int DD_MAXBETA          = 2006;
+
+	//HISTOGRAMS FOR EACH BAR
+	const int DD_TQDCAVEVSTDIFF   = 2010;
+
+	//HISTOGRAMS FOR EACH BAR W.R.T. EACH TRIGGER
+	const int DD_TDIFFVSTOF       = 2030;
+	const int DD_MAXRVSTOF        = 2070;
+	const int DD_MAXLVSTOF        = 2110;
+	const int DD_MAXBETA1VSTOF    = 2150;
+	const int DD_MAXBETA2VSTOF    = 2190;
+	const int DD_TQDCAVEVSTOF     = 2230;
+
+	const int DD_TDIFFVSCORTOF    = 2270;
+	const int DD_MAXRVSCORTOF     = 2310;
+	const int DD_MAXLVSCORTOF     = 2350;
+	const int DD_MAXBETA1VSCORTOF = 2390;
+	const int DD_MAXBETA2VSCORTOF = 2430;
+	const int DD_TDIFFVSCORCORTOF = 2470;
+	const int DD_TQDCAVEVSCORTOF  = 2510;
+    }//vandle namespace
+    namespace waveformprocessor{
+	const int D_DISCRIM     = 5100;
+	const int DD_NGVSE      = 5101;
+    } // waveformprocessor namespace
+    namespace pulserprocessor{ //in PulserProcessor.cpp 
+	const int D_TIMEDIFF     = 5000;
+	const int D_PROBLEMSTUFF = 5001;
+
+	const int DD_QDC         = 5002;
+	const int DD_MAX         = 5003;
+	const int DD_PVSP        = 5004;
+	const int DD_MAXVSTDIFF  = 5005;
+	const int DD_QDCVSMAX    = 5006;
+	const int DD_AMPMAPSTART = 5007;
+	const int DD_AMPMAPSTOP  = 5008;
+    } // pulser namespace
     // in correlator.cpp
     namespace correlator {
 	const int D_CONDITION = 6000;

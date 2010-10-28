@@ -13,6 +13,11 @@
             Significant structural/cosmetic changes. Event processing is
 	    now primarily handled by individual event processors which
 	    handle their own DetectorDrivers
+
+      SVP - Oct. '10
+            Added the VandleProcessor for use with VANDLE.
+            Added the PulserProcessor for use with Pulsers.
+            Added the WaveformProcessor to determine ps time resolutions.
 */
 
 /*!
@@ -44,6 +49,9 @@
 #include "McpProcessor.h"
 #include "MtcProcessor.h"
 #include "ScintProcessor.h"
+#include "WaveformProcessor.h"
+#include "VandleProcessor.h"
+#include "PulserProcessor.h"
 
 #ifdef useroot
 #include "RootProcessor.h"
@@ -67,11 +75,14 @@ extern RandomPool randoms;
 */
 DetectorDriver::DetectorDriver()
 {
+    vecProcess.push_back(new WaveformProcessor());
     vecProcess.push_back(new ScintProcessor());
     vecProcess.push_back(new GeProcessor());
     vecProcess.push_back(new McpProcessor());    
     vecProcess.push_back(new DssdProcessor());
     vecProcess.push_back(new MtcProcessor());
+    vecProcess.push_back(new PulserProcessor());
+    vecProcess.push_back(new VandleProcessor());
 
 #ifdef useroot
     // and finally the root processor
@@ -101,10 +112,10 @@ DetectorDriver::~DetectorDriver()
 */
 const set<string>& DetectorDriver::GetKnownDetectors()
 {   
-    const unsigned int detTypes = 10;
+    const unsigned int detTypes = 12;
     const string detectorStrings[detTypes] = {
 	"dssd_front", "dssd_back", "idssd_front", "position", "timeclass",
-	"ge", "si", "scint", "mcp", "generic"};
+	"ge", "si", "scint", "mcp", "generic", "vandle", "pulser"};
   
     // only call this once
     if (!knownDetectors.empty())
