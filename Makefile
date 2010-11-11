@@ -37,7 +37,7 @@ FC        = g77
 #uncomment to compile with gfortran (>=4.2) if required for the hhirf libs
 #FC       = gfortran
 GCC       = gcc 
-G++       = g++
+CXX       = g++
 LINK.o    = $(FC) $(LDFLAGS) $(TARGET_ARCH)
 
 #------- define basic compiler flags, no warnings on code that is not my own

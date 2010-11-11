@@ -179,7 +179,7 @@ int TraceAnalyzer::Analyze(const vector<int> &trace,
     vector<int>::iterator iThr  = fastFilter.begin() + baseHigh - fastSize;
     vector<int>::iterator iHigh = fastFilter.end(); 
 
-    while (iThr != iHigh) {
+    while (iThr < iHigh) {
       iThr = find_if(iThr, iHigh, bind2nd(greater<int>(), fastThresh));
       // check that the correlated energy is sufficiently high
       t1 = iThr - fastFilter.begin();
