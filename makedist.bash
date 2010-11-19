@@ -3,7 +3,7 @@ DISTNAME=pixie_scan
 
 if [[ -d .git ]]; then
     VERSION=`git describe --tags --abbrev=1`;
-    git archive --format=tar --prefix=$PREFIX/ HEAD | \
+    git archive --format=tar --prefix=$DISTNAME/ HEAD | \
 	gzip > $DISTNAME-$VERSION.tgz
 else
     echo "This is not a git repository, copying whole tree"
