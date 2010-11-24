@@ -16,7 +16,7 @@ const int MAX_PAR = 32000; //< maximum limit for calibrations
 
 namespace pixie {
     typedef uint32_t word_t; //< a pixie word
-    typedef uint16_t short halfword_t; //< a half pixie word
+    typedef uint16_t halfword_t; //< a half pixie word
 
     const double clockInSeconds = 10e-9; //< one pixie clock is 10 ns
 };

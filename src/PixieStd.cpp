@@ -510,7 +510,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 		cout << "this actually happens!" << endl;
                 multSpill = true;
             }
-            lastVsn=vsn;
+            lastVsn=U_DELIMITER;
         }
         
         /* if there are events to process, continue */
