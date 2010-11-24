@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include <cmath>
+#include <cstring>
 
 #include "param.h"
 #include "RawEvent.h"

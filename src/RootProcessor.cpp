@@ -6,6 +6,7 @@
 
 #ifdef useroot
 
+#include <algorithm>
 #include <iostream>
 
 #include <TFile.h>
@@ -40,10 +41,9 @@ bool RootProcessor::Init(DetectorDriver &driver)
   for (vector<EventProcessor *>::const_iterator it = drvProcess.begin();
        it != drvProcess.end(); it++) {
     if ((*it)->AddBranch(tree)) {
-      vecProcess.push_back(*it);		
-      set_union( (*it)->associatedTypes.begin(), 
-		 (*it)->associatedTypes.end(),
-		 associatedTypes.begin(), asssociatedTypes.end(),
+      vecProcess.push_back(*it);
+      set_union( (*it)->GetTypes().begin(), (*it)->GetTypes().end(),
+		 associatedTypes.begin(), associatedTypes.end(),
 		 inserter(associatedTypes, associatedTypes.begin()) );
     }	  
   } 

@@ -9,15 +9,18 @@ subroutines are able to access it.
    S.V.P. 16 July 2009
 
 *************************************/
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <numeric>
 #include <string>
-#include <unistd.h> 
 #include <vector>
+
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
+
+#include <unistd.h> 
 
 #include "damm_plotids.h"
 #include "DetectorDriver.h"

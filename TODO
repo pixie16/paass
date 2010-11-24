@@ -3,14 +3,3 @@ Add flag for whether a processor processed succesfully? Alternatively, store res
 48-bit times in RawEvent
 Rehaul trace analyzer. Trace info as a map?
 ROOT histogramming
-
-The Root Processor doens't compile properly due to the protected nature of the associatedTypes set.  
-
-Here are the errors:
-
-include/EventProcessor.h: In member function ‘virtual bool RootProcessor::Init(DetectorDriver&)’:
-include/EventProcessor.h:35: error: ‘std::set<std::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char> > > > EventProcessor::associatedTypes’ is protected
-src/RootProcessor.cpp:44: error: within this context
-include/EventProcessor.h:35: error: ‘std::set<std::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::less<std::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char> > > > EventProcessor::associatedTypes’ is protected
-src/RootProcessor.cpp:45: error: within this context
-src/RootProcessor.cpp:46: error: ‘asssociatedTypes’ was not declared in this scope

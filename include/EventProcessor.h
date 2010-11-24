@@ -43,6 +43,9 @@ class EventProcessor {
 
     // declare associated damm plots (called by drrsub_)
     virtual void DeclarePlots(void) const;
+    virtual const std::set<std::string>& GetTypes(void) const {
+      return associatedTypes; 
+    }
     // return true on success
     virtual bool HasEvent(void) const;
     virtual bool Init(DetectorDriver &driver);

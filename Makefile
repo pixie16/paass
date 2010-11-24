@@ -1,3 +1,4 @@
+#!/bin/make
 # GNUmakefile using implicit rules and standard definitions
 SHELL=/bin/sh
 
@@ -35,7 +36,7 @@ cxxSrcSuf = cxx
 #------- define compilers
 FC        = g77
 #uncomment to compile with gfortran (>=4.2) if required for the hhirf libs
-#FC       = gfortran
+#FC        = gfortran
 GCC       = gcc 
 CXX       = g++
 LINK.o    = $(FC) $(LDFLAGS) $(TARGET_ARCH)
@@ -59,10 +60,10 @@ CINCLUDEDIRS  = -Iinclude
 
 #------- basic linking instructions
 ifdef PULSEFIT
-LDLIBS  += -lm -lgsl -lgslcblas -lstdc++ -lg2c
-CXXFLAGS+= -Dpulsefit
+LDLIBS   += -lm -lgsl -lgslcblas -lstdc++ -lg2c
+CXXFLAGS += -Dpulsefit
 else
-LDLIBS  += -lm -lstdc++ 
+LDLIBS   += -lm -lstdc++ 
 endif
 
 ifeq ($(FC),gfortran)
@@ -139,7 +140,7 @@ ROOTCONFIG   := root-config
 #no uncomment ROOTCLFAGS   := $(filter-out pthread,$(ROOTCFLAGS))
 CXXFLAGS     += $(shell $(ROOTCONFIG) --cflags) -Duseroot
 LDFLAGS      += $(shell $(ROOTCONFIG) --ldflags)
-LDLIBS       += $(shell $(ROOTCONFIG) --libs)
+LDLIBS       := $(shell $(ROOTCONFIG) --libs)
 endif
 
 #--------- Add to list of known file suffixes
