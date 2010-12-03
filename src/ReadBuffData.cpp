@@ -80,7 +80,9 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
   /* Initialize indicator and counter */
   unsigned long totalSkippedWords = 0;
   unsigned long numEvents = 0;
-   
+  
+  static const double HIGH_MULT = pow(2., 32.);
+
   /* Determine the number of words in the buffer */
   *bufLen = bufNData = buf[totalSkippedWords++];
 
@@ -162,7 +164,7 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
 		      // new event time constructed from upper 32 bits of event time and
 		      // using the trigger time for the lower 32 bits, this should
 		      // be immune to slow filter lengths.
-                      currentEvt->time = (double)(eventTime[0] * pow(2.,32) + chanTrigTime);
+                      currentEvt->time = (double)(eventTime[0] * HIGH_MULT + chanTrigTime);
                       
                       /* Check if trace data follows the channel header */
                       if( chanLength > CHANNEL_HEAD_LENGTH && runTask == LIST_MODE_RUN0 ) { 

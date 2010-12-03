@@ -1,5 +1,5 @@
-Add GetProcessor(type) to DetectorDriver
-Add flag for whether a processor processed succesfully? Alternatively, store results of Process() call in DetectorDriver
 48-bit times in RawEvent
 Rehaul trace analyzer. Trace info as a map?
 ROOT histogramming
+
+For Redhat systems, libstdc++.so.5 is necessary to compile with ROOT support. Compilation needs to be streamlined in this case.

@@ -62,6 +62,7 @@ class DetectorDriver {
 
     const vector<EventProcessor *>& GetProcessors(void) const
 	{return vecProcess;}; /**< return the list of processors */
+    vector<EventProcessor *> GetProcessors(const string &type) const;
 
     DetectorDriver();
     ~DetectorDriver();

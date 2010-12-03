@@ -48,7 +48,8 @@ void Correlator::DeclarePlots() const
 }
 
 void Correlator::Correlate(RawEvent &event, EEventType type,
-			   int frontCh, int backCh, double time)
+			   unsigned int frontCh, unsigned int backCh,
+			   double time)
 {
     using namespace dammIds::correlator;
 

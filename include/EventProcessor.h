@@ -29,11 +29,14 @@ class EventProcessor {
     double userTime;
     double systemTime;
     double clocksPerSecond;
+
+
  protected:
     // define the associated detector types and only initialize if present
     std::string name;
     std::set<std::string> associatedTypes;    
     bool initDone;
+    bool didProcess;
     // map of associated detector summary
     std::map<std::string, const DetectorSummary *> sumMap;
 
@@ -45,6 +48,9 @@ class EventProcessor {
     virtual void DeclarePlots(void) const;
     virtual const std::set<std::string>& GetTypes(void) const {
       return associatedTypes; 
+    }
+    virtual bool DidProcess(void) const {
+      return didProcess;
     }
     // return true on success
     virtual bool HasEvent(void) const;

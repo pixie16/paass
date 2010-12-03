@@ -22,7 +22,8 @@ using namespace std;
 extern RawEvent rawev; // to access detector summaries
 
 EventProcessor::EventProcessor() : 
-    userTime(0.), systemTime(0.), name("generic"), initDone(false)
+  userTime(0.), systemTime(0.), name("generic"), initDone(false), 
+  didProcess(false)
 {
     clocksPerSecond = sysconf(_SC_CLK_TCK);
 }
@@ -91,12 +92,12 @@ bool EventProcessor::Init(DetectorDriver &driver)
 bool EventProcessor::Process(RawEvent &event)
 {
     if (!initDone)
-	return false;
+        return (didProcess = false);
 
     // start the process timer
     times(&tmsBegin);
     
-    return true;
+    return (didProcess = true);
 }
 
 /** Wrap up the processing and update the time spent by this processor */

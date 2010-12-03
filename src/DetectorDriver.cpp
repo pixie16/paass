@@ -299,6 +299,19 @@ int DetectorDriver::PlotCal(const ChanEvent *chan) const
     return 0;
 }
 
+vector<EventProcessor *> DetectorDriver::GetProcessors(const string& type) const
+{
+  vector<EventProcessor *> retVec;
+
+  for (vector<EventProcessor *>::const_iterator it = vecProcess.begin();
+       it != vecProcess.end(); it++) {
+    if ( (*it)->GetTypes().count(type) > 0 )
+      retVec.push_back(*it);
+  }
+
+  return retVec;
+}
+
 /*!
   Read in the calibration for each channel according to the data in cal.txt
 */

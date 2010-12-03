@@ -61,7 +61,7 @@ class Correlator
   Correlator();
   void DeclarePlots(void) const;
   
-  void Correlate(RawEvent &, EEventType, int, int, double);
+  void Correlate(RawEvent &, EEventType, unsigned int, unsigned int, double);
   double GetDecayTime(void) const {return lastDecay->dtime;};
   EConditions GetCondition(void) const {return condition;};
   

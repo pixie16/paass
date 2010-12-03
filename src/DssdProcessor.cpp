@@ -81,7 +81,7 @@ bool DssdProcessor::Process(RawEvent &event)
     static DetectorSummary *mcpSummary = event.GetSummary("mcp");
     static Correlator &corr = event.GetCorrelator();
 
-    int frontPos = -1, backPos = -1;
+    int frontPos = UINT_MAX, backPos = UINT_MAX;
     double frontEnergy, backEnergy, frontTime = 0.;
 
     bool hasFront = frontSummary && (frontSummary->GetMult() > 0);
@@ -94,13 +94,13 @@ bool DssdProcessor::Process(RawEvent &event)
 	frontPos    = ch->GetChanID().GetLocation();
 	frontEnergy = ch->GetCalEnergy();
 	frontTime   = ch->GetTime();
-    }
+    } else frontEnergy = 0.;
     if (hasBack) {
 	const ChanEvent *ch = backSummary->GetMaxEvent();
 
 	backPos    = ch->GetChanID().GetLocation();
 	backEnergy = ch->GetCalEnergy();
-    }
+    } else backEnergy = 0.;
 
     // decide whether this is an implant or a decay
     Correlator::EEventType type;

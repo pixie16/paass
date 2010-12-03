@@ -50,16 +50,13 @@ bool PulserProcessor::Process(RawEvent &event)
 
     plot(D_PROBLEMSTUFF, 30);
 
-    if(!RetrieveData(event))
-    {
+    if(!RetrieveData(event)) {
 	EndProcess();
-	return(false);
-    }
-    else
-    {
+	return (didProcess = false);
+    } else {
 	AnalyzeData();
 	EndProcess();
-	return(true);
+	return true;
     }
 }
 
