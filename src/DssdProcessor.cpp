@@ -5,6 +5,8 @@
  *   correlator accordingly
  */
 
+#include <climits>
+
 #include "damm_plotids.h"
 
 #include "DssdProcessor.h"

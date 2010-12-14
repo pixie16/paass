@@ -43,8 +43,8 @@ LINK.o    = $(FC) $(LDFLAGS) $(TARGET_ARCH)
 
 #------- define basic compiler flags, no warnings on code that is not my own
 FFLAGS   += -O3
-GCCFLAGS += -O3 -fPIC $(CINCLUDEDIRS)
-CXXFLAGS += -O3 -Wall -fPIC $(CINCLUDEDIRS) -Dnewreadout
+GCCFLAGS += -fPIC $(CINCLUDEDIRS)
+CXXFLAGS += -Wall -fPIC $(CINCLUDEDIRS) -Dnewreadout
 ifdef REVISIOND
 CXXFLAGS += -DREVD
 endif
@@ -67,9 +67,12 @@ LDLIBS   += -lm -lstdc++
 endif
 
 ifeq ($(FC),gfortran)
-FFLAGS	+= -fsecond-underscore
-LDLIBS	+= -lgfortran
+FFLAGS	 += -fsecond-underscore
+LDLIBS	 += -lgfortran
+GCCFLAGS += -O3
+CXXFLAGS += -O3
 else
+LDFLAGS += -g77libs
 LDLIBS	+= -lg2c
 endif
 
