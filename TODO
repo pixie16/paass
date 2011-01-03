@@ -1,5 +1,6 @@
 48-bit times in RawEvent
 Rehaul trace analyzer. Trace info as a map?
 ROOT histogramming
+Make map.txt/cal.txt locations subtype dependent?
 
 For Redhat systems, libstdc++.so.5 is necessary to compile with ROOT support. Compilation needs to be streamlined in this case.

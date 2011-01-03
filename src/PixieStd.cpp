@@ -440,6 +440,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
               If the record length is 6, this is an empty channel.
 	      Skip this vsn and continue with the next
             */
+	    //! Revision specific, so move to ReadBuffData
             if (lenRec==6) {
                 nWords += lenRec+1; // one additional word for delimiter
                 lastVsn=vsn;
