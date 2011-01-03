@@ -1,4 +1,4 @@
-/** \file SptFitProcessor.h
+/** \file WaveformProcessor.h
  * 
  * Class for handling position-sensitive mcp signals
  */
