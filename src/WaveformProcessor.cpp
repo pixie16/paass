@@ -46,7 +46,7 @@ subroutines are able to access it.
 extern "C" void count1cc_(const int &, const int &, const int &);
 extern "C" void set2cc_(const int &, const int &, const int &, const int &);
 
-void ngdiscrim(const vector<int> &trace, const double &traceQDC, const double &ave_baseline, const int &maxX);
+void ngdiscrim(const vector<int> &trace, const double &traceQDC, const double &ave_baseline, const unsigned int &maxX);
 
 #ifdef pulsefit
 double fitroutine(const vector<int> &trace, const int &maxX, const double &ave_baseline, const double &s_dev_baseline);
@@ -54,7 +54,7 @@ int my_f(const gsl_vector *x, void *FitData, gsl_vector *f);
 int expb_df(const gsl_vector *x, void *FitData, gsl_matrix *J);
 int expb_fdf(const gsl_vector *x, void *FitData, gsl_vector *f, gsl_matrix *J);
 #else
-double spt_analysis(const vector<int> &trace, const int &maxX, const double &ave_baseline, const double &trcQDC, const int &counter);
+double spt_analysis(const vector<int> &trace, const unsigned int &maxX, const double &ave_baseline, const double &trcQDC, const int &counter);
 #endif
 
 using namespace dammIds::waveformprocessor;
@@ -101,7 +101,7 @@ bool WaveformProcessor::Process(RawEvent &event)
     for(vector<ChanEvent*>::const_iterator it = allEvents.begin(); it != allEvents.end(); it++)
     {
 	ChanEvent *chan = *it;
-	const unsigned int location = chan->GetChanID().GetLocation();
+	// const unsigned int location = chan->GetChanID().GetLocation();
 	const string subType = chan->GetChanID().GetSubtype();
 	const vector<int> &trace = chan->GetTraceRef();
 	
@@ -121,11 +121,11 @@ bool WaveformProcessor::Process(RawEvent &event)
 /**** LOCATE THE WAVEFORM PEAK ****/
 	vector<int>::const_iterator itTrace = max_element(trace.begin()+WAVEFORMLOW, trace.end()-WAVEFORMHIGH);
 	double max_value = *itTrace;
-	int max_x = int(itTrace-trace.begin());
+	unsigned int max_x = int(itTrace-trace.begin());
 
 /**** CALCULATE THE AVERAGE AND S_DEV OF THE BASELINE (REPLACE WITH STATS ACCUMULATOR) ****/	    
 	double sumOfBaseline = 0, baselineOffset = 0;
-	int numBinsBaseline = 15;
+        const unsigned int numBinsBaseline = 15;
 	
 	for (unsigned int v=0; v < numBinsBaseline; v++) 
 	{
@@ -171,7 +171,7 @@ bool WaveformProcessor::Process(RawEvent &event)
     return(true);
 }
 
-void ngdiscrim(const vector<int> &trace, const double &traceQDC, const double &aveBaseline, const int &maxX)
+void ngdiscrim(const vector<int> &trace, const double &traceQDC, const double &aveBaseline, const unsigned int &maxX)
 {
     double discrim = 0, discrim_norm = 0;
     
@@ -318,22 +318,27 @@ int expb_fdf (const gsl_vector * x, void *FitData,
     
     return GSL_SUCCESS;
 }
-#else
-double spt_analysis(const vector<int> &trace, const int &maxX, const double &ave_baseline, const double &trcQDC, const int &counter)
+#else //pulsefit undefined
+double spt_analysis(const vector<int> &trace, const unsigned int &maxX, const double &ave_baseline, const double &trcQDC, const int &counter)
 {
+    //! Lots of magic numbers here
     //Normalize the trace
     vector<double> normtrc(trace.size());
     for(unsigned int j = 0; j < trace.size(); j++)
 	normtrc.at(j) = ((trace.at(j)-ave_baseline)/trcQDC)*6226.55; 
 //    	normtrc.at(j) = ((trace.at(j)-ave_baseline)); 
 
+    // not currently used
+    /*
     double bassum=0;
     for (unsigned int v=0; v < 15; v++) 
     {
-	unsigned int baselineValue = normtrc.at(v);
-	bassum += baselineValue;
+	//! unsigned int baselineValue = normtrc.at(v);
+	// bassum += baselineValue;
+	bassum += normtrc.at(v);
     }
     double ave_bass = bassum / 15;
+    */
 
     double normE=0;
     for(unsigned int j = (maxX - WAVEFORMLOW); j < (maxX + WAVEFORMHIGH); j++)

@@ -90,7 +90,8 @@ void PulserProcessor::AnalyzeData(void)
     map<string, PulserData>::iterator itStart = pulserMap.find("start");
     map<string, PulserData>::iterator itStop  = pulserMap.find("stop");
 
-    int maxPosStart = (*itStart).second.maxPos;
+    // unused for now
+    // int maxPosStart = (*itStart).second.maxPos;
 
     if((*itStart).second.maxPos ==41)
 	//if(((*itStart).second.trace.at(maxPosStart+1) > 1466) && ((*itStart).second.trace.at(maxPosStart+1) < 1506))

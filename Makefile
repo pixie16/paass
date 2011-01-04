@@ -39,31 +39,29 @@ FC        = g77
 #FC        = gfortran
 GCC       = gcc 
 CXX       = g++
-LINK.o    = $(FC) $(LDFLAGS) $(TARGET_ARCH)
-
-#------- define basic compiler flags, no warnings on code that is not my own
-FFLAGS   += -O3
-GCCFLAGS += -fPIC $(CINCLUDEDIRS)
-CXXFLAGS += -Wall -fPIC $(CINCLUDEDIRS) -Dnewreadout
-ifdef REVISIOND
-CXXFLAGS += -DREVD
-endif
+LINK.o    = $(FC) $(LDFLAGS)
 
 # -Dnewreadout is needed to account for a change to pixie16 readout
 # structure change on 03/20/08.  Remove for backwards compatability
 #
 # for debug and profiling add options -g -pg
 # and remove -O
+#------- define basic compiler flags, no warnings on code that is not my own
+FFLAGS   += -O3
+GCCFLAGS += -fPIC $(CINCLUDEDIRS) -Dnewreadout
+CXXFLAGS += -Wall -fPIC $(CINCLUDEDIRS) -Dnewreadout
+ifdef REVISIOND
+CXXFLAGS += -DREVD
+endif
 
 #------- include directories for the pixie c files
 CINCLUDEDIRS  = -Iinclude
 
 #------- basic linking instructions
+LDLIBS   += -lm -lstdc++
 ifdef PULSEFIT
-LDLIBS   += -lm -lgsl -lgslcblas -lstdc++ -lg2c
+LDLIBS   += -lgsl -lgslcblas
 CXXFLAGS += -Dpulsefit
-else
-LDLIBS   += -lm -lstdc++ 
 endif
 
 ifeq ($(FC),gfortran)
@@ -132,10 +130,6 @@ endif
 
 PROGRAMS = $(PIXIE)
 
-DISTTARGETS = src include scan manual Makefile Doxyfile map.txt cal.txt
-DISTNAME = pixie_scan
-DOCSTARGETS = html latex
-
 #------------ adjust compilation if ROOT capability is desired -------
 ifdef USEROOT
 ROOTCONFIG   := root-config
@@ -149,25 +143,13 @@ endif
 #--------- Add to list of known file suffixes
 .SUFFIXES: .$(cxxSrcSuf) .$(fSrcSuf) .$(c++SrcSuf) .$(cSrcSuf)
 
-.phony: all clean dist distdocs
+.phony: all clean
 all:     $(PROGRAMS)
 
 #----------- remove all objects, core and .so file
 clean:
 	@echo "Cleaning up..."
 	@rm -f $(OBJS) $(PIXIE) core *~ src/*~ include/*~ scan/*~
-
-dist:
-	@mkdir $(DISTNAME)
-	@cp -t $(DISTNAME) -r $(DISTTARGETS)
-	@tar -czf $(DISTNAME)-`date +%d%m%y`.tgz --exclude=*~ $(DISTNAME)
-	@$(RM) -r $(DISTNAME)
-
-distdocs:
-	@mkdir $(DISTNAME)
-	@cp -t $(DISTNAME) -r $(DISTTARGETS) $(DOCSTARGETS)
-	@tar -czf $(DISTNAME)-with-docs-`date +%d%m%y`.tgz --exclude=*~ $(DISTNAME)
-	@$(RM) -r $(DISTNAME)
 
 #----------- link all created objects together
 #----------- to create pixie_ldf_c program
