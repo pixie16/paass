@@ -7,6 +7,11 @@ INTERMEDIATES = $(PDFTARGETS:.pdf=.aux) $(PDFTARGETS:.pdf=.dvi) \
 .phony: all clean veryclean
 all: $(PDFTARGETS)
 
+%.dvi: %.tex
+	latex $<
+	latex $<
+	latex $<
+
 %.ps: %.dvi
 	dvips $<
 

@@ -19,9 +19,3 @@ clean:
 	@for dir in $(ALLDIRS); do \
 	$(MAKE) -C $$dir $@; \
 	done
-
-dist: clean
-	@mkdir $(DISTNAME)
-	@cp -R $(DISTTARGETS) $(DISTNAME)
-	@tar -czf $(DISTNAME)-`date +%d%m%y`.tgz $(DISTNAME) --exclude=*~
-	@$(RM) -r $(DISTNAME)
