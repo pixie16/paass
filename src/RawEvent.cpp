@@ -113,7 +113,6 @@ void DetectorSummary::Zero()
 {
     eventList.clear();
     maxEvent = NULL;
-    //name = "";
 }
 
 /**
@@ -124,6 +123,32 @@ void DetectorSummary::Zero()
 DetectorSummary::DetectorSummary()
 {
     maxEvent = NULL;
+}
+
+DetectorSummary::DetectorSummary(const string &str, 
+				 const vector<ChanEvent *> &fullList) : name(str)
+{
+    maxEvent = NULL;
+    
+    // go find all channel events with appropriate type and subtype
+    size_t colonPos = str.find_first_of(":");
+    type = str.substr(0, colonPos);
+    if (colonPos == string::npos) {
+	subtype = ""; // no associated subtype
+    } else {
+	subtype = str.substr(colonPos+1);
+    }
+    
+    for (vector<ChanEvent *>::const_iterator it = fullList.begin();
+	 it != fullList.end(); it++) {	
+	const Identifier& id = (*it)->GetChanID();
+	if ( id.GetType() != type )
+	    continue;
+	if ( subtype != "" && id.GetSubtype() != subtype )
+	    continue;
+	// put it in the summary
+	AddEvent(*it);
+    }
 }
 
 void DetectorSummary::AddEvent(ChanEvent *ev)
@@ -218,25 +243,25 @@ void RawEvent::Zero(const set<string> &usedev){
  * Retrieve from the detector summary map a pointer to the specific detector
  * summary that is associated with the passed string. 
  */
-DetectorSummary *RawEvent::GetSummary(const string& a)
+DetectorSummary *RawEvent::GetSummary(const string& s)
 {
-    map<string, DetectorSummary>::iterator s = sumMap.find(a);
+    map<string, DetectorSummary>::iterator it = sumMap.find(s);
 
-    if (s == sumMap.end()) {
-	cout << "Returning NULL detector summary for type " << a << endl;
+    if (it == sumMap.end()) {
+	// construct the summary
+	cout << "Constructing detector summary for type " << s << endl;
+	sumMap.insert( make_pair(s, DetectorSummary(s, eventList) ) );
+    }
+    return &(it->second);
+}
+
+const DetectorSummary *RawEvent::GetSummary(const string &s) const
+{
+    map<string, DetectorSummary>::const_iterator it = sumMap.find(s);
+  
+    if ( it == sumMap.end() ) {
+	cout << "Returning NULL detector summary for type " << s << endl;
 	return NULL;
     }
-    return &(s->second);
+    return &(it->second);
 }
-
-const DetectorSummary *RawEvent::GetSummary(const string &a) const
-{
-    map<string, DetectorSummary>::const_iterator s = sumMap.find(a);
-  
-    if ( s == sumMap.end() ) {
-      cout << "Returning NULL detector summary for type " << a << endl;
-      return NULL;
-    }
-    return &(s->second);
-}
-

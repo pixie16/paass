@@ -52,10 +52,10 @@ class Identifier {
     void SetSubtype(string a) {subtype = a;}  /**< Set the detector subtype */
     void SetLocation(int a)   {location = a;} /**< Set the detector location */
     
-    int GetDammID() const     {return dammID;}   /**< Get the dammid */
-    string GetType() const    {return type;}     /**< Get the detector type */
-    string GetSubtype() const {return subtype;}  /**< Get the detector subtype */
-    int GetLocation() const   {return location;} /**< Get the detector location */
+    int GetDammID() const            {return dammID;}   /**< Get the dammid */
+    const string& GetType() const    {return type;}     /**< Get the detector type */
+    const string& GetSubtype() const {return subtype;}  /**< Get the detector subtype */
+    int GetLocation() const          {return location;} /**< Get the detector location */
 
     Identifier();
     void Zero();
@@ -171,15 +171,18 @@ class ChanEvent {
  */
 class DetectorSummary {
  private:
-    string name;                  /**< detector name associated with this summary */
+    string name;                  /**< name associated with this summary */
+    string type;                  /**< detector type associated with this summary */
+    string subtype;               /**< detector subtype associated with this summary */
     vector<ChanEvent*> eventList; /**< list of events associated with this detector group */
     ChanEvent* maxEvent;          /**< event with maximum energy deposition */
  public:
     DetectorSummary();
+    DetectorSummary(const string &str, const vector<ChanEvent *> &fullList);
     void Zero();
     void AddEvent(ChanEvent *ev); /**< Add a channel event to the summary */
 
-    void SetName(string a) {name = a;} /**< Set the detector type name */
+    void SetName(const string& a) {name = a;} /**< Set the detector type name */
     
     const ChanEvent* GetMaxEvent(void) const 
 	{return maxEvent;}          /**< Get the max event */
