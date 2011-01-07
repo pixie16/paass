@@ -94,13 +94,14 @@ class ChanEvent {
     unsigned long runTime2;    /**< Higher bits of run time */
 
     double time;               /**< Raw channel time, 64 bit from pixie16 channel event time */
+    double eventTime;          /**< The event time recorded by Pixie */
     int    modNum;             /**< Module number */
     int    chanNum;            /**< Channel number */
 
     void ZeroNums(void);       /**< Zero members which do not have constructors associated with them */
     
     // make the front end responsible for reading the data able to set the channel data directly
-    friend int ReadBuffData(unsigned int *, unsigned long *, vector<ChanEvent *> &);
+    friend int ReadBuffData(pixie::bufword_t *, unsigned long *, vector<ChanEvent *> &);
  public:
     static const double pixieEnergyContraction; ///< energies from pixie16 are contracted by this number
 
@@ -116,6 +117,7 @@ class ChanEvent {
     double GetCalEnergy() const   {return calEnergy;}   /**< Get the calibrated energy */
     double GetTime() const        {return time;}        /**< Get the raw time */
     double GetCalTime() const     {return calTime;}    /**< Get the calibrated time */
+    double GetEventTime() const   {return eventTime;}  /**< Get the event time */
     const vector<int> &GetTraceRef() const {return trace;} /**< Get a reference to the trace */
 
     unsigned long GetTrigTime() const    

@@ -7,7 +7,6 @@
 #define __PARAM_H_
 
 #include <cstdlib>
-
 #include <stdint.h>
 
 const size_t MAX_STRIP = 40; //< number of DSSD strips
@@ -17,6 +16,7 @@ const int MAX_PAR = 32000; //< maximum limit for calibrations
 namespace pixie {
     typedef uint32_t word_t; //< a pixie word
     typedef uint16_t halfword_t; //< a half pixie word
+    typedef uint32_t bufword_t; //< word in a pixie buffer
 
     const double clockInSeconds = 10e-9; //< one pixie clock is 10 ns
 };

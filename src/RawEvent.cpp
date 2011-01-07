@@ -228,10 +228,11 @@ void RawEvent::AddChan(ChanEvent *event)
  * For any detector type that was used in the event, zero the appropriate
  * detector summary in the map, and clear the event list
  */
-void RawEvent::Zero(const set<string> &usedev){
-    for (set<string>::const_iterator it = usedev.begin();
-	 it != usedev.end(); it++) {
-	sumMap[*it].Zero();
+void RawEvent::Zero(const set<string> &usedev)
+{
+    for (map<string, DetectorSummary>::iterator it = sumMap.begin();
+	 it != sumMap.end(); it++) {
+	(*it).second.Zero();
     }
 
     eventList.clear();
@@ -251,6 +252,7 @@ DetectorSummary *RawEvent::GetSummary(const string& s)
 	// construct the summary
 	cout << "Constructing detector summary for type " << s << endl;
 	sumMap.insert( make_pair(s, DetectorSummary(s, eventList) ) );
+	it = sumMap.find(s);
     }
     return &(it->second);
 }
