@@ -230,7 +230,7 @@ class RawEvent {
 	{return correlator;} /**< get the correlator */
     const set<string>& GetUsedDetectors() const 
 	{return usedDetectors;} /**< get the list of detectors in the map */
-    DetectorSummary *GetSummary(const string& a);
+    DetectorSummary *GetSummary(const string& a, bool construct = true);
     const DetectorSummary *GetSummary(const string &a) const;
     const vector<ChanEvent *> &GetEventList(void) const
 	{return eventList;} /**< Get the list of events */

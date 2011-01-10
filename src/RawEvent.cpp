@@ -244,15 +244,20 @@ void RawEvent::Zero(const set<string> &usedev)
  * Retrieve from the detector summary map a pointer to the specific detector
  * summary that is associated with the passed string. 
  */
-DetectorSummary *RawEvent::GetSummary(const string& s)
+DetectorSummary *RawEvent::GetSummary(const string& s, bool construct)
 {
     map<string, DetectorSummary>::iterator it = sumMap.find(s);
 
     if (it == sumMap.end()) {
-	// construct the summary
-	cout << "Constructing detector summary for type " << s << endl;
-	sumMap.insert( make_pair(s, DetectorSummary(s, eventList) ) );
-	it = sumMap.find(s);
+	if (construct) {
+	    // construct the summary
+	    cout << "Constructing detector summary for type " << s << endl;
+	    sumMap.insert( make_pair(s, DetectorSummary(s, eventList) ) );
+	    it = sumMap.find(s);
+	} else {
+	    cout << "Returning NULL detector summary for type " << s << endl;
+	    return NULL;
+	}
     }
     return &(it->second);
 }

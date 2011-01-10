@@ -265,7 +265,9 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
       update the detector summary
     */    
     rawev.GetSummary(type)->AddEvent(chan);
-    rawev.GetSummary(type + ':' + subtype)->AddEvent(chan);
+    DetectorSummary *summary = rawev.GetSummary(type + ':' + subtype, false);
+    if (summary != NULL)
+	summary->AddEvent(chan);
 
     return 1;
 }
