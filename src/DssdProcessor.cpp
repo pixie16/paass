@@ -80,15 +80,14 @@ bool DssdProcessor::Process(RawEvent &event)
 	frontSummary = event.GetSummary("dssd_front");
     if (backSummary == NULL)
 	backSummary = event.GetSummary("dssd_back");
-    static DetectorSummary *mcpSummary = event.GetSummary("mcp");
     static Correlator &corr = event.GetCorrelator();
 
-    int frontPos = UINT_MAX, backPos = UINT_MAX;
+    int frontPos = INT_MAX, backPos = INT_MAX;
     double frontEnergy, backEnergy, frontTime = 0.;
 
-    bool hasFront = frontSummary && (frontSummary->GetMult() > 0);
-    bool hasBack  = backSummary && (backSummary->GetMult() > 0);
-    bool hasMcp   = mcpSummary && (mcpSummary->GetMult() > 0);
+    bool hasFront = (frontSummary->GetMult() > 0);
+    bool hasBack  = (backSummary->GetMult() > 0);
+    bool hasMcp   = (event.GetSummary("mcp")->GetMult() > 0);
 
     if (hasFront) {
 	const ChanEvent *ch = frontSummary->GetMaxEvent();

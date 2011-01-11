@@ -18,6 +18,7 @@ using namespace dammIds::scint;
 ScintProcessor::ScintProcessor() : EventProcessor()
 {
     name = "scint";
+    //? change to associated type "scint:neutr"
     associatedTypes.insert("scint"); // associate with the scint type
 }
 
@@ -50,60 +51,33 @@ bool ScintProcessor::Process(RawEvent &event)
     if (!EventProcessor::Process(event))
 	return false;
     
-    // flag for the presence of a beta decay electron
-    int betaMult  = 0;
-    int gammaMult = 0;
-    
-    static const vector<ChanEvent*> &scintEvents = sumMap["scint"]->GetList();
+    static const vector<ChanEvent*> &scintNeutrEvents = 
+	event.GetSummary("scint:neutr")->GetList();
 
-    //loop of scint and identify signals belonging to beta detectors  
-    for (vector<ChanEvent*>::const_iterator it = scintEvents.begin();
-	 it != scintEvents.end(); it++) {
-	if ( (*it)->GetChanID().GetSubtype() == "beta" ) {
-	    betaMult++;
-	}
-    }
+    int betaMult = event.GetSummary("scint:beta")->GetMult();
+    int gammaMult = event.GetSummary("ge:clover_high")->GetMult();
 
-    // this summary isn't guaranteed to exist here, so first check its validity
-    static const DetectorSummary *geSummary = event.GetSummary("ge");
-
-    if (geSummary) {
-	// loop over ge signals and identify those with signals in high gain
-	for (vector<ChanEvent*>::const_iterator it = geSummary->GetList().begin();
-	     it != geSummary->GetList().end(); it++) {
-	    if ( (*it)->GetChanID().GetSubtype() == "clover_high") {
-		// For some experiments two outputs per clover were used, one was set
-		// to high gain on pixie16 and one was set to low gain on pixie16. 
-		// Only perform analysis for high gain clover signals. 
-		gammaMult++;
-	    }
-	}
-    }
-
-    for (vector<ChanEvent*>::const_iterator it = scintEvents.begin();
-	 it != scintEvents.end(); it++) {
+    for (vector<ChanEvent*>::const_iterator it = scintNeutrEvents.begin();
+	 it != scintNeutrEvents.end(); it++) {
 	ChanEvent *chan = *it;
 
-	string subtype = chan->GetChanID().GetSubtype();
 	int loc        = chan->GetChanID().GetLocation();
 	
-	if(subtype == "neutr") {
-	    using namespace neutr;
+	using namespace neutr;
+	
+	double neutronEnergy = chan->GetCalEnergy();
 	    
-	    double neutronEnergy = chan->GetCalEnergy();
-	    
-	    //plot neutron spectrum gated by beta
-	    if (betaMult > 0) { 
-		plot(betaGated::D_ENERGY_DETX + loc, neutronEnergy);
+	//plot neutron spectrum gated by beta
+	if (betaMult > 0) { 
+	    plot(betaGated::D_ENERGY_DETX + loc, neutronEnergy);
+	}
+	//plot neutron spectrum gated by gamma
+	if (gammaMult > 0) {
+	    plot(gammaGated::D_ENERGY_DETX + loc, neutronEnergy);
+	    if (betaMult > 0) {
+		plot(betaGammaGated::D_ENERGY_DETX + loc, neutronEnergy);
 	    }
-	    //plot neutron spectrum gated by gamma
-	    if (gammaMult > 0) {
-		plot(gammaGated::D_ENERGY_DETX + loc, neutronEnergy);
-		if (betaMult > 0) {
-		    plot(betaGammaGated::D_ENERGY_DETX + loc, neutronEnergy);
-		}
-	    }
-	} // if neutr 
+	}
     } // end loop over scint types
 	
     EndProcess(); // update the processing time

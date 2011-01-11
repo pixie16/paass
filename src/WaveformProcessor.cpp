@@ -82,9 +82,9 @@ bool WaveformProcessor::Process(RawEvent &event)
     if (!EventProcessor::Process(event)) 
 	return(false);
     
-    static const DetectorSummary* vandleEvents = event.GetSummary("vandle");
-    static const DetectorSummary* scintEvents = event.GetSummary("scint");
-    static const DetectorSummary* pulserEvents = event.GetSummary("pulser");
+    static const DetectorSummary* vandleEvents = event.GetSummary("vandle", false);
+    static const DetectorSummary* scintEvents = event.GetSummary("scint", false);
+    static const DetectorSummary* pulserEvents = event.GetSummary("pulser", false);
 
     if(vandleEvents && scintEvents)
 	if(vandleEvents->GetList().empty() || scintEvents->GetList().empty())

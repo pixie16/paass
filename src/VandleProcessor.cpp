@@ -98,8 +98,8 @@ bool VandleProcessor::RetrieveData(RawEvent &event)
     vandleBarMap.clear();
     scintMap.clear();
         
-    static const DetectorSummary* vandleEvents = event.GetSummary("vandle");
-    static const DetectorSummary* scintEvents = event.GetSummary("scint");
+    static const DetectorSummary* vandleEvents = event.GetSummary("vandle", false);
+    static const DetectorSummary* scintEvents = event.GetSummary("scint", false);
     
     if(vandleEvents && scintEvents)
 	if(vandleEvents->GetList().empty() || scintEvents->GetList().empty())
