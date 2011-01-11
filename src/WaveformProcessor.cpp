@@ -25,6 +25,7 @@ subroutines are able to access it.
 #include "damm_plotids.h"
 #include "DetectorDriver.h"
 #include "RawEvent.h"
+// #include "Trace.h"
 #include "WaveformProcessor.h"
 #include "StatsAccumulator.h"
 
@@ -103,8 +104,10 @@ bool WaveformProcessor::Process(RawEvent &event)
 	ChanEvent *chan = *it;
 	// const unsigned int location = chan->GetChanID().GetLocation();
 	const string subType = chan->GetChanID().GetSubtype();
+
 	const vector<int> &trace = chan->GetTraceRef();
-	
+	// const Trace trace(chan->GetTraceRef());
+
        	//initalize the variables to be passed to RawEvent
 	chan->SetTrcQDC(-9999);
 	chan->SetPhase(-9999);
