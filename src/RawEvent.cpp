@@ -56,6 +56,7 @@ void ChanEvent::ZeroNums()
     calEnergy   = -1;
     time        = -1;
     calTime     = -1;
+    highResTime = -1;
     trigTime    = -1;
     eventTimeLo = -1;
     eventTimeHi = -1;
@@ -64,6 +65,7 @@ void ChanEvent::ZeroNums()
     runTime2    = -1;
     chanNum     = -1;
     modNum      = -1;
+
 }
 
 //* Find the identifier in the map for the channel event */
@@ -74,12 +76,6 @@ const Identifier& ChanEvent::GetChanID() const
     extern vector<Identifier> modChan; // from PixieStd.cpp
 
     return ( (chanNum == -1) ? nullIdentifier : modChan.at(GetID()) );
-}
-
-//* Get information stored about the trace */
-double ChanEvent::GetTraceInfo(unsigned int a) const
-{
-    return ((a >= traceInfo.size()) ? -1 : (traceInfo[a]));
 }
 
 //* Calculate a channel index */
@@ -101,7 +97,6 @@ void ChanEvent::ZeroVar()
 
     // clear objects
     trace.clear();
-    traceInfo.clear();
 }
 
 /**

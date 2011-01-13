@@ -83,7 +83,7 @@ class ChanEvent {
 				  calibration performed in ThreshAndCal
 				  function in the detector_driver.cpp */
     double calTime;            /**< Calibrated time, currently unused */
-    vector<double> traceInfo;  /**< Values from trace analysis functions */
+    double highResTime;        /**< timing resolution less than 1 adc size */
     Trace trace;               /**< Channel trace if present */
     unsigned long trigTime;    /**< The channel trigger time, trigger time and the lower 32 bits
 				     of the event time are not necessarily the same but could be
@@ -112,15 +112,15 @@ class ChanEvent {
     void SetCalEnergy(double a) {calEnergy = a;} /**< Set the calibrated energy */
     void SetTime(double a)      {time = a;}      /**< Set the raw time */
     void SetCalTime(double a)   {calTime = a;}   /**< Set the calibrated time */
-    void AddTraceInfo(double a) {traceInfo.push_back(a);} /**< Add one value to the traceinfo */
-
+    void SetHighResTime(double a) {highResTime =a;} /**< Set the high resolution time */
     double GetEnergy() const      {return energy;}      /**< Get the raw energy */
     double GetCalEnergy() const   {return calEnergy;}   /**< Get the calibrated energy */
     double GetTime() const        {return time;}        /**< Get the raw time */
     double GetCalTime() const     {return calTime;}    /**< Get the calibrated time */
+    double GetHighResTime() const {return highResTime;} /**< Get the high-resolution time */
     double GetEventTime() const   {return eventTime;}  /**< Get the event time */
     const Trace &GetTrace() const {return trace;} /**< Get a reference to the trace */
-
+    Trace& GetTrace() {return trace;} /** Get a reference which can alter the trace */
     unsigned long GetTrigTime() const    
 	{return trigTime;}    /**< Return the channel trigger time */
     unsigned long GetEventTimeLo() const
@@ -137,7 +137,6 @@ class ChanEvent {
     const Identifier& GetChanID() const; /**< Get the channel identifier */
     int GetID() const;                   /**< Get the channel id defined as
 					    pixie module # * 16 + channel number */
-    double GetTraceInfo(unsigned int a) const; /**< Get a specific value from the traceinfo */
 
 /****Added for SVP ****/
     double TrcQDC, MaxValue;

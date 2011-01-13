@@ -88,6 +88,8 @@ DetectorDriver::DetectorDriver()
     // and finally the root processor
     vecProcess.push_back(new RootProcessor("tree.root", "tree"));
 #endif
+
+    traceSub = new TraceAnalyzer();
 }
 
 /*!
@@ -103,6 +105,8 @@ DetectorDriver::~DetectorDriver()
     }
 
     vecProcess.clear();
+
+    delete traceSub;
 }
 
 /*!
@@ -140,7 +144,7 @@ const set<string>& DetectorDriver::GetKnownDetectors()
 int DetectorDriver::Init(void)
 {
     // initialize the trace analysis routine
-    traceSub.Init();
+    traceSub->Init();
 
     // initialize processors in the event processing vector
     for (vector<EventProcessor *>::iterator it = vecProcess.begin();
@@ -209,7 +213,7 @@ void DetectorDriver::DeclarePlots(void) const
 	 it != vecProcess.end(); it++) {
 	(*it)->DeclarePlots();
     }
-    traceSub.DeclarePlots();
+    traceSub->DeclarePlots();
 }
 
 // sanity check for all our expectations
@@ -232,8 +236,10 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
     int id            = chan->GetID();
     string type       = chanId.GetType();
     string subtype    = chanId.GetSubtype();
+    Trace &trace      = chan->GetTrace();
 
     double energy;
+
 
     if (type == "ignore" || type == "") {
 	return 0;
@@ -241,13 +247,20 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
     /*
       If the channel has a trace get it, analyze it and set the energy.
     */
-    if ( !chan->GetTrace().empty() ) {
+    if ( !trace.empty() ) {
         plot(dammIds::misc::D_HAS_TRACE,id);
-	vector<double> values;
 
-        traceSub.Analyze(chan->GetTrace(), type, subtype);
-	energy = traceSub.GetEnergy();
-        chan->SetEnergy(energy);
+        traceSub->Analyze(trace, type, subtype);
+	if (trace.HasValue("calcEnergy") ) {	    
+	    energy = trace.GetValue("calcEnergy");
+	    chan->SetEnergy(energy);
+	}
+	if (trace.HasValue("phase") ) {
+	    double phase = trace.GetValue("phase");
+	    chan->SetHighResTime( phase + 
+				  chan->GetTrigTime() * pixie::filterClockInSeconds / pixie::adcClockInSeconds );
+
+	}
     } else {
       // otherwise, use the Pixie on-board calculated energy
       // add a random number to convert an integer value to a 
@@ -534,7 +547,7 @@ double Calibration::Calibrate(double raw)
         if (raw >= thresh[a] && raw < thresh[a+1]) {
             //loop over the polynomial order
             for(unsigned int b = 0; b < polyOrder+1; b++) {
-		calVal += pow(raw,b) * val[a*(polyOrder+1) + b];
+		calVal += pow(raw,(double)b) * val[a*(polyOrder+1) + b];
             }
 	    break;
         }
