@@ -12,7 +12,6 @@
 #include <fstream>
 #include <iostream>
 #include <numeric>
-#include <vector>
 
 #include <cstdlib>
 
@@ -125,7 +124,7 @@ TraceAnalyzer::~TraceAnalyzer()
  * and then samples the energy filter during its flattop.
  * detType and detSubtype not currently used
  */
-int TraceAnalyzer::Analyze(const vector<int> &trace, 
+int TraceAnalyzer::Analyze(const Trace &trace, 
 			   const string &detType, const string &detSubtype)
 {
     tms tmsBegin;
@@ -176,8 +175,8 @@ int TraceAnalyzer::Analyze(const vector<int> &trace,
     t1 = -1;
     e1 = 0;
     
-    vector<int>::iterator iThr  = fastFilter.begin() + baseHigh - fastSize;
-    vector<int>::iterator iHigh = fastFilter.end(); 
+    Trace::iterator iThr  = fastFilter.begin() + baseHigh - fastSize;
+    Trace::iterator iHigh = fastFilter.end(); 
 
     while (iThr < iHigh) {
       iThr = find_if(iThr, iHigh, bind2nd(greater<int>(), fastThresh));
@@ -234,7 +233,7 @@ int TraceAnalyzer::Analyze(const vector<int> &trace,
  * moving sum windows of width risetime separated by a length gaptime.
  * Filter is calculated from channels lo to hi.
  */
-vector<int> TraceAnalyzer::Filter(vector<int> &trace, int lo, int hi, 
+Trace TraceAnalyzer::Filter(Trace &trace, int lo, int hi, 
 			  int gapTime, int riseTime){
   flt.clear();
 
@@ -267,7 +266,7 @@ vector<int> TraceAnalyzer::Filter(vector<int> &trace, int lo, int hi,
  * same thing as Filter() but fill the storage directly without passing 
  * through the temporary return value
  */
-void TraceAnalyzer::FilterFill(const vector<int> &trace, vector<int> &res,
+void TraceAnalyzer::FilterFill(const Trace &trace, Trace &res,
 			int lo, int hi, int gapTime, int riseTime){
     res.assign(lo, 0);
 
@@ -312,7 +311,7 @@ void TraceAnalyzer::DeclarePlots() const
  *   as well as  E2 v E1 and E2 v time difference plots with
  *   varying conditions for double pulses.
  */
-void TraceAnalyzer::TracePlot(const vector<int> &trace)
+void TraceAnalyzer::TracePlot(const Trace &trace)
 			      
 {
     using namespace dammIds::trace;

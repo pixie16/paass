@@ -13,6 +13,7 @@
 class Trace : public std::vector<int>
 {
  public:
+    Trace() : std::vector<int>() {};
     // an automatic conversion
     Trace(const std::vector<int> &x) : std::vector<int>(x) {};
 };

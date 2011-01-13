@@ -95,13 +95,13 @@ void PulserProcessor::AnalyzeData(void)
 
     if((*itStart).second.maxPos ==41)
 	//if(((*itStart).second.trace.at(maxPosStart+1) > 1466) && ((*itStart).second.trace.at(maxPosStart+1) < 1506))
-	    for(vector<int>::iterator i = (*itStart).second.trace.begin(); i != (*itStart).second.trace.end(); i++)
-		plot(DD_AMPMAPSTART, int(i-(*itStart).second.trace.begin()), *i);
+	for(Trace::iterator i = (*itStart).second.trace.begin(); i != (*itStart).second.trace.end(); i++)
+	    plot(DD_AMPMAPSTART, int(i-(*itStart).second.trace.begin()), *i);
     
     if((*itStart).second.maxPos ==42)
 	//if(((*itStart).second.trace.at(maxPosStart+1) > 1466) && ((*itStart).second.trace.at(maxPosStart+1) < 1506))
-	    for(vector<int>::iterator i = (*itStart).second.trace.begin(); i != (*itStart).second.trace.end(); i++)
-		plot(DD_AMPMAPSTOP, int(i-(*itStart).second.trace.begin()), *i);
+	for(Trace::iterator i = (*itStart).second.trace.begin(); i != (*itStart).second.trace.end(); i++)
+	    plot(DD_AMPMAPSTOP, int(i-(*itStart).second.trace.begin()), *i);
     
     double timeDiff = (*itStop).second.highResTime - (*itStart).second.highResTime;
         
@@ -153,5 +153,5 @@ PulserProcessor::PulserData::PulserData(ChanEvent* chan)
     aveBaseline    = chan->GetAveBaseline();
     highResTime    = chan->GetPhase() + chan->GetTime();
     maxPos         = chan->GetMaxPos();
-    trace          = chan->GetTraceRef();
+    trace          = chan->GetTrace(); //! copies entire trace
 }

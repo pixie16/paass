@@ -12,9 +12,7 @@
 
 #include <sys/times.h>
 
-using std::string;
-using std::vector;
-
+#include "Trace.h"
 
 /** \brief quick online trace analysis
  *
@@ -29,13 +27,13 @@ class TraceAnalyzer {
     double systemTime;        ///< system time used by this class
     double clocksPerSecond;   ///< frequency of system clock
 
-    vector<double> average;   ///< trace average
-    vector<int> fastFilter;   ///< fast filter of trace
-    vector<int> energyFilter; ///< energy filter of trace
-    vector<int> thirdFilter;  /*< third filter of trace, used as a second
+    std::vector<double> average;   ///< trace average
+    Trace fastFilter;   ///< fast filter of trace
+    Trace energyFilter; ///< energy filter of trace
+    Trace thirdFilter;  /*< third filter of trace, used as a second
 			       * threshold check */
 
-    vector<int> flt;         ///< vector used in filter function
+    Trace flt;         ///< vector used in filter function
         
     int t1;                  ///< time of E1 pulse
     int t2;                  ///< time of E2 pulse
@@ -60,10 +58,10 @@ class TraceAnalyzer {
  public:
     int Init(const std::string &filterFile=defaultFilterFile);
     void DeclarePlots(void) const;
-    int Analyze(const vector<int> &, const string &, const string &);
-    vector<int> Filter(vector<int> &, int , int , int , int );
-    void FilterFill(const vector<int> &, vector<int> &, int, int, int, int);
-    void TracePlot(const vector<int> &);
+    int Analyze(const Trace &, const std::string &, const std::string &);
+    Trace Filter(Trace &, int , int , int , int );
+    void FilterFill(const Trace &, Trace &, int, int, int, int);
+    void TracePlot(const Trace &);
 
     int GetTime(void) const {return t1;}
     int GetSecondTime(void) const {return t2;}

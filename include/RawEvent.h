@@ -18,6 +18,7 @@
 
 #include "pixie16app_defs.h"
 #include "param.h"
+#include "Trace.h"
 
 using std::map;
 using std::set;
@@ -83,7 +84,7 @@ class ChanEvent {
 				  function in the detector_driver.cpp */
     double calTime;            /**< Calibrated time, currently unused */
     vector<double> traceInfo;  /**< Values from trace analysis functions */
-    vector<int> trace;         /**< Channel trace if present */
+    Trace trace;               /**< Channel trace if present */
     unsigned long trigTime;    /**< The channel trigger time, trigger time and the lower 32 bits
 				     of the event time are not necessarily the same but could be
 				     separated by a constant value.*/
@@ -118,7 +119,7 @@ class ChanEvent {
     double GetTime() const        {return time;}        /**< Get the raw time */
     double GetCalTime() const     {return calTime;}    /**< Get the calibrated time */
     double GetEventTime() const   {return eventTime;}  /**< Get the event time */
-    const vector<int> &GetTraceRef() const {return trace;} /**< Get a reference to the trace */
+    const Trace &GetTrace() const {return trace;} /**< Get a reference to the trace */
 
     unsigned long GetTrigTime() const    
 	{return trigTime;}    /**< Return the channel trigger time */

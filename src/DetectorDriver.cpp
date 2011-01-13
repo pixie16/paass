@@ -241,11 +241,11 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
     /*
       If the channel has a trace get it, analyze it and set the energy.
     */
-    if ( !chan->GetTraceRef().empty() ) {
+    if ( !chan->GetTrace().empty() ) {
         plot(dammIds::misc::D_HAS_TRACE,id);
 	vector<double> values;
 
-        traceSub.Analyze(chan->GetTraceRef(), type, subtype);
+        traceSub.Analyze(chan->GetTrace(), type, subtype);
 	energy = traceSub.GetEnergy();
         chan->SetEnergy(energy);
     } else {

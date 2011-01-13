@@ -11,6 +11,7 @@
 
 #include "EventProcessor.h"
 #include "RawEvent.h"
+#include "Trace.h"
 
 class PulserProcessor : public EventProcessor
 {
@@ -33,7 +34,7 @@ class PulserProcessor : public EventProcessor
 	double aveBaseline;
 	double highResTime;
 	int    maxPos;
-	vector<int> trace;
+	Trace  trace;
     };
     
     virtual bool RetrieveData(RawEvent &event);

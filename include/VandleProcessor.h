@@ -6,9 +6,11 @@
 #ifndef __VANDLEPROCESSOR_H_
 #define __VANDLEPROCESSOR_H_
 
-#include "EventProcessor.h"
 #include <map>
 #include <vector>
+
+#include "EventProcessor.h"
+#include "Trace.h"
 
 #ifdef useroot
 class TTree;
@@ -42,7 +44,7 @@ class VandleProcessor : public EventProcessor
 	
 	bool goodDataCheck;
 
-	vector<int> trace;
+	Trace trace;
     };
     
     struct VandleBarData

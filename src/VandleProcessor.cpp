@@ -307,7 +307,7 @@ void VandleProcessor::AnalyzeData(void)
 	
 	if(flagGoodData && ((*itLeft).second.max+(*itLeft).second.aveBaseline == 4095))
 	{
-	    for(vector<int>::iterator i = (*itLeft).second.trace.begin(); i != (*itLeft).second.trace.end(); i++)
+	    for(Trace::iterator i = (*itLeft).second.trace.begin(); i != (*itLeft).second.trace.end(); i++)
 		plot(DD_PROBLEMSQDC, int(i-(*itLeft).second.trace.begin()), counter, *i);
 	    
 	    counter++;
@@ -454,7 +454,7 @@ VandleProcessor::VandleData::VandleData(ChanEvent *chan)
     stdDevBaseline = chan->GetStdDevBaseline();
     aveBaseline    = chan->GetAveBaseline();
     highResTime    = chan->GetPhase() + chan->GetTime();
-    trace          = chan->GetTraceRef();
+    trace          = chan->GetTrace(); //! copies entire trace
 }
 
 VandleProcessor::VandleBarData::VandleBarData(const VandleData& Right, const VandleData& Left, const double &distance)
