@@ -140,18 +140,16 @@ PulserProcessor::PulserData::PulserData(string type)
     aveBaseline    = -9999;
     highResTime    = -9999;
     maxPos         = -9999;
-    trace.clear();
 }
 
 PulserProcessor::PulserData::PulserData(ChanEvent* chan)
 {
     location       = chan->GetChanID().GetLocation();
-    trcQDC         = chan->GetTrcQDC();
-    maxValue       = chan->GetMaxValue();	     
-    phase          = chan->GetPhase();
-    stdDevBaseline = chan->GetStdDevBaseline();
-    aveBaseline    = chan->GetAveBaseline();
-    highResTime    = chan->GetPhase() + chan->GetTime();
-    maxPos         = chan->GetMaxPos();
-    trace          = chan->GetTrace(); //! copies entire trace
+    trcQDC         = trace.GetValue("tqdc");
+    maxValue       = trace.GetValue("maxval");
+    maxPos         = trace.GetValue("maxpos");
+    phase          = trace.GetValue("phase");
+    stdDevBaseline = trace.GetValue("sigmaBaseline");
+    aveBaseline    = trace.GetValue("baseline");
+    highResTime    = chan->GetHighResTime();
 }

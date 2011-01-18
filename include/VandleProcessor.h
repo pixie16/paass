@@ -22,6 +22,7 @@ class VandleProcessor : public EventProcessor
     VandleProcessor(); // no virtual c'tors
     virtual void DeclarePlots(void) const;
     virtual bool Process(RawEvent &event);
+    virtual bool Init(DetectorDriver &);
     
 #ifdef useroot
     virtual bool AddBranch(TTree *tree);
@@ -29,6 +30,15 @@ class VandleProcessor : public EventProcessor
 #endif
     
  private:
+    struct VandleCal {
+	double r0;
+	double z0;
+	double xOffset;
+	double zOffset;
+	double tofOffset0;
+	double tofOffset1;
+    };
+
     struct VandleData 
     {
 	VandleData(string type ="");
@@ -36,21 +46,20 @@ class VandleProcessor : public EventProcessor
 	
 	string detSubtype;
 	double tqdc;
-	double max;
+	double maxval;
+	double maxpos;
 	double phase;
 	double stdDevBaseline;
 	double aveBaseline;
 	double highResTime;
 	
-	bool goodDataCheck;
-
 	Trace trace;
     };
     
     struct VandleBarData
     {
-	VandleBarData(const VandleData& Right, const VandleData& Left, const double &distance);
-	double BendBar(double &timeDiff, const double &distance, const string &barType);
+	VandleBarData(const VandleData& Right, const VandleData& Left, const VandleCal &Cal);
+	double BendBar(double &timeDiff, const VandleCal& Cal, const string &barType);
 	
 	double barQDC;
 	string barType;
@@ -71,17 +80,21 @@ class VandleProcessor : public EventProcessor
 	double TOF;
     } vandledataroot;
 
-    virtual double InverseVelocity (const double &corTOF, const double &distance);
-    virtual double CorrectTOF(double &TOF, double &corRadius, double &corBarOffset, const double &distance, const string &barType);
+    virtual double InverseVelocity (const double &corTOF, const double &z0);
+    virtual double CorrectTOF(double &TOF, double &corRadius, const double &z0, const string &barType);
+    
     virtual void ImproperDetOrder(void);
     virtual void AnalyzeData(void);
+    virtual void ReadVandleCal(void);
+    
     virtual bool RetrieveData(RawEvent &event);
     virtual bool BarEventCheck(const double &timeDiff, const string &barType);
     virtual bool GoodDataCheck(const VandleData& DataCheck);
-        
+    
     map<int, struct VandleData> vandleEndsMap;
     map<int, struct VandleBarData> vandleBarMap;
     map<int, struct VandleData> scintMap;
+    map<int, struct VandleCal> vandleCalMap;
     
     int counter;
     

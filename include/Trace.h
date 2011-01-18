@@ -72,11 +72,11 @@ class Trace : public std::vector<int>
 	return (doubleTraceData.count(name) > 0 ||
 		intTraceData.count(name) > 0);
     }
-    double GetValue(std::string name) {
+    double GetValue(std::string name) const {
 	if (doubleTraceData.count(name) > 0)
-	    return doubleTraceData[name];
+	    return (*doubleTraceData.find(name)).second;
 	if (intTraceData.count(name) > 0)
-	    return intTraceData[name];
+	    return (*intTraceData.find(name)).second;
 	return NAN;
     }
     double DoBaseline(unsigned int lo = 0, unsigned int numBins = numBinsBaseline);
