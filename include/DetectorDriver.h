@@ -17,8 +17,6 @@
 #include <string>
 #include <vector>
 
-#include "TraceAnalyzer.h"
-
 #include "param.h"
 
 // forward declarations
@@ -26,6 +24,7 @@ class Calibration;
 class RawEvent;
 class ChanEvent;
 class EventProcessor;
+class TraceAnalyzer;
 
 using std::set;
 using std::string;
@@ -42,7 +41,7 @@ class DetectorDriver {
  private: 
     vector<EventProcessor *> vecProcess; /**< vector of processors to handle each event */
     
-    TraceAnalyzer *traceSub;    /**< object which analyzes traces of channels to extract
+    vector<TraceAnalyzer *> vecAnalyzer; /**< object which analyzes traces of channels to extract
 				   energy and time information */
     set<string> knownDetectors; /**< list of valid detectors that can 
 				   be used as detector types */

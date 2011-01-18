@@ -49,9 +49,11 @@
 #include "McpProcessor.h"
 #include "MtcProcessor.h"
 #include "ScintProcessor.h"
-#include "WaveformProcessor.h"
 #include "VandleProcessor.h"
 #include "PulserProcessor.h"
+
+#include "TraceAnalyzer.h"
+#include "WaveformAnalyzer.h"
 
 #ifdef useroot
 #include "RootProcessor.h"
@@ -75,7 +77,9 @@ extern RandomPool randoms;
 */
 DetectorDriver::DetectorDriver()
 {
-    vecProcess.push_back(new WaveformProcessor());
+    vecAnalyzer.push_back(new TraceAnalyzer());
+    vecAnalyzer.push_back(new WaveformAnalyzer());
+
     vecProcess.push_back(new ScintProcessor());
     vecProcess.push_back(new GeProcessor());
     vecProcess.push_back(new McpProcessor());    
@@ -83,13 +87,10 @@ DetectorDriver::DetectorDriver()
     vecProcess.push_back(new MtcProcessor());
     vecProcess.push_back(new PulserProcessor());
     vecProcess.push_back(new VandleProcessor());
-
 #ifdef useroot
     // and finally the root processor
     vecProcess.push_back(new RootProcessor("tree.root", "tree"));
 #endif
-
-    traceSub = new TraceAnalyzer();
 }
 
 /*!
@@ -106,7 +107,12 @@ DetectorDriver::~DetectorDriver()
 
     vecProcess.clear();
 
-    delete traceSub;
+    for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
+	 it != vecAnalyzer.end(); it++) {
+	delete *it;
+    }
+
+    vecAnalyzer.clear();
 }
 
 /*!
@@ -144,7 +150,10 @@ const set<string>& DetectorDriver::GetKnownDetectors()
 int DetectorDriver::Init(void)
 {
     // initialize the trace analysis routine
-    traceSub->Init();
+    for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
+	 it != vecAnalyzer.end(); it++) {
+	(*it)->Init();
+    }
 
     // initialize processors in the event processing vector
     for (vector<EventProcessor *>::iterator it = vecProcess.begin();
@@ -209,11 +218,15 @@ const set<string>& DetectorDriver::GetUsedDetectors(void) const
 // declare plots for all the event processors
 void DetectorDriver::DeclarePlots(void) const
 {
+    for (vector<TraceAnalyzer *>::const_iterator it = vecAnalyzer.begin();
+	 it != vecAnalyzer.end(); it++) {
+	(*it)->DeclarePlots();
+    }
+
     for (vector<EventProcessor *>::const_iterator it = vecProcess.begin();
 	 it != vecProcess.end(); it++) {
 	(*it)->DeclarePlots();
     }
-    traceSub->DeclarePlots();
 }
 
 // sanity check for all our expectations
@@ -240,7 +253,6 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 
     double energy;
 
-
     if (type == "ignore" || type == "") {
 	return 0;
     }
@@ -250,7 +262,10 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
     if ( !trace.empty() ) {
         plot(dammIds::misc::D_HAS_TRACE,id);
 
-        traceSub->Analyze(trace, type, subtype);
+	for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
+	     it != vecAnalyzer.end(); it++) {
+	    (*it)->Analyze(trace, type, subtype);
+	}
 	if (trace.HasValue("calcEnergy") ) {	    
 	    energy = trace.GetValue("calcEnergy");
 	    chan->SetEnergy(energy);

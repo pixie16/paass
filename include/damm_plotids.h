@@ -121,10 +121,9 @@ namespace dammIds {
 	const int DD_TDIFFVSCORCORTOF = 2470;
 	const int DD_TQDCAVEVSCORTOF  = 2510;
     }//vandle namespace
-    namespace waveformprocessor{
-	const int D_DISCRIM     = 5100;
-	const int DD_NGVSE      = 5101;
-    } // waveformprocessor namespace
+    namespace waveformanalyzer{
+	
+    } // waveformanalyzer namespace
     namespace pulserprocessor{ //in PulserProcessor.cpp 
 	const int D_TIMEDIFF     = 5000;
 	const int D_PROBLEMSTUFF = 5001;

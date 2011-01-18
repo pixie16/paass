@@ -1,6 +1,8 @@
 48-bit times in RawEvent
-Rehaul trace analyzer. Trace info as a map?
 ROOT histogramming
 Smarter (magic) dependency checking
+Check "Returning NULL detector summary for type vandle:small_left" Runtime
+   When analyzing vandle data. 
+
 
 For Redhat systems, libstdc++.so.5 is necessary to compile with ROOT support. Compilation needs to be streamlined in this case.

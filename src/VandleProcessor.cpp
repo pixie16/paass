@@ -35,7 +35,7 @@ using namespace std;
 VandleProcessor::VandleProcessor(): EventProcessor()
 {
     name = "vandle";
-    associatedTypes.insert("scint"); //associate with scints
+    associatedTypes.insert("scint:beta"); //associate with scints
     associatedTypes.insert("vandle"); //associate with vandles
 }
 
@@ -98,25 +98,21 @@ bool VandleProcessor::RetrieveData(RawEvent &event)
     vandleBarMap.clear();
     scintMap.clear();
         
-    static const DetectorSummary* vandleEvents = event.GetSummary("vandle", false);
-    static const DetectorSummary* scintEvents = event.GetSummary("scint", false);
+    static const DetectorSummary* vandleEvents = event.GetSummary("vandle", true);
+    static const DetectorSummary* scintEvents = event.GetSummary("scint:beta", true);
     
-    if(vandleEvents && scintEvents)
-	if(vandleEvents->GetList().empty() || scintEvents->GetList().empty())
-	{
-	    plot(D_PROBLEMS, 27); //DEBUGGING
-	    return(false);
-	}
+    if(vandleEvents->GetList().empty() || scintEvents->GetList().empty()) {
+	plot(D_PROBLEMS, 27); //DEBUGGING
+	return(false);
+    }
     
     vector<ChanEvent*> allEvents;
-    if(vandleEvents)
-	allEvents.insert(allEvents.end(), vandleEvents->GetList().begin(), vandleEvents->GetList().end());
-    if(scintEvents)
-	allEvents.insert(allEvents.end(), scintEvents->GetList().begin(), scintEvents->GetList().end());
+    allEvents.insert(allEvents.end(), vandleEvents->GetList().begin(), vandleEvents->GetList().end());
+    allEvents.insert(allEvents.end(), scintEvents->GetList().begin(), scintEvents->GetList().end());
     
     for(vector<ChanEvent*>::const_iterator allEventsIt = allEvents.begin();
-	allEventsIt != allEvents.end(); allEventsIt++)
-    {
+	allEventsIt != allEvents.end(); allEventsIt++) {
+
 	ChanEvent *chan = *allEventsIt;
 	string detectorSubtype = chan->GetChanID().GetSubtype();
 	
@@ -265,21 +261,6 @@ void VandleProcessor::AnalyzeData(void)
 //     corBarOffset.at(7) = -5.60;
     for (int a = 0; a < 32; a++)
 	corBarOffset.at(a) = 0;
-
-//LIQUID SCINTILLATOR
-//    for(map<int, Vandledata>::iterator itLiquid = scintMap.beign(); itLiquid != scintMap.end(); itLiquid++)
-//    {
-// 	    double tofLiquid=timeLiquid.at(a)-timeStart.at(b);
-
-// 	    //plot (int(3000+locLiquid.at(a)+locStart.at(b)),int(tofLiquid*10+2000));
-// 	    //plot (1400+locLiquid.at(a)+locStart.at(b),(int(tofLiquid*10+100)),int(tqdcLiquid.at(a)));
-
-// 	    //if ((NGdiscrim.at(a) > 0.2) && (NGdiscrim.at(a)<0.4) ) 
-// 	    //{
-// 	    //plot (int(502+locLiquid.at(a)+locStart.at(b)),int(tofLiquid*10+2000));
-// 	    //plot (1402+locLiquid.at(a)+locStart.at(b),(int(tofLiquid*10+100)),int(tqdcLiquid.at(a)));
-// 	    //}
-//    }
 
 //CALCULATIONS/PLOTTING FOR VANDLE BARS
     for (map<int, VandleData>::iterator itRight = vandleEndsMap.begin(); itRight !=  vandleEndsMap.end(); itRight++)

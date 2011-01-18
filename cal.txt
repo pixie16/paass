@@ -1,2 +1,4 @@
 %loc type	subtype		n	ord	thresh	pol0	pol1	pol2
-1    ge		clover_high	1	2	0	0.0	1.0	0.0	
+0    vandle     small_right  	1	2	0	0.0	1.0	0.0
+1    vandle     small_left   	1	2	0	0.0	1.0	0.0
+0    scint      beta         	1	2	0	0.0	1.0	0.0

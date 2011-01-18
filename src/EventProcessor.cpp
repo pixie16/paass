@@ -96,7 +96,8 @@ bool EventProcessor::Process(RawEvent &event)
 
     // start the process timer
     times(&tmsBegin);
-    
+
+    EndProcess();
     return (didProcess = true);
 }
 
@@ -109,6 +110,10 @@ void EventProcessor::EndProcess(void)
 
     userTime += (tmsEnd.tms_utime - tmsBegin.tms_utime) / clocksPerSecond;
     systemTime += (tmsEnd.tms_stime - tmsBegin.tms_stime) / clocksPerSecond;
+
+    // reset the beginning time so multiple calls of EndProcess from
+    //   derived classes work properly
+    times(&tmsBegin);
 }
 
 #ifdef useroot

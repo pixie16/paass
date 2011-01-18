@@ -14,6 +14,8 @@
 
 #include <cmath>
 
+#include "param.h"
+
 #ifndef NAN
 #include <limits>
 #define NAN (numeric_limits<float>::quiet_NaN())
@@ -42,13 +44,18 @@ class TrapezoidalFilterParameters
 class Trace : public std::vector<int>
 {
  private:
+    static const unsigned int numBinsBaseline = 15;
+    unsigned int baselineLow; 
+    unsigned int baselineHigh;
+
     std::map<std::string, double> doubleTraceData;
     std::map<std::string, int>    intTraceData;
  public:
-    Trace() : std::vector<int>() {};
+    Trace() : std::vector<int>() {baselineLow = baselineHigh = U_DELIMITER; };
     // an automatic conversion
-    Trace(const std::vector<int> &x) : std::vector<int>(x) {};
-
+    Trace(const std::vector<int> &x) : std::vector<int>(x) {
+	baselineLow = baselineHigh = U_DELIMITER;
+    };
     void TrapezoidalFilter(Trace &filter, const TrapezoidalFilterParameters &parms,
 			   unsigned int lo = 0) const {
 	TrapezoidalFilter( filter, parms, lo, size() );
@@ -72,6 +79,8 @@ class Trace : public std::vector<int>
 	    return intTraceData[name];
 	return NAN;
     }
+    double DoBaseline(unsigned int lo = 0, unsigned int numBins = numBinsBaseline);
+    unsigned int FindMaxInfo(unsigned int lo = 0, unsigned int numBins = numBinsBaseline);
 };
 
 

@@ -1,2 +1,4 @@
 %mod	ch	damm	type		subtype		loc	trace
-0       0       616     ge		clover_high	1	1
+0       0       616     vandle          small_right 	0	1
+0       1       616     vandle          small_left  	1	1
+0       2       616     scint 		beta        	0	1
