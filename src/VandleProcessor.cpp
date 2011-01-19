@@ -40,7 +40,8 @@ VandleProcessor::VandleProcessor(): EventProcessor()
     associatedTypes.insert("vandle"); //associate with vandles
 }
 
-bool VandleProcessor::Init(DetectorDriver &driver){
+bool VandleProcessor::Init(DetectorDriver &driver)
+{
     if(EventProcessor::Init(driver)){
 	ReadVandleCal();
 	return(true);
@@ -49,7 +50,8 @@ bool VandleProcessor::Init(DetectorDriver &driver){
 	return(false);
 }
 
-void VandleProcessor::ReadVandleCal(void) {
+void VandleProcessor::ReadVandleCal(void) 
+{
     unsigned int location;
 
     VandleCal vandleCal;

@@ -242,6 +242,7 @@ void RawEvent::Zero(const set<string> &usedev)
 DetectorSummary *RawEvent::GetSummary(const string& s, bool construct)
 {
     map<string, DetectorSummary>::iterator it = sumMap.find(s);
+    static set<string> nullSummaries;
 
     if (it == sumMap.end()) {
 	if (construct) {
@@ -250,7 +251,10 @@ DetectorSummary *RawEvent::GetSummary(const string& s, bool construct)
 	    sumMap.insert( make_pair(s, DetectorSummary(s, eventList) ) );
 	    it = sumMap.find(s);
 	} else {
-	    cout << "Returning NULL detector summary for type " << s << endl;
+	    if (nullSummaries.count(s) == 0) {
+		cout << "Returning NULL detector summary for type " << s << endl;
+		nullSummaries.insert(s);
+	    }
 	    return NULL;
 	}
     }
@@ -260,9 +264,12 @@ DetectorSummary *RawEvent::GetSummary(const string& s, bool construct)
 const DetectorSummary *RawEvent::GetSummary(const string &s) const
 {
     map<string, DetectorSummary>::const_iterator it = sumMap.find(s);
-  
+    
     if ( it == sumMap.end() ) {
-	cout << "Returning NULL detector summary for type " << s << endl;
+	if (nullSummaries.count(s) == 0) {
+	    cout << "Returning NULL const detector summary for type " << s << endl;
+	    nullSummaries.insert(s);
+	}
 	return NULL;
     }
     return &(it->second);

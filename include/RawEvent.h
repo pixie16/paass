@@ -192,10 +192,12 @@ class DetectorSummary {
 class RawEvent {
  private:
     // no private variables at this time    
-    set<string> usedDetectors;           /**< list of detectors in the map */
+    set<string> usedDetectors;           /**< Detectors in the map */
     map<string, DetectorSummary> sumMap; /**< An STL map containing DetectorSummary classes
 					     associated with detector types */
-    vector<ChanEvent*> eventList;        /**< A vector of pointers to all the channels that are close
+    // This only controls whether we output warnings, so it's free to change
+    mutable set<string> nullSummaries;   /**< Summaries which were requested but don't exist */
+    vector<ChanEvent*> eventList;        /**< Pointers to all the channels that are close
 					    enough in time to be considered a single event */
     Correlator correlator;               /**< class to correlate decay data with implantation data */
  public:   
