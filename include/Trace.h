@@ -21,22 +21,13 @@
 #define NAN (numeric_limits<float>::quiet_NaN())
 #endif
 
-/** Parameters for your typical trapezoidal filter */
-class TrapezoidalFilterParameters
-{
- private:
-    int gapSamples;
-    int riseSamples;
-    
-    double tau;
- public:
-    TrapezoidalFilterParameters(int gap, int rise, double t) :
-	gapSamples(gap), riseSamples(rise), tau(t) {};
-    int GetGapSamples(void) const  {return gapSamples;}
-    int GetRiseSamples(void) const {return riseSamples;}
-    int GetSize(void) const        {return 2*riseSamples + gapSamples;}
-    double GetTau(void) const      {return tau;}
-};
+// forward declaration
+class TrapezoidalFilterParameters;
+
+// use an alias in this file to make things a bit more readable
+namespace {
+    typedef class TrapezoidalFilterParameters TFP;
+}
 
 /**
    Store the information for a trace
@@ -56,11 +47,11 @@ class Trace : public std::vector<int>
     Trace(const std::vector<int> &x) : std::vector<int>(x) {
 	baselineLow = baselineHigh = U_DELIMITER;
     };
-    void TrapezoidalFilter(Trace &filter, const TrapezoidalFilterParameters &parms,
+    void TrapezoidalFilter(Trace &filter, const TFP &parms,
 			   unsigned int lo = 0) const {
 	TrapezoidalFilter( filter, parms, lo, size() );
     };
-    void TrapezoidalFilter(Trace &filter, const TrapezoidalFilterParameters &parms,
+    void TrapezoidalFilter(Trace &filter, const TFP &parms,
 			   unsigned int lo, unsigned int hi) const;
     void InsertValue(std::string name, double value) {
 	doubleTraceData.insert(make_pair(name,value));
@@ -93,6 +84,33 @@ class Trace : public std::vector<int>
     }
     double DoBaseline(unsigned int lo = 0, unsigned int numBins = numBinsBaseline);
     unsigned int FindMaxInfo(unsigned int lo = 0, unsigned int numBins = numBinsBaseline);
+};
+
+/** Parameters for your typical trapezoidal filter */
+class TrapezoidalFilterParameters
+{
+ private:
+    Trace::size_type gapSamples;
+    Trace::size_type riseSamples;
+    
+    double tau;
+ public:
+    TrapezoidalFilterParameters(int gap, int rise, double t = NAN) :
+	gapSamples(gap), riseSamples(rise), tau(t) {};
+    TrapezoidalFilterParameters(const TFP &x) :
+	gapSamples(x.gapSamples), riseSamples(x.riseSamples),
+	tau(x.tau) {};
+    const TFP& operator=(const TFP &right) {
+	gapSamples = right.gapSamples;
+	riseSamples = right.riseSamples;
+	tau = right.tau;
+
+	return (*this);
+    }
+    int GetGapSamples(void) const  {return gapSamples;}
+    int GetRiseSamples(void) const {return riseSamples;}
+    int GetSize(void) const        {return 2*riseSamples + gapSamples;}
+    double GetTau(void) const      {return tau;}
 };
 
 
