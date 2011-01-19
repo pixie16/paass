@@ -1,9 +1,7 @@
 48-bit times in RawEvent
 ROOT histogramming
 Smarter (magic) dependency checking
-Check "Returning NULL detector summary for type vandle:small_left" Runtime
-   When analyzing vandle data. 
 Update the ScintProcessor to work on Liquid Scintillators - SVP
-
+Adjust analyzers so the double trace analyzers find each  fast filter crossing self-consistently.
 
 For Redhat systems, libstdc++.so.5 is necessary to compile with ROOT support. Compilation needs to be streamlined in this case.

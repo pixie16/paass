@@ -17,6 +17,7 @@
 using namespace std;
 
 const string TraceFilterer::defaultFilterFile = "filter.txt";
+const int TraceFilterer::energyBins = SC;
 
 extern RandomPool randoms;
 
@@ -93,8 +94,6 @@ void TraceFilterer::DeclarePlots(void) const
 {
     using namespace dammIds::trace;
 
-    const int energyBins  = SC;
-
     DeclareHistogram2D(DD_FILTER1, traceBins, numTraces, "fast filter");
     DeclareHistogram2D(DD_FILTER2, traceBins, numTraces, "energy filter");
     DeclareHistogram2D(DD_FILTER3, traceBins, numTraces, "3rd filter");
@@ -131,11 +130,13 @@ void TraceFilterer::Analyze(Trace &trace,
 	while (iThr < iHigh) {
 	    iThr = find_if(iThr, iHigh, 
 			   bind2nd(greater<Trace::value_type>(), fastThreshold));
+	    if (iThr == iHigh)
+		break;
 	    time = iThr - fastFilter.begin();
 	    // sample the slow filter in the middle of its size
 	    sample = time + (thirdParms.GetSize() - fastParms.GetSize()) / 2;
 	    if (sample >= thirdFilter.size() ||
-		thirdFilter[sample] > slowThreshold)
+		thirdFilter[sample] < slowThreshold)
 		continue;
 
 	    sample = time + (energyParms.GetSize() - fastParms.GetSize()) / 2;
@@ -143,9 +144,10 @@ void TraceFilterer::Analyze(Trace &trace,
 		energy = energyFilter[sample] + randoms.Get();
 	    // scale to the integration time
 	    energy /= energyParms.GetSize();
+	    trace.SetValue("filterTime", (int)time);
+	    trace.SetValue("filterEnergy", energy);
+	    break;
 	}
-	trace.SetValue("filterTime", (int)time);
-	trace.SetValue("filterEnergy", energy);
 
 	// now plot some stuff
 	for (Trace::size_type i = 0; i < trace.size(); i++) {
@@ -161,7 +163,7 @@ void TraceFilterer::Analyze(Trace &trace,
 	// plot(DD_TRACE, trace.size() + 10, numTracesAnalyzed, energy);
 	// plot(DD_TRACE, trace.size() + 11, numTracesAnalyzed, time);
 	plot(D_ENERGY1, energy);
-    }
+    } // sufficient analysis level
 
     EndAnalyze(trace);
 }

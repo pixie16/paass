@@ -17,13 +17,16 @@ class Trace;
 class TraceFilterer : public TracePlotter {
  private:
     static const std::string defaultFilterFile;
-    
+
+ protected:    
+    static const int energyBins;
+
     TrapezoidalFilterParameters  fastParms;
     Trace::value_type            fastThreshold;
     TrapezoidalFilterParameters  energyParms;
     TrapezoidalFilterParameters  thirdParms;
     Trace::value_type            slowThreshold;
- protected:
+
     Trace fastFilter;   ///< fast filter of trace
     Trace energyFilter; ///< slow filter of trace
     Trace thirdFilter;  ///< second slow filter of trace
