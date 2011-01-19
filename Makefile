@@ -102,8 +102,8 @@ PULSERPROCESSORO = PulserProcessor.$(ObjSuf)
 VANDLEPROCESSORO = VandleProcessor.$(ObjSuf)
 TRACEO		 = Trace.$(ObjSuf)
 TRACESUBO        = TraceAnalyzer.$(ObjSuf)
+TRACEPLOTO       = TracePlotter.$(ObjSuf)
 WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
-
 
 ifdef USEROOT
 PIXIE            = pixie_ldf_c_root$(ExeSuf)
@@ -120,6 +120,7 @@ endif
 #----- list of objects
 OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \
 	$(MTCPROCESSORO) $(MCPPROCESSORO) $(CORRELATORO) $(TRACESUBO) \
+	$(TRACEPLOTO) \
 	$(MESSLOGO) $(MILDATIMO) $(SCANORUXO) $(ACCUMULATORO) $(PIXIEO) \
 	$(HISTOGRAMMERO) $(EVENTPROCESSORO) $(SCINTPROCESSORO) $(TRACEO) \
 	$(GEPROCESSORO) $(DSSDPROCESSORO) $(RAWEVENTO) $(RANDOMPOOLO) \

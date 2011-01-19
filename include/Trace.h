@@ -68,6 +68,18 @@ class Trace : public std::vector<int>
     void InsertValue(std::string name, int value) {
 	intTraceData.insert(make_pair(name,value));	
     }
+    void SetValue(std::string name, double value) {
+	if (doubleTraceData.count(name) > 0) 
+	    doubleTraceData[name] = value;
+	else
+	    InsertValue(name,value);
+    }
+    void SetValue(std::string name, int value) {
+	if (intTraceData.count(name) > 0)
+	    intTraceData[name] = value;
+	else
+	    InsertValue(name,value);
+    }
     bool HasValue(std::string name) {
 	return (doubleTraceData.count(name) > 0 ||
 		intTraceData.count(name) > 0);

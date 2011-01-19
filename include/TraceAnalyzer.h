@@ -27,18 +27,22 @@ class TraceAnalyzer {
     double systemTime;        ///< system time used by this class
     double clocksPerSecond;   ///< frequency of system clock
 
-    int numTracesAnalyzed;    ///< rownumber for DAMM spectrum 850
  protected:
+    int level;                ///< the level of analysis to proceed with
+    int numTracesAnalyzed;    ///< rownumber for DAMM spectrum 850
     std::string name;         ///< name of the analyzer
  public:
+    TraceAnalyzer();
+    virtual ~TraceAnalyzer();
+    
     virtual bool Init(void);
     virtual void DeclarePlots(void) const;
     virtual void Analyze(Trace &trace, 
 			 const std::string &type, const std::string &subtype);
+    void EndAnalyze(Trace &trace);
     void EndAnalyze(void);
-
-    TraceAnalyzer();
-    virtual ~TraceAnalyzer();
+    void SetLevel(int i) {level=i;}
+    int  GetLevel() {return level;}
 };
 
 #endif // __TRACEANALYZER_H_

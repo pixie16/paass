@@ -12,6 +12,7 @@
 #include <string>
 
 #include "damm_plotids.h"
+#include "Trace.h"
 #include "TraceAnalyzer.h"
 
 using std::cout;
@@ -53,15 +54,25 @@ void TraceAnalyzer::Analyze(Trace &trace,
 			    const string &detType, const string &detSubtype)
 {
     times(&tmsBegin); // begin timing process
-
     numTracesAnalyzed++;
-
-    EndAnalyze();
+    EndAnalyze(trace);
     return;
 }
 
-void TraceAnalyzer::EndAnalyze(void)
+/**
+ * End the analysis and record the analyzer level in the trace
+ */
+void TraceAnalyzer::EndAnalyze(Trace &trace)
 {
+    trace.SetValue("analyzedLevel", level);
+    EndAnalyze();
+}
+
+/**
+ * Finish analysis updating the analyzer timing information
+ */
+void TraceAnalyzer::EndAnalyze(void)
+{    
     tms tmsEnd;
     times(&tmsEnd);
 
@@ -69,7 +80,7 @@ void TraceAnalyzer::EndAnalyze(void)
     systemTime += (tmsEnd.tms_stime - tmsBegin.tms_stime) / clocksPerSecond;
 
     // reset the beginning time so multiple calls of EndAnalyze from
-    //   derived classes works properly
+    //   derived classes work properly
     times(&tmsBegin);
 }
 
@@ -77,29 +88,4 @@ void TraceAnalyzer::EndAnalyze(void)
 void TraceAnalyzer::DeclarePlots() const
 {
     // do nothing
-    //! Move this
-    /*
-    using namespace dammIds::trace;
-
-    const int traceBins = SB;
-    const int numTraces = S5;
-
-    DeclareHistogram2D(DD_TRACE, traceBins, numTraces, "traces data");
-    */
 }
-
-//! Move this
-/**
- * From the trace analysis, plot the damm spectra
- *   including the first few traces analyzed
-
-void TraceAnalyzer::Plot(const Trace &trace)			      
-{
-    using namespace dammIds::trace;
-    
-    // plot trace and associated filters and derived energies
-    for(unsigned int i = 0; i < trace.size(); i++){
-      plot(DD_TRACE, i, numTracesAnalyzed, trace[i]);
-    }   
-}
- */
