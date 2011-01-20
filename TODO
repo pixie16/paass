@@ -1,7 +1,6 @@
 48-bit times in RawEvent
 ROOT histogramming
 Smarter (magic) dependency checking
-Update the ScintProcessor to work on Liquid Scintillators - SVP
 Adjust analyzers so the double trace analyzers find each  fast filter crossing
 self-consistently.
 Find a cogent way to set the analyzer level using "trace" parameter from map.txt

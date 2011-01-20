@@ -88,6 +88,14 @@ namespace dammIds {
 		const int D_ENERGY_DETX = 1906; // for 3 detectors (1-3)
 	    }
 	} // neutr namespace
+	const int DD_TQDCBETA         = 1909;
+	const int DD_MAXBETA          = 1910;
+	const int DD_TQDCLIQUID       = 1911;
+	const int DD_MAXLIQUID        = 1912;
+	const int D_DISCRIM           = 1913;
+	const int DD_NGVSE            = 1914;
+	const int DD_TOFLIQUID        = 1915;
+	const int DD_TRCLIQUID        = 1916;
     } // scint namespace
     namespace vandle{ //in VandleProcessor.cpp
 	const int D_PROBLEMS  = 2600;
