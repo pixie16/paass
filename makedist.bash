@@ -6,9 +6,14 @@ if [[ -d .git ]]; then
     git archive --format=tar --prefix=$DISTNAME/ HEAD | \
 	gzip > $DISTNAME-$VERSION.tgz
 else
+    if [[ -d $DISTNAME ]]; then
+	echo "Temporary directory $DISTNAME already exists."
+	exit
+    fi
     echo "This is not a git repository, copying whole tree"
+    FILELIST=$(ls --ignore=*.tgz)
     mkdir $DISTNAME
-    cp -t $DISTNAME -r * 
+    cp -t $DISTNAME -r $FILELIST
     tar -czf $DISTNAME-$HOSTNAME-`date +%d%m%y`.tgz --exclude=*~ $DISTNAME
     rm -r $DISTNAME
 fi

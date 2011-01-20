@@ -1,5 +1,5 @@
 /**    \file DoubleTraceAnalyzer.cpp
- *     \brief defines the Trace class.
+ *     \brief Identifies double traces.
  *
  *     Implements a quick online trapezoidal filtering mechanism
  *     for the identification of double pulses
