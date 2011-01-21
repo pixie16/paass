@@ -11,7 +11,7 @@
 
 class WaveformAnalyzer : public TraceAnalyzer
 {
- private:
+ public:
     struct FitData {
 	size_t n;
 	double * y;
@@ -19,7 +19,7 @@ class WaveformAnalyzer : public TraceAnalyzer
 	float WID;
 	float DKAY;
     };
- public:
+
     WaveformAnalyzer(); // no virtual c'tors
     virtual void DeclarePlots(void) const;
     virtual void Analyze(Trace &, const std::string &,

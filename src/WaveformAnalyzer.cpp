@@ -97,14 +97,15 @@ double FitRoutine(const Trace &trace, const string &detSubtype)
     double WID, DKAY;
     
     double aveBaseline = trace.GetValue("baseline");
-    
+    int maxX = (int)trace.GetValue("maxpos");
+
     for(int ll = (maxX-WAVEFORMLOW); ll <= (maxX+WAVEFORMHIGH); ll++)
 	trace_array_fit.push_back(trace.at(ll) - aveBaseline);
     
     const int size_fit = trace_array_fit.size();
     
     // Set the gaussian width (WID) and decay constant (DKAY) for the Fitting Routine
-    if (subtype == "liquid") {
+    if (detSubtype == "liquid") {
 	WID = 4.52672;
 	DKAY = 1.73376;
     }
