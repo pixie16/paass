@@ -13,6 +13,8 @@
 
 using namespace std;
 
+const Trace emptyTrace; ///< an empty trace for const references to point to
+
 /**
  * Defines how to implement a trapezoidal filter characterized by two
  * moving sum windows of width risetime separated by a length gaptime.

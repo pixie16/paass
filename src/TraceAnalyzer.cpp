@@ -35,7 +35,9 @@ TraceAnalyzer::TraceAnalyzer() :
     userTime(0.), systemTime(0.)
 {
     name = "Trace";
-    numTracesAnalyzed = 0;    
+    // start at -1 so that when incremented on first trace analysis,
+    //   row 0 is respectively filled in the trace spectrum of inheritees 
+    numTracesAnalyzed = -1;    
     clocksPerSecond = sysconf(_SC_CLK_TCK);
 }
 

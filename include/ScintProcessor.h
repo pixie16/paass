@@ -30,7 +30,7 @@ class ScintProcessor : public EventProcessor
 	double aveBaseline;
 	double highResTime;
 	
-	Trace trace;
+	const Trace &trace;
     };
 
     unsigned int counter;

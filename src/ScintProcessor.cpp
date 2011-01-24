@@ -93,7 +93,7 @@ bool ScintProcessor::Process(RawEvent &event)
     }
     
     for(vector<ChanEvent*>::const_iterator itLiquid = scintLiquidEvents.begin();
-	itLiquid != scintBetaEvents.end(); itLiquid++) {
+	itLiquid != scintLiquidEvents.end(); itLiquid++) {
 	
 	unsigned int loc = (*itLiquid)->GetChanID().GetLocation();
 	
@@ -133,11 +133,11 @@ bool ScintProcessor::Process(RawEvent &event)
     for(map<int, ScintData>::iterator itLiquid = liquidMap.begin(); itLiquid != liquidMap.end(); itLiquid++) {
 	/****N/Gamma discrimination ****/
 	double discrim = 0; 
-	int maxX = (*itLiquid).second.maxpos;
-	int lowerLimit = 5;
-	int upperLimit = 12;
+	unsigned int maxX = (unsigned int)(*itLiquid).second.maxpos;
+	unsigned int lowerLimit = 5;
+	unsigned int upperLimit = 12;
 	
-	for(vector<int>::iterator i = (*itLiquid).second.trace.begin(); i != (*itLiquid).second.trace.end(); i++)
+	for(Trace::const_iterator i = (*itLiquid).second.trace.begin(); i != (*itLiquid).second.trace.end(); i++)
 	    plot(DD_TRCLIQUID, int(i-(*itLiquid).second.trace.begin()), counter, *i);
 	counter ++;
 	
@@ -175,7 +175,8 @@ bool ScintProcessor::GoodDataCheck(const ScintData& DataCheck) {
 	return(false);
 }
 
-ScintProcessor::ScintData::ScintData(string type) {
+ScintProcessor::ScintData::ScintData(string type) : trace(emptyTrace)
+{
     detSubtype     = type;
     maxval         = -9999;
     maxpos         = -9999;
@@ -186,7 +187,8 @@ ScintProcessor::ScintData::ScintData(string type) {
     highResTime    = -9999;
 }
 
-ScintProcessor::ScintData::ScintData(ChanEvent* chan) {
+ScintProcessor::ScintData::ScintData(ChanEvent* chan) : trace(chan->GetTrace())
+{
     detSubtype     = chan->GetChanID().GetSubtype();
     highResTime    = chan->GetHighResTime();
     tqdc           = trace.GetValue("tqdc");
