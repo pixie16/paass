@@ -4,5 +4,6 @@ Smarter (magic) dependency checking
 Adjust analyzers so the double trace analyzers find each  fast filter crossing
 self-consistently.
 Find a cogent way to set the analyzer level using "trace" parameter from map.txt
+Complain a little bit more bitterly when encountering a wrong vsn other than 9999 in the data stream.
 
 For Redhat systems, libstdc++.so.5 is necessary to compile with ROOT support. Compilation needs to be streamlined in this case.
