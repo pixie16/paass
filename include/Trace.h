@@ -71,7 +71,7 @@ class Trace : public std::vector<int>
 	else
 	    InsertValue(name,value);
     }
-    bool HasValue(std::string name) {
+    bool HasValue(std::string name) const {
 	return (doubleTraceData.count(name) > 0 ||
 		intTraceData.count(name) > 0);
     }

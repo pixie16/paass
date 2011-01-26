@@ -269,7 +269,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 	if (trace.HasValue("calcEnergy") ) {	    
 	    energy = trace.GetValue("calcEnergy");
 	    chan->SetEnergy(energy);
-	}
+	} else energy = chan->GetEnergy() + randoms.Get();
 	if (trace.HasValue("phase") ) {
 	    double phase = trace.GetValue("phase");
 	    chan->SetHighResTime( phase + 

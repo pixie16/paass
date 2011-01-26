@@ -85,6 +85,7 @@ extern "C" void drrsub_(unsigned int& iexist)
 	DeclareHistogram1D(offsets::D_RAW_ENERGY + i, SE, "RAW");
 	DeclareHistogram1D(offsets::D_SCALAR + i, SE, "RAW scalar - per sec");
 	DeclareHistogram1D(offsets::D_TIME + i, SE, "raw etimelo - trig time"); 
+	DeclareHistogram1D(offsets::D_CAL_ENERGY + i, SE, "CAL");
     }
     for (int i=0; i < stripsDSSD; i++) {
 	DeclareHistogram1D(offsets::D_FRONT_STRIP + i, SE, "dssd front");
