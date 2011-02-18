@@ -1,3 +1,4 @@
+Fix the memory leak in GeProcessor.cpp/ConstructAddback function.
 48-bit times in RawEvent
 ROOT histogramming
 Smarter (magic) dependency checking
