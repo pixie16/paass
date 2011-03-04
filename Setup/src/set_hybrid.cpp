@@ -51,6 +51,7 @@ bool HybridSetter::operator()(PixieFunctionParms<> &par)
   if ( par.pif.SetProtonCatcherMode(par.mod, par.ch, 
 				    PixieInterface::PC_HYBRID) ) {
     par.pif.PrintSglChanPar("CHANNEL_CSRA", par.mod, par.ch);
+    return true;
   } else {
     return false;
   }
