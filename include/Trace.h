@@ -107,9 +107,10 @@ class TrapezoidalFilterParameters
 
 	return (*this);
     }
-    int GetGapSamples(void) const  {return gapSamples;}
-    int GetRiseSamples(void) const {return riseSamples;}
-    int GetSize(void) const        {return 2*riseSamples + gapSamples;}
+    Trace::size_type GetGapSamples(void) const  {return gapSamples;}
+    Trace::size_type GetRiseSamples(void) const {return riseSamples;}
+    Trace::size_type GetSize(void) const  
+	{return 2*riseSamples + gapSamples;}
     double GetTau(void) const      {return tau;}
 };
 

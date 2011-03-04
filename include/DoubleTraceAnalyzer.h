@@ -33,8 +33,9 @@ class DoubleTraceAnalyzer : public TraceFilterer
     DoubleTraceAnalyzer();
     virtual ~DoubleTraceAnalyzer();
     
-    void DeclarePlots(void) const;
-    void Analyze(Trace &, const std::string &, const std::string &);
+    virtual bool Init(void) {return TraceFilterer::Init();}
+    virtual void DeclarePlots(void) const;
+    virtual void Analyze(Trace &, const std::string &, const std::string &);
 };
 
 #endif // __DOUBLETRACEANALYZER_H_

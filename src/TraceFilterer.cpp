@@ -136,9 +136,10 @@ void TraceFilterer::Analyze(Trace &trace,
 	    // sample the slow filter in the middle of its size
 	    sample = time + (thirdParms.GetSize() - fastParms.GetSize()) / 2;
 	    if (sample >= thirdFilter.size() ||
-		thirdFilter[sample] < slowThreshold)
+		thirdFilter[sample] < slowThreshold) {
+		iThr++; 
 		continue;
-
+	    }
 	    sample = time + (energyParms.GetSize() - fastParms.GetSize()) / 2;
 	    if (sample < energyFilter.size())
 		energy = energyFilter[sample] + randoms.Get();
@@ -152,11 +153,14 @@ void TraceFilterer::Analyze(Trace &trace,
 	// now plot some stuff
 	for (Trace::size_type i = 0; i < trace.size(); i++) {
 	    if (i < fastFilter.size())
-		plot(DD_FILTER1, i, numTracesAnalyzed, abs(fastFilter[i]));
+		plot(DD_FILTER1, i, numTracesAnalyzed, 
+		     abs(fastFilter[i]) / fastParms.GetRiseSamples() );
 	    if (i < energyFilter.size())
-		plot(DD_FILTER2, i, numTracesAnalyzed, abs(energyFilter[i]));
+		plot(DD_FILTER2, i, numTracesAnalyzed, 
+		     abs(energyFilter[i]) / energyParms.GetRiseSamples() );
 	    if (i < thirdFilter.size())
-		plot(DD_FILTER3, i, numTracesAnalyzed, abs(thirdFilter[i]));
+		plot(DD_FILTER3, i, numTracesAnalyzed, 
+		     abs(thirdFilter[i]) / thirdParms.GetRiseSamples() );
 
 	}
 	// calculated values at end of traces

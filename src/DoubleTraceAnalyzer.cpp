@@ -100,8 +100,9 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
 	    sample2 = time2 - fastParms.GetSize();
 	    
 	    if (sample >= thirdFilter.size() || 
-		thirdFilter[sample] - thirdFilter[sample2] < slowThreshold)
-		continue;
+		thirdFilter[sample] - thirdFilter[sample2] < slowThreshold) {
+		iThr++; continue;
+	    }
 	    sample = time2 + (energyParms.GetSize() - fastParms.GetSize()) / 2;
 	    energy2 = energyFilter[sample] - energyFilter[sample2];
 	    energy2 += randoms.Get();

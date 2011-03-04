@@ -24,6 +24,9 @@ void Trace::TrapezoidalFilter(Trace &filter,
 			      const TrapezoidalFilterParameters &parms,
 			      unsigned int lo, unsigned int hi) const
 {
+    // don't let the filter work outside of its reasonable range
+    lo = max(lo, (unsigned int)parms.GetSize());
+
     filter.assign(lo, 0);
     
     //! check if we're going to do something bad here
@@ -31,7 +34,7 @@ void Trace::TrapezoidalFilter(Trace &filter,
     for (unsigned int i = lo; i < hi; i++) {
 	int leftSum = accumulate(begin() + i - parms.GetSize(),
 				 begin() + i - parms.GetRiseSamples() - parms.GetGapSamples(), 0);
-	int rightSum = accumulate(begin() + i - parms.GetGapSamples(), begin() + i, 0);
+	int rightSum = accumulate(begin() + i - parms.GetRiseSamples(), begin() + i, 0);
 	filter.push_back(rightSum - leftSum);
     }
 }
