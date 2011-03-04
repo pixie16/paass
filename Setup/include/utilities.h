@@ -11,12 +11,12 @@
 template<typename T=int>
 struct PixieFunctionParms
 {
-  PixieInterface &pif;
-  unsigned int mod;
-  unsigned int ch;
-  T par;
+    PixieInterface &pif;
+    unsigned int mod;
+    unsigned int ch;
+    T par;
   
-  PixieFunctionParms(PixieInterface &p, T x) : pif(p) {par=x;}
+    PixieFunctionParms(PixieInterface &p, T x) : pif(p) {par=x;}
 };
 
 template<typename T=int>
@@ -44,56 +44,56 @@ template<typename T>
 bool forChannel(PixieInterface &pif, int mod, int ch, 
 		PixieFunction<T> &f, T par)
 {
-  PixieFunctionParms<T> parms(pif, par);
-
-  bool hadError = false;
-
-  if (mod < 0) {
-    for (parms.mod = 0; parms.mod < pif.GetNumberCards(); parms.mod++) {
-      if (ch < 0) {
-	for (parms.ch = 0; parms.ch < pif.GetNumberChannels(); parms.ch++) {
-	  if (!f(parms))
-	    hadError = true;
+    PixieFunctionParms<T> parms(pif, par);
+    
+    bool hadError = false;
+    
+    if (mod < 0) {
+	for (parms.mod = 0; parms.mod < pif.GetNumberCards(); parms.mod++) {
+	    if (ch < 0) {
+		for (parms.ch = 0; parms.ch < pif.GetNumberChannels(); parms.ch++) {
+		    if (!f(parms))
+			hadError = true;
+		}
+	    } else {
+		parms.ch = ch;
+		if (!f(parms))
+		    hadError = true;
+	    }
 	}
-      } else {
-	parms.ch = ch;
-	if (!f(parms))
-	  hadError = true;
-      }
-    }
-  } else {
-    parms.mod = mod;
-    if (ch < 0) {
-      for (parms.ch = 0; parms.ch < pif.GetNumberChannels(); parms.ch++) {
-	if (!f(parms))
-	  hadError = true;
-      }
     } else {
-      parms.ch = ch;
-      hadError = !f(parms);
+	parms.mod = mod;
+	if (ch < 0) {
+	    for (parms.ch = 0; parms.ch < pif.GetNumberChannels(); parms.ch++) {
+		if (!f(parms))
+		    hadError = true;
+	    }
+	} else {
+	    parms.ch = ch;
+	    hadError = !f(parms);
+	}
     }
-  }
 
-  return !hadError;
+    return !hadError;
 }
 
 template<typename T>
 bool forModule(PixieInterface &pif, int mod, PixieFunction<T> &f, T par)
 {
-  PixieFunctionParms<T> parms(pif, par);
-  bool hadError = false;
-
-  if (mod < 0) {
-    for (parms.mod = 0; parms.mod < pif.GetNumberCards(); parms.mod++) {
-      if (!f(parms))
-	hadError = true;
+    PixieFunctionParms<T> parms(pif, par);
+    bool hadError = false;
+    
+    if (mod < 0) {
+	for (parms.mod = 0; parms.mod < pif.GetNumberCards(); parms.mod++) {
+	    if (!f(parms))
+		hadError = true;
+	}
+    } else {
+	parms.mod = mod;
+	hadError = !f(parms);
     }
-  } else {
-    parms.mod = mod;
-    hadError = !f(parms);
-  }
-
-  return !hadError;
+    
+    return !hadError;
 }
 
 #endif // __UTILITIES_H_
