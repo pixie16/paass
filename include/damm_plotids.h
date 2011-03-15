@@ -43,11 +43,11 @@ namespace dammIds {
 	    namespace withBeta {
 		const int DD_ENERGY__DECAY_TIME_GRANX = 705;
 		namespace multiplicityGated {
-		    const int DD_ENERGY__DECAY_TIME_GRANX = 715;
+		    const int DD_ENERGY__DECAY_TIME_GRANX = 710;
 		}
 	    }
 	    namespace withoutBeta {
-		const int DD_ENERGY__DECAY_TIME_GRANX = 725;
+		const int DD_ENERGY__DECAY_TIME_GRANX = 715;
 	    }
 	    namespace matrix {
 		const int DD_ENERGY_PROMPT = 1670;
