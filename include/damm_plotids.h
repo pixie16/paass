@@ -41,13 +41,13 @@ namespace dammIds {
 	    const int D_ADD_ENERGY      = 1720;
 	    const int D_ADD_ENERGY_DETX = 1721; // for x detectors
 	    namespace withBeta {
-		const int DD_ENERGY__DECAY_TIME_GRANX = 705;
+		const int DD_ENERGY__DECAY_TIME_GRANX = 1730;
 		namespace multiplicityGated {
-		    const int DD_ENERGY__DECAY_TIME_GRANX = 710;
+		    const int DD_ENERGY__DECAY_TIME_GRANX = 1740;
 		}
 	    }
 	    namespace withoutBeta {
-		const int DD_ENERGY__DECAY_TIME_GRANX = 715;
+		const int DD_ENERGY__DECAY_TIME_GRANX = 1750;
 	    }
 	    namespace matrix {
 		const int DD_ENERGY_PROMPT = 1670;
