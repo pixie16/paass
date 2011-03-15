@@ -508,13 +508,6 @@ void GeProcessor::ConstructAddback(const ChanEvent *ch)
 
 	cloverMultiplicity.at(detnum)++;
 	cloverEnergy.at(detnum) += energy;
-    } else if (subtype == "clover_low") {
-	cout << "Theoretically this should not occur in the current version." << endl;
-	double energy = ch->GetCalEnergy();
-	unsigned int detnum = GetCloverNum(ch->GetChanID().GetLocation());
-
-	cloverMultiplicity.at(detnum)++;
-	cloverEnergy.at(detnum) += energy;
     } else if (subtype == "sega") {
 	cout << " Add back not implemented for sega detectors yet " << endl;
     }
