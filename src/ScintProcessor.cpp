@@ -78,17 +78,24 @@ bool ScintProcessor::Process(RawEvent &event)
     int betaMult = event.GetSummary("scint:beta")->GetMult();
     int gammaMult = event.GetSummary("ge:clover_high")->GetMult();
     
+    if (betaMult > 0) {
+	// here we correlate the decay for the plastic beta scintillators
+	//   for the LeRIBSS setup, the corresponding implant is the stop of the tape movement
+	event.GetCorrelator().Correlate(event, Correlator::DECAY_EVENT, 1, 1, 
+					scintBetaEvents[0]->GetTime());
+    }
     for(vector<ChanEvent*>::const_iterator itBeta = scintBetaEvents.begin();
 	itBeta != scintBetaEvents.end(); itBeta++) {
 	
 	unsigned int loc = (*itBeta)->GetChanID().GetLocation();
+	ScintData data(*itBeta);
 
 	map<int, struct ScintData>::iterator itTemp = 
-	    betaMap.insert(make_pair(loc, ScintData((*itBeta)))).first;
+	    betaMap.insert(make_pair(loc, data)).first;
 	
-	if (GoodDataCheck((*itTemp).second)) {
-	    plot(DD_TQDCBETA, (*itTemp).second.tqdc, loc);
-	    plot(DD_MAXBETA, (*itTemp).second.maxval, loc);
+	if ( data.GoodDataCheck() ) {
+	    plot(DD_TQDCBETA, data.tqdc, loc);
+	    plot(DD_MAXBETA, data.maxval, loc);
 	}
     }
     
@@ -97,12 +104,13 @@ bool ScintProcessor::Process(RawEvent &event)
 	
 	unsigned int loc = (*itLiquid)->GetChanID().GetLocation();
 	
+	ScintData data(*itLiquid);
 	map<int, struct ScintData>::iterator itTemp = 
-	    liquidMap.insert(make_pair(loc, ScintData((*itLiquid)))).first;
+	    liquidMap.insert(make_pair(loc, data)).first;
 	
-	if (GoodDataCheck((*itTemp).second)) {
-	    plot(DD_TQDCLIQUID, (*itTemp).second.tqdc, loc);
-	    plot(DD_MAXLIQUID, (*itTemp).second.maxval, loc);
+	if ( data.GoodDataCheck() ) {
+	    plot(DD_TQDCLIQUID, data.tqdc, loc);
+	    plot(DD_MAXLIQUID, data.maxval, loc);
 	}	     
     }
     
@@ -128,8 +136,7 @@ bool ScintProcessor::Process(RawEvent &event)
 	    }
 	}
     } // end loop over scint neutr types
-    
-    
+        
     for(map<int, ScintData>::iterator itLiquid = liquidMap.begin(); itLiquid != liquidMap.end(); itLiquid++) {
 	/****N/Gamma discrimination ****/
 	double discrim = 0; 
@@ -137,29 +144,30 @@ bool ScintProcessor::Process(RawEvent &event)
 	unsigned int lowerLimit = 5;
 	unsigned int upperLimit = 12;
 	
-	for(Trace::const_iterator i = (*itLiquid).second.trace.begin(); i != (*itLiquid).second.trace.end(); i++)
-	    plot(DD_TRCLIQUID, int(i-(*itLiquid).second.trace.begin()), counter, *i);
-	counter ++;
+	const ScintData &data = (*itLiquid).second;
+
+	for(Trace::const_iterator i = data.trace.begin(); i != data.trace.end(); i++)
+	    plot(DD_TRCLIQUID, int(i-data.trace.begin()), counter, *i);
+	counter++;
 	
-	if( GoodDataCheck((*itLiquid).second))
-	{
-	    for(unsigned int j = maxX+lowerLimit; (j < maxX+upperLimit) && (j < (*itLiquid).second.trace.size()); j++)  
-		discrim += ((*itLiquid).second.trace.at(j)-(*itLiquid).second.aveBaseline);		    
+	if( data.GoodDataCheck() ) {
+	    for(unsigned int j = maxX+lowerLimit; j < maxX+upperLimit && j < data.trace.size(); j++)
+		discrim += data.trace.at(j)-data.aveBaseline;   
 	    
-	    double discrim_norm = discrim/(*itLiquid).second.tqdc;	    
+	    double discrim_norm = discrim / data.tqdc;	    
 	    plot(D_DISCRIM,int(discrim_norm*100)+1000,1);
-	    plot(DD_NGVSE, int(discrim), int((*itLiquid).second.tqdc));
+	    plot(DD_NGVSE, int(discrim), int(data.tqdc));
 	    
 	    for(map<int, ScintData>::iterator itStart = betaMap.begin(); itStart != betaMap.end(); itStart++) { // operations w.r.t triggers 
+		const ScintData &betaData = (*itStart).second;
 		int liquidPlusStartLoc = (*itLiquid).first + (*itStart).first;
 		const int resMult = 20;
 		const int resOffSet = 2000;
 		
-		double TOF = (*itLiquid).second.highResTime - (*itStart).second.highResTime; //in 10ns
+		double TOF = data.highResTime - betaData.highResTime; //in seconds
 		
-		if(GoodDataCheck((*itStart).second))
-		    plot(DD_TOFLIQUID, TOF*resMult+resOffSet, liquidPlusStartLoc);
-		
+		if(betaData.GoodDataCheck())
+		    plot(DD_TOFLIQUID, TOF*resMult+resOffSet, liquidPlusStartLoc);		
 	    } //Loop over Beta Starts
 	} // Good Liquid Check
     } //for(map<int, ScintData>::iterator itStart
@@ -168,23 +176,22 @@ bool ScintProcessor::Process(RawEvent &event)
     return true;
 }
 
-bool ScintProcessor::GoodDataCheck(const ScintData& DataCheck) {
-    if((DataCheck.maxval != -9999) && (DataCheck.phase !=-9999) && (DataCheck.tqdc !=-9999) && (DataCheck.highResTime != -9999))
-	return(true);
-    else
-	return(false);
+bool ScintProcessor::ScintData::GoodDataCheck(void) const 
+{
+    return (maxval != emptyValue && phase != emptyValue &&
+	    tqdc != emptyValue && highResTime != emptyValue);
 }
 
 ScintProcessor::ScintData::ScintData(string type) : trace(emptyTrace)
 {
     detSubtype     = type;
-    maxval         = -9999;
-    maxpos         = -9999;
-    phase          = -9999;
-    tqdc           = -9999;
-    stdDevBaseline = -9999;
-    aveBaseline    = -9999;
-    highResTime    = -9999;
+    maxval         = emptyValue;
+    maxpos         = emptyValue;
+    phase          = emptyValue;
+    tqdc           = emptyValue;
+    stdDevBaseline = emptyValue;
+    aveBaseline    = emptyValue;
+    highResTime    = emptyValue;
 }
 
 ScintProcessor::ScintData::ScintData(ChanEvent* chan) : trace(chan->GetTrace())

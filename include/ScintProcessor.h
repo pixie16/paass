@@ -20,6 +20,7 @@ class ScintProcessor : public EventProcessor
     struct ScintData {
 	ScintData(string type ="");
 	ScintData(ChanEvent* chan);
+	bool GoodDataCheck(void) const;
 	
 	string detSubtype;
 	double tqdc;
@@ -34,8 +35,6 @@ class ScintProcessor : public EventProcessor
     };
 
     unsigned int counter;
-    
-    virtual bool GoodDataCheck(const ScintData& DataCheck);
     
     std::map<int, struct ScintData> liquidMap;
     std::map<int, struct ScintData> betaMap;

@@ -62,8 +62,9 @@ class Correlator
   void DeclarePlots(void) const;
   
   void Correlate(RawEvent &, EEventType, unsigned int, unsigned int, double);
-  double GetDecayTime(void) const {return lastDecay->dtime;};
-  EConditions GetCondition(void) const {return condition;};
+  double GetDecayTime(void) const {return lastDecay->dtime;}
+  double GetImplantTime(void) const {return lastImplant->time;}
+  EConditions GetCondition(void) const {return condition;}
   
  private:
   ImplantData implant[MAX_STRIP][MAX_STRIP]; /**< 2D array containing the most

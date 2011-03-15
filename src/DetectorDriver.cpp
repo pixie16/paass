@@ -78,7 +78,6 @@ extern RandomPool randoms;
 DetectorDriver::DetectorDriver()
 {
     vecAnalyzer.push_back(new TraceAnalyzer());
-    vecAnalyzer.push_back(new WaveformAnalyzer());
 
     vecProcess.push_back(new ScintProcessor());
     vecProcess.push_back(new GeProcessor());
@@ -122,10 +121,10 @@ DetectorDriver::~DetectorDriver()
 */
 const set<string>& DetectorDriver::GetKnownDetectors()
 {   
-    const unsigned int detTypes = 12;
+    const unsigned int detTypes = 13;
     const string detectorStrings[detTypes] = {
 	"dssd_front", "dssd_back", "idssd_front", "position", "timeclass",
-	"ge", "si", "scint", "mcp", "generic", "vandle", "pulser"};
+	"ge", "si", "scint", "mcp", "mtc", "generic", "vandle", "pulser"};
   
     // only call this once
     if (!knownDetectors.empty())
@@ -153,6 +152,7 @@ int DetectorDriver::Init(void)
     for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
 	 it != vecAnalyzer.end(); it++) {
 	(*it)->Init();
+	(*it)->SetLevel(1); //! Plot traces
     }
 
     // initialize processors in the event processing vector
@@ -272,8 +272,8 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 	} else energy = chan->GetEnergy() + randoms.Get();
 	if (trace.HasValue("phase") ) {
 	    double phase = trace.GetValue("phase");
-	    chan->SetHighResTime( phase + 
-				  chan->GetTrigTime() * pixie::filterClockInSeconds / pixie::adcClockInSeconds );
+	    chan->SetHighResTime( phase * pixie::adcClockInSeconds + 
+				  chan->GetTrigTime() * pixie::filterClockInSeconds);
 
 	}
     } else {

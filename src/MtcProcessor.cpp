@@ -4,11 +4,13 @@
  * derived from timeclass.cpp
  * doesn't handle old style NSCL correlations
  *
- * Location 0 refers to the discriminated leading edge of the tape signal
- * Location 1 refers to the discriminated trailing edge of the tape signal
+ * Start subtype corresponds to leading edge of tape move signal
+ * Stop subtype corresponds to trailing edge of tape move signal
  */
 
 #include <iostream>
+
+#include <cmath>
 
 #include "damm_plotids.h"
 #include "param.h"
@@ -18,7 +20,7 @@
 using namespace std;
 
 MtcProcessor::MtcProcessor(void) : EventProcessor(), 
-				   prevTime0(0.), prevTime1(0.)
+				   lastStartTime(NAN), lastStopTime(NAN)
 {
     name = "mtc";
 
@@ -30,22 +32,24 @@ void MtcProcessor::DeclarePlots(void) const
 {
     using namespace dammIds::mtc;
     
+    const int counterBins = S4;
     const int timeBins = SA;
 
-    DeclareHistogram1D(D_TDIFF0, timeBins, "tdiff btwn MTC0 sigs, 10 ms/bin");
-    DeclareHistogram1D(D_TDIFF1, timeBins, "tdiff btwn MTC1 sigs, 10 ms/bin");
-    DeclareHistogram1D(D_TDIFFSUM, timeBins, "tdiff btwn MTC01 sigs, 10 ms/bin");
-    DeclareHistogram1D(D_MOVETIME, timeBins, "tdiff btwn MTC1/2 sigs, 10 ms/bin");
-    DeclareHistogram1D(D_COUNTER, timeBins, "MTC1/2 counter");
-    DeclareHistogram1D(D_COUNTER_MOVE0, timeBins, "MTC1 counter");
-    DeclareHistogram1D(D_COUNTER_MOVE1, timeBins, "MTC2 counter");
+    DeclareHistogram1D(D_TDIFF0, timeBins, "tdiff btwn MTC starts, 10 ms/bin");
+    DeclareHistogram1D(D_TDIFF1, timeBins, "tdiff btwn MTC stops, 10 ms/bin");
+    DeclareHistogram1D(D_TDIFFSUM, timeBins, "sum tdiff btwn moves, 10 ms/bin");
+    DeclareHistogram1D(D_MOVETIME, timeBins, "move time, 10 ms/bin");
+    DeclareHistogram1D(D_COUNTER, counterBins, "MTC counter");
+    DeclareHistogram1D(D_COUNTER_MOVE0, counterBins, "MTC1 counter");
+    DeclareHistogram1D(D_COUNTER_MOVE1, counterBins, "MTC2 counter");
 }
 
 bool MtcProcessor::Process(RawEvent &event)
 {
     // plot with 10 ms bins
     const double mtcPlotResolution = 10e-3 / pixie::clockInSeconds;
-
+    static Correlator &corr = event.GetCorrelator();
+ 
     if (!EventProcessor::Process(event))
 	return false;
 
@@ -64,32 +68,41 @@ bool MtcProcessor::Process(RawEvent &event)
 
     plot(D_COUNTER, GENERIC_CHANNEL);
 
-    double time0, time1;
-
     for (vector<ChanEvent*>::const_iterator it = mtcEvents.begin();
 	 it != mtcEvents.end(); it++) {
 	ChanEvent *chan = *it;
-	int detNum = chan->GetChanID().GetLocation();
-      
-	if(detNum == 0) {
-	    time0 = chan->GetTime();
-	    double timeDiff0 = time0 - prevTime0;
-	    prevTime0 = time0;
+	string subtype = chan->GetChanID().GetSubtype();
 
+	double time = chan->GetTime();
+	if(subtype == "start") {
+	    if (!isnan(lastStartTime)) {
+		double timediff = time - lastStartTime;
+		plot(D_TDIFF0, timediff / mtcPlotResolution);
+		plot(D_TDIFFSUM, timediff / mtcPlotResolution);
+	    }
+	    lastStartTime = time;
 	    plot(D_COUNTER_MOVE0,GENERIC_CHANNEL); //counter
-	    plot(D_TDIFF0, timeDiff0 / mtcPlotResolution);
-	    plot(D_TDIFFSUM, timeDiff0 / mtcPlotResolution);
-	} else if (detNum == 1) {
-	    time1 = chan->GetTime();
-	    double timeDiff1 = time1 - prevTime1;
-	    prevTime1 = time1;
-	  
-	    plot(D_COUNTER_MOVE1,GENERIC_CHANNEL); //counter
-	    plot(D_TDIFF1, timeDiff1 / mtcPlotResolution);
-	    plot(D_TDIFFSUM, timeDiff1 / mtcPlotResolution);
-
-	    double moveTime = prevTime1 - prevTime0;    
-	    plot(D_MOVETIME, moveTime / mtcPlotResolution);
+	} else if (subtype == "stop") {
+	    if (!isnan(lastStopTime) != 0) {
+		double timeDiff1 = time - lastStopTime;
+		plot(D_TDIFF1, timeDiff1 / mtcPlotResolution);
+		plot(D_TDIFFSUM, timeDiff1 / mtcPlotResolution);
+		if (!isnan(lastStartTime)) {
+		    double moveTime = time - lastStartTime;    
+		    plot(D_MOVETIME, moveTime / mtcPlotResolution);
+		}
+	    }
+	    lastStopTime = time;
+	    plot(D_COUNTER_MOVE1,GENERIC_CHANNEL); //counter	  
+	    // correlate the end of tape movement with the implantation time
+	    // if mtc down, correlate with beam_start
+	    corr.Correlate(event, Correlator::IMPLANT_EVENT,
+			   1, 1, chan->GetTime());
+	} else if (subtype == "beam_start") {
+	    /*
+	    corr.Correlate(event, Correlator::IMPLANT_EVENT,
+			   1, 1, time);
+	    */
 	}
     }
 

@@ -4,16 +4,6 @@
 const int GENERIC_CHANNEL = 10;
 
 namespace dammIds {
-    namespace ge { // in GeProcessor.cpp
-	const unsigned int MAX_CLOVERS = 4; // for *_DETX spectra
-
-	const int D_CLOVER_ENERGY_DETX        = 691; // for x detectors
-	const int D_CLOVER_ENERGY_ALL         = 695;
-	namespace decayGated {
-	    // 0-5 granularities (1 us -> 100 ms)
-	    const int DD_ENERGY__DECAY_TIME_GRANX = 705; 
-	}
-    }
     // in mcp.cpp
     namespace mcp {	
 	const int D_POSX   = 921;
@@ -23,7 +13,47 @@ namespace dammIds {
 
     // in GeProcessor.cpp
     namespace ge {
-	const int D_ENERGY = 1500;
+	// clovers
+	const unsigned int MAX_CLOVERS = 4; // for *_DETX spectra
+	
+	const int D_CLOVER_ENERGY_DETX   = 691; // for x detectors
+	const int D_CLOVER_ENERGY_ALL    = 695;
+	const int DD_CLOVER_ENERGY_RATIO = 1609;
+
+	const int D_ENERGY          = 1500;
+	const int D_ENERGY_NTOF1    = 1506;
+	const int D_ENERGY_NTOF2    = 1507;
+	const int D_ENERGY_HEN3     = 1508;
+
+	const int D_ENERGY_LOWGAIN  = 1530;
+	const int D_ENERGY_HIGHGAIN = 1540;
+
+	const int D_ADD_ENERGY      = 1700;
+	const int D_ADD_ENERGY_DETX = 1701; // for x detectors 
+
+	const int D_MULT = 1800;
+
+	// correlated with a decay
+	namespace decayGated {
+	    // 0-5 granularities (1 us -> 100 ms)
+	    const int D_ENERGY = 1502;
+
+	    const int D_ADD_ENERGY      = 1720;
+	    const int D_ADD_ENERGY_DETX = 1721; // for x detectors
+	    namespace withBeta {
+		const int DD_ENERGY__DECAY_TIME_GRANX = 705;
+		namespace multiplicityGated {
+		    const int DD_ENERGY__DECAY_TIME_GRANX = 715;
+		}
+	    }
+	    namespace withoutBeta {
+		const int DD_ENERGY__DECAY_TIME_GRANX = 725;
+	    }
+	    namespace matrix {
+		const int DD_ENERGY_PROMPT = 1670;
+		const int DD_ADD_ENERGY_PROMPT = 1682;
+	    }
+	} // decay-gated namespace
 	namespace betaGated {
 	    const int D_ENERGY        = 1501;
 	    const int D_ENERGY_BETA0  = 1550;
@@ -32,47 +62,38 @@ namespace dammIds {
 	    const int D_ENERGY_NTOF2  = 1553;
 	    const int D_ENERGY_HEN3   = 1554;
 	    const int D_TDIFF         = 1602;
+
+	    const int D_ADD_ENERGY      = 1710;
+	    const int D_ADD_ENERGY_DETX = 1711; // for x detectors
+
 	    const int DD_TDIFF__GAMMA_ENERGY = 1603;
 	    const int DD_TDIFF__BETA_ENERGY  = 1604;
-	}
-	// correlated with a decay
-	namespace decayGated {
-	    const int D_ENERGY = 1502;
-	}
+	    namespace matrix {
+		const int DD_ENERGY_PROMPT = 1660;
+		const int DD_ADD_ENERGY_PROMPT = 1681;
+	    }
+	    namespace multiplicityGated {
+		const int D_ENERGY = 1505;
+		const int DD_TDIFF__GAMMA_ENERGY = 1607;
+	    }
+	} // beta-gated namespace
 	namespace implantGated {
 	    const int D_ENERGY = 1503;
+	    const int DD_ENERGY__TDIFF = 1605;
 	}
-	const int D_ENERGY_NTOF1 = 1504;
-	const int D_ENERGY_NTOF2 = 1505;
-	const int D_ENERGY_HEN3  = 1506;
+	namespace multiplicityGated {
+	    const int D_ENERGY = 1504;
+	    // cross-references
+	    namespace betaGated = ::dammIds::ge::betaGated::multiplicityGated;
+	}
 	namespace matrix {
 	    const int DD_ENERGY_PROMPT = 1600;
 	    const int D_TDIFF          = 1601;
-	    namespace betaGated {
-		const int DD_ENERGY_PROMPT = 1660;
-	    }
-	    namespace decayGated {
-		const int DD_ENERGY_PROMPT = 1670;
-	    }
 	    const int DD_ADD_ENERGY_PROMPT = 1680;
-	    namespace betaGated {
-		const int DD_ADD_ENERGY_PROMPT = 1681;
-	    }
-	    namespace decayGated {
-		const int DD_ADD_ENERGY_PROMPT = 1682;
-	    }
-	}
-	const int D_ADD_ENERGY      = 1700;
-	const int D_ADD_ENERGY_DETX = 1701; // for x detectors 
-	namespace betaGated {
-	    const int D_ADD_ENERGY      = 1710;
-	    const int D_ADD_ENERGY_DETX = 1711; // for x detectors
-	}
-	namespace decayGated {
-	    const int D_ADD_ENERGY      = 1720;
-	    const int D_ADD_ENERGY_DETX = 1721; // for x detectors
-	}
-	const int D_MULT = 1800;
+	    // cross-references
+	    namespace betaGated = ::dammIds::ge::betaGated::matrix;
+	    namespace decayGated = ::dammIds::ge::decayGated::matrix;
+	} // gamma-gamma matrix
     } // end namespace ge
 
     // in ScintProcessor.cpp

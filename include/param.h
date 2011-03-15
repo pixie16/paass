@@ -34,4 +34,6 @@ namespace readbuff {
     const int ERROR = -100;
 }
 
+const double emptyValue = -9999.; //< a default number to set values to
+
 #endif // __PARAM_H_
