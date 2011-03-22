@@ -712,45 +712,51 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
     static double bufEnd = 0, bufLength = 0;
     // static double deadTime = 0 // not used
 
-    if(event == BUFFER_START){ /*If event = 0 this is the start of a buffer */
-	modFirstTime = clock;
-	if(firstTime == 0.) {
-	    firstTime = clock;
-	} else {
-	    //plot time between buffers as a function of time - dead time spectrum	    
-	    // deadTime += (clock - bufEnd)*pixie::clockInSeconds;
-	    // plot(DD_DEAD_TIME_CUMUL,remainNumSecs,rownum,int(deadTime/runTimeSecs));	    	    
-	    plot(DD_BUFFER_START_TIME,remainNumSecs,rowNumSecs,int(((clock-bufEnd)/bufLength)*1000.));	    
-	}
-  } else if (event == BUFFER_END){ 
-    plot(D_BUFFER_END_TIME, (stop - modFirstTime) * pixie::clockInSeconds * 1000);
-    bufEnd = clock;
-    bufLength = clock - modFirstTime;
-  } else if (event == EVENT_START) {
-      plot(D_EVENT_LENGTH, stop - start); // plot the last event
-      plot(D_EVENT_GAP, diff);
-      plot(D_EVENT_MULTIPLICITY, count);
-      
-      start = clock; // reset the counters      
-      count = 1;
-  } else if (event == EVENT_CONTINUE) {
-    count++;
-    if(diff > 0.) {
-	plot(D_SUBEVENT_GAP,diff + 100);
+    switch (event) {
+	case BUFFER_START:
+	    modFirstTime = clock;
+	    if(firstTime == 0.) {
+		firstTime = clock;
+	    } else {
+		//plot time between buffers as a function of time - dead time spectrum	    
+		// deadTime += (clock - bufEnd)*pixie::clockInSeconds;
+		// plot(DD_DEAD_TIME_CUMUL,remainNumSecs,rownum,int(deadTime/runTimeSecs));	    	    
+		plot(DD_BUFFER_START_TIME,remainNumSecs,rowNumSecs,int(((clock-bufEnd)/bufLength)*1000.));	    
+	    }
+	    break;
+	case BUFFER_END:
+	    plot(D_BUFFER_END_TIME, (stop - modFirstTime) * pixie::clockInSeconds * 1000);
+	    bufEnd = clock;
+	    bufLength = clock - modFirstTime;
+	case EVENT_START:
+	    plot(D_EVENT_LENGTH, stop - start); // plot the last event
+	    plot(D_EVENT_GAP, diff);
+	    plot(D_EVENT_MULTIPLICITY, count);
+	    
+	    start = clock; // reset the counters      
+	    count = 1;
+	    break;
+	case EVENT_CONTINUE:
+	    count++;
+	    if(diff > 0.) {
+		plot(D_SUBEVENT_GAP,diff + 100);
+	    }
+	    stop = clock;
+	    break;
+	default:
+	    cout << "Unexpected type " << event << " given to HistoStats" << endl;
     }
-    stop = clock;
-  }
 
-  //fill these spectra on all events, id plots and runtime.
-  // Exclude event type 0 since it will also appear as an
-  // event type 11
-  if ( event != BUFFER_START ){      
-      plot(D_HIT_SPECTRUM,id);     // plot hit spectrum
-      plot(DD_RUNTIME_SEC,remainNumSecs,rowNumSecs);
-      plot(DD_RUNTIME_MSEC,remainNumMsecs,rowNumMsecs);      
-      //fill scalar spectrum (per second) 
-      plot(offsets::D_SCALAR + id, runTimeSecs);
-  }
+    //fill these spectra on all events, id plots and runtime.
+    // Exclude event type 0/1 since it will also appear as an
+    // event type 11
+    if ( event != BUFFER_START && event != BUFFER_END ){      
+	plot(DD_RUNTIME_SEC,remainNumSecs,rowNumSecs);
+	plot(DD_RUNTIME_MSEC,remainNumMsecs,rowNumMsecs);      
+	//fill scalar spectrum (per second) 
+	plot(D_HIT_SPECTRUM,id);     // plot hit spectrum
+	plot(offsets::D_SCALAR + id, runTimeSecs);
+    }
 }
 
 /**

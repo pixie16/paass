@@ -1,8 +1,15 @@
+Make InitMap happen during initialization so that only necessary histograms
+are created
+Incorporate changes necessary for Pixie-500 data (MAJOR)
+Update statistics analysis
+Throw in some commonly used scripts
+Add support for subsubtypes throughout?
+Make the damm IDs in GeProcessor have some semblance of organization.
 Fix the memory leak in GeProcessor.cpp/ConstructAddback function.
 48-bit times in RawEvent
 ROOT histogramming
 Smarter (magic) dependency checking
-Adjust analyzers so the double trace analyzers find each  fast filter crossing
+Adjust analyzers so the double trace analyzers find each fast filter crossing
 self-consistently.
 Find a cogent way to set the analyzer level using "trace" parameter from map.txt
 Complain a little bit more bitterly when encountering a wrong vsn other than 9999 in the data stream.
