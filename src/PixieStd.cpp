@@ -605,7 +605,7 @@ void ScanList(vector<ChanEvent*> &eventList)
     /** The time width of an event in units of pixie16 clock ticks */
     const int eventWidth = 200;
 
-    double chanTime, eventTime;
+    unsigned long chanTime, eventTime;
 
     // local variable for the detectors used in a given event
     set<string> usedDetectors;
@@ -666,7 +666,11 @@ void ScanList(vector<ChanEvent*> &eventList)
 
 	    HistoStats(id, diffTime, currTime, EVENT_START);
 	} else HistoStats(id, diffTime, currTime, EVENT_CONTINUE);
-	plot(id + dammIds::misc::offsets::D_TIME, eventTime - chanTime);
+	unsigned long dtimebin = 2000 + eventTime - chanTime;
+	if (dtimebin < 0 || dtimebin > (unsigned)(SE)) {
+	    cout << "strange dtime for id " << id << ":" << dtimebin << endl;
+	}
+	plot(dammIds::misc::offsets::D_TIME + id, dtimebin);
 
 	usedDetectors.insert(modChan[id].GetType());
 	rawev.AddChan(*iEvent);
@@ -699,7 +703,7 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
     static double start, stop;
     static int count;
     static double firstTime = 0.;
-    static double modFirstTime;
+    static double bufStart;
 
     double runTimeSecs   = (clock - firstTime) * pixie::clockInSeconds;
     int    rowNumSecs    = int(runTimeSecs / specNoBins);
@@ -712,28 +716,44 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
     static double bufEnd = 0, bufLength = 0;
     // static double deadTime = 0 // not used
 
+    if (firstTime > clock) {
+	cout << "Backwards clock jump detected: prior start " << firstTime
+	     << ", now " << clock << endl;
+	// detect a backwards clock jump which occurs when some of the
+	//   last buffers of a previous run sneak into the beginning of the 
+	//   next run, elapsed time of last buffers is usually small but 
+	//   just in case make some room for it
+	double elapsed = stop - firstTime;
+	// make an artificial 10 second gap by 
+	//   resetting the first time accordingly
+	firstTime = clock - 10 / pixie::clockInSeconds - elapsed;
+	cout << elapsed*pixie::clockInSeconds << " prior seconds elapsed "
+	     << ", resetting first time to " << firstTime << endl;	
+    }
+
     switch (event) {
 	case BUFFER_START:
-	    modFirstTime = clock;
+	    bufStart = clock;
 	    if(firstTime == 0.) {
 		firstTime = clock;
-	    } else {
+	    } else if (bufLength != 0.){
 		//plot time between buffers as a function of time - dead time spectrum	    
 		// deadTime += (clock - bufEnd)*pixie::clockInSeconds;
 		// plot(DD_DEAD_TIME_CUMUL,remainNumSecs,rownum,int(deadTime/runTimeSecs));	    	    
-		plot(DD_BUFFER_START_TIME,remainNumSecs,rowNumSecs,int(((clock-bufEnd)/bufLength)*1000.));	    
+		plot(DD_BUFFER_START_TIME,remainNumSecs,rowNumSecs,
+		     (clock-bufEnd)/bufLength*1000. );	    
 	    }
 	    break;
 	case BUFFER_END:
-	    plot(D_BUFFER_END_TIME, (stop - modFirstTime) * pixie::clockInSeconds * 1000);
+	    plot(D_BUFFER_END_TIME, (stop - bufStart) * pixie::clockInSeconds * 1000);
 	    bufEnd = clock;
-	    bufLength = clock - modFirstTime;
+	    bufLength = clock - bufStart;
 	case EVENT_START:
 	    plot(D_EVENT_LENGTH, stop - start); // plot the last event
 	    plot(D_EVENT_GAP, diff);
 	    plot(D_EVENT_MULTIPLICITY, count);
 	    
-	    start = clock; // reset the counters      
+	    start = stop = clock; // reset the counters      
 	    count = 1;
 	    break;
 	case EVENT_CONTINUE:

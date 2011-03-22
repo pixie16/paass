@@ -269,7 +269,10 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 	if (trace.HasValue("calcEnergy") ) {	    
 	    energy = trace.GetValue("calcEnergy");
 	    chan->SetEnergy(energy);
-	} else energy = chan->GetEnergy() + randoms.Get();
+	} else {
+	    energy = chan->GetEnergy() + randoms.Get();
+	    energy /= ChanEvent::pixieEnergyContraction;
+	}
 	if (trace.HasValue("phase") ) {
 	    double phase = trace.GetValue("phase");
 	    chan->SetHighResTime( phase * pixie::adcClockInSeconds + 
@@ -307,7 +310,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 int DetectorDriver::PlotRaw(const ChanEvent *chan) const
 {
     int id = chan->GetID();
-    float energy = chan->GetEnergy();
+    float energy = chan->GetEnergy() / ChanEvent::pixieEnergyContraction;
     
     plot(dammIds::misc::offsets::D_RAW_ENERGY + id, energy);
     

@@ -152,8 +152,12 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
 
 		      currentEvt->chanNum = ch;
                       currentEvt->modNum  = modNum;
-		      currentEvt->energy  = eventEnergy;
-
+		      if (eventEnergy & 0xFFFF0000 == 0) {
+			  currentEvt->energy  = eventEnergy;
+		      } else {
+			  // this is some peculiar pixie event, tag with a fixed energy
+			  currentEvt->energy  = 64000;
+		      }
 		      currentEvt->trigTime    = chanTrigTime;
 		      currentEvt->eventTimeHi = eventTime[0];
 		      currentEvt->eventTimeLo = eventTime[1];
