@@ -7,9 +7,10 @@ vpath %.c src
 
 COMMONOBJS  = $(INTERFACELIB) $(INTERFACE)/Utility.o
 POLLOBJS    = poll.o sendbuf.o spkt_io_udp.o
+PULSEROBJS  = pulser.o sendbuf.o spkt_io_udp.o
 COMMOBJS    = commtest.o sendbuf.o spkt_io_udp.o
 OBJS        = $(POLLOBJS) $(COMMOBJS)
-TARGETS     = poll commtest
+TARGETS     = poll commtest pulser
 
 # make things copasetic with c++
 LINK.o      = $(CXX) $(LDFLAGS) $(TARGET_ARCH)
@@ -20,6 +21,8 @@ all: $(TARGETS)
 poll: $(POLLOBJS) $(COMMONOBJS)
 
 commtest: $(COMMOBJS)
+
+pulser: $(PULSEROBJS) $(COMMONOBJS)
 
 clean: 
 	@echo "Cleaning up..."
