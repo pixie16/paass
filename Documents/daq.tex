@@ -1,4 +1,5 @@
 \documentclass{article}
+\usepackage{longtable}
 \newcommand{\okay}{\texttt{[OK]}}
 \newcommand{\error}{\texttt{[ERROR]}}
 \title{Data acquisition with Pixie16 Rev. D}
@@ -6,6 +7,7 @@
 \begin{document}
 \maketitle
 \setcounter{tocdepth}{1}
+\setlength{\LTcapwidth}{\textwidth}
 \tableofcontents
 \section{Introduction}
 This is a guide for the use of the newly revised \textsc{PixieSuite} which is the basis for data acquisition with the Pixie 16 Rev. D modules. The suite consists of several components: a polling program, tools for configuring pixie, and a generalized interface to the Pixie 16 modules. Within the suite, only the polling program is specific to the Rev. D modules. However, a recent (later than Mar. 29, 2010) distribution of the Pixie API is necessary for proper compilation of the programs.
@@ -60,13 +62,18 @@ After a \textsc{STOP} command is received (or the program is interrupted), the a
 
 \section{\label{sec:setup}Configuring pixie}
 In general, the interface for configuring Rev. D Pixie modules is virtually identical as that for Rev. A with the commands \texttt{pwrite}, \texttt{pread}, \texttt{pmwrite}, and \texttt{pmread} as well as the corresponding \texttt{R\_*} and \texttt{W\_*} equivalents. In addition, both the \texttt{mca} and \texttt{trace} programs as well as their paw versions are included in this directory. Three new programs join the mix: \texttt{boot}, \texttt{copy\_params}, and \texttt{adjust\_offsets}. Note that \texttt{boot} must be called at least once before working with the modules; all the other programs only do a partial booting of the Pixie system. All these programs (see Table~\ref{tab:setup_programs}) are compiled with the Pixie interface described in Sec.~\ref{sec:pi} and use the working set file as given in \texttt{pixie.cfg}. Several paw kumacs also exist for interfacing with the executables with paw support.
-\begin{table}[htp]
-\label{tab:setup_programs}
-\caption{List of programs useful for setting up Pixie channels. Here, the arguments {\it m,c,p,v} indicate the module, channel, parameter, and value of interest respectively. If a given module or channel is set to -1, this means all modules or all channels for appropriate programs.}
-\begin{tabular}{l p{3in}}
+% \begin{table}[htp]
+% \begin{tabular}{l p{3in}}
+\begin{longtable}{lp{3in}}
+\caption{\label{tab:setup_programs}List of programs useful for setting up Pixie channels. Here, the arguments {\it m,c,p,v} indicate the module, channel, parameter, and value of interest respectively. If a given module or channel is set to -1, this means all modules or all channels for appropriate programs.} \\
 \hline
 Program & Description \\
 \hline
+\endfirsthead
+\hline
+Program & Description \\
+\hline
+\endhead 
 \texttt{adjust\_offsets} {\it m} & Adjust the \texttt{VOFFSET} parameter for each channel such that the baseline is located at \texttt{BASELINEPERCENT} of the full ADC range. This is a good starting point but doesn't necessarily always work as desired.\\
 \texttt{boot} & Boot the Pixie modules with the working set file. \\
 \texttt{copy\_params} ... & Behaviour depends on the number of arguments with {\it s} and {\it d} referencing the source and destination of the copying operation  \\
@@ -74,6 +81,7 @@ Program & Description \\
 \hspace{0.2in} {\it sm sc dm} & \hspace{0.2in}Copy parameters from one source channel to all channels of a destination module \\
 \hspace{0.2in} {\it sm sc dm dc} & \hspace{0.2in} Copy parameters from one channel to another \\
 \texttt{csr\_test} {\it v} & Show the flags set for a given \texttt{CHANNELCSRA} value \\
+\texttt{find\_tau} {\it m c} & Find the decay constant for a module and channel \\
 \texttt{mca\_paw} [time] & Start a MCA run storing the result in a paw file \texttt{mca.dat} with histogram numbers $100(m+1) + c$ \\
 \texttt{PGEN} & \textsc{BASH:} Generate the \texttt{R\_*} and \texttt{W\_*} links \\
 \texttt{pmread} {\it m p} & Read a module parameter \\
@@ -86,16 +94,28 @@ Program & Description \\
 % \texttt{RCHA} & \textsc{BASH:} Dummy script, {\bf do not directly use!} \\
 \texttt{READ\_CONFIG} & \textsc{BASH:} Read all the relevant parameters for the active module and channel [slowly] \\
 % \texttt{RMOD} & \textsc{BASH:} Dummy script, {\bf do not directly use!} \\
+\texttt{set\_hybrid} {\it m c} & Set the pileup mode to take full traces for piled-up events and only energies for non-piled-up events (Proton catcher firmware)\\
+\texttt{set\_pileups\_reject} {\it m c} & Set the pileup mode to reject piled-up events \\
+\texttt{set\_pileups\_only} {\it m c} & Set the pileup mode to only accept piled-up events (Proton catcher firmware) \\
+\texttt{set\_standard} {\it m c} & Set the pileup mode to standard \\
+
 \texttt{sm} {\it m c} & \textsc{BASH:} Change the active module and channel \\
 \texttt{smf} & \textsc{BASH:} Get the active module and channel \\
 \texttt{smt} {\it m c v} & \textsc{BASH:} Change the active module and channel as well as the default mca time for \texttt{mc.kumac} \\
+\texttt{toggle\_catcher} {\it m c} & Toggle the catcher bit of the channel CSRA (Proton catcher firmware)\\
+\texttt{toggle\_gain} {\it m c} & Toggle the gain bit of the channel CSRA\\
+\texttt{toggle\_good} {\it m c} & Toggle the good bit of the channel CSRA\\
+\texttt{toggle\_pileup} {\it m c} & Toggle the pileup rejection bit of the channel CSRA\\
+\texttt{toggle\_polarity} {\it m c} & Toggle the polarity bit of the channel CSRA\\
+\texttt{toggle\_trace} {\it m c} & Toggle the trace capture bit of the channel CSRA\\
 \texttt{trace} & Print out mean and deviation of traces for all channels acquired by Pixie \\
 \texttt{trace\_paw} {\it m c} & As \texttt{trace} but also store the trace in a paw file named \texttt{trace.dat} with histogram number $100(m+1) + c$ \\
 \texttt{W\_*} & \textsc{BASH:} Write a parameter for the active module or channel \\
 % \texttt{WCHA} & \textsc{BASH:} Dummy script, {\bf do not directly use!} \\
 % \texttt{WMOD} & \textsc{BASH:} Dummy script, {\bf do not directly use!} \\
-\end{tabular}
-\end{table}
+\end{longtable}
+% \end{tabular}
+% \end{table}
 A simple \texttt{pixie.cfg} exists so that changes to the firmware and configuration files do not require a recompilation of the Pixie interface (see Sec.~\ref{sec:pi}).
 \section{\label{sec:install}Installing a new copy}
 \subsection{Requirements}
@@ -163,7 +183,6 @@ Following is a list of possible improvements that could be made (in no particula
 \begin{enumerate}
 \item Making the distribution tarball may include extraneous files left in the directory by users. This also would theoretically break if the top directory of the \textsc{PixieSuite} were the root filesystem.
 \item Reading only 1 word from the FIFO is not possible for the Rev. D modules. This is implemented in the Pixie Intreface with a rudimentary double buffering approach. However, in general, reading of a small number of words introduces a significant overhead on the system and a more thorough double buffering approach might be necessary for maximal throughput.
-\item A tool for finding the decay constants for waveforms also exists for the most recent version of the Pixie API. This could be implemented and tested in the Pixie Interface.
 \item Support for multiple crates will have to be addressed at the time when it becomes necessary
 \end{enumerate}
 \end{document}
