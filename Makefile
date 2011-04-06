@@ -16,10 +16,10 @@ vpath %.h include/
 vpath %.cpp src/
 vpath %.cxx src/
 
-DIRA2=/usr/hhirf/g77
-DIRB= /usr/acq2/lib
-# DIRA2 = /usr/hhirf
-# DIRB  = /usr/hhirf
+# DIRA2=/usr/hhirf/g77
+# DIRB= /usr/acq2/lib
+DIRA2 = /usr/hhirf
+DIRB  = /usr/hhirf
 
 LIBS = $(DIRA2)/scanorlib.a $(DIRA2)/orphlib.a \
        $(DIRB)/acqlib.a  $(DIRB)/ipclib.a
@@ -34,9 +34,9 @@ c++SrcSuf = cpp
 cxxSrcSuf = cxx
 
 #------- define compilers
-FC        = g77
+# FC        = g77
 #uncomment to compile with gfortran (>=4.2) if required for the hhirf libs
-#FC        = gfortran
+FC        = gfortran
 GCC       = gcc 
 CXX       = g++
 LINK.o    = $(FC) $(LDFLAGS)
@@ -97,6 +97,7 @@ CORRELATORO      = Correlator.$(ObjSuf)
 RAWEVENTO        = RawEvent.$(ObjSuf)
 ROOTPROCESSORO   = RootProcessor.$(ObjSuf)
 RANDOMPOOLO      = RandomPool.$(ObjSuf)
+SSDPROCESSORO    = SsdProcessor.$(ObjSuf)
 STATSDATAO       = StatsData.$(ObjSuf)
 PULSERPROCESSORO = PulserProcessor.$(ObjSuf)
 VANDLEPROCESSORO = VandleProcessor.$(ObjSuf)
@@ -126,6 +127,7 @@ OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \
 	$(MESSLOGO) $(MILDATIMO) $(SCANORUXO) $(ACCUMULATORO) $(PIXIEO) \
 	$(HISTOGRAMMERO) $(EVENTPROCESSORO) $(SCINTPROCESSORO) $(TRACEO) \
 	$(GEPROCESSORO) $(DSSDPROCESSORO) $(RAWEVENTO) $(RANDOMPOOLO) \
+	$(SSDPROCESSORO) \
 	$(STATSDATAO) $(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO)
 
 ifdef USEROOT

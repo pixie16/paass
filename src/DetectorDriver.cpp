@@ -44,16 +44,9 @@
 
 #include "damm_plotids.h"
 
-#include "DssdProcessor.h"
-#include "GeProcessor.h"
-#include "McpProcessor.h"
-#include "MtcProcessor.h"
-#include "ScintProcessor.h"
-#include "VandleProcessor.h"
-#include "PulserProcessor.h"
+#include "SsdProcessor.h"
 
-#include "TraceAnalyzer.h"
-#include "WaveformAnalyzer.h"
+#include "DoubleTraceAnalyzer.h"
 
 #ifdef useroot
 #include "RootProcessor.h"
@@ -77,15 +70,10 @@ extern RandomPool randoms;
 */
 DetectorDriver::DetectorDriver()
 {
-    vecAnalyzer.push_back(new TraceAnalyzer());
+    vecAnalyzer.push_back(new DoubleTraceAnalyzer());
 
-    vecProcess.push_back(new ScintProcessor());
-    vecProcess.push_back(new GeProcessor());
-    vecProcess.push_back(new McpProcessor());    
-    vecProcess.push_back(new DssdProcessor());
-    vecProcess.push_back(new MtcProcessor());
-    vecProcess.push_back(new PulserProcessor());
-    vecProcess.push_back(new VandleProcessor());
+    vecProcess.push_back(new SsdProcessor());
+
 #ifdef useroot
     // and finally the root processor
     vecProcess.push_back(new RootProcessor("tree.root", "tree"));
@@ -121,10 +109,11 @@ DetectorDriver::~DetectorDriver()
 */
 const set<string>& DetectorDriver::GetKnownDetectors()
 {   
-    const unsigned int detTypes = 13;
+    const unsigned int detTypes = 14;
     const string detectorStrings[detTypes] = {
 	"dssd_front", "dssd_back", "idssd_front", "position", "timeclass",
-	"ge", "si", "scint", "mcp", "mtc", "generic", "vandle", "pulser"};
+	"ge", "si", "scint", "mcp", "mtc", "generic", "ssd", "vandle",
+	"pulser"};
   
     // only call this once
     if (!knownDetectors.empty())
@@ -152,7 +141,7 @@ int DetectorDriver::Init(void)
     for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
 	 it != vecAnalyzer.end(); it++) {
 	(*it)->Init();
-	(*it)->SetLevel(1); //! Plot traces
+	(*it)->SetLevel(20); //! Plot traces
     }
 
     // initialize processors in the event processing vector
