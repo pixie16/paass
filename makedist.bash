@@ -2,9 +2,10 @@
 DISTNAME=pixie_scan
 
 if [[ -d .git ]]; then
-    VERSION=`git describe --tags --abbrev=1`;
+    BRANCH=`git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* //'`
+    VERSION=`git describe --tags --abbrev=1`
     git archive --format=tar --prefix=$DISTNAME/ HEAD | \
-	gzip > $DISTNAME-$VERSION.tgz
+	gzip > $DISTNAME-$BRANCH-$VERSION.tgz
 else
     if [[ -d $DISTNAME ]]; then
 	echo "Temporary directory $DISTNAME already exists."
