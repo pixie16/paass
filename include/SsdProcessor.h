@@ -15,7 +15,7 @@ class RawEvent;
  */
 class SsdProcessor : public EventProcessor 
 {
- public:
+  public:
     SsdProcessor(); // no virtual c'tors
     virtual void DeclarePlots(void) const;
     virtual bool Process(RawEvent &event);

@@ -184,11 +184,16 @@ namespace dammIds {
 
     // in SsdProcessor.cpp
     namespace ssd {
-        const int SSD1_POSITION_ENERGY = 2701;
-	const int SSD2_POSITION_ENERGY = 2702;
-	const int SSD3_POSITION_ENERGY = 2703;
-	const int SSD4_POSITION_ENERGY = 2704;
+	const int NUM_DETECTORS = 4;
+
+        const int DD_POSITION__ENERGY_DETX = 2701; // for x detectors
     } // ssd namespace
+    // in ImplantSsdProcessor.cpp
+    namespace implantSsd {
+	const int DD_IMPLANT_ENERGY__POSITION = 2741;
+	const int DD_DECAY_ENERGY__POSITION   = 2743;
+	const int DD_ENERGY__DECAY_TIME_GRANX = 2750;
+    }
     // in MtcProcessor.cpp
     namespace mtc {
 	const int D_TDIFF0        = 1510;

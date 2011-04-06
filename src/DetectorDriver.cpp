@@ -44,6 +44,7 @@
 
 #include "damm_plotids.h"
 
+#include "ImplantSsdProcessor.h"
 #include "SsdProcessor.h"
 
 #include "DoubleTraceAnalyzer.h"
@@ -72,6 +73,7 @@ DetectorDriver::DetectorDriver()
 {
     vecAnalyzer.push_back(new DoubleTraceAnalyzer());
 
+    vecProcess.push_back(new ImplantSsdProcessor());
     vecProcess.push_back(new SsdProcessor());
 
 #ifdef useroot
