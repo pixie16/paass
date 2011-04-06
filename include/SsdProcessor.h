@@ -1,6 +1,6 @@
 /** \file SsdProcessor.h
  *
- * Header file for DSSD analysis
+ * Header file for SSD analysis
  */
 
 #ifndef __SSD_PROCESSOR_H_
@@ -8,20 +8,17 @@
 
 #include "EventProcessor.h"
 
-class DetectorSummary;
 class RawEvent;
 
 /**
- * \brief Handles detectors of type dssd_front and dssd_back
+ * \brief Handles detectors of type ssd
  */
 class SsdProcessor : public EventProcessor 
 {
- private:
-    DetectorSummary *ssdSummary; ///< all detectors of type ssd
  public:
     SsdProcessor(); // no virtual c'tors
     virtual void DeclarePlots(void) const;
     virtual bool Process(RawEvent &event);
 };
 
-#endif // __SSD_POCESSOR_H_
+#endif // __SSD_PROCESSOR_H_
