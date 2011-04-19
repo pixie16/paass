@@ -8,9 +8,6 @@
  *     - SNL - 2-4-08 - Add plotting spectra
  */
 
-//!!!! THIS NEEDS SOME CONSIDERABLE MODIFICATIONS --- DTM
-// -- e.g. using new spiffy TrapezodialFilterParameters class
-
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -49,7 +46,8 @@ void DoubleTraceAnalyzer::DeclarePlots() const
 {
     using namespace dammIds::trace;
 
-    TraceAnalyzer::DeclarePlots();
+//    TraceAnalyzer::DeclarePlots();
+    TraceFilterer::DeclarePlots();
 
     const int energyBins2 = SA;
     const int timeBins = SA;

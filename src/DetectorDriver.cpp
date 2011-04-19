@@ -71,11 +71,12 @@ extern RandomPool randoms;
 */
 DetectorDriver::DetectorDriver()
 {
+    vecAnalyzer.push_back(new TracePlotter());
     vecAnalyzer.push_back(new DoubleTraceAnalyzer());
 
     vecProcess.push_back(new ImplantSsdProcessor());
     vecProcess.push_back(new SsdProcessor());
-
+    
 #ifdef useroot
     // and finally the root processor
     vecProcess.push_back(new RootProcessor("tree.root", "tree"));
@@ -319,8 +320,8 @@ int DetectorDriver::PlotCal(const ChanEvent *chan) const
     float calEnergy = chan->GetCalEnergy();
     
     plot(dammIds::misc::offsets::D_CAL_ENERGY + id, calEnergy);
-    // plot(dammid, calEnergy);
-
+    if (!chan->IsSaturated())
+	plot(dammIds::misc::offsets::D_CAL_ENERGY_REJECT + id, calEnergy);
     return 0;
 }
 

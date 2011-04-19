@@ -13,9 +13,6 @@
 #include "Trace.h"
 #include "TraceFilterer.h"
 
-//!!!! THIS NEEDS SOME CONSIDERABLE MODIFICATIONS --- DTM
-// -- e.g. using new spiffy TrapezodialFilterParameters class
-
 /** \brief quick online trace analysis
  *
  * Trace class implements a quick online trapezoidal fiter for the

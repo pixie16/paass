@@ -103,8 +103,10 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
       word_t slotNum      = (buf[0] & 0x000000F0) >> 4;
       word_t crateNum     = (buf[0] & 0x00000F00) >> 8;
       word_t headerLength = (buf[0] & 0x0001F000) >> 12;
-      word_t eventLength  = (buf[0] & 0x7FFE0000) >> 17;
-      word_t finishCode   = (buf[0] & 0x80000000) >> 31;
+      word_t eventLength  = (buf[0] & 0x3FFE0000) >> 17;
+      
+      currentEvt->saturatedBit = ((buf[0] & 0x40000000) != 0);
+      currentEvt->pileupBit    = ((buf[0] & 0x80000000) != 0);
 
       // Rev. D header lengths not clearly defined in pixie16app_defs
       //! magic numbers here for now
@@ -165,6 +167,7 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
 	}
 	buf += traceLength / 2;
       }
+ 
       eventList.push_back(currentEvt);
 
       numEvents++;

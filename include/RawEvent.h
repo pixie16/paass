@@ -99,6 +99,9 @@ class ChanEvent {
     int    modNum;             /**< Module number */
     int    chanNum;            /**< Channel number */
 
+    bool   pileupBit;          /**< Pile-up flag from Pixie */
+    bool   saturatedBit;       /**< Saturation flag from Pixie */
+
     void ZeroNums(void);       /**< Zero members which do not have constructors associated with them */
     
     // make the front end responsible for reading the data able to set the channel data directly
@@ -132,8 +135,10 @@ class ChanEvent {
     unsigned long GetRunTime1() const
 	{return runTime1;}    /**< Return the middle bits of run time */
     unsigned long GetRunTime2() const
-	{return runTime2;}    /**< Return the higher bits of run time */
-
+        {return runTime2;}    /**< Return the higher bits of run time */
+    bool IsSaturated() const { /**< Return whether the trace is saturated */
+	return saturatedBit;
+    }
     const Identifier& GetChanID() const; /**< Get the channel identifier */
     int GetID() const;                   /**< Get the channel id defined as
 					    pixie module # * 16 + channel number */

@@ -233,12 +233,11 @@ namespace dammIds {
 	const int DD_RUNTIME_MSEC      = 1010;
 	const int D_NUMBER_OF_EVENTS   = 1011;
 	namespace offsets {
-	    const int D_RAW_ENERGY  = 100;
-	    const int D_SCALAR      = 300;
-	    const int D_TIME        = 400;
-	    const int D_CAL_ENERGY  = 500;
-	    const int D_FRONT_STRIP = 600;
-	    const int D_BACK_STRIP  = 650;
+	    const int D_RAW_ENERGY        = 100;
+	    const int D_SCALAR            = 300;
+	    const int D_TIME              = 400;
+	    const int D_CAL_ENERGY        = 500;
+	    const int D_CAL_ENERGY_REJECT = 600;
 	}
     } // misc namespace
 }
