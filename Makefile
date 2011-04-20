@@ -16,10 +16,10 @@ vpath %.h include/
 vpath %.cpp src/
 vpath %.cxx src/
 
-# DIRA2=/usr/hhirf/g77
-# DIRB= /usr/acq2/lib
-DIRA2 = /usr/hhirf
-DIRB  = /usr/hhirf
+DIRA2=/usr/hhirf-intel64
+DIRB= /usr/acq2/lib
+# DIRA2 = /usr/hhirf
+# DIRB  = /usr/hhirf
 
 LIBS = $(DIRA2)/scanorlib.a $(DIRA2)/orphlib.a \
        $(DIRB)/acqlib.a  $(DIRB)/ipclib.a
@@ -128,7 +128,7 @@ OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \
 	$(MESSLOGO) $(MILDATIMO) $(SCANORUXO) $(ACCUMULATORO) $(PIXIEO) \
 	$(HISTOGRAMMERO) $(EVENTPROCESSORO) $(SCINTPROCESSORO) $(TRACEO) \
 	$(GEPROCESSORO) $(DSSDPROCESSORO) $(RAWEVENTO) $(RANDOMPOOLO) \
-	$(SSDPROCESSORO) $(ISSDPROCESSORO) \
+	$(SSDPROCESSORO) $(ISSDPROCESSORO) TauAnalyzer.o LogicProcessor.o \
 	$(STATSDATAO) $(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO)
 
 ifdef USEROOT

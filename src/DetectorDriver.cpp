@@ -45,6 +45,7 @@
 #include "damm_plotids.h"
 
 #include "ImplantSsdProcessor.h"
+#include "LogicProcessor.h"
 #include "SsdProcessor.h"
 
 #include "DoubleTraceAnalyzer.h"
@@ -75,6 +76,7 @@ DetectorDriver::DetectorDriver()
     vecAnalyzer.push_back(new DoubleTraceAnalyzer());
 
     vecProcess.push_back(new ImplantSsdProcessor());
+    vecProcess.push_back(new LogicProcessor());
     vecProcess.push_back(new SsdProcessor());
     
 #ifdef useroot
@@ -112,11 +114,11 @@ DetectorDriver::~DetectorDriver()
 */
 const set<string>& DetectorDriver::GetKnownDetectors()
 {   
-    const unsigned int detTypes = 14;
+    const unsigned int detTypes = 15;
     const string detectorStrings[detTypes] = {
 	"dssd_front", "dssd_back", "idssd_front", "position", "timeclass",
 	"ge", "si", "scint", "mcp", "mtc", "generic", "ssd", "vandle",
-	"pulser"};
+	"pulser", "logic"};
   
     // only call this once
     if (!knownDetectors.empty())
@@ -219,6 +221,8 @@ void DetectorDriver::DeclarePlots(void) const
 	 it != vecProcess.end(); it++) {
 	(*it)->DeclarePlots();
     }
+    
+    rawev.GetCorrelator().DeclarePlots();
 }
 
 // sanity check for all our expectations
@@ -255,7 +259,8 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
         plot(dammIds::misc::D_HAS_TRACE,id);
 
 	for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
-	     it != vecAnalyzer.end(); it++) {
+	     it != vecAnalyzer.end(); it++) {	
+	  if (id==48)
 	    (*it)->Analyze(trace, type, subtype);
 	}
 	if (trace.HasValue("calcEnergy") ) {	    

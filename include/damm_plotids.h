@@ -204,6 +204,15 @@ namespace dammIds {
 	const int D_COUNTER_MOVE0 = 1521;
 	const int D_COUNTER_MOVE1 = 1522;
     } // mtc namespace
+    namespace logic {
+      const int MAX_LOGIC = 10; /*< maximum number of logic signals */
+      const int D_COUNTER_START = 3000;
+      const int D_COUNTER_STOP  = 3005;
+      const int D_TDIFF_STARTX  = 3010;
+      const int D_TDIFF_STOPX   = 3020;
+      const int D_TDIFF_SUMX    = 3030;
+      const int D_TDIFF_LENGTHX = 3050;
+    } // logic namespace
     namespace trace {
 // in trace.cpp
 	const int DD_TRACE            = 850;

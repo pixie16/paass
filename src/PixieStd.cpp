@@ -560,7 +560,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 		return; //! this tosses out all events read into the vector so far
 	    }	    
         }  // end numEvents > 0
-        else {
+        else if (retval != readbuff::STATS) {
 	    cout << "bad buffer, numEvents = " << numEvents << endl;
             return;
         }
