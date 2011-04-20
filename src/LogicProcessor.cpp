@@ -1,16 +1,14 @@
 /** \file MtcProcessor.cpp
  *
- * handling of mtc events
- * derived from timeclass.cpp
- * doesn't handle old style NSCL correlations
+ * handling of logic events
+ * derived from MtcProcessor.cpp
  *
- * Start subtype corresponds to leading edge of tape move signal
- * Stop subtype corresponds to trailing edge of tape move signal
+ * Start subtype corresponds to leading edge
+ * Stop subtype corresponds to trailing edge
  */
 
-#include <iostream>
-
-#include <cmath>
+#include <string>
+#include <vector>
 
 #include "damm_plotids.h"
 #include "param.h"
@@ -46,14 +44,12 @@ void LogicProcessor::DeclarePlots(void) const
 
 bool LogicProcessor::Process(RawEvent &event)
 {
-    // plot with 10 ms bins
     const double logicPlotResolution = 10e-6 / pixie::clockInSeconds;
  
     if (!EventProcessor::Process(event))
 	return false;
 
     using namespace dammIds::logic;
- 
 
     static const vector<ChanEvent*> &events = sumMap["logic"]->GetList();
 
@@ -72,7 +68,7 @@ bool LogicProcessor::Process(RawEvent &event)
 		plot(D_TDIFF_SUMX + loc,   timediff / logicPlotResolution);
 	    }
 	    lastStartTime.at(loc) = time;
-	    plot(D_COUNTER_START, loc); //counter
+	    plot(D_COUNTER_START, loc);
 	} else if (subtype == "stop") {
   	    if (!isnan(lastStopTime.at(loc))) {
 		double timediff = time - lastStopTime.at(loc);
@@ -84,7 +80,7 @@ bool LogicProcessor::Process(RawEvent &event)
 		}
 	    }
 	    lastStopTime.at(loc) = time;
-	    plot(D_COUNTER_STOP, loc); //counter	  
+	    plot(D_COUNTER_STOP, loc);	  
 	}
     }
 
