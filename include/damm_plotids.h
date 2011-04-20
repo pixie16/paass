@@ -213,6 +213,9 @@ namespace dammIds {
       const int D_TDIFF_SUMX    = 3030;
       const int D_TDIFF_LENGTHX = 3050;
     } // logic namespace
+    namespace triggerlogic {
+      const int DD_RUNTIME_LOGIC = 3080;
+    }
     namespace trace {
 // in trace.cpp
 	const int DD_TRACE            = 850;

@@ -45,7 +45,7 @@
 #include "damm_plotids.h"
 
 #include "ImplantSsdProcessor.h"
-#include "LogicProcessor.h"
+#include "TriggerLogicProcessor.h"
 #include "SsdProcessor.h"
 
 #include "DoubleTraceAnalyzer.h"
@@ -76,7 +76,7 @@ DetectorDriver::DetectorDriver()
     vecAnalyzer.push_back(new DoubleTraceAnalyzer());
 
     vecProcess.push_back(new ImplantSsdProcessor());
-    vecProcess.push_back(new LogicProcessor());
+    vecProcess.push_back(new TriggerLogicProcessor());
     vecProcess.push_back(new SsdProcessor());
     
 #ifdef useroot
@@ -260,7 +260,6 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 
 	for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
 	     it != vecAnalyzer.end(); it++) {	
-	  if (id==48)
 	    (*it)->Analyze(trace, type, subtype);
 	}
 	if (trace.HasValue("calcEnergy") ) {	    
