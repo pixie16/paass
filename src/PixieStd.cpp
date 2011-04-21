@@ -289,7 +289,7 @@ bool MakeModuleData(const word_t *data, unsigned long nWords)
 	word_t lenRec = data[inWords];	
         word_t vsn    = data[inWords+1];
 	/* Check sanity of record length and vsn*/
-	if(lenRec > maxWords || (vsn > maxVsn && vsn != 9999)) { 
+	if(lenRec > maxWords || (vsn > maxVsn && vsn != 9999 && vsn != 1000)) { 
 	    cout << "SANITY CHECK FAILED: lenRec = " << lenRec
 		 << ", vsn = " << vsn << ", inWords = " << inWords
 		 << " of " << nWords << ", outWords = " << outWords << endl;
@@ -362,6 +362,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
     static int counter = 0; // the number of times this function is called
     static int evCount;     // the number of times data is passed to ScanList
     static unsigned int lastVsn; // the last vsn read from the data
+    time_t theTime;
 
     /*
       Assign the local variable lbuf to the variable ibuf which is passed into
@@ -435,7 +436,11 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
                 nWords += 2;  // increment two whole words and try again
                 continue;                         
             }
-            
+	    // Buffer with vsn 1000 was inserted with the time for superheavy exp't
+	    if (vsn == 1000) {
+	      memcpy(&theTime, &lbuf[nWords+2], sizeof(time_t));
+	      nWords += lenRec;
+	    }
             /*
               If the record length is 6, this is an empty channel.
 	      Skip this vsn and continue with the next
@@ -454,7 +459,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 	        if ( lastVsn != U_DELIMITER) {
 		    // the modules should be read out cyclically
 		    if ( ((lastVsn+1) % numModules) != vsn ) {
-			cout << " MISSING BUFFER " << vsn
+		      cout << " MISSING BUFFER " << vsn << "/" << numModules
 			     << " -- lastVsn = " << lastVsn << "  " 
 			     << ", length = " << lenRec << endl;
                         RemoveList(eventList);
@@ -505,7 +510,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
         /* If the vsn is 9999 this is the end of a spill, signal this buffer
 	   for processing and determine if the buffer is split between spills.
         */
-        if ( vsn == 9999 ) {
+        if ( vsn == 9999 || vsn == 1000 ) {
             fullSpill = true;
             nWords += 3;//skip it
             if (lbuf[nWords+1] != U_DELIMITER) {
@@ -547,7 +552,8 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 		    tms tmsNow;
 		    clock_t clockNow = times(&tmsNow);
 
-		    cout << " event = " << evCount << ", user time = " 
+		    cout << " data read up to poll status time " << ctime(&theTime);
+		    cout << "   event = " << evCount << ", user time = " 
 			 << (tmsNow.tms_utime - tmsBegin.tms_utime) / hz
 			 << ", system time = " 
 			 << (tmsNow.tms_stime - tmsBegin.tms_stime) / hz

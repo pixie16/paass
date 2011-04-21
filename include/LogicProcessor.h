@@ -14,7 +14,7 @@ class LogicProcessor : public EventProcessor {
     LogicProcessor();
     virtual void DeclarePlots(void) const;
     virtual bool Process(RawEvent &event);
- private:
+ protected:
     vector<double> lastStartTime; //< time of last leading edge
     vector<double> lastStopTime;  //< time of last trailing edge
 };
