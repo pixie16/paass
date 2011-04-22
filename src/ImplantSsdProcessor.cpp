@@ -6,11 +6,15 @@
  */
 
 #include <climits>
+#include <iostream>
 
 #include "damm_plotids.h"
 
 #include "ImplantSsdProcessor.h"
 #include "RawEvent.h"
+
+using std::cout;
+using std::endl;
 
 /*! ecutoff for 108Xe experiment where each bin is roughly 4 keV
  *  ... implants deposit above 18 MeV
@@ -30,13 +34,16 @@ void ImplantSsdProcessor::DeclarePlots(void) const
 
     const int implantEnergyBins = SE; 
     const int decayEnergyBins   = SD;
-    const int positionBins = S6;
-    const int timeBins     = S8;
-
+    const int positionBins      = S6;
+    const int timeBins          = S8;
+    const int tofBins           = SE; //! DTM -- LARGE FOR NOW 
+    
     DeclareHistogram2D(DD_IMPLANT_ENERGY__POSITION, 
 		       implantEnergyBins, positionBins, "SSD Strip vs Implant E");
     DeclareHistogram2D(DD_DECAY_ENERGY__POSITION,
 		       decayEnergyBins, positionBins, "SSD Strip vs Decay E");
+    DeclareHistogram2D(DD_IMPLANT_ENERGY__TOF,
+		       implantEnergyBins, tofBins, "SSD Energy vs TOF");
 
     DeclareHistogram2D(DD_ENERGY__DECAY_TIME_GRANX + 0, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (10ns/ch)(xkeV)");
@@ -65,11 +72,12 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
     if (!EventProcessor::Process(event))
 	return false;
     static Correlator &corr = event.GetCorrelator();
+    static const DetectorSummary *tacSummary = event.GetSummary("generic:tac");
 
     int position;
     double energy, time;
 
-    const ChanEvent *ch = sumMap["ssd:implant"]->GetMaxEvent();
+    const ChanEvent *ch  = sumMap["ssd:implant"]->GetMaxEvent();
 
     position = ch->GetChanID().GetLocation();
     energy   = ch->GetCalEnergy();
@@ -77,10 +85,12 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 
     // decide whether this is an implant or a decay
     Correlator::EEventType type;
-
-    if (energy > cutoffEnergy)
-	type = Correlator::IMPLANT_EVENT;
-    else 
+    
+    if (energy > cutoffEnergy) {
+        if ( (tacSummary && tacSummary->GetMult() > 0) || !tacSummary )	
+  	  type = Correlator::IMPLANT_EVENT;
+        else type = Correlator::UNKNOWN_TYPE; // fission
+    } else 
 	type = Correlator::DECAY_EVENT;
 
     // give a dummy back strip postion of 1
@@ -88,7 +98,27 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 
     // plot stuff
     if (type == Correlator::IMPLANT_EVENT) {
+	// is there a fast decay?
+        if (ch->GetTrace().HasValue("filterEnergy2")) {
+  	    energy = ch->GetTrace().GetValue("filterEnergy");
+	    cout << " fast decay!" << endl;
+	    double decayEnergy = ch->GetTrace().GetValue("filterEnergy2");
+	    double dt = ch->GetTrace().GetValue("filterTime2") - 
+	      ch->GetTrace().GetValue("filterTime");
+	    double decayTime   = ch->GetTime() + dt;
+
+	    corr.Correlate(event, Correlator::DECAY_EVENT, position, 1, decayTime);
+	    plot(DD_DECAY_ENERGY__POSITION, decayEnergy);
+	    plot(DD_ENERGY__DECAY_TIME_GRANX, dt / 10e-9 * pixie::clockInSeconds);
+        }
 	plot(DD_IMPLANT_ENERGY__POSITION, energy, position);
+	if (tacSummary) {
+	  double tof = tacSummary->GetMaxEvent()->GetCalEnergy();
+	  
+	  plot(DD_IMPLANT_ENERGY__TOF, energy, tof);
+	}
+
+	
     } else if (type == Correlator::DECAY_EVENT) {
 	plot(DD_DECAY_ENERGY__POSITION, energy, position);
 	if (corr.GetCondition() == Correlator::VALID_DECAY) {

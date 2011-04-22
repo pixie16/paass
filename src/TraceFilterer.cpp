@@ -134,17 +134,21 @@ void TraceFilterer::Analyze(Trace &trace,
 		break;
 	    time = iThr - fastFilter.begin();
 	    // sample the slow filter in the middle of its size
-	    sample = time + (thirdParms.GetSize() - fastParms.GetSize()) / 2;
+	    //	    sample = time + (thirdParms.GetSize() - fastParms.GetSize()) / 2;
+	    sample = time + (thirdParms.GetRiseSamples() + thirdParms.GetGapSamples()
+			     - fastParms.GetRiseSamples() - fastParms.GetGapSamples() );
 	    if (sample >= thirdFilter.size() ||
 		thirdFilter[sample] < slowThreshold) {
 		iThr++; 
 		continue;
 	    }
-	    sample = time + (energyParms.GetSize() - fastParms.GetSize()) / 2;
+	    // sample = time + (energyParms.GetSize() - fastParms.GetSize()) / 2;
+	    sample = time + (energyParms.GetRiseSamples() + energyParms.GetGapSamples()
+			     - fastParms.GetRiseSamples() - fastParms.GetGapSamples() );
 	    if (sample < energyFilter.size())
 		energy = energyFilter[sample] + randoms.Get();
 	    // scale to the integration time
-	    energy /= energyParms.GetSize();
+	    energy /= energyParms.GetRiseSamples();
 	    trace.SetValue("filterTime", (int)time);
 	    trace.SetValue("filterEnergy", energy);
 	    break;

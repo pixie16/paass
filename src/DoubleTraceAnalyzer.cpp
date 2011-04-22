@@ -80,8 +80,9 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
 	advance(iThr, fastParms.GetGapSamples());
 	iThr = find_if(iThr, iHigh, bind2nd(less<Trace::value_type>(), 
 					    fastThreshold));
-	advance(iThr, fastParms.GetSize());
-     	
+	// advance(iThr, fastParms.GetSize());
+     	advance(iThr, fastParms.GetRiseSamples());
+
 	// find a second crossing point
 	time2 = 0;
 	energy2 = 0.;
@@ -94,14 +95,18 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
 		break;
 
 	    time2 = iThr - fastFilter.begin();
-	    sample = time2 + (thirdParms.GetSize() - fastParms.GetSize()) / 2;
+	    // sample = time2 + (thirdParms.GetSize() - fastParms.GetSize()) / 2;
+	    sample = time2 + (thirdParms.GetRiseSamples() + thirdParms.GetGapSamples()
+			     - fastParms.GetRiseSamples() - fastParms.GetGapSamples() );
 	    sample2 = time2 - fastParms.GetSize();
 	    
 	    if (sample >= thirdFilter.size() || 
 		thirdFilter[sample] - thirdFilter[sample2] < slowThreshold) {
 		iThr++; continue;
 	    }
-	    sample = time2 + (energyParms.GetSize() - fastParms.GetSize()) / 2;
+	    sample = time2 + (energyParms.GetRiseSamples() + energyParms.GetGapSamples()
+			     - fastParms.GetRiseSamples() - fastParms.GetGapSamples() );
+
 	    energy2 = energyFilter[sample] - energyFilter[sample2];
 	    energy2 += randoms.Get();
 	    // scale to the integration time

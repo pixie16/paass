@@ -192,6 +192,7 @@ namespace dammIds {
     namespace implantSsd {
 	const int DD_IMPLANT_ENERGY__POSITION = 2741;
 	const int DD_DECAY_ENERGY__POSITION   = 2743;
+	const int DD_IMPLANT_ENERGY__TOF      = 2745;
 	const int DD_ENERGY__DECAY_TIME_GRANX = 2750;
     }
     // in MtcProcessor.cpp
