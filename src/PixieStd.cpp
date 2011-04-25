@@ -260,9 +260,11 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
 		     << " with " << nWords << " words" << endl;
 	    }
 	    if (nWords == 5 && bufNum != totBuf - 1) {
+#ifdef VERBOSE
 		cout << "Five word buffer " << bufNum << " of " << totBuf
 		     << " WORDS: " 
 		     << hex << buf[3] << " " << buf[4] << dec << endl;
+#endif		
 	    }
 	} while(nWords != 5 || bufNum != totBuf - 1);
 	/* reached the end of a spill when nwords = 5 and last chunk in spill */
