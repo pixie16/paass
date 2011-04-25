@@ -194,7 +194,7 @@ namespace dammIds {
         const int MAX_TOF = 5;
 
 	const int DD_IMPLANT_ENERGY__POSITION = 2741;
-	const int DD_UNKNOWN_ENERGY__POSITION = 2742;
+	const int DD_ENERGY__POSITION_NOBEAM  = 2742;
 	const int DD_DECAY_ENERGY__POSITION   = 2743;
 	const int DD_IMPLANT_ENERGY__TOFX     = 2745;	
 	const int DD_ENERGY__DECAY_TIME_GRANX = 2750;

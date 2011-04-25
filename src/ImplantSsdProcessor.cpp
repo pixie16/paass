@@ -48,12 +48,12 @@ void ImplantSsdProcessor::DeclarePlots(void) const
 		       implantEnergyBins, positionBins, "SSD Strip vs Implant E");
     DeclareHistogram2D(DD_DECAY_ENERGY__POSITION,
 		       decayEnergyBins, positionBins, "SSD Strip vs Decay E");
-    DeclareHistogram2D(DD_UNKNOWN_ENERGY__POSITION,
-		       unknownEnergyBins, positionBins, "SSD Strip vs Unknown E");
+    DeclareHistogram2D(DD_ENERGY__POSITION_NOBEAM,
+		       unknownEnergyBins, positionBins, "SSD Strip vs E w/ no beam");
 
     for (int i=0; i < MAX_TOF; i++) {
       DeclareHistogram2D(DD_IMPLANT_ENERGY__TOFX+i,
-			 implantEnergyBins, tofBins, "SSD Energy vs TOF (/8)", 1, 8, 8);
+			 implantEnergyBins, tofBins, "SSD Energy vs TOF (/8)", 1, SC, SC);
     }
 
     DeclareHistogram2D(DD_ENERGY__DECAY_TIME_GRANX + 0, decayEnergyBins, timeBins,
@@ -165,6 +165,10 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	}	
     } else if (type == Correlator::DECAY_EVENT) {
 	plot(DD_DECAY_ENERGY__POSITION, energy, position);
+	if (noBeam) {
+	    plot(DD_ENERGY__POSITION_NOBEAM, energy, position);
+	}
+
 	if (corr.GetCondition() == Correlator::VALID_DECAY) {
 	    const unsigned int NumGranularities = 8;
 	    // time resolution in seconds per bin
@@ -189,7 +193,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	       << ") with beam absent!" <<endl;
 	  corr.PrintDecayList(position, 1);
 	}      
-	plot(DD_UNKNOWN_ENERGY__POSITION, energy, position);
+	plot(DD_ENERGY__POSITION_NOBEAM, energy, position);
       }
     }
     EndProcess(); // update the processing time

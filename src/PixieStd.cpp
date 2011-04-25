@@ -244,8 +244,8 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
 	    if(nWords == 0) {
 #ifdef VERBOSE
 		cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE NWORDS 0" << endl;
-		return;
 #endif
+		return;
 	    }
 	    
 	    /* Extract this buffer information into the TotData array*/

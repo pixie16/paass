@@ -55,6 +55,9 @@ CXXFLAGS += -Wall -fPIC $(CINCLUDEDIRS) -Dnewreadout
 ifdef REVISIOND
 CXXFLAGS += -DREVD
 endif
+ifdef VERBOSE
+CXXFLAGS += -DVERBOSE
+endif
 
 #------- include directories for the pixie c files
 CINCLUDEDIRS  = -Iinclude
