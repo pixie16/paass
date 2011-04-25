@@ -8,6 +8,8 @@ SHELL=/bin/sh
 REVISIOND = 1
 #Uncomment this line to use the Pulse Fitting routine
 #PULSEFIT = 1
+#Uncomment this line for a more verbose scan
+#VERBOSE = 1
 
 #------- instruct make to search through these
 #------- directories to find files

@@ -167,8 +167,9 @@ namespace dammIds {
     } // pulser namespace
     // in correlator.cpp
     namespace correlator {
-	const int D_CONDITION = 6000;
-	const int D_TIME_BW_IMPLANTS = 6001;
+	const int D_CONDITION            = 6000;
+	const int D_TIME_BW_IMPLANTS     = 6001;
+	const int D_TIME_BW_ALL_IMPLANTS = 6002;
     } // correlator namespace
     // in dssd_sub.cpp
     namespace dssd {
@@ -190,9 +191,12 @@ namespace dammIds {
     } // ssd namespace
     // in ImplantSsdProcessor.cpp
     namespace implantSsd {
+        const int MAX_TOF = 5;
+
 	const int DD_IMPLANT_ENERGY__POSITION = 2741;
+	const int DD_UNKNOWN_ENERGY__POSITION = 2742;
 	const int DD_DECAY_ENERGY__POSITION   = 2743;
-	const int DD_IMPLANT_ENERGY__TOF      = 2745;
+	const int DD_IMPLANT_ENERGY__TOFX     = 2745;	
 	const int DD_ENERGY__DECAY_TIME_GRANX = 2750;
     }
     // in MtcProcessor.cpp
@@ -273,12 +277,17 @@ void DeclareHistogram1D(int dammId, int xSize, const char* title,
 			int xLow, int xHigh);
 void DeclareHistogram1D(int dammId, int xSize, const char* title,
 			int halfWordsPerChan = 2);
+void DeclareHistogram1D(int dammId, int xsize, const char* title,
+			int halfWordsPerChan, int contraction);
 void DeclareHistogram2D(int dammId, int xSize, int ySize,
 			const char *title, int halfWordsPerChan,
 			int xHistLength, int xLow, int xHigh,
 			int yHistLength, int yLow, int yHigh);
 void DeclareHistogram2D(int dammId, int xSize, int ySize,
 			const char* title, int halfWordsPerChan = 1);
+void DeclareHistogram2D(int dammId, int xSize, int ySize,
+			const char* title, int halfWordsPerChan,
+			int xContraction, int yContraction);
 
 // powers of 2 for damm sizes
 extern const int S1, S2, S3, S4, S5, S6, S7, S8, S9, SA, SB, SC, SD, SE, SF;

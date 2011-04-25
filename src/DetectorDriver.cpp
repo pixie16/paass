@@ -49,6 +49,7 @@
 #include "SsdProcessor.h"
 
 #include "DoubleTraceAnalyzer.h"
+// #include "TraceExtracter.h"
 
 #ifdef useroot
 #include "RootProcessor.h"
@@ -72,7 +73,8 @@ extern RandomPool randoms;
 */
 DetectorDriver::DetectorDriver()
 {
-    vecAnalyzer.push_back(new TracePlotter());
+    // vecAnalyzer.push_back(new TracePlotter());
+    // vecAnalyzer.push_back(new TraceExtracter("generic","tac"));
     vecAnalyzer.push_back(new DoubleTraceAnalyzer());
 
     vecProcess.push_back(new ImplantSsdProcessor());
@@ -262,6 +264,9 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 	     it != vecAnalyzer.end(); it++) {	
 	    (*it)->Analyze(trace, type, subtype);
 	}
+	if (trace.HasValue("filterEnergy") ) {
+	    energy = trace.GetValue("filterEnergy");
+	}
 	if (trace.HasValue("calcEnergy") ) {	    
 	    energy = trace.GetValue("calcEnergy");
 	    chan->SetEnergy(energy);
@@ -276,12 +281,17 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 
 	}
     } else {
-      // otherwise, use the Pixie on-board calculated energy
-      // add a random number to convert an integer value to a 
-      //   uniformly distributed floating point
+	// otherwise, use the Pixie on-board calculated energy
+	// add a random number to convert an integer value to a 
+	//   uniformly distributed floating point
 
-      energy = chan->GetEnergy() + randoms.Get();
-      energy /= ChanEvent::pixieEnergyContraction;
+	if (chan->GetEnergy() > 32725 && !chan->IsSaturated()) {
+	    // filter out noise that shows up in the high end of the energy spectrum
+	    energy = 2;
+	} else {
+	    energy = chan->GetEnergy() + randoms.Get();
+	    energy /= ChanEvent::pixieEnergyContraction;
+	}
     }
     /*
       Set the calibrated energy for this channel
@@ -324,7 +334,7 @@ int DetectorDriver::PlotCal(const ChanEvent *chan) const
     float calEnergy = chan->GetCalEnergy();
     
     plot(dammIds::misc::offsets::D_CAL_ENERGY + id, calEnergy);
-    if (!chan->IsSaturated())
+    if (!chan->IsSaturated() && !chan->IsPileup())
 	plot(dammIds::misc::offsets::D_CAL_ENERGY_REJECT + id, calEnergy);
     return 0;
 }

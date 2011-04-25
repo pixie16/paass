@@ -19,14 +19,14 @@ TriggerLogicProcessor::TriggerLogicProcessor(void) : LogicProcessor()
 {
     name = "triggerlogic";
     plotSize = SA;
-
-    associatedTypes.insert("generic");
 }
 
 void TriggerLogicProcessor::DeclarePlots(void) const
 {
     using namespace dammIds::triggerlogic;
-    
+
+    LogicProcessor::DeclarePlots();
+
     DeclareHistogram2D(DD_RUNTIME_LOGIC, plotSize, plotSize, "runtime logic (1ms/bin)");
 }
 
@@ -39,7 +39,7 @@ bool TriggerLogicProcessor::Process(RawEvent &event)
     using namespace dammIds::triggerlogic;
 
     static DetectorSummary *stopsSummary    = event.GetSummary("logic:stop");
-    static DetectorSummary *triggersSummary = event.GetSummary("generic:trigger");
+    static DetectorSummary *triggersSummary = event.GetSummary("logic:trigger");
 
     //    static const vector<ChanEvent*> &stops     = sumMap["logic:stop"]->GetList();
     // static const vector<ChanEvent*> &triggers  = sumMap["generic:trigger"]->GetList();
@@ -51,6 +51,7 @@ bool TriggerLogicProcessor::Process(RawEvent &event)
 	ChanEvent *chan = *it;
 
 	unsigned int loc = chan->GetChanID().GetLocation();
+
 	int timeBin      = int(chan->GetTime() / logicPlotResolution);
 	int startTimeBin = 0;
 

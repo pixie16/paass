@@ -194,11 +194,15 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
  	    bufNum = buf[totWords+2]; 
 	    // read total number of buffers later after we check if the last spill was good
 	    if (lastBuf != U_DELIMITER && bufNum != lastBuf + 1) {
+#ifdef VERBOSE
 		cout << "Buffer skipped, Last: " << lastBuf << " of " << totBuf 
-		     << " (" << bufInSpill << ") read -- Now: " << bufNum << endl;
+		     << " buffers read -- Now: " << bufNum << endl;
+#endif
 		// if we are only missing the vsn 9999 terminator, reconstruct it
 		if (lastBuf + 2 == totBuf && bufInSpill == totBuf - 1) {
+#ifdef VERBOSE
 		    cout << "  Reconstructing final buffer " << lastBuf + 1 << "." << endl;
+#endif		   
 		    totData[dataWords++] = 2;
 		    totData[dataWords++] = 9999;
 		    
@@ -206,10 +210,13 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
 		    spillValidCount++;
 		    bufInSpill = 0; dataWords = 0; lastBuf = -1;
 		} else if (bufNum == 0) {
+#ifdef VERBOSE		    
 		    cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
-			 << "  INCOMPLETE BUFFER " << spillInvalidCount++ 
+			 << "  INCOMPLETE BUFFER " << spillInvalidCount 
 			 << "\n  " << spillValidCount << " valid spills so far."
 			 << " Starting fresh spill." << endl;
+#endif		   
+		    spillInvalidCount++;
 		    // throw away previous collected data and start fresh
 		    bufInSpill = 0; dataWords = 0; lastBuf = -1;
 		}
@@ -217,13 +224,17 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
 	    // update the total chunks only after the sanity checks above
 	    totBuf = buf[totWords+1];
 	    if (totBuf > maxChunks) {
+#ifdef VERBOSE
 		cout << "EEEEE LOST DATA: Total buffers = " << totBuf 
 		     <<  ", word count = " << nWords << endl;
+#endif
 		return;
 	    }
 	    if (bufNum > totBuf - 1) {
+#ifdef VERBOSE
 		cout << "EEEEEEE LOST DATA: Buffer number " << bufNum
 		     << " of total buffers " << totBuf << endl;
+#endif
 		return;
 	    }
 	    lastBuf = bufNum;
@@ -231,8 +242,10 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
 	    /* Increment the number of buffers in a spill*/
 	    bufInSpill++;
 	    if(nWords == 0) {
+#ifdef VERBOSE
 		cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE NWORDS 0" << endl;
 		return;
+#endif
 	    }
 	    
 	    /* Extract this buffer information into the TotData array*/
@@ -256,14 +269,17 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
 
 	/* make sure we retrieved all the chunks of the spill */
 	if (bufInSpill != totBuf) {
+#ifdef VERBOSE	  
 	    cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE  INCOMPLETE BUFFER "
-		 << spillInvalidCount++ 
+		 << spillInvalidCount
 		 << "\n I/B [  " << bufInSpill << " of " << totBuf << " : pos " << totWords 
 		 << "    " << spillValidCount << " total spills"
 		 << "\n| " << hex << buf[0] << " " << buf[1] << "  " 
 		 << buf[2] << " " << buf[3]
 		 << "\n| " << dec << buf[totWords] << " " << buf[totWords+1] << "  "
 		 << buf[totWords+2] << " " << buf[totWords+3] << endl;
+#endif
+	    spillInvalidCount++; 
 	} else {
 	    spillValidCount++;
 	    MakeModuleData(totData, dataWords);	    
@@ -290,9 +306,11 @@ bool MakeModuleData(const word_t *data, unsigned long nWords)
         word_t vsn    = data[inWords+1];
 	/* Check sanity of record length and vsn*/
 	if(lenRec > maxWords || (vsn > maxVsn && vsn != 9999 && vsn != 1000)) { 
+#ifdef VERBOSE
 	    cout << "SANITY CHECK FAILED: lenRec = " << lenRec
 		 << ", vsn = " << vsn << ", inWords = " << inWords
 		 << " of " << nWords << ", outWords = " << outWords << endl;
+#endif
 	    // exit(EXIT_FAILURE);
 	    return false;  
 	}
@@ -459,9 +477,11 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 	        if ( lastVsn != U_DELIMITER) {
 		    // the modules should be read out cyclically
 		    if ( ((lastVsn+1) % numModules) != vsn ) {
-		      cout << " MISSING BUFFER " << vsn << "/" << numModules
+#ifdef VERBOSE
+			cout << " MISSING BUFFER " << vsn << "/" << numModules
 			     << " -- lastVsn = " << lastVsn << "  " 
 			     << ", length = " << lenRec << endl;
+#endif
                         RemoveList(eventList);
                         fullSpill=true;
                     }
@@ -531,19 +551,13 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 		   begin the event processing in ScanList()
 		*/
 		ScanList(eventList);
-		if( retval<0 ) {
-		    cout << "scan list error " << retval << endl;
-		    return;
-		}
-		
+
 		/* once the eventlist has been scanned, remove it from memory
 		   and reset the number of events to zero and update the event
 		   counter
 		*/
-		RemoveList(eventList);
-		numEvents=0;
-		evCount++;
-		
+
+		evCount++;		
 		/*
 		  every once in a while (when evcount is a multiple of 1000)
 		  print the time elapsed doing the analysis
@@ -553,13 +567,17 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 		    clock_t clockNow = times(&tmsNow);
 
 		    cout << " data read up to poll status time " << ctime(&theTime);
-		    cout << "   event = " << evCount << ", user time = " 
+		    cout << "   buffer = " << evCount << ", user time = " 
 			 << (tmsNow.tms_utime - tmsBegin.tms_utime) / hz
 			 << ", system time = " 
 			 << (tmsNow.tms_stime - tmsBegin.tms_stime) / hz
 			 << ", real time = "
-			 << (clockNow - clockBegin) / hz << endl;
+			 << (clockNow - clockBegin) / hz 
+			 << ", ts = " 
+			 << (*(eventList.rbegin()))->GetTime() << endl;
 		}		
+		RemoveList(eventList);
+		numEvents=0;
 	    } // end fullSpill 
 	    else {
 		cout << "Spill split between buffers" << endl;
@@ -609,7 +627,7 @@ void RemoveList(vector<ChanEvent*> &eventList)
 void ScanList(vector<ChanEvent*> &eventList) 
 {
     /** The time width of an event in units of pixie16 clock ticks */
-    const int eventWidth = 200;
+    const int eventWidth = 1000;
 
     unsigned long chanTime, eventTime;
 

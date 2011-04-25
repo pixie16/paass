@@ -41,8 +41,11 @@ void StatsData::DoStatisticsBlock(word_t *buf, int vsn)
     memcpy(data[vsn], buf, sizeof(word_t)*statSize);    
     if (firstTime == -1.)
 	firstTime = GetRealTime();
-    if (vsn == 0)
+    if (vsn == 0) {
+#ifdef VERBOSE
 	cout << "Got stats block at time " << GetRealTime() << endl;
+#endif
+    }
   }
 }
 

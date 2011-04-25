@@ -57,7 +57,9 @@ class EventProcessor {
     virtual bool Init(DetectorDriver &driver);
     virtual bool Process(RawEvent &event);   
     void EndProcess(void); // stop the process timer
-
+    std::string GetName(void) const {
+      return name;
+    }
 #ifdef useroot
     virtual bool AddBranch(TTree *tree);
     virtual void FillBranch(void);

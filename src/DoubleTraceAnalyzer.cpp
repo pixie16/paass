@@ -65,16 +65,17 @@ void DoubleTraceAnalyzer::DeclarePlots() const
  */
 void DoubleTraceAnalyzer::Analyze(Trace &trace, 
 				  const string &type, const string &subtype)
-{
+{    
     TraceFilterer::Analyze(trace, type, subtype);
     
     if ( trace.HasValue("filterTime") && level >= 10 ) {
+	// cout << "Double trace #" << numTracesAnalyzed << " for type " << type << ":" << subtype << endl;
 	// trace filterer found a first pulse
 	Trace::iterator iThr = fastFilter.begin() + time;
 	Trace::iterator iHigh = fastFilter.end();
 	
 	// points at which to sample the slow filter	
-	Trace::size_type sample, sample2; 
+	Trace::size_type sample, sample2 = 0; 
 	
 	// find the trailing edge
 	advance(iThr, fastParms.GetGapSamples());
@@ -102,28 +103,35 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
 	    
 	    if (sample >= thirdFilter.size() || 
 		thirdFilter[sample] - thirdFilter[sample2] < slowThreshold) {
-		iThr++; continue;
+		iThr++; 		
+		continue;
 	    }
 	    sample = time2 + (energyParms.GetRiseSamples() + energyParms.GetGapSamples()
 			     - fastParms.GetRiseSamples() - fastParms.GetGapSamples() );
+	    //	    cout << "SAMPLE: " << sample << " " << sample2 << endl;
 
 	    energy2 = energyFilter[sample] - energyFilter[sample2];
 	    energy2 += randoms.Get();
 	    // scale to the integration time
 	    energy2 /= energyParms.GetRiseSamples();
-	    
+	    energy2 *= energyScaleFactor;
+
+	    // cout << " pileup: " << energy << " " << energy2 << "@" << time << " " << time2 << endl;
 	    trace.SetValue("filterTime2", (int)time2);
 	    trace.SetValue("filterEnergy2", energy2);
 	    break;
 	} // while searching for double trace
-
+	if (sample2 == 0) {
+	    // cout << " no second crossing found, last rejection at time " << time2 << endl;
+	}
 	// now plot stuff
 	if (iThr != iHigh) {
 	    using namespace dammIds::trace;
 
 	    // plot the double pulse stuff
 	    for (Trace::size_type i=0; i < trace.size(); i++) {
-		plot(DD_DOUBLE_TRACE, i, numDoubleTraces, trace[i]);
+		//		plot(DD_DOUBLE_TRACE, i, numDoubleTraces, trace[i]);
+		plot(DD_DOUBLE_TRACE, i, numTracesAnalyzed, trace[i]);
 	    }
 	    // cacluated values at end of traces
 	    // plot(DD_DOUBLE_TRACE, trace.size() + 10, numDoubleTraces, energy)

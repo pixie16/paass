@@ -136,6 +136,9 @@ class ChanEvent {
 	{return runTime1;}    /**< Return the middle bits of run time */
     unsigned long GetRunTime2() const
         {return runTime2;}    /**< Return the higher bits of run time */
+    bool IsPileup() const {
+      return pileupBit;
+    }
     bool IsSaturated() const { /**< Return whether the trace is saturated */
 	return saturatedBit;
     }

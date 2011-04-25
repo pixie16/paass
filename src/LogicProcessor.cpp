@@ -7,6 +7,7 @@
  * Stop subtype corresponds to trailing edge
  */
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -18,7 +19,8 @@
 using namespace std;
 
 LogicProcessor::LogicProcessor(void) : 
-  EventProcessor(), lastStartTime(dammIds::logic::MAX_LOGIC, NAN), lastStopTime(dammIds::logic::MAX_LOGIC, NAN)
+  EventProcessor(), lastStartTime(dammIds::logic::MAX_LOGIC, NAN), lastStopTime(dammIds::logic::MAX_LOGIC, NAN),
+  logicStatus(dammIds::logic::MAX_LOGIC)
 {
     name = "logic";
 
@@ -30,7 +32,7 @@ void LogicProcessor::DeclarePlots(void) const
     using namespace dammIds::logic;
     
     const int counterBins = S4;
-    const int timeBins = SE;
+    const int timeBins = SC;
 
     DeclareHistogram1D(D_COUNTER_START, counterBins, "logic start counter");
     DeclareHistogram1D(D_COUNTER_STOP, counterBins, "logic stop counter");
@@ -63,11 +65,16 @@ bool LogicProcessor::Process(RawEvent &event)
 
 	if(subtype == "start") {
 	    if (!isnan(lastStartTime.at(loc))) {
-	      double timediff = time - lastStartTime.at(loc);
+	        double timediff = time - lastStartTime.at(loc);
+	      
 		plot(D_TDIFF_STARTX + loc, timediff / logicPlotResolution);
 		plot(D_TDIFF_SUMX + loc,   timediff / logicPlotResolution);
 	    }
+
+	    //? bounds checking
 	    lastStartTime.at(loc) = time;
+	    logicStatus.at(loc) = true;
+
 	    plot(D_COUNTER_START, loc);
 	} else if (subtype == "stop") {
   	    if (!isnan(lastStopTime.at(loc))) {
@@ -79,7 +86,9 @@ bool LogicProcessor::Process(RawEvent &event)
 		    plot(D_TDIFF_LENGTHX + loc, moveTime / logicPlotResolution);
 		}
 	    }
+	    //? bounds checking
 	    lastStopTime.at(loc) = time;
+	    logicStatus.at(loc) = false;
 	    plot(D_COUNTER_STOP, loc);	  
 	}
     }

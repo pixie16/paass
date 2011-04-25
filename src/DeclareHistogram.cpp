@@ -50,6 +50,13 @@ void DeclareHistogram1D(int dammId, int xSize, const char * title, int halfWords
     DeclareHistogram1D(dammId, xSize, title, halfWordsPerChan, xSize, 0, xSize - 1);
 }
 
+void DeclareHistogram1D(int dammId, int xSize, const char* title,
+			int halfWordsPerChan, int contraction)
+{
+    DeclareHistogram1D(dammId, xSize, title, halfWordsPerChan,
+		       xSize / contraction, 0, xSize / contraction - 1);
+}
+
 void DeclareHistogram2D(int dammId, int xSize, int ySize, const char *title, 
 			int halfWordsPerChan, int xHistLength, int xLow, int xHigh,
 			int yHistLength, int yLow, int yHigh)
@@ -63,6 +70,15 @@ void DeclareHistogram2D(int dammId, int xSize, int ySize,
 {
     DeclareHistogram2D(dammId, xSize, ySize, title, halfWordsPerChan,
 		       xSize, 0, xSize - 1, ySize, 0, ySize - 1);
+}
+
+void DeclareHistogram2D(int dammId, int xSize, int ySize,
+			const char* title, int halfWordsPerChan,
+			int xContraction, int yContraction)
+{
+    DeclareHistogram2D(dammId, xSize, ySize, title, halfWordsPerChan,
+		       xSize / xContraction, 0, xSize / xContraction - 1,
+		       ySize / yContraction, 0, ySize / yContraction - 1);
 }
 
 /*! This function defines the histograms to be used in the analysis */

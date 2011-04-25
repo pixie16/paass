@@ -7,6 +7,11 @@
 #ifndef __CORRELATOR_PROCESSOR_H_
 #define __CORRELATOR_PROCESSOR_H_
 
+#include <utility>
+#include <vector>
+
+#include <cmath>
+
 #include "param.h"
 
 // forward declarations
@@ -14,21 +19,31 @@ class RawEvent;
 
 struct ImplantData
 {
-  double time;    ///< time of an implant
-  double dtime;   ///< time elapsed since previous implant
-  bool implanted; ///< previous implant flag
-  
-  ImplantData() {Clear();}
-  void Clear(void) {time = dtime = -1.; implanted = false;}
+    double time;    ///< time of an implant
+    double dtime;   ///< time elapsed since previous implant
+    bool implanted; ///< previous implant flag
+    double tacValue; ///< a TAC value
+    
+    ImplantData() {
+	Clear();
+    }
+    void Clear(void) { 
+	time = dtime = tacValue = NAN; 
+	implanted = false;
+    }
 };
 
 struct DecayData
 {
-  double time;    ///< time of a decay
-  double dtime;   ///< time elapsed since previous implant
+    double time;    ///< time of a decay
+    double dtime;   ///< time elapsed since previous implant
   
-  DecayData() {Clear();}
-  void Clear(void) {time = dtime = -1.;}
+    DecayData() {
+	Clear();
+    }
+    void Clear(void) {
+	time = dtime = NAN;
+    }
 };
 
 /*!
@@ -60,13 +75,32 @@ class Correlator
   
   Correlator();
   void DeclarePlots(void) const;
+  void Correlate(RawEvent &event, EEventType type, unsigned int fch, 
+		 unsigned int bch, double time, double energy = 0);  
+  void PrintDecayList(unsigned int fch, unsigned int bch) const;
   
-  void Correlate(RawEvent &, EEventType, unsigned int, unsigned int, double);
-  double GetDecayTime(void) const {return lastDecay->dtime;}
-  double GetImplantTime(void) const {return lastImplant->time;}
-  EConditions GetCondition(void) const {return condition;}
+  double GetDecayTime(void) const {
+      return lastDecay->dtime;
+  }
+  double GetDecayTime(int fch, int bch) const {
+      return decay[fch][bch].dtime;
+  }
+  double GetImplantTime(void) const {
+      return lastImplant->time;
+  }
+  double GetImplantTime(int fch, int bch) const {
+      return implant[fch][bch].time;
+  }
+  void SetTACValue(double d) {
+      lastImplant->tacValue = d;
+  }
+  EConditions GetCondition(void) const {
+      return condition;
+  }
   
  private:
+  typedef std::vector< std::pair<double, double> > corrlist_t;
+
   ImplantData implant[MAX_STRIP][MAX_STRIP]; /**< 2D array containing the most
 						recent implant information in
 						each pixel that is correlated 
@@ -74,8 +108,7 @@ class Correlator
   DecayData   decay[MAX_STRIP][MAX_STRIP]; /**< 2D array containing the most 
 					      recent decay information in
 					      each pixel that is correlated 
-					      with a previous implant */
-  
+					      with a previous implant */  
   // in units of pixie clocks
   static const double minImpTime; /**< The minimum amount of time that must
 				     pass before an implant will be considered
@@ -83,10 +116,13 @@ class Correlator
   static const double corrTime;   /**< The maximum amount of time allowed
 				     between a decay and its previous implant
 				     for a correlation between the two to occur */
+  static const double fastTime;   /**< Times shorter than this are output as a fast decay */
+
   ImplantData *lastImplant; ///< last implant processed by correlator
   DecayData   *lastDecay; ///< last decay procssed by correlator
   
   EConditions condition; ///< condition for last processed event
+  corrlist_t decaylist[MAX_STRIP][MAX_STRIP]; ///< list of event data for a particular pixel since implant
 };
 
 #endif // __CORRELATOR_PROCESSOR_H_
