@@ -211,8 +211,13 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 		highTracesWritten++;
 	    }
 	    corr.Correlate(event, Correlator::DECAY_EVENT, position, 1, time, energy); 
+	    string descriptor;
+	    if (ch->IsSaturated())
+		descriptor = " saturated";
+	    else if (!ch->GetTrace().empty())
+		descriptor = " trace";
 	    cout << "High energy decay of " << energy
-		 << " (raw energy = " << ch->GetEnergy() << (ch->IsSaturated() ? " saturated " : "")
+		 << " (raw energy = " << ch->GetEnergy() << descriptor
 		 << ") with beam absent!" <<endl;
 	    corr.Flag(position, 1);
 	}      

@@ -163,6 +163,8 @@ int DetectorDriver::Init(void)
     //cout << "read in the calibration parameters" << endl;
     ReadCal();
 
+    rawev.GetCorrelator().Init();
+
     return 0;
 }
 

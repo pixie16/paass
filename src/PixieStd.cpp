@@ -546,9 +546,11 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
         if( numEvents>0 ) {
 	    if (fullSpill) { 	  // if full spill process events
 		// sort the vector of pointers eventlist according to time
-		
+		double lastTimestamp = (*(eventList.rbegin()))->GetTime();
+
 		sort(eventList.begin(),eventList.end(),Compare);
-		
+		driver.CorrelateClock(lastTimestamp, theTime);
+
 		/* once the vector of pointers eventlist is sorted based on time,
 		   begin the event processing in ScanList()
 		*/
@@ -575,8 +577,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 			 << (tmsNow.tms_stime - tmsBegin.tms_stime) / hz
 			 << ", real time = "
 			 << (clockNow - clockBegin) / hz 
-			 << ", ts = " 
-			 << (*(eventList.rbegin()))->GetTime() << endl;
+			 << ", ts = " << lastTimestamp << endl;
 		}		
 		RemoveList(eventList);
 		numEvents=0;

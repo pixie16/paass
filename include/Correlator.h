@@ -15,6 +15,7 @@
 #include "param.h"
 
 // forward declarations
+class LogicProcessor;
 class RawEvent;
 
 struct ImplantData
@@ -45,6 +46,18 @@ struct DecayData
     void Clear(void) {
 	time = dtime = NAN;
     }
+};
+
+struct ListData
+{
+    double time;
+    double energy;
+    double offTime;
+    
+    unsigned long clockCount;
+    unsigned char logicBits[4];
+
+    ListData(double t, double e, LogicProcessor *lp = NULL);
 };
 
 /*!
@@ -78,6 +91,7 @@ class Correlator
   ~Correlator();
 
   void DeclarePlots(void) const;
+  void Init(void);
   void Correlate(RawEvent &event, EEventType type, unsigned int fch, 
 		 unsigned int bch, double time, double energy = 0);  
   void PrintDecayList(unsigned int fch, unsigned int bch) const;
@@ -105,7 +119,7 @@ class Correlator
   }
   
  private:
-  typedef std::vector< std::pair<double, double> > corrlist_t;
+  typedef std::vector<ListData> corrlist_t;
 
   ImplantData implant[MAX_STRIP][MAX_STRIP]; /**< 2D array containing the most
 						recent implant information in
@@ -126,7 +140,8 @@ class Correlator
 
   ImplantData *lastImplant; ///< last implant processed by correlator
   DecayData   *lastDecay; ///< last decay procssed by correlator
-  
+  LogicProcessor *logicProc; ///< a logic processor from the detector driver
+
   EConditions condition; ///< condition for last processed event
   corrlist_t decaylist[MAX_STRIP][MAX_STRIP]; ///< list of event data for a particular pixel since implant
 };

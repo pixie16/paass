@@ -15,6 +15,7 @@
 
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "param.h"
@@ -26,6 +27,7 @@ class ChanEvent;
 class EventProcessor;
 class TraceAnalyzer;
 
+using std::pair;
 using std::set;
 using std::string;
 using std::vector;
@@ -45,6 +47,8 @@ class DetectorDriver {
 				   energy and time information */
     set<string> knownDetectors; /**< list of valid detectors that can 
 				   be used as detector types */
+    
+    pair<double, time_t> pixieToWallClock; /**< rough estimate of pixie to wall clock */ 
  public:    
     vector<Calibration> cal;    /**<the calibration vector*/ 
     
@@ -59,6 +63,12 @@ class DetectorDriver {
     void DeclarePlots(void) const; /**< declare the necessary damm plots */
     bool SanityCheck(void) const;  /**< check whether everything makes sense */
 
+    void CorrelateClock(double d, time_t t) {
+	pixieToWallClock=std::make_pair(d, t);
+    }
+    time_t GetWallTime(double d) const {
+	return (d - pixieToWallClock.first)*pixie::clockInSeconds + pixieToWallClock.second;
+    }
     const vector<EventProcessor *>& GetProcessors(void) const
 	{return vecProcess;}; /**< return the list of processors */
     vector<EventProcessor *> GetProcessors(const string &type) const;

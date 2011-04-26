@@ -13,11 +13,15 @@
 
 #include <iomanip>
 #include <iostream>
+#include <string>
 
 #include <cmath>
+#include <ctime>
 
 #include "damm_plotids.h"
 #include "param.h"
+#include "DetectorDriver.h"
+#include "LogicProcessor.h"
 #include "RawEvent.h"
 #include "Correlator.h"
 
@@ -27,9 +31,59 @@ const double Correlator::minImpTime = 5e-3 / pixie::clockInSeconds;
 const double Correlator::corrTime   = 3300 / pixie::clockInSeconds;
 const double Correlator::fastTime   = 40e-6 / pixie::clockInSeconds;
 
+ListData::ListData(double t, double e, LogicProcessor *lp) : time(t), energy(e)
+{
+    logicBits[3] = '\0';
+
+    if (lp) {       
+	if (!lp->LogicStatus(3)) {
+	    logicBits[0]='0'; 
+	    offTime = lp->TimeOff(3, time);
+	} else logicBits[0]='1'; 
+	if (!lp->LogicStatus(4)) {
+	    logicBits[1]='0';
+	    if (logicBits[0] == '1')
+	 	offTime = lp->TimeOff(4, time) + 300e-6 / pixie::clockInSeconds;
+	} else logicBits[1]='1';
+	if (!lp->LogicStatus(5)) {
+	    logicBits[2]='0';
+	    if (logicBits[0] == '1' && logicBits[1] == '1') 
+		offTime = lp->TimeOff(5, time) + 600e-6 / pixie::clockInSeconds;
+	} else logicBits[2]='1';
+
+	clockCount = lp->StopCount(2);
+    } else {
+	logicBits[0] = logicBits[1] = logicBits[2] = 'X'; // NO LOGIC
+	offTime = 0.;
+	clockCount = 0;
+    }
+}
+
 Correlator::Correlator() : 
     lastImplant(NULL), lastDecay(NULL), condition(OTHER_EVENT)
 {
+}
+
+void Correlator::Init()
+{
+    // go find a logic processor
+    //   strange place to do it but it is only done once and the processor will exist
+    extern DetectorDriver driver;
+    
+    logicProc = NULL;
+    vector<EventProcessor*> procs = driver.GetProcessors("logic");
+    
+    if ( !procs.empty() ) {
+	for (vector<EventProcessor*>::iterator it=procs.begin();
+	     it != procs.end(); it++) {
+	    string name = (*it)->GetName();
+	    if (name == "logic" || name == "triggerlogic") {
+		logicProc = reinterpret_cast<LogicProcessor*>(*it);
+		cout << "Correlator grabbed processor " << name << endl;
+		break;
+	    }
+	}
+    }
 }
 
 Correlator::~Correlator()
@@ -79,7 +133,7 @@ void Correlator::Correlate(RawEvent &event, EEventType type,
 	    PrintDecayList(frontCh, backCh);
 	}
         decaylist[frontCh][backCh].clear();
-	decaylist[frontCh][backCh].push_back( make_pair(energy, time) );
+	decaylist[frontCh][backCh].push_back( ListData(time, energy, logicProc) );
 
 	condition = VALID_IMPLANT;
 	if (lastImplant != NULL) {
@@ -100,7 +154,7 @@ void Correlator::Correlate(RawEvent &event, EEventType type,
 	imp.time = time;
     } else if (type == DECAY_EVENT && imp.implanted) {
 	condition = VALID_DECAY;
-	decaylist[frontCh][backCh].push_back( make_pair(energy,time) );
+	decaylist[frontCh][backCh].push_back( ListData(time, energy, logicProc) );
 
 	if (time < imp.time ) {	 
 	    cout << "negative correlation time, DECAY: " << time 
@@ -150,6 +204,8 @@ void Correlator::Correlate(RawEvent &event, EEventType type,
 
 void Correlator::PrintDecayList(unsigned int fch, unsigned int bch) const
 {
+    extern DetectorDriver driver;
+
     const corrlist_t &l = decaylist[fch][bch];
     const double printTimeResolution = 1e-3;
 
@@ -157,26 +213,32 @@ void Correlator::PrintDecayList(unsigned int fch, unsigned int bch) const
 	cout << " Current event list for " << fch << " , " << bch <<  " is empty." << endl;
 	return;
     }
-    double firstTime = l.at(0).second;
+    double firstTime = l.at(0).time;
     double lastTime = firstTime;
+
+    time_t theTime = driver.GetWallTime(firstTime);
     
+    cout << " " << ctime(&theTime);
     cout << " Current event list for " << fch << " , " << bch << " : " << endl;
     cout << "    TAC: " << setw(8) << implant[fch][bch].tacValue 
-	 << ",    ts: " << scientific << setprecision(3) << firstTime << endl;
-    
+	 << ",    ts: " << scientific << setprecision(3) << firstTime 
+	 << ",    cc: " << scientific << setprecision(3) << l.at(0).clockCount << endl;
     for (corrlist_t::const_iterator it = l.begin(); it != l.end(); it++) {
-	double dt2 = ((*it).second - lastTime);
+	double dt2 = ((*it).time - lastTime);
 	if ( dt2 < fastTime && it != l.begin() ) {
 	    cout << "    FAST DECAY!!!" << endl;
 	}
 
-	double dt  = ((*it).second - firstTime) * pixie::clockInSeconds / printTimeResolution;
-        dt2 *= pixie::clockInSeconds / printTimeResolution;
+	double dt   = ((*it).time - firstTime) * pixie::clockInSeconds / printTimeResolution;
+	double offt = (*it).offTime * pixie::clockInSeconds / printTimeResolution;
 
-	cout << "    E " << setw(10) << fixed << setprecision(3) << (*it).first
+        dt2 *= pixie::clockInSeconds / printTimeResolution;
+	
+	cout << "    E " << setw(10) << fixed << setprecision(3) << (*it).energy
 	     << " [ch] at T " << setw(10) << dt 
-	     << ", DT= " << setw(10) << dt2 << " [ms]" << endl;
-	lastTime = (*it).second;
+	     << ", DT= " << setw(10) << dt2
+	     << ", OT(" << (*it).logicBits << ")= " << setw(10) << offt << " [ms]" << endl;	
+	lastTime = (*it).time;
     } 
     cout.unsetf(ios::floatfield);
 }
