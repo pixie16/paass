@@ -23,13 +23,14 @@ struct ImplantData
     double dtime;   ///< time elapsed since previous implant
     bool implanted; ///< previous implant flag
     double tacValue; ///< a TAC value
-    
+    bool flagged; ///< previous event in pixel is flagged as interesting
+
     ImplantData() {
 	Clear();
     }
     void Clear(void) { 
 	time = dtime = tacValue = NAN; 
-	implanted = false;
+	flagged = implanted = false;
     }
 };
 
@@ -74,6 +75,8 @@ class Correlator
 		   OTHER_EVENT = 100};
   
   Correlator();
+  ~Correlator();
+
   void DeclarePlots(void) const;
   void Correlate(RawEvent &event, EEventType type, unsigned int fch, 
 		 unsigned int bch, double time, double energy = 0);  
@@ -93,6 +96,9 @@ class Correlator
   }
   void SetTACValue(double d) {
       lastImplant->tacValue = d;
+  }
+  void Flag(int fch, int bch) {
+      implant[fch][bch].flagged = true;
   }
   EConditions GetCondition(void) const {
       return condition;

@@ -161,6 +161,11 @@ void TraceFilterer::Analyze(Trace &trace,
 	}
 
 	// now plot some stuff
+	/* quick plot function still needs scaling and handling of negative numbers
+	fastFilter.Plot(DD_FILTER1, numTracesAnalyzed);
+	energyFilter.Plot(DD_FILTER2, numTracesAnalyzed);
+	thirdFilter.Plot(DD_FILTER3, numTracesAnalyzed);
+	*/
 	for (Trace::size_type i = 0; i < trace.size(); i++) {
 	    if (i < fastFilter.size())
 		plot(DD_FILTER1, i, numTracesAnalyzed, 

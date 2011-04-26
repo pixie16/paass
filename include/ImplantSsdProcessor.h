@@ -17,6 +17,9 @@ class ImplantSsdProcessor : public EventProcessor
 {
  private:
     static const double cutoffEnergy; ///< cutoff energy for implants versus decays
+    static const unsigned int numTraces = 100;
+
+    int tracesWritten;
  public:
     ImplantSsdProcessor(); // no virtual c'tors
     virtual void DeclarePlots(void) const;

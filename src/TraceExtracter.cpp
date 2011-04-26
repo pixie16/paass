@@ -28,22 +28,20 @@ TraceExtracter::~TraceExtracter()
 /** Declare the damm plots */
 void TraceExtracter::DeclarePlots(void) const
 {
-  //    using namespace dammIds::trace;
-
+    using namespace dammIds::trace;
     for (int i=0; i < numTraces; i++)
-      DeclareHistogram1D(4000 + i, traceBins, "traces data");
+	DeclareHistogram1D(D_TRACE + i, traceBins, "traces data");
 }
 
 /** Plot the damm spectra of the first few traces analyzed with (level >= 1) */
 void TraceExtracter::Analyze(Trace &trace,
-			   const string &aType, const string &aSubtype)
+			     const string &aType, const string &aSubtype)
 {   
-  //using namespace dammIds::trace;
+    using namespace dammIds::trace;
+
     if (type ==  aType && subtype == aSubtype && numTracesAnalyzed < numTraces) {       
         TraceAnalyzer::Analyze(trace, type, subtype);
-	for (Trace::size_type i=0; i < trace.size(); i++) {
-	  plot(4000 + numTracesAnalyzed, i, 1, trace[i]);
-	}
-	EndAnalyze(trace);
+	trace.Plot(D_TRACE + numTracesAnalyzed);
     }
+    EndAnalyze(trace);
 }

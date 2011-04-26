@@ -25,11 +25,22 @@ using namespace std;
 
 const double Correlator::minImpTime = 5e-3 / pixie::clockInSeconds;
 const double Correlator::corrTime   = 3300 / pixie::clockInSeconds;
-const double Correlator::fastTime   = 8e-6 / pixie::clockInSeconds;
+const double Correlator::fastTime   = 40e-6 / pixie::clockInSeconds;
 
 Correlator::Correlator() : 
     lastImplant(NULL), lastDecay(NULL), condition(OTHER_EVENT)
 {
+}
+
+Correlator::~Correlator()
+{
+    // dump any flagged decay lists which have not been output
+    for (unsigned int i=0; i < MAX_STRIP; i++) {
+	for (unsigned int j=0; j < MAX_STRIP; j++) {
+	    if (implant[i][j].flagged)
+		PrintDecayList(i,j);
+	}
+    }    
 }
 
 void Correlator::DeclarePlots() const
@@ -64,6 +75,9 @@ void Correlator::Correlate(RawEvent &event, EEventType type,
     DecayData   &dec = decay[frontCh][backCh];
 
     if (type == IMPLANT_EVENT) {
+	if (imp.flagged) {
+	    PrintDecayList(frontCh, backCh);
+	}
         decaylist[frontCh][backCh].clear();
 	decaylist[frontCh][backCh].push_back( make_pair(energy, time) );
 
@@ -76,6 +90,7 @@ void Correlator::Correlate(RawEvent &event, EEventType type,
 	    condition = BACK_TO_BACK_IMPLANT;
 	    imp.dtime = time - imp.time;
 	    imp.tacValue = 0;
+	    imp.flagged = false;
 	    plot(D_TIME_BW_IMPLANTS, imp.dtime * pixie::clockInSeconds / 100e-3 );
 	} else {
 	    imp.implanted = true;
@@ -104,6 +119,17 @@ void Correlator::Correlate(RawEvent &event, EEventType type,
 	} // negative correlation time
 	if ( imp.dtime >= minImpTime ) {
 	    if (time - imp.time < corrTime) {
+		double lastTime = NAN;
+		if (decaylist[frontCh][backCh].size() == 1) {
+		    lastTime = imp.time;
+		} else if (decaylist[frontCh][backCh].size() > 1) {
+		    lastTime = dec.time;
+		}
+		double dt = (dec.time - lastTime) * pixie::clockInSeconds;
+		if (!isnan(lastTime) && dt< fastTime && dt > 0) {
+		    cout << "flagging " << frontCh << " , " << backCh << " in correlator." << endl;
+		    Flag(frontCh, backCh);
+		}
 		dec.time    = time;
 		dec.dtime   = time - imp.time;
 		
@@ -135,15 +161,18 @@ void Correlator::PrintDecayList(unsigned int fch, unsigned int bch) const
     double lastTime = firstTime;
     
     cout << " Current event list for " << fch << " , " << bch << " : " << endl;
-    cout << "    TAC: " << implant[fch][bch].tacValue << endl;
+    cout << "    TAC: " << setw(8) << implant[fch][bch].tacValue 
+	 << ",    ts: " << scientific << setprecision(3) << firstTime << endl;
     
     for (corrlist_t::const_iterator it = l.begin(); it != l.end(); it++) {
-	double dt  = ((*it).second - firstTime) * pixie::clockInSeconds / printTimeResolution;
-	double dt2 = ((*it).second - lastTime)  * pixie::clockInSeconds / printTimeResolution;
-
+	double dt2 = ((*it).second - lastTime);
 	if ( dt2 < fastTime && it != l.begin() ) {
 	    cout << "    FAST DECAY!!!" << endl;
 	}
+
+	double dt  = ((*it).second - firstTime) * pixie::clockInSeconds / printTimeResolution;
+        dt2 *= pixie::clockInSeconds / printTimeResolution;
+
 	cout << "    E " << setw(10) << fixed << setprecision(3) << (*it).first
 	     << " [ch] at T " << setw(10) << dt 
 	     << ", DT= " << setw(10) << dt2 << " [ms]" << endl;

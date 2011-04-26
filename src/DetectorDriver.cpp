@@ -285,7 +285,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 	// add a random number to convert an integer value to a 
 	//   uniformly distributed floating point
 
-	if (chan->GetEnergy() > 32725 && !chan->IsSaturated()) {
+	if (chan->GetEnergy() > 32000 && !chan->IsSaturated()) {
 	    // filter out noise that shows up in the high end of the energy spectrum
 	    energy = 2;
 	} else {

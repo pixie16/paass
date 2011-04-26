@@ -43,7 +43,8 @@ void ImplantSsdProcessor::DeclarePlots(void) const
     const int positionBins      = S5;
     const int timeBins          = S8;
     const int tofBins           = SD; //! DTM -- LARGE FOR NOW 
-    
+    const int traceBins         = SC;
+
     DeclareHistogram2D(DD_IMPLANT_ENERGY__POSITION, 
 		       implantEnergyBins, positionBins, "SSD Strip vs Implant E");
     DeclareHistogram2D(DD_DECAY_ENERGY__POSITION,
@@ -53,7 +54,7 @@ void ImplantSsdProcessor::DeclarePlots(void) const
 
     for (int i=0; i < MAX_TOF; i++) {
       DeclareHistogram2D(DD_IMPLANT_ENERGY__TOFX+i,
-			 implantEnergyBins, tofBins, "SSD Energy vs TOF (/8)", 1, SC, SC);
+			 implantEnergyBins, tofBins, "SSD Energy vs TOF (/8)", 1, S3, S3);
     }
 
     DeclareHistogram2D(DD_ENERGY__DECAY_TIME_GRANX + 0, decayEnergyBins, timeBins,
@@ -74,6 +75,10 @@ void ImplantSsdProcessor::DeclarePlots(void) const
 		       "DSSD Ty,Ex (10ms/ch)(xkeV)");
     DeclareHistogram2D(DD_ENERGY__DECAY_TIME_GRANX + 8, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (100ms/ch)(xkeV)");
+
+    for (unsigned int i=0; i < numTraces; i++) {
+	DeclareHistogram1D(D_FAST_DECAY_TRACE + i, traceBins, "fast decay trace");
+    }
 }
 
 bool ImplantSsdProcessor::Process(RawEvent &event)
@@ -125,25 +130,24 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
         if ( hasTAC && !noBeam )
   	  type = Correlator::IMPLANT_EVENT;
         else type = Correlator::UNKNOWN_TYPE;
-    } else 
+    } else
 	type = Correlator::DECAY_EVENT;
+   
     // recect noise events
     if (energy < 10) {
-      EndProcess();
-      return true;
+	EndProcess();
+	return true;
     }
     // give a dummy back strip postion of 1
     corr.Correlate(event, type, position, 1, time, energy); 
+    const Trace &trace = ch->GetTrace(); // to check for pile-ups
 
     // plot stuff
     if (type == Correlator::IMPLANT_EVENT) {
 	// is there a fast decay?
-        if (ch->GetTrace().HasValue("filterEnergy2")) {
-  	    energy = ch->GetTrace().GetValue("filterEnergy");
-	    // cout << " fast decay!" << endl;
-	    double decayEnergy = ch->GetTrace().GetValue("filterEnergy2");
-	    double dt = ch->GetTrace().GetValue("filterTime2") - 
-	      ch->GetTrace().GetValue("filterTime");
+        if (trace.HasValue("filterEnergy2")) {
+	    double decayEnergy = trace.GetValue("filterEnergy2");
+	    double dt = trace.GetValue("filterTime2") - trace.GetValue("filterTime");
 	    double decayTime   = ch->GetTime() + dt;
 
 	    corr.Correlate(event, Correlator::DECAY_EVENT, position, 1, decayTime, energy);
@@ -152,16 +156,16 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
         }
 	plot(DD_IMPLANT_ENERGY__POSITION, energy, position);
 	if (tacSummary) {
-	  corr.SetTACValue(9999);
-	  const vector<ChanEvent*> events = tacSummary->GetList();
-	  for (vector<ChanEvent*>::const_iterator it = events.begin();
-	       it != events.end(); it++) {
-	    double tof = (*it)->GetCalEnergy();
-	    int    loc = (*it)->GetChanID().GetLocation();
-	    if (loc == 2)
-	      corr.SetTACValue(tof);
-	    plot(DD_IMPLANT_ENERGY__TOFX+loc-1, energy, tof); // we started tof locations at 1
-	  }	  
+	    corr.SetTACValue(NAN);
+	    const vector<ChanEvent*> events = tacSummary->GetList();
+	    for (vector<ChanEvent*>::const_iterator it = events.begin();
+		 it != events.end(); it++) {
+		double tof = (*it)->GetCalEnergy();
+		int    loc = (*it)->GetChanID().GetLocation();
+		if (loc == 2)
+		    corr.SetTACValue(tof);
+		plot(DD_IMPLANT_ENERGY__TOFX+loc-1, energy, tof); // we started tof locations at 1
+	    }	  
 	}	
     } else if (type == Correlator::DECAY_EVENT) {
 	plot(DD_DECAY_ENERGY__POSITION, energy, position);
@@ -182,6 +186,20 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 		plot(DD_ENERGY__DECAY_TIME_GRANX + i, energy, timeBin);
 	    }
 	}
+	if (trace.HasValue("filterEnergy2")) {
+	    double decayEnergy = trace.GetValue("filterEnergy2");
+	    double dt          = trace.GetValue("filterTime2") - trace.GetValue("filterTime");
+	    double decayTime   = ch->GetTime() + dt;
+
+	    corr.Correlate(event, Correlator::DECAY_EVENT, position, 1, decayTime, decayEnergy);
+	    plot(DD_DECAY_ENERGY__POSITION, decayEnergy);
+	    if (noBeam) {
+		corr.Flag(position, 1);
+		trace.Plot(D_FAST_DECAY_TRACE + tracesWritten);
+		tracesWritten++;
+	    }
+	    // not putting into the decay energy/time matrix for now
+	}
     } else if (type == Correlator::UNKNOWN_TYPE) {
       // plot this only if the beam is off
       if (noBeam) {
@@ -191,7 +209,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	  cout << "High energy decay of " << energy
 	       << " (raw energy = " << ch->GetEnergy() << (ch->IsSaturated() ? " saturated " : "")
 	       << ") with beam absent!" <<endl;
-	  corr.PrintDecayList(position, 1);
+	  corr.Flag(position, 1);
 	}      
 	plot(DD_ENERGY__POSITION_NOBEAM, energy, position);
       }

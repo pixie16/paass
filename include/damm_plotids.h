@@ -198,6 +198,8 @@ namespace dammIds {
 	const int DD_DECAY_ENERGY__POSITION   = 2743;
 	const int DD_IMPLANT_ENERGY__TOFX     = 2745;	
 	const int DD_ENERGY__DECAY_TIME_GRANX = 2750;
+
+	const int D_FAST_DECAY_TRACE = 4100;
     }
     // in MtcProcessor.cpp
     namespace mtc {
@@ -233,6 +235,9 @@ namespace dammIds {
 	const int DD_DOUBLE_TRACE     = 870;
 	const int DD_ENERGY2__TDIFF   = 871;
 	const int DD_ENERGY2__ENERGY1 = 872;
+
+	// 1D-traces from the extracter
+	const int D_TRACE = 4000;
     } // trace namespace
     namespace misc {
 // in detector_driver.cpp

@@ -129,10 +129,9 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
 	    using namespace dammIds::trace;
 
 	    // plot the double pulse stuff
-	    for (Trace::size_type i=0; i < trace.size(); i++) {
-		//		plot(DD_DOUBLE_TRACE, i, numDoubleTraces, trace[i]);
-		plot(DD_DOUBLE_TRACE, i, numTracesAnalyzed, trace[i]);
-	    }
+	    // plot(DD_DOUBLE_TRACE, numDoubleTraces);
+	    trace.Plot(DD_DOUBLE_TRACE, numTracesAnalyzed);
+
 	    // cacluated values at end of traces
 	    // plot(DD_DOUBLE_TRACE, trace.size() + 10, numDoubleTraces, energy)
 	    // plot(DD_DOUBLE_TRACE, trace.size() + 11, numDoubleTraces, time)

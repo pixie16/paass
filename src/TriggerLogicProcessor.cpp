@@ -24,10 +24,14 @@ TriggerLogicProcessor::TriggerLogicProcessor(void) : LogicProcessor()
 void TriggerLogicProcessor::DeclarePlots(void) const
 {
     using namespace dammIds::triggerlogic;
+    using namespace dammIds::logic;
 
     LogicProcessor::DeclarePlots();
 
-    DeclareHistogram2D(DD_RUNTIME_LOGIC, plotSize, plotSize, "runtime logic (1ms/bin)");
+    DeclareHistogram2D(DD_RUNTIME_LOGIC, plotSize, plotSize, "runtime logic [1ms]");
+    for (int i=1; i < MAX_LOGIC; i++) {
+	DeclareHistogram2D(DD_RUNTIME_LOGIC+i, plotSize, plotSize, "runtime logic [1ms]");
+    }
 }
 
 bool TriggerLogicProcessor::Process(RawEvent &event)
@@ -37,6 +41,7 @@ bool TriggerLogicProcessor::Process(RawEvent &event)
     LogicProcessor::Process(event);
 
     using namespace dammIds::triggerlogic;
+    using namespace dammIds::logic;
 
     static DetectorSummary *stopsSummary    = event.GetSummary("logic:stop");
     static DetectorSummary *triggersSummary = event.GetSummary("logic:trigger");
@@ -63,6 +68,7 @@ bool TriggerLogicProcessor::Process(RawEvent &event)
 	  int row = bin / plotSize;
 	  int col = bin % plotSize;
 	  plot(DD_RUNTIME_LOGIC, col, row, loc + 1); // add one since first logic location might be 0
+	  plot(DD_RUNTIME_LOGIC + loc, col, row, 1);
 	}
     }
     for (vector<ChanEvent*>::const_iterator it = triggers.begin();
@@ -73,6 +79,9 @@ bool TriggerLogicProcessor::Process(RawEvent &event)
       int col = timeBin % plotSize;
 
       plot(DD_RUNTIME_LOGIC, col, row, 20);
+      for (int i=1; i < MAX_LOGIC; i++) {
+	  plot(DD_RUNTIME_LOGIC + i, col, row, 5);
+      }
     }
 
     EndProcess(); // update processing time
