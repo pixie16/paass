@@ -266,7 +266,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 	     it != vecAnalyzer.end(); it++) {	
 	    (*it)->Analyze(trace, type, subtype);
 	}
-	if (trace.HasValue("filterEnergy") ) {
+	if (trace.HasValue("filterEnergy") ) {     
 	    energy = trace.GetValue("filterEnergy");
 	}
 	if (trace.HasValue("calcEnergy") ) {	    
@@ -280,14 +280,20 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 	    double phase = trace.GetValue("phase");
 	    chan->SetHighResTime( phase * pixie::adcClockInSeconds + 
 				  chan->GetTrigTime() * pixie::filterClockInSeconds);
-
 	}
+	// reject noisy traces
+	if (energy > 8000) {
+	    if ( *max_element(trace.begin(), trace.end()) < 1000) 
+		energy = 4;
+	}
+	if (*min_element(trace.begin(), trace.end()) < 350)
+	    energy=6;
     } else {
 	// otherwise, use the Pixie on-board calculated energy
 	// add a random number to convert an integer value to a 
 	//   uniformly distributed floating point
 
-	if (chan->GetEnergy() > 32000 && !chan->IsSaturated()) {
+	if (chan->GetEnergy() > 32750 && !chan->IsSaturated()) {
 	    // filter out noise that shows up in the high end of the energy spectrum
 	    energy = 2;
 	} else {

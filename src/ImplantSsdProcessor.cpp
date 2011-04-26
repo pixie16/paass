@@ -205,17 +205,17 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
       // plot this only if the beam is off
       if (noBeam) {
 	// dump high energy events
-	if (energy > 2000 ) {	  
+	if (energy > 4000 ) {	  
 	    if (energy > 8000 && !trace.empty() ) {
 		trace.Plot(D_HIGH_ENERGY_TRACE + highTracesWritten);
 		highTracesWritten++;
 	    }
 	    corr.Correlate(event, Correlator::DECAY_EVENT, position, 1, time, energy); 
-	    string descriptor;
+	    string descriptor="";
 	    if (ch->IsSaturated())
 		descriptor = " saturated";
-	    else if (!ch->GetTrace().empty())
-		descriptor = " trace";
+	    if (!ch->GetTrace().empty())
+		descriptor += " trace";
 	    cout << "High energy decay of " << energy
 		 << " (raw energy = " << ch->GetEnergy() << descriptor
 		 << ") with beam absent!" <<endl;

@@ -51,7 +51,7 @@ ListData::ListData(double t, double e, LogicProcessor *lp) : time(t), energy(e)
 		offTime = lp->TimeOff(5, time) + 600e-6 / pixie::clockInSeconds;
 	} else logicBits[2]='1';
 
-	clockCount = lp->StopCount(2);
+	clockCount = lp->StartCount(2);
     } else {
 	logicBits[0] = logicBits[1] = logicBits[2] = 'X'; // NO LOGIC
 	offTime = 0.;
