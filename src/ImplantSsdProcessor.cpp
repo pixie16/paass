@@ -78,6 +78,7 @@ void ImplantSsdProcessor::DeclarePlots(void) const
 
     for (unsigned int i=0; i < numTraces; i++) {
 	DeclareHistogram1D(D_FAST_DECAY_TRACE + i, traceBins, "fast decay trace");
+	DeclareHistogram1D(D_HIGH_ENERGY_TRACE + i, traceBins, "high energy trace");
     }
 }
 
@@ -195,8 +196,8 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	    plot(DD_DECAY_ENERGY__POSITION, decayEnergy);
 	    if (noBeam) {
 		corr.Flag(position, 1);
-		trace.Plot(D_FAST_DECAY_TRACE + tracesWritten);
-		tracesWritten++;
+		trace.Plot(D_FAST_DECAY_TRACE + fastTracesWritten);
+		fastTracesWritten++;
 	    }
 	    // not putting into the decay energy/time matrix for now
 	}
@@ -205,11 +206,15 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
       if (noBeam) {
 	// dump high energy events
 	if (energy > 2000 ) {	  
-	  corr.Correlate(event, Correlator::DECAY_EVENT, position, 1, time, energy); 
-	  cout << "High energy decay of " << energy
-	       << " (raw energy = " << ch->GetEnergy() << (ch->IsSaturated() ? " saturated " : "")
-	       << ") with beam absent!" <<endl;
-	  corr.Flag(position, 1);
+	    if (energy > 8000 && !trace.empty() ) {
+		trace.Plot(D_HIGH_ENERGY_TRACE, highTracesWritten);
+		highTracesWritten++;
+	    }
+	    corr.Correlate(event, Correlator::DECAY_EVENT, position, 1, time, energy); 
+	    cout << "High energy decay of " << energy
+		 << " (raw energy = " << ch->GetEnergy() << (ch->IsSaturated() ? " saturated " : "")
+		 << ") with beam absent!" <<endl;
+	    corr.Flag(position, 1);
 	}      
 	plot(DD_ENERGY__POSITION_NOBEAM, energy, position);
       }

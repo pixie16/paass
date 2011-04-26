@@ -199,7 +199,8 @@ namespace dammIds {
 	const int DD_IMPLANT_ENERGY__TOFX     = 2745;	
 	const int DD_ENERGY__DECAY_TIME_GRANX = 2750;
 
-	const int D_FAST_DECAY_TRACE = 4100;
+	const int D_FAST_DECAY_TRACE  = 4100;
+	const int D_HIGH_ENERGY_TRACE = 4200;
     }
     // in MtcProcessor.cpp
     namespace mtc {

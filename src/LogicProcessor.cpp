@@ -20,7 +20,7 @@ using namespace std;
 
 LogicProcessor::LogicProcessor(void) : 
   EventProcessor(), lastStartTime(dammIds::logic::MAX_LOGIC, NAN), lastStopTime(dammIds::logic::MAX_LOGIC, NAN),
-  logicStatus(dammIds::logic::MAX_LOGIC)
+  logicStatus(dammIds::logic::MAX_LOGIC), stopCount(dammIds::logic::MAX_LOGIC), startCount(dammIds::logic::MAX_LOGIC)
 {
     name = "logic";
 
@@ -75,6 +75,7 @@ bool LogicProcessor::Process(RawEvent &event)
 	    lastStartTime.at(loc) = time;
 	    logicStatus.at(loc) = true;
 
+	    startCount.at(loc)++;
 	    plot(D_COUNTER_START, loc);
 	} else if (subtype == "stop") {
   	    if (!isnan(lastStopTime.at(loc))) {
@@ -89,6 +90,8 @@ bool LogicProcessor::Process(RawEvent &event)
 	    //? bounds checking
 	    lastStopTime.at(loc) = time;
 	    logicStatus.at(loc) = false;
+
+	    stopCount.at(loc)++;
 	    plot(D_COUNTER_STOP, loc);	  
 	}
     }
