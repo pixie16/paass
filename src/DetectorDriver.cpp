@@ -44,12 +44,16 @@
 
 #include "damm_plotids.h"
 
-#include "ImplantSsdProcessor.h"
-#include "TriggerLogicProcessor.h"
-#include "SsdProcessor.h"
+#include "DssdProcessor.h"
+#include "GeProcessor.h"
+#include "McpProcessor.h"
+#include "MtcProcessor.h"
+#include "ScintProcessor.h"
+#include "VandleProcessor.h"
+#include "PulserProcessor.h"
 
-#include "DoubleTraceAnalyzer.h"
-// #include "TraceExtracter.h"
+#include "TraceAnalyzer.h"
+#include "WaveformAnalyzer.h"
 
 #ifdef useroot
 #include "RootProcessor.h"
@@ -73,13 +77,15 @@ extern RandomPool randoms;
 */
 DetectorDriver::DetectorDriver()
 {
-    // vecAnalyzer.push_back(new TracePlotter());
-    // vecAnalyzer.push_back(new TraceExtracter("generic","tac"));
-    vecAnalyzer.push_back(new DoubleTraceAnalyzer());
+    vecAnalyzer.push_back(new TraceAnalyzer());
 
-    vecProcess.push_back(new ImplantSsdProcessor());
-    vecProcess.push_back(new TriggerLogicProcessor());
-    vecProcess.push_back(new SsdProcessor());
+    vecProcess.push_back(new ScintProcessor());
+    vecProcess.push_back(new GeProcessor());
+    vecProcess.push_back(new McpProcessor());
+    vecProcess.push_back(new DssdProcessor());
+    vecProcess.push_back(new MtcProcessor());
+    vecProcess.push_back(new PulserProcessor());
+    vecProcess.push_back(new VandleProcessor());
     
 #ifdef useroot
     // and finally the root processor
@@ -262,14 +268,9 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
     if ( !trace.empty() ) {
         plot(dammIds::misc::D_HAS_TRACE,id);
 
-	if ( (*max_element(trace.begin(), trace.begin() + 30)) - (*min_element(trace.begin(), trace.begin() + 30)) > 15 ||
-	     *min_element(trace.begin(), trace.end()) < 350 ) {
-	    energy=5;
-	} else {
-	    for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
-		 it != vecAnalyzer.end(); it++) {	
-		(*it)->Analyze(trace, type, subtype);
-	    }
+	for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
+	     it != vecAnalyzer.end(); it++) {	
+	    (*it)->Analyze(trace, type, subtype);
 	}
 
 	if (trace.HasValue("filterEnergy") ) {     
@@ -290,23 +291,13 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 	    chan->SetHighResTime( phase * pixie::adcClockInSeconds + 
 				  chan->GetTrigTime() * pixie::filterClockInSeconds);
 	}
-	// extra rejection noisy traces with high energies
-	if (energy > 7000) {
-	    if ( *max_element(trace.begin(), trace.end()) < 1000) 
-		energy = 4;
-	}
     } else {
 	// otherwise, use the Pixie on-board calculated energy
 	// add a random number to convert an integer value to a 
 	//   uniformly distributed floating point
 
-	if (chan->GetEnergy() > 32750 && !chan->IsSaturated()) {
-	    // filter out noise that shows up in the high end of the energy spectrum
-	    energy = 2;
-	} else {
-	    energy = chan->GetEnergy() + randoms.Get();
-	    energy /= ChanEvent::pixieEnergyContraction;
-	}
+	energy = chan->GetEnergy() + randoms.Get();
+	energy /= ChanEvent::pixieEnergyContraction;
     }
     /*
       Set the calibrated energy for this channel

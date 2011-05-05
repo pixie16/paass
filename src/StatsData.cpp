@@ -27,7 +27,7 @@ StatsData::StatsData()
   bzero(oldData, sizeof(oldData));
   bzero(data, sizeof(data));
 
-  firstTime = -1.;
+  firstTime = NAN;
 }
 
 /** Copy the statistics data from the data stream to a memory block,
@@ -39,7 +39,7 @@ void StatsData::DoStatisticsBlock(word_t *buf, int vsn)
   if (memcmp(data[vsn], buf, sizeof(word_t)*statSize) != 0) {
     memcpy(oldData[vsn], data[vsn], sizeof(word_t)*statSize);
     memcpy(data[vsn], buf, sizeof(word_t)*statSize);    
-    if (firstTime == -1.)
+    if (firstTime == NAN)
 	firstTime = GetRealTime();
     if (vsn == 0) {
 #ifdef VERBOSE

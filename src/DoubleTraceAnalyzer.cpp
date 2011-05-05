@@ -107,32 +107,24 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
 		iThr++; 		
 		continue;
 	    }	 
-	    // sample = time2 + (energyParms.GetSize() - fastParms.GetSize()) / 2;
-	    sample = time2 + 40;
-
-	    //	    cout << "SAMPLE: " << sample << " " << sample2 << endl;
-
+	    sample = time2 + (energyParms.GetSize() - fastParms.GetSize()) / 2;
+	 
 	    energy2 = energyFilter[sample] - energyFilter[sample2];
 	    energy2 += randoms.Get();
 	    // scale to the integration time
 	    energy2 /= energyParms.GetRiseSamples();
 	    energy2 *= energyScaleFactor;
 
-	    // cout << " pileup: " << energy << " " << energy2 << "@" << time << " " << time2 << endl;
 	    trace.SetValue("filterTime2", (int)time2);
 	    trace.SetValue("filterEnergy2", energy2);
 	    break;
 	} // while searching for double trace
-	if (sample2 == 0) {
-	    // cout << " no second crossing found, last rejection at time " << time2 << endl;
-	}
 	// now plot stuff
 	if (iThr != iHigh) {
 	    using namespace dammIds::trace;
 
 	    // plot the double pulse stuff
-	    // plot(DD_DOUBLE_TRACE, numDoubleTraces);
-	    trace.Plot(DD_DOUBLE_TRACE, numTracesAnalyzed);
+	    trace.Plot(DD_DOUBLE_TRACE, numDoubleTraces);
 
 	    // cacluated values at end of traces
 	    /*

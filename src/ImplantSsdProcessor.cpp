@@ -43,7 +43,6 @@ void ImplantSsdProcessor::DeclarePlots(void) const
     const int positionBins      = S5;
     const int timeBins          = S8;
     const int tofBins           = SD; //! DTM -- LARGE FOR NOW 
-    const int traceBins         = SC;
 
     DeclareHistogram2D(DD_IMPLANT_ENERGY__POSITION, 
 		       implantEnergyBins, positionBins, "SSD Strip vs Implant E");
@@ -75,11 +74,6 @@ void ImplantSsdProcessor::DeclarePlots(void) const
 		       "DSSD Ty,Ex (10ms/ch)(xkeV)");
     DeclareHistogram2D(DD_ENERGY__DECAY_TIME_GRANX + 8, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (100ms/ch)(xkeV)");
-
-    for (unsigned int i=0; i < numTraces; i++) {
-	DeclareHistogram1D(D_FAST_DECAY_TRACE + i, traceBins, "fast decay trace");
-	DeclareHistogram1D(D_HIGH_ENERGY_TRACE + i, traceBins, "high energy trace");
-    }
 }
 
 bool ImplantSsdProcessor::Process(RawEvent &event)
@@ -127,7 +121,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
     energy   = ch->GetCalEnergy();
     time     = ch->GetTime();
 
-    bool noBeam = (logProc && !logProc->LogicStatus(3) && !logProc->LogicStatus(4) && !logProc->LogicStatus(5));
+    bool noBeam = ( logProc && !logProc->LogicStatus(3) );
     bool hasTAC = ( (tacSummary && tacSummary->GetMult() > 0) || !tacSummary);
     // decide whether this is an implant or a decay
     Correlator::EEventType type;
@@ -211,12 +205,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	    }
 
 	    if (noBeam) {
-		cout << "fast trace " << fastTracesWritten << " in strip " << position
-		     << " : " << trace.GetValue("filterEnergy") << " " << trace.GetValue("filterTime") 
-		     << " , " << trace.GetValue("filterEnergy2") << " " << trace.GetValue("filterTime2") << endl;
 		corr.Flag(position, 1);
-		trace.Plot(D_FAST_DECAY_TRACE + fastTracesWritten);
-		fastTracesWritten++;
 	    }
 	    // not putting into the decay energy/time matrix for now
 	}
@@ -225,10 +214,6 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	if (noBeam) {
 	    // dump high energy events
 	    if (energy > 4000 || ch->IsSaturated() ) {	  
-		if ( (energy > 8000 || ch->IsSaturated()) && !trace.empty() ) {
-		    trace.Plot(D_HIGH_ENERGY_TRACE + highTracesWritten);
-		    highTracesWritten++;
-		}
 		corr.Correlate(event, Correlator::DECAY_EVENT, position, 1, time, energy); 
 		string descriptor;
 		if (ch->IsSaturated())

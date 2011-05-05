@@ -67,7 +67,7 @@ class DetectorDriver {
 	pixieToWallClock=std::make_pair(d, t);
     }
     time_t GetWallTime(double d) const {
-	return (d - pixieToWallClock.first)*pixie::clockInSeconds + pixieToWallClock.second;
+	return (time_t)((d - pixieToWallClock.first)*pixie::clockInSeconds + pixieToWallClock.second);
     }
     const vector<EventProcessor *>& GetProcessors(void) const
 	{return vecProcess;}; /**< return the list of processors */

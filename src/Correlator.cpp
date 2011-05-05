@@ -29,33 +29,22 @@
 
 using namespace std;
 
-const double Correlator::minImpTime = 5e-3 / pixie::clockInSeconds;
-const double Correlator::corrTime   = 3300 / pixie::clockInSeconds;
+const double Correlator::minImpTime = 5e-3  / pixie::clockInSeconds;
+const double Correlator::corrTime   = 3e3   / pixie::clockInSeconds;
 const double Correlator::fastTime   = 40e-6 / pixie::clockInSeconds;
 
-ListData::ListData(double t, double e, LogicProcessor *lp) : time(t), energy(e)
+ListData::ListData(double t, double e, LogicProcessor *lp) : 
+    time(t), energy(e), logicBits(dammIds::logic::MAX_LOGIC)
 {
-    logicBits[3] = '\0';
-
     if (lp) {       
-	if (!lp->LogicStatus(3)) {
-	    logicBits[0]='0'; 
-	    offTime = lp->TimeOff(3, time);
-	} else logicBits[0]='1'; 
-	if (!lp->LogicStatus(4)) {
-	    logicBits[1]='0';
-	    if (logicBits[0] == '1')
-	 	offTime = lp->TimeOff(4, time) + 300e-6 / pixie::clockInSeconds;
-	} else logicBits[1]='1';
-	if (!lp->LogicStatus(5)) {
-	    logicBits[2]='0';
-	    if (logicBits[0] == '1' && logicBits[1] == '1') 
-		offTime = lp->TimeOff(5, time) + 600e-6 / pixie::clockInSeconds;
-	} else logicBits[2]='1';
-
-	clockCount = lp->StartCount(2);
+	for (int i=0; i < dammIds::logic::MAX_LOGIC; i++) {
+	    logicBits.at(i) = lp->LogicStatus(i);	
+	}
+	// reference relative to logic channel 0 for the moment until there
+	//   is a better way to define the logic channels of interest
+	offTime = lp->TimeOff(0, t);
+	clockCount = lp->StartCount(0);
     } else {
-	logicBits[0] = logicBits[1] = logicBits[2] = 'X'; // NO LOGIC
 	offTime = 0.;
 	clockCount = 0;
     }
@@ -79,6 +68,7 @@ void Correlator::Init()
 	for (vector<EventProcessor*>::iterator it=procs.begin();
 	     it != procs.end(); it++) {
 	    string name = (*it)->GetName();
+	    // double check the name just in case
 	    if (name == "logic" || name == "triggerlogic") {
 		logicProc = reinterpret_cast<LogicProcessor*>(*it);
 		cout << "Correlator grabbed processor " << name << endl;
@@ -86,6 +76,8 @@ void Correlator::Init()
 	    }
 	}
     }
+
+    
 }
 
 Correlator::~Correlator()
@@ -145,7 +137,7 @@ void Correlator::Correlate(RawEvent &event, EEventType type,
 	if (imp.implanted) {
 	    condition = BACK_TO_BACK_IMPLANT;
 	    imp.dtime = time - imp.time;
-	    imp.tacValue = 0;
+	    imp.tacValue = NAN;
 	    imp.flagged = false;
 	    plot(D_TIME_BW_IMPLANTS, imp.dtime * pixie::clockInSeconds / 100e-3 );
 	} else {
@@ -161,8 +153,10 @@ void Correlator::Correlate(RawEvent &event, EEventType type,
 	if (time < imp.time ) {	 
 	    double dt = time - imp.time;
 
-	    if (dt > 5e11 && time < 1e9 ) {
-		// PIXIE's clock has most likely been zeroed due to file marker, no chance of doing correlations
+	    if (dt > corrTime && time < 1e9 ) {
+		// PIXIE's clock has most likely been zeroed due to file marker
+		//   no chance of doing correlations
+		//   even better would be to use the limit as the time between buffers
 		for (unsigned int i=0; i < MAX_STRIP; i++) {
 		    for (unsigned int j=0; j < MAX_STRIP; j++) {			
 			if (implant[i][j].time > time) {
@@ -180,17 +174,6 @@ void Correlator::Correlate(RawEvent &event, EEventType type,
 	} // negative correlation time
 	if ( imp.dtime >= minImpTime ) {
 	    if (time - imp.time < corrTime) {
-		double lastTime = NAN;
-		if (decaylist[frontCh][backCh].size() == 1) {
-		    lastTime = imp.time;
-		} else if (decaylist[frontCh][backCh].size() > 1) {
-		    lastTime = dec.time;
-		}
-		double dt = (dec.time - lastTime) * pixie::clockInSeconds;
-		if (!isnan(lastTime) && dt< fastTime && dt > 0) {
-		    cout << "flagging " << frontCh << " , " << backCh << " in correlator." << endl;
-		    Flag(frontCh, backCh);
-		}
 		dec.time    = time;
 		dec.dtime   = time - imp.time;
 		
@@ -211,10 +194,13 @@ void Correlator::Correlate(RawEvent &event, EEventType type,
 
 void Correlator::PrintDecayList(unsigned int fch, unsigned int bch) const
 {
-    ofstream fullLog("full_decays.txt", ios::app);
-    ofstream doubleLog("double_decays.txt", ios::app);
+#ifndef ONLINE
+    static ofstream logFile("full_decays.txt", ios::trunc);
+    static ofstream fastLog("double_decays.txt", ios::trunc);
+#endif
+    
     stringstream str;
-
+    
     extern DetectorDriver driver;
 
     const corrlist_t &l = decaylist[fch][bch];
@@ -235,42 +221,44 @@ void Correlator::PrintDecayList(unsigned int fch, unsigned int bch) const
 	 << ",    ts: " << scientific << setprecision(3) << firstTime 
 	 << ",    cc: " << scientific << setprecision(3) << l.at(0).clockCount << endl;
     cout << str.str();
-#ifndef ONLINE
-    fullLog << str.str();
-#endif
-    str.str("");
+
+    if (logFile.good()) {
+	logFile << str.str();
+    }
+
+    str.str(""); // reset stream
 
     for (corrlist_t::const_iterator it = l.begin(); it != l.end(); it++) {
-	double dt   = ((*it).time - firstTime) * pixie::clockInSeconds / printTimeResolution;
-	double dt2 = ((*it).time - lastTime);
-	double offt = (*it).offTime * pixie::clockInSeconds / printTimeResolution;
+	double dt     = ((*it).time - firstTime) * pixie::clockInSeconds / printTimeResolution;
+	double dt2raw = ((*it).time - lastTime);
+	double dt2out = dt2raw * pixie::clockInSeconds / printTimeResolution;
+	double offt   = (*it).offTime * pixie::clockInSeconds / printTimeResolution;
 
-	if ( dt2 < fastTime && it != l.begin() ) {
+	if ( dt2raw < fastTime && it != l.begin() ) {
 	    cout << "    FAST DECAY!!!" << endl;
-#ifndef ONLINE
-	    doubleLog.unsetf(ios::floatfield);
-	    doubleLog << setw(16) << (long long)(firstTime) << "  "
-		      << setw(10) << l.at(0).clockCount << "  "
-		      << fixed << setprecision(1) << setw(7)
-		      << (*(it-1)).energy << "  " << setw(7) << (*it).energy << "  "
-		      << setprecision(4) << setw(8) << dt << "  " << setw(6) << dt2 * pixie::clockInSeconds / printTimeResolution << "  "		      
-		      << setprecision(1) << setw(6) << offt << "  " << ctime(&theTime);
-#endif
+	    if (fastLog.good()) {
+		fastLog.unsetf(ios::floatfield);
+		fastLog << setw(16) << (long long)(firstTime) << "  "
+			<< setw(10) << l.at(0).clockCount << "  "
+			<< fixed << setprecision(1) << setw(7)
+			<< (*(it-1)).energy << "  " << setw(7) << (*it).energy << "  "
+			<< setprecision(4) << setw(8) << dt << "  " 
+			<< setw(6) << dt2out << "  "		      
+			<< setprecision(1) << setw(6) << offt << "  " << ctime(&theTime);
+	    } // if we have a good fast log file
 	}
 
-        dt2 *= pixie::clockInSeconds / printTimeResolution;
-	
 	str  << "    E " << setw(10) << fixed << setprecision(3) << (*it).energy
 	     << " [ch] at T " << setw(10) << dt 
-	     << ", DT= " << setw(10) << dt2
-	     << ", OT(" << (*it).logicBits << ")= " << setw(10) << offt << " [ms]" << endl;	
+	     << ", DT= " << setw(10) << dt2out
+	     << ", OT= " << setw(10) << offt << " [ms]" << endl;	
 
 	lastTime = (*it).time;
     } 
     cout << str.str();
-#ifndef ONLINE
-    fullLog << str.str();
-#endif
+    if (logFile.good()) {
+	logFile << str.str();
+    }
 
     cout.unsetf(ios::floatfield);
 }
