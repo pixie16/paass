@@ -49,7 +49,7 @@ void TauAnalyzer::Analyze(Trace &trace, const string &type, const string &subtyp
     double sum1=0, sum2=0;
     double i=0;
     for (Trace::const_iterator it=itMax; it != itMin; it++) {
-	int j=i+1;
+	double j=i+1.;
 	sum1 += double(*it)*(j*n*n-3*j*j*n+2*j*j*j);
 	sum2 += double(*it)*(i*n*n-3*i*i*n+2*i*i*i);
 	i+=1.;
