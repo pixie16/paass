@@ -20,6 +20,7 @@ class TraceFilterer : public TracePlotter {
 
  protected:    
     static const int energyBins;
+    static const double energyScaleFactor;
 
     TrapezoidalFilterParameters  fastParms;
     Trace::value_type            fastThreshold;

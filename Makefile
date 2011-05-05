@@ -2,12 +2,16 @@
 # GNUmakefile using implicit rules and standard definitions
 SHELL=/bin/sh
 
-# uncomment the following line for root functionality
-#USEROOT = 1
-# uncomment this line if processing Rev. D data
-#REVISIOND = 1
-#Uncomment this line to use the Pulse Fitting routine
-#PULSEFIT = 1
+# Uncomment the following line for root functionality
+# USEROOT = 1
+# Uncomment this line if processing Rev. D data
+REVISIOND = 1
+# Uncomment this line to use the Pulse Fitting routine
+# PULSEFIT = 1
+# Uncomment this line for a more verbose scan
+# CXXFLAGS += -DVERBOSE
+# Undefine to make a "online" version
+# ONLINE = 1 
 
 #------- instruct make to search through these
 #------- directories to find files
@@ -36,7 +40,7 @@ cxxSrcSuf = cxx
 #------- define compilers
 FC        = g77
 #uncomment to compile with gfortran (>=4.2) if required for the hhirf libs
-#FC        = gfortran
+# FC        = gfortran
 GCC       = gcc 
 CXX       = g++
 LINK.o    = $(FC) $(LDFLAGS)
@@ -52,6 +56,9 @@ GCCFLAGS += -fPIC $(CINCLUDEDIRS) -Dnewreadout
 CXXFLAGS += -Wall -fPIC $(CINCLUDEDIRS) -Dnewreadout
 ifdef REVISIOND
 CXXFLAGS += -DREVD
+endif
+ifdef ONLINE
+CXXFLAGS += -DONLINE
 endif
 
 #------- include directories for the pixie c files
@@ -89,6 +96,8 @@ HISTOGRAMMERO    = DeclareHistogram.$(ObjSuf)
 EVENTPROCESSORO  = EventProcessor.$(ObjSuf)
 SCINTPROCESSORO  = ScintProcessor.$(ObjSuf)
 GEPROCESSORO     = GeProcessor.$(ObjSuf)
+LOGICPROCESSORO  = LogicProcessor.$(ObjSuf)
+TRIGGERLOGICPROCESSORO = TriggerLogicProcessor.$(ObjSuf)
 MCPPROCESSORO    = McpProcessor.$(ObjSuf)
 MTCPROCESSORO    = MtcProcessor.$(ObjSuf)
 DSSDPROCESSORO   = DssdProcessor.$(ObjSuf)
@@ -97,10 +106,14 @@ CORRELATORO      = Correlator.$(ObjSuf)
 RAWEVENTO        = RawEvent.$(ObjSuf)
 ROOTPROCESSORO   = RootProcessor.$(ObjSuf)
 RANDOMPOOLO      = RandomPool.$(ObjSuf)
+SSDPROCESSORO    = SsdProcessor.$(ObjSuf)
+TAUANALYZERO     = TauAnalyzer.$(ObjSuf)
+ISSDPROCESSORO   = ImplantSsdProcessor.$(ObjSuf)
 STATSDATAO       = StatsData.$(ObjSuf)
 PULSERPROCESSORO = PulserProcessor.$(ObjSuf)
 VANDLEPROCESSORO = VandleProcessor.$(ObjSuf)
 TRACEO		 = Trace.$(ObjSuf)
+TRACEEXTRACTERO  = TraceExtracter.$(ObjSuf)
 TRACESUBO        = TraceAnalyzer.$(ObjSuf)
 TRACEPLOTO       = TracePlotter.$(ObjSuf)
 TRACEFILTERO     = TraceFilterer.$(ObjSuf)
@@ -108,9 +121,13 @@ DOUBLETRACEO     = DoubleTraceAnalyzer.$(ObjSuf)
 WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
 
 ifdef USEROOT
-PIXIE            = pixie_ldf_c_root$(ExeSuf)
+PIXIE = pixie_ldf_c_root$(ExeSuf)
 else
-PIXIE            = pixie_ldf_c$(ExeSuf)
+ifdef ONLINE
+PIXIE = pixie_ldf_c_online$(ExeSuf)
+else
+PIXIE = pixie_ldf_c$(ExeSuf)
+endif
 endif
 
 ifdef REVISIOND
@@ -126,6 +143,8 @@ OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \
 	$(MESSLOGO) $(MILDATIMO) $(SCANORUXO) $(ACCUMULATORO) $(PIXIEO) \
 	$(HISTOGRAMMERO) $(EVENTPROCESSORO) $(SCINTPROCESSORO) $(TRACEO) \
 	$(GEPROCESSORO) $(DSSDPROCESSORO) $(RAWEVENTO) $(RANDOMPOOLO) \
+	$(SSDPROCESSORO) $(ISSDPROCESSORO) $(TAUANALYZERO) $(LOGICPROCESSORO) \
+	$(TRIGGERLOGICPROCESSORO) $(TRACEEXTRACTERO) \
 	$(STATSDATAO) $(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO)
 
 ifdef USEROOT

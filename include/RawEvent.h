@@ -99,6 +99,9 @@ class ChanEvent {
     int    modNum;             /**< Module number */
     int    chanNum;            /**< Channel number */
 
+    bool   pileupBit;          /**< Pile-up flag from Pixie */
+    bool   saturatedBit;       /**< Saturation flag from Pixie */
+
     void ZeroNums(void);       /**< Zero members which do not have constructors associated with them */
     
     // make the front end responsible for reading the data able to set the channel data directly
@@ -132,8 +135,13 @@ class ChanEvent {
     unsigned long GetRunTime1() const
 	{return runTime1;}    /**< Return the middle bits of run time */
     unsigned long GetRunTime2() const
-	{return runTime2;}    /**< Return the higher bits of run time */
-
+        {return runTime2;}    /**< Return the higher bits of run time */
+    bool IsPileup() const {
+      return pileupBit;
+    }
+    bool IsSaturated() const { /**< Return whether the trace is saturated */
+	return saturatedBit;
+    }
     const Identifier& GetChanID() const; /**< Get the channel identifier */
     int GetID() const;                   /**< Get the channel id defined as
 					    pixie module # * 16 + channel number */
@@ -223,6 +231,7 @@ class StatsData {
   static const size_t statSize = N_DSP_PAR - DSP_IO_BORDER;
   static const size_t maxVsn = 14;
 
+  double firstTime; /**< Store the time of the first statistics block */
   pixie::word_t oldData[maxVsn][statSize]; /**< Older statistics data to calculate the change in statistics */
   pixie::word_t data[maxVsn][statSize];    /**< Statistics data from each module */
  public:
@@ -234,6 +243,7 @@ class StatsData {
   double GetCurrTime(unsigned int id) const;
   double GetDiffPeaks(unsigned int id) const;
   double GetDiffTime(unsigned int id) const;
+  double GetRealTime(unsigned int mod = 0) const;
 };
 
 #endif // __RAWEVENT_H_

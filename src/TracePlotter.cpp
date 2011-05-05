@@ -43,9 +43,7 @@ void TracePlotter::Analyze(Trace &trace,
     TraceAnalyzer::Analyze(trace, type, subtype);
    
     if (level >= 1 && numTracesAnalyzed < numTraces) {       
-	for (Trace::size_type i=0; i < trace.size(); i++) {
-	    plot(DD_TRACE, i, numTracesAnalyzed, trace[i]);
-	}
+	trace.Plot(DD_TRACE, numTracesAnalyzed);
     }
     EndAnalyze(trace);
 }

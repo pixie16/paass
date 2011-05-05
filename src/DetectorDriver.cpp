@@ -81,11 +81,12 @@ DetectorDriver::DetectorDriver()
 
     vecProcess.push_back(new ScintProcessor());
     vecProcess.push_back(new GeProcessor());
-    vecProcess.push_back(new McpProcessor());    
+    vecProcess.push_back(new McpProcessor());
     vecProcess.push_back(new DssdProcessor());
     vecProcess.push_back(new MtcProcessor());
     vecProcess.push_back(new PulserProcessor());
     vecProcess.push_back(new VandleProcessor());
+    
 #ifdef useroot
     // and finally the root processor
     vecProcess.push_back(new RootProcessor("tree.root", "tree"));
@@ -121,10 +122,11 @@ DetectorDriver::~DetectorDriver()
 */
 const set<string>& DetectorDriver::GetKnownDetectors()
 {   
-    const unsigned int detTypes = 13;
+    const unsigned int detTypes = 15;
     const string detectorStrings[detTypes] = {
 	"dssd_front", "dssd_back", "idssd_front", "position", "timeclass",
-	"ge", "si", "scint", "mcp", "mtc", "generic", "vandle", "pulser"};
+	"ge", "si", "scint", "mcp", "mtc", "generic", "ssd", "vandle",
+	"pulser", "logic"};
   
     // only call this once
     if (!knownDetectors.empty())
@@ -152,7 +154,7 @@ int DetectorDriver::Init(void)
     for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
 	 it != vecAnalyzer.end(); it++) {
 	(*it)->Init();
-	(*it)->SetLevel(1); //! Plot traces
+	(*it)->SetLevel(20); //! Plot traces
     }
 
     // initialize processors in the event processing vector
@@ -166,6 +168,8 @@ int DetectorDriver::Init(void)
     */
     //cout << "read in the calibration parameters" << endl;
     ReadCal();
+
+    rawev.GetCorrelator().Init();
 
     return 0;
 }
@@ -227,6 +231,8 @@ void DetectorDriver::DeclarePlots(void) const
 	 it != vecProcess.end(); it++) {
 	(*it)->DeclarePlots();
     }
+    
+    rawev.GetCorrelator().DeclarePlots();
 }
 
 // sanity check for all our expectations
@@ -251,7 +257,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
     string subtype    = chanId.GetSubtype();
     Trace &trace      = chan->GetTrace();
 
-    double energy;
+    double energy = 0.;
 
     if (type == "ignore" || type == "") {
 	return 0;
@@ -263,13 +269,20 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
         plot(dammIds::misc::D_HAS_TRACE,id);
 
 	for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
-	     it != vecAnalyzer.end(); it++) {
+	     it != vecAnalyzer.end(); it++) {	
 	    (*it)->Analyze(trace, type, subtype);
+	}
+
+	if (trace.HasValue("filterEnergy") ) {     
+	    if (trace.GetValue("filterEnergy") > 0)
+		energy = trace.GetValue("filterEnergy");
+	    else
+		energy = 2;
 	}
 	if (trace.HasValue("calcEnergy") ) {	    
 	    energy = trace.GetValue("calcEnergy");
 	    chan->SetEnergy(energy);
-	} else {
+	} else if (!trace.HasValue("filterEnergy")) {
 	    energy = chan->GetEnergy() + randoms.Get();
 	    energy /= ChanEvent::pixieEnergyContraction;
 	}
@@ -277,15 +290,14 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 	    double phase = trace.GetValue("phase");
 	    chan->SetHighResTime( phase * pixie::adcClockInSeconds + 
 				  chan->GetTrigTime() * pixie::filterClockInSeconds);
-
 	}
     } else {
-      // otherwise, use the Pixie on-board calculated energy
-      // add a random number to convert an integer value to a 
-      //   uniformly distributed floating point
+	// otherwise, use the Pixie on-board calculated energy
+	// add a random number to convert an integer value to a 
+	//   uniformly distributed floating point
 
-      energy = chan->GetEnergy() + randoms.Get();
-      energy /= ChanEvent::pixieEnergyContraction;
+	energy = chan->GetEnergy() + randoms.Get();
+	energy /= ChanEvent::pixieEnergyContraction;
     }
     /*
       Set the calibrated energy for this channel
@@ -328,8 +340,8 @@ int DetectorDriver::PlotCal(const ChanEvent *chan) const
     float calEnergy = chan->GetCalEnergy();
     
     plot(dammIds::misc::offsets::D_CAL_ENERGY + id, calEnergy);
-    // plot(dammid, calEnergy);
-
+    if (!chan->IsSaturated() && !chan->IsPileup())
+	plot(dammIds::misc::offsets::D_CAL_ENERGY_REJECT + id, calEnergy);
     return 0;
 }
 

@@ -194,11 +194,15 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
  	    bufNum = buf[totWords+2]; 
 	    // read total number of buffers later after we check if the last spill was good
 	    if (lastBuf != U_DELIMITER && bufNum != lastBuf + 1) {
+#ifdef VERBOSE
 		cout << "Buffer skipped, Last: " << lastBuf << " of " << totBuf 
-		     << " (" << bufInSpill << ") read -- Now: " << bufNum << endl;
+		     << " buffers read -- Now: " << bufNum << endl;
+#endif
 		// if we are only missing the vsn 9999 terminator, reconstruct it
 		if (lastBuf + 2 == totBuf && bufInSpill == totBuf - 1) {
+#ifdef VERBOSE
 		    cout << "  Reconstructing final buffer " << lastBuf + 1 << "." << endl;
+#endif		   
 		    totData[dataWords++] = 2;
 		    totData[dataWords++] = 9999;
 		    
@@ -206,10 +210,13 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
 		    spillValidCount++;
 		    bufInSpill = 0; dataWords = 0; lastBuf = -1;
 		} else if (bufNum == 0) {
+#ifdef VERBOSE		    
 		    cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
-			 << "  INCOMPLETE BUFFER " << spillInvalidCount++ 
+			 << "  INCOMPLETE BUFFER " << spillInvalidCount 
 			 << "\n  " << spillValidCount << " valid spills so far."
 			 << " Starting fresh spill." << endl;
+#endif		   
+		    spillInvalidCount++;
 		    // throw away previous collected data and start fresh
 		    bufInSpill = 0; dataWords = 0; lastBuf = -1;
 		}
@@ -217,13 +224,17 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
 	    // update the total chunks only after the sanity checks above
 	    totBuf = buf[totWords+1];
 	    if (totBuf > maxChunks) {
+#ifdef VERBOSE
 		cout << "EEEEE LOST DATA: Total buffers = " << totBuf 
 		     <<  ", word count = " << nWords << endl;
+#endif
 		return;
 	    }
 	    if (bufNum > totBuf - 1) {
+#ifdef VERBOSE
 		cout << "EEEEEEE LOST DATA: Buffer number " << bufNum
 		     << " of total buffers " << totBuf << endl;
+#endif
 		return;
 	    }
 	    lastBuf = bufNum;
@@ -231,7 +242,9 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
 	    /* Increment the number of buffers in a spill*/
 	    bufInSpill++;
 	    if(nWords == 0) {
+#ifdef VERBOSE
 		cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE NWORDS 0" << endl;
+#endif
 		return;
 	    }
 	    
@@ -247,23 +260,28 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
 		     << " with " << nWords << " words" << endl;
 	    }
 	    if (nWords == 5 && bufNum != totBuf - 1) {
+#ifdef VERBOSE
 		cout << "Five word buffer " << bufNum << " of " << totBuf
 		     << " WORDS: " 
 		     << hex << buf[3] << " " << buf[4] << dec << endl;
+#endif		
 	    }
 	} while(nWords != 5 || bufNum != totBuf - 1);
 	/* reached the end of a spill when nwords = 5 and last chunk in spill */
 
 	/* make sure we retrieved all the chunks of the spill */
 	if (bufInSpill != totBuf) {
+#ifdef VERBOSE	  
 	    cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE  INCOMPLETE BUFFER "
-		 << spillInvalidCount++ 
+		 << spillInvalidCount
 		 << "\n I/B [  " << bufInSpill << " of " << totBuf << " : pos " << totWords 
 		 << "    " << spillValidCount << " total spills"
 		 << "\n| " << hex << buf[0] << " " << buf[1] << "  " 
 		 << buf[2] << " " << buf[3]
 		 << "\n| " << dec << buf[totWords] << " " << buf[totWords+1] << "  "
 		 << buf[totWords+2] << " " << buf[totWords+3] << endl;
+#endif
+	    spillInvalidCount++; 
 	} else {
 	    spillValidCount++;
 	    MakeModuleData(totData, dataWords);	    
@@ -289,10 +307,12 @@ bool MakeModuleData(const word_t *data, unsigned long nWords)
 	word_t lenRec = data[inWords];	
         word_t vsn    = data[inWords+1];
 	/* Check sanity of record length and vsn*/
-	if(lenRec > maxWords || (vsn > maxVsn && vsn != 9999)) { 
+	if(lenRec > maxWords || (vsn > maxVsn && vsn != 9999 && vsn != 1000)) { 
+#ifdef VERBOSE
 	    cout << "SANITY CHECK FAILED: lenRec = " << lenRec
 		 << ", vsn = " << vsn << ", inWords = " << inWords
 		 << " of " << nWords << ", outWords = " << outWords << endl;
+#endif
 	    // exit(EXIT_FAILURE);
 	    return false;  
 	}
@@ -362,6 +382,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
     static int counter = 0; // the number of times this function is called
     static int evCount;     // the number of times data is passed to ScanList
     static unsigned int lastVsn; // the last vsn read from the data
+    time_t theTime;
 
     /*
       Assign the local variable lbuf to the variable ibuf which is passed into
@@ -435,7 +456,11 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
                 nWords += 2;  // increment two whole words and try again
                 continue;                         
             }
-            
+	    // Buffer with vsn 1000 was inserted with the time for superheavy exp't
+	    if (vsn == 1000) {
+	      memcpy(&theTime, &lbuf[nWords+2], sizeof(time_t));
+	      nWords += lenRec;
+	    }
             /*
               If the record length is 6, this is an empty channel.
 	      Skip this vsn and continue with the next
@@ -454,9 +479,11 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 	        if ( lastVsn != U_DELIMITER) {
 		    // the modules should be read out cyclically
 		    if ( ((lastVsn+1) % numModules) != vsn ) {
-			cout << " MISSING BUFFER " << vsn
+#ifdef VERBOSE
+			cout << " MISSING BUFFER " << vsn << "/" << numModules
 			     << " -- lastVsn = " << lastVsn << "  " 
 			     << ", length = " << lenRec << endl;
+#endif
                         RemoveList(eventList);
                         fullSpill=true;
                     }
@@ -505,7 +532,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
         /* If the vsn is 9999 this is the end of a spill, signal this buffer
 	   for processing and determine if the buffer is split between spills.
         */
-        if ( vsn == 9999 ) {
+        if ( vsn == 9999 || vsn == 1000 ) {
             fullSpill = true;
             nWords += 3;//skip it
             if (lbuf[nWords+1] != U_DELIMITER) {
@@ -519,26 +546,22 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
         if( numEvents>0 ) {
 	    if (fullSpill) { 	  // if full spill process events
 		// sort the vector of pointers eventlist according to time
-		
+		double lastTimestamp = (*(eventList.rbegin()))->GetTime();
+
 		sort(eventList.begin(),eventList.end(),Compare);
-		
+		driver.CorrelateClock(lastTimestamp, theTime);
+
 		/* once the vector of pointers eventlist is sorted based on time,
 		   begin the event processing in ScanList()
 		*/
 		ScanList(eventList);
-		if( retval<0 ) {
-		    cout << "scan list error " << retval << endl;
-		    return;
-		}
-		
+
 		/* once the eventlist has been scanned, remove it from memory
 		   and reset the number of events to zero and update the event
 		   counter
 		*/
-		RemoveList(eventList);
-		numEvents=0;
-		evCount++;
-		
+
+		evCount++;		
 		/*
 		  every once in a while (when evcount is a multiple of 1000)
 		  print the time elapsed doing the analysis
@@ -547,20 +570,24 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 		    tms tmsNow;
 		    clock_t clockNow = times(&tmsNow);
 
-		    cout << " event = " << evCount << ", user time = " 
+		    cout << " data read up to poll status time " << ctime(&theTime);
+		    cout << "   buffer = " << evCount << ", user time = " 
 			 << (tmsNow.tms_utime - tmsBegin.tms_utime) / hz
 			 << ", system time = " 
 			 << (tmsNow.tms_stime - tmsBegin.tms_stime) / hz
 			 << ", real time = "
-			 << (clockNow - clockBegin) / hz << endl;
+			 << (clockNow - clockBegin) / hz 
+			 << ", ts = " << lastTimestamp << endl;
 		}		
+		RemoveList(eventList);
+		numEvents=0;
 	    } // end fullSpill 
 	    else {
 		cout << "Spill split between buffers" << endl;
 		return; //! this tosses out all events read into the vector so far
 	    }	    
         }  // end numEvents > 0
-        else {
+        else if (retval != readbuff::STATS) {
 	    cout << "bad buffer, numEvents = " << numEvents << endl;
             return;
         }
@@ -603,7 +630,7 @@ void RemoveList(vector<ChanEvent*> &eventList)
 void ScanList(vector<ChanEvent*> &eventList) 
 {
     /** The time width of an event in units of pixie16 clock ticks */
-    const int eventWidth = 200;
+    const int eventWidth = 300;
 
     unsigned long chanTime, eventTime;
 

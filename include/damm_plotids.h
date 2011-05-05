@@ -167,8 +167,9 @@ namespace dammIds {
     } // pulser namespace
     // in correlator.cpp
     namespace correlator {
-	const int D_CONDITION = 6000;
-	const int D_TIME_BW_IMPLANTS = 6001;
+	const int D_CONDITION            = 6000;
+	const int D_TIME_BW_IMPLANTS     = 6001;
+	const int D_TIME_BW_ALL_IMPLANTS = 6002;
     } // correlator namespace
     // in dssd_sub.cpp
     namespace dssd {
@@ -181,6 +182,23 @@ namespace dammIds {
 
 	const int DD_ENERGY__DECAY_TIME_GRANX = 750;
     } // dssd namespace
+
+    // in SsdProcessor.cpp
+    namespace ssd {
+	const int NUM_DETECTORS = 4;
+
+        const int DD_POSITION__ENERGY_DETX = 2701; // for x detectors
+    } // ssd namespace
+    // in ImplantSsdProcessor.cpp
+    namespace implantSsd {
+        const int MAX_TOF = 5;
+
+	const int DD_IMPLANT_ENERGY__POSITION = 2741;
+	const int DD_ENERGY__POSITION_NOBEAM  = 2742;
+	const int DD_DECAY_ENERGY__POSITION   = 2743;
+	const int DD_IMPLANT_ENERGY__TOFX     = 2745;	
+	const int DD_ENERGY__DECAY_TIME_GRANX = 2750;
+    }
     // in MtcProcessor.cpp
     namespace mtc {
 	const int D_TDIFF0        = 1510;
@@ -191,6 +209,18 @@ namespace dammIds {
 	const int D_COUNTER_MOVE0 = 1521;
 	const int D_COUNTER_MOVE1 = 1522;
     } // mtc namespace
+    namespace logic {
+      const int MAX_LOGIC = 10; /*< maximum number of logic signals */
+      const int D_COUNTER_START = 3000;
+      const int D_COUNTER_STOP  = 3005;
+      const int D_TDIFF_STARTX  = 3010;
+      const int D_TDIFF_STOPX   = 3020;
+      const int D_TDIFF_SUMX    = 3030;
+      const int D_TDIFF_LENGTHX = 3050;
+    } // logic namespace
+    namespace triggerlogic {
+      const int DD_RUNTIME_LOGIC = 3080;
+    }
     namespace trace {
 // in trace.cpp
 	const int DD_TRACE            = 850;
@@ -203,6 +233,9 @@ namespace dammIds {
 	const int DD_DOUBLE_TRACE     = 870;
 	const int DD_ENERGY2__TDIFF   = 871;
 	const int DD_ENERGY2__ENERGY1 = 872;
+
+	// 1D-traces from the extracter
+	const int D_TRACE = 4000;
     } // trace namespace
     namespace misc {
 // in detector_driver.cpp
@@ -220,12 +253,11 @@ namespace dammIds {
 	const int DD_RUNTIME_MSEC      = 1010;
 	const int D_NUMBER_OF_EVENTS   = 1011;
 	namespace offsets {
-	    const int D_RAW_ENERGY  = 100;
-	    const int D_SCALAR      = 300;
-	    const int D_TIME        = 400;
-	    const int D_CAL_ENERGY  = 500;
-	    const int D_FRONT_STRIP = 600;
-	    const int D_BACK_STRIP  = 650;
+	    const int D_RAW_ENERGY        = 100;
+	    const int D_SCALAR            = 300;
+	    const int D_TIME              = 400;
+	    const int D_CAL_ENERGY        = 500;
+	    const int D_CAL_ENERGY_REJECT = 600;
 	}
     } // misc namespace
 }
@@ -248,12 +280,17 @@ void DeclareHistogram1D(int dammId, int xSize, const char* title,
 			int xLow, int xHigh);
 void DeclareHistogram1D(int dammId, int xSize, const char* title,
 			int halfWordsPerChan = 2);
+void DeclareHistogram1D(int dammId, int xsize, const char* title,
+			int halfWordsPerChan, int contraction);
 void DeclareHistogram2D(int dammId, int xSize, int ySize,
 			const char *title, int halfWordsPerChan,
 			int xHistLength, int xLow, int xHigh,
 			int yHistLength, int yLow, int yHigh);
 void DeclareHistogram2D(int dammId, int xSize, int ySize,
 			const char* title, int halfWordsPerChan = 1);
+void DeclareHistogram2D(int dammId, int xSize, int ySize,
+			const char* title, int halfWordsPerChan,
+			int xContraction, int yContraction);
 
 // powers of 2 for damm sizes
 extern const int S1, S2, S3, S4, S5, S6, S7, S8, S9, SA, SB, SC, SD, SE, SF;

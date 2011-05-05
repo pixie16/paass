@@ -18,6 +18,8 @@ using namespace std;
 
 const string TraceFilterer::defaultFilterFile = "filter.txt";
 const int TraceFilterer::energyBins = SC;
+const double TraceFilterer::energyScaleFactor = 2.198; //< TO BE USED WITH MAGIC +40 ENERGY SAMPLE LOCATION
+// const double TraceFilterer::energyScaleFactor = 2.547; //< multiply the energy filter sums by this to gain match to raw spectra
 
 extern RandomPool randoms;
 
@@ -33,6 +35,7 @@ TraceFilterer::TraceFilterer() :
 }
 
 TraceFilterer::~TraceFilterer()
+
 {
     // do nothing
 }
@@ -94,6 +97,8 @@ void TraceFilterer::DeclarePlots(void) const
 {
     using namespace dammIds::trace;
 
+    TracePlotter::DeclarePlots();
+
     DeclareHistogram2D(DD_FILTER1, traceBins, numTraces, "fast filter");
     DeclareHistogram2D(DD_FILTER2, traceBins, numTraces, "energy filter");
     DeclareHistogram2D(DD_FILTER3, traceBins, numTraces, "3rd filter");
@@ -118,7 +123,7 @@ void TraceFilterer::Analyze(Trace &trace,
 	trace.TrapezoidalFilter(energyFilter, energyParms);
 	trace.TrapezoidalFilter(thirdFilter, thirdParms);
 
-	Trace::size_type sample; // point at which to sample the slow filter
+	Trace::size_type sample = 0; // point at which to sample the slow filter
 	// find the point at which the trace crosses the fast threshold
 
 	Trace::iterator iThr = fastFilter.begin();
@@ -140,17 +145,26 @@ void TraceFilterer::Analyze(Trace &trace,
 		iThr++; 
 		continue;
 	    }
-	    sample = time + (energyParms.GetSize() - fastParms.GetSize()) / 2;
+	    // sample = time + (energyParms.GetSize() - fastParms.GetSize()) / 2;
+	    sample = time + 40;
+
 	    if (sample < energyFilter.size())
 		energy = energyFilter[sample] + randoms.Get();
 	    // scale to the integration time
-	    energy /= energyParms.GetSize();
+	    energy /= energyParms.GetRiseSamples();
+	    energy *= energyScaleFactor;
+
 	    trace.SetValue("filterTime", (int)time);
 	    trace.SetValue("filterEnergy", energy);
 	    break;
 	}
 
 	// now plot some stuff
+	/* quick plot function still needs scaling and handling of negative numbers
+	fastFilter.Plot(DD_FILTER1, numTracesAnalyzed);
+	energyFilter.Plot(DD_FILTER2, numTracesAnalyzed);
+	thirdFilter.Plot(DD_FILTER3, numTracesAnalyzed);
+	*/
 	for (Trace::size_type i = 0; i < trace.size(); i++) {
 	    if (i < fastFilter.size())
 		plot(DD_FILTER1, i, numTracesAnalyzed, 
@@ -164,8 +178,12 @@ void TraceFilterer::Analyze(Trace &trace,
 
 	}
 	// calculated values at end of traces
-	// plot(DD_TRACE, trace.size() + 10, numTracesAnalyzed, energy);
-	// plot(DD_TRACE, trace.size() + 11, numTracesAnalyzed, time);
+	/*
+	plot(DD_TRACE, trace.size() + 10, numTracesAnalyzed, energy);
+	plot(DD_TRACE, trace.size() + 11, numTracesAnalyzed, time);
+	plot(DD_TRACE, trace.size() + 12, numTracesAnalyzed, sample);
+	*/
+
 	plot(D_ENERGY1, energy);
     } // sufficient analysis level
 

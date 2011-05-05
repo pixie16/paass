@@ -50,6 +50,13 @@ void DeclareHistogram1D(int dammId, int xSize, const char * title, int halfWords
     DeclareHistogram1D(dammId, xSize, title, halfWordsPerChan, xSize, 0, xSize - 1);
 }
 
+void DeclareHistogram1D(int dammId, int xSize, const char* title,
+			int halfWordsPerChan, int contraction)
+{
+    DeclareHistogram1D(dammId, xSize, title, halfWordsPerChan,
+		       xSize / contraction, 0, xSize / contraction - 1);
+}
+
 void DeclareHistogram2D(int dammId, int xSize, int ySize, const char *title, 
 			int halfWordsPerChan, int xHistLength, int xLow, int xHigh,
 			int yHistLength, int yLow, int yHigh)
@@ -65,6 +72,15 @@ void DeclareHistogram2D(int dammId, int xSize, int ySize,
 		       xSize, 0, xSize - 1, ySize, 0, ySize - 1);
 }
 
+void DeclareHistogram2D(int dammId, int xSize, int ySize,
+			const char* title, int halfWordsPerChan,
+			int xContraction, int yContraction)
+{
+    DeclareHistogram2D(dammId, xSize, ySize, title, halfWordsPerChan,
+		       xSize / xContraction, 0, xSize / xContraction - 1,
+		       ySize / yContraction, 0, ySize / yContraction - 1);
+}
+
 /*! This function defines the histograms to be used in the analysis */
 extern "C" void drrsub_(unsigned int& iexist)
 {
@@ -73,7 +89,6 @@ extern "C" void drrsub_(unsigned int& iexist)
     // unfortunately this function is called before we have read in the map,
     //   and know the EXACT number of channels we'll need
     const int numberChannels = 96;
-    const int stripsDSSD = 40;
 
     extern DetectorDriver driver;
 
@@ -86,10 +101,7 @@ extern "C" void drrsub_(unsigned int& iexist)
 	DeclareHistogram1D(offsets::D_SCALAR + i, SE, "RAW scalar - per sec");
 	DeclareHistogram1D(offsets::D_TIME + i, SE, "raw etimelo - trig time"); 
 	DeclareHistogram1D(offsets::D_CAL_ENERGY + i, SE, "CAL");
-    }
-    for (int i=0; i < stripsDSSD; i++) {
-	DeclareHistogram1D(offsets::D_FRONT_STRIP + i, SE, "dssd front");
-	DeclareHistogram1D(offsets::D_BACK_STRIP + i, SE, "dssd back");
+	DeclareHistogram1D(offsets::D_CAL_ENERGY_REJECT + i, SE, "CAL - no saturation");
     }
 
     DeclareHistogram1D(D_HIT_SPECTRUM, S7, "channel hit spectrum");

@@ -11,6 +11,8 @@
 #include "StatsAccumulator.h"
 #include "Trace.h"
 
+#include "damm_plotids.h"
+
 using namespace std;
 
 const Trace emptyTrace; ///< an empty trace for const references to point to
@@ -75,4 +77,18 @@ unsigned int Trace::FindMaxInfo(unsigned int lo, unsigned int numBins)
     InsertValue("maxval", int(*itTrace));
 
     return (itTrace-begin());
+}
+
+void Trace::Plot(int id) const
+{
+    for (size_type i=0; i < size(); i++) {
+	plot(id, i, 1, at(i));
+    }
+}
+
+void Trace::Plot(int id, int row) const
+{
+    for (size_type i=0; i < size(); i++) {
+	plot(id, i, row, at(i));
+    }
 }
