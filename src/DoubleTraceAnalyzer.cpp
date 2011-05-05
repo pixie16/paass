@@ -75,8 +75,11 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
 	Trace::iterator iHigh = fastFilter.end();
 	
 	// points at which to sample the slow filter	
-	Trace::size_type sample, sample2 = 0; 
-	
+	Trace::size_type sample=0, sample2 = 0; 
+	Trace::size_type presample;
+
+	presample = time + (energyParms.GetRiseSamples() + energyParms.GetGapSamples() / 2
+			    - fastParms.GetRiseSamples() - fastParms.GetGapSamples() / 2);
 	// find the trailing edge
 	advance(iThr, fastParms.GetGapSamples());
 	iThr = find_if(iThr, iHigh, bind2nd(less<Trace::value_type>(), 
@@ -96,18 +99,17 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
 		break;
 
 	    time2 = iThr - fastFilter.begin();
-	    // sample = time2 + (thirdParms.GetSize() - fastParms.GetSize()) / 2;
-	    sample = time2 + (thirdParms.GetRiseSamples() + thirdParms.GetGapSamples()
-			     - fastParms.GetRiseSamples() - fastParms.GetGapSamples() );
-	    sample2 = time2 - fastParms.GetSize();
+	    sample = time2 + (thirdParms.GetSize() - fastParms.GetSize()) / 2;
+	    sample2 = time2 - fastParms.GetRiseSamples() / 2;
 	    
 	    if (sample >= thirdFilter.size() || 
 		thirdFilter[sample] - thirdFilter[sample2] < slowThreshold) {
 		iThr++; 		
 		continue;
-	    }
-	    sample = time2 + (energyParms.GetRiseSamples() + energyParms.GetGapSamples()
-			     - fastParms.GetRiseSamples() - fastParms.GetGapSamples() );
+	    }	 
+	    // sample = time2 + (energyParms.GetSize() - fastParms.GetSize()) / 2;
+	    sample = time2 + 40;
+
 	    //	    cout << "SAMPLE: " << sample << " " << sample2 << endl;
 
 	    energy2 = energyFilter[sample] - energyFilter[sample2];
@@ -133,10 +135,16 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
 	    trace.Plot(DD_DOUBLE_TRACE, numTracesAnalyzed);
 
 	    // cacluated values at end of traces
-	    // plot(DD_DOUBLE_TRACE, trace.size() + 10, numDoubleTraces, energy)
-	    // plot(DD_DOUBLE_TRACE, trace.size() + 11, numDoubleTraces, time)
-	    // plot(DD_DOUBLE_TRACE, trace.size() + 12, numDoubleTraces, energy2);
-	    // plot(DD_DOUBLE_TRACE, trace.size() + 13, numDoubleTraces, time2)	    
+	    /*
+	    plot(DD_DOUBLE_TRACE, trace.size() + 10, numDoubleTraces, energy);
+	    plot(DD_DOUBLE_TRACE, trace.size() + 11, numDoubleTraces, time);
+	    plot(DD_DOUBLE_TRACE, trace.size() + 12, numDoubleTraces, energy2);
+	    plot(DD_DOUBLE_TRACE, trace.size() + 13, numDoubleTraces, time2);
+	    plot(DD_DOUBLE_TRACE, trace.size() + 14, numDoubleTraces, presample);
+	    plot(DD_DOUBLE_TRACE, trace.size() + 15, numDoubleTraces, sample);
+	    plot(DD_DOUBLE_TRACE, trace.size() + 16, numDoubleTraces, sample2);
+	    */
+
 	    plot(D_ENERGY2, energy2);
 	    plot(DD_ENERGY2__TDIFF, energy2, time2 - time);
 	    plot(DD_ENERGY2__ENERGY1, energy2, energy);

@@ -630,7 +630,7 @@ void RemoveList(vector<ChanEvent*> &eventList)
 void ScanList(vector<ChanEvent*> &eventList) 
 {
     /** The time width of an event in units of pixie16 clock ticks */
-    const int eventWidth = 3000;
+    const int eventWidth = 300;
 
     unsigned long chanTime, eventTime;
 

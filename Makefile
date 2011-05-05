@@ -10,6 +10,8 @@ REVISIOND = 1
 #PULSEFIT = 1
 #Uncomment this line for a more verbose scan
 #VERBOSE = 1
+# Undefine to make a "online" version
+# CXXFLAGS += -DONLINE
 
 #------- instruct make to search through these
 #------- directories to find files

@@ -15,6 +15,9 @@ else
     HISFILE="$HISDIR/sum$2"
 fi
 
+rm double_decays.txt
+rm full_decays.txt 
+
 echo -e "zero" > .tmpfile
 # sort all files which haven't changed in the last minute in order by increasing modification time
 #   also touch the access times so the crunch cron job won't move them

@@ -251,7 +251,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
     string subtype    = chanId.GetSubtype();
     Trace &trace      = chan->GetTrace();
 
-    double energy;
+    double energy = 0.;
 
     if (type == "ignore" || type == "") {
 	return 0;
@@ -262,17 +262,26 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
     if ( !trace.empty() ) {
         plot(dammIds::misc::D_HAS_TRACE,id);
 
-	for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
-	     it != vecAnalyzer.end(); it++) {	
-	    (*it)->Analyze(trace, type, subtype);
+	if ( (*max_element(trace.begin(), trace.begin() + 30)) - (*min_element(trace.begin(), trace.begin() + 30)) > 15 ||
+	     *min_element(trace.begin(), trace.end()) < 350 ) {
+	    energy=5;
+	} else {
+	    for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
+		 it != vecAnalyzer.end(); it++) {	
+		(*it)->Analyze(trace, type, subtype);
+	    }
 	}
+
 	if (trace.HasValue("filterEnergy") ) {     
-	    energy = trace.GetValue("filterEnergy");
+	    if (trace.GetValue("filterEnergy") > 0)
+		energy = trace.GetValue("filterEnergy");
+	    else
+		energy = 2;
 	}
 	if (trace.HasValue("calcEnergy") ) {	    
 	    energy = trace.GetValue("calcEnergy");
 	    chan->SetEnergy(energy);
-	} else {
+	} else if (!trace.HasValue("filterEnergy")) {
 	    energy = chan->GetEnergy() + randoms.Get();
 	    energy /= ChanEvent::pixieEnergyContraction;
 	}
@@ -281,13 +290,11 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 	    chan->SetHighResTime( phase * pixie::adcClockInSeconds + 
 				  chan->GetTrigTime() * pixie::filterClockInSeconds);
 	}
-	// reject noisy traces
-	if (energy > 8000) {
+	// extra rejection noisy traces with high energies
+	if (energy > 7000) {
 	    if ( *max_element(trace.begin(), trace.end()) < 1000) 
 		energy = 4;
 	}
-	if (*min_element(trace.begin(), trace.end()) < 350)
-	    energy=6;
     } else {
 	// otherwise, use the Pixie on-board calculated energy
 	// add a random number to convert an integer value to a 

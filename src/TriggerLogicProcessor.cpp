@@ -68,6 +68,7 @@ bool TriggerLogicProcessor::Process(RawEvent &event)
 	  int row = bin / plotSize;
 	  int col = bin % plotSize;
 	  plot(DD_RUNTIME_LOGIC, col, row, loc + 1); // add one since first logic location might be 0
+
 	  plot(DD_RUNTIME_LOGIC + loc, col, row, 1);
 	}
     }

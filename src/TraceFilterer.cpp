@@ -18,7 +18,8 @@ using namespace std;
 
 const string TraceFilterer::defaultFilterFile = "filter.txt";
 const int TraceFilterer::energyBins = SC;
-const double TraceFilterer::energyScaleFactor = 2.547; //< multiply the energy filter sums by this to gain match to raw spectra
+const double TraceFilterer::energyScaleFactor = 2.198; //< TO BE USED WITH MAGIC +40 ENERGY SAMPLE LOCATION
+// const double TraceFilterer::energyScaleFactor = 2.547; //< multiply the energy filter sums by this to gain match to raw spectra
 
 extern RandomPool randoms;
 
@@ -122,7 +123,7 @@ void TraceFilterer::Analyze(Trace &trace,
 	trace.TrapezoidalFilter(energyFilter, energyParms);
 	trace.TrapezoidalFilter(thirdFilter, thirdParms);
 
-	Trace::size_type sample; // point at which to sample the slow filter
+	Trace::size_type sample = 0; // point at which to sample the slow filter
 	// find the point at which the trace crosses the fast threshold
 
 	Trace::iterator iThr = fastFilter.begin();
@@ -138,17 +139,15 @@ void TraceFilterer::Analyze(Trace &trace,
 		break;
 	    time = iThr - fastFilter.begin();
 	    // sample the slow filter in the middle of its size
-	    //	    sample = time + (thirdParms.GetSize() - fastParms.GetSize()) / 2;
-	    sample = time + (thirdParms.GetRiseSamples() + thirdParms.GetGapSamples()
-			     - fastParms.GetRiseSamples() - fastParms.GetGapSamples() );
+	    sample = time + (thirdParms.GetSize() - fastParms.GetSize()) / 2;
 	    if (sample >= thirdFilter.size() ||
 		thirdFilter[sample] < slowThreshold) {
 		iThr++; 
 		continue;
 	    }
 	    // sample = time + (energyParms.GetSize() - fastParms.GetSize()) / 2;
-	    sample = time + (energyParms.GetRiseSamples() + energyParms.GetGapSamples()
-			     - fastParms.GetRiseSamples() - fastParms.GetGapSamples() );
+	    sample = time + 40;
+
 	    if (sample < energyFilter.size())
 		energy = energyFilter[sample] + randoms.Get();
 	    // scale to the integration time
@@ -179,8 +178,12 @@ void TraceFilterer::Analyze(Trace &trace,
 
 	}
 	// calculated values at end of traces
-	// plot(DD_TRACE, trace.size() + 10, numTracesAnalyzed, energy);
-	// plot(DD_TRACE, trace.size() + 11, numTracesAnalyzed, time);
+	/*
+	plot(DD_TRACE, trace.size() + 10, numTracesAnalyzed, energy);
+	plot(DD_TRACE, trace.size() + 11, numTracesAnalyzed, time);
+	plot(DD_TRACE, trace.size() + 12, numTracesAnalyzed, sample);
+	*/
+
 	plot(D_ENERGY1, energy);
     } // sufficient analysis level
 

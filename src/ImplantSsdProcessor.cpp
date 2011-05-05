@@ -84,6 +84,11 @@ void ImplantSsdProcessor::DeclarePlots(void) const
 
 bool ImplantSsdProcessor::Process(RawEvent &event)
 {
+    const unsigned int numGranularities = 9;
+    // time resolution in seconds per bin
+    const double timeResolution[numGranularities] = 
+	{10e-9, 100e-9, 400e-9, 1e-6, 10e-6, 100e-6, 1e-3, 10e-3, 100e-3};
+
     using namespace dammIds::implantSsd;
 
     if (!EventProcessor::Process(event)) {
@@ -151,9 +156,15 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	    double dt = trace.GetValue("filterTime2") - trace.GetValue("filterTime");
 	    double decayTime   = ch->GetTime() + dt;
 
-	    corr.Correlate(event, Correlator::DECAY_EVENT, position, 1, decayTime, energy);
-	    plot(DD_DECAY_ENERGY__POSITION, decayEnergy);
-	    plot(DD_ENERGY__DECAY_TIME_GRANX, dt / 10e-9 * pixie::clockInSeconds);
+	    decayEnergy = driver.cal.at(ch->GetID()).Calibrate(decayEnergy);
+
+	    corr.Correlate(event, Correlator::DECAY_EVENT, position, 1, decayTime, decayEnergy);
+	    plot(DD_DECAY_ENERGY__POSITION, decayEnergy, position);
+	    
+	    for (unsigned int i = 0; i < numGranularities; i++) {
+		int timeBin = int(dt * pixie::clockInSeconds / timeResolution[i]);		
+		plot(DD_ENERGY__DECAY_TIME_GRANX + i, decayEnergy, timeBin);
+	    }
         }
 	plot(DD_IMPLANT_ENERGY__POSITION, energy, position);
 	if (tacSummary) {
@@ -174,16 +185,11 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	    plot(DD_ENERGY__POSITION_NOBEAM, energy, position);
 	}
 
-	if (corr.GetCondition() == Correlator::VALID_DECAY) {
-	    const unsigned int NumGranularities = 8;
-	    // time resolution in seconds per bin
-	    const double timeResolution[NumGranularities] = 
-		{10e-9, 100e-9, 400e-9, 1e-6, 100e-6, 1e-3, 10e-3, 100e-3};
-	 
-	    for (unsigned int i = 0; i < NumGranularities; i++) {
+	if (corr.GetCondition() == Correlator::VALID_DECAY) {	 
+	    for (unsigned int i = 0; i < numGranularities; i++) {
 		int timeBin = int(corr.GetDecayTime() * pixie::clockInSeconds / 
 				  timeResolution[i]);
-
+		
 		plot(DD_ENERGY__DECAY_TIME_GRANX + i, energy, timeBin);
 	    }
 	}
@@ -191,10 +197,23 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	    double decayEnergy = trace.GetValue("filterEnergy2");
 	    double dt          = trace.GetValue("filterTime2") - trace.GetValue("filterTime");
 	    double decayTime   = ch->GetTime() + dt;
+	    decayEnergy = driver.cal.at(ch->GetID()).Calibrate(decayEnergy);
 
 	    corr.Correlate(event, Correlator::DECAY_EVENT, position, 1, decayTime, decayEnergy);
-	    plot(DD_DECAY_ENERGY__POSITION, decayEnergy);
+
+	    plot(DD_DECAY_ENERGY__POSITION, decayEnergy, position);
+
+	    for (unsigned int i = 0; i < numGranularities; i++) {
+		int timeBin = int(dt * pixie::clockInSeconds / 
+				  timeResolution[i]);
+		
+		plot(DD_ENERGY__DECAY_TIME_GRANX + i, decayEnergy, timeBin);
+	    }
+
 	    if (noBeam) {
+		cout << "fast trace " << fastTracesWritten << " in strip " << position
+		     << " : " << trace.GetValue("filterEnergy") << " " << trace.GetValue("filterTime") 
+		     << " , " << trace.GetValue("filterEnergy2") << " " << trace.GetValue("filterTime2") << endl;
 		corr.Flag(position, 1);
 		trace.Plot(D_FAST_DECAY_TRACE + fastTracesWritten);
 		fastTracesWritten++;
@@ -202,27 +221,27 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	    // not putting into the decay energy/time matrix for now
 	}
     } else if (type == Correlator::UNKNOWN_TYPE) {
-      // plot this only if the beam is off
-      if (noBeam) {
-	// dump high energy events
-	if (energy > 4000 ) {	  
-	    if (energy > 8000 && !trace.empty() ) {
-		trace.Plot(D_HIGH_ENERGY_TRACE + highTracesWritten);
-		highTracesWritten++;
-	    }
-	    corr.Correlate(event, Correlator::DECAY_EVENT, position, 1, time, energy); 
-	    string descriptor="";
-	    if (ch->IsSaturated())
-		descriptor = " saturated";
-	    if (!ch->GetTrace().empty())
-		descriptor += " trace";
-	    cout << "High energy decay of " << energy
-		 << " (raw energy = " << ch->GetEnergy() << descriptor
-		 << ") with beam absent!" <<endl;
-	    corr.Flag(position, 1);
-	}      
-	plot(DD_ENERGY__POSITION_NOBEAM, energy, position);
-      }
+	// plot this only if the beam is off
+	if (noBeam) {
+	    // dump high energy events
+	    if (energy > 4000 || ch->IsSaturated() ) {	  
+		if ( (energy > 8000 || ch->IsSaturated()) && !trace.empty() ) {
+		    trace.Plot(D_HIGH_ENERGY_TRACE + highTracesWritten);
+		    highTracesWritten++;
+		}
+		corr.Correlate(event, Correlator::DECAY_EVENT, position, 1, time, energy); 
+		string descriptor;
+		if (ch->IsSaturated())
+		    descriptor += " saturated";
+		if (!ch->GetTrace().empty())
+		    descriptor += " trace";
+		cout << "High energy decay of " << energy
+		     << " (raw energy = " << ch->GetEnergy() << descriptor
+		     << ") with beam absent!" <<endl;
+		corr.Flag(position, 1);
+	    }      
+	    plot(DD_ENERGY__POSITION_NOBEAM, energy, position);
+	}
     }
     EndProcess(); // update the processing time
     return true;

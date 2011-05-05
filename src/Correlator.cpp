@@ -12,7 +12,9 @@
  */
 
 #include <iomanip>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 #include <cmath>
@@ -157,19 +159,24 @@ void Correlator::Correlate(RawEvent &event, EEventType type,
 	decaylist[frontCh][backCh].push_back( ListData(time, energy, logicProc) );
 
 	if (time < imp.time ) {	 
-	    cout << "negative correlation time, DECAY: " << time 
-		 << " IMPLANT: " << imp.time 
-		 << " DT:" << (time - imp.time) << endl;
-	    if (imp.time - time > 5e11 && time < 1e9 ) {
+	    double dt = time - imp.time;
+
+	    if (dt > 5e11 && time < 1e9 ) {
 		// PIXIE's clock has most likely been zeroed due to file marker, no chance of doing correlations
 		for (unsigned int i=0; i < MAX_STRIP; i++) {
-		    for (unsigned int j=0; j < MAX_STRIP; j++) {
+		    for (unsigned int j=0; j < MAX_STRIP; j++) {			
 			if (implant[i][j].time > time) {
+			    if (implant[i][j].flagged)
+				PrintDecayList(i,j);
 			    implant[i][j].Clear();
 			}
 		    }
 		}
 	    }
+	    cout << "negative correlation time, DECAY: " << time 
+		 << " IMPLANT: " << imp.time 
+		 << " DT:" << dt << endl;
+
 	} // negative correlation time
 	if ( imp.dtime >= minImpTime ) {
 	    if (time - imp.time < corrTime) {
@@ -204,6 +211,10 @@ void Correlator::Correlate(RawEvent &event, EEventType type,
 
 void Correlator::PrintDecayList(unsigned int fch, unsigned int bch) const
 {
+    ofstream fullLog("full_decays.txt", ios::app);
+    ofstream doubleLog("double_decays.txt", ios::app);
+    stringstream str;
+
     extern DetectorDriver driver;
 
     const corrlist_t &l = decaylist[fch][bch];
@@ -218,27 +229,48 @@ void Correlator::PrintDecayList(unsigned int fch, unsigned int bch) const
 
     time_t theTime = driver.GetWallTime(firstTime);
     
-    cout << " " << ctime(&theTime);
-    cout << " Current event list for " << fch << " , " << bch << " : " << endl;
-    cout << "    TAC: " << setw(8) << implant[fch][bch].tacValue 
+    str  << " " << ctime(&theTime)
+	 << " Current event list for " << fch << " , " << bch << " : " << endl
+	 << "    TAC: " << setw(8) << implant[fch][bch].tacValue 
 	 << ",    ts: " << scientific << setprecision(3) << firstTime 
 	 << ",    cc: " << scientific << setprecision(3) << l.at(0).clockCount << endl;
+    cout << str.str();
+#ifndef ONLINE
+    fullLog << str.str();
+#endif
+    str.str("");
+
     for (corrlist_t::const_iterator it = l.begin(); it != l.end(); it++) {
+	double dt   = ((*it).time - firstTime) * pixie::clockInSeconds / printTimeResolution;
 	double dt2 = ((*it).time - lastTime);
+	double offt = (*it).offTime * pixie::clockInSeconds / printTimeResolution;
+
 	if ( dt2 < fastTime && it != l.begin() ) {
 	    cout << "    FAST DECAY!!!" << endl;
+#ifndef ONLINE
+	    doubleLog.unsetf(ios::floatfield);
+	    doubleLog << setw(16) << (long long)(firstTime) << "  "
+		      << setw(10) << l.at(0).clockCount << "  "
+		      << fixed << setprecision(1) << setw(7)
+		      << (*(it-1)).energy << "  " << setw(7) << (*it).energy << "  "
+		      << setprecision(4) << setw(8) << dt << "  " << setw(6) << dt2 * pixie::clockInSeconds / printTimeResolution << "  "		      
+		      << setprecision(1) << setw(6) << offt << "  " << ctime(&theTime);
+#endif
 	}
-
-	double dt   = ((*it).time - firstTime) * pixie::clockInSeconds / printTimeResolution;
-	double offt = (*it).offTime * pixie::clockInSeconds / printTimeResolution;
 
         dt2 *= pixie::clockInSeconds / printTimeResolution;
 	
-	cout << "    E " << setw(10) << fixed << setprecision(3) << (*it).energy
+	str  << "    E " << setw(10) << fixed << setprecision(3) << (*it).energy
 	     << " [ch] at T " << setw(10) << dt 
 	     << ", DT= " << setw(10) << dt2
 	     << ", OT(" << (*it).logicBits << ")= " << setw(10) << offt << " [ms]" << endl;	
+
 	lastTime = (*it).time;
     } 
+    cout << str.str();
+#ifndef ONLINE
+    fullLog << str.str();
+#endif
+
     cout.unsetf(ios::floatfield);
 }
