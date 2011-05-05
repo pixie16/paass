@@ -457,7 +457,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
                 continue;                         
             }
 	    // Buffer with vsn 1000 was inserted with the time for superheavy exp't
-	    if (vsn == 1000) {
+	    if (vsn == clockVsn) {
 	      memcpy(&theTime, &lbuf[nWords+2], sizeof(time_t));
 	      nWords += lenRec;
 	    }
@@ -523,7 +523,16 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
                 */
                 lastVsn = vsn;
                 nWords += lenRec+1; // one extra word for delimiter
-            } else break; // bail out if we have lost our place (bad vsn) and process events            
+            } else {
+		// bail out if we have lost our place,		
+		//   (bad vsn) and process events     
+		if (vsn != 9999 && vsn != clockVsn) {
+#ifdef VERBOSE	    
+		    cout << "UNEXPECTED VSN " << vsn << endl;
+#endif
+		}
+		break;
+	    }
         } // while still have words
 	if (nWords > nhw[0] / 2 - 6) {
 	    cout << "This actually happens!" << endl;	    
@@ -532,7 +541,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
         /* If the vsn is 9999 this is the end of a spill, signal this buffer
 	   for processing and determine if the buffer is split between spills.
         */
-        if ( vsn == 9999 || vsn == 1000 ) {
+        if ( vsn == 9999 || vsn == clockVsn ) {
             fullSpill = true;
             nWords += 3;//skip it
             if (lbuf[nWords+1] != U_DELIMITER) {
