@@ -36,6 +36,6 @@ namespace readbuff {
 
 const double emptyValue = -9999.; //< a default number to set values to
 
-const word_t clockVsn = 1000; ///< an arbitrary vsn used to pass clock data
+const pixie::word_t clockVsn = 1000; ///< an arbitrary vsn used to pass clock data
 
 #endif // __PARAM_H_
