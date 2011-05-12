@@ -118,7 +118,8 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
 	numEvents = readbuff::STATS;
 	continue;
       }
-      if (headerLength != 4) {
+      if (headerLength != 4  || headerLength != 8 || 
+	  headerLength != 12 || headerLength != 16 ) {
 	cout << "  Unexpected header length: " << headerLength << endl;
 	cout << "    Buffer " << modNum << " of length " << *bufLen << endl;
 	cout << "    CHAN:SLOT:CRATE " 
@@ -133,8 +134,14 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
 
       word_t lowTime     = buf[1];
       word_t highTime    = buf[2] & 0x0000FFFF;
+      word_t cfdTime     = (buf[2] & 0xFFFF0000) >> 16;
       word_t energy      = buf[3] & 0x0000FFFF;
       word_t traceLength = (buf[3] & 0xFFFF0000) >> 16;
+
+      //! additional header info for other run modes (in this order)
+      //! read energy sums for header lengths 8 and 16
+      //!   trailing, leading, gap, baesline
+      //! read QDC sums for header lengths 12 and 16
 
       // one last sanity check
       if ( traceLength / 2 + headerLength != eventLength ) {

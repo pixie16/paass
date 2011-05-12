@@ -16,8 +16,8 @@ namespace dammIds {
 	// clovers
 	const unsigned int MAX_CLOVERS = 4; // for *_DETX spectra
 	
-	const int D_CLOVER_ENERGY_DETX   = 691; // for x detectors
-	const int D_CLOVER_ENERGY_ALL    = 695;
+	const int D_CLOVER_ENERGY_DETX   = 1591; // for x detectors
+	const int D_CLOVER_ENERGY_ALL    = 1595;
 	const int DD_CLOVER_ENERGY_RATIO = 1609;
 
 	const int D_ENERGY          = 1500;
