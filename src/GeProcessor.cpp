@@ -65,23 +65,30 @@ bool GeProcessor::Init(DetectorDriver &driver)
 		maxCloverLoc = it->GetLocation();
 	}
     }
-    size_t spread = maxCloverLoc - minCloverLoc + 1;
-
-    if (cloverChans % chansPerClover != 0 || spread % chansPerClover != 0 ) {
-	cout << " There does not appear to be the proper number of channels "
-	     << " per clover.\n Program terminating." << endl;
-	exit(EXIT_FAILURE);
-    }
+    size_t spread;
+    if (cloverChans == 0) {
+	spread = 0;
+	numClovers = 0;
+    } else {
+	spread = maxCloverLoc - minCloverLoc + 1;
+	
+	if (cloverChans % chansPerClover != 0 || 
+	    spread % chansPerClover != 0 ) {
+	    
+	    cout << " There does not appear to be the proper number of"
+		 << " channels per clover.\n Program terminating." << endl;
+	    exit(EXIT_FAILURE);
+	}
     
-    if (cloverChans != 0) {
-	numClovers = spread / chansPerClover;
-	//print statement
-	cout << "A total of " << cloverChans << " clover channels (" 
-	     << minCloverLoc << " - " << maxCloverLoc << ") for "
-	     << numClovers << " clovers were detected." << endl;    
-	ClearClovers();
+	if (cloverChans != 0) {
+	    numClovers = spread / chansPerClover;
+	    //print statement
+	    cout << "A total of " << cloverChans << " clover channels (" 
+		 << minCloverLoc << " - " << maxCloverLoc << ") for "
+		 << numClovers << " clovers were detected." << endl;    
+	    ClearClovers();
+	}
     }
-    //initialize vector to contain energy for each gamma detector
 
     if (numClovers > dammIds::ge::MAX_CLOVERS) {
 	cout << "This is greater than MAX_CLOVERS for spectra definition."

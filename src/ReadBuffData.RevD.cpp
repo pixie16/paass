@@ -118,8 +118,8 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
 	numEvents = readbuff::STATS;
 	continue;
       }
-      if (headerLength != 4  || headerLength != 8 || 
-	  headerLength != 12 || headerLength != 16 ) {
+      if (headerLength != 4  && headerLength != 8 &&
+	  headerLength != 12 && headerLength != 16 ) {
 	cout << "  Unexpected header length: " << headerLength << endl;
 	cout << "    Buffer " << modNum << " of length " << *bufLen << endl;
 	cout << "    CHAN:SLOT:CRATE " 

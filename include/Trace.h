@@ -83,7 +83,10 @@ class Trace : public std::vector<int>
 	return NAN;
     }
     double DoBaseline(unsigned int lo = 0, unsigned int numBins = numBinsBaseline);
-    unsigned int FindMaxInfo(unsigned int lo = 0, unsigned int numBins = numBinsBaseline);
+
+    //lo must be greater than numBinsBaseline otherwise
+    //it means the trace is inside the baseline. -SVP
+    unsigned int FindMaxInfo(unsigned int lo = numBinsBaseline, unsigned int numBins = numBinsBaseline);
     void Plot(int id) const;           //< plot trace into a 1D histogram
     void Plot(int id, int row) const;  //< plot trace into row of a 2D histogram
 };
