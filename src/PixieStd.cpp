@@ -73,7 +73,7 @@ unsigned int numModules;
 enum HistoPoints {BUFFER_START, BUFFER_END, EVENT_START = 10, EVENT_CONTINUE};
 
 // Function forward declarations
-int InitMap(void);
+bool InitMap(void);
 void ScanList(vector<ChanEvent*> &eventList);
 void RemoveList(vector<ChanEvent*> &eventList);
 void HistoStats(unsigned int, double, double, HistoPoints);
@@ -413,7 +413,9 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 	 * vector, the DetectorDriver and rawevent have been initialized with the
 	 * detectors that will be used in this analysis.
 	 */
-        InitMap();
+        if (!InitMap()) {
+	    exit(EXIT_FAILURE);
+	}
 
 	/* Make a last check to see that everything is in order for the driver 
 	 * before processing data
@@ -823,7 +825,7 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
  * of detector summaries in the raw event.  After this is completed, proceed to 
  * initialize each detector driver to complete the initialization.
  */
-int InitMap(void) 
+bool InitMap(void) 
 {
     /*
      * Local variables to store the types of detectors that are known to the
@@ -851,7 +853,7 @@ int InitMap(void)
 
     if (!mapFile) {
         cout << "Can not open file 'map.txt'" << endl;
-        return 1;
+	return false;
     }
       
     // read the map file until the end is reached
@@ -951,7 +953,7 @@ int InitMap(void)
     rawev.Init(usedTypes, usedSubtypes);
     driver.Init();
     
-    return(0);
+    return true;
 }
 
 /** \brief pixie16 scan error handling.
