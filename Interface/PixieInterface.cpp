@@ -16,6 +16,60 @@
 using namespace std;
 using namespace Display;
 
+// some simple histogram functions
+PixieInterface::Histogram::Histogram()
+{
+    bzero(data, sizeof(data));
+}
+
+PixieInterface::Histogram::Histogram(const PixieInterface::Histogram &x)
+{
+    memcpy(data, x.data, sizeof(data));
+}
+
+const PixieInterface::Histogram& PixieInterface::Histogram::operator=(const PixieInterface::Histogram &right)
+{
+    memcpy(data, right.data, sizeof(data));
+
+    return *this;
+}
+
+PixieInterface::Histogram PixieInterface::Histogram::operator+(const PixieInterface::Histogram &right)
+{
+    Histogram x(*this);
+
+    for (size_t i=0; i < HISTO_SIZE; i++) {
+	x.data[i] += right.data[i];
+    }
+    
+    return x;
+}
+
+PixieInterface::Histogram PixieInterface::Histogram::operator-(const PixieInterface::Histogram &right)
+{
+    Histogram x(*this);
+    
+    for (size_t i=0; i < HISTO_SIZE; i++) {
+	if (x.data[i] < right.data[i]) {
+	    x.data[i] = 0;
+	} else {
+	    x.data[i] -= right.data[i];
+	}
+    }
+
+    return x;
+}
+
+const PixieInterface::Histogram& PixieInterface::Histogram::operator+=(const PixieInterface::Histogram &right)
+{
+    return (*this = *this + right);
+}
+
+const PixieInterface::Histogram& PixieInterface::Histogram::operator-=(const PixieInterface::Histogram &right)
+{
+    return (*this = *this - right);
+}
+
 PixieInterface::PixieInterface(const char *fn) : lock("PixieInterface")
 {
   SetColorTerm();
