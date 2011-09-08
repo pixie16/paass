@@ -54,6 +54,7 @@ int main(int argc, char **argv)
   // read the FIFO when it is this full
   unsigned int threshPercent = 50;
   int statsInterval = -1; // in seconds
+  int histoInterval = -1; // in seconds
 
   // values associated with the minimum timing between pixie calls (in us)
   const unsigned int endRunPause = 100;
@@ -64,29 +65,36 @@ int main(int argc, char **argv)
 
   int opt;
 
-  while ( (opt = getopt(argc,argv,"fqs:t:z?")) != -1) {
-    switch(opt) {
-    case 'f':
-      fastBoot = true; break;
-    case 'q':
-      quiet = true; break;
-    case 's':
-      statsInterval = atoi(optarg); break;
-    case 't':
-      threshPercent = atoi(optarg); break;
-    case 'z':
-      zeroClocks = true; break;
-    case '?':
-    default:
-      cout << "Usage: " << argv[0] << " [options]" << endl;
-      cout << "  -f       Fast boot (false by default)" << endl;
-      cout << "  -q       Run quietly (false by default)" << endl;
-      cout << "  -s <num> Output statistics data every num seconds" << endl;
-      cout << "  -t <num> Sets FIFO read threshold to num% full ("
-	   << threshPercent << "% by default)" << endl;
-      cout << "  -z       Zero clocks on each START_ACQ (false by default)" << endl;
-      return EXIT_FAILURE;
-    }
+  while ( (opt = getopt(argc,argv,"-fh:qs:t:z?")) != -1) {
+      switch(opt) {
+	  case 'f':
+	      fastBoot = true; break;
+	  case 'h':
+	      histoInterval = atoi(optarg); break;
+	  case 'q':
+	      quiet = true; break;
+	  case 's':
+	      statsInterval = atoi(optarg); break;
+	  case 't':
+	      threshPercent = atoi(optarg); break;
+	  case 'z':
+	      zeroClocks = true; break;
+	  case 1:
+	      cout << "Unexpected argument " << argv[optind -1] << endl;
+	  case '?':
+	  default:
+	      cout << "Usage: " << argv[0] << " [options]" << endl;
+	      cout << "  -f       Fast boot (false by default)" << endl;
+	      cout << "  -h <num> Dump histogram data every num seconds" << endl;
+	      cout << "  -q       Run quietly (false by default)" << endl;
+	      cout << "  -s <num> Output statistics data every num seconds" << endl;
+	      cout << "  -t <num> Sets FIFO read threshold to num% full ("
+		   << threshPercent << "% by default)" << endl;
+	      cout << "  -z       Zero clocks on each START_ACQ (false by default)" << endl;
+	      if (opt=='?')
+		  return EXIT_SUCCESS;
+	      return EXIT_FAILURE;
+      }
   }
 
   const PixieInterface::word_t threshWords = 
@@ -124,7 +132,7 @@ int main(int argc, char **argv)
   // two extra words to store size of data block and module number
   cout << "Allocating memory to store FIFO data ("
        << sizeof(PixieInterface::word_t) * (EXTERNAL_FIFO_LENGTH + 2) * nCards / 1024 
-       << " KB)" << endl;
+       << " KiB)" << endl;
   PixieInterface::word_t *fifoData = 
     new PixieInterface::word_t[(EXTERNAL_FIFO_LENGTH + 2) * nCards];
 
@@ -143,6 +151,12 @@ int main(int argc, char **argv)
   double spillTime, lastSpillTime, durSpill;
   double parseTime, waitTime, readTime, sendTime, pollTime;
   double lastStatsTime, statsTime = 0;
+  double lastHistoTime, histoTime = 0;
+  cout << "Allocating memory to store HISTOGRAM data ("
+       << sizeof(PixieInterface::Histogram) * nCards * pif.GetNumberChannels() / 1024
+       << " KiB)" << endl;
+  PixieInterface::Histogram histo[nCards][pif.GetNumberChannels()];
+  PixieInterface::Histogram deltaHisto;
 
   bool runDone[nCards];
   bool isExiting = false;
@@ -221,7 +235,7 @@ int main(int argc, char **argv)
 	  }
 	  if (zeroClocks)
 	    SynchMods(pif);
-	  lastStatsTime = lastSpillTime = startTime = usGetTime(0);
+	  lastHistoTime = lastStatsTime = lastSpillTime = startTime = usGetTime(0);
 	  
 	  if ( pif.StartListModeRun(listMode, NEW_RUN) ) {
 	    isStopped = false;
@@ -238,9 +252,7 @@ int main(int argc, char **argv)
 	spkt_send(&command);
 	spkt_close();
 	
-	for (size_t mod=0; mod < nCards; mod++) {	      
-	  delete[] fifoData;
-	}
+	delete[] fifoData;
 	return EXIT_SUCCESS;
       default:
 	// unrecognized command
@@ -289,6 +301,34 @@ int main(int argc, char **argv)
       statsTime += usGetDTime();
       lastStatsTime = usGetTime(startTime);
     }
+
+    // check whether it is time to dump histograms
+    if ( histoInterval != -1 &&
+	 usGetTime(startTime) > lastHistoTime + histoInterval * 1e6 ) {
+	usGetDTime(); // start timer
+	ofstream out("histo.dat", ios::trunc);
+	ofstream deltaout("deltahisto.dat", ios::trunc);
+	
+	for (size_t mod=0; mod < nCards; mod++) {
+	    for (size_t ch=0; ch < pif.GetNumberChannels(); ch++) {
+		// copy the old histogram data to the delta histogram temporarily
+		deltaHisto = histo[mod][ch];
+		// performance improvement possible using Pixie16EMbufferIO directly to fetch all channels
+		pif.ReadHistogram(histo[mod][ch].data, PixieInterface::HISTO_SIZE, mod, ch);
+		out.write((char*)histo[mod][ch].data, sizeof(PixieInterface::Histogram));
+
+		// calculate the change using the temporarily stored previous histogram
+		deltaHisto = histo[mod][ch] - deltaHisto;
+		deltaout.write((char*)deltaHisto.data, sizeof(PixieInterface::Histogram));
+	    }
+	}
+	out.close();
+	deltaout.close();
+
+	histoTime += usGetDTime();
+	lastHistoTime = usGetTime(startTime);
+    }
+
     // check whether we have any data
     usGetDTime(); // start timer
     for (unsigned int timeout = 0; timeout < (justEnded ? 1 : pollTries);
@@ -332,6 +372,7 @@ int main(int argc, char **argv)
 
 	    spkt_close();
 	    delete[] fifoData;
+
 	    return EXIT_FAILURE;
 	    // something is wrong
 	  } else {
@@ -409,7 +450,9 @@ int main(int argc, char **argv)
 					    readWords, mod) ) {
 		      cout << "Error reading FIFO, bailing out!" << endl;
 		      spkt_close();
+
 		      delete[] fifoData;
+
 		      return EXIT_FAILURE;
 		      // something is wrong 
 		    } else {
@@ -495,9 +538,18 @@ int main(int argc, char **argv)
 	   << "    WAIT  " << waitTime << " us,"
 	   << " READ  " << readTime << " us,"
 	   << " SEND  " << sendTime << " us" << endl;
+      // add some blank spaces so STATS or HISTO line up
+      cout << "   ";
       if (statsInterval != -1) {
-	cout << " STATS  " << statsTime << " us" << endl;
+	  cout << " STATS  " << statsTime << " us";
       }
+      if (histoInterval != -1) {
+	  cout << " HISTO  " << histoTime << " us";
+      }
+      if (statsInterval != -1 || histoInterval != -1) {
+	  cout << endl;
+      }
+
       cout << endl;
     } else {
       cout.setf(ios::scientific, ios::floatfield);

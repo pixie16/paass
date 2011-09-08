@@ -34,7 +34,8 @@ const int CCSRA_CATCHER = 16;
 class PixieInterface
 {
  public:
-  static const size_t STAT_SIZE = N_DSP_PAR - DSP_IO_BORDER;
+  static const size_t STAT_SIZE  = N_DSP_PAR - DSP_IO_BORDER;
+  static const size_t HISTO_SIZE = MAX_HISTOGRAM_LENGTH; 
 #ifdef PIF_REVD
   enum CatcherModes {PC_STANDARD, PC_REJECT, PC_HYBRID, PC_ACCEPT};
 #endif
@@ -43,6 +44,18 @@ class PixieInterface
   typedef uint16_t halfword_t;
 
   typedef word_t stats_t[STAT_SIZE];
+  struct Histogram {
+      word_t data[HISTO_SIZE];
+
+      Histogram();
+      Histogram(const Histogram& x);
+
+      const Histogram& operator=(const Histogram& right);
+      Histogram operator+(const Histogram& right);
+      Histogram operator-(const Histogram& right);
+      const Histogram& operator+=(const Histogram& right);
+      const Histogram& operator-=(const Histogram& right);
+  };
 
   PixieInterface(const char *fn);
   ~PixieInterface();
