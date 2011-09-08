@@ -26,9 +26,12 @@
 #include "PixieInterface.h"
 #include "Utility.h"
 
+// only one kind of word we're interested in
+typedef PixieInterface::word_t word_t;
+
 // maximum size of the shared memory buffer
 const int maxShmSizeL = 4050; // in pixie words
-const int maxShmSize  = maxShmSizeL * sizeof(PixieInterface::word_t); // in bytes
+const int maxShmSize  = maxShmSizeL * sizeof(word_t); // in bytes
 
 // char *VME = "192.168.13.248";
 // char *VME = "192.168.100.5";
@@ -43,7 +46,7 @@ static volatile bool isInterrupted = false;
 // function prototypes
 static void interrupt(int sig);
 bool SynchMods(PixieInterface &pif);
-int SendData(PixieInterface::word_t *data, size_t nWords);
+int SendData(word_t *data, size_t nWords);
 
 int main(int argc, char **argv)
 {
@@ -97,7 +100,7 @@ int main(int argc, char **argv)
       }
   }
 
-  const PixieInterface::word_t threshWords = 
+  const word_t threshWords = 
     EXTERNAL_FIFO_LENGTH * threshPercent / 100;
 
   spkt_connect(VME, PROTO_DATA);
@@ -131,10 +134,9 @@ int main(int argc, char **argv)
   
   // two extra words to store size of data block and module number
   cout << "Allocating memory to store FIFO data ("
-       << sizeof(PixieInterface::word_t) * (EXTERNAL_FIFO_LENGTH + 2) * nCards / 1024 
+       << sizeof(word_t) * (EXTERNAL_FIFO_LENGTH + 2) * nCards / 1024 
        << " KiB)" << endl;
-  PixieInterface::word_t *fifoData = 
-    new PixieInterface::word_t[(EXTERNAL_FIFO_LENGTH + 2) * nCards];
+  word_t *fifoData = new word_t[(EXTERNAL_FIFO_LENGTH + 2) * nCards];
 
   UDP_Packet command;
   command.DataSize = 100;
@@ -235,8 +237,8 @@ int main(int argc, char **argv)
 	  }
 	  if (zeroClocks)
 	    SynchMods(pif);
-	  lastHistoTime = lastStatsTime = lastSpillTime = startTime = usGetTime(0);
-	  
+	  startTime = usGetTime(0);
+	  lastHistoTime = lastStatsTime = lastSpillTime = usGetTime(startTime);
 	  if ( pif.StartListModeRun(listMode, NEW_RUN) ) {
 	    isStopped = false;
 	    waitCounter = 0;
@@ -264,8 +266,8 @@ int main(int argc, char **argv)
     if (isStopped && !justEnded)
       continue;
 
-    vector<PixieInterface::word_t> nWords(nCards);
-    vector<PixieInterface::word_t>::iterator maxWords;
+    vector<word_t> nWords(nCards);
+    vector<word_t>::iterator maxWords;
 
     parseTime = waitTime = readTime = 0.;
 
@@ -376,18 +378,18 @@ int main(int argc, char **argv)
 	    return EXIT_FAILURE;
 	    // something is wrong
 	  } else {
-	    PixieInterface::word_t parseWords = dataWords;
-	    PixieInterface::word_t eventSize;
+	    word_t parseWords = dataWords;
+	    word_t eventSize;
 	
 	    readTime += usGetDTime(); // and starts parse timer
 	    // unfortuantely, we have to parse the data to make sure 
 	    //   we grabbed complete events
 	    do {
-	      PixieInterface::word_t slotRead = ((fifoData[parseWords] & 0xF0) >> 4);
-	      // PixieInterface::word_t chanRead = (fifoData[parseWords] & 0xF);
-	      PixieInterface::word_t slotExpected = pif.GetSlotNumber(mod);
+	      word_t slotRead = ((fifoData[parseWords] & 0xF0) >> 4);
+	      // word_t chanRead = (fifoData[parseWords] & 0xF);
+	      word_t slotExpected = pif.GetSlotNumber(mod);
 
-	      eventSize = (fifoData[parseWords] & 0x7FFE0000) >> 17;
+	      eventSize = (fifoData[parseWords] & 0x3FFE0000) >> 17;
 	      if (eventSize == 0 || slotRead != slotExpected ) {
 		if ( slotRead != slotExpected )
 		  cout << "Slot read (" << slotRead << ") not the same as"
@@ -422,7 +424,7 @@ int main(int argc, char **argv)
 		  nWords[mod] = parseWords;
 		  fifoData[dataWords - 2] = nWords[mod] + 2;
 		} else {
-		  PixieInterface::word_t readWords = parseWords - (dataWords + nWords[mod]);
+		  word_t readWords = parseWords - (dataWords + nWords[mod]);
 		  unsigned int timeout = 0;
 		
 		  usGetDTime(); // start wait timer
@@ -532,19 +534,19 @@ int main(int argc, char **argv)
       cout << nBufs << " BUFFERS with " << dataWords << " WORDS, " << endl;
       cout.setf(ios::scientific, ios::floatfield);
       cout.precision(1);
-      cout << "    SPILL " << durSpill << " us,"
-	   << " POLL  " << pollTime << " us,"
-	   << " PARSE " << parseTime << " us," << endl
-	   << "    WAIT  " << waitTime << " us,"
-	   << " READ  " << readTime << " us,"
+      cout << "    SPILL " << durSpill << " us "
+	   << " POLL  " << pollTime << " us "
+	   << " PARSE " << parseTime << " us" << endl
+	   << "    WAIT  " << waitTime << " us "
+	   << " READ  " << readTime << " us "
 	   << " SEND  " << sendTime << " us" << endl;
       // add some blank spaces so STATS or HISTO line up
       cout << "   ";
       if (statsInterval != -1) {
-	  cout << " STATS  " << statsTime << " us";
+	  cout << " STATS " << statsTime << " us ";
       }
       if (histoInterval != -1) {
-	  cout << " HISTO  " << histoTime << " us";
+	  cout << " HISTO " << histoTime << " us ";
       }
       if (statsInterval != -1 || histoInterval != -1) {
 	  cout << endl;
@@ -559,7 +561,7 @@ int main(int argc, char **argv)
     }
     // reset the number of words of fifo data
     dataWords = 0;
-    statsTime = 0;
+    histoTime = statsTime = 0;
     justEnded = false;
   }
 
@@ -609,7 +611,7 @@ bool SynchMods(PixieInterface &pif)
   return !hadError;
 }
 
-int SendData(PixieInterface::word_t *data, size_t nWords)
+int SendData(word_t *data, size_t nWords)
 {
   static data_pack acqBuf;
   
@@ -619,12 +621,12 @@ int SendData(PixieInterface::word_t *data, size_t nWords)
   
   unsigned int totalBufs = nBufs + 1 + ((wordsLeft != 0) ? 1 : 0);
     
-    PixieInterface::word_t *pWrite = (PixieInterface::word_t *)acqBuf.Data;
+    word_t *pWrite = (word_t *)acqBuf.Data;
     // chop the data and send it through the network
     for (size_t buf=0; buf < nBufs; buf++) {
       // get a long sized pointer to the data block for writing
       // put a header on each shared memory buffer
-      acqBuf.BufLen = (maxShmSizeL + 3) * sizeof(PixieInterface::word_t);
+      acqBuf.BufLen = (maxShmSizeL + 3) * sizeof(word_t);
       pWrite[0] = acqBuf.BufLen; // size
       pWrite[1] = totalBufs; // number of buffers we expect
       pWrite[2] = buf;
@@ -635,18 +637,18 @@ int SendData(PixieInterface::word_t *data, size_t nWords)
       
     // send the last fragment (if there is any)
     if (wordsLeft != 0) {
-      acqBuf.BufLen = (wordsLeft + 3) * sizeof(PixieInterface::word_t);
+      acqBuf.BufLen = (wordsLeft + 3) * sizeof(word_t);
       pWrite[0] = acqBuf.BufLen;
       pWrite[1] = totalBufs;
       pWrite[2] = nBufs;
       memcpy(&pWrite[3], &data[nBufs * maxShmSizeL], 
-	     wordsLeft * sizeof(PixieInterface::word_t) );
+	     wordsLeft * sizeof(word_t) );
       
       send_buf(&acqBuf);
     }
     
     // send a buffer to say that we are done
-    acqBuf.BufLen = 5 * sizeof(PixieInterface::word_t);
+    acqBuf.BufLen = 5 * sizeof(word_t);
     pWrite[0] = acqBuf.BufLen;
     pWrite[1] = totalBufs;
     pWrite[2] = totalBufs - 1;
