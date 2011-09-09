@@ -2,10 +2,8 @@ SUBDIRS = Interface Poll Setup
 DOCDIRS = Documents
 ALLDIRS = $(SUBDIRS) $(DOCDIRS)
 LASTDIR = $(notdir $(CURDIR))
-DISTNAME = PixieSuite
-DISTTARGETS = Documents Interface Poll Setup makepaw.inc makepixie.inc Makefile
 
-.PHONY: subdirs $(ALLDIRS) clean dist docs
+.PHONY: subdirs $(ALLDIRS) clean docs
 subdirs: $(SUBDIRS)
 docs: $(DOCDIRS)
 
