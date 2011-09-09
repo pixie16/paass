@@ -1,18 +1,35 @@
 #!/bin/make
 
-# CERNLIB_ROOT = /cernlib/2005
-# CERNLIB_LIB  = /usr/lib64/cernlib/2006/lib
-# CERNLIB_INC  = /usr/include/cernlib/2006
+# Set some variables if they are not defined in the environment
+ifneq ($(CERNLIB_ROOT),)
+ifeq ($(CERNLIB_LIB),)
+CERNLIB_LIB = $(CERNLIB_ROOT)/lib
+endif
+ifeq ($(CERNLIB_INC),)
+CERNLIB_INC = $(CERNLIB_ROOT)/include
+endif
+else
+ifeq ($(CERNLIB_LIB),)
+# default to the "trurl" location
 CERNLIB_LIB = /cernlib/2006b/x86_64-slc5-gcc34-opt/lib
+endif
+ifeq ($(CERNLIB_INC),)
+# default to the "trurl" location
 CERNLIB_INC = /cernlib/2006b/include
+endif
+endif
 
 LIBDIRS += -L$(CERNLIB_LIB)
-# LDLIBS  += -Wl,-static -lpacklib -lkernlib -Wl,-dy -lgfortran
-LDLIBS += -Wl,-static -lpacklib -lkernlib -Wl,-dy -lg2c
-INCLUDEDIRS += -I$(CERNLIB_INC)
+LDLIBS  += -Wl,-static -lpacklib -lkernlib -Wl,-dy
+ifneq ($(CERNLIB_GFORTRAN),)
+LDLIBS   += -lgfortran
+CFLAGS   += -Dgfortran
+CXXFLAGS += -Dgfortran
+else
+LDLIBS   += -lg2c
 CFLAGS   += -Df2cFortran
 CXXFLAGS += -Df2cFortran
-# CFLAGS      += -Dgfortran
-# CXXFLAGS    += -Dgfortran
+endif
 
+INCLUDEDIRS += -I$(CERNLIB_INC)
 LINK.o = $(CXX) $(LDFLAGS) $(TARGET_ARCH)
