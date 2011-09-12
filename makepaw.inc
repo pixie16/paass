@@ -23,8 +23,11 @@ LIBDIRS += -L$(CERNLIB_LIB)
 LDLIBS  += -Wl,-static -lpacklib -lkernlib -Wl,-dy
 ifneq ($(CERNLIB_GFORTRAN),)
 LDLIBS   += -lgfortran
-CFLAGS   += -Dgfortran
-CXXFLAGS += -Dgfortran
+# Necessary for some versions of "cfortran.h"
+# CFLAGS   += -Dgfortran
+# CXXFLAGS += -Dgfortran
+CFLAGS   += -Df2cFortran
+CXXFLAGS += -Df2cFortran
 else
 LDLIBS   += -lg2c
 CFLAGS   += -Df2cFortran
