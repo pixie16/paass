@@ -120,8 +120,15 @@ bool PixieInterface::ReadConfigurationFile(const char *fn)
     // read a tag and value combination from file line by line
     line >> tag >> value;
     if (tag == "PixieBaseDir") {
-      pixieBaseDir = value;
-      cout << "Pixie base directory is " << InfoStr(pixieBaseDir) << endl;
+	pixieBaseDir = value;
+	cout << "Pixie base directory is " << InfoStr(pixieBaseDir) << endl;
+	// check if this matches the environment PXI_ROOT if it is set
+	if (getenv("PXI_ROOT") != NULL) {
+	    const string envPxiRoot(getenv("PXI_ROOT"));
+	    if (pixieBaseDir != envPxiRoot) {
+		cout << WarningStr("This does not match the value of PXI_ROOT set in the environment") << endl;
+	    }
+	}
     } else if (tag == "SpFpgaFile") {
       spFpgaFile = ConfigFileName(value);
     } else if (tag == "ComFpgaFile") {
