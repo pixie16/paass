@@ -33,11 +33,6 @@ typedef PixieInterface::word_t word_t;
 const int maxShmSizeL = 4050; // in pixie words
 const int maxShmSize  = maxShmSizeL * sizeof(word_t); // in bytes
 
-// char *VME = "192.168.13.248";
-// char *VME = "192.168.100.5";
-const char *VME = "127.0.0.1";
-// char *VME = "192.168.1.100";
-
 using namespace std;
 using namespace Display;
 
@@ -103,8 +98,15 @@ int main(int argc, char **argv)
   const word_t threshWords = 
     EXTERNAL_FIFO_LENGTH * threshPercent / 100;
 
-  spkt_connect(VME, PROTO_DATA);
-  cout << "Connected to PAC-machine " << VME << endl;
+  string pacHost;
+  if (getenv("PACHOST") == NULL) {
+      pacHost="127.0.0.1";
+  } else {
+      pacHost=getenv("PACHOST");
+  }
+
+  spkt_connect(pacHost.c_str(), PROTO_DATA);
+  cout << "Connected to PAC-machine " << pacHost << endl;
 
   // open a socket for command communication
   LeaderPrint("Opening socket");
