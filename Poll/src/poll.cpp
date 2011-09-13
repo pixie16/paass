@@ -437,7 +437,19 @@ int main(int argc, char **argv)
 	  } else {
 	      word_t parseWords = beginData;
 	      word_t eventSize;
-	
+	      // if we were previously waiting for words,
+	      //   dump the reconstructed event to the log
+	      if (waitWords[mod] > 0) {
+		  log << "  Reconstructed partial event for mod : " << mod << endl;
+		  log << "      " << hex;
+		  for (size_t i = beginData; i < dataWords + waitWords[mod]; i++) {
+		      log << fifoData[i] << "  ";
+		  }
+		  log << dec << endl;
+
+		  waitWords[mod] = 0; // no longer waiting (hopefully)
+	      }
+
 	    readTime += usGetDTime(); // and starts parse timer
 	    // unfortuantely, we have to parse the data to make sure 
 	    //   we grabbed complete events
@@ -546,6 +558,8 @@ int main(int argc, char **argv)
 			     << dec << endl;
 		      }
 		      nWords[mod] += waitWords[mod];
+		      // no longer waiting for words
+		      waitWords[mod] = 0;
 		      // and update the length of the buffer
 		      bufferLength = nWords[mod] + 2;
 		    } // check success of read
