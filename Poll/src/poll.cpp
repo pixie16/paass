@@ -8,6 +8,8 @@
 
 #include <cstring>
 
+#include <errno.h>
+#include <sched.h>
 #include <signal.h>
 #include <unistd.h>
 #include <netinet/in.h>
@@ -33,6 +35,9 @@ typedef PixieInterface::word_t word_t;
 const int maxShmSizeL = 4050; // in pixie words
 const int maxShmSize  = maxShmSizeL * sizeof(word_t); // in bytes
 
+const size_t maxEventSize = (0x3FFE0000 >> 17);
+typedef word_t eventdata_t[maxEventSize];
+
 using namespace std;
 using namespace Display;
 
@@ -45,6 +50,8 @@ int SendData(word_t *data, size_t nWords);
 
 int main(int argc, char **argv)
 {
+    ofstream log("partialLog.txt", ios::app); // *tmp*
+
   bool quiet = false;
   bool zeroClocks = false;
   bool fastBoot = false;
@@ -53,6 +60,7 @@ int main(int argc, char **argv)
   unsigned int threshPercent = 50;
   int statsInterval = -1; // in seconds
   int histoInterval = -1; // in seconds
+  time_t pollClock;
 
   // values associated with the minimum timing between pixie calls (in us)
   const unsigned int endRunPause = 100;
@@ -60,6 +68,7 @@ int main(int argc, char **argv)
   const unsigned int readPause   = 10;
   const unsigned int waitPause   = 10;
   const unsigned int pollTries   = 100;
+  const unsigned int waitTries   = 100;
 
   int opt;
 
@@ -128,6 +137,26 @@ int main(int argc, char **argv)
 
   signal(SIGINT, interrupt);
 
+  // check the scheduler
+  LeaderPrint("Checking scheduler");
+  int startScheduler = sched_getscheduler(0);
+  if (startScheduler == SCHED_BATCH)
+      cout << InfoStr("BATCH") << endl;
+  else if (startScheduler == SCHED_OTHER)
+      cout << InfoStr("STANDARD") << endl;
+  else
+      cout << WarningStr("UNEXPECTED") << endl;
+  
+  
+  /*
+  sched_params schedParams;
+  schedParams.sched_priority = 0;
+  if (sched_setscheduler(0, SCHED_BATCH, &schedParams) < 0) {
+      perror("sched_setscheduler");
+      return EXIT_FAILURE;
+  } else cout << "Now using batch scheduler." << endl;
+  */
+
   if (!SynchMods(pif))
     return EXIT_FAILURE;
 
@@ -139,6 +168,13 @@ int main(int argc, char **argv)
        << sizeof(word_t) * (EXTERNAL_FIFO_LENGTH + 2) * nCards / 1024 
        << " KiB)" << endl;
   word_t *fifoData = new word_t[(EXTERNAL_FIFO_LENGTH + 2) * nCards];
+  // allocate data for partial events
+  cout << "Allocating memory for partial events ("
+       << sizeof(eventdata_t) * nCards / 1024
+       << " KiB)" << endl;
+  eventdata_t partialEventData[nCards];
+  vector<word_t> partialEventWords(nCards);
+  vector<word_t> waitWords(nCards);
 
   UDP_Packet command;
   command.DataSize = 100;
@@ -166,6 +202,7 @@ int main(int argc, char **argv)
   bool isExiting = false;
 
   int waitCounter = 0, nonWaitCounter = 0;
+  int partialBufferCounter = 0;
 
   // enter the data acquisition loop
   socket_poll(0); // clear the file descriptor set we poll
@@ -177,13 +214,12 @@ int main(int argc, char **argv)
 
     // only update the display if the time has changed
     if ( isStopped && prevTime != curTime) {
-      char timeStr[30];
-      
-      ctime_r(&curTime, timeStr);
-      timeStr[20] = '\0';
+      string timeString(ctime(&curTime));
+      // strip the trailing newline
+      timeString.erase(timeString.length()-1, 1);
 
       LeaderPrint("Waiting for START command");
-      cout << InfoStr(timeStr) << '\r' << flush;
+      cout << InfoStr(timeString.c_str()) << '\r' << flush;
     }
     prevTime = curTime;
 
@@ -351,6 +387,7 @@ int main(int argc, char **argv)
 	break;
       usleep(pollPause);
     }
+    time(&pollClock);
     pollTime = usGetDTime();
 
     int maxmod = maxWords - nWords.begin();
@@ -368,9 +405,27 @@ int main(int argc, char **argv)
 	if (nWords[mod] > 0) {
 	  usGetDTime(); // start read timer
 	  
-	  fifoData[dataWords++] = nWords[mod] + 2;
+	  word_t &bufferLength = fifoData[dataWords];
+
+	  // fifoData[dataWords++] = nWords[mod] + 2
+	  fifoData[dataWords++] = nWords[mod] + partialEventWords[mod] + 2;
 	  fifoData[dataWords++] = mod;
-	  
+	  word_t beginData = dataWords;
+
+	  //? only add to fifo stream if we have enough words to complete event?
+	  if (partialEventWords[mod] > 0) {
+	      memcpy(&fifoData[dataWords], partialEventData[mod],
+		     sizeof(word_t) * partialEventWords[mod]);
+	      dataWords += partialEventWords[mod];
+
+	      /* temporary log */
+	      log << "Writing " << partialEventWords[mod] << " partial event words to buffer ("
+		  << nWords[mod] << " new words)";	      
+	      /* */
+
+	      partialEventWords[mod] = 0;
+	  }
+
 	  if (!pif.ReadFIFOWords(&fifoData[dataWords], nWords[mod], mod)) {
 	    cout << "Error reading FIFO, bailing out!" << endl;
 
@@ -380,18 +435,19 @@ int main(int argc, char **argv)
 	    return EXIT_FAILURE;
 	    // something is wrong
 	  } else {
-	    word_t parseWords = dataWords;
-	    word_t eventSize;
+	      word_t parseWords = beginData;
+	      word_t eventSize;
 	
 	    readTime += usGetDTime(); // and starts parse timer
 	    // unfortuantely, we have to parse the data to make sure 
 	    //   we grabbed complete events
 	    do {
 	      word_t slotRead = ((fifoData[parseWords] & 0xF0) >> 4);
-	      // word_t chanRead = (fifoData[parseWords] & 0xF);
+	      word_t chanRead = (fifoData[parseWords] & 0xF);
 	      word_t slotExpected = pif.GetSlotNumber(mod);
 
-	      eventSize = (fifoData[parseWords] & 0x3FFE0000) >> 17;
+	      // statsHandler.AddEvent(mod, chanRead, sizeof(word_t) * eventSize)
+	      eventSize = ((fifoData[parseWords] & 0x3FFE0000) >> 17);
 	      if (eventSize == 0 || slotRead != slotExpected ) {
 		if ( slotRead != slotExpected )
 		  cout << "Slot read (" << slotRead << ") not the same as"
@@ -402,7 +458,7 @@ int main(int argc, char **argv)
 		     << " " << fifoData[parseWords + 1] 
 		     << " " << fifoData[parseWords + 2]
 		     << " at position " << dec << parseWords 
-		     << "\n  parse started at position " << dataWords 
+		     << "\n  parse started at position " << beginData
 		     << " reading " << nWords[mod] << " words." << endl;
 		//! how to proceed from here
 		return EXIT_FAILURE;
@@ -423,35 +479,55 @@ int main(int argc, char **argv)
 		  // the FIFO was full so the rest of the partial event is likely lost
 		  parseWords -= eventSize;
 		  // update the buffer length
-		  nWords[mod] = parseWords;
-		  fifoData[dataWords - 2] = nWords[mod] + 2;
+		  nWords[mod]  = parseWords;
+		  bufferLength = nWords[mod] + 2;
 		} else {
-		  word_t readWords = parseWords - (dataWords + nWords[mod]);
+		  waitWords[mod] = parseWords - (dataWords + nWords[mod]);
 		  unsigned int timeout = 0;
 		
 		  usGetDTime(); // start wait timer
 		  
 		  if (!quiet) 
-		    cout << "Waiting for " << readWords << " words in module " << mod << flush;
+		    cout << "Waiting for " << waitWords[mod] << " words in module " << mod << flush;
 		  
 		  usleep(waitPause);
+		  word_t testWords;
 		  do {
-		    if ( pif.CheckFIFOWords(mod) >= max(readWords, 2U) )
-		      break;
-		    usleep(pollPause);
-		  } while (timeout++ < pollTries);
+		      testWords = pif.CheckFIFOWords(mod);
+		      if ( testWords >= max(waitWords[mod], 2U) )
+			  break;
+		      usleep(pollPause);
+		  } while (timeout++ < waitTries);
 		  waitTime += usGetDTime();
 		  
-		  if (timeout == pollTries) {
+		  if (timeout == waitTries) {
 		    if (!quiet)
-		      cout << " --- TIMED OUT" << endl;
+		      cout << " --- TIMED OUT," << endl
+			   << InfoStr("    moving partial event to next buffer") << endl;
+
+		    if ( partialEventWords[mod] != 0 ) {
+			cout << "Already has a partial event in this module, bailing out!" << endl;
+			delete[] fifoData;
+			
+			return EXIT_FAILURE;
+		    }
+		    // update the size of the buffer;
+		    partialBufferCounter++;
+		    partialEventWords[mod] = eventSize - waitWords[mod];
+		    nWords[mod] = parseWords - beginData - eventSize;
+
+		    cout << "Got partial event of size " << partialEventWords[mod] 
+			 << ", new data words of " << nWords[mod] << endl;
+		    memcpy(partialEventData[mod], &fifoData[dataWords + nWords[mod]],
+			   sizeof(word_t) * partialEventWords[mod]);
+		    bufferLength = nWords[mod] + 2;
 		  } else {
 		    if (!quiet)
 		      cout << endl;
 		    usleep(readPause);
 		    int testWords = pif.CheckFIFOWords(mod);
 		    if ( !pif.ReadFIFOWords(&fifoData[dataWords + nWords[mod]],
-					    readWords, mod) ) {
+					    waitWords[mod], mod) ) {
 		      cout << "Error reading FIFO, bailing out!" << endl;
 		      spkt_close();
 
@@ -460,7 +536,7 @@ int main(int argc, char **argv)
 		      return EXIT_FAILURE;
 		      // something is wrong 
 		    } else {
-		      if (readWords == 1 && !quiet) {
+		      if (waitWords[mod] == 1 && !quiet) {
 			// currently Pixie behaviour is a bit bizarre when
 			//   reading one word from the FIFO (see Interface).
 			//   hence we try to keep track of it
@@ -469,10 +545,10 @@ int main(int argc, char **argv)
 			     <<  fifoData[dataWords + nWords[mod]] 
 			     << dec << endl;
 		      }
-		      nWords[mod] += readWords;
+		      nWords[mod] += waitWords[mod];
 		      // and update the length of the buffer
-		      fifoData[dataWords - 2] = nWords[mod] + 2;
-		    }
+		      bufferLength = nWords[mod] + 2;
+		    } // check success of read
 		  } // if we DID NOT time out waiting for words
 		} // if we DID NOT have a full FIFO
 	      } // if we ARE NOT on the final read at the end of a run
@@ -488,11 +564,13 @@ int main(int argc, char **argv)
 	}
 	if (nWords[mod] > EXTERNAL_FIFO_LENGTH * 9 / 10) {
 	  cout << "Abnormally full FIFO with " << nWords[mod] 
-	       << " words in module " << mod 
-	       << ". Ending run" << endl;
-	  pif.EndRun();
-	  justEnded = true;
-	  isStopped = true;
+	       << " words in module " << mod << endl;
+
+	  if (fullFIFO) {
+	      pif.EndRun();
+	      justEnded = true;
+	      isStopped = true;
+	  }
 	}
 	if (!quiet) {
 	  if (fullFIFO)
@@ -500,7 +578,10 @@ int main(int argc, char **argv)
 	  else 
 	    cout << "Read " << nWords[mod] << " words from";
 	  cout << " module " << mod 
-	       << " to buffer position " << dataWords << endl;
+	       << " to buffer position " << dataWords;
+	  if (partialEventWords[mod] > 0) 
+	      cout << ", " << partialEventWords[mod] << " words reserved.";
+	  cout << endl;
 	}
 	dataWords += nWords[mod];
 	
@@ -524,6 +605,15 @@ int main(int argc, char **argv)
     if (*maxWords <= threshWords && !justEnded)
       continue;
 
+    // add the "wall time" in artificially
+    size_t timeWordsNeeded = sizeof(time_t) / sizeof(word_t);
+    if ( (sizeof(time_t) % sizeof(word_t)) != 0 )
+	timeWordsNeeded++;
+    fifoData[dataWords++] = 2 + timeWordsNeeded;
+    fifoData[dataWords++] = 1000;
+    memcpy(&fifoData[dataWords], &pollClock, sizeof(time_t));
+    dataWords += timeWordsNeeded;
+
     spillTime = usGetTime(startTime);
     durSpill = spillTime - lastSpillTime;
     lastSpillTime = spillTime;
@@ -531,6 +621,8 @@ int main(int argc, char **argv)
     usGetDTime(); // start send timer
     int nBufs = SendData(fifoData, dataWords);
     sendTime = usGetDTime();
+
+    // statsHandler.AddTime(durSpill * 1e-6);
 
     if (!quiet) {
       cout << nBufs << " BUFFERS with " << dataWords << " WORDS, " << endl;
@@ -560,6 +652,16 @@ int main(int argc, char **argv)
       cout.precision(1);
       cout << nBufs << " bufs : " 
 	   << "SEND " << sendTime << " / SPILL " << durSpill << "     \r";
+
+      /*
+      for (size_t i=0; i < nCards; i++) {
+	  cout << "M" << i << ", "
+	       << statsHandler.GetEventRate(i) / 1000. << " kHz";
+	  cout << " (" statsHandler.GetDataRata(i) / 1024. / 1024. << " MiB/s)";
+      }  
+      cout << "    \r";
+      */
+
     }
     // reset the number of words of fifo data
     dataWords = 0;
@@ -574,6 +676,7 @@ int main(int argc, char **argv)
   if (waitCounter + nonWaitCounter != 0) {
     cout << "Waiting for " << waitCounter * 100 / (waitCounter + nonWaitCounter)
 	 << "% of the spills." << endl;
+    cout << "  " << partialBufferCounter << " partial buffers" << endl;
   }
 
   return EXIT_SUCCESS;
