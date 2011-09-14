@@ -36,6 +36,7 @@ const int maxShmSizeL = 4050; // in pixie words
 const int maxShmSize  = maxShmSizeL * sizeof(word_t); // in bytes
 
 const size_t maxEventSize = (0x3FFE0000 >> 17);
+const word_t clockVsn = 1000;
 typedef word_t eventdata_t[maxEventSize];
 
 using namespace std;
@@ -50,8 +51,6 @@ int SendData(word_t *data, size_t nWords);
 
 int main(int argc, char **argv)
 {
-    ofstream log("partialLog.txt", ios::app); // *tmp*
-
   bool quiet = false;
   bool zeroClocks = false;
   bool fastBoot = false;
@@ -391,8 +390,9 @@ int main(int argc, char **argv)
     pollTime = usGetDTime();
 
     int maxmod = maxWords - nWords.begin();
-    
-    if ( *maxWords > threshWords || justEnded ) {
+    bool readData = ( *maxWords > threshWords || justEnded );
+
+    if (readData) {
       // if not timed out, we have data to read	
       // read the data, starting with the module with the most words      
       int mod = maxmod;      
@@ -417,12 +417,6 @@ int main(int argc, char **argv)
 	      memcpy(&fifoData[dataWords], partialEventData[mod],
 		     sizeof(word_t) * partialEventWords[mod]);
 	      dataWords += partialEventWords[mod];
-
-	      /* temporary log */
-	      log << "Writing " << partialEventWords[mod] << " partial event words to buffer ("
-		  << nWords[mod] << " new words)";	      
-	      /* */
-
 	      partialEventWords[mod] = 0;
 	  }
 
@@ -437,18 +431,8 @@ int main(int argc, char **argv)
 	  } else {
 	      word_t parseWords = beginData;
 	      word_t eventSize;
-	      // if we were previously waiting for words,
-	      //   dump the reconstructed event to the log
-	      if (waitWords[mod] > 0) {
-		  log << "  Reconstructed partial event for mod : " << mod << endl;
-		  log << "      " << hex;
-		  for (size_t i = beginData; i < dataWords + waitWords[mod]; i++) {
-		      log << fifoData[i] << "  ";
-		  }
-		  log << dec << endl;
 
-		  waitWords[mod] = 0; // no longer waiting (hopefully)
-	      }
+	      waitWords[mod] = 0; // no longer waiting (hopefully)
 
 	    readTime += usGetDTime(); // and starts parse timer
 	    // unfortuantely, we have to parse the data to make sure 
@@ -504,34 +488,28 @@ int main(int argc, char **argv)
 		  
 		  usleep(waitPause);
 		  word_t testWords;
-		  do {
+
+		  while (timeout++ < waitTries) {
 		      testWords = pif.CheckFIFOWords(mod);
 		      if ( testWords >= max(waitWords[mod], 2U) )
 			  break;
 		      usleep(pollPause);
-		  } while (timeout++ < waitTries);
+		  } 
 		  waitTime += usGetDTime();
 		  
-		  if (timeout == waitTries) {
+		  if (timeout >= waitTries) {
 		    if (!quiet)
 		      cout << " --- TIMED OUT," << endl
 			   << InfoStr("    moving partial event to next buffer") << endl;
 
-		    if ( partialEventWords[mod] != 0 ) {
-			cout << "Already has a partial event in this module, bailing out!" << endl;
-			delete[] fifoData;
-			
-			return EXIT_FAILURE;
-		    }
-		    // update the size of the buffer;
 		    partialBufferCounter++;
 		    partialEventWords[mod] = eventSize - waitWords[mod];
+		    memcpy(partialEventData[mod], 
+			   &fifoData[dataWords + nWords[mod] - partialEventWords[mod]],
+			   sizeof(word_t) * partialEventWords[mod]);
 		    nWords[mod] = parseWords - beginData - eventSize;
 
-		    cout << "Got partial event of size " << partialEventWords[mod] 
-			 << ", new data words of " << nWords[mod] << endl;
-		    memcpy(partialEventData[mod], &fifoData[dataWords + nWords[mod]],
-			   sizeof(word_t) * partialEventWords[mod]);
+		    // update the size of the buffer;
 		    bufferLength = nWords[mod] + 2;
 		  } else {
 		    if (!quiet)
@@ -548,15 +526,6 @@ int main(int argc, char **argv)
 		      return EXIT_FAILURE;
 		      // something is wrong 
 		    } else {
-		      if (waitWords[mod] == 1 && !quiet) {
-			// currently Pixie behaviour is a bit bizarre when
-			//   reading one word from the FIFO (see Interface).
-			//   hence we try to keep track of it
-			cout << "One word read of " << testWords << " : " 
-			     << hex
-			     <<  fifoData[dataWords + nWords[mod]] 
-			     << dec << endl;
-		      }
 		      nWords[mod] += waitWords[mod];
 		      // no longer waiting for words
 		      waitWords[mod] = 0;
@@ -616,16 +585,18 @@ int main(int argc, char **argv)
     }
 
     // if we don't have enough words, poll socket and modules once more
-    if (*maxWords <= threshWords && !justEnded)
-      continue;
+    if (!readData)
+	continue;
 
     // add the "wall time" in artificially
     size_t timeWordsNeeded = sizeof(time_t) / sizeof(word_t);
     if ( (sizeof(time_t) % sizeof(word_t)) != 0 )
 	timeWordsNeeded++;
     fifoData[dataWords++] = 2 + timeWordsNeeded;
-    fifoData[dataWords++] = 1000;
+    fifoData[dataWords++] = clockVsn;
     memcpy(&fifoData[dataWords], &pollClock, sizeof(time_t));
+    if (!quiet)
+	cout << "Read " << timeWordsNeeded << " words for time to buffer position " << dataWords << endl;
     dataWords += timeWordsNeeded;
 
     spillTime = usGetTime(startTime);
@@ -733,7 +704,8 @@ bool SynchMods(PixieInterface &pif)
 int SendData(word_t *data, size_t nWords)
 {
   static data_pack acqBuf;
-  
+  const unsigned int sendPause = 1;
+
   // now write to the shared memory
   unsigned int nBufs     = nWords / maxShmSizeL;
   unsigned int wordsLeft = nWords % maxShmSizeL;
@@ -752,6 +724,7 @@ int SendData(word_t *data, size_t nWords)
       memcpy(&pWrite[3], &data[buf * maxShmSizeL], maxShmSize);
       
       send_buf(&acqBuf);
+      usleep(sendPause);
     }
       
     // send the last fragment (if there is any)
@@ -764,6 +737,7 @@ int SendData(word_t *data, size_t nWords)
 	     wordsLeft * sizeof(word_t) );
       
       send_buf(&acqBuf);
+      usleep(sendPause);
     }
     
     // send a buffer to say that we are done
