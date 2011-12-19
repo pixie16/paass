@@ -14,5 +14,6 @@ Output a simple histogram list
 Incorporate KM's trace analyzer/correlator.
 Roll-over times for scalar/deadtime spectra
 Get some Makefile parameters from environment
+Check for calibrated energies greater than zero which are always true due to float-izing digital values.
 
 For Redhat systems, libstdc++.so.5 is necessary to compile with ROOT support. Compilation needs to be streamlined in this case.
