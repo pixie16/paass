@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <vector>
 
 #include <cstring>
@@ -191,10 +192,24 @@ int main(int argc, char **argv)
   double parseTime, waitTime, readTime, sendTime, pollTime;
   double lastStatsTime, statsTime = 0;
   double lastHistoTime, histoTime = 0;
-  cout << "Allocating memory to store HISTOGRAM data ("
-       << sizeof(PixieInterface::Histogram) * nCards * pif.GetNumberChannels() / 1024
-       << " KiB)" << endl;
-  PixieInterface::Histogram histo[nCards][pif.GetNumberChannels()];
+
+  typedef pair<unsigned int, unsigned int> chanid_t;
+  map<chanid_t, PixieInterface::Histogram> histoMap;
+
+  if (histoInterval != -1.) {
+      cout << "Allocating memory to store HISTOGRAM data ("
+	   << sizeof(PixieInterface::Histogram) * nCards * pif.GetNumberChannels() / 1024
+	   << " KiB)" << endl;
+      
+      for (unsigned int mod=0; mod < nCards; mod++) {
+	  for (unsigned int ch=0; ch < pif.GetNumberChannels(); ch++) {
+	      chanid_t id(mod, ch);
+	      
+	      histoMap[id] = PixieInterface::Histogram();
+	  }
+      }
+  }
+
   PixieInterface::Histogram deltaHisto;
 
   bool runDone[nCards];
@@ -350,15 +365,17 @@ int main(int argc, char **argv)
 	
 	for (size_t mod=0; mod < nCards; mod++) {
 	    for (size_t ch=0; ch < pif.GetNumberChannels(); ch++) {
-		// copy the old histogram data to the delta histogram temporarily
-		deltaHisto = histo[mod][ch];
-		// performance improvement possible using Pixie16EMbufferIO directly to fetch all channels
-		pif.ReadHistogram(histo[mod][ch].data, PixieInterface::HISTO_SIZE, mod, ch);
-		out.write((char*)histo[mod][ch].data, sizeof(PixieInterface::Histogram));
+		chanid_t id(mod, ch);
+		PixieInterface::Histogram &histo = histoMap[id];
 
+		// copy the old histogram data to the delta histogram temporarily
+		deltaHisto = histo;
+		// performance improvement possible using Pixie16EMbufferIO directly to fetch all channels
+		histo.Read(pif, mod, ch);
+		histo.Write(out);
 		// calculate the change using the temporarily stored previous histogram
-		deltaHisto = histo[mod][ch] - deltaHisto;
-		deltaout.write((char*)deltaHisto.data, sizeof(PixieInterface::Histogram));
+		deltaHisto = histo - deltaHisto;
+		deltaHisto.Write(deltaout);
 	    }
 	}
 	out.close();

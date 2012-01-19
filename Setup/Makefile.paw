@@ -1,3 +1,5 @@
+#!/bin/make
+
 include ../makepixie.inc
 include ../makepaw.inc
 
