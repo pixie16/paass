@@ -14,19 +14,26 @@
 #define PIXIE16_REVD_GENERAL 999 // arbitrary large number
 #endif
 
-#if PIXIE16_REVISION == PIXIE16_REVD_GENERAL
+#if PIXIE16_REVISION == PIXIE16_REVF
+#define PIF_REVF
+#define PIF_FIFO
+#elif PIXIE16_REVISION == PIXIE16_REVD_GENERAL
+#define PIF_CATCHER
 #define PIF_REVD
+#define PIF_FIFO
 #else
 #define PIF_REVA
+#define PIF_BUFFER
 #endif
 
+#include <fstream>
 #include <string>
 
 #include <stdint.h>
 
 #include "Lock.h"
 
-#ifdef PIF_REVD
+#ifdef PIF_CATCHER
 const int CCSRA_PILEUP  = 15;
 const int CCSRA_CATCHER = 16;
 #endif
@@ -36,7 +43,7 @@ class PixieInterface
  public:
   static const size_t STAT_SIZE  = N_DSP_PAR - DSP_IO_BORDER;
   static const size_t HISTO_SIZE = MAX_HISTOGRAM_LENGTH; 
-#ifdef PIF_REVD
+#ifdef PIF_CATCHER
   enum CatcherModes {PC_STANDARD, PC_REJECT, PC_HYBRID, PC_ACCEPT};
 #endif
 
@@ -44,9 +51,9 @@ class PixieInterface
   typedef uint16_t halfword_t;
 
   typedef word_t stats_t[STAT_SIZE];
-  struct Histogram {
-      word_t data[HISTO_SIZE];
-
+  class Histogram {
+  public: 
+      enum ErrorTypes {NO_ERROR, ERROR_SUBTRACT, ERROR_READ, ERROR_WRITE};
       Histogram();
       Histogram(const Histogram& x);
 
@@ -55,10 +62,19 @@ class PixieInterface
       Histogram operator-(const Histogram& right);
       const Histogram& operator+=(const Histogram& right);
       const Histogram& operator-=(const Histogram& right);
+
+      ErrorTypes GetError(void) const {return error;};
+      void ClearError(void) {error = NO_ERROR;};
+      bool Read(PixieInterface &pif, unsigned int mod, unsigned int ch);
+      bool Write(std::ofstream &file);
+  private:      
+      word_t data[HISTO_SIZE];
+      ErrorTypes error;            
   };
 
   PixieInterface(const char *fn);
   ~PixieInterface();
+
 
   bool ReadConfigurationFile(const char *fn);
   bool GetSlots(const char *slotF = NULL);
@@ -95,7 +111,7 @@ class PixieInterface
   bool CheckRunStatus(void); // check status in all modules
   bool CheckRunStatus(int mod);
 
-#ifdef PIF_REVD
+#ifdef PIF_FIFO
   unsigned long CheckFIFOWords(unsigned short mod);
   bool ReadFIFOWords(word_t *buf, unsigned long nWords,
 		     unsigned short mod);
@@ -125,7 +141,7 @@ class PixieInterface
   bool ToggleGood(int mod, int chan);
   bool TogglePolarity(int mod, int chan);
 
-#ifdef PIF_REVD
+#ifdef PIF_CATCHER
   bool ToggleCatcherBit(int mod, int chan);
   bool TogglePileupBit(int mod, int chan);
   bool ToggleTraceCapture(int mod, int chan);
@@ -140,7 +156,7 @@ class PixieInterface
   static const size_t CONFIG_LINE_LENGTH = 80;
   static const size_t TRACE_LENGTH = RANDOMINDICES_LENGTH;
 
-#ifdef PIF_REVD
+#ifdef PIF_CATCHER
   void CatcherMessage(void);
 #endif
 

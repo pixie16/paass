@@ -39,7 +39,7 @@ MODULE_WLINKS = $(foreach parm,$(MODULE_PARMS),W_$(parm))
 CHANNEL_RLINKS = $(foreach parm,$(CHANNEL_PARMS),R_$(parm))
 CHANNEL_WLINKS = $(foreach parm,$(CHANNEL_PARMS),W_$(parm))
 
-LINKS = $(MODULE_RLINKS) $(MODULE_WLINKS) $(CHANNEL_RLINKS) $(CHANNEL_WLINKS) pxisys.ini
+LINKS = $(MODULE_RLINKS) $(MODULE_WLINKS) $(CHANNEL_RLINKS) $(CHANNEL_WLINKS) pxisys.ini slot_def.set
 # make things copasetic with c++
 LINK.o      = $(CXX) $(LDFLAGS) $(TARGET_ARCH)
 
@@ -92,3 +92,5 @@ $(CHANNEL_WLINKS):
 	@ln -s WCHA $@
 pxisys.ini:
 	@ln -s $(PXI_ROOT)/test/$@ .
+slot_def.set:
+	@ln -s $(PXI_ROOT)/configuration/$@ .

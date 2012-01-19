@@ -19,8 +19,14 @@ CERNLIB_INC = /cernlib/2006b/include
 endif
 endif
 
+ifneq ($(CERNLIB_NOSHIFT),)
+CERNLDLIBS = -lpacklib_noshift -lkernlib_noshift 
+else
+CERNLDLIBS = -lpacklib -lkernlib
+endif
+
 LIBDIRS += -L$(CERNLIB_LIB)
-LDLIBS  += -Wl,-static -lpacklib -lkernlib -Wl,-dy
+LDLIBS  += -Wl,-static $(CERNLDLIBS) -Wl,-dy
 ifneq ($(CERNLIB_GFORTRAN),)
 LDLIBS   += -lgfortran
 # Necessary for some versions of "cfortran.h"

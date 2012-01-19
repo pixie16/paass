@@ -14,7 +14,7 @@ LIB_ROOT     = $(PLX_SDK_DIR)/Linux/PlxApi/Library
 INTERFACE    = $(realpath $(THISDIR)/Interface)
 INTERFACELIB = $(INTERFACE)/libPixieInterface.a
 
-INCLUDEDIRS += -I$(PXI_ROOT)/software/inc/ -I$(PXI_ROOT)/software/sys/ -I$(PXI_ROOT)/software/app/ -Iinclude -I$(INTERFACE)
+INCLUDEDIRS += -I$(PXI_ROOT)/software/inc -I$(PXI_ROOT)/software/sys -I$(PXI_ROOT)/software/app -Iinclude -I$(INTERFACE)
 LIBDIRS     += -L$(PXI_ROOT)/software -L$(LIB_ROOT)
 GLOBAL_FLAGS = -D "PLX_LINUX" -D "PCI_CODE" -D "PLX_LITTLE_ENDIAN"
 CFLAGS      += $(INCLUDEDIRS) -g -Wall $(GLOBAL_FLAGS)

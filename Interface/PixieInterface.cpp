@@ -17,7 +17,7 @@ using namespace std;
 using namespace Display;
 
 // some simple histogram functions
-PixieInterface::Histogram::Histogram()
+PixieInterface::Histogram::Histogram() : error(NO_ERROR)
 {
     bzero(data, sizeof(data));
 }
@@ -52,6 +52,7 @@ PixieInterface::Histogram PixieInterface::Histogram::operator-(const PixieInterf
     for (size_t i=0; i < HISTO_SIZE; i++) {
 	if (x.data[i] < right.data[i]) {
 	    x.data[i] = 0;
+	    error = ERROR_SUBTRACT;
 	} else {
 	    x.data[i] -= right.data[i];
 	}
@@ -68,6 +69,25 @@ const PixieInterface::Histogram& PixieInterface::Histogram::operator+=(const Pix
 const PixieInterface::Histogram& PixieInterface::Histogram::operator-=(const PixieInterface::Histogram &right)
 {
     return (*this = *this - right);
+}
+
+bool PixieInterface::Histogram::Read(PixieInterface &pif, unsigned int mod, unsigned int ch)
+{
+    if (pif.ReadHistogram(data, PixieInterface::HISTO_SIZE, mod, ch))
+	return true;
+    error = ERROR_READ;
+    return false;
+}
+
+bool PixieInterface::Histogram::Write(ofstream &out) 
+{
+    out.write((char*)data, sizeof(data));
+
+    if (!out.good()) {
+	error = ERROR_WRITE;
+	return false;
+    }
+    return true;
 }
 
 PixieInterface::PixieInterface(const char *fn) : lock("PixieInterface")
@@ -481,7 +501,7 @@ bool PixieInterface::CheckRunStatus(int mod)
 
 
 // only Rev. D has the external FIFO
-#ifdef PIF_REVD
+#ifdef PIF_FIFO
 unsigned long PixieInterface::CheckFIFOWords(unsigned short mod)
 {
   // word_t nWords;
@@ -617,7 +637,7 @@ bool PixieInterface::TogglePolarity(int mod, int chan)
   return ToggleChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_POLARITY);
 }
 
-#ifdef PIF_REVD
+#ifdef PIF_CATCHER
 bool PixieInterface::ToggleCatcherBit(int mod, int chan)
 {
   CatcherMessage();
