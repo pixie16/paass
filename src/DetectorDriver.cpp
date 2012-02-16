@@ -46,6 +46,7 @@
 
 #include "DssdProcessor.h"
 #include "GeProcessor.h"
+#include "IonChamberProcessor.h"
 #include "McpProcessor.h"
 #include "MtcProcessor.h"
 #include "ScintProcessor.h"
@@ -81,11 +82,12 @@ DetectorDriver::DetectorDriver()
 
     vecProcess.push_back(new ScintProcessor());
     vecProcess.push_back(new GeProcessor());
+    vecProcess.push_back(new IonChamberProcessor());
     vecProcess.push_back(new McpProcessor());
     vecProcess.push_back(new DssdProcessor());
     vecProcess.push_back(new MtcProcessor());
     vecProcess.push_back(new PulserProcessor());
-    vecProcess.push_back(new VandleProcessor());
+    // vecProcess.push_back(new VandleProcessor());
     
 #ifdef useroot
     // and finally the root processor
@@ -122,11 +124,11 @@ DetectorDriver::~DetectorDriver()
 */
 const set<string>& DetectorDriver::GetKnownDetectors()
 {   
-    const unsigned int detTypes = 15;
+    const unsigned int detTypes = 16;
     const string detectorStrings[detTypes] = {
 	"dssd_front", "dssd_back", "idssd_front", "position", "timeclass",
 	"ge", "si", "scint", "mcp", "mtc", "generic", "ssd", "vandle",
-	"pulser", "logic"};
+	"pulser", "logic", "ion_chamber"};
   
     // only call this once
     if (!knownDetectors.empty())
