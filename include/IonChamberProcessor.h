@@ -43,15 +43,15 @@ namespace dammIds
 {
   namespace ionChamber {
     // 1d spectra
-    const int D_ENERGYSUM     = 2000;
-    const int D_ENERGYTHREE_GROUPX = 2010; // + starting det
-    const int D_ENERGYTWO_GROUPX   = 2020; // + starting det
+    const int D_ENERGYSUM     = 3200;
+    const int D_ENERGYTHREE_GROUPX = 3210; // + starting det
+    const int D_ENERGYTWO_GROUPX   = 3220; // + starting det
     
-    const int D_DTIME_DETX    = 2030; // + detector num
-    const int D_RATE_DETX     = 2040; // + detector num
+    const int D_DTIME_DETX    = 3230; // + detector num
+    const int D_RATE_DETX     = 3240; // + detector num
     // 2d spectra
-    const int DD_ESUM__ENERGY_DETX   = 2050; // + detector num    
-    const int DD_EBACK__ENERGY_DETX  = 2100; // + detector num
+    const int DD_ESUM__ENERGY_DETX   = 3250; // + detector num    
+    const int DD_EBACK__ENERGY_DETX  = 3200; // + detector num
   };
 };
 
