@@ -6,7 +6,7 @@ vpath %.cpp src
 vpath %.c src
 
 COMMONOBJS  = $(INTERFACELIB) $(INTERFACE)/Utility.o
-POLLOBJS    = poll.o sendbuf.o spkt_io_udp.o
+POLLOBJS    = poll.o sendbuf.o spkt_io_udp.o StatsHandler.o
 PULSEROBJS  = pulser.o sendbuf.o spkt_io_udp.o
 COMMOBJS    = commtest.o sendbuf.o spkt_io_udp.o
 OBJS        = $(POLLOBJS) $(COMMOBJS)

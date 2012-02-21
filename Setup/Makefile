@@ -1,3 +1,4 @@
+#!/bin/make
 #nice and simple make file using typical implicit rules
 
 include ../makepixie.inc
@@ -45,7 +46,7 @@ LINK.o      = $(CXX) $(LDFLAGS) $(TARGET_ARCH)
 
 PAWMAKE = $(MAKE) --no-print-directory -f Makefile.paw
 .phony: clean all links veryclean paw progs
-all: progs links
+all: progs links current.set
 
 progs: $(TARGETS) paw
 
@@ -92,5 +93,7 @@ $(CHANNEL_WLINKS):
 	@ln -s WCHA $@
 pxisys.ini:
 	@ln -s $(PXI_ROOT)/test/$@ .
+current.set:
+	@ln -s $(PXI_ROOT)/configuration/default.set $@
 slot_def.set:
 	@ln -s $(PXI_ROOT)/configuration/$@ .
