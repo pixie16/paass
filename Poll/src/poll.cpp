@@ -17,6 +17,7 @@
 
 // Needed for LIST_MODE_RUNx defs. Incorporate into PixieInterface
 #include "pixie16app_defs.h"
+#include "StatsHandler.hpp"
 
 #include "Acq_Params.h"
 #include "Buffer_Structure.h"
@@ -52,6 +53,7 @@ int SendData(word_t *data, size_t nWords);
 
 int main(int argc, char **argv)
 {
+    bool showModuleRates = false;
   bool quiet = false;
   bool zeroClocks = false;
   bool fastBoot = false;
@@ -72,7 +74,7 @@ int main(int argc, char **argv)
 
   int opt;
 
-  while ( (opt = getopt(argc,argv,"-fh:qs:t:z?")) != -1) {
+  while ( (opt = getopt(argc,argv,"-fh:qrs:t:z?")) != -1) {
       switch(opt) {
 	  case 'f':
 	      fastBoot = true; break;
@@ -80,6 +82,8 @@ int main(int argc, char **argv)
 	      histoInterval = atoi(optarg); break;
 	  case 'q':
 	      quiet = true; break;
+	  case 'r':
+	      showModuleRates = true; break;
 	  case 's':
 	      statsInterval = atoi(optarg); break;
 	  case 't':
@@ -94,6 +98,7 @@ int main(int argc, char **argv)
 	      cout << "  -f       Fast boot (false by default)" << endl;
 	      cout << "  -h <num> Dump histogram data every num seconds" << endl;
 	      cout << "  -q       Run quietly (false by default)" << endl;
+	      cout << "  -r       Display module rates in quiet mode (false by defualt)" << endl;
 	      cout << "  -s <num> Output statistics data every num seconds" << endl;
 	      cout << "  -t <num> Sets FIFO read threshold to num% full ("
 		   << threshPercent << "% by default)" << endl;
@@ -175,6 +180,7 @@ int main(int argc, char **argv)
   eventdata_t partialEventData[nCards];
   vector<word_t> partialEventWords(nCards);
   vector<word_t> waitWords(nCards);
+  StatsHandler statsHandler(nCards);
 
   UDP_Packet command;
   command.DataSize = 100;
@@ -459,8 +465,9 @@ int main(int argc, char **argv)
 	      word_t chanRead = (fifoData[parseWords] & 0xF);
 	      word_t slotExpected = pif.GetSlotNumber(mod);
 
-	      // statsHandler.AddEvent(mod, chanRead, sizeof(word_t) * eventSize)
-	      eventSize = ((fifoData[parseWords] & 0x3FFE0000) >> 17);
+	      eventSize = ((fifoData[parseWords] & 0x1FFE0000) >> 17);
+	      statsHandler.AddEvent(mod, chanRead, sizeof(word_t) * eventSize);
+
 	      if (eventSize == 0 || slotRead != slotExpected ) {
 		if ( slotRead != slotExpected )
 		  cout << "Slot read (" << slotRead << ") not the same as"
@@ -624,7 +631,7 @@ int main(int argc, char **argv)
     int nBufs = SendData(fifoData, dataWords);
     sendTime = usGetDTime();
 
-    // statsHandler.AddTime(durSpill * 1e-6);
+    statsHandler.AddTime(durSpill * 1e-6);
 
     if (!quiet) {
       cout << nBufs << " BUFFERS with " << dataWords << " WORDS, " << endl;
@@ -635,7 +642,7 @@ int main(int argc, char **argv)
 	   << " PARSE " << parseTime << " us" << endl
 	   << "    WAIT  " << waitTime << " us "
 	   << " READ  " << readTime << " us "
-	   << " SEND  " << sendTime << " us" << endl;
+	   << " SEND  " << sendTime << " us" << endl;	 
       // add some blank spaces so STATS or HISTO line up
       cout << "   ";
       if (statsInterval != -1) {
@@ -652,18 +659,18 @@ int main(int argc, char **argv)
     } else {
       cout.setf(ios::scientific, ios::floatfield);
       cout.precision(1);
-      cout << nBufs << " bufs : " 
-	   << "SEND " << sendTime << " / SPILL " << durSpill << "     \r";
 
-      /*
-      for (size_t i=0; i < nCards; i++) {
-	  cout << "M" << i << ", "
-	       << statsHandler.GetEventRate(i) / 1000. << " kHz";
-	  cout << " (" statsHandler.GetDataRata(i) / 1024. / 1024. << " MiB/s)";
-      }  
-      cout << "    \r";
-      */
-
+      if (!showModuleRates) {
+	  cout << nBufs << " bufs : " 
+	       << "SEND " << sendTime << " / SPILL " << durSpill << "     \r";
+      } else {      
+	  for (size_t i=0; i < nCards; i++) {
+	      cout << "M" << i << ", "
+		   << statsHandler.GetEventRate(i) / 1000. << " kHz";
+	      cout << " (" << statsHandler.GetDataRate(i) / 1000000. << " MB/s)";
+	  }  
+	  cout << "    \r";
+      }
     }
     // reset the number of words of fifo data
     dataWords = 0;
