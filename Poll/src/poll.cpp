@@ -10,6 +10,7 @@
 #include <cstring>
 
 #include <errno.h>
+#include <getopt.h>
 #include <sched.h>
 #include <signal.h>
 #include <unistd.h>
@@ -53,6 +54,7 @@ int SendData(word_t *data, size_t nWords);
 
 int main(int argc, char **argv)
 {
+    bool insertWallClock = true;
     bool showModuleRates = false;
   bool quiet = false;
   bool zeroClocks = false;
@@ -72,10 +74,21 @@ int main(int argc, char **argv)
   const unsigned int pollTries   = 100;
   const unsigned int waitTries   = 100;
 
-  int opt;
+  enum E_LONG_OPTIONS {E_NO_WALL_CLOCK};
+  int longIndex, longSwitch, opt;
+  const option longOptions[] = {
+      {"no-wall-clock", 0, &longSwitch, E_NO_WALL_CLOCK },
+      {"quiet", 0, 0, 'q' }
+  };
 
-  while ( (opt = getopt(argc,argv,"-fh:qrs:t:z?")) != -1) {
+  while ( (opt = getopt_long(argc,argv,"-fh:qrs:t:z?",longOptions, &longIndex)) != -1) {
       switch(opt) {
+	  case 0:
+	      switch(longSwitch) {
+		  case E_NO_WALL_CLOCK:
+		      insertWallClock = false; break;
+	      }
+	      break;
 	  case 'f':
 	      fastBoot = true; break;
 	  case 'h':
@@ -95,14 +108,15 @@ int main(int argc, char **argv)
 	  case '?':
 	  default:
 	      cout << "Usage: " << argv[0] << " [options]" << endl;
-	      cout << "  -f       Fast boot (false by default)" << endl;
-	      cout << "  -h <num> Dump histogram data every num seconds" << endl;
-	      cout << "  -q       Run quietly (false by default)" << endl;
-	      cout << "  -r       Display module rates in quiet mode (false by defualt)" << endl;
-	      cout << "  -s <num> Output statistics data every num seconds" << endl;
-	      cout << "  -t <num> Sets FIFO read threshold to num% full ("
+	      cout << "  -f               Fast boot (false by default)" << endl;
+	      cout << "  -h <num>         Dump histogram data every num seconds" << endl;
+	      cout << "  -q, --quiet      Run quietly (false by default)" << endl;
+	      cout << "  --no-wall-clock  Do not insert the wall clock in the data stream" << endl;
+	      cout << "  -r               Display module rates in quiet mode (false by defualt)" << endl;
+	      cout << "  -s <num>         Output statistics data every num seconds" << endl;
+	      cout << "  -t <num>         Sets FIFO read threshold to num% full ("
 		   << threshPercent << "% by default)" << endl;
-	      cout << "  -z       Zero clocks on each START_ACQ (false by default)" << endl;
+	      cout << "  -z               Zero clocks on each START_ACQ (false by default)" << endl;
 	      if (opt=='?')
 		  return EXIT_SUCCESS;
 	      return EXIT_FAILURE;
@@ -612,16 +626,18 @@ int main(int argc, char **argv)
     if (!readData)
 	continue;
 
-    // add the "wall time" in artificially
-    size_t timeWordsNeeded = sizeof(time_t) / sizeof(word_t);
-    if ( (sizeof(time_t) % sizeof(word_t)) != 0 )
-	timeWordsNeeded++;
-    fifoData[dataWords++] = 2 + timeWordsNeeded;
-    fifoData[dataWords++] = clockVsn;
-    memcpy(&fifoData[dataWords], &pollClock, sizeof(time_t));
-    if (!quiet)
-	cout << "Read " << timeWordsNeeded << " words for time to buffer position " << dataWords << endl;
-    dataWords += timeWordsNeeded;
+    if (insertWallClock) {
+	// add the "wall time" in artificially
+	size_t timeWordsNeeded = sizeof(time_t) / sizeof(word_t);
+	if ( (sizeof(time_t) % sizeof(word_t)) != 0 )
+	    timeWordsNeeded++;
+	fifoData[dataWords++] = 2 + timeWordsNeeded;
+	fifoData[dataWords++] = clockVsn;
+	memcpy(&fifoData[dataWords], &pollClock, sizeof(time_t));
+	if (!quiet)
+	    cout << "Read " << timeWordsNeeded << " words for time to buffer position " << dataWords << endl;
+	dataWords += timeWordsNeeded;
+    }
 
     spillTime = usGetTime(startTime);
     durSpill = spillTime - lastSpillTime;
