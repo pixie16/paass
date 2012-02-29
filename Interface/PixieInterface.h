@@ -140,11 +140,11 @@ class PixieInterface
   bool ToggleGain(int mod, int chan);
   bool ToggleGood(int mod, int chan);
   bool TogglePolarity(int mod, int chan);
+  bool ToggleTraceCapture(int mod, int chan);
 
 #ifdef PIF_CATCHER
   bool ToggleCatcherBit(int mod, int chan);
   bool TogglePileupBit(int mod, int chan);
-  bool ToggleTraceCapture(int mod, int chan);
 
   bool SetProtonCatcherMode(int mod, int chan, CatcherModes mode);
 #endif

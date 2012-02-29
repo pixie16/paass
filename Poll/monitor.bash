@@ -65,6 +65,7 @@ while true; do
 	sleep 0.2
 	continue
     fi
+
     for (( CH=0; CH<=MAXCH; CH++ )); do
 	let ROW=CH+2
 	tput cup $ROW 1
