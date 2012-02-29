@@ -9,7 +9,7 @@ COMMONOBJS  = $(INTERFACELIB) $(INTERFACE)/Utility.o
 POLLOBJS    = poll.o sendbuf.o spkt_io_udp.o StatsHandler.o
 PULSEROBJS  = pulser.o sendbuf.o spkt_io_udp.o
 COMMOBJS    = commtest.o sendbuf.o spkt_io_udp.o
-OBJS        = $(POLLOBJS) $(COMMOBJS)
+OBJS        = $(POLLOBJS) $(COMMOBJS) $(PULSEROBJS)
 TARGETS     = poll commtest pulser
 
 # make things copasetic with c++
