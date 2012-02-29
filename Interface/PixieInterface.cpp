@@ -16,6 +16,8 @@
 using namespace std;
 using namespace Display;
 
+set<string> PixieInterface::validConfigKeys;
+
 // some simple histogram functions
 PixieInterface::Histogram::Histogram() : error(NO_ERROR)
 {
@@ -93,6 +95,19 @@ bool PixieInterface::Histogram::Write(ofstream &out)
 PixieInterface::PixieInterface(const char *fn) : lock("PixieInterface")
 {
   SetColorTerm();
+  // Set-up valid configuration keys if they don't exist yet
+  if (validConfigKeys.empty()) {
+    validConfigKeys.insert("ComFpgaFile");
+    validConfigKeys.insert("DspConfFile");
+    validConfigKeys.insert("DspVarFile");
+    validConfigKeys.insert("DspSetFile");
+    validConfigKeys.insert("DspWorkingSetFile");
+    validConfigKeys.insert("ListModeFile");
+    validConfigKeys.insert("PixieBaseDir");
+    validConfigKeys.insert("SlotFile");
+    validConfigKeys.insert("SpFpgaFile");
+    validConfigKeys.insert("TrigFpgaFile");
+  }
   if (!ReadConfigurationFile(fn)) {
     cout << ErrorStr("Error reading configuration file") << endl;
     exit(EXIT_FAILURE);
@@ -139,37 +154,21 @@ bool PixieInterface::ReadConfigurationFile(const char *fn)
 
     // read a tag and value combination from file line by line
     line >> tag >> value;
-    if (tag == "PixieBaseDir") {
-	pixieBaseDir = value;
-	cout << "Pixie base directory is " << InfoStr(pixieBaseDir) << endl;
-	// check if this matches the environment PXI_ROOT if it is set
-	if (getenv("PXI_ROOT") != NULL) {
-	    const string envPxiRoot(getenv("PXI_ROOT"));
-	    if (pixieBaseDir != envPxiRoot) {
-		cout << WarningStr("This does not match the value of PXI_ROOT set in the environment") << endl;
-	    }
-	}
-    } else if (tag == "SpFpgaFile") {
-      spFpgaFile = ConfigFileName(value);
-    } else if (tag == "ComFpgaFile") {
-      comFpgaFile = ConfigFileName(value);
-    } else if (tag == "TrigFpgaFile") {
-      trigFpgaFile = ConfigFileName(value);
-    } else if (tag == "DspConfFile") {
-      dspConfFile = ConfigFileName(value);
-    } else if (tag == "DspVarFile") {
-      dspVarFile =  ConfigFileName(value);
-    } else if (tag == "DspSetFile") {
-      dspSetFile =  ConfigFileName(value);
-    } else if (tag == "DspWorkingSetFile") {
-      dspWorkingSetFile = ConfigFileName(value);
-    } else if (tag == "ListModeFile") {
-      listModeFile = ConfigFileName(value);
-    } else if (tag == "SlotFile") {
-      slotFile =  ConfigFileName(value);
-    } else {
+    if (validConfigKeys.find(tag) == validConfigKeys.end()) {
       cout << "Unrecognized tag " << WarningStr(tag) << " in PixieInterface configuration file." << endl;
     }
+    
+    configStrings[tag] = value;
+    if (tag == "PixieBaseDir") {
+      cout << "Pixie base directory is " << InfoStr(value) << endl;
+      // check if this matches the environment PXI_ROOT if it is set
+      if (getenv("PXI_ROOT") != NULL) {
+	if ( value != string(getenv("PXI_ROOT")) ) {
+	  cout << WarningStr("This does not match the value of PXI_ROOT set in the environment") << endl;
+	}
+      }
+    }
+
     line.clear();
   } while (!in.eof());
 
@@ -181,7 +180,7 @@ bool PixieInterface::GetSlots(const char *slotF)
   char restOfLine[CONFIG_LINE_LENGTH];
 
   if (slotF == NULL)
-    slotF = slotFile.c_str();
+    slotF = configStrings["SlotFile"].c_str();
 
   ifstream in(slotF);
 
@@ -237,16 +236,17 @@ bool PixieInterface::Init(bool offlineMode)
 
 bool PixieInterface::Boot(int mode, bool useWorkingSetFile) 
 {
-  string &setFile = useWorkingSetFile ? dspWorkingSetFile : dspSetFile;
+  string &setFile = useWorkingSetFile ? 
+    configStrings["DspWorkingSetFile"] : configStrings["DspSetFile"];
 
   LeaderPrint("Booting Pixie");
 
-  retval = Pixie16BootModule(&comFpgaFile[0], 
-			     &spFpgaFile[0], 
-			     &trigFpgaFile[0],
-			     &dspConfFile[0], 
+  retval = Pixie16BootModule(&configStrings["ComFpgaFile"][0], 
+			     &configStrings["SpFpgaFile"][0], 
+			     &configStrings["TrigFpgaFile"][0],
+			     &configStrings["DspConfFile"][0], 
 			     &setFile[0],
-			     &dspVarFile[0],
+			     &configStrings["DspVarFile"][0],
 			     numberCards, mode);
 
   bool goodBoot = !CheckError(true);
@@ -360,7 +360,7 @@ void PixieInterface::PrintSglChanPar(const char *name, int mod, int chan)
 bool PixieInterface::SaveDSPParameters(const char *fn)
 {
   if (fn == NULL)
-    fn = &dspWorkingSetFile[0];
+    fn = &configStrings["DspWorkingSetFile"][0];
   strncpy(tmpName, fn, nameSize);
 
   LeaderPrint("Writing DSP parameters");
@@ -717,7 +717,7 @@ string PixieInterface::ConfigFileName(const string &str)
   if (str[0] == '.')
     return str;
   else
-    return pixieBaseDir + '/' + str;
+    return configStrings["PixieBaseDir"] + '/' + str;
 }
 
 bool PixieInterface::CheckError(bool exitOnError) const

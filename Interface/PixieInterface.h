@@ -27,7 +27,9 @@
 #endif
 
 #include <fstream>
+#include <map>
 #include <string>
+#include <set>
 
 #include <stdint.h>
 
@@ -160,16 +162,8 @@ class PixieInterface
   void CatcherMessage(void);
 #endif
 
-  std::string pixieBaseDir;
-  std::string spFpgaFile;
-  std::string comFpgaFile;
-  std::string trigFpgaFile;
-  std::string dspConfFile;
-  std::string dspVarFile;
-  std::string dspSetFile;
-  std::string dspWorkingSetFile;
-  std::string listModeFile;     
-  std::string slotFile;
+  static std::set<std::string> validConfigKeys;
+  std::map<std::string, std::string> configStrings;
 
   bool doneInit;
 
