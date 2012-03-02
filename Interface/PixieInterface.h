@@ -40,6 +40,9 @@ const int CCSRA_PILEUP  = 15;
 const int CCSRA_CATCHER = 16;
 #endif
 
+/// Only for SHE custom firmware w/ virtual digital-summed channels
+const int CCSRA_SUMMED_SINGLE_EVENT = 18; 
+
 class PixieInterface
 {
  public:
@@ -174,6 +177,8 @@ class PixieInterface
 
   unsigned short numberCards;
   unsigned short slotMap[MAX_MODULES];
+  unsigned short firmwareConfig[MAX_MODULES];
+  bool hasAlternativeConfig;
 
   stats_t statistics;
 

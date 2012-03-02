@@ -92,11 +92,18 @@ bool PixieInterface::Histogram::Write(ofstream &out)
     return true;
 }
 
-PixieInterface::PixieInterface(const char *fn) : lock("PixieInterface")
+PixieInterface::PixieInterface(const char *fn) : hasAlternativeConfig(false), lock("PixieInterface")
 {
   SetColorTerm();
   // Set-up valid configuration keys if they don't exist yet
-  if (validConfigKeys.empty()) {
+  if (validConfigKeys.empty()) { 
+    //? perhaps these should allow more than just one alternate firmware configuration 
+    validConfigKeys.insert("AltComFpgaFile");
+    validConfigKeys.insert("AltDspConfFile");
+    validConfigKeys.insert("AltDspVarFile");
+    validConfigKeys.insert("AltSpFpgaFile");
+    validConfigKeys.insert("AltTrigFpgaFile");
+    // standard files
     validConfigKeys.insert("ComFpgaFile");
     validConfigKeys.insert("DspConfFile");
     validConfigKeys.insert("DspVarFile");
@@ -188,6 +195,7 @@ bool PixieInterface::GetSlots(const char *slotF)
     cout << ErrorStr("Error opening slot definition file.") << endl;
     exit(EXIT_FAILURE);
   }
+  stringstream line;
 
   in >> numberCards;
   in.getline(restOfLine, CONFIG_LINE_LENGTH, '\n');
@@ -198,6 +206,13 @@ bool PixieInterface::GetSlots(const char *slotF)
   }
 
   for (int i = 0; i < numberCards; i++) {
+    // check if this is a module with an alternative firmware configuration (tagged with '*')
+    if (in.peek() == '*') {
+      in.ignore();
+      hasAlternativeConfig = true;
+      firmwareConfig[i] = 1; // alternative config
+    } else firmwareConfig[i] = 0; // standard config
+
     in >> slotMap[i];
     in.getline(restOfLine, CONFIG_LINE_LENGTH, '\n');
     if (!in.good()) {
@@ -241,13 +256,40 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile)
 
   LeaderPrint("Booting Pixie");
 
-  retval = Pixie16BootModule(&configStrings["ComFpgaFile"][0], 
-			     &configStrings["SpFpgaFile"][0], 
-			     &configStrings["TrigFpgaFile"][0],
-			     &configStrings["DspConfFile"][0], 
-			     &setFile[0],
-			     &configStrings["DspVarFile"][0],
-			     numberCards, mode);
+  if (hasAlternativeConfig) {
+    // must proceed through boot module by module
+    cout << InfoStr("[MULTICONFIG]");
+    for (int i=0; i < numberCards; i++) {
+      if (firmwareConfig[i] == 1) {
+	// use the Alt... files
+	retval = Pixie16BootModule(&configStrings["AltComFpgaFile"][0],
+				   &configStrings["AltSpFpgaFile"][0],
+				   &configStrings["AltTrigFpgaFile"][0],
+				   &configStrings["AltDspConfFile"][0],
+				   &setFile[0],
+				   &configStrings["AltDspVarFile"][0],
+				   i, mode);
+      } else {
+	// use the standard files
+	retval = Pixie16BootModule(&configStrings["ComFpgaFile"][0], 
+				   &configStrings["SpFpgaFile"][0], 
+				   &configStrings["TrigFpgaFile"][0],
+				   &configStrings["DspConfFile"][0], 
+				   &setFile[0],
+				   &configStrings["DspVarFile"][0],
+				   i, mode);
+      }      
+    }
+  } else {
+    // boot all at once
+    retval = Pixie16BootModule(&configStrings["ComFpgaFile"][0], 
+			       &configStrings["SpFpgaFile"][0], 
+			       &configStrings["TrigFpgaFile"][0],
+			       &configStrings["DspConfFile"][0], 
+			       &setFile[0],
+			       &configStrings["DspVarFile"][0],
+			       numberCards, mode);
+  }
 
   bool goodBoot = !CheckError(true);
 
