@@ -1,4 +1,5 @@
-\documentclass{article}
+\documentclass[10pt]{article}
+\usepackage{fullpage}
 \usepackage{longtable}
 \newcommand{\okay}{\texttt{[OK]}}
 \newcommand{\error}{\texttt{[ERROR]}}
@@ -21,12 +22,14 @@ Additional options for the program can also be seen by typing:
 \begin{verbatim}
 [pixie16@localhost Poll]$ ./poll -?
 Usage: ./poll [options]
-  -f       Fast boot (false by default)
-  -h <num> Dump histogram data every num seconds
-  -q       Run quietly (false by default)
-  -s <num> Output statistics data every num seconds
-  -t <num> Sets FIFO read threshold to num\% full (50\% by default)
-  -z       Zero clocks on each START_ACQ (false by default)
+  -f               Fast boot (false by default)
+  -h <num>         Dump histogram data every num seconds
+  -q, --quiet      Run quietly (false by default)
+  --no-wall-clock  Do not insert the wall clock in the data stream
+  -r               Display module rates in quiet mode (false by defualt)
+  -s <num>         Output statistics data every num seconds
+  -t <num>         Sets FIFO read threshold to num\% full (50\% by default)
+  -z               Zero clocks on each START_ACQ (false by default)
 \end{verbatim}
 Once started, one should wait for an appropriate \okay{} for the booting of the Pixie 16 modules. This can take a moderate amount of time for a number of modules when not using the fast booting option. If an \error{} is given, a further descripton is available in the \texttt{Pixie16msg.txt} file.
 
@@ -44,7 +47,11 @@ While the acquisition is running, \texttt{poll} will report on how many network 
 
 Once finished with the acquisition, issue a \texttt{initvme} from \texttt{pacman} to quit or alternatively hit \texttt{Ctrl-C} in the console running \texttt{poll}. Either of these will clear up the memory and other resources accordingly. For an abnormal exit, a lock file (\texttt{/var/lock/PixieInterface}) will remain on the system (see Sec.~\ref{sec:pi} for further details).
 \subsection{The details}
-Prior to being ready to receive commands, several actions are taken by the polling program. A socket to the \texttt{pacman} computer is established (note that a separate program \texttt{commtest} exists to test this communication); the IP adderss of the computer is defined in the source code (see Table \ref{tab:poll_parameters}) . The Pixie modules are then initialized and booted, and enough memory is allocated to store data from all the FIFOs. The Pixie modules are also told to have their clocks reset to zero at the beginning of the next list mode run which is set to be started synchronously across all the modules so that the timestamps are properly correlated between modules.
+Prior to being ready to receive commands, several actions are taken by the
+polling program. A socket to the \texttt{pacman} computer is established (note
+that a separate program \texttt{commtest} exists to test this communication);
+the IP adderss of the computer is defined through the environment variable
+\texttt{PACHOST} or the local computer if no host is defined. The Pixie modules are then initialized and booted, and enough memory is allocated to store data from all the FIFOs. The Pixie modules are also told to have their clocks reset to zero at the beginning of the next list mode run which is set to be started synchronously across all the modules so that the timestamps are properly correlated between modules.
 
 \begin{table}[htp]
 \label{tab:poll_parameters}
@@ -53,26 +60,51 @@ Prior to being ready to receive commands, several actions are taken by the polli
 \hline
 Variable & Description \\
 \hline
-\texttt{VME} & The computer to which the front end connects for its \texttt{pacman} commands \\
 \texttt{endRunPause} & The amount of time in microseconds the acquisition waits before making the final poll at the end of a run \\ 
 \texttt{pollPause} & The amount of time in microseconds between successive polls \\
 \texttt{pollTries} & While running, the number of times to poll before returning to check for \texttt{pacman} commands \\
 \texttt{readPause} & The amount of time in microseconds to pause before reading the words from a pixie module after polling \\
-\texttt{waitPause} & The amount of time to wait before starting to poll when a partial event is detected \\
+\texttt{waitPause} & The amount of time to wait before starting to poll when a
+partial event is detected \\
+\texttt{waitTries} & Number of times to try to read the remainder of a partial
+event with an appropriate \texttt{pollPause} delay between attempts \\
 \end{tabular}
 \end{table}
 
 Once a \textsc{START} command is received, the status of the acquisition is properly reset, and a list-mode run is began for all the Pixie modules described in the slot definition file (typically \texttt{slot\_def.set}). Note that for Rev. D modules, the only mode available is \texttt{LIST\_MODE\_RUN0} (i.e. full channel header information with traces), and controlling whether traces are read is instead controlled by a \texttt{CHANNEL\_CSRA} flag (see Sec.~\ref{sec:setup}).
 
-While running, the pixie cards are then polled for a while (see Table \ref{tab:poll_parameters}) to see if any module has accumulated enough words to be read out. Once a module exceeds the threshold, then a short pause is made and the appropriate number of FIFO words determined in the polling stage is read out from each module sequentially. Occasionally, the program will read the FIFO while it is in the process of writing an event resulting in a partial event in the data stream. To properly account for this, the events are parsed --- this parsing also allows a quick sanity check of the data based on the material in the event header. If a partial event exists, \texttt{poll} will then wait for the remainder of that event to exist in the FIFO (and read out) before continuing with the reading of the modules. In the situation where a buffer is overly full ($>90\%$), the run will stop so the problem can be properly addressed; here, partial events will be discarded. Finally, the run status is checked for all Pixie modules, and the data is divided into shared memory buffers in order to be sent over the network. A quick check of any commands from the \texttt{pacman} socket is then done before beginning the polling process anew.
+While running, the pixie cards are then polled for a while (see Table
+\ref{tab:poll_parameters}) to see if any module has accumulated enough words
+to be read out. Once a module exceeds the threshold, then a short pause is
+made and the appropriate number of FIFO words determined in the polling stage
+is read out from each module sequentially. Occasionally, the program will read
+the FIFO while it is in the process of writing an event resulting in a partial
+event in the data stream. To properly account for this, the events are parsed
+--- this parsing also allows a quick sanity check of the data based on the
+material in the event header. If a partial event exists, \texttt{poll} will
+then wait for the remainder of that event to exist in the FIFO (and read out)
+before continuing with the reading of the modules. If this wait times out, the
+partial event will be moved into the next spill. In the situation where a buffer is overly full ($>90\%$), the run will stop so the problem can be properly addressed; here, partial events will be discarded. Finally, the run status is checked for all Pixie modules, and the data is divided into shared memory buffers in order to be sent over the network. A quick check of any commands from the \texttt{pacman} socket is then done before beginning the polling process anew.
 
 After a \textsc{STOP} command is received (or the program is interrupted), the acquisition will instruct the modules to end their runs. After waiting a fixed amount of time, one final pass is made through the polling process in order to extract the last events from the FIFO.
 
 \section{\label{sec:setup}Configuring pixie}
-In general, the interface for configuring Rev. D Pixie modules is virtually identical as that for Rev. A with the commands \texttt{pwrite}, \texttt{pread}, \texttt{pmwrite}, and \texttt{pmread} as well as the corresponding \texttt{R\_*} and \texttt{W\_*} equivalents. In addition, both the \texttt{mca} and \texttt{trace} programs as well as their paw versions are included in this directory. Three new programs join the mix: \texttt{boot}, \texttt{copy\_params}, and \texttt{adjust\_offsets}. Note that \texttt{boot} must be called at least once before working with the modules; all the other programs only do a partial booting of the Pixie system. All these programs (see Table~\ref{tab:setup_programs}) are compiled with the Pixie interface described in Sec.~\ref{sec:pi} and use the working set file as given in \texttt{pixie.cfg}. Several paw kumacs also exist for interfacing with the executables with paw support.
+In general, the interface for configuring Rev. D Pixie modules is virtually
+identical as that for Rev. A with the commands \texttt{pwrite},
+\texttt{pread}, \texttt{pmwrite}, and \texttt{pmread} as well as the
+corresponding \texttt{R\_*} and \texttt{W\_*} equivalents. In addition, both
+the \texttt{mca} and \texttt{trace} programs as well as their paw versions are
+included in this directory. Three new programs join the mix: \texttt{boot},
+\texttt{copy\_params}, and \texttt{adjust\_offsets}. Note that \texttt{boot}
+must be called at least once before working with the modules; all the other
+programs only do a partial booting of the Pixie system. All these programs
+(see Table~\ref{tab:setup_programs}) are compiled with the Pixie interface
+described in Sec.~\ref{sec:pi} and use the working set file as given in
+\texttt{pixie.cfg}. Several paw kumacs also exist for interfacing with the
+executables with paw support.
 % \begin{table}[htp]
 % \begin{tabular}{l p{3in}}
-\begin{longtable}{lp{3in}}
+\begin{longtable}{lp{4.5in}}
 \caption{\label{tab:setup_programs}List of programs useful for setting up Pixie channels. Here, the arguments {\it m,c,p,v} indicate the module, channel, parameter, and value of interest respectively. If a given module or channel is set to -1, this means all modules or all channels for appropriate programs.} \\
 \hline
 Program & Description \\
@@ -118,7 +150,17 @@ Program & Description \\
 \texttt{toggle\_trace} {\it m c} & Toggle the trace capture bit of the channel CSRA\\
 \texttt{trace} & Print out mean and deviation of traces for all channels acquired by Pixie \\
 \texttt{trace\_paw} {\it m c} & As \texttt{trace} but also store the trace in a paw file named \texttt{trace.dat} with histogram number $100(m+1) + c$ \\
-\texttt{W\_*} & \textsc{BASH:} Write a parameter for the active module or channel \\
+\texttt{W\_*} & \textsc{BASH:} Write a parameter for the active module or
+channel \\
+\hline
+Paw macros & \\
+\hline
+\texttt{mca} {\it m c v} & Take a histogramming run for {\it v} seconds and
+display the results for a given channel (or entire module) \\
+\texttt{mc}  & Take a predestined via \texttt{smt} histogram run \\
+\texttt{tra} {\it m c} & Get a trace from a given channel (or entire module)
+\\
+\texttt{trc} & Get a trace for the channel you have specified via \texttt{sm} \\
 % \texttt{WCHA} & \textsc{BASH:} Dummy script, {\bf do not directly use!} \\
 % \texttt{WMOD} & \textsc{BASH:} Dummy script, {\bf do not directly use!} \\
 \end{longtable}
@@ -150,7 +192,7 @@ After copying to another computer, one must ensure that the directories to
 find the necessary libraries and files are correct. These directories are
 included through the files \texttt{makepixie.inc} for those regarding Pixie
 and \texttt{makepaw.inc} for those regarding the paw configuration. These use
-several values from the bash environment as if defined:
+several values from the bash environment if defined:
 \begin{table}[ht]
 \label{fig:bashenv}
 \caption{Bash environment variables used for setup if defined}
@@ -165,6 +207,8 @@ scheme \\
 package \\
 \texttt{CERNLIB\_LIB}      & Directory containing the libraries for the
 cernlib package \\
+\texttt{CERNLIB\_NOSHIFT}  & Specify that kernlib and packlib are the noshift
+versions \\
 \texttt{CERNLIB\_ROOT}     & Sets both the library and header directories provided
 that they are contained in the \texttt{lib} and \texttt{include}
 subdirectories respectively \\
@@ -195,7 +239,13 @@ DspWorkingSetFile ./default_current.set
 ListModeFile      ./listmode.dat
 # SlotFile        configuration/slot_def.set
 SlotFile          ./slot_def.set
+# AltComFpgaFile    firmware/syspixie16_revdgeneral_r20408.bin
+# AltDspConfFile    dsp/Pixie16DSP_revd_ornl_she_r22025.ldr
+# AltDspVarFile     dsp/Pixie16DSP_revd_ornl_she_r22025.var
+# AltSpFpgaFile     firmware/fippixie16_revd_ornl_she_r21208.bin
+# AltTrigFpgaFile   firmware/pixie16trigger.bin
 # TAG               VALUE
+
 \end{verbatim}
 shows a test configuration files. Lines starting with a `\#' are ignored by the parser, and all files are taken relative to the \texttt{PixieBaseDir} unless they begin with a `.' in which case they are considered relative to the current directory. The only other necessary configuration file unique to the interface is the \texttt{SlotFile} (though it has the same format as previous programs). The expected format is:
 \begin{verbatim}
@@ -204,10 +254,15 @@ shows a test configuration files. Lines starting with a `\#' are ignored by the 
 3 Mod 1
 4 Mod 2
 5 Mod 3
-6 Mod 4
+*6 Mod 4
 ...
 \end{verbatim}
-Only the first number on the line is considered, starting with the number of modules and then the slot in which that module is located. Extra numbers at the end of the file are ignored. This creates a slot map which is used in the Pixie initialization prior to booting.
+Only the first number on the line is considered, starting with the number of
+modules and then the slot in which each module is located. Extra numbers at
+the end of the file are ignored. This creates a slot map which is used in the
+Pixie initialization prior to booting. If a line begins with an asterisk, then
+the alternative values of the firmware configuration is used from the
+\texttt{pixie.cfg} file.
 
 The Interface also provides a few other (possibly non-portable) functions which provide consistency among the other programs. First, multiple interfaces are prevented from being opened on the same computer. This prevents hard crashes from when multiple processes access the Pixie modules simultaneously. However, in the event of an error, the file which locks the interface (\texttt{/var/lock/PixieInterface}) might not be removed. The Pixie interface then reports which process opened the lock file so that one can verify that the process is properly terminated, remove the lock file manually, and start anew.
 
