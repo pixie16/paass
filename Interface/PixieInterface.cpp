@@ -256,6 +256,8 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile)
 
   LeaderPrint("Booting Pixie");
 
+ bool goodBoot = true;
+
   if (hasAlternativeConfig) {
     // must proceed through boot module by module
     cout << InfoStr("[MULTICONFIG]");
@@ -278,7 +280,8 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile)
 				   &setFile[0],
 				   &configStrings["DspVarFile"][0],
 				   i, mode);
-      }      
+      }
+      goodBoot = (goodBoot && !CheckError(true));
     }
   } else {
     // boot all at once
@@ -289,10 +292,9 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile)
 			       &setFile[0],
 			       &configStrings["DspVarFile"][0],
 			       numberCards, mode);
+    goodBoot = !CheckError(true);
   }
-
-  bool goodBoot = !CheckError(true);
-
+ 
   cout << "  Used set file: " << InfoStr(setFile) << endl;
 
   LeaderPrint("Checking SlotIDs");
