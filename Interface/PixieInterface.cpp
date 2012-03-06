@@ -165,7 +165,7 @@ bool PixieInterface::ReadConfigurationFile(const char *fn)
       cout << "Unrecognized tag " << WarningStr(tag) << " in PixieInterface configuration file." << endl;
     }
     
-    configStrings[tag] = value;
+    configStrings[tag] = ConfigFileName(value);
     if (tag == "PixieBaseDir") {
       cout << "Pixie base directory is " << InfoStr(value) << endl;
       // check if this matches the environment PXI_ROOT if it is set
@@ -756,7 +756,7 @@ bool PixieInterface::ToggleChannelBit(int mod, int chan, const char *parameter, 
 
 string PixieInterface::ConfigFileName(const string &str) 
 {
-  if (str[0] == '.')
+  if (str[0] == '.' || str[0] == '/')
     return str;
   else
     return configStrings["PixieBaseDir"] + '/' + str;
