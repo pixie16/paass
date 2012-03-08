@@ -67,6 +67,8 @@ RawEvent rawev;
 /** Driver used to process the raw events */
 DetectorDriver driver;
 
+/** The number of modules to read out */
+unsigned int numPhysicalModules;
 /** The max number of modules used in the map.txt file */
 unsigned int numModules;
 
@@ -477,12 +479,12 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
             /* If both the current vsn inspected is within an acceptable 
 	       range, begin reading the buffer.
             */
-            if ( vsn < numModules ) {
+            if ( vsn < numPhysicalModules ) {
 	        if ( lastVsn != U_DELIMITER) {
 		    // the modules should be read out cyclically
-		    if ( ((lastVsn+1) % numModules) != vsn ) {
+		    if ( ((lastVsn+1) % numPhysicalModules) != vsn ) {
 #ifdef VERBOSE
-			cout << " MISSING BUFFER " << vsn << "/" << numModules
+			cout << " MISSING BUFFER " << vsn << "/" << numPhysicalModules
 			     << " -- lastVsn = " << lastVsn << "  " 
 			     << ", length = " << lenRec << endl;
 #endif
@@ -862,11 +864,20 @@ bool InitMap(void)
 	 * If the first input on a line is a number, read in channel info.
 	 * Otherwise, treat it as a comment.
 	 */
+	bool virtualChannel = false;
+
+	if ( mapFile.peek() == 'v' ) {
+	    virtualChannel = true;
+	    mapFile.ignore();
+	}
 	if ( isdigit(mapFile.peek()) ) {
 	    mapFile >> modNum >> chanNum >> dammID >> detType
 		    >> detSubtype >> detLocation >> trace;
 	    
 	    // Using the current module number, set the number of modules
+	    if (!virtualChannel) {
+		numPhysicalModules = max(numPhysicalModules, modNum + 1);
+	    }
 	    numModules = max(numModules, modNum + 1);
 	    // Resize the modchan vector so it's guaranteed to have enough chans
 	    if ( modChan.size() < numModules * NUMBER_OF_CHANNELS ) {

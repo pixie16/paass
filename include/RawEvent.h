@@ -99,6 +99,7 @@ class ChanEvent {
     int    modNum;             /**< Module number */
     int    chanNum;            /**< Channel number */
 
+    bool   virtualChannel;     /**< Flagged if generated virtually in Pixie DSP */
     bool   pileupBit;          /**< Pile-up flag from Pixie */
     bool   saturatedBit;       /**< Saturation flag from Pixie */
 
