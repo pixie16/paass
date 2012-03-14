@@ -16,17 +16,22 @@ REVISIOND = 1
 #------- instruct make to search through these
 #------- directories to find files
 vpath %.f scan/ 
+vpath %.hpp include/
 vpath %.h include/
+vpath %.icc include/
 vpath %.cpp src/
 vpath %.cxx src/
 
-DIRA2=/usr/hhirf/g77
-DIRB= /usr/acq2/lib
-# DIRA2 = /usr/hhirf
-# DIRB  = /usr/hhirf
+ifeq ($(HHIRF_DIR),)
+HHIRF_HIR = /usr/hhirf
+endif
 
-LIBS = $(DIRA2)/scanorlib.a $(DIRA2)/orphlib.a \
-       $(DIRB)/acqlib.a  $(DIRB)/ipclib.a
+ifeq ($(ACQ2_DIR),)
+ACQ2_DIR = /usr/acq2/lib
+endif
+
+LIBS = $(HHIRF_DIR)/scanorlib.a $(HHIRF_DIR)/orphlib.a \
+       $(ACQ2_DIR)/acqlib.a  $(ACQ2_DIR)/ipclib.a
 
 OutPutOpt     = -o # keep whitespace after "-o"
 ObjSuf        = o
@@ -38,9 +43,13 @@ c++SrcSuf = cpp
 cxxSrcSuf = cxx
 
 #------- define compilers
+#define to compile with gfortran (>=4.2) if required for the hhirf libs
+ifneq ($(HHIRF_GFORTRAN), )
 FC        = g77
-#uncomment to compile with gfortran (>=4.2) if required for the hhirf libs
-# FC        = gfortran
+else
+FC        = gfortran
+endif
+
 GCC       = gcc 
 CXX       = g++
 LINK.o    = $(FC) $(LDFLAGS)
