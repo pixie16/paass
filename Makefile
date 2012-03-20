@@ -44,7 +44,7 @@ cxxSrcSuf = cxx
 
 #------- define compilers
 #define to compile with gfortran (>=4.2) if required for the hhirf libs
-ifneq ($(HHIRF_GFORTRAN), )
+ifeq ($(HHIRF_GFORTRAN), )
 FC        = g77
 else
 FC        = gfortran
