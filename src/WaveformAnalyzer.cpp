@@ -239,39 +239,7 @@ int FitFunctionDf (const gsl_vector * x, void *FitData,
 #else //pulsefit undefined
 double SptAnalysis(Trace &trace, const string &detType, const string &detSubtype)
 {
-    //! Lots of magic numbers here
-    double aveBaseline = trace.GetValue("baseline");
-    double tQDC = trace.GetValue("tqdc");
-    unsigned int maxPos = (unsigned int)trace.GetValue("maxpos");
-    double sigma, amp;
-
-    //Normalize the trace
-    vector<double> normtrc(trace.size());
-    for(unsigned int j = 0; j < trace.size(); j++)
-	normtrc.at(j) = ((trace.at(j)-aveBaseline)/tQDC)*6226.55; 
-    
-    double delta1=fabs(trace.at(maxPos)-trace.at(maxPos-1));
-    double inv_fcn = 0;
-    
-    if(detType == "pulser") {
-	sigma = 0.102;
-	amp = 1904.293314;
-    }
-    else if(detType == "scint" || detType == "vandle") {
-	sigma = 0.039185;
-	amp = 1997.157;
-    }
-    
-//    sigma = 0.166597; //test parameters
-//    amp = 1816.27;
-    
-    if(delta1 > ((trace.at(maxPos)-aveBaseline)*0.4))  
- 	inv_fcn = (pow(-log((normtrc.at(maxPos-1))/(amp))*pow(sigma,3),0.25)/sigma)+(maxPos-1);
-    else if ((delta1 < (trace.at(maxPos)-aveBaseline)*0.4) &&  (normtrc.at(maxPos-2) > 0))
- 	inv_fcn = (pow(-log((normtrc.at(maxPos-2))/(amp))*pow(sigma,3),0.25)/sigma)+(maxPos-2);
-    else
- 	inv_fcn = (pow(-log((normtrc.at(maxPos-1))/(amp))*pow(sigma,3),0.25)/sigma)+(maxPos-1);
-    
-    return inv_fcn;
+    // this has been removed for the present
+    return 0.;
 }
 #endif //#ifdef pulsefit
