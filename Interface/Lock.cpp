@@ -1,6 +1,6 @@
 // Implementation of Lock class which creates a file in a directory
 //   with a given name which prevents the process from continuing
-
+#include <algorithm>
 #include <iostream>
 
 #include <cstdlib>
@@ -14,8 +14,12 @@ using namespace Display;
 
 using std::cout;
 using std::endl;
+using std::find;
+using std::list;
 using std::string;
 
+
+list<string> Lock::lockList;
 const string Lock::lockDirectory = "/var/lock";
 
 Lock::Lock(string name)
@@ -34,6 +38,10 @@ Lock::Lock(string name)
     // store the pid of the locking process in the file
     fprintf(lockFile, "%10d", getpid());
     fclose(lockFile);
+    if (lockList.empty()) {
+	atexit(RemoveLocks);
+    }
+    lockList.push_back(fileName);
   } else {
     pid_t pid;
 
@@ -52,11 +60,24 @@ Lock::~Lock()
 
 void Lock::Remove(void)
 {
-  LeaderPrint("Removing lock file");
-
-  int errno = remove(fileName.c_str());
-  if (errno < 0)
-    cout << ErrorStr() << endl;
-  else
-    cout << OkayStr() << endl;
+    Remove(fileName);
 }
+
+// static method
+void Lock::Remove(std::string &name)
+{
+  LeaderPrint("Removing lock file " + name);
+
+  int errno = remove(name.c_str());
+  Display::StatusPrint(errno < 0);
+  
+  lockList.remove(name);
+}
+
+void RemoveLocks(void)
+{
+    while (!Lock::lockList.empty()) {
+	Lock::Remove(Lock::lockList.front());
+    }
+}
+

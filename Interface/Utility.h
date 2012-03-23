@@ -14,5 +14,11 @@ bool inRange(const T& t, const T& low, const T& high) {
     return (t >= low && t < high);
 };
 
+/** test if a value t falls in the range between [default value, high) */
+template<typename T>
+bool inRange(const T&t , const T& high) {
+    return (t >= T() && t < high)
+}
+
 
 #endif // __UTILITY_H_
