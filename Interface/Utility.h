@@ -11,13 +11,15 @@ double usGetDTime(void);
 /** test if a value t falls in the closed range [low, high) */
 template<typename T>
 bool inRange(const T& t, const T& low, const T& high) {
-    return (t >= low && t < high);
+    // use only less than operator so that only one operator needs to be defined
+    return (!(t < low) && t < high);
 };
 
 /** test if a value t falls in the range between [default value, high) */
 template<typename T>
 bool inRange(const T&t , const T& high) {
-    return (t >= T() && t < high)
+    // use only less than operator so that only one operator needs to be defined
+    return (!(t < T()) && t < high);
 }
 
 
