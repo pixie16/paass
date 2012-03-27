@@ -28,19 +28,27 @@ public:
     TraceGrabber(unsigned short* data_, int trigger_, int maxTries_, size_t loopLength_, bool doFit_ = false) :
 	data(data_), trigger(trigger_), maxTries(maxTries_), loopLength(loopLength_), ready() {
 	doFit = doFit_;
+	isBidirectional = false;
+	updateBaselines = false;
 	for (int i = 0; i < NUMBER_OF_CHANNELS; ++i) {
 	    attempts[i] = 0;
 	    baseline[i] = NAN;
 	}
     }
     bool operator()(PixieFunctionParms<> &par);
-    bool Ready(void) {return ready.count() == loopLength;}
+    bool Ready(void) const {return ready.count() == loopLength;}
+    void EnableBaselineUpdate(void) {updateBaselines = true;}
+    void EnableBidirectionalTrigger(void) {isBidirectional = true;}
 private:
     unsigned short* data;   // 2*16*8192 data points
     /**Tau fitting on/off */
     bool doFit;
     /** Trigger level */
     int trigger;
+    /** Whether the trigger responds to negative signals */
+    bool isBidirectional;
+    /** Whether to continuously update baselines */
+    bool updateBaselines;
     /** Number of attempts to get trace above trigger level. */
     int maxTries;
     /** Number of channels read (loop length 1 or 16) */
@@ -126,34 +134,46 @@ bool TraceGrabber::operator()(PixieFunctionParms<> &par) {
     // If channel ready skip the rest
     if ( ready[par.ch] ) 
         return true;
+    loopCount++;
 
     const size_t size = PixieInterface::GetTraceLength();
     unsigned short trace[size];
     usleep(10);
     if (par.pif.ReadSglChanTrace(trace, size, par.mod, par.ch)) {
-        unsigned long sum = 0;
-        if (isnan(baseline[par.ch]) && trigger > 0.0) {
-	    size_t baselineSamples = size / 10;
-            for (unsigned i = 0; i < baselineSamples; ++i)
-                sum += trace[i];
-            baseline[par.ch] = float(sum)/float(baselineSamples);
-            cout << "CH: " << par.ch << " average " << baseline[par.ch];
-            cout << ", trig level = " << trigger + baseline[par.ch] << endl;            
-        }
-
         if (trigger > 0.0 && attempts[par.ch] < maxTries) {
+	    if (attempts[par.ch] == 0 || updateBaselines) {
+		size_t baselineSamples = size / 10;
+		unsigned long sum = 0;
+
+		for (unsigned i = 0; i < baselineSamples; ++i)
+		    sum += trace[i];
+		
+		baseline[par.ch] = float(sum)/float(baselineSamples);
+		if ( attempts[par.ch] == 0 ) {
+		    cout << "CH: " << par.ch << " average " << baseline[par.ch];
+		    cout << ", trig level = " << baseline[par.ch] + trigger;
+		    if (isBidirectional) 
+			cout << " or " << baseline[par.ch] - trigger;	       	
+		    if (updateBaselines)
+			cout << ", updating continuously"; 
+		    cout << endl;		
+		}
+	    }
+
             attempts[par.ch]++;
 
             bool trig = false;
-            int triggerLevel = trigger + baseline[par.ch];
+            int triggerHigh = baseline[par.ch] + trigger;
+	    int triggerLow  = baseline[par.ch] - trigger;
 
 	    size_t x0;
-            for (unsigned i = 0; i < size; ++i) {
-                if (trace[i] > triggerLevel) {
+            for (unsigned int i = 0; i < size; ++i) {
+                if (trace[i] > triggerHigh || 
+		    (isBidirectional && trace[i] < triggerLow) ) {
                     trig = true;
                     x0 = i;
                     break;
-                }
+                } 
             }
             if (trig) {
                 ready[par.ch] = true;
@@ -162,7 +182,8 @@ bool TraceGrabber::operator()(PixieFunctionParms<> &par) {
                 if (doFit) {
                     size_t x1 = 0;
                     for (size_t i = size - 1; i > x0; --i) {
-                        if (trace[i] > triggerLevel - trigger/2) {
+                        if (trace[i] > triggerHigh - trigger/2 ||
+			    (isBidirectional && trace[i] < triggerLow + trigger / 2) ) {
                             x1 = i;
                             break;
                         }
@@ -214,24 +235,31 @@ int main(int argc, char *argv[]) {
     int trig = 0;
     int maxAttempts = 100;
     bool tau = false;
+    bool bidirectionalTrigger = false;
+    bool updateBaselines = false;
 
     const option longOptions[] = {
-	{"mod", required_argument, 0, 'm'},
+	{"bidirectional", no_argument, 0, 'b'},
 	{"ch", required_argument, 0, 'c'},
-	{"trig", required_argument, 0, 't'},
-	{"tau", no_argument, 0, 'u'},
+	{"level", required_argument, 0, 'l'},
+	{"mod", required_argument, 0, 'm'},
+	{"tau", no_argument, 0, 't'},
+	{"update", no_argument, 0, 'u'},
 	{"help", no_argument, 0, 'h'},
 	{0, 0, 0, 0}
     };
     int flag, optionsIndex;
 
     // getopt_long returns -1 when all is done
-    while ( (flag = getopt_long (argc, argv, "m:c:t:n:uh1", longOptions, &optionsIndex)) != -1) {
+    while ( (flag = getopt_long (argc, argv, "bm:c:l:n:tuh1", longOptions, &optionsIndex)) != -1) {
         switch (flag) {
 	case '1':
-	    // allow -1 option as all channels 
+	    // allow -1 (minus one) option as all channels 
 	    //   this is the default anyway but has a similar behavior
 	    //   as other programs' syntax in the suite
+	    break;
+	case 'b':
+	    bidirectionalTrigger = true;
 	    break;
 	case 'm':
 	    mod = atoi(optarg);
@@ -239,25 +267,30 @@ int main(int argc, char *argv[]) {
 	case 'c':
 	    ch = atoi(optarg);
 	    break;
-	case 't':
+	case 'l':
 	    trig = atoi(optarg);
 	    break;
 	case 'n':
 	    maxAttempts = atoi(optarg);
 	    break;
-	case 'u':	    
+	case 't':	    
 	    tau = true;
+	    break;
+	case 'u':
+	    updateBaselines = true;
 	    break;
 	case 'h':	    
 	case '?':
 	    ;
 	    cout << "Usage: " << argv[0] << " -m <module_number> [-c <ch_number> -t <trig_level> -n <number_of_attempts>] " << endl;
 	    cout << "Flags: " << endl;
-	    cout << " -m, --mod   -  module number (required) " << endl;
-	    cout << " -c, --ch    -  channel number (0-15 or -1), -1 (default) = all channels " << endl;
-	    cout << " -t, --trig  -  trigger level in number of samples above baseline, default = 0 (no trigger) " << endl;
-	    cout << " -n          -  number of attempts to catch good trigger, default = 100 " << endl;
-	    cout << " -h, --help  -  shows this help " << endl;
+	    cout << " -b, --bidirectional - allow triggers of either direction (useful for logic signals)" << endl;
+	    cout << " -m, --mod           - module number (required) " << endl;
+	    cout << " -c, --ch            - channel number (0-15 or -1), -1 (default) = all channels " << endl;
+	    cout << " -l, --level          - trigger level in number of samples above baseline, default = 0 (no trigger) " << endl;
+	    cout << " -n                  -  number of attempts to catch good trigger, default = 100" << endl;
+	    cout << " -u, --update        - update baselines each iteration" << endl;
+	    cout << " -h, --help          - shows this help " << endl;
 	    if (flag == 'h')
 		exit(EXIT_SUCCESS);
 	    exit(EXIT_FAILURE);
@@ -298,18 +331,22 @@ int main(int argc, char *argv[]) {
     unsigned short data[size];
     memset(data, 0, sizeof(data));
 
-    int loopLength = 0;
+    int loopLength;
     if (ch == -1) {
         loopLength = pif.GetNumberChannels();
     } else {
         loopLength = 1;
         for (size_t i = 0; i < pif.GetNumberChannels(); ++i) {
             //This prevents gnuplot from empty range warnings
-            data[(2 * i + 2) * PixieInterface::GetTraceLength() - 2] = PixieInterface::GetTraceLength() - 1;
-            data[(2 * i + 2) * PixieInterface::GetTraceLength() - 1] = 1;
+            data[(2 * i + 1) * PixieInterface::GetTraceLength() - 2] = PixieInterface::GetTraceLength() - 1;
+            data[(2 * i + 1) * PixieInterface::GetTraceLength() - 1] = 1;
         }
     }
     TraceGrabber grabber(data, trig, maxAttempts, loopLength, tau);
+    if (bidirectionalTrigger)
+	grabber.EnableBidirectionalTrigger();
+    if (updateBaselines)
+	grabber.EnableBaselineUpdate();
 
     int counter = 0;
     while (!grabber.Ready()) {
@@ -326,7 +363,7 @@ int main(int argc, char *argv[]) {
     fout.write((char* )data, sizeof(data));
     fout.close();
 
-    system("gnuplot 'plotTraces' ");
+    system("gnuplot 'plotTraces' ");    
     cout << "Traces data are in '/tmp/traces.dat' file." << endl;
 
     return EXIT_SUCCESS;
