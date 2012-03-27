@@ -56,8 +56,8 @@ private:
     void StoreData(short unsigned int* trace,
 		   const size_t size, unsigned ch);
     double FitTau(const unsigned short* trace, 
-		  unsigned b0, unsigned b1,
-		  unsigned x0, unsigned x1);
+		  size_t b0, size_t b1,
+		  size_t x0, size_t x1);
 
 };
 
@@ -226,8 +226,13 @@ int main(int argc, char *argv[]) {
     int flag, optionsIndex;
 
     // getopt_long returns -1 when all is done
-    while ( (flag = getopt_long (argc, argv, "m:c:t:n:uh", longOptions, &optionsIndex)) != -1) {
+    while ( (flag = getopt_long (argc, argv, "m:c:t:n:uh1", longOptions, &optionsIndex)) != -1) {
         switch (flag) {
+	case '1':
+	    // allow -1 option as all channels 
+	    //   this is the default anyway but has a similar behavior
+	    //   as other programs' syntax in the suite
+	    break;
 	case 'm':
 	    mod = atoi(optarg);
 	    break;
@@ -257,6 +262,13 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_SUCCESS);
 	    exit(EXIT_FAILURE);
         }
+    }
+
+    // allow giving module/channel in traditional way
+    if (argc > optind) {
+	mod = atoi(argv[optind]);
+	if (argc > optind + 1)
+	    ch  = atoi(argv[optind+1]);
     }
 
     PixieInterface pif("pixie.cfg");
