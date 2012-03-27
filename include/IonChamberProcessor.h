@@ -51,7 +51,7 @@ namespace dammIds
     const int D_RATE_DETX     = 3240; // + detector num
     // 2d spectra
     const int DD_ESUM__ENERGY_DETX   = 3250; // + detector num    
-    const int DD_EBACK__ENERGY_DETX  = 3200; // + detector num
+    const int DD_EBACK__ENERGY_DETX  = 3300; // + detector num
   };
 };
 

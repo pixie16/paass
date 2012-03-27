@@ -53,7 +53,7 @@ void ScintProcessor::DeclarePlots(void) const
     DeclareHistogram2D(DD_TQDCLIQUID, SC, S3, "Liquid vs. Trace QDC", 1, SE, 0, SE-1, S3, 0, S3-1);
     DeclareHistogram2D(DD_MAXLIQUID, SC, S3, "Liquid vs. Maximum");
     DeclareHistogram1D(D_DISCRIM, SD, "N-Gamma Discrimination");
-    DeclareHistogram2D(DD_NGVSE, SE, SE,"N-G Discrim vs Energy");
+    // DeclareHistogram2D(DD_NGVSE, SE, SE,"N-G Discrim vs Energy");
     DeclareHistogram2D(DD_TOFLIQUID, SE, S3,"N-G Discrim vs Energy");
     DeclareHistogram2D(DD_TRCLIQUID, S7, S7, "LIQUID TRACES");
 }
@@ -90,8 +90,7 @@ bool ScintProcessor::Process(RawEvent &event)
 	unsigned int loc = (*itBeta)->GetChanID().GetLocation();
 	ScintData data(*itBeta);
 
-	map<int, struct ScintData>::iterator itTemp = 
-	    betaMap.insert(make_pair(loc, data)).first;
+	betaMap.insert(make_pair(loc, data));
 	
 	if ( data.GoodDataCheck() ) {
 	    plot(DD_TQDCBETA, data.tqdc, loc);
@@ -105,8 +104,7 @@ bool ScintProcessor::Process(RawEvent &event)
 	unsigned int loc = (*itLiquid)->GetChanID().GetLocation();
 	
 	ScintData data(*itLiquid);
-	map<int, struct ScintData>::iterator itTemp = 
-	    liquidMap.insert(make_pair(loc, data)).first;
+	liquidMap.insert(make_pair(loc, data));
 	
 	if ( data.GoodDataCheck() ) {
 	    plot(DD_TQDCLIQUID, data.tqdc, loc);
