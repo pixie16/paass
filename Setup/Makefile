@@ -15,6 +15,7 @@ PMWRITEOBJS   = pmwrite.o
 RATEOBJS      = rate.o 
 BOOTOBJS      = boot.o
 TRACEOBJS     = trace.o
+GETTRACESOBJS = get_traces.o
 CSRTESTOBJS   = csr_test.o
 TGGAINOBJS    = toggle_gain.o
 TGGOODOBJS    = toggle_good.o
@@ -29,9 +30,9 @@ SETHYBRIDOBJS = set_hybrid.o
 
 COMMONOBJS  = $(INTERFACELIB)
 
-OBJS        = $(PMREADOBJS) $(PMWRITEOBJS) $(PREADOBJS) $(PWRITEOBJS) $(RATEOBJS) $(BOOTOBJS) $(ADJUSTOBJS) $(COPYOBJS) $(TRACEOBJS) $(CSRTESTOBJS) $(FINDOBJS) $(TGGAINOBJS) $(TGGOODOBJS) $(TGPOLOBJS) $(TGTRACEOBJS) $(TGPILEUPOBJS) $(TGCATCHEROBJS) $(SETSTDOBJS) $(SETPUONLYOBJS) $(SETPURJCTOBJS) $(SETHYBRIDOBJS)
+OBJS        = $(PMREADOBJS) $(PMWRITEOBJS) $(PREADOBJS) $(PWRITEOBJS) $(RATEOBJS) $(BOOTOBJS) $(ADJUSTOBJS) $(COPYOBJS) $(TRACEOBJS) $(CSRTESTOBJS) $(FINDOBJS) $(TGGAINOBJS) $(TGGOODOBJS) $(TGPOLOBJS) $(TGTRACEOBJS) $(TGPILEUPOBJS) $(TGCATCHEROBJS) $(SETSTDOBJS) $(SETPUONLYOBJS) $(SETPURJCTOBJS) $(SETHYBRIDOBJS) $(GETTRACESO)
 
-TARGETS     = pmread pmwrite pread pwrite rate adjust_offsets copy_params boot trace csr_test find_tau toggle_gain toggle_good toggle_polarity toggle_trace toggle_pileup toggle_catcher set_standard set_hybrid set_pileups_only set_pileups_reject
+TARGETS     = pmread pmwrite pread pwrite rate adjust_offsets copy_params boot trace csr_test find_tau toggle_gain toggle_good toggle_polarity toggle_trace toggle_pileup toggle_catcher set_standard set_hybrid set_pileups_only set_pileups_reject get_traces
 
 CHANNEL_PARMS = TRIGGER_RISETIME TRIGGER_FLATTOP TRIGGER_THRESHOLD ENERGY_RISETIME ENERGY_FLATTOP TAU TRACE_LENGTH TRACE_DELAY VOFFSET XDT BASELINE_PERCENT EMIN BINFACTOR CHANNEL_CSRA CHANNEL_CSRB BLCUT ENERGYCUTOFF
 MODULE_PARMS = MODULE_CSRA MODULE_CSRB MODULE_FORMAT MAX_EVENTS SYNCH_WAIT IN_SYNCH SLOW_FILTER_RANGE FAST_FILTER_RANGE MODULE_NUMBER
@@ -63,6 +64,7 @@ copy_params: $(COPYOBJS) $(COMMONOBJS)
 rate: $(RATEOBJS) $(COMMONOBJS)
 boot: $(BOOTOBJS) $(COMMONOBJS)
 trace: $(TRACEOBJS) $(COMMONOBJS)
+get_traces: $(GETTRACESOBJS) $(COMMONOBJS)
 toggle_gain: $(TGGAINOBJS) $(COMMONOBJS)
 toggle_good: $(TGGOODOBJS) $(COMMONOBJS)
 toggle_polarity: $(TGPOLOBJS) $(COMMONOBJS)
