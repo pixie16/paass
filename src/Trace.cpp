@@ -53,8 +53,8 @@ double Trace::DoBaseline(unsigned int lo, unsigned int numBins)
 	return GetValue("baseline");
 
     StatsAccumulator stats = accumulate(begin() + lo, begin() + hi, StatsAccumulator());
-    InsertValue("baseline", stats.GetMean());
-    InsertValue("sigmaBaseline", stats.GetStdDev());
+    SetValue("baseline", stats.GetMean());
+    SetValue("sigmaBaseline", stats.GetStdDev());
 
     baselineLow  = lo;
     baselineHigh = hi;
