@@ -50,10 +50,13 @@
 #include "McpProcessor.h"
 #include "MtcProcessor.h"
 #include "ScintProcessor.h"
+#include "TraceFilterer.h"
 #include "VandleProcessor.h"
 #include "PulserProcessor.h"
 
+#include "DoubleTraceAnalyzer.h"
 #include "TraceAnalyzer.h"
+#include "TraceExtracter.h"
 #include "WaveformAnalyzer.h"
 
 #ifdef useroot
@@ -78,18 +81,19 @@ extern RandomPool randoms;
 */
 DetectorDriver::DetectorDriver()
 {
-    vecAnalyzer.push_back(new TraceAnalyzer());
+    vecAnalyzer.push_back(new DoubleTraceAnalyzer());
+    vecAnalyzer.push_back(new TraceExtracter("ssd", "implant"));
 
     vecProcess.push_back(new ScintProcessor());
-    vecProcess.push_back(new GeProcessor());
+    // vecProcess.push_back(new GeProcessor());
     vecProcess.push_back(new IonChamberProcessor());
     vecProcess.push_back(new McpProcessor());
     vecProcess.push_back(new DssdProcessor());
     vecProcess.push_back(new MtcProcessor());
-    vecProcess.push_back(new PulserProcessor());
+    // vecProcess.push_back(new PulserProcessor());
     // vecProcess.push_back(new VandleProcessor());
     
-#ifdef useroot
+#ifdef useroot 
     // and finally the root processor
     vecProcess.push_back(new RootProcessor("tree.root", "tree"));
 #endif
@@ -276,10 +280,12 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 	}
 
 	if (trace.HasValue("filterEnergy") ) {     
-	    if (trace.GetValue("filterEnergy") > 0)
+	    if (trace.GetValue("filterEnergy") > 0) {
 		energy = trace.GetValue("filterEnergy");
-	    else
+		plot(dammIds::misc::offsets::D_FILTER_ENERGY + id, energy);
+	    } else {
 		energy = 2;
+	    }
 	}
 	if (trace.HasValue("calcEnergy") ) {	    
 	    energy = trace.GetValue("calcEnergy");

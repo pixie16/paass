@@ -12,8 +12,6 @@
 #include "Trace.h"
 #include "TracePlotter.h"
 
-class Trace;
-
 class TraceFilterer : public TracePlotter {
  private:
     static const std::string defaultFilterFile;
@@ -32,8 +30,20 @@ class TraceFilterer : public TracePlotter {
     Trace energyFilter; ///< slow filter of trace
     Trace thirdFilter;  ///< second slow filter of trace
     
-    Trace::size_type time;
-    double energy;
+    bool useThirdFilter;
+
+    struct PulseInfo {
+    public:
+	Trace::size_type time;
+	double energy;
+	bool isFound;
+
+	PulseInfo(void);
+	PulseInfo(Trace::size_type theTime, double theEnergy);
+    };
+    PulseInfo pulse;
+
+    virtual const PulseInfo& FindPulse(Trace::iterator begin, Trace::iterator end);
  public:
     TraceFilterer();
     virtual ~TraceFilterer();

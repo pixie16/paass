@@ -228,11 +228,13 @@ namespace dammIds {
 	const int DD_FILTER2          = 852;
 	const int DD_FILTER3          = 853;
 	const int DD_AVERAGE_TRACE    = 854;
+	const int DD_REJECTED_TRACE   = 855;
 	const int D_ENERGY1           = 865;
 	const int D_ENERGY2           = 866;	
 	const int DD_DOUBLE_TRACE     = 870;
 	const int DD_ENERGY2__TDIFF   = 871;
 	const int DD_ENERGY2__ENERGY1 = 872;
+	const int DD_TRIPLE_TRACE     = 875;
 
 	// 1D-traces from the extracter
 	const int D_TRACE = 4000;
@@ -254,6 +256,7 @@ namespace dammIds {
 	const int D_NUMBER_OF_EVENTS   = 1011;
 	namespace offsets {
 	    const int D_RAW_ENERGY        = 100;
+	    const int D_FILTER_ENERGY     = 200; // intermediate step with "raw" filter energy
 	    const int D_SCALAR            = 300;
 	    const int D_TIME              = 400;
 	    const int D_CAL_ENERGY        = 500;

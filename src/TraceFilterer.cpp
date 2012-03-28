@@ -23,6 +23,23 @@ const double TraceFilterer::energyScaleFactor = 2.198; //< TO BE USED WITH MAGIC
 
 extern RandomPool randoms;
 
+/** 
+ *  A do nothing constructor
+ */
+TraceFilterer::PulseInfo::PulseInfo()
+{
+    isFound = false;
+}
+
+/**
+ *  Constructor so we can build the pulseinfo in place
+ */
+TraceFilterer::PulseInfo::PulseInfo(Trace::size_type theTime, double theEnergy) :
+    time(theTime), energy(theEnergy)
+{
+    isFound = true;
+}
+
 TraceFilterer::TraceFilterer() : 
     TracePlotter(), fastParms(5,5), 
     energyParms(100,100), thirdParms(20,10)
@@ -32,6 +49,7 @@ TraceFilterer::TraceFilterer() :
     
     fastThreshold = fastParms.GetRiseSamples()  * 3;
     slowThreshold = thirdParms.GetRiseSamples() * 2;
+    useThirdFilter = false;
 }
 
 TraceFilterer::~TraceFilterer()
@@ -67,12 +85,18 @@ bool TraceFilterer::Init(const string &filterFile)
 	    cout << "  Fast filter: " << rise << " " << gap 
 		 << " " << fastThreshold << endl;
 	    fastParms = TrapezoidalFilterParameters(gap, rise);
+
 	    in >> rise >> gap;
 	    cout << "  Energy filter: " << rise << " " << gap << endl;
 	    energyParms = TrapezoidalFilterParameters(gap, rise);
-	    cout << "  Third filter: " << rise << " " << gap 
-		 << " " << slowThreshold << endl;
+
 	    in >> rise >> gap >> slowThreshold;	    
+	    cout << "  Third filter: " << rise << " " << gap 
+		 << " " << slowThreshold;
+	    if (!useThirdFilter) {
+		cout << ", not used";
+	    }
+	    cout << endl;
 	    thirdParms = TrapezoidalFilterParameters(gap, rise);
 	    
 	    // scale thresholds by the length of integration (i.e. rise time)
@@ -101,7 +125,10 @@ void TraceFilterer::DeclarePlots(void) const
 
     DeclareHistogram2D(DD_FILTER1, traceBins, numTraces, "fast filter");
     DeclareHistogram2D(DD_FILTER2, traceBins, numTraces, "energy filter");
-    DeclareHistogram2D(DD_FILTER3, traceBins, numTraces, "3rd filter");
+    if (useThirdFilter) {
+	DeclareHistogram2D(DD_FILTER3, traceBins, numTraces, "3rd filter");
+    }
+    DeclareHistogram2D(DD_REJECTED_TRACE, traceBins, numTraces, "rejected traces");
 
     DeclareHistogram1D(D_ENERGY1, energyBins, "E1 from trace"); 
 }
@@ -113,50 +140,32 @@ void TraceFilterer::Analyze(Trace &trace,
     TracePlotter::Analyze(trace, type, subtype);
 
     if (level >= 5) {
+	trace.DoBaseline(0, 20); //? make the number of bins a parameter for the filter
+	if (trace.GetValue("sigmaBaseline") * fastParms.GetRiseSamples() > fastThreshold / 2) {
+	    static int rejectedTraces = 0;
+	    cout << "Rejected trace with bad baseline = " << trace.GetValue("sigmaBaseline") << endl;
+	    trace.Plot(DD_REJECTED_TRACE, rejectedTraces++);
+	    EndAnalyze(); // update timing
+	    return;
+	}
+
 	fastFilter.clear();
 	energyFilter.clear();
-	thirdFilter.clear();
 
 	// determine trace filters, these are trapezoidal filters characterized
 	//   by a risetime and a gaptime and a range of the filter 
 	trace.TrapezoidalFilter(fastFilter, fastParms);
 	trace.TrapezoidalFilter(energyFilter, energyParms);
-	trace.TrapezoidalFilter(thirdFilter, thirdParms);
 
-	Trace::size_type sample = 0; // point at which to sample the slow filter
-	// find the point at which the trace crosses the fast threshold
+	if (useThirdFilter) {
+	    thirdFilter.clear();
+	    trace.TrapezoidalFilter(thirdFilter, thirdParms);
+	}
+	FindPulse(fastFilter.begin(), fastFilter.end());
 
-	Trace::iterator iThr = fastFilter.begin();
-	Trace::iterator iHigh = fastFilter.end();
-
-	time = 0;
-	energy = 0;
-
-	while (iThr < iHigh) {
-	    iThr = find_if(iThr, iHigh, 
-			   bind2nd(greater<Trace::value_type>(), fastThreshold));
-	    if (iThr == iHigh)
-		break;
-	    time = iThr - fastFilter.begin();
-	    // sample the slow filter in the middle of its size
-	    sample = time + (thirdParms.GetSize() - fastParms.GetSize()) / 2;
-	    if (sample >= thirdFilter.size() ||
-		thirdFilter[sample] < slowThreshold) {
-		iThr++; 
-		continue;
-	    }
-	    // sample = time + (energyParms.GetSize() - fastParms.GetSize()) / 2;
-	    sample = time + 40;
-
-	    if (sample < energyFilter.size())
-		energy = energyFilter[sample] + randoms.Get();
-	    // scale to the integration time
-	    energy /= energyParms.GetRiseSamples();
-	    energy *= energyScaleFactor;
-
-	    trace.SetValue("filterTime", (int)time);
-	    trace.SetValue("filterEnergy", energy);
-	    break;
+	if (pulse.isFound) {
+	    trace.SetValue("filterTime", (int)pulse.time);
+	    trace.SetValue("filterEnergy", pulse.energy);
 	}
 
 	// now plot some stuff
@@ -172,7 +181,7 @@ void TraceFilterer::Analyze(Trace &trace,
 	    if (i < energyFilter.size())
 		plot(DD_FILTER2, i, numTracesAnalyzed, 
 		     abs(energyFilter[i]) / energyParms.GetRiseSamples() );
-	    if (i < thirdFilter.size())
+	    if (i < thirdFilter.size() && useThirdFilter)
 		plot(DD_FILTER3, i, numTracesAnalyzed, 
 		     abs(thirdFilter[i]) / thirdParms.GetRiseSamples() );
 
@@ -181,11 +190,54 @@ void TraceFilterer::Analyze(Trace &trace,
 	/*
 	plot(DD_TRACE, trace.size() + 10, numTracesAnalyzed, energy);
 	plot(DD_TRACE, trace.size() + 11, numTracesAnalyzed, time);
-	plot(DD_TRACE, trace.size() + 12, numTracesAnalyzed, sample);
 	*/
 
-	plot(D_ENERGY1, energy);
+	plot(D_ENERGY1, pulse.energy);
     } // sufficient analysis level
 
     EndAnalyze(trace);
+}
+
+const TraceFilterer::PulseInfo& TraceFilterer::FindPulse(Trace::iterator begin, Trace::iterator end)
+{
+    // class to see if fast filter is above threshold
+    static binder2nd< greater<Trace::value_type> > crossesThreshold
+	(greater<Trace::value_type>(), fastThreshold);
+
+    Trace::size_type sample;
+    pulse.isFound = false;
+
+    while (begin < end) {
+	begin = find_if(begin, end, crossesThreshold);
+	if (begin == end) {
+	    break;
+	}
+
+	pulse.time    = begin - fastFilter.begin();
+	pulse.isFound = true;
+
+	// sample the slow filter in the middle of its size
+	if (useThirdFilter) {
+	    sample = pulse.time + (thirdParms.GetSize() - fastParms.GetSize()) / 2;
+	    if (sample >= thirdFilter.size() ||
+		thirdFilter[sample] < slowThreshold) {
+		begin++; 
+		continue;
+	    }
+	}
+	//? some investigation needed here for good resolution
+	// add a presample location
+	// sample = pulse.time + (energyParms.GetSize() - fastParms.GetSize()) / 2;
+	sample = pulse.time + 40;
+	
+	if (sample < energyFilter.size()) {
+	    pulse.energy = energyFilter[sample] + randoms.Get();	    
+	    // scale to the integration time
+	    pulse.energy /= energyParms.GetRiseSamples();
+	    pulse.energy *= energyScaleFactor;
+	} else pulse.energy = NAN;
+	break;
+    }
+
+    return pulse;
 }

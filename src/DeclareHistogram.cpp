@@ -98,6 +98,7 @@ extern "C" void drrsub_(unsigned int& iexist)
 
     for (int i=0; i < numberChannels; i++) {
 	DeclareHistogram1D(offsets::D_RAW_ENERGY + i, SE, "RAW");
+	DeclareHistogram1D(offsets::D_FILTER_ENERGY + i, SE, "FILTER");
 	DeclareHistogram1D(offsets::D_SCALAR + i, SE, "RAW scalar - per sec");
 	DeclareHistogram1D(offsets::D_TIME + i, SE, "raw etimelo - trig time"); 
 	DeclareHistogram1D(offsets::D_CAL_ENERGY + i, SE, "CAL");

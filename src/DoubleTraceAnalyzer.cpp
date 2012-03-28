@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <numeric>
 
 #include <cstdlib>
@@ -57,6 +58,8 @@ void DoubleTraceAnalyzer::DeclarePlots() const
     DeclareHistogram2D(DD_DOUBLE_TRACE, traceBins, numTraces, "double traces");
     DeclareHistogram2D(DD_ENERGY2__TDIFF, energyBins2, timeBins, "E2 vs DT", 2);
     DeclareHistogram2D(DD_ENERGY2__ENERGY1, energyBins2, energyBins2, "E2 vs E1", 2);
+
+    DeclareHistogram2D(DD_TRIPLE_TRACE, traceBins, numTraces, "interesting traces");
 }
 
 /**
@@ -67,79 +70,71 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
 				  const string &type, const string &subtype)
 {    
     TraceFilterer::Analyze(trace, type, subtype);
-    
-    if ( trace.HasValue("filterTime") && level >= 10 ) {
+    // class to see when the fast filter falls below threshold
+    static binder2nd< less<Trace::value_type> > recrossesThreshold
+	(less<Trace::value_type>(), fastThreshold);
+
+    if ( pulse.isFound && level >= 10 ) {
 	// cout << "Double trace #" << numTracesAnalyzed << " for type " << type << ":" << subtype << endl;
 	// trace filterer found a first pulse
-	Trace::iterator iThr = fastFilter.begin() + time;
+
+	Trace::iterator iThr = fastFilter.begin() + pulse.time;
 	Trace::iterator iHigh = fastFilter.end();
-	
-	// points at which to sample the slow filter	
-	Trace::size_type sample=0, sample2 = 0; 
-	Trace::size_type presample;
 
-	presample = time + (energyParms.GetRiseSamples() + energyParms.GetGapSamples() / 2
-			    - fastParms.GetRiseSamples() - fastParms.GetGapSamples() / 2);
-	// find the trailing edge
-	advance(iThr, fastParms.GetGapSamples());
-	iThr = find_if(iThr, iHigh, bind2nd(less<Trace::value_type>(), 
-					    fastThreshold));
-	// advance(iThr, fastParms.GetSize());
-     	advance(iThr, fastParms.GetRiseSamples());
+	vector<PulseInfo> pulseVec;
+	// put the original pulse in the vector
+	pulseVec.push_back(pulse);
+	const size_t pulseLimit = 50; // maximum number of pulses to find
 
-	// find a second crossing point
-	time2 = 0;
-	energy2 = 0.;
-  
 	while (iThr < iHigh) {
-	    iThr = find_if(iThr, iHigh, 
-			   bind2nd(greater<Trace::value_type>(), 
-				   fastThreshold));
-	    if (iThr == iHigh)
-		break;
+	    // find the trailing edge (use rise samples?)
+	    advance(iThr, fastParms.GetGapSamples());
+	    iThr = find_if(iThr, iHigh, recrossesThreshold);					
+	    // advance(iThr, fastParms.GetSize());
+	    advance(iThr, fastParms.GetRiseSamples());
 
-	    time2 = iThr - fastFilter.begin();
-	    sample = time2 + (thirdParms.GetSize() - fastParms.GetSize()) / 2;
-	    sample2 = time2 - fastParms.GetRiseSamples() / 2;
-	    
-	    if (sample >= thirdFilter.size() || 
-		thirdFilter[sample] - thirdFilter[sample2] < slowThreshold) {
-		iThr++; 		
-		continue;
-	    }	 
-	    sample = time2 + (energyParms.GetSize() - fastParms.GetSize()) / 2;
-	 
-	    energy2 = energyFilter[sample] - energyFilter[sample2];
-	    energy2 += randoms.Get();
-	    // scale to the integration time
-	    energy2 /= energyParms.GetRiseSamples();
-	    energy2 *= energyScaleFactor;
+	    FindPulse(iThr, iHigh);
+	    if (pulse.isFound) {
+		pulseVec.push_back(pulse);
+		iThr = fastFilter.begin() + pulse.time;
+	    } else break;
+	    if (pulseVec.size() > pulseLimit) {
+		cout << "Too many pulses, limit = " << pulseLimit << ", breaking out." << endl;
+		EndAnalyze(); // update timing
+		return;
+	    }
+	} // while searching for multiple traces
+	
+	trace.SetValue("numPulses", (int)pulseVec.size());
 
-	    trace.SetValue("filterTime2", (int)time2);
-	    trace.SetValue("filterEnergy2", energy2);
-	    break;
-	} // while searching for double trace
 	// now plot stuff
-	if (iThr != iHigh) {
+	if ( pulseVec.size() > 1 ) {
 	    using namespace dammIds::trace;
 
+	    // fill the trace info
+	    // first pulse info is set in TraceFilterer
+	    for (Trace::size_type i=1; i < pulseVec.size(); i++) {
+		stringstream str;
+		// the first pulse in the vector is the SECOND pulse in the trace
+		str << "filterEnergy" << i+1 << ends;
+		trace.SetValue(str.str(), pulseVec[i].energy);
+		str.str(""); // clear the string
+		str << "filterTime" << i+1 << ends;
+		trace.SetValue(str.str(), (int)pulseVec[i].time);
+	    }
+	    
 	    // plot the double pulse stuff
 	    trace.Plot(DD_DOUBLE_TRACE, numDoubleTraces);
+	    if (pulseVec.size() > 2) {
+		cout << "Found triple trace, sigma baseline = " 
+		     << trace.GetValue("sigmaBaseline") << endl;
+		static int tripleTraces = 0;
+		trace.Plot(DD_TRIPLE_TRACE, tripleTraces++);
+	    }
 
-	    // cacluated values at end of traces
-	    /*
-	    plot(DD_DOUBLE_TRACE, trace.size() + 10, numDoubleTraces, energy);
-	    plot(DD_DOUBLE_TRACE, trace.size() + 11, numDoubleTraces, time);
-	    plot(DD_DOUBLE_TRACE, trace.size() + 12, numDoubleTraces, energy2);
-	    plot(DD_DOUBLE_TRACE, trace.size() + 13, numDoubleTraces, time2);
-	    plot(DD_DOUBLE_TRACE, trace.size() + 14, numDoubleTraces, presample);
-	    plot(DD_DOUBLE_TRACE, trace.size() + 15, numDoubleTraces, sample);
-	    plot(DD_DOUBLE_TRACE, trace.size() + 16, numDoubleTraces, sample2);
-	    */
-
-	    plot(D_ENERGY2, energy2);
-	    plot(DD_ENERGY2__TDIFF, energy2, time2 - time);
-	    plot(DD_ENERGY2__ENERGY1, energy2, energy);
+	    plot(D_ENERGY2, pulseVec[1].energy);
+	    plot(DD_ENERGY2__TDIFF, pulseVec[1].energy, pulseVec[1].time - pulseVec[0].time);
+	    plot(DD_ENERGY2__ENERGY1, pulseVec[1].energy, pulseVec[0].energy);
 
 	    numDoubleTraces++;
 	} // if found double trace
