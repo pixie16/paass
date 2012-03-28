@@ -52,20 +52,29 @@ ChanEvent::ChanEvent() {
  */
 void ChanEvent::ZeroNums() 
 {
-    energy      = -1;
-    calEnergy   = -1;
-    time        = -1;
-    calTime     = -1;
-    highResTime = -1;
-    trigTime    = -1;
-    eventTimeLo = -1;
-    eventTimeHi = -1;
-    runTime0    = -1;
-    runTime1    = -1;
-    runTime2    = -1;
+    energy      = emptyValue;
+    calEnergy   = emptyValue;
+    time        = emptyValue;
+    calTime     = emptyValue;
+    highResTime = emptyValue;
+    trigTime    = U_DELIMITER;
+    eventTimeLo = U_DELIMITER;
+    eventTimeHi = U_DELIMITER;
+    runTime0    = U_DELIMITER;
+    runTime1    = U_DELIMITER;
+    runTime2    = U_DELIMITER;
     chanNum     = -1;
     modNum      = -1;
+    for (int i=0; i < numQdcs; i++) {
+	qdcValue[i] = U_DELIMITER;
+    }
+}
 
+unsigned long ChanEvent::GetQdcValue(int i) const
+{
+    if (i < 0 || i >= numQdcs)
+	return U_DELIMITER;
+    return qdcValue[i];
 }
 
 //* Find the identifier in the map for the channel event */

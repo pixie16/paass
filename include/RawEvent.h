@@ -75,9 +75,11 @@ class Identifier {
  * fires the energy, time (both trigger time and event time), and trace (if
  * applicable) are obtained.  Additional information includes the channels 
  * identifier, calibrated energies, trace analysis information.
-*/
+ * Note that this currently stores raw values internally through pixie word types
+ *   but returns data values through native C types. This is potentially non-portable. 
+ */
 class ChanEvent {
- private:
+private:
     double energy;             /**< Raw channel energy */
     double calEnergy;          /**< Calibrated channel energy,
 				  calibration performed in ThreshAndCal
@@ -85,14 +87,17 @@ class ChanEvent {
     double calTime;            /**< Calibrated time, currently unused */
     double highResTime;        /**< timing resolution less than 1 adc size */
     Trace trace;               /**< Channel trace if present */
-    unsigned long trigTime;    /**< The channel trigger time, trigger time and the lower 32 bits
+    pixie::word_t trigTime;    /**< The channel trigger time, trigger time and the lower 32 bits
 				     of the event time are not necessarily the same but could be
 				     separated by a constant value.*/
-    unsigned long eventTimeLo; /**< Lower 32 bits of pixie16 event time */
-    unsigned long eventTimeHi; /**< Upper 32 bits of pixie16 event time */
-    unsigned long runTime0;    /**< Lower bits of run time */
-    unsigned long runTime1;    /**< Upper bits of run time */
-    unsigned long runTime2;    /**< Higher bits of run time */
+    pixie::word_t cfdTime;     /**< CFD trigger time in units of 1/256 pixie clock ticks */
+    pixie::word_t eventTimeLo; /**< Lower 32 bits of pixie16 event time */
+    pixie::word_t eventTimeHi; /**< Upper 32 bits of pixie16 event time */
+    pixie::word_t runTime0;    /**< Lower bits of run time */
+    pixie::word_t runTime1;    /**< Upper bits of run time */
+    pixie::word_t runTime2;    /**< Higher bits of run time */
+    static const int numQdcs = 8;     /**< Number of QDCs onboard */
+    pixie::word_t qdcValue[numQdcs];  /**< QDCs from onboard */
 
     double time;               /**< Raw channel time, 64 bit from pixie16 channel event time */
     double eventTime;          /**< The event time recorded by Pixie */
@@ -106,10 +111,9 @@ class ChanEvent {
     void ZeroNums(void);       /**< Zero members which do not have constructors associated with them */
     
     // make the front end responsible for reading the data able to set the channel data directly
-    friend int ReadBuffData(pixie::bufword_t *, unsigned long *, vector<ChanEvent *> &);
+    friend int ReadBuffData(pixie::word_t *, unsigned long *, vector<ChanEvent *> &);
  public:
     static const double pixieEnergyContraction; ///< energies from pixie16 are contracted by this number
-
 
     void SetEnergy(double a)    {energy = a;}    /**< Set the raw energy in case we want
 						    to extract it from the trace ourselves */
@@ -146,6 +150,7 @@ class ChanEvent {
     const Identifier& GetChanID() const; /**< Get the channel identifier */
     int GetID() const;                   /**< Get the channel id defined as
 					    pixie module # * 16 + channel number */
+    unsigned long GetQdcValue(int i) const; /**< Get an onboard QDC value */
 
     ChanEvent();
     void ZeroVar();

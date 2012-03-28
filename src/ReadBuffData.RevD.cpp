@@ -139,10 +139,17 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
       word_t energy      = buf[3] & 0x0000FFFF;
       word_t traceLength = (buf[3] & 0xFFFF0000) >> 16;
 
-      //! additional header info for other run modes (in this order)
-      //! read energy sums for header lengths 8 and 16
-      //!   trailing, leading, gap, baesline
-      //! read QDC sums for header lengths 12 and 16
+      if (headerLength == 8 || headerLength == 16) {
+	  // skip the onboard partial sums for now 
+	  //   trailing, leading, gap, baseline
+      }
+
+      if (headerLength >= 12) {
+	  int offset = headerLength - 8;
+	  for (int i=0; i < currentEvt->numQdcs; i++) {
+	      currentEvt->qdcValue[i] = buf[offset + i];
+	  }
+      }   
 
       // one last sanity check
       if ( traceLength / 2 + headerLength != eventLength ) {
@@ -164,6 +171,7 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
       }
       currentEvt->energy = energy;
       currentEvt->trigTime = lowTime;
+      currentEvt->cfdTime  = cfdTime;
       currentEvt->eventTimeHi = highTime;
       currentEvt->eventTimeLo = lowTime;
       currentEvt->time = highTime * HIGH_MULT + lowTime;
