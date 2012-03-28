@@ -32,7 +32,6 @@ void Trace::TrapezoidalFilter(Trace &filter,
     filter.assign(lo, 0);
     
     //! check if we're going to do something bad here
-
     for (unsigned int i = lo; i < hi; i++) {
 	int leftSum = accumulate(begin() + i - parms.GetSize(),
 				 begin() + i - parms.GetRiseSamples() - parms.GetGapSamples(), 0);
@@ -90,5 +89,19 @@ void Trace::Plot(int id, int row) const
 {
     for (size_type i=0; i < size(); i++) {
 	plot(id, i, row, at(i));
+    }
+}
+
+void Trace::ScalePlot(int id, double scale) const
+{
+    for (size_type i=0; i < size(); i++) {
+	plot(id, i, 1, abs(at(i)) / scale);
+    }
+}
+
+void Trace::ScalePlot(int id, int row, double scale) const
+{
+    for (size_type i=0; i < size(); i++) {
+	plot(id, i, row, abs(at(i)) / scale);
     }
 }

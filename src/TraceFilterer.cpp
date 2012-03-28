@@ -169,22 +169,13 @@ void TraceFilterer::Analyze(Trace &trace,
 	}
 
 	// now plot some stuff
-	/* quick plot function still needs scaling and handling of negative numbers
-	fastFilter.Plot(DD_FILTER1, numTracesAnalyzed);
-	energyFilter.Plot(DD_FILTER2, numTracesAnalyzed);
-	thirdFilter.Plot(DD_FILTER3, numTracesAnalyzed);
-	*/
-	for (Trace::size_type i = 0; i < trace.size(); i++) {
-	    if (i < fastFilter.size())
-		plot(DD_FILTER1, i, numTracesAnalyzed, 
-		     abs(fastFilter[i]) / fastParms.GetRiseSamples() );
-	    if (i < energyFilter.size())
-		plot(DD_FILTER2, i, numTracesAnalyzed, 
-		     abs(energyFilter[i]) / energyParms.GetRiseSamples() );
-	    if (i < thirdFilter.size() && useThirdFilter)
-		plot(DD_FILTER3, i, numTracesAnalyzed, 
-		     abs(thirdFilter[i]) / thirdParms.GetRiseSamples() );
-
+	fastFilter.ScalePlot(DD_FILTER1, numTracesAnalyzed, 
+			     fastParms.GetRiseSamples() );
+	energyFilter.ScalePlot(DD_FILTER2, numTracesAnalyzed,
+			       energyParms.GetRiseSamples() );
+	if (useThirdFilter) {
+	    thirdFilter.ScalePlot(DD_FILTER3, numTracesAnalyzed,
+				  thirdParms.GetRiseSamples() );
 	}
 	// calculated values at end of traces
 	/*

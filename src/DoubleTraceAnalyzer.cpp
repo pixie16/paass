@@ -60,6 +60,12 @@ void DoubleTraceAnalyzer::DeclarePlots() const
     DeclareHistogram2D(DD_ENERGY2__ENERGY1, energyBins2, energyBins2, "E2 vs E1", 2);
 
     DeclareHistogram2D(DD_TRIPLE_TRACE, traceBins, numTraces, "interesting traces");
+    DeclareHistogram2D(DD_TRIPLE_TRACE_FILTER1, traceBins, numTraces,
+		       "interesting traces (fast filter)");
+    DeclareHistogram2D(DD_TRIPLE_TRACE_FILTER2, traceBins, numTraces,
+		       "interesting traces (energy filter)");
+    DeclareHistogram2D(DD_TRIPLE_TRACE_FILTER3, traceBins, numTraces,
+		       "interesting traces (3rd filter)");
 }
 
 /**
@@ -126,10 +132,15 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
 	    // plot the double pulse stuff
 	    trace.Plot(DD_DOUBLE_TRACE, numDoubleTraces);
 	    if (pulseVec.size() > 2) {
-		cout << "Found triple trace, sigma baseline = " 
-		     << trace.GetValue("sigmaBaseline") << endl;
 		static int tripleTraces = 0;
-		trace.Plot(DD_TRIPLE_TRACE, tripleTraces++);
+		cout << "Found triple trace " << tripleTraces << ", sigma baseline = " 
+		     << trace.GetValue("sigmaBaseline") << endl;
+		trace.Plot(DD_TRIPLE_TRACE, tripleTraces);
+		fastFilter.ScalePlot(DD_TRIPLE_TRACE_FILTER1, tripleTraces, fastParms.GetRiseSamples());
+		energyFilter.ScalePlot(DD_TRIPLE_TRACE_FILTER2, tripleTraces, energyParms.GetRiseSamples());
+		if (useThirdFilter)
+		    thirdFilter.ScalePlot(DD_TRIPLE_TRACE_FILTER3, tripleTraces, thirdParms.GetRiseSamples());
+		tripleTraces++;
 	    }
 
 	    plot(D_ENERGY2, pulseVec[1].energy);

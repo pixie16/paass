@@ -89,6 +89,8 @@ class Trace : public std::vector<int>
     unsigned int FindMaxInfo(unsigned int lo = numBinsBaseline, unsigned int numBins = numBinsBaseline);
     void Plot(int id) const;           //< plot trace into a 1D histogram
     void Plot(int id, int row) const;  //< plot trace into row of a 2D histogram
+    void ScalePlot(int id, double scale) const; //< plot trace absolute value and scaled into a 1D histogram
+    void ScalePlot(int id, int row, double scale) const; //< plot trace absolute value and scaled into a 2D histogarm
 };
 
 /** Parameters for your typical trapezoidal filter */

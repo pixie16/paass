@@ -234,8 +234,10 @@ namespace dammIds {
 	const int DD_DOUBLE_TRACE     = 870;
 	const int DD_ENERGY2__TDIFF   = 871;
 	const int DD_ENERGY2__ENERGY1 = 872;
-	const int DD_TRIPLE_TRACE     = 875;
-
+	const int DD_TRIPLE_TRACE         = 880;
+	const int DD_TRIPLE_TRACE_FILTER1 = 881;
+	const int DD_TRIPLE_TRACE_FILTER2 = 882;
+	const int DD_TRIPLE_TRACE_FILTER3 = 883;
 	// 1D-traces from the extracter
 	const int D_TRACE = 4000;
     } // trace namespace
