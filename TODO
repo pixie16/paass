@@ -6,8 +6,6 @@ Make the damm IDs in GeProcessor have some semblance of organization.
 48-bit times in RawEvent
 ROOT histogramming
 Smarter (magic) dependency checking
-Adjust analyzers so the double trace analyzers find each fast filter crossing
-self-consistently.
 Find a cogent way to set the analyzer level using "trace" parameter from map.txt
 Add some conglomerated location/type/subtype structure
 Output a simple histogram list

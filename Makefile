@@ -26,12 +26,16 @@ ifeq ($(HHIRF_DIR),)
 HHIRF_HIR = /usr/hhirf
 endif
 
-ifeq ($(ACQ2_DIR),)
-ACQ2_DIR = /usr/acq2/lib
+ifeq ($(ACQ2_LIBDIR),)
+ifneq ($(ACQ2_DIR),) 
+ACQ2_LIBDIR = $(ACQ2_DIR)
+else
+ACQ2_LIBDIR = /usr/acq2/lib
+endif
 endif
 
 LIBS = $(HHIRF_DIR)/scanorlib.a $(HHIRF_DIR)/orphlib.a \
-       $(ACQ2_DIR)/acqlib.a  $(ACQ2_DIR)/ipclib.a
+       $(ACQ2_LIBDIR)/acqlib.a  $(ACQ2_LIBDIR)/ipclib.a
 
 OutPutOpt     = -o # keep whitespace after "-o"
 ObjSuf        = o

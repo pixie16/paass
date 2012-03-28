@@ -5,8 +5,15 @@ if [[ "z$1" == "z" ]];then
     exit 1;
 fi
 
-HISDIR="HIS"
-LDFDIR="/home/pixie16/LDF"
+if [[ ! -d ${HISDIR:="HIS"} ]]; then
+    echo "Histogram directory $HISDIR does not exist."
+    exit 1
+fi
+
+if [[ ! -d ${LDFDIF:="$HOME/LDF"} ]]; then
+    echo "LDF directory $LDFDIR does not exist."
+    exit 1
+fi
 
 if [[ "z$2" == "z" ]];then
     PREFIX=$(basename $1 .ldf)
