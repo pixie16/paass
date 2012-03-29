@@ -37,7 +37,8 @@ void TriggerLogicProcessor::DeclarePlots(void) const
 bool TriggerLogicProcessor::Process(RawEvent &event)
 {
     const double logicPlotResolution = 1e-3 / pixie::clockInSeconds;
- 
+    const long maxBin = plotSize * plotSize;
+
     LogicProcessor::Process(event);
 
     using namespace dammIds::triggerlogic;
@@ -50,6 +51,7 @@ bool TriggerLogicProcessor::Process(RawEvent &event)
     // static const vector<ChanEvent*> &triggers  = sumMap["generic:trigger"]->GetList();
     static const vector<ChanEvent*> &stops    = stopsSummary->GetList();
     static const vector<ChanEvent*> &triggers = triggersSummary->GetList();
+    static int firstTimeBin = -1;
 
     for (vector<ChanEvent*>::const_iterator it = stops.begin();
 	 it != stops.end(); it++) {
@@ -62,8 +64,15 @@ bool TriggerLogicProcessor::Process(RawEvent &event)
 
 	if (!isnan(lastStartTime.at(loc))) {
 	  startTimeBin = int(lastStartTime.at(loc) / logicPlotResolution);
+	  if (firstTimeBin == -1) {
+	      firstTimeBin = startTimeBin;
+	  }
+	} else if (firstTimeBin == -1) {
+	    firstTimeBin = startTimeBin;
 	}
-	 
+	startTimeBin = max(0, startTimeBin - firstTimeBin);
+	timeBin -= firstTimeBin;
+
 	for (int bin=startTimeBin; bin < timeBin; bin++) {
 	  int row = bin / plotSize;
 	  int col = bin % plotSize;
@@ -75,6 +84,9 @@ bool TriggerLogicProcessor::Process(RawEvent &event)
     for (vector<ChanEvent*>::const_iterator it = triggers.begin();
 	 it != triggers.end(); it++) {
       int timeBin = int((*it)->GetTime() / logicPlotResolution);
+      timeBin -= firstTimeBin;
+      if (timeBin >= maxBin || timeBin < 0)
+	  continue;
 
       int row = timeBin / plotSize;
       int col = timeBin % plotSize;

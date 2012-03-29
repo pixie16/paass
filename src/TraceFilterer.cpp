@@ -196,6 +196,7 @@ const TraceFilterer::PulseInfo& TraceFilterer::FindPulse(Trace::iterator begin, 
 	(greater<Trace::value_type>(), fastThreshold);
 
     Trace::size_type sample;
+    Trace::size_type presample;
     pulse.isFound = false;
 
     while (begin < end) {
@@ -204,8 +205,9 @@ const TraceFilterer::PulseInfo& TraceFilterer::FindPulse(Trace::iterator begin, 
 	    break;
 	}
 
-	pulse.time    = begin - fastFilter.begin();
+	pulse.time    = begin - fastFilter.begin();	
 	pulse.isFound = true;
+	presample     = pulse.time - fastParms.GetRiseSamples();
 
 	// sample the slow filter in the middle of its size
 	if (useThirdFilter) {
@@ -223,6 +225,10 @@ const TraceFilterer::PulseInfo& TraceFilterer::FindPulse(Trace::iterator begin, 
 	
 	if (sample < energyFilter.size()) {
 	    pulse.energy = energyFilter[sample] + randoms.Get();	    
+	    // subtract an energy filter baseline
+	    if (presample >= 0) {
+		pulse.energy -= energyFilter[presample];
+	    }
 	    // scale to the integration time
 	    pulse.energy /= energyParms.GetRiseSamples();
 	    pulse.energy *= energyScaleFactor;
