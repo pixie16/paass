@@ -75,6 +75,9 @@ void DoubleTraceAnalyzer::DeclarePlots() const
 void DoubleTraceAnalyzer::Analyze(Trace &trace, 
 				  const string &type, const string &subtype)
 {    
+    if (subtype == "top" || subtype == "bottom")
+	return;
+
     TraceFilterer::Analyze(trace, type, subtype);
     // class to see when the fast filter falls below threshold
     static binder2nd< less<Trace::value_type> > recrossesThreshold
@@ -122,10 +125,10 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
 	    for (Trace::size_type i=1; i < pulseVec.size(); i++) {
 		stringstream str;
 		// the first pulse in the vector is the SECOND pulse in the trace
-		str << "filterEnergy" << i+1 << ends;
+		str << "filterEnergy" << i+1;
 		trace.SetValue(str.str(), pulseVec[i].energy);
 		str.str(""); // clear the string
-		str << "filterTime" << i+1 << ends;
+		str << "filterTime" << i+1;
 		trace.SetValue(str.str(), (int)pulseVec[i].time);
 	    }
 	    

@@ -8,6 +8,7 @@
 #include <cfloat> // for DBL_MAX
 #include <climits>
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 #include "damm_plotids.h"
@@ -21,6 +22,7 @@
 using std::cout;
 using std::endl;
 using std::min;
+using std::stringstream;
 
 extern DetectorDriver driver; // need this to get the logic event processor
 
@@ -340,9 +342,6 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	}	
     }
 
-    if (corr.GetCondition() == Correlator::VALID_DECAY && position == 2)
-     	corr.Flag(position, 1);
-
     if (info.type == EventInfo::PROTON_EVENT) {
 	const ChanEvent *chVeto = vetoSummary->GetMaxEvent();
 	
@@ -354,14 +353,33 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
     }
 
     if (info.pileUp) {
+	double trigTime = info.time;
+
 	info.energy = driver.cal.at(ch->GetID()).Calibrate(trace.GetValue("filterEnergy2"));
-	info.time   = info.time + trace.GetValue("filterTime2") - trace.GetValue("filterTime");
+	info.time   = trigTime + trace.GetValue("filterTime2") - trace.GetValue("filterTime");
 	
 	SetType(info);
 	
 	corr.Correlate(info, position, 1);
 	PlotType(info, position, corr.GetCondition());
-	
+
+	int numPulses = trace.GetValue("numPulses");
+
+	if ( numPulses > 2 ) {
+	    corr.Flag(position, 1);
+	    cout << "Flagging triple event" << endl;
+	    for (int i=3; i <= numPulses; i++) {
+		stringstream str;
+		str << "filterEnergy" << i;
+		info.energy = driver.cal.at(ch->GetID()).Calibrate(trace.GetValue(str.str()));
+		str.str(""); // clear it
+		str << "filterTime" << i;
+		info.time   = trigTime + trace.GetValue(str.str()) - trace.GetValue("filterTime");
+
+		SetType(info);
+		corr.Correlate(info, position, 1);
+	    }
+	}	
 	// corr.Flag(position, 1);	                
 #ifdef VERBOSE
 	cout << "Flagging for pileup" << endl; 
@@ -378,8 +396,10 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	}
     }
 
+    /*
     if (info.energy > 8000)
 	corr.Flag(position, 1);
+    */
 
     if (info.energy > 8000 && !trace.empty()) {
 #ifdef VERBOSE
@@ -389,7 +409,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 
 	cout << "Flagging for high energy " << info.energy << " with trace" << endl;
 #endif //VERBOSE
-	corr.Flag(position, 1);
+	// corr.Flag(position, 1);
 
 	if (highTracesWritten < numTraces) {
 	    trace.Plot(D_HIGH_ENERGY_TRACE + highTracesWritten);

@@ -90,7 +90,9 @@ class Trace : public std::vector<int>
     void Plot(int id) const;           //< plot trace into a 1D histogram
     void Plot(int id, int row) const;  //< plot trace into row of a 2D histogram
     void ScalePlot(int id, double scale) const; //< plot trace absolute value and scaled into a 1D histogram
-    void ScalePlot(int id, int row, double scale) const; //< plot trace absolute value and scaled into a 2D histogarm
+    void ScalePlot(int id, int row, double scale) const; //< plot trace absolute value and scaled into a 2D histogram
+    void OffsetPlot(int id, double offset) const; // plot trace with a vertical offset in a 1D histogram
+    void OffsetPlot(int id, int row, double offset) const; //plot trace with a vertical offset in a 2D histogram
 };
 
 /** Parameters for your typical trapezoidal filter */

@@ -72,19 +72,19 @@
 5	generic	tac	1  1   0	0	1
 1	logic	trigger	1  1   0	0	1
 1	logic	mcp	1  1   0	0	1
-1	ssd	implant1 1	2	0.0	0.0	1.	0.0
-2	ssd	implant1 1	2	0.0	0.0	1.	0.0
-3	ssd	implant1 1	2	0.0	0.0	1.	0.0
-4	ssd	implant1 1	2	0.0	0.0	1.	0.0
-5	ssd	implant1 1	2	0.0	0.0	1.	0.0
-6	ssd	implant1 1	2	0.0	0.0	1.	0.0
-7	ssd	implant1 1	2	0.0	0.0	1.	0.0
-8	ssd	implant1 1	2	0.0	0.0	1.	0.0
-9	ssd	implant1 1	2	0.0	0.0	1.	0.0
-10	ssd	implant1 1	2	0.0	0.0	1.	0.0
-11	ssd	implant1 1	2	0.0	0.0	1.	0.0
-12	ssd	implant1 1	2	0.0	0.0	1.	0.0
-13	ssd	implant1 1	2	0.0	0.0	1.	0.0
-14	ssd	implant1 1	2	0.0	0.0	1.	0.0
-15	ssd	implant1 1	2	0.0	0.0	1.	0.0
-16	ssd	implant1 1	2	0.0	0.0	1.	0.0
+1	ssd	top	1	2	0.0	0.0	1.	0.0
+2	ssd	top	1	2	0.0	0.0	1.	0.0
+3	ssd	top	1	2	0.0	0.0	1.	0.0
+4	ssd	top	1	2	0.0	0.0	1.	0.0
+5	ssd	top	1	2	0.0	0.0	1.	0.0
+6	ssd	top 	1	2	0.0	0.0	1.	0.0
+7	ssd	top	1	2	0.0	0.0	1.	0.0
+8	ssd	top	1	2	0.0	0.0	1.	0.0
+1	ssd	bottom	1	2	0.0	0.0	1.	0.0
+2	ssd	bottom	1	2	0.0	0.0	1.	0.0
+3	ssd	bottom	1	2	0.0	0.0	1.	0.0
+4	ssd	bottom	1	2	0.0	0.0	1.	0.0
+5	ssd	bottom	1	2	0.0	0.0	1.	0.0
+6	ssd	bottom	1	2	0.0	0.0	1.	0.0
+7	ssd	bottom	1	2	0.0	0.0	1.	0.0
+8	ssd	bottom	1	2	0.0	0.0	1.	0.0

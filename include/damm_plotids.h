@@ -185,7 +185,7 @@ namespace dammIds {
 
     // in SsdProcessor.cpp
     namespace ssd {
-	const int NUM_DETECTORS = 32;
+	const int NUM_DETECTORS = 4;
 
         const int DD_POSITION__ENERGY_DETX = 2701; // for x detectors
     } // ssd namespace

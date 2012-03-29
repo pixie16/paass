@@ -129,13 +129,15 @@ void CorrelationList::PrintDecayList() const
 	} else {
 	    str << "   " << setw(2) << (*it).generation << " E";
 	}
-	str  << setw(10) << fixed << setprecision(3) << (*it).energy
+	str  << setw(10) << fixed << setprecision(4) << (*it).energy
 	     << " [ch] at T " << setw(10) << dt 
 	     << ", DT= " << setw(10) << dt2
 	     << ", OT (" << (*it).logicBits << ")= " << setw(10) << offt << " [ms]" 
 	     << " M" << (*it).mcpMult << "I" << (*it).impMult << "B" << (*it).boxMult << endl;	
+	/*
 	if ((*it).mcpMult > 0 && !isnan((*it).foilTime) )
 	    str << "      Foil time: " << (*it).foilTime << endl;
+	*/
 	if ((*it).boxMult > 0)
 	    str << "      Box: E " << (*it).energyBox << " for location " << (*it).boxMax << endl;	
 	lastTime = (*it).time;
@@ -343,8 +345,9 @@ bool Correlator::IsFlagged(int fch, int bch)
 
 void Correlator::PrintDecayList(unsigned int fch, unsigned int bch) const
 {
-    if (fch != 2)
-      return;
+    // this channel has a lot of noise
+    if (fch == 7)
+	return;
 
     cout << "Current decay list for " << fch << " , " << bch << " : " << endl;
     decaylist[fch][bch].PrintDecayList();

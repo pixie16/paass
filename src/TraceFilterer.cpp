@@ -152,11 +152,13 @@ void TraceFilterer::Analyze(Trace &trace,
 	     abs(trailingBaseline - trace.GetValue("baseline")) < deviationCut) {	    
 	    // perhaps check trailing baseline deviation from a simple linear fit 
 	    static int rejectedTraces = 0;
+	    /*
 	    cout << "Rejected trace with bad baseline = " << trace.GetValue("baseline") 
 		 << " +/- " << trace.GetValue("sigmaBaseline") 
 		 << ", trailing baseline = " << trailingBaseline
 		 << " +/- " << trailingDeviation
 		 << ", cut = " << deviationCut << endl;
+	    */
 	    if (rejectedTraces < numTraces)
 		trace.Plot(DD_REJECTED_TRACE, rejectedTraces++);
 	    EndAnalyze(); // update timing
@@ -210,6 +212,7 @@ const TraceFilterer::PulseInfo& TraceFilterer::FindPulse(Trace::iterator begin, 
 	(greater<Trace::value_type>(), fastThreshold);
 
     Trace::size_type sample;
+    Trace::size_type presample;
     pulse.isFound = false;
 
     while (begin < end) {
@@ -217,8 +220,9 @@ const TraceFilterer::PulseInfo& TraceFilterer::FindPulse(Trace::iterator begin, 
 	if (begin == end) {
 	    break;
 	}
-
 	pulse.time    = begin - fastFilter.begin();
+	presample     = pulse.time - fastParms.GetRiseSamples();
+
 	pulse.isFound = true;
 
 	// sample the slow filter in the middle of its size
@@ -237,9 +241,13 @@ const TraceFilterer::PulseInfo& TraceFilterer::FindPulse(Trace::iterator begin, 
 	
 	if (sample < energyFilter.size()) {
 	    pulse.energy = energyFilter[sample] + randoms.Get();	    
+	    // remove some baseline value
+	    if (presample >= 0) {
+		pulse.energy -= energyFilter[presample];
+	    }
 	    // scale to the integration time
 	    pulse.energy /= energyParms.GetRiseSamples();
-	    pulse.energy *= energyScaleFactor;
+	    pulse.energy *= energyScaleFactor;	    
 	} else pulse.energy = NAN;
 	break;
     }

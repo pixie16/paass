@@ -56,6 +56,7 @@
 #include "VandleProcessor.h"
 #include "PulserProcessor.h"
 #include "SsdProcessor.h"
+#include "QdcProcessor.hh"
 
 #include "DoubleTraceAnalyzer.h"
 #include "TraceAnalyzer.h"
@@ -84,13 +85,13 @@ extern RandomPool randoms;
 */
 DetectorDriver::DetectorDriver()
 {
-    vecAnalyzer.push_back(new TraceExtracter("ssd", "implant1"));
+    vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
     vecAnalyzer.push_back(new DoubleTraceAnalyzer());
   
     vecProcess.push_back(new ImplantSsdProcessor());
     vecProcess.push_back(new TriggerLogicProcessor());
     vecProcess.push_back(new SsdProcessor());
-     
+    vecProcess.push_back(new QdcProcessor());
 #ifdef useroot 
     // and finally the root processor
     vecProcess.push_back(new RootProcessor("tree.root", "tree"));

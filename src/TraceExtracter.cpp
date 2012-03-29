@@ -39,9 +39,9 @@ void TraceExtracter::Analyze(Trace &trace,
 {   
     using namespace dammIds::trace;
 
-    if (type ==  aType && subtype == aSubtype && numTracesAnalyzed < numTraces) {       
-        TraceAnalyzer::Analyze(trace, type, subtype);
-	trace.Plot(D_TRACE + numTracesAnalyzed);
+    TraceAnalyzer::Analyze(trace, type, subtype);	
+    if (type ==  aType && subtype == aSubtype && numTracesAnalyzed < numTraces) {	
+	trace.OffsetPlot(D_TRACE + numTracesAnalyzed, trace.DoBaseline(1,20) );
     }
     EndAnalyze(trace);
 }
