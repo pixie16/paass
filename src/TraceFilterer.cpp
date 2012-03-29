@@ -140,11 +140,25 @@ void TraceFilterer::Analyze(Trace &trace,
     TracePlotter::Analyze(trace, type, subtype);
 
     if (level >= 5) {
-	trace.DoBaseline(0, 20); //? make the number of bins a parameter for the filter
-	if (trace.GetValue("sigmaBaseline") * fastParms.GetRiseSamples() > fastThreshold / 2) {
+	const size_t baselineBins = 20;
+	const double deviationCut = fastThreshold / 2. / fastParms.GetRiseSamples();
+
+	double trailingBaseline  = trace.DoBaseline(trace.size() - baselineBins - 1, baselineBins);
+	double trailingDeviation = trace.GetValue("sigmaBaseline");
+		
+	// start at sample 5 because first samples are occasionally corrupted
+	trace.DoBaseline(5, baselineBins);       
+	if ( trace.GetValue("sigmaBaseline") > deviationCut ||
+	     abs(trailingBaseline - trace.GetValue("baseline")) < deviationCut) {	    
+	    // perhaps check trailing baseline deviation from a simple linear fit 
 	    static int rejectedTraces = 0;
-	    cout << "Rejected trace with bad baseline = " << trace.GetValue("sigmaBaseline") << endl;
-	    trace.Plot(DD_REJECTED_TRACE, rejectedTraces++);
+	    cout << "Rejected trace with bad baseline = " << trace.GetValue("baseline") 
+		 << " +/- " << trace.GetValue("sigmaBaseline") 
+		 << ", trailing baseline = " << trailingBaseline
+		 << " +/- " << trailingDeviation
+		 << ", cut = " << deviationCut << endl;
+	    if (rejectedTraces < numTraces)
+		trace.Plot(DD_REJECTED_TRACE, rejectedTraces++);
 	    EndAnalyze(); // update timing
 	    return;
 	}
