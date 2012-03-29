@@ -104,38 +104,39 @@ bool DssdProcessor::Process(RawEvent &event)
     } else backEnergy = 0.;
 
     // decide whether this is an implant or a decay
-    Correlator::EEventType type;
+    EventInfo corEvent;
+    corEvent.time = frontTime;
 
     if (hasFront && hasBack) {
 	if (frontEnergy > cutoffEnergy && backEnergy > cutoffEnergy && hasMcp) {
-	    type = Correlator::IMPLANT_EVENT;
+	    corEvent.type = EventInfo::IMPLANT_EVENT;
 	} else if (frontEnergy <= cutoffEnergy && backEnergy <= cutoffEnergy &&
 		   !hasMcp) {
-	    type = Correlator::DECAY_EVENT;
+	    corEvent.type = EventInfo::DECAY_EVENT;
 	} else {
-	    type = Correlator::UNKNOWN_TYPE;
+	    corEvent.type = EventInfo::UNKNOWN_EVENT;
 	}
-	corr.Correlate(event, type, frontPos, backPos, frontTime); 
+	corr.Correlate(corEvent, frontPos, backPos); 
     } else if (hasFront) {
   	if (frontEnergy > cutoffEnergy) {
-	    type = Correlator::IMPLANT_EVENT;
-	} else type = Correlator::DECAY_EVENT;
+	    corEvent.type = EventInfo::IMPLANT_EVENT;
+	} else corEvent.type = EventInfo::DECAY_EVENT;
 	   
     } else if (hasBack) {
 	if (backEnergy > cutoffEnergy) {
-	    type = Correlator::IMPLANT_EVENT;
-	} else type = Correlator::DECAY_EVENT;
-    } else type = Correlator::UNKNOWN_TYPE;
+	    corEvent.type = EventInfo::IMPLANT_EVENT;
+	} else corEvent.type = EventInfo::DECAY_EVENT;
+    } else corEvent.type = EventInfo::UNKNOWN_EVENT;
 
     // plot stuff
-    if (type == Correlator::IMPLANT_EVENT) {
+    if (corEvent.type == EventInfo::IMPLANT_EVENT) {
 	if (hasFront)
 	    plot(DD_IMPLANT_FRONT_ENERGY__POSITION, frontEnergy, frontPos);
 	if (hasBack)
 	    plot(DD_IMPLANT_BACK_ENERGY__POSITION, backEnergy, backPos);
 	if (hasFront && hasBack)
 	    plot(DD_IMPLANT_POSITION, backPos, frontPos);
-    } else if (type == Correlator::DECAY_EVENT) {
+    } else if (corEvent.type == EventInfo::DECAY_EVENT) {
 	if (hasFront)
 	    plot(DD_DECAY_FRONT_ENERGY__POSITION, frontEnergy, frontPos);
 	if (hasBack)

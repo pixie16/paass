@@ -185,7 +185,7 @@ namespace dammIds {
 
     // in SsdProcessor.cpp
     namespace ssd {
-	const int NUM_DETECTORS = 4;
+	const int NUM_DETECTORS = 32;
 
         const int DD_POSITION__ENERGY_DETX = 2701; // for x detectors
     } // ssd namespace
@@ -193,11 +193,32 @@ namespace dammIds {
     namespace implantSsd {
         const int MAX_TOF = 5;
 
-	const int DD_IMPLANT_ENERGY__POSITION = 2741;
-	const int DD_ENERGY__POSITION_NOBEAM  = 2742;
-	const int DD_DECAY_ENERGY__POSITION   = 2743;
-	const int DD_IMPLANT_ENERGY__TOFX     = 2745;	
-	const int DD_ENERGY__DECAY_TIME_GRANX = 2750;
+	const int DD_IMPLANT_ENERGY__POSITION  = 2740;
+        const int DD_DECAY_ENERGY__POSITION    = 2741;
+        const int DD_ENERGY__POSITION_BEAM     = 2742;
+        const int DD_ENERGY__POSITION_NOBEAM   = 2743;
+        const int DD_ENERGY__POSITION_VETO     = 2744;
+        const int DD_ENERGY__POSITION_PROJLIKE = 2745;
+        const int DD_ENERGY__POSITION_UNKNOWN  = 2746;
+        const int DD_POS_VETO__POS_SSD         = 2747;
+        const int DD_TOTENERGY__ENERGY         = 2748;
+        const int DD_ALL_ENERGY__POSITION      = 2749;
+
+	const int DD_DECAY_ALL_ENERGY__TX     = 2800;
+        const int DD_DECAY_NOBEAM_ENERGY__TX  = 2810;
+        const int DD_VETO_ENERGY__TX          = 2820;
+        const int DD_FIRST_DECAY_ENERGY__TX   = 2830;
+
+        const int DD_ALL_ENERGY__TOFX         = 2850;
+        const int DD_IMPLANT_ENERGY__TOFX     = 2860;   
+        const int DD_VETO_ENERGY__TOFX        = 2870;
+        const int DD_ALL_ENERGY__TOFX_GATED   = 2880;
+
+        const int D_TDIFF_FOIL_IMPLANT = 2900;
+        const int D_TDIFF_FOIL_IMPLANT_MULT1 = 2901;
+
+        const int D_FAST_DECAY_TRACE  = 4100;
+        const int D_HIGH_ENERGY_TRACE = 4200;
     }
     // in MtcProcessor.cpp
     namespace mtc {

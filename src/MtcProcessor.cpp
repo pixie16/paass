@@ -96,8 +96,13 @@ bool MtcProcessor::Process(RawEvent &event)
 	    plot(D_COUNTER_MOVE1,GENERIC_CHANNEL); //counter	  
 	    // correlate the end of tape movement with the implantation time
 	    // if mtc down, correlate with beam_start
-	    corr.Correlate(event, Correlator::IMPLANT_EVENT,
-			   1, 1, chan->GetTime());
+
+	    EventInfo corEvent;
+	    corEvent.time = time;
+	    corEvent.type = EventInfo::IMPLANT_EVENT;
+
+	    corr.Correlate(corEvent, 1, 1);
+
 	} else if (subtype == "beam_start") {
 	    /*
 	    corr.Correlate(event, Correlator::IMPLANT_EVENT,

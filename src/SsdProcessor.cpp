@@ -46,9 +46,7 @@ bool SsdProcessor::Process(RawEvent &event)
 
     if (firstTime) {
 	ssdSummary[0] = event.GetSummary("ssd:implant");
-	ssdSummary[1] = event.GetSummary("ssd:ssd_2");
-	ssdSummary[2] = event.GetSummary("ssd:ssd_3");
-	ssdSummary[3] = event.GetSummary("ssd:ssd_4");
+	ssdSummary[1] = event.GetSummary("ssd:box");
 	firstTime = false;
     }
     

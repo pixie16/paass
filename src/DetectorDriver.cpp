@@ -46,13 +46,16 @@
 
 #include "DssdProcessor.h"
 #include "GeProcessor.h"
+#include "ImplantSsdProcessor.h"
 #include "IonChamberProcessor.h"
 #include "McpProcessor.h"
 #include "MtcProcessor.h"
 #include "ScintProcessor.h"
 #include "TraceFilterer.h"
+#include "TriggerLogicProcessor.h"
 #include "VandleProcessor.h"
 #include "PulserProcessor.h"
+#include "SsdProcessor.h"
 
 #include "DoubleTraceAnalyzer.h"
 #include "TraceAnalyzer.h"
@@ -81,18 +84,13 @@ extern RandomPool randoms;
 */
 DetectorDriver::DetectorDriver()
 {
+    vecAnalyzer.push_back(new TraceExtracter("ssd", "implant1"));
     vecAnalyzer.push_back(new DoubleTraceAnalyzer());
-    vecAnalyzer.push_back(new TraceExtracter("ssd", "implant"));
-
-    vecProcess.push_back(new ScintProcessor());
-    // vecProcess.push_back(new GeProcessor());
-    vecProcess.push_back(new IonChamberProcessor());
-    vecProcess.push_back(new McpProcessor());
-    vecProcess.push_back(new DssdProcessor());
-    vecProcess.push_back(new MtcProcessor());
-    // vecProcess.push_back(new PulserProcessor());
-    // vecProcess.push_back(new VandleProcessor());
-    
+  
+    vecProcess.push_back(new ImplantSsdProcessor());
+    vecProcess.push_back(new TriggerLogicProcessor());
+    vecProcess.push_back(new SsdProcessor());
+     
 #ifdef useroot 
     // and finally the root processor
     vecProcess.push_back(new RootProcessor("tree.root", "tree"));

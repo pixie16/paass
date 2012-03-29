@@ -8,11 +8,11 @@
 
 #include "EventProcessor.h"
 
+#include "Correlator.h"
+
 // forward declarations
-class EventInfo;
 class RawEvent;
-enum  EventInfo::EEventTypes;
-enum  Correlator::EConditions;
+
 /**
  * \brief Handles detectors of type ssd:implant
  */

@@ -81,8 +81,11 @@ bool ScintProcessor::Process(RawEvent &event)
     if (betaMult > 0) {
 	// here we correlate the decay for the plastic beta scintillators
 	//   for the LeRIBSS setup, the corresponding implant is the stop of the tape movement
-	event.GetCorrelator().Correlate(event, Correlator::DECAY_EVENT, 1, 1, 
-					scintBetaEvents[0]->GetTime());
+	EventInfo corEvent;
+	corEvent.time = scintBetaEvents[0]->GetTime();
+	corEvent.type = EventInfo::DECAY_EVENT;
+
+	event.GetCorrelator().Correlate(corEvent, 1, 1);
     }
     for(vector<ChanEvent*>::const_iterator itBeta = scintBetaEvents.begin();
 	itBeta != scintBetaEvents.end(); itBeta++) {
