@@ -579,7 +579,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 		  every once in a while (when evcount is a multiple of 1000)
 		  print the time elapsed doing the analysis
 		*/
-		if(evCount % 1000 == 0){
+		if(evCount % 1000 == 0 || evCount == 1) {
 		    tms tmsNow;
 		    clock_t clockNow = times(&tmsNow);
 
