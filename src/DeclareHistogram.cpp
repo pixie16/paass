@@ -88,7 +88,7 @@ extern "C" void drrsub_(unsigned int& iexist)
 
     // unfortunately this function is called before we have read in the map,
     //   and know the EXACT number of channels we'll need
-    const int numberChannels = 96;
+    const int numberChannels = 192;
 
     extern DetectorDriver driver;
 

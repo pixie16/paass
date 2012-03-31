@@ -22,16 +22,30 @@ QdcProcessor::QdcProcessor() : EventProcessor()
 
 void QdcProcessor::DeclarePlots(void) const
 {
-    // no plots for now
-    for (int i=0; i <= 8; i++) {
+    const int qdcBins = S8;
+
+    for (int i=0; i < 16; i++) {	
+	stringstream str;
 	for (int j=1; j < 8; j++) {
-	    stringstream str;
 	    str << "QDC " << j << ", T/B LOC " << i;
-	    DeclareHistogram2D(2500 + 10 * j + i, SA, SA, "QDC1 T/B");
+	    DeclareHistogram2D(2500 + 20 * j + i , qdcBins, qdcBins, str.str().c_str() );
 	    str.str("");
+	    if (i == 0) {
+		// declare once
+		str << "ALL QDC T/B" << j;
+		DeclareHistogram2D(2516 + 20 * j, qdcBins, qdcBins, str.str().c_str() );
+		str.str("");
+		str << "ALL QDC NORM T/B" << j;
+		DeclareHistogram1D(2517 + 20 * j, SA, str.str().c_str() );
+		str.str("");
+	    }
 	}
-	DeclareHistogram2D(2600 + i, SA, SA, "QDCTOT T/B");
+	str << "QDCTOT T/B LOC " << i;
+	DeclareHistogram2D(2660 + i, qdcBins, qdcBins, str.str().c_str() );
+	str.str("");
     }
+    DeclareHistogram2D(2676, qdcBins, qdcBins, "ALL QDCTOT T/B");
+    DeclareHistogram1D(2677, SA, "ALL QDCTOT NORM T/B");
 }
 
 bool QdcProcessor::Process(RawEvent &event)
@@ -44,7 +58,7 @@ bool QdcProcessor::Process(RawEvent &event)
     static const vector<ChanEvent*> &topEvents =
 	event.GetSummary("ssd:top", true)->GetList();
     static const vector<ChanEvent*> &bottomEvents =
-	event.GetSummary("ssd:bottom", true)->GetList();
+	event.GetSummary("ssd:bottm", true)->GetList();
 
     for (vector<ChanEvent*>::const_iterator it=implantEvents.begin();
 	 it != implantEvents.end(); it++) {
@@ -83,15 +97,15 @@ bool QdcProcessor::Process(RawEvent &event)
 	*/
     }
 
-    int qdcLen[8] = {40, 30, 30, 50, 50, 100, 100, 500};
-    int totLen = accumulate(qdcLen + 1, qdcLen + 8, 0);
+    float qdcLen[8] = {40., 30., 30., 50., 50., 100., 600., 50.};
+    float totLen = accumulate(qdcLen + 1, qdcLen + 8, 0);
 
     // for each location
     for (int loc=1; loc <= 16; loc++) {
-	int topQdc[8] = {-1};
-	int bottomQdc[8] = {-1};
-	int topQdcTot = -1;
-	int bottomQdcTot = -1;
+	float topQdc[8] = {-1};
+	float bottomQdc[8] = {-1};
+	float topQdcTot = -1;
+	float bottomQdcTot = -1;
 
 	for (vector<ChanEvent*>::const_iterator itTop = topEvents.begin();
 	     itTop != topEvents.end(); itTop++) {
@@ -109,7 +123,7 @@ bool QdcProcessor::Process(RawEvent &event)
 		topQdc[i] = edge->GetQdcValue(i);
 		topQdc[i] -= edge->GetQdcValue(0) * qdcLen[i] / qdcLen[0];
 		topQdcTot += topQdc[i];
-		topQdc[i] /= qdcLen[i];
+		topQdc[i] /= qdcLen[i];		
 	    }
 	    topQdcTot /= totLen;
 	}
@@ -134,14 +148,17 @@ bool QdcProcessor::Process(RawEvent &event)
 	}
 	if (topQdcTot != -1 && bottomQdcTot != -1) {
 	    for (int j=1; j < 8; j++) {
-		plot(2500 + 10 * j + loc - 1, topQdc[j], bottomQdc[j]);
-		plot(2500 + 10 * j + 8, topQdc[j], bottomQdc[j]);
+		plot(2500 + 20 * j + loc - 1, topQdc[j], bottomQdc[j]);
+		plot(2500 + 20 * j + 16, topQdc[j], bottomQdc[j]);
+		plot(2500 + 20 * j + 17, topQdc[j] * 1000. / (topQdc[j] + bottomQdc[j])); // per mil
 	    }
-	    plot(2600 + loc - 1, topQdcTot, bottomQdcTot);
-	    plot(2608, topQdcTot, bottomQdcTot);
+	    plot(2660 + loc - 1, topQdcTot, bottomQdcTot);
+	    plot(2676, topQdcTot, bottomQdcTot);
+	    plot(2677, topQdcTot * 1000. / (topQdcTot + bottomQdcTot));
 	}
     }
 
     EndProcess();
     return true;
 }
+

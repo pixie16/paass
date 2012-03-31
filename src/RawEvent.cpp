@@ -8,7 +8,7 @@
 
 using namespace std;
 
-const double ChanEvent::pixieEnergyContraction = 4.0;
+const double ChanEvent::pixieEnergyContraction = 2.0;
 
 /**
  * Identifier constructor
@@ -72,8 +72,9 @@ void ChanEvent::ZeroNums()
 
 unsigned long ChanEvent::GetQdcValue(int i) const
 {
-    if (i < 0 || i >= numQdcs)
+    if (i < 0 || i >= numQdcs) {
 	return U_DELIMITER;
+    } 
     return qdcValue[i];
 }
 
