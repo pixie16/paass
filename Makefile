@@ -23,7 +23,7 @@ vpath %.cpp src/
 vpath %.cxx src/
 
 ifeq ($(HHIRF_DIR),)
-HHIRF_HIR = /usr/hhirf
+HHIRF_DIR = /usr/hhirf
 endif
 
 ifeq ($(ACQ2_LIBDIR),)
