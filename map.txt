@@ -72,6 +72,10 @@
 4       6       151     generic tac      3          1
 4       7       151     generic tac      4          1
 4       8       151     generic tac      5          1
+4	9	152	ge	ge	 1	    1
+4	10	153	ge	ge	 2	    1
+4	11	154	ge	ge	 3	    1
+4	12	155	ge	ge	 4	    1
 5	0	164	logic	stop 	 1	    1
 5	1	165	logic	start	 1	    1
 5	2	166	logic	stop 	 2	    1
