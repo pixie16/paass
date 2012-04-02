@@ -2,6 +2,6 @@ filter parameters
 fast: rise gap threshold
 energy: rise gap
 second trigger: rise gap threshold
-10 10 10
+10 10 15
 25 25
 20 20 10

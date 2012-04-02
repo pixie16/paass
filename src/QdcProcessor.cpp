@@ -20,12 +20,13 @@ namespace dammIds {
 	const int QDC_JUMP = 20;
 	const int LOC_SUM  = 18;
 
-	const int D_QDCNORMN_LOCX        = 2300;
-	const int D_QDCTOTNORM_LOCX      = 2460;
-	const int D_INFO_LOCX            = 2480;
-	const int DD_QDCN__QDCN_LOCX     = 2500;
-	const int DD_QDCTOT__QDCTOT_LOCX = 2660;
-	const int DD_POSITION            = 2699;
+	const int D_QDCNORMN_LOCX          = 2300;
+	const int D_QDCTOTNORM_LOCX        = 2460;
+	const int D_INFO_LOCX              = 2480;
+	const int DD_QDCN__QDCN_LOCX       = 2500;
+	const int DD_QDCTOT__QDCTOT_LOCX   = 2660;
+	const int DD_POSITION__ENERGY_LOCX = 2680;
+	const int DD_POSITION              = 2699;
     }
 }
 
@@ -83,9 +84,13 @@ bool QdcProcessor::Init(DetectorDriver &driver)
     in >> whichQdc >> posScale;
 
     int numLocationsRead = 0;
-    while (!in.eof()) {
+    while (true) {
 	int location;
 	in >> location;
+	if (in.eof()) {
+	    // place this here so a trailing newline is okay in the config file
+	    break;
+	}
 	in >> minNormQdc[location-1] >> maxNormQdc[location-1];
 	numLocationsRead++;
     }
@@ -115,6 +120,9 @@ void QdcProcessor::DeclarePlots(void) const
     const int qdcBins = S8;
     const int normBins = SA;
     const int infoBins = S3;
+    const int locationBins = S4;
+    const int positionBins = S6;
+    const int energyBins   = SE;
 
     for (int i=0; i < numLocations; i++) {	
 	stringstream str;
@@ -140,17 +148,25 @@ void QdcProcessor::DeclarePlots(void) const
 	str << "QDCTOT T/B LOC " << i;
 	DeclareHistogram2D(DD_QDCTOT__QDCTOT_LOCX + i, qdcBins, qdcBins, str.str().c_str() );
 	str.str("");
+
 	str << "QDCTOT NORM T/B LOC " << i;
 	DeclareHistogram1D(D_QDCTOTNORM_LOCX + i, normBins, str.str().c_str());
+	str.str("");
 
 	str << "INFO LOC " << i;
 	DeclareHistogram1D(D_INFO_LOCX + i, infoBins, str.str().c_str());
+	str.str("");
+	
+	str << "Energy vs. position, loc " << i;
+	DeclareHistogram2D(DD_POSITION__ENERGY_LOCX + i, positionBins, energyBins, str.str().c_str());
+	str.str("");
     }
     DeclareHistogram2D(DD_QDCTOT__QDCTOT_LOCX + LOC_SUM, qdcBins, qdcBins, "ALL QDCTOT T/B");
     DeclareHistogram1D(D_QDCTOTNORM_LOCX + LOC_SUM, normBins, "ALL QDCTOT NORM T/B");
+    DeclareHistogram2D(DD_POSITION__ENERGY_LOCX + LOC_SUM, positionBins, energyBins, "All energy vs. position");
 
     DeclareHistogram1D(D_INFO_LOCX + LOC_SUM, infoBins, "ALL INFO");
-    DeclareHistogram2D(DD_POSITION, S4, S6, "Qdc Position");
+    DeclareHistogram2D(DD_POSITION, locationBins, positionBins, "Qdc Position");
 }
 
 /**
@@ -217,6 +233,8 @@ bool QdcProcessor::Process(RawEvent &event)
 	float position = NAN;
 	
 	if (bottom->GetQdcValue(0) == U_DELIMITER || top->GetQdcValue(0) == U_DELIMITER) {
+	    // This happens naturally for traces which have double triggers
+	    //   Onboard DSP does not write QDCs in this case
 #ifdef VERBOSE
 	    cout << "SSD strip edges are missing QDC information for location " << location << endl;
 #endif
@@ -253,7 +271,9 @@ bool QdcProcessor::Process(RawEvent &event)
 		position = posScale * (frac - minNormQdc[location]) / 
 		    (maxNormQdc[location] - minNormQdc[location]);
 		sumchan->GetTrace().InsertValue("position", position);
-		plot(DD_POSITION, location, position);
+		plot(DD_POSITION, location - 1, position);
+		plot(DD_POSITION__ENERGY_LOCX + location - 1, position, sumchan->GetCalEnergy());
+		plot(DD_POSITION__ENERGY_LOCX + LOC_SUM, position, sumchan->GetCalEnergy());
 	    }
 	} // end loop over qdcs
 	topQdcTot    /= totLen;

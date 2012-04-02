@@ -140,8 +140,8 @@ void TraceFilterer::Analyze(Trace &trace,
     TracePlotter::Analyze(trace, type, subtype);
 
     if (level >= 5) {
-	const size_t baselineBins = 20;
-	const double deviationCut = fastThreshold / 2. / fastParms.GetRiseSamples();
+	const size_t baselineBins = 30;
+	const double deviationCut = fastThreshold / 4. / fastParms.GetRiseSamples();
 
 	double trailingBaseline  = trace.DoBaseline(trace.size() - baselineBins - 1, baselineBins);
 	double trailingDeviation = trace.GetValue("sigmaBaseline");

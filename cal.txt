@@ -3,22 +3,38 @@
 % from map.old.txt
 % Scaled so ssd calibration is 100 keV/ch
 %loc 	type	subtype	n  ord	thresh	pol0	pol1	pol2
-1	ssd	implant	1	2	0.0	0.0	1.2429	0.0
-2	ssd	implant	1	2	0.0	0.0	1.30324	0.0
-3	ssd	implant	1	2	0.0	0.0	1.27252	0.0
-4	ssd	implant	1	2	0.0	0.0	1.25826	0.0
-5	ssd	implant	1	2	0.0	0.0	1.24071	0.0
-6	ssd	implant	1	2	0.0	0.0	1.29117	0.0
-7	ssd	implant	1	2	0.0	0.0	1.23522	0.0
-8	ssd	implant	1	2	0.0	0.0	1.25497	0.0
-9	ssd	implant	1	2	0.0	0.0	1.27471	0.0
-10	ssd	implant	1	2	0.0	0.0	1.27581	0.0
-11	ssd	implant	1	2	0.0	0.0	1.26374	0.0
-12	ssd	implant	1	2	0.0	0.0	1.21218	0.0
-13	ssd	implant	1	2	0.0	0.0	1.17708	0.0
-14	ssd	implant	1	2	0.0	0.0	1.22645	0.0
-15	ssd	implant	1	2	0.0	0.0	1.19244	0.0
-16	ssd	implant	1	2	0.0	0.0	1.21548	0.0
+1	ssd	top	1	2	0.0	0.0	1.0	0.0
+2	ssd	top	1	2	0.0	0.0	1.0	0.0
+3	ssd	top	1	2	0.0	0.0	1.0	0.0
+4	ssd	top	1	2	0.0	0.0	1.0	0.0
+5	ssd	top	1	2	0.0	0.0	1.0	0.0
+6	ssd	top	1	2	0.0	0.0	1.0	0.0
+7	ssd	top	1	2	0.0	0.0	1.0	0.0
+8	ssd	top	1	2	0.0	0.0	1.0	0.0
+9	ssd	top	1	2	0.0	0.0	1.0	0.0
+10	ssd	top	1	2	0.0	0.0	1.0	0.0
+11	ssd	top	1	2	0.0	0.0	1.0	0.0
+12	ssd	top	1	2	0.0	0.0	1.0	0.0
+13	ssd	top	1	2	0.0	0.0	1.0	0.0
+14	ssd	top	1	2	0.0	0.0	1.0	0.0
+15	ssd	top	1	2	0.0	0.0	1.0	0.0
+16	ssd	top	1	2	0.0	0.0	1.0	0.0
+1	ssd	bottom	1	2	0.0	0.0	1.0	0.0
+2	ssd	bottom	1	2	0.0	0.0	1.0	0.0
+3	ssd	bottom	1	2	0.0	0.0	1.0	0.0
+4	ssd	bottom	1	2	0.0	0.0	1.0	0.0
+5	ssd	bottom	1	2	0.0	0.0	1.0	0.0
+6	ssd	bottom	1	2	0.0	0.0	1.0	0.0
+7	ssd	bottom	1	2	0.0	0.0	1.0	0.0
+8	ssd	bottom	1	2	0.0	0.0	1.0	0.0
+9	ssd	bottom	1	2	0.0	0.0	1.0	0.0
+10	ssd	bottom	1	2	0.0	0.0	1.0	0.0
+11	ssd	bottom	1	2	0.0	0.0	1.0	0.0
+12	ssd	bottom	1	2	0.0	0.0	1.0	0.0
+13	ssd	bottom	1	2	0.0	0.0	1.0	0.0
+14	ssd	bottom	1	2	0.0	0.0	1.0	0.0
+15	ssd	bottom	1	2	0.0	0.0	1.0	0.0
+16	ssd	bottom	1	2	0.0	0.0	1.0	0.0
 1	ssd	box	1	2	0.0	0.0	1.66634	0.0
 2	ssd	box	1	2	0.0	0.0	1.47656	0.0
 3	ssd	box	1	2	0.0	0.0	1.43817	0.0
@@ -72,19 +88,35 @@
 5	generic	tac	1  1   0	0	1
 1	logic	trigger	1  1   0	0	1
 1	logic	mcp	1  1   0	0	1
-1	ssd	top	1	2	0.0	0.0	1.	0.0
-2	ssd	top	1	2	0.0	0.0	1.	0.0
-3	ssd	top	1	2	0.0	0.0	1.	0.0
-4	ssd	top	1	2	0.0	0.0	1.	0.0
-5	ssd	top	1	2	0.0	0.0	1.	0.0
-6	ssd	top 	1	2	0.0	0.0	1.	0.0
-7	ssd	top	1	2	0.0	0.0	1.	0.0
-8	ssd	top	1	2	0.0	0.0	1.	0.0
-1	ssd	bottom	1	2	0.0	0.0	1.	0.0
-2	ssd	bottom	1	2	0.0	0.0	1.	0.0
-3	ssd	bottom	1	2	0.0	0.0	1.	0.0
-4	ssd	bottom	1	2	0.0	0.0	1.	0.0
-5	ssd	bottom	1	2	0.0	0.0	1.	0.0
-6	ssd	bottom	1	2	0.0	0.0	1.	0.0
-7	ssd	bottom	1	2	0.0	0.0	1.	0.0
-8	ssd	bottom	1	2	0.0	0.0	1.	0.0
+1	ssd	sum	1	1	0.0	-9.41 	1.6106
+2	ssd	sum	1	1	0.0	-7.06	1.6961
+3	ssd	sum	1	1	0.0	-6.87	1.6511
+4	ssd	sum	1	1	0.0	-8.09	1.6776
+5	ssd	sum	1	1	0.0	-7.46	1.6712
+6	ssd	sum	1	1	0.0	-6.35	1.6556
+7	ssd	sum	1	1	0.0	-9.06	1.6335
+8	ssd	sum	1	1	0.0	-8.05	1.6655
+9	ssd	sum	1	1	0.0	-10.54	1.6828
+10	ssd	sum	1	1	0.0	-5.14	1.6446
+11	ssd	sum	1	1	0.0	-8.65	1.6357
+12	ssd	sum	1	1	0.0	-7.68	1.5902
+13	ssd	sum	1	1	0.0	-9.52	1.5540
+14	ssd	sum	1	1	0.0	-6.79	1.6749
+15	ssd	sum	1	1	0.0	-7.78	1.5385
+16	ssd	sum	1	1	0.0	-7.26	1.6805
+1	ssd	digisum	1	1	0.0	-8.69	1.6549
+2	ssd	digisum	1	1	0.0	-2.93	1.6962
+3	ssd	digisum	1	1	0.0	-7.61	1.6367
+4	ssd	digisum	1	1	0.0	-6.31	1.6824
+5	ssd	digisum	1	1	0.0	-9.83	1.6642
+6	ssd	digisum	1	1	0.0	-6.08	1.6805
+7	ssd	digisum	1	1	0.0	-6.07	1.6569
+8	ssd	digisum	1	1	0.0	-6.28	1.6668
+9	ssd	digisum	1	1	0.0	-5.92	1.5852
+10	ssd	digisum	1	1	0.0	-8.29	1.5540
+11	ssd	digisum	1	1	0.0	-7.72	1.5349 
+12	ssd	digisum	1	1	0.0	-7.72	1.4989
+13	ssd	digisum	1	1	0.0	-6.38	1.4571
+14	ssd	digisum	1	1	0.0	-7.55	1.5746
+15	ssd	digisum	1	1	0.0	-6.82	1.4742
+16	ssd	digisum	1	1	0.0	-6.55	1.5710
