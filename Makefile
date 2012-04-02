@@ -16,7 +16,8 @@ REVISIOND = 1
 #------- instruct make to search through these
 #------- directories to find files
 vpath %.f scan/ 
-vpath %.hpp include/vpath %.h include/
+vpath %.hpp include/
+vpath %.h include/
 vpath %.icc include/
 vpath %.cpp src/
 vpath %.cxx src/
