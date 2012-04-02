@@ -2,8 +2,8 @@
  * Handle QDCs for the position sensitive detector
  */
 
-#ifndef __QDCPROCESSOR_HH_
-#define __QDCPROCESSOR_HH_
+#ifndef __QDCPROCESSOR_HPP_
+#define __QDCPROCESSOR_HPP_
 
 #include <string>
 #include <vector>
@@ -36,4 +36,4 @@ public:
     virtual void DeclarePlots(void) const;
 };
     
-#endif // __QDCPROCESSOR_HH_
+#endif // __QDCPROCESSOR_HPP_

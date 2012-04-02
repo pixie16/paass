@@ -13,6 +13,8 @@
 #include "QdcProcessor.hpp"
 #include "RawEvent.h"
 
+#include "damm_plotids.h"
+
 using namespace std;
 
 namespace dammIds {
