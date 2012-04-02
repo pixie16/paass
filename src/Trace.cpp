@@ -105,3 +105,17 @@ void Trace::ScalePlot(int id, int row, double scale) const
 	plot(id, i, row, abs(at(i)) / scale);
     }
 }
+
+void Trace::OffsetPlot(int id, double offset) const
+{
+    for (size_type i=0; i < size(); i++) {
+	plot(id, i, 1, max(0., at(i) - offset));
+    }
+}
+
+void Trace::OffsetPlot(int id, int row, double offset) const
+{
+    for (size_type i=0; i < size(); i++) {
+	plot(id, i, row, max(0., at(i) - offset));
+    }
+}

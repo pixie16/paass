@@ -16,8 +16,7 @@ REVISIOND = 1
 #------- instruct make to search through these
 #------- directories to find files
 vpath %.f scan/ 
-vpath %.hpp include/
-vpath %.h include/
+vpath %.hpp include/vpath %.h include/
 vpath %.icc include/
 vpath %.cpp src/
 vpath %.cxx src/
@@ -133,6 +132,7 @@ TRACEPLOTO       = TracePlotter.$(ObjSuf)
 TRACEFILTERO     = TraceFilterer.$(ObjSuf)
 DOUBLETRACEO     = DoubleTraceAnalyzer.$(ObjSuf)
 WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
+QDCPROCESSORO    = QdcProcessor.$(ObjSuf)
 
 ifdef USEROOT
 PIXIE = pixie_ldf_c_root$(ExeSuf)
@@ -159,7 +159,8 @@ OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \
 	$(GEPROCESSORO) $(DSSDPROCESSORO) $(RAWEVENTO) $(RANDOMPOOLO) \
 	$(SSDPROCESSORO) $(ISSDPROCESSORO) $(TAUANALYZERO) $(LOGICPROCESSORO) \
 	$(TRIGGERLOGICPROCESSORO) $(TRACEEXTRACTERO) $(IONCHAMBERPROCESSORO) \
-	$(STATSDATAO) $(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO)
+	$(STATSDATAO) $(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO) \
+	$(QDCPROCESSORO)
 
 ifdef USEROOT
 OBJS  += $(ROOTPROCESSORO)
