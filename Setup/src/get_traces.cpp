@@ -23,7 +23,8 @@
 
 using namespace std;
 
-class TraceGrabber : public PixieFunction<> {
+class TraceGrabber : public PixieFunction<> 
+{
 public:
     TraceGrabber(unsigned short* data_, int trigger_, int maxTries_, size_t loopLength_, bool doFit_ = false) :
 	data(data_), trigger(trigger_), maxTries(maxTries_), loopLength(loopLength_), ready() {
@@ -66,19 +67,19 @@ private:
     double FitTau(const unsigned short* trace, 
 		  size_t b0, size_t b1,
 		  size_t x0, size_t x1);
-
 };
 
-void TraceGrabber::StoreData(short unsigned int* trace, const size_t size, unsigned ch)
+void TraceGrabber::StoreData(unsigned short* trace, const size_t size, unsigned ch)
 {
     int start = 2 * ch * PixieInterface::GetTraceLength();
     unsigned short *writePtr = &data[start];
     
-    //? this won't write the last trace value
-    for (unsigned int i = 0; i < size; ++i) {
+    for (unsigned int i = 0; i < size; i++) {
 	*writePtr++ = i;
 	*writePtr++ = trace[i];
     }
+    
+    ready[ch] = true;
 }
 
 double TraceGrabber::FitTau(const unsigned short* trace, size_t b0, size_t b1, size_t x0, size_t x1)
@@ -121,7 +122,8 @@ double TraceGrabber::FitTau(const unsigned short* trace, size_t b0, size_t b1, s
         return -6.66e6;
 }
 
-bool TraceGrabber::operator()(PixieFunctionParms<> &par) {
+bool TraceGrabber::operator()(PixieFunctionParms<> &par)
+{
     /* Grab traces the first time around */
     static size_t loopCount = loopLength;
     // Reads traces from whole module
@@ -176,7 +178,6 @@ bool TraceGrabber::operator()(PixieFunctionParms<> &par) {
                 } 
             }
             if (trig) {
-                ready[par.ch] = true;
                 StoreData(trace, size, par.ch);
                 cout << "Channel " << par.ch << " ready " << " trig " << trace[x0] << " at " << x0 << endl;
                 if (doFit) {
@@ -214,11 +215,9 @@ bool TraceGrabber::operator()(PixieFunctionParms<> &par) {
             }
         } else if (attempts[par.ch] >= maxTries) {
             attempts[par.ch]++;
-            ready[par.ch] = true;
             StoreData(trace, size, par.ch);
             cout << "Channel " << par.ch << " exceeded max number of attempts " << endl;
-        } else if (trigger == 0.0 ) {
-            ready[par.ch] = true;
+        } else if (trigger == 0.0 ) {      
             StoreData(trace, size, par.ch);
             cout << "Channel " << par.ch << " ready, triggerless" << endl;
         }
@@ -229,7 +228,8 @@ bool TraceGrabber::operator()(PixieFunctionParms<> &par) {
     }
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     int mod = -1;
     int ch  = -1;
     int trig = 0;
@@ -331,15 +331,15 @@ int main(int argc, char *argv[]) {
     unsigned short data[size];
     memset(data, 0, sizeof(data));
 
-    int loopLength;
+     int loopLength;
     if (ch == -1) {
         loopLength = pif.GetNumberChannels();
     } else {
         loopLength = 1;
-        for (size_t i = 0; i < pif.GetNumberChannels(); ++i) {
+        for (size_t i = 0; i < pif.GetNumberChannels(); i++) {
             //This prevents gnuplot from empty range warnings
-            data[(2 * i + 1) * PixieInterface::GetTraceLength() - 2] = PixieInterface::GetTraceLength() - 1;
-            data[(2 * i + 1) * PixieInterface::GetTraceLength() - 1] = 1;
+            data[2 * i * PixieInterface::GetTraceLength()] = PixieInterface::GetTraceLength() - 1;
+            data[2 * i * PixieInterface::GetTraceLength() + 1] = 1;
         }
     }
     TraceGrabber grabber(data, trig, maxAttempts, loopLength, tau);

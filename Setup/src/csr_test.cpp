@@ -16,7 +16,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-  const size_t num_bits = 16;
+  const size_t num_bits = 19;
 
   long  cmd1 = 0;
 
@@ -36,12 +36,14 @@ int main(int argc, char *argv[])
   CSR_TXT[12] = "Enable raw energy sums capture";
   CSR_TXT[13] = "Enable channel trigger validation";
   CSR_TXT[15] = "Pileup rejection control";
+  CSR_TXT[16] = "Hybrid bit";
+  CSR_TXT[18] = "SHE single trace capture";
 #endif // (else) Rev.A
 
   CSR_TXT[CCSRA_GOOD]     = "Good Channel";
   CSR_TXT[CCSRA_POLARITY] = "Trigger positive";
   CSR_TXT[CCSRA_ENARELAY] = "HI/LO gain";
-  
+
   if (argv[1] != NULL)  
     cmd1 = atoi(argv[1]);
 
