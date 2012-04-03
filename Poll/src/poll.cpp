@@ -299,7 +299,7 @@ int main(int argc, char **argv)
     if (socket_poll(1)) {
       spkt_recv(&command);
 	
-      cout << endl << "receive command[" << commandCount++ << "] =";
+      cout << endl << "receive command[" << commandCount++ << "] = ";
 	   
       switch (command.Data[0]) {
       case INIT_ACQ:

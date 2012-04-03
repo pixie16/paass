@@ -1,3 +1,9 @@
 #!/bin/bash
 
-echo ALARM | mail -s 'ACQ ALARM' dmille50@utk.edu
+if [ -z $1 ]; then
+    EMAIL="dmille50@utk.edu"
+else
+    EMAIL=$1
+fi
+
+echo ALARM | mail -s 'ACQ ALARM' $EMAIL
