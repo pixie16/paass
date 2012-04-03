@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo ALARM | mail -s 'ACQ ALARM' dmille50@utk.edu
