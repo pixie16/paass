@@ -513,9 +513,11 @@ int main(int argc, char **argv)
 	      word_t slotRead = ((fifoData[parseWords] & 0xF0) >> 4);
 	      word_t chanRead = (fifoData[parseWords] & 0xF);
 	      word_t slotExpected = pif.GetSlotNumber(mod);
-
+	      bool virtualChannel = ((fifoData[parseWords] & 0x20000000) != 0);
+	      
 	      eventSize = ((fifoData[parseWords] & 0x1FFE0000) >> 17);
-	      statsHandler.AddEvent(mod, chanRead, sizeof(word_t) * eventSize);
+	      if (!virtualChannel)
+		  statsHandler.AddEvent(mod, chanRead, sizeof(word_t) * eventSize);
 
 	      if (eventSize == 0 || slotRead != slotExpected ) {
 		if ( slotRead != slotExpected )
