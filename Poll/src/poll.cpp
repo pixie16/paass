@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <sstream>
 #include <vector>
 
 #include <cstring>
@@ -38,7 +39,7 @@ typedef PixieInterface::word_t word_t;
 const int maxShmSizeL = 4050; // in pixie words
 const int maxShmSize  = maxShmSizeL * sizeof(word_t); // in bytes
 
-const size_t maxEventSize = (0x3FFE0000 >> 17);
+const size_t maxEventSize = (0x1FFE0000 >> 17);
 const word_t clockVsn = 1000;
 typedef word_t eventdata_t[maxEventSize];
 
@@ -51,21 +52,26 @@ static volatile bool isInterrupted = false;
 static void interrupt(int sig);
 bool SynchMods(PixieInterface &pif);
 int SendData(word_t *data, size_t nWords);
+void BailOut(bool sendAlarm, string arg); // bail out with EXIT_FAILURE sending an alarm if wanted
 
 int main(int argc, char **argv)
 {
-    bool insertWallClock = true;
-    bool showModuleRates = false;
-  bool quiet = false;
+  // boolean configuration variables
+  bool bootFast = false;
+  bool insertWallClock = true;
+  bool isQuiet = false;
+  bool sendAlarm = false;
+  bool showModuleRates = false;
   bool zeroClocks = false;
-  bool fastBoot = false;
-  const int listMode = LIST_MODE_RUN0; // full header w/ traces
+
   // read the FIFO when it is this full
   unsigned int threshPercent = 50;
-  int statsInterval = -1; // in seconds
-  int histoInterval = -1; // in seconds
-  time_t pollClock;
+  int statsInterval = -1; //< in seconds
+  int histoInterval = -1; //< in seconds
+  string alarmArgument;
 
+  // compiled-in configuration
+  const int listMode = LIST_MODE_RUN0; // full header w/ traces
   // values associated with the minimum timing between pixie calls (in us)
   const unsigned int endRunPause = 100;
   const unsigned int pollPause   = 1;
@@ -77,54 +83,63 @@ int main(int argc, char **argv)
   enum E_LONG_OPTIONS {E_NO_WALL_CLOCK};
   int longIndex, longSwitch, opt;
   const option longOptions[] = {
-      {"no-wall-clock", 0, &longSwitch, E_NO_WALL_CLOCK },
-      {"quiet", 0, 0, 'q' }
+    {"alarm"        , optional_argument, NULL        , 'a' },
+    {"no-wall-clock", no_argument      , &longSwitch , E_NO_WALL_CLOCK },
+    {"quiet"        , no_argument      , NULL        , 'q' },
+    {0, 0, 0, 0}
   };
 
-  while ( (opt = getopt_long(argc,argv,"-fh:qrs:t:z?",longOptions, &longIndex)) != -1) {
-      switch(opt) {
-	  case 0:
-	      switch(longSwitch) {
-		  case E_NO_WALL_CLOCK:
-		      insertWallClock = false; break;
-	      }
-	      break;
-	  case 'f':
-	      fastBoot = true; break;
-	  case 'h':
-	      histoInterval = atoi(optarg); break;
-	  case 'q':
-	      quiet = true; break;
-	  case 'r':
-	      showModuleRates = true; break;
-	  case 's':
-	      statsInterval = atoi(optarg); break;
-	  case 't':
-	      threshPercent = atoi(optarg); break;
-	  case 'z':
-	      zeroClocks = true; break;
-	  case 1:
-	      cout << "Unexpected argument " << argv[optind -1] << endl;
-	  case '?':
-	  default:
-	      cout << "Usage: " << argv[0] << " [options]" << endl;
-	      cout << "  -f               Fast boot (false by default)" << endl;
-	      cout << "  -h <num>         Dump histogram data every num seconds" << endl;
-	      cout << "  -q, --quiet      Run quietly (false by default)" << endl;
-	      cout << "  --no-wall-clock  Do not insert the wall clock in the data stream" << endl;
-	      cout << "  -r               Display module rates in quiet mode (false by defualt)" << endl;
-	      cout << "  -s <num>         Output statistics data every num seconds" << endl;
-	      cout << "  -t <num>         Sets FIFO read threshold to num% full ("
-		   << threshPercent << "% by default)" << endl;
-	      cout << "  -z               Zero clocks on each START_ACQ (false by default)" << endl;
-	      if (opt=='?')
-		  return EXIT_SUCCESS;
-	      return EXIT_FAILURE;
+  while ( (opt = getopt_long(argc,argv,"-a::fh:qrs:t:z?",longOptions, &longIndex)) != -1) {
+    switch(opt) {
+    case 0:
+      switch(longSwitch) {
+      case E_NO_WALL_CLOCK:
+	insertWallClock = false; break;
       }
+      break;
+    case 'a':
+      if (optarg) {
+	alarmArgument = optarg;
+      }      
+      sendAlarm = true;
+      break;
+    case 'f':
+      bootFast = true; break;
+    case 'h':
+      histoInterval = atoi(optarg); break;
+    case 'q':
+      isQuiet = true; break;
+    case 'r':
+      showModuleRates = true; break;
+    case 's':
+      statsInterval = atoi(optarg); break;
+    case 't':
+      threshPercent = atoi(optarg); break;
+    case 'z':
+      zeroClocks = true; break;
+    case 1:
+      cout << "Unexpected argument " << argv[optind -1] << endl;
+    case '?':
+    default:
+      ; // Only to make emacs tab properly, grr.
+      cout << "Usage: " << argv[0] << " [options]" << endl;
+      cout << "  -a,--alarm=[e-mail] Call the alarm script with a given e-mail (or no argument)" << endl; 
+      cout << "  -f                  Fast boot (false by default)" << endl;
+      cout << "  -h <num>            Dump histogram data every num seconds" << endl;
+      cout << "  -q, --quiet         Run quietly (false by default)" << endl;
+      cout << "  --no-wall-clock     Do not insert the wall clock in the data stream" << endl;
+      cout << "  -r                  Display module rates in quiet mode (false by defualt)" << endl;
+      cout << "  -s <num>            Output statistics data every num seconds" << endl;
+      cout << "  -t <num>            Sets FIFO read threshold to num% full ("
+	   << threshPercent << "% by default)" << endl;
+      cout << "  -z                  Zero clocks on each START_ACQ (false by default)" << endl;
+      if (opt=='?')
+	return EXIT_SUCCESS;
+      return EXIT_FAILURE;
+    }
   }
 
-  const word_t threshWords = 
-    EXTERNAL_FIFO_LENGTH * threshPercent / 100;
+  const word_t threshWords = EXTERNAL_FIFO_LENGTH * threshPercent / 100;
 
   string pacHost;
   if (getenv("PACHOST") == NULL) {
@@ -147,7 +162,7 @@ int main(int argc, char **argv)
   PixieInterface pif("pixie.cfg");
   pif.GetSlots();
   pif.Init();
-  if (fastBoot)
+  if (bootFast)
     pif.Boot(PixieInterface::DownloadParameters |
 	     PixieInterface::SetDAC |
 	     PixieInterface::ProgramFPGA);
@@ -238,6 +253,17 @@ int main(int argc, char **argv)
   int waitCounter = 0, nonWaitCounter = 0;
   int partialBufferCounter = 0;
 
+  time_t pollClock; 
+
+  if (sendAlarm) {
+    LeaderPrint("Sending alarms to");
+    if ( alarmArgument.empty() ) {
+      cout << InfoStr("DEFAULT") << endl;
+    } else {
+      cout << WarningStr(alarmArgument) << endl;
+    }
+  }
+
   // enter the data acquisition loop
   socket_poll(0); // clear the file descriptor set we poll
 
@@ -273,17 +299,18 @@ int main(int argc, char **argv)
     if (socket_poll(1)) {
       spkt_recv(&command);
 	
-      cout << endl << "receive command[" << commandCount++ 
-	   << "] = " << hex << (int)command.Data[0] << dec << endl;
-
+      cout << endl << "receive command[" << commandCount++ << "] =";
+	   
       switch (command.Data[0]) {
       case INIT_ACQ:
+	cout << "INIT_ACQ" << endl;
 	// artificial, but i work with what pacman gives me
 	command.Data[0] = ACQ_OK;
 	if (isStopped)
 	  isExiting = true;
 	spkt_send(&command);
       case STOP_ACQ:
+	cout << "STOP_ACQ" << endl;
 	if (isStopped) {
 	  command.Data[0] = ACQ_STP_HALT;
 	} else {
@@ -296,11 +323,14 @@ int main(int argc, char **argv)
 	spkt_send(&command);
 	break;
       case STATUS_ACQ:
+	cout << "STATUS_ACQ" << endl;
 	command.Data[0] = ACQ_OK; 
 	command.Data[1] = isStopped ? ACQ_STOP : ACQ_RUN;
 	spkt_send(&command);
 	break;
       case START_ACQ:
+	cout << "START_ACQ" << endl;
+	cout << "Processing start acquisition, isStopped = " << isStopped << endl; //debugging statement
 	if (isStopped) {
 	  command.Data[0] = ACQ_OK;
 	  // reset variables
@@ -322,13 +352,18 @@ int main(int argc, char **argv)
 	spkt_send(&command);
 	break;
       case ZERO_CLK:
+	cout << "ZERO_CLK" << endl;
 	command.Data[0] = ACQ_OK;
 	spkt_send(&command);
 	spkt_close();
 	
 	delete[] fifoData;
 	return EXIT_SUCCESS;
+      case PAC_FILE:
+      case HOST:
+	// not implemented
       default:
+	cout << "WTF" << endl;
 	// unrecognized command
 	break;
       } // end switch
@@ -359,7 +394,7 @@ int main(int argc, char **argv)
 	memcpy(&fifoData[dataWords], &stats, sizeof(stats));
 	dataWords += PixieInterface::STAT_SIZE;
 
-	if (quiet)
+	if (isQuiet)
 	  cout << endl;
 
 	cout << "STATS " << mod << " : ICR ";
@@ -463,8 +498,8 @@ int main(int argc, char **argv)
 	    spkt_close();
 	    delete[] fifoData;
 
-	    return EXIT_FAILURE;
 	    // something is wrong
+	    BailOut(sendAlarm, alarmArgument);
 	  } else {
 	      word_t parseWords = beginData;
 	      word_t eventSize;
@@ -495,7 +530,9 @@ int main(int argc, char **argv)
 		     << "\n  parse started at position " << beginData
 		     << " reading " << nWords[mod] << " words." << endl;
 		//! how to proceed from here
-		return EXIT_FAILURE;
+		delete[] fifoData;
+
+		BailOut(sendAlarm, alarmArgument);
 	      }
 	      parseWords += eventSize;	      
 	    } while ( parseWords < dataWords + nWords[mod]);	   
@@ -506,7 +543,9 @@ int main(int argc, char **argv)
 	      // if we have ended the run, we should have all the words
 	      if (justEnded) {
 		cout << ErrorStr("Words missing at end of run.") << endl;
-		return EXIT_FAILURE; // for now
+
+		delete[] fifoData;
+		BailOut(sendAlarm, alarmArgument);
 	      } else {
 		// we have a deficit of words, now we must wait for the remainder
 		if ( fullFIFO ) {
@@ -521,7 +560,7 @@ int main(int argc, char **argv)
 		
 		  usGetDTime(); // start wait timer
 		  
-		  if (!quiet) 
+		  if (!isQuiet) 
 		    cout << "Waiting for " << waitWords[mod] << " words in module " << mod << flush;
 		  
 		  usleep(waitPause);
@@ -536,7 +575,7 @@ int main(int argc, char **argv)
 		  waitTime += usGetDTime();
 		  
 		  if (timeout >= waitTries) {
-		    if (!quiet)
+		    if (!isQuiet)
 		      cout << " --- TIMED OUT," << endl
 			   << InfoStr("    moving partial event to next buffer") << endl;
 
@@ -550,7 +589,7 @@ int main(int argc, char **argv)
 		    // update the size of the buffer;
 		    bufferLength = nWords[mod] + 2;
 		  } else {
-		    if (!quiet)
+		    if (!isQuiet)
 		      cout << endl;
 		    usleep(readPause);
 		    int testWords = pif.CheckFIFOWords(mod);
@@ -561,7 +600,7 @@ int main(int argc, char **argv)
 
 		      delete[] fifoData;
 
-		      return EXIT_FAILURE;
+		      BailOut(sendAlarm, alarmArgument);
 		      // something is wrong 
 		    } else {
 		      nWords[mod] += waitWords[mod];
@@ -593,7 +632,7 @@ int main(int argc, char **argv)
 	      isStopped = true;
 	  }
 	}
-	if (!quiet) {
+	if (!isQuiet) {
 	  if (fullFIFO)
 	    cout << "Read " << WarningStr("full FIFO") << " in";
 	  else 
@@ -634,7 +673,7 @@ int main(int argc, char **argv)
 	fifoData[dataWords++] = 2 + timeWordsNeeded;
 	fifoData[dataWords++] = clockVsn;
 	memcpy(&fifoData[dataWords], &pollClock, sizeof(time_t));
-	if (!quiet)
+	if (!isQuiet)
 	    cout << "Read " << timeWordsNeeded << " words for time to buffer position " << dataWords << endl;
 	dataWords += timeWordsNeeded;
     }
@@ -649,7 +688,7 @@ int main(int argc, char **argv)
 
     statsHandler.AddTime(durSpill * 1e-6);
 
-    if (!quiet) {
+    if (!isQuiet) {
       cout << nBufs << " BUFFERS with " << dataWords << " WORDS, " << endl;
       cout.setf(ios::scientific, ios::floatfield);
       cout.precision(1);
@@ -792,4 +831,17 @@ int SendData(word_t *data, size_t nWords)
     send_buf(&acqBuf);  
 
     return nBufs;
+}
+
+void BailOut(bool sendAlarm, string arg)
+{
+  if (sendAlarm) {
+    stringstream str;
+    str << "./send_alarm";
+    if ( !arg.empty() ) {
+      str << " " << arg;
+    }
+    system(str.str().c_str());
+  }
+  exit(EXIT_FAILURE);
 }
