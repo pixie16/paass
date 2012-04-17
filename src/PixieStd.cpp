@@ -43,6 +43,7 @@
 #include <sys/times.h>
 
 #include "DetectorDriver.h"
+#include "DetectorLibrary.hpp"
 #include "RawEvent.h"
 #include "damm_plotids.h"
 #include "param.h"
@@ -56,7 +57,7 @@ using pixie::word_t;
  * description is read in from map.txt and includes the detector type and 
  * subtype, the damm spectrum number, and physical location
  */
-vector<Identifier> modChan;
+DetectorLibrary modChan;
 
 /**
  * Contains event information, the information is filled in ScanList() and is 

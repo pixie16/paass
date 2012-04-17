@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+#include "DetectorLibrary.hpp"
 #include "RawEvent.h"
 
 using namespace std;
@@ -82,7 +83,7 @@ const Identifier& ChanEvent::GetChanID() const
 {
     static Identifier nullIdentifier;
     
-    extern vector<Identifier> modChan; // from PixieStd.cpp
+    extern DetectorLibrary modChan; // from PixieStd.cpp
 
     return ( (chanNum == -1) ? nullIdentifier : modChan.at(GetID()) );
 }

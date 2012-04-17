@@ -39,6 +39,7 @@
 #include <iterator>
 
 #include "DetectorDriver.h"
+#include "DetectorLibrary.hpp"
 #include "RandomPool.h"
 #include "RawEvent.h"
 
@@ -383,7 +384,7 @@ void DetectorDriver::ReadCal()
     */
 
     // lookup table for information from map.txt (from PixieStd.cpp)
-    extern vector<Identifier> modChan;
+    extern DetectorLibrary modChan;
     Identifier lookupID;
 
     /*
@@ -424,7 +425,7 @@ void DetectorDriver::ReadCal()
 		lookupID.SetType(detType);
 		lookupID.SetSubtype(detSubtype);
 		// find the identifier in the map
-		vector<Identifier>::iterator mapIt = 
+		DetectorLibrary::iterator mapIt = 
 		    find(modChan.begin(), modChan.end(), lookupID); 
 		if (mapIt == modChan.end()) {
 		    cout << "Can not match detector type " << detType
@@ -498,7 +499,7 @@ void DetectorDriver::ReadCal()
 
     // check to make sure every channel has a calibration, no default
     //   calibration is allowed
-    vector<Identifier>::const_iterator mapIt = modChan.begin();
+    DetectorLibrary::const_iterator mapIt = modChan.begin();
     vector<Calibration>::const_iterator calIt = cal.begin();
     for (;mapIt != modChan.end(); mapIt++, calIt++) {
 	string type = mapIt->GetType();

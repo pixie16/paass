@@ -18,6 +18,7 @@
 
 #include "Correlator.h"
 #include "DetectorDriver.h"
+#include "DetectorLibrary.hpp"
 #include "GeProcessor.h"
 #include "RawEvent.h"
 
@@ -51,11 +52,11 @@ bool GeProcessor::Init(DetectorDriver &driver)
     /* clover specific routine, determine the number of clover detector
        channels and divide by four to find the total number of clovers
     */
-    extern vector<Identifier> modChan;
+    extern DetectorLibrary modChan;
     unsigned int cloverChans = 0;
     int maxCloverLoc = INT_MIN;
 
-    for ( vector<Identifier>::const_iterator it = modChan.begin();
+    for ( DetectorLibrary::const_iterator it = modChan.begin();
 	  it != modChan.end(); it++) {
 	if (it->GetSubtype() == "clover_high") {
 	    cloverChans++;
