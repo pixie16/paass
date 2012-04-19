@@ -39,6 +39,9 @@ public:
 
     void PrintMap(void) const;
     void PrintUsedDetectors(void) const;
+
+    const std::set<std::string>& GetKnownDetectors(void); 
+    const std::set<std::string>& GetUsedDetectors(void) const;
 private:
     std::map<std::string, int> highLocation; ///< largest location defined for a given type and subtype
     int numModules;
@@ -46,6 +49,8 @@ private:
     
     std::set<std::string> usedTypes;
     std::set<std::string> usedSubtypes;
+
+    std::set<std::string> knownDetectors;
 };
 
 #endif // __DETECTORLIBRARY_HPP_

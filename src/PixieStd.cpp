@@ -402,6 +402,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 	 * running time of the analysis.
 	 */
         clockBegin = times(&tmsBegin);
+
 	cout << "First buffer at " << clockBegin << " sys time" << endl;
         /* After completion the descriptions of all channels are in the modChan
 	 * vector, the DetectorDriver and rawevent have been initialized with the
@@ -838,8 +839,6 @@ bool InitMap(void)
 	cout << "We've already handled this with a new version of the map file." << endl;
 	return true;
     }
-    set<string> knownDets = driver.GetKnownDetectors();
-
     ifstream mapFile("map.txt");
 
     if (!mapFile) {
@@ -868,26 +867,6 @@ bool InitMap(void)
 	     * be ignored, process the information
 	     */
 	    if (detType != "ignore") {
-		/*
-		 * Search the list of known detectors; if the detector type 
-		 * is not matched, print out an error message and terminate
-		 */
-		if(knownDets.find(detType) == knownDets.end()){
-		    cout << endl;
-		    cout << "The detector called '" << detType <<"'"<< endl
-			 << "read in from the file 'map.txt'" << endl
-			 << "is unknown to this program!.  This is a" << endl
-			 << "fatal error.  Program execution halted!" << endl
-			 << "If you believe this detector should exist," << endl
-			 << "please edit the 'getKnownDetectors'" << endl
-			 << "function inside the 'DetectorDriver.cpp' file" << endl
-			 << endl;
-		    cout << "The currently known detectors include:" << endl;
-		    copy(knownDets.begin(), knownDets.end(), 
-			 ostream_iterator<string>(cout, " "));
-		    exit(EXIT_FAILURE);
-		}
-		
 		/* if the type already has been set, something is wrong with
 		 * in the map file.
 		 */
@@ -912,7 +891,6 @@ bool InitMap(void)
 		id.SetLocation(detLocation);
 
 		modChan.Set(modNum, chanNum, id);
-
 	    } // end != ignore condition                
 	    else {
 		/*

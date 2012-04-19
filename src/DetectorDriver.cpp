@@ -122,31 +122,11 @@ DetectorDriver::~DetectorDriver()
     vecAnalyzer.clear();
 }
 
-/*!
-  Retrieves a vector containing all detector types for which an analysis
-  routine has been defined making it possible to declare this detector type
-  in the map.txt file.  The currently known detector types are in detectorStrings
-*/
-const set<string>& DetectorDriver::GetKnownDetectors()
-{   
-    const unsigned int detTypes = 16;
-    const string detectorStrings[detTypes] = {
-	"dssd_front", "dssd_back", "idssd_front", "position", "timeclass",
-	"ge", "si", "scint", "mcp", "mtc", "generic", "ssd", "vandle",
-	"pulser", "logic", "ion_chamber"};
-  
-    // only call this once
-    if (!knownDetectors.empty())
-	return knownDetectors;
+const set<string>& DetectorDriver::GetUsedDetectors() const
+{
+    extern DetectorLibrary modChan;
 
-    // this is a list of the detectors that are known to this program.
-    cout << "constructing the list of known detectors " << endl;
-
-    //? get these from event processors
-    for (unsigned int i=0; i < detTypes; i++)
-	knownDetectors.insert(detectorStrings[i]);
-
-    return knownDetectors;
+    return modChan.GetUsedDetectors();
 }
 
 /*!
@@ -219,11 +199,6 @@ int DetectorDriver::ProcessEvent(const string &mode){
     }
 
     return 0;   
-}
-
-const set<string>& DetectorDriver::GetUsedDetectors(void) const
-{
-    return rawev.GetUsedDetectors();
 }
 
 // declare plots for all the event processors
@@ -467,28 +442,6 @@ void DetectorDriver::ReadCal()
                   as the upper limit of all calibrations
                 */
                 detCal.thresh.push_back(MAX_PAR);
-
-                /*
-                  Check the detector type that was read in from cal.txt against
-                  the list of detectors that can be used in the analysis (from
-                  known detectors). If a detector is not found, exit the program
-                  and print a warning.
-                */
-                if (knownDetectors.find(detType) == knownDetectors.end()) {
-		    // This is redundant while this is explicitly matched to the
-		    //   map which has identical conditions
-                    cout << endl;
-                    cout << "The detector called '" << detType <<"'"<< endl;
-                    cout << "read in from the file " << calFilename << endl;
-                    cout << "is unknown to this program!.  This is a" << endl;
-                    cout << "fatal error.  Program execution halted." << endl;
-                    cout << "Please check the " << calFilename 
-			 << " file for errors" << endl;
-                    cout << "The currently known detectors include: " << endl;
-		    copy(knownDetectors.begin(), knownDetectors.end(),
-			 ostream_iterator<string>(cout, " "));
-                    exit(EXIT_FAILURE);
-                }
             } else {
                 // this is a comment, skip line 
                 calFile.ignore(1000,'\n');

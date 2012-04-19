@@ -19,7 +19,8 @@ using namespace std;
 DetectorLibrary::DetectorLibrary() : vector<Identifier>(), highLocation()
 {
     cout << "Constructing detector library" << endl;
-    // do nothing
+
+    GetKnownDetectors();
 }
 
 DetectorLibrary::~DetectorLibrary()
@@ -87,8 +88,26 @@ bool DetectorLibrary::HasValue(int mod, int chan) const
 
 void DetectorLibrary::Set(int index, const Identifier& value)
 {
-    int module  = index / pixie::numberOfChannels;
+		
+    /// Search the list of known detectors; if the detector type 
+    ///    is not matched, print out an error message and terminate
+    if (knownDetectors.find(value.GetType()) == knownDetectors.end()) {
+	cout << endl;
+	cout << "The detector called '" << value.GetType() <<"'"<< endl
+	     << "read in from the file 'map2.txt'" << endl
+	     << "is unknown to this program!.  This is a" << endl
+	     << "fatal error.  Program execution halted!" << endl
+	     << "If you believe this detector should exist," << endl
+	     << "please edit the 'getKnownDetectors'" << endl
+	     << "function inside the 'DetectorLibrary.cpp' file" << endl
+	     << endl;
+	cout << "The currently known detectors include:" << endl;
+	copy(knownDetectors.begin(), knownDetectors.end(), ostream_iterator<string>(cout, " "));
+	cout << endl;
+	exit(EXIT_FAILURE);
+    }
 
+    int module  = index / pixie::numberOfChannels;
     if (module >= numModules ) {
 	numModules = module + 1;
 	resize(numModules * pixie::numberOfChannels);
@@ -96,21 +115,15 @@ void DetectorLibrary::Set(int index, const Identifier& value)
 	    numPhysicalModules = module + 1;
 	}
     }
-
+    
     string key;
-
     key = value.GetType() + ':' + value.GetSubtype();
     highLocation[key] = max(highLocation[key], value.GetLocation());
-
+    
     usedTypes.insert(value.GetType());
     usedSubtypes.insert(value.GetSubtype());
 
     at(index) = value;
-
-    // temporary, but good diagnostic for now
-    cout << setw(4) << index << "  ";
-    value.Print();
-    //
 }
 
 void DetectorLibrary::Set(int mod, int ch, const Identifier &value)
@@ -153,4 +166,39 @@ void DetectorLibrary::PrintUsedDetectors(void) const
     extern RawEvent rawev;
 
     rawev.Init(usedTypes, usedSubtypes);
+}
+
+/*!
+  Retrieves a vector containing all detector types for which an analysis
+  routine has been defined making it possible to declare this detector type
+  in the map.txt file.  The currently known detector types are in detectorStrings
+*/
+const set<string>& DetectorLibrary::GetKnownDetectors(void)
+{
+    const unsigned int detTypes = 16;
+    const string detectorStrings[detTypes] = {
+	"dssd_front", "dssd_back", "idssd_front", "position", "timeclass",
+	"ge", "si", "scint", "mcp", "mtc", "generic", "ssd", "vandle",
+	"pulser", "logic", "ion_chamber"};
+  
+    // only call this once
+    if (!knownDetectors.empty())
+	return knownDetectors;
+
+    // this is a list of the detectors that are known to this program.
+    cout << "constructing the list of known detectors " << endl;
+
+    //? get these from event processors
+    for (unsigned int i=0; i < detTypes; i++)
+	knownDetectors.insert(detectorStrings[i]);
+
+    return knownDetectors;
+}
+
+/**
+ * Retrieves the detector types used in the current analysis
+ */
+const set<string>& DetectorLibrary::GetUsedDetectors(void) const
+{
+    return usedTypes;
 }

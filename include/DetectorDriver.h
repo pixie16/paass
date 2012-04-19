@@ -57,8 +57,6 @@ class DetectorDriver {
     int Init(void);
     int PlotRaw(const ChanEvent *) const;
     int PlotCal(const ChanEvent *) const;
-    const set<string>& GetKnownDetectors(void);
-    const set<string>& GetUsedDetectors(void) const;
 
     void DeclarePlots(void) const; /**< declare the necessary damm plots */
     bool SanityCheck(void) const;  /**< check whether everything makes sense */
@@ -72,6 +70,7 @@ class DetectorDriver {
     const vector<EventProcessor *>& GetProcessors(void) const
 	{return vecProcess;}; /**< return the list of processors */
     vector<EventProcessor *> GetProcessors(const string &type) const;
+    const set<string> &GetUsedDetectors(void) const;
 
     DetectorDriver();
     ~DetectorDriver();

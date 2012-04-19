@@ -88,18 +88,10 @@ MapFile::MapFile(const string &filename)
     // now we parse each tokenized line, processing wildcard lines afterwards
     for (vector< vector<string> >::iterator it = normalLines.begin();
 	 it != normalLines.end(); it++) {
-	cout << "  tokenized: ";
-	copy(it->begin(), it->end(), ostream_iterator<string>(cout, " "));
-	cout << endl;
-
 	ProcessTokenList(*it);
     }
     for (vector< vector<string> >::iterator it = wildcardLines.begin();
 	 it != wildcardLines.end(); it++) {
-	cout << "  tokenized: ";
-	copy(it->begin(), it->end(), ostream_iterator<string>(cout, " "));
-	cout << endl;
-
 	ProcessTokenList(*it);
     }
     isRead = true;
