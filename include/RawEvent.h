@@ -41,12 +41,15 @@ using std::vector;
  */
 
 class Identifier {
+ public:
+    typedef int TagValue;
  private:
     string type;      /**< Specifies the detector type */
     string subtype;   /**< Specifies the detector sub type */
     int dammID;       /**< Damm spectrum number for plotting calibrated energies */
     int location;     /**< Specifies the real world location of the channel.
 			 For the DSSD this variable is the strip number */
+    map<string, TagValue> tag;  /**< A list of tags associated with the identifer */ 
  public:
     void SetDammID(int a)     {dammID = a;}   /**< Set the dammid */
     void SetType(string a)    {type = a;}     /**< Set the detector type */
@@ -57,15 +60,24 @@ class Identifier {
     const string& GetType() const    {return type;}     /**< Get the detector type */
     const string& GetSubtype() const {return subtype;}  /**< Get the detector subtype */
     int GetLocation() const          {return location;} /**< Get the detector location */
+    
+    void AddTag(string s, TagValue n) {tag[s] = n;} /**< Insert a tag */
+    bool HasTag(string s) const {return tag.count(s);} /**< True if the tag s has been inserted */
+    TagValue GetTag(string s) {return tag[s];} /**< Return the value of a tag */
 
     Identifier();
     void Zero();
-
+    static void PrintHeaders(void);
+    void Print(void) const;
+    
     bool operator==(const Identifier &x) const {
 	return (type == x.type &&
 		subtype == x.subtype &&
 		location == x.location);
     } /**< Compare this identifier with another */
+    bool operator!=(const Identifier &x) const {
+	return !operator==(x);
+    }
 };
 
 /**

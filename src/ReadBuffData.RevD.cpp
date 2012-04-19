@@ -48,6 +48,7 @@
 #include "pixie16app_defs.h"
 
 // our event structure
+#include "DetectorLibrary.hpp"
 #include "param.h"
 #include "RawEvent.h"
 
@@ -166,8 +167,8 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
       currentEvt->chanNum = chanNum;
       currentEvt->modNum = modNum;
       if (currentEvt->virtualChannel) {
-	  extern int numPhysicalModules;
-	  currentEvt->modNum += numPhysicalModules;
+	  extern DetectorLibrary modChan;
+	  currentEvt->modNum += modChan.GetPhysicalModules();
       }
       currentEvt->energy = energy;
       currentEvt->trigTime = lowTime;

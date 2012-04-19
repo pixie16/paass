@@ -44,6 +44,7 @@
 
 #include "DetectorDriver.h"
 #include "DetectorLibrary.hpp"
+#include "MapFile.hpp"
 #include "RawEvent.h"
 #include "damm_plotids.h"
 #include "param.h"
@@ -52,12 +53,7 @@
 using namespace std;
 using pixie::word_t;
 
-/**
- * Contains the description of each channel in the analysis.  The
- * description is read in from map.txt and includes the detector type and 
- * subtype, the damm spectrum number, and physical location
- */
-DetectorLibrary modChan;
+extern DetectorLibrary modChan;
 
 /**
  * Contains event information, the information is filled in ScanList() and is 
@@ -67,11 +63,6 @@ RawEvent rawev;
 
 /** Driver used to process the raw events */
 DetectorDriver driver;
-
-/** The number of modules to read out */
-unsigned int numPhysicalModules;
-/** The max number of modules used in the map.txt file */
-unsigned int numModules;
 
 enum HistoPoints {BUFFER_START, BUFFER_END, EVENT_START = 10, EVENT_CONTINUE};
 
@@ -418,8 +409,12 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 	 */
         if (!InitMap()) {
 	    exit(EXIT_FAILURE);
-	}
+	}       
+	modChan.PrintUsedDetectors();
+	modChan.PrintMap();
 
+	driver.Init();
+    
 	/* Make a last check to see that everything is in order for the driver 
 	 * before processing data
 	 */
@@ -480,12 +475,12 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
             /* If both the current vsn inspected is within an acceptable 
 	       range, begin reading the buffer.
             */
-            if ( vsn < numPhysicalModules ) {
+            if ( vsn < modChan.GetPhysicalModules()  ) {
 	        if ( lastVsn != U_DELIMITER) {
 		    // the modules should be read out cyclically
-		    if ( ((lastVsn+1) % numPhysicalModules) != vsn ) {
+		    if ( ((lastVsn+1) % modChan.GetPhysicalModules() ) != vsn ) {
 #ifdef VERBOSE
-			cout << " MISSING BUFFER " << vsn << "/" << numPhysicalModules
+			cout << " MISSING BUFFER " << vsn << "/" << modChan.GetPhysicalModules()
 			     << " -- lastVsn = " << lastVsn << "  " 
 			     << ", length = " << lenRec << endl;
 #endif
@@ -671,10 +666,6 @@ void ScanList(vector<ChanEvent*> &eventList)
 	  cout << "pattern 0 ignore" << endl;
 	  continue;
 	}
-	if (id > numModules * NUMBER_OF_CHANNELS) {
-	  cout << "Unexpected channel id " << id << endl;
-	  Pixie16Error(1);
-	}
 	if (modChan[id].GetType() == "ignore") {
 	  continue;
 	}
@@ -831,17 +822,6 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
 bool InitMap(void) 
 {
     /*
-     * Local variables to store the types of detectors that are known to the
-     * program (inspect DetectorDriver.cpp for more details), the detectors that
-     * are used in this particular analysis, and the detector sub types used in
-     * this particular analysis. If a detector type read in from map.txt does not
-     * match one of the known types, then the program will terminate.
-     */
-    const set<string> &knownDets = driver.GetKnownDetectors();
-    set<string> usedTypes;
-    set<string> usedSubtypes;
-
-    /*
       Local variables for reading in the map.txt file.  For each channel, the
       read variables are the module and channel number (from which the channel's
       unique id will be computed), the detector type and subtype, the spectrum
@@ -851,6 +831,14 @@ bool InitMap(void)
     */
     unsigned int modNum, chanNum, dammID, detLocation, trace;
     string detType, detSubtype;
+
+    extern MapFile theMapFile;
+
+    if (theMapFile) {
+	cout << "We've already handled this with a new version of the map file." << endl;
+	return true;
+    }
+    set<string> knownDets = driver.GetKnownDetectors();
 
     ifstream mapFile("map.txt");
 
@@ -875,16 +863,6 @@ bool InitMap(void)
 	    mapFile >> modNum >> chanNum >> dammID >> detType
 		    >> detSubtype >> detLocation >> trace;
 	    
-	    // Using the current module number, set the number of modules
-	    if (!virtualChannel) {
-		numPhysicalModules = max(numPhysicalModules, modNum + 1);
-	    }
-	    numModules = max(numModules, modNum + 1);
-	    // Resize the modchan vector so it's guaranteed to have enough chans
-	    if ( modChan.size() < numModules * NUMBER_OF_CHANNELS ) {
-		modChan.resize(numModules * NUMBER_OF_CHANNELS);
-	    }  
-	    Identifier& id = modChan.at(NUMBER_OF_CHANNELS * modNum + chanNum);
 	    /*
 	     * If you have not specified that this channel
 	     * be ignored, process the information
@@ -913,7 +891,7 @@ bool InitMap(void)
 		/* if the type already has been set, something is wrong with
 		 * in the map file.
 		 */
-		if (id.GetType() != "") {
+		if ( modChan.HasValue(modNum,chanNum) ) {
 		    cout << "Identifier for " << detType << "in module " 
 			 << modNum << ": channel " << chanNum 
 			 << " is initialized more than once in the map file."
@@ -926,21 +904,27 @@ bool InitMap(void)
 		 * class called an identifier which contains the detector type
 		 * and subtype, detector location and dammid.
 		 */
+		Identifier id;
+
 		id.SetDammID(dammID);
 		id.SetType(detType);
 		id.SetSubtype(detSubtype);
 		id.SetLocation(detLocation);
-		
-		usedTypes.insert(detType);
-		usedSubtypes.insert(detSubtype);
+
+		modChan.Set(modNum, chanNum, id);
+
 	    } // end != ignore condition                
 	    else {
 		/*
 		 * This channel has been set to be ignored in the analysis.
 		 * Put a dummy identifier into the identifier vector modchan
 		 */
-		id.SetType("ignore");
-		id.SetSubtype("ignore");                   
+		Identifier id;
+
+		id.SetType("ignore");	       	       
+		id.SetSubtype("ignore");
+		
+		modChan.Set(modNum, chanNum, id);
 	    }
 	} // end if to see if the line begins with a digit
 	else {
@@ -950,20 +934,6 @@ bool InitMap(void)
     } // end while (!mapfile) loop - end reading map.txt file
     
     mapFile.close();    
-    
-    // Print the number of detectors and detector subtypes used in the analysis
-    cout << usedTypes.size() <<" detector types are used in this analysis " 
-	 << "and are named:" << endl << "  "; 
-    copy(usedTypes.begin(), usedTypes.end(), ostream_iterator<string>(cout, " "));
-    cout << endl;
-    
-    cout << usedSubtypes.size() <<" detector subtypes are used in this "
-	 << "analysis and are named:" << endl << "  ";
-    copy(usedSubtypes.begin(), usedSubtypes.end(), ostream_iterator<string>(cout," "));
-    cout << endl;
-    
-    rawev.Init(usedTypes, usedSubtypes);
-    driver.Init();
     
     return true;
 }

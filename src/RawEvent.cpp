@@ -2,6 +2,7 @@
  *  \brief defines functions associated with a rawevent  
  */
 
+#include <iomanip>
 #include <iostream>
 
 #include "DetectorLibrary.hpp"
@@ -29,11 +30,45 @@ Identifier::Identifier(){
  * and the detector type and sub type are both reset to ""
  * when an identifier object is zeroed.
  */
-void Identifier::Zero(){
+void Identifier::Zero()
+{
     dammID   = -1;
     location = -1;
     type     = "";
     subtype  = "";
+
+    tag.clear();
+}
+
+/**
+ * Print column headings to aid with print 
+ */
+void Identifier::PrintHeaders(void) 
+{
+    cout << setw(10) << "Type"
+	 << setw(10) << "Subtype"
+	 << setw(4)  << "Loc"
+	 << setw(6)  << "DammID"
+	 << "    TAGS" << endl;	 
+}
+
+/**
+ * Print the info containing in the identifier with trailing newline
+ */
+void Identifier::Print(void) const
+{
+    cout << setw(10) << type
+	 << setw(10) << subtype
+	 << setw(4)  << location
+	 << setw(6)  << dammID
+	 << "    ";
+    for (map<string, TagValue>::const_iterator it = tag.begin();
+	 it != tag.end(); it++) {
+	if (it != tag.begin())
+	    cout << ", ";
+	cout << it->first << "=" << it->second;
+    }
+    cout << endl;
 }
 
 /**

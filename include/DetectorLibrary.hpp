@@ -8,6 +8,7 @@
 #define __DETECTORLIBRARY_HPP_
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -17,16 +18,34 @@ class Identifier;
 class DetectorLibrary : public std::vector<Identifier>
 {
 public:
-  DetectorLibrary(void);
-  virtual void push_back(const Identifier &x);
-  virtual ~DetectorLibrary();
+    DetectorLibrary();
+    
+    virtual const_reference at(size_type mod, size_type ch) const;
+    virtual const_reference at(size_type idx) const;
+    virtual reference at(size_type mod, size_type ch);
+    virtual reference at(size_type idx);
 
-  int GetNextLocation(const std::string &type, 
-		      const std::string &subtype) const;
-  int GetNumber(int mod, int chan);
+    virtual void push_back(const Identifier &x);
+    virtual ~DetectorLibrary();
+
+    int GetNextLocation(const std::string &type, 
+			const std::string &subtype) const;
+    size_type GetIndex(int mod, int chan) const; 
+    int GetPhysicalModules() const {return numPhysicalModules;}
+    int GetModules() const {return numModules;}
+    bool HasValue(int mod, int chan) const;
+    void Set(int index, const Identifier& value);
+    void Set(int mod, int ch, const Identifier& value);
+
+    void PrintMap(void) const;
+    void PrintUsedDetectors(void) const;
 private:
-  std::map<std::string, int> highLocation; ///< largest location defined for a given type and subtype
-  int numModules;
+    std::map<std::string, int> highLocation; ///< largest location defined for a given type and subtype
+    int numModules;
+    int numPhysicalModules;
+    
+    std::set<std::string> usedTypes;
+    std::set<std::string> usedSubtypes;
 };
 
 #endif // __DETECTORLIBRARY_HPP_

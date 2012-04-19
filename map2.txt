@@ -1,0 +1,10 @@
+# This is a comment
+; this is also a comment
+MOD    CH      TYPE	SUBTYPE		LOCATION	TAGS
+2      2       scint	--				bob
+1-7e   2-6     dssd
+1-7    2-6o    ge	--		1		virtual=6 bob
+6      10      logic	beam		5		start
+8      *       dssd
+3      4       dssd			10	
+*      e       generic	--		100

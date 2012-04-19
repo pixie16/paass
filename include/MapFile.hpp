@@ -7,8 +7,10 @@
 #ifndef __MAPFILE_HPP_
 #define __MAPFILE_HPP_
 
+#include <set>
 #include <string>
 #include <vector>
+
 /** 
  * A nice simple class which reads in the map file when declared
  *   and updates the external modchan vector accordingly
@@ -19,16 +21,16 @@ private:
     void TokenizeString(const std::string &in, std::vector<std::string> &out) const;
     void ProcessTokenList(const std::vector<std::string> &list) const;
     bool HasWildcard(const std::string &str) const;
-    void TokenToVector(std::string token, std::vector<int> &list,
-		       const std::vector<int> &completeList) const;
-
-    std::vector<int> completeChannelList; ///< holds a list of all the channels in a module
-    std::vector<int> completeModuleList;  ///< holds a list of all the modules in the acquisition
+    void TokenToVector(std::string token, std::vector<int> &list, int number) const;
+		      
+    bool isRead;
 public:
-    static const std::string defaultFile; //< default map file
+    static const std::string defaultFile; ///< default map file
 
     MapFile(void);
     MapFile(const std::string &filename);
+
+    operator bool() {return isRead;} ///< is the map file valid
 };
 
 #endif // __MAPFILE_HPP_

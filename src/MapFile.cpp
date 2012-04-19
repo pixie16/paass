@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <iterator> // tmp
 #include <sstream>
 #include <string>
 #include <vector>
@@ -18,6 +19,17 @@
 using namespace std;
 
 const string MapFile::defaultFile("map2.txt");
+
+/**
+ * Contains the description of each channel in the analysis.  The
+ * description is read in from map.txt and includes the detector type and 
+ * subtype, the damm spectrum number, and physical location
+ */
+DetectorLibrary modChan;
+
+MapFile theMapFile(MapFile::defaultFile);
+// This strangely segfaults by calling the constructor repeatedly
+// MapFile theMapFile;
 
 MapFile::MapFile()
 {
@@ -33,22 +45,17 @@ MapFile::MapFile()
 MapFile::MapFile(const string &filename)
 {  
     const size_t maxConfigLineLength = 100;
-
-    char line[maxConfigLineLength];
-
-    ifstream in(filename.c_str());
     
+    char line[maxConfigLineLength];
+     
+    ifstream in(filename.c_str());
+     
     if (!in) {
-	cout << "Could not find new map file " << filename << endl;
+	cout << "Could not find data in new map file " << filename << endl;
 	// Perhaps call old version here
 	return;
     }
     
-    // build the channel list
-    for (size_t i=0; i < pixie::numberOfChannels; i++) {
-	completeChannelList.push_back(i);
-    }
-
     vector<string> tokenList;
     vector< vector<string> > normalLines;
     vector< vector<string> > wildcardLines;
@@ -56,7 +63,7 @@ MapFile::MapFile(const string &filename)
     while (!in.eof()) {
 	tokenList.clear();
 	in.getline(line, maxConfigLineLength);
-	if (!in.good())
+	if (in.fail())
 	    break;
 	
 	// Allowing for comments for any line not starting with a number or a star
@@ -69,7 +76,6 @@ MapFile::MapFile(const string &filename)
 	    cerr << line << endl;
 	    continue;
 	}
-
 	// separate lines based on whether or not they contain wildcards
 	//   wildcards are * or ranges (i.e. 1-4) or even/odd for channels given by 'e' / 'o'
 	if ( HasWildcard(tokenList.at(0)) || HasWildcard(tokenList.at(1)) ) {
@@ -82,12 +88,21 @@ MapFile::MapFile(const string &filename)
     // now we parse each tokenized line, processing wildcard lines afterwards
     for (vector< vector<string> >::iterator it = normalLines.begin();
 	 it != normalLines.end(); it++) {
+	cout << "  tokenized: ";
+	copy(it->begin(), it->end(), ostream_iterator<string>(cout, " "));
+	cout << endl;
+
 	ProcessTokenList(*it);
     }
     for (vector< vector<string> >::iterator it = wildcardLines.begin();
 	 it != wildcardLines.end(); it++) {
+	cout << "  tokenized: ";
+	copy(it->begin(), it->end(), ostream_iterator<string>(cout, " "));
+	cout << endl;
+
 	ProcessTokenList(*it);
     }
+    isRead = true;
 }
 
 /**
@@ -120,46 +135,88 @@ void MapFile::TokenizeString(const string &in, vector<string> &out) const
  */
 void MapFile::ProcessTokenList(const vector<string> &tokenList) const
 {
-    extern DetectorLibrary modChan;
+    // extern DetectorLibrary modChan;
 
     vector<int> moduleList;
     vector<int> channelList;
 
+    vector<string>::const_iterator tokenIt = tokenList.begin();
+
     // first token corresponds to module list
-    TokenToVector(tokenList.at(0), moduleList, completeModuleList);
+    TokenToVector(*tokenIt++, moduleList, modChan.GetModules() );
     // second token corresponds to channel list
-    TokenToVector(tokenList.at(1), channelList, completeChannelList);
+    TokenToVector(*tokenIt++, channelList, pixie::numberOfChannels);
     // third token corresponds to detector type
     Identifier id;
 
-    string type(tokenList.at(2));
+    string type(*tokenIt++);
     string subtype;
     // fourth token can provide the subytpe
-    if (tokenList.size() > 3) {
-	subtype = tokenList.at(3);
+    //   if token is a whole number, assume it as a location and skip
+    if (tokenIt != tokenList.end() && 
+	tokenIt->find_first_not_of("1234567890") != string::npos) {
+	// synonym for "Same as type"
+	if ( *tokenIt == "--" ) {
+	    subtype = type;
+	} else { 
+	    subtype = *tokenIt;
+	}
+	tokenIt++;
     } else {
-	subtype = tokenList.at(2);
+	subtype = type;
     }
+
     id.SetType(type);
     id.SetSubtype(subtype);
 
     // fifth token gives the starting location number
     //   otherwise we just find the smallest location in the map for the type/subtype
     int startingLocation;
-    if (tokenList.size() > 4) {
-	stringstream(tokenList.at(4)) >> startingLocation;
+    if (tokenIt != tokenList.end() &&
+	tokenIt->find_first_not_of("1234567890") == string::npos ) {
+	stringstream(*tokenIt) >> startingLocation;
+	tokenIt++;
     } else {
 	startingLocation = modChan.GetNextLocation(type, subtype);
+    }
+
+    // process additional identifiers as key=integer or toggling boolean flag to true (1)
+    for (;tokenIt != tokenList.end(); tokenIt++) {
+	string::size_type equalPos = tokenIt->find_first_of('=');
+
+	if (equalPos == string::npos) {
+	    id.AddTag(*tokenIt, Identifier::TagValue(1) );
+	} else {
+	    string key   = tokenIt->substr(0,equalPos);
+	    Identifier::TagValue value;
+
+	    stringstream(tokenIt->substr(equalPos+1)) >> value;
+	    id.AddTag(tokenIt->substr(0,equalPos), value);
+	}       
     }
 
     for (vector<int>::iterator modIt = moduleList.begin();
 	 modIt != moduleList.end(); modIt++) {
 	for (vector<int>::iterator chanIt = channelList.begin();
 	     chanIt != channelList.end(); chanIt++) {
-	    int index = modChan.GetNumber(*modIt, *chanIt);
+	    // check if this channel has already been defined
+	    if ( modChan.HasValue(*modIt, *chanIt) ) {
+		// if this is a wildcard line, just continue
+		if (HasWildcard(tokenList.at(0)) ||
+		    HasWildcard(tokenList.at(1))) {
+		    continue;
+		}
+		cerr << "Identifier for " << type << " in module " << *modIt
+		     << " : channel " << *chanIt << " is initialized more than once in the map file"
+		     << endl;
+
+		exit(EXIT_FAILURE);
+	    }
+
 	    id.SetLocation(startingLocation);
-	    
-	    modChan[index] = id;
+	    modChan.Set(*modIt, *chanIt, id);
+
+	    startingLocation++;
 	}
     }
 }
@@ -175,8 +232,7 @@ bool MapFile::HasWildcard(const string &str) const
 /**
  * Convert a token into a string 
  */
-void MapFile::TokenToVector(string token, vector<int> &list,
-			    const vector<int> &completeList ) const
+void MapFile::TokenToVector(string token, vector<int> &list, int number) const
 {
     if (!HasWildcard(token)) {
 	// this is a single number
@@ -184,12 +240,6 @@ void MapFile::TokenToVector(string token, vector<int> &list,
 
 	stringstream(token) >> num;
 	list.push_back(num);
-	return;
-    }
-    // first check for all indicator '*'
-    if (token.find_first_of('*') != string::npos) {
-	// then we just copy the complete list
-	list = completeList;
 	return;
     }
 
@@ -210,10 +260,11 @@ void MapFile::TokenToVector(string token, vector<int> &list,
 	token.erase(pos, 1);
     }
 
-    int low = *min_element(completeList.begin(), completeList.end());
-    int high = *max_element(completeList.begin(), completeList.end());
+    // this also properly handles the "*" wildcard to do all modules/channels
+    int low = 0;
+    int high = number-1;
     
-    // next look for a range indicator "-
+    // next look for a range indicator "-"
     pos = token.find_first_of('-');
     if (pos != string::npos) {
 	string leftToken(token, 0, pos);
@@ -221,22 +272,19 @@ void MapFile::TokenToVector(string token, vector<int> &list,
 	
 	stringstream(leftToken) >> low;
 	stringstream(rightToken) >> high;
+	
+	// extend the range if the number is not high enough
+	number = max(high+1, number);
     }
 
     // finally parse the complete list and fill the list accordingly
-    for (vector<int>::const_iterator it = completeList.begin();
-	 it != completeList.end(); it++) {
-	if ( *it < low || *it > high )
+    for (int i=low; i <= high; i++) {
+	if ( hasOdd && ( i % 2 ) == 0 )
 	    continue;
-	if ( hasOdd && ( *it % 2 ) == 0 )
+	if ( hasEven && ( i % 2 ) != 0 ) 
 	    continue;
-	if ( hasEven && ( *it % 2 ) != 0 ) 
-	    continue;
-	list.push_back(*it);
+	list.push_back(i);
     }
 }
 
-MapFile theMapFile(MapFile::defaultFile);
-// This strangely segfaults by calling the constructor repeatedly
-// MapFile theMapFile;
 
