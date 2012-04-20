@@ -1,8 +1,9 @@
-Make InitMap happen during initialization so that only necessary histograms are created
+DOCUMENTATION CHECK and UPDATE
 Incorporate changes necessary for Pixie-500 data (MAJOR)
 Update statistics analysis
 Add support for subsubtypes throughout? (Especially to make subtype summaries work)
 Make the damm IDs in GeProcessor have some semblance of organization.
+Create a new scheme for damm ID numbering and management
 48-bit times in RawEvent
 ROOT histogramming
 Smarter (magic) dependency checking
