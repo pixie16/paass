@@ -376,7 +376,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
     static int counter = 0; // the number of times this function is called
     static int evCount;     // the number of times data is passed to ScanList
     static unsigned int lastVsn; // the last vsn read from the data
-    time_t theTime;
+    time_t theTime = 0;
 
     /*
       Assign the local variable lbuf to the variable ibuf which is passed into
@@ -580,7 +580,9 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 		    tms tmsNow;
 		    clock_t clockNow = times(&tmsNow);
 
-		    cout << " data read up to poll status time " << ctime(&theTime);
+		    if (theTime != 0) {
+			cout << " data read up to poll status time " << ctime(&theTime);
+		    }
 		    cout << "   buffer = " << evCount << ", user time = " 
 			 << (tmsNow.tms_utime - tmsBegin.tms_utime) / hz
 			 << ", system time = " 

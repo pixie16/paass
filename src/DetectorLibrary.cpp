@@ -107,7 +107,7 @@ void DetectorLibrary::Set(int index, const Identifier& value)
 	exit(EXIT_FAILURE);
     }
 
-    int module  = index / pixie::numberOfChannels;
+    unsigned int module  = index / pixie::numberOfChannels;
     if (module >= numModules ) {
 	numModules = module + 1;
 	resize(numModules * pixie::numberOfChannels);

@@ -31,8 +31,8 @@ public:
     int GetNextLocation(const std::string &type, 
 			const std::string &subtype) const;
     size_type GetIndex(int mod, int chan) const; 
-    int GetPhysicalModules() const {return numPhysicalModules;}
-    int GetModules() const {return numModules;}
+    unsigned int GetPhysicalModules() const {return numPhysicalModules;}
+    unsigned int GetModules() const {return numModules;}
     bool HasValue(int mod, int chan) const;
     void Set(int index, const Identifier& value);
     void Set(int mod, int ch, const Identifier& value);
@@ -44,8 +44,9 @@ public:
     const std::set<std::string>& GetUsedDetectors(void) const;
 private:
     std::map<std::string, int> highLocation; ///< largest location defined for a given type and subtype
-    int numModules;
-    int numPhysicalModules;
+    
+    unsigned int numModules;
+    unsigned int numPhysicalModules;
     
     std::set<std::string> usedTypes;
     std::set<std::string> usedSubtypes;
