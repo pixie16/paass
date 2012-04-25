@@ -9,8 +9,13 @@
 # "virtual" tag indicates that this channel is not a physical channel
 #   but is generated dynamically onboard 
 MOD    CH      TYPE	SUBTYPE		LOCATION	TAGS
-0      *       ssd	implant		1		uncal
-1      *       ssd	ssd_2		1
-2      *       ssd	ssd_3		1
-3      0-3     generic
-6      0       ignore					uncal
+0      *       ssd	implant		1		
+1-2    *       ssd	box		1
+3      0-3     ssd	veto		1
+3      4-8     generic	tac		1
+4      0-9e    logic	start		1
+4      0-9o    logic	stop		1
+4      10      logic	trigger		1
+4      11      logic	mcp		1
+5      *       bob	implant1	1
+
