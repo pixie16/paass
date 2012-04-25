@@ -453,10 +453,20 @@ void DetectorDriver::ReadCal()
     // check to make sure every channel has a calibration, no default
     //   calibration is allowed
     DetectorLibrary::const_iterator mapIt = modChan.begin();
-    vector<Calibration>::const_iterator calIt = cal.begin();
+    vector<Calibration>::iterator calIt = cal.begin();
     for (;mapIt != modChan.end(); mapIt++, calIt++) {
 	string type = mapIt->GetType();
-	if (type != "ignore" && type != "" && calIt->detType!= type) {
+	if (type == "ignore" || type == "") {
+	    continue;
+	};
+	if (calIt->detType!= type) {
+	    if (mapIt->HasTag("uncal")) {
+		// set the remaining fields properly
+		calIt->detType     = type;
+		calIt->detSubtype  = mapIt->GetSubtype();
+		calIt->detLocation = mapIt->GetLocation(); 
+		continue;
+	    }
 	    cout << "Uncalibrated detector found for type " << type
 		 << " at location " << mapIt->GetLocation() 
 		 << ". No default calibration is given, please correct." 
@@ -476,7 +486,7 @@ void DetectorDriver::ReadCal()
          << setw(8)  << "subtype"
 	 << setw(5)  << "cals"
 	 << setw(6)  << "order"
-	 << setw(31) << "cal values:thresh, low - high " << endl;
+	 << setw(31) << "cal values: low-high thresh, coeffs" << endl;
  
     //? calibration print command?
     for(size_t a = 0; a < cal.size(); a++){
@@ -489,11 +499,12 @@ void DetectorDriver::ReadCal()
            << setw(6)  << cal[a].polyOrder;      
         for(unsigned int b = 0; b < cal[a].numCal; b++){
 	    cout << setw(6) << cal[a].thresh[b];
+            cout << " - " << setw(6) << cal[a].thresh[b+1];
             for(unsigned int c = 0; c < cal[a].polyOrder+1; c++){
 	      cout << setw(7) << setprecision(5) 
 		   << cal[a].val[b*(cal[a].polyOrder+1)+c];
             }
-            cout << setw(6) << cal[a].thresh[b+1];
+
         }
         
         cout << endl;

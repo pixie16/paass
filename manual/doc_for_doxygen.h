@@ -76,6 +76,7 @@
   - hissub_() - The interface between SCAN and the C++ analysis. 
   Reassemble a complete pixie16 spill of data.
   - InitMap() - Analysis initialization
+  - New map file info - An alternative way to define the analysis  
   - hissub_sec() - extract channel information from the raw pixie16
   data spill and sort the triggered channels based on time.
   - ScanList() - Group channels into events and send to detector_driver
@@ -107,7 +108,7 @@
   \subsection InitMap
   When the first spill has been reconstructed and before analysis
   begins, InitMap() is called to initialize all routines and variables
-  used in the scanning process.  First the DetectorDriver
+  used in the scanning process.  First the DetectorLibrary
   class is queried to determine the valid detector types that can be used
   in the analysis.  This is accomplished with the following line of code
   in InitMap()
@@ -116,10 +117,11 @@
   const set<string> &knownDets = driver.GetKnownDetectors()
   \endcode
   The detector types that are currently valid for analysis are
-  dssd_front, dssd_back, ge, idssd_front, timeclass, si, position, i
-  dssd_front, sinct, and mcp.  The detector types position and idssd_front
-  have to date been exclusively used for fragmentation experiments
-  at MSU (and have no implementation in the current version of code).
+  dssd_front, dssd_back, ge, idssd_front, timeclass, si, position,
+  scint, mcp, mtc, generic, ssd, vandle, pulser, logic, and ion_chamber.  
+  The detector types position and idssd_front have to date been 
+  exclusively used for fragmentation experiments at MSU (and have no
+  implementation in the current version of code).
 
   Next the file map.txt is opened to determine a unique detector
   that is connected to each Pixie16 module.  Please see
@@ -151,6 +153,29 @@
   detector type is checked against the known detectors. If the detector
   type is not listed among the known detectors, the program will 
   terminate to provide the user an opportunity to fix the problem.
+
+  \section New map file info
+  Alternatively, the detectors can be defined in a new map file format
+  through the "map2.txt" file. Each line contains information in order about
+  the detectors
+  module number, channel number, type, subtype, location
+  followed by arbitrary integer tags identified by a string
+  e.g. traceanalysis=10 virtual start width=100 
+  If no value is given, 1 is assumed.
+  
+  Module and channel fields can contain ranges (2-4) or asterisks to indicate
+  all unfilled channels. ('e' and 'o' can also be provided to limit to even
+  or odd values.) Single channel specifiers will be processed first.
+  
+  Any field after type can be left unspecified:
+    If subtype is blank or "--", the subtype is assumed to be the same as type
+    If location is blank, numbering will begin as low as available (0 start)
+    Tags are often blank.
+  The code is smart enough to recognize (based on whether the field is a
+  number or a string) what you mean except in the case when location and
+  subtype would be left blank. Here use the "--" shorthand for the subtype.
+  Locations for a range are given sequentially looping over channels and then
+  over modules.
 
   \section hissub_sec
   
