@@ -422,7 +422,7 @@ bool GeProcessor::Process(RawEvent &event)
 	//perform simple gamma-gamma matrix
 	/*************************************/
 	
-	for (vector<ChanEvent*>::const_iterator it2 = it;
+	for (vector<ChanEvent*>::const_iterator it2 = it+1;
 	     it2 != geEvents.end(); it2++) {
 	    ChanEvent *chan2 = *it2;
 	    if ( chan2->GetChanID().GetSubtype() == "clover_low" )
