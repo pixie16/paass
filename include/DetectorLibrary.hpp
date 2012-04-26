@@ -30,10 +30,14 @@ public:
 
     int GetNextLocation(const std::string &type, 
 			const std::string &subtype) const;
-    size_type GetIndex(int mod, int chan) const; 
+    size_type GetIndex(int mod, int chan) const;
+    int ModuleFromIndex(int index) const;
+    int ChannelFromIndex(int index) const;
+
     unsigned int GetPhysicalModules() const {return numPhysicalModules;}
     unsigned int GetModules() const {return numModules;}
     bool HasValue(int mod, int chan) const;
+    bool HasValue(int index) const;
     void Set(int index, const Identifier& value);
     void Set(int mod, int ch, const Identifier& value);
 

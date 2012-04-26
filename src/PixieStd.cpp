@@ -705,7 +705,7 @@ void ScanList(vector<ChanEvent*> &eventList)
 	if (dtimebin < 0 || dtimebin > (unsigned)(SE)) {
 	    cout << "strange dtime for id " << id << ":" << dtimebin << endl;
 	}
-	plot(dammIds::misc::offsets::D_TIME + id, dtimebin);
+	plot(DetectorDriver::D_TIME + id, dtimebin);
 
 	usedDetectors.insert(modChan[id].GetType());
 	rawev.AddChan(*iEvent);
@@ -810,7 +810,7 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
 	plot(DD_RUNTIME_MSEC,remainNumMsecs,rowNumMsecs);      
 	//fill scalar spectrum (per second) 
 	plot(D_HIT_SPECTRUM,id);     // plot hit spectrum
-	plot(offsets::D_SCALAR + id, runTimeSecs);
+	plot(DetectorDriver::D_SCALAR + id, runTimeSecs);
     }
 }
 

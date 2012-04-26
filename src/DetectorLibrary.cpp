@@ -83,7 +83,12 @@ DetectorLibrary::size_type DetectorLibrary::GetIndex(int mod, int chan) const
 
 bool DetectorLibrary::HasValue(int mod, int chan) const
 {
-    return (size() > GetIndex(mod,chan)) && (at(mod,chan).GetType() != ""); 
+    return HasValue(GetIndex(mod,chan));
+}
+
+bool DetectorLibrary::HasValue(int index) const
+{
+    return (size() > index && at(index).GetType() != "");
 }
 
 void DetectorLibrary::Set(int index, const Identifier& value)
@@ -107,7 +112,7 @@ void DetectorLibrary::Set(int index, const Identifier& value)
 	exit(EXIT_FAILURE);
     }
 
-    unsigned int module  = index / pixie::numberOfChannels;
+    unsigned int module  = ModuleFromIndex(index);
     if (module >= numModules ) {
 	numModules = module + 1;
 	resize(numModules * pixie::numberOfChannels);
@@ -141,8 +146,8 @@ void DetectorLibrary::PrintMap(void) const
     Identifier::PrintHeaders();
 
     for (size_t i=0; i < size(); i++) {
-	cout << setw(4) << (int)(i / pixie::numberOfChannels)
-	     << setw(4) << (int)(i % pixie::numberOfChannels);
+	cout << setw(4) << ModuleFromIndex(i)
+	     << setw(4) << ChannelFromIndex(i);
 	at(i).Print();
     }
 }
@@ -201,4 +206,20 @@ const set<string>& DetectorLibrary::GetKnownDetectors(void)
 const set<string>& DetectorLibrary::GetUsedDetectors(void) const
 {
     return usedTypes;
+}
+
+/**
+ * Convert an index number into which module the detector resides in
+ */
+int DetectorLibrary::ModuleFromIndex(int index) const
+{
+    return int(index / pixie::numberOfChannels);
+}
+
+/**
+ * Convert an index number into which channel the detector resides in
+ */
+int DetectorLibrary::ChannelFromIndex(int index) const
+{
+    return (index % pixie::numberOfChannels);
 }
