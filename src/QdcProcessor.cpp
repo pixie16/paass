@@ -197,8 +197,12 @@ bool QdcProcessor::Process(RawEvent &event)
 
     vector<ChanEvent *> allEvents;
     // just add in the digisum events for now
-    allEvents.insert(allEvents.begin(), digisumEvents.begin(), digisumEvents.end());
-    allEvents.insert(allEvents.begin(), sumEvents.begin(), sumEvents.end());
+    if (!digisumEvents.empty()) {
+      allEvents.insert(allEvents.begin(), digisumEvents.begin(), digisumEvents.end());
+    }
+    if (!sumEvents.empty()) {
+      allEvents.insert(allEvents.begin(), sumEvents.begin(), sumEvents.end());
+    }
 
     for (vector<ChanEvent*>::const_iterator it=allEvents.begin();
 	 it != allEvents.end(); it++) {
@@ -303,6 +307,7 @@ bool QdcProcessor::Process(RawEvent &event)
     } // end iteration over sum events
 
     EndProcess();
+
     return true;
 }
 

@@ -9,8 +9,8 @@
 # "virtual" tag indicates that this channel is not a physical channel
 #   but is generated dynamically onboard 
 MOD    CH      TYPE	SUBTYPE		LOCATION	TAGS
-0      0-11    ssd	top				uncal
-1      0-11    ssd	bottom				uncal
+0-1    0-11e   ssd	top				uncal
+0-1    0-11o   ssd	bottom				uncal
 2      0-7     ssd	box
 3      0       ignore
-4      0-11    ssd	digisum				virtual
+4-5    0-11e   ssd	digisum				virtual

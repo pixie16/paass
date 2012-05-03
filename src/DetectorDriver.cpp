@@ -93,7 +93,7 @@ DetectorDriver::DetectorDriver()
 
     vecProcess.push_back(new QdcProcessor()); // order is important
     // vecProcess.push_back(new TriggerLogicProcessor());
-    vecProcess.push_back(new ImplantSsdProcessor());
+    vecProcess.push_back(new SsdProcessor());
     // vecProcess.push_back(new GeProcessor()); // order is important
 
     // vecProcess.push_back(new SsdProcessor());
