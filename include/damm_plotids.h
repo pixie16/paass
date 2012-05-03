@@ -264,8 +264,6 @@ namespace dammIds {
 	const int D_TRACE = 4000;
     } // trace namespace
     namespace misc {
-// in detector_driver.cpp
-	const int D_HAS_TRACE = 800;
 // in pixie_std.cpp
 	const int D_HIT_SPECTRUM = 1000;
 	const int D_SUBEVENT_GAP = 1001;
@@ -278,22 +276,6 @@ namespace dammIds {
 	const int DD_BUFFER_START_TIME = 1008;
 	const int DD_RUNTIME_MSEC      = 1010;
 	const int D_NUMBER_OF_EVENTS   = 1011;
-	namespace offsets {
-	    /*
-	    const int D_RAW_ENERGY        = 100;
-	    const int D_FILTER_ENERGY     = 200; // intermediate step with "raw" filter energy
-	    const int D_SCALAR            = 300;
-	    const int D_TIME              = 400;
-	    const int D_CAL_ENERGY        = 500;
-	    const int D_CAL_ENERGY_REJECT = 600;
-	    */
-	    const int D_RAW_ENERGY        = 7100;
-	    const int D_FILTER_ENERGY     = 7300; // intermediate step with "raw" filter energy
-	    const int D_CAL_ENERGY        = 7500;
-	    const int D_CAL_ENERGY_REJECT = 7700;
-	    const int D_SCALAR            = 100;
-	    const int D_TIME              = 300;
-	}
     } // misc namespace
 }
 

@@ -20,6 +20,8 @@ namespace pixie {
     const double clockInSeconds = 10e-9; //< one pixie clock is 10 ns
     const double adcClockInSeconds = 10e-9; //< one ADC clock is 10 ns
     const double filterClockInSeconds = 10e-9; //< one filter clock is 10 ns
+
+    const size_t numberOfChannels = 16; //< number of channels in a module
 };
 
 /** buffer and module data are terminated with a "-1" value
@@ -36,5 +38,7 @@ namespace readbuff {
 const double emptyValue = -9999.; //< a default number to set values to
 
 const pixie::word_t clockVsn = 1000; ///< an arbitrary vsn used to pass clock data
+
+const size_t maxConfigLineLength = 100;
 
 #endif // __PARAM_H_

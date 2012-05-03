@@ -1,5 +1,5 @@
 #!/bin/bash
-if [[ "z$1" == "z" ]];then
+if [[ -z $1 ]];then
     echo "Must provide at least one argument"
     exit 1;
 fi
@@ -9,7 +9,7 @@ if [[ ! -d ${HISDIR:="HIS"} ]]; then
     exit 1;
 fi
 
-if [[ "z$2" == "z" ]];then
+if [[ -z $2 ]];then
     PREFIX=$(basename $1 .ldf)
     HISFILE="$HISDIR/$PREFIX"
 else

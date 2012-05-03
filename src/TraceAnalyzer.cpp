@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#include <unistd.h>
+
 #include "damm_plotids.h"
 #include "Trace.h"
 #include "TraceAnalyzer.h"

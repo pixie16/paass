@@ -1,16 +1,9 @@
 #!/bin/bash
 
-if [[ -f ./pixie_ldf_c_online ]]; then
+if [[ -x ./pixie_ldf_c_online ]]; then
     PROG=./pixie_ldf_c_online
 else
-    if [[ -f ./pixie_ldf_c ]]; then
-	PROG=./pixie_ldf_c
-	echo "Running standard version."
-    else
-	echo "Make a program first, yo."
-	exit 1
-    fi
-    
+    PROG=./pixie_ldf_c
 fi
 
 if [[ ! -d ${HISDIR:=HIS} ]]; then

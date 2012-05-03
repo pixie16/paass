@@ -61,7 +61,7 @@ bool EventProcessor::HasEvent(void) const
  */
 bool EventProcessor::Init(DetectorDriver &driver) 
 {
-    vector<string> intersect;
+    vector<string> intersect;   
     const set<string> &usedDets = driver.GetUsedDetectors();
     
     set_intersection(associatedTypes.begin(), associatedTypes.end(),

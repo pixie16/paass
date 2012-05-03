@@ -43,6 +43,8 @@
 #include <sys/times.h>
 
 #include "DetectorDriver.h"
+#include "DetectorLibrary.hpp"
+#include "MapFile.hpp"
 #include "RawEvent.h"
 #include "damm_plotids.h"
 #include "param.h"
@@ -51,12 +53,7 @@
 using namespace std;
 using pixie::word_t;
 
-/**
- * Contains the description of each channel in the analysis.  The
- * description is read in from map.txt and includes the detector type and 
- * subtype, the damm spectrum number, and physical location
- */
-vector<Identifier> modChan;
+extern DetectorLibrary modChan;
 
 /**
  * Contains event information, the information is filled in ScanList() and is 
@@ -66,11 +63,6 @@ RawEvent rawev;
 
 /** Driver used to process the raw events */
 DetectorDriver driver;
-
-/** The number of modules to read out */
-unsigned int numPhysicalModules;
-/** The max number of modules used in the map.txt file */
-unsigned int numModules;
 
 enum HistoPoints {BUFFER_START, BUFFER_END, EVENT_START = 10, EVENT_CONTINUE};
 
@@ -384,7 +376,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
     static int counter = 0; // the number of times this function is called
     static int evCount;     // the number of times data is passed to ScanList
     static unsigned int lastVsn; // the last vsn read from the data
-    time_t theTime;
+    time_t theTime = 0;
 
     /*
       Assign the local variable lbuf to the variable ibuf which is passed into
@@ -410,6 +402,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 	 * running time of the analysis.
 	 */
         clockBegin = times(&tmsBegin);
+
 	cout << "First buffer at " << clockBegin << " sys time" << endl;
         /* After completion the descriptions of all channels are in the modChan
 	 * vector, the DetectorDriver and rawevent have been initialized with the
@@ -417,8 +410,12 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 	 */
         if (!InitMap()) {
 	    exit(EXIT_FAILURE);
-	}
+	}       
+	modChan.PrintUsedDetectors();
+	modChan.PrintMap();
 
+	driver.Init();
+    
 	/* Make a last check to see that everything is in order for the driver 
 	 * before processing data
 	 */
@@ -479,12 +476,12 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
             /* If both the current vsn inspected is within an acceptable 
 	       range, begin reading the buffer.
             */
-            if ( vsn < numPhysicalModules ) {
+            if ( vsn < modChan.GetPhysicalModules()  ) {
 	        if ( lastVsn != U_DELIMITER) {
 		    // the modules should be read out cyclically
-		    if ( ((lastVsn+1) % numPhysicalModules) != vsn ) {
+		    if ( ((lastVsn+1) % modChan.GetPhysicalModules() ) != vsn ) {
 #ifdef VERBOSE
-			cout << " MISSING BUFFER " << vsn << "/" << numPhysicalModules
+			cout << " MISSING BUFFER " << vsn << "/" << modChan.GetPhysicalModules()
 			     << " -- lastVsn = " << lastVsn << "  " 
 			     << ", length = " << lenRec << endl;
 #endif
@@ -579,11 +576,13 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 		  every once in a while (when evcount is a multiple of 1000)
 		  print the time elapsed doing the analysis
 		*/
-		if(evCount % 1000 == 0 || evCount == 1){
+		if(evCount % 1000 == 0 || evCount == 1) {
 		    tms tmsNow;
 		    clock_t clockNow = times(&tmsNow);
 
-		    cout << " data read up to poll status time " << ctime(&theTime);
+		    if (theTime != 0) {
+			cout << " data read up to poll status time " << ctime(&theTime);
+		    }
 		    cout << "   buffer = " << evCount << ", user time = " 
 			 << (tmsNow.tms_utime - tmsBegin.tms_utime) / hz
 			 << ", system time = " 
@@ -670,10 +669,6 @@ void ScanList(vector<ChanEvent*> &eventList)
 	  cout << "pattern 0 ignore" << endl;
 	  continue;
 	}
-	if (id > numModules * NUMBER_OF_CHANNELS) {
-	  cout << "Unexpected channel id " << id << endl;
-	  Pixie16Error(1);
-	}
 	if (modChan[id].GetType() == "ignore") {
 	  continue;
 	}
@@ -710,7 +705,7 @@ void ScanList(vector<ChanEvent*> &eventList)
 	if (dtimebin < 0 || dtimebin > (unsigned)(SE)) {
 	    cout << "strange dtime for id " << id << ":" << dtimebin << endl;
 	}
-	plot(dammIds::misc::offsets::D_TIME + id, dtimebin);
+	plot(DetectorDriver::D_TIME + id, dtimebin);
 
 	usedDetectors.insert(modChan[id].GetType());
 	rawev.AddChan(*iEvent);
@@ -815,7 +810,7 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
 	plot(DD_RUNTIME_MSEC,remainNumMsecs,rowNumMsecs);      
 	//fill scalar spectrum (per second) 
 	plot(D_HIT_SPECTRUM,id);     // plot hit spectrum
-	plot(offsets::D_SCALAR + id, runTimeSecs);
+	plot(DetectorDriver::D_SCALAR + id, runTimeSecs);
     }
 }
 
@@ -830,17 +825,6 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
 bool InitMap(void) 
 {
     /*
-     * Local variables to store the types of detectors that are known to the
-     * program (inspect DetectorDriver.cpp for more details), the detectors that
-     * are used in this particular analysis, and the detector sub types used in
-     * this particular analysis. If a detector type read in from map.txt does not
-     * match one of the known types, then the program will terminate.
-     */
-    const set<string> &knownDets = driver.GetKnownDetectors();
-    set<string> usedTypes;
-    set<string> usedSubtypes;
-
-    /*
       Local variables for reading in the map.txt file.  For each channel, the
       read variables are the module and channel number (from which the channel's
       unique id will be computed), the detector type and subtype, the spectrum
@@ -851,6 +835,12 @@ bool InitMap(void)
     unsigned int modNum, chanNum, dammID, detLocation, trace;
     string detType, detSubtype;
 
+    extern MapFile theMapFile;
+
+    if (theMapFile) {
+	cout << "We've already handled this with a new version of the map file." << endl;
+	return true;
+    }
     ifstream mapFile("map.txt");
 
     if (!mapFile) {
@@ -874,45 +864,15 @@ bool InitMap(void)
 	    mapFile >> modNum >> chanNum >> dammID >> detType
 		    >> detSubtype >> detLocation >> trace;
 	    
-	    // Using the current module number, set the number of modules
-	    if (!virtualChannel) {
-		numPhysicalModules = max(numPhysicalModules, modNum + 1);
-	    }
-	    numModules = max(numModules, modNum + 1);
-	    // Resize the modchan vector so it's guaranteed to have enough chans
-	    if ( modChan.size() < numModules * NUMBER_OF_CHANNELS ) {
-		modChan.resize(numModules * NUMBER_OF_CHANNELS);
-	    }  
-	    Identifier& id = modChan.at(NUMBER_OF_CHANNELS * modNum + chanNum);
 	    /*
 	     * If you have not specified that this channel
 	     * be ignored, process the information
 	     */
 	    if (detType != "ignore") {
-		/*
-		 * Search the list of known detectors; if the detector type 
-		 * is not matched, print out an error message and terminate
-		 */
-		if(knownDets.find(detType) == knownDets.end()){
-		    cout << endl;
-		    cout << "The detector called '" << detType <<"'"<< endl
-			 << "read in from the file 'map.txt'" << endl
-			 << "is unknown to this program!.  This is a" << endl
-			 << "fatal error.  Program execution halted!" << endl
-			 << "If you believe this detector should exist," << endl
-			 << "please edit the 'getKnownDetectors'" << endl
-			 << "function inside the 'DetectorDriver.cpp' file" << endl
-			 << endl;
-		    cout << "The currently known detectors include:" << endl;
-		    copy(knownDets.begin(), knownDets.end(), 
-			 ostream_iterator<string>(cout, " "));
-		    exit(EXIT_FAILURE);
-		}
-		
 		/* if the type already has been set, something is wrong with
 		 * in the map file.
 		 */
-		if (id.GetType() != "") {
+		if ( modChan.HasValue(modNum,chanNum) ) {
 		    cout << "Identifier for " << detType << "in module " 
 			 << modNum << ": channel " << chanNum 
 			 << " is initialized more than once in the map file."
@@ -925,21 +885,26 @@ bool InitMap(void)
 		 * class called an identifier which contains the detector type
 		 * and subtype, detector location and dammid.
 		 */
+		Identifier id;
+
 		id.SetDammID(dammID);
 		id.SetType(detType);
 		id.SetSubtype(detSubtype);
 		id.SetLocation(detLocation);
-		
-		usedTypes.insert(detType);
-		usedSubtypes.insert(detSubtype);
+
+		modChan.Set(modNum, chanNum, id);
 	    } // end != ignore condition                
 	    else {
 		/*
 		 * This channel has been set to be ignored in the analysis.
 		 * Put a dummy identifier into the identifier vector modchan
 		 */
-		id.SetType("ignore");
-		id.SetSubtype("ignore");                   
+		Identifier id;
+
+		id.SetType("ignore");	       	       
+		id.SetSubtype("ignore");
+		
+		modChan.Set(modNum, chanNum, id);
 	    }
 	} // end if to see if the line begins with a digit
 	else {
@@ -949,20 +914,6 @@ bool InitMap(void)
     } // end while (!mapfile) loop - end reading map.txt file
     
     mapFile.close();    
-    
-    // Print the number of detectors and detector subtypes used in the analysis
-    cout << usedTypes.size() <<" detector types are used in this analysis " 
-	 << "and are named:" << endl << "  "; 
-    copy(usedTypes.begin(), usedTypes.end(), ostream_iterator<string>(cout, " "));
-    cout << endl;
-    
-    cout << usedSubtypes.size() <<" detector subtypes are used in this "
-	 << "analysis and are named:" << endl << "  ";
-    copy(usedSubtypes.begin(), usedSubtypes.end(), ostream_iterator<string>(cout," "));
-    cout << endl;
-    
-    rawev.Init(usedTypes, usedSubtypes);
-    driver.Init();
     
     return true;
 }

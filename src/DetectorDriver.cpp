@@ -37,8 +37,11 @@
 #include <iostream>
 #include <iomanip>
 #include <iterator>
+#include <sstream>
 
 #include "DetectorDriver.h"
+#include "DetectorLibrary.hpp"
+#include "MapFile.hpp"
 #include "RandomPool.h"
 #include "RawEvent.h"
 
@@ -123,31 +126,11 @@ DetectorDriver::~DetectorDriver()
     vecAnalyzer.clear();
 }
 
-/*!
-  Retrieves a vector containing all detector types for which an analysis
-  routine has been defined making it possible to declare this detector type
-  in the map.txt file.  The currently known detector types are in detectorStrings
-*/
-const set<string>& DetectorDriver::GetKnownDetectors()
-{   
-    const unsigned int detTypes = 16;
-    const string detectorStrings[detTypes] = {
-	"dssd_front", "dssd_back", "idssd_front", "position", "timeclass",
-	"ge", "si", "scint", "mcp", "mtc", "generic", "ssd", "vandle",
-	"pulser", "logic", "ion_chamber"};
-  
-    // only call this once
-    if (!knownDetectors.empty())
-	return knownDetectors;
+const set<string>& DetectorDriver::GetUsedDetectors() const
+{
+    extern DetectorLibrary modChan;
 
-    // this is a list of the detectors that are known to this program.
-    cout << "constructing the list of known detectors " << endl;
-
-    //? get these from event processors
-    for (unsigned int i=0; i < detTypes; i++)
-	knownDetectors.insert(detectorStrings[i]);
-
-    return knownDetectors;
+    return modChan.GetUsedDetectors();
 }
 
 /*!
@@ -222,11 +205,6 @@ int DetectorDriver::ProcessEvent(const string &mode){
     return 0;   
 }
 
-const set<string>& DetectorDriver::GetUsedDetectors(void) const
-{
-    return rawev.GetUsedDetectors();
-}
-
 // declare plots for all the event processors
 void DetectorDriver::DeclarePlots(void) const
 {
@@ -240,6 +218,41 @@ void DetectorDriver::DeclarePlots(void) const
 	(*it)->DeclarePlots();
     }
     
+    // Declare plots for each channel
+    extern DetectorLibrary modChan;
+    extern MapFile theMapFile;
+
+    DetectorLibrary::size_type maxChan = (theMapFile ? modChan.size() : 96);
+
+    for (DetectorLibrary::size_type i=0; i < maxChan; i++) {	 
+	if (theMapFile && !modChan.HasValue(i)) {
+	    continue;
+	}
+	stringstream idstr; 
+	
+	if (theMapFile) {
+	    const Identifier &id = modChan.at(i);
+
+	    idstr << "M" << modChan.ModuleFromIndex(i)
+		  << " C" << modChan.ChannelFromIndex(i)
+		  << " - " << id.GetType()
+		  << ":" << id.GetSubtype()
+		  << " L" << id.GetLocation();
+	} else {
+	    idstr << "id " << i;
+	}
+
+	DeclareHistogram1D(D_RAW_ENERGY + i, SE, ("RawE " + idstr.str()).c_str() );
+	DeclareHistogram1D(D_FILTER_ENERGY + i, SE, ("FilterE " + idstr.str()).c_str() );
+	DeclareHistogram1D(D_SCALAR + i, SE, ("Scalar " + idstr.str()).c_str() );
+#ifndef REVD       
+	DeclareHistogram1D(D_TIME + i, SE, ("Time " + idstr.str()).c_str() ); 
+#endif
+	DeclareHistogram1D(D_CAL_ENERGY + i, SE, ("CalE " + idstr.str()).c_str() );
+	DeclareHistogram1D(D_CAL_ENERGY_REJECT + i, SE, ("CalE NoSat " + idstr.str()).c_str() );
+    }
+    DeclareHistogram1D(D_HAS_TRACE, S7, "channels with traces");
+
     rawev.GetCorrelator().DeclarePlots();
 }
 
@@ -274,7 +287,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
       If the channel has a trace get it, analyze it and set the energy.
     */
     if ( !trace.empty() ) {
-        plot(dammIds::misc::D_HAS_TRACE,id);
+        plot(D_HAS_TRACE,id);
 
 	for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
 	     it != vecAnalyzer.end(); it++) {	
@@ -284,7 +297,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 	if (trace.HasValue("filterEnergy") ) {     
 	    if (trace.GetValue("filterEnergy") > 0) {
 		energy = trace.GetValue("filterEnergy");
-		plot(dammIds::misc::offsets::D_FILTER_ENERGY + id, energy);
+		plot(D_FILTER_ENERGY + id, energy);
 	    } else {
 		energy = 2;
 	    }
@@ -334,7 +347,7 @@ int DetectorDriver::PlotRaw(const ChanEvent *chan) const
     int id = chan->GetID();
     float energy = chan->GetEnergy() / ChanEvent::pixieEnergyContraction;
     
-    plot(dammIds::misc::offsets::D_RAW_ENERGY + id, energy);
+    plot(D_RAW_ENERGY + id, energy);
     
     return 0;
 }
@@ -349,9 +362,9 @@ int DetectorDriver::PlotCal(const ChanEvent *chan) const
     // int dammid = chan->GetChanID().GetDammID();
     float calEnergy = chan->GetCalEnergy();
     
-    plot(dammIds::misc::offsets::D_CAL_ENERGY + id, calEnergy);
+    plot(D_CAL_ENERGY + id, calEnergy);
     if (!chan->IsSaturated() && !chan->IsPileup())
-	plot(dammIds::misc::offsets::D_CAL_ENERGY_REJECT + id, calEnergy);
+	plot(D_CAL_ENERGY_REJECT + id, calEnergy);
     return 0;
 }
 
@@ -385,7 +398,7 @@ void DetectorDriver::ReadCal()
     */
 
     // lookup table for information from map.txt (from PixieStd.cpp)
-    extern vector<Identifier> modChan;
+    extern DetectorLibrary modChan;
     Identifier lookupID;
 
     /*
@@ -426,7 +439,7 @@ void DetectorDriver::ReadCal()
 		lookupID.SetType(detType);
 		lookupID.SetSubtype(detSubtype);
 		// find the identifier in the map
-		vector<Identifier>::iterator mapIt = 
+		DetectorLibrary::iterator mapIt = 
 		    find(modChan.begin(), modChan.end(), lookupID); 
 		if (mapIt == modChan.end()) {
 		    cout << "Can not match detector type " << detType
@@ -468,28 +481,6 @@ void DetectorDriver::ReadCal()
                   as the upper limit of all calibrations
                 */
                 detCal.thresh.push_back(MAX_PAR);
-
-                /*
-                  Check the detector type that was read in from cal.txt against
-                  the list of detectors that can be used in the analysis (from
-                  known detectors). If a detector is not found, exit the program
-                  and print a warning.
-                */
-                if (knownDetectors.find(detType) == knownDetectors.end()) {
-		    // This is redundant while this is explicitly matched to the
-		    //   map which has identical conditions
-                    cout << endl;
-                    cout << "The detector called '" << detType <<"'"<< endl;
-                    cout << "read in from the file " << calFilename << endl;
-                    cout << "is unknown to this program!.  This is a" << endl;
-                    cout << "fatal error.  Program execution halted." << endl;
-                    cout << "Please check the " << calFilename 
-			 << " file for errors" << endl;
-                    cout << "The currently known detectors include: " << endl;
-		    copy(knownDetectors.begin(), knownDetectors.end(),
-			 ostream_iterator<string>(cout, " "));
-                    exit(EXIT_FAILURE);
-                }
             } else {
                 // this is a comment, skip line 
                 calFile.ignore(1000,'\n');
@@ -500,11 +491,21 @@ void DetectorDriver::ReadCal()
 
     // check to make sure every channel has a calibration, no default
     //   calibration is allowed
-    vector<Identifier>::const_iterator mapIt = modChan.begin();
-    vector<Calibration>::const_iterator calIt = cal.begin();
+    DetectorLibrary::const_iterator mapIt = modChan.begin();
+    vector<Calibration>::iterator calIt = cal.begin();
     for (;mapIt != modChan.end(); mapIt++, calIt++) {
 	string type = mapIt->GetType();
-	if (type != "ignore" && type != "" && calIt->detType!= type) {
+	if (type == "ignore" || type == "") {
+	    continue;
+	};
+	if (calIt->detType!= type) {
+	    if (mapIt->HasTag("uncal")) {
+		// set the remaining fields properly
+		calIt->detType     = type;
+		calIt->detSubtype  = mapIt->GetSubtype();
+		calIt->detLocation = mapIt->GetLocation(); 
+		continue;
+	    }
 	    cout << "Uncalibrated detector found for type " << type
 		 << " at location " << mapIt->GetLocation() 
 		 << ". No default calibration is given, please correct." 
@@ -524,7 +525,7 @@ void DetectorDriver::ReadCal()
          << setw(8)  << "subtype"
 	 << setw(5)  << "cals"
 	 << setw(6)  << "order"
-	 << setw(31) << "cal values:thresh, low - high " << endl;
+	 << setw(31) << "cal values: low-high thresh, coeffs" << endl;
  
     //? calibration print command?
     for(size_t a = 0; a < cal.size(); a++){
@@ -537,11 +538,12 @@ void DetectorDriver::ReadCal()
            << setw(6)  << cal[a].polyOrder;      
         for(unsigned int b = 0; b < cal[a].numCal; b++){
 	    cout << setw(6) << cal[a].thresh[b];
+            cout << " - " << setw(6) << cal[a].thresh[b+1];
             for(unsigned int c = 0; c < cal[a].polyOrder+1; c++){
 	      cout << setw(7) << setprecision(5) 
 		   << cal[a].val[b*(cal[a].polyOrder+1)+c];
             }
-            cout << setw(6) << cal[a].thresh[b+1];
+
         }
         
         cout << endl;

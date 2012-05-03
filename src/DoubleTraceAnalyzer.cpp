@@ -135,15 +135,16 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
 	    // plot the double pulse stuff
 	    trace.Plot(DD_DOUBLE_TRACE, numDoubleTraces);
 	    if (pulseVec.size() > 2) {
-		static int tripleTraces = 0;
-		cout << "Found triple trace " << tripleTraces << ", sigma baseline = " 
-		     << trace.GetValue("sigmaBaseline") << endl;
-		trace.Plot(DD_TRIPLE_TRACE, tripleTraces);
-		fastFilter.ScalePlot(DD_TRIPLE_TRACE_FILTER1, tripleTraces, fastParms.GetRiseSamples());
-		energyFilter.ScalePlot(DD_TRIPLE_TRACE_FILTER2, tripleTraces, energyParms.GetRiseSamples());
+		static int numTripleTraces = 0;
+		cout << "Found triple trace " << numTripleTraces 
+		     << ", num pulses = " << pulseVec.size()
+		     << ", sigma baseline = " << trace.GetValue("sigmaBaseline") << endl;
+		trace.Plot(DD_TRIPLE_TRACE, numTripleTraces);
+		fastFilter.ScalePlot(DD_TRIPLE_TRACE_FILTER1, numTripleTraces, fastParms.GetRiseSamples());
+		energyFilter.ScalePlot(DD_TRIPLE_TRACE_FILTER2, numTripleTraces, energyParms.GetRiseSamples());
 		if (useThirdFilter)
-		    thirdFilter.ScalePlot(DD_TRIPLE_TRACE_FILTER3, tripleTraces, thirdParms.GetRiseSamples());
-		tripleTraces++;
+		    thirdFilter.ScalePlot(DD_TRIPLE_TRACE_FILTER3, numTripleTraces, thirdParms.GetRiseSamples());
+		numTripleTraces++;
 	    }
 
 	    plot(D_ENERGY2, pulseVec[1].energy);

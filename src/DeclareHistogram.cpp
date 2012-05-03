@@ -86,24 +86,11 @@ extern "C" void drrsub_(unsigned int& iexist)
 {
     using namespace dammIds::misc;
 
-    // unfortunately this function is called before we have read in the map,
-    //   and know the EXACT number of channels we'll need
-    const int numberChannels = 192;
-
     extern DetectorDriver driver;
 
     drrmake_(); // initialize things
 
     driver.DeclarePlots();
-
-    for (int i=0; i < numberChannels; i++) {
-	DeclareHistogram1D(offsets::D_RAW_ENERGY + i, SE, "RAW");
-	DeclareHistogram1D(offsets::D_FILTER_ENERGY + i, SE, "FILTER");
-	DeclareHistogram1D(offsets::D_SCALAR + i, SE, "RAW scalar - per sec");
-	DeclareHistogram1D(offsets::D_TIME + i, SE, "raw etimelo - trig time"); 
-	DeclareHistogram1D(offsets::D_CAL_ENERGY + i, SE, "CAL");
-	DeclareHistogram1D(offsets::D_CAL_ENERGY_REJECT + i, SE, "CAL - no saturation");
-    }
 
     DeclareHistogram1D(D_HIT_SPECTRUM, S7, "channel hit spectrum");
     DeclareHistogram1D(D_SUBEVENT_GAP, SE, "time btwn chan-in event,10ns bin");
@@ -116,8 +103,6 @@ extern "C" void drrsub_(unsigned int& iexist)
     DeclareHistogram2D(DD_BUFFER_START_TIME, SE, S6, "dead time - 0.1%");
     DeclareHistogram2D(DD_RUNTIME_MSEC, SE, S7, "run time - ms");
     DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
-
-    DeclareHistogram1D(D_HAS_TRACE, S7, "channels with traces");
     
     endrr_(); // wrap things up
 }

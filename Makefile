@@ -23,7 +23,7 @@ vpath %.cpp src/
 vpath %.cxx src/
 
 ifeq ($(HHIRF_DIR),)
-HHIRF_HIR = /usr/hhirf
+HHIRF_DIR = /usr/hhirf
 endif
 
 ifeq ($(ACQ2_LIBDIR),)
@@ -67,6 +67,7 @@ LINK.o    = $(FC) $(LDFLAGS)
 FFLAGS   += -O3
 GCCFLAGS += -fPIC $(CINCLUDEDIRS) -Dnewreadout
 CXXFLAGS += -Wall -fPIC $(CINCLUDEDIRS) -Dnewreadout
+# CXXFLAGS += -Wall $(CINCLUDEDIRS) -Dnewreadout
 ifdef REVISIOND
 CXXFLAGS += -DREVD
 endif
@@ -134,6 +135,8 @@ TRACEFILTERO     = TraceFilterer.$(ObjSuf)
 DOUBLETRACEO     = DoubleTraceAnalyzer.$(ObjSuf)
 WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
 QDCPROCESSORO    = QdcProcessor.$(ObjSuf)
+MAPFILEO         = MapFile.$(ObjSuf)
+DETECTORLIBRARYO = DetectorLibrary.$(ObjSuf)
 
 ifdef USEROOT
 PIXIE = pixie_ldf_c_root$(ExeSuf)
@@ -161,7 +164,7 @@ OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \
 	$(SSDPROCESSORO) $(ISSDPROCESSORO) $(TAUANALYZERO) $(LOGICPROCESSORO) \
 	$(TRIGGERLOGICPROCESSORO) $(TRACEEXTRACTERO) $(IONCHAMBERPROCESSORO) \
 	$(STATSDATAO) $(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO) \
-	$(QDCPROCESSORO)
+	$(QDCPROCESSORO) $(MAPFILEO) $(DETECTORLIBRARYO)
 
 ifdef USEROOT
 OBJS  += $(ROOTPROCESSORO)
