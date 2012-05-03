@@ -88,14 +88,13 @@ extern RandomPool randoms;
 */
 DetectorDriver::DetectorDriver()
 {
-    // vecAnalyzer.push_back(new TraceExtracter("generic", "tac"));
-    vecAnalyzer.push_back(new DoubleTraceAnalyzer());
-
+    vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
+    // vecAnalyzer.push_back(new DoubleTraceAnalyzer());
 
     vecProcess.push_back(new QdcProcessor()); // order is important
-    vecProcess.push_back(new TriggerLogicProcessor());
+    // vecProcess.push_back(new TriggerLogicProcessor());
     vecProcess.push_back(new ImplantSsdProcessor());
-    vecProcess.push_back(new GeProcessor()); // order is important
+    // vecProcess.push_back(new GeProcessor()); // order is important
 
     // vecProcess.push_back(new SsdProcessor());
 #ifdef useroot 
