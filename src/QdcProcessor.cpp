@@ -21,6 +21,7 @@ namespace dammIds {
 	const int LOC_SUM  = 18;
 
 	const int D_QDCNORMN_LOCX          = 2300;
+	const int DD_QDCSUM__ENERGY_LOCX   = 4500;
 	const int D_QDCTOTNORM_LOCX        = 2460;
 	const int D_INFO_LOCX              = 2480;
 	const int DD_QDCN__QDCN_LOCX       = 2500;
@@ -122,7 +123,7 @@ void QdcProcessor::DeclarePlots(void) const
     const int infoBins = S3;
     const int locationBins = S4;
     const int positionBins = S6;
-    const int energyBins   = SE;
+    const int energyBins   = SA;
 
     for (int i=0; i < numLocations; i++) {	
 	stringstream str;
@@ -160,10 +161,17 @@ void QdcProcessor::DeclarePlots(void) const
 	str << "Energy vs. position, loc " << i;
 	DeclareHistogram2D(DD_POSITION__ENERGY_LOCX + i, positionBins, energyBins, str.str().c_str());
 	str.str("");
+
+	/*
+	str << "ALL QDCSUM vs. energy, loc " << i;
+	DeclareHistogram2D(DD_QDCSUM__ENERGY_LOCX + i, SC, SC, str.str().c_str());
+	str.str("");
+	*/
     }
     DeclareHistogram2D(DD_QDCTOT__QDCTOT_LOCX + LOC_SUM, qdcBins, qdcBins, "ALL QDCTOT T/B");
     DeclareHistogram1D(D_QDCTOTNORM_LOCX + LOC_SUM, normBins, "ALL QDCTOT NORM T/B");
     DeclareHistogram2D(DD_POSITION__ENERGY_LOCX + LOC_SUM, positionBins, energyBins, "All energy vs. position");
+    // DeclareHistogram2D(DD_QDCSUM__ENERGY_LOCX + LOC_SUM, SC, SC, "ALL QDCSUM vs energy/10");
 
     DeclareHistogram1D(D_INFO_LOCX + LOC_SUM, infoBins, "ALL INFO");
     DeclareHistogram2D(DD_POSITION, locationBins, positionBins, "Qdc Position");
@@ -274,6 +282,17 @@ bool QdcProcessor::Process(RawEvent &event)
 		plot(DD_POSITION, location - 1, position);
 		plot(DD_POSITION__ENERGY_LOCX + location - 1, position, sumchan->GetCalEnergy());
 		plot(DD_POSITION__ENERGY_LOCX + LOC_SUM, position, sumchan->GetCalEnergy());
+	    }
+	    if (i == 6 && !sumchan->IsSaturated()) {
+		// compare the long qdc to the energy
+		int qdcSum = topQdc[i] + bottomQdc[i];
+	       
+		// MAGIC NUMBERS HERE, move to qdc.txt
+		if (qdcSum < 1000 && sumchan->GetCalEnergy() > 15000) {
+		    sumchan->GetTrace().InsertValue("badqdc", 1);
+		}
+		plot(DD_QDCSUM__ENERGY_LOCX + location  - 1, qdcSum, sumchan->GetCalEnergy() / 10);
+		plot(DD_QDCSUM__ENERGY_LOCX + LOC_SUM, qdcSum, sumchan->GetCalEnergy() / 10);
 	    }
 	} // end loop over qdcs
 	topQdcTot    /= totLen;

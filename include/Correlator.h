@@ -23,7 +23,7 @@ struct EventInfo
 {
     /// types of events passed to the correlator
     enum EEventTypes {IMPLANT_EVENT, ALPHA_EVENT, BETA_EVENT, FISSION_EVENT, 
-		      PROTON_EVENT, DECAY_EVENT, PROJECTILE_EVENT, 
+		      PROTON_EVENT, DECAY_EVENT, PROJECTILE_EVENT, GAMMA_EVENT,
 		      UNKNOWN_EVENT};
 
     EEventTypes type; ///< event type
@@ -34,6 +34,7 @@ struct EventInfo
     double offTime;  ///< length of time beam has been off
     double foilTime; ///< time difference to foil event
     double tof;      ///< time of flight for an implant
+    double position; ///< calculated strip position
     short  boxMult;  ///< numebr of box hits
     short  boxMax;   ///< location of maximum energy in box
     short  impMult;  ///< number of implant hits
@@ -97,6 +98,9 @@ class Correlator
   void DeclarePlots(void) const;
   void Init(void);
   void Correlate(EventInfo &event, unsigned int fch, unsigned int bch);  
+  void CorrelateAll(EventInfo &event); 
+  void CorrelateAllX(EventInfo &event, unsigned int bch);
+  void CorrelateAllY(EventInfo &event, unsigned int fch);
   void PrintDecayList(unsigned int fch, unsigned int bch) const;
   
   double GetDecayTime(void) const;
@@ -112,6 +116,8 @@ class Correlator
   }
   
  private:
+  static const size_t arraySize = 40; /**< Size of the 2D array to hold the decay lists */
+
   // in units of pixie clocks
   static const double minImpTime; /**< The minimum amount of time that must
 				     pass before an implant will be considered
@@ -125,7 +131,7 @@ class Correlator
   EventInfo   *lastDecay;    ///< last decay procssed by correlator
 
   EConditions condition;     ///< condition for last processed event
-  CorrelationList decaylist[MAX_STRIP][MAX_STRIP]; ///< list of event data for a particular pixel since implant
+  CorrelationList decaylist[arraySize][arraySize]; ///< list of event data for a particular pixel since implant
 };
 
 #endif // __CORRELATOR_PROCESSOR_H_

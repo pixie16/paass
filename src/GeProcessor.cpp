@@ -348,6 +348,14 @@ bool GeProcessor::Process(RawEvent &event)
 	    plot(ge::D_CLOVER_ENERGY_ALL, gEnergy);
 	}
 	
+	// Do some correlation stuff
+	EventInfo info;
+	info.type   = EventInfo::GAMMA_EVENT;
+	info.energy = gEnergy;
+	info.time   = gTime;
+	event.GetCorrelator().CorrelateAll(info);
+	//
+
 	if(betaEnergy > 0){ // beta gamma coincidence
 	    using namespace dammIds::ge::betaGated;
 	    int dtime=(int)(gTime - betaTime + 100);

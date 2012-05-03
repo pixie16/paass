@@ -25,7 +25,6 @@ using std::min;
 using std::stringstream;
 
 extern DetectorDriver driver; // need this to get the logic event processor
-
 /*! ecutoff for 108Xe experiment where each bin is roughly 4 keV
  *  ... implants deposit above 18 MeV
  */
@@ -48,31 +47,34 @@ void ImplantSsdProcessor::DeclarePlots(void) const
     const int unknownEnergyBins = SE;
     const int implantEnergyBins = SD; 
     const int decayEnergyBins   = SA;
-    const int positionBins      = S5;
-    const int vetoPositionBins  = S3;
+    const int fissionEnergyBins = SC;
+    const int locationBins      = S5;
+    const int vetoLocationBins  = S3;
     const int timeBins          = S8;
     const int tofBins           = SD; //! DTM -- LARGE FOR NOW 
     const int traceBins         = SC;
     const int tdiffBins         = SA;
 
-    DeclareHistogram2D(DD_ALL_ENERGY__POSITION, 
-		       implantEnergyBins, positionBins, "SSD Strip vs Implant E");
-    DeclareHistogram2D(DD_IMPLANT_ENERGY__POSITION, 
-		       implantEnergyBins, positionBins, "SSD Strip vs Implant E");
-    DeclareHistogram2D(DD_DECAY_ENERGY__POSITION,
-		       decayEnergyBins, positionBins, "SSD Strip vs Decay E");
-    DeclareHistogram2D(DD_ENERGY__POSITION_BEAM,
-		       unknownEnergyBins, positionBins, "SSD Strip vs E w/ beam");
-    DeclareHistogram2D(DD_ENERGY__POSITION_NOBEAM,
-		       unknownEnergyBins, positionBins, "SSD Strip vs E w/ no beam");
-    DeclareHistogram2D(DD_ENERGY__POSITION_VETO,
-		       implantEnergyBins, positionBins, "SSD Strip vs E w/ veto");
-    DeclareHistogram2D(DD_ENERGY__POSITION_PROJLIKE,
-		       implantEnergyBins, positionBins, "SSD Strip vs E projectile");
-    DeclareHistogram2D(DD_ENERGY__POSITION_UNKNOWN,
-		       unknownEnergyBins, positionBins, "SSD Strip vs E (unknown)");
+    DeclareHistogram2D(DD_ALL_ENERGY__LOCATION, 
+		       implantEnergyBins, locationBins, "SSD Strip vs Implant E");
+    DeclareHistogram2D(DD_IMPLANT_ENERGY__LOCATION, 
+		       implantEnergyBins, locationBins, "SSD Strip vs Implant E");
+    DeclareHistogram2D(DD_DECAY_ENERGY__LOCATION,
+		       decayEnergyBins, locationBins, "SSD Strip vs Decay E");
+    DeclareHistogram2D(DD_FISSION_ENERGY__LOCATION,
+		       fissionEnergyBins, locationBins, "SSD Strip vs Fission E");
+    DeclareHistogram2D(DD_ENERGY__LOCATION_BEAM,
+		       unknownEnergyBins, locationBins, "SSD Strip vs E w/ beam");
+    DeclareHistogram2D(DD_ENERGY__LOCATION_NOBEAM,
+		       unknownEnergyBins, locationBins, "SSD Strip vs E w/ no beam");
+    DeclareHistogram2D(DD_ENERGY__LOCATION_VETO,
+		       implantEnergyBins, locationBins, "SSD Strip vs E w/ veto");
+    DeclareHistogram2D(DD_ENERGY__LOCATION_PROJLIKE,
+		       implantEnergyBins, locationBins, "SSD Strip vs E projectile");
+    DeclareHistogram2D(DD_ENERGY__LOCATION_UNKNOWN,
+		       unknownEnergyBins, locationBins, "SSD Strip vs E (unknown)");
     
-    DeclareHistogram2D(DD_POS_VETO__POS_SSD, vetoPositionBins, positionBins,
+    DeclareHistogram2D(DD_LOC_VETO__LOC_SSD, vetoLocationBins, locationBins,
 		       "Veto pos vs SSD pos");
     DeclareHistogram2D(DD_TOTENERGY__ENERGY, implantEnergyBins, implantEnergyBins,
 		       "Tot energy vs. SSD energy (/8)", 1, S3, S3);
@@ -187,7 +189,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 
     static Correlator &corr = event.GetCorrelator();
     static const DetectorSummary *tacSummary  = event.GetSummary("generic:tac", true);
-    static const DetectorSummary *impSummary  = event.GetSummary("ssd:implant", true);
+    static const DetectorSummary *impSummary  = event.GetSummary("ssd:sum", true);
     static const DetectorSummary *mcpSummary  = event.GetSummary("logic:mcp", true);
     static const DetectorSummary *vetoSummary = event.GetSummary("ssd:veto", true);
     static const DetectorSummary *boxSummary  = event.GetSummary("ssd:box", true);
@@ -211,18 +213,21 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
     const ChanEvent *ch  = impSummary->GetMaxEvent();
     info.hasVeto = ( vetoSummary && vetoSummary->GetMult() > 0 );
 
-    int position = ch->GetChanID().GetLocation();
+    int location = ch->GetChanID().GetLocation();
     if (ch->IsSaturated()) {
 	info.energy = 16000; // arbitrary large number
     } else {	
 	info.energy  = ch->GetCalEnergy();
     }
-    
+    if (ch->GetTrace().HasValue("position")) {
+	info.position = ch->GetTrace().GetValue("position");
+    } // else it defaults to nan
+
     info.time    = ch->GetTime();
     info.beamOn  = true;
 
     // recect noise events
-    if (info.energy < 10) {
+    if (info.energy < 10 || ch->GetTrace().HasValue("badqdc")) {
 	EndProcess();
 	return true;
     }
@@ -310,9 +315,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
     }
     
     SetType(info);
-    // give a dummy back strip postion of 1
-    corr.Correlate(info, position, 1);
-    PlotType(info, position, corr.GetCondition());
+    Correlate(corr, info, location);
 
     // TOF spectra update
     if (tacSummary) {
@@ -348,7 +351,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	unsigned int posVeto = chVeto->GetChanID().GetLocation();
 	double vetoEnergy = chVeto->GetCalEnergy();
 
-	plot(DD_POS_VETO__POS_SSD, posVeto, position);
+	plot(DD_LOC_VETO__LOC_SSD, posVeto, location);
 	plot(DD_TOTENERGY__ENERGY, vetoEnergy + info.energy, info.energy);
     }
 
@@ -358,15 +361,13 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	info.energy = driver.cal.at(ch->GetID()).Calibrate(trace.GetValue("filterEnergy2"));
 	info.time   = trigTime + trace.GetValue("filterTime2") - trace.GetValue("filterTime");
 	
-	SetType(info);
-	
-	corr.Correlate(info, position, 1);
-	PlotType(info, position, corr.GetCondition());
+	SetType(info);	
+	Correlate(corr, info, location);
 
 	int numPulses = trace.GetValue("numPulses");
 
 	if ( numPulses > 2 ) {
-	    corr.Flag(position, 1);
+	    corr.Flag(location, 1);
 	    cout << "Flagging triple event" << endl;
 	    for (int i=3; i <= numPulses; i++) {
 		stringstream str;
@@ -377,14 +378,14 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 		info.time   = trigTime + trace.GetValue(str.str()) - trace.GetValue("filterTime");
 
 		SetType(info);
-		corr.Correlate(info, position, 1);
+		Correlate(corr, info, location);
 	    }
 	}	
-	// corr.Flag(position, 1);	                
+	// corr.Flag(location, 1);	                
 #ifdef VERBOSE
 	cout << "Flagging for pileup" << endl; 
 
-	cout << "fast trace " << fastTracesWritten << " in strip " << position
+	cout << "fast trace " << fastTracesWritten << " in strip " << location
 	     << " : " << trace.GetValue("filterEnergy") << " " << trace.GetValue("filterTime") 
 	     << " , " << trace.GetValue("filterEnergy2") << " " << trace.GetValue("filterTime2") << endl;
 	cout << "  mcp mult " << info.mcpMult << endl;
@@ -395,11 +396,10 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	    fastTracesWritten++;
 	}
     }
-
-    /*
-    if (info.energy > 8000)
-	corr.Flag(position, 1);
-    */
+    
+    if (info.energy > 10000 && !ch->IsSaturated() && !isnan(info.position) ) {
+	corr.Flag(location, info.position);
+    }
 
     if (info.energy > 8000 && !trace.empty()) {
 #ifdef VERBOSE
@@ -409,7 +409,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 
 	cout << "Flagging for high energy " << info.energy << " with trace" << endl;
 #endif //VERBOSE
-	// corr.Flag(position, 1);
+	// corr.Flag(location, 1);
 
 	if (highTracesWritten < numTraces) {
 	    trace.Plot(D_HIGH_ENERGY_TRACE + highTracesWritten);
@@ -468,7 +468,7 @@ EventInfo::EEventTypes ImplantSsdProcessor::SetType(EventInfo &info) const
     return (info.type = EventInfo::UNKNOWN_EVENT);
 }
 
-void ImplantSsdProcessor::PlotType(EventInfo &info, int pos, Correlator::EConditions cond)
+void ImplantSsdProcessor::PlotType(EventInfo &info, int loc, Correlator::EConditions cond)
 {
     using namespace dammIds::implantSsd;
     
@@ -479,20 +479,21 @@ void ImplantSsdProcessor::PlotType(EventInfo &info, int pos, Correlator::ECondit
 
     static double prevVeto = 0;
 
-    plot(DD_ALL_ENERGY__POSITION, info.energy, pos);
+    plot(DD_ALL_ENERGY__LOCATION, info.energy, loc);
 
     switch (info.type) {
 	case EventInfo::IMPLANT_EVENT:
-	    plot(DD_IMPLANT_ENERGY__POSITION, info.energy, pos);
+	    plot(DD_IMPLANT_ENERGY__LOCATION, info.energy, loc);
 	    break;
 	case EventInfo::FISSION_EVENT:
+	    plot(DD_FISSION_ENERGY__LOCATION, info.energy / 10, loc);
 	case EventInfo::ALPHA_EVENT:
 	case EventInfo::DECAY_EVENT:
-	    plot(DD_DECAY_ENERGY__POSITION, info.energy, pos);
+	    plot(DD_DECAY_ENERGY__LOCATION, info.energy, loc);
 	    if (info.beamOn) {
-		plot(DD_ENERGY__POSITION_BEAM, info.energy, pos);
+		plot(DD_ENERGY__LOCATION_BEAM, info.energy, loc);
 	    } else { 
-		plot(DD_ENERGY__POSITION_NOBEAM, info.energy, pos);
+		plot(DD_ENERGY__LOCATION_NOBEAM, info.energy, loc);
 	    }
 	    if (cond == Correlator::VALID_DECAY) {	 
 		for (unsigned int i = 0; i < numGranularities; i++) {
@@ -510,10 +511,10 @@ void ImplantSsdProcessor::PlotType(EventInfo &info, int pos, Correlator::ECondit
 	    }
 	    break;
 	case EventInfo::PROJECTILE_EVENT:
-	    plot(DD_ENERGY__POSITION_PROJLIKE, info.energy, pos);
+	    plot(DD_ENERGY__LOCATION_PROJLIKE, info.energy, loc);
 	    break;
 	case EventInfo::PROTON_EVENT:	    
-	    plot(DD_ENERGY__POSITION_VETO, info.energy, pos);
+	    plot(DD_ENERGY__LOCATION_VETO, info.energy, loc);
 	    for (unsigned int i=0; i < numGranularities; i++) {
 		double dt = info.time - prevVeto; // time to previous veto
 		int timeBin = int(dt * pixie::clockInSeconds / timeResolution[i]);
@@ -523,8 +524,24 @@ void ImplantSsdProcessor::PlotType(EventInfo &info, int pos, Correlator::ECondit
 	    break;
 	case EventInfo::UNKNOWN_EVENT:
 	default:
-	    plot(DD_ENERGY__POSITION_UNKNOWN, info.energy, pos);
+	    plot(DD_ENERGY__LOCATION_UNKNOWN, info.energy, loc);
 	    break;
     }
 
+}
+
+/**
+ *  Handle the correlation whether or not we have position information
+ */
+void ImplantSsdProcessor::Correlate(Correlator &corr, EventInfo &info, int location)
+{
+    if ( isnan(info.position) ) {
+	corr.CorrelateAllY(info, location);
+    } else {
+	corr.Correlate(info, location, int(info.position));
+    }
+    // if we want to neglect position information using a dummy variable,
+    //   uncomment this line, and comment out the above
+    // corr.Correlate(info, location, 1)
+    PlotType(info, location, corr.GetCondition());
 }

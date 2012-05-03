@@ -31,7 +31,7 @@ using namespace std;
 
 // all in seconds
 const double Correlator::minImpTime = 5e-3;
-const double Correlator::corrTime   = 3300;
+const double Correlator::corrTime   = 60; // used to be 3300
 const double Correlator::fastTime   = 40e-6;
 
 EventInfo::EventInfo()
@@ -42,7 +42,8 @@ EventInfo::EventInfo()
     hasTof  = false;
     beamOn  = false;
 
-    foilTime = offTime = energy = time = NAN;
+    foilTime = offTime = energy = time = position = NAN;
+    boxMult = mcpMult = impMult = 0;
 
     type = UNKNOWN_EVENT;
     logicBits[0] = 'X'; logicBits[1] = '\0'; 
@@ -127,13 +128,24 @@ void CorrelationList::PrintDecayList() const
 	if ((*it).flagged) {
 	    str << " * " << setw(2) << (*it).generation << " E";
 	} else {
-	    str << "   " << setw(2) << (*it).generation << " E";
+	    if ((*it).type == EventInfo::GAMMA_EVENT) {
+		str << " G ";
+	    } else {
+		str << "   ";
+	    }
+	    str << setw(2) << (*it).generation << " E";
 	}
 	str  << setw(10) << fixed << setprecision(4) << (*it).energy
 	     << " [ch] at T " << setw(10) << dt 
-	     << ", DT= " << setw(10) << dt2
-	     << ", OT (" << (*it).logicBits << ")= " << setw(10) << offt << " [ms]" 
-	     << " M" << (*it).mcpMult << "I" << (*it).impMult << "B" << (*it).boxMult << endl;	
+	     << ", DT= " << setw(10) << dt2;
+	if ( (*it).type != EventInfo::GAMMA_EVENT) {
+	    str << ", OT (" << (*it).logicBits << ")= " << setw(10) << offt << " [ms]" 
+		<< " M" << (*it).mcpMult << "I" << (*it).impMult << "B" << (*it).boxMult;
+	    if ( !isnan((*it).position) ) {
+		str << " POS = " << (*it).position;
+	    }
+	}
+	str << endl;	
 	/*
 	if ((*it).mcpMult > 0 && !isnan((*it).foilTime) )
 	    str << "      Foil time: " << (*it).foilTime << endl;
@@ -164,8 +176,8 @@ void Correlator::Init()
 Correlator::~Correlator()
 {
     // dump any flagged decay lists which have not been output
-    for (unsigned int i=0; i < MAX_STRIP; i++) {
-	for (unsigned int j=0; j < MAX_STRIP; j++) {
+    for (unsigned int i=0; i < arraySize; i++) {
+	for (unsigned int j=0; j < arraySize; j++) {
 	    if (IsFlagged(i,j))
 		PrintDecayList(i,j);
 	}
@@ -193,8 +205,7 @@ void Correlator::Correlate(EventInfo &event,
 {
     using namespace dammIds::correlator;
 
-    if (fch < 0 || fch >= MAX_STRIP ||
-	bch < 0  || bch >= MAX_STRIP) {
+    if (fch < 0 || fch >= arraySize || bch < 0  || bch >= arraySize) {
 	plot(D_CONDITION, INVALID_LOCATION);
 	return;
     }
@@ -253,15 +264,16 @@ void Correlator::Correlate(EventInfo &event,
 			 << "\n  DT: " << dt << endl;
 		    // PIXIE's clock has most likely been zeroed due to a file marker
 		    //   no chance of doing correlations
-		    for (unsigned int i=0; i < MAX_STRIP; i++) {
-			for (unsigned int j=0; j < MAX_STRIP; j++) {
+		    for (unsigned int i=0; i < arraySize; i++) {
+			for (unsigned int j=0; j < arraySize; j++) {
 			    if (IsFlagged(i,j)) {
 				PrintDecayList(i, j);
 			    }
 			    decaylist[i][j].clear();
 			}
 		    }
-		} else {
+		} else if (event.type != EventInfo::GAMMA_EVENT) {
+		    // since gammas are processed at a different time than everything else
 		    cout << "negative correlation time, DECAY: " << event.time
 			 << " IMPLANT: " << theList.GetImplantTime()
 			 << " DT: " << dt << endl;
@@ -295,12 +307,47 @@ void Correlator::Correlate(EventInfo &event,
 
 	    if (condition == VALID_DECAY) {
 		lastDecay = &theList.back();
+	    } else if (condition == DECAY_TOO_LATE) {
+		theList.clear();
 	    }
 
 	    break;
     }
     
     plot(D_CONDITION, condition);
+}
+
+/**
+ *  This correlates an event with all positions in the setup. 
+ *    This is useful for cases where the event is interesting but can not be assigned
+ *    to a particular implant location as in the case of external gamma-ray detectors
+ */
+void Correlator::CorrelateAll(EventInfo &event)
+{
+    for (unsigned int fch=0; fch < arraySize; fch++) {
+	for (unsigned int bch=0; bch < arraySize; bch++) {
+	    if (decaylist[fch][bch].size() == 0)
+		continue;
+	    if (event.time - decaylist[fch][bch].back().time < 10e-6 / pixie::clockInSeconds) {
+		// only correlate fast events for now
+		Correlate(event, fch, bch);
+	    }
+	}
+    }
+}
+
+void Correlator::CorrelateAllX(EventInfo &event, unsigned int bch)
+{
+    for (unsigned int fch = 0; fch < arraySize; fch++) {
+	Correlate(event, fch, bch);
+    }
+}
+  
+void Correlator::CorrelateAllY(EventInfo &event, unsigned int fch)
+{
+    for (unsigned int bch = 0; bch < arraySize; bch++) {
+	Correlate(event, fch, bch);
+    }
 }
 
 double Correlator::GetDecayTime(void) const
@@ -346,8 +393,6 @@ bool Correlator::IsFlagged(int fch, int bch)
 void Correlator::PrintDecayList(unsigned int fch, unsigned int bch) const
 {
     // this channel has a lot of noise
-    if (fch == 7)
-	return;
 
     cout << "Current decay list for " << fch << " , " << bch << " : " << endl;
     decaylist[fch][bch].PrintDecayList();

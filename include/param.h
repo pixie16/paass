@@ -10,7 +10,6 @@
 #include <stdint.h>
 
 //? move these
-const size_t MAX_STRIP = 40; //< number of DSSD strips
 const int MAX_PAR = 32000; //< maximum limit for calibrations
 
 namespace pixie {

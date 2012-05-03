@@ -193,16 +193,17 @@ namespace dammIds {
     namespace implantSsd {
         const int MAX_TOF = 5;
 
-	const int DD_IMPLANT_ENERGY__POSITION  = 2740;
-        const int DD_DECAY_ENERGY__POSITION    = 2741;
-        const int DD_ENERGY__POSITION_BEAM     = 2742;
-        const int DD_ENERGY__POSITION_NOBEAM   = 2743;
-        const int DD_ENERGY__POSITION_VETO     = 2744;
-        const int DD_ENERGY__POSITION_PROJLIKE = 2745;
-        const int DD_ENERGY__POSITION_UNKNOWN  = 2746;
-        const int DD_POS_VETO__POS_SSD         = 2747;
+	const int DD_IMPLANT_ENERGY__LOCATION  = 2740;
+        const int DD_DECAY_ENERGY__LOCATION    = 2741;
+        const int DD_ENERGY__LOCATION_BEAM     = 2742;
+        const int DD_ENERGY__LOCATION_NOBEAM   = 2743;
+        const int DD_ENERGY__LOCATION_VETO     = 2744;
+        const int DD_ENERGY__LOCATION_PROJLIKE = 2745;
+        const int DD_ENERGY__LOCATION_UNKNOWN  = 2746;
+        const int DD_LOC_VETO__LOC_SSD         = 2747;
         const int DD_TOTENERGY__ENERGY         = 2748;
-        const int DD_ALL_ENERGY__POSITION      = 2749;
+        const int DD_ALL_ENERGY__LOCATION      = 2749;
+	const int DD_FISSION_ENERGY__LOCATION  = 2750;
 
 	const int DD_DECAY_ALL_ENERGY__TX     = 2800;
         const int DD_DECAY_NOBEAM_ENERGY__TX  = 2810;

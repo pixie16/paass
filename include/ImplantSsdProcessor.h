@@ -30,7 +30,8 @@ class ImplantSsdProcessor : public EventProcessor
     unsigned int highTracesWritten;
 
     EventInfo::EEventTypes SetType(EventInfo &info) const;
-    void PlotType(EventInfo &info, int pos, Correlator::EConditions cond);
+    void PlotType(EventInfo &info, int loc, Correlator::EConditions cond);
+    void Correlate(Correlator &corr, EventInfo &info, int location);
  public:
     ImplantSsdProcessor(); // no virtual c'tors
     virtual void DeclarePlots(void) const;
