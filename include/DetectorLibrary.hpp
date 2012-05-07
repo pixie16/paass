@@ -28,6 +28,7 @@ public:
     virtual void push_back(const Identifier &x);
     virtual ~DetectorLibrary();
 
+    int GetNextLocation(const Identifier &id) const;
     int GetNextLocation(const std::string &type, 
 			const std::string &subtype) const;
     size_type GetIndex(int mod, int chan) const;

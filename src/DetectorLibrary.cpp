@@ -60,6 +60,14 @@ void DetectorLibrary::push_back(const Identifier &x)
 }
 
 /**
+ * return the next undefined location for a particular identifer
+ */
+int DetectorLibrary::GetNextLocation(const Identifier &id) const
+{
+  return GetNextLocation(id.GetType(), id.GetSubtype());
+}
+
+/**
  * return the next undefined location for a particular type and subtype
  */
 int DetectorLibrary::GetNextLocation(const string &type, 
@@ -88,7 +96,7 @@ bool DetectorLibrary::HasValue(int mod, int chan) const
 
 bool DetectorLibrary::HasValue(int index) const
 {
-    return (size() > index && at(index).GetType() != "");
+  return ((signed)size() > index && at(index).GetType() != "");
 }
 
 void DetectorLibrary::Set(int index, const Identifier& value)

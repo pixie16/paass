@@ -62,6 +62,7 @@
 #include "QdcProcessor.hh"
 
 #include "DoubleTraceAnalyzer.h"
+#include "TauAnalyzer.h"
 #include "TraceAnalyzer.h"
 #include "TraceExtracter.h"
 #include "WaveformAnalyzer.h"
@@ -88,7 +89,9 @@ extern RandomPool randoms;
 */
 DetectorDriver::DetectorDriver()
 {
-    vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
+  vecAnalyzer.push_back(new DoubleTraceAnalyzer());
+    vecAnalyzer.push_back(new TraceExtracter("ssd", "digisum"));
+    vecAnalyzer.push_back(new TauAnalyzer());
     // vecAnalyzer.push_back(new DoubleTraceAnalyzer());
 
     vecProcess.push_back(new QdcProcessor()); // order is important
@@ -187,6 +190,45 @@ int DetectorDriver::ProcessEvent(const string &mode){
     const vector<ChanEvent *> &eventList = rawev.GetEventList();
     for(size_t i=0; i < eventList.size(); i++) {
 	ChanEvent *chan = eventList[i];  
+	const Identifier &id = chan->GetChanID();
+	
+	if ( id.GetSubtype() == "digisum"  && id.HasTag("construct_trace") ) {
+	  // digital virtual channels don't have the trace included
+	  //   here we find the contributing channels and construct the trace from them
+	  //   This current corresponds to ID && ID+1 with the same timestamp
+	  const Trace *trace1 = &emptyTrace;
+	  const Trace *trace2 = &emptyTrace;
+	  // go find them
+	  extern DetectorLibrary modChan;
+
+	  int origId = chan->GetID() - NUMBER_OF_CHANNELS * modChan.GetPhysicalModules();
+	  int searchId1 = origId;
+	  int searchId2 = origId+1;
+
+	  // have to do the whole list because there is no guarantee of order of same timestamps with STL sort
+	  for (size_t j=0; j < eventList.size(); j++) {
+	    if (i == j) 
+	      continue;
+	    ChanEvent *chan2 = eventList[j];
+
+	    if (chan2->GetTime() != chan->GetTime())
+	      continue;	    
+	    if (chan2->GetID() == origId) {
+	      trace1 = &chan2->GetTrace();
+	    }
+	    if (chan2->GetID() == origId + 1) {
+	      trace2 = &chan2->GetTrace();
+	    }	    
+	  }
+	  if (!trace1->empty() && !trace2->empty()) {
+	    Trace::size_type sumSize = min(trace1->size(), trace2->size());
+
+	    chan->GetTrace().reserve(sumSize);
+	    for (Trace::size_type k=0; k < sumSize; k++) {
+	      chan->GetTrace().push_back(trace1->at(k) + trace2->at(k));
+	    }
+	  }
+	}
 
         PlotRaw(chan);
 	ThreshAndCal(chan); // check threshold and calibrate

@@ -1,6 +1,6 @@
-/** \file QdcProcessor.hh
+/** \file QdcProcessor.hpp
  *
- * Handle some QDC action
+ * Handle some QDC action to determine positions in a strip detector
  */
 
 #include <algorithm>
@@ -10,7 +10,8 @@
 #include <sstream>
 #include <vector>
 
-#include "QdcProcessor.hh"
+#include "QdcProcessor.hpp"
+#include "DetectorLibrary.hpp"
 #include "RawEvent.h"
 
 using namespace std;
@@ -60,6 +61,22 @@ bool QdcProcessor::Init(DetectorDriver &driver)
 	return false;
     }
 
+    extern DetectorLibrary modChan;
+
+    int numLocationsTop    = modChan.GetNextLocation("ssd", "top");
+    int numLocationsBottom = modChan.GetNextLocation("ssd", "bottom");
+    if (numLocationsTop != numLocationsBottom) {
+	cerr << "Number of top positions (" << numLocationsTop 
+	     << ") does not match number of bottom positions ("
+	     << numLocationsBottom << ") in map!" << endl;
+	cerr << "  Disabling QDC processor." << endl;
+
+	return (initDone = false);
+    }
+    numLocations = numLocationsTop;
+    minNormQdc.resize(numLocations);
+    maxNormQdc.resize(numLocations);
+
     ifstream in(configFile.c_str());
     if (!in) {
 	cerr << "Failed to open the QDC parameter file, QDC processor disabled." << endl;
@@ -85,7 +102,7 @@ bool QdcProcessor::Init(DetectorDriver &driver)
     // totLen = accumulate(qdcLen + 1, qdcLen + 8, 0);
     
     in >> whichQdc >> posScale;
-
+    
     int numLocationsRead = 0;
     while (true) {
 	int location;
@@ -97,6 +114,7 @@ bool QdcProcessor::Init(DetectorDriver &driver)
 	in >> minNormQdc[location] >> maxNormQdc[location];
 	numLocationsRead++;
     }
+
     if (numLocationsRead != numLocations) {
 	cerr << "Only read QDC position calibration information from "
 	     << numLocationsRead << " locations where a total of "
@@ -199,12 +217,8 @@ bool QdcProcessor::Process(RawEvent &event)
 
     vector<ChanEvent *> allEvents;
     // just add in the digisum events for now
-    if (!digisumEvents.empty()) {
-      allEvents.insert(allEvents.begin(), digisumEvents.begin(), digisumEvents.end());
-    }
-    if (!sumEvents.empty()) {
-      allEvents.insert(allEvents.begin(), sumEvents.begin(), sumEvents.end());
-    }
+    allEvents.insert(allEvents.begin(), digisumEvents.begin(), digisumEvents.end());
+    allEvents.insert(allEvents.begin(), sumEvents.begin(), sumEvents.end());
 
     for (vector<ChanEvent*>::const_iterator it=allEvents.begin();
 	 it != allEvents.end(); it++) {
