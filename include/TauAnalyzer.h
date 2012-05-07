@@ -12,10 +12,15 @@
 
 class TauAnalyzer : public TraceAnalyzer
 {
+  private:
+  std::string type;
+  std::string subtype;
   public:
     TauAnalyzer();
+    TauAnalyzer(const std::string &aType, const std::string &aSubtype);
+
     ~TauAnalyzer();
-    virtual void Analyze(Trace &trace, const std::string &type, const std::string &subtype);
+    virtual void Analyze(Trace &trace, const std::string &aType, const std::string &aSubtype);
 };
 
 #endif // __TAUANALYZER_H_

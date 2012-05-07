@@ -18,6 +18,13 @@ using namespace std;
 
 TauAnalyzer::TauAnalyzer() : TraceAnalyzer()
 {
+    // type and subtype default to empty string 
+    name="tau";
+}
+
+TauAnalyzer::TauAnalyzer(const string &aType, const string &aSubtype) :
+  TraceAnalyzer(), type(aType), subtype(aSubtype)
+{
     name="tau";
 }
 
@@ -26,18 +33,24 @@ TauAnalyzer::~TauAnalyzer()
     // do nothing
 }
 
-void TauAnalyzer::Analyze(Trace &trace, const string &type, const string &subtype)
+void TauAnalyzer::Analyze(Trace &trace, const string &aType, const string &aSubtype)
 {
     // don't do analysis for piled-up traces
     if (trace.HasValue("filterEnergy2")) {
 	return;
     }
+    // only do analysis for the proper type and subtype
+    if (type != "" && subtype != "" && 
+	type != aType && subtype != aSubtype ) {
+	return;
+    }
+
     TraceAnalyzer::Analyze(trace, type, subtype);
 	
     // find the maximum
     Trace::const_iterator itMax=max_element(trace.begin(), trace.end());
     Trace::const_iterator itMin=min_element(itMax, (Trace::const_iterator)trace.end());
-    iterator_traits< Trace::const_iterator >::difference_type  size =distance(itMax, itMin);
+    iterator_traits< Trace::const_iterator >::difference_type  size = distance(itMax, itMin);
     
     // skip over the area near the extrema since it may be non-exponential there
     advance(itMax, size/10);

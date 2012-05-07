@@ -16,16 +16,17 @@ class QdcProcessor : public EventProcessor
 {
 private:
     static const std::string configFile;
-    static const int numLocations = 16;
+    static const int numLocations = 12;
     static const int numQdcs = 8;
 	
-    float qdcLen[numQdcs]; //< the length of each qdc in pixie samples
+    float qdcLen[numQdcs]; //< the length of each qdc in pixie samples									
+    float qdcPos[numQdcs]; //< the ending sample number for each QDC position
     float totLen;          //< calculated length of all qdcs excluding baseline qdc
     int whichQdc;          //< which qdc we are using for position determination
     float posScale;        //< an arbitrary scale for the position parameter to physical units
     float minNormQdc[numLocations]; //< the minimum normalized qdc observed for a location
     float maxNormQdc[numLocations]; //< the maximum normalized qdc observed for a location
-
+    
     ChanEvent* FindMatchingEdge(ChanEvent *match,
 				std::vector<ChanEvent*>::const_iterator begin, 
 				std::vector<ChanEvent*>::const_iterator end) const;				

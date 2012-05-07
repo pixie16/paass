@@ -80,8 +80,10 @@ bool QdcProcessor::Init(DetectorDriver &driver)
 
     for (int i=0; i < numQdcs; i++) 
 	in >> qdcLen[i];
-    totLen = accumulate(qdcLen + 1, qdcLen + 8, 0);
-
+    partial_sum(qdcLen, qdcLen + numQdcs, qdcPos);
+    totLen = qdcPos[numQdcs - 1]  - qdcLen[0];
+    // totLen = accumulate(qdcLen + 1, qdcLen + 8, 0);
+    
     in >> whichQdc >> posScale;
 
     int numLocationsRead = 0;
@@ -92,7 +94,7 @@ bool QdcProcessor::Init(DetectorDriver &driver)
 	    // place this here so a trailing newline is okay in the config file
 	    break;
 	}
-	in >> minNormQdc[location-1] >> maxNormQdc[location-1];
+	in >> minNormQdc[location] >> maxNormQdc[location];
 	numLocationsRead++;
     }
     if (numLocationsRead != numLocations) {
@@ -208,20 +210,31 @@ bool QdcProcessor::Process(RawEvent &event)
 	 it != allEvents.end(); it++) {
 	ChanEvent *sumchan   = *it;
 
+	int location = sumchan->GetChanID().GetLocation();
+
+	// Don't waste our time with noise events
+	if ( (*it)->GetEnergy() < 10. || (*it)->GetEnergy() > 16374 ) {
+	  using namespace dammIds::qdc;
+
+	  plot(D_INFO_LOCX + location, 5);
+	  plot(D_INFO_LOCX + LOC_SUM , 5);
+	  continue;
+	}
+
 	const ChanEvent *top    = FindMatchingEdge(sumchan, topEvents.begin(), topEvents.end());
 	const ChanEvent *bottom = FindMatchingEdge(sumchan, bottomEvents.begin(), bottomEvents.end());
 
-	int location = sumchan->GetChanID().GetLocation();
+
 	if (top == NULL || bottom == NULL) {
 	    using namespace dammIds::qdc;
 
 	    if (top == NULL) {
-		plot(D_INFO_LOCX + location - 1, 3);
+		plot(D_INFO_LOCX + location, 3);
 		plot(D_INFO_LOCX + LOC_SUM, 3);
 	    }
 
 	    if (bottom == NULL) {
-		plot(D_INFO_LOCX + location - 1, 4);
+		plot(D_INFO_LOCX + location, 4);
 		plot(D_INFO_LOCX + LOC_SUM, 4);
 	    }
 	    continue;
@@ -244,47 +257,74 @@ bool QdcProcessor::Process(RawEvent &event)
 	float bottomQdcTot = 0;
 	float position = NAN;
 	
-	if (bottom->GetQdcValue(0) == U_DELIMITER || top->GetQdcValue(0) == U_DELIMITER) {
+	topQdc[0] = top->GetQdcValue(0);
+	bottomQdc[0] = bottom->GetQdcValue(0);
+	if (bottomQdc[0] == U_DELIMITER || topQdc[0] == U_DELIMITER) {
 	    // This happens naturally for traces which have double triggers
 	    //   Onboard DSP does not write QDCs in this case
 #ifdef VERBOSE
 	    cout << "SSD strip edges are missing QDC information for location " << location << endl;
 #endif
-	    if (top->GetQdcValue(0) == U_DELIMITER) {
-		plot(D_INFO_LOCX + location - 1, 1);
+	    if (topQdc[0] == U_DELIMITER) {
+		plot(D_INFO_LOCX + location, 1);
 		plot(D_INFO_LOCX + LOC_SUM, 1);
+		if ( !top->GetTrace().empty() ) {
+		  topQdc[0] = accumulate(top->GetTrace().begin(), top->GetTrace().begin() + qdcLen[0], 0);
+		} else {
+		  topQdc[0] = 0;
+		}
 	    }
-	    if (bottom->GetQdcValue(0) == U_DELIMITER) {
-		plot(D_INFO_LOCX + location - 1, 2);
+	    if (bottomQdc[0] == U_DELIMITER) {
+		plot(D_INFO_LOCX + location, 2);
 		plot(D_INFO_LOCX + LOC_SUM, 2);		
+		if ( !bottom->GetTrace().empty() ) {
+		  bottomQdc[0] = accumulate(bottom->GetTrace().begin(), bottom->GetTrace().begin() + qdcLen[0], 0);
+		} else {
+		  bottomQdc[0] = 0;
+		}
 	    }
-	    continue;
+	    if ( topQdc[0] == 0 || bottomQdc[0] == 0 ) {
+	      continue;
+	    }
 	}
-	plot(D_INFO_LOCX + location - 1, 0); // good stuff
-	plot(D_INFO_LOCX + LOC_SUM     , 0); // good stuff
+	plot(D_INFO_LOCX + location, 0); // good stuff
+	plot(D_INFO_LOCX + LOC_SUM , 0); // good stuff
 
 	for (int i=1; i < numQdcs; i++) {		
-	    topQdc[i] = top->GetQdcValue(i);
-	    topQdc[i] -= top->GetQdcValue(0) * qdcLen[i] / qdcLen[0];
+  	    if (top->GetQdcValue(i) == U_DELIMITER) {
+	      topQdc[i] = accumulate(top->GetTrace().begin() + qdcPos[i-1],
+				     top->GetTrace().begin() + qdcPos[i], 0);
+	    } else {
+	      topQdc[i] = top->GetQdcValue(i);
+	    }
+
+	    topQdc[i] -= topQdc[0] * qdcLen[i] / qdcLen[0];
 	    topQdcTot += topQdc[i];
 	    topQdc[i] /= qdcLen[i];		
 	    
-	    bottomQdc[i] = bottom->GetQdcValue(i);
-	    bottomQdc[i] -= bottom->GetQdcValue(0) * qdcLen[i] / qdcLen[0];
+	    if (bottom->GetQdcValue(i) == U_DELIMITER) {
+	      bottomQdc[i] = accumulate(bottom->GetTrace().begin() + qdcPos[i-1],
+					bottom->GetTrace().begin() + qdcPos[i], 0);
+	    } else {
+	      bottomQdc[i] = bottom->GetQdcValue(i);
+	    }
+
+	    bottomQdc[i] -= bottomQdc[0] * qdcLen[i] / qdcLen[0];
 	    bottomQdcTot += bottomQdc[i];
 	    bottomQdc[i] /= qdcLen[i];
 	    
-	    plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + location - 1, topQdc[i], bottomQdc[i]);
+	    plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + location, topQdc[i] + 100, bottomQdc[i] + 100);
 	    plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + LOC_SUM, topQdc[i], bottomQdc[i]);
+	    
 	    float frac = topQdc[i] / (topQdc[i] + bottomQdc[i]) * 1000.; // per mil
-	    plot(D_QDCNORMN_LOCX + QDC_JUMP * i + location - 1, frac);
+	    plot(D_QDCNORMN_LOCX + QDC_JUMP * i + location, frac);
 	    plot(D_QDCNORMN_LOCX + QDC_JUMP * i + LOC_SUM, frac);
 	    if (i == whichQdc) {
 		position = posScale * (frac - minNormQdc[location]) / 
-		    (maxNormQdc[location] - minNormQdc[location]);
+		    (maxNormQdc[location] - minNormQdc[location]);		
 		sumchan->GetTrace().InsertValue("position", position);
-		plot(DD_POSITION, location - 1, position);
-		plot(DD_POSITION__ENERGY_LOCX + location - 1, position, sumchan->GetCalEnergy());
+		// plot(DD_POSITION, location, position);
+		plot(DD_POSITION__ENERGY_LOCX + location, position, sumchan->GetCalEnergy());
 		plot(DD_POSITION__ENERGY_LOCX + LOC_SUM, position, sumchan->GetCalEnergy());
 	    }
 	    if (i == 6 && !sumchan->IsSaturated()) {
@@ -294,16 +334,18 @@ bool QdcProcessor::Process(RawEvent &event)
 		// MAGIC NUMBERS HERE, move to qdc.txt
 		if (qdcSum < 1000 && sumchan->GetCalEnergy() > 15000) {
 		    sumchan->GetTrace().InsertValue("badqdc", 1);
+		} else {
+		  plot(DD_POSITION, location, sumchan->GetTrace().GetValue("position"));
 		}
-		plot(DD_QDCSUM__ENERGY_LOCX + location  - 1, qdcSum, sumchan->GetCalEnergy() / 10);
-		plot(DD_QDCSUM__ENERGY_LOCX + LOC_SUM, qdcSum, sumchan->GetCalEnergy() / 10);
+		plot(DD_QDCSUM__ENERGY_LOCX + location, qdcSum, sumchan->GetCalEnergy() / 10);
+		plot(DD_QDCSUM__ENERGY_LOCX + LOC_SUM , qdcSum, sumchan->GetCalEnergy() / 10);
 	    }
 	} // end loop over qdcs
 	topQdcTot    /= totLen;
 	bottomQdcTot /= totLen;
 	
-	plot(DD_QDCTOT__QDCTOT_LOCX + location - 1, topQdcTot, bottomQdcTot);
-	plot(DD_QDCTOT__QDCTOT_LOCX + LOC_SUM, topQdcTot, bottomQdcTot);
+	plot(DD_QDCTOT__QDCTOT_LOCX + location, topQdcTot, bottomQdcTot);
+	plot(DD_QDCTOT__QDCTOT_LOCX + LOC_SUM , topQdcTot, bottomQdcTot);
     } // end iteration over sum events
 
     EndProcess();
@@ -315,7 +357,7 @@ ChanEvent* QdcProcessor::FindMatchingEdge(ChanEvent *match,
 					  vector<ChanEvent*>::const_iterator begin,
 					  vector<ChanEvent*>::const_iterator end) const
 {
-    const float timeCut = 100.; // maximum difference between edge and sum timestamps
+    const float timeCut = 5.; // maximum difference between edge and sum timestamps
 	
     for (;begin < end; begin++) {
 	if ( (*begin)->GetChanID().GetLocation() == match->GetChanID().GetLocation() &&

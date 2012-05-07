@@ -3,21 +3,18 @@
 %   then followed by the QDC for position determination and size of scale
 %   finally each location is given with a min and max value of the
 %     normalized QDC = QDC_T / (QDC_T + QDC_B) * 1000. 
-40 30 30 50 50 100 600 50
-3 35
-1	80	919
-2	76	910
-3	80	916
-4	90	909
-5	81	889
-6	87	907
-7	100	911
-8	102	911
-9	74	891
-10	85	911
-11	77	893
-12	76	895
-13	92	906
-14	108	914
-15	91	899
-16	83	912
+%   estimated parameter for position 3, 5, and 9
+30 30 40 75 75 100 600 50
+2 35
+0       223	774
+1	231	771
+2	227	770
+3	225	770
+4	222	798
+5	225	770
+6	235	767
+7	227	773
+8	187	810
+9	200	800
+10	199	801
+11	205	803

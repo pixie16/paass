@@ -13,4 +13,4 @@ MOD    CH      TYPE	SUBTYPE		LOCATION	TAGS
 0-1    0-11o   ssd	bottom				uncal
 2      0-7     ssd	box
 3      0       ignore
-4-5    0-11e   ssd	digisum				virtual
+4-5    0-11e   ssd	digisum				virtual construct_trace
