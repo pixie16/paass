@@ -56,6 +56,7 @@ using pixie::word_t;
 using pixie::halfword_t;
 using std::cout;
 using std::endl;
+using std::vector;
 
 extern StatsData stats;
 

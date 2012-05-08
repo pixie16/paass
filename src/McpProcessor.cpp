@@ -11,6 +11,7 @@
 #include "McpProcessor.h"
 #include "RawEvent.h"
 
+using std::string;
 using std::vector;
 
 void McpProcessor::McpData::Clear(void)

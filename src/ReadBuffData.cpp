@@ -55,6 +55,7 @@ using pixie::word_t;
 using pixie::halfword_t;
 using std::cout;
 using std::endl;
+using std::vector;
 
 // define tst bit function from pixie16 files
 unsigned long TstBit(unsigned short bit, word_t value)

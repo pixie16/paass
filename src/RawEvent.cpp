@@ -117,17 +117,17 @@ unsigned long ChanEvent::GetQdcValue(int i) const
 //* Find the identifier in the map for the channel event */
 const Identifier& ChanEvent::GetChanID() const
 {
-    static Identifier nullIdentifier;
-    
-    extern DetectorLibrary modChan; // from PixieStd.cpp
+    extern DetectorLibrary modChan; // from DetectorLibrary.cpp
 
-    return ( (chanNum == -1) ? nullIdentifier : modChan.at(GetID()) );
+    return modChan.at(modNum, chanNum);
 }
 
 //* Calculate a channel index */
 int ChanEvent::GetID() const 
 {
-    return ((chanNum == -1) ? -1 : (16 * modNum + chanNum));
+    extern DetectorLibrary modChan; // from DetectorLibrary.cpp
+
+    return modChan.GetIndex(modNum, chanNum);
 }
 
 /**
@@ -237,16 +237,13 @@ void RawEvent::Clear()
  *
  * Set the rawevent detector summary map with the passed argument.
  */
-void RawEvent::Init(const set<string> &usedTypes,
-		    const set<string> &usedSubtypes)
+void RawEvent::Init(const set<string> &usedTypes)
 {
     /* initialize the map of used detectors. This will associate the name of a
        detector type (such as dssd_front, ge ...) with a detector summary. 
        See ProcessEvent() in DetectorDriver.cpp for a description of the 
        variables in the summary
     */
-    usedDetectors = usedTypes;
-
     DetectorSummary ds;
     ds.Zero();
 

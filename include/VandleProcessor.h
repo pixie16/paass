@@ -91,10 +91,10 @@ class VandleProcessor : public EventProcessor
     virtual bool BarEventCheck(const double &timeDiff, const string &barType);
     virtual bool GoodDataCheck(const VandleData& DataCheck);
     
-    map<int, struct VandleData> vandleEndsMap;
-    map<int, struct VandleBarData> vandleBarMap;
-    map<int, struct VandleData> scintMap;
-    map<int, struct VandleCal> vandleCalMap;
+    std::map<int, struct VandleData> vandleEndsMap;
+    std::map<int, struct VandleBarData> vandleBarMap;
+    std::map<int, struct VandleData> scintMap;
+    std::map<int, struct VandleCal> vandleCalMap;
     
     int counter;
     

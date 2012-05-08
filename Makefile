@@ -20,7 +20,6 @@ vpath %.hpp include/
 vpath %.h include/
 vpath %.icc include/
 vpath %.cpp src/
-vpath %.cxx src/
 
 ifeq ($(HHIRF_DIR),)
 HHIRF_DIR = /usr/hhirf

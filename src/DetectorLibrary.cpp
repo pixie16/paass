@@ -198,7 +198,7 @@ void DetectorLibrary::PrintUsedDetectors(void) const
 
     extern RawEvent rawev;
 
-    rawev.Init(usedTypes, usedSubtypes);
+    rawev.Init(usedTypes);
 }
 
 /*!
