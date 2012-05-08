@@ -28,6 +28,8 @@ public:
     virtual void push_back(const Identifier &x);
     virtual ~DetectorLibrary();
 
+    const std::set<int> &GetLocations(const Identifier &id) const;
+    const std::set<int> &GetLocations(const std::string &type, const std::string &subtype) const;
     int GetNextLocation(const Identifier &id) const;
     int GetNextLocation(const std::string &type, 
 			const std::string &subtype) const;
@@ -47,9 +49,14 @@ public:
 
     const std::set<std::string>& GetKnownDetectors(void); 
     const std::set<std::string>& GetUsedDetectors(void) const;
+
+    typedef std::string mapkey_t;
 private:
-    std::map<std::string, int> highLocation; ///< largest location defined for a given type and subtype
-    
+    mapkey_t MakeKey( const std::string &type, const std::string &subtype ) const;
+
+    std::map< mapkey_t, std::set<int> > locations; ///< collection of all used locations for a given type and subtype
+    static std::set<int> emptyLocations; ///< dummy locations to return when map key does not exist
+
     unsigned int numModules;
     unsigned int numPhysicalModules;
     

@@ -90,6 +90,8 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
   /* Read the module number */
   modNum = *buf++;
 
+  ChanEvent *lastVirtualChannel = NULL;
+
   if( *bufLen > 0 ) { // check if the buffer has data
     if (*bufLen == 2) {
       // this is an empty channel
@@ -168,7 +170,11 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
       currentEvt->modNum = modNum;
       if (currentEvt->virtualChannel) {
 	  extern DetectorLibrary modChan;
+
 	  currentEvt->modNum += modChan.GetPhysicalModules();
+	  if (modChan.at(modNum, chanNum).HasTag("construct_trace")) {
+	      lastVirtualChannel = currentEvt;
+	  }
       }
       currentEvt->energy = energy;
       currentEvt->trigTime = lowTime;
@@ -181,10 +187,19 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
       /* Check if trace data follows the channel header */
       if ( traceLength > 0 ) {
 	// sbuf points to the beginning of trace data
-	halfword_t *sbuf = (halfword_t *)buf; 
+	halfword_t *sbuf = (halfword_t *)buf;
+	
+	currentEvt->trace.reserve(traceLength);
+	if ( lastVirtualChannel != NULL && lastVirtualChannel->trace.empty() ) {	  
+	    lastVirtualChannel->trace.assign(traceLength, 0);
+	}
 	// Read the trace data (2-bytes per sample, i.e. 2 samples per word)
-	for(unsigned int k = 0; k < traceLength; k ++) {
+	for(unsigned int k = 0; k < traceLength; k ++) {	  
 	  currentEvt->trace.push_back(sbuf[k]);
+	  
+	  if (lastVirtualChannel != NULL) {
+	      lastVirtualChannel->trace[k] += sbuf[k];
+	  }
 	}
 	buf += traceLength / 2;
       }

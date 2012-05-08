@@ -16,7 +16,9 @@
 
 using namespace std;
 
-DetectorLibrary::DetectorLibrary() : vector<Identifier>(), highLocation()
+set<int> DetectorLibrary::emptyLocations;
+
+DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations()
 {
     cout << "Constructing detector library" << endl;
 
@@ -51,12 +53,32 @@ DetectorLibrary::reference DetectorLibrary::at(DetectorLibrary::size_type mod, D
 
 void DetectorLibrary::push_back(const Identifier &x)
 {
-    string key;
+    mapkey_t key = MakeKey(x.GetType(), x.GetSubtype());
 
-    key = x.GetType() + ':' + x.GetSubtype();
-    highLocation[key] = max(highLocation[key], x.GetLocation());
-
+    locations[key].insert(x.GetLocation());
     vector<Identifier>::push_back(x);
+}
+
+/**
+ * return the list of locations for a particular identifier
+ */
+const set<int>& DetectorLibrary::GetLocations(const Identifier &id) const
+{
+    return GetLocations(id.GetType(), id.GetSubtype());
+}
+
+/**
+ * return the list of locations for a particular type and subtype
+ */
+const set<int>& DetectorLibrary::GetLocations(const string &type, const string &subtype) const
+{
+    mapkey_t key = MakeKey(type, subtype);
+
+    if (locations.count(key) > 0) {
+	return locations.find(key)->second; 
+    } else {
+	return emptyLocations;
+    }
 }
 
 /**
@@ -73,12 +95,10 @@ int DetectorLibrary::GetNextLocation(const Identifier &id) const
 int DetectorLibrary::GetNextLocation(const string &type, 
 				     const string &subtype) const
 {
-    string key;
+    mapkey_t key = MakeKey(type, subtype);
 
-    key = type + ':' + subtype;
-
-    if (highLocation.count(key) > 0) {
-	return highLocation.find(key)->second + 1;
+    if (locations.count(key) > 0) {
+	return *(locations.find(key)->second.rbegin()) + 1;
     } else {
 	return 0;
     }
@@ -131,7 +151,7 @@ void DetectorLibrary::Set(int index, const Identifier& value)
     
     string key;
     key = value.GetType() + ':' + value.GetSubtype();
-    highLocation[key] = max(highLocation[key], value.GetLocation());
+    locations[key].insert(value.GetLocation());
     
     usedTypes.insert(value.GetType());
     usedSubtypes.insert(value.GetSubtype());
@@ -230,4 +250,12 @@ int DetectorLibrary::ModuleFromIndex(int index) const
 int DetectorLibrary::ChannelFromIndex(int index) const
 {
     return (index % pixie::numberOfChannels);
+}
+
+/**
+ * Make a unique map key for a give detector type and subtype
+ */
+DetectorLibrary::mapkey_t DetectorLibrary::MakeKey(const string &type, const string &subtype) const
+{
+    return (type + ':' + subtype);
 }
