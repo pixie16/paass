@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include <set>
+#include <sstream>
 
 #include <climits>
 #include <cmath>
@@ -31,92 +32,61 @@ namespace dammIds {
 	// clovers
 	const unsigned int MAX_CLOVERS = 4; // for *_DETX spectra
 
-	const int D_ENERGY          = 1500;
-	const int D_ENERGY_NTOF1    = 1506;
-	const int D_ENERGY_NTOF2    = 1507;
-	const int D_ENERGY_HEN3     = 1508;
+	const unsigned int BETA_OFFSET    = 10;
+	const unsigned int DECAY_OFFSET   = 20;
+	const unsigned int ADDBACK_OFFSET = 50;
 
-	const int D_ENERGY_LOWGAIN  = 1530;
-	const int D_ENERGY_HIGHGAIN = 1540;
+	const int D_ENERGY              = 1500;
+	const int D_ENERGY_CLOVERX      = 1501; // leaf by clover for X detectors
 
-	const int D_CLOVER_ENERGY_DETX   = 1591; // for x detectors
-	const int D_CLOVER_ENERGY_ALL    = 1595;
+	const int D_ENERGY_LOWGAIN      = 1507;
+	const int D_ENERGY_HIGHGAIN     = 1508;
+	const int D_MULT                = 1509;
 
-	const int DD_CLOVER_ENERGY_RATIO = 1609;
+	const int D_ENERGY_WITH_DECAY   = D_ENERGY + DECAY_OFFSET;
+	// These spectra are squeezed into a gap in IDs
+	const int D_ENERGY_WITH_IMPLANT = 1525;
+	const int D_ENERGY_WITH_EXTX    = 1526; // with external detector (e.g. 3hen, vandle) 
 
-	const int D_ADD_ENERGY      = 1700;
-	const int D_ADD_ENERGY_DETX = 1701; // for x detectors 
+	const int D_ADD_ENERGY          = D_ENERGY         + ADDBACK_OFFSET;
+	const int D_ADD_ENERGY_CLOVERX  = D_ENERGY_CLOVERX + ADDBACK_OFFSET ; // addback for X detectors
+	const int D_ADD_ENERGY_TOTAL    = D_ADD_ENERGY_CLOVERX + MAX_CLOVERS;
 
-	const int D_MULT = 1800;
+	// 2D spectra
+	const int DD_ENERGY                = 1600;
+	const int DD_CLOVER_ENERGY_RATIO   = 1607;
+	const int DD_ADD_ENERGY            = DD_ENERGY       + ADDBACK_OFFSET; // NOT DECLARED but useful to keep the scheme in mind
+	const int DD_ENERGY_WITH_DECAY     = DD_ENERGY       + DECAY_OFFSET;
+	const int DD_ADD_ENERGY_WITH_DECAY = DD_ADD_ENERGY   + DECAY_OFFSET;
+	// note these only make sense with decay (so they fall in the decay assigned block 1620-1629)
+	const int DD_ENERGY__TIMEX         = 1621; // with x granularities
+	const int DD_ADD_ENERGY__TIMEX     = DD_ENERGY_TIMEX + ADDBACK_OFFSET; // with x granularities
 
-	// correlated with a decay
-	namespace decayGated {
-	    // 0-5 granularities (1 us -> 100 ms)
-	    const int D_ENERGY = 1502;
-
-	    const int D_ADD_ENERGY      = 1720;
-	    const int D_ADD_ENERGY_DETX = 1721; // for x detectors
-	    namespace withBeta {
-		const int DD_ENERGY__DECAY_TIME_GRANX = 1730;
-		namespace multiplicityGated {
-		    const int DD_ENERGY__DECAY_TIME_GRANX = 1740;
-		}
-	    }
-	    namespace withoutBeta {
-		const int DD_ENERGY__DECAY_TIME_GRANX = 1750;
-	    }
-	    namespace matrix {
-		const int DD_ENERGY_PROMPT = 1670;
-		const int DD_ADD_ENERGY_PROMPT = 1682;
-	    }
-	} // decay-gated namespace
+	// corresponds to ungated specra ID's + 10 where applicable
 	namespace betaGated {
-	    const int D_ENERGY        = 1501;
-	    const int D_ENERGY_BETA0  = 1550;
-	    const int D_ENERGY_BETA1  = 1551;
-	    const int D_ENERGY_NTOF1  = 1552;
-	    const int D_ENERGY_NTOF2  = 1553;
-	    const int D_ENERGY_HEN3   = 1554;
-	    const int D_TDIFF         = 1602;
+	    const int D_ENERGY           = dammIds::ge::D_ENERGY + dammIds::ge::BETA_OFFSET;
+	    const int D_ENERGY_BETA0     = 1516;
+	    const int D_ENERGY_BETA1     = 1517;
+	    const int D_ENERGY_WITH_EXTX = dammIds::ge::D_ENERGY_WITH_EXTX + dammIds::ge::BETA_OFFSET;
+	    const int D_ADD_ENERGY_TOTAL = dammIds::ge::D_ADD_ENERGY_TOTAL + dammIds::ge::BETA_OFFSET;
 
-	    const int D_ADD_ENERGY      = 1710;
-	    const int D_ADD_ENERGY_DETX = 1711; // for x detectors
-
-	    const int DD_TDIFF__GAMMA_ENERGY = 1603;
-	    const int DD_TDIFF__BETA_ENERGY  = 1604;
-	    namespace matrix {
-		const int DD_ENERGY_PROMPT = 1660;
-		const int DD_ADD_ENERGY_PROMPT = 1681;
-	    }
-	    namespace multiplicityGated {
-		const int D_ENERGY = 1505;
-		const int DD_TDIFF__GAMMA_ENERGY = 1607;
-	    }
-	} // beta-gated namespace
-	namespace implantGated {
-	    const int D_ENERGY = 1503;
-	    const int DD_ENERGY__TDIFF = 1605;
+	    // 2d spectra
+	    const int DD_ENERGY              = dammIds::ge::DD_ENERGY + dammIds::ge::BETA_OFFSET;
+	    const int DD_GAMMA_ENERGY__TDIFF = 1615;
+	    const int DD_BETA_ENERGY__TDIFF  = 1616;
+	    const int DD_ADD_ENERGY_PROMPT   = 1668;
+	    const int DD_ADD_ENERGY_DELAYED  = 1669;
+	    const int DD_ADD_ENERGY          = DD_ENERGY + dammIds::ge::DECAY_OFFSET;
+	    const int DD_ENERGY_TIMEX        = dammIds::ge::DD_ENERGY_TIMEX + dammIds::ge::BETA_OFFSET;
+	    const int DD_ADD_ENERGY_TIMEX    = DD_ENERGY_TIMEX + dammIds::ge::ADDBACK_OFFSET;
 	}
-	namespace multiplicityGated {
-	    const int D_ENERGY = 1504;
-	    // cross-references
-	    namespace betaGated = ::dammIds::ge::betaGated::multiplicityGated;
-	}
-	namespace matrix {
-	    const int DD_ENERGY_PROMPT = 1600;
-	    const int D_TDIFF          = 1601;
-	    const int DD_ADD_ENERGY_PROMPT = 1680;
-	    // cross-references
-	    namespace betaGated = ::dammIds::ge::betaGated::matrix;
-	    namespace decayGated = ::dammIds::ge::decayGated::matrix;
-	} // gamma-gamma matrix
     } // end namespace ge
 }
 
 /**
  *  Perform walk correction for gamma-ray timing based on its energy
  */
-double GeProcessor::walkCorrection(double e) {
+double GeProcessor::WalkCorrection(double e) {
     // SVP version
     /*
     const double b  = 3042.22082339404;
@@ -193,7 +163,7 @@ bool GeProcessor::Init(DetectorDriver &driver)
     }
 
     if (cloverChans != 0) {
-	numClovers = spread / chansPerClover;
+	numClovers = cloverChans / chansPerClover;
 	//print statement
 	cout << "A total of " << cloverChans << " clover channels were detected: ";
 	int lastClover = INT_MIN;
@@ -226,137 +196,72 @@ void GeProcessor::DeclarePlots(void) const
     const int timeBins2    = SA;
     const int granTimeBins = SA;
 
-    {
-	using namespace dammIds::ge;
-	DeclareHistogram1D(D_CLOVER_ENERGY_ALL, energyBins1, "Ge clovers");
-	
-	DeclareHistogram1D(D_ENERGY, energyBins1, "GE singles cal");
-	DeclareHistogram1D(D_ENERGY_LOWGAIN, energyBins1, "GE LG singles cal");
-	DeclareHistogram1D(D_ENERGY_HIGHGAIN, energyBins1, "GE HG singles cal");
-	DeclareHistogram1D(D_ENERGY_NTOF1, energyBins1, "tof1 sig1 gate GE singles cal");
-	DeclareHistogram1D(D_ENERGY_NTOF2, energyBins1, "tof1 sig2 gate GE singles cal");
-	DeclareHistogram1D(D_ENERGY_HEN3, energyBins1, "3Hen gate GE singles cal");
-	DeclareHistogram1D(D_MULT, S6, "gamma multiplicity");
-	DeclareHistogram1D(D_ADD_ENERGY, energyBins1, "total clover add back");
-	
-	for (unsigned int i=0; i < MAX_CLOVERS; i++) {
-	    DeclareHistogram1D(D_CLOVER_ENERGY_DETX + i, energyBins1, "Ge clovers");
-	    DeclareHistogram1D(D_ADD_ENERGY_DETX + i, energyBins1, "individual clover add back");
-	    DeclareHistogram1D(betaGated::D_ADD_ENERGY_DETX + i, energyBins1, "beta gated clover addback");
-	    DeclareHistogram1D(decayGated::D_ADD_ENERGY_DETX + i, energyBins1, "corr beta gated addback");
-	}
+    using namespace dammIds::ge;
 
-	DeclareHistogram2D(dammIds::ge::DD_CLOVER_ENERGY_RATIO,
-			   S4, S6, "high/low energy ratio (x10)");
-    } // dammIds::ge
-    {
-	using namespace dammIds::ge::betaGated;
-	DeclareHistogram1D(D_ENERGY, energyBins1, "beta gate GE singles cal");
-	DeclareHistogram1D(multiplicityGated::D_ENERGY, energyBins1, "mult1 beta gated GE singles cal");
-	DeclareHistogram1D(D_TDIFF, timeBins1, "beta-gamma time");
-	DeclareHistogram1D(D_ENERGY_BETA0, energyBins1, "beta1 gate GE singles cal");
-	DeclareHistogram1D(D_ENERGY_BETA1, energyBins1, "beta2 gate GE singles cal");
-	DeclareHistogram1D(D_ENERGY_NTOF1, energyBins1, "tof1 sig 1 gate GE singles cal");
-	DeclareHistogram1D(D_ENERGY_NTOF2, energyBins1, "tof1 sig 2 gate GE singles cal");
-	DeclareHistogram1D(D_ENERGY_HEN3, energyBins1, "3Hen gate GE singles cal");
-	DeclareHistogram1D(D_ADD_ENERGY, energyBins1, "beta gated total clover add back");
+    DeclareHistogram1D(D_ENERGY                 , energyBins1, "Gamma singles");
+    DeclareHistogram1D(betaGated::D_ENERGY      , energyBins1, "Beta gated gamma");
+    DeclareHistogram1D(betaGated::D_ENERGY_BETA0, energyBins1, "Gamma beta0 gate");
+    DeclareHistogram1D(betaGated::D_ENERGY_BETA1, energyBins1, "Gamma beta1 gate");
+    DeclareHistogram1D(D_ENERGY_LOWGAIN         , energyBins1, "Gamma singles, low gain");
+    DeclareHistogram1D(D_ENERGY_HIGHGAIN        , energyBins1, "Gamma singles, high gain");
+    DeclareHistogram1D(D_ENERGY_WITH_DECAY      , energyBins1, "Decay gamma singles");
+    DeclareHistogram1D(D_ENERGY_WITH_IMPLANT    , energyBins1, "Implant gated gamma");
+    DelcareHistogram1D(D_ENERGY_WITH_EXTX       , energyBins1, "Gamma singles with external 0");
+    DeclareHistogram1D(D_ENERGY_WITH_EXTX + 1   , energyBins1, "Gamma singles with external 1");
+    DeclareHistogram1D(betaGated::D_ENERGY_WITH_EXTX    , energyBins1, "Gamma singles with beta-ext0");
+    DeclareHistogram1D(betaGated::D_ENERGY_WITH_EXTX + 1, energyBins1, "Gamma singles with beta-ext1");
 
-	DeclareHistogram2D(DD_TDIFF__GAMMA_ENERGY, timeBins2, energyBins2, 
-			   "beta gamma time vs gamma energy", 2);
-	DeclareHistogram2D(multiplicityGated::DD_TDIFF__GAMMA_ENERGY, timeBins2, energyBins2,
-			   "mult1 beta gamma time vs gamma energy", 2);
-	DeclareHistogram2D(DD_TDIFF__BETA_ENERGY, timeBins2, energyBins2,
-			   "beta gamma time vs beta energy", 2);
-    } // using dammIds::ge::betaGated
-    {
-	using namespace dammIds::ge::decayGated;
-	DeclareHistogram1D(D_ENERGY, energyBins1, "corr beta geta GE singles cal");	
-	DeclareHistogram1D(D_ADD_ENERGY, energyBins1, "corr beta total clover add back");
+    DeclareHistogram1D(D_MULT, S3, "Gamma multiplicity");                  
 
-	DeclareHistogram2D(withBeta::DD_ENERGY__DECAY_TIME_GRANX + 0,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (1us/ch)(xkeV)", 2);
-	DeclareHistogram2D(withBeta::DD_ENERGY__DECAY_TIME_GRANX + 1,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (10us/ch)(xkeV)", 2);
-	DeclareHistogram2D(withBeta::DD_ENERGY__DECAY_TIME_GRANX + 2,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (100us/ch)(xkeV)", 2);
-	DeclareHistogram2D(withBeta::DD_ENERGY__DECAY_TIME_GRANX + 3,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (1ms/ch)(xkeV)", 2);
-	DeclareHistogram2D(withBeta::DD_ENERGY__DECAY_TIME_GRANX + 4,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (10ms/ch)(xkeV)", 2);
-	DeclareHistogram2D(withBeta::DD_ENERGY__DECAY_TIME_GRANX + 5,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (100ms/ch)(xkeV)", 2);
+    DeclareHistogram1D(D_ADD_ENERGY                  , energyBins1, "Gamma addback");
+    DeclareHistogram1D(betaGated::DD_ADD_ENERGY      , energyBins1, "Beta gated gamma addback");
+    DeclareHistogram1D(D_ADD_ENERGY_TOTAL            , energyBins1, "Gamma total");
+    DeclareHistogram1D(betaGated::DD_ADD_ENERGY_TOTAL, energyBins1, "Beta gated gamma total");
+    
+    // for each clover
+    for (int i=0; i < numClovers; i++) {
+        stringstream ss;
+        ss << "Clover " << i << " gamma";
+        DeclareHistogram1D(D_ENERGY_CLOVERX + i, energyBins1, ss.str().c_str());
 
-	DeclareHistogram2D(withBeta::multiplicityGated::DD_ENERGY__DECAY_TIME_GRANX + 0,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (1us/ch)(xkeV)", 2);
-	DeclareHistogram2D(withBeta::multiplicityGated::DD_ENERGY__DECAY_TIME_GRANX + 1,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (10us/ch)(xkeV)", 2);
-	DeclareHistogram2D(withBeta::multiplicityGated::DD_ENERGY__DECAY_TIME_GRANX + 2,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (100us/ch)(xkeV)", 2);
-	DeclareHistogram2D(withBeta::multiplicityGated::DD_ENERGY__DECAY_TIME_GRANX + 3,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (1ms/ch)(xkeV)", 2);
-	DeclareHistogram2D(withBeta::multiplicityGated::DD_ENERGY__DECAY_TIME_GRANX + 4,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (10ms/ch)(xkeV)", 2);
-	DeclareHistogram2D(withBeta::multiplicityGated::DD_ENERGY__DECAY_TIME_GRANX + 5,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (100ms/ch)(xkeV)", 2);
-
-	DeclareHistogram2D(withoutBeta::DD_ENERGY__DECAY_TIME_GRANX + 0,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (1us/ch)(xkeV)");
-	DeclareHistogram2D(withoutBeta::DD_ENERGY__DECAY_TIME_GRANX + 1,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (10us/ch)(xkeV)");
-	DeclareHistogram2D(withoutBeta::DD_ENERGY__DECAY_TIME_GRANX + 2,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (100us/ch)(xkeV)");
-	DeclareHistogram2D(withoutBeta::DD_ENERGY__DECAY_TIME_GRANX + 3,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (1ms/ch)(xkeV)");
-	DeclareHistogram2D(withoutBeta::DD_ENERGY__DECAY_TIME_GRANX + 4,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (10ms/ch)(xkeV)");
-	DeclareHistogram2D(withoutBeta::DD_ENERGY__DECAY_TIME_GRANX + 5,
-			   energyBins2, granTimeBins, "DSSD Ty,Ex (100ms/ch)(xkeV)");
-
-    } // decayGated
-    {
-	using namespace dammIds::ge::implantGated;
-	DeclareHistogram1D(D_ENERGY, energyBins1, "implant gate GE singles cal");
-	DeclareHistogram2D(DD_ENERGY__TDIFF, energyBins2, granTimeBins, 
-			   "implant time v. energy (10 ms/ch) (keV");
+        ss.str("");
+        ss << "Clover " << i << " beta gated gamma";
+        DeclareHistogram1D(betaGated::D_ENERGY_CLOVERX + i, energyBins1, ss.str().c_str());
     }
-    {
-	using namespace dammIds::ge::matrix;
-	DeclareHistogram1D(D_TDIFF, timeBins1, "gamma-gamma time");
-	DeclareHistogram2D(DD_ENERGY_PROMPT, energyBins2, energyBins2, 
-			   "gamma-gamma");
-	DeclareHistogram2D(DD_ADD_ENERGY_PROMPT, energyBins2, energyBins2, 
-			   "addback gamma-gamma");
-    }
-    {
-	using namespace dammIds::ge::matrix::betaGated;
-	DeclareHistogram2D(DD_ENERGY_PROMPT, energyBins2, energyBins2,
-			   "beta gated gamma-gamma");
-	DeclareHistogram2D(DD_ADD_ENERGY_PROMPT, energyBins2, energyBins2,
-			   "beta gated addback gamma-gamma");
-    }
-    {
-	using namespace dammIds::ge::matrix::decayGated;
-	DeclareHistogram2D(DD_ENERGY_PROMPT, energyBins2, energyBins2, 
-			   "correlated beta gamma-gamma");
-	DeclareHistogram2D(DD_ADD_ENERGY_PROMPT, energyBins2, energyBins2, 
-			   "correlated beta addback gamma-gamma");
-    }      
+
+    DeclareHistogram2D(DD_ENERGY                       , energyBins2, energyBins2, "Gamma gamma");
+    DeclareHistogram2D(betaGated::DD_ENERGY            , energyBins2, energyBins2, "Gamma gamma beta gated");
+    DeclareHistogram2D(DD_ENERGY_WITH_DECAY            , energyBins2, energyBins2, "Gamma gamma decay gated");
+
+    DeclareHistogram2D(betaGated::DD_ADD_ENERGY        , energyBins2, energyBins2, "Gamma gamma addback");
+    DeclareHistogram2D(betaGated::DD_ADD_ENERGY_PROMPT , energyBins2, energyBins2, "Gamma gamma addback, beta prompt");
+    DeclareHistogram2D(betaGated::DD_ADD_ENERGY_DELAYED, energyBins2, energyBins2, "Gamma gamma addback, beta delayed");
+    DeclareHistogram2D(DD_ADD_ENERGY_WITH_DECAY        , energyBins2, energyBins2, "Gamma gamma addback, decay gated");
+
+    DeclareHistogram2D(DD_TDIFF__GAMMA_ENERGY, timeBins2, energyBins2, "Gamma energy, beta time diff");
+    DeclareHistogram2D(DD_TDIFF__BETA_ENERGY, timeBins2, energyBins2, "Beta energy, gamma time diff"); //? reduce energy bins
+
+    DeclareHistogram2D(DD_CLOVER_ENERGY_RATIO, S4, S6, "high/low energy ratio (x10)");
+
+    DeclareHistogramGranY(DD_ENERGY__TIMEX              , energyBins2, granTimeBins, "E - Time", 2, timeResolution, "s");
+    DeclareHistogramGranY(DD_ADD_ENERGY__TIMEX          , energyBins2, granTimeBins, "Addback E - Time", 2, timeResolution, "s");
+    DeclareHistogramGranY(betaGated::DD_ENERGY__TIMEX   , energyBins2, granTimeBins, "Beta-gated E - Time", 2, timeResolution, "s");
+    DeclareHistogramGranY(betaGated::DD_ADD_ENERGY_TIMEX, energyBins2, granTimeBins, "Beta-gated addback E - Time", 2, timeResolution, "s");
 }
 
 /** process the event */
-bool GeProcessor::Process(RawEvent &event)
-{
-    using namespace dammIds;
+bool GeProcessor::Process(RawEvent &event) {
+    using namespace dammIds::ge;
 
     if (!EventProcessor::Process(event))
-	return false;
+        return false;
     
     // makes a copy so we can remove (or rearrange) bad events 
     //   based on poorly matched high-low gain energies
     vector<ChanEvent*> geEvents = sumMap["ge"]->GetList();
     vector<ChanEvent*>::iterator geEnd = geEvents.end();
 
-    static const DetectorSummary *scintSummary = event.GetSummary("scint");
+    static const DetectorSummary *betaSummary = event.GetSummary("scint:beta");
     
     bool hasDecay = 
 	(event.GetCorrelator().GetCondition() == Correlator::VALID_DECAY);
@@ -364,31 +269,22 @@ bool GeProcessor::Process(RawEvent &event)
 	(event.GetCorrelator().GetCondition() == Correlator::VALID_IMPLANT);
     double betaEnergy = NAN;
     double betaTime = NAN;
-    double betaLoc = NAN;
-    int ntof1 = 0;
-    bool hen3 = false;
+    int betaLoc = INT_MIN;
+    bool hasExt0 = false;
+    bool hasExt1 = false;
 
     // find all beta and neutron signals for ge gating
-    if (scintSummary) {	
-	for (vector<ChanEvent*>::const_iterator it = scintSummary->GetList().begin();
-	     it != scintSummary->GetList().end(); it++) {
-	    ChanEvent *chan = *it;
-	    string subtype = chan->GetChanID().GetSubtype();
-	    
-	    if (subtype == "beta") {
-		betaEnergy = chan->GetCalEnergy();
-		betaLoc    = chan->GetChanID().GetLocation();
-		betaTime   = chan->GetTime();
-	    } else if (subtype == "neutr"){
-		int neutronLoc = chan->GetChanID().GetLocation();  
-		// some magic channel numbers here
-		if(neutronLoc == 2) ntof1 = 1;
-		if(neutronLoc == 3) ntof1 = 2;
-		if(neutronLoc == 4)
-		    hen3 = true;
-	    }
-	}
-    } // scint summary present
+    if (betaSummary) {	
+        for (vector<ChanEvent*>::const_iterator it = betaSummary->GetList().begin();
+            it != betaSummary->GetList().end(); it++) {
+            ChanEvent *chan = *it;
+
+	    betaEnergy = chan->GetCalEnergy();
+	    betaLoc    = chan->GetChanID().GetLocation();
+	    betaTime   = chan->GetTime();
+        }
+    } // beta summary present
+    //? make a search for tagged events for external detectors
 
     // reject events for clover where raw high gain energy does not
     //   correspond properly to raw low gain energy
@@ -397,245 +293,267 @@ bool GeProcessor::Process(RawEvent &event)
     static const vector<ChanEvent*> &lowEvents  = event.GetSummary("ge:clover_low", true)->GetList();
 
     // first plot low gain energies
+    // 
     for (vector<ChanEvent*>::const_iterator itLow  = lowEvents.begin();
 	 itLow != lowEvents.end(); itLow++) {
-	plot(ge::D_ENERGY_LOWGAIN, (*itLow)->GetCalEnergy());
+        plot(D_ENERGY_LOWGAIN, (*itLow)->GetCalEnergy());
     }
     for (vector<ChanEvent*>::const_iterator itHigh = highEvents.begin();
 	 itHigh != highEvents.end(); itHigh++) {
-	// find the matching low gain event
-	int location = (*itHigh)->GetChanID().GetLocation();
-	plot(ge::D_ENERGY_HIGHGAIN, (*itHigh)->GetCalEnergy());
-	vector <ChanEvent*>::const_iterator itLow = lowEvents.begin();
-	for (; itLow != lowEvents.end(); itLow++) {
-	    if ( (*itLow)->GetChanID().GetLocation() == location ) {
-		break;
-	    }
-	}
-	if ( itLow != lowEvents.end() ) {
-	    double ratio = (*itHigh)->GetEnergy() / (*itLow)->GetEnergy();
-	    plot(ge::DD_CLOVER_ENERGY_RATIO, location, ratio * 10.);
-	    if (ratio < lowRatio || ratio > highRatio) {
-		// put these bad events at the end of the vector
-		geEnd = remove(geEvents.begin(), geEnd, *itHigh);
-		geEnd = remove(geEvents.begin(), geEnd, *itLow);
-	    }
-	}
+        // find the matching low gain event
+        int location = (*itHigh)->GetChanID().GetLocation();
+        plot(D_ENERGY_HIGHGAIN, (*itHigh)->GetCalEnergy());
+        vector <ChanEvent*>::const_iterator itLow = lowEvents.begin();
+        for (; itLow != lowEvents.end(); itLow++) {
+            if ( (*itLow)->GetChanID().GetLocation() == location ) {
+                break;
+            }
+        }
+        if ( itLow != lowEvents.end() ) {
+            double ratio = (*itHigh)->GetEnergy() / (*itLow)->GetEnergy();
+            plot(DD_CLOVER_ENERGY_RATIO, location, ratio * 10.);
+            if (ratio < lowRatio || ratio > highRatio) {
+                // put these bad events at the end of the vector
+                geEnd = remove(geEvents.begin(), geEnd, *itHigh);
+                geEnd = remove(geEvents.begin(), geEnd, *itLow);
+            }
+        }
     }
     // this purges the bad events for good from this processor which "remove"
     //   has moved to the end
     geEvents.erase(geEnd, geEvents.end());
 
-    // ge multiplicity spectrum
-    plot(ge::D_MULT,geEvents.size());
+    // Simple spectra (single crystals) -- NOTE WE CAN MAKE PERMANENT CHANGES TO EVENTS
+    for (vector<ChanEvent*>::iterator it = geEvents.begin(); 
+	 it != geEvents.end(); it++) {
+        ChanEvent *chan = *it;
         
-    // determine clover multiplicity
-    ClearClovers();
+        // Only perform analysis for high gain clover signals. 
+        string subtype = chan->GetChanID().GetSubtype();
+        if (subtype == "clover_low")
+            continue;
+
+        double gEnergy = chan->GetCalEnergy();
+	
+        double gTime   = chan->GetTime() - WalkCorrection(gEnergy);	
+
+        plot(D_ENERGY, gEnergy);
+
+        if(betaEnergy > 0){
+            plot(D_E_BGATE, gEnergy);
+
+            int dtime=(int)(gTime - betaTime + 100);
+            plot(DD_E_GB_TDIFF, dtime, gEnergy);
+
+            // individual beta gamma coinc spectra for each beta detector
+            if (betaLoc == 0)
+                plot(D_E_B0_GATE, gEnergy);
+            if (betaLoc == 1)
+                plot(D_E_B1_GATE, gEnergy);
+            //beta-neutron gated ge spectra
+            /*
+            if (ntof1 == 1) 
+                plot(D_ENERGY_NTOF1, gEnergy);
+            if (ntof1 == 2) 
+                plot(D_ENERGY_NTOF2, gEnergy);
+            if (hen3) 
+                plot(D_ENERGY_HEN3, gEnergy);
+            */
+        }
+        
+        if (hasDecay) {
+            unsigned numGranularities = timeResolution.size();
+            double decayTime = event.GetCorrelator().GetDecayTime() * pixie::clockInSeconds;
+            for (unsigned i = 0; i < numGranularities; i++) {
+                double timeBin = decayTime / timeResolution[i];
+                plot(DD_GTIME + i, gEnergy, timeBin);
+                if (betaEnergy > 0) 
+                    plot(DD_GTIME_BGATE + i, gEnergy, timeBin);
+            }
+        } 
+        
+        //neutron gated Ge singles spectra
+        /*
+        if (ntof1 == 1)
+            plot(ge::D_ENERGY_NTOF1,gEnergy);
+        if (ntof1 == 2)
+            plot(ge::D_ENERGY_NTOF2,gEnergy);
+        if (hen3 == 1) 
+            plot(ge::D_ENERGY_HEN3,gEnergy);
+        */	
+        
+        for (vector<ChanEvent*>::const_iterator it2 = it + 1;
+                it2 != geEvents.end(); it2++) {
+
+            ChanEvent *chan2 = *it2;
+            if ( chan2->GetChanID().GetSubtype() == "clover_low" )
+                continue;
+
+            double gEnergy2 = chan2->GetCalEnergy();
+            double gTime2 = chan2->GetTime();
+            gTime2 = gTime2 - walkCorrection(gEnergy2);
+
+            symplot(DD_E, gEnergy, gEnergy2);
+            if (betaEnergy > 0)
+                symplot(DD_E_BGATE, gEnergy, gEnergy2);
+            
+        } 
+    } 
+
+    // Create map of map of events
+    // <time, <loc, energy>>
+    multimap<double, pair<unsigned, double> > subAddEvents;
     for (vector<ChanEvent*>::const_iterator it = geEvents.begin();
 	 it != geEvents.end(); it++) {
-	ConstructAddback(*it);
+
+        ChanEvent *chan = *it;
+        string subtype = chan->GetChanID().GetSubtype();
+        if (subtype != "clover_high")
+            continue;
+
+        double gTime= chan->GetTime();
+        double gEnergy = chan->GetCalEnergy();
+        // Walk correction applied here
+        gTime = gTime - walkCorrection(gEnergy);
+        unsigned detNum = GetCloverNum(chan->GetChanID().GetLocation());
+
+        pair<unsigned, double> hit(detNum, gEnergy);
+        subAddEvents.insert(pair<double, pair<unsigned, double> >(gTime, hit));
     }
 
-    // create Ge spectrum with and without various gates
-    for (vector<ChanEvent*>::const_iterator it = geEvents.begin(); 
-	 it != geEvents.end(); it++) {
-	ChanEvent *chan = *it;
-	
-	// For some experiments two outputs per clover were used, one was set
-	// to high gain on pixie16 and one was set to low gain on pixie16. 
-	// Only perform analysis for high gain clover signals. 
-	string subtype = chan->GetChanID().GetSubtype();
-	if (subtype == "clover_low")
-	    continue;
-
-	double gEnergy = chan->GetCalEnergy();
-	double gTime= chan->GetTime();	
-	unsigned int detNum = GetCloverNum(chan->GetChanID().GetLocation());
-
-	plot(ge::D_ENERGY, gEnergy);
-
-	if (subtype == "clover_high") {
-            //plot a singles total spectrum and inidividual clover spectra
-	    plot(ge::D_CLOVER_ENERGY_DETX + detNum, gEnergy);
-	    plot(ge::D_CLOVER_ENERGY_ALL, gEnergy);
-	}
-	
-	// Do some correlation stuff
-	EventInfo info;
-	info.type   = EventInfo::GAMMA_EVENT;
-	info.energy = gEnergy;
-	info.time   = gTime;
-	event.GetCorrelator().CorrelateAll(info);
-	//
-
-	if(betaEnergy > 0){ // beta gamma coincidence
-	    using namespace dammIds::ge::betaGated;
-	    int dtime=(int)(gTime - betaTime + 100);
-	    
-	    plot(D_ENERGY, gEnergy);
-	    plot(D_TDIFF, dtime);
-	    plot(DD_TDIFF__GAMMA_ENERGY, dtime, gEnergy);  
-	    plot(DD_TDIFF__BETA_ENERGY, dtime, betaEnergy);  
-	    
-	    // individual beta gamma coinc spectra for each beta detector
-	    if (betaLoc == 0)
-		plot(D_ENERGY_BETA0, gEnergy);
-	    if (betaLoc == 1)
-		plot(D_ENERGY_BETA1, gEnergy);
-	    //beta-neutron gated ge spectra
-	    if (ntof1 == 1) 
-		plot(D_ENERGY_NTOF1, gEnergy);
-	    if (ntof1 == 2) 
-		plot(D_ENERGY_NTOF2, gEnergy);
-	    if (hen3) 
-		plot(D_ENERGY_HEN3, gEnergy);
-	}
-	
-	//plot beta gated spectra, 1501 - clover total, 505-510 correlation
-	//  time vs gamma energy
-	// implant - beta correlation
-	if (hasDecay) {
-	    using namespace dammIds::ge::decayGated;
-	    
-	    const int numGranularities = 6;
-	    const double timeResolution[numGranularities] =
-		{1e-6, 10e-6, 100e-6, 1e-3, 10e-3, 100e-3}; // in seconds/bin
-	    double decayTime = event.GetCorrelator().GetDecayTime() * pixie::clockInSeconds;
-	    plot(D_ENERGY, gEnergy);
-	    
-	    if (betaEnergy > 0) { // added for LeRIBSS
-		for (int i = 0; i < numGranularities; i++) {
-		    double timeBin = decayTime / timeResolution[i];
-		    plot(withBeta::DD_ENERGY__DECAY_TIME_GRANX + i, gEnergy, timeBin);
-		    if (cloverMultiplicity.at(detNum) == 1) {
-			plot (withBeta::multiplicityGated::DD_ENERGY__DECAY_TIME_GRANX + i,
-			      gEnergy, timeBin);
-		    }
-		}
-	    } else {
-		for (int i = 0; i < numGranularities; i++) {
-		    double timeBin = decayTime / timeResolution[i];
-		    plot(withoutBeta::DD_ENERGY__DECAY_TIME_GRANX + i, gEnergy, timeBin);
-		}
-	    }
-	} // decay gate
-	
-	//neutron gated Ge singles spectra
-	if (ntof1 == 1)
-	    plot(ge::D_ENERGY_NTOF1,gEnergy);
-	if (ntof1 == 2)
-	    plot(ge::D_ENERGY_NTOF2,gEnergy);
-	if (hen3 == 1) 
-	    plot(ge::D_ENERGY_HEN3,gEnergy);
-	
-	// implant gated ge spectrum
-	if (hasImplant) {
-	    plot(ge::implantGated::D_ENERGY, gEnergy);
-	    double timeBin = (gTime - event.GetCorrelator().GetImplantTime()) * pixie::clockInSeconds / 10e-3;
-	    plot(ge::implantGated::DD_ENERGY__TDIFF, gEnergy, timeBin);
-	}
-	
-	//end singles plotting
-	/*************************************/
-	
-	//perform simple gamma-gamma matrix
-	/*************************************/
-	
-	for (vector<ChanEvent*>::const_iterator it2 = it+1;
-	     it2 != geEvents.end(); it2++) {
-	    ChanEvent *chan2 = *it2;
-	    if ( chan2->GetChanID().GetSubtype() == "clover_low" )
-		continue;
-	    double gEnergy2 = chan2->GetCalEnergy();
-	    double gTime2 = chan2->GetTime();
-	    
-	    plot(ge::matrix::D_TDIFF, fabs(gTime2 - gTime));
-	    
-	    //if((det2_time - det1_time) < 5){ // 50 ns gamma-gamma gate
-	    // increment gamma-gamma matrix symmetrically
-	    symplot(ge::matrix::DD_ENERGY_PROMPT, gEnergy, gEnergy2);
-	    
-	    if (betaEnergy > 0) {
-		symplot(ge::matrix::betaGated::DD_ENERGY_PROMPT, gEnergy, gEnergy2);
-	    }	    
-	    //correlated beta gated gamma-gamma
-	    if (hasDecay) {
-		using namespace ge::matrix::decayGated;
-		symplot(ge::matrix::decayGated::DD_ENERGY_PROMPT, gEnergy, gEnergy2);
-	    } //end beta gated gammma-gamma	      
-	} // end loop over all other detectors	 
-    } // end loop over Ge channels
-
-    /**********************************/
-    //plot addback spectra, 
+    // addBackEvents vector is arranged as:
+    // [loc] <energy, time>
+    vector< vector< pair<double, double> > > addBackEvents;
+    // tas vector for total energy absorbed
+    vector< pair<double, double> > tas;
+    addBackEvents.resize(numClovers);
     
-    for (unsigned int det1 = 0; det1 < numClovers; det1++) {
-	if (cloverEnergy[det1] <= 0) 
-	    continue;
-	// all clover addback
-	plot(ge::D_ADD_ENERGY, cloverEnergy[det1]);
-	plot(ge::D_ADD_ENERGY_DETX + det1, cloverEnergy[det1]);
+    double subEventWindow = 10.0; // pixie units
+    double refTime = -1.1 * subEventWindow;
+    for (multimap<double, pair<unsigned, double> >::iterator iTime = subAddEvents.begin(); iTime != subAddEvents.end(); iTime++) {
 
-	// beta gated all clover addback
-	if (betaEnergy > 0){
-	    using namespace ge::betaGated;
-	    plot(D_ADD_ENERGY, cloverEnergy[det1]);
-	    plot(D_ADD_ENERGY_DETX + det1, cloverEnergy[det1]);
-	}
-	    
-	// correlated beta all clover addback
-	if (hasDecay) {
-	    using namespace ge::decayGated;
-	    plot(D_ADD_ENERGY, cloverEnergy[det1]);
-	    plot(D_ADD_ENERGY_DETX + det1, cloverEnergy[det1]);
-	}
-	  
-	for (unsigned int det2 = det1+1; det2 < cloverEnergy.size(); det2++) {	      
-	    if (cloverEnergy[det2] <= 0) 
-		continue;
-	    // addback gamma-gamma
-	    // symmetrically increment gamma-gamma matrix
-	    symplot(ge::matrix::DD_ADD_ENERGY_PROMPT, 
-		    cloverEnergy[det1], cloverEnergy[det2]);
-	  
-	    // beta-gated addback gamma-gamma 
-	    if (betaEnergy > 0) {
-		symplot(ge::matrix::betaGated::DD_ADD_ENERGY_PROMPT,
-			cloverEnergy[det1], cloverEnergy[det2]);
-	    } //end beta gated gammma-gamma
-		    
-	    //correlated beta gated addback gamma-gamma
-	    if (hasDecay) {
-		symplot(ge::matrix::decayGated::DD_ADD_ENERGY_PROMPT,
-			cloverEnergy[det1], cloverEnergy[det2]);
-	    } //end beta gated gammma-gamma
-	} // end loop over second clover      
+        double time = iTime->first;
+        unsigned loc = iTime->second.first;
+        double energy = iTime->second.second;
+
+        // entries in map are sorted by time
+        // if event time is outside of subEventWindow, we start new 
+        // events for all clovers and "tas"
+        if (abs(time - refTime) > subEventWindow) {
+            pair<double, double> event (0.0, 0.0);
+            for (unsigned i = 0; i < numClovers; ++i) {
+                addBackEvents[i].push_back(event);
+            }
+            tas.push_back(event);
+        }
+        unsigned last = addBackEvents[loc].size() - 1;
+        unsigned lasttas = tas.size() - 1;
+        // Total addback energy
+        addBackEvents[loc][last].first += energy;
+        // We store latest time only
+        addBackEvents[loc][last].second = time;
+        tas[lasttas].first += energy;
+        tas[lasttas].second = time;
+        refTime = time;
     }
 
-    // end plotting addback spectra
-    /*********************************/
-    
+    // Plot 'tas' spectra
+    unsigned nTas = tas.size();
+    for (unsigned i = 0; i < nTas; ++i) {
+        double gEnergy = tas[i].first;
+        //double gTime = tas[i].second;
+
+        if (gEnergy < 1) 
+            continue;
+
+        plot(D_E_TAS, gEnergy);
+
+        if(betaEnergy > 0)
+            plot(D_E_TAS_BGATE, gEnergy);
+    }
+
+
+    // Plot addback spectra
+    for (unsigned int det = 0; det < numClovers; ++det) {
+
+        unsigned nEvents = addBackEvents[det].size();
+        for (unsigned ev = 0; ev < nEvents; ++ev) {
+            double gEnergy = addBackEvents[det][ev].first;
+            double gTime = addBackEvents[det][ev].second;
+            if (gEnergy < 1) 
+                continue;
+
+            plot(D_E_ADD, gEnergy);
+            plot(D_E_CLO + det, gEnergy);
+
+            if(betaEnergy > 0) {
+                plot(D_E_ADD_BGATE, gEnergy);
+                plot(D_E_CLO_BGATE + det, gEnergy);
+            }
+
+            if (hasDecay) {
+                unsigned numGranularities = timeResolution.size();
+                double decayTime = event.GetCorrelator().GetDecayTime() * pixie::clockInSeconds;
+                for (unsigned i = 0; i < numGranularities; i++) {
+                    double timeBin = decayTime / timeResolution[i];
+                    plot(DD_ADD_GTIME + i, gEnergy, timeBin);
+                    if (betaEnergy > 0) 
+                        plot(DD_ADD_GTIME_BGATE + i, gEnergy, timeBin);
+                }
+            } 
+
+            for (unsigned int det2 = det + 1; det2 < numClovers; ++det2) {
+                unsigned nEvents2 = addBackEvents[det2].size();
+                for (unsigned ev2 = 0; ev2 < nEvents2; ++ev2) {
+                    double gEnergy2 = addBackEvents[det2][ev2].first;
+                    double gTime2 = addBackEvents[det2][ev2].second;
+                    if (gEnergy2 < 1) 
+                        continue;
+                    // Coincidence window size is the same as
+                    // subEventWindow
+                    if(abs(gTime2 - gTime) > subEventWindow)
+                        continue;
+
+                    symplot(DD_E_ADD, gEnergy, gEnergy2);
+                    if (betaEnergy > 0) {
+                        symplot(DD_E_ADD_BGATE, gEnergy, gEnergy2);
+                        double dTime = (int)(gTime - betaTime + 100);
+
+                        // Arbitrary chosen limits
+                        // Compare Gamma-Beta time diff spectrum
+                        // to pick good numbers
+                        double promptLimit = 114.0;
+                        double promptOnlyLimit = 92.0;
+
+                        if (dTime > promptLimit) {
+                            symplot(DD_E_ADD_BGATE_DELAY, gEnergy, gEnergy2);
+                        }
+                        else if (dTime > promptOnlyLimit) {
+                            symplot(DD_E_ADD_BGATE_PROMPT, gEnergy, gEnergy2);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     EndProcess(); // update the processing time
     return true;
 }
 
 /**
- * Simple clover addback, routine is not fully complete
- *   Clover channels are grouped based on their location starting from the lowest number
- *   (i.e. 0-3 is one detector and so forth)
+ * Declare a 2D plot with a range of granularites on the Y axis
  */
-void GeProcessor::ConstructAddback(const ChanEvent *ch)
+void GeProcessor::DeclareHistogramGranY(int dammId, int xsize, int ysize,
+					const char *title, int halfWordsPerChan,
+					const vector<float> &granularity, const char *units) const
 {
-    // simple clover addback routine for now
-    string subtype = ch->GetChanID().GetSubtype();
+    stringstream fullTitle;
 
-    if (subtype == "clover_high") {
-	double energy = ch->GetCalEnergy();
-	unsigned int detnum = GetCloverNum(ch->GetChanID().GetLocation());
-
-	cloverMultiplicity.at(detnum)++;
-	cloverEnergy.at(detnum) += energy;
-    } else if (subtype == "sega") {
-	cout << " Add back not implemented for sega detectors yet " << endl;
+    for (vector<float>::const_iterator it = granularity.begin();
+	 it != granularity.end(); it++) {
+	//? translate scientific units to engineering units 
+	fullTitle << title << " (" << *it << " " << units << "/bin)";
+	DeclareHistogram2D(dammId, xsize, ysize, fullTitle, halfWordsPerChan);
     }
-}
+} 

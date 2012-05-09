@@ -88,11 +88,13 @@ ChanEvent::ChanEvent() {
  */
 void ChanEvent::ZeroNums() 
 {
-    energy      = emptyValue;
-    calEnergy   = emptyValue;
-    time        = emptyValue;
-    calTime     = emptyValue;
-    highResTime = emptyValue;
+    energy        = emptyValue;
+    calEnergy     = emptyValue;
+    time          = emptyValue;
+    calTime       = emptyValue;
+    correctedTime = emptyValue;
+    highResTime   = emptyValue;
+
     trigTime    = U_DELIMITER;
     eventTimeLo = U_DELIMITER;
     eventTimeHi = U_DELIMITER;

@@ -95,6 +95,7 @@ private:
 				  calibration performed in ThreshAndCal
 				  function in the detector_driver.cpp */
     double calTime;            /**< Calibrated time, currently unused */
+    double correctedTime;      /**< Energy-walk corrected time */
     double highResTime;        /**< timing resolution less than 1 adc size */
     Trace trace;               /**< Channel trace if present */
     pixie::word_t trigTime;    /**< The channel trigger time, trigger time and the lower 32 bits
@@ -129,10 +130,12 @@ public:
 						    to extract it from the trace ourselves */
     void SetCalEnergy(double a) {calEnergy = a;} /**< Set the calibrated energy */
     void SetTime(double a)      {time = a;}      /**< Set the raw time */
+    void SetCorrectedTime(double a) {correctedTime = a;} /**< Set the corrected time */
     void SetCalTime(double a)   {calTime = a;}   /**< Set the calibrated time */
     void SetHighResTime(double a) {highResTime =a;} /**< Set the high resolution time */
     double GetEnergy() const      {return energy;}      /**< Get the raw energy */
     double GetCalEnergy() const   {return calEnergy;}   /**< Get the calibrated energy */
+    double GetCorrectedTime() const {return correctedTime;} /**< Get the corrected time */
     double GetTime() const        {return time;}        /**< Get the raw time */
     double GetCalTime() const     {return calTime;}    /**< Get the calibrated time */
     double GetHighResTime() const {return highResTime;} /**< Get the high-resolution time */
