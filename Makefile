@@ -195,4 +195,4 @@ clean:
 #----------- link all created objects together
 #----------- to create pixie_ldf_c program
 $(PIXIE): $(OBJS) $(LIBS)
-	$(LINK.o) $(LDLIBS) $^ -o $@
+	$(LINK.o) $^ -o $@ $(LDLIBS)

@@ -86,16 +86,6 @@ void Pixie16Error(int errornum);
 
 const string scanMode = "scan";
 
-/** \brief Comparison function for sorting channel events (by pointer)
- *
- * Function that will be used in the event list sorting routine to sort the
- * channel event objects chronologically (early events first)
- */
-bool Compare(const ChanEvent *a, const ChanEvent *b)
-{
-    return (a->GetTime() < b->GetTime());
-}
-
 /** \fn extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw) 
  * \brief interface between scan and C++
  *
@@ -558,7 +548,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 		// sort the vector of pointers eventlist according to time
 		double lastTimestamp = (*(eventList.rbegin()))->GetTime();
 
-		sort(eventList.begin(),eventList.end(),Compare);
+		sort(eventList.begin(),eventList.end(),CompareTime);
 		driver.CorrelateClock(lastTimestamp, theTime);
 
 		/* once the vector of pointers eventlist is sorted based on time,
@@ -891,6 +881,9 @@ bool InitMap(void)
 		id.SetType(detType);
 		id.SetSubtype(detSubtype);
 		id.SetLocation(detLocation);
+		if (virtualChannel) {
+		    id.AddTag("virtual",1);
+		}
 
 		modChan.Set(modNum, chanNum, id);
 	    } // end != ignore condition                

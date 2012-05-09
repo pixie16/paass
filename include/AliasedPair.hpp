@@ -22,11 +22,11 @@
 	TYPE_SECOND & ALIAS_SECOND;					\
 	CLASSNAME () : ALIAS_FIRST(first), ALIAS_SECOND(second) {};	\
 	CLASSNAME (const std::pair<TYPE_FIRST,TYPE_SECOND> &pa)	:	\
-	    ALIAS_FIRST(first), ALIAS_SECOND(second),			\
-	    std::pair<TYPE_FIRST,TYPE_SECOND>(pa) {};			\
-	CLASSNAME (const TYPE_FIRST &T1, const TYPE_SECOND &T2) :	\
-	    ALIAS_FIRST(first), ALIAS_SECOND(second),			\
-	    std::pair<TYPE_FIRST,TYPE_SECOND>(T1,T2) {};		\
+	    std::pair<TYPE_FIRST,TYPE_SECOND>(pa), 			\
+	    ALIAS_FIRST(first), ALIAS_SECOND(second) {};		\
+        CLASSNAME (const TYPE_FIRST &T1, const TYPE_SECOND &T2) :	\
+	    std::pair<TYPE_FIRST,TYPE_SECOND>(T1,T2),			\
+	    ALIAS_FIRST(first), ALIAS_SECOND(second) {};		\
 	CLASSNAME& operator=(const CLASSNAME &rhs) {			\
 	    ALIAS_FIRST = rhs.ALIAS_FIRST; ALIAS_SECOND = rhs.ALIAS_SECOND; return (*this); \
 	}								\

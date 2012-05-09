@@ -169,6 +169,10 @@ public:
     void ZeroVar();
 };
 
+// some global functions for sorting vectors
+bool CompareCorrectedTime(const ChanEvent *a, const ChanEvent *b);
+bool CompareTime(const ChanEvent *a, const ChanEvent *b);
+
 /** \brief Summary of all channels of one detector type
  * For each group of detectors that exists in the analysis, a detector summary
  * is created.  The detector summary includes the multiplicity, maximum

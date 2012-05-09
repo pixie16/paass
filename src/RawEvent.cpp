@@ -148,6 +148,22 @@ void ChanEvent::ZeroVar()
 }
 
 /**
+ * Sort by increasing raw time
+ */
+bool CompareTime(const ChanEvent *a, const ChanEvent *b)
+{
+    return (a->GetTime() < b->GetTime());
+}
+
+/**
+ * Sort by increasing corrected time
+ */
+bool CompareCorrectedTime(const ChanEvent *a, const ChanEvent *b)
+{
+    return (a->GetCorrectedTime() < b->GetCorrectedTime());
+}
+
+/**
  * Detector summary zeroing
  *
  * Clear the list of channel events associated with this summary
