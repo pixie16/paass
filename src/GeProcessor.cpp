@@ -2,6 +2,7 @@
  *
  * implementation for germanium processor
  * David Miller, August 2009
+ * Overhaul: Krzysztof Miernik, May 2012
  */
 
 //? Make a clover specific processor
@@ -9,6 +10,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <set>
 
 #include <climits>
 #include <cmath>
@@ -23,7 +25,130 @@
 #include "RawEvent.h"
 
 using namespace std;
-using std::remove;
+
+namespace dammIds {
+    namespace ge {
+	// clovers
+	const unsigned int MAX_CLOVERS = 4; // for *_DETX spectra
+
+	const int D_ENERGY          = 1500;
+	const int D_ENERGY_NTOF1    = 1506;
+	const int D_ENERGY_NTOF2    = 1507;
+	const int D_ENERGY_HEN3     = 1508;
+
+	const int D_ENERGY_LOWGAIN  = 1530;
+	const int D_ENERGY_HIGHGAIN = 1540;
+
+	const int D_CLOVER_ENERGY_DETX   = 1591; // for x detectors
+	const int D_CLOVER_ENERGY_ALL    = 1595;
+
+	const int DD_CLOVER_ENERGY_RATIO = 1609;
+
+	const int D_ADD_ENERGY      = 1700;
+	const int D_ADD_ENERGY_DETX = 1701; // for x detectors 
+
+	const int D_MULT = 1800;
+
+	// correlated with a decay
+	namespace decayGated {
+	    // 0-5 granularities (1 us -> 100 ms)
+	    const int D_ENERGY = 1502;
+
+	    const int D_ADD_ENERGY      = 1720;
+	    const int D_ADD_ENERGY_DETX = 1721; // for x detectors
+	    namespace withBeta {
+		const int DD_ENERGY__DECAY_TIME_GRANX = 1730;
+		namespace multiplicityGated {
+		    const int DD_ENERGY__DECAY_TIME_GRANX = 1740;
+		}
+	    }
+	    namespace withoutBeta {
+		const int DD_ENERGY__DECAY_TIME_GRANX = 1750;
+	    }
+	    namespace matrix {
+		const int DD_ENERGY_PROMPT = 1670;
+		const int DD_ADD_ENERGY_PROMPT = 1682;
+	    }
+	} // decay-gated namespace
+	namespace betaGated {
+	    const int D_ENERGY        = 1501;
+	    const int D_ENERGY_BETA0  = 1550;
+	    const int D_ENERGY_BETA1  = 1551;
+	    const int D_ENERGY_NTOF1  = 1552;
+	    const int D_ENERGY_NTOF2  = 1553;
+	    const int D_ENERGY_HEN3   = 1554;
+	    const int D_TDIFF         = 1602;
+
+	    const int D_ADD_ENERGY      = 1710;
+	    const int D_ADD_ENERGY_DETX = 1711; // for x detectors
+
+	    const int DD_TDIFF__GAMMA_ENERGY = 1603;
+	    const int DD_TDIFF__BETA_ENERGY  = 1604;
+	    namespace matrix {
+		const int DD_ENERGY_PROMPT = 1660;
+		const int DD_ADD_ENERGY_PROMPT = 1681;
+	    }
+	    namespace multiplicityGated {
+		const int D_ENERGY = 1505;
+		const int DD_TDIFF__GAMMA_ENERGY = 1607;
+	    }
+	} // beta-gated namespace
+	namespace implantGated {
+	    const int D_ENERGY = 1503;
+	    const int DD_ENERGY__TDIFF = 1605;
+	}
+	namespace multiplicityGated {
+	    const int D_ENERGY = 1504;
+	    // cross-references
+	    namespace betaGated = ::dammIds::ge::betaGated::multiplicityGated;
+	}
+	namespace matrix {
+	    const int DD_ENERGY_PROMPT = 1600;
+	    const int D_TDIFF          = 1601;
+	    const int DD_ADD_ENERGY_PROMPT = 1680;
+	    // cross-references
+	    namespace betaGated = ::dammIds::ge::betaGated::matrix;
+	    namespace decayGated = ::dammIds::ge::decayGated::matrix;
+	} // gamma-gamma matrix
+    } // end namespace ge
+}
+
+/**
+ *  Perform walk correction for gamma-ray timing based on its energy
+ */
+double GeProcessor::walkCorrection(double e) {
+    // SVP version
+    /*
+    const double b  = 3042.22082339404;
+    const double t3 = 29.5154635093362;
+    const double y1 = 7.79788784543252;
+    return y1 + b / (e + t3);
+    */
+    if (E <= 100) {
+        const double a0 = 118.482;
+        const double a1 = -2.66767;
+        const double a2 = 0.028492;
+        const double a3 = -0.000107801;
+
+        const double c  = -40.2608;
+        const double e0 = 12.5426;
+        const double k  = 3.84917;
+
+        return b0 + b1 * e + b2 * pow(e, 2) + b3 * pow(e, 3) +
+            c / (1.0 + exp( (e - e0) / k) );
+    } else {
+        const double a0 = 11.2287;
+        const double a1 = -0.000939443;
+        
+	const double b0 = 38.8912;
+        const double b1 = -0.121784;
+        const double b2 = 0.000268339;
+
+        const double k  = 180.146;
+
+        return a0 + a1 * e + (b0 + b1 * e + b2 * pow(e, 2)) * exp(-e / k);
+    }
+}
 
 // useful function for symmetrically incrementing 2D plots
 void symplot(int dammID, double bin1, double bin2)
@@ -32,17 +157,14 @@ void symplot(int dammID, double bin1, double bin2)
     plot(dammID, bin2, bin1);
 }
 
-GeProcessor::GeProcessor() : EventProcessor()
+GeProcessor::GeProcessor() : EventProcessor(), leafToClover()
 {
     name = "ge";
     associatedTypes.insert("ge"); // associate with germanium detectors
-
-    numClovers = 0;
-    minCloverLoc = INT_MAX;
 }
 
-/** Initialize processor and determine number of clovers 
- * from global Identifiers
+/** 
+ * Initialize processor and determine number of clovers from global Identifiers
  */
 bool GeProcessor::Init(DetectorDriver &driver)
 {
@@ -53,66 +175,55 @@ bool GeProcessor::Init(DetectorDriver &driver)
        channels and divide by four to find the total number of clovers
     */
     extern DetectorLibrary modChan;
+
+    const set<int> &cloverLocations = modChan.GetLocations("ge", "clover_high");
+    // could set it now but we'll iterate through the locations to set this
     unsigned int cloverChans = 0;
-    int maxCloverLoc = INT_MIN;
 
-    for ( DetectorLibrary::const_iterator it = modChan.begin();
-	  it != modChan.end(); it++) {
-	if (it->GetSubtype() == "clover_high") {
-	    cloverChans++;
-	    if (it->GetLocation() < minCloverLoc)
-		minCloverLoc = it->GetLocation();
-	    if (it->GetLocation() > maxCloverLoc)
-		maxCloverLoc = it->GetLocation();
-	}
+    for ( set<int>::const_iterator it = cloverLocations.begin();
+	  it != cloverLocations.end(); it++) {
+	leafToClover[*it] = int(cloverChans / 4); 
+	cloverChans++;
     }
-    size_t spread;
-    if (cloverChans == 0) {
-	spread = 0;
-	numClovers = 0;
-    } else {
-	spread = maxCloverLoc - minCloverLoc + 1;
-	
-	if (cloverChans % chansPerClover != 0 || 
-	    spread % chansPerClover != 0 ) {
-	    
-	    cout << " There does not appear to be the proper number of"
-		 << " channels per clover.\n Program terminating." << endl;
+
+    if (cloverChans % chansPerClover != 0) {
+	cout << " There does not appear to be the proper number of"
+	     << " channels per clover.\n Program terminating." << endl;
+	exit(EXIT_FAILURE);	
+    }
+
+    if (cloverChans != 0) {
+	numClovers = spread / chansPerClover;
+	//print statement
+	cout << "A total of " << cloverChans << " clover channels were detected: ";
+	int lastClover = INT_MIN;
+	for ( map<int, int>::const_iterator it = leafToClover.begin();
+	      it != leafToClover.end(); it++ ) {
+	    if (it->second != lastClover) {
+		lastClover = it->second;
+		cout << endl << "  " << lastClover << " : ";
+	    } else {
+		cout << ", ";
+	    }
+	    cout << setw(2) << it->first ;
+	}
+
+	if (numClovers > dammIds::ge::MAX_CLOVERS) {
+	    cout << "This is greater than MAX_CLOVERS for spectra definition."
+		 << "  Check the spectrum definition file and try again." << endl;
 	    exit(EXIT_FAILURE);
-	}
-    
-	if (cloverChans != 0) {
-	    numClovers = spread / chansPerClover;
-	    //print statement
-	    cout << "A total of " << cloverChans << " clover channels (" 
-		 << minCloverLoc << " - " << maxCloverLoc << ") for "
-		 << numClovers << " clovers were detected." << endl;    
-	    ClearClovers();
-	}
+	}   
     }
 
-    if (numClovers > dammIds::ge::MAX_CLOVERS) {
-	cout << "This is greater than MAX_CLOVERS for spectra definition."
-	     << "  Check the spectrum definition file and try again." << endl;
-	exit(EXIT_FAILURE);
-    }
-    
     return true;
-}
-
-void GeProcessor::ClearClovers(void)
-{
-    cloverEnergy.assign(numClovers, 0);
-    cloverMultiplicity.assign(numClovers, 0);
 }
 
 /** Declare plots including many for decay/implant/neutron gated analysis  */
 void GeProcessor::DeclarePlots(void) const
 {
-    const int energyBins1 = SE;
-    const int energyBins2 = SB;
-    const int timeBins1   = SC;
-    const int timeBins2   = SA;
+    const int energyBins1  = SE;
+    const int energyBins2  = SC;
+    const int timeBins2    = SA;
     const int granTimeBins = SA;
 
     {
