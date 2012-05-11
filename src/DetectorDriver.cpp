@@ -59,7 +59,7 @@
 #include "VandleProcessor.h"
 #include "PulserProcessor.h"
 #include "SsdProcessor.h"
-#include "QdcProcessor.hpp"
+#include "PositionProcessor.hpp"
 
 #include "DoubleTraceAnalyzer.h"
 #include "TauAnalyzer.h"
@@ -94,7 +94,7 @@ DetectorDriver::DetectorDriver()
     vecAnalyzer.push_back(new TauAnalyzer());
     // vecAnalyzer.push_back(new DoubleTraceAnalyzer());
 
-    vecProcess.push_back(new QdcProcessor()); // order is important
+    vecProcess.push_back(new PositionProcessor()); // order is important
     // vecProcess.push_back(new TriggerLogicProcessor());
     vecProcess.push_back(new SsdProcessor());
     // vecProcess.push_back(new GeProcessor()); // order is important

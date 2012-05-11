@@ -1,9 +1,9 @@
-/** 
+ /** 
  * Handle QDCs for the position sensitive detector
  */
 
-#ifndef __QDCPROCESSOR_HH_
-#define __QDCPROCESSOR_HH_
+#ifndef __POSITIONPROCESSOR_HH_
+#define __POSITIONPROCESSOR_HH_
 
 #include <string>
 #include <vector>
@@ -12,7 +12,7 @@
 
 class ChanEvent;
 
-class QdcProcessor : public EventProcessor
+class PositionProcessor : public EventProcessor
 {
 private:
     static const std::string configFile;
@@ -31,10 +31,10 @@ private:
 				std::vector<ChanEvent*>::const_iterator begin, 
 				std::vector<ChanEvent*>::const_iterator end) const;				
 public:
-    QdcProcessor(); // no virtual c'tors
+    PositionProcessor(); // no virtual c'tors
     virtual bool Init(DetectorDriver &driver);
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void) const;
 };
     
-#endif // __QDCPROCESSOR_HH_
+#endif // __POSITIONPROCESSOR_HH_
