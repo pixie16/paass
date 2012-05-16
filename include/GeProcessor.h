@@ -37,6 +37,7 @@ public:
 /**
  * A class to hold all events which happen within a given clover
  *   maintaing a record of the total energy deposited
+ *   NOT CURRENTLY USED as we need to have an associated TIME as well
  */
 class CloverEvent : public EventContainer
 {

@@ -298,6 +298,9 @@ bool GeProcessor::Process(RawEvent &event) {
 	    betaTime   = chan->GetTime();
         }
     } // beta summary present
+    const double betaThresh = 1;
+    bool hasBeta = (betaEnergy > betaThresh);
+
     //? make a search for tagged events for external detectors
 
     // reject events for clover where raw high gain energy does not
@@ -364,7 +367,7 @@ bool GeProcessor::Process(RawEvent &event) {
 	    plot(D_ENERGY_WITH_EXT1, gEnergy);
 	}
 
-        if(betaEnergy > 1){
+        if (hasBeta) {
             plot(betaGated::D_ENERGY, gEnergy);
 
             int dtime=(int)(gTime - betaTime + 100);
@@ -394,7 +397,7 @@ bool GeProcessor::Process(RawEvent &event) {
 	    //? perhaps do a time cut here
 
             symplot(DD_ENERGY, gEnergy, gEnergy2);
-            if (betaEnergy > 1)
+            if (hasBeta)
                 symplot(betaGated::DD_ENERGY, gEnergy, gEnergy2);            
         } // iteration over other gammas
     } 
@@ -445,7 +448,7 @@ bool GeProcessor::Process(RawEvent &event) {
             continue;
 
         plot(D_ADD_ENERGY_TOTAL, gEnergy);
-        if(betaEnergy > 1)
+        if(hasBeta)
             plot(betaGated::D_ADD_ENERGY_TOTAL, gEnergy);
     }
 
@@ -461,7 +464,7 @@ bool GeProcessor::Process(RawEvent &event) {
             plot(D_ADD_ENERGY, gEnergy);
             plot(D_ADD_ENERGY_CLOVERX + det, gEnergy);
 
-            if(betaEnergy > 1) {
+            if(hasBeta) {
                 plot(betaGated::D_ADD_ENERGY, gEnergy);
                 plot(betaGated::D_ADD_ENERGY_CLOVERX + det, gEnergy);
             }
@@ -472,7 +475,7 @@ bool GeProcessor::Process(RawEvent &event) {
 		    continue;
 
 		symplot(DD_ADD_ENERGY, gEnergy, gEnergy2);
-		if (betaEnergy > 1) {
+		if (hasBeta) {
 		    symplot(betaGated::DD_ADD_ENERGY, gEnergy, gEnergy2);
 		    double dTime = (int)(gTime - betaTime);
 		    
@@ -507,7 +510,7 @@ bool GeProcessor::Process(RawEvent &event) {
 	    }
 	
 	    granploty(DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
-	    if (betaEnergy > 1) {
+	    if (hasBeta) {
 		granploty(betaGated::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
 	    }
 	}
@@ -521,7 +524,7 @@ bool GeProcessor::Process(RawEvent &event) {
 		    continue;
 
 		granploty(DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
-		if (betaEnergy > 1) {
+		if (hasBeta) {
 		    granploty(betaGated::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
 		}
 	    }
