@@ -30,6 +30,9 @@ private:
     ChanEvent* FindMatchingEdge(ChanEvent *match,
 				std::vector<ChanEvent*>::const_iterator begin, 
 				std::vector<ChanEvent*>::const_iterator end) const;				
+    ChanEvent* FindMatchingEdgeR(ChanEvent *match,
+				std::vector<ChanEvent*>::const_reverse_iterator begin, 
+				std::vector<ChanEvent*>::const_reverse_iterator end) const;				
 public:
     PositionProcessor(); // no virtual c'tors
     virtual bool Init(DetectorDriver &driver);

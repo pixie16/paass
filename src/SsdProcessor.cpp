@@ -53,14 +53,14 @@ bool SsdProcessor::Process(RawEvent &event)
     }
     
     for (int i=0; i < NUM_DETECTORS; i++) {
-	if (ssdSummary[i]->GetMult() == 0)
-	    continue;
-	const ChanEvent *ch = ssdSummary[i]->GetMaxEvent();
-	position = ch->GetChanID().GetLocation();
-	energy   = ch->GetCalEnergy();
-	time     = ch->GetTime();
+        if (ssdSummary[i]->GetMult() == 0)
+            continue;
+        const ChanEvent *ch = ssdSummary[i]->GetMaxEvent();
+        position = ch->GetChanID().GetLocation();
+        energy   = ch->GetCalEnergy();
+        time     = ch->GetTime();
 
-	plot(DD_POSITION__ENERGY_DETX + i, energy, position);
+        plot(DD_POSITION__ENERGY_DETX + i, energy, position);
     }
 
     EndProcess(); // update the processing time
