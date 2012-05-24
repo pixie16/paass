@@ -362,6 +362,8 @@ bool PositionProcessor::Process(RawEvent &event)
 	plot(DD_QDCTOT__QDCTOT_LOCX + LOC_SUM , topQdcTot, bottomQdcTot);
     } // end iteration over sum events
 
+   // test
+
     EndProcess();
 
     return true;
