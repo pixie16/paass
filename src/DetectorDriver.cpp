@@ -224,34 +224,34 @@ void DetectorDriver::DeclarePlots(void) const
     extern DetectorLibrary modChan;
     extern MapFile theMapFile;
 
-    DetectorLibrary::size_type maxChan = (theMapFile ? modChan.size() : 96);
+    DetectorLibrary::size_type maxChan = (theMapFile ? modChan.size() : 192);
 
-    for (DetectorLibrary::size_type i=0; i < maxChan; i++) {	 
-	if (theMapFile && !modChan.HasValue(i)) {
-	    continue;
-	}
-	stringstream idstr; 
-	
-	if (theMapFile) {
-	    const Identifier &id = modChan.at(i);
+    for (DetectorLibrary::size_type i = 0; i < maxChan; i++) {	 
+        if (theMapFile && !modChan.HasValue(i)) {
+            continue;
+        }
+        stringstream idstr; 
+        
+        if (theMapFile) {
+            const Identifier &id = modChan.at(i);
 
-	    idstr << "M" << modChan.ModuleFromIndex(i)
-		  << " C" << modChan.ChannelFromIndex(i)
-		  << " - " << id.GetType()
-		  << ":" << id.GetSubtype()
-		  << " L" << id.GetLocation();
-	} else {
-	    idstr << "id " << i;
-	}
+            idstr << "M" << modChan.ModuleFromIndex(i)
+            << " C" << modChan.ChannelFromIndex(i)
+            << " - " << id.GetType()
+            << ":" << id.GetSubtype()
+            << " L" << id.GetLocation();
+        } else {
+            idstr << "id " << i;
+        }
 
-	DeclareHistogram1D(D_RAW_ENERGY + i, SE, ("RawE " + idstr.str()).c_str() );
-	DeclareHistogram1D(D_FILTER_ENERGY + i, SE, ("FilterE " + idstr.str()).c_str() );
-	DeclareHistogram1D(D_SCALAR + i, SE, ("Scalar " + idstr.str()).c_str() );
+        DeclareHistogram1D(D_RAW_ENERGY + i, SE, ("RawE " + idstr.str()).c_str() );
+        DeclareHistogram1D(D_FILTER_ENERGY + i, SE, ("FilterE " + idstr.str()).c_str() );
+        DeclareHistogram1D(D_SCALAR + i, SE, ("Scalar " + idstr.str()).c_str() );
 #ifndef REVD       
-	DeclareHistogram1D(D_TIME + i, SE, ("Time " + idstr.str()).c_str() ); 
+        DeclareHistogram1D(D_TIME + i, SE, ("Time " + idstr.str()).c_str() ); 
 #endif
-	DeclareHistogram1D(D_CAL_ENERGY + i, SE, ("CalE " + idstr.str()).c_str() );
-	DeclareHistogram1D(D_CAL_ENERGY_REJECT + i, SE, ("CalE NoSat " + idstr.str()).c_str() );
+        DeclareHistogram1D(D_CAL_ENERGY + i, SE, ("CalE " + idstr.str()).c_str() );
+        DeclareHistogram1D(D_CAL_ENERGY_REJECT + i, SE, ("CalE NoSat " + idstr.str()).c_str() );
     }
     DeclareHistogram1D(D_HAS_TRACE, S7, "channels with traces");
 

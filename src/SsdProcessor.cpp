@@ -27,8 +27,8 @@ void SsdProcessor::DeclarePlots(void) const
     // const int timeBins     = S8;
 
     for (int i=0; i < NUM_DETECTORS; i++) {
-	DeclareHistogram2D(DD_POSITION__ENERGY_DETX + i,
-			   energyBins, positionBins, "SSD Strip vs E");
+        DeclareHistogram2D(DD_POSITION__ENERGY_DETX + i,
+                energyBins, positionBins, "SSD Strip vs E");
     }
 }
 
@@ -45,14 +45,14 @@ bool SsdProcessor::Process(RawEvent &event)
     static const DetectorSummary *ssdSummary[NUM_DETECTORS];
 
     if (firstTime) {
-	ssdSummary[0] = event.GetSummary("ssd:implant");
-	ssdSummary[1] = event.GetSummary("ssd:box");
-	ssdSummary[2] = event.GetSummary("ssd:digisum");
-	ssdSummary[3] = event.GetSummary("ssd:ssd_4");
-	firstTime = false;
+        ssdSummary[0] = event.GetSummary("ssd:implant");
+        ssdSummary[1] = event.GetSummary("ssd:box");
+        ssdSummary[2] = event.GetSummary("ssd:digisum");
+        ssdSummary[3] = event.GetSummary("ssd:ssd_4");
+        firstTime = false;
     }
     
-    for (int i=0; i < NUM_DETECTORS; i++) {
+    for (int i = 0; i < NUM_DETECTORS; i++) {
         if (ssdSummary[i]->GetMult() == 0)
             continue;
         const ChanEvent *ch = ssdSummary[i]->GetMaxEvent();

@@ -50,14 +50,14 @@ class DetectorDriver {
     
     pair<double, time_t> pixieToWallClock; /**< rough estimate of pixie to wall clock */ 
 
-    enum EHistograms { D_RAW_ENERGY        = 100,
-		       D_FILTER_ENERGY     = 200, // intermediate step with "raw" filter energy	
-		       D_CAL_ENERGY        = 500,
-		       D_CAL_ENERGY_REJECT = 600,
-		       D_HAS_TRACE = 800 };
+    enum EHistograms { D_RAW_ENERGY        = 1,
+		       D_FILTER_ENERGY     = 201, // intermediate step with "raw" filter energy	
+		       D_CAL_ENERGY        = 1001,
+		       D_CAL_ENERGY_REJECT = 1201,
+		       D_HAS_TRACE = 801 };
  public:    
-    enum EPublicHistograms { D_SCALAR = 300,
-			     D_TIME   = 400 }; /**< These get filled in PixieStd.cpp */
+    enum EPublicHistograms { D_SCALAR = 401,
+			     D_TIME   = 601 }; /**< These get filled in PixieStd.cpp */
 
     vector<Calibration> cal;    /**<the calibration vector*/ 
     
