@@ -152,8 +152,10 @@ void PositionProcessor::DeclarePlots() const {
     const int energyBins   = SA;
 
     for (int i = 0; i < maxNumLocations; ++i) {	
+
         stringstream str;
-        for (int j = 0; j < numQdcs; ++j) {
+
+        for (int j = 1; j < numQdcs; ++j) {
             str << "QDC " << j << ", T/B LOC " << i;
             DeclareHistogram2D(DD_QDCN__QDCN_LOCX + QDC_JUMP * j + i , 
                                qdcBins, qdcBins, str.str().c_str() );
@@ -162,8 +164,18 @@ void PositionProcessor::DeclarePlots() const {
             DeclareHistogram1D(D_QDCNORMN_LOCX + QDC_JUMP * j + i,
                                normBins, str.str().c_str() );
             str.str("");
-
+            if (i == 0) {
+            // declare only once
+            str << "ALL QDC T/B" << j;
+            DeclareHistogram2D(DD_QDCN__QDCN_LOCX + QDC_JUMP * j + LOC_SUM, 
+                    qdcBins, qdcBins, str.str().c_str() );
+            str.str("");
+            str << "ALL QDC " << j << " NORM T/B";   
+            DeclareHistogram1D(D_QDCNORMN_LOCX + QDC_JUMP * j + LOC_SUM, 
+                    normBins, str.str().c_str() );
+            }
         }
+
         str << "QDCTOT T/B LOC " << i;
         DeclareHistogram2D(DD_QDCTOT__QDCTOT_LOCX + i, qdcBins, qdcBins, str.str().c_str() );
         str.str("");
@@ -316,7 +328,7 @@ bool PositionProcessor::Process(RawEvent &event) {
         plot(D_INFO_LOCX + location, 0);
         plot(D_INFO_LOCX + LOC_SUM , 0);
 
-        for (int i = 0; i < numQdcs; ++i) {		
+        for (int i = 1; i < numQdcs; ++i) {		
             if (top->GetQdcValue(i) == U_DELIMITER) {
                 // Recreate qdc from trace
                 topQdc[i] = accumulate(top->GetTrace().begin() + qdcPos[i-1],
