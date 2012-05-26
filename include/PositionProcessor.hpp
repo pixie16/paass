@@ -22,6 +22,7 @@ private:
     float qdcPos[numQdcs]; //< the ending sample number for each QDC position
     float totLen;          //< calculated length of all qdcs excluding baseline qdc
     int whichQdc;          //< which qdc we are using for position determinatio
+    static const int maxNumLocations = 12;
     int numLocations;
     float posScale;        //< an arbitrary scale for the position parameter to physical units
     std::vector<float> minNormQdc; //< the minimum normalized qdc observed for a location

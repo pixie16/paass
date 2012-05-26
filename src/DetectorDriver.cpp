@@ -212,12 +212,12 @@ void DetectorDriver::DeclarePlots(void) const
 {
     for (vector<TraceAnalyzer *>::const_iterator it = vecAnalyzer.begin();
 	 it != vecAnalyzer.end(); it++) {
-	(*it)->DeclarePlots();
+        (*it)->DeclarePlots();
     }
 
     for (vector<EventProcessor *>::const_iterator it = vecProcess.begin();
 	 it != vecProcess.end(); it++) {
-	(*it)->DeclarePlots();
+        (*it)->DeclarePlots();
     }
     
     // Declare plots for each channel

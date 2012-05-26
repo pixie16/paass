@@ -71,9 +71,9 @@ bool TraceFilterer::Init(const string &filterFile)
     // read in the filter parameters
     ifstream in(filterFile.c_str());
     if (!in) {
-	cout << "Failed to open the filter parameter file" << endl;
-	cout << "  Using default values instead" << endl;
-	return true;
+        cout << "Failed to open the filter parameter file" << endl;
+        cout << "  Using default values instead" << endl;
+        return true;
     }
 
     while (!in.eof()) {
@@ -109,8 +109,8 @@ bool TraceFilterer::Init(const string &filterFile)
     }
 
     if (in.fail()) {
-	cerr << "Problem reading filter parameters file" << endl;
-	return true;
+        cerr << "Problem reading filter parameters file" << endl;
+        return true;
     }
 
     return true;
