@@ -144,8 +144,8 @@ bool PositionProcessor::Init(DetectorDriver &driver)
 void PositionProcessor::DeclarePlots() const {
     using namespace dammIds::position;
 
-    const int qdcBins = S8;
-    const int normBins = SA;
+    const int qdcBins = S7;
+    const int normBins = S8;
     const int infoBins = S3;
     const int locationBins = S4;
     const int positionBins = S6;
@@ -165,14 +165,14 @@ void PositionProcessor::DeclarePlots() const {
                                normBins, str.str().c_str() );
             str.str("");
             if (i == 0) {
-            // declare only once
-            str << "ALL QDC T/B" << j;
-            DeclareHistogram2D(DD_QDCN__QDCN_LOCX + QDC_JUMP * j + LOC_SUM, 
-                    qdcBins, qdcBins, str.str().c_str() );
-            str.str("");
-            str << "ALL QDC " << j << " NORM T/B";   
-            DeclareHistogram1D(D_QDCNORMN_LOCX + QDC_JUMP * j + LOC_SUM, 
-                    normBins, str.str().c_str() );
+                // declare only once
+                str << "ALL QDC T/B" << j;
+                DeclareHistogram2D(DD_QDCN__QDCN_LOCX + QDC_JUMP * j + LOC_SUM, 
+                        qdcBins, qdcBins, str.str().c_str() );
+                str.str("");
+                str << "ALL QDC " << j << " NORM T/B";   
+                DeclareHistogram1D(D_QDCNORMN_LOCX + QDC_JUMP * j + LOC_SUM, 
+                        normBins, str.str().c_str() );
             }
         }
 
@@ -328,6 +328,7 @@ bool PositionProcessor::Process(RawEvent &event) {
         plot(D_INFO_LOCX + location, 0);
         plot(D_INFO_LOCX + LOC_SUM , 0);
 
+
         for (int i = 1; i < numQdcs; ++i) {		
             if (top->GetQdcValue(i) == U_DELIMITER) {
                 // Recreate qdc from trace
@@ -353,10 +354,11 @@ bool PositionProcessor::Process(RawEvent &event) {
             bottomQdcTot += bottomQdc[i];
             bottomQdc[i] /= qdcLen[i];
             
-            plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + location, topQdc[i] + 100, bottomQdc[i] + 100);
+            plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + location, topQdc[i] + 10, bottomQdc[i] + 10);
             plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + LOC_SUM, topQdc[i], bottomQdc[i]);
             
             float frac = topQdc[i] / (topQdc[i] + bottomQdc[i]) * 1000.; // per mil
+            
             plot(D_QDCNORMN_LOCX + QDC_JUMP * i + location, frac);
             plot(D_QDCNORMN_LOCX + QDC_JUMP * i + LOC_SUM, frac);
             if (i == whichQdc) {
@@ -365,6 +367,71 @@ bool PositionProcessor::Process(RawEvent &event) {
                 sumchan->GetTrace().InsertValue("position", position);
                 plot(DD_POSITION__ENERGY_LOCX + location, position, sumchan->GetCalEnergy());
                 plot(DD_POSITION__ENERGY_LOCX + LOC_SUM, position, sumchan->GetCalEnergy());
+
+                // TEMP KM
+                // Dumps example traces to text files
+                // Bottom -> 1 
+                // Middle -> 2
+                // Top -> 4
+                static unsigned savedFiles[12];
+                static unsigned long attempt = 0;
+
+                if (savedFiles[location] < 7 && !top->GetTrace().empty() && !bottom->GetTrace().empty()) {
+                    ofstream fileOut;
+                    bool readyBot = savedFiles[location] & 1;
+                    bool readyMid = savedFiles[location] & 2;
+                    bool readyTop = savedFiles[location] & 4;
+                    bool good = false;
+                    if (frac > 50 && frac < 300 && !(readyBot) ) {
+                        stringstream name;
+                        name << "trace_" << location << "_B.txt";
+                        fileOut.open(name.str().c_str());
+                        savedFiles[location] += 1;
+                        good = true;
+                    } else if (frac > 400 && frac < 600 && !(readyMid) ) {
+                        stringstream name;
+                        name << "trace_" << location << "_M.txt";
+                        fileOut.open(name.str().c_str());
+                        savedFiles[location] += 2;
+                        good = true;
+                    } else if (frac > 700 && frac < 950 && !(readyTop) ) {
+                        stringstream name;
+                        name << "trace_" << location << "_T.txt";
+                        fileOut.open(name.str().c_str());
+                        savedFiles[location] += 4;
+                        good = true;
+                    } else if (location == 5) {
+                        // Location 5 is right now missing bottom
+                        stringstream name;
+                        name << "trace_" << location << "_";
+                        if (savedFiles[5] == 0) {
+                            savedFiles[5] = 1;
+                            name << "B.txt";
+                        } else if (savedFiles[5] == 1) {
+                            savedFiles[5] = 3;
+                            name << "M.txt";
+                        } else if (savedFiles[5] == 3) {
+                            savedFiles[5] = 7;
+                            name << "T.txt";
+                        }
+
+                        fileOut.open(name.str().c_str());
+                        good = true;
+                    } 
+                    if (fileOut.good() && good) {
+                        fileOut << "# Attempt " << attempt << endl;
+                        fileOut << "# frac = " << frac << endl;
+                        unsigned len = top->GetTrace().size();
+                        for (unsigned ti = 0; ti < len; ++ti)
+                            fileOut << ti << " " 
+                                    << top->GetTrace().at(ti) << " " 
+                                    << bottom->GetTrace().at(ti) << " "
+                                    << endl;
+                        fileOut.close();
+                    }
+                }
+                ++attempt;
+                // END TEST KM
             }
             if (i == 6 && !sumchan->IsSaturated()) {
                 // compare the long qdc to the energy
