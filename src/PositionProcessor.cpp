@@ -18,17 +18,25 @@ using namespace std;
 
 namespace dammIds {
     namespace position {
-	const int QDC_JUMP = 20;
-	const int LOC_SUM  = 18;
+        const int QDC_JUMP = 20;
+        const int LOC_SUM  = 18;
 
-	const int D_QDCNORMN_LOCX          = 2300;
-	const int DD_QDCSUM__ENERGY_LOCX   = 4500;
-	const int D_QDCTOTNORM_LOCX        = 2460;
-	const int D_INFO_LOCX              = 2480;
-	const int DD_QDCN__QDCN_LOCX       = 2500;
-	const int DD_QDCTOT__QDCTOT_LOCX   = 2660;
-	const int DD_POSITION__ENERGY_LOCX = 2680;
-	const int DD_POSITION              = 2699;
+        const int D_QDCNORMN_LOCX          = 2300;
+        const int D_QDCTOTNORM_LOCX        = 2460;
+        const int D_INFO_LOCX              = 2480;
+        const int DD_QDCN__QDCN_LOCX       = 2500;
+        const int DD_QDCTOT__QDCTOT_LOCX   = 2660;
+        const int DD_POSITION__ENERGY_LOCX = 2680;
+        const int DD_POSITION              = 2699;
+        const int DD_QDCR2__QDCR1_LOCX       = 2100;
+        const int DD_QDCR2__QDCR3_LOCX       = 2120;
+        const int DD_QDCR2__QDCR4_LOCX       = 2140;
+        const int DD_QDC1R__POS_LOCX       = 2160;
+        const int DD_QDC2R__POS_LOCX       = 2180;
+        const int DD_QDC3R__POS_LOCX       = 2200;
+        const int DD_QDC4R__POS_LOCX       = 2220;
+
+        const int DD_QDCSUM__ENERGY_LOCX   = 4500;
     }
 }
 
@@ -145,7 +153,7 @@ void PositionProcessor::DeclarePlots() const {
     using namespace dammIds::position;
 
     const int qdcBins = S7;
-    const int normBins = S8;
+    const int normBins = SA;
     const int infoBins = S3;
     const int locationBins = S4;
     const int positionBins = S6;
@@ -192,6 +200,33 @@ void PositionProcessor::DeclarePlots() const {
         DeclareHistogram2D(DD_POSITION__ENERGY_LOCX + i, positionBins, energyBins, str.str().c_str());
         str.str("");
 
+        str << "QDCR2 vs QDCR1, loc " << i;
+        DeclareHistogram2D(DD_QDCR2__QDCR1_LOCX + i, SA, SA, str.str().c_str());
+        str.str("");
+
+        str << "QDCR2 vs QDCR3, loc " << i;
+        DeclareHistogram2D(DD_QDCR2__QDCR3_LOCX + i, SA, SA, str.str().c_str());
+        str.str("");
+
+        str << "QDCR2 vs QDCR4, loc " << i;
+        DeclareHistogram2D(DD_QDCR2__QDCR4_LOCX + i, SA, SA, str.str().c_str());
+        str.str("");
+
+        str << "QDC1R vs Pos, loc " << i;
+        DeclareHistogram2D(DD_QDC1R__POS_LOCX + i, SA, SA, str.str().c_str());
+        str.str("");
+
+        str << "QDC2R vs Pos, loc " << i;
+        DeclareHistogram2D(DD_QDC2R__POS_LOCX + i, SA, SA, str.str().c_str());
+        str.str("");
+
+        str << "QDC3R vs Pos, loc " << i;
+        DeclareHistogram2D(DD_QDC3R__POS_LOCX + i, SA, SA, str.str().c_str());
+        str.str("");
+
+        str << "QDC4R vs Pos, loc " << i;
+        DeclareHistogram2D(DD_QDC4R__POS_LOCX + i, SA, SA, str.str().c_str());
+        str.str("");
         /*
         str << "ALL QDCSUM vs. energy, loc " << i;
         DeclareHistogram2D(DD_QDCSUM__ENERGY_LOCX + i, SC, SC, str.str().c_str());
@@ -369,7 +404,7 @@ bool PositionProcessor::Process(RawEvent &event) {
                 plot(DD_POSITION__ENERGY_LOCX + LOC_SUM, position, sumchan->GetCalEnergy());
 
                 // TEMP KM
-                // Dumps example traces to text files
+                // Write example traces to text files
                 // Bottom -> 1 
                 // Middle -> 2
                 // Top -> 4
@@ -443,10 +478,27 @@ bool PositionProcessor::Process(RawEvent &event) {
                 } else {
                     plot(DD_POSITION, location, sumchan->GetTrace().GetValue("position"));
                 }
+                /*
                 plot(DD_QDCSUM__ENERGY_LOCX + location, qdcSum, sumchan->GetCalEnergy() / 10);
                 plot(DD_QDCSUM__ENERGY_LOCX + LOC_SUM , qdcSum, sumchan->GetCalEnergy() / 10);
+                */
             }
         } // end loop over qdcs
+        // KM QDC - QDC correlations
+        double ratio[4] = {0};
+        for (int i = 1; i < 5; ++i) {
+                ratio[i - 1] = topQdc[i] / (bottomQdc[i] + topQdc[i]) * 1000.0;
+        }
+
+        plot(DD_QDCR2__QDCR1_LOCX + location, ratio[1], ratio[0]);
+        plot(DD_QDCR2__QDCR3_LOCX + location, ratio[1], ratio[2]);
+        plot(DD_QDCR2__QDCR4_LOCX + location, ratio[1], ratio[3]);
+
+        plot(DD_QDC1R__POS_LOCX + location, ratio[0], position * 10.0 + 200.0);
+        plot(DD_QDC2R__POS_LOCX + location, ratio[1], position * 10.0 + 200.0);
+        plot(DD_QDC3R__POS_LOCX + location, ratio[2], position * 10.0 + 200.0);
+        plot(DD_QDC4R__POS_LOCX + location, ratio[3], position * 10.0 + 200.0);
+
         topQdcTot    /= totLen;
         bottomQdcTot /= totLen;
         
