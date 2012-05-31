@@ -17,7 +17,7 @@ class PulserProcessor : public EventProcessor
 {
  public:
     PulserProcessor(); // no virtual c'tors
-    virtual void DeclarePlots(void) const;
+    virtual void DeclarePlots(void);
     virtual bool Process(RawEvent &event);
 
  private:

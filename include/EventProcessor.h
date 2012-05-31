@@ -45,7 +45,7 @@ class EventProcessor {
     virtual ~EventProcessor();
 
     // declare associated damm plots (called by drrsub_)
-    virtual void DeclarePlots(void) const;
+    virtual void DeclarePlots(void);
     virtual const std::set<std::string>& GetTypes(void) const {
       return associatedTypes; 
     }

@@ -40,7 +40,7 @@ ImplantSsdProcessor::ImplantSsdProcessor() : EventProcessor()
     associatedTypes.insert("ssd");
 }
 
-void ImplantSsdProcessor::DeclarePlots(void) const
+void ImplantSsdProcessor::DeclarePlots(void)
 {
     using namespace dammIds::implantSsd;
 

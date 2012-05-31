@@ -36,7 +36,7 @@ IonChamberProcessor::IonChamberProcessor() : EventProcessor()
     }
 }
 
-void IonChamberProcessor::DeclarePlots(void) const
+void IonChamberProcessor::DeclarePlots(void)
 {
   DeclareHistogram1D(D_ENERGYSUM, SE, "ion chamber energy");
 

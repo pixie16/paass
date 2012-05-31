@@ -28,7 +28,7 @@ MtcProcessor::MtcProcessor(void) : EventProcessor(),
     associatedTypes.insert("mtc");
 }
 
-void MtcProcessor::DeclarePlots(void) const
+void MtcProcessor::DeclarePlots(void)
 {
     using namespace dammIds::mtc;
     

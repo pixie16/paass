@@ -39,7 +39,7 @@ EventProcessor::~EventProcessor()
 }
 
 /** Declare plots */
-void EventProcessor::DeclarePlots(void) const
+void EventProcessor::DeclarePlots(void)
 {
     // no plots for generic processor
 }

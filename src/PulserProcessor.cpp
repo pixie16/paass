@@ -29,7 +29,7 @@ PulserProcessor::PulserProcessor(): EventProcessor()
     associatedTypes.insert("pulser"); //associate with pulser
 }
 
-void PulserProcessor::DeclarePlots(void) const
+void PulserProcessor::DeclarePlots(void)
 {
     DeclareHistogram1D(D_TIMEDIFF, SA, "Time Difference");
     DeclareHistogram1D(D_PROBLEMSTUFF, S5, "Problem Stuff");

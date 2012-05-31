@@ -43,7 +43,7 @@ DoubleTraceAnalyzer::~DoubleTraceAnalyzer()
     // do nothing
 }
 
-void DoubleTraceAnalyzer::DeclarePlots() const
+void DoubleTraceAnalyzer::DeclarePlots()
 {
     using namespace dammIds::trace;
 
