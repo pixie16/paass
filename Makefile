@@ -103,9 +103,9 @@ MILDATIMO        = mildatim.$(ObjSuf)
 SCANORUXO        = scanorux.$(ObjSuf)
 
 # objects from cpp
+PIXIEO           = PixieStd.$(ObjSuf)
 PLOTSREGISTERO   = PlotsRegister.$(ObjSuf)
 DAMMPLOTSO       = DammPlots.$(ObjSuf)
-PIXIEO           = PixieStd.$(ObjSuf)
 ACCUMULATORO     = StatsAccumulator.$(ObjSuf)
 HISTOGRAMMERO    = DeclareHistogram.$(ObjSuf)
 EVENTPROCESSORO  = EventProcessor.$(ObjSuf)
