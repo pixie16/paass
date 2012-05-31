@@ -1,22 +1,21 @@
  /** 
- * Handle QDCs for the position sensitive detector
+ * Handle QDCs for the position sensitive detector,
+ *   a minimal number of spectra are created
  */
 
-#ifndef __POSITIONPROCESSOR_HH_
-#define __POSITIONPROCESSOR_HH_
+#ifndef __LITEPOSITIONPROCESSOR_HH_
+#define __LITEPOSITIONPROCESSOR_HH_
 
 #include <string>
 #include <vector>
 
 #include "EventProcessor.h"
-#include "DammPlots.h"
-#include "PlotsRegister.h"
 
 class ChanEvent;
 
-class PositionProcessor : public EventProcessor
+class LitePositionProcessor : public EventProcessor
 {
-private:
+protected:
     static const std::string configFile;
     static const int numQdcs = 8;
 	
@@ -24,7 +23,6 @@ private:
     float qdcPos[numQdcs]; //< the ending sample number for each QDC position
     float totLen;          //< calculated length of all qdcs excluding baseline qdc
     int whichQdc;          //< which qdc we are using for position determinatio
-    static const int maxNumLocations = 12;
     int numLocations;
     float posScale;        //< an arbitrary scale for the position parameter to physical units
     std::vector<float> minNormQdc; //< the minimum normalized qdc observed for a location
@@ -33,16 +31,11 @@ private:
     ChanEvent* FindMatchingEdge(ChanEvent *match,
 				std::vector<ChanEvent*>::const_iterator begin, 
 				std::vector<ChanEvent*>::const_iterator end) const;				
-    ChanEvent* FindMatchingEdgeR(ChanEvent *match,
-				std::vector<ChanEvent*>::const_reverse_iterator begin, 
-				std::vector<ChanEvent*>::const_reverse_iterator end) const;				
-
-    Plots histo;
 public:
-    PositionProcessor(); // no virtual c'tors
+    LitePositionProcessor(); // no virtual c'tors
     virtual bool Init(DetectorDriver &driver);
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void) const;
 };
     
-#endif // __POSITIONPROCESSOR_HH_
+#endif // __LITEPOSITIONPROCESSOR_HH_

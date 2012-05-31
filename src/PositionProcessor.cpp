@@ -42,11 +42,13 @@ namespace dammIds {
 
 const string PositionProcessor::configFile("qdc.txt");
 
+using namespace dammIds::position;
+
 /**
  * Initialize the qdc to handle ssd events
  */
-PositionProcessor::PositionProcessor() : EventProcessor()
-{
+PositionProcessor::PositionProcessor() : EventProcessor(),
+                                         histo(OFFSET, RANGE, PlotsRegister::R() ) {
     name="position";
     associatedTypes.insert("ssd");
 }
