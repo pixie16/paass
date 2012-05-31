@@ -18,6 +18,8 @@
 #include <cmath>
 #include <cstdlib>
 
+#include "PlotsRegister.h"
+#include "DammPlots.h"
 #include "damm_plotids.h"
 
 #include "AliasedPair.hpp"
@@ -137,8 +139,8 @@ void symplot(int dammID, double bin1, double bin2)
     plot(dammID, bin2, bin1);
 }
 
-GeProcessor::GeProcessor() : EventProcessor(), leafToClover()
-{
+GeProcessor::GeProcessor() : EventProcessor(), leafToClover(),
+                             histo(dammIds::ge::OFFSET, dammIds::ge::RANGE, PlotsRegister::R()) {
     name = "ge";
     associatedTypes.insert("ge"); // associate with germanium detectors
 }

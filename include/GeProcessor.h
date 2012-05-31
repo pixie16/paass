@@ -11,9 +11,10 @@
 
 #include "EventProcessor.h"
 #include "RawEvent.h"
+#include "PlotsRegister.h"
+#include "DammPlots.h"
 
-class GeProcessor : public EventProcessor 
-{
+class GeProcessor : public EventProcessor {
 private:
     static const unsigned int chansPerClover = 4; /*!< number of channels per clover */
 
@@ -27,6 +28,8 @@ private:
 			       const char *title, int halfWordsPerChan,
 			       const std::vector<float> &granularity, const char *units ) const;
     void granploty(int dammId, double x, double y, const std::vector<float> &granularity) const;
+
+    Plots histo;
 public:
     GeProcessor(); // no virtual c'tors
     virtual bool Init(DetectorDriver &driver);
