@@ -123,6 +123,9 @@ CorrelationList	src/Correlator.cpp	/^CorrelationList::CorrelationList() : std::v
 Correlator	include/Correlator.h	/^class Correlator$/;"	c
 Correlator	src/Correlator.cpp	/^Correlator::Correlator() : $/;"	f	class:Correlator
 DAC_VOLTAGE_RANGE	include/pixie16app_defs.h	157;"	d
+DAMMPLOTSO	Makefile	/^DAMMPLOTSO       = DammPlots.$(ObjSuf)$/;"	m
+DAMMPLOTS_H	DammPlots2/DammPlots.h	2;"	d
+DAMMPLOTS_H	include/DammPlots.h	2;"	d
 DATA_MEMORY_ADDRESS	include/pixie16app_defs.h	202;"	d
 DD_ADD_ENERGY	src/GeProcessor.cpp	/^	    const int DD_ADD_ENERGY          = DD_ENERGY + dammIds::ge::DECAY_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
 DD_ADD_ENERGY	src/GeProcessor.cpp	/^	const int DD_ADD_ENERGY            = DD_ENERGY       + ADDBACK_OFFSET; \/\/ NOT DECLARED but useful to keep the scheme in mind$/;"	m	namespace:dammIds::ge	file:
@@ -136,25 +139,25 @@ DD_ALL_ENERGY__TOFX	include/damm_plotids.h	/^        const int DD_ALL_ENERGY__TO
 DD_ALL_ENERGY__TOFX_GATED	include/damm_plotids.h	/^        const int DD_ALL_ENERGY__TOFX_GATED   = 2880;$/;"	m	namespace:dammIds::implantSsd
 DD_AMPMAPSTART	include/damm_plotids.h	/^        const int DD_AMPMAPSTART = 5007;$/;"	m	namespace:dammIds::pulserprocessor
 DD_AMPMAPSTOP	include/damm_plotids.h	/^        const int DD_AMPMAPSTOP  = 5008;$/;"	m	namespace:dammIds::pulserprocessor
-DD_AVERAGE_TRACE	include/damm_plotids.h	/^        const int DD_AVERAGE_TRACE    = 854;$/;"	m	namespace:dammIds::trace
-DD_BUFFER_START_TIME	include/damm_plotids.h	/^        const int DD_BUFFER_START_TIME = 1008;$/;"	m	namespace:dammIds::misc
+DD_AVERAGE_TRACE	include/damm_plotids.h	/^        const int DD_AVERAGE_TRACE    = 1854;$/;"	m	namespace:dammIds::trace
+DD_BUFFER_START_TIME	include/damm_plotids.h	/^        const int DD_BUFFER_START_TIME = 1408;$/;"	m	namespace:dammIds::misc
 DD_CLOVER_ENERGY_RATIO	src/GeProcessor.cpp	/^	const int DD_CLOVER_ENERGY_RATIO   = 1607;$/;"	m	namespace:dammIds::ge	file:
 DD_CORTOFBARS	include/damm_plotids.h	/^        const int DD_CORTOFBARS       = 2004;$/;"	m	namespace:dammIds::vandle
-DD_DEAD_TIME_CUMUL	include/damm_plotids.h	/^        const int DD_DEAD_TIME_CUMUL   = 1007; \/\/ not currently used$/;"	m	namespace:dammIds::misc
+DD_DEAD_TIME_CUMUL	include/damm_plotids.h	/^        const int DD_DEAD_TIME_CUMUL   = 1407; \/\/ not currently used$/;"	m	namespace:dammIds::misc
 DD_DECAY_ALL_ENERGY__TX	include/damm_plotids.h	/^        const int DD_DECAY_ALL_ENERGY__TX     = 2800;$/;"	m	namespace:dammIds::implantSsd
-DD_DECAY_BACK_ENERGY__POSITION	include/damm_plotids.h	/^        const int DD_DECAY_BACK_ENERGY__POSITION    = 744;$/;"	m	namespace:dammIds::dssd
+DD_DECAY_BACK_ENERGY__POSITION	include/damm_plotids.h	/^        const int DD_DECAY_BACK_ENERGY__POSITION    = 1744;$/;"	m	namespace:dammIds::dssd
 DD_DECAY_ENERGY__LOCATION	include/damm_plotids.h	/^        const int DD_DECAY_ENERGY__LOCATION    = 2741;$/;"	m	namespace:dammIds::implantSsd
-DD_DECAY_FRONT_ENERGY__POSITION	include/damm_plotids.h	/^        const int DD_DECAY_FRONT_ENERGY__POSITION   = 743;$/;"	m	namespace:dammIds::dssd
+DD_DECAY_FRONT_ENERGY__POSITION	include/damm_plotids.h	/^        const int DD_DECAY_FRONT_ENERGY__POSITION   = 1743;$/;"	m	namespace:dammIds::dssd
 DD_DECAY_NOBEAM_ENERGY__TX	include/damm_plotids.h	/^        const int DD_DECAY_NOBEAM_ENERGY__TX  = 2810;$/;"	m	namespace:dammIds::implantSsd
-DD_DECAY_POSITION	include/damm_plotids.h	/^        const int DD_DECAY_POSITION   = 726;$/;"	m	namespace:dammIds::dssd
-DD_DOUBLE_TRACE	include/damm_plotids.h	/^        const int DD_DOUBLE_TRACE     = 870;$/;"	m	namespace:dammIds::trace
+DD_DECAY_POSITION	include/damm_plotids.h	/^        const int DD_DECAY_POSITION   = 1726;$/;"	m	namespace:dammIds::dssd
+DD_DOUBLE_TRACE	include/damm_plotids.h	/^        const int DD_DOUBLE_TRACE     = 1870;$/;"	m	namespace:dammIds::trace
 DD_EBACK__ENERGY_DETX	include/IonChamberProcessor.h	/^    const int DD_EBACK__ENERGY_DETX  = 3300; \/\/ + detector num$/;"	m	namespace:dammIds::ionChamber
 DD_ENERGY	src/GeProcessor.cpp	/^	    const int DD_ENERGY              = dammIds::ge::DD_ENERGY + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
 DD_ENERGY	src/GeProcessor.cpp	/^	const int DD_ENERGY                = 1600;$/;"	m	namespace:dammIds::ge	file:
-DD_ENERGY2__ENERGY1	include/damm_plotids.h	/^        const int DD_ENERGY2__ENERGY1 = 872;$/;"	m	namespace:dammIds::trace
-DD_ENERGY2__TDIFF	include/damm_plotids.h	/^        const int DD_ENERGY2__TDIFF   = 871;$/;"	m	namespace:dammIds::trace
+DD_ENERGY2__ENERGY1	include/damm_plotids.h	/^        const int DD_ENERGY2__ENERGY1 = 1872;$/;"	m	namespace:dammIds::trace
+DD_ENERGY2__TDIFF	include/damm_plotids.h	/^        const int DD_ENERGY2__TDIFF   = 1871;$/;"	m	namespace:dammIds::trace
 DD_ENERGY_WITH_DECAY	src/GeProcessor.cpp	/^	const int DD_ENERGY_WITH_DECAY     = DD_ENERGY       + DECAY_OFFSET;$/;"	m	namespace:dammIds::ge	file:
-DD_ENERGY__DECAY_TIME_GRANX	include/damm_plotids.h	/^        const int DD_ENERGY__DECAY_TIME_GRANX = 750;$/;"	m	namespace:dammIds::dssd
+DD_ENERGY__DECAY_TIME_GRANX	include/damm_plotids.h	/^        const int DD_ENERGY__DECAY_TIME_GRANX = 1750;$/;"	m	namespace:dammIds::dssd
 DD_ENERGY__LOCATION_BEAM	include/damm_plotids.h	/^        const int DD_ENERGY__LOCATION_BEAM     = 2742;$/;"	m	namespace:dammIds::implantSsd
 DD_ENERGY__LOCATION_NOBEAM	include/damm_plotids.h	/^        const int DD_ENERGY__LOCATION_NOBEAM   = 2743;$/;"	m	namespace:dammIds::implantSsd
 DD_ENERGY__LOCATION_PROJLIKE	include/damm_plotids.h	/^        const int DD_ENERGY__LOCATION_PROJLIKE = 2745;$/;"	m	namespace:dammIds::implantSsd
@@ -163,16 +166,16 @@ DD_ENERGY__LOCATION_VETO	include/damm_plotids.h	/^        const int DD_ENERGY__L
 DD_ENERGY__TIMEX	src/GeProcessor.cpp	/^	    const int DD_ENERGY__TIMEX       = dammIds::ge::DD_ENERGY__TIMEX + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
 DD_ENERGY__TIMEX	src/GeProcessor.cpp	/^	const int DD_ENERGY__TIMEX         = 1621; \/\/ with x granularities$/;"	m	namespace:dammIds::ge	file:
 DD_ESUM__ENERGY_DETX	include/IonChamberProcessor.h	/^    const int DD_ESUM__ENERGY_DETX   = 3250; \/\/ + detector num    $/;"	m	namespace:dammIds::ionChamber
-DD_FILTER1	include/damm_plotids.h	/^        const int DD_FILTER1          = 851;$/;"	m	namespace:dammIds::trace
-DD_FILTER2	include/damm_plotids.h	/^        const int DD_FILTER2          = 852;$/;"	m	namespace:dammIds::trace
-DD_FILTER3	include/damm_plotids.h	/^        const int DD_FILTER3          = 853;$/;"	m	namespace:dammIds::trace
+DD_FILTER1	include/damm_plotids.h	/^        const int DD_FILTER1          = 1851;$/;"	m	namespace:dammIds::trace
+DD_FILTER2	include/damm_plotids.h	/^        const int DD_FILTER2          = 1852;$/;"	m	namespace:dammIds::trace
+DD_FILTER3	include/damm_plotids.h	/^        const int DD_FILTER3          = 1853;$/;"	m	namespace:dammIds::trace
 DD_FIRST_DECAY_ENERGY__TX	include/damm_plotids.h	/^        const int DD_FIRST_DECAY_ENERGY__TX   = 2830;$/;"	m	namespace:dammIds::implantSsd
 DD_FISSION_ENERGY__LOCATION	include/damm_plotids.h	/^        const int DD_FISSION_ENERGY__LOCATION  = 2750;$/;"	m	namespace:dammIds::implantSsd
-DD_IMPLANT_BACK_ENERGY__POSITION	include/damm_plotids.h	/^        const int DD_IMPLANT_BACK_ENERGY__POSITION  = 742;$/;"	m	namespace:dammIds::dssd
+DD_IMPLANT_BACK_ENERGY__POSITION	include/damm_plotids.h	/^        const int DD_IMPLANT_BACK_ENERGY__POSITION  = 1742;$/;"	m	namespace:dammIds::dssd
 DD_IMPLANT_ENERGY__LOCATION	include/damm_plotids.h	/^        const int DD_IMPLANT_ENERGY__LOCATION  = 2740;$/;"	m	namespace:dammIds::implantSsd
 DD_IMPLANT_ENERGY__TOFX	include/damm_plotids.h	/^        const int DD_IMPLANT_ENERGY__TOFX     = 2860;   $/;"	m	namespace:dammIds::implantSsd
-DD_IMPLANT_FRONT_ENERGY__POSITION	include/damm_plotids.h	/^        const int DD_IMPLANT_FRONT_ENERGY__POSITION = 741;$/;"	m	namespace:dammIds::dssd
-DD_IMPLANT_POSITION	include/damm_plotids.h	/^        const int DD_IMPLANT_POSITION = 725;$/;"	m	namespace:dammIds::dssd
+DD_IMPLANT_FRONT_ENERGY__POSITION	include/damm_plotids.h	/^        const int DD_IMPLANT_FRONT_ENERGY__POSITION = 1741;$/;"	m	namespace:dammIds::dssd
+DD_IMPLANT_POSITION	include/damm_plotids.h	/^        const int DD_IMPLANT_POSITION = 1725;$/;"	m	namespace:dammIds::dssd
 DD_LOC_VETO__LOC_SSD	include/damm_plotids.h	/^        const int DD_LOC_VETO__LOC_SSD         = 2747;$/;"	m	namespace:dammIds::implantSsd
 DD_MAX	include/damm_plotids.h	/^        const int DD_MAX         = 5003;$/;"	m	namespace:dammIds::pulserprocessor
 DD_MAXBETA	include/damm_plotids.h	/^        const int DD_MAXBETA          = 1910;$/;"	m	namespace:dammIds::scint
@@ -190,25 +193,31 @@ DD_MAXRVSTOF	include/damm_plotids.h	/^        const int DD_MAXRVSTOF        = 20
 DD_MAXVSTDIFF	include/damm_plotids.h	/^        const int DD_MAXVSTDIFF  = 5005;$/;"	m	namespace:dammIds::pulserprocessor
 DD_NGVSE	include/damm_plotids.h	/^        const int DD_NGVSE            = 1914;$/;"	m	namespace:dammIds::scint
 DD_POSITION	src/LitePositionProcessor.cpp	/^	const int DD_POSITION              = 2699;$/;"	m	namespace:dammIds::position	file:
-DD_POSITION	src/PositionProcessor.cpp	/^	const int DD_POSITION              = 2699;$/;"	m	namespace:dammIds::position	file:
+DD_POSITION	src/PositionProcessor.cpp	/^        const int DD_POSITION              = 399;$/;"	m	namespace:dammIds::position	file:
 DD_POSITION__ENERGY_DETX	include/damm_plotids.h	/^        const int DD_POSITION__ENERGY_DETX = 2701; \/\/ for x detectors$/;"	m	namespace:dammIds::ssd
 DD_POSITION__ENERGY_LOCX	src/LitePositionProcessor.cpp	/^	const int DD_POSITION__ENERGY_LOCX = 2680;$/;"	m	namespace:dammIds::position	file:
-DD_POSITION__ENERGY_LOCX	src/PositionProcessor.cpp	/^	const int DD_POSITION__ENERGY_LOCX = 2680;$/;"	m	namespace:dammIds::position	file:
-DD_POSXY	include/damm_plotids.h	/^        const int DD_POSXY = 923;$/;"	m	namespace:dammIds::mcp
+DD_POSITION__ENERGY_LOCX	src/PositionProcessor.cpp	/^        const int DD_POSITION__ENERGY_LOCX = 380;$/;"	m	namespace:dammIds::position	file:
+DD_POSXY	include/damm_plotids.h	/^        const int DD_POSXY = 1923;$/;"	m	namespace:dammIds::mcp
 DD_PROBLEMSQDC	include/damm_plotids.h	/^        const int DD_PROBLEMSQDC = 2601;$/;"	m	namespace:dammIds::vandle
 DD_PVSP	include/damm_plotids.h	/^        const int DD_PVSP        = 5004;$/;"	m	namespace:dammIds::pulserprocessor
 DD_QDC	include/damm_plotids.h	/^        const int DD_QDC         = 5002;$/;"	m	namespace:dammIds::pulserprocessor
+DD_QDC1R__POS_LOCX	src/PositionProcessor.cpp	/^        const int DD_QDC1R__POS_LOCX       = 460;$/;"	m	namespace:dammIds::position	file:
+DD_QDC2R__POS_LOCX	src/PositionProcessor.cpp	/^        const int DD_QDC2R__POS_LOCX       = 480;$/;"	m	namespace:dammIds::position	file:
+DD_QDC3R__POS_LOCX	src/PositionProcessor.cpp	/^        const int DD_QDC3R__POS_LOCX       = 500;$/;"	m	namespace:dammIds::position	file:
+DD_QDC4R__POS_LOCX	src/PositionProcessor.cpp	/^        const int DD_QDC4R__POS_LOCX       = 520;$/;"	m	namespace:dammIds::position	file:
 DD_QDCN__QDCN_LOCX	src/LitePositionProcessor.cpp	/^	const int DD_QDCN__QDCN_LOCX       = 2500;$/;"	m	namespace:dammIds::position	file:
-DD_QDCN__QDCN_LOCX	src/PositionProcessor.cpp	/^	const int DD_QDCN__QDCN_LOCX       = 2500;$/;"	m	namespace:dammIds::position	file:
+DD_QDCN__QDCN_LOCX	src/PositionProcessor.cpp	/^        const int DD_QDCN__QDCN_LOCX       = 200;$/;"	m	namespace:dammIds::position	file:
+DD_QDCR2__QDCR1_LOCX	src/PositionProcessor.cpp	/^        const int DD_QDCR2__QDCR1_LOCX       = 400;$/;"	m	namespace:dammIds::position	file:
+DD_QDCR2__QDCR3_LOCX	src/PositionProcessor.cpp	/^        const int DD_QDCR2__QDCR3_LOCX       = 420;$/;"	m	namespace:dammIds::position	file:
+DD_QDCR2__QDCR4_LOCX	src/PositionProcessor.cpp	/^        const int DD_QDCR2__QDCR4_LOCX       = 440;$/;"	m	namespace:dammIds::position	file:
 DD_QDCSUM__ENERGY_LOCX	src/LitePositionProcessor.cpp	/^	const int DD_QDCSUM__ENERGY_LOCX   = 4500;$/;"	m	namespace:dammIds::position	file:
-DD_QDCSUM__ENERGY_LOCX	src/PositionProcessor.cpp	/^	const int DD_QDCSUM__ENERGY_LOCX   = 4500;$/;"	m	namespace:dammIds::position	file:
 DD_QDCTOT__QDCTOT_LOCX	src/LitePositionProcessor.cpp	/^	const int DD_QDCTOT__QDCTOT_LOCX   = 2660;$/;"	m	namespace:dammIds::position	file:
-DD_QDCTOT__QDCTOT_LOCX	src/PositionProcessor.cpp	/^	const int DD_QDCTOT__QDCTOT_LOCX   = 2660;$/;"	m	namespace:dammIds::position	file:
+DD_QDCTOT__QDCTOT_LOCX	src/PositionProcessor.cpp	/^        const int DD_QDCTOT__QDCTOT_LOCX   = 360;$/;"	m	namespace:dammIds::position	file:
 DD_QDCVSMAX	include/damm_plotids.h	/^        const int DD_QDCVSMAX    = 5006;$/;"	m	namespace:dammIds::pulserprocessor
-DD_REJECTED_TRACE	include/damm_plotids.h	/^        const int DD_REJECTED_TRACE   = 855;$/;"	m	namespace:dammIds::trace
+DD_REJECTED_TRACE	include/damm_plotids.h	/^        const int DD_REJECTED_TRACE   = 1855;$/;"	m	namespace:dammIds::trace
 DD_RUNTIME_LOGIC	include/damm_plotids.h	/^      const int DD_RUNTIME_LOGIC = 3080;$/;"	m	namespace:dammIds::triggerlogic
-DD_RUNTIME_MSEC	include/damm_plotids.h	/^        const int DD_RUNTIME_MSEC      = 1010;$/;"	m	namespace:dammIds::misc
-DD_RUNTIME_SEC	include/damm_plotids.h	/^        const int DD_RUNTIME_SEC       = 1006;$/;"	m	namespace:dammIds::misc
+DD_RUNTIME_MSEC	include/damm_plotids.h	/^        const int DD_RUNTIME_MSEC      = 1410;$/;"	m	namespace:dammIds::misc
+DD_RUNTIME_SEC	include/damm_plotids.h	/^        const int DD_RUNTIME_SEC       = 1406;$/;"	m	namespace:dammIds::misc
 DD_TDIFFVSCORCORTOF	include/damm_plotids.h	/^        const int DD_TDIFFVSCORCORTOF = 2470;$/;"	m	namespace:dammIds::vandle
 DD_TDIFFVSCORTOF	include/damm_plotids.h	/^        const int DD_TDIFFVSCORTOF    = 2270;$/;"	m	namespace:dammIds::vandle
 DD_TDIFFVSTOF	include/damm_plotids.h	/^        const int DD_TDIFFVSTOF       = 2030;$/;"	m	namespace:dammIds::vandle
@@ -225,12 +234,12 @@ DD_TQDCBARS	include/damm_plotids.h	/^        const int DD_TQDCBARS         = 200
 DD_TQDCBETA	include/damm_plotids.h	/^        const int DD_TQDCBETA         = 1909;$/;"	m	namespace:dammIds::scint
 DD_TQDCBETA	include/damm_plotids.h	/^        const int DD_TQDCBETA         = 2005;$/;"	m	namespace:dammIds::vandle
 DD_TQDCLIQUID	include/damm_plotids.h	/^        const int DD_TQDCLIQUID       = 1911;$/;"	m	namespace:dammIds::scint
-DD_TRACE	include/damm_plotids.h	/^        const int DD_TRACE            = 850;$/;"	m	namespace:dammIds::trace
+DD_TRACE	include/damm_plotids.h	/^        const int DD_TRACE            = 1850;$/;"	m	namespace:dammIds::trace
 DD_TRCLIQUID	include/damm_plotids.h	/^        const int DD_TRCLIQUID        = 1916;$/;"	m	namespace:dammIds::scint
-DD_TRIPLE_TRACE	include/damm_plotids.h	/^        const int DD_TRIPLE_TRACE         = 880;$/;"	m	namespace:dammIds::trace
-DD_TRIPLE_TRACE_FILTER1	include/damm_plotids.h	/^        const int DD_TRIPLE_TRACE_FILTER1 = 881;$/;"	m	namespace:dammIds::trace
-DD_TRIPLE_TRACE_FILTER2	include/damm_plotids.h	/^        const int DD_TRIPLE_TRACE_FILTER2 = 882;$/;"	m	namespace:dammIds::trace
-DD_TRIPLE_TRACE_FILTER3	include/damm_plotids.h	/^        const int DD_TRIPLE_TRACE_FILTER3 = 883;$/;"	m	namespace:dammIds::trace
+DD_TRIPLE_TRACE	include/damm_plotids.h	/^        const int DD_TRIPLE_TRACE         = 1880;$/;"	m	namespace:dammIds::trace
+DD_TRIPLE_TRACE_FILTER1	include/damm_plotids.h	/^        const int DD_TRIPLE_TRACE_FILTER1 = 1881;$/;"	m	namespace:dammIds::trace
+DD_TRIPLE_TRACE_FILTER2	include/damm_plotids.h	/^        const int DD_TRIPLE_TRACE_FILTER2 = 1882;$/;"	m	namespace:dammIds::trace
+DD_TRIPLE_TRACE_FILTER3	include/damm_plotids.h	/^        const int DD_TRIPLE_TRACE_FILTER3 = 1883;$/;"	m	namespace:dammIds::trace
 DD_VETO_ENERGY__TOFX	include/damm_plotids.h	/^        const int DD_VETO_ENERGY__TOFX        = 2870;$/;"	m	namespace:dammIds::implantSsd
 DD_VETO_ENERGY__TX	include/damm_plotids.h	/^        const int DD_VETO_ENERGY__TX          = 2820;$/;"	m	namespace:dammIds::implantSsd
 DECAY_EVENT	include/Correlator.h	/^		      PROTON_EVENT, DECAY_EVENT, PROJECTILE_EVENT, GAMMA_EVENT,$/;"	e	enum:EventInfo::EEventTypes
@@ -256,9 +265,9 @@ D_ADD_ENERGY_CLOVERX	src/GeProcessor.cpp	/^	    const int D_ADD_ENERGY_CLOVERX =
 D_ADD_ENERGY_CLOVERX	src/GeProcessor.cpp	/^	const int D_ADD_ENERGY_CLOVERX  = D_ENERGY_CLOVERX + ADDBACK_OFFSET ; \/\/ addback for X detectors$/;"	m	namespace:dammIds::ge	file:
 D_ADD_ENERGY_TOTAL	src/GeProcessor.cpp	/^	    const int D_ADD_ENERGY_TOTAL   = dammIds::ge::D_ADD_ENERGY_TOTAL   + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
 D_ADD_ENERGY_TOTAL	src/GeProcessor.cpp	/^	const int D_ADD_ENERGY_TOTAL    = D_ADD_ENERGY_CLOVERX + MAX_CLOVERS;$/;"	m	namespace:dammIds::ge	file:
-D_BUFFER_END_TIME	include/damm_plotids.h	/^        const int D_BUFFER_END_TIME    = 1005;$/;"	m	namespace:dammIds::misc
-D_CAL_ENERGY	include/DetectorDriver.h	/^		       D_CAL_ENERGY        = 500,$/;"	e	enum:DetectorDriver::EHistograms
-D_CAL_ENERGY_REJECT	include/DetectorDriver.h	/^		       D_CAL_ENERGY_REJECT = 600,$/;"	e	enum:DetectorDriver::EHistograms
+D_BUFFER_END_TIME	include/damm_plotids.h	/^        const int D_BUFFER_END_TIME    = 1405;$/;"	m	namespace:dammIds::misc
+D_CAL_ENERGY	include/DetectorDriver.h	/^		       D_CAL_ENERGY        = 1001,$/;"	e	enum:DetectorDriver::EHistograms
+D_CAL_ENERGY_REJECT	include/DetectorDriver.h	/^		       D_CAL_ENERGY_REJECT = 1201,$/;"	e	enum:DetectorDriver::EHistograms
 D_CONDITION	include/damm_plotids.h	/^        const int D_CONDITION            = 6000;$/;"	m	namespace:dammIds::correlator
 D_COUNTER	include/damm_plotids.h	/^        const int D_COUNTER       = 1520;$/;"	m	namespace:dammIds::mtc
 D_COUNTER_MOVE0	include/damm_plotids.h	/^        const int D_COUNTER_MOVE0 = 1521;$/;"	m	namespace:dammIds::mtc
@@ -269,8 +278,8 @@ D_DISCRIM	include/damm_plotids.h	/^        const int D_DISCRIM           = 1913;
 D_DTIME_DETX	include/IonChamberProcessor.h	/^    const int D_DTIME_DETX    = 3230; \/\/ + detector num$/;"	m	namespace:dammIds::ionChamber
 D_ENERGY	src/GeProcessor.cpp	/^	    const int D_ENERGY             = dammIds::ge::D_ENERGY         + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
 D_ENERGY	src/GeProcessor.cpp	/^	const int D_ENERGY              = 1500;$/;"	m	namespace:dammIds::ge	file:
-D_ENERGY1	include/damm_plotids.h	/^        const int D_ENERGY1           = 865;$/;"	m	namespace:dammIds::trace
-D_ENERGY2	include/damm_plotids.h	/^        const int D_ENERGY2           = 866;	$/;"	m	namespace:dammIds::trace
+D_ENERGY1	include/damm_plotids.h	/^        const int D_ENERGY1           = 1865;$/;"	m	namespace:dammIds::trace
+D_ENERGY2	include/damm_plotids.h	/^        const int D_ENERGY2           = 1866;	$/;"	m	namespace:dammIds::trace
 D_ENERGYSUM	include/IonChamberProcessor.h	/^    const int D_ENERGYSUM     = 3200;$/;"	m	namespace:dammIds::ionChamber
 D_ENERGYTHREE_GROUPX	include/IonChamberProcessor.h	/^    const int D_ENERGYTHREE_GROUPX = 3210; \/\/ + starting det$/;"	m	namespace:dammIds::ionChamber
 D_ENERGYTWO_GROUPX	include/IonChamberProcessor.h	/^    const int D_ENERGYTWO_GROUPX   = 3220; \/\/ + starting det$/;"	m	namespace:dammIds::ionChamber
@@ -289,31 +298,31 @@ D_ENERGY_WITH_EXT0	src/GeProcessor.cpp	/^	const int D_ENERGY_WITH_EXT0    = 1526
 D_ENERGY_WITH_EXT1	src/GeProcessor.cpp	/^	    const int D_ENERGY_WITH_EXT1   = dammIds::ge::D_ENERGY_WITH_EXT1   + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
 D_ENERGY_WITH_EXT1	src/GeProcessor.cpp	/^	const int D_ENERGY_WITH_EXT1    = 1527; \/\/ with external detector (e.g. 3hen, vandle) $/;"	m	namespace:dammIds::ge	file:
 D_ENERGY_WITH_IMPLANT	src/GeProcessor.cpp	/^	const int D_ENERGY_WITH_IMPLANT = 1525;$/;"	m	namespace:dammIds::ge	file:
-D_EVENT_GAP	include/damm_plotids.h	/^        const int D_EVENT_GAP    = 1003;$/;"	m	namespace:dammIds::misc
-D_EVENT_LENGTH	include/damm_plotids.h	/^        const int D_EVENT_LENGTH = 1002;$/;"	m	namespace:dammIds::misc
-D_EVENT_MULTIPLICITY	include/damm_plotids.h	/^        const int D_EVENT_MULTIPLICITY = 1004;$/;"	m	namespace:dammIds::misc
+D_EVENT_GAP	include/damm_plotids.h	/^        const int D_EVENT_GAP    = 1403;$/;"	m	namespace:dammIds::misc
+D_EVENT_LENGTH	include/damm_plotids.h	/^        const int D_EVENT_LENGTH = 1402;$/;"	m	namespace:dammIds::misc
+D_EVENT_MULTIPLICITY	include/damm_plotids.h	/^        const int D_EVENT_MULTIPLICITY = 1404;$/;"	m	namespace:dammIds::misc
 D_FAST_DECAY_TRACE	include/damm_plotids.h	/^        const int D_FAST_DECAY_TRACE  = 4100;$/;"	m	namespace:dammIds::implantSsd
-D_FILTER_ENERGY	include/DetectorDriver.h	/^		       D_FILTER_ENERGY     = 200, \/\/ intermediate step with "raw" filter energy	$/;"	e	enum:DetectorDriver::EHistograms
-D_HAS_TRACE	include/DetectorDriver.h	/^		       D_HAS_TRACE = 800 };$/;"	e	enum:DetectorDriver::EHistograms
+D_FILTER_ENERGY	include/DetectorDriver.h	/^		       D_FILTER_ENERGY     = 201, \/\/ intermediate step with "raw" filter energy	$/;"	e	enum:DetectorDriver::EHistograms
+D_HAS_TRACE	include/DetectorDriver.h	/^		       D_HAS_TRACE = 801 };$/;"	e	enum:DetectorDriver::EHistograms
 D_HIGH_ENERGY_TRACE	include/damm_plotids.h	/^        const int D_HIGH_ENERGY_TRACE = 4200;$/;"	m	namespace:dammIds::implantSsd
-D_HIT_SPECTRUM	include/damm_plotids.h	/^        const int D_HIT_SPECTRUM = 1000;$/;"	m	namespace:dammIds::misc
+D_HIT_SPECTRUM	include/damm_plotids.h	/^        const int D_HIT_SPECTRUM = 1400;$/;"	m	namespace:dammIds::misc
 D_INFO_LOCX	src/LitePositionProcessor.cpp	/^	const int D_INFO_LOCX              = 2480;$/;"	m	namespace:dammIds::position	file:
-D_INFO_LOCX	src/PositionProcessor.cpp	/^	const int D_INFO_LOCX              = 2480;$/;"	m	namespace:dammIds::position	file:
+D_INFO_LOCX	src/PositionProcessor.cpp	/^        const int D_INFO_LOCX              = 180;$/;"	m	namespace:dammIds::position	file:
 D_MOVETIME	include/damm_plotids.h	/^        const int D_MOVETIME      = 1513;$/;"	m	namespace:dammIds::mtc
 D_MULT	src/GeProcessor.cpp	/^	const int D_MULT                = 1509;$/;"	m	namespace:dammIds::ge	file:
-D_NUMBER_OF_EVENTS	include/damm_plotids.h	/^        const int D_NUMBER_OF_EVENTS   = 1011;$/;"	m	namespace:dammIds::misc
-D_POSX	include/damm_plotids.h	/^        const int D_POSX   = 921;$/;"	m	namespace:dammIds::mcp
-D_POSY	include/damm_plotids.h	/^        const int D_POSY   = 922;$/;"	m	namespace:dammIds::mcp
+D_NUMBER_OF_EVENTS	include/damm_plotids.h	/^        const int D_NUMBER_OF_EVENTS   = 1411;$/;"	m	namespace:dammIds::misc
+D_POSX	include/damm_plotids.h	/^        const int D_POSX   = 1921;$/;"	m	namespace:dammIds::mcp
+D_POSY	include/damm_plotids.h	/^        const int D_POSY   = 1922;$/;"	m	namespace:dammIds::mcp
 D_PROBLEMS	include/damm_plotids.h	/^        const int D_PROBLEMS  = 2600;$/;"	m	namespace:dammIds::vandle
 D_PROBLEMSTUFF	include/damm_plotids.h	/^        const int D_PROBLEMSTUFF = 5001;$/;"	m	namespace:dammIds::pulserprocessor
 D_QDCNORMN_LOCX	src/LitePositionProcessor.cpp	/^	const int D_QDCNORMN_LOCX          = 2300;$/;"	m	namespace:dammIds::position	file:
-D_QDCNORMN_LOCX	src/PositionProcessor.cpp	/^	const int D_QDCNORMN_LOCX          = 2300;$/;"	m	namespace:dammIds::position	file:
+D_QDCNORMN_LOCX	src/PositionProcessor.cpp	/^        const int D_QDCNORMN_LOCX          = 0;$/;"	m	namespace:dammIds::position	file:
 D_QDCTOTNORM_LOCX	src/LitePositionProcessor.cpp	/^	const int D_QDCTOTNORM_LOCX        = 2460;$/;"	m	namespace:dammIds::position	file:
-D_QDCTOTNORM_LOCX	src/PositionProcessor.cpp	/^	const int D_QDCTOTNORM_LOCX        = 2460;$/;"	m	namespace:dammIds::position	file:
+D_QDCTOTNORM_LOCX	src/PositionProcessor.cpp	/^        const int D_QDCTOTNORM_LOCX        = 160;$/;"	m	namespace:dammIds::position	file:
 D_RATE_DETX	include/IonChamberProcessor.h	/^    const int D_RATE_DETX     = 3240; \/\/ + detector num$/;"	m	namespace:dammIds::ionChamber
-D_RAW_ENERGY	include/DetectorDriver.h	/^    enum EHistograms { D_RAW_ENERGY        = 100,$/;"	e	enum:DetectorDriver::EHistograms
-D_SCALAR	include/DetectorDriver.h	/^    enum EPublicHistograms { D_SCALAR = 300,$/;"	e	enum:DetectorDriver::EPublicHistograms
-D_SUBEVENT_GAP	include/damm_plotids.h	/^        const int D_SUBEVENT_GAP = 1001;$/;"	m	namespace:dammIds::misc
+D_RAW_ENERGY	include/DetectorDriver.h	/^    enum EHistograms { D_RAW_ENERGY        = 1,$/;"	e	enum:DetectorDriver::EHistograms
+D_SCALAR	include/DetectorDriver.h	/^    enum EPublicHistograms { D_SCALAR = 401,$/;"	e	enum:DetectorDriver::EPublicHistograms
+D_SUBEVENT_GAP	include/damm_plotids.h	/^        const int D_SUBEVENT_GAP = 1401;$/;"	m	namespace:dammIds::misc
 D_TDIFF0	include/damm_plotids.h	/^        const int D_TDIFF0        = 1510;$/;"	m	namespace:dammIds::mtc
 D_TDIFF1	include/damm_plotids.h	/^        const int D_TDIFF1        = 1511;$/;"	m	namespace:dammIds::mtc
 D_TDIFFSUM	include/damm_plotids.h	/^        const int D_TDIFFSUM      = 1512;$/;"	m	namespace:dammIds::mtc
@@ -323,15 +332,30 @@ D_TDIFF_LENGTHX	include/damm_plotids.h	/^      const int D_TDIFF_LENGTHX = 3050;
 D_TDIFF_STARTX	include/damm_plotids.h	/^      const int D_TDIFF_STARTX  = 3010;$/;"	m	namespace:dammIds::logic
 D_TDIFF_STOPX	include/damm_plotids.h	/^      const int D_TDIFF_STOPX   = 3020;$/;"	m	namespace:dammIds::logic
 D_TDIFF_SUMX	include/damm_plotids.h	/^      const int D_TDIFF_SUMX    = 3030;$/;"	m	namespace:dammIds::logic
-D_TIME	include/DetectorDriver.h	/^			     D_TIME   = 400 }; \/**< These get filled in PixieStd.cpp *\/$/;"	e	enum:DetectorDriver::EPublicHistograms
+D_TIME	include/DetectorDriver.h	/^			     D_TIME   = 601 }; \/**< These get filled in PixieStd.cpp *\/$/;"	e	enum:DetectorDriver::EPublicHistograms
 D_TIMEDIFF	include/damm_plotids.h	/^        const int D_TIMEDIFF     = 5000;$/;"	m	namespace:dammIds::pulserprocessor
 D_TIME_BW_ALL_IMPLANTS	include/damm_plotids.h	/^        const int D_TIME_BW_ALL_IMPLANTS = 6002;$/;"	m	namespace:dammIds::correlator
 D_TIME_BW_IMPLANTS	include/damm_plotids.h	/^        const int D_TIME_BW_IMPLANTS     = 6001;$/;"	m	namespace:dammIds::correlator
 D_TRACE	include/damm_plotids.h	/^        const int D_TRACE = 4000;$/;"	m	namespace:dammIds::trace
+DammPlot	DammPlots2/DammPlots.cpp	/^DammPlot::DammPlot(int dammId, int xSize, const char* title,$/;"	f	class:DammPlot
+DammPlot	DammPlots2/DammPlots.cpp	/^DammPlot::DammPlot(int dammId, int xSize, int ySize,$/;"	f	class:DammPlot
+DammPlot	DammPlots2/DammPlots.h	/^        DammPlot (int id) : id_(id), dim_(1) {}$/;"	f	class:DammPlot
+DammPlot	DammPlots2/DammPlots.h	/^class DammPlot {$/;"	c
+DammPlot	include/DammPlots.h	/^class DammPlot {$/;"	c
+DammPlot	src/DammPlots.cpp	/^DammPlot::DammPlot(int dammId, int xSize, const char* title,$/;"	f	class:DammPlot
+DammPlot	src/DammPlots.cpp	/^DammPlot::DammPlot(int dammId, int xSize, int ySize,$/;"	f	class:DammPlot
 Data	include/IonChamberProcessor.h	/^  struct Data {$/;"	s	class:IonChamberProcessor
+DeclareHistogram	DammPlots2/DammPlots.h	/^        bool DeclareHistogram(int dammId, string mne = "") {$/;"	f	class:Plots
+DeclareHistogram1D	DammPlots2/DammPlots.h	/^        void DeclareHistogram1D(int dammId, int xSize, const char* title, string mne = "") {$/;"	f	class:Plots
+DeclareHistogram1D	DammPlots2/DammPlots.h	/^        void DeclareHistogram1D(int dammId, int xSize, const char* title,$/;"	f	class:Plots
+DeclareHistogram1D	include/DammPlots.h	/^        bool DeclareHistogram1D(int dammId, int xSize, const char* title, string mne = "") {$/;"	f	class:Plots
+DeclareHistogram1D	include/DammPlots.h	/^        bool DeclareHistogram1D(int dammId, int xSize, const char* title,$/;"	f	class:Plots
 DeclareHistogram1D	src/DeclareHistogram.cpp	/^void DeclareHistogram1D(int dammId, int xSize, const char * title, int halfWordsPerChan)$/;"	f
 DeclareHistogram1D	src/DeclareHistogram.cpp	/^void DeclareHistogram1D(int dammId, int xSize, const char* title, int halfWordsPerChan,$/;"	f
 DeclareHistogram1D	src/DeclareHistogram.cpp	/^void DeclareHistogram1D(int dammId, int xSize, const char* title,$/;"	f
+DeclareHistogram2D	DammPlots2/DammPlots.h	/^        void DeclareHistogram2D(dammId, int xSize, int ySize,$/;"	f
+DeclareHistogram2D	DammPlots2/DammPlots.h	/^        void DeclareHistogram2D(int dammId, int xSize, int ySize,$/;"	f
+DeclareHistogram2D	include/DammPlots.h	/^        bool DeclareHistogram2D(int dammId, int xSize, int ySize,$/;"	f	class:Plots
 DeclareHistogram2D	src/DeclareHistogram.cpp	/^void DeclareHistogram2D(int dammId, int xSize, int ySize, $/;"	f
 DeclareHistogram2D	src/DeclareHistogram.cpp	/^void DeclareHistogram2D(int dammId, int xSize, int ySize, const char *title, $/;"	f
 DeclareHistogram2D	src/DeclareHistogram.cpp	/^void DeclareHistogram2D(int dammId, int xSize, int ySize,$/;"	f
@@ -340,7 +364,7 @@ DeclarePlots	src/Correlator.cpp	/^void Correlator::DeclarePlots() const$/;"	f	cl
 DeclarePlots	src/DetectorDriver.cpp	/^void DetectorDriver::DeclarePlots(void) const$/;"	f	class:DetectorDriver
 DeclarePlots	src/DoubleTraceAnalyzer.cpp	/^void DoubleTraceAnalyzer::DeclarePlots() const$/;"	f	class:DoubleTraceAnalyzer
 DeclarePlots	src/DssdProcessor.cpp	/^void DssdProcessor::DeclarePlots(void) const$/;"	f	class:DssdProcessor
-DeclarePlots	src/EventProcessor.cpp	/^void EventProcessor::DeclarePlots(void) const$/;"	f	class:EventProcessor
+DeclarePlots	src/EventProcessor.cpp	/^void EventProcessor::DeclarePlots(void)$/;"	f	class:EventProcessor
 DeclarePlots	src/GeProcessor.cpp	/^void GeProcessor::DeclarePlots(void) const$/;"	f	class:GeProcessor
 DeclarePlots	src/ImplantSsdProcessor.cpp	/^void ImplantSsdProcessor::DeclarePlots(void) const$/;"	f	class:ImplantSsdProcessor
 DeclarePlots	src/IonChamberProcessor.cpp	/^void IonChamberProcessor::DeclarePlots(void) const$/;"	f	class:IonChamberProcessor
@@ -348,7 +372,7 @@ DeclarePlots	src/LitePositionProcessor.cpp	/^void LitePositionProcessor::Declare
 DeclarePlots	src/LogicProcessor.cpp	/^void LogicProcessor::DeclarePlots(void) const$/;"	f	class:LogicProcessor
 DeclarePlots	src/McpProcessor.cpp	/^void McpProcessor::DeclarePlots(void) const$/;"	f	class:McpProcessor
 DeclarePlots	src/MtcProcessor.cpp	/^void MtcProcessor::DeclarePlots(void) const$/;"	f	class:MtcProcessor
-DeclarePlots	src/PositionProcessor.cpp	/^void PositionProcessor::DeclarePlots(void) const {$/;"	f	class:PositionProcessor
+DeclarePlots	src/PositionProcessor.cpp	/^void PositionProcessor::DeclarePlots() {$/;"	f	class:PositionProcessor
 DeclarePlots	src/PulserProcessor.cpp	/^void PulserProcessor::DeclarePlots(void) const$/;"	f	class:PulserProcessor
 DeclarePlots	src/ScintProcessor.cpp	/^void ScintProcessor::DeclarePlots(void) const$/;"	f	class:ScintProcessor
 DeclarePlots	src/SsdProcessor.cpp	/^void SsdProcessor::DeclarePlots(void) const$/;"	f	class:SsdProcessor
@@ -375,11 +399,11 @@ DssdProcessor	include/DssdProcessor.h	/^class DssdProcessor : public EventProces
 DssdProcessor	src/DssdProcessor.cpp	/^DssdProcessor::DssdProcessor() : $/;"	f	class:DssdProcessor
 EConditions	include/Correlator.h	/^  enum EConditions {INVALID_LOCATION     = 4,$/;"	g	class:Correlator
 EEventTypes	include/Correlator.h	/^    enum EEventTypes {IMPLANT_EVENT, ALPHA_EVENT, BETA_EVENT, FISSION_EVENT, $/;"	g	struct:EventInfo
-EHistograms	include/DetectorDriver.h	/^    enum EHistograms { D_RAW_ENERGY        = 100,$/;"	g	class:DetectorDriver
+EHistograms	include/DetectorDriver.h	/^    enum EHistograms { D_RAW_ENERGY        = 1,$/;"	g	class:DetectorDriver
 EM_PINGPONGBUFA_ADDR	include/pixie16app_defs.h	198;"	d
 EM_PINGPONGBUFB_ADDR	include/pixie16app_defs.h	199;"	d
 ENABLE_INPUT	include/pixie16app_defs.h	318;"	d
-EPublicHistograms	include/DetectorDriver.h	/^    enum EPublicHistograms { D_SCALAR = 300,$/;"	g	class:DetectorDriver
+EPublicHistograms	include/DetectorDriver.h	/^    enum EPublicHistograms { D_SCALAR = 401,$/;"	g	class:DetectorDriver
 ERROR	include/param.h	/^    const int ERROR = -100;$/;"	m	namespace:readbuff
 EVENTPROCESSORO	Makefile	/^EVENTPROCESSORO  = EventProcessor.$(ObjSuf)$/;"	m
 EVENT_CONTINUE	src/PixieStd.cpp	/^enum HistoPoints {BUFFER_START, BUFFER_END, EVENT_START = 10, EVENT_CONTINUE};$/;"	e	enum:HistoPoints	file:
@@ -437,8 +461,8 @@ GEPROCESSORO	Makefile	/^GEPROCESSORO     = GeProcessor.$(ObjSuf)$/;"	m
 GET2CC	scan/set2cc.f	/^      SUBROUTINE GET2CC(/;"	s
 GET_BASELINES	include/pixie16app_defs.h	322;"	d
 GET_TRACES	include/pixie16app_defs.h	320;"	d
-GeProcessor	include/GeProcessor.h	/^class GeProcessor : public EventProcessor $/;"	c
-GeProcessor	src/GeProcessor.cpp	/^GeProcessor::GeProcessor() : EventProcessor(), leafToClover()$/;"	f	class:GeProcessor
+GeProcessor	include/GeProcessor.h	/^class GeProcessor : public EventProcessor {$/;"	c
+GeProcessor	src/GeProcessor.cpp	/^GeProcessor::GeProcessor() : EventProcessor(), leafToClover(),$/;"	f	class:GeProcessor
 Generate	src/RandomPool.cpp	/^void RandomPool::Generate(void)$/;"	f	class:RandomPool
 Get	src/RandomPool.cpp	/^double RandomPool::Get(double range)$/;"	f	class:RandomPool
 GetCalEnergy	include/RawEvent.h	/^    double GetCalEnergy() const   {return calEnergy;}   \/**< Get the calibrated energy *\/$/;"	f	class:ChanEvent
@@ -598,7 +622,7 @@ LLL	scan/messlog.f	12;"	c	subroutine:MESSLOG
 LLL	scan/scanorux.f	10;"	c
 LNBY	scan/scanorux.f	/^      INTEGER*4    NHWH,LSTL,LNBY,/;"	v
 LOC_SUM	src/LitePositionProcessor.cpp	/^	const int LOC_SUM  = 18;$/;"	m	namespace:dammIds::position	file:
-LOC_SUM	src/PositionProcessor.cpp	/^	const int LOC_SUM  = 18;$/;"	m	namespace:dammIds::position	file:
+LOC_SUM	src/PositionProcessor.cpp	/^        const int LOC_SUM  = 18;$/;"	m	namespace:dammIds::position	file:
 LOGICPROCESSORO	Makefile	/^LOGICPROCESSORO  = LogicProcessor.$(ObjSuf)$/;"	m
 LOGUP	scan/scanorux.f	/^      INTEGER*4   MSSG,NAMPROG,LOGUT,LOGUP$/;"	v
 LOGUT	scan/scanorux.f	/^      INTEGER*4   MSSG,NAMPROG,LOGUT,/;"	v
@@ -697,6 +721,37 @@ N_SP_FPGA_CONF	include/pixie16app_defs.h	133;"	d
 N_SP_FPGA_CONF	include/pixie16app_defs.h	136;"	d
 N_TRIG_FPGA_CONF	include/pixie16app_defs.h	132;"	d
 OBJS	Makefile	/^OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \\$/;"	m
+OFFSET	DammPlots2/PlotsRegister.h	/^        const int OFFSET = 1;$/;"	m	namespace:dammIds::diagnostic
+OFFSET	DammPlots2/PlotsRegister.h	/^        const int OFFSET = 2000;$/;"	m	namespace:dammIds::mcp
+OFFSET	DammPlots2/PlotsRegister.h	/^        const int OFFSET = 2100;$/;"	m	namespace:dammIds::scint
+OFFSET	DammPlots2/PlotsRegister.h	/^        const int OFFSET = 2500;$/;"	m	namespace:dammIds::ge
+OFFSET	DammPlots2/PlotsRegister.h	/^        const int OFFSET = 3000;$/;"	m	namespace:dammIds::logic
+OFFSET	DammPlots2/PlotsRegister.h	/^        const int OFFSET = 3080;$/;"	m	namespace:dammIds::triggerlogic
+OFFSET	DammPlots2/PlotsRegister.h	/^        const int OFFSET = 3100;$/;"	m	namespace:dammIds::vandle
+OFFSET	DammPlots2/PlotsRegister.h	/^        const int OFFSET = 4000;$/;"	m	namespace:dammIds::waveformanalyzer
+OFFSET	DammPlots2/PlotsRegister.h	/^        const int OFFSET = 4100;$/;"	m	namespace:dammIds::ssd
+OFFSET	DammPlots2/PlotsRegister.h	/^        const int OFFSET = 4200;$/;"	m	namespace:dammIds::implantSsd
+OFFSET	DammPlots2/PlotsRegister.h	/^        const int OFFSET = 4500;$/;"	m	namespace:dammIds::mtc
+OFFSET	DammPlots2/PlotsRegister.h	/^        const int OFFSET = 5000;$/;"	m	namespace:dammIds::pulserprocessor
+OFFSET	DammPlots2/PlotsRegister.h	/^        const int OFFSET = 6000;$/;"	m	namespace:dammIds::correlator
+OFFSET	DammPlots2/PlotsRegister.h	/^        const int OFFSET = 7000;$/;"	m	namespace:dammIds::dssd
+OFFSET	DammPlots2/PlotsRegister.h	/^        const int OFFSET = 7500;$/;"	m	namespace:dammIds::trace
+OFFSET	include/PlotsRegister.h	/^        const int OFFSET = 1;$/;"	m	namespace:dammIds::diagnostic
+OFFSET	include/PlotsRegister.h	/^        const int OFFSET = 2000;$/;"	m	namespace:dammIds::mcp
+OFFSET	include/PlotsRegister.h	/^        const int OFFSET = 2100;$/;"	m	namespace:dammIds::scint
+OFFSET	include/PlotsRegister.h	/^        const int OFFSET = 2500;$/;"	m	namespace:dammIds::ge
+OFFSET	include/PlotsRegister.h	/^        const int OFFSET = 3000;$/;"	m	namespace:dammIds::logic
+OFFSET	include/PlotsRegister.h	/^        const int OFFSET = 3080;$/;"	m	namespace:dammIds::triggerlogic
+OFFSET	include/PlotsRegister.h	/^        const int OFFSET = 3100;$/;"	m	namespace:dammIds::vandle
+OFFSET	include/PlotsRegister.h	/^        const int OFFSET = 4000;$/;"	m	namespace:dammIds::waveformanalyzer
+OFFSET	include/PlotsRegister.h	/^        const int OFFSET = 4100;$/;"	m	namespace:dammIds::ssd
+OFFSET	include/PlotsRegister.h	/^        const int OFFSET = 4200;$/;"	m	namespace:dammIds::implantSsd
+OFFSET	include/PlotsRegister.h	/^        const int OFFSET = 4500;$/;"	m	namespace:dammIds::mtc
+OFFSET	include/PlotsRegister.h	/^        const int OFFSET = 4600;$/;"	m	namespace:dammIds::pulserprocessor
+OFFSET	include/PlotsRegister.h	/^        const int OFFSET = 5000;$/;"	m	namespace:dammIds::position
+OFFSET	include/PlotsRegister.h	/^        const int OFFSET = 6000;$/;"	m	namespace:dammIds::correlator
+OFFSET	include/PlotsRegister.h	/^        const int OFFSET = 7000;$/;"	m	namespace:dammIds::dssd
+OFFSET	include/PlotsRegister.h	/^        const int OFFSET = 7500;$/;"	m	namespace:dammIds::trace
 ORNL_PSD	include/pixie16app_defs.h	87;"	d
 ORPHAS	scan/scanorux.f	56;"	c
 ObjSuf	Makefile	/^ObjSuf        = o$/;"	m
@@ -724,6 +779,9 @@ PIXIE16_REVD_ITHEMBA	include/pixie16app_defs.h	67;"	d
 PIXIE16_REVISION	include/pixie16app_defs.h	70;"	d
 PIXIE16_WINDOWS_APPAPI	include/pixie16app_defs.h	95;"	d
 PIXIEO	Makefile	/^PIXIEO           = PixieStd.$(ObjSuf)$/;"	m
+PLOTSREGISTERO	Makefile	/^PLOTSREGISTERO   = PlotsRegister.$(ObjSuf)$/;"	m
+PLOTSREGISTER_H	DammPlots2/PlotsRegister.h	2;"	d
+PLOTSREGISTER_H	include/PlotsRegister.h	2;"	d
 POSITIONPROCESSORO	Makefile	/^POSITIONPROCESSORO = PositionProcessor.$(ObjSuf)$/;"	m
 PRESET_MAX_MODULES	include/pixie16app_defs.h	146;"	d
 PROGRAMS	Makefile	/^PROGRAMS = $(PIXIE)$/;"	m
@@ -737,9 +795,17 @@ Plot	src/Trace.cpp	/^void Trace::Plot(int id, int row) const$/;"	f	class:Trace
 PlotCal	src/DetectorDriver.cpp	/^int DetectorDriver::PlotCal(const ChanEvent *chan) const$/;"	f	class:DetectorDriver
 PlotRaw	src/DetectorDriver.cpp	/^int DetectorDriver::PlotRaw(const ChanEvent *chan) const$/;"	f	class:DetectorDriver
 PlotType	src/ImplantSsdProcessor.cpp	/^void ImplantSsdProcessor::PlotType(EventInfo &info, int loc, Correlator::EConditions cond)$/;"	f	class:ImplantSsdProcessor
+Plots	DammPlots2/DammPlots.h	/^        Plots (int offset, int range, PlotsRegister* reg) {$/;"	f	class:Plots
+Plots	DammPlots2/DammPlots.h	/^class Plots {$/;"	c
+Plots	include/DammPlots.h	/^        Plots (int offset, int range, PlotsRegister* reg) {$/;"	f	class:Plots
+Plots	include/DammPlots.h	/^class Plots {$/;"	c
+PlotsRegister	DammPlots2/PlotsRegister.h	/^        PlotsRegister(bool create) {}$/;"	f	class:PlotsRegister
+PlotsRegister	DammPlots2/PlotsRegister.h	/^class PlotsRegister {$/;"	c
+PlotsRegister	include/PlotsRegister.h	/^        PlotsRegister(bool create) {}$/;"	f	class:PlotsRegister
+PlotsRegister	include/PlotsRegister.h	/^class PlotsRegister {$/;"	c
 PositionProcessor	include/PositionProcessor.hpp	/^class PositionProcessor : public EventProcessor$/;"	c
 PositionProcessor	src/LitePositionProcessor.cpp	/^LitePositionProcessor::PositionProcessor() : EventProcessor()$/;"	f	class:LitePositionProcessor
-PositionProcessor	src/PositionProcessor.cpp	/^PositionProcessor::PositionProcessor() : EventProcessor()$/;"	f	class:PositionProcessor
+PositionProcessor	src/PositionProcessor.cpp	/^PositionProcessor::PositionProcessor() : EventProcessor(),$/;"	f	class:PositionProcessor
 Print	src/RawEvent.cpp	/^void Identifier::Print(void) const$/;"	f	class:Identifier
 PrintDecayList	src/Correlator.cpp	/^void CorrelationList::PrintDecayList() const$/;"	f	class:CorrelationList
 PrintDecayList	src/Correlator.cpp	/^void Correlator::PrintDecayList(unsigned int fch, unsigned int bch) const$/;"	f	class:Correlator
@@ -775,10 +841,43 @@ PulserProcessor	src/PulserProcessor.cpp	/^PulserProcessor::PulserProcessor(): Ev
 QDCLEN_MAX	include/pixie16app_defs.h	262;"	d
 QDCLEN_MIN	include/pixie16app_defs.h	263;"	d
 QDC_JUMP	src/LitePositionProcessor.cpp	/^	const int QDC_JUMP = 20;$/;"	m	namespace:dammIds::position	file:
-QDC_JUMP	src/PositionProcessor.cpp	/^	const int QDC_JUMP = 20;$/;"	m	namespace:dammIds::position	file:
+QDC_JUMP	src/PositionProcessor.cpp	/^        const int QDC_JUMP = 20;$/;"	m	namespace:dammIds::position	file:
+R	DammPlots2/PlotsRegister.h	/^        static PlotsRegister* R() {$/;"	f	class:PlotsRegister
+R	include/PlotsRegister.h	/^        static PlotsRegister* R() {$/;"	f	class:PlotsRegister
 RAMP_OFFSETDACS	include/pixie16app_defs.h	319;"	d
 RANDOMINDICES_LENGTH	include/pixie16app_defs.h	301;"	d
 RANDOMPOOLO	Makefile	/^RANDOMPOOLO      = RandomPool.$(ObjSuf)$/;"	m
+RANGE	DammPlots2/PlotsRegister.h	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::correlator
+RANGE	DammPlots2/PlotsRegister.h	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::implantSsd
+RANGE	DammPlots2/PlotsRegister.h	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::mtc
+RANGE	DammPlots2/PlotsRegister.h	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::pulserprocessor
+RANGE	DammPlots2/PlotsRegister.h	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::scint
+RANGE	DammPlots2/PlotsRegister.h	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::ssd
+RANGE	DammPlots2/PlotsRegister.h	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::waveformanalyzer
+RANGE	DammPlots2/PlotsRegister.h	/^        const int RANGE = 10;$/;"	m	namespace:dammIds::mcp
+RANGE	DammPlots2/PlotsRegister.h	/^        const int RANGE = 1999;$/;"	m	namespace:dammIds::diagnostic
+RANGE	DammPlots2/PlotsRegister.h	/^        const int RANGE = 200;$/;"	m	namespace:dammIds::trace
+RANGE	DammPlots2/PlotsRegister.h	/^        const int RANGE = 20;$/;"	m	namespace:dammIds::triggerlogic
+RANGE	DammPlots2/PlotsRegister.h	/^        const int RANGE = 500;$/;"	m	namespace:dammIds::dssd
+RANGE	DammPlots2/PlotsRegister.h	/^        const int RANGE = 500;$/;"	m	namespace:dammIds::ge
+RANGE	DammPlots2/PlotsRegister.h	/^        const int RANGE = 80;$/;"	m	namespace:dammIds::logic
+RANGE	DammPlots2/PlotsRegister.h	/^        const int RANGE = 900;$/;"	m	namespace:dammIds::vandle
+RANGE	include/PlotsRegister.h	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::correlator
+RANGE	include/PlotsRegister.h	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::implantSsd
+RANGE	include/PlotsRegister.h	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::mtc
+RANGE	include/PlotsRegister.h	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::pulserprocessor
+RANGE	include/PlotsRegister.h	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::scint
+RANGE	include/PlotsRegister.h	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::ssd
+RANGE	include/PlotsRegister.h	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::waveformanalyzer
+RANGE	include/PlotsRegister.h	/^        const int RANGE = 10;$/;"	m	namespace:dammIds::mcp
+RANGE	include/PlotsRegister.h	/^        const int RANGE = 1999;$/;"	m	namespace:dammIds::diagnostic
+RANGE	include/PlotsRegister.h	/^        const int RANGE = 200;$/;"	m	namespace:dammIds::trace
+RANGE	include/PlotsRegister.h	/^        const int RANGE = 20;$/;"	m	namespace:dammIds::triggerlogic
+RANGE	include/PlotsRegister.h	/^        const int RANGE = 500;$/;"	m	namespace:dammIds::dssd
+RANGE	include/PlotsRegister.h	/^        const int RANGE = 500;$/;"	m	namespace:dammIds::ge
+RANGE	include/PlotsRegister.h	/^        const int RANGE = 500;$/;"	m	namespace:dammIds::position
+RANGE	include/PlotsRegister.h	/^        const int RANGE = 80;$/;"	m	namespace:dammIds::logic
+RANGE	include/PlotsRegister.h	/^        const int RANGE = 900;$/;"	m	namespace:dammIds::vandle
 RAWEVENTO	Makefile	/^RAWEVENTO        = RawEvent.$(ObjSuf)$/;"	m
 READBUFFDATAO	Makefile	/^READBUFFDATAO    = ReadBuffData.$(ObjSuf)$/;"	m
 READBUFFDATAO	Makefile	/^READBUFFDATAO    = ReadBuffData.RevD.$(ObjSuf)$/;"	m
@@ -955,6 +1054,7 @@ ZeroNums	src/RawEvent.cpp	/^void ChanEvent::ZeroNums() $/;"	f	class:ChanEvent
 ZeroVar	src/RawEvent.cpp	/^void ChanEvent::ZeroVar() $/;"	f	class:ChanEvent
 __ALIASEDPAIR_HPP_	include/AliasedPair.hpp	13;"	d
 __CORRELATOR_PROCESSOR_H_	include/Correlator.h	8;"	d
+__DAMM_PLOTIDS_H_	DammPlots2/damm_plotids.h	2;"	d
 __DAMM_PLOTIDS_H_	include/damm_plotids.h	2;"	d
 __DETECTORDRIVER_H_	include/DetectorDriver.h	14;"	d
 __DETECTORLIBRARY_HPP_	include/DetectorLibrary.hpp	8;"	d
@@ -989,6 +1089,8 @@ __TRIGGERLOGICPROCESSOR_H_	include/TriggerLogicProcessor.h	8;"	d
 __VANDLEPROCESSOR_H_	include/VandleProcessor.h	7;"	d
 __WAVEFORMANALYZER_H_	include/WaveformAnalyzer.h	7;"	d
 adcClockInSeconds	include/param.h	/^    const double adcClockInSeconds = 10e-9; \/\/< one ADC clock is 10 ns$/;"	m	namespace:pixie
+add	DammPlots2/PlotsRegister.h	/^        void add (int offset, int range) {$/;"	f	class:PlotsRegister
+add	include/PlotsRegister.h	/^        void add (int offset, int range) {$/;"	f	class:PlotsRegister
 arraySize	include/Correlator.h	/^  static const size_t arraySize = 40; \/**< Size of the 2D array to hold the decay lists *\/$/;"	m	class:Correlator
 associatedTypes	include/EventProcessor.h	/^    std::set<std::string> associatedTypes;    $/;"	m	class:EventProcessor
 at	src/DetectorLibrary.cpp	/^DetectorLibrary::const_reference DetectorLibrary::at(DetectorLibrary::size_type idx) const$/;"	f	class:DetectorLibrary
@@ -1019,6 +1121,10 @@ calTime	include/RawEvent.h	/^    double calTime;            \/**< Calibrated tim
 cfdTime	include/RawEvent.h	/^    pixie::word_t cfdTime;     \/**< CFD trigger time in units of 1\/256 pixie clock ticks *\/$/;"	m	class:ChanEvent
 chanNum	include/RawEvent.h	/^    int    chanNum;            \/**< Channel number *\/$/;"	m	class:ChanEvent
 chansPerClover	include/GeProcessor.h	/^    static const unsigned int chansPerClover = 4; \/*!< number of channels per clover *\/$/;"	m	class:GeProcessor
+checkRange	DammPlots2/DammPlots.h	/^        bool checkRange (int id) {$/;"	f	class:Plots
+checkRange	include/DammPlots.h	/^        bool checkRange (int id) {$/;"	f	class:Plots
+checkrange	DammPlots2/PlotsRegister.h	/^        bool checkrange (int offset, int range) {$/;"	f	class:PlotsRegister
+checkrange	include/PlotsRegister.h	/^        bool checkrange (int offset, int range) {$/;"	f	class:PlotsRegister
 clear	src/Correlator.cpp	/^void CorrelationList::clear()$/;"	f	class:CorrelationList
 clockCount	include/Correlator.h	/^    unsigned long clockCount;$/;"	m	struct:EventInfo
 clockInSeconds	include/param.h	/^    const double clockInSeconds = 10e-9; \/\/< one pixie clock is 10 ns$/;"	m	namespace:pixie
@@ -1032,6 +1138,9 @@ corRadius	include/VandleProcessor.h	/^	double corRadius;$/;"	m	struct:VandleProc
 corrTime	include/Correlator.h	/^  static const double corrTime;   \/**< The maximum amount of time allowed$/;"	m	class:Correlator
 corrTime	src/Correlator.cpp	/^const double Correlator::corrTime   = 60; \/\/ used to be 3300$/;"	m	class:Correlator	file:
 correctedTime	include/RawEvent.h	/^    double correctedTime;      \/**< Energy-walk corrected time *\/$/;"	m	class:ChanEvent
+correlator	DammPlots2/PlotsRegister.h	/^    namespace correlator {$/;"	n	namespace:dammIds
+correlator	DammPlots2/damm_plotids.h	/^    namespace correlator {$/;"	n	namespace:dammIds
+correlator	include/PlotsRegister.h	/^    namespace correlator {$/;"	n	namespace:dammIds
 correlator	include/RawEvent.h	/^    Correlator correlator;                         \/**< class to correlate decay data with implantation data *\/$/;"	m	class:RawEvent
 correlator	include/damm_plotids.h	/^    namespace correlator {$/;"	n	namespace:dammIds
 count	include/StatsAccumulator.h	/^    int count;    \/\/< the number of values$/;"	m	class:StatsAccumulator
@@ -1044,7 +1153,10 @@ cutoffEnergy	src/DssdProcessor.cpp	/^const double DssdProcessor::cutoffEnergy = 
 cutoffEnergy	src/ImplantSsdProcessor.cpp	/^const double ImplantSsdProcessor::cutoffEnergy  = 1500;$/;"	m	class:ImplantSsdProcessor	file:
 cxxSrcSuf	Makefile	/^cxxSrcSuf = cxx$/;"	m
 dammID	include/RawEvent.h	/^    int dammID;            \/**< Damm spectrum number for plotting calibrated energies *\/$/;"	m	class:Identifier
+dammIds	DammPlots2/PlotsRegister.h	/^namespace dammIds {$/;"	n
+dammIds	DammPlots2/damm_plotids.h	/^namespace dammIds {$/;"	n
 dammIds	include/IonChamberProcessor.h	/^namespace dammIds$/;"	n
+dammIds	include/PlotsRegister.h	/^namespace dammIds {$/;"	n
 dammIds	include/damm_plotids.h	/^namespace dammIds {$/;"	n
 dammIds	src/GeProcessor.cpp	/^namespace dammIds {$/;"	n	file:
 dammIds	src/LitePositionProcessor.cpp	/^namespace dammIds {$/;"	n	file:
@@ -1062,10 +1174,18 @@ detSubtype	include/ScintProcessor.h	/^	string detSubtype;$/;"	m	struct:ScintProc
 detSubtype	include/VandleProcessor.h	/^	string detSubtype;$/;"	m	struct:VandleProcessor::VandleData
 detType	include/DetectorDriver.h	/^    string detType;         \/**< type of detector *\/$/;"	m	class:Calibration
 detectorend_	src/DetectorDriver.cpp	/^extern "C" void detectorend_()$/;"	f
+diagnostic	DammPlots2/PlotsRegister.h	/^    namespace diagnostic {$/;"	n	namespace:dammIds
+diagnostic	DammPlots2/damm_plotids.h	/^    namespace diagnostic {$/;"	n	namespace:dammIds
+diagnostic	include/PlotsRegister.h	/^    namespace diagnostic {$/;"	n	namespace:dammIds
 didProcess	include/EventProcessor.h	/^    bool didProcess;$/;"	m	class:EventProcessor
+dim_	DammPlots2/DammPlots.h	/^        const unsigned short dim_;$/;"	m	class:DammPlot
+dim_	include/DammPlots.h	/^        const unsigned short dim_;$/;"	m	class:DammPlot
 doubleTraceData	include/Trace.h	/^    std::map<std::string, double> doubleTraceData;$/;"	m	class:Trace
 driver	src/PixieStd.cpp	/^DetectorDriver driver;$/;"	v
 drrsub_	src/DeclareHistogram.cpp	/^extern "C" void drrsub_(unsigned int& iexist)$/;"	f
+dssd	DammPlots2/PlotsRegister.h	/^    namespace dssd {$/;"	n	namespace:dammIds
+dssd	DammPlots2/damm_plotids.h	/^    namespace dssd {$/;"	n	namespace:dammIds
+dssd	include/PlotsRegister.h	/^    namespace dssd {$/;"	n	namespace:dammIds
 dssd	include/damm_plotids.h	/^    namespace dssd {$/;"	n	namespace:dammIds
 dtime	include/Correlator.h	/^    double dtime;    \/\/\/< time since implant [pixie units]$/;"	m	struct:EventInfo
 emptyLocations	include/DetectorLibrary.hpp	/^    static std::set<int> emptyLocations; \/\/\/< dummy locations to return when map key does not exist$/;"	m	class:DetectorLibrary
@@ -1087,6 +1207,10 @@ eventList	include/RawEvent.h	/^    std::vector<ChanEvent*> eventList; \/**< list
 eventTime	include/RawEvent.h	/^    double eventTime;          \/**< The event time recorded by Pixie *\/$/;"	m	class:ChanEvent
 eventTimeHi	include/RawEvent.h	/^    pixie::word_t eventTimeHi; \/**< Upper 32 bits of pixie16 event time *\/$/;"	m	class:ChanEvent
 eventTimeLo	include/RawEvent.h	/^    pixie::word_t eventTimeLo; \/**< Lower 32 bits of pixie16 event time *\/$/;"	m	class:ChanEvent
+exists	DammPlots2/DammPlots.h	/^        bool exists (const string& mne) {$/;"	f	class:Plots
+exists	DammPlots2/DammPlots.h	/^        bool exists (int id) {$/;"	f	class:Plots
+exists	include/DammPlots.h	/^        bool exists (const string& mne) {$/;"	f	class:Plots
+exists	include/DammPlots.h	/^        bool exists (int id) {$/;"	f	class:Plots
 fSrcSuf	Makefile	/^fSrcSuf   = f$/;"	m
 fastFilter	include/TraceFilterer.h	/^    Trace fastFilter;   \/\/\/< fast filter of trace$/;"	m	class:TraceFilterer
 fastParms	include/TraceFilterer.h	/^    TrapezoidalFilterParameters  fastParms;$/;"	m	class:TraceFilterer
@@ -1105,9 +1229,14 @@ foilTime	include/Correlator.h	/^    double foilTime; \/\/\/< time difference to 
 frontSummary	include/DssdProcessor.h	/^    DetectorSummary *frontSummary; \/\/\/< all detectors of type dssd_front$/;"	m	class:DssdProcessor
 gammaGated	include/damm_plotids.h	/^            namespace gammaGated {$/;"	n	namespace:dammIds::scint::neutr
 gapSamples	include/Trace.h	/^    Trace::size_type gapSamples;$/;"	m	class:TrapezoidalFilterParameters
+ge	DammPlots2/PlotsRegister.h	/^    namespace ge {$/;"	n	namespace:dammIds
+ge	DammPlots2/damm_plotids.h	/^    namespace ge {$/;"	n	namespace:dammIds
+ge	include/PlotsRegister.h	/^    namespace ge {$/;"	n	namespace:dammIds
 ge	src/GeProcessor.cpp	/^    namespace ge {$/;"	n	namespace:dammIds	file:
 generation	include/Correlator.h	/^    short  generation; \/\/\/< generation number (0 = implant)$/;"	m	struct:EventInfo
 generator	include/RandomPool.h	/^  MTRand generator;     \/\/\/< random number generator$/;"	m	class:RandomPool
+getId	DammPlots2/DammPlots.h	/^        int getId() const {$/;"	f	class:DammPlot
+getId	include/DammPlots.h	/^        int getId() const {$/;"	f	class:DammPlot
 goodAlphaCut	include/ImplantSsdProcessor.h	/^    static const double goodAlphaCut; \/\/\/< interesting alpha energy$/;"	m	class:ImplantSsdProcessor
 goodAlphaCut	src/ImplantSsdProcessor.cpp	/^const double ImplantSsdProcessor::goodAlphaCut  = 950;$/;"	m	class:ImplantSsdProcessor	file:
 granploty	src/GeProcessor.cpp	/^void GeProcessor::granploty(int dammId, double x, double y, const vector<float> &granularity) const$/;"	f	class:GeProcessor
@@ -1124,8 +1253,19 @@ highResTime	include/VandleProcessor.h	/^	double highResTime;$/;"	m	struct:Vandle
 highTracesWritten	include/ImplantSsdProcessor.h	/^    unsigned int highTracesWritten;$/;"	m	class:ImplantSsdProcessor
 hissub_	src/PixieStd.cpp	/^extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)$/;"	f
 hissub_sec	src/PixieStd.cpp	/^void hissub_sec(word_t *ibuf[],unsigned int *nhw)$/;"	f
+histo	include/GeProcessor.h	/^    Plots histo;$/;"	m	class:GeProcessor
+histo	include/PositionProcessor.hpp	/^    Plots histo;$/;"	m	class:PositionProcessor
+id	DammPlots2/DammPlots.h	/^        virtual DammPlot* id(int id) {$/;"	f
+id	include/DammPlots.h	/^        virtual DammPlot* id(int id) {$/;"	f	class:Plots
 id	include/DetectorDriver.h	/^    int id;                 \/**< id of the detector determined as module # * 16 + channel number *\/$/;"	m	class:Calibration
+idList_	DammPlots2/DammPlots.h	/^        map <int, DammPlot*> idList_;$/;"	v
+idList_	include/DammPlots.h	/^        map <int, DammPlot*> idList_;$/;"	m	class:Plots
+id_	DammPlots2/DammPlots.h	/^        const int id_;$/;"	m	class:DammPlot
+id_	include/DammPlots.h	/^        const int id_;$/;"	m	class:DammPlot
 impMult	include/Correlator.h	/^    short  impMult;  \/\/\/< number of implant hits$/;"	m	struct:EventInfo
+implantSsd	DammPlots2/PlotsRegister.h	/^    namespace implantSsd {$/;"	n	namespace:dammIds
+implantSsd	DammPlots2/damm_plotids.h	/^    namespace implantSsd {$/;"	n	namespace:dammIds
+implantSsd	include/PlotsRegister.h	/^    namespace implantSsd {$/;"	n	namespace:dammIds
 implantSsd	include/damm_plotids.h	/^    namespace implantSsd {$/;"	n	namespace:dammIds
 implantTof	include/ImplantSsdProcessor.h	/^    static const double implantTof;   \/\/\/< minimum time-of-flight for an implant$/;"	m	class:ImplantSsdProcessor
 implantTof	src/ImplantSsdProcessor.cpp	/^const double ImplantSsdProcessor::implantTof    = 2800;$/;"	m	class:ImplantSsdProcessor	file:
@@ -1154,6 +1294,9 @@ load	include/MersenneTwister.h	/^inline void MTRand::load( uint32 *const loadArr
 location	include/PulserProcessor.h	/^	unsigned int location;$/;"	m	struct:PulserProcessor::PulserData
 location	include/RawEvent.h	/^    int location;          \/**< Specifies the real world location of the channel.$/;"	m	class:Identifier
 locations	include/DetectorLibrary.hpp	/^    std::map< mapkey_t, std::set<int> > locations; \/\/\/< collection of all used locations for a given type and subtype$/;"	m	class:DetectorLibrary
+logic	DammPlots2/PlotsRegister.h	/^    namespace logic {$/;"	n	namespace:dammIds
+logic	DammPlots2/damm_plotids.h	/^    namespace logic {$/;"	n	namespace:dammIds
+logic	include/PlotsRegister.h	/^    namespace logic {$/;"	n	namespace:dammIds
 logic	include/damm_plotids.h	/^    namespace logic {$/;"	n	namespace:dammIds
 logicBits	include/Correlator.h	/^    unsigned char logicBits[dammIds::logic::MAX_LOGIC+1];$/;"	m	struct:EventInfo
 logicStatus	include/LogicProcessor.h	/^    std::vector<bool>   logicStatus;   \/\/< current level of the logic signal$/;"	m	class:LogicProcessor
@@ -1163,6 +1306,7 @@ maxEvent	include/RawEvent.h	/^    ChanEvent* maxEvent;               \/**< event
 maxLeft	include/VandleProcessor.h	/^	double maxLeft;$/;"	m	struct:VandleProcessor::VandleDataRoot
 maxNormQdc	include/LitePositionProcessor.hpp	/^    std::vector<float> maxNormQdc; \/\/< the maximum normalized qdc observed for a location$/;"	m	class:LitePositionProcessor
 maxNormQdc	include/PositionProcessor.hpp	/^    std::vector<float> maxNormQdc; \/\/< the maximum normalized qdc observed for a location$/;"	m	class:PositionProcessor
+maxNumLocations	include/PositionProcessor.hpp	/^    static const int maxNumLocations = 12;$/;"	m	class:PositionProcessor
 maxPos	include/PulserProcessor.h	/^	int    maxPos;$/;"	m	struct:PulserProcessor::PulserData
 maxRight	include/VandleProcessor.h	/^	double maxRight;$/;"	m	struct:VandleProcessor::VandleDataRoot
 maxValue	include/PulserProcessor.h	/^	double maxValue;$/;"	m	struct:PulserProcessor::PulserData
@@ -1173,6 +1317,9 @@ maxpos	include/ScintProcessor.h	/^	double maxpos;$/;"	m	struct:ScintProcessor::S
 maxpos	include/VandleProcessor.h	/^	double maxpos;$/;"	m	struct:VandleProcessor::VandleData
 maxval	include/ScintProcessor.h	/^	double maxval;$/;"	m	struct:ScintProcessor::ScintData
 maxval	include/VandleProcessor.h	/^	double maxval;$/;"	m	struct:VandleProcessor::VandleData
+mcp	DammPlots2/PlotsRegister.h	/^    namespace mcp {	$/;"	n	namespace:dammIds
+mcp	DammPlots2/damm_plotids.h	/^    namespace mcp {	$/;"	n	namespace:dammIds
+mcp	include/PlotsRegister.h	/^    namespace mcp {	$/;"	n	namespace:dammIds
 mcp	include/damm_plotids.h	/^    namespace mcp {	$/;"	n	namespace:dammIds
 mcpMult	include/Correlator.h	/^    short  mcpMult;  \/\/\/< number of mcp hits$/;"	m	struct:EventInfo
 minImpTime	include/Correlator.h	/^  static const double minImpTime; \/**< The minimum amount of time that must$/;"	m	class:Correlator
@@ -1183,8 +1330,15 @@ minTime	include/IonChamberProcessor.h	/^  static const double minTime;$/;"	m	cla
 minTime	src/IonChamberProcessor.cpp	/^const double IonChamberProcessor::minTime = 18.0e-6 \/ clockInSeconds;$/;"	m	class:IonChamberProcessor	file:
 misc	include/damm_plotids.h	/^    namespace misc {$/;"	n	namespace:dammIds
 mixBits	include/MersenneTwister.h	/^	uint32 mixBits( const uint32& u, const uint32& v ) const$/;"	f	class:MTRand
+mne	DammPlots2/DammPlots.h	/^        virtual DammPlot* mne(string mne) {$/;"	f
+mne	include/DammPlots.h	/^        virtual DammPlot* mne(string mne) {$/;"	f	class:Plots
+mneList_	DammPlots2/DammPlots.h	/^        map <string, int> mneList_;$/;"	v
+mneList_	include/DammPlots.h	/^        map <string, int> mneList_;$/;"	m	class:Plots
 modChan	src/MapFile.cpp	/^DetectorLibrary modChan;$/;"	v
 modNum	include/RawEvent.h	/^    int    modNum;             \/**< Module number *\/$/;"	m	class:ChanEvent
+mtc	DammPlots2/PlotsRegister.h	/^    namespace mtc {$/;"	n	namespace:dammIds
+mtc	DammPlots2/damm_plotids.h	/^    namespace mtc {$/;"	n	namespace:dammIds
+mtc	include/PlotsRegister.h	/^    namespace mtc {$/;"	n	namespace:dammIds
 mtc	include/damm_plotids.h	/^    namespace mtc {$/;"	n	namespace:dammIds
 mult	include/IonChamberProcessor.h	/^    int mult;$/;"	m	struct:IonChamberProcessor::Data
 mult	include/McpProcessor.h	/^    int mult;$/;"	m	struct:McpProcessor::McpData
@@ -1216,6 +1370,8 @@ numTracesAnalyzed	include/TraceAnalyzer.h	/^    int numTracesAnalyzed;    \/\/\/
 numberOfChannels	include/param.h	/^    const size_t numberOfChannels = 16; \/\/< number of channels in a module$/;"	m	namespace:pixie
 numbers	include/RandomPool.h	/^  double numbers[size]; \/\/\/< the pool of random numbers$/;"	m	class:RandomPool
 offTime	include/Correlator.h	/^    double offTime;  \/\/\/< length of time beam has been off$/;"	m	struct:EventInfo
+offset_	DammPlots2/DammPlots.h	/^        int offset_;$/;"	v
+offset_	include/DammPlots.h	/^        int offset_;$/;"	m	class:Plots
 oldData	include/RawEvent.h	/^    pixie::word_t oldData[maxVsn][statSize]; \/**< Older statistics data to calculate the change in statistics *\/$/;"	m	class:StatsData
 operator !=	include/RawEvent.h	/^    bool operator!=(const Identifier &x) const {$/;"	f	class:Identifier
 operator ()	include/MersenneTwister.h	/^	double operator()() { return rand(); }  \/\/ same as rand()$/;"	f	class:MTRand
@@ -1227,6 +1383,8 @@ operator =	include/Trace.h	/^    const TFP& operator=(const TFP &right) {$/;"	f	
 operator =	src/StatsAccumulator.cpp	/^const StatsAccumulator& StatsAccumulator::operator=(const StatsAccumulator &x)$/;"	f	class:StatsAccumulator
 operator ==	include/RawEvent.h	/^    bool operator==(const Identifier &x) const {$/;"	f	class:Identifier
 operator >>	include/MersenneTwister.h	/^inline std::istream& operator>>( std::istream& is, MTRand& mtrand )$/;"	f
+operator []	include/DammPlots.h	/^        virtual DammPlot* operator[] (int id) {$/;"	f	class:Plots
+operator []	include/DammPlots.h	/^        virtual DammPlot* operator[] (string mne) {$/;"	f	class:Plots
 operator bool	include/MapFile.hpp	/^    operator bool() {return isRead;} \/\/\/< is the map file valid$/;"	f	class:MapFile
 pNext	include/MersenneTwister.h	/^	uint32 *pNext;     \/\/ next value to get from state$/;"	m	class:MTRand
 phase	include/PulserProcessor.h	/^	double phase;$/;"	m	struct:PulserProcessor::PulserData
@@ -1238,16 +1396,25 @@ pixie	include/param.h	/^namespace pixie {$/;"	n
 pixieEnergyContraction	include/RawEvent.h	/^    static const double pixieEnergyContraction; \/\/\/< energies from pixie16 are contracted by this number$/;"	m	class:ChanEvent
 pixieEnergyContraction	src/RawEvent.cpp	/^const double ChanEvent::pixieEnergyContraction = 2.0;$/;"	m	class:ChanEvent	file:
 pixieToWallClock	include/DetectorDriver.h	/^    pair<double, time_t> pixieToWallClock; \/**< rough estimate of pixie to wall clock *\/ $/;"	m	class:DetectorDriver
+plot	DammPlots2/DammPlots.cpp	/^void Plots::plot(double val1, double val2, double val3, const char *name) {$/;"	f	class:Plots
+plot	DammPlots2/DammPlots.h	/^        void plot(double x) {$/;"	f	class:DammPlot
+plot	src/DammPlots.cpp	/^void DammPlot::plot(double val1, double val2, double val3, const char *name) {$/;"	f	class:DammPlot
 plot	src/DeclareHistogram.cpp	/^void plot(int dammID, double val1, double val2, double val3, const char *name)$/;"	f
 plotSize	include/TriggerLogicProcessor.h	/^    int plotSize;$/;"	m	class:TriggerLogicProcessor
+plotsReg_	DammPlots2/PlotsRegister.h	/^        static PlotsRegister plotsReg_;$/;"	m	class:PlotsRegister
+plotsReg_	include/PlotsRegister.h	/^        static PlotsRegister plotsReg_;$/;"	m	class:PlotsRegister
 polyOrder	include/DetectorDriver.h	/^    unsigned int polyOrder; \/**< the order of the calibration *\/$/;"	m	class:Calibration
 posScale	include/LitePositionProcessor.hpp	/^    float posScale;        \/\/< an arbitrary scale for the position parameter to physical units$/;"	m	class:LitePositionProcessor
 posScale	include/PositionProcessor.hpp	/^    float posScale;        \/\/< an arbitrary scale for the position parameter to physical units$/;"	m	class:PositionProcessor
 position	include/Correlator.h	/^    double position; \/\/\/< calculated strip position$/;"	m	struct:EventInfo
+position	include/PlotsRegister.h	/^    namespace position {$/;"	n	namespace:dammIds
 position	src/LitePositionProcessor.cpp	/^    namespace position {$/;"	n	namespace:dammIds	file:
 position	src/PositionProcessor.cpp	/^    namespace position {$/;"	n	namespace:dammIds	file:
 pulse	include/TraceFilterer.h	/^    PulseInfo pulse;$/;"	m	class:TraceFilterer
 pulserMap	include/PulserProcessor.h	/^    std::map<std::string, struct PulserData> pulserMap;$/;"	m	class:PulserProcessor
+pulserprocessor	DammPlots2/PlotsRegister.h	/^    namespace pulserprocessor{ \/\/in PulserProcessor.cpp $/;"	n	namespace:dammIds
+pulserprocessor	DammPlots2/damm_plotids.h	/^    namespace pulserprocessor{ \/\/in PulserProcessor.cpp $/;"	n	namespace:dammIds
+pulserprocessor	include/PlotsRegister.h	/^    namespace pulserprocessor{ \/\/in PulserProcessor.cpp $/;"	n	namespace:dammIds
 pulserprocessor	include/damm_plotids.h	/^    namespace pulserprocessor{ \/\/in PulserProcessor.cpp $/;"	n	namespace:dammIds
 push_back	src/DetectorLibrary.cpp	/^void DetectorLibrary::push_back(const Identifier &x)$/;"	f	class:DetectorLibrary
 qdcLeft	include/VandleProcessor.h	/^	double qdcLeft;$/;"	m	struct:VandleProcessor::VandleDataRoot
@@ -1269,10 +1436,14 @@ randInt	include/MersenneTwister.h	/^inline MTRand::uint32 MTRand::randInt( const
 randInt	include/MersenneTwister.h	/^inline MTRand::uint32 MTRand::randInt()$/;"	f	class:MTRand
 randNorm	include/MersenneTwister.h	/^inline double MTRand::randNorm( const double& mean, const double& variance )$/;"	f	class:MTRand
 randoms	src/RandomPool.cpp	/^RandomPool randoms; \/\/\/< an ugly global to hold some random numbers$/;"	v
+range_	DammPlots2/DammPlots.h	/^        int range_;$/;"	v
+range_	include/DammPlots.h	/^        int range_;$/;"	m	class:Plots
 raw	include/IonChamberProcessor.h	/^    double raw[noDets];$/;"	m	struct:IonChamberProcessor::Data
 raw	include/McpProcessor.h	/^    double raw[nPos];$/;"	m	struct:McpProcessor::McpData
 rawev	src/PixieStd.cpp	/^RawEvent rawev;$/;"	v
 readbuff	include/param.h	/^namespace readbuff {$/;"	n
+register_	DammPlots2/PlotsRegister.h	/^        vector< pair<int, int> > register_;$/;"	m	class:PlotsRegister
+register_	include/PlotsRegister.h	/^        vector< pair<int, int> > register_;$/;"	m	class:PlotsRegister
 reload	include/MersenneTwister.h	/^inline void MTRand::reload()$/;"	f	class:MTRand
 riseSamples	include/Trace.h	/^    Trace::size_type riseSamples;$/;"	m	class:TrapezoidalFilterParameters
 runTime0	include/RawEvent.h	/^    pixie::word_t runTime0;    \/**< Lower bits of run time *\/$/;"	m	class:ChanEvent
@@ -1281,6 +1452,9 @@ runTime2	include/RawEvent.h	/^    pixie::word_t runTime2;    \/**< Higher bits o
 saturatedBit	include/RawEvent.h	/^    bool   saturatedBit;       \/**< Saturation flag from Pixie *\/$/;"	m	class:ChanEvent
 save	include/MersenneTwister.h	/^inline void MTRand::save( uint32* saveArray ) const$/;"	f	class:MTRand
 scanMode	src/PixieStd.cpp	/^const string scanMode = "scan";$/;"	v
+scint	DammPlots2/PlotsRegister.h	/^    namespace scint {$/;"	n	namespace:dammIds
+scint	DammPlots2/damm_plotids.h	/^    namespace scint {$/;"	n	namespace:dammIds
+scint	include/PlotsRegister.h	/^    namespace scint {$/;"	n	namespace:dammIds
 scint	include/damm_plotids.h	/^    namespace scint {$/;"	n	namespace:dammIds
 scintMap	include/VandleProcessor.h	/^    std::map<int, struct VandleData> scintMap;$/;"	m	class:VandleProcessor
 seed	include/MersenneTwister.h	/^inline void MTRand::seed( const uint32 oneSeed )$/;"	f	class:MTRand
@@ -1289,6 +1463,9 @@ seed	include/MersenneTwister.h	/^inline void MTRand::seed()$/;"	f	class:MTRand
 sigma	include/WaveformAnalyzer.h	/^	double * sigma;$/;"	m	struct:WaveformAnalyzer::FitData
 size	include/RandomPool.h	/^  static const size_t size = 1000000; \/\/\/< default size of the pool$/;"	m	class:RandomPool
 slowThreshold	include/TraceFilterer.h	/^    Trace::value_type            slowThreshold;$/;"	m	class:TraceFilterer
+ssd	DammPlots2/PlotsRegister.h	/^    namespace ssd {$/;"	n	namespace:dammIds
+ssd	DammPlots2/damm_plotids.h	/^    namespace ssd {$/;"	n	namespace:dammIds
+ssd	include/PlotsRegister.h	/^    namespace ssd {$/;"	n	namespace:dammIds
 ssd	include/damm_plotids.h	/^    namespace ssd {$/;"	n	namespace:dammIds
 startCount	include/LogicProcessor.h	/^    std::vector<unsigned long> startCount; \/\/< number of starts received$/;"	m	class:LogicProcessor
 statSize	include/RawEvent.h	/^    static const size_t statSize = N_DSP_PAR - DSP_IO_BORDER;$/;"	m	class:StatsData
@@ -1334,6 +1511,9 @@ totLen	include/PositionProcessor.hpp	/^    float totLen;          \/\/< calculat
 totalEnergy	include/GeProcessor.h	/^    double totalEnergy;$/;"	m	class:CloverEvent
 tqdc	include/ScintProcessor.h	/^	double tqdc;$/;"	m	struct:ScintProcessor::ScintData
 tqdc	include/VandleProcessor.h	/^	double tqdc;$/;"	m	struct:VandleProcessor::VandleData
+trace	DammPlots2/PlotsRegister.h	/^    namespace trace {$/;"	n	namespace:dammIds
+trace	DammPlots2/damm_plotids.h	/^    namespace trace {$/;"	n	namespace:dammIds
+trace	include/PlotsRegister.h	/^    namespace trace {$/;"	n	namespace:dammIds
 trace	include/PulserProcessor.h	/^	Trace  trace;$/;"	m	struct:PulserProcessor::PulserData
 trace	include/RawEvent.h	/^    Trace trace;               \/**< Channel trace if present *\/$/;"	m	class:ChanEvent
 trace	include/ScintProcessor.h	/^	const Trace &trace;$/;"	m	struct:ScintProcessor::ScintData
@@ -1346,6 +1526,9 @@ traceBins	src/TracePlotter.cpp	/^const int TracePlotter::traceBins = SC;$/;"	m	c
 trcQDC	include/PulserProcessor.h	/^	double trcQDC;$/;"	m	struct:PulserProcessor::PulserData
 tree	include/RootProcessor.h	/^    TTree *tree; \/\/< ROOT tree where event branches are filled$/;"	m	class:RootProcessor
 trigTime	include/RawEvent.h	/^    pixie::word_t trigTime;    \/**< The channel trigger time, trigger time and the lower 32 bits$/;"	m	class:ChanEvent
+triggerlogic	DammPlots2/PlotsRegister.h	/^    namespace triggerlogic {$/;"	n	namespace:dammIds
+triggerlogic	DammPlots2/damm_plotids.h	/^    namespace triggerlogic {$/;"	n	namespace:dammIds
+triggerlogic	include/PlotsRegister.h	/^    namespace triggerlogic {$/;"	n	namespace:dammIds
 triggerlogic	include/damm_plotids.h	/^    namespace triggerlogic {$/;"	n	namespace:dammIds
 twist	include/MersenneTwister.h	/^	uint32 twist( const uint32& m, const uint32& s0, const uint32& s1 ) const$/;"	f	class:MTRand
 type	include/Correlator.h	/^    EEventTypes type; \/\/\/< event type$/;"	m	struct:EventInfo
@@ -1360,6 +1543,9 @@ usedTypes	include/DetectorLibrary.hpp	/^    std::set<std::string> usedTypes;$/;"
 userTime	include/EventProcessor.h	/^    double userTime;$/;"	m	class:EventProcessor
 userTime	include/TraceAnalyzer.h	/^    double userTime;          \/\/\/< user time used by this class$/;"	m	class:TraceAnalyzer
 val	include/DetectorDriver.h	/^    vector<float> val;      \/**< the individual calibration coefficients in increasing order *\/$/;"	m	class:Calibration
+vandle	DammPlots2/PlotsRegister.h	/^    namespace vandle{ \/\/in VandleProcessor.cpp$/;"	n	namespace:dammIds
+vandle	DammPlots2/damm_plotids.h	/^    namespace vandle{ \/\/in VandleProcessor.cpp$/;"	n	namespace:dammIds
+vandle	include/PlotsRegister.h	/^    namespace vandle{ \/\/in VandleProcessor.cpp$/;"	n	namespace:dammIds
 vandle	include/damm_plotids.h	/^    namespace vandle{ $/;"	n	namespace:dammIds
 vandleBarMap	include/VandleProcessor.h	/^    std::map<int, struct VandleBarData> vandleBarMap;$/;"	m	class:VandleProcessor
 vandleCalMap	include/VandleProcessor.h	/^    std::map<int, struct VandleCal> vandleCalMap;$/;"	m	class:VandleProcessor
@@ -1369,6 +1555,9 @@ vecAnalyzer	include/DetectorDriver.h	/^    vector<TraceAnalyzer *> vecAnalyzer; 
 vecProcess	include/DetectorDriver.h	/^    vector<EventProcessor *> vecProcess; \/**< vector of processors to handle each event *\/$/;"	m	class:DetectorDriver
 vecProcess	include/RootProcessor.h	/^    vector<EventProcessor *> vecProcess;$/;"	m	class:RootProcessor
 virtualChannel	include/RawEvent.h	/^    bool   virtualChannel;     \/**< Flagged if generated virtually in Pixie DSP *\/$/;"	m	class:ChanEvent
+waveformanalyzer	DammPlots2/PlotsRegister.h	/^    namespace waveformanalyzer{$/;"	n	namespace:dammIds
+waveformanalyzer	DammPlots2/damm_plotids.h	/^    namespace waveformanalyzer{$/;"	n	namespace:dammIds
+waveformanalyzer	include/PlotsRegister.h	/^    namespace waveformanalyzer{$/;"	n	namespace:dammIds
 waveformanalyzer	include/damm_plotids.h	/^    namespace waveformanalyzer{$/;"	n	namespace:dammIds
 whichQdc	include/LitePositionProcessor.hpp	/^    int whichQdc;          \/\/< which qdc we are using for position determinatio$/;"	m	class:LitePositionProcessor
 whichQdc	include/PositionProcessor.hpp	/^    int whichQdc;          \/\/< which qdc we are using for position determinatio$/;"	m	class:PositionProcessor
@@ -1384,6 +1573,8 @@ zOffset	include/VandleProcessor.h	/^	double zOffset;$/;"	m	struct:VandleProcesso
 ~DetectorLibrary	src/DetectorLibrary.cpp	/^DetectorLibrary::~DetectorLibrary()$/;"	f	class:DetectorLibrary
 ~DoubleTraceAnalyzer	src/DoubleTraceAnalyzer.cpp	/^DoubleTraceAnalyzer::~DoubleTraceAnalyzer() $/;"	f	class:DoubleTraceAnalyzer
 ~EventProcessor	src/EventProcessor.cpp	/^EventProcessor::~EventProcessor() $/;"	f	class:EventProcessor
+~Plots	DammPlots2/DammPlots.h	/^        ~Plots () {$/;"	f
+~Plots	include/DammPlots.h	/^        ~Plots () {$/;"	f	class:Plots
 ~RootProcessor	src/RootProcessor.cpp	/^RootProcessor::~RootProcessor()$/;"	f	class:RootProcessor
 ~StatsAccumulator	src/StatsAccumulator.cpp	/^StatsAccumulator::~StatsAccumulator()$/;"	f	class:StatsAccumulator
 ~TauAnalyzer	src/TauAnalyzer.cpp	/^TauAnalyzer::~TauAnalyzer()$/;"	f	class:TauAnalyzer

@@ -36,7 +36,7 @@ class TraceAnalyzer {
     virtual ~TraceAnalyzer();
     
     virtual bool Init(void);
-    virtual void DeclarePlots(void) const;
+    virtual void DeclarePlots(void);
     virtual void Analyze(Trace &trace, 
 			 const std::string &type, const std::string &subtype);
     void EndAnalyze(Trace &trace);

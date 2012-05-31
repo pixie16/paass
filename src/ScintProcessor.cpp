@@ -23,7 +23,7 @@ ScintProcessor::ScintProcessor() : EventProcessor()
     associatedTypes.insert("scint"); // associate with the scint type
 }
 
-void ScintProcessor::DeclarePlots(void) const
+void ScintProcessor::DeclarePlots(void)
 {
     {
 	using namespace neutr::betaGated;

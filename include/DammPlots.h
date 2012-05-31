@@ -107,6 +107,7 @@ class Plots {
             if ( !exists(dammId) && !exists(mne) && checkRange(dammId) ) {
                 idList_.insert( pair<int, DammPlot*>(dammId, new DammPlot(dammId + offset_, xSize, title,
                                                      halfWordsPerChan, xHistLength, xLow, xHigh)) );
+
                 // Mnemonic is optional and added only if longer then 0
                 if (mne.size() > 0)
                     mneList_.insert( pair<string, int>(mne, dammId) );
@@ -115,13 +116,13 @@ class Plots {
                 if (checkRange(dammId))
                     cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
                 else
-                    cerr << "Id : " << dammId << " is outside of allowed range." << endl;
+                    cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+                exit(1);
                 return false;
             }
         }
 
         bool DeclareHistogram1D(int dammId, int xSize, const char* title, string mne = "") {
-            dammId += offset_;
             if ( !exists(dammId) && !exists(mne) && checkRange(dammId) ) {
                 idList_.insert( pair<int, DammPlot*>(dammId, new DammPlot(dammId + offset_, xSize, title)) );
                 // Mnemonic is optional and added only if longer then 0
@@ -132,7 +133,8 @@ class Plots {
                 if (checkRange(dammId) )
                     cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
                 else
-                    cerr << "Id : " << dammId << " is outside of allowed range." << endl;
+                    cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+                exit(1);
                 return false;
             }
         }
@@ -149,7 +151,8 @@ class Plots {
                 if (checkRange(dammId) )
                     cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
                 else
-                    cerr << "Id : " << dammId << " is outside of allowed range." << endl;
+                    cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+                exit(1);
                 return false;
             }
         }
@@ -170,7 +173,8 @@ class Plots {
                 if (checkRange(dammId) )
                     cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
                 else
-                    cerr << "Id : " << dammId << " is outside of allowed range." << endl;
+                    cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+                exit(1);
                 return false;
             }
         }
@@ -186,7 +190,8 @@ class Plots {
                 if (checkRange(dammId) )
                     cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
                 else
-                    cerr << "Id : " << dammId << " is outside of allowed range." << endl;
+                    cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+                exit(1);
                 return false;
             }
         }
@@ -205,7 +210,8 @@ class Plots {
                 if (checkRange(dammId) )
                     cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
                 else
-                    cerr << "Id : " << dammId << " is outside of allowed range." << endl;
+                    cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+                exit(1);
                 return false;
             }
         }
@@ -216,7 +222,7 @@ class Plots {
                 return idList_[id];
             else {
                 cerr << "Histogram " << id << " does not exists!" << endl;
-                return 0;
+                exit(1);
             }
         }
 
@@ -226,7 +232,7 @@ class Plots {
                 return idList_[id];
             else {
                 cerr << "Histogram " << id << " does not exists!" << endl;
-                return 0;
+                exit(1);
             }
         }
 
@@ -236,7 +242,7 @@ class Plots {
                 return idList_[mneList_[mne]];
             else {
                 cerr << "Histogram " << mne << " does not exists!" << endl;
-                return 0;
+                exit(1);
             }
         }
 
@@ -246,7 +252,7 @@ class Plots {
                 return idList_[mneList_[mne]];
             else {
                 cerr << "Histogram " << mne << " does not exists!" << endl;
-                return 0;
+                exit(1);
             }
         }
 

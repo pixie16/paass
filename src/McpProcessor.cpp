@@ -29,7 +29,7 @@ McpProcessor::McpProcessor(void)
   associatedTypes.insert("mcp");
 }
 
-void McpProcessor::DeclarePlots(void) const
+void McpProcessor::DeclarePlots(void)
 {
   using namespace dammIds::mcp;
 

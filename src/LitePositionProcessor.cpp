@@ -133,7 +133,7 @@ bool LitePositionProcessor::Init(DetectorDriver &driver)
 /**
  *  Declare all the plots we plan on using (part of dammIds::qdc namespace)
  */
-void LitePositionProcessor::DeclarePlots(void) const
+void LitePositionProcessor::DeclarePlots(void)
 {
     using namespace dammIds::position;
 

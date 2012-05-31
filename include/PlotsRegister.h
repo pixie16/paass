@@ -148,7 +148,7 @@ namespace dammIds {
 
     namespace position {
         const int OFFSET = 5000;
-        const int RANGE = 500;
+        const int RANGE = 600;
     }
 
     // in correlator.cpp

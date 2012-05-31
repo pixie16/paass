@@ -201,7 +201,7 @@ bool GeProcessor::Init(DetectorDriver &driver)
 }
 
 /** Declare plots including many for decay/implant/neutron gated analysis  */
-void GeProcessor::DeclarePlots(void) const
+void GeProcessor::DeclarePlots(void) 
 {
     const int energyBins1  = SE;
     const int energyBins2  = SC;

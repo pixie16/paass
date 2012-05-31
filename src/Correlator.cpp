@@ -184,7 +184,7 @@ Correlator::~Correlator()
     }    
 }
 
-void Correlator::DeclarePlots() const
+void Correlator::DeclarePlots()
 {
     using namespace dammIds::correlator;
     static bool done = false;

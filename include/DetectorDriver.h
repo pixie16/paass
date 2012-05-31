@@ -67,7 +67,7 @@ class DetectorDriver {
     int PlotRaw(const ChanEvent *) const;
     int PlotCal(const ChanEvent *) const;
 
-    void DeclarePlots(void) const; /**< declare the necessary damm plots */
+    void DeclarePlots(void); /**< declare the necessary damm plots */
     bool SanityCheck(void) const;  /**< check whether everything makes sense */
 
     void CorrelateClock(double d, time_t t) {
