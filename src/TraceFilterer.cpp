@@ -117,7 +117,7 @@ bool TraceFilterer::Init(const string &filterFile)
 }
 
 
-void TraceFilterer::DeclarePlots(void) const
+void TraceFilterer::DeclarePlots(void)
 {
     using namespace dammIds::trace;
 

@@ -26,7 +26,7 @@ DssdProcessor::DssdProcessor() :
     associatedTypes.insert("dssd_back");
 }
 
-void DssdProcessor::DeclarePlots(void) const
+void DssdProcessor::DeclarePlots(void)
 {
     using namespace dammIds::dssd;
 

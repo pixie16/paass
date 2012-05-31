@@ -81,7 +81,7 @@ void VandleProcessor::ReadVandleCal(void)
    vandleCalFile.close();
 }
 
-void VandleProcessor::DeclarePlots(void) const
+void VandleProcessor::DeclarePlots(void)
 {
     DeclareHistogram1D(D_PROBLEMS, S5, "Problem Detectors");
     DeclareHistogram2D(DD_PROBLEMSQDC, S7, S7, "PROBLEM TRACES");

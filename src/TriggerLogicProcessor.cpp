@@ -21,7 +21,7 @@ TriggerLogicProcessor::TriggerLogicProcessor(void) : LogicProcessor()
     plotSize = SA;
 }
 
-void TriggerLogicProcessor::DeclarePlots(void) const
+void TriggerLogicProcessor::DeclarePlots(void)
 {
     using namespace dammIds::triggerlogic;
     using namespace dammIds::logic;

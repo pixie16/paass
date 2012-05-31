@@ -18,7 +18,7 @@ SsdProcessor::SsdProcessor() : EventProcessor()
     associatedTypes.insert("ssd");
 }
 
-void SsdProcessor::DeclarePlots(void) const
+void SsdProcessor::DeclarePlots(void)
 {
     using namespace dammIds::ssd;
     

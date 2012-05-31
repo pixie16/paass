@@ -208,7 +208,7 @@ int DetectorDriver::ProcessEvent(const string &mode){
 }
 
 // declare plots for all the event processors
-void DetectorDriver::DeclarePlots(void) const
+void DetectorDriver::DeclarePlots(void)
 {
     for (vector<TraceAnalyzer *>::const_iterator it = vecAnalyzer.begin();
 	 it != vecAnalyzer.end(); it++) {

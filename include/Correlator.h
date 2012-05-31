@@ -95,7 +95,7 @@ class Correlator
   Correlator();
   ~Correlator();
 
-  void DeclarePlots(void) const;
+  void DeclarePlots(void);
   void Init(void);
   void Correlate(EventInfo &event, unsigned int fch, unsigned int bch);  
   void CorrelateAll(EventInfo &event); 

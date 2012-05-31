@@ -89,7 +89,7 @@ void TraceAnalyzer::EndAnalyze(void)
 }
 
 /** declare the damm plots */
-void TraceAnalyzer::DeclarePlots() const
+void TraceAnalyzer::DeclarePlots()
 {
     // do nothing
 }

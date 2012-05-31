@@ -37,7 +37,6 @@ namespace dammIds {
         const int DD_QDC2R__POS_LOCX       = 480;
         const int DD_QDC3R__POS_LOCX       = 500;
         const int DD_QDC4R__POS_LOCX       = 520;
-
     }
 }
 
@@ -236,7 +235,7 @@ void PositionProcessor::DeclarePlots() {
     histo.DeclareHistogram2D(DD_POSITION__ENERGY_LOCX + LOC_SUM, positionBins, energyBins, "All energy vs. position");
 
     histo.DeclareHistogram1D(D_INFO_LOCX + LOC_SUM, infoBins, "ALL INFO");
-    histo.DeclareHistogram2D(DD_POSITION, locationBins, positionBins, "Qdc Position");
+    histo.DeclareHistogram2D(DD_POSITION, locationBins, positionBins, "Qdc Position", "pos");
 }
 
 /**
@@ -473,7 +472,7 @@ bool PositionProcessor::Process(RawEvent &event) {
                 if (qdcSum < 1000 && sumchan->GetCalEnergy() > 15000) {
                     sumchan->GetTrace().InsertValue("badqdc", 1);
                 } else {
-                    histo[DD_POSITION]->plot(location, sumchan->GetTrace().GetValue("position"));
+                    histo["pos"]->plot(location, sumchan->GetTrace().GetValue("position"));
                 }
             }
         } // end loop over qdcs

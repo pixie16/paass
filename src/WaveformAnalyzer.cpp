@@ -52,7 +52,7 @@ WaveformAnalyzer::WaveformAnalyzer() : TraceAnalyzer()
     name = "Waveform";
 }
 
-void WaveformAnalyzer::DeclarePlots(void) const
+void WaveformAnalyzer::DeclarePlots(void)
 {
 }
 

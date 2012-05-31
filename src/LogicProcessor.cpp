@@ -27,7 +27,7 @@ LogicProcessor::LogicProcessor(void) :
     associatedTypes.insert("logic");
 }
 
-void LogicProcessor::DeclarePlots(void) const
+void LogicProcessor::DeclarePlots(void)
 {
     using namespace dammIds::logic;
     

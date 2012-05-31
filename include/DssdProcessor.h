@@ -23,7 +23,7 @@ class DssdProcessor : public EventProcessor
     static const double cutoffEnergy; ///< cutoff energy for implants versus decays
  public:
     DssdProcessor(); // no virtual c'tors
-    virtual void DeclarePlots(void) const;
+    virtual void DeclarePlots(void);
     virtual bool Process(RawEvent &event);
 };
 
