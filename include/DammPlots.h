@@ -20,11 +20,6 @@ class DammPlot {
             return id_;
         }
 
-        /** Dummy for test */
-        void plot(double x) {
-            cout << "Ploting point " << x << " in Histogram " << getId() << endl;
-        }
-
         void plot(double val1, double val2 = -1, double val3 = -1, const char* name="h");
 
     private:
@@ -33,9 +28,6 @@ class DammPlot {
 
         /** Plot number of dimensions */
         const unsigned short dim_;
-
-        /** Dummy constructor for tests */
-        DammPlot (int id) : id_(id), dim_(1) {}
 
         /** Only class Plots will have access to constructors,
          * user should not be allowed to create his own histograms 
@@ -107,23 +99,6 @@ class Plots {
                 return false;
             else
                 return true;
-        }
-
-        /** Dummy for test */
-        bool DeclareHistogram(int dammId, string mne = "") {
-            if ( !exists(dammId) && !exists(mne) && checkRange(dammId) ) {
-                idList_.insert( pair<int, DammPlot*>(dammId, new DammPlot(dammId + offset_)) );
-                // Mnemonic is optional and added only if longer then 0
-                if (mne.size() > 0)
-                    mneList_.insert( pair<string, int>(mne, dammId) );
-                return true;
-            } else {
-                if (checkRange(dammId) )
-                    cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
-                else
-                    cerr << "Id : " << dammId << " is outside of allowed range." << endl;
-                return false;
-            }
         }
 
         /** Here go C++ wrappers for histograms calls */
@@ -245,6 +220,16 @@ class Plots {
             }
         }
 
+        /** Gives access to Histogram by id.*/
+        virtual DammPlot* operator[] (int id) {
+            if (exists(id))
+                return idList_[id];
+            else {
+                cerr << "Histogram " << id << " does not exists!" << endl;
+                return 0;
+            }
+        }
+
         /** Gives access to Histogram by mnemonic .*/
         virtual DammPlot* mne(string mne) {
             if (exists(mne))
@@ -254,6 +239,17 @@ class Plots {
                 return 0;
             }
         }
+
+        /** Gives access to Histogram by mnemonic.*/
+        virtual DammPlot* operator[] (string mne) {
+            if (exists(mne))
+                return idList_[mneList_[mne]];
+            else {
+                cerr << "Histogram " << mne << " does not exists!" << endl;
+                return 0;
+            }
+        }
+
 
         ~Plots () {
             map <int, DammPlot*>::iterator it;
