@@ -103,6 +103,8 @@ MILDATIMO        = mildatim.$(ObjSuf)
 SCANORUXO        = scanorux.$(ObjSuf)
 
 # objects from cpp
+PLOTSREGISTERO   = PlotsRegister.$(ObjSuf)
+DAMMPLOTSO       = DammPlots.$(ObjSuf)
 PIXIEO           = PixieStd.$(ObjSuf)
 ACCUMULATORO     = StatsAccumulator.$(ObjSuf)
 HISTOGRAMMERO    = DeclareHistogram.$(ObjSuf)
@@ -155,6 +157,7 @@ endif
 
 #----- list of objects
 OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \
+		 $(PLOTSREGISTERO) $(DAMMPLOTSO) \
 	$(MTCPROCESSORO) $(MCPPROCESSORO) $(CORRELATORO) $(TRACESUBO) \
 	$(TRACEPLOTO) $(TRACEFILTERO) $(DOUBLETRACEO) \
 	$(MESSLOGO) $(MILDATIMO) $(SCANORUXO) $(ACCUMULATORO) $(PIXIEO) \
@@ -195,4 +198,4 @@ clean:
 #----------- link all created objects together
 #----------- to create pixie_ldf_c program
 $(PIXIE): $(OBJS) $(LIBS)
-	$(LINK.o) $^ -o $@ $(LDLIBS)
+	

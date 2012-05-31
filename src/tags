@@ -1,0 +1,746 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ADDBACK_OFFSET	GeProcessor.cpp	/^	const unsigned int ADDBACK_OFFSET = 50;$/;"	m	namespace:dammIds::ge	file:
+AddBranch	EventProcessor.cpp	/^bool EventProcessor::AddBranch(TTree *tree)$/;"	f	class:EventProcessor	signature:(TTree *tree)
+AddBranch	IonChamberProcessor.cpp	/^bool IonChamberProcessor::AddBranch(TTree *tree)$/;"	f	class:IonChamberProcessor	signature:(TTree *tree)
+AddBranch	McpProcessor.cpp	/^bool McpProcessor::AddBranch(TTree *tree)$/;"	f	class:McpProcessor	signature:(TTree *tree)
+AddBranch	VandleProcessor.cpp	/^bool VandleProcessor::AddBranch(TTree *tree)$/;"	f	class:VandleProcessor	signature:(TTree *tree)
+AddChan	RawEvent.cpp	/^void RawEvent::AddChan(ChanEvent *event)$/;"	f	class:RawEvent	signature:(ChanEvent *event)
+AddEvent	RawEvent.cpp	/^void DetectorSummary::AddEvent(ChanEvent *ev)$/;"	f	class:DetectorSummary	signature:(ChanEvent *ev)
+Analyze	DoubleTraceAnalyzer.cpp	/^void DoubleTraceAnalyzer::Analyze(Trace &trace, $/;"	f	class:DoubleTraceAnalyzer	signature:(Trace &trace, const string &type, const string &subtype)
+Analyze	TauAnalyzer.cpp	/^void TauAnalyzer::Analyze(Trace &trace, const string &aType, const string &aSubtype)$/;"	f	class:TauAnalyzer	signature:(Trace &trace, const string &aType, const string &aSubtype)
+Analyze	TraceAnalyzer.cpp	/^void TraceAnalyzer::Analyze(Trace &trace,$/;"	f	class:TraceAnalyzer	signature:(Trace &trace, const string &detType, const string &detSubtype)
+Analyze	TraceExtracter.cpp	/^void TraceExtracter::Analyze(Trace &trace,$/;"	f	class:TraceExtracter	signature:(Trace &trace, const string &aType, const string &aSubtype)
+Analyze	TraceFilterer.cpp	/^void TraceFilterer::Analyze(Trace &trace,$/;"	f	class:TraceFilterer	signature:(Trace &trace, const string &type, const string &subtype)
+Analyze	TracePlotter.cpp	/^void TracePlotter::Analyze(Trace &trace,$/;"	f	class:TracePlotter	signature:(Trace &trace, const string &type, const string &subtype)
+Analyze	WaveformAnalyzer.cpp	/^void WaveformAnalyzer::Analyze(Trace &trace,$/;"	f	class:WaveformAnalyzer	signature:(Trace &trace, const string &detType, const string &detSubtype)
+AnalyzeData	PulserProcessor.cpp	/^void PulserProcessor::AnalyzeData(void)$/;"	f	class:PulserProcessor	signature:(void)
+AnalyzeData	VandleProcessor.cpp	/^void VandleProcessor::AnalyzeData(void)$/;"	f	class:VandleProcessor	signature:(void)
+BETA_OFFSET	GeProcessor.cpp	/^	const unsigned int BETA_OFFSET    = 10;$/;"	m	namespace:dammIds::ge	file:
+BUFFER_END	PixieStd.cpp	/^enum HistoPoints {BUFFER_START, BUFFER_END, EVENT_START = 10, EVENT_CONTINUE};$/;"	e	enum:HistoPoints	file:
+BUFFER_START	PixieStd.cpp	/^enum HistoPoints {BUFFER_START, BUFFER_END, EVENT_START = 10, EVENT_CONTINUE};$/;"	e	enum:HistoPoints	file:
+BarEventCheck	VandleProcessor.cpp	/^bool VandleProcessor::BarEventCheck(const double &timeDiff, const string &barType)$/;"	f	class:VandleProcessor	signature:(const double &timeDiff, const string &barType)
+BendBar	VandleProcessor.cpp	/^double VandleProcessor::VandleBarData::BendBar(double &timeDiff, const VandleCal& Cal, const string &barType)$/;"	f	class:VandleProcessor::VandleBarData	signature:(double &timeDiff, const VandleCal& Cal, const string &barType)
+Calibrate	DetectorDriver.cpp	/^double Calibration::Calibrate(double raw)$/;"	f	class:Calibration	signature:(double raw)
+Calibration	DetectorDriver.cpp	/^Calibration::Calibration() : $/;"	f	class:Calibration	signature:()
+Calibration::Calibrate	DetectorDriver.cpp	/^double Calibration::Calibrate(double raw)$/;"	f	class:Calibration	signature:(double raw)
+Calibration::Calibration	DetectorDriver.cpp	/^Calibration::Calibration() : $/;"	f	class:Calibration	signature:()
+ChanEvent	RawEvent.cpp	/^ChanEvent::ChanEvent() {$/;"	f	class:ChanEvent	signature:()
+ChanEvent::ChanEvent	RawEvent.cpp	/^ChanEvent::ChanEvent() {$/;"	f	class:ChanEvent	signature:()
+ChanEvent::GetChanID	RawEvent.cpp	/^const Identifier& ChanEvent::GetChanID() const$/;"	f	class:ChanEvent	signature:() const
+ChanEvent::GetID	RawEvent.cpp	/^int ChanEvent::GetID() const $/;"	f	class:ChanEvent	signature:() const
+ChanEvent::GetQdcValue	RawEvent.cpp	/^unsigned long ChanEvent::GetQdcValue(int i) const$/;"	f	class:ChanEvent	signature:(int i) const
+ChanEvent::ZeroNums	RawEvent.cpp	/^void ChanEvent::ZeroNums() $/;"	f	class:ChanEvent	signature:()
+ChanEvent::ZeroVar	RawEvent.cpp	/^void ChanEvent::ZeroVar() $/;"	f	class:ChanEvent	signature:()
+ChanEvent::pixieEnergyContraction	RawEvent.cpp	/^const double ChanEvent::pixieEnergyContraction = 2.0;$/;"	m	class:ChanEvent	file:
+ChannelFromIndex	DetectorLibrary.cpp	/^int DetectorLibrary::ChannelFromIndex(int index) const$/;"	f	class:DetectorLibrary	signature:(int index) const
+Clear	IonChamberProcessor.cpp	/^void IonChamberProcessor::Data::Clear(void)$/;"	f	class:IonChamberProcessor::Data	signature:(void)
+Clear	McpProcessor.cpp	/^void McpProcessor::McpData::Clear(void)$/;"	f	class:McpProcessor::McpData	signature:(void)
+Clear	RawEvent.cpp	/^void RawEvent::Clear()$/;"	f	class:RawEvent	signature:()
+Clear	StatsAccumulator.cpp	/^void StatsAccumulator::Clear()$/;"	f	class:StatsAccumulator	signature:()
+CompareCorrectedTime	RawEvent.cpp	/^bool CompareCorrectedTime(const ChanEvent *a, const ChanEvent *b)$/;"	f	signature:(const ChanEvent *a, const ChanEvent *b)
+CompareTime	RawEvent.cpp	/^bool CompareTime(const ChanEvent *a, const ChanEvent *b)$/;"	f	signature:(const ChanEvent *a, const ChanEvent *b)
+CorrectTOF	VandleProcessor.cpp	/^double VandleProcessor::CorrectTOF(double &TOF, double &corRadius, const double &z0, const string &barType)$/;"	f	class:VandleProcessor	signature:(double &TOF, double &corRadius, const double &z0, const string &barType)
+Correlate	Correlator.cpp	/^void Correlator::Correlate(EventInfo &event, $/;"	f	class:Correlator	signature:(EventInfo &event, unsigned int fch, unsigned int bch)
+Correlate	ImplantSsdProcessor.cpp	/^void ImplantSsdProcessor::Correlate(Correlator &corr, EventInfo &info, int location)$/;"	f	class:ImplantSsdProcessor	signature:(Correlator &corr, EventInfo &info, int location)
+CorrelateAll	Correlator.cpp	/^void Correlator::CorrelateAll(EventInfo &event)$/;"	f	class:Correlator	signature:(EventInfo &event)
+CorrelateAllX	Correlator.cpp	/^void Correlator::CorrelateAllX(EventInfo &event, unsigned int bch)$/;"	f	class:Correlator	signature:(EventInfo &event, unsigned int bch)
+CorrelateAllY	Correlator.cpp	/^void Correlator::CorrelateAllY(EventInfo &event, unsigned int fch)$/;"	f	class:Correlator	signature:(EventInfo &event, unsigned int fch)
+CorrelationList	Correlator.cpp	/^CorrelationList::CorrelationList() : std::vector<EventInfo>()$/;"	f	class:CorrelationList	signature:()
+CorrelationList::CorrelationList	Correlator.cpp	/^CorrelationList::CorrelationList() : std::vector<EventInfo>()$/;"	f	class:CorrelationList	signature:()
+CorrelationList::Flag	Correlator.cpp	/^void CorrelationList::Flag() $/;"	f	class:CorrelationList	signature:()
+CorrelationList::GetDecayTime	Correlator.cpp	/^double CorrelationList::GetDecayTime() const$/;"	f	class:CorrelationList	signature:() const
+CorrelationList::GetImplantTime	Correlator.cpp	/^double CorrelationList::GetImplantTime() const$/;"	f	class:CorrelationList	signature:() const
+CorrelationList::IsFlagged	Correlator.cpp	/^bool CorrelationList::IsFlagged() const$/;"	f	class:CorrelationList	signature:() const
+CorrelationList::PrintDecayList	Correlator.cpp	/^void CorrelationList::PrintDecayList() const$/;"	f	class:CorrelationList	signature:() const
+CorrelationList::clear	Correlator.cpp	/^void CorrelationList::clear()$/;"	f	class:CorrelationList	signature:()
+Correlator	Correlator.cpp	/^Correlator::Correlator() : $/;"	f	class:Correlator	signature:()
+Correlator::Correlate	Correlator.cpp	/^void Correlator::Correlate(EventInfo &event, $/;"	f	class:Correlator	signature:(EventInfo &event, unsigned int fch, unsigned int bch)
+Correlator::CorrelateAll	Correlator.cpp	/^void Correlator::CorrelateAll(EventInfo &event)$/;"	f	class:Correlator	signature:(EventInfo &event)
+Correlator::CorrelateAllX	Correlator.cpp	/^void Correlator::CorrelateAllX(EventInfo &event, unsigned int bch)$/;"	f	class:Correlator	signature:(EventInfo &event, unsigned int bch)
+Correlator::CorrelateAllY	Correlator.cpp	/^void Correlator::CorrelateAllY(EventInfo &event, unsigned int fch)$/;"	f	class:Correlator	signature:(EventInfo &event, unsigned int fch)
+Correlator::Correlator	Correlator.cpp	/^Correlator::Correlator() : $/;"	f	class:Correlator	signature:()
+Correlator::DeclarePlots	Correlator.cpp	/^void Correlator::DeclarePlots() const$/;"	f	class:Correlator	signature:() const
+Correlator::Flag	Correlator.cpp	/^void Correlator::Flag(int fch, int bch) $/;"	f	class:Correlator	signature:(int fch, int bch)
+Correlator::GetDecayTime	Correlator.cpp	/^double Correlator::GetDecayTime(int fch, int bch) const$/;"	f	class:Correlator	signature:(int fch, int bch) const
+Correlator::GetDecayTime	Correlator.cpp	/^double Correlator::GetDecayTime(void) const$/;"	f	class:Correlator	signature:(void) const
+Correlator::GetImplantTime	Correlator.cpp	/^double Correlator::GetImplantTime(int fch, int bch) const$/;"	f	class:Correlator	signature:(int fch, int bch) const
+Correlator::GetImplantTime	Correlator.cpp	/^double Correlator::GetImplantTime(void) const$/;"	f	class:Correlator	signature:(void) const
+Correlator::Init	Correlator.cpp	/^void Correlator::Init()$/;"	f	class:Correlator	signature:()
+Correlator::IsFlagged	Correlator.cpp	/^bool Correlator::IsFlagged(int fch, int bch)$/;"	f	class:Correlator	signature:(int fch, int bch)
+Correlator::PrintDecayList	Correlator.cpp	/^void Correlator::PrintDecayList(unsigned int fch, unsigned int bch) const$/;"	f	class:Correlator	signature:(unsigned int fch, unsigned int bch) const
+Correlator::corrTime	Correlator.cpp	/^const double Correlator::corrTime   = 60; \/\/ used to be 3300$/;"	m	class:Correlator	file:
+Correlator::fastTime	Correlator.cpp	/^const double Correlator::fastTime   = 40e-6;$/;"	m	class:Correlator	file:
+Correlator::minImpTime	Correlator.cpp	/^const double Correlator::minImpTime = 5e-3;$/;"	m	class:Correlator	file:
+Correlator::~Correlator	Correlator.cpp	/^Correlator::~Correlator()$/;"	f	class:Correlator	signature:()
+DD_ADD_ENERGY	GeProcessor.cpp	/^	    const int DD_ADD_ENERGY          = DD_ENERGY + dammIds::ge::DECAY_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+DD_ADD_ENERGY	GeProcessor.cpp	/^	const int DD_ADD_ENERGY            = DD_ENERGY       + ADDBACK_OFFSET; \/\/ NOT DECLARED but useful to keep the scheme in mind$/;"	m	namespace:dammIds::ge	file:
+DD_ADD_ENERGY_DELAYED	GeProcessor.cpp	/^	    const int DD_ADD_ENERGY_DELAYED  = 1669;$/;"	m	namespace:dammIds::ge::betaGated	file:
+DD_ADD_ENERGY_PROMPT	GeProcessor.cpp	/^	    const int DD_ADD_ENERGY_PROMPT   = 1668;$/;"	m	namespace:dammIds::ge::betaGated	file:
+DD_ADD_ENERGY_WITH_DECAY	GeProcessor.cpp	/^	const int DD_ADD_ENERGY_WITH_DECAY = DD_ADD_ENERGY   + DECAY_OFFSET;$/;"	m	namespace:dammIds::ge	file:
+DD_ADD_ENERGY__TIMEX	GeProcessor.cpp	/^	    const int DD_ADD_ENERGY__TIMEX   = DD_ENERGY__TIMEX + dammIds::ge::ADDBACK_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+DD_ADD_ENERGY__TIMEX	GeProcessor.cpp	/^	const int DD_ADD_ENERGY__TIMEX     = DD_ENERGY__TIMEX + ADDBACK_OFFSET; \/\/ with x granularities$/;"	m	namespace:dammIds::ge	file:
+DD_CLOVER_ENERGY_RATIO	GeProcessor.cpp	/^	const int DD_CLOVER_ENERGY_RATIO   = 1607;$/;"	m	namespace:dammIds::ge	file:
+DD_ENERGY	GeProcessor.cpp	/^	    const int DD_ENERGY              = dammIds::ge::DD_ENERGY + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+DD_ENERGY	GeProcessor.cpp	/^	const int DD_ENERGY                = 1600;$/;"	m	namespace:dammIds::ge	file:
+DD_ENERGY_WITH_DECAY	GeProcessor.cpp	/^	const int DD_ENERGY_WITH_DECAY     = DD_ENERGY       + DECAY_OFFSET;$/;"	m	namespace:dammIds::ge	file:
+DD_ENERGY__TIMEX	GeProcessor.cpp	/^	    const int DD_ENERGY__TIMEX       = dammIds::ge::DD_ENERGY__TIMEX + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+DD_ENERGY__TIMEX	GeProcessor.cpp	/^	const int DD_ENERGY__TIMEX         = 1621; \/\/ with x granularities$/;"	m	namespace:dammIds::ge	file:
+DD_POSITION	LitePositionProcessor.cpp	/^	const int DD_POSITION              = 2699;$/;"	m	namespace:dammIds::position	file:
+DD_POSITION	PositionProcessor.cpp	/^	const int DD_POSITION              = 2699;$/;"	m	namespace:dammIds::position	file:
+DD_POSITION__ENERGY_LOCX	LitePositionProcessor.cpp	/^	const int DD_POSITION__ENERGY_LOCX = 2680;$/;"	m	namespace:dammIds::position	file:
+DD_POSITION__ENERGY_LOCX	PositionProcessor.cpp	/^	const int DD_POSITION__ENERGY_LOCX = 2680;$/;"	m	namespace:dammIds::position	file:
+DD_QDCN__QDCN_LOCX	LitePositionProcessor.cpp	/^	const int DD_QDCN__QDCN_LOCX       = 2500;$/;"	m	namespace:dammIds::position	file:
+DD_QDCN__QDCN_LOCX	PositionProcessor.cpp	/^	const int DD_QDCN__QDCN_LOCX       = 2500;$/;"	m	namespace:dammIds::position	file:
+DD_QDCSUM__ENERGY_LOCX	LitePositionProcessor.cpp	/^	const int DD_QDCSUM__ENERGY_LOCX   = 4500;$/;"	m	namespace:dammIds::position	file:
+DD_QDCSUM__ENERGY_LOCX	PositionProcessor.cpp	/^	const int DD_QDCSUM__ENERGY_LOCX   = 4500;$/;"	m	namespace:dammIds::position	file:
+DD_QDCTOT__QDCTOT_LOCX	LitePositionProcessor.cpp	/^	const int DD_QDCTOT__QDCTOT_LOCX   = 2660;$/;"	m	namespace:dammIds::position	file:
+DD_QDCTOT__QDCTOT_LOCX	PositionProcessor.cpp	/^	const int DD_QDCTOT__QDCTOT_LOCX   = 2660;$/;"	m	namespace:dammIds::position	file:
+DD_TDIFF__BETA_ENERGY	GeProcessor.cpp	/^	    const int DD_TDIFF__BETA_ENERGY  = 1616;$/;"	m	namespace:dammIds::ge::betaGated	file:
+DD_TDIFF__GAMMA_ENERGY	GeProcessor.cpp	/^	    const int DD_TDIFF__GAMMA_ENERGY = 1615;$/;"	m	namespace:dammIds::ge::betaGated	file:
+DECAY_OFFSET	GeProcessor.cpp	/^	const unsigned int DECAY_OFFSET   = 20;$/;"	m	namespace:dammIds::ge	file:
+D_ADD_ENERGY	GeProcessor.cpp	/^	    const int D_ADD_ENERGY         = dammIds::ge::D_ADD_ENERGY         + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+D_ADD_ENERGY	GeProcessor.cpp	/^	const int D_ADD_ENERGY          = D_ENERGY         + ADDBACK_OFFSET;$/;"	m	namespace:dammIds::ge	file:
+D_ADD_ENERGY_CLOVERX	GeProcessor.cpp	/^	    const int D_ADD_ENERGY_CLOVERX = dammIds::ge::D_ADD_ENERGY_CLOVERX + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+D_ADD_ENERGY_CLOVERX	GeProcessor.cpp	/^	const int D_ADD_ENERGY_CLOVERX  = D_ENERGY_CLOVERX + ADDBACK_OFFSET ; \/\/ addback for X detectors$/;"	m	namespace:dammIds::ge	file:
+D_ADD_ENERGY_TOTAL	GeProcessor.cpp	/^	    const int D_ADD_ENERGY_TOTAL   = dammIds::ge::D_ADD_ENERGY_TOTAL   + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+D_ADD_ENERGY_TOTAL	GeProcessor.cpp	/^	const int D_ADD_ENERGY_TOTAL    = D_ADD_ENERGY_CLOVERX + MAX_CLOVERS;$/;"	m	namespace:dammIds::ge	file:
+D_ENERGY	GeProcessor.cpp	/^	    const int D_ENERGY             = dammIds::ge::D_ENERGY         + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+D_ENERGY	GeProcessor.cpp	/^	const int D_ENERGY              = 1500;$/;"	m	namespace:dammIds::ge	file:
+D_ENERGY_BETA0	GeProcessor.cpp	/^	    const int D_ENERGY_BETA0       = 1516;$/;"	m	namespace:dammIds::ge::betaGated	file:
+D_ENERGY_BETA1	GeProcessor.cpp	/^	    const int D_ENERGY_BETA1       = 1517;$/;"	m	namespace:dammIds::ge::betaGated	file:
+D_ENERGY_CLOVERX	GeProcessor.cpp	/^	    const int D_ENERGY_CLOVERX     = dammIds::ge::D_ENERGY_CLOVERX + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+D_ENERGY_CLOVERX	GeProcessor.cpp	/^	const int D_ENERGY_CLOVERX      = 1501; \/\/ leaf by clover for X detectors$/;"	m	namespace:dammIds::ge	file:
+D_ENERGY_HIGHGAIN	GeProcessor.cpp	/^	const int D_ENERGY_HIGHGAIN     = 1508;$/;"	m	namespace:dammIds::ge	file:
+D_ENERGY_LOWGAIN	GeProcessor.cpp	/^	const int D_ENERGY_LOWGAIN      = 1507;$/;"	m	namespace:dammIds::ge	file:
+D_ENERGY_WITH_DECAY	GeProcessor.cpp	/^	const int D_ENERGY_WITH_DECAY   = D_ENERGY + DECAY_OFFSET;$/;"	m	namespace:dammIds::ge	file:
+D_ENERGY_WITH_EXT0	GeProcessor.cpp	/^	    const int D_ENERGY_WITH_EXT0   = dammIds::ge::D_ENERGY_WITH_EXT0   + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+D_ENERGY_WITH_EXT0	GeProcessor.cpp	/^	const int D_ENERGY_WITH_EXT0    = 1526; \/\/ with external detector (e.g. 3hen, vandle) $/;"	m	namespace:dammIds::ge	file:
+D_ENERGY_WITH_EXT1	GeProcessor.cpp	/^	    const int D_ENERGY_WITH_EXT1   = dammIds::ge::D_ENERGY_WITH_EXT1   + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+D_ENERGY_WITH_EXT1	GeProcessor.cpp	/^	const int D_ENERGY_WITH_EXT1    = 1527; \/\/ with external detector (e.g. 3hen, vandle) $/;"	m	namespace:dammIds::ge	file:
+D_ENERGY_WITH_IMPLANT	GeProcessor.cpp	/^	const int D_ENERGY_WITH_IMPLANT = 1525;$/;"	m	namespace:dammIds::ge	file:
+D_INFO_LOCX	LitePositionProcessor.cpp	/^	const int D_INFO_LOCX              = 2480;$/;"	m	namespace:dammIds::position	file:
+D_INFO_LOCX	PositionProcessor.cpp	/^	const int D_INFO_LOCX              = 2480;$/;"	m	namespace:dammIds::position	file:
+D_MULT	GeProcessor.cpp	/^	const int D_MULT                = 1509;$/;"	m	namespace:dammIds::ge	file:
+D_QDCNORMN_LOCX	LitePositionProcessor.cpp	/^	const int D_QDCNORMN_LOCX          = 2300;$/;"	m	namespace:dammIds::position	file:
+D_QDCNORMN_LOCX	PositionProcessor.cpp	/^	const int D_QDCNORMN_LOCX          = 2300;$/;"	m	namespace:dammIds::position	file:
+D_QDCTOTNORM_LOCX	LitePositionProcessor.cpp	/^	const int D_QDCTOTNORM_LOCX        = 2460;$/;"	m	namespace:dammIds::position	file:
+D_QDCTOTNORM_LOCX	PositionProcessor.cpp	/^	const int D_QDCTOTNORM_LOCX        = 2460;$/;"	m	namespace:dammIds::position	file:
+DeclareHistogram1D	DeclareHistogram.cpp	/^void DeclareHistogram1D(int dammId, int xSize, const char * title, int halfWordsPerChan)$/;"	f	signature:(int dammId, int xSize, const char * title, int halfWordsPerChan)
+DeclareHistogram1D	DeclareHistogram.cpp	/^void DeclareHistogram1D(int dammId, int xSize, const char* title, int halfWordsPerChan,$/;"	f	signature:(int dammId, int xSize, const char* title, int halfWordsPerChan, int xHistLength, int xLow, int xHigh)
+DeclareHistogram1D	DeclareHistogram.cpp	/^void DeclareHistogram1D(int dammId, int xSize, const char* title,$/;"	f	signature:(int dammId, int xSize, const char* title, int halfWordsPerChan, int contraction)
+DeclareHistogram2D	DeclareHistogram.cpp	/^void DeclareHistogram2D(int dammId, int xSize, int ySize, $/;"	f	signature:(int dammId, int xSize, int ySize, const char *title, int halfWordsPerChan )
+DeclareHistogram2D	DeclareHistogram.cpp	/^void DeclareHistogram2D(int dammId, int xSize, int ySize, const char *title, $/;"	f	signature:(int dammId, int xSize, int ySize, const char *title, int halfWordsPerChan, int xHistLength, int xLow, int xHigh, int yHistLength, int yLow, int yHigh)
+DeclareHistogram2D	DeclareHistogram.cpp	/^void DeclareHistogram2D(int dammId, int xSize, int ySize,$/;"	f	signature:(int dammId, int xSize, int ySize, const char* title, int halfWordsPerChan, int xContraction, int yContraction)
+DeclareHistogramGranY	GeProcessor.cpp	/^void GeProcessor::DeclareHistogramGranY(int dammId, int xsize, int ysize,$/;"	f	class:GeProcessor	signature:(int dammId, int xsize, int ysize, const char *title, int halfWordsPerChan, const vector<float> &granularity, const char *units) const
+DeclarePlots	Correlator.cpp	/^void Correlator::DeclarePlots() const$/;"	f	class:Correlator	signature:() const
+DeclarePlots	DetectorDriver.cpp	/^void DetectorDriver::DeclarePlots(void) const$/;"	f	class:DetectorDriver	signature:(void) const
+DeclarePlots	DoubleTraceAnalyzer.cpp	/^void DoubleTraceAnalyzer::DeclarePlots() const$/;"	f	class:DoubleTraceAnalyzer	signature:() const
+DeclarePlots	DssdProcessor.cpp	/^void DssdProcessor::DeclarePlots(void) const$/;"	f	class:DssdProcessor	signature:(void) const
+DeclarePlots	EventProcessor.cpp	/^void EventProcessor::DeclarePlots(void) const$/;"	f	class:EventProcessor	signature:(void) const
+DeclarePlots	GeProcessor.cpp	/^void GeProcessor::DeclarePlots(void) const$/;"	f	class:GeProcessor	signature:(void) const
+DeclarePlots	ImplantSsdProcessor.cpp	/^void ImplantSsdProcessor::DeclarePlots(void) const$/;"	f	class:ImplantSsdProcessor	signature:(void) const
+DeclarePlots	IonChamberProcessor.cpp	/^void IonChamberProcessor::DeclarePlots(void) const$/;"	f	class:IonChamberProcessor	signature:(void) const
+DeclarePlots	LitePositionProcessor.cpp	/^void LitePositionProcessor::DeclarePlots(void) const$/;"	f	class:LitePositionProcessor	signature:(void) const
+DeclarePlots	LogicProcessor.cpp	/^void LogicProcessor::DeclarePlots(void) const$/;"	f	class:LogicProcessor	signature:(void) const
+DeclarePlots	McpProcessor.cpp	/^void McpProcessor::DeclarePlots(void) const$/;"	f	class:McpProcessor	signature:(void) const
+DeclarePlots	MtcProcessor.cpp	/^void MtcProcessor::DeclarePlots(void) const$/;"	f	class:MtcProcessor	signature:(void) const
+DeclarePlots	PositionProcessor.cpp	/^void PositionProcessor::DeclarePlots(void) const$/;"	f	class:PositionProcessor	signature:(void) const
+DeclarePlots	PulserProcessor.cpp	/^void PulserProcessor::DeclarePlots(void) const$/;"	f	class:PulserProcessor	signature:(void) const
+DeclarePlots	ScintProcessor.cpp	/^void ScintProcessor::DeclarePlots(void) const$/;"	f	class:ScintProcessor	signature:(void) const
+DeclarePlots	SsdProcessor.cpp	/^void SsdProcessor::DeclarePlots(void) const$/;"	f	class:SsdProcessor	signature:(void) const
+DeclarePlots	TraceAnalyzer.cpp	/^void TraceAnalyzer::DeclarePlots() const$/;"	f	class:TraceAnalyzer	signature:() const
+DeclarePlots	TraceExtracter.cpp	/^void TraceExtracter::DeclarePlots(void) const$/;"	f	class:TraceExtracter	signature:(void) const
+DeclarePlots	TraceFilterer.cpp	/^void TraceFilterer::DeclarePlots(void) const$/;"	f	class:TraceFilterer	signature:(void) const
+DeclarePlots	TracePlotter.cpp	/^void TracePlotter::DeclarePlots(void) const$/;"	f	class:TracePlotter	signature:(void) const
+DeclarePlots	TriggerLogicProcessor.cpp	/^void TriggerLogicProcessor::DeclarePlots(void) const$/;"	f	class:TriggerLogicProcessor	signature:(void) const
+DeclarePlots	VandleProcessor.cpp	/^void VandleProcessor::DeclarePlots(void) const$/;"	f	class:VandleProcessor	signature:(void) const
+DeclarePlots	WaveformAnalyzer.cpp	/^void WaveformAnalyzer::DeclarePlots(void) const$/;"	f	class:WaveformAnalyzer	signature:(void) const
+DetectorDriver	DetectorDriver.cpp	/^DetectorDriver::DetectorDriver()$/;"	f	class:DetectorDriver	signature:()
+DetectorDriver::DeclarePlots	DetectorDriver.cpp	/^void DetectorDriver::DeclarePlots(void) const$/;"	f	class:DetectorDriver	signature:(void) const
+DetectorDriver::DetectorDriver	DetectorDriver.cpp	/^DetectorDriver::DetectorDriver()$/;"	f	class:DetectorDriver	signature:()
+DetectorDriver::GetProcessors	DetectorDriver.cpp	/^vector<EventProcessor *> DetectorDriver::GetProcessors(const string& type) const$/;"	f	class:DetectorDriver	signature:(const string& type) const
+DetectorDriver::GetUsedDetectors	DetectorDriver.cpp	/^const set<string>& DetectorDriver::GetUsedDetectors() const$/;"	f	class:DetectorDriver	signature:() const
+DetectorDriver::Init	DetectorDriver.cpp	/^int DetectorDriver::Init(void)$/;"	f	class:DetectorDriver	signature:(void)
+DetectorDriver::PlotCal	DetectorDriver.cpp	/^int DetectorDriver::PlotCal(const ChanEvent *chan) const$/;"	f	class:DetectorDriver	signature:(const ChanEvent *chan) const
+DetectorDriver::PlotRaw	DetectorDriver.cpp	/^int DetectorDriver::PlotRaw(const ChanEvent *chan) const$/;"	f	class:DetectorDriver	signature:(const ChanEvent *chan) const
+DetectorDriver::ProcessEvent	DetectorDriver.cpp	/^int DetectorDriver::ProcessEvent(const string &mode){   $/;"	f	class:DetectorDriver	signature:(const string &mode)
+DetectorDriver::ReadCal	DetectorDriver.cpp	/^void DetectorDriver::ReadCal()$/;"	f	class:DetectorDriver	signature:()
+DetectorDriver::SanityCheck	DetectorDriver.cpp	/^bool DetectorDriver::SanityCheck(void) const$/;"	f	class:DetectorDriver	signature:(void) const
+DetectorDriver::ThreshAndCal	DetectorDriver.cpp	/^int DetectorDriver::ThreshAndCal(ChanEvent *chan)$/;"	f	class:DetectorDriver	signature:(ChanEvent *chan)
+DetectorDriver::~DetectorDriver	DetectorDriver.cpp	/^DetectorDriver::~DetectorDriver()$/;"	f	class:DetectorDriver	signature:()
+DetectorLibrary	DetectorLibrary.cpp	/^DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations()$/;"	f	class:DetectorLibrary	signature:()
+DetectorLibrary::ChannelFromIndex	DetectorLibrary.cpp	/^int DetectorLibrary::ChannelFromIndex(int index) const$/;"	f	class:DetectorLibrary	signature:(int index) const
+DetectorLibrary::DetectorLibrary	DetectorLibrary.cpp	/^DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations()$/;"	f	class:DetectorLibrary	signature:()
+DetectorLibrary::GetIndex	DetectorLibrary.cpp	/^DetectorLibrary::size_type DetectorLibrary::GetIndex(int mod, int chan) const$/;"	f	class:DetectorLibrary	signature:(int mod, int chan) const
+DetectorLibrary::GetKnownDetectors	DetectorLibrary.cpp	/^const set<string>& DetectorLibrary::GetKnownDetectors(void)$/;"	f	class:DetectorLibrary	signature:(void)
+DetectorLibrary::GetLocations	DetectorLibrary.cpp	/^const set<int>& DetectorLibrary::GetLocations(const Identifier &id) const$/;"	f	class:DetectorLibrary	signature:(const Identifier &id) const
+DetectorLibrary::GetLocations	DetectorLibrary.cpp	/^const set<int>& DetectorLibrary::GetLocations(const string &type, const string &subtype) const$/;"	f	class:DetectorLibrary	signature:(const string &type, const string &subtype) const
+DetectorLibrary::GetNextLocation	DetectorLibrary.cpp	/^int DetectorLibrary::GetNextLocation(const Identifier &id) const$/;"	f	class:DetectorLibrary	signature:(const Identifier &id) const
+DetectorLibrary::GetNextLocation	DetectorLibrary.cpp	/^int DetectorLibrary::GetNextLocation(const string &type, $/;"	f	class:DetectorLibrary	signature:(const string &type, const string &subtype) const
+DetectorLibrary::GetUsedDetectors	DetectorLibrary.cpp	/^const set<string>& DetectorLibrary::GetUsedDetectors(void) const$/;"	f	class:DetectorLibrary	signature:(void) const
+DetectorLibrary::HasValue	DetectorLibrary.cpp	/^bool DetectorLibrary::HasValue(int index) const$/;"	f	class:DetectorLibrary	signature:(int index) const
+DetectorLibrary::HasValue	DetectorLibrary.cpp	/^bool DetectorLibrary::HasValue(int mod, int chan) const$/;"	f	class:DetectorLibrary	signature:(int mod, int chan) const
+DetectorLibrary::MakeKey	DetectorLibrary.cpp	/^DetectorLibrary::mapkey_t DetectorLibrary::MakeKey(const string &type, const string &subtype) const$/;"	f	class:DetectorLibrary	signature:(const string &type, const string &subtype) const
+DetectorLibrary::ModuleFromIndex	DetectorLibrary.cpp	/^int DetectorLibrary::ModuleFromIndex(int index) const$/;"	f	class:DetectorLibrary	signature:(int index) const
+DetectorLibrary::PrintMap	DetectorLibrary.cpp	/^void DetectorLibrary::PrintMap(void) const$/;"	f	class:DetectorLibrary	signature:(void) const
+DetectorLibrary::PrintUsedDetectors	DetectorLibrary.cpp	/^void DetectorLibrary::PrintUsedDetectors(void) const$/;"	f	class:DetectorLibrary	signature:(void) const
+DetectorLibrary::Set	DetectorLibrary.cpp	/^void DetectorLibrary::Set(int index, const Identifier& value)$/;"	f	class:DetectorLibrary	signature:(int index, const Identifier& value)
+DetectorLibrary::Set	DetectorLibrary.cpp	/^void DetectorLibrary::Set(int mod, int ch, const Identifier &value)$/;"	f	class:DetectorLibrary	signature:(int mod, int ch, const Identifier &value)
+DetectorLibrary::at	DetectorLibrary.cpp	/^DetectorLibrary::const_reference DetectorLibrary::at(DetectorLibrary::size_type idx) const$/;"	f	class:DetectorLibrary	signature:(DetectorLibrary::size_type idx) const
+DetectorLibrary::at	DetectorLibrary.cpp	/^DetectorLibrary::const_reference DetectorLibrary::at(DetectorLibrary::size_type mod, DetectorLibrary::size_type ch) const$/;"	f	class:DetectorLibrary	signature:(DetectorLibrary::size_type mod, DetectorLibrary::size_type ch) const
+DetectorLibrary::at	DetectorLibrary.cpp	/^DetectorLibrary::reference DetectorLibrary::at(DetectorLibrary::size_type idx)$/;"	f	class:DetectorLibrary	signature:(DetectorLibrary::size_type idx)
+DetectorLibrary::at	DetectorLibrary.cpp	/^DetectorLibrary::reference DetectorLibrary::at(DetectorLibrary::size_type mod, DetectorLibrary::size_type ch)$/;"	f	class:DetectorLibrary	signature:(DetectorLibrary::size_type mod, DetectorLibrary::size_type ch)
+DetectorLibrary::push_back	DetectorLibrary.cpp	/^void DetectorLibrary::push_back(const Identifier &x)$/;"	f	class:DetectorLibrary	signature:(const Identifier &x)
+DetectorLibrary::~DetectorLibrary	DetectorLibrary.cpp	/^DetectorLibrary::~DetectorLibrary()$/;"	f	class:DetectorLibrary	signature:()
+DetectorSummary	RawEvent.cpp	/^DetectorSummary::DetectorSummary()$/;"	f	class:DetectorSummary	signature:()
+DetectorSummary	RawEvent.cpp	/^DetectorSummary::DetectorSummary(const string &str, $/;"	f	class:DetectorSummary	signature:(const string &str, const vector<ChanEvent *> &fullList)
+DetectorSummary::AddEvent	RawEvent.cpp	/^void DetectorSummary::AddEvent(ChanEvent *ev)$/;"	f	class:DetectorSummary	signature:(ChanEvent *ev)
+DetectorSummary::DetectorSummary	RawEvent.cpp	/^DetectorSummary::DetectorSummary()$/;"	f	class:DetectorSummary	signature:()
+DetectorSummary::DetectorSummary	RawEvent.cpp	/^DetectorSummary::DetectorSummary(const string &str, $/;"	f	class:DetectorSummary	signature:(const string &str, const vector<ChanEvent *> &fullList)
+DetectorSummary::Zero	RawEvent.cpp	/^void DetectorSummary::Zero() $/;"	f	class:DetectorSummary	signature:()
+DoBaseline	Trace.cpp	/^double Trace::DoBaseline(unsigned int lo, unsigned int numBins)$/;"	f	class:Trace	signature:(unsigned int lo, unsigned int numBins)
+DoStatisticsBlock	StatsData.cpp	/^void StatsData::DoStatisticsBlock(word_t *buf, int vsn)$/;"	f	class:StatsData	signature:(word_t *buf, int vsn)
+DoubleTraceAnalyzer	DoubleTraceAnalyzer.cpp	/^DoubleTraceAnalyzer::DoubleTraceAnalyzer() : $/;"	f	class:DoubleTraceAnalyzer	signature:()
+DoubleTraceAnalyzer::Analyze	DoubleTraceAnalyzer.cpp	/^void DoubleTraceAnalyzer::Analyze(Trace &trace, $/;"	f	class:DoubleTraceAnalyzer	signature:(Trace &trace, const string &type, const string &subtype)
+DoubleTraceAnalyzer::DeclarePlots	DoubleTraceAnalyzer.cpp	/^void DoubleTraceAnalyzer::DeclarePlots() const$/;"	f	class:DoubleTraceAnalyzer	signature:() const
+DoubleTraceAnalyzer::DoubleTraceAnalyzer	DoubleTraceAnalyzer.cpp	/^DoubleTraceAnalyzer::DoubleTraceAnalyzer() : $/;"	f	class:DoubleTraceAnalyzer	signature:()
+DoubleTraceAnalyzer::~DoubleTraceAnalyzer	DoubleTraceAnalyzer.cpp	/^DoubleTraceAnalyzer::~DoubleTraceAnalyzer() $/;"	f	class:DoubleTraceAnalyzer	signature:()
+DssdProcessor	DssdProcessor.cpp	/^DssdProcessor::DssdProcessor() : $/;"	f	class:DssdProcessor	signature:()
+DssdProcessor::DeclarePlots	DssdProcessor.cpp	/^void DssdProcessor::DeclarePlots(void) const$/;"	f	class:DssdProcessor	signature:(void) const
+DssdProcessor::DssdProcessor	DssdProcessor.cpp	/^DssdProcessor::DssdProcessor() : $/;"	f	class:DssdProcessor	signature:()
+DssdProcessor::Process	DssdProcessor.cpp	/^bool DssdProcessor::Process(RawEvent &event)$/;"	f	class:DssdProcessor	signature:(RawEvent &event)
+DssdProcessor::cutoffEnergy	DssdProcessor.cpp	/^const double DssdProcessor::cutoffEnergy = 4500;$/;"	m	class:DssdProcessor	file:
+EVENT_CONTINUE	PixieStd.cpp	/^enum HistoPoints {BUFFER_START, BUFFER_END, EVENT_START = 10, EVENT_CONTINUE};$/;"	e	enum:HistoPoints	file:
+EVENT_START	PixieStd.cpp	/^enum HistoPoints {BUFFER_START, BUFFER_END, EVENT_START = 10, EVENT_CONTINUE};$/;"	e	enum:HistoPoints	file:
+EndAnalyze	TraceAnalyzer.cpp	/^void TraceAnalyzer::EndAnalyze(Trace &trace)$/;"	f	class:TraceAnalyzer	signature:(Trace &trace)
+EndAnalyze	TraceAnalyzer.cpp	/^void TraceAnalyzer::EndAnalyze(void)$/;"	f	class:TraceAnalyzer	signature:(void)
+EndProcess	EventProcessor.cpp	/^void EventProcessor::EndProcess(void)$/;"	f	class:EventProcessor	signature:(void)
+EventInfo	Correlator.cpp	/^EventInfo::EventInfo()$/;"	f	class:EventInfo	signature:()
+EventInfo::EventInfo	Correlator.cpp	/^EventInfo::EventInfo()$/;"	f	class:EventInfo	signature:()
+EventProcessor	EventProcessor.cpp	/^EventProcessor::EventProcessor() : $/;"	f	class:EventProcessor	signature:()
+EventProcessor::AddBranch	EventProcessor.cpp	/^bool EventProcessor::AddBranch(TTree *tree)$/;"	f	class:EventProcessor	signature:(TTree *tree)
+EventProcessor::DeclarePlots	EventProcessor.cpp	/^void EventProcessor::DeclarePlots(void) const$/;"	f	class:EventProcessor	signature:(void) const
+EventProcessor::EndProcess	EventProcessor.cpp	/^void EventProcessor::EndProcess(void)$/;"	f	class:EventProcessor	signature:(void)
+EventProcessor::EventProcessor	EventProcessor.cpp	/^EventProcessor::EventProcessor() : $/;"	f	class:EventProcessor	signature:()
+EventProcessor::FillBranch	EventProcessor.cpp	/^void EventProcessor::FillBranch(void)$/;"	f	class:EventProcessor	signature:(void)
+EventProcessor::HasEvent	EventProcessor.cpp	/^bool EventProcessor::HasEvent(void) const$/;"	f	class:EventProcessor	signature:(void) const
+EventProcessor::Init	EventProcessor.cpp	/^bool EventProcessor::Init(DetectorDriver &driver) $/;"	f	class:EventProcessor	signature:(DetectorDriver &driver)
+EventProcessor::Process	EventProcessor.cpp	/^bool EventProcessor::Process(RawEvent &event)$/;"	f	class:EventProcessor	signature:(RawEvent &event)
+EventProcessor::~EventProcessor	EventProcessor.cpp	/^EventProcessor::~EventProcessor() $/;"	f	class:EventProcessor	signature:()
+FillBranch	EventProcessor.cpp	/^void EventProcessor::FillBranch(void)$/;"	f	class:EventProcessor	signature:(void)
+FillBranch	IonChamberProcessor.cpp	/^void IonChamberProcessor::FillBranch(void)$/;"	f	class:IonChamberProcessor	signature:(void)
+FillBranch	McpProcessor.cpp	/^void McpProcessor::FillBranch(void)$/;"	f	class:McpProcessor	signature:(void)
+FillBranch	VandleProcessor.cpp	/^void VandleProcessor::FillBranch(void)$/;"	f	class:VandleProcessor	signature:(void)
+FindMatchingEdge	LitePositionProcessor.cpp	/^ChanEvent* LitePositionProcessor::FindMatchingEdge(ChanEvent *match,$/;"	f	class:LitePositionProcessor	signature:(ChanEvent *match, vector<ChanEvent*>::const_iterator begin, vector<ChanEvent*>::const_iterator end) const
+FindMatchingEdge	PositionProcessor.cpp	/^ChanEvent* PositionProcessor::FindMatchingEdge(ChanEvent *match,$/;"	f	class:PositionProcessor	signature:(ChanEvent *match, vector<ChanEvent*>::const_iterator begin, vector<ChanEvent*>::const_iterator end) const
+FindMaxInfo	Trace.cpp	/^unsigned int Trace::FindMaxInfo(unsigned int lo, unsigned int numBins)$/;"	f	class:Trace	signature:(unsigned int lo, unsigned int numBins)
+FindPulse	TraceFilterer.cpp	/^const TraceFilterer::PulseInfo& TraceFilterer::FindPulse(Trace::iterator begin, Trace::iterator end)$/;"	f	class:TraceFilterer	signature:(Trace::iterator begin, Trace::iterator end)
+FitFunction	WaveformAnalyzer.cpp	/^int FitFunction (const gsl_vector * x, void *FitData, gsl_vector * f)$/;"	f	signature:(const gsl_vector * x, void *FitData, gsl_vector * f)
+FitFunction	WaveformAnalyzer.cpp	/^int FitFunction(const gsl_vector *x, void *FitData, gsl_vector *f);$/;"	p	file:	signature:(const gsl_vector *x, void *FitData, gsl_vector *f)
+FitFunctionDerivative	WaveformAnalyzer.cpp	/^int FitFunctionDerivative (const gsl_vector * x, void *FitData, gsl_matrix * J)$/;"	f	signature:(const gsl_vector * x, void *FitData, gsl_matrix * J)
+FitFunctionDerivative	WaveformAnalyzer.cpp	/^int FitFunctionDerivative(const gsl_vector *x, void *FitData, gsl_matrix *J);$/;"	p	file:	signature:(const gsl_vector *x, void *FitData, gsl_matrix *J)
+FitFunctionDf	WaveformAnalyzer.cpp	/^int FitFunctionDf (const gsl_vector * x, void *FitData,$/;"	f	signature:(const gsl_vector * x, void *FitData, gsl_vector * f, gsl_matrix * J)
+FitFunctionDf	WaveformAnalyzer.cpp	/^int FitFunctionDf(const gsl_vector *x, void *FitData, gsl_vector *f, gsl_matrix *J);$/;"	p	file:	signature:(const gsl_vector *x, void *FitData, gsl_vector *f, gsl_matrix *J)
+FitRoutine	WaveformAnalyzer.cpp	/^double FitRoutine(const Trace &trace, const string &detSubtype)$/;"	f	signature:(const Trace &trace, const string &detSubtype)
+FitRoutine	WaveformAnalyzer.cpp	/^double FitRoutine(const Trace &trace, const string &detSubtype);$/;"	p	file:	signature:(const Trace &trace, const string &detSubtype)
+Flag	Correlator.cpp	/^void CorrelationList::Flag() $/;"	f	class:CorrelationList	signature:()
+Flag	Correlator.cpp	/^void Correlator::Flag(int fch, int bch) $/;"	f	class:Correlator	signature:(int fch, int bch)
+GeProcessor	GeProcessor.cpp	/^GeProcessor::GeProcessor() : EventProcessor(), leafToClover()$/;"	f	class:GeProcessor	signature:()
+GeProcessor::DeclareHistogramGranY	GeProcessor.cpp	/^void GeProcessor::DeclareHistogramGranY(int dammId, int xsize, int ysize,$/;"	f	class:GeProcessor	signature:(int dammId, int xsize, int ysize, const char *title, int halfWordsPerChan, const vector<float> &granularity, const char *units) const
+GeProcessor::DeclarePlots	GeProcessor.cpp	/^void GeProcessor::DeclarePlots(void) const$/;"	f	class:GeProcessor	signature:(void) const
+GeProcessor::GeProcessor	GeProcessor.cpp	/^GeProcessor::GeProcessor() : EventProcessor(), leafToClover()$/;"	f	class:GeProcessor	signature:()
+GeProcessor::Init	GeProcessor.cpp	/^bool GeProcessor::Init(DetectorDriver &driver)$/;"	f	class:GeProcessor	signature:(DetectorDriver &driver)
+GeProcessor::Process	GeProcessor.cpp	/^bool GeProcessor::Process(RawEvent &event) {$/;"	f	class:GeProcessor	signature:(RawEvent &event)
+GeProcessor::WalkCorrection	GeProcessor.cpp	/^double GeProcessor::WalkCorrection(double e) {$/;"	f	class:GeProcessor	signature:(double e)
+GeProcessor::granploty	GeProcessor.cpp	/^void GeProcessor::granploty(int dammId, double x, double y, const vector<float> &granularity) const$/;"	f	class:GeProcessor	signature:(int dammId, double x, double y, const vector<float> &granularity) const
+Generate	RandomPool.cpp	/^void RandomPool::Generate(void)$/;"	f	class:RandomPool	signature:(void)
+Get	RandomPool.cpp	/^double RandomPool::Get(double range)$/;"	f	class:RandomPool	signature:(double range)
+GetChanID	RawEvent.cpp	/^const Identifier& ChanEvent::GetChanID() const$/;"	f	class:ChanEvent	signature:() const
+GetCurrTime	StatsData.cpp	/^double StatsData::GetCurrTime(unsigned int id) const$/;"	f	class:StatsData	signature:(unsigned int id) const
+GetDecayTime	Correlator.cpp	/^double CorrelationList::GetDecayTime() const$/;"	f	class:CorrelationList	signature:() const
+GetDecayTime	Correlator.cpp	/^double Correlator::GetDecayTime(int fch, int bch) const$/;"	f	class:Correlator	signature:(int fch, int bch) const
+GetDecayTime	Correlator.cpp	/^double Correlator::GetDecayTime(void) const$/;"	f	class:Correlator	signature:(void) const
+GetDiffPeaks	StatsData.cpp	/^double StatsData::GetDiffPeaks(unsigned int id) const$/;"	f	class:StatsData	signature:(unsigned int id) const
+GetDiffTime	StatsData.cpp	/^double StatsData::GetDiffTime(unsigned int id) const$/;"	f	class:StatsData	signature:(unsigned int id) const
+GetID	RawEvent.cpp	/^int ChanEvent::GetID() const $/;"	f	class:ChanEvent	signature:() const
+GetImplantTime	Correlator.cpp	/^double CorrelationList::GetImplantTime() const$/;"	f	class:CorrelationList	signature:() const
+GetImplantTime	Correlator.cpp	/^double Correlator::GetImplantTime(int fch, int bch) const$/;"	f	class:Correlator	signature:(int fch, int bch) const
+GetImplantTime	Correlator.cpp	/^double Correlator::GetImplantTime(void) const$/;"	f	class:Correlator	signature:(void) const
+GetIndex	DetectorLibrary.cpp	/^DetectorLibrary::size_type DetectorLibrary::GetIndex(int mod, int chan) const$/;"	f	class:DetectorLibrary	signature:(int mod, int chan) const
+GetKnownDetectors	DetectorLibrary.cpp	/^const set<string>& DetectorLibrary::GetKnownDetectors(void)$/;"	f	class:DetectorLibrary	signature:(void)
+GetLocations	DetectorLibrary.cpp	/^const set<int>& DetectorLibrary::GetLocations(const Identifier &id) const$/;"	f	class:DetectorLibrary	signature:(const Identifier &id) const
+GetLocations	DetectorLibrary.cpp	/^const set<int>& DetectorLibrary::GetLocations(const string &type, const string &subtype) const$/;"	f	class:DetectorLibrary	signature:(const string &type, const string &subtype) const
+GetMean	StatsAccumulator.cpp	/^double StatsAccumulator::GetMean() const$/;"	f	class:StatsAccumulator	signature:() const
+GetNextLocation	DetectorLibrary.cpp	/^int DetectorLibrary::GetNextLocation(const Identifier &id) const$/;"	f	class:DetectorLibrary	signature:(const Identifier &id) const
+GetNextLocation	DetectorLibrary.cpp	/^int DetectorLibrary::GetNextLocation(const string &type, $/;"	f	class:DetectorLibrary	signature:(const string &type, const string &subtype) const
+GetProcessors	DetectorDriver.cpp	/^vector<EventProcessor *> DetectorDriver::GetProcessors(const string& type) const$/;"	f	class:DetectorDriver	signature:(const string& type) const
+GetQdcValue	RawEvent.cpp	/^unsigned long ChanEvent::GetQdcValue(int i) const$/;"	f	class:ChanEvent	signature:(int i) const
+GetRealTime	StatsData.cpp	/^double StatsData::GetRealTime(unsigned int mod) const$/;"	f	class:StatsData	signature:(unsigned int mod) const
+GetStdDev	StatsAccumulator.cpp	/^double StatsAccumulator::GetStdDev() const$/;"	f	class:StatsAccumulator	signature:() const
+GetSummary	RawEvent.cpp	/^DetectorSummary *RawEvent::GetSummary(const string& s, bool construct)$/;"	f	class:RawEvent	signature:(const string& s, bool construct)
+GetSummary	RawEvent.cpp	/^const DetectorSummary *RawEvent::GetSummary(const string &s) const$/;"	f	class:RawEvent	signature:(const string &s) const
+GetUsedDetectors	DetectorDriver.cpp	/^const set<string>& DetectorDriver::GetUsedDetectors() const$/;"	f	class:DetectorDriver	signature:() const
+GetUsedDetectors	DetectorLibrary.cpp	/^const set<string>& DetectorLibrary::GetUsedDetectors(void) const$/;"	f	class:DetectorLibrary	signature:(void) const
+GoodDataCheck	PulserProcessor.cpp	/^bool PulserProcessor::GoodDataCheck(const PulserData& DataCheck)$/;"	f	class:PulserProcessor	signature:(const PulserData& DataCheck)
+GoodDataCheck	ScintProcessor.cpp	/^bool ScintProcessor::ScintData::GoodDataCheck(void) const $/;"	f	class:ScintProcessor::ScintData	signature:(void) const
+GoodDataCheck	VandleProcessor.cpp	/^bool VandleProcessor::GoodDataCheck(const VandleData& DataCheck)$/;"	f	class:VandleProcessor	signature:(const VandleData& DataCheck)
+HasEvent	EventProcessor.cpp	/^bool EventProcessor::HasEvent(void) const$/;"	f	class:EventProcessor	signature:(void) const
+HasValue	DetectorLibrary.cpp	/^bool DetectorLibrary::HasValue(int index) const$/;"	f	class:DetectorLibrary	signature:(int index) const
+HasValue	DetectorLibrary.cpp	/^bool DetectorLibrary::HasValue(int mod, int chan) const$/;"	f	class:DetectorLibrary	signature:(int mod, int chan) const
+HasWildcard	MapFile.cpp	/^bool MapFile::HasWildcard(const string &str) const$/;"	f	class:MapFile	signature:(const string &str) const
+HistoPoints	PixieStd.cpp	/^enum HistoPoints {BUFFER_START, BUFFER_END, EVENT_START = 10, EVENT_CONTINUE};$/;"	g	file:
+HistoStats	PixieStd.cpp	/^void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)$/;"	f	signature:(unsigned int id, double diff, double clock, HistoPoints event)
+HistoStats	PixieStd.cpp	/^void HistoStats(unsigned int, double, double, HistoPoints);$/;"	p	file:	signature:(unsigned int, double, double, HistoPoints)
+Identifier	RawEvent.cpp	/^Identifier::Identifier(){$/;"	f	class:Identifier	signature:()
+Identifier::Identifier	RawEvent.cpp	/^Identifier::Identifier(){$/;"	f	class:Identifier	signature:()
+Identifier::Print	RawEvent.cpp	/^void Identifier::Print(void) const$/;"	f	class:Identifier	signature:(void) const
+Identifier::PrintHeaders	RawEvent.cpp	/^void Identifier::PrintHeaders(void) $/;"	f	class:Identifier	signature:(void)
+Identifier::Zero	RawEvent.cpp	/^void Identifier::Zero()$/;"	f	class:Identifier	signature:()
+ImplantSsdProcessor	ImplantSsdProcessor.cpp	/^ImplantSsdProcessor::ImplantSsdProcessor() : EventProcessor()$/;"	f	class:ImplantSsdProcessor	signature:()
+ImplantSsdProcessor::Correlate	ImplantSsdProcessor.cpp	/^void ImplantSsdProcessor::Correlate(Correlator &corr, EventInfo &info, int location)$/;"	f	class:ImplantSsdProcessor	signature:(Correlator &corr, EventInfo &info, int location)
+ImplantSsdProcessor::DeclarePlots	ImplantSsdProcessor.cpp	/^void ImplantSsdProcessor::DeclarePlots(void) const$/;"	f	class:ImplantSsdProcessor	signature:(void) const
+ImplantSsdProcessor::ImplantSsdProcessor	ImplantSsdProcessor.cpp	/^ImplantSsdProcessor::ImplantSsdProcessor() : EventProcessor()$/;"	f	class:ImplantSsdProcessor	signature:()
+ImplantSsdProcessor::PlotType	ImplantSsdProcessor.cpp	/^void ImplantSsdProcessor::PlotType(EventInfo &info, int loc, Correlator::EConditions cond)$/;"	f	class:ImplantSsdProcessor	signature:(EventInfo &info, int loc, Correlator::EConditions cond)
+ImplantSsdProcessor::Process	ImplantSsdProcessor.cpp	/^bool ImplantSsdProcessor::Process(RawEvent &event)$/;"	f	class:ImplantSsdProcessor	signature:(RawEvent &event)
+ImplantSsdProcessor::SetType	ImplantSsdProcessor.cpp	/^EventInfo::EEventTypes ImplantSsdProcessor::SetType(EventInfo &info) const$/;"	f	class:ImplantSsdProcessor	signature:(EventInfo &info) const
+ImplantSsdProcessor::cutoffEnergy	ImplantSsdProcessor.cpp	/^const double ImplantSsdProcessor::cutoffEnergy  = 1500;$/;"	m	class:ImplantSsdProcessor	file:
+ImplantSsdProcessor::fissionThresh	ImplantSsdProcessor.cpp	/^const double ImplantSsdProcessor::fissionThresh = 4400;$/;"	m	class:ImplantSsdProcessor	file:
+ImplantSsdProcessor::goodAlphaCut	ImplantSsdProcessor.cpp	/^const double ImplantSsdProcessor::goodAlphaCut  = 950;$/;"	m	class:ImplantSsdProcessor	file:
+ImplantSsdProcessor::implantTof	ImplantSsdProcessor.cpp	/^const double ImplantSsdProcessor::implantTof    = 2800;$/;"	m	class:ImplantSsdProcessor	file:
+ImproperDetOrder	VandleProcessor.cpp	/^void VandleProcessor::ImproperDetOrder(void)$/;"	f	class:VandleProcessor	signature:(void)
+Init	Correlator.cpp	/^void Correlator::Init()$/;"	f	class:Correlator	signature:()
+Init	DetectorDriver.cpp	/^int DetectorDriver::Init(void)$/;"	f	class:DetectorDriver	signature:(void)
+Init	EventProcessor.cpp	/^bool EventProcessor::Init(DetectorDriver &driver) $/;"	f	class:EventProcessor	signature:(DetectorDriver &driver)
+Init	GeProcessor.cpp	/^bool GeProcessor::Init(DetectorDriver &driver)$/;"	f	class:GeProcessor	signature:(DetectorDriver &driver)
+Init	LitePositionProcessor.cpp	/^bool LitePositionProcessor::Init(DetectorDriver &driver)$/;"	f	class:LitePositionProcessor	signature:(DetectorDriver &driver)
+Init	PositionProcessor.cpp	/^bool PositionProcessor::Init(DetectorDriver &driver)$/;"	f	class:PositionProcessor	signature:(DetectorDriver &driver)
+Init	RawEvent.cpp	/^void RawEvent::Init(const set<string> &usedTypes)$/;"	f	class:RawEvent	signature:(const set<string> &usedTypes)
+Init	RootProcessor.cpp	/^bool RootProcessor::Init(DetectorDriver &driver)$/;"	f	class:RootProcessor	signature:(DetectorDriver &driver)
+Init	TraceAnalyzer.cpp	/^bool TraceAnalyzer::Init(void)$/;"	f	class:TraceAnalyzer	signature:(void)
+Init	TraceFilterer.cpp	/^bool TraceFilterer::Init(const string &filterFile)$/;"	f	class:TraceFilterer	signature:(const string &filterFile)
+Init	VandleProcessor.cpp	/^bool VandleProcessor::Init(DetectorDriver &driver)$/;"	f	class:VandleProcessor	signature:(DetectorDriver &driver)
+InitMap	PixieStd.cpp	/^bool InitMap(void) $/;"	f	signature:(void)
+InitMap	PixieStd.cpp	/^bool InitMap(void);$/;"	p	file:	signature:(void)
+InverseVelocity	VandleProcessor.cpp	/^double VandleProcessor::InverseVelocity (const double &corTOF, const double &z0) $/;"	f	class:VandleProcessor	signature:(const double &corTOF, const double &z0)
+IonChamberProcessor	IonChamberProcessor.cpp	/^IonChamberProcessor::IonChamberProcessor() : EventProcessor()$/;"	f	class:IonChamberProcessor	signature:()
+IonChamberProcessor::AddBranch	IonChamberProcessor.cpp	/^bool IonChamberProcessor::AddBranch(TTree *tree)$/;"	f	class:IonChamberProcessor	signature:(TTree *tree)
+IonChamberProcessor::Data::Clear	IonChamberProcessor.cpp	/^void IonChamberProcessor::Data::Clear(void)$/;"	f	class:IonChamberProcessor::Data	signature:(void)
+IonChamberProcessor::DeclarePlots	IonChamberProcessor.cpp	/^void IonChamberProcessor::DeclarePlots(void) const$/;"	f	class:IonChamberProcessor	signature:(void) const
+IonChamberProcessor::FillBranch	IonChamberProcessor.cpp	/^void IonChamberProcessor::FillBranch(void)$/;"	f	class:IonChamberProcessor	signature:(void)
+IonChamberProcessor::IonChamberProcessor	IonChamberProcessor.cpp	/^IonChamberProcessor::IonChamberProcessor() : EventProcessor()$/;"	f	class:IonChamberProcessor	signature:()
+IonChamberProcessor::Process	IonChamberProcessor.cpp	/^bool IonChamberProcessor::Process(RawEvent &event)$/;"	f	class:IonChamberProcessor	signature:(RawEvent &event)
+IonChamberProcessor::minTime	IonChamberProcessor.cpp	/^const double IonChamberProcessor::minTime = 18.0e-6 \/ clockInSeconds;$/;"	m	class:IonChamberProcessor	file:
+IsFlagged	Correlator.cpp	/^bool CorrelationList::IsFlagged() const$/;"	f	class:CorrelationList	signature:() const
+IsFlagged	Correlator.cpp	/^bool Correlator::IsFlagged(int fch, int bch)$/;"	f	class:Correlator	signature:(int fch, int bch)
+LENGTH_BIG_NS	VandleProcessor.cpp	/^const double VandleProcessor::LENGTH_BIG_NS   = 0.1*LENGTH_BIG_CM\/C_BAR_B;    \/\/ lenfth of big bar in 10ns units$/;"	m	class:VandleProcessor	file:
+LENGTH_SMALL_NS	VandleProcessor.cpp	/^const double VandleProcessor::LENGTH_SMALL_NS = 0.1*LENGTH_SMALL_CM\/C_BAR_S;  \/\/ length of small bar in 10ns units$/;"	m	class:VandleProcessor	file:
+LOC_SUM	LitePositionProcessor.cpp	/^	const int LOC_SUM  = 18;$/;"	m	namespace:dammIds::position	file:
+LOC_SUM	PositionProcessor.cpp	/^	const int LOC_SUM  = 18;$/;"	m	namespace:dammIds::position	file:
+LitePositionProcessor::DeclarePlots	LitePositionProcessor.cpp	/^void LitePositionProcessor::DeclarePlots(void) const$/;"	f	class:LitePositionProcessor	signature:(void) const
+LitePositionProcessor::FindMatchingEdge	LitePositionProcessor.cpp	/^ChanEvent* LitePositionProcessor::FindMatchingEdge(ChanEvent *match,$/;"	f	class:LitePositionProcessor	signature:(ChanEvent *match, vector<ChanEvent*>::const_iterator begin, vector<ChanEvent*>::const_iterator end) const
+LitePositionProcessor::Init	LitePositionProcessor.cpp	/^bool LitePositionProcessor::Init(DetectorDriver &driver)$/;"	f	class:LitePositionProcessor	signature:(DetectorDriver &driver)
+LitePositionProcessor::PositionProcessor	LitePositionProcessor.cpp	/^LitePositionProcessor::PositionProcessor() : EventProcessor()$/;"	f	class:LitePositionProcessor	signature:()
+LitePositionProcessor::Process	LitePositionProcessor.cpp	/^bool LitePositionProcessor::Process(RawEvent &event)$/;"	f	class:LitePositionProcessor	signature:(RawEvent &event)
+LogicProcessor	LogicProcessor.cpp	/^LogicProcessor::LogicProcessor(void) : $/;"	f	class:LogicProcessor	signature:(void)
+LogicProcessor::DeclarePlots	LogicProcessor.cpp	/^void LogicProcessor::DeclarePlots(void) const$/;"	f	class:LogicProcessor	signature:(void) const
+LogicProcessor::LogicProcessor	LogicProcessor.cpp	/^LogicProcessor::LogicProcessor(void) : $/;"	f	class:LogicProcessor	signature:(void)
+LogicProcessor::Process	LogicProcessor.cpp	/^bool LogicProcessor::Process(RawEvent &event)$/;"	f	class:LogicProcessor	signature:(RawEvent &event)
+MAX_CLOVERS	GeProcessor.cpp	/^	const unsigned int MAX_CLOVERS = 4; \/\/ for *_DETX spectra$/;"	m	namespace:dammIds::ge	file:
+MakeKey	DetectorLibrary.cpp	/^DetectorLibrary::mapkey_t DetectorLibrary::MakeKey(const string &type, const string &subtype) const$/;"	f	class:DetectorLibrary	signature:(const string &type, const string &subtype) const
+MakeModuleData	PixieStd.cpp	/^bool MakeModuleData(const word_t *data, unsigned long nWords)$/;"	f	signature:(const word_t *data, unsigned long nWords)
+MakeModuleData	PixieStd.cpp	/^bool MakeModuleData(const word_t *data, unsigned long nWords); $/;"	p	file:	signature:(const word_t *data, unsigned long nWords)
+MapFile	MapFile.cpp	/^MapFile::MapFile()$/;"	f	class:MapFile	signature:()
+MapFile	MapFile.cpp	/^MapFile::MapFile(const string &filename)$/;"	f	class:MapFile	signature:(const string &filename)
+MapFile::HasWildcard	MapFile.cpp	/^bool MapFile::HasWildcard(const string &str) const$/;"	f	class:MapFile	signature:(const string &str) const
+MapFile::MapFile	MapFile.cpp	/^MapFile::MapFile()$/;"	f	class:MapFile	signature:()
+MapFile::MapFile	MapFile.cpp	/^MapFile::MapFile(const string &filename)$/;"	f	class:MapFile	signature:(const string &filename)
+MapFile::ProcessTokenList	MapFile.cpp	/^void MapFile::ProcessTokenList(const vector<string> &tokenList) const$/;"	f	class:MapFile	signature:(const vector<string> &tokenList) const
+MapFile::TokenToVector	MapFile.cpp	/^void MapFile::TokenToVector(string token, vector<int> &list, int number) const$/;"	f	class:MapFile	signature:(string token, vector<int> &list, int number) const
+MapFile::TokenizeString	MapFile.cpp	/^void MapFile::TokenizeString(const string &in, vector<string> &out) const$/;"	f	class:MapFile	signature:(const string &in, vector<string> &out) const
+McpProcessor	McpProcessor.cpp	/^McpProcessor::McpProcessor(void)$/;"	f	class:McpProcessor	signature:(void)
+McpProcessor::AddBranch	McpProcessor.cpp	/^bool McpProcessor::AddBranch(TTree *tree)$/;"	f	class:McpProcessor	signature:(TTree *tree)
+McpProcessor::DeclarePlots	McpProcessor.cpp	/^void McpProcessor::DeclarePlots(void) const$/;"	f	class:McpProcessor	signature:(void) const
+McpProcessor::FillBranch	McpProcessor.cpp	/^void McpProcessor::FillBranch(void)$/;"	f	class:McpProcessor	signature:(void)
+McpProcessor::McpData::Clear	McpProcessor.cpp	/^void McpProcessor::McpData::Clear(void)$/;"	f	class:McpProcessor::McpData	signature:(void)
+McpProcessor::McpProcessor	McpProcessor.cpp	/^McpProcessor::McpProcessor(void)$/;"	f	class:McpProcessor	signature:(void)
+McpProcessor::Process	McpProcessor.cpp	/^bool McpProcessor::Process(RawEvent &event)$/;"	f	class:McpProcessor	signature:(RawEvent &event)
+ModuleFromIndex	DetectorLibrary.cpp	/^int DetectorLibrary::ModuleFromIndex(int index) const$/;"	f	class:DetectorLibrary	signature:(int index) const
+MtcProcessor	MtcProcessor.cpp	/^MtcProcessor::MtcProcessor(void) : EventProcessor(), $/;"	f	class:MtcProcessor	signature:(void)
+MtcProcessor::DeclarePlots	MtcProcessor.cpp	/^void MtcProcessor::DeclarePlots(void) const$/;"	f	class:MtcProcessor	signature:(void) const
+MtcProcessor::MtcProcessor	MtcProcessor.cpp	/^MtcProcessor::MtcProcessor(void) : EventProcessor(), $/;"	f	class:MtcProcessor	signature:(void)
+MtcProcessor::Process	MtcProcessor.cpp	/^bool MtcProcessor::Process(RawEvent &event)$/;"	f	class:MtcProcessor	signature:(RawEvent &event)
+OffsetPlot	Trace.cpp	/^void Trace::OffsetPlot(int id, double offset) const$/;"	f	class:Trace	signature:(int id, double offset) const
+OffsetPlot	Trace.cpp	/^void Trace::OffsetPlot(int id, int row, double offset) const$/;"	f	class:Trace	signature:(int id, int row, double offset) const
+Pixie16Error	PixieStd.cpp	/^void Pixie16Error(int errorNum)$/;"	f	signature:(int errorNum)
+Pixie16Error	PixieStd.cpp	/^void Pixie16Error(int errornum);$/;"	p	file:	signature:(int errornum)
+Plot	Trace.cpp	/^void Trace::Plot(int id) const$/;"	f	class:Trace	signature:(int id) const
+Plot	Trace.cpp	/^void Trace::Plot(int id, int row) const$/;"	f	class:Trace	signature:(int id, int row) const
+PlotCal	DetectorDriver.cpp	/^int DetectorDriver::PlotCal(const ChanEvent *chan) const$/;"	f	class:DetectorDriver	signature:(const ChanEvent *chan) const
+PlotRaw	DetectorDriver.cpp	/^int DetectorDriver::PlotRaw(const ChanEvent *chan) const$/;"	f	class:DetectorDriver	signature:(const ChanEvent *chan) const
+PlotType	ImplantSsdProcessor.cpp	/^void ImplantSsdProcessor::PlotType(EventInfo &info, int loc, Correlator::EConditions cond)$/;"	f	class:ImplantSsdProcessor	signature:(EventInfo &info, int loc, Correlator::EConditions cond)
+PositionProcessor	LitePositionProcessor.cpp	/^LitePositionProcessor::PositionProcessor() : EventProcessor()$/;"	f	class:LitePositionProcessor	signature:()
+PositionProcessor	PositionProcessor.cpp	/^PositionProcessor::PositionProcessor() : EventProcessor()$/;"	f	class:PositionProcessor	signature:()
+PositionProcessor::DeclarePlots	PositionProcessor.cpp	/^void PositionProcessor::DeclarePlots(void) const$/;"	f	class:PositionProcessor	signature:(void) const
+PositionProcessor::FindMatchingEdge	PositionProcessor.cpp	/^ChanEvent* PositionProcessor::FindMatchingEdge(ChanEvent *match,$/;"	f	class:PositionProcessor	signature:(ChanEvent *match, vector<ChanEvent*>::const_iterator begin, vector<ChanEvent*>::const_iterator end) const
+PositionProcessor::Init	PositionProcessor.cpp	/^bool PositionProcessor::Init(DetectorDriver &driver)$/;"	f	class:PositionProcessor	signature:(DetectorDriver &driver)
+PositionProcessor::PositionProcessor	PositionProcessor.cpp	/^PositionProcessor::PositionProcessor() : EventProcessor()$/;"	f	class:PositionProcessor	signature:()
+PositionProcessor::Process	PositionProcessor.cpp	/^bool PositionProcessor::Process(RawEvent &event)$/;"	f	class:PositionProcessor	signature:(RawEvent &event)
+Print	RawEvent.cpp	/^void Identifier::Print(void) const$/;"	f	class:Identifier	signature:(void) const
+PrintDecayList	Correlator.cpp	/^void CorrelationList::PrintDecayList() const$/;"	f	class:CorrelationList	signature:() const
+PrintDecayList	Correlator.cpp	/^void Correlator::PrintDecayList(unsigned int fch, unsigned int bch) const$/;"	f	class:Correlator	signature:(unsigned int fch, unsigned int bch) const
+PrintHeaders	RawEvent.cpp	/^void Identifier::PrintHeaders(void) $/;"	f	class:Identifier	signature:(void)
+PrintMap	DetectorLibrary.cpp	/^void DetectorLibrary::PrintMap(void) const$/;"	f	class:DetectorLibrary	signature:(void) const
+PrintUsedDetectors	DetectorLibrary.cpp	/^void DetectorLibrary::PrintUsedDetectors(void) const$/;"	f	class:DetectorLibrary	signature:(void) const
+Process	DssdProcessor.cpp	/^bool DssdProcessor::Process(RawEvent &event)$/;"	f	class:DssdProcessor	signature:(RawEvent &event)
+Process	EventProcessor.cpp	/^bool EventProcessor::Process(RawEvent &event)$/;"	f	class:EventProcessor	signature:(RawEvent &event)
+Process	GeProcessor.cpp	/^bool GeProcessor::Process(RawEvent &event) {$/;"	f	class:GeProcessor	signature:(RawEvent &event)
+Process	ImplantSsdProcessor.cpp	/^bool ImplantSsdProcessor::Process(RawEvent &event)$/;"	f	class:ImplantSsdProcessor	signature:(RawEvent &event)
+Process	IonChamberProcessor.cpp	/^bool IonChamberProcessor::Process(RawEvent &event)$/;"	f	class:IonChamberProcessor	signature:(RawEvent &event)
+Process	LitePositionProcessor.cpp	/^bool LitePositionProcessor::Process(RawEvent &event)$/;"	f	class:LitePositionProcessor	signature:(RawEvent &event)
+Process	LogicProcessor.cpp	/^bool LogicProcessor::Process(RawEvent &event)$/;"	f	class:LogicProcessor	signature:(RawEvent &event)
+Process	McpProcessor.cpp	/^bool McpProcessor::Process(RawEvent &event)$/;"	f	class:McpProcessor	signature:(RawEvent &event)
+Process	MtcProcessor.cpp	/^bool MtcProcessor::Process(RawEvent &event)$/;"	f	class:MtcProcessor	signature:(RawEvent &event)
+Process	PositionProcessor.cpp	/^bool PositionProcessor::Process(RawEvent &event)$/;"	f	class:PositionProcessor	signature:(RawEvent &event)
+Process	PulserProcessor.cpp	/^bool PulserProcessor::Process(RawEvent &event) $/;"	f	class:PulserProcessor	signature:(RawEvent &event)
+Process	RootProcessor.cpp	/^bool RootProcessor::Process(RawEvent &event)$/;"	f	class:RootProcessor	signature:(RawEvent &event)
+Process	ScintProcessor.cpp	/^bool ScintProcessor::Process(RawEvent &event)$/;"	f	class:ScintProcessor	signature:(RawEvent &event)
+Process	SsdProcessor.cpp	/^bool SsdProcessor::Process(RawEvent &event)$/;"	f	class:SsdProcessor	signature:(RawEvent &event)
+Process	TriggerLogicProcessor.cpp	/^bool TriggerLogicProcessor::Process(RawEvent &event)$/;"	f	class:TriggerLogicProcessor	signature:(RawEvent &event)
+Process	VandleProcessor.cpp	/^bool VandleProcessor::Process(RawEvent &event) $/;"	f	class:VandleProcessor	signature:(RawEvent &event)
+ProcessEvent	DetectorDriver.cpp	/^int DetectorDriver::ProcessEvent(const string &mode){   $/;"	f	class:DetectorDriver	signature:(const string &mode)
+ProcessTokenList	MapFile.cpp	/^void MapFile::ProcessTokenList(const vector<string> &tokenList) const$/;"	f	class:MapFile	signature:(const vector<string> &tokenList) const
+PulseInfo	TraceFilterer.cpp	/^TraceFilterer::PulseInfo::PulseInfo()$/;"	f	class:TraceFilterer::PulseInfo	signature:()
+PulseInfo	TraceFilterer.cpp	/^TraceFilterer::PulseInfo::PulseInfo(Trace::size_type theTime, double theEnergy) :$/;"	f	class:TraceFilterer::PulseInfo	signature:(Trace::size_type theTime, double theEnergy)
+PulserData	PulserProcessor.cpp	/^PulserProcessor::PulserData::PulserData(ChanEvent* chan)$/;"	f	class:PulserProcessor::PulserData	signature:(ChanEvent* chan)
+PulserData	PulserProcessor.cpp	/^PulserProcessor::PulserData::PulserData(string type)$/;"	f	class:PulserProcessor::PulserData	signature:(string type)
+PulserProcessor	PulserProcessor.cpp	/^PulserProcessor::PulserProcessor(): EventProcessor()$/;"	f	class:PulserProcessor	signature:()
+PulserProcessor::AnalyzeData	PulserProcessor.cpp	/^void PulserProcessor::AnalyzeData(void)$/;"	f	class:PulserProcessor	signature:(void)
+PulserProcessor::DeclarePlots	PulserProcessor.cpp	/^void PulserProcessor::DeclarePlots(void) const$/;"	f	class:PulserProcessor	signature:(void) const
+PulserProcessor::GoodDataCheck	PulserProcessor.cpp	/^bool PulserProcessor::GoodDataCheck(const PulserData& DataCheck)$/;"	f	class:PulserProcessor	signature:(const PulserData& DataCheck)
+PulserProcessor::Process	PulserProcessor.cpp	/^bool PulserProcessor::Process(RawEvent &event) $/;"	f	class:PulserProcessor	signature:(RawEvent &event)
+PulserProcessor::PulserData::PulserData	PulserProcessor.cpp	/^PulserProcessor::PulserData::PulserData(ChanEvent* chan)$/;"	f	class:PulserProcessor::PulserData	signature:(ChanEvent* chan)
+PulserProcessor::PulserData::PulserData	PulserProcessor.cpp	/^PulserProcessor::PulserData::PulserData(string type)$/;"	f	class:PulserProcessor::PulserData	signature:(string type)
+PulserProcessor::PulserProcessor	PulserProcessor.cpp	/^PulserProcessor::PulserProcessor(): EventProcessor()$/;"	f	class:PulserProcessor	signature:()
+PulserProcessor::RetrieveData	PulserProcessor.cpp	/^bool PulserProcessor::RetrieveData(RawEvent &event)$/;"	f	class:PulserProcessor	signature:(RawEvent &event)
+QDC_JUMP	LitePositionProcessor.cpp	/^	const int QDC_JUMP = 20;$/;"	m	namespace:dammIds::position	file:
+QDC_JUMP	PositionProcessor.cpp	/^	const int QDC_JUMP = 20;$/;"	m	namespace:dammIds::position	file:
+RandomPool	RandomPool.cpp	/^RandomPool::RandomPool(void) : generator()$/;"	f	class:RandomPool	signature:(void)
+RandomPool::Generate	RandomPool.cpp	/^void RandomPool::Generate(void)$/;"	f	class:RandomPool	signature:(void)
+RandomPool::Get	RandomPool.cpp	/^double RandomPool::Get(double range)$/;"	f	class:RandomPool	signature:(double range)
+RandomPool::RandomPool	RandomPool.cpp	/^RandomPool::RandomPool(void) : generator()$/;"	f	class:RandomPool	signature:(void)
+RawEvent	RawEvent.cpp	/^RawEvent::RawEvent()$/;"	f	class:RawEvent	signature:()
+RawEvent::AddChan	RawEvent.cpp	/^void RawEvent::AddChan(ChanEvent *event)$/;"	f	class:RawEvent	signature:(ChanEvent *event)
+RawEvent::Clear	RawEvent.cpp	/^void RawEvent::Clear()$/;"	f	class:RawEvent	signature:()
+RawEvent::GetSummary	RawEvent.cpp	/^DetectorSummary *RawEvent::GetSummary(const string& s, bool construct)$/;"	f	class:RawEvent	signature:(const string& s, bool construct)
+RawEvent::GetSummary	RawEvent.cpp	/^const DetectorSummary *RawEvent::GetSummary(const string &s) const$/;"	f	class:RawEvent	signature:(const string &s) const
+RawEvent::Init	RawEvent.cpp	/^void RawEvent::Init(const set<string> &usedTypes)$/;"	f	class:RawEvent	signature:(const set<string> &usedTypes)
+RawEvent::RawEvent	RawEvent.cpp	/^RawEvent::RawEvent()$/;"	f	class:RawEvent	signature:()
+RawEvent::Size	RawEvent.cpp	/^size_t RawEvent::Size() const$/;"	f	class:RawEvent	signature:() const
+RawEvent::Zero	RawEvent.cpp	/^void RawEvent::Zero(const set<string> &usedev)$/;"	f	class:RawEvent	signature:(const set<string> &usedev)
+ReadBuffData	PixieStd.cpp	/^int ReadBuffData(word_t *lbuf, unsigned long *BufLen,$/;"	p	file:	signature:(word_t *lbuf, unsigned long *BufLen, vector<ChanEvent *> &eventList)
+ReadBuffData	ReadBuffData.RevD.cpp	/^int ReadBuffData(word_t *buf, unsigned long *bufLen,$/;"	f	signature:(word_t *buf, unsigned long *bufLen, vector<ChanEvent*> &eventList)
+ReadBuffData	ReadBuffData.cpp	/^int ReadBuffData(word_t *buf, unsigned long *bufLen,$/;"	f	signature:(word_t *buf, unsigned long *bufLen, vector<ChanEvent*> &eventList)
+ReadCal	DetectorDriver.cpp	/^void DetectorDriver::ReadCal()$/;"	f	class:DetectorDriver	signature:()
+ReadVandleCal	VandleProcessor.cpp	/^void VandleProcessor::ReadVandleCal(void) $/;"	f	class:VandleProcessor	signature:(void)
+RemoveList	PixieStd.cpp	/^void RemoveList(vector<ChanEvent*> &eventList)$/;"	f	signature:(vector<ChanEvent*> &eventList)
+RemoveList	PixieStd.cpp	/^void RemoveList(vector<ChanEvent*> &eventList);$/;"	p	file:	signature:(vector<ChanEvent*> &eventList)
+RetrieveData	PulserProcessor.cpp	/^bool PulserProcessor::RetrieveData(RawEvent &event)$/;"	f	class:PulserProcessor	signature:(RawEvent &event)
+RetrieveData	VandleProcessor.cpp	/^bool VandleProcessor::RetrieveData(RawEvent &event) $/;"	f	class:VandleProcessor	signature:(RawEvent &event)
+RootProcessor	RootProcessor.cpp	/^RootProcessor::RootProcessor(const char *fileName, const char *treeName)$/;"	f	class:RootProcessor	signature:(const char *fileName, const char *treeName)
+RootProcessor::Init	RootProcessor.cpp	/^bool RootProcessor::Init(DetectorDriver &driver)$/;"	f	class:RootProcessor	signature:(DetectorDriver &driver)
+RootProcessor::Process	RootProcessor.cpp	/^bool RootProcessor::Process(RawEvent &event)$/;"	f	class:RootProcessor	signature:(RawEvent &event)
+RootProcessor::RootProcessor	RootProcessor.cpp	/^RootProcessor::RootProcessor(const char *fileName, const char *treeName)$/;"	f	class:RootProcessor	signature:(const char *fileName, const char *treeName)
+RootProcessor::~RootProcessor	RootProcessor.cpp	/^RootProcessor::~RootProcessor()$/;"	f	class:RootProcessor	signature:()
+S1	DeclareHistogram.cpp	/^const int S1 = 2, S2 = 4, S3 = 8, S4 = 16, S5 = 32, S6 = 64, S7 = 128,$/;"	v
+S2	DeclareHistogram.cpp	/^const int S1 = 2, S2 = 4, S3 = 8, S4 = 16, S5 = 32, S6 = 64, S7 = 128,$/;"	v
+S3	DeclareHistogram.cpp	/^const int S1 = 2, S2 = 4, S3 = 8, S4 = 16, S5 = 32, S6 = 64, S7 = 128,$/;"	v
+S4	DeclareHistogram.cpp	/^const int S1 = 2, S2 = 4, S3 = 8, S4 = 16, S5 = 32, S6 = 64, S7 = 128,$/;"	v
+S5	DeclareHistogram.cpp	/^const int S1 = 2, S2 = 4, S3 = 8, S4 = 16, S5 = 32, S6 = 64, S7 = 128,$/;"	v
+S6	DeclareHistogram.cpp	/^const int S1 = 2, S2 = 4, S3 = 8, S4 = 16, S5 = 32, S6 = 64, S7 = 128,$/;"	v
+S7	DeclareHistogram.cpp	/^const int S1 = 2, S2 = 4, S3 = 8, S4 = 16, S5 = 32, S6 = 64, S7 = 128,$/;"	v
+S8	DeclareHistogram.cpp	/^    S8 = 256, S9 = 512, SA = 1024, SB = 2048, SC = 4096,$/;"	v
+S9	DeclareHistogram.cpp	/^    S8 = 256, S9 = 512, SA = 1024, SB = 2048, SC = 4096,$/;"	v
+SA	DeclareHistogram.cpp	/^    S8 = 256, S9 = 512, SA = 1024, SB = 2048, SC = 4096,$/;"	v
+SB	DeclareHistogram.cpp	/^    S8 = 256, S9 = 512, SA = 1024, SB = 2048, SC = 4096,$/;"	v
+SC	DeclareHistogram.cpp	/^    S8 = 256, S9 = 512, SA = 1024, SB = 2048, SC = 4096,$/;"	v
+SD	DeclareHistogram.cpp	/^    SD = 8192, SE = 16384, SF = 32768;$/;"	v
+SE	DeclareHistogram.cpp	/^    SD = 8192, SE = 16384, SF = 32768;$/;"	v
+SF	DeclareHistogram.cpp	/^    SD = 8192, SE = 16384, SF = 32768;$/;"	v
+SanityCheck	DetectorDriver.cpp	/^bool DetectorDriver::SanityCheck(void) const$/;"	f	class:DetectorDriver	signature:(void) const
+ScalePlot	Trace.cpp	/^void Trace::ScalePlot(int id, double scale) const$/;"	f	class:Trace	signature:(int id, double scale) const
+ScalePlot	Trace.cpp	/^void Trace::ScalePlot(int id, int row, double scale) const$/;"	f	class:Trace	signature:(int id, int row, double scale) const
+ScanList	PixieStd.cpp	/^void ScanList(vector<ChanEvent*> &eventList) $/;"	f	signature:(vector<ChanEvent*> &eventList)
+ScanList	PixieStd.cpp	/^void ScanList(vector<ChanEvent*> &eventList);$/;"	p	file:	signature:(vector<ChanEvent*> &eventList)
+ScintData	ScintProcessor.cpp	/^ScintProcessor::ScintData::ScintData(ChanEvent* chan) : trace(chan->GetTrace())$/;"	f	class:ScintProcessor::ScintData	signature:(ChanEvent* chan)
+ScintData	ScintProcessor.cpp	/^ScintProcessor::ScintData::ScintData(string type) : trace(emptyTrace)$/;"	f	class:ScintProcessor::ScintData	signature:(string type)
+ScintProcessor	ScintProcessor.cpp	/^ScintProcessor::ScintProcessor() : EventProcessor()$/;"	f	class:ScintProcessor	signature:()
+ScintProcessor::DeclarePlots	ScintProcessor.cpp	/^void ScintProcessor::DeclarePlots(void) const$/;"	f	class:ScintProcessor	signature:(void) const
+ScintProcessor::Process	ScintProcessor.cpp	/^bool ScintProcessor::Process(RawEvent &event)$/;"	f	class:ScintProcessor	signature:(RawEvent &event)
+ScintProcessor::ScintData::GoodDataCheck	ScintProcessor.cpp	/^bool ScintProcessor::ScintData::GoodDataCheck(void) const $/;"	f	class:ScintProcessor::ScintData	signature:(void) const
+ScintProcessor::ScintData::ScintData	ScintProcessor.cpp	/^ScintProcessor::ScintData::ScintData(ChanEvent* chan) : trace(chan->GetTrace())$/;"	f	class:ScintProcessor::ScintData	signature:(ChanEvent* chan)
+ScintProcessor::ScintData::ScintData	ScintProcessor.cpp	/^ScintProcessor::ScintData::ScintData(string type) : trace(emptyTrace)$/;"	f	class:ScintProcessor::ScintData	signature:(string type)
+ScintProcessor::ScintProcessor	ScintProcessor.cpp	/^ScintProcessor::ScintProcessor() : EventProcessor()$/;"	f	class:ScintProcessor	signature:()
+Set	DetectorLibrary.cpp	/^void DetectorLibrary::Set(int index, const Identifier& value)$/;"	f	class:DetectorLibrary	signature:(int index, const Identifier& value)
+Set	DetectorLibrary.cpp	/^void DetectorLibrary::Set(int mod, int ch, const Identifier &value)$/;"	f	class:DetectorLibrary	signature:(int mod, int ch, const Identifier &value)
+SetType	ImplantSsdProcessor.cpp	/^EventInfo::EEventTypes ImplantSsdProcessor::SetType(EventInfo &info) const$/;"	f	class:ImplantSsdProcessor	signature:(EventInfo &info) const
+Size	RawEvent.cpp	/^size_t RawEvent::Size() const$/;"	f	class:RawEvent	signature:() const
+SptAnalysis	WaveformAnalyzer.cpp	/^double SptAnalysis(Trace &trace, const string &detType, const string &detSubtype)$/;"	f	signature:(Trace &trace, const string &detType, const string &detSubtype)
+SsdProcessor	SsdProcessor.cpp	/^SsdProcessor::SsdProcessor() : EventProcessor()$/;"	f	class:SsdProcessor	signature:()
+SsdProcessor::DeclarePlots	SsdProcessor.cpp	/^void SsdProcessor::DeclarePlots(void) const$/;"	f	class:SsdProcessor	signature:(void) const
+SsdProcessor::Process	SsdProcessor.cpp	/^bool SsdProcessor::Process(RawEvent &event)$/;"	f	class:SsdProcessor	signature:(RawEvent &event)
+SsdProcessor::SsdProcessor	SsdProcessor.cpp	/^SsdProcessor::SsdProcessor() : EventProcessor()$/;"	f	class:SsdProcessor	signature:()
+StatsAccumulator	StatsAccumulator.cpp	/^StatsAccumulator::StatsAccumulator()$/;"	f	class:StatsAccumulator	signature:()
+StatsAccumulator	StatsAccumulator.cpp	/^StatsAccumulator::StatsAccumulator(double s, double ss, int c) :$/;"	f	class:StatsAccumulator	signature:(double s, double ss, int c)
+StatsAccumulator::Clear	StatsAccumulator.cpp	/^void StatsAccumulator::Clear()$/;"	f	class:StatsAccumulator	signature:()
+StatsAccumulator::GetMean	StatsAccumulator.cpp	/^double StatsAccumulator::GetMean() const$/;"	f	class:StatsAccumulator	signature:() const
+StatsAccumulator::GetStdDev	StatsAccumulator.cpp	/^double StatsAccumulator::GetStdDev() const$/;"	f	class:StatsAccumulator	signature:() const
+StatsAccumulator::StatsAccumulator	StatsAccumulator.cpp	/^StatsAccumulator::StatsAccumulator()$/;"	f	class:StatsAccumulator	signature:()
+StatsAccumulator::StatsAccumulator	StatsAccumulator.cpp	/^StatsAccumulator::StatsAccumulator(double s, double ss, int c) :$/;"	f	class:StatsAccumulator	signature:(double s, double ss, int c)
+StatsAccumulator::operator +	StatsAccumulator.cpp	/^StatsAccumulator StatsAccumulator::operator+$/;"	f	class:StatsAccumulator	signature:(const StatsAccumulator& x) const
+StatsAccumulator::operator =	StatsAccumulator.cpp	/^const StatsAccumulator& StatsAccumulator::operator=(const StatsAccumulator &x)$/;"	f	class:StatsAccumulator	signature:(const StatsAccumulator &x)
+StatsAccumulator::~StatsAccumulator	StatsAccumulator.cpp	/^StatsAccumulator::~StatsAccumulator()$/;"	f	class:StatsAccumulator	signature:()
+StatsData	StatsData.cpp	/^StatsData::StatsData()$/;"	f	class:StatsData	signature:()
+StatsData::DoStatisticsBlock	StatsData.cpp	/^void StatsData::DoStatisticsBlock(word_t *buf, int vsn)$/;"	f	class:StatsData	signature:(word_t *buf, int vsn)
+StatsData::GetCurrTime	StatsData.cpp	/^double StatsData::GetCurrTime(unsigned int id) const$/;"	f	class:StatsData	signature:(unsigned int id) const
+StatsData::GetDiffPeaks	StatsData.cpp	/^double StatsData::GetDiffPeaks(unsigned int id) const$/;"	f	class:StatsData	signature:(unsigned int id) const
+StatsData::GetDiffTime	StatsData.cpp	/^double StatsData::GetDiffTime(unsigned int id) const$/;"	f	class:StatsData	signature:(unsigned int id) const
+StatsData::GetRealTime	StatsData.cpp	/^double StatsData::GetRealTime(unsigned int mod) const$/;"	f	class:StatsData	signature:(unsigned int mod) const
+StatsData::StatsData	StatsData.cpp	/^StatsData::StatsData()$/;"	f	class:StatsData	signature:()
+TOTALREAD	PixieStd.cpp	/^const unsigned int TOTALREAD = 1000000;$/;"	v
+TauAnalyzer	TauAnalyzer.cpp	/^TauAnalyzer::TauAnalyzer() : TraceAnalyzer()$/;"	f	class:TauAnalyzer	signature:()
+TauAnalyzer	TauAnalyzer.cpp	/^TauAnalyzer::TauAnalyzer(const string &aType, const string &aSubtype) :$/;"	f	class:TauAnalyzer	signature:(const string &aType, const string &aSubtype)
+TauAnalyzer::Analyze	TauAnalyzer.cpp	/^void TauAnalyzer::Analyze(Trace &trace, const string &aType, const string &aSubtype)$/;"	f	class:TauAnalyzer	signature:(Trace &trace, const string &aType, const string &aSubtype)
+TauAnalyzer::TauAnalyzer	TauAnalyzer.cpp	/^TauAnalyzer::TauAnalyzer() : TraceAnalyzer()$/;"	f	class:TauAnalyzer	signature:()
+TauAnalyzer::TauAnalyzer	TauAnalyzer.cpp	/^TauAnalyzer::TauAnalyzer(const string &aType, const string &aSubtype) :$/;"	f	class:TauAnalyzer	signature:(const string &aType, const string &aSubtype)
+TauAnalyzer::~TauAnalyzer	TauAnalyzer.cpp	/^TauAnalyzer::~TauAnalyzer()$/;"	f	class:TauAnalyzer	signature:()
+ThreshAndCal	DetectorDriver.cpp	/^int DetectorDriver::ThreshAndCal(ChanEvent *chan)$/;"	f	class:DetectorDriver	signature:(ChanEvent *chan)
+TokenToVector	MapFile.cpp	/^void MapFile::TokenToVector(string token, vector<int> &list, int number) const$/;"	f	class:MapFile	signature:(string token, vector<int> &list, int number) const
+TokenizeString	MapFile.cpp	/^void MapFile::TokenizeString(const string &in, vector<string> &out) const$/;"	f	class:MapFile	signature:(const string &in, vector<string> &out) const
+Trace::DoBaseline	Trace.cpp	/^double Trace::DoBaseline(unsigned int lo, unsigned int numBins)$/;"	f	class:Trace	signature:(unsigned int lo, unsigned int numBins)
+Trace::FindMaxInfo	Trace.cpp	/^unsigned int Trace::FindMaxInfo(unsigned int lo, unsigned int numBins)$/;"	f	class:Trace	signature:(unsigned int lo, unsigned int numBins)
+Trace::OffsetPlot	Trace.cpp	/^void Trace::OffsetPlot(int id, double offset) const$/;"	f	class:Trace	signature:(int id, double offset) const
+Trace::OffsetPlot	Trace.cpp	/^void Trace::OffsetPlot(int id, int row, double offset) const$/;"	f	class:Trace	signature:(int id, int row, double offset) const
+Trace::Plot	Trace.cpp	/^void Trace::Plot(int id) const$/;"	f	class:Trace	signature:(int id) const
+Trace::Plot	Trace.cpp	/^void Trace::Plot(int id, int row) const$/;"	f	class:Trace	signature:(int id, int row) const
+Trace::ScalePlot	Trace.cpp	/^void Trace::ScalePlot(int id, double scale) const$/;"	f	class:Trace	signature:(int id, double scale) const
+Trace::ScalePlot	Trace.cpp	/^void Trace::ScalePlot(int id, int row, double scale) const$/;"	f	class:Trace	signature:(int id, int row, double scale) const
+Trace::TrapezoidalFilter	Trace.cpp	/^void Trace::TrapezoidalFilter(Trace &filter, $/;"	f	class:Trace	signature:(Trace &filter, const TrapezoidalFilterParameters &parms, unsigned int lo, unsigned int hi) const
+TraceAnalyzer	TraceAnalyzer.cpp	/^TraceAnalyzer::TraceAnalyzer() : $/;"	f	class:TraceAnalyzer	signature:()
+TraceAnalyzer::Analyze	TraceAnalyzer.cpp	/^void TraceAnalyzer::Analyze(Trace &trace,$/;"	f	class:TraceAnalyzer	signature:(Trace &trace, const string &detType, const string &detSubtype)
+TraceAnalyzer::DeclarePlots	TraceAnalyzer.cpp	/^void TraceAnalyzer::DeclarePlots() const$/;"	f	class:TraceAnalyzer	signature:() const
+TraceAnalyzer::EndAnalyze	TraceAnalyzer.cpp	/^void TraceAnalyzer::EndAnalyze(Trace &trace)$/;"	f	class:TraceAnalyzer	signature:(Trace &trace)
+TraceAnalyzer::EndAnalyze	TraceAnalyzer.cpp	/^void TraceAnalyzer::EndAnalyze(void)$/;"	f	class:TraceAnalyzer	signature:(void)
+TraceAnalyzer::Init	TraceAnalyzer.cpp	/^bool TraceAnalyzer::Init(void)$/;"	f	class:TraceAnalyzer	signature:(void)
+TraceAnalyzer::TraceAnalyzer	TraceAnalyzer.cpp	/^TraceAnalyzer::TraceAnalyzer() : $/;"	f	class:TraceAnalyzer	signature:()
+TraceAnalyzer::~TraceAnalyzer	TraceAnalyzer.cpp	/^TraceAnalyzer::~TraceAnalyzer() $/;"	f	class:TraceAnalyzer	signature:()
+TraceExtracter	TraceExtracter.cpp	/^TraceExtracter::TraceExtracter(const std::string& aType, const std::string &aSubtype) : $/;"	f	class:TraceExtracter	signature:(const std::string& aType, const std::string &aSubtype)
+TraceExtracter::Analyze	TraceExtracter.cpp	/^void TraceExtracter::Analyze(Trace &trace,$/;"	f	class:TraceExtracter	signature:(Trace &trace, const string &aType, const string &aSubtype)
+TraceExtracter::DeclarePlots	TraceExtracter.cpp	/^void TraceExtracter::DeclarePlots(void) const$/;"	f	class:TraceExtracter	signature:(void) const
+TraceExtracter::TraceExtracter	TraceExtracter.cpp	/^TraceExtracter::TraceExtracter(const std::string& aType, const std::string &aSubtype) : $/;"	f	class:TraceExtracter	signature:(const std::string& aType, const std::string &aSubtype)
+TraceExtracter::numTraces	TraceExtracter.cpp	/^const int TraceExtracter::numTraces = 99;$/;"	m	class:TraceExtracter	file:
+TraceExtracter::traceBins	TraceExtracter.cpp	/^const int TraceExtracter::traceBins = SC;$/;"	m	class:TraceExtracter	file:
+TraceExtracter::~TraceExtracter	TraceExtracter.cpp	/^TraceExtracter::~TraceExtracter()$/;"	f	class:TraceExtracter	signature:()
+TraceFilterer	TraceFilterer.cpp	/^TraceFilterer::TraceFilterer() : $/;"	f	class:TraceFilterer	signature:()
+TraceFilterer::Analyze	TraceFilterer.cpp	/^void TraceFilterer::Analyze(Trace &trace,$/;"	f	class:TraceFilterer	signature:(Trace &trace, const string &type, const string &subtype)
+TraceFilterer::DeclarePlots	TraceFilterer.cpp	/^void TraceFilterer::DeclarePlots(void) const$/;"	f	class:TraceFilterer	signature:(void) const
+TraceFilterer::FindPulse	TraceFilterer.cpp	/^const TraceFilterer::PulseInfo& TraceFilterer::FindPulse(Trace::iterator begin, Trace::iterator end)$/;"	f	class:TraceFilterer	signature:(Trace::iterator begin, Trace::iterator end)
+TraceFilterer::Init	TraceFilterer.cpp	/^bool TraceFilterer::Init(const string &filterFile)$/;"	f	class:TraceFilterer	signature:(const string &filterFile)
+TraceFilterer::PulseInfo::PulseInfo	TraceFilterer.cpp	/^TraceFilterer::PulseInfo::PulseInfo()$/;"	f	class:TraceFilterer::PulseInfo	signature:()
+TraceFilterer::PulseInfo::PulseInfo	TraceFilterer.cpp	/^TraceFilterer::PulseInfo::PulseInfo(Trace::size_type theTime, double theEnergy) :$/;"	f	class:TraceFilterer::PulseInfo	signature:(Trace::size_type theTime, double theEnergy)
+TraceFilterer::TraceFilterer	TraceFilterer.cpp	/^TraceFilterer::TraceFilterer() : $/;"	f	class:TraceFilterer	signature:()
+TraceFilterer::defaultFilterFile	TraceFilterer.cpp	/^const string TraceFilterer::defaultFilterFile = "filter.txt";$/;"	m	class:TraceFilterer	file:
+TraceFilterer::energyBins	TraceFilterer.cpp	/^const int TraceFilterer::energyBins = SC;$/;"	m	class:TraceFilterer	file:
+TraceFilterer::energyScaleFactor	TraceFilterer.cpp	/^const double TraceFilterer::energyScaleFactor = 2.198; \/\/< TO BE USED WITH MAGIC +40 ENERGY SAMPLE LOCATION$/;"	m	class:TraceFilterer	file:
+TraceFilterer::~TraceFilterer	TraceFilterer.cpp	/^TraceFilterer::~TraceFilterer()$/;"	f	class:TraceFilterer	signature:()
+TracePlotter	TracePlotter.cpp	/^TracePlotter::TracePlotter() : TraceAnalyzer()$/;"	f	class:TracePlotter	signature:()
+TracePlotter::Analyze	TracePlotter.cpp	/^void TracePlotter::Analyze(Trace &trace,$/;"	f	class:TracePlotter	signature:(Trace &trace, const string &type, const string &subtype)
+TracePlotter::DeclarePlots	TracePlotter.cpp	/^void TracePlotter::DeclarePlots(void) const$/;"	f	class:TracePlotter	signature:(void) const
+TracePlotter::TracePlotter	TracePlotter.cpp	/^TracePlotter::TracePlotter() : TraceAnalyzer()$/;"	f	class:TracePlotter	signature:()
+TracePlotter::numTraces	TracePlotter.cpp	/^const int TracePlotter::numTraces = S5;$/;"	m	class:TracePlotter	file:
+TracePlotter::traceBins	TracePlotter.cpp	/^const int TracePlotter::traceBins = SC;$/;"	m	class:TracePlotter	file:
+TracePlotter::~TracePlotter	TracePlotter.cpp	/^TracePlotter::~TracePlotter()$/;"	f	class:TracePlotter	signature:()
+TrapezoidalFilter	Trace.cpp	/^void Trace::TrapezoidalFilter(Trace &filter, $/;"	f	class:Trace	signature:(Trace &filter, const TrapezoidalFilterParameters &parms, unsigned int lo, unsigned int hi) const
+TriggerLogicProcessor	TriggerLogicProcessor.cpp	/^TriggerLogicProcessor::TriggerLogicProcessor(void) : LogicProcessor()$/;"	f	class:TriggerLogicProcessor	signature:(void)
+TriggerLogicProcessor::DeclarePlots	TriggerLogicProcessor.cpp	/^void TriggerLogicProcessor::DeclarePlots(void) const$/;"	f	class:TriggerLogicProcessor	signature:(void) const
+TriggerLogicProcessor::Process	TriggerLogicProcessor.cpp	/^bool TriggerLogicProcessor::Process(RawEvent &event)$/;"	f	class:TriggerLogicProcessor	signature:(RawEvent &event)
+TriggerLogicProcessor::TriggerLogicProcessor	TriggerLogicProcessor.cpp	/^TriggerLogicProcessor::TriggerLogicProcessor(void) : LogicProcessor()$/;"	f	class:TriggerLogicProcessor	signature:(void)
+TstBit	ReadBuffData.RevD.cpp	/^unsigned long TstBit(unsigned short bit, unsigned long value)$/;"	f	signature:(unsigned short bit, unsigned long value)
+TstBit	ReadBuffData.cpp	/^unsigned long TstBit(unsigned short bit, word_t value)$/;"	f	signature:(unsigned short bit, word_t value)
+VandleBarData	VandleProcessor.cpp	/^VandleProcessor::VandleBarData::VandleBarData(const VandleData& Right, const VandleData& Left, const VandleCal& Cal) $/;"	f	class:VandleProcessor::VandleBarData	signature:(const VandleData& Right, const VandleData& Left, const VandleCal& Cal)
+VandleData	VandleProcessor.cpp	/^VandleProcessor::VandleData::VandleData(ChanEvent *chan)$/;"	f	class:VandleProcessor::VandleData	signature:(ChanEvent *chan)
+VandleData	VandleProcessor.cpp	/^VandleProcessor::VandleData::VandleData(string type)$/;"	f	class:VandleProcessor::VandleData	signature:(string type)
+VandleDataRoot	VandleProcessor.cpp	/^VandleProcessor::VandleDataRoot::VandleDataRoot()$/;"	f	class:VandleProcessor::VandleDataRoot	signature:()
+VandleProcessor	VandleProcessor.cpp	/^VandleProcessor::VandleProcessor(): EventProcessor()$/;"	f	class:VandleProcessor	signature:()
+VandleProcessor::AddBranch	VandleProcessor.cpp	/^bool VandleProcessor::AddBranch(TTree *tree)$/;"	f	class:VandleProcessor	signature:(TTree *tree)
+VandleProcessor::AnalyzeData	VandleProcessor.cpp	/^void VandleProcessor::AnalyzeData(void)$/;"	f	class:VandleProcessor	signature:(void)
+VandleProcessor::BarEventCheck	VandleProcessor.cpp	/^bool VandleProcessor::BarEventCheck(const double &timeDiff, const string &barType)$/;"	f	class:VandleProcessor	signature:(const double &timeDiff, const string &barType)
+VandleProcessor::CorrectTOF	VandleProcessor.cpp	/^double VandleProcessor::CorrectTOF(double &TOF, double &corRadius, const double &z0, const string &barType)$/;"	f	class:VandleProcessor	signature:(double &TOF, double &corRadius, const double &z0, const string &barType)
+VandleProcessor::DeclarePlots	VandleProcessor.cpp	/^void VandleProcessor::DeclarePlots(void) const$/;"	f	class:VandleProcessor	signature:(void) const
+VandleProcessor::FillBranch	VandleProcessor.cpp	/^void VandleProcessor::FillBranch(void)$/;"	f	class:VandleProcessor	signature:(void)
+VandleProcessor::GoodDataCheck	VandleProcessor.cpp	/^bool VandleProcessor::GoodDataCheck(const VandleData& DataCheck)$/;"	f	class:VandleProcessor	signature:(const VandleData& DataCheck)
+VandleProcessor::ImproperDetOrder	VandleProcessor.cpp	/^void VandleProcessor::ImproperDetOrder(void)$/;"	f	class:VandleProcessor	signature:(void)
+VandleProcessor::Init	VandleProcessor.cpp	/^bool VandleProcessor::Init(DetectorDriver &driver)$/;"	f	class:VandleProcessor	signature:(DetectorDriver &driver)
+VandleProcessor::InverseVelocity	VandleProcessor.cpp	/^double VandleProcessor::InverseVelocity (const double &corTOF, const double &z0) $/;"	f	class:VandleProcessor	signature:(const double &corTOF, const double &z0)
+VandleProcessor::LENGTH_BIG_NS	VandleProcessor.cpp	/^const double VandleProcessor::LENGTH_BIG_NS   = 0.1*LENGTH_BIG_CM\/C_BAR_B;    \/\/ lenfth of big bar in 10ns units$/;"	m	class:VandleProcessor	file:
+VandleProcessor::LENGTH_SMALL_NS	VandleProcessor.cpp	/^const double VandleProcessor::LENGTH_SMALL_NS = 0.1*LENGTH_SMALL_CM\/C_BAR_S;  \/\/ length of small bar in 10ns units$/;"	m	class:VandleProcessor	file:
+VandleProcessor::Process	VandleProcessor.cpp	/^bool VandleProcessor::Process(RawEvent &event) $/;"	f	class:VandleProcessor	signature:(RawEvent &event)
+VandleProcessor::ReadVandleCal	VandleProcessor.cpp	/^void VandleProcessor::ReadVandleCal(void) $/;"	f	class:VandleProcessor	signature:(void)
+VandleProcessor::RetrieveData	VandleProcessor.cpp	/^bool VandleProcessor::RetrieveData(RawEvent &event) $/;"	f	class:VandleProcessor	signature:(RawEvent &event)
+VandleProcessor::VandleBarData::BendBar	VandleProcessor.cpp	/^double VandleProcessor::VandleBarData::BendBar(double &timeDiff, const VandleCal& Cal, const string &barType)$/;"	f	class:VandleProcessor::VandleBarData	signature:(double &timeDiff, const VandleCal& Cal, const string &barType)
+VandleProcessor::VandleBarData::VandleBarData	VandleProcessor.cpp	/^VandleProcessor::VandleBarData::VandleBarData(const VandleData& Right, const VandleData& Left, const VandleCal& Cal) $/;"	f	class:VandleProcessor::VandleBarData	signature:(const VandleData& Right, const VandleData& Left, const VandleCal& Cal)
+VandleProcessor::VandleData::VandleData	VandleProcessor.cpp	/^VandleProcessor::VandleData::VandleData(ChanEvent *chan)$/;"	f	class:VandleProcessor::VandleData	signature:(ChanEvent *chan)
+VandleProcessor::VandleData::VandleData	VandleProcessor.cpp	/^VandleProcessor::VandleData::VandleData(string type)$/;"	f	class:VandleProcessor::VandleData	signature:(string type)
+VandleProcessor::VandleDataRoot::VandleDataRoot	VandleProcessor.cpp	/^VandleProcessor::VandleDataRoot::VandleDataRoot()$/;"	f	class:VandleProcessor::VandleDataRoot	signature:()
+VandleProcessor::VandleProcessor	VandleProcessor.cpp	/^VandleProcessor::VandleProcessor(): EventProcessor()$/;"	f	class:VandleProcessor	signature:()
+WAVEFORMHIGH	WaveformAnalyzer.cpp	37;"	d	file:
+WAVEFORMLOW	WaveformAnalyzer.cpp	36;"	d	file:
+WalkCorrection	GeProcessor.cpp	/^double GeProcessor::WalkCorrection(double e) {$/;"	f	class:GeProcessor	signature:(double e)
+WaveformAnalyzer	WaveformAnalyzer.cpp	/^WaveformAnalyzer::WaveformAnalyzer() : TraceAnalyzer()$/;"	f	class:WaveformAnalyzer	signature:()
+WaveformAnalyzer::Analyze	WaveformAnalyzer.cpp	/^void WaveformAnalyzer::Analyze(Trace &trace,$/;"	f	class:WaveformAnalyzer	signature:(Trace &trace, const string &detType, const string &detSubtype)
+WaveformAnalyzer::DeclarePlots	WaveformAnalyzer.cpp	/^void WaveformAnalyzer::DeclarePlots(void) const$/;"	f	class:WaveformAnalyzer	signature:(void) const
+WaveformAnalyzer::WaveformAnalyzer	WaveformAnalyzer.cpp	/^WaveformAnalyzer::WaveformAnalyzer() : TraceAnalyzer()$/;"	f	class:WaveformAnalyzer	signature:()
+Zero	RawEvent.cpp	/^void DetectorSummary::Zero() $/;"	f	class:DetectorSummary	signature:()
+Zero	RawEvent.cpp	/^void Identifier::Zero()$/;"	f	class:Identifier	signature:()
+Zero	RawEvent.cpp	/^void RawEvent::Zero(const set<string> &usedev)$/;"	f	class:RawEvent	signature:(const set<string> &usedev)
+ZeroNums	RawEvent.cpp	/^void ChanEvent::ZeroNums() $/;"	f	class:ChanEvent	signature:()
+ZeroVar	RawEvent.cpp	/^void ChanEvent::ZeroVar() $/;"	f	class:ChanEvent	signature:()
+at	DetectorLibrary.cpp	/^DetectorLibrary::const_reference DetectorLibrary::at(DetectorLibrary::size_type idx) const$/;"	f	class:DetectorLibrary	signature:(DetectorLibrary::size_type idx) const
+at	DetectorLibrary.cpp	/^DetectorLibrary::const_reference DetectorLibrary::at(DetectorLibrary::size_type mod, DetectorLibrary::size_type ch) const$/;"	f	class:DetectorLibrary	signature:(DetectorLibrary::size_type mod, DetectorLibrary::size_type ch) const
+at	DetectorLibrary.cpp	/^DetectorLibrary::reference DetectorLibrary::at(DetectorLibrary::size_type idx)$/;"	f	class:DetectorLibrary	signature:(DetectorLibrary::size_type idx)
+at	DetectorLibrary.cpp	/^DetectorLibrary::reference DetectorLibrary::at(DetectorLibrary::size_type mod, DetectorLibrary::size_type ch)$/;"	f	class:DetectorLibrary	signature:(DetectorLibrary::size_type mod, DetectorLibrary::size_type ch)
+betaGated	GeProcessor.cpp	/^	namespace betaGated {$/;"	n	namespace:dammIds::ge	file:
+clear	Correlator.cpp	/^void CorrelationList::clear()$/;"	f	class:CorrelationList	signature:()
+corrTime	Correlator.cpp	/^const double Correlator::corrTime   = 60; \/\/ used to be 3300$/;"	m	class:Correlator	file:
+count1cc_	PulserProcessor.cpp	/^extern "C" void count1cc_(const int &, const int &, const int &);$/;"	p	file:	signature:(const int &, const int &, const int &)
+count1cc_	VandleProcessor.cpp	/^extern "C" void count1cc_(const int &, const int &, const int &);$/;"	p	file:	signature:(const int &, const int &, const int &)
+cutoffEnergy	DssdProcessor.cpp	/^const double DssdProcessor::cutoffEnergy = 4500;$/;"	m	class:DssdProcessor	file:
+cutoffEnergy	ImplantSsdProcessor.cpp	/^const double ImplantSsdProcessor::cutoffEnergy  = 1500;$/;"	m	class:ImplantSsdProcessor	file:
+dammIds	GeProcessor.cpp	/^namespace dammIds {$/;"	n	file:
+dammIds	LitePositionProcessor.cpp	/^namespace dammIds {$/;"	n	file:
+dammIds	PositionProcessor.cpp	/^namespace dammIds {$/;"	n	file:
+dammIds::ge	GeProcessor.cpp	/^    namespace ge {$/;"	n	namespace:dammIds	file:
+dammIds::ge::ADDBACK_OFFSET	GeProcessor.cpp	/^	const unsigned int ADDBACK_OFFSET = 50;$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::BETA_OFFSET	GeProcessor.cpp	/^	const unsigned int BETA_OFFSET    = 10;$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::DD_ADD_ENERGY	GeProcessor.cpp	/^	const int DD_ADD_ENERGY            = DD_ENERGY       + ADDBACK_OFFSET; \/\/ NOT DECLARED but useful to keep the scheme in mind$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::DD_ADD_ENERGY_WITH_DECAY	GeProcessor.cpp	/^	const int DD_ADD_ENERGY_WITH_DECAY = DD_ADD_ENERGY   + DECAY_OFFSET;$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::DD_ADD_ENERGY__TIMEX	GeProcessor.cpp	/^	const int DD_ADD_ENERGY__TIMEX     = DD_ENERGY__TIMEX + ADDBACK_OFFSET; \/\/ with x granularities$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::DD_CLOVER_ENERGY_RATIO	GeProcessor.cpp	/^	const int DD_CLOVER_ENERGY_RATIO   = 1607;$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::DD_ENERGY	GeProcessor.cpp	/^	const int DD_ENERGY                = 1600;$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::DD_ENERGY_WITH_DECAY	GeProcessor.cpp	/^	const int DD_ENERGY_WITH_DECAY     = DD_ENERGY       + DECAY_OFFSET;$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::DD_ENERGY__TIMEX	GeProcessor.cpp	/^	const int DD_ENERGY__TIMEX         = 1621; \/\/ with x granularities$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::DECAY_OFFSET	GeProcessor.cpp	/^	const unsigned int DECAY_OFFSET   = 20;$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::D_ADD_ENERGY	GeProcessor.cpp	/^	const int D_ADD_ENERGY          = D_ENERGY         + ADDBACK_OFFSET;$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::D_ADD_ENERGY_CLOVERX	GeProcessor.cpp	/^	const int D_ADD_ENERGY_CLOVERX  = D_ENERGY_CLOVERX + ADDBACK_OFFSET ; \/\/ addback for X detectors$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::D_ADD_ENERGY_TOTAL	GeProcessor.cpp	/^	const int D_ADD_ENERGY_TOTAL    = D_ADD_ENERGY_CLOVERX + MAX_CLOVERS;$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::D_ENERGY	GeProcessor.cpp	/^	const int D_ENERGY              = 1500;$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::D_ENERGY_CLOVERX	GeProcessor.cpp	/^	const int D_ENERGY_CLOVERX      = 1501; \/\/ leaf by clover for X detectors$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::D_ENERGY_HIGHGAIN	GeProcessor.cpp	/^	const int D_ENERGY_HIGHGAIN     = 1508;$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::D_ENERGY_LOWGAIN	GeProcessor.cpp	/^	const int D_ENERGY_LOWGAIN      = 1507;$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::D_ENERGY_WITH_DECAY	GeProcessor.cpp	/^	const int D_ENERGY_WITH_DECAY   = D_ENERGY + DECAY_OFFSET;$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::D_ENERGY_WITH_EXT0	GeProcessor.cpp	/^	const int D_ENERGY_WITH_EXT0    = 1526; \/\/ with external detector (e.g. 3hen, vandle) $/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::D_ENERGY_WITH_EXT1	GeProcessor.cpp	/^	const int D_ENERGY_WITH_EXT1    = 1527; \/\/ with external detector (e.g. 3hen, vandle) $/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::D_ENERGY_WITH_IMPLANT	GeProcessor.cpp	/^	const int D_ENERGY_WITH_IMPLANT = 1525;$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::D_MULT	GeProcessor.cpp	/^	const int D_MULT                = 1509;$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::MAX_CLOVERS	GeProcessor.cpp	/^	const unsigned int MAX_CLOVERS = 4; \/\/ for *_DETX spectra$/;"	m	namespace:dammIds::ge	file:
+dammIds::ge::betaGated	GeProcessor.cpp	/^	namespace betaGated {$/;"	n	namespace:dammIds::ge	file:
+dammIds::ge::betaGated::DD_ADD_ENERGY	GeProcessor.cpp	/^	    const int DD_ADD_ENERGY          = DD_ENERGY + dammIds::ge::DECAY_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::ge::betaGated::DD_ADD_ENERGY_DELAYED	GeProcessor.cpp	/^	    const int DD_ADD_ENERGY_DELAYED  = 1669;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::ge::betaGated::DD_ADD_ENERGY_PROMPT	GeProcessor.cpp	/^	    const int DD_ADD_ENERGY_PROMPT   = 1668;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::ge::betaGated::DD_ADD_ENERGY__TIMEX	GeProcessor.cpp	/^	    const int DD_ADD_ENERGY__TIMEX   = DD_ENERGY__TIMEX + dammIds::ge::ADDBACK_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::ge::betaGated::DD_ENERGY	GeProcessor.cpp	/^	    const int DD_ENERGY              = dammIds::ge::DD_ENERGY + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::ge::betaGated::DD_ENERGY__TIMEX	GeProcessor.cpp	/^	    const int DD_ENERGY__TIMEX       = dammIds::ge::DD_ENERGY__TIMEX + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::ge::betaGated::DD_TDIFF__BETA_ENERGY	GeProcessor.cpp	/^	    const int DD_TDIFF__BETA_ENERGY  = 1616;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::ge::betaGated::DD_TDIFF__GAMMA_ENERGY	GeProcessor.cpp	/^	    const int DD_TDIFF__GAMMA_ENERGY = 1615;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::ge::betaGated::D_ADD_ENERGY	GeProcessor.cpp	/^	    const int D_ADD_ENERGY         = dammIds::ge::D_ADD_ENERGY         + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::ge::betaGated::D_ADD_ENERGY_CLOVERX	GeProcessor.cpp	/^	    const int D_ADD_ENERGY_CLOVERX = dammIds::ge::D_ADD_ENERGY_CLOVERX + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::ge::betaGated::D_ADD_ENERGY_TOTAL	GeProcessor.cpp	/^	    const int D_ADD_ENERGY_TOTAL   = dammIds::ge::D_ADD_ENERGY_TOTAL   + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::ge::betaGated::D_ENERGY	GeProcessor.cpp	/^	    const int D_ENERGY             = dammIds::ge::D_ENERGY         + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::ge::betaGated::D_ENERGY_BETA0	GeProcessor.cpp	/^	    const int D_ENERGY_BETA0       = 1516;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::ge::betaGated::D_ENERGY_BETA1	GeProcessor.cpp	/^	    const int D_ENERGY_BETA1       = 1517;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::ge::betaGated::D_ENERGY_CLOVERX	GeProcessor.cpp	/^	    const int D_ENERGY_CLOVERX     = dammIds::ge::D_ENERGY_CLOVERX + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::ge::betaGated::D_ENERGY_WITH_EXT0	GeProcessor.cpp	/^	    const int D_ENERGY_WITH_EXT0   = dammIds::ge::D_ENERGY_WITH_EXT0   + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::ge::betaGated::D_ENERGY_WITH_EXT1	GeProcessor.cpp	/^	    const int D_ENERGY_WITH_EXT1   = dammIds::ge::D_ENERGY_WITH_EXT1   + dammIds::ge::BETA_OFFSET;$/;"	m	namespace:dammIds::ge::betaGated	file:
+dammIds::position	LitePositionProcessor.cpp	/^    namespace position {$/;"	n	namespace:dammIds	file:
+dammIds::position	PositionProcessor.cpp	/^    namespace position {$/;"	n	namespace:dammIds	file:
+dammIds::position::DD_POSITION	LitePositionProcessor.cpp	/^	const int DD_POSITION              = 2699;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::DD_POSITION	PositionProcessor.cpp	/^	const int DD_POSITION              = 2699;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::DD_POSITION__ENERGY_LOCX	LitePositionProcessor.cpp	/^	const int DD_POSITION__ENERGY_LOCX = 2680;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::DD_POSITION__ENERGY_LOCX	PositionProcessor.cpp	/^	const int DD_POSITION__ENERGY_LOCX = 2680;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::DD_QDCN__QDCN_LOCX	LitePositionProcessor.cpp	/^	const int DD_QDCN__QDCN_LOCX       = 2500;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::DD_QDCN__QDCN_LOCX	PositionProcessor.cpp	/^	const int DD_QDCN__QDCN_LOCX       = 2500;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::DD_QDCSUM__ENERGY_LOCX	LitePositionProcessor.cpp	/^	const int DD_QDCSUM__ENERGY_LOCX   = 4500;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::DD_QDCSUM__ENERGY_LOCX	PositionProcessor.cpp	/^	const int DD_QDCSUM__ENERGY_LOCX   = 4500;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::DD_QDCTOT__QDCTOT_LOCX	LitePositionProcessor.cpp	/^	const int DD_QDCTOT__QDCTOT_LOCX   = 2660;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::DD_QDCTOT__QDCTOT_LOCX	PositionProcessor.cpp	/^	const int DD_QDCTOT__QDCTOT_LOCX   = 2660;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::D_INFO_LOCX	LitePositionProcessor.cpp	/^	const int D_INFO_LOCX              = 2480;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::D_INFO_LOCX	PositionProcessor.cpp	/^	const int D_INFO_LOCX              = 2480;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::D_QDCNORMN_LOCX	LitePositionProcessor.cpp	/^	const int D_QDCNORMN_LOCX          = 2300;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::D_QDCNORMN_LOCX	PositionProcessor.cpp	/^	const int D_QDCNORMN_LOCX          = 2300;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::D_QDCTOTNORM_LOCX	LitePositionProcessor.cpp	/^	const int D_QDCTOTNORM_LOCX        = 2460;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::D_QDCTOTNORM_LOCX	PositionProcessor.cpp	/^	const int D_QDCTOTNORM_LOCX        = 2460;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::LOC_SUM	LitePositionProcessor.cpp	/^	const int LOC_SUM  = 18;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::LOC_SUM	PositionProcessor.cpp	/^	const int LOC_SUM  = 18;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::QDC_JUMP	LitePositionProcessor.cpp	/^	const int QDC_JUMP = 20;$/;"	m	namespace:dammIds::position	file:
+dammIds::position::QDC_JUMP	PositionProcessor.cpp	/^	const int QDC_JUMP = 20;$/;"	m	namespace:dammIds::position	file:
+defaultFilterFile	TraceFilterer.cpp	/^const string TraceFilterer::defaultFilterFile = "filter.txt";$/;"	m	class:TraceFilterer	file:
+detectorend_	DetectorDriver.cpp	/^extern "C" void detectorend_()$/;"	f	signature:()
+driver	PixieStd.cpp	/^DetectorDriver driver;$/;"	v
+drrmake_	DeclareHistogram.cpp	/^extern "C" void drrmake_();$/;"	p	file:	signature:()
+drrsub_	DeclareHistogram.cpp	/^extern "C" void drrsub_(unsigned int& iexist)$/;"	f	signature:(unsigned int& iexist)
+emptyTrace	Trace.cpp	/^const Trace emptyTrace; \/\/\/< an empty trace for const references to point to$/;"	v
+endrr_	DeclareHistogram.cpp	/^extern "C" void endrr_();$/;"	p	file:	signature:()
+energyBins	TraceFilterer.cpp	/^const int TraceFilterer::energyBins = SC;$/;"	m	class:TraceFilterer	file:
+energyScaleFactor	TraceFilterer.cpp	/^const double TraceFilterer::energyScaleFactor = 2.198; \/\/< TO BE USED WITH MAGIC +40 ENERGY SAMPLE LOCATION$/;"	m	class:TraceFilterer	file:
+fastTime	Correlator.cpp	/^const double Correlator::fastTime   = 40e-6;$/;"	m	class:Correlator	file:
+fissionThresh	ImplantSsdProcessor.cpp	/^const double ImplantSsdProcessor::fissionThresh = 4400;$/;"	m	class:ImplantSsdProcessor	file:
+ge	GeProcessor.cpp	/^    namespace ge {$/;"	n	namespace:dammIds	file:
+goodAlphaCut	ImplantSsdProcessor.cpp	/^const double ImplantSsdProcessor::goodAlphaCut  = 950;$/;"	m	class:ImplantSsdProcessor	file:
+granploty	GeProcessor.cpp	/^void GeProcessor::granploty(int dammId, double x, double y, const vector<float> &granularity) const$/;"	f	class:GeProcessor	signature:(int dammId, double x, double y, const vector<float> &granularity) const
+hd1d_	DeclareHistogram.cpp	/^extern "C" void hd1d_(const int &, const int &, const int &, const int &,$/;"	p	file:	signature:(const int &, const int &, const int &, const int &, const int &, const int &, const char *, int)
+hd2d_	DeclareHistogram.cpp	/^extern "C" void hd2d_(const int &, const int &, const int &, const int &,$/;"	p	file:	signature:(const int &, const int &, const int &, const int &, const int &, const int &, const int &, const int &, const int &, const int &, const char *, int)
+hissub_	PixieStd.cpp	/^extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)$/;"	f	signature:(unsigned short *sbuf[],unsigned short *nhw)
+hissub_sec	PixieStd.cpp	/^void hissub_sec(unsigned int *ibuf[],unsigned int *nhw);$/;"	p	file:	signature:(unsigned int *ibuf[],unsigned int *nhw)
+hissub_sec	PixieStd.cpp	/^void hissub_sec(word_t *ibuf[],unsigned int *nhw)$/;"	f	signature:(word_t *ibuf[],unsigned int *nhw)
+implantTof	ImplantSsdProcessor.cpp	/^const double ImplantSsdProcessor::implantTof    = 2800;$/;"	m	class:ImplantSsdProcessor	file:
+maxWords	PixieStd.cpp	/^const unsigned int maxWords = EXTERNAL_FIFO_LENGTH; \/\/Revision D$/;"	v
+maxWords	PixieStd.cpp	/^const unsigned int maxWords = IO_BUFFER_LENGTH; \/\/ Revision A$/;"	v
+minImpTime	Correlator.cpp	/^const double Correlator::minImpTime = 5e-3;$/;"	m	class:Correlator	file:
+minTime	IonChamberProcessor.cpp	/^const double IonChamberProcessor::minTime = 18.0e-6 \/ clockInSeconds;$/;"	m	class:IonChamberProcessor	file:
+modChan	MapFile.cpp	/^DetectorLibrary modChan;$/;"	v
+numTraces	TraceExtracter.cpp	/^const int TraceExtracter::numTraces = 99;$/;"	m	class:TraceExtracter	file:
+numTraces	TracePlotter.cpp	/^const int TracePlotter::numTraces = S5;$/;"	m	class:TracePlotter	file:
+operator +	StatsAccumulator.cpp	/^StatsAccumulator StatsAccumulator::operator+$/;"	f	class:StatsAccumulator	signature:(const StatsAccumulator& x) const
+operator <	RawEvent.cpp	/^bool operator<(const DetectorSummary &a, const DetectorSummary &b) {$/;"	f	signature:(const DetectorSummary &a, const DetectorSummary &b)
+operator =	StatsAccumulator.cpp	/^const StatsAccumulator& StatsAccumulator::operator=(const StatsAccumulator &x)$/;"	f	class:StatsAccumulator	signature:(const StatsAccumulator &x)
+pixieEnergyContraction	RawEvent.cpp	/^const double ChanEvent::pixieEnergyContraction = 2.0;$/;"	m	class:ChanEvent	file:
+plot	DeclareHistogram.cpp	/^void plot(int dammID, double val1, double val2, double val3, const char *name)$/;"	f	signature:(int dammID, double val1, double val2, double val3, const char *name)
+position	LitePositionProcessor.cpp	/^    namespace position {$/;"	n	namespace:dammIds	file:
+position	PositionProcessor.cpp	/^    namespace position {$/;"	n	namespace:dammIds	file:
+push_back	DetectorLibrary.cpp	/^void DetectorLibrary::push_back(const Identifier &x)$/;"	f	class:DetectorLibrary	signature:(const Identifier &x)
+randoms	RandomPool.cpp	/^RandomPool randoms; \/\/\/< an ugly global to hold some random numbers$/;"	v
+rawev	PixieStd.cpp	/^RawEvent rawev;$/;"	v
+scanMode	PixieStd.cpp	/^const string scanMode = "scan";$/;"	v
+set2cc_	PulserProcessor.cpp	/^extern "C" void set2cc_(const int &, const int &, const int &, const int &);$/;"	p	file:	signature:(const int &, const int &, const int &, const int &)
+set2cc_	VandleProcessor.cpp	/^extern "C" void set2cc_(const int &, const int &, const int &, const int &);$/;"	p	file:	signature:(const int &, const int &, const int &, const int &)
+stats	StatsData.cpp	/^StatsData stats;$/;"	v
+symplot	GeProcessor.cpp	/^void symplot(int dammID, double bin1, double bin2)$/;"	f	signature:(int dammID, double bin1, double bin2)
+theMapFile	MapFile.cpp	/^MapFile theMapFile(MapFile::defaultFile);$/;"	p	file:	signature:(MapFile::defaultFile)
+traceBins	TraceExtracter.cpp	/^const int TraceExtracter::traceBins = SC;$/;"	m	class:TraceExtracter	file:
+traceBins	TracePlotter.cpp	/^const int TracePlotter::traceBins = SC;$/;"	m	class:TracePlotter	file:
+~Correlator	Correlator.cpp	/^Correlator::~Correlator()$/;"	f	class:Correlator	signature:()
+~DetectorDriver	DetectorDriver.cpp	/^DetectorDriver::~DetectorDriver()$/;"	f	class:DetectorDriver	signature:()
+~DetectorLibrary	DetectorLibrary.cpp	/^DetectorLibrary::~DetectorLibrary()$/;"	f	class:DetectorLibrary	signature:()
+~DoubleTraceAnalyzer	DoubleTraceAnalyzer.cpp	/^DoubleTraceAnalyzer::~DoubleTraceAnalyzer() $/;"	f	class:DoubleTraceAnalyzer	signature:()
+~EventProcessor	EventProcessor.cpp	/^EventProcessor::~EventProcessor() $/;"	f	class:EventProcessor	signature:()
+~RootProcessor	RootProcessor.cpp	/^RootProcessor::~RootProcessor()$/;"	f	class:RootProcessor	signature:()
+~StatsAccumulator	StatsAccumulator.cpp	/^StatsAccumulator::~StatsAccumulator()$/;"	f	class:StatsAccumulator	signature:()
+~TauAnalyzer	TauAnalyzer.cpp	/^TauAnalyzer::~TauAnalyzer()$/;"	f	class:TauAnalyzer	signature:()
+~TraceAnalyzer	TraceAnalyzer.cpp	/^TraceAnalyzer::~TraceAnalyzer() $/;"	f	class:TraceAnalyzer	signature:()
+~TraceExtracter	TraceExtracter.cpp	/^TraceExtracter::~TraceExtracter()$/;"	f	class:TraceExtracter	signature:()
+~TraceFilterer	TraceFilterer.cpp	/^TraceFilterer::~TraceFilterer()$/;"	f	class:TraceFilterer	signature:()
+~TracePlotter	TracePlotter.cpp	/^TracePlotter::~TracePlotter()$/;"	f	class:TracePlotter	signature:()
