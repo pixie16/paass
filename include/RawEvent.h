@@ -140,7 +140,7 @@ public:
     double GetCalTime() const     {return calTime;}    /**< Get the calibrated time */
     double GetHighResTime() const {return highResTime;} /**< Get the high-resolution time */
     double GetEventTime() const   {return eventTime;}  /**< Get the event time */
-    const Trace &GetTrace() const {return trace;} /**< Get a reference to the trace */
+    const Trace& GetTrace() const {return trace;} /**< Get a reference to the trace */
     Trace& GetTrace() {return trace;} /** Get a reference which can alter the trace */
     unsigned long GetTrigTime() const    
     {return trigTime;}    /**< Return the channel trigger time */
@@ -200,6 +200,8 @@ public:
     
     const ChanEvent* GetMaxEvent(void) const 
     {return maxEvent;}          /**< Get the max event */
+    ChanEvent* GetMaxEvent(bool fake)
+    {return maxEvent;}          /**< Get the max event with possibility to alter */
     int GetMult() const 
     {return eventList.size();} /**< Get the multiplicity */
     const std::string& GetName() const          

@@ -72,6 +72,7 @@
 #endif
 
 using namespace std;
+using namespace dammIds::raw;
 
 /* rawevent declared in PixieStd.cpp
  *
@@ -87,7 +88,11 @@ extern RandomPool randoms;
 
   Creates instances of all event processors
 */
-DetectorDriver::DetectorDriver()
+
+using namespace dammIds::raw;
+
+DetectorDriver::DetectorDriver() : 
+    histo(OFFSET, RANGE, PlotsRegister::R() ) 
 {
   vecAnalyzer.push_back(new DoubleTraceAnalyzer());
     vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
@@ -185,7 +190,7 @@ int DetectorDriver::ProcessEvent(const string &mode){
       Begin the event processing looping over all the channels
       that fired in this particular event.
     */
-    plot(dammIds::misc::D_NUMBER_OF_EVENTS, GENERIC_CHANNEL);
+    plot(dammIds::diagnostic::D_NUMBER_OF_EVENTS + dammIds::diagnostic::OFFSET, dammIds::GENERIC_CHANNEL);
     
     const vector<ChanEvent *> &eventList = rawev.GetEventList();
     for(size_t i=0; i < eventList.size(); i++) {
@@ -227,6 +232,8 @@ void DetectorDriver::DeclarePlots(void)
     DetectorLibrary::size_type maxChan = (theMapFile ? modChan.size() : 192);
 
     for (DetectorLibrary::size_type i = 0; i < maxChan; i++) {	 
+        cout << "i = " << i << endl;
+
         if (theMapFile && !modChan.HasValue(i)) {
             continue;
         }
@@ -243,10 +250,12 @@ void DetectorDriver::DeclarePlots(void)
         } else {
             idstr << "id " << i;
         }
-
+        cout << "D_RAW_ENERGY + i = " << D_RAW_ENERGY << " + " << i << " M" << modChan.ModuleFromIndex(i) << "C" << modChan.ChannelFromIndex(i) << endl;
         DeclareHistogram1D(D_RAW_ENERGY + i, SE, ("RawE " + idstr.str()).c_str() );
+        cout << "Check " << D_RAW_ENERGY + i + dammIds::raw::OFFSET << " " << histo.exists(D_RAW_ENERGY + i + dammIds::raw::OFFSET) << endl;
         DeclareHistogram1D(D_FILTER_ENERGY + i, SE, ("FilterE " + idstr.str()).c_str() );
         DeclareHistogram1D(D_SCALAR + i, SE, ("Scalar " + idstr.str()).c_str() );
+        cout << "Check " << D_SCALAR + i + dammIds::raw::OFFSET << " " << histo.exists(D_SCALAR + i + dammIds::raw::OFFSET) << endl;
 #ifndef REVD       
         DeclareHistogram1D(D_TIME + i, SE, ("Time " + idstr.str()).c_str() ); 
 #endif
@@ -344,7 +353,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
   Plot the raw energies of each channel into the damm spectrum number assigned
   to it in the map file with an offset as defined in damm_plotids.h
 */
-int DetectorDriver::PlotRaw(const ChanEvent *chan) const
+int DetectorDriver::PlotRaw(const ChanEvent *chan)
 {
     int id = chan->GetID();
     float energy = chan->GetEnergy() / ChanEvent::pixieEnergyContraction;
@@ -358,7 +367,7 @@ int DetectorDriver::PlotRaw(const ChanEvent *chan) const
   Plot the calibrated energies of each channel into the damm spectrum number
   assigned to it in the map file with an offset as defined in damm_plotids.h
 */
-int DetectorDriver::PlotCal(const ChanEvent *chan) const
+int DetectorDriver::PlotCal(const ChanEvent *chan)
 {
     int id = chan->GetID();
     // int dammid = chan->GetChanID().GetDammID();

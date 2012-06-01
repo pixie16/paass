@@ -19,12 +19,13 @@
 #endif
 
 using namespace std;
-using namespace dammIds::ionChamber;
 using pixie::clockInSeconds;
 
 const double IonChamberProcessor::minTime = 18.0e-6 / clockInSeconds;
 
-IonChamberProcessor::IonChamberProcessor() : EventProcessor()
+using namespace dammIds::ionChamber;
+
+IonChamberProcessor::IonChamberProcessor() : EventProcessor(OFFSET, RANGE)
 {
     name = "ionchamber";
     associatedTypes.insert("ion_chamber"); // associate with the scint type

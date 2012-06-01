@@ -144,7 +144,7 @@ void TraceFilterer::Analyze(Trace &trace,
 	const double deviationCut = fastThreshold / 4. / fastParms.GetRiseSamples();
 
 	double trailingBaseline  = trace.DoBaseline(trace.size() - baselineBins - 1, baselineBins);
-	double trailingDeviation = trace.GetValue("sigmaBaseline");
+	//double trailingDeviation = trace.GetValue("sigmaBaseline");
 		
 	// start at sample 5 because first samples are occasionally corrupted
 	trace.DoBaseline(5, baselineBins);       

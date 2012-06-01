@@ -56,8 +56,8 @@ void DoubleTraceAnalyzer::DeclarePlots()
     DeclareHistogram1D(D_ENERGY2, energyBins, "E2 from traces");
 
     DeclareHistogram2D(DD_DOUBLE_TRACE, traceBins, numTraces, "double traces");
-    DeclareHistogram2D(DD_ENERGY2__TDIFF, energyBins2, timeBins, "E2 vs DT", 2);
-    DeclareHistogram2D(DD_ENERGY2__ENERGY1, energyBins2, energyBins2, "E2 vs E1", 2);
+    histo.DeclareHistogram2D(DD_ENERGY2__TDIFF, energyBins2, timeBins, "E2 vs DT", "", 2);
+    histo.DeclareHistogram2D(DD_ENERGY2__ENERGY1, energyBins2, energyBins2, "E2 vs E1", "", 2);
 
     DeclareHistogram2D(DD_TRIPLE_TRACE, traceBins, numTraces, "interesting traces");
     DeclareHistogram2D(DD_TRIPLE_TRACE_FILTER1, traceBins, numTraces,

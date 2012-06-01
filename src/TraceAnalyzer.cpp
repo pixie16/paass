@@ -33,8 +33,12 @@ bool TraceAnalyzer::Init(void)
 /**
  * Set default filter parameters
  */
+
+using namespace dammIds::trace;
+
 TraceAnalyzer::TraceAnalyzer() : 
-    userTime(0.), systemTime(0.)
+    userTime(0.), systemTime(0.),
+    histo(OFFSET, RANGE, PlotsRegister::R() ) 
 {
     name = "Trace";
     // start at -1 so that when incremented on first trace analysis,

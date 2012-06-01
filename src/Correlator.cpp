@@ -28,11 +28,25 @@
 #include "Correlator.h"
 
 using namespace std;
+using namespace dammIds::correlator;
+
+namespace dammIds {
+    namespace correlator {
+        const int D_CONDITION            = 0;
+        const int D_TIME_BW_IMPLANTS     = 1;
+        const int D_TIME_BW_ALL_IMPLANTS = 2;
+    }
+} // correlator namespace
 
 // all in seconds
 const double Correlator::minImpTime = 5e-3;
 const double Correlator::corrTime   = 60; // used to be 3300
 const double Correlator::fastTime   = 40e-6;
+
+Correlator::Correlator() : histo(OFFSET, RANGE, PlotsRegister::R() ), 
+    lastImplant(NULL), lastDecay(NULL), condition(UNKNOWN_CONDITION)
+{
+}
 
 EventInfo::EventInfo()
 {
@@ -163,10 +177,7 @@ void CorrelationList::PrintDecayList() const
     cout.unsetf(ios::floatfield);
 }
 
-Correlator::Correlator() : 
-    lastImplant(NULL), lastDecay(NULL), condition(UNKNOWN_CONDITION)
-{
-}
+
 
 void Correlator::Init()
 {

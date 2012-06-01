@@ -13,6 +13,16 @@
 
 using std::string;
 using std::vector;
+using namespace dammIds::mcp;
+
+namespace dammIds {
+    namespace mcp {	
+        const int D_POSX   = 1;
+        const int D_POSY   = 2;
+        const int DD_POSXY = 3;
+    }
+}
+
 
 void McpProcessor::McpData::Clear(void)
 {
@@ -23,7 +33,7 @@ void McpProcessor::McpData::Clear(void)
   mult = 0;
 }
 
-McpProcessor::McpProcessor(void)
+McpProcessor::McpProcessor(void) : EventProcessor(OFFSET, RANGE)
 {
   name = "mcp";
   associatedTypes.insert("mcp");
@@ -31,7 +41,6 @@ McpProcessor::McpProcessor(void)
 
 void McpProcessor::DeclarePlots(void)
 {
-  using namespace dammIds::mcp;
 
   const int posBins   = SE;
   const int posBins2D = S9;
