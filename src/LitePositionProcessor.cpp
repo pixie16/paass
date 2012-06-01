@@ -37,7 +37,10 @@ const string PositionProcessor::configFile("qdc.txt");
 /**
  * Initialize the qdc to handle ssd events
  */
-LitePositionProcessor::PositionProcessor() : EventProcessor()
+
+using namespace dammIds::position;
+
+LitePositionProcessor::PositionProcessor() : EventProcessor(OFFSET, RANGE)
 {
     name="liteposition";
     associatedTypes.insert("ssd");

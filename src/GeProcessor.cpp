@@ -133,13 +133,15 @@ double GeProcessor::WalkCorrection(double e) {
 }
 
 // useful function for symmetrically incrementing 2D plots
-void symplot(int dammID, double bin1, double bin2)
+void GeProcessor::symplot(int dammID, double bin1, double bin2)
 {
     plot(dammID, bin1, bin2);
     plot(dammID, bin2, bin1);
 }
 
-GeProcessor::GeProcessor() : EventProcessor(), leafToClover() {
+using namespace dammIds::ge;
+
+GeProcessor::GeProcessor() : EventProcessor(OFFSET, RANGE), leafToClover() {
     name = "ge";
     associatedTypes.insert("ge"); // associate with germanium detectors
 }

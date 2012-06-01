@@ -33,7 +33,42 @@ const double VandleProcessor::LENGTH_BIG_NS   = 0.1*LENGTH_BIG_CM/C_BAR_B;    //
 using namespace dammIds::vandle;
 using namespace std;
 
-VandleProcessor::VandleProcessor(): EventProcessor()
+namespace dammIds { 
+    namespace vandle{ 
+        //HISTOGRAMS FOR INDIVIDUAL ENDS OF BARS
+        const int DD_TQDCBARS         = 0;
+        const int DD_MAXIMUMBARS      = 1;
+        const int DD_TIMEDIFFBARS     = 2;
+        const int DD_TOFBARS          = 3;
+        const int DD_CORTOFBARS       = 4;
+        const int DD_TQDCBETA         = 5;
+        const int DD_MAXBETA          = 6;
+
+        //HISTOGRAMS FOR EACH BAR
+        const int DD_TQDCAVEVSTDIFF   = 10;
+
+        //HISTOGRAMS FOR EACH BAR W.R.T. EACH TRIGGER
+        const int DD_TDIFFVSTOF       = 30;
+        const int DD_MAXRVSTOF        = 70;
+        const int DD_MAXLVSTOF        = 110;
+        const int DD_MAXBETA1VSTOF    = 150;
+        const int DD_MAXBETA2VSTOF    = 190;
+        const int DD_TQDCAVEVSTOF     = 230;
+
+        const int DD_TDIFFVSCORTOF    = 270;
+        const int DD_MAXRVSCORTOF     = 310;
+        const int DD_MAXLVSCORTOF     = 350;
+        const int DD_MAXBETA1VSCORTOF = 390;
+        const int DD_MAXBETA2VSCORTOF = 430;
+        const int DD_TDIFFVSCORCORTOF = 470;
+        const int DD_TQDCAVEVSCORTOF  = 510;
+
+        const int D_PROBLEMS  = 600;
+        const int DD_PROBLEMSQDC = 601;
+    }
+}//vandle namespace
+
+VandleProcessor::VandleProcessor(): EventProcessor(OFFSET, RANGE)
 {
     name = "vandle";
     associatedTypes.insert("scint:beta"); //associate with scints

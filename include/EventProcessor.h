@@ -43,7 +43,9 @@ class EventProcessor {
 
     Plots histo;
 
-    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h");
+    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
+        histo[dammId]->plot(val1, val2, val3, name);
+    }
     virtual void DeclareHistogram1D(int dammId, int xSize, const char* title) {
         histo.DeclareHistogram1D(dammId, xSize, title);
     }

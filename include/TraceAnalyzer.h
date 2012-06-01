@@ -8,8 +8,9 @@
 #define __TRACEANALYZER_H_
 
 #include <string>
-
 #include <sys/times.h>
+
+#include "DammPlots.h"
 
 class Trace;
 
@@ -31,6 +32,18 @@ class TraceAnalyzer {
     int level;                ///< the level of analysis to proceed with
     int numTracesAnalyzed;    ///< rownumber for DAMM spectrum 850
     std::string name;         ///< name of the analyzer
+
+    Plots histo;
+    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
+        histo[dammId]->plot(val1, val2, val3, name);
+    }
+    virtual void DeclareHistogram1D(int dammId, int xSize, const char* title) {
+        histo.DeclareHistogram1D(dammId, xSize, title);
+    }
+    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize, const char* title) {
+        histo.DeclareHistogram2D(dammId, xSize, ySize, title);
+    }
+
  public:
     TraceAnalyzer();
     virtual ~TraceAnalyzer();
