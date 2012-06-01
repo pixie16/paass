@@ -28,6 +28,7 @@ private:
 			       const char *title, int halfWordsPerChan,
 			       const std::vector<float> &granularity, const char *units );
     void granploty(int dammId, double x, double y, const std::vector<float> &granularity);
+    void symplot(int dammID, double bin1, double bin2);
 
 public:
     GeProcessor(); // no virtual c'tors

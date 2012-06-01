@@ -104,6 +104,7 @@ class Plots {
         /** Here go C++ wrappers for histograms calls */
         bool DeclareHistogram1D(int dammId, int xSize, const char* title,
                     int halfWordsPerChan, int xHistLength, int xLow, int xHigh, string mne = "") {
+            cout << "Declaring: " << dammId << " + " << offset_ << " = " << dammId + offset_ << endl;
             if ( !exists(dammId) && !exists(mne) && checkRange(dammId) ) {
                 idList_.insert( pair<int, DammPlot*>(dammId, new DammPlot(dammId + offset_, xSize, title,
                                                      halfWordsPerChan, xHistLength, xLow, xHigh)) );
@@ -123,6 +124,7 @@ class Plots {
         }
 
         bool DeclareHistogram1D(int dammId, int xSize, const char* title, string mne = "") {
+            cout << "Declaring: " << dammId << " + " << offset_ << " = " << dammId + offset_ << endl;
             if ( !exists(dammId) && !exists(mne) && checkRange(dammId) ) {
                 idList_.insert( pair<int, DammPlot*>(dammId, new DammPlot(dammId + offset_, xSize, title)) );
                 // Mnemonic is optional and added only if longer then 0
@@ -141,6 +143,7 @@ class Plots {
         
         bool DeclareHistogram1D(int dammId, int xSize, const char* title,
                     int halfWordsPerChan, int contraction, string mne = "") {
+            cout << "Declaring: " << dammId << " + " << offset_ << " = " << dammId + offset_ << endl;
             if ( !exists(dammId) && !exists(mne) && checkRange(dammId) ) {
                 idList_.insert( pair<int, DammPlot*>(dammId, new DammPlot(dammId + offset_, xSize, title, halfWordsPerChan, contraction)) );
                 // Mnemonic is optional and added only if longer then 0
@@ -160,6 +163,7 @@ class Plots {
                                 const char *title, int halfWordsPerChan,
                                 int xHistLength, int xLow, int xHigh,
                                 int yHistLength, int yLow, int yHigh, string mne = "") {
+            cout << "Declaring: " << dammId << " + " << offset_ << " = " << dammId + offset_ << endl;
             if ( !exists(dammId) && !exists(mne) && checkRange(dammId) ) {
                 idList_.insert( pair<int, DammPlot*>(dammId, new DammPlot(dammId + offset_, xSize, ySize,
                                                      title, halfWordsPerChan,
@@ -179,9 +183,10 @@ class Plots {
             }
         }
         bool DeclareHistogram2D(int dammId, int xSize, int ySize,
-                                const char* title, string mne = "") {
+                                const char* title, string mne = "", int halfWordPerChan = 1) {
+            cout << "Declaring: " << dammId << " + " << offset_ << " = " << dammId + offset_ << endl;
             if ( !exists(dammId) && !exists(mne) && checkRange(dammId) ) {
-                idList_.insert( pair<int, DammPlot*>(dammId, new DammPlot(dammId + offset_, xSize, ySize, title)) );
+                idList_.insert( pair<int, DammPlot*>(dammId, new DammPlot(dammId + offset_, xSize, ySize, title, halfWordPerChan)) );
                 // Mnemonic is optional and added only if longer then 0
                 if (mne.size() > 0)
                     mneList_.insert( pair<string, int>(mne, dammId) );
@@ -198,6 +203,7 @@ class Plots {
         bool DeclareHistogram2D(int dammId, int xSize, int ySize,
                     const char* title, int halfWordsPerChan,
                     int xContraction, int yContraction, string mne = "") {
+            cout << "Declaring: " << dammId << " + " << offset_ << " = " << dammId + offset_ << endl;
             if ( !exists(dammId) && !exists(mne) && checkRange(dammId) ) {
                 idList_.insert( pair<int, DammPlot*>(dammId, new DammPlot(dammId + offset_, xSize, ySize,
                                                                           title, halfWordsPerChan,

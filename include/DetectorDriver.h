@@ -18,6 +18,7 @@
 #include <utility>
 #include <vector>
 
+#include "DammPlots.h"
 #include "param.h"
 
 // forward declarations
@@ -50,22 +51,27 @@ class DetectorDriver {
     
     pair<double, time_t> pixieToWallClock; /**< rough estimate of pixie to wall clock */ 
 
-    enum EHistograms { D_RAW_ENERGY        = 1,
-		       D_FILTER_ENERGY     = 201, // intermediate step with "raw" filter energy	
-		       D_CAL_ENERGY        = 1001,
-		       D_CAL_ENERGY_REJECT = 1201,
-		       D_HAS_TRACE = 801 };
- public:    
-    enum EPublicHistograms { D_SCALAR = 401,
-			     D_TIME   = 601 }; /**< These get filled in PixieStd.cpp */
 
+    Plots histo;
+    virtual void DeclareHistogram1D(int dammId, int xSize, const char* title) {
+        histo.DeclareHistogram1D(dammId, xSize, title);
+    }
+    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize, const char* title) {
+        histo.DeclareHistogram2D(dammId, xSize, ySize, title);
+    }
+
+ public:    
     vector<Calibration> cal;    /**<the calibration vector*/ 
+
+    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
+        histo[dammId]->plot(val1, val2, val3, name);
+    }
     
     int ProcessEvent(const string &);
     int ThreshAndCal(ChanEvent *);
     int Init(void);
-    int PlotRaw(const ChanEvent *) const;
-    int PlotCal(const ChanEvent *) const;
+    int PlotRaw(const ChanEvent *);
+    int PlotCal(const ChanEvent *);
 
     void DeclarePlots(void); /**< declare the necessary damm plots */
     bool SanityCheck(void) const;  /**< check whether everything makes sense */

@@ -16,7 +16,31 @@
 using namespace std;
 using namespace dammIds::scint;
 
-ScintProcessor::ScintProcessor() : EventProcessor()
+namespace dammIds {
+    namespace scint {
+        namespace neutr {
+            namespace betaGated {
+                const int D_ENERGY_DETX = 0; // for 3 detectors (1-3)
+            }
+            namespace gammaGated {
+                const int D_ENERGY_DETX = 3; // for 3 detectors (1-3)
+            }
+            namespace betaGammaGated {
+                const int D_ENERGY_DETX = 6; // for 3 detectors (1-3)
+            }
+        } // neutr namespace
+        const int DD_TQDCBETA         = 9;
+        const int DD_MAXBETA          = 10;
+        const int DD_TQDCLIQUID       = 11;
+        const int DD_MAXLIQUID        = 12;
+        const int D_DISCRIM           = 13;
+        const int DD_NGVSE            = 14;
+        const int DD_TOFLIQUID        = 15;
+        const int DD_TRCLIQUID        = 16;
+    }
+} 
+
+ScintProcessor::ScintProcessor() : EventProcessor(OFFSET, RANGE)
 {
     name = "scint";
     //? change to associated type "scint:neutr"

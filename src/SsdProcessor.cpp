@@ -12,7 +12,16 @@
 using std::cout;
 using std::endl;
 
-SsdProcessor::SsdProcessor() : EventProcessor()
+using namespace dammIds::ssd;
+
+namespace dammIds {
+    namespace ssd {
+        const int NUM_DETECTORS = 4;
+        const int DD_POSITION__ENERGY_DETX = 1; // for x detectors
+    }
+} // ssd namespace
+
+SsdProcessor::SsdProcessor() : EventProcessor(OFFSET, RANGE)
 {
     name = "ssd";
     associatedTypes.insert("ssd");

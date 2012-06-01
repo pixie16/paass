@@ -18,8 +18,22 @@
 #include "MtcProcessor.h"
 
 using namespace std;
+using namespace dammIds::mtc;
 
-MtcProcessor::MtcProcessor(void) : EventProcessor(), 
+namespace dammIds {
+    namespace mtc {
+        const int D_TDIFF0        = 0;
+        const int D_TDIFF1        = 1;
+        const int D_TDIFFSUM      = 2;
+        const int D_MOVETIME      = 3;
+        const int D_COUNTER       = 10;
+        const int D_COUNTER_MOVE0 = 11;
+        const int D_COUNTER_MOVE1 = 12;
+    }
+} // mtc namespace
+
+
+MtcProcessor::MtcProcessor(void) : EventProcessor(OFFSET, RANGE), 
 				   lastStartTime(NAN), lastStopTime(NAN)
 {
     name = "mtc";
@@ -66,7 +80,7 @@ bool MtcProcessor::Process(RawEvent &event)
 
     static const vector<ChanEvent*> &mtcEvents = mtcSummary->GetList();
 
-    plot(D_COUNTER, GENERIC_CHANNEL);
+    plot(D_COUNTER, dammIds::GENERIC_CHANNEL);
 
     for (vector<ChanEvent*>::const_iterator it = mtcEvents.begin();
 	 it != mtcEvents.end(); it++) {
@@ -81,7 +95,7 @@ bool MtcProcessor::Process(RawEvent &event)
 		plot(D_TDIFFSUM, timediff / mtcPlotResolution);
 	    }
 	    lastStartTime = time;
-	    plot(D_COUNTER_MOVE0,GENERIC_CHANNEL); //counter
+	    plot(D_COUNTER_MOVE0,dammIds::GENERIC_CHANNEL); //counter
 	} else if (subtype == "stop") {
 	    if (!isnan(lastStopTime) != 0) {
 		double timeDiff1 = time - lastStopTime;
@@ -93,7 +107,7 @@ bool MtcProcessor::Process(RawEvent &event)
 		}
 	    }
 	    lastStopTime = time;
-	    plot(D_COUNTER_MOVE1,GENERIC_CHANNEL); //counter	  
+	    plot(D_COUNTER_MOVE1,dammIds::GENERIC_CHANNEL); //counter	  
 	    // correlate the end of tape movement with the implantation time
 	    // if mtc down, correlate with beam_start
 

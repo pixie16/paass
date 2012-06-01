@@ -14,6 +14,14 @@
 #include "TriggerLogicProcessor.h"
 
 using namespace std;
+using namespace dammIds::logic;
+using namespace dammIds::triggerlogic;
+
+namespace dammIds {
+    namespace triggerlogic {
+        const int DD_RUNTIME_LOGIC = 80;
+    }
+} 
 
 TriggerLogicProcessor::TriggerLogicProcessor(void) : LogicProcessor()
 {
@@ -23,8 +31,6 @@ TriggerLogicProcessor::TriggerLogicProcessor(void) : LogicProcessor()
 
 void TriggerLogicProcessor::DeclarePlots(void)
 {
-    using namespace dammIds::triggerlogic;
-    using namespace dammIds::logic;
 
     LogicProcessor::DeclarePlots();
 

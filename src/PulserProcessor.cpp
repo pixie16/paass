@@ -23,7 +23,23 @@ extern "C" void set2cc_(const int &, const int &, const int &, const int &);
 using namespace std;
 using namespace dammIds::pulserprocessor;
 
-PulserProcessor::PulserProcessor(): EventProcessor()
+namespace dammIds {
+    namespace pulserprocessor{
+        const int D_TIMEDIFF     = 0;
+        const int D_PROBLEMSTUFF = 1;
+
+        const int DD_QDC         = 2;
+        const int DD_MAX         = 3;
+        const int DD_PVSP        = 4;
+        const int DD_MAXVSTDIFF  = 5;
+        const int DD_QDCVSMAX    = 6;
+        const int DD_AMPMAPSTART = 7;
+        const int DD_AMPMAPSTOP  = 8;
+    }
+} 
+
+
+PulserProcessor::PulserProcessor(): EventProcessor(OFFSET, RANGE)
 {
     name = "Pulser";
     associatedTypes.insert("pulser"); //associate with pulser
