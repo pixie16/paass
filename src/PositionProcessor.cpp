@@ -47,8 +47,7 @@ using namespace dammIds::position;
 /**
  * Initialize the qdc to handle ssd events
  */
-PositionProcessor::PositionProcessor() : EventProcessor(),
-                                         histo(OFFSET, RANGE, PlotsRegister::R() ) {
+PositionProcessor::PositionProcessor() : EventProcessor(OFFSET, RANGE) {
     name="position";
     associatedTypes.insert("ssd");
 }

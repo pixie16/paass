@@ -139,8 +139,7 @@ void symplot(int dammID, double bin1, double bin2)
     plot(dammID, bin2, bin1);
 }
 
-GeProcessor::GeProcessor() : EventProcessor(), leafToClover(),
-                             histo(dammIds::ge::OFFSET, dammIds::ge::RANGE, PlotsRegister::R()) {
+GeProcessor::GeProcessor() : EventProcessor(), leafToClover() {
     name = "ge";
     associatedTypes.insert("ge"); // associate with germanium detectors
 }
@@ -539,21 +538,21 @@ bool GeProcessor::Process(RawEvent &event) {
  */
 void GeProcessor::DeclareHistogramGranY(int dammId, int xsize, int ysize,
 					const char *title, int halfWordsPerChan,
-					const vector<float> &granularity, const char *units) const
+					const vector<float> &granularity, const char *units)
 {
     stringstream fullTitle;
 
     for (unsigned int i=0; i < granularity.size(); i++) {	 
 	//? translate scientific units to engineering units 
 	fullTitle << title << " (" << granularity[i] << " " << units << "/bin)";
-	DeclareHistogram2D(dammId + i, xsize, ysize, fullTitle.str().c_str(), halfWordsPerChan);
+	histo.DeclareHistogram2D(dammId + i, xsize, ysize, fullTitle.str().c_str(), halfWordsPerChan, 1, 1);
     }
 } 
 
 /**
  * Plot to a granularity spectrum
  */
-void GeProcessor::granploty(int dammId, double x, double y, const vector<float> &granularity) const
+void GeProcessor::granploty(int dammId, double x, double y, const vector<float> &granularity)
 {
     for (unsigned int i=0; i < granularity.size(); i++) {
 	plot(dammId + i, x, y / granularity[i]);

@@ -37,7 +37,6 @@ private:
 				std::vector<ChanEvent*>::const_reverse_iterator begin, 
 				std::vector<ChanEvent*>::const_reverse_iterator end) const;				
 
-    Plots histo;
 public:
     PositionProcessor(); // no virtual c'tors
     virtual bool Init(DetectorDriver &driver);
