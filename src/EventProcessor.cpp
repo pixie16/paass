@@ -23,8 +23,14 @@ extern RawEvent rawev; // to access detector summaries
 
 EventProcessor::EventProcessor() : 
   userTime(0.), systemTime(0.), name("generic"), initDone(false), 
-  didProcess(false)
+  didProcess(false), histo(0, 0, PlotsRegister::R() )
 {
+    clocksPerSecond = sysconf(_SC_CLK_TCK);
+}
+
+EventProcessor::EventProcessor(int offset, int range) : 
+  userTime(0.), systemTime(0.), name("generic"), initDone(false), 
+  didProcess(false), histo(offset, range, PlotsRegister::R() ) {
     clocksPerSecond = sysconf(_SC_CLK_TCK);
 }
 

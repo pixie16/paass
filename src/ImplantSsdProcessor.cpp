@@ -67,16 +67,14 @@ void ImplantSsdProcessor::DeclarePlots(void)
 		       unknownEnergyBins, locationBins, "SSD Strip vs E w/ beam");
     DeclareHistogram2D(DD_ENERGY__LOCATION_NOBEAM,
 		       unknownEnergyBins, locationBins, "SSD Strip vs E w/ no beam");
-    DeclareHistogram2D(DD_ENERGY__LOCATION_VETO,
-		       implantEnergyBins, locationBins, "SSD Strip vs E w/ veto");
-    DeclareHistogram2D(DD_ENERGY__LOCATION_PROJLIKE,
+    DeclareHistogram2D(DD_ENERGY__LOCATION_VETO, implantEnergyBins, locationBins, "SSD Strip vs E w/ veto"); DeclareHistogram2D(DD_ENERGY__LOCATION_PROJLIKE,
 		       implantEnergyBins, locationBins, "SSD Strip vs E projectile");
     DeclareHistogram2D(DD_ENERGY__LOCATION_UNKNOWN,
 		       unknownEnergyBins, locationBins, "SSD Strip vs E (unknown)");
     
     DeclareHistogram2D(DD_LOC_VETO__LOC_SSD, vetoLocationBins, locationBins,
 		       "Veto pos vs SSD pos");
-    DeclareHistogram2D(DD_TOTENERGY__ENERGY, implantEnergyBins, implantEnergyBins,
+    histo.DeclareHistogram2D(DD_TOTENERGY__ENERGY, implantEnergyBins, implantEnergyBins,
 		       "Tot energy vs. SSD energy (/8)", 1, S3, S3);
 
     DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 0, decayEnergyBins, timeBins,
@@ -156,13 +154,13 @@ void ImplantSsdProcessor::DeclarePlots(void)
 		       "DSSD Ty,Ex (100ms/ch)(xkeV)");
 
     for (int i=0; i < MAX_TOF; i++) {
-      DeclareHistogram2D(DD_ALL_ENERGY__TOFX+i,
+      histo.DeclareHistogram2D(DD_ALL_ENERGY__TOFX+i,
 			 implantEnergyBins, tofBins, "SSD Energy vs TOF (/16)", 1, S4, S4);
-      DeclareHistogram2D(DD_IMPLANT_ENERGY__TOFX+i,
+      histo.DeclareHistogram2D(DD_ALL_ENERGY__TOFX+i,
 			 implantEnergyBins, tofBins, "Implant Energy vs TOF (/16)", 1, S4, S4);
-      DeclareHistogram2D(DD_VETO_ENERGY__TOFX+i,
+      histo.DeclareHistogram2D(DD_VETO_ENERGY__TOFX+i,
 			 implantEnergyBins, tofBins, "Veto Energy vs TOF (/16)", 1, S4, S4);
-      DeclareHistogram2D(DD_ALL_ENERGY__TOFX_GATED+i,
+      histo.DeclareHistogram2D(DD_ALL_ENERGY__TOFX_GATED+i,
 			 implantEnergyBins, tofBins, "SSD Energy vs TOF (/16), gated", 1, S4, S4);
     }
 
