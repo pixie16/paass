@@ -33,7 +33,11 @@ class PlotsRegister {
             return exists;
         }
 
-        void add (int offset, int range) {
+        bool add (int offset, int range) {
+            // Special case: empty Plots list
+            if (offset == 0 && range == 0)
+                return true;
+
             int min = offset;
             int max = offset + range - 1;
 
@@ -67,6 +71,7 @@ class PlotsRegister {
             }
 
             register_.push_back( pair<int, int>(min, max));
+            return true;
         }
 
     private:

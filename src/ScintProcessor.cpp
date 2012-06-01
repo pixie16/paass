@@ -46,11 +46,11 @@ void ScintProcessor::DeclarePlots(void)
     }
 
 //for the beta detectors from LeRIBSS
-    DeclareHistogram2D(DD_TQDCBETA, SC, S3, "Start vs. Trace QDC", 1, SE, 0, SE-1, S3, 0, S3-1);
+    histo.DeclareHistogram2D(DD_TQDCBETA, SC, S3, "Start vs. Trace QDC", 1, SE, 0, SE-1, S3, 0, S3-1);
     DeclareHistogram2D(DD_MAXBETA, SC, S3, "Start vs. Maximum");
 
     //To handle Liquid Scintillators
-    DeclareHistogram2D(DD_TQDCLIQUID, SC, S3, "Liquid vs. Trace QDC", 1, SE, 0, SE-1, S3, 0, S3-1);
+    histo.DeclareHistogram2D(DD_TQDCLIQUID, SC, S3, "Liquid vs. Trace QDC", 1, SE, 0, SE-1, S3, 0, S3-1);
     DeclareHistogram2D(DD_MAXLIQUID, SC, S3, "Liquid vs. Maximum");
     DeclareHistogram1D(D_DISCRIM, SD, "N-Gamma Discrimination");
     // DeclareHistogram2D(DD_NGVSE, SE, SE,"N-G Discrim vs Energy");

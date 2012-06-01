@@ -26,10 +26,9 @@ private:
 
     void DeclareHistogramGranY(int dammId, int xsize, int ysize, 
 			       const char *title, int halfWordsPerChan,
-			       const std::vector<float> &granularity, const char *units ) const;
-    void granploty(int dammId, double x, double y, const std::vector<float> &granularity) const;
+			       const std::vector<float> &granularity, const char *units );
+    void granploty(int dammId, double x, double y, const std::vector<float> &granularity);
 
-    Plots histo;
 public:
     GeProcessor(); // no virtual c'tors
     virtual bool Init(DetectorDriver &driver);

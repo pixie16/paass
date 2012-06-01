@@ -12,6 +12,10 @@ REVISIOND = 1
 # CXXFLAGS += -DVERBOSE
 # Undefine to make a "online" version
 # ONLINE = 1 
+# Use gfortran
+HHIRF_GFORTRAN = 1
+# Libs in HHIRF DIR
+LIBS_IN_HHIRF = 1
 
 #------- instruct make to search through these
 #------- directories to find files
@@ -25,11 +29,15 @@ ifeq ($(HHIRF_DIR),)
 HHIRF_DIR = /usr/hhirf
 endif
 
+ifneq ($(LIBS_IN_HHIRF),)
+ACQ2_LIBDIR = $(HHIRF_DIR)
+else
 ifeq ($(ACQ2_LIBDIR),)
 ifneq ($(ACQ2_DIR),) 
 ACQ2_LIBDIR = $(ACQ2_DIR)
 else
 ACQ2_LIBDIR = /usr/acq2/lib
+endif
 endif
 endif
 
