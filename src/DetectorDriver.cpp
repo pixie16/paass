@@ -94,7 +94,7 @@ using namespace dammIds::raw;
 DetectorDriver::DetectorDriver() : 
     histo(OFFSET, RANGE, PlotsRegister::R() ) 
 {
-  vecAnalyzer.push_back(new DoubleTraceAnalyzer());
+    vecAnalyzer.push_back(new DoubleTraceAnalyzer());
     vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
     vecAnalyzer.push_back(new TauAnalyzer());
     // vecAnalyzer.push_back(new DoubleTraceAnalyzer());
@@ -190,7 +190,7 @@ int DetectorDriver::ProcessEvent(const string &mode){
       Begin the event processing looping over all the channels
       that fired in this particular event.
     */
-    plot(dammIds::diagnostic::D_NUMBER_OF_EVENTS + dammIds::diagnostic::OFFSET, dammIds::GENERIC_CHANNEL);
+    plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
     
     const vector<ChanEvent *> &eventList = rawev.GetEventList();
     for(size_t i=0; i < eventList.size(); i++) {
@@ -229,6 +229,18 @@ void DetectorDriver::DeclarePlots(void)
     extern DetectorLibrary modChan;
     extern MapFile theMapFile;
 
+    DeclareHistogram1D(D_HIT_SPECTRUM, S7, "channel hit spectrum");
+    DeclareHistogram1D(D_SUBEVENT_GAP, SE, "time btwn chan-in event,10ns bin");
+    DeclareHistogram1D(D_EVENT_LENGTH, SE, "time length of event, 10 ns bin");
+    DeclareHistogram1D(D_EVENT_GAP, SE, "time between events, 10 ns bin");
+    DeclareHistogram1D(D_EVENT_MULTIPLICITY, S7, "number of channels in event");
+    DeclareHistogram1D(D_BUFFER_END_TIME, SE, "length of buffer, 1 ms bin");
+    DeclareHistogram2D(DD_RUNTIME_SEC, SE, S6, "run time - s");
+    DeclareHistogram2D(DD_DEAD_TIME_CUMUL, SE, S6, "dead time - cumul");
+    DeclareHistogram2D(DD_BUFFER_START_TIME, SE, S6, "dead time - 0.1%");
+    DeclareHistogram2D(DD_RUNTIME_MSEC, SE, S7, "run time - ms");
+    DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
+
     DetectorLibrary::size_type maxChan = (theMapFile ? modChan.size() : 192);
 
     for (DetectorLibrary::size_type i = 0; i < maxChan; i++) {	 
@@ -250,12 +262,9 @@ void DetectorDriver::DeclarePlots(void)
         } else {
             idstr << "id " << i;
         }
-        cout << "D_RAW_ENERGY + i = " << D_RAW_ENERGY << " + " << i << " M" << modChan.ModuleFromIndex(i) << "C" << modChan.ChannelFromIndex(i) << endl;
         DeclareHistogram1D(D_RAW_ENERGY + i, SE, ("RawE " + idstr.str()).c_str() );
-        cout << "Check " << D_RAW_ENERGY + i + dammIds::raw::OFFSET << " " << histo.exists(D_RAW_ENERGY + i + dammIds::raw::OFFSET) << endl;
         DeclareHistogram1D(D_FILTER_ENERGY + i, SE, ("FilterE " + idstr.str()).c_str() );
         DeclareHistogram1D(D_SCALAR + i, SE, ("Scalar " + idstr.str()).c_str() );
-        cout << "Check " << D_SCALAR + i + dammIds::raw::OFFSET << " " << histo.exists(D_SCALAR + i + dammIds::raw::OFFSET) << endl;
 #ifndef REVD       
         DeclareHistogram1D(D_TIME + i, SE, ("Time " + idstr.str()).c_str() ); 
 #endif
