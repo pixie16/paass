@@ -28,7 +28,12 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
             int halfWordsPerChan, int xHistLength,
             int xLow, int xHigh, string mne) {
     cout << "Declaring: " << dammId << " + " << offset_ << " = " << dammId + offset_ << endl;
-    if ( !exists(dammId) && !exists(mne) && checkRange(dammId) ) {
+    if (!checkRange(dammId)) {
+        cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+        exit(1);
+        return false;
+    }
+    if (!exists(dammId) && !exists(mne)) {
         pair<set<int>::iterator, bool> result = idList_.insert(dammId);
         if (result.second == false)
             return false;
@@ -39,10 +44,7 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
         hd1d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength, xLow, xHigh, title, strlen(title));
         return true;
     } else {
-        if (checkRange(dammId))
-            cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
-        else
-            cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+        cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
         exit(1);
         return false;
     }
@@ -51,7 +53,12 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
 bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title, string mne,
                                int halfWordsPerChan /* = 2*/) {
     cout << "Declaring: " << dammId << " + " << offset_ << " = " << dammId + offset_ << endl;
-    if ( !exists(dammId) && !exists(mne) && checkRange(dammId) ) {
+    if (checkRange(dammId)) {
+        cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+        exit(1);
+        return false;
+    }
+    if (!exists(dammId) && !exists(mne)) {
         pair<set<int>::iterator, bool> result = idList_.insert(dammId);
         if (result.second == false)
             return false;
@@ -62,10 +69,7 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title, string 
         hd1d_(dammId, halfWordsPerChan, xSize, xSize, 0, xSize - 1, title, strlen(title));
         return true;
     } else {
-        if (checkRange(dammId) )
-            cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
-        else
-            cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+        cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
         exit(1);
         return false;
     }
@@ -74,7 +78,12 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title, string 
 bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
                                int halfWordsPerChan, int contraction, string mne) {
     cout << "Declaring: " << dammId << " + " << offset_ << " = " << dammId + offset_ << endl;
-    if ( !exists(dammId) && !exists(mne) && checkRange(dammId) ) {
+    if (checkRange(dammId)) {
+        cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+        exit(1);
+        return false;
+    }
+    if (!exists(dammId) && !exists(mne)) {
         pair<set<int>::iterator, bool> result = idList_.insert(dammId);
         if (result.second == false)
             return false;
@@ -85,10 +94,7 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
         hd1d_(dammId, halfWordsPerChan, xSize, xSize / contraction, 0, xSize / contraction - 1, title, strlen(title));
         return true;
     } else {
-        if (checkRange(dammId) )
-            cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
-        else
-            cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+        cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
         exit(1);
         return false;
     }
@@ -99,7 +105,12 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
                                int xHistLength, int xLow, int xHigh,
                                int yHistLength, int yLow, int yHigh, string mne) {
     cout << "Declaring: " << dammId << " + " << offset_ << " = " << dammId + offset_ << endl;
-    if ( !exists(dammId) && !exists(mne) && checkRange(dammId) ) {
+    if (checkRange(dammId)) {
+        cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+        exit(1);
+        return false;
+    }
+    if (!exists(dammId) && !exists(mne)) {
         pair<set<int>::iterator, bool> result = idList_.insert(dammId);
         if (result.second == false)
             return false;
@@ -111,10 +122,7 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
             ySize, yHistLength, yLow, yHigh, title, strlen(title));
         return true;
     } else {
-        if (checkRange(dammId) )
-            cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
-        else
-            cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+        cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
         exit(1);
         return false;
     }
@@ -123,7 +131,12 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
 bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
                                const char* title, string mne, int halfWordsPerChan /* = 1*/) {
     cout << "Declaring: " << dammId << " + " << offset_ << " = " << dammId + offset_ << endl;
-    if ( !exists(dammId) && !exists(mne) && checkRange(dammId) ) {
+    if (checkRange(dammId)) {
+        cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+        exit(1);
+        return false;
+    }
+    if (!exists(dammId) && !exists(mne)) {
         pair<set<int>::iterator, bool> result = idList_.insert(dammId);
         if (result.second == false)
             return false;
@@ -135,10 +148,7 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
             ySize, ySize, 0, ySize - 1, title, strlen(title));
         return true;
     } else {
-        if (checkRange(dammId) )
-            cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
-        else
-            cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+        cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
         exit(1);
         return false;
     }
@@ -148,7 +158,12 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
                    const char* title, int halfWordsPerChan,
                    int xContraction, int yContraction, string mne) {
     cout << "Declaring: " << dammId << " + " << offset_ << " = " << dammId + offset_ << endl;
-    if ( !exists(dammId) && !exists(mne) && checkRange(dammId) ) {
+    if (checkRange(dammId)) {
+        cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+        exit(1);
+        return false;
+    }
+    if (!exists(dammId) && !exists(mne)) {
         pair<set<int>::iterator, bool> result = idList_.insert(dammId);
         if (result.second == false)
             return false;
@@ -160,10 +175,7 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
             ySize, ySize / yContraction, 0, ySize / yContraction - 1, title, strlen(title));
         return true;
     } else {
-        if (checkRange(dammId) )
-            cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
-        else
-            cerr << "Id : " << dammId << " is outside of allowed range (" << range_ << ")." << endl;
+        cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
         exit(1);
         return false;
     }
