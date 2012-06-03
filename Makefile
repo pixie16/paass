@@ -13,9 +13,9 @@ REVISIOND = 1
 # Undefine to make a "online" version
 # ONLINE = 1 
 # Use gfortran
-#HHIRF_GFORTRAN = 1
+HHIRF_GFORTRAN = 1
 # Libs in HHIRF DIR
-#LIBS_IN_HHIRF = 1
+LIBS_IN_HHIRF = 1
 
 #------- instruct make to search through these
 #------- directories to find files

@@ -64,7 +64,7 @@ class DetectorDriver {
     vector<Calibration> cal;    /**<the calibration vector*/ 
 
     virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
-        histo[dammId]->plot(val1, val2, val3, name);
+        histo.plot(dammId, val1, val2, val3, name);
     }
     
     int ProcessEvent(const string &);

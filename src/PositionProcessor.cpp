@@ -270,8 +270,8 @@ bool PositionProcessor::Process(RawEvent &event) {
             using namespace dammIds::position;
 
             // [7] -> Noise events
-            histo.id(D_INFO_LOCX + location)->plot(7);
-            histo[D_INFO_LOCX + LOC_SUM]->plot(7);
+            histo.plot(D_INFO_LOCX + location, 7);
+            histo.plot(D_INFO_LOCX + LOC_SUM, 7);
             continue;
         }
 
@@ -284,14 +284,14 @@ bool PositionProcessor::Process(RawEvent &event) {
 
             if (top == NULL) {
                 // [6] -> Missing top
-                histo[D_INFO_LOCX + location]->plot(6);
-                histo[D_INFO_LOCX + LOC_SUM]->plot(6);
+                histo.plot(D_INFO_LOCX + location, 6);
+                histo.plot(D_INFO_LOCX + LOC_SUM, 6);
             }
 
             if (bottom == NULL) {
                 // [5] -> Missing bottom
-                histo[D_INFO_LOCX + location]->plot(5);
-                histo[D_INFO_LOCX + LOC_SUM]->plot(5);
+                histo.plot(D_INFO_LOCX + location, 5);
+                histo.plot(D_INFO_LOCX + LOC_SUM, 5);
             }
             continue;
         }
@@ -300,15 +300,15 @@ bool PositionProcessor::Process(RawEvent &event) {
         if ( FindMatchingEdgeR(sumchan, topEvents.rbegin(), topEvents.rend()) != top) {
             using namespace dammIds::position;
             // [4] -> Multiple top
-            histo[D_INFO_LOCX + location]->plot(4);
-            histo[D_INFO_LOCX + LOC_SUM]->plot(4);
+            histo.plot(D_INFO_LOCX + location, 4);
+            histo.plot(D_INFO_LOCX + LOC_SUM, 4);
             continue;
         }
         if ( FindMatchingEdgeR(sumchan, bottomEvents.rbegin(), bottomEvents.rend()) != bottom) {
             using namespace dammIds::position;
             // [3] -> Multiple bottom
-            histo[D_INFO_LOCX + location]->plot(3);
-            histo[D_INFO_LOCX + LOC_SUM]->plot(3);
+            histo.plot(D_INFO_LOCX + location, 3);
+            histo.plot(D_INFO_LOCX + LOC_SUM, 3);
             continue;
         }
 
@@ -330,8 +330,8 @@ bool PositionProcessor::Process(RawEvent &event) {
 #endif
             if (topQdc[0] == U_DELIMITER) {
                 // [2] -> Missing top QDC
-                histo[D_INFO_LOCX + location]->plot(2);
-                histo[D_INFO_LOCX + LOC_SUM]->plot(2);
+                histo.plot(D_INFO_LOCX + location, 2);
+                histo.plot(D_INFO_LOCX + LOC_SUM, 2);
                 // Recreate qdc from trace
                 if ( !top->GetTrace().empty() ) {
                     topQdc[0] = accumulate(top->GetTrace().begin(), top->GetTrace().begin() + qdcLen[0], 0);
@@ -341,8 +341,8 @@ bool PositionProcessor::Process(RawEvent &event) {
             }
             if (bottomQdc[0] == U_DELIMITER) {
                 // [1] -> Missing bottom QDC
-                histo[D_INFO_LOCX + location]->plot(1);
-                histo[D_INFO_LOCX + LOC_SUM]->plot(1);
+                histo.plot(D_INFO_LOCX + location, 1);
+                histo.plot(D_INFO_LOCX + LOC_SUM, 1);
                 // Recreate qdc from trace
                 if ( !bottom->GetTrace().empty() ) {
                     bottomQdc[0] = accumulate(bottom->GetTrace().begin(), bottom->GetTrace().begin() + qdcLen[0], 0);
@@ -355,8 +355,8 @@ bool PositionProcessor::Process(RawEvent &event) {
             }
         }
         // [0] -> good stuff
-        histo[D_INFO_LOCX + location]->plot(0);
-        histo[D_INFO_LOCX + LOC_SUM]->plot(0);
+        histo.plot(D_INFO_LOCX + location, 0);
+        histo.plot(D_INFO_LOCX + LOC_SUM, 0);
 
 
         for (int i = 1; i < numQdcs; ++i) {		
@@ -384,19 +384,19 @@ bool PositionProcessor::Process(RawEvent &event) {
             bottomQdcTot += bottomQdc[i];
             bottomQdc[i] /= qdcLen[i];
             
-            histo[DD_QDCN__QDCN_LOCX + QDC_JUMP * i + location]->plot(topQdc[i] + 10, bottomQdc[i] + 10);
-            histo[DD_QDCN__QDCN_LOCX + QDC_JUMP * i + LOC_SUM]->plot(topQdc[i], bottomQdc[i]);
+            histo.plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + location, topQdc[i] + 10, bottomQdc[i] + 10);
+            histo.plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + LOC_SUM, topQdc[i], bottomQdc[i]);
             
             float frac = topQdc[i] / (topQdc[i] + bottomQdc[i]) * 1000.; // per mil
             
-            histo[D_QDCNORMN_LOCX + QDC_JUMP * i + location]->plot(frac);
-            histo[D_QDCNORMN_LOCX + QDC_JUMP * i + LOC_SUM]->plot(frac);
+            histo.plot(D_QDCNORMN_LOCX + QDC_JUMP * i + location, frac);
+            histo.plot(D_QDCNORMN_LOCX + QDC_JUMP * i + LOC_SUM, frac);
             if (i == whichQdc) {
                 position = posScale * (frac - minNormQdc[location]) / 
                     (maxNormQdc[location] - minNormQdc[location]);		
                 sumchan->GetTrace().InsertValue("position", position);
-                histo[DD_POSITION__ENERGY_LOCX + location]->plot(position, sumchan->GetCalEnergy());
-                histo[DD_POSITION__ENERGY_LOCX + LOC_SUM]->plot(position, sumchan->GetCalEnergy());
+                histo.plot(DD_POSITION__ENERGY_LOCX + location, position, sumchan->GetCalEnergy());
+                histo.plot(DD_POSITION__ENERGY_LOCX + LOC_SUM, position, sumchan->GetCalEnergy());
 
                 // TEMP KM
                 // Write example traces to text files
@@ -471,7 +471,7 @@ bool PositionProcessor::Process(RawEvent &event) {
                 if (qdcSum < 1000 && sumchan->GetCalEnergy() > 15000) {
                     sumchan->GetTrace().InsertValue("badqdc", 1);
                 } else {
-                    histo["pos"]->plot(location, sumchan->GetTrace().GetValue("position"));
+                    histo.plot("pos", location, sumchan->GetTrace().GetValue("position"));
                 }
             }
         } // end loop over qdcs
@@ -481,20 +481,20 @@ bool PositionProcessor::Process(RawEvent &event) {
                 ratio[i - 1] = topQdc[i] / (bottomQdc[i] + topQdc[i]) * 1000.0;
         }
 
-        histo[DD_QDCR2__QDCR1_LOCX + location]->plot(ratio[1], ratio[0]);
-        histo[DD_QDCR2__QDCR3_LOCX + location]->plot(ratio[1], ratio[2]);
-        histo[DD_QDCR2__QDCR4_LOCX + location]->plot(ratio[1], ratio[3]);
+        histo.plot(DD_QDCR2__QDCR1_LOCX + location, ratio[1], ratio[0]);
+        histo.plot(DD_QDCR2__QDCR3_LOCX + location, ratio[1], ratio[2]);
+        histo.plot(DD_QDCR2__QDCR4_LOCX + location, ratio[1], ratio[3]);
 
-        histo[DD_QDC1R__POS_LOCX + location]->plot(ratio[0], position * 10.0 + 200.0);
-        histo[DD_QDC2R__POS_LOCX + location]->plot(ratio[1], position * 10.0 + 200.0);
-        histo[DD_QDC3R__POS_LOCX + location]->plot(ratio[2], position * 10.0 + 200.0);
-        histo[DD_QDC4R__POS_LOCX + location]->plot(ratio[3], position * 10.0 + 200.0);
+        histo.plot(DD_QDC1R__POS_LOCX + location, ratio[0], position * 10.0 + 200.0);
+        histo.plot(DD_QDC2R__POS_LOCX + location, ratio[1], position * 10.0 + 200.0);
+        histo.plot(DD_QDC3R__POS_LOCX + location, ratio[2], position * 10.0 + 200.0);
+        histo.plot(DD_QDC4R__POS_LOCX + location, ratio[3], position * 10.0 + 200.0);
 
         topQdcTot    /= totLen;
         bottomQdcTot /= totLen;
         
-        histo[DD_QDCTOT__QDCTOT_LOCX + location]->plot(topQdcTot, bottomQdcTot);
-        histo[DD_QDCTOT__QDCTOT_LOCX + LOC_SUM]->plot(topQdcTot, bottomQdcTot);
+        histo.plot(DD_QDCTOT__QDCTOT_LOCX + location, topQdcTot, bottomQdcTot);
+        histo.plot(DD_QDCTOT__QDCTOT_LOCX + LOC_SUM, topQdcTot, bottomQdcTot);
     } // end iteration over sum events
 
    // test
