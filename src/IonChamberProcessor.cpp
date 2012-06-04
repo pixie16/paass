@@ -7,11 +7,11 @@
 
 #include <cmath>
 
-#include "damm_plotids.h"
-#include "DetectorDriver.h"
-#include "param.h"
-#include "RawEvent.h"
-#include "IonChamberProcessor.h"
+#include "DammPlotIds.hpp"
+#include "DetectorDriver.hpp"
+#include "Globals.hpp"
+#include "RawEvent.hpp"
+#include "IonChamberProcessor.hpp"
 
 #ifdef useroot
 #include <TBranch.h>

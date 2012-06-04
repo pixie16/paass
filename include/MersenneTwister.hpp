@@ -1,4 +1,4 @@
-// MersenneTwister.h
+// MersenneTwister.hpp
 // Mersenne Twister random number generator -- a C++ class MTRand
 // Based on code by Makoto Matsumoto, Takuji Nishimura, and Shawn Cokus
 // Richard J. Wagner  v1.0  15 May 2003  rjwagner@writeme.com
@@ -54,8 +54,8 @@
 // It would be nice to CC: rjwagner@writeme.com and Cokus@math.washington.edu
 // when you write.
 
-#ifndef MERSENNETWISTER_H
-#define MERSENNETWISTER_H
+#ifndef __MERSENNETWISTER_HPP_
+#define __MERSENNETWISTER_HPP_
 
 // Not thread safe (unless auto-initialization is avoided and each thread has
 // its own MTRand object)
@@ -380,7 +380,7 @@ inline std::istream& operator>>( std::istream& is, MTRand& mtrand )
 	return is;
 }
 
-#endif  // MERSENNETWISTER_H
+#endif  // __MERSENNETWISTER_HPP_
 
 // Change log:
 //

@@ -1,12 +1,12 @@
-/** \file DssdProcessor.h
+/** \file DssdProcessor.hpp
  *
  * Header file for DSSD analysis
  */
 
-#ifndef __DSSD_PROCESSOR_H_
-#define __DSSD_PROCESSOR_H_
+#ifndef __DSSD_PROCESSOR_HPP_
+#define __DSSD_PROCESSOR_HPP_
 
-#include "EventProcessor.h"
+#include "EventProcessor.hpp"
 
 class DetectorSummary;
 class RawEvent;
@@ -27,4 +27,4 @@ class DssdProcessor : public EventProcessor
     virtual bool Process(RawEvent &event);
 };
 
-#endif // __DSSD_POCESSOR_H_
+#endif // __DSSD_POCESSOR_HPP_

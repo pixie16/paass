@@ -8,8 +8,8 @@
 
 #include <cstring>
 
-#include "DetectorDriver.h"
-#include "damm_plotids.h"
+#include "DetectorDriver.hpp"
+#include "DammPlotIds.hpp"
 
 using namespace std;
 

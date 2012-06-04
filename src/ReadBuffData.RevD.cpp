@@ -49,8 +49,8 @@
 
 // our event structure
 #include "DetectorLibrary.hpp"
-#include "param.h"
-#include "RawEvent.h"
+#include "Globals.hpp"
+#include "RawEvent.hpp"
 
 using pixie::word_t;
 using pixie::halfword_t;

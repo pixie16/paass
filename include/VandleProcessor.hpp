@@ -1,16 +1,16 @@
-/** \file VandleProcessor.h
+/** \file VandleProcessor.hpp
  * 
  * Class for handling Vandle Bars
  */
 
-#ifndef __VANDLEPROCESSOR_H_
-#define __VANDLEPROCESSOR_H_
+#ifndef __VANDLEPROCESSOR_HPP_
+#define __VANDLEPROCESSOR_HPP_
 
 #include <map>
 #include <vector>
 
-#include "EventProcessor.h"
-#include "Trace.h"
+#include "EventProcessor.hpp"
+#include "Trace.hpp"
 
 #ifdef useroot
 class TTree;
@@ -109,4 +109,4 @@ class VandleProcessor : public EventProcessor
     static const double LENGTH_BIG_NS;
     
 }; //Class VandleProcessor
-#endif // __VANDLEPROCESSOR_H_
+#endif // __VANDLEPROCESSOR_HPP_

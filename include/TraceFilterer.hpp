@@ -1,16 +1,16 @@
-/** \file TraceFilterer.h
+/** \file TraceFilterer.hpp
  *  \brief Declaration of analysis class which does the filtering of traces.
  *
  *  David Miller, January 2011
  */
 
-#ifndef __TRACEFILTERER_H_
-#define __TRACEFILTERER_H_
+#ifndef __TRACEFILTERER_HPP_
+#define __TRACEFILTERER_HPP_
 
 #include <string>
 
-#include "Trace.h"
-#include "TracePlotter.h"
+#include "Trace.hpp"
+#include "TracePlotter.hpp"
 
 class TraceFilterer : public TracePlotter {
  private:
@@ -54,4 +54,4 @@ class TraceFilterer : public TracePlotter {
 			 const std::string &type, const std::string &subtype);
 };
 
-#endif // __TRACEFILTERER_H_
+#endif // __TRACEFILTERER_HPP_

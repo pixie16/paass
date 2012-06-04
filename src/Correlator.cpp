@@ -20,12 +20,12 @@
 #include <cmath>
 #include <ctime>
 
-#include "damm_plotids.h"
-#include "param.h"
-#include "DetectorDriver.h"
-#include "LogicProcessor.h"
-#include "RawEvent.h"
-#include "Correlator.h"
+#include "DammPlotIds.hpp"
+#include "Globals.hpp"
+#include "DetectorDriver.hpp"
+#include "LogicProcessor.hpp"
+#include "RawEvent.hpp"
+#include "Correlator.hpp"
 
 using namespace std;
 using namespace dammIds::correlator;

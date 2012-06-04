@@ -4,10 +4,10 @@
 
 #include <string>
 
-#include "Trace.h"
-#include "TracePlotter.h"
+#include "Trace.hpp"
+#include "TracePlotter.hpp"
 
-#include "damm_plotids.h"
+#include "DammPlotIds.hpp"
 
 using std::string;
 

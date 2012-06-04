@@ -7,8 +7,8 @@
 #include <cmath>
 #include <cstring>
 
-#include "param.h"
-#include "RawEvent.h"
+#include "Globals.hpp"
+#include "RawEvent.hpp"
 
 #include "pixie16app_defs.h"
 

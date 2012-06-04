@@ -1,15 +1,15 @@
-/** \file LogicProcessor.h
+/** \file LogicProcessor.hpp
  *
  * class to handle logic signals 
  * derived originally from MTC processor
  */
 
-#ifndef __LOGICPROCESSOR_H_
-#define __LOGICPROCESSOR_H_
+#ifndef __LOGICPROCESSOR_HPP_
+#define __LOGICPROCESSOR_HPP_
 
 #include <vector>
 
-#include "EventProcessor.h"
+#include "EventProcessor.hpp"
 
 class LogicProcessor : public EventProcessor {
  protected:
@@ -40,4 +40,4 @@ class LogicProcessor : public EventProcessor {
     }
 };
 
-#endif // __LOGICPROCESSOR_H_
+#endif // __LOGICPROCESSOR_HPP_

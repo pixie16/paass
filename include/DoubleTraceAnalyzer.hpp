@@ -1,17 +1,17 @@
-/**   \file DoubleTraceAnalyzer.h
+/**   \file DoubleTraceAnalyzer.hpp
  *    \brief Header file for the TraceAnalyzer class
  *
  *    SNL - 7-2-07
  */
 
-#ifndef __DOUBLETRACEANALYZER_H_
-#define __DOUBLETRACEANALYZER_H_
+#ifndef __DOUBLETRACEANALYZER_HPP_
+#define __DOUBLETRACEANALYZER_HPP_
 
 #include <string>
 #include <sys/times.h>
 
-#include "Trace.h"
-#include "TraceFilterer.h"
+#include "Trace.hpp"
+#include "TraceFilterer.hpp"
 
 /** \brief quick online trace analysis
  *
@@ -35,4 +35,4 @@ class DoubleTraceAnalyzer : public TraceFilterer
     virtual void Analyze(Trace &, const std::string &, const std::string &);
 };
 
-#endif // __DOUBLETRACEANALYZER_H_
+#endif // __DOUBLETRACEANALYZER_HPP_

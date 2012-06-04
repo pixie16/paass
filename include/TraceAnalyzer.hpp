@@ -1,11 +1,11 @@
-/**   \file TraceAnalyzer.h
+/**   \file TraceAnalyzer.hpp
  *    \brief Header file for the TraceAnalyzer class
  *
  *    SNL - 7-2-07
  */
 
-#ifndef __TRACEANALYZER_H_
-#define __TRACEANALYZER_H_
+#ifndef __TRACEANALYZER_HPP_
+#define __TRACEANALYZER_HPP_
 
 #include <string>
 #include <sys/times.h>
@@ -58,4 +58,4 @@ class TraceAnalyzer {
     int  GetLevel() {return level;}
 };
 
-#endif // __TRACEANALYZER_H_
+#endif // __TRACEANALYZER_HPP_

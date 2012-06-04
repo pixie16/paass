@@ -11,10 +11,10 @@
 #include <string>
 #include <vector>
 
-#include "damm_plotids.h"
-#include "param.h"
-#include "RawEvent.h"
-#include "LogicProcessor.h"
+#include "DammPlotIds.hpp"
+#include "Globals.hpp"
+#include "RawEvent.hpp"
+#include "LogicProcessor.hpp"
 
 using namespace std;
 using namespace dammIds::logic;

@@ -1,12 +1,12 @@
-/** \file McpProcessor.h
+/** \file McpProcessor.hpp
  * 
  * Class for handling position-sensitive mcp signals
  */
 
-#ifndef __MCPPROCESSOR_H_
-#define __MCPPROCESSOR_H_
+#ifndef __MCPPROCESSOR_HPP_
+#define __MCPPROCESSOR_HPP_
 
-#include "EventProcessor.h"
+#include "EventProcessor.hpp"
 
 class McpProcessor : public EventProcessor
 {
@@ -33,4 +33,4 @@ class McpProcessor : public EventProcessor
   } data;
 };
 
-#endif // __MCPPROCESSOR_H_
+#endif // __MCPPROCESSOR_HPP_

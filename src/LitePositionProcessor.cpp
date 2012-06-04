@@ -12,7 +12,7 @@
 
 #include "PositionProcessor.hpp"
 #include "DetectorLibrary.hpp"
-#include "RawEvent.h"
+#include "RawEvent.hpp"
 
 using namespace std;
 

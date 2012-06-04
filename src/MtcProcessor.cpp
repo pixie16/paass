@@ -12,10 +12,10 @@
 
 #include <cmath>
 
-#include "damm_plotids.h"
-#include "param.h"
-#include "RawEvent.h"
-#include "MtcProcessor.h"
+#include "DammPlotIds.hpp"
+#include "Globals.hpp"
+#include "RawEvent.hpp"
+#include "MtcProcessor.hpp"
 
 using namespace std;
 using namespace dammIds::mtc;

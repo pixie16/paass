@@ -7,11 +7,11 @@
 
 #include <cmath>
 
-#include "damm_plotids.h"
-#include "DetectorDriver.h"
-#include "RawEvent.h"
-#include "ScintProcessor.h"
-#include "Trace.h"
+#include "DammPlotIds.hpp"
+#include "DetectorDriver.hpp"
+#include "RawEvent.hpp"
+#include "ScintProcessor.hpp"
+#include "Trace.hpp"
 
 using namespace std;
 using namespace dammIds::scint;
@@ -100,7 +100,7 @@ bool ScintProcessor::Process(RawEvent &event)
 	event.GetSummary("scint:liquid")->GetList();
     
     int betaMult = event.GetSummary("scint:beta")->GetMult();
-    int gammaMult = event.GetSummary("ge:clover_high")->GetMult();
+    int gammaMult = event.GetSummary("ge:clover_hi.hpp")->GetMult();
     
     if (betaMult > 0) {
 	// here we correlate the decay for the plastic beta scintillators

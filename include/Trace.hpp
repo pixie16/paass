@@ -1,12 +1,12 @@
 /* 
- * \file Trace.h
+ * \file Trace.hpp
  *
  * A simple class to store the traces.
  * Used instead of a typedef so additional functionality can be added later.
  */
 
-#ifndef __TRACE_H_
-#define __TRACE_H_
+#ifndef __TRACE_HPP_
+#define __TRACE_HPP_
 
 #include <map>
 #include <string>
@@ -14,8 +14,8 @@
 
 #include <cmath>
 
-#include "damm_plotids.h"
-#include "param.h"
+#include "DammPlotIds.hpp"
+#include "Globals.hpp"
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
 

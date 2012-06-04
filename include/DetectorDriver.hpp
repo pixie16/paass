@@ -1,5 +1,5 @@
 /**
-  \file DetectorDriver.h
+  \file DetectorDriver.hpp
 
   \brief Header file for the detector driver program.
 
@@ -10,8 +10,8 @@
   controls the flow of event processing.
 */
 
-#ifndef __DETECTORDRIVER_H_
-#define __DETECTORDRIVER_H_ 1
+#ifndef __DETECTORDRIVER_HPP_
+#define __DETECTORDRIVER_HPP_ 1
 
 #include <set>
 #include <string>
@@ -19,7 +19,7 @@
 #include <vector>
 
 #include "Plots.hpp"
-#include "param.h"
+#include "Globals.hpp"
 
 // forward declarations
 class Calibration;
@@ -120,4 +120,4 @@ class Calibration {
     friend void DetectorDriver::ReadCal(void);
 };
 
-#endif // __DETECTORDRIVER_H_
+#endif // __DETECTORDRIVER_HPP_

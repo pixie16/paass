@@ -7,9 +7,9 @@
 #include <TTree.h>
 #endif
 
-#include "damm_plotids.h"
-#include "McpProcessor.h"
-#include "RawEvent.h"
+#include "DammPlotIds.hpp"
+#include "McpProcessor.hpp"
+#include "RawEvent.hpp"
 
 using std::string;
 using std::vector;

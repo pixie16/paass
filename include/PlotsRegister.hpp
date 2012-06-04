@@ -1,3 +1,8 @@
+/** \file PlotsRegister.hpp
+ *
+ * Plot registration class
+ */
+
 #ifndef __PLOTSREGISTER_HPP_
 #define __PLOTSREGISTER_HPP_
 

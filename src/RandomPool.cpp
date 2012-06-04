@@ -4,7 +4,7 @@
  *  David Miller, August 2010
  */
 
-#include "RandomPool.h"
+#include "RandomPool.hpp"
 
 RandomPool randoms; ///< an ugly global to hold some random numbers
 

@@ -8,10 +8,10 @@
 #include <iostream>
 #include <numeric>
 
-#include "StatsAccumulator.h"
-#include "Trace.h"
+#include "StatsAccumulator.hpp"
+#include "Trace.hpp"
 
-#include "damm_plotids.h"
+#include "DammPlotIds.hpp"
 
 using namespace std;
 

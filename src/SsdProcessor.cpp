@@ -2,10 +2,10 @@
  *
  * The SSD processor handles detectors of type ssd */
 
-#include "damm_plotids.h"
+#include "DammPlotIds.hpp"
 
-#include "SsdProcessor.h"
-#include "RawEvent.h"
+#include "SsdProcessor.hpp"
+#include "RawEvent.hpp"
 
 #include <iostream>
  

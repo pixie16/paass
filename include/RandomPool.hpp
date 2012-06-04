@@ -1,14 +1,14 @@
-/** \file RandomPool.h
+/** \file RandomPool.hpp
  *  \brief Holds a pre-generated pool of random numbers
  *
  *  This generates a pool of random numbers using the Mersenne twister.
  *  DTM - 08-18-2010
  */
 
-#ifndef __RANDOMPOOL_H_
-#define __RANDOMPOOL_H_
+#ifndef __RANDOMPOOL_HPP_
+#define __RANDOMPOOL_HPP_
 
-#include "MersenneTwister.h"
+#include "MersenneTwister.hpp"
 
 /** 
  *  \brief A random pool of numbers
@@ -26,4 +26,4 @@ class RandomPool {
   double Get(double range=1); 
 };
 
-#endif // __RANDOMPOOL_H_
+#endif // __RANDOMPOOL_HPP_

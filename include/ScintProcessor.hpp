@@ -1,22 +1,22 @@
-/** \file ScintProcessor.h
+/** \file ScintProcessor.hpp
  *
  * Processor for scintillator detectors
  */
 
-#ifndef __SCINTPROCESSOR_H_
-#define __SCINTPROCESSOR_H_
+#ifndef __SCINTPROCESSOR_HPP_
+#define __SCINTPROCESSOR_HPP_
 
-#include "EventProcessor.h"
-#include "Trace.h"
+#include "EventProcessor.hpp"
+#include "Trace.hpp"
 
 class ScintProcessor : public EventProcessor 
 {
- public:
+public:
     ScintProcessor(); // no virtual c'tors
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void);
     // nice and simple raw derived class
- private:
+private:
     struct ScintData {
 	ScintData(string type ="");
 	ScintData(ChanEvent* chan);
@@ -40,4 +40,4 @@ class ScintProcessor : public EventProcessor
     std::map<int, struct ScintData> betaMap;
 };
 
-#endif // __SCINTPROCSSEOR_H_
+#endif // __SCINTPROCSSEOR_HPP_
