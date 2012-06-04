@@ -16,10 +16,10 @@
 
 #include <cstdlib>
 
-#include "damm_plotids.h"
-#include "RandomPool.h"
-#include "Trace.h"
-#include "DoubleTraceAnalyzer.h"
+#include "DammPlotIds.hpp"
+#include "RandomPool.hpp"
+#include "Trace.hpp"
+#include "DoubleTraceAnalyzer.hpp"
 
 using namespace std;
 

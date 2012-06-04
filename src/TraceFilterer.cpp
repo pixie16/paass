@@ -9,10 +9,10 @@
 #include <iostream>
 #include <numeric>
 
-#include "damm_plotids.h"
-#include "RandomPool.h"
-#include "Trace.h"
-#include "TraceFilterer.h"
+#include "DammPlotIds.hpp"
+#include "RandomPool.hpp"
+#include "Trace.hpp"
+#include "TraceFilterer.hpp"
 
 using namespace std;
 

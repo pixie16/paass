@@ -7,10 +7,10 @@
 
 #include <climits>
 
-#include "damm_plotids.h"
+#include "DammPlotIds.hpp"
 
-#include "DssdProcessor.h"
-#include "RawEvent.h"
+#include "DssdProcessor.hpp"
+#include "RawEvent.hpp"
 
 /*! ecutoff for 108Xe experiment where each bin is roughly 4 keV
  *  ... implants deposit above 18 MeV

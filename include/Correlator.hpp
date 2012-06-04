@@ -1,11 +1,11 @@
-/*! \file Correlator.h
+/*! \file Correlator.hpp
  *  \brief Header file for correlation
  *
  *  Class which handles implant/decay correlations
  */
 
-#ifndef __CORRELATOR_PROCESSOR_H_
-#define __CORRELATOR_PROCESSOR_H_
+#ifndef __CORRELATOR_PROCESSOR_HPP_
+#define __CORRELATOR_PROCESSOR_HPP_
 
 #include <utility>
 #include <vector>
@@ -13,8 +13,8 @@
 #include <cmath>
 
 #include "Plots.hpp"
-#include "damm_plotids.h"
-#include "param.h"
+#include "DammPlotIds.hpp"
+#include "Globals.hpp"
 
 // forward declarations
 class LogicProcessor;
@@ -147,4 +147,4 @@ class Correlator
   CorrelationList decaylist[arraySize][arraySize]; ///< list of event data for a particular pixel since implant
 };
 
-#endif // __CORRELATOR_PROCESSOR_H_
+#endif // __CORRELATOR_PROCESSOR_HPP_

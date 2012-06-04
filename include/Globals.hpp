@@ -1,10 +1,10 @@
-/*! \file param.h 
+/*! \file Globals.hpp
   \brief constant parameters used in pixie16 analysis
   
 */
 
-#ifndef __PARAM_H_
-#define __PARAM_H_
+#ifndef __GLOBALS_HPP_
+#define __GLOBALS_HPP_
 
 #include <string>
 
@@ -44,4 +44,4 @@ const pixie::word_t clockVsn = 1000; ///< an arbitrary vsn used to pass clock da
 
 const size_t maxConfigLineLength = 100;
 
-#endif // __PARAM_H_
+#endif // __GLOBALS_HPP_

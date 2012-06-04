@@ -3,9 +3,9 @@
  * Implements the determination of the decay constants for a trace
  */
 
-#include "param.h"
-#include "TauAnalyzer.h"
-#include "Trace.h"
+#include "Globals.hpp"
+#include "TauAnalyzer.hpp"
+#include "Trace.hpp"
 
 #include <algorithm>
 #include <iostream>

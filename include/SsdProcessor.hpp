@@ -1,12 +1,12 @@
-/** \file SsdProcessor.h
+/** \file SsdProcessor.hpp
  *
  * Header file for SSD analysis
  */
 
-#ifndef __SSD_PROCESSOR_H_
-#define __SSD_PROCESSOR_H_
+#ifndef __SSD_PROCESSOR_HPp_
+#define __SSD_PROCESSOR_HPP_
 
-#include "EventProcessor.h"
+#include "EventProcessor.hpp"
 
 class RawEvent;
 
@@ -21,4 +21,4 @@ class SsdProcessor : public EventProcessor
     virtual bool Process(RawEvent &event);
 };
 
-#endif // __SSD_PROCESSOR_H_
+#endif // __SSD_PROCESSOR_HPP_

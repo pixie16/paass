@@ -2,13 +2,13 @@
  * Handle QDCs for the position sensitive detector
  */
 
-#ifndef __POSITIONPROCESSOR_HH_
-#define __POSITIONPROCESSOR_HH_
+#ifndef __POSITIONPROCESSOR_HPP_
+#define __POSITIONPROCESSOR_HPP_
 
 #include <string>
 #include <vector>
 
-#include "EventProcessor.h"
+#include "EventProcessor.hpp"
 
 class ChanEvent;
 
@@ -42,4 +42,4 @@ public:
     virtual void DeclarePlots(void);
 };
     
-#endif // __POSITIONPROCESSOR_HH_
+#endif // __POSITIONPROCESSOR_HPP_

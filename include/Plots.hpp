@@ -10,7 +10,7 @@
 #include <map>
 #include <set>
 
-#include "param.h"
+#include "Globals.hpp"
 
 // forward declarations
 class PlotsRegister;

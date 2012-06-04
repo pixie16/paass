@@ -1,13 +1,13 @@
-/** \file WaveformProcessor.h
+/** \file WaveformProcessor.hpp
  * 
  * Class for handling Scintillator traces. 
  */
 
-#ifndef __WAVEFORMANALYZER_H_
-#define __WAVEFORMANALYZER_H_
+#ifndef __WAVEFORMANALYZER_HPP_
+#define __WAVEFORMANALYZER_HPP_
 
-#include "Trace.h"
-#include "TraceAnalyzer.h"
+#include "Trace.hpp"
+#include "TraceAnalyzer.hpp"
 
 class WaveformAnalyzer : public TraceAnalyzer
 {
@@ -28,4 +28,4 @@ class WaveformAnalyzer : public TraceAnalyzer
     virtual ~WaveformAnalyzer() {/* do nothing */};
 };
 
-#endif // __WAVEFORMANALYZER_H_
+#endif // __WAVEFORMANALYZER_HPP_

@@ -45,11 +45,11 @@
 #include <cmath>
 
 // data related to pixie packet structure
-#include "pixie16app_defs.h"
+#include "pixie16app_defs.hpp"
 
 // our event structure
-#include "param.h"
-#include "RawEvent.h"
+#include "Globals.hpp"
+#include "RawEvent.hpp"
 
 using pixie::word_t; 
 using pixie::halfword_t;

@@ -1,4 +1,4 @@
-/** \file StatsAccumulator.h
+/** \file StatsAccumulator.hpp
  *
  * A simple class which accumulates data from a vector
  *  for basic statistical analysis.
@@ -6,8 +6,8 @@
  * D. Miller, August 2009
  */
 
-#ifndef __STATS_ACCUMULATOR_H_
-#define __STATS_ACCUMULATOR_H_
+#ifndef __STATS_ACCUMULATOR_HPP_
+#define __STATS_ACCUMULATOR_HPP_
 
 class StatsAccumulator
 {
@@ -43,4 +43,4 @@ class StatsAccumulator
     virtual ~StatsAccumulator();
 };
 
-#endif // __STATS_ACCUMULATOR_H_
+#endif // __STATS_ACCUMULATOR_HPP_

@@ -39,36 +39,36 @@
 #include <iterator>
 #include <sstream>
 
-#include "DetectorDriver.h"
+#include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
 #include "MapFile.hpp"
-#include "RandomPool.h"
-#include "RawEvent.h"
+#include "RandomPool.hpp"
+#include "RawEvent.hpp"
 
-#include "damm_plotids.h"
+#include "DammPlotIds.hpp"
 
-#include "DssdProcessor.h"
+#include "DssdProcessor.hpp"
 #include "GeProcessor.hpp"
-#include "ImplantSsdProcessor.h"
-#include "IonChamberProcessor.h"
-#include "McpProcessor.h"
-#include "MtcProcessor.h"
-#include "ScintProcessor.h"
-#include "TraceFilterer.h"
-#include "TriggerLogicProcessor.h"
-#include "VandleProcessor.h"
-#include "PulserProcessor.h"
-#include "SsdProcessor.h"
+#include "ImplantSsdProcessor.hpp"
+#include "IonChamberProcessor.hpp"
+#include "McpProcessor.hpp"
+#include "MtcProcessor.hpp"
+#include "ScintProcessor.hpp"
+#include "TraceFilterer.hpp"
+#include "TriggerLogicProcessor.hpp"
+#include "VandleProcessor.hpp"
+#include "PulserProcessor.hpp"
+#include "SsdProcessor.hpp"
 #include "PositionProcessor.hpp"
 
-#include "DoubleTraceAnalyzer.h"
-#include "TauAnalyzer.h"
-#include "TraceAnalyzer.h"
-#include "TraceExtracter.h"
-#include "WaveformAnalyzer.h"
+#include "DoubleTraceAnalyzer.hpp"
+#include "TauAnalyzer.hpp"
+#include "TraceAnalyzer.hpp"
+#include "TraceExtracter.hpp"
+#include "WaveformAnalyzer.hpp"
 
 #ifdef useroot
-#include "RootProcessor.h"
+#include "RootProcessor.hpp"
 #endif
 
 using namespace std;
@@ -358,7 +358,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 
 /*!
   Plot the raw energies of each channel into the damm spectrum number assigned
-  to it in the map file with an offset as defined in damm_plotids.h
+  to it in the map file with an offset as defined in DammPlotIds.hpp
 */
 int DetectorDriver::PlotRaw(const ChanEvent *chan)
 {
@@ -372,7 +372,7 @@ int DetectorDriver::PlotRaw(const ChanEvent *chan)
 
 /*!
   Plot the calibrated energies of each channel into the damm spectrum number
-  assigned to it in the map file with an offset as defined in damm_plotids.h
+  assigned to it in the map file with an offset as defined in DammPlotIds.hpp
 */
 int DetectorDriver::PlotCal(const ChanEvent *chan)
 {
@@ -495,7 +495,7 @@ void DetectorDriver::ReadCal()
                 } // finish looping on number of calibrations
 
                 /*
-                  Add the value of MAX_PAR from the param.h file
+                  Add the value of MAX_PAR from the Globals.hpp file
                   as the upper limit of all calibrations
                 */
                 detCal.thresh.push_back(MAX_PAR);
@@ -537,7 +537,7 @@ void DetectorDriver::ReadCal()
     //cout << "calibration parameters are: " << cal.size() << endl;
     
     cout << setw(4)  << "mod" 
-         << setw(4)  << "ch"
+         << setw(4)  << ".hpp"
 	 << setw(4)  << "loc"
 	 << setw(10) << "type"
          << setw(8)  << "subtype"

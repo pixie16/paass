@@ -4,7 +4,7 @@
  * D. Miller, August 2009
  */ 
 
-#include "StatsAccumulator.h"
+#include "StatsAccumulator.hpp"
 
 #include <cmath>
 

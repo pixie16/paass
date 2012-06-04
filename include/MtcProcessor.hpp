@@ -1,12 +1,12 @@
-/** \file MtcProcessor.h
+/** \file MtcProcessor.hpp
  *
  * class to handle mtc signals
  */
 
-#ifndef __MTCPROCESSOR_H_
-#define __MTCPROCESSOR_H_
+#ifndef __MTCPROCESSOR_HPP_
+#define __MTCPROCESSOR_HPP_
 
-#include "EventProcessor.h"
+#include "EventProcessor.hpp"
 
 class MtcProcessor : public EventProcessor {
  public:
@@ -18,4 +18,4 @@ class MtcProcessor : public EventProcessor {
     double lastStopTime;  //< time of last trailing edge
 };
 
-#endif // __MTCPROCESSOR_H_
+#endif // __MTCPROCESSOR_HPP_

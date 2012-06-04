@@ -10,9 +10,9 @@
 #include <string>
 
 #include "DetectorLibrary.hpp"
-#include "RawEvent.h"
+#include "RawEvent.hpp"
 
-#include "param.h"
+#include "Globals.hpp"
 
 using namespace std;
 

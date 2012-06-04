@@ -3,13 +3,13 @@
  *   a minimal number of spectra are created
  */
 
-#ifndef __LITEPOSITIONPROCESSOR_HH_
-#define __LITEPOSITIONPROCESSOR_HH_
+#ifndef __LITEPOSITIONPROCESSOR_HPP_
+#define __LITEPOSITIONPROCESSOR_HPP_
 
 #include <string>
 #include <vector>
 
-#include "EventProcessor.h"
+#include "EventProcessor.hpp"
 
 class ChanEvent;
 
@@ -38,4 +38,4 @@ public:
     virtual void DeclarePlots(void);
 };
     
-#endif // __LITEPOSITIONPROCESSOR_HH_
+#endif // __LITEPOSITIONPROCESSOR_HPP_

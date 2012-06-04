@@ -1,14 +1,14 @@
-/** \file IonChamberProcessor.h
+/** \file IonChamberProcessor.hpp
  *
  * Processor for ion chamber
  */
 
-#ifndef __IONCHAMBERPROCESSOR_H_
-#define __IONCHAMBERPROCESSOR_H_
+#ifndef __IONCHAMBERPROCESSOR_HPP_
+#define __IONCHAMBERPROCESSOR_HPP_
 
 #include <deque>
 
-#include "EventProcessor.h"
+#include "EventProcessor.hpp"
 
 class IonChamberProcessor : public EventProcessor 
 {
@@ -55,4 +55,4 @@ namespace dammIds
   };
 };
 
-#endif // __IONCHAMBERPROCSSEOR_H_
+#endif // __IONCHAMBERPROCSSEOR_HPP_
