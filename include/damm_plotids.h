@@ -15,17 +15,17 @@ namespace dammIds {
         const int D_HAS_TRACE = 800;
         const int D_CAL_ENERGY = 1000;
         const int D_CAL_ENERGY_REJECT = 1200;
-        const int D_HIT_SPECTRUM = 1900;
-        const int D_SUBEVENT_GAP = 1901;
-        const int D_EVENT_LENGTH = 1902;
-        const int D_EVENT_GAP    = 1903;
-        const int D_EVENT_MULTIPLICITY = 1904;
-        const int D_BUFFER_END_TIME    = 1905;
-        const int DD_RUNTIME_SEC       = 1906;
-        const int DD_DEAD_TIME_CUMUL   = 1907; 
-        const int DD_BUFFER_START_TIME = 1908;
-        const int DD_RUNTIME_MSEC      = 1910;
-        const int D_NUMBER_OF_EVENTS   = 1911;
+        const int D_HIT_SPECTRUM = 1800;
+        const int D_SUBEVENT_GAP = 1801;
+        const int D_EVENT_LENGTH = 1802;
+        const int D_EVENT_GAP    = 1803;
+        const int D_EVENT_MULTIPLICITY = 1804;
+        const int D_BUFFER_END_TIME    = 1805;
+        const int DD_RUNTIME_SEC       = 1806;
+        const int DD_DEAD_TIME_CUMUL   = 1807; 
+        const int DD_BUFFER_START_TIME = 1808;
+        const int DD_RUNTIME_MSEC      = 1810;
+        const int D_NUMBER_OF_EVENTS   = 1811;
     }
 
     namespace mcp {	
