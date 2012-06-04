@@ -699,7 +699,7 @@ void ScanList(vector<ChanEvent*> &eventList)
 	if (dtimebin < 0 || dtimebin > (unsigned)(SE)) {
 	    cout << "strange dtime for id " << id << ":" << dtimebin << endl;
 	}
-	driver.plot(D_TIME + id, dtimebin);
+	driver.histo.plot(D_TIME + id, dtimebin);
 
 	usedDetectors.insert(modChan[id].GetType());
 	rawev.AddChan(*iEvent);
@@ -767,17 +767,17 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
 		//plot time between buffers as a function of time - dead time spectrum	    
 		// deadTime += (clock - bufEnd)*pixie::clockInSeconds;
 		// plot(DD_DEAD_TIME_CUMUL,remainNumSecs,rownum,int(deadTime/runTimeSecs));	    	    
-		driver.plot(dammIds::raw::DD_BUFFER_START_TIME, remainNumSecs,rowNumSecs, (clock-bufEnd)/bufLength*1000.);	    
+		driver.histo.plot(dammIds::raw::DD_BUFFER_START_TIME, remainNumSecs,rowNumSecs, (clock-bufEnd)/bufLength*1000.);	    
 	    }
 	    break;
 	case BUFFER_END:
-	    driver.plot(D_BUFFER_END_TIME, (stop - bufStart) * pixie::clockInSeconds * 1000);
+	    driver.histo.plot(D_BUFFER_END_TIME, (stop - bufStart) * pixie::clockInSeconds * 1000);
 	    bufEnd = clock;
 	    bufLength = clock - bufStart;
 	case EVENT_START:
-        driver.plot(D_EVENT_LENGTH, stop - start);
-        driver.plot(D_EVENT_GAP, diff);
-        driver.plot(D_EVENT_MULTIPLICITY, count);
+        driver.histo.plot(D_EVENT_LENGTH, stop - start);
+        driver.histo.plot(D_EVENT_GAP, diff);
+        driver.histo.plot(D_EVENT_MULTIPLICITY, count);
 	    
 	    start = stop = clock; // reset the counters      
 	    count = 1;
@@ -785,7 +785,7 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
 	case EVENT_CONTINUE:
 	    count++;
 	    if(diff > 0.) {
-            driver.plot(D_SUBEVENT_GAP, diff + 100);
+            driver.histo.plot(D_SUBEVENT_GAP, diff + 100);
 	    }
 	    stop = clock;
 	    break;
@@ -797,12 +797,11 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
     // Exclude event type 0/1 since it will also appear as an
     // event type 11
     if ( event != BUFFER_START && event != BUFFER_END ){      
-    driver.plot(DD_RUNTIME_SEC, remainNumSecs, rowNumSecs);
-    driver.plot(DD_RUNTIME_MSEC, remainNumSecs, rowNumSecs);
+    driver.histo.plot(DD_RUNTIME_SEC, remainNumSecs, rowNumSecs);
+    driver.histo.plot(DD_RUNTIME_MSEC, remainNumSecs, rowNumSecs);
 	//fill scalar spectrum (per second) 
-    driver.plot(D_HIT_SPECTRUM, id);
-	cout << "plot " << dammIds::raw::D_SCALAR + id << " from PixieStd in driver" << endl;
-	driver.plot(D_SCALAR + id, runTimeSecs);
+    driver.histo.plot(D_HIT_SPECTRUM, id);
+	driver.histo.plot(D_SCALAR + id, runTimeSecs);
     }
 }
 
