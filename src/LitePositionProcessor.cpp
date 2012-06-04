@@ -10,14 +10,14 @@
 #include <sstream>
 #include <vector>
 
-#include "QdcProcessor.hpp"
+#include "PositionProcessor.hpp"
 #include "DetectorLibrary.hpp"
 #include "RawEvent.h"
 
 using namespace std;
 
 namespace dammIds {
-    namespace qdc {
+    namespace position {
 	const int QDC_JUMP = 20;
 	const int LOC_SUM  = 18;
 
@@ -32,14 +32,17 @@ namespace dammIds {
     }
 }
 
-const string QdcProcessor::configFile("qdc.txt");
+const string PositionProcessor::configFile("qdc.txt");
 
 /**
  * Initialize the qdc to handle ssd events
  */
-QdcProcessor::QdcProcessor() : EventProcessor()
+
+using namespace dammIds::position;
+
+LitePositionProcessor::PositionProcessor() : EventProcessor(OFFSET, RANGE)
 {
-    name="qdc";
+    name="liteposition";
     associatedTypes.insert("ssd");
 }
 
@@ -54,7 +57,7 @@ QdcProcessor::QdcProcessor() : EventProcessor()
  *   Note that QDC 0 is considered to be a baseline section of the trace for
  *     baseline removal for the other QDCs
  */
-bool QdcProcessor::Init(DetectorDriver &driver)
+bool LitePositionProcessor::Init(DetectorDriver &driver)
 {
     // Call the parent function to handle the standard stuff
     if (!EventProcessor::Init(driver)) {
@@ -99,7 +102,6 @@ bool QdcProcessor::Init(DetectorDriver &driver)
 	in >> qdcLen[i];
     partial_sum(qdcLen, qdcLen + numQdcs, qdcPos);
     totLen = qdcPos[numQdcs - 1]  - qdcLen[0];
-    // totLen = accumulate(qdcLen + 1, qdcLen + 8, 0);
     
     in >> whichQdc >> posScale;
     
@@ -119,11 +121,11 @@ bool QdcProcessor::Init(DetectorDriver &driver)
 	cerr << "Only read QDC position calibration information from "
 	     << numLocationsRead << " locations where a total of "
 	     << numLocations << " was expected!" << endl;
-	cerr << "  Disabling QDC processor." << endl;
+	cerr << "  Disabling position processor." << endl;
 	return (initDone = false);
     }
     
-    cout << "QDC processor initialized with " << numLocations 
+    cout << "Processor " << name << " initialized with " << numLocations 
 	 << " locations operating on " << numQdcs << " QDCs" << endl;
     cout << "  QDC #" << whichQdc << " being used for position determination."
 	 << endl;
@@ -134,9 +136,9 @@ bool QdcProcessor::Init(DetectorDriver &driver)
 /**
  *  Declare all the plots we plan on using (part of dammIds::qdc namespace)
  */
-void QdcProcessor::DeclarePlots(void) const
+void LitePositionProcessor::DeclarePlots(void)
 {
-    using namespace dammIds::qdc;
+    using namespace dammIds::position;
 
     const int qdcBins = S8;
     const int normBins = SA;
@@ -201,7 +203,7 @@ void QdcProcessor::DeclarePlots(void) const
  *  Process the QDC data involved in top/bottom side for a strip 
  *  Note QDC lengths are HARD-CODED at the moment for the plots and to determine the position
  */
-bool QdcProcessor::Process(RawEvent &event)
+bool LitePositionProcessor::Process(RawEvent &event)
 {
     if (!EventProcessor::Process(event))
 	return false;
@@ -228,7 +230,7 @@ bool QdcProcessor::Process(RawEvent &event)
 
 	// Don't waste our time with noise events
 	if ( (*it)->GetEnergy() < 10. || (*it)->GetEnergy() > 16374 ) {
-	  using namespace dammIds::qdc;
+	  using namespace dammIds::position;
 
 	  plot(D_INFO_LOCX + location, 5);
 	  plot(D_INFO_LOCX + LOC_SUM , 5);
@@ -240,7 +242,7 @@ bool QdcProcessor::Process(RawEvent &event)
 
 
 	if (top == NULL || bottom == NULL) {
-	    using namespace dammIds::qdc;
+	    using namespace dammIds::position;
 
 	    if (top == NULL) {
 		plot(D_INFO_LOCX + location, 3);
@@ -263,7 +265,7 @@ bool QdcProcessor::Process(RawEvent &event)
 	    cout << "Multiple top edges found for sum location " << location << endl; 
 	}
 	*/
-	using namespace dammIds::qdc;
+	using namespace dammIds::position;
 	
 	float topQdc[numQdcs];
 	float bottomQdc[numQdcs];
@@ -367,9 +369,9 @@ bool QdcProcessor::Process(RawEvent &event)
     return true;
 }
 
-ChanEvent* QdcProcessor::FindMatchingEdge(ChanEvent *match,
-					  vector<ChanEvent*>::const_iterator begin,
-					  vector<ChanEvent*>::const_iterator end) const
+ChanEvent* LitePositionProcessor::FindMatchingEdge(ChanEvent *match,
+						   vector<ChanEvent*>::const_iterator begin,
+						   vector<ChanEvent*>::const_iterator end) const
 {
     const float timeCut = 5.; // maximum difference between edge and sum timestamps
 	

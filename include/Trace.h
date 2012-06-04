@@ -15,6 +15,8 @@
 #include <cmath>
 
 #include "param.h"
+#include "DammPlots.h"
+#include "damm_plotids.h"
 
 #ifndef NAN
 #include <limits>
@@ -41,10 +43,23 @@ class Trace : public std::vector<int>
 
     std::map<std::string, double> doubleTraceData;
     std::map<std::string, int>    intTraceData;
+
+    Plots histo;
+    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
+        histo.plot(dammId, val1, val2, val3, name);
+    }
+    virtual void DeclareHistogram1D(int dammId, int xSize, const char* title) {
+        histo.DeclareHistogram1D(dammId, xSize, title);
+    }
+    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize, const char* title) {
+        histo.DeclareHistogram2D(dammId, xSize, ySize, title);
+    }
  public:
-    Trace() : std::vector<int>() {baselineLow = baselineHigh = U_DELIMITER; };
+     
+    Trace() : std::vector<int>(), histo(dammIds::trace::OFFSET, dammIds::trace::RANGE, PlotsRegister::R())
+    {baselineLow = baselineHigh = U_DELIMITER; };
     // an automatic conversion
-    Trace(const std::vector<int> &x) : std::vector<int>(x) {
+    Trace(const std::vector<int> &x) : std::vector<int>(x), histo(dammIds::trace::OFFSET, dammIds::trace::RANGE, PlotsRegister::R()){
 	baselineLow = baselineHigh = U_DELIMITER;
     };
     void TrapezoidalFilter(Trace &filter, const TFP &parms,
@@ -87,12 +102,12 @@ class Trace : public std::vector<int>
     //lo must be greater than numBinsBaseline otherwise
     //it means the trace is inside the baseline. -SVP
     unsigned int FindMaxInfo(unsigned int lo = numBinsBaseline, unsigned int numBins = numBinsBaseline);
-    void Plot(int id) const;           //< plot trace into a 1D histogram
-    void Plot(int id, int row) const;  //< plot trace into row of a 2D histogram
-    void ScalePlot(int id, double scale) const; //< plot trace absolute value and scaled into a 1D histogram
-    void ScalePlot(int id, int row, double scale) const; //< plot trace absolute value and scaled into a 2D histogram
-    void OffsetPlot(int id, double offset) const; // plot trace with a vertical offset in a 1D histogram
-    void OffsetPlot(int id, int row, double offset) const; //plot trace with a vertical offset in a 2D histogram
+    void Plot(int id);           //< plot trace into a 1D histogram
+    void Plot(int id, int row);  //< plot trace into row of a 2D histogram
+    void ScalePlot(int id, double scale); //< plot trace absolute value and scaled into a 1D histogram
+    void ScalePlot(int id, int row, double scale); //< plot trace absolute value and scaled into a 2D histogram
+    void OffsetPlot(int id, double offset); // plot trace with a vertical offset in a 1D histogram
+    void OffsetPlot(int id, int row, double offset); //plot trace with a vertical offset in a 2D histogram
 };
 
 /** Parameters for your typical trapezoidal filter */

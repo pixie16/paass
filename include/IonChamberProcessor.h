@@ -30,7 +30,7 @@ class IonChamberProcessor : public EventProcessor
  public:
   IonChamberProcessor(); // no virtual c'tors
   virtual bool Process(RawEvent &event);
-  virtual void DeclarePlots(void) const;
+  virtual void DeclarePlots(void);
   // nice and simple raw derived class
 
 #ifdef useroot

@@ -12,13 +12,22 @@
 using std::cout;
 using std::endl;
 
-SsdProcessor::SsdProcessor() : EventProcessor()
+using namespace dammIds::ssd;
+
+namespace dammIds {
+    namespace ssd {
+        const int NUM_DETECTORS = 4;
+        const int DD_POSITION__ENERGY_DETX = 1; // for x detectors
+    }
+} // ssd namespace
+
+SsdProcessor::SsdProcessor() : EventProcessor(OFFSET, RANGE)
 {
     name = "ssd";
     associatedTypes.insert("ssd");
 }
 
-void SsdProcessor::DeclarePlots(void) const
+void SsdProcessor::DeclarePlots(void)
 {
     using namespace dammIds::ssd;
     
@@ -27,8 +36,8 @@ void SsdProcessor::DeclarePlots(void) const
     // const int timeBins     = S8;
 
     for (int i=0; i < NUM_DETECTORS; i++) {
-	DeclareHistogram2D(DD_POSITION__ENERGY_DETX + i,
-			   energyBins, positionBins, "SSD Strip vs E");
+        DeclareHistogram2D(DD_POSITION__ENERGY_DETX + i,
+                energyBins, positionBins, "SSD Strip vs E");
     }
 }
 
@@ -45,22 +54,22 @@ bool SsdProcessor::Process(RawEvent &event)
     static const DetectorSummary *ssdSummary[NUM_DETECTORS];
 
     if (firstTime) {
-	ssdSummary[0] = event.GetSummary("ssd:implant");
-	ssdSummary[1] = event.GetSummary("ssd:box");
-	ssdSummary[2] = event.GetSummary("ssd:digisum");
-	ssdSummary[3] = event.GetSummary("ssd:ssd_4");
-	firstTime = false;
+        ssdSummary[0] = event.GetSummary("ssd:implant");
+        ssdSummary[1] = event.GetSummary("ssd:box");
+        ssdSummary[2] = event.GetSummary("ssd:digisum");
+        ssdSummary[3] = event.GetSummary("ssd:ssd_4");
+        firstTime = false;
     }
     
-    for (int i=0; i < NUM_DETECTORS; i++) {
-	if (ssdSummary[i]->GetMult() == 0)
-	    continue;
-	const ChanEvent *ch = ssdSummary[i]->GetMaxEvent();
-	position = ch->GetChanID().GetLocation();
-	energy   = ch->GetCalEnergy();
-	time     = ch->GetTime();
+    for (int i = 0; i < NUM_DETECTORS; i++) {
+        if (ssdSummary[i]->GetMult() == 0)
+            continue;
+        const ChanEvent *ch = ssdSummary[i]->GetMaxEvent();
+        position = ch->GetChanID().GetLocation();
+        energy   = ch->GetCalEnergy();
+        time     = ch->GetTime();
 
-	plot(DD_POSITION__ENERGY_DETX + i, energy, position);
+        plot(DD_POSITION__ENERGY_DETX + i, energy, position);
     }
 
     EndProcess(); // update the processing time

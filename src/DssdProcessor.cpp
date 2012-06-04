@@ -17,8 +17,24 @@
  */
 const double DssdProcessor::cutoffEnergy = 4500;
 
+using namespace dammIds::dssd;
+
+namespace dammIds { 
+    namespace dssd {
+        const int DD_IMPLANT_POSITION = 25;
+        const int DD_DECAY_POSITION   = 26;
+        const int DD_IMPLANT_FRONT_ENERGY__POSITION = 41;
+        const int DD_IMPLANT_BACK_ENERGY__POSITION  = 42;
+        const int DD_DECAY_FRONT_ENERGY__POSITION   = 43;
+        const int DD_DECAY_BACK_ENERGY__POSITION    = 44;
+
+        const int DD_ENERGY__DECAY_TIME_GRANX = 50;
+    }
+} // dssd namespace
+
+
 DssdProcessor::DssdProcessor() : 
-    EventProcessor(), frontSummary(NULL), backSummary(NULL)
+    EventProcessor(OFFSET, RANGE), frontSummary(NULL), backSummary(NULL)
 {
     name = "dssd";
 
@@ -26,7 +42,7 @@ DssdProcessor::DssdProcessor() :
     associatedTypes.insert("dssd_back");
 }
 
-void DssdProcessor::DeclarePlots(void) const
+void DssdProcessor::DeclarePlots(void)
 {
     using namespace dammIds::dssd;
 

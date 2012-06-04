@@ -18,6 +18,8 @@
 #include <cmath>
 #include <cstdlib>
 
+#include "PlotsRegister.h"
+#include "DammPlots.h"
 #include "damm_plotids.h"
 
 #include "AliasedPair.hpp"
@@ -131,14 +133,15 @@ double GeProcessor::WalkCorrection(double e) {
 }
 
 // useful function for symmetrically incrementing 2D plots
-void symplot(int dammID, double bin1, double bin2)
+void GeProcessor::symplot(int dammID, double bin1, double bin2)
 {
     plot(dammID, bin1, bin2);
     plot(dammID, bin2, bin1);
 }
 
-GeProcessor::GeProcessor() : EventProcessor(), leafToClover()
-{
+using namespace dammIds::ge;
+
+GeProcessor::GeProcessor() : EventProcessor(OFFSET, RANGE), leafToClover() {
     name = "ge";
     associatedTypes.insert("ge"); // associate with germanium detectors
 }
@@ -199,7 +202,7 @@ bool GeProcessor::Init(DetectorDriver &driver)
 }
 
 /** Declare plots including many for decay/implant/neutron gated analysis  */
-void GeProcessor::DeclarePlots(void) const
+void GeProcessor::DeclarePlots(void) 
 {
     const int energyBins1  = SE;
     const int energyBins2  = SC;
@@ -540,21 +543,21 @@ bool GeProcessor::Process(RawEvent &event) {
  */
 void GeProcessor::DeclareHistogramGranY(int dammId, int xsize, int ysize,
 					const char *title, int halfWordsPerChan,
-					const vector<float> &granularity, const char *units) const
+					const vector<float> &granularity, const char *units)
 {
     stringstream fullTitle;
 
     for (unsigned int i=0; i < granularity.size(); i++) {	 
 	//? translate scientific units to engineering units 
 	fullTitle << title << " (" << granularity[i] << " " << units << "/bin)";
-	DeclareHistogram2D(dammId + i, xsize, ysize, fullTitle.str().c_str(), halfWordsPerChan);
+	histo.DeclareHistogram2D(dammId + i, xsize, ysize, fullTitle.str().c_str(), halfWordsPerChan, 1, 1);
     }
 } 
 
 /**
  * Plot to a granularity spectrum
  */
-void GeProcessor::granploty(int dammId, double x, double y, const vector<float> &granularity) const
+void GeProcessor::granploty(int dammId, double x, double y, const vector<float> &granularity)
 {
     for (unsigned int i=0; i < granularity.size(); i++) {
 	plot(dammId + i, x, y / granularity[i]);

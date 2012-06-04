@@ -59,7 +59,7 @@
 #include "VandleProcessor.h"
 #include "PulserProcessor.h"
 #include "SsdProcessor.h"
-#include "QdcProcessor.hpp"
+#include "PositionProcessor.hpp"
 
 #include "DoubleTraceAnalyzer.h"
 #include "TauAnalyzer.h"
@@ -72,6 +72,7 @@
 #endif
 
 using namespace std;
+using namespace dammIds::raw;
 
 /* rawevent declared in PixieStd.cpp
  *
@@ -87,14 +88,18 @@ extern RandomPool randoms;
 
   Creates instances of all event processors
 */
-DetectorDriver::DetectorDriver()
+
+using namespace dammIds::raw;
+
+DetectorDriver::DetectorDriver() : 
+    histo(OFFSET, RANGE, PlotsRegister::R() ) 
 {
-  vecAnalyzer.push_back(new DoubleTraceAnalyzer());
+    vecAnalyzer.push_back(new DoubleTraceAnalyzer());
     vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
     vecAnalyzer.push_back(new TauAnalyzer());
     // vecAnalyzer.push_back(new DoubleTraceAnalyzer());
 
-    vecProcess.push_back(new QdcProcessor()); // order is important
+    vecProcess.push_back(new PositionProcessor()); // order is important
     // vecProcess.push_back(new TriggerLogicProcessor());
     vecProcess.push_back(new SsdProcessor());
     // vecProcess.push_back(new GeProcessor()); // order is important
@@ -185,7 +190,7 @@ int DetectorDriver::ProcessEvent(const string &mode){
       Begin the event processing looping over all the channels
       that fired in this particular event.
     */
-    plot(dammIds::misc::D_NUMBER_OF_EVENTS, GENERIC_CHANNEL);
+    plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
     
     const vector<ChanEvent *> &eventList = rawev.GetEventList();
     for(size_t i=0; i < eventList.size(); i++) {
@@ -208,50 +213,61 @@ int DetectorDriver::ProcessEvent(const string &mode){
 }
 
 // declare plots for all the event processors
-void DetectorDriver::DeclarePlots(void) const
+void DetectorDriver::DeclarePlots(void)
 {
     for (vector<TraceAnalyzer *>::const_iterator it = vecAnalyzer.begin();
 	 it != vecAnalyzer.end(); it++) {
-	(*it)->DeclarePlots();
+        (*it)->DeclarePlots();
     }
 
     for (vector<EventProcessor *>::const_iterator it = vecProcess.begin();
 	 it != vecProcess.end(); it++) {
-	(*it)->DeclarePlots();
+        (*it)->DeclarePlots();
     }
     
     // Declare plots for each channel
     extern DetectorLibrary modChan;
     extern MapFile theMapFile;
 
-    DetectorLibrary::size_type maxChan = (theMapFile ? modChan.size() : 96);
+    DeclareHistogram1D(D_HIT_SPECTRUM, S7, "channel hit spectrum");
+    DeclareHistogram1D(D_SUBEVENT_GAP, SE, "time btwn chan-in event,10ns bin");
+    DeclareHistogram1D(D_EVENT_LENGTH, SE, "time length of event, 10 ns bin");
+    DeclareHistogram1D(D_EVENT_GAP, SE, "time between events, 10 ns bin");
+    DeclareHistogram1D(D_EVENT_MULTIPLICITY, S7, "number of channels in event");
+    DeclareHistogram1D(D_BUFFER_END_TIME, SE, "length of buffer, 1 ms bin");
+    DeclareHistogram2D(DD_RUNTIME_SEC, SE, S6, "run time - s");
+    DeclareHistogram2D(DD_DEAD_TIME_CUMUL, SE, S6, "dead time - cumul");
+    DeclareHistogram2D(DD_BUFFER_START_TIME, SE, S6, "dead time - 0.1%");
+    DeclareHistogram2D(DD_RUNTIME_MSEC, SE, S7, "run time - ms");
+    DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
 
-    for (DetectorLibrary::size_type i=0; i < maxChan; i++) {	 
-	if (theMapFile && !modChan.HasValue(i)) {
-	    continue;
-	}
-	stringstream idstr; 
-	
-	if (theMapFile) {
-	    const Identifier &id = modChan.at(i);
+    DetectorLibrary::size_type maxChan = (theMapFile ? modChan.size() : 192);
 
-	    idstr << "M" << modChan.ModuleFromIndex(i)
-		  << " C" << modChan.ChannelFromIndex(i)
-		  << " - " << id.GetType()
-		  << ":" << id.GetSubtype()
-		  << " L" << id.GetLocation();
-	} else {
-	    idstr << "id " << i;
-	}
+    for (DetectorLibrary::size_type i = 0; i < maxChan; i++) {	 
+        if (theMapFile && !modChan.HasValue(i)) {
+            continue;
+        }
+        stringstream idstr; 
+        
+        if (theMapFile) {
+            const Identifier &id = modChan.at(i);
 
-	DeclareHistogram1D(D_RAW_ENERGY + i, SE, ("RawE " + idstr.str()).c_str() );
-	DeclareHistogram1D(D_FILTER_ENERGY + i, SE, ("FilterE " + idstr.str()).c_str() );
-	DeclareHistogram1D(D_SCALAR + i, SE, ("Scalar " + idstr.str()).c_str() );
+            idstr << "M" << modChan.ModuleFromIndex(i)
+            << " C" << modChan.ChannelFromIndex(i)
+            << " - " << id.GetType()
+            << ":" << id.GetSubtype()
+            << " L" << id.GetLocation();
+        } else {
+            idstr << "id " << i;
+        }
+        DeclareHistogram1D(D_RAW_ENERGY + i, SE, ("RawE " + idstr.str()).c_str() );
+        DeclareHistogram1D(D_FILTER_ENERGY + i, SE, ("FilterE " + idstr.str()).c_str() );
+        DeclareHistogram1D(D_SCALAR + i, SE, ("Scalar " + idstr.str()).c_str() );
 #ifndef REVD       
-	DeclareHistogram1D(D_TIME + i, SE, ("Time " + idstr.str()).c_str() ); 
+        DeclareHistogram1D(D_TIME + i, SE, ("Time " + idstr.str()).c_str() ); 
 #endif
-	DeclareHistogram1D(D_CAL_ENERGY + i, SE, ("CalE " + idstr.str()).c_str() );
-	DeclareHistogram1D(D_CAL_ENERGY_REJECT + i, SE, ("CalE NoSat " + idstr.str()).c_str() );
+        DeclareHistogram1D(D_CAL_ENERGY + i, SE, ("CalE " + idstr.str()).c_str() );
+        DeclareHistogram1D(D_CAL_ENERGY_REJECT + i, SE, ("CalE NoSat " + idstr.str()).c_str() );
     }
     DeclareHistogram1D(D_HAS_TRACE, S7, "channels with traces");
 
@@ -344,7 +360,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
   Plot the raw energies of each channel into the damm spectrum number assigned
   to it in the map file with an offset as defined in damm_plotids.h
 */
-int DetectorDriver::PlotRaw(const ChanEvent *chan) const
+int DetectorDriver::PlotRaw(const ChanEvent *chan)
 {
     int id = chan->GetID();
     float energy = chan->GetEnergy() / ChanEvent::pixieEnergyContraction;
@@ -358,7 +374,7 @@ int DetectorDriver::PlotRaw(const ChanEvent *chan) const
   Plot the calibrated energies of each channel into the damm spectrum number
   assigned to it in the map file with an offset as defined in damm_plotids.h
 */
-int DetectorDriver::PlotCal(const ChanEvent *chan) const
+int DetectorDriver::PlotCal(const ChanEvent *chan)
 {
     int id = chan->GetID();
     // int dammid = chan->GetChanID().GetDammID();

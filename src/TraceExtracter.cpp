@@ -26,7 +26,7 @@ TraceExtracter::~TraceExtracter()
 }
 
 /** Declare the damm plots */
-void TraceExtracter::DeclarePlots(void) const
+void TraceExtracter::DeclarePlots(void)
 {
     using namespace dammIds::trace;
     for (int i=0; i < numTraces; i++)
