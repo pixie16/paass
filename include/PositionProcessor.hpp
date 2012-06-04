@@ -9,8 +9,6 @@
 #include <vector>
 
 #include "EventProcessor.h"
-#include "DammPlots.h"
-#include "PlotsRegister.h"
 
 class ChanEvent;
 
@@ -19,8 +17,9 @@ class PositionProcessor : public EventProcessor
 private:
     static const std::string configFile;
     static const int numQdcs = 8;
-	
-    float qdcLen[numQdcs]; //< the length of each qdc in pixie samples									
+    static const int matchingTimeCut = 5; //< maximum difference between edge and sum timestamps
+
+    float qdcLen[numQdcs]; //< the length of each qdc in pixie samples
     float qdcPos[numQdcs]; //< the ending sample number for each QDC position
     float totLen;          //< calculated length of all qdcs excluding baseline qdc
     int whichQdc;          //< which qdc we are using for position determinatio
@@ -33,10 +32,9 @@ private:
     ChanEvent* FindMatchingEdge(ChanEvent *match,
 				std::vector<ChanEvent*>::const_iterator begin, 
 				std::vector<ChanEvent*>::const_iterator end) const;				
-    ChanEvent* FindMatchingEdgeR(ChanEvent *match,
+    ChanEvent* FindMatchingEdge(ChanEvent *match,
 				std::vector<ChanEvent*>::const_reverse_iterator begin, 
 				std::vector<ChanEvent*>::const_reverse_iterator end) const;				
-
 public:
     PositionProcessor(); // no virtual c'tors
     virtual bool Init(DetectorDriver &driver);

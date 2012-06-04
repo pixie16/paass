@@ -6,6 +6,8 @@
 #ifndef __PARAM_H_
 #define __PARAM_H_
 
+#include <string>
+
 #include <cstdlib>
 #include <stdint.h>
 
@@ -36,6 +38,7 @@ namespace readbuff {
 }
 
 const double emptyValue = -9999.; //< a default number to set values to
+const std::string emptyString = ""; //< an empty string for blank references
 
 const pixie::word_t clockVsn = 1000; ///< an arbitrary vsn used to pass clock data
 
