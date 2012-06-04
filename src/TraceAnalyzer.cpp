@@ -13,9 +13,9 @@
 
 #include <unistd.h>
 
-#include "damm_plotids.h"
-#include "Trace.h"
-#include "TraceAnalyzer.h"
+#include "DammPlotIds.hpp"
+#include "Trace.hpp"
+#include "TraceAnalyzer.hpp"
 
 using std::cout;
 using std::endl;

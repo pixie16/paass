@@ -15,10 +15,10 @@ Updated: S. Paulauskas 26 July 2010
 
 #include <unistd.h> //not standard c/c++, makes compliant with UNIX standards
 
-#include "damm_plotids.h"
-#include "DetectorDriver.h"
-#include "RawEvent.h"
-#include "VandleProcessor.h"
+#include "DammPlotIds.hpp"
+#include "DetectorDriver.hpp"
+#include "RawEvent.hpp"
+#include "VandleProcessor.hpp"
 
 #ifdef useroot
 #include <TTree.h>

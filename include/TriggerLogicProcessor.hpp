@@ -1,13 +1,13 @@
-/** \file TriggerLogicProcessor.h
+/** \file TriggerLogicProcessor.hpp
  *
  * class to handle logic signals and show "trigger" points
  * derived originally from MTC processor
  */
 
-#ifndef __TRIGGERLOGICPROCESSOR_H_
-#define __TRIGGERLOGICPROCESSOR_H_
+#ifndef __TRIGGERLOGICPROCESSOR_HPP_
+#define __TRIGGERLOGICPROCESSOR_HPP_
 
-#include "LogicProcessor.h"
+#include "LogicProcessor.hpp"
 
 class TriggerLogicProcessor : public LogicProcessor {
  private:
@@ -18,4 +18,4 @@ class TriggerLogicProcessor : public LogicProcessor {
     virtual bool Process(RawEvent &event);
 };
 
-#endif // __TRIGGERLOGICPROCESSOR_H_
+#endif // __TRIGGERLOGICPROCESSOR_HPP_

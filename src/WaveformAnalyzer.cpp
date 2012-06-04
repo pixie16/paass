@@ -16,9 +16,9 @@ S.V.P. 16 July 2009
 
 #include <unistd.h> 
 
-#include "damm_plotids.h"
-#include "StatsAccumulator.h"
-#include "WaveformAnalyzer.h"
+#include "DammPlotIds.hpp"
+#include "StatsAccumulator.hpp"
+#include "WaveformAnalyzer.hpp"
 
 #ifdef pulsefit
 #include <gsl/gsl_blas.h>

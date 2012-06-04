@@ -8,10 +8,10 @@
 #include <string>
 #include <vector>
 
-#include "damm_plotids.h"
-#include "param.h"
-#include "RawEvent.h"
-#include "TriggerLogicProcessor.h"
+#include "DammPlotIds.hpp"
+#include "Globals.hpp"
+#include "RawEvent.hpp"
+#include "TriggerLogicProcessor.hpp"
 
 using namespace std;
 using namespace dammIds::logic;

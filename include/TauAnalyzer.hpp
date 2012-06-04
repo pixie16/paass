@@ -1,14 +1,14 @@
-/* \file TauAnalyzer.h 
+/* \file TauAnalyzer.hpp
  *
  * A trace analyzer which determines the decay time constant of traces
  */
 
-#ifndef __TAUANALYZER_H_
-#define __TAUANALYZER_H_
+#ifndef __TAUANALYZER_HPP_
+#define __TAUANALYZER_HPP_
 
 #include <string>
 
-#include "TraceAnalyzer.h"
+#include "TraceAnalyzer.hpp"
 
 class TauAnalyzer : public TraceAnalyzer
 {
@@ -23,4 +23,4 @@ class TauAnalyzer : public TraceAnalyzer
     virtual void Analyze(Trace &trace, const std::string &aType, const std::string &aSubtype);
 };
 
-#endif // __TAUANALYZER_H_
+#endif // __TAUANALYZER_HPP_

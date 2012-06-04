@@ -1,17 +1,17 @@
-/** \file TracePlotter.h
+/** \file TracePlotter.hpp
  *  \brief Header file for the TracePlotter class
  *   
  *  David Miller, Jan 2011
  */
 
-#ifndef __TRACEEXTRACTER_H_
-#define __TRACEEXTRACTER_H_
+#ifndef __TRACEEXTRACTER_HPP_
+#define __TRACEEXTRACTER_HPP_
 
 #include <string>
 
-#include "TraceAnalyzer.h"
+#include "TraceAnalyzer.hpp"
 
-#include "damm_plotids.h"
+#include "DammPlotIds.hpp"
 
 class Trace;
 
@@ -31,4 +31,4 @@ class TraceExtracter : public TraceAnalyzer {
 			 const std::string &type, const std::string &subtype);
 };
 
-#endif // __TRACEEXTRACTER_H_
+#endif // __TRACEEXTRACTER_HPP_

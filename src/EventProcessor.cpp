@@ -13,9 +13,9 @@
 #include <unistd.h>
 #include <sys/times.h>
 
-#include "DetectorDriver.h"
-#include "EventProcessor.h"
-#include "RawEvent.h"
+#include "DetectorDriver.hpp"
+#include "EventProcessor.hpp"
+#include "RawEvent.hpp"
 
 using namespace std;
 

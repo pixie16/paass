@@ -1,14 +1,14 @@
-/** \file ImplantSsdProcessor.h
+/** \file ImplantSsdProcessor.hpp
  *
  * Header file for an SSD detector for implantation and correlation
  */
 
-#ifndef __IMPLANT_SSD_PROCESSOR_H_
-#define __IMPLANT_SSD_PROCESSOR_H_
+#ifndef __IMPLANT_SSD_PROCESSOR_HPP_
+#define __IMPLANT_SSD_PROCESSOR_HPP_
 
-#include "EventProcessor.h"
+#include "EventProcessor.hpp"
 
-#include "Correlator.h"
+#include "Correlator.hpp"
 
 // forward declarations
 class RawEvent;
@@ -38,4 +38,4 @@ class ImplantSsdProcessor : public EventProcessor
     virtual bool Process(RawEvent &event);
 };
 
-#endif // __IMPLANT_SSD_PROCESSOR_H_
+#endif // __IMPLANT_SSD_PROCESSOR_HPP_

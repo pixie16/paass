@@ -12,8 +12,8 @@
 #include <TFile.h>
 #include <TTree.h>
 
-#include "DetectorDriver.h"
-#include "RootProcessor.h"
+#include "DetectorDriver.hpp"
+#include "RootProcessor.hpp"
 
 using std::cout;
 using std::endl;

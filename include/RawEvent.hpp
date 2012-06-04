@@ -1,5 +1,4 @@
-// -*-c++-*- 
-/**   \file RawEvent.h
+/**   \file RawEvent.hpp
  *    \brief Header file for the rawevent
  *
  *    The variables and structures contained in a raw event
@@ -7,19 +6,19 @@
  *    SNL - 7-2-07
  */
 
-#ifndef __RAWEVENT_H_
-#define __RAWEVENT_H_ 1
+#ifndef __RAWEVENT_HPP_
+#define __RAWEVENT_HPP_ 1
 
 #include <vector>
 #include <string>
 #include <map>
 #include <set>
 
-#include "Correlator.h"
+#include "Correlator.hpp"
 
 #include "pixie16app_defs.h"
-#include "param.h"
-#include "Trace.h"
+#include "Globals.hpp"
+#include "Trace.hpp"
 
 /**
  * \brief Channel identification
@@ -274,4 +273,4 @@ public:
     double GetRealTime(unsigned int mod = 0) const;
 };
 
-#endif // __RAWEVENT_H_
+#endif // __RAWEVENT_HPP_

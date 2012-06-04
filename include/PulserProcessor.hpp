@@ -1,17 +1,17 @@
-/** \file PulserProcessor.h
+/** \file PulserProcessor.hpp
  * 
  * Class for handling Pulser Signals
  */
 
-#ifndef __PULSERPROCESSOR_H_
-#define __PULSERPROCESSOR_H_
+#ifndef __PULSERPROCESSOR_HPP_
+#define __PULSERPROCESSOR_HPP_
 
 #include <map>
 #include <string>
 
-#include "EventProcessor.h"
-#include "RawEvent.h"
-#include "Trace.h"
+#include "EventProcessor.hpp"
+#include "RawEvent.hpp"
+#include "Trace.hpp"
 
 class PulserProcessor : public EventProcessor
 {
@@ -43,4 +43,5 @@ class PulserProcessor : public EventProcessor
 
     std::map<std::string, struct PulserData> pulserMap;
 }; //Class PulserProcessor
-#endif // __PULSERPROCESSOR_H_
+
+#endif // __PULSERPROCESSOR_HPP_

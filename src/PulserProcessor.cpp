@@ -12,10 +12,10 @@ Source File for the PulserProcessor
 #include <unistd.h> //not standard c/c++, makes compliant with UNIX standards
 #include <vector>
 
-#include "damm_plotids.h"
-#include "DetectorDriver.h"
-#include "PulserProcessor.h"
-#include "RawEvent.h"
+#include "DammPlotIds.hpp"
+#include "DetectorDriver.hpp"
+#include "PulserProcessor.hpp"
+#include "RawEvent.hpp"
 
 extern "C" void count1cc_(const int &, const int &, const int &);
 extern "C" void set2cc_(const int &, const int &, const int &, const int &);

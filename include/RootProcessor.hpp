@@ -1,4 +1,4 @@
-/** \file RootProcessor.h 
+/** \file RootProcessor.hpp 
  *
  * Processor to dump data from events into a root tree
  * This loops over other event processor to fill appropriate branches
@@ -8,12 +8,12 @@
 #error USEROOT must be defined to use RootProcessor
 #endif
 
-#ifndef __ROOTPROCESSOR_H_
-#define __ROOTPROCESSOR_H_
+#ifndef __ROOTPROCESSOR_HPP_
+#define __ROOTPROCESSOR_HPP_
 
 #include <vector>
 
-#include "EventProcessor.h"
+#include "EventProcessor.hpp"
 
 // forward declaration
 class TFile;
@@ -35,4 +35,4 @@ class RootProcessor : public EventProcessor
     virtual ~RootProcessor();
 };
 
-#endif // __ROOTPROCESSOR_H_
+#endif // __ROOTPROCESSOR_HPP_

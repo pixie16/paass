@@ -9,8 +9,8 @@
 #include <map>
 #include <vector>
 
-#include "EventProcessor.h"
-#include "RawEvent.h"
+#include "EventProcessor.hpp"
+#include "RawEvent.hpp"
 
 class GeProcessor : public EventProcessor
 {

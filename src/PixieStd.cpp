@@ -42,13 +42,14 @@
 #include <unistd.h>
 #include <sys/times.h>
 
-#include "DetectorDriver.h"
+#include "pixie16app_defs.h"
+
+#include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
 #include "MapFile.hpp"
-#include "RawEvent.h"
-#include "damm_plotids.h"
-#include "param.h"
-#include "pixie16app_defs.h"
+#include "RawEvent.hpp"
+#include "DammPlotIds.hpp"
+#include "Globals.hpp"
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
 

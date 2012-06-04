@@ -1,5 +1,5 @@
-#ifndef __DAMM_PLOTIDS_H_
-#define __DAMM_PLOTIDS_H_ 1
+#ifndef __DAMM_PLOTIDS_HPP_
+#define __DAMM_PLOTIDS_HPP_ 1
 
 namespace dammIds {
     const int GENERIC_CHANNEL = 10;
@@ -140,4 +140,4 @@ const int S1 = 2, S2 = 4, S3 = 8, S4 = 16, S5 = 32, S6 = 64, S7 = 128,
     SD = 8192, SE = 16384, SF = 32768;
 
 
-#endif // __DAMM_PLOTIDS_H_
+#endif // __DAMM_PLOTIDS_HPP_

@@ -11,13 +11,13 @@
 #include <sstream>
 #include <vector>
 
-#include "damm_plotids.h"
+#include "DammPlotIds.hpp"
 
-#include "Correlator.h"
-#include "DetectorDriver.h"
-#include "ImplantSsdProcessor.h"
-#include "TriggerLogicProcessor.h"
-#include "RawEvent.h"
+#include "Correlator.hpp"
+#include "DetectorDriver.hpp"
+#include "ImplantSsdProcessor.hpp"
+#include "TriggerLogicProcessor.hpp"
+#include "RawEvent.hpp"
 
 using std::cout;
 using std::endl;

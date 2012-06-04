@@ -1,11 +1,11 @@
-/*! \file EventProcessor.h
+/*! \file EventProcessor.hpp
  * 
  * Generic event processor which particular processing 
  * of individual devices can be derived from
  */
 
-#ifndef __EVENTPROCESSOR_H_
-#define __EVENTPROCESSOR_H_
+#ifndef __EVENTPROCESSOR_HPP_
+#define __EVENTPROCESSOR_HPP_
 
 #include <map>
 #include <set>
@@ -81,4 +81,4 @@ class EventProcessor {
 #endif
 };
 
-#endif // __EVENTPROCESSOR_H_
+#endif // __EVENTPROCESSOR_HPP_

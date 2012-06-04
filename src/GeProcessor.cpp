@@ -21,14 +21,14 @@
 
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
-#include "damm_plotids.h"
+#include "DammPlotIds.hpp"
 
 #include "AliasedPair.hpp"
-#include "Correlator.h"
-#include "DetectorDriver.h"
+#include "Correlator.hpp"
+#include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
 #include "GeProcessor.hpp"
-#include "RawEvent.h"
+#include "RawEvent.hpp"
 
 using namespace std;
 
@@ -160,7 +160,7 @@ bool GeProcessor::Init(DetectorDriver &driver)
     */
     extern DetectorLibrary modChan;
 
-    const set<int> &cloverLocations = modChan.GetLocations("ge", "clover_high");
+    const set<int> &cloverLocations = modChan.GetLocations("ge", "clover_hi.hpp");
     // could set it now but we'll iterate through the locations to set this
     unsigned int cloverChans = 0;
 
@@ -310,7 +310,7 @@ bool GeProcessor::Process(RawEvent &event) {
     // reject events for clover where raw high gain energy does not
     //   correspond properly to raw low gain energy
     const double lowRatio = 1.5, highRatio = 3.0;
-    static const vector<ChanEvent*> &highEvents = event.GetSummary("ge:clover_high", true)->GetList();
+    static const vector<ChanEvent*> &highEvents = event.GetSummary("ge:clover_hi.hpp", true)->GetList();
     static const vector<ChanEvent*> &lowEvents  = event.GetSummary("ge:clover_low", true)->GetList();
 
     // first plot low gain energies
