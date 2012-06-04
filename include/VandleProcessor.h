@@ -20,7 +20,7 @@ class VandleProcessor : public EventProcessor
 {
  public:
     VandleProcessor(); // no virtual c'tors
-    virtual void DeclarePlots(void) const;
+    virtual void DeclarePlots(void);
     virtual bool Process(RawEvent &event);
     virtual bool Init(DetectorDriver &);
     

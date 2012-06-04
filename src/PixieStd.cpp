@@ -49,8 +49,11 @@
 #include "damm_plotids.h"
 #include "param.h"
 #include "pixie16app_defs.h"
+#include "DammPlots.h"
+#include "PlotsRegister.h"
 
 using namespace std;
+using namespace dammIds::raw;
 using pixie::word_t;
 
 extern DetectorLibrary modChan;
@@ -650,6 +653,7 @@ void ScanList(vector<ChanEvent*> &eventList)
     double currTime = lastTime;
     unsigned int id = (*iEvent)->GetID();
 
+
     HistoStats(id, diffTime, lastTime, BUFFER_START);
 
     //loop over the list of channels that fired in this buffer
@@ -695,7 +699,7 @@ void ScanList(vector<ChanEvent*> &eventList)
 	if (dtimebin < 0 || dtimebin > (unsigned)(SE)) {
 	    cout << "strange dtime for id " << id << ":" << dtimebin << endl;
 	}
-	plot(DetectorDriver::D_TIME + id, dtimebin);
+	driver.histo.plot(D_TIME + id, dtimebin);
 
 	usedDetectors.insert(modChan[id].GetType());
 	rawev.AddChan(*iEvent);
@@ -721,8 +725,6 @@ void ScanList(vector<ChanEvent*> &eventList)
  */
 void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
 {
-    using namespace dammIds::misc;
-
     static const int specNoBins = SE;
 
     static double start, stop;
@@ -765,18 +767,17 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
 		//plot time between buffers as a function of time - dead time spectrum	    
 		// deadTime += (clock - bufEnd)*pixie::clockInSeconds;
 		// plot(DD_DEAD_TIME_CUMUL,remainNumSecs,rownum,int(deadTime/runTimeSecs));	    	    
-		plot(DD_BUFFER_START_TIME,remainNumSecs,rowNumSecs,
-		     (clock-bufEnd)/bufLength*1000. );	    
+		driver.histo.plot(dammIds::raw::DD_BUFFER_START_TIME, remainNumSecs,rowNumSecs, (clock-bufEnd)/bufLength*1000.);	    
 	    }
 	    break;
 	case BUFFER_END:
-	    plot(D_BUFFER_END_TIME, (stop - bufStart) * pixie::clockInSeconds * 1000);
+	    driver.histo.plot(D_BUFFER_END_TIME, (stop - bufStart) * pixie::clockInSeconds * 1000);
 	    bufEnd = clock;
 	    bufLength = clock - bufStart;
 	case EVENT_START:
-	    plot(D_EVENT_LENGTH, stop - start); // plot the last event
-	    plot(D_EVENT_GAP, diff);
-	    plot(D_EVENT_MULTIPLICITY, count);
+        driver.histo.plot(D_EVENT_LENGTH, stop - start);
+        driver.histo.plot(D_EVENT_GAP, diff);
+        driver.histo.plot(D_EVENT_MULTIPLICITY, count);
 	    
 	    start = stop = clock; // reset the counters      
 	    count = 1;
@@ -784,7 +785,7 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
 	case EVENT_CONTINUE:
 	    count++;
 	    if(diff > 0.) {
-		plot(D_SUBEVENT_GAP,diff + 100);
+            driver.histo.plot(D_SUBEVENT_GAP, diff + 100);
 	    }
 	    stop = clock;
 	    break;
@@ -796,11 +797,11 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
     // Exclude event type 0/1 since it will also appear as an
     // event type 11
     if ( event != BUFFER_START && event != BUFFER_END ){      
-	plot(DD_RUNTIME_SEC,remainNumSecs,rowNumSecs);
-	plot(DD_RUNTIME_MSEC,remainNumMsecs,rowNumMsecs);      
+    driver.histo.plot(DD_RUNTIME_SEC, remainNumSecs, rowNumSecs);
+    driver.histo.plot(DD_RUNTIME_MSEC, remainNumSecs, rowNumSecs);
 	//fill scalar spectrum (per second) 
-	plot(D_HIT_SPECTRUM,id);     // plot hit spectrum
-	plot(DetectorDriver::D_SCALAR + id, runTimeSecs);
+    driver.histo.plot(D_HIT_SPECTRUM, id);
+	driver.histo.plot(D_SCALAR + id, runTimeSecs);
     }
 }
 

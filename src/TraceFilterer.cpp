@@ -71,9 +71,9 @@ bool TraceFilterer::Init(const string &filterFile)
     // read in the filter parameters
     ifstream in(filterFile.c_str());
     if (!in) {
-	cout << "Failed to open the filter parameter file" << endl;
-	cout << "  Using default values instead" << endl;
-	return true;
+        cout << "Failed to open the filter parameter file" << endl;
+        cout << "  Using default values instead" << endl;
+        return true;
     }
 
     while (!in.eof()) {
@@ -109,15 +109,15 @@ bool TraceFilterer::Init(const string &filterFile)
     }
 
     if (in.fail()) {
-	cerr << "Problem reading filter parameters file" << endl;
-	return true;
+        cerr << "Problem reading filter parameters file" << endl;
+        return true;
     }
 
     return true;
 }
 
 
-void TraceFilterer::DeclarePlots(void) const
+void TraceFilterer::DeclarePlots(void)
 {
     using namespace dammIds::trace;
 
@@ -144,7 +144,7 @@ void TraceFilterer::Analyze(Trace &trace,
 	const double deviationCut = fastThreshold / 4. / fastParms.GetRiseSamples();
 
 	double trailingBaseline  = trace.DoBaseline(trace.size() - baselineBins - 1, baselineBins);
-	double trailingDeviation = trace.GetValue("sigmaBaseline");
+	//double trailingDeviation = trace.GetValue("sigmaBaseline");
 		
 	// start at sample 5 because first samples are occasionally corrupted
 	trace.DoBaseline(5, baselineBins);       

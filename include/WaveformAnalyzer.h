@@ -21,7 +21,7 @@ class WaveformAnalyzer : public TraceAnalyzer
     };
 
     WaveformAnalyzer(); // no virtual c'tors
-    virtual void DeclarePlots(void) const;
+    virtual void DeclarePlots(void);
     virtual void Analyze(Trace &, const std::string &,
 			 const std::string &);
     

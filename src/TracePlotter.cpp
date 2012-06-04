@@ -26,7 +26,7 @@ TracePlotter::~TracePlotter()
 }
 
 /** Declare the damm plots */
-void TracePlotter::DeclarePlots(void) const
+void TracePlotter::DeclarePlots(void)
 {
     using namespace dammIds::trace;
 

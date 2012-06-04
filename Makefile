@@ -12,6 +12,10 @@ REVISIOND = 1
 # CXXFLAGS += -DVERBOSE
 # Undefine to make a "online" version
 # ONLINE = 1 
+# Use gfortran
+# HHIRF_GFORTRAN = 1
+# Libs in HHIRF DIR
+# LIBS_IN_HHIRF = 1
 
 #------- instruct make to search through these
 #------- directories to find files
@@ -25,11 +29,15 @@ ifeq ($(HHIRF_DIR),)
 HHIRF_DIR = /usr/hhirf
 endif
 
+ifneq ($(LIBS_IN_HHIRF),)
+ACQ2_LIBDIR = $(HHIRF_DIR)
+else
 ifeq ($(ACQ2_LIBDIR),)
 ifneq ($(ACQ2_DIR),) 
 ACQ2_LIBDIR = $(ACQ2_DIR)
 else
 ACQ2_LIBDIR = /usr/acq2/lib
+endif
 endif
 endif
 
@@ -104,6 +112,8 @@ SCANORUXO        = scanorux.$(ObjSuf)
 
 # objects from cpp
 PIXIEO           = PixieStd.$(ObjSuf)
+PLOTSREGISTERO   = PlotsRegister.$(ObjSuf)
+DAMMPLOTSO       = DammPlots.$(ObjSuf)
 ACCUMULATORO     = StatsAccumulator.$(ObjSuf)
 HISTOGRAMMERO    = DeclareHistogram.$(ObjSuf)
 EVENTPROCESSORO  = EventProcessor.$(ObjSuf)
@@ -133,7 +143,7 @@ TRACEPLOTO       = TracePlotter.$(ObjSuf)
 TRACEFILTERO     = TraceFilterer.$(ObjSuf)
 DOUBLETRACEO     = DoubleTraceAnalyzer.$(ObjSuf)
 WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
-QDCPROCESSORO    = QdcProcessor.$(ObjSuf)
+POSITIONPROCESSORO = PositionProcessor.$(ObjSuf)
 MAPFILEO         = MapFile.$(ObjSuf)
 DETECTORLIBRARYO = DetectorLibrary.$(ObjSuf)
 
@@ -155,15 +165,16 @@ endif
 
 #----- list of objects
 OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \
-	$(MTCPROCESSORO) $(MCPPROCESSORO) $(CORRELATORO) $(TRACESUBO) \
-	$(TRACEPLOTO) $(TRACEFILTERO) $(DOUBLETRACEO) \
+		 $(PLOTSREGISTERO) $(DAMMPLOTSO) \
+	$(MTCPROCESSORO) $(MCPPROCESSORO) $(LOGICPROCESSORO) $(CORRELATORO) $(TRACESUBO) \
+	$(TRACEO) $(TRACEPLOTO) $(TRACEFILTERO) $(DOUBLETRACEO) \
 	$(MESSLOGO) $(MILDATIMO) $(SCANORUXO) $(ACCUMULATORO) $(PIXIEO) \
-	$(HISTOGRAMMERO) $(EVENTPROCESSORO) $(SCINTPROCESSORO) $(TRACEO) \
+	$(HISTOGRAMMERO) $(EVENTPROCESSORO) $(SCINTPROCESSORO) \
 	$(GEPROCESSORO) $(DSSDPROCESSORO) $(RAWEVENTO) $(RANDOMPOOLO) \
-	$(SSDPROCESSORO) $(ISSDPROCESSORO) $(TAUANALYZERO) $(LOGICPROCESSORO) \
+	$(SSDPROCESSORO) $(ISSDPROCESSORO) $(TAUANALYZERO) \
 	$(TRIGGERLOGICPROCESSORO) $(TRACEEXTRACTERO) $(IONCHAMBERPROCESSORO) \
 	$(STATSDATAO) $(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO) \
-	$(QDCPROCESSORO) $(MAPFILEO) $(DETECTORLIBRARYO)
+	$(POSITIONPROCESSORO) $(MAPFILEO) $(DETECTORLIBRARYO)
 
 ifdef USEROOT
 OBJS  += $(ROOTPROCESSORO)

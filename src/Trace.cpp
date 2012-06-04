@@ -15,6 +15,11 @@
 
 using namespace std;
 
+namespace dammIds {
+    namespace trace {
+    }
+} // trace namespace
+    
 const Trace emptyTrace; ///< an empty trace for const references to point to
 
 /**
@@ -78,42 +83,42 @@ unsigned int Trace::FindMaxInfo(unsigned int lo, unsigned int numBins)
     return (itTrace-begin());
 }
 
-void Trace::Plot(int id) const
+void Trace::Plot(int id)
 {
     for (size_type i=0; i < size(); i++) {
 	plot(id, i, 1, at(i));
     }
 }
 
-void Trace::Plot(int id, int row) const
+void Trace::Plot(int id, int row)
 {
     for (size_type i=0; i < size(); i++) {
 	plot(id, i, row, at(i));
     }
 }
 
-void Trace::ScalePlot(int id, double scale) const
+void Trace::ScalePlot(int id, double scale)
 {
     for (size_type i=0; i < size(); i++) {
 	plot(id, i, 1, abs(at(i)) / scale);
     }
 }
 
-void Trace::ScalePlot(int id, int row, double scale) const
+void Trace::ScalePlot(int id, int row, double scale)
 {
     for (size_type i=0; i < size(); i++) {
 	plot(id, i, row, abs(at(i)) / scale);
     }
 }
 
-void Trace::OffsetPlot(int id, double offset) const
+void Trace::OffsetPlot(int id, double offset)
 {
     for (size_type i=0; i < size(); i++) {
 	plot(id, i, 1, max(0., at(i) - offset));
     }
 }
 
-void Trace::OffsetPlot(int id, int row, double offset) const
+void Trace::OffsetPlot(int id, int row, double offset)
 {
     for (size_type i=0; i < size(); i++) {
 	plot(id, i, row, max(0., at(i) - offset));
