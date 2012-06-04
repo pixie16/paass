@@ -3,3 +3,9 @@
 html/
 latex/
 *~
+*.swp
+# Data directories
+HIS
+LDF
+HIS/*
+LDF/*

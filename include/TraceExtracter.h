@@ -26,7 +26,7 @@ class TraceExtracter : public TraceAnalyzer {
     TraceExtracter(const std::string &aType, const std::string &aSubtype);
     ~TraceExtracter();    
     
-    virtual void DeclarePlots(void) const;
+    virtual void DeclarePlots(void);
     virtual void Analyze(Trace &trace, 
 			 const std::string &type, const std::string &subtype);
 };

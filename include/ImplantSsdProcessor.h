@@ -34,7 +34,7 @@ class ImplantSsdProcessor : public EventProcessor
     void Correlate(Correlator &corr, EventInfo &info, int location);
  public:
     ImplantSsdProcessor(); // no virtual c'tors
-    virtual void DeclarePlots(void) const;
+    virtual void DeclarePlots(void);
     virtual bool Process(RawEvent &event);
 };
 

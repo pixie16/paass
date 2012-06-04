@@ -17,17 +17,30 @@
 #include "LogicProcessor.h"
 
 using namespace std;
+using namespace dammIds::logic;
+
+namespace dammIds {
+    namespace logic {
+        const int D_COUNTER_START = 0;
+        const int D_COUNTER_STOP  = 5;
+        const int D_TDIFF_STARTX  = 10;
+        const int D_TDIFF_STOPX   = 20;
+        const int D_TDIFF_SUMX    = 30;
+        const int D_TDIFF_LENGTHX = 50;
+    }
+} // logic namespace
+
 
 LogicProcessor::LogicProcessor(void) : 
-  EventProcessor(), lastStartTime(dammIds::logic::MAX_LOGIC, NAN), lastStopTime(dammIds::logic::MAX_LOGIC, NAN),
-  logicStatus(dammIds::logic::MAX_LOGIC), stopCount(dammIds::logic::MAX_LOGIC), startCount(dammIds::logic::MAX_LOGIC)
+  EventProcessor(OFFSET, RANGE), lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
+  logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC)
 {
     name = "logic";
 
     associatedTypes.insert("logic");
 }
 
-void LogicProcessor::DeclarePlots(void) const
+void LogicProcessor::DeclarePlots(void)
 {
     using namespace dammIds::logic;
     

@@ -23,7 +23,7 @@ class TracePlotter : public TraceAnalyzer {
     TracePlotter();
     ~TracePlotter();    
     
-    virtual void DeclarePlots(void) const;
+    virtual void DeclarePlots(void);
     virtual void Analyze(Trace &trace, 
 			 const std::string &type, const std::string &subtype);
 };

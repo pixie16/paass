@@ -11,7 +11,7 @@
 class MtcProcessor : public EventProcessor {
  public:
     MtcProcessor();
-    virtual void DeclarePlots(void) const;
+    virtual void DeclarePlots(void);
     virtual bool Process(RawEvent &event);
  private:
     double lastStartTime; //< time of last leading edge

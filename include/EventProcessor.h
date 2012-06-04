@@ -10,6 +10,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include "DammPlots.h"
 
 #include <sys/times.h>
 
@@ -40,12 +41,25 @@ class EventProcessor {
     // map of associated detector summary
     std::map<std::string, const DetectorSummary *> sumMap;
 
+    Plots histo;
+
+    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
+        histo.plot(dammId, val1, val2, val3, name);
+    }
+    virtual void DeclareHistogram1D(int dammId, int xSize, const char* title) {
+        histo.DeclareHistogram1D(dammId, xSize, title);
+    }
+    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize, const char* title) {
+        histo.DeclareHistogram2D(dammId, xSize, ySize, title);
+    }
+
  public:
     EventProcessor();
+    EventProcessor(int offset, int range);
     virtual ~EventProcessor();
 
     // declare associated damm plots (called by drrsub_)
-    virtual void DeclarePlots(void) const;
+    virtual void DeclarePlots(void);
     virtual const std::set<std::string>& GetTypes(void) const {
       return associatedTypes; 
     }

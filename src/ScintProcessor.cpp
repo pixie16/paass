@@ -16,14 +16,38 @@
 using namespace std;
 using namespace dammIds::scint;
 
-ScintProcessor::ScintProcessor() : EventProcessor()
+namespace dammIds {
+    namespace scint {
+        namespace neutr {
+            namespace betaGated {
+                const int D_ENERGY_DETX = 0; // for 3 detectors (1-3)
+            }
+            namespace gammaGated {
+                const int D_ENERGY_DETX = 3; // for 3 detectors (1-3)
+            }
+            namespace betaGammaGated {
+                const int D_ENERGY_DETX = 6; // for 3 detectors (1-3)
+            }
+        } // neutr namespace
+        const int DD_TQDCBETA         = 9;
+        const int DD_MAXBETA          = 10;
+        const int DD_TQDCLIQUID       = 11;
+        const int DD_MAXLIQUID        = 12;
+        const int D_DISCRIM           = 13;
+        const int DD_NGVSE            = 14;
+        const int DD_TOFLIQUID        = 15;
+        const int DD_TRCLIQUID        = 16;
+    }
+} 
+
+ScintProcessor::ScintProcessor() : EventProcessor(OFFSET, RANGE)
 {
     name = "scint";
     //? change to associated type "scint:neutr"
     associatedTypes.insert("scint"); // associate with the scint type
 }
 
-void ScintProcessor::DeclarePlots(void) const
+void ScintProcessor::DeclarePlots(void)
 {
     {
 	using namespace neutr::betaGated;
@@ -46,11 +70,11 @@ void ScintProcessor::DeclarePlots(void) const
     }
 
 //for the beta detectors from LeRIBSS
-    DeclareHistogram2D(DD_TQDCBETA, SC, S3, "Start vs. Trace QDC", 1, SE, 0, SE-1, S3, 0, S3-1);
+    histo.DeclareHistogram2D(DD_TQDCBETA, SC, S3, "Start vs. Trace QDC", 1, SE, 0, SE-1, S3, 0, S3-1);
     DeclareHistogram2D(DD_MAXBETA, SC, S3, "Start vs. Maximum");
 
     //To handle Liquid Scintillators
-    DeclareHistogram2D(DD_TQDCLIQUID, SC, S3, "Liquid vs. Trace QDC", 1, SE, 0, SE-1, S3, 0, S3-1);
+    histo.DeclareHistogram2D(DD_TQDCLIQUID, SC, S3, "Liquid vs. Trace QDC", 1, SE, 0, SE-1, S3, 0, S3-1);
     DeclareHistogram2D(DD_MAXLIQUID, SC, S3, "Liquid vs. Maximum");
     DeclareHistogram1D(D_DISCRIM, SD, "N-Gamma Discrimination");
     // DeclareHistogram2D(DD_NGVSE, SE, SE,"N-G Discrim vs Energy");
