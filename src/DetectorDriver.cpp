@@ -48,7 +48,7 @@
 #include "damm_plotids.h"
 
 #include "DssdProcessor.h"
-#include "GeProcessor.h"
+#include "GeProcessor.hpp"
 #include "ImplantSsdProcessor.h"
 #include "IonChamberProcessor.h"
 #include "McpProcessor.h"

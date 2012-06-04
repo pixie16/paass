@@ -18,7 +18,7 @@
 #include <utility>
 #include <vector>
 
-#include "DammPlots.h"
+#include "Plots.hpp"
 #include "param.h"
 
 // forward declarations
@@ -64,7 +64,7 @@ class DetectorDriver {
 
     Plots histo;
     virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
-        histo.plot(dammId, val1, val2, val3, name);
+        histo.Plot(dammId, val1, val2, val3, name);
     }
     
     int ProcessEvent(const string &);

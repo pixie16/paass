@@ -1,23 +1,22 @@
-/*! \file GeProcessor.h
+/*! \file GeProcessor.hpp
  *
  * Processor for germanium detectors
  */
 
-#ifndef __GEPROCESSOR_H_
-#define __GEPROCESSOR_H_
+#ifndef __GEPROCESSOR_HPP_
+#define __GEPROCESSOR_HPP_
 
 #include <map>
 #include <vector>
 
 #include "EventProcessor.h"
 #include "RawEvent.h"
-#include "PlotsRegister.h"
-#include "DammPlots.h"
 
-class GeProcessor : public EventProcessor {
+class GeProcessor : public EventProcessor
+{
 private:
     static const unsigned int chansPerClover = 4; /*!< number of channels per clover */
-
+    
     std::map<int, int> leafToClover;   /*!< Translate a leaf location to a clover number */
     std::vector<float> timeResolution; /*!< Contatin time resolutions used */
     unsigned int numClovers;           /*!< number of clovers in map */
@@ -52,4 +51,4 @@ class CloverEvent : public EventContainer
     virtual void clear(void);
 };
 
-#endif // __GEPROCESSOR_H_
+#endif // __GEPROCESSOR_HPP_

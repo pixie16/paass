@@ -113,7 +113,7 @@ SCANORUXO        = scanorux.$(ObjSuf)
 # objects from cpp
 PIXIEO           = PixieStd.$(ObjSuf)
 PLOTSREGISTERO   = PlotsRegister.$(ObjSuf)
-DAMMPLOTSO       = DammPlots.$(ObjSuf)
+PLOTSO           = Plots.$(ObjSuf)
 ACCUMULATORO     = StatsAccumulator.$(ObjSuf)
 HISTOGRAMMERO    = DeclareHistogram.$(ObjSuf)
 EVENTPROCESSORO  = EventProcessor.$(ObjSuf)
@@ -165,7 +165,7 @@ endif
 
 #----- list of objects
 OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \
-		 $(PLOTSREGISTERO) $(DAMMPLOTSO) \
+	$(PLOTSREGISTERO) $(PLOTSO) \
 	$(MTCPROCESSORO) $(MCPPROCESSORO) $(LOGICPROCESSORO) $(CORRELATORO) $(TRACESUBO) \
 	$(TRACEO) $(TRACEPLOTO) $(TRACEFILTERO) $(DOUBLETRACEO) \
 	$(MESSLOGO) $(MILDATIMO) $(SCANORUXO) $(ACCUMULATORO) $(PIXIEO) \
