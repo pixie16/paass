@@ -18,15 +18,16 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "PlotsRegister.h"
-#include "DammPlots.h"
+
+#include "Plots.hpp"
+#include "PlotsRegister.hpp"
 #include "damm_plotids.h"
 
 #include "AliasedPair.hpp"
 #include "Correlator.h"
 #include "DetectorDriver.h"
 #include "DetectorLibrary.hpp"
-#include "GeProcessor.h"
+#include "GeProcessor.hpp"
 #include "RawEvent.h"
 
 using namespace std;
