@@ -244,8 +244,6 @@ void DetectorDriver::DeclarePlots(void)
     DetectorLibrary::size_type maxChan = (theMapFile ? modChan.size() : 192);
 
     for (DetectorLibrary::size_type i = 0; i < maxChan; i++) {	 
-        cout << "i = " << i << endl;
-
         if (theMapFile && !modChan.HasValue(i)) {
             continue;
         }

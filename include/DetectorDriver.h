@@ -52,7 +52,6 @@ class DetectorDriver {
     pair<double, time_t> pixieToWallClock; /**< rough estimate of pixie to wall clock */ 
 
 
-    Plots histo;
     virtual void DeclareHistogram1D(int dammId, int xSize, const char* title) {
         histo.DeclareHistogram1D(dammId, xSize, title);
     }
@@ -63,6 +62,7 @@ class DetectorDriver {
  public:    
     vector<Calibration> cal;    /**<the calibration vector*/ 
 
+    Plots histo;
     virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
         histo.plot(dammId, val1, val2, val3, name);
     }
