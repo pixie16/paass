@@ -47,7 +47,7 @@ bool Plots::CheckRange(int id) const
  */
 bool Plots::Exists(int id) const
 {
-    return (idList.count(id) == 0);
+    return (idList.count(id) != 0);
 }
 
 bool Plots::Exists(const string &mne) const
@@ -56,10 +56,7 @@ bool Plots::Exists(const string &mne) const
     if (mne.size() == 0)
 	return false;
     
-    if (mneList.count(mne) == 0)
-	return false;
-    else
-	return true;    
+    return (mneList.count(mne) != 0);
 }
 
 /** Constructors based on DeclareHistogram functions. */
