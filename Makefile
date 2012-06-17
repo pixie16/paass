@@ -17,6 +17,13 @@ REVISIOND = 1
 # Libs in HHIRF DIR
 # LIBS_IN_HHIRF = 1
 
+#These will set the analysis used on the waveforms
+#Uncomment this line to use the Pulse Fitting routine
+PULSEFIT = 1
+#Uncomment this line to use the cfd
+#DCFD = 1
+
+
 #------- instruct make to search through these
 #------- directories to find files
 vpath %.f scan/ 
@@ -90,6 +97,8 @@ LDLIBS   += -lm -lstdc++
 ifdef PULSEFIT
 LDLIBS   += -lgsl -lgslcblas
 CXXFLAGS += -Dpulsefit
+else ifdef DCFD
+CXXFLAGS += -Ddcfd
 endif
 
 ifeq ($(FC),gfortran)
@@ -134,8 +143,6 @@ TAUANALYZERO     = TauAnalyzer.$(ObjSuf)
 IONCHAMBERPROCESSORO = IonChamberProcessor.$(ObjSuf)
 ISSDPROCESSORO   = ImplantSsdProcessor.$(ObjSuf)
 STATSDATAO       = StatsData.$(ObjSuf)
-PULSERPROCESSORO = PulserProcessor.$(ObjSuf)
-VANDLEPROCESSORO = VandleProcessor.$(ObjSuf)
 TRACEO		 = Trace.$(ObjSuf)
 TRACEEXTRACTERO  = TraceExtracter.$(ObjSuf)
 TRACESUBO        = TraceAnalyzer.$(ObjSuf)
@@ -146,6 +153,14 @@ WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
 POSITIONPROCESSORO = PositionProcessor.$(ObjSuf)
 MAPFILEO         = MapFile.$(ObjSuf)
 DETECTORLIBRARYO = DetectorLibrary.$(ObjSuf)
+PULSERPROCESSORO = PulserProcessor.$(ObjSuf)
+VANDLEPROCESSORO = VandleProcessor.$(ObjSuf)
+VANDLEROOTO      = VandleROOT.$(ObjSuf)
+TVANDLEPROCESSOR = TeenyVandleProcessor.$(ObjSuf)
+TIMINGINFOO      = TimingInformation.$(ObjSuf)
+WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
+FITTINGANALYZERO = FittingAnalyzer.$(ObjSuf)
+CFDANALYZERO     = CfdAnalyzer.$(ObjSuf)
 
 ifdef USEROOT
 PIXIE = pixie_ldf_c_root$(ExeSuf)
@@ -174,10 +189,18 @@ OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \
 	$(SSDPROCESSORO) $(ISSDPROCESSORO) $(TAUANALYZERO) \
 	$(TRIGGERLOGICPROCESSORO) $(TRACEEXTRACTERO) $(IONCHAMBERPROCESSORO) \
 	$(STATSDATAO) $(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO) \
-	$(POSITIONPROCESSORO) $(MAPFILEO) $(DETECTORLIBRARYO)
+	$(POSITIONPROCESSORO) $(MAPFILEO) $(DETECTORLIBRARYO) \
+	$(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO) \
+	$(TVANDLEPROCESSOR) $(TIMINGINFOO) 
+
+ifdef PULSEFIT
+OBJS += $(FITTINGANALYZERO)
+else ifdef DCFD
+OBJS += $(CFDANALYZERO) 
+endif
 
 ifdef USEROOT
-OBJS  += $(ROOTPROCESSORO)
+OBJS  += $(ROOTPROCESSORO) $(VANDLEROOTO) $(SCINTROOTO)
 endif
 
 PROGRAMS = $(PIXIE)
