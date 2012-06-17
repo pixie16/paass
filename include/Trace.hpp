@@ -18,6 +18,7 @@
 #include "Globals.hpp"
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
+#include "TimingInformation.hpp"
 
 #ifndef NAN
 #include <limits>
@@ -89,11 +90,18 @@ class Trace : public std::vector<int>
 	    return (*intTraceData.find(name)).second;
 	return NAN;
     }
-    double DoBaseline(unsigned int lo = 0, unsigned int numBins = numBinsBaseline);
 
-    //lo must be greater than numBinsBaseline otherwise
-    //it means the trace is inside the baseline. -SVP
-    unsigned int FindMaxInfo(unsigned int lo = numBinsBaseline, unsigned int numBins = numBinsBaseline);
+    //To allow access to the variables related to timing
+    //This is needed in order to calculate the baseline over the 
+    //range that immediately preceedes the trace. -SVP
+    TimingInformation constants;
+    
+    double DoBaseline(unsigned int lo = 0, unsigned int numBins = numBinsBaseline);
+    
+    unsigned int DoDiscrimination(unsigned int lo, unsigned int numBins);
+    unsigned int DoQDC(unsigned int lo, unsigned int numBins);
+    unsigned int FindMaxInfo(unsigned int lo = 10, unsigned int numBins = 15);
+    
     void Plot(int id);           //< plot trace into a 1D histogram
     void Plot(int id, int row);  //< plot trace into row of a 2D histogram
     void ScalePlot(int id, double scale); //< plot trace absolute value and scaled into a 1D histogram
