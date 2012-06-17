@@ -67,18 +67,59 @@ double Trace::DoBaseline(unsigned int lo, unsigned int numBins)
     return stats.GetMean();
 }
 
+unsigned int Trace::DoDiscrimination(unsigned int lo, unsigned int numBins)
+{
+    unsigned int high = lo+numBins;
+
+    if(size() < high)
+	return U_DELIMITER;
+    
+    int discrim = 0, max = GetValue("maxpos");
+    double baseline = GetValue("baseline");
+
+    for(unsigned int i = max+lo; i <= max+high; i++)
+	discrim += at(i)-baseline;
+    
+    InsertValue("discrim", discrim);
+    
+    return(discrim);
+}
+
+unsigned int Trace::DoQDC(unsigned int lo, unsigned int numBins) 
+{
+    unsigned int high = lo+numBins;
+
+    if(size() < high)
+	return U_DELIMITER;
+
+    double baseline = GetValue("baseline");
+    double qdc = 0;
+
+    for(unsigned int i = lo; i < high; i++)
+	qdc += at(i)-baseline;
+
+    InsertValue("tqdc", qdc);
+
+    return(qdc);
+}
+
 unsigned int Trace::FindMaxInfo(unsigned int lo, unsigned int numBins)
 {
-    if(size() < lo + numBins) {
-	return U_DELIMITER;
-    }
-
-    unsigned int hi = lo + numBins;
-    Trace::const_iterator itTrace = max_element(begin() + lo, end() - hi);
+    lo = constants.GetConstant("waveformLow");
+    unsigned int hi = constants.GetConstant("waveformHigh");
+    numBins = lo + hi;
     
-    // !These are getting set to the doubleTraceData map, not sure why - SVP
+    if(size() < lo + numBins)
+       return U_DELIMITER;
+    
+    Trace::const_iterator itTrace = max_element(begin()+lo, end()-lo);
+    
+    int maxPos = int(itTrace-begin());
+
+    DoBaseline(0,maxPos-constants.GetConstant("waveformLow"));
+
     InsertValue("maxpos", int(itTrace-begin()));
-    InsertValue("maxval", int(*itTrace));
+    InsertValue("maxval", int(*itTrace)-GetValue("baseline"));
 
     return (itTrace-begin());
 }

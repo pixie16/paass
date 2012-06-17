@@ -1,16 +1,11 @@
 /*****************************************
 Source File for the PulserProcessor
-   S.V.P. 10 July 2009
+   S.V. Paulauskas 10 July 2009
 ********************************************/
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
 #include <fstream>
 #include <iostream>
-#include <numeric>
-#include <string>
-#include <unistd.h> //not standard c/c++, makes compliant with UNIX standards
-#include <vector>
+
+#include <cmath>
 
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
@@ -18,28 +13,33 @@ Source File for the PulserProcessor
 #include "RawEvent.hpp"
 
 extern "C" void count1cc_(const int &, const int &, const int &);
-extern "C" void set2cc_(const int &, const int &, const int &, const int &);
-
-using namespace std;
-using namespace dammIds::pulserprocessor;
+extern "C" void set2cc_(const int &, const int &, const int &, 
+			const int &);
 
 namespace dammIds {
-    namespace pulserprocessor{
-        const int D_TIMEDIFF     = 0;
-        const int D_PROBLEMSTUFF = 1;
+   const int D_TIMEDIFF     = 4600; 
+   const int D_PROBLEMSTUFF = 4601; 
+   
+   const int DD_QDC         = 4602; 
+   const int DD_MAX         = 4603; 
+   const int DD_PVSP        = 4604; 
+   const int DD_MAXVSTDIFF  = 4605; 
+   const int DD_QDCVSMAX    = 4606; 
+   const int DD_AMPMAPSTART = 4607; 
+   const int DD_AMPMAPSTOP  = 4608; 
+   const int D_SNRSTART     = 4609; 
+   const int D_SNRSTOP      = 4610; 
+   const int D_SDEVBASESTART= 4611; 
+   const int D_SDEVBASESTOP = 4612; 
+   const int DD_PROBLEMS    = 4613; 
+   const int DD_MAXSVSTDIFF = 4614; 
+}
 
-        const int DD_QDC         = 2;
-        const int DD_MAX         = 3;
-        const int DD_PVSP        = 4;
-        const int DD_MAXVSTDIFF  = 5;
-        const int DD_QDCVSMAX    = 6;
-        const int DD_AMPMAPSTART = 7;
-        const int DD_AMPMAPSTOP  = 8;
-    }
-} 
 
+using namespace std;
+using namespace dammIds;
 
-PulserProcessor::PulserProcessor(): EventProcessor(OFFSET, RANGE)
+PulserProcessor::PulserProcessor(): EventProcessor()
 {
     name = "Pulser";
     associatedTypes.insert("pulser"); //associate with pulser
@@ -53,15 +53,24 @@ void PulserProcessor::DeclarePlots(void)
     DeclareHistogram2D(DD_QDC, SE, S1,"QDC");
     DeclareHistogram2D(DD_MAX, SC, S1, "Max");
     DeclareHistogram2D(DD_PVSP, S9, S9,"Phase vs. Phase");
-    DeclareHistogram2D(DD_MAXVSTDIFF, SA, SC, "Max vs. Time Diff");
+    DeclareHistogram2D(DD_MAXVSTDIFF, SA, SC, 
+		       "Max vs. Time Diff");
     DeclareHistogram2D(DD_QDCVSMAX, SC, SE,"QDC vs Max");
-    DeclareHistogram2D(DD_AMPMAPSTART, S7, SC,"Amp Map Start");
-    DeclareHistogram2D(DD_AMPMAPSTOP, S7, SC,"Amp Map Stop");
+    //DeclareHistogram2D(DD_AMPMAPSTART, S7, SC,"Amp Map Start");
+    //DeclareHistogram2D(DD_AMPMAPSTOP, S7, SC,"Amp Map Stop");
+
+    DeclareHistogram1D(D_SNRSTART, SE, "SNR - Start");
+    DeclareHistogram1D(D_SNRSTOP, SE, "SNR - Stop");
+
+    DeclareHistogram1D(D_SDEVBASESTART, S8, "Sdev Base - Start");
+    DeclareHistogram1D(D_SDEVBASESTOP, S8, "Sdev Base - Stop");
+
+    DeclareHistogram2D(DD_PROBLEMS, SB, S5, "Problems - 2D");
 }
 
 bool PulserProcessor::Process(RawEvent &event) 
 {
-    if (!EventProcessor::Process(event)) //ensure that there is an event and starts the process timing
+    if (!EventProcessor::Process(event))
 	return false;
 
     plot(D_PROBLEMSTUFF, 30);
@@ -80,92 +89,79 @@ bool PulserProcessor::RetrieveData(RawEvent &event)
 {   
     pulserMap.clear();
 
-    static const DetectorSummary* pulserSummary = event.GetSummary("pulser");
+    static const vector<ChanEvent*> & pulserEvents = 
+	event.GetSummary("pulser")->GetList();
 
-    if(pulserSummary)
-	for(vector<ChanEvent*>::const_iterator itPulser = pulserSummary->GetList().begin();
-	    itPulser != pulserSummary->GetList().end(); itPulser++)
-	{
-	    ChanEvent *chan = *itPulser;
-	    
-	    string detSubtype = chan->GetChanID().GetSubtype();
-	    pulserMap.insert(make_pair(detSubtype, PulserData(chan)));
-	}
+    for(vector<ChanEvent*>::const_iterator itPulser = pulserEvents.begin();
+	itPulser != pulserEvents.end(); itPulser++) {
+	
+	unsigned int location = (*itPulser)->GetChanID().GetLocation();
+	string subType = (*itPulser)->GetChanID().GetSubtype();
+
+	IdentKey pulserKey(location, subType);
+	pulserMap.insert(make_pair(pulserKey, TimingData(*itPulser)));
+    }
     
-    if(pulserMap.empty() || pulserMap.size()%2 != 0)
-    {
+    if(pulserMap.empty() || pulserMap.size()%2 != 0) {
 	plot(D_PROBLEMSTUFF, 27);
 	return(false);
-    }
-    else
+    } else {
 	return(true);
+    }
 }//bool PulserProcessor::RetrieveData
 
 void PulserProcessor::AnalyzeData(void)
 {
-    map<string, PulserData>::iterator itStart = pulserMap.find("start");
-    map<string, PulserData>::iterator itStop  = pulserMap.find("stop");
+    IdentKey startKey(0,"start");
+    IdentKey stopKey (1,"stop");
 
-    // unused for now
-    // int maxPosStart = (*itStart).second.maxPos;
+    TimingDataMap::iterator itStart = pulserMap.find(startKey);
+    TimingDataMap::iterator itStop  = pulserMap.find(stopKey);
+    
+    unsigned int maxPosStart = (unsigned int)(*itStart).second.maxpos;
+    unsigned int maxPosStop = (unsigned int)(*itStop).second.maxpos;
 
-    if((*itStart).second.maxPos ==41)
-	//if(((*itStart).second.trace.at(maxPosStart+1) > 1466) && ((*itStart).second.trace.at(maxPosStart+1) < 1506))
-	for(Trace::iterator i = (*itStart).second.trace.begin(); i != (*itStart).second.trace.end(); i++)
-	    plot(DD_AMPMAPSTART, int(i-(*itStart).second.trace.begin()), *i);
+    unsigned int cutVal = 15;
+    if((*itStart).second.maxpos == 41)
+    if((*itStart).second.maxval < 2384-cutVal)
+	for(Trace::const_iterator it = (*itStart).second.trace.begin(); 
+	    it != (*itStart).second.trace.end(); it++)
+	    plot(DD_AMPMAPSTART, int(it-(*itStart).second.trace.begin()), *it);
     
-    if((*itStart).second.maxPos ==42)
-	//if(((*itStart).second.trace.at(maxPosStart+1) > 1466) && ((*itStart).second.trace.at(maxPosStart+1) < 1506))
-	for(Trace::iterator i = (*itStart).second.trace.begin(); i != (*itStart).second.trace.end(); i++)
-	    plot(DD_AMPMAPSTOP, int(i-(*itStart).second.trace.begin()), *i);
+    if((*itStop).second.maxval < 2555-cutVal)
+	for(Trace::const_iterator it = (*itStart).second.trace.begin(); 
+	    it != (*itStart).second.trace.end(); it++)
+	    plot(DD_AMPMAPSTOP, int(it-(*itStart).second.trace.begin()), *it);
     
-    double timeDiff = (*itStop).second.highResTime - (*itStart).second.highResTime;
-        
-    //Create the histograms
-    if(GoodDataCheck((*itStart).second) && (GoodDataCheck((*itStop).second)))
-    {
-	plot(D_TIMEDIFF, timeDiff*500+500);
+    double timeDiff = 
+	(*itStop).second.highResTime - (*itStart).second.highResTime;
+
+    //Fill histograms
+    if((*itStart).second.dataValid && 
+       (*itStop).second.dataValid){
 	
-	plot(DD_QDC, (*itStart).second.trcQDC, (*itStart).second.location);
-	plot(DD_MAX, (*itStart).second.maxValue, (*itStart).second.location);
-	
-	plot(DD_QDC, (*itStop).second.trcQDC, (*itStop).second.location);
-	plot(DD_MAX, (*itStop).second.maxValue, (*itStop).second.location);
-	
-	plot(DD_PVSP, (*itStart).second.phase*100-4000, (*itStop).second.phase*100-4000);
-	plot(DD_MAXVSTDIFF, timeDiff*500+500, (*itStart).second.maxValue);
-	plot(DD_QDCVSMAX, (*itStart).second.maxValue, (*itStart).second.trcQDC);
+	double timeRes = 10; //100 ps/bin
+	double timeOff = 100; 
+
+	plot(D_TIMEDIFF, timeDiff*timeRes + timeOff);
+	plot(DD_QDC, (*itStart).second.tqdc, 
+	     (*itStart).first.first);
+	plot(DD_MAX, (*itStart).second.maxval, 
+	     (*itStart).first.first);
+	plot(DD_QDC, (*itStop).second.tqdc, 
+	     (*itStop).first.first);
+	plot(DD_MAX, (*itStop).second.maxval, 
+	     (*itStop).first.first);
+	plot(DD_PVSP, (*itStart).second.phase*timeRes-4000, 
+	     (*itStop).second.phase*timeRes-4000);
+	plot(DD_MAXVSTDIFF, timeDiff*timeRes+timeOff, 
+	     (*itStart).second.maxval);
+	plot(DD_QDCVSMAX, (*itStart).second.maxval, 
+	     (*itStart).second.tqdc);
+
+	plot(D_SNRSTART, (*itStart).second.signalToNoise*0.25);
+	plot(D_SNRSTOP, (*itStop).second.signalToNoise*0.25);
+	plot(D_SDEVBASESTART, (*itStart).second.stdDevBaseline*timeRes+timeOff);
+	plot(D_SDEVBASESTOP, (*itStop).second.stdDevBaseline*timeRes+timeOff);
     }
 } // void PulserProcessor::AnalyzeData
-
-bool PulserProcessor::GoodDataCheck(const PulserData& DataCheck)
-{
-    if((DataCheck.maxValue != -9999) && (DataCheck.phase !=-9999) && (DataCheck.trcQDC !=-9999) && (DataCheck.highResTime != -9999))
-	return(true);
-    else
-	return(false);
-}
-
-PulserProcessor::PulserData::PulserData(string type)
-{
-    location       = -9999;
-    maxValue       = -9999;
-    phase          = -9999;
-    trcQDC         = -9999;
-    stdDevBaseline = -9999;
-    aveBaseline    = -9999;
-    highResTime    = -9999;
-    maxPos         = -9999;
-}
-
-PulserProcessor::PulserData::PulserData(ChanEvent* chan)
-{
-    location       = chan->GetChanID().GetLocation();
-    trcQDC         = trace.GetValue("tqdc");
-    maxValue       = trace.GetValue("maxval");
-    maxPos         = trace.GetValue("maxpos");
-    phase          = trace.GetValue("phase");
-    stdDevBaseline = trace.GetValue("sigmaBaseline");
-    aveBaseline    = trace.GetValue("baseline");
-    highResTime    = chan->GetHighResTime();
-}

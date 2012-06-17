@@ -44,6 +44,7 @@
 #include "MapFile.hpp"
 #include "RandomPool.hpp"
 #include "RawEvent.hpp"
+#include "TimingInformation.hpp"
 
 #include "DammPlotIds.hpp"
 
@@ -53,15 +54,18 @@
 #include "IonChamberProcessor.hpp"
 #include "McpProcessor.hpp"
 #include "MtcProcessor.hpp"
+#include "PositionProcessor.hpp"
+#include "PulserProcessor.hpp"
 #include "ScintProcessor.hpp"
+#include "SsdProcessor.hpp"
+#include "TeenyVandleProcessor.hpp"
 #include "TraceFilterer.hpp"
 #include "TriggerLogicProcessor.hpp"
 #include "VandleProcessor.hpp"
-#include "PulserProcessor.hpp"
-#include "SsdProcessor.hpp"
-#include "PositionProcessor.hpp"
 
+#include "CfdAnalyzer.hpp"
 #include "DoubleTraceAnalyzer.hpp"
+#include "FittingAnalyzer.hpp"
 #include "TauAnalyzer.hpp"
 #include "TraceAnalyzer.hpp"
 #include "TraceExtracter.hpp"
@@ -69,6 +73,8 @@
 
 #ifdef useroot
 #include "RootProcessor.hpp"
+#include "ScintRoot.hpp"
+#include "VandleRoot.hpp"
 #endif
 
 using namespace std;
@@ -98,6 +104,17 @@ DetectorDriver::DetectorDriver() :
     vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
     vecAnalyzer.push_back(new TauAnalyzer());
     // vecAnalyzer.push_back(new DoubleTraceAnalyzer());
+    vecAnalyzer.push_back(new WaveformAnalyzer());
+#ifdef pulsefit
+    vecAnalyzer.push_back(new FittingAnalyzer());
+#elif dcfd
+    vecAnalyzer.push_back(new CfdAnalyzer());
+#else
+    cout << endl << endl 
+	 << "You must specify a Waveform Analysis type!!" 
+	 << endl << endl;
+    exit(EXIT_FAILURE);
+#endif
 
     vecProcess.push_back(new PositionProcessor()); // order is important
     // vecProcess.push_back(new TriggerLogicProcessor());
@@ -105,9 +122,13 @@ DetectorDriver::DetectorDriver() :
     // vecProcess.push_back(new GeProcessor()); // order is important
 
     // vecProcess.push_back(new SsdProcessor());
-#ifdef useroot 
-    // and finally the root processor
+#ifdef useroot
+    vecProcess.push_back(new ScintROOT());
+    vecProcess.push_back(new VandleROOT());
     vecProcess.push_back(new RootProcessor("tree.root", "tree"));
+#else
+    vecProcess.push_back(new ScintProcessor());
+    vecProcess.push_back(new VandleProcessor());
 #endif
 }
 
@@ -166,6 +187,10 @@ int DetectorDriver::Init(void)
     */
     //cout << "read in the calibration parameters" << endl;
     ReadCal();
+
+    TimingInformation readFiles;
+    readFiles.ReadTimingConstants();
+    readFiles.ReadTimingCalibration();
 
     rawev.GetCorrelator().Init();
 
