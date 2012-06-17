@@ -100,10 +100,9 @@ using namespace dammIds::raw;
 DetectorDriver::DetectorDriver() : 
     histo(OFFSET, RANGE, PlotsRegister::R() ) 
 {
-    vecAnalyzer.push_back(new DoubleTraceAnalyzer());
-    vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
-    vecAnalyzer.push_back(new TauAnalyzer());
-    // vecAnalyzer.push_back(new DoubleTraceAnalyzer());
+    //vecAnalyzer.push_back(new DoubleTraceAnalyzer());
+    //vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
+    //vecAnalyzer.push_back(new TauAnalyzer());
     vecAnalyzer.push_back(new WaveformAnalyzer());
 #ifdef pulsefit
     vecAnalyzer.push_back(new FittingAnalyzer());
@@ -116,9 +115,9 @@ DetectorDriver::DetectorDriver() :
     exit(EXIT_FAILURE);
 #endif
 
-    vecProcess.push_back(new PositionProcessor()); // order is important
+    //vecProcess.push_back(new PositionProcessor()); // order is important
     // vecProcess.push_back(new TriggerLogicProcessor());
-    vecProcess.push_back(new SsdProcessor());
+    //vecProcess.push_back(new SsdProcessor());
     // vecProcess.push_back(new GeProcessor()); // order is important
 
     // vecProcess.push_back(new SsdProcessor());

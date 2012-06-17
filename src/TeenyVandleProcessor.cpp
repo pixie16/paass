@@ -12,33 +12,31 @@ Source File for the TeenyVandleProcessor
 #include "TeenyVandleProcessor.hpp"
 #include "RawEvent.hpp"
 
-extern "C" void count1cc_(const int &, const int &, const int &);
-extern "C" void set2cc_(const int &, const int &, const int &, 
-			const int &);
-
 namespace dammIds {
-   const int D_TIMEDIFF     = 4650; 
-   const int D_PROBLEMSTUFF = 4651; 
-   
-   const int DD_QDC         = 4652; 
-   const int DD_MAX         = 4653; 
-   const int DD_PVSP        = 4654; 
-   const int DD_MAXVSTDIFF  = 4655; 
-   const int DD_QDCVSMAX    = 4656; 
-   const int DD_AMPMAPSTART = 4657; 
-   const int DD_AMPMAPSTOP  = 4658; 
-   const int D_SNRSTART     = 4659; 
-   const int D_SNRSTOP      = 4660; 
-   const int D_SDEVBASESTART= 4661; 
-   const int D_SDEVBASESTOP = 4662; 
-   const int DD_PROBLEMS    = 4663; 
-   const int DD_MAXSVSTDIFF = 4664; 
+   namespace teenyvandle {
+      const int D_TIMEDIFF     = 0; 
+      const int D_PROBLEMSTUFF = 1; 
+      
+      const int DD_QDC         = 2; 
+      const int DD_MAX         = 3; 
+      const int DD_PVSP        = 4; 
+      const int DD_MAXVSTDIFF  = 5; 
+      const int DD_QDCVSMAX    = 6; 
+      const int DD_AMPMAPSTART = 7; 
+      const int DD_AMPMAPSTOP  = 8; 
+      const int D_SNRSTART     = 9; 
+      const int D_SNRSTOP      = 10; 
+      const int D_SDEVBASESTART= 11; 
+      const int D_SDEVBASESTOP = 12; 
+      const int DD_PROBLEMS    = 13; 
+      const int DD_MAXSVSTDIFF = 14; 
+   }
 }
 
 using namespace std;
-using namespace dammIds;
+using namespace dammIds::teenyvandle;
 
-TeenyVandleProcessor::TeenyVandleProcessor(): EventProcessor()
+TeenyVandleProcessor::TeenyVandleProcessor(): EventProcessor(OFFSET, RANGE)
 {
     name = "TeenyVandle";
     associatedTypes.insert("tvandle"); //associate with tvandle

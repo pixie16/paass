@@ -82,12 +82,12 @@ namespace dammIds {
     } 
 
     //in PulserProcessor.cpp 
-    namespace pulserprocessor{ //Needs no more than 30 -SVP
+    namespace pulser{ //Needs no more than 30 -SVP
         const int OFFSET = 4600;
         const int RANGE = 50;
     } 
 
-    namespace teenyvandleprocessor{ //Same story here. -SVP
+    namespace teenyvandle{ //Same story here. -SVP
        const int OFFSET = 4650;
        const int RANGE  = 50;
     }

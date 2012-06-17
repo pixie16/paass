@@ -18,60 +18,62 @@ namespace dammIds {
    const unsigned int BIG_OFFSET  = 400;
    const unsigned int MISC_OFFSET = 800;
    
-   //Plots used for debugging
-   const int D_PROBLEMS     = 3900;
-   const int DD_PROBLEMS    = 3901;
-   
-   //Plots for the general information about VANDLE
-   const int DD_TQDCBARS         = 3100;
-   const int DD_MAXIMUMBARS      = 3101;
-   const int DD_TIMEDIFFBARS     = 3102;
-   const int DD_TOFBARS          = 3103;
-   const int DD_CORTOFBARS       = 3105;
-   const int D_TOF               = 3106;
-   const int DD_TQDCAVEVSTDIFF   = 3107;
-   
-   //Plots related to the TOF
-   const int DD_TDIFFVSTOF       = 3108;
-   const int DD_MAXRVSTOF        = 3109;
-   const int DD_MAXLVSTOF        = 3110;
-   const int DD_TQDCAVEVSTOF     = 3111;
-   
-   //Plots related to the CorTOF
-   const int DD_TDIFFVSCORTOF     = 3112;
-   const int DD_MAXRVSCORTOF      = 3113;
-   const int DD_MAXLVSCORTOF      = 3114;
-   const int DD_TQDCAVEVSCORTOF   = 3115;
-   const int DD_TQDCAVEVSENERGY   = 3116;
-   
-   //Plots related to correlated times
-   const int DD_CORRELATED_TOF      = 3117;
-   
-   //Plots related to the Start detectors
-   const int DD_MAXSTART0VSTOF   = 3118;
-   const int DD_MAXSTART1VSTOF   = 3119;
-   const int DD_MAXSTART0VSCORTOF = 3120;
-   const int DD_MAXSTART1VSCORTOF = 3121;
-   const int DD_TQDCAVEVSSTARTQDCSUM= 3122;
-   const int DD_TOFVSSTARTQDCSUM    = 3123;
-   
-   //Plots related to the Ge detectors
-   const int DD_GAMMAENERGYVSTOF = 3124;
-   const int DD_TQDCAVEVSTOF_VETO= 3125;
-   const int DD_TOFBARS_VETO  = 3126;
-   
-   //CrossTalk Subroutine
-   const int DD_TOFBARBVSBARA      = 3902;
-   const int DD_GATEDTQDCAVEVSTOF  = 3903;
-   const int D_CROSSTALK           = 3904;
+   namespace vandle {
+      //Plots used for debugging
+      const int D_PROBLEMS     = 0+MISC_OFFSET;
+      const int DD_PROBLEMS    = 1+MISC_OFFSET;
+      
+      //Plots for the general information about VANDLE
+      const int DD_TQDCBARS         = 0;
+      const int DD_MAXIMUMBARS      = 1;
+      const int DD_TIMEDIFFBARS     = 2;
+      const int DD_TOFBARS          = 3;
+      const int DD_CORTOFBARS       = 5;
+      const int D_TOF               = 6;
+      const int DD_TQDCAVEVSTDIFF   = 7;
+      
+      //Plots related to the TOF
+      const int DD_TDIFFVSTOF       = 8;
+      const int DD_MAXRVSTOF        = 9;
+      const int DD_MAXLVSTOF        = 10;
+      const int DD_TQDCAVEVSTOF     = 11;
+      
+      //Plots related to the CorTOF
+      const int DD_TDIFFVSCORTOF     = 12;
+      const int DD_MAXRVSCORTOF      = 13;
+      const int DD_MAXLVSCORTOF      = 14;
+      const int DD_TQDCAVEVSCORTOF   = 15;
+      const int DD_TQDCAVEVSENERGY   = 16;
+      
+      //Plots related to correlated times
+      const int DD_CORRELATED_TOF      = 17;
+      
+      //Plots related to the Start detectors
+      const int DD_MAXSTART0VSTOF   = 18;
+      const int DD_MAXSTART1VSTOF   = 19;
+      const int DD_MAXSTART0VSCORTOF = 20;
+      const int DD_MAXSTART1VSCORTOF = 21;
+      const int DD_TQDCAVEVSSTARTQDCSUM= 22;
+      const int DD_TOFVSSTARTQDCSUM    = 23;
+      
+      //Plots related to the Ge detectors
+      const int DD_GAMMAENERGYVSTOF = 24;
+      const int DD_TQDCAVEVSTOF_VETO= 25;
+      const int DD_TOFBARS_VETO  = 26;
+      
+      //CrossTalk Subroutine
+      const int DD_TOFBARBVSBARA      = 2+MISC_OFFSET;
+      const int DD_GATEDTQDCAVEVSTOF  = 3+MISC_OFFSET;
+      const int D_CROSSTALK           = 4+MISC_OFFSET;
+   }//namespace vandle
 }//namespace dammIds
 
 using namespace std;
-using namespace dammIds;
+using namespace dammIds::vandle;
 
 
 //*********** VandleProcessor **********
-VandleProcessor::VandleProcessor(): EventProcessor()
+VandleProcessor::VandleProcessor(): EventProcessor(OFFSET, RANGE)
 {
     name = "vandle";
     associatedTypes.insert("scint"); 
@@ -225,9 +227,9 @@ void VandleProcessor::DeclarePlots(void)
 //    DeclareHistogram2D(DD_GATEDTQDCAVEVSTOF, SC, SE, "<E> vs. TOF0 (0.5ns/bin) - Gated");
 //    DeclareHistogram2D(DD_TOFBARBVSBARA, SC, SC, "TOF Bar1 vs. Bar2");
 
-    DeclareHistogram2D(3950, S8, S8, "tdiffA vs. tdiffB");
-    DeclareHistogram1D(3951, SE, "Muons");
-    DeclareHistogram2D(3952, S8, S8, "tdiffA vs. tdiffB");
+    //DeclareHistogram2D(, S8, S8, "tdiffA vs. tdiffB");
+    //DeclareHistogram1D(, SE, "Muons");
+    //DeclareHistogram2D(, S8, S8, "tdiffA vs. tdiffB");
 }// Declare Plots
 
 
@@ -360,7 +362,7 @@ void VandleProcessor::AnalyzeData(void)
 { 
     for (BarMap::iterator itBar = barMap.begin(); 
 	 itBar !=  barMap.end(); itBar++) {
-	if(!(*itBar).second.barEvent)
+	if(!(*itBar).second.event)
 	    continue;
 	
 	unsigned int barLoc = (*itBar).first.first;
@@ -401,7 +403,7 @@ void VandleProcessor::AnalyzeData(void)
 	    double TOF = 
 		(*itBar).second.timeAve - (*itStart).second.highResTime - tofOffset; 
 	    double corTOF = 
-		CorrectTOF(TOF, (*itBar).second.corRadius, calibration.z0); 
+		CorrectTOF(TOF, (*itBar).second.flightPath, calibration.z0); 
 	    double energy = 
 		CalcEnergy(corTOF, calibration.z0);
 	    

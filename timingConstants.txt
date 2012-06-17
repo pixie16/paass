@@ -17,16 +17,19 @@
 
 #Values for the WaveformAnalyzer Functions
 #Trace Related Stuff (referenced from max)
-2.0      waveformLow
-12.0     waveformHigh
+5.0      waveformLow
+10.0     waveformHigh
 5.0      startDiscrimination
 6226.55  averageQdcOneVolt
 
 #FittingRoutine
 4.52672 widthLiquid
 1.73376 decayLiquid
-3.9626 widthVandle
-3.2334  decayVandle
+7.44108 widthVandle
+2.23706 decayVandle
+#Original Parameters
+#3.9626 widthVandle
+#3.2334  decayVandle
 3.9626  widthDefault
 3.2334  decayDefault
 
