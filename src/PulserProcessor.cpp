@@ -12,34 +12,32 @@ Source File for the PulserProcessor
 #include "PulserProcessor.hpp"
 #include "RawEvent.hpp"
 
-extern "C" void count1cc_(const int &, const int &, const int &);
-extern "C" void set2cc_(const int &, const int &, const int &, 
-			const int &);
-
 namespace dammIds {
-   const int D_TIMEDIFF     = 4600; 
-   const int D_PROBLEMSTUFF = 4601; 
-   
-   const int DD_QDC         = 4602; 
-   const int DD_MAX         = 4603; 
-   const int DD_PVSP        = 4604; 
-   const int DD_MAXVSTDIFF  = 4605; 
-   const int DD_QDCVSMAX    = 4606; 
-   const int DD_AMPMAPSTART = 4607; 
-   const int DD_AMPMAPSTOP  = 4608; 
-   const int D_SNRSTART     = 4609; 
-   const int D_SNRSTOP      = 4610; 
-   const int D_SDEVBASESTART= 4611; 
-   const int D_SDEVBASESTOP = 4612; 
-   const int DD_PROBLEMS    = 4613; 
-   const int DD_MAXSVSTDIFF = 4614; 
+   namespace pulser {
+      const int D_TIMEDIFF     = 0; 
+      const int D_PROBLEMSTUFF = 1; 
+      
+      const int DD_QDC         = 2; 
+      const int DD_MAX         = 3; 
+      const int DD_PVSP        = 4; 
+      const int DD_MAXVSTDIFF  = 5; 
+      const int DD_QDCVSMAX    = 6; 
+      const int DD_AMPMAPSTART = 7; 
+      const int DD_AMPMAPSTOP  = 8; 
+      const int D_SNRSTART     = 9; 
+      const int D_SNRSTOP      = 10; 
+      const int D_SDEVBASESTART= 11; 
+      const int D_SDEVBASESTOP = 12; 
+      const int DD_PROBLEMS    = 13; 
+      const int DD_MAXSVSTDIFF = 14; 
+   }
 }
 
 
 using namespace std;
-using namespace dammIds;
+using namespace dammIds::pulser;
 
-PulserProcessor::PulserProcessor(): EventProcessor()
+PulserProcessor::PulserProcessor(): EventProcessor(OFFSET, RANGE)
 {
     name = "Pulser";
     associatedTypes.insert("pulser"); //associate with pulser

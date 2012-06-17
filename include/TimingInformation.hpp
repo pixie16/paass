@@ -78,15 +78,17 @@ class TimingInformation
 		const TimingCal &cal, const std::string &type);
 	bool BarEventCheck(const double &timeDiff, 
 			   const std::string &type);
-	double BendBar(double &timeDiff, const TimingCal &cal, 
-		       const std::string &type);
+        double CalcFlightPath(double &timeDiff, const TimingCal &cal, 
+			      const std::string &type);
 	
-	bool   barEvent;
+        bool event;
 	
-	double corRadius;
+	double flightPath;
 	double lMaxVal;
 	double qdc;
+	double qdcPos;
 	double rMaxVal;
+	double theta;
 	double timeAve;
 	double timeDiff;
 	double walkCorTimeDiff;

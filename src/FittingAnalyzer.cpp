@@ -31,14 +31,16 @@ int FitFunctionDerivative(const gsl_vector *x, void *FitData,
 			  gsl_vector *f, gsl_matrix *J);
 
 namespace dammIds {
-   const int DD_TRACES     = 4000;
-   const int D_CHISQPERDOF = 4001;
-   const int D_PHASE       = 4002;
-   const int DD_AMP        = 4003;
+   namespace waveformanalyzer {
+      const int DD_TRACES     = 0;
+      const int D_CHISQPERDOF = 1;
+      const int D_PHASE       = 2;
+      const int DD_AMP        = 3;
+   }
 }
 
 using namespace std;
-using namespace dammIds;
+using namespace dammIds::waveformanalyzer;
 
 //********** FittingAnalyzer **********
 FittingAnalyzer::FittingAnalyzer() : TraceAnalyzer()
