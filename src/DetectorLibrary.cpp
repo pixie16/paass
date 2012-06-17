@@ -208,11 +208,11 @@ void DetectorLibrary::PrintUsedDetectors(void) const
 */
 const set<string>& DetectorLibrary::GetKnownDetectors(void)
 {
-    const unsigned int detTypes = 17;
+    const unsigned int detTypes = 19;
     const string detectorStrings[detTypes] = {
 	"dssd_front", "dssd_back", "idssd_front", "position", "timeclass",
-	"ge", "si", "scint", "mcp", "mtc", "generic", "ssd", "vandle",
-	"pulser", "logic", "ion_chamber", "ignore"};
+	"ge", "si", "scint", "mcp", "mtc", "generic", "ssd", "vandleSmall",
+	"vandleBig", "tvandle","pulser", "logic", "ion_chamber", "ignore"};
   
     // only call this once
     if (!knownDetectors.empty())
