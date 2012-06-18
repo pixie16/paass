@@ -43,11 +43,13 @@ namespace dammIds {
         const int OFFSET = 2500;
         const int RANGE = 500;
     } 
+
     namespace logic {
         const int OFFSET = 3000;
         const int RANGE = 80;
         const int MAX_LOGIC = 10; /*< maximum number of logic signals */
     }
+
     namespace triggerlogic {
         const int OFFSET = 3080;
         const int RANGE = 20;
@@ -137,7 +139,6 @@ namespace dammIds {
         // 1D-traces from the extracter
         const int D_TRACE = 50;
     } 
-        
 }
 
 const int S1 = 2, S2 = 4, S3 = 8, S4 = 16, S5 = 32, S6 = 64, S7 = 128,

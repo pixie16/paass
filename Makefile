@@ -19,7 +19,7 @@ REVISIOND = 1
 
 #These will set the analysis used on the waveforms
 #Uncomment this line to use the Pulse Fitting routine
-PULSEFIT = 1
+#PULSEFIT = 1
 #Uncomment this line to use the cfd
 #DCFD = 1
 
