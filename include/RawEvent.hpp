@@ -51,8 +51,8 @@ public:
     int GetLocation() const               {return location;} /**< Get the detector location */
     
     void AddTag(const std::string &s, TagValue n) {tag[s] = n;} /**< Insert a tag */
-    bool HasTag(const std::string &s) const {return tag.count(s);} /**< True if the tag s has been inserted */
-    TagValue GetTag(const std::string &s) {return tag[s];} /**< Return the value of a tag */
+    bool HasTag(const std::string &s) const {return (tag.count(s) > 0);} /**< True if the tag s has been inserted */
+    TagValue GetTag(const std::string &s) const; 
 
     Identifier();
     void Zero();
