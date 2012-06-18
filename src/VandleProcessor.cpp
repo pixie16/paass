@@ -280,7 +280,7 @@ bool VandleProcessor::RetrieveData(RawEvent &event)
 		       liquidStarts.begin(), liquidStarts.end());
 
     if(smallEvents.empty() && bigEvents.empty() ) {
-	plot(D_PROBLEMS, 27); //DEBUGGING
+        plot(D_PROBLEMS, 27); //DEBUGGING
 	return(false);
     }
     

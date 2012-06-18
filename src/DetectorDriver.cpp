@@ -103,22 +103,19 @@ DetectorDriver::DetectorDriver() :
     //vecAnalyzer.push_back(new DoubleTraceAnalyzer());
     //vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
     //vecAnalyzer.push_back(new TauAnalyzer());
+#if defined(pulsefit) || defined(dcfd)
     vecAnalyzer.push_back(new WaveformAnalyzer());
+#endif
 #ifdef pulsefit
     vecAnalyzer.push_back(new FittingAnalyzer());
 #elif dcfd
     vecAnalyzer.push_back(new CfdAnalyzer());
-#else
-    cout << endl << endl 
-	 << "You must specify a Waveform Analysis type!!" 
-	 << endl << endl;
-    exit(EXIT_FAILURE);
 #endif
 
     //vecProcess.push_back(new PositionProcessor()); // order is important
-    // vecProcess.push_back(new TriggerLogicProcessor());
+    //vecProcess.push_back(new TriggerLogicProcessor());
     //vecProcess.push_back(new SsdProcessor());
-    // vecProcess.push_back(new GeProcessor()); // order is important
+    //vecProcess.push_back(new GeProcessor()); // order is important
 
     // vecProcess.push_back(new SsdProcessor());
 #ifdef useroot
@@ -318,6 +315,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
     int id            = chan->GetID();
     string type       = chanId.GetType();
     string subtype    = chanId.GetSubtype();
+    bool hasStartTag  = chanId.HasTag("start");
     Trace &trace      = chan->GetTrace();
 
     double energy = 0.;
@@ -373,9 +371,17 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
       update the detector summary
     */    
     rawev.GetSummary(type)->AddEvent(chan);
-    DetectorSummary *summary = rawev.GetSummary(type + ':' + subtype, false);
+    DetectorSummary *summary;
+    
+    summary = rawev.GetSummary(type + ':' + subtype, false);
     if (summary != NULL)
 	summary->AddEvent(chan);
+
+    if(hasStartTag) {
+        summary = rawev.GetSummary(type + ':' + subtype, false);
+	if (summary != NULL)
+	    summary->AddEvent(chan);
+    }
 
     return 1;
 }
