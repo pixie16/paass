@@ -12,6 +12,20 @@ using namespace std;
 
 const double ChanEvent::pixieEnergyContraction = 2.0;
 
+/** 
+ * Return the value of a tag 
+ */
+
+Identifier::TagValue Identifier::GetTag(const string &s) const
+{
+    map<string, TagValue>::const_iterator it = tag.find(s);
+    
+    if (it == tag.end()) {
+	return TagValue();
+    }
+    return it->second;
+}
+
 /**
  * Identifier constructor
  *
