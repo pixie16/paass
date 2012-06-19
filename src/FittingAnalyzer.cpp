@@ -108,7 +108,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
     struct FittingAnalyzer::FitData data = 
 	{sizeFit, y, sigma, width, decay};
     gsl_multifit_function_fdf f;
-#ifdef REVD
+#if defined(REVD) || defined(REVF)
     double xInit[numParams] = {0, maxVal*10};
 #else
     double xInit[numParams] = {0, maxVal*3};
