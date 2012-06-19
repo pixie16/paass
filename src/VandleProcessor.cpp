@@ -268,9 +268,9 @@ bool VandleProcessor::RetrieveData(RawEvent &event)
     static const vector<ChanEvent*> &bigEvents = 
 	event.GetSummary("vandleBig")->GetList();
     static const vector<ChanEvent*> &betaStarts = 
-	event.GetSummary("scint:beta:start")->GetList();
+	event.GetSummary("scint:beta")->GetList();
     static const vector<ChanEvent*> &liquidStarts = 
-	event.GetSummary("scint:liquid:start")->GetList();
+	event.GetSummary("scint:liquid")->GetList();
 
     //Construct and fill the vector for the startEvents
     vector<ChanEvent*> startEvents;

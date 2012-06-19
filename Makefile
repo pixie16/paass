@@ -6,8 +6,6 @@ SHELL=/bin/sh
 # USEROOT = 1
 # Uncomment this line if processing Rev. D data
 REVISIOND = 1
-# Uncomment this line to use the Pulse Fitting routine
-# PULSEFIT = 1
 # Uncomment this line for a more verbose scan
 # CXXFLAGS += -DVERBOSE
 # Undefine to make a "online" version
@@ -19,7 +17,7 @@ REVISIOND = 1
 
 #These will set the analysis used on the waveforms
 #Uncomment this line to use the Pulse Fitting routine
-#PULSEFIT = 1
+PULSEFIT = 1
 #Uncomment this line to use the cfd
 #DCFD = 1
 

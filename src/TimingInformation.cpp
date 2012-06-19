@@ -57,13 +57,11 @@ TimingInformation::TimingData::TimingData(ChanEvent *chan) : trace(chan->GetTrac
     signalToNoise = pow(maxval/stdDevBaseline,2); 
     walkCorTime   = highResTime - walk;
 
-    cout << aveBaseline << " " << maxval << " " << phase << endl;
-    
     //validate data and set a flag saying it's ok
     // clean up condition at some point
     if((maxval == maxval) && (phase == phase) && 
        (tqdc == tqdc) && (highResTime == highResTime) &&
-	stdDevBaseline == stdDevBaseline)
+       (stdDevBaseline == stdDevBaseline))
 	dataValid = true;
     else
 	dataValid = false;
