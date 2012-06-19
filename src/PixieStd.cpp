@@ -117,10 +117,10 @@ const string scanMode = "scan";
 //  this defines the maximum amount of data that will be received in a spill
 const unsigned int TOTALREAD = 1000000;
 
-#if !defined(REVD) || !defined(REVF)
-const unsigned int maxWords = IO_BUFFER_LENGTH; // Revision A
-#else
+#if defined(REVD) || defined(REVF)
 const unsigned int maxWords = EXTERNAL_FIFO_LENGTH; //Revision D
+#else
+const unsigned int maxWords = IO_BUFFER_LENGTH; // Revision A
 #endif
 
 extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
