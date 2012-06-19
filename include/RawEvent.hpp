@@ -51,8 +51,8 @@ public:
     int GetLocation() const               {return location;} /**< Get the detector location */
     
     void AddTag(const std::string &s, TagValue n) {tag[s] = n;} /**< Insert a tag */
-    bool HasTag(const std::string &s) const {return tag.count(s);} /**< True if the tag has been inserted */
-    TagValue GetTag(const std::string &s) {return tag[s];} /**< Return the value of a tag */
+    bool HasTag(const std::string &s) const {return (tag.count(s) > 0);} /**< True if the tag s has been inserted */
+    TagValue GetTag(const std::string &s) const; 
 
     Identifier();
     void Zero();
@@ -187,7 +187,6 @@ private:
     std::string name;                  /**< name associated with this summary */
     std::string type;                  /**< detector type associated with this summary */
     std::string subtype;               /**< detector subtype associated with this summary */
-    std::string tag;                   /**< detector tag */
     std::vector<ChanEvent*> eventList; /**< list of events associated with this detector group */
     ChanEvent* maxEvent;               /**< event with maximum energy deposition */
 public:
