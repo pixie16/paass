@@ -24,6 +24,9 @@
 	CLASSNAME (const std::pair<TYPE_FIRST,TYPE_SECOND> &pa)	:	\
 	    std::pair<TYPE_FIRST,TYPE_SECOND>(pa), 			\
 	    ALIAS_FIRST(first), ALIAS_SECOND(second) {};		\
+        CLASSNAME (const CLASSNAME &apa) :                              \
+            std::pair<TYPE_FIRST,TYPE_SECOND>(apa.first, apa.second),   \
+            ALIAS_FIRST(first), ALIAS_SECOND(second) {};                \
         CLASSNAME (const TYPE_FIRST &T1, const TYPE_SECOND &T2) :	\
 	    std::pair<TYPE_FIRST,TYPE_SECOND>(T1,T2),			\
 	    ALIAS_FIRST(first), ALIAS_SECOND(second) {};		\
