@@ -19,10 +19,16 @@ namespace pixie {
     typedef uint16_t halfword_t; //< a half pixie word
     typedef uint32_t bufword_t; //< word in a pixie buffer
 
+#ifdef REVF
+    const double clockInSeconds = 8e-9; //< one pixie clock is 10 ns
+    const double adcClockInSeconds = 4e-9; //< one ADC clock is 10 ns
+    const double filterClockInSeconds = 8e-9; //< one filter clock is 10 ns
+#else 
     const double clockInSeconds = 10e-9; //< one pixie clock is 10 ns
     const double adcClockInSeconds = 10e-9; //< one ADC clock is 10 ns
     const double filterClockInSeconds = 10e-9; //< one filter clock is 10 ns
-
+#endif
+   
     const size_t numberOfChannels = 16; //< number of channels in a module
 };
 

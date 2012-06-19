@@ -6,6 +6,8 @@ SHELL=/bin/sh
 # USEROOT = 1
 # Uncomment this line if processing Rev. D data
 REVISIOND = 1
+# Uncomment this line if processing Rev. F data
+#REVISIONF = 1
 # Uncomment this line for a more verbose scan
 # CXXFLAGS += -DVERBOSE
 # Undefine to make a "online" version
@@ -82,6 +84,9 @@ CXXFLAGS += -Wall -fPIC $(CINCLUDEDIRS) -Dnewreadout
 # CXXFLAGS += -Wall $(CINCLUDEDIRS) -Dnewreadout
 ifdef REVISIOND
 CXXFLAGS += -DREVD
+endif
+ifdef REVISIONF
+CXXFLAGS += -DREVF
 endif
 ifdef ONLINE
 CXXFLAGS += -DONLINE
@@ -173,7 +178,11 @@ endif
 ifdef REVISIOND
 READBUFFDATAO    = ReadBuffData.RevD.$(ObjSuf)
 else
+ifdef REVISIONF
+READBUFFDATAO    = ReadBuffData.RevD.$(ObjSuf)
+else
 READBUFFDATAO    = ReadBuffData.$(ObjSuf)
+endif
 endif
 
 #----- list of objects
