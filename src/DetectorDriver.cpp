@@ -315,6 +315,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
     int id            = chan->GetID();
     string type       = chanId.GetType();
     string subtype    = chanId.GetSubtype();
+    bool hasStartTag  = chanId.HasTag("start");
     Trace &trace      = chan->GetTrace();
 
     double energy = 0.;
@@ -370,9 +371,18 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
       update the detector summary
     */    
     rawev.GetSummary(type)->AddEvent(chan);
-    DetectorSummary *summary = rawev.GetSummary(type + ':' + subtype, false);
+    DetectorSummary *summary;
+    
+    summary = rawev.GetSummary(type + ':' + subtype, false);
     if (summary != NULL)
-        summary->AddEvent(chan);
+	summary->AddEvent(chan);
+
+    if(hasStartTag) {
+	summary = 
+	    rawev.GetSummary(type + ':' + subtype + ':' + "start", false);
+	if (summary != NULL)
+	    summary->AddEvent(chan);
+    }
     
     return 1;
 }
