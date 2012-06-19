@@ -205,35 +205,24 @@ DetectorSummary::DetectorSummary(const string &str,
 
     // go find all channel events with appropriate type and subtype
     size_t colonPos = str.find_first_of(":");
-    size_t colonPos1 = str.find_last_of(":");
-
+    
     type = str.substr(0, colonPos);
 
     if (colonPos == string::npos) {
 	subtype = ""; // no associated subtype
     } else {
-       if(colonPos != colonPos1) {
-	  subtype = str.substr(colonPos+1, colonPos1-colonPos-1);
-	  tag = str.substr(colonPos1+1);
-       } else {
-	  subtype = str.substr(colonPos+1);
-	  tag = "";
-       }
+        subtype = str.substr(colonPos+1);
     }
 
     for (vector<ChanEvent *>::const_iterator it = fullList.begin();
 	 it != fullList.end(); it++) {	
 	const Identifier& id = (*it)->GetChanID();
-	Identifier id1 = (*it)->GetChanID();
-	
+		
 	if ( id.GetType() != type )
 	    continue;
 	if ( subtype != "" && id.GetSubtype() != subtype )
 	    continue;
-	if ( tag != "" && !id.HasTag(tag) ) {
-	   continue;
-	}
-	// put it in the summary
+    	// put it in the summary
 	AddEvent(*it);
     }
 }
