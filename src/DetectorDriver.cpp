@@ -284,7 +284,7 @@ void DetectorDriver::DeclarePlots(void)
         DeclareHistogram1D(D_RAW_ENERGY + i, SE, ("RawE " + idstr.str()).c_str() );
         DeclareHistogram1D(D_FILTER_ENERGY + i, SE, ("FilterE " + idstr.str()).c_str() );
         DeclareHistogram1D(D_SCALAR + i, SE, ("Scalar " + idstr.str()).c_str() );
-#if !defined(REVD) || !defined(REVF)
+#if !defined(REVD) && !defined(REVF)
         DeclareHistogram1D(D_TIME + i, SE, ("Time " + idstr.str()).c_str() ); 
 #endif
         DeclareHistogram1D(D_CAL_ENERGY + i, SE, ("CalE " + idstr.str()).c_str() );
