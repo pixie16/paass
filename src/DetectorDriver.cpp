@@ -568,7 +568,7 @@ void DetectorDriver::ReadCal()
     //cout << "calibration parameters are: " << cal.size() << endl;
     
     cout << setw(4)  << "mod" 
-         << setw(4)  << ".hpp"
+         << setw(4)  << "ch"
 	 << setw(4)  << "loc"
 	 << setw(10) << "type"
          << setw(8)  << "subtype"
