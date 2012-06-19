@@ -187,6 +187,7 @@ private:
     std::string name;                  /**< name associated with this summary */
     std::string type;                  /**< detector type associated with this summary */
     std::string subtype;               /**< detector subtype associated with this summary */
+    std::string tag;               /**< detector tag associated with this summary */
     std::vector<ChanEvent*> eventList; /**< list of events associated with this detector group */
     ChanEvent* maxEvent;               /**< event with maximum energy deposition */
 public:
