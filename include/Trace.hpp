@@ -46,13 +46,14 @@ class Trace : public std::vector<int>
     std::map<std::string, double> doubleTraceData;
     std::map<std::string, int>    intTraceData;
 
-    Plots histo; //< EMPTY PLOTS for Plotting interface
+    static Plots histo; //< EMPTY PLOTS for Plotting interface
  public:
      
-    Trace() : std::vector<int>(), histo(dammIds::trace::OFFSET, dammIds::trace::RANGE, PlotsRegister::R())
-    {baselineLow = baselineHigh = U_DELIMITER; };
+    Trace() : std::vector<int>()
+	{baselineLow = baselineHigh = U_DELIMITER; };
     // an automatic conversion
-    Trace(const std::vector<int> &x) : std::vector<int>(x), histo(dammIds::trace::OFFSET, dammIds::trace::RANGE, PlotsRegister::R()){
+    Trace(const std::vector<int> &x) : std::vector<int>(x)
+    {
 	baselineLow = baselineHigh = U_DELIMITER;
     };
     void TrapezoidalFilter(Trace &filter, const TFP &parms,
