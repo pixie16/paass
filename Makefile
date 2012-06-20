@@ -108,7 +108,7 @@ ifeq ($(FC),gfortran)
 FFLAGS	 += -fsecond-underscore
 LDLIBS	 += -lgfortran
 GCCFLAGS += -O3
-CXXFLAGS += -O3
+CXXFLAGS += -O3 -DLINK_GFORTRAN
 else
 LDFLAGS += -g77libs
 LDLIBS	+= -lg2c

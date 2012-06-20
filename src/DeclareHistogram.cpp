@@ -4,14 +4,7 @@
  * David Miller, Aug. 2009
  */
 
-#include <string>
-
-#include <cstring>
-
 #include "DetectorDriver.hpp"
-#include "DammPlotIds.hpp"
-
-using namespace std;
 
 // DAMM initialization call
 extern "C" void drrmake_();
@@ -24,8 +17,6 @@ extern "C" void drrsub_(unsigned int& iexist)
     extern DetectorDriver driver;
 
     drrmake_(); // initialize things
-
     driver.DeclarePlots();
-
     endrr_(); // wrap things up
 }
