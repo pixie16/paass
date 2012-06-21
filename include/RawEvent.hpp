@@ -123,7 +123,7 @@ private:
     // make the front end responsible for reading the data able to set the channel data directly
     friend int ReadBuffData(pixie::word_t *, unsigned long *, std::vector<ChanEvent *> &);
 public:
-    static const double pixieEnergyContraction; ///< energies from pixie16 are contracted by this number
+    static const double pixieEnergyContraction = 2.0; ///< energies from pixie16 are contracted by this number
 
     void SetEnergy(double a)    {energy = a;}    /**< Set the raw energy in case we want
 						    to extract it from the trace ourselves */
