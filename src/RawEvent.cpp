@@ -10,8 +10,6 @@
 
 using namespace std;
 
-const double ChanEvent::pixieEnergyContraction = 2.0;
-
 /** 
  * Return the value of a tag 
  */
