@@ -295,12 +295,14 @@ void Correlator::Correlate(EventInfo &event,
 	    } // negative correlation itme
 	    if (theList.front().dtime * pixie::clockInSeconds >= minImpTime) {
 		if (dt * pixie::clockInSeconds < corrTime) {
-		    event.dtime = event.time - lastTime;
+		    // event.dtime = event.time - lastTime; // (FOR CHAINS)
+		    event.dtime = event.time - theList.front().time; // FOR LERIBSS
 		    if (event.dtime * pixie::clockInSeconds < fastTime && event.dtime > 0) {
 			// event.flagged = true; 
 		    }
 		} else {
-		    event.dtime = event.time - lastTime;
+		    // event.dtime = event.time - lastTime; // (FOR CHAINS)
+		    event.dtime = event.time - theList.front().time; // FOR LERIBSS
 		    condition = DECAY_TOO_LATE;
 		}
 	    } else {

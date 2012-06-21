@@ -56,9 +56,9 @@ struct EventInfo
 
 class CorrelationList : public std::vector<EventInfo>
 {
- private:
+private:
     bool flagged;
- public:
+public:
     CorrelationList();
     double GetDecayTime(void) const;
     double GetImplantTime(void) const;
@@ -83,40 +83,40 @@ class CorrelationList : public std::vector<EventInfo>
 */
 class Correlator
 {
- public:
-  /// correlator condition based on the given events
-  enum EConditions {INVALID_LOCATION     = 4,
-		    VALID_IMPLANT        = 12,
-		    VALID_DECAY          = 16,
-		    BACK_TO_BACK_IMPLANT = 32,
-		    DECAY_TOO_LATE       = 48,
-		    IMPLANT_TOO_SOON     = 52,
-		    UNKNOWN_CONDITION    = 100};
-  
-  Correlator();
-  ~Correlator();
-
-  void DeclarePlots(void);
-  void Init(void);
-  void Correlate(EventInfo &event, unsigned int fch, unsigned int bch);  
-  void CorrelateAll(EventInfo &event); 
-  void CorrelateAllX(EventInfo &event, unsigned int bch);
-  void CorrelateAllY(EventInfo &event, unsigned int fch);
-  void PrintDecayList(unsigned int fch, unsigned int bch) const;
-  
-  double GetDecayTime(void) const;
-  double GetDecayTime(int fch, int bch) const;
-  double GetImplantTime(void) const;
-  double GetImplantTime(int fch, int bch) const;
-
-  void Flag(int fch, int bch);
-  bool IsFlagged(int fch, int bch);
-
-  EConditions GetCondition(void) const {
-      return condition;
-  }
-  
- private:
+public:
+    /// correlator condition based on the given events
+    enum EConditions {INVALID_LOCATION     = 4,
+		      VALID_IMPLANT        = 12,
+		      VALID_DECAY          = 16,
+		      BACK_TO_BACK_IMPLANT = 32,
+		      DECAY_TOO_LATE       = 48,
+		      IMPLANT_TOO_SOON     = 52,
+		      UNKNOWN_CONDITION    = 100};
+    
+    Correlator();
+    virtual ~Correlator();
+    
+    void DeclarePlots(void);
+    void Init(void);
+    void Correlate(EventInfo &event, unsigned int fch, unsigned int bch);  
+    void CorrelateAll(EventInfo &event); 
+    void CorrelateAllX(EventInfo &event, unsigned int bch);
+    void CorrelateAllY(EventInfo &event, unsigned int fch);
+    void PrintDecayList(unsigned int fch, unsigned int bch) const;
+    
+    double GetDecayTime(void) const;
+    double GetDecayTime(int fch, int bch) const;
+    double GetImplantTime(void) const;
+    double GetImplantTime(int fch, int bch) const;
+    
+    void Flag(int fch, int bch);
+    bool IsFlagged(int fch, int bch);
+    
+    EConditions GetCondition(void) const {
+	return condition;
+    }
+    
+private:
     Plots histo;
     virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
         histo.Plot(dammId, val1, val2, val3, name);
@@ -127,24 +127,23 @@ class Correlator
     virtual void DeclareHistogram2D(int dammId, int xSize, int ySize, const char* title) {
         histo.DeclareHistogram2D(dammId, xSize, ySize, title);
     }
+        
+    static const size_t arraySize = 40; /**< Size of the 2D array to hold the decay lists */
 
-
-  static const size_t arraySize = 40; /**< Size of the 2D array to hold the decay lists */
-
-  // in units of pixie clocks
-  static const double minImpTime; /**< The minimum amount of time that must
-				     pass before an implant will be considered
+    // in units of pixie clocks
+    static const double minImpTime; /**< The minimum amount of time that must
+				       pass before an implant will be considered
 				     for correlation */
-  static const double corrTime;   /**< The maximum amount of time allowed
-				     between a decay and its previous implant
-				     for a correlation between the two to occur */
-  static const double fastTime;   /**< Times shorter than this are output as a fast decay */
-
-  EventInfo   *lastImplant;  ///< last implant processed by correlator
-  EventInfo   *lastDecay;    ///< last decay procssed by correlator
-
-  EConditions condition;     ///< condition for last processed event
-  CorrelationList decaylist[arraySize][arraySize]; ///< list of event data for a particular pixel since implant
+    static const double corrTime;   /**< The maximum amount of time allowed
+				       between a decay and its previous implant
+				       for a correlation between the two to occur */
+    static const double fastTime;   /**< Times shorter than this are output as a fast decay */
+    
+    EventInfo   *lastImplant;  ///< last implant processed by correlator
+    EventInfo   *lastDecay;    ///< last decay procssed by correlator
+    
+    EConditions condition;     ///< condition for last processed event
+    CorrelationList decaylist[arraySize][arraySize]; ///< list of event data for a particular pixel since implant
 };
 
 #endif // __CORRELATOR_PROCESSOR_HPP_
