@@ -44,39 +44,39 @@ namespace dammIds {
 	const unsigned int DECAY_OFFSET   = 20;
 	const unsigned int ADDBACK_OFFSET = 50;
 
-	const int D_ENERGY              = 1500;
-	const int D_ENERGY_CLOVERX      = 1501; // leaf by clover for X detectors
+	const int D_ENERGY              = 0;
+	const int D_ENERGY_CLOVERX      = 1; // leaf by clover for X detectors
 
-	const int D_ENERGY_LOWGAIN      = 1507;
-	const int D_ENERGY_HIGHGAIN     = 1508;
-	const int D_MULT                = 1509;
+	const int D_ENERGY_LOWGAIN      = 7;
+	const int D_ENERGY_HIGHGAIN     = 8;
+	const int D_MULT                = 9;
 
 	const int D_ENERGY_WITH_DECAY   = D_ENERGY + DECAY_OFFSET;
 	// These spectra are squeezed into a gap in IDs
-	const int D_ENERGY_WITH_IMPLANT = 1525;
-	const int D_ENERGY_WITH_EXT0    = 1526; // with external detector (e.g. 3hen, vandle) 
-	const int D_ENERGY_WITH_EXT1    = 1527; // with external detector (e.g. 3hen, vandle) 
+	const int D_ENERGY_WITH_IMPLANT = 25;
+	const int D_ENERGY_WITH_EXT0    = 26; // with external detector (e.g. 3hen, vandle) 
+	const int D_ENERGY_WITH_EXT1    = 27; // with external detector (e.g. 3hen, vandle) 
 
 	const int D_ADD_ENERGY          = D_ENERGY         + ADDBACK_OFFSET;
 	const int D_ADD_ENERGY_CLOVERX  = D_ENERGY_CLOVERX + ADDBACK_OFFSET ; // addback for X detectors
 	const int D_ADD_ENERGY_TOTAL    = D_ADD_ENERGY_CLOVERX + MAX_CLOVERS;
 
 	// 2D spectra
-	const int DD_ENERGY                = 1600;
-	const int DD_CLOVER_ENERGY_RATIO   = 1607;
+	const int DD_ENERGY                = 100;
+	const int DD_CLOVER_ENERGY_RATIO   = 107;
 	const int DD_ADD_ENERGY            = DD_ENERGY       + ADDBACK_OFFSET; // NOT DECLARED but useful to keep the scheme in mind
 	const int DD_ENERGY_WITH_DECAY     = DD_ENERGY       + DECAY_OFFSET;
 	const int DD_ADD_ENERGY_WITH_DECAY = DD_ADD_ENERGY   + DECAY_OFFSET;
 	// note these only make sense with decay (so they fall in the decay assigned block 1620-1629)
-	const int DD_ENERGY__TIMEX         = 1621; // with x granularities
+	const int DD_ENERGY__TIMEX         = 121; // with x granularities
 	const int DD_ADD_ENERGY__TIMEX     = DD_ENERGY__TIMEX + ADDBACK_OFFSET; // with x granularities
 
 	// corresponds to ungated specra ID's + 10 where applicable
 	namespace betaGated {
 	    const int D_ENERGY             = dammIds::ge::D_ENERGY         + dammIds::ge::BETA_OFFSET;
 	    const int D_ENERGY_CLOVERX     = dammIds::ge::D_ENERGY_CLOVERX + dammIds::ge::BETA_OFFSET;
-	    const int D_ENERGY_BETA0       = 1516;
-	    const int D_ENERGY_BETA1       = 1517;
+	    const int D_ENERGY_BETA0       = 16;
+	    const int D_ENERGY_BETA1       = 17;
 	    const int D_ENERGY_WITH_EXT0   = dammIds::ge::D_ENERGY_WITH_EXT0   + dammIds::ge::BETA_OFFSET;
 	    const int D_ENERGY_WITH_EXT1   = dammIds::ge::D_ENERGY_WITH_EXT1   + dammIds::ge::BETA_OFFSET;
 	    const int D_ADD_ENERGY         = dammIds::ge::D_ADD_ENERGY         + dammIds::ge::BETA_OFFSET;
@@ -85,10 +85,10 @@ namespace dammIds {
 
 	    // 2d spectra
 	    const int DD_ENERGY              = dammIds::ge::DD_ENERGY + dammIds::ge::BETA_OFFSET;
-	    const int DD_TDIFF__GAMMA_ENERGY = 1615;
-	    const int DD_TDIFF__BETA_ENERGY  = 1616;
-	    const int DD_ADD_ENERGY_PROMPT   = 1668;
-	    const int DD_ADD_ENERGY_DELAYED  = 1669;
+	    const int DD_TDIFF__GAMMA_ENERGY = 15;
+	    const int DD_TDIFF__BETA_ENERGY  = 16;
+	    const int DD_ADD_ENERGY_PROMPT   = 68;
+	    const int DD_ADD_ENERGY_DELAYED  = 69;
 	    const int DD_ADD_ENERGY          = DD_ENERGY + dammIds::ge::DECAY_OFFSET;
 	    const int DD_ENERGY__TIMEX       = dammIds::ge::DD_ENERGY__TIMEX + dammIds::ge::BETA_OFFSET;
 	    const int DD_ADD_ENERGY__TIMEX   = DD_ENERGY__TIMEX + dammIds::ge::ADDBACK_OFFSET;
@@ -123,7 +123,7 @@ double GeProcessor::WalkCorrection(double e) {
         const double a0 = 11.2287;
         const double a1 = -0.000939443;
         
-	const double b0 = 38.8912;
+        const double b0 = 38.8912;
         const double b1 = -0.121784;
         const double b2 = 0.000268339;
 
