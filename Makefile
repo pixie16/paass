@@ -13,13 +13,13 @@ REVISIOND = 1
 # Undefine to make a "online" version
 # ONLINE = 1 
 # Use gfortran
-# HHIRF_GFORTRAN = 1
+HHIRF_GFORTRAN = 1
 # Libs in HHIRF DIR
-# LIBS_IN_HHIRF = 1
+LIBS_IN_HHIRF = 1
 
 #These will set the analysis used on the waveforms
 #Uncomment this line to use the Pulse Fitting routine
-PULSEFIT = 1
+#PULSEFIT = 1
 #Uncomment this line to use the cfd
 #DCFD = 1
 
