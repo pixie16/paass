@@ -12,6 +12,30 @@
 #include "EventProcessor.hpp"
 #include "RawEvent.hpp"
 
+class GGate {
+    public:
+        GGate() {
+            g1min = -1;
+            g1max = -1;
+            g2min = -1;
+            g2max = -1;
+        }
+
+        bool check() {
+            if (g1min > 0 && g1max > g1min &&
+                g2min > 0 && g2max > g2min)
+                return true;
+            else
+                return false;
+        }
+
+        double g1min;
+        double g1max;
+        double g2min;
+        double g2max;
+};
+
+
 class GeProcessor : public EventProcessor
 {
 private:
@@ -22,6 +46,7 @@ private:
     unsigned int numClovers;           /*!< number of clovers in map */
 
     double WalkCorrection(double e);
+    vector< GGate > gGates;
 
     void DeclareHistogramGranY(int dammId, int xsize, int ysize, 
 			       const char *title, int halfWordsPerChan,
