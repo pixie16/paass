@@ -70,6 +70,9 @@ namespace dammIds {
 	// note these only make sense with decay (so they fall in the decay assigned block 1620-1629)
 	const int DD_ENERGY__TIMEX         = 121; // with x granularities
 	const int DD_ADD_ENERGY__TIMEX     = DD_ENERGY__TIMEX + ADDBACK_OFFSET; // with x granularities
+    // Gamma-Gamma angular distribution
+    const int DD_ANGLE__GATEX         = 130;
+    const int DD_ENERGY__GATEX        = 131;
 
 	// corresponds to ungated specra ID's + 10 where applicable
 	namespace betaGated {
@@ -92,6 +95,8 @@ namespace dammIds {
 	    const int DD_ADD_ENERGY          = DD_ENERGY + dammIds::ge::DECAY_OFFSET;
 	    const int DD_ENERGY__TIMEX       = dammIds::ge::DD_ENERGY__TIMEX + dammIds::ge::BETA_OFFSET;
 	    const int DD_ADD_ENERGY__TIMEX   = DD_ENERGY__TIMEX + dammIds::ge::ADDBACK_OFFSET;
+        const int DD_ANGLE__GATEX        = dammIds::ge::DD_ANGLE__GATEX + dammIds::ge::BETA_OFFSET;
+        const int DD_ENERGY__GATEX        = dammIds::ge::DD_ENERGY__GATEX + dammIds::ge::BETA_OFFSET;
 	}
     } // end namespace ge
 }
@@ -145,6 +150,51 @@ using namespace dammIds::ge;
 GeProcessor::GeProcessor() : EventProcessor(OFFSET, RANGE), leafToClover() {
     name = "ge";
     associatedTypes.insert("ge"); // associate with germanium detectors
+
+#ifdef GGATES
+    /* 
+     * Load GammaGates.txt defining gamma-gamma gates for anular
+     * distributions and for g-g-g gates
+     *
+     */
+    ifstream ggFile("GammaGates.txt");
+    string line;
+    while (getline(ggFile, line) ) {
+        istringstream iss;
+        iss.str(line);
+        if (line[0] != '#' && line.size() > 1) {
+            vector<double> gms;
+            double g;
+            while (iss >> g) {
+                gms.push_back(g);
+            }
+            GGate gate;
+            if (gms.size() == 2) {
+                double dE = 1.0;
+                gate.g1min = gms[0] - dE;
+                gate.g1max = gms[0] + dE;
+                gate.g2min = gms[1] - dE;
+                gate.g2max = gms[1] + dE;
+            } else if (gms.size() == 4) {
+                gate.g1min = gms[0];
+                gate.g1max = gms[1];
+                gate.g2min = gms[2];
+                gate.g2max = gms[3];
+            } else {
+                cout << "Incomplete gates definition" << endl;
+            }
+            if (gate.check()) {
+                gGates.push_back(gate);
+                cout << "(" << gate.g1min << ", " << gate.g1max << ") <-> " 
+                     << "(" << gate.g2min << ", " << gate.g2max << ") " 
+                     << " gate loaded " << endl;
+            } else {
+                cout << "Wrong gates definition" << endl;
+            }
+        }
+    }
+    ggFile.close();
+#endif
 }
 
 /** 
@@ -261,6 +311,11 @@ void GeProcessor::DeclarePlots(void)
 
     DeclareHistogram2D(DD_CLOVER_ENERGY_RATIO, S4, S6, "high/low energy ratio (x10)");
 
+    DeclareHistogram2D(DD_ANGLE__GATEX, S2, S5, "g_g angular distrubution vs g_g gate number");
+    DeclareHistogram2D(betaGated::DD_ANGLE__GATEX, S2, S5, "beta gated g_g angular distrubution vs g_g gate number");
+    DeclareHistogram2D(DD_ENERGY__GATEX, energyBins2, S5, "Gamma energy gated by g_g");
+    DeclareHistogram2D(betaGated::DD_ENERGY__GATEX, energyBins2, S5, "Gamma energy gated by g_g_beta");
+
     DeclareHistogramGranY(DD_ENERGY__TIMEX               , energyBins2, granTimeBins, "E - Time", 2, timeResolution, "s");
     DeclareHistogramGranY(DD_ADD_ENERGY__TIMEX           , energyBins2, granTimeBins, "Addback E - Time", 2, timeResolution, "s");
     DeclareHistogramGranY(betaGated::DD_ENERGY__TIMEX    , energyBins2, granTimeBins, "Beta-gated E - Time", 2, timeResolution, "s");
@@ -302,7 +357,7 @@ bool GeProcessor::Process(RawEvent &event) {
 	    betaTime   = chan->GetTime();
         }
     } // beta summary present
-    const double betaThresh = 1;
+    const double betaThresh = 10;
     bool hasBeta = (betaEnergy > betaThresh);
 
     //? make a search for tagged events for external detectors
@@ -416,7 +471,7 @@ bool GeProcessor::Process(RawEvent &event) {
     
     double subEventWindow = 10.0; // pixie units
     // guarantee the first event will be greater than the subevent window delayed from reference
-    double refTime = -1.1 * subEventWindow; 
+    double refTime = -2.0 * subEventWindow; 
     
     for (vector<ChanEvent*>::iterator it = geEvents.begin(); it != geEvents.end(); it++) {
 	ChanEvent *ch = *it;
@@ -473,7 +528,7 @@ bool GeProcessor::Process(RawEvent &event) {
                 plot(betaGated::D_ADD_ENERGY_CLOVERX + det, gEnergy);
             }
 
-            for (unsigned int det2 = det + 1; det2 < numClovers; ++det2) {
+        for (unsigned int det2 = det + 1; det2 < numClovers; ++det2) {
 		double gEnergy2 = addbackEvents[det2][ev].energy;
 		if (gEnergy2 < 1) 
 		    continue;
@@ -496,6 +551,55 @@ bool GeProcessor::Process(RawEvent &event) {
 			symplot(betaGated::DD_ADD_ENERGY_PROMPT, gEnergy, gEnergy2);
 		    }
                 } // has beta
+#ifdef GGATES
+            // Gamma-gamma angular
+            // and gamma-gamma gate
+            unsigned ngg = gGates.size();
+            for (unsigned ig = 0; ig < ngg; ++ig) {
+                double g1min = 0;
+                double g1max = 0;
+                double g2min = 0;
+                double g2max = 0;
+                if (gGates[ig].g1min < gGates[ig].g2min) {
+                    g1min = gGates[ig].g1min;
+                    g1max = gGates[ig].g1max;
+                    g2min = gGates[ig].g2min;
+                    g2max = gGates[ig].g2max;
+                } else {
+                    g1min = gGates[ig].g2min;
+                    g1max = gGates[ig].g2max;
+                    g2min = gGates[ig].g1min;
+                    g2max = gGates[ig].g1max;
+                }
+                double e1 = min(gEnergy, gEnergy2);
+                double e2 = max(gEnergy, gEnergy2);
+                if ( (e1 >= g1min && e1 <= g1max) &&
+                        (e2 >= g2min && e2 <= g2max) ) {
+                    if (det % 2 != det2 % 2) {
+                        plot(DD_ANGLE__GATEX, 1, ig);
+                        if (hasBeta)
+                            plot(betaGated::DD_ANGLE__GATEX, 1, ig);
+                    } else {
+                       plot(DD_ANGLE__GATEX, 2, ig);
+                        if (hasBeta)
+                            plot(betaGated::DD_ANGLE__GATEX, 2, ig);
+                    }
+                }
+
+                for (unsigned det3 = det2 + 1;
+                        det3 < numClovers; ++det3) {
+                    double gEnergy3 = addbackEvents[det3][ev].energy;
+                    if (gEnergy3 < 1)
+                        continue;
+                    if ( (e1 >= g1min && e1 <= g1max) &&
+                            (e2 >= g2max && e2 <= g2min) ) {
+                        plot(DD_ENERGY__GATEX, gEnergy3, ig);
+                        if (hasBeta)
+                            plot(betaGated::DD_ENERGY__GATEX, gEnergy3, ig);
+                    }
+                }
+            } //for ig
+#endif
             } // iteration over other clovers
         } // itertaion over clovers
     } // iteration over events
