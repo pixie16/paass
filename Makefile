@@ -12,6 +12,10 @@ REVISIOND = 1
 # CXXFLAGS += -DVERBOSE
 # Undefine to make a "online" version
 # ONLINE = 1 
+# Undefine to use Gamma-Gamma gates in GeProcessor
+# This turns on Gamma-Gamma angular distribution
+# and Gamma-Gamma-Gamma gates
+GGATES = 1
 # Use gfortran
 HHIRF_GFORTRAN = 1
 # Libs in HHIRF DIR
@@ -220,6 +224,10 @@ ROOTCONFIG   := root-config
 CXXFLAGS     += $(shell $(ROOTCONFIG) --cflags) -Duseroot
 LDFLAGS      += $(shell $(ROOTCONFIG) --ldflags)
 LDLIBS       := $(shell $(ROOTCONFIG) --libs)
+endif
+
+ifdef GGATES
+CXXFLAGS	+= -DGGATES
 endif
 
 #--------- Add to list of known file suffixes
