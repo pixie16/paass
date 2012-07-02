@@ -40,6 +40,15 @@ LogicProcessor::LogicProcessor(void) :
     associatedTypes.insert("logic");
 }
 
+LogicProcessor::LogicProcessor(int offset, int range) : 
+  EventProcessor(offset, range), lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
+  logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC)
+{
+    name = "logic";
+
+    associatedTypes.insert("logic");
+}
+
 void LogicProcessor::DeclarePlots(void)
 {
     using namespace dammIds::logic;

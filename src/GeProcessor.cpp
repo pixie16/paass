@@ -51,52 +51,53 @@ namespace dammIds {
 	const int D_ENERGY_HIGHGAIN     = 8;
 	const int D_MULT                = 9;
 
-	const int D_ENERGY_WITH_DECAY   = D_ENERGY + DECAY_OFFSET;
+	const int D_ENERGY_WITH_DECAY   = 20;
 	// These spectra are squeezed into a gap in IDs
 	const int D_ENERGY_WITH_IMPLANT = 25;
 	const int D_ENERGY_WITH_EXT0    = 26; // with external detector (e.g. 3hen, vandle) 
 	const int D_ENERGY_WITH_EXT1    = 27; // with external detector (e.g. 3hen, vandle) 
 
-	const int D_ADD_ENERGY          = D_ENERGY         + ADDBACK_OFFSET;
-	const int D_ADD_ENERGY_CLOVERX  = D_ENERGY_CLOVERX + ADDBACK_OFFSET ; // addback for X detectors
-	const int D_ADD_ENERGY_TOTAL    = D_ADD_ENERGY_CLOVERX + MAX_CLOVERS;
+	const int D_ADD_ENERGY          = 50; 
+	const int D_ADD_ENERGY_CLOVERX  = 51;
+	const int D_ADD_ENERGY_TOTAL    = 55;
 
 	// 2D spectra
 	const int DD_ENERGY                = 100;
 	const int DD_CLOVER_ENERGY_RATIO   = 107;
-	const int DD_ADD_ENERGY            = DD_ENERGY       + ADDBACK_OFFSET; // NOT DECLARED but useful to keep the scheme in mind
-	const int DD_ENERGY_WITH_DECAY     = DD_ENERGY       + DECAY_OFFSET;
-	const int DD_ADD_ENERGY_WITH_DECAY = DD_ADD_ENERGY   + DECAY_OFFSET;
-	// note these only make sense with decay (so they fall in the decay assigned block 1620-1629)
-	const int DD_ENERGY__TIMEX         = 121; // with x granularities
-	const int DD_ADD_ENERGY__TIMEX     = DD_ENERGY__TIMEX + ADDBACK_OFFSET; // with x granularities
+	const int DD_ENERGY_WITH_DECAY     = 120;
+	const int DD_ADD_ENERGY            = 150;
     // Gamma-Gamma angular distribution
-    const int DD_ANGLE__GATEX         = 130;
-    const int DD_ENERGY__GATEX        = 131;
+    const int DD_ANGLE__GATEX         = 155;
+    const int DD_ENERGY__GATEX        = 156;
+
+	const int DD_ADD_ENERGY_WITH_DECAY = 170;
+	// note these only make sense with decay 
+	const int DD_ENERGY__TIMEX         = 121; // with x granularities
+	const int DD_ADD_ENERGY__TIMEX     = 171; // with x granularities
 
 	// corresponds to ungated specra ID's + 10 where applicable
 	namespace betaGated {
-	    const int D_ENERGY             = dammIds::ge::D_ENERGY         + dammIds::ge::BETA_OFFSET;
-	    const int D_ENERGY_CLOVERX     = dammIds::ge::D_ENERGY_CLOVERX + dammIds::ge::BETA_OFFSET;
-	    const int D_ENERGY_BETA0       = 16;
-	    const int D_ENERGY_BETA1       = 17;
-	    const int D_ENERGY_WITH_EXT0   = dammIds::ge::D_ENERGY_WITH_EXT0   + dammIds::ge::BETA_OFFSET;
-	    const int D_ENERGY_WITH_EXT1   = dammIds::ge::D_ENERGY_WITH_EXT1   + dammIds::ge::BETA_OFFSET;
-	    const int D_ADD_ENERGY         = dammIds::ge::D_ADD_ENERGY         + dammIds::ge::BETA_OFFSET;
-	    const int D_ADD_ENERGY_CLOVERX = dammIds::ge::D_ADD_ENERGY_CLOVERX + dammIds::ge::BETA_OFFSET;
-	    const int D_ADD_ENERGY_TOTAL   = dammIds::ge::D_ADD_ENERGY_TOTAL   + dammIds::ge::BETA_OFFSET;
+	    const int D_ENERGY             = 10;
+	    const int D_ENERGY_CLOVERX     = 11;
+	    const int D_ENERGY_BETA0       = 15; 
+	    const int D_ENERGY_BETA1       = 16; 
+	    const int D_ENERGY_WITH_EXT0   = 36; 
+	    const int D_ENERGY_WITH_EXT1   = 37; 
+	    const int D_ADD_ENERGY         = 60; 
+	    const int D_ADD_ENERGY_CLOVERX = 61; 
+	    const int D_ADD_ENERGY_TOTAL   = 65; 
 
 	    // 2d spectra
-	    const int DD_ENERGY              = dammIds::ge::DD_ENERGY + dammIds::ge::BETA_OFFSET;
-	    const int DD_TDIFF__GAMMA_ENERGY = 15;
-	    const int DD_TDIFF__BETA_ENERGY  = 16;
-	    const int DD_ADD_ENERGY_PROMPT   = 68;
-	    const int DD_ADD_ENERGY_DELAYED  = 69;
-	    const int DD_ADD_ENERGY          = DD_ENERGY + dammIds::ge::DECAY_OFFSET;
-	    const int DD_ENERGY__TIMEX       = dammIds::ge::DD_ENERGY__TIMEX + dammIds::ge::BETA_OFFSET;
-	    const int DD_ADD_ENERGY__TIMEX   = DD_ENERGY__TIMEX + dammIds::ge::ADDBACK_OFFSET;
-        const int DD_ANGLE__GATEX        = dammIds::ge::DD_ANGLE__GATEX + dammIds::ge::BETA_OFFSET;
-        const int DD_ENERGY__GATEX        = dammIds::ge::DD_ENERGY__GATEX + dammIds::ge::BETA_OFFSET;
+	    const int DD_ENERGY              = 110; 
+	    const int DD_TDIFF__GAMMA_ENERGY = 105;
+	    const int DD_TDIFF__BETA_ENERGY  = 106;
+	    const int DD_ADD_ENERGY          = 160; 
+	    const int DD_ADD_ENERGY_PROMPT   = 161;
+	    const int DD_ADD_ENERGY_DELAYED  = 162;
+        const int DD_ANGLE__GATEX        = 165; 
+        const int DD_ENERGY__GATEX       = 166; 
+	    const int DD_ENERGY__TIMEX       = 131; 
+	    const int DD_ADD_ENERGY__TIMEX   = 181;
 	}
     } // end namespace ge
 }
@@ -313,8 +314,8 @@ void GeProcessor::DeclarePlots(void)
 
     DeclareHistogram2D(DD_ANGLE__GATEX, S2, S5, "g_g angular distrubution vs g_g gate number");
     DeclareHistogram2D(betaGated::DD_ANGLE__GATEX, S2, S5, "beta gated g_g angular distrubution vs g_g gate number");
-    DeclareHistogram2D(DD_ENERGY__GATEX, energyBins2, S5, "Gamma energy gated by g_g");
-    DeclareHistogram2D(betaGated::DD_ENERGY__GATEX, energyBins2, S5, "Gamma energy gated by g_g_beta");
+    DeclareHistogram2D(DD_ENERGY__GATEX, energyBins2, S5, "g_g gated gamma energy");
+    DeclareHistogram2D(betaGated::DD_ENERGY__GATEX, energyBins2, S5, "g_g_beta gated gamma energy");
 
     DeclareHistogramGranY(DD_ENERGY__TIMEX               , energyBins2, granTimeBins, "E - Time", 2, timeResolution, "s");
     DeclareHistogramGranY(DD_ADD_ENERGY__TIMEX           , energyBins2, granTimeBins, "Addback E - Time", 2, timeResolution, "s");
@@ -584,15 +585,11 @@ bool GeProcessor::Process(RawEvent &event) {
                         if (hasBeta)
                             plot(betaGated::DD_ANGLE__GATEX, 2, ig);
                     }
-                }
-
-                for (unsigned det3 = det2 + 1;
-                        det3 < numClovers; ++det3) {
-                    double gEnergy3 = addbackEvents[det3][ev].energy;
-                    if (gEnergy3 < 1)
-                        continue;
-                    if ( (e1 >= g1min && e1 <= g1max) &&
-                            (e2 >= g2max && e2 <= g2min) ) {
+                    for (unsigned det3 = det2 + 1;
+                            det3 < numClovers; ++det3) {
+                        double gEnergy3 = addbackEvents[det3][ev].energy;
+                        if (gEnergy3 < 1)
+                            continue;
                         plot(DD_ENERGY__GATEX, gEnergy3, ig);
                         if (hasBeta)
                             plot(betaGated::DD_ENERGY__GATEX, gEnergy3, ig);

@@ -64,6 +64,8 @@ private:
     std::set <int> idList;
     /** Map of mnemonic -> int */
     std::map <std::string, int> mneList;
+    /** Map of dammid -> title, helps debugging duplicated dammids*/
+    std::map <int, std::string> titleList;
 };
 
 #endif // __PLOTS_HPP_
