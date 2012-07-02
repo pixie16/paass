@@ -32,8 +32,8 @@ public:
 			    int halfWordsPerChan, int xHistLength, int xLow, int xHigh,
 			    const std::string &mne = emptyString);
     bool DeclareHistogram1D(int dammId, int xSize, const char* title,
-			    const std::string &mne = emptyString,
-			    int halfWordsPerChan = 2); 
+                int halfWordsPerChan = 2, const std::string &mne = emptyString
+			    ); 
     bool DeclareHistogram1D(int dammId, int xSize, const char* title,
 			    int halfWordsPerChan, int contraction,
 			    const std::string &mne = emptyString);
@@ -44,8 +44,8 @@ public:
 			    int yHistLength, int yLow, int yHigh,
 			    const std::string &mne = emptyString);    
     bool DeclareHistogram2D(int dammId, int xSize, int ySize,
-			    const char* title, const std::string &mne = emptyString,
-			    int halfWordPerChan = 1);
+			    const char* title, int halfWordPerChan = 1,
+                const std::string &mne = emptyString);
     bool DeclareHistogram2D(int dammId, int xSize, int ySize,
 			    const char* title, int halfWordsPerChan,
 			    int xContraction, int yContraction, 
