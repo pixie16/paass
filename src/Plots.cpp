@@ -85,7 +85,7 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
 }
 
 bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
-			       const string &mne, int halfWordsPerChan /* = 2*/)
+			       int halfWordsPerChan /* = 2*/, const string &mne /*=empty*/ )
 {
     return DeclareHistogram1D(dammId, xSize, title, halfWordsPerChan, xSize, 0, xSize - 1, mne);
 }
@@ -125,8 +125,9 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
 }
 
 bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
-                               const char* title, const string &mne,
-			       int halfWordsPerChan /* = 1*/)
+                               const char* title,
+                               int halfWordsPerChan /* = 1*/,
+                               const string &mne /* = empty*/)
 {
     return DeclareHistogram2D(dammId, xSize, ySize, title, halfWordsPerChan,
 			      xSize, 0, xSize - 1,
