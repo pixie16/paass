@@ -64,7 +64,7 @@ bool PlotsRegister::Add (int offset, int range)
     
     if (CheckRange(min, max)) {
 	cerr << "Attempt to register histogram ids: " << min << " to " << max << endl;
-	// cerr << "This range is already registered: " << reg[id].first << " to " << reg[id].second << endl;
+	cerr << "This range is already registered." << endl;
 	exit(EXIT_FAILURE);
     }
     
