@@ -69,7 +69,9 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
         exit(EXIT_FAILURE);
     }
     if (Exists(dammId) || Exists(mne)) {
-        cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
+        cerr << "Histogram titled '" << title << "' requests id " 
+             << dammId + offset << " which is already in use by"
+             << " histogram '" << titleList[dammId] << "'." <<  endl;
         exit(EXIT_FAILURE);
     }
         
@@ -81,6 +83,7 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
 	mneList.insert( pair<string, int>(mne, dammId) );
     
     hd1d_(dammId + offset, halfWordsPerChan, xSize, xHistLength, xLow, xHigh, title, strlen(title));
+    titleList.insert( pair<int, string>(dammId, string(title)));
     return true;
 }
 
@@ -107,8 +110,10 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
         cerr << "Id : " << dammId << " is outside of allowed range (" << range << ")." << endl;
         exit(EXIT_FAILURE);
     }
-    if (Exists(dammId) && Exists(mne)) {
-        cerr << "Histogram " << dammId << ", " << mne << " already exists." << endl; 
+    if (Exists(dammId) || Exists(mne)) {
+        cerr << "Histogram titled '" << title << "' requests id " 
+             << dammId + offset << " which is already in use by"
+             << " histogram '" << titleList[dammId] << "'." << endl;
         exit(EXIT_FAILURE);
     }
 
@@ -121,6 +126,7 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
     
     hd2d_(dammId + offset, halfWordsPerChan, xSize, xHistLength, xLow, xHigh,
 	  ySize, yHistLength, yLow, yHigh, title, strlen(title));
+    titleList.insert( pair<int, string>(dammId, string(title)));
     return true;
 }
 

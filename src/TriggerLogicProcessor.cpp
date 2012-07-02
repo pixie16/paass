@@ -23,7 +23,7 @@ namespace dammIds {
     }
 } 
 
-TriggerLogicProcessor::TriggerLogicProcessor(void) : LogicProcessor()
+TriggerLogicProcessor::TriggerLogicProcessor(void) : LogicProcessor(dammIds::triggerlogic::OFFSET, dammIds::triggerlogic::RANGE)
 {
     name = "triggerlogic";
     plotSize = SA;

@@ -113,9 +113,9 @@ DetectorDriver::DetectorDriver() :
 #endif
 
     //vecProcess.push_back(new PositionProcessor()); // order is important
-    //vecProcess.push_back(new TriggerLogicProcessor());
     //vecProcess.push_back(new SsdProcessor());
-    //vecProcess.push_back(new GeProcessor()); // order is important
+    vecProcess.push_back(new TriggerLogicProcessor());
+    vecProcess.push_back(new GeProcessor()); // order is important
 
     // vecProcess.push_back(new SsdProcessor());
 #ifdef useroot
@@ -124,7 +124,7 @@ DetectorDriver::DetectorDriver() :
     vecProcess.push_back(new RootProcessor("tree.root", "tree"));
 #else
     vecProcess.push_back(new ScintProcessor());
-    vecProcess.push_back(new VandleProcessor());
+    //vecProcess.push_back(new VandleProcessor());
 #endif
 }
 

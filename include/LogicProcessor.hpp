@@ -21,6 +21,7 @@ class LogicProcessor : public EventProcessor {
     std::vector<unsigned long> startCount; //< number of starts received
  public:
     LogicProcessor();
+    LogicProcessor(int offset, int range);
     virtual void DeclarePlots(void);
     virtual bool Process(RawEvent &event);
     virtual bool LogicStatus(size_t loc) const {
