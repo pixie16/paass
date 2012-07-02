@@ -242,7 +242,7 @@ void PositionProcessor::DeclarePlots() {
     histo.DeclareHistogram2D(DD_POSITION__ENERGY_LOCX + LOC_SUM, positionBins, energyBins, "All energy vs. position");
 
     histo.DeclareHistogram1D(D_INFO_LOCX + LOC_SUM, infoBins, "ALL INFO");
-    histo.DeclareHistogram2D(DD_POSITION, locationBins, positionBins, "Qdc Position", "pos");
+    histo.DeclareHistogram2D(DD_POSITION, locationBins, positionBins, "Qdc Position", 1, "pos");
 }
 
 /**
