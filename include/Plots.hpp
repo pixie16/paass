@@ -6,6 +6,7 @@
 #ifndef __PLOTS_HPP_
 #define __PLOTS_HPP_
 
+#include <fstream>
 #include <string>
 #include <map>
 #include <set>
@@ -24,8 +25,13 @@ class Plots {
 public:
     Plots (int offset, int range, PlotsRegister* reg);
 
+    int GetOffset() { return offset; }
+    /**Returns true if id is within allowed range.*/
+    void PrintNonEmpty(std::ofstream& hislog);
     bool CheckRange (int id) const;
+    /** Returns true if histogram number id exists.*/
     bool Exists (int id) const;
+    /** Returns true if histogram with mnemonic mne exists.*/
     bool Exists (const std::string &mne) const;
 
     bool DeclareHistogram1D(int dammId, int xSize, const char* title,
@@ -51,9 +57,9 @@ public:
 			    int xContraction, int yContraction, 
 			    const std::string &mne = emptyString);
     
-    bool Plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") const;
+    bool Plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h");
 
-    bool Plot(const std::string &mne, double val1, double val2 = -1, double val3 = -1, const char* name="h") const;
+    bool Plot(const std::string &mne, double val1, double val2 = -1, double val3 = -1, const char* name="h");
 
 private:
     /** Holds offset for a given set of plots */
@@ -66,6 +72,8 @@ private:
     std::map <std::string, int> mneList;
     /** Map of dammid -> title, helps debugging duplicated dammids*/
     std::map <int, std::string> titleList;
+    /** Set of dammids, a list of non-empty histograms*/
+    std::set <int> nonemptyList;
 };
 
 #endif // __PLOTS_HPP_
