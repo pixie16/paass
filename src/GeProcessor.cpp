@@ -414,7 +414,7 @@ bool GeProcessor::Process(RawEvent &event) {
         
         double gEnergy = chan->GetCalEnergy();	
         double gTime   = chan->GetTime() - WalkCorrection(gEnergy);	
-	chan->SetCorrectedTime(gTime);
+        chan->SetCorrectedTime(gTime);
 
         plot(D_ENERGY, gEnergy);
 	if (hasImplant) {
@@ -473,12 +473,18 @@ bool GeProcessor::Process(RawEvent &event) {
     double subEventWindow = 10.0; // pixie units
     // guarantee the first event will be greater than the subevent window delayed from reference
     double refTime = -2.0 * subEventWindow; 
+
+    // Do not take into account events with too low energy (avoid summing of noise with real gammas) 
+    const double addbackEnergyCut = 25;
     
     for (vector<ChanEvent*>::iterator it = geEvents.begin(); it != geEvents.end(); it++) {
 	ChanEvent *ch = *it;
-	double energy = ch->GetCalEnergy(); 
+        double energy = ch->GetCalEnergy(); 
         double time = ch->GetCorrectedTime();
         int clover = leafToClover[ch->GetChanID().GetLocation()];
+
+        if (energy < addbackEnergyCut)
+            continue;
 
         // entries in map are sorted by time
         // if event time is outside of subEventWindow, we start new 
