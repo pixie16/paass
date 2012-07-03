@@ -5,6 +5,7 @@
  */
 
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <iterator>
 #include <string>
@@ -26,12 +27,18 @@ EventProcessor::EventProcessor() :
   didProcess(false), histo(0, 0, PlotsRegister::R() )
 {
     clocksPerSecond = sysconf(_SC_CLK_TCK);
+    ofstream hislog("histograms.txt");
+    hislog << "Non empty histograms:" << endl;
+    hislog.close();
 }
 
 EventProcessor::EventProcessor(int offset, int range) : 
   userTime(0.), systemTime(0.), name("generic"), initDone(false), 
   didProcess(false), histo(offset, range, PlotsRegister::R() ) {
     clocksPerSecond = sysconf(_SC_CLK_TCK);
+    ofstream hislog("histograms.txt");
+    hislog << "Non empty histograms:" << endl;
+    hislog.close();
 }
 
 EventProcessor::~EventProcessor() 
@@ -41,6 +48,10 @@ EventProcessor::~EventProcessor()
 	cout << "processor " << name << " : " 
 	     << userTime << " user time, "
 	     << systemTime << " system time" << endl;
+        ofstream hislog("histograms.txt", ios_base::app);
+        hislog << "In " << name << ": " << endl;
+        histo.PrintNonEmpty(hislog);
+        hislog.close();
     }
 }
 

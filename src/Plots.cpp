@@ -77,10 +77,10 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
         
     pair<set<int>::iterator, bool> result = idList.insert(dammId);
     if (result.second == false)
-	return false;
+        return false;
     // Mnemonic is optional and added only if longer then 0
     if (mne.size() > 0)
-	mneList.insert( pair<string, int>(mne, dammId) );
+        mneList.insert( pair<string, int>(mne, dammId) );
     
     hd1d_(dammId + offset, halfWordsPerChan, xSize, xHistLength, xLow, xHigh, title, strlen(title));
     titleList.insert( pair<int, string>(dammId, string(title)));
@@ -119,10 +119,10 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
 
     pair<set<int>::iterator, bool> result = idList.insert(dammId);
     if (result.second == false)
-	return false;
+        return false;
     // Mnemonic is optional and added only if longer then 0
     if (mne.size() > 0)
-	mneList.insert( pair<string, int>(mne, dammId) );
+        mneList.insert( pair<string, int>(mne, dammId) );
     
     hd2d_(dammId + offset, halfWordsPerChan, xSize, xHistLength, xLow, xHigh,
 	  ySize, yHistLength, yLow, yHigh, title, strlen(title));
@@ -151,7 +151,7 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
 }
 
 
-bool Plots::Plot(int dammId, double val1, double val2, double val3, const char* name) const
+bool Plots::Plot(int dammId, double val1, double val2, double val3, const char* name)
 {
     /*
       dammid - id of the damm spectrum in absence of root
@@ -162,22 +162,32 @@ bool Plots::Plot(int dammId, double val1, double val2, double val3, const char* 
       val3   - weight in a 2d
       name   - name of a root spectrum (NOT CURRENTLY USED)
     */
-    if (!CheckRange(dammId))
-	return false;
+    if (!Exists(dammId))
+        return false;
+
+	nonemptyList.insert(dammId);
 
     if (val2 == -1 && val3 == -1)
-	count1cc_(dammId + offset, int(val1), 1);
+        count1cc_(dammId + offset, int(val1), 1);
     else if  (val3 == -1 || val3 == 0)
-	count1cc_(dammId + offset, int(val1), int(val2));
+        count1cc_(dammId + offset, int(val1), int(val2));
     else 
-	set2cc_(dammId + offset, int(val1), int(val2), int(val3));
+        set2cc_(dammId + offset, int(val1), int(val2), int(val3));
     
     return true;
 }
 
-bool Plots::Plot(const std::string &mne, double val1, double val2, double val3, const char* name) const
+bool Plots::Plot(const std::string &mne, double val1, double val2, double val3, const char* name)
 {    
     if (!Exists(mne))
-	return false;
+        return false;
     return Plot(mneList.find(mne)->second, val1, val2, val3, name);
+}
+
+void Plots::PrintNonEmpty(std::ofstream& hislog) {
+    set<int>::iterator it;
+    for (it = nonemptyList.begin(); it != nonemptyList.end(); ++it) {
+        int id = *it;
+        hislog << "\t" << id + offset << " " << titleList[id] << endl;
+    }
 }
