@@ -19,9 +19,9 @@ REVISIOND = 1
 
 #These will set the analysis used on the waveforms
 #Uncomment this line to use the Pulse Fitting routine
-#PULSEFIT = 1
+PULSEFIT = 1
 #Uncomment this line to use the cfd
-DCFD = 1
+#DCFD = 1
 
 
 #------- instruct make to search through these
@@ -160,7 +160,6 @@ DETECTORLIBRARYO = DetectorLibrary.$(ObjSuf)
 PULSERPROCESSORO = PulserProcessor.$(ObjSuf)
 VANDLEPROCESSORO = VandleProcessor.$(ObjSuf)
 VANDLEROOTO      = VandleROOT.$(ObjSuf)
-TVANDLEPROCESSOR = TeenyVandleProcessor.$(ObjSuf)
 TIMINGINFOO      = TimingInformation.$(ObjSuf)
 WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
 FITTINGANALYZERO = FittingAnalyzer.$(ObjSuf)
@@ -198,8 +197,7 @@ OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \
 	$(TRIGGERLOGICPROCESSORO) $(TRACEEXTRACTERO) $(IONCHAMBERPROCESSORO) \
 	$(STATSDATAO) $(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO) \
 	$(POSITIONPROCESSORO) $(MAPFILEO) $(DETECTORLIBRARYO) \
-	$(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO) \
-	$(TVANDLEPROCESSOR) $(TIMINGINFOO) 
+	$(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO) $(TIMINGINFOO) \
 
 ifdef PULSEFIT
 OBJS += $(FITTINGANALYZERO)
