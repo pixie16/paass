@@ -58,7 +58,6 @@
 #include "PulserProcessor.hpp"
 #include "ScintProcessor.hpp"
 #include "SsdProcessor.hpp"
-#include "TeenyVandleProcessor.hpp"
 #include "TraceFilterer.hpp"
 #include "TriggerLogicProcessor.hpp"
 #include "VandleProcessor.hpp"
