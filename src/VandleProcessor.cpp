@@ -121,6 +121,9 @@ void VandleProcessor::DeclarePlots(void)
     DeclareHistogram1D(D_PROBLEMS, S5, "1D Debugging");
     DeclareHistogram2D(DD_PROBLEMS, S7, S7, "2D Debugging");
     
+    bool hasSmall = false;
+    bool hasBig   = false;
+
     if(hasSmall) {
        //Plots used for the general information about VANDLE
        DeclareHistogram2D(DD_TQDCBARS, SE, numSmallEnds, 
@@ -381,6 +384,9 @@ void VandleProcessor::AnalyzeData(void)
 
 	    unsigned int barPlusStartLoc = barLoc*2 + startLoc;
 
+	    const int resMult = 2; //set resolution of histograms
+	    const int resOffSet = 2000; // offset of histograms
+	    
 	    double tofOffset;
 	    if(startLoc == 0)
 		tofOffset = calibration.tofOffset0;
