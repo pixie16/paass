@@ -100,7 +100,7 @@ void VandleProcessor::DeclarePlots(void)
     DeclareHistogram1D(D_PROBLEMS, S5, "1D Debugging");
     DeclareHistogram2D(DD_PROBLEMS, S7, S7, "2D Debugging");
     
-    bool hasSmall = true;
+    bool hasSmall = false;
     bool hasBig   = false;
 
     if(hasSmall) {
