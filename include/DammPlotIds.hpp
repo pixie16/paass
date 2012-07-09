@@ -55,14 +55,20 @@ namespace dammIds {
         const int RANGE = 20;
     }
 
-    namespace vandle{ //The RANGE can be greatly reduced. -SVP
+    namespace vandle{ 
         const int OFFSET = 3100;
-        const int RANGE = 900;
+        const int RANGE = 200;
     }
 
+    //in PulserProcessor.cpp 
+    namespace pulser{ 
+        const int OFFSET = 3300;
+        const int RANGE = 20;
+    } 
+   
     namespace waveformanalyzer{ 
-        const int OFFSET = 4000;
-        const int RANGE = 100;
+        const int OFFSET = 3320;
+        const int RANGE = 20;
     }
 
     // in SsdProcessor.cpp
@@ -82,17 +88,6 @@ namespace dammIds {
         const int OFFSET = 4500;
         const int RANGE = 100;
     } 
-
-    //in PulserProcessor.cpp 
-    namespace pulser{ //Needs no more than 30 -SVP
-        const int OFFSET = 4600;
-        const int RANGE = 50;
-    } 
-
-    namespace teenyvandle{ //Same story here. -SVP
-       const int OFFSET = 4650;
-       const int RANGE  = 50;
-    }
 
     //in IonChamberProcessor.cpp 
     namespace ionChamber{ 
