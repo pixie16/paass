@@ -44,11 +44,10 @@ class VandleProcessor : public EventProcessor,
 
     bool hasDecay;
     double decayTime;
+    int counter;
 
     typedef std::pair<unsigned int, unsigned int> CrossTalkKey; 
     typedef std::map<CrossTalkKey, double> CrossTalkMap;
     std::map<CrossTalkKey, double> crossTalk;
-
-    int counter;
 }; //Class VandleProcessor
 #endif // __VANDLEPROCESSOR_HPP_

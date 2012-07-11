@@ -111,8 +111,10 @@ class TimingInformation
     static TimingCal GetTimingCal(const IdentKey &identity);
     static void ReadTimingCalibration(void);
     static void ReadTimingConstants(void);
-
+    
  private:
+    static const double qdcCompression = 4.0;
+
     static std::map<std::string, double> constantsMap;
     static TimingCalMap calibrationMap;
 }; // class TimingInformation

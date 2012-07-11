@@ -101,7 +101,6 @@ ifdef PULSEFIT
 LDLIBS   += -lgsl -lgslcblas
 CXXFLAGS += -Dpulsefit
 else ifdef DCFD
-LDLIBS   += -lgsl -lgslcblas
 CXXFLAGS += -Ddcfd
 endif
 
