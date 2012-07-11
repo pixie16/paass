@@ -40,9 +40,11 @@ namespace dammIds {
 	// clovers
 	const unsigned int MAX_CLOVERS = 4; // for *_DETX spectra
 
-	const unsigned int BETA_OFFSET    = 10;
-	const unsigned int DECAY_OFFSET   = 20;
-	const unsigned int ADDBACK_OFFSET = 50;
+    /*
+     * Beta offset = 10
+     * Decay offset = 20
+     * Addback offset = 50
+     */
 
 	const int D_ENERGY              = 0;
 	const int D_ENERGY_CLOVERX      = 1; // leaf by clover for X detectors
@@ -66,14 +68,16 @@ namespace dammIds {
 	const int DD_CLOVER_ENERGY_RATIO   = 107;
 	const int DD_ENERGY_WITH_DECAY     = 120;
 	const int DD_ADD_ENERGY            = 150;
+	const int DD_ADD_ENERGY_EARLY      = 151;
+	const int DD_ADD_ENERGY_LATE       = 152;
     // Gamma-Gamma angular distribution
     const int DD_ANGLE__GATEX         = 155;
     const int DD_ENERGY__GATEX        = 156;
 
 	const int DD_ADD_ENERGY_WITH_DECAY = 170;
 	// note these only make sense with decay 
-	const int DD_ENERGY__TIMEX         = 121; // with x granularities
-	const int DD_ADD_ENERGY__TIMEX     = 171; // with x granularities
+	const int DD_ENERGY__TIMEX           = 121; // with x granularities
+	const int DD_ADD_ENERGY__TIMEX       = 171; // with x granularities
 
 	// corresponds to ungated specra ID's + 10 where applicable
 	namespace betaGated {
@@ -92,8 +96,10 @@ namespace dammIds {
 	    const int DD_TDIFF__GAMMA_ENERGY = 105;
 	    const int DD_TDIFF__BETA_ENERGY  = 106;
 	    const int DD_ADD_ENERGY          = 160; 
-	    const int DD_ADD_ENERGY_PROMPT   = 161;
-	    const int DD_ADD_ENERGY_DELAYED  = 162;
+        const int DD_ADD_ENERGY_EARLY    = 161;
+        const int DD_ADD_ENERGY_LATE     = 162;
+	    const int DD_ADD_ENERGY_PROMPT   = 163;
+	    const int DD_ADD_ENERGY_DELAYED  = 164;
         const int DD_ANGLE__GATEX        = 165; 
         const int DD_ENERGY__GATEX       = 166; 
 	    const int DD_ENERGY__TIMEX       = 131; 
@@ -152,10 +158,15 @@ GeProcessor::GeProcessor() : EventProcessor(OFFSET, RANGE), leafToClover() {
     name = "ge";
     associatedTypes.insert("ge"); // associate with germanium detectors
 
+    // previously used:
+    // in seconds/bin
+    // 1e-6, 10e-6, 100e-6, 1e-3, 10e-3, 100e-3 
+    timeResolution.push_back(10e-3); 
+
 #ifdef GGATES
     /* 
      * Load GammaGates.txt defining gamma-gamma gates for anular
-     * distributions and for g-g-g gates
+     * distributions and for g-g-g spectra
      *
      */
     ifstream ggFile("GammaGates.txt");
@@ -301,10 +312,16 @@ void GeProcessor::DeclarePlots(void)
     DeclareHistogram2D(DD_ENERGY                       , energyBins2, energyBins2, "Gamma gamma");
     DeclareHistogram2D(betaGated::DD_ENERGY            , energyBins2, energyBins2, "Gamma gamma beta gated");
     DeclareHistogram2D(DD_ENERGY_WITH_DECAY            , energyBins2, energyBins2, "Gamma gamma decay gated");
+    DeclareHistogram2D(DD_ADD_ENERGY                   , energyBins2, energyBins2, "Gamma gamma addback");
+    DeclareHistogram2D(DD_ADD_ENERGY_EARLY             , energyBins2, energyBins2, "Gamma gamma addback");
+    DeclareHistogram2D(DD_ADD_ENERGY_LATE              , energyBins2, energyBins2, "Gamma gamma addback");
 
-    DeclareHistogram2D(betaGated::DD_ADD_ENERGY        , energyBins2, energyBins2, "Gamma gamma addback");
-    DeclareHistogram2D(betaGated::DD_ADD_ENERGY_PROMPT , energyBins2, energyBins2, "Gamma gamma addback, beta prompt");
-    DeclareHistogram2D(betaGated::DD_ADD_ENERGY_DELAYED, energyBins2, energyBins2, "Gamma gamma addback, beta delayed");
+    DeclareHistogram2D(betaGated::DD_ADD_ENERGY        , energyBins2, energyBins2, "Beta-gated Gamma gamma addback");
+    DeclareHistogram2D(betaGated::DD_ADD_ENERGY_PROMPT , energyBins2, energyBins2, "Beta-gated Gamma gamma addback, beta prompt");
+    DeclareHistogram2D(betaGated::DD_ADD_ENERGY_DELAYED, energyBins2, energyBins2, "Beta-gated Gamma gamma addback, beta delayed");
+    DeclareHistogram2D(betaGated::DD_ADD_ENERGY_EARLY   , energyBins2, energyBins2, "Beta-gated Gamma gamma addback early");
+    DeclareHistogram2D(betaGated::DD_ADD_ENERGY_LATE    , energyBins2, energyBins2, "Beta-gated Gamma gamma addback late");
+
     DeclareHistogram2D(DD_ADD_ENERGY_WITH_DECAY        , energyBins2, energyBins2, "Gamma gamma addback, decay gated");
 
     DeclareHistogram2D(betaGated::DD_TDIFF__GAMMA_ENERGY, timeBins2, energyBins2, "Gamma energy, beta time diff");
@@ -541,6 +558,30 @@ bool GeProcessor::Process(RawEvent &event) {
 		    continue;
 
 		symplot(DD_ADD_ENERGY, gEnergy, gEnergy2);
+        /*
+         * Early and late coincidences
+         * Only decay part of cycle can be taken
+         * Early coin. are between decay cycle start and some arb. point
+         * Late are between arb. point and end of cycle
+         */
+        if (hasDecay) {
+            double decayCycleStart = 1.0;
+            double decayCycleEarly = 1.5;
+            double decayCycleEnd   = 2.0;
+            double decayTime = event.GetCorrelator().GetDecayTime() * pixie::clockInSeconds;
+            if (decayTime > decayCycleStart) {
+                if (decayTime < decayCycleEarly) {
+                    symplot(DD_ADD_ENERGY_EARLY, gEnergy, gEnergy2);
+                    if (hasBeta)
+                        symplot(betaGated::DD_ADD_ENERGY_EARLY, gEnergy, gEnergy2);
+                } else if (decayTime < decayCycleEnd) {
+                    symplot(DD_ADD_ENERGY_LATE, gEnergy, gEnergy2);
+                    if (hasBeta)
+                        symplot(betaGated::DD_ADD_ENERGY_LATE, gEnergy, gEnergy2);
+                }
+
+            }
+        }
 		if (hasBeta) {
 		    symplot(betaGated::DD_ADD_ENERGY, gEnergy, gEnergy2);
 		    double dTime = (int)(gTime - betaTime);
