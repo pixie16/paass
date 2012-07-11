@@ -50,7 +50,7 @@ TimingInformation::TimingData::TimingData(ChanEvent *chan) : trace(chan->GetTrac
     maxval         = trace.GetValue("maxval");
     phase          = trace.GetValue("phase")*(pixie::adcClockInSeconds*1e+9);
     stdDevBaseline = trace.GetValue("sigmaBaseline");
-    tqdc           = trace.GetValue("tqdc");
+    tqdc           = trace.GetValue("tqdc")/qdcCompression;
     walk           = trace.GetValue("walk");
     
     //Calculate some useful quantities.
@@ -63,8 +63,6 @@ TimingInformation::TimingData::TimingData(ChanEvent *chan) : trace(chan->GetTrac
        (tqdc == tqdc) && (highResTime == highResTime) &&
        (stdDevBaseline == stdDevBaseline))
 	dataValid = true;
-    else
-	dataValid = false;
 }
 
 
@@ -236,7 +234,7 @@ void TimingInformation::ReadTimingCalibration(void)
     ifstream timingCalFile("timingCal.txt");
     
     if (!timingCalFile) {
-        cout << endl << "Cannot open file 'scintPhysCal.txt'" 
+        cout << endl << "Cannot open file 'timingCal.txt'" 
 	     << "-- This is Fatal! Exiting..." << endl << endl;
 	exit(EXIT_FAILURE);
     } else {
