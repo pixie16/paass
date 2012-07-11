@@ -121,13 +121,10 @@ void VandleProcessor::DeclarePlots(void)
     DeclareHistogram1D(D_PROBLEMS, S5, "1D Debugging");
     DeclareHistogram2D(DD_PROBLEMS, S7, S7, "2D Debugging");
     
-    bool hasSmall = false;
-    bool hasBig   = false;
-
     if(hasSmall) {
        //Plots used for the general information about VANDLE
-       DeclareHistogram2D(DD_TQDCBARS, SE, numSmallEnds, 
-			  "Det Loc vs Trace QDC");
+	DeclareHistogram2D(DD_TQDCBARS, SD, numSmallEnds,
+			   "Det Loc vs Trace QDC");
        // DeclareHistogram2D(DD_MAXIMUMBARS, SC, S5, 
        // 			  "Det Loc vs. Maximum");
        DeclareHistogram2D(DD_TIMEDIFFBARS, S9, numSmallEnds, 
@@ -136,7 +133,7 @@ void VandleProcessor::DeclarePlots(void)
 			  "Bar vs. Time of Flight");
        DeclareHistogram2D(DD_CORTOFBARS, SC, numSmallEnds, 
 			  "Bar vs  Cor Time of Flight");
-       //DeclareHistogram2D(DD_TQDCAVEVSTDIFF, SC, SE, 
+       //DeclareHistogram2D(DD_TQDCAVEVSTDIFF, SC, SD, 
        //		  "<E> vs. Time Diff(0.5ns/bin)");
        //Plots related to the TOF
        DeclareHistogram2D(DD_TDIFFVSTOF, SC, S9, 
@@ -145,7 +142,7 @@ void VandleProcessor::DeclarePlots(void)
        // 			  "MaxR vs. TOF(0.5ns/bin)");
        // DeclareHistogram2D(DD_MAXLVSTOF, SD, SC,
        // 			  "MaxL vs. TOF(0.5ns/bin)");
-       DeclareHistogram2D(DD_TQDCAVEVSTOF, SC, SE,
+       DeclareHistogram2D(DD_TQDCAVEVSTOF, SC, SD,
 			  "<E> vs. TOF(0.5ns/bin)");
        //Plots related to the corTOF
        DeclareHistogram2D(DD_TDIFFVSCORTOF, SC, S9,
@@ -154,9 +151,9 @@ void VandleProcessor::DeclarePlots(void)
        // 			  "MaxR vs. CorTOF(0.5ns/bin)");
        // DeclareHistogram2D(DD_MAXLVSCORTOF, SD, SC,
        // 			  "MaxL vs. CorTOF(0.5ns/bin)");    
-       DeclareHistogram2D(DD_TQDCAVEVSCORTOF, SC, SE, 
+       DeclareHistogram2D(DD_TQDCAVEVSCORTOF, SC, SD, 
 			  "<E> vs. CorTOF(0.5ns/bin)");
-       // DeclareHistogram2D(DD_TQDCAVEVSENERGY, SC, SE, 
+       // DeclareHistogram2D(DD_TQDCAVEVSENERGY, SC, SD, 
        // 			  "TQDC vs Energy (kev/bin)");
        //Plots related to Correlated times
        DeclareHistogram2D(DD_CORRELATED_TOF, SC, SC, 
@@ -170,15 +167,15 @@ void VandleProcessor::DeclarePlots(void)
        // 			  "Max Start0 vs. CorTOF(0.5ns/bin)");
        // DeclareHistogram2D(DD_MAXSTART1VSCORTOF, SD, SC, 
        // 			  "Max Start1 vs. CorTOF(0.5ns/bin)");
-       DeclareHistogram2D(DD_TQDCAVEVSSTARTQDCSUM, SC, SE, 
+       DeclareHistogram2D(DD_TQDCAVEVSSTARTQDCSUM, SC, SD, 
 			  "<E> VANDLE vs. <E> BETA - SUMMED");
-       DeclareHistogram2D(DD_TOFVSSTARTQDCSUM, SC, SE, 
+       DeclareHistogram2D(DD_TOFVSSTARTQDCSUM, SC, SD, 
 			  "TOF VANDLE vs. <E> BETA - SUMMED");
        
        //Plots related to the Ge detectors
        DeclareHistogram2D(DD_GAMMAENERGYVSTOF, SC, S9, 
 			  "GAMMA ENERGY vs. CorTOF VANDLE");
-       DeclareHistogram2D(DD_TQDCAVEVSTOF_VETO, SC, SE, 
+       DeclareHistogram2D(DD_TQDCAVEVSTOF_VETO, SC, SD, 
 			  "<E> VANDLE vs. CorTOF VANDLE - Gamma Veto");
        DeclareHistogram2D(DD_TOFBARS_VETO, SC, S9, 
 			  "Bar vs CorTOF - Gamma Veto"); 
@@ -186,7 +183,7 @@ void VandleProcessor::DeclarePlots(void)
 
     if(hasBig) {
        //Plots used for the general information about VANDLE
-       DeclareHistogram2D(DD_TQDCBARS+dammIds::BIG_OFFSET, SE, numBigEnds, 
+       DeclareHistogram2D(DD_TQDCBARS+dammIds::BIG_OFFSET, SD, numBigEnds, 
 			  "Det Loc vs Trace QDC");
        // DeclareHistogram2D(DD_MAXIMUMBARS+dammIds::BIG_OFFSET, SC, numBigEnds, 
        // 			  "Det Loc vs. Maximum");
@@ -196,7 +193,7 @@ void VandleProcessor::DeclarePlots(void)
        // 			  "Bar vs. Time of Flight");
        // DeclareHistogram2D(DD_CORTOFBARS+dammIds::BIG_OFFSET, SC, numBigEnds, 
        // 			  "Bar vs  Cor Time of Flight");
-       // DeclareHistogram2D(DD_TQDCAVEVSTDIFF+dammIds::BIG_OFFSET, SC, SE, 
+       // DeclareHistogram2D(DD_TQDCAVEVSTDIFF+dammIds::BIG_OFFSET, SC, SD, 
        // 			  "<E> vs. Time Diff(0.5ns/bin)");
        //Plots related to the TOF
        // DeclareHistogram2D(DD_TDIFFVSTOF+dammIds::BIG_OFFSET, SC, S9, 
@@ -205,7 +202,7 @@ void VandleProcessor::DeclarePlots(void)
        // 			  "MaxR vs. TOF(0.5ns/bin)");
        // DeclareHistogram2D(DD_MAXLVSTOF+dammIds::BIG_OFFSET, SD, SC,
        // 			  "MaxL vs. TOF(0.5ns/bin)");
-       // DeclareHistogram2D(DD_TQDCAVEVSTOF+dammIds::BIG_OFFSET, SC, SE,
+       // DeclareHistogram2D(DD_TQDCAVEVSTOF+dammIds::BIG_OFFSET, SC, SD,
        // 			  "<E> vs. TOF(0.5ns/bin)");
        //Plots related to the corTOF
        // DeclareHistogram2D(DD_TDIFFVSCORTOF+dammIds::BIG_OFFSET, SC, S9,
@@ -214,9 +211,9 @@ void VandleProcessor::DeclarePlots(void)
        // 			  "MaxR vs. CorTOF(0.5ns/bin)");
        // DeclareHistogram2D(DD_MAXLVSCORTOF+dammIds::BIG_OFFSET, SD, SC,
        // 			  "MaxL vs. CorTOF(0.5ns/bin)");    
-       // DeclareHistogram2D(DD_TQDCAVEVSCORTOF+dammIds::BIG_OFFSET, SC, SE, 
+       // DeclareHistogram2D(DD_TQDCAVEVSCORTOF+dammIds::BIG_OFFSET, SC, SD, 
        // 			  "<E> vs. CorTOF(0.5ns/bin)");
-       // DeclareHistogram2D(DD_TQDCAVEVSENERGY+dammIds::BIG_OFFSET, SC, SE, 
+       // DeclareHistogram2D(DD_TQDCAVEVSENERGY+dammIds::BIG_OFFSET, SC, SD, 
        // 			  "TQDC vs Energy (kev/bin)");
        //Plots related to Correlated times
        // DeclareHistogram2D(DD_CORRELATED_TOF+dammIds::BIG_OFFSET, SC, SC, 
@@ -231,13 +228,13 @@ void VandleProcessor::DeclarePlots(void)
        // DeclareHistogram2D(DD_MAXSTART1VSCORTOF+dammIds::BIG_OFFSET, SD, SC, 
        // 			  "Max Start1 vs. CorTOF(0.5ns/bin)");
        // DeclareHistogram2D(DD_TQDCAVEVSSTARTQDCSUM+dammIds::BIG_OFFSET,
-       // 			  SC, SE, "<E> VANDLE vs. <E> BETA - SUMMED");
-       // DeclareHistogram2D(DD_TOFVSSTARTQDCSUM+dammIds::BIG_OFFSET, SC, SE, 
+       // 			  SC, SD, "<E> VANDLE vs. <E> BETA - SUMMED");
+       // DeclareHistogram2D(DD_TOFVSSTARTQDCSUM+dammIds::BIG_OFFSET, SC, SD, 
        // 			  "TOF VANDLE vs. <E> BETA - SUMMED");
        //Plots related to the Ge detectors
        // DeclareHistogram2D(DD_GAMMAENERGYVSTOF+dammIds::BIG_OFFSET, 
        // 			  SC, S9, "GAMMA ENERGY vs. CorTOF VANDLE");
-       // DeclareHistogram2D(DD_TQDCAVEVSTOF_VETO+dammIds::BIG_OFFSET, SC, SE, 
+       // DeclareHistogram2D(DD_TQDCAVEVSTOF_VETO+dammIds::BIG_OFFSET, SC, SD, 
        // 			  "<E> VANDLE vs. CorTOF VANDLE - Gamma Veto");
        // DeclareHistogram2D(DD_TOFBARS_VETO+dammIds::BIG_OFFSET, SC, S9, 
        // 			  "Bar vs CorTOF - Gamma Veto"); 
@@ -245,12 +242,12 @@ void VandleProcessor::DeclarePlots(void)
 
     if(hasTvandle) {
 	using namespace dammIds::tvandle;
-	DeclareHistogram2D(DD_TQDCBARS+dammIds::TVANDLE_OFFSET, SE, S1,"QDC");
+	DeclareHistogram2D(DD_TQDCBARS+dammIds::TVANDLE_OFFSET, SD, S1,"QDC");
 	DeclareHistogram2D(DD_MAXIMUMBARS+dammIds::TVANDLE_OFFSET, SC, S1, "Max");
 	DeclareHistogram1D(D_TIMEDIFF, SA, "Time Difference");
 	DeclareHistogram2D(DD_PVSP, SE, SE,"Phase vs. Phase");
 	DeclareHistogram2D(DD_MAXVSTDIFF, SA, SC,"Max Right vs. Time Diff");
-	DeclareHistogram2D(DD_QDCVSMAX, SC, SE,"QDC vs Max - Right");
+	DeclareHistogram2D(DD_QDCVSMAX, SC, SD,"QDC vs Max - Right");
 	//DeclareHistogram2D(DD_AMPMAPSTART, S7, SC,"Amp Map Start");
 	//DeclareHistogram2D(DD_AMPMAPSTOP, S7, SC,"Amp Map Stop");
 	DeclareHistogram1D(D_SNRSTART, SE, "SNR - Right");
@@ -262,12 +259,13 @@ void VandleProcessor::DeclarePlots(void)
     }//if(hasTvandle);
 	
     //Histograms for the CrossTalk Subroutine
-//    DeclareHistogram1D(D_CROSSTALK, SC, "CrossTalk Between Two Bars");
-//    DeclareHistogram2D(DD_GATEDTQDCAVEVSTOF, SC, SE, "<E> vs. TOF0 (0.5ns/bin) - Gated");
-//    DeclareHistogram2D(DD_TOFBARBVSBARA, SC, SC, "TOF Bar1 vs. Bar2");
+    //DeclareHistogram1D(D_CROSSTALK, SC, "CrossTalk Between Two Bars");
+    //DeclareHistogram2D(DD_GATEDTQDCAVEVSTOF, SC, SD, 
+    //"<E> vs. TOF0 (0.5ns/bin) - Gated");
+    //DeclareHistogram2D(DD_TOFBARBVSBARA, SC, SC, "TOF Bar1 vs. Bar2");
 
     //DeclareHistogram2D(, S8, S8, "tdiffA vs. tdiffB");
-    //DeclareHistogram1D(, SE, "Muons");
+    //DeclareHistogram1D(, SD, "Muons");
     //DeclareHistogram2D(, S8, S8, "tdiffA vs. tdiffB");
 }// Declare Plots
 
@@ -372,7 +370,7 @@ void VandleProcessor::AnalyzeData(void)
 	plot(DD_TIMEDIFFBARS+idOffset, 
 	     (*itBar).second.timeDiff*resMult+resOffset, barLoc); 
 	plot(DD_TQDCAVEVSTDIFF+idOffset, 
-	     (*itBar).second.timeDiff*2+200, (*itBar).second.qdc);
+	     (*itBar).second.timeDiff*resMult+resOffset, (*itBar).second.qdc);
 	
 	//Loop over the starts in the event	
 	for(TimingDataMap::iterator itStart = startMap.begin(); 
@@ -381,12 +379,8 @@ void VandleProcessor::AnalyzeData(void)
 		continue;
 	    
 	    unsigned int startLoc = (*itStart).first.first;
-
 	    unsigned int barPlusStartLoc = barLoc*2 + startLoc;
 
-	    const int resMult = 2; //set resolution of histograms
-	    const int resOffSet = 2000; // offset of histograms
-	    
 	    double tofOffset;
 	    if(startLoc == 0)
 		tofOffset = calibration.tofOffset0;
@@ -409,8 +403,8 @@ void VandleProcessor::AnalyzeData(void)
 		plot(DD_TQDCAVEVSENERGY+idOffset, energy, (*itBar).second.qdc);
 	    plot(DD_TOFBARS+idOffset, 
 		 TOF*resMult+resOffset, barPlusStartLoc);
-	    plot(DD_TDIFFVSTOF+idOffset, 
-		 TOF*resMult+resOffset, (*itBar).second.timeDiff*resMult+200);
+	    plot(DD_TDIFFVSTOF+idOffset, TOF*resMult+resOffset, 
+		 (*itBar).second.timeDiff*resMult+resOffset);
 	    plot(DD_MAXRVSTOF+idOffset, 
 		 TOF*resMult+resOffset, (*itBar).second.rMaxVal);
 	    plot(DD_MAXLVSTOF+idOffset, 
@@ -420,8 +414,8 @@ void VandleProcessor::AnalyzeData(void)
 
 	    plot(DD_CORTOFBARS, 
 		 corTOF*resMult+resOffset, barPlusStartLoc); 
-	    plot(DD_TDIFFVSCORTOF+idOffset, 
-		 corTOF*resMult+resOffset, (*itBar).second.timeDiff);
+	    plot(DD_TDIFFVSCORTOF+idOffset, corTOF*resMult+resOffset, 
+		 (*itBar).second.timeDiff*resMult + resOffset);
 	    plot(DD_MAXRVSCORTOF+idOffset, 
 		 corTOF*resMult+resOffset, (*itBar).second.rMaxVal);
 	    plot(DD_MAXLVSCORTOF+idOffset, 
@@ -549,8 +543,6 @@ void VandleProcessor::CrossTalk(void)
     string barType = "small";
     IdentKey barA(0, barType);
     IdentKey barB(1, barType);
-    unsigned int startLoc = 0;
-        
 
     CrossTalkKey barsOfInterest(barA.first, barB.first);
     
@@ -586,7 +578,7 @@ void VandleProcessor::CrossTalk(void)
     double qdcA = (*itBarA).second.qdc;
     double qdcB = (*itBarB).second.qdc;
 
-    bool onBar = (tdiffA + tdiffB <= 0.75 && tdiffA + tdiffB >= 0.25);
+    //bool onBar = (tdiffA + tdiffB <= 0.75 && tdiffA + tdiffB >= 0.25);
     bool muon = (qdcA > 7500 && qdcB > 7500);
     
     double muonTOF = 
@@ -655,8 +647,8 @@ void VandleProcessor::Tvandle(void)
     TimingDataMap::iterator itRight = tvandleMap.find(rightKey);
     TimingDataMap::iterator itLeft  = tvandleMap.find(leftKey);
     
-    unsigned int maxPosRight = (unsigned int)(*itRight).second.maxpos;
-    unsigned int maxPosLeft  = (unsigned int)(*itLeft).second.maxpos;
+    // unsigned int maxPosRight = (unsigned int)(*itRight).second.maxpos;
+    // unsigned int maxPosLeft  = (unsigned int)(*itLeft).second.maxpos;
     unsigned int maxValRight = (unsigned int)(*itRight).second.maxval;
     unsigned int maxValLeft  = (unsigned int)(*itLeft).second.maxval;
     double timeDiff = 

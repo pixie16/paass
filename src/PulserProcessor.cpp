@@ -48,12 +48,12 @@ void PulserProcessor::DeclarePlots(void)
     DeclareHistogram1D(D_TIMEDIFF, SA, "Time Difference");
     DeclareHistogram1D(D_PROBLEMSTUFF, S5, "Problem Stuff");
 
-    DeclareHistogram2D(DD_QDC, SE, S1,"QDC");
+    DeclareHistogram2D(DD_QDC, SD, S1,"QDC");
     DeclareHistogram2D(DD_MAX, SC, S1, "Max");
     DeclareHistogram2D(DD_PVSP, S9, S9,"Phase vs. Phase");
     DeclareHistogram2D(DD_MAXVSTDIFF, SA, SC, 
 		       "Max vs. Time Diff");
-    DeclareHistogram2D(DD_QDCVSMAX, SC, SE,"QDC vs Max");
+    DeclareHistogram2D(DD_QDCVSMAX, SC, SD,"QDC vs Max");
     //DeclareHistogram2D(DD_AMPMAPSTART, S7, SC,"Amp Map Start");
     //DeclareHistogram2D(DD_AMPMAPSTOP, S7, SC,"Amp Map Stop");
 
@@ -116,8 +116,8 @@ void PulserProcessor::AnalyzeData(void)
     TimingDataMap::iterator itStart = pulserMap.find(startKey);
     TimingDataMap::iterator itStop  = pulserMap.find(stopKey);
     
-    unsigned int maxPosStart = (unsigned int)(*itStart).second.maxpos;
-    unsigned int maxPosStop = (unsigned int)(*itStop).second.maxpos;
+    // unsigned int maxPosStart = (unsigned int)(*itStart).second.maxpos;
+    // unsigned int maxPosStop = (unsigned int)(*itStop).second.maxpos;
 
     unsigned int cutVal = 15;
     if((*itStart).second.maxpos == 41)
