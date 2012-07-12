@@ -53,7 +53,7 @@ void FittingAnalyzer::DeclarePlots(void)
 
 
 //********** FittingAnalyzer **********
-FittingAnalyzer::FittingAnalyzer() : TraceAnalyzer()
+FittingAnalyzer::FittingAnalyzer() : TraceAnalyzer(OFFSET,RANGE)
 {
     name = "FittingAnalyzer";
     counter = 0;

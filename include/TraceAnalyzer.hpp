@@ -46,6 +46,7 @@ class TraceAnalyzer {
 
  public:
     TraceAnalyzer();
+    TraceAnalyzer(int offset, int range);
     virtual ~TraceAnalyzer();
     
     virtual bool Init(void);
