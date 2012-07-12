@@ -23,8 +23,6 @@ TimingInformation::TimingCalMap TimingInformation::calibrationMap;
 //********** Data (Default)**********
 TimingInformation::TimingData::TimingData(void) : trace(emptyTrace)
 {
-    dataValid      = false;
-    
     aveBaseline    = numeric_limits<double>::quiet_NaN();
     discrimination = numeric_limits<double>::quiet_NaN();
     highResTime    = numeric_limits<double>::quiet_NaN();
@@ -63,6 +61,8 @@ TimingInformation::TimingData::TimingData(ChanEvent *chan) : trace(chan->GetTrac
        (tqdc == tqdc) && (highResTime == highResTime) &&
        (stdDevBaseline == stdDevBaseline))
 	dataValid = true;
+    else
+	dataValid = false;
 }
 
 
