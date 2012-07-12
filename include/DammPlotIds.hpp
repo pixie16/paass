@@ -15,8 +15,8 @@ namespace dammIds {
         const int D_HAS_TRACE = 800;
         const int D_CAL_ENERGY = 1000;
         const int D_CAL_ENERGY_REJECT = 1200;
-        const int D_HIT_SPECTRUM = 1800;
-        const int D_SUBEVENT_GAP = 1801;
+        const int D_HIT_SPECTRUM = 1800; /**< This is actually id 1801 in the .his file */
+        const int D_SUBEVENT_GAP = 1801; /**< The rest follow the same pattern. */
         const int D_EVENT_LENGTH = 1802;
         const int D_EVENT_GAP    = 1803;
         const int D_EVENT_MULTIPLICITY = 1804;
