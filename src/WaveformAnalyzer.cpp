@@ -57,10 +57,10 @@ void WaveformAnalyzer::Analyze(Trace &trace,
 
 	trace.DoQDC(maxPos-waveformLow, 
 		    waveformHigh+waveformLow);
-
-	if(detSubtype == "liquid")
-	    trace.DoDiscrimination(startDiscrimination, 
-				   waveformHigh - startDiscrimination);
+	//Temporarly removed due to SegFault Issues
+	// if(detSubtype == "liquid")
+	//     trace.DoDiscrimination(startDiscrimination, 
+	// 			   waveformHigh - startDiscrimination);
     } //if(detType
     EndAnalyze();
 }

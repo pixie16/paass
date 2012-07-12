@@ -99,6 +99,7 @@ using namespace dammIds::raw;
 DetectorDriver::DetectorDriver() : 
     histo(OFFSET, RANGE, PlotsRegister::R() ) 
 {
+    //vecAnalyzer.push_back(new TracePlotter());
     //vecAnalyzer.push_back(new DoubleTraceAnalyzer());
     //vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
     //vecAnalyzer.push_back(new TauAnalyzer());
