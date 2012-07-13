@@ -100,8 +100,8 @@ TimingInformation::BarData::BarData(const TimingData &Right, const TimingData &L
     rMaxVal   = Right.maxval;
     qdc       = sqrt(Right.tqdc*Left.tqdc);
     timeAve   = (Right.highResTime + Left.highResTime)*0.5; //in ns
-    timeDiff  = (Left.highResTime-Right.highResTime)-cal.lrtOffset; //in ns
-    walkCorTimeDiff = (Left.walkCorTime-Right.walkCorTime)-cal.lrtOffset;
+    timeDiff  = (Left.highResTime-Right.highResTime) + cal.lrtOffset; //in ns
+    walkCorTimeDiff = (Left.walkCorTime-Right.walkCorTime) + cal.lrtOffset;
 
     //Calculate some useful quantities for the bar analysis.
     event   = BarEventCheck(timeDiff, type);
@@ -244,16 +244,14 @@ void TimingInformation::ReadTimingCalibration(void)
 		string type = "";
     
 		timingCalFile >> location >> type  
-			      >> timingcal.r0 //position stuff
+			      >> timingcal.z0 //position stuff
 			      >> timingcal.xOffset >> timingcal.zOffset 
 			      >> timingcal.lrtOffset  //time stuff
 			      >> timingcal.tofOffset0 >> timingcal.tofOffset1;
 		
-		timingcal.z0 = //minimum distance to bar
-		    sqrt(timingcal.r0*timingcal.r0+
-			 timingcal.xOffset*timingcal.xOffset)-
-		    timingcal.zOffset; 
-		
+		//minimum distance to the bar
+		timingcal.z0 += timingcal.zOffset; 
+
 		IdentKey calKey(location, type);
 		
 		calibrationMap.insert(make_pair(calKey, timingcal));

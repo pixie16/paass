@@ -389,7 +389,7 @@ void VandleProcessor::AnalyzeData(void)
 	    
 	    //times are calculated in ns, energy in keV
 	    double TOF = 
-		(*itBar).second.timeAve - (*itStart).second.highResTime - tofOffset; 
+		(*itBar).second.timeAve - (*itStart).second.highResTime + tofOffset; 
 	    double corTOF = 
 		CorrectTOF(TOF, (*itBar).second.flightPath, calibration.z0); 
 	    double energy = 
