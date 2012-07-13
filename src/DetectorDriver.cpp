@@ -99,7 +99,7 @@ using namespace dammIds::raw;
 DetectorDriver::DetectorDriver() : 
     histo(OFFSET, RANGE, PlotsRegister::R() ) 
 {
-    //vecAnalyzer.push_back(new TracePlotter());
+    vecAnalyzer.push_back(new TracePlotter());
     //vecAnalyzer.push_back(new DoubleTraceAnalyzer());
     //vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
     //vecAnalyzer.push_back(new TauAnalyzer());
@@ -112,19 +112,17 @@ DetectorDriver::DetectorDriver() :
     vecAnalyzer.push_back(new CfdAnalyzer());
 #endif
 
+    vecProcess.push_back(new ScintProcessor());
+    vecProcess.push_back(new VandleProcessor());
     //vecProcess.push_back(new PositionProcessor()); // order is important
     //vecProcess.push_back(new TriggerLogicProcessor());
     //vecProcess.push_back(new SsdProcessor());
     //vecProcess.push_back(new GeProcessor()); // order is important
-
     // vecProcess.push_back(new SsdProcessor());
 #ifdef useroot
     vecProcess.push_back(new ScintROOT());
     vecProcess.push_back(new VandleROOT());
     vecProcess.push_back(new RootProcessor("tree.root", "tree"));
-#else
-    vecProcess.push_back(new ScintProcessor());
-    vecProcess.push_back(new VandleProcessor());
 #endif
 }
 
