@@ -111,7 +111,7 @@ bool VandleProcessor::Init(DetectorDriver &driver)
 //********** Declare Plots **********
 void VandleProcessor::DeclarePlots(void)
 {
-    bool hasSmall   = false;
+    bool hasSmall   = true;
     bool hasBig     = false;
     bool hasTvandle = false;
     const unsigned int numSmallEnds = S7;
