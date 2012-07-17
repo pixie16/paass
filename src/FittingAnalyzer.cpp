@@ -42,8 +42,18 @@ namespace dammIds {
 using namespace std;
 using namespace dammIds::waveformanalyzer;
 
+//********** DeclarePlots **********
+void FittingAnalyzer::DeclarePlots(void)
+{
+     DeclareHistogram2D(DD_TRACES, S7, S5, "traces data");
+     DeclareHistogram2D(DD_AMP, SE, SC, "Fit Amplitude");
+     DeclareHistogram1D(D_PHASE, SE, "Fit X0");
+     DeclareHistogram1D(D_CHISQPERDOF, SE, "Chi^2/dof");
+}
+
+
 //********** FittingAnalyzer **********
-FittingAnalyzer::FittingAnalyzer() : TraceAnalyzer()
+FittingAnalyzer::FittingAnalyzer() : TraceAnalyzer(OFFSET,RANGE)
 {
     name = "FittingAnalyzer";
     counter = 0;
@@ -215,16 +225,6 @@ double FittingAnalyzer::CalculateWalk(const double &maxVal)
 	0.59140785215161 * exp(maxVal/2068.14618331387) - 
 	95.5388835298589;
     return (f); //calculated in ns
-}
-
-
-//********** DeclarePlots **********
-void FittingAnalyzer::DeclarePlots(void)
-{
-     DeclareHistogram2D(DD_TRACES, S7, S5, "traces data");
-     DeclareHistogram2D(DD_AMP, SE, SC, "Fit Amplitude");
-     DeclareHistogram1D(D_PHASE, SE, "Fit X0");
-     DeclareHistogram1D(D_CHISQPERDOF, SE, "Chi^2/dof");
 }
 
 
