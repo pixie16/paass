@@ -58,7 +58,6 @@
 #include "PulserProcessor.hpp"
 #include "ScintProcessor.hpp"
 #include "SsdProcessor.hpp"
-#include "TeenyVandleProcessor.hpp"
 #include "TraceFilterer.hpp"
 #include "TriggerLogicProcessor.hpp"
 #include "VandleProcessor.hpp"
@@ -100,6 +99,7 @@ using namespace dammIds::raw;
 DetectorDriver::DetectorDriver() : 
     histo(OFFSET, RANGE, PlotsRegister::R() ) 
 {
+    vecAnalyzer.push_back(new TracePlotter());
     //vecAnalyzer.push_back(new DoubleTraceAnalyzer());
     //vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
     //vecAnalyzer.push_back(new TauAnalyzer());
@@ -112,6 +112,8 @@ DetectorDriver::DetectorDriver() :
     vecAnalyzer.push_back(new CfdAnalyzer());
 #endif
 
+    vecProcess.push_back(new ScintProcessor());
+    vecProcess.push_back(new VandleProcessor());
     //vecProcess.push_back(new PositionProcessor()); // order is important
     //vecProcess.push_back(new SsdProcessor());
     vecProcess.push_back(new TriggerLogicProcessor());
