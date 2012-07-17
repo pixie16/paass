@@ -17,7 +17,7 @@
 #define IARGC__GETARGS iargc_
 #endif
 
-extern "C" char * GETARG__GETARGS(const int &, char *, int);
+extern "C" char* GETARG__GETARGS(const int &, char *, int);
 extern "C" int IARGC__GETARGS(void);
 
 /** 
@@ -25,7 +25,7 @@ extern "C" int IARGC__GETARGS(void);
  */
 inline int GetNumberArguments(void) 
 {
-    return GETARG__GETARGS();
+    return IARGC__GETARGS();
 }
 
 /**
@@ -33,7 +33,6 @@ inline int GetNumberArguments(void)
  */
 inline void GetArgument(int i, char *arg, int length)
 {
-    IARGC__GETARGS(i, arg, length);
+    GETARG__GETARGS(i, arg, length);
 }
-
 #endif // _GETARGUMENTS_HPP_

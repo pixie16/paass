@@ -61,6 +61,7 @@
 #include "TraceFilterer.hpp"
 #include "TriggerLogicProcessor.hpp"
 #include "VandleProcessor.hpp"
+#include "ValidProcessor.hpp"
 
 #include "CfdAnalyzer.hpp"
 #include "DoubleTraceAnalyzer.hpp"
@@ -114,6 +115,7 @@ DetectorDriver::DetectorDriver() :
 
     vecProcess.push_back(new ScintProcessor());
     vecProcess.push_back(new VandleProcessor());
+    //vecProcess.push_back(new ValidProcessor());
     //vecProcess.push_back(new PositionProcessor()); // order is important
     //vecProcess.push_back(new TriggerLogicProcessor());
     //vecProcess.push_back(new SsdProcessor());
