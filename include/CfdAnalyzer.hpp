@@ -18,14 +18,6 @@ class CfdAnalyzer : public TraceAnalyzer,
     virtual void Analyze(Trace &, const std::string &, 
 			 const std::string &);
     virtual ~CfdAnalyzer() {};
- 
-    struct FitData {
-	size_t n;
-	double * y;
-	double * sigma;
-	float width;
-	float decay;
-    };
 };
 
 #endif // __CFDANALYZER_HPP_

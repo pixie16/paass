@@ -15,8 +15,8 @@ namespace dammIds {
         const int D_HAS_TRACE = 800;
         const int D_CAL_ENERGY = 1000;
         const int D_CAL_ENERGY_REJECT = 1200;
-        const int D_HIT_SPECTRUM = 1800;
-        const int D_SUBEVENT_GAP = 1801;
+        const int D_HIT_SPECTRUM = 1800; /**< This is actually id 1801 in the .his file */
+        const int D_SUBEVENT_GAP = 1801; /**< The rest follow the same pattern. */
         const int D_EVENT_LENGTH = 1802;
         const int D_EVENT_GAP    = 1803;
         const int D_EVENT_MULTIPLICITY = 1804;
@@ -57,12 +57,18 @@ namespace dammIds {
 
     namespace vandle{ //The RANGE can be greatly reduced. -SVP
         const int OFFSET = 3200;
-        const int RANGE = 900;
+        const int RANGE = 200;
     }
 
+    //in PulserProcessor.cpp 
+    namespace pulser{ 
+        const int OFFSET = 3400;
+        const int RANGE = 20;
+    } 
+   
     namespace waveformanalyzer{ 
-        const int OFFSET = 4000;
-        const int RANGE = 100;
+        const int OFFSET = 3420;
+        const int RANGE = 20;
     }
 
     // in SsdProcessor.cpp
@@ -82,17 +88,6 @@ namespace dammIds {
         const int OFFSET = 4500;
         const int RANGE = 100;
     } 
-
-    //in PulserProcessor.cpp 
-    namespace pulser{ //Needs no more than 30 -SVP
-        const int OFFSET = 4600;
-        const int RANGE = 50;
-    } 
-
-    namespace teenyvandle{ //Same story here. -SVP
-       const int OFFSET = 4650;
-       const int RANGE  = 50;
-    }
 
     //in IonChamberProcessor.cpp 
     namespace ionChamber{ 

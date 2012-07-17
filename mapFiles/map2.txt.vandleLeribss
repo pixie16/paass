@@ -9,9 +9,13 @@
 # "virtual" tag indicates that this channel is not a physical channel
 #   but is generated dynamically onboard 
 MOD    CH      TYPE	   SUBTYPE	LOCATION	TAGS
-0      0       scint	   liquid			uncal start
-0      2       vandleSmall left				uncal
-0      3       vandleSmall right			uncal
+0      0-1     scint	   beta				uncal start
+0      2-3     scint	   beta				uncal
+0      4-11e   vandleBig   left				uncal
+0      4-11o   vandleBig   right			uncal
+1-6    0-15e   vandleSmall left				uncal
+1-6    0-15o   vandleSmall right			uncal
+7      0-7     ge	   clover_high
 
 #0-1    0-11e   ssd	top				uncal
 #0-1    0-11o   ssd	bottom				uncal
