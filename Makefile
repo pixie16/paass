@@ -123,46 +123,53 @@ MILDATIMO        = mildatim.$(ObjSuf)
 SCANORUXO        = scanorux.$(ObjSuf)
 
 # objects from cpp
+#General Objects
+ACCUMULATORO     = StatsAccumulator.$(ObjSuf)
+CORRELATORO      = Correlator.$(ObjSuf)
+DETECTORDRIVERO  = DetectorDriver.$(ObjSuf)
+DETECTORLIBRARYO = DetectorLibrary.$(ObjSuf)
+EVENTPROCESSORO  = EventProcessor.$(ObjSuf)
+MAPFILEO         = MapFile.$(ObjSuf)
 PIXIEO           = PixieStd.$(ObjSuf)
+RAWEVENTO        = RawEvent.$(ObjSuf)
+RANDOMPOOLO      = RandomPool.$(ObjSuf)
+STATSDATAO       = StatsData.$(ObjSuf)
+TIMINGINFOO      = TimingInformation.$(ObjSuf)
+#Plot Objects
+HISTOGRAMMERO    = DeclareHistogram.$(ObjSuf)
 PLOTSREGISTERO   = PlotsRegister.$(ObjSuf)
 PLOTSO           = Plots.$(ObjSuf)
-ACCUMULATORO     = StatsAccumulator.$(ObjSuf)
-HISTOGRAMMERO    = DeclareHistogram.$(ObjSuf)
-EVENTPROCESSORO  = EventProcessor.$(ObjSuf)
-SCINTPROCESSORO  = ScintProcessor.$(ObjSuf)
-GEPROCESSORO     = GeProcessor.$(ObjSuf)
-LOGICPROCESSORO  = LogicProcessor.$(ObjSuf)
-TRIGGERLOGICPROCESSORO = TriggerLogicProcessor.$(ObjSuf)
-MCPPROCESSORO    = McpProcessor.$(ObjSuf)
-MTCPROCESSORO    = MtcProcessor.$(ObjSuf)
-DSSDPROCESSORO   = DssdProcessor.$(ObjSuf)
-DETECTORDRIVERO  = DetectorDriver.$(ObjSuf)
-CORRELATORO      = Correlator.$(ObjSuf)
-RAWEVENTO        = RawEvent.$(ObjSuf)
-ROOTPROCESSORO   = RootProcessor.$(ObjSuf)
-RANDOMPOOLO      = RandomPool.$(ObjSuf)
-SSDPROCESSORO    = SsdProcessor.$(ObjSuf)
+#Trace Related Objects
+CFDANALYZERO     = CfdAnalyzer.$(ObjSuf)
+DOUBLETRACEO     = DoubleTraceAnalyzer.$(ObjSuf)
+FITTINGANALYZERO = FittingAnalyzer.$(ObjSuf)
 TAUANALYZERO     = TauAnalyzer.$(ObjSuf)
-IONCHAMBERPROCESSORO = IonChamberProcessor.$(ObjSuf)
-ISSDPROCESSORO   = ImplantSsdProcessor.$(ObjSuf)
-STATSDATAO       = StatsData.$(ObjSuf)
 TRACEO		 = Trace.$(ObjSuf)
 TRACEEXTRACTERO  = TraceExtracter.$(ObjSuf)
-TRACESUBO        = TraceAnalyzer.$(ObjSuf)
-TRACEPLOTO       = TracePlotter.$(ObjSuf)
 TRACEFILTERO     = TraceFilterer.$(ObjSuf)
-DOUBLETRACEO     = DoubleTraceAnalyzer.$(ObjSuf)
+TRACEPLOTO       = TracePlotter.$(ObjSuf)
+TRACESUBO        = TraceAnalyzer.$(ObjSuf)
 WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
+#Dectector Processor Objects
+DSSDPROCESSORO   = DssdProcessor.$(ObjSuf)
+GEPROCESSORO     = GeProcessor.$(ObjSuf)
+ISSDPROCESSORO   = ImplantSsdProcessor.$(ObjSuf)
+IONCHAMBERPROCESSORO = IonChamberProcessor.$(ObjSuf)
+LOGICPROCESSORO  = LogicProcessor.$(ObjSuf)
+MCPPROCESSORO    = McpProcessor.$(ObjSuf)
+MTCPROCESSORO    = MtcProcessor.$(ObjSuf)
 POSITIONPROCESSORO = PositionProcessor.$(ObjSuf)
-MAPFILEO         = MapFile.$(ObjSuf)
-DETECTORLIBRARYO = DetectorLibrary.$(ObjSuf)
 PULSERPROCESSORO = PulserProcessor.$(ObjSuf)
+SCINTPROCESSORO  = ScintProcessor.$(ObjSuf)
+SSDPROCESSORO    = SsdProcessor.$(ObjSuf)
+TRIGGERLOGICPROCESSORO = TriggerLogicProcessor.$(ObjSuf)
 VANDLEPROCESSORO = VandleProcessor.$(ObjSuf)
+VALIDPROCESSORO  = ValidProcessor.$(ObjSuf)
+#ROOT Objects
+SCINTROOTO       = ScintROOT.$(ObjSuf)
+ROOTPROCESSORO   = RootProcessor.$(ObjSuf)
 VANDLEROOTO      = VandleROOT.$(ObjSuf)
-TIMINGINFOO      = TimingInformation.$(ObjSuf)
-WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
-FITTINGANALYZERO = FittingAnalyzer.$(ObjSuf)
-CFDANALYZERO     = CfdAnalyzer.$(ObjSuf)
+
 
 ifdef USEROOT
 PIXIE = pixie_ldf_c_root$(ExeSuf)
@@ -186,17 +193,16 @@ endif
 
 #----- list of objects
 OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \
-	$(PLOTSREGISTERO) $(PLOTSO) \
-	$(MTCPROCESSORO) $(MCPPROCESSORO) $(LOGICPROCESSORO) $(CORRELATORO) $(TRACESUBO) \
-	$(TRACEO) $(TRACEPLOTO) $(TRACEFILTERO) $(DOUBLETRACEO) \
-	$(MESSLOGO) $(MILDATIMO) $(SCANORUXO) $(ACCUMULATORO) $(PIXIEO) \
-	$(HISTOGRAMMERO) $(EVENTPROCESSORO) $(SCINTPROCESSORO) \
-	$(GEPROCESSORO) $(DSSDPROCESSORO) $(RAWEVENTO) $(RANDOMPOOLO) \
-	$(SSDPROCESSORO) $(ISSDPROCESSORO) $(TAUANALYZERO) \
+	$(PLOTSREGISTERO) $(PLOTSO) $(MTCPROCESSORO) $(MCPPROCESSORO) \
+	$(LOGICPROCESSORO) $(CORRELATORO) $(TRACESUBO) $(TRACEO) $(TRACEPLOTO) \
+	$(TRACEFILTERO) $(DOUBLETRACEO) $(MESSLOGO) $(MILDATIMO) $(SCANORUXO) \
+	$(ACCUMULATORO) $(PIXIEO) $(HISTOGRAMMERO) $(EVENTPROCESSORO) \
+	$(SCINTPROCESSORO) $(GEPROCESSORO) $(DSSDPROCESSORO) $(RAWEVENTO) \
+	$(RANDOMPOOLO) $(SSDPROCESSORO) $(ISSDPROCESSORO) $(TAUANALYZERO) \
 	$(TRIGGERLOGICPROCESSORO) $(TRACEEXTRACTERO) $(IONCHAMBERPROCESSORO) \
 	$(STATSDATAO) $(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO) \
-	$(POSITIONPROCESSORO) $(MAPFILEO) $(DETECTORLIBRARYO) \
-	$(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO) $(TIMINGINFOO) \
+	$(POSITIONPROCESSORO) $(MAPFILEO) $(DETECTORLIBRARYO) $(WAVEFORMSUBO) \
+	$(VANDLEPROCESSORO) $(PULSERPROCESSORO) $(TIMINGINFOO) $(VALIDPROCESSORO) \
 
 ifdef PULSEFIT
 OBJS += $(FITTINGANALYZERO)
