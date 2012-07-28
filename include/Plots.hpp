@@ -55,6 +55,8 @@ public:
 
     bool Plot(const std::string &mne, double val1, double val2 = -1, double val3 = -1, const char* name="h") const;
 
+    int Round(double val) const;
+
 private:
     /** Holds offset for a given set of plots */
     int offset;
