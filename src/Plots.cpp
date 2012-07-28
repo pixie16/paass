@@ -2,9 +2,10 @@
  *
  * Implement a block declaration scheme for DAMM plots
  */
-
-#include <cstring>
 #include <iostream>
+
+#include <cmath>
+#include <cstring>
 
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
@@ -159,11 +160,11 @@ bool Plots::Plot(int dammId, double val1, double val2, double val3, const char* 
 	return false;
 
     if (val2 == -1 && val3 == -1)
-	count1cc_(dammId + offset, int(val1), 1);
+	count1cc_(dammId + offset, Round(val1), 1);
     else if  (val3 == -1 || val3 == 0)
-	count1cc_(dammId + offset, int(val1), int(val2));
+	count1cc_(dammId + offset, Round(val1), Round(val2));
     else 
-	set2cc_(dammId + offset, int(val1), int(val2), int(val3));
+	set2cc_(dammId + offset, Round(val1), Round(val2), Round(val3));
     
     return true;
 }
@@ -173,4 +174,13 @@ bool Plots::Plot(const std::string &mne, double val1, double val2, double val3, 
     if (!Exists(mne))
 	return false;
     return Plot(mneList.find(mne)->second, val1, val2, val3, name);
+}
+
+int Plots::Round(double val) const
+{
+    double intpart;
+    if(modf(val, &intpart) < 0.5)
+	return(floor(val));
+    else
+	return(ceil(val));
 }
