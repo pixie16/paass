@@ -1,36 +1,26 @@
-/*    the detector driver class.
-
-      The main analysis program.  A complete event is create in PixieStd
-      passed into this class.  See manual for further details.
-
-      SNL - 7-2-07
-      SNL - 7-12-07
-            Add root analysis. If the ROOT program has been
-            detected on the computer system the and the
-            makefile has the useroot flag declared, ROOT
-            analysis will be included.
-      DTM - Oct. '09
-            Significant structural/cosmetic changes. Event processing is
-	    now primarily handled by individual event processors which
-	    handle their own DetectorDrivers
-
-      SVP - Oct. '10
-            Added the VandleProcessor for use with VANDLE.
-            Added the PulserProcessor for use with Pulsers.
-            Added the WaveformProcessor to determine ps time resolutions.
-*/
-
-/*!
-  \file DetectorDriver.cpp
-
-  \brief event processing
-
-  In this file are the details for experimental processing of a raw event
-  created by ScanList() in PixieStd.cpp.  Event processing includes things
-  which do not change from experiment to experiment (such as energy
-  calibration and raw parameter plotting) and things that do (differences
-  between MTC and RMS experiment, for example).
-*/
+/** \file DetectorDriver.cpp
+ * \brief event processing
+ *
+ * In this file are the details for experimental processing of a raw event
+ * created by ScanList() in PixieStd.cpp.  Event processing includes things
+ * which do not change from experiment to experiment (such as energy
+ * calibration and raw parameter plotting) and things that do (differences
+ * between MTC and RMS experiment, for example).
+ *
+ * \author S. Liddick
+ * \date 02 July 2007
+ *
+ * <STRONG>Modified:</strong> <br>
+ * SNL - 7-12-07 : 
+ *    Add root analysis. If the ROOT program has been
+ *    detected on the computer system the and the
+ *    makefile has the useroot flag declared, ROOT
+ *    analysis will be included. <br>
+ * DTM - Oct. '09 : 
+ *    Significant structural/cosmetic changes. Event processing is
+ *    now primarily handled by individual event processors which
+ *    handle their own DetectorDrivers
+ */
 
 #include <algorithm>
 #include <fstream>
@@ -68,7 +58,7 @@
 #include "FittingAnalyzer.hpp"
 #include "TauAnalyzer.hpp"
 #include "TraceAnalyzer.hpp"
-#include "TraceExtracter.hpp"
+#include "TraceExtractor.hpp"
 #include "WaveformAnalyzer.hpp"
 
 #ifdef useroot
@@ -102,7 +92,7 @@ DetectorDriver::DetectorDriver() :
 {
     vecAnalyzer.push_back(new TracePlotter());
     //vecAnalyzer.push_back(new DoubleTraceAnalyzer());
-    //vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
+    //vecAnalyzer.push_back(new TraceExtractor("ssd", "top"));
     //vecAnalyzer.push_back(new TauAnalyzer());
 #if defined(pulsefit) || defined(dcfd)
     vecAnalyzer.push_back(new WaveformAnalyzer());

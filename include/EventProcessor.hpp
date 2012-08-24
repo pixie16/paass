@@ -1,7 +1,5 @@
-/*! \file EventProcessor.hpp
- * 
- * Generic event processor which particular processing 
- * of individual devices can be derived from
+/** \file EventProcessor.hpp
+ * \brief Generic event processor
  */
 
 #ifndef __EVENTPROCESSOR_HPP_

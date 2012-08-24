@@ -1,7 +1,5 @@
-/**
- *   \file Trace.cpp
- *   
- *   Implement how to do our usual tricks with traces
+/** \file Trace.cpp
+ * \brief Implement how to do our usual tricks with traces
  */
 
 #include <algorithm>
@@ -69,17 +67,22 @@ double Trace::DoBaseline(unsigned int lo, unsigned int numBins)
     return stats.GetMean();
 }
 
-unsigned int Trace::DoDiscrimination(unsigned int lo, unsigned int numBins)
+double Trace::DoDiscrimination(unsigned int lo, unsigned int numBins)
 {
     unsigned int high = lo+numBins;
+
+    unsigned int max = GetValue("maxpos");
+    double discrim = 0, baseline = GetValue("baseline");
+    
+    //reference the sum to the maximum of the trace
+    high += max;
+    lo += max;
+
 
     if(size() < high)
 	return U_DELIMITER;
     
-    int discrim = 0, max = GetValue("maxpos");
-    double baseline = GetValue("baseline");
-
-    for(unsigned int i = max+lo; i <= max+high; i++)
+    for(unsigned int i = lo; i <= high; i++)
 	discrim += at(i)-baseline;
     
     InsertValue("discrim", discrim);
@@ -87,7 +90,7 @@ unsigned int Trace::DoDiscrimination(unsigned int lo, unsigned int numBins)
     return(discrim);
 }
 
-unsigned int Trace::DoQDC(unsigned int lo, unsigned int numBins) 
+double Trace::DoQDC(unsigned int lo, unsigned int numBins) 
 {
     unsigned int high = lo+numBins;
 

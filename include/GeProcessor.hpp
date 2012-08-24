@@ -1,6 +1,5 @@
-/*! \file GeProcessor.hpp
- *
- * Processor for germanium detectors
+/** \file GeProcessor.hpp
+ * \brief Processor for germanium detectors
  */
 
 #ifndef __GEPROCESSOR_HPP_

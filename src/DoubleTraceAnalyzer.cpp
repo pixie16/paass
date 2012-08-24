@@ -1,11 +1,13 @@
-/**    \file DoubleTraceAnalyzer.cpp
- *     \brief Identifies double traces.
+/** \file DoubleTraceAnalyzer.cpp
+ * \brief Identifies double traces.
  *
- *     Implements a quick online trapezoidal filtering mechanism
- *     for the identification of double pulses
+ * Implements a quick online trapezoidal filtering mechanism
+ * for the identification of double pulses
  *
- *     - SNL - 7-2-07 - created
- *     - SNL - 2-4-08 - Add plotting spectra
+ * \author S. Liddick
+ * \date 02 July 2007
+ * 
+ * <STRONG>Modified : </STRONG> SNL - 2-4-08 - Add plotting spectra
  */
 
 #include <algorithm>

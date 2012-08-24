@@ -1,7 +1,7 @@
-/**   \file DoubleTraceAnalyzer.hpp
- *    \brief Header file for the TraceAnalyzer class
- *
- *    SNL - 7-2-07
+/** \file DoubleTraceAnalyzer.hpp
+ * \brief Header file for the TraceAnalyzer class
+ * \author S. Liddick
+ * \date 02 July 2007
  */
 
 #ifndef __DOUBLETRACEANALYZER_HPP_

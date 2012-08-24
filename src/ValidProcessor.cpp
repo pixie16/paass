@@ -1,9 +1,9 @@
-/*****************************************
-Source File for the Valid Processor, used
-to output the MoNA timestamps for the 
-VANDLE-MoNA experiment at MSU.
-   S.V. Paulauskas 20 June 2012
-********************************************/
+/** \file ValidProcessor.cpp
+ *\brief Used to output the timestamps from the MoNA daq clock.
+ *
+ *\author S. V. Paulauskas 
+ *\date 20 June 2012
+ */
 #include <fstream>
 #include <iostream>
 #include <string>

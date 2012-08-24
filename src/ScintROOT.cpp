@@ -1,10 +1,12 @@
-/**************************************
-Contains the information for the ROOT
-functionality in the Scint Processor
-
-Written: S.V. Paulauskas  10 May 2011
-
-**************************************/
+/** \file ScintROOT.cpp
+ *\brief Outputs Scint info to ROOT - NOT UNDER DEVELOPMENT!!
+ *
+ *Writes certain information from the ScintProcessor into a ROOT tree.
+ *This functionality is currently not supported, and may well give garbage.
+ *
+ *\author S. V. Paulauskas  
+ *\date 10 May 2011
+ */
 #include <string>
 
 #include "ScintRoot.hpp"

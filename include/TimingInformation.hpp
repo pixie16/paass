@@ -1,7 +1,5 @@
-/****\file TimingInformation.hpp
- *
- *File holding structures and 
- *   info for Timing Analysis
+/** \file TimingInformation.hpp
+ * \brief File holding structures and info for Timing Analysis
  */
 
 #ifndef __TIMINGINFORMATION_HPP_
@@ -43,7 +41,7 @@ class TimingInformation
 	double maxpos;
 	double maxval;
 	double phase;
-	double signalToNoise;
+	double snr;
 	double stdDevBaseline;
 	double tqdc;
 	double walk;
@@ -92,7 +90,8 @@ class TimingInformation
 	double timeAve;
 	double timeDiff;
 	double walkCorTimeDiff;
-	
+	double walkCorTimeAve;
+		
 	std::map<unsigned int, double> timeOfFlight;
 	std::map<unsigned int, double> corTimeOfFlight;
 	std::map<unsigned int, double> energy;

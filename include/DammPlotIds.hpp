@@ -1,3 +1,7 @@
+/** \file DammPlotIds.hpp
+ * \brief Lists Offsets and Ranges for various Processors
+ */
+
 #ifndef __DAMM_PLOTIDS_HPP_
 #define __DAMM_PLOTIDS_HPP_ 1
 

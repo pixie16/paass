@@ -1,5 +1,6 @@
 /** \file DetectorLibrary.cpp
- *  Some useful function for managing the list of channel identifiers
+ *  \brief Some useful function for managing the list of channel identifiers
+ *  \author David Miller
  */
 
 #include <algorithm>

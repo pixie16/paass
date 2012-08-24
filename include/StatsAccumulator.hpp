@@ -1,9 +1,9 @@
 /** \file StatsAccumulator.hpp
- *
- * A simple class which accumulates data from a vector
+ * \brief A simple class which accumulates data from a vector
  *  for basic statistical analysis.
  *
- * D. Miller, August 2009
+ * \author David Miller
+ * \date August 2009
  */
 
 #ifndef __STATS_ACCUMULATOR_HPP_

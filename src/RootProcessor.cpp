@@ -1,7 +1,7 @@
 /** \file RootProcessor.cpp
- *
- * Implemenation of class to dump event info to a root tree
- * David Miller, Jan 2010
+ * \brief Implemenation of class to dump event info to a root tree
+ * \author David Miller
+ * \date Jan 2010
  */
 
 #ifdef useroot

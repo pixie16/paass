@@ -1,8 +1,9 @@
 /** \file RandomPool.hpp
- *  \brief Holds a pre-generated pool of random numbers
+ * \brief Holds a pre-generated pool of random numbers
  *
- *  This generates a pool of random numbers using the Mersenne twister.
- *  DTM - 08-18-2010
+ * This generates a pool of random numbers using the Mersenne twister.
+ * \author David Miller 
+ * \date 18 August 2010
  */
 
 #ifndef __RANDOMPOOL_HPP_

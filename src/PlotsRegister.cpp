@@ -1,6 +1,5 @@
 /** \file PlotsRegister.cpp
- *
- *  Declaration of singleton register
+ * \brief Declaration of singleton register
  */
 
 #include "PlotsRegister.hpp"

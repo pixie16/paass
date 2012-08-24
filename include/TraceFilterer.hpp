@@ -1,7 +1,7 @@
 /** \file TraceFilterer.hpp
- *  \brief Declaration of analysis class which does the filtering of traces.
- *
- *  David Miller, January 2011
+ * \brief Declaration of analysis class which does the filtering of traces.
+ * \author David Miller
+ * \date January 2011
  */
 
 #ifndef __TRACEFILTERER_HPP_

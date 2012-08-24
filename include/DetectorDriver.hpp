@@ -1,13 +1,13 @@
-/**
-  \file DetectorDriver.hpp
-
-  \brief Header file for the detector driver program.
-
-  SNL - 7-2-07
-  Defines two classes, Calibration and DetectorDriver
-  Calibration is resonsible for the calibration information
-  read into the analysis from the file cal.txt.  DetectorDriver
-  controls the flow of event processing.
+/** \file DetectorDriver.hpp
+ * \brief Header file for the detector driver program.
+ *
+ * Defines two classes, Calibration and DetectorDriver
+ * Calibration is resonsible for the calibration information
+ * read into the analysis from the file cal.txt.  DetectorDriver
+ * controls the flow of event processing.
+ *
+ * \author S. Liddick 
+ * \date 02 July 07
 */
 
 #ifndef __DETECTORDRIVER_HPP_

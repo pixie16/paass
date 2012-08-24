@@ -1,9 +1,10 @@
-/**   \file RawEvent.hpp
- *    \brief Header file for the rawevent
+/** \file RawEvent.hpp
+ * \brief Header file for the rawevent
  *
- *    The variables and structures contained in a raw event
+ * The variables and structures contained in a raw event
  *
- *    SNL - 7-2-07
+ * \author S. Liddick
+ * \date 02 July 2007
  */
 
 #ifndef __RAWEVENT_HPP_

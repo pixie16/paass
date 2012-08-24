@@ -1,5 +1,5 @@
- /** 
- * Handle QDCs for the position sensitive detector,
+/** \file LitePositionProcessor.hpp
+ * \brief Handle QDCs for the position sensitive detector,
  *   a minimal number of spectra are created
  */
 

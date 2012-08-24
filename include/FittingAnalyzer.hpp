@@ -1,6 +1,5 @@
 /** \file FittingAnalyzer.hpp
- * 
- * Class to use Fit on traces
+ * \brief Class to fit functions to waveforms
  */
 #ifndef __FITTINGANALYZER_HPP_
 #define __FITTINGANALYZER_HPP_

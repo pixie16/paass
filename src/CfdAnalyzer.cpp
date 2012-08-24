@@ -1,11 +1,14 @@
-/*********************************************
- This code will obtain the phase of a trace
-using a CFD coupled with a polynomial fit to
-a spline. 
-
-S.V. Paulauskas 22 July 2011
-
-********************************************/
+/** \file CfdAnalyzer.cpp
+ * \brief Uses a Digital CFD to obtain waveform phases
+ *
+ * This code will obtain the phase of a waveform using a digital CFD.
+ * Currently the only method is a polynomial fit to the crossing point.
+ * For 100-250 MHz systems, this is not going to produce good timing. 
+ * This code was originally written by S. Padgett.
+ *
+ * \author S. V. Paulauskas 
+ * \date 22 July 2011
+ */
 #include <algorithm>
 #include <iostream>
 #include <numeric>

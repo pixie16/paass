@@ -1,7 +1,12 @@
-/*****************************************
-Source File for the PulserProcessor
-   S.V. Paulauskas 10 July 2009
-********************************************/
+/** \file PulserProcessor.cpp
+ * \brief Analyzes pulser signals
+ *
+ * Analyzes pulser signals for electronics and high resolution
+ * timing applications.
+ *
+ * \author S. V. Paulauskas 
+ * \date 10 July 2009
+ */
 #include <fstream>
 #include <iostream>
 
@@ -157,8 +162,8 @@ void PulserProcessor::AnalyzeData(void)
 	plot(DD_QDCVSMAX, (*itStart).second.maxval, 
 	     (*itStart).second.tqdc);
 
-	plot(D_SNRSTART, (*itStart).second.signalToNoise*0.25);
-	plot(D_SNRSTOP, (*itStop).second.signalToNoise*0.25);
+	plot(D_SNRSTART, (*itStart).second.snr*0.25);
+	plot(D_SNRSTOP, (*itStop).second.snr*0.25);
 	plot(D_SDEVBASESTART, (*itStart).second.stdDevBaseline*timeRes+timeOff);
 	plot(D_SDEVBASESTOP, (*itStop).second.stdDevBaseline*timeRes+timeOff);
     }

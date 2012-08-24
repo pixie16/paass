@@ -1,6 +1,5 @@
 /** \file ScintProcessor.cpp
- *
- * implementation for scintillator processor
+ * \brief Implementation for scintillator processor
  */
 #include <vector>
 
@@ -186,11 +185,11 @@ void ScintProcessor::LiquidAnalysis(RawEvent &event)
 	TimingData liquid((*itLiquid));
 
 	//Graph traces for the Liquid Scintillators
-	if(liquid.discrimination == 0) {
+	if(liquid.discrimination <= 0) {
 	    for(Trace::const_iterator i = liquid.trace.begin(); 
 		i != liquid.trace.end(); i++)
 		plot(DD_TRCLIQUID, int(i-liquid.trace.begin()), 
-		     counter, int(*i)-liquid.aveBaseline);
+		     counter, *i);
 	    counter++;
 	}
 	

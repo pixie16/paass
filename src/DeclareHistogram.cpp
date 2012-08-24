@@ -1,7 +1,7 @@
-/*! \file DeclareHistogram.cpp
- * 
- * C++ wrapper to upak's hd1d/hd2d functions
- * David Miller, Aug. 2009
+/** \file DeclareHistogram.cpp
+ * \brief C++ wrapper to upak's hd1d/hd2d functions
+ * \author David Miller
+ * \date Aug. 2009
  */
 
 #include "DetectorDriver.hpp"

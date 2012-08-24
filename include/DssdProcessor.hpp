@@ -1,6 +1,5 @@
 /** \file DssdProcessor.hpp
- *
- * Header file for DSSD analysis
+ * \brief Header file for DSSD analysis
  */
 
 #ifndef __DSSD_PROCESSOR_HPP_
