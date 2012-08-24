@@ -1,6 +1,6 @@
 /*! \file SsdProcessor.cpp
- *
- * The SSD processor handles detectors of type ssd */
+ * \brief The SSD processor handles detectors of type ssd 
+ */
 
 #include "DammPlotIds.hpp"
 

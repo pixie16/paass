@@ -1,6 +1,5 @@
 /** \file VandleProcessor.hpp
- * 
- * Class for handling Vandle Bars
+ * \brief Class for handling Vandle Bars
  */
 
 #ifndef __VANDLEPROCESSOR_HPP_

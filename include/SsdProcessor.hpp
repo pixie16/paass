@@ -1,6 +1,5 @@
 /** \file SsdProcessor.hpp
- *
- * Header file for SSD analysis
+ * \brief Header file for SSD analysis
  */
 
 #ifndef __SSD_PROCESSOR_HPp_

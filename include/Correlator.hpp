@@ -1,7 +1,7 @@
-/*! \file Correlator.hpp
- *  \brief Header file for correlation
+/** \file Correlator.hpp
+ * \brief Header file for correlation
  *
- *  Class which handles implant/decay correlations
+ * Class which handles implant/decay correlations
  */
 
 #ifndef __CORRELATOR_PROCESSOR_HPP_

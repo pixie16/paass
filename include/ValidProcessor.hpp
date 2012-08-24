@@ -1,7 +1,8 @@
 /** \file ValidProcessor.hpp
- * 
- * Class for handling Valid Signals
+ * \brief Class for handling Valid Signals
  * For the VANDLE-MoNA experiment at MSU
+ * \author S. V. Paulauskas
+ * \date 20 June 2012
  */
 
 #ifndef __VALIDPROCESSOR_HPP_

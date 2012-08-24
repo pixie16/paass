@@ -1,6 +1,5 @@
 /** \file ScintROOT.hpp
- *
- * Root Functionality for ScintProcessor
+ * \brief Root Functionality for ScintProcessor
  */
 
 #ifndef __SCINTROOT_HPP_

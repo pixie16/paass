@@ -1,6 +1,5 @@
 /** \file MapFile.hpp
- *
- * An independent way to read in the map file with an updated format
+ * \brief An independent way to read in the map file with an updated format
  *   from the InitMap() days
  */
 

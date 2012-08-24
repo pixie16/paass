@@ -1,6 +1,6 @@
 /** \file MtcProcessor.cpp
+ * \brief handling of mtc events
  *
- * handling of mtc events
  * derived from timeclass.cpp
  * doesn't handle old style NSCL correlations
  *

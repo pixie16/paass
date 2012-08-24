@@ -1,6 +1,5 @@
 /** \file PulserProcessor.hpp
- * 
- * Class for handling Pulser Signals
+ * \brief Class for handling Pulser Signals
  */
 
 #ifndef __PULSERPROCESSOR_HPP_

@@ -1,11 +1,12 @@
-/*************************************
-Contains common data structures 
-  and methods needed for high 
-  resolution timing analysis
-
-Written: S.V. Paulauskas 09 May 2011
-
-*************************************/
+/** \file TimingInformation.cpp
+ *\brief Structures and methods for high res timing
+ *
+ *Contains common data structures and methods needed for high 
+ *resolution timing analysis
+ *
+ *\author S. V. Paulauskas 
+ *\date 09 May 2011
+ */
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -29,7 +30,7 @@ TimingInformation::TimingData::TimingData(void) : trace(emptyTrace)
     maxpos         = numeric_limits<double>::quiet_NaN();
     maxval         = numeric_limits<double>::quiet_NaN();
     phase          = numeric_limits<double>::quiet_NaN();
-    signalToNoise  = numeric_limits<double>::quiet_NaN();
+    snr            = numeric_limits<double>::quiet_NaN();
     stdDevBaseline = numeric_limits<double>::quiet_NaN();
     tqdc           = numeric_limits<double>::quiet_NaN();
     walk           = numeric_limits<double>::quiet_NaN();
@@ -52,7 +53,7 @@ TimingInformation::TimingData::TimingData(ChanEvent *chan) : trace(chan->GetTrac
     walk           = trace.GetValue("walk");
     
     //Calculate some useful quantities.
-    signalToNoise = pow(maxval/stdDevBaseline,2); 
+    snr = pow(maxval/stdDevBaseline,2); 
     walkCorTime   = highResTime - walk;
 
     //validate data and set a flag saying it's ok
@@ -102,6 +103,7 @@ TimingInformation::BarData::BarData(const TimingData &Right, const TimingData &L
     timeAve   = (Right.highResTime + Left.highResTime)*0.5; //in ns
     timeDiff  = (Left.highResTime-Right.highResTime) + cal.lrtOffset; //in ns
     walkCorTimeDiff = (Left.walkCorTime-Right.walkCorTime) + cal.lrtOffset;
+    walkCorTimeAve  = (Left.walkCorTime+Right.walkCorTime)*0.5;
 
     //Calculate some useful quantities for the bar analysis.
     event   = BarEventCheck(timeDiff, type);

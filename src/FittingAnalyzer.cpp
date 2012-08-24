@@ -1,10 +1,12 @@
-/*********************************************
- This code will obtain the phase of a trace
-using a Chi^2 fitting routine in GSL, 
-
-S.V. Paulauskas 22 July 2011
-
-********************************************/
+/** \file FittingAnalyzer.cpp
+ * \brief Uses a chi^2 minimization to fit waveforms
+ *
+ * Obtains the phase of a waveform using a Chi^2 fitting algorithm 
+ * implemented through the GSL libraries. 
+ *
+ * \author S. V. Paulauskas 
+ * \date 22 July 2011
+ */
 #include <iomanip>
 #include <iostream>
 #include <algorithm>
@@ -72,7 +74,6 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
 
     const double aveBaseline = trace.GetValue("baseline");
     const double sigmaBaseline = trace.GetValue("sigmaBaseline");
-    const double qdc = trace.GetValue("tqdc");
     const double maxVal = trace.GetValue("maxval");
 
     const unsigned int maxPos = (unsigned int)trace.GetValue("maxpos");
@@ -103,7 +104,13 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
     }else if (detSubtype == "liquid") {
 	width = TimingInformation::GetConstant("widthLiquid");
 	decay = TimingInformation::GetConstant("decayLiquid");
-    } else {
+    }else if (detType == "tvandle") {
+	width = TimingInformation::GetConstant("widthTvandle");
+	decay = TimingInformation::GetConstant("decayTvandle");
+    }else if (detSubtype == "beta") {
+	width = TimingInformation::GetConstant("widthBeta");
+	decay = TimingInformation::GetConstant("decayBeta");
+    }else {
 	width = TimingInformation::GetConstant("widthDefault");
 	decay = TimingInformation::GetConstant("decayDefault");
     }
@@ -221,9 +228,13 @@ double FittingAnalyzer::CalculateFittedFunction(double &x)
 //********** WalkCorrection **********
 double FittingAnalyzer::CalculateWalk(const double &maxVal)
 {
-    double f = 92.7907602830327 * exp(-maxVal/186091.225414275) +
-	0.59140785215161 * exp(maxVal/2068.14618331387) - 
-	95.5388835298589;
+    double f = 411.843925764033 * exp(-maxVal/168269.011109243) +
+     	40.5805276228096 * exp(maxVal/16037.5569336443) -454.567869867228;
+
+    //Old Version
+    // double f = 92.7907602830327 * exp(-maxVal/186091.225414275) +
+    // 	0.59140785215161 * exp(maxVal/2068.14618331387) - 
+    // 	95.5388835298589;
     return (f); //calculated in ns
 }
 

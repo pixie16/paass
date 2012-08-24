@@ -1,7 +1,12 @@
 /** \file McpProcessor.cpp
+ * \brief Handles MCP detectors
+ *
  * Mcp class takes the signals from the mcp detector
  *   and calculates a 2D position based on the readout
- * SNL 2-2-08, Modified DTM 9-09
+ *
+ * \author S. Liddick 
+ * \date 02 Feb 2008
+ * <STRONG>Modified : </strong> D. Miller 09-09
  */
 #ifdef useroot
 #include <TTree.h>

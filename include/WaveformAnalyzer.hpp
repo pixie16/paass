@@ -1,6 +1,5 @@
 /** \file WaveformAnalyzer.hpp
- * 
- * Class to analyze traces. 
+ * \brief Class to analyze traces. 
  */
 #ifndef __WAVEFORMANALYZER_HPP_
 #define __WAVEFORMANALYZER_HPP_

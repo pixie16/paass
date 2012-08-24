@@ -1,6 +1,5 @@
 /** \file MtcProcessor.hpp
- *
- * class to handle mtc signals
+ * \brief class to handle mtc signals
  */
 
 #ifndef __MTCPROCESSOR_HPP_

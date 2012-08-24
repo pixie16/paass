@@ -1,8 +1,5 @@
 /** \file TriggerLogicProcessor.cpp
- *
- * make a nifty trigger/logic graph
- * derived from MtcProcessor.cpp
- *
+ * \brief Make a nifty trigger/logic graph derived from MtcProcessor.cpp
  */
 
 #include <string>

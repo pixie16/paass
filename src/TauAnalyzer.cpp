@@ -1,6 +1,5 @@
 /** \file TauAnalyzer.cpp
- *
- * Implements the determination of the decay constants for a trace
+ * \brief Implements the determination of the decay constants for a trace
  */
 
 #include "Globals.hpp"

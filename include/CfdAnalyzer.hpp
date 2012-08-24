@@ -1,7 +1,7 @@
-/** \file CfdAnalysis.hpp
- * 
- * Class to use Cfd on traces
+/** \file CfdAnalyzer.hpp
+ * \brief Class to use Cfd on traces
  */
+
 #ifndef __CFDANALYZER_HPP_
 #define __CFDANALYZER_HPP_
 

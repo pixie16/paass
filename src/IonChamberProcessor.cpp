@@ -1,6 +1,5 @@
-/** \file ScintProcessor.cpp
- *
- * implementation for scintillator processor
+/** \file IonChamberProcessor.cpp
+ * \brief implementation for ion chambers
  */
 
 #include <vector>

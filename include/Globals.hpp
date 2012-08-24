@@ -1,7 +1,6 @@
-/*! \file Globals.hpp
-  \brief constant parameters used in pixie16 analysis
-  
-*/
+/** \file Globals.hpp
+ * \brief constant parameters used in pixie16 analysis
+ */
 
 #ifndef __GLOBALS_HPP_
 #define __GLOBALS_HPP_

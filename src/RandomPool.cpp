@@ -1,7 +1,8 @@
 /** \file RandomPool.cpp
  *  \brief Implementation of the random pool of numbers
  *
- *  David Miller, August 2010
+ *  \author David Miller
+ *  \date August 2010
  */
 
 #include "RandomPool.hpp"

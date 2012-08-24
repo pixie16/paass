@@ -1,6 +1,5 @@
 /** \file ScintProcessor.hpp
- *
- * Processor for scintillator detectors
+ * \brief Processor for scintillator detectors
  */
 
 #ifndef __SCINTPROCESSOR_HPP_
