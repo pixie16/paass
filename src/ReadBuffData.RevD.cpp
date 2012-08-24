@@ -1,8 +1,6 @@
-/*!
-  \file ReadBuffData.cpp
-
-  \brief retrieve data from raw buffer array ibuf
-*/
+/** \file ReadBuffData.RevD.cpp
+ * \brief retrieve data from raw buffer array ibuf
+ */
 
 /*----------------------------------------------------------------------
  * Copyright (c) 2005, XIA LLC

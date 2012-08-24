@@ -1,8 +1,8 @@
-/** \file PixieStd.ccp
+/** \file PixieStd.cpp
  *
  * \brief pixie_std provides the interface between the HRIBF scan 
  * and the C++ analysis
-
+ *
  * This provides the interface between the HRIBF scan and the C++ analysis
  * and as such is not a class in its own right.  In this file the data
  * received from scan is first reassembled into a pixie16 spill and then
@@ -13,19 +13,20 @@
  * vector of pointers which is sorted based on time and then events are built
  * with each event being sent to the detector driver for processing.
  *
- * SNL - 7-20-07
-
- * SNL 2-5-08 Added in diagnostic spectra including:
+ * \author S. Liddick 
+ * \date 20 July 2007 
+ *
+ * <strong> Modified : </strong> <br>
+ * S. Liddick - 2-5-08 - Added in diagnostic spectra including:
  *   runtime, channel time difference in an event, time difference between
- *   events, length of event, and length of buffer
- *
- *
- * SNL 5-14-08 At SP's request, error message and termination occur if a
+ *   events, length of event, and length of buffer <br>
+ * 
+ * S. Liddick - 5-14-08 - At SP's request, error message and termination occur if a
  *   module number is encountered in the data stream that is not included in
- *   the map.txt file
+ *   the map.txt file <br>
  *
- * DTM 5-5-10 Significant changes throughout for conciseness, optimization,
- *   and better error checking of incoming buffers
+ * David Miller - 5-5-10 - Significant changes throughout for conciseness, 
+ *   optimization, and better error checking of incoming buffers
  */
 
 #include <algorithm>

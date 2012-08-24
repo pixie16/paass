@@ -1,32 +1,32 @@
-/** \file TraceExtracter.cpp
+/** \file TraceExtractor.cpp
  *  \brief Extract traces for a specific type and subtype
  */
 
 #include <string>
 
 #include "Trace.hpp"
-#include "TraceExtracter.hpp"
+#include "TraceExtractor.hpp"
 
 #include "DammPlotIds.hpp"
 
 using std::string;
 
-const int TraceExtracter::traceBins = SC;
-const int TraceExtracter::numTraces = 99;
+const int TraceExtractor::traceBins = SC;
+const int TraceExtractor::numTraces = 99;
 
-TraceExtracter::TraceExtracter(const std::string& aType, const std::string &aSubtype) : 
+TraceExtractor::TraceExtractor(const std::string& aType, const std::string &aSubtype) : 
   TraceAnalyzer(), type(aType), subtype(aSubtype)
 {
-    name = "Extracter";
+    name = "Extractor";
 }
 
-TraceExtracter::~TraceExtracter()
+TraceExtractor::~TraceExtractor()
 {
     // do nothing
 }
 
 /** Declare the damm plots */
-void TraceExtracter::DeclarePlots(void)
+void TraceExtractor::DeclarePlots(void)
 {
     using namespace dammIds::trace;
     for (int i=0; i < numTraces; i++)
@@ -34,7 +34,7 @@ void TraceExtracter::DeclarePlots(void)
 }
 
 /** Plot the damm spectra of the first few traces analyzed with (level >= 1) */
-void TraceExtracter::Analyze(Trace &trace,
+void TraceExtractor::Analyze(Trace &trace,
 			     const string &aType, const string &aSubtype)
 {   
     using namespace dammIds::trace;

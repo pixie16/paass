@@ -1,4 +1,4 @@
-/** \file rawevent.cpp
+/** \file RawEvent.cpp
  *  \brief defines functions associated with a rawevent  
  */
 

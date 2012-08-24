@@ -1,9 +1,13 @@
-/************************************
-Processes information from the VANDLE Bars 
-
-Updated: S.V. Paulauskas 26 July 2010  
-Original M. Madurga
-*************************************/
+/** \file VandleProcessor.cpp
+ *\brief Processes information for VANDLE
+ *
+ *Processes information from the VANDLE Bars, allows for 
+ *beta-gamma-neutron correlations. The prototype for this 
+ *code was written by M. Madurga.
+ *
+ *\author S. V. Paulauskas 
+ *\date 26 July 2010  
+ */
 #include <fstream>
 #include <iostream>
 
@@ -11,6 +15,7 @@ Original M. Madurga
 
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
+#include "GetArguments.hpp"
 #include "RawEvent.hpp"
 #include "VandleProcessor.hpp"
 
@@ -68,17 +73,15 @@ namespace dammIds {
     }//namespace vandle
 
     namespace tvandle {
-	const int D_TIMEDIFF     = 3  + TVANDLE_OFFSET;
-	const int DD_PVSP        = 4  + TVANDLE_OFFSET; 
-	const int DD_MAXVSTDIFF  = 5  + TVANDLE_OFFSET; 
-	const int DD_QDCVSMAX    = 6  + TVANDLE_OFFSET; 
-	const int DD_AMPMAPSTART = 7  + TVANDLE_OFFSET; 
-	const int DD_AMPMAPSTOP  = 8  + TVANDLE_OFFSET; 
-	const int D_SNRSTART     = 9  + TVANDLE_OFFSET; 
-	const int D_SNRSTOP      = 10 + TVANDLE_OFFSET; 
-	const int D_SDEVBASESTART= 11 + TVANDLE_OFFSET; 
-	const int D_SDEVBASESTOP = 12 + TVANDLE_OFFSET; 
-	const int DD_MAXSVSTDIFF = 14 + TVANDLE_OFFSET; 
+	const int D_TIMEDIFF         = 2  + TVANDLE_OFFSET;
+	const int DD_PVSP            = 3  + TVANDLE_OFFSET; 
+	const int DD_MAXRIGHTVSTDIFF = 4  + TVANDLE_OFFSET; 
+	const int DD_MAXLEFTVSTDIFF  = 5  + TVANDLE_OFFSET; 
+	const int DD_MAXLVSTDIFFGATE = 6  + TVANDLE_OFFSET; 
+	const int DD_MAXLVSTDIFFAMP  = 7  + TVANDLE_OFFSET; 
+	const int DD_MAXLCORGATE     = 8  + TVANDLE_OFFSET; 
+	const int DD_QDCVSMAX        = 9  + TVANDLE_OFFSET; 
+	const int DD_SNRANDSDEV      = 10 + TVANDLE_OFFSET; 
     }// namespace tvandle
 }//namespace dammIds
 
@@ -244,18 +247,18 @@ void VandleProcessor::DeclarePlots(void)
 	using namespace dammIds::tvandle;
 	DeclareHistogram2D(DD_TQDCBARS+dammIds::TVANDLE_OFFSET, SD, S1,"QDC");
 	DeclareHistogram2D(DD_MAXIMUMBARS+dammIds::TVANDLE_OFFSET, SC, S1, "Max");
-	DeclareHistogram1D(D_TIMEDIFF, SA, "Time Difference");
+	DeclareHistogram1D(D_TIMEDIFF, SE, "Time Difference");
 	DeclareHistogram2D(DD_PVSP, SE, SE,"Phase vs. Phase");
-	DeclareHistogram2D(DD_MAXVSTDIFF, SA, SC,"Max Right vs. Time Diff");
+	DeclareHistogram2D(DD_MAXRIGHTVSTDIFF, SA, SD,"Max Right vs. Time Diff");
+	DeclareHistogram2D(DD_MAXLEFTVSTDIFF, SA, SD, "Max Left vs. Time Diff");
+	DeclareHistogram2D(DD_MAXLVSTDIFFGATE, SA, SD,
+			   "Max Left vs. Time Diff - gated on max right");
+	DeclareHistogram2D(DD_MAXLVSTDIFFAMP, SA, SD, 
+			   "Max Left vs. Time Diff - amp diff");
+	DeclareHistogram2D(DD_MAXLCORGATE, SA, SD, 
+			   "Max Left vs. Cor Time Diff");
 	DeclareHistogram2D(DD_QDCVSMAX, SC, SD,"QDC vs Max - Right");
-	//DeclareHistogram2D(DD_AMPMAPSTART, S7, SC,"Amp Map Start");
-	//DeclareHistogram2D(DD_AMPMAPSTOP, S7, SC,"Amp Map Stop");
-	DeclareHistogram1D(D_SNRSTART, SE, "SNR - Right");
-	DeclareHistogram1D(D_SNRSTOP, SE, "SNR - Left");
-	DeclareHistogram1D(D_SDEVBASESTART, S8, "Sdev Base - Right");
-	DeclareHistogram1D(D_SDEVBASESTOP, S8, "Sdev Base - Left");
-	DeclareHistogram2D(DD_PROBLEMS, SB, S5, "Problems - 2D");
-	DeclareHistogram2D(DD_MAXSVSTDIFF, SD, SC, "Max Left vs. Time Diff");
+	DeclareHistogram2D(DD_SNRANDSDEV, SE, S2, "SNR and SDEV R01/L23");
     }//if(hasTvandle);
 	
     //Histograms for the CrossTalk Subroutine
@@ -318,7 +321,7 @@ bool VandleProcessor::RetrieveData(RawEvent &event)
     startEvents.insert(startEvents.end(), 
 		       liquidStarts.begin(), liquidStarts.end());
 
-    if(smallEvents.empty() && bigEvents.empty() ) {
+    if(smallEvents.empty() && bigEvents.empty() && tvandleEvents.empty()){
         plot(D_PROBLEMS, 27); //DEBUGGING
 	return(false);
     }
@@ -332,7 +335,7 @@ bool VandleProcessor::RetrieveData(RawEvent &event)
     BuildBars(bigMap, "big", barMap);
     BuildBars(smallMap, "small", barMap);
     
-    if(barMap.empty()) {
+    if(barMap.empty() && tvandleMap.empty()) {
 	plot(D_PROBLEMS, 25); //DEBUGGING
 	return(false);
     }
@@ -364,8 +367,7 @@ void VandleProcessor::AnalyzeData(void)
 	else
 	   idOffset = dammIds::BIG_OFFSET;
 
-	TimingCal calibration =
-	    GetTimingCal((*itBar).first);
+	TimingCal calibration = GetTimingCal((*itBar).first);
 	
 	plot(DD_TIMEDIFFBARS+idOffset, 
 	     (*itBar).second.timeDiff*resMult+resOffset, barLoc); 
@@ -389,7 +391,8 @@ void VandleProcessor::AnalyzeData(void)
 	    
 	    //times are calculated in ns, energy in keV
 	    double TOF = 
-		(*itBar).second.timeAve - (*itStart).second.highResTime + tofOffset; 
+		(*itBar).second.walkCorTimeAve - 
+		(*itStart).second.walkCorTime + tofOffset; 
 	    double corTOF = 
 		CorrectTOF(TOF, (*itBar).second.flightPath, calibration.z0); 
 	    double energy = 
@@ -481,8 +484,7 @@ void VandleProcessor::BuildBars(const TimingDataMap &endMap, const string &type,
 	
 	IdentKey barKey((*itEndA).first.first, type); 
 	
-	TimingCal calibrations =
-	    GetTimingCal(barKey);
+	TimingCal calibrations = GetTimingCal(barKey);
 	
 	if((*itEndA).second.dataValid
 	   && (*itEndB).second.dataValid) 
@@ -639,29 +641,19 @@ void VandleProcessor::FillMap(const vector<ChanEvent*> &eventList,
 //********* Tvandle **********
 void VandleProcessor::Tvandle(void) 
 {
-    //Needs cleaned heavily!!
     using namespace dammIds::tvandle;
-    IdentKey rightKey(0,"right");
-    IdentKey leftKey (1,"left");
-    
-    TimingDataMap::iterator itRight = tvandleMap.find(rightKey);
-    TimingDataMap::iterator itLeft  = tvandleMap.find(leftKey);
-    
-    // unsigned int maxPosRight = (unsigned int)(*itRight).second.maxpos;
-    // unsigned int maxPosLeft  = (unsigned int)(*itLeft).second.maxpos;
-    unsigned int maxValRight = (unsigned int)(*itRight).second.maxval;
-    unsigned int maxValLeft  = (unsigned int)(*itLeft).second.maxval;
+
+    TimingData right = (*tvandleMap.find(make_pair(0,"right"))).second;
+    TimingData left = (*tvandleMap.find(make_pair(0,"left"))).second;
+
     double timeDiff = 
-	(*itLeft).second.highResTime - (*itRight).second.highResTime;
-    double walkCorTimeDiff = 
-	(*itLeft).second.walkCorTime - (*itRight).second.walkCorTime;
+	left.highResTime - right.highResTime;
+    double corTimeDiff = 
+	left.walkCorTime - right.walkCorTime;
 
-    double snrRight = pow((*itRight).second.maxval/(*itRight).second.stdDevBaseline, 2.);
-    double snrLeft = pow((*itLeft).second.maxval/(*itLeft).second.stdDevBaseline, 2.);
-
-    vector<int> trc = (*itRight).second.trace;
-    vector<int> trc1 = (*itLeft).second.trace;
-    if(timeDiff < (1600.-2000.)/50.) {
+    vector<int> trc = right.trace;
+    vector<int> trc1 = left.trace;
+    if(left.maxval > 3900) {
 	for(vector<int>::iterator it = trc.begin(); it != trc.end(); it++)
 	    plot(DD_PROBLEMS, it-trc.begin(), counter, *it);
 	for(vector<int>::iterator it = trc1.begin(); it != trc1.end(); it++)
@@ -670,36 +662,34 @@ void VandleProcessor::Tvandle(void)
     }
     
     //Fill histograms
-    plot(DD_QDCVSMAX, (*itRight).second.maxval, 
-	 (*itRight).second.tqdc);
+    plot(DD_QDCVSMAX, right.maxval, right.tqdc);
    
-    if((*itRight).second.dataValid && 
-       (*itLeft).second.dataValid){
-	double timeRes = 50; //100 ps/bin
+    if(right.dataValid && left.dataValid){
+	double timeRes = 50; //20 ps/bin
 	double timeOff = 200; 
 
 	plot(D_TIMEDIFF, timeDiff*timeRes + timeOff);
-	plot(DD_PVSP, (*itRight).second.phase*timeRes-12000, 
-	     (*itLeft).second.phase*timeRes-12000);
-	//plot(DD_MAXVSTDIFF, timeDiff*timeRes+timeOff, maxValRight);
-	
-	//Plot information Pertaining to the SNR
-	plot(D_SNRSTART, snrRight*0.25);
-	plot(D_SNRSTOP, snrLeft*0.25);
-	plot(D_SDEVBASESTART, (*itRight).second.stdDevBaseline*timeRes+timeOff);
-	plot(D_SDEVBASESTOP, (*itLeft).second.stdDevBaseline*timeRes+timeOff);
+	plot(DD_PVSP, right.phase*timeRes-12000, 
+	     left.phase*timeRes-12000);
+	plot(DD_MAXRIGHTVSTDIFF, timeDiff*timeRes+timeOff, right.maxval);
+	plot(DD_MAXLEFTVSTDIFF, timeDiff*timeRes+timeOff, right.maxval);
+
+	//Plot Information about the SNR
+	plot(DD_SNRANDSDEV, right.snr*0.25, 0);
+	plot(DD_SNRANDSDEV, right.stdDevBaseline*timeRes+timeOff, 1);
+	plot(DD_SNRANDSDEV, left.snr*0.25, 2);
+	plot(DD_SNRANDSDEV, left.stdDevBaseline*timeRes+timeOff, 3);
 
 	//Plot information used to determine the impact of walk.
-	double tempVal = fabs(maxValRight-maxValLeft);
+	double tempVal = fabs(right.maxval-left.maxval);
 	if(tempVal <= 50)
-	    plot(DD_MAXVSTDIFF, timeDiff*timeRes+timeOff, 
-		 maxValRight);
+	    plot(DD_MAXLVSTDIFFAMP, timeDiff*timeRes+timeOff, left.maxval);
 	
-	if(maxValRight < 4096 && maxValRight > 3700)
-//	    plot(DD_MAXSVSTDIFF, 
-//		 timeDiff*timeRes+timeOff, maxValLeft);
-	    plot(DD_MAXSVSTDIFF, 
-		 walkCorTimeDiff*timeRes+timeOff, maxValLeft);
-
-    }// if((*itRight).second.dataValid
+	if(right.maxval < 4096 && right.maxval > 3153) {
+	    plot(DD_MAXLVSTDIFFGATE, 
+		 timeDiff*timeRes+timeOff, left.maxval);
+	    plot(DD_MAXLCORGATE, 
+		 corTimeDiff*timeRes+timeOff, left.maxval);
+	}
+    }// if(right.dataValid
 }

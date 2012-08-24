@@ -1,7 +1,6 @@
-/* 
- * \file Trace.hpp
+/** \file Trace.hpp
+ * \brief A simple class to store the traces.
  *
- * A simple class to store the traces.
  * Used instead of a typedef so additional functionality can be added later.
  */
 
@@ -98,9 +97,9 @@ class Trace : public std::vector<int>
     TimingInformation constants;
     
     double DoBaseline(unsigned int lo = 0, unsigned int numBins = numBinsBaseline);
+    double DoDiscrimination(unsigned int lo, unsigned int numBins);
+    double DoQDC(unsigned int lo, unsigned int numBins);
     
-    unsigned int DoDiscrimination(unsigned int lo, unsigned int numBins);
-    unsigned int DoQDC(unsigned int lo, unsigned int numBins);
     unsigned int FindMaxInfo(unsigned int lo = 10, unsigned int numBins = 15);
     
     void Plot(int id);           //< plot trace into a 1D histogram

@@ -1,12 +1,12 @@
-
-/*************************************
-This code will call the functions to 
-calculate various high resolution timing
-parameters of the traces.
-
-S.V. Paulauskas 16 July 2009
-
-*************************************/
+/** \file WaveformAnalyzer.cpp 
+ *\brief Preliminary waveoform analysis
+ *
+ *Does preliminary waveform analysis on traces. The parameters set here
+ *will be used for the high resolution timing algorithms to do their thing. 
+ *
+ *\author S. V. Paulauskas 
+ *\date 16 July 2009
+*/
 #include <algorithm>
 #include <iostream>
 #include <numeric>
@@ -57,10 +57,10 @@ void WaveformAnalyzer::Analyze(Trace &trace,
 
 	trace.DoQDC(maxPos-waveformLow, 
 		    waveformHigh+waveformLow);
-	//Temporarly removed due to SegFault Issues
-	// if(detSubtype == "liquid")
-	//     trace.DoDiscrimination(startDiscrimination, 
-	// 			   waveformHigh - startDiscrimination);
+
+	if(detSubtype == "liquid")
+	    trace.DoDiscrimination(startDiscrimination, 
+				   waveformHigh - startDiscrimination);
     } //if(detType
     EndAnalyze();
 }

@@ -1,6 +1,5 @@
-/** \file QdcProcessor.hpp
- *
- * Handle some QDC action to determine positions in a strip detector
+/** \file PositionProcessor.cpp
+ * \brief Handle some QDC action to determine positions in a strip detector
  */
 
 #include <algorithm>

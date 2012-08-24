@@ -1,7 +1,7 @@
 /** \file TracePlotter.hpp
- *  \brief Header file for the TracePlotter class
- *   
- *  David Miller, Jan 2011
+ * \brief Header file for the TracePlotter class
+ * \author David Miller
+ * \date January 2011
  */
 
 #ifndef __TRACEPLOTTER_HPP_

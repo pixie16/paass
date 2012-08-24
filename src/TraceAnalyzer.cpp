@@ -1,11 +1,12 @@
-/**    \file TraceAnalyzer.cpp
- *     \brief defines the Trace class.
+/** \file TraceAnalyzer.cpp
+ * \brief defines the Trace class.
  *
- *     Implements a quick online trapezoidal filtering mechanism
- *     for the identification of double pulses
+ * Implements a quick online trapezoidal filtering mechanism
+ * for the identification of double pulses
  *
- *     - SNL - 7-2-07 - created
- *     - SNL - 2-4-08 - Add plotting spectra
+ * \author S. Liddick 
+ * \date 7-2-07
+ * <strong>Modified : </strong> SNL - 2-4-08 - Add plotting spectra
  */
 
 #include <iostream>

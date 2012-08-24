@@ -1,6 +1,6 @@
 /** \file Plots.hpp
- * 
- * A container to request a block of plots and plot respective spectrum through the plots register
+ * \brief A container to request a block of plots and plot respective 
+ * spectra through the plots register
  */
 
 #ifndef __PLOTS_HPP_

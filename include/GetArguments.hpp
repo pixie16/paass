@@ -1,9 +1,9 @@
 /** \file GetArguments.hpp
+ * \brief A quick and dirty way to get the arguments pass to scan through
+ * the respective Fortran calls
  *
- * A quick and dirty way to get the arguments pass to scan through
- *   the respective Fortran calls
- *
- *   David Miller, June 2012
+ * \author David Miller
+ * \date June 2012
  */
 
 #ifndef __GETARGUMENTS_HPP_

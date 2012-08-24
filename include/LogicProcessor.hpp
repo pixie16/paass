@@ -1,6 +1,5 @@
 /** \file LogicProcessor.hpp
- *
- * class to handle logic signals 
+ * \brief Class to handle logic signals 
  * derived originally from MTC processor
  */
 

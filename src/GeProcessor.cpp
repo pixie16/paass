@@ -1,8 +1,8 @@
 /** \file GeProcessor.cpp
- *
- * implementation for germanium processor
- * David Miller, August 2009
- * Overhaul: Krzysztof Miernik, May 2012
+ * \brief Implementation for germanium processor
+ * \author David Miller
+ * \date August 2009
+ * <STRONG> Modified: </STRONG> Krzysztof Miernik - May 2012
  */
 
 //? Make a clover specific processor

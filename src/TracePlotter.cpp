@@ -1,5 +1,5 @@
 /** \file TracePlotter.cpp
- *  \brief A small clas which takes care of plotting the traces of channel events
+ *  \brief A small class which takes care of plotting the traces of channel events
  */
 
 #include <string>

@@ -1,7 +1,7 @@
 /** \file TriggerLogicProcessor.hpp
+ * \brief class to handle logic signals and show "trigger" points
  *
- * class to handle logic signals and show "trigger" points
- * derived originally from MTC processor
+ * Derived originally from MTC processor
  */
 
 #ifndef __TRIGGERLOGICPROCESSOR_HPP_

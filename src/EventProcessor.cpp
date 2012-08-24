@@ -1,7 +1,7 @@
 /*! \file EventProcessor.cpp
- *
- * implementation of a generic event processor
- * David Miller, August 2009
+ * \brief Implementation of a generic event processor
+ * \author David Miller
+ * \date August 2009
  */
 
 #include <algorithm>

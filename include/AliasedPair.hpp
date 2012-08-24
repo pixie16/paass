@@ -1,12 +1,16 @@
 /** \file AliasedPair.hpp
+ * \brief Aliases for STL pair
  *
  * Define a macro which makes aliases for an STL pair for improved readability.
- * Construct a STL pair class using DEFINE_ALIASED_PAIR(MapPair, int, string, key, value);
+ * Construct a STL pair class using 
+ * DEFINE_ALIASED_PAIR(MapPair, int, string, key, value);
  * You can then declare an instance: MapPair pair;
  *   and access the members via pair.first and pair.second as usual
  *   or via pair.key and pair.value
- * NOTE: All behavior may not behave as expected at current moment 
- * D.T. Miller - 24 Feb 2012
+ * <strong>NOTE: </strong>All behavior may not behave as expected at current moment 
+ *
+ * \author D.T. Miller 
+ * \date 24 Feb 2012
  */
 
 #ifndef __ALIASEDPAIR_HPP_

@@ -1,7 +1,7 @@
 /** \file StatsAccumulator.cpp
- *
- * Implementation for stats accumulator
- * D. Miller, August 2009
+ * \brief Implementation for stats accumulator
+ * \author D. Miller
+ * \date August 2009
  */ 
 
 #include "StatsAccumulator.hpp"

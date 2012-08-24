@@ -1,4 +1,5 @@
-/*! \file Correlator.cpp
+/** \file Correlator.cpp
+ *  \brief Correlates events
  *
  *  The correlator class keeps track of where and when implantation and decay
  *  events have occurred, and then correlates each decay with its corresponding
@@ -8,7 +9,8 @@
  *  
  *  This file is derived from previous "correlator.cpp"
  *  
- *  David Miller, April 2010
+ *  \author David Miller
+ *  \date April 2010
  */
 
 #include <iomanip>

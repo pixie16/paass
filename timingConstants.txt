@@ -19,7 +19,7 @@
 #Trace Related Stuff (referenced from max)
 5.0      waveformLow
 10.0     waveformHigh
-5.0      startDiscrimination
+3.0      startDiscrimination
 6226.55  averageQdcOneVolt
 
 #FittingRoutine
@@ -27,6 +27,10 @@
 2.25164 decayLiquid
 7.44108 widthVandle
 2.23706 decayVandle
+15.90277 widthTvandle
+2.735047 decayTvandle
+8.80167 widthBeta
+1.82293 decayBeta
 7.44108  widthDefault
 2.23706 decayDefault
 

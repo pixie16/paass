@@ -1,6 +1,5 @@
 /** \file VandleROOT.hpp
- *
- * Root functionality for Vandle Processor
+ * \brief Root functionality for Vandle Processor
  */
 
 #ifndef __VANDLEROOT_HPP_

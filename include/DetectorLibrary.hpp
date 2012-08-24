@@ -1,7 +1,5 @@
 /** \file DetectorLibrary.hpp
- *
- * This is an extension of the vector of the identifiers that was previously
- *   used.
+ * \brief An extension of the vector of the identifiers previously used.
  */
 
 #ifndef __DETECTORLIBRARY_HPP_

@@ -1,10 +1,12 @@
-/**************************************
-Contains the information for the ROOT
-functionality in the VANDLE Processor
-
-Written: S. V. Paulauskas 09 May 2011
-
-**************************************/
+/** \file VandleROOT.cpp
+ *\brief Outputs VANDLE info to root - NOT UNDER DEVELOPMENT
+ *
+ *Writes certain information from the ScintProcessor into a ROOT tree.
+ *This functionality is currently not supported, and may well give garbage.
+ *
+ *\author S. V. Paulauskas  
+ *\date 09 May 2011
+ */
 #include <string>
 
 #include "VandleRoot.hpp"

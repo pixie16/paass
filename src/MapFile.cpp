@@ -1,5 +1,7 @@
 /** \file MapFile.cpp
- * Implementation to read in a new format map file
+ * \brief Implementation to read in a new format map file
+ * \author David Miller
+ * \date 02 April 2012
  */
 
 #include <algorithm>

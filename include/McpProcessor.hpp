@@ -1,6 +1,5 @@
 /** \file McpProcessor.hpp
- * 
- * Class for handling position-sensitive mcp signals
+ * \brief Class for handling position-sensitive mcp signals
  */
 
 #ifndef __MCPPROCESSOR_HPP_

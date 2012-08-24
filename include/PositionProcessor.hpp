@@ -1,5 +1,5 @@
- /** 
- * Handle QDCs for the position sensitive detector
+/** \file PositionProcessor.hpp
+ * \brief Handle QDCs for the position sensitive detector
  */
 
 #ifndef __POSITIONPROCESSOR_HPP_
