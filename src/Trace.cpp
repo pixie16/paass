@@ -118,7 +118,13 @@ unsigned int Trace::FindMaxInfo(unsigned int lo, unsigned int numBins)
        return U_DELIMITER;
     
     Trace::const_iterator itTrace = max_element(begin()+lo, end()-lo);
-    
+
+    //Check the trace for saturation here. 
+    if(*itTrace >= 4095) {
+	InsertValue("saturation", 1);
+	return(NAN);
+    }
+
     int maxPos = int(itTrace-begin());
 
     DoBaseline(0,maxPos-constants.GetConstant("waveformLow"));
