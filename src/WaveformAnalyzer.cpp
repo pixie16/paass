@@ -43,7 +43,9 @@ void WaveformAnalyzer::Analyze(Trace &trace,
     if(detType == "vandleSmall" || detType == "vandleBig" 
        || detType == "scint" || detType == "pulser" 
        || detType == "tvandle") {
-	
+
+	unsigned int maxPos = trace.FindMaxInfo();
+
         if(trace.HasValue("saturation")) {
 	    EndAnalyze();
 	    return;
@@ -53,7 +55,6 @@ void WaveformAnalyzer::Analyze(Trace &trace,
 	unsigned int waveformHigh = GetConstant("waveformHigh");
 	unsigned int startDiscrimination = 
 	    GetConstant("startDiscrimination");
-	unsigned int maxPos = trace.FindMaxInfo();
 
 	trace.DoQDC(maxPos-waveformLow, 
 		    waveformHigh+waveformLow);

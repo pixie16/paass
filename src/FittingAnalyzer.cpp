@@ -33,12 +33,13 @@ int FitFunctionDerivative(const gsl_vector *x, void *FitData,
 			  gsl_vector *f, gsl_matrix *J);
 
 namespace dammIds {
-   namespace waveformanalyzer {
-      const int DD_TRACES     = 0;
-      const int D_CHISQPERDOF = 1;
-      const int D_PHASE       = 2;
-      const int DD_AMP        = 3;
-   }
+    namespace waveformanalyzer {
+	const int DD_TRACES     = 0;
+	const int D_CHISQPERDOF = 1;
+	const int D_PHASE       = 2;
+	const int DD_AMP        = 3;
+	const int D_SAT         = 4;
+    }
 }
 
 using namespace std;
@@ -47,10 +48,11 @@ using namespace dammIds::waveformanalyzer;
 //********** DeclarePlots **********
 void FittingAnalyzer::DeclarePlots(void)
 {
-     DeclareHistogram2D(DD_TRACES, S7, S5, "traces data");
-     DeclareHistogram2D(DD_AMP, SE, SC, "Fit Amplitude");
-     DeclareHistogram1D(D_PHASE, SE, "Fit X0");
-     DeclareHistogram1D(D_CHISQPERDOF, SE, "Chi^2/dof");
+    DeclareHistogram2D(DD_TRACES, S7, S5, "traces data");
+    DeclareHistogram2D(DD_AMP, SE, SC, "Fit Amplitude");
+    DeclareHistogram1D(D_PHASE, SE, "Fit X0");
+    DeclareHistogram1D(D_CHISQPERDOF, SE, "Chi^2/dof");
+    DeclareHistogram1D(D_SAT, S4, "Saturations");
 }
 
 
@@ -68,14 +70,15 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
 {
     TraceAnalyzer::Analyze(trace, detType, detSubtype);
     if(trace.HasValue("saturation")) {
-       EndAnalyze();
-       return;
+	plot(D_SAT,2);
+	EndAnalyze();
+	return;
     }
-
+    
     const double aveBaseline = trace.GetValue("baseline");
     const double sigmaBaseline = trace.GetValue("sigmaBaseline");
     const double maxVal = trace.GetValue("maxval");
-
+    
     const unsigned int maxPos = (unsigned int)trace.GetValue("maxpos");
     const unsigned int waveformLow = 
 	(unsigned int)TimingInformation::GetConstant("waveformLow");
@@ -228,8 +231,11 @@ double FittingAnalyzer::CalculateFittedFunction(double &x)
 //********** WalkCorrection **********
 double FittingAnalyzer::CalculateWalk(const double &maxVal)
 {
+    //This was derived for the Pixie 250 system, I believe that it
+    //works well but still needs some work. -SVP
     double f = 411.843925764033 * exp(-maxVal/168269.011109243) +
-     	40.5805276228096 * exp(maxVal/16037.5569336443) -454.567869867228;
+     	40.5805276228096 * exp(maxVal/16037.5569336443) - 
+	454.567869867228;
 
     //Old Version
     // double f = 92.7907602830327 * exp(-maxVal/186091.225414275) +
