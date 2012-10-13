@@ -45,7 +45,7 @@ using namespace dammIds::waveformanalyzer;
 //********** DeclarePlots **********
 void FittingAnalyzer::DeclarePlots(void)
 {
-     DeclareHistogram2D(DD_TRACES, S7, S5, "traces data");
+     DeclareHistogram2D(DD_TRACES, S7, S5, "traces data FitAnalyzer");
      DeclareHistogram2D(DD_AMP, SE, SC, "Fit Amplitude");
      DeclareHistogram1D(D_PHASE, SE, "Fit X0");
      DeclareHistogram1D(D_CHISQPERDOF, SE, "Chi^2/dof");

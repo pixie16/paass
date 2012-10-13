@@ -52,6 +52,7 @@
 #include "Globals.hpp"
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
+#include "NewCorrelator.hpp"
 
 using namespace std;
 using namespace dammIds::raw;
@@ -67,6 +68,9 @@ RawEvent rawev;
 
 /** Driver used to process the raw events */
 DetectorDriver driver;
+
+/** Correlator used to gather information about active detector and "places"*/
+map<string, Place*> correlator;
 
 enum HistoPoints {BUFFER_START, BUFFER_END, EVENT_START = 10, EVENT_CONTINUE};
 
@@ -147,26 +151,26 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
 
     // Check to make sure the number of buffers is not excessively large 
     if (totBuf > maxChunks) {
-	cout << "LARGE TOTNUM = " << bufNum << endl;
-	return;
+        cout << "LARGE TOTNUM = " << bufNum << endl;
+        return;
     }
 
     /* Find a starting point in a file immediately following the 5-word buffer
          which indicates the end of a spill
      */
     if(bufNum != 0 && firstTime) {
-	do {
-	    if (buf[totWords] == U_DELIMITER) {
-		cout << "  -1 DELIMITER, " 
-		     << buf[totWords] << buf[totWords + 1] << endl;
-		return;
-	    }
-	    nWords = buf[totWords] / 4;
-	    totBuf = buf[totWords+1];
-	    bufNum = buf[totWords+2];
-	    totWords += nWords+1;
-	    cout << "SKIP " << bufNum << " of " << totBuf << endl;
-	} while(nWords != 5);
+        do {
+            if (buf[totWords] == U_DELIMITER) {
+                cout << "  -1 DELIMITER, " 
+                    << buf[totWords] << buf[totWords + 1] << endl;
+                return;
+            }
+            nWords = buf[totWords] / 4;
+            totBuf = buf[totWords+1];
+            bufNum = buf[totWords+2];
+            totWords += nWords+1;
+            cout << "SKIP " << bufNum << " of " << totBuf << endl;
+        } while(nWords != 5);
     }
     firstTime = false;
     
@@ -654,67 +658,66 @@ void ScanList(vector<ChanEvent*> &eventList)
     double currTime = lastTime;
     unsigned int id = (*iEvent)->GetID();
 
-
     HistoStats(id, diffTime, lastTime, BUFFER_START);
 
     //loop over the list of channels that fired in this buffer
     for(; iEvent != eventList.end(); iEvent++) { 
-	id        = (*iEvent)->GetID();
-	if (id == U_DELIMITER) {
-	  cout << "pattern 0 ignore" << endl;
-	  continue;
-	}
-	if (modChan[id].GetType() == "ignore") {
-	  continue;
-	}
+        id = (*iEvent)->GetID();
+        if (id == U_DELIMITER) {
+            cout << "pattern 0 ignore" << endl;
+            continue;
+        }
+        if (modChan[id].GetType() == "ignore") {
+            continue;
+        }
 
-	// this is a channel we're interested in
-	chanTime  = (*iEvent)->GetTrigTime(); 
-	eventTime = (*iEvent)->GetEventTimeLo();
+        // this is a channel we're interested in
+        chanTime  = (*iEvent)->GetTrigTime(); 
+        eventTime = (*iEvent)->GetEventTimeLo();
 
-       /* retrieve the current event time and determine the time difference 
-	   between the current and previous events. 
+        /* retrieve the current event time and determine the time difference 
+        between the current and previous events. 
         */
-	currTime = (*iEvent)->GetTime();
+        currTime = (*iEvent)->GetTime();
         diffTime = currTime - lastTime;
 
         /* if the time difference between the current and previous event is 
-	   larger than the event width, finalize the current event, otherwise
-	   treat this as part of the current event
+        larger than the event width, finalize the current event, otherwise
+        treat this as part of the current event
         */
-	if ( diffTime > eventWidth ) {
+        if ( diffTime > eventWidth ) {
             if(rawev.Size()>0) {
-		/* detector driver accesses rawevent externally in order to
-		   have access to proper detector_summaries
-		*/
+            /* detector driver accesses rawevent externally in order to
+            have access to proper detector_summaries
+            */
                 driver.ProcessEvent(scanMode);
             }
- 
+    
             //after processing zero the rawevent variable
             rawev.Zero(usedDetectors);
             usedDetectors.clear();	    
 
-	    HistoStats(id, diffTime, currTime, EVENT_START);
-	} else HistoStats(id, diffTime, currTime, EVENT_CONTINUE);
-	unsigned long dtimebin = 2000 + eventTime - chanTime;
-	if (dtimebin < 0 || dtimebin > (unsigned)(SE)) {
-	    cout << "strange dtime for id " << id << ":" << dtimebin << endl;
-	}
-	driver.plot(D_TIME + id, dtimebin);
+            HistoStats(id, diffTime, currTime, EVENT_START);
+        } else HistoStats(id, diffTime, currTime, EVENT_CONTINUE);
+        unsigned long dtimebin = 2000 + eventTime - chanTime;
+        if (dtimebin < 0 || dtimebin > (unsigned)(SE)) {
+            cout << "strange dtime for id " << id << ":" << dtimebin << endl;
+        }
+        driver.plot(D_TIME + id, dtimebin);
 
-	usedDetectors.insert(modChan[id].GetType());
-	rawev.AddChan(*iEvent);
-	    
+        usedDetectors.insert(modChan[id].GetType());
+        rawev.AddChan(*iEvent);
+            
         lastTime = currTime; // update the time of the last event
     } //end loop over event list
 
     //process the last event in the buffer
     if( rawev.Size()>0 ) {
-	string mode;
+        string mode;
         HistoStats(id, diffTime, currTime, BUFFER_END);
 
-	driver.ProcessEvent(scanMode);
-	rawev.Zero(usedDetectors);
+        driver.ProcessEvent(scanMode);
+        rawev.Zero(usedDetectors);
     }
 }
 
@@ -830,14 +833,14 @@ bool InitMap(void)
     extern MapFile theMapFile;
 
     if (theMapFile) {
-	cout << "We've already handled this with a new version of the map file." << endl;
-	return true;
+        cout << "We've already handled this with a new version of the map file." << endl;
+        return true;
     }
     ifstream mapFile("map.txt");
 
     if (!mapFile) {
         cout << "Can not open file 'map.txt'" << endl;
-	return false;
+        return false;
     }
       
     // read the map file until the end is reached

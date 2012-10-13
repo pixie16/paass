@@ -29,9 +29,9 @@ extern "C" void hd2d_(const int &, const int &, const int &, const int &,
 
 Plots::Plots(int aOffset, int aRange, PlotsRegister *reg)
 {  
+    reg->Add(offset, range);
     offset = aOffset;
     range  = aRange;
-    reg->Add(offset, range);
 }
 
 /**
@@ -65,7 +65,9 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
 			       int xLow, int xHigh, const string &mne)
 {
     if (!CheckRange(dammId)) {
-        cerr << "Id : " << dammId << " is outside of allowed range (" << range << ")." << endl;
+        cerr << "Histogram titled '" << title << "' requests id " 
+             << dammId << " which is outside of allowed range ("
+             << range << ")." <<  endl;
         exit(EXIT_FAILURE);
     }
     if (Exists(dammId) || Exists(mne)) {
@@ -74,7 +76,7 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
              << " histogram '" << titleList[dammId] << "'." <<  endl;
         exit(EXIT_FAILURE);
     }
-        
+
     pair<set<int>::iterator, bool> result = idList.insert(dammId);
     if (result.second == false)
         return false;
@@ -107,7 +109,9 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
 			       const string &mne)
 {
     if (!CheckRange(dammId)) {
-        cerr << "Id : " << dammId << " is outside of allowed range (" << range << ")." << endl;
+        cerr << "Histogram titled '" << title << "' requests id " 
+             << dammId << " which is outside of allowed range ("
+             << range << ")." <<  endl;
         exit(EXIT_FAILURE);
     }
     if (Exists(dammId) || Exists(mne)) {

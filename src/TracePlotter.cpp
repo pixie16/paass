@@ -3,6 +3,7 @@
  */
 
 #include <string>
+#include <iostream>
 
 #include "Trace.hpp"
 #include "TracePlotter.hpp"
@@ -10,11 +11,12 @@
 #include "DammPlotIds.hpp"
 
 using std::string;
+using namespace dammIds::trace;
 
 const int TracePlotter::traceBins = SC;
 const int TracePlotter::numTraces = S5;
 
-TracePlotter::TracePlotter() : TraceAnalyzer()
+TracePlotter::TracePlotter() : TraceAnalyzer(plotter::OFFSET, plotter::RANGE)
 {
     name = "Plotter";
     // do nothing
@@ -28,22 +30,18 @@ TracePlotter::~TracePlotter()
 /** Declare the damm plots */
 void TracePlotter::DeclarePlots(void)
 {
-    using namespace dammIds::trace;
-
     TraceAnalyzer::DeclarePlots();
-    DeclareHistogram2D(DD_TRACE, traceBins, numTraces, "traces data");
+    DeclareHistogram2D(plotter::DD_TRACE, traceBins, numTraces, "traces data TracePlotter");
 }
 
 /** Plot the damm spectra of the first few traces analyzed with (level >= 1) */
 void TracePlotter::Analyze(Trace &trace,
 			   const string &type, const string &subtype)
 {   
-    using namespace dammIds::trace;
-
     TraceAnalyzer::Analyze(trace, type, subtype);
    
     if (level >= 1 && numTracesAnalyzed < numTraces) {       
-	trace.Plot(DD_TRACE, numTracesAnalyzed);
+        trace.Plot(plotter::DD_TRACE, numTracesAnalyzed);
     }
     EndAnalyze(trace);
 }

@@ -26,11 +26,15 @@ public:
     Plots (int offset, int range, PlotsRegister* reg);
 
     int GetOffset() { return offset; }
-    /**Returns true if id is within allowed range.*/
+
     void PrintNonEmpty(std::ofstream& hislog);
+
+    /**Returns true if id is within allowed range.*/
     bool CheckRange (int id) const;
+
     /** Returns true if histogram number id exists.*/
     bool Exists (int id) const;
+
     /** Returns true if histogram with mnemonic mne exists.*/
     bool Exists (const std::string &mne) const;
 

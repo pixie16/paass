@@ -9,10 +9,12 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "DetectorLibrary.hpp"
 #include "MapFile.hpp"
 #include "RawEvent.hpp"
+#include "NewCorrelator.hpp"
 
 #include "Globals.hpp"
 
@@ -127,7 +129,10 @@ void MapFile::TokenizeString(const string &in, vector<string> &out) const
  */
 void MapFile::ProcessTokenList(const vector<string> &tokenList) const
 {
-    // extern DetectorLibrary modChan;
+    extern DetectorLibrary modChan;
+    
+    // Correlator map is defined in the main program (PixieStd.cpp)
+    extern map<string, Place*> correlator;
 
     vector<int> moduleList;
     vector<int> channelList;
@@ -143,19 +148,20 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
 
     string type(*tokenIt++);
     string subtype;
+
     // fourth token can provide the subytpe
     //   if token is a whole number, assume it as a location and skip
     if (tokenIt != tokenList.end() && 
-	tokenIt->find_first_not_of("1234567890") != string::npos) {
-	// synonym for "Same as type"
-	if ( *tokenIt == "--" ) {
-	    subtype = type;
-	} else { 
-	    subtype = *tokenIt;
-	}
+        tokenIt->find_first_not_of("1234567890") != string::npos) {
+        // synonym for "Same as type"
+        if ( *tokenIt == "--" ) {
+            subtype = type;
+        } else { 
+            subtype = *tokenIt;
+        }
 	tokenIt++;
     } else {
-	subtype = type;
+        subtype = type;
     }
 
     id.SetType(type);
@@ -189,27 +195,38 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
 
     for (vector<int>::iterator modIt = moduleList.begin();
 	 modIt != moduleList.end(); modIt++) {
-	for (vector<int>::iterator chanIt = channelList.begin();
-	     chanIt != channelList.end(); chanIt++) {
-	    // check if this channel has already been defined
-	    if ( modChan.HasValue(*modIt, *chanIt) ) {
-		// if this is a wildcard line, just continue
-		if (HasWildcard(tokenList.at(0)) ||
-		    HasWildcard(tokenList.at(1))) {
-		    continue;
-		}
-		cerr << "Identifier for " << type << " in module " << *modIt
-		     << " : channel " << *chanIt << " is initialized more than once in the map file"
-		     << endl;
+        for (vector<int>::iterator chanIt = channelList.begin();
+            chanIt != channelList.end(); chanIt++) {
+            // check if this channel has already been defined
+            if ( modChan.HasValue(*modIt, *chanIt) ) {
+            // if this is a wildcard line, just continue
+            if (HasWildcard(tokenList.at(0)) ||
+                HasWildcard(tokenList.at(1))) {
+                continue;
+            }
+            cerr << "Identifier for " << type << " in module " << *modIt
+                << " : channel " << *chanIt << " is initialized more than once in the map file"
+                << endl;
 
-		exit(EXIT_FAILURE);
-	    }
+            exit(EXIT_FAILURE);
+            }
 
-	    id.SetLocation(startingLocation);
-	    modChan.Set(*modIt, *chanIt, id);
-
-	    startingLocation++;
-	}
+            id.SetLocation(startingLocation);
+            modChan.Set(*modIt, *chanIt, id);
+            // Creates basic places for correlator
+            // names are build as
+            // type_subtype_location eg. ge_clover_high_5
+            stringstream ss;
+            ss << id.GetType() << "_" << id.GetSubtype() << "_" << id.GetLocation();
+            if (correlator.count(ss.str()) == 0) {
+                correlator[ss.str()] = new PlaceBasic();
+            } else {
+                cerr << "Basic place " << ss.str() 
+                     << " already exists." << endl;
+                exit(EXIT_FAILURE);
+            }
+            startingLocation++;
+        }
     }
 }
 
