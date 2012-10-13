@@ -142,6 +142,7 @@ MTCPROCESSORO    = MtcProcessor.$(ObjSuf)
 DSSDPROCESSORO   = DssdProcessor.$(ObjSuf)
 DETECTORDRIVERO  = DetectorDriver.$(ObjSuf)
 CORRELATORO      = Correlator.$(ObjSuf)
+NEWCORRELATORO   = NewCorrelator.$(ObjSuf)
 RAWEVENTO        = RawEvent.$(ObjSuf)
 ROOTPROCESSORO   = RootProcessor.$(ObjSuf)
 RANDOMPOOLO      = RandomPool.$(ObjSuf)
@@ -191,7 +192,8 @@ endif
 #----- list of objects
 OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \
 	$(PLOTSREGISTERO) $(PLOTSO) \
-	$(MTCPROCESSORO) $(MCPPROCESSORO) $(LOGICPROCESSORO) $(CORRELATORO) $(TRACESUBO) \
+	$(MTCPROCESSORO) $(MCPPROCESSORO) $(LOGICPROCESSORO) $(CORRELATORO) \
+    $(NEWCORRELATORO) $(TRACESUBO) \
 	$(TRACEO) $(TRACEPLOTO) $(TRACEFILTERO) $(DOUBLETRACEO) \
 	$(MESSLOGO) $(MILDATIMO) $(SCANORUXO) $(ACCUMULATORO) $(PIXIEO) \
 	$(HISTOGRAMMERO) $(EVENTPROCESSORO) $(SCINTPROCESSORO) \
@@ -238,6 +240,10 @@ all:     $(PROGRAMS)
 clean:
 	@echo "Cleaning up..."
 	@rm -f $(OBJS) $(PIXIE) core *~ src/*~ include/*~ scan/*~
+
+tidy:
+	@echo "Tidying up..."
+	@rm -f $(OBJS) core *~ src/*~ include/*~ scan/*~
 
 #----------- link all created objects together
 #----------- to create pixie_ldf_c program

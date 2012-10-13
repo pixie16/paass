@@ -70,6 +70,7 @@ class EventProcessor {
     // return true on success
     virtual bool HasEvent(void) const;
     virtual bool Init(DetectorDriver &driver);
+    virtual bool PreProcess(RawEvent &event);   
     virtual bool Process(RawEvent &event);   
     void EndProcess(void); // stop the process timer
     std::string GetName(void) const {

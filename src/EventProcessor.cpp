@@ -105,7 +105,19 @@ bool EventProcessor::Init(DetectorDriver &driver)
     return true;
 }
 
-/** Process an event */
+/** Process an event. In PreProcess correlator is filled and basic analysis is done.
+ * More sophisiticated analysis (which might also depend on other processors) should be
+ * done in Process() function. PreProcess will be first called for all Processors and then
+ * the Process function will be called.*/
+bool EventProcessor::PreProcess(RawEvent &event)
+{
+    if (!initDone)
+        return (didProcess = false);
+    return (didProcess = true);
+}
+
+/** Process an event. PreProcess function should fill correlation tree and all processors
+ * should have basic parameters calculated during PreProccessing.*/
 bool EventProcessor::Process(RawEvent &event)
 {
     if (!initDone)

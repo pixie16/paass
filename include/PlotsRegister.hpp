@@ -7,8 +7,8 @@
 #define __PLOTSREGISTER_HPP_
 
 #include <vector>
+#include <utility>
 
-#include "AliasedPair.hpp"
 
 /** Holds ranges and offsets of all plots. Singleton class. */
 class PlotsRegister {
@@ -19,10 +19,8 @@ public:
     bool Add(int offset, int range);
 
     private:
-    DEFINE_ALIASED_PAIR(MinMax, int, int, min, max);
-
     /** Vector of min, max of histogram numbers */
-    std::vector< MinMax > reg;
+    std::vector< std::pair<int, int> > reg;
     
     /** Singleton synax stuff */
     static PlotsRegister plotsReg;

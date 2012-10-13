@@ -11,7 +11,7 @@
 using namespace std;
 
 /* = 2.0 before, 4.0 for LeRIBBS exp */
-const double ChanEvent::pixieEnergyContraction = 4.0;
+//const double ChanEvent::pixieEnergyContraction = 4.0;
 
 /** 
  * Return the value of a tag 

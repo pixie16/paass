@@ -45,6 +45,7 @@
 #include "RandomPool.hpp"
 #include "RawEvent.hpp"
 #include "TimingInformation.hpp"
+#include "NewCorrelator.hpp"
 
 #include "DammPlotIds.hpp"
 
@@ -112,8 +113,6 @@ DetectorDriver::DetectorDriver() :
     vecAnalyzer.push_back(new CfdAnalyzer());
 #endif
 
-    vecProcess.push_back(new ScintProcessor());
-    vecProcess.push_back(new VandleProcessor());
     //vecProcess.push_back(new PositionProcessor()); // order is important
     //vecProcess.push_back(new SsdProcessor());
     vecProcess.push_back(new TriggerLogicProcessor());
@@ -194,6 +193,66 @@ int DetectorDriver::Init(void)
 
     return 0;
 }
+
+/** This function initializes the correlator tree.
+ */
+void DetectorDriver::InitializeCorrelator() {
+    /** Setup for LeRIBBS */
+    cout << "DetectorDriver::InitializeCorrelator()" << endl;
+
+    extern map<string, Place*> correlator;
+
+    correlator["Clover0"] = new PlaceOR();
+    correlator["Clover1"] = new PlaceOR();
+    correlator["Clover2"] = new PlaceOR();
+    correlator["Clover3"] = new PlaceOR();
+
+    correlator["Beta"] = new PlaceOR();
+    
+    correlator["Gamma"] = new PlaceOR();
+    correlator["Gamma"]->addChild(correlator["Clover0"]);
+    correlator["Gamma"]->addChild(correlator["Clover1"]);
+    correlator["Gamma"]->addChild(correlator["Clover2"]);
+    correlator["Gamma"]->addChild(correlator["Clover3"]);
+
+    correlator["GammaBeta"] = new PlaceAND();
+    correlator["GammaBeta"]->addChild(correlator["Gamma"]);
+    correlator["GammaBeta"]->addChild(correlator["Beta"]);
+
+    correlator["GammaWOBeta"] = new PlaceAND();
+    correlator["GammaWOBeta"]->addChild(correlator["Gamma"]);
+    correlator["GammaWOBeta"]->addChild(correlator["Beta"], false);
+
+    // Active if tape is moving
+    correlator["TapeMove"] = new Detector(false);
+    // Active if beam is on
+    correlator["BeamOn"] = new Detector(false);
+
+    extern DetectorLibrary modChan;
+
+    // Basic places are created in MapFile.cpp
+    // Here we group them as children of abstract places
+    unsigned int sz = modChan.size();
+    for (unsigned i = 0; i < sz; ++i) {
+        string type = modChan[i].GetType();
+        string subtype = modChan[i].GetSubtype();
+        int location = modChan[i].GetLocation();
+
+        stringstream name;
+        name << type << "_" << subtype << "_" << location;
+
+        if (type == "ge" && subtype == "clover_high") {
+            int clover = int(location / 4);
+            stringstream parent;
+            parent << "Clover" << clover;
+            correlator[parent.str()]->addChild(correlator[name.str()]);
+        } else if (type == "scint" && subtype == "beta") {
+            correlator["Beta"]->addChild(correlator[name.str()]);
+        }
+    }
+
+}
+
 
 /*!
   \brief controls event processing
