@@ -70,6 +70,8 @@ class DetectorDriver {
     int ProcessEvent(const string &);
     int ThreshAndCal(ChanEvent *);
     int Init(void);
+    void InitializeCorrelator();
+
     int PlotRaw(const ChanEvent *);
     int PlotCal(const ChanEvent *);
 

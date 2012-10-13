@@ -113,10 +113,15 @@ namespace dammIds {
     } 
 
     namespace trace {
-        const int OFFSET = 7500;
-        const int RANGE = 200;
+        const int OFFSET = 7510;
+        const int RANGE = 150;
+        
+        namespace plotter {
+            const int OFFSET = 7500;
+            const int RANGE = 10;
+            const int DD_TRACE = 0;
+        }
 
-        const int DD_TRACE = 0;
         const int DD_FILTER1          = 1;
         const int DD_FILTER2          = 2;
         const int DD_FILTER3          = 3;

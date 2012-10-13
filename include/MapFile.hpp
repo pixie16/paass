@@ -10,6 +10,8 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <map>
+#include "NewCorrelator.hpp"
 
 /** 
  * A nice simple class which reads in the map file when declared

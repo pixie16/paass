@@ -84,45 +84,45 @@ bool MtcProcessor::Process(RawEvent &event)
 
     for (vector<ChanEvent*>::const_iterator it = mtcEvents.begin();
 	 it != mtcEvents.end(); it++) {
-	ChanEvent *chan = *it;
-	string subtype = chan->GetChanID().GetSubtype();
+        ChanEvent *chan = *it;
+        string subtype = chan->GetChanID().GetSubtype();
 
-	double time = chan->GetTime();
-	if(subtype == "start") {
-	    if (!isnan(lastStartTime)) {
-		double timediff = time - lastStartTime;
-		plot(D_TDIFF0, timediff / mtcPlotResolution);
-		plot(D_TDIFFSUM, timediff / mtcPlotResolution);
-	    }
-	    lastStartTime = time;
-	    plot(D_COUNTER_MOVE0,dammIds::GENERIC_CHANNEL); //counter
-	} else if (subtype == "stop") {
-	    if (!isnan(lastStopTime) != 0) {
-		double timeDiff1 = time - lastStopTime;
-		plot(D_TDIFF1, timeDiff1 / mtcPlotResolution);
-		plot(D_TDIFFSUM, timeDiff1 / mtcPlotResolution);
-		if (!isnan(lastStartTime)) {
-		    double moveTime = time - lastStartTime;    
-		    plot(D_MOVETIME, moveTime / mtcPlotResolution);
-		}
-	    }
-	    lastStopTime = time;
-	    plot(D_COUNTER_MOVE1,dammIds::GENERIC_CHANNEL); //counter	  
-	    // correlate the end of tape movement with the implantation time
-	    // if mtc down, correlate with beam_start
+        double time = chan->GetTime();
+        if(subtype == "start") {
+            if (!isnan(lastStartTime)) {
+                double timediff = time - lastStartTime;
+                plot(D_TDIFF0, timediff / mtcPlotResolution);
+                plot(D_TDIFFSUM, timediff / mtcPlotResolution);
+            }
+            lastStartTime = time;
+            plot(D_COUNTER_MOVE0,dammIds::GENERIC_CHANNEL); //counter
+        } else if (subtype == "stop") {
+            if (!isnan(lastStopTime) != 0) {
+                double timeDiff1 = time - lastStopTime;
+                plot(D_TDIFF1, timeDiff1 / mtcPlotResolution);
+                plot(D_TDIFFSUM, timeDiff1 / mtcPlotResolution);
+                if (!isnan(lastStartTime)) {
+                    double moveTime = time - lastStartTime;    
+                    plot(D_MOVETIME, moveTime / mtcPlotResolution);
+                }
+            }
+            lastStopTime = time;
+            plot(D_COUNTER_MOVE1,dammIds::GENERIC_CHANNEL); //counter	  
+            // correlate the end of tape movement with the implantation time
+            // if mtc down, correlate with beam_start
 
-	    EventInfo corEvent;
-	    corEvent.time = time;
-	    corEvent.type = EventInfo::IMPLANT_EVENT;
+            EventInfo corEvent;
+            corEvent.time = time;
+            corEvent.type = EventInfo::IMPLANT_EVENT;
 
-	    corr.Correlate(corEvent, 1, 1);
+            corr.Correlate(corEvent, 1, 1);
 
-	} else if (subtype == "beam_start") {
-	    /*
-	    corr.Correlate(event, Correlator::IMPLANT_EVENT,
-			   1, 1, time);
-	    */
-	}
+        } else if (subtype == "beam_start") {
+            /*
+            corr.Correlate(event, Correlator::IMPLANT_EVENT,
+                1, 1, time);
+            */
+        }
     }
 
 
