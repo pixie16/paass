@@ -57,6 +57,7 @@ private:
 public:
     GeProcessor(); // no virtual c'tors
     virtual bool Init(DetectorDriver &driver);
+    virtual bool PreProcess(RawEvent &event);
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void);
 };
