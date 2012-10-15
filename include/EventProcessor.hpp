@@ -33,7 +33,6 @@ class EventProcessor {
     double systemTime;
     double clocksPerSecond;
 
-
  protected:
     // define the associated detector types and only initialize if present
     std::string name;
@@ -43,7 +42,12 @@ class EventProcessor {
     // map of associated detector summary
     std::map<std::string, const DetectorSummary *> sumMap;
 
+    // Plots class for given Processor, takes care of declaration
+    // and plotting within boundries allowed by PlotsRegistry
     Plots histo;
+    // Shared among all classes derived static reference 
+    // to correlator, declared in PixieStd.cpp
+    static std::map<string, Place*>& correlator;
 
     virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
         histo.Plot(dammId, val1, val2, val3, name);

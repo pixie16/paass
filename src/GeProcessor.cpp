@@ -340,13 +340,77 @@ void GeProcessor::DeclarePlots(void)
     DeclareHistogramGranY(betaGated::DD_ADD_ENERGY__TIMEX, energyBins2, granTimeBins, "Beta-gated addback E - Time", 2, timeResolution, "s");
 }
 
+
+bool GeProcessor::PreProcess(RawEvent &event) {
+    if (!EventProcessor::Process(event))
+        return false;
+
+    vector<ChanEvent*> geEvents = sumMap["ge"]->GetList();
+    vector<ChanEvent*>::iterator geEnd = geEvents.end();
+
+    //   correspond properly to raw low gain energy
+    const double lowRatio = 1.5, highRatio = 3.0;
+    static const vector<ChanEvent*> &highEvents = event.GetSummary("ge:clover_high", true)->GetList();
+    static const vector<ChanEvent*> &lowEvents  = event.GetSummary("ge:clover_low", true)->GetList();
+
+    // first plot low gain energies
+    for (vector<ChanEvent*>::const_iterator itLow  = lowEvents.begin();
+	 itLow != lowEvents.end(); itLow++) {
+        plot(D_ENERGY_LOWGAIN, (*itLow)->GetCalEnergy());
+    }
+    for (vector<ChanEvent*>::const_iterator itHigh = highEvents.begin();
+	 itHigh != highEvents.end(); itHigh++) {
+        // find the matching low gain event
+        int location = (*itHigh)->GetChanID().GetLocation();
+        plot(D_ENERGY_HIGHGAIN, (*itHigh)->GetCalEnergy());
+        vector <ChanEvent*>::const_iterator itLow = lowEvents.begin();
+        for (; itLow != lowEvents.end(); itLow++) {
+            if ( (*itLow)->GetChanID().GetLocation() == location ) {
+                break;
+            }
+        }
+        if ( itLow != lowEvents.end() ) {
+            double ratio = (*itHigh)->GetEnergy() / (*itLow)->GetEnergy();
+            plot(DD_CLOVER_ENERGY_RATIO, location, ratio * 10.);
+            if (ratio < lowRatio || ratio > highRatio) {
+                // put these bad events at the end of the vector
+                geEnd = remove(geEvents.begin(), geEnd, *itHigh);
+                geEnd = remove(geEvents.begin(), geEnd, *itLow);
+            }
+        }
+    }
+    // Now throw out any remaining clover low-gain events (for now)
+    for ( vector<ChanEvent*>::const_iterator itLow = lowEvents.begin(); 
+	  itLow != lowEvents.end(); itLow++ ) {
+        geEnd = remove(geEvents.begin(), geEnd, *itLow);
+    }
+
+    // this purges the bad events for good from this processor which "remove"
+    //   has moved to the end
+    geEvents.erase(geEnd, geEvents.end());
+
+    for (vector<ChanEvent*>::iterator it = geEvents.begin(); 
+	 it != geEvents.end(); it++) {
+        stringstream ss;
+        ss << (*it)->GetChanID().GetType() << "_" << (*it)->GetChanID().GetSubtype() << "_" << (*it)->GetChanID().GetLocation();
+        if (correlator.count(ss.str()) == 1) {
+            correlator[ss.str()]->activate();
+        } else {
+            cerr << "In GeProcessor: place " << ss.str() 
+                    << " does not exist." << endl;
+            return false;
+        }
+    }
+    return true;
+} 
+
 /** process the event */
 bool GeProcessor::Process(RawEvent &event) {
     using namespace dammIds::ge;
 
     if (!EventProcessor::Process(event))
         return false;
-    
+
     // makes a copy so we can remove (or rearrange) bad events 
     //   based on poorly matched high-low gain energies
     vector<ChanEvent*> geEvents = sumMap["ge"]->GetList();

@@ -3,6 +3,7 @@
  * implementation for scintillator processor
  */
 #include <vector>
+#include <sstream>
 
 #include <cmath>
 
@@ -91,6 +92,32 @@ void ScintProcessor::DeclarePlots(void)
     // 	DeclareHistogram2D(DD_TQDCVSLIQTOF+i, SC, SE, "Trace QDC vs. Liquid TOF");
     // 	DeclareHistogram2D(DD_TQDCVSENERGY+i, SD, SE, "Trace QDC vs. Energy");
     // }
+}
+
+bool ScintProcessor::PreProcess(RawEvent &event){
+    if (!EventProcessor::Process(event))
+	return false;
+
+    static const vector<ChanEvent*> &scintBetaEvents = 
+	event.GetSummary("scint:beta")->GetList();
+
+    for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin(); 
+	 it != scintBetaEvents.end(); it++) {
+        stringstream ss;
+        ss << (*it)->GetChanID().GetType() << "_" << (*it)->GetChanID().GetSubtype() << "_" << (*it)->GetChanID().GetLocation();
+        if (correlator.count(ss.str()) == 1) {
+            correlator[ss.str()]->activate();
+        } else {
+            cerr << "In ScintProcessor: beta place " << ss.str() 
+                    << " does not exist." << endl;
+            return false;
+        }
+    }
+
+    static const vector<ChanEvent*> &scintNeutrEvents = 
+	event.GetSummary("scint:neutr")->GetList();
+
+    return true;
 }
 
 bool ScintProcessor::Process(RawEvent &event)

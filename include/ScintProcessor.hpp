@@ -14,6 +14,7 @@ class ScintProcessor : public EventProcessor,
 {
 public:
     ScintProcessor(); // no virtual c'tors
+    virtual bool PreProcess(RawEvent &event);
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void);
     // nice and simple raw derived class
