@@ -276,19 +276,29 @@ int DetectorDriver::ProcessEvent(const string &mode){
     
     const vector<ChanEvent *> &eventList = rawev.GetEventList();
     for(size_t i=0; i < eventList.size(); i++) {
-	ChanEvent *chan = eventList[i];  
+        ChanEvent *chan = eventList[i];  
 	
         PlotRaw(chan);
-	ThreshAndCal(chan); // check threshold and calibrate
-	PlotCal(chan);       
+        ThreshAndCal(chan); // check threshold and calibrate
+        PlotCal(chan);       
     } //end chan by chan event processing
  
     // have each processor in the event processing vector handle the event
+    /* First round is preprocessing, where result is not dependand on
+     * results of other Processors. */
     for (vector<EventProcessor *>::iterator iProc = vecProcess.begin();
 	 iProc != vecProcess.end(); iProc++) {
-	if ( (*iProc)->HasEvent() ) {
-	     (*iProc)->Process(rawev);
-	}
+        if ( (*iProc)->HasEvent() ) {
+            (*iProc)->PreProcess(rawev);
+        }
+    }
+    /* In the second round the Process is called, which may depend on other
+     * Processors. */
+    for (vector<EventProcessor *>::iterator iProc = vecProcess.begin();
+	 iProc != vecProcess.end(); iProc++) {
+        if ( (*iProc)->HasEvent() ) {
+            (*iProc)->Process(rawev);
+        }
     }
 
     return 0;   

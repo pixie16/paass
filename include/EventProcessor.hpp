@@ -14,6 +14,7 @@
 #include <sys/times.h>
 
 #include "Plots.hpp"
+#include "NewCorrelator.hpp"
 
 // forward declarations
 class DetectorDriver;
