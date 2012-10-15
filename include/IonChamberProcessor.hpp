@@ -39,20 +39,4 @@ class IonChamberProcessor : public EventProcessor
 #endif // USEROOT  
 };
 
-namespace dammIds
-{
-  namespace ionChamber {
-    // 1d spectra
-    const int D_ENERGYSUM     = 3200;
-    const int D_ENERGYTHREE_GROUPX = 3210; // + starting det
-    const int D_ENERGYTWO_GROUPX   = 3220; // + starting det
-    
-    const int D_DTIME_DETX    = 3230; // + detector num
-    const int D_RATE_DETX     = 3240; // + detector num
-    // 2d spectra
-    const int DD_ESUM__ENERGY_DETX   = 3250; // + detector num    
-    const int DD_EBACK__ENERGY_DETX  = 3300; // + detector num
-  };
-};
-
 #endif // __IONCHAMBERPROCSSEOR_HPP_
