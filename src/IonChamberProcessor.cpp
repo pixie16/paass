@@ -25,6 +25,22 @@ const double IonChamberProcessor::minTime = 18.0e-6 / clockInSeconds;
 
 using namespace dammIds::ionChamber;
 
+namespace dammIds
+{
+  namespace ionChamber {
+    // 1d spectra
+    const int D_ENERGYSUM     = 0;
+    const int D_ENERGYTHREE_GROUPX = 10; // + starting det
+    const int D_ENERGYTWO_GROUPX   = 20; // + starting det
+    
+    const int D_DTIME_DETX    = 30; // + detector num
+    const int D_RATE_DETX     = 40; // + detector num
+    // 2d spectra
+    const int DD_ESUM__ENERGY_DETX   = 50; // + detector num    
+    const int DD_EBACK__ENERGY_DETX  = 100; // + detector num
+  };
+};
+
 IonChamberProcessor::IonChamberProcessor() : EventProcessor(OFFSET, RANGE)
 {
     name = "ionchamber";

@@ -1,1 +1,22 @@
 Non empty histograms:
+In ge: 
+	2500 Gamma singles
+	2507 Gamma singles, low gain
+	2508 Gamma singles, high gain
+	2510 Beta gated gamma
+	2515 Gamma beta0 gate
+	2516 Gamma beta1 gate
+	2550 Gamma addback
+	2555 Gamma total
+	2560 Beta gated gamma addback
+	2565 Beta gated gamma total
+	2600 Gamma gamma
+	2605 Gamma energy, beta time diff
+	2606 Beta energy, gamma time diff
+	2607 high/low energy ratio (x10)
+	2610 Gamma gamma beta gated
+	2650 Gamma gamma addback
+	2660 Beta-gated Gamma gamma addback
+	2663 Beta-gated Gamma gamma addback, beta prompt
+	2664 Beta-gated Gamma gamma addback, beta delayed
+In scint: 
