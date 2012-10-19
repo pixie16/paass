@@ -45,9 +45,6 @@ class EventProcessor {
     // Plots class for given Processor, takes care of declaration
     // and plotting within boundries allowed by PlotsRegistry
     Plots histo;
-    // Shared among all classes derived static reference 
-    // to correlator, declared in PixieStd.cpp
-    static std::map<string, Place*>& correlator;
 
     virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
         histo.Plot(dammId, val1, val2, val3, name);

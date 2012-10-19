@@ -9,7 +9,7 @@
  */
 
 #include <iostream>
-
+#include <sstream>
 #include <cmath>
 
 #include "DammPlotIds.hpp"
@@ -56,6 +56,39 @@ void MtcProcessor::DeclarePlots(void)
     DeclareHistogram1D(D_COUNTER, counterBins, "MTC counter");
     DeclareHistogram1D(D_COUNTER_MOVE0, counterBins, "MTC1 counter");
     DeclareHistogram1D(D_COUNTER_MOVE1, counterBins, "MTC2 counter");
+}
+
+bool MtcProcessor::PreProcess(RawEvent &event)
+{
+    const static DetectorSummary *mtcSummary = NULL;
+
+    if (mtcSummary == NULL) {
+	if ( sumMap.count("mtc") )
+	    mtcSummary = sumMap["mtc"];
+	else if ( sumMap.count("timeclass") ) 
+	    mtcSummary = sumMap["timeclass"];
+    }
+
+    static const vector<ChanEvent*> &mtcEvents = mtcSummary->GetList();
+
+    for (vector<ChanEvent*>::const_iterator it = mtcEvents.begin();
+	 it != mtcEvents.end(); it++) {
+        string subtype = (*it)->GetChanID().GetSubtype();
+        double time   = (*it)->GetTime();	
+
+        if(subtype == "start") {
+            TCorrelator::get().places["TapeMove"]->activate(time);
+            TCorrelator::get().places["Cycle"]->deactivate(time);
+        } else if (subtype == "stop") {
+            TCorrelator::get().places["TapeMove"]->deactivate(time);
+        } else if (subtype == "beam_start") {
+            TCorrelator::get().places["Beam"]->activate(time);
+            TCorrelator::get().places["Cycle"]->activate(time);
+        } else if (subtype == "beam_stop") {
+            TCorrelator::get().places["Beam"]->deactivate(time);
+        }
+    }
+    return true;
 }
 
 bool MtcProcessor::Process(RawEvent &event)

@@ -58,6 +58,8 @@ class DetectorDriver {
     virtual void DeclareHistogram2D(int dammId, int xSize, int ySize, const char* title) {
         histo.DeclareHistogram2D(dammId, xSize, ySize, title);
     }
+    /** Initializes the abstract places in correlator (dependants of Detectors)*/
+    void InitializeCorrelator();
 
  public:    
     vector<Calibration> cal;    /**<the calibration vector*/ 
@@ -70,7 +72,6 @@ class DetectorDriver {
     int ProcessEvent(const string &);
     int ThreshAndCal(ChanEvent *);
     int Init(void);
-    void InitializeCorrelator();
 
     int PlotRaw(const ChanEvent *);
     int PlotCal(const ChanEvent *);

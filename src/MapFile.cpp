@@ -131,8 +131,7 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
 {
     extern DetectorLibrary modChan;
     
-    // Correlator map is defined in the main program (PixieStd.cpp)
-    extern map<string, Place*> correlator;
+    //extern map<string, Place*> correlator;
 
     vector<int> moduleList;
     vector<int> channelList;
@@ -218,10 +217,10 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
             // type_subtype_location eg. ge_clover_high_5
             stringstream ss;
             ss << id.GetType() << "_" << id.GetSubtype() << "_" << id.GetLocation();
-            if (correlator.count(ss.str()) == 0) {
-                correlator[ss.str()] = new PlaceBasic();
+            if (TCorrelator::get().places.count(ss.str()) == 0) {
+                TCorrelator::get().places[ss.str()] = new Detector();
             } else {
-                cerr << "Basic place " << ss.str() 
+                cerr << "NewCorrelator: Detector " << ss.str() 
                      << " already exists." << endl;
                 exit(EXIT_FAILURE);
             }

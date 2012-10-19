@@ -23,9 +23,9 @@ using namespace std;
 extern RawEvent rawev; // to access detector summaries
 
 // correlator is declared in PixieStd.cpp
-extern map<string, Place*> correlator;
+//extern map<string, Place*> correlator;
 // Static field initialization
-map<string, Place*>& EventProcessor::correlator = correlator;
+//map<string, Place*> EventProcessor::correlator = correlator;
 
 EventProcessor::EventProcessor() : 
   userTime(0.), systemTime(0.), name("generic"), initDone(false), 
