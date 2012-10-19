@@ -96,19 +96,27 @@ void ScintProcessor::DeclarePlots(void)
 
 bool ScintProcessor::PreProcess(RawEvent &event){
     if (!EventProcessor::Process(event))
-	return false;
+        return false;
+
+    // Beta energy threshold
+    static const int BETA_THRESHOLD = 10;
 
     static const vector<ChanEvent*> &scintBetaEvents = 
 	event.GetSummary("scint:beta")->GetList();
 
     for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin(); 
 	 it != scintBetaEvents.end(); it++) {
-        stringstream ss;
-        ss << (*it)->GetChanID().GetType() << "_" << (*it)->GetChanID().GetSubtype() << "_" << (*it)->GetChanID().GetLocation();
-        if (correlator.count(ss.str()) == 1) {
-            correlator[ss.str()]->activate();
+        string place = (*it)->GetChanID().GetPlaceName();
+        if (TCorrelator::get().places.count(place) == 1) {
+            double time   = (*it)->GetTime();
+            double energy = (*it)->GetEnergy();
+            // Activate B counter only for betas above some threshold
+            if (energy > BETA_THRESHOLD) {
+                CorrEventData data(time, true, energy);
+                TCorrelator::get().places[place]->activate(data);
+            }
         } else {
-            cerr << "In ScintProcessor: beta place " << ss.str() 
+            cerr << "In ScintProcessor: beta place " << place
                     << " does not exist." << endl;
             return false;
         }

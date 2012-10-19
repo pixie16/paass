@@ -101,32 +101,36 @@ DetectorDriver::DetectorDriver() :
     histo(OFFSET, RANGE, PlotsRegister::R() ) 
 {
     vecAnalyzer.push_back(new TracePlotter());
-    //vecAnalyzer.push_back(new DoubleTraceAnalyzer());
-    //vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
-    //vecAnalyzer.push_back(new TauAnalyzer());
+
 #if defined(pulsefit) || defined(dcfd)
     vecAnalyzer.push_back(new WaveformAnalyzer());
 #endif
+
 #ifdef pulsefit
     vecAnalyzer.push_back(new FittingAnalyzer());
 #elif dcfd
     vecAnalyzer.push_back(new CfdAnalyzer());
 #endif
 
-    //vecProcess.push_back(new PositionProcessor()); // order is important
-    //vecProcess.push_back(new SsdProcessor());
-    vecProcess.push_back(new TriggerLogicProcessor());
-    vecProcess.push_back(new GeProcessor()); // order is important
-
-    // vecProcess.push_back(new SsdProcessor());
 #ifdef useroot
     vecProcess.push_back(new ScintROOT());
     vecProcess.push_back(new VandleROOT());
     vecProcess.push_back(new RootProcessor("tree.root", "tree"));
 #else
     vecProcess.push_back(new ScintProcessor());
-    //vecProcess.push_back(new VandleProcessor());
 #endif
+
+    vecProcess.push_back(new TriggerLogicProcessor());
+    vecProcess.push_back(new MtcProcessor());
+    vecProcess.push_back(new GeProcessor()); 
+
+    //vecAnalyzer.push_back(new DoubleTraceAnalyzer());
+    //vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
+    //vecAnalyzer.push_back(new TauAnalyzer());
+    //vecProcess.push_back(new VandleProcessor());
+    // vecProcess.push_back(new SsdProcessor());
+    //vecProcess.push_back(new PositionProcessor()); // order is important
+    //vecProcess.push_back(new SsdProcessor());
 }
 
 /*!
@@ -189,6 +193,8 @@ int DetectorDriver::Init(void)
     readFiles.ReadTimingConstants();
     readFiles.ReadTimingCalibration();
 
+    InitializeCorrelator();
+
     rawev.GetCorrelator().Init();
 
     return 0;
@@ -200,33 +206,36 @@ void DetectorDriver::InitializeCorrelator() {
     /** Setup for LeRIBBS */
     cout << "DetectorDriver::InitializeCorrelator()" << endl;
 
-    extern map<string, Place*> correlator;
+    TCorrelator::get().places["Clover0"] = new PlaceOR();
+    TCorrelator::get().places["Clover1"] = new PlaceOR();
+    TCorrelator::get().places["Clover2"] = new PlaceOR();
+    TCorrelator::get().places["Clover3"] = new PlaceOR();
 
-    correlator["Clover0"] = new PlaceOR();
-    correlator["Clover1"] = new PlaceOR();
-    correlator["Clover2"] = new PlaceOR();
-    correlator["Clover3"] = new PlaceOR();
-
-    correlator["Beta"] = new PlaceOR();
+    //Note that scint_beta detectors are acticated in ScintProcessor
+    //with some threshold on energy and thus this place also is sensitive
+    //to threshold
+    TCorrelator::get().places["Beta"] = new PlaceOR();
     
-    correlator["Gamma"] = new PlaceOR();
-    correlator["Gamma"]->addChild(correlator["Clover0"]);
-    correlator["Gamma"]->addChild(correlator["Clover1"]);
-    correlator["Gamma"]->addChild(correlator["Clover2"]);
-    correlator["Gamma"]->addChild(correlator["Clover3"]);
+    TCorrelator::get().places["Gamma"] = new PlaceOR();
+    TCorrelator::get().places["Gamma"]->addChild(TCorrelator::get().places["Clover0"]);
+    TCorrelator::get().places["Gamma"]->addChild(TCorrelator::get().places["Clover1"]);
+    TCorrelator::get().places["Gamma"]->addChild(TCorrelator::get().places["Clover2"]);
+    TCorrelator::get().places["Gamma"]->addChild(TCorrelator::get().places["Clover3"]);
 
-    correlator["GammaBeta"] = new PlaceAND();
-    correlator["GammaBeta"]->addChild(correlator["Gamma"]);
-    correlator["GammaBeta"]->addChild(correlator["Beta"]);
+    TCorrelator::get().places["GammaBeta"] = new PlaceAND();
+    TCorrelator::get().places["GammaBeta"]->addChild(TCorrelator::get().places["Gamma"]);
+    TCorrelator::get().places["GammaBeta"]->addChild(TCorrelator::get().places["Beta"]);
 
-    correlator["GammaWOBeta"] = new PlaceAND();
-    correlator["GammaWOBeta"]->addChild(correlator["Gamma"]);
-    correlator["GammaWOBeta"]->addChild(correlator["Beta"], false);
+    TCorrelator::get().places["GammaWOBeta"] = new PlaceAND();
+    TCorrelator::get().places["GammaWOBeta"]->addChild(TCorrelator::get().places["Gamma"]);
+    TCorrelator::get().places["GammaWOBeta"]->addChild(TCorrelator::get().places["Beta"], false);
 
     // Active if tape is moving
-    correlator["TapeMove"] = new Detector(false);
+    TCorrelator::get().places["TapeMove"] = new Detector(false);
     // Active if beam is on
-    correlator["BeamOn"] = new Detector(false);
+    TCorrelator::get().places["Beam"] = new Detector(false);
+    // Activated with beam start, deactivated with TapeMove
+    TCorrelator::get().places["Cycle"] = new Detector(false);
 
     extern DetectorLibrary modChan;
 
@@ -245,12 +254,12 @@ void DetectorDriver::InitializeCorrelator() {
             int clover = int(location / 4);
             stringstream parent;
             parent << "Clover" << clover;
-            correlator[parent.str()]->addChild(correlator[name.str()]);
+            TCorrelator::get().places[parent.str()]->addChild(TCorrelator::get().places[name.str()]);
         } else if (type == "scint" && subtype == "beta") {
-            correlator["Beta"]->addChild(correlator[name.str()]);
+            TCorrelator::get().places["Beta"]->addChild(TCorrelator::get().places[name.str()]);
         }
     }
-
+    /** End setup for LeRIBBS */
 }
 
 
@@ -284,8 +293,8 @@ int DetectorDriver::ProcessEvent(const string &mode){
     } //end chan by chan event processing
  
     // have each processor in the event processing vector handle the event
-    /* First round is preprocessing, where result is not dependand on
-     * results of other Processors. */
+    /* First round is preprocessing, where process result must be guaranteed
+     * to not to be dependent on results of other Processors. */
     for (vector<EventProcessor *>::iterator iProc = vecProcess.begin();
 	 iProc != vecProcess.end(); iProc++) {
         if ( (*iProc)->HasEvent() ) {
