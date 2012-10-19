@@ -39,8 +39,7 @@ void Place::addChild (Place* child, bool relation) {
     }
 }
 
-/** Example of place that do not depend on children status, probably good
- * choice for last in the tree (e.g. physical single detector) */
+/** This function is empty here - this place does not depend on childer status*/
 void Detector::check_(CorrEventData& info) {
 }
 
@@ -75,8 +74,6 @@ void PlaceOR::check_(CorrEventData& info) {
     }
 }
 
-/** Example of AND place, place is active
- * if ALL of children were hit.*/
 void PlaceAND::check_(CorrEventData& info) {
     if (children_.size() > 0) {
         // Take first child to get initial state

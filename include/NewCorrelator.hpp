@@ -32,7 +32,7 @@ private:
 class CorrEventData {
     public:
         /** Time is always needed, by default status is true and
-         * Energy is 0 (aka N/A).*/
+         * Energy is 0 (i.e. N/A).*/
         CorrEventData(double t, bool s = true, double E = 0) {
             time = t;
             status = s;
@@ -50,7 +50,7 @@ class CorrEventData {
 class Place {
     public:
         /** C'tor. By default the Place is resetable, and internal
-         * fifo remebers only previous event.*/
+         * fifo remebers only current and previous event.*/
         Place(bool resetable = true, unsigned max_size = 2) {
             resetable_ = resetable;
             max_size_ = max_size;
@@ -85,7 +85,7 @@ class Place {
             }
         }
 
-        /** Simplified activation for 'counter'-like detectors, without
+        /** Simplified activation for counter-like detectors, without
          * need of creating CorrEventData object.*/
         virtual void activate(double time) {
             if (!status_) {
@@ -135,7 +135,8 @@ class Place {
             return (*this)();
         }
 
-        /** Easy access to stored data in fifo, notice at() function used */
+        /** Easy access to stored data in fifo, notice at() function used
+         * (raises exception).*/
         virtual CorrEventData& operator [] (unsigned index) {
             return info_.at(index);
         }
@@ -144,12 +145,25 @@ class Place {
             return info_.at(index);
         }
 
-        /** Easy access to last (current) element of fifo */
+        /** Easy access to last (current) element of fifo. If fifo
+         * is empty time=-1 event is returned*/
         virtual CorrEventData last() {
             if (info_.size() > 0)
                 return info_.back();
             else {
-                CorrEventData empty(0);
+                CorrEventData empty(-1);
+                return empty;
+            }
+        }
+
+        /** Easy access to second to last element of fifo. If fifo
+         * has only one event, time=-1 event is returned. */
+        virtual CorrEventData secondlast() {
+            if (info_.size() > 1) {
+                unsigned sz = info_.size();
+                return info_.at(sz - 2);
+            } else {
+                CorrEventData empty(-1);
                 return empty;
             }
         }
@@ -162,7 +176,7 @@ class Place {
             return resetable_;
         }
 
-        /** Pythonic style private field. Use it if you must 
+        /** Pythonic style private field. Use it if you must,
          * but perhaps you should not. Stores information on past 
          * events in a given Place.*/
         deque<CorrEventData> info_;
@@ -251,9 +265,10 @@ class Detector : public Place {
         virtual void check_(CorrEventData& info);
 };
 
-/** This Place is probably an abstract place, which status depends on
+/** This Place is an abstract place, which status depends on
  * children in OR manner i.e if any of children is activated, the place 
- * is activated too. An example is a Beta place (if any of beta detectors was
+ * is activated too.
+ * Example: Beta place - if any of physical beta detectors was
  * activated, the place Beta is also active indicating that there was beta
  * registered in the system).*/
 class PlaceOR : public Place {
@@ -265,9 +280,10 @@ class PlaceOR : public Place {
 
 /** Similar to PlaceOR but uses AND relation. That makes it a suitable choice
  * for coincidences and anti-coincidences (use relation parameter when adding
- * child). An example is a GammaBeta Place (if both Gamma and Beta places
- * are active that means we had beta-gamma coincidence and the
- * GammaBeta should be active).*/
+ * a child).
+ * Example : GammaBeta place storing beta-gamma coincidence,
+ * active when both Beta and Gamma children are active.
+ * */
 class PlaceAND : public Place {
     public:
         PlaceAND() : Place() {}
