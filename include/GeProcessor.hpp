@@ -46,7 +46,8 @@ private:
     unsigned int numClovers;           /*!< number of clovers in map */
 
     double WalkCorrection(double e);
-    vector< GGate > gGates;
+    vector<GGate> gGates;
+    vector<ChanEvent*> geEvents_; /*!< Preprocessed good ge events, filled in PreProcess, removed in Process*/
 
     void DeclareHistogramGranY(int dammId, int xsize, int ysize, 
 			       const char *title, int halfWordsPerChan,

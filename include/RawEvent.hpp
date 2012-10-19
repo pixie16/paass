@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
 #include <map>
 #include <set>
 
@@ -67,6 +68,13 @@ public:
     bool operator!=(const Identifier &x) const {
 	return !operator==(x);
     }
+
+    std::string GetPlaceName() const {
+        std::stringstream ss;
+        ss << GetType() << "_" << GetSubtype() << "_" << GetLocation();
+        return ss.str();
+    }
+
 private:
     std::string type;      /**< Specifies the detector type */
     std::string subtype;   /**< Specifies the detector sub type */

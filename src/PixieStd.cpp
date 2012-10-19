@@ -69,9 +69,6 @@ RawEvent rawev;
 /** Driver used to process the raw events */
 DetectorDriver driver;
 
-/** Correlator used to gather information about active detector and "places"*/
-map<string, Place*> correlator;
-
 enum HistoPoints {BUFFER_START, BUFFER_END, EVENT_START = 10, EVENT_CONTINUE};
 
 // Function forward declarations
@@ -686,7 +683,7 @@ void ScanList(vector<ChanEvent*> &eventList)
         treat this as part of the current event
         */
         if ( diffTime > eventWidth ) {
-            if(rawev.Size()>0) {
+            if(rawev.Size() > 0) {
             /* detector driver accesses rawevent externally in order to
             have access to proper detector_summaries
             */
@@ -697,8 +694,14 @@ void ScanList(vector<ChanEvent*> &eventList)
             rawev.Zero(usedDetectors);
             usedDetectors.clear();	    
 
+            // Now clear all places in correlator (if resetable type)
+            for (map<string, Place*>::iterator it = TCorrelator::get().places.begin(); it != TCorrelator::get().places.end(); ++it)
+                if ((*it).second->resetable())
+                    (*it).second->reset();
+
             HistoStats(id, diffTime, currTime, EVENT_START);
         } else HistoStats(id, diffTime, currTime, EVENT_CONTINUE);
+
         unsigned long dtimebin = 2000 + eventTime - chanTime;
         if (dtimebin < 0 || dtimebin > (unsigned)(SE)) {
             cout << "strange dtime for id " << id << ":" << dtimebin << endl;
@@ -707,12 +710,13 @@ void ScanList(vector<ChanEvent*> &eventList)
 
         usedDetectors.insert(modChan[id].GetType());
         rawev.AddChan(*iEvent);
-            
-        lastTime = currTime; // update the time of the last event
+
+        // update the time of the last event
+        lastTime = currTime; 
     } //end loop over event list
 
     //process the last event in the buffer
-    if( rawev.Size()>0 ) {
+    if (rawev.Size() > 0) {
         string mode;
         HistoStats(id, diffTime, currTime, BUFFER_END);
 

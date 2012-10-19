@@ -39,16 +39,13 @@ void Place::addChild (Place* child, bool relation) {
     }
 }
 
-void Detector::check_() {
-}
-
 /** Example of place that do not depend on children status, probably good
  * choice for last in the tree (e.g. physical single detector) */
-void PlaceBasic::check_() {
+void Detector::check_(CorrEventData& info) {
 }
 
 /** Example of OR place, place 'Gamma' is active if ANY of children was hit.*/
-void PlaceOR::check_() {
+void PlaceOR::check_(CorrEventData& info) {
     if (children_.size() > 0) {
         // Take first child to get initial state
         // Browse through other children
@@ -63,10 +60,13 @@ void PlaceOR::check_() {
             if (result)
                 break;
         }
-        // If status is changed, report it to parents
+        // If status is changed, change your own status and report it to your parents
         if (result != status_) {
-            status_ = result;
-            report_();
+            if (result)
+                this->activate(info);
+            else
+                this->deactivate(info.time);
+            report_(info);
         }
     } else {
         stringstream ss;
@@ -77,7 +77,7 @@ void PlaceOR::check_() {
 
 /** Example of AND place, place is active
  * if ALL of children were hit.*/
-void PlaceAND::check_() {
+void PlaceAND::check_(CorrEventData& info) {
     if (children_.size() > 0) {
         // Take first child to get initial state
         // Browse through other children
@@ -88,11 +88,12 @@ void PlaceAND::check_() {
             if (!result)
                 break;
         }
-        
-        // If status is going to be changed, report it to parents
         if (result != status_) {
-            status_ = result;
-            report_();
+            if (result)
+                this->activate(info);
+            else
+                this->deactivate(info.time);
+            report_(info);
         }
     }
 }
