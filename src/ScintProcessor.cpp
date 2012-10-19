@@ -95,7 +95,7 @@ void ScintProcessor::DeclarePlots(void)
 }
 
 bool ScintProcessor::PreProcess(RawEvent &event){
-    if (!EventProcessor::Process(event))
+    if (!EventProcessor::PreProcess(event))
         return false;
 
     // Beta energy threshold
@@ -125,79 +125,56 @@ bool ScintProcessor::PreProcess(RawEvent &event){
     static const vector<ChanEvent*> &scintNeutrEvents = 
 	event.GetSummary("scint:neutr")->GetList();
 
+    for (vector<ChanEvent*>::const_iterator it = scintNeutrEvents.begin();
+	 it != scintNeutrEvents.end(); it++) {
+        string place = (*it)->GetChanID().GetPlaceName();
+        if (TCorrelator::get().places.count(place) == 1) {
+            double time   = (*it)->GetTime();
+            double energy = (*it)->GetCalEnergy();
+            CorrEventData data(time, true, energy);
+            TCorrelator::get().places[place]->activate(data);
+        } else {
+            cerr << "In ScintProcessor: beta place " << place
+                    << " does not exist." << endl;
+            return false;
+        }
+    }
+
     return true;
 }
 
 bool ScintProcessor::Process(RawEvent &event)
 {
     if (!EventProcessor::Process(event))
-	return false;
+        return false;
 
-    BetaAnalysis(event);
+    static const vector<ChanEvent*> &scintNeutrEvents = 
+	event.GetSummary("scint:neutr")->GetList();
+    
+    for (vector<ChanEvent*>::const_iterator it = scintNeutrEvents.begin();
+	 it != scintNeutrEvents.end(); it++) {
+
+        ChanEvent *chan = *it;
+        int loc = chan->GetChanID().GetLocation();
+        using namespace neutr;
+        double neutronEnergy = chan->GetCalEnergy();
+        //plot neutron spectrum gated by beta
+        if (TCorrelator::get().places["Beta"]->status()) { 
+            plot(betaGated::D_ENERGY_DETX + loc, neutronEnergy);
+        }
+        //plot neutron spectrum gated by gamma
+        if (TCorrelator::get().places["Gamma"]->status()) {
+            plot(gammaGated::D_ENERGY_DETX + loc, neutronEnergy);
+            if (TCorrelator::get().places["Beta"]->status()) { 
+                plot(betaGammaGated::D_ENERGY_DETX + loc, neutronEnergy);
+            }
+        }
+    }
+
     LiquidAnalysis(event);
     EndProcess();
     return true;
 }
-
-//********** BetaAnalysis **********
-void ScintProcessor::BetaAnalysis(RawEvent &event)
-{
-    static const vector<ChanEvent*> &scintNeutrEvents = 
-	event.GetSummary("scint:neutr")->GetList();
-    
-    static const vector<ChanEvent*> &scintBetaEvents = 
-	event.GetSummary("scint:beta")->GetList();
-    
-    int betaMult = event.GetSummary("scint:beta")->GetMult();
-    int gammaMult = event.GetSummary("ge:clover_high")->GetMult();
-    
-    if (betaMult > 0) {
-       
-        // here we correlate the decay for the plastic beta scintillators
-	//   for the LeRIBSS setup, the corresponding implant is the stop of the tape movement
-	EventInfo corEvent;
-	corEvent.time = scintBetaEvents[0]->GetTime();
-	corEvent.type = EventInfo::DECAY_EVENT;
-
-	event.GetCorrelator().Correlate(corEvent, 1, 1);
-    }
-    
-    for(vector<ChanEvent*>::const_iterator itBeta = scintBetaEvents.begin();
-	itBeta != scintBetaEvents.end(); itBeta++) {
-	unsigned int loc = (*itBeta)->GetChanID().GetLocation();
-	TimingData beta((*itBeta));
-
-	if (beta.dataValid) {
- 	    plot(DD_TQDCBETA, beta.tqdc, loc);
- 	    plot(DD_MAXBETA, beta.maxval, loc);
- 	}
-    }
-    
-    /**** SCINT:NEUTRON EVENTS ****/    
-    for (vector<ChanEvent*>::const_iterator it = scintNeutrEvents.begin();
-	 it != scintNeutrEvents.end(); it++) {
-	ChanEvent *chan = *it;
-	
-	int loc = chan->GetChanID().GetLocation();
-	
-	using namespace neutr;
-	
-	double neutronEnergy = chan->GetCalEnergy();
-	
-	//plot neutron spectrum gated by beta
-	if (betaMult > 0) { 
-	    plot(betaGated::D_ENERGY_DETX + loc, neutronEnergy);
-	}
-	//plot neutron spectrum gated by gamma
-	if (gammaMult > 0) {
-	    plot(gammaGated::D_ENERGY_DETX + loc, neutronEnergy);
-	    if (betaMult > 0) {
-		plot(betaGammaGated::D_ENERGY_DETX + loc, neutronEnergy);
-	    }
-	}
-    } // end loop over scint neutr types
-}//void ScintProcessor::BetaAnalysis
-
 
 //********** LiquidAnalysis **********
 void ScintProcessor::LiquidAnalysis(RawEvent &event)
@@ -217,67 +194,67 @@ void ScintProcessor::LiquidAnalysis(RawEvent &event)
     
     for(vector<ChanEvent*>::const_iterator itLiquid = liquidEvents.begin();
 	itLiquid != liquidEvents.end(); itLiquid++) {
-	unsigned int loc = (*itLiquid)->GetChanID().GetLocation();
-	TimingData liquid((*itLiquid));
+        unsigned int loc = (*itLiquid)->GetChanID().GetLocation();
+        TimingData liquid((*itLiquid));
 
-	//Graph traces for the Liquid Scintillators
-	if(liquid.discrimination == 0) {
-	    for(Trace::const_iterator i = liquid.trace.begin(); 
-		i != liquid.trace.end(); i++)
-		plot(DD_TRCLIQUID, int(i-liquid.trace.begin()), 
-		     counter, int(*i)-liquid.aveBaseline);
-	    counter++;
-	}
-	
-	if(liquid.dataValid) {
-	    plot(DD_TQDCLIQUID, liquid.tqdc, loc);
-	    plot(DD_MAXLIQUID, liquid.maxval, loc);
+        //Graph traces for the Liquid Scintillators
+        if(liquid.discrimination == 0) {
+            for(Trace::const_iterator i = liquid.trace.begin(); 
+            i != liquid.trace.end(); i++)
+                plot(DD_TRCLIQUID, int(i-liquid.trace.begin()), 
+                    counter, int(*i)-liquid.aveBaseline);
+            counter++;
+        }
+        
+        if(liquid.dataValid) {
+            plot(DD_TQDCLIQUID, liquid.tqdc, loc);
+            plot(DD_MAXLIQUID, liquid.maxval, loc);
 
-	    double discrimNorm = 
-		liquid.discrimination/liquid.tqdc;	    
-	    
-	    double discRes = 1000;
-	    double discOffset = 100;
-	    
-	    TimingCal calibration =
-		GetTimingCal(make_pair(loc, "liquid"));
-	    
-	    if(discrimNorm > 0)
-		plot(DD_DISCRIM, discrimNorm*discRes+discOffset, loc);
-	    plot(DD_TQDCVSDISCRIM, discrimNorm*discRes+discOffset,
-		 liquid.tqdc);
-	    
-	    if((*itLiquid)->GetChanID().HasTag("start"))
-		continue;
-	    
-	    for(vector<ChanEvent*>::iterator itStart = startEvents.begin(); 
-		itStart != startEvents.end(); itStart++) { 
-		unsigned int startLoc = (*itStart)->GetChanID().GetLocation();
-		TimingData start((*itStart));
-		int histLoc = loc + startLoc;
-		const int resMult = 2;
-		const int resOffset = 2000;
-		
-		if(start.dataValid) {
-		    double tofOffset;
-		    if(startLoc == 0)
-			tofOffset = calibration.tofOffset0;
-		    else
-			tofOffset = calibration.tofOffset1;
-		    
-		    double TOF = liquid.highResTime - 
-			start.highResTime - tofOffset; //in ns
-		    double nEnergy = CalcEnergy(TOF, calibration.r0);
-		    
-		    plot(DD_TOFLIQUID, TOF*resMult+resOffset, histLoc);
-		    plot(DD_TOFVSDISCRIM+histLoc, 
-			 discrimNorm*discRes+discOffset, TOF*resMult+resOffset);
-		    plot(DD_NEVSDISCRIM+histLoc, discrimNorm*discRes+discOffset, nEnergy);
-		    plot(DD_TQDCVSLIQTOF+histLoc, TOF*resMult+resOffset, 
-			 liquid.tqdc);
-		    plot(DD_TQDCVSENERGY+histLoc, nEnergy, liquid.tqdc);
-		}
-	    } //Loop over starts
-	} // Good Liquid Check
+            double discrimNorm = 
+            liquid.discrimination/liquid.tqdc;	    
+            
+            double discRes = 1000;
+            double discOffset = 100;
+            
+            TimingCal calibration =
+            GetTimingCal(make_pair(loc, "liquid"));
+            
+            if(discrimNorm > 0)
+                plot(DD_DISCRIM, discrimNorm*discRes+discOffset, loc);
+            plot(DD_TQDCVSDISCRIM, discrimNorm*discRes+discOffset,
+            liquid.tqdc);
+            
+            if((*itLiquid)->GetChanID().HasTag("start"))
+                continue;
+            
+            for(vector<ChanEvent*>::iterator itStart = startEvents.begin(); 
+            itStart != startEvents.end(); itStart++) { 
+                unsigned int startLoc = (*itStart)->GetChanID().GetLocation();
+                TimingData start((*itStart));
+                int histLoc = loc + startLoc;
+                const int resMult = 2;
+                const int resOffset = 2000;
+                
+                if(start.dataValid) {
+                    double tofOffset;
+                    if(startLoc == 0)
+                    tofOffset = calibration.tofOffset0;
+                    else
+                    tofOffset = calibration.tofOffset1;
+                    
+                    double TOF = liquid.highResTime - 
+                    start.highResTime - tofOffset; //in ns
+                    double nEnergy = CalcEnergy(TOF, calibration.r0);
+                    
+                    plot(DD_TOFLIQUID, TOF*resMult+resOffset, histLoc);
+                    plot(DD_TOFVSDISCRIM+histLoc, 
+                    discrimNorm*discRes+discOffset, TOF*resMult+resOffset);
+                    plot(DD_NEVSDISCRIM+histLoc, discrimNorm*discRes+discOffset, nEnergy);
+                    plot(DD_TQDCVSLIQTOF+histLoc, TOF*resMult+resOffset, 
+                    liquid.tqdc);
+                    plot(DD_TQDCVSENERGY+histLoc, nEnergy, liquid.tqdc);
+                }
+            } //Loop over starts
+        } // Good Liquid Check
     }//end loop over liquid events
 }//void ScintProcessor::LiquidAnalysis

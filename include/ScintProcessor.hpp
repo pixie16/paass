@@ -19,7 +19,6 @@ public:
     virtual void DeclarePlots(void);
     // nice and simple raw derived class
 private:
-   virtual void BetaAnalysis(RawEvent &event);
    virtual void LiquidAnalysis(RawEvent &event);
    unsigned int counter;
 };

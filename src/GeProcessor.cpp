@@ -384,7 +384,6 @@ bool GeProcessor::PreProcess(RawEvent &event) {
     return true;
 } 
 
-/** process the event */
 bool GeProcessor::Process(RawEvent &event) {
     using namespace dammIds::ge;
 
