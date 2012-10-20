@@ -9,3 +9,7 @@ HIS
 LDF
 HIS/*
 LDF/*
+# Large data files
+*.ldf
+*.his
+*.drr
