@@ -90,7 +90,7 @@ using namespace dammIds::vandle;
 VandleProcessor::VandleProcessor(): EventProcessor(OFFSET, RANGE)
 {
     name = "vandle";
-    associatedTypes.insert("scint"); 
+    associatedTypes.insert("liquid_scint"); 
     associatedTypes.insert("vandleSmall"); 
     associatedTypes.insert("vandleBig");
     associatedTypes.insert("tvandle");
@@ -305,9 +305,9 @@ bool VandleProcessor::RetrieveData(RawEvent &event)
     static const vector<ChanEvent*> &bigEvents = 
 	event.GetSummary("vandleBig")->GetList();
     static const vector<ChanEvent*> &betaStarts = 
-	event.GetSummary("scint:beta:start")->GetList();
+	event.GetSummary("liquid_scint:beta:start")->GetList();
     static const vector<ChanEvent*> &liquidStarts = 
-	event.GetSummary("scint:liquid:start")->GetList();
+	event.GetSummary("liquid_scint:liquid:start")->GetList();
     static const vector<ChanEvent*> &tvandleEvents = 
 	event.GetSummary("tvandle")->GetList();
 

@@ -1,6 +1,9 @@
 /** \file ScintProcessor.hpp
  *
  * Processor for scintillator detectors
+ *
+ * KM 10/20/12:
+ * Obsolete file, see ScintProcessor.cpp for details
  */
 
 #ifndef __SCINTPROCESSOR_HPP_

@@ -73,7 +73,10 @@ AnalyzeData	src/PulserProcessor.cpp	/^void PulserProcessor::AnalyzeData(void)$/;
 AnalyzeData	src/VandleProcessor.cpp	/^void VandleProcessor::AnalyzeData(void)$/;"	f	class:VandleProcessor
 BACK_TO_BACK_IMPLANT	include/Correlator.hpp	/^		      BACK_TO_BACK_IMPLANT = 32,$/;"	e	enum:Correlator::EConditions
 BASELINES_BLOCK_LEN	include/pixie16app_defs.h	304;"	d
+BEAM_START_BIN	src/MtcProcessor.cpp	/^        const int BEAM_START_BIN = 5;$/;"	m	namespace:dammIds::mtc	file:
+BEAM_STOP_BIN	src/MtcProcessor.cpp	/^        const int BEAM_STOP_BIN = 7;$/;"	m	namespace:dammIds::mtc	file:
 BEGINEVT	scan/scanorux.f	/^      REAL*8         STRBUFEVT,NUMBUFEVTS,BUF_NUM,LASTEVT,SUMEVTS,$/;"	v
+BETASCINTPROCESSORO	Makefile	/^BETASCINTPROCESSORO  = BetaScintProcessor.$(ObjSuf)$/;"	m
 BETA_EVENT	include/Correlator.hpp	/^    enum EEventTypes {IMPLANT_EVENT, ALPHA_EVENT, BETA_EVENT, FISSION_EVENT, $/;"	e	enum:EventInfo::EEventTypes
 BIG_OFFSET	src/VandleProcessor.cpp	/^    const unsigned int BIG_OFFSET     = 30;$/;"	m	namespace:dammIds	file:
 BUFFER_END	src/PixieStd.cpp	/^enum HistoPoints {BUFFER_START, BUFFER_END, EVENT_START = 10, EVENT_CONTINUE};$/;"	e	enum:HistoPoints	file:
@@ -84,7 +87,8 @@ BarData	include/TimingInformation.hpp	/^    struct BarData$/;"	s	class:TimingInf
 BarData	src/TimingInformation.cpp	/^TimingInformation::BarData::BarData(const TimingData &Right, const TimingData &Left, const TimingCal &cal, const string &type) $/;"	f	class:TimingInformation::BarData
 BarEventCheck	src/TimingInformation.cpp	/^bool TimingInformation::BarData::BarEventCheck(const double &timeDiff, const string &type)$/;"	f	class:TimingInformation::BarData
 BarMap	include/TimingInformation.hpp	/^    typedef std::map<IdentKey, struct BarData> BarMap;$/;"	t	class:TimingInformation
-BetaAnalysis	src/ScintProcessor.cpp	/^void ScintProcessor::BetaAnalysis(RawEvent &event)$/;"	f	class:ScintProcessor
+BetaScintProcessor	include/BetaScintProcessor.hpp	/^class BetaScintProcessor : public EventProcessor$/;"	c
+BetaScintProcessor	src/BetaScintProcessor.cpp	/^BetaScintProcessor::BetaScintProcessor() : EventProcessor(OFFSET, RANGE)$/;"	f	class:BetaScintProcessor
 BuildBars	src/VandleProcessor.cpp	/^void VandleProcessor::BuildBars(const TimingDataMap &endMap, const string &type, BarMap &barMap) $/;"	f	class:VandleProcessor
 CAPTURE_SLOW_TRACE	include/pixie16app_defs.h	78;"	d
 CCSRA_ENARELAY	include/pixie16app_defs.h	276;"	d
@@ -120,7 +124,7 @@ ChanEvent	include/RawEvent.hpp	/^class ChanEvent$/;"	c
 ChanEvent	src/RawEvent.cpp	/^ChanEvent::ChanEvent() {$/;"	f	class:ChanEvent
 ChannelFromIndex	src/DetectorLibrary.cpp	/^int DetectorLibrary::ChannelFromIndex(int index) const$/;"	f	class:DetectorLibrary
 CheckRange	src/Plots.cpp	/^bool Plots::CheckRange(int id) const$/;"	f	class:Plots
-CheckRange	src/PlotsRegister.cpp	/^bool PlotsRegister::CheckRange (int offset, int range) const$/;"	f	class:PlotsRegister
+CheckRange	src/PlotsRegister.cpp	/^bool PlotsRegister::CheckRange (int min, int max) const$/;"	f	class:PlotsRegister
 Clear	src/IonChamberProcessor.cpp	/^void IonChamberProcessor::Data::Clear(void)$/;"	f	class:IonChamberProcessor::Data
 Clear	src/McpProcessor.cpp	/^void McpProcessor::McpData::Clear(void)$/;"	f	class:McpProcessor::McpData
 Clear	src/RawEvent.cpp	/^void RawEvent::Clear()$/;"	f	class:RawEvent
@@ -129,6 +133,8 @@ ClearMaps	src/VandleProcessor.cpp	/^void VandleProcessor::ClearMaps(void)$/;"	f	
 CloverEvent	include/GeProcessor.hpp	/^class CloverEvent : public EventContainer$/;"	c
 CompareCorrectedTime	src/RawEvent.cpp	/^bool CompareCorrectedTime(const ChanEvent *a, const ChanEvent *b)$/;"	f
 CompareTime	src/RawEvent.cpp	/^bool CompareTime(const ChanEvent *a, const ChanEvent *b)$/;"	f
+CorrEventData	include/NewCorrelator.hpp	/^        CorrEventData(double t, bool s = true, double E = 0) {$/;"	f	class:CorrEventData
+CorrEventData	include/NewCorrelator.hpp	/^class CorrEventData {$/;"	c
 CorrectTOF	include/VandleProcessor.hpp	/^    virtual double CorrectTOF(const double &TOF, $/;"	f	class:VandleProcessor
 Correlate	src/Correlator.cpp	/^void Correlator::Correlate(EventInfo &event, $/;"	f	class:Correlator
 Correlate	src/ImplantSsdProcessor.cpp	/^void ImplantSsdProcessor::Correlate(Correlator &corr, EventInfo &info, int location)$/;"	f	class:ImplantSsdProcessor
@@ -153,7 +159,6 @@ DD_ADD_ENERGY_EARLY	src/GeProcessor.cpp	/^        const int DD_ADD_ENERGY_EARLY 
 DD_ADD_ENERGY_LATE	src/GeProcessor.cpp	/^	const int DD_ADD_ENERGY_LATE       = 152;$/;"	m	namespace:dammIds::ge	file:
 DD_ADD_ENERGY_LATE	src/GeProcessor.cpp	/^        const int DD_ADD_ENERGY_LATE     = 162;$/;"	m	namespace:dammIds::ge::betaGated	file:
 DD_ADD_ENERGY_PROMPT	src/GeProcessor.cpp	/^	    const int DD_ADD_ENERGY_PROMPT   = 163;$/;"	m	namespace:dammIds::ge::betaGated	file:
-DD_ADD_ENERGY_WITH_DECAY	src/GeProcessor.cpp	/^	const int DD_ADD_ENERGY_WITH_DECAY = 170;$/;"	m	namespace:dammIds::ge	file:
 DD_ADD_ENERGY__TIMEX	src/GeProcessor.cpp	/^	    const int DD_ADD_ENERGY__TIMEX   = 181;$/;"	m	namespace:dammIds::ge::betaGated	file:
 DD_ADD_ENERGY__TIMEX	src/GeProcessor.cpp	/^	const int DD_ADD_ENERGY__TIMEX       = 171; \/\/ with x granularities$/;"	m	namespace:dammIds::ge	file:
 DD_ALL_ENERGY__LOCATION	src/ImplantSsdProcessor.cpp	/^        const int DD_ALL_ENERGY__LOCATION      = 9;$/;"	m	namespace:dammIds::implantSsd	file:
@@ -178,14 +183,14 @@ DD_DECAY_ENERGY__LOCATION	src/ImplantSsdProcessor.cpp	/^        const int DD_DEC
 DD_DECAY_FRONT_ENERGY__POSITION	src/DssdProcessor.cpp	/^        const int DD_DECAY_FRONT_ENERGY__POSITION   = 43;$/;"	m	namespace:dammIds::dssd	file:
 DD_DECAY_NOBEAM_ENERGY__TX	src/ImplantSsdProcessor.cpp	/^        const int DD_DECAY_NOBEAM_ENERGY__TX  = 30;$/;"	m	namespace:dammIds::implantSsd	file:
 DD_DECAY_POSITION	src/DssdProcessor.cpp	/^        const int DD_DECAY_POSITION   = 26;$/;"	m	namespace:dammIds::dssd	file:
+DD_DISCRIM	src/LiquidScintProcessor.cpp	/^        const int DD_DISCRIM          = 2;$/;"	m	namespace:dammIds::liquid_scint	file:
 DD_DISCRIM	src/ScintProcessor.cpp	/^        const int DD_DISCRIM          = 13;$/;"	m	namespace:dammIds::scint	file:
 DD_DOUBLE_TRACE	include/DammPlotIds.hpp	/^        const int DD_DOUBLE_TRACE     = 20;$/;"	m	namespace:dammIds::trace
-DD_EBACK__ENERGY_DETX	include/IonChamberProcessor.hpp	/^    const int DD_EBACK__ENERGY_DETX  = 3300; \/\/ + detector num$/;"	m	namespace:dammIds::ionChamber
+DD_EBACK__ENERGY_DETX	src/IonChamberProcessor.cpp	/^    const int DD_EBACK__ENERGY_DETX  = 100; \/\/ + detector num$/;"	m	namespace:dammIds::ionChamber	file:
 DD_ENERGY	src/GeProcessor.cpp	/^	    const int DD_ENERGY              = 110; $/;"	m	namespace:dammIds::ge::betaGated	file:
 DD_ENERGY	src/GeProcessor.cpp	/^	const int DD_ENERGY                = 100;$/;"	m	namespace:dammIds::ge	file:
 DD_ENERGY2__ENERGY1	include/DammPlotIds.hpp	/^        const int DD_ENERGY2__ENERGY1 = 22;$/;"	m	namespace:dammIds::trace
 DD_ENERGY2__TDIFF	include/DammPlotIds.hpp	/^        const int DD_ENERGY2__TDIFF   = 21;$/;"	m	namespace:dammIds::trace
-DD_ENERGY_WITH_DECAY	src/GeProcessor.cpp	/^	const int DD_ENERGY_WITH_DECAY     = 120;$/;"	m	namespace:dammIds::ge	file:
 DD_ENERGY__DECAY_TIME_GRANX	src/DssdProcessor.cpp	/^        const int DD_ENERGY__DECAY_TIME_GRANX = 50;$/;"	m	namespace:dammIds::dssd	file:
 DD_ENERGY__GATEX	src/GeProcessor.cpp	/^        const int DD_ENERGY__GATEX       = 166; $/;"	m	namespace:dammIds::ge::betaGated	file:
 DD_ENERGY__GATEX	src/GeProcessor.cpp	/^    const int DD_ENERGY__GATEX        = 156;$/;"	m	namespace:dammIds::ge	file:
@@ -196,7 +201,7 @@ DD_ENERGY__LOCATION_UNKNOWN	src/ImplantSsdProcessor.cpp	/^        const int DD_E
 DD_ENERGY__LOCATION_VETO	src/ImplantSsdProcessor.cpp	/^        const int DD_ENERGY__LOCATION_VETO     = 4;$/;"	m	namespace:dammIds::implantSsd	file:
 DD_ENERGY__TIMEX	src/GeProcessor.cpp	/^	    const int DD_ENERGY__TIMEX       = 131; $/;"	m	namespace:dammIds::ge::betaGated	file:
 DD_ENERGY__TIMEX	src/GeProcessor.cpp	/^	const int DD_ENERGY__TIMEX           = 121; \/\/ with x granularities$/;"	m	namespace:dammIds::ge	file:
-DD_ESUM__ENERGY_DETX	include/IonChamberProcessor.hpp	/^    const int DD_ESUM__ENERGY_DETX   = 3250; \/\/ + detector num    $/;"	m	namespace:dammIds::ionChamber
+DD_ESUM__ENERGY_DETX	src/IonChamberProcessor.cpp	/^    const int DD_ESUM__ENERGY_DETX   = 50; \/\/ + detector num    $/;"	m	namespace:dammIds::ionChamber	file:
 DD_FILTER1	include/DammPlotIds.hpp	/^        const int DD_FILTER1          = 1;$/;"	m	namespace:dammIds::trace
 DD_FILTER2	include/DammPlotIds.hpp	/^        const int DD_FILTER2          = 2;$/;"	m	namespace:dammIds::trace
 DD_FILTER3	include/DammPlotIds.hpp	/^        const int DD_FILTER3          = 3;$/;"	m	namespace:dammIds::trace
@@ -213,6 +218,7 @@ DD_LOC_VETO__LOC_SSD	src/ImplantSsdProcessor.cpp	/^        const int DD_LOC_VETO
 DD_MAX	src/PulserProcessor.cpp	/^      const int DD_MAX         = 3; $/;"	m	namespace:dammIds::pulser	file:
 DD_MAXBETA	src/ScintProcessor.cpp	/^        const int DD_MAXBETA          = 10;$/;"	m	namespace:dammIds::scint	file:
 DD_MAXIMUMBARS	src/VandleProcessor.cpp	/^	const int DD_MAXIMUMBARS      = 1;$/;"	m	namespace:dammIds::vandle	file:
+DD_MAXLIQUID	src/LiquidScintProcessor.cpp	/^        const int DD_MAXLIQUID        = 1;$/;"	m	namespace:dammIds::liquid_scint	file:
 DD_MAXLIQUID	src/ScintProcessor.cpp	/^        const int DD_MAXLIQUID        = 12;$/;"	m	namespace:dammIds::scint	file:
 DD_MAXLVSCORTOF	src/VandleProcessor.cpp	/^	const int DD_MAXLVSCORTOF      = 14;$/;"	m	namespace:dammIds::vandle	file:
 DD_MAXLVSTOF	src/VandleProcessor.cpp	/^	const int DD_MAXLVSTOF        = 10;$/;"	m	namespace:dammIds::vandle	file:
@@ -226,6 +232,7 @@ DD_MAXSVSTDIFF	src/PulserProcessor.cpp	/^      const int DD_MAXSVSTDIFF = 14; $/
 DD_MAXSVSTDIFF	src/VandleProcessor.cpp	/^	const int DD_MAXSVSTDIFF = 14 + TVANDLE_OFFSET; $/;"	m	namespace:dammIds::tvandle	file:
 DD_MAXVSTDIFF	src/PulserProcessor.cpp	/^      const int DD_MAXVSTDIFF  = 5; $/;"	m	namespace:dammIds::pulser	file:
 DD_MAXVSTDIFF	src/VandleProcessor.cpp	/^	const int DD_MAXVSTDIFF  = 5  + TVANDLE_OFFSET; $/;"	m	namespace:dammIds::tvandle	file:
+DD_NEVSDISCRIM	src/LiquidScintProcessor.cpp	/^        const int DD_NEVSDISCRIM      = 8;$/;"	m	namespace:dammIds::liquid_scint	file:
 DD_NEVSDISCRIM	src/ScintProcessor.cpp	/^	const int DD_NEVSDISCRIM      = 20;$/;"	m	namespace:dammIds::scint	file:
 DD_POSITION	src/LitePositionProcessor.cpp	/^	const int DD_POSITION              = 2699;$/;"	m	namespace:dammIds::position	file:
 DD_POSITION	src/PositionProcessor.cpp	/^        const int DD_POSITION              = 399;$/;"	m	namespace:dammIds::position	file:
@@ -264,7 +271,9 @@ DD_TIMEDIFFBARS	src/VandleProcessor.cpp	/^	const int DD_TIMEDIFFBARS     = 2;$/;
 DD_TOFBARBVSBARA	src/VandleProcessor.cpp	/^	const int DD_TOFBARBVSBARA      = 2+MISC_OFFSET;$/;"	m	namespace:dammIds::vandle	file:
 DD_TOFBARS	src/VandleProcessor.cpp	/^	const int DD_TOFBARS          = 3;$/;"	m	namespace:dammIds::vandle	file:
 DD_TOFBARS_VETO	src/VandleProcessor.cpp	/^	const int DD_TOFBARS_VETO  = 26;$/;"	m	namespace:dammIds::vandle	file:
+DD_TOFLIQUID	src/LiquidScintProcessor.cpp	/^        const int DD_TOFLIQUID        = 3;$/;"	m	namespace:dammIds::liquid_scint	file:
 DD_TOFLIQUID	src/ScintProcessor.cpp	/^	const int DD_TOFLIQUID        = 14;$/;"	m	namespace:dammIds::scint	file:
+DD_TOFVSDISCRIM	src/LiquidScintProcessor.cpp	/^        const int DD_TOFVSDISCRIM     = 6;$/;"	m	namespace:dammIds::liquid_scint	file:
 DD_TOFVSDISCRIM	src/ScintProcessor.cpp	/^	const int DD_TOFVSDISCRIM     = 18;$/;"	m	namespace:dammIds::scint	file:
 DD_TOFVSSTARTQDCSUM	src/VandleProcessor.cpp	/^	const int DD_TOFVSSTARTQDCSUM    = 23;$/;"	m	namespace:dammIds::vandle	file:
 DD_TOTENERGY__ENERGY	src/ImplantSsdProcessor.cpp	/^        const int DD_TOTENERGY__ENERGY         = 8;$/;"	m	namespace:dammIds::implantSsd	file:
@@ -276,12 +285,17 @@ DD_TQDCAVEVSTOF	src/VandleProcessor.cpp	/^	const int DD_TQDCAVEVSTOF     = 11;$/
 DD_TQDCAVEVSTOF_VETO	src/VandleProcessor.cpp	/^	const int DD_TQDCAVEVSTOF_VETO= 25;$/;"	m	namespace:dammIds::vandle	file:
 DD_TQDCBARS	src/VandleProcessor.cpp	/^	const int DD_TQDCBARS         = 0;$/;"	m	namespace:dammIds::vandle	file:
 DD_TQDCBETA	src/ScintProcessor.cpp	/^        const int DD_TQDCBETA         = 9;$/;"	m	namespace:dammIds::scint	file:
+DD_TQDCLIQUID	src/LiquidScintProcessor.cpp	/^        const int DD_TQDCLIQUID       = 0;$/;"	m	namespace:dammIds::liquid_scint	file:
 DD_TQDCLIQUID	src/ScintProcessor.cpp	/^        const int DD_TQDCLIQUID       = 11;$/;"	m	namespace:dammIds::scint	file:
+DD_TQDCVSDISCRIM	src/LiquidScintProcessor.cpp	/^        const int DD_TQDCVSDISCRIM    = 5;$/;"	m	namespace:dammIds::liquid_scint	file:
 DD_TQDCVSDISCRIM	src/ScintProcessor.cpp	/^	const int DD_TQDCVSDISCRIM    = 16;$/;"	m	namespace:dammIds::scint	file:
+DD_TQDCVSENERGY	src/LiquidScintProcessor.cpp	/^        const int DD_TQDCVSENERGY     = 12;$/;"	m	namespace:dammIds::liquid_scint	file:
 DD_TQDCVSENERGY	src/ScintProcessor.cpp	/^	const int DD_TQDCVSENERGY     = 24;$/;"	m	namespace:dammIds::scint	file:
+DD_TQDCVSLIQTOF	src/LiquidScintProcessor.cpp	/^        const int DD_TQDCVSLIQTOF     = 10;$/;"	m	namespace:dammIds::liquid_scint	file:
 DD_TQDCVSLIQTOF	src/ScintProcessor.cpp	/^	const int DD_TQDCVSLIQTOF     = 22;$/;"	m	namespace:dammIds::scint	file:
-DD_TRACE	include/DammPlotIds.hpp	/^        const int DD_TRACE = 0;$/;"	m	namespace:dammIds::trace
+DD_TRACE	include/DammPlotIds.hpp	/^            const int DD_TRACE = 0;$/;"	m	namespace:dammIds::trace::plotter
 DD_TRACES	src/FittingAnalyzer.cpp	/^      const int DD_TRACES     = 0;$/;"	m	namespace:dammIds::waveformanalyzer	file:
+DD_TRCLIQUID	src/LiquidScintProcessor.cpp	/^        const int DD_TRCLIQUID        = 4;$/;"	m	namespace:dammIds::liquid_scint	file:
 DD_TRCLIQUID	src/ScintProcessor.cpp	/^	const int DD_TRCLIQUID        = 15;$/;"	m	namespace:dammIds::scint	file:
 DD_TRIPLE_TRACE	include/DammPlotIds.hpp	/^        const int DD_TRIPLE_TRACE         = 30;$/;"	m	namespace:dammIds::trace
 DD_TRIPLE_TRACE_FILTER1	include/DammPlotIds.hpp	/^        const int DD_TRIPLE_TRACE_FILTER1 = 31;$/;"	m	namespace:dammIds::trace
@@ -310,40 +324,36 @@ D_ADD_ENERGY_CLOVERX	src/GeProcessor.cpp	/^	    const int D_ADD_ENERGY_CLOVERX =
 D_ADD_ENERGY_CLOVERX	src/GeProcessor.cpp	/^	const int D_ADD_ENERGY_CLOVERX  = 51;$/;"	m	namespace:dammIds::ge	file:
 D_ADD_ENERGY_TOTAL	src/GeProcessor.cpp	/^	    const int D_ADD_ENERGY_TOTAL   = 65; $/;"	m	namespace:dammIds::ge::betaGated	file:
 D_ADD_ENERGY_TOTAL	src/GeProcessor.cpp	/^	const int D_ADD_ENERGY_TOTAL    = 55;$/;"	m	namespace:dammIds::ge	file:
+D_BEAMTIME	src/MtcProcessor.cpp	/^        const int D_BEAMTIME           = 5;$/;"	m	namespace:dammIds::mtc	file:
 D_BUFFER_END_TIME	include/DammPlotIds.hpp	/^        const int D_BUFFER_END_TIME    = 1805;$/;"	m	namespace:dammIds::raw
 D_CAL_ENERGY	include/DammPlotIds.hpp	/^        const int D_CAL_ENERGY = 1000;$/;"	m	namespace:dammIds::raw
 D_CAL_ENERGY_REJECT	include/DammPlotIds.hpp	/^        const int D_CAL_ENERGY_REJECT = 1200;$/;"	m	namespace:dammIds::raw
 D_CHISQPERDOF	src/FittingAnalyzer.cpp	/^      const int D_CHISQPERDOF = 1;$/;"	m	namespace:dammIds::waveformanalyzer	file:
 D_CONDITION	src/Correlator.cpp	/^        const int D_CONDITION            = 0;$/;"	m	namespace:dammIds::correlator	file:
-D_COUNTER	src/MtcProcessor.cpp	/^        const int D_COUNTER       = 10;$/;"	m	namespace:dammIds::mtc	file:
-D_COUNTER_MOVE0	src/MtcProcessor.cpp	/^        const int D_COUNTER_MOVE0 = 11;$/;"	m	namespace:dammIds::mtc	file:
-D_COUNTER_MOVE1	src/MtcProcessor.cpp	/^        const int D_COUNTER_MOVE1 = 12;$/;"	m	namespace:dammIds::mtc	file:
+D_COUNTER	src/MtcProcessor.cpp	/^        const int D_COUNTER            = 10;$/;"	m	namespace:dammIds::mtc	file:
 D_COUNTER_START	src/LogicProcessor.cpp	/^        const int D_COUNTER_START = 0;$/;"	m	namespace:dammIds::logic	file:
 D_COUNTER_STOP	src/LogicProcessor.cpp	/^        const int D_COUNTER_STOP  = 5;$/;"	m	namespace:dammIds::logic	file:
 D_CROSSTALK	src/VandleProcessor.cpp	/^	const int D_CROSSTALK           = 4+MISC_OFFSET;$/;"	m	namespace:dammIds::vandle	file:
-D_DTIME_DETX	include/IonChamberProcessor.hpp	/^    const int D_DTIME_DETX    = 3230; \/\/ + detector num$/;"	m	namespace:dammIds::ionChamber
+D_DTIME_DETX	src/IonChamberProcessor.cpp	/^    const int D_DTIME_DETX    = 30; \/\/ + detector num$/;"	m	namespace:dammIds::ionChamber	file:
 D_ENERGY	src/GeProcessor.cpp	/^	    const int D_ENERGY             = 10;$/;"	m	namespace:dammIds::ge::betaGated	file:
 D_ENERGY	src/GeProcessor.cpp	/^	const int D_ENERGY              = 0;$/;"	m	namespace:dammIds::ge	file:
 D_ENERGY1	include/DammPlotIds.hpp	/^        const int D_ENERGY1           = 15;$/;"	m	namespace:dammIds::trace
 D_ENERGY2	include/DammPlotIds.hpp	/^        const int D_ENERGY2           = 16;	$/;"	m	namespace:dammIds::trace
-D_ENERGYSUM	include/IonChamberProcessor.hpp	/^    const int D_ENERGYSUM     = 3200;$/;"	m	namespace:dammIds::ionChamber
-D_ENERGYTHREE_GROUPX	include/IonChamberProcessor.hpp	/^    const int D_ENERGYTHREE_GROUPX = 3210; \/\/ + starting det$/;"	m	namespace:dammIds::ionChamber
-D_ENERGYTWO_GROUPX	include/IonChamberProcessor.hpp	/^    const int D_ENERGYTWO_GROUPX   = 3220; \/\/ + starting det$/;"	m	namespace:dammIds::ionChamber
+D_ENERGYSUM	src/IonChamberProcessor.cpp	/^    const int D_ENERGYSUM     = 0;$/;"	m	namespace:dammIds::ionChamber	file:
+D_ENERGYTHREE_GROUPX	src/IonChamberProcessor.cpp	/^    const int D_ENERGYTHREE_GROUPX = 10; \/\/ + starting det$/;"	m	namespace:dammIds::ionChamber	file:
+D_ENERGYTWO_GROUPX	src/IonChamberProcessor.cpp	/^    const int D_ENERGYTWO_GROUPX   = 20; \/\/ + starting det$/;"	m	namespace:dammIds::ionChamber	file:
 D_ENERGY_BETA0	src/GeProcessor.cpp	/^	    const int D_ENERGY_BETA0       = 15; $/;"	m	namespace:dammIds::ge::betaGated	file:
 D_ENERGY_BETA1	src/GeProcessor.cpp	/^	    const int D_ENERGY_BETA1       = 16; $/;"	m	namespace:dammIds::ge::betaGated	file:
 D_ENERGY_CLOVERX	src/GeProcessor.cpp	/^	    const int D_ENERGY_CLOVERX     = 11;$/;"	m	namespace:dammIds::ge::betaGated	file:
 D_ENERGY_CLOVERX	src/GeProcessor.cpp	/^	const int D_ENERGY_CLOVERX      = 1; \/\/ leaf by clover for X detectors$/;"	m	namespace:dammIds::ge	file:
+D_ENERGY_DETX	src/NeutronScintProcessor.cpp	/^            const int D_ENERGY_DETX = 0; \/\/ for 3 detectors (1-3)$/;"	m	namespace:dammIds::neutron_scint::betaGated	file:
+D_ENERGY_DETX	src/NeutronScintProcessor.cpp	/^            const int D_ENERGY_DETX = 3; \/\/ for 3 detectors (1-3)$/;"	m	namespace:dammIds::neutron_scint::gammaGated	file:
+D_ENERGY_DETX	src/NeutronScintProcessor.cpp	/^            const int D_ENERGY_DETX = 6; \/\/ for 3 detectors (1-3)$/;"	m	namespace:dammIds::neutron_scint::betaGammaGated	file:
 D_ENERGY_DETX	src/ScintProcessor.cpp	/^                const int D_ENERGY_DETX = 0; \/\/ for 3 detectors (1-3)$/;"	m	namespace:dammIds::scint::neutr::betaGated	file:
 D_ENERGY_DETX	src/ScintProcessor.cpp	/^                const int D_ENERGY_DETX = 3; \/\/ for 3 detectors (1-3)$/;"	m	namespace:dammIds::scint::neutr::gammaGated	file:
 D_ENERGY_DETX	src/ScintProcessor.cpp	/^                const int D_ENERGY_DETX = 6; \/\/ for 3 detectors (1-3)$/;"	m	namespace:dammIds::scint::neutr::betaGammaGated	file:
 D_ENERGY_HIGHGAIN	src/GeProcessor.cpp	/^	const int D_ENERGY_HIGHGAIN     = 8;$/;"	m	namespace:dammIds::ge	file:
 D_ENERGY_LOWGAIN	src/GeProcessor.cpp	/^	const int D_ENERGY_LOWGAIN      = 7;$/;"	m	namespace:dammIds::ge	file:
-D_ENERGY_WITH_DECAY	src/GeProcessor.cpp	/^	const int D_ENERGY_WITH_DECAY   = 20;$/;"	m	namespace:dammIds::ge	file:
-D_ENERGY_WITH_EXT0	src/GeProcessor.cpp	/^	    const int D_ENERGY_WITH_EXT0   = 36; $/;"	m	namespace:dammIds::ge::betaGated	file:
-D_ENERGY_WITH_EXT0	src/GeProcessor.cpp	/^	const int D_ENERGY_WITH_EXT0    = 26; \/\/ with external detector (e.g. 3hen, vandle) $/;"	m	namespace:dammIds::ge	file:
-D_ENERGY_WITH_EXT1	src/GeProcessor.cpp	/^	    const int D_ENERGY_WITH_EXT1   = 37; $/;"	m	namespace:dammIds::ge::betaGated	file:
-D_ENERGY_WITH_EXT1	src/GeProcessor.cpp	/^	const int D_ENERGY_WITH_EXT1    = 27; \/\/ with external detector (e.g. 3hen, vandle) $/;"	m	namespace:dammIds::ge	file:
-D_ENERGY_WITH_IMPLANT	src/GeProcessor.cpp	/^	const int D_ENERGY_WITH_IMPLANT = 25;$/;"	m	namespace:dammIds::ge	file:
 D_EVENT_GAP	include/DammPlotIds.hpp	/^        const int D_EVENT_GAP    = 1803;$/;"	m	namespace:dammIds::raw
 D_EVENT_LENGTH	include/DammPlotIds.hpp	/^        const int D_EVENT_LENGTH = 1802;$/;"	m	namespace:dammIds::raw
 D_EVENT_MULTIPLICITY	include/DammPlotIds.hpp	/^        const int D_EVENT_MULTIPLICITY = 1804;$/;"	m	namespace:dammIds::raw
@@ -354,7 +364,7 @@ D_HIGH_ENERGY_TRACE	src/ImplantSsdProcessor.cpp	/^        const int D_HIGH_ENERG
 D_HIT_SPECTRUM	include/DammPlotIds.hpp	/^        const int D_HIT_SPECTRUM = 1800; \/**< This is actually id 1801 in the .his file *\/$/;"	m	namespace:dammIds::raw
 D_INFO_LOCX	src/LitePositionProcessor.cpp	/^	const int D_INFO_LOCX              = 2480;$/;"	m	namespace:dammIds::position	file:
 D_INFO_LOCX	src/PositionProcessor.cpp	/^        const int D_INFO_LOCX              = 180;$/;"	m	namespace:dammIds::position	file:
-D_MOVETIME	src/MtcProcessor.cpp	/^        const int D_MOVETIME      = 3;$/;"	m	namespace:dammIds::mtc	file:
+D_MOVETIME	src/MtcProcessor.cpp	/^        const int D_MOVETIME           = 4;$/;"	m	namespace:dammIds::mtc	file:
 D_MULT	src/GeProcessor.cpp	/^	const int D_MULT                = 9;$/;"	m	namespace:dammIds::ge	file:
 D_NUMBER_OF_EVENTS	include/DammPlotIds.hpp	/^        const int D_NUMBER_OF_EVENTS   = 1811;$/;"	m	namespace:dammIds::raw
 D_PHASE	src/FittingAnalyzer.cpp	/^      const int D_PHASE       = 2;$/;"	m	namespace:dammIds::waveformanalyzer	file:
@@ -366,7 +376,7 @@ D_QDCNORMN_LOCX	src/LitePositionProcessor.cpp	/^	const int D_QDCNORMN_LOCX      
 D_QDCNORMN_LOCX	src/PositionProcessor.cpp	/^        const int D_QDCNORMN_LOCX          = 0;$/;"	m	namespace:dammIds::position	file:
 D_QDCTOTNORM_LOCX	src/LitePositionProcessor.cpp	/^	const int D_QDCTOTNORM_LOCX        = 2460;$/;"	m	namespace:dammIds::position	file:
 D_QDCTOTNORM_LOCX	src/PositionProcessor.cpp	/^        const int D_QDCTOTNORM_LOCX        = 160;$/;"	m	namespace:dammIds::position	file:
-D_RATE_DETX	include/IonChamberProcessor.hpp	/^    const int D_RATE_DETX     = 3240; \/\/ + detector num$/;"	m	namespace:dammIds::ionChamber
+D_RATE_DETX	src/IonChamberProcessor.cpp	/^    const int D_RATE_DETX     = 40; \/\/ + detector num$/;"	m	namespace:dammIds::ionChamber	file:
 D_RAW_ENERGY	include/DammPlotIds.hpp	/^        const int D_RAW_ENERGY = 0;$/;"	m	namespace:dammIds::raw
 D_SCALAR	include/DammPlotIds.hpp	/^        const int D_SCALAR = 400;\/**< These get filled in PixieStd.cpp *\/$/;"	m	namespace:dammIds::raw
 D_SDEVBASESTART	src/PulserProcessor.cpp	/^      const int D_SDEVBASESTART= 11; $/;"	m	namespace:dammIds::pulser	file:
@@ -378,12 +388,13 @@ D_SNRSTART	src/VandleProcessor.cpp	/^	const int D_SNRSTART     = 9  + TVANDLE_OF
 D_SNRSTOP	src/PulserProcessor.cpp	/^      const int D_SNRSTOP      = 10; $/;"	m	namespace:dammIds::pulser	file:
 D_SNRSTOP	src/VandleProcessor.cpp	/^	const int D_SNRSTOP      = 10 + TVANDLE_OFFSET; $/;"	m	namespace:dammIds::tvandle	file:
 D_SUBEVENT_GAP	include/DammPlotIds.hpp	/^        const int D_SUBEVENT_GAP = 1801; \/**< The rest follow the same pattern. *\/$/;"	m	namespace:dammIds::raw
-D_TDIFF0	src/MtcProcessor.cpp	/^        const int D_TDIFF0        = 0;$/;"	m	namespace:dammIds::mtc	file:
-D_TDIFF1	src/MtcProcessor.cpp	/^        const int D_TDIFF1        = 1;$/;"	m	namespace:dammIds::mtc	file:
-D_TDIFFSUM	src/MtcProcessor.cpp	/^        const int D_TDIFFSUM      = 2;$/;"	m	namespace:dammIds::mtc	file:
+D_TDIFF_BEAM_START	src/MtcProcessor.cpp	/^        const int D_TDIFF_BEAM_START   = 0;$/;"	m	namespace:dammIds::mtc	file:
+D_TDIFF_BEAM_STOP	src/MtcProcessor.cpp	/^        const int D_TDIFF_BEAM_STOP    = 1;$/;"	m	namespace:dammIds::mtc	file:
 D_TDIFF_FOIL_IMPLANT	src/ImplantSsdProcessor.cpp	/^        const int D_TDIFF_FOIL_IMPLANT = 11;$/;"	m	namespace:dammIds::implantSsd	file:
 D_TDIFF_FOIL_IMPLANT_MULT1	src/ImplantSsdProcessor.cpp	/^        const int D_TDIFF_FOIL_IMPLANT_MULT1 = 12;$/;"	m	namespace:dammIds::implantSsd	file:
 D_TDIFF_LENGTHX	src/LogicProcessor.cpp	/^        const int D_TDIFF_LENGTHX = 50;$/;"	m	namespace:dammIds::logic	file:
+D_TDIFF_MOVE_START	src/MtcProcessor.cpp	/^        const int D_TDIFF_MOVE_START   = 2;$/;"	m	namespace:dammIds::mtc	file:
+D_TDIFF_MOVE_STOP	src/MtcProcessor.cpp	/^        const int D_TDIFF_MOVE_STOP    = 3;$/;"	m	namespace:dammIds::mtc	file:
 D_TDIFF_STARTX	src/LogicProcessor.cpp	/^        const int D_TDIFF_STARTX  = 10;$/;"	m	namespace:dammIds::logic	file:
 D_TDIFF_STOPX	src/LogicProcessor.cpp	/^        const int D_TDIFF_STOPX   = 20;$/;"	m	namespace:dammIds::logic	file:
 D_TDIFF_SUMX	src/LogicProcessor.cpp	/^        const int D_TDIFF_SUMX    = 30;$/;"	m	namespace:dammIds::logic	file:
@@ -408,6 +419,7 @@ DeclareHistogram2D	include/EventProcessor.hpp	/^    virtual void DeclareHistogra
 DeclareHistogram2D	include/TraceAnalyzer.hpp	/^    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize, const char* title) {$/;"	f	class:TraceAnalyzer
 DeclareHistogram2D	src/Plots.cpp	/^bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,$/;"	f	class:Plots
 DeclareHistogramGranY	src/GeProcessor.cpp	/^void GeProcessor::DeclareHistogramGranY(int dammId, int xsize, int ysize,$/;"	f	class:GeProcessor
+DeclarePlots	src/BetaScintProcessor.cpp	/^void BetaScintProcessor::DeclarePlots(void)$/;"	f	class:BetaScintProcessor
 DeclarePlots	src/CfdAnalyzer.cpp	/^void CfdAnalyzer::DeclarePlots (void) const $/;"	f	class:CfdAnalyzer
 DeclarePlots	src/Correlator.cpp	/^void Correlator::DeclarePlots()$/;"	f	class:Correlator
 DeclarePlots	src/DetectorDriver.cpp	/^void DetectorDriver::DeclarePlots(void)$/;"	f	class:DetectorDriver
@@ -418,10 +430,12 @@ DeclarePlots	src/FittingAnalyzer.cpp	/^void FittingAnalyzer::DeclarePlots(void)$
 DeclarePlots	src/GeProcessor.cpp	/^void GeProcessor::DeclarePlots(void) $/;"	f	class:GeProcessor
 DeclarePlots	src/ImplantSsdProcessor.cpp	/^void ImplantSsdProcessor::DeclarePlots(void)$/;"	f	class:ImplantSsdProcessor
 DeclarePlots	src/IonChamberProcessor.cpp	/^void IonChamberProcessor::DeclarePlots(void)$/;"	f	class:IonChamberProcessor
+DeclarePlots	src/LiquidScintProcessor.cpp	/^void LiquidScintProcessor::DeclarePlots(void)$/;"	f	class:LiquidScintProcessor
 DeclarePlots	src/LitePositionProcessor.cpp	/^void LitePositionProcessor::DeclarePlots(void)$/;"	f	class:LitePositionProcessor
 DeclarePlots	src/LogicProcessor.cpp	/^void LogicProcessor::DeclarePlots(void)$/;"	f	class:LogicProcessor
 DeclarePlots	src/McpProcessor.cpp	/^void McpProcessor::DeclarePlots(void)$/;"	f	class:McpProcessor
 DeclarePlots	src/MtcProcessor.cpp	/^void MtcProcessor::DeclarePlots(void)$/;"	f	class:MtcProcessor
+DeclarePlots	src/NeutronScintProcessor.cpp	/^void NeutronScintProcessor::DeclarePlots(void)$/;"	f	class:NeutronScintProcessor
 DeclarePlots	src/PositionProcessor.cpp	/^void PositionProcessor::DeclarePlots() {$/;"	f	class:PositionProcessor
 DeclarePlots	src/PulserProcessor.cpp	/^void PulserProcessor::DeclarePlots(void)$/;"	f	class:PulserProcessor
 DeclarePlots	src/ScintProcessor.cpp	/^void ScintProcessor::DeclarePlots(void)$/;"	f	class:ScintProcessor
@@ -433,6 +447,8 @@ DeclarePlots	src/TracePlotter.cpp	/^void TracePlotter::DeclarePlots(void)$/;"	f	
 DeclarePlots	src/TriggerLogicProcessor.cpp	/^void TriggerLogicProcessor::DeclarePlots(void)$/;"	f	class:TriggerLogicProcessor
 DeclarePlots	src/VandleProcessor.cpp	/^void VandleProcessor::DeclarePlots(void)$/;"	f	class:VandleProcessor
 DeclarePlots	src/WaveformAnalyzer.cpp	/^void WaveformAnalyzer::DeclarePlots(void) const$/;"	f	class:WaveformAnalyzer
+Detector	include/NewCorrelator.hpp	/^        Detector(bool resetable = true) : Place(resetable) {} $/;"	f	class:Detector
+Detector	include/NewCorrelator.hpp	/^class Detector : public Place {$/;"	c
 DetectorDriver	include/DetectorDriver.hpp	/^class DetectorDriver {    $/;"	c
 DetectorDriver	src/DetectorDriver.cpp	/^DetectorDriver::DetectorDriver() : $/;"	f	class:DetectorDriver
 DetectorLibrary	include/DetectorLibrary.hpp	/^class DetectorLibrary : public std::vector<Identifier>$/;"	c
@@ -576,6 +592,7 @@ GetNextLocation	src/DetectorLibrary.cpp	/^int DetectorLibrary::GetNextLocation(c
 GetNumberArguments	include/GetArguments.hpp	/^inline int GetNumberArguments(void) $/;"	f
 GetOffset	include/Plots.hpp	/^    int GetOffset() { return offset; }$/;"	f	class:Plots
 GetPhysicalModules	include/DetectorLibrary.hpp	/^    unsigned int GetPhysicalModules() const {return numPhysicalModules;}$/;"	f	class:DetectorLibrary
+GetPlaceName	include/RawEvent.hpp	/^    std::string GetPlaceName() const {$/;"	f	class:Identifier
 GetProcessors	include/DetectorDriver.hpp	/^    const vector<EventProcessor *>& GetProcessors(void) const$/;"	f	class:DetectorDriver
 GetProcessors	src/DetectorDriver.cpp	/^vector<EventProcessor *> DetectorDriver::GetProcessors(const string& type) const$/;"	f	class:DetectorDriver
 GetQdcValue	src/RawEvent.cpp	/^unsigned long ChanEvent::GetQdcValue(int i) const$/;"	f	class:ChanEvent
@@ -663,6 +680,7 @@ Init	src/TraceAnalyzer.cpp	/^bool TraceAnalyzer::Init(void)$/;"	f	class:TraceAna
 Init	src/TraceFilterer.cpp	/^bool TraceFilterer::Init(const string &filterFile)$/;"	f	class:TraceFilterer
 Init	src/VandleProcessor.cpp	/^bool VandleProcessor::Init(DetectorDriver &driver)$/;"	f	class:VandleProcessor
 InitMap	src/PixieStd.cpp	/^bool InitMap(void) $/;"	f
+InitializeCorrelator	src/DetectorDriver.cpp	/^void DetectorDriver::InitializeCorrelator() {$/;"	f	class:DetectorDriver
 InsertValue	include/Trace.hpp	/^    void InsertValue(std::string name, double value) {$/;"	f	class:Trace
 InsertValue	include/Trace.hpp	/^    void InsertValue(std::string name, int value) {$/;"	f	class:Trace
 IonChamberProcessor	include/IonChamberProcessor.hpp	/^class IonChamberProcessor : public EventProcessor $/;"	c
@@ -687,6 +705,7 @@ LIBS	Makefile	/^LIBS = $(HHIRF_DIR)\/scanorlib.a $(HHIRF_DIR)\/orphlib.a \\$/;"	
 LIBS_IN_HHIRF	Makefile	/^LIBS_IN_HHIRF = 1$/;"	m
 LIN	scan/scanorux.f	/^      INTEGER*4    LCON,LCMD,LIN,/;"	v
 LINK.o	Makefile	/^LINK.o    = $(FC) $(LDFLAGS)$/;"	m
+LIQUIDSCINTPROCESSORO	Makefile	/^LIQUIDSCINTPROCESSORO  = LiquidScintProcessor.$(ObjSuf)$/;"	m
 LISFLG	scan/scanorux.f	/^      CHARACTER*4 LISFLG,/;"	v
 LIST_MODE_RUN0	include/pixie16app_defs.h	168;"	d
 LIST_MODE_RUN1	include/pixie16app_defs.h	169;"	d
@@ -708,6 +727,8 @@ LUINF	scan/scanorux.f	/^      INTEGER*4    INDIR,            INRECI,LUINF$/;"	v
 LUT	scan/scanorux.f	/^      INTEGER*4    LUT,/;"	v
 LWD	scan/scanorux.f	/^      INTEGER*4    IWD,    LWD,/;"	v
 LiquidAnalysis	src/ScintProcessor.cpp	/^void ScintProcessor::LiquidAnalysis(RawEvent &event)$/;"	f	class:ScintProcessor
+LiquidScintProcessor	include/LiquidScintProcessor.hpp	/^class LiquidScintProcessor : public EventProcessor,$/;"	c
+LiquidScintProcessor	src/LiquidScintProcessor.cpp	/^LiquidScintProcessor::LiquidScintProcessor() : EventProcessor(OFFSET, RANGE)$/;"	f	class:LiquidScintProcessor
 LitePositionProcessor	include/LitePositionProcessor.hpp	/^class LitePositionProcessor : public EventProcessor$/;"	c
 LogicProcessor	include/LogicProcessor.hpp	/^class LogicProcessor : public EventProcessor {$/;"	c
 LogicProcessor	src/LogicProcessor.cpp	/^LogicProcessor::LogicProcessor(int offset, int range) : $/;"	f	class:LogicProcessor
@@ -752,6 +773,8 @@ MODCSRB_RECTRIGENA	include/pixie16app_defs.h	288;"	d
 MODCSRB_RIGHTASTMOD	include/pixie16app_defs.h	291;"	d
 MOD_READ	include/pixie16app_defs.h	179;"	d
 MOD_WRITE	include/pixie16app_defs.h	180;"	d
+MOVE_START_BIN	src/MtcProcessor.cpp	/^        const int MOVE_START_BIN = 1;$/;"	m	namespace:dammIds::mtc	file:
+MOVE_STOP_BIN	src/MtcProcessor.cpp	/^        const int MOVE_STOP_BIN = 3;$/;"	m	namespace:dammIds::mtc	file:
 MSGF	scan/scanorux.f	/^      CHARACTER*4 LISFLG,MSGF$/;"	v
 MSSG	scan/scanorux.f	/^      INTEGER*4   MSSG,/;"	v
 MSU_SEGA_MODE	include/pixie16app_defs.h	81;"	d
@@ -778,6 +801,7 @@ NAMPROG	scan/scanorux.f	/^      INTEGER*4   MSSG,NAMPROG,/;"	v
 NAN	include/Trace.hpp	25;"	d
 NBRED	scan/scanorux.f	/^      INTEGER*4    NBRED,/;"	v
 NBTOP	scan/scanorux.f	/^      INTEGER*4    NBRED,NBTOP$/;"	v
+NEUTRONSCINTPROCESSORO	Makefile	/^NEUTRONSCINTPROCESSORO  = NeutronScintProcessor.$(ObjSuf)$/;"	m
 NEWCORRELATORO	Makefile	/^NEWCORRELATORO   = NewCorrelator.$(ObjSuf)$/;"	m
 NEWCORRELATOR_H	include/NewCorrelator.hpp	2;"	d
 NEW_RUN	include/pixie16app_defs.h	165;"	d
@@ -795,10 +819,15 @@ N_DSP_PAR	include/pixie16app_defs.h	138;"	d
 N_SP_FPGA_CONF	include/pixie16app_defs.h	133;"	d
 N_SP_FPGA_CONF	include/pixie16app_defs.h	136;"	d
 N_TRIG_FPGA_CONF	include/pixie16app_defs.h	132;"	d
+NeutronScintProcessor	include/NeutronScintProcessor.hpp	/^class NeutronScintProcessor : public EventProcessor$/;"	c
+NeutronScintProcessor	src/NeutronScintProcessor.cpp	/^NeutronScintProcessor::NeutronScintProcessor() : EventProcessor(OFFSET, RANGE)$/;"	f	class:NeutronScintProcessor
 OBJS	Makefile	/^OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \\$/;"	m
+OFFSET	include/DammPlotIds.hpp	/^            const int OFFSET = 7500;$/;"	m	namespace:dammIds::trace::plotter
 OFFSET	include/DammPlotIds.hpp	/^        const int OFFSET = 1;$/;"	m	namespace:dammIds::raw
 OFFSET	include/DammPlotIds.hpp	/^        const int OFFSET = 2000;$/;"	m	namespace:dammIds::mcp
-OFFSET	include/DammPlotIds.hpp	/^        const int OFFSET = 2100;$/;"	m	namespace:dammIds::scint
+OFFSET	include/DammPlotIds.hpp	/^        const int OFFSET = 2100;$/;"	m	namespace:dammIds::beta_scint
+OFFSET	include/DammPlotIds.hpp	/^        const int OFFSET = 2200;$/;"	m	namespace:dammIds::neutron_scint
+OFFSET	include/DammPlotIds.hpp	/^        const int OFFSET = 2300;$/;"	m	namespace:dammIds::liquid_scint
 OFFSET	include/DammPlotIds.hpp	/^        const int OFFSET = 2500;$/;"	m	namespace:dammIds::ge
 OFFSET	include/DammPlotIds.hpp	/^        const int OFFSET = 3000;$/;"	m	namespace:dammIds::logic
 OFFSET	include/DammPlotIds.hpp	/^        const int OFFSET = 3100;$/;"	m	namespace:dammIds::triggerlogic
@@ -812,7 +841,7 @@ OFFSET	include/DammPlotIds.hpp	/^        const int OFFSET = 4700;$/;"	m	namespac
 OFFSET	include/DammPlotIds.hpp	/^        const int OFFSET = 5000;$/;"	m	namespace:dammIds::position
 OFFSET	include/DammPlotIds.hpp	/^        const int OFFSET = 6000;$/;"	m	namespace:dammIds::correlator
 OFFSET	include/DammPlotIds.hpp	/^        const int OFFSET = 7000;$/;"	m	namespace:dammIds::dssd
-OFFSET	include/DammPlotIds.hpp	/^        const int OFFSET = 7500;$/;"	m	namespace:dammIds::trace
+OFFSET	include/DammPlotIds.hpp	/^        const int OFFSET = 7510;$/;"	m	namespace:dammIds::trace
 ORNL_PSD	include/pixie16app_defs.h	87;"	d
 ORPHAS	scan/scanorux.f	56;"	c
 ObjSuf	Makefile	/^ObjSuf        = o$/;"	m
@@ -851,12 +880,10 @@ PROJECTILE_EVENT	include/Correlator.hpp	/^		      PROTON_EVENT, DECAY_EVENT, PRO
 PROTON_EVENT	include/Correlator.hpp	/^		      PROTON_EVENT, DECAY_EVENT, PROJECTILE_EVENT, GAMMA_EVENT,$/;"	e	enum:EventInfo::EEventTypes
 PULSERPROCESSORO	Makefile	/^PULSERPROCESSORO = PulserProcessor.$(ObjSuf)$/;"	m
 Pixie16Error	src/PixieStd.cpp	/^void Pixie16Error(int errorNum)$/;"	f
-Place	include/NewCorrelator.hpp	/^        Place() {$/;"	f	class:Place
+Place	include/NewCorrelator.hpp	/^        Place(bool resetable = true, unsigned max_size = 2) {$/;"	f	class:Place
 Place	include/NewCorrelator.hpp	/^class Place {$/;"	c
 PlaceAND	include/NewCorrelator.hpp	/^        PlaceAND() : Place() {}$/;"	f	class:PlaceAND
 PlaceAND	include/NewCorrelator.hpp	/^class PlaceAND : public Place {$/;"	c
-PlaceBasic	include/NewCorrelator.hpp	/^        PlaceBasic() : Place() {} $/;"	f	class:PlaceBasic
-PlaceBasic	include/NewCorrelator.hpp	/^class PlaceBasic : public Place {$/;"	c
 PlaceOR	include/NewCorrelator.hpp	/^        PlaceOR() : Place() {}$/;"	f	class:PlaceOR
 PlaceOR	include/NewCorrelator.hpp	/^class PlaceOR : public Place {$/;"	c
 Plot	src/Plots.cpp	/^bool Plots::Plot(const std::string &mne, double val1, double val2, double val3, const char* name)$/;"	f	class:Plots
@@ -873,6 +900,13 @@ PlotsRegister	include/PlotsRegister.hpp	/^class PlotsRegister {$/;"	c
 PositionProcessor	include/PositionProcessor.hpp	/^class PositionProcessor : public EventProcessor$/;"	c
 PositionProcessor	src/LitePositionProcessor.cpp	/^LitePositionProcessor::PositionProcessor() : EventProcessor(OFFSET, RANGE)$/;"	f	class:LitePositionProcessor
 PositionProcessor	src/PositionProcessor.cpp	/^PositionProcessor::PositionProcessor() : EventProcessor(OFFSET, RANGE) {$/;"	f	class:PositionProcessor
+PreProcess	src/BetaScintProcessor.cpp	/^bool BetaScintProcessor::PreProcess(RawEvent &event){$/;"	f	class:BetaScintProcessor
+PreProcess	src/EventProcessor.cpp	/^bool EventProcessor::PreProcess(RawEvent &event)$/;"	f	class:EventProcessor
+PreProcess	src/GeProcessor.cpp	/^bool GeProcessor::PreProcess(RawEvent &event) {$/;"	f	class:GeProcessor
+PreProcess	src/LiquidScintProcessor.cpp	/^bool LiquidScintProcessor::PreProcess(RawEvent &event){$/;"	f	class:LiquidScintProcessor
+PreProcess	src/MtcProcessor.cpp	/^bool MtcProcessor::PreProcess(RawEvent &event)$/;"	f	class:MtcProcessor
+PreProcess	src/NeutronScintProcessor.cpp	/^bool NeutronScintProcessor::PreProcess(RawEvent &event){$/;"	f	class:NeutronScintProcessor
+PreProcess	src/ScintProcessor.cpp	/^bool ScintProcessor::PreProcess(RawEvent &event){$/;"	f	class:ScintProcessor
 Print	src/RawEvent.cpp	/^void Identifier::Print(void) const$/;"	f	class:Identifier
 PrintDecayList	src/Correlator.cpp	/^void CorrelationList::PrintDecayList() const$/;"	f	class:CorrelationList
 PrintDecayList	src/Correlator.cpp	/^void Correlator::PrintDecayList(unsigned int fch, unsigned int bch) const$/;"	f	class:Correlator
@@ -880,15 +914,18 @@ PrintHeaders	src/RawEvent.cpp	/^void Identifier::PrintHeaders(void) $/;"	f	class
 PrintMap	src/DetectorLibrary.cpp	/^void DetectorLibrary::PrintMap(void) const$/;"	f	class:DetectorLibrary
 PrintNonEmpty	src/Plots.cpp	/^void Plots::PrintNonEmpty(std::ofstream& hislog) {$/;"	f	class:Plots
 PrintUsedDetectors	src/DetectorLibrary.cpp	/^void DetectorLibrary::PrintUsedDetectors(void) const$/;"	f	class:DetectorLibrary
+Process	src/BetaScintProcessor.cpp	/^bool BetaScintProcessor::Process(RawEvent &event)$/;"	f	class:BetaScintProcessor
 Process	src/DssdProcessor.cpp	/^bool DssdProcessor::Process(RawEvent &event)$/;"	f	class:DssdProcessor
 Process	src/EventProcessor.cpp	/^bool EventProcessor::Process(RawEvent &event)$/;"	f	class:EventProcessor
 Process	src/GeProcessor.cpp	/^bool GeProcessor::Process(RawEvent &event) {$/;"	f	class:GeProcessor
 Process	src/ImplantSsdProcessor.cpp	/^bool ImplantSsdProcessor::Process(RawEvent &event)$/;"	f	class:ImplantSsdProcessor
 Process	src/IonChamberProcessor.cpp	/^bool IonChamberProcessor::Process(RawEvent &event)$/;"	f	class:IonChamberProcessor
+Process	src/LiquidScintProcessor.cpp	/^bool LiquidScintProcessor::Process(RawEvent &event)$/;"	f	class:LiquidScintProcessor
 Process	src/LitePositionProcessor.cpp	/^bool LitePositionProcessor::Process(RawEvent &event)$/;"	f	class:LitePositionProcessor
 Process	src/LogicProcessor.cpp	/^bool LogicProcessor::Process(RawEvent &event)$/;"	f	class:LogicProcessor
 Process	src/McpProcessor.cpp	/^bool McpProcessor::Process(RawEvent &event)$/;"	f	class:McpProcessor
 Process	src/MtcProcessor.cpp	/^bool MtcProcessor::Process(RawEvent &event)$/;"	f	class:MtcProcessor
+Process	src/NeutronScintProcessor.cpp	/^bool NeutronScintProcessor::Process(RawEvent &event)$/;"	f	class:NeutronScintProcessor
 Process	src/PositionProcessor.cpp	/^bool PositionProcessor::Process(RawEvent &event) {$/;"	f	class:PositionProcessor
 Process	src/PulserProcessor.cpp	/^bool PulserProcessor::Process(RawEvent &event) $/;"	f	class:PulserProcessor
 Process	src/RootProcessor.cpp	/^bool RootProcessor::Process(RawEvent &event)$/;"	f	class:RootProcessor
@@ -911,16 +948,19 @@ R	src/PlotsRegister.cpp	/^PlotsRegister* PlotsRegister::R() $/;"	f	class:PlotsRe
 RAMP_OFFSETDACS	include/pixie16app_defs.h	319;"	d
 RANDOMINDICES_LENGTH	include/pixie16app_defs.h	301;"	d
 RANDOMPOOLO	Makefile	/^RANDOMPOOLO      = RandomPool.$(ObjSuf)$/;"	m
+RANGE	include/DammPlotIds.hpp	/^            const int RANGE = 10;$/;"	m	namespace:dammIds::trace::plotter
+RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::beta_scint
 RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::correlator
 RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::ionChamber
+RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::liquid_scint
 RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::logic
 RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::mtc
-RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::scint
+RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::neutron_scint
 RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::ssd
 RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 100;$/;"	m	namespace:dammIds::triggerlogic
 RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 10;$/;"	m	namespace:dammIds::mcp
+RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 150;$/;"	m	namespace:dammIds::trace
 RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 1899;$/;"	m	namespace:dammIds::raw
-RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 200;$/;"	m	namespace:dammIds::trace
 RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 200;$/;"	m	namespace:dammIds::vandle
 RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 20;$/;"	m	namespace:dammIds::pulser
 RANGE	include/DammPlotIds.hpp	/^        const int RANGE = 20;$/;"	m	namespace:dammIds::waveformanalyzer
@@ -977,7 +1017,6 @@ SC18	scan/set2cc.f	100;"	c	subroutine:GET2CC
 SC18	scan/set2cc.f	28;"	c	subroutine:SET2CC
 SC25	scan/scanorux.f	53;"	c
 SCANORUXO	Makefile	/^SCANORUXO        = scanorux.$(ObjSuf)$/;"	m
-SCINTPROCESSORO	Makefile	/^SCINTPROCESSORO  = ScintProcessor.$(ObjSuf)$/;"	m
 SD	include/DammPlotIds.hpp	/^    SD = 8192, SE = 16384, SF = 32768;$/;"	v
 SE	include/DammPlotIds.hpp	/^    SD = 8192, SE = 16384, SF = 32768;$/;"	v
 SET2CC	scan/set2cc.f	/^      SUBROUTINE SET2CC(/;"	s
@@ -1031,6 +1070,8 @@ StatsData	include/RawEvent.hpp	/^class StatsData {$/;"	c
 StatsData	src/StatsData.cpp	/^StatsData::StatsData()$/;"	f	class:StatsData
 StopCount	include/LogicProcessor.hpp	/^    unsigned long StopCount(size_t loc) const {$/;"	f	class:LogicProcessor
 TAUANALYZERO	Makefile	/^TAUANALYZERO     = TauAnalyzer.$(ObjSuf)$/;"	m
+TCorrelator	include/NewCorrelator.hpp	/^        TCorrelator() {}$/;"	f	class:TCorrelator
+TCorrelator	include/NewCorrelator.hpp	/^class TCorrelator {$/;"	c
 TFP	include/Trace.hpp	/^    typedef class TrapezoidalFilterParameters TFP;$/;"	t	namespace:__anon4	typeref:class:__anon4::TrapezoidalFilterParameters
 TIMINGINFOO	Makefile	/^TIMINGINFOO      = TimingInformation.$(ObjSuf)$/;"	m
 TOTALREAD	src/PixieStd.cpp	/^const unsigned int TOTALREAD = 1000000;$/;"	v
@@ -1069,7 +1110,7 @@ TraceExtracter	src/TraceExtracter.cpp	/^TraceExtracter::TraceExtracter(const std
 TraceFilterer	include/TraceFilterer.hpp	/^class TraceFilterer : public TracePlotter {$/;"	c
 TraceFilterer	src/TraceFilterer.cpp	/^TraceFilterer::TraceFilterer() : $/;"	f	class:TraceFilterer
 TracePlotter	include/TracePlotter.hpp	/^class TracePlotter : public TraceAnalyzer {$/;"	c
-TracePlotter	src/TracePlotter.cpp	/^TracePlotter::TracePlotter() : TraceAnalyzer()$/;"	f	class:TracePlotter
+TracePlotter	src/TracePlotter.cpp	/^TracePlotter::TracePlotter() : TraceAnalyzer(plotter::OFFSET, plotter::RANGE)$/;"	f	class:TracePlotter
 TrapezoidalFilter	include/Trace.hpp	/^    void TrapezoidalFilter(Trace &filter, const TFP &parms,$/;"	f	class:Trace
 TrapezoidalFilter	src/Trace.cpp	/^void Trace::TrapezoidalFilter(Trace &filter, $/;"	f	class:Trace
 TrapezoidalFilterParameters	include/Trace.hpp	/^    TrapezoidalFilterParameters(const TFP &x) :$/;"	f	class:TrapezoidalFilterParameters
@@ -1103,6 +1144,7 @@ Zero	src/RawEvent.cpp	/^void RawEvent::Zero(const set<string> &usedev)$/;"	f	cla
 ZeroNums	src/RawEvent.cpp	/^void ChanEvent::ZeroNums() $/;"	f	class:ChanEvent
 ZeroVar	src/RawEvent.cpp	/^void ChanEvent::ZeroVar() $/;"	f	class:ChanEvent
 __ALIASEDPAIR_HPP_	include/AliasedPair.hpp	13;"	d
+__BETASCINTPROCESSOR_HPP_	include/BetaScintProcessor.hpp	7;"	d
 __CFDANALYZER_HPP_	include/CfdAnalyzer.hpp	6;"	d
 __CORRELATOR_PROCESSOR_HPP_	include/Correlator.hpp	8;"	d
 __DAMM_PLOTIDS_HPP_	include/DammPlotIds.hpp	2;"	d
@@ -1117,12 +1159,14 @@ __GETARGUMENTS_HPP_	include/GetArguments.hpp	10;"	d
 __GLOBALS_HPP_	include/Globals.hpp	7;"	d
 __IMPLANT_SSD_PROCESSOR_HPP_	include/ImplantSsdProcessor.hpp	7;"	d
 __IONCHAMBERPROCESSOR_HPP_	include/IonChamberProcessor.hpp	7;"	d
+__LIQUIDSCINTPROCESSOR_HPP_	include/LiquidScintProcessor.hpp	7;"	d
 __LITEPOSITIONPROCESSOR_HPP_	include/LitePositionProcessor.hpp	7;"	d
 __LOGICPROCESSOR_HPP_	include/LogicProcessor.hpp	8;"	d
 __MAPFILE_HPP_	include/MapFile.hpp	8;"	d
 __MCPPROCESSOR_HPP_	include/McpProcessor.hpp	7;"	d
 __MERSENNETWISTER_HPP_	include/MersenneTwister.hpp	58;"	d
 __MTCPROCESSOR_HPP_	include/MtcProcessor.hpp	7;"	d
+__NEUTRONSCINTPROCESSOR_HPP_	include/NeutronScintProcessor.hpp	7;"	d
 __PIXIE16APP_DEFS_H	include/pixie16app_defs.h	2;"	d
 __PLOTSREGISTER_HPP_	include/PlotsRegister.hpp	7;"	d
 __PLOTS_HPP_	include/Plots.hpp	7;"	d
@@ -1146,11 +1190,13 @@ __TRIGGERLOGICPROCESSOR_HPP_	include/TriggerLogicProcessor.hpp	8;"	d
 __VANDLEPROCESSOR_HPP_	include/VandleProcessor.hpp	7;"	d
 __VANDLEROOT_HPP_	include/VandleROOT.hpp	7;"	d
 __WAVEFORMANALYZER_HPP_	include/WaveformAnalyzer.hpp	6;"	d
-activate	include/NewCorrelator.hpp	/^        virtual void activate() {$/;"	f	class:Place
+activate	include/NewCorrelator.hpp	/^        virtual void activate(CorrEventData& info) {$/;"	f	class:Place
+activate	include/NewCorrelator.hpp	/^        virtual void activate(double time) {$/;"	f	class:Place
 adcClockInSeconds	include/Globals.hpp	/^    const double adcClockInSeconds = 10e-9; \/\/< one ADC clock is 10 ns$/;"	m	namespace:pixie
 adcClockInSeconds	include/Globals.hpp	/^    const double adcClockInSeconds = 4e-9; \/\/< one ADC clock is 10 ns$/;"	m	namespace:pixie
 addChild	src/NewCorrelator.cpp	/^void Place::addChild (Place* child, bool relation) {$/;"	f	class:Place
 addParent_	include/NewCorrelator.hpp	/^        virtual void addParent_ (Place* parent) {$/;"	f	class:Place
+add_info_	include/NewCorrelator.hpp	/^        virtual void add_info_(const CorrEventData& info) {$/;"	f	class:Place
 arraySize	include/Correlator.hpp	/^    static const size_t arraySize = 40; \/**< Size of the 2D array to hold the decay lists *\/$/;"	m	class:Correlator
 associatedTypes	include/EventProcessor.hpp	/^    std::set<std::string> associatedTypes;    $/;"	m	class:EventProcessor
 at	src/DetectorLibrary.cpp	/^DetectorLibrary::const_reference DetectorLibrary::at(DetectorLibrary::size_type idx) const$/;"	f	class:DetectorLibrary
@@ -1166,9 +1212,13 @@ baselineHigh	include/Trace.hpp	/^    unsigned int baselineHigh;$/;"	m	class:Trac
 baselineLow	include/Trace.hpp	/^    unsigned int baselineLow; $/;"	m	class:Trace
 beamOn	include/Correlator.hpp	/^    bool   beamOn;   \/\/\/< beam is on target$/;"	m	struct:EventInfo
 beta	include/ScintROOT.hpp	/^    DataRoot beta;$/;"	m	class:ScintROOT
+betaGammaGated	src/NeutronScintProcessor.cpp	/^        namespace betaGammaGated {$/;"	n	namespace:dammIds::neutron_scint	file:
 betaGammaGated	src/ScintProcessor.cpp	/^            namespace betaGammaGated {$/;"	n	namespace:dammIds::scint::neutr	file:
 betaGated	src/GeProcessor.cpp	/^	namespace betaGated {$/;"	n	namespace:dammIds::ge	file:
+betaGated	src/NeutronScintProcessor.cpp	/^        namespace betaGated {$/;"	n	namespace:dammIds::neutron_scint	file:
 betaGated	src/ScintProcessor.cpp	/^            namespace betaGated {$/;"	n	namespace:dammIds::scint::neutr	file:
+beta_scint	include/DammPlotIds.hpp	/^    namespace beta_scint {$/;"	n	namespace:dammIds
+beta_scint	src/BetaScintProcessor.cpp	/^    namespace beta_scint {$/;"	n	namespace:dammIds	file:
 bigLeft	include/VandleROOT.hpp	/^    DataRoot bigLeft;$/;"	m	class:VandleROOT
 bigMap	include/VandleProcessor.hpp	/^    TimingDataMap bigMap;$/;"	m	class:VandleProcessor
 bigRight	include/VandleROOT.hpp	/^    DataRoot bigRight;$/;"	m	class:VandleROOT
@@ -1188,9 +1238,9 @@ chansPerClover	include/GeProcessor.hpp	/^    static const unsigned int chansPerC
 check	include/GeProcessor.hpp	/^        bool check() {$/;"	f	class:GGate
 checkChildren	src/NewCorrelator.cpp	/^bool Place::checkChildren(Place* child) {$/;"	f	class:Place
 checkParents	src/NewCorrelator.cpp	/^bool Place::checkParents(Place* child) {$/;"	f	class:Place
-check_	src/NewCorrelator.cpp	/^void PlaceAND::check_() {$/;"	f	class:PlaceAND
-check_	src/NewCorrelator.cpp	/^void PlaceBasic::check_() {$/;"	f	class:PlaceBasic
-check_	src/NewCorrelator.cpp	/^void PlaceOR::check_() {$/;"	f	class:PlaceOR
+check_	src/NewCorrelator.cpp	/^void Detector::check_(CorrEventData& info) {$/;"	f	class:Detector
+check_	src/NewCorrelator.cpp	/^void PlaceAND::check_(CorrEventData& info) {$/;"	f	class:PlaceAND
+check_	src/NewCorrelator.cpp	/^void PlaceOR::check_(CorrEventData& info) {$/;"	f	class:PlaceOR
 children_	include/NewCorrelator.hpp	/^        vector< pair<Place*, bool> > children_;$/;"	m	class:Place
 clear	src/Correlator.cpp	/^void CorrelationList::clear()$/;"	f	class:CorrelationList
 clockCount	include/Correlator.hpp	/^    unsigned long clockCount;$/;"	m	struct:EventInfo
@@ -1213,6 +1263,7 @@ correlator	include/RawEvent.hpp	/^    Correlator correlator;                    
 correlator	src/Correlator.cpp	/^    namespace correlator {$/;"	n	namespace:dammIds	file:
 count	include/StatsAccumulator.hpp	/^    int count;    \/\/< the number of values$/;"	m	class:StatsAccumulator
 counter	include/FittingAnalyzer.hpp	/^    unsigned int counter;$/;"	m	class:FittingAnalyzer
+counter	include/LiquidScintProcessor.hpp	/^   unsigned int counter;$/;"	m	class:LiquidScintProcessor
 counter	include/RandomPool.hpp	/^  size_t counter;       \/\/\/< current random number index$/;"	m	class:RandomPool
 counter	include/ScintProcessor.hpp	/^   unsigned int counter;$/;"	m	class:ScintProcessor
 counter	include/VandleProcessor.hpp	/^    int counter;$/;"	m	class:VandleProcessor
@@ -1224,16 +1275,19 @@ cutoffEnergy	src/ImplantSsdProcessor.cpp	/^const double ImplantSsdProcessor::cut
 cxxSrcSuf	Makefile	/^cxxSrcSuf = cxx$/;"	m
 dammID	include/RawEvent.hpp	/^    int dammID;            \/**< Damm spectrum number for plotting calibrated energies *\/$/;"	m	class:Identifier
 dammIds	include/DammPlotIds.hpp	/^namespace dammIds {$/;"	n
-dammIds	include/IonChamberProcessor.hpp	/^namespace dammIds$/;"	n
+dammIds	src/BetaScintProcessor.cpp	/^namespace dammIds {$/;"	n	file:
 dammIds	src/Correlator.cpp	/^namespace dammIds {$/;"	n	file:
 dammIds	src/DssdProcessor.cpp	/^namespace dammIds { $/;"	n	file:
 dammIds	src/FittingAnalyzer.cpp	/^namespace dammIds {$/;"	n	file:
 dammIds	src/GeProcessor.cpp	/^namespace dammIds {$/;"	n	file:
 dammIds	src/ImplantSsdProcessor.cpp	/^namespace dammIds {$/;"	n	file:
+dammIds	src/IonChamberProcessor.cpp	/^namespace dammIds$/;"	n	file:
+dammIds	src/LiquidScintProcessor.cpp	/^namespace dammIds {$/;"	n	file:
 dammIds	src/LitePositionProcessor.cpp	/^namespace dammIds {$/;"	n	file:
 dammIds	src/LogicProcessor.cpp	/^namespace dammIds {$/;"	n	file:
 dammIds	src/McpProcessor.cpp	/^namespace dammIds {$/;"	n	file:
 dammIds	src/MtcProcessor.cpp	/^namespace dammIds {$/;"	n	file:
+dammIds	src/NeutronScintProcessor.cpp	/^namespace dammIds {$/;"	n	file:
 dammIds	src/PositionProcessor.cpp	/^namespace dammIds {$/;"	n	file:
 dammIds	src/PulserProcessor.cpp	/^namespace dammIds {$/;"	n	file:
 dammIds	src/ScintProcessor.cpp	/^namespace dammIds {$/;"	n	file:
@@ -1245,7 +1299,7 @@ data	include/IonChamberProcessor.hpp	/^  } data;$/;"	m	class:IonChamberProcessor
 data	include/McpProcessor.hpp	/^  } data;$/;"	m	class:McpProcessor	typeref:struct:McpProcessor::McpData
 data	include/RawEvent.hpp	/^    pixie::word_t data[maxVsn][statSize];    \/**< Statistics data from each module *\/$/;"	m	class:StatsData
 dataValid	include/TimingInformation.hpp	/^	bool dataValid;$/;"	m	struct:TimingInformation::TimingData
-deactivate	include/NewCorrelator.hpp	/^        virtual void deactivate() {$/;"	f	class:Place
+deactivate	include/NewCorrelator.hpp	/^        virtual void deactivate(double time) {$/;"	f	class:Place
 decay	include/FittingAnalyzer.hpp	/^	double decay;$/;"	m	struct:FittingAnalyzer::FitData
 decayTime	include/VandleProcessor.hpp	/^    double decayTime;$/;"	m	class:VandleProcessor
 decaylist	include/Correlator.hpp	/^    CorrelationList decaylist[arraySize][arraySize]; \/\/\/< list of event data for a particular pixel since implant$/;"	m	class:Correlator
@@ -1271,6 +1325,7 @@ emptyString	include/Globals.hpp	/^const std::string emptyString = ""; \/\/< an e
 emptyTrace	src/Trace.cpp	/^const Trace emptyTrace; \/\/\/< an empty trace for const references to point to$/;"	v
 emptyValue	include/Globals.hpp	/^const double emptyValue = -9999.; \/\/< a default number to set values to$/;"	v
 energy	include/Correlator.hpp	/^    double energy;   \/\/\/< energy of event$/;"	m	struct:EventInfo
+energy	include/NewCorrelator.hpp	/^        double energy;$/;"	m	class:CorrEventData
 energy	include/RawEvent.hpp	/^    double energy;             \/**< Raw channel energy *\/$/;"	m	class:ChanEvent
 energy	include/TimingInformation.hpp	/^	std::map<unsigned int, double> energy;$/;"	m	struct:TimingInformation::BarData
 energy	include/TraceFilterer.hpp	/^	double energy;$/;"	m	struct:TraceFilterer::PulseInfo
@@ -1312,13 +1367,16 @@ g1max	include/GeProcessor.hpp	/^        double g1max;$/;"	m	class:GGate
 g1min	include/GeProcessor.hpp	/^        double g1min;$/;"	m	class:GGate
 g2max	include/GeProcessor.hpp	/^        double g2max;$/;"	m	class:GGate
 g2min	include/GeProcessor.hpp	/^        double g2min;$/;"	m	class:GGate
-gGates	include/GeProcessor.hpp	/^    vector< GGate > gGates;$/;"	m	class:GeProcessor
+gGates	include/GeProcessor.hpp	/^    vector<GGate> gGates;$/;"	m	class:GeProcessor
+gammaGated	src/NeutronScintProcessor.cpp	/^        namespace gammaGated {$/;"	n	namespace:dammIds::neutron_scint	file:
 gammaGated	src/ScintProcessor.cpp	/^            namespace gammaGated {$/;"	n	namespace:dammIds::scint::neutr	file:
 gapSamples	include/Trace.hpp	/^    Trace::size_type gapSamples;$/;"	m	class:TrapezoidalFilterParameters
 ge	include/DammPlotIds.hpp	/^    namespace ge {$/;"	n	namespace:dammIds
 ge	src/GeProcessor.cpp	/^    namespace ge {$/;"	n	namespace:dammIds	file:
+geEvents_	include/GeProcessor.hpp	/^    vector<ChanEvent*> geEvents_; \/*!< Preprocessed good ge events, filled in PreProcess, removed in Process*\/$/;"	m	class:GeProcessor
 generation	include/Correlator.hpp	/^    short  generation; \/\/\/< generation number (0 = implant)$/;"	m	struct:EventInfo
 generator	include/RandomPool.hpp	/^  MTRand generator;     \/\/\/< random number generator$/;"	m	class:RandomPool
+get	include/NewCorrelator.hpp	/^        static TCorrelator& get() {$/;"	f	class:TCorrelator
 goodAlphaCut	include/ImplantSsdProcessor.hpp	/^    static const double goodAlphaCut; \/\/\/< interesting alpha energy$/;"	m	class:ImplantSsdProcessor
 goodAlphaCut	src/ImplantSsdProcessor.cpp	/^const double ImplantSsdProcessor::goodAlphaCut  = 950;$/;"	m	class:ImplantSsdProcessor	file:
 granploty	src/GeProcessor.cpp	/^void GeProcessor::granploty(int dammId, double x, double y, const vector<float> &granularity)$/;"	f	class:GeProcessor
@@ -1347,11 +1405,12 @@ implantSsd	include/DammPlotIds.hpp	/^    namespace implantSsd {$/;"	n	namespace:
 implantSsd	src/ImplantSsdProcessor.cpp	/^    namespace implantSsd {$/;"	n	namespace:dammIds	file:
 implantTof	include/ImplantSsdProcessor.hpp	/^    static const double implantTof;   \/\/\/< minimum time-of-flight for an implant$/;"	m	class:ImplantSsdProcessor
 implantTof	src/ImplantSsdProcessor.cpp	/^const double ImplantSsdProcessor::implantTof    = 2800;$/;"	m	class:ImplantSsdProcessor	file:
+info_	include/NewCorrelator.hpp	/^        deque<CorrEventData> info_;$/;"	m	class:Place
 initDone	include/EventProcessor.hpp	/^    bool initDone;$/;"	m	class:EventProcessor
 initialize	include/MersenneTwister.hpp	/^inline void MTRand::initialize( const uint32 seed )$/;"	f	class:MTRand
 intTraceData	include/Trace.hpp	/^    std::map<std::string, int>    intTraceData;$/;"	m	class:Trace
 ionChamber	include/DammPlotIds.hpp	/^    namespace ionChamber{ $/;"	n	namespace:dammIds
-ionChamber	include/IonChamberProcessor.hpp	/^  namespace ionChamber {$/;"	n	namespace:dammIds
+ionChamber	src/IonChamberProcessor.cpp	/^  namespace ionChamber {$/;"	n	namespace:dammIds	file:
 isBig	include/VandleROOT.hpp	/^    bool isBig;$/;"	m	class:VandleROOT
 isFound	include/TraceFilterer.hpp	/^	bool isFound;$/;"	m	struct:TraceFilterer::PulseInfo
 isRead	include/MapFile.hpp	/^    bool isRead;$/;"	m	class:MapFile
@@ -1359,6 +1418,7 @@ isSmall	include/VandleROOT.hpp	/^    bool isSmall;$/;"	m	class:VandleROOT
 knownDetectors	include/DetectorDriver.hpp	/^    set<string> knownDetectors; \/**< list of valid detectors that can $/;"	m	class:DetectorDriver
 knownDetectors	include/DetectorLibrary.hpp	/^    std::set<std::string> knownDetectors;$/;"	m	class:DetectorLibrary
 lMaxVal	include/TimingInformation.hpp	/^	double lMaxVal;$/;"	m	struct:TimingInformation::BarData
+last	include/NewCorrelator.hpp	/^        virtual CorrEventData last() {$/;"	f	class:Place
 lastDecay	include/Correlator.hpp	/^    EventInfo   *lastDecay;    \/\/\/< last decay procssed by correlator$/;"	m	class:Correlator
 lastImplant	include/Correlator.hpp	/^    EventInfo   *lastImplant;  \/\/\/< last implant processed by correlator$/;"	m	class:Correlator
 lastStartTime	include/LogicProcessor.hpp	/^    std::vector<double> lastStartTime; \/\/< time of last leading edge$/;"	m	class:LogicProcessor
@@ -1370,6 +1430,8 @@ leafToClover	include/GeProcessor.hpp	/^    std::map<int, int> leafToClover;   \/
 left	include/MersenneTwister.hpp	/^	int left;          \/\/ number of values left before reload needed$/;"	m	class:MTRand
 level	include/TraceAnalyzer.hpp	/^    int level;                \/\/\/< the level of analysis to proceed with$/;"	m	class:TraceAnalyzer
 liquid	include/ScintROOT.hpp	/^    DataRoot liquid;$/;"	m	class:ScintROOT
+liquid_scint	include/DammPlotIds.hpp	/^    namespace liquid_scint {$/;"	n	namespace:dammIds
+liquid_scint	src/LiquidScintProcessor.cpp	/^    namespace liquid_scint {$/;"	n	namespace:dammIds	file:
 loBit	include/MersenneTwister.hpp	/^	uint32 loBit( const uint32& u ) const { return u & 0x00000001UL; }$/;"	f	class:MTRand
 loBits	include/MersenneTwister.hpp	/^	uint32 loBits( const uint32& u ) const { return u & 0x7fffffffUL; }$/;"	f	class:MTRand
 load	include/MersenneTwister.hpp	/^inline void MTRand::load( uint32 *const loadArray )$/;"	f	class:MTRand
@@ -1392,6 +1454,7 @@ maxNumLocations	include/PositionProcessor.hpp	/^    static const int maxNumLocat
 maxVsn	include/RawEvent.hpp	/^    static const size_t maxVsn = 14;$/;"	m	class:StatsData
 maxWords	src/PixieStd.cpp	/^const unsigned int maxWords = EXTERNAL_FIFO_LENGTH; \/\/Revision D$/;"	v
 maxWords	src/PixieStd.cpp	/^const unsigned int maxWords = IO_BUFFER_LENGTH; \/\/ Revision A$/;"	v
+max_size_	include/NewCorrelator.hpp	/^        unsigned max_size_;$/;"	m	class:Place
 maxpos	include/TimingInformation.hpp	/^	Double_t maxpos[maxMultiplicity];$/;"	m	struct:TimingInformation::DataRoot
 maxpos	include/TimingInformation.hpp	/^	double maxpos;$/;"	m	struct:TimingInformation::TimingData
 maxval	include/TimingInformation.hpp	/^	Double_t maxval[maxMultiplicity];$/;"	m	struct:TimingInformation::DataRoot
@@ -1421,6 +1484,8 @@ name	include/EventProcessor.hpp	/^    std::string name;$/;"	m	class:EventProcess
 name	include/RawEvent.hpp	/^    std::string name;                  \/**< name associated with this summary *\/$/;"	m	class:DetectorSummary
 name	include/TraceAnalyzer.hpp	/^    std::string name;         \/\/\/< name of the analyzer$/;"	m	class:TraceAnalyzer
 neutr	src/ScintProcessor.cpp	/^        namespace neutr {$/;"	n	namespace:dammIds::scint	file:
+neutron_scint	include/DammPlotIds.hpp	/^    namespace neutron_scint {$/;"	n	namespace:dammIds
+neutron_scint	src/NeutronScintProcessor.cpp	/^    namespace neutron_scint {$/;"	n	namespace:dammIds	file:
 noDets	include/IonChamberProcessor.hpp	/^  static const size_t noDets = 6;$/;"	m	class:IonChamberProcessor
 nonemptyList	include/Plots.hpp	/^    std::set <int> nonemptyList;$/;"	m	class:Plots
 nullSummaries	include/RawEvent.hpp	/^    mutable std::set<std::string> nullSummaries;   \/**< Summaries which were requested but don't exist *\/$/;"	m	class:RawEvent
@@ -1450,19 +1515,18 @@ operator !=	include/RawEvent.hpp	/^    bool operator!=(const Identifier &x) cons
 operator &&	include/NewCorrelator.hpp	/^        virtual bool operator&& (const Place& right) const {$/;"	f	class:Place
 operator ()	include/MersenneTwister.hpp	/^	double operator()() { return rand(); }  \/\/ same as rand()$/;"	f	class:MTRand
 operator ()	include/NewCorrelator.hpp	/^        virtual bool operator() () const {$/;"	f	class:Place
-operator +	include/NewCorrelator.hpp	/^        virtual void operator+() {$/;"	f	class:Place
 operator +	src/StatsAccumulator.cpp	/^StatsAccumulator StatsAccumulator::operator+$/;"	f	class:StatsAccumulator
 operator +=	include/StatsAccumulator.hpp	/^    const StatsAccumulator& operator+=(const StatsAccumulator &x)$/;"	f	class:StatsAccumulator
-operator -	include/NewCorrelator.hpp	/^        virtual void operator-() {$/;"	f	class:Place
 operator <	src/RawEvent.cpp	/^bool operator<(const DetectorSummary &a, const DetectorSummary &b) {$/;"	f
 operator <<	include/MersenneTwister.hpp	/^inline std::ostream& operator<<( std::ostream& os, const MTRand& mtrand )$/;"	f
 operator =	include/Trace.hpp	/^    const TFP& operator=(const TFP &right) {$/;"	f	class:TrapezoidalFilterParameters
 operator =	src/StatsAccumulator.cpp	/^const StatsAccumulator& StatsAccumulator::operator=(const StatsAccumulator &x)$/;"	f	class:StatsAccumulator
 operator ==	include/RawEvent.hpp	/^    bool operator==(const Identifier &x) const {$/;"	f	class:Identifier
 operator >>	include/MersenneTwister.hpp	/^inline std::istream& operator>>( std::istream& is, MTRand& mtrand )$/;"	f
+operator []	include/NewCorrelator.hpp	/^        virtual CorrEventData operator [] (unsigned index) const {$/;"	f	class:Place
+operator []	include/NewCorrelator.hpp	/^        virtual CorrEventData& operator [] (unsigned index) {$/;"	f	class:Place
 operator bool	include/MapFile.hpp	/^    operator bool() {return isRead;} \/\/\/< is the map file valid$/;"	f	class:MapFile
 operator ||	include/NewCorrelator.hpp	/^        virtual bool operator|| (const Place& right) const {$/;"	f	class:Place
-operator ~	include/NewCorrelator.hpp	/^        virtual void operator~() {$/;"	f	class:Place
 pNext	include/MersenneTwister.hpp	/^	uint32 *pNext;     \/\/ next value to get from state$/;"	m	class:MTRand
 parents_	include/NewCorrelator.hpp	/^        vector<Place*> parents_;$/;"	m	class:Place
 phase	include/TimingInformation.hpp	/^	Double_t phase[maxMultiplicity];$/;"	m	struct:TimingInformation::DataRoot
@@ -1470,15 +1534,16 @@ phase	include/TimingInformation.hpp	/^	double phase;$/;"	m	struct:TimingInformat
 pileUp	include/Correlator.hpp	/^    bool   pileUp;   \/\/\/< trace is piled-up$/;"	m	struct:EventInfo
 pileupBit	include/RawEvent.hpp	/^    bool   pileupBit;          \/**< Pile-up flag from Pixie *\/$/;"	m	class:ChanEvent
 pixie	include/Globals.hpp	/^namespace pixie {$/;"	n
-pixieEnergyContraction	include/RawEvent.hpp	/^    static const double pixieEnergyContraction = 2.0; \/\/\/< energies from pixie16 are contracted by this number$/;"	m	class:ChanEvent
-pixieEnergyContraction	src/RawEvent.cpp	/^const double ChanEvent::pixieEnergyContraction = 4.0;$/;"	m	class:ChanEvent	file:
+pixieEnergyContraction	include/RawEvent.hpp	/^    static const double pixieEnergyContraction = 4.0; \/\/\/< energies from pixie16 are contracted by this number$/;"	m	class:ChanEvent
 pixieToWallClock	include/DetectorDriver.hpp	/^    pair<double, time_t> pixieToWallClock; \/**< rough estimate of pixie to wall clock *\/ $/;"	m	class:DetectorDriver
+places	include/NewCorrelator.hpp	/^        map<string, Place*> places;$/;"	m	class:TCorrelator
 plot	include/Correlator.hpp	/^    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {$/;"	f	class:Correlator
 plot	include/DetectorDriver.hpp	/^    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {$/;"	f	class:DetectorDriver
 plot	include/EventProcessor.hpp	/^    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {$/;"	f	class:EventProcessor
 plot	include/TraceAnalyzer.hpp	/^    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {$/;"	f	class:TraceAnalyzer
 plotSize	include/TriggerLogicProcessor.hpp	/^    int plotSize;$/;"	m	class:TriggerLogicProcessor
 plotsReg	include/PlotsRegister.hpp	/^    static PlotsRegister plotsReg;$/;"	m	class:PlotsRegister
+plotter	include/DammPlotIds.hpp	/^        namespace plotter {$/;"	n	namespace:dammIds::trace
 polyOrder	include/DetectorDriver.hpp	/^    unsigned int polyOrder; \/**< the order of the calibration *\/$/;"	m	class:Calibration
 posScale	include/LitePositionProcessor.hpp	/^    float posScale;        \/\/< an arbitrary scale for the position parameter to physical units$/;"	m	class:LitePositionProcessor
 posScale	include/PositionProcessor.hpp	/^    float posScale;        \/\/< an arbitrary scale for the position parameter to physical units$/;"	m	class:PositionProcessor
@@ -1518,9 +1583,12 @@ raw	include/IonChamberProcessor.hpp	/^    double raw[noDets];$/;"	m	struct:IonCh
 raw	include/McpProcessor.hpp	/^    double raw[nPos];$/;"	m	struct:McpProcessor::McpData
 rawev	src/PixieStd.cpp	/^RawEvent rawev;$/;"	v
 readbuff	include/Globals.hpp	/^namespace readbuff {$/;"	n
-reg	include/PlotsRegister.hpp	/^    std::vector< MinMax > reg;$/;"	m	class:PlotsRegister
+reg	include/PlotsRegister.hpp	/^    std::vector< std::pair<int, int> > reg;$/;"	m	class:PlotsRegister
 reload	include/MersenneTwister.hpp	/^inline void MTRand::reload()$/;"	f	class:MTRand
-report_	include/NewCorrelator.hpp	/^        virtual void report_() {$/;"	f	class:Place
+report_	include/NewCorrelator.hpp	/^        virtual void report_(CorrEventData& info) {$/;"	f	class:Place
+reset	include/NewCorrelator.hpp	/^        virtual void reset() {$/;"	f	class:Place
+resetable	include/NewCorrelator.hpp	/^        virtual bool resetable() const {$/;"	f	class:Place
+resetable_	include/NewCorrelator.hpp	/^        bool resetable_;$/;"	m	class:Place
 riseSamples	include/Trace.hpp	/^    Trace::size_type riseSamples;$/;"	m	class:TrapezoidalFilterParameters
 runTime0	include/RawEvent.hpp	/^    pixie::word_t runTime0;    \/**< Lower bits of run time *\/$/;"	m	class:ChanEvent
 runTime1	include/RawEvent.hpp	/^    pixie::word_t runTime1;    \/**< Upper bits of run time *\/$/;"	m	class:ChanEvent
@@ -1528,8 +1596,8 @@ runTime2	include/RawEvent.hpp	/^    pixie::word_t runTime2;    \/**< Higher bits
 saturatedBit	include/RawEvent.hpp	/^    bool   saturatedBit;       \/**< Saturation flag from Pixie *\/$/;"	m	class:ChanEvent
 save	include/MersenneTwister.hpp	/^inline void MTRand::save( uint32* saveArray ) const$/;"	f	class:MTRand
 scanMode	src/PixieStd.cpp	/^const string scanMode = "scan";$/;"	v
-scint	include/DammPlotIds.hpp	/^    namespace scint {$/;"	n	namespace:dammIds
 scint	src/ScintProcessor.cpp	/^    namespace scint {$/;"	n	namespace:dammIds	file:
+secondlast	include/NewCorrelator.hpp	/^        virtual CorrEventData secondlast() {$/;"	f	class:Place
 seed	include/MersenneTwister.hpp	/^inline void MTRand::seed( const uint32 oneSeed )$/;"	f	class:MTRand
 seed	include/MersenneTwister.hpp	/^inline void MTRand::seed( uint32 *const bigSeed, const uint32 seedLength )$/;"	f	class:MTRand
 seed	include/MersenneTwister.hpp	/^inline void MTRand::seed()$/;"	f	class:MTRand
@@ -1547,6 +1615,7 @@ startMap	include/VandleProcessor.hpp	/^    TimingDataMap startMap;$/;"	m	class:V
 statSize	include/RawEvent.hpp	/^    static const size_t statSize = N_DSP_PAR - DSP_IO_BORDER;$/;"	m	class:StatsData
 state	include/MersenneTwister.hpp	/^	uint32 state[N];   \/\/ internal state$/;"	m	class:MTRand
 stats	src/StatsData.cpp	/^StatsData stats;$/;"	v
+status	include/NewCorrelator.hpp	/^        bool status;$/;"	m	class:CorrEventData
 status	include/NewCorrelator.hpp	/^        virtual bool status() const {$/;"	f	class:Place
 status_	include/NewCorrelator.hpp	/^        bool status_;$/;"	m	class:Place
 stdDevBaseline	include/TimingInformation.hpp	/^	Double_t stdDevBaseline[maxMultiplicity];$/;"	m	struct:TimingInformation::DataRoot
@@ -1571,6 +1640,7 @@ thirdFilter	include/TraceFilterer.hpp	/^    Trace thirdFilter;  \/\/\/< second s
 thirdParms	include/TraceFilterer.hpp	/^    TrapezoidalFilterParameters  thirdParms;$/;"	m	class:TraceFilterer
 thresh	include/DetectorDriver.hpp	/^    vector<float> thresh;   \/**< the lower limit for each respective calibration *\/$/;"	m	class:Calibration
 time	include/Correlator.hpp	/^    double time;     \/\/\/< timestamp of event$/;"	m	struct:EventInfo
+time	include/NewCorrelator.hpp	/^        double time;$/;"	m	class:CorrEventData
 time	include/RawEvent.hpp	/^    double time;               \/**< Raw channel time, 64 bit from pixie16 channel event time *\/$/;"	m	class:ChanEvent
 time	include/TraceFilterer.hpp	/^	Trace::size_type time;$/;"	m	struct:TraceFilterer::PulseInfo
 time2	include/DoubleTraceAnalyzer.hpp	/^    Trace::size_type time2; \/\/\/< time of second pulse$/;"	m	class:DoubleTraceAnalyzer
@@ -1586,7 +1656,6 @@ tmsBegin	include/TraceAnalyzer.hpp	/^    tms tmsBegin;             \/\/\/< time 
 tof	include/Correlator.hpp	/^    double tof;      \/\/\/< time of flight for an implant$/;"	m	struct:EventInfo
 tofOffset0	include/TimingInformation.hpp	/^	double tofOffset0;$/;"	m	struct:TimingInformation::TimingCal
 tofOffset1	include/TimingInformation.hpp	/^	double tofOffset1;$/;"	m	struct:TimingInformation::TimingCal
-toggle	include/NewCorrelator.hpp	/^        virtual void toggle() {$/;"	f	class:Place
 totLen	include/LitePositionProcessor.hpp	/^    float totLen;          \/\/< calculated length of all qdcs excluding baseline qdc$/;"	m	class:LitePositionProcessor
 totLen	include/PositionProcessor.hpp	/^    float totLen;          \/\/< calculated length of all qdcs excluding baseline qdc$/;"	m	class:PositionProcessor
 totalEnergy	include/GeProcessor.hpp	/^    double totalEnergy;$/;"	m	class:CloverEvent

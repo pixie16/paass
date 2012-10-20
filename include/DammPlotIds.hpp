@@ -33,12 +33,21 @@ namespace dammIds {
         const int RANGE = 10;
     }
 
-    namespace scint {
+    namespace beta_scint {
         const int OFFSET = 2100;
         const int RANGE = 100;
     } 
 
-    // in GeProcessor.cpp
+    namespace neutron_scint {
+        const int OFFSET = 2200;
+        const int RANGE = 100;
+    } 
+
+    namespace liquid_scint {
+        const int OFFSET = 2300;
+        const int RANGE = 100;
+    } 
+
     namespace ge {
         const int OFFSET = 2500;
         const int RANGE = 500;

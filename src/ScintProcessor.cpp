@@ -1,6 +1,12 @@
 /** \file ScintProcessor.cpp
  *
  * implementation for scintillator processor
+ *
+ * KM 10/20/12:
+ * Obsolete file, kept in case of issues with new version
+ * Now ScintProcessor is broken into BetaScint, NeutronScint
+ * and LiquidScint Processors.
+ *
  */
 #include <vector>
 #include <sstream>
