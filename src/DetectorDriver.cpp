@@ -45,7 +45,7 @@
 #include "RandomPool.hpp"
 #include "RawEvent.hpp"
 #include "TimingInformation.hpp"
-#include "NewCorrelator.hpp"
+#include "TreeCorrelator.hpp"
 
 #include "DammPlotIds.hpp"
 
@@ -57,7 +57,9 @@
 #include "MtcProcessor.hpp"
 #include "PositionProcessor.hpp"
 #include "PulserProcessor.hpp"
-#include "ScintProcessor.hpp"
+#include "BetaScintProcessor.hpp"
+#include "NeutronScintProcessor.hpp"
+#include "LiquidScintProcessor.hpp"
 #include "SsdProcessor.hpp"
 #include "TraceFilterer.hpp"
 #include "TriggerLogicProcessor.hpp"
@@ -117,7 +119,8 @@ DetectorDriver::DetectorDriver() :
     vecProcess.push_back(new VandleROOT());
     vecProcess.push_back(new RootProcessor("tree.root", "tree"));
 #else
-    vecProcess.push_back(new ScintProcessor());
+    vecProcess.push_back(new BetaScintProcessor());
+    //vecProcess.push_back(new NeutronScintProcessor());
 #endif
 
     vecProcess.push_back(new TriggerLogicProcessor());
@@ -206,41 +209,42 @@ void DetectorDriver::InitializeCorrelator() {
     /** Setup for LeRIBBS */
     cout << "DetectorDriver::InitializeCorrelator()" << endl;
 
-    TCorrelator::get().places["Clover0"] = new PlaceOR();
-    TCorrelator::get().places["Clover1"] = new PlaceOR();
-    TCorrelator::get().places["Clover2"] = new PlaceOR();
-    TCorrelator::get().places["Clover3"] = new PlaceOR();
+    /** Here we create abstract places.*/
+    TreeCorrelator::get().places["Clover0"] = new PlaceOR();
+    TreeCorrelator::get().places["Clover1"] = new PlaceOR();
+    TreeCorrelator::get().places["Clover2"] = new PlaceOR();
+    TreeCorrelator::get().places["Clover3"] = new PlaceOR();
 
-    //Note that scint_beta detectors are acticated in ScintProcessor
-    //with some threshold on energy and thus this place also is sensitive
-    //to threshold
-    TCorrelator::get().places["Beta"] = new PlaceOR();
+    //Note that beta_scint detectors are acticated in BetaScintProcessor
+    //with threshold on energy defined therein.
+    //This place is also sensitive to this threshold as parent of beta places.
+    TreeCorrelator::get().places["Beta"] = new PlaceOR();
     
-    TCorrelator::get().places["Gamma"] = new PlaceOR();
-    TCorrelator::get().places["Gamma"]->addChild(TCorrelator::get().places["Clover0"]);
-    TCorrelator::get().places["Gamma"]->addChild(TCorrelator::get().places["Clover1"]);
-    TCorrelator::get().places["Gamma"]->addChild(TCorrelator::get().places["Clover2"]);
-    TCorrelator::get().places["Gamma"]->addChild(TCorrelator::get().places["Clover3"]);
+    TreeCorrelator::get().places["Gamma"] = new PlaceOR();
+    TreeCorrelator::get().places["Gamma"]->addChild(TreeCorrelator::get().places["Clover0"]);
+    TreeCorrelator::get().places["Gamma"]->addChild(TreeCorrelator::get().places["Clover1"]);
+    TreeCorrelator::get().places["Gamma"]->addChild(TreeCorrelator::get().places["Clover2"]);
+    TreeCorrelator::get().places["Gamma"]->addChild(TreeCorrelator::get().places["Clover3"]);
 
-    TCorrelator::get().places["GammaBeta"] = new PlaceAND();
-    TCorrelator::get().places["GammaBeta"]->addChild(TCorrelator::get().places["Gamma"]);
-    TCorrelator::get().places["GammaBeta"]->addChild(TCorrelator::get().places["Beta"]);
+    TreeCorrelator::get().places["GammaBeta"] = new PlaceAND();
+    TreeCorrelator::get().places["GammaBeta"]->addChild(TreeCorrelator::get().places["Gamma"]);
+    TreeCorrelator::get().places["GammaBeta"]->addChild(TreeCorrelator::get().places["Beta"]);
 
-    TCorrelator::get().places["GammaWOBeta"] = new PlaceAND();
-    TCorrelator::get().places["GammaWOBeta"]->addChild(TCorrelator::get().places["Gamma"]);
-    TCorrelator::get().places["GammaWOBeta"]->addChild(TCorrelator::get().places["Beta"], false);
+    TreeCorrelator::get().places["GammaWOBeta"] = new PlaceAND();
+    TreeCorrelator::get().places["GammaWOBeta"]->addChild(TreeCorrelator::get().places["Gamma"]);
+    TreeCorrelator::get().places["GammaWOBeta"]->addChild(TreeCorrelator::get().places["Beta"], false);
 
     // Active if tape is moving
-    TCorrelator::get().places["TapeMove"] = new Detector(false);
+    TreeCorrelator::get().places["TapeMove"] = new PlaceDetector(false);
     // Active if beam is on
-    TCorrelator::get().places["Beam"] = new Detector(false);
+    TreeCorrelator::get().places["Beam"] = new PlaceDetector(false);
     // Activated with beam start, deactivated with TapeMove
-    TCorrelator::get().places["Cycle"] = new Detector(false);
+    TreeCorrelator::get().places["Cycle"] = new PlaceDetector(false);
 
     extern DetectorLibrary modChan;
 
     // Basic places are created in MapFile.cpp
-    // Here we group them as children of abstract places
+    // Here we group them as children of just created abstract places
     unsigned int sz = modChan.size();
     for (unsigned i = 0; i < sz; ++i) {
         string type = modChan[i].GetType();
@@ -254,9 +258,9 @@ void DetectorDriver::InitializeCorrelator() {
             int clover = int(location / 4);
             stringstream parent;
             parent << "Clover" << clover;
-            TCorrelator::get().places[parent.str()]->addChild(TCorrelator::get().places[name.str()]);
-        } else if (type == "scint" && subtype == "beta") {
-            TCorrelator::get().places["Beta"]->addChild(TCorrelator::get().places[name.str()]);
+            TreeCorrelator::get().places[parent.str()]->addChild(TreeCorrelator::get().places[name.str()]);
+        } else if (type == "beta_scint" && subtype == "beta") {
+            TreeCorrelator::get().places["Beta"]->addChild(TreeCorrelator::get().places[name.str()]);
         }
     }
     /** End setup for LeRIBBS */

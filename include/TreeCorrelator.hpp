@@ -1,5 +1,5 @@
-#ifndef NEWCORRELATOR_H
-#define NEWCORRELATOR_H
+#ifndef TREECORRELATOR_H
+#define TREECORRELATOR_H
 
 #include <iostream>
 #include <string>
@@ -236,12 +236,12 @@ class Place {
 };
 
 /** T stands for Tree not root style useless decorator for classes. Singleton.*/
-class TCorrelator {
+class TreeCorrelator {
     public:
         /** Returns only instance (reference) of TCorrelator class.*/
-        static TCorrelator& get() {
+        static TreeCorrelator& get() {
             // Safe for destruction, placed in static memory
-            static TCorrelator instance;
+            static TreeCorrelator instance;
             return instance;
         }
 
@@ -250,17 +250,17 @@ class TCorrelator {
     private:
         /** Make constructor, copy-constructor and operator =
          * private to complete singleton implementation.*/
-        TCorrelator() {}
+        TreeCorrelator() {}
         /* Do not implement*/
-        TCorrelator(TCorrelator const&);
-        void operator=(TCorrelator const&);
+        TreeCorrelator(TreeCorrelator const&);
+        void operator=(TreeCorrelator const&);
 };
 
 /** The basic detector which does not depend on children status. Will use
  *  info_ map to store additional information.*/
-class Detector : public Place {
+class PlaceDetector : public Place {
     public:
-        Detector(bool resetable = true) : Place(resetable) {} 
+        PlaceDetector(bool resetable = true) : Place(resetable) {} 
     protected:
         virtual void check_(CorrEventData& info);
 };

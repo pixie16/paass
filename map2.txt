@@ -11,7 +11,7 @@
 MOD    CH      TYPE	   SUBTYPE	LOCATION	TAGS
 0      0-15    ge	   clover_high	
 1      0-15    ge	   clover_low	
-2      0-1     scint   beta		
+2      0-1     beta_scint   beta		
 2      2       mtc     beam_start
 2      3       mtc     beam_stop
 2      4       mtc     start

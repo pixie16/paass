@@ -14,7 +14,7 @@
 #include "DetectorLibrary.hpp"
 #include "MapFile.hpp"
 #include "RawEvent.hpp"
-#include "NewCorrelator.hpp"
+#include "TreeCorrelator.hpp"
 
 #include "Globals.hpp"
 
@@ -217,10 +217,10 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
             // type_subtype_location eg. ge_clover_high_5
             stringstream ss;
             ss << id.GetType() << "_" << id.GetSubtype() << "_" << id.GetLocation();
-            if (TCorrelator::get().places.count(ss.str()) == 0) {
-                TCorrelator::get().places[ss.str()] = new Detector();
+            if (TreeCorrelator::get().places.count(ss.str()) == 0) {
+                TreeCorrelator::get().places[ss.str()] = new PlaceDetector();
             } else {
-                cerr << "NewCorrelator: Detector " << ss.str() 
+                cerr << "NewCorrelator: PlaceDetector " << ss.str() 
                      << " already exists." << endl;
                 exit(EXIT_FAILURE);
             }
