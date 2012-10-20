@@ -4,18 +4,23 @@ SHELL=/bin/sh
 
 # Uncomment the following line for root functionality
 # USEROOT = 1
+
 # Uncomment this line if processing Rev. D data
 REVISIOND = 1
 # Uncomment this line if processing Rev. F data
 #REVISIONF = 1
+
 # Uncomment this line for a more verbose scan
 # CXXFLAGS += -DVERBOSE
+
 # Undefine to make a "online" version
 # ONLINE = 1 
+
 # Undefine to use Gamma-Gamma gates in GeProcessor
 # This turns on Gamma-Gamma angular distribution
 # and Gamma-Gamma-Gamma gates
-GGATES = 1
+# GGATES = 1
+
 # Use gfortran
 HHIRF_GFORTRAN = 1
 # Libs in HHIRF DIR
