@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <map>
-#include "NewCorrelator.hpp"
+#include "TreeCorrelator.hpp"
 
 using namespace std;
 
@@ -40,7 +40,7 @@ void Place::addChild (Place* child, bool relation) {
 }
 
 /** This function is empty here - this place does not depend on childer status*/
-void Detector::check_(CorrEventData& info) {
+void PlaceDetector::check_(CorrEventData& info) {
 }
 
 /** Example of OR place, place 'Gamma' is active if ANY of children was hit.*/

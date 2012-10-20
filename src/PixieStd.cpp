@@ -52,7 +52,7 @@
 #include "Globals.hpp"
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
-#include "NewCorrelator.hpp"
+#include "TreeCorrelator.hpp"
 
 using namespace std;
 using namespace dammIds::raw;
@@ -403,9 +403,9 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 	 * vector, the DetectorDriver and rawevent have been initialized with the
 	 * detectors that will be used in this analysis.
 	 */
-        if (!InitMap()) {
-	    exit(EXIT_FAILURE);
-	}       
+    if (!InitMap()) {
+        exit(EXIT_FAILURE);
+    }       
 	modChan.PrintUsedDetectors();
 	modChan.PrintMap();
 
@@ -695,7 +695,7 @@ void ScanList(vector<ChanEvent*> &eventList)
             usedDetectors.clear();	    
 
             // Now clear all places in correlator (if resetable type)
-            for (map<string, Place*>::iterator it = TCorrelator::get().places.begin(); it != TCorrelator::get().places.end(); ++it)
+            for (map<string, Place*>::iterator it = TreeCorrelator::get().places.begin(); it != TreeCorrelator::get().places.end(); ++it)
                 if ((*it).second->resetable())
                     (*it).second->reset();
 
@@ -816,108 +816,20 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
 /**
  * \brief Initialize the analysis
  *
- * Read in the map.txt file to determine what detector types are going to be used
- * in this analysis.  For each detector type used, create an entry into the map
- * of detector summaries in the raw event.  After this is completed, proceed to 
- * initialize each detector driver to complete the initialization.
+ * New map file (map2.txt) should be handled by MapFile object.
  */
 bool InitMap(void) 
 {
-    /*
-      Local variables for reading in the map.txt file.  For each channel, the
-      read variables are the module and channel number (from which the channel's
-      unique id will be computed), the detector type and subtype, the spectrum
-      number where the raw channel energies will be plotted (currently
-      placeholder numbers), the physical detector location (think strip number
-      or detector number) and an integer called trace which is not currently used.
-    */
-    unsigned int modNum, chanNum, dammID, detLocation, trace;
-    string detType, detSubtype;
-
     extern MapFile theMapFile;
 
     if (theMapFile) {
-        cout << "We've already handled this with a new version of the map file." << endl;
+        cout << "Map file handled with a new version of the map file." << endl;
         return true;
-    }
-    ifstream mapFile("map.txt");
-
-    if (!mapFile) {
-        cout << "Can not open file 'map.txt'" << endl;
+    } else {
+        cerr << "The old type map file is no longer supported." << endl
+             << "Please use the new type map file (map2.txt)." << endl;
         return false;
     }
-      
-    // read the map file until the end is reached
-    while (mapFile) {
-	/*
-	 * If the first input on a line is a number, read in channel info.
-	 * Otherwise, treat it as a comment.
-	 */
-	bool virtualChannel = false;
-
-	if ( mapFile.peek() == 'v' ) {
-	    virtualChannel = true;
-	    mapFile.ignore();
-	}
-	if ( isdigit(mapFile.peek()) ) {
-	    mapFile >> modNum >> chanNum >> dammID >> detType
-		    >> detSubtype >> detLocation >> trace;
-	    
-	    /*
-	     * If you have not specified that this channel
-	     * be ignored, process the information
-	     */
-	    if (detType != "ignore") {
-		/* if the type already has been set, something is wrong with
-		 * in the map file.
-		 */
-		if ( modChan.HasValue(modNum,chanNum) ) {
-		    cout << "Identifier for " << detType << "in module " 
-			 << modNum << ": channel " << chanNum 
-			 << " is initialized more than once in the map file."
-			 << endl;
-		    exit(EXIT_FAILURE);
-		}
-		/*
-		 * The detector type from map.txt matched a detector listed in
-		 * the set of known detectors. Load in the information into a
-		 * class called an identifier which contains the detector type
-		 * and subtype, detector location and dammid.
-		 */
-		Identifier id;
-
-		id.SetDammID(dammID);
-		id.SetType(detType);
-		id.SetSubtype(detSubtype);
-		id.SetLocation(detLocation);
-		if (virtualChannel) {
-		    id.AddTag("virtual",1);
-		}
-
-		modChan.Set(modNum, chanNum, id);
-	    } // end != ignore condition                
-	    else {
-		/*
-		 * This channel has been set to be ignored in the analysis.
-		 * Put a dummy identifier into the identifier vector modchan
-		 */
-		Identifier id;
-
-		id.SetType("ignore");	       	       
-		id.SetSubtype("ignore");
-		
-		modChan.Set(modNum, chanNum, id);
-	    }
-	} // end if to see if the line begins with a digit
-	else {
-	    // This is a comment line in the map file. Skip the line.	   
-	    mapFile.ignore(1000,'\n');
-	}	
-    } // end while (!mapfile) loop - end reading map.txt file
-    
-    mapFile.close();    
-    
-    return true;
 }
 
 /** \brief pixie16 scan error handling.

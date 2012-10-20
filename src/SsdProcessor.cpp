@@ -47,9 +47,6 @@ bool SsdProcessor::Process(RawEvent &event)
     if (!EventProcessor::Process(event))
 	return false;
 
-    int position;    
-    double energy, time;
-
     static bool firstTime = true;
     static const DetectorSummary *ssdSummary[NUM_DETECTORS];
 
@@ -65,9 +62,8 @@ bool SsdProcessor::Process(RawEvent &event)
         if (ssdSummary[i]->GetMult() == 0)
             continue;
         const ChanEvent *ch = ssdSummary[i]->GetMaxEvent();
-        position = ch->GetChanID().GetLocation();
-        energy   = ch->GetCalEnergy();
-        time     = ch->GetTime();
+        int position = ch->GetChanID().GetLocation();
+        double energy   = ch->GetCalEnergy();
 
         plot(DD_POSITION__ENERGY_DETX + i, energy, position);
     }
