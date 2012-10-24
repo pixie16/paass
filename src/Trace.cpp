@@ -14,6 +14,7 @@
 #include "DammPlotIds.hpp"
 
 using namespace std;
+using namespace dammIds::trace;
 
 namespace dammIds {
     namespace trace {
@@ -22,7 +23,7 @@ namespace dammIds {
     
 const Trace emptyTrace; ///< an empty trace for const references to point to
 
-Plots Trace::histo(dammIds::trace::OFFSET, dammIds::trace::RANGE);
+Plots Trace::histo(OFFSET, RANGE);
 
 /**
  * Defines how to implement a trapezoidal filter characterized by two

@@ -211,12 +211,18 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
             id.SetLocation(startingLocation);
             modChan.Set(*modIt, *chanIt, id);
 
-            // Create basic places for correlator
-            // names are build as
-            // type_subtype_location eg. ge_clover_high_5
-            // see RawEvent.hpp, Identifier::GetPlaceName()
+            /* 
+             * Create basic places for correlator
+             * names are build as
+             *      type_subtype_location
+             *      eg. ge_clover_high_5 
+             * see also RawEvent.hpp, Identifier::GetPlaceName()
+             */
+
+            /* Use this constant for debugging.*/
+            const bool VERBOSE = true;
             PlaceDetector* place = new PlaceDetector();
-            TreeCorrelator::get().addPlace(id.GetPlaceName(), place, true);
+            TreeCorrelator::get().addPlace(id.GetPlaceName(), place, VERBOSE);
 
             startingLocation++;
         }

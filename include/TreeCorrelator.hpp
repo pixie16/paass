@@ -77,7 +77,7 @@ class Place {
          * uptree) etc. In such a case False is returned.*/
         virtual bool checkParents (Place* child);
 
-        /** Activates Place and reports to parent if place was not active,
+        /** Activates Place and reports to the parent if place was not active,
          * always saves event data to the fifo.*/
         virtual void activate(CorrEventData& info) {
             if (!status_) {
@@ -92,7 +92,7 @@ class Place {
         /** Simplified activation for counter-like detectors, without
          * need of creating CorrEventData object outside.*/
         virtual void activate(double time) {
-            CorrEventData info(time, status_);
+            CorrEventData info(time);
             activate(info);
         }
 
