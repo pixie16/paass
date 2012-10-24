@@ -155,6 +155,15 @@ bool GeProcessor::Init(DetectorDriver &driver)
     if (!EventProcessor::Init(driver))
 	return false;
 
+    return true;
+}
+
+/** Declare plots including many for decay/implant/neutron gated analysis  */
+void GeProcessor::DeclarePlots(void) 
+{
+    /** This was moved here from Init because the number of clovers is needed
+     * for plots declaration, however Init is called after DeclarePlots -KM */
+    
     /* clover specific routine, determine the number of clover detector
        channels and divide by four to find the total number of clovers
     */
@@ -199,12 +208,6 @@ bool GeProcessor::Init(DetectorDriver &driver)
 	}   
     }
 
-    return true;
-}
-
-/** Declare plots including many for decay/implant/neutron gated analysis  */
-void GeProcessor::DeclarePlots(void) 
-{
     const int energyBins1  = SE;
     const int energyBins2  = SC;
     const int timeBins2    = SA;
