@@ -29,7 +29,7 @@ extern RawEvent rawev; // to access detector summaries
 
 EventProcessor::EventProcessor() : 
   userTime(0.), systemTime(0.), name("generic"), initDone(false), 
-  didProcess(false), histo(0, 0, PlotsRegister::R() )
+  didProcess(false), histo(0, 0)
 {
     clocksPerSecond = sysconf(_SC_CLK_TCK);
     ofstream hislog("histograms.txt");
@@ -39,7 +39,7 @@ EventProcessor::EventProcessor() :
 
 EventProcessor::EventProcessor(int offset, int range) : 
   userTime(0.), systemTime(0.), name("generic"), initDone(false), 
-  didProcess(false), histo(offset, range, PlotsRegister::R() ) {
+  didProcess(false), histo(offset, range) {
     clocksPerSecond = sysconf(_SC_CLK_TCK);
     ofstream hislog("histograms.txt");
     hislog << "Non empty histograms:" << endl;

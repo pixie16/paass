@@ -20,6 +20,7 @@ class TracePlotter : public TraceAnalyzer {
     static const int numTraces;
  public:
     TracePlotter();
+    TracePlotter(int offset, int range);
     ~TracePlotter();    
     
     virtual void DeclarePlots(void);

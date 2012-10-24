@@ -131,8 +131,6 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
 {
     extern DetectorLibrary modChan;
     
-    //extern map<string, Place*> correlator;
-
     vector<int> moduleList;
     vector<int> channelList;
 
@@ -171,10 +169,10 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
     int startingLocation;
     if (tokenIt != tokenList.end() &&
 	tokenIt->find_first_not_of("1234567890") == string::npos ) {
-	stringstream(*tokenIt) >> startingLocation;
-	tokenIt++;
+        stringstream(*tokenIt) >> startingLocation;
+        tokenIt++;
     } else {
-	startingLocation = modChan.GetNextLocation(type, subtype);
+        startingLocation = modChan.GetNextLocation(type, subtype);
     }
 
     // process additional identifiers as key=integer or toggling boolean flag to true (1)
@@ -212,18 +210,14 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
 
             id.SetLocation(startingLocation);
             modChan.Set(*modIt, *chanIt, id);
-            // Creates basic places for correlator
+
+            // Create basic places for correlator
             // names are build as
             // type_subtype_location eg. ge_clover_high_5
-            stringstream ss;
-            ss << id.GetType() << "_" << id.GetSubtype() << "_" << id.GetLocation();
-            if (TreeCorrelator::get().places.count(ss.str()) == 0) {
-                TreeCorrelator::get().places[ss.str()] = new PlaceDetector();
-            } else {
-                cerr << "NewCorrelator: PlaceDetector " << ss.str() 
-                     << " already exists." << endl;
-                exit(EXIT_FAILURE);
-            }
+            // see RawEvent.hpp, Identifier::GetPlaceName()
+            PlaceDetector* place = new PlaceDetector();
+            TreeCorrelator::get().addPlace(id.GetPlaceName(), place, true);
+
             startingLocation++;
         }
     }

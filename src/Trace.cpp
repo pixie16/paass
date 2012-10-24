@@ -22,7 +22,7 @@ namespace dammIds {
     
 const Trace emptyTrace; ///< an empty trace for const references to point to
 
-Plots Trace::histo(dammIds::trace::OFFSET, dammIds::trace::RANGE, PlotsRegister::R());
+Plots Trace::histo(dammIds::trace::OFFSET, dammIds::trace::RANGE);
 
 /**
  * Defines how to implement a trapezoidal filter characterized by two

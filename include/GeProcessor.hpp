@@ -12,6 +12,70 @@
 #include "EventProcessor.hpp"
 #include "RawEvent.hpp"
 
+namespace dammIds {
+    namespace ge {
+        // clovers
+        const unsigned int MAX_CLOVERS = 4; // for *_DETX spectra
+
+        /*
+        * Beta offset = 10
+        * Decay offset = 20
+        * Addback offset = 50
+        */
+
+        const int D_ENERGY              = 0;
+        const int D_ENERGY_CLOVERX      = 1; // leaf by clover for X detectors
+
+        const int D_ENERGY_LOWGAIN      = 7;
+        const int D_ENERGY_HIGHGAIN     = 8;
+        const int D_MULT                = 9;
+
+        const int D_ADD_ENERGY          = 50; 
+        const int D_ADD_ENERGY_CLOVERX  = 51;
+        const int D_ADD_ENERGY_TOTAL    = 55;
+
+        // 2D spectra
+        const int DD_ENERGY                = 100;
+        const int DD_CLOVER_ENERGY_RATIO   = 107;
+        const int DD_ADD_ENERGY            = 150;
+        const int DD_ADD_ENERGY_EARLY      = 151;
+        const int DD_ADD_ENERGY_LATE       = 152;
+        // Gamma-Gamma angular distribution
+        const int DD_ANGLE__GATEX         = 155;
+        const int DD_ENERGY__GATEX        = 156;
+
+        // note these only make sense with decay 
+        const int DD_ENERGY__TIMEX           = 121; // with x granularities
+        const int DD_ADD_ENERGY__TIMEX       = 171; // with x granularities
+
+        // corresponds to ungated specra ID's + 10 where applicable
+        namespace betaGated {
+            const int D_ENERGY             = 10;
+            const int D_ENERGY_CLOVERX     = 11;
+            const int D_ENERGY_BETA0       = 15; 
+            const int D_ENERGY_BETA1       = 16; 
+            const int D_ADD_ENERGY         = 60; 
+            const int D_ADD_ENERGY_CLOVERX = 61; 
+            const int D_ADD_ENERGY_TOTAL   = 65; 
+
+            // 2d spectra
+            const int DD_ENERGY              = 110; 
+            const int DD_TDIFF__GAMMA_ENERGY = 105;
+            const int DD_TDIFF__BETA_ENERGY  = 106;
+            const int DD_ADD_ENERGY          = 160; 
+            const int DD_ADD_ENERGY_EARLY    = 161;
+            const int DD_ADD_ENERGY_LATE     = 162;
+            const int DD_ADD_ENERGY_PROMPT   = 163;
+            const int DD_ADD_ENERGY_DELAYED  = 164;
+            const int DD_ANGLE__GATEX        = 165; 
+            const int DD_ENERGY__GATEX       = 166; 
+            const int DD_ENERGY__TIMEX       = 131; 
+            const int DD_ADD_ENERGY__TIMEX   = 181;
+        }
+    } // end namespace ge
+}
+
+
 class GGate {
     public:
         GGate() {
@@ -35,10 +99,9 @@ class GGate {
         double g2max;
 };
 
-
 class GeProcessor : public EventProcessor
 {
-private:
+protected:
     static const unsigned int chansPerClover = 4; /*!< number of channels per clover */
     
     std::map<int, int> leafToClover;   /*!< Translate a leaf location to a clover number */

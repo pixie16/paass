@@ -22,7 +22,7 @@
 #include "DoubleTraceAnalyzer.hpp"
 
 using namespace std;
-
+using namespace dammIds::trace;
 // external pool of random numbers defined in RandomPool.cpp
 extern RandomPool randoms;
 
@@ -30,7 +30,7 @@ extern RandomPool randoms;
  * Set default values for time and energy
  */
 DoubleTraceAnalyzer::DoubleTraceAnalyzer() : 
-    TraceFilterer()
+    TraceFilterer(doubletrace::OFFSET, doubletrace::RANGE)
 {
     time2 = 0;
     energy2 = 0.;

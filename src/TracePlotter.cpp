@@ -22,6 +22,12 @@ TracePlotter::TracePlotter() : TraceAnalyzer(plotter::OFFSET, plotter::RANGE)
     // do nothing
 }
 
+TracePlotter::TracePlotter(int offset, int range) : TraceAnalyzer(offset, range)
+{
+    name = "Plotter";
+    // do nothing
+}
+
 TracePlotter::~TracePlotter()
 {
     // do nothing
