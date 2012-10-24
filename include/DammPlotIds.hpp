@@ -34,19 +34,24 @@ namespace dammIds {
     }
 
     namespace beta_scint {
-        const int OFFSET = 2100;
-        const int RANGE = 100;
+        const int OFFSET = 2050;
+        const int RANGE = 50;
     } 
 
     namespace neutron_scint {
-        const int OFFSET = 2200;
-        const int RANGE = 100;
+        const int OFFSET = 2100;
+        const int RANGE = 50;
     } 
 
     namespace liquid_scint {
-        const int OFFSET = 2300;
-        const int RANGE = 100;
+        const int OFFSET = 2150;
+        const int RANGE = 50;
     } 
+
+    namespace hen3 {
+        const int OFFSET = 2200;
+        const int RANGE = 50;
+    }
 
     namespace ge {
         const int OFFSET = 2500;
@@ -112,7 +117,7 @@ namespace dammIds {
     // in Correlator.cpp
     namespace correlator {
         const int OFFSET = 6000;
-        const int RANGE = 100;
+        const int RANGE = 10;
     } 
 
     // in DssdProcessor.cpp
@@ -122,13 +127,30 @@ namespace dammIds {
     } 
 
     namespace trace {
-        const int OFFSET = 7510;
-        const int RANGE = 150;
+        const int OFFSET = 7500;
+        const int RANGE = 100;
         
         namespace plotter {
-            const int OFFSET = 7500;
+            const int OFFSET = 7600;
             const int RANGE = 10;
             const int DD_TRACE = 0;
+        }
+
+        namespace filterer {
+            const int OFFSET = 7610;
+            const int RANGE = 10;
+        }
+
+        namespace doubletrace {
+            const int OFFSET = 7620;
+            const int RANGE = 40;
+        }
+
+        namespace extracter {
+            const int OFFSET = 7660;
+            const int RANGE = 100;
+            // 1D-traces from the extracter
+            const int D_TRACE = 0;
         }
 
         const int DD_FILTER1          = 1;
@@ -145,8 +167,6 @@ namespace dammIds {
         const int DD_TRIPLE_TRACE_FILTER1 = 31;
         const int DD_TRIPLE_TRACE_FILTER2 = 32;
         const int DD_TRIPLE_TRACE_FILTER3 = 33;
-        // 1D-traces from the extracter
-        const int D_TRACE = 50;
     } 
 }
 

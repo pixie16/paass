@@ -178,6 +178,9 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
 	  }
       }
       currentEvt->energy = energy;
+	  //KM 2012-10-24 reinstating removal of saturated
+      if(currentEvt->saturatedBit)  currentEvt->energy = 16000;
+
       currentEvt->trigTime = lowTime;
       currentEvt->cfdTime  = cfdTime;
       currentEvt->eventTimeHi = highTime;
@@ -191,6 +194,11 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
 	halfword_t *sbuf = (halfword_t *)buf;
 	
 	currentEvt->trace.reserve(traceLength);
+
+	//KM 2012-10-24 reinstating
+	if(currentEvt->saturatedBit)
+	  currentEvt->trace.SetValue("saturation", 1);
+
 	if ( lastVirtualChannel != NULL && lastVirtualChannel->trace.empty() ) {	  
 	    lastVirtualChannel->trace.assign(traceLength, 0);
 	}

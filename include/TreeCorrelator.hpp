@@ -1,6 +1,7 @@
 #ifndef TREECORRELATOR_H
 #define TREECORRELATOR_H
 
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -11,6 +12,7 @@
 
 using namespace std;
 
+/** Exception with customizable message. */
 class GeneralException : public std::exception {
 public:
     explicit GeneralException(const string& msg) 
@@ -31,9 +33,9 @@ private:
  * of events in the same place. */
 class CorrEventData {
     public:
-        /** Time is always needed, by default status is true and
-         * Energy is 0 (i.e. N/A).*/
-        CorrEventData(double t, bool s = true, double E = 0) {
+        /** Time is always needed, by default status is true,  
+         * Energy is 0 (i.e. N/A) and event type is an empty string.*/
+        CorrEventData(double t, bool s = true, double E = 0, string type = "") {
             time = t;
             status = s;
             energy = E;
@@ -75,25 +77,23 @@ class Place {
          * uptree) etc. In such a case False is returned.*/
         virtual bool checkParents (Place* child);
 
-        /** Activates Place if place was not active, saves event data to
-         * deque.*/
+        /** Activates Place and reports to parent if place was not active,
+         * always saves event data to the fifo.*/
         virtual void activate(CorrEventData& info) {
             if (!status_) {
                 status_ = true;
                 add_info_(info);
                 report_(info);
+            } else {
+                add_info_(info);
             }
         }
 
         /** Simplified activation for counter-like detectors, without
-         * need of creating CorrEventData object.*/
+         * need of creating CorrEventData object outside.*/
         virtual void activate(double time) {
-            if (!status_) {
-                status_ = true;
-                CorrEventData info(time, status_);
-                add_info_(info);
-                report_(info);
-            }
+            CorrEventData info(time, status_);
+            activate(info);
         }
 
         /** Changes status to false. Only time and status change is
@@ -104,6 +104,9 @@ class Place {
                 CorrEventData info(time, status_);
                 add_info_(info);
                 report_(info);
+            } else {
+                CorrEventData info(time, status_);
+                add_info_(info);
             }
         }
 
@@ -156,7 +159,7 @@ class Place {
             }
         }
 
-        /** Easy access to second to last element of fifo. If fifo
+        /** Easy access to the second to last element of fifo. If fifo
          * has only one event, time=-1 event is returned. */
         virtual CorrEventData secondlast() {
             if (info_.size() > 1) {
@@ -235,14 +238,42 @@ class Place {
 
 };
 
-/** T stands for Tree not root style useless decorator for classes. Singleton.*/
+/** Singleton class holding map of all places.*/
 class TreeCorrelator {
     public:
         /** Returns only instance (reference) of TCorrelator class.*/
         static TreeCorrelator& get() {
-            // Safe for destruction, placed in static memory
+            // Safe for destruction, placed in the static memory
             static TreeCorrelator instance;
             return instance;
+        }
+
+        /** Add place to the map. If place exists program is halted. */
+        void addPlace(string name, Place* place, bool verbose = false) {
+            if (places.count(name) == 0) {
+                places[name] = place;
+                if (verbose) {
+                    cout << "TreeCorrelator: created place " << name << endl;
+                }
+            } else {
+                cerr << "Error: TreeCorrelator: Place " << name
+                     << " already exists." << endl;
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        /** Add child to place parent with coincidence coin.*/
+        void addChild(string parent, string child, bool coin = true, bool verbose = false) {
+            if (places.count(parent) == 1 || places.count(child) == 1) {
+                places[parent]->addChild(places[child], coin);
+                if (verbose) {
+                    cout << "TreeCorrelator: setting " << child << " as a child of " << parent << endl;
+                }
+            } else {
+                cerr << "Error: TreeCorrelator: could not set " << child
+                     << "as a child of " << parent << endl;
+                exit(EXIT_FAILURE);
+            }
         }
 
         /** This map holds all Places. */
@@ -256,12 +287,111 @@ class TreeCorrelator {
         void operator=(TreeCorrelator const&);
 };
 
+/** "Lazy" Place does not store multiple activation or deactivation events.
+ * Abstract class.*/
+class PlaceLazy : public Place {
+    public:
+        PlaceLazy(bool resetable = true, unsigned max_size = 2) :
+            Place(resetable, max_size) {}
+
+        /** Activates Place and saves event data to deque only if place
+         * was not active before.*/
+        virtual void activate(CorrEventData& info) {
+            if (!status_) {
+                status_ = true;
+                add_info_(info);
+                report_(info);
+            }
+        }
+
+        /** Changes status to false, time and status change is
+         * recorded in fifo only if Place was active before. */
+        virtual void deactivate(double time) {
+            if (status_) {
+                status_ = false;
+                CorrEventData info(time, status_);
+                add_info_(info);
+                report_(info);
+            }
+        }
+};
+
 /** The basic detector which does not depend on children status. Will use
  *  info_ map to store additional information.*/
 class PlaceDetector : public Place {
     public:
-        PlaceDetector(bool resetable = true) : Place(resetable) {} 
+        PlaceDetector(bool resetable = true, unsigned max_size = 2) :
+            Place(resetable, max_size) {} 
     protected:
+        virtual void check_(CorrEventData& info);
+};
+
+/** Each activation must be within the set thresholds. */
+class PlaceThreshold : public Place {
+    public:
+        /** Low and high threshold limit set in constructor. If both set to 0, no threshold is applied. */
+        PlaceThreshold (double low_limit, double high_limit, bool resetable = true, unsigned max_size = 2)
+            : Place(resetable, max_size) { 
+                low_limit_ = low_limit;
+                high_limit_ = high_limit;
+        } 
+
+        /** Activate place only if energy is within set limits or both limits are 0 (no threshold). */
+        void activate(CorrEventData& info) {
+            if (low_limit_ == 0 && high_limit_ == 0) 
+                    Place::activate(info);
+            else if (info.energy > low_limit_ && info.energy < high_limit_) 
+                    Place::activate(info);
+        }
+
+        double getLowLimit() {
+            return low_limit_;
+        }
+
+        double getHighLimit() {
+            return high_limit_;
+        }
+
+    protected:
+        virtual void check_(CorrEventData& info);
+
+    private:
+        /** Threshold low and high limits.*/
+        double low_limit_;
+        double high_limit_;
+};
+
+/** Counts number of activations coming from directly or from children.*/
+class PlaceCounter : public Place {
+    public:
+
+        /** Low and high threshold limit. If both set to 0, no threshold is applied. */
+        PlaceCounter(bool resetable = true, unsigned max_size = 2)
+            : Place(resetable, max_size) { 
+                counter_ = 0;
+        } 
+
+        void activate(CorrEventData& info) {
+            ++counter_;
+            Place::activate(info);
+        }
+
+        void deactivate(double time) {
+            --counter_;
+            Place::deactivate(time);
+        }
+
+        void reset() {
+            Place::reset();
+            counter_ = 0;
+        }
+
+        virtual int getCounter() const {
+            return counter_;
+        }
+
+    protected:
+        int counter_;
         virtual void check_(CorrEventData& info);
 };
 
@@ -273,7 +403,8 @@ class PlaceDetector : public Place {
  * registered in the system).*/
 class PlaceOR : public Place {
     public:
-        PlaceOR() : Place() {}
+        PlaceOR(bool resetable = true, unsigned max_size = 2) :
+            Place(resetable, max_size) {} 
     protected:
         virtual void check_(CorrEventData& info);
 };
@@ -286,7 +417,8 @@ class PlaceOR : public Place {
  * */
 class PlaceAND : public Place {
     public:
-        PlaceAND() : Place() {}
+        PlaceAND(bool resetable = true, unsigned max_size = 2) :
+            Place(resetable, max_size) {} 
     protected:
         virtual void check_(CorrEventData& info);
 };

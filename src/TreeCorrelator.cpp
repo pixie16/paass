@@ -43,7 +43,6 @@ void Place::addChild (Place* child, bool relation) {
 void PlaceDetector::check_(CorrEventData& info) {
 }
 
-/** Example of OR place, place 'Gamma' is active if ANY of children was hit.*/
 void PlaceOR::check_(CorrEventData& info) {
     if (children_.size() > 0) {
         // Take first child to get initial state
@@ -71,6 +70,16 @@ void PlaceOR::check_(CorrEventData& info) {
         stringstream ss;
         ss << "Place " << this << " has no children, however function check() was called.";
         throw GeneralException(ss.str());
+    }
+}
+
+/** Does not depend on children. If you need some behaviour derive a new class from this one.*/
+void PlaceThreshold::check_(CorrEventData& info) {
+}
+
+void PlaceCounter::check_(CorrEventData& info) {
+    if (info.status) {
+        this->activate(info);
     }
 }
 

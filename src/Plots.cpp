@@ -27,11 +27,13 @@ extern "C" void hd2d_(const int &, const int &, const int &, const int &,
 		      const int &, const int &, const int &, const int &,
 		      const int &, const int &, const char *, int);
 
-Plots::Plots(int aOffset, int aRange, PlotsRegister *reg)
+PlotsRegister* Plots::plots_register_ = PlotsRegister::R();
+
+Plots::Plots(int offset, int range)
 {  
-    reg->Add(offset, range);
-    offset = aOffset;
-    range  = aRange;
+    offset_ = offset;
+    range_  = range;
+    plots_register_->Add(offset_, range_);
 }
 
 /**
@@ -39,7 +41,7 @@ Plots::Plots(int aOffset, int aRange, PlotsRegister *reg)
  */
 bool Plots::CheckRange(int id) const
 {
-    return (id < range && id >= 0);
+    return (id < range_ && id >= 0);
 }
 
 /**
@@ -65,14 +67,14 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
 			       int xLow, int xHigh, const string &mne)
 {
     if (!CheckRange(dammId)) {
-        cerr << "Histogram titled '" << title << "' requests id " 
+        cerr << "Plots: Histogram titled '" << title << "' requests id " 
              << dammId << " which is outside of allowed range ("
-             << range << ")." <<  endl;
+             << range_ << ") of group with offset (" << offset_ << ")." <<  endl;
         exit(EXIT_FAILURE);
     }
     if (Exists(dammId) || Exists(mne)) {
-        cerr << "Histogram titled '" << title << "' requests id " 
-             << dammId + offset << " which is already in use by"
+        cerr << "Plots: Histogram titled '" << title << "' requests id " 
+             << dammId + offset_ << " which is already in use by"
              << " histogram '" << titleList[dammId] << "'." <<  endl;
         exit(EXIT_FAILURE);
     }
@@ -84,7 +86,7 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
     if (mne.size() > 0)
         mneList.insert( pair<string, int>(mne, dammId) );
     
-    hd1d_(dammId + offset, halfWordsPerChan, xSize, xHistLength, xLow, xHigh, title, strlen(title));
+    hd1d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength, xLow, xHigh, title, strlen(title));
     titleList.insert( pair<int, string>(dammId, string(title)));
     return true;
 }
@@ -109,14 +111,14 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
 			       const string &mne)
 {
     if (!CheckRange(dammId)) {
-        cerr << "Histogram titled '" << title << "' requests id " 
+        cerr << "Plots: Histogram titled '" << title << "' requests id " 
              << dammId << " which is outside of allowed range ("
-             << range << ")." <<  endl;
+             << range_ << ") of group with offset (" << offset_ << ")." <<  endl;
         exit(EXIT_FAILURE);
     }
     if (Exists(dammId) || Exists(mne)) {
-        cerr << "Histogram titled '" << title << "' requests id " 
-             << dammId + offset << " which is already in use by"
+        cerr << "Plots: Histogram titled '" << title << "' requests id " 
+             << dammId + offset_ << " which is already in use by"
              << " histogram '" << titleList[dammId] << "'." << endl;
         exit(EXIT_FAILURE);
     }
@@ -128,7 +130,7 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
     if (mne.size() > 0)
         mneList.insert( pair<string, int>(mne, dammId) );
     
-    hd2d_(dammId + offset, halfWordsPerChan, xSize, xHistLength, xLow, xHigh,
+    hd2d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength, xLow, xHigh,
 	  ySize, yHistLength, yLow, yHigh, title, strlen(title));
     titleList.insert( pair<int, string>(dammId, string(title)));
     return true;
@@ -172,11 +174,11 @@ bool Plots::Plot(int dammId, double val1, double val2, double val3, const char* 
 	nonemptyList.insert(dammId);
 
     if (val2 == -1 && val3 == -1)
-        count1cc_(dammId + offset, int(val1), 1);
+        count1cc_(dammId + offset_, int(val1), 1);
     else if  (val3 == -1 || val3 == 0)
-        count1cc_(dammId + offset, int(val1), int(val2));
+        count1cc_(dammId + offset_, int(val1), int(val2));
     else 
-        set2cc_(dammId + offset, int(val1), int(val2), int(val3));
+        set2cc_(dammId + offset_, int(val1), int(val2), int(val3));
     
     return true;
 }
@@ -192,6 +194,6 @@ void Plots::PrintNonEmpty(std::ofstream& hislog) {
     set<int>::iterator it;
     for (it = nonemptyList.begin(); it != nonemptyList.end(); ++it) {
         int id = *it;
-        hislog << "\t" << id + offset << " " << titleList[id] << endl;
+        hislog << "\t" << id + offset_ << " " << titleList[id] << endl;
     }
 }
