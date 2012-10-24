@@ -132,7 +132,8 @@ private:
     friend int ReadBuffData(pixie::word_t *, unsigned long *, std::vector<ChanEvent *> &);
 public:
     // Was 2.0, changed to 4.0 for LeRIBBS experiment
-    static const double pixieEnergyContraction = 4.0; ///< energies from pixie16 are contracted by this number
+    // 1.0 for 3Hen experiment
+    static const double pixieEnergyContraction = 1.0; ///< energies from pixie16 are contracted by this number
 
     void SetEnergy(double a)    {energy = a;}    /**< Set the raw energy in case we want
 						    to extract it from the trace ourselves */

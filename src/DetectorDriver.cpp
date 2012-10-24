@@ -50,7 +50,9 @@
 #include "DammPlotIds.hpp"
 
 #include "DssdProcessor.hpp"
+#include "Hen3Processor.hpp"
 #include "GeProcessor.hpp"
+#include "Ge4Hen3Processor.hpp"
 #include "ImplantSsdProcessor.hpp"
 #include "IonChamberProcessor.hpp"
 #include "McpProcessor.hpp"
@@ -100,9 +102,13 @@ extern RandomPool randoms;
 using namespace dammIds::raw;
 
 DetectorDriver::DetectorDriver() : 
-    histo(OFFSET, RANGE, PlotsRegister::R() ) 
+    histo(OFFSET, RANGE) 
 {
-    vecAnalyzer.push_back(new TracePlotter());
+    vecProcess.push_back(new GeProcessor()); 
+    // Or use instead (never together
+    //vecProcess.push_back(new Ge4Hen3Processor()); 
+    vecProcess.push_back(new Hen3Processor()); 
+    vecProcess.push_back(new MtcProcessor());
 
 #if defined(pulsefit) || defined(dcfd)
     vecAnalyzer.push_back(new WaveformAnalyzer());
@@ -121,19 +127,17 @@ DetectorDriver::DetectorDriver() :
 #else
     vecProcess.push_back(new BetaScintProcessor());
     //vecProcess.push_back(new NeutronScintProcessor());
+    //vecProcess.push_back(new LiquidScintProcessor());
 #endif
 
-    vecProcess.push_back(new TriggerLogicProcessor());
-    vecProcess.push_back(new MtcProcessor());
-    vecProcess.push_back(new GeProcessor()); 
-
+    //vecAnalyzer.push_back(new TracePlotter());
+    //vecProcess.push_back(new VandleProcessor());
+    //vecProcess.push_back(new TriggerLogicProcessor());
     //vecAnalyzer.push_back(new DoubleTraceAnalyzer());
     //vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
     //vecAnalyzer.push_back(new TauAnalyzer());
-    //vecProcess.push_back(new VandleProcessor());
-    // vecProcess.push_back(new SsdProcessor());
-    //vecProcess.push_back(new PositionProcessor()); // order is important
     //vecProcess.push_back(new SsdProcessor());
+    //vecProcess.push_back(new PositionProcessor()); // order is important
 }
 
 /*!
@@ -210,38 +214,62 @@ void DetectorDriver::InitializeCorrelator() {
     cout << "DetectorDriver::InitializeCorrelator()" << endl;
 
     /** Here we create abstract places.*/
-    TreeCorrelator::get().places["Clover0"] = new PlaceOR();
-    TreeCorrelator::get().places["Clover1"] = new PlaceOR();
-    TreeCorrelator::get().places["Clover2"] = new PlaceOR();
-    TreeCorrelator::get().places["Clover3"] = new PlaceOR();
+    PlaceOR* clover0 = new PlaceOR();
+    TreeCorrelator::get().addPlace("Clover0", clover0, true);
+    PlaceOR* clover1 = new PlaceOR();
+    TreeCorrelator::get().addPlace("Clover1", clover1, true);
+    PlaceOR* clover2 = new PlaceOR();
+    TreeCorrelator::get().addPlace("Clover2", clover2, true);
+    PlaceOR* clover3 = new PlaceOR();
+    TreeCorrelator::get().addPlace("Clover3", clover3, true);
 
     //Note that beta_scint detectors are acticated in BetaScintProcessor
     //with threshold on energy defined therein.
     //This place is also sensitive to this threshold as parent of beta places.
-    TreeCorrelator::get().places["Beta"] = new PlaceOR();
+    PlaceOR* beta = new PlaceOR();
+    TreeCorrelator::get().addPlace("Beta", beta, true);
     
-    TreeCorrelator::get().places["Gamma"] = new PlaceOR();
-    TreeCorrelator::get().places["Gamma"]->addChild(TreeCorrelator::get().places["Clover0"]);
-    TreeCorrelator::get().places["Gamma"]->addChild(TreeCorrelator::get().places["Clover1"]);
-    TreeCorrelator::get().places["Gamma"]->addChild(TreeCorrelator::get().places["Clover2"]);
-    TreeCorrelator::get().places["Gamma"]->addChild(TreeCorrelator::get().places["Clover3"]);
+    // All Hen3 events
+    PlaceCounter* hen3 = new PlaceCounter();
+    TreeCorrelator::get().addPlace("Hen3", hen3, true);
 
+    // Real neutrons (children are thresholded)
+    PlaceCounter* neutrons = new PlaceCounter();
+    TreeCorrelator::get().addPlace("Neutrons", neutrons, true);
+
+    PlaceOR* gamma = new PlaceOR();
+    TreeCorrelator::get().addPlace("Gamma", gamma, true);
+    TreeCorrelator::get().addChild("Gamma", "Clover0", true, true);
+    TreeCorrelator::get().addChild("Gamma", "Clover1", true, true);
+    TreeCorrelator::get().addChild("Gamma", "Clover2", true, true);
+    TreeCorrelator::get().addChild("Gamma", "Clover3", true, true);
+
+    PlaceAND* gammabeta = new PlaceAND();
+    TreeCorrelator::get().addPlace("GammaBeta", gammabeta, true);
     TreeCorrelator::get().places["GammaBeta"] = new PlaceAND();
-    TreeCorrelator::get().places["GammaBeta"]->addChild(TreeCorrelator::get().places["Gamma"]);
-    TreeCorrelator::get().places["GammaBeta"]->addChild(TreeCorrelator::get().places["Beta"]);
+    TreeCorrelator::get().addChild("GammaBeta", "Gamma", true, true);
+    TreeCorrelator::get().addChild("GammaBeta", "Beta", true, true);
 
-    TreeCorrelator::get().places["GammaWOBeta"] = new PlaceAND();
-    TreeCorrelator::get().places["GammaWOBeta"]->addChild(TreeCorrelator::get().places["Gamma"]);
-    TreeCorrelator::get().places["GammaWOBeta"]->addChild(TreeCorrelator::get().places["Beta"], false);
+    PlaceAND* gammawobeta = new PlaceAND();
+    TreeCorrelator::get().addPlace("GammaWOBeta", gammawobeta, true);
+    TreeCorrelator::get().addChild("GammaWOBeta", "Gamma", true, true);
+    TreeCorrelator::get().addChild("GammaWOBeta", "Beta", false, true);
 
     // Active if tape is moving
-    TreeCorrelator::get().places["TapeMove"] = new PlaceDetector(false);
+    PlaceDetector* tapemove = new PlaceDetector(false);
+    TreeCorrelator::get().addPlace("TapeMove", tapemove, true);
     // Active if beam is on
-    TreeCorrelator::get().places["Beam"] = new PlaceDetector(false);
+    PlaceDetector* beam = new PlaceDetector(false);
+    TreeCorrelator::get().addPlace("Beam", beam, true);
     // Activated with beam start, deactivated with TapeMove
-    TreeCorrelator::get().places["Cycle"] = new PlaceDetector(false);
+    PlaceDetector* cycle  = new PlaceDetector(false);
+    TreeCorrelator::get().addPlace("Cycle", cycle, true);
 
     extern DetectorLibrary modChan;
+
+    /* Thresholds for neutrons set here, see NeutronX places below */
+    const double NEUTRON_LOW_LIMIT = 1000;
+    const double NEUTRON_HIGH_LIMIT = 5000;
 
     // Basic places are created in MapFile.cpp
     // Here we group them as children of just created abstract places
@@ -255,12 +283,20 @@ void DetectorDriver::InitializeCorrelator() {
         name << type << "_" << subtype << "_" << location;
 
         if (type == "ge" && subtype == "clover_high") {
-            int clover = int(location / 4);
-            stringstream parent;
-            parent << "Clover" << clover;
-            TreeCorrelator::get().places[parent.str()]->addChild(TreeCorrelator::get().places[name.str()]);
+            int clover_number = int(location / 4);
+            stringstream clover;
+            clover << "Clover" << clover_number;
+            TreeCorrelator::get().addChild(clover.str(), name.str(), true, true);
         } else if (type == "beta_scint" && subtype == "beta") {
-            TreeCorrelator::get().places["Beta"]->addChild(TreeCorrelator::get().places[name.str()]);
+            TreeCorrelator::get().addChild("Beta", name.str(), true, true);
+        } else if (type == "3hen" && subtype == "big") {
+            stringstream neutron;
+            neutron << "Neutron" << location;
+            PlaceThreshold* real_neutron  = new PlaceThreshold(NEUTRON_LOW_LIMIT, NEUTRON_HIGH_LIMIT);
+            TreeCorrelator::get().addPlace(neutron.str(), real_neutron, true);
+
+            TreeCorrelator::get().addChild("Hen3", name.str(), true, true);
+            TreeCorrelator::get().addChild("Neutrons", neutron.str(), true, true);
         }
     }
     /** End setup for LeRIBBS */

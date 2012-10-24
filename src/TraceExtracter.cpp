@@ -10,12 +10,14 @@
 #include "DammPlotIds.hpp"
 
 using std::string;
+using namespace dammIds::trace;
 
 const int TraceExtracter::traceBins = SC;
 const int TraceExtracter::numTraces = 99;
 
+
 TraceExtracter::TraceExtracter(const std::string& aType, const std::string &aSubtype) : 
-  TraceAnalyzer(0, 0), type(aType), subtype(aSubtype)
+  TraceAnalyzer(extracter::OFFSET, extracter::RANGE), type(aType), subtype(aSubtype)
 {
     name = "Extracter";
 }
@@ -28,9 +30,8 @@ TraceExtracter::~TraceExtracter()
 /** Declare the damm plots */
 void TraceExtracter::DeclarePlots(void)
 {
-    using namespace dammIds::trace;
     for (int i=0; i < numTraces; i++)
-	DeclareHistogram1D(D_TRACE + i, traceBins, "traces data TraceExtracter");
+        DeclareHistogram1D(extracter::D_TRACE + i, traceBins, "traces data TraceExtracter");
 }
 
 /** Plot the damm spectra of the first few traces analyzed with (level >= 1) */
@@ -41,7 +42,7 @@ void TraceExtracter::Analyze(Trace &trace,
 
     if (type ==  aType && subtype == aSubtype && numTracesAnalyzed < numTraces) {	
 	TraceAnalyzer::Analyze(trace, type, subtype);	
-	trace.OffsetPlot(D_TRACE + numTracesAnalyzed, trace.DoBaseline(1,20) );
+	trace.OffsetPlot(extracter::D_TRACE + numTracesAnalyzed, trace.DoBaseline(1,20) );
 	EndAnalyze(trace);
     }
 }

@@ -38,7 +38,7 @@ using namespace dammIds::trace;
 
 TraceAnalyzer::TraceAnalyzer() : 
     userTime(0.), systemTime(0.),
-    histo(OFFSET, RANGE, PlotsRegister::R() ) 
+    histo(OFFSET, RANGE) 
 {
     name = "Trace";
     // start at -1 so that when incremented on first trace analysis,
@@ -49,7 +49,7 @@ TraceAnalyzer::TraceAnalyzer() :
 
 TraceAnalyzer::TraceAnalyzer(int offset, int range) : 
     userTime(0.), systemTime(0.),
-    histo(offset, range, PlotsRegister::R() ) 
+    histo(offset, range) 
 {
     name = "Trace";
     // start at -1 so that when incremented on first trace analysis,

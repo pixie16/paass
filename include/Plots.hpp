@@ -10,11 +10,9 @@
 #include <string>
 #include <map>
 #include <set>
+#include "PlotsRegister.hpp"
 
 #include "Globals.hpp"
-
-// forward declarations
-class PlotsRegister;
 
 /* Fortran subroutines for plotting histograms */
 extern "C" void count1cc_(const int &, const int &, const int &);
@@ -23,9 +21,9 @@ extern "C" void set2cc_(const int &, const int &, const int &, const int &);
 /** Holds pointers to all Histograms.*/
 class Plots {
 public:
-    Plots (int offset, int range, PlotsRegister* reg);
+    Plots (int offset, int range);
 
-    int GetOffset() { return offset; }
+    int GetOffset() { return offset_; }
 
     void PrintNonEmpty(std::ofstream& hislog);
 
@@ -66,10 +64,11 @@ public:
     bool Plot(const std::string &mne, double val1, double val2 = -1, double val3 = -1, const char* name="h");
 
 private:
+    static PlotsRegister* plots_register_;
     /** Holds offset for a given set of plots */
-    int offset;
+    int offset_;
     /** Holds allowed range for a given set of plots*/
-    int range;
+    int range_;
     /** set of int (relative dammId without offsets */
     std::set <int> idList;
     /** Map of mnemonic -> int */

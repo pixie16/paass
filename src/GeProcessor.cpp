@@ -32,72 +32,6 @@
 
 using namespace std;
 
-// Clover hits contain the total energy and walk-corrected time of last energy deposit
-DEFINE_ALIASED_PAIR(CloverHit, double, double, time, energy);
-
-namespace dammIds {
-    namespace ge {
-	// clovers
-	const unsigned int MAX_CLOVERS = 4; // for *_DETX spectra
-
-    /*
-     * Beta offset = 10
-     * Decay offset = 20
-     * Addback offset = 50
-     */
-
-	const int D_ENERGY              = 0;
-	const int D_ENERGY_CLOVERX      = 1; // leaf by clover for X detectors
-
-	const int D_ENERGY_LOWGAIN      = 7;
-	const int D_ENERGY_HIGHGAIN     = 8;
-	const int D_MULT                = 9;
-
-	const int D_ADD_ENERGY          = 50; 
-	const int D_ADD_ENERGY_CLOVERX  = 51;
-	const int D_ADD_ENERGY_TOTAL    = 55;
-
-	// 2D spectra
-	const int DD_ENERGY                = 100;
-	const int DD_CLOVER_ENERGY_RATIO   = 107;
-	const int DD_ADD_ENERGY            = 150;
-	const int DD_ADD_ENERGY_EARLY      = 151;
-	const int DD_ADD_ENERGY_LATE       = 152;
-    // Gamma-Gamma angular distribution
-    const int DD_ANGLE__GATEX         = 155;
-    const int DD_ENERGY__GATEX        = 156;
-
-	// note these only make sense with decay 
-	const int DD_ENERGY__TIMEX           = 121; // with x granularities
-	const int DD_ADD_ENERGY__TIMEX       = 171; // with x granularities
-
-	// corresponds to ungated specra ID's + 10 where applicable
-	namespace betaGated {
-	    const int D_ENERGY             = 10;
-	    const int D_ENERGY_CLOVERX     = 11;
-	    const int D_ENERGY_BETA0       = 15; 
-	    const int D_ENERGY_BETA1       = 16; 
-	    const int D_ADD_ENERGY         = 60; 
-	    const int D_ADD_ENERGY_CLOVERX = 61; 
-	    const int D_ADD_ENERGY_TOTAL   = 65; 
-
-	    // 2d spectra
-	    const int DD_ENERGY              = 110; 
-	    const int DD_TDIFF__GAMMA_ENERGY = 105;
-	    const int DD_TDIFF__BETA_ENERGY  = 106;
-	    const int DD_ADD_ENERGY          = 160; 
-        const int DD_ADD_ENERGY_EARLY    = 161;
-        const int DD_ADD_ENERGY_LATE     = 162;
-	    const int DD_ADD_ENERGY_PROMPT   = 163;
-	    const int DD_ADD_ENERGY_DELAYED  = 164;
-        const int DD_ANGLE__GATEX        = 165; 
-        const int DD_ENERGY__GATEX       = 166; 
-	    const int DD_ENERGY__TIMEX       = 131; 
-	    const int DD_ADD_ENERGY__TIMEX   = 181;
-	}
-    } // end namespace ge
-}
-
 /**
  *  Perform walk correction for gamma-ray timing based on its energy
  */
@@ -205,51 +139,7 @@ GeProcessor::GeProcessor() : EventProcessor(OFFSET, RANGE), leafToClover() {
 bool GeProcessor::Init(DetectorDriver &driver)
 {
     if (!EventProcessor::Init(driver))
-	return false;
-
-    /* clover specific routine, determine the number of clover detector
-       channels and divide by four to find the total number of clovers
-    */
-    extern DetectorLibrary modChan;
-
-    const set<int> &cloverLocations = modChan.GetLocations("ge", "clover_high");
-    // could set it now but we'll iterate through the locations to set this
-    unsigned int cloverChans = 0;
-
-    for ( set<int>::const_iterator it = cloverLocations.begin();
-	  it != cloverLocations.end(); it++) {
-	leafToClover[*it] = int(cloverChans / 4); 
-	cloverChans++;
-    }
-
-    if (cloverChans % chansPerClover != 0) {
-	cout << " There does not appear to be the proper number of"
-	     << " channels per clover.\n Program terminating." << endl;
-	exit(EXIT_FAILURE);	
-    }
-
-    if (cloverChans != 0) {
-	numClovers = cloverChans / chansPerClover;
-	//print statement
-	cout << "A total of " << cloverChans << " clover channels were detected: ";
-	int lastClover = INT_MIN;
-	for ( map<int, int>::const_iterator it = leafToClover.begin();
-	      it != leafToClover.end(); it++ ) {
-	    if (it->second != lastClover) {
-		lastClover = it->second;
-		cout << endl << "  " << lastClover << " : ";
-	    } else {
-		cout << ", ";
-	    }
-	    cout << setw(2) << it->first ;
-	}
-
-	if (numClovers > dammIds::ge::MAX_CLOVERS) {
-	    cout << "This is greater than MAX_CLOVERS for spectra definition."
-		 << "  Check the spectrum definition file and try again." << endl;
-	    exit(EXIT_FAILURE);
-	}   
-    }
+        return false;
 
     return true;
 }
@@ -263,6 +153,54 @@ void GeProcessor::DeclarePlots(void)
     const int granTimeBins = SA;
 
     using namespace dammIds::ge;
+
+    /** This was moved here from Init because the number of clovers is needed
+     * for plots declaration, however Init is called after DeclarePlots */
+
+    /* clover specific routine, determine the number of clover detector
+       channels and divide by four to find the total number of clovers
+    */
+    extern DetectorLibrary modChan;
+
+    const set<int> &cloverLocations = modChan.GetLocations("ge", "clover_high");
+    // could set it now but we'll iterate through the locations to set this
+    unsigned int cloverChans = 0;
+
+    for ( set<int>::const_iterator it = cloverLocations.begin();
+	  it != cloverLocations.end(); it++) {
+        leafToClover[*it] = int(cloverChans / 4); 
+        cloverChans++;
+    }
+
+    if (cloverChans % chansPerClover != 0) {
+        cout << " There does not appear to be the proper number of"
+            << " channels per clover.\n Program terminating." << endl;
+        exit(EXIT_FAILURE);	
+    }
+
+    if (cloverChans != 0) {
+        numClovers = cloverChans / chansPerClover;
+        //print statement
+        cout << "A total of " << cloverChans << " clover channels were detected: ";
+        int lastClover = INT_MIN;
+        for ( map<int, int>::const_iterator it = leafToClover.begin();
+            it != leafToClover.end(); it++ ) {
+            if (it->second != lastClover) {
+            lastClover = it->second;
+            cout << endl << "  " << lastClover << " : ";
+            } else {
+            cout << ", ";
+            }
+            cout << setw(2) << it->first ;
+        }
+
+        if (numClovers > dammIds::ge::MAX_CLOVERS) {
+            cout << "This is greater than MAX_CLOVERS for spectra definition."
+            << "  Check the spectrum definition file and try again." << endl;
+            exit(EXIT_FAILURE);
+        }   
+    }
+
 
     DeclareHistogram1D(D_ENERGY                 , energyBins1, "Gamma singles");
     DeclareHistogram1D(betaGated::D_ENERGY      , energyBins1, "Beta gated gamma");
@@ -278,7 +216,7 @@ void GeProcessor::DeclarePlots(void)
     DeclareHistogram1D(betaGated::D_ADD_ENERGY_TOTAL, energyBins1, "Beta gated gamma total");
     
     // for each clover
-    for (unsigned int i=0; i < numClovers; i++) {
+    for (unsigned int i = 0; i < numClovers; i++) {
         stringstream ss;
         ss << "Clover " << i << " gamma";
         DeclareHistogram1D(D_ENERGY_CLOVERX + i, energyBins1, ss.str().c_str());
@@ -287,9 +225,9 @@ void GeProcessor::DeclarePlots(void)
         ss << "Clover " << i << " beta gated gamma";
         DeclareHistogram1D(betaGated::D_ENERGY_CLOVERX + i, energyBins1, ss.str().c_str());
 
-	ss.str("");
-	ss << "Clover " << i << " beta gated gamma addback";
-        DeclareHistogram1D(betaGated::D_ADD_ENERGY_CLOVERX + i, energyBins1, ss.str().c_str());
+        ss.str("");
+        ss << "Clover " << i << " beta gated gamma addback";
+            DeclareHistogram1D(betaGated::D_ADD_ENERGY_CLOVERX + i, energyBins1, ss.str().c_str());
     }
 
     DeclareHistogram2D(DD_ENERGY                       , energyBins2, energyBins2, "Gamma gamma");
@@ -476,9 +414,10 @@ bool GeProcessor::Process(RawEvent &event) {
     sort(geEvents_.begin(), geEvents_.end(), CompareCorrectedTime);
 
     // addbackEvents vector is arranged as:
-    vector<CloverHit> addbackEvents[numClovers];
+    // pair, first-> energy, second->time
+    vector< pair<double, double> > addbackEvents[numClovers];
     // tas vector for total energy absorbed
-    vector<CloverHit> tas;
+    vector< pair<double, double> > tas;
 
     double subEventWindow = 10.0; // pixie units
     // guarantee the first event will be greater than the subevent window delayed from reference
@@ -488,7 +427,7 @@ bool GeProcessor::Process(RawEvent &event) {
     const double addbackEnergyCut = 25;
     
     for (vector<ChanEvent*>::iterator it = geEvents_.begin(); it != geEvents_.end(); it++) {
-	ChanEvent *ch = *it;
+        ChanEvent *ch = *it;
         double energy = ch->GetCalEnergy(); 
         double time = ch->GetCorrectedTime();
         int clover = leafToClover[ch->GetChanID().GetLocation()];
@@ -501,23 +440,23 @@ bool GeProcessor::Process(RawEvent &event) {
         //   events for all clovers and "tas"
         if (abs(time - refTime) > subEventWindow) {
             for (unsigned i = 0; i < numClovers; ++i) {
-                addbackEvents[i].push_back(CloverHit());
+                addbackEvents[i].push_back(pair<double, double>());
             }
-            tas.push_back(CloverHit());
+            tas.push_back(pair<double, double>());
         }
         // Total addback energy
-        addbackEvents[clover].back().energy += energy;
+        addbackEvents[clover].back().first += energy;
         // We store latest time only
-        addbackEvents[clover].back().time   = time;
-        tas.back().energy += energy;
-        tas.back().time   = time;
+        addbackEvents[clover].back().second   = time;
+        tas.back().first += energy;
+        tas.back().second   = time;
         refTime = time;
     }
 
     // Plot 'tas' spectra
     unsigned nTas = tas.size();
     for (unsigned i = 0; i < nTas; ++i) {
-        double gEnergy = tas[i].energy;
+        double gEnergy = tas[i].first;
         if (gEnergy < 1) 
             continue;
         plot(D_ADD_ENERGY_TOTAL, gEnergy);
@@ -529,8 +468,8 @@ bool GeProcessor::Process(RawEvent &event) {
     // all vectors should have the same size
     for (unsigned int ev = 0; ev < tas.size(); ev++) {
         for (unsigned int det = 0; det < numClovers; ++det) {
-            double gEnergy = addbackEvents[det][ev].energy;
-            double gTime = addbackEvents[det][ev].time;
+            double gEnergy = addbackEvents[det][ev].first;
+            double gTime = addbackEvents[det][ev].second;
             double decayTime = (gTime - cycleTime) * pixie::clockInSeconds;
             if (gEnergy < 1) 
                 continue;
@@ -547,7 +486,7 @@ bool GeProcessor::Process(RawEvent &event) {
 
             for (unsigned int det2 = det + 1; 
                     det2 < numClovers; ++det2) {
-            double gEnergy2 = addbackEvents[det2][ev].energy;
+            double gEnergy2 = addbackEvents[det2][ev].first;
             if (gEnergy2 < 1) 
                 continue;
 

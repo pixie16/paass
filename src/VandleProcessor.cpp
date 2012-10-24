@@ -87,7 +87,7 @@ using namespace dammIds::vandle;
 
 
 //*********** VandleProcessor **********
-VandleProcessor::VandleProcessor(): EventProcessor(OFFSET, RANGE)
+VandleProcessor::VandleProcessor(): EventProcessor(dammIds::vandle::OFFSET, dammIds::vandle::RANGE)
 {
     name = "vandle";
     associatedTypes.insert("liquid_scint"); 
