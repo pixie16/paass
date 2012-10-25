@@ -44,7 +44,6 @@ namespace dammIds {
         const int DD_ANGLE__GATEX         = 155;
         const int DD_ENERGY__GATEX        = 156;
 
-        // note these only make sense with decay 
         const int DD_ENERGY__TIMEX           = 121; // with x granularities
         const int DD_ADD_ENERGY__TIMEX       = 171; // with x granularities
 
