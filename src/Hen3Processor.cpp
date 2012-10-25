@@ -43,12 +43,11 @@ void Hen3Processor::DeclarePlots(void)
     DeclareHistogram1D(D_ENERGY_HEN3, SE, "3Hen raw energy");
     DeclareHistogram1D(D_ENERGY_NEUTRON, SE, "Neutron raw energy");
 
-    DeclareHistogram1D(D_TDIFF_HEN3_BETA, SE, "time diff hen3 - beta + 1000 (10 ns/ch)");
-    DeclareHistogram1D(D_TDIFF_NEUTRON_BETA, SE, "time diff neutron - beta + 1000 (10 ns/ch)");
+    DeclareHistogram1D(D_TDIFF_HEN3_BETA, SB, "time diff hen3 - beta + 1000 (10 ns/ch)");
+    DeclareHistogram1D(D_TDIFF_NEUTRON_BETA, SB, "time diff neutron - beta + 1000 (10 ns/ch)");
 
-    DeclareHistogram2D(DD_DISTR_HEN3, 20, 20, "3Hen event distribution");
-    DeclareHistogram2D(DD_DISTR_NEUTRON, 20, 20, "3Hen real neutron distribution");
-
+    DeclareHistogram2D(DD_DISTR_HEN3, S5, S5, "3Hen event distribution");
+    DeclareHistogram2D(DD_DISTR_NEUTRON, S5, S5, "3Hen real neutron distribution");
 }
 
 bool Hen3Processor::PreProcess(RawEvent &event)
@@ -109,41 +108,46 @@ bool Hen3Processor::Process(RawEvent &event)
                 double beta_time = TreeCorrelator::get().places["Beta"]->last().time;
                 const double timeResolution = 10e-9 / pixie::clockInSeconds;
                 double dt = int(hen3_time - beta_time + 1000);
+                if (dt > SB)
+                    dt = SB - 1;
+                if (dt < 0)
+                    dt = 0;
                 if (TreeCorrelator::get().places[neutron_name.str()]->status())
                     plot(D_TDIFF_NEUTRON_BETA, dt / timeResolution);
-                else
-                    plot(D_TDIFF_HEN3_BETA, dt / timeResolution);
+                plot(D_TDIFF_HEN3_BETA, dt / timeResolution);
 
             }
 
-            int Hen3Loc = chan->GetChanID().GetLocation();
+            /** These plots show He3 bar location hit
+             * picture is as looking along the beam line
+             * (having ORIC behind, 3Hen in front)
+             */
             int xpos = 0;
             int ypos = 0;
-
-            if( (0 <= Hen3Loc) && (Hen3Loc <= 7) ) {
-                xpos = 6;
-                ypos = Hen3Loc + 1;
-            } else if( (8 <= Hen3Loc) && (Hen3Loc <= 14) ) {
-                xpos = 7;
-                ypos = Hen3Loc - 6;
-            } else if( (15 <= Hen3Loc) && (Hen3Loc <= 20) ) {
-                xpos = 8;
-                ypos = Hen3Loc - 12;
-            } else if((21 <= Hen3Loc) && (Hen3Loc <= 23)) {
-                xpos = 9;
-                ypos = Hen3Loc - 17;
-            } else if( (24 <= Hen3Loc) && (Hen3Loc <= 31) ) {
-                xpos = 4;
-                ypos = Hen3Loc - 23;
-            } else if( (32 <= Hen3Loc) && (Hen3Loc <= 38) ) {
-                xpos = 3;
-                ypos = Hen3Loc - 30;
-            } else if( (39 <= Hen3Loc) && (Hen3Loc <= 44) ) {
-                xpos = 2;
-                ypos = Hen3Loc - 36;
-            } else if( (45 <= Hen3Loc) && (Hen3Loc <= 47) ) {
-                xpos = 1;
-                ypos = Hen3Loc - 41;
+            if( 0 <= location && location <= 7 ) {
+                ypos = 11;
+                xpos = 15 - 2 * location;
+            } else if( 8 <= location && location <= 14 ) {
+                ypos = 13;
+                xpos = 30 - 2 * location;
+            } else if( 15 <= location && location <= 20 ) {
+                ypos = 15;
+                xpos = 43 - 2 * location;
+            } else if( 21 <= location && location <= 23 ) {
+                ypos = 17;
+                xpos = 52 - 2 * location;
+            } else if( 24 <= location && location <= 31 ) {
+                ypos = 7;
+                xpos = 63 - 2 * location;
+            } else if( 32 <= location && location <= 38 ) {
+                ypos = 5;
+                xpos = 78 - 2 * location;
+            } else if( 39 <= location && location <= 44 ) {
+                ypos = 3;
+                xpos = 91 - 2 * location;
+            } else if( 45 <= location && location <= 47 ) {
+                ypos = 1;
+                xpos = 100 - 2 * location;
             }
 
             plot(DD_DISTR_HEN3, xpos, ypos);

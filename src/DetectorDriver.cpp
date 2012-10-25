@@ -104,9 +104,9 @@ using namespace dammIds::raw;
 DetectorDriver::DetectorDriver() : 
     histo(OFFSET, RANGE) 
 {
-    vecProcess.push_back(new GeProcessor()); 
+    //vecProcess.push_back(new GeProcessor()); 
     // Or use instead (never together
-    //vecProcess.push_back(new Ge4Hen3Processor()); 
+    vecProcess.push_back(new Ge4Hen3Processor()); 
     vecProcess.push_back(new Hen3Processor()); 
     vecProcess.push_back(new MtcProcessor());
 

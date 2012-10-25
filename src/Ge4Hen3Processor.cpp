@@ -28,23 +28,49 @@
 #include "GeProcessor.hpp"
 #include "Ge4Hen3Processor.hpp"
 #include "RawEvent.hpp"
+#include "TreeCorrelator.hpp"
 
 using namespace std;
 
 namespace dammIds {
     namespace ge {
-        /*
-        * Beta offset = 10
-        * Decay offset = 20
-        * Addback offset = 50
-        * Neutron offest = 100
-        */
+        namespace neutron {
+            const int D_ENERGY = 200;
+            const int D_ADD_ENERGY = 250; 
+            const int DD_ENERGY = 201;
+            const int DD_ADD_ENERGY = 251;
+            const int D_ADD_ENERGY_TOTAL = 255;
+            const int DD_ENERGY__TIMEX = 221; 
+            const int DD_ADD_ENERGY__TIMEX = 271;
 
-        // corresponds to ungated specra ID's + 10 where applicable
-        namespace betaGated {
-        } 
+            namespace betaGated {
+                const int D_ENERGY = 210;
+                const int D_ADD_ENERGY = 260; 
+                const int DD_ENERGY = 211;
+                const int DD_ADD_ENERGY = 261;
+                const int D_ADD_ENERGY_TOTAL = 265;
+                const int DD_ENERGY__TIMEX = 231; 
+                const int DD_ADD_ENERGY__TIMEX = 281;
+            } 
+        }
 
-        namespace neutronGated {
+        namespace multiNeutron {
+            const int D_ENERGY = 300;
+            const int D_ADD_ENERGY = 350; 
+            const int DD_ENERGY = 301;
+            const int DD_ADD_ENERGY = 351;
+            const int D_ADD_ENERGY_TOTAL = 355;
+            const int DD_ENERGY__TIMEX = 321; 
+            const int DD_ADD_ENERGY__TIMEX = 371;
+            namespace betaGated {
+                const int D_ENERGY = 310;
+                const int D_ADD_ENERGY = 360; 
+                const int DD_ENERGY = 311;
+                const int DD_ADD_ENERGY = 361;
+                const int D_ADD_ENERGY_TOTAL = 365;
+                const int DD_ENERGY__TIMEX = 331; 
+                const int DD_ADD_ENERGY__TIMEX = 381; 
+            } 
         }
     }
 }
@@ -56,14 +82,66 @@ Ge4Hen3Processor::Ge4Hen3Processor() : GeProcessor() {
 void Ge4Hen3Processor::DeclarePlots(void) 
 {
     GeProcessor::DeclarePlots();
+    using namespace dammIds::ge;
 
     const int energyBins1  = SE;
     const int energyBins2  = SC;
-    const int timeBins2    = SA;
     const int granTimeBins = SA;
 
-    using namespace dammIds::ge;
+    DeclareHistogram1D(neutron::D_ENERGY, energyBins1, "Gamma singles neutron gated");
+    DeclareHistogram1D(neutron::D_ADD_ENERGY, energyBins1, "Gamma addback neutron gated");
+    DeclareHistogram1D(neutron::D_ADD_ENERGY_TOTAL, energyBins1,
+                       "Gamma total addback neutron gated");
+    DeclareHistogram2D(neutron::DD_ENERGY, energyBins2, energyBins2, "Gamma gamma neutron gated");
+    DeclareHistogram2D(neutron::DD_ADD_ENERGY, energyBins2, energyBins2,
+                       "Gamma gamma addback neutron gated");
+    DeclareHistogramGranY(neutron::DD_ENERGY__TIMEX, energyBins2, granTimeBins,
+                          "E - Time neutron gated", 2, timeResolution, "s");
+    DeclareHistogramGranY(neutron::DD_ADD_ENERGY__TIMEX, energyBins2, granTimeBins,
+                          "Addback E - Time", 2, timeResolution, "s");
 
+    DeclareHistogram1D(neutron::betaGated::D_ENERGY, energyBins1,
+                       "Gamma singles beta neutron gated");
+    DeclareHistogram1D(neutron::betaGated::D_ADD_ENERGY, energyBins1,
+                       "Gamma addback beta neutron gated");
+    DeclareHistogram1D(neutron::betaGated::D_ADD_ENERGY_TOTAL, energyBins1,
+                       "Gamma total addback beta neutron gated");
+    DeclareHistogram2D(neutron::betaGated::DD_ENERGY, energyBins2, energyBins2,
+                       "Gamma gamma beta neutron gated");
+    DeclareHistogram2D(neutron::betaGated::DD_ADD_ENERGY, energyBins2, energyBins2,
+                       "Gamma gamma addback beta neutron gated");
+    DeclareHistogramGranY(neutron::betaGated::DD_ENERGY__TIMEX, energyBins2, granTimeBins,
+                          "E - Time beta neutron gated", 2, timeResolution, "s");
+    DeclareHistogramGranY(neutron::betaGated::DD_ADD_ENERGY__TIMEX, energyBins2, granTimeBins,
+                          "Addback E - Time beta neutron gated", 2, timeResolution, "s");
+
+    DeclareHistogram1D(multiNeutron::D_ENERGY, energyBins1, "Gamma singles multiNeutron gated");
+    DeclareHistogram1D(multiNeutron::D_ADD_ENERGY, energyBins1, "Gamma addback multiNeutron gated");
+    DeclareHistogram1D(multiNeutron::D_ADD_ENERGY_TOTAL, energyBins1,
+                       "Gamma total addback  multiNeutron gated");
+    DeclareHistogram2D(multiNeutron::DD_ENERGY, energyBins2, energyBins2,
+                       "Gamma gamma multineutron gated");
+    DeclareHistogram2D(multiNeutron::DD_ADD_ENERGY, energyBins2, energyBins2,
+                       "Gamma gamma addback multineutron gated");
+    DeclareHistogramGranY(multiNeutron::DD_ENERGY__TIMEX, energyBins2, granTimeBins,
+                          "E - Time multineutron gated", 2, timeResolution, "s");
+    DeclareHistogramGranY(multiNeutron::DD_ADD_ENERGY__TIMEX, energyBins2, granTimeBins,
+                          "Addback E - Time multineutron gated", 2, timeResolution, "s");
+
+    DeclareHistogram1D(multiNeutron::betaGated::D_ENERGY, energyBins1,
+                       "Gamma singles beta multineutron gated");
+    DeclareHistogram1D(multiNeutron::betaGated::D_ADD_ENERGY, energyBins1,
+                       "Gamma addback beta multineutron gated");
+    DeclareHistogram1D(multiNeutron::betaGated::D_ADD_ENERGY_TOTAL, energyBins1,
+                       "Gamma total addback beta multiNeutron gated");
+    DeclareHistogram2D(multiNeutron::betaGated::DD_ENERGY, energyBins2, energyBins2,
+                       "Gamma gamma beta multineutron gated");
+    DeclareHistogram2D(multiNeutron::betaGated::DD_ADD_ENERGY, energyBins2, energyBins2,
+                      "Gamma gamma addback beta multineutron gated");
+    DeclareHistogramGranY(multiNeutron::betaGated::DD_ENERGY__TIMEX, energyBins2, granTimeBins,
+                          "E - Time beta multineutron gated", 2, timeResolution, "s");
+    DeclareHistogramGranY(multiNeutron::betaGated::DD_ADD_ENERGY__TIMEX, energyBins2, granTimeBins,
+                          "Addback E - Time beta multineutron gated", 2, timeResolution, "s");
 }
 
 bool Ge4Hen3Processor::Process(RawEvent &event) {
@@ -106,6 +184,9 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         betaEnergy = max(betaEnergy0, betaEnergy1);
     }
 
+    // Number of neutrons as selected by gates on 3hen spectrum
+    int neutron_count = dynamic_cast<PlaceCounter*>(TreeCorrelator::get().places["Neutrons"])->getCounter();
+
     // Cycle time is measured from the begining of last beam on event
     double cycleTime = TreeCorrelator::get().places["Cycle"]->last().time;
 
@@ -127,6 +208,22 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         plot(D_ENERGY, gEnergy);
         granploty(DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
 
+        if (neutron_count == 1) {
+            plot(neutron::D_ENERGY, gEnergy);
+            granploty(neutron::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+            if (hasBeta) {
+                plot(neutron::betaGated::D_ENERGY, gEnergy);
+                granploty(neutron::betaGated::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+            }
+        } else if (neutron_count > 1) {
+            plot(multiNeutron::D_ENERGY, gEnergy);
+            granploty(multiNeutron::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+            if (hasBeta) {
+                plot(multiNeutron::betaGated::D_ENERGY, gEnergy);
+                granploty(multiNeutron::betaGated::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+            }
+        }
+
         if (hasBeta) {
             plot(betaGated::D_ENERGY, gEnergy);
             granploty(betaGated::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
@@ -145,12 +242,25 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         
         for (vector<ChanEvent*>::const_iterator it2 = it + 1;
                 it2 != geEvents_.end(); it2++) {
+
             ChanEvent *chan2 = *it2;
 
             double gEnergy2 = chan2->GetCalEnergy();            
             symplot(DD_ENERGY, gEnergy, gEnergy2);
             if (hasBeta)
                 symplot(betaGated::DD_ENERGY, gEnergy, gEnergy2);            
+
+            if (neutron_count == 1) {
+                symplot(neutron::DD_ENERGY, gEnergy, gEnergy2);            
+                if (hasBeta) {
+                    symplot(neutron::betaGated::DD_ENERGY, gEnergy, gEnergy2);            
+                }
+            } else if (neutron_count > 1) {
+                symplot(multiNeutron::DD_ENERGY, gEnergy, gEnergy2);            
+                if (hasBeta) {
+                    symplot(multiNeutron::betaGated::DD_ENERGY, gEnergy, gEnergy2);            
+                }
+            }
         } // iteration over other gammas
     } 
     
@@ -204,8 +314,19 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         if (gEnergy < 1) 
             continue;
         plot(D_ADD_ENERGY_TOTAL, gEnergy);
-        if(hasBeta)
+        if (hasBeta)
             plot(betaGated::D_ADD_ENERGY_TOTAL, gEnergy);
+        if (neutron_count == 1) {
+            plot(neutron::D_ADD_ENERGY_TOTAL, gEnergy);
+            if (hasBeta) {
+                plot(neutron::betaGated::D_ADD_ENERGY_TOTAL, gEnergy);
+            }
+        } else if (neutron_count > 1) {
+            plot(multiNeutron::D_ADD_ENERGY_TOTAL, gEnergy);
+            if (hasBeta) {
+                plot(multiNeutron::betaGated::D_ADD_ENERGY_TOTAL, gEnergy);
+            }
+        }
     }
 
     // Plot addback spectra 
@@ -221,6 +342,21 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             plot(D_ADD_ENERGY, gEnergy);
             plot(D_ADD_ENERGY_CLOVERX + det, gEnergy);
             granploty(DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+            if (neutron_count == 1) {
+                plot(neutron::D_ADD_ENERGY, gEnergy);
+                granploty(neutron::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+                if (hasBeta) {
+                    plot(neutron::betaGated::D_ADD_ENERGY, gEnergy);
+                    granploty(neutron::betaGated::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+                }
+            } else if (neutron_count > 1) {
+                plot(multiNeutron::D_ADD_ENERGY, gEnergy);
+                granploty(multiNeutron::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+                if (hasBeta) {
+                    plot(multiNeutron::betaGated::D_ADD_ENERGY, gEnergy);
+                    granploty(multiNeutron::betaGated::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+                }
+            }
 
             if(hasBeta) {
                 plot(betaGated::D_ADD_ENERGY, gEnergy);
@@ -230,97 +366,64 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
 
             for (unsigned int det2 = det + 1; 
                     det2 < numClovers; ++det2) {
-            double gEnergy2 = addbackEvents[det2][ev].first;
-            if (gEnergy2 < 1) 
-                continue;
+                double gEnergy2 = addbackEvents[det2][ev].first;
+                if (gEnergy2 < 1) 
+                    continue;
 
-            symplot(DD_ADD_ENERGY, gEnergy, gEnergy2);
-            /*
-            * Early and late coincidences
-            * Only decay part of cycle can be taken
-            * Early coin. are between decay cycle start and some arb. point
-            * Late are between arb. point and end of cycle
-            */
-            if (!beamOn) {
-                double decayCycleEarly = 0.5;
-                double decayCycleEnd   = 1.0;
-                // Beam deque should be updated upon beam off so
-                // measure time from that point
-                double decayTime = (gTime - TreeCorrelator::get().places["Beam"]->last().time) * pixie::clockInSeconds;
-                if (decayTime < decayCycleEarly) {
-                    symplot(DD_ADD_ENERGY_EARLY, gEnergy, gEnergy2);
-                    if (hasBeta)
-                        symplot(betaGated::DD_ADD_ENERGY_EARLY, gEnergy, gEnergy2);
-                } else if (decayTime < decayCycleEnd) {
-                    symplot(DD_ADD_ENERGY_LATE, gEnergy, gEnergy2);
-                    if (hasBeta)
-                        symplot(betaGated::DD_ADD_ENERGY_LATE, gEnergy, gEnergy2);
+                symplot(DD_ADD_ENERGY, gEnergy, gEnergy2);
+                if (neutron_count == 1) {
+                    symplot(neutron::DD_ADD_ENERGY, gEnergy, gEnergy2);
+                    if (hasBeta) {
+                        symplot(neutron::betaGated::DD_ADD_ENERGY, gEnergy, gEnergy2);
+                    }
+                } else if (neutron_count > 1) {
+                    symplot(multiNeutron::DD_ADD_ENERGY, gEnergy, gEnergy2);
+                    if (hasBeta) {
+                        symplot(multiNeutron::betaGated::DD_ADD_ENERGY, gEnergy, gEnergy2);
+                    }
                 }
-            }
-            if (hasBeta) {
-                symplot(betaGated::DD_ADD_ENERGY, gEnergy, gEnergy2);
-                double dTime = (int)(gTime - betaTime);
-                
-                // Arbitrary chosen limits
-                // Compare Gamma-Beta time diff spectrum
-                // to pick good numbers
-                //? compare both gamma times
-                const double promptLimit = 14.0;
-                const double promptOnlyLimit = -8.0;
+                /*
+                * Early and late coincidences
+                * Only decay part of cycle can be taken
+                * Early coin. are between decay cycle start and some arb. point
+                * Late are between arb. point and end of cycle
+                */
+                if (!beamOn) {
+                    double decayCycleEarly = 0.5;
+                    double decayCycleEnd   = 1.0;
+                    // Beam deque should be updated upon beam off so
+                    // measure time from that point
+                    double decayTime = (gTime - TreeCorrelator::get().places["Beam"]->last().time) * pixie::clockInSeconds;
+                    if (decayTime < decayCycleEarly) {
+                        symplot(DD_ADD_ENERGY_EARLY, gEnergy, gEnergy2);
+                        if (hasBeta)
+                            symplot(betaGated::DD_ADD_ENERGY_EARLY, gEnergy, gEnergy2);
+                    } else if (decayTime < decayCycleEnd) {
+                        symplot(DD_ADD_ENERGY_LATE, gEnergy, gEnergy2);
+                        if (hasBeta)
+                            symplot(betaGated::DD_ADD_ENERGY_LATE, gEnergy, gEnergy2);
+                    }
+                }
 
-                if (dTime > promptLimit) {
-                    symplot(betaGated::DD_ADD_ENERGY_DELAYED, gEnergy, gEnergy2);
-                } else if (dTime > promptOnlyLimit) {
-                    symplot(betaGated::DD_ADD_ENERGY_PROMPT, gEnergy, gEnergy2);
+                if (hasBeta) {
+                    symplot(betaGated::DD_ADD_ENERGY, gEnergy, gEnergy2);
+                    double dTime = (int)(gTime - betaTime);
+                    
+                    // Arbitrary chosen limits
+                    // Compare Gamma-Beta time diff spectrum
+                    // to pick good numbers
+                    //? compare both gamma times
+                    const double promptLimit = 14.0;
+                    const double promptOnlyLimit = -8.0;
+
+                    if (dTime > promptLimit) {
+                        symplot(betaGated::DD_ADD_ENERGY_DELAYED, gEnergy, gEnergy2);
+                    } else if (dTime > promptOnlyLimit) {
+                        symplot(betaGated::DD_ADD_ENERGY_PROMPT, gEnergy, gEnergy2);
+                    }
                 }
-                    } // has beta
-#ifdef GGATES
-                // Gamma-gamma angular
-                // and gamma-gamma gate
-                unsigned ngg = gGates.size();
-                for (unsigned ig = 0; ig < ngg; ++ig) {
-                    double g1min = 0;
-                    double g1max = 0;
-                    double g2min = 0;
-                    double g2max = 0;
-                    if (gGates[ig].g1min < gGates[ig].g2min) {
-                        g1min = gGates[ig].g1min;
-                        g1max = gGates[ig].g1max;
-                        g2min = gGates[ig].g2min;
-                        g2max = gGates[ig].g2max;
-                    } else {
-                        g1min = gGates[ig].g2min;
-                        g1max = gGates[ig].g2max;
-                        g2min = gGates[ig].g1min;
-                        g2max = gGates[ig].g1max;
-                    }
-                    double e1 = min(gEnergy, gEnergy2);
-                    double e2 = max(gEnergy, gEnergy2);
-                    if ( (e1 >= g1min && e1 <= g1max) &&
-                            (e2 >= g2min && e2 <= g2max) ) {
-                        if (det % 2 != det2 % 2) {
-                            plot(DD_ANGLE__GATEX, 1, ig);
-                            if (hasBeta)
-                                plot(betaGated::DD_ANGLE__GATEX, 1, ig);
-                        } else {
-                        plot(DD_ANGLE__GATEX, 2, ig);
-                            if (hasBeta)
-                                plot(betaGated::DD_ANGLE__GATEX, 2, ig);
-                        }
-                        for (unsigned det3 = det2 + 1;
-                                det3 < numClovers; ++det3) {
-                            double gEnergy3 = addbackEvents[det3][ev].energy;
-                            if (gEnergy3 < 1)
-                                continue;
-                            plot(DD_ENERGY__GATEX, gEnergy3, ig);
-                            if (hasBeta)
-                                plot(betaGated::DD_ENERGY__GATEX, gEnergy3, ig);
-                        }
-                    }
-                } //for ig
-#endif
             } // iteration over other clovers
-        } // itertaion over clovers
+        } // iteration over clovers
     } // iteration over events
 
     // Clear all events stored in geEvents vector
