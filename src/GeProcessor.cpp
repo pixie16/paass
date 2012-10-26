@@ -419,7 +419,8 @@ bool GeProcessor::Process(RawEvent &event) {
     // tas vector for total energy absorbed
     vector< pair<double, double> > tas;
 
-    double subEventWindow = 10.0; // pixie units
+    /** In nanoseconds */
+    double subEventWindow = 100 * 1e-9 / pixie::clockInSeconds; 
     // guarantee the first event will be greater than the subevent window delayed from reference
     double refTime = -2.0 * subEventWindow; 
 

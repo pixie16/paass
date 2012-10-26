@@ -150,18 +150,19 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return false;
 
-    // tapeMove is true if the tape is moving
+    /* tapeMove is true if the tape is moving */
     bool tapeMove = TreeCorrelator::get().places["TapeMove"]->status();
 
-    // If the tape is moving there is no need of analyzing events
-    // as they must belong to background
+    /** If the tape is moving there is no need of analyzing events
+     *  as they are background.
+     */
     if (tapeMove)
         return true;
 
-    // beamOn is true for beam on and false for beam off
+    /* beamOn is true for beam on tape */
     bool beamOn =  TreeCorrelator::get().places["Beam"]->status();
 
-    //Beta places are activated with threshold in ScintProcessor
+    /* Beta places are activated with threshold in ScintProcessor. */
     bool hasBeta = TreeCorrelator::get().places["Beta"]->status();
     bool hasBeta0 = TreeCorrelator::get().places["beta_scint_beta_0"]->status();
     bool hasBeta1 = TreeCorrelator::get().places["beta_scint_beta_1"]->status();
@@ -184,17 +185,21 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         betaEnergy = max(betaEnergy0, betaEnergy1);
     }
 
-    // Number of neutrons as selected by gates on 3hen spectrum
+    /* Number of neutrons as selected by gates on 3hen spectrum.
+     * See DetectorDriver::InitCorrelator for gates. */
     int neutron_count = dynamic_cast<PlaceCounter*>(TreeCorrelator::get().places["Neutrons"])->getCounter();
 
-    // Cycle time is measured from the begining of last beam on event
+    /* Cycle time is measured from the begining of last beam on event.*/
     double cycleTime = TreeCorrelator::get().places["Cycle"]->last().time;
 
-    // Note that geEvents_ vector holds only good events (matched
-    // low & high gain). See PreProcess
-
-    // Simple spectra (single crystals) -- NOTE WE CAN MAKE PERMANENT CHANGES TO EVENTS
-    //   Necessary in order to set corrected time for use in other processors
+    /** Note that geEvents_ vector holds only good events (matched
+     *  low & high gain). See PreProcess.
+     *
+     * Simple spectra (single crystals) --
+     * WE CAN MAKE PERMANENT CHANGES TO EVENTS!
+     * (time is being corrected for walk)
+     * Necessary in order to set corrected time for use in other processors
+     */
     for (vector<ChanEvent*>::iterator it = geEvents_.begin(); 
 	 it != geEvents_.end(); it++) {
         ChanEvent *chan = *it;
@@ -232,7 +237,7 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             plot(betaGated::DD_TDIFF__GAMMA_ENERGY, dtime, gEnergy);
             plot(betaGated::DD_TDIFF__BETA_ENERGY, dtime, betaEnergy);
 
-            // individual beta gamma coinc spectra for each beta detector
+            /* individual beta gamma coinc spectra for each beta detector*/
             if (hasBeta0 == 0) {
                 plot(betaGated::D_ENERGY_BETA0, gEnergy);
             } else if (hasBeta1 == 1) {
@@ -261,23 +266,27 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
                     symplot(multiNeutron::betaGated::DD_ENERGY, gEnergy, gEnergy2);            
                 }
             }
-        } // iteration over other gammas
+        }
     } 
     
-    // now we sort the germanium events according to their corrected time
+    /* now we sort the germanium events according to their corrected time */
     sort(geEvents_.begin(), geEvents_.end(), CompareCorrectedTime);
 
-    // addbackEvents vector is arranged as:
-    // first -> energy, second -> time
+    /** addbackEvents vector is arranged as pair where
+     *  first -> energy, second -> time
+     */
     vector< pair<double, double> > addbackEvents[numClovers];
-    // tas vector for total energy absorbed
+
+    /* "TAS" vector for total energy absorbed */
     vector< pair<double, double> > tas;
 
-    double subEventWindow = 10.0; // pixie units
-    // guarantee the first event will be greater than the subevent window delayed from reference
+    /** Give value in seconds  */
+    double subEventWindow = 100 * 1e-9 / pixie::clockInSeconds; 
+
+    /** guarantee the first event will be greater than the subevent window delayed from reference */
     double refTime = -2.0 * subEventWindow; 
 
-    // Do not take into account events with too low energy (avoid summing of noise with real gammas) 
+    /** Do not take into account events with too low energy (avoid summing of noise with real gammas) */
     const double addbackEnergyCut = 25;
     
     for (vector<ChanEvent*>::iterator it = geEvents_.begin(); it != geEvents_.end(); it++) {
@@ -289,25 +298,25 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         if (energy < addbackEnergyCut)
             continue;
 
-        // entries in map are sorted by time
-        // if event time is outside of subEventWindow, we start new 
-        //   events for all clovers and "tas"
+        /** entries in geEvents_ are sorted by time
+         * if current event time is outside of subEventWindow, we start new 
+         * events for all clovers and "tas"
+         */
         if (abs(time - refTime) > subEventWindow) {
             for (unsigned i = 0; i < numClovers; ++i) {
                 addbackEvents[i].push_back(pair<double, double>());
             }
             tas.push_back(pair<double, double>());
         }
-        // Total addback energy
+        /* Total addback energy */
         addbackEvents[clover].back().first += energy;
-        // We store latest time only
+        /* We store latest time only */
         addbackEvents[clover].back().second   = time;
         tas.back().first += energy;
         tas.back().second   = time;
         refTime = time;
     }
 
-    // Plot 'tas' spectra
     unsigned nTas = tas.size();
     for (unsigned i = 0; i < nTas; ++i) {
         double gEnergy = tas[i].first;
@@ -329,8 +338,6 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         }
     }
 
-    // Plot addback spectra 
-    // all vectors should have the same size
     for (unsigned int ev = 0; ev < tas.size(); ev++) {
         for (unsigned int det = 0; det < numClovers; ++det) {
             double gEnergy = addbackEvents[det][ev].first;
@@ -391,7 +398,7 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
                 if (!beamOn) {
                     double decayCycleEarly = 0.5;
                     double decayCycleEnd   = 1.0;
-                    // Beam deque should be updated upon beam off so
+                    // Beam fifo should be updated upon beam off event so
                     // measure time from that point
                     double decayTime = (gTime - TreeCorrelator::get().places["Beam"]->last().time) * pixie::clockInSeconds;
                     if (decayTime < decayCycleEarly) {
@@ -409,10 +416,10 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
                     symplot(betaGated::DD_ADD_ENERGY, gEnergy, gEnergy2);
                     double dTime = (int)(gTime - betaTime);
                     
-                    // Arbitrary chosen limits
-                    // Compare Gamma-Beta time diff spectrum
-                    // to pick good numbers
-                    //? compare both gamma times
+                    /** Arbitrary chosen limits for prompt g-g
+                     * Compare Gamma-Beta time diff spectrum
+                     * to pick good numbers
+                     * compare both gamma times */
                     const double promptLimit = 14.0;
                     const double promptOnlyLimit = -8.0;
 
@@ -426,8 +433,7 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         } // iteration over clovers
     } // iteration over events
 
-    // Clear all events stored in geEvents vector
     geEvents_.clear();
-    EndProcess(); // update the processing time
+    EndProcess(); 
     return true;
 }

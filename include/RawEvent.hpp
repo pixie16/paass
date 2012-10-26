@@ -94,6 +94,8 @@ private:
  * Note that this currently stores raw values internally through pixie word types
  *   but returns data values through native C types. This is potentially non-portable. 
  */
+extern const double pixie::energyContraction;
+
 class ChanEvent
 {
 private:
@@ -131,10 +133,8 @@ private:
     // make the front end responsible for reading the data able to set the channel data directly
     friend int ReadBuffData(pixie::word_t *, unsigned long *, std::vector<ChanEvent *> &);
 public:
-    // Was 2.0, changed to 4.0 for LeRIBBS experiment
-    // 1.0 for 3Hen experiment
-    static const double pixieEnergyContraction = 1.0; ///< energies from pixie16 are contracted by this number
-
+    //static const double pixieEnergyContraction = 1.0; ///< energies from pixie16 are contracted by this number
+    static double pixieEnergyContraction; ///< energies from pixie16 are contracted by this number
     void SetEnergy(double a)    {energy = a;}    /**< Set the raw energy in case we want
 						    to extract it from the trace ourselves */
     void SetCalEnergy(double a) {calEnergy = a;} /**< Set the calibrated energy */

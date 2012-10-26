@@ -6,9 +6,9 @@ SHELL=/bin/sh
 # USEROOT = 1
 
 # Uncomment this line if processing Rev. D data
-REVISIOND = 1
+#REVISIOND = 1
 # Uncomment this line if processing Rev. F data
-#REVISIONF = 1
+REVISIONF = 1
 
 # Uncomment this line for a more verbose scan
 # CXXFLAGS += -DVERBOSE
@@ -161,6 +161,7 @@ POSITIONPROCESSORO = PositionProcessor.$(ObjSuf)
 RANDOMPOOLO      = RandomPool.$(ObjSuf)
 RAWEVENTO        = RawEvent.$(ObjSuf)
 ROOTPROCESSORO   = RootProcessor.$(ObjSuf)
+PLACESO = Places.$(ObjSuf)
 PULSERPROCESSORO = PulserProcessor.$(ObjSuf)
 ACCUMULATORO     = StatsAccumulator.$(ObjSuf)
 SSDPROCESSORO    = SsdProcessor.$(ObjSuf)
@@ -168,8 +169,7 @@ STATSDATAO       = StatsData.$(ObjSuf)
 TAUANALYZERO     = TauAnalyzer.$(ObjSuf)
 TIMINGINFOO      = TimingInformation.$(ObjSuf)
 TRIGGERLOGICPROCESSORO = TriggerLogicProcessor.$(ObjSuf)
-TREECORRELATORO  = TreeCorrelator.$(ObjSuf)
-TRACEO		 = Trace.$(ObjSuf)
+TRACEO = Trace.$(ObjSuf)
 TRACEEXTRACTERO  = TraceExtracter.$(ObjSuf)
 TRACEFILTERO     = TraceFilterer.$(ObjSuf)
 TRACEPLOTO       = TracePlotter.$(ObjSuf)
@@ -203,7 +203,7 @@ endif
 OBJS   = $(READBUFFDATAO) $(SET2CCO) $(PLOTSREGISTERO) $(PLOTSO) \
 	$(DSSDSUBO) $(DETECTORDRIVERO) \
 	$(MTCPROCESSORO) $(MCPPROCESSORO) $(LOGICPROCESSORO) $(CORRELATORO) \
-    $(TREECORRELATORO) $(TRACESUBO) \
+    $(PLACESO) $(TRACESUBO) \
 	$(TRACEO) $(TRACEPLOTO) $(TRACEFILTERO) $(DOUBLETRACEO) \
 	$(MESSLOGO) $(MILDATIMO) $(SCANORUXO) $(ACCUMULATORO) \
 	$(HISTOGRAMMERO) $(EVENTPROCESSORO) $(BETASCINTPROCESSORO) \
