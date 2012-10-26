@@ -406,8 +406,14 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
     if (!InitMap()) {
         exit(EXIT_FAILURE);
     }       
+
+    cout << "Using event width " << pixie::eventInSeconds * 1e6 << " us" << endl
+         << "                  " << pixie::eventWidth
+         << " in pixie16 clock tics." << endl;
+
 	modChan.PrintUsedDetectors();
-	modChan.PrintMap();
+    if (verbose::MAP_INIT)
+        modChan.PrintMap();
 
 	driver.Init();
     
@@ -636,9 +642,6 @@ void RemoveList(vector<ChanEvent*> &eventList)
 
 void ScanList(vector<ChanEvent*> &eventList) 
 {
-    /** The time width of an event in units of pixie16 clock ticks */
-    const int eventWidth = 300;
-
     unsigned long chanTime, eventTime;
 
     // local variable for the detectors used in a given event
@@ -682,7 +685,7 @@ void ScanList(vector<ChanEvent*> &eventList)
         larger than the event width, finalize the current event, otherwise
         treat this as part of the current event
         */
-        if ( diffTime > eventWidth ) {
+        if ( diffTime > pixie::eventWidth ) {
             if(rawev.Size() > 0) {
             /* detector driver accesses rawevent externally in order to
             have access to proper detector_summaries

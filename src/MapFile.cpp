@@ -220,7 +220,7 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
              */
 
             /* Use this constant for debugging.*/
-            const bool VERBOSE = true;
+            const bool VERBOSE = false;
             PlaceDetector* place = new PlaceDetector();
             TreeCorrelator::get().addPlace(id.GetPlaceName(), place, VERBOSE);
 

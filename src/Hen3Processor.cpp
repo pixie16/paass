@@ -43,8 +43,8 @@ void Hen3Processor::DeclarePlots(void)
     DeclareHistogram1D(D_ENERGY_HEN3, SE, "3Hen raw energy");
     DeclareHistogram1D(D_ENERGY_NEUTRON, SE, "Neutron raw energy");
 
-    DeclareHistogram1D(D_TDIFF_HEN3_BETA, SB, "time diff hen3 - beta + 1000 (10 ns/ch)");
-    DeclareHistogram1D(D_TDIFF_NEUTRON_BETA, SB, "time diff neutron - beta + 1000 (10 ns/ch)");
+    DeclareHistogram1D(D_TDIFF_HEN3_BETA, S8, "time diff hen3 - beta + 100 (1us/ch)");
+    DeclareHistogram1D(D_TDIFF_NEUTRON_BETA, S8, "time diff neutron - beta + 100 (1 us/ch)");
 
     DeclareHistogram2D(DD_DISTR_HEN3, S5, S5, "3Hen event distribution");
     DeclareHistogram2D(DD_DISTR_NEUTRON, S5, S5, "3Hen real neutron distribution");
@@ -106,16 +106,16 @@ bool Hen3Processor::Process(RawEvent &event)
             if (TreeCorrelator::get().places["Beta"]->status()) {
                 double hen3_time = chan->GetTime();
                 double beta_time = TreeCorrelator::get().places["Beta"]->last().time;
-                const double timeResolution = 10e-9 / pixie::clockInSeconds;
-                double dt = int(hen3_time - beta_time + 1000);
-                if (dt > SB)
-                    dt = SB - 1;
-                if (dt < 0)
+                const double timeResolution = 1e-6 / pixie::clockInSeconds;
+                double dt = int( 100 + (hen3_time - beta_time) / timeResolution);
+                if (dt > S8)
+                    dt = S8 - 1;
+                if (dt < 0) {
                     dt = 0;
+                }
                 if (TreeCorrelator::get().places[neutron_name.str()]->status())
-                    plot(D_TDIFF_NEUTRON_BETA, dt / timeResolution);
-                plot(D_TDIFF_HEN3_BETA, dt / timeResolution);
-
+                    plot(D_TDIFF_NEUTRON_BETA, dt);
+                plot(D_TDIFF_HEN3_BETA, dt);
             }
 
             /** These plots show He3 bar location hit
