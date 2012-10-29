@@ -281,7 +281,9 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
     vector< pair<double, double> > tas;
 
     /** Give value in seconds  */
-    double subEventWindow = 100 * 1e-9 / pixie::clockInSeconds; 
+    double subEventWindow = 200 * 1e-9;
+
+    subEventWindow = subEventWindow / pixie::clockInSeconds; 
 
     /** guarantee the first event will be greater than the subevent window delayed from reference */
     double refTime = -2.0 * subEventWindow; 
@@ -311,9 +313,9 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         /* Total addback energy */
         addbackEvents[clover].back().first += energy;
         /* We store latest time only */
-        addbackEvents[clover].back().second   = time;
+        addbackEvents[clover].back().second = time;
         tas.back().first += energy;
-        tas.back().second   = time;
+        tas.back().second = time;
         refTime = time;
     }
 
@@ -348,27 +350,27 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
 
             plot(D_ADD_ENERGY, gEnergy);
             plot(D_ADD_ENERGY_CLOVERX + det, gEnergy);
-            granploty(DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+            granploty(DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
             if (neutron_count == 1) {
                 plot(neutron::D_ADD_ENERGY, gEnergy);
-                granploty(neutron::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+                granploty(neutron::DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
                 if (hasBeta) {
                     plot(neutron::betaGated::D_ADD_ENERGY, gEnergy);
-                    granploty(neutron::betaGated::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+                    granploty(neutron::betaGated::DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
                 }
             } else if (neutron_count > 1) {
                 plot(multiNeutron::D_ADD_ENERGY, gEnergy);
-                granploty(multiNeutron::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+                granploty(multiNeutron::DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
                 if (hasBeta) {
                     plot(multiNeutron::betaGated::D_ADD_ENERGY, gEnergy);
-                    granploty(multiNeutron::betaGated::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+                    granploty(multiNeutron::betaGated::DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
                 }
             }
 
             if(hasBeta) {
                 plot(betaGated::D_ADD_ENERGY, gEnergy);
                 plot(betaGated::D_ADD_ENERGY_CLOVERX + det, gEnergy);
-                granploty(betaGated::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+                granploty(betaGated::DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
             }
 
             for (unsigned int det2 = det + 1; 

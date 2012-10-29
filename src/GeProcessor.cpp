@@ -477,12 +477,12 @@ bool GeProcessor::Process(RawEvent &event) {
 
             plot(D_ADD_ENERGY, gEnergy);
             plot(D_ADD_ENERGY_CLOVERX + det, gEnergy);
-            granploty(DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+            granploty(DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
 
             if(hasBeta) {
                 plot(betaGated::D_ADD_ENERGY, gEnergy);
                 plot(betaGated::D_ADD_ENERGY_CLOVERX + det, gEnergy);
-                granploty(betaGated::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+                granploty(betaGated::DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
             }
 
             for (unsigned int det2 = det + 1; 
