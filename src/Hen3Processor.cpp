@@ -37,8 +37,8 @@ Hen3Processor::Hen3Processor() : EventProcessor(OFFSET, RANGE)
 
 void Hen3Processor::DeclarePlots(void)
 {
-    DeclareHistogram1D(D_MULT_HEN3, S6, "3Hen event multiplicity");
-    DeclareHistogram1D(D_MULT_NEUTRON, S6, "3Hen real neutron multiplicity");
+    DeclareHistogram1D(D_MULT_HEN3, S4, "3Hen event multiplicity");
+    DeclareHistogram1D(D_MULT_NEUTRON, S4, "3Hen real neutron multiplicity");
 
     DeclareHistogram1D(D_ENERGY_HEN3, SE, "3Hen raw energy");
     DeclareHistogram1D(D_ENERGY_NEUTRON, SE, "Neutron raw energy");
