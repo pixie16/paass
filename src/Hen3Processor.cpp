@@ -26,6 +26,10 @@ namespace dammIds {
 
         const int DD_DISTR_HEN3 = 10;
         const int DD_DISTR_NEUTRON = 11;
+
+        // 3Hen noisy bars in 86Ga experiment
+        const int NUM_OF_REJECT = 6;
+        const int REJECT_LOCATIONS[NUM_OF_REJECT] = {0, 2, 8, 10, 34, 40};
     }
 }
 
@@ -65,6 +69,19 @@ bool Hen3Processor::PreProcess(RawEvent &event)
             double time = (*it)->GetTime();
             double energy = (*it)->GetEnergy();
             int location = (*it)->GetChanID().GetLocation();
+
+            /** Reject locations listed in REJECT_LOCATION array */
+            bool reject = false;
+            for (int reject_index = 0; reject_index < NUM_OF_REJECT;
+                 ++reject_index) {
+                if (location == REJECT_LOCATIONS[reject_index]) {
+                    reject = true;
+                    break;
+                }
+            }
+            if (reject)
+                continue;
+
             string place = (*it)->GetChanID().GetPlaceName();
             CorrEventData data(time, true, energy);
             TreeCorrelator::get().places[place]->activate(data);
@@ -93,6 +110,18 @@ bool Hen3Processor::Process(RawEvent &event)
         it != hen3Summary->GetList().end(); it++) {
             ChanEvent *chan = *it;
             int location = chan->GetChanID().GetLocation();
+
+            /** Reject locations listed in REJECT_LOCATION array */
+            bool reject = false;
+            for (int reject_index = 0; reject_index < NUM_OF_REJECT;
+                 ++reject_index) {
+                if (location == REJECT_LOCATIONS[reject_index]) {
+                    reject = true;
+                    break;
+                }
+            }
+            if (reject)
+                continue;
 
             double energy = chan->GetEnergy();
             plot(D_ENERGY_HEN3, energy);

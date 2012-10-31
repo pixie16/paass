@@ -150,6 +150,9 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return false;
 
+    // Call base class processing
+    GeProcessor::Process(event);
+
     /* tapeMove is true if the tape is moving */
     bool tapeMove = TreeCorrelator::get().places["TapeMove"]->status();
 
@@ -159,89 +162,48 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
     if (tapeMove)
         return true;
 
-    /* beamOn is true for beam on tape */
-    bool beamOn =  TreeCorrelator::get().places["Beam"]->status();
-
-    /* Beta places are activated with threshold in ScintProcessor. */
-    bool hasBeta = TreeCorrelator::get().places["Beta"]->status();
-    bool hasBeta0 = TreeCorrelator::get().places["beta_scint_beta_0"]->status();
-    bool hasBeta1 = TreeCorrelator::get().places["beta_scint_beta_1"]->status();
-    double betaTime = -1;
-    double betaEnergy = -1;
-    if (hasBeta) {
-        double betaTime0 = -1;
-        double betaEnergy0 = -1;
-        if (hasBeta0) {
-            betaTime0 = TreeCorrelator::get().places["beta_scint_beta_0"]->last().time;
-            betaEnergy0 = TreeCorrelator::get().places["beta_scint_beta_0"]->last().energy;
-        }
-        double betaTime1 = -1;
-        double betaEnergy1 = -1;
-        if (hasBeta1) {
-            betaTime1 = TreeCorrelator::get().places["beta_scint_beta_1"]->last().time;
-            betaEnergy1 = TreeCorrelator::get().places["beta_scint_beta_1"]->last().energy;
-        }
-        betaTime = max(betaTime0, betaTime1);
-        betaEnergy = max(betaEnergy0, betaEnergy1);
-    }
-
     /* Number of neutrons as selected by gates on 3hen spectrum.
      * See DetectorDriver::InitCorrelator for gates. */
     int neutron_count = dynamic_cast<PlaceCounter*>(TreeCorrelator::get().places["Neutrons"])->getCounter();
 
+    /** All non-neutron related spectra are processed in the base class 
+     * Here we are interested in neutron spectra only so there is no need
+     * of further processing. */
+    if (neutron_count < 1)
+        return true;
+
+    /* Beta places are activated with threshold in ScintProcessor. */
+    bool hasBeta = TreeCorrelator::get().places["Beta"]->status();
     /* Cycle time is measured from the begining of last beam on event.*/
     double cycleTime = TreeCorrelator::get().places["Cycle"]->last().time;
 
-    /** Note that geEvents_ vector holds only good events (matched
-     *  low & high gain). See PreProcess.
-     *
-     * Simple spectra (single crystals) --
-     * WE CAN MAKE PERMANENT CHANGES TO EVENTS!
-     * (time is being corrected for walk)
-     * Necessary in order to set corrected time for use in other processors
-     */
     for (vector<ChanEvent*>::iterator it = geEvents_.begin(); 
 	 it != geEvents_.end(); it++) {
         ChanEvent *chan = *it;
         
         double gEnergy = chan->GetCalEnergy();	
-        double gTime   = chan->GetTime() - WalkCorrection(gEnergy);	
-        chan->SetCorrectedTime(gTime);
-        double decayTime = (gTime - cycleTime) 
-                           * pixie::clockInSeconds;
-
-        plot(D_ENERGY, gEnergy);
-        granploty(DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+        double gTime   = chan->GetCorrectedTime();
+        double decayTime = (gTime - cycleTime) * pixie::clockInSeconds;
+        if (gEnergy < 1) 
+            continue;
 
         if (neutron_count == 1) {
             plot(neutron::D_ENERGY, gEnergy);
-            granploty(neutron::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+            granploty(neutron::DD_ENERGY__TIMEX,
+                      gEnergy, decayTime, timeResolution);
             if (hasBeta) {
                 plot(neutron::betaGated::D_ENERGY, gEnergy);
-                granploty(neutron::betaGated::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+                granploty(neutron::betaGated::DD_ENERGY__TIMEX,
+                          gEnergy, decayTime, timeResolution);
             }
         } else if (neutron_count > 1) {
             plot(multiNeutron::D_ENERGY, gEnergy);
-            granploty(multiNeutron::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+            granploty(multiNeutron::DD_ENERGY__TIMEX,
+                      gEnergy, decayTime, timeResolution);
             if (hasBeta) {
                 plot(multiNeutron::betaGated::D_ENERGY, gEnergy);
-                granploty(multiNeutron::betaGated::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
-            }
-        }
-
-        if (hasBeta) {
-            plot(betaGated::D_ENERGY, gEnergy);
-            granploty(betaGated::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
-
-            int dtime=(int)(gTime - betaTime + 100);
-            plot(betaGated::DD_TDIFF__GAMMA_ENERGY, dtime, gEnergy);
-            plot(betaGated::DD_TDIFF__BETA_ENERGY, dtime, betaEnergy);
-
-            /* individual beta gamma coinc spectra for each beta detector*/
-            if (hasBeta0 == 0) {
-                plot(betaGated::D_ENERGY_BETA0, gEnergy);
-            } else if (hasBeta1 == 1) {
-                plot(betaGated::D_ENERGY_BETA1, gEnergy);
+                granploty(multiNeutron::betaGated::DD_ENERGY__TIMEX,
+                          gEnergy, decayTime, timeResolution);
             }
         }
         
@@ -251,82 +213,32 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             ChanEvent *chan2 = *it2;
 
             double gEnergy2 = chan2->GetCalEnergy();            
-            symplot(DD_ENERGY, gEnergy, gEnergy2);
-            if (hasBeta)
-                symplot(betaGated::DD_ENERGY, gEnergy, gEnergy2);            
+            if (gEnergy2 < 1) 
+                continue;
 
             if (neutron_count == 1) {
                 symplot(neutron::DD_ENERGY, gEnergy, gEnergy2);            
                 if (hasBeta) {
-                    symplot(neutron::betaGated::DD_ENERGY, gEnergy, gEnergy2);            
+                    symplot(neutron::betaGated::DD_ENERGY,
+                            gEnergy, gEnergy2);            
                 }
             } else if (neutron_count > 1) {
                 symplot(multiNeutron::DD_ENERGY, gEnergy, gEnergy2);            
                 if (hasBeta) {
-                    symplot(multiNeutron::betaGated::DD_ENERGY, gEnergy, gEnergy2);            
+                    symplot(multiNeutron::betaGated::DD_ENERGY,
+                            gEnergy, gEnergy2);            
                 }
             }
         }
     } 
     
-    /* now we sort the germanium events according to their corrected time */
-    sort(geEvents_.begin(), geEvents_.end(), CompareCorrectedTime);
+    unsigned nEvents = tas_.size();
 
-    /** addbackEvents vector is arranged as pair where
-     *  first -> energy, second -> time
-     */
-    vector< pair<double, double> > addbackEvents[numClovers];
-
-    /* "TAS" vector for total energy absorbed */
-    vector< pair<double, double> > tas;
-
-    /** Give value in seconds  */
-    double subEventWindow = 200 * 1e-9;
-
-    subEventWindow = subEventWindow / pixie::clockInSeconds; 
-
-    /** guarantee the first event will be greater than the subevent window delayed from reference */
-    double refTime = -2.0 * subEventWindow; 
-
-    /** Do not take into account events with too low energy (avoid summing of noise with real gammas) */
-    const double addbackEnergyCut = 25;
-    
-    for (vector<ChanEvent*>::iterator it = geEvents_.begin(); it != geEvents_.end(); it++) {
-	ChanEvent *ch = *it;
-        double energy = ch->GetCalEnergy(); 
-        double time = ch->GetCorrectedTime();
-        int clover = leafToClover[ch->GetChanID().GetLocation()];
-
-        if (energy < addbackEnergyCut)
+    for (unsigned i = 0; i < nEvents; ++i) {
+        double gEnergy = tas_[i].first;
+        if (gEnergy < 1)
             continue;
 
-        /** entries in geEvents_ are sorted by time
-         * if current event time is outside of subEventWindow, we start new 
-         * events for all clovers and "tas"
-         */
-        if (abs(time - refTime) > subEventWindow) {
-            for (unsigned i = 0; i < numClovers; ++i) {
-                addbackEvents[i].push_back(pair<double, double>());
-            }
-            tas.push_back(pair<double, double>());
-        }
-        /* Total addback energy */
-        addbackEvents[clover].back().first += energy;
-        /* We store latest time only */
-        addbackEvents[clover].back().second = time;
-        tas.back().first += energy;
-        tas.back().second = time;
-        refTime = time;
-    }
-
-    unsigned nTas = tas.size();
-    for (unsigned i = 0; i < nTas; ++i) {
-        double gEnergy = tas[i].first;
-        if (gEnergy < 1) 
-            continue;
-        plot(D_ADD_ENERGY_TOTAL, gEnergy);
-        if (hasBeta)
-            plot(betaGated::D_ADD_ENERGY_TOTAL, gEnergy);
         if (neutron_count == 1) {
             plot(neutron::D_ADD_ENERGY_TOTAL, gEnergy);
             if (hasBeta) {
@@ -340,17 +252,14 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         }
     }
 
-    for (unsigned int ev = 0; ev < tas.size(); ev++) {
+    for (unsigned int ev = 0; ev < nEvents; ev++) {
         for (unsigned int det = 0; det < numClovers; ++det) {
-            double gEnergy = addbackEvents[det][ev].first;
-            double gTime = addbackEvents[det][ev].second;
+            double gEnergy = addbackEvents_[det][ev].first;
+            double gTime = addbackEvents_[det][ev].second;
             double decayTime = (gTime - cycleTime) * pixie::clockInSeconds;
-            if (gEnergy < 1) 
+            if (gEnergy < 1)
                 continue;
 
-            plot(D_ADD_ENERGY, gEnergy);
-            plot(D_ADD_ENERGY_CLOVERX + det, gEnergy);
-            granploty(DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
             if (neutron_count == 1) {
                 plot(neutron::D_ADD_ENERGY, gEnergy);
                 granploty(neutron::DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
@@ -367,19 +276,11 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
                 }
             }
 
-            if(hasBeta) {
-                plot(betaGated::D_ADD_ENERGY, gEnergy);
-                plot(betaGated::D_ADD_ENERGY_CLOVERX + det, gEnergy);
-                granploty(betaGated::DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
-            }
-
-            for (unsigned int det2 = det + 1; 
-                    det2 < numClovers; ++det2) {
-                double gEnergy2 = addbackEvents[det2][ev].first;
-                if (gEnergy2 < 1) 
+            for (unsigned int det2 = det + 1; det2 < numClovers; ++det2) {
+                double gEnergy2 = addbackEvents_[det2][ev].first;
+                if (gEnergy2 < 1)
                     continue;
 
-                symplot(DD_ADD_ENERGY, gEnergy, gEnergy2);
                 if (neutron_count == 1) {
                     symplot(neutron::DD_ADD_ENERGY, gEnergy, gEnergy2);
                     if (hasBeta) {
@@ -391,51 +292,10 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
                         symplot(multiNeutron::betaGated::DD_ADD_ENERGY, gEnergy, gEnergy2);
                     }
                 }
-                /*
-                * Early and late coincidences
-                * Only decay part of cycle can be taken
-                * Early coin. are between decay cycle start and some arb. point
-                * Late are between arb. point and end of cycle
-                */
-                if (!beamOn) {
-                    double decayCycleEarly = 0.5;
-                    double decayCycleEnd   = 1.0;
-                    // Beam fifo should be updated upon beam off event so
-                    // measure time from that point
-                    double decayTime = (gTime - TreeCorrelator::get().places["Beam"]->last().time) * pixie::clockInSeconds;
-                    if (decayTime < decayCycleEarly) {
-                        symplot(DD_ADD_ENERGY_EARLY, gEnergy, gEnergy2);
-                        if (hasBeta)
-                            symplot(betaGated::DD_ADD_ENERGY_EARLY, gEnergy, gEnergy2);
-                    } else if (decayTime < decayCycleEnd) {
-                        symplot(DD_ADD_ENERGY_LATE, gEnergy, gEnergy2);
-                        if (hasBeta)
-                            symplot(betaGated::DD_ADD_ENERGY_LATE, gEnergy, gEnergy2);
-                    }
-                }
-
-                if (hasBeta) {
-                    symplot(betaGated::DD_ADD_ENERGY, gEnergy, gEnergy2);
-                    double dTime = (int)(gTime - betaTime);
-                    
-                    /** Arbitrary chosen limits for prompt g-g
-                     * Compare Gamma-Beta time diff spectrum
-                     * to pick good numbers
-                     * compare both gamma times */
-                    const double promptLimit = 14.0;
-                    const double promptOnlyLimit = -8.0;
-
-                    if (dTime > promptLimit) {
-                        symplot(betaGated::DD_ADD_ENERGY_DELAYED, gEnergy, gEnergy2);
-                    } else if (dTime > promptOnlyLimit) {
-                        symplot(betaGated::DD_ADD_ENERGY_PROMPT, gEnergy, gEnergy2);
-                    }
-                }
             } // iteration over other clovers
         } // iteration over clovers
     } // iteration over events
 
-    geEvents_.clear();
     EndProcess(); 
     return true;
 }
