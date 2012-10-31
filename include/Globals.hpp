@@ -47,9 +47,8 @@ namespace pixie {
     /** Energies from pixie16 are contracted by this number.
      * Was 2.0 for older LeRIBBS
      * changed to 4.0 for LeRIBBS experiment (93Br)
-     * changed to 1.0 for 3Hen experiment
      * */
-    const double energyContraction = 1.0; 
+    const double energyContraction = 4.0; 
 };
 /** buffer and module data are terminated with a "-1" value
  *   also used to indicate when a quantity is out of range or peculiar
