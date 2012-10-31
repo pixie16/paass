@@ -24,7 +24,7 @@ namespace dammIds {
         */
 
         const int D_ENERGY              = 0;
-        const int D_ENERGY_CLOVERX      = 1; // leaf by clover for X detectors
+        const int D_ENERGY_CLOVERX      = 1; 
 
         const int D_ENERGY_LOWGAIN      = 7;
         const int D_ENERGY_HIGHGAIN     = 8;
@@ -36,10 +36,13 @@ namespace dammIds {
 
         // 2D spectra
         const int DD_ENERGY                = 100;
+        const int DD_TDIFF__GAMMA_GAMMA_ENERGY = 101;
+        const int DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM = 102;
         const int DD_CLOVER_ENERGY_RATIO   = 107;
         const int DD_ADD_ENERGY            = 150;
         const int DD_ADD_ENERGY_EARLY      = 151;
         const int DD_ADD_ENERGY_LATE       = 152;
+
         // Gamma-Gamma angular distribution
         const int DD_ANGLE__GATEX         = 155;
         const int DD_ENERGY__GATEX        = 156;
@@ -58,9 +61,9 @@ namespace dammIds {
             const int D_ADD_ENERGY_TOTAL   = 65; 
 
             // 2d spectra
-            const int DD_ENERGY              = 110; 
             const int DD_TDIFF__GAMMA_ENERGY = 105;
             const int DD_TDIFF__BETA_ENERGY  = 106;
+            const int DD_ENERGY              = 110; 
             const int DD_ADD_ENERGY          = 160; 
             const int DD_ADD_ENERGY_EARLY    = 161;
             const int DD_ADD_ENERGY_LATE     = 162;
@@ -108,6 +111,9 @@ protected:
     unsigned int numClovers;           /*!< number of clovers in map */
 
     double WalkCorrection(double e);
+    /** Returns true if gamma-beta correlation time within good limits*/
+    bool GoodGammaBeta(double gTime, double betaTime);
+
     vector<GGate> gGates;
     vector<ChanEvent*> geEvents_; /*!< Preprocessed good ge events, filled in PreProcess, removed in Process*/
 
@@ -116,6 +122,13 @@ protected:
 			       const std::vector<float> &granularity, const char *units );
     void granploty(int dammId, double x, double y, const std::vector<float> &granularity);
     void symplot(int dammID, double bin1, double bin2);
+
+    /** addbackEvents vector is arranged as:
+     * pair, first-> energy, second->time
+     */
+    vector< vector< pair<double, double> > > addbackEvents_;
+    /** tas vector for total energy absorbed, same structure as addback */
+    vector< pair<double, double> > tas_;
 
 public:
     GeProcessor(); // no virtual c'tors

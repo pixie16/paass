@@ -271,7 +271,7 @@ void DetectorDriver::InitializeCorrelator() {
 
     /* Thresholds for neutrons set here, see NeutronX places below */
     const double NEUTRON_LOW_LIMIT = 2500;
-    const double NEUTRON_HIGH_LIMIT = 3300;
+    const double NEUTRON_HIGH_LIMIT = 3400;
 
     // Basic places are created in MapFile.cpp
     // Here we group them as children of just created abstract places
