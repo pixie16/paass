@@ -50,6 +50,37 @@ namespace pixie {
      * */
     const double energyContraction = 4.0; 
 };
+
+/**
+ * Put here all detectors specific constants
+ * e.g (thresholds, time windows, etc.)
+ * */
+namespace detectors {
+    /**
+     * Ge clovers
+     */
+    /** Gamma energy low threshold. */
+    const double gammaThreshold = 10.0;
+    /** Subevent length for addback construction (in seconds). */
+    const double subEventWindow = 100 * 1e-9;
+    /** Low energy cut on addback, in keV. */
+    const double addbackEnergyCut = 25;
+    /** Prompt gamma-beta coincidence window (in seconds).*/
+    const double gammaBetaLimit = 200e-9;
+
+    /**
+     * Beta scintilators
+     */
+    const double betaThreshold = 10.0;
+
+    /**
+     * 3Hen
+     */
+    const double neutronLowLimit = 2500.0;
+    const double neutronHighLimit = 3400.0;
+
+};
+
 /** buffer and module data are terminated with a "-1" value
  *   also used to indicate when a quantity is out of range or peculiar
  *   this should theoretically be the same as UINT_MAX in climits header
