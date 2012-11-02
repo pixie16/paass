@@ -69,16 +69,20 @@ double GeProcessor::WalkCorrection(double e) {
     }
 }
 
-/** Takes times in pixie units */
-bool GeProcessor::GoodGammaBeta(double gTime, double betaTime) {
-    /** Limit for acceptance of gamma-beta correlation
-     *  Long enough to detect isomers sticking out of prompt events
-     */
-    const double gammaBetaLimit = 1e-6;
-    if (abs(gTime - betaTime) * pixie::clockInSeconds < gammaBetaLimit) 
-        return true;
-    else
-        return false;
+bool GeProcessor::GoodGammaBeta(double gTime, double limit_in_sec /*=200ns*/) {
+    bool isGood = false;
+    PlaceOR* betas = dynamic_cast<PlaceOR*>(
+                      TreeCorrelator::get().places["Beta"]);
+    for (deque<CorrEventData>::iterator it = betas->info_.begin();
+         it != betas->info_.end();
+         ++it) {
+        double dtime = abs(it->time - gTime) * pixie::clockInSeconds;
+        if (dtime < limit_in_sec) {
+            isGood = true;
+            break;
+        }
+    }
+    return isGood;
 }
 
 // useful function for symmetrically incrementing 2D plots
@@ -266,8 +270,6 @@ void GeProcessor::DeclarePlots(void)
 
     DeclareHistogram2D(betaGated::DD_ADD_ENERGY,
             energyBins2, energyBins2, "Beta-gated Gamma gamma addback");
-    DeclareHistogram2D(betaGated::DD_ADD_ENERGY_PROMPT,
-       energyBins2, energyBins2, "Beta-gated Gamma gamma addback, beta prompt");
     DeclareHistogram2D(betaGated::DD_ADD_ENERGY_DELAYED,
       energyBins2, energyBins2, "Beta-gated Gamma gamma addback, beta delayed");
     DeclareHistogram2D(betaGated::DD_ADD_ENERGY_EARLY, energyBins2, energyBins2, "Beta-gated Gamma gamma addback early decay cycle");
@@ -372,32 +374,28 @@ bool GeProcessor::PreProcess(RawEvent &event) {
 
     /** Here the addback spectra is constructed. */
 
-    /** Subevent width in nanoseconds */
-    double subEventWindow = 100 * 1e-9;
-    subEventWindow = subEventWindow / pixie::clockInSeconds; 
     /** guarantee the first event will be greater than
      * the subevent window delayed from reference
      */
-    double refTime = -2.0 * subEventWindow; 
+    double refTime = -2.0 * detectors::subEventWindow; 
 
     /** Do not take into account events with too low energy
      * (avoids summing of noise with real gammas)
      */ 
-    const double addbackEnergyCut = 25;
-    
     for (vector<ChanEvent*>::iterator it = geEvents_.begin(); it != geEvents_.end(); it++) {
         ChanEvent *chan = *it;
         double energy = chan->GetCalEnergy(); 
         double time = chan->GetCorrectedTime();
         int clover = leafToClover[chan->GetChanID().GetLocation()];
 
-        if (energy < addbackEnergyCut)
+        if (energy < detectors::addbackEnergyCut)
             continue;
 
         // entries in map are sorted by time
         // if event time is outside of subEventWindow, we start new 
         //   events for all clovers and "tas"
-        if (abs(time - refTime) > subEventWindow) {
+        double dtime = abs(time - refTime) * pixie::clockInSeconds;
+        if (dtime > detectors::subEventWindow) {
             for (unsigned i = 0; i < numClovers; ++i) {
                 addbackEvents_[i].push_back(pair<double, double>());
             }
@@ -469,30 +467,33 @@ bool GeProcessor::Process(RawEvent &event) {
         double decayTime = (gTime - cycleTime) 
                            * pixie::clockInSeconds;
         int det = leafToClover[chan->GetChanID().GetLocation()];
-        if (gEnergy < 10) 
+        if (gEnergy < detectors::gammaThreshold) 
             continue;
 
         plot(D_ENERGY, gEnergy);
         plot(D_ENERGY_CLOVERX + det, gEnergy);
         granploty(DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
 
-        if (hasBeta && GoodGammaBeta(gTime, betaTime)) {
+        if (hasBeta) {
             double dtime = (gTime - betaTime) * pixie::clockInSeconds;
-
-            plot(betaGated::D_ENERGY, gEnergy);
-            plot(betaGated::D_ENERGY_CLOVERX + det, gEnergy);
-            granploty(betaGated::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
 
             double plotResolution = 10e-9;
             plot(betaGated::DD_TDIFF__GAMMA_ENERGY,
                     (int)(dtime / plotResolution + 100), gEnergy);
             plot(betaGated::DD_TDIFF__BETA_ENERGY, 
                     (int)(dtime / plotResolution + 100), betaEnergy); 
-            // individual beta gamma coinc spectra for each beta detector
-            if (hasBeta0 == 0) {
-                plot(betaGated::D_ENERGY_BETA0, gEnergy);
-            } else if (hasBeta1 == 1) {
-                plot(betaGated::D_ENERGY_BETA1, gEnergy);
+
+            if (GoodGammaBeta(gTime)) {
+                plot(betaGated::D_ENERGY, gEnergy);
+                plot(betaGated::D_ENERGY_CLOVERX + det, gEnergy);
+                granploty(betaGated::DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+
+                // individual beta gamma coinc spectra for each beta detector
+                if (hasBeta0 == 0) {
+                    plot(betaGated::D_ENERGY_BETA0, gEnergy);
+                } else if (hasBeta1 == 1) {
+                    plot(betaGated::D_ENERGY_BETA1, gEnergy);
+                }
             }
         }
         
@@ -502,7 +503,7 @@ bool GeProcessor::Process(RawEvent &event) {
 
             double gEnergy2 = chan2->GetCalEnergy();            
             int det2 = leafToClover[chan2->GetChanID().GetLocation()];
-            if (gEnergy2 < 10) 
+            if (gEnergy2 < detectors::gammaThreshold) 
                 continue;
 
             /** Plot timediff between events in the same clover
@@ -518,7 +519,7 @@ bool GeProcessor::Process(RawEvent &event) {
             }
 
             symplot(DD_ENERGY, gEnergy, gEnergy2);
-            if (hasBeta && GoodGammaBeta(gTime, betaTime))
+            if (hasBeta && GoodGammaBeta(gTime))
                 symplot(betaGated::DD_ENERGY, gEnergy, gEnergy2);            
         } // iteration over other gammas
     } 
@@ -529,10 +530,10 @@ bool GeProcessor::Process(RawEvent &event) {
     for (unsigned i = 0; i < nEvents; ++i) {
         double gEnergy = tas_[i].first;
         double gTime = tas_[i].second;
-        if (gEnergy < 10)
+        if (gEnergy < detectors::gammaThreshold)
             continue;
         plot(D_ADD_ENERGY_TOTAL, gEnergy);
-        if (hasBeta && GoodGammaBeta(gTime, betaTime))
+        if (hasBeta && GoodGammaBeta(gTime))
             plot(betaGated::D_ADD_ENERGY_TOTAL, gEnergy);
     }
 
@@ -542,14 +543,14 @@ bool GeProcessor::Process(RawEvent &event) {
             double gEnergy = addbackEvents_[det][ev].first;
             double gTime = addbackEvents_[det][ev].second;
             double decayTime = (gTime - cycleTime) * pixie::clockInSeconds;
-            if (gEnergy < 10)
+            if (gEnergy < detectors::gammaThreshold)
                 continue;
 
             plot(D_ADD_ENERGY, gEnergy);
             plot(D_ADD_ENERGY_CLOVERX + det, gEnergy);
             granploty(DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
 
-            if (hasBeta && GoodGammaBeta(gTime, betaTime)) {
+            if (hasBeta && GoodGammaBeta(gTime)) {
                 plot(betaGated::D_ADD_ENERGY, gEnergy);
                 plot(betaGated::D_ADD_ENERGY_CLOVERX + det, gEnergy);
                 granploty(betaGated::DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
@@ -558,7 +559,7 @@ bool GeProcessor::Process(RawEvent &event) {
             for (unsigned int det2 = det + 1; 
                     det2 < numClovers; ++det2) {
                 double gEnergy2 = addbackEvents_[det2][ev].first;
-                if (gEnergy2 < 10)
+                if (gEnergy2 < detectors::gammaThreshold)
                     continue;
 
                 symplot(DD_ADD_ENERGY, gEnergy, gEnergy2);
@@ -576,35 +577,47 @@ bool GeProcessor::Process(RawEvent &event) {
                     double decayTime = (gTime - TreeCorrelator::get().places["Beam"]->last().time) * pixie::clockInSeconds;
                     if (decayTime < decayCycleEarly) {
                         symplot(DD_ADD_ENERGY_EARLY, gEnergy, gEnergy2);
-                        if (hasBeta && GoodGammaBeta(gTime, betaTime)) 
-                            symplot(betaGated::DD_ADD_ENERGY_EARLY, gEnergy, gEnergy2);
+                        if (hasBeta && GoodGammaBeta(gTime)) 
+                            symplot(betaGated::DD_ADD_ENERGY_EARLY,
+                                    gEnergy, gEnergy2);
                     } else if (decayTime < decayCycleEnd) {
                         symplot(DD_ADD_ENERGY_LATE, gEnergy, gEnergy2);
-                        if (hasBeta && GoodGammaBeta(gTime, betaTime)) 
-                            symplot(betaGated::DD_ADD_ENERGY_LATE, gEnergy, gEnergy2);
+                        if (hasBeta && GoodGammaBeta(gTime)) 
+                            symplot(betaGated::DD_ADD_ENERGY_LATE,
+                                    gEnergy, gEnergy2);
                     }
                 }
                 if (hasBeta) {
-                    if (GoodGammaBeta(gTime, betaTime))
+                    if (GoodGammaBeta(gTime)) {
                         symplot(betaGated::DD_ADD_ENERGY, gEnergy, gEnergy2);
-                    double dTime = (int)(gTime - betaTime);
-                    
-                    // Arbitrary chosen limits
-                    // Compare Gamma-Beta time diff spectrum
-                    // to pick good numbers
-                    //? compare both gamma times
-                    const double promptLimit = 14.0;
-                    const double promptOnlyLimit = -8.0;
-
-                    if (dTime > promptLimit) {
-                        symplot(betaGated::DD_ADD_ENERGY_DELAYED, gEnergy, gEnergy2);
-                    } else if (dTime > promptOnlyLimit) {
-                        symplot(betaGated::DD_ADD_ENERGY_PROMPT, gEnergy, gEnergy2);
+                    } else {
+                        PlaceOR* betas = dynamic_cast<PlaceOR*>(
+                                        TreeCorrelator::get().places["Beta"]);
+                        vector<double> beta_time;
+                        for (deque<CorrEventData>::iterator it =
+                             betas->info_.begin();
+                             it != betas->info_.end();
+                             ++it)
+                                beta_time.push_back(it->time);
+                        sort(beta_time.begin(), beta_time.end());
+                        double delayedTime = -1.0;
+                        for (unsigned i = 0; i < beta_time.size(); ++i) {
+                            double time = gTime - beta_time[i];
+                            if (time < 0)
+                                break;
+                            delayedTime = time;
+                        }
+                        delayedTime = delayedTime * pixie::clockInSeconds;
+                        if (delayedTime > detectors::gammaBetaLimit)
+                            symplot(betaGated::DD_ADD_ENERGY_DELAYED,
+                                    gEnergy, gEnergy2);
                     }
-                        } // has beta
+                }
+                    
 #ifdef GGATES
-                    // Gamma-gamma angular
-                    // and gamma-gamma gate
+                    /**
+                     * Gamma-gamma angular and gamma-gamma gate
+                     */
                     unsigned ngg = gGates.size();
                     for (unsigned ig = 0; ig < ngg; ++ig) {
                         double g1min = 0;
@@ -628,25 +641,26 @@ bool GeProcessor::Process(RawEvent &event) {
                                 (e2 >= g2min && e2 <= g2max) ) {
                             if (det % 2 != det2 % 2) {
                                 plot(DD_ANGLE__GATEX, 1, ig);
-                                if (hasBeta)
+                                if (hasBeta && GoodGammaBeta(gTime))
                                     plot(betaGated::DD_ANGLE__GATEX, 1, ig);
                             } else {
                             plot(DD_ANGLE__GATEX, 2, ig);
-                                if (hasBeta)
+                                if (hasBeta && GoodGammaBeta(gTime))
                                     plot(betaGated::DD_ANGLE__GATEX, 2, ig);
                             }
                             for (unsigned det3 = det2 + 1;
                                     det3 < numClovers; ++det3) {
                                 double gEnergy3 = addbackEvents_[det3][ev].energy;
-                                if (gEnergy3 < 1)
+                                if (gEnergy3 < detectors::gammaThreshold)
                                     continue;
                                 plot(DD_ENERGY__GATEX, gEnergy3, ig);
-                                if (hasBeta)
+                                if (hasBeta && GoodGammaBeta(gTime))
                                     plot(betaGated::DD_ENERGY__GATEX, gEnergy3, ig);
                             }
                         }
                     } //for ig
 #endif
+
             } // iteration over other clovers
         } // itertaion over clovers
     } // iteration over events

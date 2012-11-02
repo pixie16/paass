@@ -15,30 +15,27 @@ using namespace dammIds::beta_scint;
 
 namespace dammIds {
     namespace beta_scint {
+        const int D_MULT_BETA = 0;
     }
 } 
 
-BetaScintProcessor::BetaScintProcessor() : EventProcessor(OFFSET, RANGE)
-{
+BetaScintProcessor::BetaScintProcessor() : EventProcessor(OFFSET, RANGE) {
     name = "beta_scint";
     associatedTypes.insert("beta_scint"); 
 }
 
-void BetaScintProcessor::DeclarePlots(void)
-{
-
+void BetaScintProcessor::DeclarePlots(void) {
+    DeclareHistogram1D(D_MULT_BETA, S4, "Beta multiplicity");
 }
 
 bool BetaScintProcessor::PreProcess(RawEvent &event){
     if (!EventProcessor::PreProcess(event))
         return false;
 
-    // Beta energy threshold
-    static const int BETA_THRESHOLD = 10;
-
     static const vector<ChanEvent*> &scintBetaEvents = 
 	event.GetSummary("beta_scint:beta")->GetList();
 
+    int multiplicity = 0;
     for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin(); 
 	 it != scintBetaEvents.end(); it++) {
         string place = (*it)->GetChanID().GetPlaceName();
@@ -46,7 +43,8 @@ bool BetaScintProcessor::PreProcess(RawEvent &event){
             double time   = (*it)->GetTime();
             double energy = (*it)->GetEnergy();
             // Activate B counter only for betas above some threshold
-            if (energy > BETA_THRESHOLD) {
+            if (energy > detectors::betaThreshold) {
+                ++multiplicity;
                 CorrEventData data(time, true, energy);
                 TreeCorrelator::get().places[place]->activate(data);
             }
@@ -56,6 +54,7 @@ bool BetaScintProcessor::PreProcess(RawEvent &event){
             return false;
         }
     }
+    plot(D_MULT_BETA, multiplicity);
     return true;
 }
 

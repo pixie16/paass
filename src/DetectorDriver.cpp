@@ -225,10 +225,15 @@ void DetectorDriver::InitializeCorrelator() {
     PlaceOR* clover3 = new PlaceOR();
     TreeCorrelator::get().addPlace("Clover3", clover3, verbose::CORRELATOR_INIT);
 
-    //Note that beta_scint detectors are acticated in BetaScintProcessor
-    //with threshold on energy defined therein.
-    //This place is also sensitive to this threshold as parent of beta places.
-    PlaceOR* beta = new PlaceOR();
+    /** Note that beta_scint detectors are acticated in BetaScintProcessor
+     *  with threshold on energy defined therein.
+     *  This place is also sensitive to this threshold as parent of beta places.
+     *
+     *  Fifo of this place is increased to accomodate multiplicity of beta
+     *  events for longer events width. Check appopriate plot if depth is
+     *  large enough.
+     */
+    PlaceOR* beta = new PlaceOR(true, 10);
     TreeCorrelator::get().addPlace("Beta", beta, verbose::CORRELATOR_INIT);
     
     // All Hen3 events
@@ -269,10 +274,6 @@ void DetectorDriver::InitializeCorrelator() {
 
     extern DetectorLibrary modChan;
 
-    /* Thresholds for neutrons set here, see NeutronX places below */
-    const double NEUTRON_LOW_LIMIT = 2500;
-    const double NEUTRON_HIGH_LIMIT = 3400;
-
     // Basic places are created in MapFile.cpp
     // Here we group them as children of just created abstract places
     unsigned int sz = modChan.size();
@@ -294,7 +295,8 @@ void DetectorDriver::InitializeCorrelator() {
         } else if (type == "3hen" && subtype == "big") {
             stringstream neutron;
             neutron << "Neutron" << location;
-            PlaceThreshold* real_neutron  = new PlaceThreshold(NEUTRON_LOW_LIMIT, NEUTRON_HIGH_LIMIT);
+            PlaceThreshold* real_neutron  = new PlaceThreshold(detectors::neutronLowLimit,
+                                                               detectors::neutronHighLimit);
             TreeCorrelator::get().addPlace(neutron.str(), real_neutron, verbose::CORRELATOR_INIT);
 
             TreeCorrelator::get().addChild("Hen3", name.str(), true, verbose::CORRELATOR_INIT);
