@@ -67,10 +67,9 @@ namespace dammIds {
             const int DD_ADD_ENERGY          = 160; 
             const int DD_ADD_ENERGY_EARLY    = 161;
             const int DD_ADD_ENERGY_LATE     = 162;
-            const int DD_ADD_ENERGY_PROMPT   = 163;
-            const int DD_ADD_ENERGY_DELAYED  = 164;
-            const int DD_ANGLE__GATEX        = 165; 
-            const int DD_ENERGY__GATEX       = 166; 
+            const int DD_ADD_ENERGY_DELAYED  = 163;
+            const int DD_ANGLE__GATEX        = 164; 
+            const int DD_ENERGY__GATEX       = 165; 
             const int DD_ENERGY__TIMEX       = 131; 
             const int DD_ADD_ENERGY__TIMEX   = 181;
         }
@@ -111,8 +110,10 @@ protected:
     unsigned int numClovers;           /*!< number of clovers in map */
 
     double WalkCorrection(double e);
-    /** Returns true if gamma-beta correlation time within good limits*/
-    bool GoodGammaBeta(double gTime, double betaTime);
+    /** Returns true if gamma-beta correlation time within good limits. Browses through all beta
+     * events in Beta correlation place to find lowest difference. Takes gTime in pixie clock, limit in
+     * seconds. */
+    bool GoodGammaBeta(double gTime, double limit_in_sec = detectors::gammaBetaLimit);
 
     vector<GGate> gGates;
     vector<ChanEvent*> geEvents_; /*!< Preprocessed good ge events, filled in PreProcess, removed in Process*/
