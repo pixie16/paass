@@ -23,8 +23,6 @@ REVISIONF = 1
 
 # Use gfortran
 HHIRF_GFORTRAN = 1
-# Libs in HHIRF DIR
-LIBS_IN_HHIRF = 1
 
 #These will set the analysis used on the waveforms
 #Uncomment this line to use the Pulse Fitting routine
@@ -45,20 +43,9 @@ ifeq ($(HHIRF_DIR),)
 HHIRF_DIR = /usr/hhirf
 endif
 
-ifneq ($(LIBS_IN_HHIRF),)
-ACQ2_LIBDIR = $(HHIRF_DIR)
-else
-ifeq ($(ACQ2_LIBDIR),)
-ifneq ($(ACQ2_DIR),) 
-ACQ2_LIBDIR = $(ACQ2_DIR)
-else
-ACQ2_LIBDIR = /usr/acq2/lib
-endif
-endif
-endif
-
-LIBS = $(HHIRF_DIR)/scanorlib.a $(HHIRF_DIR)/orphlib.a \
-       $(ACQ2_LIBDIR)/acqlib.a  $(ACQ2_LIBDIR)/ipclib.a
+LIBS = $(HHIRF_DIR)/scanorlib.a $(HHIRF_DIR)/orphlib.a
+# Not needed when using scanof.f
+# $(ACQ2_LIBDIR)/acqlib.a  $(ACQ2_LIBDIR)/ipclib.a
 
 OutPutOpt     = -o # keep whitespace after "-o"
 ObjSuf        = o
@@ -90,7 +77,7 @@ LINK.o    = $(FC) $(LDFLAGS)
 FFLAGS   += -O3
 GCCFLAGS += -fPIC $(CINCLUDEDIRS) -Dnewreadout
 CXXFLAGS += -Wall -fPIC $(CINCLUDEDIRS) -Dnewreadout
-# CXXFLAGS += -Wall $(CINCLUDEDIRS) -Dnewreadout
+
 ifdef REVISIOND
 CXXFLAGS += -DREVD
 endif
@@ -129,7 +116,7 @@ endif
 SET2CCO          = set2cc.$(ObjSuf)
 MESSLOGO         = messlog.$(ObjSuf)
 MILDATIMO        = mildatim.$(ObjSuf)
-SCANORUXO        = scanorux.$(ObjSuf)
+SCANOFO          = scanof.$(ObjSuf)
 
 # objects from cpp
 PIXIEO           = PixieStd.$(ObjSuf)
@@ -161,7 +148,7 @@ POSITIONPROCESSORO = PositionProcessor.$(ObjSuf)
 RANDOMPOOLO      = RandomPool.$(ObjSuf)
 RAWEVENTO        = RawEvent.$(ObjSuf)
 ROOTPROCESSORO   = RootProcessor.$(ObjSuf)
-PLACESO = Places.$(ObjSuf)
+PLACESO          = Places.$(ObjSuf)
 PULSERPROCESSORO = PulserProcessor.$(ObjSuf)
 ACCUMULATORO     = StatsAccumulator.$(ObjSuf)
 SSDPROCESSORO    = SsdProcessor.$(ObjSuf)
@@ -169,7 +156,7 @@ STATSDATAO       = StatsData.$(ObjSuf)
 TAUANALYZERO     = TauAnalyzer.$(ObjSuf)
 TIMINGINFOO      = TimingInformation.$(ObjSuf)
 TRIGGERLOGICPROCESSORO = TriggerLogicProcessor.$(ObjSuf)
-TRACEO = Trace.$(ObjSuf)
+TRACEO           = Trace.$(ObjSuf)
 TRACEEXTRACTERO  = TraceExtracter.$(ObjSuf)
 TRACEFILTERO     = TraceFilterer.$(ObjSuf)
 TRACEPLOTO       = TracePlotter.$(ObjSuf)
@@ -200,21 +187,53 @@ endif
 endif
 
 #----- list of objects
-OBJS   = $(READBUFFDATAO) $(SET2CCO) $(PLOTSREGISTERO) $(PLOTSO) \
-	$(DSSDSUBO) $(DETECTORDRIVERO) \
-	$(MTCPROCESSORO) $(MCPPROCESSORO) $(LOGICPROCESSORO) $(CORRELATORO) \
-    $(PLACESO) $(TRACESUBO) \
-	$(TRACEO) $(TRACEPLOTO) $(TRACEFILTERO) $(DOUBLETRACEO) \
-	$(MESSLOGO) $(MILDATIMO) $(SCANORUXO) $(ACCUMULATORO) \
-	$(HISTOGRAMMERO) $(EVENTPROCESSORO) $(BETASCINTPROCESSORO) \
-	$(NEUTRONSCINTPROCESSORO) $(LIQUIDSCINTPROCESSORO) \
-	$(GEPROCESSORO) $(GE4HEN3PROCESSORO) $(DSSDPROCESSORO) $(RAWEVENTO) $(RANDOMPOOLO) \
-	$(SSDPROCESSORO) $(ISSDPROCESSORO) $(TAUANALYZERO) $(HEN3PROCESSORO) \
-	$(TRIGGERLOGICPROCESSORO) $(TRACEEXTRACTERO) $(IONCHAMBERPROCESSORO) \
-	$(STATSDATAO) $(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO) \
-	$(POSITIONPROCESSORO) $(MAPFILEO) $(DETECTORLIBRARYO) \
-	$(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO) $(TIMINGINFOO) \
-	$(PIXIEO) 
+OBJS   = \
+$(SET2CCO)\
+$(MESSLOGO)\
+$(MILDATIMO)\
+$(SCANOFO)\
+$(READBUFFDATAO)\
+$(PIXIEO)\
+$(BETASCINTPROCESSORO)\
+$(CORRELATORO)\
+$(HISTOGRAMMERO)\
+$(DETECTORDRIVERO)\
+$(DETECTORLIBRARYO)\
+$(DOUBLETRACEO)\
+$(DSSDPROCESSORO)\
+$(EVENTPROCESSORO)\
+$(GEPROCESSORO)\
+$(GE4HEN3PROCESSORO)\
+$(HEN3PROCESSORO)\
+$(ISSDPROCESSORO)\
+$(IONCHAMBERPROCESSORO)\
+$(LIQUIDSCINTPROCESSORO)\
+$(LOGICPROCESSORO)\
+$(MAPFILEO)\
+$(MCPPROCESSORO)\
+$(MTCPROCESSORO)\
+$(NEUTRONSCINTPROCESSORO)\
+$(PLOTSO)\
+$(PLOTSREGISTERO)\
+$(POSITIONPROCESSORO)\
+$(RANDOMPOOLO)\
+$(RAWEVENTO)\
+$(PLACESO)\
+$(PULSERPROCESSORO)\
+$(ACCUMULATORO)\
+$(SSDPROCESSORO)\
+$(STATSDATAO)\
+$(TAUANALYZERO)\
+$(TIMINGINFOO)\
+$(TRIGGERLOGICPROCESSORO)\
+$(TRACEO)\
+$(TRACEEXTRACTERO)\
+$(TRACEFILTERO)\
+$(TRACEPLOTO)\
+$(TRACESUBO)\
+$(VANDLEPROCESSORO)\
+$(WAVEFORMSUBO)\
+$(WAVEFORMSUBO)
 
 ifdef PULSEFIT
 OBJS += $(FITTINGANALYZERO)
@@ -231,13 +250,13 @@ PROGRAMS = $(PIXIE)
 #------------ adjust compilation if ROOT capability is desired -------
 ifdef USEROOT
 ROOTCONFIG   := root-config
-
 #no uncomment ROOTCLFAGS   := $(filter-out pthread,$(ROOTCFLAGS))
 CXXFLAGS     += $(shell $(ROOTCONFIG) --cflags) -Duseroot
 LDFLAGS      += $(shell $(ROOTCONFIG) --ldflags)
 LDLIBS       := $(shell $(ROOTCONFIG) --libs)
 endif
 
+#------------ Compile with Gamma-Gamma gates support in GeProcessor
 ifdef GGATES
 CXXFLAGS	+= -DGGATES
 endif
