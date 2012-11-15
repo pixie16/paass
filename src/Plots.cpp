@@ -27,13 +27,11 @@ extern "C" void hd2d_(const int &, const int &, const int &, const int &,
 		      const int &, const int &, const int &, const int &,
 		      const int &, const int &, const char *, int);
 
-PlotsRegister* Plots::plots_register_ = PlotsRegister::R();
-
 Plots::Plots(int offset, int range)
 {  
     offset_ = offset;
     range_  = range;
-    plots_register_->Add(offset_, range_);
+    PlotsRegister::R()->Add(offset_, range_);
 }
 
 /**
