@@ -104,10 +104,10 @@ using namespace dammIds::raw;
 DetectorDriver::DetectorDriver() : 
     histo(OFFSET, RANGE) 
 {
-    //vecProcess.push_back(new GeProcessor()); 
+    vecProcess.push_back(new GeProcessor()); 
     // Or use instead (never together
-    vecProcess.push_back(new Ge4Hen3Processor()); 
-    vecProcess.push_back(new Hen3Processor()); 
+    //vecProcess.push_back(new Ge4Hen3Processor()); 
+    //vecProcess.push_back(new Hen3Processor()); 
     vecProcess.push_back(new MtcProcessor());
 
 #if defined(pulsefit) || defined(dcfd)
@@ -236,14 +236,6 @@ void DetectorDriver::InitializeCorrelator() {
     PlaceOR* beta = new PlaceOR(true, 10);
     TreeCorrelator::get().addPlace("Beta", beta, verbose::CORRELATOR_INIT);
     
-    // All Hen3 events
-    PlaceCounter* hen3 = new PlaceCounter();
-    TreeCorrelator::get().addPlace("Hen3", hen3, verbose::CORRELATOR_INIT);
-
-    // Real neutrons (children are thresholded)
-    PlaceCounter* neutrons = new PlaceCounter();
-    TreeCorrelator::get().addPlace("Neutrons", neutrons, verbose::CORRELATOR_INIT);
-
     PlaceOR* gamma = new PlaceOR();
     TreeCorrelator::get().addPlace("Gamma", gamma, verbose::CORRELATOR_INIT);
     TreeCorrelator::get().addChild("Gamma", "Clover0", true, verbose::CORRELATOR_INIT);
@@ -292,15 +284,6 @@ void DetectorDriver::InitializeCorrelator() {
             TreeCorrelator::get().addChild(clover.str(), name.str(), true, verbose::CORRELATOR_INIT);
         } else if (type == "beta_scint" && subtype == "beta") {
             TreeCorrelator::get().addChild("Beta", name.str(), true, verbose::CORRELATOR_INIT);
-        } else if (type == "3hen" && subtype == "big") {
-            stringstream neutron;
-            neutron << "Neutron" << location;
-            PlaceThreshold* real_neutron  = new PlaceThreshold(detectors::neutronLowLimit,
-                                                               detectors::neutronHighLimit);
-            TreeCorrelator::get().addPlace(neutron.str(), real_neutron, verbose::CORRELATOR_INIT);
-
-            TreeCorrelator::get().addChild("Hen3", name.str(), true, verbose::CORRELATOR_INIT);
-            TreeCorrelator::get().addChild("Neutrons", neutron.str(), true, verbose::CORRELATOR_INIT);
         }
     }
     /** End setup for LeRIBBS */
