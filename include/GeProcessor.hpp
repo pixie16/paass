@@ -100,6 +100,15 @@ class GGate {
         double g2max;
 };
 
+/** This class is to compare gamma - beta time differences in function
+ * GeProcessor::GammaBetaDtime(). */
+class CompareTimes {
+    public:
+        bool operator()(double first, double second) {
+            return abs(first) < abs(second);
+        }
+};
+
 class GeProcessor : public EventProcessor
 {
 protected:
@@ -110,6 +119,11 @@ protected:
     unsigned int numClovers;           /*!< number of clovers in map */
 
     double WalkCorrection(double e);
+
+    /** Returns lowest difference between gamma and beta times. Takes gTime in pixie clock units.
+     * returns value in seconds. */
+    double GammaBetaDtime(double gTime);
+
     /** Returns true if gamma-beta correlation time within good limits. Browses through all beta
      * events in Beta correlation place to find lowest difference. Takes gTime in pixie clock, limit in
      * seconds. */
