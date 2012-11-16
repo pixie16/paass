@@ -166,6 +166,7 @@ bool Plots::Plot(int dammId, double val1, double val2, double val3, const char* 
       val3   - weight in a 2d
       name   - name of a root spectrum (NOT CURRENTLY USED)
     */
+
     if (!Exists(dammId))
         return false;
 
