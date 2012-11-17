@@ -20,23 +20,11 @@
 
 using namespace std;
 
-const string MapFile::defaultFile("map2.txt");
-
 /**
  * Contains the description of each channel in the analysis.  The
  * description is read in from map.txt and includes the detector type and 
  * subtype, the damm spectrum number, and physical location
  */
-DetectorLibrary modChan;
-
-MapFile theMapFile(MapFile::defaultFile);
-// This strangely segfaults by calling the constructor repeatedly
-// MapFile theMapFile;
-
-MapFile::MapFile()
-{
-    MapFile(defaultFile);
-}
 
 /**
  * Read in a map file 
@@ -44,8 +32,9 @@ MapFile::MapFile()
  *   this allows us to define the operation of the program dependent
  *   on what detector types show up in the map
  */
-MapFile::MapFile(const string &filename)
+MapFile::MapFile(const string &filename /*="map2.txt"*/)
 {  
+    cout << "MapFile: loading map file " << filename << endl;
     const size_t maxConfigLineLength = 100;
     
     char line[maxConfigLineLength];
@@ -90,12 +79,17 @@ MapFile::MapFile(const string &filename)
     // now we parse each tokenized line, processing wildcard lines afterwards
     for (vector< vector<string> >::iterator it = normalLines.begin();
 	 it != normalLines.end(); it++) {
-	ProcessTokenList(*it);
+        ProcessTokenList(*it);
     }
     for (vector< vector<string> >::iterator it = wildcardLines.begin();
 	 it != wildcardLines.end(); it++) {
-	ProcessTokenList(*it);
+        ProcessTokenList(*it);
     }
+
+    /* At this point basic Correlator places build automatically from
+     * map file should be created so we can call buildTree function */
+    TreeCorrelator::get()->buildTree();
+
     isRead = true;
 }
 
@@ -129,7 +123,7 @@ void MapFile::TokenizeString(const string &in, vector<string> &out) const
  */
 void MapFile::ProcessTokenList(const vector<string> &tokenList) const
 {
-    extern DetectorLibrary modChan;
+    DetectorLibrary* modChan = DetectorLibrary::get();
     
     vector<int> moduleList;
     vector<int> channelList;
@@ -137,7 +131,7 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
     vector<string>::const_iterator tokenIt = tokenList.begin();
 
     // first token corresponds to module list
-    TokenToVector(*tokenIt++, moduleList, modChan.GetModules() );
+    TokenToVector(*tokenIt++, moduleList, modChan->GetModules() );
     // second token corresponds to channel list
     TokenToVector(*tokenIt++, channelList, pixie::numberOfChannels);
     // third token corresponds to detector type
@@ -172,7 +166,7 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
         stringstream(*tokenIt) >> startingLocation;
         tokenIt++;
     } else {
-        startingLocation = modChan.GetNextLocation(type, subtype);
+        startingLocation = modChan->GetNextLocation(type, subtype);
     }
 
     // process additional identifiers as key=integer or toggling boolean flag to true (1)
@@ -195,7 +189,7 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
         for (vector<int>::iterator chanIt = channelList.begin();
             chanIt != channelList.end(); chanIt++) {
             // check if this channel has already been defined
-            if ( modChan.HasValue(*modIt, *chanIt) ) {
+            if ( modChan->HasValue(*modIt, *chanIt) ) {
             // if this is a wildcard line, just continue
             if (HasWildcard(tokenList.at(0)) ||
                 HasWildcard(tokenList.at(1))) {
@@ -209,7 +203,7 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
             }
 
             id.SetLocation(startingLocation);
-            modChan.Set(*modIt, *chanIt, id);
+            modChan->Set(*modIt, *chanIt, id);
 
             /* 
              * Create basic places for correlator
@@ -219,10 +213,7 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
              * see also RawEvent.hpp, Identifier::GetPlaceName()
              */
 
-            /* Use this constant for debugging.*/
-            const bool VERBOSE = false;
-            PlaceDetector* place = new PlaceDetector();
-            TreeCorrelator::get().addPlace(id.GetPlaceName(), place, VERBOSE);
+            TreeCorrelator::get()->addBasicPlace(id.GetPlaceName());
 
             startingLocation++;
         }

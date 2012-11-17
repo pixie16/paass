@@ -16,7 +16,6 @@ class VandleProcessor : public EventProcessor,
     VandleProcessor(); // no virtual c'tors
     virtual void DeclarePlots(void);
     virtual bool Process(RawEvent &event);
-    virtual bool Init(DetectorDriver &);
      
  protected:
     //define the maps

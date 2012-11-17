@@ -60,6 +60,7 @@ class Place {
         }
 
         virtual ~Place() {
+            cout << "~Place" << endl;
         }
 
         /** Defines 'child' of place. A child will report any

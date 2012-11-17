@@ -10,7 +10,6 @@ Original M. Madurga
 #include <cmath>
 
 #include "DammPlotIds.hpp"
-#include "DetectorDriver.hpp"
 #include "RawEvent.hpp"
 #include "VandleProcessor.hpp"
 
@@ -94,17 +93,6 @@ VandleProcessor::VandleProcessor(): EventProcessor(dammIds::vandle::OFFSET, damm
     associatedTypes.insert("vandleSmall"); 
     associatedTypes.insert("vandleBig");
     associatedTypes.insert("tvandle");
-}
-
-
-//********** Init **********
-bool VandleProcessor::Init(DetectorDriver &driver)
-{
-    if(EventProcessor::Init(driver)){
-	return(true);
-    }  else {
-	return(false);
-    }
 }
 
 

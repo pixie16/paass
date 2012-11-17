@@ -28,26 +28,27 @@ RootProcessor::RootProcessor(const char *fileName, const char *treeName)
 }
 
 /** Add branches to the tree from the event processors in the driver */
-bool RootProcessor::Init(DetectorDriver &driver)
+bool RootProcessor::Init()
 {
-  if (file == NULL || tree == NULL) {
-    cout << "Failed to create ROOT objects for "
-	 << name << " processor" << endl;
-    return false;
-  }
+    DetectorDriver* driver = DetectorDriver::get();
+    if (file == NULL || tree == NULL) {
+        cout << "Failed to create ROOT objects for "
+        << name << " processor" << endl;
+        return false;
+    }
 
-  const vector<EventProcessor *>& drvProcess = driver.GetProcessors();
+    const vector<EventProcessor *>& drvProcess = driver->GetProcessors();
 
-  for (vector<EventProcessor *>::const_iterator it = drvProcess.begin();
-       it != drvProcess.end(); it++) {
-    if ((*it)->AddBranch(tree)) {
-      vecProcess.push_back(*it);
-      set_union( (*it)->GetTypes().begin(), (*it)->GetTypes().end(),
-		 associatedTypes.begin(), associatedTypes.end(),
-		 inserter(associatedTypes, associatedTypes.begin()) );
-    }	  
-  } 
-  return EventProcessor::Init(driver);
+    for (vector<EventProcessor *>::const_iterator it = drvProcess.begin();
+        it != drvProcess.end(); it++) {
+        if ((*it)->AddBranch(tree)) {
+        vecProcess.push_back(*it);
+        set_union( (*it)->GetTypes().begin(), (*it)->GetTypes().end(),
+            associatedTypes.begin(), associatedTypes.end(),
+            inserter(associatedTypes, associatedTypes.begin()) );
+        }	  
+    } 
+    return EventProcessor::Init();
 }
 
 /** Fill the tree for each event, saving to file occasionally */

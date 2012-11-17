@@ -24,7 +24,6 @@ using std::endl;
 using std::min;
 using std::stringstream;
 
-extern DetectorDriver driver; // need this to get the logic event processor
 /*! ecutoff for 108Xe experiment where each bin is roughly 4 keV
  *  ... implants deposit above 18 MeV
  */
@@ -228,13 +227,14 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
     static const DetectorSummary *mcpSummary  = event.GetSummary("logic:mcp", true);
     static const DetectorSummary *vetoSummary = event.GetSummary("ssd:veto", true);
     static const DetectorSummary *boxSummary  = event.GetSummary("ssd:box", true);
+    DetectorDriver* driver = DetectorDriver::get();
 
     if (impSummary->GetMult() == 0) {
       EndProcess();
       return false;
     }
     if (firstTime) {
-      vector<EventProcessor *> vecProc = driver.GetProcessors("logic");
+      vector<EventProcessor *> vecProc = driver->GetProcessors("logic");
       for (vector< EventProcessor * >::iterator it = vecProc.begin(); it != vecProc.end(); it++) {
 	if ( (*it)->GetName() == "triggerlogic" || (*it)->GetName() == "logic" ) {
 	  logProc = reinterpret_cast < LogicProcessor * >(*it);
@@ -393,7 +393,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
     if (info.pileUp) {
 	double trigTime = info.time;
 
-	info.energy = driver.cal.at(ch->GetID()).Calibrate(trace.GetValue("filterEnergy2"));
+	info.energy = driver->cal.at(ch->GetID()).Calibrate(trace.GetValue("filterEnergy2"));
 	info.time   = trigTime + trace.GetValue("filterTime2") - trace.GetValue("filterTime");
 	
 	SetType(info);	
@@ -407,7 +407,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	    for (int i=3; i <= numPulses; i++) {
 		stringstream str;
 		str << "filterEnergy" << i;
-		info.energy = driver.cal.at(ch->GetID()).Calibrate(trace.GetValue(str.str()));
+		info.energy = driver->cal.at(ch->GetID()).Calibrate(trace.GetValue(str.str()));
 		str.str(""); // clear it
 		str << "filterTime" << i;
 		info.time   = trigTime + trace.GetValue(str.str()) - trace.GetValue("filterTime");

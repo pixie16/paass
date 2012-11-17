@@ -46,7 +46,6 @@
 
 #include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
-#include "MapFile.hpp"
 #include "RawEvent.hpp"
 #include "DammPlotIds.hpp"
 #include "Globals.hpp"
@@ -58,21 +57,15 @@ using namespace std;
 using namespace dammIds::raw;
 using pixie::word_t;
 
-extern DetectorLibrary modChan;
-
 /**
  * Contains event information, the information is filled in ScanList() and is 
  * referenced externally in DetectorDriver.cpp, particularly in ProcessEvent()
  */
 RawEvent rawev;
 
-/** Driver used to process the raw events */
-DetectorDriver driver;
-
 enum HistoPoints {BUFFER_START, BUFFER_END, EVENT_START = 10, EVENT_CONTINUE};
 
 // Function forward declarations
-bool InitMap(void);
 void ScanList(vector<ChanEvent*> &eventList);
 void RemoveList(vector<ChanEvent*> &eventList);
 void HistoStats(unsigned int, double, double, HistoPoints);
@@ -357,6 +350,11 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 
     vector<ChanEvent*> eventList; // vector to hold the events
 
+    /* Pointer to singleton DetectorLibrary class */
+    DetectorLibrary* modChan = DetectorLibrary::get();
+    /* Pointer to singleton DetectorDriver class */
+    DetectorDriver* driver = DetectorDriver::get();
+
     // local version of ibuf pointer
     word_t *lbuf;
 
@@ -403,24 +401,20 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 	 * vector, the DetectorDriver and rawevent have been initialized with the
 	 * detectors that will be used in this analysis.
 	 */
-    if (!InitMap()) {
-        exit(EXIT_FAILURE);
-    }       
-
     cout << "Using event width " << pixie::eventInSeconds * 1e6 << " us" << endl
          << "                  " << pixie::eventWidth
          << " in pixie16 clock tics." << endl;
 
-	modChan.PrintUsedDetectors();
+	modChan->PrintUsedDetectors();
     if (verbose::MAP_INIT)
-        modChan.PrintMap();
+        modChan->PrintMap();
 
-	driver.Init();
+	driver->Init();
     
 	/* Make a last check to see that everything is in order for the driver 
 	 * before processing data
 	 */
-	if ( !driver.SanityCheck() ) {
+	if ( !driver->SanityCheck() ) {
 	    cout << "Detector driver did not pass sanity check!" << endl;
 	    exit(EXIT_FAILURE);
 	}
@@ -477,12 +471,13 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
             /* If both the current vsn inspected is within an acceptable 
 	       range, begin reading the buffer.
             */
-            if ( vsn < modChan.GetPhysicalModules()  ) {
+            if ( vsn < modChan->GetPhysicalModules()  ) {
 	        if ( lastVsn != U_DELIMITER) {
 		    // the modules should be read out cyclically
-		    if ( ((lastVsn+1) % modChan.GetPhysicalModules() ) != vsn ) {
+		    if ( ((lastVsn+1) % modChan->GetPhysicalModules() ) != vsn ) {
 #ifdef VERBOSE
-			cout << " MISSING BUFFER " << vsn << "/" << modChan.GetPhysicalModules()
+			cout << " MISSING BUFFER " << vsn << "/" 
+                 << modChan->GetPhysicalModules()
 			     << " -- lastVsn = " << lastVsn << "  " 
 			     << ", length = " << lenRec << endl;
 #endif
@@ -560,7 +555,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 		double lastTimestamp = (*(eventList.rbegin()))->GetTime();
 
 		sort(eventList.begin(),eventList.end(),CompareTime);
-		driver.CorrelateClock(lastTimestamp, theTime);
+		driver->CorrelateClock(lastTimestamp, theTime);
 
 		/* once the vector of pointers eventlist is sorted based on time,
 		   begin the event processing in ScanList()
@@ -644,6 +639,9 @@ void ScanList(vector<ChanEvent*> &eventList)
 {
     unsigned long chanTime, eventTime;
 
+    DetectorLibrary* modChan = DetectorLibrary::get();
+    DetectorDriver* driver = DetectorDriver::get();
+
     // local variable for the detectors used in a given event
     set<string> usedDetectors;
     
@@ -667,7 +665,7 @@ void ScanList(vector<ChanEvent*> &eventList)
             cout << "pattern 0 ignore" << endl;
             continue;
         }
-        if (modChan[id].GetType() == "ignore") {
+        if ((*modChan)[id].GetType() == "ignore") {
             continue;
         }
 
@@ -690,7 +688,7 @@ void ScanList(vector<ChanEvent*> &eventList)
             /* detector driver accesses rawevent externally in order to
             have access to proper detector_summaries
             */
-                driver.ProcessEvent(scanMode);
+                driver->ProcessEvent(scanMode);
             }
     
             //after processing zero the rawevent variable
@@ -698,7 +696,9 @@ void ScanList(vector<ChanEvent*> &eventList)
             usedDetectors.clear();	    
 
             // Now clear all places in correlator (if resetable type)
-            for (map<string, Place*>::iterator it = TreeCorrelator::get().places.begin(); it != TreeCorrelator::get().places.end(); ++it)
+            for (map<string, Place*>::iterator it =
+                    TreeCorrelator::get()->places.begin();
+                it != TreeCorrelator::get()->places.end(); ++it)
                 if ((*it).second->resetable())
                     (*it).second->reset();
 
@@ -709,9 +709,9 @@ void ScanList(vector<ChanEvent*> &eventList)
         if (dtimebin < 0 || dtimebin > (unsigned)(SE)) {
             cout << "strange dtime for id " << id << ":" << dtimebin << endl;
         }
-        driver.plot(D_TIME + id, dtimebin);
+        driver->plot(D_TIME + id, dtimebin);
 
-        usedDetectors.insert(modChan[id].GetType());
+        usedDetectors.insert((*modChan)[id].GetType());
         rawev.AddChan(*iEvent);
 
         // update the time of the last event
@@ -723,7 +723,7 @@ void ScanList(vector<ChanEvent*> &eventList)
         string mode;
         HistoStats(id, diffTime, currTime, BUFFER_END);
 
-        driver.ProcessEvent(scanMode);
+        driver->ProcessEvent(scanMode);
         rawev.Zero(usedDetectors);
     }
 }
@@ -753,87 +753,70 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
 
     static double bufEnd = 0, bufLength = 0;
     // static double deadTime = 0 // not used
+    DetectorDriver* driver = DetectorDriver::get();
 
     if (firstTime > clock) {
-	cout << "Backwards clock jump detected: prior start " << firstTime
-	     << ", now " << clock << endl;
-	// detect a backwards clock jump which occurs when some of the
-	//   last buffers of a previous run sneak into the beginning of the 
-	//   next run, elapsed time of last buffers is usually small but 
-	//   just in case make some room for it
-	double elapsed = stop - firstTime;
-	// make an artificial 10 second gap by 
-	//   resetting the first time accordingly
-	firstTime = clock - 10 / pixie::clockInSeconds - elapsed;
-	cout << elapsed*pixie::clockInSeconds << " prior seconds elapsed "
-	     << ", resetting first time to " << firstTime << endl;	
+        cout << "Backwards clock jump detected: prior start " << firstTime
+            << ", now " << clock << endl;
+        // detect a backwards clock jump which occurs when some of the
+        //   last buffers of a previous run sneak into the beginning of the 
+        //   next run, elapsed time of last buffers is usually small but 
+        //   just in case make some room for it
+        double elapsed = stop - firstTime;
+        // make an artificial 10 second gap by 
+        //   resetting the first time accordingly
+        firstTime = clock - 10 / pixie::clockInSeconds - elapsed;
+        cout << elapsed*pixie::clockInSeconds << " prior seconds elapsed "
+            << ", resetting first time to " << firstTime << endl;	
     }
 
     switch (event) {
-	case BUFFER_START:
-	    bufStart = clock;
-	    if(firstTime == 0.) {
-		firstTime = clock;
-	    } else if (bufLength != 0.){
-		//plot time between buffers as a function of time - dead time spectrum	    
-		// deadTime += (clock - bufEnd)*pixie::clockInSeconds;
-		// plot(DD_DEAD_TIME_CUMUL,remainNumSecs,rownum,int(deadTime/runTimeSecs));	    	    
-		driver.plot(dammIds::raw::DD_BUFFER_START_TIME, remainNumSecs,rowNumSecs, (clock-bufEnd)/bufLength*1000.);	    
-	    }
-	    break;
-	case BUFFER_END:
-	    driver.plot(D_BUFFER_END_TIME, (stop - bufStart) * pixie::clockInSeconds * 1000);
-	    bufEnd = clock;
-	    bufLength = clock - bufStart;
-	case EVENT_START:
-        driver.plot(D_EVENT_LENGTH, stop - start);
-        driver.plot(D_EVENT_GAP, diff);
-        driver.plot(D_EVENT_MULTIPLICITY, count);
-	    
-	    start = stop = clock; // reset the counters      
-	    count = 1;
-	    break;
-	case EVENT_CONTINUE:
-	    count++;
-	    if(diff > 0.) {
-            driver.plot(D_SUBEVENT_GAP, diff + 100);
-	    }
-	    stop = clock;
-	    break;
-	default:
-	    cout << "Unexpected type " << event << " given to HistoStats" << endl;
+        case BUFFER_START:
+            bufStart = clock;
+            if(firstTime == 0.) {
+                firstTime = clock;
+            } else if (bufLength != 0.){
+                //plot time between buffers as a function of time - dead time spectrum	    
+                // deadTime += (clock - bufEnd)*pixie::clockInSeconds;
+                // plot(DD_DEAD_TIME_CUMUL,remainNumSecs,rownum,int(deadTime/runTimeSecs));	    	    
+                driver->plot(dammIds::raw::DD_BUFFER_START_TIME, remainNumSecs,rowNumSecs, (clock-bufEnd)/bufLength*1000.);	    
+            }
+            break;
+        case BUFFER_END:
+            driver->plot(D_BUFFER_END_TIME, (stop - bufStart) * pixie::clockInSeconds * 1000);
+            bufEnd = clock;
+            bufLength = clock - bufStart;
+        case EVENT_START:
+            driver->plot(D_EVENT_LENGTH, stop - start);
+            driver->plot(D_EVENT_GAP, diff);
+            driver->plot(D_EVENT_MULTIPLICITY, count);
+            
+            start = stop = clock; // reset the counters      
+            count = 1;
+            break;
+        case EVENT_CONTINUE:
+            count++;
+            if(diff > 0.) {
+                driver->plot(D_SUBEVENT_GAP, diff + 100);
+            }
+            stop = clock;
+            break;
+        default:
+            cout << "Unexpected type " << event << " given to HistoStats" << endl;
     }
 
     //fill these spectra on all events, id plots and runtime.
     // Exclude event type 0/1 since it will also appear as an
     // event type 11
     if ( event != BUFFER_START && event != BUFFER_END ){      
-	driver.plot(DD_RUNTIME_SEC, remainNumSecs, rowNumSecs);
-	driver.plot(DD_RUNTIME_MSEC, remainNumMsecs, rowNumMsecs);
-	//fill scalar spectrum (per second) 
-	driver.plot(D_HIT_SPECTRUM, id);
-	driver.plot(D_SCALAR + id, runTimeSecs);
+        driver->plot(DD_RUNTIME_SEC, remainNumSecs, rowNumSecs);
+        driver->plot(DD_RUNTIME_MSEC, remainNumMsecs, rowNumMsecs);
+        //fill scalar spectrum (per second) 
+        driver->plot(D_HIT_SPECTRUM, id);
+        driver->plot(D_SCALAR + id, runTimeSecs);
     }
 }
 
-/**
- * \brief Initialize the analysis
- *
- * New map file (map2.txt) should be handled by MapFile object.
- */
-bool InitMap(void) 
-{
-    extern MapFile theMapFile;
-
-    if (theMapFile) {
-        cout << "Map file handled with a new version of the map file." << endl;
-        return true;
-    } else {
-        cerr << "The old type map file is no longer supported." << endl
-             << "Please use the new type map file (map2.txt)." << endl;
-        return false;
-    }
-}
 
 /** \brief pixie16 scan error handling.
  *

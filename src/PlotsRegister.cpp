@@ -14,7 +14,7 @@ using namespace std;
 PlotsRegister* PlotsRegister::instance = NULL;
 
 /** Instance is created upon first call */
-PlotsRegister* PlotsRegister::R() {
+PlotsRegister* PlotsRegister::get() {
     if (!instance) {
         instance = new PlotsRegister();
     }
