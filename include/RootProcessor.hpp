@@ -30,7 +30,7 @@ class RootProcessor : public EventProcessor
     vector<EventProcessor *> vecProcess;
  public:
     RootProcessor(const char *fileName, const char *treeName);
-    virtual bool Init(DetectorDriver &driver);
+    virtual bool Init();
     virtual bool Process(RawEvent &event);
     virtual ~RootProcessor();
 };
