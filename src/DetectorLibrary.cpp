@@ -18,10 +18,18 @@ using namespace std;
 
 set<int> DetectorLibrary::emptyLocations;
 
+DetectorLibrary* DetectorLibrary::instance = NULL;
+
+/** Instance is created upon first call */
+DetectorLibrary* DetectorLibrary::get() {
+    if (!instance) {
+        instance = new DetectorLibrary();
+    }
+    return instance;
+}
+
 DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations()
 {
-    cout << "Constructing detector library" << endl;
-
     GetKnownDetectors();
 }
 
@@ -222,7 +230,8 @@ const set<string>& DetectorLibrary::GetKnownDetectors(void)
 	return knownDetectors;
 
     // this is a list of the detectors that are known to this program.
-    cout << "constructing the list of known detectors " << endl;
+    cout << "DetectorLibrary: constructing the list of known detectors "
+         << endl;
 
     //? get these from event processors
     for (unsigned int i=0; i < detTypes; i++)

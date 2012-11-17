@@ -14,7 +14,6 @@
 #include <cmath>
 
 #include "DammPlotIds.hpp"
-#include "DetectorDriver.hpp"
 #include "RawEvent.hpp"
 #include "ScintProcessor.hpp"
 #include "TimingInformation.hpp"

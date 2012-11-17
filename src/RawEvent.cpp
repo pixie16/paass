@@ -134,17 +134,13 @@ unsigned long ChanEvent::GetQdcValue(int i) const
 //* Find the identifier in the map for the channel event */
 const Identifier& ChanEvent::GetChanID() const
 {
-    extern DetectorLibrary modChan; // from DetectorLibrary.cpp
-
-    return modChan.at(modNum, chanNum);
+    return DetectorLibrary::get()->at(modNum, chanNum);
 }
 
 //* Calculate a channel index */
 int ChanEvent::GetID() const 
 {
-    extern DetectorLibrary modChan; // from DetectorLibrary.cpp
-
-    return modChan.GetIndex(modNum, chanNum);
+    return DetectorLibrary::get()->GetIndex(modNum, chanNum);
 }
 
 /**
@@ -286,7 +282,7 @@ void RawEvent::Init(const set<string> &usedTypes)
 {
     /* initialize the map of used detectors. This will associate the name of a
        detector type (such as dssd_front, ge ...) with a detector summary. 
-       See ProcessEvent() in DetectorDriver.cpp for a description of the 
+       See ProcessEvent() for a description of the 
        variables in the summary
     */
     DetectorSummary ds;
@@ -294,8 +290,8 @@ void RawEvent::Init(const set<string> &usedTypes)
 
     for (set<string>::const_iterator it = usedTypes.begin();
 	 it != usedTypes.end(); it++) {
-	ds.SetName(*it);
-	sumMap.insert(make_pair(*it,ds));
+        ds.SetName(*it);
+        sumMap.insert(make_pair(*it,ds));
     }
 }
 
@@ -333,18 +329,18 @@ DetectorSummary *RawEvent::GetSummary(const string& s, bool construct)
     static set<string> nullSummaries;
 
     if (it == sumMap.end()) {
-	if (construct) {
-	    // construct the summary
-	    cout << "Constructing detector summary for type " << s << endl;
-	    sumMap.insert( make_pair(s, DetectorSummary(s, eventList) ) );
-	    it = sumMap.find(s);
-	} else {
-	    if (nullSummaries.count(s) == 0) {
-		cout << "Returning NULL detector summary for type " << s << endl;
-		nullSummaries.insert(s);
-	    }
-	    return NULL;
-	}
+        if (construct) {
+            // construct the summary
+            cout << "Constructing detector summary for type " << s << endl;
+            sumMap.insert( make_pair(s, DetectorSummary(s, eventList) ) );
+            it = sumMap.find(s);
+        } else {
+            if (nullSummaries.count(s) == 0) {
+                cout << "Returning NULL detector summary for type " << s << endl;
+                nullSummaries.insert(s);
+            }
+            return NULL;
+        }
     }
     return &(it->second);
 }
@@ -354,11 +350,11 @@ const DetectorSummary *RawEvent::GetSummary(const string &s) const
     map<string, DetectorSummary>::const_iterator it = sumMap.find(s);
     
     if ( it == sumMap.end() ) {
-	if (nullSummaries.count(s) == 0) {
-	    cout << "Returning NULL const detector summary for type " << s << endl;
-	    nullSummaries.insert(s);
-	}
-	return NULL;
+        if (nullSummaries.count(s) == 0) {
+            cout << "Returning NULL const detector summary for type " << s << endl;
+            nullSummaries.insert(s);
+        }
+        return NULL;
     }
     return &(it->second);
 }

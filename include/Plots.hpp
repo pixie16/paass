@@ -75,8 +75,6 @@ private:
     std::map <std::string, int> mneList;
     /** Map of dammid -> title, helps debugging duplicated dammids*/
     std::map <int, std::string> titleList;
-    /** Set of dammids, a list of non-empty histograms*/
-    std::set <int> nonemptyList;
 };
 
 #endif // __PLOTS_HPP_

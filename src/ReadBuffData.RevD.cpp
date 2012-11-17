@@ -170,10 +170,10 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
       currentEvt->chanNum = chanNum;
       currentEvt->modNum = modNum;
       if (currentEvt->virtualChannel) {
-	  extern DetectorLibrary modChan;
+	  DetectorLibrary* modChan = DetectorLibrary::get();
 
-	  currentEvt->modNum += modChan.GetPhysicalModules();
-	  if (modChan.at(modNum, chanNum).HasTag("construct_trace")) {
+	  currentEvt->modNum += modChan->GetPhysicalModules();
+	  if (modChan->at(modNum, chanNum).HasTag("construct_trace")) {
 	      lastVirtualChannel = currentEvt;
 	  }
       }

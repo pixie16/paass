@@ -161,6 +161,7 @@ TRACEEXTRACTERO  = TraceExtracter.$(ObjSuf)
 TRACEFILTERO     = TraceFilterer.$(ObjSuf)
 TRACEPLOTO       = TracePlotter.$(ObjSuf)
 TRACESUBO        = TraceAnalyzer.$(ObjSuf)
+TREECORRELATORO  = TreeCorrelator.$(ObjSuf)
 VANDLEPROCESSORO = VandleProcessor.$(ObjSuf)
 VANDLEROOTO      = VandleROOT.$(ObjSuf)
 WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
@@ -187,12 +188,16 @@ endif
 endif
 
 #----- list of objects
+# Fortran objects
 OBJS   = \
 $(SET2CCO)\
 $(MESSLOGO)\
 $(MILDATIMO)\
-$(SCANOFO)\
-$(READBUFFDATAO)\
+$(SCANOFO)
+# Important to compile READBUFFDATA first
+OBJS += $(READBUFFDATAO)
+# other C++ objects
+OBJS += \
 $(PIXIEO)\
 $(BETASCINTPROCESSORO)\
 $(CORRELATORO)\
@@ -231,6 +236,7 @@ $(TRACEEXTRACTERO)\
 $(TRACEFILTERO)\
 $(TRACEPLOTO)\
 $(TRACESUBO)\
+$(TREECORRELATORO)\
 $(VANDLEPROCESSORO)\
 $(WAVEFORMSUBO)\
 $(WAVEFORMSUBO)
