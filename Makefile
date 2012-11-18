@@ -6,9 +6,9 @@ SHELL=/bin/sh
 # USEROOT = 1
 
 # Uncomment this line if processing Rev. D data
-#REVISIOND = 1
+REVISIOND = 1
 # Uncomment this line if processing Rev. F data
-REVISIONF = 1
+#REVISIONF = 1
 
 # Uncomment this line for a more verbose scan
 # CXXFLAGS += -DVERBOSE
@@ -19,7 +19,7 @@ REVISIONF = 1
 # Undefine to use Gamma-Gamma gates in GeProcessor
 # This turns on Gamma-Gamma angular distribution
 # and Gamma-Gamma-Gamma gates
-# GGATES = 1
+GGATES = 1
 
 # Use gfortran
 HHIRF_GFORTRAN = 1
@@ -161,6 +161,7 @@ TRACEEXTRACTERO  = TraceExtracter.$(ObjSuf)
 TRACEFILTERO     = TraceFilterer.$(ObjSuf)
 TRACEPLOTO       = TracePlotter.$(ObjSuf)
 TRACESUBO        = TraceAnalyzer.$(ObjSuf)
+TREECORRELATORO  = TreeCorrelator.$(ObjSuf)
 VANDLEPROCESSORO = VandleProcessor.$(ObjSuf)
 VANDLEROOTO      = VandleROOT.$(ObjSuf)
 WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
@@ -187,12 +188,16 @@ endif
 endif
 
 #----- list of objects
+# Fortran objects
 OBJS   = \
 $(SET2CCO)\
 $(MESSLOGO)\
 $(MILDATIMO)\
-$(SCANOFO)\
-$(READBUFFDATAO)\
+$(SCANOFO)
+# Important to compile READBUFFDATA first
+OBJS += $(READBUFFDATAO)
+# other C++ objects
+OBJS += \
 $(PIXIEO)\
 $(BETASCINTPROCESSORO)\
 $(CORRELATORO)\
@@ -231,6 +236,7 @@ $(TRACEEXTRACTERO)\
 $(TRACEFILTERO)\
 $(TRACEPLOTO)\
 $(TRACESUBO)\
+$(TREECORRELATORO)\
 $(VANDLEPROCESSORO)\
 $(WAVEFORMSUBO)\
 $(WAVEFORMSUBO)

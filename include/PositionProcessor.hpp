@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "EventProcessor.hpp"
+#include "RawEvent.hpp"
 
 class ChanEvent;
 
@@ -37,7 +38,7 @@ private:
 				std::vector<ChanEvent*>::const_reverse_iterator end) const;				
 public:
     PositionProcessor(); // no virtual c'tors
-    virtual bool Init(DetectorDriver &driver);
+    virtual bool Init(RawEvent& rawev);
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void);
 };

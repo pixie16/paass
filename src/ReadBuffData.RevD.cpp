@@ -58,7 +58,7 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-extern StatsData stats;
+//extern StatsData stats;
 
 // define tst bit function from pixie16 files
 unsigned long TstBit(unsigned short bit, unsigned long value)
@@ -75,7 +75,7 @@ unsigned long TstBit(unsigned short bit, unsigned long value)
   sorting.
 */
 int ReadBuffData(word_t *buf, unsigned long *bufLen,
-		 vector<ChanEvent*> &eventList)
+		 vector<ChanEvent*> &eventList, StatsData& stats)
 {						
   // multiplier for high bits of 48-bit time
   static const double HIGH_MULT = pow(2., 32.); 
@@ -170,10 +170,10 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
       currentEvt->chanNum = chanNum;
       currentEvt->modNum = modNum;
       if (currentEvt->virtualChannel) {
-	  extern DetectorLibrary modChan;
+	  DetectorLibrary* modChan = DetectorLibrary::get();
 
-	  currentEvt->modNum += modChan.GetPhysicalModules();
-	  if (modChan.at(modNum, chanNum).HasTag("construct_trace")) {
+	  currentEvt->modNum += modChan->GetPhysicalModules();
+	  if (modChan->at(modNum, chanNum).HasTag("construct_trace")) {
 	      lastVirtualChannel = currentEvt;
 	  }
       }

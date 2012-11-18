@@ -6,11 +6,19 @@
 
 #include "RandomPool.hpp"
 
-RandomPool randoms; ///< an ugly global to hold some random numbers
+RandomPool* RandomPool::instance = NULL;
+
+/** Instance is created upon first call */
+RandomPool* RandomPool::get() {
+    if (!instance) {
+        instance = new RandomPool();
+    }
+    return instance;
+}
 
 /*! Simple constructor which initializes the generator
  */
-RandomPool::RandomPool(void) : generator()
+RandomPool::RandomPool() : generator()
 {
   Generate();
 }
@@ -18,9 +26,9 @@ RandomPool::RandomPool(void) : generator()
 /*! Generate some random numbers using the Mersenne twister */
 void RandomPool::Generate(void)
 {
-  for (size_t i=0; i < size; i++)
-    numbers[i] = generator.rand(1);
-  counter = 0;
+    for (size_t i=0; i < size; i++)
+        numbers[i] = generator.rand(1);
+    counter = 0;
 }
 
 /*! Get a random number in the range [0,range) */

@@ -18,10 +18,18 @@ using namespace std;
 
 set<int> DetectorLibrary::emptyLocations;
 
+DetectorLibrary* DetectorLibrary::instance = NULL;
+
+/** Instance is created upon first call */
+DetectorLibrary* DetectorLibrary::get() {
+    if (!instance) {
+        instance = new DetectorLibrary();
+    }
+    return instance;
+}
+
 DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations()
 {
-    cout << "Constructing detector library" << endl;
-
     GetKnownDetectors();
 }
 
@@ -183,7 +191,7 @@ void DetectorLibrary::PrintMap(void) const
 /**
  * Print the list of detectors used and initialize the global raw event
  */
-void DetectorLibrary::PrintUsedDetectors(void) const
+void DetectorLibrary::PrintUsedDetectors(RawEvent& rawev) const
 {
     // Print the number of detectors and detector subtypes used in the analysis
     cout << usedTypes.size() <<" detector types are used in this analysis " 
@@ -195,8 +203,6 @@ void DetectorLibrary::PrintUsedDetectors(void) const
 	 << "analysis and are named:" << endl << "  ";
     copy(usedSubtypes.begin(), usedSubtypes.end(), ostream_iterator<string>(cout," "));
     cout << endl;   
-
-    extern RawEvent rawev;
 
     rawev.Init(usedTypes);
 }
@@ -222,7 +228,8 @@ const set<string>& DetectorLibrary::GetKnownDetectors(void)
 	return knownDetectors;
 
     // this is a list of the detectors that are known to this program.
-    cout << "constructing the list of known detectors " << endl;
+    cout << "DetectorLibrary: constructing the list of known detectors "
+         << endl;
 
     //? get these from event processors
     for (unsigned int i=0; i < detTypes; i++)

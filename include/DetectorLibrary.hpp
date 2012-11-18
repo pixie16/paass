@@ -12,13 +12,12 @@
 #include <string>
 #include <vector>
 
-// forward declaration, perhaps just move this class info here
-class Identifier; 
+#include "RawEvent.hpp"
 
 class DetectorLibrary : public std::vector<Identifier>
 {
 public:
-    DetectorLibrary();
+    static DetectorLibrary* get();
     
     virtual const_reference at(size_type mod, size_type ch) const;
     virtual const_reference at(size_type idx) const;
@@ -45,13 +44,18 @@ public:
     void Set(int mod, int ch, const Identifier& value);
 
     void PrintMap(void) const;
-    void PrintUsedDetectors(void) const;
+    void PrintUsedDetectors(RawEvent& rawev) const;
 
     const std::set<std::string>& GetKnownDetectors(void); 
     const std::set<std::string>& GetUsedDetectors(void) const;
 
     typedef std::string mapkey_t;
 private:
+    DetectorLibrary();
+    DetectorLibrary (const DetectorLibrary&);
+    DetectorLibrary& operator= (DetectorLibrary const&);
+    static DetectorLibrary* instance;
+
     mapkey_t MakeKey( const std::string &type, const std::string &subtype ) const;
 
     std::map< mapkey_t, std::set<int> > locations; ///< collection of all used locations for a given type and subtype

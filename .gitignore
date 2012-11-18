@@ -13,3 +13,7 @@ LDF/*
 *.ldf
 *.his
 *.drr
+*.list
+*.log
+# Executable
+pixie_ldf_c
