@@ -8,7 +8,6 @@ Source File for the PulserProcessor
 #include <cmath>
 
 #include "DammPlotIds.hpp"
-#include "DetectorDriver.hpp"
 #include "PulserProcessor.hpp"
 #include "RawEvent.hpp"
 

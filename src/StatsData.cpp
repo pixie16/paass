@@ -12,12 +12,12 @@
 
 #include "pixie16app_defs.h"
 
-StatsData stats;
-
 using std::cout;
 using std::endl;
 
 using pixie::word_t;
+
+StatsData stats;
 
 /** Clear the statistics data structures */
 StatsData::StatsData()

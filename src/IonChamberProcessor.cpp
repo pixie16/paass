@@ -8,7 +8,6 @@
 #include <cmath>
 
 #include "DammPlotIds.hpp"
-#include "DetectorDriver.hpp"
 #include "Globals.hpp"
 #include "RawEvent.hpp"
 #include "IonChamberProcessor.hpp"

@@ -72,17 +72,17 @@ PositionProcessor::PositionProcessor() : EventProcessor(OFFSET, RANGE) {
  *   Note that QDC 0 is considered to be a baseline section of the trace for
  *     baseline removal for the other QDCs
  */
-bool PositionProcessor::Init(DetectorDriver &driver)
+bool PositionProcessor::Init(RawEvent& rawev)
 {
     // Call the parent function to handle the standard stuff
-    if (!EventProcessor::Init(driver)) {
+    if (!EventProcessor::Init(rawev)) {
         return false;
     }
 
-    extern DetectorLibrary modChan;
+    DetectorLibrary* modChan = DetectorLibrary::get();
 
-    int numLocationsTop    = modChan.GetNextLocation("ssd", "top");
-    int numLocationsBottom = modChan.GetNextLocation("ssd", "bottom");
+    int numLocationsTop    = modChan->GetNextLocation("ssd", "top");
+    int numLocationsBottom = modChan->GetNextLocation("ssd", "bottom");
     if (numLocationsTop != numLocationsBottom) {
         cerr << "Number of top positions (" << numLocationsTop 
             << ") does not match number of bottom positions ("

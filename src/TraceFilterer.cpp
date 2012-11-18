@@ -22,8 +22,6 @@ const int TraceFilterer::energyBins = SC;
 const double TraceFilterer::energyScaleFactor = 2.198; //< TO BE USED WITH MAGIC +40 ENERGY SAMPLE LOCATION
 // const double TraceFilterer::energyScaleFactor = 2.547; //< multiply the energy filter sums by this to gain match to raw spectra
 
-extern RandomPool randoms;
-
 /** 
  *  A do nothing constructor
  */
@@ -252,8 +250,9 @@ const TraceFilterer::PulseInfo& TraceFilterer::FindPulse(Trace::iterator begin, 
 	// sample = pulse.time + (energyParms.GetSize() - fastParms.GetSize()) / 2;
 	sample = pulse.time + 40;
 	
+    RandomPool* randoms = RandomPool::get();
 	if (sample < energyFilter.size()) {
-	    pulse.energy = energyFilter[sample] + randoms.Get();	    
+	    pulse.energy = energyFilter[sample] + randoms->Get();	    
 	    // subtract an energy filter baseline
 	    if (presample >= 0) {
 		pulse.energy -= energyFilter[presample];

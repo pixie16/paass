@@ -148,6 +148,5 @@ class TrapezoidalFilterParameters
     double GetTau(void) const      {return tau;}
 };
 
-extern const Trace emptyTrace;
 
 #endif // __TRACE_H_

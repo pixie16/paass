@@ -23,9 +23,7 @@
 #include "PlotsRegister.hpp"
 #include "DammPlotIds.hpp"
 
-#include "AliasedPair.hpp"
 #include "Correlator.hpp"
-#include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
 #include "GeProcessor.hpp"
 #include "RawEvent.hpp"
@@ -72,7 +70,7 @@ double GeProcessor::WalkCorrection(double e) {
 
 double GeProcessor::GammaBetaDtime(double gTime) {
     PlaceOR* betas = dynamic_cast<PlaceOR*>(
-                      TreeCorrelator::get().places["Beta"]);
+    TreeCorrelator::get()->places["Beta"]);
     if (betas->info_.size() == 0)
         return numeric_limits<double>::max();
 
@@ -172,17 +170,6 @@ GeProcessor::GeProcessor() : EventProcessor(OFFSET, RANGE), leafToClover() {
 #endif
 }
 
-/** 
- * Initialize processor and determine number of clovers from global Identifiers
- */
-bool GeProcessor::Init(DetectorDriver &driver)
-{
-    if (!EventProcessor::Init(driver))
-        return false;
-
-    return true;
-}
-
 /** Declare plots including many for decay/implant/neutron gated analysis  */
 void GeProcessor::DeclarePlots(void) 
 {
@@ -199,9 +186,9 @@ void GeProcessor::DeclarePlots(void)
     /* clover specific routine, determine the number of clover detector
        channels and divide by four to find the total number of clovers
     */
-    extern DetectorLibrary modChan;
+    DetectorLibrary* modChan = DetectorLibrary::get();
 
-    const set<int> &cloverLocations = modChan.GetLocations("ge", "clover_high");
+    const set<int> &cloverLocations = modChan->GetLocations("ge", "clover_high");
     // could set it now but we'll iterate through the locations to set this
     unsigned int cloverChans = 0;
 
@@ -389,9 +376,9 @@ bool GeProcessor::PreProcess(RawEvent &event) {
         (*it)->SetCorrectedTime(time);
 
         string place = (*it)->GetChanID().GetPlaceName();
-        if (TreeCorrelator::get().places.count(place) == 1) {
+        if (TreeCorrelator::get()->places.count(place) == 1) {
             CorrEventData data(time, energy);
-            TreeCorrelator::get().places[place]->activate(data);
+            TreeCorrelator::get()->places[place]->activate(data);
         } else {
             cerr << "In GeProcessor: place " << place
                     << " does not exist." << endl;
@@ -454,7 +441,7 @@ bool GeProcessor::Process(RawEvent &event) {
         return false;
 
     // tapeMove is true if the tape is moving
-    bool tapeMove = TreeCorrelator::get().places["TapeMove"]->status();
+    bool tapeMove = TreeCorrelator::get()->places["TapeMove"]->status();
 
     // If the tape is moving there is no need of analyzing events
     // as they must belong to background
@@ -462,27 +449,27 @@ bool GeProcessor::Process(RawEvent &event) {
         return true;
 
     // beamOn is true for beam on and false for beam off
-    bool beamOn =  TreeCorrelator::get().places["Beam"]->status();
+    bool beamOn =  TreeCorrelator::get()->places["Beam"]->status();
 
     //Beta places are activated with threshold in ScintProcessor
-    bool hasBeta = TreeCorrelator::get().places["Beta"]->status();
-    bool hasBeta0 = TreeCorrelator::get().places["beta_scint_beta_0"]->status();
-    bool hasBeta1 = TreeCorrelator::get().places["beta_scint_beta_1"]->status();
+    bool hasBeta = TreeCorrelator::get()->places["Beta"]->status();
+    bool hasBeta0 = TreeCorrelator::get()->places["beta_scint_beta_0"]->status();
+    bool hasBeta1 = TreeCorrelator::get()->places["beta_scint_beta_1"]->status();
     double betaEnergy = -1;
     if (hasBeta) {
         double betaEnergy0 = -1;
         if (hasBeta0) {
-            betaEnergy0 = TreeCorrelator::get().places["beta_scint_beta_0"]->last().energy;
+            betaEnergy0 = TreeCorrelator::get()->places["beta_scint_beta_0"]->last().energy;
         }
         double betaEnergy1 = -1;
         if (hasBeta1) {
-            betaEnergy1 = TreeCorrelator::get().places["beta_scint_beta_1"]->last().energy;
+            betaEnergy1 = TreeCorrelator::get()->places["beta_scint_beta_1"]->last().energy;
         }
         betaEnergy = max(betaEnergy0, betaEnergy1);
     }
     
     // Cycle time is measured from the begining of last beam on event
-    double cycleTime = TreeCorrelator::get().places["Cycle"]->last().time;
+    double cycleTime = TreeCorrelator::get()->places["Cycle"]->last().time;
 
     // Note that geEvents_ vector holds only good events (matched
     // low & high gain). See PreProcess
@@ -604,7 +591,9 @@ bool GeProcessor::Process(RawEvent &event) {
                     double decayCycleEnd   = 1.0;
                     // Beam deque should be updated upon beam off so
                     // measure time from that point
-                    double decayTime = (gTime - TreeCorrelator::get().places["Beam"]->last().time) * pixie::clockInSeconds;
+                    double decayTime = (gTime - 
+                         TreeCorrelator::get()->places["Beam"]->last().time) *
+                         pixie::clockInSeconds;
                     if (decayTime < decayCycleEarly) {
                         symplot(DD_ADD_ENERGY_EARLY, gEnergy, gEnergy2);
                         if (hasBeta && GoodGammaBeta(gTime)) 
@@ -621,24 +610,7 @@ bool GeProcessor::Process(RawEvent &event) {
                     if (GoodGammaBeta(gTime)) {
                         symplot(betaGated::DD_ADD_ENERGY, gEnergy, gEnergy2);
                     } else {
-                        PlaceOR* betas = dynamic_cast<PlaceOR*>(
-                                        TreeCorrelator::get().places["Beta"]);
-                        vector<double> beta_time;
-                        for (deque<CorrEventData>::iterator it =
-                             betas->info_.begin();
-                             it != betas->info_.end();
-                             ++it)
-                                beta_time.push_back(it->time);
-                        sort(beta_time.begin(), beta_time.end());
-                        double delayedTime = -1.0;
-                        for (unsigned i = 0; i < beta_time.size(); ++i) {
-                            double time = gTime - beta_time[i];
-                            if (time < 0)
-                                break;
-                            delayedTime = time;
-                        }
-                        delayedTime = delayedTime * pixie::clockInSeconds;
-                        if (delayedTime > detectors::gammaBetaLimit)
+                        if (GammaBetaDtime(gTime) > detectors::gammaBetaLimit)
                             symplot(betaGated::DD_ADD_ENERGY_DELAYED,
                                     gEnergy, gEnergy2);
                     }

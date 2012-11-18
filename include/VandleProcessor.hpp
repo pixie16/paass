@@ -16,7 +16,6 @@ class VandleProcessor : public EventProcessor,
     VandleProcessor(); // no virtual c'tors
     virtual void DeclarePlots(void);
     virtual bool Process(RawEvent &event);
-    virtual bool Init(DetectorDriver &);
      
  protected:
     //define the maps
@@ -33,7 +32,7 @@ class VandleProcessor : public EventProcessor,
 			      const double &corRadius, 
 			      const double &z0) {return((z0/corRadius)*TOF);};
 
-    virtual void AnalyzeData(void);
+    virtual void AnalyzeData(RawEvent& rawev);
     virtual void BuildBars(const TimingDataMap &endMap, const std::string &type, 
 			   BarMap &barMap);
     virtual void ClearMaps(void);

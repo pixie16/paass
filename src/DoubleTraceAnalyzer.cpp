@@ -23,8 +23,6 @@
 
 using namespace std;
 using namespace dammIds::trace;
-// external pool of random numbers defined in RandomPool.cpp
-extern RandomPool randoms;
 
 /**
  * Set default values for time and energy
