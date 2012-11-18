@@ -32,7 +32,6 @@ bool PlotsRegister::CheckRange (int min, int max) const
             continue;
         else {
             exists = true;
-            cout << "Error: " << min << " " << max << " , " << reg[id].first << " " << reg[id].second << endl;
             break;
         }
     }

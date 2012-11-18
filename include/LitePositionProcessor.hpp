@@ -33,7 +33,7 @@ protected:
 				std::vector<ChanEvent*>::const_iterator end) const;				
 public:
     LitePositionProcessor(); // no virtual c'tors
-    virtual bool Init();
+    virtual bool Init(RawEvent &event);
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void);
 };

@@ -2,6 +2,9 @@
  *
  *File holding structures and 
  *   info for Timing Analysis
+ *
+ *   11/18/2012 removed const Trace& trace member
+ *   This removal needs testing!
  */
 
 #ifndef __TIMINGINFORMATION_HPP_
@@ -33,7 +36,6 @@ class TimingInformation
     {
 	TimingData(void);
 	TimingData(ChanEvent *chan);
-	const Trace &trace;
 	
 	bool dataValid;
 	

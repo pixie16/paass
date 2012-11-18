@@ -44,7 +44,7 @@ public:
     void Set(int mod, int ch, const Identifier& value);
 
     void PrintMap(void) const;
-    void PrintUsedDetectors(void) const;
+    void PrintUsedDetectors(RawEvent& rawev) const;
 
     const std::set<std::string>& GetKnownDetectors(void); 
     const std::set<std::string>& GetUsedDetectors(void) const;
