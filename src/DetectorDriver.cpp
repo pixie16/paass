@@ -84,12 +84,6 @@
 using namespace std;
 using namespace dammIds::raw;
 
-/* rawevent declared in PixieStd.cpp
- *
- * driver relies on the respective DetectorSummary addresses remaining constant
- */
-extern RawEvent rawev;
-
 /*!
   detector driver constructor
 
@@ -176,7 +170,7 @@ DetectorDriver::~DetectorDriver()
   checked to make sure that all channels have a calibration.
 */
 
-int DetectorDriver::Init(void)
+int DetectorDriver::Init(RawEvent& rawev)
 {
     // initialize the trace analysis routine
     for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
@@ -188,7 +182,7 @@ int DetectorDriver::Init(void)
     // initialize processors in the event processing vector
     for (vector<EventProcessor *>::iterator it = vecProcess.begin();
          it != vecProcess.end(); it++) {
-        (*it)->Init();	
+        (*it)->Init(rawev);	
     }
 
     /*
@@ -201,7 +195,7 @@ int DetectorDriver::Init(void)
     readFiles.ReadTimingConstants();
     readFiles.ReadTimingCalibration();
 
-    rawev.GetCorrelator().Init();
+    rawev.GetCorrelator().Init(rawev);
 
     return 0;
 }
@@ -219,7 +213,7 @@ int DetectorDriver::Init(void)
   Currently, both RMS and MTC processing is available.  After all processing
   has occured, appropriate plotting routines are called.
 */
-int DetectorDriver::ProcessEvent(const string &mode){   
+int DetectorDriver::ProcessEvent(const string &mode, RawEvent& rawev){   
     /*
       Begin the event processing looping over all the channels
       that fired in this particular event.
@@ -231,7 +225,7 @@ int DetectorDriver::ProcessEvent(const string &mode){
         ChanEvent *chan = eventList[i];  
 	
         PlotRaw(chan);
-        ThreshAndCal(chan); // check threshold and calibrate
+        ThreshAndCal(chan, rawev); // check threshold and calibrate
         PlotCal(chan);       
     } //end chan by chan event processing
  
@@ -313,8 +307,6 @@ void DetectorDriver::DeclarePlots(MapFile& theMapFile)
         DeclareHistogram1D(D_CAL_ENERGY_REJECT + i, SE, ("CalE NoSat " + idstr.str()).c_str() );
     }
     DeclareHistogram1D(D_HAS_TRACE, S7, "channels with traces");
-
-    rawev.GetCorrelator().DeclarePlots();
 }
 
 // sanity check for all our expectations
@@ -330,7 +322,7 @@ bool DetectorDriver::SanityCheck(void) const
   calibrations contained in the calibration vector filled during ReadCal()
 */
 
-int DetectorDriver::ThreshAndCal(ChanEvent *chan)
+int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
 {   
     // retrieve information about the channel
     Identifier chanId = chan->GetChanID();

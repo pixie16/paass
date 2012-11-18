@@ -72,10 +72,10 @@ PositionProcessor::PositionProcessor() : EventProcessor(OFFSET, RANGE) {
  *   Note that QDC 0 is considered to be a baseline section of the trace for
  *     baseline removal for the other QDCs
  */
-bool PositionProcessor::Init()
+bool PositionProcessor::Init(RawEvent& rawev)
 {
     // Call the parent function to handle the standard stuff
-    if (!EventProcessor::Init()) {
+    if (!EventProcessor::Init(rawev)) {
         return false;
     }
 

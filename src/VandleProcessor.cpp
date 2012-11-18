@@ -272,13 +272,13 @@ bool VandleProcessor::Process(RawEvent &event)
     plot(D_PROBLEMS, 30); //DEBUGGING
 
     if(RetrieveData(event)) {
-	AnalyzeData();
-	//CrossTalk();
-	EndProcess();
-	return true;
+        AnalyzeData(event);
+        //CrossTalk();
+        EndProcess();
+        return true;
     } else {
-	EndProcess();
-	return (didProcess = false);
+        EndProcess();
+        return (didProcess = false);
     }
 }
 
@@ -330,7 +330,7 @@ bool VandleProcessor::RetrieveData(RawEvent &event)
 
 
 //********** AnalyzeData **********
-void VandleProcessor::AnalyzeData(void)
+void VandleProcessor::AnalyzeData(RawEvent& rawev)
 {
     //Analyze the Teeny VANDLE data if there is any
     if(!tvandleMap.empty() && tvandleMap.size()%2 == 0)
@@ -424,7 +424,6 @@ void VandleProcessor::AnalyzeData(void)
 	    }
 
 	    //Now we will do some Ge related stuff
-	    extern RawEvent rawev;
 	    static const DetectorSummary *geSummary = rawev.GetSummary("ge");
 	    
 	    if (geSummary) {

@@ -191,7 +191,7 @@ void DetectorLibrary::PrintMap(void) const
 /**
  * Print the list of detectors used and initialize the global raw event
  */
-void DetectorLibrary::PrintUsedDetectors(void) const
+void DetectorLibrary::PrintUsedDetectors(RawEvent& rawev) const
 {
     // Print the number of detectors and detector subtypes used in the analysis
     cout << usedTypes.size() <<" detector types are used in this analysis " 
@@ -203,8 +203,6 @@ void DetectorLibrary::PrintUsedDetectors(void) const
 	 << "analysis and are named:" << endl << "  ";
     copy(usedSubtypes.begin(), usedSubtypes.end(), ostream_iterator<string>(cout," "));
     cout << endl;   
-
-    extern RawEvent rawev;
 
     rawev.Init(usedTypes);
 }
