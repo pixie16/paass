@@ -28,7 +28,7 @@ RootProcessor::RootProcessor(const char *fileName, const char *treeName)
 }
 
 /** Add branches to the tree from the event processors in the driver */
-bool RootProcessor::Init()
+bool RootProcessor::Init(RawEvent& rawev)
 {
     DetectorDriver* driver = DetectorDriver::get();
     if (file == NULL || tree == NULL) {
@@ -48,7 +48,7 @@ bool RootProcessor::Init()
             inserter(associatedTypes, associatedTypes.begin()) );
         }	  
     } 
-    return EventProcessor::Init();
+    return EventProcessor::Init(rawev);
 }
 
 /** Fill the tree for each event, saving to file occasionally */

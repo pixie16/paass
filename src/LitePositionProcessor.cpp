@@ -57,14 +57,13 @@ LitePositionProcessor::PositionProcessor() : EventProcessor(OFFSET, RANGE)
  *   Note that QDC 0 is considered to be a baseline section of the trace for
  *     baseline removal for the other QDCs
  */
-bool LitePositionProcessor::Init()
+bool LitePositionProcessor::Init(RawEvent& event)
 {
     // Call the parent function to handle the standard stuff
-    if (!EventProcessor::Init()) {
+    if (!EventProcessor::Init(event)) {
         return false;
     }
 
-    extern DetectorLibrary modChan;
     DetectorLibrary* modChan = DetectorLibrary::get();
 
     int numLocationsTop    = modChan->GetNextLocation("ssd", "top");

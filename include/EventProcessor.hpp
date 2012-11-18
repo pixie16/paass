@@ -70,7 +70,7 @@ class EventProcessor {
     }
     // return true on success
     virtual bool HasEvent(void) const;
-    virtual bool Init();
+    virtual bool Init(RawEvent& event);
     virtual bool PreProcess(RawEvent &event);   
     virtual bool Process(RawEvent &event);   
     void EndProcess(void); // stop the process timer

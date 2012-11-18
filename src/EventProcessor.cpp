@@ -20,13 +20,6 @@
 
 using namespace std;
 
-extern RawEvent rawev; // to access detector summaries
-
-// correlator is declared in PixieStd.cpp
-//extern map<string, Place*> correlator;
-// Static field initialization
-//map<string, Place*> EventProcessor::correlator = correlator;
-
 EventProcessor::EventProcessor() : 
   userTime(0.), systemTime(0.), name("generic"), initDone(false), 
   didProcess(false), histo(0, 0)
@@ -71,7 +64,7 @@ bool EventProcessor::HasEvent(void) const
 /** Initialize the processor if the detectors that require it are used in 
  * the analysis
  */
-bool EventProcessor::Init() 
+bool EventProcessor::Init(RawEvent& rawev) 
 {
     vector<string> intersect;   
     const set<string> &usedDets = DetectorLibrary::get()->GetUsedDetectors();

@@ -179,7 +179,7 @@ void CorrelationList::PrintDecayList() const
 
 
 
-void Correlator::Init()
+void Correlator::Init(RawEvent& rawev)
 {
     // do nothing
 }

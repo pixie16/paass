@@ -21,7 +21,7 @@ map<string, double> TimingInformation::constantsMap;
 TimingInformation::TimingCalMap TimingInformation::calibrationMap;
 
 //********** Data (Default)**********
-TimingInformation::TimingData::TimingData(void) : trace(emptyTrace)
+TimingInformation::TimingData::TimingData(void)
 {
     aveBaseline    = numeric_limits<double>::quiet_NaN();
     discrimination = numeric_limits<double>::quiet_NaN();
@@ -38,9 +38,13 @@ TimingInformation::TimingData::TimingData(void) : trace(emptyTrace)
 
 
 //********** Data **********
-TimingInformation::TimingData::TimingData(ChanEvent *chan) : trace(chan->GetTrace())
+TimingInformation::TimingData::TimingData(ChanEvent *chan) 
 {
     //put all the times as ns
+    // 11/18/2012 KM: after removal of Trace member, trace is
+    // refered here directly. Should not change anything but allows to 
+    // remove global variable emptyTrace
+    const Trace& trace = chan->GetTrace();
     aveBaseline    = trace.GetValue("baseline");
     discrimination = trace.GetValue("discrim");
     highResTime    = chan->GetHighResTime()*1e+9;  

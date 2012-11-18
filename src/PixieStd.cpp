@@ -59,14 +59,14 @@ using pixie::word_t;
 
 /**
  * Contains event information, the information is filled in ScanList() and is 
- * referenced externally in DetectorDriver.cpp, particularly in ProcessEvent()
+ * referenced in DetectorDriver.cpp, particularly in ProcessEvent()
  */
 RawEvent rawev;
 
 enum HistoPoints {BUFFER_START, BUFFER_END, EVENT_START = 10, EVENT_CONTINUE};
 
 // Function forward declarations
-void ScanList(vector<ChanEvent*> &eventList);
+void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev);
 void RemoveList(vector<ChanEvent*> &eventList);
 void HistoStats(unsigned int, double, double, HistoPoints);
 
@@ -79,7 +79,7 @@ bool MakeModuleData(const word_t *data, unsigned long nWords);
 #endif
 
 int ReadBuffData(word_t *lbuf, unsigned long *BufLen,
-		 vector<ChanEvent *> &eventList);
+		 vector<ChanEvent *> &eventList, StatsData& stats);
 void Pixie16Error(int errornum);
 
 const string scanMode = "scan";
@@ -405,11 +405,11 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
          << "                  " << pixie::eventWidth
          << " in pixie16 clock tics." << endl;
 
-	modChan->PrintUsedDetectors();
+	modChan->PrintUsedDetectors(rawev);
     if (verbose::MAP_INIT)
         modChan->PrintMap();
 
-	driver->Init();
+	driver->Init(rawev);
     
 	/* Make a last check to see that everything is in order for the driver 
 	 * before processing data
@@ -489,7 +489,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 		   contain pointers to all channels that fired in this buffer
                 */
 
-                retval= ReadBuffData(&lbuf[nWords],&bufLen,eventList);
+                retval= ReadBuffData(&lbuf[nWords], &bufLen, eventList);
 
                 
                 /* If the return value is less than the error code, 
@@ -560,7 +560,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 		/* once the vector of pointers eventlist is sorted based on time,
 		   begin the event processing in ScanList()
 		*/
-		ScanList(eventList);
+		ScanList(eventList, rawev);
 
 		/* once the eventlist has been scanned, remove it from memory
 		   and reset the number of events to zero and update the event
@@ -635,7 +635,7 @@ void RemoveList(vector<ChanEvent*> &eventList)
  *   rawevent is zeroed and the current channel placed inside it.
  */
 
-void ScanList(vector<ChanEvent*> &eventList) 
+void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev) 
 {
     unsigned long chanTime, eventTime;
 
@@ -688,7 +688,7 @@ void ScanList(vector<ChanEvent*> &eventList)
             /* detector driver accesses rawevent externally in order to
             have access to proper detector_summaries
             */
-                driver->ProcessEvent(scanMode);
+                driver->ProcessEvent(scanMode, rawev);
             }
     
             //after processing zero the rawevent variable
@@ -723,7 +723,7 @@ void ScanList(vector<ChanEvent*> &eventList)
         string mode;
         HistoStats(id, diffTime, currTime, BUFFER_END);
 
-        driver->ProcessEvent(scanMode);
+        driver->ProcessEvent(scanMode, rawev);
         rawev.Zero(usedDetectors);
     }
 }
