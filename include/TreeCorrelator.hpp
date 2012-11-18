@@ -47,6 +47,10 @@ class TreeCorrelator {
         TreeCorrelator(TreeCorrelator const&);
         void operator=(TreeCorrelator const&);
         static TreeCorrelator* instance;
+
+        /*Temprorary solution for choosing experiment*/
+        void buildTree_LeRIBSS();
+        void buildTree_Hybrid();
 };
 
 #endif

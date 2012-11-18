@@ -21,7 +21,7 @@ map<string, double> TimingInformation::constantsMap;
 TimingInformation::TimingCalMap TimingInformation::calibrationMap;
 
 //********** Data (Default)**********
-TimingInformation::TimingData::TimingData(void)
+TimingInformation::TimingData::TimingData(void) : trace(emptyTrace)
 {
     aveBaseline    = numeric_limits<double>::quiet_NaN();
     discrimination = numeric_limits<double>::quiet_NaN();
@@ -38,7 +38,7 @@ TimingInformation::TimingData::TimingData(void)
 
 
 //********** Data **********
-TimingInformation::TimingData::TimingData(ChanEvent *chan) 
+TimingInformation::TimingData::TimingData(ChanEvent *chan) : trace(chan->GetTrace())
 {
     //put all the times as ns
     // 11/18/2012 KM: after removal of Trace member, trace is

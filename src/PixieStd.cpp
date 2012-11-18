@@ -79,7 +79,7 @@ bool MakeModuleData(const word_t *data, unsigned long nWords);
 #endif
 
 int ReadBuffData(word_t *lbuf, unsigned long *BufLen,
-		 vector<ChanEvent *> &eventList, StatsData& stats);
+		 vector<ChanEvent *> &eventList);
 void Pixie16Error(int errornum);
 
 const string scanMode = "scan";
