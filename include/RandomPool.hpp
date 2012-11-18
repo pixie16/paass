@@ -14,16 +14,22 @@
  *  \brief A random pool of numbers
  */
 class RandomPool {
- private:
-  static const size_t size = 1000000; ///< default size of the pool
+private:
+    RandomPool();
+    RandomPool (const RandomPool&);
+    RandomPool& operator= (RandomPool const&);
+    static RandomPool* instance;
 
-  MTRand generator;     ///< random number generator
-  size_t counter;       ///< current random number index
-  double numbers[size]; ///< the pool of random numbers
- public:
-  RandomPool(void);
-  void Generate(void);        
-  double Get(double range=1); 
+    static const size_t size = 1000000; ///< default size of the pool
+
+    MTRand generator;     ///< random number generator
+    size_t counter;       ///< current random number index
+    double numbers[size]; ///< the pool of random numbers
+public:
+    static RandomPool* get();
+
+    void Generate(void);        
+    double Get(double range=1); 
 };
 
 #endif // __RANDOMPOOL_HPP_

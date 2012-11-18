@@ -21,9 +21,7 @@
 #include "PlotsRegister.hpp"
 #include "DammPlotIds.hpp"
 
-#include "AliasedPair.hpp"
 #include "Correlator.hpp"
-#include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
 #include "GeProcessor.hpp"
 #include "Ge4Hen3Processor.hpp"
@@ -154,7 +152,7 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
     GeProcessor::Process(event);
 
     /* tapeMove is true if the tape is moving */
-    bool tapeMove = TreeCorrelator::get().places["TapeMove"]->status();
+    bool tapeMove = TreeCorrelator::get()->places["TapeMove"]->status();
 
     /** If the tape is moving there is no need of analyzing events
      *  as they are background.
@@ -164,7 +162,9 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
 
     /* Number of neutrons as selected by gates on 3hen spectrum.
      * See DetectorDriver::InitCorrelator for gates. */
-    int neutron_count = dynamic_cast<PlaceCounter*>(TreeCorrelator::get().places["Neutrons"])->getCounter();
+    int neutron_count = 
+        dynamic_cast<PlaceCounter*>(
+                TreeCorrelator::get()->places["Neutrons"])->getCounter();
 
     /** All non-neutron related spectra are processed in the base class 
      * Here we are interested in neutron spectra only so there is no need
@@ -173,9 +173,9 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         return true;
 
     /* Beta places are activated with threshold in ScintProcessor. */
-    bool hasBeta = TreeCorrelator::get().places["Beta"]->status();
+    bool hasBeta = TreeCorrelator::get()->places["Beta"]->status();
     /* Cycle time is measured from the begining of last beam on event.*/
-    double cycleTime = TreeCorrelator::get().places["Cycle"]->last().time;
+    double cycleTime = TreeCorrelator::get()->places["Cycle"]->last().time;
 
     for (vector<ChanEvent*>::iterator it = geEvents_.begin(); 
 	 it != geEvents_.end(); it++) {

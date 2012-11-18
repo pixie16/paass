@@ -6,7 +6,6 @@
 #include <sstream>
 
 #include "DammPlotIds.hpp"
-#include "DetectorDriver.hpp"
 #include "RawEvent.hpp"
 #include "BetaScintProcessor.hpp"
 
@@ -39,14 +38,14 @@ bool BetaScintProcessor::PreProcess(RawEvent &event){
     for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin(); 
 	 it != scintBetaEvents.end(); it++) {
         string place = (*it)->GetChanID().GetPlaceName();
-        if (TreeCorrelator::get().places.count(place) == 1) {
+        if (TreeCorrelator::get()->places.count(place) == 1) {
             double time   = (*it)->GetTime();
             double energy = (*it)->GetEnergy();
             // Activate B counter only for betas above some threshold
             if (energy > detectors::betaThreshold) {
                 ++multiplicity;
                 CorrEventData data(time, true, energy);
-                TreeCorrelator::get().places[place]->activate(data);
+                TreeCorrelator::get()->places[place]->activate(data);
             }
         } else {
             cerr << "In BetaScintProcessor: beta place " << place
