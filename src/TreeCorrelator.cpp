@@ -52,9 +52,14 @@ void TreeCorrelator::addChild(string parent, string child,
     }
 }
 
-
 void TreeCorrelator::buildTree() {
-    /** Setup for LeRIBBS */
+    /*Temporary solution for building tree
+     * put experiment specific function call here */
+    buildTree_LeRIBSS();
+}
+
+void TreeCorrelator::buildTree_LeRIBSS() {
+    /** Setup for LeRIBBS 4 Clovers*/
 
     /* Use this constant for debugging */
     cout << "TreeCorrelator: building tree" << endl;
@@ -128,7 +133,94 @@ void TreeCorrelator::buildTree() {
             addChild("Beta", name, true, verbose::CORRELATOR_INIT);
         }
     }
-    /** End setup for LeRIBBS */
+}
+
+void TreeCorrelator::buildTree_Hybrid() {
+    /** Setup for LeRIBBS 3Hen Hybrid */
+
+    /* Use this constant for debugging */
+    cout << "DetectorDriver::InitializeCorrelator()" << endl;
+
+    /** Here we create abstract places.*/
+    PlaceOR* clover0 = new PlaceOR();
+    addPlace("Clover0", clover0, verbose::CORRELATOR_INIT);
+    PlaceOR* clover1 = new PlaceOR();
+    addPlace("Clover1", clover1, verbose::CORRELATOR_INIT);
+
+    /** Note that beta_scint detectors are acticated in BetaScintProcessor
+     *  with threshold on energy defined therein.
+     *  This place is also sensitive to this threshold as parent of beta places.
+     *
+     *  Fifo of this place is increased to accomodate multiplicity of beta
+     *  events for longer events width. Check appopriate plot if depth is
+     *  large enough.
+     */
+    PlaceOR* beta = new PlaceOR(true, 10);
+    addPlace("Beta", beta, verbose::CORRELATOR_INIT);
+    
+    // All Hen3 events
+    PlaceCounter* hen3 = new PlaceCounter();
+    addPlace("Hen3", hen3, verbose::CORRELATOR_INIT);
+
+    // Real neutrons (children are thresholded)
+    PlaceCounter* neutrons = new PlaceCounter();
+    addPlace("Neutrons", neutrons, verbose::CORRELATOR_INIT);
+
+    PlaceOR* gamma = new PlaceOR();
+    addPlace("Gamma", gamma, verbose::CORRELATOR_INIT);
+    addChild("Gamma", "Clover0", true, verbose::CORRELATOR_INIT);
+    addChild("Gamma", "Clover1", true, verbose::CORRELATOR_INIT);
+
+    PlaceAND* gammabeta = new PlaceAND();
+    addPlace("GammaBeta", gammabeta, verbose::CORRELATOR_INIT);
+    places["GammaBeta"] = new PlaceAND();
+    addChild("GammaBeta", "Gamma", true, verbose::CORRELATOR_INIT);
+    addChild("GammaBeta", "Beta", true, verbose::CORRELATOR_INIT);
+
+    PlaceAND* gammawobeta = new PlaceAND();
+    addPlace("GammaWOBeta", gammawobeta, verbose::CORRELATOR_INIT);
+    addChild("GammaWOBeta", "Gamma", true, verbose::CORRELATOR_INIT);
+    addChild("GammaWOBeta", "Beta", false, verbose::CORRELATOR_INIT);
+
+    // Active if tape is moving
+    PlaceDetector* tapemove = new PlaceDetector(false);
+    addPlace("TapeMove", tapemove, verbose::CORRELATOR_INIT);
+    // Active if beam is on
+    PlaceDetector* beam = new PlaceDetector(false);
+    addPlace("Beam", beam, verbose::CORRELATOR_INIT);
+    // Activated with beam start, deactivated with TapeMove
+    PlaceDetector* cycle  = new PlaceDetector(false);
+    addPlace("Cycle", cycle, verbose::CORRELATOR_INIT);
+
+    DetectorLibrary* modChan = DetectorLibrary::get();
+
+    // Basic places are created in MapFile.cpp
+    // Here we group them as children of just created abstract places
+    unsigned int sz = modChan->size();
+    for (unsigned i = 0; i < sz; ++i) {
+        string type = (*modChan)[i].GetType();
+        string subtype = (*modChan)[i].GetSubtype();
+        int location = (*modChan)[i].GetLocation();
+        string name = (*modChan)[i].GetPlaceName();
+
+        if (type == "ge" && subtype == "clover_high") {
+            int clover_number = int(location / 4);
+            stringstream clover;
+            clover << "Clover" << clover_number;
+            addChild(clover.str(), name, true, verbose::CORRELATOR_INIT);
+        } else if (type == "beta_scint" && subtype == "beta") {
+            addChild("Beta", name, true, verbose::CORRELATOR_INIT);
+        } else if (type == "3hen" && subtype == "big") {
+            stringstream neutron;
+            neutron << "Neutron" << location;
+            PlaceThreshold* real_neutron  = new PlaceThreshold(detectors::neutronLowLimit,
+                                                               detectors::neutronHighLimit);
+            addPlace(neutron.str(), real_neutron, verbose::CORRELATOR_INIT);
+
+            addChild("Hen3", name, true, verbose::CORRELATOR_INIT);
+            addChild("Neutrons", neutron.str(), true, verbose::CORRELATOR_INIT);
+        }
+    }
 }
 
 TreeCorrelator::~TreeCorrelator() {

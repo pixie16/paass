@@ -1,0 +1,43 @@
+<!-- XML configuration for TreeCorrelator mockup -->
+
+<!--
+     Instructions:
+
+
+-->
+
+<TreeCorrelator>
+
+    <Place type="PlaceAND" name="GammaBeta">
+        <Place type="PlaceOR" name="Beta">
+            <Place type="" name="beta_scint_beta_*"/>
+        </Place>
+        <Place type="PlaceOR" name="Gamma">
+            <Place type="PlaceOR" name="Clover0">
+                <Place type="" name="ge_clover_high_0-3"/>
+            </Place>
+            <Place type="PlaceOR" name="Clover1">
+                <Place type="" name="ge_clover_high_4-7"/>
+            </Place>
+            <Place type="PlaceOR" name="Clover2">
+                <Place type="" name="ge_clover_high_8-11"/>
+            </Place>
+            <Place type="PlaceOR" name="Clover3">
+                <Place type="" name="ge_clover_high_12-15"/>
+            </Place>
+        </Place>
+    </Place>
+
+    <Place type="PlaceAND" name="GammaWOBeta">
+        <Place type="" name="Gamma" coincidence="true"/>
+        <Place type="" name="Beta" coincidence="false"/>
+    </Place>
+
+
+    <Place type="PlaceDetector" name="TapeMove" reset="false"/>
+
+    <Place type="PlaceDetector" name="Beam" reset="false"/>
+
+    <Place type="PlaceDetector" name="Cycle" reset="false"/>
+
+</TreeCorrelator>
