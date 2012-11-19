@@ -53,6 +53,7 @@
 #include "Globals.hpp"
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
+#include "TreeCorrelator.hpp"
 
 using namespace std;
 using namespace dammIds::raw;
@@ -148,26 +149,26 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
 
     // Check to make sure the number of buffers is not excessively large 
     if (totBuf > maxChunks) {
-	cout << "LARGE TOTNUM = " << bufNum << endl;
-	return;
+        cout << "LARGE TOTNUM = " << bufNum << endl;
+        return;
     }
 
     /* Find a starting point in a file immediately following the 5-word buffer
          which indicates the end of a spill
      */
     if(bufNum != 0 && firstTime) {
-	do {
-	    if (buf[totWords] == U_DELIMITER) {
-		cout << "  -1 DELIMITER, " 
-		     << buf[totWords] << buf[totWords + 1] << endl;
-		return;
-	    }
-	    nWords = buf[totWords] / 4;
-	    totBuf = buf[totWords+1];
-	    bufNum = buf[totWords+2];
-	    totWords += nWords+1;
-	    cout << "SKIP " << bufNum << " of " << totBuf << endl;
-	} while(nWords != 5);
+        do {
+            if (buf[totWords] == U_DELIMITER) {
+                cout << "  -1 DELIMITER, " 
+                    << buf[totWords] << buf[totWords + 1] << endl;
+                return;
+            }
+            nWords = buf[totWords] / 4;
+            totBuf = buf[totWords+1];
+            bufNum = buf[totWords+2];
+            totWords += nWords+1;
+            cout << "SKIP " << bufNum << " of " << totBuf << endl;
+        } while(nWords != 5);
     }
     firstTime = false;
     
@@ -407,7 +408,8 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 	    exit(EXIT_FAILURE);
 	}       
 	modChan.PrintUsedDetectors();
-	modChan.PrintMap();
+    if (verbose::MAP_INIT)
+        modChan.PrintMap();
 
 	driver.Init();
     
@@ -636,9 +638,6 @@ void RemoveList(vector<ChanEvent*> &eventList)
 
 void ScanList(vector<ChanEvent*> &eventList) 
 {
-    /** The time width of an event in units of pixie16 clock ticks */
-    const int eventWidth = 300;
-
     unsigned long chanTime, eventTime;
 
     // local variable for the detectors used in a given event
@@ -655,67 +654,73 @@ void ScanList(vector<ChanEvent*> &eventList)
     double currTime = lastTime;
     unsigned int id = (*iEvent)->GetID();
 
-
     HistoStats(id, diffTime, lastTime, BUFFER_START);
 
     //loop over the list of channels that fired in this buffer
     for(; iEvent != eventList.end(); iEvent++) { 
-	id        = (*iEvent)->GetID();
-	if (id == U_DELIMITER) {
-	  cout << "pattern 0 ignore" << endl;
-	  continue;
-	}
-	if (modChan[id].GetType() == "ignore") {
-	  continue;
-	}
+        id = (*iEvent)->GetID();
+        if (id == U_DELIMITER) {
+            cout << "pattern 0 ignore" << endl;
+            continue;
+        }
+        if (modChan[id].GetType() == "ignore") {
+            continue;
+        }
 
-	// this is a channel we're interested in
-	chanTime  = (*iEvent)->GetTrigTime(); 
-	eventTime = (*iEvent)->GetEventTimeLo();
+        // this is a channel we're interested in
+        chanTime  = (*iEvent)->GetTrigTime(); 
+        eventTime = (*iEvent)->GetEventTimeLo();
 
-       /* retrieve the current event time and determine the time difference 
-	   between the current and previous events. 
+        /* retrieve the current event time and determine the time difference 
+        between the current and previous events. 
         */
-	currTime = (*iEvent)->GetTime();
+        currTime = (*iEvent)->GetTime();
         diffTime = currTime - lastTime;
 
         /* if the time difference between the current and previous event is 
-	   larger than the event width, finalize the current event, otherwise
-	   treat this as part of the current event
+        larger than the event width, finalize the current event, otherwise
+        treat this as part of the current event
         */
-	if ( diffTime > eventWidth ) {
-            if(rawev.Size()>0) {
-		/* detector driver accesses rawevent externally in order to
-		   have access to proper detector_summaries
-		*/
+        if ( diffTime > pixie::eventWidth ) {
+            if(rawev.Size() > 0) {
+            /* detector driver accesses rawevent externally in order to
+            have access to proper detector_summaries
+            */
                 driver.ProcessEvent(scanMode);
             }
- 
+    
             //after processing zero the rawevent variable
             rawev.Zero(usedDetectors);
             usedDetectors.clear();	    
 
-	    HistoStats(id, diffTime, currTime, EVENT_START);
-	} else HistoStats(id, diffTime, currTime, EVENT_CONTINUE);
-	unsigned long dtimebin = 2000 + eventTime - chanTime;
-	if (dtimebin < 0 || dtimebin > (unsigned)(SE)) {
-	    cout << "strange dtime for id " << id << ":" << dtimebin << endl;
-	}
-	driver.plot(D_TIME + id, dtimebin);
+            // Now clear all places in correlator (if resetable type)
+            for (map<string, Place*>::iterator it = TreeCorrelator::get().places.begin(); it != TreeCorrelator::get().places.end(); ++it)
+                if ((*it).second->resetable())
+                    (*it).second->reset();
 
-	usedDetectors.insert(modChan[id].GetType());
-	rawev.AddChan(*iEvent);
-	    
-        lastTime = currTime; // update the time of the last event
+            HistoStats(id, diffTime, currTime, EVENT_START);
+        } else HistoStats(id, diffTime, currTime, EVENT_CONTINUE);
+
+        unsigned long dtimebin = 2000 + eventTime - chanTime;
+        if (dtimebin < 0 || dtimebin > (unsigned)(SE)) {
+            cout << "strange dtime for id " << id << ":" << dtimebin << endl;
+        }
+        driver.plot(D_TIME + id, dtimebin);
+
+        usedDetectors.insert(modChan[id].GetType());
+        rawev.AddChan(*iEvent);
+
+        // update the time of the last event
+        lastTime = currTime; 
     } //end loop over event list
 
     //process the last event in the buffer
-    if( rawev.Size()>0 ) {
-	string mode;
+    if (rawev.Size() > 0) {
+        string mode;
         HistoStats(id, diffTime, currTime, BUFFER_END);
 
-	driver.ProcessEvent(scanMode);
-	rawev.Zero(usedDetectors);
+        driver.ProcessEvent(scanMode);
+        rawev.Zero(usedDetectors);
     }
 }
 
@@ -810,108 +815,20 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
 /**
  * \brief Initialize the analysis
  *
- * Read in the map.txt file to determine what detector types are going to be used
- * in this analysis.  For each detector type used, create an entry into the map
- * of detector summaries in the raw event.  After this is completed, proceed to 
- * initialize each detector driver to complete the initialization.
+ * New map file (map2.txt) should be handled by MapFile object.
  */
 bool InitMap(void) 
 {
-    /*
-      Local variables for reading in the map.txt file.  For each channel, the
-      read variables are the module and channel number (from which the channel's
-      unique id will be computed), the detector type and subtype, the spectrum
-      number where the raw channel energies will be plotted (currently
-      placeholder numbers), the physical detector location (think strip number
-      or detector number) and an integer called trace which is not currently used.
-    */
-    unsigned int modNum, chanNum, dammID, detLocation, trace;
-    string detType, detSubtype;
-
     extern MapFile theMapFile;
 
     if (theMapFile) {
-	cout << "We've already handled this with a new version of the map file." << endl;
-	return true;
+        cout << "Map file handled with a new version of the map file." << endl;
+        return true;
+    } else {
+        cerr << "The old type map file is no longer supported." << endl
+             << "Please use the new type map file (map2.txt)." << endl;
+        return false;
     }
-    ifstream mapFile("map.txt");
-
-    if (!mapFile) {
-        cout << "Can not open file 'map.txt'" << endl;
-	return false;
-    }
-      
-    // read the map file until the end is reached
-    while (mapFile) {
-	/*
-	 * If the first input on a line is a number, read in channel info.
-	 * Otherwise, treat it as a comment.
-	 */
-	bool virtualChannel = false;
-
-	if ( mapFile.peek() == 'v' ) {
-	    virtualChannel = true;
-	    mapFile.ignore();
-	}
-	if ( isdigit(mapFile.peek()) ) {
-	    mapFile >> modNum >> chanNum >> dammID >> detType
-		    >> detSubtype >> detLocation >> trace;
-	    
-	    /*
-	     * If you have not specified that this channel
-	     * be ignored, process the information
-	     */
-	    if (detType != "ignore") {
-		/* if the type already has been set, something is wrong with
-		 * in the map file.
-		 */
-		if ( modChan.HasValue(modNum,chanNum) ) {
-		    cout << "Identifier for " << detType << "in module " 
-			 << modNum << ": channel " << chanNum 
-			 << " is initialized more than once in the map file."
-			 << endl;
-		    exit(EXIT_FAILURE);
-		}
-		/*
-		 * The detector type from map.txt matched a detector listed in
-		 * the set of known detectors. Load in the information into a
-		 * class called an identifier which contains the detector type
-		 * and subtype, detector location and dammid.
-		 */
-		Identifier id;
-
-		id.SetDammID(dammID);
-		id.SetType(detType);
-		id.SetSubtype(detSubtype);
-		id.SetLocation(detLocation);
-		if (virtualChannel) {
-		    id.AddTag("virtual",1);
-		}
-
-		modChan.Set(modNum, chanNum, id);
-	    } // end != ignore condition                
-	    else {
-		/*
-		 * This channel has been set to be ignored in the analysis.
-		 * Put a dummy identifier into the identifier vector modchan
-		 */
-		Identifier id;
-
-		id.SetType("ignore");	       	       
-		id.SetSubtype("ignore");
-		
-		modChan.Set(modNum, chanNum, id);
-	    }
-	} // end if to see if the line begins with a digit
-	else {
-	    // This is a comment line in the map file. Skip the line.	   
-	    mapFile.ignore(1000,'\n');
-	}	
-    } // end while (!mapfile) loop - end reading map.txt file
-    
-    mapFile.close();    
-    
-    return true;
 }
 
 /** \brief pixie16 scan error handling.

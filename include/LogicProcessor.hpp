@@ -11,19 +11,23 @@
 #include "EventProcessor.hpp"
 
 class LogicProcessor : public EventProcessor {
- protected:
+private:
+    void BasicProcessing(RawEvent &event);
+    void TriggerProcessing(RawEvent &event);
+    int plotSize;
+protected:
     std::vector<double> lastStartTime; //< time of last leading edge
     std::vector<double> lastStopTime;  //< time of last trailing edge
     std::vector<bool>   logicStatus;   //< current level of the logic signal
-
+    
     std::vector<unsigned long> stopCount;  //< number of stops received
     std::vector<unsigned long> startCount; //< number of starts received
- public:
+public:
     LogicProcessor();
     virtual void DeclarePlots(void);
     virtual bool Process(RawEvent &event);
     virtual bool LogicStatus(size_t loc) const {
-      return logicStatus.at(loc);
+        return logicStatus.at(loc);
     }
     unsigned long StopCount(size_t loc) const {
 	return stopCount.at(loc);

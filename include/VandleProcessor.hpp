@@ -40,11 +40,12 @@ class VandleProcessor : public EventProcessor,
     virtual void FillMap(const vector<ChanEvent*> &eventList, const std::string type,
 			 TimingDataMap &eventMap);
     virtual void Tvandle(void);
+    virtual void WalkBetaVandle(const TimingInformation::TimingDataMap &beta, const TimingInformation::BarData &bar);
 
     bool hasDecay;
     double decayTime;
     int counter;
-
+    
     typedef std::pair<unsigned int, unsigned int> CrossTalkKey; 
     typedef std::map<CrossTalkKey, double> CrossTalkMap;
     std::map<CrossTalkKey, double> crossTalk;

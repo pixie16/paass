@@ -21,24 +21,37 @@
 10.0     waveformHigh
 3.0      startDiscrimination
 6226.55  averageQdcOneVolt
+#Walk from the Trapezoidal Filter in ns
+60	 trapezoidalWalk
+#For Tvandle and LeRIBSS; times in ns
+#112	 traceDelay
+#176	 traceLength
+#For Pulser data
+4000	 traceDelay
+8000	 traceLength
 
 #FittingRoutine
-12.2162 widthLiquid
-2.25164 decayLiquid
-7.44108 widthVandle
-2.23706 decayVandle
-15.90277 widthTvandle
-2.735047 decayTvandle
-8.80167 widthBeta
-1.82293 decayBeta
-7.44108  widthDefault
-2.23706 decayDefault
+#VANDLE
+0.32969 betaVandle
+0.212945 gammaVandle
+#Beta
+0.574531 betaBeta
+0.274512 gammaBeta
+#PULSER
+0.832272 betaPulser
+0.236425 gammaPulser
+#TeenyVandle
+0.362307 betaTvandle
+0.186129 gammaTvandle
+#Default
+0.32969 betaDefault
+0.212945 gammaDefault
 
-#Fitting  Parameters for 100 MHz
-#4.52672 widthLiquid
-#1.73376 decayLiquid
+#Original Fitting Parameters (100 MHz)
 #3.9626 widthVandle
 #3.2334  decayVandle
+4.52672 widthLiquid
+1.73376 decayLiquid
 
 #SinglePointAnalysis
 0.102        sigmaPulser

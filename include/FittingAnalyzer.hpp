@@ -21,20 +21,19 @@ class FittingAnalyzer : public TraceAnalyzer,
 	size_t n;
 	double * y;
 	double * sigma;
-	double width;
-	double decay;
+	double beta,gamma,qdc;
     };
  private:
-    void OutputFittedInformation(void);
-    double CalculateFittedFunction(double &x);
-    double CalculateReducedChiSquared(const double &dof, 
-				      const double &sigmaBaseline);
-    double CalculateWalk(const double &maxValue);
-    void FreeMemory(void);
-    unsigned int counter;
-    std::vector<double> aveTrace;
-    std::vector<double> fittedParameters;
-    std::vector<double> fittedTrace;
+    void LoadMask(void);
+    void OutputFittedInformation(const std::vector<double> &waveform, 
+				 const std::vector<double> &fitPars);
+    double ApplyMask(const std::vector<double> &waveform, 
+		     const double &qdc, const double &maxval, 
+		     const double &sigma);
+    double CalcFittedFunction(double &x, 
+			      const std::vector<double> &fitPars);
+    double CalcWalk(const double &maxValue, const std::string &type, 
+		    const std::string &subType);
 };
 #endif // __FITTINGANALYZER_HPP_
 // David is awesome.

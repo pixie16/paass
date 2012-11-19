@@ -42,10 +42,15 @@ class Trace : public std::vector<int>
     unsigned int baselineLow; 
     unsigned int baselineHigh;
 
+    std::vector<double> waveform;
+
     std::map<std::string, double> doubleTraceData;
     std::map<std::string, int>    intTraceData;
 
-    static Plots histo; //< EMPTY PLOTS for Plotting interface
+    /** This field is static so all instances of Trace class have access to 
+     * the same plots and plots range. */
+    static Plots histo; 
+
  public:
      
     Trace() : std::vector<int>()
@@ -79,10 +84,12 @@ class Trace : public std::vector<int>
 	else
 	    InsertValue(name,value);
     }
+
     bool HasValue(std::string name) const {
 	return (doubleTraceData.count(name) > 0 ||
 		intTraceData.count(name) > 0);
     }
+
     double GetValue(std::string name) const {
 	if (doubleTraceData.count(name) > 0)
 	    return (*doubleTraceData.find(name)).second;
@@ -90,6 +97,8 @@ class Trace : public std::vector<int>
 	    return (*intTraceData.find(name)).second;
 	return NAN;
     }
+
+    std::vector<double> GetWaveform(){return waveform;}; 
 
     //To allow access to the variables related to timing
     //This is needed in order to calculate the baseline over the 
@@ -100,7 +109,7 @@ class Trace : public std::vector<int>
     double DoDiscrimination(unsigned int lo, unsigned int numBins);
     double DoQDC(unsigned int lo, unsigned int numBins);
     
-    unsigned int FindMaxInfo(unsigned int lo = 10, unsigned int numBins = 15);
+    unsigned int FindMaxInfo(void);
     
     void Plot(int id);           //< plot trace into a 1D histogram
     void Plot(int id, int row);  //< plot trace into row of a 2D histogram

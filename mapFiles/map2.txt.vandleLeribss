@@ -16,9 +16,7 @@ MOD    CH      TYPE	   SUBTYPE	LOCATION	TAGS
 1-6    0-15e   vandleSmall left				uncal
 1-6    0-15o   vandleSmall right			uncal
 7      0-7     ge	   clover_high
-
-#0-1    0-11e   ssd	top				uncal
-#0-1    0-11o   ssd	bottom				uncal
-#2      0-7     ssd	box
-#6      0       ignore
-#7-8    0-11e   ssd	digisum				virtual construct_trace
+7      8       mtc         beam_stop                    uncal
+7      9       mtc         beam_start                   uncal
+7      10      mtc         start                        uncal
+7      11      mtc         stop                         uncal

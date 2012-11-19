@@ -1,7 +1,6 @@
 /** \file IonChamberProcessor.cpp
  * \brief implementation for ion chambers
  */
-
 #include <vector>
 
 #include <cmath>
@@ -24,36 +23,51 @@ const double IonChamberProcessor::minTime = 18.0e-6 / clockInSeconds;
 
 using namespace dammIds::ionChamber;
 
+namespace dammIds
+{
+  namespace ionChamber {
+    // 1d spectra
+    const int D_ENERGYSUM     = 0;
+    const int D_ENERGYTHREE_GROUPX = 10; // + starting det
+    const int D_ENERGYTWO_GROUPX   = 20; // + starting det
+    
+    const int D_DTIME_DETX    = 30; // + detector num
+    const int D_RATE_DETX     = 40; // + detector num
+    // 2d spectra
+    const int DD_ESUM__ENERGY_DETX   = 50; // + detector num    
+    const int DD_EBACK__ENERGY_DETX  = 90; // + detector num
+  };
+};
+
 IonChamberProcessor::IonChamberProcessor() : EventProcessor(OFFSET, RANGE)
 {
-    name = "ionchamber";
-    associatedTypes.insert("ion_chamber"); // associate with the scint type
-
+    name = "IonChamber";
+    associatedTypes.insert("ionChamber"); 
+    
     for (size_t i=0; i < noDets; i++) {
-      lastTime[i] = -1;
-      //     timeDiffs.clear();
-      timeDiffs[i].clear();
+        lastTime[i] = -1;
+        timeDiffs[i].clear();
     }
 }
 
 void IonChamberProcessor::DeclarePlots(void)
 {
-  DeclareHistogram1D(D_ENERGYSUM, SE, "ion chamber energy");
-
-  for (size_t i=0; i < noDets - 2; i++) {
-    DeclareHistogram1D(D_ENERGYTHREE_GROUPX + i, SE, "ion chamber 3sum");
-  }
-  for (size_t i=0; i < noDets - 1; i++) {
-    DeclareHistogram1D(D_ENERGYTWO_GROUPX + i, SE, "ion chamber 2sum");
-  }
-  for (size_t i=0; i < noDets; i++) {
-    DeclareHistogram1D(D_DTIME_DETX + i, SE, "dtime for det i, 100 ns");
-    DeclareHistogram1D(D_RATE_DETX + i, SE, "calc rate for det i, Hz");
-    DeclareHistogram2D(DD_ESUM__ENERGY_DETX + i, 
-		       SA, SA, "ion seg i v sum");
-    DeclareHistogram2D(DD_EBACK__ENERGY_DETX + i,
-		       SA, SA, "ion seg i v ion 234");
-  }
+    DeclareHistogram1D(D_ENERGYSUM, SE, "ion chamber energy");
+    
+    for (size_t i=0; i < noDets - 2; i++) {
+        DeclareHistogram1D(D_ENERGYTHREE_GROUPX + i, SE, "ion chamber 3sum");
+    }
+    for (size_t i=0; i < noDets - 1; i++) {
+        DeclareHistogram1D(D_ENERGYTWO_GROUPX + i, SE, "ion chamber 2sum");
+    }
+    for (size_t i=0; i < noDets; i++) {
+        DeclareHistogram1D(D_DTIME_DETX + i, SE, "dtime for det i, 100 ns");
+        DeclareHistogram1D(D_RATE_DETX + i, SE, "calc rate for det i, Hz");
+        DeclareHistogram2D(DD_ESUM__ENERGY_DETX + i, 
+                           SA, SA, "ion seg i v sum");
+        DeclareHistogram2D(DD_EBACK__ENERGY_DETX + i,
+                           SA, SA, "ion seg i v ion 234");
+    }
 }
 
 bool IonChamberProcessor::Process(RawEvent &event)

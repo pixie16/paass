@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
 #include <map>
 #include <set>
 
@@ -68,6 +69,13 @@ public:
     bool operator!=(const Identifier &x) const {
 	return !operator==(x);
     }
+
+    std::string GetPlaceName() const {
+        std::stringstream ss;
+        ss << GetType() << "_" << GetSubtype() << "_" << GetLocation();
+        return ss.str();
+    }
+
 private:
     std::string type;      /**< Specifies the detector type */
     std::string subtype;   /**< Specifies the detector sub type */
@@ -87,6 +95,8 @@ private:
  * Note that this currently stores raw values internally through pixie word types
  *   but returns data values through native C types. This is potentially non-portable. 
  */
+extern const double pixie::energyContraction;
+
 class ChanEvent
 {
 private:
@@ -124,8 +134,7 @@ private:
     // make the front end responsible for reading the data able to set the channel data directly
     friend int ReadBuffData(pixie::word_t *, unsigned long *, std::vector<ChanEvent *> &);
 public:
-    static const double pixieEnergyContraction = 2.0; ///< energies from pixie16 are contracted by this number
-
+    static double pixieEnergyContraction; ///< energies from pixie16 are contracted by this number
     void SetEnergy(double a)    {energy = a;}    /**< Set the raw energy in case we want
 						    to extract it from the trace ourselves */
     void SetCalEnergy(double a) {calEnergy = a;} /**< Set the calibrated energy */

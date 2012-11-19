@@ -5,6 +5,7 @@
  */
 
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <iterator>
 #include <string>
@@ -23,15 +24,21 @@ extern RawEvent rawev; // to access detector summaries
 
 EventProcessor::EventProcessor() : 
   userTime(0.), systemTime(0.), name("generic"), initDone(false), 
-  didProcess(false), histo(0, 0, PlotsRegister::R() )
+  didProcess(false), histo(0, 0)
 {
     clocksPerSecond = sysconf(_SC_CLK_TCK);
+    ofstream hislog("histograms.txt");
+    hislog << "Non empty histograms:" << endl;
+    hislog.close();
 }
 
 EventProcessor::EventProcessor(int offset, int range) : 
   userTime(0.), systemTime(0.), name("generic"), initDone(false), 
-  didProcess(false), histo(offset, range, PlotsRegister::R() ) {
+  didProcess(false), histo(offset, range) {
     clocksPerSecond = sysconf(_SC_CLK_TCK);
+    ofstream hislog("histograms.txt");
+    hislog << "Non empty histograms:" << endl;
+    hislog.close();
 }
 
 EventProcessor::~EventProcessor() 
@@ -41,6 +48,10 @@ EventProcessor::~EventProcessor()
 	cout << "processor " << name << " : " 
 	     << userTime << " user time, "
 	     << systemTime << " system time" << endl;
+        ofstream hislog("histograms.txt", ios_base::app);
+        hislog << "In " << name << ": " << endl;
+        histo.PrintNonEmpty(hislog);
+        hislog.close();
     }
 }
 
@@ -94,7 +105,19 @@ bool EventProcessor::Init(DetectorDriver &driver)
     return true;
 }
 
-/** Process an event */
+/** Process an event. In PreProcess correlator is filled and basic analysis is done.
+ * More sophisiticated analysis (which might also depend on other processors) should be
+ * done in Process() function. PreProcess will be first called for all Processors and then
+ * the Process function will be called.*/
+bool EventProcessor::PreProcess(RawEvent &event)
+{
+    if (!initDone)
+        return (didProcess = false);
+    return (didProcess = true);
+}
+
+/** Process an event. PreProcess function should fill correlation tree and all processors
+ * should have basic parameters calculated during PreProccessing.*/
 bool EventProcessor::Process(RawEvent &event)
 {
     if (!initDone)

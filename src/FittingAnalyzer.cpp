@@ -7,6 +7,7 @@
  * \author S. V. Paulauskas 
  * \date 22 July 2011
  */
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <algorithm>
@@ -25,34 +26,44 @@
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_vector.h>
 
-int FitFunction(const gsl_vector *x, void *FitData, 
-		gsl_vector *f);
-int CalculateJacobian(const gsl_vector *x, void *FitData, 
-		      gsl_matrix *J);
-int FitFunctionDerivative(const gsl_vector *x, void *FitData, 
-			  gsl_vector *f, gsl_matrix *J);
+int FitFunction(const gsl_vector *x, void *FitData, gsl_vector *f);
+int CalcJacobian(const gsl_vector *x, void *FitData, gsl_matrix *J);
+int FitFunctionDerivative(const gsl_vector *x, void *FitData, gsl_vector *f, 
+                          gsl_matrix *J);
 
 namespace dammIds {
-    namespace waveformanalyzer {
-	const int DD_TRACES     = 0;
-	const int D_CHISQPERDOF = 1;
-	const int D_PHASE       = 2;
-	const int DD_AMP        = 3;
-	const int D_SAT         = 4;
+    namespace trace {
+        namespace fitting {
+            const int DD_TRACES      = 0;
+            const int D_CHISQPERDOF  = 1;
+            const int D_PHASE        = 2;
+            const int DD_AMP         = 3;
+            const int D_SAT          = 4;
+            const int DD_MAXVSQDCMAX = 5;
+            const int DD_MAXVALPOS   = 6;
+            const int DD_QDCMASK     = 7;
+            const int DD_MAXVSTHRESH = 8;
+            const int D_SIGMA        = 9;
+        }
     }
 }
 
 using namespace std;
-using namespace dammIds::waveformanalyzer;
+using namespace dammIds::trace::fitting;
 
 //********** DeclarePlots **********
 void FittingAnalyzer::DeclarePlots(void)
 {
-    DeclareHistogram2D(DD_TRACES, S7, S5, "traces data");
+    DeclareHistogram2D(DD_TRACES, SB, S7, "traces data");
     DeclareHistogram2D(DD_AMP, SE, SC, "Fit Amplitude");
     DeclareHistogram1D(D_PHASE, SE, "Fit X0");
     DeclareHistogram1D(D_CHISQPERDOF, SE, "Chi^2/dof");
     DeclareHistogram1D(D_SAT, S4, "Saturations");
+    DeclareHistogram2D(DD_MAXVSQDCMAX, SB, SC, "Max to Max Value Ratio");
+    DeclareHistogram2D(DD_MAXVALPOS, S5, SC, "Max Val vs Pos");
+    DeclareHistogram2D(DD_QDCMASK, SE, SC, "Max vs Reduced Chi^2");
+    DeclareHistogram2D(DD_MAXVSTHRESH, S7, SC, "Max vs Num Bins Tresh");
+    DeclareHistogram1D(D_SIGMA, SE, "Standard Dev Baseline");
 }
 
 
@@ -60,7 +71,6 @@ void FittingAnalyzer::DeclarePlots(void)
 FittingAnalyzer::FittingAnalyzer() : TraceAnalyzer(OFFSET,RANGE)
 {
     name = "FittingAnalyzer";
-    counter = 0;
 }
 
 
@@ -69,100 +79,86 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
 			      const string &detSubtype)
 {
     TraceAnalyzer::Analyze(trace, detType, detSubtype);
-    if(trace.HasValue("saturation")) {
+
+    
+    if(trace.HasValue("saturation") || trace.empty()) {
 	plot(D_SAT,2);
+     	EndAnalyze();
+     	return;
+    }
+    
+    const double sigmaBaseline = trace.GetValue("sigmaBaseline");
+    const double maxVal = trace.GetValue("maxval");
+    const double qdc = trace.GetValue("tqdc");
+    const double qdcToMax = trace.GetValue("qdcToMax");
+    const unsigned int maxPos = (unsigned int)trace.GetValue("maxpos");
+    const vector<double> waveform = trace.GetWaveform();
+    
+    plot(DD_MAXVSQDCMAX, qdcToMax*100+100, maxVal);
+    plot(DD_MAXVALPOS, maxPos, maxVal);
+    plot(D_SIGMA, sigmaBaseline*100);
+
+    if(sigmaBaseline > 3.0) {
 	EndAnalyze();
 	return;
     }
-    
-    const double aveBaseline = trace.GetValue("baseline");
-    const double sigmaBaseline = trace.GetValue("sigmaBaseline");
-    const double maxVal = trace.GetValue("maxval");
-    
-    const unsigned int maxPos = (unsigned int)trace.GetValue("maxpos");
-    const unsigned int waveformLow = 
-	(unsigned int)TimingInformation::GetConstant("waveformLow");
-    const unsigned int waveformHigh = 
-	(unsigned int)TimingInformation::GetConstant("waveformHigh");
 
-    if((maxPos < waveformLow) || (maxPos + waveformHigh >= trace.size()) ||
-       (sigmaBaseline > 3)) {
-       EndAnalyze();
-       return;
-    }
-
-    for(unsigned int i = (maxPos-waveformLow); 
-	i <= (maxPos+waveformHigh); i++) {
-	fittedTrace.push_back(trace.at(i) - aveBaseline);
-    }
-    
-    const size_t sizeFit = fittedTrace.size();
-    
-    //Set the gaussian width (width) and decay constant (decay) 
-    //for the Fitting Routine.
-    double width, decay;
-    if(detType == "vandleSmall") {
-	width = TimingInformation::GetConstant("widthVandle");
-	decay = TimingInformation::GetConstant("decayVandle");
-    }else if (detSubtype == "liquid") {
-	width = TimingInformation::GetConstant("widthLiquid");
-	decay = TimingInformation::GetConstant("decayLiquid");
-    }else if (detType == "tvandle") {
-	width = TimingInformation::GetConstant("widthTvandle");
-	decay = TimingInformation::GetConstant("decayTvandle");
+    double beta, gamma;
+    if (detType == "vandleSmall") {
+	beta  = TimingInformation::GetConstant("betaVandle");
+	gamma = TimingInformation::GetConstant("gammaVandle");
     }else if (detSubtype == "beta") {
-	width = TimingInformation::GetConstant("widthBeta");
-	decay = TimingInformation::GetConstant("decayBeta");
+	beta  = TimingInformation::GetConstant("betaBeta");
+	gamma = TimingInformation::GetConstant("gammaBeta");
+    }else if(detType == "tvandle") {
+	beta  = TimingInformation::GetConstant("betaTvandle");
+	gamma = TimingInformation::GetConstant("gammaTvandle");
+    }else if(detType == "pulser") {
+	beta  = TimingInformation::GetConstant("betaPulser");
+	gamma = TimingInformation::GetConstant("gammaPulser");
     }else {
-	width = TimingInformation::GetConstant("widthDefault");
-	decay = TimingInformation::GetConstant("decayDefault");
+	beta  = TimingInformation::GetConstant("betaDefault");
+	gamma = TimingInformation::GetConstant("gammaDefault");
     }
-    
+        
     const gsl_multifit_fdfsolver_type *T;
     gsl_multifit_fdfsolver *s;
     int status;
     const size_t numParams = 2;
+    const size_t sizeFit = waveform.size();
         
     gsl_matrix *covar = gsl_matrix_alloc (numParams, numParams);
     double y[sizeFit], sigma[sizeFit];
     struct FittingAnalyzer::FitData data = 
-	{sizeFit, y, sigma, width, decay};
+	{sizeFit, y, sigma, beta,gamma,qdc};
     gsl_multifit_function_fdf f;
-#if defined(REVD) || defined(REVF)
-    double xInit[numParams] = {0, maxVal*10};
-#else
-    double xInit[numParams] = {0, maxVal*3};
-#endif
-    gsl_vector_view x = 
-	gsl_vector_view_array (xInit, numParams);
+
+    double xInit[numParams] = {0.0,2.5};
+    gsl_vector_view x = gsl_vector_view_array (xInit, numParams);
     
     f.f = &FitFunction;
-    f.df = &CalculateJacobian;
+    f.df = &CalcJacobian;
     f.fdf = &FitFunctionDerivative;
     f.n = sizeFit;
     f.p = numParams;
     f.params = &data;
     
-    for(unsigned int b = 0; b < sizeFit; b++) {
-	y[b] = fittedTrace.at(b);
-	sigma[b] = sigmaBaseline;
+    for(unsigned int i = 0; i < sizeFit; i++) {
+	y[i] = waveform.at(i);
+	sigma[i] = sigmaBaseline;
     }
     
     T = gsl_multifit_fdfsolver_lmsder;
     s = gsl_multifit_fdfsolver_alloc (T, sizeFit, numParams);
     gsl_multifit_fdfsolver_set (s, &f, &x.vector);
     
-    for(unsigned int iter = 0; iter < 1000000; iter++) {
-	status = gsl_multifit_fdfsolver_iterate(s);
-	
+    for(unsigned int iter = 0; iter < 1e8; iter++) {
+    	status = gsl_multifit_fdfsolver_iterate(s);
 	if(status)
-	    break;
-	
-	status = gsl_multifit_test_delta (s->dx, s->x,
-					  0.001, 0.001);
-	
+    	    break;
+	status = gsl_multifit_test_delta (s->dx, s->x, 1e-4, 1e-4);
 	if(status != GSL_CONTINUE)
-	    break;
+    	    break;
     }
 
     gsl_multifit_covar (s->J, 0.0, covar);
@@ -170,177 +166,124 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
     double chi = gsl_blas_dnrm2(s->f);
     double dof = sizeFit - numParams;
     double chisqPerDof = pow(chi, 2.0)/dof;
+    vector<double> fitPars;
 
     for(unsigned int i=0; i < numParams; i++)
-	fittedParameters.push_back(gsl_vector_get(s->x,i));
-    fittedParameters.push_back(width);
-    fittedParameters.push_back(decay);
+	fitPars.push_back(gsl_vector_get(s->x,i));
+    fitPars.push_back(beta);
+    fitPars.push_back(gamma);
 
     gsl_multifit_fdfsolver_free (s);
     gsl_matrix_free (covar);
 
-    trace.InsertValue("phase", fittedParameters.front()+maxPos);
-    trace.InsertValue("walk", CalculateWalk(maxVal));
+    trace.InsertValue("phase", fitPars.front()+maxPos);
+    trace.InsertValue("walk", CalcWalk(maxVal, detType, detSubtype));
 
-    plot(DD_AMP, fittedParameters.at(1), trace.at(maxPos)-aveBaseline);
-    plot(D_PHASE, fittedParameters.at(0)*1000+1000);    
+    plot(DD_AMP, fitPars.at(1), maxVal);
+    plot(D_PHASE, fitPars.at(0)*1000+100);    
     plot(D_CHISQPERDOF, chisqPerDof);
-    
-    if(detType == "vandleSmall"){
-       for(double  i = 0; i < trace.size(); i++) {
-	  plot(DD_TRACES, i, counter, trace.at(int(i))-aveBaseline);
-	  plot(DD_TRACES, i, counter+1, CalculateFittedFunction(i)+100);
-       }
-       counter++;
-    }
-    
-    FreeMemory();
+    plot(DD_QDCMASK, chisqPerDof, maxVal);
+
     EndAnalyze();
 } //void FittingAnalyzer::Analyze
 
 
-//********** CalculateReducedChiSquared **********
-double FittingAnalyzer::CalculateReducedChiSquared(const double &dof, 
-						   const double &sigmaBaseline)
-{
-    double chisq = 0;
-    for(double  i = 0; i < fittedTrace.size(); i++) {
-	chisq += 
-	    pow((fittedTrace.at(int(i))-
-		 CalculateFittedFunction(i))/sigmaBaseline,2.0);
-    } 
-    return(chisq/dof);
-}
-
-
-//********** CalculateFittedFunction **********
-double FittingAnalyzer::CalculateFittedFunction(double &x)
-{
-    double alpha = fittedParameters.at(0);
-    double beta  = fittedParameters.at(1);
-    double width = fittedParameters.at(2);
-    double decay = fittedParameters.at(3);
-
-    double function = beta*((1-exp(-((x-alpha)*(x-alpha))/width))*
-			    exp(-(x-alpha)/decay));
-    
-    return(function);
-}
-
-
 //********** WalkCorrection **********
-double FittingAnalyzer::CalculateWalk(const double &maxVal)
+double FittingAnalyzer::CalcWalk(const double &val, const string &type, 
+				 const string &subType)
 {
-    //This was derived for the Pixie 250 system, I believe that it
-    //works well but still needs some work. -SVP
-    double f = 411.843925764033 * exp(-maxVal/168269.011109243) +
-     	40.5805276228096 * exp(maxVal/16037.5569336443) - 
-	454.567869867228;
+    if(type == "vandleSmall") {
+	if(val < 175)
+	    return(1.09099*log(val)-7.76641);
+	if( val > 3700) 
+	    return(0.0);
+	else
+	    return(-(9.13743e-12)*pow(val,3.) + (1.9485e-7)*pow(val,2.)
+		   -0.000163286*val-2.13918);
 
-    //Old Version
-    // double f = 92.7907602830327 * exp(-maxVal/186091.225414275) +
-    // 	0.59140785215161 * exp(maxVal/2068.14618331387) - 
-    // 	95.5388835298589;
-    return (f); //calculated in ns
-}
-
-
-//********** Free Memory **********
-void FittingAnalyzer::FreeMemory(void)
-{
-    fittedParameters.clear();
-    fittedTrace.clear();
-}
-
-
-//********** OutputFittedFunction **********
-void FittingAnalyzer::OutputFittedInformation()
-{
-     for(vector<double>::iterator it = fittedParameters.begin();
- 	it != fittedParameters.end(); it++)
-	 cout << *it << endl;
-
-    cout << endl;
-
-    for(vector<double>::const_iterator it = fittedTrace.begin();
- 	it != fittedTrace.end(); it++) 
- 	cout << int(it-fittedTrace.begin()) << " " << *it << endl;
+	//Original Function - RevD
+	// double f = 92.7907602830327 * exp(-val/186091.225414275) +
+	// 	0.59140785215161 * exp(val/2068.14618331387) - 
+	// 	95.5388835298589;
+    }else if(subType == "beta") {
+	return(-(1.07908*log10(val)-8.27739));
+    }else
+	return(0.0);
 }
 
 
 //*********** FitFunction **********
-int FitFunction (const gsl_vector * x, void *FitData, 
-				  gsl_vector * f)
+int FitFunction (const gsl_vector * x, void *FitData, gsl_vector * f)
 {
-    size_t n = ((struct FittingAnalyzer::FitData *)FitData)->n;
-    double *y = ((struct FittingAnalyzer::FitData *)FitData)->y;
-    double *sigma = ((struct FittingAnalyzer::FitData *)FitData)->sigma;
-    double width = ((struct FittingAnalyzer::FitData *)FitData)->width;
-    double decay = ((struct FittingAnalyzer::FitData *)FitData)->decay;
+    size_t n       = ((struct FittingAnalyzer::FitData *)FitData)->n;
+    double *y      = ((struct FittingAnalyzer::FitData *)FitData)->y;
+    double *sigma  = ((struct FittingAnalyzer::FitData *)FitData)->sigma;
+    double beta    = ((struct FittingAnalyzer::FitData *)FitData)->beta;
+    double gamma   = ((struct FittingAnalyzer::FitData *)FitData)->gamma;
+    double qdc    = ((struct FittingAnalyzer::FitData *)FitData)->qdc;
 
-    double alpha = gsl_vector_get (x, 0);
-    double beta  = gsl_vector_get (x, 1);
+    double phi     = gsl_vector_get (x, 0);
+    double alpha   = gsl_vector_get (x, 1);
 
     for(size_t i = 0; i < n; i++) {
 	double t = i;
+	double diff = t-phi;
 	double Yi = 0;
 
-	if(t < alpha)
+	if(t < phi)
 	    Yi = 0;
 	else
-	    Yi = beta*((1-exp(-((t-alpha)*(t-alpha))/width))*
-		       exp(-(t-alpha)/decay));
+	    Yi = qdc * alpha * exp(-beta*diff) * (1-exp(-pow(gamma*diff,4.)));
 
 	gsl_vector_set (f, i, (Yi - y[i])/sigma[i]);
      }
-    return GSL_SUCCESS;
+    return(GSL_SUCCESS);
 }
 
 
-//********** CalculateJacobian **********
-int CalculateJacobian (const gsl_vector * x, void *FitData, gsl_matrix * J)
+//********** CalcJacobian **********
+int CalcJacobian (const gsl_vector * x, void *FitData, gsl_matrix * J)
 {
     size_t n = ((struct FittingAnalyzer::FitData *)FitData)->n;
     double *sigma = ((struct FittingAnalyzer::FitData *) FitData)->sigma;
-    double width = ((struct FittingAnalyzer::FitData *)FitData)->width;
-    double decay = ((struct FittingAnalyzer::FitData *)FitData)->decay;
-  
-    double alpha = gsl_vector_get (x, 0);
-    double beta = gsl_vector_get (x, 1);
+    double beta    = ((struct FittingAnalyzer::FitData *)FitData)->beta;
+    double gamma   = ((struct FittingAnalyzer::FitData *)FitData)->gamma;
+    double qdc    = ((struct FittingAnalyzer::FitData *)FitData)->qdc;
 
-    double dalf, dbet;
+    double phi     = gsl_vector_get (x, 0);
+    double alpha   = gsl_vector_get (x, 1);
+
+    double dphi, dalpha;
     
     for (size_t i = 0; i < n; i++) {
 	//Compute the Jacobian 
  	double t = i;
+	double diff = t-phi;
+	double gaussSq = exp(-pow(gamma*diff,4.));
  	double s = sigma[i];
 	
-	if(t < alpha) {
-	    dbet = 0;
-	    dalf = 0;
+	if(t < phi) {
+	    dphi   = 0;
+	    dalpha = 0;
 	}
 	else {
-	    dbet = ((1-exp(-(t-alpha)*(t-alpha)/width))*
-		    exp(-(t-alpha)/decay));
-	    dalf = beta*exp(-(t-alpha)/decay)*
-		((1-exp(-(t-alpha)*(t-alpha)/width))/decay - 
-		 (2*(t-alpha)/width)*
-		 exp(-(t-alpha)*(t-alpha)/width));
+	    dphi = alpha*beta*qdc*exp(-beta*diff)*(1-gaussSq) - 
+		4*alpha*qdc*pow(diff,3.)*exp(-beta*diff)*pow(gamma,4.)*gaussSq;
+	    dalpha = qdc * exp(-beta*diff) * (1-gaussSq);
 	}
 
-	gsl_matrix_set (J,i,0, dalf/s);
-	gsl_matrix_set (J,i,1, dbet/s);
+	gsl_matrix_set (J,i,0, dphi/s);
+	gsl_matrix_set (J,i,1, dalpha/s);
     }
-    return GSL_SUCCESS;
+    return(GSL_SUCCESS);
 }
 
 
 //********** FitFunctionDerivative **********
-int FitFunctionDerivative (const gsl_vector * x, void *FitData,
-	  gsl_vector * f, gsl_matrix * J)
+int FitFunctionDerivative (const gsl_vector * x, void *FitData, gsl_vector * f, 
+			   gsl_matrix * J)
 {
     FitFunction (x, FitData, f);
-    CalculateJacobian (x, FitData, J);
-    
-    return GSL_SUCCESS;
+    CalcJacobian (x, FitData, J);
+    return(GSL_SUCCESS);
 }
