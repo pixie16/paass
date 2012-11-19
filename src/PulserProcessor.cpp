@@ -9,6 +9,7 @@
  */
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 
 #include <cmath>
 
@@ -18,26 +19,22 @@
 #include "RawEvent.hpp"
 
 namespace dammIds {
-   namespace pulser {
-      const int D_TIMEDIFF     = 0; 
-      const int D_PROBLEMSTUFF = 1; 
-      
-      const int DD_QDC         = 2; 
-      const int DD_MAX         = 3; 
-      const int DD_PVSP        = 4; 
-      const int DD_MAXVSTDIFF  = 5; 
-      const int DD_QDCVSMAX    = 6; 
-      const int DD_AMPMAPSTART = 7; 
-      const int DD_AMPMAPSTOP  = 8; 
-      const int D_SNRSTART     = 9; 
-      const int D_SNRSTOP      = 10; 
-      const int D_SDEVBASESTART= 11; 
-      const int D_SDEVBASESTOP = 12; 
-      const int DD_PROBLEMS    = 13; 
-      const int DD_MAXSVSTDIFF = 14; 
-   }
+    namespace pulser {
+	const int D_TIMEDIFF     = 0; 
+	const int D_PROBLEMSTUFF = 1; 
+	
+	const int DD_QDC         = 2; 
+	const int DD_MAX         = 3; 
+	const int DD_PVSP        = 4; 
+	const int DD_MAXVSTDIFF  = 5; 
+	const int DD_QDCVSMAX    = 6; 
+	const int DD_AMPMAPSTART = 7; 
+	const int DD_AMPMAPSTOP  = 8; 
+	const int DD_SNRANDSDEV  = 9;
+	const int DD_PROBLEMS    = 13; 
+	const int DD_MAXSVSTDIFF = 14; 
+    }
 }
-
 
 using namespace std;
 using namespace dammIds::pulser;
@@ -45,29 +42,22 @@ using namespace dammIds::pulser;
 PulserProcessor::PulserProcessor(): EventProcessor(OFFSET, RANGE)
 {
     name = "Pulser";
-    associatedTypes.insert("pulser"); //associate with pulser
+    associatedTypes.insert("pulser"); 
 }
 
 void PulserProcessor::DeclarePlots(void)
 {
-    DeclareHistogram1D(D_TIMEDIFF, SA, "Time Difference");
+    DeclareHistogram1D(D_TIMEDIFF, SC, "Time Difference");
     DeclareHistogram1D(D_PROBLEMSTUFF, S5, "Problem Stuff");
 
     DeclareHistogram2D(DD_QDC, SD, S1,"QDC");
     DeclareHistogram2D(DD_MAX, SC, S1, "Max");
-    DeclareHistogram2D(DD_PVSP, S9, S9,"Phase vs. Phase");
-    DeclareHistogram2D(DD_MAXVSTDIFF, SA, SC, 
-		       "Max vs. Time Diff");
+    DeclareHistogram2D(DD_PVSP, SC, SC,"Phase vs. Phase");
+    DeclareHistogram2D(DD_MAXVSTDIFF, SC, SC, "Max vs. Time Diff");
     DeclareHistogram2D(DD_QDCVSMAX, SC, SD,"QDC vs Max");
     //DeclareHistogram2D(DD_AMPMAPSTART, S7, SC,"Amp Map Start");
     //DeclareHistogram2D(DD_AMPMAPSTOP, S7, SC,"Amp Map Stop");
-
-    DeclareHistogram1D(D_SNRSTART, SE, "SNR - Start");
-    DeclareHistogram1D(D_SNRSTOP, SE, "SNR - Stop");
-
-    DeclareHistogram1D(D_SDEVBASESTART, S8, "Sdev Base - Start");
-    DeclareHistogram1D(D_SDEVBASESTOP, S8, "Sdev Base - Stop");
-
+    DeclareHistogram2D(DD_SNRANDSDEV, S8, S2, "SNR and SDEV R01/L23");
     DeclareHistogram2D(DD_PROBLEMS, SB, S5, "Problems - 2D");
 }
 
@@ -115,56 +105,50 @@ bool PulserProcessor::RetrieveData(RawEvent &event)
 
 void PulserProcessor::AnalyzeData(void)
 {
-    IdentKey startKey(0,"start");
-    IdentKey stopKey (1,"stop");
-
-    TimingDataMap::iterator itStart = pulserMap.find(startKey);
-    TimingDataMap::iterator itStop  = pulserMap.find(stopKey);
+    TimingData start = (*pulserMap.find(make_pair(0,"start"))).second;
+    TimingData stop  = (*pulserMap.find(make_pair(0,"stop"))).second;
     
-    // unsigned int maxPosStart = (unsigned int)(*itStart).second.maxpos;
-    // unsigned int maxPosStop = (unsigned int)(*itStop).second.maxpos;
+    static int counter = 0;
+    for(Trace::const_iterator it = start.trace.begin(); it!= start.trace.end(); it++)
+	plot(DD_PROBLEMS, int(it-start.trace.begin()), counter, *it);
+    counter ++;
 
-    unsigned int cutVal = 15;
-    if((*itStart).second.maxpos == 41)
-    if((*itStart).second.maxval < 2384-cutVal)
-	for(Trace::const_iterator it = (*itStart).second.trace.begin(); 
-	    it != (*itStart).second.trace.end(); it++)
-	    plot(DD_AMPMAPSTART, int(it-(*itStart).second.trace.begin()), *it);
+    // unsigned int cutVal = 15;
+    // if(start.maxpos == 41)
+    // if(start.maxval < 2384-cutVal)
+    // 	for(Trace::const_iterator it = start.trace.begin(); 
+    // 	    it != start.trace.end(); it++)
+    // 	    plot(DD_AMPMAPSTART, int(it-start.trace.begin()), *it);
     
-    if((*itStop).second.maxval < 2555-cutVal)
-	for(Trace::const_iterator it = (*itStart).second.trace.begin(); 
-	    it != (*itStart).second.trace.end(); it++)
-	    plot(DD_AMPMAPSTOP, int(it-(*itStart).second.trace.begin()), *it);
+    // if(stop.maxval < 2555-cutVal)
+    // 	for(Trace::const_iterator it = start.trace.begin(); 
+    // 	    it != start.trace.end(); it++)
+    // 	    plot(DD_AMPMAPSTOP, int(it-start.trace.begin()), *it);
     
-    double timeDiff = 
-	(*itStop).second.highResTime - (*itStart).second.highResTime;
-
     //Fill histograms
-    if((*itStart).second.dataValid && 
-       (*itStop).second.dataValid){
-	
-	double timeRes = 10; //100 ps/bin
-	double timeOff = 100; 
+    if(start.dataValid && stop.dataValid){	
+	double timeDiff = stop.highResTime - start.highResTime;
+	double timeRes  = 50; //20 ps/bin
+	double timeOff  = 500; 
+	double phaseX   = 197100;
 
 	plot(D_TIMEDIFF, timeDiff*timeRes + timeOff);
-	plot(DD_QDC, (*itStart).second.tqdc, 
-	     (*itStart).first.first);
-	plot(DD_MAX, (*itStart).second.maxval, 
-	     (*itStart).first.first);
-	plot(DD_QDC, (*itStop).second.tqdc, 
-	     (*itStop).first.first);
-	plot(DD_MAX, (*itStop).second.maxval, 
-	     (*itStop).first.first);
-	plot(DD_PVSP, (*itStart).second.phase*timeRes-4000, 
-	     (*itStop).second.phase*timeRes-4000);
-	plot(DD_MAXVSTDIFF, timeDiff*timeRes+timeOff, 
-	     (*itStart).second.maxval);
-	plot(DD_QDCVSMAX, (*itStart).second.maxval, 
-	     (*itStart).second.tqdc);
+	plot(DD_PVSP, start.phase*timeRes-phaseX, 
+	     stop.phase*timeRes-phaseX);
 
-	plot(D_SNRSTART, (*itStart).second.snr*0.25);
-	plot(D_SNRSTOP, (*itStop).second.snr*0.25);
-	plot(D_SDEVBASESTART, (*itStart).second.stdDevBaseline*timeRes+timeOff);
-	plot(D_SDEVBASESTOP, (*itStop).second.stdDevBaseline*timeRes+timeOff);
+	//Plot the Start stuff
+	plot(DD_QDC, start.tqdc, 0);
+	plot(DD_MAX, start.maxval, 0);
+	plot(DD_MAXVSTDIFF, timeDiff*timeRes+timeOff, start.maxval);
+	plot(DD_QDCVSMAX, start.maxval, start.tqdc);
+	//Plot the Stop stuff
+	plot(DD_QDC, stop.tqdc, 1);
+	plot(DD_MAX, stop.maxval, 1);
+
+	//Plot information about the SNR
+	plot(DD_SNRANDSDEV, start.snr+50, 0);
+	plot(DD_SNRANDSDEV, start.stdDevBaseline*timeRes+timeOff, 1);
+	plot(DD_SNRANDSDEV, stop.snr+50, 2);
+	plot(DD_SNRANDSDEV, stop.stdDevBaseline*timeRes+timeOff, 3);
     }
 } // void PulserProcessor::AnalyzeData

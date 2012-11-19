@@ -45,7 +45,7 @@ const double Correlator::minImpTime = 5e-3;
 const double Correlator::corrTime   = 60; // used to be 3300
 const double Correlator::fastTime   = 40e-6;
 
-Correlator::Correlator() : histo(OFFSET, RANGE, PlotsRegister::R() ), 
+Correlator::Correlator() : histo(OFFSET, RANGE), 
     lastImplant(NULL), lastDecay(NULL), condition(UNKNOWN_CONDITION)
 {
 }

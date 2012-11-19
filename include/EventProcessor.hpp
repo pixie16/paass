@@ -12,6 +12,7 @@
 #include <sys/times.h>
 
 #include "Plots.hpp"
+#include "TreeCorrelator.hpp"
 
 // forward declarations
 class DetectorDriver;
@@ -30,7 +31,6 @@ class EventProcessor {
     double systemTime;
     double clocksPerSecond;
 
-
  protected:
     // define the associated detector types and only initialize if present
     std::string name;
@@ -40,6 +40,8 @@ class EventProcessor {
     // map of associated detector summary
     std::map<std::string, const DetectorSummary *> sumMap;
 
+    // Plots class for given Processor, takes care of declaration
+    // and plotting within boundries allowed by PlotsRegistry
     Plots histo;
 
     virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
@@ -68,6 +70,7 @@ class EventProcessor {
     // return true on success
     virtual bool HasEvent(void) const;
     virtual bool Init(DetectorDriver &driver);
+    virtual bool PreProcess(RawEvent &event);   
     virtual bool Process(RawEvent &event);   
     void EndProcess(void); // stop the process timer
     std::string GetName(void) const {

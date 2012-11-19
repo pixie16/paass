@@ -9,13 +9,17 @@ REVISIOND = 1
 # Uncomment this line if processing Rev. F data
 #REVISIONF = 1
 # Uncomment this line for a more verbose scan
-# CXXFLAGS += -DVERBOSE
+ CXXFLAGS += -DVERBOSE
 # Undefine to make a "online" version
 # ONLINE = 1 
+
+# Undefine to use Gamma-Gamma gates in GeProcessor
+# This turns on Gamma-Gamma angular distribution
+# and Gamma-Gamma-Gamma gates
+# GGATES = 1
+
 # Use gfortran
-# HHIRF_GFORTRAN = 1
-# Libs in HHIRF DIR
-# LIBS_IN_HHIRF = 1
+HHIRF_GFORTRAN = 1
 
 #These will set the analysis used on the waveforms
 #Uncomment this line to use the Pulse Fitting routine
@@ -48,8 +52,8 @@ endif
 endif
 endif
 
-LIBS = $(HHIRF_DIR)/scanorlib.a $(HHIRF_DIR)/orphlib.a \
-       $(ACQ2_LIBDIR)/acqlib.a  $(ACQ2_LIBDIR)/ipclib.a
+LIBS = $(HHIRF_DIR)/scanorlib.a $(HHIRF_DIR)/orphlib.a
+       #$(ACQ2_LIBDIR)/acqlib.a  $(ACQ2_LIBDIR)/ipclib.a
 
 OutPutOpt     = -o # keep whitespace after "-o"
 ObjSuf        = o
@@ -77,7 +81,7 @@ LINK.o    = $(FC) $(LDFLAGS)
 #
 # for debug and profiling add options -g -pg
 # and remove -O
-#------- define basic compiler flags, no warnings on code that is not my own
+#------- define basic compiler flags, no warnings on code that is not our own
 FFLAGS   += -O3
 GCCFLAGS += -fPIC $(CINCLUDEDIRS) -Dnewreadout
 CXXFLAGS += -Wall -fPIC $(CINCLUDEDIRS) -Dnewreadout
@@ -120,7 +124,7 @@ endif
 SET2CCO          = set2cc.$(ObjSuf)
 MESSLOGO         = messlog.$(ObjSuf)
 MILDATIMO        = mildatim.$(ObjSuf)
-SCANORUXO        = scanorux.$(ObjSuf)
+SCANOFO          = scanof.$(ObjSuf)
 
 # objects from cpp
 #General Objects
@@ -131,14 +135,17 @@ DETECTORLIBRARYO = DetectorLibrary.$(ObjSuf)
 EVENTPROCESSORO  = EventProcessor.$(ObjSuf)
 MAPFILEO         = MapFile.$(ObjSuf)
 PIXIEO           = PixieStd.$(ObjSuf)
-RAWEVENTO        = RawEvent.$(ObjSuf)
+PLACESO          = Places.$(ObjSuf)
 RANDOMPOOLO      = RandomPool.$(ObjSuf)
+RAWEVENTO        = RawEvent.$(ObjSuf)
 STATSDATAO       = StatsData.$(ObjSuf)
 TIMINGINFOO      = TimingInformation.$(ObjSuf)
+
 #Plot Objects
 HISTOGRAMMERO    = DeclareHistogram.$(ObjSuf)
 PLOTSREGISTERO   = PlotsRegister.$(ObjSuf)
 PLOTSO           = Plots.$(ObjSuf)
+
 #Trace Related Objects
 CFDANALYZERO     = CfdAnalyzer.$(ObjSuf)
 DOUBLETRACEO     = DoubleTraceAnalyzer.$(ObjSuf)
@@ -150,21 +157,24 @@ TRACEFILTERO     = TraceFilterer.$(ObjSuf)
 TRACEPLOTO       = TracePlotter.$(ObjSuf)
 TRACESUBO        = TraceAnalyzer.$(ObjSuf)
 WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
+
 #Dectector Processor Objects
+BETAPROCESSORO   = BetaProcessor.$(ObjSuf)
 DSSDPROCESSORO   = DssdProcessor.$(ObjSuf)
 GEPROCESSORO     = GeProcessor.$(ObjSuf)
-ISSDPROCESSORO   = ImplantSsdProcessor.$(ObjSuf)
 IONCHAMBERPROCESSORO = IonChamberProcessor.$(ObjSuf)
+ISSDPROCESSORO   = ImplantSsdProcessor.$(ObjSuf)
+LIQUIDPROCESSORO = LiquidProcessor.$(ObjSuf)
 LOGICPROCESSORO  = LogicProcessor.$(ObjSuf)
 MCPPROCESSORO    = McpProcessor.$(ObjSuf)
 MTCPROCESSORO    = MtcProcessor.$(ObjSuf)
+NEUTRONPROCESSORO = NeutronProcessor.$(ObjSuf)
 POSITIONPROCESSORO = PositionProcessor.$(ObjSuf)
 PULSERPROCESSORO = PulserProcessor.$(ObjSuf)
-SCINTPROCESSORO  = ScintProcessor.$(ObjSuf)
 SSDPROCESSORO    = SsdProcessor.$(ObjSuf)
-TRIGGERLOGICPROCESSORO = TriggerLogicProcessor.$(ObjSuf)
 VANDLEPROCESSORO = VandleProcessor.$(ObjSuf)
 VALIDPROCESSORO  = ValidProcessor.$(ObjSuf)
+
 #ROOT Objects
 SCINTROOTO       = ScintROOT.$(ObjSuf)
 ROOTPROCESSORO   = RootProcessor.$(ObjSuf)
@@ -192,17 +202,23 @@ endif
 endif
 
 #----- list of objects
-OBJS   = $(READBUFFDATAO) $(SET2CCO) $(DSSDSUBO) $(DETECTORDRIVERO) \
-	$(PLOTSREGISTERO) $(PLOTSO) $(MTCPROCESSORO) $(MCPPROCESSORO) \
-	$(LOGICPROCESSORO) $(CORRELATORO) $(TRACESUBO) $(TRACEO) $(TRACEPLOTO) \
-	$(TRACEFILTERO) $(DOUBLETRACEO) $(MESSLOGO) $(MILDATIMO) $(SCANORUXO) \
-	$(ACCUMULATORO) $(PIXIEO) $(HISTOGRAMMERO) $(EVENTPROCESSORO) \
-	$(SCINTPROCESSORO) $(GEPROCESSORO) $(DSSDPROCESSORO) $(RAWEVENTO) \
-	$(RANDOMPOOLO) $(SSDPROCESSORO) $(ISSDPROCESSORO) $(TAUANALYZERO) \
-	$(TRIGGERLOGICPROCESSORO) $(TRACEEXTRACTORO) $(IONCHAMBERPROCESSORO) \
-	$(STATSDATAO) $(WAVEFORMSUBO) $(VANDLEPROCESSORO) $(PULSERPROCESSORO) \
-	$(POSITIONPROCESSORO) $(MAPFILEO) $(DETECTORLIBRARYO) $(WAVEFORMSUBO) \
-	$(VANDLEPROCESSORO) $(PULSERPROCESSORO) $(TIMINGINFOO) $(VALIDPROCESSORO) \
+#Objects from Fortran
+OBJS = $(MESSLOGO) $(MILDATIMO) $(SCANOFO) $(SET2CCO) 
+#General Objects
+OBJS += $(ACCUMULATORO) $(CORRELATORO) $(DETECTORDRIVERO) $(DETECTORLIBRARYO) \
+	$(EVENTPROCESSORO) $(MAPFILEO) $(PIXIEO) $(PLACESO) $(RANDOMPOOLO) \
+	$(RAWEVENTO) $(READBUFFDATAO) $(STATSDATAO) $(TIMINGINFOO)
+#Detector Objects
+OBJS += $(BETAPROCESSORO) $(DSSDPROCESSORO) $(GEPROCESSORO) \
+	$(IONCHAMBERPROCESSORO) $(ISSDPROCESSORO) $(LIQUIDPROCESSORO) \
+	$(LOGICPROCESSORO) $(MTCPROCESSORO) $(MCPPROCESSORO) \
+	$(NEUTRONPROCESSORO) $(POSITIONPROCESSORO) $(PULSERPROCESSORO) \
+	$(SSDPROCESSORO) $(VALIDPROCESSORO) $(VANDLEPROCESSORO)
+#Trace Objects
+OBJS += $(DOUBLETRACEO) $(TAUANALYZERO) $(TRACEO) $(TRACEEXTRACTORO) \
+	$(TRACEFILTERO) $(TRACEPLOTO) $(TRACESUBO) $(WAVEFORMSUBO) 
+#Plot Objects
+OBJS += $(HISTOGRAMMERO) $(PLOTSREGISTERO) $(PLOTSO)
 
 ifdef PULSEFIT
 OBJS += $(FITTINGANALYZERO)
@@ -226,16 +242,25 @@ LDFLAGS      += $(shell $(ROOTCONFIG) --ldflags)
 LDLIBS       := $(shell $(ROOTCONFIG) --libs)
 endif
 
+#------------ Compile with Gamma-Gamma gates support in GeProcessor
+ifdef GGATES
+CXXFLAGS	+= -DGGATES
+endif
+
 #--------- Add to list of known file suffixes
 .SUFFIXES: .$(cxxSrcSuf) .$(fSrcSuf) .$(c++SrcSuf) .$(cSrcSuf)
 
-.phony: all clean
+.phony: all clean tidy
 all:     $(PROGRAMS)
 
 #----------- remove all objects, core and .so file
 clean:
 	@echo "Cleaning up..."
 	@rm -f $(OBJS) $(PIXIE) core *~ src/*~ include/*~ scan/*~
+
+tidy:
+	@echo "Tidying up..."
+	@rm -f $(OBJS) core *~ src/*~ include/*~ scan/*~
 
 #----------- link all created objects together
 #----------- to create pixie_ldf_c program

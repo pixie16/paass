@@ -175,8 +175,9 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
 	      lastVirtualChannel = currentEvt;
 	  }
       }
-      
-      if(currentEvt->saturatedBit) currentEvt->energy = 16000;
+
+      currentEvt->energy = energy;
+      if(currentEvt->saturatedBit)  currentEvt->energy = 16000;
 
       currentEvt->trigTime = lowTime;
       currentEvt->cfdTime  = cfdTime;

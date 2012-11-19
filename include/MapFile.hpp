@@ -9,6 +9,8 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <map>
+#include "TreeCorrelator.hpp"
 
 /** 
  * A nice simple class which reads in the map file when declared
@@ -30,6 +32,15 @@ public:
     MapFile(const std::string &filename);
 
     operator bool() {return isRead;} ///< is the map file valid
+
+    /** Delete all correlator Places. It's called upon command 'end' in 
+     * scanor.*/
+    ~MapFile() {
+        for (map<string, Place*>::iterator it = TreeCorrelator::get().places.begin(); it != TreeCorrelator::get().places.end(); ++it) {
+            //cout << "MapFile, removing place " << it->first << endl;
+            delete it-> second;
+        }
+    }
 };
 
 #endif // __MAPFILE_HPP_

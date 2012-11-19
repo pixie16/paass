@@ -15,6 +15,7 @@
 #include "TraceFilterer.hpp"
 
 using namespace std;
+using namespace dammIds::trace;
 
 const string TraceFilterer::defaultFilterFile = "filter.txt";
 const int TraceFilterer::energyBins = SC;
@@ -41,7 +42,19 @@ TraceFilterer::PulseInfo::PulseInfo(Trace::size_type theTime, double theEnergy) 
 }
 
 TraceFilterer::TraceFilterer() : 
-    TracePlotter(), fastParms(5,5), 
+    TracePlotter(filterer::OFFSET, filterer::RANGE), fastParms(5,5), 
+    energyParms(100,100), thirdParms(20,10)
+{
+    //? this uses some legacy values for third parms, are they appropriate
+    name = "Filterer";
+    
+    fastThreshold = fastParms.GetRiseSamples()  * 3;
+    slowThreshold = thirdParms.GetRiseSamples() * 2;
+    useThirdFilter = false;
+}
+
+TraceFilterer::TraceFilterer(int offset, int range) : 
+    TracePlotter(offset, range), fastParms(5,5), 
     energyParms(100,100), thirdParms(20,10)
 {
     //? this uses some legacy values for third parms, are they appropriate
@@ -126,7 +139,7 @@ void TraceFilterer::DeclarePlots(void)
     DeclareHistogram2D(DD_FILTER1, traceBins, numTraces, "fast filter");
     DeclareHistogram2D(DD_FILTER2, traceBins, numTraces, "energy filter");
     if (useThirdFilter) {
-	DeclareHistogram2D(DD_FILTER3, traceBins, numTraces, "3rd filter");
+        DeclareHistogram2D(DD_FILTER3, traceBins, numTraces, "3rd filter");
     }
     DeclareHistogram2D(DD_REJECTED_TRACE, traceBins, numTraces, "rejected traces");
 

@@ -24,7 +24,7 @@
 #include "DoubleTraceAnalyzer.hpp"
 
 using namespace std;
-
+using namespace dammIds::trace;
 // external pool of random numbers defined in RandomPool.cpp
 extern RandomPool randoms;
 
@@ -32,7 +32,7 @@ extern RandomPool randoms;
  * Set default values for time and energy
  */
 DoubleTraceAnalyzer::DoubleTraceAnalyzer() : 
-    TraceFilterer()
+    TraceFilterer(doubletrace::OFFSET, doubletrace::RANGE)
 {
     time2 = 0;
     energy2 = 0.;
@@ -58,8 +58,8 @@ void DoubleTraceAnalyzer::DeclarePlots()
     DeclareHistogram1D(D_ENERGY2, energyBins, "E2 from traces");
 
     DeclareHistogram2D(DD_DOUBLE_TRACE, traceBins, numTraces, "double traces");
-    histo.DeclareHistogram2D(DD_ENERGY2__TDIFF, energyBins2, timeBins, "E2 vs DT", "", 2);
-    histo.DeclareHistogram2D(DD_ENERGY2__ENERGY1, energyBins2, energyBins2, "E2 vs E1", "", 2);
+    histo.DeclareHistogram2D(DD_ENERGY2__TDIFF, energyBins2, timeBins, "E2 vs DT", 2);
+    histo.DeclareHistogram2D(DD_ENERGY2__ENERGY1, energyBins2, energyBins2, "E2 vs E1", 2);
 
     DeclareHistogram2D(DD_TRIPLE_TRACE, traceBins, numTraces, "interesting traces");
     DeclareHistogram2D(DD_TRIPLE_TRACE_FILTER1, traceBins, numTraces,
