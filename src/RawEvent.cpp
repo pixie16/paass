@@ -83,6 +83,9 @@ void Identifier::Print(void) const
     cout << endl;
 }
 
+/* Initialization of static memeber to the value defined in Globals.hpp */
+double ChanEvent::pixieEnergyContraction = pixie::energyContraction;
+
 /**
  * Channel event constructor
  *

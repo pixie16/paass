@@ -5,6 +5,7 @@
 #include "Globals.hpp"
 #include "TauAnalyzer.hpp"
 #include "Trace.hpp"
+#include "DammPlotIds.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -14,8 +15,9 @@
 #include <cmath>
 
 using namespace std;
+using namespace dammIds::trace;
 
-TauAnalyzer::TauAnalyzer() : TraceAnalyzer()
+TauAnalyzer::TauAnalyzer() : TraceAnalyzer(0, 0)
 {
     // type and subtype default to empty string 
     name="tau";

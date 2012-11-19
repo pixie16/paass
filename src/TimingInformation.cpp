@@ -35,6 +35,8 @@ TimingInformation::TimingData::TimingData(void) : trace(emptyTrace)
     tqdc           = numeric_limits<double>::quiet_NaN();
     walk           = numeric_limits<double>::quiet_NaN();
     walkCorTime    = numeric_limits<double>::quiet_NaN();
+    
+    numAboveThresh = -1;
 }
 
 
@@ -47,13 +49,15 @@ TimingInformation::TimingData::TimingData(ChanEvent *chan) : trace(chan->GetTrac
     highResTime    = chan->GetHighResTime()*1e+9;  
     maxpos         = trace.GetValue("maxpos");
     maxval         = trace.GetValue("maxval");
+    numAboveThresh = trace.GetValue("numAboveThresh");
     phase          = trace.GetValue("phase")*(pixie::adcClockInSeconds*1e+9);
     stdDevBaseline = trace.GetValue("sigmaBaseline");
     tqdc           = trace.GetValue("tqdc")/qdcCompression;
     walk           = trace.GetValue("walk");
-    
+        
     //Calculate some useful quantities.
-    snr = pow(maxval/stdDevBaseline,2); 
+    //snr = pow(maxval/stdDevBaseline,2); 
+    snr = 20*log10(maxval/stdDevBaseline); 
     walkCorTime   = highResTime - walk;
 
     //validate data and set a flag saying it's ok
@@ -99,11 +103,15 @@ TimingInformation::BarData::BarData(const TimingData &Right, const TimingData &L
     //Set the values for the useful bar stuff. 
     lMaxVal   = Left.maxval;
     rMaxVal   = Right.maxval;
+    lqdc      = Left.tqdc;
+    rqdc      = Right.tqdc;
+    lTime     = Left.highResTime;
+    rTime     = Right.highResTime;
     qdc       = sqrt(Right.tqdc*Left.tqdc);
     timeAve   = (Right.highResTime + Left.highResTime)*0.5; //in ns
     timeDiff  = (Left.highResTime-Right.highResTime) + cal.lrtOffset; //in ns
     walkCorTimeDiff = (Left.walkCorTime-Right.walkCorTime) + cal.lrtOffset;
-    walkCorTimeAve  = (Left.walkCorTime+Right.walkCorTime)*0.5;
+    walkCorTimeAve  = (Left.walkCorTime+Right.walkCorTime)*0.5; //in ns
 
     //Calculate some useful quantities for the bar analysis.
     event   = BarEventCheck(timeDiff, type);

@@ -35,21 +35,24 @@
 #include "RandomPool.hpp"
 #include "RawEvent.hpp"
 #include "TimingInformation.hpp"
+#include "TreeCorrelator.hpp"
 
 #include "DammPlotIds.hpp"
 
+#include "BetaProcessor.hpp"
 #include "DssdProcessor.hpp"
 #include "GeProcessor.hpp"
 #include "ImplantSsdProcessor.hpp"
 #include "IonChamberProcessor.hpp"
+#include "LiquidProcessor.hpp"
+#include "LogicProcessor.hpp"
 #include "McpProcessor.hpp"
 #include "MtcProcessor.hpp"
+#include "NeutronProcessor.hpp"
 #include "PositionProcessor.hpp"
 #include "PulserProcessor.hpp"
-#include "ScintProcessor.hpp"
 #include "SsdProcessor.hpp"
 #include "TraceFilterer.hpp"
-#include "TriggerLogicProcessor.hpp"
 #include "VandleProcessor.hpp"
 #include "ValidProcessor.hpp"
 
@@ -87,13 +90,9 @@ extern RandomPool randoms;
 
 using namespace dammIds::raw;
 
-DetectorDriver::DetectorDriver() : 
-    histo(OFFSET, RANGE, PlotsRegister::R() ) 
+DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE) 
 {
     vecAnalyzer.push_back(new TracePlotter());
-    //vecAnalyzer.push_back(new DoubleTraceAnalyzer());
-    //vecAnalyzer.push_back(new TraceExtractor("ssd", "top"));
-    //vecAnalyzer.push_back(new TauAnalyzer());
 #if defined(pulsefit) || defined(dcfd)
     vecAnalyzer.push_back(new WaveformAnalyzer());
 #endif
@@ -103,14 +102,11 @@ DetectorDriver::DetectorDriver() :
     vecAnalyzer.push_back(new CfdAnalyzer());
 #endif
 
-    vecProcess.push_back(new ScintProcessor());
-    vecProcess.push_back(new VandleProcessor());
-    //vecProcess.push_back(new ValidProcessor());
-    //vecProcess.push_back(new PositionProcessor()); // order is important
-    //vecProcess.push_back(new TriggerLogicProcessor());
-    //vecProcess.push_back(new SsdProcessor());
-    //vecProcess.push_back(new GeProcessor()); // order is important
-    // vecProcess.push_back(new SsdProcessor());
+    vecProcess.push_back(new MtcProcessor());
+    vecProcess.push_back(new LogicProcessor());
+    vecProcess.push_back(new BetaProcessor());
+    //vecProcess.push_back(new VandleProcessor());
+    vecProcess.push_back(new GeProcessor()); // order is important
 #ifdef useroot
     vecProcess.push_back(new ScintROOT());
     vecProcess.push_back(new VandleROOT());
@@ -120,7 +116,6 @@ DetectorDriver::DetectorDriver() :
 
 /*!
   detector driver deconstructor
-
   frees memory for all event processors
  */
 DetectorDriver::~DetectorDriver()
@@ -178,10 +173,112 @@ int DetectorDriver::Init(void)
     readFiles.ReadTimingConstants();
     readFiles.ReadTimingCalibration();
 
+    InitializeCorrelator();
+
     rawev.GetCorrelator().Init();
 
     return 0;
 }
+
+/** This function initializes the correlator tree.
+ */
+void DetectorDriver::InitializeCorrelator() {
+    /** Setup for LeRIBBS */
+
+    /* Use this constant for debugging */
+    cout << "DetectorDriver::InitializeCorrelator()" << endl;
+
+    /** Here we create abstract places.*/
+    PlaceOR* clover0 = new PlaceOR();
+    TreeCorrelator::get().addPlace("Clover0", clover0, verbose::CORRELATOR_INIT);
+    PlaceOR* clover1 = new PlaceOR();
+    TreeCorrelator::get().addPlace("Clover1", clover1, verbose::CORRELATOR_INIT);
+    PlaceOR* clover2 = new PlaceOR();
+    TreeCorrelator::get().addPlace("Clover2", clover2, verbose::CORRELATOR_INIT);
+    PlaceOR* clover3 = new PlaceOR();
+    TreeCorrelator::get().addPlace("Clover3", clover3, verbose::CORRELATOR_INIT);
+
+    /** Note that beta_scint detectors are acticated in BetaScintProcessor
+     *  with threshold on energy defined therein.
+     *  This place is also sensitive to this threshold as parent of beta places.
+     *
+     *  Fifo of this place is increased to accomodate multiplicity of beta
+     *  events for longer events width. Check appopriate plot if depth is
+     *  large enough.
+     */
+    PlaceOR* beta = new PlaceOR(true, 10);
+    TreeCorrelator::get().addPlace("Beta", beta, verbose::CORRELATOR_INIT);
+    
+    // All Hen3 events
+    PlaceCounter* hen3 = new PlaceCounter();
+    TreeCorrelator::get().addPlace("Hen3", hen3, verbose::CORRELATOR_INIT);
+
+    // Real neutrons (children are thresholded)
+    PlaceCounter* neutrons = new PlaceCounter();
+    TreeCorrelator::get().addPlace("Neutrons", neutrons, verbose::CORRELATOR_INIT);
+
+    PlaceOR* gamma = new PlaceOR();
+    TreeCorrelator::get().addPlace("Gamma", gamma, verbose::CORRELATOR_INIT);
+    TreeCorrelator::get().addChild("Gamma", "Clover0", true, verbose::CORRELATOR_INIT);
+    TreeCorrelator::get().addChild("Gamma", "Clover1", true, verbose::CORRELATOR_INIT);
+    TreeCorrelator::get().addChild("Gamma", "Clover2", true, verbose::CORRELATOR_INIT);
+    TreeCorrelator::get().addChild("Gamma", "Clover3", true, verbose::CORRELATOR_INIT);
+
+    PlaceAND* gammabeta = new PlaceAND();
+    TreeCorrelator::get().addPlace("GammaBeta", gammabeta, verbose::CORRELATOR_INIT);
+    TreeCorrelator::get().places["GammaBeta"] = new PlaceAND();
+    TreeCorrelator::get().addChild("GammaBeta", "Gamma", true, verbose::CORRELATOR_INIT);
+    TreeCorrelator::get().addChild("GammaBeta", "Beta", true, verbose::CORRELATOR_INIT);
+
+    PlaceAND* gammawobeta = new PlaceAND();
+    TreeCorrelator::get().addPlace("GammaWOBeta", gammawobeta, verbose::CORRELATOR_INIT);
+    TreeCorrelator::get().addChild("GammaWOBeta", "Gamma", true, verbose::CORRELATOR_INIT);
+    TreeCorrelator::get().addChild("GammaWOBeta", "Beta", false, verbose::CORRELATOR_INIT);
+
+    // Active if tape is moving
+    PlaceDetector* tapemove = new PlaceDetector(false);
+    TreeCorrelator::get().addPlace("TapeMove", tapemove, verbose::CORRELATOR_INIT);
+    // Active if beam is on
+    PlaceDetector* beam = new PlaceDetector(false);
+    TreeCorrelator::get().addPlace("Beam", beam, verbose::CORRELATOR_INIT);
+    // Activated with beam start, deactivated with TapeMove
+    PlaceDetector* cycle  = new PlaceDetector(false);
+    TreeCorrelator::get().addPlace("Cycle", cycle, verbose::CORRELATOR_INIT);
+
+    extern DetectorLibrary modChan;
+
+    // Basic places are created in MapFile.cpp
+    // Here we group them as children of just created abstract places
+    unsigned int sz = modChan.size();
+    for (unsigned i = 0; i < sz; ++i) {
+        string type = modChan[i].GetType();
+        string subtype = modChan[i].GetSubtype();
+        int location = modChan[i].GetLocation();
+
+        stringstream name;
+        name << type << "_" << subtype << "_" << location;
+
+        if (type == "ge" && subtype == "clover_high") {
+            int clover_number = int(location / 4);
+            stringstream clover;
+            clover << "Clover" << clover_number;
+            TreeCorrelator::get().addChild(clover.str(), name.str(), true, verbose::CORRELATOR_INIT);
+        } else if (type == "scint" && subtype == "beta") {
+            TreeCorrelator::get().addChild("Beta", name.str(), true, verbose::CORRELATOR_INIT);
+        } else if (type == "3hen" && subtype == "big") {
+            stringstream neutron;
+            neutron << "Neutron" << location;
+            PlaceThreshold* real_neutron  = new PlaceThreshold(detectors::neutronLowLimit,
+                                                               detectors::neutronHighLimit);
+            TreeCorrelator::get().addPlace(neutron.str(), real_neutron, verbose::CORRELATOR_INIT);
+
+            TreeCorrelator::get().addChild("Hen3", name.str(), true, verbose::CORRELATOR_INIT);
+            TreeCorrelator::get().addChild("Neutrons", neutron.str(), true, verbose::CORRELATOR_INIT);
+        }
+    }
+    /** End setup for LeRIBBS */
+}
+
 
 /*!
   \brief controls event processing
@@ -205,19 +302,29 @@ int DetectorDriver::ProcessEvent(const string &mode){
     
     const vector<ChanEvent *> &eventList = rawev.GetEventList();
     for(size_t i=0; i < eventList.size(); i++) {
-	ChanEvent *chan = eventList[i];  
+        ChanEvent *chan = eventList[i];  
 	
         PlotRaw(chan);
-	ThreshAndCal(chan); // check threshold and calibrate
-	PlotCal(chan);       
+        ThreshAndCal(chan); // check threshold and calibrate
+        PlotCal(chan);       
     } //end chan by chan event processing
  
     // have each processor in the event processing vector handle the event
+    /* First round is preprocessing, where process result must be guaranteed
+     * to not to be dependent on results of other Processors. */
     for (vector<EventProcessor *>::iterator iProc = vecProcess.begin();
 	 iProc != vecProcess.end(); iProc++) {
-	if ( (*iProc)->HasEvent() ) {
-	     (*iProc)->Process(rawev);
-	}
+        if ( (*iProc)->HasEvent() ) {
+            (*iProc)->PreProcess(rawev);
+        }
+    }
+    /* In the second round the Process is called, which may depend on other
+     * Processors. */
+    for (vector<EventProcessor *>::iterator iProc = vecProcess.begin();
+	 iProc != vecProcess.end(); iProc++) {
+        if ( (*iProc)->HasEvent() ) {
+            (*iProc)->Process(rawev);
+        }
     }
 
     return 0;   
@@ -556,33 +663,37 @@ void DetectorDriver::ReadCal()
       Print the calibration values that have been read in
     */
     //cout << "calibration parameters are: " << cal.size() << endl;
+   
+    if (verbose::CALIBRATION_INIT) {
+        cout << setw(4)  << "mod" 
+            << setw(4)  << "ch"
+        << setw(4)  << "loc"
+        << setw(10) << "type"
+            << setw(8)  << "subtype"
+        << setw(5)  << "cals"
+        << setw(6)  << "order"
+        << setw(31) << "cal values: low-high thresh, coeffs" << endl;
     
-    cout << setw(4)  << "mod" 
-         << setw(4)  << "ch"
-	 << setw(4)  << "loc"
-	 << setw(10) << "type"
-         << setw(8)  << "subtype"
-	 << setw(5)  << "cals"
-	 << setw(6)  << "order"
-	 << setw(31) << "cal values: low-high thresh, coeffs" << endl;
- 
-    //? calibration print command?
-    for(size_t a = 0; a < cal.size(); a++){
-      cout << setw(4)  << int(a/16) 
-	   << setw(4)  << (a % 16)
-	   << setw(4)  << cal[a].detLocation 
-	   << setw(10) << cal[a].detType
-           << setw(8)  << cal[a].detSubtype 
-	   << setw(5)  << cal[a].numCal
-           << setw(6)  << cal[a].polyOrder;      
-        for(unsigned int b = 0; b < cal[a].numCal; b++){
-	    cout << setw(6) << cal[a].thresh[b];
-            cout << " - " << setw(6) << cal[a].thresh[b+1];
-            for(unsigned int c = 0; c < cal[a].polyOrder+1; c++){
-	      cout << setw(7) << setprecision(5) 
-		   << cal[a].val[b*(cal[a].polyOrder+1)+c];
-            }
+        //? calibration print command?
+        for(size_t a = 0; a < cal.size(); a++){
+        cout << setw(4)  << int(a/16) 
+        << setw(4)  << (a % 16)
+        << setw(4)  << cal[a].detLocation 
+        << setw(10) << cal[a].detType
+            << setw(8)  << cal[a].detSubtype 
+        << setw(5)  << cal[a].numCal
+            << setw(6)  << cal[a].polyOrder;      
+            for(unsigned int b = 0; b < cal[a].numCal; b++){
+            cout << setw(6) << cal[a].thresh[b];
+                cout << " - " << setw(6) << cal[a].thresh[b+1];
+                for(unsigned int c = 0; c < cal[a].polyOrder+1; c++){
+            cout << setw(7) << setprecision(5) 
+            << cal[a].val[b*(cal[a].polyOrder+1)+c];
+                }
 
+            }
+            
+            cout << endl;
         }
         
         cout << endl;

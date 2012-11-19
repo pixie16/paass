@@ -8,35 +8,32 @@
 
 #include <cstdlib>
 
-using std::cerr;
-using std::cout;
-using std::endl;
+using namespace std;
 
-PlotsRegister PlotsRegister::plotsReg(true);
+PlotsRegister* PlotsRegister::instance = NULL;
 
-/**
- * return the singleton instance
- */
-PlotsRegister* PlotsRegister::R() 
-{
-    return &plotsReg;
+/** Instance is created upon first call */
+PlotsRegister* PlotsRegister::R() {
+    if (!instance) {
+        instance = new PlotsRegister();
+    }
+    return instance;
 }
 
-bool PlotsRegister::CheckRange (int offset, int range) const
+bool PlotsRegister::CheckRange (int min, int max) const
 {
     bool exists = false;
-    int min = offset;
-    int max = offset + range - 1;
     
     unsigned sz = reg.size();
     for (unsigned id = 0; id < sz; ++id) {
-	if (min > reg[id].max && max < reg[id].min)
-	    continue;
-	if ( (min > reg[id].min && min < reg[id].max) || 
-	     (max > reg[id].min && max < reg[id].max) ) {
-	    exists = true;
-	    break;
-	}
+        if ( (min < reg[id].first && max < reg[id].first) ||
+             (min > reg[id].second && max > reg[id].second) )
+            continue;
+        else {
+            exists = true;
+            cout << "Error: " << min << " " << max << " , " << reg[id].first << " " << reg[id].second << endl;
+            break;
+        }
     }
     return exists;
 }
@@ -45,28 +42,30 @@ bool PlotsRegister::Add (int offset, int range)
 {
     // Special case: empty Plots list
     if (offset == 0 && range == 0)
-	return true;
+        return true;
     
     int min = offset;
     int max = offset + range - 1;
     
     if (max < min) {
-	cerr << "Attempt to register incorrect histogram ids range: " << min << " to" << max << endl;
-	exit(1);
+        cerr << "PlotsRegister: Attempt to register incorrect histogram ids range: " << min << " to" << max << endl;
+        exit(1);
     }
     
     if (min < 1 || max > 7999) {
-	cerr << "Attempt to register histogram ids: " << min << " to " << max << endl;
-	cerr << "Valid range is 1 to 7999" << endl;
-	exit(1);
+        cerr << "PlotsRegister: Attempt to register histogram ids: " << min << " to " << max << endl;
+        cerr << "Valid range is 1 to 7999" << endl;
+        exit(1);
     }
     
     if (CheckRange(min, max)) {
-	cerr << "Attempt to register histogram ids: " << min << " to " << max << endl;
-	// cerr << "This range is already registered: " << reg[id].first << " to " << reg[id].second << endl;
-	exit(EXIT_FAILURE);
+        cerr << "PlotsRegister: Attempt to register histogram ids: " << min << " to " << max << endl;
+        cerr << "This range is already registered." << endl;
+        exit(EXIT_FAILURE);
     }
     
-    reg.push_back( MinMax(min, max) );
+    reg.push_back( std::pair<int, int>(min, max) );
+
+    cout << "Histogram ids: " << min << " to " << max << " registered." << endl;
     return true;        
 }

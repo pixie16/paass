@@ -12,6 +12,7 @@
 #include "DammPlotIds.hpp"
 
 using namespace std;
+using namespace dammIds::trace;
 
 namespace dammIds {
     namespace trace {
@@ -20,7 +21,7 @@ namespace dammIds {
     
 const Trace emptyTrace; ///< an empty trace for const references to point to
 
-Plots Trace::histo(dammIds::trace::OFFSET, dammIds::trace::RANGE, PlotsRegister::R());
+Plots Trace::histo(OFFSET, RANGE);
 
 /**
  * Defines how to implement a trapezoidal filter characterized by two
@@ -51,38 +52,38 @@ double Trace::DoBaseline(unsigned int lo, unsigned int numBins)
 	cerr << "Bad range in baseline calculation." << endl;
 	return NAN;
     }
-
+    
     unsigned int hi = lo + numBins;
-
+    
     if (baselineLow == lo && baselineHigh == hi)
 	return GetValue("baseline");
-
-    StatsAccumulator stats = accumulate(begin() + lo, begin() + hi, StatsAccumulator());
+    
+    StatsAccumulator stats = accumulate(begin() + lo, begin() + hi, 
+					StatsAccumulator());
     SetValue("baseline", stats.GetMean());
     SetValue("sigmaBaseline", stats.GetStdDev());
-
+    
     baselineLow  = lo;
     baselineHigh = hi;
-
+    
     return stats.GetMean();
 }
 
 double Trace::DoDiscrimination(unsigned int lo, unsigned int numBins)
 {
     unsigned int high = lo+numBins;
-
+    
     unsigned int max = GetValue("maxpos");
     double discrim = 0, baseline = GetValue("baseline");
     
     //reference the sum to the maximum of the trace
     high += max;
     lo += max;
-
-
+    
     if(size() < high)
 	return U_DELIMITER;
     
-    for(unsigned int i = lo; i <= high; i++)
+    for(unsigned int i = lo; i < high; i++)
 	discrim += at(i)-baseline;
     
     InsertValue("discrim", discrim);
@@ -93,45 +94,53 @@ double Trace::DoDiscrimination(unsigned int lo, unsigned int numBins)
 double Trace::DoQDC(unsigned int lo, unsigned int numBins) 
 {
     unsigned int high = lo+numBins;
-
+    
     if(size() < high)
-	return U_DELIMITER;
-
+	return(NAN);
+    
     double baseline = GetValue("baseline");
-    double qdc = 0;
-
-    for(unsigned int i = lo; i < high; i++)
+    double qdc = 0, fullQdc = 0;
+    
+    for(unsigned int i = lo; i <= high; i++) {
 	qdc += at(i)-baseline;
-
+	waveform.push_back(at(i)-baseline);
+    }
+    
+    for(unsigned int i = 0; i < size(); i++)
+	fullQdc += at(i)-baseline;
+    
+    InsertValue("fullQdc", fullQdc);
     InsertValue("tqdc", qdc);
-
     return(qdc);
 }
 
-unsigned int Trace::FindMaxInfo(unsigned int lo, unsigned int numBins)
+unsigned int Trace::FindMaxInfo(void)
 {
-    lo = constants.GetConstant("waveformLow");
-    unsigned int hi = constants.GetConstant("waveformHigh");
-    numBins = lo + hi;
+    unsigned int hi = constants.GetConstant("traceDelay") /
+	(pixie::adcClockInSeconds*1e9);
+    unsigned int lo = hi - (constants.GetConstant("trapezoidalWalk") / 
+			    (pixie::adcClockInSeconds*1e9) ) - 3;
     
-    if(size() < lo + numBins)
-       return U_DELIMITER;
+    if(size() < hi)
+        return U_DELIMITER;
     
-    Trace::const_iterator itTrace = max_element(begin()+lo, end()-lo);
-
-    //Check the trace for saturation here. 
+    Trace::const_iterator itTrace = max_element(begin()+lo, end()-(size()-hi));
+    
+    int maxPos = int(itTrace-begin());
+    
+    if(maxPos + constants.GetConstant("waveformHigh") > size())
+	return U_DELIMITER;
+    
     if(*itTrace >= 4095) {
 	InsertValue("saturation", 1);
-	return(NAN);
+	return(-1);
     }
-
-    int maxPos = int(itTrace-begin());
-
+    
     DoBaseline(0,maxPos-constants.GetConstant("waveformLow"));
-
-    InsertValue("maxpos", int(itTrace-begin()));
-    InsertValue("maxval", int(*itTrace)-GetValue("baseline"));
-
+    
+    InsertValue("maxpos", maxPos);
+    InsertValue("maxval", *itTrace-GetValue("baseline"));
+    
     return (itTrace-begin());
 }
 

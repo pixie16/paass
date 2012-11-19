@@ -9,7 +9,7 @@
  */
 
 #include <iostream>
-
+#include <sstream>
 #include <cmath>
 
 #include "DammPlotIds.hpp"
@@ -22,13 +22,19 @@ using namespace dammIds::mtc;
 
 namespace dammIds {
     namespace mtc {
-        const int D_TDIFF0        = 0;
-        const int D_TDIFF1        = 1;
-        const int D_TDIFFSUM      = 2;
-        const int D_MOVETIME      = 3;
-        const int D_COUNTER       = 10;
-        const int D_COUNTER_MOVE0 = 11;
-        const int D_COUNTER_MOVE1 = 12;
+        const int D_TDIFF_BEAM_START   = 0;
+        const int D_TDIFF_BEAM_STOP    = 1;
+        const int D_TDIFF_MOVE_START   = 2;
+        const int D_TDIFF_MOVE_STOP    = 3;
+        const int D_MOVETIME           = 4;
+        const int D_BEAMTIME           = 5;
+        const int D_COUNTER            = 6;
+        const int DD_TIME__DET_MTCEVENTS = 10;
+
+        const int MOVE_START_BIN = 1;
+        const int MOVE_STOP_BIN = 3;
+        const int BEAM_START_BIN = 5;
+        const int BEAM_STOP_BIN = 7;
     }
 } // mtc namespace
 
@@ -46,87 +52,123 @@ void MtcProcessor::DeclarePlots(void)
 {
     using namespace dammIds::mtc;
     
-    const int counterBins = S4;
+    const int counterBins = S3;
     const int timeBins = SA;
 
-    DeclareHistogram1D(D_TDIFF0, timeBins, "tdiff btwn MTC starts, 10 ms/bin");
-    DeclareHistogram1D(D_TDIFF1, timeBins, "tdiff btwn MTC stops, 10 ms/bin");
-    DeclareHistogram1D(D_TDIFFSUM, timeBins, "sum tdiff btwn moves, 10 ms/bin");
-    DeclareHistogram1D(D_MOVETIME, timeBins, "move time, 10 ms/bin");
-    DeclareHistogram1D(D_COUNTER, counterBins, "MTC counter");
-    DeclareHistogram1D(D_COUNTER_MOVE0, counterBins, "MTC1 counter");
-    DeclareHistogram1D(D_COUNTER_MOVE1, counterBins, "MTC2 counter");
+    DeclareHistogram1D(D_TDIFF_BEAM_START, timeBins, "Time diff btwn beam starts, 10 ms/bin");
+    DeclareHistogram1D(D_TDIFF_BEAM_STOP, timeBins, "Time diff btwn beam stops, 10 ms/bin");
+    DeclareHistogram1D(D_TDIFF_MOVE_START, timeBins, "Time diff btwn move starts, 10 ms/bin");
+    DeclareHistogram1D(D_TDIFF_MOVE_STOP, timeBins, "Time diff btwn move stops, 10 ms/bin");
+    DeclareHistogram1D(D_MOVETIME, timeBins, "Move time, 10 ms/bin");
+    DeclareHistogram1D(D_BEAMTIME, timeBins, "Beam on time, 10 ms/bin");
+    // Counter of events; see dammIds::mtc namespace for bin definition
+    DeclareHistogram1D(D_COUNTER, counterBins, "MTC and beam counter");
+
+    DeclareHistogram2D(DD_TIME__DET_MTCEVENTS, SF, S2, "MTC and beam events");
 }
 
-bool MtcProcessor::Process(RawEvent &event)
+bool MtcProcessor::PreProcess(RawEvent &event)
 {
-    // plot with 10 ms bins
-    const double mtcPlotResolution = 10e-3 / pixie::clockInSeconds;
-    static Correlator &corr = event.GetCorrelator();
- 
-    if (!EventProcessor::Process(event))
-	return false;
+    if (!EventProcessor::PreProcess(event))
+        return false;
 
-    using namespace dammIds::mtc;
- 
     const static DetectorSummary *mtcSummary = NULL;
 
+    // plot with 10 ms bins
+    const double mtcPlotResolution = 10e-3 / pixie::clockInSeconds;
+    // for 2d plot of events 100ms / bin
+
     if (mtcSummary == NULL) {
-	if ( sumMap.count("mtc") )
-	    mtcSummary = sumMap["mtc"];
-	else if ( sumMap.count("timeclass") ) 
-	    mtcSummary = sumMap["timeclass"];
+        if ( sumMap.count("mtc") )
+            mtcSummary = sumMap["mtc"];
+        else if ( sumMap.count("timeclass") ) 
+            mtcSummary = sumMap["timeclass"];
     }
 
     static const vector<ChanEvent*> &mtcEvents = mtcSummary->GetList();
 
-    plot(D_COUNTER, dammIds::GENERIC_CHANNEL);
-
     for (vector<ChanEvent*>::const_iterator it = mtcEvents.begin();
 	 it != mtcEvents.end(); it++) {
-	ChanEvent *chan = *it;
-	string subtype = chan->GetChanID().GetSubtype();
+        string subtype = (*it)->GetChanID().GetSubtype();
+        double time   = (*it)->GetTime();	
+        // Time of the first event
+        static double t0 = time;
+        string place = (*it)->GetChanID().GetPlaceName();
 
-	double time = chan->GetTime();
-	if(subtype == "start") {
-	    if (!isnan(lastStartTime)) {
-		double timediff = time - lastStartTime;
-		plot(D_TDIFF0, timediff / mtcPlotResolution);
-		plot(D_TDIFFSUM, timediff / mtcPlotResolution);
-	    }
-	    lastStartTime = time;
-	    plot(D_COUNTER_MOVE0,dammIds::GENERIC_CHANNEL); //counter
-	} else if (subtype == "stop") {
-	    if (!isnan(lastStopTime) != 0) {
-		double timeDiff1 = time - lastStopTime;
-		plot(D_TDIFF1, timeDiff1 / mtcPlotResolution);
-		plot(D_TDIFFSUM, timeDiff1 / mtcPlotResolution);
-		if (!isnan(lastStartTime)) {
-		    double moveTime = time - lastStartTime;    
-		    plot(D_MOVETIME, moveTime / mtcPlotResolution);
-		}
-	    }
-	    lastStopTime = time;
-	    plot(D_COUNTER_MOVE1,dammIds::GENERIC_CHANNEL); //counter	  
-	    // correlate the end of tape movement with the implantation time
-	    // if mtc down, correlate with beam_start
+        if (TreeCorrelator::get().places.count(place) == 1) {
+            double time   = (*it)->GetTime();
+            TreeCorrelator::get().places[place]->activate(time);
+        } else {
+            cerr << "In MtcProcessor: place " << place
+                    << " does not exist." << endl;
+            return false;
+        }
 
-	    EventInfo corEvent;
-	    corEvent.time = time;
-	    corEvent.type = EventInfo::IMPLANT_EVENT;
+        const double eventsResolution = 100e-3 / pixie::clockInSeconds;
+        const unsigned MTC_START = 0;
+        const unsigned MTC_STOP = 1;
+        const unsigned BEAM_START = 2;
+        const unsigned BEAM_STOP = 3;
+        double time_x = int((time - t0) / eventsResolution);
 
-	    corr.Correlate(corEvent, 1, 1);
+        if(place == "mtc_start_0") {
 
-	} else if (subtype == "beam_start") {
-	    /*
-	    corr.Correlate(event, Correlator::IMPLANT_EVENT,
-			   1, 1, time);
-	    */
-	}
+            double dt_start = time - 
+                     TreeCorrelator::get().places[place]->secondlast().time;
+            TreeCorrelator::get().places["TapeMove"]->activate(time);
+            TreeCorrelator::get().places["Cycle"]->deactivate(time);
+
+            plot(D_TDIFF_MOVE_START, dt_start / mtcPlotResolution);
+            plot(D_COUNTER, MOVE_START_BIN);
+            plot(DD_TIME__DET_MTCEVENTS, time_x, MTC_START);
+
+        } else if (place == "mtc_stop_0") {
+
+            double dt_stop = time - 
+                     TreeCorrelator::get().places[place]->secondlast().time;
+            double dt_move = time - 
+                     TreeCorrelator::get().places["mtc_start_0"]->last().time;
+            TreeCorrelator::get().places["TapeMove"]->deactivate(time);
+
+            plot(D_TDIFF_MOVE_STOP, dt_stop / mtcPlotResolution);
+            plot(D_MOVETIME, dt_move / mtcPlotResolution);
+            plot(D_COUNTER, MOVE_STOP_BIN);
+            plot(DD_TIME__DET_MTCEVENTS, time_x, MTC_STOP);
+
+        } else if (place == "mtc_beam_start_0") {
+
+            double dt_start = time -
+                      TreeCorrelator::get().places[place]->secondlast().time;
+            TreeCorrelator::get().places["Beam"]->activate(time);
+            TreeCorrelator::get().places["Cycle"]->activate(time);
+
+            plot(D_TDIFF_BEAM_START, dt_start / mtcPlotResolution);
+            plot(D_COUNTER, BEAM_START_BIN);
+            plot(DD_TIME__DET_MTCEVENTS, time_x, BEAM_START);
+
+        } else if (place == "mtc_beam_stop_0") {
+
+            double dt_stop = time - 
+                      TreeCorrelator::get().places[place]->secondlast().time;
+            double dt_beam = time - 
+                      TreeCorrelator::get().places["mtc_beam_start_0"]->last().time;
+            TreeCorrelator::get().places["Beam"]->deactivate(time);
+
+            plot(D_TDIFF_BEAM_STOP, dt_stop / mtcPlotResolution);
+            plot(D_BEAMTIME, dt_beam / mtcPlotResolution);
+            plot(D_COUNTER, BEAM_STOP_BIN);
+            plot(DD_TIME__DET_MTCEVENTS, time_x, BEAM_STOP);
+
+        }
     }
+    return true;
+}
 
-
-
+bool MtcProcessor::Process(RawEvent &event)
+{
+    if (!EventProcessor::Process(event))
+        return false;
+    using namespace dammIds::mtc;
     EndProcess(); // update processing time
     return true;
 }

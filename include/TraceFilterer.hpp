@@ -46,6 +46,7 @@ class TraceFilterer : public TracePlotter {
     virtual const PulseInfo& FindPulse(Trace::iterator begin, Trace::iterator end);
  public:
     TraceFilterer();
+    TraceFilterer(int offset, int range);
     virtual ~TraceFilterer();
 
     virtual bool Init(const std::string &filterFile = defaultFilterFile);

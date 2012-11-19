@@ -18,9 +18,10 @@
 #include "CfdAnalyzer.hpp"
 
 using namespace std;
+using namespace dammIds::trace::cfd;
 
 //********** CfdAnalyzer **********
-CfdAnalyzer::CfdAnalyzer() : TraceAnalyzer()
+CfdAnalyzer::CfdAnalyzer() : TraceAnalyzer(OFFSET,RANGE)
 {
     name = "CfdAnalyzer";
 }

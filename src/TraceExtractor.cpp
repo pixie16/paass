@@ -1,7 +1,6 @@
 /** \file TraceExtractor.cpp
  *  \brief Extract traces for a specific type and subtype
  */
-
 #include <string>
 
 #include "Trace.hpp"
@@ -10,12 +9,14 @@
 #include "DammPlotIds.hpp"
 
 using std::string;
+using namespace dammIds::trace::extractor;
 
 const int TraceExtractor::traceBins = SC;
 const int TraceExtractor::numTraces = 99;
 
-TraceExtractor::TraceExtractor(const std::string& aType, const std::string &aSubtype) : 
-  TraceAnalyzer(), type(aType), subtype(aSubtype)
+
+TraceExtractor::TraceExtractor(const string& aType, const string &aSubtype) : 
+  TraceAnalyzer(OFFSET, RANGE), type(aType), subtype(aSubtype)
 {
     name = "Extractor";
 }
@@ -28,7 +29,6 @@ TraceExtractor::~TraceExtractor()
 /** Declare the damm plots */
 void TraceExtractor::DeclarePlots(void)
 {
-    using namespace dammIds::trace;
     for (int i=0; i < numTraces; i++)
 	DeclareHistogram1D(D_TRACE + i, traceBins, "traces data");
 }
@@ -37,7 +37,6 @@ void TraceExtractor::DeclarePlots(void)
 void TraceExtractor::Analyze(Trace &trace,
 			     const string &aType, const string &aSubtype)
 {   
-    using namespace dammIds::trace;
 
     if (type ==  aType && subtype == aSubtype && numTracesAnalyzed < numTraces) {	
 	TraceAnalyzer::Analyze(trace, type, subtype);	

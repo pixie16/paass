@@ -46,6 +46,8 @@ class TimingInformation
 	double tqdc;
 	double walk;
 	double walkCorTime;
+
+	int numAboveThresh;
     };
     
 #ifdef useroot
@@ -83,15 +85,19 @@ class TimingInformation
 	
 	double flightPath;
 	double lMaxVal;
+	double lqdc;
+	double lTime;
 	double qdc;
 	double qdcPos;
 	double rMaxVal;
+	double rqdc;
+	double rTime;
 	double theta;
 	double timeAve;
 	double timeDiff;
 	double walkCorTimeDiff;
 	double walkCorTimeAve;
-		
+	
 	std::map<unsigned int, double> timeOfFlight;
 	std::map<unsigned int, double> corTimeOfFlight;
 	std::map<unsigned int, double> energy;
