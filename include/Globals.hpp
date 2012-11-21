@@ -47,8 +47,9 @@ namespace pixie {
     /** Energies from pixie16 are contracted by this number.
      * Was 2.0 for older LeRIBBS
      * changed to 4.0 for LeRIBBS experiment (93Br)
+     * Set to 1.0, looks like ADC range is 16K
      * */
-    const double energyContraction = 4.0; 
+    const double energyContraction = 1.0; 
 };
 
 /**

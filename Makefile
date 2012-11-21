@@ -39,13 +39,11 @@ vpath %.h include/
 vpath %.icc include/
 vpath %.cpp src/
 
-ifeq ($(HHIRF_DIR),)
 HHIRF_DIR = /usr/hhirf
-endif
+ACQ2_LIBDIR = /usr/hhirf
 
-LIBS = $(HHIRF_DIR)/scanorlib.a $(HHIRF_DIR)/orphlib.a
-# Not needed when using scanof.f
-# $(ACQ2_LIBDIR)/acqlib.a  $(ACQ2_LIBDIR)/ipclib.a
+LIBS = $(HHIRF_DIR)/scanorlib.a $(HHIRF_DIR)/orphlib.a\
+       $(ACQ2_LIBDIR)/acqlib.a  $(ACQ2_LIBDIR)/ipclib.a
 
 OutPutOpt     = -o # keep whitespace after "-o"
 ObjSuf        = o
@@ -116,7 +114,7 @@ endif
 SET2CCO          = set2cc.$(ObjSuf)
 MESSLOGO         = messlog.$(ObjSuf)
 MILDATIMO        = mildatim.$(ObjSuf)
-SCANOFO          = scanof.$(ObjSuf)
+SCANORO          = scanor.$(ObjSuf)
 
 # objects from cpp
 PIXIEO           = PixieStd.$(ObjSuf)
@@ -193,7 +191,7 @@ OBJS   = \
 $(SET2CCO)\
 $(MESSLOGO)\
 $(MILDATIMO)\
-$(SCANOFO)
+$(SCANORO)
 # Important to compile READBUFFDATA first
 OBJS += $(READBUFFDATAO)
 # other C++ objects
