@@ -6,11 +6,11 @@
 
 -->
 
-<TreeCorrelator>
+<TreeCorrelator name="root" description="LeRIBSS 2011, 4 Clovers">
 
     <Place type="PlaceAND" name="GammaBeta">
         <Place type="PlaceOR" name="Beta">
-            <Place type="" name="beta_scint_beta_*"/>
+            <Place type="" name="beta_scint_beta_0-1"/>
         </Place>
         <Place type="PlaceOR" name="Gamma">
             <Place type="PlaceOR" name="Clover0">
@@ -30,7 +30,7 @@
 
     <Place type="PlaceAND" name="GammaWOBeta">
         <Place type="" name="Gamma" coincidence="true"/>
-        <Place type="" name="Beta" coincidence="false"/>
+        <Place type="" name="Beta" fifo="10" coincidence="false"/>
     </Place>
 
 
