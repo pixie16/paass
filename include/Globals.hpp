@@ -6,17 +6,19 @@
 #ifndef __GLOBALS_HPP_
 #define __GLOBALS_HPP_
 
+#include <vector>
+#include <sstream>
 #include <string>
-
 #include <cstdlib>
 #include <stdint.h>
+#include "Exceptions.hpp"
 
 //? move these
 const int MAX_PAR = 32000; //< maximum limit for calibrations
 
 /* More verbose initialization */
 namespace verbose {
-    const bool MAP_INIT = true;
+    const bool MAP_INIT = false;
     const bool CALIBRATION_INIT = false;
     const bool CORRELATOR_INIT = true;
 };
@@ -99,5 +101,62 @@ const std::string emptyString = ""; //< an empty string for blank references
 const pixie::word_t clockVsn = 1000; ///< an arbitrary vsn used to pass clock data
 
 const size_t maxConfigLineLength = 100;
+
+/** Some common string operations */
+namespace strings {
+    /** Converts string to double or throws an exception if not 
+        * succesful */
+    inline double to_double (std::string s) { 
+        std::istringstream iss(s);
+        double value;
+        if (!(iss >> value)) {
+            std::stringstream ss;
+            ss << "Could not convert string '" << s << "' to double" << std::endl;
+            throw GeneralException(ss.str());
+        }
+        return value;
+    }
+
+    /** Converts string to int or throws an exception if not 
+        * succesful */
+    inline int to_int (std::string s) {
+        std::istringstream iss(s);
+        int value;
+        if (!(iss >> value)) {
+            std::stringstream ss;
+            ss << "Could not convert string '" << s << "' to int" << std::endl;
+            throw GeneralException(ss.str());
+        }
+        return value;
+    }
+
+    /** Converts string to bool (True, true, 1 and False, false, 0) are 
+        * accepted; throws an exception if not succesful */
+    inline bool to_bool (std::string s) {
+        if (s == "true" || s == "True" || s == "1")
+            return true;
+        else if (s == "false" || s == "False" || s == "0")
+            return false;
+        else {
+            std::stringstream ss;
+            ss << "Could not convert string '" << s << "' to bool" << std::endl;
+            throw GeneralException(ss.str());
+        }
+    }
+    /** Tokenizes the string, splitting it on given delimiter.
+        * delimiters are removed from returned vector of tokens.*/
+    inline std::vector<std::string> tokenize(std::string str, std::string delimiter) {
+        std::string temp;
+        std::vector<std::string> tokenized;
+        while (str.find(delimiter) != std::string::npos) {
+            size_t pos = str.find(delimiter);
+            temp = str.substr(0, pos);
+            str.erase(0, pos + 1);
+            tokenized.push_back(temp);
+        }
+        tokenized.push_back(str);
+        return tokenized;
+    }
+};
 
 #endif // __GLOBALS_HPP_

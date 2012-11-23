@@ -7,7 +7,7 @@
 /** Exception with customizable message. */
 class GeneralException : public std::exception {
 public:
-    explicit GeneralException(const string& msg) 
+    explicit GeneralException(const std::string& msg) 
         : exception(), message_(msg) {}
 
     virtual ~GeneralException() throw() {}
@@ -18,7 +18,7 @@ public:
     }
 
 private:
-    const string message_;
+    const std::string message_;
 };
 
 #endif

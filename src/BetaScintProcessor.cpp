@@ -15,6 +15,7 @@ using namespace dammIds::beta_scint;
 namespace dammIds {
     namespace beta_scint {
         const int D_MULT_BETA = 0;
+        const int D_ENERGY_BETA = 1;
     }
 } 
 
@@ -25,6 +26,7 @@ BetaScintProcessor::BetaScintProcessor() : EventProcessor(OFFSET, RANGE) {
 
 void BetaScintProcessor::DeclarePlots(void) {
     DeclareHistogram1D(D_MULT_BETA, S4, "Beta multiplicity");
+    DeclareHistogram1D(D_ENERGY_BETA, SA, "Beta energy");
 }
 
 bool BetaScintProcessor::PreProcess(RawEvent &event){
@@ -46,6 +48,7 @@ bool BetaScintProcessor::PreProcess(RawEvent &event){
                 ++multiplicity;
                 CorrEventData data(time, true, energy);
                 TreeCorrelator::get()->places[place]->activate(data);
+                plot(D_ENERGY_BETA, energy);
             }
         } else {
             cerr << "In BetaScintProcessor: beta place " << place
