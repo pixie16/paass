@@ -9,13 +9,40 @@
 
 using namespace std;
 
+void Walker::parsePlace(pugi::xml_node node, string parent) {
+    map<string, string> params;
+    params["parent"] = parent;
+    params["type"] = "";
+    params["reset"] = "true";
+    params["coincidence"] = "true";
+    params["fifo"] = "2";
+    for (pugi::xml_attribute attr = node.first_attribute();
+         attr;
+         attr = attr.next_attribute()) {
+        params[attr.name()] = attr.value();
+    }
+    TreeCorrelator::get()->createPlace(params);
+}
+
+void Walker::traverseTree(pugi::xml_node node, string parent) {
+    for (pugi::xml_node child = node.child("Place");
+         child;
+         child = child.next_sibling("Place")) {
+        parsePlace(child, parent);
+        traverseTree(child, string(child.attribute("name").value()));
+    }
+}
+
+
 TreeCorrelator* TreeCorrelator::instance = NULL;
+
+PlaceBuilder TreeCorrelator::builder = PlaceBuilder();
 
 /** Instance is created upon first call */
 TreeCorrelator* TreeCorrelator::get() {
     if (!instance) {
         instance = new TreeCorrelator();
-        cout << "Created instance of TreeCorrelator" << endl;
+        cout << "Creating instance of TreeCorrelator" << endl;
     }
     return instance;
 }
@@ -36,36 +63,16 @@ void TreeCorrelator::addChild(string parent, string child,
     }
 }
 
-void TreeCorrelator::createPlace(map<string, string>& params,
-                                 bool verbose /*= false*/) {
-
-    cout << "Parent: " << params["parent"] << endl;
-    cout << "Name: " << params["name"] << endl
-         << "Type: " << params["type"] << endl
-         << "Reset: " << params["reset"] << endl
-         << "Coin: " << params["coincidence"] << endl
-         << "Fifo: " << params["fifo"] << endl
-         ;
-    cout << endl;
-
-    if (places.count(params["name"]) == 1 && 
-        params["type"] != "") {
-        stringstream ss;
-        ss << "Place" << params["name"] << " already exists";
-        throw GeneralException(ss.str());
-    }
-
-    bool reset = string_to_bool(params["reset"]);
-    int fifo = string_to_int(params["fifo"]);
-
+vector<string> TreeCorrelator::split_names(string name) {
     vector<string> names;
-    vector<string> name_tokens = tokenize(params["name"], "_");
+    vector<string> name_tokens = strings::tokenize(name, "_");
 
     if (name_tokens.size() > 1 &&
         name_tokens.back().find("-") != string::npos) {
-        vector<string> range_tokens = tokenize(name_tokens.back(), "-");
-        int range_min = string_to_int(range_tokens[0]);
-        int range_max = string_to_int(range_tokens[1]);
+        vector<string> range_tokens = 
+                                strings::tokenize(name_tokens.back(), "-");
+        int range_min = strings::to_int(range_tokens[0]);
+        int range_max = strings::to_int(range_tokens[1]);
         string base_name;
         for (vector<string>::iterator it = name_tokens.begin();
              it != name_tokens.end() - 1;
@@ -77,104 +84,55 @@ void TreeCorrelator::createPlace(map<string, string>& params,
             names.push_back(base_name + ss.str());
         }
     } else {
-        names.push_back(params["name"]);
+        names.push_back(name);
     }
-    
+    return names;
+}
+
+void TreeCorrelator::createPlace(map<string, string>& params,
+                                 bool verbose /*= false*/) {
+    vector<string> names = split_names(params["name"]);
+
     for (vector<string>::iterator it = names.begin();
          it != names.end();
          ++it) {
-        Place* current = NULL;
-        if (params["type"] == "PlaceDetector") {
-            current = new PlaceDetector(reset, fifo);
-        } else if (params["type"] == "PlaceThreshold") {
-            double low_limit = string_to_double(params["low_limit"]);
-            double high_limit = string_to_double(params["high_limit"]);
-            current = new PlaceThreshold(low_limit, high_limit,
-                                            reset, fifo);
-        } else if (params["type"] == "PlaceCounter") {
-            current = new PlaceCounter(reset, fifo);
-        } else if (params["type"] == "PlaceOR") {
-            current = new PlaceOR(reset, fifo);
-        } else if (params["type"] == "PlaceAND"){
-            current = new PlaceAND(reset, fifo);
-        } else if (params["type"] == "") {
-        } else {
-            stringstream ss;
-            ss << "Unknown place type " << params["type"];
-            throw GeneralException(ss.str());
-        }
 
         if (params["type"] != "") {
+            if (places.count((*it)) == 1) {
+                stringstream ss;
+                ss << "Place" << (*it) << " already exists";
+                throw GeneralException(ss.str());
+            }
+            Place* current = builder.create(params);
             places[(*it)] = current;
             if (verbose::CORRELATOR_INIT)
-                cout << "TreeCorrelator: created place " << (*it) << endl;
+                cout << "TreeCorrelator: creating place " << (*it) << endl;
         }
 
         if (params["parent"] != "root") {
-            bool coincidence = string_to_bool(params["coincidence"]);
+            bool coincidence = strings::to_bool(params["coincidence"]);
             addChild(params["parent"], (*it), coincidence,
-                    verbose::CORRELATOR_INIT);
+                     verbose::CORRELATOR_INIT);
         }
-    }
-}
 
-vector<string> TreeCorrelator::tokenize(string str, string delimiter) {
-    string temp;
-    vector<string> tokenized;
-    while (str.find(delimiter) != string::npos) {
-        size_t pos = str.find(delimiter);
-        temp = str.substr(0, pos);
-        str.erase(0, pos + 1);
-        tokenized.push_back(temp);
-    }
-    tokenized.push_back(str);
-    return tokenized;
-}
-
-
-void Walker::parsePlace(pugi::xml_node node, string parent) {
-    map<string, string> params;
-    params["parent"] = parent;
-    params["type"] = "";
-    params["reset"] = "true";
-    params["coincidence"] = "true";
-    params["fifo"] = "2";
-    for (pugi::xml_attribute attr = node.first_attribute();
-         attr;
-         attr = attr.next_attribute()) {
-        params[attr.name()] = attr.value();
-    }
-
-    TreeCorrelator::get()->createPlace(params);
-}
-
-void Walker::traverseTree(pugi::xml_node node, string parent) {
-    for (pugi::xml_node child = node.child("Place");
-         child;
-         child = child.next_sibling("Place")) {
-        parsePlace(child, parent);
-        traverseTree(child, string(child.attribute("name").value()));
     }
 }
 
 void TreeCorrelator::buildTree() {
-    /*Temporary solution for building tree
-     * put experiment specific function call here */
-    // buildTree_LeRIBSS();
-    //
     pugi::xml_document doc;
     pugi::xml_parse_result result = doc.load_file("TreeCorrelator.xml");
-    cout << "Loading configiration: " << result.description() 
-         << endl << " : " 
+    cout << "Loading configiration file TreeCorrelator.xml: "
+         << result.description() 
+         << endl << "Configuration description: "
          << doc.child("TreeCorrelator").attribute("description").value()
          << endl;
 
     pugi::xml_node tree = doc.child("TreeCorrelator");
     Walker walker;
     walker.traverseTree(tree, string(tree.attribute("name").value()));
-    exit(0);
 }
 
+/** OBSOLETE */
 void TreeCorrelator::buildTree_LeRIBSS() {
     /** Setup for LeRIBBS 4 Clovers*/
 
@@ -245,6 +203,7 @@ void TreeCorrelator::buildTree_LeRIBSS() {
     */
 }
 
+/** OBSOLETE */
 void TreeCorrelator::buildTree_Hybrid() {
     /** Setup for LeRIBBS 3Hen Hybrid */
 

@@ -149,6 +149,7 @@ POSITIONPROCESSORO = PositionProcessor.$(ObjSuf)
 RANDOMPOOLO      = RandomPool.$(ObjSuf)
 RAWEVENTO        = RawEvent.$(ObjSuf)
 ROOTPROCESSORO   = RootProcessor.$(ObjSuf)
+PLACEBUILDERO    = PlaceBuilder.$(ObjSuf)
 PLACESO          = Places.$(ObjSuf)
 PULSERPROCESSORO = PulserProcessor.$(ObjSuf)
 ACCUMULATORO     = StatsAccumulator.$(ObjSuf)
@@ -225,6 +226,7 @@ $(PLOTSREGISTERO)\
 $(POSITIONPROCESSORO)\
 $(RANDOMPOOLO)\
 $(RAWEVENTO)\
+$(PLACEBUILDERO)\
 $(PLACESO)\
 $(PULSERPROCESSORO)\
 $(ACCUMULATORO)\

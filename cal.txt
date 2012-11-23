@@ -31,9 +31,9 @@
 13   ge         	clover_low	1	2	0	0.730398309	  1.523824533	 0
 14   ge         	clover_low	1	2	0	0.636957428        1.495848911	 0
 15   ge         	clover_low	1	2	0	0.954099487        1.512432598	 0
-0    beta_scint		beta		1	2	0	0	1	0
-1    beta_scint		beta		1	2	0	0	1	0
-0    mtc		beam_start	1	1	0	0	1
-0    mtc		beam_stop	1	1	0	0	1
+0    beta_scint		beta		1	2	0	0	1.0	0
+1    beta_scint		beta		1	2	0	0	1.0	0
+0    mtc		beam_start	1	1	0	0   1.0	
+0    mtc		beam_stop	1	1	0	0   1.0	
 0    mtc		start		1	1	0	0	0.2
 0    mtc		stop		1	1	0	0	0.2
