@@ -5,6 +5,7 @@
 #include "DetectorLibrary.hpp"
 #include "TreeCorrelator.hpp"
 #include "Globals.hpp"
+#include "Exceptions.hpp"
 
 using namespace std;
 
@@ -19,43 +20,159 @@ TreeCorrelator* TreeCorrelator::get() {
     return instance;
 }
 
-void TreeCorrelator::addPlace(string name, Place* place,
-                              bool verbose /*= false*/) {
-    if (places.count(name) == 0) {
-        places[name] = place;
-        if (verbose) {
-            cout << "TreeCorrelator: created place " << name << endl;
-        }
-    } else {
-        cerr << "Error: TreeCorrelator: Place " << name
-                << " already exists." << endl;
-        exit(EXIT_FAILURE);
-    }
-}
-
-void TreeCorrelator::addBasicPlace(string name) {
-    PlaceDetector* place = new PlaceDetector();
-    addPlace(name, place, verbose::MAP_INIT);
-}
-
 void TreeCorrelator::addChild(string parent, string child, 
                              bool coin /* = true*/, bool verbose /*= false*/) {
     if (places.count(parent) == 1 || places.count(child) == 1) {
         places[parent]->addChild(places[child], coin);
         if (verbose) {
-            cout << "TreeCorrelator: setting " << child << " as a child of " << parent << endl;
+            cout << "TreeCorrelator: setting " << child 
+                 << " as a child of " << parent << endl;
         }
     } else {
-        cerr << "Error: TreeCorrelator: could not set " << child
-                << "as a child of " << parent << endl;
-        exit(EXIT_FAILURE);
+        stringstream ss;
+        ss << "Error: TreeCorrelator: could not set " << child
+           << "as a child of " << parent << endl;
+        throw GeneralException(ss.str());
+    }
+}
+
+void TreeCorrelator::createPlace(map<string, string>& params,
+                                 bool verbose /*= false*/) {
+
+    cout << "Parent: " << params["parent"] << endl;
+    cout << "Name: " << params["name"] << endl
+         << "Type: " << params["type"] << endl
+         << "Reset: " << params["reset"] << endl
+         << "Coin: " << params["coincidence"] << endl
+         << "Fifo: " << params["fifo"] << endl
+         ;
+    cout << endl;
+
+    if (places.count(params["name"]) == 1 && 
+        params["type"] != "") {
+        stringstream ss;
+        ss << "Place" << params["name"] << " already exists";
+        throw GeneralException(ss.str());
+    }
+
+    bool reset = string_to_bool(params["reset"]);
+    int fifo = string_to_int(params["fifo"]);
+
+    vector<string> names;
+    vector<string> name_tokens = tokenize(params["name"], "_");
+
+    if (name_tokens.size() > 1 &&
+        name_tokens.back().find("-") != string::npos) {
+        vector<string> range_tokens = tokenize(name_tokens.back(), "-");
+        int range_min = string_to_int(range_tokens[0]);
+        int range_max = string_to_int(range_tokens[1]);
+        string base_name;
+        for (vector<string>::iterator it = name_tokens.begin();
+             it != name_tokens.end() - 1;
+             ++it)
+            base_name += (*it) + "_";
+        for (int i = range_min; i <= range_max; ++i) {
+            stringstream ss;
+            ss << i;
+            names.push_back(base_name + ss.str());
+        }
+    } else {
+        names.push_back(params["name"]);
+    }
+    
+    for (vector<string>::iterator it = names.begin();
+         it != names.end();
+         ++it) {
+        Place* current = NULL;
+        if (params["type"] == "PlaceDetector") {
+            current = new PlaceDetector(reset, fifo);
+        } else if (params["type"] == "PlaceThreshold") {
+            double low_limit = string_to_double(params["low_limit"]);
+            double high_limit = string_to_double(params["high_limit"]);
+            current = new PlaceThreshold(low_limit, high_limit,
+                                            reset, fifo);
+        } else if (params["type"] == "PlaceCounter") {
+            current = new PlaceCounter(reset, fifo);
+        } else if (params["type"] == "PlaceOR") {
+            current = new PlaceOR(reset, fifo);
+        } else if (params["type"] == "PlaceAND"){
+            current = new PlaceAND(reset, fifo);
+        } else if (params["type"] == "") {
+        } else {
+            stringstream ss;
+            ss << "Unknown place type " << params["type"];
+            throw GeneralException(ss.str());
+        }
+
+        if (params["type"] != "") {
+            places[(*it)] = current;
+            if (verbose::CORRELATOR_INIT)
+                cout << "TreeCorrelator: created place " << (*it) << endl;
+        }
+
+        if (params["parent"] != "root") {
+            bool coincidence = string_to_bool(params["coincidence"]);
+            addChild(params["parent"], (*it), coincidence,
+                    verbose::CORRELATOR_INIT);
+        }
+    }
+}
+
+vector<string> TreeCorrelator::tokenize(string str, string delimiter) {
+    string temp;
+    vector<string> tokenized;
+    while (str.find(delimiter) != string::npos) {
+        size_t pos = str.find(delimiter);
+        temp = str.substr(0, pos);
+        str.erase(0, pos + 1);
+        tokenized.push_back(temp);
+    }
+    tokenized.push_back(str);
+    return tokenized;
+}
+
+
+void Walker::parsePlace(pugi::xml_node node, string parent) {
+    map<string, string> params;
+    params["parent"] = parent;
+    params["type"] = "";
+    params["reset"] = "true";
+    params["coincidence"] = "true";
+    params["fifo"] = "2";
+    for (pugi::xml_attribute attr = node.first_attribute();
+         attr;
+         attr = attr.next_attribute()) {
+        params[attr.name()] = attr.value();
+    }
+
+    TreeCorrelator::get()->createPlace(params);
+}
+
+void Walker::traverseTree(pugi::xml_node node, string parent) {
+    for (pugi::xml_node child = node.child("Place");
+         child;
+         child = child.next_sibling("Place")) {
+        parsePlace(child, parent);
+        traverseTree(child, string(child.attribute("name").value()));
     }
 }
 
 void TreeCorrelator::buildTree() {
     /*Temporary solution for building tree
      * put experiment specific function call here */
-    buildTree_LeRIBSS();
+    // buildTree_LeRIBSS();
+    //
+    pugi::xml_document doc;
+    pugi::xml_parse_result result = doc.load_file("TreeCorrelator.xml");
+    cout << "Loading configiration: " << result.description() 
+         << endl << " : " 
+         << doc.child("TreeCorrelator").attribute("description").value()
+         << endl;
+
+    pugi::xml_node tree = doc.child("TreeCorrelator");
+    Walker walker;
+    walker.traverseTree(tree, string(tree.attribute("name").value()));
+    exit(0);
 }
 
 void TreeCorrelator::buildTree_LeRIBSS() {
@@ -64,7 +181,7 @@ void TreeCorrelator::buildTree_LeRIBSS() {
     /* Use this constant for debugging */
     cout << "TreeCorrelator: building tree" << endl;
 
-    /** Here we create abstract places.*/
+    /*
     PlaceOR* clover0 = new PlaceOR();
     addPlace("Clover0", clover0, verbose::CORRELATOR_INIT);
     PlaceOR* clover1 = new PlaceOR();
@@ -74,14 +191,6 @@ void TreeCorrelator::buildTree_LeRIBSS() {
     PlaceOR* clover3 = new PlaceOR();
     addPlace("Clover3", clover3, verbose::CORRELATOR_INIT);
 
-    /** Note that beta_scint detectors are acticated in BetaScintProcessor
-     *  with threshold on energy defined therein.
-     *  This place is also sensitive to this threshold as parent of beta places.
-     *
-     *  Fifo of this place is increased to accomodate multiplicity of beta
-     *  events for longer events width. Check appopriate plot if depth is
-     *  large enough.
-     */
     PlaceOR* beta = new PlaceOR(true, 10);
     addPlace("Beta", beta, verbose::CORRELATOR_INIT);
     
@@ -133,6 +242,7 @@ void TreeCorrelator::buildTree_LeRIBSS() {
             addChild("Beta", name, true, verbose::CORRELATOR_INIT);
         }
     }
+    */
 }
 
 void TreeCorrelator::buildTree_Hybrid() {
@@ -141,20 +251,12 @@ void TreeCorrelator::buildTree_Hybrid() {
     /* Use this constant for debugging */
     cout << "DetectorDriver::InitializeCorrelator()" << endl;
 
-    /** Here we create abstract places.*/
+    /*
     PlaceOR* clover0 = new PlaceOR();
     addPlace("Clover0", clover0, verbose::CORRELATOR_INIT);
     PlaceOR* clover1 = new PlaceOR();
     addPlace("Clover1", clover1, verbose::CORRELATOR_INIT);
 
-    /** Note that beta_scint detectors are acticated in BetaScintProcessor
-     *  with threshold on energy defined therein.
-     *  This place is also sensitive to this threshold as parent of beta places.
-     *
-     *  Fifo of this place is increased to accomodate multiplicity of beta
-     *  events for longer events width. Check appopriate plot if depth is
-     *  large enough.
-     */
     PlaceOR* beta = new PlaceOR(true, 10);
     addPlace("Beta", beta, verbose::CORRELATOR_INIT);
     
@@ -221,6 +323,7 @@ void TreeCorrelator::buildTree_Hybrid() {
             addChild("Neutrons", neutron.str(), true, verbose::CORRELATOR_INIT);
         }
     }
+    */
 }
 
 TreeCorrelator::~TreeCorrelator() {

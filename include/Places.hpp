@@ -12,23 +12,6 @@
 
 using namespace std;
 
-/** Exception with customizable message. */
-class GeneralException : public std::exception {
-public:
-    explicit GeneralException(const string& msg) 
-        : exception(), message_(msg) {}
-
-    virtual ~GeneralException() throw() {}
-
-    virtual const char* what() const throw()
-    {
-        return message_.c_str();
-    }
-
-private:
-    const string message_;
-};
-
 /** Simple structure holding basic parameters needed for correlation
  * of events in the same place. */
 class CorrEventData {
@@ -40,6 +23,14 @@ class CorrEventData {
             status = s;
             energy = E;
         }
+
+        /** Time and energy type of constructor */
+        CorrEventData(double t, double E, bool s = true, string type = "") {
+            time = t;
+            energy = E;
+            status = s;
+        }
+
         bool status;
         double time;
         double energy;
