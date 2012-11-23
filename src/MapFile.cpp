@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <utility>
 
 #include "DetectorLibrary.hpp"
 #include "MapFile.hpp"
@@ -89,6 +90,19 @@ MapFile::MapFile(const string &filename /*="map2.txt"*/)
     /* At this point basic Correlator places build automatically from
      * map file should be created so we can call buildTree function */
     TreeCorrelator::get()->buildTree();
+
+    // Debugging information
+    /*
+    for (map<string, Place*>::iterator it = TreeCorrelator::get()->places.begin(); it != TreeCorrelator::get()->places.end(); ++it) {
+        cout << (*it).first << " " << (*it).second << endl;
+        cout << "No. of childer " << (*it).second->children_.size() << endl;
+        for (unsigned i = 0;
+             i < (*it).second->children_.size();
+             ++i) {
+            cout << "Child " << i << " at " << (*it).second->children_[i].first << endl;
+        }
+    }
+    */
 
     isRead = true;
 }
