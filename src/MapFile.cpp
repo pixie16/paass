@@ -213,7 +213,14 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
              * see also RawEvent.hpp, Identifier::GetPlaceName()
              */
 
-            TreeCorrelator::get()->addBasicPlace(id.GetPlaceName());
+
+            map<string, string> params;
+            params["name"] = id.GetPlaceName();
+            params["parent"] = "root";
+            params["type"] = "PlaceDetector";
+            params["reset"] = "true";
+            params["fifo"] = "2";
+            TreeCorrelator::get()->createPlace(params);
 
             startingLocation++;
         }

@@ -2,6 +2,7 @@
 #include <sstream>
 #include <map>
 #include "TreeCorrelator.hpp"
+#include "Exceptions.hpp"
 
 using namespace std;
 

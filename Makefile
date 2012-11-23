@@ -116,6 +116,9 @@ MESSLOGO         = messlog.$(ObjSuf)
 MILDATIMO        = mildatim.$(ObjSuf)
 SCANORO          = scanor.$(ObjSuf)
 
+#XML parser
+PUGIXMLO = pugixml.$(ObjSuf)
+
 # objects from cpp
 PIXIEO           = PixieStd.$(ObjSuf)
 
@@ -196,6 +199,7 @@ $(SCANORO)
 OBJS += $(READBUFFDATAO)
 # other C++ objects
 OBJS += \
+$(PUGIXMLO)\
 $(PIXIEO)\
 $(BETASCINTPROCESSORO)\
 $(CORRELATORO)\
