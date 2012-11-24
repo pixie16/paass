@@ -11,6 +11,8 @@ Place* PlaceBuilder::create (map<string, string>& params) {
         return createPlaceDetector(params);
     else if (type == "PlaceThreshold")
         return createPlaceThreshold(params);
+    else if (type == "PlaceThresholdOR")
+        return createPlaceThresholdOR(params);
     else if (type == "PlaceCounter")
         return createPlaceCounter(params);
     else if (type == "PlaceOR")
@@ -38,6 +40,15 @@ Place* PlaceBuilder::createPlaceThreshold (map<string, string>& params) {
     double low_limit = strings::to_double(params["low_limit"]);
     double high_limit = strings::to_double(params["high_limit"]);
     Place* p = new PlaceThreshold(low_limit, high_limit, reset, fifo);
+    return p;
+}
+
+Place* PlaceBuilder::createPlaceThresholdOR (map<string, string>& params) {
+    bool reset = strings::to_bool(params["reset"]);
+    int fifo = strings::to_int(params["fifo"]);
+    double low_limit = strings::to_double(params["low_limit"]);
+    double high_limit = strings::to_double(params["high_limit"]);
+    Place* p = new PlaceThresholdOR(low_limit, high_limit, reset, fifo);
     return p;
 }
 

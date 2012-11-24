@@ -42,8 +42,10 @@ class TreeCorrelator {
          *          The primary use of this synatax is to include basic places
          *          (automatically created) in the tree.
          *  "type" - must be of one of existing Places type, currently these
-         *           are ("PlaceDetector", "PlaceThreshold", "PlaceCounter",
-         *           "PlaceOR", "PlaceAND"). If left empty, it will be assumed
+         *           are ("PlaceDetector", "PlaceThreshold", "PlaceThresholdOR,
+         *           "PlaceCounter", "PlaceOR", "PlaceAND").
+         *
+         *           If left empty, it will be assumed
          *           that this place exists already.
          *  "reset" - optional, "true" by default, sets place resetable ("true")
          *           or non-resetable ("false").

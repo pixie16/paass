@@ -15,6 +15,8 @@ class PlaceBuilder {
     private:
         Place* createPlaceDetector(std::map<std::string, std::string>& params);
         Place* createPlaceThreshold(std::map<std::string, std::string>& params);
+        Place* createPlaceThresholdOR(std::map<std::string,
+                                      std::string>& params);
         Place* createPlaceCounter(std::map<std::string, std::string>& params);
         Place* createPlaceOR(std::map<std::string, std::string>& params);
         Place* createPlaceAND(std::map<std::string, std::string>& params);

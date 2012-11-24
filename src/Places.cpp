@@ -78,6 +78,29 @@ void PlaceOR::check_(CorrEventData& info) {
 void PlaceThreshold::check_(CorrEventData& info) {
 }
 
+void PlaceThresholdOR::check_(CorrEventData& info) {
+    // Copied from PlaceOR
+    if (children_.size() > 0) {
+        bool result = (children_[0].first->status() == children_[0].second);
+        for (unsigned i = 1; i < children_.size(); ++i) {
+            result = result || (children_[i].first->status() == children_[0].second);
+            if (result)
+                break;
+        }
+        if (result != status_) {
+            if (result)
+                this->activate(info);
+            else
+                this->deactivate(info.time);
+            report_(info);
+        }
+    } else {
+        stringstream ss;
+        ss << "Place " << this << " has no children, however function check() was called.";
+        throw GeneralException(ss.str());
+    }
+}
+
 void PlaceCounter::check_(CorrEventData& info) {
     if (info.status) {
         this->activate(info);

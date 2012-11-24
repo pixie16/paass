@@ -95,6 +95,7 @@ bool MtcProcessor::PreProcess(RawEvent &event)
         static double t0 = time;
         string place = (*it)->GetChanID().GetPlaceName();
 
+        /*
         if (TreeCorrelator::get()->places.count(place) == 1) {
             double time   = (*it)->GetTime();
             TreeCorrelator::get()->places[place]->activate(time);
@@ -103,6 +104,7 @@ bool MtcProcessor::PreProcess(RawEvent &event)
                     << " does not exist." << endl;
             return false;
         }
+        */
 
         const double eventsResolution = 100e-3 / pixie::clockInSeconds;
         const unsigned MTC_START = 0;
