@@ -19,7 +19,7 @@ Identifier::TagValue Identifier::GetTag(const string &s) const
     map<string, TagValue>::const_iterator it = tag.find(s);
     
     if (it == tag.end()) {
-	return TagValue();
+        return TagValue();
     }
     return it->second;
 }

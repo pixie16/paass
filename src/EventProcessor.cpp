@@ -93,9 +93,11 @@ bool EventProcessor::Init(RawEvent& rawev)
     return true;
 }
 
-/** Process an event. In PreProcess correlator is filled and basic analysis is done.
- * More sophisiticated analysis (which might also depend on other processors) should be
- * done in Process() function. PreProcess will be first called for all Processors and then
+/** Process an event. In PreProcess correlator should filled (for
+ * all derived classes) and basic analysis
+ * is done. More sophisiticated analysis (which might also depend on other
+ * processors) should be done in Process() function.
+ * PreProcess will be first called for all Processors and only afterwards 
  * the Process function will be called.*/
 bool EventProcessor::PreProcess(RawEvent &event)
 {
