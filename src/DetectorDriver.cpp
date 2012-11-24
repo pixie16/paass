@@ -220,19 +220,30 @@ int DetectorDriver::ProcessEvent(const string &mode, RawEvent& rawev){
     */
     plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
     
+    /*
     const vector<ChanEvent *> &eventList = rawev.GetEventList();
     for(size_t i=0; i < eventList.size(); i++) {
         ChanEvent *chan = eventList[i];  
-	
-        PlotRaw(chan);
-        ThreshAndCal(chan, rawev); // check threshold and calibrate
-        PlotCal(chan);       
-    } //end chan by chan event processing
+    */
+    for (vector<ChanEvent*>::const_iterator it = rawev.GetEventList().begin();
+         it != rawev.GetEventList().end(); ++it) {
+        string place = (*it)->GetChanID().GetPlaceName();
+        if (place == "__-1") // empty channel
+            continue;
+        PlotRaw((*it));
+        ThreshAndCal((*it), rawev); // check threshold and calibrate
+        PlotCal((*it));
+
+        double time = (*it)->GetTime();
+        double energy = (*it)->GetCalEnergy();
+        CorrEventData data(time, energy);
+        TreeCorrelator::get()->places[place]->activate(data);
+    } 
  
     // have each processor in the event processing vector handle the event
     /* First round is preprocessing, where process result must be guaranteed
      * to not to be dependent on results of other Processors. */
-    for (vector<EventProcessor *>::iterator iProc = vecProcess.begin();
+    for (vector<EventProcessor*>::iterator iProc = vecProcess.begin();
 	 iProc != vecProcess.end(); iProc++) {
         if ( (*iProc)->HasEvent() ) {
             (*iProc)->PreProcess(rawev);
@@ -337,25 +348,25 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
     double energy = 0.;
 
     if (type == "ignore" || type == "") {
-	return 0;
+        return 0;
     }
     /*
       If the channel has a trace get it, analyze it and set the energy.
     */
     if ( !trace.empty() ) {
-        plot(D_HAS_TRACE,id);
+        plot(D_HAS_TRACE, id);
 
 	for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
 	     it != vecAnalyzer.end(); it++) {	
-	    (*it)->Analyze(trace, type, subtype);
+            (*it)->Analyze(trace, type, subtype);
 	}
 
 	if (trace.HasValue("filterEnergy") ) {     
 	    if (trace.GetValue("filterEnergy") > 0) {
-		energy = trace.GetValue("filterEnergy");
-		plot(D_FILTER_ENERGY + id, energy);
+            energy = trace.GetValue("filterEnergy");
+            plot(D_FILTER_ENERGY + id, energy);
 	    } else {
-		energy = 2;
+            energy = 2;
 	    }
 	}
 	if (trace.HasValue("calcEnergy") ) {	    
@@ -429,7 +440,7 @@ int DetectorDriver::PlotCal(const ChanEvent *chan)
     
     plot(D_CAL_ENERGY + id, calEnergy);
     if (!chan->IsSaturated() && !chan->IsPileup())
-	plot(D_CAL_ENERGY_REJECT + id, calEnergy);
+        plot(D_CAL_ENERGY_REJECT + id, calEnergy);
     return 0;
 }
 

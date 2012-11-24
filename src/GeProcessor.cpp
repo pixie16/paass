@@ -375,6 +375,7 @@ bool GeProcessor::PreProcess(RawEvent &event) {
         double time   = (*it)->GetTime() - WalkCorrection(energy);	
         (*it)->SetCorrectedTime(time);
 
+        /*
         string place = (*it)->GetChanID().GetPlaceName();
         if (TreeCorrelator::get()->places.count(place) == 1) {
             CorrEventData data(time, energy);
@@ -384,6 +385,7 @@ bool GeProcessor::PreProcess(RawEvent &event) {
                     << " does not exist." << endl;
             return false;
         }
+        */
     }
     // now we sort the germanium events according to their corrected time
     sort(geEvents_.begin(), geEvents_.end(), CompareCorrectedTime);
@@ -451,19 +453,18 @@ bool GeProcessor::Process(RawEvent &event) {
     // beamOn is true for beam on and false for beam off
     bool beamOn =  TreeCorrelator::get()->places["Beam"]->status();
 
-    //Beta places are activated with threshold in ScintProcessor
     bool hasBeta = TreeCorrelator::get()->places["Beta"]->status();
-    bool hasBeta0 = TreeCorrelator::get()->places["beta_scint_beta_0"]->status();
-    bool hasBeta1 = TreeCorrelator::get()->places["beta_scint_beta_1"]->status();
+    bool hasBeta0 = TreeCorrelator::get()->places["Beta0"]->status();
+    bool hasBeta1 = TreeCorrelator::get()->places["Beta1"]->status();
     double betaEnergy = -1;
     if (hasBeta) {
         double betaEnergy0 = -1;
         if (hasBeta0) {
-            betaEnergy0 = TreeCorrelator::get()->places["beta_scint_beta_0"]->last().energy;
+            betaEnergy0 = TreeCorrelator::get()->places["Beta0"]->last().energy;
         }
         double betaEnergy1 = -1;
         if (hasBeta1) {
-            betaEnergy1 = TreeCorrelator::get()->places["beta_scint_beta_1"]->last().energy;
+            betaEnergy1 = TreeCorrelator::get()->places["Beta1"]->last().energy;
         }
         betaEnergy = max(betaEnergy0, betaEnergy1);
     }

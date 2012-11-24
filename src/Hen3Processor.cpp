@@ -81,9 +81,11 @@ bool Hen3Processor::PreProcess(RawEvent &event)
             if (reject)
                 continue;
 
-            string place = (*it)->GetChanID().GetPlaceName();
             CorrEventData data(time, true, energy);
+            /*
+            string place = (*it)->GetChanID().GetPlaceName();
             TreeCorrelator::get()->places[place]->activate(data);
+            */
             stringstream neutron;
             neutron << "Neutron" << location;
             TreeCorrelator::get()->places[neutron.str()]->activate(data);

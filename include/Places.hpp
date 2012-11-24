@@ -297,11 +297,19 @@ class PlaceThreshold : public Place {
 
     protected:
         virtual void check_(CorrEventData& info);
-
-    private:
         /** Threshold low and high limits.*/
         double low_limit_;
         double high_limit_;
+};
+
+class PlaceThresholdOR : public PlaceThreshold {
+    public:
+        PlaceThresholdOR (double low_limit, double high_limit, bool resetable = true, unsigned max_size = 2)
+            : PlaceThreshold(low_limit, high_limit, resetable, max_size) { 
+        } 
+
+    protected:
+        virtual void check_(CorrEventData& info);
 };
 
 /** Counts number of activations coming from directly or from children.*/

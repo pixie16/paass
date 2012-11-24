@@ -26,7 +26,7 @@ BetaScintProcessor::BetaScintProcessor() : EventProcessor(OFFSET, RANGE) {
 
 void BetaScintProcessor::DeclarePlots(void) {
     DeclareHistogram1D(D_MULT_BETA, S4, "Beta multiplicity");
-    DeclareHistogram1D(D_ENERGY_BETA, SA, "Beta energy");
+    DeclareHistogram1D(D_ENERGY_BETA, SE, "Beta energy");
 }
 
 bool BetaScintProcessor::PreProcess(RawEvent &event){
@@ -39,13 +39,17 @@ bool BetaScintProcessor::PreProcess(RawEvent &event){
     int multiplicity = 0;
     for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin(); 
 	 it != scintBetaEvents.end(); it++) {
+        ++multiplicity;
+        double energy = (*it)->GetEnergy();
+        plot(D_ENERGY_BETA, energy);
+        /*
         string place = (*it)->GetChanID().GetPlaceName();
         if (TreeCorrelator::get()->places.count(place) == 1) {
             double time   = (*it)->GetTime();
             double energy = (*it)->GetEnergy();
+            ++multiplicity;
             // Activate B counter only for betas above some threshold
             if (energy > detectors::betaThreshold) {
-                ++multiplicity;
                 CorrEventData data(time, true, energy);
                 TreeCorrelator::get()->places[place]->activate(data);
                 plot(D_ENERGY_BETA, energy);
@@ -55,6 +59,7 @@ bool BetaScintProcessor::PreProcess(RawEvent &event){
                     << " does not exist." << endl;
             return false;
         }
+        */
     }
     plot(D_MULT_BETA, multiplicity);
     return true;
