@@ -95,17 +95,6 @@ bool MtcProcessor::PreProcess(RawEvent &event)
         static double t0 = time;
         string place = (*it)->GetChanID().GetPlaceName();
 
-        /*
-        if (TreeCorrelator::get()->places.count(place) == 1) {
-            double time   = (*it)->GetTime();
-            TreeCorrelator::get()->places[place]->activate(time);
-        } else {
-            cerr << "In MtcProcessor: place " << place
-                    << " does not exist." << endl;
-            return false;
-        }
-        */
-
         const double eventsResolution = 100e-3 / pixie::clockInSeconds;
         const unsigned MTC_START = 0;
         const unsigned MTC_STOP = 1;
@@ -116,9 +105,9 @@ bool MtcProcessor::PreProcess(RawEvent &event)
         if(place == "mtc_start_0") {
 
             double dt_start = time - 
-                     TreeCorrelator::get()->places[place]->secondlast().time;
-            TreeCorrelator::get()->places["TapeMove"]->activate(time);
-            TreeCorrelator::get()->places["Cycle"]->deactivate(time);
+                     TreeCorrelator::get()->place(place)->secondlast().time;
+            TreeCorrelator::get()->place("TapeMove")->activate(time);
+            TreeCorrelator::get()->place("Cycle")->deactivate(time);
 
             plot(D_TDIFF_MOVE_START, dt_start / mtcPlotResolution);
             plot(D_COUNTER, MOVE_START_BIN);
@@ -127,10 +116,10 @@ bool MtcProcessor::PreProcess(RawEvent &event)
         } else if (place == "mtc_stop_0") {
 
             double dt_stop = time - 
-                     TreeCorrelator::get()->places[place]->secondlast().time;
+                     TreeCorrelator::get()->place(place)->secondlast().time;
             double dt_move = time - 
-                     TreeCorrelator::get()->places["mtc_start_0"]->last().time;
-            TreeCorrelator::get()->places["TapeMove"]->deactivate(time);
+                     TreeCorrelator::get()->place("mtc_start_0")->last().time;
+            TreeCorrelator::get()->place("TapeMove")->deactivate(time);
 
             plot(D_TDIFF_MOVE_STOP, dt_stop / mtcPlotResolution);
             plot(D_MOVETIME, dt_move / mtcPlotResolution);
@@ -140,9 +129,9 @@ bool MtcProcessor::PreProcess(RawEvent &event)
         } else if (place == "mtc_beam_start_0") {
 
             double dt_start = time -
-                      TreeCorrelator::get()->places[place]->secondlast().time;
-            TreeCorrelator::get()->places["Beam"]->activate(time);
-            TreeCorrelator::get()->places["Cycle"]->activate(time);
+                      TreeCorrelator::get()->place(place)->secondlast().time;
+            TreeCorrelator::get()->place("Beam")->activate(time);
+            TreeCorrelator::get()->place("Cycle")->activate(time);
 
             plot(D_TDIFF_BEAM_START, dt_start / mtcPlotResolution);
             plot(D_COUNTER, BEAM_START_BIN);
@@ -151,10 +140,10 @@ bool MtcProcessor::PreProcess(RawEvent &event)
         } else if (place == "mtc_beam_stop_0") {
 
             double dt_stop = time - 
-                      TreeCorrelator::get()->places[place]->secondlast().time;
+                      TreeCorrelator::get()->place(place)->secondlast().time;
             double dt_beam = time - 
-                      TreeCorrelator::get()->places["mtc_beam_start_0"]->last().time;
-            TreeCorrelator::get()->places["Beam"]->deactivate(time);
+                      TreeCorrelator::get()->place("mtc_beam_start_0")->last().time;
+            TreeCorrelator::get()->place("Beam")->deactivate(time);
 
             plot(D_TDIFF_BEAM_STOP, dt_stop / mtcPlotResolution);
             plot(D_BEAMTIME, dt_beam / mtcPlotResolution);
