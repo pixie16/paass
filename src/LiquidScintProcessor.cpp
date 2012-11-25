@@ -61,25 +61,8 @@ void LiquidScintProcessor::DeclarePlots(void)
 }
 
 bool LiquidScintProcessor::PreProcess(RawEvent &event){
-
-    static const vector<ChanEvent*> &liquidEvents = 
-	event.GetSummary("liquid_scint:liquid")->GetList();
-
-    for (vector<ChanEvent*>::const_iterator it = liquidEvents.begin();
-	 it != liquidEvents.end(); it++) {
-        string place = (*it)->GetChanID().GetPlaceName();
-        if (TreeCorrelator::get()->places.count(place) == 1) {
-            double time   = (*it)->GetTime();
-            double energy = (*it)->GetCalEnergy();
-            CorrEventData data(time, true, energy);
-            TreeCorrelator::get()->places[place]->activate(data);
-        } else {
-            cerr << "In LiquidScintProcessor: place " << place
-                    << " does not exist." << endl;
-            return false;
-        }
-    }
-
+    if (!EventProcessor::PreProcess(event))
+        return false;
     return true;
 }
 

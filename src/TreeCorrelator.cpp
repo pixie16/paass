@@ -47,10 +47,20 @@ TreeCorrelator* TreeCorrelator::get() {
     return instance;
 }
 
+Place* TreeCorrelator::place(string name) {
+    if (places_.count(name) == 0) {
+        stringstream ss;
+        ss << "Error: TreeCorrelator: place " << name
+           << "doesn't exist " << endl;
+        throw GeneralException(ss.str());
+    }
+    return places_[name];
+}
+
 void TreeCorrelator::addChild(string parent, string child, 
                              bool coin /* = true*/, bool verbose /*= false*/) {
-    if (places.count(parent) == 1 || places.count(child) == 1) {
-        places[parent]->addChild(places[child], coin);
+    if (places_.count(parent) == 1 || places_.count(child) == 1) {
+        place(parent)->addChild(place(child), coin);
         if (verbose) {
             cout << "TreeCorrelator: setting " << child 
                  << " as a child of " << parent << endl;
@@ -102,17 +112,17 @@ void TreeCorrelator::createPlace(map<string, string>& params,
 
         if (params["type"] != "") {
             if (replace) {
-                if (places.count((*it)) != 1) {
+                if (places_.count((*it)) != 1) {
                     stringstream ss;
                     ss << "Cannot replace Place" << (*it) 
                        << ", it doesn't exist";
                     throw GeneralException(ss.str());
                 }
-                delete places[(*it)];
+                delete places_[(*it)];
                 if (verbose::CORRELATOR_INIT)
                     cout << "TreeCorrelator: replacing place " << (*it) << endl;
             } else {
-                if (places.count((*it)) == 1) {
+                if (places_.count((*it)) == 1) {
                     stringstream ss;
                     ss << "Place" << (*it) << " already exists";
                     throw GeneralException(ss.str());
@@ -121,7 +131,7 @@ void TreeCorrelator::createPlace(map<string, string>& params,
                     cout << "TreeCorrelator: creating place " << (*it) << endl;
             }
             Place* current = builder.create(params);
-            places[(*it)] = current;
+            places_[(*it)] = current;
         }
 
         if (params["parent"] != "root") {
@@ -301,8 +311,8 @@ void TreeCorrelator::buildTree_Hybrid() {
 }
 
 TreeCorrelator::~TreeCorrelator() {
-    for (map<string, Place*>::iterator it = places.begin(); 
-         it != places.end(); ++it) {
+    for (map<string, Place*>::iterator it = places_.begin(); 
+         it != places_.end(); ++it) {
             if (verbose::MAP_INIT)
                 cout << "TreeCorrelator: deleting place " << (*it).first << endl;
             delete it->second;

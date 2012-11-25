@@ -697,8 +697,8 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
 
             // Now clear all places in correlator (if resetable type)
             for (map<string, Place*>::iterator it =
-                    TreeCorrelator::get()->places.begin();
-                it != TreeCorrelator::get()->places.end(); ++it)
+                    TreeCorrelator::get()->places_.begin();
+                it != TreeCorrelator::get()->places_.end(); ++it)
                 if ((*it).second->resetable())
                     (*it).second->reset();
 
