@@ -91,22 +91,37 @@ vector<string> TreeCorrelator::split_names(string name) {
 
 void TreeCorrelator::createPlace(map<string, string>& params,
                                  bool verbose /*= false*/) {
-    vector<string> names = split_names(params["name"]);
+    bool replace = false;
+    if (params["replace"] != "")
+        replace = strings::to_bool(params["replace"]);
 
+    vector<string> names = split_names(params["name"]);
     for (vector<string>::iterator it = names.begin();
          it != names.end();
          ++it) {
 
         if (params["type"] != "") {
-            if (places.count((*it)) == 1) {
-                stringstream ss;
-                ss << "Place" << (*it) << " already exists";
-                throw GeneralException(ss.str());
+            if (replace) {
+                if (places.count((*it)) != 1) {
+                    stringstream ss;
+                    ss << "Cannot replace Place" << (*it) 
+                       << ", it doesn't exist";
+                    throw GeneralException(ss.str());
+                }
+                delete places[(*it)];
+                if (verbose::CORRELATOR_INIT)
+                    cout << "TreeCorrelator: replacing place " << (*it) << endl;
+            } else {
+                if (places.count((*it)) == 1) {
+                    stringstream ss;
+                    ss << "Place" << (*it) << " already exists";
+                    throw GeneralException(ss.str());
+                }
+                if (verbose::CORRELATOR_INIT)
+                    cout << "TreeCorrelator: creating place " << (*it) << endl;
             }
             Place* current = builder.create(params);
             places[(*it)] = current;
-            if (verbose::CORRELATOR_INIT)
-                cout << "TreeCorrelator: creating place " << (*it) << endl;
         }
 
         if (params["parent"] != "root") {
