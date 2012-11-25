@@ -10,6 +10,7 @@
 #include <sstream>
 #include <string>
 #include <cstdlib>
+#include <algorithm>
 #include <stdint.h>
 #include "Exceptions.hpp"
 
@@ -131,11 +132,14 @@ namespace strings {
     }
 
     /** Converts string to bool (True, true, 1 and False, false, 0) are 
-        * accepted; throws an exception if not succesful */
+        * accepted; throws an exception if not succesful. Notice tolower
+        * will work only with ascii, not with utf-8, but shouldn't be a 
+        * problem for true and false words. */
     inline bool to_bool (std::string s) {
-        if (s == "true" || s == "True" || s == "1")
+        std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+        if (s == "true" || s == "1")
             return true;
-        else if (s == "false" || s == "False" || s == "0")
+        else if (s == "false" || s == "0")
             return false;
         else {
             std::stringstream ss;
@@ -143,6 +147,7 @@ namespace strings {
             throw GeneralException(ss.str());
         }
     }
+
     /** Tokenizes the string, splitting it on given delimiter.
         * delimiters are removed from returned vector of tokens.*/
     inline std::vector<std::string> tokenize(std::string str, std::string delimiter) {
