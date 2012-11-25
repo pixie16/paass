@@ -70,7 +70,7 @@ double GeProcessor::WalkCorrection(double e) {
 
 double GeProcessor::GammaBetaDtime(double gTime) {
     PlaceOR* betas = dynamic_cast<PlaceOR*>(
-    TreeCorrelator::get()->places["Beta"]);
+                        TreeCorrelator::get()->places["Beta"]);
     if (betas->info_.size() == 0)
         return numeric_limits<double>::max();
 
@@ -454,17 +454,17 @@ bool GeProcessor::Process(RawEvent &event) {
     bool beamOn =  TreeCorrelator::get()->places["Beam"]->status();
 
     bool hasBeta = TreeCorrelator::get()->places["Beta"]->status();
-    bool hasBeta0 = TreeCorrelator::get()->places["Beta0"]->status();
-    bool hasBeta1 = TreeCorrelator::get()->places["Beta1"]->status();
+    bool hasBeta0 = TreeCorrelator::get()->places["beta_scint_beta_0"]->status();
+    bool hasBeta1 = TreeCorrelator::get()->places["beta_scint_beta_1"]->status();
     double betaEnergy = -1;
     if (hasBeta) {
         double betaEnergy0 = -1;
         if (hasBeta0) {
-            betaEnergy0 = TreeCorrelator::get()->places["Beta0"]->last().energy;
+            betaEnergy0 = TreeCorrelator::get()->places["beta_scint_beta_0"]->last().energy;
         }
         double betaEnergy1 = -1;
         if (hasBeta1) {
-            betaEnergy1 = TreeCorrelator::get()->places["Beta1"]->last().energy;
+            betaEnergy1 = TreeCorrelator::get()->places["beta_scint_beta_1"]->last().energy;
         }
         betaEnergy = max(betaEnergy0, betaEnergy1);
     }
