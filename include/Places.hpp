@@ -9,6 +9,7 @@
 #include <deque>
 #include <utility>
 #include <stdexcept>
+#include "Globals.hpp"
 
 using namespace std;
 

@@ -237,7 +237,7 @@ int DetectorDriver::ProcessEvent(const string &mode, RawEvent& rawev){
         double time = (*it)->GetTime();
         double energy = (*it)->GetCalEnergy();
         CorrEventData data(time, energy);
-        TreeCorrelator::get()->places[place]->activate(data);
+        TreeCorrelator::get()->place(place)->activate(data);
     } 
  
     // have each processor in the event processing vector handle the event

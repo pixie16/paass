@@ -81,14 +81,10 @@ bool Hen3Processor::PreProcess(RawEvent &event)
             if (reject)
                 continue;
 
-            CorrEventData data(time, true, energy);
-            /*
-            string place = (*it)->GetChanID().GetPlaceName();
-            TreeCorrelator::get()->places[place]->activate(data);
-            */
+            CorrEventData data(time, energy);
             stringstream neutron;
             neutron << "Neutron" << location;
-            TreeCorrelator::get()->places[neutron.str()]->activate(data);
+            TreeCorrelator::get()->place(neutron.str())->activate(data);
     }
 
     return true;
@@ -102,9 +98,9 @@ bool Hen3Processor::Process(RawEvent &event)
     static const DetectorSummary *hen3Summary = event.GetSummary("3hen");
     
     int hen3_count = dynamic_cast<PlaceCounter*>(
-            TreeCorrelator::get()->places["Hen3"])->getCounter();
+            TreeCorrelator::get()->place("Hen3"))->getCounter();
     int neutron_count = dynamic_cast<PlaceCounter*>(
-            TreeCorrelator::get()->places["Neutrons"])->getCounter();
+            TreeCorrelator::get()->place("Neutrons"))->getCounter();
 
     plot(D_MULT_HEN3, hen3_count);
     plot(D_MULT_NEUTRON, neutron_count);
@@ -131,13 +127,13 @@ bool Hen3Processor::Process(RawEvent &event)
 
             stringstream neutron_name;
             neutron_name << "Neutron" << location;
-            if (TreeCorrelator::get()->places[neutron_name.str()]->status())
+            if (TreeCorrelator::get()->place(neutron_name.str())->status())
                 plot(D_ENERGY_NEUTRON, energy);
 
             string place = chan->GetChanID().GetPlaceName();
-            if (TreeCorrelator::get()->places["Beta"]->status()) {
+            if (TreeCorrelator::get()->place("Beta")->status()) {
                 double hen3_time = chan->GetTime();
-                double beta_time = TreeCorrelator::get()->places["Beta"]->last().time;
+                double beta_time = TreeCorrelator::get()->place("Beta")->last().time;
                 const double timeResolution = 1e-6 / pixie::clockInSeconds;
                 double dt = int( 100 + (hen3_time - beta_time) / timeResolution);
                 if (dt > S8)
@@ -145,7 +141,7 @@ bool Hen3Processor::Process(RawEvent &event)
                 if (dt < 0) {
                     dt = 0;
                 }
-                if (TreeCorrelator::get()->places[neutron_name.str()]->status())
+                if (TreeCorrelator::get()->place(neutron_name.str())->status())
                     plot(D_TDIFF_NEUTRON_BETA, dt);
                 plot(D_TDIFF_HEN3_BETA, dt);
             }
@@ -183,7 +179,7 @@ bool Hen3Processor::Process(RawEvent &event)
             }
 
             plot(DD_DISTR_HEN3, xpos, ypos);
-            if (TreeCorrelator::get()->places[neutron_name.str()]->status())
+            if (TreeCorrelator::get()->place(neutron_name.str())->status())
                 plot(DD_DISTR_NEUTRON, xpos, ypos);
     }
 
