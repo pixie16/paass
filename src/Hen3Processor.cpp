@@ -59,8 +59,8 @@ bool Hen3Processor::PreProcess(RawEvent &event)
         return false;
 
     /** Notice that places Hen3 and Neutron (counters) are activated as parents
-     * of detectors activated here. The thresholds are set in DetectorDriver.cpp
-     * in constructors.
+     * of detectors activated here. The threshold for the latter is set
+     * in the xml file.
      */
     static const DetectorSummary *hen3Summary = event.GetSummary("3hen");
     for (vector<ChanEvent*>::const_iterator it = hen3Summary->GetList().begin(); 
@@ -83,7 +83,7 @@ bool Hen3Processor::PreProcess(RawEvent &event)
 
             CorrEventData data(time, energy);
             stringstream neutron;
-            neutron << "Neutron" << location;
+            neutron << "Neutron_" << location;
             TreeCorrelator::get()->place(neutron.str())->activate(data);
     }
 
@@ -126,7 +126,7 @@ bool Hen3Processor::Process(RawEvent &event)
             plot(D_ENERGY_HEN3, energy);
 
             stringstream neutron_name;
-            neutron_name << "Neutron" << location;
+            neutron_name << "Neutron_" << location;
             if (TreeCorrelator::get()->place(neutron_name.str())->status())
                 plot(D_ENERGY_NEUTRON, energy);
 
