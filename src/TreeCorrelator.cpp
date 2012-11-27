@@ -77,22 +77,35 @@ vector<string> TreeCorrelator::split_names(string name) {
     vector<string> names;
     vector<string> name_tokens = strings::tokenize(name, "_");
 
-    if (name_tokens.size() > 1 &&
-        name_tokens.back().find("-") != string::npos) {
-        vector<string> range_tokens = 
-                                strings::tokenize(name_tokens.back(), "-");
-        int range_min = strings::to_int(range_tokens[0]);
-        int range_max = strings::to_int(range_tokens[1]);
+    if (name_tokens.size() > 1) {
         string base_name;
         for (vector<string>::iterator it = name_tokens.begin();
-             it != name_tokens.end() - 1;
-             ++it)
+                it != name_tokens.end() - 1;
+                ++it)
             base_name += (*it) + "_";
-        for (int i = range_min; i <= range_max; ++i) {
-            stringstream ss;
-            ss << i;
-            names.push_back(base_name + ss.str());
-        }
+
+        if (name_tokens.back().find("-") != string::npos ||
+                name_tokens.back().find(",") != string::npos) {
+            vector<string> comma_token = strings::tokenize(name_tokens.back(), ",");
+            for (vector<string>::iterator itc = comma_token.begin();
+                    itc != comma_token.end();
+                    ++itc) {
+                vector<string> range_tokens = 
+                                        strings::tokenize((*itc), "-");
+                int range_min = strings::to_int(range_tokens[0]);
+                int range_max = range_min;
+                if (range_tokens.size() > 1)
+                    range_max = strings::to_int(range_tokens[1]);
+
+                for (int i = range_min; i <= range_max; ++i) {
+                    stringstream ss;
+                    ss << i;
+                    names.push_back(base_name + ss.str());
+                }
+            }
+        } else {
+            names.push_back(base_name + name_tokens.back());
+        } 
     } else {
         names.push_back(name);
     }
@@ -155,159 +168,6 @@ void TreeCorrelator::buildTree() {
     pugi::xml_node tree = doc.child("TreeCorrelator");
     Walker walker;
     walker.traverseTree(tree, string(tree.attribute("name").value()));
-}
-
-/** OBSOLETE */
-void TreeCorrelator::buildTree_LeRIBSS() {
-    /** Setup for LeRIBBS 4 Clovers*/
-
-    /* Use this constant for debugging */
-    cout << "TreeCorrelator: building tree" << endl;
-
-    /*
-    PlaceOR* clover0 = new PlaceOR();
-    addPlace("Clover0", clover0, verbose::CORRELATOR_INIT);
-    PlaceOR* clover1 = new PlaceOR();
-    addPlace("Clover1", clover1, verbose::CORRELATOR_INIT);
-    PlaceOR* clover2 = new PlaceOR();
-    addPlace("Clover2", clover2, verbose::CORRELATOR_INIT);
-    PlaceOR* clover3 = new PlaceOR();
-    addPlace("Clover3", clover3, verbose::CORRELATOR_INIT);
-
-    PlaceOR* beta = new PlaceOR(true, 10);
-    addPlace("Beta", beta, verbose::CORRELATOR_INIT);
-    
-    PlaceOR* gamma = new PlaceOR();
-    addPlace("Gamma", gamma, verbose::CORRELATOR_INIT);
-    addChild("Gamma", "Clover0", true, verbose::CORRELATOR_INIT);
-    addChild("Gamma", "Clover1", true, verbose::CORRELATOR_INIT);
-    addChild("Gamma", "Clover2", true, verbose::CORRELATOR_INIT);
-    addChild("Gamma", "Clover3", true, verbose::CORRELATOR_INIT);
-
-    PlaceAND* gammabeta = new PlaceAND();
-    addPlace("GammaBeta", gammabeta, verbose::CORRELATOR_INIT);
-    places["GammaBeta"] = new PlaceAND();
-    addChild("GammaBeta", "Gamma", true, verbose::CORRELATOR_INIT);
-    addChild("GammaBeta", "Beta", true, verbose::CORRELATOR_INIT);
-
-    PlaceAND* gammawobeta = new PlaceAND();
-    addPlace("GammaWOBeta", gammawobeta, verbose::CORRELATOR_INIT);
-    addChild("GammaWOBeta", "Gamma", true, verbose::CORRELATOR_INIT);
-    addChild("GammaWOBeta", "Beta", false, verbose::CORRELATOR_INIT);
-
-    // Active if tape is moving
-    PlaceDetector* tapemove = new PlaceDetector(false);
-    addPlace("TapeMove", tapemove, verbose::CORRELATOR_INIT);
-    // Active if beam is on
-    PlaceDetector* beam = new PlaceDetector(false);
-    addPlace("Beam", beam, verbose::CORRELATOR_INIT);
-    // Activated with beam start, deactivated with TapeMove
-    PlaceDetector* cycle  = new PlaceDetector(false);
-    addPlace("Cycle", cycle, verbose::CORRELATOR_INIT);
-
-    DetectorLibrary* modChan = DetectorLibrary::get();
-
-    // Basic places are created in MapFile.cpp
-    // Here we group them as children of just created abstract places
-    unsigned int sz = modChan->size();
-    for (unsigned i = 0; i < sz; ++i) {
-        string type = (*modChan)[i].GetType();
-        string subtype = (*modChan)[i].GetSubtype();
-        int location = (*modChan)[i].GetLocation();
-        string name = (*modChan)[i].GetPlaceName();
-
-        if (type == "ge" && subtype == "clover_high") {
-            int clover_number = int(location / 4);
-            stringstream clover;
-            clover << "Clover" << clover_number;
-            addChild(clover.str(), name, true, verbose::CORRELATOR_INIT);
-        } else if (type == "beta_scint" && subtype == "beta") {
-            addChild("Beta", name, true, verbose::CORRELATOR_INIT);
-        }
-    }
-    */
-}
-
-/** OBSOLETE */
-void TreeCorrelator::buildTree_Hybrid() {
-    /** Setup for LeRIBBS 3Hen Hybrid */
-
-    /* Use this constant for debugging */
-    cout << "DetectorDriver::InitializeCorrelator()" << endl;
-
-    /*
-    PlaceOR* clover0 = new PlaceOR();
-    addPlace("Clover0", clover0, verbose::CORRELATOR_INIT);
-    PlaceOR* clover1 = new PlaceOR();
-    addPlace("Clover1", clover1, verbose::CORRELATOR_INIT);
-
-    PlaceOR* beta = new PlaceOR(true, 10);
-    addPlace("Beta", beta, verbose::CORRELATOR_INIT);
-    
-    // All Hen3 events
-    PlaceCounter* hen3 = new PlaceCounter();
-    addPlace("Hen3", hen3, verbose::CORRELATOR_INIT);
-
-    // Real neutrons (children are thresholded)
-    PlaceCounter* neutrons = new PlaceCounter();
-    addPlace("Neutrons", neutrons, verbose::CORRELATOR_INIT);
-
-    PlaceOR* gamma = new PlaceOR();
-    addPlace("Gamma", gamma, verbose::CORRELATOR_INIT);
-    addChild("Gamma", "Clover0", true, verbose::CORRELATOR_INIT);
-    addChild("Gamma", "Clover1", true, verbose::CORRELATOR_INIT);
-
-    PlaceAND* gammabeta = new PlaceAND();
-    addPlace("GammaBeta", gammabeta, verbose::CORRELATOR_INIT);
-    places["GammaBeta"] = new PlaceAND();
-    addChild("GammaBeta", "Gamma", true, verbose::CORRELATOR_INIT);
-    addChild("GammaBeta", "Beta", true, verbose::CORRELATOR_INIT);
-
-    PlaceAND* gammawobeta = new PlaceAND();
-    addPlace("GammaWOBeta", gammawobeta, verbose::CORRELATOR_INIT);
-    addChild("GammaWOBeta", "Gamma", true, verbose::CORRELATOR_INIT);
-    addChild("GammaWOBeta", "Beta", false, verbose::CORRELATOR_INIT);
-
-    // Active if tape is moving
-    PlaceDetector* tapemove = new PlaceDetector(false);
-    addPlace("TapeMove", tapemove, verbose::CORRELATOR_INIT);
-    // Active if beam is on
-    PlaceDetector* beam = new PlaceDetector(false);
-    addPlace("Beam", beam, verbose::CORRELATOR_INIT);
-    // Activated with beam start, deactivated with TapeMove
-    PlaceDetector* cycle  = new PlaceDetector(false);
-    addPlace("Cycle", cycle, verbose::CORRELATOR_INIT);
-
-    DetectorLibrary* modChan = DetectorLibrary::get();
-
-    // Basic places are created in MapFile.cpp
-    // Here we group them as children of just created abstract places
-    unsigned int sz = modChan->size();
-    for (unsigned i = 0; i < sz; ++i) {
-        string type = (*modChan)[i].GetType();
-        string subtype = (*modChan)[i].GetSubtype();
-        int location = (*modChan)[i].GetLocation();
-        string name = (*modChan)[i].GetPlaceName();
-
-        if (type == "ge" && subtype == "clover_high") {
-            int clover_number = int(location / 4);
-            stringstream clover;
-            clover << "Clover" << clover_number;
-            addChild(clover.str(), name, true, verbose::CORRELATOR_INIT);
-        } else if (type == "beta_scint" && subtype == "beta") {
-            addChild("Beta", name, true, verbose::CORRELATOR_INIT);
-        } else if (type == "3hen" && subtype == "big") {
-            stringstream neutron;
-            neutron << "Neutron" << location;
-            PlaceThreshold* real_neutron  = new PlaceThreshold(detectors::neutronLowLimit,
-                                                               detectors::neutronHighLimit);
-            addPlace(neutron.str(), real_neutron, verbose::CORRELATOR_INIT);
-
-            addChild("Hen3", name, true, verbose::CORRELATOR_INIT);
-            addChild("Neutrons", neutron.str(), true, verbose::CORRELATOR_INIT);
-        }
-    }
-    */
 }
 
 TreeCorrelator::~TreeCorrelator() {

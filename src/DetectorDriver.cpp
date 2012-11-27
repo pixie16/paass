@@ -106,10 +106,9 @@ DetectorDriver::DetectorDriver() :
     histo(OFFSET, RANGE) 
 {
     cout << "DetectorDriver: loading processors" << endl;
-    vecProcess.push_back(new GeProcessor()); 
-    // Or use instead (never together
-    //vecProcess.push_back(new Ge4Hen3Processor()); 
-    //vecProcess.push_back(new Hen3Processor()); 
+    //vecProcess.push_back(new GeProcessor()); 
+    vecProcess.push_back(new Ge4Hen3Processor()); 
+    vecProcess.push_back(new Hen3Processor()); 
     vecProcess.push_back(new MtcProcessor());
 
 #if defined(pulsefit) || defined(dcfd)
@@ -139,7 +138,7 @@ DetectorDriver::DetectorDriver() :
     //vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
     //vecAnalyzer.push_back(new TauAnalyzer());
     //vecProcess.push_back(new SsdProcessor());
-    //vecProcess.push_back(new PositionProcessor()); // order is important
+    //vecProcess.push_back(new PositionProcessor());
 }
 
 /*!

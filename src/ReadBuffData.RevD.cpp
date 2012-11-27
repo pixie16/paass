@@ -179,7 +179,7 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
       }
       currentEvt->energy = energy;
 	  //KM 2012-10-24 reinstating removal of saturated
-      if(currentEvt->saturatedBit)  currentEvt->energy = 16000;
+      if(currentEvt->saturatedBit)  currentEvt->energy = 16383;
 
       currentEvt->trigTime = lowTime;
       currentEvt->cfdTime  = cfdTime;

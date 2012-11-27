@@ -18,7 +18,10 @@ using namespace std;
 /** XML document walker and parser for TreeCorrelator xml config file*/
 class Walker {
     public:
+        /** Parse specific place*/
         void parsePlace(pugi::xml_node node, string parent);
+
+        /** Walks recursively through the tree*/
         void traverseTree(pugi::xml_node node, string parent);
 };
 
@@ -28,7 +31,7 @@ class TreeCorrelator {
         /** Returns only instance of TreeCorrelator class.*/
         static TreeCorrelator* get();
 
-        /** Return pointer to place or throw exception if doesn't exist. */
+        /** Return pointer to place or throw exception if it doesn't exist. */
         Place* place(string name);
 
         /** Create place, alter or add existing place to the tree. */
@@ -59,15 +62,13 @@ class TreeCorrelator {
         static TreeCorrelator* instance;
 
         static PlaceBuilder builder;
-        /*Temprorary solution for choosing experiment*/
-        void buildTree_LeRIBSS();
-        void buildTree_Hybrid();
 
         /** Splits name string into the vector of string. Assumes that if
-         * the last token (delimiter being "_") is in format "X-Y" where
+         * the last token (delimiter being "_") is in format "X-Y,Z" where
          * X, Y are integers, the X and Y are range of base names to be retured
-         * E.g. abc_1-2 will return ["abc_1", "abc_2"]. If no range token is
-         * found, the name itself is returned as a only element of the vector*/
+         * E.g. abc_1-2,4,5-6 will return ["abc_1", "abc_2", "abc_4", "abc_5,
+         * "abc_6"]. If no range token or comma is found, the name itself is
+         * returned as a only element of the vector*/
         vector<string> split_names(string name);
 };
 
