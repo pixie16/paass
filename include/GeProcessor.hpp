@@ -76,7 +76,8 @@ namespace dammIds {
     } // end namespace ge
 }
 
-
+/** Struct-like class to store gamma-gamma gate. Used if GGATES flag is defined
+ * in the makefile. */
 class GGate {
     public:
         GGate() {
@@ -150,21 +151,6 @@ public:
     virtual bool PreProcess(RawEvent &event);
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void);
-};
-
-/**
- * A class to hold all events which happen within a given clover
- *   maintaing a record of the total energy deposited
- *   NOT CURRENTLY USED as we need to have an associated TIME as well
- */
-class CloverEvent : public EventContainer
-{
-  private:
-    double totalEnergy;
-  public:
-    CloverEvent();
-    virtual void push_back(const ChanEvent* &x);
-    virtual void clear(void);
 };
 
 #endif // __GEPROCESSOR_HPP_

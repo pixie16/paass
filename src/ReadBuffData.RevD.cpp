@@ -50,7 +50,8 @@
 // our event structure
 #include "DetectorLibrary.hpp"
 #include "Globals.hpp"
-#include "RawEvent.hpp"
+#include "ChanEvent.hpp"
+#include "Trace.hpp"
 
 using pixie::word_t;
 using pixie::halfword_t;

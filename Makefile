@@ -124,20 +124,23 @@ PIXIEO           = PixieStd.$(ObjSuf)
 
 BETASCINTPROCESSORO  = BetaScintProcessor.$(ObjSuf)
 CFDANALYZERO     = CfdAnalyzer.$(ObjSuf)
+CHANEVENT        = ChanEvent.$(ObjSuf)
+CHANIDENTIFIERO  = ChanIdentifier.$(ObjSuf)
 CORRELATORO      = Correlator.$(ObjSuf)
 HISTOGRAMMERO    = DeclareHistogram.$(ObjSuf)
 DETECTORDRIVERO  = DetectorDriver.$(ObjSuf)
 DETECTORLIBRARYO = DetectorLibrary.$(ObjSuf)
+DETECTORSUMMARYO = DetectorSummary.$(ObjSuf)
 DOUBLETRACEO     = DoubleTraceAnalyzer.$(ObjSuf)
 DSSDPROCESSORO   = DssdProcessor.$(ObjSuf)
 EVENTPROCESSORO  = EventProcessor.$(ObjSuf)
 FITTINGANALYZERO = FittingAnalyzer.$(ObjSuf)
 GEPROCESSORO     = GeProcessor.$(ObjSuf)
 GE4HEN3PROCESSORO= Ge4Hen3Processor.$(ObjSuf)
-HEN3PROCESSORO    = Hen3Processor.$(ObjSuf)
+HEN3PROCESSORO   = Hen3Processor.$(ObjSuf)
 ISSDPROCESSORO   = ImplantSsdProcessor.$(ObjSuf)
 IONCHAMBERPROCESSORO = IonChamberProcessor.$(ObjSuf)
-LIQUIDSCINTPROCESSORO  = LiquidScintProcessor.$(ObjSuf)
+LIQUIDSCINTPROCESSORO = LiquidScintProcessor.$(ObjSuf)
 LOGICPROCESSORO  = LogicProcessor.$(ObjSuf)
 MAPFILEO         = MapFile.$(ObjSuf)
 MCPPROCESSORO    = McpProcessor.$(ObjSuf)
@@ -152,7 +155,6 @@ ROOTPROCESSORO   = RootProcessor.$(ObjSuf)
 PLACEBUILDERO    = PlaceBuilder.$(ObjSuf)
 PLACESO          = Places.$(ObjSuf)
 PULSERPROCESSORO = PulserProcessor.$(ObjSuf)
-ACCUMULATORO     = StatsAccumulator.$(ObjSuf)
 SSDPROCESSORO    = SsdProcessor.$(ObjSuf)
 STATSDATAO       = StatsData.$(ObjSuf)
 TAUANALYZERO     = TauAnalyzer.$(ObjSuf)
@@ -204,9 +206,12 @@ $(PUGIXMLO)\
 $(PIXIEO)\
 $(BETASCINTPROCESSORO)\
 $(CORRELATORO)\
+$(CHANEVENTO)\
+$(CHANIDENTIFIERO)\
 $(HISTOGRAMMERO)\
 $(DETECTORDRIVERO)\
 $(DETECTORLIBRARYO)\
+$(DETECTORSUMMARYO)\
 $(DOUBLETRACEO)\
 $(DSSDPROCESSORO)\
 $(EVENTPROCESSORO)\

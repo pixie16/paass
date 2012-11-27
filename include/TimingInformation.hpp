@@ -8,9 +8,8 @@
 #define __TIMINGINFORMATION_HPP_
 
 #include <map>
-
-class ChanEvent;
-class Trace;
+#include "ChanEvent.hpp"
+#include "Trace.hpp"
 
 #ifdef useroot
 #include "Rtypes.h"
