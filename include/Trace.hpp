@@ -25,7 +25,6 @@
 #define NAN (numeric_limits<float>::quiet_NaN())
 #endif
 
-// forward declaration
 class TrapezoidalFilterParameters;
 
 // use an alias in this file to make things a bit more readable

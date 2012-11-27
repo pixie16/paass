@@ -8,7 +8,6 @@
 
 #include "pixie16app_defs.h"
 #include "Globals.hpp"
-#include "ChanEvent.hpp"
 #include "StatsData.hpp"
 
 using std::cout;

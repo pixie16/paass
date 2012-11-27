@@ -7,6 +7,7 @@
 
 #include "DammPlotIds.hpp"
 #include "RawEvent.hpp"
+#include "ChanEvent.hpp"
 #include "Hen3Processor.hpp"
 #include "ScintProcessor.hpp"
 #include "Trace.hpp"

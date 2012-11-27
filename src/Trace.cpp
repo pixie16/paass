@@ -9,7 +9,6 @@
 #include <cmath>
 #include <numeric>
 
-#include "StatsAccumulator.hpp"
 #include "Trace.hpp"
 
 #include "DammPlotIds.hpp"

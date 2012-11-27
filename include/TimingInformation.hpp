@@ -8,12 +8,16 @@
 #define __TIMINGINFORMATION_HPP_
 
 #include <map>
-#include "ChanEvent.hpp"
-#include "Trace.hpp"
 
 #ifdef useroot
 #include "Rtypes.h"
 #endif
+
+// Forward declarations for hell of circular dependencies
+// see Trace.hpp
+class Trace;
+// see ChanEvent.hpp
+class ChanEvent;
 
 class TimingInformation
 {
