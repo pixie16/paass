@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 
+#include "ChanIdentifier.hpp"
 #include "RawEvent.hpp"
 
 class DetectorLibrary : public std::vector<Identifier>

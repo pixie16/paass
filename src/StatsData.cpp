@@ -3,18 +3,16 @@
  */
 
 #include <iostream>
-
 #include <cmath>
 #include <cstring>
 
-#include "Globals.hpp"
-#include "RawEvent.hpp"
-
 #include "pixie16app_defs.h"
+#include "Globals.hpp"
+#include "ChanEvent.hpp"
+#include "StatsData.hpp"
 
 using std::cout;
 using std::endl;
-
 using pixie::word_t;
 
 StatsData stats;
