@@ -124,7 +124,7 @@ PIXIEO           = PixieStd.$(ObjSuf)
 
 BETASCINTPROCESSORO  = BetaScintProcessor.$(ObjSuf)
 CFDANALYZERO     = CfdAnalyzer.$(ObjSuf)
-CHANEVENT        = ChanEvent.$(ObjSuf)
+CHANEVENTO       = ChanEvent.$(ObjSuf)
 CHANIDENTIFIERO  = ChanIdentifier.$(ObjSuf)
 CORRELATORO      = Correlator.$(ObjSuf)
 HISTOGRAMMERO    = DeclareHistogram.$(ObjSuf)

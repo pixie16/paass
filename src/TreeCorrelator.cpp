@@ -1,8 +1,3 @@
-#include <iostream>
-#include <string>
-#include <sstream>
-
-#include "DetectorLibrary.hpp"
 #include "TreeCorrelator.hpp"
 #include "Globals.hpp"
 #include "Exceptions.hpp"
@@ -33,7 +28,6 @@ void Walker::traverseTree(pugi::xml_node node, string parent) {
     }
 }
 
-
 TreeCorrelator* TreeCorrelator::instance = NULL;
 
 PlaceBuilder TreeCorrelator::builder = PlaceBuilder();
@@ -50,9 +44,9 @@ TreeCorrelator* TreeCorrelator::get() {
 Place* TreeCorrelator::place(string name) {
     if (places_.count(name) == 0) {
         stringstream ss;
-        ss << "Error: TreeCorrelator: place " << name
-           << "doesn't exist " << endl;
-        throw GeneralException(ss.str());
+        ss << "TreeCorrelator: place " << name
+           << " doesn't exist " << endl;
+        throw TreeCorrelatorException(ss.str());
     }
     return places_[name];
 }
@@ -67,9 +61,9 @@ void TreeCorrelator::addChild(string parent, string child,
         }
     } else {
         stringstream ss;
-        ss << "Error: TreeCorrelator: could not set " << child
+        ss << "TreeCorrelator: could not set " << child
            << "as a child of " << parent << endl;
-        throw GeneralException(ss.str());
+        throw TreeCorrelatorException(ss.str());
     }
 }
 
@@ -127,9 +121,9 @@ void TreeCorrelator::createPlace(map<string, string>& params,
             if (replace) {
                 if (places_.count((*it)) != 1) {
                     stringstream ss;
-                    ss << "Cannot replace Place" << (*it) 
+                    ss << "TreeCorrelator: cannot replace Place" << (*it) 
                        << ", it doesn't exist";
-                    throw GeneralException(ss.str());
+                    throw TreeCorrelatorException(ss.str());
                 }
                 delete places_[(*it)];
                 if (verbose::CORRELATOR_INIT)
@@ -137,8 +131,8 @@ void TreeCorrelator::createPlace(map<string, string>& params,
             } else {
                 if (places_.count((*it)) == 1) {
                     stringstream ss;
-                    ss << "Place" << (*it) << " already exists";
-                    throw GeneralException(ss.str());
+                    ss << "TreeCorrelator: place" << (*it) << " already exists";
+                    throw TreeCorrelatorException(ss.str());
                 }
                 if (verbose::CORRELATOR_INIT)
                     cout << "TreeCorrelator: creating place " << (*it) << endl;

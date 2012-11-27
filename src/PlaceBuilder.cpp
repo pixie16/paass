@@ -4,7 +4,8 @@ using namespace std;
 
 Place* PlaceBuilder::create (map<string, string>& params) {
     string type = params["type"];
-    cout << "Type: " << type << endl;
+    if (verbose::CORRELATOR_INIT)
+        cout << "Type: " << type << endl;
     if (type == "")
         return NULL;
     else if (type == "PlaceDetector")

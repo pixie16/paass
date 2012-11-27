@@ -1,5 +1,7 @@
 #include "DetectorSummary.hpp"
 
+using namespace std;
+
 /**
  * Detector summary zeroing
  *

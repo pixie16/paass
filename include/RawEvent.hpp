@@ -11,6 +11,7 @@
 #ifndef __RAWEVENT_HPP_
 #define __RAWEVENT_HPP_ 1
 
+#include <iostream>
 #include <vector>
 #include <string>
 #include <map>
@@ -20,8 +21,12 @@
 #include "pixie16app_defs.h"
 #include "Globals.hpp"
 #include "Trace.hpp"
-
 #include "DetectorSummary.hpp"
+#include "ChanEvent.hpp"
+#include "ChanIdentifier.hpp"
+
+// see DetectorSummary.hpp
+class DetectorSummary;
 
 /** \brief The all important raw event
  *

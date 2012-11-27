@@ -52,6 +52,7 @@
 #include "Globals.hpp"
 #include "ChanEvent.hpp"
 #include "Trace.hpp"
+#include "StatsData.hpp"
 
 using pixie::word_t;
 using pixie::halfword_t;

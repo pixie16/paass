@@ -21,11 +21,11 @@
 #include "Plots.hpp"
 #include "Globals.hpp"
 #include "MapFile.hpp"
+#include "ChanEvent.hpp"
 
 // forward declarations
 class Calibration;
 class RawEvent;
-class ChanEvent;
 class EventProcessor;
 class TraceAnalyzer;
 
