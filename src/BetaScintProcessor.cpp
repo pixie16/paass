@@ -7,6 +7,7 @@
 
 #include "DammPlotIds.hpp"
 #include "RawEvent.hpp"
+#include "ChanEvent.hpp"
 #include "BetaScintProcessor.hpp"
 
 using namespace std;

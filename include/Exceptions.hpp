@@ -17,8 +17,20 @@ public:
         return message_.c_str();
     }
 
-private:
+protected:
     const std::string message_;
+};
+
+class TreeCorrelatorException : public GeneralException {
+    public:
+        TreeCorrelatorException(const std::string& msg) : 
+            GeneralException(msg) {}
+};
+
+class ConversionException : public GeneralException {
+    public:
+        ConversionException(const std::string& msg) : 
+            GeneralException(msg) {}
 };
 
 #endif

@@ -15,7 +15,6 @@ S.V. Paulauskas 16 July 2009
 #include <cmath>
 
 #include "FittingAnalyzer.hpp"
-#include "StatsAccumulator.hpp"
 #include "WaveformAnalyzer.hpp"
 
 using namespace std;

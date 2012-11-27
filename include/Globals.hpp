@@ -112,8 +112,9 @@ namespace strings {
         double value;
         if (!(iss >> value)) {
             std::stringstream ss;
-            ss << "Could not convert string '" << s << "' to double" << std::endl;
-            throw GeneralException(ss.str());
+            ss << "strings::to_double: Could not convert string '" 
+               << s << "' to double" << std::endl;
+            throw ConversionException(ss.str());
         }
         return value;
     }
@@ -125,8 +126,9 @@ namespace strings {
         int value;
         if (!(iss >> value)) {
             std::stringstream ss;
-            ss << "Could not convert string '" << s << "' to int" << std::endl;
-            throw GeneralException(ss.str());
+            ss << "strings::to_int: Could not convert string '" 
+               << s << "' to int" << std::endl;
+            throw ConversionException(ss.str());
         }
         return value;
     }
@@ -143,8 +145,9 @@ namespace strings {
             return false;
         else {
             std::stringstream ss;
-            ss << "Could not convert string '" << s << "' to bool" << std::endl;
-            throw GeneralException(ss.str());
+            ss << "strings::to_bool: Could not convert string '" 
+               << s << "' to bool" << std::endl;
+            throw ConversionException(ss.str());
         }
     }
 

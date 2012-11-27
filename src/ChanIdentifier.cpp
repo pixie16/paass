@@ -1,6 +1,9 @@
 #include "ChanIdentifier.hpp"
+#include <string>
 #include <iomanip>
 #include <iostream>
+
+using namespace std;
 
 /** 
  * Return the value of a tag 

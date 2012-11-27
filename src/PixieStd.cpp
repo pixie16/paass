@@ -46,6 +46,8 @@
 
 #include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
+#include "DetectorSummary.hpp"
+#include "ChanEvent.hpp"
 #include "RawEvent.hpp"
 #include "DammPlotIds.hpp"
 #include "Globals.hpp"

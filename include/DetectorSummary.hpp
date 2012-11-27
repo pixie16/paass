@@ -2,6 +2,8 @@
 #define __DETECTOR_SUMMARY_HPP
 
 #include <vector>
+#include <string>
+#include "ChanEvent.hpp"
 #include "pixie16app_defs.h"
 #include "Globals.hpp"
 #include "Trace.hpp"

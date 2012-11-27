@@ -1,28 +1,23 @@
 #ifndef TREECORRELATOR_H
 #define TREECORRELATOR_H
 
-#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <map>
-#include <utility>
-#include <stdexcept>
 #include "pugixml.hpp"
 #include "Places.hpp"
 #include "PlaceBuilder.hpp"
 #include "Exceptions.hpp"
 
-using namespace std;
-
 /** XML document walker and parser for TreeCorrelator xml config file*/
 class Walker {
     public:
         /** Parse specific place*/
-        void parsePlace(pugi::xml_node node, string parent);
+        void parsePlace(pugi::xml_node node, std::string parent);
 
         /** Walks recursively through the tree*/
-        void traverseTree(pugi::xml_node node, string parent);
+        void traverseTree(pugi::xml_node node, std::string parent);
 };
 
 /** Singleton class holding map of all places.*/
@@ -32,14 +27,14 @@ class TreeCorrelator {
         static TreeCorrelator* get();
 
         /** Return pointer to place or throw exception if it doesn't exist. */
-        Place* place(string name);
+        Place* place(std::string name);
 
         /** Create place, alter or add existing place to the tree. */
-        void createPlace(map<string, string>& params,
+        void createPlace(std::map<std::string, std::string>& params,
                          bool verbose = false);
 
         /** Add child to place parent with coincidence coin.*/
-        void addChild(string parent, string child, bool coin = true,
+        void addChild(std::string parent, std::string child, bool coin = true,
                       bool verbose = false);
 
         /** 
@@ -51,7 +46,7 @@ class TreeCorrelator {
         ~TreeCorrelator();
 
         /** This map holds all Places. */
-        map<string, Place*> places_;
+        std::map<std::string, Place*> places_;
     private:
         /** Make constructor, copy-constructor and operator =
          * private to complete singleton implementation.*/
@@ -69,7 +64,7 @@ class TreeCorrelator {
          * E.g. abc_1-2,4,5-6 will return ["abc_1", "abc_2", "abc_4", "abc_5,
          * "abc_6"]. If no range token or comma is found, the name itself is
          * returned as a only element of the vector*/
-        vector<string> split_names(string name);
+        std::vector<std::string> split_names(std::string name);
 };
 
 #endif
