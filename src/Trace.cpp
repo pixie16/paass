@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <cmath>
 #include <numeric>
 
 #include "StatsAccumulator.hpp"
@@ -62,16 +63,21 @@ double Trace::DoBaseline(unsigned int lo, unsigned int numBins)
     unsigned int hi = lo + numBins;
 
     if (baselineLow == lo && baselineHigh == hi)
-	return GetValue("baseline");
+        return GetValue("baseline");
 
-    StatsAccumulator stats = accumulate(begin() + lo, begin() + hi, StatsAccumulator());
-    SetValue("baseline", stats.GetMean());
-    SetValue("sigmaBaseline", stats.GetStdDev());
+    double sum = accumulate(begin() + lo, begin() + hi, 0.0);
+    double mean = sum / numBins;
+    double sq_sum = inner_product(begin() + lo, begin() + hi,
+                                  begin() + lo, 0.0);
+    double std_dev = sqrt(sq_sum / numBins - mean * mean);
+
+    SetValue("baseline", mean);
+    SetValue("sigmaBaseline", std_dev);
 
     baselineLow  = lo;
     baselineHigh = hi;
 
-    return stats.GetMean();
+    return mean;
 }
 
 unsigned int Trace::DoDiscrimination(unsigned int lo, unsigned int numBins)
