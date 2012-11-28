@@ -177,18 +177,6 @@ class Place {
          * but perhaps you should not. Stores information on past 
          * events in a given Place.*/
         deque<CorrEventData> info_;
-/*TEMP MOVE TO PROTECTED */
-        /** Vector keeping a list of children on which status of the
-         * Place depends.
-         * Place* is a pointer to the downstream place, bool describes relation
-         * (true for coincidence-like, false for anti-coincidence).
-         */
-        vector< pair<Place*, bool> > children_;
-
-        /** Vector keeping a list of parents to whom the change of status
-         * should be reported.
-         */
-        vector<Place*> parents_;
 
     protected:
         /** Pure virutal function. The check function should decide how
@@ -229,6 +217,19 @@ class Place {
         /** Indicates if place should be reseted after end of event (true)
          * or if should persist until status is changed explicitly (false).*/
         bool resetable_;
+
+        /** Vector keeping a list of children on which status of the
+         * Place depends.
+         * Place* is a pointer to the downstream place, bool describes relation
+         * (true for coincidence-like, false for anti-coincidence).
+         */
+        vector< pair<Place*, bool> > children_;
+
+        /** Vector keeping a list of parents to whom the change of status
+         * should be reported.
+         */
+        vector<Place*> parents_;
+
 
 };
 
