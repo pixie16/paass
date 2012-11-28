@@ -6,9 +6,9 @@ SHELL=/bin/sh
 # USEROOT = 1
 
 # Uncomment this line if processing Rev. D data
-#REVISIOND = 1
+REVISIOND = 1
 # Uncomment this line if processing Rev. F data
-REVISIONF = 1
+#REVISIONF = 1
 
 # Uncomment this line for a more verbose scan
 # CXXFLAGS += -DVERBOSE
@@ -16,10 +16,13 @@ REVISIONF = 1
 # Undefine to make a "online" version
 # ONLINE = 1 
 
-# Undefine to use Gamma-Gamma gates in GeProcessor
+# Define to use Gamma-Gamma gates in GeProcessor
 # This turns on Gamma-Gamma angular distribution
 # and Gamma-Gamma-Gamma gates
-GGATES = 1
+# GGATES = 1
+
+# Define to see debugging information for TreeCorrelator
+# DEBUG = 1
 
 # Use gfortran
 HHIRF_GFORTRAN = 1
@@ -274,6 +277,11 @@ endif
 #------------ Compile with Gamma-Gamma gates support in GeProcessor
 ifdef GGATES
 CXXFLAGS	+= -DGGATES
+endif
+
+#------------ Compile with debug information for TreeCorrelator
+ifdef GGATES
+CXXFLAGS	+= -DDEBUG
 endif
 
 #--------- Add to list of known file suffixes

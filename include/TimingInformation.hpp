@@ -8,6 +8,7 @@
 #define __TIMINGINFORMATION_HPP_
 
 #include <map>
+//#include "ChanEvent.hpp"
 
 #ifdef useroot
 #include "Rtypes.h"
