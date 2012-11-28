@@ -42,12 +42,14 @@ TreeCorrelator* TreeCorrelator::get() {
 }
 
 Place* TreeCorrelator::place(string name) {
+#ifdef DEBUG
     if (places_.count(name) == 0) {
         stringstream ss;
         ss << "TreeCorrelator: place " << name
            << " doesn't exist " << endl;
         throw TreeCorrelatorException(ss.str());
     }
+#endif
     return places_[name];
 }
 
