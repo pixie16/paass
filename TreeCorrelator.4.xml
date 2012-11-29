@@ -30,12 +30,13 @@
         see PlaceBuilder for other type of places and attributes.
 -->
 
-<TreeCorrelator name="root" description="LeRIBSS 2012, 3Hen hybrid, 2 Clovers">
+<?xml version="1.0" encoding="utf-8"?>
+<TreeCorrelator name="root" description="LeRIBSS 2011, 4 Clovers">
 
     <Place type="PlaceAND" name="GammaBeta">
         <Place type="PlaceOR" name="Beta">
             <Place type="PlaceThreshold" name="beta_scint_beta_0-1"
-                low_limit="10.0" high_limit="16384" replace="true"/>
+                low_limit="10.0" high_limit="16382" replace="true"/>
         </Place>
         <Place type="PlaceOR" name="Gamma">
             <Place type="PlaceOR" name="Clover0">
@@ -43,6 +44,12 @@
             </Place>
             <Place type="PlaceOR" name="Clover1">
                 <Place type="" name="ge_clover_high_4-7"/>
+            </Place>
+            <Place type="PlaceOR" name="Clover2">
+                <Place type="" name="ge_clover_high_8-11"/>
+            </Place>
+            <Place type="PlaceOR" name="Clover3">
+                <Place type="" name="ge_clover_high_12-15"/>
             </Place>
         </Place>
     </Place>
@@ -54,15 +61,9 @@
 
 
     <Place type="PlaceDetector" name="TapeMove" reset="false"/>
+
     <Place type="PlaceDetector" name="Beam" reset="false"/>
+
     <Place type="PlaceDetector" name="Cycle" reset="false"/>
-
-    <Place type="PlaceCounter" name="Hen3">
-        <Place type="" name="3hen_big_0-47"/>
-    </Place>
-
-    <Place type="PlaceCounter" name="Neutrons">
-        <Place type="PlaceThreshold" name="Neutron_0-48" low_limit="2500.0" high_limit="3400.0"/>
-    </Place>
 
 </TreeCorrelator>
