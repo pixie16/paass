@@ -30,6 +30,7 @@
         see PlaceBuilder for other type of places and attributes.
 -->
 
+<?xml version="1.0" encoding="utf-8"?>
 <TreeCorrelator name="root" description="LeRIBSS 2011, 4 Clovers">
 
     <Place type="PlaceAND" name="GammaBeta">
