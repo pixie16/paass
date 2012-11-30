@@ -1,3 +1,4 @@
+#include "PathHolder.hpp"
 #include "TreeCorrelator.hpp"
 #include "Globals.hpp"
 #include "Exceptions.hpp"
@@ -154,8 +155,13 @@ void TreeCorrelator::createPlace(map<string, string>& params,
 
 void TreeCorrelator::buildTree() {
     pugi::xml_document doc;
-    pugi::xml_parse_result result = doc.load_file("TreeCorrelator.xml");
-    cout << "Loading configiration file TreeCorrelator.xml: "
+
+    PathHolder* conf_path = new PathHolder();
+    string xmlFileName = conf_path->GetFullPath("TreeCorrelator.xml");
+    delete conf_path;
+
+    pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
+    cout << "Loading configiration file " << xmlFileName << " : "
          << result.description() 
          << endl << "Configuration description: "
          << doc.child("TreeCorrelator").attribute("description").value()

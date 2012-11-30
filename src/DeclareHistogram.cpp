@@ -4,8 +4,9 @@
  * David Miller, Aug. 2009
  */
 
-#include "DetectorDriver.hpp"
+#include "PathHolder.hpp"
 #include "MapFile.hpp"
+#include "DetectorDriver.hpp"
 
 #include <iostream>
 
@@ -17,6 +18,8 @@ extern "C" void endrr_();
 /*! This function defines the histograms to be used in the analysis */
 extern "C" void drrsub_(unsigned int& iexist)
 {
+    PathHolder* conf_path = new PathHolder(".config");
+    delete conf_path;
     MapFile theMapFile = MapFile();
     drrmake_();
     DetectorDriver::get()->DeclarePlots(theMapFile);
