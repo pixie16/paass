@@ -1,0 +1,69 @@
+<!--
+     Instructions:
+     Create here tree of "places" build of <Place> elements for
+     your experiment. Basic places are created automatically from entries in 
+     the map2.txt file using type_subtype_location pattern.
+     Root element should be named <TreeCorrelator>, and may have 'description'
+     attribute with comment about experiment in concern.
+
+     Each <Place> element has following attributes:
+        'name' - required, if last token in name (tokens are separated by '_')
+                characters are in format X-Y,Z where X, Y and Z
+                are integers, a whole range X to Y is assumed 
+                (e.g.  beta_0-1,5,9-10
+                will create beta_0, beta_1, beta_5, beta_9 and beta_10 )
+
+        Optional attributes:
+        'type' - must be one of types defined in PlaceBuilder.cpp (see there)
+                currently available are: PlaceDetector, PlaceThreshold,
+                PlaceThresholdOR, PlaceCounter, PlaceOR, PlaceAND
+                if type is not used or empty (type="") it is assumed that
+                place already exists. In particular this is true for all 
+                basic places created from channels as defined in map2.txt
+        'replace' - if set to 'true', will replace existing place with a
+               one defined in this element. 
+        'fifo' - depth of FIFO of place
+        'coincidence' - defines type of relation with parent (true of false)
+        'low_limit', 'high_limit' - required for PlaceThreshold and
+                PlaceThresholdOR defines threshold limits (calibrated energy).
+
+        see PlaceBuilder for other type of places and attributes.
+-->
+
+<?xml version="1.0" encoding="utf-8"?>
+<TreeCorrelator name="root" description="LeRIBSS 2011, 4 Clovers">
+
+    <Place type="PlaceAND" name="GammaBeta">
+        <Place type="PlaceOR" name="Beta">
+            <Place type="PlaceThreshold" name="beta_scint_beta_0-1"
+                low_limit="10.0" high_limit="16382" replace="true"/>
+        </Place>
+        <Place type="PlaceOR" name="Gamma">
+            <Place type="PlaceOR" name="Clover0">
+                <Place type="" name="ge_clover_high_0-3"/>
+            </Place>
+            <Place type="PlaceOR" name="Clover1">
+                <Place type="" name="ge_clover_high_4-7"/>
+            </Place>
+            <Place type="PlaceOR" name="Clover2">
+                <Place type="" name="ge_clover_high_8-11"/>
+            </Place>
+            <Place type="PlaceOR" name="Clover3">
+                <Place type="" name="ge_clover_high_12-15"/>
+            </Place>
+        </Place>
+    </Place>
+
+    <Place type="PlaceAND" name="GammaWOBeta">
+        <Place type="" name="Gamma" coincidence="true"/>
+        <Place type="" name="Beta" fifo="10" coincidence="false"/>
+    </Place>
+
+
+    <Place type="PlaceDetector" name="TapeMove" reset="false"/>
+
+    <Place type="PlaceDetector" name="Beam" reset="false"/>
+
+    <Place type="PlaceDetector" name="Cycle" reset="false"/>
+
+</TreeCorrelator>
