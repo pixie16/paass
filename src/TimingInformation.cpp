@@ -11,6 +11,7 @@ Written: S.V. Paulauskas 09 May 2011
 #include <limits>
 #include <string>
 
+#include "PathHolder.hpp"
 #include "RawEvent.hpp"
 #include "TimingInformation.hpp"
 #include "Trace.hpp"
@@ -198,7 +199,12 @@ TimingInformation::TimingCal TimingInformation::GetTimingCal(const IdentKey &ide
 //********** ReadTimingConstants **********
 void TimingInformation::ReadTimingConstants(void)
 {
-    ifstream readConstants("timingConstants.txt");
+
+    PathHolder* conf_path = new PathHolder();
+    string constantsFileName = conf_path->GetFullPath("timingConstants.txt");
+    delete conf_path;
+
+    ifstream readConstants(constantsFileName.c_str());
     
     if (!readConstants) {
         cout << endl << "Cannot open file 'timingConstants.txt'" 
@@ -235,7 +241,12 @@ void TimingInformation::ReadTimingConstants(void)
 void TimingInformation::ReadTimingCalibration(void)
 {
     TimingCal timingcal;
-    ifstream timingCalFile("timingCal.txt");
+
+    PathHolder* conf_path = new PathHolder();
+    string timeCalFileName = conf_path->GetFullPath("timingCal.txt");
+    delete conf_path;
+
+    ifstream timingCalFile(timeCalFileName.c_str());
     
     if (!timingCalFile) {
         cout << endl << "Cannot open file 'timingCal.txt'" 
