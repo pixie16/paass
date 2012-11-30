@@ -16,6 +16,7 @@
 #include "MapFile.hpp"
 #include "RawEvent.hpp"
 #include "TreeCorrelator.hpp"
+#include "PathHolder.hpp"
 
 #include "Globals.hpp"
 
@@ -35,19 +36,21 @@ using namespace std;
  */
 MapFile::MapFile(const string &filename /*="map2.txt"*/)
 {  
-    cout << "MapFile: loading map file " << filename << endl;
-    const size_t maxConfigLineLength = 100;
-    
-    char line[maxConfigLineLength];
+    PathHolder* conf_path = new PathHolder();
+    string mapFileName = conf_path->GetFullPath(filename);
+    delete conf_path;
+
+    cout << "MapFile: loading map file " << mapFileName << endl;
+
+    ifstream in(mapFileName.c_str());
      
-    ifstream in(filename.c_str());
-     
-    if (!in) {
-	cout << "Could not find data in new map file " << filename << endl;
-	// Perhaps call old version here
-	return;
+    if (!in.good()) {
+        throw IOException("Could not open map file " + mapFileName);
     }
     
+    const size_t maxConfigLineLength = 100;
+    char line[maxConfigLineLength];
+     
     vector<string> tokenList;
     vector< vector<string> > normalLines;
     vector< vector<string> > wildcardLines;
