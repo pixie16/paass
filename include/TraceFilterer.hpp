@@ -13,9 +13,6 @@
 #include "TracePlotter.hpp"
 
 class TraceFilterer : public TracePlotter {
- private:
-    static const std::string defaultFilterFile;
-
  protected:    
     static const int energyBins;
     static const double energyScaleFactor;
@@ -49,7 +46,7 @@ class TraceFilterer : public TracePlotter {
     TraceFilterer(int offset, int range);
     virtual ~TraceFilterer();
 
-    virtual bool Init(const std::string &filterFile = defaultFilterFile);
+    virtual bool Init(const std::string &filterFileName = "filter.txt");
     virtual void DeclarePlots(void);
     virtual void Analyze(Trace &trace, 
 			 const std::string &type, const std::string &subtype);

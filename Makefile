@@ -155,6 +155,7 @@ POSITIONPROCESSORO = PositionProcessor.$(ObjSuf)
 RANDOMPOOLO      = RandomPool.$(ObjSuf)
 RAWEVENTO        = RawEvent.$(ObjSuf)
 ROOTPROCESSORO   = RootProcessor.$(ObjSuf)
+PATHHOLDERO      = PathHolder.$(ObjSuf)
 PLACEBUILDERO    = PlaceBuilder.$(ObjSuf)
 PLACESO          = Places.$(ObjSuf)
 PULSERPROCESSORO = PulserProcessor.$(ObjSuf)
@@ -229,6 +230,7 @@ $(MAPFILEO)\
 $(MCPPROCESSORO)\
 $(MTCPROCESSORO)\
 $(NEUTRONSCINTPROCESSORO)\
+$(PATHHOLDERO)\
 $(PLOTSO)\
 $(PLOTSREGISTERO)\
 $(POSITIONPROCESSORO)\

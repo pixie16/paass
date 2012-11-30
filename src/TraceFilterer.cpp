@@ -9,6 +9,7 @@
 #include <iostream>
 #include <numeric>
 
+#include "PathHolder.hpp"
 #include "DammPlotIds.hpp"
 #include "RandomPool.hpp"
 #include "Trace.hpp"
@@ -17,7 +18,6 @@
 using namespace std;
 using namespace dammIds::trace;
 
-const string TraceFilterer::defaultFilterFile = "filter.txt";
 const int TraceFilterer::energyBins = SC;
 const double TraceFilterer::energyScaleFactor = 2.198; //< TO BE USED WITH MAGIC +40 ENERGY SAMPLE LOCATION
 // const double TraceFilterer::energyScaleFactor = 2.547; //< multiply the energy filter sums by this to gain match to raw spectra
@@ -69,7 +69,7 @@ TraceFilterer::~TraceFilterer()
     // do nothing
 }
 
-bool TraceFilterer::Init(const string &filterFile)
+bool TraceFilterer::Init(const string &filterFileName /* = filter.txt */)
 {
     const int maxTraceLength = 6400;
 
@@ -80,6 +80,10 @@ bool TraceFilterer::Init(const string &filterFile)
     thirdFilter.reserve(maxTraceLength);
 
     // read in the filter parameters
+    PathHolder* conf_path = new PathHolder();
+    string filterFile = conf_path->GetFullPath(filterFileName);
+    delete conf_path;
+
     ifstream in(filterFile.c_str());
     if (!in) {
         cout << "Failed to open the filter parameter file" << endl;

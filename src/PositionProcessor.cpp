@@ -10,6 +10,7 @@
 #include <sstream>
 #include <vector>
 
+#include "PathHolder.hpp"
 #include "PositionProcessor.hpp"
 #include "DetectorLibrary.hpp"
 #include "RawEvent.hpp"
@@ -49,7 +50,6 @@ namespace dammIds {
     }
 }
 
-const string PositionProcessor::configFile("qdc.txt");
 
 using namespace dammIds::position;
 
@@ -101,6 +101,10 @@ bool PositionProcessor::Init(RawEvent& rawev)
     }
     minNormQdc.resize(numLocations);
     maxNormQdc.resize(numLocations);
+
+    PathHolder* conf_path = new PathHolder();
+    string configFile = conf_path->GetFullPath("qdc.txt");
+    delete conf_path;
 
     ifstream in(configFile.c_str());
     if (!in) {
