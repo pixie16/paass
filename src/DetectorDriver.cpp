@@ -39,6 +39,8 @@
 #include <iterator>
 #include <sstream>
 
+#include "PathHolder.hpp"
+#include "Exceptions.hpp"
 #include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
 #include "MapFile.hpp"
@@ -491,7 +493,9 @@ void DetectorDriver::ReadCal()
     unsigned int detLocation;
     string detType, detSubtype;
 
-    const string calFilename("cal.txt");
+    PathHolder* conf_path = new PathHolder();
+    string calFilename = conf_path->GetFullPath("cal.txt");
+    delete conf_path;
 
     ifstream calFile(calFilename.c_str());
 
@@ -499,9 +503,9 @@ void DetectorDriver::ReadCal()
     cal.resize(modChan->size());
 
     if (!calFile) {
-      cout << "Can not open file " << calFilename << endl;
+        throw IOException("Could not open file " + calFilename);
     } else {
-      cout << "reading in calibrations from " << calFilename << endl;
+      cout << "Reading in calibrations from " << calFilename << endl;
       while (calFile) {
             /*
               While the end of the calibration file has not been reached,

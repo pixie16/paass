@@ -16,7 +16,6 @@ class ChanEvent;
 class PositionProcessor : public EventProcessor
 {
 private:
-    static const std::string configFile;
     static const int numQdcs = 8;
     static const int matchingTimeCut = 5; //< maximum difference between edge and sum timestamps
 
