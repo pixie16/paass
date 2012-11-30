@@ -8,11 +8,13 @@
 # One channel in final module MUST be defined
 # "virtual" tag indicates that this channel is not a physical channel
 #   but is generated dynamically onboard 
-MOD    CH      TYPE	   SUBTYPE	LOCATION	TAGS
-0      0-15    ge	   clover_high	
-1      0-15    ge	   clover_low	
-2      0-1     beta_scint   beta		
-2      2       mtc     beam_start
-2      3       mtc     beam_stop
-2      4       mtc     start
-2      5       mtc     stop	    	
+MOD    CH      TYPE       SUBTYPE	LOCATION	TAGS
+0      0-1     beta_scint beta   
+1      0-15    3hen       big
+2      0-15    3hen       big
+3      0-15    3hen       big
+7      0-7     ge	      clover_high	
+7      8       mtc        beam_stop 
+7      9       mtc        beam_start 
+7      10      mtc        start 
+7      11      mtc        stop 
