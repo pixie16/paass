@@ -94,6 +94,11 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
     const unsigned int maxPos = (unsigned int)trace.GetValue("maxpos");
     const vector<double> waveform = trace.GetWaveform();
     
+    if(waveform.size() == 0) {
+        EndAnalyze();
+        return;
+    }
+
     plot(DD_MAXVSQDCMAX, qdcToMax*100+100, maxVal);
     plot(DD_MAXVALPOS, maxPos, maxVal);
     plot(D_SIGMA, sigmaBaseline*100);
@@ -186,6 +191,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
 
     EndAnalyze();
 } //void FittingAnalyzer::Analyze
+
 
 
 //********** WalkCorrection **********

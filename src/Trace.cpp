@@ -4,9 +4,9 @@
 
 #include <algorithm>
 #include <iostream>
+#include <cmath>
 #include <numeric>
 
-#include "StatsAccumulator.hpp"
 #include "Trace.hpp"
 
 #include "DammPlotIds.hpp"
@@ -18,9 +18,13 @@ namespace dammIds {
     namespace trace {
     }
 } // trace namespace
-    
+
 const Trace emptyTrace; ///< an empty trace for const references to point to
 
+/*
+ * Plots are static, class-wide variable, so every trace instance has
+ * an access to the same histogram range
+ */
 Plots Trace::histo(OFFSET, RANGE);
 
 /**
@@ -52,21 +56,25 @@ double Trace::DoBaseline(unsigned int lo, unsigned int numBins)
 	cerr << "Bad range in baseline calculation." << endl;
 	return NAN;
     }
-    
+
     unsigned int hi = lo + numBins;
-    
+
     if (baselineLow == lo && baselineHigh == hi)
-	return GetValue("baseline");
-    
-    StatsAccumulator stats = accumulate(begin() + lo, begin() + hi, 
-					StatsAccumulator());
-    SetValue("baseline", stats.GetMean());
-    SetValue("sigmaBaseline", stats.GetStdDev());
-    
+        return GetValue("baseline");
+
+    double sum = accumulate(begin() + lo, begin() + hi, 0.0);
+    double mean = sum / numBins;
+    double sq_sum = inner_product(begin() + lo, begin() + hi,
+                                  begin() + lo, 0.0);
+    double std_dev = sqrt(sq_sum / numBins - mean * mean);
+
+    SetValue("baseline", mean);
+    SetValue("sigmaBaseline", std_dev);
+
     baselineLow  = lo;
     baselineHigh = hi;
-    
-    return stats.GetMean();
+
+    return mean;
 }
 
 double Trace::DoDiscrimination(unsigned int lo, unsigned int numBins)

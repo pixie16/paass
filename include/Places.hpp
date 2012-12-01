@@ -9,25 +9,9 @@
 #include <deque>
 #include <utility>
 #include <stdexcept>
+#include "Globals.hpp"
 
 using namespace std;
-
-/** Exception with customizable message. */
-class GeneralException : public std::exception {
-public:
-    explicit GeneralException(const string& msg) 
-        : exception(), message_(msg) {}
-
-    virtual ~GeneralException() throw() {}
-
-    virtual const char* what() const throw()
-    {
-        return message_.c_str();
-    }
-
-private:
-    const string message_;
-};
 
 /** Simple structure holding basic parameters needed for correlation
  * of events in the same place. */
@@ -40,6 +24,14 @@ class CorrEventData {
             status = s;
             energy = E;
         }
+
+        /** Time and energy type of constructor */
+        CorrEventData(double t, double E, bool s = true, string type = "") {
+            time = t;
+            energy = E;
+            status = s;
+        }
+
         bool status;
         double time;
         double energy;
@@ -60,6 +52,8 @@ class Place {
         }
 
         virtual ~Place() {
+            if (verbose::CORRELATOR_INIT)
+                cout << "~Place" << endl;
         }
 
         /** Defines 'child' of place. A child will report any
@@ -224,17 +218,18 @@ class Place {
          * or if should persist until status is changed explicitly (false).*/
         bool resetable_;
 
-        /** Vector keeping a list of parents to whom the change of status
-         * should be reported.
-         */
-        vector<Place*> parents_;
-
         /** Vector keeping a list of children on which status of the
          * Place depends.
          * Place* is a pointer to the downstream place, bool describes relation
          * (true for coincidence-like, false for anti-coincidence).
          */
         vector< pair<Place*, bool> > children_;
+
+        /** Vector keeping a list of parents to whom the change of status
+         * should be reported.
+         */
+        vector<Place*> parents_;
+
 
 };
 
@@ -305,11 +300,19 @@ class PlaceThreshold : public Place {
 
     protected:
         virtual void check_(CorrEventData& info);
-
-    private:
         /** Threshold low and high limits.*/
         double low_limit_;
         double high_limit_;
+};
+
+class PlaceThresholdOR : public PlaceThreshold {
+    public:
+        PlaceThresholdOR (double low_limit, double high_limit, bool resetable = true, unsigned max_size = 2)
+            : PlaceThreshold(low_limit, high_limit, resetable, max_size) { 
+        } 
+
+    protected:
+        virtual void check_(CorrEventData& info);
 };
 
 /** Counts number of activations coming from directly or from children.*/

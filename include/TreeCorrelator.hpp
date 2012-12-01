@@ -1,56 +1,52 @@
 #ifndef TREECORRELATOR_H
 #define TREECORRELATOR_H
 
-#include <cstdlib>
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <map>
-#include <utility>
-#include <stdexcept>
+#include "pugixml.hpp"
 #include "Places.hpp"
+#include "PlaceBuilder.hpp"
+#include "Exceptions.hpp"
 
-using namespace std;
+/** XML document walker and parser for TreeCorrelator xml config file*/
+class Walker {
+    public:
+        /** Parse specific place*/
+        void parsePlace(pugi::xml_node node, std::string parent);
+
+        /** Walks recursively through the tree*/
+        void traverseTree(pugi::xml_node node, std::string parent);
+};
 
 /** Singleton class holding map of all places.*/
 class TreeCorrelator {
     public:
-        /** Returns only instance (reference) of TCorrelator class.*/
-        static TreeCorrelator& get() {
-            // Safe for destruction, placed in the static memory
-            static TreeCorrelator instance;
-            return instance;
-        }
+        /** Returns only instance of TreeCorrelator class.*/
+        static TreeCorrelator* get();
 
-        /** Add place to the map. If place exists program is halted. */
-        void addPlace(string name, Place* place, bool verbose = false) {
-            if (places.count(name) == 0) {
-                places[name] = place;
-                if (verbose) {
-                    cout << "TreeCorrelator: created place " << name << endl;
-                }
-            } else {
-                cerr << "Error: TreeCorrelator: Place " << name
-                     << " already exists." << endl;
-                exit(EXIT_FAILURE);
-            }
-        }
+        /** Return pointer to place or throw exception if it doesn't exist. */
+        Place* place(std::string name);
+
+        /** Create place, alter or add existing place to the tree. */
+        void createPlace(std::map<std::string, std::string>& params,
+                         bool verbose = false);
 
         /** Add child to place parent with coincidence coin.*/
-        void addChild(string parent, string child, bool coin = true, bool verbose = false) {
-            if (places.count(parent) == 1 || places.count(child) == 1) {
-                places[parent]->addChild(places[child], coin);
-                if (verbose) {
-                    cout << "TreeCorrelator: setting " << child << " as a child of " << parent << endl;
-                }
-            } else {
-                cerr << "Error: TreeCorrelator: could not set " << child
-                     << "as a child of " << parent << endl;
-                exit(EXIT_FAILURE);
-            }
-        }
+        void addChild(std::string parent, std::string child, bool coin = true,
+                      bool verbose = false);
+
+        /** 
+         * This function initializes the correlator tree. Should be called
+         * after all basic places from map2.txt were initialized.
+        */
+        void buildTree();
+
+        ~TreeCorrelator();
 
         /** This map holds all Places. */
-        map<string, Place*> places;
+        std::map<std::string, Place*> places_;
     private:
         /** Make constructor, copy-constructor and operator =
          * private to complete singleton implementation.*/
@@ -58,6 +54,17 @@ class TreeCorrelator {
         /* Do not implement*/
         TreeCorrelator(TreeCorrelator const&);
         void operator=(TreeCorrelator const&);
+        static TreeCorrelator* instance;
+
+        static PlaceBuilder builder;
+
+        /** Splits name string into the vector of string. Assumes that if
+         * the last token (delimiter being "_") is in format "X-Y,Z" where
+         * X, Y are integers, the X and Y are range of base names to be retured
+         * E.g. abc_1-2,4,5-6 will return ["abc_1", "abc_2", "abc_4", "abc_5,
+         * "abc_6"]. If no range token or comma is found, the name itself is
+         * returned as a only element of the vector*/
+        std::vector<std::string> split_names(std::string name);
 };
 
 #endif

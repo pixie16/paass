@@ -75,7 +75,8 @@ namespace dammIds {
     } // end namespace ge
 }
 
-
+/** Struct-like class to store gamma-gamma gate. Used if GGATES flag is defined
+ * in the makefile. */
 class GGate {
     public:
         GGate() {
@@ -99,6 +100,15 @@ class GGate {
         double g2max;
 };
 
+/** This class is to compare gamma - beta time differences in function
+ * GeProcessor::GammaBetaDtime(). */
+class CompareTimes {
+    public:
+        bool operator()(double first, double second) {
+            return abs(first) < abs(second);
+        }
+};
+
 class GeProcessor : public EventProcessor
 {
 protected:
@@ -109,6 +119,11 @@ protected:
     unsigned int numClovers;           /*!< number of clovers in map */
 
     double WalkCorrection(double e);
+
+    /** Returns lowest difference between gamma and beta times. Takes gTime in pixie clock units.
+     * returns value in seconds. */
+    double GammaBetaDtime(double gTime);
+
     /** Returns true if gamma-beta correlation time within good limits. Browses through all beta
      * events in Beta correlation place to find lowest difference. Takes gTime in pixie clock, limit in
      * seconds. */
@@ -132,25 +147,9 @@ protected:
 
 public:
     GeProcessor(); // no virtual c'tors
-    virtual bool Init(DetectorDriver &driver);
     virtual bool PreProcess(RawEvent &event);
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void);
-};
-
-/**
- * A class to hold all events which happen within a given clover
- *   maintaing a record of the total energy deposited
- *   NOT CURRENTLY USED as we need to have an associated TIME as well
- */
-class CloverEvent : public EventContainer
-{
-  private:
-    double totalEnergy;
-  public:
-    CloverEvent();
-    virtual void push_back(const ChanEvent* &x);
-    virtual void clear(void);
 };
 
 #endif // __GEPROCESSOR_HPP_

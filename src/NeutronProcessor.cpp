@@ -8,7 +8,6 @@
 #include <cmath>
 
 #include "DammPlotIds.hpp"
-#include "DetectorDriver.hpp"
 #include "RawEvent.hpp"
 #include "NeutronProcessor.hpp"
 
@@ -55,25 +54,6 @@ void NeutronProcessor::DeclarePlots(void)
 bool NeutronProcessor::PreProcess(RawEvent &event){
     if (!EventProcessor::PreProcess(event))
         return false;
-
-    static const vector<ChanEvent*> &scintNeutrEvents = 
-	event.GetSummary("scint:neutr")->GetList();
-
-    for (vector<ChanEvent*>::const_iterator it = scintNeutrEvents.begin();
-	 it != scintNeutrEvents.end(); it++) {
-        string place = (*it)->GetChanID().GetPlaceName();
-        if (TreeCorrelator::get().places.count(place) == 1) {
-            double time   = (*it)->GetTime();
-            double energy = (*it)->GetCalEnergy();
-            CorrEventData data(time, true, energy);
-            TreeCorrelator::get().places[place]->activate(data);
-        } else {
-            cerr << "In NeutronProcessor: neutr place " << place
-                    << " does not exist." << endl;
-            return false;
-        }
-    }
-
     return true;
 }
 
@@ -92,13 +72,13 @@ bool NeutronProcessor::Process(RawEvent &event)
         int loc = chan->GetChanID().GetLocation();
         double neutronEnergy = chan->GetCalEnergy();
 
-        if (TreeCorrelator::get().places["Beta"]->status()) { 
+        if (TreeCorrelator::get()->place("Beta")->status()) { 
             plot(betaGated::D_ENERGY_DETX + loc, neutronEnergy);
         }
-        if (TreeCorrelator::get().places["Gamma"]->status()) {
+        if (TreeCorrelator::get()->place("Gamma")->status()) {
             plot(gammaGated::D_ENERGY_DETX + loc, neutronEnergy);
         }
-        if (TreeCorrelator::get().places["GammaBeta"]->status()) { 
+        if (TreeCorrelator::get()->place("GammaBeta")->status()) { 
             plot(betaGammaGated::D_ENERGY_DETX + loc, neutronEnergy);
         }
     }

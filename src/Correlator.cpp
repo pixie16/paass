@@ -113,7 +113,7 @@ void CorrelationList::PrintDecayList() const
     ofstream fullLog("HIS/full_decays.txt", ios::app);
     stringstream str;
 
-    extern DetectorDriver driver;
+    DetectorDriver* driver = DetectorDriver::get();
 
     const double printTimeResolution = 1e-3;
 
@@ -124,7 +124,7 @@ void CorrelationList::PrintDecayList() const
     double firstTime = front().time;
     double lastTime = firstTime;
 
-    time_t theTime = driver.GetWallTime(firstTime);
+    time_t theTime = driver->GetWallTime(firstTime);
     
     str  << " " << ctime(&theTime)
 	 << "    TAC: " << setw(8) << front().tof
@@ -181,7 +181,7 @@ void CorrelationList::PrintDecayList() const
 
 
 
-void Correlator::Init()
+void Correlator::Init(RawEvent& rawev)
 {
     // do nothing
 }

@@ -20,11 +20,12 @@
 
 #include "Plots.hpp"
 #include "Globals.hpp"
+#include "MapFile.hpp"
+#include "ChanEvent.hpp"
 
 // forward declarations
 class Calibration;
 class RawEvent;
-class ChanEvent;
 class EventProcessor;
 class TraceAnalyzer;
 
@@ -42,6 +43,11 @@ using std::vector;
 */
 class DetectorDriver {    
  private: 
+    DetectorDriver();
+    DetectorDriver (const DetectorDriver&);
+    DetectorDriver& operator= (DetectorDriver const&);
+    static DetectorDriver* instance;
+
     vector<EventProcessor *> vecProcess; /**< vector of processors to handle each event */
     
     vector<TraceAnalyzer *> vecAnalyzer; /**< object which analyzes traces of channels to extract
@@ -58,10 +64,9 @@ class DetectorDriver {
     virtual void DeclareHistogram2D(int dammId, int xSize, int ySize, const char* title) {
         histo.DeclareHistogram2D(dammId, xSize, ySize, title);
     }
-    /** Initializes the abstract places in correlator (dependants of Detectors)*/
-    void InitializeCorrelator();
 
  public:    
+    static DetectorDriver* get();
     vector<Calibration> cal;    /**<the calibration vector*/ 
 
     Plots histo;
@@ -69,14 +74,14 @@ class DetectorDriver {
         histo.Plot(dammId, val1, val2, val3, name);
     }
     
-    int ProcessEvent(const string &);
-    int ThreshAndCal(ChanEvent *);
-    int Init(void);
+    int ProcessEvent(const string &, RawEvent& rawev);
+    int ThreshAndCal(ChanEvent *, RawEvent& rawev);
+    int Init(RawEvent& rawev);
 
     int PlotRaw(const ChanEvent *);
     int PlotCal(const ChanEvent *);
 
-    void DeclarePlots(void); /**< declare the necessary damm plots */
+    void DeclarePlots(MapFile& theMapFile); /**< declare the necessary damm plots */
     bool SanityCheck(void) const;  /**< check whether everything makes sense */
 
     void CorrelateClock(double d, time_t t) {
@@ -90,7 +95,6 @@ class DetectorDriver {
     vector<EventProcessor *> GetProcessors(const string &type) const;
     const set<string> &GetUsedDetectors(void) const;
 
-    DetectorDriver();
     ~DetectorDriver();
 
     void ReadCal();

@@ -15,7 +15,6 @@
 #include "TreeCorrelator.hpp"
 
 // forward declarations
-class DetectorDriver;
 class DetectorSummary;
 class RawEvent;
 
@@ -69,7 +68,7 @@ class EventProcessor {
     }
     // return true on success
     virtual bool HasEvent(void) const;
-    virtual bool Init(DetectorDriver &driver);
+    virtual bool Init(RawEvent& event);
     virtual bool PreProcess(RawEvent &event);   
     virtual bool Process(RawEvent &event);   
     void EndProcess(void); // stop the process timer
