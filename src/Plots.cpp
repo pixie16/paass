@@ -1,11 +1,11 @@
 /** \file Plots.cpp
  * \brief Implement a block declaration scheme for DAMM plots
  */
+
 #include <iostream>
 
 #include <cmath>
 #include <cstring>
-#include <iostream>
 
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
@@ -32,7 +32,7 @@ Plots::Plots(int offset, int range)
 {  
     offset_ = offset;
     range_  = range;
-    PlotsRegister::R()->Add(offset_, range_);
+    PlotsRegister::get()->Add(offset_, range_);
 }
 
 /**
@@ -167,10 +167,11 @@ bool Plots::Plot(int dammId, double val1, double val2, double val3, const char* 
       val3   - weight in a 2d
       name   - name of a root spectrum (NOT CURRENTLY USED)
     */
+
+    /*
     if (!Exists(dammId))
         return false;
-
-	nonemptyList.insert(dammId);
+    */
 
     if (val2 == -1 && val3 == -1)
         count1cc_(dammId + offset_, Round(val1), 1);
@@ -187,14 +188,6 @@ bool Plots::Plot(const std::string &mne, double val1, double val2, double val3, 
     if (!Exists(mne))
         return false;
     return Plot(mneList.find(mne)->second, val1, val2, val3, name);
-}
-
-void Plots::PrintNonEmpty(std::ofstream& hislog) {
-    set<int>::iterator it;
-    for (it = nonemptyList.begin(); it != nonemptyList.end(); ++it) {
-        int id = *it;
-        hislog << "\t" << id + offset_ << " " << titleList[id] << endl;
-    }
 }
 
 int Plots::Round(double val) const

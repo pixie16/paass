@@ -9,12 +9,10 @@
  */
 #include <fstream>
 #include <iostream>
-#include <iomanip>
 
 #include <cmath>
 
 #include "DammPlotIds.hpp"
-#include "DetectorDriver.hpp"
 #include "PulserProcessor.hpp"
 #include "RawEvent.hpp"
 
@@ -35,6 +33,7 @@ namespace dammIds {
 	const int DD_MAXSVSTDIFF = 14; 
     }
 }
+
 
 using namespace std;
 using namespace dammIds::pulser;

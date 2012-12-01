@@ -14,7 +14,7 @@
 class PlotsRegister {
     public:
         /** Returns pointer to only instance of PlotsRegister*/
-        static PlotsRegister* R();
+        static PlotsRegister* get();
         
         bool CheckRange (int offset, int range) const;
         bool Add(int offset, int range);

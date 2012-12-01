@@ -29,12 +29,13 @@ namespace dammIds {
     }
 } // logic namespace
 
+
 LogicProcessor::LogicProcessor(void) : 
-EventProcessor(OFFSET, RANGE), lastStartTime(MAX_LOGIC, NAN), 
-lastStopTime(MAX_LOGIC, NAN), logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), 
-startCount(MAX_LOGIC)
+  EventProcessor(OFFSET, RANGE), lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
+  logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC)
 {
     name = "logic";
+
     associatedTypes.insert("logic");
     plotSize = SA;
 }

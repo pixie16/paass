@@ -1,0 +1,18 @@
+# New version of map file
+# subtype, location, and tags can be omitted
+# module and channel designations may contain:
+#   *   to indicate all unused possibilites
+#   m-n to indicate a range from m to n
+#   e,o to indicate even or odd channels
+# Wildcard lines are processed AFTER all single channel designations
+# One channel in final module MUST be defined
+# "virtual" tag indicates that this channel is not a physical channel
+#   but is generated dynamically onboard 
+MOD    CH      TYPE	   SUBTYPE	LOCATION	TAGS
+0      0-11    ge	   clover_high	
+#1      0-15    ge	   clover_low	
+2      0-1     scint   beta                             uncal	
+2      2       mtc     beam_start                       uncal
+2      3       mtc     beam_stop                        uncal
+2      4       mtc     start                            uncal
+2      5       mtc     stop	    	                uncal

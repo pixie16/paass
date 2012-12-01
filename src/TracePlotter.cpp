@@ -36,7 +36,7 @@ TracePlotter::~TracePlotter()
 /** Declare the damm plots */
 void TracePlotter::DeclarePlots(void)
 {
-    TraceAnalyzer::DeclarePlots();
+    //TraceAnalyzer::DeclarePlots();
     DeclareHistogram2D(plotter::DD_TRACE, traceBins, numTraces, "traces data TracePlotter");
 }
 

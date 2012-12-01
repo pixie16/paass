@@ -14,31 +14,23 @@
 #include <unistd.h>
 #include <sys/times.h>
 
-#include "DetectorDriver.hpp"
+#include "DetectorLibrary.hpp"
 #include "EventProcessor.hpp"
 #include "RawEvent.hpp"
 
 using namespace std;
-
-extern RawEvent rawev; // to access detector summaries
 
 EventProcessor::EventProcessor() : 
   userTime(0.), systemTime(0.), name("generic"), initDone(false), 
   didProcess(false), histo(0, 0)
 {
     clocksPerSecond = sysconf(_SC_CLK_TCK);
-    ofstream hislog("histograms.txt");
-    hislog << "Non empty histograms:" << endl;
-    hislog.close();
 }
 
 EventProcessor::EventProcessor(int offset, int range) : 
   userTime(0.), systemTime(0.), name("generic"), initDone(false), 
   didProcess(false), histo(offset, range) {
     clocksPerSecond = sysconf(_SC_CLK_TCK);
-    ofstream hislog("histograms.txt");
-    hislog << "Non empty histograms:" << endl;
-    hislog.close();
 }
 
 EventProcessor::~EventProcessor() 
@@ -48,10 +40,6 @@ EventProcessor::~EventProcessor()
 	cout << "processor " << name << " : " 
 	     << userTime << " user time, "
 	     << systemTime << " system time" << endl;
-        ofstream hislog("histograms.txt", ios_base::app);
-        hislog << "In " << name << ": " << endl;
-        histo.PrintNonEmpty(hislog);
-        hislog.close();
     }
 }
 
@@ -76,28 +64,28 @@ bool EventProcessor::HasEvent(void) const
 /** Initialize the processor if the detectors that require it are used in 
  * the analysis
  */
-bool EventProcessor::Init(DetectorDriver &driver) 
+bool EventProcessor::Init(RawEvent& rawev) 
 {
     vector<string> intersect;   
-    const set<string> &usedDets = driver.GetUsedDetectors();
+    const set<string> &usedDets = DetectorLibrary::get()->GetUsedDetectors();
     
     set_intersection(associatedTypes.begin(), associatedTypes.end(),
-		     usedDets.begin(), usedDets.end(), 
-		     back_inserter(intersect) );
+                     usedDets.begin(), usedDets.end(), 
+                     back_inserter(intersect) );
     
     if (intersect.empty()) {
-	return false;
+        return false;
     }
 
     // make the corresponding detector summary
     for (vector<string>::const_iterator it = intersect.begin();
 	 it != intersect.end(); it++) {
-	sumMap.insert( make_pair(*it, rawev.GetSummary(*it)) );
+        sumMap.insert( make_pair(*it, rawev.GetSummary(*it)) );
     }
 
     initDone = true;
     cout << "processor " << name << " initialized operating on " 
-	 << intersect.size() << " detector type(s)." << endl;
+         << intersect.size() << " detector type(s)." << endl;
 
     // cout << "  adding detector summary " << iSum->first
     //	    << " at address " << &iSum->second << endl;
@@ -105,9 +93,11 @@ bool EventProcessor::Init(DetectorDriver &driver)
     return true;
 }
 
-/** Process an event. In PreProcess correlator is filled and basic analysis is done.
- * More sophisiticated analysis (which might also depend on other processors) should be
- * done in Process() function. PreProcess will be first called for all Processors and then
+/** Process an event. In PreProcess correlator should filled (for
+ * all derived classes) and basic analysis
+ * is done. More sophisiticated analysis (which might also depend on other
+ * processors) should be done in Process() function.
+ * PreProcess will be first called for all Processors and only afterwards 
  * the Process function will be called.*/
 bool EventProcessor::PreProcess(RawEvent &event)
 {
