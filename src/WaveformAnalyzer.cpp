@@ -14,8 +14,6 @@
 
 #include <cmath>
 
-#include "DammPlotIds.hpp"
-#include "StatsAccumulator.hpp"
 #include "WaveformAnalyzer.hpp"
 
 using namespace std;
@@ -23,7 +21,7 @@ using namespace dammIds::trace::waveform;
 
 
 //********** WaveformAnalyzer **********
-WaveformAnalyzer::WaveformAnalyzer() : TraceAnalyzer(OFFSET, RANGE) 
+WaveformAnalyzer::WaveformAnalyzer() : TraceAnalyzer(OFFSET,RANGE) 
 {
     name = "Waveform";
 }
@@ -36,8 +34,9 @@ void WaveformAnalyzer::DeclarePlots(void) const
 
 
 //********** Analyze **********
-void WaveformAnalyzer::Analyze(Trace &trace, const string &detType, 
-                               const string &detSubtype)
+void WaveformAnalyzer::Analyze(Trace &trace,
+			       const string &detType, 
+			       const string &detSubtype)
 {
     TraceAnalyzer::Analyze(trace, detType, detSubtype);
     

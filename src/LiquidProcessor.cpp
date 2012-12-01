@@ -8,9 +8,9 @@
 #include <cmath>
 
 #include "DammPlotIds.hpp"
-#include "DetectorDriver.hpp"
 #include "RawEvent.hpp"
 #include "LiquidProcessor.hpp"
+#include "TimingInformation.hpp"
 #include "Trace.hpp"
 
 using namespace std;
@@ -58,23 +58,8 @@ void LiquidProcessor::DeclarePlots(void)
 }
 
 bool LiquidProcessor::PreProcess(RawEvent &event){
-    static const vector<ChanEvent*> &liquidEvents = 
-	event.GetSummary("scint:liquid")->GetList();
-    
-    for (vector<ChanEvent*>::const_iterator it = liquidEvents.begin();
-	 it != liquidEvents.end(); it++) {
-        string place = (*it)->GetChanID().GetPlaceName();
-        if (TreeCorrelator::get().places.count(place) == 1) {
-            double time   = (*it)->GetTime();
-            double energy = (*it)->GetCalEnergy();
-            CorrEventData data(time, true, energy);
-            TreeCorrelator::get().places[place]->activate(data);
-        } else {
-            cerr << "In LiquidProcessor: place " << place
-                 << " does not exist." << endl;
-            return false;
-        }
-    }
+    if (!EventProcessor::PreProcess(event))
+        return false;
     return true;
 }
 

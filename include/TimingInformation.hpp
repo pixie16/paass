@@ -6,13 +6,17 @@
 #define __TIMINGINFORMATION_HPP_
 
 #include <map>
-
-class ChanEvent;
-class Trace;
+//#include "ChanEvent.hpp"
 
 #ifdef useroot
 #include "Rtypes.h"
 #endif
+
+// Forward declarations for hell of circular dependencies
+// see Trace.hpp
+class Trace;
+// see ChanEvent.hpp
+class ChanEvent;
 
 class TimingInformation
 {
@@ -31,7 +35,7 @@ class TimingInformation
     {
 	TimingData(void);
 	TimingData(ChanEvent *chan);
-	const Trace &trace;
+    const Trace &trace;
 	
 	bool dataValid;
 	

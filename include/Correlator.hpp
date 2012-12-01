@@ -97,7 +97,7 @@ public:
     virtual ~Correlator();
     
     void DeclarePlots(void);
-    void Init(void);
+    void Init(RawEvent &rawev);
     void Correlate(EventInfo &event, unsigned int fch, unsigned int bch);  
     void CorrelateAll(EventInfo &event); 
     void CorrelateAllX(EventInfo &event, unsigned int bch);

@@ -13,7 +13,7 @@ using namespace std;
 PlotsRegister* PlotsRegister::instance = NULL;
 
 /** Instance is created upon first call */
-PlotsRegister* PlotsRegister::R() {
+PlotsRegister* PlotsRegister::get() {
     if (!instance) {
         instance = new PlotsRegister();
     }
@@ -31,7 +31,6 @@ bool PlotsRegister::CheckRange (int min, int max) const
             continue;
         else {
             exists = true;
-            cout << "Error: " << min << " " << max << " , " << reg[id].first << " " << reg[id].second << endl;
             break;
         }
     }

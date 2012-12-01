@@ -16,4 +16,5 @@ public:
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void);
 };
+
 #endif // __BETAPROCSSEOR_HPP_

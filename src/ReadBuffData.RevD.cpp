@@ -48,7 +48,9 @@
 // our event structure
 #include "DetectorLibrary.hpp"
 #include "Globals.hpp"
-#include "RawEvent.hpp"
+#include "ChanEvent.hpp"
+#include "Trace.hpp"
+#include "StatsData.hpp"
 
 using pixie::word_t;
 using pixie::halfword_t;
@@ -168,17 +170,19 @@ int ReadBuffData(word_t *buf, unsigned long *bufLen,
       currentEvt->chanNum = chanNum;
       currentEvt->modNum = modNum;
       if (currentEvt->virtualChannel) {
-	  extern DetectorLibrary modChan;
+	  DetectorLibrary* modChan = DetectorLibrary::get();
 
-	  currentEvt->modNum += modChan.GetPhysicalModules();
-	  if (modChan.at(modNum, chanNum).HasTag("construct_trace")) {
+	  currentEvt->modNum += modChan->GetPhysicalModules();
+	  if (modChan->at(modNum, chanNum).HasTag("construct_trace")) {
 	      lastVirtualChannel = currentEvt;
 	  }
       }
 
       currentEvt->energy = energy;
-      if(currentEvt->saturatedBit)  currentEvt->energy = 16000;
-
+	  //KM 2012-10-24 reinstating removal of saturated
+      if(currentEvt->saturatedBit)
+          currentEvt->energy = 16383;
+          
       currentEvt->trigTime = lowTime;
       currentEvt->cfdTime  = cfdTime;
       currentEvt->eventTimeHi = highTime;

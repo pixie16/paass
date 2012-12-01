@@ -1,7 +1,7 @@
-C$PROG SCANOR    - SCAN - Revised version (supports SCANU & CHIL modes)
+C$PROG SCANOR    - SCANOR - Supports VME-clock & user-data-files UDF's
 C   
 C     ******************************************************************
-C     From WT Milner, JR Beene, et al at HRIBF - last modified 02/03/99
+C     From WT Milner, JR Beene, et al at HRIBF - last modified 02/12/05
 C     ******************************************************************
 C
       IMPLICIT NONE
@@ -15,7 +15,7 @@ C     ------------------------------------------------------------------
 C     ------------------------------------------------------------------
       COMMON/ML01/ IWD(20),LWD(2,40),ITYP(40),NF,NTER
       INTEGER*4    IWD,    LWD,      ITYP,    NF,NTER
-C     -----------------------------------------------------------------
+C     ------------------------------------------------------------------
       COMMON/ML02/ IWDRAW(20)
       INTEGER*4    IWDRAW
 C     ------------------------------------------------------------------
@@ -76,11 +76,10 @@ C
      &            (LUH,LUC(6)),
      &            (LUD,LUC(9))
 C
-      CHARACTER*4  CNAMCMDS(20),CIWD(20)
-      EQUIVALENCE (CNAMCMDS,NAMCMDS),(CIWD,IWD)
-      DATA CNAMCMDS,CIWD/40*'    '/
-C      
-
+      character*4 cnamcmds(20), ciwd(20)
+      equivalence (cnamcmds, namcmds), (ciwd,iwd)
+      DATA cNAMCMDS,cIWD/40*'    '/
+C
       SAVE
 C
 C     ------------------------------------------------------------------
@@ -91,6 +90,8 @@ C
 C   
       CALL SCANORNIT               !Init for SCANOR
 C
+CX    CALL SCANORMSG               !Display "its NEW" message
+C
       GO TO 100
 C   
 C     ------------------------------------------------------------------
@@ -100,7 +101,7 @@ C
 C                                       !We get here via Ctrl/c
    20 ICNF='YES '                       !Set "continue flag"
       WRITE(CMSSG,25)NBRED
-   25 FORMAT('NUMBER OF BUFFERS PROCESSED = ',I8)
+   25 FORMAT('NUMBER OF BUFFERS PROCESSED =',I8)
       CALL MESSLOG(LOGUT,LOGUP)
 C
       IF(INTYP.EQ.'SHM ') THEN          !If SHM, report
@@ -215,16 +216,9 @@ C
       IF(KMD.EQ.'GO  ') GO TO 250
       IF(KMD.EQ.'GOEN') GO TO 250
 C   
-      IF(KMD.EQ.'END ') then
-         call detectorend()
-         GO TO 300
-      endif
-
+      IF(KMD.EQ.'END ') GO TO 300
       IF(KMD.EQ.'HUP ') GO TO 320
-      IF(KMD.EQ.'KILL') then
-         call detectorend()
-         GO TO 340
-      endif
+      IF(KMD.EQ.'KILL') GO TO 340
 C   
       GO TO 1000
 C   
@@ -267,7 +261,7 @@ C     ------------------------------------------------------------------
 C     Read and process records until you hit an abnormal condition
 C     ------------------------------------------------------------------
 C   
- 250  CALL DOSCAN(RETN)
+  250 CALL DOSCAN(RETN)
 C
       IF(MSGF.NE.'    ') GO TO 20
       IF(RETN.EQ.0)      GO TO 100
@@ -290,14 +284,16 @@ C
   320 CALL HISNIT(LUH,'HUP ')
       IF(KMD.EQ.'HUP ') GO TO 100
 C
-  340      OPEN(UNIT       = 21,            !Open & delete SHM-file
-     &     FILE       = CNAMS,
-     &     STATUS     = 'UNKNOWN',
-     &     IOSTAT     = STAT)
+ 340  continue
+*  340      OPEN(UNIT       = 21,            !Open & delete SHM-file
+*    &     FILE       = CNAMS,
+*    &     STATUS     = 'UNKNOWN',
+*    &     IOSTAT     = STAT)
 C
       IF((MEM_STYLE(1:5).NE.'LOCAL')) THEN  !Test for & delete 
-      CALL SHM_DELETE(SHMID, IERR)          !shared memory segment
-      CLOSE(UNIT=21,STATUS='DELETE') 
+      CALL MMAP_CLOSE(IERR)          !shared memory segment
+*      CALL SHM_DELETE(SHMID, IERR)          !shared memory segment
+*      CLOSE(UNIT=21,STATUS='DELETE') 
       ENDIF
 C
 CX    IF(INTYP.EQ.'SHM ') THEN              !Test  for SHM assigned

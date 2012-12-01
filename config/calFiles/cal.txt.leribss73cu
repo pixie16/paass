@@ -1,0 +1,46 @@
+//det    det    det   num   poly    low   cal val  cal val  cal val
+//loc   type    sub   cal  order  range     inter    slope     quad
+0   ge  clover_high  1  2 0 -0.0410458 0.158681 -2.45914e-09
+1   ge  clover_high  1  2 0 -0.0252445 0.158215 -1.33936e-09
+2   ge  clover_high  1  2 0 0.0737644 0.160355 -2.52812e-09
+3   ge  clover_high  1  2 0 0.169984 0.155906 -4.87182e-09
+
+4   ge  clover_high  1  2 0 0.159487 0.171309 -3.38772e-09
+5   ge  clover_high  1  2 0 0.28032 0.166891 -4.71184e-09
+6   ge  clover_high  1  2 0 0.173055 0.153894 -5.02094e-09
+7   ge  clover_high  1  2 0 0.225098 0.154592 -1.28893e-09
+
+8   ge  clover_high  1  2 0 0.34427 0.161937 -3.17173e-09
+9   ge  clover_high  1  2 0 0.179278 0.163335 1.88347e-09
+10  ge  clover_high  1  2 0 0.260267 0.16247 -1.40996e-10
+11  ge  clover_high  1  2 0 0.307523 0.163955 8.05498e-10 
+
+#12  ge  clover_high  1  2 0 0 0 0
+#13  ge  clover_high  1  2 0 0 0 0
+#14  ge  clover_high  1  2 0 0 0 0
+#15  ge  clover_high  1  2 0 0 0 0
+
+#0  ge  clover_low  1  2  0  0  1 0
+#1  ge  clover_low  1  2  0  0  1 0
+#2  ge  clover_low  1  2  0  0  1 0
+#3  ge  clover_low  1  2  0  0  1 0
+#4  ge  clover_low  1  2  0  0  1 0
+#5  ge  clover_low  1  2  0  0  1 0
+#6  ge  clover_low  1  2  0  0  1 0
+#7  ge  clover_low  1  2  0  0  1 0
+#8  ge  clover_low  1  2  0  0  1 0
+#9  ge  clover_low  1  2  0  0  1 0
+#10  ge  clover_low  1  2  0  0  1 0
+#11  ge  clover_low  1  2  0  0  1 0
+#12  ge  clover_low  1  2  0  0  1 0
+#13  ge  clover_low  1  2  0  0  1 0
+#14  ge  clover_low  1  2  0  0  0 0
+#15  ge  clover_low  1  2  0  0  0 0
+
+#0  scint  beta  1  2  0  0  1 0
+#1  scint  beta  1  2  0  0  1 0
+#0  mtc  beam_start  1  1  0  0  1 
+#0  mtc  beam_stop  1  1  0  0  1 
+#0  mtc  start  1  1  0  0  0.2 
+#0  mtc  stop  1  1  0  0  0.2 
+#0  mcp  1time  1  1 

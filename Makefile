@@ -9,21 +9,24 @@ REVISIOND = 1
 # Uncomment this line if processing Rev. F data
 #REVISIONF = 1
 # Uncomment this line for a more verbose scan
- CXXFLAGS += -DVERBOSE
+# CXXFLAGS += -DVERBOSE
 # Undefine to make a "online" version
 # ONLINE = 1 
 
-# Undefine to use Gamma-Gamma gates in GeProcessor
+# Define to use Gamma-Gamma gates in GeProcessor
 # This turns on Gamma-Gamma angular distribution
 # and Gamma-Gamma-Gamma gates
 # GGATES = 1
+
+# Define to see debugging information for TreeCorrelator
+DEBUG = 1
 
 # Use gfortran
 HHIRF_GFORTRAN = 1
 
 #These will set the analysis used on the waveforms
 #Uncomment this line to use the Pulse Fitting routine
-PULSEFIT = 1
+#PULSEFIT = 1
 #Uncomment this line to use the cfd
 #DCFD = 1
 
@@ -52,11 +55,10 @@ endif
 endif
 endif
 
-LIBS = $(HHIRF_DIR)/scanorlib.a $(HHIRF_DIR)/orphlib.a
-       #$(ACQ2_LIBDIR)/acqlib.a  $(ACQ2_LIBDIR)/ipclib.a
+LIBS = $(HHIRF_DIR)/scanorlib.a $(HHIRF_DIR)/orphlib.a \
+       $(ACQ2_LIBDIR)/acqlib.a  $(ACQ2_LIBDIR)/ipclib.a
 
 OutPutOpt     = -o # keep whitespace after "-o"
-ObjSuf        = o
 
 #------- define file suffixes
 fSrcSuf   = f
@@ -84,8 +86,8 @@ LINK.o    = $(FC) $(LDFLAGS)
 #------- define basic compiler flags, no warnings on code that is not our own
 FFLAGS   += -O3
 GCCFLAGS += -fPIC $(CINCLUDEDIRS) -Dnewreadout
-CXXFLAGS += -Wall -fPIC $(CINCLUDEDIRS) -Dnewreadout
-# CXXFLAGS += -Wall $(CINCLUDEDIRS) -Dnewreadout
+CXXFLAGS += -Wall -g -fPIC $(CINCLUDEDIRS) -Dnewreadout
+
 ifdef REVISIOND
 CXXFLAGS += -DREVD
 endif
@@ -121,64 +123,111 @@ endif
 #-------- define file variables -----------------------
 
 # objects from fortran
-SET2CCO          = set2cc.$(ObjSuf)
-MESSLOGO         = messlog.$(ObjSuf)
-MILDATIMO        = mildatim.$(ObjSuf)
-SCANOFO          = scanof.$(ObjSuf)
+MESSLOGO         = messlog.o
+MILDATIMO        = mildatim.o
+SCANORO          = scanor.o
+SET2CCO          = set2cc.o
 
 # objects from cpp
 #General Objects
-ACCUMULATORO     = StatsAccumulator.$(ObjSuf)
-CORRELATORO      = Correlator.$(ObjSuf)
-DETECTORDRIVERO  = DetectorDriver.$(ObjSuf)
-DETECTORLIBRARYO = DetectorLibrary.$(ObjSuf)
-EVENTPROCESSORO  = EventProcessor.$(ObjSuf)
-MAPFILEO         = MapFile.$(ObjSuf)
-PIXIEO           = PixieStd.$(ObjSuf)
-PLACESO          = Places.$(ObjSuf)
-RANDOMPOOLO      = RandomPool.$(ObjSuf)
-RAWEVENTO        = RawEvent.$(ObjSuf)
-STATSDATAO       = StatsData.$(ObjSuf)
-TIMINGINFOO      = TimingInformation.$(ObjSuf)
+CHANEVENTO       = ChanEvent.o
+CHANIDENTIFIERO  = ChanIdentifier.o
+CORRELATORO      = Correlator.o
+DETECTORDRIVERO  = DetectorDriver.o
+DETECTORLIBRARYO = DetectorLibrary.o
+DETECTORSUMMARYO = DetectorSummary.o
+EVENTPROCESSORO  = EventProcessor.o
+INITIALIZEO      = Initialize.o
+MAPFILEO         = MapFile.o
+PATHHOLDERO	 = PathHolder.o
+PIXIEO           = PixieStd.o
+PLACESO          = Places.o
+PLACEBUILDERO    = PlaceBuilder.o
+PUGIXMLO	 = pugixml.o
+RANDOMPOOLO      = RandomPool.o
+RAWEVENTO        = RawEvent.o
+STATSDATAO       = StatsData.o
+TIMINGINFOO      = TimingInformation.o
+TREECORRELATORO  = TreeCorrelator.o
 
 #Plot Objects
-HISTOGRAMMERO    = DeclareHistogram.$(ObjSuf)
-PLOTSREGISTERO   = PlotsRegister.$(ObjSuf)
-PLOTSO           = Plots.$(ObjSuf)
+PLOTSREGISTERO   = PlotsRegister.o
+PLOTSO           = Plots.o
 
 #Trace Related Objects
-CFDANALYZERO     = CfdAnalyzer.$(ObjSuf)
-DOUBLETRACEO     = DoubleTraceAnalyzer.$(ObjSuf)
-FITTINGANALYZERO = FittingAnalyzer.$(ObjSuf)
-TAUANALYZERO     = TauAnalyzer.$(ObjSuf)
-TRACEO		 = Trace.$(ObjSuf)
-TRACEEXTRACTORO  = TraceExtractor.$(ObjSuf)
-TRACEFILTERO     = TraceFilterer.$(ObjSuf)
-TRACEPLOTO       = TracePlotter.$(ObjSuf)
-TRACESUBO        = TraceAnalyzer.$(ObjSuf)
-WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
+CFDANALYZERO     = CfdAnalyzer.o
+DOUBLETRACEO     = DoubleTraceAnalyzer.o
+FITTINGANALYZERO = FittingAnalyzer.o
+TAUANALYZERO     = TauAnalyzer.o
+TRACEO		 = Trace.o
+TRACEEXTRACTORO  = TraceExtractor.o
+TRACEFILTERO     = TraceFilterer.o
+TRACEPLOTO       = TracePlotter.o
+TRACESUBO        = TraceAnalyzer.o
+WAVEFORMSUBO     = WaveformAnalyzer.o
 
 #Dectector Processor Objects
-BETAPROCESSORO   = BetaProcessor.$(ObjSuf)
-DSSDPROCESSORO   = DssdProcessor.$(ObjSuf)
-GEPROCESSORO     = GeProcessor.$(ObjSuf)
-IONCHAMBERPROCESSORO = IonChamberProcessor.$(ObjSuf)
-ISSDPROCESSORO   = ImplantSsdProcessor.$(ObjSuf)
-LIQUIDPROCESSORO = LiquidProcessor.$(ObjSuf)
-LOGICPROCESSORO  = LogicProcessor.$(ObjSuf)
-MCPPROCESSORO    = McpProcessor.$(ObjSuf)
-MTCPROCESSORO    = MtcProcessor.$(ObjSuf)
-NEUTRONPROCESSORO = NeutronProcessor.$(ObjSuf)
-POSITIONPROCESSORO = PositionProcessor.$(ObjSuf)
-PULSERPROCESSORO = PulserProcessor.$(ObjSuf)
-SSDPROCESSORO    = SsdProcessor.$(ObjSuf)
-VANDLEPROCESSORO = VandleProcessor.$(ObjSuf)
-VALIDPROCESSORO  = ValidProcessor.$(ObjSuf)
+BETAPROCESSORO   = BetaProcessor.o
+DSSDPROCESSORO   = DssdProcessor.o
+GEPROCESSORO     = GeProcessor.o
+IONCHAMBERPROCESSORO = IonChamberProcessor.o
+ISSDPROCESSORO   = ImplantSsdProcessor.o
+LIQUIDPROCESSORO = LiquidProcessor.o
+LOGICPROCESSORO  = LogicProcessor.o
+MCPPROCESSORO    = McpProcessor.o
+MTCPROCESSORO    = MtcProcessor.o
+NEUTRONPROCESSORO = NeutronProcessor.o
+POSITIONPROCESSORO = PositionProcessor.o
+PULSERPROCESSORO = PulserProcessor.o
+SSDPROCESSORO    = SsdProcessor.o
+VALIDPROCESSORO  = ValidProcessor.o
+VANDLEPROCESSORO = VandleProcessor.o
 
 #ROOT Objects
-SCINTROOTO       = ScintROOT.$(ObjSuf)
-ROOTPROCESSORO   = RootProcessor.$(ObjSuf)
-VANDLEROOTO      = VandleROOT.$(ObjSuf)
+SCINTROOTO       = ScintROOT.o
+ROOTPROCESSORO   = RootProcessor.o
+VANDLEROOTO      = VandleROOT.o
+
+ifdef REVISIOND
+READBUFFDATAO    = ReadBuffData.RevD.o
+else
+ifdef REVISIONF
+READBUFFDATAO    = ReadBuffData.RevD.o
+else
+READBUFFDATAO    = ReadBuffData.o
+endif
+endif
+
+#----- list of objects
+#Objects from Fortran
+OBJS = $(MESSLOGO) $(MILDATIMO) $(SCANORO) $(SET2CCO) 
+#General Objects
+OBJS += $(CHANEVENTO) $(CHANIDENTIFIERO) $(CORRELATORO) $(DETECTORDRIVERO) \
+	$(DETECTORLIBRARYO) $(DETECTORSUMMARYO) $(EVENTPROCESSORO) $(INITIALIZEO) \
+	$(MAPFILEO) $(PATHHOLDERO) $(PIXIEO) $(PLACESO) $(PLACEBUILDERO) $(PUGIXMLO) \
+	$(RANDOMPOOLO) $(RAWEVENTO) $(READBUFFDATAO) $(STATSDATAO) \
+	$(TIMINGINFOO) $(TREECORRELATORO)
+#Plot Objects
+OBJS += $(HISTOGRAMMERO) $(PLOTSREGISTERO) $(PLOTSO)
+#Trace Objects
+OBJS += $(DOUBLETRACEO) $(TAUANALYZERO) $(TRACEO) $(TRACEEXTRACTORO) \
+	$(TRACEFILTERO) $(TRACEPLOTO) $(TRACESUBO) $(WAVEFORMSUBO) 
+#Detector Objects
+OBJS += $(BETAPROCESSORO) $(DSSDPROCESSORO) $(GEPROCESSORO) \
+	$(IONCHAMBERPROCESSORO) $(ISSDPROCESSORO) $(LIQUIDPROCESSORO) \
+	$(LOGICPROCESSORO) $(MCPPROCESSORO) $(MTCPROCESSORO) \
+	$(NEUTRONPROCESSORO) $(POSITIONPROCESSORO) $(PULSERPROCESSORO) \
+	$(SSDPROCESSORO) $(VALIDPROCESSORO) $(VANDLEPROCESSORO)
+
+ifdef PULSEFIT
+OBJS += $(FITTINGANALYZERO)
+else ifdef DCFD
+OBJS += $(CFDANALYZERO) 
+endif
+
+ifdef USEROOT
+OBJS  += $(ROOTPROCESSORO) $(VANDLEROOTO) $(SCINTROOTO)
+endif
 
 
 ifdef USEROOT
@@ -189,45 +238,6 @@ PIXIE = pixie_ldf_c_online$(ExeSuf)
 else
 PIXIE = pixie_ldf_c$(ExeSuf)
 endif
-endif
-
-ifdef REVISIOND
-READBUFFDATAO    = ReadBuffData.RevD.$(ObjSuf)
-else
-ifdef REVISIONF
-READBUFFDATAO    = ReadBuffData.RevD.$(ObjSuf)
-else
-READBUFFDATAO    = ReadBuffData.$(ObjSuf)
-endif
-endif
-
-#----- list of objects
-#Objects from Fortran
-OBJS = $(MESSLOGO) $(MILDATIMO) $(SCANOFO) $(SET2CCO) 
-#General Objects
-OBJS += $(ACCUMULATORO) $(CORRELATORO) $(DETECTORDRIVERO) $(DETECTORLIBRARYO) \
-	$(EVENTPROCESSORO) $(MAPFILEO) $(PIXIEO) $(PLACESO) $(RANDOMPOOLO) \
-	$(RAWEVENTO) $(READBUFFDATAO) $(STATSDATAO) $(TIMINGINFOO)
-#Detector Objects
-OBJS += $(BETAPROCESSORO) $(DSSDPROCESSORO) $(GEPROCESSORO) \
-	$(IONCHAMBERPROCESSORO) $(ISSDPROCESSORO) $(LIQUIDPROCESSORO) \
-	$(LOGICPROCESSORO) $(MTCPROCESSORO) $(MCPPROCESSORO) \
-	$(NEUTRONPROCESSORO) $(POSITIONPROCESSORO) $(PULSERPROCESSORO) \
-	$(SSDPROCESSORO) $(VALIDPROCESSORO) $(VANDLEPROCESSORO)
-#Trace Objects
-OBJS += $(DOUBLETRACEO) $(TAUANALYZERO) $(TRACEO) $(TRACEEXTRACTORO) \
-	$(TRACEFILTERO) $(TRACEPLOTO) $(TRACESUBO) $(WAVEFORMSUBO) 
-#Plot Objects
-OBJS += $(HISTOGRAMMERO) $(PLOTSREGISTERO) $(PLOTSO)
-
-ifdef PULSEFIT
-OBJS += $(FITTINGANALYZERO)
-else ifdef DCFD
-OBJS += $(CFDANALYZERO) 
-endif
-
-ifdef USEROOT
-OBJS  += $(ROOTPROCESSORO) $(VANDLEROOTO) $(SCINTROOTO)
 endif
 
 PROGRAMS = $(PIXIE)
@@ -247,20 +257,25 @@ ifdef GGATES
 CXXFLAGS	+= -DGGATES
 endif
 
+#------------ Compile with debug information for TreeCorrelator
+ifdef GGATES
+CXXFLAGS	+= -DDEBUG
+endif
+
 #--------- Add to list of known file suffixes
 .SUFFIXES: .$(cxxSrcSuf) .$(fSrcSuf) .$(c++SrcSuf) .$(cSrcSuf)
 
-.phony: all clean tidy
+.phony: all clean
 all:     $(PROGRAMS)
 
 #----------- remove all objects, core and .so file
 clean:
 	@echo "Cleaning up..."
-	@rm -f $(OBJS) $(PIXIE) core *~ src/*~ include/*~ scan/*~
+	@rm -f *.o $(PIXIE) core *~ src/*~ include/*~ scan/*~
 
 tidy:
 	@echo "Tidying up..."
-	@rm -f $(OBJS) core *~ src/*~ include/*~ scan/*~
+	@rm -f *.o core *~ src/*~ include/*~ scan/*~
 
 #----------- link all created objects together
 #----------- to create pixie_ldf_c program

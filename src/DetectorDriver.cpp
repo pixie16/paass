@@ -29,6 +29,8 @@
 #include <iterator>
 #include <sstream>
 
+#include "PathHolder.hpp"
+#include "Exceptions.hpp"
 #include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
 #include "MapFile.hpp"
@@ -73,15 +75,6 @@
 using namespace std;
 using namespace dammIds::raw;
 
-/* rawevent declared in PixieStd.cpp
- *
- * driver relies on the respective DetectorSummary addresses remaining constant
- */
-extern RawEvent rawev;
-
-// pool of random numbers declared in RandomPool.cpp
-extern RandomPool randoms;
-
 /*!
   detector driver constructor
 
@@ -90,9 +83,19 @@ extern RandomPool randoms;
 
 using namespace dammIds::raw;
 
+DetectorDriver* DetectorDriver::instance = NULL;
+
+/** Instance is created upon first call */
+DetectorDriver* DetectorDriver::get() {
+    if (!instance) {
+        instance = new DetectorDriver();
+    }
+    return instance;
+}
+
 DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE) 
 {
-    vecAnalyzer.push_back(new TracePlotter());
+    cout << "DetectorDriver: loading processors" << endl;
 #if defined(pulsefit) || defined(dcfd)
     vecAnalyzer.push_back(new WaveformAnalyzer());
 #endif
@@ -105,7 +108,7 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE)
     vecProcess.push_back(new MtcProcessor());
     vecProcess.push_back(new LogicProcessor());
     vecProcess.push_back(new BetaProcessor());
-    //vecProcess.push_back(new VandleProcessor());
+    // vecProcess.push_back(new VandleProcessor());
     vecProcess.push_back(new GeProcessor()); // order is important
 #ifdef useroot
     vecProcess.push_back(new ScintROOT());
@@ -116,6 +119,7 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE)
 
 /*!
   detector driver deconstructor
+
   frees memory for all event processors
  */
 DetectorDriver::~DetectorDriver()
@@ -135,20 +139,13 @@ DetectorDriver::~DetectorDriver()
     vecAnalyzer.clear();
 }
 
-const set<string>& DetectorDriver::GetUsedDetectors() const
-{
-    extern DetectorLibrary modChan;
-
-    return modChan.GetUsedDetectors();
-}
-
 /*!
   Called from PixieStd.cpp during initialization.
   The calibration file cal.txt is read using the function ReadCal() and 
   checked to make sure that all channels have a calibration.
 */
 
-int DetectorDriver::Init(void)
+int DetectorDriver::Init(RawEvent& rawev)
 {
     // initialize the trace analysis routine
     for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
@@ -159,8 +156,8 @@ int DetectorDriver::Init(void)
 
     // initialize processors in the event processing vector
     for (vector<EventProcessor *>::iterator it = vecProcess.begin();
-	 it != vecProcess.end(); it++) {
-	(*it)->Init(*this);	
+         it != vecProcess.end(); it++) {
+        (*it)->Init(rawev);	
     }
 
     /*
@@ -173,112 +170,10 @@ int DetectorDriver::Init(void)
     readFiles.ReadTimingConstants();
     readFiles.ReadTimingCalibration();
 
-    InitializeCorrelator();
-
-    rawev.GetCorrelator().Init();
+    rawev.GetCorrelator().Init(rawev);
 
     return 0;
 }
-
-/** This function initializes the correlator tree.
- */
-void DetectorDriver::InitializeCorrelator() {
-    /** Setup for LeRIBBS */
-
-    /* Use this constant for debugging */
-    cout << "DetectorDriver::InitializeCorrelator()" << endl;
-
-    /** Here we create abstract places.*/
-    PlaceOR* clover0 = new PlaceOR();
-    TreeCorrelator::get().addPlace("Clover0", clover0, verbose::CORRELATOR_INIT);
-    PlaceOR* clover1 = new PlaceOR();
-    TreeCorrelator::get().addPlace("Clover1", clover1, verbose::CORRELATOR_INIT);
-    PlaceOR* clover2 = new PlaceOR();
-    TreeCorrelator::get().addPlace("Clover2", clover2, verbose::CORRELATOR_INIT);
-    PlaceOR* clover3 = new PlaceOR();
-    TreeCorrelator::get().addPlace("Clover3", clover3, verbose::CORRELATOR_INIT);
-
-    /** Note that beta_scint detectors are acticated in BetaScintProcessor
-     *  with threshold on energy defined therein.
-     *  This place is also sensitive to this threshold as parent of beta places.
-     *
-     *  Fifo of this place is increased to accomodate multiplicity of beta
-     *  events for longer events width. Check appopriate plot if depth is
-     *  large enough.
-     */
-    PlaceOR* beta = new PlaceOR(true, 10);
-    TreeCorrelator::get().addPlace("Beta", beta, verbose::CORRELATOR_INIT);
-    
-    // All Hen3 events
-    PlaceCounter* hen3 = new PlaceCounter();
-    TreeCorrelator::get().addPlace("Hen3", hen3, verbose::CORRELATOR_INIT);
-
-    // Real neutrons (children are thresholded)
-    PlaceCounter* neutrons = new PlaceCounter();
-    TreeCorrelator::get().addPlace("Neutrons", neutrons, verbose::CORRELATOR_INIT);
-
-    PlaceOR* gamma = new PlaceOR();
-    TreeCorrelator::get().addPlace("Gamma", gamma, verbose::CORRELATOR_INIT);
-    TreeCorrelator::get().addChild("Gamma", "Clover0", true, verbose::CORRELATOR_INIT);
-    TreeCorrelator::get().addChild("Gamma", "Clover1", true, verbose::CORRELATOR_INIT);
-    TreeCorrelator::get().addChild("Gamma", "Clover2", true, verbose::CORRELATOR_INIT);
-    TreeCorrelator::get().addChild("Gamma", "Clover3", true, verbose::CORRELATOR_INIT);
-
-    PlaceAND* gammabeta = new PlaceAND();
-    TreeCorrelator::get().addPlace("GammaBeta", gammabeta, verbose::CORRELATOR_INIT);
-    TreeCorrelator::get().places["GammaBeta"] = new PlaceAND();
-    TreeCorrelator::get().addChild("GammaBeta", "Gamma", true, verbose::CORRELATOR_INIT);
-    TreeCorrelator::get().addChild("GammaBeta", "Beta", true, verbose::CORRELATOR_INIT);
-
-    PlaceAND* gammawobeta = new PlaceAND();
-    TreeCorrelator::get().addPlace("GammaWOBeta", gammawobeta, verbose::CORRELATOR_INIT);
-    TreeCorrelator::get().addChild("GammaWOBeta", "Gamma", true, verbose::CORRELATOR_INIT);
-    TreeCorrelator::get().addChild("GammaWOBeta", "Beta", false, verbose::CORRELATOR_INIT);
-
-    // Active if tape is moving
-    PlaceDetector* tapemove = new PlaceDetector(false);
-    TreeCorrelator::get().addPlace("TapeMove", tapemove, verbose::CORRELATOR_INIT);
-    // Active if beam is on
-    PlaceDetector* beam = new PlaceDetector(false);
-    TreeCorrelator::get().addPlace("Beam", beam, verbose::CORRELATOR_INIT);
-    // Activated with beam start, deactivated with TapeMove
-    PlaceDetector* cycle  = new PlaceDetector(false);
-    TreeCorrelator::get().addPlace("Cycle", cycle, verbose::CORRELATOR_INIT);
-
-    extern DetectorLibrary modChan;
-
-    // Basic places are created in MapFile.cpp
-    // Here we group them as children of just created abstract places
-    unsigned int sz = modChan.size();
-    for (unsigned i = 0; i < sz; ++i) {
-        string type = modChan[i].GetType();
-        string subtype = modChan[i].GetSubtype();
-        int location = modChan[i].GetLocation();
-
-        stringstream name;
-        name << type << "_" << subtype << "_" << location;
-
-        if (type == "ge" && subtype == "clover_high") {
-            int clover_number = int(location / 4);
-            stringstream clover;
-            clover << "Clover" << clover_number;
-            TreeCorrelator::get().addChild(clover.str(), name.str(), true, verbose::CORRELATOR_INIT);
-        } else if (type == "scint" && subtype == "beta") {
-            TreeCorrelator::get().addChild("Beta", name.str(), true, verbose::CORRELATOR_INIT);
-        } else if (type == "3hen" && subtype == "big") {
-            stringstream neutron;
-            neutron << "Neutron" << location;
-            PlaceThreshold* real_neutron  = new PlaceThreshold(detectors::neutronLowLimit,
-                                                               detectors::neutronHighLimit);
-            TreeCorrelator::get().addPlace(neutron.str(), real_neutron, verbose::CORRELATOR_INIT);
-
-            TreeCorrelator::get().addChild("Hen3", name.str(), true, verbose::CORRELATOR_INIT);
-            TreeCorrelator::get().addChild("Neutrons", neutron.str(), true, verbose::CORRELATOR_INIT);
-        }
-    }
-    /** End setup for LeRIBBS */
-}
-
 
 /*!
   \brief controls event processing
@@ -293,26 +188,37 @@ void DetectorDriver::InitializeCorrelator() {
   Currently, both RMS and MTC processing is available.  After all processing
   has occured, appropriate plotting routines are called.
 */
-int DetectorDriver::ProcessEvent(const string &mode){   
+int DetectorDriver::ProcessEvent(const string &mode, RawEvent& rawev){   
     /*
       Begin the event processing looping over all the channels
       that fired in this particular event.
     */
     plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
     
+    /*
     const vector<ChanEvent *> &eventList = rawev.GetEventList();
     for(size_t i=0; i < eventList.size(); i++) {
         ChanEvent *chan = eventList[i];  
-	
-        PlotRaw(chan);
-        ThreshAndCal(chan); // check threshold and calibrate
-        PlotCal(chan);       
-    } //end chan by chan event processing
+    */
+    for (vector<ChanEvent*>::const_iterator it = rawev.GetEventList().begin();
+         it != rawev.GetEventList().end(); ++it) {
+        string place = (*it)->GetChanID().GetPlaceName();
+        if (place == "__-1") // empty channel
+            continue;
+        PlotRaw((*it));
+        ThreshAndCal((*it), rawev); // check threshold and calibrate
+        PlotCal((*it));
+
+        double time = (*it)->GetTime();
+        double energy = (*it)->GetCalEnergy();
+        CorrEventData data(time, energy);
+        TreeCorrelator::get()->place(place)->activate(data);
+    } 
  
     // have each processor in the event processing vector handle the event
     /* First round is preprocessing, where process result must be guaranteed
      * to not to be dependent on results of other Processors. */
-    for (vector<EventProcessor *>::iterator iProc = vecProcess.begin();
+    for (vector<EventProcessor*>::iterator iProc = vecProcess.begin();
 	 iProc != vecProcess.end(); iProc++) {
         if ( (*iProc)->HasEvent() ) {
             (*iProc)->PreProcess(rawev);
@@ -331,7 +237,7 @@ int DetectorDriver::ProcessEvent(const string &mode){
 }
 
 // declare plots for all the event processors
-void DetectorDriver::DeclarePlots(void)
+void DetectorDriver::DeclarePlots(MapFile& theMapFile)
 {
     for (vector<TraceAnalyzer *>::const_iterator it = vecAnalyzer.begin();
 	 it != vecAnalyzer.end(); it++) {
@@ -344,8 +250,7 @@ void DetectorDriver::DeclarePlots(void)
     }
     
     // Declare plots for each channel
-    extern DetectorLibrary modChan;
-    extern MapFile theMapFile;
+    DetectorLibrary* modChan = DetectorLibrary::get();
 
     DeclareHistogram1D(D_HIT_SPECTRUM, S7, "channel hit spectrum");
     DeclareHistogram1D(D_SUBEVENT_GAP, SE, "time btwn chan-in event,10ns bin");
@@ -359,19 +264,19 @@ void DetectorDriver::DeclarePlots(void)
     DeclareHistogram2D(DD_RUNTIME_MSEC, SE, S7, "run time - ms");
     DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
 
-    DetectorLibrary::size_type maxChan = (theMapFile ? modChan.size() : 192);
+    DetectorLibrary::size_type maxChan = (theMapFile ? modChan->size() : 192);
 
     for (DetectorLibrary::size_type i = 0; i < maxChan; i++) {	 
-        if (theMapFile && !modChan.HasValue(i)) {
+        if (theMapFile && !modChan->HasValue(i)) {
             continue;
         }
         stringstream idstr; 
         
         if (theMapFile) {
-            const Identifier &id = modChan.at(i);
+            const Identifier &id = modChan->at(i);
 
-            idstr << "M" << modChan.ModuleFromIndex(i)
-            << " C" << modChan.ChannelFromIndex(i)
+            idstr << "M" << modChan->ModuleFromIndex(i)
+            << " C" << modChan->ChannelFromIndex(i)
             << " - " << id.GetType()
             << ":" << id.GetSubtype()
             << " L" << id.GetLocation();
@@ -388,8 +293,6 @@ void DetectorDriver::DeclarePlots(void)
         DeclareHistogram1D(D_CAL_ENERGY_REJECT + i, SE, ("CalE NoSat " + idstr.str()).c_str() );
     }
     DeclareHistogram1D(D_HAS_TRACE, S7, "channels with traces");
-
-    rawev.GetCorrelator().DeclarePlots();
 }
 
 // sanity check for all our expectations
@@ -405,7 +308,7 @@ bool DetectorDriver::SanityCheck(void) const
   calibrations contained in the calibration vector filled during ReadCal()
 */
 
-int DetectorDriver::ThreshAndCal(ChanEvent *chan)
+int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
 {   
     // retrieve information about the channel
     Identifier chanId = chan->GetChanID();
@@ -415,35 +318,37 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
     bool hasStartTag  = chanId.HasTag("start");
     Trace &trace      = chan->GetTrace();
 
+    RandomPool* randoms = RandomPool::get();
+
     double energy = 0.;
 
     if (type == "ignore" || type == "") {
-	return 0;
+        return 0;
     }
     /*
       If the channel has a trace get it, analyze it and set the energy.
     */
     if ( !trace.empty() ) {
-        plot(D_HAS_TRACE,id);
+        plot(D_HAS_TRACE, id);
 
 	for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
 	     it != vecAnalyzer.end(); it++) {	
-	    (*it)->Analyze(trace, type, subtype);
+            (*it)->Analyze(trace, type, subtype);
 	}
 
 	if (trace.HasValue("filterEnergy") ) {     
 	    if (trace.GetValue("filterEnergy") > 0) {
-		energy = trace.GetValue("filterEnergy");
-		plot(D_FILTER_ENERGY + id, energy);
+            energy = trace.GetValue("filterEnergy");
+            plot(D_FILTER_ENERGY + id, energy);
 	    } else {
-		energy = 2;
+            energy = 2;
 	    }
 	}
 	if (trace.HasValue("calcEnergy") ) {	    
 	    energy = trace.GetValue("calcEnergy");
 	    chan->SetEnergy(energy);
 	} else if (!trace.HasValue("filterEnergy")) {
-	    energy = chan->GetEnergy() + randoms.Get();
+	    energy = chan->GetEnergy() + randoms->Get();
 	    energy /= ChanEvent::pixieEnergyContraction;
 	}
 	if (trace.HasValue("phase") ) {
@@ -456,7 +361,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan)
 	// add a random number to convert an integer value to a 
 	//   uniformly distributed floating point
 
-	energy = chan->GetEnergy() + randoms.Get();
+	energy = chan->GetEnergy() + randoms->Get();
 	energy /= ChanEvent::pixieEnergyContraction;
     }
     /*
@@ -510,7 +415,7 @@ int DetectorDriver::PlotCal(const ChanEvent *chan)
     
     plot(D_CAL_ENERGY + id, calEnergy);
     if (!chan->IsSaturated() && !chan->IsPileup())
-	plot(D_CAL_ENERGY_REJECT + id, calEnergy);
+        plot(D_CAL_ENERGY_REJECT + id, calEnergy);
     return 0;
 }
 
@@ -544,7 +449,7 @@ void DetectorDriver::ReadCal()
     */
 
     // lookup table for information from map.txt (from PixieStd.cpp)
-    extern DetectorLibrary modChan;
+    DetectorLibrary* modChan = DetectorLibrary::get();
     Identifier lookupID;
 
     /*
@@ -562,17 +467,19 @@ void DetectorDriver::ReadCal()
     unsigned int detLocation;
     string detType, detSubtype;
 
-    const string calFilename("cal.txt");
+    PathHolder* conf_path = new PathHolder();
+    string calFilename = conf_path->GetFullPath("cal.txt");
+    delete conf_path;
 
     ifstream calFile(calFilename.c_str());
 
     // make sure there is a generic calibration for each channel in the map
-    cal.resize(modChan.size());
+    cal.resize(modChan->size());
 
     if (!calFile) {
-      cout << "Can not open file " << calFilename << endl;
+        throw IOException("Could not open file " + calFilename);
     } else {
-      cout << "reading in calibrations from " << calFilename << endl;
+      cout << "Reading in calibrations from " << calFilename << endl;
       while (calFile) {
             /*
               While the end of the calibration file has not been reached,
@@ -586,15 +493,15 @@ void DetectorDriver::ReadCal()
 		lookupID.SetSubtype(detSubtype);
 		// find the identifier in the map
 		DetectorLibrary::iterator mapIt = 
-		    find(modChan.begin(), modChan.end(), lookupID); 
-		if (mapIt == modChan.end()) {
+		    find(modChan->begin(), modChan->end(), lookupID); 
+		if (mapIt == modChan->end()) {
 		    cout << "Can not match detector type " << detType
 			 << " and subtype " << detSubtype 
 			 << " with location " << detLocation
 			 << " to a channel in the map." << endl;
 		    exit(EXIT_FAILURE);
 		}
-		size_t id = distance(modChan.begin(), mapIt);
+		size_t id = distance(modChan->begin(), mapIt);
 		Calibration &detCal = cal.at(id);
 		//? make this a member function of Calibration
 		detCal.id = id;
@@ -637,9 +544,9 @@ void DetectorDriver::ReadCal()
 
     // check to make sure every channel has a calibration, no default
     //   calibration is allowed
-    DetectorLibrary::const_iterator mapIt = modChan.begin();
+    DetectorLibrary::const_iterator mapIt = modChan->begin();
     vector<Calibration>::iterator calIt = cal.begin();
-    for (;mapIt != modChan.end(); mapIt++, calIt++) {
+    for (;mapIt != modChan->end(); mapIt++, calIt++) {
 	string type = mapIt->GetType();
 	if (type == "ignore" || type == "") {
 	    continue;
@@ -695,8 +602,6 @@ void DetectorDriver::ReadCal()
             
             cout << endl;
         }
-        
-        cout << endl;
     }
 }
 

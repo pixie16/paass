@@ -14,7 +14,6 @@
 #include <cmath>
 
 #include "DammPlotIds.hpp"
-#include "DetectorDriver.hpp"
 #include "GetArguments.hpp"
 #include "RawEvent.hpp"
 #include "VandleProcessor.hpp"
@@ -109,16 +108,6 @@ VandleProcessor::VandleProcessor(): EventProcessor(OFFSET, RANGE)
     associatedTypes.insert("vandleSmall"); 
     associatedTypes.insert("vandleBig");
     associatedTypes.insert("tvandle");
-}
-
-
-//********** Init **********
-bool VandleProcessor::Init(DetectorDriver &driver)
-{
-    if(EventProcessor::Init(driver))
-	return(true);
-    else
-	return(false);
 }
 
 
@@ -304,13 +293,13 @@ bool VandleProcessor::Process(RawEvent &event)
     plot(D_PROBLEMS, 30); //DEBUGGING
 
     if(RetrieveData(event)) {
-	AnalyzeData();
-	//CrossTalk();
-	EndProcess();
-	return true;
+        AnalyzeData(event);
+        //CrossTalk();
+        EndProcess();
+        return true;
     } else {
-	EndProcess();
-	return (didProcess = false);
+        EndProcess();
+        return (didProcess = false);
     }
 }
 
@@ -319,7 +308,7 @@ bool VandleProcessor::Process(RawEvent &event)
 bool VandleProcessor::RetrieveData(RawEvent &event) 
 {    
     ClearMaps();
-    
+   
     static const vector<ChanEvent*> &smallEvents = 
 	event.GetSummary("vandleSmall")->GetList();
     static const vector<ChanEvent*> &bigEvents = 
@@ -356,12 +345,13 @@ bool VandleProcessor::RetrieveData(RawEvent &event)
 	plot(D_PROBLEMS, 25); //DEBUGGING
 	return(false);
     }
+
     return(true);
 } // bool VandleProcessor::RetrieveData
 
 
 //********** AnalyzeData **********
-void VandleProcessor::AnalyzeData(void)
+void VandleProcessor::AnalyzeData(RawEvent& rawev)
 {
     //Analyze the Teeny VANDLE data if there is any
     if(!tvandleMap.empty() && tvandleMap.size()%2 == 0)
@@ -383,9 +373,10 @@ void VandleProcessor::AnalyzeData(void)
 	if((*itBar).first.second == "small")
 	    idOffset = 0;
 	else
-	    idOffset = dammIds::BIG_OFFSET;
+	   idOffset = dammIds::BIG_OFFSET;
 
-	TimingCal calibration = GetTimingCal((*itBar).first);
+	TimingCal calibration =
+	    GetTimingCal((*itBar).first);
 	
 	double timeDiff = bar.timeDiff;
 
@@ -404,7 +395,7 @@ void VandleProcessor::AnalyzeData(void)
 	    itStart != startMap.end(); itStart++) {
 	    if(!(*itStart).second.dataValid)
 		continue;
-
+	    
 	    unsigned int startLoc = (*itStart).first.first;
 	    unsigned int barPlusStartLoc = barLoc*2 + startLoc;
 
@@ -464,7 +455,6 @@ void VandleProcessor::AnalyzeData(void)
 	    }
 
 	    //Now we will do some Ge related stuff
-	    extern RawEvent rawev;
 	    static const DetectorSummary *geSummary = rawev.GetSummary("ge");
 	    
 	    if (geSummary) {
@@ -636,12 +626,12 @@ void VandleProcessor::FillMap(const vector<ChanEvent*> &eventList,
 	OFFSET = dammIds::BIG_OFFSET;
     else if(type == "tvandle")
 	OFFSET = dammIds::TVANDLE_OFFSET;
-    
+
     for(vector<ChanEvent*>::const_iterator it = eventList.begin();
 	it != eventList.end(); it++) {
 	unsigned int location = (*it)->GetChanID().GetLocation();
 	string subType = (*it)->GetChanID().GetSubtype();
-
+	
 	IdentKey key(location, subType);
 	
 	TimingDataMap::iterator itTemp = 
@@ -665,6 +655,7 @@ void VandleProcessor::FillMap(const vector<ChanEvent*> &eventList,
 //********* Tvandle **********
 void VandleProcessor::Tvandle(void) 
 {
+    //Needs cleaned heavily!!
     using namespace dammIds::tvandle;
     TimingData right = (*tvandleMap.find(make_pair(0,"right"))).second;
     TimingData left  = (*tvandleMap.find(make_pair(0,"left"))).second;

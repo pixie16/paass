@@ -5,7 +5,7 @@
  */
 
 #ifndef __TRACE_HPP_
-#define __TRACE_HPP_
+#define __TRACE_HPP_ 1
 
 #include <map>
 #include <string>
@@ -24,7 +24,6 @@
 #define NAN (numeric_limits<float>::quiet_NaN())
 #endif
 
-// forward declaration
 class TrapezoidalFilterParameters;
 
 // use an alias in this file to make things a bit more readable
@@ -56,46 +55,50 @@ class Trace : public std::vector<int>
     Trace() : std::vector<int>()
 	{baselineLow = baselineHigh = U_DELIMITER; };
     // an automatic conversion
-    Trace(const std::vector<int> &x) : std::vector<int>(x)
-    {
-	baselineLow = baselineHigh = U_DELIMITER;
-    };
+    Trace(const std::vector<int> &x) : std::vector<int>(x) {
+        baselineLow = baselineHigh = U_DELIMITER;
+    }
+
     void TrapezoidalFilter(Trace &filter, const TFP &parms,
 			   unsigned int lo = 0) const {
-	TrapezoidalFilter( filter, parms, lo, size() );
-    };
+        TrapezoidalFilter( filter, parms, lo, size() );
+    }
     void TrapezoidalFilter(Trace &filter, const TFP &parms,
 			   unsigned int lo, unsigned int hi) const;
+
     void InsertValue(std::string name, double value) {
-	doubleTraceData.insert(make_pair(name,value));
+        doubleTraceData.insert(make_pair(name,value));
     }
+
     void InsertValue(std::string name, int value) {
-	intTraceData.insert(make_pair(name,value));	
+        intTraceData.insert(make_pair(name,value));	
     }
+
     void SetValue(std::string name, double value) {
-	if (doubleTraceData.count(name) > 0) 
-	    doubleTraceData[name] = value;
-	else
-	    InsertValue(name,value);
+        if (doubleTraceData.count(name) > 0) 
+            doubleTraceData[name] = value;
+        else
+            InsertValue(name,value);
     }
+
     void SetValue(std::string name, int value) {
-	if (intTraceData.count(name) > 0)
-	    intTraceData[name] = value;
-	else
-	    InsertValue(name,value);
+        if (intTraceData.count(name) > 0)
+            intTraceData[name] = value;
+        else
+            InsertValue(name,value);
     }
 
     bool HasValue(std::string name) const {
-	return (doubleTraceData.count(name) > 0 ||
-		intTraceData.count(name) > 0);
+        return (doubleTraceData.count(name) > 0 ||
+            intTraceData.count(name) > 0);
     }
 
     double GetValue(std::string name) const {
-	if (doubleTraceData.count(name) > 0)
-	    return (*doubleTraceData.find(name)).second;
-	if (intTraceData.count(name) > 0)
-	    return (*intTraceData.find(name)).second;
-	return NAN;
+        if (doubleTraceData.count(name) > 0)
+            return (*doubleTraceData.find(name)).second;
+        if (intTraceData.count(name) > 0)
+            return (*intTraceData.find(name)).second;
+        return NAN;
     }
 
     std::vector<double> GetWaveform(){return waveform;}; 

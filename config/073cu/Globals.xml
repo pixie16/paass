@@ -162,7 +162,6 @@
   <!-- END PROCESSOR LIST -->
   
   <misc>
-    <clockVsn>1000</clockVsn> <!-- arbitrary vsn used to pass clock data -->
     <emptyString> </emptyString> <!-- a default blank string -->
     <emptyValue>-9999</emptyValue> <!-- a default number -->
     <maxConfigLineLength>100</maxConfigLineLength>
@@ -187,9 +186,10 @@
       <filterClockInSeconds>8e-9</filterClockInSeconds>
     </revf>
 
-    <numberOfChannels>16 </numberOfChannels>
-    <eventInSeconds>3e-6</eventInSeconds>
+    <clockVsn>1000</clockVsn> <!-- arbitrary vsn used to pass clock data -->
     <energyContraction>1.0</energyContraction>
+    <eventInSeconds>3e-6</eventInSeconds>
+    <numberOfChannels>16 </numberOfChannels>
     <u_delimiter>-1</u_delimiter>
   </pixie>
 
@@ -203,7 +203,4 @@
     <correlatorInit>0</correlatorInit>
     <mapInit>0</mapInit>
   </verbose>
-
- 
-
 </Globals>
