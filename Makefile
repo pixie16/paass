@@ -38,6 +38,7 @@ vpath %.hpp include/
 vpath %.h include/
 vpath %.icc include/
 vpath %.cpp src/
+vpath %.o obj/
 
 ifeq ($(HHIRF_DIR),)
 HHIRF_DIR = /usr/hhirf
@@ -121,7 +122,6 @@ LDLIBS	+= -lg2c
 endif
 
 #-------- define file variables -----------------------
-
 # objects from fortran
 MESSLOGO         = messlog.o
 MILDATIMO        = mildatim.o
@@ -200,50 +200,42 @@ endif
 
 #----- list of objects
 #Objects from Fortran
-OBJS = $(MESSLOGO) $(MILDATIMO) $(SCANORO) $(SET2CCO) 
+FORT_OBJS = $(MESSLOGO) $(MILDATIMO) $(SCANORO) $(SET2CCO) 
 #General Objects
-OBJS += $(CHANEVENTO) $(CHANIDENTIFIERO) $(CORRELATORO) $(DETECTORDRIVERO) \
+CXX_OBJS += $(CHANEVENTO) $(CHANIDENTIFIERO) $(CORRELATORO) $(DETECTORDRIVERO) \
 	$(DETECTORLIBRARYO) $(DETECTORSUMMARYO) $(EVENTPROCESSORO) $(INITIALIZEO) \
 	$(MAPFILEO) $(PATHHOLDERO) $(PIXIEO) $(PLACESO) $(PLACEBUILDERO) $(PUGIXMLO) \
 	$(RANDOMPOOLO) $(RAWEVENTO) $(READBUFFDATAO) $(STATSDATAO) \
 	$(TIMINGINFOO) $(TREECORRELATORO)
 #Plot Objects
-OBJS += $(HISTOGRAMMERO) $(PLOTSREGISTERO) $(PLOTSO)
+CXX_OBJS += $(HISTOGRAMMERO) $(PLOTSREGISTERO) $(PLOTSO)
 #Trace Objects
-OBJS += $(DOUBLETRACEO) $(TAUANALYZERO) $(TRACEO) $(TRACEEXTRACTORO) \
+CXX_OBJS += $(DOUBLETRACEO) $(TAUANALYZERO) $(TRACEO) $(TRACEEXTRACTORO) \
 	$(TRACEFILTERO) $(TRACEPLOTO) $(TRACESUBO) $(WAVEFORMSUBO) 
 #Detector Objects
-OBJS += $(BETAPROCESSORO) $(DSSDPROCESSORO) $(GEPROCESSORO) \
+CXX_OBJS += $(BETAPROCESSORO) $(DSSDPROCESSORO) $(GEPROCESSORO) \
 	$(IONCHAMBERPROCESSORO) $(ISSDPROCESSORO) $(LIQUIDPROCESSORO) \
 	$(LOGICPROCESSORO) $(MCPPROCESSORO) $(MTCPROCESSORO) \
 	$(NEUTRONPROCESSORO) $(POSITIONPROCESSORO) $(PULSERPROCESSORO) \
 	$(SSDPROCESSORO) $(VALIDPROCESSORO) $(VANDLEPROCESSORO)
 
 ifdef PULSEFIT
-OBJS += $(FITTINGANALYZERO)
+CXX_OBJS += $(FITTINGANALYZERO)
 else ifdef DCFD
-OBJS += $(CFDANALYZERO) 
+CXX_OBJS += $(CFDANALYZERO) 
 endif
 
-ifdef USEROOT
-OBJS  += $(ROOTPROCESSORO) $(VANDLEROOTO) $(SCINTROOTO)
-endif
-
-
-ifdef USEROOT
-PIXIE = pixie_ldf_c_root$(ExeSuf)
-else
+#---------- Change the executable name if necessary
 ifdef ONLINE
 PIXIE = pixie_ldf_c_online$(ExeSuf)
 else
 PIXIE = pixie_ldf_c$(ExeSuf)
 endif
-endif
 
-PROGRAMS = $(PIXIE)
-
-#------------ adjust compilation if ROOT capability is desired -------
+#---------- Adjust compilation if ROOT capability is desired
 ifdef USEROOT
+CXX_OBJS  += $(ROOTPROCESSORO) $(VANDLEROOTO) $(SCINTROOTO)
+PIXIE = pixie_ldf_c_root$(ExeSuf)
 ROOTCONFIG   := root-config
 
 #no uncomment ROOTCLFAGS   := $(filter-out pthread,$(ROOTCFLAGS))
@@ -262,22 +254,44 @@ ifdef GGATES
 CXXFLAGS	+= -DDEBUG
 endif
 
+#---------- Update some information about the object files 
+FORT_OBJDIR = obj/fortran
+FORT_OBJS_W_DIR = $(addprefix $(FORT_OBJDIR)/,$(FORT_OBJS))
+CXX_OBJDIR = obj/c++
+CXX_OBJS_W_DIR = $(addprefix $(CXX_OBJDIR)/,$(CXX_OBJS))
+
 #--------- Add to list of known file suffixes
 .SUFFIXES: .$(cxxSrcSuf) .$(fSrcSuf) .$(c++SrcSuf) .$(cSrcSuf)
 
-.phony: all clean
-all:     $(PROGRAMS)
+.phony: clean tidy
+
+all: $(FORT_OBJS_W_DIR) $(CXX_OBJS_W_DIR) $(PIXIE)
+
+$(FORT_OBJS_W_DIR): | $(FORT_OBJDIR)
+
+$(FORT_OBJDIR):
+	mkdir $(FORT_OBJDIR)
+
+$(FORT_OBJDIR)/%.o: %.f
+	$(FC) $(FFLAGS) -c $< -o $@
+
+$(CXX_OBJS_W_DIR): | $(CXX_OBJDIR)
+
+$(CXX_OBJDIR):
+	mkdir $(CXX_OBJDIR)
+
+$(CXX_OBJDIR)/%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+#----------- link all created objects together
+#----------- to create pixie_ldf_c program
+$(PIXIE): $(FORT_OBJS_W_DIR) $(CXX_OBJS_W_DIR) $(LIBS)
+	$(LINK.o) $^ -o $@ $(LDLIBS)
 
 #----------- remove all objects, core and .so file
 clean:
 	@echo "Cleaning up..."
-	@rm -f *.o $(PIXIE) core *~ src/*~ include/*~ scan/*~
-
+	@rm -f $(FORT_OBJDIR)/*.o $(CXX_OBJDIR)/*.o $(PIXIE) core *~ src/*~ include/*~ scan/*~
 tidy:
 	@echo "Tidying up..."
-	@rm -f *.o core *~ src/*~ include/*~ scan/*~
-
-#----------- link all created objects together
-#----------- to create pixie_ldf_c program
-$(PIXIE): $(OBJS) $(LIBS)
-	$(LINK.o) $^ -o $@ $(LDLIBS)
+	@rm -f core *~ src/*~ include/*~ scan/*~
