@@ -108,7 +108,7 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE)
     vecProcess.push_back(new MtcProcessor());
     vecProcess.push_back(new LogicProcessor());
     vecProcess.push_back(new BetaProcessor());
-    // vecProcess.push_back(new VandleProcessor());
+    //vecProcess.push_back(new VandleProcessor());
     vecProcess.push_back(new GeProcessor()); // order is important
 #ifdef useroot
     vecProcess.push_back(new ScintROOT());
