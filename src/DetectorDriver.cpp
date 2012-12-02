@@ -108,39 +108,48 @@ DetectorDriver::DetectorDriver() :
     histo(OFFSET, RANGE) 
 {
     cout << "DetectorDriver: loading processors" << endl;
-    vecProcess.push_back(new GeProcessor()); 
-    //vecProcess.push_back(new Ge4Hen3Processor()); 
-    //vecProcess.push_back(new Hen3Processor()); 
-    vecProcess.push_back(new MtcProcessor());
+    try {
+        vecProcess.push_back(new GeProcessor()); 
+        //vecProcess.push_back(new Ge4Hen3Processor()); 
+        //vecProcess.push_back(new Hen3Processor()); 
+        vecProcess.push_back(new MtcProcessor());
 
 #if defined(pulsefit) || defined(dcfd)
-    vecAnalyzer.push_back(new WaveformAnalyzer());
+        vecAnalyzer.push_back(new WaveformAnalyzer());
 #endif
 
 #ifdef pulsefit
-    vecAnalyzer.push_back(new FittingAnalyzer());
+        vecAnalyzer.push_back(new FittingAnalyzer());
 #elif dcfd
-    vecAnalyzer.push_back(new CfdAnalyzer());
+        vecAnalyzer.push_back(new CfdAnalyzer());
 #endif
 
 #ifdef useroot
-    vecProcess.push_back(new ScintROOT());
-    vecProcess.push_back(new VandleROOT());
-    vecProcess.push_back(new RootProcessor("tree.root", "tree"));
+        vecProcess.push_back(new ScintROOT());
+        vecProcess.push_back(new VandleROOT());
+        vecProcess.push_back(new RootProcessor("tree.root", "tree"));
 #else
-    vecProcess.push_back(new BetaScintProcessor());
-    //vecProcess.push_back(new NeutronScintProcessor());
-    //vecProcess.push_back(new LiquidScintProcessor());
+        vecProcess.push_back(new BetaScintProcessor());
+        //vecProcess.push_back(new NeutronScintProcessor());
+        //vecProcess.push_back(new LiquidScintProcessor());
 #endif
 
-    //vecAnalyzer.push_back(new TracePlotter());
-    //vecProcess.push_back(new VandleProcessor());
-    //vecProcess.push_back(new TriggerLogicProcessor());
-    //vecAnalyzer.push_back(new DoubleTraceAnalyzer());
-    //vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
-    //vecAnalyzer.push_back(new TauAnalyzer());
-    //vecProcess.push_back(new SsdProcessor());
-    //vecProcess.push_back(new PositionProcessor());
+        //vecAnalyzer.push_back(new TracePlotter());
+        //vecProcess.push_back(new VandleProcessor());
+        //vecProcess.push_back(new TriggerLogicProcessor());
+        //vecAnalyzer.push_back(new DoubleTraceAnalyzer());
+        //vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
+        //vecAnalyzer.push_back(new TauAnalyzer());
+        //vecProcess.push_back(new SsdProcessor());
+        //vecProcess.push_back(new PositionProcessor());
+    } catch (exception &e) {
+        // Any exception in registering plots in Processors 
+        // and possible other exceptions in creating Processors
+        // will be intercepted here
+        cout << "Exception caught at DetectorDriver::DetectorDriver" << endl;
+        cout << "\t" << e.what() << endl;
+        exit(EXIT_FAILURE);
+    }
 }
 
 /*!
@@ -221,42 +230,45 @@ int DetectorDriver::ProcessEvent(const string &mode, RawEvent& rawev){
     */
     plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
     
-    /*
-    const vector<ChanEvent *> &eventList = rawev.GetEventList();
-    for(size_t i=0; i < eventList.size(); i++) {
-        ChanEvent *chan = eventList[i];  
-    */
-    for (vector<ChanEvent*>::const_iterator it = rawev.GetEventList().begin();
-         it != rawev.GetEventList().end(); ++it) {
-        string place = (*it)->GetChanID().GetPlaceName();
-        if (place == "__-1") // empty channel
-            continue;
-        PlotRaw((*it));
-        ThreshAndCal((*it), rawev); // check threshold and calibrate
-        PlotCal((*it));
+    try {
+        for (vector<ChanEvent*>::const_iterator it = rawev.GetEventList().begin();
+            it != rawev.GetEventList().end(); ++it) {
+            string place = (*it)->GetChanID().GetPlaceName();
+            if (place == "__-1") // empty channel
+                continue;
+            PlotRaw((*it));
+            ThreshAndCal((*it), rawev); // check threshold and calibrate
+            PlotCal((*it));
 
-        double time = (*it)->GetTime();
-        double energy = (*it)->GetCalEnergy();
-        CorrEventData data(time, energy);
-        TreeCorrelator::get()->place(place)->activate(data);
-    } 
- 
-    // have each processor in the event processing vector handle the event
-    /* First round is preprocessing, where process result must be guaranteed
-     * to not to be dependent on results of other Processors. */
-    for (vector<EventProcessor*>::iterator iProc = vecProcess.begin();
-	 iProc != vecProcess.end(); iProc++) {
-        if ( (*iProc)->HasEvent() ) {
-            (*iProc)->PreProcess(rawev);
+            double time = (*it)->GetTime();
+            double energy = (*it)->GetCalEnergy();
+            CorrEventData data(time, energy);
+            TreeCorrelator::get()->place(place)->activate(data);
+        } 
+    
+        // have each processor in the event processing vector handle the event
+        /* First round is preprocessing, where process result must be guaranteed
+        * to not to be dependent on results of other Processors. */
+        for (vector<EventProcessor*>::iterator iProc = vecProcess.begin();
+        iProc != vecProcess.end(); iProc++) {
+            if ( (*iProc)->HasEvent() ) {
+                (*iProc)->PreProcess(rawev);
+            }
         }
-    }
-    /* In the second round the Process is called, which may depend on other
-     * Processors. */
-    for (vector<EventProcessor *>::iterator iProc = vecProcess.begin();
-	 iProc != vecProcess.end(); iProc++) {
-        if ( (*iProc)->HasEvent() ) {
-            (*iProc)->Process(rawev);
+        /* In the second round the Process is called, which may depend on other
+        * Processors. */
+        for (vector<EventProcessor *>::iterator iProc = vecProcess.begin();
+        iProc != vecProcess.end(); iProc++) {
+            if ( (*iProc)->HasEvent() ) {
+                (*iProc)->Process(rawev);
+            }
         }
+    } catch (exception &e) {
+        // Any exception in activation of basic places, PreProcess and Process
+        // will be intercepted here
+        cout << "Exception caught at DetectorDriver::ProcessEvent" << endl;
+        cout << "\t" << e.what() << endl;
+        exit(EXIT_FAILURE);
     }
 
     return 0;   
@@ -265,60 +277,67 @@ int DetectorDriver::ProcessEvent(const string &mode, RawEvent& rawev){
 // declare plots for all the event processors
 void DetectorDriver::DeclarePlots(MapFile& theMapFile)
 {
-    for (vector<TraceAnalyzer *>::const_iterator it = vecAnalyzer.begin();
-	 it != vecAnalyzer.end(); it++) {
-        (*it)->DeclarePlots();
-    }
-
-    for (vector<EventProcessor *>::const_iterator it = vecProcess.begin();
-	 it != vecProcess.end(); it++) {
-        (*it)->DeclarePlots();
-    }
-    
-    // Declare plots for each channel
-    DetectorLibrary* modChan = DetectorLibrary::get();
-
-    DeclareHistogram1D(D_HIT_SPECTRUM, S7, "channel hit spectrum");
-    DeclareHistogram1D(D_SUBEVENT_GAP, SE, "time btwn chan-in event,10ns bin");
-    DeclareHistogram1D(D_EVENT_LENGTH, SE, "time length of event, 10 ns bin");
-    DeclareHistogram1D(D_EVENT_GAP, SE, "time between events, 10 ns bin");
-    DeclareHistogram1D(D_EVENT_MULTIPLICITY, S7, "number of channels in event");
-    DeclareHistogram1D(D_BUFFER_END_TIME, SE, "length of buffer, 1 ms bin");
-    DeclareHistogram2D(DD_RUNTIME_SEC, SE, S6, "run time - s");
-    DeclareHistogram2D(DD_DEAD_TIME_CUMUL, SE, S6, "dead time - cumul");
-    DeclareHistogram2D(DD_BUFFER_START_TIME, SE, S6, "dead time - 0.1%");
-    DeclareHistogram2D(DD_RUNTIME_MSEC, SE, S7, "run time - ms");
-    DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
-
-    DetectorLibrary::size_type maxChan = (theMapFile ? modChan->size() : 192);
-
-    for (DetectorLibrary::size_type i = 0; i < maxChan; i++) {	 
-        if (theMapFile && !modChan->HasValue(i)) {
-            continue;
+    try {
+        for (vector<TraceAnalyzer *>::const_iterator it = vecAnalyzer.begin();
+        it != vecAnalyzer.end(); it++) {
+            (*it)->DeclarePlots();
         }
-        stringstream idstr; 
+
+        for (vector<EventProcessor *>::const_iterator it = vecProcess.begin();
+        it != vecProcess.end(); it++) {
+            (*it)->DeclarePlots();
+        }
         
-        if (theMapFile) {
-            const Identifier &id = modChan->at(i);
+        // Declare plots for each channel
+        DetectorLibrary* modChan = DetectorLibrary::get();
 
-            idstr << "M" << modChan->ModuleFromIndex(i)
-            << " C" << modChan->ChannelFromIndex(i)
-            << " - " << id.GetType()
-            << ":" << id.GetSubtype()
-            << " L" << id.GetLocation();
-        } else {
-            idstr << "id " << i;
-        }
-        DeclareHistogram1D(D_RAW_ENERGY + i, SE, ("RawE " + idstr.str()).c_str() );
-        DeclareHistogram1D(D_FILTER_ENERGY + i, SE, ("FilterE " + idstr.str()).c_str() );
-        DeclareHistogram1D(D_SCALAR + i, SE, ("Scalar " + idstr.str()).c_str() );
+        DeclareHistogram1D(D_HIT_SPECTRUM, S7, "channel hit spectrum");
+        DeclareHistogram1D(D_SUBEVENT_GAP, SE, "time btwn chan-in event,10ns bin");
+        DeclareHistogram1D(D_EVENT_LENGTH, SE, "time length of event, 10 ns bin");
+        DeclareHistogram1D(D_EVENT_GAP, SE, "time between events, 10 ns bin");
+        DeclareHistogram1D(D_EVENT_MULTIPLICITY, S7, "number of channels in event");
+        DeclareHistogram1D(D_BUFFER_END_TIME, SE, "length of buffer, 1 ms bin");
+        DeclareHistogram2D(DD_RUNTIME_SEC, SE, S6, "run time - s");
+        DeclareHistogram2D(DD_DEAD_TIME_CUMUL, SE, S6, "dead time - cumul");
+        DeclareHistogram2D(DD_BUFFER_START_TIME, SE, S6, "dead time - 0.1%");
+        DeclareHistogram2D(DD_RUNTIME_MSEC, SE, S7, "run time - ms");
+        DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
+
+        DetectorLibrary::size_type maxChan = (theMapFile ? modChan->size() : 192);
+
+        for (DetectorLibrary::size_type i = 0; i < maxChan; i++) {	 
+            if (theMapFile && !modChan->HasValue(i)) {
+                continue;
+            }
+            stringstream idstr; 
+            
+            if (theMapFile) {
+                const Identifier &id = modChan->at(i);
+
+                idstr << "M" << modChan->ModuleFromIndex(i)
+                << " C" << modChan->ChannelFromIndex(i)
+                << " - " << id.GetType()
+                << ":" << id.GetSubtype()
+                << " L" << id.GetLocation();
+            } else {
+                idstr << "id " << i;
+            }
+            DeclareHistogram1D(D_RAW_ENERGY + i, SE, ("RawE " + idstr.str()).c_str() );
+            DeclareHistogram1D(D_FILTER_ENERGY + i, SE, ("FilterE " + idstr.str()).c_str() );
+            DeclareHistogram1D(D_SCALAR + i, SE, ("Scalar " + idstr.str()).c_str() );
 #if !defined(REVD) && !defined(REVF)
-        DeclareHistogram1D(D_TIME + i, SE, ("Time " + idstr.str()).c_str() ); 
+            DeclareHistogram1D(D_TIME + i, SE, ("Time " + idstr.str()).c_str() ); 
 #endif
-        DeclareHistogram1D(D_CAL_ENERGY + i, SE, ("CalE " + idstr.str()).c_str() );
-        DeclareHistogram1D(D_CAL_ENERGY_REJECT + i, SE, ("CalE NoSat " + idstr.str()).c_str() );
+            DeclareHistogram1D(D_CAL_ENERGY + i, SE, ("CalE " + idstr.str()).c_str() );
+            DeclareHistogram1D(D_CAL_ENERGY_REJECT + i, SE, ("CalE NoSat " + idstr.str()).c_str() );
+        }
+        DeclareHistogram1D(D_HAS_TRACE, S7, "channels with traces");
+    } catch (exception &e) {
+        // Any exception in histogram declaration will be intercepted here
+        cout << "Exception caught at DetectorDriver::DeclareHistograms" << endl;
+        cout << "\t" << e.what() << endl;
+        exit(EXIT_FAILURE);
     }
-    DeclareHistogram1D(D_HAS_TRACE, S7, "channels with traces");
 }
 
 // sanity check for all our expectations
