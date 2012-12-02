@@ -130,7 +130,6 @@ CFDANALYZERO     = CfdAnalyzer.$(ObjSuf)
 CHANEVENTO       = ChanEvent.$(ObjSuf)
 CHANIDENTIFIERO  = ChanIdentifier.$(ObjSuf)
 CORRELATORO      = Correlator.$(ObjSuf)
-HISTOGRAMMERO    = DeclareHistogram.$(ObjSuf)
 DETECTORDRIVERO  = DetectorDriver.$(ObjSuf)
 DETECTORLIBRARYO = DetectorLibrary.$(ObjSuf)
 DETECTORSUMMARYO = DetectorSummary.$(ObjSuf)
@@ -142,6 +141,7 @@ GEPROCESSORO     = GeProcessor.$(ObjSuf)
 GE4HEN3PROCESSORO= Ge4Hen3Processor.$(ObjSuf)
 HEN3PROCESSORO   = Hen3Processor.$(ObjSuf)
 ISSDPROCESSORO   = ImplantSsdProcessor.$(ObjSuf)
+INITIALIZEO      = Initialize.$(ObjSuf)
 IONCHAMBERPROCESSORO = IonChamberProcessor.$(ObjSuf)
 LIQUIDSCINTPROCESSORO = LiquidScintProcessor.$(ObjSuf)
 LOGICPROCESSORO  = LogicProcessor.$(ObjSuf)
@@ -223,6 +223,7 @@ $(GEPROCESSORO)\
 $(GE4HEN3PROCESSORO)\
 $(HEN3PROCESSORO)\
 $(ISSDPROCESSORO)\
+$(INITIALIZEO)\
 $(IONCHAMBERPROCESSORO)\
 $(LIQUIDSCINTPROCESSORO)\
 $(LOGICPROCESSORO)\
