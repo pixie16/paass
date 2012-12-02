@@ -3,11 +3,12 @@
  *  Declaration of singleton register
  */
 
-#include "PlotsRegister.hpp"
-
 #include <iostream>
-
+#include <sstream>
 #include <cstdlib>
+
+#include "PlotsRegister.hpp"
+#include "Exceptions.hpp"
 
 using namespace std;
 
@@ -48,20 +49,27 @@ bool PlotsRegister::Add (int offset, int range)
     int max = offset + range - 1;
     
     if (max < min) {
-        cerr << "PlotsRegister: Attempt to register incorrect histogram ids range: " << min << " to" << max << endl;
-        exit(1);
+        stringstream ss;
+        ss << "PlotsRegister: Attempt to register incorrect "
+           << "histogram ids range: " 
+           << min << " to" << max; 
+        throw HistogramException(ss.str());
     }
     
     if (min < 1 || max > 7999) {
-        cerr << "PlotsRegister: Attempt to register histogram ids: " << min << " to " << max << endl;
-        cerr << "Valid range is 1 to 7999" << endl;
-        exit(1);
+        stringstream ss;
+        ss << "PlotsRegister: Attempt to register histogram ids: " 
+           << min << " to " << max << endl;
+        ss << "Valid range is 1 to 7999";
+        throw HistogramException(ss.str());
     }
     
     if (CheckRange(min, max)) {
-        cerr << "PlotsRegister: Attempt to register histogram ids: " << min << " to " << max << endl;
-        cerr << "This range is already registered." << endl;
-        exit(EXIT_FAILURE);
+        stringstream ss;
+        ss << "PlotsRegister: Attempt to register histogram ids: " 
+           << min << " to " << max << endl;
+        ss << "This range is already registered.";
+        throw HistogramException(ss.str());
     }
     
     reg.push_back( std::pair<int, int>(min, max) );
