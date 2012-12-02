@@ -17,6 +17,7 @@
 #include "RawEvent.hpp"
 #include "TreeCorrelator.hpp"
 #include "PathHolder.hpp"
+#include "Exceptions.hpp"
 
 #include "Globals.hpp"
 
@@ -92,19 +93,26 @@ MapFile::MapFile(const string &filename /*="map2.txt"*/)
 
     /* At this point basic Correlator places build automatically from
      * map file should be created so we can call buildTree function */
-    TreeCorrelator::get()->buildTree();
-
+    try {
+        TreeCorrelator::get()->buildTree();
+    } catch (exception &e) {
+        cout << "Exception caught at MapFile.cpp" << endl;
+        cout << "\t" << e.what() << endl;
 #ifdef DEBUG
-    for (map<string, Place*>::iterator it = TreeCorrelator::get()->places.begin(); it != TreeCorrelator::get()->places.end(); ++it) {
-        cout << (*it).first << " " << (*it).second << endl;
-        cout << "No. of childer " << (*it).second->children_.size() << endl;
-        for (unsigned i = 0;
-             i < (*it).second->children_.size();
-             ++i) {
-            cout << "Child " << i << " at " << (*it).second->children_[i].first << endl;
+        cout << "Details of the tree: " << endl;
+        for (map<string, Place*>::iterator it = TreeCorrelator::get()->places.begin(); it != TreeCorrelator::get()->places.end(); ++it) {
+            cout << (*it).first << " " << (*it).second << endl;
+            cout << "No. of childer " << (*it).second->children_.size() << endl;
+            for (unsigned i = 0;
+                i < (*it).second->children_.size();
+                ++i) {
+                cout << "Child " << i << " at " 
+                    << (*it).second->children_[i].first << endl;
+            }
         }
-    }
 #endif
+        exit(EXIT_FAILURE);
+    }
 
     isRead = true;
 }
@@ -236,7 +244,13 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
             params["type"] = "PlaceDetector";
             params["reset"] = "true";
             params["fifo"] = "2";
-            TreeCorrelator::get()->createPlace(params);
+            try {
+                TreeCorrelator::get()->createPlace(params);
+            } catch (exception &e) {
+                cout << "Exception caught at MapFile.cpp" << endl;
+                cout << "\t" << e.what() << endl;
+                exit(EXIT_FAILURE);
+            }
 
             startingLocation++;
         }

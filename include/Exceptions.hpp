@@ -44,4 +44,11 @@ class ConversionException : public GeneralException {
             GeneralException(msg) {}
 };
 
+/** Error in creating or accesing histograms. */
+class HistogramException : public GeneralException {
+    public:
+        HistogramException(const std::string& msg) : 
+            GeneralException(msg) {}
+};
+
 #endif
