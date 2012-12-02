@@ -5,9 +5,11 @@
 
 #include <cstring>
 #include <iostream>
+#include <sstream>
 
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
+#include "Exceptions.hpp"
 
 using namespace std;
 
@@ -65,16 +67,18 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
 			       int xLow, int xHigh, const string &mne)
 {
     if (!CheckRange(dammId)) {
-        cerr << "Plots: Histogram titled '" << title << "' requests id " 
-             << dammId << " which is outside of allowed range ("
-             << range_ << ") of group with offset (" << offset_ << ")." <<  endl;
-        exit(EXIT_FAILURE);
+        stringstream ss;
+        ss << "Plots: Histogram titled '" << title << "' requests id " 
+           << dammId << " which is outside of allowed range ("
+           << range_ << ") of group with offset (" << offset_ << ").";
+        throw HistogramException(ss.str());
     }
     if (Exists(dammId) || Exists(mne)) {
-        cerr << "Plots: Histogram titled '" << title << "' requests id " 
-             << dammId + offset_ << " which is already in use by"
-             << " histogram '" << titleList[dammId] << "'." <<  endl;
-        exit(EXIT_FAILURE);
+        stringstream ss;
+        ss << "Plots: Histogram titled '" << title << "' requests id " 
+           << dammId + offset_ << " which is already in use by"
+           << " histogram '" << titleList[dammId] << "'.";
+        throw HistogramException(ss.str());
     }
 
     pair<set<int>::iterator, bool> result = idList.insert(dammId);
@@ -84,7 +88,8 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
     if (mne.size() > 0)
         mneList.insert( pair<string, int>(mne, dammId) );
     
-    hd1d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength, xLow, xHigh, title, strlen(title));
+    hd1d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength,
+          xLow, xHigh, title, strlen(title));
     titleList.insert( pair<int, string>(dammId, string(title)));
     return true;
 }
@@ -109,16 +114,18 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
 			       const string &mne)
 {
     if (!CheckRange(dammId)) {
-        cerr << "Plots: Histogram titled '" << title << "' requests id " 
-             << dammId << " which is outside of allowed range ("
-             << range_ << ") of group with offset (" << offset_ << ")." <<  endl;
-        exit(EXIT_FAILURE);
+        stringstream ss;
+        ss << "Plots: Histogram titled '" << title << "' requests id " 
+           << dammId << " which is outside of allowed range ("
+           << range_ << ") of group with offset (" << offset_ << ").";
+        throw HistogramException(ss.str());
     }
     if (Exists(dammId) || Exists(mne)) {
-        cerr << "Plots: Histogram titled '" << title << "' requests id " 
-             << dammId + offset_ << " which is already in use by"
-             << " histogram '" << titleList[dammId] << "'." << endl;
-        exit(EXIT_FAILURE);
+        stringstream ss;
+        ss << "Plots: Histogram titled '" << title << "' requests id " 
+           << dammId + offset_ << " which is already in use by"
+           << " histogram '" << titleList[dammId] << "'.";
+        throw HistogramException(ss.str());
     }
 
     pair<set<int>::iterator, bool> result = idList.insert(dammId);
@@ -168,6 +175,9 @@ bool Plots::Plot(int dammId, double val1, double val2, double val3, const char* 
     */
 
     /*
+    // This checks if dammId is a valid one (fortran code is silent on
+    // ploting non-existing plots) but it causes efficiency problems
+    // (?) to be tested!
     if (!Exists(dammId))
         return false;
     */
