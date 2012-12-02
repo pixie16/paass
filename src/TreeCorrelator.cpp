@@ -56,7 +56,7 @@ Place* TreeCorrelator::place(string name) {
 
 void TreeCorrelator::addChild(string parent, string child, 
                              bool coin /* = true*/, bool verbose /*= false*/) {
-    if (places_.count(parent) == 1 || places_.count(child) == 1) {
+    if (places_.count(parent) == 1 && places_.count(child) == 1) {
         place(parent)->addChild(place(child), coin);
         if (verbose) {
             cout << "TreeCorrelator: setting " << child 
@@ -65,7 +65,7 @@ void TreeCorrelator::addChild(string parent, string child,
     } else {
         stringstream ss;
         ss << "TreeCorrelator: could not set " << child
-           << "as a child of " << parent << endl;
+           << " as a child of " << parent << endl;
         throw TreeCorrelatorException(ss.str());
     }
 }
@@ -124,7 +124,7 @@ void TreeCorrelator::createPlace(map<string, string>& params,
             if (replace) {
                 if (places_.count((*it)) != 1) {
                     stringstream ss;
-                    ss << "TreeCorrelator: cannot replace Place" << (*it) 
+                    ss << "TreeCorrelator: cannot replace Place " << (*it) 
                        << ", it doesn't exist";
                     throw TreeCorrelatorException(ss.str());
                 }
