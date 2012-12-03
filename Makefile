@@ -270,7 +270,7 @@ all: $(FORT_OBJS_W_DIR) $(CXX_OBJS_W_DIR) $(PIXIE)
 $(FORT_OBJS_W_DIR): | $(FORT_OBJDIR)
 
 $(FORT_OBJDIR):
-	mkdir $(FORT_OBJDIR)
+	mkdir -p $(FORT_OBJDIR)
 
 $(FORT_OBJDIR)/%.o: %.f
 	$(FC) $(FFLAGS) -c $< -o $@
@@ -278,7 +278,7 @@ $(FORT_OBJDIR)/%.o: %.f
 $(CXX_OBJS_W_DIR): | $(CXX_OBJDIR)
 
 $(CXX_OBJDIR):
-	mkdir $(CXX_OBJDIR)
+	mkdir -p $(CXX_OBJDIR)
 
 $(CXX_OBJDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
