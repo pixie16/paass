@@ -18,7 +18,7 @@ extern "C" void endrr_();
 /*! This function defines the histograms to be used in the analysis */
 extern "C" void drrsub_(unsigned int& iexist)
 {
-    PathHolder* conf_path = new PathHolder(".config");
+    PathHolder* conf_path = new PathHolder("config.txt");
     delete conf_path;
     MapFile theMapFile = MapFile();
     drrmake_();
