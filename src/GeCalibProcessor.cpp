@@ -31,12 +31,12 @@ using namespace std;
 namespace dammIds {
     namespace ge {
         namespace calib {
-            const int D_CH_SUM = 0;
-            const int D_CH_CRYSTALX = 1;
-            const int DD_CH_DETX = 51;
-            const int D_ADD_SUM = 100;
-            const int D_CH_ADDX = 101;
-            const int DD_CH_ADDX = 151;
+            const int D_CH_SUM = 400;
+            const int D_CH_CRYSTALX = 401;
+            const int DD_CH_DETX = 421;
+            const int D_ADD_SUM = 450;
+            const int D_CH_ADDX = 451;
+            const int DD_CH_ADDX = 471;
         }
     }
 }
@@ -95,6 +95,7 @@ void GeCalibProcessor::DeclarePlots(void)
 
     const int energyBins  = SE;
 
+    DeclareHistogram1D(calib::D_CH_SUM, energyBins, "Ge sum");
     for (unsigned int i = 0; i < cloverChans; i++) {
         stringstream ss;
         ss << "Crystal " << i << " Clover " << leafToClover[i];
@@ -104,6 +105,7 @@ void GeCalibProcessor::DeclarePlots(void)
     DeclareHistogram2D(calib::DD_CH_DETX, energyBins, S5,
                        "Gamma Ch vs. crystal number ");
 
+    DeclareHistogram1D(calib::D_ADD_SUM, energyBins, "Ge addback sum");
     for (unsigned int i = 0; i < numClovers; i++) {
         stringstream ss;
         ss << " Clover " << i << " addback";
@@ -121,9 +123,13 @@ bool GeCalibProcessor::Process(RawEvent &event) {
         return false;
 
     for (vector<ChanEvent*>::iterator it = geEvents_.begin(); 
-	 it != geEvents_.end(); it++) {
+         it != geEvents_.end(); ++it) {
         ChanEvent *chan = *it;
         double gEnergy = chan->GetCalEnergy();	
+
+        if (gEnergy < 2)
+            continue;
+
         int det = chan->GetChanID().GetLocation();
 
         plot(calib::D_CH_CRYSTALX + det, gEnergy);
@@ -131,10 +137,12 @@ bool GeCalibProcessor::Process(RawEvent &event) {
         plot(calib::DD_CH_DETX, gEnergy, det);
     }
 
-    unsigned nEvents = addbackEvents_.size();
-    for (unsigned int ev = 0; ev < nEvents; ev++) {
+    unsigned nEvents = addbackEvents_[0].size();
+    for (unsigned int ev = 0; ev < nEvents; ++ev) {
         for (unsigned int det = 0; det < numClovers; ++det) {
             double gEnergy = addbackEvents_[det][ev].first;
+            if (gEnergy < 2)
+                continue;
 
             plot(calib::D_CH_ADDX + det, gEnergy);
             plot(calib::D_ADD_SUM, gEnergy);
