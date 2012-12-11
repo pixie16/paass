@@ -43,7 +43,6 @@ TreeCorrelator* TreeCorrelator::get() {
 }
 
 Place* TreeCorrelator::place(string name) {
-#ifdef DEBUG
     map<string, Place*>::iterator element = places_.find(name);
     if (element == places_.end()) {
         stringstream ss;
@@ -52,9 +51,6 @@ Place* TreeCorrelator::place(string name) {
         throw TreeCorrelatorException(ss.str());
     }
     return element->second;
-#else
-    return places_[name];
-#endif
 }
 
 void TreeCorrelator::addChild(string parent, string child, 
