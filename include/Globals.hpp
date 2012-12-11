@@ -65,6 +65,9 @@ namespace detectors {
      */
     /** Gamma energy low threshold. */
     const double gammaThreshold = 10.0;
+    /* Mismatch ratio of low and high gain in Clovers */
+    const double geLowRatio = 1.5;
+    const double geHighRatio = 3.0;
     /** Subevent length for addback construction (in seconds). */
     const double subEventWindow = 100e-9;
     /** Low energy cut on addback, in keV. */

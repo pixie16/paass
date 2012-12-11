@@ -44,14 +44,17 @@ TreeCorrelator* TreeCorrelator::get() {
 
 Place* TreeCorrelator::place(string name) {
 #ifdef DEBUG
-    if (places_.count(name) == 0) {
+    map<string, Place*>::iterator element = places_.find(name);
+    if (element == places_.end()) {
         stringstream ss;
         ss << "TreeCorrelator: place " << name
            << " doesn't exist " << endl;
         throw TreeCorrelatorException(ss.str());
     }
-#endif
+    return element->second;
+#else
     return places_[name];
+#endif
 }
 
 void TreeCorrelator::addChild(string parent, string child, 

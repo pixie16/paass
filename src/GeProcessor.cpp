@@ -309,21 +309,18 @@ bool GeProcessor::PreProcess(RawEvent &event) {
         addbackEvents_[i].clear();
     tas_.clear();
 
-    // makes a copy so we can remove (or rearrange) bad events 
-    //   based on poorly matched high-low gain energies
-    geEvents_ = sumMap["ge"]->GetList();
-    vector<ChanEvent*>::iterator geEnd = geEvents_.end();
-
-    //   correspond properly to raw low gain energy
-    const double lowRatio = 1.5, highRatio = 3.0;
     static const vector<ChanEvent*> &highEvents = event.GetSummary("ge:clover_high", true)->GetList();
     static const vector<ChanEvent*> &lowEvents  = event.GetSummary("ge:clover_low", true)->GetList();
 
     for (vector<ChanEvent*>::const_iterator itHigh = highEvents.begin();
 	 itHigh != highEvents.end(); itHigh++) {
-        // find the matching low gain event
         int location = (*itHigh)->GetChanID().GetLocation();
         plot(D_ENERGY_HIGHGAIN, (*itHigh)->GetCalEnergy());
+
+        if ( (*itHigh)->IsSaturated() || (*itHigh)->IsPileup() )
+            continue;
+
+        // find the matching low gain event
         vector <ChanEvent*>::const_iterator itLow = lowEvents.begin();
         for (; itLow != lowEvents.end(); itLow++) {
             if ( (*itLow)->GetChanID().GetLocation() == location ) {
@@ -333,9 +330,43 @@ bool GeProcessor::PreProcess(RawEvent &event) {
         if ( itLow != lowEvents.end() ) {
             double ratio = (*itHigh)->GetEnergy() / (*itLow)->GetEnergy();
             plot(DD_CLOVER_ENERGY_RATIO, location, ratio * 10.);
-            // Remove saturated high events too
-            if ( (ratio < lowRatio || ratio > highRatio) ||
-                 ((*itHigh)->IsSaturated()) ) {
+            if ( (ratio < detectors::geLowRatio ||
+                  ratio > detectors::geHighRatio) )
+                continue;
+        }
+        geEvents_.push_back(*itHigh);
+    }
+    // makes a copy so we can remove (or rearrange) bad events 
+    //   based on poorly matched high-low gain energies
+    //
+    /*
+    geEvents_ = sumMap["ge"]->GetList();
+    vector<ChanEvent*>::iterator geEnd = geEvents_.end();
+
+    static const vector<ChanEvent*> &highEvents = event.GetSummary("ge:clover_high", true)->GetList();
+    static const vector<ChanEvent*> &lowEvents  = event.GetSummary("ge:clover_low", true)->GetList();
+
+    for (vector<ChanEvent*>::const_iterator itHigh = highEvents.begin();
+	 itHigh != highEvents.end(); itHigh++) {
+        int location = (*itHigh)->GetChanID().GetLocation();
+        plot(D_ENERGY_HIGHGAIN, (*itHigh)->GetCalEnergy());
+
+        // Remove saturated and pileups
+        if ( (*itHigh)->IsSaturated() || (*itHigh)->IsPileup() ) {
+            geEnd = remove(geEvents_.begin(), geEnd, *itHigh);
+        }
+
+        // find the matching low gain event
+        vector <ChanEvent*>::const_iterator itLow = lowEvents.begin();
+        for (; itLow != lowEvents.end(); itLow++) {
+            if ( (*itLow)->GetChanID().GetLocation() == location ) {
+                break;
+            }
+        }
+        if ( itLow != lowEvents.end() ) {
+            double ratio = (*itHigh)->GetEnergy() / (*itLow)->GetEnergy();
+            plot(DD_CLOVER_ENERGY_RATIO, location, ratio * 10.);
+            if ( (ratio < lowRatio || ratio > highRatio) ) {
                 // put these bad events at the end of the vector
                 geEnd = remove(geEvents_.begin(), geEnd, *itHigh);
                 geEnd = remove(geEvents_.begin(), geEnd, *itLow);
@@ -351,6 +382,7 @@ bool GeProcessor::PreProcess(RawEvent &event) {
     // this purges the bad events for good from this processor which "remove"
     //   has moved to the end
     geEvents_.erase(geEnd, geEvents_.end());
+    */
 
     /** NOTE we do permanents changes to events here
      *  Necessary in order to set corrected time for use in correlator

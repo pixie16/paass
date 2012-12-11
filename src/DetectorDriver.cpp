@@ -54,6 +54,7 @@
 #include "DssdProcessor.hpp"
 #include "Hen3Processor.hpp"
 #include "GeProcessor.hpp"
+#include "GeCalibProcessor.hpp"
 #include "Ge4Hen3Processor.hpp"
 #include "ImplantSsdProcessor.hpp"
 #include "IonChamberProcessor.hpp"
@@ -109,8 +110,10 @@ DetectorDriver::DetectorDriver() :
 {
     cout << "DetectorDriver: loading processors" << endl;
     try {
+        vecProcess.push_back(new GeCalibProcessor()); 
+        /*
         //vecProcess.push_back(new GeProcessor()); 
-        vecProcess.push_back(new Ge4Hen3Processor()); 
+        //vecProcess.push_back(new Ge4Hen3Processor()); 
         vecProcess.push_back(new Hen3Processor()); 
         vecProcess.push_back(new MtcProcessor());
 
@@ -142,6 +145,7 @@ DetectorDriver::DetectorDriver() :
         //vecAnalyzer.push_back(new TauAnalyzer());
         //vecProcess.push_back(new SsdProcessor());
         //vecProcess.push_back(new PositionProcessor());
+        */
     } catch (exception &e) {
         // Any exception in registering plots in Processors 
         // and possible other exceptions in creating Processors
