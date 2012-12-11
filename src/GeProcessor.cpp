@@ -333,7 +333,9 @@ bool GeProcessor::PreProcess(RawEvent &event) {
         if ( itLow != lowEvents.end() ) {
             double ratio = (*itHigh)->GetEnergy() / (*itLow)->GetEnergy();
             plot(DD_CLOVER_ENERGY_RATIO, location, ratio * 10.);
-            if (ratio < lowRatio || ratio > highRatio) {
+            // Remove saturated high events too
+            if ( (ratio < lowRatio || ratio > highRatio) ||
+                 ((*itHigh)->IsSaturated()) ) {
                 // put these bad events at the end of the vector
                 geEnd = remove(geEvents_.begin(), geEnd, *itHigh);
                 geEnd = remove(geEvents_.begin(), geEnd, *itLow);
