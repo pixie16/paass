@@ -676,7 +676,7 @@ double Calibration::Calibrate(double raw)
     } 
 
     if(raw >= thresh[numCal]) {
-	return thresh[numCal] - 1;
+        return thresh[numCal] - 1;
     }
 
     double calVal = 0;
@@ -685,13 +685,11 @@ double Calibration::Calibrate(double raw)
       loop over the number of calibrations
     */
     for(unsigned int a = 0; a < numCal; a++) {
-        //check to see if energy falls in this calibration range
         if (raw >= thresh[a] && raw < thresh[a+1]) {
-            //loop over the polynomial order
             for(unsigned int b = 0; b < polyOrder+1; b++) {
-		calVal += pow(raw,(double)b) * val[a*(polyOrder+1) + b];
+                calVal += pow(raw,(double)b) * val[a*(polyOrder+1) + b];
             }
-	    break;
+            break;
         }
     }
 

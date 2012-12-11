@@ -1,65 +1,66 @@
-0	3hen	big	1	2	600	0	1	0	32000	
-1	3hen	big	1	2	600	0	1	0	32000	
-2	3hen	big	1	2	600	0	1	0	32000	
-3	3hen	big	1	2	600	0	1	0	32000	
-4	3hen	big	1	2	600	0	1	0	32000	
-5	3hen	big	1	2	600	0	1	0	32000	
-6	3hen	big	1	2	600	0	1	0	32000	
-7	3hen	big	1	2	600	0	1	0	32000	
-8	3hen	big	1	2	600	0	1	0	32000	
-9	3hen	big	1	2	600	0	1	0	32000	
-10	3hen	big	1	2	600	0	1	0	32000	
-11	3hen	big	1	2	600	0	1	0	32000	
-12	3hen	big	1	2	600	0	1	0	32000	
-13	3hen	big	1	2	600	0	1	0	32000	
-14	3hen	big	1	2	600	0	1	0	32000	
-15	3hen	big	1	2	600	0	1	0	32000	
-16	3hen	big	1	2	600	0	1	0	32000	
-17	3hen	big	1	2	600	0	1	0	32000	
-18	3hen	big	1	2	600	0	1	0	32000	
-19	3hen	big	1	2	600	0	1	0	32000	
-20	3hen	big	1	2	600	0	1	0	32000	
-21	3hen	big	1	2	600	0	1	0	32000	
-22	3hen	big	1	2	600	0	1	0	32000	
-23	3hen	big	1	2	600	0	1	0	32000	
-24	3hen	big	1	2	600	0	1	0	32000	
-25	3hen	big	1	2	600	0	1	0	32000	
-26	3hen	big	1	2	600	0	1	0	32000	
-27	3hen	big	1	2	600	0	1	0	32000	
-28	3hen	big	1	2	600	0	1	0	32000	
-29	3hen	big	1	2	600	0	1	0	32000	
-30	3hen	big	1	2	600	0	1	0	32000	
-31	3hen	big	1	2	600	0	1	0	32000	
-32	3hen	big	1	2	600	0	1	0	32000	
-33	3hen	big	1	2	600	0	1	0	32000	
-34	3hen	big	1	2	600	0	1	0	32000	
-35	3hen	big	1	2	600	0	1	0	32000	
-36	3hen	big	1	2	600	0	1	0	32000	
-37	3hen	big	1	2	600	0	1	0	32000	
-38	3hen	big	1	2	600	0	1	0	32000	
-39	3hen	big	1	2	600	0	1	0	32000	
-40	3hen	big	1	2	600	0	1	0	32000	
-41	3hen	big	1	2	600	0	1	0	32000	
-42	3hen	big	1	2	600	0	1	0	32000	
-43	3hen	big	1	2	600	0	1	0	32000	
-44	3hen	big	1	2	600	0	1	0	32000	
-45	3hen	big	1	2	600	0	1	0	32000	
-46	3hen	big	1	2	600	0	1	0	32000	
-47	3hen	big	1	2	600	0	1	0	32000	
-										
-0	ge	clover_high	1	1	20	0.069598	0.319812	-2.80760E-08	0	32000
-1	ge	clover_high	1	1	20	-0.292612	0.326564	2.61721E-08	0	32000
-2	ge	clover_high	1	1	20	0.769727	0.312493	1.22141E-08	0	32000
-3	ge	clover_high	1	1	20	0.294047	0.318296	2.56032E-08	0	32000
-4	ge	clover_high	1	1	20	-0.314645	0.318547	3.43384E-08	0	32000
-5	ge	clover_high	1	1	20	-0.055518	0.321788	3.26626E-08	0	32000
-6	ge	clover_high	1	1	20	0.303862	0.317923	3.45277E-08	0	32000
-7	ge	clover_high	1	1	20	0.119044	0.322053	3.32075E-08	0	32000
-										
-0	mtc	beam_start	1	2	0	0	0.1	0	32000	
-0	mtc	beam_stop	1	2	0	0	0.1	0	32000	
-0	mtc	start	1	2	0	0	0.1	0	32000	
-0	mtc	stop	1	2	0	0	0.1	0	32000	
-										
-0	beta_scint	beta	1	2	50	0	1	0	32000	
-1	beta_scint	beta	1	2	50	0	1	0	32000	
+%Loc	Type	Subtype	numCal	Order	Thres	a0	a1	a2
+0	3hen	big	1	1	0	0	1	
+1	3hen	big	1	1	0	0	1	
+2	3hen	big	1	1	0	0	1	
+3	3hen	big	1	1	0	0	1	
+4	3hen	big	1	1	0	0	1	
+5	3hen	big	1	1	0	0	1	
+6	3hen	big	1	1	0	0	1	
+7	3hen	big	1	1	0	0	1	
+8	3hen	big	1	1	0	0	1	
+9	3hen	big	1	1	0	0	1	
+10	3hen	big	1	1	0	0	1	
+11	3hen	big	1	1	0	0	1	
+12	3hen	big	1	1	0	0	1	
+13	3hen	big	1	1	0	0	1	
+14	3hen	big	1	1	0	0	1	
+15	3hen	big	1	1	0	0	1	
+16	3hen	big	1	1	0	0	1	
+17	3hen	big	1	1	0	0	1	
+18	3hen	big	1	1	0	0	1	
+19	3hen	big	1	1	0	0	1	
+20	3hen	big	1	1	0	0	1	
+21	3hen	big	1	1	0	0	1	
+22	3hen	big	1	1	0	0	1	
+23	3hen	big	1	1	0	0	1	
+24	3hen	big	1	1	0	0	1	
+25	3hen	big	1	1	0	0	1	
+26	3hen	big	1	1	0	0	1	
+27	3hen	big	1	1	0	0	1	
+28	3hen	big	1	1	0	0	1	
+29	3hen	big	1	1	0	0	1	
+30	3hen	big	1	1	0	0	1	
+31	3hen	big	1	1	0	0	1	
+32	3hen	big	1	1	0	0	1	
+33	3hen	big	1	1	0	0	1	
+34	3hen	big	1	1	0	0	1	
+35	3hen	big	1	1	0	0	1	
+36	3hen	big	1	1	0	0	1	
+37	3hen	big	1	1	0	0	1	
+38	3hen	big	1	1	0	0	1	
+39	3hen	big	1	1	0	0	1	
+40	3hen	big	1	1	0	0	1	
+41	3hen	big	1	1	0	0	1	
+42	3hen	big	1	1	0	0	1	
+43	3hen	big	1	1	0	0	1	
+44	3hen	big	1	1	0	0	1	
+45	3hen	big	1	1	0	0	1	
+46	3hen	big	1	1	0	0	1	
+47	3hen	big	1	1	0	0	1	
+								
+0	ge	clover_high	1	1	0	0	1.0	
+1	ge	clover_high	1	1	0	0	1.0	
+2	ge	clover_high	1	1	0	0	1.0	
+3	ge	clover_high	1	1	0	0	1.0	
+4	ge	clover_high	1	1	0	0	1.0	
+5	ge	clover_high	1	1	0	0	1.0	
+6	ge	clover_high	1	1	0	0	1.0	
+7	ge	clover_high	1	1	0	0	1.0	
+								
+0	mtc	beam_start	1	1	0	0	0.1	
+0	mtc	beam_stop	1	1	0	0	0.1	
+0	mtc	start	1	1	0	0	0.1	
+0	mtc	stop	1	1	0	0	0.1	
+								
+0	beta_scint	beta	1	1	0	0	1	
+1	beta_scint	beta	1	1	0	0	1	
