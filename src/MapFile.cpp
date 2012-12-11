@@ -98,19 +98,6 @@ MapFile::MapFile(const string &filename /*="map2.txt"*/)
     } catch (exception &e) {
         cout << "Exception caught at MapFile.cpp" << endl;
         cout << "\t" << e.what() << endl;
-#ifdef DEBUG
-        cout << "Details of the tree: " << endl;
-        for (map<string, Place*>::iterator it = TreeCorrelator::get()->places.begin(); it != TreeCorrelator::get()->places.end(); ++it) {
-            cout << (*it).first << " " << (*it).second << endl;
-            cout << "No. of childer " << (*it).second->children_.size() << endl;
-            for (unsigned i = 0;
-                i < (*it).second->children_.size();
-                ++i) {
-                cout << "Child " << i << " at " 
-                    << (*it).second->children_[i].first << endl;
-            }
-        }
-#endif
         exit(EXIT_FAILURE);
     }
 

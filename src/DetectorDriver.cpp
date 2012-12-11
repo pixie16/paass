@@ -113,7 +113,8 @@ DetectorDriver::DetectorDriver() :
         vecProcess.push_back(new GeCalibProcessor()); 
         /*
         //vecProcess.push_back(new GeProcessor()); 
-        //vecProcess.push_back(new Ge4Hen3Processor()); 
+        vecProcess.push_back(new Ge4Hen3Processor()); 
+
         vecProcess.push_back(new Hen3Processor()); 
         vecProcess.push_back(new MtcProcessor());
 
