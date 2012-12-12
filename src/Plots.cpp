@@ -12,6 +12,9 @@
 
 using namespace std;
 
+/* Do banana gating using ban files */
+extern "C" bool bantesti_(const int &, const int &, const int &);
+
 /* create a DAMM 1D histogram
  * args are damm id, half-words per channel, param length, hist length,
  * low x-range, high x-range, and title
@@ -34,6 +37,10 @@ Plots::Plots(int offset, int range)
     range_  = range;
     PlotsRegister::get()->Add(offset_, range_);
 }
+
+bool Plots::BananaTest(const int &id, const double &x, const double &y) {
+    return (bantesti_(id, Round(x), Round(y)));
+}   
 
 /**
  * Check if the id falls within the expected range
