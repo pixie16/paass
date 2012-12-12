@@ -15,7 +15,7 @@
 #include "Globals.hpp"
 
 /* Fortran subroutines for plotting histograms */
-//extern "C" bool bantesti_(const int &, const int &, const int &);
+extern "C" bool bantesti_(const int &, const int &, const int &);
 extern "C" void count1cc_(const int &, const int &, const int &);
 extern "C" void set2cc_(const int &, const int &, const int &, const int &);
 
@@ -38,11 +38,11 @@ public:
     bool Exists (const std::string &mne) const;
 
     bool DeclareHistogram1D(int dammId, int xSize, const char* title,
-			    int halfWordsPerChan, int xHistLength, int xLow, int xHigh,
-			    const std::string &mne = emptyString);
+			    int halfWordsPerChan, int xHistLength, int xLow, 
+                            int xHigh, const std::string &mne = emptyString);
     bool DeclareHistogram1D(int dammId, int xSize, const char* title,
-                int halfWordsPerChan = 2, const std::string &mne = emptyString
-			    ); 
+                            int halfWordsPerChan = 2, 
+                            const std::string &mne = emptyString); 
     bool DeclareHistogram1D(int dammId, int xSize, const char* title,
 			    int halfWordsPerChan, int contraction,
 			    const std::string &mne = emptyString);
@@ -54,15 +54,18 @@ public:
 			    const std::string &mne = emptyString);    
     bool DeclareHistogram2D(int dammId, int xSize, int ySize,
 			    const char* title, int halfWordPerChan = 1,
-                const std::string &mne = emptyString);
+                            const std::string &mne = emptyString);
     bool DeclareHistogram2D(int dammId, int xSize, int ySize,
 			    const char* title, int halfWordsPerChan,
 			    int xContraction, int yContraction, 
 			    const std::string &mne = emptyString);
     
-    bool Plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h");
+    bool Plot(int dammId, double val1, double val2 = -1, double val3 = -1, 
+              const char* name="h");
+    bool Plot(const std::string &mne, double val1, double val2 = -1, 
+              double val3 = -1, const char* name="h");
 
-    bool Plot(const std::string &mne, double val1, double val2 = -1, double val3 = -1, const char* name="h");
+    bool BananaTest(const int &id, const double &x, const double &y);
 
 private:
     static PlotsRegister* plots_register_;
