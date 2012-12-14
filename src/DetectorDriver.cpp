@@ -39,6 +39,7 @@
 #include <iterator>
 #include <sstream>
 
+#include "pugixml.hpp"
 #include "PathHolder.hpp"
 #include "Exceptions.hpp"
 #include "DetectorDriver.hpp"
@@ -108,53 +109,20 @@ DetectorDriver* DetectorDriver::get() {
 DetectorDriver::DetectorDriver() : 
     histo(OFFSET, RANGE) 
 {
-    cout << "DetectorDriver: loading processors" << endl;
+    Messenger m;
     try {
-        vecProcess.push_back(new GeCalibProcessor()); 
-        /*
-        //vecProcess.push_back(new GeProcessor()); 
-        vecProcess.push_back(new Ge4Hen3Processor()); 
-
-        vecProcess.push_back(new Hen3Processor()); 
-        vecProcess.push_back(new MtcProcessor());
-
-#if defined(pulsefit) || defined(dcfd)
-        vecAnalyzer.push_back(new WaveformAnalyzer());
-#endif
-
-#ifdef pulsefit
-        vecAnalyzer.push_back(new FittingAnalyzer());
-#elif dcfd
-        vecAnalyzer.push_back(new CfdAnalyzer());
-#endif
-
-#ifdef useroot
-        vecProcess.push_back(new ScintROOT());
-        vecProcess.push_back(new VandleROOT());
-        vecProcess.push_back(new RootProcessor("tree.root", "tree"));
-#else
-        vecProcess.push_back(new BetaScintProcessor());
-        //vecProcess.push_back(new NeutronScintProcessor());
-        //vecProcess.push_back(new LiquidScintProcessor());
-#endif
-
-        //vecAnalyzer.push_back(new TracePlotter());
-        //vecProcess.push_back(new VandleProcessor());
-        //vecProcess.push_back(new TriggerLogicProcessor());
-        //vecAnalyzer.push_back(new DoubleTraceAnalyzer());
-        //vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
-        //vecAnalyzer.push_back(new TauAnalyzer());
-        //vecProcess.push_back(new SsdProcessor());
-        //vecProcess.push_back(new PositionProcessor());
-        */
+        m.start("Loading Processors");
+        LoadProcessors(m);
     } catch (exception &e) {
         // Any exception in registering plots in Processors 
         // and possible other exceptions in creating Processors
         // will be intercepted here
+        m.fail();
         cout << "Exception caught at DetectorDriver::DetectorDriver" << endl;
         cout << "\t" << e.what() << endl;
         exit(EXIT_FAILURE);
     }
+    m.done();
 }
 
 /*!
@@ -177,6 +145,116 @@ DetectorDriver::~DetectorDriver()
     }
 
     vecAnalyzer.clear();
+}
+
+void DetectorDriver::LoadProcessors(Messenger& m) {
+    pugi::xml_document doc;
+
+    PathHolder* conf_path = new PathHolder();
+    string xmlFileName = conf_path->GetFullPath("Config.xml");
+    delete conf_path;
+
+    pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
+    if (!result) {
+        stringstream ss;
+        ss << "DetectorDriver: could not parse file " << xmlFileName;
+        throw IOException(ss.str());
+    }
+
+    pugi::xml_node driver = doc.child("Configuration").child("DetectorDriver");
+    for (pugi::xml_node processor = driver.child("Processor"); processor;
+         processor = processor.next_sibling("Processor")) {
+        string name = processor.attribute("name").value();
+
+        if (name == "BetaScintProcessor") {
+            vecProcess.push_back(new BetaScintProcessor());
+        } else if (name == "DssdProcessor") {
+            vecProcess.push_back(new DssdProcessor());
+        } else if (name == "GeProcessor") {
+            vecProcess.push_back(new GeProcessor()); 
+        } else if (name == "Ge4Hen3Processor") {
+            vecProcess.push_back(new Ge4Hen3Processor()); 
+        } else if (name == "GeCalibProcessor") {
+            vecProcess.push_back(new GeCalibProcessor()); 
+        } else if (name == "Hen3Processor") {
+            vecProcess.push_back(new Hen3Processor()); 
+        } else if (name == "ImplantSsdProcessor") {
+            vecProcess.push_back(new ImplantSsdProcessor()); 
+        } else if (name == "IonChamberProcessor") {
+            vecProcess.push_back(new IonChamberProcessor()); 
+        } else if (name == "LiquidScintProcessor") {
+            vecProcess.push_back(new LiquidScintProcessor());
+        } else if (name == "LogicProcessor") {
+            vecProcess.push_back(new LogicProcessor()); 
+        } else if (name == "McpProcessor") {
+            vecProcess.push_back(new McpProcessor()); 
+        } else if (name == "MtcProcessor") {
+            vecProcess.push_back(new MtcProcessor());
+        } else if (name == "NeutronScintProcessor") {
+            vecProcess.push_back(new NeutronScintProcessor());
+        } else if (name == "PositionProcessor") {
+            vecProcess.push_back(new PositionProcessor());
+        } else if (name == "PulserProcessor") {
+            vecProcess.push_back(new PulserProcessor());
+        } else if (name == "SsdProcessor") {
+            vecProcess.push_back(new SsdProcessor());
+        } else if (name == "TriggerLogicProcessor") {
+            vecProcess.push_back(new TriggerLogicProcessor());
+        } else if (name == "VandleProcessor") {
+            vecProcess.push_back(new VandleProcessor());
+        }
+#ifdef useroot
+        else if (name == "RootProcessor") {
+            vecProcess.push_back(new RootProcessor("tree.root", "tree"));
+        } else if (name == "ScintROOT") {
+            vecProcess.push_back(new ScintROOT());
+        } else if (name == "VandleROOT") {
+            vecProcess.push_back(new VandleROOT());
+        }
+#endif
+        else {
+            stringstream ss;
+            ss << "DetectorDriver: unknown processor type" << name;
+            throw GeneralException(ss.str());
+        }
+        m.detail(name + " loaded");
+    }
+
+    for (pugi::xml_node analyzer = driver.child("Analyzer"); analyzer;
+         analyzer = analyzer.next_sibling("Analyzer")) {
+        string name = analyzer.attribute("name").value();
+
+        vecAnalyzer.push_back(new WaveformAnalyzer());
+        if (name == "DoubleTraceAnalyzer") {
+            vecAnalyzer.push_back(new DoubleTraceAnalyzer());
+        } else if (name == "TauAnalyzer") {
+            vecAnalyzer.push_back(new TauAnalyzer());
+        } else if (name == "TracePlotter") {
+            vecAnalyzer.push_back(new TracePlotter());
+        } else if (name == "TraceExtracter") {
+            vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
+        }
+#if defined(pulsefit) || defined(dcfd)
+        else if (name == "WaveformAnalyzer") {
+            vecAnalyzer.push_back(new WaveformAnalyzer());
+        }
+#endif
+#ifdef pulsefit
+        else if (name == "FittingAnalyzer") {
+            vecAnalyzer.push_back(new FittingAnalyzer());
+        }
+#elif dcfd
+        else if (name == "CfdAnalyzer") {
+            vecAnalyzer.push_back(new CfdAnalyzer());
+        }
+#endif
+        else {
+            stringstream ss;
+            ss << "DetectorDriver: unknown analyzer type" << name;
+            throw GeneralException(ss.str());
+        }
+        m.detail(name + " loaded");
+    }
 }
 
 /*!

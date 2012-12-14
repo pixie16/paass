@@ -48,14 +48,14 @@
 46	3hen	big	1	1	0	0	1	
 47	3hen	big	1	1	0	0	1	
 								
-0	ge	clover_high	1	1	0	0	1.0	
-1	ge	clover_high	1	1	0	0	1.0	
-2	ge	clover_high	1	1	0	0	1.0	
-3	ge	clover_high	1	1	0	0	1.0	
-4	ge	clover_high	1	1	0	0	1.0	
-5	ge	clover_high	1	1	0	0	1.0	
-6	ge	clover_high	1	1	0	0	1.0	
-7	ge	clover_high	1	1	0	0	1.0	
+0	ge	clover_high	1	2	0	0.086992	0.319588	-3.675986E-08
+1	ge	clover_high	1	2	0	0.142493	0.326087	3.178130E-08
+2	ge	clover_high	1	2	0	0.442061	0.312095	4.875620E-09
+3	ge	clover_high	1	2	0	0.154337	0.318064	6.233731E-09
+4	ge	clover_high	1	2	0	0.542650	0.317998	6.257455E-08
+5	ge	clover_high	1	2	0	0.027471	0.321558	2.930330E-08
+6	ge	clover_high	1	2	0	0.692124	0.317359	4.439416E-08
+7	ge	clover_high	1	2	0	0.570474	0.321462	4.993727E-08
 								
 0	mtc	beam_start	1	1	0	0	0.1	
 0	mtc	beam_stop	1	1	0	0	0.1	

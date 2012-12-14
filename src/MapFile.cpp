@@ -20,6 +20,7 @@
 #include "Exceptions.hpp"
 
 #include "Globals.hpp"
+#include "Messenger.hpp"
 
 using namespace std;
 
@@ -41,8 +42,6 @@ MapFile::MapFile(const string &filename /*="map2.txt"*/)
     string mapFileName = conf_path->GetFullPath(filename);
     delete conf_path;
 
-    cout << "MapFile: loading map file " << mapFileName << endl;
-
     ifstream in(mapFileName.c_str());
      
     if (!in.good()) {
@@ -57,29 +56,32 @@ MapFile::MapFile(const string &filename /*="map2.txt"*/)
     vector< vector<string> > wildcardLines;
 
     while (!in.eof()) {
-	tokenList.clear();
-	in.getline(line, maxConfigLineLength);
-	if (in.fail())
-	    break;
-	
-	// Allowing for comments for any line not starting with a number or a star
-	if (!isdigit(line[0]) && line[0] != '*')
-	    continue;
+        tokenList.clear();
+        in.getline(line, maxConfigLineLength);
+        if (in.fail())
+            break;
+        
+        // Allowing for comments for any line not starting with a number or a star
+        if (!isdigit(line[0]) && line[0] != '*')
+            continue;
 
-	TokenizeString(string(line), tokenList);
-	if (tokenList.size() < 3) {
-	    cerr << "Too few tokens in map file line: " << endl;
-	    cerr << line << endl;
-	    continue;
-	}
-	// separate lines based on whether or not they contain wildcards
-	//   wildcards are * or ranges (i.e. 1-4) or even/odd for channels given by 'e' / 'o'
-	if ( HasWildcard(tokenList.at(0)) || HasWildcard(tokenList.at(1)) ) {
-	    wildcardLines.push_back(tokenList);
-	} else {
-	    normalLines.push_back(tokenList);
-	}
+        TokenizeString(string(line), tokenList);
+        if (tokenList.size() < 3) {
+            cerr << "Too few tokens in map file line: " << endl;
+            cerr << line << endl;
+            continue;
+        }
+        // separate lines based on whether or not they contain wildcards
+        //   wildcards are * or ranges (i.e. 1-4) or even/odd for channels given by 'e' / 'o'
+        if ( HasWildcard(tokenList.at(0)) || HasWildcard(tokenList.at(1)) ) {
+            wildcardLines.push_back(tokenList);
+        } else {
+            normalLines.push_back(tokenList);
+        }
     }
+
+    Messenger m;
+    m.start("Loading map file: " + mapFileName);
 
     // now we parse each tokenized line, processing wildcard lines afterwards
     for (vector< vector<string> >::iterator it = normalLines.begin();
@@ -90,6 +92,7 @@ MapFile::MapFile(const string &filename /*="map2.txt"*/)
 	 it != wildcardLines.end(); it++) {
         ProcessTokenList(*it);
     }
+    m.done();
 
     /* At this point basic Correlator places build automatically from
      * map file should be created so we can call buildTree function */
