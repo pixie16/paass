@@ -1,0 +1,20 @@
+% This provides information for the position determination form QDCs
+%   first the QDC lengths are provided for normalization 
+%   then followed by the QDC for position determination and size of scale
+%   finally each location is given with a min and max value of the
+%     normalized QDC = QDC_T / (QDC_T + QDC_B) * 1000. 
+%   estimated parameter for position 3, 5, and 9
+30 30 40 75 75 100 600 50
+2 35
+0       223	774
+1	231	771
+2	227	770
+3	225	770
+4	222	798
+5	225	770
+6	235	767
+7	227	773
+8	187	810
+9	200	800
+10	199	801
+11	205	803
