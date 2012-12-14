@@ -9,6 +9,7 @@
 
 #include "PlotsRegister.hpp"
 #include "Exceptions.hpp"
+#include "Messenger.hpp"
 
 using namespace std;
 
@@ -74,6 +75,9 @@ bool PlotsRegister::Add (int offset, int range)
     
     reg.push_back( std::pair<int, int>(min, max) );
 
-    cout << "Histogram ids: " << min << " to " << max << " registered." << endl;
+    Messenger m;
+    stringstream ss;
+    ss << "Histogram ids: " << min << " to " << max << " registered";
+    m.detail(ss.str());
     return true;        
 }

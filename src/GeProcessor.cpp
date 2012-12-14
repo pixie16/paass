@@ -27,6 +27,8 @@
 #include "DetectorLibrary.hpp"
 #include "GeProcessor.hpp"
 #include "RawEvent.hpp"
+#include "Messenger.hpp"
+#include "Exceptions.hpp"
 
 using namespace std;
 
@@ -107,6 +109,7 @@ GeProcessor::GeProcessor() : EventProcessor(OFFSET, RANGE), leafToClover() {
     // in seconds/bin
     // 1e-6, 10e-6, 100e-6, 1e-3, 10e-3, 100e-3 
     timeResolution.push_back(10e-3); 
+    timeResolution.push_back(5e-3); 
 
 #ifdef GGATES
     /* 
@@ -157,7 +160,7 @@ GeProcessor::GeProcessor() : EventProcessor(OFFSET, RANGE), leafToClover() {
 /** Declare plots including many for decay/implant/neutron gated analysis  */
 void GeProcessor::DeclarePlots(void) 
 {
-    const int energyBins1  = SE;
+    const int energyBins1  = SD;
     const int energyBins2  = SC;
     const int timeBins1    = S8;
     const int granTimeBins = SA;
@@ -190,25 +193,32 @@ void GeProcessor::DeclarePlots(void)
 
     if (cloverChans != 0) {
         numClovers = cloverChans / chansPerClover;
-        //print statement
-        cout << "A total of " << cloverChans << " clover channels were detected: ";
+        Messenger m;
+        m.start("Building clovers");
+
+        stringstream ss;
+        ss << "A total of " << cloverChans 
+           << " clover channels were detected: ";
         int lastClover = numeric_limits<int>::min();
         for ( map<int, int>::const_iterator it = leafToClover.begin();
             it != leafToClover.end(); it++ ) {
             if (it->second != lastClover) {
+                m.detail(ss.str());
+                ss.str("");
                 lastClover = it->second;
-                cout << endl << "  " << lastClover << " : ";
+                ss << "Clover " << lastClover << " : ";
             } else {
-                cout << ", ";
+                ss << ", ";
             }
-                cout << setw(2) << it->first ;
+            ss << setw(2) << it->first;
         }
+        m.detail(ss.str());
 
         if (numClovers > dammIds::ge::MAX_CLOVERS) {
-            cout << "This is greater than MAX_CLOVERS for spectra definition."
-            << "  Check the spectrum definition file and try again." << endl;
-            exit(EXIT_FAILURE);
+            m.fail();
+            throw GeneralException("Number of detected clovers is greater than MAX_CLOVERS for spectra definition.");
         }   
+        m.done();
     }
 
     for (unsigned i = 0; i < numClovers; ++i) {
@@ -216,18 +226,24 @@ void GeProcessor::DeclarePlots(void)
         addbackEvents_.push_back(empty);
     }
 
-    DeclareHistogram1D(D_ENERGY                 , energyBins1, "Gamma singles");
-    DeclareHistogram1D(betaGated::D_ENERGY      , energyBins1, "Beta gated gamma");
-    DeclareHistogram1D(betaGated::D_ENERGY_BETA0, energyBins1, "Gamma beta0 gate");
-    DeclareHistogram1D(betaGated::D_ENERGY_BETA1, energyBins1, "Gamma beta1 gate");
-    DeclareHistogram1D(D_ENERGY_LOWGAIN         , energyBins1, "Gamma singles, low gain");
-    DeclareHistogram1D(D_ENERGY_HIGHGAIN        , energyBins1, "Gamma singles, high gain");
+    DeclareHistogram1D(D_ENERGY, energyBins1, "Gamma singles");
+    DeclareHistogram1D(betaGated::D_ENERGY, energyBins1, "Beta gated gamma");
+    DeclareHistogram1D(betaGated::D_ENERGY_BETA0, energyBins1,
+                       "Gamma beta0 gate");
+    DeclareHistogram1D(betaGated::D_ENERGY_BETA1, energyBins1,
+                       "Gamma beta1 gate");
+    DeclareHistogram1D(D_ENERGY_LOWGAIN, energyBins1,
+                       "Gamma singles, low gain");
+    DeclareHistogram1D(D_ENERGY_HIGHGAIN, energyBins1,
+                       "Gamma singles, high gain");
     DeclareHistogram1D(D_MULT, S3, "Gamma multiplicity");                  
 
-    DeclareHistogram1D(D_ADD_ENERGY                 , energyBins1, "Gamma addback");
-    DeclareHistogram1D(betaGated::D_ADD_ENERGY      , energyBins1, "Beta gated gamma addback");
-    DeclareHistogram1D(D_ADD_ENERGY_TOTAL           , energyBins1, "Gamma total");
-    DeclareHistogram1D(betaGated::D_ADD_ENERGY_TOTAL, energyBins1, "Beta gated gamma total");
+    DeclareHistogram1D(D_ADD_ENERGY, energyBins1, "Gamma addback");
+    DeclareHistogram1D(betaGated::D_ADD_ENERGY, energyBins1,
+                       "Beta gated gamma addback");
+    DeclareHistogram1D(D_ADD_ENERGY_TOTAL, energyBins1, "Gamma total");
+    DeclareHistogram1D(betaGated::D_ADD_ENERGY_TOTAL, energyBins1,
+                       "Beta gated gamma total");
     
     // for each clover
     for (unsigned int i = 0; i < numClovers; i++) {
@@ -270,16 +286,26 @@ void GeProcessor::DeclarePlots(void)
     DeclareHistogram2D(betaGated::DD_ADD_ENERGY_LATE, energyBins2, energyBins2, "Beta-gated Gamma gamma addback late cycle");
 
 
-    DeclareHistogram2D(DD_TDIFF__GAMMA_GAMMA_ENERGY, timeBins1,
-                energyBins2, "Gamma energy, gamma-gamma same clover time diff + 100 (10 ns)");
-    DeclareHistogram2D(DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM, timeBins1,
-            energyBins2, "Sum Gamma energy, gamma-gamma same clover time diff + 100 (10 ns)");
-    DeclareHistogram2D(betaGated::DD_TDIFF__GAMMA_ENERGY, timeBins1,
-                       energyBins2, "Gamma energy, beta time diff + 100 (10 ns)");
-    DeclareHistogram2D(betaGated::DD_TDIFF__BETA_ENERGY, timeBins1,
-                       energyBins2, "Beta energy, gamma time diff + 100 (10 ns)");
+    DeclareHistogram2D(
+            DD_TDIFF__GAMMA_GAMMA_ENERGY, 
+            timeBins1, energyBins2,
+            "Gamma energy, gamma-gamma same clover time diff + 100 (10 ns)");
+    DeclareHistogram2D(
+            DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM,
+            timeBins1,
+            energyBins2,
+           "Sum Gamma energy, gamma-gamma same clover time diff + 100 (10 ns)");
+    DeclareHistogram2D(
+            betaGated::DD_TDIFF__GAMMA_ENERGY,
+            timeBins1, energyBins2,
+            "Gamma energy, beta time diff + 100 (10 ns)");
+    DeclareHistogram2D(
+            betaGated::DD_TDIFF__BETA_ENERGY,
+            timeBins1, energyBins2,
+            "Beta energy, gamma time diff + 100 (10 ns)");
 
-    DeclareHistogram2D(DD_CLOVER_ENERGY_RATIO, S4, S6, "high/low energy ratio (x10)");
+    DeclareHistogram2D(DD_CLOVER_ENERGY_RATIO, S4, S6,
+            "high/low energy ratio (x10)");
 
 #ifdef GGATES
     DeclareHistogram2D(DD_ANGLE__GATEX, S2, S5,
@@ -292,10 +318,19 @@ void GeProcessor::DeclarePlots(void)
                        "g_g_beta gated gamma energy");
 #endif
 
-    DeclareHistogramGranY(DD_ENERGY__TIMEX               , energyBins2, granTimeBins, "E - Time", 2, timeResolution, "s");
-    DeclareHistogramGranY(DD_ADD_ENERGY__TIMEX           , energyBins2, granTimeBins, "Addback E - Time", 2, timeResolution, "s");
-    DeclareHistogramGranY(betaGated::DD_ENERGY__TIMEX    , energyBins2, granTimeBins, "Beta-gated E - Time", 2, timeResolution, "s");
-    DeclareHistogramGranY(betaGated::DD_ADD_ENERGY__TIMEX, energyBins2, granTimeBins, "Beta-gated addback E - Time", 2, timeResolution, "s");
+    DeclareHistogramGranY(DD_ENERGY__TIMEX,
+                          energyBins2, granTimeBins,
+                          "E - Time", 2, timeResolution, "s");
+    DeclareHistogramGranY(DD_ADD_ENERGY__TIMEX,
+                          energyBins2, granTimeBins,
+                          "Addback E - Time", 2, timeResolution, "s");
+    DeclareHistogramGranY(betaGated::DD_ENERGY__TIMEX,
+                          energyBins2, granTimeBins,
+                          "Beta-gated E - Time", 2, timeResolution, "s");
+    DeclareHistogramGranY(betaGated::DD_ADD_ENERGY__TIMEX,
+                          energyBins2, granTimeBins,
+                          "Beta-gated addback E - Time",
+                          2, timeResolution, "s");
 }
 
 
@@ -688,9 +723,12 @@ void GeProcessor::DeclareHistogramGranY(int dammId, int xsize, int ysize,
     stringstream fullTitle;
 
     for (unsigned int i=0; i < granularity.size(); i++) {	 
-	//? translate scientific units to engineering units 
-	fullTitle << title << " (" << granularity[i] << " " << units << "/bin)";
-	histo.DeclareHistogram2D(dammId + i, xsize, ysize, fullTitle.str().c_str(), halfWordsPerChan, 1, 1);
+        //? translate scientific units to engineering units 
+        fullTitle << title << " (" << granularity[i] << " " << units << "/bin)";
+        histo.DeclareHistogram2D(dammId + i, xsize, ysize,
+                                 fullTitle.str().c_str(),
+                                 halfWordsPerChan, 1, 1);
+        fullTitle.str("");
     }
 } 
 
@@ -700,6 +738,6 @@ void GeProcessor::DeclareHistogramGranY(int dammId, int xsize, int ysize,
 void GeProcessor::granploty(int dammId, double x, double y, const vector<float> &granularity)
 {
     for (unsigned int i=0; i < granularity.size(); i++) {
-	plot(dammId + i, x, y / granularity[i]);
+        plot(dammId + i, x, y / granularity[i]);
     }
 }

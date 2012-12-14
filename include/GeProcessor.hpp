@@ -128,7 +128,8 @@ protected:
     /** Returns true if gamma-beta correlation time within good limits. Browses through all beta
      * events in Beta correlation place to find lowest difference. Takes gTime in pixie clock, limit in
      * seconds. */
-    bool GoodGammaBeta(double gTime, double limit_in_sec = detectors::gammaBetaLimit);
+    bool GoodGammaBeta(double gTime, 
+                       double limit_in_sec = detectors::gammaBetaLimit);
 
     vector<GGate> gGates;
     vector<ChanEvent*> geEvents_; /*!< Preprocessed good ge events, filled in PreProcess, removed in Process*/
@@ -136,7 +137,8 @@ protected:
     void DeclareHistogramGranY(int dammId, int xsize, int ysize, 
 			       const char *title, int halfWordsPerChan,
 			       const std::vector<float> &granularity, const char *units );
-    void granploty(int dammId, double x, double y, const std::vector<float> &granularity);
+    void granploty(int dammId, double x, double y, 
+                   const std::vector<float> &granularity);
     void symplot(int dammID, double bin1, double bin2);
 
     /** addbackEvents vector is arranged as:
