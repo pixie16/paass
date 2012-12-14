@@ -1,9 +1,0 @@
-#loc 	type	subtype	n    ord  thresh  pol0	pol1	pol2
-0 	ge	clover_high  1 2	  0	0.792454 1.2532 -7.82631e-7
-1 	ge	clover_high  1 2	  0	0.863833 1.27155 5.17599e-7
-2 	ge	clover_high  1 2	  0	0.815639 1.26946 2.56872e-7
-3 	ge	clover_high  1 2	  0	0.720981 1.27334 1.34131e-7
-4 	ge	clover_high  1 2	  0	0.500352 1.28467 8.50474e-7
-5 	ge	clover_high  1 2	  0	1.25107	 1.31094 7.94882e-7
-6 	ge	clover_high  1 2	  0	0.838625 1.23701 8.0854e-7 
-7 	ge	clover_high  1 2	  0	0.55821	 1.27685 6.13361e-7
