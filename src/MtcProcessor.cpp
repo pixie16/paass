@@ -140,9 +140,16 @@ bool MtcProcessor::PreProcess(RawEvent &event)
         } else if (place == "mtc_beam_stop_0") {
 
             double dt_stop = time - 
-                      TreeCorrelator::get()->place(place)->secondlast().time;
+                  TreeCorrelator::get()->place(place)->secondlast().time;
             double dt_beam = time - 
-                      TreeCorrelator::get()->place("mtc_beam_start_0")->last().time;
+                  TreeCorrelator::get()->place("mtc_beam_start_0")->last().time;
+            //Remove double stops
+            //Upper limit in seconds for bad event
+            const double doubleTimeLimit = 10e-6;
+            if (dt_stop * pixie::clockInSeconds < doubleTimeLimit ||
+                dt_beam * pixie::clockInSeconds < doubleTimeLimit)
+                continue;
+
             TreeCorrelator::get()->place("Beam")->deactivate(time);
 
             plot(D_TDIFF_BEAM_STOP, dt_stop / mtcPlotResolution);
