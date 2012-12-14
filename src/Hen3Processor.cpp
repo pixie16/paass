@@ -28,8 +28,12 @@ namespace dammIds {
         const int DD_DISTR_NEUTRON = 11;
 
         // 3Hen noisy bars in 86Ga experiment
+        /*
         const int NUM_OF_REJECT = 6;
         const int REJECT_LOCATIONS[NUM_OF_REJECT] = {0, 2, 8, 10, 34, 40};
+        */
+        const int NUM_OF_REJECT = 1;
+        const int REJECT_LOCATIONS[NUM_OF_REJECT] = {34};
     }
 }
 

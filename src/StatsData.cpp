@@ -5,10 +5,12 @@
 #include <iostream>
 #include <cmath>
 #include <cstring>
+#include <sstream>
 
 #include "pixie16app_defs.h"
 #include "Globals.hpp"
 #include "StatsData.hpp"
+#include "Messenger.hpp"
 
 using std::cout;
 using std::endl;
@@ -19,8 +21,12 @@ StatsData stats;
 /** Clear the statistics data structures */
 StatsData::StatsData()
 {
-  cout << "Allocating " << sizeof(oldData) + sizeof(data) 
-       << " bytes for statistics data" << endl;
+  std::stringstream ss;
+  ss << "Allocating " << sizeof(oldData) + sizeof(data) 
+     << " bytes for statistics data";
+  Messenger m;
+  m.detail(ss.str());
+
   bzero(oldData, sizeof(oldData));
   bzero(data, sizeof(data));
 

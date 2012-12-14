@@ -1,4 +1,5 @@
 #include "PathHolder.hpp"
+#include "Messenger.hpp"
 
 std::string PathHolder::path_ = ".";
 
@@ -23,5 +24,7 @@ void PathHolder::SetPath (std::string fileName) {
         throw IOException(ss.str());
     }
     config_file.close();
-    std::cout << "Configuration path: " << path_ << std::endl;
+    Messenger m;
+    m.start("Opening configuration path: " +  path_);
+    m.done();
 }

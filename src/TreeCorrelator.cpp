@@ -2,6 +2,7 @@
 #include "TreeCorrelator.hpp"
 #include "Globals.hpp"
 #include "Exceptions.hpp"
+#include "Messenger.hpp"
 
 using namespace std;
 
@@ -37,7 +38,6 @@ PlaceBuilder TreeCorrelator::builder = PlaceBuilder();
 TreeCorrelator* TreeCorrelator::get() {
     if (!instance) {
         instance = new TreeCorrelator();
-        cout << "Creating instance of TreeCorrelator" << endl;
     }
     return instance;
 }
@@ -156,19 +156,24 @@ void TreeCorrelator::buildTree() {
     pugi::xml_document doc;
 
     PathHolder* conf_path = new PathHolder();
-    string xmlFileName = conf_path->GetFullPath("TreeCorrelator.xml");
+    string xmlFileName = conf_path->GetFullPath("Config.xml");
     delete conf_path;
 
+    Messenger m;
+    m.start("Creating TreeCorrelator");
     pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
-    cout << "Loading configiration file " << xmlFileName << " : "
-         << result.description() 
-         << endl << "Configuration description: "
-         << doc.child("TreeCorrelator").attribute("description").value()
-         << endl;
+    if (!result) {
+        stringstream ss;
+        ss << "DetectorDriver: could not parse file " << xmlFileName;
+        m.fail();
+        throw IOException(ss.str());
+    }
 
-    pugi::xml_node tree = doc.child("TreeCorrelator");
+    pugi::xml_node tree = doc.child("Configuration").child("TreeCorrelator");
     Walker walker;
     walker.traverseTree(tree, string(tree.attribute("name").value()));
+
+    m.done();
 }
 
 TreeCorrelator::~TreeCorrelator() {

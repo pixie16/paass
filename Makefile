@@ -144,6 +144,7 @@ IONCHAMBERPROCESSORO = IonChamberProcessor.$(ObjSuf)
 LIQUIDSCINTPROCESSORO = LiquidScintProcessor.$(ObjSuf)
 LOGICPROCESSORO  = LogicProcessor.$(ObjSuf)
 MAPFILEO         = MapFile.$(ObjSuf)
+MESSENGERO       = Messenger.$(ObjSuf)
 MCPPROCESSORO    = McpProcessor.$(ObjSuf)
 MTCPROCESSORO    = MtcProcessor.$(ObjSuf)
 NEUTRONSCINTPROCESSORO  = NeutronScintProcessor.$(ObjSuf)
@@ -227,6 +228,7 @@ $(IONCHAMBERPROCESSORO)\
 $(LIQUIDSCINTPROCESSORO)\
 $(LOGICPROCESSORO)\
 $(MAPFILEO)\
+$(MESSENGERO)\
 $(MCPPROCESSORO)\
 $(MTCPROCESSORO)\
 $(NEUTRONSCINTPROCESSORO)\
@@ -290,7 +292,7 @@ all:     $(PROGRAMS)
 #----------- remove all objects, core and .so file
 clean:
 	@echo "Cleaning up..."
-	@rm -f $(OBJS) $(PIXIE) core *~ src/*~ include/*~ scan/*~
+	@rm -f $(OBJS) $(PIXIE) core *~ src/*~ include/*~ scan/*~ config/*~
 
 tidy:
 	@echo "Tidying up..."

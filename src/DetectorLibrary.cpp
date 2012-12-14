@@ -225,15 +225,11 @@ const set<string>& DetectorLibrary::GetKnownDetectors(void)
   
     // only call this once
     if (!knownDetectors.empty())
-	return knownDetectors;
-
-    // this is a list of the detectors that are known to this program.
-    cout << "DetectorLibrary: constructing the list of known detectors "
-         << endl;
+        return knownDetectors;
 
     //? get these from event processors
     for (unsigned int i=0; i < detTypes; i++)
-	knownDetectors.insert(detectorStrings[i]);
+        knownDetectors.insert(detectorStrings[i]);
 
     return knownDetectors;
 }

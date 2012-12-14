@@ -22,6 +22,7 @@
 #include "Globals.hpp"
 #include "MapFile.hpp"
 #include "ChanEvent.hpp"
+#include "Messenger.hpp"
 
 // forward declarations
 class Calibration;
@@ -64,6 +65,7 @@ class DetectorDriver {
     virtual void DeclareHistogram2D(int dammId, int xSize, int ySize, const char* title) {
         histo.DeclareHistogram2D(dammId, xSize, ySize, title);
     }
+    void LoadProcessors(Messenger& m);
 
  public:    
     static DetectorDriver* get();
