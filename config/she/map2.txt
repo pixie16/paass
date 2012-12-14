@@ -1,0 +1,14 @@
+%mod    ch      par     gr      sgr     num_in_gr
+0-1     0-15e   ssd     top     1       uncal
+0-1     0-15o   ssd     bottom  1       uncal
+2-3     0-15    ssd     box     1       uncal
+4       0-3     ssd     veto    1       uncal
+4       4-8     generic tac     1       uncal
+4       9-12    ge      ge      1       uncal
+5       0-9e    logic   stop    1       uncal
+5       0-9o    logic   start   1       uncal
+5       10      logic   trigger 1       uncal
+5       11      logic   mcp     1       uncal
+6       *       ssd     sum     1       uncal
+7       0-14e   ssd     digisum 1       virtual uncal
+8       0-14e   ssd     digisum 9       virtual uncal

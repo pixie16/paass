@@ -19,7 +19,7 @@ REVISIOND = 1
 # GGATES = 1
 
 # Define to see debugging information for TreeCorrelator
-DEBUG = 1
+#DEBUG = 1
 
 # Use gfortran
 HHIRF_GFORTRAN = 1
