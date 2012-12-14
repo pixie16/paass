@@ -175,14 +175,15 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
     // Call base class processing
     GeProcessor::Process(event);
 
-    /* tapeMove is true if the tape is moving */
-    bool tapeMove = TreeCorrelator::get()->place("TapeMove")->status();
-
-    /** If the tape is moving there is no need of analyzing events
-     *  as they are background.
+    /** Place Cycle is activated by BeamOn event and deactivated by TapeMove
+     *  This will therefore skip events after tape was moved and before 
+     *  beam hit the new spot
      */
-    if (tapeMove)
+    if (!TreeCorrelator::get()->place("Cycle")->status())
         return true;
+
+    /** Cycle time is measured from the begining of the last BeamON event */
+    double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
 
     /* Number of neutrons as selected by gates on 3hen spectrum.
      * See DetectorDriver::InitCorrelator for gates. */
@@ -198,8 +199,6 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
 
     /* Beta places are activated with threshold in ScintProcessor. */
     bool hasBeta = TreeCorrelator::get()->place("Beta")->status();
-    /* Cycle time is measured from the begining of last beam on event.*/
-    double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
 
     for (vector<ChanEvent*>::iterator it = geEvents_.begin(); 
 	 it != geEvents_.end(); it++) {
