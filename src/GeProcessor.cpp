@@ -483,13 +483,15 @@ bool GeProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return false;
 
-    // tapeMove is true if the tape is moving
-    bool tapeMove = TreeCorrelator::get()->place("TapeMove")->status();
-
-    // If the tape is moving there is no need of analyzing events
-    // as they must belong to background
-    if (tapeMove)
+    /** Place Cycle is activated by BeamOn event and deactivated by TapeMove
+     *  This will therefore skip events after tape was moved and before 
+     *  beam hit the new spot
+     */
+    if (!TreeCorrelator::get()->place("Cycle")->status())
         return true;
+
+    /** Cycle time is measured from the begining of the last BeamON event */
+    double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
 
     // beamOn is true for beam on and false for beam off
     bool beamOn =  TreeCorrelator::get()->place("Beam")->status();
@@ -510,8 +512,6 @@ bool GeProcessor::Process(RawEvent &event) {
         betaEnergy = max(betaEnergy0, betaEnergy1);
     }
     
-    // Cycle time is measured from the begining of last beam on event
-    double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
 
     // Note that geEvents_ vector holds only good events (matched
     // low & high gain). See PreProcess
@@ -521,8 +521,9 @@ bool GeProcessor::Process(RawEvent &event) {
         
         double gEnergy = chan->GetCalEnergy();	
         double gTime = chan->GetCorrectedTime();
-        double decayTime = (gTime - cycleTime) 
-                           * pixie::clockInSeconds;
+        double decayTime = (gTime - cycleTime) *
+                           pixie::clockInSeconds;
+        
         int det = leafToClover[chan->GetChanID().GetLocation()];
         if (gEnergy < detectors::gammaThreshold) 
             continue;
