@@ -85,7 +85,8 @@
         <Place type="PlaceAND" name="GammaBeta">
             <Place type="PlaceOR" name="Beta">
                 <Place type="PlaceThreshold" name="beta_scint_beta_0-1"
-                    low_limit="10.0" high_limit="16384" replace="true"/>
+                    low_limit="10.0" high_limit="16384" fifo="10"
+                    replace="true"/>
             </Place>
             <Place type="PlaceOR" name="Gamma">
                 <Place type="PlaceOR" name="Clover0">

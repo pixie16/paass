@@ -87,7 +87,7 @@ double GeProcessor::GammaBetaDtime(double gTime) {
 
 bool GeProcessor::GoodGammaBeta(double gTime, 
                         double limit_in_sec /* = detectors::gammaBetaLimit*/) {
-    if (GammaBetaDtime(gTime) > limit_in_sec)
+    if (abs(GammaBetaDtime(gTime)) > limit_in_sec)
         return false;
     return true;
 }
