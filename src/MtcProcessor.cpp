@@ -130,6 +130,14 @@ bool MtcProcessor::PreProcess(RawEvent &event)
 
             double dt_start = time -
                       TreeCorrelator::get()->place(place)->secondlast().time;
+            double dt_stop = abs(time - 
+                 TreeCorrelator::get()->place("mtc_beam_stop_0")->last().time);
+            //Remove double starts/stops
+            //Upper limit in seconds for bad event
+            const double doubleTimeLimit = 100e-6;
+            if (abs(dt_start * pixie::clockInSeconds) < doubleTimeLimit ||
+                abs(dt_stop * pixie::clockInSeconds) < doubleTimeLimit)
+                continue;
             TreeCorrelator::get()->place("Beam")->activate(time);
             TreeCorrelator::get()->place("Cycle")->activate(time);
 
@@ -140,14 +148,14 @@ bool MtcProcessor::PreProcess(RawEvent &event)
         } else if (place == "mtc_beam_stop_0") {
 
             double dt_stop = time - 
-                  TreeCorrelator::get()->place(place)->secondlast().time;
+                TreeCorrelator::get()->place(place)->secondlast().time;
             double dt_beam = time - 
-                  TreeCorrelator::get()->place("mtc_beam_start_0")->last().time;
-            //Remove double stops
+                 TreeCorrelator::get()->place("mtc_beam_start_0")->last().time;
+            //Remove double starts/stops
             //Upper limit in seconds for bad event
-            const double doubleTimeLimit = 10e-6;
-            if (dt_stop * pixie::clockInSeconds < doubleTimeLimit ||
-                dt_beam * pixie::clockInSeconds < doubleTimeLimit)
+            const double doubleTimeLimit = 100e-6;
+            if (abs(dt_stop * pixie::clockInSeconds) < doubleTimeLimit ||
+                abs(dt_beam * pixie::clockInSeconds) < doubleTimeLimit)
                 continue;
 
             TreeCorrelator::get()->place("Beam")->deactivate(time);
