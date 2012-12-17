@@ -22,7 +22,9 @@ REVISIOND = 1
 #DEBUG = 1
 
 # Use gfortran
+ifeq ($(HHIRF_GFORTRAN),)
 HHIRF_GFORTRAN = 1
+endif
 
 #These will set the analysis used on the waveforms
 #Uncomment this line to use the Pulse Fitting routine
@@ -69,7 +71,7 @@ cxxSrcSuf = cxx
 
 #------- define compilers
 #define to compile with gfortran (>=4.2) if required for the hhirf libs
-ifeq ($(HHIRF_GFORTRAN), )
+ifneq ($(HHIRF_GFORTRAN),1)
 FC        = g77
 else
 FC        = gfortran
