@@ -2,11 +2,10 @@
 # This script is called by 'tra' script
 # CH should be provided by external call
 unset key
-set title "Channel ".CH
+set title "Ch ".CH
 
-tracesize = 8192
-min = CH * tracesize
-max = min + tracesize - 1
+min = CH * 8192
+max = (CH + 1) * 8192
 
-set xtics 0,tracesize/2
-plot '/tmp/traces.dat' binary format="%ushort%ushort" every ::min::max with histeps
+set xtics 0,4096
+plot '/tmp/traces.dat' binary format="%ushort%ushort" every ::min::max w histeps t "Channel ".CH

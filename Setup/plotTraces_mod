@@ -70,4 +70,3 @@ call 'plotTraces_ch'
 unset multiplot
 set origin 0,0
 set size 1,1
-
