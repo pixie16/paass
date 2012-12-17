@@ -1,0 +1,25 @@
+#!/bin/make
+include ../makepixie.inc
+
+vpath %.cpp src
+vpath %.hpp include
+vpath %.h   include
+
+CC=g++
+
+MCAOBJS    = MCA.o
+TRAOBJS    = get_traces.o
+HISDRROBJS = HisDrr.o
+OBJECTS    = $(HISDRROBJS) $(MCAOBJS) $(TRAOBJS)
+
+TARGETS = MCA get_traces
+
+.phony: all clean
+all: $(TARGETS)
+
+MCA: $(HISDRROBJS) $(MCAOBJS) $(INTERFACELIB) $(INTERFACE)/Utility.o
+
+get_traces: $(INTERFACELIB) $(INTERFACE)/Utility.o
+
+clean:
+	@$(RM) $(OBJECTS) $(TARGETS) *~

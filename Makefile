@@ -1,4 +1,4 @@
-SUBDIRS = Interface Poll Setup
+SUBDIRS = Interface Poll Setup PxiDump
 DOCDIRS = Documents
 ALLDIRS = $(SUBDIRS) $(DOCDIRS)
 LASTDIR = $(notdir $(CURDIR))

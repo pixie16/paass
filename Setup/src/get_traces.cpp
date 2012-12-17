@@ -15,6 +15,7 @@
 
 // linux iuncludes
 #include <getopt.h>
+#include <unistd.h>
 
 // pixie includes
 #include "utilities.h"

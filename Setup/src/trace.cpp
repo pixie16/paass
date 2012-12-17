@@ -12,6 +12,7 @@
 // pixie includes
 #include "utilities.h"
 #include "PixieInterface.h"
+#include "unistd.h"
 
 using std::cout;
 using std::endl;

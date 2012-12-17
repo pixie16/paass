@@ -15,10 +15,12 @@ TARGETS = trace_paw mca_paw
 CXXFLAGS += -Wno-unused-function
 
 .phony: all clean
+
 all: $(TARGETS)
+
+clean:
+	@$(RM) $(OBJECTS) $(TARGETS) *~
 
 mca_paw: $(MCAOBJS) $(INTERFACELIB) $(INTERFACE)/Utility.o
 trace_paw: $(TRACEOBJS) $(INTERFACELIB)
 
-clean:
-	@$(RM) $(OBJECTS) $(TARGETS) *~

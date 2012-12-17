@@ -3,6 +3,9 @@
 
 include ../makepixie.inc
 
+#Uncomment this in order to make paw
+#USE_PAW=1
+
 vpath %.cpp src
 
 ADJUSTOBJS  =   adjust_offsets.o
@@ -30,29 +33,45 @@ SETHYBRIDOBJS = set_hybrid.o
 
 COMMONOBJS  = $(INTERFACELIB)
 
-OBJS        = $(PMREADOBJS) $(PMWRITEOBJS) $(PREADOBJS) $(PWRITEOBJS) $(RATEOBJS) $(BOOTOBJS) $(ADJUSTOBJS) $(COPYOBJS) $(TRACEOBJS) $(CSRTESTOBJS) $(FINDOBJS) $(TGGAINOBJS) $(TGGOODOBJS) $(TGPOLOBJS) $(TGTRACEOBJS) $(TGPILEUPOBJS) $(TGCATCHEROBJS) $(SETSTDOBJS) $(SETPUONLYOBJS) $(SETPURJCTOBJS) $(SETHYBRIDOBJS) $(GETTRACESO)
+OBJS =  $(PMREADOBJS) $(PMWRITEOBJS) $(PREADOBJS) $(PWRITEOBJS) $(RATEOBJS) \
+	$(BOOTOBJS) $(ADJUSTOBJS) $(COPYOBJS) $(TRACEOBJS) $(CSRTESTOBJS) \
+	$(FINDOBJS) $(TGGAINOBJS) $(TGGOODOBJS) $(TGPOLOBJS) $(TGTRACEOBJS) \
+	$(TGPILEUPOBJS) $(TGCATCHEROBJS) $(SETSTDOBJS) $(SETPUONLYOBJS) \
+	$(SETPURJCTOBJS) $(SETHYBRIDOBJS) $(GETTRACESO)
 
-TARGETS     = pmread pmwrite pread pwrite rate adjust_offsets copy_params boot trace csr_test find_tau toggle_gain toggle_good toggle_polarity toggle_trace toggle_pileup toggle_catcher set_standard set_hybrid set_pileups_only set_pileups_reject get_traces
+TARGETS = pmread pmwrite pread pwrite rate adjust_offsets copy_params boot \
+	trace csr_test find_tau toggle_gain toggle_good toggle_polarity \
+	toggle_trace toggle_pileup toggle_catcher set_standard set_hybrid \
+	set_pileups_only set_pileups_reject get_traces
 
-CHANNEL_PARMS = TRIGGER_RISETIME TRIGGER_FLATTOP TRIGGER_THRESHOLD ENERGY_RISETIME ENERGY_FLATTOP TAU TRACE_LENGTH TRACE_DELAY VOFFSET XDT BASELINE_PERCENT EMIN BINFACTOR CHANNEL_CSRA CHANNEL_CSRB BLCUT ENERGYCUTOFF
-MODULE_PARMS = MODULE_CSRA MODULE_CSRB MODULE_FORMAT MAX_EVENTS SYNCH_WAIT IN_SYNCH SLOW_FILTER_RANGE FAST_FILTER_RANGE MODULE_NUMBER
+CHANNEL_PARMS = TRIGGER_RISETIME TRIGGER_FLATTOP TRIGGER_THRESHOLD ENERGY_RISETIME \
+	ENERGY_FLATTOP TAU TRACE_LENGTH TRACE_DELAY VOFFSET XDT BASELINE_PERCENT \
+	EMIN BINFACTOR CHANNEL_CSRA CHANNEL_CSRB BLCUT ENERGYCUTOFF
+MODULE_PARMS = MODULE_CSRA MODULE_CSRB MODULE_FORMAT MAX_EVENTS SYNCH_WAIT \
+	IN_SYNCH SLOW_FILTER_RANGE FAST_FILTER_RANGE MODULE_NUMBER
 MODULE_RLINKS = $(foreach parm,$(MODULE_PARMS),R_$(parm))
 MODULE_WLINKS = $(foreach parm,$(MODULE_PARMS),W_$(parm))
 CHANNEL_RLINKS = $(foreach parm,$(CHANNEL_PARMS),R_$(parm))
 CHANNEL_WLINKS = $(foreach parm,$(CHANNEL_PARMS),W_$(parm))
 
-LINKS = $(MODULE_RLINKS) $(MODULE_WLINKS) $(CHANNEL_RLINKS) $(CHANNEL_WLINKS) pxisys.ini slot_def.set
+LINKS = $(MODULE_RLINKS) $(MODULE_WLINKS) $(CHANNEL_RLINKS) $(CHANNEL_WLINKS) \
+	pxisys.ini slot_def.set current.set
 # make things copasetic with c++
-LINK.o      = $(CXX) $(LDFLAGS) $(TARGET_ARCH)
+LINK.o = $(CXX) $(LDFLAGS) $(TARGET_ARCH)
 
-PAWMAKE = $(MAKE) --no-print-directory -f Makefile.paw
-.phony: clean all links veryclean paw progs
+ifndef USE_PAW
+PLOTTER = $(MAKE) --no-print-directory -f Makefile.mca
+else
+PLOTTER = $(MAKE) --no-print-directory -f Makefile.paw
+endif
+
+.phony: clean all links veryclean plotter progs
 all: progs links current.set
 
-progs: $(TARGETS) paw
+progs: $(TARGETS) plotter
 
-paw:
-	@$(PAWMAKE)
+plotter:
+	@$(PLOTTER)
 
 adjust_offsets: $(ADJUSTOBJS) $(COMMONOBJS)
 find_tau: $(FINDOBJS) $(COMMONOBJS)
@@ -80,7 +99,7 @@ csr_test: $(CSRTESTOBJS)
 clean: 
 	@echo "Cleaning up..."
 	@$(RM) $(OBJS) $(TARGETS) $(LINKS) *~
-	@$(PAWMAKE) $@
+	@$(PLOTTER) $@
 
 links: $(LINKS)
 	@echo "Creating links..."

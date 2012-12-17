@@ -1,0 +1,8 @@
+#arrayT[$x]=$x
+#printf '0x%08x\n'  "$x" 
+#printf '0x%08x\n'  "${arrayT[$x]}"
+#done
+for ((i=0; i <= 7; i++)); do
+./pxi_dump_1c $i
+done
+pr -m -t -s\   mod0.pars mod1.pars  mod2.pars  mod3.pars  mod4.pars mod5.pars mod6.pars mod7.pars varnames.txt    | gawk '{print $0}'  | more

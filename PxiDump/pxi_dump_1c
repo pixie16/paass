@@ -1,0 +1,8 @@
+n=$1
+#size=5120
+size=5120
+sta=`expr $n \* $size`
+sta=`expr $sta + 0`
+xxd -c 4 -g4  -s $sta   -l 5120 -ps  -u default.set  > mod$1.pars
+#( echo "obase=10" ; cat mod$1.pars  ) | bc > mod$1.pars1c 
+#pr -m -t -s\   mod$1.pars varnames.txt    | gawk '{print $0}'  | more
