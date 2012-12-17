@@ -45,7 +45,7 @@ namespace pixie {
     /** 3Hen -> 50 us, LeRIBBS -> 3 us */
     const double eventInSeconds = 3e-6;
     /** The time width of an event in units of pixie16 clock ticks */
-    const int eventWidth = eventInSeconds / pixie::clockInSeconds;
+    const int eventWidth = (int)(eventInSeconds / pixie::clockInSeconds);
 
     /** Energies from pixie16 are contracted by this number.
      * Was 2.0 for older LeRIBBS
