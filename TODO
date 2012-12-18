@@ -1,4 +1,6 @@
 DOCUMENTATION CHECK and UPDATE
+Fix issues with the TraceAnalyzers, plotters, filterers, etc. - They are not plotting properly. 
+Incorporate the Globals.xml in a coherent way. 
 Incorporate changes necessary for Pixie-500 data (MAJOR)
 Update statistics analysis
 Add support for subsubtypes throughout? (Especially to make subtype summaries work)
@@ -8,7 +10,6 @@ Smarter (magic) dependency checking
 Find a cogent way to set the analyzer level using "trace" parameter from map.txt
 Add some conglomerated location/type/subtype structure
 Output a simple histogram list
-Incorporate KM's trace analyzer/correlator.
 Roll-over times for scalar/deadtime spectra
 Check for calibrated energies greater than zero which are always true due to float-izing digital values.
 Add a simple method to zero certain rows or columns of 2D histograms
