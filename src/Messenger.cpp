@@ -6,13 +6,13 @@ void Messenger::detail(std::string msg, short level /*= 0*/) {
     std::vector<std::string> lines;
     int width = 60 - 4 * level;
     std::stringstream indention;
-    for (unsigned i = 0; i < level; ++i)
+    for (short i = 0; i < level; ++i)
         indention << "    ";
     indention << "   ";
 
-    while(msg.length() > 0) {
+    while((int)msg.length() > 0) {
         std::string line;
-        if (msg.length() > width) {
+        if ((int)msg.length() > width) {
             line = msg.substr(0, width);
             msg = msg.substr(width, msg.length());
         } else {
