@@ -37,7 +37,7 @@ class Messenger {
             endline_ = false;
         }
 
-        void detail(std::string msg);
+        void detail(std::string msg, short level = 0);
 
         void done() {
             *out_ << std::setfill(' ');

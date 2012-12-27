@@ -30,11 +30,6 @@ class RawEvent;
 class EventProcessor;
 class TraceAnalyzer;
 
-using std::pair;
-using std::set;
-using std::string;
-using std::vector;
-
 /**
   \brief DetectorDriver controls event processing
 
@@ -49,14 +44,14 @@ class DetectorDriver {
     DetectorDriver& operator= (DetectorDriver const&);
     static DetectorDriver* instance;
 
-    vector<EventProcessor *> vecProcess; /**< vector of processors to handle each event */
+    std::vector<EventProcessor *> vecProcess; /**< vector of processors to handle each event */
     
-    vector<TraceAnalyzer *> vecAnalyzer; /**< object which analyzes traces of channels to extract
+    std::vector<TraceAnalyzer *> vecAnalyzer; /**< object which analyzes traces of channels to extract
 				   energy and time information */
-    set<string> knownDetectors; /**< list of valid detectors that can 
+    std::set<std::string> knownDetectors; /**< list of valid detectors that can 
 				   be used as detector types */
     
-    pair<double, time_t> pixieToWallClock; /**< rough estimate of pixie to wall clock */ 
+    std::pair<double, time_t> pixieToWallClock; /**< rough estimate of pixie to wall clock */ 
 
 
     virtual void DeclareHistogram1D(int dammId, int xSize, const char* title) {
@@ -69,14 +64,14 @@ class DetectorDriver {
 
  public:    
     static DetectorDriver* get();
-    vector<Calibration> cal;    /**<the calibration vector*/ 
+    std::vector<Calibration> cal;    /**<the calibration vector*/ 
 
     Plots histo;
     virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
         histo.Plot(dammId, val1, val2, val3, name);
     }
     
-    int ProcessEvent(const string &, RawEvent& rawev);
+    int ProcessEvent(const std::string &, RawEvent& rawev);
     int ThreshAndCal(ChanEvent *, RawEvent& rawev);
     int Init(RawEvent& rawev);
 
@@ -92,10 +87,10 @@ class DetectorDriver {
     time_t GetWallTime(double d) const {
 	return (time_t)((d - pixieToWallClock.first)*pixie::clockInSeconds + pixieToWallClock.second);
     }
-    const vector<EventProcessor *>& GetProcessors(void) const
+    const std::vector<EventProcessor *>& GetProcessors(void) const
 	{return vecProcess;}; /**< return the list of processors */
-    vector<EventProcessor *> GetProcessors(const string &type) const;
-    const set<string> &GetUsedDetectors(void) const;
+    std::vector<EventProcessor *> GetProcessors(const std::string &type) const;
+    const std::set<std::string> &GetUsedDetectors(void) const;
 
     ~DetectorDriver();
 
@@ -114,13 +109,13 @@ class DetectorDriver {
 class Calibration {
  private:
     int id;                 /**< id of the detector determined as module # * 16 + channel number */
-    string detType;         /**< type of detector */
-    string detSubtype;      /**< sub type of detector */
+    std::string detType;         /**< type of detector */
+    std::string detSubtype;      /**< sub type of detector */
     int detLocation;        /**< physical location of detector (strip#, det#) */
     unsigned int numCal;    /**< the number of calibrations for this channel */
     unsigned int polyOrder; /**< the order of the calibration */
-    vector<float> thresh;   /**< the lower limit for each respective calibration */
-    vector<float> val;      /**< the individual calibration coefficients in increasing order */
+    std::vector<float> thresh;   /**< the lower limit for each respective calibration */
+    std::vector<float> val;      /**< the individual calibration coefficients in increasing order */
     
  public:
     double Calibrate(double raw); /**< return a calibrated energy for raw value */
