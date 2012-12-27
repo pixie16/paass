@@ -19,7 +19,7 @@ REVISIONF = 1
 # Define to use Gamma-Gamma gates in GeProcessor
 # This turns on Gamma-Gamma angular distribution
 # and Gamma-Gamma-Gamma gates
-# GGATES = 1
+GGATES = 1
 
 # Use gfortran
 HHIRF_GFORTRAN = 1

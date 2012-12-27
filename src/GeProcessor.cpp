@@ -18,6 +18,8 @@
 #include <cmath>
 #include <cstdlib>
 
+#include "pugixml.hpp"
+#include "PathHolder.hpp"
 
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
@@ -119,48 +121,56 @@ GeProcessor::GeProcessor() : EventProcessor(OFFSET, RANGE), leafToClover() {
     }
 
 #ifdef GGATES
-    /* 
-     * Load GammaGates.txt defining gamma-gamma gates for anular
-     * distributions and for g-g-g spectra
-     *
-     */
-    ifstream ggFile("GammaGates.txt");
-    string line;
-    while (getline(ggFile, line) ) {
-        istringstream iss;
-        iss.str(line);
-        if (line[0] != '#' && line.size() > 1) {
-            vector<double> gms;
-            double g;
-            while (iss >> g) {
-                gms.push_back(g);
-            }
-            GGate gate;
-            if (gms.size() == 2) {
-                double dE = 1.0;
-                gate.g1min = gms[0] - dE;
-                gate.g1max = gms[0] + dE;
-                gate.g2min = gms[1] - dE;
-                gate.g2max = gms[1] + dE;
-            } else if (gms.size() == 4) {
-                gate.g1min = gms[0];
-                gate.g1max = gms[1];
-                gate.g2min = gms[2];
-                gate.g2max = gms[3];
+    Messenger m;
+    m.detail("Loading Gamma-gamma gates", 1);
+
+    PathHolder* conf_path = new PathHolder();
+    string xmlFileName = conf_path->GetFullPath("Config.xml");
+    delete conf_path;
+
+    pugi::xml_document doc;
+    pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
+    if (!result) {
+        stringstream ss;
+        ss << "GeProcessor: could not parse file " << xmlFileName;
+        throw IOException(ss.str());
+    }
+
+    pugi::xml_node gamma_gates = doc.child("Configuration").child("GammaGates");
+    for (pugi::xml_node gate = gamma_gates.child("Gate"); gate;
+         gate = gate.next_sibling("Gate")) {
+        vector<LineGate> vg;
+        bool completeGate = true;
+        for (pugi::xml_node line = gate.child("Line"); line;
+             line = line.next_sibling("Line")) {
+            double min = strings::to_double(line.attribute("min").value());
+            double max = strings::to_double(line.attribute("max").value());
+            LineGate lg = LineGate(min, max);
+            if (lg.Check()) {
+                vg.push_back(LineGate(min, max));
             } else {
-                cout << "Incomplete gates definition" << endl;
-            }
-            if (gate.check()) {
-                gGates.push_back(gate);
-                cout << "(" << gate.g1min << ", " << gate.g1max << ") <-> " 
-                     << "(" << gate.g2min << ", " << gate.g2max << ") " 
-                     << " gate loaded " << endl;
-            } else {
-                cout << "Wrong gates definition" << endl;
+                completeGate = false;
+                continue;
             }
         }
+        if (vg.size() != 2 && completeGate) {
+            throw GeneralException("Gamma-gamma gate size different than 2 is \
+not implemented");
+        } else {
+            stringstream ss;
+            ss << "Gate ";
+            for (vector<LineGate>::iterator it = vg.begin();
+                    it != vg.end(); ++it)
+                ss << "(" << it->min << "-" << it->max << "), ";
+            if (completeGate) {
+                gGates.push_back(vg);
+                ss << "loaded";
+            } else {
+                ss << "has bad definition and is skipped!";
+            }
+            m.detail(ss.str(), 2);
+        }
     }
-    ggFile.close();
 #endif
 }
 
@@ -280,8 +290,13 @@ void GeProcessor::DeclarePlots(void)
     }
 
     DeclareHistogram2D(DD_ENERGY, energyBins2, energyBins2, "Gamma gamma");
+    DeclareHistogram2D(DD_ENERGY_PROMPT, energyBins2, energyBins2,
+                       "Gamma gamma prompt");
     DeclareHistogram2D(betaGated::DD_ENERGY,
                        energyBins2, energyBins2, "Gamma gamma beta gated");
+    DeclareHistogram2D(betaGated::DD_ENERGY_PROMPT,
+                       energyBins2, energyBins2, 
+                       "Gamma gamma prompt beta gated");
     DeclareHistogram2D(DD_ADD_ENERGY,
                        energyBins2, energyBins2, "Gamma gamma addback");
 
@@ -312,6 +327,8 @@ void GeProcessor::DeclarePlots(void)
             "high/low energy ratio (x10)");
 
 #ifdef GGATES
+    DeclareHistogram2D(DD_TDIFF__GATEX, timeBins1, S5,
+                        "g_g time diff + 100 (10 ns) vs gate number");
     DeclareHistogram2D(DD_ANGLE__GATEX, S2, S5,
                        "g_g angular distrubution vs g_g gate number");
     DeclareHistogram2D(betaGated::DD_ANGLE__GATEX, S2, S5,
@@ -529,7 +546,7 @@ bool GeProcessor::Process(RawEvent &event) {
     // low & high gain). See PreProcess
     for (vector<ChanEvent*>::iterator it = geEvents_.begin(); 
 	 it != geEvents_.end(); it++) {
-        ChanEvent *chan = *it;
+        ChanEvent* chan = *it;
         
         double gEnergy = chan->GetCalEnergy();	
         double gTime = chan->GetCorrectedTime();
@@ -587,19 +604,20 @@ bool GeProcessor::Process(RawEvent &event) {
         
         for (vector<ChanEvent*>::const_iterator it2 = it + 1;
                 it2 != geEvents_.end(); it2++) {
-            ChanEvent *chan2 = *it2;
+            ChanEvent* chan2 = *it2;
 
             double gEnergy2 = chan2->GetCalEnergy();            
             int det2 = leafToClover[chan2->GetChanID().GetLocation()];
+            double gTime2 = chan2->GetCorrectedTime();
             if (gEnergy2 < detectors::gammaThreshold) 
                 continue;
+
+            double dtime = (gTime2 - gTime) * pixie::clockInSeconds;
 
             /** Plot timediff between events in the same clover
              * to monitor addback subevent gates. */
             if (det == det2) {
-                double gTime2 = chan2->GetCorrectedTime();
                 double plotResolution = 10e-9;
-                double dtime = (gTime2 - gTime) * pixie::clockInSeconds;
                 plot(DD_TDIFF__GAMMA_GAMMA_ENERGY, 
                         (int)(dtime / plotResolution + 100), gEnergy);
                 plot(DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM, 
@@ -609,8 +627,47 @@ bool GeProcessor::Process(RawEvent &event) {
             symplot(DD_ENERGY, gEnergy, gEnergy2);
             if (hasBeta && GoodGammaBeta(gTime))
                 symplot(betaGated::DD_ENERGY, gEnergy, gEnergy2);            
+            if (abs(dtime) < detectors::gammaGammaLimit) {
+                symplot(DD_ENERGY_PROMPT, gEnergy, gEnergy2);
+                if (hasBeta && GoodGammaBeta(gTime))
+                    symplot(betaGated::DD_ENERGY_PROMPT, 
+                            gEnergy, gEnergy2);            
+            }
+#ifdef GGATES
+            /**
+            * Gamma-gamma gate
+            */
+            unsigned ig = 0;
+            for (vector< vector<LineGate> >::iterator it_gate =
+                    gGates.begin();
+                    it_gate != gGates.end(); ++it_gate) {
+                if ((*it_gate).size() != 2)
+                    throw NotImplemented("Gamma gates of size different than 2 are not implemented");
+                double e1 = min(gEnergy, gEnergy2);
+                double e2 = max(gEnergy, gEnergy2);
+                if ((*it_gate)[0].IsWithin(e1) &&
+                    (*it_gate)[1].IsWithin(e2)) {
+
+                    double plotResolution = 10e-9;
+                    plot(DD_TDIFF__GATEX, 
+                         (int)(dtime / plotResolution + 100), ig);
+
+                    for (vector<ChanEvent*>::const_iterator it3 = it2 + 1;
+                            it3 != geEvents_.end(); it3++) {
+                        double gEnergy3 = (*it3)->GetCalEnergy();            
+                        if (gEnergy3 < detectors::gammaThreshold)
+                            continue;
+                        plot(DD_ENERGY__GATEX, gEnergy3, ig);
+                        if (hasBeta && GoodGammaBeta(gTime))
+                            plot(betaGated::DD_ENERGY__GATEX, gEnergy3, ig);
+                    }
+                }
+                ++ig;
+            }
+#endif
         } // iteration over other gammas
     } 
+
     // Vectors tas and addbackEvents should have the same size
     unsigned nEvents = tas_.size();
 
@@ -661,54 +718,6 @@ bool GeProcessor::Process(RawEvent &event) {
                                     gEnergy, gEnergy2);
                     }
                 }
-                    
-#ifdef GGATES
-                /**
-                * Gamma-gamma angular and gamma-gamma gate
-                */
-                unsigned ngg = gGates.size();
-                for (unsigned ig = 0; ig < ngg; ++ig) {
-                    double g1min = 0;
-                    double g1max = 0;
-                    double g2min = 0;
-                    double g2max = 0;
-                    if (gGates[ig].g1min < gGates[ig].g2min) {
-                        g1min = gGates[ig].g1min;
-                        g1max = gGates[ig].g1max;
-                        g2min = gGates[ig].g2min;
-                        g2max = gGates[ig].g2max;
-                    } else {
-                        g1min = gGates[ig].g2min;
-                        g1max = gGates[ig].g2max;
-                        g2min = gGates[ig].g1min;
-                        g2max = gGates[ig].g1max;
-                    }
-                    double e1 = min(gEnergy, gEnergy2);
-                    double e2 = max(gEnergy, gEnergy2);
-                    if ( (e1 >= g1min && e1 <= g1max) &&
-                            (e2 >= g2min && e2 <= g2max) ) {
-                        if (det % 2 != det2 % 2) {
-                            plot(DD_ANGLE__GATEX, 1, ig);
-                            if (hasBeta && GoodGammaBeta(gTime))
-                                plot(betaGated::DD_ANGLE__GATEX, 1, ig);
-                        } else {
-                        plot(DD_ANGLE__GATEX, 2, ig);
-                            if (hasBeta && GoodGammaBeta(gTime))
-                                plot(betaGated::DD_ANGLE__GATEX, 2, ig);
-                        }
-                        for (unsigned det3 = det2 + 1;
-                                det3 < numClovers; ++det3) {
-                            double gEnergy3 = addbackEvents_[det3][ev].first;
-                            if (gEnergy3 < detectors::gammaThreshold)
-                                continue;
-                            plot(DD_ENERGY__GATEX, gEnergy3, ig);
-                            if (hasBeta && GoodGammaBeta(gTime))
-                                plot(betaGated::DD_ENERGY__GATEX, gEnergy3, ig);
-                        }
-                    }
-                } //for ig
-#endif
-
             } // iteration over other clovers
         } // itertaion over clovers
     } // iteration over events

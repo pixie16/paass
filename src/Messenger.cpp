@@ -2,13 +2,19 @@
 
 bool Messenger::endline_ = true;
 
-void Messenger::detail(std::string msg) {
+void Messenger::detail(std::string msg, short level /*= 0*/) {
     std::vector<std::string> lines;
+    int width = 60 - 4 * level;
+    std::stringstream indention;
+    for (unsigned i = 0; i < level; ++i)
+        indention << "    ";
+    indention << "   ";
+
     while(msg.length() > 0) {
         std::string line;
-        if (msg.length() > 60) {
-            line = msg.substr(0, 60);
-            msg = msg.substr(60, msg.length());
+        if (msg.length() > width) {
+            line = msg.substr(0, width);
+            msg = msg.substr(width, msg.length());
         } else {
             line = msg;
             msg = "";
@@ -23,8 +29,8 @@ void Messenger::detail(std::string msg) {
     
     std::vector<std::string>::iterator it = lines.begin();
     *out_ << std::left << std::setfill(' ')
-            << "    * " << std::setw(60) << (*it++) << std::endl;
+            << indention.str() << "* " << std::setw(width) << (*it++) << std::endl;
     for (; it != lines.end(); ++it) 
-        *out_ << "      " << std::setw(60) << *it << std::endl;
+        *out_ << indention.str() << "  " << std::setw(width) << *it << std::endl;
 }
 

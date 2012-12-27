@@ -74,6 +74,8 @@ namespace detectors {
     const double addbackEnergyCut = 25;
     /** Prompt gamma-beta coincidence window (in seconds).*/
     const double gammaBetaLimit = 200e-9;
+    /** Prompt gamma-gamma coincidence window (in seconds).*/
+    const double gammaGammaLimit = 200e-9;
 
     /**
      * Beta scintilators
