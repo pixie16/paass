@@ -113,7 +113,7 @@ DetectorDriver::DetectorDriver() :
     try {
         m.start("Loading Processors");
         LoadProcessors(m);
-    } catch (exception &e) {
+    } catch (GeneralException &e) {
         // Any exception in registering plots in Processors 
         // and possible other exceptions in creating Processors
         // will be intercepted here
@@ -121,6 +121,9 @@ DetectorDriver::DetectorDriver() :
         cout << "Exception caught at DetectorDriver::DetectorDriver" << endl;
         cout << "\t" << e.what() << endl;
         exit(EXIT_FAILURE);
+    } catch (GeneralWarning &w) {
+        cout << "Warning found at DetectorDriver::DetectorDriver" << endl;
+        cout << "\t" << w.what() << endl;
     }
     m.done();
 }
@@ -346,12 +349,15 @@ int DetectorDriver::ProcessEvent(const string &mode, RawEvent& rawev){
                 (*iProc)->Process(rawev);
             }
         }
-    } catch (exception &e) {
+    } catch (GeneralException &e) {
         // Any exception in activation of basic places, PreProcess and Process
         // will be intercepted here
         cout << "Exception caught at DetectorDriver::ProcessEvent" << endl;
         cout << "\t" << e.what() << endl;
         exit(EXIT_FAILURE);
+    } catch (GeneralWarning &w) {
+        cout << "Warning caught at DetectorDriver::ProcessEvent" << endl;
+        cout << "\t" << w.what() << endl;
     }
 
     return 0;   
