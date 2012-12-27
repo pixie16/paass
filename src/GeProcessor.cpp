@@ -329,14 +329,14 @@ void GeProcessor::DeclarePlots(void)
 #ifdef GGATES
     DeclareHistogram2D(DD_TDIFF__GATEX, timeBins1, S5,
                         "g_g time diff + 100 (10 ns) vs gate number");
-    DeclareHistogram2D(DD_ANGLE__GATEX, S2, S5,
-                       "g_g angular distrubution vs g_g gate number");
-    DeclareHistogram2D(betaGated::DD_ANGLE__GATEX, S2, S5,
-                     "beta gated g_g angular distrubution vs g_g gate number");
     DeclareHistogram2D(DD_ENERGY__GATEX, energyBins2, S5,
                        "g_g gated gamma energy");
     DeclareHistogram2D(betaGated::DD_ENERGY__GATEX, energyBins2, S5,
-                       "g_g_beta gated gamma energy");
+                       "g_g_beta gated gamma energy vs gate number");
+    DeclareHistogram2D(DD_ANGLE__GATEX, S2, S5,
+                       "g_g gated angle vs gate number");
+    DeclareHistogram2D(betaGated::DD_ANGLE__GATEX, S2, S5,
+                       "g_g_beta gated angle vs gate number");
 #endif
 
     DeclareHistogramGranY(DD_ENERGY__TIMEX,
@@ -651,6 +651,28 @@ bool GeProcessor::Process(RawEvent &event) {
                     double plotResolution = 10e-9;
                     plot(DD_TDIFF__GATEX, 
                          (int)(dtime / plotResolution + 100), ig);
+
+                    /** Angular corelations:
+                     * 4 clover setup :
+                     *     |0|
+                     * |3|     |1|
+                     *     |2|
+                     *
+                     * bin 0 -> same clover (0 deg), 1 -> 90 deg, 2 -> 180 deg
+                     */
+                    if (det == det2) {
+                        plot(DD_ANGLE__GATEX, 0, ig);
+                        if (hasBeta && GoodGammaBeta(gTime))
+                            plot(betaGated::DD_ANGLE__GATEX, 0, ig);
+                    } else if (det % 2 != det2 % 2) {
+                        plot(DD_ANGLE__GATEX, 1, ig);
+                        if (hasBeta && GoodGammaBeta(gTime))
+                            plot(betaGated::DD_ANGLE__GATEX, 1, ig);
+                    } else {
+                        plot(DD_ANGLE__GATEX, 2, ig);
+                        if (hasBeta && GoodGammaBeta(gTime))
+                            plot(betaGated::DD_ANGLE__GATEX, 2, ig);
+                    }
 
                     for (vector<ChanEvent*>::const_iterator it3 = it2 + 1;
                             it3 != geEvents_.end(); it3++) {
