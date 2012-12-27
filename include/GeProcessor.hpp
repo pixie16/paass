@@ -66,6 +66,7 @@ namespace dammIds {
             const int DD_TDIFF__GAMMA_ENERGY = 112;
             const int DD_TDIFF__BETA_ENERGY = 113;
 
+            const int DD_TDIFF__GATEX = 115;
             const int DD_ENERGY__GATEX = 116;
             const int DD_ANGLE__GATEX = 117;
 
