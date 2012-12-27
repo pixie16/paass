@@ -328,15 +328,17 @@ void GeProcessor::DeclarePlots(void)
 
 #ifdef GGATES
     DeclareHistogram2D(DD_TDIFF__GATEX, timeBins1, S5,
-                        "g_g time diff + 100 (10 ns) vs gate number");
+                        "g_g time diff + 100 (10 ns) vs gate");
+    DeclareHistogram2D(betaGated::DD_TDIFF__GATEX, timeBins1, S5,
+                        "g_g beta gated time diff + 100 (10 ns) vs gate");
     DeclareHistogram2D(DD_ENERGY__GATEX, energyBins2, S5,
                        "g_g gated gamma energy");
     DeclareHistogram2D(betaGated::DD_ENERGY__GATEX, energyBins2, S5,
-                       "g_g_beta gated gamma energy vs gate number");
+                       "g_g_beta gated gamma energy vs gate");
     DeclareHistogram2D(DD_ANGLE__GATEX, S2, S5,
-                       "g_g gated angle vs gate number");
+                       "g_g gated angle vs gate");
     DeclareHistogram2D(betaGated::DD_ANGLE__GATEX, S2, S5,
-                       "g_g_beta gated angle vs gate number");
+                       "g_g_beta gated angle vs gate");
 #endif
 
     DeclareHistogramGranY(DD_ENERGY__TIMEX,
@@ -638,19 +640,26 @@ bool GeProcessor::Process(RawEvent &event) {
             * Gamma-gamma gate
             */
             unsigned ig = 0;
+            double e1 = min(gEnergy, gEnergy2);
+            double e2 = max(gEnergy, gEnergy2);
             for (vector< vector<LineGate> >::iterator it_gate =
                     gGates.begin();
                     it_gate != gGates.end(); ++it_gate) {
                 if ((*it_gate).size() != 2)
                     throw NotImplemented("Gamma gates of size different than 2 are not implemented");
-                double e1 = min(gEnergy, gEnergy2);
-                double e2 = max(gEnergy, gEnergy2);
                 if ((*it_gate)[0].IsWithin(e1) &&
                     (*it_gate)[1].IsWithin(e2)) {
 
                     double plotResolution = 10e-9;
                     plot(DD_TDIFF__GATEX, 
                          (int)(dtime / plotResolution + 100), ig);
+                    if (hasBeta && GoodGammaBeta(gTime))
+                        plot(betaGated::DD_TDIFF__GATEX, 
+                            (int)(dtime / plotResolution + 100), ig);
+
+                    /** Only fast coincidences for other g-g gates histograms */
+                    if (abs(dtime) < detectors::gammaGammaLimit)
+                        continue;
 
                     /** Angular corelations:
                      * 4 clover setup :
