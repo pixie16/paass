@@ -159,6 +159,7 @@ not implemented");
         } else {
             stringstream ss;
             ss << "Gate ";
+            sort(vg.begin(), vg.end());
             for (vector<LineGate>::iterator it = vg.begin();
                     it != vg.end(); ++it)
                 ss << "(" << it->min << "-" << it->max << "), ";
