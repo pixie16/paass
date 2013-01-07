@@ -14,10 +14,12 @@
 class Walker {
     public:
         /** Parse specific place*/
-        void parsePlace(pugi::xml_node node, std::string parent);
+        void parsePlace(pugi::xml_node node, std::string parent,
+                        bool verbose);
 
         /** Walks recursively through the tree*/
-        void traverseTree(pugi::xml_node node, std::string parent);
+        void traverseTree(pugi::xml_node node, std::string parent,
+                          bool verbose);
 };
 
 /** Singleton class holding map of all places.*/
@@ -31,11 +33,11 @@ class TreeCorrelator {
 
         /** Create place, alter or add existing place to the tree. */
         void createPlace(std::map<std::string, std::string>& params,
-                         bool verbose = false);
+                         bool verbose);
 
         /** Add child to place parent with coincidence coin.*/
-        void addChild(std::string parent, std::string child, bool coin = true,
-                      bool verbose = false);
+        void addChild(std::string parent, std::string child, bool coin,
+                      bool verbose);
 
         /** 
          * This function initializes the correlator tree. Should be called

@@ -21,7 +21,6 @@ const int MAX_PAR = 32000; //< maximum limit for calibrations
 namespace verbose {
     const bool MAP_INIT = false;
     const bool CALIBRATION_INIT = false;
-    const bool CORRELATOR_INIT = false;
 };
 
 namespace pixie {

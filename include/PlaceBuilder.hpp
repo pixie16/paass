@@ -41,7 +41,7 @@
 */
 class PlaceBuilder {
     public:
-        Place* create(std::map<std::string, std::string>& params);
+        Place* create(std::map<std::string, std::string>& params, bool verbose);
     private:
         Place* createPlaceDetector(std::map<std::string, std::string>& params);
         Place* createPlaceThreshold(std::map<std::string, std::string>& params);
