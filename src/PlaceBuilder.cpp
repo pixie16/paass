@@ -1,11 +1,14 @@
 #include "PlaceBuilder.hpp"
+#include "Messenger.hpp"
 
 using namespace std;
 
-Place* PlaceBuilder::create (map<string, string>& params) {
+Place* PlaceBuilder::create (map<string, string>& params, bool verbose) {
     string type = params["type"];
-    if (verbose::CORRELATOR_INIT)
-        cout << "Type: " << type << endl;
+    if (verbose) {
+        Messenger m;
+        m.detail("Place type: " + type, 1);
+    }
     if (type == "")
         return NULL;
     else if (type == "PlaceDetector")

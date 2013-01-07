@@ -52,8 +52,6 @@ class Place {
         }
 
         virtual ~Place() {
-            if (verbose::CORRELATOR_INIT)
-                cout << "~Place" << endl;
         }
 
         /** Defines 'child' of place. A child will report any
@@ -229,8 +227,6 @@ class Place {
          * should be reported.
          */
         vector<Place*> parents_;
-
-
 };
 
 /** "Lazy" Place does not store multiple activation or deactivation events.
