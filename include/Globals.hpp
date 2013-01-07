@@ -76,6 +76,10 @@ namespace detectors {
     /** Prompt gamma-gamma coincidence window (in seconds).*/
     const double gammaGammaLimit = 200e-9;
 
+    /** Early/late gamma-gamma coincidence window (in seconds).*/
+    const double earlyLowLimit = 1.0;
+    const double earlyHighLimit = 1.5;
+
     /**
      * Beta scintilators
      */
