@@ -298,6 +298,12 @@ void GeProcessor::DeclarePlots(void)
     DeclareHistogram2D(betaGated::DD_ENERGY_PROMPT,
                        energyBins2, energyBins2, 
                        "Gamma gamma prompt beta gated");
+    DeclareHistogram2D(betaGated::DD_ENERGY_PROMPT_EARLY,
+                       energyBins2, energyBins2,
+                       "Gamma gamma prompt beta gated early");
+    DeclareHistogram2D(betaGated::DD_ENERGY_PROMPT_LATE,
+                       energyBins2, energyBins2,
+                       "Gamma gamma prompt beta gated late");
     DeclareHistogram2D(DD_ADD_ENERGY,
                        energyBins2, energyBins2, "Gamma gamma addback");
 
@@ -632,9 +638,18 @@ bool GeProcessor::Process(RawEvent &event) {
                 symplot(betaGated::DD_ENERGY, gEnergy, gEnergy2);            
             if (abs(dtime) < detectors::gammaGammaLimit) {
                 symplot(DD_ENERGY_PROMPT, gEnergy, gEnergy2);
-                if (hasBeta && GoodGammaBeta(gTime))
+                if (hasBeta && GoodGammaBeta(gTime)) {
                     symplot(betaGated::DD_ENERGY_PROMPT, 
                             gEnergy, gEnergy2);            
+                    if (decayTime > detectors::earlyLowLimit) { 
+                        if (decayTime < detectors::earlyHighLimit) 
+                            symplot(betaGated::DD_ENERGY_PROMPT_EARLY, 
+                                    gEnergy, gEnergy2);            
+                        else
+                            symplot(betaGated::DD_ENERGY_PROMPT_LATE, 
+                                    gEnergy, gEnergy2);            
+                    }
+                }
             }
 #ifdef GGATES
             /**
@@ -658,9 +673,9 @@ bool GeProcessor::Process(RawEvent &event) {
                         plot(betaGated::DD_TDIFF__GATEX, 
                             (int)(dtime / plotResolution + 100), ig);
 
-                    /** Only fast coincidences for other g-g gates histograms */
+                    /** Only fast coincidences for other g-g gates histograms 
                     if (abs(dtime) < detectors::gammaGammaLimit)
-                        continue;
+                        continue;*/
 
                     /** Angular corelations:
                      * 4 clover setup :
