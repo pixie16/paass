@@ -42,9 +42,9 @@ namespace dammIds {
         const int DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM = 103;
         const int DD_CLOVER_ENERGY_RATIO = 104;
 
-        const int DD_TDIFF__GATEX = 105;
-        const int DD_ENERGY__GATEX = 106;
-        const int DD_ANGLE__GATEX = 107;
+        const int DD_TDIFF__GATEX = 106;
+        const int DD_ENERGY__GATEX = 107;
+        const int DD_ANGLE__GATEX = 108;
 
         const int DD_ADD_ENERGY = 150;
 
@@ -63,12 +63,15 @@ namespace dammIds {
 
             const int DD_ENERGY = 110; 
             const int DD_ENERGY_PROMPT = 111; 
-            const int DD_TDIFF__GAMMA_ENERGY = 112;
-            const int DD_TDIFF__BETA_ENERGY = 113;
+            const int DD_ENERGY_PROMPT_EARLY = 112; 
+            const int DD_ENERGY_PROMPT_LATE = 113; 
 
-            const int DD_TDIFF__GATEX = 115;
-            const int DD_ENERGY__GATEX = 116;
-            const int DD_ANGLE__GATEX = 117;
+            const int DD_TDIFF__GAMMA_ENERGY = 114;
+            const int DD_TDIFF__BETA_ENERGY = 115;
+
+            const int DD_TDIFF__GATEX = 116;
+            const int DD_ENERGY__GATEX = 117;
+            const int DD_ANGLE__GATEX = 118;
 
             const int DD_ENERGY__TIMEX = 130; 
             const int DD_ENERGY__TIMEX_GROW = 135; 
