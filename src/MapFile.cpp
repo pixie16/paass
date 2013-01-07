@@ -235,7 +235,7 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
             params["reset"] = "true";
             params["fifo"] = "2";
             try {
-                TreeCorrelator::get()->createPlace(params);
+                TreeCorrelator::get()->createPlace(params, verbose::MAP_INIT);
             } catch (exception &e) {
                 cout << "Exception caught at MapFile.cpp" << endl;
                 cout << "\t" << e.what() << endl;

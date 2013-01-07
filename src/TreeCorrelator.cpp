@@ -6,7 +6,7 @@
 
 using namespace std;
 
-void Walker::parsePlace(pugi::xml_node node, string parent) {
+void Walker::parsePlace(pugi::xml_node node, string parent, bool verbose) {
     map<string, string> params;
     params["parent"] = parent;
     params["type"] = "";
@@ -18,15 +18,15 @@ void Walker::parsePlace(pugi::xml_node node, string parent) {
          attr = attr.next_attribute()) {
         params[attr.name()] = attr.value();
     }
-    TreeCorrelator::get()->createPlace(params);
+    TreeCorrelator::get()->createPlace(params, verbose);
 }
 
-void Walker::traverseTree(pugi::xml_node node, string parent) {
+void Walker::traverseTree(pugi::xml_node node, string parent, bool verbose) {
     for (pugi::xml_node child = node.child("Place");
          child;
          child = child.next_sibling("Place")) {
-        parsePlace(child, parent);
-        traverseTree(child, string(child.attribute("name").value()));
+        parsePlace(child, parent, verbose);
+        traverseTree(child, string(child.attribute("name").value()), verbose);
     }
 }
 
@@ -54,12 +54,15 @@ Place* TreeCorrelator::place(string name) {
 }
 
 void TreeCorrelator::addChild(string parent, string child, 
-                             bool coin /* = true*/, bool verbose /*= false*/) {
+                             bool coin, bool verbose) {
     if (places_.count(parent) == 1 && places_.count(child) == 1) {
         place(parent)->addChild(place(child), coin);
         if (verbose) {
-            cout << "TreeCorrelator: setting " << child 
-                 << " as a child of " << parent << endl;
+            Messenger m;
+            stringstream ss;
+            ss << "Setting " << child 
+                 << " as a child of " << parent;
+            m.detail(ss.str());
         }
     } else {
         stringstream ss;
@@ -109,7 +112,7 @@ vector<string> TreeCorrelator::split_names(string name) {
 }
 
 void TreeCorrelator::createPlace(map<string, string>& params,
-                                 bool verbose /*= false*/) {
+                                 bool verbose) {
     bool replace = false;
     if (params["replace"] != "")
         replace = strings::to_bool(params["replace"]);
@@ -128,25 +131,32 @@ void TreeCorrelator::createPlace(map<string, string>& params,
                     throw TreeCorrelatorException(ss.str());
                 }
                 delete places_[(*it)];
-                if (verbose::CORRELATOR_INIT)
-                    cout << "TreeCorrelator: replacing place " << (*it) << endl;
+                if (verbose) {
+                    Messenger m;
+                    stringstream ss;
+                    ss << "Replacing place " << (*it);
+                    m.detail(ss.str());
+                }
             } else {
                 if (places_.count((*it)) == 1) {
                     stringstream ss;
                     ss << "TreeCorrelator: place" << (*it) << " already exists";
                     throw TreeCorrelatorException(ss.str());
                 }
-                if (verbose::CORRELATOR_INIT)
-                    cout << "TreeCorrelator: creating place " << (*it) << endl;
+                if (verbose) {
+                    Messenger m;
+                    stringstream ss;
+                    ss << "Creating place " << (*it);
+                    m.detail(ss.str());
+                }
             }
-            Place* current = builder.create(params);
+            Place* current = builder.create(params, verbose);
             places_[(*it)] = current;
         }
 
         if (params["parent"] != "root") {
             bool coincidence = strings::to_bool(params["coincidence"]);
-            addChild(params["parent"], (*it), coincidence,
-                     verbose::CORRELATOR_INIT);
+            addChild(params["parent"], (*it), coincidence, verbose);
         }
 
     }
@@ -170,8 +180,10 @@ void TreeCorrelator::buildTree() {
     }
 
     pugi::xml_node tree = doc.child("Configuration").child("TreeCorrelator");
+    bool verbose = tree.attribute("verbose").as_bool(false);
+
     Walker walker;
-    walker.traverseTree(tree, string(tree.attribute("name").value()));
+    walker.traverseTree(tree, string(tree.attribute("name").value()), verbose);
 
     m.done();
 }

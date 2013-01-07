@@ -10,13 +10,16 @@
 
 #include "Exceptions.hpp"
 
+/** This class outputs nicely formated messages during configuration loading.*/
 class Messenger {
     public:
+        /** Default constructors sets output to std::cout*/
         Messenger () {
             file_ = false;
             out_ = &std::cout;
         }
 
+        /** Sets output to file.*/
         Messenger (const std::string& name) {
             file_ = true;
             fout_.open(name.c_str());
@@ -28,6 +31,7 @@ class Messenger {
             out_ = &fout_;
         }
 
+        /** Start of some main category.*/
         void start(std::string msg) {
             if (!endline_)
                 *out_ << std::endl;
@@ -37,8 +41,11 @@ class Messenger {
             endline_ = false;
         }
 
+        /** Detail under main category, higer level parameter
+         *  imposes more indentation of the message. */
         void detail(std::string msg, short level = 0);
 
+        /** At the end of main category, [Done] message.*/
         void done() {
             *out_ << std::setfill(' ');
             if (endline_) {
@@ -48,6 +55,7 @@ class Messenger {
             endline_ = true;
         }
 
+        /** At the end of main category, [FAIL] message.*/
         void fail() {
             *out_ << std::setfill(' ');
             if (endline_) {
