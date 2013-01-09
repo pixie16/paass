@@ -238,6 +238,7 @@ int main(int argc, char *argv[])
     bool tau = false;
     bool bidirectionalTrigger = false;
     bool updateBaselines = false;
+    bool callGnuplot = false;
 
     const option longOptions[] = {
 	{"bidirectional", no_argument, 0, 'b'},
@@ -247,12 +248,13 @@ int main(int argc, char *argv[])
 	{"tau", no_argument, 0, 't'},
 	{"update", no_argument, 0, 'u'},
 	{"help", no_argument, 0, 'h'},
+        {"gnuplot", no_argument, 0, 'g'},
 	{0, 0, 0, 0}
     };
     int flag, optionsIndex;
 
     // getopt_long returns -1 when all is done
-    while ( (flag = getopt_long (argc, argv, "bm:c:l:n:tuh1", longOptions, &optionsIndex)) != -1) {
+    while ( (flag = getopt_long (argc, argv, "bm:c:l:n:tuhg1", longOptions, &optionsIndex)) != -1) {
         switch (flag) {
 	case '1':
 	    // allow -1 (minus one) option as all channels 
@@ -280,6 +282,9 @@ int main(int argc, char *argv[])
 	case 'u':
 	    updateBaselines = true;
 	    break;
+        case 'g':
+            callGnuplot = true;
+            break;
 	case 'h':	    
 	case '?':
 	    ;
@@ -364,7 +369,8 @@ int main(int argc, char *argv[])
     fout.write((char* )data, sizeof(data));
     fout.close();
 
-    system("gnuplot 'plotTraces' ");    
+    if(callGnuplot)
+        system("gnuplot 'plotTraces' ");    
     cout << "Traces data are in '/tmp/traces.dat' file." << endl;
 
     return EXIT_SUCCESS;
