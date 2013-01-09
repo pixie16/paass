@@ -7,11 +7,11 @@
 # if ch = '-1' (with apostrophes!) then whole module (16 channels) is read
 #
 set terminal x11 size 1024,800
-!rm -f 'traces.dat'
+!rm -f '/tmp/traces.dat'
 
 MOD = $0
 CH = $1
 
-system "./trace_gplt ".MOD." ".CH
+system "./get_traces ".MOD." ".CH
 
-if (CH<0) n=16; call 'tra_mod'; else n=1; call 'tra_ch'
+if (CH<0) n=16; call 'plotTraces_mod'; else n=1; call 'plotTraces_ch'
