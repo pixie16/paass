@@ -174,7 +174,8 @@ void TreeCorrelator::buildTree() {
     pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
     if (!result) {
         stringstream ss;
-        ss << "DetectorDriver: could not parse file " << xmlFileName;
+        ss << "TreeCorrelator: error parsing file " << xmlFileName;
+        ss << " : " << result.description();
         m.fail();
         throw IOException(ss.str());
     }

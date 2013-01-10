@@ -133,6 +133,7 @@ GeProcessor::GeProcessor() : EventProcessor(OFFSET, RANGE), leafToClover() {
     if (!result) {
         stringstream ss;
         ss << "GeProcessor: could not parse file " << xmlFileName;
+        ss << " : " << result.description();
         throw IOException(ss.str());
     }
 
