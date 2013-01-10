@@ -160,7 +160,8 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
     pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
     if (!result) {
         stringstream ss;
-        ss << "DetectorDriver: could not parse file " << xmlFileName;
+        ss << "DetectorDriver: error parsing file " << xmlFileName;
+        ss << " : " << result.description();
         throw IOException(ss.str());
     }
 
