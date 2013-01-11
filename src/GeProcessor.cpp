@@ -307,29 +307,29 @@ void GeProcessor::DeclarePlots(void)
                        "Gamma gamma prompt beta gated late");
     DeclareHistogram2D(DD_ADD_ENERGY,
                        energyBins2, energyBins2, "Gamma gamma addback");
+    DeclareHistogram2D(betaGated::DD_ENERGY_DELAYED,
+      energyBins2, energyBins2, "Beta-gated gamma gamma - beta delayed");
 
     DeclareHistogram2D(betaGated::DD_ADD_ENERGY,
             energyBins2, energyBins2, "Beta-gated Gamma gamma addback");
-    DeclareHistogram2D(betaGated::DD_ADD_ENERGY_DELAYED,
-      energyBins2, energyBins2, "Beta-gated Gamma gamma addback, delayed");
 
     DeclareHistogram2D(
             DD_TDIFF__GAMMA_GAMMA_ENERGY, 
             timeBins1, energyBins2,
-            "Gamma energy, gamma-gamma same clover time diff + 100 (10 ns)");
+            "Same clover, gamma energy, gamma-gamma time diff + 100 (10 ns)");
     DeclareHistogram2D(
             DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM,
             timeBins1,
             energyBins2,
-           "Sum Gamma energy, gamma-gamma same clover time diff + 100 (10 ns)");
+           "Same clover, gamma energy sum, gamma-gamma time diff + 100 (10 ns)");
     DeclareHistogram2D(
             betaGated::DD_TDIFF__GAMMA_ENERGY,
             timeBins1, energyBins2,
-            "Gamma energy, beta time diff + 100 (10 ns)");
+            "Gamma energy, gamma - beta time diff + 100 (10 ns)");
     DeclareHistogram2D(
             betaGated::DD_TDIFF__BETA_ENERGY,
             timeBins1, energyBins2,
-            "Beta energy, gamma time diff + 100 (10 ns)");
+            "Beta energy, gamma- beta time diff + 100 (10 ns)");
 
     DeclareHistogram2D(DD_CLOVER_ENERGY_RATIO, S4, S6,
             "high/low energy ratio (x10)");
@@ -572,15 +572,15 @@ bool GeProcessor::Process(RawEvent &event) {
         granploty(DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
 
         if (hasBeta) {
-            double dtime = GammaBetaDtime(gTime);
+            double gb_dtime = GammaBetaDtime(gTime);
 
             double plotResolution = 10e-9;
             plot(betaGated::DD_TDIFF__GAMMA_ENERGY,
-                    (int)(dtime / plotResolution + 100), gEnergy);
-            /** Notice that betaEnergy here is not good one!
-             * But this plot is approx. anyway and for tuning only*/
+                    (int)(gb_dtime / plotResolution + 100), gEnergy);
+            /** Notice that betaEnergy here is not always a good one!
+             * But this plot is approximate and for tuning only*/
             plot(betaGated::DD_TDIFF__BETA_ENERGY, 
-                    (int)(dtime / plotResolution + 100), betaEnergy); 
+                    (int)(gb_dtime / plotResolution + 100), betaEnergy); 
 
             if (GoodGammaBeta(gTime)) {
                 plot(betaGated::D_ENERGY, gEnergy);
@@ -622,22 +622,32 @@ bool GeProcessor::Process(RawEvent &event) {
             if (gEnergy2 < detectors::gammaThreshold) 
                 continue;
 
-            double dtime = (gTime2 - gTime) * pixie::clockInSeconds;
+            double gg_dtime = (gTime2 - gTime) * pixie::clockInSeconds;
 
             /** Plot timediff between events in the same clover
              * to monitor addback subevent gates. */
             if (det == det2) {
                 double plotResolution = 10e-9;
                 plot(DD_TDIFF__GAMMA_GAMMA_ENERGY, 
-                        (int)(dtime / plotResolution + 100), gEnergy);
+                     (int)(gg_dtime / plotResolution + 100),
+                     gEnergy);
                 plot(DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM, 
-                      (int)(dtime / plotResolution + 100), gEnergy + gEnergy2);
+                      (int)(gg_dtime / plotResolution + 100),
+                      gEnergy + gEnergy2);
             }
 
             symplot(DD_ENERGY, gEnergy, gEnergy2);
-            if (hasBeta && GoodGammaBeta(gTime))
-                symplot(betaGated::DD_ENERGY, gEnergy, gEnergy2);            
-            if (abs(dtime) < detectors::gammaGammaLimit) {
+            if (hasBeta) {
+                if (GoodGammaBeta(gTime)) {
+                    symplot(betaGated::DD_ENERGY, gEnergy,
+                            gEnergy2);            
+                } else if (GammaBetaDtime(gTime) > detectors::gammaBetaLimit) {
+                        symplot(betaGated::DD_ENERGY_DELAYED,
+                                gEnergy, gEnergy2);
+                }
+            }
+
+            if (abs(gg_dtime) < detectors::gammaGammaLimit) {
                 symplot(DD_ENERGY_PROMPT, gEnergy, gEnergy2);
                 if (hasBeta && GoodGammaBeta(gTime)) {
                     symplot(betaGated::DD_ENERGY_PROMPT, 
@@ -669,13 +679,13 @@ bool GeProcessor::Process(RawEvent &event) {
 
                     double plotResolution = 10e-9;
                     plot(DD_TDIFF__GATEX, 
-                         (int)(dtime / plotResolution + 100), ig);
+                         (int)(gg_dtime / plotResolution + 100), ig);
                     if (hasBeta && GoodGammaBeta(gTime))
                         plot(betaGated::DD_TDIFF__GATEX, 
-                            (int)(dtime / plotResolution + 100), ig);
+                            (int)(gg_dtime / plotResolution + 100), ig);
 
                     /** Only fast coincidences for other g-g gates histograms 
-                    if (abs(dtime) < detectors::gammaGammaLimit)
+                    if (abs(gg_dtime) < detectors::gammaGammaLimit)
                         continue;*/
 
                     /** Angular corelations:
@@ -746,7 +756,8 @@ bool GeProcessor::Process(RawEvent &event) {
             if (hasBeta && GoodGammaBeta(gTime)) {
                 plot(betaGated::D_ADD_ENERGY, gEnergy);
                 plot(betaGated::D_ADD_ENERGY_CLOVERX + det, gEnergy);
-                granploty(betaGated::DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
+                granploty(betaGated::DD_ADD_ENERGY__TIMEX, gEnergy,
+                          decayTime, timeResolution);
             }
 
             for (unsigned int det2 = det + 1; 
@@ -757,14 +768,8 @@ bool GeProcessor::Process(RawEvent &event) {
 
                 symplot(DD_ADD_ENERGY, gEnergy, gEnergy2);
 
-                if (hasBeta) {
-                    if (GoodGammaBeta(gTime)) {
+                if (hasBeta && GoodGammaBeta(gTime)) {
                         symplot(betaGated::DD_ADD_ENERGY, gEnergy, gEnergy2);
-                    } else {
-                        if (GammaBetaDtime(gTime) > detectors::gammaBetaLimit)
-                            symplot(betaGated::DD_ADD_ENERGY_DELAYED,
-                                    gEnergy, gEnergy2);
-                    }
                 }
             } // iteration over other clovers
         } // itertaion over clovers
