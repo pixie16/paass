@@ -604,9 +604,10 @@ bool GeProcessor::Process(RawEvent &event) {
                 }
 
                 // individual beta gamma coinc spectra for each beta detector
-                if (hasBeta0 == 0) {
+                if (hasBeta0) {
                     plot(betaGated::D_ENERGY_BETA0, gEnergy);
-                } else if (hasBeta1 == 1) {
+                } 
+                if (hasBeta1) {
                     plot(betaGated::D_ENERGY_BETA1, gEnergy);
                 }
             }
