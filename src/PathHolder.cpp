@@ -12,7 +12,7 @@ void PathHolder::SetPath (std::string fileName) {
     std::string line;
     if (config_file.good()) {
         while (getline(config_file, line)) {
-            if (*line.begin() != '#' || line.size() > 0) {
+            if (*line.begin() != '#' && line.size() > 0) {
                 path_ = line;
                 if (*(path_.rbegin()) != '/')
                     path_ += "/";
