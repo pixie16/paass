@@ -8,6 +8,8 @@
 
 #include <map>
 #include <vector>
+#include <utility>
+#include <cmath>
 
 #include "EventProcessor.hpp"
 #include "RawEvent.hpp"
@@ -39,16 +41,20 @@ namespace dammIds {
         // 2D spectra
         const int DD_ENERGY = 100;
         const int DD_ENERGY_PROMPT = 101;
-        const int DD_TDIFF__GAMMA_GAMMA_ENERGY = 102;
-        const int DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM = 103;
+        const int DD_ENERGY_PROMPT_EARLY = 102; 
+        const int DD_ENERGY_PROMPT_LATE = 103; 
 
         const int DD_TDIFF__GATEX = 105;
         const int DD_ENERGY__GATEX = 106;
         const int DD_ANGLE__GATEX = 107;
 
-        const int DD_ADD_ENERGY = 150;
-
         const int DD_ENERGY__TIMEX = 120;
+
+        const int DD_ADD_ENERGY = 150;
+        //Addback related
+        const int DD_TDIFF__GAMMA_GAMMA_ENERGY = 151;
+        const int DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM = 152;
+
         const int DD_ADD_ENERGY__TIMEX = 170;
 
         namespace betaGated {
@@ -56,6 +62,7 @@ namespace dammIds {
             const int D_ENERGY_CLOVERX = 11;
             const int D_ENERGY_BETA0 = 15; 
             const int D_ENERGY_BETA1 = 16; 
+            const int DD_ENERGY__BETAGAMMALOC = 17;
 
             const int D_ADD_ENERGY = 60; 
             const int D_ADD_ENERGY_CLOVERX = 61; 
@@ -65,7 +72,7 @@ namespace dammIds {
             const int DD_ENERGY_PROMPT = 111; 
             const int DD_ENERGY_PROMPT_EARLY = 112; 
             const int DD_ENERGY_PROMPT_LATE = 113; 
-            const int DD_ENERGY_DELAYED = 114;
+            const int DD_ENERGY_BDELAYED = 114;
 
             const int DD_TDIFF__GATEX = 115;
             const int DD_ENERGY__GATEX = 116;
@@ -124,15 +131,6 @@ class LineGate {
 };
 #endif
 
-/** This class is to compare gamma - beta time differences in function
- * GeProcessor::GammaBetaDtime(). */
-class CompareTimes {
-    public:
-        bool operator()(double first, double second) {
-            return abs(first) < abs(second);
-        }
-};
-
 class GeProcessor : public EventProcessor
 {
 protected:
@@ -144,9 +142,9 @@ protected:
 
     double WalkCorrection(double e);
 
-    /** Returns lowest difference between gamma and beta times. Takes gTime in pixie clock units.
-     * returns value in seconds. */
-    double GammaBetaDtime(double gTime);
+    /** Returns lowest difference between gamma and beta times and EventData of the beta event.
+     * Takes gTime in pixie clock units, returns value in seconds. */
+    std::pair<double, EventData> BestBetaForGamma(double gTime);
 
     /** Returns true if gamma-beta correlation time within good limits.
      * Browses through all beta events in Beta correlation place to find

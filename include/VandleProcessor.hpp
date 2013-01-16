@@ -37,7 +37,7 @@ class VandleProcessor : public EventProcessor,
 			   BarMap &barMap);
     virtual void ClearMaps(void);
     virtual void CrossTalk(void);
-    virtual void FillMap(const vector<ChanEvent*> &eventList, const std::string type,
+    virtual void FillMap(const std::vector<ChanEvent*> &eventList, const std::string type,
 			 TimingDataMap &eventMap);
     virtual void Tvandle(void);
 

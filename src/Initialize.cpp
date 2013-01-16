@@ -4,11 +4,13 @@
  * David Miller, Aug. 2009
  */
 
+#include <iostream>
+#include <stdexcept>
+
 #include "PathHolder.hpp"
 #include "MapFile.hpp"
 #include "DetectorDriver.hpp"
 
-#include <iostream>
 
 // DAMM initialization call
 extern "C" void drrmake_();
@@ -25,11 +27,11 @@ extern "C" void drrsub_(unsigned int& iexist)
         drrmake_();
         DetectorDriver::get()->DeclarePlots(theMapFile);
         endrr_(); 
-    } catch (exception &e) {
+    } catch (std::exception &e) {
         // Any exception in opening files (config.txt and map2.txt)
         // will be intercepted here
-        cout << "Exception caught at Initialize:" << endl;
-        cout << "\t" << e.what() << endl;
+        std::cout << "Exception caught at Initialize:" << std::endl;
+        std::cout << "\t" << e.what() << std::endl;
         exit(EXIT_FAILURE);
     }
 }

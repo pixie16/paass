@@ -23,6 +23,7 @@ using std::cout;
 using std::endl;
 using std::min;
 using std::stringstream;
+using std::vector;
 
 /*! ecutoff for 108Xe experiment where each bin is roughly 4 keV
  *  ... implants deposit above 18 MeV
