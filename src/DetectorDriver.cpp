@@ -329,7 +329,9 @@ int DetectorDriver::ProcessEvent(const string &mode, RawEvent& rawev){
 
             double time = (*it)->GetTime();
             double energy = (*it)->GetCalEnergy();
-            CorrEventData data(time, energy);
+            int location = (*it)->GetChanID().GetLocation();
+
+            EventData data(time, energy, location);
             TreeCorrelator::get()->place(place)->activate(data);
         } 
     
