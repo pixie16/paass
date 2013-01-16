@@ -41,10 +41,10 @@ void Place::addChild (Place* child, bool relation) {
 }
 
 /** This function is empty here - this place does not depend on childer status*/
-void PlaceDetector::check_(CorrEventData& info) {
+void PlaceDetector::check_(EventData& info) {
 }
 
-void PlaceOR::check_(CorrEventData& info) {
+void PlaceOR::check_(EventData& info) {
     if (children_.size() > 0) {
         // Take first child to get initial state
         // Browse through other children
@@ -75,10 +75,10 @@ void PlaceOR::check_(CorrEventData& info) {
 }
 
 /** Does not depend on children. If you need some behaviour derive a new class from this one.*/
-void PlaceThreshold::check_(CorrEventData& info) {
+void PlaceThreshold::check_(EventData& info) {
 }
 
-void PlaceThresholdOR::check_(CorrEventData& info) {
+void PlaceThresholdOR::check_(EventData& info) {
     // Copied from PlaceOR
     if (children_.size() > 0) {
         bool result = (children_[0].first->status() == children_[0].second);
@@ -101,13 +101,13 @@ void PlaceThresholdOR::check_(CorrEventData& info) {
     }
 }
 
-void PlaceCounter::check_(CorrEventData& info) {
+void PlaceCounter::check_(EventData& info) {
     if (info.status) {
         this->activate(info);
     }
 }
 
-void PlaceAND::check_(CorrEventData& info) {
+void PlaceAND::check_(EventData& info) {
     if (children_.size() > 0) {
         // Take first child to get initial state
         // Browse through other children
