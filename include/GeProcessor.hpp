@@ -153,7 +153,8 @@ protected:
     bool GoodGammaBeta(double gTime, 
                        double limit_in_sec = detectors::gammaBetaLimit);
 
-    std::vector<ChanEvent*> geEvents_; /*!< Preprocessed good ge events, filled in PreProcess*/
+    /** Preprocessed good ge events, filled in PreProcess.*/
+    std::vector<ChanEvent*> geEvents_;
 
     void DeclareHistogramGranY(int dammId, int xsize, int ysize, 
 			       const char *title, int halfWordsPerChan,
