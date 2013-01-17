@@ -63,7 +63,7 @@ namespace detectors {
      * Ge clovers
      */
     /** Gamma energy low threshold. */
-    const double gammaThreshold = 10.0;
+    const double gammaThreshold = 20.0;
     /* Mismatch ratio of low and high gain in Clovers */
     const double geLowRatio = 1.5;
     const double geHighRatio = 3.0;
@@ -79,11 +79,6 @@ namespace detectors {
     /** Early/late gamma-gamma coincidence window (in seconds).*/
     const double earlyLowLimit = 1.0;
     const double earlyHighLimit = 1.5;
-
-    /**
-     * Beta scintilators
-     */
-    const double betaThreshold = 10.0;
 
     /**
      * 3Hen
