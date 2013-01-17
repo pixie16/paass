@@ -321,11 +321,19 @@ int DetectorDriver::ProcessEvent(const string &mode, RawEvent& rawev){
         for (vector<ChanEvent*>::const_iterator it = rawev.GetEventList().begin();
             it != rawev.GetEventList().end(); ++it) {
             string place = (*it)->GetChanID().GetPlaceName();
-            if (place == "__-1") // empty channel
+
+            // skip empty channel
+            if (place == "__-1")
                 continue;
+
+            // check threshold and calibrate
             PlotRaw((*it));
-            ThreshAndCal((*it), rawev); // check threshold and calibrate
+            ThreshAndCal((*it), rawev);
             PlotCal((*it));
+
+            // Do not activate places if saturated or pileup
+            if ( (*it)->IsSaturated() || (*it)->IsPileup() )
+                continue;
 
             double time = (*it)->GetTime();
             double energy = (*it)->GetCalEnergy();

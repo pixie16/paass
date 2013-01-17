@@ -40,9 +40,8 @@ bool BetaScintProcessor::PreProcess(RawEvent &event){
     int multiplicity = 0;
     for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin(); 
 	 it != scintBetaEvents.end(); it++) {
-        double energy = (*it)->GetEnergy();
-        if (energy > detectors::betaThreshold)
-            ++multiplicity;
+        double energy = (*it)->GetCalEnergy();
+        ++multiplicity;
         plot(D_ENERGY_BETA, energy);
     }
     plot(D_MULT_BETA, multiplicity);

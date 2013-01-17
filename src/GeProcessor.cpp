@@ -403,6 +403,9 @@ bool GeProcessor::PreProcess(RawEvent &event) {
     static const vector<ChanEvent*> &highEvents = event.GetSummary("ge:clover_high", true)->GetList();
     static const vector<ChanEvent*> &lowEvents  = event.GetSummary("ge:clover_low", true)->GetList();
 
+    /** Only the high gain events are going to be used. The events where
+     * low/high gain mismatches, saturation or pileup is marked are rejected
+     */
     for (vector<ChanEvent*>::const_iterator itHigh = highEvents.begin();
 	 itHigh != highEvents.end(); itHigh++) {
         int location = (*itHigh)->GetChanID().GetLocation();
@@ -427,53 +430,6 @@ bool GeProcessor::PreProcess(RawEvent &event) {
         }
         geEvents_.push_back(*itHigh);
     }
-    // makes a copy so we can remove (or rearrange) bad events 
-    //   based on poorly matched high-low gain energies
-    //
-    /*
-    geEvents_ = sumMap["ge"]->GetList();
-    vector<ChanEvent*>::iterator geEnd = geEvents_.end();
-
-    static const vector<ChanEvent*> &highEvents = event.GetSummary("ge:clover_high", true)->GetList();
-    static const vector<ChanEvent*> &lowEvents  = event.GetSummary("ge:clover_low", true)->GetList();
-
-    for (vector<ChanEvent*>::const_iterator itHigh = highEvents.begin();
-	 itHigh != highEvents.end(); itHigh++) {
-        int location = (*itHigh)->GetChanID().GetLocation();
-        plot(D_ENERGY_HIGHGAIN, (*itHigh)->GetCalEnergy());
-
-        // Remove saturated and pileups
-        if ( (*itHigh)->IsSaturated() || (*itHigh)->IsPileup() ) {
-            geEnd = remove(geEvents_.begin(), geEnd, *itHigh);
-        }
-
-        // find the matching low gain event
-        vector <ChanEvent*>::const_iterator itLow = lowEvents.begin();
-        for (; itLow != lowEvents.end(); itLow++) {
-            if ( (*itLow)->GetChanID().GetLocation() == location ) {
-                break;
-            }
-        }
-        if ( itLow != lowEvents.end() ) {
-            double ratio = (*itHigh)->GetEnergy() / (*itLow)->GetEnergy();
-            plot(DD_CLOVER_ENERGY_RATIO, location, ratio * 10.);
-            if ( (ratio < lowRatio || ratio > highRatio) ) {
-                // put these bad events at the end of the vector
-                geEnd = remove(geEvents_.begin(), geEnd, *itHigh);
-                geEnd = remove(geEvents_.begin(), geEnd, *itLow);
-            }
-        }
-    }
-    // Now throw out any remaining clover low-gain events (for now)
-    for ( vector<ChanEvent*>::const_iterator itLow = lowEvents.begin(); 
-	  itLow != lowEvents.end(); itLow++ ) {
-        geEnd = remove(geEvents_.begin(), geEnd, *itLow);
-    }
-
-    // this purges the bad events for good from this processor which "remove"
-    //   has moved to the end
-    geEvents_.erase(geEnd, geEvents_.end());
-    */
 
     /** NOTE we do permanents changes to events here
      *  Necessary in order to set corrected time for use in correlator
