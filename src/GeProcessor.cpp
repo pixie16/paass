@@ -264,13 +264,6 @@ void GeProcessor::DeclarePlots(void)
     DeclareHistogram2D(betaGated::DD_ENERGY__BETAGAMMALOC, energyBins2, S4,
                        "Gamma vs. Clover loc * 3 + Beta loc");
 
-    DeclareHistogram1D(D_ENERGY_LOWGAIN, energyBins1,
-                       "Gamma singles, low gain");
-    DeclareHistogram1D(D_ENERGY_HIGHGAIN, energyBins1,
-                       "Gamma singles, high gain");
-    DeclareHistogram2D(DD_CLOVER_ENERGY_RATIO, S4, S6,
-            "high/low energy ratio (x10)");
-
     DeclareHistogram1D(D_MULT, S3, "Gamma multiplicity");                  
 
     DeclareHistogram1D(D_ADD_ENERGY, energyBins1, "Gamma addback");
@@ -409,8 +402,6 @@ bool GeProcessor::PreProcess(RawEvent &event) {
     for (vector<ChanEvent*>::const_iterator itHigh = highEvents.begin();
 	 itHigh != highEvents.end(); itHigh++) {
         int location = (*itHigh)->GetChanID().GetLocation();
-        plot(D_ENERGY_HIGHGAIN, (*itHigh)->GetCalEnergy());
-
         if ( (*itHigh)->IsSaturated() || (*itHigh)->IsPileup() )
             continue;
 
@@ -423,7 +414,6 @@ bool GeProcessor::PreProcess(RawEvent &event) {
         }
         if ( itLow != lowEvents.end() ) {
             double ratio = (*itHigh)->GetEnergy() / (*itLow)->GetEnergy();
-            plot(DD_CLOVER_ENERGY_RATIO, location, ratio * 10.);
             if ( (ratio < detectors::geLowRatio ||
                   ratio > detectors::geHighRatio) )
                 continue;
@@ -583,8 +573,17 @@ bool GeProcessor::Process(RawEvent &event) {
             double gEnergy2 = chan2->GetCalEnergy();            
             int det2 = leafToClover[chan2->GetChanID().GetLocation()];
             double gTime2 = chan2->GetCorrectedTime();
+
             if (gEnergy2 < detectors::gammaThreshold) 
                 continue;
+
+            /*
+             * This removes coincidences within the same clover significantly
+             * reducing "cross-talk" but also reducing efficiency
+             * (by 20% approx) 
+             */ 
+            if (det2 == det)
+               continue;
 
             double gg_dtime = (gTime2 - gTime) * pixie::clockInSeconds;
 
