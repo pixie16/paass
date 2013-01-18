@@ -34,14 +34,22 @@ namespace dammIds {
     namespace ge {
         namespace calib {
             const int D_E_SUM = 400;
-            const int D_E_CRYSTALX = 401;
+            const int D_ENERGY_HIGHGAIN = 401;
+            const int DD_CLOVER_ENERGY_RATIO = 402;
+            const int D_E_CRYSTALX = 403;
+
             const int DD_E_DETX = 419;
+            const int DD_E_DETX_BETA_GATED = 499;
 
-            const int DD_EGAMMA__EBETA = 420;
-            const int DD_TDIFF__EGAMMA = 460;
+            const int DD_EGAMMA__EBETA_ALL = 420;
+            const int DD_EGAMMA__EBETA_B0 = 421;
+            const int DD_EGAMMA__EBETA_B1 = 422;
+            const int DD_EGAMMA__EBETA = 423;
 
-            const int DD_CLOVER_ENERGY_RATIO = 105;
-            const int D_MULT = 109;
+            const int DD_TDIFF__EGAMMA_ALL = 460;
+            const int DD_TDIFF__EGAMMA_B0 = 461;
+            const int DD_TDIFF__EGAMMA_B1 = 462;
+            const int DD_TDIFF__EGAMMA = 463;
         }
     }
 }
@@ -121,46 +129,47 @@ void GeCalibProcessor::DeclarePlots(void)
     }
     DeclareHistogram2D(calib::DD_E_DETX, energyBins, S5,
                        "Gamma E vs. crystal number ");
+    DeclareHistogram2D(calib::DD_E_DETX_BETA_GATED, energyBins, S5,
+                       "Gamma E vs. crystal number beta gated");
 
-    DeclareHistogram2D(calib::DD_EGAMMA__EBETA,
+    DeclareHistogram2D(calib::DD_EGAMMA__EBETA_ALL,
                        energyBins2, energyBins2, 
                        "Gamma E, Beta E (all crystals)");
-    DeclareHistogram2D(calib::DD_TDIFF__EGAMMA,
+    DeclareHistogram2D(calib::DD_TDIFF__EGAMMA_ALL,
                        timeBins, energyBins2, 
                        "dt gamma-beta, gamma E (all)");
 
+    DeclareHistogram2D(calib::DD_EGAMMA__EBETA_B0,
+                    energyBins2, energyBins2, "Gamma E, beta E; beta 0");
+    DeclareHistogram2D(calib::DD_EGAMMA__EBETA_B1,
+                    energyBins2, energyBins2, "Gamma E, beta E; beta 0");
+    DeclareHistogram2D(calib::DD_TDIFF__EGAMMA_B0,
+                       timeBins, energyBins2, "dt gamma-beta, gamma E; beta 0");
+    DeclareHistogram2D(calib::DD_TDIFF__EGAMMA_B1,
+                       timeBins, energyBins2, "dt gamma-beta, gamma E; beta 0");
+
     for (unsigned b = 0; b < 2; ++b) {
         stringstream ss;
-        ss << "Gamma E, beta E; beta " << b;
-        DeclareHistogram2D(calib::DD_EGAMMA__EBETA + 1 + b,
-                        energyBins2, energyBins2, ss.str().c_str());
-        ss.str("");
-        ss << "dt gamma-beta, gamma E; beta " << b;
-        DeclareHistogram2D(calib::DD_TDIFF__EGAMMA + 1 + b,
-                        timeBins, energyBins2, ss.str().c_str());
-        ss.str("");
-        ss << "dt gamma-beta, beta E; beta " << b;
-        DeclareHistogram2D(calib::DD_TDIFF__EGAMMA + 3 + b,
-                           timeBins, energyBins2, ss.str().c_str());
-
         for (unsigned i = 0; i < cloverChans; ++i) {
             ss.str("");
             ss << "Gamma E, beta E; crystal " << i 
                << " beta " << b << " (energy/2)";
-            DeclareHistogram2D(calib::DD_EGAMMA__EBETA + 5 + i * 2 + b,
+            DeclareHistogram2D(calib::DD_EGAMMA__EBETA + i * 2 + b,
                                energyBins2, energyBins3, ss.str().c_str());
 
             ss.str("");
             ss << "dt gamma-beta, gamma E; crystal " 
                << i << " beta " << b;
-            DeclareHistogram2D(calib::DD_TDIFF__EGAMMA + 5 + i * 2 + b,
+            DeclareHistogram2D(calib::DD_TDIFF__EGAMMA + i * 2 + b,
                                timeBins, energyBins2, ss.str().c_str());
         }
     }
 
+    DeclareHistogram1D(calib::D_ENERGY_HIGHGAIN, energyBins,
+                       "Gamma singles, high gain");
     DeclareHistogram2D(calib::DD_CLOVER_ENERGY_RATIO, S4, S6,
                        "high/low energy ratio (x10)");
-    DeclareHistogram1D(calib::D_MULT, S3, 
+    DeclareHistogram1D(dammIds::ge::D_MULT, S3, 
                        "Gamma multiplicity");                  
 }
 
@@ -182,8 +191,11 @@ bool GeCalibProcessor::PreProcess(RawEvent &event) {
     for (vector<ChanEvent*>::const_iterator itHigh = highEvents.begin();
 	 itHigh != highEvents.end(); itHigh++) {
         int location = (*itHigh)->GetChanID().GetLocation();
+        plot(calib::D_ENERGY_HIGHGAIN, (*itHigh)->GetCalEnergy());
+
         if ( (*itHigh)->IsSaturated() || (*itHigh)->IsPileup() )
             continue;
+
 
         // find the matching low gain event
         vector <ChanEvent*>::const_iterator itLow = lowEvents.begin();
@@ -233,7 +245,7 @@ bool GeCalibProcessor::Process(RawEvent &event) {
 
     bool hasBeta = TreeCorrelator::get()->place("Beta")->status();
 
-    plot(calib::D_MULT, geEvents_.size());
+    plot(D_MULT, geEvents_.size());
 
     for (vector<ChanEvent*>::iterator it = geEvents_.begin(); 
          it != geEvents_.end(); ++it) {
@@ -251,29 +263,34 @@ bool GeCalibProcessor::Process(RawEvent &event) {
         plot(calib::DD_E_DETX, gEnergy, det);
 
         if (hasBeta) {
+            plot(calib::DD_E_DETX_BETA_GATED, gEnergy, det);
+
             EventData beta = TreeCorrelator::get()->place("Beta")->last();
             double gb_dtime = (gTime - beta.time) * pixie::clockInSeconds;
             double betaEnergy = beta.energy;
             int betaLocation = beta.location;
 
             double plotResolution = 10e-9;
-            plot(calib::DD_TDIFF__EGAMMA,
+            plot(calib::DD_TDIFF__EGAMMA_ALL,
                     (int)(gb_dtime / plotResolution + 100), gEnergy);
-            plot(calib::DD_EGAMMA__EBETA, gEnergy, betaEnergy);
+            plot(calib::DD_EGAMMA__EBETA_ALL, gEnergy, betaEnergy);
 
-            plot(calib::DD_EGAMMA__EBETA + 1 + betaLocation,
-                 gEnergy, betaEnergy);
+            if (betaLocation == 0) {
+                plot(calib::DD_EGAMMA__EBETA_B0,
+                    gEnergy, betaEnergy);
+                plot(calib::DD_TDIFF__EGAMMA_B0,
+                    (int)(gb_dtime / plotResolution + 100), gEnergy);
+            } else if (betaLocation == 1) {
+                plot(calib::DD_EGAMMA__EBETA_B1,
+                    gEnergy, betaEnergy);
+                plot(calib::DD_TDIFF__EGAMMA_B1,
+                    (int)(gb_dtime / plotResolution + 100), gEnergy);
+            }
 
-            plot(calib::DD_TDIFF__EGAMMA + 1 + betaLocation,
-                (int)(gb_dtime / plotResolution + 100), gEnergy);
-
-            plot(calib::DD_TDIFF__EGAMMA + 3 + betaLocation,
-                (int)(gb_dtime / plotResolution + 100), betaEnergy);
-
-            plot(calib::DD_TDIFF__EGAMMA + 5 + 2 * det + betaLocation,
+            plot(calib::DD_TDIFF__EGAMMA + 2 * det + betaLocation,
                  (int)(gb_dtime / plotResolution + 100), gEnergy);
 
-            plot(calib::DD_EGAMMA__EBETA + 5 + 2 * det + betaLocation,
+            plot(calib::DD_EGAMMA__EBETA + 2 * det + betaLocation,
                  gEnergy, betaEnergy / 2.0);
         }
 
