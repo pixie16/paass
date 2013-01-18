@@ -29,9 +29,6 @@ namespace dammIds {
         const int D_ENERGY = 0;
         const int D_ENERGY_CLOVERX = 1; 
 
-        const int DD_CLOVER_ENERGY_RATIO = 5;
-        const int D_ENERGY_LOWGAIN = 7;
-        const int D_ENERGY_HIGHGAIN = 8;
         const int D_MULT = 9;
 
         const int D_ADD_ENERGY = 50; 
