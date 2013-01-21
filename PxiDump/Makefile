@@ -4,19 +4,22 @@
 
 include ../makepixie.inc
 
-LINKS = current.set varFile.var
+VARFILE:=$(shell grep DspVarFile ../Setup/pixie.cfg | awk '{if(!/\#/) print $$2}')
+SETFILE:=$(shell grep DspSetFile ../Setup/pixie.cfg | awk '{if(!/\#/) print $$2}')
+
+LINKS = setFile varFile
 
 all: links
 
 links: $(LINKS)
 	@echo "Creating Links...."
-current.set:
-	@ln -s $(PXI_ROOT)/configuration/default.set $@
-varFile.var:
-	@ln -s $(VARFILE) $@
+setFile:
+	ln -sf $(PXI_ROOT)/$(SETFILE) $@
+varFile:
+	ln -sf $(PXI_ROOT)/$(VARFILE) $@
 
 .phony: clean
 
 clean: 
 	@echo "Removing Links...."
-	rm -f $(LINKS)
+	@rm -f $(LINKS)

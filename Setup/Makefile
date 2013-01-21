@@ -1,14 +1,15 @@
 #!/bin/make
-#nice and simple make file using typical implicit rules
-
 include ../makepixie.inc
 
-#Uncomment this in order to make paw
-#USE_PAW=1
+ifeq ($(USE_PAW),)
+USE_PAW=0
+endif
+
+SETFILE:=$(shell grep DspSetFile ../Setup/pixie.cfg | awk '{if(!/\#/) print $$2}')
 
 vpath %.cpp src
 
-ADJUSTOBJS  =   adjust_offsets.o
+ADJUSTOBJS    = adjust_offsets.o
 FINDOBJS      = find_tau.o
 COPYOBJS      = copy_params.o
 PREADOBJS     = pread.o
@@ -33,12 +34,6 @@ SETHYBRIDOBJS = set_hybrid.o
 
 COMMONOBJS  = $(INTERFACELIB)
 
-OBJS =  $(PMREADOBJS) $(PMWRITEOBJS) $(PREADOBJS) $(PWRITEOBJS) $(RATEOBJS) \
-	$(BOOTOBJS) $(ADJUSTOBJS) $(COPYOBJS) $(TRACEOBJS) $(CSRTESTOBJS) \
-	$(FINDOBJS) $(TGGAINOBJS) $(TGGOODOBJS) $(TGPOLOBJS) $(TGTRACEOBJS) \
-	$(TGPILEUPOBJS) $(TGCATCHEROBJS) $(SETSTDOBJS) $(SETPUONLYOBJS) \
-	$(SETPURJCTOBJS) $(SETHYBRIDOBJS) $(GETTRACESO)
-
 TARGETS = pmread pmwrite pread pwrite rate adjust_offsets copy_params boot \
 	trace csr_test find_tau toggle_gain toggle_good toggle_polarity \
 	toggle_trace toggle_pileup toggle_catcher set_standard set_hybrid \
@@ -46,11 +41,14 @@ TARGETS = pmread pmwrite pread pwrite rate adjust_offsets copy_params boot \
 
 CHANNEL_PARMS = TRIGGER_RISETIME TRIGGER_FLATTOP TRIGGER_THRESHOLD ENERGY_RISETIME \
 	ENERGY_FLATTOP TAU TRACE_LENGTH TRACE_DELAY VOFFSET XDT BASELINE_PERCENT \
-	EMIN BINFACTOR CHANNEL_CSRA CHANNEL_CSRB BLCUT ENERGYCUTOFF
+	EMIN BINFACTOR CHANNEL_CSRA CHANNEL_CSRB BLCUT ENERGYCUTOFF ExternDelayLen \
+	ExtTrigStretch ChanTrigStretch FtrigoutDelay FASTTRIGBACKLEN
 MODULE_PARMS = MODULE_CSRA MODULE_CSRB MODULE_FORMAT MAX_EVENTS SYNCH_WAIT \
-	IN_SYNCH SLOW_FILTER_RANGE FAST_FILTER_RANGE MODULE_NUMBER
-MODULE_RLINKS = $(foreach parm,$(MODULE_PARMS),R_$(parm))
-MODULE_WLINKS = $(foreach parm,$(MODULE_PARMS),W_$(parm))
+	IN_SYNCH SLOW_FILTER_RANGE FAST_FILTER_RANGE MODULE_NUMBER TrigConfig0 \
+	TrigConfig1 TrigConfig2
+
+MODULE_RLINKS  = $(foreach parm,$(MODULE_PARMS),R_$(parm))
+MODULE_WLINKS  = $(foreach parm,$(MODULE_PARMS),W_$(parm))
 CHANNEL_RLINKS = $(foreach parm,$(CHANNEL_PARMS),R_$(parm))
 CHANNEL_WLINKS = $(foreach parm,$(CHANNEL_PARMS),W_$(parm))
 
@@ -59,7 +57,7 @@ LINKS = $(MODULE_RLINKS) $(MODULE_WLINKS) $(CHANNEL_RLINKS) $(CHANNEL_WLINKS) \
 # make things copasetic with c++
 LINK.o = $(CXX) $(LDFLAGS) $(TARGET_ARCH)
 
-ifndef USE_PAW
+ifeq (0,$(USE_PAW))
 PLOTTER = $(MAKE) --no-print-directory -f Makefile.mca
 else
 PLOTTER = $(MAKE) --no-print-directory -f Makefile.paw
@@ -98,7 +96,7 @@ csr_test: $(CSRTESTOBJS)
 
 clean: 
 	@echo "Cleaning up..."
-	@$(RM) $(OBJS) $(TARGETS) $(LINKS) *~
+	@$(RM) *.o $(TARGETS) $(LINKS) *~
 	@$(PLOTTER) $@
 
 links: $(LINKS)
@@ -115,6 +113,6 @@ $(CHANNEL_WLINKS):
 pxisys.ini:
 	@ln -s $(PXI_ROOT)/test/$@ .
 current.set:
-	@ln -s $(PXI_ROOT)/configuration/default.set $@
+	@ln -s $(PXI_ROOT)/$(SETFILE) $@
 slot_def.set:
 	@ln -s $(PXI_ROOT)/configuration/$@ .

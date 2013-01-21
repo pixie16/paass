@@ -1,4 +1,0 @@
-n=$1
-size=5120
-sta=`expr $n \* $size`
-xxd -c 64 -g4  -s $sta   -l 5120  default.set  > mod$1.pars

@@ -4,14 +4,11 @@ THISDIR      = $(dir $(lastword $(MAKEFILE_LIST)))
 
 # Set these if they have not been identified in the environment
 ifeq ($(PXI_ROOT),)	
-PXI_ROOT = $(HOME)/Pixie16RevD_General_1.4.3_Update_04072011
+PXI_ROOT = $(HOME)/Pixie16RevF_VandleFirmware_06062012
 endif
 ifeq ($(PLX_SDK_DIR),)
 PLX_SDK_DIR  = $(HOME)/PLX/PlxSdk
 endif
-
-#Set the var file to be used to parse the default.set
-VARFILE=$(PXI_ROOT)/dsp/Pixie16DSP_revfvandle_r23011.var
 
 #set the plx information
 LIB_ROOT     = $(PLX_SDK_DIR)/Linux/PlxApi/Library
