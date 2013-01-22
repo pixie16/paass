@@ -130,6 +130,7 @@ bool MtcProcessor::PreProcess(RawEvent &event)
 
             double dt_start = time -
                       TreeCorrelator::get()->place(place)->secondlast().time;
+            /*
             double dt_stop = abs(time - 
                  TreeCorrelator::get()->place("mtc_beam_stop_0")->last().time);
             //Remove double starts/stops
@@ -138,6 +139,7 @@ bool MtcProcessor::PreProcess(RawEvent &event)
             if (abs(dt_start * pixie::clockInSeconds) < doubleTimeLimit ||
                 abs(dt_stop * pixie::clockInSeconds) < doubleTimeLimit)
                 continue;
+            */
             TreeCorrelator::get()->place("Beam")->activate(time);
             TreeCorrelator::get()->place("Cycle")->activate(time);
 

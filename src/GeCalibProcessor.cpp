@@ -255,7 +255,7 @@ bool GeCalibProcessor::Process(RawEvent &event) {
         if (gEnergy < detectors::gammaThreshold)
             continue;
 
-        double gTime = chan->GetTime();
+        double gTime = chan->GetCorrectedTime();
         int det = chan->GetChanID().GetLocation();
 
         plot(calib::D_E_CRYSTALX + det, gEnergy);
@@ -269,25 +269,26 @@ bool GeCalibProcessor::Process(RawEvent &event) {
             double gb_dtime = (gTime - beta.time);
             double betaEnergy = beta.energy;
             int betaLocation = beta.location;
+            int timeShift = 20;
 
             plot(calib::DD_TDIFF__EGAMMA_ALL,
-                    (gb_dtime + 10), gEnergy);
+                    (gb_dtime + timeShift), gEnergy);
             plot(calib::DD_EGAMMA__EBETA_ALL, gEnergy, betaEnergy);
 
             if (betaLocation == 0) {
                 plot(calib::DD_EGAMMA__EBETA_B0,
                     gEnergy, betaEnergy);
                 plot(calib::DD_TDIFF__EGAMMA_B0,
-                    (gb_dtime + 10), gEnergy);
+                    (gb_dtime + timeShift), gEnergy);
             } else if (betaLocation == 1) {
                 plot(calib::DD_EGAMMA__EBETA_B1,
                     gEnergy, betaEnergy);
                 plot(calib::DD_TDIFF__EGAMMA_B1,
-                    (gb_dtime + 10), gEnergy);
+                    (gb_dtime + timeShift), gEnergy);
             }
 
             plot(calib::DD_TDIFF__EGAMMA + 2 * det + betaLocation,
-                 (gb_dtime + 10), gEnergy);
+                 (gb_dtime + timeShift), gEnergy);
 
             plot(calib::DD_EGAMMA__EBETA + 2 * det + betaLocation,
                  gEnergy, betaEnergy / 2.0);
