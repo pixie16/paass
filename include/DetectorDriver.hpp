@@ -23,6 +23,7 @@
 #include "MapFile.hpp"
 #include "ChanEvent.hpp"
 #include "Messenger.hpp"
+#include "WalkCorrector.hpp"
 
 // forward declarations
 class Calibration;
@@ -65,6 +66,7 @@ class DetectorDriver {
  public:    
     static DetectorDriver* get();
     std::vector<Calibration> cal;    /**<the calibration vector*/ 
+    WalkCorrector walk;
 
     Plots histo;
     virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
@@ -95,6 +97,7 @@ class DetectorDriver {
     ~DetectorDriver();
 
     void ReadCal();
+    void ReadWalk();
 };
 
 /**
