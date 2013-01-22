@@ -287,6 +287,7 @@ int DetectorDriver::Init(RawEvent& rawev)
     */
     //cout << "read in the calibration parameters" << endl;
     ReadCal();
+    ReadWalk();
 
     TimingInformation readFiles;
     readFiles.ReadTimingConstants();
@@ -512,8 +513,14 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
     /*
       Set the calibrated energy for this channel
     */
-    chan->SetCalEnergy( cal[id].Calibrate(energy) );
+    chan->SetCalEnergy(cal[id].Calibrate(energy));
 
+    /** Apply the walk correction. */
+    double time = chan->GetTime();
+    double ch = chan->GetEnergy();
+    double walk_correction = walk.GetCorrection(chanId, ch);
+    chan->SetCorrectedTime(time - walk_correction);
+    
     /*
       update the detector summary
     */    
@@ -748,6 +755,69 @@ void DetectorDriver::ReadCal()
             cout << endl;
         }
     }
+}
+
+void DetectorDriver::ReadWalk() {
+    pugi::xml_document doc;
+
+    PathHolder* conf_path = new PathHolder();
+    string xmlFileName = conf_path->GetFullPath("Config.xml");
+    delete conf_path;
+
+    pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
+    if (!result) {
+        stringstream ss;
+        ss << "DetectorDriver::ReadWalk: error parsing file " << xmlFileName;
+        ss << " : " << result.description();
+        cout << ss.str() << endl;
+    }
+
+    Messenger m;
+    m.start("Loading Walk Corrections");
+
+    pugi::xml_node map = doc.child("Configuration").child("Map");
+    bool verbose = map.attribute("verbose").as_bool();
+    for (pugi::xml_node module = map.child("Module"); module;
+         module = module.next_sibling("Module")) {
+        int module_number = module.attribute("number").as_int();
+        for (pugi::xml_node channel = module.child("Channel"); channel;
+             channel = channel.next_sibling("Channel")) {
+            int ch_number = channel.attribute("number").as_int(-1);
+            if (ch_number < 0) {
+                stringstream ss;
+                ss << "DetectorDriver::ReadWalk: Illegal channel number "
+                   << "found " << ch_number << " in cofiguration file.";
+                throw GeneralException(ss.str());
+            }
+            Identifier chanID = DetectorLibrary::get()->at(module_number,
+                                                           ch_number);
+            for (pugi::xml_node walkcorr = channel.child("WalkCorrection");
+                walkcorr; walkcorr = walkcorr.next_sibling("WalkCorrection")) {
+                string model = walkcorr.attribute("model").as_string("None");
+                stringstream pars(walkcorr.text().as_string());
+                vector<double> parameters;
+                while (true) {
+                    double p;
+                    pars >> p;
+                    if (pars) 
+                        parameters.push_back(p);
+                    else
+                        break;
+                }
+                if (verbose) {
+                    stringstream ss;
+                    ss << "Mod" << module_number << " Ch" << ch_number << ": ";
+                    ss << "Model: " << model;
+                    for (vector<double>::iterator it = parameters.begin();
+                         it != parameters.end(); ++it)
+                        ss << " " << (*it);
+                    m.detail(ss.str());
+                }
+                walk.AddChannel(chanID, model, parameters);
+            }
+        }
+    }
+    m.done();
 }
 
 /*!

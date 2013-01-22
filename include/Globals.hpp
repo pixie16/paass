@@ -42,7 +42,7 @@ namespace pixie {
 
     /** The time widht of an event in seconds.*/
     /** 3Hen -> 100 us, LeRIBBS -> 3 us */
-    const double eventInSeconds = 3e-6;
+    const double eventInSeconds = 100e-6;
     /** The time width of an event in units of pixie16 clock ticks */
     const int eventWidth = eventInSeconds / pixie::clockInSeconds;
 

@@ -64,7 +64,6 @@ bool LitePositionProcessor::Init(RawEvent& event)
         return false;
     }
 
-    extern DetectorLibrary modChan;
     DetectorLibrary* modChan = DetectorLibrary::get();
 
     int numLocationsTop    = modChan->GetNextLocation("ssd", "top");

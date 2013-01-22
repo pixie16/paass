@@ -421,15 +421,6 @@ bool GeProcessor::PreProcess(RawEvent &event) {
         geEvents_.push_back(*itHigh);
     }
 
-    /** NOTE we do permanents changes to events here
-     *  Necessary in order to set corrected time for use in correlator
-     */
-    for (vector<ChanEvent*>::iterator it = geEvents_.begin(); 
-	 it != geEvents_.end(); it++) {
-        double energy = (*it)->GetCalEnergy();
-        double time   = (*it)->GetTime() - WalkCorrection(energy);	
-        (*it)->SetCorrectedTime(time);
-    }
     // now we sort the germanium events according to their corrected time
     sort(geEvents_.begin(), geEvents_.end(), CompareCorrectedTime);
 
