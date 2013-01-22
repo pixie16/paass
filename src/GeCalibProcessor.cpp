@@ -63,7 +63,7 @@ void GeCalibProcessor::DeclarePlots(void)
     const int energyBins = SE;
     const int energyBins2 = SC;
     const int energyBins3 = S9;
-    const int timeBins = S9;
+    const int timeBins = S7;
 
     using namespace dammIds::ge;
 
@@ -136,7 +136,7 @@ void GeCalibProcessor::DeclarePlots(void)
                        energyBins2, energyBins2, 
                        "Gamma E, Beta E (all crystals)");
     DeclareHistogram2D(calib::DD_TDIFF__EGAMMA_ALL,
-                       timeBins, energyBins2, 
+                       timeBins, energyBins, 
                        "dt gamma-beta, gamma E (all)");
 
     DeclareHistogram2D(calib::DD_EGAMMA__EBETA_B0,
@@ -144,9 +144,9 @@ void GeCalibProcessor::DeclarePlots(void)
     DeclareHistogram2D(calib::DD_EGAMMA__EBETA_B1,
                     energyBins2, energyBins2, "Gamma E, beta E; beta 0");
     DeclareHistogram2D(calib::DD_TDIFF__EGAMMA_B0,
-                       timeBins, energyBins2, "dt gamma-beta, gamma E; beta 0");
+                       timeBins, energyBins, "dt gamma-beta, gamma E; beta 0");
     DeclareHistogram2D(calib::DD_TDIFF__EGAMMA_B1,
-                       timeBins, energyBins2, "dt gamma-beta, gamma E; beta 0");
+                       timeBins, energyBins, "dt gamma-beta, gamma E; beta 0");
 
     for (unsigned b = 0; b < 2; ++b) {
         stringstream ss;
@@ -161,7 +161,7 @@ void GeCalibProcessor::DeclarePlots(void)
             ss << "dt gamma-beta, gamma E; crystal " 
                << i << " beta " << b;
             DeclareHistogram2D(calib::DD_TDIFF__EGAMMA + i * 2 + b,
-                               timeBins, energyBins2, ss.str().c_str());
+                               timeBins, energyBins, ss.str().c_str());
         }
     }
 
@@ -266,29 +266,28 @@ bool GeCalibProcessor::Process(RawEvent &event) {
             plot(calib::DD_E_DETX_BETA_GATED, gEnergy, det);
 
             EventData beta = TreeCorrelator::get()->place("Beta")->last();
-            double gb_dtime = (gTime - beta.time) * pixie::clockInSeconds;
+            double gb_dtime = (gTime - beta.time);
             double betaEnergy = beta.energy;
             int betaLocation = beta.location;
 
-            double plotResolution = 10e-9;
             plot(calib::DD_TDIFF__EGAMMA_ALL,
-                    (int)(gb_dtime / plotResolution + 100), gEnergy);
+                    (gb_dtime + 10), gEnergy);
             plot(calib::DD_EGAMMA__EBETA_ALL, gEnergy, betaEnergy);
 
             if (betaLocation == 0) {
                 plot(calib::DD_EGAMMA__EBETA_B0,
                     gEnergy, betaEnergy);
                 plot(calib::DD_TDIFF__EGAMMA_B0,
-                    (int)(gb_dtime / plotResolution + 100), gEnergy);
+                    (gb_dtime + 10), gEnergy);
             } else if (betaLocation == 1) {
                 plot(calib::DD_EGAMMA__EBETA_B1,
                     gEnergy, betaEnergy);
                 plot(calib::DD_TDIFF__EGAMMA_B1,
-                    (int)(gb_dtime / plotResolution + 100), gEnergy);
+                    (gb_dtime + 10), gEnergy);
             }
 
             plot(calib::DD_TDIFF__EGAMMA + 2 * det + betaLocation,
-                 (int)(gb_dtime / plotResolution + 100), gEnergy);
+                 (gb_dtime + 10), gEnergy);
 
             plot(calib::DD_EGAMMA__EBETA + 2 * det + betaLocation,
                  gEnergy, betaEnergy / 2.0);
