@@ -6,9 +6,9 @@ SHELL=/bin/sh
 # USEROOT = 1
 
 # Uncomment this line if processing Rev. D data
-REVISIOND = 1
+#REVISIOND = 1
 # Uncomment this line if processing Rev. F data
-#REVISIONF = 1
+REVISIONF = 1
 
 # Uncomment this line for a more verbose scan
 # CXXFLAGS += -DVERBOSE
@@ -171,6 +171,7 @@ TRACESUBO        = TraceAnalyzer.$(ObjSuf)
 TREECORRELATORO  = TreeCorrelator.$(ObjSuf)
 VANDLEPROCESSORO = VandleProcessor.$(ObjSuf)
 VANDLEROOTO      = VandleROOT.$(ObjSuf)
+WALKCORRECTORO   = WalkCorrector.$(ObjSuf)
 WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
 WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
 
@@ -254,6 +255,7 @@ $(TRACEPLOTO)\
 $(TRACESUBO)\
 $(TREECORRELATORO)\
 $(VANDLEPROCESSORO)\
+$(WALKCORRECTORO)\
 $(WAVEFORMSUBO)\
 $(WAVEFORMSUBO)
 
