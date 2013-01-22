@@ -13,8 +13,8 @@
 #include <sstream>
 
 #include <cmath>
+#include <limits>
 #include <cstdlib>
-
 
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
@@ -200,6 +200,7 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
     /* Beta places are activated with threshold in ScintProcessor. */
     bool hasBeta = TreeCorrelator::get()->place("Beta")->status();
 
+
     for (vector<ChanEvent*>::iterator it = geEvents_.begin(); 
 	 it != geEvents_.end(); it++) {
         ChanEvent *chan = *it;
@@ -207,17 +208,23 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         double gEnergy = chan->GetCalEnergy();	
         double gTime   = chan->GetCorrectedTime();
         double decayTime = (gTime - cycleTime) * pixie::clockInSeconds;
-        if (gEnergy < 1) 
+        if (gEnergy < detectors::gammaThreshold) 
             continue;
 
         plot(neutron::D_ENERGY, gEnergy);
         granploty(neutron::DD_ENERGY__TIMEX,
                     gEnergy, decayTime, timeResolution);
 
-        if (hasBeta && GoodGammaBeta(gTime)) {
-            plot(neutron::betaGated::D_ENERGY, gEnergy);
-            granploty(neutron::betaGated::DD_ENERGY__TIMEX,
-                        gEnergy, decayTime, timeResolution);
+        double gb_dtime = numeric_limits<double>::max();
+        if (hasBeta) {
+            pair<double, EventData> bestBeta = BestBetaForGamma(gTime);
+            gb_dtime = bestBeta.first;
+        }
+
+        if (hasBeta && GoodGammaBeta(gb_dtime)) {
+                plot(neutron::betaGated::D_ENERGY, gEnergy);
+                granploty(neutron::betaGated::DD_ENERGY__TIMEX,
+                            gEnergy, decayTime, timeResolution);
         }
 
         for (unsigned l = 0; l < 48; ++l) {
@@ -232,7 +239,7 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             plot(multiNeutron::D_ENERGY, gEnergy);
             granploty(multiNeutron::DD_ENERGY__TIMEX,
                       gEnergy, decayTime, timeResolution);
-            if (hasBeta && GoodGammaBeta(gTime)) {
+            if (hasBeta && GoodGammaBeta(gb_dtime)) {
                 plot(multiNeutron::betaGated::D_ENERGY, gEnergy);
                 granploty(multiNeutron::betaGated::DD_ENERGY__TIMEX,
                           gEnergy, decayTime, timeResolution);
@@ -245,17 +252,17 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             ChanEvent *chan2 = *it2;
 
             double gEnergy2 = chan2->GetCalEnergy();            
-            if (gEnergy2 < 1) 
+            if (gEnergy2 < detectors::gammaThreshold) 
                 continue;
 
             symplot(neutron::DD_ENERGY, gEnergy, gEnergy2);            
-            if (hasBeta && GoodGammaBeta(gTime)) {
+            if (hasBeta && GoodGammaBeta(gb_dtime)) {
                 symplot(neutron::betaGated::DD_ENERGY,
                         gEnergy, gEnergy2);            
             }
             if (neutron_count > 1) {
                 symplot(multiNeutron::DD_ENERGY, gEnergy, gEnergy2);            
-                if (hasBeta && GoodGammaBeta(gTime)) {
+                if (hasBeta && GoodGammaBeta(gb_dtime)) {
                     symplot(multiNeutron::betaGated::DD_ENERGY,
                             gEnergy, gEnergy2);            
                 }
@@ -267,16 +274,22 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
     for (unsigned i = 0; i < nEvents; ++i) {
         double gEnergy = tas_[i].first;
         double gTime = tas_[i].second;
-        if (gEnergy < 1)
+        if (gEnergy < detectors::gammaThreshold)
             continue;
 
         plot(neutron::D_ADD_ENERGY_TOTAL, gEnergy);
-        if (hasBeta && GoodGammaBeta(gTime)) {
+        double gb_dtime = numeric_limits<double>::max();
+        if (hasBeta) {
+            pair<double, EventData> bestBeta = BestBetaForGamma(gTime);
+            gb_dtime = bestBeta.first;
+        }
+
+        if (hasBeta && GoodGammaBeta(gb_dtime)) {
             plot(neutron::betaGated::D_ADD_ENERGY_TOTAL, gEnergy);
         }
         if (neutron_count > 1) {
             plot(multiNeutron::D_ADD_ENERGY_TOTAL, gEnergy);
-            if (hasBeta && GoodGammaBeta(gTime)) {
+            if (hasBeta && GoodGammaBeta(gb_dtime)) {
                 plot(multiNeutron::betaGated::D_ADD_ENERGY_TOTAL, gEnergy);
             }
         }
@@ -287,19 +300,27 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             double gEnergy = addbackEvents_[det][ev].first;
             double gTime = addbackEvents_[det][ev].second;
             double decayTime = (gTime - cycleTime) * pixie::clockInSeconds;
-            if (gEnergy < 1)
+            if (gEnergy < detectors::gammaThreshold)
                 continue;
 
             plot(neutron::D_ADD_ENERGY, gEnergy);
             granploty(neutron::DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
-            if (hasBeta && GoodGammaBeta(gTime)) {
+            plot(neutron::D_ADD_ENERGY_TOTAL, gEnergy);
+
+            double gb_dtime = numeric_limits<double>::max();
+            if (hasBeta) {
+                pair<double, EventData> bestBeta = BestBetaForGamma(gTime);
+                gb_dtime = bestBeta.first;
+            }
+
+            if (hasBeta && GoodGammaBeta(gb_dtime)) {
                 plot(neutron::betaGated::D_ADD_ENERGY, gEnergy);
                 granploty(neutron::betaGated::DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
             }
             if (neutron_count > 1) {
                 plot(multiNeutron::D_ADD_ENERGY, gEnergy);
                 granploty(multiNeutron::DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
-                if (hasBeta && GoodGammaBeta(gTime)) {
+                if (hasBeta && GoodGammaBeta(gb_dtime)) {
                     plot(multiNeutron::betaGated::D_ADD_ENERGY, gEnergy);
                     granploty(multiNeutron::betaGated::DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
                 }
@@ -307,17 +328,17 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
 
             for (unsigned int det2 = det + 1; det2 < numClovers; ++det2) {
                 double gEnergy2 = addbackEvents_[det2][ev].first;
-                if (gEnergy2 < 1)
+                if (gEnergy2 < detectors::gammaThreshold)
                     continue;
 
                 symplot(neutron::DD_ADD_ENERGY, gEnergy, gEnergy2);
-                if (hasBeta && GoodGammaBeta(gTime)) {
+                if (hasBeta && GoodGammaBeta(gb_dtime)) {
                     symplot(neutron::betaGated::DD_ADD_ENERGY, gEnergy,
                             gEnergy2);
                 }
                 if (neutron_count > 1) {
                     symplot(multiNeutron::DD_ADD_ENERGY, gEnergy, gEnergy2);
-                    if (hasBeta && GoodGammaBeta(gTime)) {
+                    if (hasBeta && GoodGammaBeta(gb_dtime)) {
                         symplot(multiNeutron::betaGated::DD_ADD_ENERGY, gEnergy, gEnergy2);
                     }
                 }
