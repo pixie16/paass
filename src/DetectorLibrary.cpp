@@ -13,6 +13,7 @@
 #include "RawEvent.hpp"
 
 #include "Globals.hpp"
+#include "Messenger.hpp"
 
 using namespace std;
 
@@ -193,16 +194,25 @@ void DetectorLibrary::PrintMap(void) const
  */
 void DetectorLibrary::PrintUsedDetectors(RawEvent& rawev) const
 {
+    Messenger m;
+    stringstream ss;
     // Print the number of detectors and detector subtypes used in the analysis
-    cout << usedTypes.size() <<" detector types are used in this analysis " 
-	 << "and are named:" << endl << "  "; 
-    copy(usedTypes.begin(), usedTypes.end(), ostream_iterator<string>(cout, " "));
-    cout << endl;
+    ss << usedTypes.size() << " detector types are used in this analysis "
+	   << "and are named:";
+    m.detail(ss.str());
+    ss.str("");
+    copy(usedTypes.begin(), usedTypes.end(), 
+         ostream_iterator<string>(ss, " "));
+    m.detail(ss.str(), 1);
+    ss.str("");
     
-    cout << usedSubtypes.size() <<" detector subtypes are used in this "
-	 << "analysis and are named:" << endl << "  ";
-    copy(usedSubtypes.begin(), usedSubtypes.end(), ostream_iterator<string>(cout," "));
-    cout << endl;   
+    ss << usedSubtypes.size() <<" detector subtypes are used in this " 
+       << "analysis and are named:";
+    m.detail(ss.str());
+    ss.str("");
+    copy(usedSubtypes.begin(), usedSubtypes.end(),
+         ostream_iterator<string>(ss," "));
+    m.detail(ss.str(), 1);
 
     rawev.Init(usedTypes);
 }
