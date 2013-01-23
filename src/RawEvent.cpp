@@ -1,7 +1,9 @@
 /** \file rawevent.cpp
  *  \brief defines functions associated with a rawevent  
  */
+#include <sstream>
 #include "RawEvent.hpp"
+#include "Messenger.hpp"
 
 using namespace std;
 
@@ -80,15 +82,19 @@ DetectorSummary *RawEvent::GetSummary(const string& s, bool construct)
     map<string, DetectorSummary>::iterator it = sumMap.find(s);
     static set<string> nullSummaries;
 
+    Messenger m;
+    stringstream ss;
     if (it == sumMap.end()) {
         if (construct) {
             // construct the summary
-            cout << "Constructing detector summary for type " << s << endl;
+            ss << "Constructing detector summary for type " << s;
+            m.detail(ss.str());
             sumMap.insert( make_pair(s, DetectorSummary(s, eventList) ) );
             it = sumMap.find(s);
         } else {
             if (nullSummaries.count(s) == 0) {
-                cout << "Returning NULL detector summary for type " << s << endl;
+                ss << "Returning NULL detector summary for type " << s;
+                m.detail(ss.str());
                 nullSummaries.insert(s);
             }
             return NULL;

@@ -442,9 +442,10 @@ void DetectorDriver::DeclarePlots(MapFile& theMapFile)
 }
 
 // sanity check for all our expectations
-bool DetectorDriver::SanityCheck(void) const
+void DetectorDriver::SanityCheck(void) const
 {
-    return true;
+    /** Use Exceptions to throw an exception here if sanity check was 
+     * not succesful */
 }
 
 /*!
@@ -773,7 +774,7 @@ void DetectorDriver::ReadWalk() {
     }
 
     Messenger m;
-    m.start("Loading Walk Corrections");
+    m.detail("Loading Walk Corrections");
 
     pugi::xml_node map = doc.child("Configuration").child("Map");
     bool verbose = map.attribute("verbose").as_bool();
@@ -817,7 +818,6 @@ void DetectorDriver::ReadWalk() {
             }
         }
     }
-    m.done();
 }
 
 /*!

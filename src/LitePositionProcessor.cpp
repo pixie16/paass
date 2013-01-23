@@ -13,6 +13,7 @@
 #include "PositionProcessor.hpp"
 #include "DetectorLibrary.hpp"
 #include "RawEvent.hpp"
+#include "Messenger.hpp"
 
 using namespace std;
 
@@ -125,10 +126,14 @@ bool LitePositionProcessor::Init(RawEvent& event)
 	return (initDone = false);
     }
     
-    cout << "Processor " << name << " initialized with " << numLocations 
-	 << " locations operating on " << numQdcs << " QDCs" << endl;
-    cout << "  QDC #" << whichQdc << " being used for position determination."
-	 << endl;
+    Messenger m;
+    stringstream ss;
+    ss << "Processor " << name << " initialized with " << numLocations 
+	   << " locations operating on " << numQdcs << " QDCs";
+    m.detail(ss.str());
+    ss.str("");
+    ss << "  QDC #" << whichQdc << " being used for position determination.";
+    m.detail(ss.str());
 
     return true;
 }
