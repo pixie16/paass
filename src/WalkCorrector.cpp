@@ -23,22 +23,25 @@ void WalkCorrector::AddChannel(const Identifier& chanID,
         required_length = 5;
     } else if (model == "None") {
         cf.model = None;
-        required_length = 0;
-    } else
-        cf.model = None;
+    } else {
+        stringstream ss;
+        ss << "WalkCorrector: unknown walk model " << model;
+        throw GeneralException(ss.str());
+    }
     
-    if (par.size() != required_length) {
+    if (par.size() != required_length && required_length > 0) {
         stringstream ss;
         ss << "WalkCorrector: wrong number of parameters, expected "
            << required_length << " but " << par.size() << " were found.";
         throw GeneralException(ss.str());
     }
 
-    for (vector<double>::const_iterator it = par.begin(); it != par.end();
-         ++it) {
-        cf.parameters.push_back(*it);
+    if (required_length > 0) {
+        for (vector<double>::const_iterator it = par.begin(); it != par.end();
+            ++it) {
+            cf.parameters.push_back(*it);
+        }
     }
-
 
     channels_[chanID] = cf;
 }

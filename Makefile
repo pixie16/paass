@@ -122,7 +122,8 @@ PUGIXMLO = pugixml.$(ObjSuf)
 # objects from cpp
 PIXIEO           = PixieStd.$(ObjSuf)
 
-BETASCINTPROCESSORO  = BetaScintProcessor.$(ObjSuf)
+BETASCINTPROCESSORO = BetaScintProcessor.$(ObjSuf)
+CALIBRATORO      = Calibrator.$(ObjSuf)
 CFDANALYZERO     = CfdAnalyzer.$(ObjSuf)
 CHANEVENTO       = ChanEvent.$(ObjSuf)
 CHANIDENTIFIERO  = ChanIdentifier.$(ObjSuf)
@@ -209,6 +210,7 @@ OBJS += \
 $(PUGIXMLO)\
 $(PIXIEO)\
 $(BETASCINTPROCESSORO)\
+$(CALIBRATORO)\
 $(CORRELATORO)\
 $(CHANEVENTO)\
 $(CHANIDENTIFIERO)\

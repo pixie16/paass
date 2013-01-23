@@ -13,7 +13,7 @@ enum WalkModel {
     A
 };
 
-/** This structure holds walk correction model identfier and
+/** This structure holds walk calibration model identfier and
  * vector of parameters needed for the function. */
 struct CorrectionFactor {
     WalkModel model;
@@ -21,7 +21,7 @@ struct CorrectionFactor {
 };
 
 
-/** The purpose of the WalkCorrector class is to correct certain channels
+/** The purpose of the Calibrator class is to correct certain channels
  * for the walk (connected with the detector response, usually the lower the
  * event energy, the slower is the response). The resulting correction
  * should be subtracted from the raw time in order to compensate the slower response.
@@ -31,7 +31,7 @@ class WalkCorrector {
         WalkCorrector() {}
 
         /** Add new channel, identified by chanID to the list of known channels and 
-         * their correction model and parameters */
+         * their calibration model and parameters */
         void AddChannel(const Identifier& chanID, const std::string model,
                         const std::vector<double>& par);
 
