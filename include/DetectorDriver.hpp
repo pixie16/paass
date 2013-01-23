@@ -24,6 +24,7 @@
 #include "ChanEvent.hpp"
 #include "Messenger.hpp"
 #include "WalkCorrector.hpp"
+#include "Calibrator.hpp"
 
 // forward declarations
 class Calibration;
@@ -39,6 +40,46 @@ class TraceAnalyzer;
   energies, and any experiment specific processing requirements
 */
 class DetectorDriver {    
+ public:    
+    static DetectorDriver* get();
+    std::vector<Calibration> cal;    /**<the calibration vector*/ 
+
+    WalkCorrector walk;
+    Calibrator cali;
+
+    Plots histo;
+    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
+        histo.Plot(dammId, val1, val2, val3, name);
+    }
+    
+    int ProcessEvent(const std::string &, RawEvent& rawev);
+    int ThreshAndCal(ChanEvent *, RawEvent& rawev);
+    int Init(RawEvent& rawev);
+
+    int PlotRaw(const ChanEvent *);
+    int PlotCal(const ChanEvent *);
+
+    void DeclarePlots(MapFile& theMapFile); /**< declare the necessary damm plots */
+    void SanityCheck(void) const;  /**< check whether everything makes sense */
+
+    void CorrelateClock(double d, time_t t) {
+        pixieToWallClock=std::make_pair(d, t);
+    }
+    time_t GetWallTime(double d) const {
+        return (time_t)((d - pixieToWallClock.first)*pixie::clockInSeconds + pixieToWallClock.second);
+    }
+    const std::vector<EventProcessor *>& GetProcessors(void) const {
+        return vecProcess;
+    } /**< return the list of processors */
+    std::vector<EventProcessor *> GetProcessors(const std::string &type) const;
+    const std::set<std::string> &GetUsedDetectors(void) const;
+
+    ~DetectorDriver();
+
+    void ReadCal();
+    void ReadCalXml();
+    void ReadWalkXml();
+
  private: 
     DetectorDriver();
     DetectorDriver (const DetectorDriver&);
@@ -63,41 +104,6 @@ class DetectorDriver {
     }
     void LoadProcessors(Messenger& m);
 
- public:    
-    static DetectorDriver* get();
-    std::vector<Calibration> cal;    /**<the calibration vector*/ 
-    WalkCorrector walk;
-
-    Plots histo;
-    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
-        histo.Plot(dammId, val1, val2, val3, name);
-    }
-    
-    int ProcessEvent(const std::string &, RawEvent& rawev);
-    int ThreshAndCal(ChanEvent *, RawEvent& rawev);
-    int Init(RawEvent& rawev);
-
-    int PlotRaw(const ChanEvent *);
-    int PlotCal(const ChanEvent *);
-
-    void DeclarePlots(MapFile& theMapFile); /**< declare the necessary damm plots */
-    void SanityCheck(void) const;  /**< check whether everything makes sense */
-
-    void CorrelateClock(double d, time_t t) {
-	pixieToWallClock=std::make_pair(d, t);
-    }
-    time_t GetWallTime(double d) const {
-	return (time_t)((d - pixieToWallClock.first)*pixie::clockInSeconds + pixieToWallClock.second);
-    }
-    const std::vector<EventProcessor *>& GetProcessors(void) const
-	{return vecProcess;}; /**< return the list of processors */
-    std::vector<EventProcessor *> GetProcessors(const std::string &type) const;
-    const std::set<std::string> &GetUsedDetectors(void) const;
-
-    ~DetectorDriver();
-
-    void ReadCal();
-    void ReadWalk();
 };
 
 /**

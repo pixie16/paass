@@ -38,6 +38,7 @@
 #include <iomanip>
 #include <iterator>
 #include <sstream>
+#include <limits>
 
 #include "pugixml.hpp"
 #include "PathHolder.hpp"
@@ -287,7 +288,8 @@ int DetectorDriver::Init(RawEvent& rawev)
     */
     //cout << "read in the calibration parameters" << endl;
     ReadCal();
-    ReadWalk();
+    ReadCalXml();
+    ReadWalkXml();
 
     TimingInformation readFiles;
     readFiles.ReadTimingConstants();
@@ -514,12 +516,14 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
     /*
       Set the calibrated energy for this channel
     */
-    chan->SetCalEnergy(cal[id].Calibrate(energy));
+    //chan->SetCalEnergy(cal[id].Calibrate(energy));
 
-    /** Apply the walk correction. */
+    /** Calibrate energy and apply the walk correction. */
     double time = chan->GetTime();
     double ch = chan->GetEnergy();
     double walk_correction = walk.GetCorrection(chanId, ch);
+
+    chan->SetCalEnergy(cali.GetCalEnergy(chanId, ch));
     chan->SetCorrectedTime(time - walk_correction);
     
     /*
@@ -632,7 +636,7 @@ void DetectorDriver::ReadCal()
     if (!calFile) {
         throw IOException("Could not open file " + calFilename);
     } else {
-      cout << "Reading in calibrations from " << calFilename << endl;
+      //cout << "Reading in calibrations from " << calFilename << endl;
       while (calFile) {
             /*
               While the end of the calibration file has not been reached,
@@ -758,7 +762,86 @@ void DetectorDriver::ReadCal()
     }
 }
 
-void DetectorDriver::ReadWalk() {
+void DetectorDriver::ReadCalXml() {
+    pugi::xml_document doc;
+
+    PathHolder* conf_path = new PathHolder();
+    string xmlFileName = conf_path->GetFullPath("Config.xml");
+    delete conf_path;
+
+    pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
+    if (!result) {
+        stringstream ss;
+        ss << "DetectorDriver::ReadCalXml: error parsing file " << xmlFileName;
+        ss << " : " << result.description();
+        cout << ss.str() << endl;
+    }
+
+    Messenger m;
+    m.detail("Loading Calibration");
+
+    pugi::xml_node map = doc.child("Configuration").child("Map");
+    bool verbose = map.attribute("verbose_calibration").as_bool();
+    for (pugi::xml_node module = map.child("Module"); module;
+         module = module.next_sibling("Module")) {
+        int module_number = module.attribute("number").as_int();
+        if (module_number < 0) {
+            stringstream ss;
+            ss << "DetectorDriver: Illegal module number "
+                << "found " << module_number << " in cofiguration file.";
+            throw GeneralException(ss.str());
+        }
+        for (pugi::xml_node channel = module.child("Channel"); channel;
+             channel = channel.next_sibling("Channel")) {
+            int ch_number = channel.attribute("number").as_int(-1);
+            if (ch_number < 0) {
+                stringstream ss;
+                ss << "DetectorDriver: Illegal channel number "
+                   << "found " << ch_number << " in cofiguration file.";
+                throw GeneralException(ss.str());
+            }
+            Identifier chanID = DetectorLibrary::get()->at(module_number,
+                                                           ch_number);
+            bool calibrated = false;
+            for (pugi::xml_node cal = channel.child("Calibration");
+                cal; cal = cal.next_sibling("Calibration")) {
+                string model = cal.attribute("model").as_string("None");
+                double min = cal.attribute("min").as_double(0);
+                double max = cal.attribute("max").as_double(numeric_limits<double>::max());
+
+                stringstream pars(cal.text().as_string());
+                vector<double> parameters;
+                while (true) {
+                    double p;
+                    pars >> p;
+                    if (pars) 
+                        parameters.push_back(p);
+                    else
+                        break;
+                }
+                if (verbose) {
+                    stringstream ss;
+                    ss << "Module " << module_number << ", channel " << ch_number << ": ";
+                    ss << " model: " << model;
+                    for (vector<double>::iterator it = parameters.begin();
+                         it != parameters.end(); ++it)
+                        ss << " " << (*it);
+                    m.detail(ss.str(), 1);
+                }
+                cali.AddChannel(chanID, model, min, max, parameters);
+                calibrated = true;
+            }
+            if (!calibrated && verbose) {
+                stringstream ss;
+                ss << "Module " << module_number << ", channel " << ch_number << ": ";
+                ss << " non-calibrated";
+                m.detail(ss.str(), 1);
+            }
+        }
+    }
+}
+
+void DetectorDriver::ReadWalkXml() {
     pugi::xml_document doc;
 
     PathHolder* conf_path = new PathHolder();
@@ -777,16 +860,22 @@ void DetectorDriver::ReadWalk() {
     m.detail("Loading Walk Corrections");
 
     pugi::xml_node map = doc.child("Configuration").child("Map");
-    bool verbose = map.attribute("verbose").as_bool();
+    bool verbose = map.attribute("verbose_walk").as_bool();
     for (pugi::xml_node module = map.child("Module"); module;
          module = module.next_sibling("Module")) {
         int module_number = module.attribute("number").as_int();
+        if (module_number < 0) {
+            stringstream ss;
+            ss << "DetectorDriver: Illegal module number "
+                << "found " << module_number << " in cofiguration file.";
+            throw GeneralException(ss.str());
+        }
         for (pugi::xml_node channel = module.child("Channel"); channel;
              channel = channel.next_sibling("Channel")) {
             int ch_number = channel.attribute("number").as_int(-1);
             if (ch_number < 0) {
                 stringstream ss;
-                ss << "DetectorDriver::ReadWalk: Illegal channel number "
+                ss << "DetectorDriver: Illegal channel number "
                    << "found " << ch_number << " in cofiguration file.";
                 throw GeneralException(ss.str());
             }
@@ -807,12 +896,12 @@ void DetectorDriver::ReadWalk() {
                 }
                 if (verbose) {
                     stringstream ss;
-                    ss << "Mod" << module_number << " Ch" << ch_number << ": ";
-                    ss << "Model: " << model;
+                    ss << "Module " << module_number << ", channel " << ch_number << ": ";
+                    ss << " model: " << model;
                     for (vector<double>::iterator it = parameters.begin();
                          it != parameters.end(); ++it)
                         ss << " " << (*it);
-                    m.detail(ss.str());
+                    m.detail(ss.str(), 1);
                 }
                 walk.AddChannel(chanID, model, parameters);
             }
