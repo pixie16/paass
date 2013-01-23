@@ -81,7 +81,7 @@ class DetectorDriver {
     int PlotCal(const ChanEvent *);
 
     void DeclarePlots(MapFile& theMapFile); /**< declare the necessary damm plots */
-    bool SanityCheck(void) const;  /**< check whether everything makes sense */
+    void SanityCheck(void) const;  /**< check whether everything makes sense */
 
     void CorrelateClock(double d, time_t t) {
 	pixieToWallClock=std::make_pair(d, t);

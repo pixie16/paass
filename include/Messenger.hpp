@@ -43,7 +43,13 @@ class Messenger {
 
         /** Detail under main category, higer level parameter
          *  imposes more indentation of the message. */
-        void detail(std::string msg, short level = 0);
+        void detail(std::string msg, short level = 0, std::string symbol = "*");
+
+        /** Warning message */
+        void warning(std::string msg);
+
+        /** Message shown during scanning*/
+        void run_message(std::string msg);
 
         /** At the end of main category, [Done] message.*/
         void done() {

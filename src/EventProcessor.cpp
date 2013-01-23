@@ -9,6 +9,7 @@
 #include <iostream>
 #include <iterator>
 #include <string>
+#include <sstream>
 #include <vector>
 
 #include <unistd.h>
@@ -17,6 +18,7 @@
 #include "DetectorLibrary.hpp"
 #include "EventProcessor.hpp"
 #include "RawEvent.hpp"
+#include "Messenger.hpp"
 
 using namespace std;
 
@@ -84,8 +86,11 @@ bool EventProcessor::Init(RawEvent& rawev)
     }
 
     initDone = true;
-    cout << "processor " << name << " initialized operating on " 
-         << intersect.size() << " detector type(s)." << endl;
+    Messenger m;
+    stringstream ss;
+    ss << "processor " << name << " initialized operating on " 
+       << intersect.size() << " detector type(s).";
+    m.detail(ss.str());
 
     // cout << "  adding detector summary " << iSum->first
     //	    << " at address " << &iSum->second << endl;
