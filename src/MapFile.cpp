@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <utility>
 
 #include "DetectorLibrary.hpp"
@@ -47,7 +48,10 @@ MapFile::MapFile(const string &filename /*="map2.txt"*/)
     if (!in.good()) {
         throw IOException("Could not open map file " + mapFileName);
     }
+
+    LoadXml();
     
+    /*
     const size_t maxConfigLineLength = 100;
     char line[maxConfigLineLength];
      
@@ -93,6 +97,7 @@ MapFile::MapFile(const string &filename /*="map2.txt"*/)
         ProcessTokenList(*it);
     }
     m.done();
+    */
 
     /* At this point basic Correlator places build automatically from
      * map file should be created so we can call buildTree function */
@@ -105,6 +110,112 @@ MapFile::MapFile(const string &filename /*="map2.txt"*/)
     }
 
     isRead = true;
+}
+
+void MapFile::LoadXml() {
+    pugi::xml_document doc;
+
+    PathHolder* conf_path = new PathHolder();
+    string xmlFileName = conf_path->GetFullPath("Config.xml");
+    delete conf_path;
+
+    pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
+    if (!result) {
+        stringstream ss;
+        ss << "MapFile: error parsing file " << xmlFileName;
+        ss << " : " << result.description();
+        cout << ss.str() << endl;
+    }
+
+    Messenger m;
+    m.detail("Loading channels map");
+
+    DetectorLibrary* modChan = DetectorLibrary::get();
+
+    /** These attributes have reserved meaning, all other
+     * attributes of <Channel> are treated as tags */
+    set<string> reserved;
+    reserved.insert("number");
+    reserved.insert("type");
+    reserved.insert("subtype");
+    reserved.insert("location");
+
+    pugi::xml_node map = doc.child("Configuration").child("Map");
+    bool verbose = map.attribute("verbose_map").as_bool();
+    pugi::xml_node tree = doc.child("Configuration").child("TreeCorrelator");
+    bool verbose_tree = tree.attribute("verbose").as_bool(false);
+    for (pugi::xml_node module = map.child("Module"); module;
+         module = module.next_sibling("Module")) {
+        int module_number = module.attribute("number").as_int();
+        if (module_number < 0) {
+            stringstream ss;
+            ss << "MapFile: Illegal module number "
+                << "found " << module_number << " in cofiguration file.";
+            throw GeneralException(ss.str());
+        }
+        for (pugi::xml_node channel = module.child("Channel"); channel;
+             channel = channel.next_sibling("Channel")) {
+            int ch_number = channel.attribute("number").as_int(-1);
+            if (ch_number < 0) {
+                stringstream ss;
+                ss << "DetectorDriver::ReadWalk: Illegal channel number "
+                   << "found " << ch_number << " in cofiguration file.";
+                throw GeneralException(ss.str());
+            }
+            if ( modChan->HasValue(module_number, ch_number) ) {
+                stringstream ss;
+                ss << "MapFile: Identifier for module " << module_number 
+                   << ", channel " << ch_number
+                   << " is initialized more than once";
+                throw GeneralException(ss.str());
+            }
+            Identifier id;
+
+            string ch_type = channel.attribute("type").as_string("None");
+            id.SetType(ch_type);
+
+            string ch_subtype = channel.attribute("subtype").as_string("None");
+            id.SetSubtype(ch_subtype);
+
+            int ch_location = channel.attribute("location").as_int(-1);
+            if (ch_location == -1) {
+                //Take next available
+                ch_location = modChan->GetNextLocation(ch_type, ch_subtype);
+            }
+            id.SetLocation(ch_location);
+
+            for (pugi::xml_attribute_iterator ait = channel.attributes_begin();
+                 ait != channel.attributes_end(); ++ait) {
+                string name = ait->name();
+                if (reserved.find(name) != reserved.end()) {
+                    Identifier::TagValue value(ait->as_int());
+                    id.AddTag(name, value);
+                }
+            }
+
+            modChan->Set(module_number, ch_number, id);
+
+            /** Create basic place for TreeCorrelator */
+            std::map <string, string> params;
+            params["name"] = id.GetPlaceName();
+            params["parent"] = "root";
+            params["type"] = "PlaceDetector";
+            params["reset"] = "true";
+            params["fifo"] = "2";
+            TreeCorrelator::get()->createPlace(params, verbose_tree);
+
+            if (verbose) {
+                stringstream ss;
+                ss << "Module " << module_number 
+                   << ", channel " << ch_number  << ", type "
+                   << ch_type << " "
+                   << ch_subtype << ", location " 
+                   << ch_location;
+                Messenger m;
+                m.detail(ss.str(), 1);
+            }
+        }
+    }
 }
 
 /**
@@ -226,8 +337,6 @@ void MapFile::ProcessTokenList(const vector<string> &tokenList) const
              *      eg. ge_clover_high_5 
              * see also RawEvent.hpp, Identifier::GetPlaceName()
              */
-
-
             map<string, string> params;
             params["name"] = id.GetPlaceName();
             params["parent"] = "root";

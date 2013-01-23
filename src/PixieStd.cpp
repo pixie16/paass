@@ -56,6 +56,7 @@
 #include "PlotsRegister.hpp"
 #include "TreeCorrelator.hpp"
 #include "Messenger.hpp"
+#include "Exceptions.hpp"
 
 using namespace std;
 using namespace dammIds::raw;
@@ -84,7 +85,9 @@ bool MakeModuleData(const word_t *data, unsigned long nWords);
 
 int ReadBuffData(word_t *lbuf, unsigned long *BufLen,
 		 vector<ChanEvent *> &eventList);
+/*
 void Pixie16Error(int errornum);
+*/
 
 const string scanMode = "scan";
 
@@ -315,9 +318,17 @@ bool MakeModuleData(const word_t *data, unsigned long nWords)
     modData[outWords++]=U_DELIMITER;
 	    
     if(nWords > TOTALREAD || inWords > TOTALREAD || outWords > TOTALREAD ) {
-        cout << "Values of nn - " << nWords << " nk - "<< inWords  
+        stringstream ess;
+        ess << "Values of nn - " << nWords << " nk - "<< inWords  
             << " mm - " << outWords << " TOTALREAD - " << TOTALREAD << endl;
-        Pixie16Error(2); 
+        ess << "One of the variables named nn, nk, or mm" 
+            << "have exceeded the value of TOTALREAD. The value of "
+            << "TOTALREAD MUST NEVER exceed 1000000 for correct "
+            << "opertation of code between 32-bit and 64-bit architecture " 
+            << "Either these variables have not been zeroed correctly or " 
+            << "the poll program controlling pixie16 is trying to send too "
+            << "much data at once.";
+        throw GeneralException(ess.str());
         return false;
     }
 
@@ -360,6 +371,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
     DetectorDriver* driver = DetectorDriver::get();
     /* Screen messenger */
     Messenger messenger;
+    stringstream ss;
 
     // local version of ibuf pointer
     word_t *lbuf;
@@ -404,7 +416,6 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 
         clockBegin = times(&tmsBegin);
 
-        stringstream ss;
         ss << "First buffer at " << clockBegin << " sys time";
         messenger.detail(ss.str());
         ss.str("");
@@ -457,78 +468,87 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
     bool multSpill;
 
     do {
-	word_t vsn = U_DELIMITER;
-	bool fullSpill=false; //true if spill had all vsn's
-        multSpill=false;  //assume all buffers are not split between spills    
+        word_t vsn = U_DELIMITER;
+        //true if spill had all vsn's
+        bool fullSpill = false;
+        //assume all buffers are not split between spills    
+        multSpill = false; 
 
         /* while the current location in the buffer has not gone beyond the end
-         * of the buffer (ignoring the last three delimiters, continue reading
-	 */
+         * of the buffer (ignoring the last three delimiters,
+         * continue reading */
         while (nWords < (nhw[0]/2 - 6)) {
             /*
-              Retrieve the record length and the vsn number
+            Retrieve the record length and the vsn number
             */
             word_t lenRec = lbuf[nWords];
             vsn = lbuf[nWords+1];
             
             /* If the record length is -1 (after end of spill), increment the
-	       location in the buffer by two and start over with the while loop
-	     */
+            location in the buffer by two and start over with the while loop
+            */
             if (lenRec == U_DELIMITER) {
                 nWords += 2;  // increment two whole words and try again
                 continue;                         
             }
-	    // Buffer with vsn 1000 was inserted with the time for superheavy exp't
-	    if (vsn == clockVsn) {
-	      memcpy(&theTime, &lbuf[nWords+2], sizeof(time_t));
-	      nWords += lenRec;
-	    }
-            /*
-              If the record length is 6, this is an empty channel.
-	      Skip this vsn and continue with the next
+            // Buffer with vsn 1000 was inserted with 
+            // the time for superheavy exp't
+            if (vsn == clockVsn) {
+                memcpy(&theTime, &lbuf[nWords+2], sizeof(time_t));
+                nWords += lenRec;
+            }
+
+            /* If the record length is 6, this is an empty channel.
+             * Skip this vsn and continue with the next
             */
-	    //! Revision specific, so move to ReadBuffData
-            if (lenRec==6) {
+            //! Revision specific, so move to ReadBuffData
+            if (lenRec == 6) {
                 nWords += lenRec+1; // one additional word for delimiter
                 lastVsn=vsn;
                 continue;
             }
-            
-            /* If both the current vsn inspected is within an acceptable 
-	       range, begin reading the buffer.
-            */
+                
+            /* If both the current vsn inspected is within an
+             * acceptable range, begin reading the buffer.
+             */
             if ( vsn < modChan->GetPhysicalModules()  ) {
-	        if ( lastVsn != U_DELIMITER) {
-		    // the modules should be read out cyclically
-		    if ( ((lastVsn+1) % modChan->GetPhysicalModules() ) != vsn ) {
+                if ( lastVsn != U_DELIMITER) {
+                // the modules should be read out cyclically
+                    if ( ((lastVsn+1) % modChan->GetPhysicalModules() ) !=
+                           vsn ) {
 #ifdef VERBOSE
-			cout << " MISSING BUFFER " << vsn << "/" 
-                 << modChan->GetPhysicalModules()
-			     << " -- lastVsn = " << lastVsn << "  " 
-			     << ", length = " << lenRec << endl;
+                ss << " MISSING BUFFER " << vsn << "/" 
+                   << modChan->GetPhysicalModules()
+                   << " -- lastVsn = " << lastVsn << "  " 
+                   << ", length = " << lenRec;
+                messenger.warning(ss.str());
+                ss.str("");
 #endif
-                        RemoveList(eventList);
-                        fullSpill=true;
+                            RemoveList(eventList);
+                            fullSpill=true;
                     }
                 }
                 /* Read the buffer.  After read, the vector eventList will 
-		   contain pointers to all channels that fired in this buffer
+                   contain pointers to all channels that fired in this buffer
                 */
 
                 retval= ReadBuffData(&lbuf[nWords], &bufLen, eventList);
-
-                
+                    
                 /* If the return value is less than the error code, 
-		   reading the buffer failed for some reason.  
-		   Print error message and reset variables if necessary
-                */
+                   reading the buffer failed for some reason.  
+                   Print error message and reset variables if necessary
+                 */
                 if ( retval <= readbuff::ERROR ) {
-                    cout << " READOUT PROBLEM " << retval 
-                         << " in event " << counter << endl;
+                    ss << " READOUT PROBLEM " << retval 
+                       << " in event " << counter;
+                    messenger.warning(ss.str());
+                    ss.str("");
                     if ( retval == readbuff::ERROR ) {
-                        cout << "  Remove list " << lastVsn 
-                             << " " << vsn << endl;
+                        ss << "  Remove list " << lastVsn 
+                           << " " << vsn;
                         RemoveList(eventList); 	                        
+                        messenger.warning(ss.str());
+                        ss.str("");
                     }
                     return;
                 } else if ( retval == 0 ) {
@@ -542,100 +562,108 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
                     numEvents += retval;
                 }
                 /* Update the variables that are keeping track of what has been
-		   analyzed and increment the location in the current buffer
+                   analyzed and increment the location in the current buffer
                 */
-                lastVsn = vsn;
-                nWords += lenRec+1; // one extra word for delimiter
+                    lastVsn = vsn;
+                    nWords += lenRec+1; // one extra word for delimiter
             } else {
                 // bail out if we have lost our place,		
                 //   (bad vsn) and process events     
                 if (vsn != 9999 && vsn != clockVsn) {
 #ifdef VERBOSE	    
-                cout << "UNEXPECTED VSN " << vsn << endl;
+                    ss << "UNEXPECTED VSN " << vsn;
+                    messenger.warning(ss.str());
+                    ss.str("");
 #endif
                 }
                 break;
             }
         } // while still have words
-	if (nWords > nhw[0] / 2 - 6) {
-	    cout << "This actually happens!" << endl;	    
-	}
-        
+        if (nWords > nhw[0] / 2 - 6) {
+            ss << "This actually happens!";
+            messenger.run_message(ss.str());
+            ss.str("");
+        }
+            
         /* If the vsn is 9999 this is the end of a spill, signal this buffer
-	   for processing and determine if the buffer is split between spills.
+           for processing and determine if the buffer is split between spills.
         */
-        if ( vsn == 9999 || vsn == clockVsn ) {
-            fullSpill = true;
-            nWords += 3;//skip it
-            if (lbuf[nWords+1] != U_DELIMITER) {
-                cout << "this actually happens!" << endl;
-                multSpill = true;
-            }
-            lastVsn=U_DELIMITER;
-        }
-        
-        /* if there are events to process, continue */
-        if( numEvents>0 ) {
-            if (fullSpill) { 	  // if full spill process events
-            // sort the vector of pointers eventlist according to time
-            double lastTimestamp = (*(eventList.rbegin()))->GetTime();
-
-            sort(eventList.begin(),eventList.end(),CompareTime);
-            driver->CorrelateClock(lastTimestamp, theTime);
-
-            /* once the vector of pointers eventlist is sorted based on time,
-            begin the event processing in ScanList()
-            */
-            ScanList(eventList, rawev);
-
-            /* once the eventlist has been scanned, remove it from memory
-            and reset the number of events to zero and update the event
-            counter
-            */
-
-            evCount++;		
-            /*
-            every once in a while (when evcount is a multiple of 1000)
-            print the time elapsed doing the analysis
-            */
-            if(evCount % 1000 == 0 || evCount == 1) {
-                tms tmsNow;
-                clock_t clockNow = times(&tmsNow);
-
-                stringstream ss;
-                if (theTime != 0) {
-                    ss << " data read up to poll status time " 
-                       << ctime(&theTime);
-                    messenger.run_message(ss.str());
+            if ( vsn == 9999 || vsn == clockVsn ) {
+                fullSpill = true;
+                nWords += 3;//skip it
+                if (lbuf[nWords+1] != U_DELIMITER) {
+                    ss << "this actually happens!";
+                    messenger.warning(ss.str());
                     ss.str("");
+                    multSpill = true;
                 }
-                ss << "buffer = " << evCount << ", user time = " 
-                   << (tmsNow.tms_utime - tmsBegin.tms_utime) / hz
-                   << ", system time = " 
-                   << (tmsNow.tms_stime - tmsBegin.tms_stime) / hz
-                   << ", real time = "
-                   << (clockNow - clockBegin) / hz 
-                   << ", ts = " << lastTimestamp;
-                messenger.run_message(ss.str());
-            }		
-            RemoveList(eventList);
-            numEvents=0;
-            } // end fullSpill 
-            else {
+                lastVsn=U_DELIMITER;
+            }
+            
+            /* if there are events to process, continue */
+            if( numEvents>0 ) {
+                if (fullSpill) { 	  // if full spill process events
+                    // sort the vector of pointers eventlist according to time
+                    double lastTimestamp = (*(eventList.rbegin()))->GetTime();
+
+                    sort(eventList.begin(),eventList.end(),CompareTime);
+                    driver->CorrelateClock(lastTimestamp, theTime);
+
+                    /* once the vector of pointers eventlist is sorted
+                     * based on time, begin the event processing in ScanList()
+                    */
+                    ScanList(eventList, rawev);
+
+                    /* once the eventlist has been scanned, remove it
+                     * from memory and reset the number of events to zero
+                     * and update the event counter
+                    */
+
+                    evCount++;		
+                    /*
+                    every once in a while (when evcount is a multiple of 1000)
+                    print the time elapsed doing the analysis
+                    */
+                    if(evCount % 1000 == 0 || evCount == 1) {
+                        tms tmsNow;
+                        clock_t clockNow = times(&tmsNow);
+
+                        stringstream ss;
+                        if (theTime != 0) {
+                            string timestamp = string(ctime(&theTime));
+                            timestamp.erase(timestamp.find_last_not_of(" \t\n\r") + 1);
+                            ss << "Data read up to poll status time " 
+                            << timestamp;
+                            messenger.run_message(ss.str());
+                            ss.str("");
+                        }
+                        ss << "buffer = " << evCount << ", user time = " 
+                           << (tmsNow.tms_utime - tmsBegin.tms_utime) / hz
+                           << ", system time = " 
+                           << (tmsNow.tms_stime - tmsBegin.tms_stime) / hz
+                           << ", real time = "
+                           << (clockNow - clockBegin) / hz 
+                           << ", ts = " << lastTimestamp;
+                        messenger.run_message(ss.str());
+                    }		
+                    RemoveList(eventList);
+                    numEvents=0;
+                } // end fullSpill 
+                else {
+                    stringstream ss;
+                    ss << "Spill split between buffers";
+                    messenger.run_message(ss.str());
+                    //! this tosses out all events read into the vector so far
+                    return;
+                }	    
+            }  // end numEvents > 0
+            else if (retval != readbuff::STATS) {
                 stringstream ss;
-                ss << "Spill split between buffers";
-                messenger.run_message(ss.str());
-                //! this tosses out all events read into the vector so far
+                ss << "bad buffer, numEvents = " << numEvents;
+                messenger.warning(ss.str());
                 return;
-            }	    
-        }  // end numEvents > 0
-        else if (retval != readbuff::STATS) {
-            stringstream ss;
-            ss << "bad buffer, numEvents = " << numEvents;
-            messenger.warning(ss.str());
-            return;
-        }
-        
+            }
+            
     } while (multSpill); // end while loop over multiple spills
     return;      
 }
@@ -677,6 +705,8 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
 
     DetectorLibrary* modChan = DetectorLibrary::get();
     DetectorDriver* driver = DetectorDriver::get();
+    Messenger messenger;
+    stringstream ss;
 
     // local variable for the detectors used in a given event
     set<string> usedDetectors;
@@ -698,7 +728,9 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
     for(; iEvent != eventList.end(); iEvent++) { 
         id = (*iEvent)->GetID();
         if (id == U_DELIMITER) {
-            cout << "pattern 0 ignore" << endl;
+            ss << "pattern 0 ignore";
+            messenger.warning(ss.str());
+            ss.str("");
             continue;
         }
         if ((*modChan)[id].GetType() == "ignore") {
@@ -743,7 +775,9 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
 
         unsigned long dtimebin = 2000 + eventTime - chanTime;
         if (dtimebin < 0 || dtimebin > (unsigned)(SE)) {
-            cout << "strange dtime for id " << id << ":" << dtimebin << endl;
+            ss << "strange dtime for id " << id << ":" << dtimebin;
+            messenger.warning(ss.str());
+            ss.str("");
         }
         driver->plot(D_TIME + id, dtimebin);
 
@@ -791,9 +825,14 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
     // static double deadTime = 0 // not used
     DetectorDriver* driver = DetectorDriver::get();
 
+    Messenger messenger;
+    stringstream ss;
+
     if (firstTime > clock) {
-        cout << "Backwards clock jump detected: prior start " << firstTime
-            << ", now " << clock << endl;
+        ss << "Backwards clock jump detected: prior start " << firstTime
+           << ", now " << clock;
+        messenger.warning(ss.str());
+        ss.str("");
         // detect a backwards clock jump which occurs when some of the
         //   last buffers of a previous run sneak into the beginning of the 
         //   next run, elapsed time of last buffers is usually small but 
@@ -802,8 +841,10 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
         // make an artificial 10 second gap by 
         //   resetting the first time accordingly
         firstTime = clock - 10 / pixie::clockInSeconds - elapsed;
-        cout << elapsed*pixie::clockInSeconds << " prior seconds elapsed "
-            << ", resetting first time to " << firstTime << endl;	
+        ss << elapsed*pixie::clockInSeconds << " prior seconds elapsed "
+           << ", resetting first time to " << firstTime;
+        messenger.detail(ss.str());
+        ss.str("");
     }
 
     switch (event) {
@@ -838,7 +879,9 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
             stop = clock;
             break;
         default:
-            cout << "Unexpected type " << event << " given to HistoStats" << endl;
+            ss << "Unexpected type " << event << " given to HistoStats";
+            messenger.warning(ss.str());
+            ss.str("");
     }
 
     //fill these spectra on all events, id plots and runtime.
@@ -859,6 +902,7 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
  * Print out an error message and terminate program depending on value
  * of errorNum. 
  */
+/*
 void Pixie16Error(int errorNum)
 {
   //print error message depending on errornum
@@ -885,3 +929,4 @@ void Pixie16Error(int errorNum)
 	  exit(EXIT_FAILURE);
   }
 }
+*/

@@ -62,7 +62,7 @@ void TreeCorrelator::addChild(string parent, string child,
             stringstream ss;
             ss << "Setting " << child 
                  << " as a child of " << parent;
-            m.detail(ss.str());
+            m.detail(ss.str(), 1);
         }
     } else {
         stringstream ss;
@@ -135,7 +135,7 @@ void TreeCorrelator::createPlace(map<string, string>& params,
                     Messenger m;
                     stringstream ss;
                     ss << "Replacing place " << (*it);
-                    m.detail(ss.str());
+                    m.detail(ss.str(), 1);
                 }
             } else {
                 if (places_.count((*it)) == 1) {
@@ -147,7 +147,7 @@ void TreeCorrelator::createPlace(map<string, string>& params,
                     Messenger m;
                     stringstream ss;
                     ss << "Creating place " << (*it);
-                    m.detail(ss.str());
+                    m.detail(ss.str(), 1);
                 }
             }
             Place* current = builder.create(params, verbose);

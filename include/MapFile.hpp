@@ -24,6 +24,8 @@ private:
     void ProcessTokenList(const std::vector<std::string> &list) const;
     bool HasWildcard(const std::string &str) const;
     void TokenToVector(std::string token, std::vector<int> &list, int number) const;
+
+    void LoadXml();
 		      
     bool isRead;
 public:
