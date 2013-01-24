@@ -45,7 +45,7 @@ void Calibrator::AddChannel(const Identifier& chanID, const std::string model,
     }
 }
 
-double Calibrator::GetCalEnergy(Identifier& chanID, double ch) const {
+double Calibrator::GetCalEnergy(const Identifier& chanID, double ch) const {
     map<Identifier, vector<CalibrationFactor> >::const_iterator itch =
         channels_.find(chanID);
     if (itch != channels_.end()) {

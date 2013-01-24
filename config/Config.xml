@@ -266,9 +266,9 @@
             </Channel>
             <Channel number="9" type="mtc" subtype="beam_start">
             </Channel>
-            <Channel number="10" type="mtc" subtype="stop">
+            <Channel number="10" type="mtc" subtype="start">
             </Channel>
-            <Channel number="11" type="mtc" subtype="start">
+            <Channel number="11" type="mtc" subtype="stop">
             </Channel>
         </Module>
     </Map>

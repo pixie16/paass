@@ -144,7 +144,6 @@ INITIALIZEO      = Initialize.$(ObjSuf)
 IONCHAMBERPROCESSORO = IonChamberProcessor.$(ObjSuf)
 LIQUIDSCINTPROCESSORO = LiquidScintProcessor.$(ObjSuf)
 LOGICPROCESSORO  = LogicProcessor.$(ObjSuf)
-MAPFILEO         = MapFile.$(ObjSuf)
 MESSENGERO       = Messenger.$(ObjSuf)
 MCPPROCESSORO    = McpProcessor.$(ObjSuf)
 MTCPROCESSORO    = MtcProcessor.$(ObjSuf)
@@ -230,7 +229,6 @@ $(INITIALIZEO)\
 $(IONCHAMBERPROCESSORO)\
 $(LIQUIDSCINTPROCESSORO)\
 $(LOGICPROCESSORO)\
-$(MAPFILEO)\
 $(MESSENGERO)\
 $(MCPPROCESSORO)\
 $(MTCPROCESSORO)\

@@ -57,6 +57,8 @@ private:
     DetectorLibrary& operator= (DetectorLibrary const&);
     static DetectorLibrary* instance;
 
+    void LoadXml();
+
     mapkey_t MakeKey( const std::string &type, const std::string &subtype ) const;
 
     std::map< mapkey_t, std::set<int> > locations; ///< collection of all used locations for a given type and subtype
