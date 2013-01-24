@@ -8,7 +8,6 @@
 #include <stdexcept>
 
 #include "PathHolder.hpp"
-#include "MapFile.hpp"
 #include "DetectorDriver.hpp"
 
 
@@ -23,9 +22,21 @@ extern "C" void drrsub_(unsigned int& iexist)
     try {
         PathHolder* conf_path = new PathHolder("config.txt");
         delete conf_path;
-        MapFile theMapFile = MapFile();
+
         drrmake_();
-        DetectorDriver::get()->DeclarePlots(theMapFile);
+
+        /** The DetectorDriver constructor will load processors
+         *  from the xml configuration file upon first call.
+         *  The DeclarePlots function will instantiate the DetectorLibrary
+         *  class which will read in the "map" of channels.
+         *  Subsequently the raw histograms, the diagnostic histograms 
+         *  and the processors and analyzers plots are declared.
+         *
+         *  Note that in the PixieStd the Init function of DetectorDriver
+         *  is called upon first buffer. This include reading in the
+         *  calibration and walk correction factors.
+         */
+        DetectorDriver::get()->DeclarePlots();
         endrr_(); 
     } catch (std::exception &e) {
         // Any exception in opening files (config.txt and map2.txt)
