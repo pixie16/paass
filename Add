@@ -1,0 +1,250 @@
+include/ChanEvent.hpp: *   but returns data values through native C types. This is potentially non-portable. 
+include/ChanEvent.hpp:    double correctedTime;      /**< Energy-walk corrected time */
+include/ChanEvent.hpp:    bool   pileupBit;          /**< Pile-up flag from Pixie */
+include/ChanEvent.hpp:    double GetHighResTime() const {return highResTime;} /**< Get the high-resolution time */
+include/ChanIdentifier.hpp:    /** Less-then operator needed for map container in WalkCorrector.hpp */
+include/Correlator.hpp:    bool   pileUp;   ///< trace is piled-up
+include/Correlator.hpp:    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
+include/DammPlotIds.hpp:    namespace vandle{ //The RANGE can be greatly reduced. -SVP
+include/DammPlotIds.hpp:            // 1D-traces from the extracter
+include/DetectorDriver.hpp:  SNL - 7-2-07
+include/DetectorDriver.hpp:  KM - 1-24-13
+include/DetectorDriver.hpp:    virtual void plot(int dammId, double val1, double val2 = -1,
+include/DetectorDriver.hpp:                      double val3 = -1, const char* name="h") {
+include/DetectorDriver.hpp:        return (time_t)((d - pixieToWallClock.first) * 
+include/DoubleTraceAnalyzer.hpp: *    SNL - 7-2-07
+include/EventData.hpp:         * Energy is 0 (i.e. N/A), location -1 (N/A),
+include/EventData.hpp:                  int plocation = -1, std::string ptype = "") {
+include/EventData.hpp:        EventData(double ptime, double penergy, int plocation = -1,
+include/EventProcessor.hpp:    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
+include/GeCalibProcessor.hpp: * Processor for germanium detectors - calibration 
+include/GeProcessor.hpp:/** Class to store line gate needed for gamma-gamma gates.
+include/GeProcessor.hpp:            min = -1;
+include/GeProcessor.hpp:            max = -1;
+include/GeProcessor.hpp:    /** Returns true if gamma-beta correlation time within good limits.
+include/GeProcessor.hpp:     * pair, first-> energy, second->time
+include/GeProcessor.hpp:    /** Prompt Gamma-beta limit in seconds */
+include/GeProcessor.hpp:    /** Prompt Gamma-gamma limit in seconds */
+include/GeProcessor.hpp:     * short-lived activity is present) */
+include/Globals.hpp:    const double clockInSeconds = 8e-9; //< one pixie clock is 8 ns
+include/Globals.hpp:    const double adcClockInSeconds = 4e-9; //< one ADC clock is 4 ns
+include/Globals.hpp:    const double filterClockInSeconds = 8e-9; //< one filter clock is 8 ns
+include/Globals.hpp:    const double clockInSeconds = 10e-9; //< one pixie clock is 10 ns
+include/Globals.hpp:    const double adcClockInSeconds = 10e-9; //< one ADC clock is 10 ns
+include/Globals.hpp:    const double filterClockInSeconds = 10e-9; //< one filter clock is 10 ns
+include/Globals.hpp:    /** 3Hen -> 100 us, LeRIBBS -> 3 us */
+include/Globals.hpp:    const double eventInSeconds = 100e-6;
+include/Globals.hpp:/** buffer and module data are terminated with a "-1" value
+include/Globals.hpp:const pixie::word_t U_DELIMITER = (pixie::word_t)-1;
+include/Globals.hpp:    const int STATS = -10;
+include/Globals.hpp:    const int ERROR = -100;
+include/Globals.hpp:const double emptyValue = -9999.; //< a default number to set values to
+include/Globals.hpp:        * will work only with ascii, not with utf-8, but shouldn't be a 
+include/ImplantSsdProcessor.hpp:    static const double implantTof;   ///< minimum time-of-flight for an implant
+include/LogicProcessor.hpp:	return (!LogicStatus(loc) ? (t-lastStopTime.at(loc)) : 0.);
+include/LogicProcessor.hpp:	return (LogicStatus(loc) ? (t-lastStartTime.at(loc)) : 0.);
+include/McpProcessor.hpp: * Class for handling position-sensitive mcp signals
+include/MersenneTwister.hpp:// Mersenne Twister random number generator -- a C++ class MTRand
+include/MersenneTwister.hpp:// The period, 2^19937-1, and the order of equidistribution, 623 dimensions,
+include/MersenneTwister.hpp:// M. Matsumoto and T. Nishimura, "Mersenne Twister: A 623-Dimensionally
+include/MersenneTwister.hpp:// Equidistributed Uniform Pseudo-Random Number Generator", ACM Transactions on
+include/MersenneTwister.hpp:// Modeling and Computer Simulation, Vol. 8, No. 1, January 1998, pp 3-30.
+include/MersenneTwister.hpp:// Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
+include/MersenneTwister.hpp:// Copyright (C) 2000 - 2003, Richard J. Wagner
+include/MersenneTwister.hpp:// Not thread safe (unless auto-initialization is avoided and each thread has
+include/MersenneTwister.hpp:	MTRand();  // auto-initialize with /dev/urandom or time() and clock()
+include/MersenneTwister.hpp:	// Access to 32-bit random numbers
+include/MersenneTwister.hpp:	uint32 randInt();                       // integer in [0,2^32-1]
+include/MersenneTwister.hpp:	// Access to 53-bit random numbers (capacity of IEEE double precision)
+include/MersenneTwister.hpp:	// Re-seeding functions with same behavior as initializers
+include/MersenneTwister.hpp:		{ return m ^ (mixBits(s0,s1)>>1) ^ (-loBit(s1) & 0x9908b0dfUL); }
+include/MersenneTwister.hpp:	// mean and variance by Box-Muller method
+include/MersenneTwister.hpp:	double r = sqrt( -2.0 * log( 1.0-randDblExc()) ) * variance;
+include/MersenneTwister.hpp:	// Pull a 32-bit integer from the generator state
+include/MersenneTwister.hpp:	--left;
+include/MersenneTwister.hpp:	// There are 2^19937-1 possible initial states.  This function allows
+include/MersenneTwister.hpp:	for( ; k; --k )
+include/MersenneTwister.hpp:			state[i] ^ ( (state[i-1] ^ (state[i-1] >> 30)) * 1664525UL );
+include/MersenneTwister.hpp:		if( i >= N ) { state[0] = state[N-1];  i = 1; }
+include/MersenneTwister.hpp:	for( k = N - 1; k; --k )
+include/MersenneTwister.hpp:			state[i] ^ ( (state[i-1] ^ (state[i-1] >> 30)) * 1566083941UL );
+include/MersenneTwister.hpp:		state[i] -= i;
+include/MersenneTwister.hpp:		if( i >= N ) { state[0] = state[N-1];  i = 1; }
+include/MersenneTwister.hpp:	state[0] = 0x80000000UL;  // MSB is 1, assuring non-zero initial array
+include/MersenneTwister.hpp:		while( success && i-- )
+include/MersenneTwister.hpp:	for( i = N - M; i--; ++p )
+include/MersenneTwister.hpp:	for( i = M; --i; ++p )
+include/MersenneTwister.hpp:		*p = twist( p[M-N], p[0], p[1] );
+include/MersenneTwister.hpp:	*p = twist( p[M-N], p[0], state[0] );
+include/MersenneTwister.hpp:	static uint32 differ = 0;  // guarantee time-based seeds will change
+include/MersenneTwister.hpp:	for( ; i--; *sa++ = *s++ ) {}
+include/MersenneTwister.hpp:	for( ; i--; *s++ = *la++ ) {}
+include/MersenneTwister.hpp:	pNext = &state[N-left];
+include/MersenneTwister.hpp:	for( ; i--; os << *s++ << "\t" ) {}
+include/MersenneTwister.hpp:	for( ; i--; is >> *s++ ) {}
+include/MersenneTwister.hpp:	mtrand.pNext = &mtrand.state[mtrand.N-mtrand.left];
+include/MersenneTwister.hpp:// v0.1 - First release on 15 May 2000
+include/MersenneTwister.hpp://      - Based on code by Makoto Matsumoto, Takuji Nishimura, and Shawn Cokus
+include/MersenneTwister.hpp://      - Translated from C to C++
+include/MersenneTwister.hpp://      - Made completely ANSI compliant
+include/MersenneTwister.hpp://      - Designed convenient interface for initialization, seeding, and
+include/MersenneTwister.hpp://        obtaining numbers in default or user-defined ranges
+include/MersenneTwister.hpp://      - Added automatic seeding from /dev/urandom or time() and clock()
+include/MersenneTwister.hpp://      - Provided functions for saving and loading generator state
+include/MersenneTwister.hpp:// v0.2 - Fixed bug which reloaded generator one step too late
+include/MersenneTwister.hpp:// v0.3 - Switched to clearer, faster reload() code from Matthew Bellew
+include/MersenneTwister.hpp:// v0.4 - Removed trailing newline in saved generator format to be consistent
+include/MersenneTwister.hpp://        with output format of built-in types
+include/MersenneTwister.hpp:// v0.5 - Improved portability by replacing static const int's with enum's and
+include/MersenneTwister.hpp://      - Removed MAXINT constant; use 0xffffffffUL instead
+include/MersenneTwister.hpp:// v0.6 - Eliminated seed overflow when uint32 is larger than 32 bits
+include/MersenneTwister.hpp://      - Changed integer [0,n] generator to give better uniformity
+include/MersenneTwister.hpp:// v0.7 - Fixed operator precedence ambiguity in reload()
+include/MersenneTwister.hpp://      - Added access for real numbers in (0,1) and (0,n)
+include/MersenneTwister.hpp:// v0.8 - Included time.h header to properly support time_t and clock_t
+include/MersenneTwister.hpp:// v1.0 - Revised seeding to match 26 Jan 2002 update of Nishimura and Matsumoto
+include/MersenneTwister.hpp://      - Allowed for seeding with arrays of any length
+include/MersenneTwister.hpp://      - Added access for real numbers in [0,1) with 53-bit resolution
+include/MersenneTwister.hpp://      - Added access for real numbers from normal (Gaussian) distributions
+include/MersenneTwister.hpp://      - Increased overall speed by optimizing twist()
+include/MersenneTwister.hpp://      - Doubled speed of integer [0,n] generation
+include/MersenneTwister.hpp://      - Fixed out-of-range number generation on 64-bit machines
+include/MersenneTwister.hpp://      - Improved portability by substituting literal constants for long enum's
+include/MersenneTwister.hpp://      - Changed license from GNU LGPL to BSD
+include/pixie16app_defs.h:/*----------------------------------------------------------------------
+include/pixie16app_defs.h: * Copyright (c) 2005 - 2009, XIA LLC
+include/pixie16app_defs.h: *----------------------------------------------------------------------*/
+include/pixie16app_defs.h: * $Id: pixie16app_defs.h 13856 2009-11-20 23:03:35Z htan $
+include/pixie16app_defs.h:/*------------------------------------- 
+include/pixie16app_defs.h:  -------------------------------------*/
+include/pixie16app_defs.h:/*------------------------------------- 
+include/pixie16app_defs.h:  -------------------------------------*/
+include/pixie16app_defs.h:/*------------------------------------- 
+include/pixie16app_defs.h:    At which platform to compile this code -
+include/pixie16app_defs.h:  -------------------------------------*/
+include/pixie16app_defs.h:/*------------------------------------- 
+include/pixie16app_defs.h:  -------------------------------------*/
+include/pixie16app_defs.h:/*------------------------------------- 
+include/pixie16app_defs.h:  -------------------------------------*/
+include/pixie16app_defs.h:/*-----------------------------------------------------------------
+include/pixie16app_defs.h:  -----------------------------------------------------------------*/
+include/pixie16app_defs.h:#define N_COM_FPGA_CONF            58614      // size of communications FPGA configuration (32-bit word)
+include/pixie16app_defs.h:#define N_TRIG_FPGA_CONF           58614      // size of trigger FPGA configuration (32-bit word)
+include/pixie16app_defs.h:#define N_SP_FPGA_CONF            127581      // size of signal processing FPGA configuration (32-bit word)
+include/pixie16app_defs.h:#define N_COM_FPGA_CONF           162962      // size of communications FPGA configuration (32-bit word)
+include/pixie16app_defs.h:#define N_SP_FPGA_CONF            162962      // size of signal processing FPGA configuration (32-bit word)
+include/pixie16app_defs.h:#define N_DSP_PAR                   1280      // number of DSP parameters (32-bit word)
+include/pixie16app_defs.h:/*-----------------------------------------------------------------
+include/pixie16app_defs.h:  -----------------------------------------------------------------*/
+include/pixie16app_defs.h:#define DAC_VOLTAGE_RANGE            3.0      // Pixie-16 DAC range is -1.5 V to +1.5 V
+include/pixie16app_defs.h:/*-----------------------------------------------------------------
+include/pixie16app_defs.h:  -----------------------------------------------------------------*/
+include/pixie16app_defs.h:/*-----------------------------------------------------------------
+include/pixie16app_defs.h:  -----------------------------------------------------------------*/
+include/pixie16app_defs.h:/*-----------------------------------------------------------------
+include/pixie16app_defs.h:  -----------------------------------------------------------------*/
+include/pixie16app_defs.h:#define DSP_IMBUFFER_START_ADDR   0x40000     // 32-bit wide
+include/pixie16app_defs.h:#define DSP_IMBUFFER_END_ADDR     0x5FFFF     // 32-bit wide
+include/pixie16app_defs.h:#define DSP_EMBUFFER_START_ADDR       0x0     // 32-bit wide
+include/pixie16app_defs.h:#define DSP_EMBUFFER_END_ADDR     0xFFFFF     // 32-bit wide 
+include/pixie16app_defs.h:#define DSP_EMBUFFER_END_ADDR     0x7FFFF     // 32-bit wide 
+include/pixie16app_defs.h:#define EM_PINGPONGBUFA_ADDR      0x80000     // 32-bit wide 
+include/pixie16app_defs.h:#define EM_PINGPONGBUFB_ADDR      0xC0000     // 32-bit wide 
+include/pixie16app_defs.h:/*------------------------------------- 
+include/pixie16app_defs.h: --------------------------------------*/ 
+include/pixie16app_defs.h:/*------------------------------------- 
+include/pixie16app_defs.h: --------------------------------------*/ 
+include/pixie16app_defs.h:#define CCSRA_GOOD         2    // Channel may be read, good-channel bit
+include/pixie16app_defs.h: /*------------------------------------- 
+include/pixie16app_defs.h: --------------------------------------*/ 
+include/pixie16app_defs.h:#define MODCSRB_FASTTRIGSRC   3  // Control fast trigger source in system FPGA: 1: Master module only, 0: all modules wired-or
+include/pixie16app_defs.h:#define MODCSRB_CHASSISMASTER 6  // Control chassis master module: 1: chassis master module; 0: chassis non-master module 
+include/pixie16app_defs.h:/*------------------------------------- 
+include/pixie16app_defs.h: --------------------------------------*/ 
+include/pixie16app_defs.h:/*------------------------------------- 
+include/pixie16app_defs.h: --------------------------------------*/ 
+include/pixie16app_defs.h:#define ADJUST_OFFSETS                7       // Adjust DC-offsets
+include/PlaceBuilder.hpp:* "parent" - name of a parent place or "root" if there is no parent
+include/PlaceBuilder.hpp:* "name" - name of the place to be added or created, if the name
+include/PlaceBuilder.hpp:*          follow a pattern "aaa_bbb_X-Y" where X, Y are integer
+include/PlaceBuilder.hpp:*          ge_clover_high_0-3
+include/PlaceBuilder.hpp:*  "type" - must be of one of existing Places type, currently these
+include/PlaceBuilder.hpp:*  "reset" - optional, "true" by default, sets place resetable ("true")
+include/PlaceBuilder.hpp:*           or non-resetable ("false").
+include/PlaceBuilder.hpp:*  "coincidence" - optional, "true" by default, sets relation with the
+include/PlaceBuilder.hpp:*          parent place to coin. ("true") or anti-coin. ("false")
+include/PlaceBuilder.hpp:*  "fifo"  - optional, "2" by default, sets the depth of place's fifo
+include/PlaceBuilder.hpp:*  "range_min" - requaried for PlaceThreshold, sets the lower
+include/PlaceBuilder.hpp:*  "range_max" - requaried for PlaceThreshold, sets the high
+include/Places.hpp:        /** Simplified activation for counter-like detectors, without
+include/Places.hpp:         * is empty time=-1 event is returned*/
+include/Places.hpp:                EventData empty(-1);
+include/Places.hpp:         * has only one event, time=-1 event is returned. */
+include/Places.hpp:                return info_.at(sz - 2);
+include/Places.hpp:                EventData empty(-1);
+include/Places.hpp:                (*it)->check_(info);
+include/Places.hpp:         * (true for coincidence-like, false for anti-coincidence).
+include/Places.hpp:            --counter_;
+include/Places.hpp: * Example: Beta place - if any of physical beta detectors was
+include/Places.hpp: * for coincidences and anti-coincidences (use relation parameter when adding
+include/Places.hpp: * Example : GammaBeta place storing beta-gamma coincidence,
+include/Plots.hpp:    bool Plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h");
+include/Plots.hpp:    bool Plot(const std::string &mne, double val1, double val2 = -1, double val3 = -1, const char* name="h");
+include/Plots.hpp:    /** Map of mnemonic -> int */
+include/Plots.hpp:    /** Map of dammid -> title, helps debugging duplicated dammids*/
+include/pugiconfig.hpp: * pugixml parser - version 1.2
+include/pugiconfig.hpp: * --------------------------------------------------------
+include/pugiconfig.hpp: * Copyright (C) 2006-2012, by Arseny Kapoulkine (arseny.kapoulkine@gmail.com)
+include/pugiconfig.hpp:// Uncomment this to switch to header-only version
+include/pugiconfig.hpp:// Tune these constants to adjust memory-related behavior
+include/pugiconfig.hpp: * Copyright (c) 2006-2012 Arseny Kapoulkine
+include/pugixml.hpp: * pugixml parser - version 1.2
+include/pugixml.hpp: * --------------------------------------------------------
+include/pugixml.hpp: * Copyright (C) 2006-2012, by Arseny Kapoulkine (arseny.kapoulkine@gmail.com)
+include/pugixml.hpp:// Define version macro; evaluates to major * 100 + minor so that it's safe to use in less-than comparisons
+include/pugixml.hpp:		node_comment,		// Comment tag, i.e. '<!-- text -->'
+include/pugixml.hpp:	// End-of-Line characters are normalized, attribute values are normalized using CDATA normalization rules.
+include/pugixml.hpp:	// End-of-Line characters are normalized, attribute values are normalized using CDATA normalization rules.
+include/pugixml.hpp:		encoding_auto,		// Auto-detect input encoding using BOM or < / <? detection; use UTF8 if BOM is not found
+include/pugixml.hpp:		encoding_utf16_le,	// Little-endian UTF16
+include/pugixml.hpp:		encoding_utf16_be,	// Big-endian UTF16
+include/pugixml.hpp:		encoding_utf32_le,	// Little-endian UTF32
+include/pugixml.hpp:		encoding_utf32_be,	// Big-endian UTF32
+include/pugixml.hpp:	// Write encoding-specific BOM to the output stream. This flag is off by default.
+include/pugixml.hpp:	// Open file using text mode in xml_document::save_file. This enables special character (i.e. new-line) conversions on some systems. This flag is off by default.
+include/pugixml.hpp:	// Range-based for loop support
+include/pugixml.hpp:	// A light-weight handle for manipulating attributes in DOM tree
+include/pugixml.hpp:	// A light-weight handle for manipulating nodes in DOM tree
+include/pugixml.hpp:		// Find node from subtree using predicate. Returns first node from subtree (depth-first), for which predicate returned true.
+include/pugixml.hpp:		// Range-based for support
+include/pugixml.hpp:		xml_node* operator->() const;
+include/pugixml.hpp:		const xml_node_iterator& operator--();
+include/pugixml.hpp:		xml_node_iterator operator--(int);
+include/pugixml.hpp:		xml_attribute* operator->() const;
+include/pugixml.hpp:		const xml_attribute_iterator& operator--();
+include/pugixml.hpp:		xml_attribute_iterator operator--(int);
+include/pugixml.hpp:		xml_node* operator->() const;
+include/pugixml.hpp:		status_end_element_mismatch // There was a mismatch of start-end tags (closing tag had incorrect name, some tag was not closed or there was an excessive closing tag)
+include/pugixml.hpp:		// Non-copyable semantics
+include/pugixml.hpp:		// Load document from zero-terminated string. No encoding conversions are applied.
+include/pugixml.hpp:		// Load document from buffer, using the buffer for in-place parsing (the buffer is modified and used for storage of document data).
+include/pugixml.hpp:		// Load document from buffer, using the buffer for in-place parsing (the buffer is modified and used for storage of document data).
+include/pugixml.hpp:		// Non-copyable semantics
+include/pugixml.hpp:		// Non-copyable semantics
+include/pugixml.hpp:		// Non-copyable semantics
+include/pugixml.hpp:	// A fixed-size collection of XPath nodes
+include/pugixml.hpp:	// Workarounds for (non-standard) iterator category detection for older versions (MSVC7/IC8 and earlier)
+include/pugixml.hpp:	// Workarounds for (non-standard) iterator category detection
+include/pugixml.hpp: * Copyright (c) 2006-2012 Arseny Kapoulkine
+include/RandomPool.hpp: *  \brief Holds a pre-generated pool of random numbers
+include/RandomPool.hpp: *  DTM - 08-18-2010
+include/RawEvent.hpp: *    SNL - 7-2-07
+include/RawEvent.hpp: *    KM = 27 - 11 - 2012 
+include/StatsData.hpp:    static const size_t statSize = N_DSP_PAR - DSP_IO_BORDER;
+include/TraceAnalyzer.hpp: *    SNL - 7-2-07
+include/TraceAnalyzer.hpp:    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
+include/Trace.hpp:    //range that immediately preceedes the trace. -SVP
+include/TreeCorrelator.hpp:        /** Make constructor, copy-constructor and operator =
+include/TreeCorrelator.hpp:         * the last token (delimiter being "_") is in format "X-Y,Z" where
+include/TreeCorrelator.hpp:         * E.g. abc_1-2,4,5-6 will return ["abc_1", "abc_2", "abc_4", "abc_5,
+include/WalkCorrector.hpp:         * f(x) = a0 + a1 / (a2 + x) + a3 * exp(-x / a4)

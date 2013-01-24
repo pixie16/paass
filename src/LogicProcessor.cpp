@@ -32,20 +32,18 @@ namespace dammIds {
 
 
 LogicProcessor::LogicProcessor(void) : 
-  EventProcessor(OFFSET, RANGE), lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
+  EventProcessor(OFFSET, RANGE, "logic"),
+  lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
   logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC)
 {
-    name = "logic";
-
     associatedTypes.insert("logic");
 }
 
 LogicProcessor::LogicProcessor(int offset, int range) : 
-  EventProcessor(offset, range), lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
+  EventProcessor(offset, range, "logic"),
+  lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
   logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC)
 {
-    name = "logic";
-
     associatedTypes.insert("logic");
 }
 

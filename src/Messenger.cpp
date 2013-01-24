@@ -37,8 +37,8 @@ void Messenger::detail(std::string msg, short level /*= 0*/,
               << *it << std::endl;
 }
 
-void Messenger::warning(std::string msg) {
-    detail(msg + " !", 0, "!");
+void Messenger::warning(std::string msg, short level) {
+    detail(msg + " !", level, "!");
 }
 
 void Messenger::run_message(std::string msg) {

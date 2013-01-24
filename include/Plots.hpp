@@ -10,9 +10,10 @@
 #include <string>
 #include <map>
 #include <set>
-#include "PlotsRegister.hpp"
+#include <string>
 
 #include "Globals.hpp"
+#include "PlotsRegister.hpp"
 
 /* Fortran subroutines for plotting histograms */
 extern "C" void count1cc_(const int &, const int &, const int &);
@@ -21,7 +22,7 @@ extern "C" void set2cc_(const int &, const int &, const int &, const int &);
 /** Holds pointers to all Histograms.*/
 class Plots {
 public:
-    Plots (int offset, int range);
+    Plots (int offset, int range, std::string name);
 
     int GetOffset() { return offset_; }
 
@@ -69,6 +70,8 @@ private:
     int offset_;
     /** Holds allowed range for a given set of plots*/
     int range_;
+    /** Name of the owner of plots, mainly for debugging */
+    std::string name_;
     /** set of int (relative dammId without offsets */
     std::set <int> idList;
     /** Map of mnemonic -> int */

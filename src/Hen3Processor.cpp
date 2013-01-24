@@ -37,9 +37,8 @@ namespace dammIds {
     }
 }
 
-Hen3Processor::Hen3Processor() : EventProcessor(OFFSET, RANGE)
+Hen3Processor::Hen3Processor() : EventProcessor(OFFSET, RANGE, "3hen")
 {
-    name = "3hen";
     associatedTypes.insert("3hen"); // associate with the scint type
 }
 
@@ -67,8 +66,9 @@ bool Hen3Processor::PreProcess(RawEvent &event)
      * of detectors activated here. The threshold for the latter is set
      * in the xml file.
      */
-    static const DetectorSummary *hen3Summary = event.GetSummary("3hen");
-    for (vector<ChanEvent*>::const_iterator it = hen3Summary->GetList().begin(); 
+    static const DetectorSummary *hen3Summary = event.GetSummary("3hen", true);
+    for (vector<ChanEvent*>::const_iterator it = 
+            hen3Summary->GetList().begin(); 
         it != hen3Summary->GetList().end(); it++) {
             double time = (*it)->GetTime();
             double energy = (*it)->GetEnergy();
@@ -100,7 +100,7 @@ bool Hen3Processor::Process(RawEvent &event)
     if (!EventProcessor::Process(event))
         return false;
   
-    static const DetectorSummary *hen3Summary = event.GetSummary("3hen");
+    static const DetectorSummary *hen3Summary = event.GetSummary("3hen", true);
     
     int hen3_count = dynamic_cast<PlaceCounter*>(
             TreeCorrelator::get()->place("Hen3"))->getCounter();

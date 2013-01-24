@@ -42,7 +42,7 @@
             high_ratio="3.0"
             sub_event="100e-9"
             gamma_beta_limit="200e-9"
-            gamm_gamma_limit="200e-9"
+            gamma_gamma_limit="200e-9"
             early_low_limit="1.0"
             early_high_limit="1.5"
             />
@@ -83,7 +83,9 @@
         </Map>
     -->
 
-    <Map verbose_calibration="True">
+    <Map verbose_calibration="False"
+         verbose_map="False"
+         verbose_walk="False">
 
         <Module number="0">
             <Channel number="0" type="beta_scint" subtype="beta">

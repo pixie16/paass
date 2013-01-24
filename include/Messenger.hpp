@@ -46,7 +46,7 @@ class Messenger {
         void detail(std::string msg, short level = 0, std::string symbol = "*");
 
         /** Warning message */
-        void warning(std::string msg);
+        void warning(std::string msg, short level = 0);
 
         /** Message shown during scanning*/
         void run_message(std::string msg);

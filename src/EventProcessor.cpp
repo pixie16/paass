@@ -24,24 +24,24 @@ using namespace std;
 
 EventProcessor::EventProcessor() : 
   userTime(0.), systemTime(0.), name("generic"), initDone(false), 
-  didProcess(false), histo(0, 0)
+  didProcess(false), histo(0, 0, "generic")
 {
     clocksPerSecond = sysconf(_SC_CLK_TCK);
 }
 
-EventProcessor::EventProcessor(int offset, int range) : 
-  userTime(0.), systemTime(0.), name("generic"), initDone(false), 
-  didProcess(false), histo(offset, range) {
+EventProcessor::EventProcessor(int offset, int range, string proc_name) : 
+  userTime(0.), systemTime(0.), name(proc_name), initDone(false), 
+  didProcess(false), histo(offset, range, proc_name) {
     clocksPerSecond = sysconf(_SC_CLK_TCK);
 }
 
 EventProcessor::~EventProcessor() 
 {
     if (initDone) {
-	// output the time usage
-	cout << "processor " << name << " : " 
-	     << userTime << " user time, "
-	     << systemTime << " system time" << endl;
+        // output the time usage
+        cout << "processor " << name << " : " 
+            << userTime << " user time, "
+            << systemTime << " system time" << endl;
     }
 }
 
@@ -56,9 +56,9 @@ bool EventProcessor::HasEvent(void) const
 {
     for (map<string, const DetectorSummary*>::const_iterator it = sumMap.begin();
 	 it != sumMap.end(); it++) {
-	if (it->second->GetMult() > 0) {
-	    return true;
-	}
+        if (it->second->GetMult() > 0) {
+            return true;
+        }
     }
     return false;
 }
@@ -92,9 +92,6 @@ bool EventProcessor::Init(RawEvent& rawev)
        << intersect.size() << " detector type(s).";
     m.detail(ss.str());
 
-    // cout << "  adding detector summary " << iSum->first
-    //	    << " at address " << &iSum->second << endl;
-	    
     return true;
 }
 

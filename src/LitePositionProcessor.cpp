@@ -41,9 +41,9 @@ const string PositionProcessor::configFile("qdc.txt");
 
 using namespace dammIds::position;
 
-LitePositionProcessor::PositionProcessor() : EventProcessor(OFFSET, RANGE)
+LitePositionProcessor::PositionProcessor() :
+    EventProcessor(OFFSET, RANGE, "liteposition")
 {
-    name="liteposition";
     associatedTypes.insert("ssd");
 }
 
