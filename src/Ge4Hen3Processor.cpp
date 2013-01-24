@@ -73,8 +73,18 @@ namespace dammIds {
     }
 }
 
-Ge4Hen3Processor::Ge4Hen3Processor() : GeProcessor() {
+Ge4Hen3Processor::Ge4Hen3Processor(double gammaThreshold, double lowRatio,
+                         double highRatio, double subEventWindow,
+                         double gammaBetaLimit, double gammaGammaLimit,
+                         double earlyLowLimit, double earlyHighLimit) :
+
+                         GeProcessor(gammaThreshold, lowRatio, highRatio,
+                                     subEventWindow, gammaBetaLimit, 
+                                     gammaGammaLimit, earlyLowLimit,
+                                     earlyHighLimit)
+{
 }
+
 
 /** Declare plots including many for decay/implant/neutron gated analysis  */
 void Ge4Hen3Processor::DeclarePlots(void) 
@@ -208,7 +218,7 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         double gEnergy = chan->GetCalEnergy();	
         double gTime   = chan->GetCorrectedTime();
         double decayTime = (gTime - cycleTime) * pixie::clockInSeconds;
-        if (gEnergy < detectors::gammaThreshold) 
+        if (gEnergy < gammaThreshold_)
             continue;
 
         plot(neutron::D_ENERGY, gEnergy);
@@ -217,8 +227,8 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
 
         double gb_dtime = numeric_limits<double>::max();
         if (hasBeta) {
-            pair<double, EventData> bestBeta = BestBetaForGamma(gTime);
-            gb_dtime = bestBeta.first;
+            EventData bestBeta = BestBetaForGamma(gTime);
+            gb_dtime = (gTime - bestBeta.time) * pixie::clockInSeconds;
         }
 
         if (hasBeta && GoodGammaBeta(gb_dtime)) {
@@ -252,7 +262,7 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             ChanEvent *chan2 = *it2;
 
             double gEnergy2 = chan2->GetCalEnergy();            
-            if (gEnergy2 < detectors::gammaThreshold) 
+            if (gEnergy2 < gammaThreshold_) 
                 continue;
 
             symplot(neutron::DD_ENERGY, gEnergy, gEnergy2);            
@@ -274,14 +284,14 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
     for (unsigned i = 0; i < nEvents; ++i) {
         double gEnergy = tas_[i].first;
         double gTime = tas_[i].second;
-        if (gEnergy < detectors::gammaThreshold)
+        if (gEnergy < gammaThreshold_)
             continue;
 
         plot(neutron::D_ADD_ENERGY_TOTAL, gEnergy);
         double gb_dtime = numeric_limits<double>::max();
         if (hasBeta) {
-            pair<double, EventData> bestBeta = BestBetaForGamma(gTime);
-            gb_dtime = bestBeta.first;
+            EventData bestBeta = BestBetaForGamma(gTime);
+            gb_dtime = (gTime - bestBeta.time) * pixie::clockInSeconds;
         }
 
         if (hasBeta && GoodGammaBeta(gb_dtime)) {
@@ -300,7 +310,7 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             double gEnergy = addbackEvents_[det][ev].first;
             double gTime = addbackEvents_[det][ev].second;
             double decayTime = (gTime - cycleTime) * pixie::clockInSeconds;
-            if (gEnergy < detectors::gammaThreshold)
+            if (gEnergy < gammaThreshold_)
                 continue;
 
             plot(neutron::D_ADD_ENERGY, gEnergy);
@@ -309,8 +319,8 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
 
             double gb_dtime = numeric_limits<double>::max();
             if (hasBeta) {
-                pair<double, EventData> bestBeta = BestBetaForGamma(gTime);
-                gb_dtime = bestBeta.first;
+                EventData bestBeta = BestBetaForGamma(gTime);
+                gb_dtime = (gTime - bestBeta.time) * pixie::clockInSeconds;
             }
 
             if (hasBeta && GoodGammaBeta(gb_dtime)) {
@@ -328,7 +338,7 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
 
             for (unsigned int det2 = det + 1; det2 < numClovers; ++det2) {
                 double gEnergy2 = addbackEvents_[det2][ev].first;
-                if (gEnergy2 < detectors::gammaThreshold)
+                if (gEnergy2 < gammaThreshold_)
                     continue;
 
                 symplot(neutron::DD_ADD_ENERGY, gEnergy, gEnergy2);

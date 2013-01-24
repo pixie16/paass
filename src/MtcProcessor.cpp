@@ -39,11 +39,9 @@ namespace dammIds {
 } // mtc namespace
 
 
-MtcProcessor::MtcProcessor(void) : EventProcessor(OFFSET, RANGE), 
+MtcProcessor::MtcProcessor(void) : EventProcessor(OFFSET, RANGE, "mtc"), 
 				   lastStartTime(NAN), lastStopTime(NAN)
 {
-    name = "mtc";
-
     associatedTypes.insert("timeclass"); // old detector type
     associatedTypes.insert("mtc");
 }
@@ -72,20 +70,12 @@ bool MtcProcessor::PreProcess(RawEvent &event)
     if (!EventProcessor::PreProcess(event))
         return false;
 
-    const static DetectorSummary *mtcSummary = NULL;
-
     // plot with 10 ms bins
     const double mtcPlotResolution = 10e-3 / pixie::clockInSeconds;
     // for 2d plot of events 100ms / bin
 
-    if (mtcSummary == NULL) {
-        if ( sumMap.count("mtc") )
-            mtcSummary = sumMap["mtc"];
-        else if ( sumMap.count("timeclass") ) 
-            mtcSummary = sumMap["timeclass"];
-    }
-
-    static const vector<ChanEvent*> &mtcEvents = mtcSummary->GetList();
+    static const vector<ChanEvent*> &mtcEvents = 
+        event.GetSummary("mtc", true)->GetList();
 
     for (vector<ChanEvent*>::const_iterator it = mtcEvents.begin();
 	 it != mtcEvents.end(); it++) {
@@ -176,7 +166,6 @@ bool MtcProcessor::Process(RawEvent &event)
 {
     if (!EventProcessor::Process(event))
         return false;
-    using namespace dammIds::mtc;
     EndProcess(); // update processing time
     return true;
 }

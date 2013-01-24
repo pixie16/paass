@@ -34,7 +34,8 @@ namespace dammIds {
 
 
 DssdProcessor::DssdProcessor() : 
-    EventProcessor(OFFSET, RANGE), frontSummary(NULL), backSummary(NULL)
+    EventProcessor(OFFSET, RANGE, "dssd"),
+    frontSummary(NULL), backSummary(NULL)
 {
     name = "dssd";
 

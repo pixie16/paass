@@ -36,9 +36,8 @@ namespace dammIds {
 using namespace std;
 using namespace dammIds::pulser;
 
-PulserProcessor::PulserProcessor(): EventProcessor(OFFSET, RANGE)
+PulserProcessor::PulserProcessor(): EventProcessor(OFFSET, RANGE, "pulser")
 {
-    name = "Pulser";
     associatedTypes.insert("pulser"); //associate with pulser
 }
 

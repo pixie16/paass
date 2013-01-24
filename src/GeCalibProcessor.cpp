@@ -54,7 +54,12 @@ namespace dammIds {
     }
 }
 
-GeCalibProcessor::GeCalibProcessor() : GeProcessor() {
+GeCalibProcessor::GeCalibProcessor(double gammaThreshold, double lowRatio,
+                                   double highRatio) :
+                         GeProcessor(gammaThreshold, lowRatio, highRatio,
+                                     100e-9, 200e-9, 
+                                     200e-9, 0, 0)
+{
 }
 
 /** Declare plots including many for decay/implant/neutron gated analysis  */
@@ -207,28 +212,12 @@ bool GeCalibProcessor::PreProcess(RawEvent &event) {
         if ( itLow != lowEvents.end() ) {
             double ratio = (*itHigh)->GetEnergy() / (*itLow)->GetEnergy();
             plot(calib::DD_CLOVER_ENERGY_RATIO, location, ratio * 10.);
-            if ( (ratio < detectors::geLowRatio ||
-                  ratio > detectors::geHighRatio) )
+            if ( (ratio < lowRatio_ ||
+                  ratio > highRatio_) )
                 continue;
         }
         geEvents_.push_back(*itHigh);
     }
-
-
-    /** NOTE we do permanents changes to events here
-     *  Necessary in order to set corrected time for use in correlator
-     */
-
-    /** 
-     * Walk Correction turned off to investigate walk correction parameters
-     *
-    for (vector<ChanEvent*>::iterator it = geEvents_.begin(); 
-	 it != geEvents_.end(); it++) {
-        double energy = (*it)->GetCalEnergy();
-        double time   = (*it)->GetTime() - WalkCorrection(energy);	
-        (*it)->SetCorrectedTime(time);
-    }
-    */
 
     // now we sort the germanium events according to their corrected time
     sort(geEvents_.begin(), geEvents_.end(), CompareCorrectedTime);
@@ -252,7 +241,7 @@ bool GeCalibProcessor::Process(RawEvent &event) {
         ChanEvent* chan = *it;
         double gEnergy = chan->GetCalEnergy();	
 
-        if (gEnergy < detectors::gammaThreshold)
+        if (gEnergy < gammaThreshold_)
             continue;
 
         double gTime = chan->GetCorrectedTime();

@@ -109,7 +109,7 @@ DetectorDriver* DetectorDriver::get() {
     return instance;
 }
 
-DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE) 
+DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") 
 {
     Messenger m;
     try {
@@ -172,16 +172,81 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
          processor = processor.next_sibling("Processor")) {
         string name = processor.attribute("name").value();
 
+        m.detail("Loading " + name);
         if (name == "BetaScintProcessor") {
             vecProcess.push_back(new BetaScintProcessor());
         } else if (name == "DssdProcessor") {
             vecProcess.push_back(new DssdProcessor());
-        } else if (name == "GeProcessor") {
-            vecProcess.push_back(new GeProcessor()); 
-        } else if (name == "Ge4Hen3Processor") {
-            vecProcess.push_back(new Ge4Hen3Processor()); 
+        } else if (name == "GeProcessor" || name == "Ge4Hen3Processor") {
+            double gamma_threshold = 
+                processor.attribute("gamma_threshold").as_double(-1);
+            if (gamma_threshold == -1) {
+                gamma_threshold = 1.0;
+                m.warning("Using default gamma_threshold = 1.0", 1);
+            }
+            double low_ratio =
+                processor.attribute("low_ratio").as_double(-1);
+            if (low_ratio == -1) {
+                low_ratio = 1.0;
+                m.warning("Using default low_ratio = 1.0", 1);
+            }
+            double high_ratio =
+                processor.attribute("high_ratio").as_double(3);
+            if (high_ratio == -1) {
+                high_ratio = 3.0;
+                m.warning("Using default high_ratio = 3.0", 1);
+            }
+            double sub_event = 
+                processor.attribute("sub_event").as_double(-1);
+            if (sub_event == -1) {
+                sub_event = 100e-9;
+                m.warning("Using default sub_event = 100e-9", 1);
+            }
+            double gamma_beta_limit = 
+                processor.attribute("gamma_beta_limit").as_double(-1);
+            if (gamma_beta_limit == -1) {
+                gamma_beta_limit = 200e-9;
+                m.warning("Using default gamme_beta_limit = 200e-9", 1);
+            }
+            double gamma_gamma_limit = 
+                processor.attribute("gamma_gamma_limit").as_double(-1);
+            if (gamma_gamma_limit == -1) {
+                gamma_gamma_limit = 200e-9;
+                m.warning("Using default gamma_gamma_limit = 200e-9", 1);
+            }
+            double early_low_limit =
+                processor.attribute("early_low_limit").as_double(0);
+            if (early_low_limit == -1) {
+                early_low_limit = 0.0;
+                m.warning("Using default early_low_limit = 0.0", 1);
+            }
+            double early_high_limit =
+                processor.attribute("early_high_limit").as_double(0);
+            if (early_high_limit == -1) {
+                early_high_limit = 0.0;
+                m.warning("Using default early_low_limit = 0.0", 1);
+            }
+            if (name == "GeProcessor") {
+                vecProcess.push_back(new GeProcessor(gamma_threshold, low_ratio,
+                            high_ratio, sub_event, gamma_beta_limit,
+                            gamma_gamma_limit, early_low_limit,
+                            early_high_limit)); 
+            } else if (name == "Ge4Hen3Processor") {
+                vecProcess.push_back(new Ge4Hen3Processor(gamma_threshold,
+                            low_ratio, high_ratio, sub_event, gamma_beta_limit,
+                            gamma_gamma_limit, early_low_limit,
+                            early_high_limit)); 
+
+            }
         } else if (name == "GeCalibProcessor") {
-            vecProcess.push_back(new GeCalibProcessor()); 
+            double gamma_threshold = 
+                processor.attribute("gamma_threshold").as_double(1);
+            double low_ratio =
+                processor.attribute("low_ratio").as_double(1);
+            double high_ratio =
+                processor.attribute("high_ratio").as_double(3);
+            vecProcess.push_back(new GeCalibProcessor(gamma_threshold,
+                        low_ratio, high_ratio)); 
         } else if (name == "Hen3Processor") {
             vecProcess.push_back(new Hen3Processor()); 
         } else if (name == "ImplantSsdProcessor") {
@@ -223,7 +288,16 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             ss << "DetectorDriver: unknown processor type" << name;
             throw GeneralException(ss.str());
         }
-        m.detail(name + " loaded");
+        stringstream ss;
+        for (pugi::xml_attribute_iterator ait = processor.attributes_begin();
+             ait != processor.attributes_end(); ++ait) {
+            ss.str("");
+            ss << ait->name();
+            if (ss.str().compare("name") != 0) {
+                ss << " = " << ait->value();
+                m.detail(ss.str(), 1);
+            }
+        }
     }
 
     for (pugi::xml_node analyzer = driver.child("Analyzer"); analyzer;
@@ -525,10 +599,6 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
         energy = chan->GetEnergy() + randoms->Get();
         energy /= ChanEvent::pixieEnergyContraction;
     }
-    /*
-      Set the calibrated energy for this channel
-    //chan->SetCalEnergy(cal[id].Calibrate(energy));
-    */
 
     /** Calibrate energy and apply the walk correction. */
     double time = chan->GetTime();
@@ -579,7 +649,6 @@ int DetectorDriver::PlotRaw(const ChanEvent *chan)
 int DetectorDriver::PlotCal(const ChanEvent *chan)
 {
     int id = chan->GetID();
-    // int dammid = chan->GetChanID().GetDammID();
     float calEnergy = chan->GetCalEnergy();
     
     plot(D_CAL_ENERGY + id, calEnergy);
@@ -617,7 +686,7 @@ void DetectorDriver::ReadCalXml() {
     }
 
     Messenger m;
-    m.detail("Loading Calibration");
+    m.start("Loading Calibration");
 
     pugi::xml_node map = doc.child("Configuration").child("Map");
 
@@ -674,6 +743,7 @@ void DetectorDriver::ReadCalXml() {
             }
         }
     }
+    m.done();
 }
 
 void DetectorDriver::ReadWalkXml() {
@@ -692,7 +762,7 @@ void DetectorDriver::ReadWalkXml() {
     }
 
     Messenger m;
-    m.detail("Loading Walk Corrections");
+    m.start("Loading Walk Corrections");
 
     pugi::xml_node map = doc.child("Configuration").child("Map");
     /** See comment in the similiar place at ReadCalXml() */
@@ -731,18 +801,5 @@ void DetectorDriver::ReadWalkXml() {
             }
         }
     }
+    m.done();
 }
-
-/*!
-  This function is called from the scan program
-  when scan is either killed or ended.  If
-  ROOT has been enabled, close the ROOT files.
-  If ROOT is not enabled do nothing.
-*/
-/*
-extern "C" void detectorend_()
-{
-    //cout << "ending, no rootfile " << endl;       
-}
-*/
-

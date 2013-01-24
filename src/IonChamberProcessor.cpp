@@ -40,9 +40,9 @@ namespace dammIds
   };
 };
 
-IonChamberProcessor::IonChamberProcessor() : EventProcessor(OFFSET, RANGE)
+IonChamberProcessor::IonChamberProcessor() : 
+    EventProcessor(OFFSET, RANGE, "ionchamber")
 {
-    name = "ionchamber";
     associatedTypes.insert("ion_chamber"); // associate with the scint type
 
     for (size_t i=0; i < noDets; i++) {

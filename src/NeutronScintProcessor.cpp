@@ -28,9 +28,9 @@ namespace dammIds {
     } 
 } 
 
-NeutronScintProcessor::NeutronScintProcessor() : EventProcessor(OFFSET, RANGE)
+NeutronScintProcessor::NeutronScintProcessor() : 
+    EventProcessor(OFFSET, RANGE, "neutron_scint")
 {
-    name = "neutron_scint";
     associatedTypes.insert("neutron_scint"); 
 }
 
