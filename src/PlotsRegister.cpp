@@ -40,7 +40,7 @@ bool PlotsRegister::CheckRange (int min, int max) const
     return exists;
 }
 
-bool PlotsRegister::Add (int offset, int range)
+bool PlotsRegister::Add (int offset, int range, string name)
 {
     // Special case: empty Plots list
     if (offset == 0 && range == 0)
@@ -53,14 +53,14 @@ bool PlotsRegister::Add (int offset, int range)
         stringstream ss;
         ss << "PlotsRegister: Attempt to register incorrect "
            << "histogram ids range: " 
-           << min << " to" << max; 
+           << min << " to" << max << " by " << name; 
         throw HistogramException(ss.str());
     }
     
     if (min < 1 || max > 7999) {
         stringstream ss;
         ss << "PlotsRegister: Attempt to register histogram ids: " 
-           << min << " to " << max << endl;
+           << min << " to " << max << " by " << name << endl;
         ss << "Valid range is 1 to 7999";
         throw HistogramException(ss.str());
     }
@@ -68,7 +68,7 @@ bool PlotsRegister::Add (int offset, int range)
     if (CheckRange(min, max)) {
         stringstream ss;
         ss << "PlotsRegister: Attempt to register histogram ids: " 
-           << min << " to " << max << endl;
+           << min << " to " << max << " by " << name << endl;
         ss << "This range is already registered.";
         throw HistogramException(ss.str());
     }
@@ -77,7 +77,8 @@ bool PlotsRegister::Add (int offset, int range)
 
     Messenger m;
     stringstream ss;
-    ss << "Histogram ids: " << min << " to " << max << " registered";
-    m.detail(ss.str());
+    ss << "Histogram ids: " << min << " to " << max 
+       << " registered by " << name;
+    m.detail(ss.str(), 1);
     return true;        
 }

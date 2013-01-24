@@ -63,7 +63,7 @@ void DetectorLibrary::LoadXml() {
     }
 
     Messenger m;
-    m.detail("Loading channels map");
+    m.start("Loading channels map");
 
     /** These attributes have reserved meaning, all other
      * attributes of <Channel> are treated as tags */
@@ -89,7 +89,7 @@ void DetectorLibrary::LoadXml() {
         for (pugi::xml_node channel = module.child("Channel"); channel;
              channel = channel.next_sibling("Channel")) {
             int ch_number = channel.attribute("number").as_int(-1);
-            if (ch_number < 0 || ch_number >= pixie::numberOfChannels ) {
+            if (ch_number < 0 || ch_number >= (int)pixie::numberOfChannels ) {
                 stringstream ss;
                 ss << "DetectorDriver::ReadWalk: Illegal channel number "
                    << "found " << ch_number << " in cofiguration file.";
@@ -149,6 +149,7 @@ void DetectorLibrary::LoadXml() {
             }
         }
     }
+    m.done();
 }
 
 DetectorLibrary::~DetectorLibrary()

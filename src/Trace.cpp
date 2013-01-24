@@ -27,7 +27,7 @@ const Trace emptyTrace; ///< an empty trace for const references to point to
  * Plots are static, class-wide variable, so every trace instance has
  * an access to the same histogram range
  */
-Plots Trace::histo(OFFSET, RANGE);
+Plots Trace::histo(OFFSET, RANGE, "traces");
 
 /**
  * Defines how to implement a trapezoidal filter characterized by two

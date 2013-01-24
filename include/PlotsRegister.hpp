@@ -6,9 +6,9 @@
 #ifndef __PLOTSREGISTER_HPP_
 #define __PLOTSREGISTER_HPP_
 
-#include <vector>
 #include <utility>
-
+#include <vector>
+#include <string>
 
 /** Holds ranges and offsets of all plots. Singleton class. */
 class PlotsRegister {
@@ -17,7 +17,7 @@ class PlotsRegister {
         static PlotsRegister* get();
         
         bool CheckRange (int offset, int range) const;
-        bool Add(int offset, int range);
+        bool Add(int offset, int range, std::string name_);
 
     private:
         PlotsRegister() {};

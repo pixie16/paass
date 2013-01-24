@@ -18,7 +18,7 @@ class GeCalibProcessor : public GeProcessor
 protected:
 
 public:
-    GeCalibProcessor();
+    GeCalibProcessor(double gammaThreshold, double lowRatio, double highRatio);
     virtual bool PreProcess(RawEvent &event);
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void);

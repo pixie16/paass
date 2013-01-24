@@ -29,6 +29,7 @@ namespace dammIds {
         const int D_ENERGY = 0;
         const int D_ENERGY_CLOVERX = 1; 
 
+        const int D_ENERGY_MOVE = 5;
         const int D_MULT = 9;
 
         const int D_ADD_ENERGY = 50; 
@@ -56,10 +57,11 @@ namespace dammIds {
 
         namespace betaGated {
             const int D_ENERGY = 10;
-            const int D_ENERGY_CLOVERX = 11;
-            const int D_ENERGY_BETA0 = 15; 
-            const int D_ENERGY_BETA1 = 16; 
-            const int DD_ENERGY__BETAGAMMALOC = 17;
+            const int D_ENERGY_PROMPT = 11;
+            const int D_ENERGY_CLOVERX = 12;
+            const int D_ENERGY_BETA0 = 16; 
+            const int D_ENERGY_BETA1 = 17; 
+            const int DD_ENERGY__BETAGAMMALOC = 18;
 
             const int D_ADD_ENERGY = 60; 
             const int D_ADD_ENERGY_CLOVERX = 61; 
@@ -137,18 +139,15 @@ protected:
     std::vector<float> timeResolution; /*!< Contatin time resolutions used */
     unsigned int numClovers;           /*!< number of clovers in map */
 
-    double WalkCorrection(double e);
-
     /** Returns lowest difference between gamma and beta times and EventData of the beta event.
      * Takes gTime in pixie clock units, returns value in seconds. */
-    std::pair<double, EventData> BestBetaForGamma(double gTime);
+    EventData BestBetaForGamma(double gTime);
 
     /** Returns true if gamma-beta correlation time within good limits.
      * Browses through all beta events in Beta correlation place to find
      * the lowest difference. Takes gTime in pixie clock, limit in
      * seconds. */
-    bool GoodGammaBeta(double gTime, 
-                       double limit_in_sec = detectors::gammaBetaLimit);
+    bool GoodGammaBeta(double gTime);
 
     /** Preprocessed good ge events, filled in PreProcess.*/
     std::vector<ChanEvent*> geEvents_;
@@ -169,8 +168,35 @@ protected:
 #ifdef GGATES
     std::vector< std::vector<LineGate> > gGates;
 #endif
+
+    /* Gamma low threshold in keV */
+    double gammaThreshold_;
+
+    /** Low and high ratio between low and high gain to
+     * be accepted (for data without saturation flag */
+    double lowRatio_;
+    double highRatio_;
+
+    /** Addback subevent window in seconds */
+    double subEventWindow_;
+
+    /** Prompt Gamma-beta limit in seconds */
+    double gammaBetaLimit_;
+
+    /** Prompt Gamma-gamma limit in seconds */
+    double gammaGammaLimit_;
+
+    /** Early coincidences limit in seconds
+     * (early means at the begining of the decay part of cycle, where
+     * short-lived activity is present) */
+    double earlyLowLimit_;
+    double earlyHighLimit_;
+
 public:
-    GeProcessor(); // no virtual c'tors
+    GeProcessor(double gammaThreshold, double lowRatio,
+                double highRatio, double subEventWindow,
+                double gammaBetaLimit, double gammaGammaLimit,
+                double earlyLowLimit, double earlyHighLimit);
     virtual bool PreProcess(RawEvent &event);
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void);
