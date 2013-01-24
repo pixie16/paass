@@ -39,7 +39,7 @@ class Calibrator {
                         const std::vector<double>& par);
 
         /** Returns calibrated energy for the channel indetified by chanID.*/
-        double GetCalEnergy(Identifier& chanID, double ch) const;
+        double GetCalEnergy(const Identifier& chanID, double ch) const;
 
     private:
         /** Map where key is a channel Identifier and value is the struct holding correction

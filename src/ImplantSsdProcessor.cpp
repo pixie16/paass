@@ -206,7 +206,6 @@ void ImplantSsdProcessor::DeclarePlots(void)
 
     for (unsigned int i=0; i < numTraces; i++) {
 	DeclareHistogram1D(D_FAST_DECAY_TRACE + i, traceBins, "fast decay trace");
-	DeclareHistogram1D(D_HIGH_ENERGY_TRACE + i, traceBins, "high energy trace");
     }
 }
 
@@ -382,55 +381,57 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
     }
 
     if (info.type == EventInfo::PROTON_EVENT) {
-	const ChanEvent *chVeto = vetoSummary->GetMaxEvent();
-	
-	unsigned int posVeto = chVeto->GetChanID().GetLocation();
-	double vetoEnergy = chVeto->GetCalEnergy();
+        const ChanEvent *chVeto = vetoSummary->GetMaxEvent();
+        
+        unsigned int posVeto = chVeto->GetChanID().GetLocation();
+        double vetoEnergy = chVeto->GetCalEnergy();
 
-	plot(DD_LOC_VETO__LOC_SSD, posVeto, location);
-	plot(DD_TOTENERGY__ENERGY, vetoEnergy + info.energy, info.energy);
+        plot(DD_LOC_VETO__LOC_SSD, posVeto, location);
+        plot(DD_TOTENERGY__ENERGY, vetoEnergy + info.energy, info.energy);
     }
 
     if (info.pileUp) {
-	double trigTime = info.time;
+        double trigTime = info.time;
 
-	info.energy = driver->cal.at(ch->GetID()).Calibrate(trace.GetValue("filterEnergy2"));
-	info.time   = trigTime + trace.GetValue("filterTime2") - trace.GetValue("filterTime");
-	
-	SetType(info);	
-	Correlate(corr, info, location);
+        info.energy = driver->cali.GetCalEnergy(ch->GetChanID(),
+                                              trace.GetValue("filterEnergy2"));
+        info.time = trigTime + trace.GetValue("filterTime2") - trace.GetValue("filterTime");
+        
+        SetType(info);	
+        Correlate(corr, info, location);
 
-	int numPulses = trace.GetValue("numPulses");
+        int numPulses = trace.GetValue("numPulses");
 
-	if ( numPulses > 2 ) {
-	    corr.Flag(location, 1);
-	    cout << "Flagging triple event" << endl;
-	    for (int i=3; i <= numPulses; i++) {
-		stringstream str;
-		str << "filterEnergy" << i;
-		info.energy = driver->cal.at(ch->GetID()).Calibrate(trace.GetValue(str.str()));
-		str.str(""); // clear it
-		str << "filterTime" << i;
-		info.time   = trigTime + trace.GetValue(str.str()) - trace.GetValue("filterTime");
+        if ( numPulses > 2 ) {
+            corr.Flag(location, 1);
+            cout << "Flagging triple event" << endl;
+            for (int i=3; i <= numPulses; i++) {
+            stringstream str;
+            str << "filterEnergy" << i;
+            info.energy = driver->cali.GetCalEnergy(ch->GetChanID(),
+                                              trace.GetValue(str.str()));
+            str.str(""); // clear it
+            str << "filterTime" << i;
+            info.time   = trigTime + trace.GetValue(str.str()) - trace.GetValue("filterTime");
 
-		SetType(info);
-		Correlate(corr, info, location);
-	    }
-	}	
-	// corr.Flag(location, 1);	                
+            SetType(info);
+            Correlate(corr, info, location);
+            }
+        }	
+        // corr.Flag(location, 1);	                
 #ifdef VERBOSE
-	cout << "Flagging for pileup" << endl; 
+        cout << "Flagging for pileup" << endl; 
 
-	cout << "fast trace " << fastTracesWritten << " in strip " << location
-	     << " : " << trace.GetValue("filterEnergy") << " " << trace.GetValue("filterTime") 
-	     << " , " << trace.GetValue("filterEnergy2") << " " << trace.GetValue("filterTime2") << endl;
-	cout << "  mcp mult " << info.mcpMult << endl;
+        cout << "fast trace " << fastTracesWritten << " in strip " << location
+            << " : " << trace.GetValue("filterEnergy") << " " << trace.GetValue("filterTime") 
+            << " , " << trace.GetValue("filterEnergy2") << " " << trace.GetValue("filterTime2") << endl;
+        cout << "  mcp mult " << info.mcpMult << endl;
 #endif // VERBOSE
 
-	if (fastTracesWritten < numTraces) {
-	    trace.Plot(D_FAST_DECAY_TRACE + fastTracesWritten);
-	    fastTracesWritten++;
-	}
+        if (fastTracesWritten < numTraces) {
+            trace.Plot(D_FAST_DECAY_TRACE + fastTracesWritten);
+            fastTracesWritten++;
+        }
     }
     
     if (info.energy > 10000 && !ch->IsSaturated() && !isnan(info.position) ) {

@@ -124,7 +124,9 @@ AddBranch	src/ScintROOT.cpp	/^bool ScintROOT::AddBranch(TTree *tree)$/;"	f	class
 AddBranch	src/VandleROOT.cpp	/^bool VandleROOT::AddBranch(TTree *tree)$/;"	f	class:VandleROOT	signature:(TTree *tree)
 AddChan	include/RawEvent.hpp	/^    void AddChan(ChanEvent* event);       $/;"	p	class:RawEvent	access:public	signature:(ChanEvent* event)
 AddChan	src/RawEvent.cpp	/^void RawEvent::AddChan(ChanEvent *event)$/;"	f	class:RawEvent	signature:(ChanEvent *event)
+AddChannel	include/Calibrator.hpp	/^        void AddChannel(const Identifier& chanID, const std::string model,$/;"	p	class:Calibrator	access:public	signature:(const Identifier& chanID, const std::string model, double min, double max, const std::vector<double>& par)
 AddChannel	include/WalkCorrector.hpp	/^        void AddChannel(const Identifier& chanID, const std::string model,$/;"	p	class:WalkCorrector	access:public	signature:(const Identifier& chanID, const std::string model, const std::vector<double>& par)
+AddChannel	src/Calibrator.cpp	/^void Calibrator::AddChannel(const Identifier& chanID, const std::string model,$/;"	f	class:Calibrator	signature:(const Identifier& chanID, const std::string model, double min, double max, const std::vector<double>& par)
 AddChannel	src/WalkCorrector.cpp	/^void WalkCorrector::AddChannel(const Identifier& chanID,$/;"	f	class:WalkCorrector	signature:(const Identifier& chanID, const std::string model, const std::vector<double>& par)
 AddEvent	include/DetectorSummary.hpp	/^    void AddEvent(ChanEvent *ev); \/**< Add a channel event to the summary *\/$/;"	p	class:DetectorSummary	access:public	signature:(ChanEvent *ev)
 AddEvent	src/DetectorSummary.cpp	/^void DetectorSummary::AddEvent(ChanEvent *ev)$/;"	f	class:DetectorSummary	signature:(ChanEvent *ev)
@@ -158,7 +160,7 @@ BEAM_STOP_BIN	src/MtcProcessor.cpp	/^        const int BEAM_STOP_BIN = 7;$/;"	m	
 BEGINEVT	scan/scanof.f	/^      REAL*8         STRBUFEVT,NUMBUFEVTS,BUF_NUM,LASTEVT,SUMEVTS,$/;"	v
 BEGINEVT	scan/scanor.f	/^      REAL*8         STRBUFEVT,NUMBUFEVTS,BUF_NUM,LASTEVT,SUMEVTS,$/;"	v
 BEGINEVT	scan/scanorux.f	/^      REAL*8         STRBUFEVT,NUMBUFEVTS,BUF_NUM,LASTEVT,SUMEVTS,$/;"	v
-BETASCINTPROCESSORO	Makefile	/^BETASCINTPROCESSORO  = BetaScintProcessor.$(ObjSuf)$/;"	m
+BETASCINTPROCESSORO	Makefile	/^BETASCINTPROCESSORO = BetaScintProcessor.$(ObjSuf)$/;"	m
 BETA_EVENT	include/Correlator.hpp	/^    enum EEventTypes {IMPLANT_EVENT, ALPHA_EVENT, BETA_EVENT, FISSION_EVENT, $/;"	e	enum:EventInfo::EEventTypes
 BIG_OFFSET	src/VandleProcessor.cpp	/^    const unsigned int BIG_OFFSET     = 30;$/;"	m	namespace:dammIds	file:
 BUFFER_END	src/PixieStd.cpp	/^enum HistoPoints {BUFFER_START, BUFFER_END, EVENT_START = 10, EVENT_CONTINUE};$/;"	e	enum:HistoPoints	file:
@@ -189,6 +191,8 @@ BetaScintProcessor::Process	src/BetaScintProcessor.cpp	/^bool BetaScintProcessor
 BuildBars	include/VandleProcessor.hpp	/^    virtual void BuildBars(const TimingDataMap &endMap, const std::string &type, $/;"	p	class:VandleProcessor	access:private	signature:(const TimingDataMap &endMap, const std::string &type, BarMap &barMap)
 BuildBars	src/VandleProcessor.cpp	/^void VandleProcessor::BuildBars(const TimingDataMap &endMap, const string &type, BarMap &barMap) $/;"	f	class:VandleProcessor	signature:(const TimingDataMap &endMap, const string &type, BarMap &barMap)
 CALIBRATION_INIT	include/Globals.hpp	/^    const bool CALIBRATION_INIT = false;$/;"	m	namespace:verbose
+CALIBRATORO	Makefile	/^CALIBRATORO      = Calibrator.$(ObjSuf)$/;"	m
+CALIBRATOR_H	include/Calibrator.hpp	2;"	d
 CAPTURE_SLOW_TRACE	include/pixie16app_defs.h	78;"	d
 CCSRA_ENARELAY	include/pixie16app_defs.h	276;"	d
 CCSRA_GOOD	include/pixie16app_defs.h	270;"	d
@@ -229,24 +233,24 @@ CalculateReducedChiSquared	include/FittingAnalyzer.hpp	/^    double CalculateRed
 CalculateReducedChiSquared	src/FittingAnalyzer.cpp	/^double FittingAnalyzer::CalculateReducedChiSquared(const double &dof, $/;"	f	class:FittingAnalyzer	signature:(const double &dof, const double &sigmaBaseline)
 CalculateWalk	include/FittingAnalyzer.hpp	/^    double CalculateWalk(const double &maxValue);$/;"	p	class:FittingAnalyzer	access:private	signature:(const double &maxValue)
 CalculateWalk	src/FittingAnalyzer.cpp	/^double FittingAnalyzer::CalculateWalk(const double &maxVal)$/;"	f	class:FittingAnalyzer	signature:(const double &maxVal)
-Calibrate	include/DetectorDriver.hpp	/^    double Calibrate(double raw); \/**< return a calibrated energy for raw value *\/$/;"	p	class:Calibration	access:public	signature:(double raw)
-Calibrate	src/DetectorDriver.cpp	/^double Calibration::Calibrate(double raw)$/;"	f	class:Calibration	signature:(double raw)
-Calibration	include/DetectorDriver.hpp	/^    Calibration();$/;"	p	class:Calibration	access:public	signature:()
-Calibration	include/DetectorDriver.hpp	/^class Calibration {$/;"	c
-Calibration	src/DetectorDriver.cpp	/^Calibration::Calibration() : $/;"	f	class:Calibration	signature:()
-Calibration::Calibrate	include/DetectorDriver.hpp	/^    double Calibrate(double raw); \/**< return a calibrated energy for raw value *\/$/;"	p	class:Calibration	access:public	signature:(double raw)
-Calibration::Calibrate	src/DetectorDriver.cpp	/^double Calibration::Calibrate(double raw)$/;"	f	class:Calibration	signature:(double raw)
-Calibration::Calibration	include/DetectorDriver.hpp	/^    Calibration();$/;"	p	class:Calibration	access:public	signature:()
-Calibration::Calibration	src/DetectorDriver.cpp	/^Calibration::Calibration() : $/;"	f	class:Calibration	signature:()
-Calibration::DetectorDriver::ReadCal	include/DetectorDriver.hpp	/^    friend void DetectorDriver::ReadCal(void);$/;"	p	class:Calibration::DetectorDriver	access:friend	signature:(void)
-Calibration::detLocation	include/DetectorDriver.hpp	/^    int detLocation;        \/**< physical location of detector (strip#, det#) *\/$/;"	m	class:Calibration	access:private
-Calibration::detSubtype	include/DetectorDriver.hpp	/^    std::string detSubtype;      \/**< sub type of detector *\/$/;"	m	class:Calibration	access:private
-Calibration::detType	include/DetectorDriver.hpp	/^    std::string detType;         \/**< type of detector *\/$/;"	m	class:Calibration	access:private
-Calibration::id	include/DetectorDriver.hpp	/^    int id;                 \/**< id of the detector determined as module # * 16 + channel number *\/$/;"	m	class:Calibration	access:private
-Calibration::numCal	include/DetectorDriver.hpp	/^    unsigned int numCal;    \/**< the number of calibrations for this channel *\/$/;"	m	class:Calibration	access:private
-Calibration::polyOrder	include/DetectorDriver.hpp	/^    unsigned int polyOrder; \/**< the order of the calibration *\/$/;"	m	class:Calibration	access:private
-Calibration::thresh	include/DetectorDriver.hpp	/^    std::vector<float> thresh;   \/**< the lower limit for each respective calibration *\/$/;"	m	class:Calibration	access:private
-Calibration::val	include/DetectorDriver.hpp	/^    std::vector<float> val;      \/**< the individual calibration coefficients in increasing order *\/$/;"	m	class:Calibration	access:private
+CalibrationFactor	include/Calibrator.hpp	/^struct CalibrationFactor {$/;"	s
+CalibrationFactor::max	include/Calibrator.hpp	/^    double max;$/;"	m	struct:CalibrationFactor	access:public
+CalibrationFactor::min	include/Calibrator.hpp	/^    double min;$/;"	m	struct:CalibrationFactor	access:public
+CalibrationFactor::model	include/Calibrator.hpp	/^    CalibrationModel model;$/;"	m	struct:CalibrationFactor	access:public
+CalibrationFactor::parameters	include/Calibrator.hpp	/^    std::vector<double> parameters;$/;"	m	struct:CalibrationFactor	access:public
+CalibrationModel	include/Calibrator.hpp	/^enum CalibrationModel {$/;"	g
+Calibrator	include/Calibrator.hpp	/^        Calibrator() {}$/;"	f	class:Calibrator	access:public	signature:()
+Calibrator	include/Calibrator.hpp	/^class Calibrator {$/;"	c
+Calibrator::AddChannel	include/Calibrator.hpp	/^        void AddChannel(const Identifier& chanID, const std::string model,$/;"	p	class:Calibrator	access:public	signature:(const Identifier& chanID, const std::string model, double min, double max, const std::vector<double>& par)
+Calibrator::AddChannel	src/Calibrator.cpp	/^void Calibrator::AddChannel(const Identifier& chanID, const std::string model,$/;"	f	class:Calibrator	signature:(const Identifier& chanID, const std::string model, double min, double max, const std::vector<double>& par)
+Calibrator::Calibrator	include/Calibrator.hpp	/^        Calibrator() {}$/;"	f	class:Calibrator	access:public	signature:()
+Calibrator::GetCalEnergy	include/Calibrator.hpp	/^        double GetCalEnergy(Identifier& chanID, double ch) const;$/;"	p	class:Calibrator	access:public	signature:(Identifier& chanID, double ch) const
+Calibrator::GetCalEnergy	src/Calibrator.cpp	/^double Calibrator::GetCalEnergy(Identifier& chanID, double ch) const {$/;"	f	class:Calibrator	signature:(Identifier& chanID, double ch) const
+Calibrator::Model_Poly	include/Calibrator.hpp	/^        double Model_Poly(const std::vector<double>& par, double ch) const;$/;"	p	class:Calibrator	access:private	signature:(const std::vector<double>& par, double ch) const
+Calibrator::Model_Poly	src/Calibrator.cpp	/^double Calibrator::Model_Poly(const std::vector<double>& par, double ch) const {$/;"	f	class:Calibrator	signature:(const std::vector<double>& par, double ch) const
+Calibrator::Model_Raw	include/Calibrator.hpp	/^        double Model_Raw(double ch) const;$/;"	p	class:Calibrator	access:private	signature:(double ch) const
+Calibrator::Model_Raw	src/Calibrator.cpp	/^double Calibrator::Model_Raw(double ch) const {$/;"	f	class:Calibrator	signature:(double ch) const
+Calibrator::channels_	include/Calibrator.hpp	/^        std::map<Identifier, std::vector<CalibrationFactor> > channels_;$/;"	m	class:Calibrator	access:private
 CfdAnalyzer	include/CfdAnalyzer.hpp	/^    CfdAnalyzer();$/;"	p	class:CfdAnalyzer	access:public	signature:()
 CfdAnalyzer	include/CfdAnalyzer.hpp	/^class CfdAnalyzer : public TraceAnalyzer,$/;"	c	inherits:TraceAnalyzer,TimingInformation
 CfdAnalyzer	src/CfdAnalyzer.cpp	/^CfdAnalyzer::CfdAnalyzer() : TraceAnalyzer()$/;"	f	class:CfdAnalyzer	signature:()
@@ -768,7 +772,7 @@ DeclareHistogram1D	src/Plots.cpp	/^bool Plots::DeclareHistogram1D(int dammId, in
 DeclareHistogram1D	src/Plots.cpp	/^bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,$/;"	f	class:Plots	signature:(int dammId, int xSize, const char* title, int halfWordsPerChan, int contraction, const string &mne)
 DeclareHistogram1D	src/Plots.cpp	/^bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,$/;"	f	class:Plots	signature:(int dammId, int xSize, const char* title, int halfWordsPerChan, int xHistLength, int xLow, int xHigh, const string &mne)
 DeclareHistogram2D	include/Correlator.hpp	/^    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize, const char* title) {$/;"	f	class:Correlator	access:private	signature:(int dammId, int xSize, int ySize, const char* title)
-DeclareHistogram2D	include/DetectorDriver.hpp	/^    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize, const char* title) {$/;"	f	class:DetectorDriver	access:private	signature:(int dammId, int xSize, int ySize, const char* title)
+DeclareHistogram2D	include/DetectorDriver.hpp	/^    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize,$/;"	f	class:DetectorDriver	access:private	signature:(int dammId, int xSize, int ySize, const char* title)
 DeclareHistogram2D	include/EventProcessor.hpp	/^    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize, const char* title) {$/;"	f	class:EventProcessor	access:protected	signature:(int dammId, int xSize, int ySize, const char* title)
 DeclareHistogram2D	include/Plots.hpp	/^    bool DeclareHistogram2D(int dammId, int xSize, int ySize,$/;"	p	class:Plots	access:public	signature:(int dammId, int xSize, int ySize, const char *title, int halfWordsPerChan, int xHistLength, int xLow, int xHigh, int yHistLength, int yLow, int yHigh, const std::string &mne = emptyString)
 DeclareHistogram2D	include/Plots.hpp	/^    bool DeclareHistogram2D(int dammId, int xSize, int ySize,$/;"	p	class:Plots	access:public	signature:(int dammId, int xSize, int ySize, const char* title, int halfWordPerChan = 1, const std::string &mne = emptyString)
@@ -782,7 +786,7 @@ DeclareHistogramGranY	src/GeProcessor.cpp	/^void GeProcessor::DeclareHistogramGr
 DeclarePlots	include/BetaScintProcessor.hpp	/^    virtual void DeclarePlots(void);$/;"	p	class:BetaScintProcessor	access:public	signature:(void)
 DeclarePlots	include/CfdAnalyzer.hpp	/^    virtual void DeclarePlots(void) const;$/;"	p	class:CfdAnalyzer	access:public	signature:(void) const
 DeclarePlots	include/Correlator.hpp	/^    void DeclarePlots(void);$/;"	p	class:Correlator	access:public	signature:(void)
-DeclarePlots	include/DetectorDriver.hpp	/^    void DeclarePlots(MapFile& theMapFile); \/**< declare the necessary damm plots *\/$/;"	p	class:DetectorDriver	access:public	signature:(MapFile& theMapFile)
+DeclarePlots	include/DetectorDriver.hpp	/^    void DeclarePlots(); \/**< declare the necessary damm plots *\/$/;"	p	class:DetectorDriver	access:public	signature:()
 DeclarePlots	include/DoubleTraceAnalyzer.hpp	/^    virtual void DeclarePlots(void);$/;"	p	class:DoubleTraceAnalyzer	access:public	signature:(void)
 DeclarePlots	include/DssdProcessor.hpp	/^    virtual void DeclarePlots(void);$/;"	p	class:DssdProcessor	access:public	signature:(void)
 DeclarePlots	include/EventProcessor.hpp	/^    virtual void DeclarePlots(void);$/;"	p	class:EventProcessor	access:public	signature:(void)
@@ -813,7 +817,7 @@ DeclarePlots	include/WaveformAnalyzer.hpp	/^    virtual void DeclarePlots(void) 
 DeclarePlots	src/BetaScintProcessor.cpp	/^void BetaScintProcessor::DeclarePlots(void) {$/;"	f	class:BetaScintProcessor	signature:(void)
 DeclarePlots	src/CfdAnalyzer.cpp	/^void CfdAnalyzer::DeclarePlots (void) const $/;"	f	class:CfdAnalyzer	signature:(void) const
 DeclarePlots	src/Correlator.cpp	/^void Correlator::DeclarePlots()$/;"	f	class:Correlator	signature:()
-DeclarePlots	src/DetectorDriver.cpp	/^void DetectorDriver::DeclarePlots(MapFile& theMapFile)$/;"	f	class:DetectorDriver	signature:(MapFile& theMapFile)
+DeclarePlots	src/DetectorDriver.cpp	/^void DetectorDriver::DeclarePlots()$/;"	f	class:DetectorDriver	signature:()
 DeclarePlots	src/DoubleTraceAnalyzer.cpp	/^void DoubleTraceAnalyzer::DeclarePlots()$/;"	f	class:DoubleTraceAnalyzer	signature:()
 DeclarePlots	src/DssdProcessor.cpp	/^void DssdProcessor::DeclarePlots(void)$/;"	f	class:DssdProcessor	signature:(void)
 DeclarePlots	src/EventProcessor.cpp	/^void EventProcessor::DeclarePlots(void)$/;"	f	class:EventProcessor	signature:(void)
@@ -844,16 +848,16 @@ DeclarePlots	src/WaveformAnalyzer.cpp	/^void WaveformAnalyzer::DeclarePlots(void
 DetectorDriver	include/DetectorDriver.hpp	/^    DetectorDriver (const DetectorDriver&);$/;"	p	class:DetectorDriver	access:private	signature:(const DetectorDriver&)
 DetectorDriver	include/DetectorDriver.hpp	/^    DetectorDriver();$/;"	p	class:DetectorDriver	access:private	signature:()
 DetectorDriver	include/DetectorDriver.hpp	/^class DetectorDriver {    $/;"	c
-DetectorDriver	src/DetectorDriver.cpp	/^DetectorDriver::DetectorDriver() : $/;"	f	class:DetectorDriver	signature:()
+DetectorDriver	src/DetectorDriver.cpp	/^DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE) $/;"	f	class:DetectorDriver	signature:()
 DetectorDriver::CorrelateClock	include/DetectorDriver.hpp	/^    void CorrelateClock(double d, time_t t) {$/;"	f	class:DetectorDriver	access:public	signature:(double d, time_t t)
 DetectorDriver::DeclareHistogram1D	include/DetectorDriver.hpp	/^    virtual void DeclareHistogram1D(int dammId, int xSize, const char* title) {$/;"	f	class:DetectorDriver	access:private	signature:(int dammId, int xSize, const char* title)
-DetectorDriver::DeclareHistogram2D	include/DetectorDriver.hpp	/^    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize, const char* title) {$/;"	f	class:DetectorDriver	access:private	signature:(int dammId, int xSize, int ySize, const char* title)
-DetectorDriver::DeclarePlots	include/DetectorDriver.hpp	/^    void DeclarePlots(MapFile& theMapFile); \/**< declare the necessary damm plots *\/$/;"	p	class:DetectorDriver	access:public	signature:(MapFile& theMapFile)
-DetectorDriver::DeclarePlots	src/DetectorDriver.cpp	/^void DetectorDriver::DeclarePlots(MapFile& theMapFile)$/;"	f	class:DetectorDriver	signature:(MapFile& theMapFile)
+DetectorDriver::DeclareHistogram2D	include/DetectorDriver.hpp	/^    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize,$/;"	f	class:DetectorDriver	access:private	signature:(int dammId, int xSize, int ySize, const char* title)
+DetectorDriver::DeclarePlots	include/DetectorDriver.hpp	/^    void DeclarePlots(); \/**< declare the necessary damm plots *\/$/;"	p	class:DetectorDriver	access:public	signature:()
+DetectorDriver::DeclarePlots	src/DetectorDriver.cpp	/^void DetectorDriver::DeclarePlots()$/;"	f	class:DetectorDriver	signature:()
 DetectorDriver::DetectorDriver	include/DetectorDriver.hpp	/^    DetectorDriver (const DetectorDriver&);$/;"	p	class:DetectorDriver	access:private	signature:(const DetectorDriver&)
 DetectorDriver::DetectorDriver	include/DetectorDriver.hpp	/^    DetectorDriver();$/;"	p	class:DetectorDriver	access:private	signature:()
-DetectorDriver::DetectorDriver	src/DetectorDriver.cpp	/^DetectorDriver::DetectorDriver() : $/;"	f	class:DetectorDriver	signature:()
-DetectorDriver::GetProcessors	include/DetectorDriver.hpp	/^    const std::vector<EventProcessor *>& GetProcessors(void) const$/;"	f	class:DetectorDriver	access:public	signature:(void) const
+DetectorDriver::DetectorDriver	src/DetectorDriver.cpp	/^DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE) $/;"	f	class:DetectorDriver	signature:()
+DetectorDriver::GetProcessors	include/DetectorDriver.hpp	/^    const std::vector<EventProcessor *>& GetProcessors(void) const {$/;"	f	class:DetectorDriver	access:public	signature:(void) const
 DetectorDriver::GetProcessors	include/DetectorDriver.hpp	/^    std::vector<EventProcessor *> GetProcessors(const std::string &type) const;$/;"	p	class:DetectorDriver	access:public	signature:(const std::string &type) const
 DetectorDriver::GetProcessors	src/DetectorDriver.cpp	/^vector<EventProcessor *> DetectorDriver::GetProcessors(const string& type) const$/;"	f	class:DetectorDriver	signature:(const string& type) const
 DetectorDriver::GetUsedDetectors	include/DetectorDriver.hpp	/^    const std::set<std::string> &GetUsedDetectors(void) const;$/;"	p	class:DetectorDriver	access:public	signature:(void) const
@@ -868,13 +872,15 @@ DetectorDriver::PlotRaw	include/DetectorDriver.hpp	/^    int PlotRaw(const ChanE
 DetectorDriver::PlotRaw	src/DetectorDriver.cpp	/^int DetectorDriver::PlotRaw(const ChanEvent *chan)$/;"	f	class:DetectorDriver	signature:(const ChanEvent *chan)
 DetectorDriver::ProcessEvent	include/DetectorDriver.hpp	/^    int ProcessEvent(const std::string &, RawEvent& rawev);$/;"	p	class:DetectorDriver	access:public	signature:(const std::string &, RawEvent& rawev)
 DetectorDriver::ProcessEvent	src/DetectorDriver.cpp	/^int DetectorDriver::ProcessEvent(const string &mode, RawEvent& rawev){   $/;"	f	class:DetectorDriver	signature:(const string &mode, RawEvent& rawev)
-DetectorDriver::ReadCal	include/DetectorDriver.hpp	/^    void ReadCal();$/;"	p	class:DetectorDriver	access:public	signature:()
-DetectorDriver::ReadCal	src/DetectorDriver.cpp	/^void DetectorDriver::ReadCal()$/;"	f	class:DetectorDriver	signature:()
-DetectorDriver::SanityCheck	include/DetectorDriver.hpp	/^    bool SanityCheck(void) const;  \/**< check whether everything makes sense *\/$/;"	p	class:DetectorDriver	access:public	signature:(void) const
-DetectorDriver::SanityCheck	src/DetectorDriver.cpp	/^bool DetectorDriver::SanityCheck(void) const$/;"	f	class:DetectorDriver	signature:(void) const
+DetectorDriver::ReadCalXml	include/DetectorDriver.hpp	/^    void ReadCalXml();$/;"	p	class:DetectorDriver	access:private	signature:()
+DetectorDriver::ReadCalXml	src/DetectorDriver.cpp	/^void DetectorDriver::ReadCalXml() {$/;"	f	class:DetectorDriver	signature:()
+DetectorDriver::ReadWalkXml	include/DetectorDriver.hpp	/^    void ReadWalkXml();$/;"	p	class:DetectorDriver	access:private	signature:()
+DetectorDriver::ReadWalkXml	src/DetectorDriver.cpp	/^void DetectorDriver::ReadWalkXml() {$/;"	f	class:DetectorDriver	signature:()
+DetectorDriver::SanityCheck	include/DetectorDriver.hpp	/^    void SanityCheck(void) const;  \/**< check whether everything makes sense *\/$/;"	p	class:DetectorDriver	access:public	signature:(void) const
+DetectorDriver::SanityCheck	src/DetectorDriver.cpp	/^void DetectorDriver::SanityCheck(void) const$/;"	f	class:DetectorDriver	signature:(void) const
 DetectorDriver::ThreshAndCal	include/DetectorDriver.hpp	/^    int ThreshAndCal(ChanEvent *, RawEvent& rawev);$/;"	p	class:DetectorDriver	access:public	signature:(ChanEvent *, RawEvent& rawev)
 DetectorDriver::ThreshAndCal	src/DetectorDriver.cpp	/^int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)$/;"	f	class:DetectorDriver	signature:(ChanEvent *chan, RawEvent& rawev)
-DetectorDriver::cal	include/DetectorDriver.hpp	/^    std::vector<Calibration> cal;    \/**<the calibration vector*\/ $/;"	m	class:DetectorDriver	access:public
+DetectorDriver::cali	include/DetectorDriver.hpp	/^    Calibrator cali;$/;"	m	class:DetectorDriver	access:public
 DetectorDriver::get	include/DetectorDriver.hpp	/^    static DetectorDriver* get();$/;"	p	class:DetectorDriver	access:public	signature:()
 DetectorDriver::get	src/DetectorDriver.cpp	/^DetectorDriver* DetectorDriver::get() {$/;"	f	class:DetectorDriver	signature:()
 DetectorDriver::histo	include/DetectorDriver.hpp	/^    Plots histo;$/;"	m	class:DetectorDriver	access:public
@@ -882,20 +888,21 @@ DetectorDriver::instance	include/DetectorDriver.hpp	/^    static DetectorDriver*
 DetectorDriver::knownDetectors	include/DetectorDriver.hpp	/^    std::set<std::string> knownDetectors; \/**< list of valid detectors that can $/;"	m	class:DetectorDriver	access:private
 DetectorDriver::operator =	include/DetectorDriver.hpp	/^    DetectorDriver& operator= (DetectorDriver const&);$/;"	p	class:DetectorDriver	access:private	signature:(DetectorDriver const&)
 DetectorDriver::pixieToWallClock	include/DetectorDriver.hpp	/^    std::pair<double, time_t> pixieToWallClock; \/**< rough estimate of pixie to wall clock *\/ $/;"	m	class:DetectorDriver	access:private
-DetectorDriver::plot	include/DetectorDriver.hpp	/^    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {$/;"	f	class:DetectorDriver	access:public	signature:(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name=Ó)
+DetectorDriver::plot	include/DetectorDriver.hpp	/^    virtual void plot(int dammId, double val1, double val2 = -1,$/;"	f	class:DetectorDriver	access:public	signature:(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name=Ó)
 DetectorDriver::vecAnalyzer	include/DetectorDriver.hpp	/^    std::vector<TraceAnalyzer *> vecAnalyzer; \/**< object which analyzes traces of channels to extract$/;"	m	class:DetectorDriver	access:private
 DetectorDriver::vecProcess	include/DetectorDriver.hpp	/^    std::vector<EventProcessor *> vecProcess; \/**< vector of processors to handle each event *\/$/;"	m	class:DetectorDriver	access:private
+DetectorDriver::walk	include/DetectorDriver.hpp	/^    WalkCorrector walk;$/;"	m	class:DetectorDriver	access:public
 DetectorDriver::~DetectorDriver	include/DetectorDriver.hpp	/^    ~DetectorDriver();$/;"	p	class:DetectorDriver	access:public	signature:()
 DetectorDriver::~DetectorDriver	src/DetectorDriver.cpp	/^DetectorDriver::~DetectorDriver()$/;"	f	class:DetectorDriver	signature:()
 DetectorLibrary	include/DetectorLibrary.hpp	/^    DetectorLibrary (const DetectorLibrary&);$/;"	p	class:DetectorLibrary	access:private	signature:(const DetectorLibrary&)
 DetectorLibrary	include/DetectorLibrary.hpp	/^    DetectorLibrary();$/;"	p	class:DetectorLibrary	access:private	signature:()
 DetectorLibrary	include/DetectorLibrary.hpp	/^class DetectorLibrary : public std::vector<Identifier>$/;"	c	inherits:std::vector
-DetectorLibrary	src/DetectorLibrary.cpp	/^DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations()$/;"	f	class:DetectorLibrary	signature:()
+DetectorLibrary	src/DetectorLibrary.cpp	/^DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations(), numModules(0)$/;"	f	class:DetectorLibrary	signature:()
 DetectorLibrary::ChannelFromIndex	include/DetectorLibrary.hpp	/^    int ChannelFromIndex(int index) const;$/;"	p	class:DetectorLibrary	access:public	signature:(int index) const
 DetectorLibrary::ChannelFromIndex	src/DetectorLibrary.cpp	/^int DetectorLibrary::ChannelFromIndex(int index) const$/;"	f	class:DetectorLibrary	signature:(int index) const
 DetectorLibrary::DetectorLibrary	include/DetectorLibrary.hpp	/^    DetectorLibrary (const DetectorLibrary&);$/;"	p	class:DetectorLibrary	access:private	signature:(const DetectorLibrary&)
 DetectorLibrary::DetectorLibrary	include/DetectorLibrary.hpp	/^    DetectorLibrary();$/;"	p	class:DetectorLibrary	access:private	signature:()
-DetectorLibrary::DetectorLibrary	src/DetectorLibrary.cpp	/^DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations()$/;"	f	class:DetectorLibrary	signature:()
+DetectorLibrary::DetectorLibrary	src/DetectorLibrary.cpp	/^DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations(), numModules(0)$/;"	f	class:DetectorLibrary	signature:()
 DetectorLibrary::GetIndex	include/DetectorLibrary.hpp	/^    size_type GetIndex(int mod, int chan) const;$/;"	p	class:DetectorLibrary	access:public	signature:(int mod, int chan) const
 DetectorLibrary::GetIndex	src/DetectorLibrary.cpp	/^DetectorLibrary::size_type DetectorLibrary::GetIndex(int mod, int chan) const$/;"	f	class:DetectorLibrary	signature:(int mod, int chan) const
 DetectorLibrary::GetKnownDetectors	include/DetectorLibrary.hpp	/^    const std::set<std::string>& GetKnownDetectors(void); $/;"	p	class:DetectorLibrary	access:public	signature:(void)
@@ -916,6 +923,8 @@ DetectorLibrary::HasValue	include/DetectorLibrary.hpp	/^    bool HasValue(int in
 DetectorLibrary::HasValue	include/DetectorLibrary.hpp	/^    bool HasValue(int mod, int chan) const;$/;"	p	class:DetectorLibrary	access:public	signature:(int mod, int chan) const
 DetectorLibrary::HasValue	src/DetectorLibrary.cpp	/^bool DetectorLibrary::HasValue(int index) const$/;"	f	class:DetectorLibrary	signature:(int index) const
 DetectorLibrary::HasValue	src/DetectorLibrary.cpp	/^bool DetectorLibrary::HasValue(int mod, int chan) const$/;"	f	class:DetectorLibrary	signature:(int mod, int chan) const
+DetectorLibrary::LoadXml	include/DetectorLibrary.hpp	/^    void LoadXml();$/;"	p	class:DetectorLibrary	access:private	signature:()
+DetectorLibrary::LoadXml	src/DetectorLibrary.cpp	/^void DetectorLibrary::LoadXml() {$/;"	f	class:DetectorLibrary	signature:()
 DetectorLibrary::MakeKey	include/DetectorLibrary.hpp	/^    mapkey_t MakeKey( const std::string &type, const std::string &subtype ) const;$/;"	p	class:DetectorLibrary	access:private	signature:( const std::string &type, const std::string &subtype ) const
 DetectorLibrary::MakeKey	src/DetectorLibrary.cpp	/^DetectorLibrary::mapkey_t DetectorLibrary::MakeKey(const string &type, const string &subtype) const$/;"	f	class:DetectorLibrary	signature:(const string &type, const string &subtype) const
 DetectorLibrary::ModuleFromIndex	include/DetectorLibrary.hpp	/^    int ModuleFromIndex(int index) const;$/;"	p	class:DetectorLibrary	access:public	signature:(int index) const
@@ -1300,7 +1309,9 @@ Generate	src/RandomPool.cpp	/^void RandomPool::Generate(void)$/;"	f	class:Random
 Get	include/RandomPool.hpp	/^    double Get(double range=1); $/;"	p	class:RandomPool	access:public	signature:(double range=1)
 Get	src/RandomPool.cpp	/^double RandomPool::Get(double range)$/;"	f	class:RandomPool	signature:(double range)
 GetArgument	include/GetArguments.hpp	/^inline void GetArgument(int i, char *arg, int length)$/;"	f	signature:(int i, char *arg, int length)
+GetCalEnergy	include/Calibrator.hpp	/^        double GetCalEnergy(Identifier& chanID, double ch) const;$/;"	p	class:Calibrator	access:public	signature:(Identifier& chanID, double ch) const
 GetCalEnergy	include/ChanEvent.hpp	/^    double GetCalEnergy() const   {return calEnergy;}   \/**< Get the calibrated energy *\/$/;"	f	class:ChanEvent	access:public	signature:() const
+GetCalEnergy	src/Calibrator.cpp	/^double Calibrator::GetCalEnergy(Identifier& chanID, double ch) const {$/;"	f	class:Calibrator	signature:(Identifier& chanID, double ch) const
 GetCalTime	include/ChanEvent.hpp	/^    double GetCalTime() const     {return calTime;}    \/**< Get the calibrated time *\/$/;"	f	class:ChanEvent	access:public	signature:() const
 GetChanID	include/ChanEvent.hpp	/^    const Identifier& GetChanID() const; \/**< Get the channel identifier *\/$/;"	p	class:ChanEvent	access:public	signature:() const
 GetChanID	src/ChanEvent.cpp	/^const Identifier& ChanEvent::GetChanID() const$/;"	f	class:ChanEvent	signature:() const
@@ -1309,8 +1320,8 @@ GetConfigPath	include/PathHolder.hpp	/^        std::string GetConfigPath () {$/;
 GetConstant	include/TimingInformation.hpp	/^    static double GetConstant(const std::string &value);$/;"	p	class:TimingInformation	access:public	signature:(const std::string &value)
 GetConstant	src/TimingInformation.cpp	/^double TimingInformation::GetConstant(const string &name)$/;"	f	class:TimingInformation	signature:(const string &name)
 GetCorrectedTime	include/ChanEvent.hpp	/^    double GetCorrectedTime() const {return correctedTime;} \/**< Get the corrected time *\/$/;"	f	class:ChanEvent	access:public	signature:() const
-GetCorrection	include/WalkCorrector.hpp	/^        double GetCorrection(Identifier& chanID, int ch) const;$/;"	p	class:WalkCorrector	access:public	signature:(Identifier& chanID, int ch) const
-GetCorrection	src/WalkCorrector.cpp	/^double WalkCorrector::GetCorrection(Identifier& chanID, int ch) const {$/;"	f	class:WalkCorrector	signature:(Identifier& chanID, int ch) const
+GetCorrection	include/WalkCorrector.hpp	/^        double GetCorrection(Identifier& chanID, double ch) const;$/;"	p	class:WalkCorrector	access:public	signature:(Identifier& chanID, double ch) const
+GetCorrection	src/WalkCorrector.cpp	/^double WalkCorrector::GetCorrection(Identifier& chanID, double ch) const {$/;"	f	class:WalkCorrector	signature:(Identifier& chanID, double ch) const
 GetCorrelator	include/RawEvent.hpp	/^    Correlator &GetCorrelator()$/;"	f	class:RawEvent	access:public	signature:()
 GetCurrTime	include/StatsData.hpp	/^    double GetCurrTime(unsigned int id) const;$/;"	p	class:StatsData	access:public	signature:(unsigned int id) const
 GetCurrTime	src/StatsData.cpp	/^double StatsData::GetCurrTime(unsigned int id) const$/;"	f	class:StatsData	signature:(unsigned int id) const
@@ -1366,7 +1377,7 @@ GetNumberArguments	include/GetArguments.hpp	/^inline int GetNumberArguments(void
 GetOffset	include/Plots.hpp	/^    int GetOffset() { return offset_; }$/;"	f	class:Plots	access:public	signature:()
 GetPhysicalModules	include/DetectorLibrary.hpp	/^    unsigned int GetPhysicalModules() const {return numPhysicalModules;}$/;"	f	class:DetectorLibrary	access:public	signature:() const
 GetPlaceName	include/ChanIdentifier.hpp	/^    std::string GetPlaceName() const {$/;"	f	class:Identifier	access:public	signature:() const
-GetProcessors	include/DetectorDriver.hpp	/^    const std::vector<EventProcessor *>& GetProcessors(void) const$/;"	f	class:DetectorDriver	access:public	signature:(void) const
+GetProcessors	include/DetectorDriver.hpp	/^    const std::vector<EventProcessor *>& GetProcessors(void) const {$/;"	f	class:DetectorDriver	access:public	signature:(void) const
 GetProcessors	include/DetectorDriver.hpp	/^    std::vector<EventProcessor *> GetProcessors(const std::string &type) const;$/;"	p	class:DetectorDriver	access:public	signature:(const std::string &type) const
 GetProcessors	src/DetectorDriver.cpp	/^vector<EventProcessor *> DetectorDriver::GetProcessors(const string& type) const$/;"	f	class:DetectorDriver	signature:(const string& type) const
 GetQdcValue	include/ChanEvent.hpp	/^    unsigned long GetQdcValue(int i) const; \/**< Get an onboard QDC value *\/$/;"	p	class:ChanEvent	access:public	signature:(int i) const
@@ -1416,8 +1427,6 @@ HasValue	include/DetectorLibrary.hpp	/^    bool HasValue(int mod, int chan) cons
 HasValue	include/Trace.hpp	/^    bool HasValue(std::string name) const {$/;"	f	class:Trace	access:public	signature:(std::string name) const
 HasValue	src/DetectorLibrary.cpp	/^bool DetectorLibrary::HasValue(int index) const$/;"	f	class:DetectorLibrary	signature:(int index) const
 HasValue	src/DetectorLibrary.cpp	/^bool DetectorLibrary::HasValue(int mod, int chan) const$/;"	f	class:DetectorLibrary	signature:(int mod, int chan) const
-HasWildcard	include/MapFile.hpp	/^    bool HasWildcard(const std::string &str) const;$/;"	p	class:MapFile	access:private	signature:(const std::string &str) const
-HasWildcard	src/MapFile.cpp	/^bool MapFile::HasWildcard(const string &str) const$/;"	f	class:MapFile	signature:(const string &str) const
 Hen3Processor	include/Hen3Processor.hpp	/^    Hen3Processor(); $/;"	p	class:Hen3Processor	access:public	signature:()
 Hen3Processor	include/Hen3Processor.hpp	/^class Hen3Processor : public EventProcessor$/;"	c	inherits:EventProcessor
 Hen3Processor	src/Hen3Processor.cpp	/^Hen3Processor::Hen3Processor() : EventProcessor(OFFSET, RANGE)$/;"	f	class:Hen3Processor	signature:()
@@ -1740,6 +1749,10 @@ LitePositionProcessor::totLen	include/LitePositionProcessor.hpp	/^    float totL
 LitePositionProcessor::whichQdc	include/LitePositionProcessor.hpp	/^    int whichQdc;          \/\/< which qdc we are using for position determinatio$/;"	m	class:LitePositionProcessor	access:protected
 LoadProcessors	include/DetectorDriver.hpp	/^    void LoadProcessors(Messenger& m);$/;"	p	class:DetectorDriver	access:private	signature:(Messenger& m)
 LoadProcessors	src/DetectorDriver.cpp	/^void DetectorDriver::LoadProcessors(Messenger& m) {$/;"	f	class:DetectorDriver	signature:(Messenger& m)
+LoadXml	include/DetectorLibrary.hpp	/^    void LoadXml();$/;"	p	class:DetectorLibrary	access:private	signature:()
+LoadXml	include/MapFile.hpp	/^    void LoadXml();$/;"	p	class:MapFile	access:private	signature:()
+LoadXml	src/DetectorLibrary.cpp	/^void DetectorLibrary::LoadXml() {$/;"	f	class:DetectorLibrary	signature:()
+LoadXml	src/MapFile.cpp	/^void MapFile::LoadXml() {$/;"	f	class:MapFile	signature:()
 LogicProcessor	include/LogicProcessor.hpp	/^    LogicProcessor();$/;"	p	class:LogicProcessor	access:public	signature:()
 LogicProcessor	include/LogicProcessor.hpp	/^    LogicProcessor(int offset, int range);$/;"	p	class:LogicProcessor	access:public	signature:(int offset, int range)
 LogicProcessor	include/LogicProcessor.hpp	/^class LogicProcessor : public EventProcessor {$/;"	c	inherits:EventProcessor
@@ -1898,16 +1911,10 @@ MakeModuleData	src/PixieStd.cpp	/^bool MakeModuleData(const word_t *data, unsign
 MapFile	include/MapFile.hpp	/^    MapFile(const std::string &filename = "map2.txt");$/;"	p	class:MapFile	access:public	signature:(const std::string &filename = Ó)
 MapFile	include/MapFile.hpp	/^class MapFile$/;"	c
 MapFile	src/MapFile.cpp	/^MapFile::MapFile(const string &filename \/*="map2.txt"*\/)$/;"	f	class:MapFile	signature:(const string &filename )
-MapFile::HasWildcard	include/MapFile.hpp	/^    bool HasWildcard(const std::string &str) const;$/;"	p	class:MapFile	access:private	signature:(const std::string &str) const
-MapFile::HasWildcard	src/MapFile.cpp	/^bool MapFile::HasWildcard(const string &str) const$/;"	f	class:MapFile	signature:(const string &str) const
+MapFile::LoadXml	include/MapFile.hpp	/^    void LoadXml();$/;"	p	class:MapFile	access:private	signature:()
+MapFile::LoadXml	src/MapFile.cpp	/^void MapFile::LoadXml() {$/;"	f	class:MapFile	signature:()
 MapFile::MapFile	include/MapFile.hpp	/^    MapFile(const std::string &filename = "map2.txt");$/;"	p	class:MapFile	access:public	signature:(const std::string &filename = Ó)
 MapFile::MapFile	src/MapFile.cpp	/^MapFile::MapFile(const string &filename \/*="map2.txt"*\/)$/;"	f	class:MapFile	signature:(const string &filename )
-MapFile::ProcessTokenList	include/MapFile.hpp	/^    void ProcessTokenList(const std::vector<std::string> &list) const;$/;"	p	class:MapFile	access:private	signature:(const std::vector<std::string> &list) const
-MapFile::ProcessTokenList	src/MapFile.cpp	/^void MapFile::ProcessTokenList(const vector<string> &tokenList) const$/;"	f	class:MapFile	signature:(const vector<string> &tokenList) const
-MapFile::TokenToVector	include/MapFile.hpp	/^    void TokenToVector(std::string token, std::vector<int> &list, int number) const;$/;"	p	class:MapFile	access:private	signature:(std::string token, std::vector<int> &list, int number) const
-MapFile::TokenToVector	src/MapFile.cpp	/^void MapFile::TokenToVector(string token, vector<int> &list, int number) const$/;"	f	class:MapFile	signature:(string token, vector<int> &list, int number) const
-MapFile::TokenizeString	include/MapFile.hpp	/^    void TokenizeString(const std::string &in, std::vector<std::string> &out) const;$/;"	p	class:MapFile	access:private	signature:(const std::string &in, std::vector<std::string> &out) const
-MapFile::TokenizeString	src/MapFile.cpp	/^void MapFile::TokenizeString(const string &in, vector<string> &out) const$/;"	f	class:MapFile	signature:(const string &in, vector<string> &out) const
 MapFile::defaultFile	include/MapFile.hpp	/^    static const std::string defaultFile; \/\/\/< default map file$/;"	m	class:MapFile	access:public
 MapFile::isRead	include/MapFile.hpp	/^    bool isRead;$/;"	m	class:MapFile	access:private
 MapFile::operator bool	include/MapFile.hpp	/^    operator bool() {return isRead;} \/\/\/< is the map file valid$/;"	f	class:MapFile	access:public	signature:()
@@ -1939,8 +1946,8 @@ Messenger	include/Messenger.hpp	/^        Messenger (const std::string& name) {$
 Messenger	include/Messenger.hpp	/^class Messenger {$/;"	c
 Messenger::Messenger	include/Messenger.hpp	/^        Messenger () {$/;"	f	class:Messenger	access:public	signature:()
 Messenger::Messenger	include/Messenger.hpp	/^        Messenger (const std::string& name) {$/;"	f	class:Messenger	access:public	signature:(const std::string& name)
-Messenger::detail	include/Messenger.hpp	/^        void detail(std::string msg, short level = 0);$/;"	p	class:Messenger	access:public	signature:(std::string msg, short level = 0)
-Messenger::detail	src/Messenger.cpp	/^void Messenger::detail(std::string msg, short level \/*= 0*\/) {$/;"	f	class:Messenger	signature:(std::string msg, short level )
+Messenger::detail	include/Messenger.hpp	/^        void detail(std::string msg, short level = 0, std::string symbol = "*");$/;"	p	class:Messenger	access:public	signature:(std::string msg, short level = 0, std::string symbol = Ó)
+Messenger::detail	src/Messenger.cpp	/^void Messenger::detail(std::string msg, short level \/*= 0*\/,$/;"	f	class:Messenger	signature:(std::string msg, short level , std::string symbol )
 Messenger::done	include/Messenger.hpp	/^        void done() {$/;"	f	class:Messenger	access:public	signature:()
 Messenger::endline_	include/Messenger.hpp	/^        static bool endline_;$/;"	m	class:Messenger	access:private
 Messenger::endline_	src/Messenger.cpp	/^bool Messenger::endline_ = true;$/;"	m	class:Messenger	file:
@@ -1948,12 +1955,20 @@ Messenger::fail	include/Messenger.hpp	/^        void fail() {$/;"	f	class:Messen
 Messenger::file_	include/Messenger.hpp	/^        bool file_;$/;"	m	class:Messenger	access:private
 Messenger::fout_	include/Messenger.hpp	/^        std::ofstream fout_;$/;"	m	class:Messenger	access:private
 Messenger::out_	include/Messenger.hpp	/^        std::ostream* out_;$/;"	m	class:Messenger	access:private
+Messenger::run_message	include/Messenger.hpp	/^        void run_message(std::string msg);$/;"	p	class:Messenger	access:public	signature:(std::string msg)
+Messenger::run_message	src/Messenger.cpp	/^void Messenger::run_message(std::string msg) {$/;"	f	class:Messenger	signature:(std::string msg)
 Messenger::start	include/Messenger.hpp	/^        void start(std::string msg) {$/;"	f	class:Messenger	access:public	signature:(std::string msg)
+Messenger::warning	include/Messenger.hpp	/^        void warning(std::string msg);$/;"	p	class:Messenger	access:public	signature:(std::string msg)
+Messenger::warning	src/Messenger.cpp	/^void Messenger::warning(std::string msg) {$/;"	f	class:Messenger	signature:(std::string msg)
 Messenger::~Messenger	include/Messenger.hpp	/^        ~Messenger() {$/;"	f	class:Messenger	access:public	signature:()
-Model_A	include/WalkCorrector.hpp	/^        double Model_A(const std::vector<double>& par, int ch) const;$/;"	p	class:WalkCorrector	access:private	signature:(const std::vector<double>& par, int ch) const
-Model_A	src/WalkCorrector.cpp	/^double WalkCorrector::Model_A(const std::vector<double>& par, int ch) const {$/;"	f	class:WalkCorrector	signature:(const std::vector<double>& par, int ch) const
+Model_A	include/WalkCorrector.hpp	/^        double Model_A(const std::vector<double>& par, double ch) const;$/;"	p	class:WalkCorrector	access:private	signature:(const std::vector<double>& par, double ch) const
+Model_A	src/WalkCorrector.cpp	/^double WalkCorrector::Model_A(const std::vector<double>& par, double ch) const {$/;"	f	class:WalkCorrector	signature:(const std::vector<double>& par, double ch) const
 Model_None	include/WalkCorrector.hpp	/^        double Model_None() const;$/;"	p	class:WalkCorrector	access:private	signature:() const
 Model_None	src/WalkCorrector.cpp	/^double WalkCorrector::Model_None() const {$/;"	f	class:WalkCorrector	signature:() const
+Model_Poly	include/Calibrator.hpp	/^        double Model_Poly(const std::vector<double>& par, double ch) const;$/;"	p	class:Calibrator	access:private	signature:(const std::vector<double>& par, double ch) const
+Model_Poly	src/Calibrator.cpp	/^double Calibrator::Model_Poly(const std::vector<double>& par, double ch) const {$/;"	f	class:Calibrator	signature:(const std::vector<double>& par, double ch) const
+Model_Raw	include/Calibrator.hpp	/^        double Model_Raw(double ch) const;$/;"	p	class:Calibrator	access:private	signature:(double ch) const
+Model_Raw	src/Calibrator.cpp	/^double Calibrator::Model_Raw(double ch) const {$/;"	f	class:Calibrator	signature:(double ch) const
 ModuleFromIndex	include/DetectorLibrary.hpp	/^    int ModuleFromIndex(int index) const;$/;"	p	class:DetectorLibrary	access:public	signature:(int index) const
 ModuleFromIndex	src/DetectorLibrary.cpp	/^int DetectorLibrary::ModuleFromIndex(int index) const$/;"	f	class:DetectorLibrary	signature:(int index) const
 MtcProcessor	include/MtcProcessor.hpp	/^    MtcProcessor();$/;"	p	class:MtcProcessor	access:public	signature:()
@@ -2172,8 +2187,6 @@ PathHolder::SetPath	include/PathHolder.hpp	/^        void SetPath(std::string fi
 PathHolder::SetPath	src/PathHolder.cpp	/^void PathHolder::SetPath (std::string fileName) {$/;"	f	class:PathHolder	signature:(std::string fileName)
 PathHolder::path_	include/PathHolder.hpp	/^        static std::string path_;$/;"	m	class:PathHolder	access:private
 PathHolder::path_	src/PathHolder.cpp	/^std::string PathHolder::path_ = ".";$/;"	m	class:PathHolder	file:
-Pixie16Error	src/PixieStd.cpp	/^void Pixie16Error(int errorNum)$/;"	f	signature:(int errorNum)
-Pixie16Error	src/PixieStd.cpp	/^void Pixie16Error(int errornum);$/;"	p	file:	signature:(int errornum)
 Place	include/Places.hpp	/^        Place(bool resetable = true, unsigned max_size = 2) {$/;"	f	class:Place	access:public	signature:(bool resetable = true, unsigned max_size = 2)
 Place	include/Places.hpp	/^class Place {$/;"	c
 Place::Place	include/Places.hpp	/^        Place(bool resetable = true, unsigned max_size = 2) {$/;"	f	class:Place	access:public	signature:(bool resetable = true, unsigned max_size = 2)
@@ -2330,6 +2343,7 @@ PlotsRegister::get	src/PlotsRegister.cpp	/^PlotsRegister* PlotsRegister::get() {
 PlotsRegister::instance	include/PlotsRegister.hpp	/^        static PlotsRegister* instance;$/;"	m	class:PlotsRegister	access:private
 PlotsRegister::operator =	include/PlotsRegister.hpp	/^        PlotsRegister& operator= (PlotsRegister const&);$/;"	p	class:PlotsRegister	access:private	signature:(PlotsRegister const&)
 PlotsRegister::reg	include/PlotsRegister.hpp	/^        std::vector< std::pair<int, int> > reg;$/;"	m	class:PlotsRegister	access:private
+Poly	include/Calibrator.hpp	/^    Poly$/;"	e	enum:CalibrationModel
 PositionProcessor	include/PositionProcessor.hpp	/^    PositionProcessor(); \/\/ no virtual c'tors$/;"	p	class:PositionProcessor	access:public	signature:()
 PositionProcessor	include/PositionProcessor.hpp	/^class PositionProcessor : public EventProcessor$/;"	c	inherits:EventProcessor
 PositionProcessor	src/LitePositionProcessor.cpp	/^LitePositionProcessor::PositionProcessor() : EventProcessor(OFFSET, RANGE)$/;"	f	class:LitePositionProcessor	signature:()
@@ -2434,8 +2448,6 @@ Process	src/TriggerLogicProcessor.cpp	/^bool TriggerLogicProcessor::Process(RawE
 Process	src/VandleProcessor.cpp	/^bool VandleProcessor::Process(RawEvent &event) $/;"	f	class:VandleProcessor	signature:(RawEvent &event)
 ProcessEvent	include/DetectorDriver.hpp	/^    int ProcessEvent(const std::string &, RawEvent& rawev);$/;"	p	class:DetectorDriver	access:public	signature:(const std::string &, RawEvent& rawev)
 ProcessEvent	src/DetectorDriver.cpp	/^int DetectorDriver::ProcessEvent(const string &mode, RawEvent& rawev){   $/;"	f	class:DetectorDriver	signature:(const string &mode, RawEvent& rawev)
-ProcessTokenList	include/MapFile.hpp	/^    void ProcessTokenList(const std::vector<std::string> &list) const;$/;"	p	class:MapFile	access:private	signature:(const std::vector<std::string> &list) const
-ProcessTokenList	src/MapFile.cpp	/^void MapFile::ProcessTokenList(const vector<string> &tokenList) const$/;"	f	class:MapFile	signature:(const vector<string> &tokenList) const
 PulseInfo	include/TraceFilterer.hpp	/^	PulseInfo(Trace::size_type theTime, double theEnergy);$/;"	p	struct:TraceFilterer::PulseInfo	access:public	signature:(Trace::size_type theTime, double theEnergy)
 PulseInfo	include/TraceFilterer.hpp	/^	PulseInfo(void);$/;"	p	struct:TraceFilterer::PulseInfo	access:public	signature:(void)
 PulseInfo	include/TraceFilterer.hpp	/^    struct PulseInfo {$/;"	s	class:TraceFilterer	access:protected
@@ -2495,7 +2507,7 @@ RESUME_RUN	include/pixie16app_defs.h	166;"	d
 RETN	scan/scanof.f	/^      INTEGER*4    RETN,/;"	v
 RETN	scan/scanor.f	/^      INTEGER*4    RETN,/;"	v
 RETN	scan/scanorux.f	/^      INTEGER*4    RETN,/;"	v
-REVISIOND	Makefile	/^REVISIOND = 1$/;"	m
+REVISIONF	Makefile	/^REVISIONF = 1$/;"	m
 ROOTCONFIG	Makefile	/^ROOTCONFIG   := root-config$/;"	m
 ROOTPROCESSORO	Makefile	/^ROOTPROCESSORO   = RootProcessor.$(ObjSuf)$/;"	m
 RandomPool	include/RandomPool.hpp	/^    RandomPool (const RandomPool&);$/;"	p	class:RandomPool	access:private	signature:(const RandomPool&)
@@ -2518,6 +2530,7 @@ RandomPool::instance	src/RandomPool.cpp	/^RandomPool* RandomPool::instance = NUL
 RandomPool::numbers	include/RandomPool.hpp	/^    double numbers[size]; \/\/\/< the pool of random numbers$/;"	m	class:RandomPool	access:private
 RandomPool::operator =	include/RandomPool.hpp	/^    RandomPool& operator= (RandomPool const&);$/;"	p	class:RandomPool	access:private	signature:(RandomPool const&)
 RandomPool::size	include/RandomPool.hpp	/^    static const size_t size = 1000000; \/\/\/< default size of the pool$/;"	m	class:RandomPool	access:private
+Raw	include/Calibrator.hpp	/^    Raw,$/;"	e	enum:CalibrationModel
 RawEvent	include/RawEvent.hpp	/^    RawEvent();$/;"	p	class:RawEvent	access:public	signature:()
 RawEvent	include/RawEvent.hpp	/^class RawEvent$/;"	c
 RawEvent	src/RawEvent.cpp	/^RawEvent::RawEvent()$/;"	f	class:RawEvent	signature:()
@@ -2547,13 +2560,14 @@ ReadBuffData	include/ChanEvent.hpp	/^    friend int ReadBuffData(pixie::word_t *
 ReadBuffData	src/PixieStd.cpp	/^int ReadBuffData(word_t *lbuf, unsigned long *BufLen,$/;"	p	file:	signature:(word_t *lbuf, unsigned long *BufLen, vector<ChanEvent *> &eventList)
 ReadBuffData	src/ReadBuffData.RevD.cpp	/^int ReadBuffData(word_t *buf, unsigned long *bufLen,$/;"	f	signature:(word_t *buf, unsigned long *bufLen, vector<ChanEvent*> &eventList)
 ReadBuffData	src/ReadBuffData.cpp	/^int ReadBuffData(word_t *buf, unsigned long *bufLen,$/;"	f	signature:(word_t *buf, unsigned long *bufLen, vector<ChanEvent*> &eventList)
-ReadCal	include/DetectorDriver.hpp	/^    friend void DetectorDriver::ReadCal(void);$/;"	p	class:Calibration::DetectorDriver	access:friend	signature:(void)
-ReadCal	include/DetectorDriver.hpp	/^    void ReadCal();$/;"	p	class:DetectorDriver	access:public	signature:()
-ReadCal	src/DetectorDriver.cpp	/^void DetectorDriver::ReadCal()$/;"	f	class:DetectorDriver	signature:()
+ReadCalXml	include/DetectorDriver.hpp	/^    void ReadCalXml();$/;"	p	class:DetectorDriver	access:private	signature:()
+ReadCalXml	src/DetectorDriver.cpp	/^void DetectorDriver::ReadCalXml() {$/;"	f	class:DetectorDriver	signature:()
 ReadTimingCalibration	include/TimingInformation.hpp	/^    static void ReadTimingCalibration(void);$/;"	p	class:TimingInformation	access:public	signature:(void)
 ReadTimingCalibration	src/TimingInformation.cpp	/^void TimingInformation::ReadTimingCalibration(void)$/;"	f	class:TimingInformation	signature:(void)
 ReadTimingConstants	include/TimingInformation.hpp	/^    static void ReadTimingConstants(void);$/;"	p	class:TimingInformation	access:public	signature:(void)
 ReadTimingConstants	src/TimingInformation.cpp	/^void TimingInformation::ReadTimingConstants(void)$/;"	f	class:TimingInformation	signature:(void)
+ReadWalkXml	include/DetectorDriver.hpp	/^    void ReadWalkXml();$/;"	p	class:DetectorDriver	access:private	signature:()
+ReadWalkXml	src/DetectorDriver.cpp	/^void DetectorDriver::ReadWalkXml() {$/;"	f	class:DetectorDriver	signature:()
 RemoveList	src/PixieStd.cpp	/^void RemoveList(vector<ChanEvent*> &eventList)$/;"	f	signature:(vector<ChanEvent*> &eventList)
 RemoveList	src/PixieStd.cpp	/^void RemoveList(vector<ChanEvent*> &eventList);$/;"	p	file:	signature:(vector<ChanEvent*> &eventList)
 RetrieveData	include/PulserProcessor.hpp	/^    virtual bool RetrieveData(RawEvent &event);$/;"	p	class:PulserProcessor	access:private	signature:(RawEvent &event)
@@ -2644,8 +2658,8 @@ SUMEVTS	scan/scanof.f	/^      REAL*8         STRBUFEVT,NUMBUFEVTS,BUF_NUM,LASTEV
 SUMEVTS	scan/scanor.f	/^      REAL*8         STRBUFEVT,NUMBUFEVTS,BUF_NUM,LASTEVT,SUMEVTS,/;"	v
 SUMEVTS	scan/scanorux.f	/^      REAL*8         STRBUFEVT,NUMBUFEVTS,BUF_NUM,LASTEVT,SUMEVTS,/;"	v
 SYSTEM_CLOCK_MHZ	include/pixie16app_defs.h	149;"	d
-SanityCheck	include/DetectorDriver.hpp	/^    bool SanityCheck(void) const;  \/**< check whether everything makes sense *\/$/;"	p	class:DetectorDriver	access:public	signature:(void) const
-SanityCheck	src/DetectorDriver.cpp	/^bool DetectorDriver::SanityCheck(void) const$/;"	f	class:DetectorDriver	signature:(void) const
+SanityCheck	include/DetectorDriver.hpp	/^    void SanityCheck(void) const;  \/**< check whether everything makes sense *\/$/;"	p	class:DetectorDriver	access:public	signature:(void) const
+SanityCheck	src/DetectorDriver.cpp	/^void DetectorDriver::SanityCheck(void) const$/;"	f	class:DetectorDriver	signature:(void) const
 ScalePlot	include/Trace.hpp	/^    void ScalePlot(int id, double scale); \/\/< plot trace absolute value and scaled into a 1D histogram$/;"	p	class:Trace	access:public	signature:(int id, double scale)
 ScalePlot	include/Trace.hpp	/^    void ScalePlot(int id, int row, double scale); \/\/< plot trace absolute value and scaled into a 2D histogram$/;"	p	class:Trace	access:public	signature:(int id, int row, double scale)
 ScalePlot	src/Trace.cpp	/^void Trace::ScalePlot(int id, double scale)$/;"	f	class:Trace	signature:(int id, double scale)
@@ -2854,10 +2868,6 @@ TimingInformation::calibrationMap	include/TimingInformation.hpp	/^    static Tim
 TimingInformation::calibrationMap	src/TimingInformation.cpp	/^TimingInformation::TimingCalMap TimingInformation::calibrationMap;$/;"	m	class:TimingInformation	file:
 TimingInformation::constantsMap	include/TimingInformation.hpp	/^    static std::map<std::string, double> constantsMap;$/;"	m	class:TimingInformation	access:private
 TimingInformation::qdcCompression	include/TimingInformation.hpp	/^    static const double qdcCompression = 4.0;$/;"	m	class:TimingInformation	access:private
-TokenToVector	include/MapFile.hpp	/^    void TokenToVector(std::string token, std::vector<int> &list, int number) const;$/;"	p	class:MapFile	access:private	signature:(std::string token, std::vector<int> &list, int number) const
-TokenToVector	src/MapFile.cpp	/^void MapFile::TokenToVector(string token, vector<int> &list, int number) const$/;"	f	class:MapFile	signature:(string token, vector<int> &list, int number) const
-TokenizeString	include/MapFile.hpp	/^    void TokenizeString(const std::string &in, std::vector<std::string> &out) const;$/;"	p	class:MapFile	access:private	signature:(const std::string &in, std::vector<std::string> &out) const
-TokenizeString	src/MapFile.cpp	/^void MapFile::TokenizeString(const string &in, vector<string> &out) const$/;"	f	class:MapFile	signature:(const string &in, vector<string> &out) const
 Trace	include/Trace.hpp	/^    Trace() : std::vector<int>()$/;"	f	class:Trace	access:public	signature:()
 Trace	include/Trace.hpp	/^    Trace(const std::vector<int> &x) : std::vector<int>(x) {$/;"	f	class:Trace	access:public	signature:(const std::vector<int> &x)
 Trace	include/Trace.hpp	/^class Trace : public std::vector<int>$/;"	c	inherits:std::vector
@@ -3135,10 +3145,10 @@ WalkCorrector	include/WalkCorrector.hpp	/^        WalkCorrector() {}$/;"	f	class
 WalkCorrector	include/WalkCorrector.hpp	/^class WalkCorrector {$/;"	c
 WalkCorrector::AddChannel	include/WalkCorrector.hpp	/^        void AddChannel(const Identifier& chanID, const std::string model,$/;"	p	class:WalkCorrector	access:public	signature:(const Identifier& chanID, const std::string model, const std::vector<double>& par)
 WalkCorrector::AddChannel	src/WalkCorrector.cpp	/^void WalkCorrector::AddChannel(const Identifier& chanID,$/;"	f	class:WalkCorrector	signature:(const Identifier& chanID, const std::string model, const std::vector<double>& par)
-WalkCorrector::GetCorrection	include/WalkCorrector.hpp	/^        double GetCorrection(Identifier& chanID, int ch) const;$/;"	p	class:WalkCorrector	access:public	signature:(Identifier& chanID, int ch) const
-WalkCorrector::GetCorrection	src/WalkCorrector.cpp	/^double WalkCorrector::GetCorrection(Identifier& chanID, int ch) const {$/;"	f	class:WalkCorrector	signature:(Identifier& chanID, int ch) const
-WalkCorrector::Model_A	include/WalkCorrector.hpp	/^        double Model_A(const std::vector<double>& par, int ch) const;$/;"	p	class:WalkCorrector	access:private	signature:(const std::vector<double>& par, int ch) const
-WalkCorrector::Model_A	src/WalkCorrector.cpp	/^double WalkCorrector::Model_A(const std::vector<double>& par, int ch) const {$/;"	f	class:WalkCorrector	signature:(const std::vector<double>& par, int ch) const
+WalkCorrector::GetCorrection	include/WalkCorrector.hpp	/^        double GetCorrection(Identifier& chanID, double ch) const;$/;"	p	class:WalkCorrector	access:public	signature:(Identifier& chanID, double ch) const
+WalkCorrector::GetCorrection	src/WalkCorrector.cpp	/^double WalkCorrector::GetCorrection(Identifier& chanID, double ch) const {$/;"	f	class:WalkCorrector	signature:(Identifier& chanID, double ch) const
+WalkCorrector::Model_A	include/WalkCorrector.hpp	/^        double Model_A(const std::vector<double>& par, double ch) const;$/;"	p	class:WalkCorrector	access:private	signature:(const std::vector<double>& par, double ch) const
+WalkCorrector::Model_A	src/WalkCorrector.cpp	/^double WalkCorrector::Model_A(const std::vector<double>& par, double ch) const {$/;"	f	class:WalkCorrector	signature:(const std::vector<double>& par, double ch) const
 WalkCorrector::Model_None	include/WalkCorrector.hpp	/^        double Model_None() const;$/;"	p	class:WalkCorrector	access:private	signature:() const
 WalkCorrector::Model_None	src/WalkCorrector.cpp	/^double WalkCorrector::Model_None() const {$/;"	f	class:WalkCorrector	signature:() const
 WalkCorrector::WalkCorrector	include/WalkCorrector.hpp	/^        WalkCorrector() {}$/;"	f	class:WalkCorrector	access:public	signature:()
@@ -3183,7 +3193,7 @@ __CHANEVENT_HPP	include/ChanEvent.hpp	2;"	d
 __CHANIDENTIFIER_HPP	include/ChanIdentifier.hpp	2;"	d
 __CORRELATOR_PROCESSOR_HPP_	include/Correlator.hpp	8;"	d
 __DAMM_PLOTIDS_HPP_	include/DammPlotIds.hpp	2;"	d
-__DETECTORDRIVER_HPP_	include/DetectorDriver.hpp	14;"	d
+__DETECTORDRIVER_HPP_	include/DetectorDriver.hpp	12;"	d
 __DETECTORLIBRARY_HPP_	include/DetectorLibrary.hpp	8;"	d
 __DETECTOR_SUMMARY_HPP	include/DetectorSummary.hpp	2;"	d
 __DOUBLETRACEANALYZER_HPP_	include/DoubleTraceAnalyzer.hpp	8;"	d
@@ -3541,15 +3551,16 @@ builder	src/TreeCorrelator.cpp	/^PlaceBuilder TreeCorrelator::builder = PlaceBui
 busy_size	src/pugixml.cpp	/^		size_t busy_size;$/;"	m	struct:xml_memory_page	file:	access:public
 cSrcSuf	Makefile	/^cSrcSuf   = c$/;"	m
 c_str	src/pugixml.cpp	/^		const char_t* c_str() const$/;"	f	class:xpath_string	access:public	signature:() const
-cal	include/DetectorDriver.hpp	/^    std::vector<Calibration> cal;    \/**<the calibration vector*\/ $/;"	m	class:DetectorDriver	access:public
 cal	include/IonChamberProcessor.hpp	/^    double cal[noDets];$/;"	m	struct:IonChamberProcessor::Data	access:public
 calEnergy	include/ChanEvent.hpp	/^    double calEnergy;          \/**< Calibrated channel energy,$/;"	m	class:ChanEvent	access:private
 calTime	include/ChanEvent.hpp	/^    double calTime;            \/**< Calibrated time, currently unused *\/$/;"	m	class:ChanEvent	access:private
+cali	include/DetectorDriver.hpp	/^    Calibrator cali;$/;"	m	class:DetectorDriver	access:public
 calib	src/GeCalibProcessor.cpp	/^        namespace calib {$/;"	n	namespace:dammIds::ge	file:
 calibrationMap	include/TimingInformation.hpp	/^    static TimingCalMap calibrationMap;$/;"	m	class:TimingInformation	access:private
 calibrationMap	src/TimingInformation.cpp	/^TimingInformation::TimingCalMap TimingInformation::calibrationMap;$/;"	m	class:TimingInformation	file:
 cfdTime	include/ChanEvent.hpp	/^    pixie::word_t cfdTime;     \/**< CFD trigger time in units of 1\/256 pixie clock ticks *\/$/;"	m	class:ChanEvent	access:private
 chanNum	include/ChanEvent.hpp	/^    int    chanNum;            \/**< Channel number *\/$/;"	m	class:ChanEvent	access:private
+channels_	include/Calibrator.hpp	/^        std::map<Identifier, std::vector<CalibrationFactor> > channels_;$/;"	m	class:Calibrator	access:private
 channels_	include/WalkCorrector.hpp	/^        std::map<Identifier, CorrectionFactor> channels_;$/;"	m	class:WalkCorrector	access:private
 chansPerClover	include/GeProcessor.hpp	/^    static const unsigned int chansPerClover = 4; \/*!< number of channels per clover *\/$/;"	m	class:GeProcessor	access:protected
 char_t	include/pugixml.hpp	/^	typedef PUGIXML_CHAR char_t;$/;"	t	namespace:pugi
@@ -4198,12 +4209,8 @@ destroy	src/pugixml.cpp	/^		static void destroy(void* ptr)$/;"	f	struct:xpath_qu
 destroy	src/pugixml.cpp	/^	PUGI__FN void xml_document::destroy()$/;"	f	class:pugi::xml_document	signature:()
 destroy_attribute	src/pugixml.cpp	/^	inline void destroy_attribute(xml_attribute_struct* a, xml_allocator& alloc)$/;"	f	signature:(xml_attribute_struct* a, xml_allocator& alloc)
 destroy_node	src/pugixml.cpp	/^	inline void destroy_node(xml_node_struct* n, xml_allocator& alloc)$/;"	f	signature:(xml_node_struct* n, xml_allocator& alloc)
-detLocation	include/DetectorDriver.hpp	/^    int detLocation;        \/**< physical location of detector (strip#, det#) *\/$/;"	m	class:Calibration	access:private
-detSubtype	include/DetectorDriver.hpp	/^    std::string detSubtype;      \/**< sub type of detector *\/$/;"	m	class:Calibration	access:private
-detType	include/DetectorDriver.hpp	/^    std::string detType;         \/**< type of detector *\/$/;"	m	class:Calibration	access:private
-detail	include/Messenger.hpp	/^        void detail(std::string msg, short level = 0);$/;"	p	class:Messenger	access:public	signature:(std::string msg, short level = 0)
-detail	src/Messenger.cpp	/^void Messenger::detail(std::string msg, short level \/*= 0*\/) {$/;"	f	class:Messenger	signature:(std::string msg, short level )
-detectorend_	src/DetectorDriver.cpp	/^extern "C" void detectorend_()$/;"	f	signature:()
+detail	include/Messenger.hpp	/^        void detail(std::string msg, short level = 0, std::string symbol = "*");$/;"	p	class:Messenger	access:public	signature:(std::string msg, short level = 0, std::string symbol = Ó)
+detail	src/Messenger.cpp	/^void Messenger::detail(std::string msg, short level \/*= 0*\/,$/;"	f	class:Messenger	signature:(std::string msg, short level , std::string symbol )
 detectors	include/Globals.hpp	/^namespace detectors {$/;"	n
 detectors::addbackEnergyCut	include/Globals.hpp	/^    const double addbackEnergyCut = 25;$/;"	m	namespace:detectors
 detectors::earlyHighLimit	include/Globals.hpp	/^    const double earlyHighLimit = 1.5;$/;"	m	namespace:detectors
@@ -4322,7 +4329,7 @@ evaluate_string	src/pugixml.cpp	/^	PUGI__FN size_t xpath_query::evaluate_string(
 evaluate_string	src/pugixml.cpp	/^	PUGI__FN string_t xpath_query::evaluate_string(const xpath_node& n) const$/;"	f	class:pugi::xpath_query	signature:(const xpath_node& n) const
 evaluate_string_impl	src/pugixml.cpp	/^	PUGI__FN xpath_string evaluate_string_impl(xpath_query_impl* impl, const xpath_node& n, xpath_stack_data& sd)$/;"	f	signature:(xpath_query_impl* impl, const xpath_node& n, xpath_stack_data& sd)
 event	include/TimingInformation.hpp	/^        bool event;$/;"	m	struct:TimingInformation::BarData	access:public
-eventInSeconds	include/Globals.hpp	/^    const double eventInSeconds = 3e-6;$/;"	m	namespace:pixie
+eventInSeconds	include/Globals.hpp	/^    const double eventInSeconds = 100e-6;$/;"	m	namespace:pixie
 eventList	include/DetectorSummary.hpp	/^    std::vector<ChanEvent*> eventList; \/**< list of events associated with this detector group *\/$/;"	m	class:DetectorSummary	access:private
 eventList	include/RawEvent.hpp	/^    std::vector<ChanEvent*> eventList;             \/**< Pointers to all the channels that are close$/;"	m	class:RawEvent	access:private
 eventTime	include/ChanEvent.hpp	/^    double eventTime;          \/**< The event time recorded by Pixie *\/$/;"	m	class:ChanEvent	access:private
@@ -4508,7 +4515,6 @@ histo	include/EventProcessor.hpp	/^    Plots histo;$/;"	m	class:EventProcessor	a
 histo	include/Trace.hpp	/^    static Plots histo; $/;"	m	class:Trace	access:private
 histo	include/TraceAnalyzer.hpp	/^    Plots histo;$/;"	m	class:TraceAnalyzer	access:protected
 histo	src/Trace.cpp	/^Plots Trace::histo(OFFSET, RANGE);$/;"	p	class:Trace	file:	signature:(OFFSET, RANGE)
-id	include/DetectorDriver.hpp	/^    int id;                 \/**< id of the detector determined as module # * 16 + channel number *\/$/;"	m	class:Calibration	access:private
 idList	include/Plots.hpp	/^    std::set <int> idList;$/;"	m	class:Plots	access:private
 impMult	include/Correlator.hpp	/^    short  impMult;  \/\/\/< number of implant hits$/;"	m	struct:EventInfo	access:public
 implantSsd	include/DammPlotIds.hpp	/^    namespace implantSsd {$/;"	n	namespace:dammIds
@@ -4672,6 +4678,7 @@ lrtOffset	include/TimingInformation.hpp	/^	double lrtOffset;$/;"	m	struct:Timing
 make_parse_result	src/pugixml.cpp	/^	inline xml_parse_result make_parse_result(xml_parse_status status, ptrdiff_t offset = 0)$/;"	f	signature:(xml_parse_status status, ptrdiff_t offset = 0)
 mapkey_t	include/DetectorLibrary.hpp	/^    typedef std::string mapkey_t;$/;"	t	class:DetectorLibrary	access:public
 matchingTimeCut	include/PositionProcessor.hpp	/^    static const int matchingTimeCut = 5; \/\/< maximum difference between edge and sum timestamps$/;"	m	class:PositionProcessor	access:private
+max	include/Calibrator.hpp	/^    double max;$/;"	m	struct:CalibrationFactor	access:public
 max	include/GeProcessor.hpp	/^        double max;$/;"	m	class:LineGate	access:public
 maxConfigLineLength	include/Globals.hpp	/^const size_t maxConfigLineLength = 100;$/;"	v
 maxEvent	include/DetectorSummary.hpp	/^    ChanEvent* maxEvent;               \/**< event with maximum energy deposition *\/$/;"	m	class:DetectorSummary	access:private
@@ -4695,6 +4702,7 @@ median3	src/pugixml.cpp	/^	template <typename I, typename Pred> void median3(I f
 memory	src/pugixml.cpp	/^		void* memory;$/;"	m	struct:xml_memory_page	file:	access:public
 message_	include/Exceptions.hpp	/^    const std::string message_;$/;"	m	class:GeneralException	access:protected
 message_	include/Exceptions.hpp	/^    const std::string message_;$/;"	m	class:GeneralWarning	access:protected
+min	include/Calibrator.hpp	/^    double min;$/;"	m	struct:CalibrationFactor	access:public
 min	include/GeProcessor.hpp	/^        double min;$/;"	m	class:LineGate	access:public
 minImpTime	include/Correlator.hpp	/^    static const double minImpTime; \/**< The minimum amount of time that must$/;"	m	class:Correlator	access:private
 minImpTime	src/Correlator.cpp	/^const double Correlator::minImpTime = 5e-3;$/;"	m	class:Correlator	file:
@@ -4706,6 +4714,7 @@ min_element	src/pugixml.cpp	/^	template <typename I, typename Pred> I min_elemen
 mixBits	include/MersenneTwister.hpp	/^	uint32 mixBits( const uint32& u, const uint32& v ) const$/;"	f	class:MTRand	access:protected	signature:( const uint32& u, const uint32& v ) const
 mneList	include/Plots.hpp	/^    std::map <std::string, int> mneList;$/;"	m	class:Plots	access:private
 modNum	include/ChanEvent.hpp	/^    int    modNum;             \/**< Module number *\/$/;"	m	class:ChanEvent	access:private
+model	include/Calibrator.hpp	/^    CalibrationModel model;$/;"	m	struct:CalibrationFactor	access:public
 model	include/WalkCorrector.hpp	/^    WalkModel model;$/;"	m	struct:CorrectionFactor	access:public
 mtc	include/DammPlotIds.hpp	/^    namespace mtc {$/;"	n	namespace:dammIds
 mtc	src/MtcProcessor.cpp	/^    namespace mtc {$/;"	n	namespace:dammIds	file:
@@ -4795,7 +4804,6 @@ not_equal_to	src/pugixml.cpp	/^	struct not_equal_to$/;"	s	file:
 not_equal_to::operator ()	src/pugixml.cpp	/^		template <typename T> bool operator()(const T& lhs, const T& rhs) const$/;"	f	struct:not_equal_to	access:public	signature:(const T& lhs, const T& rhs) const
 nullSummaries	include/RawEvent.hpp	/^    mutable std::set<std::string> nullSummaries;   \/**< Summaries which were requested but don't exist *\/$/;"	m	class:RawEvent	access:private
 numBinsBaseline	include/Trace.hpp	/^    static const unsigned int numBinsBaseline = 15;$/;"	m	class:Trace	access:private
-numCal	include/DetectorDriver.hpp	/^    unsigned int numCal;    \/**< the number of calibrations for this channel *\/$/;"	m	class:Calibration	access:private
 numClovers	include/GeProcessor.hpp	/^    unsigned int numClovers;           \/*!< number of clovers in map *\/$/;"	m	class:GeProcessor	access:protected
 numDoubleTraces	include/DoubleTraceAnalyzer.hpp	/^    int numDoubleTraces; \/\/\/< number of double traces found$/;"	m	class:DoubleTraceAnalyzer	access:protected
 numLocations	include/LitePositionProcessor.hpp	/^    int numLocations;$/;"	m	class:LitePositionProcessor	access:protected
@@ -5003,6 +5011,7 @@ opt_true::value	src/pugixml.cpp	/^		enum { value = 1 };$/;"	e	enum:opt_true::__a
 out_	include/Messenger.hpp	/^        std::ostream* out_;$/;"	m	class:Messenger	access:private
 pNext	include/MersenneTwister.hpp	/^	uint32 *pNext;     \/\/ next value to get from state$/;"	m	class:MTRand	access:protected
 page_offset	src/pugixml.cpp	/^		uint16_t page_offset; \/\/ offset from page->data$/;"	m	struct:xml_memory_string_header	file:	access:public
+parameters	include/Calibrator.hpp	/^    std::vector<double> parameters;$/;"	m	struct:CalibrationFactor	access:public
 parameters	include/WalkCorrector.hpp	/^    std::vector<double> parameters;$/;"	m	struct:CorrectionFactor	access:public
 parent	include/pugixml.hpp	/^		xml_node parent() const;$/;"	p	class:pugi::xml_node	access:public	signature:() const
 parent	include/pugixml.hpp	/^		xml_node parent() const;$/;"	p	class:pugi::xpath_node	access:public	signature:() const
@@ -5075,7 +5084,7 @@ pixie::bufword_t	include/Globals.hpp	/^    typedef uint32_t bufword_t; \/\/< wor
 pixie::clockInSeconds	include/Globals.hpp	/^    const double clockInSeconds = 10e-9; \/\/< one pixie clock is 10 ns$/;"	m	namespace:pixie
 pixie::clockInSeconds	include/Globals.hpp	/^    const double clockInSeconds = 8e-9; \/\/< one pixie clock is 8 ns$/;"	m	namespace:pixie
 pixie::energyContraction	include/Globals.hpp	/^    const double energyContraction = 1.0; $/;"	m	namespace:pixie
-pixie::eventInSeconds	include/Globals.hpp	/^    const double eventInSeconds = 3e-6;$/;"	m	namespace:pixie
+pixie::eventInSeconds	include/Globals.hpp	/^    const double eventInSeconds = 100e-6;$/;"	m	namespace:pixie
 pixie::eventWidth	include/Globals.hpp	/^    const int eventWidth = eventInSeconds \/ pixie::clockInSeconds;$/;"	m	namespace:pixie
 pixie::filterClockInSeconds	include/Globals.hpp	/^    const double filterClockInSeconds = 10e-9; \/\/< one filter clock is 10 ns$/;"	m	namespace:pixie
 pixie::filterClockInSeconds	include/Globals.hpp	/^    const double filterClockInSeconds = 8e-9; \/\/< one filter clock is 8 ns$/;"	m	namespace:pixie
@@ -5089,7 +5098,7 @@ place	include/TreeCorrelator.hpp	/^        Place* place(std::string name);$/;"	p
 place	src/TreeCorrelator.cpp	/^Place* TreeCorrelator::place(string name) {$/;"	f	class:TreeCorrelator	signature:(string name)
 places_	include/TreeCorrelator.hpp	/^        std::map<std::string, Place*> places_;$/;"	m	class:TreeCorrelator	access:public
 plot	include/Correlator.hpp	/^    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {$/;"	f	class:Correlator	access:private	signature:(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name=Ó)
-plot	include/DetectorDriver.hpp	/^    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {$/;"	f	class:DetectorDriver	access:public	signature:(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name=Ó)
+plot	include/DetectorDriver.hpp	/^    virtual void plot(int dammId, double val1, double val2 = -1,$/;"	f	class:DetectorDriver	access:public	signature:(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name=Ó)
 plot	include/EventProcessor.hpp	/^    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {$/;"	f	class:EventProcessor	access:protected	signature:(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name=Ó)
 plot	include/TraceAnalyzer.hpp	/^    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {$/;"	f	class:TraceAnalyzer	access:protected	signature:(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name=Ó)
 plotSize	include/TriggerLogicProcessor.hpp	/^    int plotSize;$/;"	m	class:TriggerLogicProcessor	access:private
@@ -5098,7 +5107,6 @@ plotter	include/DammPlotIds.hpp	/^        namespace plotter {$/;"	n	namespace:da
 pointer	include/pugixml.hpp	/^		typedef xml_attribute* pointer;$/;"	t	class:pugi::xml_attribute_iterator	access:public
 pointer	include/pugixml.hpp	/^		typedef xml_node* pointer;$/;"	t	class:pugi::xml_named_node_iterator	access:public
 pointer	include/pugixml.hpp	/^		typedef xml_node* pointer;$/;"	t	class:pugi::xml_node_iterator	access:public
-polyOrder	include/DetectorDriver.hpp	/^    unsigned int polyOrder; \/**< the order of the calibration *\/$/;"	m	class:Calibration	access:private
 posScale	include/LitePositionProcessor.hpp	/^    float posScale;        \/\/< an arbitrary scale for the position parameter to physical units$/;"	m	class:LitePositionProcessor	access:protected
 posScale	include/PositionProcessor.hpp	/^    float posScale;        \/\/< an arbitrary scale for the position parameter to physical units$/;"	m	class:PositionProcessor	access:private
 position	include/Correlator.hpp	/^    double position; \/\/\/< calculated strip position$/;"	m	struct:EventInfo	access:public
@@ -5972,6 +5980,8 @@ round_nearest_nzero	src/pugixml.cpp	/^	PUGI__FN double round_nearest_nzero(doubl
 runTime0	include/ChanEvent.hpp	/^    pixie::word_t runTime0;    \/**< Lower bits of run time *\/$/;"	m	class:ChanEvent	access:private
 runTime1	include/ChanEvent.hpp	/^    pixie::word_t runTime1;    \/**< Upper bits of run time *\/$/;"	m	class:ChanEvent	access:private
 runTime2	include/ChanEvent.hpp	/^    pixie::word_t runTime2;    \/**< Higher bits of run time *\/$/;"	m	class:ChanEvent	access:private
+run_message	include/Messenger.hpp	/^        void run_message(std::string msg);$/;"	p	class:Messenger	access:public	signature:(std::string msg)
+run_message	src/Messenger.cpp	/^void Messenger::run_message(std::string msg) {$/;"	f	class:Messenger	signature:(std::string msg)
 saturatedBit	include/ChanEvent.hpp	/^    bool   saturatedBit;       \/**< Saturation flag from Pixie *\/$/;"	m	class:ChanEvent	access:private
 save	include/MersenneTwister.hpp	/^	void save( uint32* saveArray ) const;  \/\/ to array of size SAVE$/;"	p	class:MTRand	access:public	signature:( uint32* saveArray ) const
 save	include/MersenneTwister.hpp	/^inline void MTRand::save( uint32* saveArray ) const$/;"	f	class:MTRand	signature:( uint32* saveArray ) const
@@ -6178,7 +6188,6 @@ text_output_escaped	src/pugixml.cpp	/^	PUGI__FN void text_output_escaped(xml_buf
 theta	include/TimingInformation.hpp	/^	double theta;$/;"	m	struct:TimingInformation::BarData	access:public
 thirdFilter	include/TraceFilterer.hpp	/^    Trace thirdFilter;  \/\/\/< second slow filter of trace$/;"	m	class:TraceFilterer	access:protected
 thirdParms	include/TraceFilterer.hpp	/^    TrapezoidalFilterParameters  thirdParms;$/;"	m	class:TraceFilterer	access:protected
-thresh	include/DetectorDriver.hpp	/^    std::vector<float> thresh;   \/**< the lower limit for each respective calibration *\/$/;"	m	class:Calibration	access:private
 throw_error	src/pugixml.cpp	/^		void throw_error(const char* message)$/;"	f	struct:xpath_parser	access:public	signature:(const char* message)
 throw_error_oom	src/pugixml.cpp	/^		void throw_error_oom()$/;"	f	struct:xpath_parser	access:public	signature:()
 time	include/ChanEvent.hpp	/^    double time;               \/**< Raw channel time, 64 bit from pixie16 channel event time *\/$/;"	m	class:ChanEvent	access:private
@@ -6301,7 +6310,6 @@ utf_decoder::decode_utf8_block	src/pugixml.cpp	/^		static inline typename Traits
 utf_decoder::decode_wchar_block	src/pugixml.cpp	/^		static inline typename Traits::value_type decode_wchar_block(const wchar_t* data, size_t size, typename Traits::value_type result)$/;"	f	struct:utf_decoder	access:public	signature:(const wchar_t* data, size_t size, typename Traits::value_type result)
 utf_decoder::decode_wchar_block_impl	src/pugixml.cpp	/^		static inline typename Traits::value_type decode_wchar_block_impl(const uint16_t* data, size_t size, typename Traits::value_type result)$/;"	f	struct:utf_decoder	access:public	signature:(const uint16_t* data, size_t size, typename Traits::value_type result)
 utf_decoder::decode_wchar_block_impl	src/pugixml.cpp	/^		static inline typename Traits::value_type decode_wchar_block_impl(const uint32_t* data, size_t size, typename Traits::value_type result)$/;"	f	struct:utf_decoder	access:public	signature:(const uint32_t* data, size_t size, typename Traits::value_type result)
-val	include/DetectorDriver.hpp	/^    std::vector<float> val;      \/**< the individual calibration coefficients in increasing order *\/$/;"	m	class:Calibration	access:private
 value	include/pugixml.hpp	/^		const char_t* value() const;$/;"	p	class:pugi::xml_attribute	access:public	signature:() const
 value	include/pugixml.hpp	/^		const char_t* value() const;$/;"	p	class:pugi::xml_node	access:public	signature:() const
 value	src/pugixml.cpp	/^		bool value;$/;"	m	struct:xpath_variable_boolean	file:	access:public
@@ -6334,9 +6342,12 @@ verbose	include/Globals.hpp	/^namespace verbose {$/;"	n
 verbose::CALIBRATION_INIT	include/Globals.hpp	/^    const bool CALIBRATION_INIT = false;$/;"	m	namespace:verbose
 verbose::MAP_INIT	include/Globals.hpp	/^    const bool MAP_INIT = false;$/;"	m	namespace:verbose
 virtualChannel	include/ChanEvent.hpp	/^    bool   virtualChannel;     \/**< Flagged if generated virtually in Pixie DSP *\/$/;"	m	class:ChanEvent	access:private
+walk	include/DetectorDriver.hpp	/^    WalkCorrector walk;$/;"	m	class:DetectorDriver	access:public
 walk	include/TimingInformation.hpp	/^	double walk;$/;"	m	struct:TimingInformation::TimingData	access:public
 walkCorTime	include/TimingInformation.hpp	/^	double walkCorTime;$/;"	m	struct:TimingInformation::TimingData	access:public
 walkCorTimeDiff	include/TimingInformation.hpp	/^	double walkCorTimeDiff;$/;"	m	struct:TimingInformation::BarData	access:public
+warning	include/Messenger.hpp	/^        void warning(std::string msg);$/;"	p	class:Messenger	access:public	signature:(std::string msg)
+warning	src/Messenger.cpp	/^void Messenger::warning(std::string msg) {$/;"	f	class:Messenger	signature:(std::string msg)
 waveformanalyzer	include/DammPlotIds.hpp	/^    namespace waveformanalyzer{ $/;"	n	namespace:dammIds
 waveformanalyzer	src/FittingAnalyzer.cpp	/^   namespace waveformanalyzer {$/;"	n	namespace:dammIds	file:
 wchar_counter	src/pugixml.cpp	/^	typedef wchar_selector<sizeof(wchar_t)>::counter wchar_counter;$/;"	t	file:
