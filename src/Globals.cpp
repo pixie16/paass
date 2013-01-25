@@ -3,7 +3,6 @@
 #include "Exceptions.hpp"
 #include "Globals.hpp"
 #include "Messenger.hpp"
-#include "PathHolder.hpp"
 
 Globals* Globals::instance = NULL;
 
@@ -16,11 +15,7 @@ Globals::Globals() {
     revision_ = "None";
 
     pugi::xml_document doc;
-
-    PathHolder* conf_path = new PathHolder();
-    std::string xmlFileName = conf_path->GetFullPath("Config.xml");
-    delete conf_path;
-    pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
+    pugi::xml_parse_result result = doc.load_file("Config.xml");
 
     std::stringstream ss;
     if (!result) {
@@ -45,14 +40,21 @@ Globals::Globals() {
             m.detail(ss.str());
             ss.str("");
 
-            if (revision_ == "A" || revision_ == "D") {
+            if (revision_ == "A") {
                 clockInSeconds_ = 10e-9; //< one pixie clock is 10 ns
                 adcClockInSeconds_ = 10e-9; //< one ADC clock is 10 ns
                 filterClockInSeconds_ = 10e-9; //< one filter clock is 10 ns
+                maxWords_ = IO_BUFFER_LENGTH;
+            } else if (revision_ == "D") {
+                clockInSeconds_ = 10e-9; //< one pixie clock is 10 ns
+                adcClockInSeconds_ = 10e-9; //< one ADC clock is 10 ns
+                filterClockInSeconds_ = 10e-9; //< one filter clock is 10 ns
+                maxWords_ = EXTERNAL_FIFO_LENGTH;
             } else if (revision_ == "F") {
                 clockInSeconds_ = 8e-9; //< one pixie clock is 8 ns
                 adcClockInSeconds_ = 4e-9; //< one ADC clock is 4 ns
                 filterClockInSeconds_ = 8e-9; //< one filter clock is 8 ns
+                maxWords_ = EXTERNAL_FIFO_LENGTH; 
             } else {
                 throw GeneralException("Globals: unknown revision version " + 
                                        revision_);
@@ -74,8 +76,9 @@ Globals::Globals() {
                                        units);
             }
             eventInSeconds_ = value;
+            eventWidth_ = (int)(eventInSeconds_ / clockInSeconds_);
             ss << "Event width: " << eventInSeconds_ * 1e6 
-               << " us" << ", i.e. " << eventWidth()
+               << " us" << ", i.e. " << eventWidth_
                << " pixie16 clock tics.";
             m.detail(ss.str());
             ss.str("");
@@ -83,6 +86,11 @@ Globals::Globals() {
         } else if (std::string(it->name()).compare("EnergyContraction") == 0) {
 
             energyContraction_ = it->attribute("value").as_double(1);
+
+        } else if (std::string(it->name()).compare("Path") == 0) {
+
+            configPath_ =  it->text().get();
+            m.detail("Path to other configuration files: " + configPath_);
 
         } else {
 

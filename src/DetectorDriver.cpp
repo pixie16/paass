@@ -49,7 +49,6 @@
 #include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
 #include "Exceptions.hpp"
-#include "PathHolder.hpp"
 #include "RandomPool.hpp"
 #include "RawEvent.hpp"
 #include "TimingInformation.hpp"
@@ -155,14 +154,10 @@ DetectorDriver::~DetectorDriver()
 void DetectorDriver::LoadProcessors(Messenger& m) {
     pugi::xml_document doc;
 
-    PathHolder* conf_path = new PathHolder();
-    string xmlFileName = conf_path->GetFullPath("Config.xml");
-    delete conf_path;
-
-    pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
+    pugi::xml_parse_result result = doc.load_file("Config.xml");
     if (!result) {
         stringstream ss;
-        ss << "DetectorDriver: error parsing file " << xmlFileName;
+        ss << "DetectorDriver: error parsing file Config.xml";
         ss << " : " << result.description();
         throw IOException(ss.str());
     }
@@ -260,7 +255,11 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         } else if (name == "McpProcessor") {
             vecProcess.push_back(new McpProcessor()); 
         } else if (name == "MtcProcessor") {
-            vecProcess.push_back(new MtcProcessor());
+            bool double_stop = 
+                processor.attribute("double_stop").as_bool();
+            bool double_start = 
+                processor.attribute("double_start").as_bool();
+            vecProcess.push_back(new MtcProcessor(double_stop, double_start));
         } else if (name == "NeutronScintProcessor") {
             vecProcess.push_back(new NeutronScintProcessor());
         } else if (name == "PositionProcessor") {
@@ -503,10 +502,9 @@ void DetectorDriver::DeclarePlots()
                                ("FilterE " + idstr.str()).c_str() );
             DeclareHistogram1D(D_SCALAR + i, SE,
                                ("Scalar " + idstr.str()).c_str() );
-#if !defined(REVD) && !defined(REVF)
-            DeclareHistogram1D(D_TIME + i, SE,
-                               ("Time " + idstr.str()).c_str() ); 
-#endif
+            if (Globals::get()->revision() == "A")
+                DeclareHistogram1D(D_TIME + i, SE,
+                                ("Time " + idstr.str()).c_str() ); 
             DeclareHistogram1D(D_CAL_ENERGY + i, SE,
                                ("CalE " + idstr.str()).c_str() );
             DeclareHistogram1D(D_CAL_ENERGY_REJECT + i, SE,
@@ -595,8 +593,9 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
 
         if (trace.HasValue("phase") ) {
             double phase = trace.GetValue("phase");
-            chan->SetHighResTime( phase * pixie::adcClockInSeconds + 
-                    chan->GetTrigTime() * pixie::filterClockInSeconds);
+            chan->SetHighResTime( phase * Globals::get()->adcClockInSeconds() + 
+                                  chan->GetTrigTime() *
+                                  Globals::get()->filterClockInSeconds());
         }
 
     } else {
@@ -680,14 +679,10 @@ vector<EventProcessor *> DetectorDriver::GetProcessors(const string& type) const
 void DetectorDriver::ReadCalXml() {
     pugi::xml_document doc;
 
-    PathHolder* conf_path = new PathHolder();
-    string xmlFileName = conf_path->GetFullPath("Config.xml");
-    delete conf_path;
-
-    pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
+    pugi::xml_parse_result result = doc.load_file("Config.xml");
     if (!result) {
         stringstream ss;
-        ss << "DetectorDriver::ReadCalXml: error parsing file " << xmlFileName;
+        ss << "DetectorDriver: error parsing file Config.xml";
         ss << " : " << result.description();
         throw GeneralException(ss.str());
     }
@@ -757,14 +752,10 @@ void DetectorDriver::ReadCalXml() {
 void DetectorDriver::ReadWalkXml() {
     pugi::xml_document doc;
 
-    PathHolder* conf_path = new PathHolder();
-    string xmlFileName = conf_path->GetFullPath("Config.xml");
-    delete conf_path;
-
-    pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
+    pugi::xml_parse_result result = doc.load_file("Config.xml");
     if (!result) {
         stringstream ss;
-        ss << "DetectorDriver::ReadWalk: error parsing file " << xmlFileName;
+        ss << "DetectorDriver: error parsing file Config.xml";
         ss << " : " << result.description();
         throw GeneralException(ss.str());
     }

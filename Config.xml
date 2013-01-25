@@ -20,7 +20,16 @@
         <Revision version="F"/>
         <EventWidth unit="s" value="100e-6"/>
         <EnergyContraction value="1.0"/>
+        <!-- Path to non-included here configuration files, ath the moment:
+             qdc.txt
+             timingConstants.txt
+             timingCal.txt
+
+             Must end with '/'
+        -->
+        <Path>config/</Path>
     </Global>
+
 
     <!-- Instructions:
          Add

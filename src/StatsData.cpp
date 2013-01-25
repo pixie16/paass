@@ -126,7 +126,7 @@ double StatsData::GetRealTime(unsigned int mod) const
     const size_t rtPosLo = 0x4a341 - offset;
 
     double d = data[mod][rtPosHi] * pow(2.0, 32) +  data[mod][rtPosLo];
-    d *= pixie::clockInSeconds;
+    d *= Globals::get()->clockInSeconds();
 
     return d;
 }

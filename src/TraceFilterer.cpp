@@ -9,7 +9,6 @@
 #include <iostream>
 #include <numeric>
 
-#include "PathHolder.hpp"
 #include "DammPlotIds.hpp"
 #include "RandomPool.hpp"
 #include "Trace.hpp"
@@ -80,9 +79,7 @@ bool TraceFilterer::Init(const string &filterFileName /* = filter.txt */)
     thirdFilter.reserve(maxTraceLength);
 
     // read in the filter parameters
-    PathHolder* conf_path = new PathHolder();
-    string filterFile = conf_path->GetFullPath(filterFileName);
-    delete conf_path;
+    string filterFile = Globals::get()->configPath(filterFileName);
 
     ifstream in(filterFile.c_str());
     if (!in) {

@@ -10,7 +10,6 @@
 #include <sstream>
 #include <vector>
 
-#include "PathHolder.hpp"
 #include "PositionProcessor.hpp"
 #include "DetectorLibrary.hpp"
 #include "RawEvent.hpp"
@@ -102,9 +101,7 @@ bool PositionProcessor::Init(RawEvent& rawev)
     minNormQdc.resize(numLocations);
     maxNormQdc.resize(numLocations);
 
-    PathHolder* conf_path = new PathHolder();
-    string configFile = conf_path->GetFullPath("qdc.txt");
-    delete conf_path;
+    string configFile = Globals::get()->configPath("qdc.txt");
 
     ifstream in(configFile.c_str());
     if (!in) {

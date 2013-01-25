@@ -17,7 +17,7 @@ bool CompareCorrectedTime(const ChanEvent *a, const ChanEvent *b)
 }
 
 /* Initialization of static memeber to the value defined in Globals.hpp */
-double ChanEvent::pixieEnergyContraction = pixie::energyContraction;
+double ChanEvent::pixieEnergyContraction = Globals::get()->energyContraction();
 
 /**
  * Channel event constructor
