@@ -83,13 +83,19 @@ void hissub_sec(unsigned int *ibuf[],unsigned int *nhw);
 bool MakeModuleData(const word_t *data, unsigned long nWords); 
 #endif
 
-int ReadBuffData(word_t *lbuf, unsigned long *BufLen,
+/**
+ * ReadBuffData versions for different pixie revisions
+ * */
+int ReadBuffDataA(word_t *lbuf, unsigned long *BufLen,
 		 vector<ChanEvent *> &eventList);
-/*
-void Pixie16Error(int errornum);
-*/
-
-const string scanMode = "scan";
+int ReadBuffDataDF(word_t *lbuf, unsigned long *BufLen,
+		 vector<ChanEvent *> &eventList);
+/** 
+ * This function pointer will be initialized to point to 
+ * appropiate function above based on parameter in the configuration file
+ */
+int (*ReadBuffData)(word_t *lbuf, unsigned long *BufLen,
+                    vector<ChanEvent *> &eventList);
 
 /** \fn extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw) 
  * \brief interface between scan and C++
@@ -413,6 +419,14 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
         */
         messenger.start("Initializing scan");
 
+        string revision = Globals::get()->revision();
+        // Initialize function pointer to point to 
+        // correct version of ReadBuffData
+        if (revision == "D" || revision == "F") 
+            ReadBuffData = ReadBuffDataDF;
+        else if (revision == "A")
+            ReadBuffData = ReadBuffDataA;
+
         clockBegin = times(&tmsBegin);
 
         ss << "First buffer at " << clockBegin << " sys time";
@@ -521,8 +535,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
                 /* Read the buffer.  After read, the vector eventList will 
                    contain pointers to all channels that fired in this buffer
                 */
-
-                retval= ReadBuffData(&lbuf[nWords], &bufLen, eventList);
+                retval= (*ReadBuffData)(&lbuf[nWords], &bufLen, eventList);
                     
                 /* If the return value is less than the error code, 
                    reading the buffer failed for some reason.  
@@ -746,7 +759,7 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
             /* detector driver accesses rawevent externally in order to
             have access to proper detector_summaries
             */
-                driver->ProcessEvent(scanMode, rawev);
+                driver->ProcessEvent(rawev);
             }
     
             //after processing zero the rawevent variable
@@ -783,7 +796,7 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
         string mode;
         HistoStats(id, diffTime, currTime, BUFFER_END);
 
-        driver->ProcessEvent(scanMode, rawev);
+        driver->ProcessEvent(rawev);
         rawev.Zero(usedDetectors);
     }
 }

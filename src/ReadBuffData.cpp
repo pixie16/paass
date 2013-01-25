@@ -45,7 +45,7 @@
 #include <cmath>
 
 // data related to pixie packet structure
-#include "pixie16app_defs.hpp"
+#include "pixie16app_defs.h"
 
 // our event structure
 #include "Globals.hpp"
@@ -70,7 +70,7 @@ unsigned long TstBit(unsigned short bit, word_t value)
  * it into a ChanEvent structure .  A pointer to each of the ChanEvent objects
  * is placed in the eventlist vector for later sorting.
  */
-int ReadBuffData(word_t *buf, unsigned long *bufLen,
+int ReadBuffDataA(word_t *buf, unsigned long *bufLen,
 		 vector<ChanEvent*> &eventList)
 {
   unsigned long bufSkippedWords;

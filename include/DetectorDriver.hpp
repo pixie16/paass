@@ -49,7 +49,7 @@ class DetectorDriver {
         histo.Plot(dammId, val1, val2, val3, name);
     }
     
-    int ProcessEvent(const std::string &, RawEvent& rawev);
+    int ProcessEvent(RawEvent& rawev);
     int ThreshAndCal(ChanEvent *, RawEvent& rawev);
     int Init(RawEvent& rawev);
 

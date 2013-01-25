@@ -397,7 +397,7 @@ int DetectorDriver::Init(RawEvent& rawev)
   Currently, both RMS and MTC processing is available.  After all processing
   has occured, appropriate plotting routines are called.
 */
-int DetectorDriver::ProcessEvent(const string &mode, RawEvent& rawev){   
+int DetectorDriver::ProcessEvent(RawEvent& rawev){   
     /*
       Begin the event processing looping over all the channels
       that fired in this particular event.
