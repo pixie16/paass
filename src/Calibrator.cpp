@@ -12,10 +12,21 @@ void Calibrator::AddChannel(const Identifier& chanID, const std::string model,
                             double min, double max, 
                             const std::vector<double>& par) {
     CalibrationFactor cf;
-    if (model == "Poly") {
-        cf.model = Poly;
-    } else if (model == "Raw") {
-        cf.model = Raw;
+    unsigned required_parameters = 0;
+    if (model == "raw") {
+        cf.model = cal_raw;
+    } else if (model == "linear") {
+        cf.model = cal_linear;
+        required_parameters = 2;
+    } else if (model == "quadratic") {
+        cf.model = cal_quadratic;
+        required_parameters = 3;
+    } else if (model == "polynomial") {
+        cf.model = cal_polynomial;
+        required_parameters = 1;
+    } else if (model == "hyplin") {
+        cf.model = cal_hyplin;
+        required_parameters = 3;
     } else {
         stringstream ss;
         ss << "Calibrator: unknown calibration model " << model;
@@ -28,12 +39,21 @@ void Calibrator::AddChannel(const Identifier& chanID, const std::string model,
            << min << " to " << max;
         throw GeneralException(ss.str());
     }
+
     cf.min = min;
     cf.max = max;
     
     for (vector<double>::const_iterator it = par.begin(); it != par.end();
         ++it) {
         cf.parameters.push_back(*it);
+    }
+
+    if (cf.parameters.size() < required_parameters) {
+        stringstream ss;
+        ss << "Calibrator: selected model needs at least " 
+           << required_parameters
+           << " but only " << cf.parameters.size() << " where found";
+        throw GeneralException(ss.str());
     }
 
     if (channels_.find(chanID) != channels_.end()) {
@@ -45,13 +65,13 @@ void Calibrator::AddChannel(const Identifier& chanID, const std::string model,
     }
 }
 
-double Calibrator::GetCalEnergy(const Identifier& chanID, double ch) const {
+double Calibrator::GetCalEnergy(const Identifier& chanID, double raw) const {
     map<Identifier, vector<CalibrationFactor> >::const_iterator itch =
         channels_.find(chanID);
     if (itch != channels_.end()) {
         vector<CalibrationFactor>::const_iterator itf;
         for (itf = itch->second.begin(); itf != itch->second.end(); ++itf) {
-            if (itf->min <= ch && ch <= itf->max)
+            if (itf->min <= raw && raw <= itf->max)
                 break;
         }
         // Parts of spectrum that are not within some min-max range are
@@ -60,30 +80,60 @@ double Calibrator::GetCalEnergy(const Identifier& chanID, double ch) const {
             return 0;
         }
         switch(itf->model) {
-            case Poly: 
-                return Model_Poly(itf->parameters, ch);
+            case cal_raw:
+                return ModelRaw(raw);
                 break;
-            case Raw:
-                return Model_Raw(ch);
+            case cal_linear: 
+                return ModelLinear(itf->parameters, raw);
                 break;
-            default: return ch;
+            case cal_quadratic: 
+                return ModelQuadratic(itf->parameters, raw);
+                break;
+            case cal_polynomial: 
+                return ModelPolynomial(itf->parameters, raw);
+                break;
+            case cal_hyplin: 
+                return ModelHypLin(itf->parameters, raw);
+                break;
+            default: 
+                break;
         }
     }
+
     // If no calibration found, return raw channel
-    return ch;
+    return raw;
 }
 
-double Calibrator::Model_Raw(double ch) const {
-    return ch;
+double Calibrator::ModelRaw(double raw) const {
+    return raw;
 }
 
-double Calibrator::Model_Poly(const std::vector<double>& par, double ch) const {
+double Calibrator::ModelLinear(const std::vector<double>& par,
+                                    double raw) const {
+    return par[0] + par[1] * raw;
+}
+
+double Calibrator::ModelQuadratic(const std::vector<double>& par,
+                                    double raw) const {
+    return par[0] + par[1] * raw + par[2] * raw * raw;
+}
+
+double Calibrator::ModelPolynomial(const std::vector<double>& par,
+                                    double raw) const {
     int p = 0;
     double r = 0;
     for (vector<double>::const_iterator it = par.begin(); it != par.end();
         ++it) {
-        r += (*it) * pow(ch, p);
+        r += (*it) * pow(raw, p);
         ++p;
     }
     return r;
+}
+
+double Calibrator::ModelHypLin(const std::vector<double>& par,
+                               double raw) const {
+    if (raw > 0)
+        return par[0] / raw + par[1] + par[2] * raw;
+    else
+        return 0;
 }

@@ -26,7 +26,7 @@ RandomPool::RandomPool() : generator()
 /*! Generate some random numbers using the Mersenne twister */
 void RandomPool::Generate(void)
 {
-    for (size_t i=0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
         numbers[i] = generator.rand(1);
     counter = 0;
 }
