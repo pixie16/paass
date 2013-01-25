@@ -358,14 +358,22 @@ int DetectorDriver::Init(RawEvent& rawev)
         (*it)->Init(rawev);	
     }
 
-    /*
-      Read in the calibration parameters from the file cal.txt
-      //cout << "read in the calibration parameters" << endl;
-      //ReadCal();
-    */
-    
-    ReadCalXml();
-    ReadWalkXml();
+    try {
+        ReadCalXml();
+        ReadWalkXml();
+    } catch (GeneralException &e) {
+        // Any exception in reading calibration and walk correction
+        // will be intercepted here
+        cout << endl;
+        cout << "Exception caught at DetectorDriver::Init" << endl;
+        cout << "\t" << e.what() << endl;
+        Messenger m;
+        m.fail();
+        exit(EXIT_FAILURE);
+    } catch (GeneralWarning &w) {
+        cout << "Warning caught at DetectorDriver::Init" << endl;
+        cout << "\t" << w.what() << endl;
+    }
 
     TimingInformation readFiles;
     readFiles.ReadTimingConstants();
@@ -552,7 +560,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
 
     RandomPool* randoms = RandomPool::get();
 
-    double energy = 0.;
+    double energy = 0.0;
 
     if (type == "ignore" || type == "") {
         return 0;
@@ -602,10 +610,9 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
 
     /** Calibrate energy and apply the walk correction. */
     double time = chan->GetTime();
-    double ch = chan->GetEnergy();
-    double walk_correction = walk.GetCorrection(chanId, ch);
+    double walk_correction = walk.GetCorrection(chanId, energy);
 
-    chan->SetCalEnergy(cali.GetCalEnergy(chanId, ch));
+    chan->SetCalEnergy(cali.GetCalEnergy(chanId, energy));
     chan->SetCorrectedTime(time - walk_correction);
     
     /*
@@ -682,7 +689,7 @@ void DetectorDriver::ReadCalXml() {
         stringstream ss;
         ss << "DetectorDriver::ReadCalXml: error parsing file " << xmlFileName;
         ss << " : " << result.description();
-        cout << ss.str() << endl;
+        throw GeneralException(ss.str());
     }
 
     Messenger m;
@@ -758,7 +765,7 @@ void DetectorDriver::ReadWalkXml() {
         stringstream ss;
         ss << "DetectorDriver::ReadWalk: error parsing file " << xmlFileName;
         ss << " : " << result.description();
-        cout << ss.str() << endl;
+        throw GeneralException(ss.str());
     }
 
     Messenger m;

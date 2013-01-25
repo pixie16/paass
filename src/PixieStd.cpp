@@ -302,7 +302,6 @@ bool MakeModuleData(const word_t *data, unsigned long nWords)
 		 << ", vsn = " << vsn << ", inWords = " << inWords
 		 << " of " << nWords << ", outWords = " << outWords << endl;
 #endif
-	    // exit(EXIT_FAILURE);
 	    return false;  
 	}
 	
@@ -901,32 +900,11 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
  *
  * Print out an error message and terminate program depending on value
  * of errorNum. 
+ *
+ * KM 01.2013: removed, use exceptions from Exception.hpp 
  */
 /*
 void Pixie16Error(int errorNum)
 {
-  //print error message depending on errornum
-  switch (errorNum) {
-      case 1:
-	  cout << endl;
-	  cout << " **************  SCAN ERROR  ****************** " << endl;
-	  cout << "There appears to be more modules in the data " << endl;
-	  cout << "stream than are present in the map.txt file. " << endl;
-	  cout << "Please verify that the map.txt file is correct " << endl;
-	  cout << "This is a fatal error, program terminating" << endl;
-	  exit(EXIT_FAILURE);
-      case 2:
-	  cout << endl;
-	  cout << "***************  SCAN ERROR  ******************* "<<endl;
-	  cout << "One of the variables named nn, nk, or mm" << endl;
-	  cout << "have exceeded the value of TOTALREAD. The value of" << endl;
-	  cout << "TOTALREAD MUST NEVER exceed 1000000 for correct " << endl;
-	  cout << "opertation of code between 32-bit and 64-bit architecture " << endl;
-	  cout << "Either these variables have not been zeroed correctly or" << endl;
-	  cout << "the poll program controlling pixie16 is trying to send too " << endl;
-	  cout << "much data at once" << endl;
-	  cout << "This is a fatal error, program terminating " << endl;
-	  exit(EXIT_FAILURE);
-  }
 }
 */
