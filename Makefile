@@ -138,6 +138,7 @@ FITTINGANALYZERO = FittingAnalyzer.$(ObjSuf)
 GEPROCESSORO     = GeProcessor.$(ObjSuf)
 GE4HEN3PROCESSORO= Ge4Hen3Processor.$(ObjSuf)
 GECALIBPROCESSORO= GeCalibProcessor.$(ObjSuf)
+GLOBALSO         = Globals.$(ObjSuf)
 HEN3PROCESSORO   = Hen3Processor.$(ObjSuf)
 ISSDPROCESSORO   = ImplantSsdProcessor.$(ObjSuf)
 INITIALIZEO      = Initialize.$(ObjSuf)
@@ -223,6 +224,7 @@ $(EVENTPROCESSORO)\
 $(GEPROCESSORO)\
 $(GE4HEN3PROCESSORO)\
 $(GECALIBPROCESSORO)\
+$(GLOBALSO)\
 $(HEN3PROCESSORO)\
 $(ISSDPROCESSORO)\
 $(INITIALIZEO)\

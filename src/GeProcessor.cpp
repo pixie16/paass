@@ -125,8 +125,8 @@ GeProcessor::GeProcessor(double gammaThreshold, double lowRatio,
         bool completeGate = true;
         for (pugi::xml_node line = gate.child("Line"); line;
              line = line.next_sibling("Line")) {
-            double min = strings::to_double(line.attribute("min").value());
-            double max = strings::to_double(line.attribute("max").value());
+            double min = line.attribute("min").as_double();
+            double max = line.attribute("max").as_double();
             LineGate lg = LineGate(min, max);
             if (lg.Check()) {
                 vg.push_back(LineGate(min, max));
