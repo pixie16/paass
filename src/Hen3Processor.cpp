@@ -139,7 +139,8 @@ bool Hen3Processor::Process(RawEvent &event)
             if (TreeCorrelator::get()->place("Beta")->status()) {
                 double hen3_time = chan->GetTime();
                 double beta_time = TreeCorrelator::get()->place("Beta")->last().time;
-                const double timeResolution = 1e-6 / pixie::clockInSeconds;
+                const double timeResolution = 
+                    1e-6 / Globals::get()->clockInSeconds();
                 double dt = int( 100 + (hen3_time - beta_time) / timeResolution);
                 if (dt > S8)
                     dt = S8 - 1;

@@ -195,6 +195,8 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
     // Call base class processing
     GeProcessor::Process(event);
 
+    double clockInSeconds = Globals::get()->clockInSeconds();
+
     /** Place Cycle is activated by BeamOn event and deactivated by TapeMove
      *  This will therefore skip events after tape was moved and before 
      *  beam hit the new spot
@@ -227,7 +229,7 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         
         double gEnergy = chan->GetCalEnergy();	
         double gTime   = chan->GetCorrectedTime();
-        double decayTime = (gTime - cycleTime) * pixie::clockInSeconds;
+        double decayTime = (gTime - cycleTime) * clockInSeconds;
         if (gEnergy < gammaThreshold_)
             continue;
 
@@ -238,7 +240,7 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         double gb_dtime = numeric_limits<double>::max();
         if (hasBeta) {
             EventData bestBeta = BestBetaForGamma(gTime);
-            gb_dtime = (gTime - bestBeta.time) * pixie::clockInSeconds;
+            gb_dtime = (gTime - bestBeta.time) * clockInSeconds;
             plot(neutron::betaGated::D_ENERGY, gEnergy);
 
             if (GoodGammaBeta(gb_dtime)) {
@@ -305,7 +307,7 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         double gb_dtime = numeric_limits<double>::max();
         if (hasBeta) {
             EventData bestBeta = BestBetaForGamma(gTime);
-            gb_dtime = (gTime - bestBeta.time) * pixie::clockInSeconds;
+            gb_dtime = (gTime - bestBeta.time) * clockInSeconds;
         }
 
         if (hasBeta && GoodGammaBeta(gb_dtime)) {
@@ -323,7 +325,7 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         for (unsigned int det = 0; det < numClovers; ++det) {
             double gEnergy = addbackEvents_[det][ev].first;
             double gTime = addbackEvents_[det][ev].second;
-            double decayTime = (gTime - cycleTime) * pixie::clockInSeconds;
+            double decayTime = (gTime - cycleTime) * clockInSeconds;
             if (gEnergy < gammaThreshold_)
                 continue;
 
@@ -334,7 +336,7 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             double gb_dtime = numeric_limits<double>::max();
             if (hasBeta) {
                 EventData bestBeta = BestBetaForGamma(gTime);
-                gb_dtime = (gTime - bestBeta.time) * pixie::clockInSeconds;
+                gb_dtime = (gTime - bestBeta.time) * clockInSeconds;
             }
 
             if (hasBeta && GoodGammaBeta(gb_dtime)) {

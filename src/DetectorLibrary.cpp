@@ -14,7 +14,6 @@
 #include "DetectorLibrary.hpp"
 #include "Globals.hpp"
 #include "Messenger.hpp"
-#include "PathHolder.hpp"
 #include "RawEvent.hpp"
 #include "TreeCorrelator.hpp"
 
@@ -50,14 +49,10 @@ DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations(), numModul
 void DetectorLibrary::LoadXml() {
     pugi::xml_document doc;
 
-    PathHolder* conf_path = new PathHolder();
-    string xmlFileName = conf_path->GetFullPath("Config.xml");
-    delete conf_path;
-
-    pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
+    pugi::xml_parse_result result = doc.load_file("Config.xml");
     if (!result) {
         stringstream ss;
-        ss << "MapFile: error parsing file " << xmlFileName;
+        ss << "DetectorDriver: error parsing file Config.xml";
         ss << " : " << result.description();
         cout << ss.str() << endl;
     }

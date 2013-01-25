@@ -118,11 +118,15 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
     struct FittingAnalyzer::FitData data = 
 	{sizeFit, y, sigma, width, decay};
     gsl_multifit_function_fdf f;
-#if defined(REVD) || defined(REVF)
-    double xInit[numParams] = {0, maxVal*10};
-#else
-    double xInit[numParams] = {0, maxVal*3};
-#endif
+    double xInit[numParams];
+    if (Globals::get()->revision() == "D" ||
+        Globals::get()->revision() == "F") {
+        xInit[0] = 0.0;
+        xInit[1] = maxVal * 10.0;
+    } else {
+        xInit[0] = 0.0;
+        xInit[1] = maxVal * 3.0;
+    }
     gsl_vector_view x = 
 	gsl_vector_view_array (xInit, numParams);
     

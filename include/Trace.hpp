@@ -8,11 +8,10 @@
 #ifndef __TRACE_HPP_
 #define __TRACE_HPP_
 
+#include <cmath>
 #include <map>
 #include <string>
 #include <vector>
-
-#include <cmath>
 
 #include "DammPlotIds.hpp"
 #include "Globals.hpp"
@@ -51,8 +50,9 @@ class Trace : public std::vector<int>
 
  public:
      
-    Trace() : std::vector<int>()
-	{baselineLow = baselineHigh = pixie::U_DELIMITER; };
+    Trace() : std::vector<int>() {
+        baselineLow = baselineHigh = pixie::U_DELIMITER;
+    }
     // an automatic conversion
     Trace(const std::vector<int> &x) : std::vector<int>(x) {
         baselineLow = baselineHigh = pixie::U_DELIMITER;

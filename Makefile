@@ -5,11 +5,6 @@ SHELL=/bin/sh
 # Uncomment the following line for root functionality
 # USEROOT = 1
 
-# Uncomment this line if processing Rev. D data
-#REVISIOND = 1
-# Uncomment this line if processing Rev. F data
-REVISIONF = 1
-
 # Uncomment this line for a more verbose scan
 # CXXFLAGS += -DVERBOSE
 
@@ -76,12 +71,6 @@ FFLAGS   += -O3
 GCCFLAGS += -fPIC $(CINCLUDEDIRS) -Dnewreadout
 CXXFLAGS += -Wall -fPIC $(CINCLUDEDIRS) -Dnewreadout 
 
-ifdef REVISIOND
-CXXFLAGS += -DREVD
-endif
-ifdef REVISIONF
-CXXFLAGS += -DREVF
-endif
 ifdef ONLINE
 CXXFLAGS += -DONLINE
 endif
@@ -159,7 +148,6 @@ POSITIONPROCESSORO = PositionProcessor.$(ObjSuf)
 RANDOMPOOLO      = RandomPool.$(ObjSuf)
 RAWEVENTO        = RawEvent.$(ObjSuf)
 ROOTPROCESSORO   = RootProcessor.$(ObjSuf)
-PATHHOLDERO      = PathHolder.$(ObjSuf)
 PLACEBUILDERO    = PlaceBuilder.$(ObjSuf)
 PLACESO          = Places.$(ObjSuf)
 PULSERPROCESSORO = PulserProcessor.$(ObjSuf)
@@ -230,7 +218,6 @@ $(MESSENGERO)\
 $(MCPPROCESSORO)\
 $(MTCPROCESSORO)\
 $(NEUTRONSCINTPROCESSORO)\
-$(PATHHOLDERO)\
 $(PLOTSO)\
 $(PLOTSREGISTERO)\
 $(POSITIONPROCESSORO)\

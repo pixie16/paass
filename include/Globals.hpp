@@ -12,6 +12,9 @@
 #include <cstdlib>
 #include <algorithm>
 #include <stdint.h>
+
+#include "pixie16app_defs.h"
+
 #include "Exceptions.hpp"
 
 
@@ -30,9 +33,15 @@ namespace pixie {
     */
     const pixie::word_t U_DELIMITER = (pixie::word_t)-1;
 
+    /** THIS SHOULD NOT BE SET LARGER THAN 1,000,000
+     * this defines the maximum amount of data that will be
+     * received in a spill. 
+     */
+    const unsigned int TOTALREAD = 1000000;
+
     /** an arbitrary vsn used to pass clock data */
     const pixie::word_t clockVsn = 1000; 
-
+/*
 #ifdef REVF
     const double clockInSeconds = 8e-9; //< one pixie clock is 8 ns
     const double adcClockInSeconds = 4e-9; //< one ADC clock is 4 ns
@@ -42,21 +51,20 @@ namespace pixie {
     const double adcClockInSeconds = 10e-9; //< one ADC clock is 10 ns
     const double filterClockInSeconds = 10e-9; //< one filter clock is 10 ns
 #endif
-   
-    const size_t numberOfChannels = 16; //< number of channels in a module
 
-    /** The time widht of an event in seconds.*/
-    /** 3Hen -> 100 us, LeRIBBS -> 3 us */
+    // The time widht of an event in seconds.
     const double eventInSeconds = 100e-6;
-    /** The time width of an event in units of pixie16 clock ticks */
+    // The time width of an event in units of pixie16 clock ticks
     const int eventWidth = eventInSeconds / pixie::clockInSeconds;
 
-    /** Energies from pixie16 are contracted by this number.
-     * Was 2.0 for older LeRIBBS
-     * changed to 4.0 for LeRIBBS experiment (93Br)
-     * Set to 1.0, looks like ADC range is 16K
-     * */
+    // Energies from pixie16 are contracted by this number.
+    // Was 2.0 for older LeRIBBS
+    // changed to 4.0 for LeRIBBS experiment (93Br)
+    // Set to 1.0, looks like ADC range is 16K
     const double energyContraction = 1.0; 
+*/
+   
+    const size_t numberOfChannels = 16; //< number of channels in a module
 };
 
 
@@ -142,7 +150,7 @@ class Globals {
             return clockInSeconds_;
         }
 
-        double addClockInSeconds() const {
+        double adcClockInSeconds() const {
             return adcClockInSeconds_;
         }
 
@@ -155,15 +163,31 @@ class Globals {
         }
 
         int eventWidth() const {
-            return eventInSeconds_ / clockInSeconds_;
+            return eventWidth_;
         }
 
         double energyContraction() const {
             return energyContraction_;
         }
 
+        unsigned int maxWords() const {
+            return maxWords_;
+        }
+
+
         std::string revision() const {
             return revision_;
+        }
+
+        /** Returns joined path to the passed filename by
+         * adding the configPath_
+         * This is temporary solution as long as there are some 
+         * files not incorporated into Config.xml
+         */
+        std::string configPath(std::string fileName) {
+            std::stringstream ss;
+            ss << configPath_ << fileName;
+            return ss.str();
         }
 
     private:
@@ -182,7 +206,10 @@ class Globals {
         double adcClockInSeconds_;
         double filterClockInSeconds_;
         double eventInSeconds_;
+        int eventWidth_;
         double energyContraction_;
+        unsigned int maxWords_;
+        std::string configPath_;
 };
 
 
