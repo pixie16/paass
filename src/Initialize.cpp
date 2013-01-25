@@ -24,8 +24,10 @@ extern "C" void drrsub_(unsigned int& iexist)
         PathHolder* conf_path = new PathHolder("config.txt");
         delete conf_path;
 
+        /** This will instantiate and initialize global variables kept
+         * in Globals singleton class
+         */
         Globals::get();
-        exit(0);
 
         drrmake_();
 
@@ -41,6 +43,7 @@ extern "C" void drrsub_(unsigned int& iexist)
          *  calibration and walk correction factors.
          */
         DetectorDriver::get()->DeclarePlots();
+
         endrr_(); 
     } catch (std::exception &e) {
         // Any exception in opening files (config.txt and map2.txt)
