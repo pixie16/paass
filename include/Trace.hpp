@@ -52,10 +52,10 @@ class Trace : public std::vector<int>
  public:
      
     Trace() : std::vector<int>()
-	{baselineLow = baselineHigh = U_DELIMITER; };
+	{baselineLow = baselineHigh = pixie::U_DELIMITER; };
     // an automatic conversion
     Trace(const std::vector<int> &x) : std::vector<int>(x) {
-        baselineLow = baselineHigh = U_DELIMITER;
+        baselineLow = baselineHigh = pixie::U_DELIMITER;
     }
 
     void TrapezoidalFilter(Trace &filter, const TFP &parms,

@@ -39,26 +39,28 @@ public:
 
     bool DeclareHistogram1D(int dammId, int xSize, const char* title,
 			    int halfWordsPerChan, int xHistLength, int xLow, int xHigh,
-			    const std::string &mne = emptyString);
+			    const std::string &mne = "");
+
     bool DeclareHistogram1D(int dammId, int xSize, const char* title,
-                int halfWordsPerChan = 2, const std::string &mne = emptyString
-			    ); 
+                int halfWordsPerChan = 2, const std::string &mne = ""); 
+
     bool DeclareHistogram1D(int dammId, int xSize, const char* title,
 			    int halfWordsPerChan, int contraction,
-			    const std::string &mne = emptyString);
+			    const std::string &mne = "");
 
     bool DeclareHistogram2D(int dammId, int xSize, int ySize,
 			    const char *title, int halfWordsPerChan,
 			    int xHistLength, int xLow, int xHigh,
 			    int yHistLength, int yLow, int yHigh,
-			    const std::string &mne = emptyString);    
+			    const std::string &mne = ""); 
+
     bool DeclareHistogram2D(int dammId, int xSize, int ySize,
 			    const char* title, int halfWordPerChan = 1,
-                const std::string &mne = emptyString);
+                const std::string &mne = "");
     bool DeclareHistogram2D(int dammId, int xSize, int ySize,
 			    const char* title, int halfWordsPerChan,
 			    int xContraction, int yContraction, 
-			    const std::string &mne = emptyString);
+			    const std::string &mne = "");
     
     bool Plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h");
 

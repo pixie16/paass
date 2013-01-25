@@ -333,13 +333,13 @@ bool PositionProcessor::Process(RawEvent &event) {
         
         topQdc[0] = top->GetQdcValue(0);
         bottomQdc[0] = bottom->GetQdcValue(0);
-        if (bottomQdc[0] == U_DELIMITER || topQdc[0] == U_DELIMITER) {
+        if (bottomQdc[0] == pixie::U_DELIMITER || topQdc[0] == pixie::U_DELIMITER) {
             // This happens naturally for traces which have double triggers
             //   Onboard DSP does not write QDCs in this case
 #ifdef VERBOSE
             cout << "SSD strip edges are missing QDC information for location " << location << endl;
 #endif
-            if (topQdc[0] == U_DELIMITER) {
+            if (topQdc[0] == pixie::U_DELIMITER) {
                 // [2] -> Missing top QDC
                 plot(D_INFO_LOCX + location, INFO_MISSING_TOP_QDC);
                 plot(D_INFO_LOCX + LOC_SUM, INFO_MISSING_TOP_QDC);
@@ -350,7 +350,7 @@ bool PositionProcessor::Process(RawEvent &event) {
                     topQdc[0] = 0;
                 }
             }
-            if (bottomQdc[0] == U_DELIMITER) {
+            if (bottomQdc[0] == pixie::U_DELIMITER) {
                 // [1] -> Missing bottom QDC
                 plot(D_INFO_LOCX + location, INFO_MISSING_BOTTOM_QDC);
                 plot(D_INFO_LOCX + LOC_SUM, INFO_MISSING_BOTTOM_QDC);
@@ -371,7 +371,7 @@ bool PositionProcessor::Process(RawEvent &event) {
 
 
         for (int i = 1; i < numQdcs; ++i) {		
-            if (top->GetQdcValue(i) == U_DELIMITER) {
+            if (top->GetQdcValue(i) == pixie::U_DELIMITER) {
                 // Recreate qdc from trace
                 topQdc[i] = accumulate(top->GetTrace().begin() + qdcPos[i-1],
                 top->GetTrace().begin() + qdcPos[i], 0);
@@ -383,7 +383,7 @@ bool PositionProcessor::Process(RawEvent &event) {
             topQdcTot += topQdc[i];
             topQdc[i] /= qdcLen[i];		
             
-            if (bottom->GetQdcValue(i) == U_DELIMITER) {
+            if (bottom->GetQdcValue(i) == pixie::U_DELIMITER) {
                 // Recreate qdc from trace
                 bottomQdc[i] = accumulate(bottom->GetTrace().begin() + qdcPos[i-1],
                                           bottom->GetTrace().begin() + qdcPos[i], 0);

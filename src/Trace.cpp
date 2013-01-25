@@ -84,7 +84,7 @@ unsigned int Trace::DoDiscrimination(unsigned int lo, unsigned int numBins)
     unsigned int high = lo+numBins;
 
     if(size() < high)
-	return U_DELIMITER;
+	return pixie::U_DELIMITER;
     
     int discrim = 0, max = GetValue("maxpos");
     double baseline = GetValue("baseline");
@@ -102,7 +102,7 @@ unsigned int Trace::DoQDC(unsigned int lo, unsigned int numBins)
     unsigned int high = lo+numBins;
 
     if(size() < high)
-	return U_DELIMITER;
+	return pixie::U_DELIMITER;
 
     double baseline = GetValue("baseline");
     double qdc = 0;
@@ -122,7 +122,7 @@ unsigned int Trace::FindMaxInfo(unsigned int lo, unsigned int numBins)
     numBins = lo + hi;
     
     if(size() < lo + numBins)
-       return U_DELIMITER;
+       return pixie::U_DELIMITER;
     
     Trace::const_iterator itTrace = max_element(begin()+lo, end()-lo);
     

@@ -192,9 +192,7 @@ void TreeCorrelator::buildTree() {
 TreeCorrelator::~TreeCorrelator() {
     for (map<string, Place*>::iterator it = places_.begin(); 
          it != places_.end(); ++it) {
-            if (verbose::MAP_INIT)
-                cout << "TreeCorrelator: deleting place " << (*it).first << endl;
-            delete it->second;
+        delete it->second;
     }
 }
 
