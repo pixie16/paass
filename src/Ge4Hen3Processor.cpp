@@ -33,40 +33,46 @@ namespace dammIds {
     namespace ge {
         namespace neutron {
             const int D_ENERGY = 200;
-            const int D_ADD_ENERGY = 250; 
-            const int DD_ENERGY = 201;
-            const int DD_ENERGY_NEUTRON_LOC = 202;
-            const int DD_ADD_ENERGY = 251;
-            const int D_ADD_ENERGY_TOTAL = 255;
+            const int DD_ENERGY = 202;
+            const int DD_ENERGY_NEUTRON_LOC = 203;
             const int DD_ENERGY__TIMEX = 221; 
+
+            const int D_ADD_ENERGY = 250; 
+            const int DD_ADD_ENERGY = 252;
+            const int D_ADD_ENERGY_TOTAL = 255;
             const int DD_ADD_ENERGY__TIMEX = 271;
 
             namespace betaGated {
                 const int D_ENERGY = 210;
-                const int D_ADD_ENERGY = 260; 
-                const int DD_ENERGY = 211;
-                const int DD_ADD_ENERGY = 261;
-                const int D_ADD_ENERGY_TOTAL = 265;
+                const int D_ENERGY_PROMPT = 211;
+                const int DD_ENERGY = 212;
                 const int DD_ENERGY__TIMEX = 231; 
+
+                const int D_ADD_ENERGY = 260; 
+                const int D_ADD_ENERGY_TOTAL = 265;
+                const int DD_ADD_ENERGY = 262;
                 const int DD_ADD_ENERGY__TIMEX = 281;
             } 
         }
 
         namespace multiNeutron {
             const int D_ENERGY = 300;
-            const int D_ADD_ENERGY = 350; 
-            const int DD_ENERGY = 301;
-            const int DD_ADD_ENERGY = 351;
-            const int D_ADD_ENERGY_TOTAL = 355;
+            const int DD_ENERGY = 302;
             const int DD_ENERGY__TIMEX = 321; 
+
+            const int D_ADD_ENERGY = 350; 
+            const int DD_ADD_ENERGY = 352;
+            const int D_ADD_ENERGY_TOTAL = 355;
             const int DD_ADD_ENERGY__TIMEX = 371;
             namespace betaGated {
                 const int D_ENERGY = 310;
-                const int D_ADD_ENERGY = 360; 
-                const int DD_ENERGY = 311;
-                const int DD_ADD_ENERGY = 361;
-                const int D_ADD_ENERGY_TOTAL = 365;
+                const int D_ENERGY_PROMPT = 311;
+                const int DD_ENERGY = 312;
                 const int DD_ENERGY__TIMEX = 331; 
+
+                const int D_ADD_ENERGY = 360; 
+                const int DD_ADD_ENERGY = 362;
+                const int D_ADD_ENERGY_TOTAL = 365;
                 const int DD_ADD_ENERGY__TIMEX = 381; 
             } 
         }
@@ -116,6 +122,8 @@ void Ge4Hen3Processor::DeclarePlots(void)
 
     DeclareHistogram1D(neutron::betaGated::D_ENERGY, energyBins1,
                        "Gamma singles beta neutron gated");
+    DeclareHistogram1D(neutron::betaGated::D_ENERGY_PROMPT, energyBins1,
+                       "Gamma singles beta prompt neutron gated");
     DeclareHistogram1D(neutron::betaGated::D_ADD_ENERGY, energyBins1,
                        "Gamma addback beta neutron gated");
     DeclareHistogram1D(neutron::betaGated::D_ADD_ENERGY_TOTAL, energyBins1,
@@ -155,6 +163,8 @@ void Ge4Hen3Processor::DeclarePlots(void)
 
     DeclareHistogram1D(multiNeutron::betaGated::D_ENERGY, energyBins1,
                        "Gamma singles beta multineutron gated");
+    DeclareHistogram1D(multiNeutron::betaGated::D_ENERGY_PROMPT, energyBins1,
+                       "Gamma singles beta prompt multineutron gated");
     DeclareHistogram1D(multiNeutron::betaGated::D_ADD_ENERGY, energyBins1,
                        "Gamma addback beta multineutron gated");
     DeclareHistogram1D(multiNeutron::betaGated::D_ADD_ENERGY_TOTAL, energyBins1,
@@ -229,12 +239,13 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         if (hasBeta) {
             EventData bestBeta = BestBetaForGamma(gTime);
             gb_dtime = (gTime - bestBeta.time) * pixie::clockInSeconds;
-        }
+            plot(neutron::betaGated::D_ENERGY, gEnergy);
 
-        if (hasBeta && GoodGammaBeta(gb_dtime)) {
-                plot(neutron::betaGated::D_ENERGY, gEnergy);
+            if (GoodGammaBeta(gb_dtime)) {
+                plot(neutron::betaGated::D_ENERGY_PROMPT, gEnergy);
                 granploty(neutron::betaGated::DD_ENERGY__TIMEX,
                             gEnergy, decayTime, timeResolution);
+            }
         }
 
         for (unsigned l = 0; l < 48; ++l) {
@@ -249,10 +260,13 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             plot(multiNeutron::D_ENERGY, gEnergy);
             granploty(multiNeutron::DD_ENERGY__TIMEX,
                       gEnergy, decayTime, timeResolution);
-            if (hasBeta && GoodGammaBeta(gb_dtime)) {
+            if (hasBeta) {
                 plot(multiNeutron::betaGated::D_ENERGY, gEnergy);
-                granploty(multiNeutron::betaGated::DD_ENERGY__TIMEX,
-                          gEnergy, decayTime, timeResolution);
+                if (GoodGammaBeta(gb_dtime)) {
+                    plot(multiNeutron::betaGated::D_ENERGY_PROMPT, gEnergy);
+                    granploty(multiNeutron::betaGated::DD_ENERGY__TIMEX,
+                            gEnergy, decayTime, timeResolution);
+                }
             }
         }
         
