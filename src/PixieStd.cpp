@@ -144,7 +144,7 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
     word_t nWords=buf[0] / 4;
     word_t totBuf=buf[1];
     word_t bufNum=buf[2];
-    static unsigned int lastBuf = U_DELIMITER;
+    static unsigned int lastBuf = pixie::U_DELIMITER;
 
     // Check to make sure the number of buffers is not excessively large 
     if (totBuf > maxChunks) {
@@ -157,7 +157,7 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
      */
     if(bufNum != 0 && firstTime) {
         do {
-            if (buf[totWords] == U_DELIMITER) {
+            if (buf[totWords] == pixie::U_DELIMITER) {
                 cout << "  -1 DELIMITER, " 
                     << buf[totWords] << buf[totWords + 1] << endl;
                 return;
@@ -177,12 +177,12 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
 	      current buffer number at this point in the chunk.  
 	      Note: the total number of buffers is repeated for each 
 	      buffer in the chunk */
-	    if (buf[totWords] == U_DELIMITER) return;
+	    if (buf[totWords] == pixie::U_DELIMITER) return;
 
 	    nWords = buf[totWords] / 4;
  	    bufNum = buf[totWords+2]; 
 	    // read total number of buffers later after we check if the last spill was good
-	    if (lastBuf != U_DELIMITER && bufNum != lastBuf + 1) {
+	    if (lastBuf != pixie::U_DELIMITER && bufNum != lastBuf + 1) {
 #ifdef VERBOSE
 		cout << "Buffer skipped, Last: " << lastBuf << " of " << totBuf 
 		     << " buffers read -- Now: " << bufNum << endl;
@@ -310,11 +310,11 @@ bool MakeModuleData(const word_t *data, unsigned long nWords)
 	inWords  += lenRec;
 	outWords += lenRec;
 	
-	modData[outWords++]=U_DELIMITER;
+	modData[outWords++]=pixie::U_DELIMITER;
     } while (inWords < nWords);
 	    
-    modData[outWords++]=U_DELIMITER;
-    modData[outWords++]=U_DELIMITER;
+    modData[outWords++]=pixie::U_DELIMITER;
+    modData[outWords++]=pixie::U_DELIMITER;
 	    
     if(nWords > TOTALREAD || inWords > TOTALREAD || outWords > TOTALREAD ) {
         stringstream ess;
@@ -423,16 +423,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
         * vector, the DetectorDriver and rawevent have been initialized with the
         * detectors that will be used in this analysis.
         */
-        ss << "Using event width " << pixie::eventInSeconds * 1e6 
-           << " us" << " i.e. " << pixie::eventWidth 
-           << " in pixie16 clock tics.";
-        messenger.detail(ss.str());
-        ss.str("");
-
         modChan->PrintUsedDetectors(rawev);
-        if (verbose::MAP_INIT)
-            modChan->PrintMap();
-
         driver->Init(rawev);
         
         /* Make a last check to see that everything is in order for the driver 
@@ -467,7 +458,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
     bool multSpill;
 
     do {
-        word_t vsn = U_DELIMITER;
+        word_t vsn = pixie::U_DELIMITER;
         //true if spill had all vsn's
         bool fullSpill = false;
         //assume all buffers are not split between spills    
@@ -486,13 +477,13 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
             /* If the record length is -1 (after end of spill), increment the
             location in the buffer by two and start over with the while loop
             */
-            if (lenRec == U_DELIMITER) {
+            if (lenRec == pixie::U_DELIMITER) {
                 nWords += 2;  // increment two whole words and try again
                 continue;                         
             }
             // Buffer with vsn 1000 was inserted with 
             // the time for superheavy exp't
-            if (vsn == clockVsn) {
+            if (vsn == pixie::clockVsn) {
                 memcpy(&theTime, &lbuf[nWords+2], sizeof(time_t));
                 nWords += lenRec;
             }
@@ -511,7 +502,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
              * acceptable range, begin reading the buffer.
              */
             if ( vsn < modChan->GetPhysicalModules()  ) {
-                if ( lastVsn != U_DELIMITER) {
+                if ( lastVsn != pixie::U_DELIMITER) {
                 // the modules should be read out cyclically
                     if ( ((lastVsn+1) % modChan->GetPhysicalModules() ) !=
                            vsn ) {
@@ -568,7 +559,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
             } else {
                 // bail out if we have lost our place,		
                 //   (bad vsn) and process events     
-                if (vsn != 9999 && vsn != clockVsn) {
+                if (vsn != 9999 && vsn != pixie::clockVsn) {
 #ifdef VERBOSE	    
                     ss << "UNEXPECTED VSN " << vsn;
                     messenger.warning(ss.str());
@@ -587,16 +578,16 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
         /* If the vsn is 9999 this is the end of a spill, signal this buffer
            for processing and determine if the buffer is split between spills.
         */
-            if ( vsn == 9999 || vsn == clockVsn ) {
+            if ( vsn == 9999 || vsn == pixie::clockVsn ) {
                 fullSpill = true;
                 nWords += 3;//skip it
-                if (lbuf[nWords+1] != U_DELIMITER) {
+                if (lbuf[nWords+1] != pixie::U_DELIMITER) {
                     ss << "this actually happens!";
                     messenger.warning(ss.str());
                     ss.str("");
                     multSpill = true;
                 }
-                lastVsn=U_DELIMITER;
+                lastVsn=pixie::U_DELIMITER;
             }
             
             /* if there are events to process, continue */
@@ -726,7 +717,7 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
     //loop over the list of channels that fired in this buffer
     for(; iEvent != eventList.end(); iEvent++) { 
         id = (*iEvent)->GetID();
-        if (id == U_DELIMITER) {
+        if (id == pixie::U_DELIMITER) {
             ss << "pattern 0 ignore";
             messenger.warning(ss.str());
             ss.str("");

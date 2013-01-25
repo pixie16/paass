@@ -9,6 +9,7 @@
 
 #include "PathHolder.hpp"
 #include "DetectorDriver.hpp"
+#include "Globals.hpp"
 
 
 // DAMM initialization call
@@ -22,6 +23,9 @@ extern "C" void drrsub_(unsigned int& iexist)
     try {
         PathHolder* conf_path = new PathHolder("config.txt");
         delete conf_path;
+
+        Globals::get();
+        exit(0);
 
         drrmake_();
 

@@ -716,7 +716,8 @@ void DetectorDriver::ReadCalXml() {
                 cal; cal = cal.next_sibling("Calibration")) {
                 string model = cal.attribute("model").as_string("None");
                 double min = cal.attribute("min").as_double(0);
-                double max = cal.attribute("max").as_double(numeric_limits<double>::max());
+                double max = 
+                  cal.attribute("max").as_double(numeric_limits<double>::max());
 
                 stringstream pars(cal.text().as_string());
                 vector<double> parameters;

@@ -280,13 +280,13 @@ bool LitePositionProcessor::Process(RawEvent &event)
 	
 	topQdc[0] = top->GetQdcValue(0);
 	bottomQdc[0] = bottom->GetQdcValue(0);
-	if (bottomQdc[0] == U_DELIMITER || topQdc[0] == U_DELIMITER) {
+	if (bottomQdc[0] == pixie::U_DELIMITER || topQdc[0] == pixie::U_DELIMITER) {
 	    // This happens naturally for traces which have double triggers
 	    //   Onboard DSP does not write QDCs in this case
 #ifdef VERBOSE
 	    cout << "SSD strip edges are missing QDC information for location " << location << endl;
 #endif
-	    if (topQdc[0] == U_DELIMITER) {
+	    if (topQdc[0] == pixie::U_DELIMITER) {
 		plot(D_INFO_LOCX + location, 1);
 		plot(D_INFO_LOCX + LOC_SUM, 1);
 		if ( !top->GetTrace().empty() ) {
@@ -295,7 +295,7 @@ bool LitePositionProcessor::Process(RawEvent &event)
 		  topQdc[0] = 0;
 		}
 	    }
-	    if (bottomQdc[0] == U_DELIMITER) {
+	    if (bottomQdc[0] == pixie::U_DELIMITER) {
 		plot(D_INFO_LOCX + location, 2);
 		plot(D_INFO_LOCX + LOC_SUM, 2);		
 		if ( !bottom->GetTrace().empty() ) {
@@ -312,7 +312,7 @@ bool LitePositionProcessor::Process(RawEvent &event)
 	plot(D_INFO_LOCX + LOC_SUM , 0); // good stuff
 
 	for (int i=1; i < numQdcs; i++) {		
-  	    if (top->GetQdcValue(i) == U_DELIMITER) {
+  	    if (top->GetQdcValue(i) == pixie::U_DELIMITER) {
 	      topQdc[i] = accumulate(top->GetTrace().begin() + qdcPos[i-1],
 				     top->GetTrace().begin() + qdcPos[i], 0);
 	    } else {
@@ -323,7 +323,7 @@ bool LitePositionProcessor::Process(RawEvent &event)
 	    topQdcTot += topQdc[i];
 	    topQdc[i] /= qdcLen[i];		
 	    
-	    if (bottom->GetQdcValue(i) == U_DELIMITER) {
+	    if (bottom->GetQdcValue(i) == pixie::U_DELIMITER) {
 	      bottomQdc[i] = accumulate(bottom->GetTrace().begin() + qdcPos[i-1],
 					bottom->GetTrace().begin() + qdcPos[i], 0);
 	    } else {

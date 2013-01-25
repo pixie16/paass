@@ -14,19 +14,24 @@
 #include <stdint.h>
 #include "Exceptions.hpp"
 
-//? move these
-const int MAX_PAR = 32000; //< maximum limit for calibrations
 
-/* More verbose initialization */
-namespace verbose {
-    const bool MAP_INIT = false;
-    const bool CALIBRATION_INIT = false;
-};
-
+/** "Constant" constants, i.e. those who won't change going from different 
+ * verison (revision) of board, some magic numbers used in code etc. 
+ * For "variable" constants i.e. revision related or experiment related see
+ * Globals class.*/
 namespace pixie {
     typedef uint32_t word_t; //< a pixie word
     typedef uint16_t halfword_t; //< a half pixie word
     typedef uint32_t bufword_t; //< word in a pixie buffer
+
+    /** buffer and module data are terminated with a "-1" value
+    *   also used to indicate when a quantity is out of range or peculiar
+    *   this should theoretically be the same as UINT_MAX in climits header
+    */
+    const pixie::word_t U_DELIMITER = (pixie::word_t)-1;
+
+    /** an arbitrary vsn used to pass clock data */
+    const pixie::word_t clockVsn = 1000; 
 
 #ifdef REVF
     const double clockInSeconds = 8e-9; //< one pixie clock is 8 ns
@@ -54,25 +59,13 @@ namespace pixie {
     const double energyContraction = 1.0; 
 };
 
-/** buffer and module data are terminated with a "-1" value
- *   also used to indicate when a quantity is out of range or peculiar
- *   this should theoretically be the same as UINT_MAX in climits header
- */
-const pixie::word_t U_DELIMITER = (pixie::word_t)-1;
 
 namespace readbuff {
     const int STATS = -10;
     const int ERROR = -100;
 }
 
-const double emptyValue = -9999.; //< a default number to set values to
-const std::string emptyString = ""; //< an empty string for blank references
-
-const pixie::word_t clockVsn = 1000; ///< an arbitrary vsn used to pass clock data
-
-const size_t maxConfigLineLength = 100;
-
-/** Some common string operations */
+/** Some common string conversion operations */
 namespace strings {
     /** Converts string to double or throws an exception if not 
         * succesful */
@@ -103,9 +96,9 @@ namespace strings {
     }
 
     /** Converts string to bool (True, true, 1 and False, false, 0) are 
-        * accepted; throws an exception if not succesful. Notice tolower
-        * will work only with ascii, not with utf-8, but shouldn't be a 
-        * problem for true and false words. */
+      * accepted; throws an exception if not succesful. Notice tolower
+      * will work only with ascii, not with utf-8, but shouldn't be a 
+      * problem for true and false words. */
     inline bool to_bool (std::string s) {
         std::transform(s.begin(), s.end(), s.begin(), ::tolower);
         if (s == "true" || s == "1")
@@ -120,9 +113,10 @@ namespace strings {
         }
     }
 
-    /** Tokenizes the string, splitting it on given delimiter.
-        * delimiters are removed from returned vector of tokens.*/
-    inline std::vector<std::string> tokenize(std::string str, std::string delimiter) {
+    /** Tokenizes the string, splitting it on a given delimiter.
+      * delimiters are removed from returned vector of tokens.*/
+    inline std::vector<std::string> tokenize(std::string str,
+                                             std::string delimiter) {
         std::string temp;
         std::vector<std::string> tokenized;
         while (str.find(delimiter) != std::string::npos) {
@@ -135,5 +129,61 @@ namespace strings {
         return tokenized;
     }
 };
+
+
+/** Singleton class holding global parameters.*/
+class Globals {
+    public:
+        /** Returns only instance of TreeCorrelator class.*/
+        static Globals* get();
+        ~Globals();
+
+        double clockInSeconds() const {
+            return clockInSeconds_;
+        }
+
+        double addClockInSeconds() const {
+            return adcClockInSeconds_;
+        }
+
+        double filterClockInSeconds() const {
+            return filterClockInSeconds_;
+        }
+
+        double eventInSeconds() const {
+            return eventInSeconds_;
+        }
+
+        int eventWidth() const {
+            return eventInSeconds_ / clockInSeconds_;
+        }
+
+        double energyContraction() const {
+            return energyContraction_;
+        }
+
+        std::string revision() const {
+            return revision_;
+        }
+
+    private:
+        /** Make constructor, copy-constructor and operator =
+         * private to complete singleton implementation.*/
+        Globals();
+        /* Do not implement*/
+        Globals(Globals const&);
+        void operator=(Globals const&);
+        static Globals* instance;
+
+        void SanityCheck();
+
+        std::string revision_;
+        double clockInSeconds_;
+        double adcClockInSeconds_;
+        double filterClockInSeconds_;
+        double eventInSeconds_;
+        double energyContraction_;
+};
+
 
 #endif // __GLOBALS_HPP_
