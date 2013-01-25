@@ -513,6 +513,8 @@ void ImplantSsdProcessor::PlotType(EventInfo &info, int loc, Correlator::ECondit
     const double timeResolution[numGranularities] = 
 	{10e-9, 100e-9, 400e-9, 1e-6, 10e-6, 100e-6, 1e-3, 10e-3, 100e-3};
 
+    double clockInSeconds = Globals::get()->clockInSeconds();
+
     static double prevVeto = 0;
 
     plot(DD_ALL_ENERGY__LOCATION, info.energy, loc);
@@ -533,7 +535,7 @@ void ImplantSsdProcessor::PlotType(EventInfo &info, int loc, Correlator::ECondit
 	    }
 	    if (cond == Correlator::VALID_DECAY) {	 
 		for (unsigned int i = 0; i < numGranularities; i++) {
-		    int timeBin = int(info.dtime * pixie::clockInSeconds / 
+		    int timeBin = int(info.dtime * clockInSeconds / 
 				      timeResolution[i]);
 		
 		    plot(DD_DECAY_ALL_ENERGY__TX + i, info.energy, timeBin);
@@ -553,7 +555,7 @@ void ImplantSsdProcessor::PlotType(EventInfo &info, int loc, Correlator::ECondit
 	    plot(DD_ENERGY__LOCATION_VETO, info.energy, loc);
 	    for (unsigned int i=0; i < numGranularities; i++) {
 		double dt = info.time - prevVeto; // time to previous veto
-		int timeBin = int(dt * pixie::clockInSeconds / timeResolution[i]);
+		int timeBin = int(dt * clockInSeconds / timeResolution[i]);
 		plot(DD_VETO_ENERGY__TX + i, info.energy, timeBin);
 	    }
 	    prevVeto = info.time;

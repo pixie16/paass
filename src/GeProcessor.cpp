@@ -26,7 +26,6 @@
 #include "DetectorLibrary.hpp"
 #include "Exceptions.hpp"
 #include "Messenger.hpp"
-#include "PathHolder.hpp"
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
 #include "RawEvent.hpp"
@@ -105,15 +104,11 @@ GeProcessor::GeProcessor(double gammaThreshold, double lowRatio,
     Messenger m;
     m.detail("Loading Gamma-gamma gates", 1);
 
-    PathHolder* conf_path = new PathHolder();
-    string xmlFileName = conf_path->GetFullPath("Config.xml");
-    delete conf_path;
-
     pugi::xml_document doc;
-    pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
+    pugi::xml_parse_result result = doc.load_file("Config.xml");
     if (!result) {
         stringstream ss;
-        ss << "GeProcessor: could not parse file " << xmlFileName;
+        ss << "DetectorDriver: error parsing file Config.xml";
         ss << " : " << result.description();
         throw IOException(ss.str());
     }
@@ -435,7 +430,7 @@ bool GeProcessor::PreProcess(RawEvent &event) {
         // entries in map are sorted by time
         // if event time is outside of subEventWindow, we start new 
         //   events for all clovers and "tas"
-        double dtime = abs(time - refTime) * pixie::clockInSeconds;
+        double dtime = abs(time - refTime) * Globals::get()->clockInSeconds();
         if (dtime > subEventWindow_) {
             for (unsigned i = 0; i < numClovers; ++i) {
                 addbackEvents_[i].push_back(pair<double, double>());
@@ -459,6 +454,8 @@ bool GeProcessor::Process(RawEvent &event) {
 
     if (!EventProcessor::Process(event))
         return false;
+
+    double clockInSeconds = Globals::get()->clockInSeconds();
 
     /** Place Cycle is activated by BeamOn event and deactivated by TapeMove
      *  This condition will therefore skip events registered during 
@@ -497,8 +494,7 @@ bool GeProcessor::Process(RawEvent &event) {
             continue;
 
         double gTime = chan->GetCorrectedTime();
-        double decayTime = (gTime - cycleTime) *
-                           pixie::clockInSeconds;
+        double decayTime = (gTime - cycleTime) * clockInSeconds;
         int det = leafToClover[chan->GetChanID().GetLocation()];
 
         plot(D_ENERGY, gEnergy);
@@ -508,11 +504,11 @@ bool GeProcessor::Process(RawEvent &event) {
         double gb_dtime = numeric_limits<double>::max();
         if (hasBeta) {
             EventData bestBeta = BestBetaForGamma(gTime);
-            gb_dtime = (gTime - bestBeta.time) * pixie::clockInSeconds;
+            gb_dtime = (gTime - bestBeta.time) * clockInSeconds;
             double betaEnergy = bestBeta.energy;
             int betaLocation = bestBeta.location;
 
-            double plotResolution = pixie::clockInSeconds;
+            double plotResolution = clockInSeconds;
             plot(betaGated::DD_TDIFF__GAMMA_ENERGY,
                     (int)(gb_dtime / plotResolution + 100), gEnergy);
             plot(betaGated::DD_TDIFF__BETA_ENERGY, 
@@ -535,7 +531,7 @@ bool GeProcessor::Process(RawEvent &event) {
                     */
                     double decayTimeOff = (gTime - 
                          TreeCorrelator::get()->place("Beam")->last().time) *
-                         pixie::clockInSeconds;
+                         clockInSeconds;
                     granploty(betaGated::DD_ENERGY__TIMEX_DECAY, 
                             gEnergy, decayTimeOff, timeResolution);
                 }
@@ -570,12 +566,12 @@ bool GeProcessor::Process(RawEvent &event) {
             if (det2 == det)
                continue;
 
-            double gg_dtime = (gTime2 - gTime) * pixie::clockInSeconds;
+            double gg_dtime = (gTime2 - gTime) * clockInSeconds;
 
             /** Plot timediff between events in the same clover
              * to monitor addback subevent gates. */
             if (det == det2) {
-                double plotResolution = pixie::clockInSeconds;
+                double plotResolution = clockInSeconds;
                 plot(DD_TDIFF__GAMMA_GAMMA_ENERGY, 
                      (int)(gg_dtime / plotResolution + 100),
                      gEnergy);
@@ -589,7 +585,7 @@ bool GeProcessor::Process(RawEvent &event) {
                 if (GoodGammaBeta(gb_dtime)) {
                     symplot(betaGated::DD_ENERGY, gEnergy,
                             gEnergy2);            
-                } else if (gb_dtime * pixie::clockInSeconds > gammaBetaLimit_) {
+                } else if (gb_dtime > gammaBetaLimit_) {
                         symplot(betaGated::DD_ENERGY_BDELAYED,
                                 gEnergy, gEnergy2);
                 }
@@ -634,7 +630,7 @@ bool GeProcessor::Process(RawEvent &event) {
                 if ((*it_gate)[0].IsWithin(e1) &&
                     (*it_gate)[1].IsWithin(e2)) {
 
-                    double plotResolution = pixie::clockInSeconds;
+                    double plotResolution = clockInSeconds;
                     plot(DD_TDIFF__GATEX, 
                          (int)(gg_dtime / plotResolution + 100), ig);
                     if (hasBeta && GoodGammaBeta(gb_dtime))
@@ -697,7 +693,7 @@ bool GeProcessor::Process(RawEvent &event) {
         for (unsigned int det = 0; det < numClovers; ++det) {
             double gEnergy = addbackEvents_[det][ev].first;
             double gTime = addbackEvents_[det][ev].second;
-            double decayTime = (gTime - cycleTime) * pixie::clockInSeconds;
+            double decayTime = (gTime - cycleTime) * clockInSeconds;
             if (gEnergy < gammaThreshold_)
                 continue;
 

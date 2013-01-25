@@ -1,4 +1,3 @@
-#include "PathHolder.hpp"
 #include "TreeCorrelator.hpp"
 #include "Globals.hpp"
 #include "Exceptions.hpp"
@@ -165,16 +164,12 @@ void TreeCorrelator::createPlace(map<string, string>& params,
 void TreeCorrelator::buildTree() {
     pugi::xml_document doc;
 
-    PathHolder* conf_path = new PathHolder();
-    string xmlFileName = conf_path->GetFullPath("Config.xml");
-    delete conf_path;
-
     Messenger m;
     m.start("Creating TreeCorrelator");
-    pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
+    pugi::xml_parse_result result = doc.load_file("Config.xml");
     if (!result) {
         stringstream ss;
-        ss << "TreeCorrelator: error parsing file " << xmlFileName;
+        ss << "DetectorDriver: error parsing file Config.xml";
         ss << " : " << result.description();
         m.fail();
         throw IOException(ss.str());

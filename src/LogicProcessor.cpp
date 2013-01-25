@@ -66,7 +66,7 @@ void LogicProcessor::DeclarePlots(void)
 
 bool LogicProcessor::Process(RawEvent &event)
 {
-    const double logicPlotResolution = 10e-6 / pixie::clockInSeconds;
+    const double logicPlotResolution = 10e-6 / Globals::get()->clockInSeconds();
  
     if (!EventProcessor::Process(event))
 	return false;

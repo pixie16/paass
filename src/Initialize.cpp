@@ -7,7 +7,6 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "PathHolder.hpp"
 #include "DetectorDriver.hpp"
 #include "Globals.hpp"
 
@@ -21,14 +20,6 @@ extern "C" void endrr_();
 extern "C" void drrsub_(unsigned int& iexist)
 {
     try {
-        PathHolder* conf_path = new PathHolder("config.txt");
-        delete conf_path;
-
-        /** This will instantiate and initialize global variables kept
-         * in Globals singleton class
-         */
-        Globals::get();
-
         drrmake_();
 
         /** The DetectorDriver constructor will load processors

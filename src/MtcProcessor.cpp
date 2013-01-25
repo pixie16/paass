@@ -39,11 +39,13 @@ namespace dammIds {
 } // mtc namespace
 
 
-MtcProcessor::MtcProcessor(void) : EventProcessor(OFFSET, RANGE, "mtc"), 
-				   lastStartTime(NAN), lastStopTime(NAN)
+MtcProcessor::MtcProcessor(bool double_stop, bool double_start) 
+    : EventProcessor(OFFSET, RANGE, "mtc")
 {
     associatedTypes.insert("timeclass"); // old detector type
     associatedTypes.insert("mtc");
+    double_stop_ = double_stop;
+    double_start_ = double_start;
 }
 
 void MtcProcessor::DeclarePlots(void)
@@ -70,8 +72,9 @@ bool MtcProcessor::PreProcess(RawEvent &event)
     if (!EventProcessor::PreProcess(event))
         return false;
 
+    double clockInSeconds = Globals::get()->clockInSeconds();
     // plot with 10 ms bins
-    const double mtcPlotResolution = 10e-3 / pixie::clockInSeconds;
+    const double mtcPlotResolution = 10e-3 / clockInSeconds;
     // for 2d plot of events 100ms / bin
 
     static const vector<ChanEvent*> &mtcEvents = 
@@ -85,7 +88,7 @@ bool MtcProcessor::PreProcess(RawEvent &event)
         static double t0 = time;
         string place = (*it)->GetChanID().GetPlaceName();
 
-        const double eventsResolution = 100e-3 / pixie::clockInSeconds;
+        const double eventsResolution = 100e-3 / clockInSeconds;
         const unsigned MTC_START = 0;
         const unsigned MTC_STOP = 1;
         const unsigned BEAM_START = 2;
@@ -120,16 +123,14 @@ bool MtcProcessor::PreProcess(RawEvent &event)
 
             double dt_start = time -
                       TreeCorrelator::get()->place(place)->secondlast().time;
-            /*
-            double dt_stop = abs(time - 
-                 TreeCorrelator::get()->place("mtc_beam_stop_0")->last().time);
-            //Remove double starts/stops
-            //Upper limit in seconds for bad event
-            const double doubleTimeLimit = 100e-6;
-            if (abs(dt_start * pixie::clockInSeconds) < doubleTimeLimit ||
-                abs(dt_stop * pixie::clockInSeconds) < doubleTimeLimit)
-                continue;
-            */
+            //Remove double starts
+            if (double_start_) {
+                double dt_stop = abs(time - 
+                  TreeCorrelator::get()->place("mtc_beam_stop_0")->last().time);
+                if (abs(dt_start * clockInSeconds) < doubleTimeLimit_ ||
+                    abs(dt_stop * clockInSeconds) < doubleTimeLimit_)
+                    continue;
+            }
             TreeCorrelator::get()->place("Beam")->activate(time);
             TreeCorrelator::get()->place("Cycle")->activate(time);
 
@@ -143,12 +144,12 @@ bool MtcProcessor::PreProcess(RawEvent &event)
                 TreeCorrelator::get()->place(place)->secondlast().time;
             double dt_beam = time - 
                  TreeCorrelator::get()->place("mtc_beam_start_0")->last().time;
-            //Remove double starts/stops
-            //Upper limit in seconds for bad event
-            const double doubleTimeLimit = 100e-6;
-            if (abs(dt_stop * pixie::clockInSeconds) < doubleTimeLimit ||
-                abs(dt_beam * pixie::clockInSeconds) < doubleTimeLimit)
-                continue;
+            //Remove double stops
+            if (double_stop_) {
+                if (abs(dt_stop * clockInSeconds) < doubleTimeLimit_ ||
+                    abs(dt_beam * clockInSeconds) < doubleTimeLimit_)
+                    continue;
+            }
 
             TreeCorrelator::get()->place("Beam")->deactivate(time);
 

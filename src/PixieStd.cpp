@@ -80,7 +80,8 @@ void HistoStats(unsigned int, double, double, HistoPoints);
  * \brief Extract channel information from the raw parameter array ibuf
  */
 void hissub_sec(unsigned int *ibuf[],unsigned int *nhw);
-bool MakeModuleData(const word_t *data, unsigned long nWords); 
+bool MakeModuleData(const word_t *data, unsigned long nWords,
+                    unsigned int maxWords); 
 #endif
 
 /**
@@ -120,21 +121,11 @@ int (*ReadBuffData)(word_t *lbuf, unsigned long *BufLen,
 
 #ifdef newreadout
 
-// THIS SHOULD NOT BE SET LARGER THAN 1,000,000
-//  this defines the maximum amount of data that will be received in a spill
-const unsigned int TOTALREAD = 1000000;
-
-#if defined(REVD) || defined(REVF)
-const unsigned int maxWords = EXTERNAL_FIFO_LENGTH; //Revision D
-#else
-const unsigned int maxWords = IO_BUFFER_LENGTH; // Revision A
-#endif
-
 extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
 {
     const unsigned int maxChunks = 200;
 
-    static word_t totData[TOTALREAD];
+    static word_t totData[pixie::TOTALREAD];
     // keep track of the number of bad spills
     static unsigned int spillInvalidCount = 0, spillValidCount = 0;
     static bool firstTime = true;
@@ -151,6 +142,7 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
     word_t totBuf=buf[1];
     word_t bufNum=buf[2];
     static unsigned int lastBuf = pixie::U_DELIMITER;
+    unsigned int maxWords = Globals::get()->maxWords();
 
     // Check to make sure the number of buffers is not excessively large 
     if (totBuf > maxChunks) {
@@ -178,123 +170,126 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
     firstTime = false;
     
     do {
-	do {
-	    /*Determine the number of words, total number of buffers, and
-	      current buffer number at this point in the chunk.  
-	      Note: the total number of buffers is repeated for each 
-	      buffer in the chunk */
-	    if (buf[totWords] == pixie::U_DELIMITER) return;
+        do {
+            /*Determine the number of words, total number of buffers, and
+            current buffer number at this point in the chunk.  
+            Note: the total number of buffers is repeated for each 
+            buffer in the chunk */
+            if (buf[totWords] == pixie::U_DELIMITER) return;
 
-	    nWords = buf[totWords] / 4;
- 	    bufNum = buf[totWords+2]; 
-	    // read total number of buffers later after we check if the last spill was good
-	    if (lastBuf != pixie::U_DELIMITER && bufNum != lastBuf + 1) {
+            nWords = buf[totWords] / 4;
+            bufNum = buf[totWords+2]; 
+            // read total number of buffers later after we check if the last spill was good
+            if (lastBuf != pixie::U_DELIMITER && bufNum != lastBuf + 1) {
 #ifdef VERBOSE
-		cout << "Buffer skipped, Last: " << lastBuf << " of " << totBuf 
-		     << " buffers read -- Now: " << bufNum << endl;
+            cout << "Buffer skipped, Last: " << lastBuf << " of " << totBuf 
+                << " buffers read -- Now: " << bufNum << endl;
 #endif
-		// if we are only missing the vsn 9999 terminator, reconstruct it
-		if (lastBuf + 2 == totBuf && bufInSpill == totBuf - 1) {
+            // if we are only missing the vsn 9999 terminator, reconstruct it
+            if (lastBuf + 2 == totBuf && bufInSpill == totBuf - 1) {
 #ifdef VERBOSE
-		    cout << "  Reconstructing final buffer " << lastBuf + 1 << "." << endl;
+                cout << "  Reconstructing final buffer " 
+                     << lastBuf + 1 << "." << endl;
 #endif		   
-		    totData[dataWords++] = 2;
-		    totData[dataWords++] = 9999;
-		    
-		    MakeModuleData(totData, dataWords);
-		    spillValidCount++;
-		    bufInSpill = 0; dataWords = 0; lastBuf = -1;
-		} else if (bufNum == 0) {
+                totData[dataWords++] = 2;
+                totData[dataWords++] = 9999;
+                
+                MakeModuleData(totData, dataWords, maxWords);
+                spillValidCount++;
+                bufInSpill = 0; dataWords = 0; lastBuf = -1;
+            } else if (bufNum == 0) {
 #ifdef VERBOSE		    
-		    cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
-			 << "  INCOMPLETE BUFFER " << spillInvalidCount 
-			 << "\n  " << spillValidCount << " valid spills so far."
-			 << " Starting fresh spill." << endl;
+                cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
+                << "  INCOMPLETE BUFFER " << spillInvalidCount 
+                << "\n  " << spillValidCount << " valid spills so far."
+                << " Starting fresh spill." << endl;
 #endif		   
-		    spillInvalidCount++;
-		    // throw away previous collected data and start fresh
-		    bufInSpill = 0; dataWords = 0; lastBuf = -1;
-		}
-	    } // check that the chunks are in order
-	    // update the total chunks only after the sanity checks above
-	    totBuf = buf[totWords+1];
-	    if (totBuf > maxChunks) {
+                spillInvalidCount++;
+                // throw away previous collected data and start fresh
+                bufInSpill = 0; dataWords = 0; lastBuf = -1;
+            }
+            } // check that the chunks are in order
+            // update the total chunks only after the sanity checks above
+            totBuf = buf[totWords+1];
+            if (totBuf > maxChunks) {
 #ifdef VERBOSE
-		cout << "EEEEE LOST DATA: Total buffers = " << totBuf 
-		     <<  ", word count = " << nWords << endl;
+            cout << "EEEEE LOST DATA: Total buffers = " << totBuf 
+                <<  ", word count = " << nWords << endl;
 #endif
-		return;
-	    }
-	    if (bufNum > totBuf - 1) {
+            return;
+            }
+            if (bufNum > totBuf - 1) {
 #ifdef VERBOSE
-		cout << "EEEEEEE LOST DATA: Buffer number " << bufNum
-		     << " of total buffers " << totBuf << endl;
+            cout << "EEEEEEE LOST DATA: Buffer number " << bufNum
+                << " of total buffers " << totBuf << endl;
 #endif
-		return;
-	    }
-	    lastBuf = bufNum;
+            return;
+            }
+            lastBuf = bufNum;
 
-	    /* Increment the number of buffers in a spill*/
-	    bufInSpill++;
-	    if(nWords == 0) {
+            /* Increment the number of buffers in a spill*/
+            bufInSpill++;
+            if(nWords == 0) {
 #ifdef VERBOSE
-		cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE NWORDS 0" << endl;
+            cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE NWORDS 0" << endl;
 #endif
-		return;
-	    }
-	    
-	    /* Extract this buffer information into the TotData array*/
-	    memcpy(&totData[dataWords], &buf[totWords+3], (nWords - 3) * sizeof(int));
-	    dataWords += nWords - 3;
-	    
-	    // Increment location in file 
-	    // one extra word to pass over "-1" delimiter signalling end of buffer
-	    totWords += nWords+1;
-	    if (bufNum == totBuf - 1 && nWords != 5) {
-		cout << "Strange final buffer " << bufNum << " of " << totBuf
-		     << " with " << nWords << " words" << endl;
-	    }
-	    if (nWords == 5 && bufNum != totBuf - 1) {
+            return;
+            }
+            
+            /* Extract this buffer information into the TotData array*/
+            memcpy(&totData[dataWords], &buf[totWords+3],
+                (nWords - 3) * sizeof(int));
+            dataWords += nWords - 3;
+            
+            // Increment location in file 
+            // one extra word to pass over "-1" delimiter signalling end of buffer
+            totWords += nWords+1;
+            if (bufNum == totBuf - 1 && nWords != 5) {
+            cout << "Strange final buffer " << bufNum << " of " << totBuf
+                << " with " << nWords << " words" << endl;
+            }
+            if (nWords == 5 && bufNum != totBuf - 1) {
 #ifdef VERBOSE
-		cout << "Five word buffer " << bufNum << " of " << totBuf
-		     << " WORDS: " 
-		     << hex << buf[3] << " " << buf[4] << dec << endl;
+            cout << "Five word buffer " << bufNum << " of " << totBuf
+                << " WORDS: " 
+                << hex << buf[3] << " " << buf[4] << dec << endl;
 #endif		
-	    }
-	} while(nWords != 5 || bufNum != totBuf - 1);
-	/* reached the end of a spill when nwords = 5 and last chunk in spill */
+            }
+        } while(nWords != 5 || bufNum != totBuf - 1);
+        /* reached the end of a spill when nwords = 5 and last chunk in spill */
 
-	/* make sure we retrieved all the chunks of the spill */
-	if (bufInSpill != totBuf) {
+        /* make sure we retrieved all the chunks of the spill */
+        if (bufInSpill != totBuf) {
 #ifdef VERBOSE	  
-	    cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE  INCOMPLETE BUFFER "
-		 << spillInvalidCount
-		 << "\n I/B [  " << bufInSpill << " of " << totBuf << " : pos " << totWords 
-		 << "    " << spillValidCount << " total spills"
-		 << "\n| " << hex << buf[0] << " " << buf[1] << "  " 
-		 << buf[2] << " " << buf[3]
-		 << "\n| " << dec << buf[totWords] << " " << buf[totWords+1] << "  "
-		 << buf[totWords+2] << " " << buf[totWords+3] << endl;
+            cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE  INCOMPLETE BUFFER "
+            << spillInvalidCount
+            << "\n I/B [  " << bufInSpill << " of " << totBuf << " : pos " << totWords 
+            << "    " << spillValidCount << " total spills"
+            << "\n| " << hex << buf[0] << " " << buf[1] << "  " 
+            << buf[2] << " " << buf[3]
+            << "\n| " << dec << buf[totWords] << " " << buf[totWords+1] << "  "
+            << buf[totWords+2] << " " << buf[totWords+3] << endl;
 #endif
-	    spillInvalidCount++; 
-	} else {
-	    spillValidCount++;
-	    MakeModuleData(totData, dataWords);	    
-	} // else the number of buffers is complete
-	dataWords = 0; bufInSpill = 0; lastBuf = -1; // reset the number of buffers recorded
+            spillInvalidCount++; 
+        } else {
+            spillValidCount++;
+            MakeModuleData(totData, dataWords, maxWords);	    
+        } // else the number of buffers is complete
+        dataWords = 0; bufInSpill = 0; lastBuf = -1; // reset the number of buffers recorded
     } while (totWords < nhw[0] / 4);
 }
 
 /** \brief inserts a delimiter in between individual module data and at end of 
  * buffer. Data is then passed to hissub_sec() for processing.
  */
-bool MakeModuleData(const word_t *data, unsigned long nWords)
+bool MakeModuleData(const word_t *data, unsigned long nWords,
+                    unsigned int maxWords)
 {
     const unsigned int maxVsn = 14; // no more than 14 pixie modules per crate
 
     unsigned int inWords = 0, outWords = 0;
     
-    static word_t modData[TOTALREAD];
+    static word_t modData[pixie::TOTALREAD];
     // create a constant pointer to this data block for passing to hissub_sec
     static word_t* dataPtr = modData; 
 
@@ -322,10 +317,10 @@ bool MakeModuleData(const word_t *data, unsigned long nWords)
     modData[outWords++]=pixie::U_DELIMITER;
     modData[outWords++]=pixie::U_DELIMITER;
 	    
-    if(nWords > TOTALREAD || inWords > TOTALREAD || outWords > TOTALREAD ) {
+    if(nWords > pixie::TOTALREAD || inWords > pixie::TOTALREAD || outWords > pixie::TOTALREAD ) {
         stringstream ess;
         ess << "Values of nn - " << nWords << " nk - "<< inWords  
-            << " mm - " << outWords << " TOTALREAD - " << TOTALREAD << endl;
+            << " mm - " << outWords << " TOTALREAD - " << pixie::TOTALREAD << endl;
         ess << "One of the variables named nn, nk, or mm" 
             << "have exceeded the value of TOTALREAD. The value of "
             << "TOTALREAD MUST NEVER exceed 1000000 for correct "
@@ -754,7 +749,7 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
         larger than the event width, finalize the current event, otherwise
         treat this as part of the current event
         */
-        if ( diffTime > pixie::eventWidth ) {
+        if ( diffTime > Globals::get()->eventWidth() ) {
             if(rawev.Size() > 0) {
             /* detector driver accesses rawevent externally in order to
             have access to proper detector_summaries
@@ -816,7 +811,8 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
     static double firstTime = 0.;
     static double bufStart;
 
-    double runTimeSecs   = (clock - firstTime) * pixie::clockInSeconds;
+    double runTimeSecs   = (clock - firstTime) *
+                           Globals::get()->clockInSeconds();
     int    rowNumSecs    = int(runTimeSecs / specNoBins);
     double remainNumSecs = runTimeSecs - rowNumSecs * specNoBins;
 
@@ -843,8 +839,9 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
         double elapsed = stop - firstTime;
         // make an artificial 10 second gap by 
         //   resetting the first time accordingly
-        firstTime = clock - 10 / pixie::clockInSeconds - elapsed;
-        ss << elapsed*pixie::clockInSeconds << " prior seconds elapsed "
+        firstTime = clock - 10 / Globals::get()->clockInSeconds() - elapsed;
+        ss << elapsed * Globals::get()->clockInSeconds()
+           << " prior seconds elapsed "
            << ", resetting first time to " << firstTime;
         messenger.detail(ss.str());
         ss.str("");
@@ -856,14 +853,16 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
             if(firstTime == 0.) {
                 firstTime = clock;
             } else if (bufLength != 0.){
-                //plot time between buffers as a function of time - dead time spectrum	    
+                //plot time between buffers as a function
+                //of time - dead time spectrum	    
                 // deadTime += (clock - bufEnd)*pixie::clockInSeconds;
                 // plot(DD_DEAD_TIME_CUMUL,remainNumSecs,rownum,int(deadTime/runTimeSecs));	    	    
                 driver->plot(dammIds::raw::DD_BUFFER_START_TIME, remainNumSecs,rowNumSecs, (clock-bufEnd)/bufLength*1000.);	    
             }
             break;
         case BUFFER_END:
-            driver->plot(D_BUFFER_END_TIME, (stop - bufStart) * pixie::clockInSeconds * 1000);
+            driver->plot(D_BUFFER_END_TIME, (stop - bufStart) *
+                                      Globals::get()->clockInSeconds() * 1000);
             bufEnd = clock;
             bufLength = clock - bufStart;
         case EVENT_START:

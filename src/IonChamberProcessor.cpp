@@ -18,9 +18,9 @@
 #endif
 
 using namespace std;
-using pixie::clockInSeconds;
 
-const double IonChamberProcessor::minTime = 18.0e-6 / clockInSeconds;
+const double IonChamberProcessor::minTime = 
+                                18.0e-6 / Globals::get()->clockInSeconds();
 
 using namespace dammIds::ionChamber;
 
@@ -165,7 +165,8 @@ bool IonChamberProcessor::Process(RawEvent &event)
 	    count++;
 	  }
 	  double mean = double(sum / count);
-	  plot(D_RATE_DETX + loc, (double)(1 / mean / clockInSeconds));
+	  plot(D_RATE_DETX + loc,
+          (double)(1 / mean / Globals::get()->clockInSeconds()));
 	}
 
       } 

@@ -10,6 +10,7 @@ Original M. Madurga
 #include <cmath>
 
 #include "DammPlotIds.hpp"
+#include "Globals.hpp"
 #include "RawEvent.hpp"
 #include "VandleProcessor.hpp"
 
@@ -267,7 +268,8 @@ bool VandleProcessor::Process(RawEvent &event)
     hasDecay = 
 	(event.GetCorrelator().GetCondition() == Correlator::VALID_DECAY);
     if(hasDecay)
-	decayTime = event.GetCorrelator().GetDecayTime() * pixie::clockInSeconds;
+	decayTime = event.GetCorrelator().GetDecayTime() *
+                Globals::get()->clockInSeconds();
 
     plot(D_PROBLEMS, 30); //DEBUGGING
 

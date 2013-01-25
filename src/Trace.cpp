@@ -6,12 +6,9 @@
 
 #include <algorithm>
 #include <iostream>
-#include <cmath>
 #include <numeric>
 
 #include "Trace.hpp"
-
-#include "DammPlotIds.hpp"
 
 using namespace std;
 using namespace dammIds::trace;
@@ -84,7 +81,7 @@ unsigned int Trace::DoDiscrimination(unsigned int lo, unsigned int numBins)
     unsigned int high = lo+numBins;
 
     if(size() < high)
-	return pixie::U_DELIMITER;
+        return pixie::U_DELIMITER;
     
     int discrim = 0, max = GetValue("maxpos");
     double baseline = GetValue("baseline");

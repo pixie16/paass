@@ -42,7 +42,7 @@ void TriggerLogicProcessor::DeclarePlots(void)
 
 bool TriggerLogicProcessor::Process(RawEvent &event)
 {
-    const double logicPlotResolution = 1e-3 / pixie::clockInSeconds;
+    const double logicPlotResolution = 1e-3 / Globals::get()->clockInSeconds();
     const long maxBin = plotSize * plotSize;
 
     LogicProcessor::Process(event);

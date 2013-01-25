@@ -167,8 +167,8 @@ bool DssdProcessor::Process(RawEvent &event)
 		{10e-9, 100e-9, 400e-9, 1e-6, 100e-6, 1e-3, 10e-3, 100e-3};
 	 
 	    for (unsigned int i = 0; i < NumGranularities; i++) {
-		int timeBin = int(corr.GetDecayTime() * pixie::clockInSeconds / 
-				  timeResolution[i]);
+		int timeBin = int(corr.GetDecayTime() * 
+                Globals::get()->clockInSeconds() / timeResolution[i]);
 
 		plot(DD_ENERGY__DECAY_TIME_GRANX + i, frontEnergy, timeBin);
 	    }
