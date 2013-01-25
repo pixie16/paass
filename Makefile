@@ -122,6 +122,10 @@ PUGIXMLO = pugixml.$(ObjSuf)
 # objects from cpp
 PIXIEO           = PixieStd.$(ObjSuf)
 
+# ReadBufData
+READBUFFDATADFO    = ReadBuffData.RevD.$(ObjSuf)
+READBUFFDATAAO    = ReadBuffData.$(ObjSuf)
+
 BETASCINTPROCESSORO = BetaScintProcessor.$(ObjSuf)
 CALIBRATORO      = Calibrator.$(ObjSuf)
 CFDANALYZERO     = CfdAnalyzer.$(ObjSuf)
@@ -186,16 +190,6 @@ PIXIE = pixie_ldf_c$(ExeSuf)
 endif
 endif
 
-ifdef REVISIOND
-READBUFFDATAO    = ReadBuffData.RevD.$(ObjSuf)
-else
-ifdef REVISIONF
-READBUFFDATAO    = ReadBuffData.RevD.$(ObjSuf)
-else
-READBUFFDATAO    = ReadBuffData.$(ObjSuf)
-endif
-endif
-
 #----- list of objects
 # Fortran objects
 OBJS   = \
@@ -204,7 +198,8 @@ $(MESSLOGO)\
 $(MILDATIMO)\
 $(SCANORO)
 # Important to compile READBUFFDATA first
-OBJS += $(READBUFFDATAO)
+OBJS += $(READBUFFDATAAO)
+OBJS += $(READBUFFDATADFO)
 # other C++ objects
 OBJS += \
 $(PUGIXMLO)\

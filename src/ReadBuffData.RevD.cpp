@@ -63,10 +63,12 @@ using std::vector;
 extern StatsData stats;
 
 // define tst bit function from pixie16 files
+/*
 unsigned long TstBit(unsigned short bit, unsigned long value)
 {
   return ((value & (unsigned long)(pow(2.0, (double)bit))) >> bit);
 }
+*/
 
 /*!
   \brief extract channel information from raw data
@@ -76,7 +78,7 @@ unsigned long TstBit(unsigned short bit, unsigned long value)
   of the evt objects is placed in the eventlist vector for later time
   sorting.
 */
-int ReadBuffData(word_t *buf, unsigned long *bufLen,
+int ReadBuffDataDF(word_t *buf, unsigned long *bufLen,
 		 vector<ChanEvent*> &eventList)
 {						
   // multiplier for high bits of 48-bit time
