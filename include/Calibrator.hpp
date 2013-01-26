@@ -20,7 +20,7 @@ enum CalibrationModel {
 
 /** This structure holds walk calibration model identfier, range
  * of calibration and vector of parameters needed for the function. */
-struct CalibrationFactor {
+struct CalibrationParams {
     CalibrationModel model;
     double min;
     double max;
@@ -48,9 +48,10 @@ class Calibrator {
         double GetCalEnergy(const Identifier& chanID, double raw) const;
 
     private:
-        /** Map where key is a channel Identifier and value is the struct holding correction
-         * model and parameters.*/
-        std::map<Identifier, std::vector<CalibrationFactor> > channels_;
+        /** Map where key is a channel Identifier 
+         * and value is a vector holding struct with calibration range
+         * and calibration model and parameters.*/
+        std::map<Identifier, std::vector<CalibrationParams> > channels_;
 
         /** Returns always the raw channel number. Use if you want to switch off the calibration.*/
         double ModelRaw(double raw) const;

@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <!-- Instructions: 
+         Put name email and date (please use Jan, Feb, ..., Dec for months
+         names) here.
+     -->
+    <Author>
+        <Name>Krzysztof Miernik</Name>
+        <Email>k.a.miernik@gmail.com</Email>
+        <Date>Dec 2012</Date>
+    </Author>
+
+    <!-- Instructions: 
+         Put short description of your experiment here.
+     -->
+    <Description>LeRIBSS 2012, 3Hen hybrid, 2 Clovers</Description>
+
+    <Global>
+        <!-- Not implemented yet -->
+        <Revision version="F"/>
+        <EventWidth unit="s" value="100e-6"/>
+        <EnergyContraction value="1.0"/>
+        <!-- Path to non-included here configuration files, ath the moment:
+             qdc.txt
+             timingConstants.txt
+             timingCal.txt
+
+             Must end with '/'
+        -->
+        <Path>config/</Path>
+    </Global>
+
+
+    <!-- Instructions:
+         Add
+            <Process name="SomethingProcessor"/>
+         and
+            <Analyzer name="SomethingAnalyzer"/>
+         for each processor and analyzer you want to use.
+         List of known Processors:
+            *
+            *
+         List of known Analyzers:
+            *
+            *
+    -->
+    <DetectorDriver>
+        <Processor name="Ge4Hen3Processor"
+            gamma_threshold="20.0"
+            low_ratio="1.5"
+            high_ratio="3.0"
+            sub_event="100e-9"
+            gamma_beta_limit="200e-9"
+            gamma_gamma_limit="200e-9"
+            early_low_limit="1.0"
+            early_high_limit="1.5"
+            />
+        <!--
+        <Processor name="GeCalibProcessor" />
+        -->
+        <Processor name="Hen3Processor" />
+        <Processor name="MtcProcessor" />
+        <Processor name="BetaScintProcessor" />
+    </DetectorDriver>
+
+    <!-- Instructions:
+         Example:
+        <Map verbose_map="True" verbose_calibration="True" verbose_walk="True">
+
+            <Module number="0">
+                <Channel number="0" type="ge" subtype="clover_high">
+                    <Calibration model="Poly" min="0" max="32768">
+                        -0.912 0.625
+                    </Calibration>
+                    <WalkCorrection model="A">
+                        2.322 12487.727 432.257 19.268 140.189
+                    </WalkCorrection>
+                </Channel>
+
+                <Channel number="1" type="beta_scint" subtype="beta" location="5"
+                 tag1="12" tag2="3">
+                </Channel>
+
+                ...
+            </Module>
+
+            <Module number="1">
+            ...
+            </Module>
+
+            ...
+        </Map>
+    -->
+
+    <Map verbose_calibration="False"
+         verbose_map="False"
+         verbose_walk="False">
+
+        <Module number="0">
+            <Channel number="0" type="beta_scint" subtype="beta">
+                <Calibration model="linear">
+                    0.0 0.6793
+                </Calibration>
+            </Channel>
+            <Channel number="1" type="beta_scint" subtype="beta">
+                <Calibration model="linear">
+                    0.0 0.5682
+                </Calibration>
+            </Channel>
+        </Module>
+
+        <Module number="1">
+            <Channel number="0" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="1" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="2" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="3" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="4" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="5" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="6" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="7" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="8" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="9" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="10" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="11" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="12" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="13" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="14" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="15" type="3hen" subtype="big">
+            </Channel>
+        </Module>
+
+        <Module number="2">
+            <Channel number="0" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="1" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="2" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="3" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="4" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="5" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="6" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="7" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="8" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="9" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="10" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="11" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="12" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="13" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="14" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="15" type="3hen" subtype="big">
+            </Channel>
+        </Module>
+
+        <Module number="3">
+            <Channel number="0" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="1" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="2" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="3" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="4" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="5" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="6" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="7" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="8" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="9" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="10" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="11" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="12" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="13" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="14" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="15" type="3hen" subtype="big">
+            </Channel>
+        </Module>
+
+        <Module number="7">
+            <Channel number="0" type="ge" subtype="clover_high" location="0">
+                <Calibration model="quadratic">
+                    0.086992	0.319588	-3.675986E-08
+                </Calibration>
+                <WalkCorrection model="A">
+                    2.322 12487.727 432.257 19.268 140.189
+                </WalkCorrection>
+            </Channel>
+            <Channel number="1" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic">
+                    0.142493	0.326087	3.178130E-08
+                </Calibration>
+                <WalkCorrection model="A">
+                    0.842 12045.038 220.986 -6.722 718.471
+                </WalkCorrection>
+            </Channel>
+            <Channel number="2" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic">
+                    0.442061	0.312095	4.875620E-09
+                </Calibration>
+                <WalkCorrection model="A">
+                    2.520 10952.359 268.669 69.013 29.365
+                </WalkCorrection>
+            </Channel>
+            <Channel number="3" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic">
+                    0.154337	0.318064	6.233731E-09
+                </Calibration>
+                <WalkCorrection model="A">
+                    2.105 10933.306 184.975 -8.805 281.461
+                </WalkCorrection>
+            </Channel>
+            <Channel number="4" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic">
+                    0.542650	0.317998	6.257455E-08
+                </Calibration>
+                <WalkCorrection model="A">
+                    2.112 12596.448 413.154 55.298 78.472
+                </WalkCorrection>
+            </Channel>
+            <Channel number="5" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic">
+                    0.027471	0.321558	2.930330E-08
+                </Calibration>
+                <WalkCorrection model="A">
+                    1.937 11868.892 284.199 44.532 61.956
+                </WalkCorrection>
+            </Channel>
+            <Channel number="6" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic">
+                    0.692124	0.317359	4.439416E-08
+                </Calibration>
+                <WalkCorrection model="A">
+                    2.202 13499.672 495.552 67.810 75.525
+                </WalkCorrection>
+            </Channel>
+            <Channel number="7" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic">
+                    0.570474	0.321462	4.993727E-08
+                </Calibration>
+                <WalkCorrection model="A">
+                    2.453 12188.499 288.695 44.785 64.330
+                </WalkCorrection>
+            </Channel>
+            <Channel number="8" type="mtc" subtype="beam_stop">
+            </Channel>
+            <Channel number="9" type="mtc" subtype="beam_start">
+            </Channel>
+            <Channel number="10" type="mtc" subtype="start">
+            </Channel>
+            <Channel number="11" type="mtc" subtype="stop">
+            </Channel>
+        </Module>
+    </Map>
+
+    <!--
+        Instructions:
+        Create here tree of "places" build of <Place> elements for
+        your experiment. Basic places are created automatically from entries
+        in the map2.txt file using type_subtype_location pattern.
+        Root element should be named <TreeCorrelator>,
+
+        Each <Place> element has following attributes:
+            'name' - required, if last token in name 
+                    (tokens are separated by '_')
+                    characters are in format X-Y,Z where X, Y and Z
+                    are integers, a whole range X to Y is assumed 
+                    (e.g.  beta_0-1,5,9-10
+                    will create beta_0, beta_1, beta_5, beta_9 and beta_10 )
+
+            Optional attributes:
+            'type' - must be one of types defined in PlaceBuilder.cpp
+                     (see there) currently available are: 
+                    PlaceDetector, PlaceThreshold, PlaceThresholdOR,
+                    PlaceCounter, PlaceOR, PlaceAND
+                    if type is not used or empty (type="") it is assumed that
+                    place already exists. In particular this is true for all 
+                    basic places created from channels as defined in map2.txt
+            'replace' - if set to 'true', will replace existing place with a
+                one defined in this element. 
+            'fifo' - depth of FIFO of place
+            'coincidence' - defines type of relation with parent (true of false)
+            'low_limit', 'high_limit' - required for PlaceThreshold and
+                    PlaceThresholdOR defines threshold limits 
+                    (calibrated energy).
+
+            see PlaceBuilder for other type of places and attributes.
+    -->
+    <TreeCorrelator name="root" verbose="False">
+
+        <Place type="PlaceAND" name="GammaBeta">
+            <Place type="PlaceOR" name="Beta" fifo="10">
+                <Place type="PlaceThreshold" name="beta_scint_beta_0-1"
+                    low_limit="1.0" high_limit="99999" fifo="5"
+                    replace="true"/>
+            </Place>
+            <Place type="PlaceOR" name="Gamma">
+                <Place type="PlaceOR" name="Clover0">
+                    <Place type="" name="ge_clover_high_0-3"/>
+                </Place>
+                <Place type="PlaceOR" name="Clover1">
+                    <Place type="" name="ge_clover_high_4-7"/>
+                </Place>
+            </Place>
+        </Place>
+
+        <Place type="PlaceDetector" name="TapeMove" reset="false"/>
+        <Place type="PlaceDetector" name="Beam" reset="false"/>
+        <Place type="PlaceDetector" name="Cycle" reset="false"/>
+
+        <Place type="PlaceCounter" name="Hen3">
+            <Place type="" name="3hen_big_0-47"/>
+        </Place>
+
+        <Place type="PlaceCounter" name="Neutrons">
+            <Place type="PlaceThreshold" name="Neutron_0-48"
+                   low_limit="2500.0" high_limit="3400.0"/>
+        </Place>
+
+    </TreeCorrelator>
+
+    <!--
+        Instructions:
+        Definition of gamma-gamma gates, so far only 2-gammas gates are implmented
+        Example:
+        <GammaGates>
+            <Gate>
+                <Line min="115" max="118"/>
+                <Line min="240" max="244"/>
+            </Gate>
+            <Gate>
+                <Line min="115" max="118"/>
+                <Line min="238" max="240"/>
+            </Gate>
+        </GammaGates>
+    -->
+    <GammaGates>
+        <!-- 85Ga
+            <Gate>
+                <Line min="622" max="626"/>
+                <Line min="761" max="766"/>
+            </Gate>
+            <Gate>
+                <Line min="622" max="626"/>
+                <Line min="802" max="807"/>
+            </Gate>
+        -->
+    </GammaGates>
+
+</Configuration>
