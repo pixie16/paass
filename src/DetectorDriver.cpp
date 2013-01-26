@@ -774,9 +774,15 @@ void DetectorDriver::ReadWalkXml() {
             int ch_number = channel.attribute("number").as_int(-1);
             Identifier chanID = DetectorLibrary::get()->at(module_number,
                                                            ch_number);
+            bool corrected = false;
             for (pugi::xml_node walkcorr = channel.child("WalkCorrection");
                 walkcorr; walkcorr = walkcorr.next_sibling("WalkCorrection")) {
                 string model = walkcorr.attribute("model").as_string("None");
+                double min = walkcorr.attribute("min").as_double(0);
+                double max = 
+                  walkcorr.attribute("max").as_double(
+                                              numeric_limits<double>::max());
+
                 stringstream pars(walkcorr.text().as_string());
                 vector<double> parameters;
                 while (true) {
@@ -789,14 +795,23 @@ void DetectorDriver::ReadWalkXml() {
                 }
                 if (verbose) {
                     stringstream ss;
-                    ss << "Module " << module_number << ", channel " << ch_number << ": ";
+                    ss << "Module " << module_number 
+                       << ", channel " << ch_number << ": ";
                     ss << " model: " << model;
                     for (vector<double>::iterator it = parameters.begin();
                          it != parameters.end(); ++it)
                         ss << " " << (*it);
                     m.detail(ss.str(), 1);
                 }
-                walk.AddChannel(chanID, model, parameters);
+                walk.AddChannel(chanID, model, min, max, parameters);
+                corrected = true;
+            }
+            if (!corrected && verbose) {
+                stringstream ss;
+                ss << "Module " << module_number << ", channel " 
+                << ch_number << ": ";
+                ss << " not corrected for walk";
+                m.detail(ss.str(), 1);
             }
         }
     }

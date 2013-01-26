@@ -11,7 +11,7 @@ using namespace std;
 void Calibrator::AddChannel(const Identifier& chanID, const std::string model,
                             double min, double max, 
                             const std::vector<double>& par) {
-    CalibrationFactor cf;
+    CalibrationParams cf;
     unsigned required_parameters = 0;
     if (model == "raw") {
         cf.model = cal_raw;
@@ -59,17 +59,17 @@ void Calibrator::AddChannel(const Identifier& chanID, const std::string model,
     if (channels_.find(chanID) != channels_.end()) {
         channels_[chanID].push_back(cf);
     } else {
-        vector<CalibrationFactor> vcf;
+        vector<CalibrationParams> vcf;
         vcf.push_back(cf);
         channels_[chanID] = vcf;
     }
 }
 
 double Calibrator::GetCalEnergy(const Identifier& chanID, double raw) const {
-    map<Identifier, vector<CalibrationFactor> >::const_iterator itch =
+    map<Identifier, vector<CalibrationParams> >::const_iterator itch =
         channels_.find(chanID);
     if (itch != channels_.end()) {
-        vector<CalibrationFactor>::const_iterator itf;
+        vector<CalibrationParams>::const_iterator itf;
         for (itf = itch->second.begin(); itf != itch->second.end(); ++itf) {
             if (itf->min <= raw && raw <= itf->max)
                 break;
