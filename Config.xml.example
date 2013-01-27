@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
-    <!-- This is example configuration file based on real experiment -->
+    <!-- This is an example configuration file based on a real experiment.
+         Copy this file and modify its content to setup your experiment.-->
 
     <!-- Instructions: 
          Put here your name, email and date (please use Jan, Feb, ..., Dec
@@ -28,7 +29,7 @@
             where unit must be s, ms, us or ns; value is floating point 
         * <EnergyContraction value="x" /> 
             OBSOLETE, please do not use energy contraction (consider
-            calibration instead), however if needed for backword compability
+            calibration instead), however if needed for backward compatibility
             put here floating point number
         * <Path>relatative_path</Path>
             where 'relative_path' is a path to the other configurations
@@ -39,8 +40,8 @@
             to the current directory then)
     -->
     <Global>
-        <Revision version="F"/>
-        <EventWidth unit="s" value="100e-6"/>
+        <Revision version="D"/>
+        <EventWidth unit="s" value="1e-6"/>
         <EnergyContraction value="1.0"/>
         <Path>config/</Path>
     </Global>
@@ -116,9 +117,6 @@
             early_low_limit="1.0"
             early_high_limit="1.5"
             />
-        <!--
-        <Processor name="GeCalibProcessor" />
-        -->
         <Processor name="MtcProcessor" 
             double_stop="True"
             double_start="True"/>
@@ -126,10 +124,23 @@
     </DetectorDriver>
 
     <!-- Instructions:
-         Channels map
-         (...)
+         Channels map. This section replaces the map.txt (map2.txt) and cal.txt
+         files. For each channel in each module that you want to use in 
+         analysis you must assign some physical detector type (and subtype)
+         which is known to the pixie_scan (see DetectorLibrary.cpp).
+         A channel may be also calibrated (by default a raw channel number
+         from adc is used) or corrected against walk (by default walk
+         correction is equal to 0).
 
-         Calibration models:
+         The root element (<Map>) may have attributes changing the verbosity
+         level during loading of the configuration in this section. These are
+         * verbose_map - Loaded modules and channels
+         * verbose_calibration - Calibration
+         * verbose_walk - Walk correction 
+         Each attribute default to False, if change to True will show more
+         messages concerning loaded parameters etc.
+
+         There are following calibration models:
             * raw - non-calibrated (also used when no calibration specified)
             * linear - requires 2 parameters
             * quadratic - requires 3 parameters
@@ -137,12 +148,31 @@
                 two above - requires at least 1 parameter
             * hyplin - f(x) = a0/x + a1 + a2*x , suitable if problems with
                 low channels encountered - requires 3 parameters
-         Walk models:
+         And walk correction models:
             * None - returns always 0
             * A - f(x) = a0 + a1 / (a2 + x) + a3 * exp(-x/a4), derived for
-                the 85-86Ga experiment - requires 5 parameters
+                the ge detectors at 85-86Ga experiment - requires 5 parameters
+            * B1 - f(x) = a0 + a1 * x + a2 * x^2 + a3 * x^3 + 
+                         a4 / (1 + exp((x - a5) / a6))
+                This model was developed for the ge detectors at 93Br
+                experiment. Use it for the low energy part of spectra. For
+                the high energy part use B2 model.
+            * B2 - f(x) = a0 + a1 * x + (a2 + a3 * x + a4 * x^2) * exp(-x / a5)
+                This function is the second part of 'B' model developed
+        Note that walk models parameters are intended to operate on natural
+        units i.e. raw channel numbers and pixie time tics.
 
-         Example:
+        Both calibration and walk correction operate on some range and 
+        there might be any number of ranges defined for the channel.
+        The code does not check if a range overlaps with another. For a given
+        channel number the first (in order of appearance) matching range will be
+        used.
+        If no min/max is specified, a 0 to infinity range is assumed (where
+        infinity is a largest double precision floating point number on a 
+        given machine).
+
+        An example below shows the main features of the Map node.
+
         <Map verbose_map="True" verbose_calibration="True" verbose_walk="True">
 
             <Module number="0">
@@ -432,10 +462,10 @@
         Instructions:
         Create here tree of "places" build of <Place> elements for
         your experiment. Basic places are created automatically from entries
-        in the map2.txt file using type_subtype_location pattern.
-        Root element should be named <TreeCorrelator>,
+        in the Map section using type_subtype_location pattern.
 
-        Each <Place> element has following attributes:
+        Root element should be named <TreeCorrelator>.
+        Each <Place> element has a following attributes:
             'name' - required, if last token in name 
                     (tokens are separated by '_')
                     characters are in format X-Y,Z where X, Y and Z
@@ -450,7 +480,7 @@
                     PlaceCounter, PlaceOR, PlaceAND
                     if type is not used or empty (type="") it is assumed that
                     place already exists. In particular this is true for all 
-                    basic places created from channels as defined in map2.txt
+                    basic places created from channels as defined from Map
             'replace' - if set to 'true', will replace existing place with a
                 one defined in this element. 
             'fifo' - depth of FIFO of place
@@ -476,7 +506,8 @@
 
     <!--
         Instructions:
-        Definition of gamma-gamma gates, so far only 2-gammas gates are implmented
+        Definition of gamma-gamma gates for GeProcessors,
+        so far only 2-gammas gates are implemented.
         Example:
         <GammaGates>
             <Gate>
