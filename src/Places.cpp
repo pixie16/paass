@@ -59,14 +59,11 @@ void PlaceOR::check_(EventData& info) {
             if (result)
                 break;
         }
-        // If status is changed, change your own status and report it to your parents
-        if (result != status_) {
-            if (result)
-                this->activate(info);
-            else
-                this->deactivate(info.time);
-            report_(info);
-        }
+        if (result)
+            this->activate(info);
+        else
+            this->deactivate(info.time);
+        report_(info);
     } else {
         stringstream ss;
         ss << "Place " << this << " has no children, however function check() was called.";
@@ -87,13 +84,11 @@ void PlaceThresholdOR::check_(EventData& info) {
             if (result)
                 break;
         }
-        if (result != status_) {
-            if (result)
-                this->activate(info);
-            else
-                this->deactivate(info.time);
-            report_(info);
-        }
+        if (result)
+            this->activate(info);
+        else
+            this->deactivate(info.time);
+        report_(info);
     } else {
         stringstream ss;
         ss << "Place " << this << " has no children, however function check() was called.";
@@ -118,12 +113,10 @@ void PlaceAND::check_(EventData& info) {
             if (!result)
                 break;
         }
-        if (result != status_) {
-            if (result)
-                this->activate(info);
-            else
-                this->deactivate(info.time);
-            report_(info);
-        }
+        if (result)
+            this->activate(info);
+        else
+            this->deactivate(info.time);
+        report_(info);
     }
 }
