@@ -39,32 +39,10 @@ namespace pixie {
      */
     const unsigned int TOTALREAD = 1000000;
 
-    /** an arbitrary vsn used to pass clock data */
+    /** An arbitrary vsn used to pass clock data */
     const pixie::word_t clockVsn = 1000; 
-/*
-#ifdef REVF
-    const double clockInSeconds = 8e-9; //< one pixie clock is 8 ns
-    const double adcClockInSeconds = 4e-9; //< one ADC clock is 4 ns
-    const double filterClockInSeconds = 8e-9; //< one filter clock is 8 ns
-#else 
-    const double clockInSeconds = 10e-9; //< one pixie clock is 10 ns
-    const double adcClockInSeconds = 10e-9; //< one ADC clock is 10 ns
-    const double filterClockInSeconds = 10e-9; //< one filter clock is 10 ns
-#endif
-
-    // The time widht of an event in seconds.
-    const double eventInSeconds = 100e-6;
-    // The time width of an event in units of pixie16 clock ticks
-    const int eventWidth = eventInSeconds / pixie::clockInSeconds;
-
-    // Energies from pixie16 are contracted by this number.
-    // Was 2.0 for older LeRIBBS
-    // changed to 4.0 for LeRIBBS experiment (93Br)
-    // Set to 1.0, looks like ADC range is 16K
-    const double energyContraction = 1.0; 
-*/
-   
-    const size_t numberOfChannels = 16; //< number of channels in a module
+    /** Number of channels in a module. */
+    const size_t numberOfChannels = 16;
 };
 
 
