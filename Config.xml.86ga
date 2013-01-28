@@ -3,7 +3,7 @@
     <Author>
         <Name>Krzysztof Miernik</Name>
         <Email>k.a.miernik@gmail.com</Email>
-        <Date>Dec 2012</Date>
+        <Date>Jan 2013</Date>
     </Author>
 
     <Description>LeRIBSS 2012, 3Hen hybrid, 2 Clovers</Description>
@@ -23,14 +23,16 @@
             sub_event="100e-9"
             gamma_beta_limit="200e-9"
             gamma_gamma_limit="200e-9"
-            early_low_limit="1.0"
-            early_high_limit="1.5"
+            early_low_limit="2.0"
+            early_high_limit="2.2"
             />
         <!--
         <Processor name="GeCalibProcessor" />
         -->
         <Processor name="Hen3Processor" />
-        <Processor name="MtcProcessor" />
+        <Processor name="MtcProcessor"
+                   double_stop="True"
+                   double_start="False"/>
         <Processor name="BetaScintProcessor" />
     </DetectorDriver>
 
@@ -266,7 +268,6 @@
     </TreeCorrelator>
 
     <GammaGates>
-        <!-- 85Ga
             <Gate>
                 <Line min="622" max="626"/>
                 <Line min="761" max="766"/>
@@ -275,7 +276,6 @@
                 <Line min="622" max="626"/>
                 <Line min="802" max="807"/>
             </Gate>
-        -->
     </GammaGates>
 
 </Configuration>
