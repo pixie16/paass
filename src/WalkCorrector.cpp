@@ -19,10 +19,10 @@ void WalkCorrector::AddChannel(const Identifier& chanID,
         required_parameters = 5;
     } else if (model == "B1") {
         cf.model = walk_B1;
-        required_parameters = 7;
+        required_parameters = 4;
     } else if (model == "B2") {
         cf.model = walk_B2;
-        required_parameters = 6;
+        required_parameters = 3;
     } else {
         stringstream ss;
         ss << "WalkCorrector: unknown walk model " << model;
@@ -57,16 +57,28 @@ void WalkCorrector::AddChannel(const Identifier& chanID,
         case walk_none:
             break;
         case walk_A: 
-            if (par[2] <= 0)
-                throw GeneralException("WalkCorrector: Model A, parameter 2 must be larger then 0.");
+            if (par[2] <= 0) {
+                stringstream ss;
+                ss << "WalkCorrector: Model A, parameter 2 must "
+                   << "be larger then 0, value " << par[2] << " was found";
+                throw GeneralException(ss.str());
+            }
             break;
         case walk_B1:
-            if (par[6] <= 0)
-                throw GeneralException("WalkCorrector: Model B1, parameter 6 must be larger then 0.");
+            if (par[3] <= 0) {
+                stringstream ss;
+                ss << "WalkCorrector: Model B1, parameter 3 must "
+                   << "be larger then 0, value " << par[2] << " was found";
+                throw GeneralException(ss.str());
+            }
             break;
         case walk_B2:
-            if (par[5] <= 0)
-                throw GeneralException("WalkCorrector: Model B2, parameter 5 must be larger then 0.");
+            if (par[2] <= 0) {
+                stringstream ss;
+                ss << "WalkCorrector: Model B2, parameter 2 must "
+                   << "be larger then 0, value " << par[2] << " was found";
+                throw GeneralException(ss.str());
+            }
             break;
         default: 
             break;
@@ -127,13 +139,11 @@ double WalkCorrector::Model_A(const std::vector<double>& par,
 
 double WalkCorrector::Model_B1(const std::vector<double>& par, 
                                double raw) const {
-    return par[0] + par[1] * raw + par[2] * raw * raw + 
-           par[3] * raw * raw * raw + 
-           par[4] / (1 + exp((raw - par[5]) / par[6]));
+    return par[0] + (par[1] + par[2] / (raw + 1.0)) *
+           exp(-raw / par[3]);
 }
 
 double WalkCorrector::Model_B2(const std::vector<double>& par, 
                                double raw) const {
-    return par[0] + par[1] * raw + 
-           (par[2] + par[3] * raw + par[4] * raw * raw) * exp(-raw / par[5]);
+    return par[0] + par[1] * exp(-raw / par[2]);
 }
