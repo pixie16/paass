@@ -558,14 +558,6 @@ bool GeProcessor::Process(RawEvent &event) {
             if (gEnergy2 < gammaThreshold_) 
                 continue;
 
-            /*
-             * This removes coincidences within the same clover significantly
-             * reducing "cross-talk" but also reducing efficiency
-             * (by 20% approx) 
-             */ 
-            if (det2 == det)
-               continue;
-
             double gg_dtime = (gTime2 - gTime) * clockInSeconds;
 
             /** Plot timediff between events in the same clover
@@ -580,38 +572,46 @@ bool GeProcessor::Process(RawEvent &event) {
                       gEnergy + gEnergy2);
             }
 
-            symplot(DD_ENERGY, gEnergy, gEnergy2);
-            if (hasBeta) {
-                if (GoodGammaBeta(gb_dtime)) {
-                    symplot(betaGated::DD_ENERGY, gEnergy,
-                            gEnergy2);            
-                } else if (gb_dtime > gammaBetaLimit_) {
-                        symplot(betaGated::DD_ENERGY_BDELAYED,
-                                gEnergy, gEnergy2);
-                }
-            }
-
-            if (abs(gg_dtime) < gammaGammaLimit_) {
-                symplot(DD_ENERGY_PROMPT, gEnergy, gEnergy2);
-                if (decayTime > earlyLowLimit_) { 
-                    if (decayTime < earlyHighLimit_) 
-                        symplot(DD_ENERGY_PROMPT_EARLY, 
-                                gEnergy, gEnergy2);            
-                    else
-                        symplot(DD_ENERGY_PROMPT_LATE, 
-                                gEnergy, gEnergy2);            
+            /*
+             * This condition removes coincidences within the same
+             * clover significantly reducing "cross-talk"
+             * but also reducing efficiency
+             * (by 20% approx) 
+             */ 
+            if (det2 != det) {
+                symplot(DD_ENERGY, gEnergy, gEnergy2);
+                if (hasBeta) {
+                    if (GoodGammaBeta(gb_dtime)) {
+                        symplot(betaGated::DD_ENERGY, gEnergy,
+                                gEnergy2);            
+                    } else if (gb_dtime > gammaBetaLimit_) {
+                            symplot(betaGated::DD_ENERGY_BDELAYED,
+                                    gEnergy, gEnergy2);
+                    }
                 }
 
-                if (hasBeta && GoodGammaBeta(gb_dtime)) {
-                    symplot(betaGated::DD_ENERGY_PROMPT, 
-                            gEnergy, gEnergy2);            
+                if (abs(gg_dtime) < gammaGammaLimit_) {
+                    symplot(DD_ENERGY_PROMPT, gEnergy, gEnergy2);
                     if (decayTime > earlyLowLimit_) { 
                         if (decayTime < earlyHighLimit_) 
-                            symplot(betaGated::DD_ENERGY_PROMPT_EARLY, 
+                            symplot(DD_ENERGY_PROMPT_EARLY, 
                                     gEnergy, gEnergy2);            
                         else
-                            symplot(betaGated::DD_ENERGY_PROMPT_LATE, 
+                            symplot(DD_ENERGY_PROMPT_LATE, 
                                     gEnergy, gEnergy2);            
+                    }
+
+                    if (hasBeta && GoodGammaBeta(gb_dtime)) {
+                        symplot(betaGated::DD_ENERGY_PROMPT, 
+                                gEnergy, gEnergy2);            
+                        if (decayTime > earlyLowLimit_) { 
+                            if (decayTime < earlyHighLimit_) 
+                                symplot(betaGated::DD_ENERGY_PROMPT_EARLY, 
+                                        gEnergy, gEnergy2);            
+                            else
+                                symplot(betaGated::DD_ENERGY_PROMPT_LATE, 
+                                        gEnergy, gEnergy2);            
+                        }
                     }
                 }
             }

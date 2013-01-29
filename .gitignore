@@ -17,3 +17,5 @@ LDF/*
 *.log
 # Executable
 pixie_ldf_c
+# ctags file
+tags
