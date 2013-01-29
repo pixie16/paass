@@ -15,6 +15,8 @@ void Calibrator::AddChannel(const Identifier& chanID, const std::string model,
     unsigned required_parameters = 0;
     if (model == "raw") {
         cf.model = cal_raw;
+    } else if (model == "off") {
+        cf.model = cal_off;
     } else if (model == "linear") {
         cf.model = cal_linear;
         required_parameters = 2;
@@ -83,6 +85,9 @@ double Calibrator::GetCalEnergy(const Identifier& chanID, double raw) const {
             case cal_raw:
                 return ModelRaw(raw);
                 break;
+            case cal_off: 
+                return ModelOff();
+                break;
             case cal_linear: 
                 return ModelLinear(itf->parameters, raw);
                 break;
@@ -106,6 +111,10 @@ double Calibrator::GetCalEnergy(const Identifier& chanID, double raw) const {
 
 double Calibrator::ModelRaw(double raw) const {
     return raw;
+}
+
+double Calibrator::ModelOff() const {
+    return 0;
 }
 
 double Calibrator::ModelLinear(const std::vector<double>& par,
@@ -137,3 +146,4 @@ double Calibrator::ModelHypLin(const std::vector<double>& par,
     else
         return 0;
 }
+

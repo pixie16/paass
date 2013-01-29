@@ -12,6 +12,7 @@
  * class, and and else-if loop to the AddChannel and GetCalEnergy functions. */
 enum CalibrationModel {
     cal_raw,
+    cal_off,
     cal_linear,
     cal_quadratic,
     cal_polynomial,
@@ -55,6 +56,9 @@ class Calibrator {
 
         /** Returns always the raw channel number. Use if you want to switch off the calibration.*/
         double ModelRaw(double raw) const;
+
+        /** Returns always 0, use if you want to switch off the channel */
+        double ModelOff() const;
 
         /** Linear calibration, parameters are assumed to be sorted 
          * in order par0, par1 

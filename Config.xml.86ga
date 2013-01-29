@@ -42,12 +42,12 @@
 
         <Module number="0">
             <Channel number="0" type="beta_scint" subtype="beta">
-                <Calibration model="linear">
+                <Calibration model="linear" max="32000">
                     0.0 0.6793
                 </Calibration>
             </Channel>
             <Channel number="1" type="beta_scint" subtype="beta">
-                <Calibration model="linear">
+                <Calibration model="linear" max="32000">
                     0.0 0.5682
                 </Calibration>
             </Channel>
@@ -160,7 +160,7 @@
 
         <Module number="7">
             <Channel number="0" type="ge" subtype="clover_high" location="0">
-                <Calibration model="quadratic">
+                <Calibration model="quadratic" max="32000">
                     0.086992	0.319588	-3.675986E-08
                 </Calibration>
                 <WalkCorrection model="A">
@@ -168,7 +168,7 @@
                 </WalkCorrection>
             </Channel>
             <Channel number="1" type="ge" subtype="clover_high" >
-                <Calibration model="quadratic">
+                <Calibration model="quadratic" max="32000">
                     0.142493	0.326087	3.178130E-08
                 </Calibration>
                 <WalkCorrection model="A">
@@ -176,7 +176,7 @@
                 </WalkCorrection>
             </Channel>
             <Channel number="2" type="ge" subtype="clover_high" >
-                <Calibration model="quadratic">
+                <Calibration model="quadratic" max="32000">
                     0.442061	0.312095	4.875620E-09
                 </Calibration>
                 <WalkCorrection model="A">
@@ -184,7 +184,7 @@
                 </WalkCorrection>
             </Channel>
             <Channel number="3" type="ge" subtype="clover_high" >
-                <Calibration model="quadratic">
+                <Calibration model="quadratic" max="32000">
                     0.154337	0.318064	6.233731E-09
                 </Calibration>
                 <WalkCorrection model="A">
@@ -192,7 +192,7 @@
                 </WalkCorrection>
             </Channel>
             <Channel number="4" type="ge" subtype="clover_high" >
-                <Calibration model="quadratic">
+                <Calibration model="quadratic" max="32000">
                     0.542650	0.317998	6.257455E-08
                 </Calibration>
                 <WalkCorrection model="A">
@@ -200,7 +200,7 @@
                 </WalkCorrection>
             </Channel>
             <Channel number="5" type="ge" subtype="clover_high" >
-                <Calibration model="quadratic">
+                <Calibration model="quadratic" max="32000">
                     0.027471	0.321558	2.930330E-08
                 </Calibration>
                 <WalkCorrection model="A">
@@ -208,7 +208,7 @@
                 </WalkCorrection>
             </Channel>
             <Channel number="6" type="ge" subtype="clover_high" >
-                <Calibration model="quadratic">
+                <Calibration model="quadratic" max="32000">
                     0.692124	0.317359	4.439416E-08
                 </Calibration>
                 <WalkCorrection model="A">
@@ -216,7 +216,7 @@
                 </WalkCorrection>
             </Channel>
             <Channel number="7" type="ge" subtype="clover_high" >
-                <Calibration model="quadratic">
+                <Calibration model="quadratic" max="32000">
                     0.570474	0.321462	4.993727E-08
                 </Calibration>
                 <WalkCorrection model="A">
