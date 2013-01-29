@@ -113,7 +113,7 @@ PIXIEO           = PixieStd.$(ObjSuf)
 
 # ReadBufData
 READBUFFDATADFO    = ReadBuffData.RevD.$(ObjSuf)
-READBUFFDATAAO    = ReadBuffData.$(ObjSuf)
+READBUFFDATAAO    = ReadBuffData.RevA.$(ObjSuf)
 
 BETASCINTPROCESSORO = BetaScintProcessor.$(ObjSuf)
 CALIBRATORO      = Calibrator.$(ObjSuf)
