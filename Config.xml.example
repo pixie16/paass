@@ -142,23 +142,25 @@
 
          There are following calibration models:
             * raw - non-calibrated (also used when no calibration specified)
+            * off - turn channel off (returns always 0)
             * linear - requires 2 parameters
             * quadratic - requires 3 parameters
-            * polynomial - more general but slightly less slower then the
+            * polynomial - more general but slightly slower then the
                 two above - requires at least 1 parameter
             * hyplin - f(x) = a0/x + a1 + a2*x , suitable if problems with
-                low channels encountered - requires 3 parameters
+                low channels are encountered - requires 3 parameters
          And walk correction models:
             * None - returns always 0
             * A - f(x) = a0 + a1 / (a2 + x) + a3 * exp(-x/a4), derived for
                 the ge detectors at 85-86Ga experiment - requires 5 parameters
-            * B1 - f(x) = a0 + a1 * x + a2 * x^2 + a3 * x^3 + 
-                         a4 / (1 + exp((x - a5) / a6))
+            * B1 - f(x) = a0 + (a1 + a2 / (x + 1)) *  exp(-x / a4)
                 This model was developed for the ge detectors at 93Br
                 experiment. Use it for the low energy part of spectra. For
                 the high energy part use B2 model.
-            * B2 - f(x) = a0 + a1 * x + (a2 + a3 * x + a4 * x^2) * exp(-x / a5)
+            * B2 f(x) = a0 + a1 *  exp(-x / a2)
                 This function is the second part of 'B' model developed
+                for the 93Br experiment
+
         Note that walk models parameters are intended to operate on natural
         units i.e. raw channel numbers and pixie time tics.
 

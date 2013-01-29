@@ -40,7 +40,7 @@ bool BetaScintProcessor::PreProcess(RawEvent &event){
         return false;
 
     static const vector<ChanEvent*> &scintBetaEvents = 
-	event.GetSummary("beta_scint:beta")->GetList();
+	event.GetSummary("beta_scint:beta", true)->GetList();
 
     int multiplicity = 0;
     for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin(); 
@@ -59,7 +59,7 @@ bool BetaScintProcessor::Process(RawEvent &event)
         return false;
 
     static const vector<ChanEvent*> &scintBetaEvents = 
-	event.GetSummary("beta_scint:beta")->GetList();
+	event.GetSummary("beta_scint:beta", true)->GetList();
 
     /* Beta events gated by "Beta" place are plotted here, to make sanity 
      * check of selected gates */
