@@ -42,6 +42,7 @@
         <Module number="0">
             <Channel number="0" type="ge" subtype="clover_high">
                 <Calibration model="off" max="8000">
+                <Calibration model="linear" max="8000">
                     0.530082021041721 	0.640177717350212
                 </Calibration>
                 <!-- Walk correction removed since 
@@ -224,6 +225,7 @@
         <Module number="1">
             <Channel number="0" type="ge" subtype="clover_low">
                 <Calibration model="off">
+                <Calibration model="linear">
                     1.03885141071601	 1.49837431622482
                 </Calibration>
                 <WalkCorrection model="None">
