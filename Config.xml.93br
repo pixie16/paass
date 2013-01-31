@@ -45,7 +45,7 @@
                     0.530082021041721 	0.640177717350212
                 </Calibration>
                 <!-- Walk correction removed since 
-                     the channel is broken and removed
+                     the channel is broken and switched off
                 <WalkCorrection model="B1" max="1000">
                     14.415 20.195 1542.630 305.285
                 </WalkCorrection>
