@@ -42,7 +42,7 @@
         <Module number="0">
             <Channel number="0" type="ge" subtype="clover_high">
                 <Calibration model="off" max="8000">
-                    0.530082021041721 	0.640177717350212
+                     0.184711 0.639394
                 </Calibration>
                 <!-- Walk correction removed since 
                      the channel is broken and switched off
@@ -51,8 +51,7 @@
                 </WalkCorrection>
                 <WalkCorrection model="B2" min="1000">
                     8.765 12.501 1316.259
-                </WalkCorrection>
-                -->
+                </WalkCorrection>-->
             </Channel>
             <Channel number="1" type="ge" subtype="clover_high" >
                 <Calibration model="linear" max="8000">

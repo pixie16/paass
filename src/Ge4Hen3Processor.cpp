@@ -37,6 +37,7 @@ namespace dammIds {
             const int D_ENERGY = 200;
             const int DD_ENERGY = 202;
             const int DD_ENERGY_NEUTRON_LOC = 203;
+            const int D_MULT = 209;
             const int DD_ENERGY__TIMEX = 221; 
             const int DD_ENERGY__TIMEX_GROW = 223; 
             const int DD_ENERGY__TIMEX_DECAY = 225; 
@@ -107,6 +108,8 @@ void Ge4Hen3Processor::DeclarePlots(void)
 
     DeclareHistogram1D(neutron::D_ENERGY, energyBins1,
                       "Gamma singles neutron gated");
+    DeclareHistogram1D(neutron::D_MULT, S3,
+                       "Gamma multiplicity neutron gated");                  
     DeclareHistogram1D(neutron::D_ADD_ENERGY, energyBins1,
                        "Gamma addback neutron gated");
     DeclareHistogram1D(neutron::D_ADD_ENERGY_TOTAL, energyBins1,
@@ -232,12 +235,14 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
     if (neutron_count < 1)
         return true;
 
+    plot(neutron::D_MULT, geEvents_.size());
+
     /* Beta places are activated with threshold in ScintProcessor. */
     bool hasBeta = TreeCorrelator::get()->place("Beta")->status();
 
-    for (vector<ChanEvent*>::iterator it = geEvents_.begin(); 
-	 it != geEvents_.end(); it++) {
-        ChanEvent *chan = *it;
+    for (vector<ChanEvent*>::iterator it1 = geEvents_.begin(); 
+	 it1 != geEvents_.end(); ++it1) {
+        ChanEvent *chan = *it1;
         
         double gEnergy = chan->GetCalEnergy();	
         double gTime   = chan->GetCorrectedTime();
@@ -329,8 +334,8 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             }
         }
         
-        for (vector<ChanEvent*>::const_iterator it2 = it + 1;
-                it2 != geEvents_.end(); it2++) {
+        for (vector<ChanEvent*>::const_iterator it2 = it1 + 1;
+                it2 != geEvents_.end(); ++it2) {
 
             ChanEvent *chan2 = *it2;
 
@@ -352,6 +357,7 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             }
         }
     } 
+
     unsigned nEvents = tas_.size();
 
     for (unsigned i = 0; i < nEvents; ++i) {
