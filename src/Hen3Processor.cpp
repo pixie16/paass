@@ -86,7 +86,7 @@ bool Hen3Processor::PreProcess(RawEvent &event)
             if (reject)
                 continue;
 
-            EventData data(time, energy);
+            EventData data(time, energy, location, true);
             stringstream neutron;
             neutron << "Neutron_" << location;
             TreeCorrelator::get()->place(neutron.str())->activate(data);
