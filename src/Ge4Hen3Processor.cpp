@@ -26,6 +26,7 @@
 #include "DetectorLibrary.hpp"
 #include "GeProcessor.hpp"
 #include "Ge4Hen3Processor.hpp"
+#include "Messenger.hpp"
 #include "RawEvent.hpp"
 #include "TreeCorrelator.hpp"
 
@@ -108,7 +109,7 @@ void Ge4Hen3Processor::DeclarePlots(void)
 
     DeclareHistogram1D(neutron::D_ENERGY, energyBins1,
                       "Gamma singles neutron gated");
-    DeclareHistogram1D(neutron::D_MULT, S3,
+    DeclareHistogram1D(neutron::D_MULT, S7,
                        "Gamma multiplicity neutron gated");                  
     DeclareHistogram1D(neutron::D_ADD_ENERGY, energyBins1,
                        "Gamma addback neutron gated");
@@ -343,6 +344,11 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             if (gEnergy2 < gammaThreshold_) 
                 continue;
 
+            double gTime2 = chan2->GetCorrectedTime();
+            double gg_dtime = (gTime2 - gTime) * clockInSeconds;
+            if (abs(gg_dtime) > gammaGammaLimit_)
+                continue;
+
             symplot(neutron::DD_ENERGY, gEnergy, gEnergy2);            
             if (hasBeta && GoodGammaBeta(gb_dtime)) {
                 symplot(neutron::betaGated::DD_ENERGY,
@@ -422,6 +428,11 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             for (unsigned int det2 = det + 1; det2 < numClovers; ++det2) {
                 double gEnergy2 = addbackEvents_[det2][ev].first;
                 if (gEnergy2 < gammaThreshold_)
+                    continue;
+
+                double gTime2 = addbackEvents_[det2][ev].second;
+                double gg_dtime = (gTime2 - gTime) * clockInSeconds;
+                if (abs(gg_dtime) > gammaGammaLimit_)
                     continue;
 
                 symplot(neutron::DD_ADD_ENERGY, gEnergy, gEnergy2);
