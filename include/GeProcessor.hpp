@@ -27,14 +27,14 @@ namespace dammIds {
         const unsigned int MAX_TIMEX = 5; // for *_TIMEX spectra
 
         const int D_ENERGY = 0;
-        const int D_ENERGY_CLOVERX = 1; 
+        const int D_ENERGY_CLOVERX = 2; 
 
-        const int D_ENERGY_MOVE = 5;
+        const int D_ENERGY_MOVE = 6;
         const int D_MULT = 9;
 
         const int D_ADD_ENERGY = 50; 
-        const int D_ADD_ENERGY_CLOVERX = 51;
-        const int D_ADD_ENERGY_TOTAL = 55;
+        const int D_ADD_ENERGY_CLOVERX = 52;
+        const int D_ADD_ENERGY_TOTAL = 56;
 
         // 2D spectra
         const int DD_ENERGY = 100;
@@ -50,8 +50,8 @@ namespace dammIds {
 
         const int DD_ADD_ENERGY = 150;
         //Addback related
-        const int DD_TDIFF__GAMMA_GAMMA_ENERGY = 151;
-        const int DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM = 152;
+        const int DD_TDIFF__GAMMA_GAMMA_ENERGY = 152;
+        const int DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM = 153;
 
         const int DD_ADD_ENERGY__TIMEX = 170;
 
@@ -64,8 +64,9 @@ namespace dammIds {
             const int DD_ENERGY__BETAGAMMALOC = 18;
 
             const int D_ADD_ENERGY = 60; 
-            const int D_ADD_ENERGY_CLOVERX = 61; 
-            const int D_ADD_ENERGY_TOTAL = 65; 
+            const int D_ADD_ENERGY_PROMPT = 61; 
+            const int D_ADD_ENERGY_CLOVERX = 62; 
+            const int D_ADD_ENERGY_TOTAL = 66; 
 
             const int DD_ENERGY = 110; 
             const int DD_ENERGY_PROMPT = 111; 
@@ -85,6 +86,7 @@ namespace dammIds {
             const int DD_ENERGY__TIMEX_DECAY = 140; 
 
             const int DD_ADD_ENERGY = 160; 
+            const int DD_ADD_ENERGY_PROMPT = 161; 
             const int DD_ADD_ENERGY__TIMEX = 180;
         }
     } // end namespace ge
