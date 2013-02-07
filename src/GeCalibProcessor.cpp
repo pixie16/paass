@@ -34,12 +34,9 @@ namespace dammIds {
     namespace ge {
         namespace calib {
             const int D_E_SUM = 400;
-            const int D_ENERGY_HIGHGAIN = 401;
-            const int DD_CLOVER_ENERGY_RATIO = 402;
-            const int D_E_CRYSTALX = 403;
-
-            const int DD_E_DETX = 419;
-            const int DD_E_DETX_BETA_GATED = 499;
+            const int D_E_CRYSTALX = 401;
+            const int DD_E_DETX = 418;
+            const int DD_E_DETX_BETA_GATED = 419;
 
             const int DD_EGAMMA__EBETA_ALL = 420;
             const int DD_EGAMMA__EBETA_B0 = 421;
@@ -50,6 +47,10 @@ namespace dammIds {
             const int DD_TDIFF__EGAMMA_B0 = 461;
             const int DD_TDIFF__EGAMMA_B1 = 462;
             const int DD_TDIFF__EGAMMA = 463;
+
+            const int D_ENERGY_HIGHGAIN = 497;
+            const int D_ENERGY_LOWGAIN = 498;
+            const int DD_CLOVER_ENERGY_RATIO = 499;
         }
     }
 }
@@ -172,6 +173,8 @@ void GeCalibProcessor::DeclarePlots(void)
 
     DeclareHistogram1D(calib::D_ENERGY_HIGHGAIN, energyBins,
                        "Gamma singles, high gain");
+    DeclareHistogram1D(calib::D_ENERGY_LOWGAIN, energyBins,
+                       "Gamma singles, low gain");
     DeclareHistogram2D(calib::DD_CLOVER_ENERGY_RATIO, S4, S6,
                        "high/low energy ratio (x10)");
     DeclareHistogram1D(dammIds::ge::D_MULT, S3, 
@@ -193,6 +196,11 @@ bool GeCalibProcessor::PreProcess(RawEvent &event) {
     /** Only the high gain events are going to be used. The events where
      * low/high gain mismatches, saturation or pileup is marked are rejected
      */
+    for (vector<ChanEvent*>::const_iterator itLow = lowEvents.begin();
+	 itLow != lowEvents.end(); ++itLow) {
+        plot(calib::D_ENERGY_LOWGAIN, (*itLow)->GetCalEnergy());
+    }
+
     for (vector<ChanEvent*>::const_iterator itHigh = highEvents.begin();
 	 itHigh != highEvents.end(); itHigh++) {
         int location = (*itHigh)->GetChanID().GetLocation();
@@ -200,7 +208,6 @@ bool GeCalibProcessor::PreProcess(RawEvent &event) {
 
         if ( (*itHigh)->IsSaturated() || (*itHigh)->IsPileup() )
             continue;
-
 
         // find the matching low gain event
         vector <ChanEvent*>::const_iterator itLow = lowEvents.begin();
