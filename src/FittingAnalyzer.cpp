@@ -226,7 +226,7 @@ int FitFunction (const gsl_vector * x, void *FitData, gsl_vector * f)
     double *sigma  = ((struct FittingAnalyzer::FitData *)FitData)->sigma;
     double beta    = ((struct FittingAnalyzer::FitData *)FitData)->beta;
     double gamma   = ((struct FittingAnalyzer::FitData *)FitData)->gamma;
-    double qdc    = ((struct FittingAnalyzer::FitData *)FitData)->qdc;
+    double qdc     = ((struct FittingAnalyzer::FitData *)FitData)->qdc;
 
     double phi     = gsl_vector_get (x, 0);
     double alpha   = gsl_vector_get (x, 1);
