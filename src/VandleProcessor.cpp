@@ -104,7 +104,6 @@ using namespace dammIds::vandle;
 VandleProcessor::VandleProcessor(): EventProcessor(OFFSET, RANGE)
 {
     name = "Vandle";
-    associatedTypes.insert("scint"); 
     associatedTypes.insert("vandleSmall"); 
     associatedTypes.insert("vandleBig");
     associatedTypes.insert("tvandle");
