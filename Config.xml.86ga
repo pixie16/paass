@@ -33,7 +33,7 @@
         <Processor name="MtcProcessor"
                    double_stop="True"
                    double_start="False"/>
-        <Processor name="BetaScintProcessor" />
+        <Processor name="Beta4Hen3Processor" />
     </DetectorDriver>
 
     <Map verbose_calibration="False"
@@ -244,10 +244,14 @@
             </Place>
             <Place type="PlaceOR" name="Gamma">
                 <Place type="PlaceOR" name="Clover0">
-                    <Place type="" name="ge_clover_high_0-3"/>
+                    <Place type="PlaceThreshold" name="ge_clover_high_0-3"
+                        low_limit="20.0" high_limit="99999" fifo="2"
+                        replace="true"/>
                 </Place>
                 <Place type="PlaceOR" name="Clover1">
-                    <Place type="" name="ge_clover_high_4-7"/>
+                    <Place type="PlaceThreshold" name="ge_clover_high_4-7"
+                        low_limit="20.0" high_limit="99999" fifo="2"
+                        replace="true"/>
                 </Place>
             </Place>
         </Place>
@@ -255,6 +259,7 @@
         <Place type="PlaceDetector" name="TapeMove" reset="false"/>
         <Place type="PlaceDetector" name="Beam" reset="false"/>
         <Place type="PlaceDetector" name="Cycle" reset="false"/>
+        <Place type="PlaceDetector" name="CycleTape" reset="false"/>
 
         <Place type="PlaceCounter" name="Hen3">
             <Place type="" name="3hen_big_0-47"/>

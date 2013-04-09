@@ -55,6 +55,7 @@
 #include "TreeCorrelator.hpp"
 
 #include "BetaScintProcessor.hpp"
+#include "Beta4Hen3Processor.hpp"
 #include "DssdProcessor.hpp"
 #include "Hen3Processor.hpp"
 #include "GeProcessor.hpp"
@@ -170,6 +171,8 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         m.detail("Loading " + name);
         if (name == "BetaScintProcessor") {
             vecProcess.push_back(new BetaScintProcessor());
+        } else if (name == "Beta4Hen3Processor") {
+            vecProcess.push_back(new Beta4Hen3Processor());
         } else if (name == "DssdProcessor") {
             vecProcess.push_back(new DssdProcessor());
         } else if (name == "GeProcessor" || name == "Ge4Hen3Processor") {
