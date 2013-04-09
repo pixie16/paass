@@ -36,6 +36,7 @@ namespace dammIds {
     namespace ge {
         namespace neutron {
             const int D_ENERGY = 200;
+            const int D_ENERGY_MOVE = 206;
             const int DD_ENERGY = 202;
             const int DD_ENERGY_NEUTRON_LOC = 203;
             const int D_MULT = 209;
@@ -109,6 +110,8 @@ void Ge4Hen3Processor::DeclarePlots(void)
 
     DeclareHistogram1D(neutron::D_ENERGY, energyBins1,
                       "Gamma singles neutron gated");
+    DeclareHistogram1D(neutron::D_ENERGY_MOVE, energyBins1,
+                       "Gamma singles neutron gated, tape move period");
     DeclareHistogram1D(neutron::D_MULT, S7,
                        "Gamma multiplicity neutron gated");                  
     DeclareHistogram1D(neutron::D_ADD_ENERGY, energyBins1,
@@ -210,20 +213,6 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
     // Call base class processing
     GeProcessor::Process(event);
 
-    double clockInSeconds = Globals::get()->clockInSeconds();
-
-    /** Place Cycle is activated by BeamOn event and deactivated by TapeMove
-     *  This will therefore skip events after tape was moved and before 
-     *  beam hit the new spot
-     */
-    if (!TreeCorrelator::get()->place("Cycle")->status())
-        return true;
-
-    /** Cycle time is measured from the begining of the last BeamON event */
-    double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
-    // beamOn is true for beam on and false for beam off
-    bool beamOn =  TreeCorrelator::get()->place("Beam")->status();
-
     /* Number of neutrons as selected by gates on 3hen spectrum.
      * See DetectorDriver::InitCorrelator for gates. */
     int neutron_count = 
@@ -235,6 +224,32 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
      * of further processing. */
     if (neutron_count < 1)
         return true;
+
+    /** Place Cycle is activated by BeamOn event and deactivated by TapeMove
+     *  This condition will therefore skip events registered during 
+     *  tape movement period and before the end of move and the beam start
+     */
+    if (!TreeCorrelator::get()->place("Cycle")->status()) {
+        for (vector<ChanEvent*>::iterator it = geEvents_.begin(); 
+        it != geEvents_.end(); ++it) {
+            ChanEvent* chan = *it;
+            double gEnergy = chan->GetCalEnergy();	
+            if (gEnergy < gammaThreshold_) 
+                continue;
+            plot(neutron::D_ENERGY_MOVE, gEnergy);
+        }
+        return true;
+    }
+
+    double clockInSeconds = Globals::get()->clockInSeconds();
+
+    /** Cycle time is measured from the begining of the last BeamON event */
+    //double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
+    
+    /** New temporaray CycleTape place to resolve tape problems **/
+    double cycleTime = TreeCorrelator::get()->place("CycleTape")->last().time;
+    // beamOn is true for beam on and false for beam off
+    bool beamOn =  TreeCorrelator::get()->place("Beam")->status();
 
     plot(neutron::D_MULT, geEvents_.size());
 

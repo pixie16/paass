@@ -116,6 +116,7 @@ READBUFFDATADFO    = ReadBuffData.RevD.$(ObjSuf)
 READBUFFDATAAO    = ReadBuffData.RevA.$(ObjSuf)
 
 BETASCINTPROCESSORO = BetaScintProcessor.$(ObjSuf)
+BETA4HEN3PROCESSORO = Beta4Hen3Processor.$(ObjSuf)
 CALIBRATORO      = Calibrator.$(ObjSuf)
 CFDANALYZERO     = CfdAnalyzer.$(ObjSuf)
 CHANEVENTO       = ChanEvent.$(ObjSuf)
@@ -193,6 +194,7 @@ OBJS += \
 $(PUGIXMLO)\
 $(PIXIEO)\
 $(BETASCINTPROCESSORO)\
+$(BETA4HEN3PROCESSORO)\
 $(CALIBRATORO)\
 $(CORRELATORO)\
 $(CHANEVENTO)\
