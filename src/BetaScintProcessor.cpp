@@ -98,8 +98,8 @@ bool BetaScintProcessor::Process(RawEvent &event)
     bool tapeMove = !(TreeCorrelator::get()->place("Cycle")->status());
 
     /** Cycle time is measured from the begining of the last BeamON event */
-    //double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
-    double cycleTime = TreeCorrelator::get()->place("CycleTape")->last().time;
+    double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
+    //double cycleTime = TreeCorrelator::get()->place("CycleTape")->last().time;
 
     /** True if gammas were recorded during the event */
     bool hasGamma = TreeCorrelator::get()->place("Gamma")->status();
