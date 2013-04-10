@@ -101,7 +101,6 @@ bool MtcProcessor::PreProcess(RawEvent &event)
                      TreeCorrelator::get()->place(place)->secondlast().time;
             TreeCorrelator::get()->place("TapeMove")->activate(time);
             TreeCorrelator::get()->place("Cycle")->deactivate(time);
-            TreeCorrelator::get()->place("CycleTape")->activate(time);
 
             plot(D_TDIFF_MOVE_START, dt_start / mtcPlotResolution);
             plot(D_COUNTER, MOVE_START_BIN);

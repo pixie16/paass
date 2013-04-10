@@ -244,10 +244,8 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
     double clockInSeconds = Globals::get()->clockInSeconds();
 
     /** Cycle time is measured from the begining of the last BeamON event */
-    //double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
+    double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
     
-    /** New temporaray CycleTape place to resolve tape problems **/
-    double cycleTime = TreeCorrelator::get()->place("CycleTape")->last().time;
     // beamOn is true for beam on and false for beam off
     bool beamOn =  TreeCorrelator::get()->place("Beam")->status();
 
