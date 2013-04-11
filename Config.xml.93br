@@ -32,7 +32,9 @@
         <Processor name="MtcProcessor" 
             double_stop="True"
             double_start="True"/>
-        <Processor name="BetaScintProcessor" />
+        <Processor name="BetaScintProcessor"
+                   gamma_beta_limit="200e-9"
+                   energy_contraction="2"/>
     </DetectorDriver>
 
     <Map verbose_calibration="False"
@@ -361,7 +363,7 @@
     <TreeCorrelator name="root" verbose="False">
         <Place type="PlaceOR" name="Beta" fifo="10">
             <Place type="PlaceThreshold" name="beta_scint_beta_0-1"
-                low_limit="500.0" high_limit="16382" fifo="5"
+                low_limit="50.0" high_limit="16382" fifo="5"
                 replace="true"/>
         </Place>
 

@@ -169,22 +169,29 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         string name = processor.attribute("name").value();
 
         m.detail("Loading " + name);
-        if (name == "BetaScintProcessor") {
+        if (name == "BetaScintProcessor" || name == "Beta4Hen3Processor") {
             double gamma_beta_limit = 
                 processor.attribute("gamma_beta_limit").as_double(-1);
             if (gamma_beta_limit == -1) {
                 gamma_beta_limit = 200e-9;
                 m.warning("Using default gamme_beta_limit = 200e-9", 1);
             }
-            vecProcess.push_back(new BetaScintProcessor(gamma_beta_limit));
-        } else if (name == "Beta4Hen3Processor") {
-            double gamma_beta_limit = 
-                processor.attribute("gamma_beta_limit").as_double(-1);
-            if (gamma_beta_limit == -1) {
-                gamma_beta_limit = 200e-9;
-                m.warning("Using default gamme_beta_limit = 200e-9", 1);
+
+            double energy_contraction = 
+                processor.attribute("energy_contraction").as_double(-1);
+            if (energy_contraction == -1) {
+                energy_contraction = 1;
+                m.warning("Using default energy contraction = 1", 1);
             }
-            vecProcess.push_back(new Beta4Hen3Processor(gamma_beta_limit));
+
+            if (name == "BetaScintProcessor") 
+                vecProcess.push_back(
+                        new BetaScintProcessor(gamma_beta_limit,
+                                               energy_contraction));
+            else if (name == "Beta4Hen3Processor")
+                vecProcess.push_back(
+                        new Beta4Hen3Processor(gamma_beta_limit,
+                                               energy_contraction));
         } else if (name == "DssdProcessor") {
             vecProcess.push_back(new DssdProcessor());
         } else if (name == "GeProcessor" || name == "Ge4Hen3Processor") {

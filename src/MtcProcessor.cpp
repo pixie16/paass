@@ -75,7 +75,6 @@ bool MtcProcessor::PreProcess(RawEvent &event)
     double clockInSeconds = Globals::get()->clockInSeconds();
     // plot with 10 ms bins
     const double mtcPlotResolution = 10e-3 / clockInSeconds;
-    // for 2d plot of events 100ms / bin
 
     static const vector<ChanEvent*> &mtcEvents = 
         event.GetSummary("mtc", true)->GetList();
@@ -88,6 +87,7 @@ bool MtcProcessor::PreProcess(RawEvent &event)
         static double t0 = time;
         string place = (*it)->GetChanID().GetPlaceName();
 
+        // for 2d plot of events 100ms / bin
         const double eventsResolution = 100e-3 / clockInSeconds;
         const unsigned MTC_START = 0;
         const unsigned MTC_STOP = 1;
