@@ -35,7 +35,8 @@ namespace dammIds {
     }
 } 
 
-Beta4Hen3Processor::Beta4Hen3Processor() : BetaScintProcessor()
+Beta4Hen3Processor::Beta4Hen3Processor(double gammaBetaLimit) :
+    BetaScintProcessor(gammaBetaLimit)
 {
 }
 
@@ -143,74 +144,62 @@ bool Beta4Hen3Processor::Process(RawEvent &event)
 
     /** Cycle time is measured from the begining of the last BeamON event */
     double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
-    //double cycleTime = TreeCorrelator::get()->place("CycleTape")->last().time;
-
-    /** True if gammas were recorded during the event */
-    bool hasGamma = TreeCorrelator::get()->place("Gamma")->status();
 
     for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin(); 
 	 it != scintBetaEvents.end(); it++) {
         double energy = (*it)->GetCalEnergy();
         double time = (*it)->GetTime();
-        int location = (*it)->GetChanID().GetLocation();
 
-        PlaceOR* betas = dynamic_cast<PlaceOR*>(
-                            TreeCorrelator::get()->place("Beta"));
-        /* Beta events gated by "Beta" place are plotted here 
-         * Energy-time spectra are gated
-         * */
-        for (deque<EventData>::iterator itb = betas->info_.begin();
-             itb != betas->info_.end(); ++itb) {
-            if (itb->energy == energy && itb->time == time &&
-                itb->location == location) {
-                double decayTime = (time - cycleTime) * clockInSeconds;
-                int decayTimeBin = int(decayTime / timeSpectraTimeResolution);
-                int energyBin = int(energy / timeSpectraEnergyContraction);
+        //Skip the energy-time spectra for zero energy events
+        if (energy < 1)
+            continue;
 
-                if (tapeMove) {
-                    plot(DD_ENERGY_BETA__TIME_TM_NEUTRON_TOTAL, 
+        double decayTime = (time - cycleTime) * clockInSeconds;
+        int decayTimeBin = int(decayTime / timeSpectraTimeResolution);
+        int energyBin = int(energy / timeSpectraEnergyContraction);
+
+        EventData bestGamma = BestGammaForBeta(time);
+        double gb_dtime = (time - bestGamma.time) * clockInSeconds;
+
+        if (tapeMove) {
+            plot(DD_ENERGY_BETA__TIME_TM_NEUTRON_TOTAL, 
+                energyBin, decayTimeBin);
+            if (GoodGammaBeta(gb_dtime))
+                plot(DD_ENERGY_BETA__TIME_TM_NEUTRON_G, 
+                    energyBin, decayTimeBin);
+            else
+                plot(DD_ENERGY_BETA__TIME_TM_NEUTRON_NOG, 
+                    energyBin, decayTimeBin);
+            if (neutron_count > 1) {
+                plot(DD_ENERGY_BETA__TIME_TM_MNEUTRON_TOTAL, 
+                    energyBin, decayTimeBin);
+                if (GoodGammaBeta(gb_dtime))
+                    plot(DD_ENERGY_BETA__TIME_TM_MNEUTRON_G, 
                         energyBin, decayTimeBin);
-                    if (!hasGamma)
-                        plot(DD_ENERGY_BETA__TIME_TM_NEUTRON_NOG, 
-                            energyBin, decayTimeBin);
-                    else
-                        plot(DD_ENERGY_BETA__TIME_TM_NEUTRON_G, 
-                            energyBin, decayTimeBin);
-                    if (neutron_count > 1) {
-                        plot(DD_ENERGY_BETA__TIME_TM_MNEUTRON_TOTAL, 
-                            energyBin, decayTimeBin);
-                        if (!hasGamma)
-                            plot(DD_ENERGY_BETA__TIME_TM_MNEUTRON_NOG, 
-                                energyBin, decayTimeBin);
-                        else
-                            plot(DD_ENERGY_BETA__TIME_TM_MNEUTRON_G, 
-                                energyBin, decayTimeBin);
-                    }
-                } else {
-                    plot(DD_ENERGY_BETA__TIME_NEUTRON_TOTAL,
-                            energyBin, decayTimeBin);
-                    if (!hasGamma)
-                        plot(DD_ENERGY_BETA__TIME_NEUTRON_NOG,
-                            energyBin, decayTimeBin);
-                    else
-                        plot(DD_ENERGY_BETA__TIME_NEUTRON_G,
-                            energyBin, decayTimeBin);
-                    if (neutron_count > 1) {
-                        plot(DD_ENERGY_BETA__TIME_MNEUTRON_TOTAL,
-                                energyBin, decayTimeBin);
-                        if (!hasGamma)
-                            plot(DD_ENERGY_BETA__TIME_MNEUTRON_NOG,
-                                energyBin, decayTimeBin);
-                        else
-                            plot(DD_ENERGY_BETA__TIME_MNEUTRON_G,
-                                energyBin, decayTimeBin);
-                    }
-                }
-                //Break the deque loop since we found the matching
-                //event
-                break;
-            } //if
-        } //Deque loop
+                else
+                    plot(DD_ENERGY_BETA__TIME_TM_MNEUTRON_NOG, 
+                        energyBin, decayTimeBin);
+            }
+        } else {
+            plot(DD_ENERGY_BETA__TIME_NEUTRON_TOTAL,
+                    energyBin, decayTimeBin);
+            if (GoodGammaBeta(gb_dtime))
+                plot(DD_ENERGY_BETA__TIME_NEUTRON_G,
+                    energyBin, decayTimeBin);
+            else
+                plot(DD_ENERGY_BETA__TIME_NEUTRON_NOG,
+                    energyBin, decayTimeBin);
+            if (neutron_count > 1) {
+                plot(DD_ENERGY_BETA__TIME_MNEUTRON_TOTAL,
+                        energyBin, decayTimeBin);
+                if (GoodGammaBeta(gb_dtime))
+                    plot(DD_ENERGY_BETA__TIME_MNEUTRON_G,
+                        energyBin, decayTimeBin);
+                else
+                    plot(DD_ENERGY_BETA__TIME_MNEUTRON_NOG,
+                        energyBin, decayTimeBin);
+            }
+        }
     } // ChanEvent loop
 
     EndProcess();

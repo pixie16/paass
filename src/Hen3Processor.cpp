@@ -23,9 +23,13 @@ namespace dammIds {
         const int D_ENERGY_NEUTRON = 3;
         const int D_TDIFF_HEN3_BETA = 4;
         const int D_TDIFF_NEUTRON_BETA = 5;
+        const int D_ENERGY_HEN3_TAPE = 6;
+
+        const int D_TIME_NEUTRON = 7;
 
         const int DD_DISTR_HEN3 = 10;
         const int DD_DISTR_NEUTRON = 11;
+
 
         // 3Hen noisy bars in 86Ga experiment
         /*
@@ -49,11 +53,19 @@ void Hen3Processor::DeclarePlots(void)
     DeclareHistogram1D(D_ENERGY_HEN3, SE, "3Hen raw energy");
     DeclareHistogram1D(D_ENERGY_NEUTRON, SE, "Neutron raw energy");
 
-    DeclareHistogram1D(D_TDIFF_HEN3_BETA, S8, "time diff hen3 - beta + 100 (1us/ch)");
-    DeclareHistogram1D(D_TDIFF_NEUTRON_BETA, S8, "time diff neutron - beta + 100 (1 us/ch)");
+    DeclareHistogram1D(D_TDIFF_HEN3_BETA, S8,
+            "time diff hen3 - beta + 100 (1 us/ch)");
+    DeclareHistogram1D(D_TDIFF_NEUTRON_BETA, S8,
+            "time diff neutron - beta + 100 (1 us/ch)");
+    DeclareHistogram1D(D_ENERGY_HEN3_TAPE, SE,
+            "3Hen raw energy, tape move period");
+
+    DeclareHistogram1D(D_TIME_NEUTRON, SD, 
+            "Neutron events vs cycle time (1 ms / bin");
 
     DeclareHistogram2D(DD_DISTR_HEN3, S5, S5, "3Hen event distribution");
-    DeclareHistogram2D(DD_DISTR_NEUTRON, S5, S5, "3Hen real neutron distribution");
+    DeclareHistogram2D(DD_DISTR_NEUTRON, S5, S5, 
+            "3Hen neutron distribution");
 }
 
 bool Hen3Processor::PreProcess(RawEvent &event)
@@ -94,6 +106,22 @@ bool Hen3Processor::Process(RawEvent &event)
     int neutron_count = dynamic_cast<PlaceCounter*>(
             TreeCorrelator::get()->place("Neutrons"))->getCounter();
 
+    double clockInSeconds = Globals::get()->clockInSeconds();
+    /** Place Cycle is activated by BeamOn event and deactivated by TapeMove*/
+    bool tapeMove = !(TreeCorrelator::get()->place("Cycle")->status());
+    /** Cycle time is measured from the begining of the last BeamON event */
+    double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
+
+    if (tapeMove) {
+        for (vector<ChanEvent*>::const_iterator it = 
+                 hen3Summary->GetList().begin(); 
+             it != hen3Summary->GetList().end(); it++) {
+                double energy = (*it)->GetEnergy();
+                plot(D_ENERGY_HEN3_TAPE, energy);
+        }
+        return true;
+    }
+
     plot(D_MULT_HEN3, hen3_count);
     plot(D_MULT_NEUTRON, neutron_count);
 
@@ -101,22 +129,26 @@ bool Hen3Processor::Process(RawEvent &event)
         it != hen3Summary->GetList().end(); it++) {
             ChanEvent *chan = *it;
             int location = chan->GetChanID().GetLocation();
-
             double energy = chan->GetEnergy();
+            double time = chan->GetTime();
+
             plot(D_ENERGY_HEN3, energy);
 
             stringstream neutron_name;
             neutron_name << "Neutron_" << location;
-            if (TreeCorrelator::get()->place(neutron_name.str())->status())
+            if (TreeCorrelator::get()->place(neutron_name.str())->status()) {
                 plot(D_ENERGY_NEUTRON, energy);
+                double decayTime = (time - cycleTime) * clockInSeconds;
+                int decayTimeBin = int(decayTime / cycleTimePlotResolution_);
+                plot(D_TIME_NEUTRON, decayTimeBin);
+            }
 
             string place = chan->GetChanID().GetPlaceName();
             if (TreeCorrelator::get()->place("Beta")->status()) {
-                double hen3_time = chan->GetTime();
-                double beta_time = TreeCorrelator::get()->place("Beta")->last().time;
-                const double timeResolution = 
-                    1e-6 / Globals::get()->clockInSeconds();
-                double dt = int( 100 + (hen3_time - beta_time) / timeResolution);
+                double beta_time = 
+                             TreeCorrelator::get()->place("Beta")->last().time;
+                double dt = 100 + int((time - beta_time) * clockInSeconds
+                                      / diffTimePlotResolution_);
                 if (dt > S8)
                     dt = S8 - 1;
                 if (dt < 0) {

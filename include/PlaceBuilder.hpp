@@ -34,6 +34,8 @@
 *          parent place to coin. ("true") or anti-coin. ("false")
 *  "fifo"  - optional, "2" by default, sets the depth of place's fifo
 *          queue
+*   "init" - optional, "false" by default, sets the initial status of the 
+*            place
 *  "range_min" - requaried for PlaceThreshold, sets the lower
 *              threshold
 *  "range_max" - requaried for PlaceThreshold, sets the high
