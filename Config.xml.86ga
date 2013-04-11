@@ -34,7 +34,8 @@
                    double_stop="True"
                    double_start="False"/>
         <Processor name="Beta4Hen3Processor"
-                   gamma_beta_limit="200e-9"/>
+                   gamma_beta_limit="200e-9"
+                   energy_contraction="10"/>
     </DetectorDriver>
 
     <Map verbose_calibration="False"
@@ -238,9 +239,9 @@
     <TreeCorrelator name="root" verbose="False">
 
         <Place type="PlaceAND" name="GammaBeta">
-            <Place type="PlaceOR" name="Beta" fifo="10">
+            <Place type="PlaceOR" name="Beta" fifo="20">
                 <Place type="PlaceThreshold" name="beta_scint_beta_0-1"
-                    low_limit="1500.0" high_limit="99999" fifo="5"
+                    low_limit="1500.0" high_limit="99999" fifo="10"
                     replace="true"/>
             </Place>
             <Place type="PlaceOR" name="Gamma" fifo="40">

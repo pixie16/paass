@@ -35,82 +35,83 @@ namespace dammIds {
     }
 } 
 
-Beta4Hen3Processor::Beta4Hen3Processor(double gammaBetaLimit) :
-    BetaScintProcessor(gammaBetaLimit)
+Beta4Hen3Processor::Beta4Hen3Processor(double gammaBetaLimit,
+                                       double energyContraction) :
+    BetaScintProcessor(gammaBetaLimit, energyContraction)
 {
 }
 
 void Beta4Hen3Processor::DeclarePlots(void) {
     BetaScintProcessor::DeclarePlots();
 
-    const int energyBins2 = SB;
+    const int energyBins = SB;
     const int timeBins = S9;
 
     stringstream title_end;
-    title_end << "energy/" << timeSpectraEnergyContraction << " vs time "
+    title_end << "energy/" << energyContraction_ << " vs time "
               << timeSpectraTimeResolution << "/bin (s)";
 
     stringstream title;
 
     title << "Neutron-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_NEUTRON_TOTAL, energyBins2,
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_NEUTRON_TOTAL, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Neutron-gated No-gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_NEUTRON_NOG, energyBins2,
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_NEUTRON_NOG, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Neutron-gated Gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_NEUTRON_G, energyBins2, 
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_NEUTRON_G, energyBins, 
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Neutron-gated Tape move Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_NEUTRON_TOTAL, energyBins2,
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_NEUTRON_TOTAL, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Neutron-gated Tape move No-gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_NEUTRON_NOG, energyBins2,
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_NEUTRON_NOG, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Neutron-gated Tape move Gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_NEUTRON_G, energyBins2,
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_NEUTRON_G, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Multi-Neutron-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_MNEUTRON_TOTAL, energyBins2,
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_MNEUTRON_TOTAL, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Multi-Neutron-gated No-gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_MNEUTRON_NOG, energyBins2,
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_MNEUTRON_NOG, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Multi-Neutron-gated Gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_MNEUTRON_G, energyBins2, 
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_MNEUTRON_G, energyBins, 
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Multi-Neutron-gated Tape move Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_MNEUTRON_TOTAL, energyBins2,
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_MNEUTRON_TOTAL, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Multi-Neutron-gated Tape move No-gamma-gated Beta " 
           << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_MNEUTRON_NOG, energyBins2,
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_MNEUTRON_NOG, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Multi-Neutron-gated Tape move Gamma-gated Beta " 
           << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_MNEUTRON_G, energyBins2,
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_MNEUTRON_G, energyBins,
                        timeBins, title.str().c_str()); 
 }
 
@@ -148,15 +149,15 @@ bool Beta4Hen3Processor::Process(RawEvent &event)
     for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin(); 
 	 it != scintBetaEvents.end(); it++) {
         double energy = (*it)->GetCalEnergy();
+        int energyBin = int(energy / energyContraction_);
         double time = (*it)->GetTime();
 
         //Skip the energy-time spectra for zero energy events
-        if (energy < 1)
+        if (energyBin < 1)
             continue;
 
         double decayTime = (time - cycleTime) * clockInSeconds;
         int decayTimeBin = int(decayTime / timeSpectraTimeResolution);
-        int energyBin = int(energy / timeSpectraEnergyContraction);
 
         EventData bestGamma = BestGammaForBeta(time);
         double gb_dtime = (time - bestGamma.time) * clockInSeconds;
