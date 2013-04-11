@@ -34,7 +34,8 @@
                    double_stop="True"
                    double_start="False"/>
         <Processor name="Beta4Hen3Processor"
-                   gamma_beta_limit="200e-9"/>
+                   gamma_beta_limit="200e-9"
+                   energy_contraction="10"/>
     </DetectorDriver>
 
     <Map verbose_calibration="False"

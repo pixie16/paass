@@ -11,7 +11,7 @@
 class Beta4Hen3Processor : public BetaScintProcessor
 {
 public:
-    Beta4Hen3Processor(double gammaBetaLimit);
+    Beta4Hen3Processor(double gammaBetaLimit, double energyContracion);
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void);
 };
