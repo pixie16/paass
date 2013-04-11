@@ -170,9 +170,21 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
 
         m.detail("Loading " + name);
         if (name == "BetaScintProcessor") {
-            vecProcess.push_back(new BetaScintProcessor());
+            double gamma_beta_limit = 
+                processor.attribute("gamma_beta_limit").as_double(-1);
+            if (gamma_beta_limit == -1) {
+                gamma_beta_limit = 200e-9;
+                m.warning("Using default gamme_beta_limit = 200e-9", 1);
+            }
+            vecProcess.push_back(new BetaScintProcessor(gamma_beta_limit));
         } else if (name == "Beta4Hen3Processor") {
-            vecProcess.push_back(new Beta4Hen3Processor());
+            double gamma_beta_limit = 
+                processor.attribute("gamma_beta_limit").as_double(-1);
+            if (gamma_beta_limit == -1) {
+                gamma_beta_limit = 200e-9;
+                m.warning("Using default gamme_beta_limit = 200e-9", 1);
+            }
+            vecProcess.push_back(new Beta4Hen3Processor(gamma_beta_limit));
         } else if (name == "DssdProcessor") {
             vecProcess.push_back(new DssdProcessor());
         } else if (name == "GeProcessor" || name == "Ge4Hen3Processor") {
@@ -258,6 +270,7 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         } else if (name == "McpProcessor") {
             vecProcess.push_back(new McpProcessor()); 
         } else if (name == "MtcProcessor") {
+            /** Default value for as_bool() is false */
             bool double_stop = 
                 processor.attribute("double_stop").as_bool();
             bool double_start = 
@@ -529,7 +542,7 @@ void DetectorDriver::DeclarePlots()
         
     } catch (exception &e) {
         // Any exception in histogram declaration will be intercepted here
-        cout << "Exception caught at DetectorDriver::DeclareHistograms" << endl;
+        cout << "Exception caught at DetectorDriver::DeclarePlots" << endl;
         cout << "\t" << e.what() << endl;
         exit(EXIT_FAILURE);
     }

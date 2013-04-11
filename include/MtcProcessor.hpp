@@ -10,7 +10,8 @@
 
 class MtcProcessor : public EventProcessor {
  public:
-    /** Enable/disable double stop / start flag */
+    /** Enable/disable double stop / start flag 
+     * */
     MtcProcessor(bool double_stop, bool double_start);
 
     virtual void DeclarePlots(void);

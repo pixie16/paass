@@ -39,7 +39,7 @@ namespace dammIds {
 } // mtc namespace
 
 
-MtcProcessor::MtcProcessor(bool double_stop, bool double_start) 
+MtcProcessor::MtcProcessor(bool double_stop, bool double_start)
     : EventProcessor(OFFSET, RANGE, "mtc")
 {
     associatedTypes.insert("timeclass"); // old detector type
