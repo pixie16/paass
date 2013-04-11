@@ -28,12 +28,18 @@ namespace dammIds {
 class BetaScintProcessor : public EventProcessor
 {
 public:
-    BetaScintProcessor();
+    BetaScintProcessor(double gammaBetaLimit);
     virtual bool PreProcess(RawEvent &event);
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void);
     static const double timeSpectraEnergyContraction = 10.0;
     static const double timeSpectraTimeResolution = 10e-3;
+
+protected:
+    EventData BestGammaForBeta(double bTime);
+    /** Returns true if gamma-beta correlation time is within limits. */
+    bool GoodGammaBeta(double gTime);
+    double gammaBetaLimit_;
 };
 
 #endif // __BETASCINTPROCSSEOR_HPP_

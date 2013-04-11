@@ -12,6 +12,7 @@ void Walker::parsePlace(pugi::xml_node node, string parent, bool verbose) {
     params["reset"] = "true";
     params["coincidence"] = "true";
     params["fifo"] = "2";
+    params["init"] = "false";
     for (pugi::xml_attribute attr = node.first_attribute();
          attr;
          attr = attr.next_attribute()) {
@@ -151,6 +152,8 @@ void TreeCorrelator::createPlace(map<string, string>& params,
             }
             Place* current = builder.create(params, verbose);
             places_[(*it)] = current;
+            if (strings::to_bool(params["init"]))
+                current->activate(0.0);
         }
 
         if (params["parent"] != "root") {

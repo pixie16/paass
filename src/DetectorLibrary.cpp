@@ -130,6 +130,7 @@ void DetectorLibrary::LoadXml() {
             params["type"] = "PlaceDetector";
             params["reset"] = "true";
             params["fifo"] = "2";
+            params["init"] = "false";
             TreeCorrelator::get()->createPlace(params, verbose_tree);
 
             if (verbose) {

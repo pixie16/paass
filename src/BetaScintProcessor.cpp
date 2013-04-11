@@ -2,6 +2,8 @@
  *
  * implementation for beta scintillator processor
  */
+
+#include <limits>
 #include <vector>
 #include <sstream>
 
@@ -13,9 +15,36 @@
 using namespace std;
 using namespace dammIds::beta_scint;
 
-BetaScintProcessor::BetaScintProcessor() : 
+BetaScintProcessor::BetaScintProcessor(double gammaBetaLimit) : 
     EventProcessor(OFFSET, RANGE, "beta_scint") {
     associatedTypes.insert("beta_scint"); 
+    gammaBetaLimit_ = gammaBetaLimit;
+}
+
+EventData BetaScintProcessor::BestGammaForBeta(double bTime) {
+    PlaceOR* gammas = dynamic_cast<PlaceOR*>(
+                        TreeCorrelator::get()->place("Gamma"));
+    unsigned sz = gammas->info_.size();
+
+    if (sz == 0)
+        return EventData(-1);
+
+    double bestTime = numeric_limits<double>::max();
+    unsigned bestIndex = -1;
+    for (int index = sz - 1; index >= 0; --index) {
+        double dtime = (bTime - gammas->info_.at(index).time);
+        if (abs(dtime) < abs(bestTime)) {
+            bestTime = dtime;
+            bestIndex = index;
+        }
+    }
+    return gammas->info_.at(bestIndex);
+}
+
+bool BetaScintProcessor::GoodGammaBeta(double gb_dtime) {
+    if (abs(gb_dtime) > gammaBetaLimit_)
+        return false;
+    return true;
 }
 
 void BetaScintProcessor::DeclarePlots(void) {
@@ -99,10 +128,8 @@ bool BetaScintProcessor::Process(RawEvent &event)
 
     /** Cycle time is measured from the begining of the last BeamON event */
     double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
-    //double cycleTime = TreeCorrelator::get()->place("CycleTape")->last().time;
 
     /** True if gammas were recorded during the event */
-    bool hasGamma = TreeCorrelator::get()->place("Gamma")->status();
 
     int multiplicity = 0;
     for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin(); 
@@ -122,32 +149,40 @@ bool BetaScintProcessor::Process(RawEvent &event)
                 itb->location == location) {
                 ++multiplicity;
                 plot(D_ENERGY_BETA_GATED, energy);
-
-                double decayTime = (time - cycleTime) * clockInSeconds;
-                int decayTimeBin = int(decayTime / timeSpectraTimeResolution);
-                int energyBin = int(energy / timeSpectraEnergyContraction);
-
-                if (tapeMove) {
-                    plot(DD_ENERGY_BETA__TIME_TM_TOTAL, 
-                         energyBin, decayTimeBin);
-                    if (!hasGamma)
-                        plot(DD_ENERGY_BETA__TIME_TM_NOG, 
-                             energyBin, decayTimeBin);
-                    else
-                        plot(DD_ENERGY_BETA__TIME_TM_G, 
-                             energyBin, decayTimeBin);
-                } else {
-                    plot(DD_ENERGY_BETA__TIME_TOTAL,
-                            energyBin, decayTimeBin);
-                    if (!hasGamma)
-                        plot(DD_ENERGY_BETA__TIME_NOG,
-                             energyBin, decayTimeBin);
-                    else
-                        plot(DD_ENERGY_BETA__TIME_G,
-                             energyBin, decayTimeBin);
-                }
+                //Break the deque loop since we found the matching event
                 break;
             }
+        }
+
+        //Skip the energy-time spectra for zero energy events
+        if (energy < 1)
+            continue;
+
+        double decayTime = (time - cycleTime) * clockInSeconds;
+        int decayTimeBin = int(decayTime / timeSpectraTimeResolution);
+        int energyBin = int(energy / timeSpectraEnergyContraction);
+
+        EventData bestGamma = BestGammaForBeta(time);
+        double gb_dtime = (time - bestGamma.time) * clockInSeconds;
+
+        if (tapeMove) {
+            plot(DD_ENERGY_BETA__TIME_TM_TOTAL, 
+                    energyBin, decayTimeBin);
+            if (GoodGammaBeta(gb_dtime))
+                plot(DD_ENERGY_BETA__TIME_TM_G, 
+                        energyBin, decayTimeBin);
+            else
+                plot(DD_ENERGY_BETA__TIME_TM_NOG, 
+                        energyBin, decayTimeBin);
+        } else {
+            plot(DD_ENERGY_BETA__TIME_TOTAL,
+                    energyBin, decayTimeBin);
+            if (GoodGammaBeta(gb_dtime))
+                plot(DD_ENERGY_BETA__TIME_G,
+                        energyBin, decayTimeBin);
+            else
+                plot(DD_ENERGY_BETA__TIME_NOG,
+                        energyBin, decayTimeBin);
         }
     }
 
