@@ -143,6 +143,7 @@ MESSENGERO       = Messenger.$(ObjSuf)
 MCPPROCESSORO    = McpProcessor.$(ObjSuf)
 MTCPROCESSORO    = MtcProcessor.$(ObjSuf)
 NEUTRONSCINTPROCESSORO  = NeutronScintProcessor.$(ObjSuf)
+NOTEBOOKO		 = Notebook.$(ObjSuf)
 PLOTSO           = Plots.$(ObjSuf)
 PLOTSREGISTERO   = PlotsRegister.$(ObjSuf)
 POSITIONPROCESSORO = PositionProcessor.$(ObjSuf)
@@ -220,6 +221,7 @@ $(MESSENGERO)\
 $(MCPPROCESSORO)\
 $(MTCPROCESSORO)\
 $(NEUTRONSCINTPROCESSORO)\
+$(NOTEBOOKO)\
 $(PLOTSO)\
 $(PLOTSREGISTERO)\
 $(POSITIONPROCESSORO)\

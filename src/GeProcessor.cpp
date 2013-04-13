@@ -26,6 +26,7 @@
 #include "DetectorLibrary.hpp"
 #include "Exceptions.hpp"
 #include "Messenger.hpp"
+#include "Notebook.hpp"
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
 #include "RawEvent.hpp"
