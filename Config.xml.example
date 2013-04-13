@@ -553,4 +553,12 @@
         </Gate>
     </GammaGates>
 
+    <!-- Instructions: 
+         Configuration of Notebook object that saves handy notes (things
+         that are not easy to present on graph e.g. single event details)
+         file - file in which the notes are saved
+         mode - 'a' for append, 'r' - for replace mode
+    -->
+    <NoteBook file='notes.txt' mode='a'/>
+
 </Configuration>

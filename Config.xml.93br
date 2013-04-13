@@ -416,4 +416,6 @@
         </Gate>
     </GammaGates>
 
+    <Notebook file="notes.txt" mode="r"/>
+
 </Configuration>

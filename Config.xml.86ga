@@ -284,4 +284,6 @@
             </Gate>
     </GammaGates>
 
+    <NoteBook file='notes.txt' mode='a'/>
+
 </Configuration>
