@@ -21,7 +21,6 @@
 
 #include "GeProcessor.hpp"
 
-#include "Correlator.hpp"
 #include "DammPlotIds.hpp"
 #include "DetectorLibrary.hpp"
 #include "Exceptions.hpp"
@@ -325,7 +324,7 @@ void GeProcessor::DeclarePlots(void)
     DeclareHistogram2D(
             betaGated::DD_TDIFF__BETA_ENERGY,
             timeBins1, energyBins2,
-            "Beta energy, gamma- beta time diff + 100 (10 ns)");
+            "Beta energy/10, gamma- beta time diff + 100 (10 ns)");
 
 #ifdef GGATES
     DeclareHistogram2D(DD_TDIFF__GATEX, timeBins1, S5,
@@ -517,7 +516,7 @@ bool GeProcessor::Process(RawEvent &event) {
             plot(betaGated::DD_TDIFF__GAMMA_ENERGY,
                     (int)(gb_dtime / plotResolution + 100), gEnergy);
             plot(betaGated::DD_TDIFF__BETA_ENERGY, 
-                    (int)(gb_dtime / plotResolution + 100), betaEnergy); 
+                    (int)(gb_dtime / plotResolution + 100), betaEnergy/10); 
 
             plot(betaGated::D_ENERGY, gEnergy);
             if (GoodGammaBeta(gb_dtime)) {
@@ -551,6 +550,47 @@ bool GeProcessor::Process(RawEvent &event) {
                      gEnergy, det * 3 +  betaLocation);
             }
         }
+
+        /** Take detailed info on selected energy events */
+        /*
+        vector< pair<double, double> > gates;
+        gates.push_back(pair<double, double>(95.0, 98.0));
+        gates.push_back(pair<double, double>(99.0, 102.0));
+        gates.push_back(pair<double, double>(106.0, 109.0));
+        gates.push_back(pair<double, double>(248.0, 251.0));
+        gates.push_back(pair<double, double>(253.0, 256.0));
+        gates.push_back(pair<double, double>(525.0, 528.0));
+        gates.push_back(pair<double, double>(535.0, 538.0));
+        gates.push_back(pair<double, double>(608.0, 611.0));
+        gates.push_back(pair<double, double>(622.0, 625.0));
+        gates.push_back(pair<double, double>(629.0, 631.0));
+        for (vector< pair<double, double> >::iterator itp = gates.begin();
+            itp != gates.end(); ++itp) {
+
+            if (gEnergy < itp->first || gEnergy > itp->second)
+                continue;
+
+            int neutron_count = 
+                dynamic_cast<PlaceCounter*>(
+                    TreeCorrelator::get()->place("Neutrons"))->getCounter();
+
+            double gbtime = -1.0;
+            double betaEnergy = -1.0;
+            if (hasBeta) {
+                EventData bestBeta = BestBetaForGamma(gTime);
+                gbtime = (gTime - bestBeta.time) * clockInSeconds;
+                betaEnergy = bestBeta.energy;
+            } 
+            if (GoodGammaBeta(gbtime) || neutron_count > 0) {
+                stringstream ss;
+                ss << gEnergy << " " << decayTime << " "  << hasBeta << " "
+                    << betaEnergy << " " << gbtime * 1e9 << " " 
+                    << neutron_count;
+                Notebook::get()->report(ss.str());
+            }
+        }
+        */
+        /*END*/
         
         for (vector<ChanEvent*>::const_iterator it2 = it1 + 1;
                 it2 != geEvents_.end(); it2++) {

@@ -16,22 +16,28 @@ using namespace dammIds::beta_scint;
 
 namespace dammIds {
     namespace beta_scint {
+        namespace neutron{
+            const int D_ENERGY_BETA_GAMMA_GATED = 7;
+            const int DD_ENERGY_BETA__GAMMA = 8;
 
-        const int DD_ENERGY_BETA__TIME_NEUTRON_TOTAL = 15;
-        const int DD_ENERGY_BETA__TIME_NEUTRON_NOG = 16;
-        const int DD_ENERGY_BETA__TIME_NEUTRON_G = 17;
+            const int DD_ENERGY_BETA__TIME_TOTAL = 15;
+            const int DD_ENERGY_BETA__TIME_NOG = 16;
+            const int DD_ENERGY_BETA__TIME_G = 17;
 
-        const int DD_ENERGY_BETA__TIME_TM_NEUTRON_TOTAL = 25;
-        const int DD_ENERGY_BETA__TIME_TM_NEUTRON_NOG = 26;
-        const int DD_ENERGY_BETA__TIME_TM_NEUTRON_G = 27;
+            const int DD_ENERGY_BETA__TIME_TM_TOTAL = 25;
+            const int DD_ENERGY_BETA__TIME_TM_NOG = 26;
+            const int DD_ENERGY_BETA__TIME_TM_G = 27;
+        }
 
-        const int DD_ENERGY_BETA__TIME_MNEUTRON_TOTAL = 30;
-        const int DD_ENERGY_BETA__TIME_MNEUTRON_NOG = 31;
-        const int DD_ENERGY_BETA__TIME_MNEUTRON_G = 32;
+        namespace multiNeutron {
+            const int DD_ENERGY_BETA__TIME_TOTAL = 30;
+            const int DD_ENERGY_BETA__TIME_NOG = 31;
+            const int DD_ENERGY_BETA__TIME_G = 32;
 
-        const int DD_ENERGY_BETA__TIME_TM_MNEUTRON_TOTAL = 35;
-        const int DD_ENERGY_BETA__TIME_TM_MNEUTRON_NOG = 36;
-        const int DD_ENERGY_BETA__TIME_TM_MNEUTRON_G = 37;
+            const int DD_ENERGY_BETA__TIME_TM_TOTAL = 35;
+            const int DD_ENERGY_BETA__TIME_TM_NOG = 36;
+            const int DD_ENERGY_BETA__TIME_TM_G = 37;
+        }
     }
 } 
 
@@ -53,66 +59,77 @@ void Beta4Hen3Processor::DeclarePlots(void) {
 
     stringstream title;
 
+    title.str("");
+    title << "Beta energy/" << energyContraction_ << " neutron gamma gated";
+    DeclareHistogram1D(neutron::D_ENERGY_BETA_GAMMA_GATED, energyBins,
+                       title.str().c_str());
+
+    title.str("");
+    title << "Beta energy/" << energyContraction_ 
+          << " vs gamma energy neutron gated ";
+    DeclareHistogram2D(neutron::DD_ENERGY_BETA__GAMMA, energyBins, SC, 
+                        title.str().c_str()); 
+
     title << "Neutron-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_NEUTRON_TOTAL, energyBins,
+    DeclareHistogram2D(neutron::DD_ENERGY_BETA__TIME_TOTAL, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Neutron-gated No-gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_NEUTRON_NOG, energyBins,
+    DeclareHistogram2D(neutron::DD_ENERGY_BETA__TIME_NOG, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Neutron-gated Gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_NEUTRON_G, energyBins, 
+    DeclareHistogram2D(neutron::DD_ENERGY_BETA__TIME_G, energyBins, 
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Neutron-gated Tape move Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_NEUTRON_TOTAL, energyBins,
+    DeclareHistogram2D(neutron::DD_ENERGY_BETA__TIME_TM_TOTAL, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Neutron-gated Tape move No-gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_NEUTRON_NOG, energyBins,
+    DeclareHistogram2D(neutron::DD_ENERGY_BETA__TIME_TM_NOG, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Neutron-gated Tape move Gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_NEUTRON_G, energyBins,
+    DeclareHistogram2D(neutron::DD_ENERGY_BETA__TIME_TM_G, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Multi-Neutron-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_MNEUTRON_TOTAL, energyBins,
+    DeclareHistogram2D(multiNeutron::DD_ENERGY_BETA__TIME_TOTAL, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Multi-Neutron-gated No-gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_MNEUTRON_NOG, energyBins,
+    DeclareHistogram2D(multiNeutron::DD_ENERGY_BETA__TIME_NOG, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Multi-Neutron-gated Gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_MNEUTRON_G, energyBins, 
+    DeclareHistogram2D(multiNeutron::DD_ENERGY_BETA__TIME_G, energyBins, 
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Multi-Neutron-gated Tape move Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_MNEUTRON_TOTAL, energyBins,
+    DeclareHistogram2D(multiNeutron::DD_ENERGY_BETA__TIME_TM_TOTAL, energyBins,
                        timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Multi-Neutron-gated Tape move No-gamma-gated Beta " 
           << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_MNEUTRON_NOG, energyBins,
-                       timeBins, title.str().c_str()); 
+    DeclareHistogram2D(multiNeutron::DD_ENERGY_BETA__TIME_TM_NOG,
+            energyBins, timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Multi-Neutron-gated Tape move Gamma-gated Beta " 
           << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_MNEUTRON_G, energyBins,
-                       timeBins, title.str().c_str()); 
+    DeclareHistogram2D(multiNeutron::DD_ENERGY_BETA__TIME_TM_G,
+            energyBins, timeBins, title.str().c_str()); 
 }
 
 bool Beta4Hen3Processor::Process(RawEvent &event)
@@ -162,42 +179,47 @@ bool Beta4Hen3Processor::Process(RawEvent &event)
         EventData bestGamma = BestGammaForBeta(time);
         double gb_dtime = (time - bestGamma.time) * clockInSeconds;
 
+        if (GoodGammaBeta(gb_dtime)) {
+            plot(neutron::D_ENERGY_BETA_GAMMA_GATED, energyBin);
+            plot(neutron::DD_ENERGY_BETA__GAMMA, energyBin, bestGamma.energy);
+        }
+
         if (tapeMove) {
-            plot(DD_ENERGY_BETA__TIME_TM_NEUTRON_TOTAL, 
+            plot(neutron::DD_ENERGY_BETA__TIME_TM_TOTAL, 
                 energyBin, decayTimeBin);
             if (GoodGammaBeta(gb_dtime))
-                plot(DD_ENERGY_BETA__TIME_TM_NEUTRON_G, 
+                plot(neutron::DD_ENERGY_BETA__TIME_TM_G, 
                     energyBin, decayTimeBin);
             else
-                plot(DD_ENERGY_BETA__TIME_TM_NEUTRON_NOG, 
+                plot(neutron::DD_ENERGY_BETA__TIME_TM_NOG, 
                     energyBin, decayTimeBin);
             if (neutron_count > 1) {
-                plot(DD_ENERGY_BETA__TIME_TM_MNEUTRON_TOTAL, 
+                plot(multiNeutron::DD_ENERGY_BETA__TIME_TM_TOTAL, 
                     energyBin, decayTimeBin);
                 if (GoodGammaBeta(gb_dtime))
-                    plot(DD_ENERGY_BETA__TIME_TM_MNEUTRON_G, 
+                    plot(multiNeutron::DD_ENERGY_BETA__TIME_TM_G, 
                         energyBin, decayTimeBin);
                 else
-                    plot(DD_ENERGY_BETA__TIME_TM_MNEUTRON_NOG, 
+                    plot(multiNeutron::DD_ENERGY_BETA__TIME_TM_NOG, 
                         energyBin, decayTimeBin);
             }
         } else {
-            plot(DD_ENERGY_BETA__TIME_NEUTRON_TOTAL,
+            plot(neutron::DD_ENERGY_BETA__TIME_TOTAL,
                     energyBin, decayTimeBin);
             if (GoodGammaBeta(gb_dtime))
-                plot(DD_ENERGY_BETA__TIME_NEUTRON_G,
+                plot(neutron::DD_ENERGY_BETA__TIME_G,
                     energyBin, decayTimeBin);
             else
-                plot(DD_ENERGY_BETA__TIME_NEUTRON_NOG,
+                plot(neutron::DD_ENERGY_BETA__TIME_NOG,
                     energyBin, decayTimeBin);
             if (neutron_count > 1) {
-                plot(DD_ENERGY_BETA__TIME_MNEUTRON_TOTAL,
+                plot(multiNeutron::DD_ENERGY_BETA__TIME_TOTAL,
                         energyBin, decayTimeBin);
                 if (GoodGammaBeta(gb_dtime))
-                    plot(DD_ENERGY_BETA__TIME_MNEUTRON_G,
+                    plot(multiNeutron::DD_ENERGY_BETA__TIME_G,
                         energyBin, decayTimeBin);
                 else
-                    plot(DD_ENERGY_BETA__TIME_MNEUTRON_NOG,
+                    plot(multiNeutron::DD_ENERGY_BETA__TIME_NOG,
                         energyBin, decayTimeBin);
             }
         }

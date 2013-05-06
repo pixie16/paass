@@ -274,18 +274,16 @@
     </TreeCorrelator>
 
     <GammaGates>
-        <!--
             <Gate>
-                <Line min="622" max="626"/>
-                <Line min="761" max="766"/>
+                <Line min="247" max="249"/>
+                <Line min="798" max="800"/>
             </Gate>
             <Gate>
-                <Line min="622" max="626"/>
-                <Line min="802" max="807"/>
+                <Line min="247" max="249"/>
+                <Line min="792" max="794"/>
             </Gate>
-        -->
     </GammaGates>
 
-    <Notebook file='86ga_notes.txt' mode='a'/>
+    <Notebook file='83ga_notes.txt' mode='a'/>
 
 </Configuration>
