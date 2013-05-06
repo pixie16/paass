@@ -4,6 +4,7 @@
  */
 #include <iostream>
 #include <cmath>
+#include <limits>
 
 #include "DammPlotIds.hpp"
 #include "RawEvent.hpp"
@@ -21,14 +22,18 @@ namespace dammIds {
         const int D_MULT_NEUTRON = 1;
         const int D_ENERGY_HEN3 = 2;
         const int D_ENERGY_NEUTRON = 3;
-        const int D_TDIFF_HEN3_BETA = 4;
-        const int D_TDIFF_NEUTRON_BETA = 5;
-        const int D_ENERGY_HEN3_TAPE = 6;
-
+        const int D_ENERGY_HEN3_TAPE = 4;
         const int D_TIME_NEUTRON = 7;
 
-        const int DD_DISTR_HEN3 = 10;
-        const int DD_DISTR_NEUTRON = 11;
+        namespace beta {
+            const int D_MULT_NEUTRON = 11;
+            const int D_ENERGY_NEUTRON = 13;
+            const int D_TDIFF_HEN3_BETA = 15;
+            const int D_TDIFF_NEUTRON_BETA = 16;
+        }
+
+        const int DD_DISTR_HEN3 = 20;
+        const int DD_DISTR_NEUTRON = 21;
 
 
         // 3Hen noisy bars in 86Ga experiment
@@ -45,17 +50,48 @@ Hen3Processor::Hen3Processor() : EventProcessor(OFFSET, RANGE, "3hen")
     associatedTypes.insert("3hen"); // associate with the scint type
 }
 
+EventData Hen3Processor::BestBetaForNeutron(double nTime) {
+    PlaceOR* betas = dynamic_cast<PlaceOR*>(
+                        TreeCorrelator::get()->place("Beta"));
+    unsigned sz = betas->info_.size();
+
+    if (sz == 0)
+        return EventData(-1);
+
+    double bestTime = numeric_limits<double>::max();
+    unsigned bestIndex = -1;
+    for (unsigned index = 0; index < sz; ++index) {
+        double dtime = (nTime - betas->info_.at(index).time);
+        // We assume that neutron must be slower than beta
+        if (dtime < 0)
+            continue;
+        if (dtime < bestTime) {
+            bestTime = dtime;
+            bestIndex = index;
+        }
+    }
+    if (bestIndex > 0)
+        return betas->info_.at(bestIndex);
+    else
+        return EventData(-1);
+}
+
 void Hen3Processor::DeclarePlots(void)
 {
     DeclareHistogram1D(D_MULT_HEN3, S4, "3Hen event multiplicity");
     DeclareHistogram1D(D_MULT_NEUTRON, S4, "3Hen real neutron multiplicity");
+    DeclareHistogram1D(beta::D_MULT_NEUTRON, S4, 
+            "Beta gated 3Hen real neutron multiplicity");
 
     DeclareHistogram1D(D_ENERGY_HEN3, SE, "3Hen raw energy");
     DeclareHistogram1D(D_ENERGY_NEUTRON, SE, "Neutron raw energy");
 
-    DeclareHistogram1D(D_TDIFF_HEN3_BETA, S8,
+    DeclareHistogram1D(beta::D_ENERGY_NEUTRON, SE,
+                        "Beta gated neutron raw energy");
+
+    DeclareHistogram1D(beta::D_TDIFF_HEN3_BETA, S8,
             "time diff hen3 - beta + 100 (1 us/ch)");
-    DeclareHistogram1D(D_TDIFF_NEUTRON_BETA, S8,
+    DeclareHistogram1D(beta::D_TDIFF_NEUTRON_BETA, S8,
             "time diff neutron - beta + 100 (1 us/ch)");
     DeclareHistogram1D(D_ENERGY_HEN3_TAPE, SE,
             "3Hen raw energy, tape move period");
@@ -125,6 +161,7 @@ bool Hen3Processor::Process(RawEvent &event)
     plot(D_MULT_HEN3, hen3_count);
     plot(D_MULT_NEUTRON, neutron_count);
 
+    int beta_gated_neutron_multi = 0;
     for (vector<ChanEvent*>::const_iterator it = hen3Summary->GetList().begin(); 
         it != hen3Summary->GetList().end(); it++) {
             ChanEvent *chan = *it;
@@ -145,18 +182,23 @@ bool Hen3Processor::Process(RawEvent &event)
 
             string place = chan->GetChanID().GetPlaceName();
             if (TreeCorrelator::get()->place("Beta")->status()) {
-                double beta_time = 
+                EventData bestBeta = BestBetaForNeutron(time);
+                double betaEnergy = bestBeta.energy;
+                double nb_dtime = (time - bestBeta.time) * clockInSeconds;
                              TreeCorrelator::get()->place("Beta")->last().time;
-                double dt = 100 + int((time - beta_time) * clockInSeconds
-                                      / diffTimePlotResolution_);
+                double dt = 100 + nb_dtime / diffTimePlotResolution_;
                 if (dt > S8)
                     dt = S8 - 1;
                 if (dt < 0) {
                     dt = 0;
                 }
-                if (TreeCorrelator::get()->place(neutron_name.str())->status())
-                    plot(D_TDIFF_NEUTRON_BETA, dt);
-                plot(D_TDIFF_HEN3_BETA, dt);
+                if (TreeCorrelator::get()->
+                                    place(neutron_name.str())->status()) {
+                    plot(beta::D_TDIFF_NEUTRON_BETA, dt);
+                    plot(beta::D_ENERGY_NEUTRON, energy);
+                    ++beta_gated_neutron_multi;
+                }
+                plot(beta::D_TDIFF_HEN3_BETA, dt);
             }
 
             /** These plots show He3 bar location hit
@@ -195,6 +237,7 @@ bool Hen3Processor::Process(RawEvent &event)
             if (TreeCorrelator::get()->place(neutron_name.str())->status())
                 plot(DD_DISTR_NEUTRON, xpos, ypos);
     }
+    plot(beta::D_MULT_NEUTRON, beta_gated_neutron_multi);
 
     EndProcess();
     return true;

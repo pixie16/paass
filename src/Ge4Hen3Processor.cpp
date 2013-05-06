@@ -291,41 +291,6 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             }
 		}
 
-        /** Take detailed info on selected energy events */
-        /* Commented in the master version
-        vector< pair<double, double> > gates;
-        gates.push_back(pair<double, double>(99.0, 102.0));
-        gates.push_back(pair<double, double>(106.0, 109.0));
-        gates.push_back(pair<double, double>(248.0, 253.0));
-        gates.push_back(pair<double, double>(621.0, 626.0));
-        gates.push_back(pair<double, double>(773.0, 776.0));
-        for (vector< pair<double, double> >::iterator itp = gates.begin();
-             itp != gates.end(); ++itp) {
-
-            if (gEnergy < itp->first || gEnergy > itp->second)
-                continue;
-
-            ofstream gatedata("gatedata.txt", ios::app);
-            double nTime = (gTime - 
-                      TreeCorrelator::get()->place("Neutrons")->last().time) *
-                      clockInSeconds;
-            gatedata << gEnergy << " " << decayTime << " "  
-                     << hasBeta << " " << GoodGammaBeta(gb_dtime) << " " 
-                     << gb_dtime << " " << nTime;
-            if (!beamOn) {
-                double decayTimeOff = (gTime - 
-                        TreeCorrelator::get()->place("Beam")->last().time) *
-                        clockInSeconds;
-                gatedata << " " << decayTimeOff;
-            } else {
-                gatedata << " " << beamOn;
-            }
-            gatedata << endl;
-            gatedata.close();
-        }
-        */
-        /*END*/
-
         for (unsigned l = 0; l < 48; ++l) {
             stringstream neutron;
             neutron << "Neutron_" << l;
