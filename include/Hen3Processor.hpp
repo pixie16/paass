@@ -15,7 +15,8 @@ public:
     virtual bool PreProcess(RawEvent &event);
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void);
-private:
+protected:
+    EventData BestBetaForNeutron(double nTime);
     static double const cycleTimePlotResolution_ = 1e-3;
     static double const diffTimePlotResolution_ = 1e-6;
 };
