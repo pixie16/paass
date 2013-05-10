@@ -158,6 +158,7 @@ void GeProcessor::DeclarePlots(void)
     const int energyBins1  = SD;
     const int energyBins2  = SC;
     const int timeBins1    = S8;
+    const int timeBins2    = S9;
     const int granTimeBins = SA;
 
     using namespace dammIds::ge;
@@ -255,8 +256,12 @@ void GeProcessor::DeclarePlots(void)
                        "Beta gated gamma addback multi-gated beta-prompt");
 
     DeclareHistogram1D(D_ADD_ENERGY_TOTAL, energyBins1, "Gamma total");
+    DeclareHistogram1D(multi::D_ADD_ENERGY_TOTAL, energyBins1,
+                       "Gamma total multi-gated");
     DeclareHistogram1D(betaGated::D_ADD_ENERGY_TOTAL, energyBins1,
                        "Beta gated gamma total");
+    DeclareHistogram1D(multi::betaGated::D_ADD_ENERGY_TOTAL, energyBins1,
+                       "Beta gated gamma total multi-gated");
     
     // for each clover
     for (unsigned int i = 0; i < numClovers; i++) {
@@ -336,7 +341,7 @@ void GeProcessor::DeclarePlots(void)
            "Same clover, gamma energy sum, gamma-gamma time diff + 100 (10 ns)");
     DeclareHistogram2D(
             betaGated::DD_TDIFF__GAMMA_ENERGY,
-            timeBins1, energyBins2,
+            timeBins2, energyBins2,
             "Gamma energy, gamma - beta time diff + 100 (10 ns)");
     DeclareHistogram2D(
             betaGated::DD_TDIFF__BETA_ENERGY,
@@ -704,11 +709,26 @@ bool GeProcessor::Process(RawEvent &event) {
     // Plot 'tas' spectra
     for (unsigned i = 0; i < nEvents; ++i) {
         double gEnergy = tas_[i].energy;
+        double gTime = tas_[i].time;
+        double gMulti = tas_[i].multiplicity;
+
         if (gEnergy < gammaThreshold_)
             continue;
+
+        double gb_dtime = numeric_limits<double>::max();
+        if (hasBeta) {
+            EventData bestBeta = BestBetaForGamma(gTime);
+            gb_dtime = (gTime - bestBeta.time) * clockInSeconds;
+        }
+
         plot(D_ADD_ENERGY_TOTAL, gEnergy);
-        if (hasBeta)
+        if (gMulti == 1)
+            plot(multi::D_ADD_ENERGY_TOTAL, gEnergy);
+        if (hasBeta && GoodGammaBeta(gb_dtime)) {
             plot(betaGated::D_ADD_ENERGY_TOTAL, gEnergy);
+            if (gMulti == 1)
+                plot(multi::betaGated::D_ADD_ENERGY_TOTAL, gEnergy);
+        }
     }
 
     // Plot addback spectra 
