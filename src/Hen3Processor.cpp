@@ -183,7 +183,6 @@ bool Hen3Processor::Process(RawEvent &event)
             string place = chan->GetChanID().GetPlaceName();
             if (TreeCorrelator::get()->place("Beta")->status()) {
                 EventData bestBeta = BestBetaForNeutron(time);
-                double betaEnergy = bestBeta.energy;
                 double nb_dtime = (time - bestBeta.time) * clockInSeconds;
                              TreeCorrelator::get()->place("Beta")->last().time;
                 double dt = 100 + nb_dtime / diffTimePlotResolution_;
