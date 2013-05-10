@@ -275,12 +275,28 @@
 
     <GammaGates>
             <Gate>
-                <Line min="247" max="249"/>
-                <Line min="798" max="800"/>
+                <Line min="1346" max="1351"/>
+                <Line min="866" max="868"/>
             </Gate>
             <Gate>
-                <Line min="247" max="249"/>
-                <Line min="792" max="794"/>
+                <Line min="1346" max="1351"/>
+                <Line min="860" max="862"/>
+            </Gate>
+            <Gate>
+                <Line min="1346" max="1351"/>
+                <Line min="937" max="941"/>
+            </Gate>
+            <Gate>
+                <Line min="1346" max="1351"/>
+                <Line min="927" max="931"/>
+            </Gate>
+            <Gate>
+                <Line min="1346" max="1351"/>
+                <Line min="1364" max="1367"/>
+            </Gate>
+            <Gate>
+                <Line min="1346" max="1351"/>
+                <Line min="1370" max="1373"/>
             </Gate>
     </GammaGates>
 
