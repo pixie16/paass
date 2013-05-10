@@ -33,8 +33,8 @@ namespace dammIds {
         const int D_MULT = 9;
 
         const int D_ADD_ENERGY = 50; 
-        const int D_ADD_ENERGY_CLOVERX = 52;
-        const int D_ADD_ENERGY_TOTAL = 56;
+        const int D_ADD_ENERGY_CLOVERX = 55;
+        const int D_ADD_ENERGY_TOTAL = 59;
 
         // 2D spectra
         const int DD_ENERGY = 100;
@@ -50,8 +50,8 @@ namespace dammIds {
 
         const int DD_ADD_ENERGY = 150;
         //Addback related
-        const int DD_TDIFF__GAMMA_GAMMA_ENERGY = 152;
-        const int DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM = 153;
+        const int DD_TDIFF__GAMMA_GAMMA_ENERGY = 155;
+        const int DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM = 156;
 
         const int DD_ADD_ENERGY__TIMEX = 170;
 
@@ -65,8 +65,8 @@ namespace dammIds {
 
             const int D_ADD_ENERGY = 60; 
             const int D_ADD_ENERGY_PROMPT = 61; 
-            const int D_ADD_ENERGY_CLOVERX = 62; 
-            const int D_ADD_ENERGY_TOTAL = 66; 
+            const int D_ADD_ENERGY_CLOVERX = 65; 
+            const int D_ADD_ENERGY_TOTAL = 69; 
 
             const int DD_ENERGY = 110; 
             const int DD_ENERGY_PROMPT = 111; 
@@ -88,6 +88,17 @@ namespace dammIds {
             const int DD_ADD_ENERGY = 160; 
             const int DD_ADD_ENERGY_PROMPT = 161; 
             const int DD_ADD_ENERGY__TIMEX = 180;
+        }
+
+        namespace multi {
+            const int D_ADD_ENERGY = 52; 
+            const int DD_ADD_ENERGY = 152;
+            namespace betaGated {
+                const int D_ADD_ENERGY = 62; 
+                const int D_ADD_ENERGY_PROMPT = 63; 
+                const int DD_ADD_ENERGY = 162; 
+                const int DD_ADD_ENERGY_PROMPT = 163; 
+            }
         }
     } // end namespace ge
 }
@@ -132,6 +143,29 @@ class LineGate {
 };
 #endif
 
+
+/** Simple structure-like class to store info on addback reconstructed
+ * event.*/
+class AddBackEvent {
+    public:
+        AddBackEvent() {
+            energy = 0;
+            time = 0;
+            multiplicity = 0;
+        }
+
+        AddBackEvent(double ienergy, double itime, unsigned imultiplicity) {
+            energy = ienergy;
+            time = itime;
+            multiplicity = imultiplicity;
+        }
+
+        double energy;
+        double time;
+        unsigned multiplicity;
+};
+
+
 class GeProcessor : public EventProcessor
 {
 protected:
@@ -161,12 +195,13 @@ protected:
                    const std::vector<float> &granularity);
     void symplot(int dammID, double bin1, double bin2);
 
-    /** addbackEvents vector is arranged as:
-     * pair, first-> energy, second->time
+    /** addbackEvents vector of vectors, where first vector
+     * enumerates cloves, second events
      */
-    std::vector< std::vector< std::pair<double, double> > > addbackEvents_;
-    /** tas vector for total energy absorbed, same structure as addback */
-    std::vector< std::pair<double, double> > tas_;
+    std::vector< std::vector<AddBackEvent> > addbackEvents_;
+    /** tas vector for total energy absorbed, similar structure as addback
+     * but there is only one "super-clover" (sum of all detectors)*/
+    std::vector<AddBackEvent> tas_;
 #ifdef GGATES
     std::vector< std::vector<LineGate> > gGates;
 #endif
