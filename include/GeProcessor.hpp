@@ -92,10 +92,12 @@ namespace dammIds {
 
         namespace multi {
             const int D_ADD_ENERGY = 52; 
+            const int D_ADD_ENERGY_TOTAL = 54; 
             const int DD_ADD_ENERGY = 152;
             namespace betaGated {
                 const int D_ADD_ENERGY = 62; 
                 const int D_ADD_ENERGY_PROMPT = 63; 
+                const int D_ADD_ENERGY_TOTAL = 64; 
                 const int DD_ADD_ENERGY = 162; 
                 const int DD_ADD_ENERGY_PROMPT = 163; 
             }
