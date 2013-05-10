@@ -10,7 +10,7 @@
 
     <Global>
         <Revision version="F"/>
-        <EventWidth unit="s" value="50e-6"/>
+        <EventWidth unit="s" value="100e-6"/>
         <EnergyContraction value="1.0"/>
         <Path>config/</Path>
     </Global>
@@ -274,8 +274,24 @@
     </TreeCorrelator>
 
     <GammaGates>
+            <Gate>
+                <Line min="622" max="626"/>
+                <Line min="761" max="766"/>
+            </Gate>
+            <Gate>
+                <Line min="622" max="626"/>
+                <Line min="770" max="776"/>
+            </Gate>
+            <Gate>
+                <Line min="622" max="626"/>
+                <Line min="802" max="807"/>
+            </Gate>
+            <Gate>
+                <Line min="622" max="626"/>
+                <Line min="810" max="815"/>
+            </Gate>
     </GammaGates>
 
-    <Notebook file='86ga_notes.txt' mode='a'/>
+    <Notebook file='85ga_notes.txt' mode='a'/>
 
 </Configuration>

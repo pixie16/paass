@@ -64,21 +64,17 @@ namespace dammIds {
 
         namespace multiNeutron {
             const int D_ENERGY = 300;
-            const int DD_ENERGY = 302;
             const int DD_ENERGY__TIMEX = 321; 
 
             const int D_ADD_ENERGY = 350; 
-            const int DD_ADD_ENERGY = 352;
             const int D_ADD_ENERGY_TOTAL = 355;
             const int DD_ADD_ENERGY__TIMEX = 371;
             namespace betaGated {
                 const int D_ENERGY = 310;
                 const int D_ENERGY_PROMPT = 311;
-                const int DD_ENERGY = 312;
                 const int DD_ENERGY__TIMEX = 331; 
 
                 const int D_ADD_ENERGY = 360; 
-                const int DD_ADD_ENERGY = 362;
                 const int D_ADD_ENERGY_TOTAL = 365;
                 const int DD_ADD_ENERGY__TIMEX = 381; 
             } 
@@ -166,10 +162,6 @@ void Ge4Hen3Processor::DeclarePlots(void)
                        "Gamma addback multiNeutron gated");
     DeclareHistogram1D(multiNeutron::D_ADD_ENERGY_TOTAL, energyBins1,
                        "Gamma total addback  multiNeutron gated");
-    DeclareHistogram2D(multiNeutron::DD_ENERGY, energyBins2, energyBins2,
-                       "Gamma gamma multineutron gated");
-    DeclareHistogram2D(multiNeutron::DD_ADD_ENERGY, energyBins2, energyBins2,
-                       "Gamma gamma addback multineutron gated");
     DeclareHistogramGranY(multiNeutron::DD_ENERGY__TIMEX,
                           energyBins2, granTimeBins,
                           "E - Time multineutron gated",
@@ -187,12 +179,6 @@ void Ge4Hen3Processor::DeclarePlots(void)
                        "Gamma addback beta multineutron gated");
     DeclareHistogram1D(multiNeutron::betaGated::D_ADD_ENERGY_TOTAL, energyBins1,
                        "Gamma total addback beta multiNeutron gated");
-    DeclareHistogram2D(multiNeutron::betaGated::DD_ENERGY,
-                       energyBins2, energyBins2,
-                       "Gamma gamma beta multineutron gated");
-    DeclareHistogram2D(multiNeutron::betaGated::DD_ADD_ENERGY,
-                       energyBins2, energyBins2,
-                      "Gamma gamma addback beta multineutron gated");
     DeclareHistogramGranY(multiNeutron::betaGated::DD_ENERGY__TIMEX,
                           energyBins2, granTimeBins,
                           "E - Time beta multineutron gated", 2,
@@ -332,21 +318,14 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
                 symplot(neutron::betaGated::DD_ENERGY,
                         gEnergy, gEnergy2);            
             }
-            if (neutron_count > 1) {
-                symplot(multiNeutron::DD_ENERGY, gEnergy, gEnergy2);            
-                if (hasBeta && GoodGammaBeta(gb_dtime)) {
-                    symplot(multiNeutron::betaGated::DD_ENERGY,
-                            gEnergy, gEnergy2);            
-                }
-            }
         }
     } 
 
     unsigned nEvents = tas_.size();
 
     for (unsigned i = 0; i < nEvents; ++i) {
-        double gEnergy = tas_[i].first;
-        double gTime = tas_[i].second;
+        double gEnergy = tas_[i].energy;
+        double gTime = tas_[i].time;
         if (gEnergy < gammaThreshold_)
             continue;
 
@@ -371,8 +350,8 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
 
     for (unsigned int ev = 0; ev < nEvents; ev++) {
         for (unsigned int det = 0; det < numClovers; ++det) {
-            double gEnergy = addbackEvents_[det][ev].first;
-            double gTime = addbackEvents_[det][ev].second;
+            double gEnergy = addbackEvents_[det][ev].energy;
+            double gTime = addbackEvents_[det][ev].time;
             double decayTime = (gTime - cycleTime) * clockInSeconds;
             if (gEnergy < gammaThreshold_)
                 continue;
@@ -404,11 +383,11 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             }
 
             for (unsigned int det2 = det + 1; det2 < numClovers; ++det2) {
-                double gEnergy2 = addbackEvents_[det2][ev].first;
+                double gEnergy2 = addbackEvents_[det2][ev].energy;
                 if (gEnergy2 < gammaThreshold_)
                     continue;
 
-                double gTime2 = addbackEvents_[det2][ev].second;
+                double gTime2 = addbackEvents_[det2][ev].time;
                 double gg_dtime = (gTime2 - gTime) * clockInSeconds;
                 if (abs(gg_dtime) > gammaGammaLimit_)
                     continue;
@@ -417,13 +396,6 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
                 if (hasBeta && GoodGammaBeta(gb_dtime)) {
                     symplot(neutron::betaGated::DD_ADD_ENERGY, gEnergy,
                             gEnergy2);
-                }
-                if (neutron_count > 1) {
-                    symplot(multiNeutron::DD_ADD_ENERGY, gEnergy, gEnergy2);
-                    if (hasBeta && GoodGammaBeta(gb_dtime)) {
-                        symplot(multiNeutron::betaGated::DD_ADD_ENERGY,
-                                gEnergy, gEnergy2);
-                    }
                 }
             } // iteration over other clovers
         } // iteration over clovers
