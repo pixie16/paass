@@ -57,6 +57,7 @@
 #include "BetaScintProcessor.hpp"
 #include "Beta4Hen3Processor.hpp"
 #include "DssdProcessor.hpp"
+#include "Dssd4SHEProcessor.hpp"
 #include "Hen3Processor.hpp"
 #include "GeProcessor.hpp"
 #include "GeCalibProcessor.hpp"
@@ -194,6 +195,23 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                                                energy_contraction));
         } else if (name == "DssdProcessor") {
             vecProcess.push_back(new DssdProcessor());
+        } else if (name == "Dssd4SHEProcessor") {
+            double front_back_correlation_time = 
+               processor.attribute("front_back_correlation_time").as_double(-1);
+            if (front_back_correlation_time == -1) {
+                front_back_correlation_time = 300e-9;
+                m.warning("Using default front_back_correlation_time = 300e-9",
+                          1);
+            }
+            double front_back_correlation_de = 
+                processor.attribute("front_back_correlation_de").as_double(-1);
+            if (front_back_correlation_de == -1) {
+                front_back_correlation_de = 500;
+                m.warning("Using default front_back_correlation_de = 500", 1);
+            }
+            vecProcess.push_back(new
+                    Dssd4SHEProcessor(front_back_correlation_time,
+                                      front_back_correlation_de));
         } else if (name == "GeProcessor" || name == "Ge4Hen3Processor") {
             double gamma_threshold = 
                 processor.attribute("gamma_threshold").as_double(-1);
