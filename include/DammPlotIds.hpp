@@ -123,7 +123,13 @@ namespace dammIds {
     // in DssdProcessor.cpp
     namespace dssd {
         const int OFFSET = 7000;
-        const int RANGE = 500;
+        const int RANGE = 100;
+    } 
+
+    // in DssdProcessor.cpp
+    namespace dssd4she {
+        const int OFFSET = 7100;
+        const int RANGE = 100;
     } 
 
     namespace trace {
