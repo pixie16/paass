@@ -548,8 +548,6 @@ void DetectorDriver::DeclarePlots()
                                 ("Time " + idstr.str()).c_str() ); 
             DeclareHistogram1D(D_CAL_ENERGY + i, SE,
                                ("CalE " + idstr.str()).c_str() );
-            DeclareHistogram1D(D_CAL_ENERGY_REJECT + i, SE,
-                               ("CalE NoSat " + idstr.str()).c_str() );
         }
         DeclareHistogram1D(D_HAS_TRACE, S7, "channels with traces");
 
@@ -699,8 +697,6 @@ int DetectorDriver::PlotCal(const ChanEvent *chan)
     float calEnergy = chan->GetCalEnergy();
     
     plot(D_CAL_ENERGY + id, calEnergy);
-    if (!chan->IsSaturated() && !chan->IsPileup())
-        plot(D_CAL_ENERGY_REJECT + id, calEnergy);
     return 0;
 }
 

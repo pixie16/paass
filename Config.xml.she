@@ -192,12 +192,629 @@
          verbose_walk="False">
 
         <Module number="0">
-            <Channel number="0" type="si" subtype="box">
-                <Calibration model="linear">
-                    0.530082021041721 	0.640177717350212
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
+            <Channel number="0" subtype="si" type="si">
+                <Calibration max="32000" model="linear">0 3.3</Calibration>
+            </Channel>
+            <Channel number="1" subtype="si" type="si">
+                <Calibration max="32000" model="linear">0 3.3</Calibration>
+            </Channel>
+            <Channel number="2" subtype="si" type="si">
+                <Calibration max="32000" model="linear">0 3.3</Calibration>
+            </Channel>
+            <Channel number="3" subtype="si" type="si">
+                <Calibration max="32000" model="linear">0 3.3</Calibration>
+            </Channel>
+            <Channel number="4" subtype="si" type="si">
+                <Calibration max="32000" model="linear">0 3.3</Calibration>
+            </Channel>
+            <Channel number="5" subtype="si" type="si">
+                <Calibration max="32000" model="linear">0 3.3</Calibration>
+            </Channel>
+            <Channel number="6" subtype="veto" type="si">
+                <Calibration max="32000" model="linear">0 3.3</Calibration>
+            </Channel>
+            <Channel number="7" subtype="veto" type="si">
+                <Calibration max="32000" model="linear">0 3.3</Calibration>
+            </Channel>
+        </Module>
+        <Module number="1">
+            <Channel number="0" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="1" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="2" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="3" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="4" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="5" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="6" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="7" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="8" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="9" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="10" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="11" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="12" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="13" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="14" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="15" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+        </Module>
+        <Module number="2">
+            <Channel number="0" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="1" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="2" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="3" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="4" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="5" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="6" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="7" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="8" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="9" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="10" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="11" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="12" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="13" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="14" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="15" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+        </Module>
+        <Module number="3">
+            <Channel number="0" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="1" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="2" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="3" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="4" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="5" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="6" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="7" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="8" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="9" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="10" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="11" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="12" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="13" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="14" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+            <Channel number="15" subtype="dssd_front" type="dssd_front">
+                <Calibration max="32000" model="linear">0 7.6</Calibration>
+            </Channel>
+        </Module>
+        <Module number="4">
+            <Channel number="0" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="1" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="2" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="3" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="4" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="5" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="6" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="7" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="8" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="9" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="10" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="11" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="12" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="13" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="14" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="15" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+        </Module>
+        <Module number="5">
+            <Channel number="0" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="1" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="2" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="3" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="4" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="5" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="6" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="7" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="8" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="9" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="10" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="11" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="12" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="13" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="14" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="15" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+        </Module>
+        <Module number="6">
+            <Channel number="0" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="1" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="2" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="3" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="4" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="5" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="6" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="7" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="8" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="9" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="10" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="11" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="12" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="13" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="14" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="15" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+        </Module>
+        <Module number="7">
+            <Channel number="0" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="1" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="2" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="3" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="4" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="5" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="6" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="7" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="8" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="9" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="10" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="11" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="12" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="13" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="14" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="15" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+        </Module>
+        <Module number="8">
+            <Channel number="0" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="1" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="2" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="3" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="4" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="5" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="6" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="7" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="8" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="9" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="10" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="11" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="12" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="13" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="14" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="15" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+        </Module>
+        <Module number="9">
+            <Channel number="0" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="1" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="2" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="3" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="4" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="5" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="6" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="7" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="8" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="9" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="10" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="11" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="12" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="13" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="14" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="15" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+        </Module>
+        <Module number="10">
+            <Channel number="0" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="1" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="2" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="3" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="4" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="5" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="6" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="7" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="8" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="9" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="10" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="11" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="12" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="13" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="14" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="15" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+        </Module>
+        <Module number="11">
+            <Channel number="0" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="1" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="2" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="3" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="4" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="5" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="6" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="7" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="8" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="9" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="10" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="11" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="12" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="13" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="14" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="15" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+        </Module>
+        <Module number="12">
+            <Channel number="0" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="1" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="2" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="3" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="4" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="5" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="6" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="7" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="8" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="9" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="10" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="11" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="12" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="13" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="14" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
+            </Channel>
+            <Channel number="15" subtype="dssd_back" type="dssd_back">
+                <Calibration max="32000" model="linear">0 1.7</Calibration>
             </Channel>
         </Module>
     </Map>
