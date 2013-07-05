@@ -37,8 +37,7 @@ extern "C" void drrsub_(unsigned int& iexist)
 
         endrr_(); 
     } catch (std::exception &e) {
-        // Any exception in opening files (config.txt and map2.txt)
-        // will be intercepted here
+        // Any exceptions will be intercepted here
         std::cout << "Exception caught at Initialize:" << std::endl;
         std::cout << "\t" << e.what() << std::endl;
         exit(EXIT_FAILURE);
