@@ -553,6 +553,29 @@
         </Gate>
     </GammaGates>
 
+    <!-- Instructions:
+         This defines regions of file that are going to be rejected
+         during the scan. The time is given in seconds since the start
+         of the file (note: this field should be used for single file scanning
+         mode, otherwise the rejection regions apply to each file).
+         See "scaler" spectra to find the regions you want to remove.
+
+         Example:
+        <Reject>
+            <Time start="1000" end="1200"/>
+            <Time start="2000" end="2150"/>
+        </Reject>
+
+        Both the 'start' and 'end' times should be larger than 0, and
+        end must be larger than start.
+
+        You may define any number of regions to reject.
+    -->
+    <Reject>
+        <Time start="1000" end="1200"/>
+        <Time start="2000" end="2150"/>
+    </Reject>
+
     <!-- Instructions: 
          Configuration of Notebook object that saves handy notes (things
          that are not easy to present on graph e.g. single event details)
