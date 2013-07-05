@@ -516,12 +516,12 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
                     if ( ((lastVsn+1) % modChan->GetPhysicalModules() ) !=
                            vsn ) {
 #ifdef VERBOSE
-                ss << " MISSING BUFFER " << vsn << "/" 
-                   << modChan->GetPhysicalModules()
-                   << " -- lastVsn = " << lastVsn << "  " 
-                   << ", length = " << lenRec;
-                messenger.warning(ss.str());
-                ss.str("");
+                            ss << " MISSING BUFFER " << vsn << "/" 
+                            << modChan->GetPhysicalModules()
+                            << " -- lastVsn = " << lastVsn << "  " 
+                            << ", length = " << lenRec;
+                            messenger.warning(ss.str());
+                            ss.str("");
 #endif
                             RemoveList(eventList);
                             fullSpill=true;
@@ -599,7 +599,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
             }
             
             /* if there are events to process, continue */
-            if( numEvents>0 ) {
+            if( numEvents > 0 ) {
                 if (fullSpill) { 	  // if full spill process events
                     // sort the vector of pointers eventlist according to time
                     double lastTimestamp = (*(eventList.rbegin()))->GetTime();
@@ -645,7 +645,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
                         messenger.run_message(ss.str());
                     }		
                     RemoveList(eventList);
-                    numEvents=0;
+                    numEvents = 0;
                 } // end fullSpill 
                 else {
                     stringstream ss;
@@ -705,6 +705,8 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
     DetectorDriver* driver = DetectorDriver::get();
     Messenger messenger;
     stringstream ss;
+    /** Rejection regions */
+    vector< pair<int, int> > rejectRegions = Globals::get()->rejectRegions();
 
     // local variable for the detectors used in a given event
     set<string> usedDetectors;
@@ -719,6 +721,11 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
     double lastTime = (*iEvent)->GetTime();
     double currTime = lastTime;
     unsigned int id = (*iEvent)->GetID();
+
+    /* KM 
+     * Save time of the beginning of the file,
+     * this is needed for the rejection regions */
+    static double firstTime = lastTime;
 
     HistoStats(id, diffTime, lastTime, BUFFER_START);
 
@@ -744,6 +751,32 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
         */
         currTime = (*iEvent)->GetTime();
         diffTime = currTime - lastTime;
+
+        /* KM: rejection of bad regions
+         * If time (in sec) is within the 'bad' region 
+         * just drop the rest of this for loop and go for another buffer
+         *
+         * Do checks only if hasReject flag is True.
+         */
+        if (Globals::get()->hasReject()) {
+            double bufferTime = (currTime - firstTime) * 
+                                 Globals::get()->clockInSeconds();
+            bool rejectBuffer = false;
+            for (vector< pair<int, int> >::iterator region = rejectRegions.begin();
+                 region != rejectRegions.end();
+                 ++region ) {
+                /** If event time is within a rejection region
+                 * set rejectBuffer flag true and stop checking */
+                if (bufferTime > region->first &&
+                    bufferTime < region->second) {
+                    rejectBuffer = true;
+                    break;
+                }
+            }
+            if (rejectBuffer)
+                continue;
+        }
+        /* end KM */
 
         /* if the time difference between the current and previous event is 
         larger than the event width, finalize the current event, otherwise

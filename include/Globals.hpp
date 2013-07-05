@@ -6,11 +6,12 @@
 #ifndef __GLOBALS_HPP_
 #define __GLOBALS_HPP_
 
-#include <vector>
+#include <algorithm>
+#include <cstdlib>
 #include <sstream>
 #include <string>
-#include <cstdlib>
-#include <algorithm>
+#include <utility>
+#include <vector>
 #include <stdint.h>
 
 #include "pixie16app_defs.h"
@@ -152,9 +153,20 @@ class Globals {
             return maxWords_;
         }
 
-
         std::string revision() const {
             return revision_;
+        }
+
+        /** Returns true if any reject region was defined */
+        bool hasReject() const {
+            return hasReject_;
+        }
+
+        /* Returns rejection regions to exclude from scan.
+         * Values should be given
+         * in seconds in respect to the beginning of the file */
+        std::vector< std::pair<int, int> > rejectRegions() const {
+            return reject_;
         }
 
         /** Returns joined path to the passed filename by
@@ -187,6 +199,8 @@ class Globals {
         int eventWidth_;
         double energyContraction_;
         unsigned int maxWords_;
+        bool hasReject_;
+        std::vector< std::pair<int, int> > reject_;
         std::string configPath_;
 };
 
