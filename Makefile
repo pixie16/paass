@@ -293,7 +293,7 @@ $(PIXIE): $(FORT_OBJS_W_DIR) $(CXX_OBJS_W_DIR) $(LIBS)
 #----------- remove all objects, core and .so file
 clean:
 	@echo "Cleaning up..."
-	@rm -f $(FORT_OBJDIR)/*.o $(CXX_OBJDIR)/*.o $(PIXIE) core *~ src/*~ include/*~ scan/*~
+	@rm -f ./$(FORT_OBJDIR)/*.o ./$(CXX_OBJDIR)/*.o $(PIXIE) core *~ src/*~ include/*~ scan/*~
 tidy:
 	@echo "Tidying up..."
-	@rm -f core *~ src/*~ include/*~ scan/*~
+	@rm -f core *~ ./src/*~ ./include/*~ ./scan/*~
