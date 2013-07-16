@@ -9,7 +9,7 @@
  */
 #include <string>
 
-#include "VandleRoot.hpp"
+#include "VandleROOT.hpp"
 
 #include <TTree.h>
 

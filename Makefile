@@ -186,9 +186,9 @@ VALIDPROCESSORO  = ValidProcessor.o
 VANDLEPROCESSORO = VandleProcessor.o
 
 #ROOT Objects
-SCINTROOTO       = ScintROOT.o
 ROOTPROCESSORO   = RootProcessor.o
-VANDLEROOTO      = VandleROOT.o
+#SCINTROOTO       = ScintROOT.o
+#VANDLEROOTO      = VandleROOT.o
 
 ifdef REVISIOND
 READBUFFDATAO    = ReadBuffData.RevD.o

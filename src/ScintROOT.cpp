@@ -9,7 +9,7 @@
  */
 #include <string>
 
-#include "ScintRoot.hpp"
+#include "ScintROOT.hpp"
 
 #include <TTree.h>
 
