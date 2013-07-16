@@ -243,7 +243,7 @@ ROOTCONFIG   := root-config
 #no uncomment ROOTCLFAGS   := $(filter-out pthread,$(ROOTCFLAGS))
 CXXFLAGS     += $(shell $(ROOTCONFIG) --cflags) -Duseroot
 LDFLAGS      += $(shell $(ROOTCONFIG) --ldflags)
-LDLIBS       := $(shell $(ROOTCONFIG) --libs)
+LDLIBS       += $(shell $(ROOTCONFIG) --libs)
 endif
 
 #------------ Compile with Gamma-Gamma gates support in GeProcessor
