@@ -72,7 +72,8 @@ void GeProcessor::symplot(int dammID, double bin1, double bin2)
 GeProcessor::GeProcessor(double gammaThreshold, double lowRatio,
                          double highRatio, double subEventWindow,
                          double gammaBetaLimit, double gammaGammaLimit,
-                         double earlyLowLimit, double earlyHighLimit) :
+                         double cycle_gate1_min, double cycle_gate1_max,
+                         double cycle_gate2_min, double cycle_gate2_max) :
                          EventProcessor(OFFSET, RANGE, "ge"),
                          leafToClover()
 {
@@ -84,8 +85,10 @@ GeProcessor::GeProcessor(double gammaThreshold, double lowRatio,
     subEventWindow_ = subEventWindow;
     gammaBetaLimit_ = gammaBetaLimit;
     gammaGammaLimit_ = gammaGammaLimit;
-    earlyLowLimit_ = earlyLowLimit;
-    earlyHighLimit_ = earlyHighLimit;
+    cycle_gate1_min_ = cycle_gate1_min;
+    cycle_gate1_max_ = cycle_gate1_max;
+    cycle_gate2_min_ = cycle_gate2_min;
+    cycle_gate2_max_ = cycle_gate2_max;
 
     // previously used:
     // in seconds/bin
@@ -231,6 +234,8 @@ void GeProcessor::DeclarePlots(void)
     DeclareHistogram1D(D_ENERGY, energyBins1, "Gamma singles");
     DeclareHistogram1D(D_ENERGY_MOVE, energyBins1,
                        "Gamma singles tape move period");
+    DeclareHistogram1D(betaGated::D_ENERGY_MOVE, energyBins1,
+                       "Beta gated gamma tape move period");
     DeclareHistogram1D(betaGated::D_ENERGY, energyBins1, "Beta gated gamma");
     DeclareHistogram1D(betaGated::D_ENERGY_PROMPT, energyBins1,
                       "Beta gated gamma prompt");
@@ -289,12 +294,12 @@ void GeProcessor::DeclarePlots(void)
     DeclareHistogram2D(DD_ENERGY, energyBins2, energyBins2, "Gamma gamma");
     DeclareHistogram2D(DD_ENERGY_PROMPT, energyBins2, energyBins2,
                        "Gamma gamma prompt");
-    DeclareHistogram2D(DD_ENERGY_PROMPT_EARLY,
+    DeclareHistogram2D(DD_ENERGY_CGATE1,
                        energyBins2, energyBins2,
-                       "Gamma gamma prompt early");
-    DeclareHistogram2D(DD_ENERGY_PROMPT_LATE,
+                       "Gamma gamma cycle gate 1");
+    DeclareHistogram2D(DD_ENERGY_CGATE2,
                        energyBins2, energyBins2,
-                       "Gamma gamma prompt late");
+                       "Gamma gamma cycle gate 2");
 
     DeclareHistogram2D(betaGated::DD_ENERGY,
                        energyBins2, energyBins2,
@@ -306,12 +311,12 @@ void GeProcessor::DeclarePlots(void)
                        energyBins2, energyBins2, 
                        "Beta-gated gamma gamma - beta delayed");
 
-    DeclareHistogram2D(betaGated::DD_ENERGY_PROMPT_EARLY,
+    DeclareHistogram2D(betaGated::DD_ENERGY_CGATE1,
                        energyBins2, energyBins2,
-                       "Gamma gamma prompt beta gated early");
-    DeclareHistogram2D(betaGated::DD_ENERGY_PROMPT_LATE,
+                       "Beta gated gamma gamma cycle gate 1");
+    DeclareHistogram2D(betaGated::DD_ENERGY_CGATE2,
                        energyBins2, energyBins2,
-                       "Gamma gamma prompt beta gated late");
+                       "Beta gated gamma gamma cycle gate 2");
 
     DeclareHistogram2D(DD_ADD_ENERGY,
                        energyBins2, energyBins2, "Gamma gamma addback");
@@ -485,6 +490,13 @@ bool GeProcessor::Process(RawEvent &event) {
 
     double clockInSeconds = Globals::get()->clockInSeconds();
 
+    /** Cycle time is measured from the begining of the last BeamON event */
+    double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
+
+    // beamOn is true for beam on and false for beam off
+    bool beamOn =  TreeCorrelator::get()->place("Beam")->status();
+    bool hasBeta = TreeCorrelator::get()->place("Beta")->status();
+
     /** Place Cycle is activated by BeamOn event and deactivated by TapeMove
      *  This condition will therefore skip events registered during 
      *  tape movement period and before the end of move and the beam start
@@ -497,16 +509,12 @@ bool GeProcessor::Process(RawEvent &event) {
             if (gEnergy < gammaThreshold_) 
                 continue;
             plot(D_ENERGY_MOVE, gEnergy);
+            if (hasBeta)
+                plot(betaGated::D_ENERGY_MOVE, gEnergy);
         }
         return true;
     }
 
-    /** Cycle time is measured from the begining of the last BeamON event */
-    double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
-
-    // beamOn is true for beam on and false for beam off
-    bool beamOn =  TreeCorrelator::get()->place("Beam")->status();
-    bool hasBeta = TreeCorrelator::get()->place("Beta")->status();
 
     // Good gamma multiplicity
     plot(D_MULT, geEvents_.size());
@@ -608,10 +616,27 @@ bool GeProcessor::Process(RawEvent &event) {
              */ 
             if (det2 != det) {
                 symplot(DD_ENERGY, gEnergy, gEnergy2);
+
+                if (decayTime > cycle_gate1_min_ && 
+                    decayTime < cycle_gate1_max_)
+                    symplot(DD_ENERGY_CGATE1, gEnergy, gEnergy2);
+                if (decayTime > cycle_gate2_min_ && 
+                    decayTime < cycle_gate2_max_)
+                    symplot(DD_ENERGY_CGATE2, gEnergy, gEnergy2);
+
                 if (hasBeta) {
                     if (GoodGammaBeta(gb_dtime)) {
                         symplot(betaGated::DD_ENERGY, gEnergy,
                                 gEnergy2);            
+                        if (decayTime > cycle_gate1_min_ && 
+                            decayTime < cycle_gate1_max_)
+                            symplot(betaGated::DD_ENERGY_CGATE1, 
+                                    gEnergy, gEnergy2);
+                        if (decayTime > cycle_gate2_min_ && 
+                            decayTime < cycle_gate2_max_)
+                            symplot(betaGated::DD_ENERGY_CGATE2, 
+                                    gEnergy, gEnergy2);
+
                     } else if (gb_dtime > gammaBetaLimit_) {
                             symplot(betaGated::DD_ENERGY_BDELAYED,
                                     gEnergy, gEnergy2);
@@ -620,26 +645,9 @@ bool GeProcessor::Process(RawEvent &event) {
 
                 if (abs(gg_dtime) < gammaGammaLimit_) {
                     symplot(DD_ENERGY_PROMPT, gEnergy, gEnergy2);
-                    if (decayTime > earlyLowLimit_) { 
-                        if (decayTime < earlyHighLimit_) 
-                            symplot(DD_ENERGY_PROMPT_EARLY, 
-                                    gEnergy, gEnergy2);            
-                        else
-                            symplot(DD_ENERGY_PROMPT_LATE, 
-                                    gEnergy, gEnergy2);            
-                    }
-
                     if (hasBeta && GoodGammaBeta(gb_dtime)) {
                         symplot(betaGated::DD_ENERGY_PROMPT, 
                                 gEnergy, gEnergy2);            
-                        if (decayTime > earlyLowLimit_) { 
-                            if (decayTime < earlyHighLimit_) 
-                                symplot(betaGated::DD_ENERGY_PROMPT_EARLY, 
-                                        gEnergy, gEnergy2);            
-                            else
-                                symplot(betaGated::DD_ENERGY_PROMPT_LATE, 
-                                        gEnergy, gEnergy2);            
-                        }
                     }
                 }
             }

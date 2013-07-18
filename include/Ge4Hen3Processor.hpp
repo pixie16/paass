@@ -21,7 +21,8 @@ public:
     Ge4Hen3Processor(double gammaThreshold, double lowRatio,
                 double highRatio, double subEventWindow,
                 double gammaBetaLimit, double gammaGammaLimit,
-                double earlyLowLimit, double earlyHighLimit);
+                double cycle_gate1_min, double cycle_gate1_max,
+                double cycle_gate2_min, double cycle_gate2_max);
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void);
 };
