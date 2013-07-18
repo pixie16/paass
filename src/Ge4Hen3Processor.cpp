@@ -85,12 +85,14 @@ namespace dammIds {
 Ge4Hen3Processor::Ge4Hen3Processor(double gammaThreshold, double lowRatio,
                          double highRatio, double subEventWindow,
                          double gammaBetaLimit, double gammaGammaLimit,
-                         double earlyLowLimit, double earlyHighLimit) :
+                         double cycle_gate1_min, double cycle_gate1_max,
+                         double cycle_gate2_min, double cycle_gate2_max) :
 
                          GeProcessor(gammaThreshold, lowRatio, highRatio,
                                      subEventWindow, gammaBetaLimit, 
-                                     gammaGammaLimit, earlyLowLimit,
-                                     earlyHighLimit)
+                                     gammaGammaLimit,
+                                     cycle_gate1_min, cycle_gate1_max,
+                                     cycle_gate2_min, cycle_gate2_max)
 {
 }
 
