@@ -39,8 +39,8 @@ namespace dammIds {
         // 2D spectra
         const int DD_ENERGY = 100;
         const int DD_ENERGY_PROMPT = 101;
-        const int DD_ENERGY_PROMPT_EARLY = 102; 
-        const int DD_ENERGY_PROMPT_LATE = 103; 
+        const int DD_ENERGY_CGATE1 = 102; 
+        const int DD_ENERGY_CGATE2 = 103; 
 
         const int DD_TDIFF__GATEX = 105;
         const int DD_ENERGY__GATEX = 106;
@@ -59,9 +59,10 @@ namespace dammIds {
             const int D_ENERGY = 10;
             const int D_ENERGY_PROMPT = 11;
             const int D_ENERGY_CLOVERX = 12;
-            const int D_ENERGY_BETA0 = 16; 
-            const int D_ENERGY_BETA1 = 17; 
-            const int DD_ENERGY__BETAGAMMALOC = 18;
+            const int D_ENERGY_MOVE = 16;
+            const int D_ENERGY_BETA0 = 17; 
+            const int D_ENERGY_BETA1 = 18; 
+            const int DD_ENERGY__BETAGAMMALOC = 19;
 
             const int D_ADD_ENERGY = 60; 
             const int D_ADD_ENERGY_PROMPT = 61; 
@@ -70,8 +71,8 @@ namespace dammIds {
 
             const int DD_ENERGY = 110; 
             const int DD_ENERGY_PROMPT = 111; 
-            const int DD_ENERGY_PROMPT_EARLY = 112; 
-            const int DD_ENERGY_PROMPT_LATE = 113; 
+            const int DD_ENERGY_CGATE1 = 112; 
+            const int DD_ENERGY_CGATE2 = 113; 
             const int DD_ENERGY_BDELAYED = 114;
 
             const int DD_TDIFF__GATEX = 115;
@@ -225,17 +226,20 @@ protected:
     /** Prompt Gamma-gamma limit in seconds */
     double gammaGammaLimit_;
 
-    /** Early coincidences limit in seconds
-     * (early means at the begining of the decay part of cycle, where
-     * short-lived activity is present) */
-    double earlyLowLimit_;
-    double earlyHighLimit_;
+    /** Cycle gates replace early/high limits. Gate set on cycle in time
+     * allows to check the gamma-gamma coincidences within the chosen 
+     * range of cycle (e.g 1 - 1.5 s) */
+    double cycle_gate1_min_;
+    double cycle_gate1_max_;
+    double cycle_gate2_min_;
+    double cycle_gate2_max_;
 
 public:
     GeProcessor(double gammaThreshold, double lowRatio,
                 double highRatio, double subEventWindow,
                 double gammaBetaLimit, double gammaGammaLimit,
-                double earlyLowLimit, double earlyHighLimit);
+                double cycle_gate1_min, double cycle_gate1_max,
+                double cycle_gate2_min, double cycle_gate2_max);
     virtual bool PreProcess(RawEvent &event);
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void);

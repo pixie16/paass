@@ -65,8 +65,10 @@
                   * sub_event="100e-9"
                   * gamma_beta_limit="200e-9"
                   * gamma_gamma_limit="200e-9"
-                  * early_low_limit="0.0"
-                  * early_high_limit="0.0"
+                  * cycle_gate1_min="0.0"
+                  * cycle_gate1_max="0.0"
+                  * cycle_gate2_min="0.0"
+                  * cycle_gate2_max="0.0"
             * Ge4Hen3Processor
                 * see comment above
             * GeCalibProcessor
@@ -114,8 +116,10 @@
             sub_event="100e-9"
             gamma_beta_limit="200e-9"
             gamma_gamma_limit="200e-9"
-            early_low_limit="1.0"
-            early_high_limit="1.5"
+            cycle_gate1_min="1.0"
+            cycle_gate1_max="1.2"
+            cycle_gate2_min="1.6"
+            cycle_gate2_max="1.8"
             />
         <Processor name="MtcProcessor" 
             double_stop="True"
@@ -212,14 +216,14 @@
         <Module number="0">
             <Channel number="0" type="ge" subtype="clover_high">
                 <Calibration model="linear">
-                    0.530082021041721 	0.640177717350212
+                    0.53008 	0.64017
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>
             </Channel>
             <Channel number="1" type="ge" subtype="clover_high" >
-                <Calibration model="linear">
-                     0.257746652   0.633075279
+                <Calibration model="hyplin">
+                     -102.890 0.25774   0.63307
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>

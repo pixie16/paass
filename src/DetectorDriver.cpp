@@ -231,28 +231,42 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                 gamma_gamma_limit = 200e-9;
                 m.warning("Using default gamma_gamma_limit = 200e-9", 1);
             }
-            double early_low_limit =
-                processor.attribute("early_low_limit").as_double(0);
-            if (early_low_limit == -1) {
-                early_low_limit = 0.0;
-                m.warning("Using default early_low_limit = 0.0", 1);
+            double cycle_gate1_min =
+                processor.attribute("cycle_gate1_min").as_double(-1);
+            if (cycle_gate1_min == -1) {
+                cycle_gate1_min = 0.0;
+                m.warning("Using default cycle_gate1_min = 0.0", 1);
             }
-            double early_high_limit =
-                processor.attribute("early_high_limit").as_double(0);
-            if (early_high_limit == -1) {
-                early_high_limit = 0.0;
-                m.warning("Using default early_low_limit = 0.0", 1);
+            double cycle_gate1_max =
+                processor.attribute("cycle_gate1_max").as_double(-1);
+            if (cycle_gate1_max == -1) {
+                cycle_gate1_max = 0.0;
+                m.warning("Using default cycle_gate1_max = 0.0", 1);
+            }
+            double cycle_gate2_min =
+                processor.attribute("cycle_gate2_min").as_double(-1);
+            if (cycle_gate2_min == -1) {
+                cycle_gate2_min = 0.0;
+                m.warning("Using default cycle_gate2_min = 0.0", 1);
+            }
+            double cycle_gate2_max =
+                processor.attribute("cycle_gate2_max").as_double(-1);
+            if (cycle_gate2_max == -1) {
+                cycle_gate2_max = 0.0;
+                m.warning("Using default cycle_gate2_max = 0.0", 1);
             }
             if (name == "GeProcessor") {
-                vecProcess.push_back(new GeProcessor(gamma_threshold, low_ratio,
-                            high_ratio, sub_event, gamma_beta_limit,
-                            gamma_gamma_limit, early_low_limit,
-                            early_high_limit)); 
+                vecProcess.push_back(new GeProcessor(gamma_threshold,
+                            low_ratio, high_ratio, sub_event,
+                            gamma_beta_limit, gamma_gamma_limit,
+                            cycle_gate1_min, cycle_gate1_max,
+                            cycle_gate2_min, cycle_gate2_max)); 
             } else if (name == "Ge4Hen3Processor") {
                 vecProcess.push_back(new Ge4Hen3Processor(gamma_threshold,
-                            low_ratio, high_ratio, sub_event, gamma_beta_limit,
-                            gamma_gamma_limit, early_low_limit,
-                            early_high_limit)); 
+                            low_ratio, high_ratio, sub_event,
+                            gamma_beta_limit, gamma_gamma_limit, 
+                            cycle_gate1_min, cycle_gate1_max,
+                            cycle_gate2_min, cycle_gate2_max)); 
 
             }
         } else if (name == "GeCalibProcessor") {
