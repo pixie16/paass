@@ -517,6 +517,7 @@ void DetectorDriver::DeclarePlots()
         DeclareHistogram2D(DD_BUFFER_START_TIME, SE, S6, "dead time - 0.1%");
         DeclareHistogram2D(DD_RUNTIME_MSEC, SE, S7, "run time - ms");
         DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
+        DeclareHistogram1D(D_HAS_TRACE, S8, "channels with traces");
 
         DetectorLibrary::size_type maxChan = modChan->size();
 
@@ -544,10 +545,7 @@ void DetectorDriver::DeclarePlots()
                                 ("Time " + idstr.str()).c_str() ); 
             DeclareHistogram1D(D_CAL_ENERGY + i, SE,
                                ("CalE " + idstr.str()).c_str() );
-            DeclareHistogram1D(D_CAL_ENERGY_REJECT + i, SE,
-                               ("CalE NoSat " + idstr.str()).c_str() );
         }
-        DeclareHistogram1D(D_HAS_TRACE, S7, "channels with traces");
 
         // Now declare histograms present in all used analyzers and
         // processors
@@ -695,8 +693,6 @@ int DetectorDriver::PlotCal(const ChanEvent *chan)
     float calEnergy = chan->GetCalEnergy();
     
     plot(D_CAL_ENERGY + id, calEnergy);
-    if (!chan->IsSaturated() && !chan->IsPileup())
-        plot(D_CAL_ENERGY_REJECT + id, calEnergy);
     return 0;
 }
 
