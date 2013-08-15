@@ -9,23 +9,23 @@ namespace dammIds {
         const int RANGE = 1899;
 
         const int D_RAW_ENERGY = 0;
-        const int D_FILTER_ENERGY = 200; // intermediate step with "raw" filter energy	
-        const int D_SCALAR = 400;/**< These get filled in PixieStd.cpp */
-        const int D_TIME = 600; /**< These get filled in PixieStd.cpp */
-        const int D_HAS_TRACE = 800;
-        const int D_CAL_ENERGY = 1000;
-        const int D_CAL_ENERGY_REJECT = 1200;
-        const int D_HIT_SPECTRUM = 1800; /**< This is actually id 1801 in the .his file */
-        const int D_SUBEVENT_GAP = 1801; /**< The rest follow the same pattern. */
-        const int D_EVENT_LENGTH = 1802;
-        const int D_EVENT_GAP    = 1803;
-        const int D_EVENT_MULTIPLICITY = 1804;
-        const int D_BUFFER_END_TIME    = 1805;
-        const int DD_RUNTIME_SEC       = 1806;
-        const int DD_DEAD_TIME_CUMUL   = 1807; 
-        const int DD_BUFFER_START_TIME = 1808;
-        const int DD_RUNTIME_MSEC      = 1810;
-        const int D_NUMBER_OF_EVENTS   = 1811;
+        const int D_FILTER_ENERGY = 300;
+        const int D_SCALAR = 600;
+        const int D_TIME = 900;
+        const int D_CAL_ENERGY = 1200;
+
+        const int D_HIT_SPECTRUM = 1801; 
+        const int D_SUBEVENT_GAP = 1802;
+        const int D_EVENT_LENGTH = 1803;
+        const int D_EVENT_GAP = 1804;
+        const int D_EVENT_MULTIPLICITY = 1805;
+        const int D_BUFFER_END_TIME = 1806;
+        const int DD_RUNTIME_SEC = 1807;
+        const int DD_DEAD_TIME_CUMUL = 1808; 
+        const int DD_BUFFER_START_TIME = 1809;
+        const int DD_RUNTIME_MSEC = 1810;
+        const int D_NUMBER_OF_EVENTS = 1811;
+        const int D_HAS_TRACE = 1812;
     }
 
     namespace mcp {	
