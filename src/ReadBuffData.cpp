@@ -43,7 +43,7 @@
 #include <cmath>
 
 // data related to pixie packet structure
-#include "pixie16app_defs.hpp"
+#include "pixie16app_defs.h"
 
 // our event structure
 #include "Globals.hpp"
