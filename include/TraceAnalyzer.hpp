@@ -11,8 +11,8 @@
 #include <sys/times.h>
 
 #include "Plots.hpp"
-
-class Trace;
+#include "Trace.hpp"
+//class Trace;
 
 /** \brief quick online trace analysis
  *

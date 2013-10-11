@@ -12,7 +12,7 @@
 #include "TraceAnalyzer.hpp"
 #include "DammPlotIds.hpp"
 
-class Trace;
+//class Trace;
 
 class TracePlotter : public TraceAnalyzer {
  protected:

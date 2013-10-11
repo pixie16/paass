@@ -42,18 +42,21 @@ void Trace::TrapezoidalFilter(Trace &filter,
     
     //! check if we're going to do something bad here
     for (unsigned int i = lo; i < hi; i++) {
-	int leftSum = accumulate(begin() + i - parms.GetSize(),
-				 begin() + i - parms.GetRiseSamples() - parms.GetGapSamples(), 0);
-	int rightSum = accumulate(begin() + i - parms.GetRiseSamples(), begin() + i, 0);
-	filter.push_back(rightSum - leftSum);
+        int leftSum = accumulate(begin() + i - parms.GetSize(),
+                                 begin() + i - parms.GetRiseSamples() 
+                                 - parms.GetGapSamples(), 0);
+        int rightSum = accumulate(begin() + i - parms.GetRiseSamples(),
+                                  begin() + i, 0);
+        filter.push_back(rightSum - leftSum);
     }
 }
+
 
 double Trace::DoBaseline(unsigned int lo, unsigned int numBins)
 {
     if (size() < lo + numBins) {
-	cerr << "Bad range in baseline calculation." << endl;
-	return NAN;
+        cerr << "Bad range in baseline calculation." << endl;
+        return NAN;
     }
 
     unsigned int hi = lo + numBins;
@@ -75,6 +78,7 @@ double Trace::DoBaseline(unsigned int lo, unsigned int numBins)
 
     return mean;
 }
+
 
 unsigned int Trace::DoDiscrimination(unsigned int lo, unsigned int numBins)
 {
@@ -136,7 +140,7 @@ unsigned int Trace::FindMaxInfo(unsigned int lo, unsigned int numBins)
 void Trace::Plot(int id)
 {
     for (size_type i=0; i < size(); i++) {
-	histo.Plot(id, i, 1, at(i));
+        histo.Plot(id, i, 1, at(i));
     }
 }
 
