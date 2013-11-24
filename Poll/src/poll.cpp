@@ -73,10 +73,11 @@ int main(int argc, char **argv)
   // compiled-in configuration
   const int listMode = LIST_MODE_RUN0; // full header w/ traces
   // values associated with the minimum timing between pixie calls (in us)
+  // Adjusted to help alleviate the issue with data corruption
   const unsigned int endRunPause = 100;
-  const unsigned int pollPause   = 1;
-  const unsigned int readPause   = 10;
-  const unsigned int waitPause   = 10;
+  const unsigned int pollPause   = 0;
+  const unsigned int readPause   = 0;
+  const unsigned int waitPause   = 0;
   const unsigned int pollTries   = 100;
   const unsigned int waitTries   = 100;
 
@@ -267,6 +268,7 @@ int main(int argc, char **argv)
   // enter the data acquisition loop
   socket_poll(0); // clear the file descriptor set we poll
 
+  read_again: cout << "Had some corrupt data, rereading!!" << endl;
   while (!isExiting) {
     // see if we have any commands from pacman
     time_t curTime, prevTime;
@@ -532,9 +534,10 @@ int main(int argc, char **argv)
 		     << "\n  parse started at position " << beginData
 		     << " reading " << nWords[mod] << " words." << endl;
 		//! how to proceed from here
-		delete[] fifoData;
-
-		BailOut(sendAlarm, alarmArgument);
+		// delete[] fifoData;
+		// BailOut(sendAlarm, alarmArgument);
+                //--------- THIS IS A ROUGH HACK TO FIX THE CORRUPT DATA ISSUE
+                goto read_again;
 	      }
 	      parseWords += eventSize;	      
 	    } while ( parseWords < dataWords + nWords[mod]);	   
