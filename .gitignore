@@ -4,6 +4,11 @@ html/
 latex/
 *~
 *.swp
+#DAMM files
+*.drr
+*.his
+*.list
+*.log
 # Data directories
 HIS
 LDF
