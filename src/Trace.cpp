@@ -147,34 +147,34 @@ void Trace::Plot(int id)
 void Trace::Plot(int id, int row)
 {
     for (size_type i=0; i < size(); i++) {
-	histo.Plot(id, i, row, at(i));
+        histo.Plot(id, i, row, at(i));
     }
 }
 
 void Trace::ScalePlot(int id, double scale)
 {
     for (size_type i=0; i < size(); i++) {
-	histo.Plot(id, i, 1, abs(at(i)) / scale);
+        histo.Plot(id, i, 1, abs(at(i)) / scale);
     }
 }
 
 void Trace::ScalePlot(int id, int row, double scale)
 {
     for (size_type i=0; i < size(); i++) {
-	histo.Plot(id, i, row, abs(at(i)) / scale);
+        histo.Plot(id, i, row, abs(at(i)) / scale);
     }
 }
 
 void Trace::OffsetPlot(int id, double offset)
 {
     for (size_type i=0; i < size(); i++) {
-	histo.Plot(id, i, 1, max(0., at(i) - offset));
+        histo.Plot(id, i, 1, max(0., at(i) - offset));
     }
 }
 
 void Trace::OffsetPlot(int id, int row, double offset)
 {
     for (size_type i=0; i < size(); i++) {
-	histo.Plot(id, i, row, max(0., at(i) - offset));
+        histo.Plot(id, i, row, max(0., at(i) - offset));
     }
 }

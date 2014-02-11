@@ -5,9 +5,13 @@ namespace dammIds {
     const int GENERIC_CHANNEL = 10;
 
     namespace raw {
+        /** Notice offset 1, so all
+         * the ids are effectively +1 in the his file*/
         const int OFFSET = 1;
         const int RANGE = 1899;
 
+        /** Notice that there is a space for 300 channels,
+         * one 13 modules crate has 208 channels */
         const int D_RAW_ENERGY = 0;
         const int D_FILTER_ENERGY = 300;
         const int D_SCALAR = 600;
@@ -123,7 +127,13 @@ namespace dammIds {
     // in DssdProcessor.cpp
     namespace dssd {
         const int OFFSET = 7000;
-        const int RANGE = 500;
+        const int RANGE = 100;
+    } 
+
+    // in DssdProcessor.cpp
+    namespace dssd4she {
+        const int OFFSET = 7100;
+        const int RANGE = 100;
     } 
 
     namespace trace {
