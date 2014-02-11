@@ -10,7 +10,7 @@
          Put short description of your experiment here.
      -->
     <Description>
-        Tests of SHE DSSD detector
+        Tests of the SHE DSSD detector
     </Description>
 
     <!-- Instructions: 
@@ -103,6 +103,7 @@
         <Processor name="Dssd4SHEProcessor" 
             front_back_correlation_time="300e-9"
             front_back_correlation_de="500"/>
+        <Analyzer name="DoubleTraceAnalyzer" />
     </DetectorDriver>
 
     <!-- Instructions:
