@@ -21,6 +21,8 @@ using std::cout;
 using std::endl;
 using std::string;
 
+int TraceAnalyzer::numTracesAnalyzed = 0;
+
 /**
  * Initialize the trace analysis class.  Set the row numbers
  * for spectra 850 to zero

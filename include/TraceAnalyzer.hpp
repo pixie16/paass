@@ -30,7 +30,7 @@ class TraceAnalyzer {
 
  protected:
     int level;                ///< the level of analysis to proceed with
-    int numTracesAnalyzed;    ///< rownumber for DAMM spectrum 850
+    static int numTracesAnalyzed;    ///< rownumber for DAMM spectrum 850
     std::string name;         ///< name of the analyzer
 
  public:

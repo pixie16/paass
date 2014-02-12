@@ -24,8 +24,6 @@
 #include "Globals.hpp"
 
 using namespace std;
-using namespace dammIds::trace;
-
 
 int DoubleTraceAnalyzer::numDoubleTraces = 0;
 /**
@@ -53,14 +51,14 @@ DoubleTraceAnalyzer::~DoubleTraceAnalyzer()
 
 void DoubleTraceAnalyzer::DeclarePlots()
 {
-    using namespace dammIds::trace;
+    using namespace dammIds::trace::doubletraceanalyzer;
 
     TraceFilterer::DeclarePlots();
 
     const int energyBins = SE;
     const int energyBins2 = SA;
     const int timeBins = SA;
-    const int traceBins = SC;
+    const int traceBins = dammIds::trace::traceBins;
 
     Trace sample_trace = Trace();
     unsigned short numTraces = Globals::get()->numTraces();
@@ -102,10 +100,13 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
 	(less<Trace::value_type>(), fastThreshold);
 
     if ( pulse.isFound && level >= 10 ) {
+        /*
+         * Show number of traces in messenger
         stringstream ss;
-        ss << "Double trace #" << numTracesAnalyzed << " for type " 
+        ss << "Double trace #" << numDoubleTraces << " for type " 
            << type << ":" << subtype;
         m.run_message(ss.str());
+        */
 
         // trace filterer found a first pulse
 
@@ -145,7 +146,7 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
 
         // now plot stuff
         if ( pulseVec.size() > 1 ) {
-            using namespace dammIds::trace;
+            using namespace dammIds::trace::doubletraceanalyzer;
 
             // fill the trace info
             // first pulse info is set in TraceFilterer

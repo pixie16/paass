@@ -53,6 +53,9 @@
             slow_rise="20"
             slow_gap="20"
             slow_threshold="20"/>
+        <Analyzer name="TraceExtracter" 
+             type="dssd_front"
+             subtype="dssd_front"/>
     </DetectorDriver>
 
     <Map verbose_calibration="False"
