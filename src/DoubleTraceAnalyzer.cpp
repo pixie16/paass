@@ -21,19 +21,28 @@
 #include "Trace.hpp"
 #include "DoubleTraceAnalyzer.hpp"
 #include "Messenger.hpp"
+#include "Globals.hpp"
 
 using namespace std;
 using namespace dammIds::trace;
 
+
+int DoubleTraceAnalyzer::numDoubleTraces = 0;
 /**
  * Set default values for time and energy
  */
-DoubleTraceAnalyzer::DoubleTraceAnalyzer() : 
-    TraceFilterer(doubletrace::OFFSET, doubletrace::RANGE)
+DoubleTraceAnalyzer::DoubleTraceAnalyzer(short fast_rise, short fast_gap,
+                                         short fast_threshold,
+                                         short energy_rise, short energy_gap,
+                                         short slow_rise, short slow_gap,
+                                         short slow_threshold) :
+    TraceFilterer(fast_rise, fast_gap, fast_threshold,
+                  energy_rise, energy_gap,
+                  slow_rise, slow_gap, slow_threshold)
+
 {
     time2 = 0;
-    energy2 = 0.;
-    numDoubleTraces = 0;
+    energy2 = 0.0;
 }
 
 
@@ -48,25 +57,31 @@ void DoubleTraceAnalyzer::DeclarePlots()
 
     TraceFilterer::DeclarePlots();
 
+    const int energyBins = SE;
     const int energyBins2 = SA;
     const int timeBins = SA;
+    const int traceBins = SC;
 
-    DeclareHistogram1D(D_ENERGY2, energyBins, "E2 from traces");
+    Trace sample_trace = Trace();
+    unsigned short numTraces = Globals::get()->numTraces();
 
-    DeclareHistogram2D(DD_DOUBLE_TRACE, traceBins, numTraces, "Double traces");
-    histo.DeclareHistogram2D(DD_ENERGY2__TDIFF, energyBins2, timeBins,
-                             "E2 vs DT", 2);
-    histo.DeclareHistogram2D(DD_ENERGY2__ENERGY1, energyBins2, energyBins2,
-                             "E2 vs E1", 2);
+    sample_trace.DeclareHistogram1D(D_ENERGY2, energyBins, "E2 from traces");
 
-    DeclareHistogram2D(DD_TRIPLE_TRACE, traceBins, numTraces,
-                       "Interesting triple traces");
-    DeclareHistogram2D(DD_TRIPLE_TRACE_FILTER1, traceBins, numTraces,
-		               "Interesting traces (fast filter)");
-    DeclareHistogram2D(DD_TRIPLE_TRACE_FILTER2, traceBins, numTraces,
-                       "Interesting traces (energy filter)");
-    DeclareHistogram2D(DD_TRIPLE_TRACE_FILTER3, traceBins, numTraces,
-		                "Interesting traces (3rd filter)");
+    sample_trace.DeclareHistogram2D(DD_DOUBLE_TRACE, traceBins, numTraces,
+                                    "Double traces");
+    sample_trace.DeclareHistogram2D(DD_ENERGY2__TDIFF, energyBins2, timeBins,
+                                    "E2 vs DT");
+    sample_trace.DeclareHistogram2D(DD_ENERGY2__ENERGY1, energyBins2,
+                                    energyBins2, "E2 vs E1");
+
+    sample_trace.DeclareHistogram2D(DD_TRIPLE_TRACE, traceBins, 
+                                    numTraces, "Interesting triple traces");
+    sample_trace.DeclareHistogram2D(DD_TRIPLE_TRACE_FILTER1, traceBins,
+                                numTraces, "Interesting traces (fast filter)");
+    sample_trace.DeclareHistogram2D(DD_TRIPLE_TRACE_FILTER2, traceBins,
+                            numTraces, "Interesting traces (energy filter)");
+    sample_trace.DeclareHistogram2D(DD_TRIPLE_TRACE_FILTER3, traceBins,
+                                numTraces, "Interesting traces (3rd filter)");
 }
 
 /**
@@ -166,10 +181,10 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
                     numTripleTraces++;
             }
 
-            plot(D_ENERGY2, pulseVec[1].energy);
-            plot(DD_ENERGY2__TDIFF, 
+            trace.plot(D_ENERGY2, pulseVec[1].energy);
+            trace.plot(DD_ENERGY2__TDIFF, 
                 pulseVec[1].energy, pulseVec[1].time - pulseVec[0].time);
-            plot(DD_ENERGY2__ENERGY1, 
+            trace.plot(DD_ENERGY2__ENERGY1, 
                 pulseVec[1].energy, pulseVec[0].energy);
 
             numDoubleTraces++;

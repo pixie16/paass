@@ -8,7 +8,6 @@
 #define __TIMINGINFORMATION_HPP_
 
 #include <map>
-//#include "ChanEvent.hpp"
 
 #ifdef useroot
 #include "Rtypes.h"
@@ -24,82 +23,82 @@ class TimingInformation
 {
  public:
     struct TimingCal {
-	double lrtOffset;
-	double r0;
-	double tofOffset0;
-	double tofOffset1;
-	double xOffset;
-	double z0;
-	double zOffset;
+        double lrtOffset;
+        double r0;
+        double tofOffset0;
+        double tofOffset1;
+        double xOffset;
+        double z0;
+        double zOffset;
     };
     
     struct TimingData 
     {
-	TimingData(void);
-	TimingData(ChanEvent *chan);
-    const Trace &trace;
-	
-	bool dataValid;
-	
-	double aveBaseline;
-	double discrimination;
-	double highResTime;
-	double maxpos;
-	double maxval;
-	double phase;
-	double signalToNoise;
-	double stdDevBaseline;
-	double tqdc;
-	double walk;
-	double walkCorTime;
+        TimingData(void);
+        TimingData(ChanEvent *chan);
+        const Trace &trace;
+        
+        bool dataValid;
+        
+        double aveBaseline;
+        double discrimination;
+        double highResTime;
+        double maxpos;
+        double maxval;
+        double phase;
+        double signalToNoise;
+        double stdDevBaseline;
+        double tqdc;
+        double walk;
+        double walkCorTime;
     };
     
 #ifdef useroot
     struct DataRoot
     {
-	static const size_t maxMultiplicity = 10;
+        static const size_t maxMultiplicity = 10;
 
-	DataRoot(void);
+        DataRoot(void);
 
-	UInt_t   multiplicity;
-	UInt_t   dummy;
+        UInt_t   multiplicity;
+        UInt_t   dummy;
 
-	Double_t aveBaseline[maxMultiplicity];
-	Double_t discrimination[maxMultiplicity];
-	Double_t highResTime[maxMultiplicity];
-	Double_t maxpos[maxMultiplicity];
-	Double_t maxval[maxMultiplicity];
-	Double_t phase[maxMultiplicity];
-	Double_t stdDevBaseline[maxMultiplicity];
-	Double_t tqdc[maxMultiplicity];
-	UInt_t   location[maxMultiplicity];
+        Double_t aveBaseline[maxMultiplicity];
+        Double_t discrimination[maxMultiplicity];
+        Double_t highResTime[maxMultiplicity];
+        Double_t maxpos[maxMultiplicity];
+        Double_t maxval[maxMultiplicity];
+        Double_t phase[maxMultiplicity];
+        Double_t stdDevBaseline[maxMultiplicity];
+        Double_t tqdc[maxMultiplicity];
+        UInt_t   location[maxMultiplicity];
     };
 #endif
 
     struct BarData
     {
-	BarData(const TimingData& Right, const TimingData& Left, 
-		const TimingCal &cal, const std::string &type);
-	bool BarEventCheck(const double &timeDiff, 
-			   const std::string &type);
-        double CalcFlightPath(double &timeDiff, const TimingCal &cal, 
-			      const std::string &type);
-	
-        bool event;
-	
-	double flightPath;
-	double lMaxVal;
-	double qdc;
-	double qdcPos;
-	double rMaxVal;
-	double theta;
-	double timeAve;
-	double timeDiff;
-	double walkCorTimeDiff;
-	
-	std::map<unsigned int, double> timeOfFlight;
-	std::map<unsigned int, double> corTimeOfFlight;
-	std::map<unsigned int, double> energy;
+        BarData(const TimingData& Right, const TimingData& Left, 
+            const TimingCal &cal, const std::string &type);
+        bool BarEventCheck(const double &timeDiff, 
+                const std::string &type);
+            double CalcFlightPath(double &timeDiff, const TimingCal &cal, 
+                    const std::string &type);
+        
+            bool event;
+        
+        double flightPath;
+        double lMaxVal;
+        double qdc;
+        double qdcPos;
+        double rMaxVal;
+        double theta;
+        double timeAve;
+        double timeDiff;
+        double walkCorTimeDiff;
+        
+        std::map<unsigned int, double> timeOfFlight;
+        std::map<unsigned int, double> corTimeOfFlight;
+        std::map<unsigned int, double> energy;
     };
 
     //define types for the keys and maps

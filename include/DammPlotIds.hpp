@@ -138,45 +138,34 @@ namespace dammIds {
 
     namespace trace {
         const int OFFSET = 7500;
-        const int RANGE = 100;
-        
-        namespace plotter {
-            const int OFFSET = 7600;
-            const int RANGE = 10;
-            const int DD_TRACE = 0;
-        }
+        const int RANGE = 150;
 
-        namespace filterer {
-            const int OFFSET = 7610;
-            const int RANGE = 10;
-        }
-
-        namespace doubletrace {
-            const int OFFSET = 7620;
-            const int RANGE = 40;
-        }
-
-        namespace extracter {
-            const int OFFSET = 7660;
-            const int RANGE = 100;
-            // 1D-traces from the extracter
-            const int D_TRACE = 0;
-        }
-
-        const int DD_FILTER1          = 1;
-        const int DD_FILTER2          = 2;
-        const int DD_FILTER3          = 3;
-        const int DD_AVERAGE_TRACE    = 4;
-        const int DD_REJECTED_TRACE   = 5;
-        const int D_ENERGY1           = 15;
-        const int D_ENERGY2           = 16;	
-        const int DD_DOUBLE_TRACE     = 20;
-        const int DD_ENERGY2__TDIFF   = 21;
+        const int DD_TRACE = 0;
+        const int DD_FILTER1 = 1;
+        const int DD_FILTER2 = 2;
+        const int DD_FILTER3 = 3;
+        const int DD_AVERAGE_TRACE = 4;
+        const int DD_REJECTED_TRACE = 5;
+        const int D_ENERGY1 = 15;
+        const int D_ENERGY2 = 16;	
+        const int DD_DOUBLE_TRACE = 20;
+        const int DD_ENERGY2__TDIFF = 21;
         const int DD_ENERGY2__ENERGY1 = 22;
-        const int DD_TRIPLE_TRACE         = 30;
+        const int DD_TRIPLE_TRACE = 30;
         const int DD_TRIPLE_TRACE_FILTER1 = 31;
         const int DD_TRIPLE_TRACE_FILTER2 = 32;
         const int DD_TRIPLE_TRACE_FILTER3 = 33;
+
+        namespace waveformanalyzer {
+            const int DD_TRACES     = 40;
+            const int D_CHISQPERDOF = 41;
+            const int D_PHASE       = 42;
+            const int DD_AMP        = 43;
+        }
+        
+        // 1D-traces from the extracter
+        const int D_TRACE = 50;
+        const int maxSingleTraces = 99;
     } 
 }
 

@@ -37,157 +37,24 @@
         <EventWidth unit="s" value="1e-6"/>
         <EnergyContraction value="1.0"/>
         <Path>config/</Path>
+        <NumOfTraces value="50"/>
     </Global>
 
-
-    <!-- Instructions:
-         Add
-            <Process name="SomethingProcessor"/>
-         and
-            <Analyzer name="SomethingAnalyzer"/>
-         for each processor or analyzer you want to use.
-
-         List of known Processors:
-            * BetaScintProcessor
-            * DssdProcessor
-            * GeProcessor
-               * optional attributes and their default values:
-                  * gamma_threshold="1.0"
-                  * low_ratio="1.0"
-                  * high_ratio="3.0"
-                  * sub_event="100e-9"
-                  * gamma_beta_limit="200e-9"
-                  * gamma_gamma_limit="200e-9"
-                  * early_low_limit="0.0"
-                  * early_high_limit="0.0"
-            * Ge4Hen3Processor
-                * see comment above
-            * GeCalibProcessor
-               * optional attributes and their default values:
-                  * gamma_threshold="1.0"
-                  * low_ratio="1.0"
-                  * high_ratio="3.0"
-            * Hen3Processor
-            * ImplantSsdProcessor
-            * IonChamberProcessor
-            * LiquidScintProcessor
-            * LogicProcessor
-            * McpProcessor
-            * MtcProcessor
-               * optional attributes and their default values:
-                  * double_stop="False"
-                  * double_start="False"
-            * NeutronScintProcessor
-            * PositionProcessor
-            * PulserProcessor
-            * SsdProcesssor
-            * TriggerLogicProcessor
-            * VandleProcessor
-            With useroot compiler flag:
-            * RootProcessor
-            * ScintROOT
-            * VandleROOT
-         List of known Analyzers:
-            * DoubleTraceAnalyzer
-            * TauAnalyzer
-            * TracePlotter
-            * TraceExtracter
-            With pulsefit compiler flag
-            * WaveformAnalyzer
-            * FittingAnalyzer
-            With dcfd compiler flag
-            * WaveformAnalyzer
-            * CfdAnalyzer
-    -->
     <DetectorDriver>
         <Processor name="Dssd4SHEProcessor" 
             front_back_correlation_time="300e-9"
             front_back_correlation_de="500"/>
-        <Analyzer name="DoubleTraceAnalyzer" />
+        <Analyzer name="DoubleTraceAnalyzer"
+            fast_rise="10"
+            fast_gap="10"
+            fast_threshold="80"
+            energy_rise="25"
+            energy_gap="25"
+            slow_rise="20"
+            slow_gap="20"
+            slow_threshold="20"/>
     </DetectorDriver>
 
-    <!-- Instructions:
-         Channels map. This section replaces the map.txt (map2.txt) and cal.txt
-         files. For each channel in each module that you want to use in 
-         analysis you must assign some physical detector type (and subtype)
-         which is known to the pixie_scan (see DetectorLibrary.cpp).
-         A channel may be also calibrated (by default a raw channel number
-         from adc is used) or corrected against walk (by default walk
-         correction is equal to 0).
-
-         The root element (<Map>) may have attributes changing the verbosity
-         level during loading of the configuration in this section. These are
-         * verbose_map - Loaded modules and channels
-         * verbose_calibration - Calibration
-         * verbose_walk - Walk correction 
-         Each attribute default to False, if change to True will show more
-         messages concerning loaded parameters etc.
-
-         There are following calibration models:
-            * raw - non-calibrated (also used when no calibration specified)
-            * off - turn channel off (returns always 0)
-            * linear - requires 2 parameters
-            * quadratic - requires 3 parameters
-            * polynomial - more general but slightly slower then the
-                two above - requires at least 1 parameter
-            * hyplin - f(x) = a0/x + a1 + a2*x , suitable if problems with
-                low channels are encountered - requires 3 parameters
-         And walk correction models:
-            * None - returns always 0
-            * A - f(x) = a0 + a1 / (a2 + x) + a3 * exp(-x/a4), derived for
-                the ge detectors at 85-86Ga experiment - requires 5 parameters
-            * B1 - f(x) = a0 + (a1 + a2 / (x + 1)) *  exp(-x / a4)
-                This model was developed for the ge detectors at 93Br
-                experiment. Use it for the low energy part of spectra. For
-                the high energy part use B2 model.
-            * B2 f(x) = a0 + a1 *  exp(-x / a2)
-                This function is the second part of 'B' model developed
-                for the 93Br experiment
-
-        Note that walk models parameters are intended to operate on natural
-        units i.e. raw channel numbers and pixie time tics.
-
-        Both calibration and walk correction operate on some range and 
-        there might be any number of ranges defined for the channel.
-        The code does not check if a range overlaps with another. For a given
-        channel number the first (in order of appearance) matching range will be
-        used.
-        If no min/max is specified, a 0 to infinity range is assumed (where
-        infinity is a largest double precision floating point number on a 
-        given machine).
-
-        An example below shows the main features of the Map node.
-
-        <Map verbose_map="True" verbose_calibration="True" verbose_walk="True">
-
-            <Module number="0">
-                <Channel number="0" type="ge" subtype="clover_high">
-                    <Calibration model="quadratic" min="0" max="100">
-                        -0.912 0.625 1.2390e-5
-                    </Calibration>
-                    <Calibration model="linear" min="100">
-                        0.1 0.515
-                    </Calibration>
-                    <WalkCorrection model="A">
-                        2.322 12487.727 432.257 19.268 140.189
-                    </WalkCorrection>
-                </Channel>
-
-                <Channel number="1" type="beta_scint" 
-                         subtype="beta" location="5"
-                         tag1="12" tag2="3">
-                </Channel>
-
-                ...
-            </Module>
-
-            <Module number="1">
-            ...
-            </Module>
-
-            ...
-        </Map>
-    -->
     <Map verbose_calibration="False"
          verbose_map="False"
          verbose_walk="False">
@@ -820,68 +687,12 @@
         </Module>
     </Map>
 
-    <!--
-        Instructions:
-        Create here tree of "places" build of <Place> elements for
-        your experiment. Basic places are created automatically from entries
-        in the Map section using type_subtype_location pattern.
-
-        Root element should be named <TreeCorrelator>.
-        Each <Place> element has a following attributes:
-            'name' - required, if last token in name 
-                    (tokens are separated by '_')
-                    characters are in format X-Y,Z where X, Y and Z
-                    are integers, a whole range X to Y is assumed 
-                    (e.g.  beta_0-1,5,9-10
-                    will create beta_0, beta_1, beta_5, beta_9 and beta_10 )
-
-            Optional attributes:
-            'type' - must be one of types defined in PlaceBuilder.cpp
-                     (see there) currently available are: 
-                    PlaceDetector, PlaceThreshold, PlaceThresholdOR,
-                    PlaceCounter, PlaceOR, PlaceAND
-                    if type is not used or empty (type="") it is assumed that
-                    place already exists. In particular this is true for all 
-                    basic places created from channels as defined from Map
-            'replace' - if set to 'true', will replace existing place with a
-                one defined in this element. 
-            'fifo' - depth of FIFO of place
-            'coincidence' - defines type of relation with parent (true of false)
-            'low_limit', 'high_limit' - required for PlaceThreshold and
-                    PlaceThresholdOR defines threshold limits 
-                    (calibrated energy).
-
-            see PlaceBuilder for other type of places and attributes.
-    -->
     <TreeCorrelator name="root" verbose="False">
     </TreeCorrelator>
 
-
-    <!--
-        Instructions:
-        Definition of gamma-gamma gates for GeProcessors,
-        so far only 2-gammas gates are implemented.
-        Example:
-        <GammaGates>
-            <Gate>
-                <Line min="115" max="118"/>
-                <Line min="240" max="244"/>
-            </Gate>
-            <Gate>
-                <Line min="115" max="118"/>
-                <Line min="238" max="240"/>
-            </Gate>
-        </GammaGates>
-    -->
     <GammaGates>
     </GammaGates>
 
-    <!-- Instructions: 
-         Configuration of Notebook object that saves handy notes (things
-         that are not easy to present on graph e.g. single event details)
-         file - file in which the notes are saved
-         mode - 'a' for append, 'r' - for replace mode
-    -->
     <NoteBook file='notes.txt' mode='a'/>
 
 </Configuration>

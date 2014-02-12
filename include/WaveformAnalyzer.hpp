@@ -9,14 +9,15 @@
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 
-class WaveformAnalyzer : public TraceAnalyzer, 
-			 public TimingInformation
+class WaveformAnalyzer : public TraceAnalyzer
 {
- public:
-    WaveformAnalyzer(); 
-    virtual void DeclarePlots(void) const;
-    virtual void Analyze(Trace &, const std::string &,
-			 const std::string &);
-    virtual ~WaveformAnalyzer() {};
+    public:
+        WaveformAnalyzer(); 
+        virtual void DeclarePlots(void) const;
+        virtual void Analyze(Trace &, const std::string &,
+                const std::string &);
+        virtual ~WaveformAnalyzer() {};
+    private:
+        TimingInformation timing_;
 };
 #endif // __WAVEFORMANALYZER_HPP_

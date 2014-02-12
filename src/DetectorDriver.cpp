@@ -358,30 +358,76 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
          analyzer = analyzer.next_sibling("Analyzer")) {
         string name = analyzer.attribute("name").value();
 
-        vecAnalyzer.push_back(new WaveformAnalyzer());
-        if (name == "DoubleTraceAnalyzer") {
-            vecAnalyzer.push_back(new DoubleTraceAnalyzer());
+        if (name == "TraceFilterer" || 
+            name == "DoubleTraceAnalyzer") {
+            int fast_rise = analyzer.attribute("fast_rise").as_int(-1);
+            if (fast_rise == -1) {
+                fast_rise = 10;
+                m.warning("Using fast_rise = 10", 1);
+            }
+            int fast_gap = analyzer.attribute("fast_gap").as_int(-1);
+            if (fast_gap == -1) {
+                fast_gap = 10;
+                m.warning("Using fast_gap = 10", 1);
+            }
+            int fast_threshold = 
+                analyzer.attribute("fast_threshold").as_int(-1);
+            if (fast_threshold == -1) {
+                fast_threshold = 50;
+                m.warning("Using fast_threshold = 50", 1);
+            }
+            int energy_rise = analyzer.attribute("energy_rise").as_int(-1);
+            if (energy_rise == -1) {
+                energy_rise = 50;
+                m.warning("Using energy_rise = 50", 1);
+            }
+            int energy_gap = analyzer.attribute("energy_gap").as_int(-1);
+            if (energy_gap == -1) {
+                energy_gap = 50;
+                m.warning("Using energy_gap = 50", 1);
+            }
+            int slow_rise = analyzer.attribute("slow_rise").as_int(-1);
+            if (slow_rise == -1) {
+                slow_rise = 20;
+                m.warning("Using slow_rise = 20", 1);
+            }
+            int slow_gap = analyzer.attribute("slow_gap").as_int(-1);
+            if (slow_gap == -1) {
+                slow_gap = 20;
+                m.warning("Using slow_gap = 20", 1);
+            }
+            int slow_threshold = 
+                analyzer.attribute("slow_threshold").as_int(-1);
+            if (slow_threshold == -1) {
+                slow_threshold = 10;
+                m.warning("Using slow_threshold = 10", 1);
+            }
+
+            if (name == "TraceFilterer") 
+                vecAnalyzer.push_back(new TraceFilterer(
+                            fast_rise, fast_gap, fast_threshold, 
+                            energy_rise, energy_gap,
+                            slow_rise, slow_gap, slow_threshold));
+            else if (name == "DoubleTraceAnalyzer")
+                vecAnalyzer.push_back(new DoubleTraceAnalyzer(
+                            fast_rise, fast_gap, fast_threshold, 
+                            energy_rise, energy_gap,
+                            slow_rise, slow_gap, slow_threshold));
+
         } else if (name == "TauAnalyzer") {
             vecAnalyzer.push_back(new TauAnalyzer());
-        } else if (name == "TracePlotter") {
-            vecAnalyzer.push_back(new TracePlotter());
         } else if (name == "TraceExtracter") {
             vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
         }
-#if defined(pulsefit) || defined(dcfd)
         else if (name == "WaveformAnalyzer") {
             vecAnalyzer.push_back(new WaveformAnalyzer());
         }
-#endif
-#ifdef pulsefit
         else if (name == "FittingAnalyzer") {
             vecAnalyzer.push_back(new FittingAnalyzer());
         }
-#elif dcfd
         else if (name == "CfdAnalyzer") {
             vecAnalyzer.push_back(new CfdAnalyzer());
         }
-#endif
         else {
             stringstream ss;
             ss << "DetectorDriver: unknown analyzer type" << name;

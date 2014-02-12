@@ -18,7 +18,7 @@
 using namespace std;
 using namespace dammIds::trace;
 
-TauAnalyzer::TauAnalyzer() : TraceAnalyzer(0, 0)
+TauAnalyzer::TauAnalyzer() 
 {
     // type and subtype default to empty string 
     name="tau";

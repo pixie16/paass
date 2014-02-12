@@ -13,12 +13,15 @@
 #include "RandomPool.hpp"
 #include "Trace.hpp"
 #include "TraceFilterer.hpp"
+#include "Globals.hpp"
 
 using namespace std;
 using namespace dammIds::trace;
 
 const int TraceFilterer::energyBins = SC;
-const double TraceFilterer::energyScaleFactor = 2.198; //< TO BE USED WITH MAGIC +40 ENERGY SAMPLE LOCATION
+
+ //< TO BE USED WITH MAGIC +40 ENERGY SAMPLE LOCATION
+const double TraceFilterer::energyScaleFactor = 2.198;
 // const double TraceFilterer::energyScaleFactor = 2.547; //< multiply the energy filter sums by this to gain match to raw spectra
 
 /** 
@@ -32,38 +35,34 @@ TraceFilterer::PulseInfo::PulseInfo()
 /**
  *  Constructor so we can build the pulseinfo in place
  */
-TraceFilterer::PulseInfo::PulseInfo(Trace::size_type theTime, double theEnergy) :
-    time(theTime), energy(theEnergy)
+TraceFilterer::PulseInfo::PulseInfo(Trace::size_type theTime, 
+                                    double theEnergy) :
+                                    time(theTime), energy(theEnergy)
 {
     isFound = true;
 }
 
-TraceFilterer::TraceFilterer() : 
-    TracePlotter(filterer::OFFSET, filterer::RANGE), fastParms(5,5), 
-    energyParms(100,100), thirdParms(20,10)
+TraceFilterer::TraceFilterer(short fast_rise, short fast_gap,
+                             short fast_threshold,
+                             short energy_rise, short energy_gap,
+                             short slow_rise, short slow_gap,
+                             short slow_threshold) :
+    fastParms(fast_gap, fast_rise), 
+    energyParms(energy_gap, energy_rise), 
+    thirdParms(slow_gap, slow_rise)
 {
     //? this uses some legacy values for third parms, are they appropriate
     name = "Filterer";
-    
-    fastThreshold = fastParms.GetRiseSamples()  * 3;
-    slowThreshold = thirdParms.GetRiseSamples() * 2;
     useThirdFilter = false;
+    //Trace::size_type rise, gap;
+
+    // scale thresholds by the length of integration (i.e. rise time)
+    fastThreshold = fast_threshold * fastParms.GetRiseSamples();
+    slowThreshold = slow_threshold * thirdParms.GetRiseSamples();
 }
 
-TraceFilterer::TraceFilterer(int offset, int range) : 
-    TracePlotter(offset, range), fastParms(5,5), 
-    energyParms(100,100), thirdParms(20,10)
-{
-    //? this uses some legacy values for third parms, are they appropriate
-    name = "Filterer";
-    
-    fastThreshold = fastParms.GetRiseSamples()  * 3;
-    slowThreshold = thirdParms.GetRiseSamples() * 2;
-    useThirdFilter = false;
-}
 
 TraceFilterer::~TraceFilterer()
-
 {
     // do nothing
 }
@@ -72,59 +71,9 @@ bool TraceFilterer::Init(const string &filterFileName /* = filter.txt */)
 {
     const int maxTraceLength = 6400;
 
-    TracePlotter::Init();
-
     fastFilter.reserve(maxTraceLength);
     energyFilter.reserve(maxTraceLength);
     thirdFilter.reserve(maxTraceLength);
-
-    // read in the filter parameters
-    string filterFile = Globals::get()->configPath(filterFileName);
-
-    ifstream in(filterFile.c_str());
-    if (!in) {
-        cout << "Failed to open the filter parameter file" << endl;
-        cout << "  Using default values instead" << endl;
-        return true;
-    }
-
-    while (!in.eof()) {
-	if ( isdigit(in.peek()) ) {
-	    Trace::size_type rise, gap;
-	    
-	    cout << "Trace analysis parameters are: " << endl;
-	    in >> rise >> gap >> fastThreshold;
-	    cout << "  Fast filter: " << rise << " " << gap 
-		 << " " << fastThreshold << endl;
-	    fastParms = TrapezoidalFilterParameters(gap, rise);
-
-	    in >> rise >> gap;
-	    cout << "  Energy filter: " << rise << " " << gap << endl;
-	    energyParms = TrapezoidalFilterParameters(gap, rise);
-
-	    in >> rise >> gap >> slowThreshold;	    
-	    cout << "  Third filter: " << rise << " " << gap 
-		 << " " << slowThreshold;
-	    if (!useThirdFilter) {
-		cout << ", not used";
-	    }
-	    cout << endl;
-	    thirdParms = TrapezoidalFilterParameters(gap, rise);
-	    
-	    // scale thresholds by the length of integration (i.e. rise time)
-	    fastThreshold *= fastParms.GetRiseSamples();
-	    slowThreshold *= thirdParms.GetRiseSamples();
-	} else {
-	    // assume this is a comment
-	    in.ignore(1000, '\n');
-	}
-    }
-
-    if (in.fail()) {
-        cerr << "Problem reading filter parameters file" << endl;
-        return true;
-    }
-
     return true;
 }
 
@@ -133,85 +82,88 @@ void TraceFilterer::DeclarePlots(void)
 {
     using namespace dammIds::trace;
 
-    TracePlotter::DeclarePlots();
+    const int energyBins = SE;
+    const int traceBins = SC;
 
-    DeclareHistogram2D(DD_FILTER1, traceBins, numTraces, "fast filter");
-    DeclareHistogram2D(DD_FILTER2, traceBins, numTraces, "energy filter");
+    /*
+     * Declare plots within the trace object
+     */
+    Trace sample_trace = Trace();
+    unsigned short numTraces = Globals::get()->numTraces();
+
+    sample_trace.DeclareHistogram2D(DD_TRACE, traceBins, numTraces,
+                                    "traces data TracePlotter");
+    sample_trace.DeclareHistogram2D(DD_FILTER1, traceBins, numTraces,
+                                    "fast filter");
+    sample_trace.DeclareHistogram2D(DD_FILTER2, traceBins, numTraces,
+                                    "energy filter");
     if (useThirdFilter) {
-        DeclareHistogram2D(DD_FILTER3, traceBins, numTraces, "3rd filter");
+        sample_trace.DeclareHistogram2D(DD_FILTER3, traceBins, numTraces,
+                                        "3rd filter");
     }
-    DeclareHistogram2D(DD_REJECTED_TRACE, traceBins, numTraces, "rejected traces");
+    sample_trace.DeclareHistogram2D(DD_REJECTED_TRACE, traceBins, numTraces,
+                                    "rejected traces");
 
-    DeclareHistogram1D(D_ENERGY1, energyBins, "E1 from trace"); 
+    sample_trace.DeclareHistogram1D(D_ENERGY1, energyBins, "E1 from trace"); 
 }
 
 void TraceFilterer::Analyze(Trace &trace,
 			    const string &type, const string &subtype)
 {
     using namespace dammIds::trace;
-    TracePlotter::Analyze(trace, type, subtype);
 
     if (level >= 5) {
-	const size_t baselineBins = 30;
-	const double deviationCut = fastThreshold / 4. / fastParms.GetRiseSamples();
+        const size_t baselineBins = 30;
+        const double deviationCut = fastThreshold / 4. /
+                                    fastParms.GetRiseSamples();
 
-	double trailingBaseline  = trace.DoBaseline(trace.size() - baselineBins - 1, baselineBins);
-	//double trailingDeviation = trace.GetValue("sigmaBaseline");
-		
-	// start at sample 5 because first samples are occasionally corrupted
-	trace.DoBaseline(5, baselineBins);       
-	if ( trace.GetValue("sigmaBaseline") > deviationCut ||
-	     abs(trailingBaseline - trace.GetValue("baseline")) < deviationCut) {	    
-	    // perhaps check trailing baseline deviation from a simple linear fit 
-	    static int rejectedTraces = 0;
-	    /*
-	    cout << "Rejected trace with bad baseline = " << trace.GetValue("baseline") 
-		 << " +/- " << trace.GetValue("sigmaBaseline") 
-		 << ", trailing baseline = " << trailingBaseline
-		 << " +/- " << trailingDeviation
-		 << ", cut = " << deviationCut << endl;
-	    */
-	    if (rejectedTraces < numTraces)
-		trace.Plot(DD_REJECTED_TRACE, rejectedTraces++);
-	    EndAnalyze(); // update timing
-	    return;
-	}
+        double trailingBaseline  = trace.DoBaseline(
+                                trace.size() - baselineBins - 1, baselineBins);
+            
+        // start at sample 5 because first samples are occasionally corrupted
+        trace.DoBaseline(5, baselineBins);       
+        if ( trace.GetValue("sigmaBaseline") > deviationCut ||
+            abs(trailingBaseline - trace.GetValue("baseline")) < deviationCut)
+        {	    
+            // perhaps check trailing baseline deviation
+            // from a simple linear fit 
+            static int rejectedTraces = 0;
+            unsigned short numTraces = Globals::get()->numTraces();
+            if (rejectedTraces < numTraces)
+                trace.Plot(DD_REJECTED_TRACE, rejectedTraces++);
+            EndAnalyze(); // update timing
+            return;
+        }
 
-	fastFilter.clear();
-	energyFilter.clear();
+        fastFilter.clear();
+        energyFilter.clear();
 
-	// determine trace filters, these are trapezoidal filters characterized
-	//   by a risetime and a gaptime and a range of the filter 
-	trace.TrapezoidalFilter(fastFilter, fastParms);
-	trace.TrapezoidalFilter(energyFilter, energyParms);
+        // determine trace filters, these are trapezoidal filters characterized
+        //   by a risetime and a gaptime and a range of the filter 
+        trace.TrapezoidalFilter(fastFilter, fastParms);
+        trace.TrapezoidalFilter(energyFilter, energyParms);
 
-	if (useThirdFilter) {
-	    thirdFilter.clear();
-	    trace.TrapezoidalFilter(thirdFilter, thirdParms);
-	}
-	FindPulse(fastFilter.begin(), fastFilter.end());
+        if (useThirdFilter) {
+            thirdFilter.clear();
+            trace.TrapezoidalFilter(thirdFilter, thirdParms);
+        }
+        FindPulse(fastFilter.begin(), fastFilter.end());
 
-	if (pulse.isFound) {
-	    trace.SetValue("filterTime", (int)pulse.time);
-	    trace.SetValue("filterEnergy", pulse.energy);
-	}
+        if (pulse.isFound) {
+            trace.SetValue("filterTime", (int)pulse.time);
+            trace.SetValue("filterEnergy", pulse.energy);
+        }
 
-	// now plot some stuff
-	fastFilter.ScalePlot(DD_FILTER1, numTracesAnalyzed, 
-			     fastParms.GetRiseSamples() );
-	energyFilter.ScalePlot(DD_FILTER2, numTracesAnalyzed,
-			       energyParms.GetRiseSamples() );
-	if (useThirdFilter) {
-	    thirdFilter.ScalePlot(DD_FILTER3, numTracesAnalyzed,
-				  thirdParms.GetRiseSamples() );
-	}
-	// calculated values at end of traces
-	/*
-	plot(DD_TRACE, trace.size() + 10, numTracesAnalyzed, energy);
-	plot(DD_TRACE, trace.size() + 11, numTracesAnalyzed, time);
-	*/
-
-	plot(D_ENERGY1, pulse.energy);
+        // now plot some stuff
+        fastFilter.ScalePlot(DD_FILTER1, numTracesAnalyzed, 
+                    fastParms.GetRiseSamples() );
+        energyFilter.ScalePlot(DD_FILTER2, numTracesAnalyzed,
+                    energyParms.GetRiseSamples() );
+        if (useThirdFilter) {
+            thirdFilter.ScalePlot(DD_FILTER3, numTracesAnalyzed,
+                    thirdParms.GetRiseSamples() );
+        }
+        trace.plot(D_ENERGY1, pulse.energy);
     } // sufficient analysis level
 
     EndAnalyze(trace);

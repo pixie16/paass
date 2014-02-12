@@ -48,8 +48,8 @@ void WaveformAnalyzer::Analyze(Trace &trace,
 	    return;
 	}
 	
-	unsigned int waveformLow = GetConstant("waveformLow");
-	unsigned int waveformHigh = GetConstant("waveformHigh");
+	unsigned int waveformLow = timing_.GetConstant("waveformLow");
+	unsigned int waveformHigh = timing_.GetConstant("waveformHigh");
 	//unsigned int startDiscrimination = GetConstant("startDiscrimination");
 	unsigned int maxPos = trace.FindMaxInfo();
 
