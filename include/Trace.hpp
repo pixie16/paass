@@ -110,7 +110,21 @@ class Trace : public std::vector<int>
     unsigned int DoDiscrimination(unsigned int lo, unsigned int numBins);
     unsigned int DoQDC(unsigned int lo, unsigned int numBins);
     unsigned int FindMaxInfo(unsigned int lo = 10, unsigned int numBins = 15);
+
+    virtual void DeclareHistogram1D(int dammId, int xSize, const char* title) {
+        histo.DeclareHistogram1D(dammId, xSize, title);
+    }
+    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize,
+                                    const char* title) {
+        histo.DeclareHistogram2D(dammId, xSize, ySize, title);
+    }
     
+    /** Basic plot same like in EventProcessor class **/
+    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
+        histo.Plot(dammId, val1, val2, val3, name);
+    }
+
+    /** Traces plots **/
     void Plot(int id);           //< plot trace into a 1D histogram
     void Plot(int id, int row);  //< plot trace into row of a 2D histogram
     void ScalePlot(int id, double scale); //< plot trace absolute value and scaled into a 1D histogram

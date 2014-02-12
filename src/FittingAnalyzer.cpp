@@ -30,30 +30,22 @@ int CalculateJacobian(const gsl_vector *x, void *FitData,
 int FitFunctionDerivative(const gsl_vector *x, void *FitData, 
 			  gsl_vector *f, gsl_matrix *J);
 
-namespace dammIds {
-   namespace waveformanalyzer {
-      const int DD_TRACES     = 0;
-      const int D_CHISQPERDOF = 1;
-      const int D_PHASE       = 2;
-      const int DD_AMP        = 3;
-   }
-}
-
 using namespace std;
-using namespace dammIds::waveformanalyzer;
+using namespace dammIds::trace::waveformanalyzer;
 
 //********** DeclarePlots **********
 void FittingAnalyzer::DeclarePlots(void)
 {
-     DeclareHistogram2D(DD_TRACES, S7, S5, "traces data FitAnalyzer");
-     DeclareHistogram2D(DD_AMP, SE, SC, "Fit Amplitude");
-     DeclareHistogram1D(D_PHASE, SE, "Fit X0");
-     DeclareHistogram1D(D_CHISQPERDOF, SE, "Chi^2/dof");
+    Trace sample_trace = Trace(); 
+    sample_trace.DeclareHistogram2D(DD_TRACES, S7, S5, "traces data FitAnalyzer");
+    sample_trace.DeclareHistogram2D(DD_AMP, SE, SC, "Fit Amplitude");
+    sample_trace.DeclareHistogram1D(D_PHASE, SE, "Fit X0");
+    sample_trace.DeclareHistogram1D(D_CHISQPERDOF, SE, "Chi^2/dof");
 }
 
 
 //********** FittingAnalyzer **********
-FittingAnalyzer::FittingAnalyzer() : TraceAnalyzer(OFFSET,RANGE)
+FittingAnalyzer::FittingAnalyzer()
 {
     name = "FittingAnalyzer";
     counter = 0;
@@ -72,7 +64,6 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
 
     const double aveBaseline = trace.GetValue("baseline");
     const double sigmaBaseline = trace.GetValue("sigmaBaseline");
-    const double qdc = trace.GetValue("tqdc");
     const double maxVal = trace.GetValue("maxval");
 
     const unsigned int maxPos = (unsigned int)trace.GetValue("maxpos");
@@ -176,16 +167,18 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
     trace.InsertValue("phase", fittedParameters.front()+maxPos);
     trace.InsertValue("walk", CalculateWalk(maxVal));
 
-    plot(DD_AMP, fittedParameters.at(1), trace.at(maxPos)-aveBaseline);
-    plot(D_PHASE, fittedParameters.at(0)*1000+1000);    
-    plot(D_CHISQPERDOF, chisqPerDof);
+    trace.plot(DD_AMP, fittedParameters.at(1), trace.at(maxPos)-aveBaseline);
+    trace.plot(D_PHASE, fittedParameters.at(0)*1000+1000);    
+    trace.plot(D_CHISQPERDOF, chisqPerDof);
     
     if(detType == "vandleSmall"){
-       for(double  i = 0; i < trace.size(); i++) {
-	  plot(DD_TRACES, i, counter, trace.at(int(i))-aveBaseline);
-	  plot(DD_TRACES, i, counter+1, CalculateFittedFunction(i)+100);
-       }
-       counter++;
+        unsigned sz = trace.size();
+        for(double i = 0; i < sz; ++i) {
+            trace.plot(DD_TRACES, i, counter, trace.at(int(i))-aveBaseline);
+            trace.plot(DD_TRACES, i, counter+1,
+                    CalculateFittedFunction(i) + 100);
+        }
+        counter++;
     }
     
     FreeMemory();

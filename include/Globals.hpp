@@ -180,6 +180,13 @@ class Globals {
             return ss.str();
         }
 
+        /** Return max number of traces stored in 2D spectra
+         * with traces. If not set, by default is 16.
+         */
+        unsigned short numTraces() const {
+            return numTraces_;
+        }
+
     private:
         /** Make constructor, copy-constructor and operator =
          * private to complete singleton implementation.*/
@@ -202,6 +209,7 @@ class Globals {
         bool hasReject_;
         std::vector< std::pair<int, int> > reject_;
         std::string configPath_;
+        unsigned short numTraces_;
 };
 
 
