@@ -1,6 +1,13 @@
 #ifndef __DAMM_PLOTIDS_HPP_
 #define __DAMM_PLOTIDS_HPP_ 1
 
+/**
+ * Histogram sizes consts
+ */
+const int S1 = 2, S2 = 4, S3 = 8, S4 = 16, S5 = 32, S6 = 64, S7 = 128,
+    S8 = 256, S9 = 512, SA = 1024, SB = 2048, SC = 4096,
+    SD = 8192, SE = 16384, SF = 32768;
+
 namespace dammIds {
     const int GENERIC_CHANNEL = 10;
 
@@ -139,22 +146,28 @@ namespace dammIds {
     namespace trace {
         const int OFFSET = 7500;
         const int RANGE = 150;
+        const int traceBins = SA;
 
-        const int DD_TRACE = 0;
-        const int DD_FILTER1 = 1;
-        const int DD_FILTER2 = 2;
-        const int DD_FILTER3 = 3;
-        const int DD_AVERAGE_TRACE = 4;
-        const int DD_REJECTED_TRACE = 5;
-        const int D_ENERGY1 = 15;
-        const int D_ENERGY2 = 16;	
-        const int DD_DOUBLE_TRACE = 20;
-        const int DD_ENERGY2__TDIFF = 21;
-        const int DD_ENERGY2__ENERGY1 = 22;
-        const int DD_TRIPLE_TRACE = 30;
-        const int DD_TRIPLE_TRACE_FILTER1 = 31;
-        const int DD_TRIPLE_TRACE_FILTER2 = 32;
-        const int DD_TRIPLE_TRACE_FILTER3 = 33;
+        namespace tracefilterer {
+            const int DD_TRACE = 0;
+            const int DD_FILTER1 = 1;
+            const int DD_FILTER2 = 2;
+            const int DD_FILTER3 = 3;
+            const int DD_AVERAGE_TRACE = 4;
+            const int DD_REJECTED_TRACE = 5;
+            const int D_ENERGY1 = 15;
+        }
+
+        namespace doubletraceanalyzer {
+            const int D_ENERGY2 = 16;	
+            const int DD_DOUBLE_TRACE = 20;
+            const int DD_ENERGY2__TDIFF = 21;
+            const int DD_ENERGY2__ENERGY1 = 22;
+            const int DD_TRIPLE_TRACE = 30;
+            const int DD_TRIPLE_TRACE_FILTER1 = 31;
+            const int DD_TRIPLE_TRACE_FILTER2 = 32;
+            const int DD_TRIPLE_TRACE_FILTER3 = 33;
+        }
 
         namespace waveformanalyzer {
             const int DD_TRACES     = 40;
@@ -164,14 +177,12 @@ namespace dammIds {
         }
         
         // 1D-traces from the extracter
-        const int D_TRACE = 50;
-        const int maxSingleTraces = 99;
+        namespace extracter {
+            const int maxSingleTraces = 99;
+            const int D_TRACE = 50;
+        }
     } 
 }
-
-const int S1 = 2, S2 = 4, S3 = 8, S4 = 16, S5 = 32, S6 = 64, S7 = 128,
-    S8 = 256, S9 = 512, SA = 1024, SB = 2048, SC = 4096,
-    SD = 8192, SE = 16384, SF = 32768;
 
 
 #endif // __DAMM_PLOTIDS_HPP_

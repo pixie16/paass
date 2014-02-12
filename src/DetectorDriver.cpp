@@ -358,6 +358,7 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
          analyzer = analyzer.next_sibling("Analyzer")) {
         string name = analyzer.attribute("name").value();
 
+        m.detail("Loading " + name);
         if (name == "TraceFilterer" || 
             name == "DoubleTraceAnalyzer") {
             int fast_rise = analyzer.attribute("fast_rise").as_int(-1);
@@ -417,7 +418,10 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         } else if (name == "TauAnalyzer") {
             vecAnalyzer.push_back(new TauAnalyzer());
         } else if (name == "TraceExtracter") {
-            vecAnalyzer.push_back(new TraceExtracter("ssd", "top"));
+            string type = analyzer.attribute("type").as_string();
+            string subtype = analyzer.attribute("subtype").as_string();
+
+            vecAnalyzer.push_back(new TraceExtracter(type, subtype));
         }
         else if (name == "WaveformAnalyzer") {
             vecAnalyzer.push_back(new WaveformAnalyzer());
@@ -433,7 +437,15 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             ss << "DetectorDriver: unknown analyzer type" << name;
             throw GeneralException(ss.str());
         }
-        m.detail(name + " loaded");
+        for (pugi::xml_attribute_iterator ait = analyzer.attributes_begin();
+             ait != analyzer.attributes_end(); ++ait) {
+            stringstream ss;
+            ss << ait->name();
+            if (ss.str().compare("name") != 0) {
+                ss << " = " << ait->value();
+                m.detail(ss.str(), 1);
+            }
+        }
     }
 }
 
