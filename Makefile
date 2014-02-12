@@ -80,12 +80,9 @@ CINCLUDEDIRS  = -Iinclude
 
 #------- basic linking instructions
 LDLIBS   += -lm -lstdc++
-ifdef PULSEFIT
 LDLIBS   += -lgsl -lgslcblas
 CXXFLAGS += -Dpulsefit
-else ifdef DCFD
 CXXFLAGS += -Ddcfd
-endif
 
 ifeq ($(FC),gfortran)
 FFLAGS	 += -fsecond-underscore
@@ -162,7 +159,6 @@ TRIGGERLOGICPROCESSORO = TriggerLogicProcessor.$(ObjSuf)
 TRACEO           = Trace.$(ObjSuf)
 TRACEEXTRACTERO  = TraceExtracter.$(ObjSuf)
 TRACEFILTERO     = TraceFilterer.$(ObjSuf)
-TRACEPLOTO       = TracePlotter.$(ObjSuf)
 TRACESUBO        = TraceAnalyzer.$(ObjSuf)
 TREECORRELATORO  = TreeCorrelator.$(ObjSuf)
 VANDLEPROCESSORO = VandleProcessor.$(ObjSuf)
@@ -241,19 +237,14 @@ $(TRIGGERLOGICPROCESSORO)\
 $(TRACEO)\
 $(TRACEEXTRACTERO)\
 $(TRACEFILTERO)\
-$(TRACEPLOTO)\
 $(TRACESUBO)\
 $(TREECORRELATORO)\
 $(VANDLEPROCESSORO)\
 $(WALKCORRECTORO)\
 $(WAVEFORMSUBO)\
-$(WAVEFORMSUBO)
-
-ifdef PULSEFIT
-OBJS += $(FITTINGANALYZERO)
-else ifdef DCFD
-OBJS += $(CFDANALYZERO) 
-endif
+$(WAVEFORMSUBO) \
+$(FITTINGANALYZERO) \
+$(CFDANALYZERO)  \
 
 ifdef USEROOT
 OBJS  += $(ROOTPROCESSORO) $(VANDLEROOTO) $(SCINTROOTO)

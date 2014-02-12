@@ -10,46 +10,48 @@
 #include <string>
 
 #include "Trace.hpp"
-#include "TracePlotter.hpp"
+#include "TraceAnalyzer.hpp"
 
-class TraceFilterer : public TracePlotter {
- protected:    
-    static const int energyBins;
-    static const double energyScaleFactor;
+class TraceFilterer : public TraceAnalyzer {
+    protected:    
+        static const int energyBins;
+        static const double energyScaleFactor;
 
-    TrapezoidalFilterParameters  fastParms;
-    Trace::value_type            fastThreshold;
-    TrapezoidalFilterParameters  energyParms;
-    TrapezoidalFilterParameters  thirdParms;
-    Trace::value_type            slowThreshold;
+        TrapezoidalFilterParameters  fastParms;
+        Trace::value_type            fastThreshold;
+        TrapezoidalFilterParameters  energyParms;
+        TrapezoidalFilterParameters  thirdParms;
+        Trace::value_type            slowThreshold;
 
-    Trace fastFilter;   ///< fast filter of trace
-    Trace energyFilter; ///< slow filter of trace
-    Trace thirdFilter;  ///< second slow filter of trace
-    
-    bool useThirdFilter;
+        Trace fastFilter;   ///< fast filter of trace
+        Trace energyFilter; ///< slow filter of trace
+        Trace thirdFilter;  ///< second slow filter of trace
+        
+        bool useThirdFilter;
 
-    struct PulseInfo {
+        struct PulseInfo {
+            Trace::size_type time;
+            double energy;
+            bool isFound;
+
+            PulseInfo(void);
+            PulseInfo(Trace::size_type theTime, double theEnergy);
+        };
+
+        PulseInfo pulse;
+
+        virtual const PulseInfo& FindPulse(Trace::iterator begin, 
+                                        Trace::iterator end);
     public:
-	Trace::size_type time;
-	double energy;
-	bool isFound;
+        TraceFilterer(short fast_rise, short fast_gap, short fast_threshold,
+                    short energy_rise, short energy_gap,
+                    short slow_rise, short slow_gap, short slow_threshold);
+        virtual ~TraceFilterer();
 
-	PulseInfo(void);
-	PulseInfo(Trace::size_type theTime, double theEnergy);
-    };
-    PulseInfo pulse;
-
-    virtual const PulseInfo& FindPulse(Trace::iterator begin, Trace::iterator end);
- public:
-    TraceFilterer();
-    TraceFilterer(int offset, int range);
-    virtual ~TraceFilterer();
-
-    virtual bool Init(const std::string &filterFileName = "filter.txt");
-    virtual void DeclarePlots(void);
-    virtual void Analyze(Trace &trace, 
-			 const std::string &type, const std::string &subtype);
+        virtual bool Init(const std::string &filterFileName = "filter.txt");
+        virtual void DeclarePlots(void);
+        virtual void Analyze(Trace &trace, 
+                const std::string &type, const std::string &subtype);
 };
 
 #endif // __TRACEFILTERER_HPP_

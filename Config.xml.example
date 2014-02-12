@@ -38,12 +38,17 @@
 
             relative_path must end with '/' unless is empty (which points
             to the current directory then)
+        * <NumOfTraces value="x" />
+            where x is unsigned integer giving the maximum number of
+            traces in 2D traces histograms. This number is rounded up
+            to the power of 2, since DAMM histograms must have such sizes
     -->
     <Global>
         <Revision version="D"/>
         <EventWidth unit="s" value="1e-6"/>
         <EnergyContraction value="1.0"/>
         <Path>config/</Path>
+        <NumOfTraces value="50"/>
     </Global>
 
 
@@ -97,7 +102,19 @@
             * ScintROOT
             * VandleROOT
          List of known Analyzers:
+            * TraceFilterer
+               * mandatory attributes and their default values:
+                  * fast_rise="10"
+                  * fast_gap="10"
+                  * fast_threshold="50"
+                  * energy_rise="50"
+                  * energy_gap="50"
+               * optional attributes and their default values:
+                  * slow_rise="20"
+                  * slow_gap="20"
+                  * slow_threshold="10"
             * DoubleTraceAnalyzer
+                * see TraceFilterer
             * TauAnalyzer
             * TracePlotter
             * TraceExtracter

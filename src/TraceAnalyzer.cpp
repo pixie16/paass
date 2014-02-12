@@ -37,8 +37,7 @@ bool TraceAnalyzer::Init(void)
 using namespace dammIds::trace;
 
 TraceAnalyzer::TraceAnalyzer() : 
-    userTime(0.), systemTime(0.),
-    histo(0, 0, "trace_analyzer") 
+    userTime(0.), systemTime(0.)
 {
     name = "Trace";
     // start at -1 so that when incremented on first trace analysis,
@@ -47,16 +46,6 @@ TraceAnalyzer::TraceAnalyzer() :
     clocksPerSecond = sysconf(_SC_CLK_TCK);
 }
 
-TraceAnalyzer::TraceAnalyzer(int offset, int range) : 
-    userTime(0.), systemTime(0.),
-    histo(offset, range, "trace_analyzer") 
-{
-    name = "Trace";
-    // start at -1 so that when incremented on first trace analysis,
-    //   row 0 is respectively filled in the trace spectrum of inheritees 
-    numTracesAnalyzed = -1;    
-    clocksPerSecond = sysconf(_SC_CLK_TCK);
-}
 
 /** Output time processing traces */
 TraceAnalyzer::~TraceAnalyzer() 

@@ -5,12 +5,10 @@
 #ifndef __FITTINGANALYZER_HPP_
 #define __FITTINGANALYZER_HPP_
 
-#include "TimingInformation.hpp"
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 
-class FittingAnalyzer : public TraceAnalyzer,
-			public TimingInformation
+class FittingAnalyzer : public TraceAnalyzer
 {
  public:
     FittingAnalyzer();

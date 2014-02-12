@@ -14,6 +14,7 @@ Globals::Globals() {
     energyContraction_ = 1.0;
     hasReject_ = false;
     revision_ = "None";
+    numTraces_  = 16;
 
     try {
         pugi::xml_document doc;
@@ -58,8 +59,7 @@ Globals::Globals() {
                     filterClockInSeconds_ = 8e-9; //< one filter clock is 8 ns
                     maxWords_ = EXTERNAL_FIFO_LENGTH; 
                 } else {
-                    throw GeneralException("Globals: unknown revision version " + 
-                                        revision_);
+                    throw GeneralException("Globals: unknown revision version " + revision_);
                 }
 
             } else if (std::string(it->name()).compare("EventWidth") == 0) {
@@ -80,8 +80,8 @@ Globals::Globals() {
                 eventInSeconds_ = value;
                 eventWidth_ = (int)(eventInSeconds_ / clockInSeconds_);
                 ss << "Event width: " << eventInSeconds_ * 1e6 
-                << " us" << ", i.e. " << eventWidth_
-                << " pixie16 clock tics.";
+                   << " us" << ", i.e. " << eventWidth_
+                   << " pixie16 clock tics.";
                 m.detail(ss.str());
                 ss.str("");
 
@@ -94,6 +94,10 @@ Globals::Globals() {
                 configPath_ =  it->text().get();
                 m.detail("Path to other configuration files: " + configPath_);
 
+            } else if (std::string(it->name()).compare("NumOfTraces") == 0) {
+
+                numTraces_ =  it->attribute("value").as_uint();
+
             } else {
 
                 ss << "Unknown global parameter " << it->name();
@@ -102,6 +106,19 @@ Globals::Globals() {
 
             }
         }
+        /*
+         * Number of traces must be a power of 2
+         */
+        unsigned int power2 = 1;
+        unsigned int maxDammSize = 16384;
+        while (power2 < numTraces_ && power2 < maxDammSize) {
+            power2 *= 2;
+        }
+        ss << "Number of traces set to " << power2 << " (" 
+           << numTraces_ << " )";
+        m.detail(ss.str());
+        ss.str("");
+        numTraces_ = power2;
 
         m.detail("Loading rejection regions");
         pugi::xml_node reject = doc.child("Configuration").child("Reject");
