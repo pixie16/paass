@@ -10,10 +10,8 @@
 #include "DammPlotIds.hpp"
 
 using std::string;
-using namespace dammIds::trace;
 
-const int TraceExtracter::traceBins = SC;
-const int TraceExtracter::numTraces = dammIds::trace::maxSingleTraces;
+const int TraceExtracter::numTraces = dammIds::trace::extracter::maxSingleTraces;
 
 TraceExtracter::TraceExtracter(const std::string& aType, 
                             const std::string &aSubtype) : 
@@ -30,6 +28,8 @@ TraceExtracter::~TraceExtracter()
 /** Declare the damm plots */
 void TraceExtracter::DeclarePlots(void)
 {
+    const int traceBins = dammIds::trace::traceBins;
+    using namespace dammIds::trace::extracter;
     Trace sample_trace = Trace();
     for (int i = 0; i < numTraces; ++i) {
         std::stringstream ss;
@@ -43,7 +43,7 @@ void TraceExtracter::DeclarePlots(void)
 void TraceExtracter::Analyze(Trace &trace,
 			     const string &aType, const string &aSubtype)
 {   
-    using namespace dammIds::trace;
+    using namespace dammIds::trace::extracter;
 
     if (type ==  aType && 
         subtype == aSubtype && 

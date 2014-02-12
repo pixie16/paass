@@ -18,7 +18,6 @@
 using namespace std;
 using namespace dammIds::trace;
 
-const int TraceFilterer::energyBins = SC;
 
  //< TO BE USED WITH MAGIC +40 ENERGY SAMPLE LOCATION
 const double TraceFilterer::energyScaleFactor = 2.198;
@@ -80,11 +79,11 @@ bool TraceFilterer::Init(const string &filterFileName /* = filter.txt */)
 
 void TraceFilterer::DeclarePlots(void)
 {
-    using namespace dammIds::trace;
 
     const int energyBins = SE;
-    const int traceBins = SC;
+    const int traceBins = dammIds::trace::traceBins;
 
+    using namespace dammIds::trace::tracefilterer;
     /*
      * Declare plots within the trace object
      */
@@ -110,7 +109,7 @@ void TraceFilterer::DeclarePlots(void)
 void TraceFilterer::Analyze(Trace &trace,
 			    const string &type, const string &subtype)
 {
-    using namespace dammIds::trace;
+    using namespace dammIds::trace::tracefilterer;
 
     if (level >= 5) {
         const size_t baselineBins = 30;
