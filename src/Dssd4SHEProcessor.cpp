@@ -7,6 +7,7 @@
 
 #include <limits>
 #include <stdexcept>
+#include <algorithm>
 
 #include "DammPlotIds.hpp"
 #include "Globals.hpp"
@@ -16,12 +17,17 @@
 using namespace dammIds::dssd4she;
 using namespace std;
 
-Dssd4SHEProcessor::Dssd4SHEProcessor(double frontBackTimeWindow,
-                                     double frontBackDE) : 
-    EventProcessor(OFFSET, RANGE, "dssd4she")
+Dssd4SHEProcessor::Dssd4SHEProcessor(double timeWindow,
+                                     double highEnergyCut,
+                                     double lowEnergyCut,
+                                     int numFrontStrips,
+                                     int numBackStrips) : 
+    EventProcessor(OFFSET, RANGE, "dssd4she"),
+    correlator(numFrontStrips, numBackStrips)
 {
-    frontBackTimeWindow_ = frontBackTimeWindow;
-    frontBackDE_ = frontBackDE;
+    timeWindow_ = timeWindow;
+    highEnergyCut_ = highEnergyCut;
+    lowEnergyCut_ = lowEnergyCut;
     name = "dssd";
     associatedTypes.insert("dssd_front");
     associatedTypes.insert("dssd_back");
@@ -42,6 +48,9 @@ void Dssd4SHEProcessor::DeclarePlots(void)
     DeclareHistogram1D(D_DTIME_MISSING, SA, "Missing pairs time diff in ns");
     DeclareHistogram1D(D_DE_MISSING, SA, "Missing pairs energy diff in calib.");
 
+    DeclareHistogram1D(D_ENERGY_CORRELATED_SIDE, energyBins, 
+                       "Energy Side corr. with DSSD");
+
     DeclareHistogram2D(DD_EVENT_POSITION_FROM_T, 
 		       xBins, yBins, "DSSD position from time correlation");
     DeclareHistogram2D(DD_EVENT_POSITION_FROM_E, 
@@ -60,6 +69,7 @@ void Dssd4SHEProcessor::DeclarePlots(void)
 		       energyBins, xBins, "DSSD dE dX correlated events");
     DeclareHistogram2D(DD_DENERGY__DPOS_Y_CORRELATED,
 		       energyBins, yBins, "DSSD dE dY correlated events");
+
 }
 
 
@@ -135,7 +145,7 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
                 bestMatch = ity;
             }
         }
-        if (bestDtime < frontBackTimeWindow_) {
+        if (bestDtime < timeWindow_) {
             xyEventsTMatch_.push_back(
                 pair<ChanEvent*, ChanEvent*>((*itx).first, (*bestMatch).first));
             (*itx).second = true;
@@ -186,6 +196,7 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
     return true;
 }
 
+
 bool Dssd4SHEProcessor::Process(RawEvent &event)
 {
     using namespace dammIds::dssd4she;
@@ -193,14 +204,30 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
     if (!EventProcessor::Process(event))
         return false;
 
+    vector<ChanEvent*> vetoEvents = 
+        event.GetSummary("si:veto", true)->GetList();
+    vector<ChanEvent*> sideEvents = 
+        event.GetSummary("si:si", true)->GetList();
+    int mwpc = event.GetSummary("mcp", true)->GetMult();
+
     for (vector< pair<ChanEvent*, ChanEvent*> >::iterator it =
                                                  xyEventsTMatch_.begin();
          it != xyEventsTMatch_.end();
          ++it) {
+        /**
+         * Notice that yEnergy (back) is more precise than
+         * xEnergy (front) due to shorter strips and (if that's true)
+         * high gain
+         */
+        double yEnergy = (*it).second->GetCalEnergy();
+        if (yEnergy < lowEnergyCut_)
+            continue;
+
         double xEnergy = (*it).first->GetCalEnergy();
         int xPosition = (*it).first->GetChanID().GetLocation();
-        double yEnergy = (*it).second->GetCalEnergy();
         int yPosition = (*it).second->GetChanID().GetLocation();
+
+        double time = min((*it).first->GetTime(), (*it).second->GetTime());
 
         plot(D_ENERGY_X, xEnergy); 
         plot(D_ENERGY_Y, yEnergy);
@@ -208,15 +235,35 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
         plot(DD_EVENT_ENERGY__Y_POSITION, yEnergy, yPosition);
 
         plot(DD_EVENT_POSITION_FROM_T, xPosition, yPosition);
+
+        double bestSiTime = numeric_limits<double>::max();
+
+        ChanEvent* correlatedSide = 0;
+        for (vector<ChanEvent*>::iterator its = sideEvents.begin();
+            its != sideEvents.end();
+            ++its) {
+            double dt = abs(time - (*its)->GetTime());
+            if (dt < bestSiTime) {
+                bestSiTime = dt;
+                correlatedSide = *its;
+            }
+        }
+        if (correlatedSide != 0) {
+            if (bestSiTime < timeWindow_)
+                plot(D_ENERGY_CORRELATED_SIDE, correlatedSide->GetCalEnergy());
+        }
+
     }
 
     for (vector< pair<ChanEvent*, ChanEvent*> >::iterator it =
                                                  xyEventsEMatch_.begin();
          it != xyEventsEMatch_.end();
          ++it) {
-        //double xEnergy = (*it).first->GetCalEnergy();
+        double yEnergy = (*it).second->GetCalEnergy();
+        if (yEnergy < lowEnergyCut_)
+            continue;
+
         int xPosition = (*it).first->GetChanID().GetLocation();
-        //double yEnergy = (*it).second->GetCalEnergy();
         int yPosition = (*it).second->GetChanID().GetLocation();
 
         plot(DD_EVENT_POSITION_FROM_E, xPosition, yPosition);
@@ -228,3 +275,60 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
 }
 
 
+bool Dssd4SHEProcessor::pickEventType(SheEvent& event) {
+    bool high_energy = false;
+    if (event.get_energy() > highEnergyCut_)
+        high_energy = true;
+
+    if (high_energy) {
+        if (event.get_veto()) {
+            if (event.get_mwpc() > 0) {
+                if (event.get_beam())
+                    event.set_type(lightIon);
+                else
+                    event.set_type(unknown);
+            } else {
+                if (event.get_beam())
+                    event.set_type(unknown);
+                else
+                    event.set_type(fission);
+            }
+        }
+        else {
+            if (event.get_mwpc() > 0) {
+                if (event.get_beam())
+                    event.set_type(lightIon);
+                else
+                    event.set_type(fission);
+            } else {
+                event.set_type(fission);
+            }
+        }
+    }
+    else {
+        if (event.get_veto()) {
+            if (event.get_mwpc() > 0) {
+                if (event.get_beam())
+                    event.set_type(lightIon);
+                else
+                    event.set_type(unknown);
+            } else {
+                if (event.get_beam())
+                    event.set_type(lightIon);
+                else
+                    event.set_type(unknown);
+            }
+        }
+        else {
+            if (event.get_mwpc() > 0) {
+                if (event.get_beam())
+                    event.set_type(heavyIon);
+                else
+                    event.set_type(decay);
+            } else {
+                event.set_type(decay);
+            }
+        }
+    }
+    return true;
+}

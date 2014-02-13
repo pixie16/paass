@@ -203,15 +203,36 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                 m.warning("Using default front_back_correlation_time = 300e-9",
                           1);
             }
-            double front_back_correlation_de = 
-                processor.attribute("front_back_correlation_de").as_double(-1);
-            if (front_back_correlation_de == -1) {
-                front_back_correlation_de = 500;
-                m.warning("Using default front_back_correlation_de = 500", 1);
+            double high_energy_cut = 
+                processor.attribute("high_energy_cut").as_double(-1);
+            if (high_energy_cut == -1) {
+                high_energy_cut = 15000.0;
+                m.warning("Using default high_energy_cut = 15000", 1);
+            }
+            double low_energy_cut = 
+                processor.attribute("low_energy_cut").as_double(-1);
+            if (low_energy_cut == -1) {
+                low_energy_cut = 2000.0;
+                m.warning("Using default low_energy_cut = 2000", 1);
+            }
+            double num_front_strips = 
+                processor.attribute("num_front_strips").as_int(-1);
+            if (num_front_strips == -1) {
+                num_front_strips = 128;
+                m.warning("Using default num_front_strips = 128", 1);
+            }
+            double num_back_strips = 
+                processor.attribute("num_back_strips").as_int(-1);
+            if (num_back_strips == -1) {
+                num_back_strips = 48;
+                m.warning("Using default num_back_strips = 48", 1);
             }
             vecProcess.push_back(new
                     Dssd4SHEProcessor(front_back_correlation_time,
-                                      front_back_correlation_de));
+                                      high_energy_cut,
+                                      low_energy_cut,
+                                      num_front_strips,
+                                      num_back_strips));
         } else if (name == "GeProcessor" || name == "Ge4Hen3Processor") {
             double gamma_threshold = 
                 processor.attribute("gamma_threshold").as_double(-1);
