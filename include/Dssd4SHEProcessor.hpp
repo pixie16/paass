@@ -26,13 +26,12 @@ namespace dammIds {
 
         const int DD_ENERGY__POSX_T_MISSING = 21;
         const int DD_ENERGY__POSY_T_MISSING = 22; 
-        const int DD_ENERGY__POSX_E_MISSING = 23;
-        const int DD_ENERGY__POSY_E_MISSING = 24; 
 
         const int DD_DENERGY__DPOS_X_CORRELATED = 31; 
         const int DD_DENERGY__DPOS_Y_CORRELATED = 32; 
     }
 }
+
 
 class Dssd4SHEProcessor : public EventProcessor {
 public:
