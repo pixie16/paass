@@ -6,6 +6,7 @@
  */
 
 #include <limits>
+#include <stdexcept>
 
 #include "DammPlotIds.hpp"
 #include "Globals.hpp"
@@ -25,6 +26,7 @@ Dssd4SHEProcessor::Dssd4SHEProcessor(double frontBackTimeWindow,
     associatedTypes.insert("dssd_front");
     associatedTypes.insert("dssd_back");
 }
+
 
 void Dssd4SHEProcessor::DeclarePlots(void)
 {
@@ -54,22 +56,19 @@ void Dssd4SHEProcessor::DeclarePlots(void)
     DeclareHistogram2D(DD_ENERGY__POSY_T_MISSING,
 		       energyBins, yBins, "DSSD T missing Y strips E vs. position");
 
-    DeclareHistogram2D(DD_ENERGY__POSX_E_MISSING,
-		       energyBins, xBins, "DSSD E missing X strips E vs. position");
-    DeclareHistogram2D(DD_ENERGY__POSY_E_MISSING,
-		       energyBins, yBins, "DSSD E missing Y strips E vs. position");
-
     DeclareHistogram2D(DD_DENERGY__DPOS_X_CORRELATED,
 		       energyBins, xBins, "DSSD dE dX correlated events");
     DeclareHistogram2D(DD_DENERGY__DPOS_Y_CORRELATED,
 		       energyBins, yBins, "DSSD dE dY correlated events");
 }
 
+
 bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
 
     xyEventsTMatch_.clear();
+    xyEventsEMatch_.clear();
 
     vector<ChanEvent*> xEvents = 
         event.GetSummary("dssd_back:dssd_back", true)->GetList();
@@ -173,63 +172,16 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
 
     /**
      * Matching the front-back by the Energy of the event
+     * Using the old style GetMaxEvent for comparison
      */
-    vector< pair<ChanEvent*, bool> > xEventsEMatch;
-    vector< pair<ChanEvent*, bool> > yEventsEMatch;
-
-    for (vector< pair<ChanEvent*, bool> >::iterator itx = xEventsEMatch.begin();
-         itx != xEventsEMatch.end();
-         ++itx) {
-        double bestDE = numeric_limits<double>::max();
-        vector< pair<ChanEvent*, bool> >::iterator bestMatch =
-            yEventsEMatch.end();
-        for (vector< pair<ChanEvent*, bool> >::iterator ity = 
-                                                     yEventsEMatch.begin();
-            ity != yEventsEMatch.end();
-            ++ity) {
-            if ((*ity).second)
-                continue;
-            double dE = abs((*itx).first->GetCalEnergy() - 
-                               (*ity).first->GetCalEnergy());
-            if (dE < bestDE) {
-                bestDE = dE;
-                bestMatch = ity;
-            }
-        }
-        if (bestDE < frontBackDE_) {
-            xyEventsEMatch_.push_back(
-                pair<ChanEvent*, ChanEvent*>((*itx).first, (*bestMatch).first));
-            (*itx).second = true;
-            (*bestMatch).second = true;
-        } else {
-            bestDE = int(bestDE);
-            if (bestDE > SA)
-                bestDE = 1023;
-            else if (bestDE < 0)
-                bestDE = 0;
-            plot(D_DE_MISSING, bestDE);
-        }
+    if (xEvents.size() > 0 && yEvents.size() > 0) {
+        xyEventsEMatch_.push_back(
+            pair<ChanEvent*, ChanEvent*>(
+                event.GetSummary("dssd_back:dssd_back")->GetMaxEvent(true),
+                event.GetSummary("dssd_front:dssd_front")->GetMaxEvent(true)
+            )
+        );
     }
-    for (vector< pair<ChanEvent*, bool> >::iterator itx = xEventsEMatch.begin();
-         itx != xEventsEMatch.end();
-         ++itx) {
-        if ((*itx).second)
-            continue;
-        int position = (*itx).first->GetChanID().GetLocation();
-        double energy = (*itx).first->GetCalEnergy();
-        plot(DD_ENERGY__POSX_E_MISSING, energy, position);
-    }
-
-    for (vector< pair<ChanEvent*, bool> >::iterator ity = yEventsEMatch.begin();
-         ity != yEventsEMatch.end();
-         ++ity) {
-        if ((*ity).second)
-            continue;
-        int position = (*ity).first->GetChanID().GetLocation();
-        double energy = (*ity).first->GetCalEnergy();
-        plot(DD_ENERGY__POSY_E_MISSING, energy, position);
-    }
-
 
     return true;
 }
