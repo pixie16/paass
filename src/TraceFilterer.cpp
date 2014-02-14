@@ -179,41 +179,43 @@ const TraceFilterer::PulseInfo& TraceFilterer::FindPulse(Trace::iterator begin, 
     pulse.isFound = false;
 
     while (begin < end) {
-	begin = find_if(begin, end, crossesThreshold);
-	if (begin == end) {
-	    break;
-	}
+        begin = find_if(begin, end, crossesThreshold);
+        if (begin == end) {
+            break;
+        }
 
-	pulse.time    = begin - fastFilter.begin();	
-	pulse.isFound = true;
-	presample     = pulse.time - fastParms.GetRiseSamples();
+        pulse.time = begin - fastFilter.begin();	
+        pulse.isFound = true;
+        presample = pulse.time - fastParms.GetRiseSamples();
 
-	// sample the slow filter in the middle of its size
-	if (useThirdFilter) {
-	    sample = pulse.time + (thirdParms.GetSize() - fastParms.GetSize()) / 2;
-	    if (sample >= thirdFilter.size() ||
-		thirdFilter[sample] < slowThreshold) {
-		begin++; 
-		continue;
-	    }
-	}
-	//? some investigation needed here for good resolution
-	// add a presample location
-	// sample = pulse.time + (energyParms.GetSize() - fastParms.GetSize()) / 2;
-	sample = pulse.time + 40;
-	
-    RandomPool* randoms = RandomPool::get();
-	if (sample < energyFilter.size()) {
-	    pulse.energy = energyFilter[sample] + randoms->Get();	    
-	    // subtract an energy filter baseline
-	    if (presample >= 0) {
-		pulse.energy -= energyFilter[presample];
-	    }
-	    // scale to the integration time
-	    pulse.energy /= energyParms.GetRiseSamples();
-	    pulse.energy *= energyScaleFactor;	    
-	} else pulse.energy = NAN;
-	break;
+        // sample the slow filter in the middle of its size
+        if (useThirdFilter) {
+            sample = pulse.time + (thirdParms.GetSize() - fastParms.GetSize()) / 2;
+            if (sample >= thirdFilter.size() ||
+            thirdFilter[sample] < slowThreshold) {
+                begin++; 
+                continue;
+            }
+        }
+        //? some investigation needed here for good resolution
+        // add a presample location
+        // sample = pulse.time + (energyParms.GetSize() - fastParms.GetSize()) / 2;
+        sample = pulse.time + 40;
+        
+        RandomPool* randoms = RandomPool::get();
+        if (sample < energyFilter.size()) {
+            pulse.energy = energyFilter[sample] + randoms->Get();	    
+            // subtract an energy filter baseline
+            if (presample >= 0) {
+                pulse.energy -= energyFilter[presample];
+            }
+            // scale to the integration time
+            pulse.energy /= energyParms.GetRiseSamples();
+            pulse.energy *= energyScaleFactor;	    
+        } else 
+            pulse.energy = NAN;
+
+        break;
     }
 
     return pulse;

@@ -112,21 +112,45 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
     /**
      * Matching the front-back by the time correlations
      */
-    vector< pair<ChanEvent*, bool> > xEventsTMatch;
-    vector< pair<ChanEvent*, bool> > yEventsTMatch;
+    vector< pair<StripEvent, bool> > xEventsTMatch;
+    vector< pair<StripEvent, bool> > yEventsTMatch;
 
     for (vector<ChanEvent*>::iterator itx = xEvents.begin();
          itx != xEvents.end();
          ++itx) {
-        pair<ChanEvent*, bool> match((*itx), false);
+        StripEvent ev((*itx)->GetCalEnergy(), 
+                      (*itx)->GetTime(),
+                      (*itx)->GetChanID().GetLocation(),
+                      (*itx)->IsSaturated());
+        pair<StripEvent, bool> match(ev, false);
         xEventsTMatch.push_back(match);
+
+        const Trace& trace = (*itx)->GetTrace();
+        if (trace.HasValue("filterEnergy2")) {
+            ev.E = trace.GetValue("filterEnergy");
+            ev.pileup = true;
+
+            StripEvent ev2;
+            ev2.E = trace.GetValue("filterEnergy2");
+            ev2.t = (trace.GetValue("filterTime2") - 
+                     trace.GetValue("filterTime") + ev.t);
+            ev2.pos = ev.pos;
+            ev2.sat = false;
+            ev2.pileup = true;
+            pair<StripEvent, bool> match(ev2, false);
+            xEventsTMatch.push_back(match);
+
+            cout << (*itx)->GetCalEnergy() << " "
+                 << ev.E << " " << ev2.E << " " 
+                 << ev.t << " " << ev2.t << endl;
+        }
 
         for (vector<ChanEvent*>::iterator itx2 = itx;
             itx2 != xEvents.end();
             ++itx2) {
-            int dx = abs( (*itx)->GetChanID().GetLocation() -
+            int dx = abs( ev.pos -
                           (*itx2)->GetChanID().GetLocation());
-            double dE = abs( (*itx)->GetCalEnergy() -  
+            double dE = abs( ev.E -
                              (*itx2)->GetCalEnergy());
             plot(DD_DENERGY__DPOS_X_CORRELATED, dE, dx);
         }
@@ -135,27 +159,51 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
     for (vector<ChanEvent*>::iterator ity = yEvents.begin();
          ity != yEvents.end();
          ++ity) {
-        pair<ChanEvent*, bool> match((*ity), false);
+        StripEvent ev((*ity)->GetCalEnergy(), 
+                      (*ity)->GetTime(),
+                      (*ity)->GetChanID().GetLocation(),
+                      (*ity)->IsSaturated());
+        pair<StripEvent, bool> match(ev, false);
         yEventsTMatch.push_back(match);
+
+        const Trace& trace = (*ity)->GetTrace();
+        if (trace.HasValue("filterEnergy2")) {
+            ev.E = trace.GetValue("filterEnergy");
+            ev.pileup = true;
+
+            StripEvent ev2;
+            ev2.E = trace.GetValue("filterEnergy2");
+            ev2.t = (trace.GetValue("filterTime2") - 
+                     trace.GetValue("filterTime") + ev.t);
+            ev2.pos = ev.pos;
+            ev2.sat = false;
+            ev2.pileup = true;
+            pair<StripEvent, bool> match(ev2, false);
+            yEventsTMatch.push_back(match);
+
+            cout << (*ity)->GetCalEnergy() << " "
+                 << ev.E << " " << ev2.E << " " 
+                 << ev.t << " " << ev2.t << endl;
+        }
 
         for (vector<ChanEvent*>::iterator ity2 = ity;
             ity2 != yEvents.end();
             ++ity2) {
-            int dy = abs( (*ity)->GetChanID().GetLocation() -
+            int dy = abs( ev.pos -
                           (*ity2)->GetChanID().GetLocation());
-            double dE = abs( (*ity)->GetCalEnergy() -  
+            double dE = abs( ev.E -
                              (*ity2)->GetCalEnergy());
             plot(DD_DENERGY__DPOS_Y_CORRELATED, dE, dy);
         }
     }
 
-    for (vector< pair<ChanEvent*, bool> >::iterator itx = xEventsTMatch.begin();
+    for (vector< pair<StripEvent, bool> >::iterator itx = xEventsTMatch.begin();
          itx != xEventsTMatch.end();
          ++itx) {
         double bestDtime = numeric_limits<double>::max();
-        vector< pair<ChanEvent*, bool> >::iterator bestMatch =
+        vector< pair<StripEvent, bool> >::iterator bestMatch =
             yEventsTMatch.end();
-        for (vector< pair<ChanEvent*, bool> >::iterator ity = 
+        for (vector< pair<StripEvent, bool> >::iterator ity = 
                                                      yEventsTMatch.begin();
             ity != yEventsTMatch.end();
             ++ity) 
@@ -164,9 +212,8 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
             if ((*ity).second)
                 continue;
 
-            double energyX = (*itx).first->GetCalEnergy();
-            double energyY = (*ity).first->GetCalEnergy();
-
+            double energyX = (*itx).first.E;
+            double energyY = (*ity).first.E;
 
             /** If energies are in lower range and/or not satured
              *  check if delta energy condition is not met, 
@@ -177,15 +224,14 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
              *  range is most likely imprecise, so one cannot correlate
              *  by energy difference.
              **/
-            if ( (*itx).first->IsSaturated() || energyX > highEnergyCut_ )
+            if ( (*itx).first.sat || energyX > highEnergyCut_ )
                 energyX = 20000.0;
-            if ( (*ity).first->IsSaturated() || energyY > highEnergyCut_ )
+            if ( (*ity).first.sat || energyY > highEnergyCut_ )
                 energyY = 20000.0;
             if ( abs(energyX - energyY) > deltaEnergy_)
                 continue;
 
-            double dTime = abs((*itx).first->GetTime() - 
-                               (*ity).first->GetTime()) *
+            double dTime = abs((*itx).first.t - (*ity).first.t) *
                                 Globals::get()->clockInSeconds();
             if (dTime < bestDtime) {
                 bestDtime = dTime;
@@ -194,7 +240,7 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
         }
         if (bestDtime < timeWindow_) {
             xyEventsTMatch_.push_back(
-                pair<ChanEvent*, ChanEvent*>((*itx).first, (*bestMatch).first));
+                pair<StripEvent, StripEvent>((*itx).first, (*bestMatch).first));
             (*itx).second = true;
             (*bestMatch).second = true;
             plot(D_DTIME, int(bestDtime / 1.0e-8) + 1);
@@ -208,23 +254,23 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
         }
     }
 
-    for (vector< pair<ChanEvent*, bool> >::iterator itx = xEventsTMatch.begin();
+    for (vector< pair<StripEvent, bool> >::iterator itx = xEventsTMatch.begin();
          itx != xEventsTMatch.end();
          ++itx) {
         if ((*itx).second)
             continue;
-        int position = (*itx).first->GetChanID().GetLocation();
-        double energy = (*itx).first->GetCalEnergy();
+        int position = (*itx).first.pos;
+        double energy = (*itx).first.E;
         plot(DD_ENERGY__POSX_T_MISSING, energy, position);
     }
 
-    for (vector< pair<ChanEvent*, bool> >::iterator ity = yEventsTMatch.begin();
+    for (vector< pair<StripEvent, bool> >::iterator ity = yEventsTMatch.begin();
          ity != yEventsTMatch.end();
          ++ity) {
         if ((*ity).second)
             continue;
-        int position = (*ity).first->GetChanID().GetLocation();
-        double energy = (*ity).first->GetCalEnergy();
+        int position = (*ity).first.pos;
+        double energy = (*ity).first.E;
         plot(DD_ENERGY__POSY_T_MISSING, energy, position);
     }
 
@@ -233,12 +279,19 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
      * Using the old style GetMaxEvent for comparison
      */
     if (xEvents.size() > 0 && yEvents.size() > 0) {
-        xyEventsEMatch_.push_back(
-            pair<ChanEvent*, ChanEvent*>(
-                event.GetSummary("dssd_back:dssd_back")->GetMaxEvent(true),
-                event.GetSummary("dssd_front:dssd_front")->GetMaxEvent(true)
-            )
-        );
+            ChanEvent* maxFront =
+                event.GetSummary("dssd_back:dssd_back")->GetMaxEvent(true);
+            ChanEvent* maxBack = 
+                event.GetSummary("dssd_front:dssd_front")->GetMaxEvent(true);
+            StripEvent evf(maxFront->GetCalEnergy(), 
+                           maxFront->GetTime(),
+                           maxFront->GetChanID().GetLocation(),
+                           maxFront->IsSaturated());
+            StripEvent evb(maxBack->GetCalEnergy(), 
+                           maxBack->GetTime(),
+                           maxBack->GetChanID().GetLocation(),
+                           maxBack->IsSaturated());
+        xyEventsEMatch_.push_back(pair<StripEvent, StripEvent>(evf, evb));
     }
 
     return true;
@@ -259,28 +312,27 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
     int mwpc = event.GetSummary("mcp", true)->GetMult();
     plot(D_MWPC_MULTI, mwpc); 
 
-    for (vector< pair<ChanEvent*, ChanEvent*> >::iterator it =
+    for (vector< pair<StripEvent, StripEvent> >::iterator it =
                                                  xyEventsTMatch_.begin();
-         it != xyEventsTMatch_.end();
-         ++it) {
-
-        double xEnergy = (*it).first->GetCalEnergy();
-        double yEnergy = (*it).second->GetCalEnergy();
+         it != xyEventsTMatch_.end(); ++it)
+    {
+        double xEnergy = (*it).first.E;
+        double yEnergy = (*it).second.E;
 
         /** If saturated set to 100 MeV **/
-        if ((*it).first->IsSaturated() && !(*it).second->IsSaturated())
+        if ((*it).first.sat && !(*it).second.sat)
             xEnergy = yEnergy;
-        else if (!(*it).first->IsSaturated() && (*it).second->IsSaturated())
+        else if (!(*it).first.sat && (*it).second.sat)
             yEnergy = xEnergy;
-        else if ((*it).first->IsSaturated() && (*it).second->IsSaturated()) {
+        else if ((*it).first.sat && (*it).second.sat) {
             xEnergy = 100000.0;
             yEnergy = 100000.0;
         }
 
-        int xPosition = (*it).first->GetChanID().GetLocation();
-        int yPosition = (*it).second->GetChanID().GetLocation();
+        int xPosition = (*it).first.pos;
+        int yPosition = (*it).second.pos;
 
-        double time = min((*it).first->GetTime(), (*it).second->GetTime());
+        double time = min((*it).first.t, (*it).second.t);
 
         plot(D_ENERGY_X, xEnergy); 
         plot(D_ENERGY_Y, yEnergy);
@@ -350,15 +402,15 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
     }
 
     /** Old style max event */
-    for (vector< pair<ChanEvent*, ChanEvent*> >::iterator it =
+    for (vector< pair<StripEvent, StripEvent> >::iterator it =
                                                  xyEventsEMatch_.begin();
          it != xyEventsEMatch_.end();
          ++it) {
-        double xEnergy = (*it).first->GetCalEnergy();
-        double yEnergy = (*it).second->GetCalEnergy();
+        double xEnergy = (*it).first.E;
+        double yEnergy = (*it).second.E;
 
-        int xPosition = (*it).first->GetChanID().GetLocation();
-        int yPosition = (*it).second->GetChanID().GetLocation();
+        int xPosition = (*it).first.pos;
+        int yPosition = (*it).second.pos;
 
         plot(DD_EVENT_POSITION_FROM_E, xPosition, yPosition);
         plot(DD_MAXEVENT_ENERGY__X_POSITION, xEnergy, xPosition);
