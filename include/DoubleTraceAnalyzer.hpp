@@ -22,10 +22,8 @@
 class DoubleTraceAnalyzer : public TraceFilterer
 {
  protected:
-    Trace::size_type time2; ///< time of second pulse
-    double energy2;         ///< energy of second pulse
-    
     static int numDoubleTraces; ///< number of double traces found
+
  public:
     DoubleTraceAnalyzer(short fast_rise, short fast_gap, short fast_threshold,
                         short energy_rise, short energy_gap,

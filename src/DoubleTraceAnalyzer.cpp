@@ -39,8 +39,6 @@ DoubleTraceAnalyzer::DoubleTraceAnalyzer(short fast_rise, short fast_gap,
                   slow_rise, slow_gap, slow_threshold)
 
 {
-    time2 = 0;
-    energy2 = 0.0;
 }
 
 
