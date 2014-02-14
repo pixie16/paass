@@ -62,6 +62,12 @@
          List of known Processors:
             * BetaScintProcessor
             * DssdProcessor
+            * Dssd4SHEProcessor
+               * optional attributes and their default values:
+                  * front_back_correlation_time="300e-9"
+                  * delta_energy="300"
+                  * high_energy_cut="15000"
+                  * low_energy_cut="8000"
             * GeProcessor
                * optional attributes and their default values:
                   * gamma_threshold="1.0"

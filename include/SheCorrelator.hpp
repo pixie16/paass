@@ -7,9 +7,10 @@
 
 #include <vector>
 #include <deque> 
+#include <sstream>
 
 enum SheEventType {
-    decay,
+    alpha,
     heavyIon,
     fission,
     lightIon,
@@ -21,7 +22,7 @@ class SheEvent {
         SheEvent();
         SheEvent(double energy, double time, int mwpc, 
                  bool has_beam, bool has_veto, bool has_escape,
-                 SheEventType type);
+                 SheEventType type=unknown);
 
         ~SheEvent() {}
 
@@ -91,14 +92,15 @@ class SheCorrelator {
     public:
         SheCorrelator(int size_x, int size_y);
         ~SheCorrelator();
-        void add_event(SheEvent& event, int x, int y);
+        bool add_event(SheEvent& event, int x, int y);
+        void human_event_info(SheEvent& event, std::stringstream& ss, double clockStart);
 
     private:
         int size_x_;
         int size_y_;
         std::deque<SheEvent>** pixels_;
 
-        void save_and_flush_chain(int x, int y);
+        bool flush_chain(int x, int y);
 };
 
 
