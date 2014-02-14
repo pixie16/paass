@@ -21,7 +21,9 @@
     <DetectorDriver>
         <Processor name="Dssd4SHEProcessor" 
             front_back_correlation_time="300e-9"
-            front_back_correlation_de="500"/>
+            delta_energy="300"
+            high_energy_cut="15000" 
+            low_energy_cut="8000" />
         <Analyzer name="DoubleTraceAnalyzer"
             fast_rise="10"
             fast_gap="10"
