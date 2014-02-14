@@ -164,6 +164,11 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         throw IOException(ss.str());
     }
 
+    /** Force to create Detector Library before loading processors.
+     * It is not needed but the output looks nicer ;)
+     */
+    DetectorLibrary* modChan = DetectorLibrary::get();
+
     pugi::xml_node driver = doc.child("Configuration").child("DetectorDriver");
     for (pugi::xml_node processor = driver.child("Processor"); processor;
          processor = processor.next_sibling("Processor")) {
@@ -203,6 +208,12 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                 m.warning("Using default front_back_correlation_time = 300e-9",
                           1);
             }
+            double delta_energy = 
+               processor.attribute("delta_energy").as_double(-1);
+            if (delta_energy == -1) {
+                delta_energy = 300;
+                m.warning("Using default delta_energy = 300", 1);
+            }
             double high_energy_cut = 
                 processor.attribute("high_energy_cut").as_double(-1);
             if (high_energy_cut == -1) {
@@ -212,27 +223,35 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             double low_energy_cut = 
                 processor.attribute("low_energy_cut").as_double(-1);
             if (low_energy_cut == -1) {
-                low_energy_cut = 2000.0;
-                m.warning("Using default low_energy_cut = 2000", 1);
+                low_energy_cut = 8000.0;
+                m.warning("Using default low_energy_cut = 8000", 1);
             }
-            double num_front_strips = 
-                processor.attribute("num_front_strips").as_int(-1);
-            if (num_front_strips == -1) {
-                num_front_strips = 128;
-                m.warning("Using default num_front_strips = 128", 1);
+            double fission_energy_cut = 
+                processor.attribute("fission_energy_cut").as_double(-1);
+            if (low_energy_cut == -1) {
+                low_energy_cut = 50000.0;
+                m.warning("Using default fission_energy_cut = 50000", 1);
             }
-            double num_back_strips = 
-                processor.attribute("num_back_strips").as_int(-1);
-            if (num_back_strips == -1) {
-                num_back_strips = 48;
-                m.warning("Using default num_back_strips = 48", 1);
-            }
+
+            stringstream ss;
+            unsigned num_front_strips =  
+                modChan->GetLocations("dssd_front", "dssd_front").size();
+            ss << "Found " << num_front_strips << " front strips (Y)";
+            m.detail(ss.str(), 1);
+            unsigned num_back_strips =  
+                modChan->GetLocations("dssd_back", "dssd_back").size();
+            ss.str("");
+            ss << "Found " << num_back_strips << " back strips (X)";
+            m.detail(ss.str(), 1);
+
             vecProcess.push_back(new
                     Dssd4SHEProcessor(front_back_correlation_time,
+                                      delta_energy,
                                       high_energy_cut,
                                       low_energy_cut,
-                                      num_front_strips,
-                                      num_back_strips));
+                                      fission_energy_cut,
+                                      num_back_strips,
+                                      num_front_strips));
         } else if (name == "GeProcessor" || name == "Ge4Hen3Processor") {
             double gamma_threshold = 
                 processor.attribute("gamma_threshold").as_double(-1);
