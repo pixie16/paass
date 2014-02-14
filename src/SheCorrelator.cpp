@@ -40,8 +40,6 @@ SheEvent::SheEvent(double energy, double time, int mwpc,
 SheCorrelator::SheCorrelator(int size_x, int size_y) {
     size_x_ = size_x + 1;
     size_y_ = size_y + 1;
-    cout << "Creating correlator with " << size_x_ << " X strips "
-         << "and " << size_y_ << " Y strips" << endl;
     pixels_ = new deque<SheEvent>*[size_x_];
     for(int i = 0; i < size_x_; ++i)
         pixels_[i] = new deque<SheEvent>[size_y_];
@@ -121,8 +119,10 @@ bool SheCorrelator::flush_chain(int x, int y) {
     }
     pixels_[x][y].clear();
 
-    if (is_interesting)
-        cout << ss.str() << endl;
+    if (is_interesting) {
+        ;
+        //cout << ss.str() << endl;
+    }
 
     return true;
 }

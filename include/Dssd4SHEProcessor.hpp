@@ -61,12 +61,37 @@ public:
 protected:
     bool pickEventType(SheEvent& event);
 
+    struct StripEvent {
+        StripEvent() {
+            t = 0;
+            E = 0;
+            pos = -1;
+            sat = false;
+            pileup = false;
+        }
+
+        StripEvent(double energy, double time, int position,
+                   bool saturated) {
+            E = energy;
+            t = time;
+            pos = position;
+            sat = saturated;
+            pileup = false;
+        }
+
+        double t;
+        double E;
+        int pos;
+        bool sat;
+        bool pileup;
+    };
+
     SheCorrelator correlator_;
     /** Events matched based on energy (MaxEvent) **/
-    std::vector<std::pair<ChanEvent*, ChanEvent*> > xyEventsEMatch_; 
+    std::vector<std::pair<StripEvent, StripEvent> > xyEventsEMatch_; 
 
     /** Events matched based on timing correlation  **/
-    std::vector<std::pair<ChanEvent*, ChanEvent*> > xyEventsTMatch_; 
+    std::vector<std::pair<StripEvent, StripEvent> > xyEventsTMatch_; 
 
     /**Limit in seconds for the time difference between front and
      * back to be correlated. Also to find Si Side detectors correlated
