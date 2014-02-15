@@ -57,6 +57,9 @@ void Dssd4SHEProcessor::DeclarePlots(void)
     DeclareHistogram1D(D_DTIME_SIDE, S8, 
                         "Side det. time diff in 10 ns (+ 1 bin)");
 
+    DeclareHistogram2D(DD_ENERGY__BOARD_FILTER, SA, SA,
+            "Onboard vs filter energy (calib / 100)");
+
     DeclareHistogram2D(DD_EVENT_POSITION, 
 		       xBins, yBins, "DSSD all events positions");
     DeclareHistogram2D(DD_EVENT_POSITION_FROM_E, 
@@ -127,6 +130,8 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
 
         const Trace& trace = (*itx)->GetTrace();
         if (trace.HasValue("filterEnergy2")) {
+            plot(DD_ENERGY__BOARD_FILTER, 
+                 ev.E / 100.0, trace.GetValue("filterEnergy") / 100.0);
             ev.E = trace.GetValue("filterEnergy");
             ev.pileup = true;
 
@@ -310,6 +315,8 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
     vector<ChanEvent*> sideEvents = 
         event.GetSummary("si:si", true)->GetList();
     int mwpc = event.GetSummary("mcp", true)->GetMult();
+    bool hasBeam =  TreeCorrelator::get()->place("Beam")->status();
+
     plot(D_MWPC_MULTI, mwpc); 
 
     for (vector< pair<StripEvent, StripEvent> >::iterator it =
@@ -374,7 +381,6 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
             }
         }
 
-        bool hasBeam = true;
         bool hasVeto = false;
         if (vetoEvents.size() > 0)
             hasVeto = true;
@@ -401,7 +407,7 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
 
     }
 
-    /** Old style max event */
+    /** Old style max event for comparison */
     for (vector< pair<StripEvent, StripEvent> >::iterator it =
                                                  xyEventsEMatch_.begin();
          it != xyEventsEMatch_.end();

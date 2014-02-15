@@ -112,6 +112,7 @@ PIXIEO           = PixieStd.$(ObjSuf)
 READBUFFDATADFO    = ReadBuffData.RevD.$(ObjSuf)
 READBUFFDATAAO    = ReadBuffData.RevA.$(ObjSuf)
 
+BEAMLOGICPROCESSORO  = BeamLogicProcessor.$(ObjSuf)
 BETASCINTPROCESSORO = BetaScintProcessor.$(ObjSuf)
 BETA4HEN3PROCESSORO = Beta4Hen3Processor.$(ObjSuf)
 CALIBRATORO      = Calibrator.$(ObjSuf)
@@ -192,6 +193,7 @@ OBJS += $(READBUFFDATADFO)
 OBJS += \
 $(PUGIXMLO)\
 $(PIXIEO)\
+$(BEAMLOGICPROCESSORO)\
 $(BETASCINTPROCESSORO)\
 $(BETA4HEN3PROCESSORO)\
 $(CALIBRATORO)\
