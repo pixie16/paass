@@ -75,6 +75,17 @@ void Dssd4SHEProcessor::DeclarePlots(void)
     DeclareHistogram2D(DD_FISSION_POSITION, 
 		       xBins, yBins, "DSSD position fission");
 
+    DeclareHistogram1D(D_ENERGY_IMPLANT,
+		       energyBins, "DSSD energy implant");
+    DeclareHistogram1D(D_ENERGY_DECAY,
+		       energyBins, "DSSD energy decay");
+    DeclareHistogram1D(D_ENERGY_LIGHT,
+		       energyBins, "DSSD energy light ion");
+    DeclareHistogram1D(D_ENERGY_UNKNOWN,
+		       energyBins, "DSSD energy unknown");
+    DeclareHistogram1D(D_ENERGY_FISSION,
+		       energyBins, "DSSD energy fission");
+
     DeclareHistogram2D(DD_EVENT_ENERGY__X_POSITION,
 		       energyBins, xBins, "DSSD X strips E vs. position");
     DeclareHistogram2D(DD_EVENT_ENERGY__Y_POSITION,
@@ -145,9 +156,6 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
             pair<StripEvent, bool> match(ev2, false);
             xEventsTMatch.push_back(match);
 
-            cout << (*itx)->GetCalEnergy() << " "
-                 << ev.E << " " << ev2.E << " " 
-                 << ev.t << " " << ev2.t << endl;
         }
 
         for (vector<ChanEvent*>::iterator itx2 = itx;
@@ -431,81 +439,57 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
 
 
 bool Dssd4SHEProcessor::pickEventType(SheEvent& event) {
-    bool high_energy = false;
-    if (event.get_energy() > highEnergyCut_)
-        high_energy = true;
+    /**
+     * Logic table (V - veto, M - mwpc, B - beam )
+     * Logic state is converted into a numerical value N
+     * like a binary number:
+     *
+     * V M B | N | decision
+     * --------------------
+     * 0 0 0 | 0 | unknown / alpha / fission (depending on energy)
+     * 0 0 1 | 1 | -"-
+     * 0 1 0 | 2 | unknown
+     * 0 1 1 | 3 | heavyIon
+     * 1 0 0 | 4 | unknown
+     * 1 0 1 | 5 | lightIon
+     * 1 1 0 | 6 | unknown
+     * 1 1 1 | 7 | lightIon
+     *
+     **/
 
-    if (high_energy) {
-        if (event.get_veto()) {
-            if (event.get_mwpc() > 0) {
-                if (event.get_beam())
-                    event.set_type(lightIon);
-                else
-                    event.set_type(unknown);
-            } else {
-                if (event.get_beam())
-                    event.set_type(unknown);
-                else 
-                {
-                    if (event.get_energy() > fissionEnergyCut_)
-                        event.set_type(fission);
-                    else
-                        event.set_type(unknown);
-                }
-            }
-        }
-        else {
-            if (event.get_mwpc() > 0) {
-                if (event.get_beam())
-                    event.set_type(lightIon);
-                else 
-                {
-                    if (event.get_energy() > fissionEnergyCut_)
-                        event.set_type(fission);
-                    else
-                        event.set_type(unknown);
-                }
-            }
-            else {
-                    if (event.get_energy() > fissionEnergyCut_)
-                        event.set_type(fission);
-                    else
-                        event.set_type(unknown);
-            }
-        }
+    int condition = 0;
+    if (event.get_beam()) 
+        condition += 1;
+    if (event.get_mwpc() > 0) 
+        condition += 2;
+    if (event.get_veto()) 
+        condition += 4;
+
+    if (condition == 0 || condition == 1) {
+        double energy = event.get_energy();
+        if (energy < lowEnergyCut_)
+            event.set_type(unknown);
+        else if (energy < highEnergyCut_)
+            event.set_type(alpha);
+        else if (energy < fissionEnergyCut_)
+            event.set_type(unknown);
+        else 
+            event.set_type(fission);
+    } 
+    else if (condition == 2 || 
+             condition == 4 ||
+             condition == 6) {
+        event.set_type(unknown);
+    } 
+    else if (condition == 3) {
+        event.set_type(heavyIon);
     }
-    else {
-        if (event.get_veto()) {
-            if (event.get_mwpc() > 0) {
-                if (event.get_beam())
-                    event.set_type(lightIon);
-                else
-                    event.set_type(unknown);
-            } else {
-                if (event.get_beam())
-                    event.set_type(lightIon);
-                else
-                    event.set_type(unknown);
-            }
-        }
-        else {
-            if (event.get_mwpc() > 0) {
-                if (event.get_beam())
-                    event.set_type(heavyIon);
-                else {
-                    if (event.get_energy() > lowEnergyCut_)
-                        event.set_type(alpha);
-                    else
-                        event.set_type(unknown);
-                }
-            } else {
-                if (event.get_energy() > lowEnergyCut_)
-                    event.set_type(alpha);
-                else
-                    event.set_type(unknown);
-            }
-        }
+    else if (condition == 5 || condition == 7) {
+        event.set_type(lightIon);
     }
+    else
+        event.set_type(unknown);
+
     return true;
 }
 
