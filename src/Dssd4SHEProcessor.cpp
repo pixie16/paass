@@ -394,18 +394,23 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
         pickEventType(event);
         if (event.get_type() == heavyIon) {
             plot(DD_IMPLANT_POSITION, xPosition, yPosition);
+            plot(D_ENERGY_IMPLANT, event.get_energy());
         }
         else if (event.get_type() == alpha) {
             plot(DD_DECAY_POSITION, xPosition, yPosition);
+            plot(D_ENERGY_DECAY, event.get_energy() / 100.0);
         }
         else if (event.get_type() == lightIon) {
             plot(DD_LIGHT_POSITION, xPosition, yPosition);
+            plot(D_ENERGY_LIGHT, event.get_energy() / 100.0);
         }
         else if (event.get_type() == unknown) {
             plot(DD_UNKNOWN_POSITION, xPosition, yPosition);
+            plot(D_ENERGY_UNKNOWN, event.get_energy() / 100.0);
         }
         else if (event.get_type() == fission) {
             plot(DD_FISSION_POSITION, xPosition, yPosition);
+            plot(D_ENERGY_FISSION, event.get_energy() / 100.0);
         }
 
         correlator_.add_event(event, xPosition, yPosition);
