@@ -54,6 +54,7 @@
 #include "TimingInformation.hpp"
 #include "TreeCorrelator.hpp"
 
+#include "BeamLogicProcessor.hpp"
 #include "BetaScintProcessor.hpp"
 #include "Beta4Hen3Processor.hpp"
 #include "DssdProcessor.hpp"
@@ -175,7 +176,10 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         string name = processor.attribute("name").value();
 
         m.detail("Loading " + name);
-        if (name == "BetaScintProcessor" || name == "Beta4Hen3Processor") {
+        if (name == "BeamLogicProcessor") {
+            vecProcess.push_back(new BeamLogicProcessor()); 
+        }
+        else if (name == "BetaScintProcessor" || name == "Beta4Hen3Processor") {
             double gamma_beta_limit = 
                 processor.attribute("gamma_beta_limit").as_double(-1);
             if (gamma_beta_limit == -1) {

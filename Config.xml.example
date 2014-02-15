@@ -60,6 +60,7 @@
          for each processor or analyzer you want to use.
 
          List of known Processors:
+            * BeamLogicProcessor
             * BetaScintProcessor
             * DssdProcessor
             * Dssd4SHEProcessor
