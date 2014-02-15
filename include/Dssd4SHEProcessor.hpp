@@ -35,14 +35,19 @@ namespace dammIds {
         const int DD_EVENT_ENERGY__Y_POSITION = 18;
         const int DD_MAXEVENT_ENERGY__X_POSITION = 19;
         const int DD_MAXEVENT_ENERGY__Y_POSITION = 20;
-
         const int DD_FRONTE__BACKE = 21;
-        const int DD_ENERGY__POSX_T_MISSING = 22;
-        const int DD_ENERGY__POSY_T_MISSING = 23; 
 
-        const int DD_DENERGY__DPOS_X_CORRELATED = 41; 
-        const int DD_DENERGY__DPOS_Y_CORRELATED = 42; 
+        const int D_ENERGY_IMPLANT = 22;
+        const int D_ENERGY_DECAY = 23;
+        const int D_ENERGY_LIGHT = 24;
+        const int D_ENERGY_UNKNOWN = 25;
+        const int D_ENERGY_FISSION = 26;
 
+        /** Diagnostic **/
+        const int DD_ENERGY__POSX_T_MISSING = 40;
+        const int DD_ENERGY__POSY_T_MISSING = 41; 
+        const int DD_DENERGY__DPOS_X_CORRELATED = 42; 
+        const int DD_DENERGY__DPOS_Y_CORRELATED = 43; 
     }
 }
 
