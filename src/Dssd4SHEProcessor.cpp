@@ -194,9 +194,6 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
             pair<StripEvent, bool> match(ev2, false);
             yEventsTMatch.push_back(match);
 
-            cout << (*ity)->GetCalEnergy() << " "
-                 << ev.E << " " << ev2.E << " " 
-                 << ev.t << " " << ev2.t << endl;
         }
 
         for (vector<ChanEvent*>::iterator ity2 = ity;
