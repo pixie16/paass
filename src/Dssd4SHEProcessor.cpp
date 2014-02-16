@@ -43,6 +43,7 @@ void Dssd4SHEProcessor::DeclarePlots(void)
     using namespace dammIds::dssd;
 
     const int energyBins = SE;
+    const int energyBins2 = SB;
     const int xBins = S7;
     const int yBins = S6;
 
@@ -57,7 +58,7 @@ void Dssd4SHEProcessor::DeclarePlots(void)
     DeclareHistogram1D(D_DTIME_SIDE, S8, 
                         "Side det. time diff in 10 ns (+ 1 bin)");
 
-    DeclareHistogram2D(DD_ENERGY__BOARD_FILTER, SA, SA,
+    DeclareHistogram2D(DD_ENERGY__BOARD_FILTER, energyBins2, energyBins2,
             "Onboard vs filter energy (calib / 100)");
 
     DeclareHistogram2D(DD_EVENT_POSITION, 
@@ -76,15 +77,15 @@ void Dssd4SHEProcessor::DeclarePlots(void)
 		       xBins, yBins, "DSSD position fission");
 
     DeclareHistogram1D(D_ENERGY_IMPLANT,
-		       energyBins, "DSSD energy implant");
+		       energyBins2, "DSSD energy/100 implant");
     DeclareHistogram1D(D_ENERGY_DECAY,
-		       energyBins, "DSSD energy decay");
+		       energyBins2, "DSSD energy/100 decay");
     DeclareHistogram1D(D_ENERGY_LIGHT,
-		       energyBins, "DSSD energy light ion");
+		       energyBins2, "DSSD energy/100 light ion");
     DeclareHistogram1D(D_ENERGY_UNKNOWN,
-		       energyBins, "DSSD energy unknown");
+		       energyBins2, "DSSD energy/100 unknown");
     DeclareHistogram1D(D_ENERGY_FISSION,
-		       energyBins, "DSSD energy fission");
+		       energyBins2, "DSSD energy/100 fission");
 
     DeclareHistogram2D(DD_EVENT_ENERGY__X_POSITION,
 		       energyBins, xBins, "DSSD X strips E vs. position");
@@ -95,7 +96,7 @@ void Dssd4SHEProcessor::DeclarePlots(void)
     DeclareHistogram2D(DD_MAXEVENT_ENERGY__Y_POSITION,
 		       energyBins, yBins, "MAXDSSD Y strips E vs. position");
 
-    DeclareHistogram2D(DD_FRONTE__BACKE, SA, SA,
+    DeclareHistogram2D(DD_FRONTE__BACKE, energyBins2, energyBins2,
             "Front vs Back energy (calib / 100)");
     DeclareHistogram2D(DD_ENERGY__POSX_T_MISSING,
 		       energyBins, xBins, "DSSD T missing X strips E vs. position");
@@ -331,14 +332,14 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
         double xEnergy = (*it).first.E;
         double yEnergy = (*it).second.E;
 
-        /** If saturated set to 100 MeV **/
+        /** If saturated set to 200 MeV **/
         if ((*it).first.sat && !(*it).second.sat)
             xEnergy = yEnergy;
         else if (!(*it).first.sat && (*it).second.sat)
             yEnergy = xEnergy;
         else if ((*it).first.sat && (*it).second.sat) {
-            xEnergy = 100000.0;
-            yEnergy = 100000.0;
+            xEnergy = 200000.0;
+            yEnergy = 200000.0;
         }
 
         int xPosition = (*it).first.pos;

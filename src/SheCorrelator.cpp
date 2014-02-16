@@ -4,13 +4,16 @@
  * and to correlate chains of alphas in dssd pixels
  */
 
+#include <ctime>
+#include <iomanip>
+#include <iostream>
+#include <string>
+
 #include "SheCorrelator.hpp"
 #include "DetectorDriver.hpp"
 #include "Exceptions.hpp"
-#include <iostream>
-#include <string>
-#include <iomanip>
-#include <ctime>
+#include "Notebook.hpp"
+
 
 using namespace std;
 
@@ -92,8 +95,12 @@ bool SheCorrelator::flush_chain(int x, int y) {
     /** Conditions for interesing chain:
      * includes at least one alpha
      * first alpha with energy
-     * 13 > E > 11 MeV
+     * 10 < E < 13 (MeV)
+     *
+     * Consider changing this to low- and highEnergyCut_
      */
+    double interesting_alpha_low = 10000.0;
+    double interesting_alpha_high = 13000.0;
 
     stringstream ss;
 
@@ -108,8 +115,8 @@ bool SheCorrelator::flush_chain(int x, int y) {
     {
         if ((*it).get_type() == alpha) {
             if (!has_alpha && 
-                 (*it).get_energy() > 11000.0 && 
-                 (*it).get_energy() < 13000.0) {
+                 (*it).get_energy() > interesting_alpha_low && 
+                 (*it).get_energy() < interesting_alpha_high) {
                 is_interesting = true;
             }
             has_alpha = true;
@@ -120,8 +127,7 @@ bool SheCorrelator::flush_chain(int x, int y) {
     pixels_[x][y].clear();
 
     if (is_interesting) {
-        ;
-        //cout << ss.str() << endl;
+        Notebook::get()->report(ss.str());
     }
 
     return true;
@@ -144,14 +150,16 @@ void SheCorrelator::human_event_info(SheEvent& event, stringstream& ss,
                         break;
     }
 
-    ss << std::fixed 
-       << std::setprecision(0)
-       << humanType << "\tE = " << event.get_energy()
-       << std::setprecision(5)
-       << "\tt = " << setw(12) << (event.get_time() - clockStart) / 1.0e7  
-       << "\t" << "M" << event.get_mwpc() 
+    ss << fixed 
+       << humanType 
+       << " E = " 
+       << setprecision(0) << setw(8) << event.get_energy()
+       << " t = " 
+       << setprecision(5) << setw(12) << (event.get_time() - clockStart) / 1.0e7  
+       << " M" << event.get_mwpc() 
        << "B" << event.get_beam() 
        << "V" << event.get_veto()
        << "E" << event.get_escape();
+
 }
 
