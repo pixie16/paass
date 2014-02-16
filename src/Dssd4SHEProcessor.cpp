@@ -154,19 +154,28 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
 
         const Trace& trace = (*itx)->GetTrace();
         if (trace.HasValue("filterEnergy2")) {
-            ev.E = trace.GetValue("filterEnergy");
             ev.pileup = true;
-
             StripEvent ev2;
-            ev2.E = trace.GetValue("filterEnergy2");
+            ev2.E = trace.GetValue("filterEnergy2Cal");
             ev2.t = (trace.GetValue("filterTime2") - 
                      trace.GetValue("filterTime") + ev.t);
             ev2.pos = ev.pos;
             ev2.sat = false;
             ev2.pileup = true;
-            pair<StripEvent, bool> match(ev2, false);
-            xEventsTMatch.push_back(match);
-
+            pair<StripEvent, bool> match2(ev2, false);
+            xEventsTMatch.push_back(match2);
+            if (trace.HasValue("filterEnergy3")) {
+                StripEvent ev3;
+                ev3.E = trace.GetValue("filterEnergy3Cal");
+                ev3.t = (trace.GetValue("filterTime3") - 
+                        trace.GetValue("filterTime") + ev.t);
+                cout << "Handling third pulse X: " << ev3.E << endl;
+                ev3.pos = ev.pos;
+                ev3.sat = false;
+                ev3.pileup = true;
+                pair<StripEvent, bool> match3(ev3, false);
+                xEventsTMatch.push_back(match3);
+            }
         }
 
         for (vector<ChanEvent*>::iterator itx2 = itx;
@@ -192,9 +201,7 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
 
         const Trace& trace = (*ity)->GetTrace();
         if (trace.HasValue("filterEnergy2")) {
-            ev.E = trace.GetValue("filterEnergy");
             ev.pileup = true;
-
             StripEvent ev2;
             ev2.E = trace.GetValue("filterEnergy2");
             ev2.t = (trace.GetValue("filterTime2") - 
@@ -202,9 +209,20 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
             ev2.pos = ev.pos;
             ev2.sat = false;
             ev2.pileup = true;
-            pair<StripEvent, bool> match(ev2, false);
-            yEventsTMatch.push_back(match);
-
+            pair<StripEvent, bool> match2(ev2, false);
+            yEventsTMatch.push_back(match2);
+            if (trace.HasValue("filterEnergy3")) {
+                StripEvent ev3;
+                ev3.E = trace.GetValue("filterEnergy3Cal");
+                ev3.t = (trace.GetValue("filterTime3") - 
+                        trace.GetValue("filterTime") + ev.t);
+                cout << "Handling third pulse Y: " << ev3.E << endl;
+                ev3.pos = ev.pos;
+                ev3.sat = false;
+                ev3.pileup = true;
+                pair<StripEvent, bool> match3(ev3, false);
+                yEventsTMatch.push_back(match3);
+            }
         }
 
         for (vector<ChanEvent*>::iterator ity2 = ity;

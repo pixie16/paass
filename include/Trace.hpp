@@ -120,7 +120,8 @@ class Trace : public std::vector<int>
     }
     
     /** Basic plot same like in EventProcessor class **/
-    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char* name="h") {
+    virtual void plot(int dammId, double val1, double val2 = -1, 
+                      double val3 = -1, const char* name="h") const {
         histo.Plot(dammId, val1, val2, val3, name);
     }
 
