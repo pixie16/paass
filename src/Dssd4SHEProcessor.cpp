@@ -5,13 +5,16 @@
  *   correlator accordingly
  */
 
-#include <limits>
-#include <stdexcept>
 #include <algorithm>
+#include <iomanip>
+#include <limits>
+#include <sstream>
+#include <stdexcept>
 
+#include "Dssd4SHEProcessor.hpp"
 #include "DammPlotIds.hpp"
 #include "Globals.hpp"
-#include "Dssd4SHEProcessor.hpp"
+#include "Notebook.hpp"
 #include "RawEvent.hpp"
 
 using namespace dammIds::dssd4she;
@@ -35,6 +38,18 @@ Dssd4SHEProcessor::Dssd4SHEProcessor(double timeWindow,
     name = "dssd";
     associatedTypes.insert("dssd_front");
     associatedTypes.insert("dssd_back");
+
+    stringstream ss;
+    ss << fixed 
+       << "T" 
+       << " " << setw(12) << "E (keV)"
+       << " " << setw(12) << "t (ms)"
+       << " M" << " "
+       << "B" << " "
+       << "V" << " "
+       << "E" << " "
+       << endl;
+    Notebook::get()->report(ss.str());
 }
 
 
