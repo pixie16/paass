@@ -90,43 +90,49 @@ bool SheCorrelator::flush_chain(int x, int y) {
         return false;
     }
 
-    bool is_interesting = false;
-    bool has_alpha = false;
+    SheEvent first = pixels_[x][y].front();
+
     /** Conditions for interesing chain:
-     * includes at least one alpha
-     * first alpha with energy
-     * 10 < E < 13 (MeV)
-     *
-     * Consider changing this to low- and highEnergyCut_
+     *      * starts with heavy ion implantation
+     *      * has ion + fission
+     *      * or includes at least two alphas
      */
-    double interesting_alpha_low = 10000.0;
-    double interesting_alpha_high = 13000.0;
+
+    /** If it doesn't start with hevayIon, clear and exit**/
+    if (first.get_type() != heavyIon) {
+        pixels_[x][y].clear();
+        return false;
+    }
+
+    /** If it is 2 elements long, check if the second is fission,
+     *  if not - clear and exit**/
+    if (chain_size == 2 && pixels_[x][y].back().get_type() != fission) {
+        pixels_[x][y].clear();
+        return false;
+    }
 
     stringstream ss;
 
-    SheEvent first = *(pixels_[x][y].begin());
-    time_t theTime = DetectorDriver::get()->GetWallTime(first.get_time());
-    ss << ctime(&theTime);
-    ss << "\t X = " << x <<  " Y = " << y << endl;
+    time_t wallTime = DetectorDriver::get()->GetWallTime(first.get_time());
+    string humanTime = ctime(&wallTime);
+    humanTime.erase(humanTime.find('\n', 0), 1);
+    ss << humanTime << "\t X = " << x <<  " Y = " << y << endl;
 
+    int alphas = 0;
     for (deque<SheEvent>::iterator it = pixels_[x][y].begin();
          it != pixels_[x][y].end();
          ++it)
     {
         if ((*it).get_type() == alpha) {
-            if (!has_alpha && 
-                 (*it).get_energy() > interesting_alpha_low && 
-                 (*it).get_energy() < interesting_alpha_high) {
-                is_interesting = true;
-            }
-            has_alpha = true;
+            alphas += 1;
         }
         human_event_info((*it), ss, first.get_time());
         ss << endl;
     }
+
     pixels_[x][y].clear();
 
-    if (is_interesting) {
+    if (alphas >= 2) {
         Notebook::get()->report(ss.str());
     }
 
@@ -155,7 +161,7 @@ void SheCorrelator::human_event_info(SheEvent& event, stringstream& ss,
        << " " 
        << setprecision(0) << setw(12) << event.get_energy()
        << " " 
-       << setprecision(5) << setw(12) 
+       << setprecision(3) << setw(12) 
        << (event.get_time() - clockStart) / 1.0e7  
        << " M" << event.get_mwpc() 
        << "B" << event.get_beam() 
