@@ -739,15 +739,35 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
 
         if (trace.HasValue("filterEnergy") ) {     
             if (trace.GetValue("filterEnergy") > 0) {
-                double board_energy = chan->GetEnergy();
                 energy = trace.GetValue("filterEnergy");
-                trace.plot(dammIds::trace::tracefilterer::DD_ENERGY__BOARD_FILTER, 
-                        board_energy / 100.0, energy / 100.0);
-                trace.plot(dammIds::trace::tracefilterer::D_ENERGY_BOARD_FILTER_RATIO,
-                          board_energy / energy * 100.0);
                 plot(D_FILTER_ENERGY + id, energy);
+
+                using namespace dammIds::trace::tracefilterer;
+                double board_energy = chan->GetEnergy();
+                trace.plot(DD_ENERGY__BOARD_FILTER, 
+                            board_energy / 10.0, energy / 10.0);
+                trace.plot(D_RATIO_BOARD_FILTER,
+                            board_energy / energy * 100.0);
+
+                /** Calibrate filterEnergy if present, add filterEnergyCal
+                *  to the trace */
+                trace.SetValue("filterEnergyCal",
+                    cali.GetCalEnergy(chanId, trace.GetValue("filterEnergy")));
             } else {
                 energy = 2;
+            }
+
+            if (trace.HasValue("filterEnergy2") ) {
+                /** Calibrate filterEnergy2 if present, add filterEnergy2Cal
+                *  to the trace */
+                trace.SetValue("filterEnergy2Cal", 
+                    cali.GetCalEnergy(chanId, trace.GetValue("filterEnergy2")));
+            }
+            if (trace.HasValue("filterEnergy3") ) {
+                /** Calibrate filterEnergy3 if present, add filterEnergy3Cal
+                *  to the trace */
+                trace.SetValue("filterEnergy3Cal", 
+                    cali.GetCalEnergy(chanId, trace.GetValue("filterEnergy3")));
             }
         }
 
@@ -781,7 +801,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
 
     chan->SetCalEnergy(cali.GetCalEnergy(chanId, energy));
     chan->SetCorrectedTime(time - walk_correction);
-    
+
     /*
       update the detector summary
     */    
