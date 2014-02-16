@@ -105,9 +105,9 @@ bool SheCorrelator::flush_chain(int x, int y) {
     stringstream ss;
 
     SheEvent first = *(pixels_[x][y].begin());
-    ss << "Chain in pixel X = " << x <<  " Y = " << y << endl;
     time_t theTime = DetectorDriver::get()->GetWallTime(first.get_time());
-    ss << "\t" << ctime(&theTime);
+    ss << ctime(&theTime);
+    ss << "\t X = " << x <<  " Y = " << y << endl;
 
     for (deque<SheEvent>::iterator it = pixels_[x][y].begin();
          it != pixels_[x][y].end();
@@ -152,10 +152,11 @@ void SheCorrelator::human_event_info(SheEvent& event, stringstream& ss,
 
     ss << fixed 
        << humanType 
-       << " E = " 
-       << setprecision(0) << setw(8) << event.get_energy()
-       << " t = " 
-       << setprecision(5) << setw(12) << (event.get_time() - clockStart) / 1.0e7  
+       << " " 
+       << setprecision(0) << setw(12) << event.get_energy()
+       << " " 
+       << setprecision(5) << setw(12) 
+       << (event.get_time() - clockStart) / 1.0e7  
        << " M" << event.get_mwpc() 
        << "B" << event.get_beam() 
        << "V" << event.get_veto()
