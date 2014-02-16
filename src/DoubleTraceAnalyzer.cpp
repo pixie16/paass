@@ -29,15 +29,16 @@ int DoubleTraceAnalyzer::numDoubleTraces = 0;
 /**
  * Set default values for time and energy
  */
-DoubleTraceAnalyzer::DoubleTraceAnalyzer(short fast_rise, short fast_gap,
+DoubleTraceAnalyzer::DoubleTraceAnalyzer(double energyScaleFactor,
+                                         short fast_rise, short fast_gap,
                                          short fast_threshold,
                                          short energy_rise, short energy_gap,
                                          short slow_rise, short slow_gap,
                                          short slow_threshold) :
-    TraceFilterer(fast_rise, fast_gap, fast_threshold,
+    TraceFilterer(energyScaleFactor,
+                  fast_rise, fast_gap, fast_threshold,
                   energy_rise, energy_gap,
                   slow_rise, slow_gap, slow_threshold)
-
 {
 }
 

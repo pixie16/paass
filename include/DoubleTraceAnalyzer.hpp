@@ -25,7 +25,8 @@ class DoubleTraceAnalyzer : public TraceFilterer
     static int numDoubleTraces; ///< number of double traces found
 
  public:
-    DoubleTraceAnalyzer(short fast_rise, short fast_gap, short fast_threshold,
+    DoubleTraceAnalyzer(double energyScaleFactor,
+                        short fast_rise, short fast_gap, short fast_threshold,
                         short energy_rise, short energy_gap,
                         short slow_rise, short slow_gap, short slow_threshold);
     virtual ~DoubleTraceAnalyzer();

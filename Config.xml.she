@@ -27,6 +27,7 @@
             low_energy_cut="8000"
             fission_energy_cut="100000" />
         <Analyzer name="DoubleTraceAnalyzer"
+            gain_match="1.0"
             fast_rise="10"
             fast_gap="10"
             fast_threshold="80"
