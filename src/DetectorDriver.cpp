@@ -405,6 +405,12 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         m.detail("Loading " + name);
         if (name == "TraceFilterer" || 
             name == "DoubleTraceAnalyzer") {
+
+            double gain_match = analyzer.attribute("gain_match").as_double(-1);
+            if (gain_match == -1) {
+                gain_match = 1.0;
+                m.warning("Using gain_match = 1.0", 1);
+            }
             int fast_rise = analyzer.attribute("fast_rise").as_int(-1);
             if (fast_rise == -1) {
                 fast_rise = 10;
@@ -450,11 +456,13 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
 
             if (name == "TraceFilterer") 
                 vecAnalyzer.push_back(new TraceFilterer(
+                            gain_match,
                             fast_rise, fast_gap, fast_threshold, 
                             energy_rise, energy_gap,
                             slow_rise, slow_gap, slow_threshold));
             else if (name == "DoubleTraceAnalyzer")
                 vecAnalyzer.push_back(new DoubleTraceAnalyzer(
+                            gain_match,
                             fast_rise, fast_gap, fast_threshold, 
                             energy_rise, energy_gap,
                             slow_rise, slow_gap, slow_threshold));
@@ -731,7 +739,12 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
 
         if (trace.HasValue("filterEnergy") ) {     
             if (trace.GetValue("filterEnergy") > 0) {
+                double board_energy = chan->GetEnergy();
                 energy = trace.GetValue("filterEnergy");
+                trace.plot(dammIds::trace::tracefilterer::DD_ENERGY__BOARD_FILTER, 
+                        board_energy / 100.0, energy / 100.0);
+                trace.plot(dammIds::trace::tracefilterer::D_ENERGY_BOARD_FILTER_RATIO,
+                          board_energy / energy * 100.0);
                 plot(D_FILTER_ENERGY + id, energy);
             } else {
                 energy = 2;
