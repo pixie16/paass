@@ -13,9 +13,20 @@
 #include "TraceAnalyzer.hpp"
 
 class TraceFilterer : public TraceAnalyzer {
+    public:
+        TraceFilterer(double energyScaleFactor_,
+                    short fast_rise, short fast_gap, short fast_threshold,
+                    short energy_rise, short energy_gap,
+                    short slow_rise, short slow_gap, short slow_threshold);
+        virtual ~TraceFilterer();
+
+        virtual bool Init(const std::string &filterFileName = "filter.txt");
+        virtual void DeclarePlots(void);
+        virtual void Analyze(Trace &trace, 
+                const std::string &type, const std::string &subtype);
     protected:    
         static const int energyBins;
-        static const double energyScaleFactor;
+        double energyScaleFactor_;
 
         TrapezoidalFilterParameters  fastParms;
         Trace::value_type            fastThreshold;
@@ -42,16 +53,6 @@ class TraceFilterer : public TraceAnalyzer {
 
         virtual const PulseInfo& FindPulse(Trace::iterator begin, 
                                         Trace::iterator end);
-    public:
-        TraceFilterer(short fast_rise, short fast_gap, short fast_threshold,
-                    short energy_rise, short energy_gap,
-                    short slow_rise, short slow_gap, short slow_threshold);
-        virtual ~TraceFilterer();
-
-        virtual bool Init(const std::string &filterFileName = "filter.txt");
-        virtual void DeclarePlots(void);
-        virtual void Analyze(Trace &trace, 
-                const std::string &type, const std::string &subtype);
 };
 
 #endif // __TRACEFILTERER_HPP_

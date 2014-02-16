@@ -20,7 +20,7 @@ using namespace dammIds::trace;
 
 
  //< TO BE USED WITH MAGIC +40 ENERGY SAMPLE LOCATION
-const double TraceFilterer::energyScaleFactor = 2.198;
+// const double TraceFilterer::energyScaleFactor = 2.198;
 // const double TraceFilterer::energyScaleFactor = 2.547; //< multiply the energy filter sums by this to gain match to raw spectra
 
 /** 
@@ -41,7 +41,8 @@ TraceFilterer::PulseInfo::PulseInfo(Trace::size_type theTime,
     isFound = true;
 }
 
-TraceFilterer::TraceFilterer(short fast_rise, short fast_gap,
+TraceFilterer::TraceFilterer(double energyScaleFactor,
+                             short fast_rise, short fast_gap,
                              short fast_threshold,
                              short energy_rise, short energy_gap,
                              short slow_rise, short slow_gap,
@@ -53,6 +54,8 @@ TraceFilterer::TraceFilterer(short fast_rise, short fast_gap,
     //? this uses some legacy values for third parms, are they appropriate
     name = "Filterer";
     useThirdFilter = false;
+    energyScaleFactor_ = energyScaleFactor;
+
     //Trace::size_type rise, gap;
 
     // scale thresholds by the length of integration (i.e. rise time)
@@ -81,6 +84,7 @@ void TraceFilterer::DeclarePlots(void)
 {
 
     const int energyBins = SE;
+    const int energyBins2 = SB;
     const int traceBins = dammIds::trace::traceBins;
 
     using namespace dammIds::trace::tracefilterer;
@@ -104,6 +108,12 @@ void TraceFilterer::DeclarePlots(void)
                                     "rejected traces");
 
     sample_trace.DeclareHistogram1D(D_ENERGY1, energyBins, "E1 from trace"); 
+
+    sample_trace.DeclareHistogram2D(DD_ENERGY__BOARD_FILTER,
+                                    energyBins2, energyBins2, 
+                                    "Board raw energy vs filter energy/100"); 
+    sample_trace.DeclareHistogram1D(D_ENERGY_BOARD_FILTER_RATIO, 
+                energyBins, "Board raw energy to filter ratio*100"); 
 }
 
 void TraceFilterer::Analyze(Trace &trace,
@@ -211,7 +221,7 @@ const TraceFilterer::PulseInfo& TraceFilterer::FindPulse(Trace::iterator begin, 
             }
             // scale to the integration time
             pulse.energy /= energyParms.GetRiseSamples();
-            pulse.energy *= energyScaleFactor;	    
+            pulse.energy *= energyScaleFactor_;	    
         } else 
             pulse.energy = NAN;
 
