@@ -638,6 +638,6 @@
     <GammaGates>
     </GammaGates>
 
-    <NoteBook file='notes.txt' mode='a'/>
+    <NoteBook file='chains.txt' mode='a'/>
 
 </Configuration>
