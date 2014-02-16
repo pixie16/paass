@@ -156,7 +156,7 @@ namespace dammIds {
             const int DD_AVERAGE_TRACE = 4;
             const int DD_REJECTED_TRACE = 5;
             const int DD_ENERGY__BOARD_FILTER = 6;
-            const int D_ENERGY_BOARD_FILTER_RATIO = 7;
+            const int D_RATIO_BOARD_FILTER = 7;
             const int D_ENERGY1 = 8;
         }
 

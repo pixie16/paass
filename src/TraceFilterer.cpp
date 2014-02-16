@@ -110,10 +110,10 @@ void TraceFilterer::DeclarePlots(void)
     sample_trace.DeclareHistogram1D(D_ENERGY1, energyBins, "E1 from trace"); 
 
     sample_trace.DeclareHistogram2D(DD_ENERGY__BOARD_FILTER,
-                                    energyBins2, energyBins2, 
-                                    "Board raw energy vs filter energy/100"); 
-    sample_trace.DeclareHistogram1D(D_ENERGY_BOARD_FILTER_RATIO, 
-                energyBins, "Board raw energy to filter ratio*100"); 
+                                 energyBins2, energyBins2, 
+                                "Board raw energy vs filter energy (/10)"); 
+    sample_trace.DeclareHistogram1D(D_RATIO_BOARD_FILTER,
+                energyBins2, "Ratio raw energy to filter (%)"); 
 }
 
 void TraceFilterer::Analyze(Trace &trace,
