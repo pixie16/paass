@@ -42,7 +42,7 @@ Dssd4SHEProcessor::Dssd4SHEProcessor(double timeWindow,
 
     stringstream ss;
     ss << fixed 
-       << "T" 
+       << "#T" 
        << " " << setw(12) << "E (keV)"
        << " " << setw(12) << "t (ms)"
        << " M" << " "
@@ -73,6 +73,12 @@ void Dssd4SHEProcessor::DeclarePlots(void)
                        "Energy Side corr. with DSSD");
     DeclareHistogram1D(D_DTIME_SIDE, S8, 
                         "Side det. time diff in 10 ns (+ 1 bin)");
+
+    DeclareHistogram2D(DD_ENERGY_DT__DSSD_MWPC, 
+		       SB, S8, "DSSD energy/100 vs DT (10 ns) to MWPC");
+
+    DeclareHistogram2D(DD_DE_E__DSSD_VETO, 
+		       SB, SB, "DSSD energy/100 vs veto/100");
 
     DeclareHistogram2D(DD_EVENT_POSITION, 
 		       xBins, yBins, "DSSD all events positions");
@@ -360,7 +366,10 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
         event.GetSummary("si:veto", true)->GetList();
     vector<ChanEvent*> sideEvents = 
         event.GetSummary("si:si", true)->GetList();
+    vector<ChanEvent*> mwpcEvents = 
+        event.GetSummary("si:si", true)->GetList();
     int mwpc = event.GetSummary("mcp", true)->GetMult();
+
     bool hasBeam =  TreeCorrelator::get()->place("Beam")->status();
 
     plot(D_MWPC_MULTI, mwpc); 
@@ -396,8 +405,34 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
 
         plot(DD_EVENT_POSITION, xPosition, yPosition);
 
-        double bestSiTime = numeric_limits<double>::max();
+        double mwpcTime = numeric_limits<double>::max();
+        for (vector<ChanEvent*>::iterator itm = mwpcEvents.begin();
+            itm != mwpcEvents.end();
+            ++itm) {
+            double dt = abs(time - (*itm)->GetTime()) *
+                        Globals::get()->clockInSeconds();
+            if (dt < mwpcTime) {
+                mwpcTime = dt;
+            }
+        }
+        // Plot up to 3 us only
+        if (mwpcTime < 3.0e-6) {
+            int timeBin = int(mwpcTime / 1.0e-8);
+            int energyBin = xEnergy / 100.0;
+            plot(DD_ENERGY_DT__DSSD_MWPC, energyBin, timeBin);
+        }
 
+        if (vetoEvents.size() > 0) {
+            for (vector<ChanEvent*>::iterator itv = vetoEvents.begin();
+                itv != vetoEvents.end();
+                ++itv) {
+                double vetoEnergy = (*itv)->GetCalEnergy();
+                plot(DD_DE_E__DSSD_VETO, (vetoEnergy + xEnergy) / 100.0,
+                     xEnergy / 100.0);
+            }
+        }
+
+        double bestSiTime = numeric_limits<double>::max();
         ChanEvent* correlatedSide = 0;
         bool hasEscape = false;
         double escapeEnergy = 0.0;
