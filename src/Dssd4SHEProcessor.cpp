@@ -14,6 +14,7 @@
 #include "Dssd4SHEProcessor.hpp"
 #include "DammPlotIds.hpp"
 #include "Globals.hpp"
+#include "Messenger.hpp"
 #include "Notebook.hpp"
 #include "RawEvent.hpp"
 
@@ -153,28 +154,34 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
         xEventsTMatch.push_back(match);
 
         const Trace& trace = (*itx)->GetTrace();
-        if (trace.HasValue("filterEnergy2")) {
+
+        /** Handle additional pulses (no. 2, 3, ...) */
+        int pulses = trace.GetValue("numPulses");
+        for (int i = 1; i < pulses; ++i) {
+            stringstream energyCalName;
+            energyCalName << "filterEnergy" << i + 1 << "Cal";
+            stringstream timeName;
+            timeName << "filterTime" << i + 1;
+
             ev.pileup = true;
+
             StripEvent ev2;
-            ev2.E = trace.GetValue("filterEnergy2Cal");
-            ev2.t = (trace.GetValue("filterTime2") - 
+            ev2.E = trace.GetValue(energyCalName.str());
+            ev2.t = (trace.GetValue(timeName.str()) - 
                      trace.GetValue("filterTime") + ev.t);
             ev2.pos = ev.pos;
             ev2.sat = false;
             ev2.pileup = true;
             pair<StripEvent, bool> match2(ev2, false);
             xEventsTMatch.push_back(match2);
-            if (trace.HasValue("filterEnergy3")) {
-                StripEvent ev3;
-                ev3.E = trace.GetValue("filterEnergy3Cal");
-                ev3.t = (trace.GetValue("filterTime3") - 
-                        trace.GetValue("filterTime") + ev.t);
-                cout << "Handling third pulse X: " << ev3.E << endl;
-                ev3.pos = ev.pos;
-                ev3.sat = false;
-                ev3.pileup = true;
-                pair<StripEvent, bool> match3(ev3, false);
-                xEventsTMatch.push_back(match3);
+
+            if (i > 1) {
+                stringstream ss;
+                ss << "DSSD X, " << i + 1 << " pulse"
+                << ", E = " << ev2.E
+                << ", dt = " << ev2.t - ev.t;
+                Messenger m;
+                m.run_message(ss.str());
             }
         }
 
@@ -200,28 +207,33 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
         yEventsTMatch.push_back(match);
 
         const Trace& trace = (*ity)->GetTrace();
-        if (trace.HasValue("filterEnergy2")) {
+
+        int pulses = trace.GetValue("numPulses");
+        for (int i = 1; i < pulses; ++i) {
+            stringstream energyCalName;
+            energyCalName << "filterEnergy" << i + 1 << "Cal";
+            stringstream timeName;
+            timeName << "filterTime" << i + 1;
+
             ev.pileup = true;
+
             StripEvent ev2;
-            ev2.E = trace.GetValue("filterEnergy2");
-            ev2.t = (trace.GetValue("filterTime2") - 
+            ev2.E = trace.GetValue(energyCalName.str());
+            ev2.t = (trace.GetValue(timeName.str()) - 
                      trace.GetValue("filterTime") + ev.t);
             ev2.pos = ev.pos;
             ev2.sat = false;
             ev2.pileup = true;
             pair<StripEvent, bool> match2(ev2, false);
             yEventsTMatch.push_back(match2);
-            if (trace.HasValue("filterEnergy3")) {
-                StripEvent ev3;
-                ev3.E = trace.GetValue("filterEnergy3Cal");
-                ev3.t = (trace.GetValue("filterTime3") - 
-                        trace.GetValue("filterTime") + ev.t);
-                cout << "Handling third pulse Y: " << ev3.E << endl;
-                ev3.pos = ev.pos;
-                ev3.sat = false;
-                ev3.pileup = true;
-                pair<StripEvent, bool> match3(ev3, false);
-                yEventsTMatch.push_back(match3);
+
+            if (i > 1) {
+                stringstream ss;
+                ss << "DSSD Y, " << i + 1 << " pulse"
+                << ", E = " << ev2.E
+                << ", dt = " << ev2.t - ev.t;
+                Messenger m;
+                m.run_message(ss.str());
             }
         }
 
