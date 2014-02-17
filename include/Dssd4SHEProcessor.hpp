@@ -21,6 +21,9 @@ namespace dammIds {
         const int D_ENERGY_CORRELATED_SIDE = 4;
         const int D_DTIME_SIDE = 5;
 
+        const int DD_ENERGY_DT__DSSD_MWPC = 6;
+        const int DD_DE_E__DSSD_VETO = 7;
+
         const int DD_EVENT_POSITION = 10;
         const int DD_EVENT_POSITION_FROM_E = 11;
         const int DD_IMPLANT_POSITION = 12;

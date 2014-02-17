@@ -621,13 +621,13 @@
         <Channel number="1" subtype="mcp" type="mcp">
             <Calibration max="32000" model="linear">0.0 1.0</Calibration>
         </Channel>
-        <Channel number="2" subtype="trigger" type="logic">
+        <Channel number="2" subtype="analog" type="logic">
             <Calibration max="32000" model="linear">0.0 1.0</Calibration>
         </Channel>
-        <Channel number="3" subtype="start" type="logic">
+        <Channel number="3" subtype="beam" type="logic">
             <Calibration max="32000" model="linear">0.0 1.0</Calibration>
         </Channel>
-        <Channel number="4" subtype="stop" type="logic">
+        <Channel number="4" subtype="none" type="logic">
             <Calibration max="32000" model="linear">0.0 1.0</Calibration>
         </Channel>
     </Module>

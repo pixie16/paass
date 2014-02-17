@@ -30,7 +30,7 @@ BeamLogicProcessor::BeamLogicProcessor(void) :
 
 void BeamLogicProcessor::DeclarePlots(void)
 {
-    DeclareHistogram1D(D_COUNTER_BEAM, S2, "Beam counter start/stop/trig");
+    DeclareHistogram1D(D_COUNTER_BEAM, S2, "Beam counter toggle/analog/none");
     DeclareHistogram1D(D_TIME_STOP_LENGTH, SA, "Beam stop length (1 s / bin)");
 }
 
@@ -52,28 +52,31 @@ bool BeamLogicProcessor::PreProcess(RawEvent &event)
 
         // for 2d plot of events 1s / bin
         // Bins in plot
-        const unsigned BEAM_START = 0;
-        const unsigned BEAM_STOP = 1;
-        const unsigned BEAM_TRIG = 2;
+        const unsigned BEAM_TOGGLE = 0;
+        const unsigned BEAM_ANALOG = 1;
+        const unsigned BEAM_NONE = 2;
 
-        if (place == "logic_start_0") {
-            // If beam was stopped, plot the stop length
+        if (place == "logic_beam_0") {
+            // If beam was stopped activate place
+            // and plot stop length
             if (!TreeCorrelator::get()->place("Beam")->status()) {
                 double dt_beam_stop = time - 
                         TreeCorrelator::get()->place(place)->last().time;
                 double clockInSeconds = Globals::get()->clockInSeconds();
                 const double resolution = 1.0 / clockInSeconds;
                 plot(D_TIME_STOP_LENGTH, dt_beam_stop / resolution);
+                TreeCorrelator::get()->place("Beam")->activate(time);
+            } 
+            else {
+                TreeCorrelator::get()->place("Beam")->deactivate(time);
             }
-            TreeCorrelator::get()->place("Beam")->activate(time);
-            plot(D_COUNTER_BEAM, BEAM_START);
+            plot(D_COUNTER_BEAM, BEAM_TOGGLE);
         }
-        else if (place == "logic_stop_0") {
-            TreeCorrelator::get()->place("Beam")->deactivate(time);
-            plot(D_COUNTER_BEAM, BEAM_STOP);
+        else if (place == "logic_analog_0") {
+            plot(D_COUNTER_BEAM, BEAM_ANALOG);
         }
-        else if (place == "logic_trigger_0") {
-            plot(D_COUNTER_BEAM, BEAM_TRIG);
+        else if (place == "logic_none_0") {
+            plot(D_COUNTER_BEAM, BEAM_NONE);
         }
     }
 
