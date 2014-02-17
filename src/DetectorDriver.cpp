@@ -742,6 +742,10 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
                 energy = trace.GetValue("filterEnergy");
                 plot(D_FILTER_ENERGY + id, energy);
 
+                /** These plots are used to determine (or check) the
+                 * gain_match parameter to match the filter 
+                 * and onboard amplitudes
+                 */
                 using namespace dammIds::trace::tracefilterer;
                 double board_energy = chan->GetEnergy();
                 trace.plot(DD_ENERGY__BOARD_FILTER, 
@@ -749,25 +753,23 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
                 trace.plot(D_RATIO_BOARD_FILTER,
                             board_energy / energy * 100.0);
 
-                /** Calibrate filterEnergy if present, add filterEnergyCal
-                *  to the trace */
                 trace.SetValue("filterEnergyCal",
                     cali.GetCalEnergy(chanId, trace.GetValue("filterEnergy")));
             } else {
                 energy = 2;
             }
 
-            if (trace.HasValue("filterEnergy2") ) {
-                /** Calibrate filterEnergy2 if present, add filterEnergy2Cal
-                *  to the trace */
-                trace.SetValue("filterEnergy2Cal", 
-                    cali.GetCalEnergy(chanId, trace.GetValue("filterEnergy2")));
-            }
-            if (trace.HasValue("filterEnergy3") ) {
-                /** Calibrate filterEnergy3 if present, add filterEnergy3Cal
-                *  to the trace */
-                trace.SetValue("filterEnergy3Cal", 
-                    cali.GetCalEnergy(chanId, trace.GetValue("filterEnergy3")));
+            /** Calibrate pulses numbered 2 and forth,
+             * add filterEnergyXCal to the trace */
+            int pulses = trace.GetValue("numPulses");
+            for (int i = 1; i < pulses; ++i) {
+                stringstream energyName;
+                energyName << "filterEnergy" << i + 1;
+                stringstream energyCalName;
+                energyCalName << "filterEnergy" << i + 1 << "Cal";
+                trace.SetValue(energyCalName.str(),
+                    cali.GetCalEnergy(chanId, 
+                                      trace.GetValue(energyName.str())));
             }
         }
 
