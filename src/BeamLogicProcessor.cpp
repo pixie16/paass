@@ -6,12 +6,14 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <vector>
 
+#include "BeamLogicProcessor.hpp"
 #include "DammPlotIds.hpp"
 #include "Globals.hpp"
+#include "Messenger.hpp"
 #include "RawEvent.hpp"
-#include "BeamLogicProcessor.hpp"
 
 using namespace dammIds::logic;
 
@@ -47,7 +49,7 @@ bool BeamLogicProcessor::PreProcess(RawEvent &event)
     for (vector<ChanEvent*>::const_iterator it = logicEvents.begin();
         it != logicEvents.end(); it++)
     {
-        double time   = (*it)->GetTime();	
+        double time = (*it)->GetTime();	
         string place = (*it)->GetChanID().GetPlaceName();
 
         // for 2d plot of events 1s / bin
@@ -57,20 +59,38 @@ bool BeamLogicProcessor::PreProcess(RawEvent &event)
         const unsigned BEAM_NONE = 2;
 
         if (place == "logic_beam_0") {
-            // If beam was stopped activate place
-            // and plot stop length
+            double last_time = 
+                TreeCorrelator::get()->place(place)->secondlast().time;
+            double dt_beam_stop = abs(time - last_time);
+
+            Messenger m;
+            stringstream ss;
+            // Check for double recorded same event (1 us limit)
+            if (dt_beam_stop < doubleTimeLimit_) {
+                ss << "Ignore fast beam stop" << endl;
+                m.warning(ss.str());
+                continue;
+            }
+
+            // If beam was stopped, activate place and plot stop length
             if (!TreeCorrelator::get()->place("Beam")->status()) {
-                double dt_beam_stop = time - 
-                        TreeCorrelator::get()->place(place)->last().time;
                 double clockInSeconds = Globals::get()->clockInSeconds();
-                const double resolution = 1.0 / clockInSeconds;
+                double resolution = 1.0 / clockInSeconds;
+
                 plot(D_TIME_STOP_LENGTH, dt_beam_stop / resolution);
+
                 TreeCorrelator::get()->place("Beam")->activate(time);
+                ss << "Beam started after: " << dt_beam_stop / resolution
+                   << " s ";
+                m.run_message(ss.str());
             } 
             else {
                 TreeCorrelator::get()->place("Beam")->deactivate(time);
+                ss << "Beam stopped";
+                m.run_message(ss.str());
             }
             plot(D_COUNTER_BEAM, BEAM_TOGGLE);
+
         }
         else if (place == "logic_analog_0") {
             plot(D_COUNTER_BEAM, BEAM_ANALOG);
