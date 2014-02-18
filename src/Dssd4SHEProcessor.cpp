@@ -63,8 +63,8 @@ void Dssd4SHEProcessor::DeclarePlots(void)
     const int xBins = S7;
     const int yBins = S6;
 
-    DeclareHistogram1D(D_ENERGY_X, energyBins, "Energy dssd X strips");
-    DeclareHistogram1D(D_ENERGY_Y, energyBins, "Energy dssd Y strips");
+    DeclareHistogram1D(D_ENERGY_X, energyBins, "Energy/10 dssd X strips");
+    DeclareHistogram1D(D_ENERGY_Y, energyBins, "Energy/10 dssd Y strips");
 
     DeclareHistogram1D(D_DTIME, S8, "Pairs time diff in 10 ns (+ 1 bin)");
 
@@ -105,6 +105,8 @@ void Dssd4SHEProcessor::DeclarePlots(void)
 		       energyBins2, "DSSD energy/100 unknown");
     DeclareHistogram1D(D_ENERGY_FISSION,
 		       energyBins2, "DSSD energy/100 fission");
+    DeclareHistogram1D(D_ENERGY_DECAY_BEAMSTOP,
+		       energyBins, "DSSD energy*1 alpha beam stopped");
 
     DeclareHistogram2D(DD_EVENT_ENERGY__X_POSITION,
 		       energyBins, xBins, "DSSD X strips E vs. position");
@@ -114,6 +116,15 @@ void Dssd4SHEProcessor::DeclarePlots(void)
 		       energyBins, xBins, "MAXDSSD X strips E vs. position");
     DeclareHistogram2D(DD_MAXEVENT_ENERGY__Y_POSITION,
 		       energyBins, yBins, "MAXDSSD Y strips E vs. position");
+
+    DeclareHistogram1D(D_ENERGY_WITH_VETO, energyBins, 
+                      "Energy dssd/10 coin. veto");
+    DeclareHistogram1D(D_ENERGY_WITH_MWPC, energyBins, 
+                      "Energy dssd/10 coin. mwpc");
+    DeclareHistogram1D(D_ENERGY_WITH_VETO_MWPC, energyBins, 
+                      "Energy dssd/10 coin. veto and mwpc");
+    DeclareHistogram1D(D_ENERGY_NO_VETO_MWPC, energyBins, 
+                      "Energy dssd/10 coin. no veto and mwpc");
 
     DeclareHistogram2D(DD_FRONTE__BACKE, energyBins2, energyBins2,
             "Front vs Back energy (calib / 100)");
@@ -370,7 +381,7 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
         event.GetSummary("si:si", true)->GetList();
     int mwpc = event.GetSummary("mcp", true)->GetMult();
 
-    bool hasBeam =  TreeCorrelator::get()->place("Beam")->status();
+    bool hasBeam = TreeCorrelator::get()->place("Beam")->status();
 
     plot(D_MWPC_MULTI, mwpc); 
 
@@ -396,8 +407,8 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
 
         double time = min((*it).first.t, (*it).second.t);
 
-        plot(D_ENERGY_X, xEnergy); 
-        plot(D_ENERGY_Y, yEnergy);
+        plot(D_ENERGY_X, xEnergy / 10.0); 
+        plot(D_ENERGY_Y, yEnergy / 10.0);
 
         plot(DD_FRONTE__BACKE, xEnergy / 100.0, yEnergy / 100.0);
         plot(DD_EVENT_ENERGY__X_POSITION, xEnergy, xPosition);
@@ -465,9 +476,23 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
         bool hasVeto = false;
         if (vetoEvents.size() > 0)
             hasVeto = true;
+
+        if (hasVeto)
+            plot(D_ENERGY_WITH_VETO, xEnergy / 10.0);
+        if (mwpc > 0)
+            plot(D_ENERGY_WITH_MWPC, xEnergy / 10.0);
+        if (hasVeto && mwpc > 0)
+            plot(D_ENERGY_WITH_VETO_MWPC, xEnergy / 10.0);
+        if (!hasVeto && mwpc == 0)
+            plot(D_ENERGY_NO_VETO_MWPC, xEnergy / 10.0);
+
         SheEvent event = SheEvent(xEnergy + escapeEnergy, time, mwpc,
                                   hasBeam, hasVeto, hasEscape, unknown);
         pickEventType(event);
+
+        if (!event.get_beam())
+            plot(D_ENERGY_DECAY_BEAMSTOP, event.get_energy());
+
         if (event.get_type() == heavyIon) {
             plot(DD_IMPLANT_POSITION, xPosition, yPosition);
             plot(D_ENERGY_IMPLANT, event.get_energy());
@@ -510,7 +535,6 @@ bool Dssd4SHEProcessor::Process(RawEvent &event)
 
     }
 
-
     EndProcess();
     return true;
 }
@@ -543,7 +567,16 @@ bool Dssd4SHEProcessor::pickEventType(SheEvent& event) {
     if (event.get_veto()) 
         condition += 4;
 
-    if (condition == 0 || condition == 1) {
+    if (condition == 0) {
+        double energy = event.get_energy();
+        if (energy < highEnergyCut_)
+            event.set_type(alpha);
+        else if (energy < fissionEnergyCut_)
+            event.set_type(unknown);
+        else 
+            event.set_type(fission);
+    } 
+    else if (condition == 1) {
         double energy = event.get_energy();
         if (energy < lowEnergyCut_)
             event.set_type(unknown);

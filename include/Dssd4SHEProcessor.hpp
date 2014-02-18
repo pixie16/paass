@@ -43,6 +43,12 @@ namespace dammIds {
         const int D_ENERGY_LIGHT = 24;
         const int D_ENERGY_UNKNOWN = 25;
         const int D_ENERGY_FISSION = 26;
+        const int D_ENERGY_DECAY_BEAMSTOP = 27;
+
+        const int D_ENERGY_WITH_VETO = 30;
+        const int D_ENERGY_WITH_MWPC = 31;
+        const int D_ENERGY_WITH_VETO_MWPC = 32;
+        const int D_ENERGY_NO_VETO_MWPC = 33;
 
         /** Diagnostic **/
         const int DD_ENERGY__POSX_T_MISSING = 40;
