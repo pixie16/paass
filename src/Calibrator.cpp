@@ -1,5 +1,4 @@
 #include <cmath>
-//TEMP
 #include <iostream>
 
 #include "Calibrator.hpp"
@@ -28,6 +27,9 @@ void Calibrator::AddChannel(const Identifier& chanID, const std::string model,
         required_parameters = 1;
     } else if (model == "hyplin") {
         cf.model = cal_hyplin;
+        required_parameters = 3;
+    } else if (model == "exp") {
+        cf.model = cal_exp;
         required_parameters = 3;
     } else {
         stringstream ss;
@@ -100,6 +102,9 @@ double Calibrator::GetCalEnergy(const Identifier& chanID, double raw) const {
             case cal_hyplin: 
                 return ModelHypLin(itf->parameters, raw);
                 break;
+            case cal_exp: 
+                return ModelExp(itf->parameters, raw);
+                break;
             default: 
                 break;
         }
@@ -147,3 +152,10 @@ double Calibrator::ModelHypLin(const std::vector<double>& par,
         return 0;
 }
 
+double Calibrator::ModelExp(const std::vector<double>& par,
+                               double raw) const {
+    if (raw > 0)
+        return par[0] * exp(raw / par[1]) + par[2];
+    else
+        return 0;
+}
