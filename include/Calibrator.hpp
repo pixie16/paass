@@ -16,7 +16,8 @@ enum CalibrationModel {
     cal_linear,
     cal_quadratic,
     cal_polynomial,
-    cal_hyplin
+    cal_hyplin,
+    cal_exp,
 };
 
 /** This structure holds walk calibration model identfier, range
@@ -29,10 +30,9 @@ struct CalibrationParams {
 };
 
 
-/** The purpose of the Calibrator class is to correct certain channels
- * for the walk (connected with the detector response, usually the lower the
- * event energy, the slower is the response). The resulting correction
- * should be subtracted from the raw time in order to compensate the slower response.
+/** The Calibrator class returns calibrated energy for the raw channel
+ * number. The calibration model and parameters are loaded from Config.xml
+ * file (Map section)
  */
 class Calibrator {
     public:
@@ -91,6 +91,12 @@ class Calibrator {
          * f(x) = par0 / x + par1 + par2 * x
          */
         double ModelHypLin(const std::vector<double>& par,
+                           double raw) const;
+
+        /** Exponential (for logarithmic preamp)
+         * f(x) = par0 * exp(x / par[1]) + par2
+         */
+        double ModelExp(const std::vector<double>& par,
                            double raw) const;
 };
 
