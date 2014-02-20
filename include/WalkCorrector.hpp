@@ -25,7 +25,7 @@ struct CorrectionParams {
 };
 
 
-/** The purpose of the Calibrator class is to correct certain channels
+/** The purpose of the WalkCorrector class is to correct certain channels
  * for the walk (connected with the detector response, usually the lower the
  * event energy, the slower is the response). The resulting correction
  * should be subtracted from the raw time in order to compensate the slower response.
