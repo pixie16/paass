@@ -77,7 +77,7 @@ class DetectorDriver {
 
     const std::set<std::string> &GetUsedDetectors(void) const;
 
-    ~DetectorDriver();
+    virtual ~DetectorDriver();
 
 
  private: 
@@ -86,9 +86,9 @@ class DetectorDriver {
     DetectorDriver& operator= (DetectorDriver const&);
     static DetectorDriver* instance;
 
-    std::vector<EventProcessor *> vecProcess; /**< vector of processors to handle each event */
+    std::vector<EventProcessor*> vecProcess; /**< vector of processors to handle each event */
     
-    std::vector<TraceAnalyzer *> vecAnalyzer; /**< object which analyzes traces of channels to extract
+    std::vector<TraceAnalyzer*> vecAnalyzer; /**< object which analyzes traces of channels to extract
 				   energy and time information */
     std::set<std::string> knownDetectors; /**< list of valid detectors that can 
 				   be used as detector types */

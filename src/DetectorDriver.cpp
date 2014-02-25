@@ -141,17 +141,18 @@ DetectorDriver::~DetectorDriver()
 {
     for (vector<EventProcessor *>::iterator it = vecProcess.begin();
 	 it != vecProcess.end(); it++) {
-	delete *it;
+        delete *it;
     }
 
     vecProcess.clear();
 
     for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
 	 it != vecAnalyzer.end(); it++) {
-	delete *it;
+        delete *it;
     }
-
     vecAnalyzer.clear();
+    delete instance;
+    instance = NULL;
 }
 
 void DetectorDriver::LoadProcessors(Messenger& m) {

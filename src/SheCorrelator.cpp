@@ -51,6 +51,7 @@ SheCorrelator::SheCorrelator(int size_x, int size_y) {
 
 SheCorrelator::~SheCorrelator() {
     for(int i = 0; i < size_y_; ++i) {
+        pixels_[i]->clear();
         delete[] pixels_[i];
     }
     delete[] pixels_;

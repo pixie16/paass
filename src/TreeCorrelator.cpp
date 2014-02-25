@@ -192,5 +192,8 @@ TreeCorrelator::~TreeCorrelator() {
          it != places_.end(); ++it) {
         delete it->second;
     }
+    places_.clear();
+    delete instance;
+    instance = NULL;
 }
 
