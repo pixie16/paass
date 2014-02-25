@@ -51,6 +51,7 @@ public:
     const std::set<std::string>& GetUsedDetectors(void) const;
 
     typedef std::string mapkey_t;
+
 private:
     DetectorLibrary();
     DetectorLibrary (const DetectorLibrary&);

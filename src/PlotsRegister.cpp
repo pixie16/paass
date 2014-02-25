@@ -23,6 +23,11 @@ PlotsRegister* PlotsRegister::get() {
     return instance;
 }
 
+PlotsRegister::~PlotsRegister() {
+    delete instance;
+    instance = NULL;
+}
+
 bool PlotsRegister::CheckRange (int min, int max) const
 {
     bool exists = false;
