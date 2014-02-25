@@ -148,11 +148,6 @@ void DetectorLibrary::LoadXml() {
     m.done();
 }
 
-DetectorLibrary::~DetectorLibrary()
-{
-    // do nothing
-}
-
 DetectorLibrary::const_reference DetectorLibrary::at(DetectorLibrary::size_type idx) const
 {
     return vector<Identifier>::at(idx);
@@ -389,3 +384,10 @@ DetectorLibrary::mapkey_t DetectorLibrary::MakeKey(const string &type, const str
 {
     return (type + ':' + subtype);
 }
+
+
+DetectorLibrary::~DetectorLibrary() {
+    delete instance;
+    instance = NULL;
+}
+

@@ -19,6 +19,8 @@ class PlotsRegister {
         bool CheckRange (int offset, int range) const;
         bool Add(int offset, int range, std::string name_);
 
+        ~PlotsRegister();
+
     private:
         PlotsRegister() {};
         PlotsRegister (const PlotsRegister&);

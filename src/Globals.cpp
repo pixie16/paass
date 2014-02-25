@@ -215,3 +215,7 @@ Globals* Globals::get() {
     return instance;
 }
 
+Globals::~Globals() {
+    delete instance;
+    instance = NULL;
+}
