@@ -146,38 +146,41 @@ bool PixieInterface::ReadConfigurationFile(const char *fn)
   if (!in)    
     return false;
 
-  string tag, value;
-  stringstream line;
+  stringbuf tag, value;
+  string line;
 
-  do {
-    char buf[CONFIG_LINE_LENGTH];
+	//Loop over lines in config file
+  while (std::getline(in,line)) {
+		cout << "Line: " << line << endl;
+		//Get a string stream of current line
+	  std::istringstream lineStream(line);
+		//If the line leads with a '#' we ignore it.
+	  if (lineStream.peek() == '#') continue;
 
-    in.getline(buf, CONFIG_LINE_LENGTH, '\n');
-    // ignore comment lines starting with a #
-    if (buf[0] == '#') {
-      continue;
-    }
-    line << buf;
+		//Extract the tag and value
+	  std::string tag,value;
+	  if ((lineStream >> tag >> value)) {
+			cout << "Tag: " << tag << " val: " << value << endl;
+			//Check if tag is recognized
+		  if (validConfigKeys.find(tag) == validConfigKeys.end()) {
+			  cout << "Unrecognized tag " << WarningStr(tag) << " in PixieInterface configuration file." << endl;
+		  }
+			
+			//Store configuration
+		  configStrings[tag] = ConfigFileName(value);
 
-    // read a tag and value combination from file line by line
-    line >> tag >> value;
-    if (validConfigKeys.find(tag) == validConfigKeys.end()) {
-      cout << "Unrecognized tag " << WarningStr(tag) << " in PixieInterface configuration file." << endl;
-    }
-    
-    configStrings[tag] = ConfigFileName(value);
-    if (tag == "PixieBaseDir") {
-      cout << "Pixie base directory is " << InfoStr(value) << endl;
-      // check if this matches the environment PXI_ROOT if it is set
-      if (getenv("PXI_ROOT") != NULL) {
-	if ( value != string(getenv("PXI_ROOT")) ) {
-	  cout << WarningStr("This does not match the value of PXI_ROOT set in the environment") << endl;
-	}
-      }
-    }
-
-    line.clear();
-  } while (!in.eof());
+			//Check if BaseDir is defined differently then in the environment
+		  if (tag == "PixieBaseDir") {
+			  cout << "Pixie base directory is " << InfoStr(value) << endl;
+			  // check if this matches the environment PXI_ROOT if it is set
+			  if (getenv("PXI_ROOT") != NULL) {
+				  if ( value != string(getenv("PXI_ROOT")) ) {
+					  cout << WarningStr("This does not match the value of PXI_ROOT set in the environment") << endl;
+				  }
+			  }
+		  }
+	  }
+  }
 
   return true;
 }
@@ -192,7 +195,7 @@ bool PixieInterface::GetSlots(const char *slotF)
   ifstream in(slotF);
 
   if (!in) {
-    cout << ErrorStr("Error opening slot definition file.") << endl;
+    cout << ErrorStr("Error opening slot definition file: ") << ErrorStr(slotF) << endl;
     exit(EXIT_FAILURE);
   }
   stringstream line;

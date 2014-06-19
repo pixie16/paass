@@ -109,7 +109,7 @@ class PixieInterface
   // # #
   bool StartHistogramRun(unsigned short mode = NEW_RUN);
   bool StartHistogramRun(unsigned short mod, unsigned short mode);
-  bool StartListModeRun(unsigned short listMode = LIST_MODE_RUN0,
+  bool StartListModeRun(unsigned short listMode = LIST_MODE_RUN,
 			unsigned short runMode = NEW_RUN);
   bool StartListModeRun(unsigned short mod, unsigned short listMode,
 			unsigned short runMode);
