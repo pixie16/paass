@@ -26,6 +26,12 @@
 #define PIF_BUFFER
 #endif
 
+#ifndef LIST_MODE_RUN
+#ifdef LIST_MODE_RUN0
+#define LIST_MODE_RUN LIST_MODE_RUN0
+#endif
+#endif
+
 #include <fstream>
 #include <map>
 #include <string>

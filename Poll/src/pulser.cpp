@@ -16,6 +16,12 @@
 // Needed for LIST_MODE_RUNx defs. Incorporate into PixieInterface
 #include "pixie16app_defs.h"
 
+#ifndef LIST_MODE_RUN
+#ifdef LIST_MODE_RUN0
+#define LIST_MODE_RUN LIST_MODE_RUN0
+#endif
+#endif
+
 #include "Acq_Params.h"
 #include "Buffer_Structure.h"
 #include "acq_ctl.h"
@@ -52,7 +58,7 @@ int main(int argc, char **argv)
 {
   bool quiet = false;
   bool zeroClocks = false;
-  const int listMode = LIST_MODE_RUN0; // full header w/ traces
+  const int listMode = LIST_MODE_RUN; // full header w/ traces
   // read the FIFO when it is this full
   const unsigned int maxEnergy = 10000;
   const traceword_t baseline = 500;
