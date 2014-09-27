@@ -32,6 +32,8 @@
 		<Unit filename="LICENSE" />
 		<Unit filename="Makefile" />
 		<Unit filename="README.md" />
+		<Unit filename="TODO" />
+		<Unit filename="TODO-svp" />
 		<Unit filename="doc/Doxyfile" />
 		<Unit filename="include/BetaProcessor.hpp" />
 		<Unit filename="include/CfdAnalyzer.hpp" />
@@ -156,6 +158,15 @@
 		<Unit filename="src/WaveformAnalyzer.cpp" />
 		<Unit filename="src/pugixml.cpp" />
 		<Extensions>
+			<DoxyBlocks>
+				<comment_style block="3" line="1" />
+				<doxyfile_project output_directory="doc/tmp" />
+				<doxyfile_build />
+				<doxyfile_warnings />
+				<doxyfile_output />
+				<doxyfile_dot />
+				<general />
+			</DoxyBlocks>
 			<code_completion />
 			<envvars />
 			<lib_finder disable_auto="1" />
