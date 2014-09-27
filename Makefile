@@ -11,7 +11,7 @@ REVISIOND = 1
 # Uncomment this line for a more verbose scan
 # CXXFLAGS += -DVERBOSE
 # Undefine to make a "online" version
-# ONLINE = 1 
+# ONLINE = 1
 
 # Define to use Gamma-Gamma gates in GeProcessor
 # This turns on Gamma-Gamma angular distribution
@@ -35,7 +35,7 @@ endif
 
 #------- instruct make to search through these
 #------- directories to find files
-vpath %.f scan/ 
+vpath %.f scan/
 vpath %.hpp include/
 vpath %.h include/
 vpath %.icc include/
@@ -50,7 +50,7 @@ ifneq ($(LIBS_IN_HHIRF),)
 ACQ2_LIBDIR = $(HHIRF_DIR)
 else
 ifeq ($(ACQ2_LIBDIR),)
-ifneq ($(ACQ2_DIR),) 
+ifneq ($(ACQ2_DIR),)
 ACQ2_LIBDIR = $(ACQ2_DIR)
 else
 ACQ2_LIBDIR = /usr/acq2/lib
@@ -77,7 +77,7 @@ else
 FC        = gfortran
 endif
 
-GCC       = gcc 
+GCC       = gcc
 CXX       = g++
 LINK.o    = $(FC) $(LDFLAGS)
 
@@ -202,7 +202,7 @@ endif
 
 #----- list of objects
 #Objects from Fortran
-FORT_OBJS = $(MESSLOGO) $(MILDATIMO) $(SCANORO) $(SET2CCO) 
+FORT_OBJS = $(MESSLOGO) $(MILDATIMO) $(SCANORO) $(SET2CCO)
 #General Objects
 CXX_OBJS += $(CHANEVENTO) $(CHANIDENTIFIERO) $(CORRELATORO) $(DETECTORDRIVERO) \
 	$(DETECTORLIBRARYO) $(DETECTORSUMMARYO) $(EVENTPROCESSORO) $(INITIALIZEO) \
@@ -213,7 +213,7 @@ CXX_OBJS += $(CHANEVENTO) $(CHANIDENTIFIERO) $(CORRELATORO) $(DETECTORDRIVERO) \
 CXX_OBJS += $(HISTOGRAMMERO) $(PLOTSREGISTERO) $(PLOTSO)
 #Trace Objects
 CXX_OBJS += $(DOUBLETRACEO) $(TAUANALYZERO) $(TRACEO) $(TRACEEXTRACTORO) \
-	$(TRACEFILTERO) $(TRACEPLOTO) $(TRACESUBO) $(WAVEFORMSUBO) 
+	$(TRACEFILTERO) $(TRACEPLOTO) $(TRACESUBO) $(WAVEFORMSUBO)
 #Detector Objects
 CXX_OBJS += $(BETAPROCESSORO) $(DSSDPROCESSORO) $(GEPROCESSORO) \
 	$(IONCHAMBERPROCESSORO) $(ISSDPROCESSORO) $(LIQUIDPROCESSORO) \
@@ -224,7 +224,7 @@ CXX_OBJS += $(BETAPROCESSORO) $(DSSDPROCESSORO) $(GEPROCESSORO) \
 ifdef PULSEFIT
 CXX_OBJS += $(FITTINGANALYZERO)
 else ifdef DCFD
-CXX_OBJS += $(CFDANALYZERO) 
+CXX_OBJS += $(CFDANALYZERO)
 endif
 
 #---------- Change the executable name if necessary
@@ -256,7 +256,7 @@ ifdef GGATES
 CXXFLAGS	+= -DDEBUG
 endif
 
-#---------- Update some information about the object files 
+#---------- Update some information about the object files
 FORT_OBJDIR = obj/fortran
 FORT_OBJS_W_DIR = $(addprefix $(FORT_OBJDIR)/,$(FORT_OBJS))
 CXX_OBJDIR = obj/c++
@@ -264,8 +264,6 @@ CXX_OBJS_W_DIR = $(addprefix $(CXX_OBJDIR)/,$(CXX_OBJS))
 
 #--------- Add to list of known file suffixes
 .SUFFIXES: .$(cxxSrcSuf) .$(fSrcSuf) .$(c++SrcSuf) .$(cSrcSuf)
-
-.phony: clean tidy
 
 all: $(FORT_OBJS_W_DIR) $(CXX_OBJS_W_DIR) $(PIXIE)
 
@@ -290,10 +288,13 @@ $(CXX_OBJDIR)/%.o: %.cpp
 $(PIXIE): $(FORT_OBJS_W_DIR) $(CXX_OBJS_W_DIR) $(LIBS)
 	$(LINK.o) $^ -o $@ $(LDLIBS)
 
-#----------- remove all objects, core and .so file
+.PHONY: clean tidy doc
 clean:
 	@echo "Cleaning up..."
-	@rm -f ./$(FORT_OBJDIR)/*.o ./$(CXX_OBJDIR)/*.o $(PIXIE) core *~ src/*~ include/*~ scan/*~
+	@rm -f ./$(FORT_OBJDIR)/*.o ./$(CXX_OBJDIR)/*.o $(PIXIE) core *~ *.save \
+	src/*~ include/*~ scan/*~
 tidy:
 	@echo "Tidying up..."
-	@rm -f core *~ ./src/*~ ./include/*~ ./scan/*~
+	@rm -f core *~ ./src/*~ ./include/*~ ./scan/*~ *.save
+doc: doc/Doxyfile
+	@doxygen $^
