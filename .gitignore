@@ -1,16 +1,27 @@
-# ignore these files
+#The list of files for git to ignore
+
+#Build files
 *.o
+pixie_ldf_*
+
+#Backup files from various editors
+*.save
+*~
+
+#Documentation directories and files
 html/
 latex/
-*~
-*.swp
+doc/classdiagramRawEvent.svg
+
 #DAMM files
 *.drr
 *.his
 *.list
 *.log
+
 # Data directories
 HIS
 LDF
 HIS/*
 LDF/*
+data
