@@ -32,15 +32,15 @@ Plots Trace::histo(OFFSET, RANGE);
  * moving sum windows of width risetime separated by a length gaptime.
  * Filter is calculated from channels lo to hi.
  */
-void Trace::TrapezoidalFilter(Trace &filter, 
-			      const TrapezoidalFilterParameters &parms,
+void Trace::TrapezoidalFilter(Trace &filter,
+			      const TFP &parms,
 			      unsigned int lo, unsigned int hi) const
 {
     // don't let the filter work outside of its reasonable range
     lo = max(lo, (unsigned int)parms.GetSize());
 
     filter.assign(lo, 0);
-    
+
     //! check if we're going to do something bad here
     for (unsigned int i = lo; i < hi; i++) {
 	int leftSum = accumulate(begin() + i - parms.GetSize(),
@@ -80,43 +80,43 @@ double Trace::DoBaseline(unsigned int lo, unsigned int numBins)
 double Trace::DoDiscrimination(unsigned int lo, unsigned int numBins)
 {
     unsigned int high = lo+numBins;
-    
+
     unsigned int max = GetValue("maxpos");
     double discrim = 0, baseline = GetValue("baseline");
-    
+
     //reference the sum to the maximum of the trace
     high += max;
     lo += max;
-    
+
     if(size() < high)
 	return U_DELIMITER;
-    
+
     for(unsigned int i = lo; i < high; i++)
 	discrim += at(i)-baseline;
-    
+
     InsertValue("discrim", discrim);
-    
+
     return(discrim);
 }
 
-double Trace::DoQDC(unsigned int lo, unsigned int numBins) 
+double Trace::DoQDC(unsigned int lo, unsigned int numBins)
 {
     unsigned int high = lo+numBins;
-    
+
     if(size() < high)
 	return(NAN);
-    
+
     double baseline = GetValue("baseline");
     double qdc = 0, fullQdc = 0;
-    
+
     for(unsigned int i = lo; i <= high; i++) {
 	qdc += at(i)-baseline;
 	waveform.push_back(at(i)-baseline);
     }
-    
+
     for(unsigned int i = 0; i < size(); i++)
 	fullQdc += at(i)-baseline;
-    
+
     InsertValue("fullQdc", fullQdc);
     InsertValue("tqdc", qdc);
     return(qdc);
@@ -126,29 +126,29 @@ unsigned int Trace::FindMaxInfo(void)
 {
     unsigned int hi = constants.GetConstant("traceDelay") /
 	(pixie::adcClockInSeconds*1e9);
-    unsigned int lo = hi - (constants.GetConstant("trapezoidalWalk") / 
+    unsigned int lo = hi - (constants.GetConstant("trapezoidalWalk") /
 			    (pixie::adcClockInSeconds*1e9) ) - 3;
-    
+
     if(size() < hi)
         return U_DELIMITER;
-    
+
     Trace::const_iterator itTrace = max_element(begin()+lo, end()-(size()-hi));
-    
+
     int maxPos = int(itTrace-begin());
-    
+
     if(maxPos + constants.GetConstant("waveformHigh") > size())
 	return U_DELIMITER;
-    
+
     if(*itTrace >= 4095) {
 	InsertValue("saturation", 1);
 	return(-1);
     }
-    
+
     DoBaseline(0,maxPos-constants.GetConstant("waveformLow"));
-    
+
     InsertValue("maxpos", maxPos);
     InsertValue("maxval", *itTrace-GetValue("baseline"));
-    
+
     return (itTrace-begin());
 }
 

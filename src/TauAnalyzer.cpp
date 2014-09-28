@@ -19,11 +19,11 @@ using namespace dammIds::trace;
 
 TauAnalyzer::TauAnalyzer() : TraceAnalyzer(0, 0)
 {
-    // type and subtype default to empty string 
+    // type and subtype default to empty string
     name="tau";
 }
 
-TauAnalyzer::TauAnalyzer(const string &aType, const string &aSubtype) :
+TauAnalyzer::TauAnalyzer(const std::string &aType, const std::string &aSubtype) :
   TraceAnalyzer(), type(aType), subtype(aSubtype)
 {
     name="tau";
@@ -34,25 +34,26 @@ TauAnalyzer::~TauAnalyzer()
     // do nothing
 }
 
-void TauAnalyzer::Analyze(Trace &trace, const string &aType, const string &aSubtype)
+void TauAnalyzer::Analyze(Trace &trace, const std::string &aType,
+                          const std::string &aSubtype)
 {
     // don't do analysis for piled-up traces
     if (trace.HasValue("filterEnergy2")) {
 	return;
     }
     // only do analysis for the proper type and subtype
-    if (type != "" && subtype != "" && 
+    if (type != "" && subtype != "" &&
 	type != aType && subtype != aSubtype ) {
 	return;
     }
 
     TraceAnalyzer::Analyze(trace, type, subtype);
-	
+
     // find the maximum
     Trace::const_iterator itMax=max_element(trace.begin(), trace.end());
     Trace::const_iterator itMin=min_element(itMax, (Trace::const_iterator)trace.end());
     iterator_traits< Trace::const_iterator >::difference_type  size = distance(itMax, itMin);
-    
+
     // skip over the area near the extrema since it may be non-exponential there
     advance(itMax, size/10);
     advance(itMin, -size/10);
@@ -70,6 +71,6 @@ void TauAnalyzer::Analyze(Trace &trace, const string &aType, const string &aSubt
     }
     double tau =  1 / log(sum1 / sum2) * pixie::clockInSeconds;
     trace.SetValue("tau", tau);
-    
+
     EndAnalyze(); //update the timer
 }

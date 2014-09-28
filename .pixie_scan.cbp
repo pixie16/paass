@@ -8,10 +8,12 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="master">
-				<Option output="pixie_scan" prefix_auto="1" extension_auto="1" />
+				<Option platforms="Unix;Mac;" />
+				<Option output="pixie_ldf_c" prefix_auto="1" extension_auto="1" />
 				<Option object_output="/home/vincent/programs/sources/pixie_scan_master/.objs" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option parameters="test00 &lt; test.cmd" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -29,12 +31,14 @@
 			<Add option="-Wall" />
 		</Compiler>
 		<Unit filename=".gitignore" />
+		<Unit filename="COPYRIGHT" />
 		<Unit filename="LICENSE" />
 		<Unit filename="Makefile" />
 		<Unit filename="README.md" />
 		<Unit filename="TODO" />
 		<Unit filename="TODO-svp" />
 		<Unit filename="doc/Doxyfile" />
+		<Unit filename="doc/tmp/doxyfile" />
 		<Unit filename="include/BetaProcessor.hpp" />
 		<Unit filename="include/CfdAnalyzer.hpp" />
 		<Unit filename="include/ChanEvent.hpp" />
