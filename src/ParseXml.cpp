@@ -1,4 +1,4 @@
-/** \file ParseXml.cpp 
+/** \file ParseXml.cpp
  * \brief A class to read xml files using pugixml.
  * \author S.V. Paulauskas
  * \date 17 November 2012
@@ -12,35 +12,35 @@
 
 using namespace std;
 
-ParseXml::ParseXml(const string &file) {
+ParseXml::ParseXml(const std::string &file) {
     if(!doc.load_file(file.c_str())) {
-        cout << "I couldn't open the file " << file 
+        cout << "I couldn't open the file " << file
              << ". Find it!!" << endl;
         exit(1);
     }
 }
 
-ParseXml::ParseXml(const string &file, const string &node) {
+ParseXml::ParseXml(const std::string &file, const std::string &node) {
     if(!doc.load_file(file.c_str())) {
-        cout << "I couldn't open the file " << file 
+        cout << "I couldn't open the file " << file
              << ". Find it!!" << endl;
         exit(1);
     }
     node_ = node;
 }
 
-bool ParseXml::GetBool(const string &path) {
+bool ParseXml::GetBool(const std::string &path) {
     if(GetInt(path) == 0)
         return(false);
     else
         return(true);
 }
 
-double ParseXml::GetDouble(const string &path) {
+double ParseXml::GetDouble(const std::string &path) {
     return(atof(ReadXml(path).c_str()));
 }
 
-double ParseXml::GetPixieClock(const string &type) {
+double ParseXml::GetPixieClock(const std::string &type) {
     stringstream ss;
 #ifdef REVF
     ss << "pixie/revf/";
@@ -54,23 +54,23 @@ double ParseXml::GetPixieClock(const string &type) {
     return(GetDouble(ss.str()));
 }
 
-int ParseXml::GetInt(const string &path) {
+int ParseXml::GetInt(const std::string &path) {
     return(atoi(ReadXml(path).c_str()));
 }
 
-size_t ParseXml::GetSizeT(const string &path) {
+size_t ParseXml::GetSizeT(const std::string &path) {
     return((size_t)GetInt(path));
 }
 
-string ParseXml::GetString(const string &path) {
+string ParseXml::GetString(const std::string &path) {
     return(ReadXml(path));
 }
 
-word_t ParseXml::GetWordT(const string &path) {
+word_t ParseXml::GetWordT(const std::string &path) {
     return((word_t)GetInt(path));
-}    
+}
 
-string ParseXml::ReadXml(const string &path) {
+string ParseXml::ReadXml(const std::string &path) {
     stringstream ss;
     if(node_ == "")
         ss << path;

@@ -39,7 +39,7 @@ const string PositionProcessor::configFile("qdc.txt");
 
 using namespace dammIds::position;
 
-LitePositionProcessor::PositionProcessor() : EventProcessor(OFFSET, RANGE)
+LitePositionProcessor::LitePositionProcessor() : EventProcessor(OFFSET, RANGE)
 {
     name="liteposition";
     associatedTypes.insert("ssd");
@@ -48,11 +48,11 @@ LitePositionProcessor::PositionProcessor() : EventProcessor(OFFSET, RANGE)
 /**
  * Reads in QDC parameters from an input file
  *   The file format allows comment lines at the beginning
- *   Followed by QDC lengths 
+ *   Followed by QDC lengths
  *   Which QDC to use for position calculation
  *     followed by the amount to scale the [0,1] result by to physical units
  *   And min and max values of the normalized QDC for each location in form:
- *      <location> <min> <max>
+ *      (location) (min) (max)
  *   Note that QDC 0 is considered to be a baseline section of the trace for
  *     baseline removal for the other QDCs
  */
@@ -69,7 +69,7 @@ bool LitePositionProcessor::Init(RawEvent& event)
     int numLocationsTop    = modChan->GetNextLocation("ssd", "top");
     int numLocationsBottom = modChan->GetNextLocation("ssd", "bottom");
     if (numLocationsTop != numLocationsBottom) {
-	cerr << "Number of top positions (" << numLocationsTop 
+	cerr << "Number of top positions (" << numLocationsTop
 	     << ") does not match number of bottom positions ("
 	     << numLocationsBottom << ") in map!" << endl;
 	cerr << "  Disabling QDC processor." << endl;
@@ -83,7 +83,7 @@ bool LitePositionProcessor::Init(RawEvent& event)
     ifstream in(configFile.c_str());
     if (!in) {
 	cerr << "Failed to open the QDC parameter file, QDC processor disabled." << endl;
-	return (initDone = false);	
+	return (initDone = false);
     }
 
     // Ignore any lines at the beginning that don't have a digit
@@ -94,17 +94,17 @@ bool LitePositionProcessor::Init(RawEvent& event)
 	linesIgnored++;
     }
     if (linesIgnored != 0) {
-	cout << "Ignored " << linesIgnored << " comment lines in " 
+	cout << "Ignored " << linesIgnored << " comment lines in "
 	     << configFile << endl;
     }
 
-    for (int i=0; i < numQdcs; i++) 
+    for (int i=0; i < numQdcs; i++)
 	in >> qdcLen[i];
     partial_sum(qdcLen, qdcLen + numQdcs, qdcPos);
     totLen = qdcPos[numQdcs - 1]  - qdcLen[0];
-    
+
     in >> whichQdc >> posScale;
-    
+
     int numLocationsRead = 0;
     while (true) {
 	int location;
@@ -124,8 +124,8 @@ bool LitePositionProcessor::Init(RawEvent& event)
 	cerr << "  Disabling position processor." << endl;
 	return (initDone = false);
     }
-    
-    cout << "Processor " << name << " initialized with " << numLocations 
+
+    cout << "Processor " << name << " initialized with " << numLocations
 	 << " locations operating on " << numQdcs << " QDCs" << endl;
     cout << "  QDC #" << whichQdc << " being used for position determination."
 	 << endl;
@@ -147,7 +147,7 @@ void LitePositionProcessor::DeclarePlots(void)
     const int positionBins = S6;
     const int energyBins   = SA;
 
-    for (int i=0; i < numLocations; i++) {	
+    for (int i=0; i < numLocations; i++) {
 	stringstream str;
 	for (int j=1; j < 8; j++) {
 	    str << "QDC " << j << ", T/B LOC " << i;
@@ -160,11 +160,11 @@ void LitePositionProcessor::DeclarePlots(void)
 	    if (i == 0) {
 		// declare only once
 		str << "ALL QDC T/B" << j;
-		DeclareHistogram2D(DD_QDCN__QDCN_LOCX + QDC_JUMP * j + LOC_SUM, 
+		DeclareHistogram2D(DD_QDCN__QDCN_LOCX + QDC_JUMP * j + LOC_SUM,
 				   qdcBins, qdcBins, str.str().c_str() );
 		str.str("");
-		str << "ALL QDC " << j << " NORM T/B";   
-		DeclareHistogram1D(D_QDCNORMN_LOCX + QDC_JUMP * j + LOC_SUM, 
+		str << "ALL QDC " << j << " NORM T/B";
+		DeclareHistogram1D(D_QDCNORMN_LOCX + QDC_JUMP * j + LOC_SUM,
 				   normBins, str.str().c_str() );
 	    }
 	}
@@ -179,7 +179,7 @@ void LitePositionProcessor::DeclarePlots(void)
 	str << "INFO LOC " << i;
 	DeclareHistogram1D(D_INFO_LOCX + i, infoBins, str.str().c_str());
 	str.str("");
-	
+
 	str << "Energy vs. position, loc " << i;
 	DeclareHistogram2D(DD_POSITION__ENERGY_LOCX + i, positionBins, energyBins, str.str().c_str());
 	str.str("");
@@ -200,7 +200,7 @@ void LitePositionProcessor::DeclarePlots(void)
 }
 
 /**
- *  Process the QDC data involved in top/bottom side for a strip 
+ *  Process the QDC data involved in top/bottom side for a strip
  *  Note QDC lengths are HARD-CODED at the moment for the plots and to determine the position
  */
 bool LitePositionProcessor::Process(RawEvent &event)
@@ -208,7 +208,7 @@ bool LitePositionProcessor::Process(RawEvent &event)
     if (!EventProcessor::Process(event))
 	return false;
 
-    static const vector<ChanEvent*> &sumEvents = 
+    static const vector<ChanEvent*> &sumEvents =
 	event.GetSummary("ssd:sum", true)->GetList();
     static const vector<ChanEvent*> &digisumEvents =
 	event.GetSummary("ssd:digisum", true)->GetList();
@@ -257,22 +257,22 @@ bool LitePositionProcessor::Process(RawEvent &event)
 	}
 
 	/* Make sure we get the same match going backwards to insure there is only one in the vector */
-	/* Isn't working due to some C++ STL mumbo jumbo -- normal iterators and reverse iterators not interchangeable 
+	/* Isn't working due to some C++ STL mumbo jumbo -- normal iterators and reverse iterators not interchangeable
 	if ( FindMatchingEdge(sumchan, topEvents.rbegin(), topEvents.rend()) != top) {
-	    cout << "Multiple top edges found for sum location " << location << endl; 
+	    cout << "Multiple top edges found for sum location " << location << endl;
 	}
 	if ( FindMatchingEdge(sumchan, bottomEvents.rbegin(), bottomEvents.rend()) != bottom) {
-	    cout << "Multiple top edges found for sum location " << location << endl; 
+	    cout << "Multiple top edges found for sum location " << location << endl;
 	}
 	*/
 	using namespace dammIds::position;
-	
+
 	float topQdc[numQdcs];
 	float bottomQdc[numQdcs];
 	float topQdcTot = 0;
 	float bottomQdcTot = 0;
 	float position = NAN;
-	
+
 	topQdc[0] = top->GetQdcValue(0);
 	bottomQdc[0] = bottom->GetQdcValue(0);
 	if (bottomQdc[0] == U_DELIMITER || topQdc[0] == U_DELIMITER) {
@@ -292,7 +292,7 @@ bool LitePositionProcessor::Process(RawEvent &event)
 	    }
 	    if (bottomQdc[0] == U_DELIMITER) {
 		plot(D_INFO_LOCX + location, 2);
-		plot(D_INFO_LOCX + LOC_SUM, 2);		
+		plot(D_INFO_LOCX + LOC_SUM, 2);
 		if ( !bottom->GetTrace().empty() ) {
 		  bottomQdc[0] = accumulate(bottom->GetTrace().begin(), bottom->GetTrace().begin() + qdcLen[0], 0);
 		} else {
@@ -306,7 +306,7 @@ bool LitePositionProcessor::Process(RawEvent &event)
 	plot(D_INFO_LOCX + location, 0); // good stuff
 	plot(D_INFO_LOCX + LOC_SUM , 0); // good stuff
 
-	for (int i=1; i < numQdcs; i++) {		
+	for (int i=1; i < numQdcs; i++) {
   	    if (top->GetQdcValue(i) == U_DELIMITER) {
 	      topQdc[i] = accumulate(top->GetTrace().begin() + qdcPos[i-1],
 				     top->GetTrace().begin() + qdcPos[i], 0);
@@ -316,8 +316,8 @@ bool LitePositionProcessor::Process(RawEvent &event)
 
 	    topQdc[i] -= topQdc[0] * qdcLen[i] / qdcLen[0];
 	    topQdcTot += topQdc[i];
-	    topQdc[i] /= qdcLen[i];		
-	    
+	    topQdc[i] /= qdcLen[i];
+
 	    if (bottom->GetQdcValue(i) == U_DELIMITER) {
 	      bottomQdc[i] = accumulate(bottom->GetTrace().begin() + qdcPos[i-1],
 					bottom->GetTrace().begin() + qdcPos[i], 0);
@@ -328,16 +328,16 @@ bool LitePositionProcessor::Process(RawEvent &event)
 	    bottomQdc[i] -= bottomQdc[0] * qdcLen[i] / qdcLen[0];
 	    bottomQdcTot += bottomQdc[i];
 	    bottomQdc[i] /= qdcLen[i];
-	    
+
 	    plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + location, topQdc[i] + 100, bottomQdc[i] + 100);
 	    plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + LOC_SUM, topQdc[i], bottomQdc[i]);
-	    
+
 	    float frac = topQdc[i] / (topQdc[i] + bottomQdc[i]) * 1000.; // per mil
 	    plot(D_QDCNORMN_LOCX + QDC_JUMP * i + location, frac);
 	    plot(D_QDCNORMN_LOCX + QDC_JUMP * i + LOC_SUM, frac);
 	    if (i == whichQdc) {
-		position = posScale * (frac - minNormQdc[location]) / 
-		    (maxNormQdc[location] - minNormQdc[location]);		
+		position = posScale * (frac - minNormQdc[location]) /
+		    (maxNormQdc[location] - minNormQdc[location]);
 		sumchan->GetTrace().InsertValue("position", position);
 		// plot(DD_POSITION, location, position);
 		plot(DD_POSITION__ENERGY_LOCX + location, position, sumchan->GetCalEnergy());
@@ -346,7 +346,7 @@ bool LitePositionProcessor::Process(RawEvent &event)
 	    if (i == 6 && !sumchan->IsSaturated()) {
 		// compare the long qdc to the energy
 		int qdcSum = topQdc[i] + bottomQdc[i];
-	       
+
 		// MAGIC NUMBERS HERE, move to qdc.txt
 		if (qdcSum < 1000 && sumchan->GetCalEnergy() > 15000) {
 		    sumchan->GetTrace().InsertValue("badqdc", 1);
@@ -359,7 +359,7 @@ bool LitePositionProcessor::Process(RawEvent &event)
 	} // end loop over qdcs
 	topQdcTot    /= totLen;
 	bottomQdcTot /= totLen;
-	
+
 	plot(DD_QDCTOT__QDCTOT_LOCX + location, topQdcTot, bottomQdcTot);
 	plot(DD_QDCTOT__QDCTOT_LOCX + LOC_SUM , topQdcTot, bottomQdcTot);
     } // end iteration over sum events
@@ -374,7 +374,7 @@ ChanEvent* LitePositionProcessor::FindMatchingEdge(ChanEvent *match,
 						   vector<ChanEvent*>::const_iterator end) const
 {
     const float timeCut = 5.; // maximum difference between edge and sum timestamps
-	
+
     for (;begin < end; begin++) {
 	if ( (*begin)->GetChanID().GetLocation() == match->GetChanID().GetLocation() &&
 	     abs( (*begin)->GetTime() - match->GetTime() ) < timeCut ) {

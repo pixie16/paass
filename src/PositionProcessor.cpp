@@ -1,4 +1,4 @@
-/** \file PositionProcessor.cpp
+/*! \file PositionProcessor.cpp
  * \brief Handle some QDC action to determine positions in a strip detector
  */
 
@@ -52,7 +52,7 @@ namespace dammIds {
 
 using namespace dammIds::position;
 
-/**
+/*!
  * Initialize the qdc to handle ssd events
  */
 PositionProcessor::PositionProcessor() : EventProcessor(OFFSET, RANGE) {
@@ -60,14 +60,14 @@ PositionProcessor::PositionProcessor() : EventProcessor(OFFSET, RANGE) {
     associatedTypes.insert("ssd");
 }
 
-/**
+/*!
  * Reads in QDC parameters from an input file
  *   The file format allows comment lines at the beginning
- *   Followed by QDC lengths 
+ *   Followed by QDC lengths
  *   Which QDC to use for position calculation
  *     followed by the amount to scale the [0,1] result by to physical units
  *   And min and max values of the normalized QDC for each location in form:
- *      <location> <min> <max>
+ *      (location) (min) (max)
  *   Note that QDC 0 is considered to be a baseline section of the trace for
  *     baseline removal for the other QDCs
  */
@@ -83,7 +83,7 @@ bool PositionProcessor::Init(RawEvent& rawev)
     int numLocationsTop    = modChan->GetNextLocation("ssd", "top");
     int numLocationsBottom = modChan->GetNextLocation("ssd", "bottom");
     if (numLocationsTop != numLocationsBottom) {
-        cerr << "Number of top positions (" << numLocationsTop 
+        cerr << "Number of top positions (" << numLocationsTop
             << ") does not match number of bottom positions ("
             << numLocationsBottom << ") in map!" << endl;
         cerr << "  Disabling QDC processor." << endl;
@@ -92,7 +92,7 @@ bool PositionProcessor::Init(RawEvent& rawev)
     }
     numLocations = numLocationsTop;
     if (numLocations > maxNumLocations) {
-        cerr << "Number of positions (" << numLocations 
+        cerr << "Number of positions (" << numLocations
             << ") is larger then maximum number of supported positions ("
             << maxNumLocations << ") in PositionProcessor" << endl;
         cerr << "  Disabling QDC processor." << endl;
@@ -108,7 +108,7 @@ bool PositionProcessor::Init(RawEvent& rawev)
     ifstream in(configFile.c_str());
     if (!in) {
         cerr << "Failed to open the QDC parameter file, QDC processor disabled." << endl;
-        return (initDone = false);	
+        return (initDone = false);
     }
 
     // Ignore any lines at the beginning that don't have a digit
@@ -119,18 +119,18 @@ bool PositionProcessor::Init(RawEvent& rawev)
         linesIgnored++;
     }
     if (linesIgnored != 0) {
-        cout << "Ignored " << linesIgnored << " comment lines in " 
+        cout << "Ignored " << linesIgnored << " comment lines in "
             << configFile << endl;
     }
 
-    for (int i=0; i < numQdcs; i++) 
+    for (int i=0; i < numQdcs; i++)
         in >> qdcLen[i];
     partial_sum(qdcLen, qdcLen + numQdcs, qdcPos);
     totLen = qdcPos[numQdcs - 1]  - qdcLen[0];
     // totLen = accumulate(qdcLen + 1, qdcLen + 8, 0);
-    
+
     in >> whichQdc >> posScale;
-    
+
     int numLocationsRead = 0;
     while (true) {
         int location;
@@ -150,8 +150,8 @@ bool PositionProcessor::Init(RawEvent& rawev)
         cerr << "  Disabling position processor." << endl;
         return (initDone = false);
     }
-    
-    cout << "QDC processor initialized with " << numLocations 
+
+    cout << "QDC processor initialized with " << numLocations
          << " locations operating on " << numQdcs << " QDCs" << endl;
     cout << "QDC #" << whichQdc << " being used for position determination."
          << endl;
@@ -172,12 +172,12 @@ void PositionProcessor::DeclarePlots() {
     const int positionBins = S6;
     const int energyBins   = SA;
 
-    for (int i = 0; i < maxNumLocations; ++i) {	
+    for (int i = 0; i < maxNumLocations; ++i) {
         stringstream str;
 
         for (int j = 1; j < numQdcs; ++j) {
             str << "QDC " << j << ", T/B LOC " << i;
-            histo.DeclareHistogram2D(DD_QDCN__QDCN_LOCX + QDC_JUMP * j + i , 
+            histo.DeclareHistogram2D(DD_QDCN__QDCN_LOCX + QDC_JUMP * j + i ,
                                qdcBins, qdcBins, str.str().c_str() );
             str.str("");
             str << "QDC " << j << " NORM T/B LOC" << i;
@@ -187,11 +187,11 @@ void PositionProcessor::DeclarePlots() {
             if (i == 0) {
                 // declare only once
                 str << "ALL QDC T/B" << j;
-                histo.DeclareHistogram2D(DD_QDCN__QDCN_LOCX + QDC_JUMP * j + LOC_SUM, 
+                histo.DeclareHistogram2D(DD_QDCN__QDCN_LOCX + QDC_JUMP * j + LOC_SUM,
                         qdcBins, qdcBins, str.str().c_str() );
                 str.str("");
-                str << "ALL QDC " << j << " NORM T/B";   
-                histo.DeclareHistogram1D(D_QDCNORMN_LOCX + QDC_JUMP * j + LOC_SUM, 
+                str << "ALL QDC " << j << " NORM T/B";
+                histo.DeclareHistogram1D(D_QDCNORMN_LOCX + QDC_JUMP * j + LOC_SUM,
                         normBins, str.str().c_str() );
             }
         }
@@ -207,7 +207,7 @@ void PositionProcessor::DeclarePlots() {
         str << "INFO LOC " << i;
         histo.DeclareHistogram1D(D_INFO_LOCX + i, infoBins, str.str().c_str());
         str.str("");
-        
+
         str << "Energy vs. position, loc " << i;
         histo.DeclareHistogram2D(DD_POSITION__ENERGY_LOCX + i, positionBins, energyBins, str.str().c_str());
         str.str("");
@@ -249,14 +249,14 @@ void PositionProcessor::DeclarePlots() {
 }
 
 /**
- *  Process the QDC data involved in top/bottom side for a strip 
+ *  Process the QDC data involved in top/bottom side for a strip
  *  Note QDC lengths are HARD-CODED at the moment for the plots and to determine the position
  */
 bool PositionProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return false;
 
-    static const vector<ChanEvent*> &sumEvents = 
+    static const vector<ChanEvent*> &sumEvents =
 	event.GetSummary("ssd:sum", true)->GetList();
     static const vector<ChanEvent*> &digisumEvents =
 	event.GetSummary("ssd:digisum", true)->GetList();
@@ -323,13 +323,13 @@ bool PositionProcessor::Process(RawEvent &event) {
         }
 
         using namespace dammIds::position;
-        
+
         float topQdc[numQdcs];
         float bottomQdc[numQdcs];
         float topQdcTot = 0;
         float bottomQdcTot = 0;
         float position = NAN;
-        
+
         topQdc[0] = top->GetQdcValue(0);
         bottomQdc[0] = bottom->GetQdcValue(0);
         if (bottomQdc[0] == U_DELIMITER || topQdc[0] == U_DELIMITER) {
@@ -369,7 +369,7 @@ bool PositionProcessor::Process(RawEvent &event) {
         plot(D_INFO_LOCX + LOC_SUM, INFO_OKAY);
 
 
-        for (int i = 1; i < numQdcs; ++i) {		
+        for (int i = 1; i < numQdcs; ++i) {
             if (top->GetQdcValue(i) == U_DELIMITER) {
                 // Recreate qdc from trace
                 topQdc[i] = accumulate(top->GetTrace().begin() + qdcPos[i-1],
@@ -380,8 +380,8 @@ bool PositionProcessor::Process(RawEvent &event) {
 
             topQdc[i] -= topQdc[0] * qdcLen[i] / qdcLen[0];
             topQdcTot += topQdc[i];
-            topQdc[i] /= qdcLen[i];		
-            
+            topQdc[i] /= qdcLen[i];
+
             if (bottom->GetQdcValue(i) == U_DELIMITER) {
                 // Recreate qdc from trace
                 bottomQdc[i] = accumulate(bottom->GetTrace().begin() + qdcPos[i-1],
@@ -393,17 +393,17 @@ bool PositionProcessor::Process(RawEvent &event) {
             bottomQdc[i] -= bottomQdc[0] * qdcLen[i] / qdcLen[0];
             bottomQdcTot += bottomQdc[i];
             bottomQdc[i] /= qdcLen[i];
-            
+
             plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + location, topQdc[i] + 10, bottomQdc[i] + 10);
             plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + LOC_SUM, topQdc[i], bottomQdc[i]);
-            
+
             float frac = topQdc[i] / (topQdc[i] + bottomQdc[i]) * 1000.; // per mil
-            
+
             plot(D_QDCNORMN_LOCX + QDC_JUMP * i + location, frac);
             plot(D_QDCNORMN_LOCX + QDC_JUMP * i + LOC_SUM, frac);
             if (i == whichQdc) {
-                position = posScale * (frac - minNormQdc[location]) / 
-                    (maxNormQdc[location] - minNormQdc[location]);		
+                position = posScale * (frac - minNormQdc[location]) /
+                    (maxNormQdc[location] - minNormQdc[location]);
                 sumchan->GetTrace().InsertValue("position", position);
                 plot(DD_POSITION__ENERGY_LOCX + location, position, sumchan->GetCalEnergy());
                 plot(DD_POSITION__ENERGY_LOCX + LOC_SUM, position, sumchan->GetCalEnergy());
@@ -411,7 +411,7 @@ bool PositionProcessor::Process(RawEvent &event) {
             if (i == 6 && !sumchan->IsSaturated()) {
                 // compare the long qdc to the energy
                 int qdcSum = topQdc[i] + bottomQdc[i];
-                
+
                 // MAGIC NUMBERS HERE, move to qdc.txt
                 if (qdcSum < 1000 && sumchan->GetCalEnergy() > 15000) {
                     sumchan->GetTrace().InsertValue("badqdc", 1);
@@ -437,7 +437,7 @@ bool PositionProcessor::Process(RawEvent &event) {
 
         topQdcTot    /= totLen;
         bottomQdcTot /= totLen;
-        
+
         plot(DD_QDCTOT__QDCTOT_LOCX + location, topQdcTot, bottomQdcTot);
         plot(DD_QDCTOT__QDCTOT_LOCX + LOC_SUM, topQdcTot, bottomQdcTot);
     } // end iteration over sum events

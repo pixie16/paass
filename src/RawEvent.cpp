@@ -1,5 +1,5 @@
 /** \file RawEvent.cpp
- *  \brief defines functions associated with a rawevent  
+ *  \brief defines functions associated with a rawevent
  */
 #include "RawEvent.hpp"
 
@@ -30,11 +30,11 @@ void RawEvent::Clear()
  *
  * Set the rawevent detector summary map with the passed argument.
  */
-void RawEvent::Init(const set<string> &usedTypes)
+void RawEvent::Init(const std::set<std::string> &usedTypes)
 {
     /* initialize the map of used detectors. This will associate the name of a
-       detector type (such as dssd_front, ge ...) with a detector summary. 
-       See ProcessEvent() for a description of the 
+       detector type (such as dssd_front, ge ...) with a detector summary.
+       See ProcessEvent() for a description of the
        variables in the summary
     */
     DetectorSummary ds;
@@ -59,7 +59,7 @@ void RawEvent::AddChan(ChanEvent *event)
  * For any detector type that was used in the event, zero the appropriate
  * detector summary in the map, and clear the event list
  */
-void RawEvent::Zero(const set<string> &usedev)
+void RawEvent::Zero(const std::set<std::string> &usedev)
 {
     for (map<string, DetectorSummary>::iterator it = sumMap.begin();
 	 it != sumMap.end(); it++) {
@@ -73,9 +73,9 @@ void RawEvent::Zero(const set<string> &usedev)
  * Get a pointer to a specific detector summary
  *
  * Retrieve from the detector summary map a pointer to the specific detector
- * summary that is associated with the passed string. 
+ * summary that is associated with the passed string.
  */
-DetectorSummary *RawEvent::GetSummary(const string& s, bool construct)
+DetectorSummary *RawEvent::GetSummary(const std::string& s, bool construct)
 {
     map<string, DetectorSummary>::iterator it = sumMap.find(s);
     static set<string> nullSummaries;
@@ -97,10 +97,10 @@ DetectorSummary *RawEvent::GetSummary(const string& s, bool construct)
     return &(it->second);
 }
 
-const DetectorSummary *RawEvent::GetSummary(const string &s) const
+const DetectorSummary *RawEvent::GetSummary(const std::string &s) const
 {
     map<string, DetectorSummary>::const_iterator it = sumMap.find(s);
-    
+
     if ( it == sumMap.end() ) {
         if (nullSummaries.count(s) == 0) {
             cout << "Returning NULL const detector summary for type " << s << endl;
