@@ -39,22 +39,24 @@ DetectorLibrary::~DetectorLibrary()
     // do nothing
 }
 
-DetectorLibrary::const_reference DetectorLibrary::at(DetectorLibrary::size_type idx) const
+DetectorLibrary::const_reference DetectorLibrary::at(size_type idx) const
 {
     return vector<Identifier>::at(idx);
 }
 
-DetectorLibrary::const_reference DetectorLibrary::at(DetectorLibrary::size_type mod, DetectorLibrary::size_type ch) const
+DetectorLibrary::const_reference DetectorLibrary::at(size_type mod,
+                                                     size_type ch) const
 {
     return vector<Identifier>::at(GetIndex(mod,ch));
 }
 
-DetectorLibrary::reference DetectorLibrary::at(DetectorLibrary::size_type idx)
+DetectorLibrary::reference DetectorLibrary::at(size_type idx)
 {
     return vector<Identifier>::at(idx);
 }
 
-DetectorLibrary::reference DetectorLibrary::at(DetectorLibrary::size_type mod, DetectorLibrary::size_type ch)
+DetectorLibrary::reference DetectorLibrary::at(size_type mod,
+                                               size_type ch)
 {
     return vector<Identifier>::at(GetIndex(mod,ch));
 }
@@ -79,12 +81,13 @@ const set<int>& DetectorLibrary::GetLocations(const Identifier &id) const
 /**
  * return the list of locations for a particular type and subtype
  */
-const set<int>& DetectorLibrary::GetLocations(const string &type, const string &subtype) const
+const std::set<int>& DetectorLibrary::GetLocations(const std::string &type,
+                                              const std::string &subtype) const
 {
     mapkey_t key = MakeKey(type, subtype);
 
     if (locations.count(key) > 0) {
-	return locations.find(key)->second; 
+	return locations.find(key)->second;
     } else {
 	return emptyLocations;
     }
@@ -101,8 +104,8 @@ int DetectorLibrary::GetNextLocation(const Identifier &id) const
 /**
  * return the next undefined location for a particular type and subtype
  */
-int DetectorLibrary::GetNextLocation(const string &type, 
-				     const string &subtype) const
+int DetectorLibrary::GetNextLocation(const std::string &type,
+				     const std::string &subtype) const
 {
     mapkey_t key = MakeKey(type, subtype);
 
@@ -130,8 +133,8 @@ bool DetectorLibrary::HasValue(int index) const
 
 void DetectorLibrary::Set(int index, const Identifier& value)
 {
-		
-    /// Search the list of known detectors; if the detector type 
+
+    /// Search the list of known detectors; if the detector type
     ///    is not matched, print out an error message and terminate
     if (knownDetectors.find(value.GetType()) == knownDetectors.end()) {
 	cout << endl;
@@ -157,11 +160,11 @@ void DetectorLibrary::Set(int index, const Identifier& value)
 	    numPhysicalModules = module + 1;
 	}
     }
-    
+
     string key;
     key = value.GetType() + ':' + value.GetSubtype();
     locations[key].insert(value.GetLocation());
-    
+
     usedTypes.insert(value.GetType());
     usedSubtypes.insert(value.GetSubtype());
 
@@ -178,7 +181,7 @@ void DetectorLibrary::Set(int mod, int ch, const Identifier &value)
  */
 void DetectorLibrary::PrintMap(void) const
 {
-    cout << setw(4) << "MOD" 
+    cout << setw(4) << "MOD"
 	 << setw(4) << "CH";
     Identifier::PrintHeaders();
 
@@ -195,15 +198,15 @@ void DetectorLibrary::PrintMap(void) const
 void DetectorLibrary::PrintUsedDetectors(RawEvent& rawev) const
 {
     // Print the number of detectors and detector subtypes used in the analysis
-    cout << usedTypes.size() <<" detector types are used in this analysis " 
-	 << "and are named:" << endl << "  "; 
+    cout << usedTypes.size() <<" detector types are used in this analysis "
+	 << "and are named:" << endl << "  ";
     copy(usedTypes.begin(), usedTypes.end(), ostream_iterator<string>(cout, " "));
     cout << endl;
-    
+
     cout << usedSubtypes.size() <<" detector subtypes are used in this "
 	 << "analysis and are named:" << endl << "  ";
     copy(usedSubtypes.begin(), usedSubtypes.end(), ostream_iterator<string>(cout," "));
-    cout << endl;   
+    cout << endl;
 
     rawev.Init(usedTypes);
 }
@@ -219,9 +222,9 @@ const set<string>& DetectorLibrary::GetKnownDetectors(void)
     const string detectorStrings[detTypes] = {
 	"dssd_front", "dssd_back", "idssd_front", "position", "timeclass",
 	"ge", "si", "scint", "mcp", "mtc", "generic", "ssd", "vandleSmall",
-	"vandleBig", "tvandle","pulser", "logic", "ion_chamber", "ignore", 
+	"vandleBig", "tvandle","pulser", "logic", "ion_chamber", "ignore",
 	"valid"};
-  
+
     // only call this once
     if (!knownDetectors.empty())
 	return knownDetectors;
@@ -264,7 +267,8 @@ int DetectorLibrary::ChannelFromIndex(int index) const
 /**
  * Make a unique map key for a give detector type and subtype
  */
-DetectorLibrary::mapkey_t DetectorLibrary::MakeKey(const string &type, const string &subtype) const
+DetectorLibrary::mapkey_t DetectorLibrary::MakeKey(const std::string &type,
+                                                   const std::string &subtype) const
 {
     return (type + ':' + subtype);
 }

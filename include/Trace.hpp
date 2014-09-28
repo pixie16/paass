@@ -38,7 +38,7 @@ class Trace : public std::vector<int>
 {
  private:
     static const unsigned int numBinsBaseline = 15;
-    unsigned int baselineLow; 
+    unsigned int baselineLow;
     unsigned int baselineHigh;
 
     std::vector<double> waveform;
@@ -46,12 +46,12 @@ class Trace : public std::vector<int>
     std::map<std::string, double> doubleTraceData;
     std::map<std::string, int>    intTraceData;
 
-    /** This field is static so all instances of Trace class have access to 
+    /** This field is static so all instances of Trace class have access to
      * the same plots and plots range. */
-    static Plots histo; 
+    static Plots histo;
 
  public:
-     
+
     Trace() : std::vector<int>()
 	{baselineLow = baselineHigh = U_DELIMITER; };
     // an automatic conversion
@@ -71,11 +71,11 @@ class Trace : public std::vector<int>
     }
 
     void InsertValue(std::string name, int value) {
-        intTraceData.insert(make_pair(name,value));	
+        intTraceData.insert(make_pair(name,value));
     }
 
     void SetValue(std::string name, double value) {
-        if (doubleTraceData.count(name) > 0) 
+        if (doubleTraceData.count(name) > 0)
             doubleTraceData[name] = value;
         else
             InsertValue(name,value);
@@ -101,19 +101,21 @@ class Trace : public std::vector<int>
         return NAN;
     }
 
-    std::vector<double> GetWaveform(){return waveform;}; 
+    std::vector<double> GetWaveform(){return waveform;};
 
-    //To allow access to the variables related to timing
-    //This is needed in order to calculate the baseline over the 
-    //range that immediately preceedes the trace. -SVP
+    /*!To allow access to the variables related to timing
+     This is needed in order to calculate the baseline over the
+     range that immediately preceedes the trace. -SVP
+    */
     TimingInformation constants;
-    
-    double DoBaseline(unsigned int lo = 0, unsigned int numBins = numBinsBaseline);
+
+    double DoBaseline(unsigned int lo = 0,
+                      unsigned int numBins = numBinsBaseline);
     double DoDiscrimination(unsigned int lo, unsigned int numBins);
     double DoQDC(unsigned int lo, unsigned int numBins);
-    
+
     unsigned int FindMaxInfo(void);
-    
+
     void Plot(int id);           //< plot trace into a 1D histogram
     void Plot(int id, int row);  //< plot trace into row of a 2D histogram
     void ScalePlot(int id, double scale); //< plot trace absolute value and scaled into a 1D histogram
@@ -128,7 +130,7 @@ class TrapezoidalFilterParameters
  private:
     Trace::size_type gapSamples;
     Trace::size_type riseSamples;
-    
+
     double tau;
  public:
     TrapezoidalFilterParameters(int gap, int rise, double t = NAN) :
@@ -145,7 +147,7 @@ class TrapezoidalFilterParameters
     }
     Trace::size_type GetGapSamples(void) const  {return gapSamples;}
     Trace::size_type GetRiseSamples(void) const {return riseSamples;}
-    Trace::size_type GetSize(void) const  
+    Trace::size_type GetSize(void) const
 	{return 2*riseSamples + gapSamples;}
     double GetTau(void) const      {return tau;}
 };
