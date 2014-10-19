@@ -1,5 +1,3 @@
-#The list of files for git to ignore
-
 #Build files
 *.o
 pixie_ldf_*
@@ -7,6 +5,7 @@ pixie_ldf_*
 #Backup files from various editors
 *.save
 *~
+*.swp
 
 #Documentation directories and files
 html/
