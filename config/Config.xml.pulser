@@ -1,23 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
-    <!-- This is an example configuration file based on a real experiment.
-         Copy this file and modify its content to setup your experiment.-->
-
     <!-- Instructions:
          Put here your name, email and date (please use Jan, Feb, ..., Dec
          for months names).
      -->
     <Author>
-        <Name>Krzysztof Miernik</Name>
-        <Email>k.a.miernik@gmail.com</Email>
-        <Date>Jan 2013</Date>
+        <Name>S. V. Paulauskas</Name>
+        <Email>stanpaulauskas@gmail.com</Email>
+        <Date>October 19, 2014</Date>
     </Author>
 
     <!-- Instructions:
          Put short description of your experiment here.
      -->
     <Description>
-        LeRIBSS 2011 93Br experiment, 4 Clovers, 2 Beta scitilators, MTC
+        A timing setup to measure time difference between two puulser signals
     </Description>
 
     <!-- Instructions:
@@ -44,7 +41,7 @@
             to the power of 2, since DAMM histograms must have such sizes
     -->
     <Global>
-        <Revision version="D"/>
+        <Revision version="F"/>
         <EventWidth unit="s" value="1e-6"/>
         <EnergyContraction value="1.0"/>
         <Path>config/</Path>
@@ -125,22 +122,7 @@
             * CfdAnalyzer
     -->
     <DetectorDriver>
-        <Processor name="GeProcessor"
-            gamma_threshold="20.0"
-            low_ratio="1.5"
-            high_ratio="3.0"
-            sub_event="100e-9"
-            gamma_beta_limit="200e-9"
-            gamma_gamma_limit="200e-9"
-            cycle_gate1_min="1.0"
-            cycle_gate1_max="1.2"
-            cycle_gate2_min="1.6"
-            cycle_gate2_max="1.8"
-            />
-        <Processor name="MtcProcessor"
-            double_stop="True"
-            double_start="True"/>
-        <Processor name="BetaScintProcessor" />
+        <Processor name="PulserProcessor" />
     </DetectorDriver>
 
     <!-- Instructions:
@@ -160,7 +142,8 @@
          Each attribute default to False, if change to True will show more
          messages concerning loaded parameters etc.
 
-         There are following calibration models:
+        The code recognizes the following calibrations:
+        Energy:
             * raw - non-calibrated (also used when no calibration specified)
             * off - turn channel off (returns always 0)
             * linear - requires 2 parameters
@@ -169,7 +152,7 @@
                 two above - requires at least 1 parameter
             * hyplin - f(x) = a0/x + a1 + a2*x , suitable if problems with
                 low channels are encountered - requires 3 parameters
-         And walk correction models:
+        Time Walk:
             * None - returns always 0
             * A - f(x) = a0 + a1 / (a2 + x) + a3 * exp(-x/a4), derived for
                 the ge detectors at 85-86Ga experiment - requires 5 parameters
@@ -180,9 +163,11 @@
             * B2 f(x) = a0 + a1 *  exp(-x / a2)
                 This function is the second part of 'B' model developed
                 for the 93Br experiment
-
         Note that walk models parameters are intended to operate on natural
         units i.e. raw channel numbers and pixie time tics.
+
+        High Resolution Timing (VANDLE) :
+
 
         Both calibration and walk correction operate on some range and
         there might be any number of ranges defined for the channel.
@@ -227,255 +212,71 @@
     -->
     <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
         <Module number="0">
-            <Channel number="0" type="ge" subtype="clover_high">
-                <Calibration model="linear">
-                    0.53008 	0.64017
-                </Calibration>
+            <Channel number="0" type="pulser" subtype="start">
                 <WalkCorrection model="None">
                 </WalkCorrection>
+                <TimeCalibration>
+                    <R0 value="0.0"/>
+                    <XOffset value="0.0"/>
+                    <XOffset value="0.0"/>
+                    <LROffset value="0.0"/>
+                    <TofOffset1 value="0.0"/>
+                    <TofOffset2 value="0.0"/>
+                </TimeCalibration>
             </Channel>
-            <Channel number="1" type="ge" subtype="clover_high" >
-                <Calibration model="hyplin">
-                     -102.890 0.25774   0.63307
-                </Calibration>
+            <Channel number="1" type="pulser" subtype="stop" >
                 <WalkCorrection model="None">
                 </WalkCorrection>
-            </Channel>
-            <Channel number="2" type="ge" subtype="clover_high" >
-                <Calibration model="linear">
-                    0.429804576   0.641512598
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="3" type="ge" subtype="clover_high" >
-                <Calibration model="linear">
-                    0.449299041   0.623329126
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="4" type="ge" subtype="clover_high" >
-                <Calibration model="linear">
-                    0.398875809   0.685485700
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="5" type="ge" subtype="clover_high" >
-                <Calibration model="linear">
-                     0.368173307   0.667626215
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="6" type="ge" subtype="clover_high" >
-                <Calibration model="linear">
-                    0.407849264   0.615687270
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="7" type="ge" subtype="clover_high" >
-                <Calibration model="linear">
-                    0.481072068   0.618435670
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="8" type="ge" subtype="clover_high">
-                <Calibration model="linear">
-                    0.644606165   0.647714008
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="9" type="ge" subtype="clover_high" >
-                <Calibration model="linear">
-                    0.449792617601133 	0.65348036527328
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="10" type="ge" subtype="clover_high" >
-                <Calibration model="linear">
-                    0.549072961   0.649961211
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="11" type="ge" subtype="clover_high" >
-                <Calibration model="linear">
-                    0.731484643   0.654519643
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="12" type="ge" subtype="clover_high" >
-                <Calibration model="linear">
-                    0.420410077   0.659157188
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="13" type="ge" subtype="clover_high" >
-                <Calibration model="linear">
-                    0.427338224   0.662418971
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="14" type="ge" subtype="clover_high" >
-                <Calibration model="linear">
-                    0.418389127   0.646237880
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="15" type="ge" subtype="clover_high" >
-                <Calibration model="linear">
-                    0.461761745   0.658536732
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-        </Module>
-
-        <Module number="1">
-            <Channel number="0" type="ge" subtype="clover_low">
-                <Calibration model="linear">
-                    1.03885141071601	 1.49837431622482
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="1" type="ge" subtype="clover_low" >
-                <Calibration model="linear">
-                    0.492481221       1.481532588
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="2" type="ge" subtype="clover_low" >
-                <Calibration model="linear">
-                    0.825569342       1.497697252
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="3" type="ge" subtype="clover_low" >
-                <Calibration model="linear">
-                    0.921246590	  1.446141132
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="4" type="ge" subtype="clover_low" >
-                <Calibration model="linear">
-                    1.097046572       1.590759031
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="5" type="ge" subtype="clover_low" >
-                <Calibration model="linear">
-                    0.803521581	  1.51828202
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="6" type="ge" subtype="clover_low" >
-                <Calibration model="linear">
-                    0.730257394	  1.40677080
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="7" type="ge" subtype="clover_low" >
-                <Calibration model="linear">
-                    0.707678856	  1.4214541654
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="8" type="ge" subtype="clover_low">
-                <Calibration model="linear">
-                    0.825097672961078 1.48927211465403
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="9" type="ge" subtype="clover_low" >
-                <Calibration model="linear">
-                    1.07427816772622  1.49768806637341
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="10" type="ge" subtype="clover_low" >
-                <Calibration model="linear">
-                    0.708174107670516 1.44812789526924
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="11" type="ge" subtype="clover_low" >
-                <Calibration model="linear">
-                    0.504851920284523 1.4969150995614
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="12" type="ge" subtype="clover_low" >
-                <Calibration model="linear">
-                    0.955384954       1.495692988
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="13" type="ge" subtype="clover_low" >
-                <Calibration model="linear">
-                    0.730398309	  1.523824533
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="14" type="ge" subtype="clover_low" >
-                <Calibration model="linear">
-                    0.636957428        1.495848911
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="15" type="ge" subtype="clover_low" >
-                <Calibration model="linear">
-                    0.954099487        1.512432598
-                </Calibration>
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-        </Module>
-
-        <Module number="2">
-            <Channel number="0" type="beta_scint" subtype="beta">
-                <Calibration model="linear">
-                </Calibration>
-            </Channel>
-            <Channel number="1" type="beta_scint" subtype="beta">
-                <Calibration model="linear">
-                </Calibration>
-            </Channel>
-            </Channel>
-            <Channel number="2" type="mtc" subtype="beam_start">
-            </Channel>
-            <Channel number="3" type="mtc" subtype="beam_stop">
-            </Channel>
-            <Channel number="4" type="mtc" subtype="start">
-            </Channel>
-            <Channel number="5" type="mtc" subtype="stop">
             </Channel>
         </Module>
     </Map>
+
+    <!-- Instructions:
+    -->
+    <Timing>
+        <NeutronMass unit="MeV/c/c" value="939.565560"/>
+        <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+        <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+        <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+        <SmallLength unit="cm" value="60.0"/>
+        <MediumLength unit="cm" value="120.0"/>
+        <BigLength unit="cm" value="200.0"/>
+
+        <Trace>
+            <WaveformLow value="5.0"/>
+            <WaveformHigh value="10.0"/>
+            <DiscriminationStart value="3"/>
+            <TrapezoidalWalk value="60"/>
+            <TraceDelay unit="ns" value="112"/>
+            <TraceLength unit="ns" value="176"/>
+        </Trace>
+
+        <Fitting>
+            <Vandle>
+                <Beta value="0.32969"/>
+                <Gamma value="0.212945"/>
+            </Vandle>
+            <Start>
+                <Beta value="0.32969"/>
+                <Gamma value="0.212945"/>
+            </Start>
+            <Pulser>
+                <Beta value="0.32969"/>
+                <Gamma value="0.212945"/>
+            </Pulser>
+            <TVandle>
+                <Beta value="0.32969"/>
+                <Gamma value="0.212945"/>
+            </TVandle>
+            <LiquidScint>
+                <Beta value="4.52672"/>
+                <Gamma value="1.73376"/>
+            </LiquidScint>
+            <SiPMT>
+                <Sigma value="0.0"/>
+            </SiPMT>
+        </Fitting>
+    </Timing>
 
     <!-- Instructions:
         Create here tree of "places" build of <Place> elements for
@@ -510,86 +311,7 @@
             see PlaceBuilder for other type of places and attributes.
     -->
     <TreeCorrelator name="root" verbose="False">
-        <Place type="PlaceOR" name="Beta" fifo="10">
-            <Place type="PlaceThreshold" name="beta_scint_beta_0-1"
-                low_limit="35.0" high_limit="16382" fifo="5"
-                replace="true"/>
-        </Place>
-
-        <Place type="PlaceDetector" name="TapeMove" reset="false"/>
-        <Place type="PlaceDetector" name="Beam" reset="false"/>
-        <Place type="PlaceDetector" name="Cycle" reset="false"/>
     </TreeCorrelator>
-
-
-    <!-- Instructions:
-        Definition of gamma-gamma gates for GeProcessors,
-        so far only 2-gammas gates are implemented.
-        Example:
-        <GammaGates>
-            <Gate>
-                <Line min="115" max="118"/>
-                <Line min="240" max="244"/>
-            </Gate>
-            <Gate>
-                <Line min="115" max="118"/>
-                <Line min="238" max="240"/>
-            </Gate>
-        </GammaGates>
-    -->
-    <GammaGates>
-        <Gate>
-            <Line min="115" max="120"/>
-            <Line min="240" max="244"/>
-        </Gate>
-        <Gate>
-            <Line min="115" max="120"/>
-            <Line min="245" max="249"/>
-        </Gate>
-        <Gate>
-            <Line min="115" max="118"/>
-            <Line min="237" max="240"/>
-        </Gate>
-        <Gate>
-            <Line min="115" max="118"/>
-            <Line min="232" max="235"/>
-        </Gate>
-        <Gate>
-            <Line min="251" max="256"/>
-            <Line min="251" max="256"/>
-        </Gate>
-        <Gate>
-            <Line min="251" max="256"/>
-            <Line min="180" max="184"/>
-        </Gate>
-        <Gate>
-            <Line min="251" max="256"/>
-            <Line min="2347" max="2354"/>
-        </Gate>
-    </GammaGates>
-
-    <!-- Instructions:
-         This defines regions of file that are going to be rejected
-         during the scan. The time is given in seconds since the start
-         of the file (note: this field should be used for single file scanning
-         mode, otherwise the rejection regions apply to each file).
-         See "scaler" spectra to find the regions you want to remove.
-
-         Example:
-        <Reject>
-            <Time start="1000" end="1200"/>
-            <Time start="2000" end="2150"/>
-        </Reject>
-
-        Both the 'start' and 'end' times should be larger than 0, and
-        end must be larger than start.
-
-        You may define any number of regions to reject.
-    -->
-    <Reject>
-        <Time start="1000" end="1200"/>
-        <Time start="2000" end="2150"/>
-    </Reject>
 
     <!-- Instructions:
          Configuration of Notebook object that saves handy notes (things

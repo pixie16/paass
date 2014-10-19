@@ -13,7 +13,7 @@
 				<Option object_output="/home/vincent/programs/sources/pixie_scan_master/.objs" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="test00 &lt; test.cmd" />
+				<Option parameters="test00 &lt; scripts/test.cmd" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -47,6 +47,7 @@
 		<Unit filename="config/Config.xml.93br" />
 		<Unit filename="config/Config.xml.cal" />
 		<Unit filename="config/Config.xml.example" />
+		<Unit filename="config/Config.xml.pulser" />
 		<Unit filename="config/Config.xml.she" />
 		<Unit filename="config/filter.txt" />
 		<Unit filename="config/generic/Globals.xml" />
@@ -96,7 +97,6 @@
 		<Unit filename="include/GeCalibProcessor.hpp" />
 		<Unit filename="include/GeProcessor.hpp" />
 		<Unit filename="include/GetArguments.hpp" />
-		<Unit filename="include/Globals-bkp.hpp" />
 		<Unit filename="include/Globals.hpp" />
 		<Unit filename="include/Hen3Processor.hpp" />
 		<Unit filename="include/ImplantSsdProcessor.hpp" />
@@ -105,7 +105,6 @@
 		<Unit filename="include/LiquidScintProcessor.hpp" />
 		<Unit filename="include/LitePositionProcessor.hpp" />
 		<Unit filename="include/LogicProcessor.hpp" />
-		<Unit filename="include/MapFile.hpp" />
 		<Unit filename="include/McpProcessor.hpp" />
 		<Unit filename="include/MersenneTwister.hpp" />
 		<Unit filename="include/Messenger.hpp" />
@@ -134,7 +133,6 @@
 		<Unit filename="include/TraceAnalyzer.hpp" />
 		<Unit filename="include/TraceExtractor.hpp" />
 		<Unit filename="include/TraceFilterer.hpp" />
-		<Unit filename="include/TracePlotter.hpp" />
 		<Unit filename="include/TreeCorrelator.hpp" />
 		<Unit filename="include/TriggerLogicProcessor.hpp" />
 		<Unit filename="include/ValidProcessor.hpp" />
@@ -152,9 +150,13 @@
 		<Unit filename="scan/scanorux.f" />
 		<Unit filename="scan/set2cc.f" />
 		<Unit filename="scripts/analyze.bash" />
+		<Unit filename="scripts/cmapbill.dat" />
 		<Unit filename="scripts/makedist.bash" />
+		<Unit filename="scripts/map_to_config.py" />
 		<Unit filename="scripts/multianalyze.bash" />
 		<Unit filename="scripts/online.bash" />
+		<Unit filename="scripts/start.cmd" />
+		<Unit filename="scripts/test.cmd" />
 		<Unit filename="setup.cfg" />
 		<Unit filename="src/BeamLogicProcessor.cpp" />
 		<Unit filename="src/BetaProcessor.cpp" />
@@ -200,7 +202,6 @@
 		<Unit filename="src/RawEvent.cpp" />
 		<Unit filename="src/ReadBuffData.RevA.cpp" />
 		<Unit filename="src/ReadBuffData.RevD.cpp" />
-		<Unit filename="src/ReadBuffData.cpp" />
 		<Unit filename="src/RootProcessor.cpp" />
 		<Unit filename="src/ScintProcessor.cpp" />
 		<Unit filename="src/ScintROOT.cpp" />
