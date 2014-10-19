@@ -55,7 +55,7 @@ class EventProcessor {
 
  public:
     EventProcessor();
-    EventProcessor(int offset, int range);
+    EventProcessor(int offset, int range, std::string name);
     virtual ~EventProcessor();
 
     // declare associated damm plots (called by drrsub_)

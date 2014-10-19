@@ -12,7 +12,6 @@
 #include <limits>
 #include <string>
 
-#include "PathHolder.hpp"
 #include "RawEvent.hpp"
 #include "TimingInformation.hpp"
 #include "Trace.hpp"
@@ -55,7 +54,7 @@ TimingInformation::TimingData::TimingData(ChanEvent *chan) : trace(chan->GetTrac
     maxpos         = trace.GetValue("maxpos");
     maxval         = trace.GetValue("maxval");
     numAboveThresh = trace.GetValue("numAboveThresh");
-    phase          = trace.GetValue("phase")*(pixie::adcClockInSeconds*1e+9);
+    phase          = trace.GetValue("phase")*(Globals::get()->clockInSeconds()*1e+9);
     stdDevBaseline = trace.GetValue("sigmaBaseline");
     tqdc           = trace.GetValue("tqdc")/qdcCompression;
     walk           = trace.GetValue("walk");
@@ -210,9 +209,8 @@ TimingInformation::TimingCal TimingInformation::GetTimingCal(const IdentKey &ide
 void TimingInformation::ReadTimingConstants(void)
 {
 
-    PathHolder* conf_path = new PathHolder();
-    string constantsFileName = conf_path->GetFullPath("timingConstants.txt");
-    delete conf_path;
+    string constantsFileName = 
+        Globals::get()->configPath("timingConstants.txt");
 
     ifstream readConstants(constantsFileName.c_str());
     
@@ -252,9 +250,7 @@ void TimingInformation::ReadTimingCalibration(void)
 {
     TimingCal timingcal;
 
-    PathHolder* conf_path = new PathHolder();
-    string timeCalFileName = conf_path->GetFullPath("timingCal.txt");
-    delete conf_path;
+    string timeCalFileName = Globals::get()->configPath("timingCal.txt");
 
     ifstream timingCalFile(timeCalFileName.c_str());
     

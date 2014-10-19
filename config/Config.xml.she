@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>Krzysztof Miernik</Name>
+        <Email>k.a.miernik@gmail.com</Email>
+        <Date>Jun-Feb 2013</Date>
+    </Author>
+
+    <Description>
+        Tests of the SHE DSSD detector
+    </Description>
+
+    <Global>
+        <Revision version="D"/>
+        <EventWidth unit="s" value="1e-6"/>
+        <EnergyContraction value="1.0"/>
+        <Path>config/</Path>
+        <NumOfTraces value="50"/>
+    </Global>
+
+    <DetectorDriver>
+        <Processor name="BeamLogicProcessor" />
+        <Processor name="Dssd4SHEProcessor" 
+            front_back_correlation_time="300e-9"
+            delta_energy="300"
+            high_energy_cut="15000" 
+            low_energy_cut="8000"
+            fission_energy_cut="100000" />
+        <Analyzer name="DoubleTraceAnalyzer"
+            gain_match="10.00"
+            fast_rise="10"
+            fast_gap="10"
+            fast_threshold="80"
+            energy_rise="25"
+            energy_gap="25"
+            slow_rise="20"
+            slow_gap="20"
+            slow_threshold="20"/>
+    </DetectorDriver>
+
+    <Map verbose_calibration="False"
+         verbose_map="False"
+         verbose_walk="False">
+    <Module number="0">
+        <Channel number="0" location="48" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-106.0716849853 16.0259557679</Calibration>
+        </Channel>
+        <Channel number="1" location="47" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-144.6856533679 16.0652500471</Calibration>
+        </Channel>
+        <Channel number="2" location="46" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-117.312432914 16.0856314456</Calibration>
+        </Channel>
+        <Channel number="3" location="45" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-115.687564725 16.3802254585</Calibration>
+        </Channel>
+        <Channel number="4" location="44" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-136.4204018127 16.4319444786</Calibration>
+        </Channel>
+        <Channel number="5" location="43" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-140.2028000948 16.5843093345</Calibration>
+        </Channel>
+        <Channel number="6" location="42" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-134.5667105329 16.4186591531</Calibration>
+        </Channel>
+        <Channel number="7" location="41" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-91.6846544204 16.5511816904</Calibration>
+        </Channel>
+        <Channel number="8" location="40" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-138.6697604198 16.5549917393</Calibration>
+        </Channel>
+        <Channel number="9" location="39" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-120.3000248266 17.2311144348</Calibration>
+        </Channel>
+        <Channel number="10" location="38" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-134.3661530864 16.2813713847</Calibration>
+        </Channel>
+        <Channel number="11" location="37" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-140.981709272 16.4631982501</Calibration>
+        </Channel>
+        <Channel number="12" location="36" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-120.4332109079 16.529603155</Calibration>
+        </Channel>
+        <Channel number="13" location="35" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-134.9107859812 16.6337704196</Calibration>
+        </Channel>
+        <Channel number="14" location="34" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-113.4069901083 16.5832172589</Calibration>
+        </Channel>
+        <Channel number="15" location="33" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-123.2937524418 16.2660313389</Calibration>
+        </Channel>
+    </Module>
+    <Module number="1">
+        <Channel number="0" location="32" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-120.3777086778 16.1274998321</Calibration>
+        </Channel>
+        <Channel number="1" location="31" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-126.268288759 16.3574826698</Calibration>
+        </Channel>
+        <Channel number="2" location="30" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-134.8028563218 16.1445671021</Calibration>
+        </Channel>
+        <Channel number="3" location="29" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-121.8490329722 16.3135617324</Calibration>
+        </Channel>
+        <Channel number="4" location="28" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-139.2673624839 16.4708502615</Calibration>
+        </Channel>
+        <Channel number="5" location="27" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-121.1937828271 16.6076995516</Calibration>
+        </Channel>
+        <Channel number="6" location="26" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-123.1629350976 16.5444165583</Calibration>
+        </Channel>
+        <Channel number="7" location="25" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-118.9780393312 16.5637825188</Calibration>
+        </Channel>
+        <Channel number="8" location="24" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-154.838483627 16.4807073082</Calibration>
+        </Channel>
+        <Channel number="9" location="23" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-125.049639008 16.8101937771</Calibration>
+        </Channel>
+        <Channel number="10" location="22" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-117.9470593902 16.5802440827</Calibration>
+        </Channel>
+        <Channel number="11" location="21" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-123.0768892786 16.6364572296</Calibration>
+        </Channel>
+        <Channel number="12" location="20" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-137.2823739742 16.2921821949</Calibration>
+        </Channel>
+        <Channel number="13" location="19" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-132.787215711 16.8109242043</Calibration>
+        </Channel>
+        <Channel number="14" location="18" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-118.1974962446 16.5812909137</Calibration>
+        </Channel>
+        <Channel number="15" location="17" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-147.1488223546 16.3749012596</Calibration>
+        </Channel>
+    </Module>
+    <Module number="2">
+        <Channel number="0" location="16" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-117.9006613848 16.1261715465</Calibration>
+        </Channel>
+        <Channel number="1" location="15" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-112.9225797233 16.6334048134</Calibration>
+        </Channel>
+        <Channel number="2" location="14" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-141.3178874954 16.6269671656</Calibration>
+        </Channel>
+        <Channel number="3" location="13" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-93.2218606022 16.6438642953</Calibration>
+        </Channel>
+        <Channel number="4" location="12" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-122.4075191827 16.2535269221</Calibration>
+        </Channel>
+        <Channel number="5" location="11" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-123.0282236132 16.6269671656</Calibration>
+        </Channel>
+        <Channel number="6" location="10" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-129.1355013986 16.3177991306</Calibration>
+        </Channel>
+        <Channel number="7" location="9" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-143.8065894443 16.5969926811</Calibration>
+        </Channel>
+        <Channel number="8" location="8" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-127.3448133095 16.6752893051</Calibration>
+        </Channel>
+        <Channel number="9" location="7" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-118.2690744445 16.6710194345</Calibration>
+        </Channel>
+        <Channel number="10" location="6" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-126.0337002486 16.7470521078</Calibration>
+        </Channel>
+        <Channel number="11" location="5" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-131.0405751336 16.3289635853</Calibration>
+        </Channel>
+        <Channel number="12" location="4" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-127.7780556928 16.4972122349</Calibration>
+        </Channel>
+        <Channel number="13" location="3" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-133.0085668162 16.5612834668</Calibration>
+        </Channel>
+        <Channel number="14" location="2" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-132.6514357875 16.572435559</Calibration>
+        </Channel>
+        <Channel number="15" location="1" subtype="dssd_front" type="dssd_front">
+            <Calibration max="32000" model="linear">-132.6514357875 16.572435559</Calibration>
+        </Channel>
+    </Module>
+    <Module number="3">
+        <Channel number="0" location="64" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-129.353555616 3.516112216</Calibration>
+        </Channel>
+        <Channel number="1" location="63" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-130.4489813622 3.4975013387</Calibration>
+        </Channel>
+        <Channel number="2" location="62" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-133.6833526791 3.5166755146</Calibration>
+        </Channel>
+        <Channel number="3" location="61" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-136.5770927545 3.5654627077</Calibration>
+        </Channel>
+        <Channel number="4" location="60" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-143.2133782379 3.5372214661</Calibration>
+        </Channel>
+        <Channel number="5" location="59" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-137.8870041287 3.5496441328</Calibration>
+        </Channel>
+        <Channel number="6" location="58" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-140.4128619738 3.6458197008</Calibration>
+        </Channel>
+        <Channel number="7" location="57" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-142.5287653312 3.5488266682</Calibration>
+        </Channel>
+        <Channel number="8" location="56" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-150.8049239457 3.5391919919</Calibration>
+        </Channel>
+        <Channel number="9" location="55" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-146.5049574259 3.5433827173</Calibration>
+        </Channel>
+        <Channel number="10" location="54" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-147.8912824084 3.5748923154</Calibration>
+        </Channel>
+        <Channel number="11" location="53" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-141.8883079366 3.6171938977</Calibration>
+        </Channel>
+        <Channel number="12" location="52" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-145.1078683929 3.5451831176</Calibration>
+        </Channel>
+        <Channel number="13" location="51" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-144.7789621658 3.614844496</Calibration>
+        </Channel>
+        <Channel number="14" location="50" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-144.3995289702 3.5772086442</Calibration>
+        </Channel>
+        <Channel number="15" location="49" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-144.2870850883 3.5616856729</Calibration>
+        </Channel>
+    </Module>
+    <Module number="4">
+        <Channel number="0" location="48" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-136.7762459476 3.5243345481</Calibration>
+        </Channel>
+        <Channel number="1" location="47" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-139.834331812 3.5391404515</Calibration>
+        </Channel>
+        <Channel number="2" location="46" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-139.8180984026 3.575025933</Calibration>
+        </Channel>
+        <Channel number="3" location="45" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-146.4851068132 3.5681553225</Calibration>
+        </Channel>
+        <Channel number="4" location="44" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-151.119900018 3.5934234847</Calibration>
+        </Channel>
+        <Channel number="5" location="43" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-148.163862331 3.5689109244</Calibration>
+        </Channel>
+        <Channel number="6" location="42" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-146.4169432184 3.587747775</Calibration>
+        </Channel>
+        <Channel number="7" location="41" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-149.1467394577 3.5761752772</Calibration>
+        </Channel>
+        <Channel number="8" location="40" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-146.380261215 3.6224148898</Calibration>
+        </Channel>
+        <Channel number="9" location="39" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-142.1951455761 3.6664376299</Calibration>
+        </Channel>
+        <Channel number="10" location="38" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-151.3403468875 3.5670226927</Calibration>
+        </Channel>
+        <Channel number="11" location="37" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-146.6045905819 3.6112123446</Calibration>
+        </Channel>
+        <Channel number="12" location="36" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-149.308919046 3.626879179</Calibration>
+        </Channel>
+        <Channel number="13" location="35" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-150.0205149935 3.5653687848</Calibration>
+        </Channel>
+        <Channel number="14" location="34" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-141.8842686783 3.645387578</Calibration>
+        </Channel>
+        <Channel number="15" location="33" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-154.0438528639 3.5400219804</Calibration>
+        </Channel>
+    </Module>
+    <Module number="5">
+        <Channel number="0" location="16" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-145.1388720411 3.5741886897</Calibration>
+        </Channel>
+        <Channel number="1" location="15" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-138.9813034097 3.5630445458</Calibration>
+        </Channel>
+        <Channel number="2" location="14" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-140.1976255185 3.5294929438</Calibration>
+        </Channel>
+        <Channel number="3" location="13" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-149.4602313115 3.621814109</Calibration>
+        </Channel>
+        <Channel number="4" location="12" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-134.6970883235 3.5910901883</Calibration>
+        </Channel>
+        <Channel number="5" location="11" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-139.8576867028 3.6242781384</Calibration>
+        </Channel>
+        <Channel number="6" location="10" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-147.2525148935 3.6613290812</Calibration>
+        </Channel>
+        <Channel number="7" location="9" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-149.7971182853 3.6482835107</Calibration>
+        </Channel>
+        <Channel number="8" location="8" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-143.129730041 3.6813886655</Calibration>
+        </Channel>
+        <Channel number="9" location="7" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-141.3891259229 3.5756328702</Calibration>
+        </Channel>
+        <Channel number="10" location="6" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-134.0249361801 3.6118668083</Calibration>
+        </Channel>
+        <Channel number="11" location="5" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-142.3133224612 3.6435051102</Calibration>
+        </Channel>
+        <Channel number="12" location="4" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-153.6561333401 3.5616767227</Calibration>
+        </Channel>
+        <Channel number="13" location="3" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-149.8172531143 3.6112328991</Calibration>
+        </Channel>
+        <Channel number="14" location="2" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-145.9933791785 3.5887639852</Calibration>
+        </Channel>
+        <Channel number="15" location="1" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-138.4314596409 3.6609617957</Calibration>
+        </Channel>
+    </Module>
+    <Module number="6">
+        <Channel number="0" location="32" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-135.0603067397 3.4796351546</Calibration>
+        </Channel>
+        <Channel number="1" location="31" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-133.0667818898 3.5011871928</Calibration>
+        </Channel>
+        <Channel number="2" location="30" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-143.8748188139 3.5540264255</Calibration>
+        </Channel>
+        <Channel number="3" location="29" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-146.8389482531 3.6326575478</Calibration>
+        </Channel>
+        <Channel number="4" location="28" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-148.2912603495 3.6233263171</Calibration>
+        </Channel>
+        <Channel number="5" location="27" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-147.2935138986 3.6529987024</Calibration>
+        </Channel>
+        <Channel number="6" location="26" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-141.9914625999 3.6360190089</Calibration>
+        </Channel>
+        <Channel number="7" location="25" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-141.9257204443 3.5878494205</Calibration>
+        </Channel>
+        <Channel number="8" location="24" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-142.4362499345 3.6499485573</Calibration>
+        </Channel>
+        <Channel number="9" location="23" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-132.4686614588 3.6501240784</Calibration>
+        </Channel>
+        <Channel number="10" location="22" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-159.7592075883 3.6577626569</Calibration>
+        </Channel>
+        <Channel number="11" location="21" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-153.914147498 3.6321004378</Calibration>
+        </Channel>
+        <Channel number="12" location="20" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-141.7866569014 3.5810167579</Calibration>
+        </Channel>
+        <Channel number="13" location="19" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-144.989377434 3.613018134</Calibration>
+        </Channel>
+        <Channel number="14" location="18" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-149.6414300513 3.5468985851</Calibration>
+        </Channel>
+        <Channel number="15" location="17" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-155.4120350101 3.6260013901</Calibration>
+        </Channel>
+    </Module>
+    <Module number="7">
+        <Channel number="0" location="128" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-137.510612869 3.4507796614</Calibration>
+        </Channel>
+        <Channel number="1" location="127" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-134.7211752445 3.5391569749</Calibration>
+        </Channel>
+        <Channel number="2" location="126" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-153.9597840934 3.5518322691</Calibration>
+        </Channel>
+        <Channel number="3" location="125" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-150.5979963015 3.6032056909</Calibration>
+        </Channel>
+        <Channel number="4" location="124" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-152.4168365511 3.5861045411</Calibration>
+        </Channel>
+        <Channel number="5" location="123" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-135.7521100541 3.5719683626</Calibration>
+        </Channel>
+        <Channel number="6" location="122" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-146.5207432088 3.6175127083</Calibration>
+        </Channel>
+        <Channel number="7" location="121" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-146.5082249598 3.6478899042</Calibration>
+        </Channel>
+        <Channel number="8" location="120" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-151.6462510991 3.640614241</Calibration>
+        </Channel>
+        <Channel number="9" location="119" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-147.3550363252 3.5739331025</Calibration>
+        </Channel>
+        <Channel number="10" location="118" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-148.6994952963 3.6007381954</Calibration>
+        </Channel>
+        <Channel number="11" location="117" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-147.0727515651 3.5401707781</Calibration>
+        </Channel>
+        <Channel number="12" location="116" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-137.3337380842 3.5547433676</Calibration>
+        </Channel>
+        <Channel number="13" location="115" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-141.2811546496 3.6164249997</Calibration>
+        </Channel>
+        <Channel number="14" location="114" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-150.0568580807 3.5346722182</Calibration>
+        </Channel>
+        <Channel number="15" location="113" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-137.4926356262 3.5303273719</Calibration>
+        </Channel>
+    </Module>
+    <Module number="8">
+        <Channel number="0" location="112" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-142.3104561139 3.578061763</Calibration>
+        </Channel>
+        <Channel number="1" location="111" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-138.6991813581 3.6096133088</Calibration>
+        </Channel>
+        <Channel number="2" location="110" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-147.261102766 3.5963109556</Calibration>
+        </Channel>
+        <Channel number="3" location="109" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-137.0401860938 3.6214985108</Calibration>
+        </Channel>
+        <Channel number="4" location="108" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-138.5541737675 3.6256194842</Calibration>
+        </Channel>
+        <Channel number="5" location="107" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-147.6641637945 3.6077134276</Calibration>
+        </Channel>
+        <Channel number="6" location="106" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-141.3753201464 3.6178767014</Calibration>
+        </Channel>
+        <Channel number="7" location="105" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-144.9011266514 3.6797418085</Calibration>
+        </Channel>
+        <Channel number="8" location="104" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-153.415901512 3.6343966776</Calibration>
+        </Channel>
+        <Channel number="9" location="103" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-144.5221385847 3.6203470687</Calibration>
+        </Channel>
+        <Channel number="10" location="102" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-142.8884891349 3.6693782363</Calibration>
+        </Channel>
+        <Channel number="11" location="101" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-147.085456234 3.6596670286</Calibration>
+        </Channel>
+        <Channel number="12" location="100" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-141.0718606889 3.6731672801</Calibration>
+        </Channel>
+        <Channel number="13" location="99" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-149.3999098875 3.6048869843</Calibration>
+        </Channel>
+        <Channel number="14" location="98" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-139.2032827676 3.6059347886</Calibration>
+        </Channel>
+        <Channel number="15" location="97" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-151.5730745972 3.6241111418</Calibration>
+        </Channel>
+    </Module>
+    <Module number="9">
+        <Channel number="0" location="85" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-144.211501643 3.5716539709</Calibration>
+        </Channel>
+        <Channel number="1" location="95" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-132.2824762172 3.5546767356</Calibration>
+        </Channel>
+        <Channel number="2" location="94" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-140.2270249533 3.5576938279</Calibration>
+        </Channel>
+        <Channel number="3" location="93" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-142.3371304411 3.525459024</Calibration>
+        </Channel>
+        <Channel number="4" location="92" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-148.1144280237 3.5760515625</Calibration>
+        </Channel>
+        <Channel number="5" location="91" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-157.8675231298 3.6032084447</Calibration>
+        </Channel>
+        <Channel number="6" location="90" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-156.1620908395 3.6337006888</Calibration>
+        </Channel>
+        <Channel number="7" location="89" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-148.2327325019 3.5812843695</Calibration>
+        </Channel>
+        <Channel number="8" location="88" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-146.4621486358 3.5883791754</Calibration>
+        </Channel>
+        <Channel number="9" location="87" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-138.8246106132 3.6386037936</Calibration>
+        </Channel>
+        <Channel number="10" location="86" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-146.4034305523 3.5922520993</Calibration>
+        </Channel>
+        <Channel number="11" location="96" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-146.7947167295 3.5821891933</Calibration>
+        </Channel>
+        <Channel number="12" location="84" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-154.3212598502 3.5900102478</Calibration>
+        </Channel>
+        <Channel number="13" location="83" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-146.8891864814 3.5947360313</Calibration>
+        </Channel>
+        <Channel number="14" location="82" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-144.3836065438 3.5705835702</Calibration>
+        </Channel>
+        <Channel number="15" location="81" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-145.3492795831 3.5708084753</Calibration>
+        </Channel>
+    </Module>
+    <Module number="10">
+        <Channel number="0" location="80" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-140.4769847018 3.4943370915</Calibration>
+        </Channel>
+        <Channel number="1" location="79" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-125.7559974964 3.5257094677</Calibration>
+        </Channel>
+        <Channel number="2" location="78" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-136.4910520229 3.517601776</Calibration>
+        </Channel>
+        <Channel number="3" location="77" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-139.9318711623 3.4997354822</Calibration>
+        </Channel>
+        <Channel number="4" location="76" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-137.3334908904 3.5208834664</Calibration>
+        </Channel>
+        <Channel number="5" location="75" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-134.8422939984 3.5426220265</Calibration>
+        </Channel>
+        <Channel number="6" location="74" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-145.8470476399 3.5554128211</Calibration>
+        </Channel>
+        <Channel number="7" location="73" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-149.0277016719 3.5594583756</Calibration>
+        </Channel>
+        <Channel number="8" location="72" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-144.7493469812 3.5336768796</Calibration>
+        </Channel>
+        <Channel number="9" location="71" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-145.8675641133 3.5519533731</Calibration>
+        </Channel>
+        <Channel number="10" location="70" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-143.3931667021 3.5572920751</Calibration>
+        </Channel>
+        <Channel number="11" location="69" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-145.5533603436 3.5633449553</Calibration>
+        </Channel>
+        <Channel number="12" location="68" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-148.5463333458 3.5824213545</Calibration>
+        </Channel>
+        <Channel number="13" location="67" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-147.5401074301 3.5778853142</Calibration>
+        </Channel>
+        <Channel number="14" location="66" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-156.6508948845 3.556376862</Calibration>
+        </Channel>
+        <Channel number="15" location="65" subtype="dssd_back" type="dssd_back">
+            <Calibration max="32000" model="linear">-163.35898269 3.5578051547</Calibration>
+        </Channel>
+    </Module>
+    <Module number="11">
+        <Channel number="1" subtype="veto" type="si">
+            <Calibration max="32000" model="linear">580.3049468647 8.0563222056</Calibration>
+        </Channel>
+        <Channel number="2" subtype="si" type="si">
+            <Calibration max="32000" model="linear">580.3049468647 8.0563222056</Calibration>
+        </Channel>
+        <Channel number="3" subtype="si" type="si">
+            <Calibration max="32000" model="linear">589.055431777 7.6769933654</Calibration>
+        </Channel>
+        <Channel number="4" subtype="si" type="si">
+            <Calibration max="32000" model="linear">186.4884772759 8.9343857711</Calibration>
+        </Channel>
+        <Channel number="5" subtype="si" type="si">
+            <Calibration max="32000" model="linear">525.3142405863 7.8998291203</Calibration>
+        </Channel>
+        <Channel number="6" subtype="si" type="si">
+            <Calibration max="32000" model="linear">553.5090813599 8.0978666307</Calibration>
+        </Channel>
+        <Channel number="7" subtype="si" type="si">
+            <Calibration max="32000" model="linear">207.1418169746 8.6917406398</Calibration>
+        </Channel>
+    </Module>
+    <Module number="12">
+        <Channel number="0" subtype="mcp" type="mcp">
+            <Calibration max="32000" model="linear">0.0 1.0</Calibration>
+        </Channel>
+        <Channel number="1" subtype="mcp" type="mcp">
+            <Calibration max="32000" model="linear">0.0 1.0</Calibration>
+        </Channel>
+        <Channel number="2" subtype="analog" type="logic">
+            <Calibration max="32000" model="linear">0.0 1.0</Calibration>
+        </Channel>
+        <Channel number="3" subtype="beam" type="logic">
+            <Calibration max="32000" model="linear">0.0 1.0</Calibration>
+        </Channel>
+        <Channel number="4" subtype="none" type="logic">
+            <Calibration max="32000" model="linear">0.0 1.0</Calibration>
+        </Channel>
+    </Module>
+    </Map>
+
+    <TreeCorrelator name="root" verbose="False">
+        <Place type="PlaceDetector" name="Beam" reset="false" init="true"/>
+    </TreeCorrelator>
+
+    <GammaGates>
+    </GammaGates>
+
+    <Notebook file="chains.txt" mode="a"/>
+
+</Configuration>

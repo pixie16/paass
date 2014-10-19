@@ -7,10 +7,8 @@
  * \author S. V. Paulauskas
  * \date 22 July 2011
  */
-#include <fstream>
-#include <iomanip>
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 #include <vector>
 
 #include <ctime>
@@ -26,67 +24,44 @@
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_vector.h>
 
-int FitFunction(const gsl_vector *x, void *FitData, gsl_vector *f);
-int CalcJacobian(const gsl_vector *x, void *FitData, gsl_matrix *J);
-int FitFunctionDerivative(const gsl_vector *x, void *FitData, gsl_vector *f,
-                          gsl_matrix *J);
-
-namespace dammIds {
-    namespace trace {
-        namespace fitting {
-            const int DD_TRACES      = 0;
-            const int D_CHISQPERDOF  = 1;
-            const int D_PHASE        = 2;
-            const int DD_AMP         = 3;
-            const int D_SAT          = 4;
-            const int DD_MAXVSQDCMAX = 5;
-            const int DD_MAXVALPOS   = 6;
-            const int DD_QDCMASK     = 7;
-            const int DD_MAXVSTHRESH = 8;
-            const int D_SIGMA        = 9;
-        }
-    }
-}
+int FitFunction(const gsl_vector *x, void *FitData, 
+		gsl_vector *f);
+int CalcJacobian(const gsl_vector *x, void *FitData, 
+		      gsl_matrix *J);
+int FitFunctionDerivative(const gsl_vector *x, void *FitData, 
+			  gsl_vector *f, gsl_matrix *J);
 
 using namespace std;
-using namespace dammIds::trace::fitting;
+using namespace dammIds::trace::waveformanalyzer;
 
 //********** DeclarePlots **********
-void FittingAnalyzer::DeclarePlots(void)
-{
-    DeclareHistogram2D(DD_TRACES, SB, S7, "traces data");
-    DeclareHistogram2D(DD_AMP, SE, SC, "Fit Amplitude");
-    DeclareHistogram1D(D_PHASE, SE, "Fit X0");
-    DeclareHistogram1D(D_CHISQPERDOF, SE, "Chi^2/dof");
-    DeclareHistogram1D(D_SAT, S4, "Saturations");
-    DeclareHistogram2D(DD_MAXVSQDCMAX, SB, SC, "Max to Max Value Ratio");
-    DeclareHistogram2D(DD_MAXVALPOS, S5, SC, "Max Val vs Pos");
-    DeclareHistogram2D(DD_QDCMASK, SE, SC, "Max vs Reduced Chi^2");
-    DeclareHistogram2D(DD_MAXVSTHRESH, S7, SC, "Max vs Num Bins Tresh");
-    DeclareHistogram1D(D_SIGMA, SE, "Standard Dev Baseline");
+void FittingAnalyzer::DeclarePlots(void) {
+    Trace sample_trace = Trace(); 
+    sample_trace.DeclareHistogram2D(DD_TRACES, S7, S5, "traces data FitAnalyzer");
+    sample_trace.DeclareHistogram2D(DD_AMP, SE, SC, "Fit Amplitude");
+    sample_trace.DeclareHistogram1D(D_PHASE, SE, "Fit X0");
+    sample_trace.DeclareHistogram1D(D_CHISQPERDOF, SE, "Chi^2/dof");
+    sample_trace.DeclareHistogram1D(D_SIGMA, SE, "Std Dev Baseline");
 }
 
 
 //********** FittingAnalyzer **********
-FittingAnalyzer::FittingAnalyzer() : TraceAnalyzer(OFFSET,RANGE)
-{
+FittingAnalyzer::FittingAnalyzer() {
     name = "FittingAnalyzer";
 }
 
 
 //********** Analyze **********
-void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
-			      const string &detSubtype)
-{
+void FittingAnalyzer::Analyze(Trace &trace, const string &detType, 
+			      const string &detSubtype) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype);
 
-
     if(trace.HasValue("saturation") || trace.empty()) {
-	plot(D_SAT,2);
      	EndAnalyze();
      	return;
     }
 
+    const double aveBaseline = trace.GetValue("baseline");
     const double sigmaBaseline = trace.GetValue("sigmaBaseline");
     const double maxVal = trace.GetValue("maxval");
     const double qdc = trace.GetValue("tqdc");
@@ -99,9 +74,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
         return;
     }
 
-    plot(DD_MAXVSQDCMAX, qdcToMax*100+100, maxVal);
-    plot(DD_MAXVALPOS, maxPos, maxVal);
-    plot(D_SIGMA, sigmaBaseline*100);
+    trace.plot(D_SIGMA, sigmaBaseline*100);
 
     if(sigmaBaseline > 3.0) {
 	EndAnalyze();
@@ -182,41 +155,14 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
     gsl_matrix_free (covar);
 
     trace.InsertValue("phase", fitPars.front()+maxPos);
-    trace.InsertValue("walk", CalcWalk(maxVal, detType, detSubtype));
+    //trace.InsertValue("walk", CalcWalk(maxVal, detType, detSubtype));
 
-    plot(DD_AMP, fitPars.at(1), maxVal);
-    plot(D_PHASE, fitPars.at(0)*1000+100);
-    plot(D_CHISQPERDOF, chisqPerDof);
-    plot(DD_QDCMASK, chisqPerDof, maxVal);
+    trace.plot(DD_AMP, fitPars.at(1), maxVal);
+    trace.plot(D_PHASE, fitPars.at(0)*1000+100);
+    trace.plot(D_CHISQPERDOF, chisqPerDof);
 
     EndAnalyze();
 } //void FittingAnalyzer::Analyze
-
-
-
-//********** WalkCorrection **********
-double FittingAnalyzer::CalcWalk(const double &val, const string &type,
-				 const string &subType)
-{
-    if(type == "vandleSmall") {
-	if(val < 175)
-	    return(1.09099*log(val)-7.76641);
-	if( val > 3700)
-	    return(0.0);
-	else
-	    return(-(9.13743e-12)*pow(val,3.) + (1.9485e-7)*pow(val,2.)
-		   -0.000163286*val-2.13918);
-
-	//Original Function - RevD
-	// double f = 92.7907602830327 * exp(-val/186091.225414275) +
-	// 	0.59140785215161 * exp(val/2068.14618331387) -
-	// 	95.5388835298589;
-    }else if(subType == "beta") {
-	return(-(1.07908*log10(val)-8.27739));
-    }else
-	return(0.0);
-}
-
 
 //*********** FitFunction **********
 int FitFunction (const gsl_vector * x, void *FitData, gsl_vector * f)

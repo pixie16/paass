@@ -35,6 +35,7 @@
 #include <iostream>
 #include <iterator>
 #include <string>
+#include <sstream>
 #include <vector>
 
 #include <cstring>
@@ -55,6 +56,8 @@
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
 #include "TreeCorrelator.hpp"
+#include "Messenger.hpp"
+#include "Exceptions.hpp"
 
 using namespace std;
 using namespace dammIds::raw;
@@ -78,14 +81,23 @@ void HistoStats(unsigned int, double, double, HistoPoints);
  * \brief Extract channel information from the raw parameter array ibuf
  */
 void hissub_sec(unsigned int *ibuf[],unsigned int *nhw);
-bool MakeModuleData(const word_t *data, unsigned long nWords); 
+bool MakeModuleData(const word_t *data, unsigned long nWords,
+                    unsigned int maxWords); 
 #endif
 
-int ReadBuffData(word_t *lbuf, unsigned long *BufLen,
+/**
+ * ReadBuffData versions for different pixie revisions
+ * */
+int ReadBuffDataA(word_t *lbuf, unsigned long *BufLen,
 		 vector<ChanEvent *> &eventList);
-void Pixie16Error(int errornum);
-
-const string scanMode = "scan";
+int ReadBuffDataDF(word_t *lbuf, unsigned long *BufLen,
+		 vector<ChanEvent *> &eventList);
+/** 
+ * This function pointer will be initialized to point to 
+ * appropiate function above based on parameter in the configuration file
+ */
+int (*ReadBuffData)(word_t *lbuf, unsigned long *BufLen,
+                    vector<ChanEvent *> &eventList);
 
 /** \fn extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw) 
  * \brief interface between scan and C++
@@ -110,21 +122,11 @@ const string scanMode = "scan";
 
 #ifdef newreadout
 
-// THIS SHOULD NOT BE SET LARGER THAN 1,000,000
-//  this defines the maximum amount of data that will be received in a spill
-const unsigned int TOTALREAD = 1000000;
-
-#if defined(REVD) || defined(REVF)
-const unsigned int maxWords = EXTERNAL_FIFO_LENGTH; //Revision D
-#else
-const unsigned int maxWords = IO_BUFFER_LENGTH; // Revision A
-#endif
-
 extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
 {
     const unsigned int maxChunks = 200;
 
-    static word_t totData[TOTALREAD];
+    static word_t totData[pixie::TOTALREAD];
     // keep track of the number of bad spills
     static unsigned int spillInvalidCount = 0, spillValidCount = 0;
     static bool firstTime = true;
@@ -140,7 +142,8 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
     word_t nWords=buf[0] / 4;
     word_t totBuf=buf[1];
     word_t bufNum=buf[2];
-    static unsigned int lastBuf = U_DELIMITER;
+    static unsigned int lastBuf = pixie::U_DELIMITER;
+    unsigned int maxWords = Globals::get()->maxWords();
 
     // Check to make sure the number of buffers is not excessively large 
     if (totBuf > maxChunks) {
@@ -153,7 +156,7 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
      */
     if(bufNum != 0 && firstTime) {
         do {
-            if (buf[totWords] == U_DELIMITER) {
+            if (buf[totWords] == pixie::U_DELIMITER) {
                 cout << "  -1 DELIMITER, " 
                     << buf[totWords] << buf[totWords + 1] << endl;
                 return;
@@ -168,123 +171,126 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw)
     firstTime = false;
     
     do {
-	do {
-	    /*Determine the number of words, total number of buffers, and
-	      current buffer number at this point in the chunk.  
-	      Note: the total number of buffers is repeated for each 
-	      buffer in the chunk */
-	    if (buf[totWords] == U_DELIMITER) return;
+        do {
+            /*Determine the number of words, total number of buffers, and
+            current buffer number at this point in the chunk.  
+            Note: the total number of buffers is repeated for each 
+            buffer in the chunk */
+            if (buf[totWords] == pixie::U_DELIMITER) return;
 
-	    nWords = buf[totWords] / 4;
- 	    bufNum = buf[totWords+2]; 
-	    // read total number of buffers later after we check if the last spill was good
-	    if (lastBuf != U_DELIMITER && bufNum != lastBuf + 1) {
+            nWords = buf[totWords] / 4;
+            bufNum = buf[totWords+2]; 
+            // read total number of buffers later after we check if the last spill was good
+            if (lastBuf != pixie::U_DELIMITER && bufNum != lastBuf + 1) {
 #ifdef VERBOSE
-		cout << "Buffer skipped, Last: " << lastBuf << " of " << totBuf 
-		     << " buffers read -- Now: " << bufNum << endl;
+            cout << "Buffer skipped, Last: " << lastBuf << " of " << totBuf 
+                << " buffers read -- Now: " << bufNum << endl;
 #endif
-		// if we are only missing the vsn 9999 terminator, reconstruct it
-		if (lastBuf + 2 == totBuf && bufInSpill == totBuf - 1) {
+            // if we are only missing the vsn 9999 terminator, reconstruct it
+            if (lastBuf + 2 == totBuf && bufInSpill == totBuf - 1) {
 #ifdef VERBOSE
-		    cout << "  Reconstructing final buffer " << lastBuf + 1 << "." << endl;
+                cout << "  Reconstructing final buffer " 
+                     << lastBuf + 1 << "." << endl;
 #endif		   
-		    totData[dataWords++] = 2;
-		    totData[dataWords++] = 9999;
-		    
-		    MakeModuleData(totData, dataWords);
-		    spillValidCount++;
-		    bufInSpill = 0; dataWords = 0; lastBuf = -1;
-		} else if (bufNum == 0) {
+                totData[dataWords++] = 2;
+                totData[dataWords++] = 9999;
+                
+                MakeModuleData(totData, dataWords, maxWords);
+                spillValidCount++;
+                bufInSpill = 0; dataWords = 0; lastBuf = -1;
+            } else if (bufNum == 0) {
 #ifdef VERBOSE		    
-		    cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
-			 << "  INCOMPLETE BUFFER " << spillInvalidCount 
-			 << "\n  " << spillValidCount << " valid spills so far."
-			 << " Starting fresh spill." << endl;
+                cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
+                << "  INCOMPLETE BUFFER " << spillInvalidCount 
+                << "\n  " << spillValidCount << " valid spills so far."
+                << " Starting fresh spill." << endl;
 #endif		   
-		    spillInvalidCount++;
-		    // throw away previous collected data and start fresh
-		    bufInSpill = 0; dataWords = 0; lastBuf = -1;
-		}
-	    } // check that the chunks are in order
-	    // update the total chunks only after the sanity checks above
-	    totBuf = buf[totWords+1];
-	    if (totBuf > maxChunks) {
+                spillInvalidCount++;
+                // throw away previous collected data and start fresh
+                bufInSpill = 0; dataWords = 0; lastBuf = -1;
+            }
+            } // check that the chunks are in order
+            // update the total chunks only after the sanity checks above
+            totBuf = buf[totWords+1];
+            if (totBuf > maxChunks) {
 #ifdef VERBOSE
-		cout << "EEEEE LOST DATA: Total buffers = " << totBuf 
-		     <<  ", word count = " << nWords << endl;
+            cout << "EEEEE LOST DATA: Total buffers = " << totBuf 
+                <<  ", word count = " << nWords << endl;
 #endif
-		return;
-	    }
-	    if (bufNum > totBuf - 1) {
+            return;
+            }
+            if (bufNum > totBuf - 1) {
 #ifdef VERBOSE
-		cout << "EEEEEEE LOST DATA: Buffer number " << bufNum
-		     << " of total buffers " << totBuf << endl;
+            cout << "EEEEEEE LOST DATA: Buffer number " << bufNum
+                << " of total buffers " << totBuf << endl;
 #endif
-		return;
-	    }
-	    lastBuf = bufNum;
+            return;
+            }
+            lastBuf = bufNum;
 
-	    /* Increment the number of buffers in a spill*/
-	    bufInSpill++;
-	    if(nWords == 0) {
+            /* Increment the number of buffers in a spill*/
+            bufInSpill++;
+            if(nWords == 0) {
 #ifdef VERBOSE
-		cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE NWORDS 0" << endl;
+            cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE NWORDS 0" << endl;
 #endif
-		return;
-	    }
-	    
-	    /* Extract this buffer information into the TotData array*/
-	    memcpy(&totData[dataWords], &buf[totWords+3], (nWords - 3) * sizeof(int));
-	    dataWords += nWords - 3;
-	    
-	    // Increment location in file 
-	    // one extra word to pass over "-1" delimiter signalling end of buffer
-	    totWords += nWords+1;
-	    if (bufNum == totBuf - 1 && nWords != 5) {
-		cout << "Strange final buffer " << bufNum << " of " << totBuf
-		     << " with " << nWords << " words" << endl;
-	    }
-	    if (nWords == 5 && bufNum != totBuf - 1) {
+            return;
+            }
+            
+            /* Extract this buffer information into the TotData array*/
+            memcpy(&totData[dataWords], &buf[totWords+3],
+                (nWords - 3) * sizeof(int));
+            dataWords += nWords - 3;
+            
+            // Increment location in file 
+            // one extra word to pass over "-1" delimiter signalling end of buffer
+            totWords += nWords+1;
+            if (bufNum == totBuf - 1 && nWords != 5) {
+            cout << "Strange final buffer " << bufNum << " of " << totBuf
+                << " with " << nWords << " words" << endl;
+            }
+            if (nWords == 5 && bufNum != totBuf - 1) {
 #ifdef VERBOSE
-		cout << "Five word buffer " << bufNum << " of " << totBuf
-		     << " WORDS: " 
-		     << hex << buf[3] << " " << buf[4] << dec << endl;
+            cout << "Five word buffer " << bufNum << " of " << totBuf
+                << " WORDS: " 
+                << hex << buf[3] << " " << buf[4] << dec << endl;
 #endif		
-	    }
-	} while(nWords != 5 || bufNum != totBuf - 1);
-	/* reached the end of a spill when nwords = 5 and last chunk in spill */
+            }
+        } while(nWords != 5 || bufNum != totBuf - 1);
+        /* reached the end of a spill when nwords = 5 and last chunk in spill */
 
-	/* make sure we retrieved all the chunks of the spill */
-	if (bufInSpill != totBuf) {
+        /* make sure we retrieved all the chunks of the spill */
+        if (bufInSpill != totBuf) {
 #ifdef VERBOSE	  
-	    cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE  INCOMPLETE BUFFER "
-		 << spillInvalidCount
-		 << "\n I/B [  " << bufInSpill << " of " << totBuf << " : pos " << totWords 
-		 << "    " << spillValidCount << " total spills"
-		 << "\n| " << hex << buf[0] << " " << buf[1] << "  " 
-		 << buf[2] << " " << buf[3]
-		 << "\n| " << dec << buf[totWords] << " " << buf[totWords+1] << "  "
-		 << buf[totWords+2] << " " << buf[totWords+3] << endl;
+            cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE  INCOMPLETE BUFFER "
+            << spillInvalidCount
+            << "\n I/B [  " << bufInSpill << " of " << totBuf << " : pos " << totWords 
+            << "    " << spillValidCount << " total spills"
+            << "\n| " << hex << buf[0] << " " << buf[1] << "  " 
+            << buf[2] << " " << buf[3]
+            << "\n| " << dec << buf[totWords] << " " << buf[totWords+1] << "  "
+            << buf[totWords+2] << " " << buf[totWords+3] << endl;
 #endif
-	    spillInvalidCount++; 
-	} else {
-	    spillValidCount++;
-	    MakeModuleData(totData, dataWords);	    
-	} // else the number of buffers is complete
-	dataWords = 0; bufInSpill = 0; lastBuf = -1; // reset the number of buffers recorded
+            spillInvalidCount++; 
+        } else {
+            spillValidCount++;
+            MakeModuleData(totData, dataWords, maxWords);	    
+        } // else the number of buffers is complete
+        dataWords = 0; bufInSpill = 0; lastBuf = -1; // reset the number of buffers recorded
     } while (totWords < nhw[0] / 4);
 }
 
 /** \brief inserts a delimiter in between individual module data and at end of 
  * buffer. Data is then passed to hissub_sec() for processing.
  */
-bool MakeModuleData(const word_t *data, unsigned long nWords)
+bool MakeModuleData(const word_t *data, unsigned long nWords,
+                    unsigned int maxWords)
 {
     const unsigned int maxVsn = 14; // no more than 14 pixie modules per crate
 
     unsigned int inWords = 0, outWords = 0;
     
-    static word_t modData[TOTALREAD];
+    static word_t modData[pixie::TOTALREAD];
     // create a constant pointer to this data block for passing to hissub_sec
     static word_t* dataPtr = modData; 
 
@@ -298,7 +304,6 @@ bool MakeModuleData(const word_t *data, unsigned long nWords)
 		 << ", vsn = " << vsn << ", inWords = " << inWords
 		 << " of " << nWords << ", outWords = " << outWords << endl;
 #endif
-	    // exit(EXIT_FAILURE);
 	    return false;  
 	}
 	
@@ -307,17 +312,25 @@ bool MakeModuleData(const word_t *data, unsigned long nWords)
 	inWords  += lenRec;
 	outWords += lenRec;
 	
-	modData[outWords++]=U_DELIMITER;
+	modData[outWords++]=pixie::U_DELIMITER;
     } while (inWords < nWords);
 	    
-    modData[outWords++]=U_DELIMITER;
-    modData[outWords++]=U_DELIMITER;
+    modData[outWords++]=pixie::U_DELIMITER;
+    modData[outWords++]=pixie::U_DELIMITER;
 	    
-    if(nWords > TOTALREAD || inWords > TOTALREAD || outWords > TOTALREAD ) {
-	cout << "Values of nn - " << nWords << " nk - "<< inWords  
-	     << " mm - " << outWords << " TOTALREAD - " << TOTALREAD << endl;
-	Pixie16Error(2); 
-	return false;
+    if(nWords > pixie::TOTALREAD || inWords > pixie::TOTALREAD || outWords > pixie::TOTALREAD ) {
+        stringstream ess;
+        ess << "Values of nn - " << nWords << " nk - "<< inWords  
+            << " mm - " << outWords << " TOTALREAD - " << pixie::TOTALREAD << endl;
+        ess << "One of the variables named nn, nk, or mm" 
+            << "have exceeded the value of TOTALREAD. The value of "
+            << "TOTALREAD MUST NEVER exceed 1000000 for correct "
+            << "opertation of code between 32-bit and 64-bit architecture " 
+            << "Either these variables have not been zeroed correctly or " 
+            << "the poll program controlling pixie16 is trying to send too "
+            << "much data at once.";
+        throw GeneralException(ess.str());
+        return false;
     }
 
     //! shouldn't this be 4 * outWords
@@ -357,6 +370,9 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
     DetectorLibrary* modChan = DetectorLibrary::get();
     /* Pointer to singleton DetectorDriver class */
     DetectorDriver* driver = DetectorDriver::get();
+    /* Screen messenger */
+    Messenger messenger;
+    stringstream ss;
 
     // local version of ibuf pointer
     word_t *lbuf;
@@ -395,36 +411,54 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
     /* Initialize the scan program before the first event */
     if (counter==0) {
         /* Retrieve the current time for use later to determine the total
-	 * running time of the analysis.
-	 */
+        * running time of the analysis.
+        */
+        messenger.start("Initializing scan");
+
+        string revision = Globals::get()->revision();
+        // Initialize function pointer to point to 
+        // correct version of ReadBuffData
+        if (revision == "D" || revision == "F") 
+            ReadBuffData = ReadBuffDataDF;
+        else if (revision == "A")
+            ReadBuffData = ReadBuffDataA;
+
         clockBegin = times(&tmsBegin);
 
-	cout << "First buffer at " << clockBegin << " sys time" << endl;
+        ss << "First buffer at " << clockBegin << " sys time";
+        messenger.detail(ss.str());
+        ss.str("");
+
         /* After completion the descriptions of all channels are in the modChan
-	 * vector, the DetectorDriver and rawevent have been initialized with the
-	 * detectors that will be used in this analysis.
-	 */
-    cout << "Using event width " << pixie::eventInSeconds * 1e6 << " us" << endl
-         << "                  " << pixie::eventWidth
-         << " in pixie16 clock tics." << endl;
-
-	modChan->PrintUsedDetectors(rawev);
-    if (verbose::MAP_INIT)
-        modChan->PrintMap();
-
-	driver->Init(rawev);
-    
-	/* Make a last check to see that everything is in order for the driver 
-	 * before processing data
-	 */
-	if ( !driver->SanityCheck() ) {
-	    cout << "Detector driver did not pass sanity check!" << endl;
-	    exit(EXIT_FAILURE);
-	}
+        * vector, the DetectorDriver and rawevent have been initialized with the
+        * detectors that will be used in this analysis.
+        */
+        modChan->PrintUsedDetectors(rawev);
+        driver->Init(rawev);
+        
+        /* Make a last check to see that everything is in order for the driver 
+        * before processing data. SanityCheck function throws exception if
+        * something went wrong.
+        */
+        try {
+            driver->SanityCheck();
+        } catch (GeneralException &e) {
+            messenger.fail();
+            cout << "Exception caught while checking DetectorDriver" 
+                 << " sanity in PixieStd" << endl;
+            cout << "\t" << e.what() << endl;
+            exit(EXIT_FAILURE);
+        } catch (GeneralWarning &w) {
+            cout << "Warning caught during checking DetectorDriver"
+                 << " at PixieStd" << endl;
+            cout << "\t" << w.what() << endl;
+        }
 
         lastVsn=-1; // set last vsn to -1 so we expect vsn 0 first 	
 
-	cout << "Init done at " << times(&tmsBegin) << " sys time." << endl;
+        ss << "Init at " << times(&tmsBegin) << " sys time.";
+        messenger.detail(ss.str());
+        messenger.done();
     }
     counter++;
  
@@ -434,175 +468,198 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
     bool multSpill;
 
     do {
-	word_t vsn = U_DELIMITER;
-	bool fullSpill=false; //true if spill had all vsn's
-        multSpill=false;  //assume all buffers are not split between spills    
+        word_t vsn = pixie::U_DELIMITER;
+        //true if spill had all vsn's
+        bool fullSpill = false;
+        //assume all buffers are not split between spills    
+        multSpill = false; 
 
         /* while the current location in the buffer has not gone beyond the end
-         * of the buffer (ignoring the last three delimiters, continue reading
-	 */
+         * of the buffer (ignoring the last three delimiters,
+         * continue reading */
         while (nWords < (nhw[0]/2 - 6)) {
             /*
-              Retrieve the record length and the vsn number
+            Retrieve the record length and the vsn number
             */
             word_t lenRec = lbuf[nWords];
             vsn = lbuf[nWords+1];
             
             /* If the record length is -1 (after end of spill), increment the
-	       location in the buffer by two and start over with the while loop
-	     */
-            if (lenRec == U_DELIMITER) {
+            location in the buffer by two and start over with the while loop
+            */
+            if (lenRec == pixie::U_DELIMITER) {
                 nWords += 2;  // increment two whole words and try again
                 continue;                         
             }
-	    // Buffer with vsn 1000 was inserted with the time for superheavy exp't
-	    if (vsn == clockVsn) {
-	      memcpy(&theTime, &lbuf[nWords+2], sizeof(time_t));
-	      nWords += lenRec;
-	    }
-            /*
-              If the record length is 6, this is an empty channel.
-	      Skip this vsn and continue with the next
+            // Buffer with vsn 1000 was inserted with 
+            // the time for superheavy exp't
+            if (vsn == pixie::clockVsn) {
+                memcpy(&theTime, &lbuf[nWords+2], sizeof(time_t));
+                nWords += lenRec;
+            }
+
+            /* If the record length is 6, this is an empty channel.
+             * Skip this vsn and continue with the next
             */
-	    //! Revision specific, so move to ReadBuffData
-            if (lenRec==6) {
+            //! Revision specific, so move to ReadBuffData
+            if (lenRec == 6) {
                 nWords += lenRec+1; // one additional word for delimiter
                 lastVsn=vsn;
                 continue;
             }
-            
-            /* If both the current vsn inspected is within an acceptable 
-	       range, begin reading the buffer.
-            */
+            /* If both the current vsn inspected is within an
+             * acceptable range, begin reading the buffer.
+             */
             if ( vsn < modChan->GetPhysicalModules()  ) {
-	        if ( lastVsn != U_DELIMITER) {
-		    // the modules should be read out cyclically
-		    if ( ((lastVsn+1) % modChan->GetPhysicalModules() ) != vsn ) {
+                if ( lastVsn != pixie::U_DELIMITER) {
+                // the modules should be read out cyclically
+                    if ( ((lastVsn+1) % modChan->GetPhysicalModules() ) !=
+                           vsn ) {
 #ifdef VERBOSE
-			cout << " MISSING BUFFER " << vsn << "/" 
-                 << modChan->GetPhysicalModules()
-			     << " -- lastVsn = " << lastVsn << "  " 
-			     << ", length = " << lenRec << endl;
+                            ss << " MISSING BUFFER " << vsn << "/" 
+                            << modChan->GetPhysicalModules()
+                            << " -- lastVsn = " << lastVsn << "  " 
+                            << ", length = " << lenRec;
+                            messenger.warning(ss.str());
+                            ss.str("");
 #endif
-                        RemoveList(eventList);
-                        fullSpill=true;
+                            RemoveList(eventList);
+                            fullSpill=true;
                     }
                 }
                 /* Read the buffer.  After read, the vector eventList will 
-		   contain pointers to all channels that fired in this buffer
+                   contain pointers to all channels that fired in this buffer
                 */
-
-                retval= ReadBuffData(&lbuf[nWords], &bufLen, eventList);
-
-                
+                retval= (*ReadBuffData)(&lbuf[nWords], &bufLen, eventList);
                 /* If the return value is less than the error code, 
-		   reading the buffer failed for some reason.  
-		   Print error message and reset variables if necessary
-                */
+                   reading the buffer failed for some reason.  
+                   Print error message and reset variables if necessary
+                 */
                 if ( retval <= readbuff::ERROR ) {
-		    cout << " READOUT PROBLEM " << retval 
-			 << " in event " << counter << endl;
+                    ss << " READOUT PROBLEM " << retval 
+                       << " in event " << counter;
+                    messenger.warning(ss.str());
+                    ss.str("");
                     if ( retval == readbuff::ERROR ) {
-			cout << "  Remove list " << lastVsn << " " << vsn << endl;
+                        ss << "  Remove list " << lastVsn 
+                           << " " << vsn;
                         RemoveList(eventList); 	                        
+                        messenger.warning(ss.str());
+                        ss.str("");
                     }
                     return;
                 } else if ( retval == 0 ) {
-		    // empty buffers are regular in Rev. D data
-		    // cout << " EMPTY BUFFER" << endl;
-		  nWords += lenRec + 1;
-		  lastVsn = vsn;
-		  continue;
-                  //  return;
+                    // empty buffers are regular in Rev. D data
+                    // cout << " EMPTY BUFFER" << endl;
+                    nWords += lenRec + 1;
+                    lastVsn = vsn;
+                    continue;
                 } else if ( retval > 0 ) {		
-		  /* increment the total number of events observed */
-		  numEvents += retval;
+                    /* increment the total number of events observed */
+                    numEvents += retval;
                 }
                 /* Update the variables that are keeping track of what has been
-		   analyzed and increment the location in the current buffer
+                   analyzed and increment the location in the current buffer
                 */
-                lastVsn = vsn;
-                nWords += lenRec+1; // one extra word for delimiter
+                    lastVsn = vsn;
+                    nWords += lenRec+1; // one extra word for delimiter
             } else {
-		// bail out if we have lost our place,		
-		//   (bad vsn) and process events     
-		if (vsn != 9999 && vsn != clockVsn) {
+                // bail out if we have lost our place,		
+                //   (bad vsn) and process events     
+                if (vsn != 9999 && vsn != pixie::clockVsn) {
 #ifdef VERBOSE	    
-		    cout << "UNEXPECTED VSN " << vsn << endl;
+                    ss << "UNEXPECTED VSN " << vsn;
+                    messenger.warning(ss.str());
+                    ss.str("");
 #endif
-		}
-		break;
-	    }
-        } // while still have words
-	if (nWords > nhw[0] / 2 - 6) {
-	    cout << "This actually happens!" << endl;	    
-	}
-        
-        /* If the vsn is 9999 this is the end of a spill, signal this buffer
-	   for processing and determine if the buffer is split between spills.
-        */
-        if ( vsn == 9999 || vsn == clockVsn ) {
-            fullSpill = true;
-            nWords += 3;//skip it
-            if (lbuf[nWords+1] != U_DELIMITER) {
-		cout << "this actually happens!" << endl;
-                multSpill = true;
+                }
+                break;
             }
-            lastVsn=U_DELIMITER;
+        } // while still have words
+        if (nWords > nhw[0] / 2 - 6) {
+            ss << "This actually happens!";
+            messenger.run_message(ss.str());
+            ss.str("");
         }
-        
-        /* if there are events to process, continue */
-        if( numEvents>0 ) {
-	    if (fullSpill) { 	  // if full spill process events
-		// sort the vector of pointers eventlist according to time
-		double lastTimestamp = (*(eventList.rbegin()))->GetTime();
+            
+        /* If the vsn is 9999 this is the end of a spill, signal this buffer
+           for processing and determine if the buffer is split between spills.
+        */
+            if ( vsn == 9999 || vsn == pixie::clockVsn ) {
+                fullSpill = true;
+                nWords += 3;//skip it
+                if (lbuf[nWords+1] != pixie::U_DELIMITER) {
+                    ss << "this actually happens!";
+                    messenger.warning(ss.str());
+                    ss.str("");
+                    multSpill = true;
+                }
+                lastVsn=pixie::U_DELIMITER;
+            }
+            
+            /* if there are events to process, continue */
+            if( numEvents > 0 ) {
+                if (fullSpill) { 	  // if full spill process events
+                    // sort the vector of pointers eventlist according to time
+                    double lastTimestamp = (*(eventList.rbegin()))->GetTime();
 
-		sort(eventList.begin(),eventList.end(),CompareTime);
-		driver->CorrelateClock(lastTimestamp, theTime);
+                    sort(eventList.begin(),eventList.end(),CompareTime);
+                    driver->CorrelateClock(lastTimestamp, theTime);
 
-		/* once the vector of pointers eventlist is sorted based on time,
-		   begin the event processing in ScanList()
-		*/
-		ScanList(eventList, rawev);
+                    /* once the vector of pointers eventlist is sorted
+                     * based on time, begin the event processing in ScanList()
+                    */
+                    ScanList(eventList, rawev);
 
-		/* once the eventlist has been scanned, remove it from memory
-		   and reset the number of events to zero and update the event
-		   counter
-		*/
+                    /* once the eventlist has been scanned, remove it
+                     * from memory and reset the number of events to zero
+                     * and update the event counter
+                    */
 
-		evCount++;		
-		/*
-		  every once in a while (when evcount is a multiple of 1000)
-		  print the time elapsed doing the analysis
-		*/
-		if(evCount % 1000 == 0 || evCount == 1) {
-		    tms tmsNow;
-		    clock_t clockNow = times(&tmsNow);
+                    evCount++;		
+                    /*
+                    every once in a while (when evcount is a multiple of 1000)
+                    print the time elapsed doing the analysis
+                    */
+                    if(evCount % 1000 == 0 || evCount == 1) {
+                        tms tmsNow;
+                        clock_t clockNow = times(&tmsNow);
 
-		    if (theTime != 0) {
-			cout << " data read up to poll status time " << ctime(&theTime);
-		    }
-		    cout << "   buffer = " << evCount << ", user time = " 
-			 << (tmsNow.tms_utime - tmsBegin.tms_utime) / hz
-			 << ", system time = " 
-			 << (tmsNow.tms_stime - tmsBegin.tms_stime) / hz
-			 << ", real time = "
-			 << (clockNow - clockBegin) / hz 
-			 << ", ts = " << lastTimestamp << endl;
-		}		
-		RemoveList(eventList);
-		numEvents=0;
-	    } // end fullSpill 
-	    else {
-		cout << "Spill split between buffers" << endl;
-		return; //! this tosses out all events read into the vector so far
-	    }	    
-        }  // end numEvents > 0
-        else if (retval != readbuff::STATS) {
-	    cout << "bad buffer, numEvents = " << numEvents << endl;
-            return;
-        }
-        
+                        stringstream ss;
+                        if (theTime != 0) {
+                            string timestamp = string(ctime(&theTime));
+                            timestamp.erase(timestamp.find_last_not_of(" \t\n\r") + 1);
+                            ss << "Data read up to poll status time " 
+                            << timestamp;
+                            messenger.run_message(ss.str());
+                            ss.str("");
+                        }
+                        ss << "buffer = " << evCount << ", user time = " 
+                           << (tmsNow.tms_utime - tmsBegin.tms_utime) / hz
+                           << ", system time = " 
+                           << (tmsNow.tms_stime - tmsBegin.tms_stime) / hz
+                           << ", real time = "
+                           << (clockNow - clockBegin) / hz 
+                           << ", ts = " << lastTimestamp;
+                        messenger.run_message(ss.str());
+                    }		
+                    RemoveList(eventList);
+                    numEvents = 0;
+                } // end fullSpill 
+                else {
+                    stringstream ss;
+                    ss << "Spill split between buffers";
+                    messenger.run_message(ss.str());
+                    //! this tosses out all events read into the vector so far
+                    return;
+                }	    
+            }  // end numEvents > 0
+            else if (retval != readbuff::STATS) {
+                stringstream ss;
+                ss << "bad buffer, numEvents = " << numEvents;
+                messenger.warning(ss.str());
+                return;
+            }
     } while (multSpill); // end while loop over multiple spills
     return;      
 }
@@ -644,6 +701,10 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
 
     DetectorLibrary* modChan = DetectorLibrary::get();
     DetectorDriver* driver = DetectorDriver::get();
+    Messenger messenger;
+    stringstream ss;
+    /** Rejection regions */
+    vector< pair<int, int> > rejectRegions = Globals::get()->rejectRegions();
 
     // local variable for the detectors used in a given event
     set<string> usedDetectors;
@@ -659,13 +720,19 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
     double currTime = lastTime;
     unsigned int id = (*iEvent)->GetID();
 
+    /* KM 
+     * Save time of the beginning of the file,
+     * this is needed for the rejection regions */
+    static double firstTime = lastTime;
     HistoStats(id, diffTime, lastTime, BUFFER_START);
 
     //loop over the list of channels that fired in this buffer
     for(; iEvent != eventList.end(); iEvent++) { 
         id = (*iEvent)->GetID();
-        if (id == U_DELIMITER) {
-            cout << "pattern 0 ignore" << endl;
+        if (id == pixie::U_DELIMITER) {
+            ss << "pattern 0 ignore";
+            messenger.warning(ss.str());
+            ss.str("");
             continue;
         }
         if ((*modChan)[id].GetType() == "ignore") {
@@ -682,16 +749,42 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
         currTime = (*iEvent)->GetTime();
         diffTime = currTime - lastTime;
 
+        /* KM: rejection of bad regions
+         * If time (in sec) is within the 'bad' region 
+         * just drop the rest of this for loop and go for another buffer
+         *
+         * Do checks only if hasReject flag is True.
+         */
+        if (Globals::get()->hasReject()) {
+            double bufferTime = (currTime - firstTime) * 
+                                 Globals::get()->clockInSeconds();
+            bool rejectBuffer = false;
+            for (vector< pair<int, int> >::iterator region = rejectRegions.begin();
+                 region != rejectRegions.end();
+                 ++region ) {
+                /** If event time is within a rejection region
+                 * set rejectBuffer flag true and stop checking */
+                if (bufferTime > region->first &&
+                    bufferTime < region->second) {
+                    rejectBuffer = true;
+                    break;
+                }
+            }
+            if (rejectBuffer)
+                continue;
+        }
+        /* end KM */
+
         /* if the time difference between the current and previous event is 
         larger than the event width, finalize the current event, otherwise
         treat this as part of the current event
         */
-        if ( diffTime > pixie::eventWidth ) {
+        if ( diffTime > Globals::get()->eventWidth() ) {
             if(rawev.Size() > 0) {
             /* detector driver accesses rawevent externally in order to
             have access to proper detector_summaries
             */
-                driver->ProcessEvent(scanMode, rawev);
+                driver->ProcessEvent(rawev);
             }
     
             //after processing zero the rawevent variable
@@ -704,16 +797,16 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
                 it != TreeCorrelator::get()->places_.end(); ++it)
                 if ((*it).second->resetable())
                     (*it).second->reset();
-
             HistoStats(id, diffTime, currTime, EVENT_START);
         } else HistoStats(id, diffTime, currTime, EVENT_CONTINUE);
 
         unsigned long dtimebin = 2000 + eventTime - chanTime;
         if (dtimebin < 0 || dtimebin > (unsigned)(SE)) {
-            cout << "strange dtime for id " << id << ":" << dtimebin << endl;
+            ss << "strange dtime for id " << id << ":" << dtimebin;
+            messenger.warning(ss.str());
+            ss.str("");
         }
         driver->plot(D_TIME + id, dtimebin);
-
         usedDetectors.insert((*modChan)[id].GetType());
         rawev.AddChan(*iEvent);
 
@@ -726,7 +819,7 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
         string mode;
         HistoStats(id, diffTime, currTime, BUFFER_END);
 
-        driver->ProcessEvent(scanMode, rawev);
+        driver->ProcessEvent(rawev);
         rawev.Zero(usedDetectors);
     }
 }
@@ -746,7 +839,8 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
     static double firstTime = 0.;
     static double bufStart;
 
-    double runTimeSecs   = (clock - firstTime) * pixie::clockInSeconds;
+    double runTimeSecs   = (clock - firstTime) *
+                           Globals::get()->clockInSeconds();
     int    rowNumSecs    = int(runTimeSecs / specNoBins);
     double remainNumSecs = runTimeSecs - rowNumSecs * specNoBins;
 
@@ -757,10 +851,14 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
     static double bufEnd = 0, bufLength = 0;
     // static double deadTime = 0 // not used
     DetectorDriver* driver = DetectorDriver::get();
+    Messenger messenger;
+    stringstream ss;
 
     if (firstTime > clock) {
-        cout << "Backwards clock jump detected: prior start " << firstTime
-            << ", now " << clock << endl;
+        ss << "Backwards clock jump detected: prior start " << firstTime
+           << ", now " << clock;
+        messenger.warning(ss.str());
+        ss.str("");
         // detect a backwards clock jump which occurs when some of the
         //   last buffers of a previous run sneak into the beginning of the 
         //   next run, elapsed time of last buffers is usually small but 
@@ -768,9 +866,12 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
         double elapsed = stop - firstTime;
         // make an artificial 10 second gap by 
         //   resetting the first time accordingly
-        firstTime = clock - 10 / pixie::clockInSeconds - elapsed;
-        cout << elapsed*pixie::clockInSeconds << " prior seconds elapsed "
-            << ", resetting first time to " << firstTime << endl;	
+        firstTime = clock - 10 / Globals::get()->clockInSeconds() - elapsed;
+        ss << elapsed * Globals::get()->clockInSeconds()
+           << " prior seconds elapsed "
+           << ", resetting first time to " << firstTime;
+        messenger.detail(ss.str());
+        ss.str("");
     }
 
     switch (event) {
@@ -779,14 +880,16 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
             if(firstTime == 0.) {
                 firstTime = clock;
             } else if (bufLength != 0.){
-                //plot time between buffers as a function of time - dead time spectrum	    
+                //plot time between buffers as a function
+                //of time - dead time spectrum	    
                 // deadTime += (clock - bufEnd)*pixie::clockInSeconds;
                 // plot(DD_DEAD_TIME_CUMUL,remainNumSecs,rownum,int(deadTime/runTimeSecs));	    	    
                 driver->plot(dammIds::raw::DD_BUFFER_START_TIME, remainNumSecs,rowNumSecs, (clock-bufEnd)/bufLength*1000.);	    
             }
             break;
         case BUFFER_END:
-            driver->plot(D_BUFFER_END_TIME, (stop - bufStart) * pixie::clockInSeconds * 1000);
+            driver->plot(D_BUFFER_END_TIME, (stop - bufStart) *
+                                      Globals::get()->clockInSeconds() * 1000);
             bufEnd = clock;
             bufLength = clock - bufStart;
         case EVENT_START:
@@ -805,7 +908,9 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
             stop = clock;
             break;
         default:
-            cout << "Unexpected type " << event << " given to HistoStats" << endl;
+            ss << "Unexpected type " << event << " given to HistoStats";
+            messenger.warning(ss.str());
+            ss.str("");
     }
 
     //fill these spectra on all events, id plots and runtime.
@@ -825,30 +930,11 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
  *
  * Print out an error message and terminate program depending on value
  * of errorNum. 
+ *
+ * KM 01.2013: removed, use exceptions from Exception.hpp 
  */
+/*
 void Pixie16Error(int errorNum)
 {
-  //print error message depending on errornum
-  switch (errorNum) {
-      case 1:
-	  cout << endl;
-	  cout << " **************  SCAN ERROR  ****************** " << endl;
-	  cout << "There appears to be more modules in the data " << endl;
-	  cout << "stream than are present in the map.txt file. " << endl;
-	  cout << "Please verify that the map.txt file is correct " << endl;
-	  cout << "This is a fatal error, program terminating" << endl;
-	  exit(EXIT_FAILURE);
-      case 2:
-	  cout << endl;
-	  cout << "***************  SCAN ERROR  ******************* "<<endl;
-	  cout << "One of the variables named nn, nk, or mm" << endl;
-	  cout << "have exceeded the value of TOTALREAD. The value of" << endl;
-	  cout << "TOTALREAD MUST NEVER exceed 1000000 for correct " << endl;
-	  cout << "opertation of code between 32-bit and 64-bit architecture " << endl;
-	  cout << "Either these variables have not been zeroed correctly or" << endl;
-	  cout << "the poll program controlling pixie16 is trying to send too " << endl;
-	  cout << "much data at once" << endl;
-	  cout << "This is a fatal error, program terminating " << endl;
-	  exit(EXIT_FAILURE);
-  }
 }
+*/

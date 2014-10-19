@@ -30,7 +30,7 @@ public:
     static RandomPool* get();
 
     void Generate(void);        
-    double Get(double range=1); 
+    double Get(double range = 1); 
 };
 
 #endif // __RANDOMPOOL_HPP_

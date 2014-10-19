@@ -17,7 +17,7 @@ bool CompareCorrectedTime(const ChanEvent *a, const ChanEvent *b)
 }
 
 /* Initialization of static memeber to the value defined in Globals.hpp */
-double ChanEvent::pixieEnergyContraction = pixie::energyContraction;
+double ChanEvent::pixieEnergyContraction = Globals::get()->energyContraction();
 
 /**
  * Channel event constructor
@@ -36,30 +36,30 @@ ChanEvent::ChanEvent() {
  */
 void ChanEvent::ZeroNums() 
 {
-    energy        = emptyValue;
-    calEnergy     = emptyValue;
-    time          = emptyValue;
-    calTime       = emptyValue;
-    correctedTime = emptyValue;
-    highResTime   = emptyValue;
+    energy        = -1;
+    calEnergy     = -1;
+    time          = -1;
+    calTime       = -1;
+    correctedTime = -1;
+    highResTime   = -1;
 
-    trigTime    = U_DELIMITER;
-    eventTimeLo = U_DELIMITER;
-    eventTimeHi = U_DELIMITER;
-    runTime0    = U_DELIMITER;
-    runTime1    = U_DELIMITER;
-    runTime2    = U_DELIMITER;
+    trigTime    = pixie::U_DELIMITER;
+    eventTimeLo = pixie::U_DELIMITER;
+    eventTimeHi = pixie::U_DELIMITER;
+    runTime0    = pixie::U_DELIMITER;
+    runTime1    = pixie::U_DELIMITER;
+    runTime2    = pixie::U_DELIMITER;
     chanNum     = -1;
     modNum      = -1;
     for (int i=0; i < numQdcs; i++) {
-	qdcValue[i] = U_DELIMITER;
+	qdcValue[i] = pixie::U_DELIMITER;
     }
 }
 
 unsigned long ChanEvent::GetQdcValue(int i) const
 {
     if (i < 0 || i >= numQdcs) {
-	return U_DELIMITER;
+	return pixie::U_DELIMITER;
     } 
     return qdcValue[i];
 }

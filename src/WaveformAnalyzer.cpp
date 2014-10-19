@@ -14,14 +14,13 @@
 
 #include <cmath>
 
+#include "FittingAnalyzer.hpp"
 #include "WaveformAnalyzer.hpp"
 
 using namespace std;
-using namespace dammIds::trace::waveform;
-
 
 //********** WaveformAnalyzer **********
-WaveformAnalyzer::WaveformAnalyzer() : TraceAnalyzer(OFFSET,RANGE) 
+WaveformAnalyzer::WaveformAnalyzer() : TraceAnalyzer() 
 {
     name = "Waveform";
 }
@@ -36,31 +35,28 @@ void WaveformAnalyzer::DeclarePlots(void) const
 //********** Analyze **********
 void WaveformAnalyzer::Analyze(Trace &trace,
 			       const string &detType, 
-			       const string &detSubtype)
-{
+			       const string &detSubtype) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype);
     
     if(detType == "vandleSmall" || detType == "vandleBig" 
-       || detType == "scint" || detType == "pulser" 
+       || detType == "liquid_scint" || detType == "pulser" 
        || detType == "tvandle") {
-
-	unsigned int maxPos = trace.FindMaxInfo();
-
+        
 	if(trace.HasValue("saturation")) {
 	    EndAnalyze();
 	    return;
 	}
 
-	unsigned int waveformLow = GetConstant("waveformLow");
-	unsigned int waveformHigh = GetConstant("waveformHigh");
-	unsigned int startDiscrimination = 
-	    GetConstant("startDiscrimination");
-
+	unsigned int waveformLow = timing_.GetConstant("waveformLow");
+	unsigned int waveformHigh = timing_.GetConstant("waveformHigh");
+	unsigned int startDiscrimination = timing_.GetConstant("startDiscrimination");
+	unsigned int maxPos = trace.FindMaxInfo();
+        
 	double qdc = trace.DoQDC(maxPos-waveformLow, 
-				 waveformHigh+waveformLow);
+                                 waveformHigh+waveformLow);
 
 	trace.InsertValue("qdcToMax", qdc/trace.GetValue("maxval"));
-
+        
 	if(detSubtype == "liquid")
 	    trace.DoDiscrimination(startDiscrimination, 
 	 			   waveformHigh - startDiscrimination);

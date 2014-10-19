@@ -2,9 +2,11 @@
  * \brief Header file for the rawevent
  *
  * The variables and structures contained in a raw event
- *
  * \author S. Liddick
  * \date 02 July 2007
+ * Modified:
+ *    KM = 27 - 11 - 2012 
+ *    some classes moved to their own .hpp and .cpp files
  */
 
 #ifndef __RAWEVENT_HPP_
