@@ -1,5 +1,6 @@
 /** \file VandleProcessor.hpp
- * \brief Class for handling Vandle Bars
+ * 
+ * Class for handling Vandle Bars
  */
 
 #ifndef __VANDLEPROCESSOR_HPP_
@@ -32,17 +33,13 @@ class VandleProcessor : public EventProcessor,
 			      const double &z0) {return((z0/corRadius)*TOF);};
 
     virtual void AnalyzeData(RawEvent& rawev);
-    virtual void BuildBars(const TimingDataMap &endMap, 
-                           const std::string &type, 
+    virtual void BuildBars(const TimingDataMap &endMap, const std::string &type, 
 			   BarMap &barMap);
     virtual void ClearMaps(void);
     virtual void CrossTalk(void);
-    virtual void FillMap(const vector<ChanEvent*> &eventList, 
-                         const std::string type,
+    virtual void FillMap(const std::vector<ChanEvent*> &eventList, const std::string type,
 			 TimingDataMap &eventMap);
     virtual void Tvandle(void);
-    virtual void WalkBetaVandle(const TimingInformation::TimingDataMap &beta, 
-                                const TimingInformation::BarData &bar);
 
     bool hasDecay;
     double decayTime;

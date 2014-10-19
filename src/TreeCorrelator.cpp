@@ -1,31 +1,32 @@
-#include "PathHolder.hpp"
 #include "TreeCorrelator.hpp"
 #include "Globals.hpp"
 #include "Exceptions.hpp"
+#include "Messenger.hpp"
 
 using namespace std;
 
-void Walker::parsePlace(pugi::xml_node node, string parent) {
+void Walker::parsePlace(pugi::xml_node node, string parent, bool verbose) {
     map<string, string> params;
     params["parent"] = parent;
     params["type"] = "";
     params["reset"] = "true";
     params["coincidence"] = "true";
     params["fifo"] = "2";
+    params["init"] = "false";
     for (pugi::xml_attribute attr = node.first_attribute();
          attr;
          attr = attr.next_attribute()) {
         params[attr.name()] = attr.value();
     }
-    TreeCorrelator::get()->createPlace(params);
+    TreeCorrelator::get()->createPlace(params, verbose);
 }
 
-void Walker::traverseTree(pugi::xml_node node, string parent) {
+void Walker::traverseTree(pugi::xml_node node, string parent, bool verbose) {
     for (pugi::xml_node child = node.child("Place");
          child;
          child = child.next_sibling("Place")) {
-        parsePlace(child, parent);
-        traverseTree(child, string(child.attribute("name").value()));
+        parsePlace(child, parent, verbose);
+        traverseTree(child, string(child.attribute("name").value()), verbose);
     }
 }
 
@@ -37,35 +38,36 @@ PlaceBuilder TreeCorrelator::builder = PlaceBuilder();
 TreeCorrelator* TreeCorrelator::get() {
     if (!instance) {
         instance = new TreeCorrelator();
-        cout << "Creating instance of TreeCorrelator" << endl;
     }
     return instance;
 }
 
 Place* TreeCorrelator::place(string name) {
-#ifdef DEBUG
-    if (places_.count(name) == 0) {
+    map<string, Place*>::iterator element = places_.find(name);
+    if (element == places_.end()) {
         stringstream ss;
         ss << "TreeCorrelator: place " << name
            << " doesn't exist " << endl;
         throw TreeCorrelatorException(ss.str());
     }
-#endif
-    return places_[name];
+    return element->second;
 }
 
 void TreeCorrelator::addChild(string parent, string child, 
-                             bool coin /* = true*/, bool verbose /*= false*/) {
-    if (places_.count(parent) == 1 || places_.count(child) == 1) {
+                             bool coin, bool verbose) {
+    if (places_.count(parent) == 1 && places_.count(child) == 1) {
         place(parent)->addChild(place(child), coin);
         if (verbose) {
-            cout << "TreeCorrelator: setting " << child 
-                 << " as a child of " << parent << endl;
+            Messenger m;
+            stringstream ss;
+            ss << "Setting " << child 
+                 << " as a child of " << parent;
+            m.detail(ss.str(), 1);
         }
     } else {
         stringstream ss;
         ss << "TreeCorrelator: could not set " << child
-           << "as a child of " << parent << endl;
+           << " as a child of " << parent << endl;
         throw TreeCorrelatorException(ss.str());
     }
 }
@@ -110,7 +112,7 @@ vector<string> TreeCorrelator::split_names(string name) {
 }
 
 void TreeCorrelator::createPlace(map<string, string>& params,
-                                 bool verbose /*= false*/) {
+                                 bool verbose) {
     bool replace = false;
     if (params["replace"] != "")
         replace = strings::to_bool(params["replace"]);
@@ -124,30 +126,39 @@ void TreeCorrelator::createPlace(map<string, string>& params,
             if (replace) {
                 if (places_.count((*it)) != 1) {
                     stringstream ss;
-                    ss << "TreeCorrelator: cannot replace Place" << (*it) 
+                    ss << "TreeCorrelator: cannot replace Place " << (*it) 
                        << ", it doesn't exist";
                     throw TreeCorrelatorException(ss.str());
                 }
                 delete places_[(*it)];
-                if (verbose::CORRELATOR_INIT)
-                    cout << "TreeCorrelator: replacing place " << (*it) << endl;
+                if (verbose) {
+                    Messenger m;
+                    stringstream ss;
+                    ss << "Replacing place " << (*it);
+                    m.detail(ss.str(), 1);
+                }
             } else {
                 if (places_.count((*it)) == 1) {
                     stringstream ss;
                     ss << "TreeCorrelator: place" << (*it) << " already exists";
                     throw TreeCorrelatorException(ss.str());
                 }
-                if (verbose::CORRELATOR_INIT)
-                    cout << "TreeCorrelator: creating place " << (*it) << endl;
+                if (verbose) {
+                    Messenger m;
+                    stringstream ss;
+                    ss << "Creating place " << (*it);
+                    m.detail(ss.str(), 1);
+                }
             }
-            Place* current = builder.create(params);
+            Place* current = builder.create(params, verbose);
             places_[(*it)] = current;
+            if (strings::to_bool(params["init"]))
+                current->activate(0.0);
         }
 
         if (params["parent"] != "root") {
             bool coincidence = strings::to_bool(params["coincidence"]);
-            addChild(params["parent"], (*it), coincidence,
-                     verbose::CORRELATOR_INIT);
+            addChild(params["parent"], (*it), coincidence, verbose);
         }
 
     }
@@ -156,28 +167,33 @@ void TreeCorrelator::createPlace(map<string, string>& params,
 void TreeCorrelator::buildTree() {
     pugi::xml_document doc;
 
-    PathHolder* conf_path = new PathHolder();
-    string xmlFileName = conf_path->GetFullPath("TreeCorrelator.xml");
-    delete conf_path;
+    Messenger m;
+    m.start("Creating TreeCorrelator");
+    pugi::xml_parse_result result = doc.load_file("Config.xml");
+    if (!result) {
+        stringstream ss;
+        ss << "DetectorDriver: error parsing file Config.xml";
+        ss << " : " << result.description();
+        m.fail();
+        throw IOException(ss.str());
+    }
 
-    pugi::xml_parse_result result = doc.load_file(xmlFileName.c_str());
-    cout << "Loading configiration file " << xmlFileName << " : "
-         << result.description() 
-         << endl << "Configuration description: "
-         << doc.child("TreeCorrelator").attribute("description").value()
-         << endl;
+    pugi::xml_node tree = doc.child("Configuration").child("TreeCorrelator");
+    bool verbose = tree.attribute("verbose").as_bool(false);
 
-    pugi::xml_node tree = doc.child("TreeCorrelator");
     Walker walker;
-    walker.traverseTree(tree, string(tree.attribute("name").value()));
+    walker.traverseTree(tree, string(tree.attribute("name").value()), verbose);
+
+    m.done();
 }
 
 TreeCorrelator::~TreeCorrelator() {
     for (map<string, Place*>::iterator it = places_.begin(); 
          it != places_.end(); ++it) {
-            if (verbose::MAP_INIT)
-                cout << "TreeCorrelator: deleting place " << (*it).first << endl;
-            delete it->second;
+        delete it->second;
     }
+    places_.clear();
+    delete instance;
+    instance = NULL;
 }
 

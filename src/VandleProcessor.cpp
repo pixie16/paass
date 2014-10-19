@@ -15,6 +15,7 @@
 
 #include "DammPlotIds.hpp"
 #include "GetArguments.hpp"
+#include "Globals.hpp"
 #include "RawEvent.hpp"
 #include "VandleProcessor.hpp"
 
@@ -101,9 +102,9 @@ using namespace std;
 using namespace dammIds::vandle;
 
 //*********** VandleProcessor **********
-VandleProcessor::VandleProcessor(): EventProcessor(OFFSET, RANGE)
+VandleProcessor::VandleProcessor():
+    EventProcessor(dammIds::vandle::OFFSET, dammIds::vandle::RANGE, "vandle")
 {
-    name = "Vandle";
     associatedTypes.insert("vandleSmall"); 
     associatedTypes.insert("vandleBig");
     associatedTypes.insert("tvandle");
@@ -289,6 +290,11 @@ bool VandleProcessor::Process(RawEvent &event)
     if (!EventProcessor::Process(event)) //start event processing
 	return false;
 
+    hasDecay = 
+	(event.GetCorrelator().GetCondition() == Correlator::VALID_DECAY);
+    if(hasDecay)
+	decayTime = event.GetCorrelator().GetDecayTime() *
+                Globals::get()->clockInSeconds();
     plot(D_PROBLEMS, 30); //DEBUGGING
 
     if(RetrieveData(event)) {
@@ -386,8 +392,6 @@ void VandleProcessor::AnalyzeData(RawEvent& rawev)
 	     timeDiff*resMult+resOffset, barLoc); 
 	plot(DD_TQDCAVEVSTDIFF+idOffset, 
 	     timeDiff*resMult+resOffset, bar.qdc);
-	
-	WalkBetaVandle(startMap, bar);
 
 	//Loop over the starts in the event	
 	for(TimingDataMap::iterator itStart = startMap.begin(); 
@@ -709,20 +713,4 @@ void VandleProcessor::Tvandle(void)
 	}
     } else // if(right.dataValid
 	plot(D_PROBLEMS, 2);
-}
-
-void VandleProcessor::WalkBetaVandle(const TimingInformation::TimingDataMap &beta, const TimingInformation::BarData &bar) {
-    double cutoff = 1500;
-    for(TimingDataMap::const_iterator it = beta.begin(); it != beta.end(); it++) {
-	plot(DD_DEBUGGING4, bar.lMaxVal, bar.rMaxVal);
-	if((*it).first.first == 0 && bar.rMaxVal > cutoff
-	   && bar.lMaxVal > cutoff) {
-		plot(DD_DEBUGGING5, (bar.walkCorTimeAve - (*it).second.highResTime)*2+500, (*it).second.maxval);
-		plot(DD_DEBUGGING6, (bar.walkCorTimeAve - (*it).second.walkCorTime)*2+500, (*it).second.maxval);
-	} else if((*it).first.first == 1 && bar.rMaxVal > cutoff
-	   && bar.lMaxVal > cutoff) {
-		plot(DD_DEBUGGING7, (bar.walkCorTimeAve - (*it).second.highResTime)*2+500, (*it).second.maxval);
-		plot(DD_DEBUGGING8, (bar.walkCorTimeAve - (*it).second.walkCorTime)*2+500, (*it).second.maxval);
-	}
-    }
 }

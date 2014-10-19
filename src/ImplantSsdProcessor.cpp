@@ -17,13 +17,14 @@
 #include "Correlator.hpp"
 #include "DetectorDriver.hpp"
 #include "ImplantSsdProcessor.hpp"
-#include "LogicProcessor.hpp"
+#include "TriggerLogicProcessor.hpp"
 #include "RawEvent.hpp"
 
 using std::cout;
 using std::endl;
 using std::min;
 using std::stringstream;
+using std::vector;
 
 /*! ecutoff for 108Xe experiment where each bin is roughly 4 keV
  *  ... implants deposit above 18 MeV
@@ -70,10 +71,9 @@ namespace dammIds {
     }
 }
 
-ImplantSsdProcessor::ImplantSsdProcessor() : EventProcessor(OFFSET, RANGE)
+ImplantSsdProcessor::ImplantSsdProcessor() : 
+    EventProcessor(OFFSET, RANGE, "ssd")
 {
-    name = "ImplantSsd";
-
     associatedTypes.insert("ssd");
 }
 
@@ -206,7 +206,6 @@ void ImplantSsdProcessor::DeclarePlots(void)
 
     for (unsigned int i=0; i < numTraces; i++) {
 	DeclareHistogram1D(D_FAST_DECAY_TRACE + i, traceBins, "fast decay trace");
-	DeclareHistogram1D(D_HIGH_ENERGY_TRACE + i, traceBins, "high energy trace");
     }
 }
 
@@ -382,55 +381,57 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
     }
 
     if (info.type == EventInfo::PROTON_EVENT) {
-	const ChanEvent *chVeto = vetoSummary->GetMaxEvent();
-	
-	unsigned int posVeto = chVeto->GetChanID().GetLocation();
-	double vetoEnergy = chVeto->GetCalEnergy();
+        const ChanEvent *chVeto = vetoSummary->GetMaxEvent();
+        
+        unsigned int posVeto = chVeto->GetChanID().GetLocation();
+        double vetoEnergy = chVeto->GetCalEnergy();
 
-	plot(DD_LOC_VETO__LOC_SSD, posVeto, location);
-	plot(DD_TOTENERGY__ENERGY, vetoEnergy + info.energy, info.energy);
+        plot(DD_LOC_VETO__LOC_SSD, posVeto, location);
+        plot(DD_TOTENERGY__ENERGY, vetoEnergy + info.energy, info.energy);
     }
 
     if (info.pileUp) {
-	double trigTime = info.time;
+        double trigTime = info.time;
 
-	info.energy = driver->cal.at(ch->GetID()).Calibrate(trace.GetValue("filterEnergy2"));
-	info.time   = trigTime + trace.GetValue("filterTime2") - trace.GetValue("filterTime");
-	
-	SetType(info);	
-	Correlate(corr, info, location);
+        info.energy = driver->cali.GetCalEnergy(ch->GetChanID(),
+                                              trace.GetValue("filterEnergy2"));
+        info.time = trigTime + trace.GetValue("filterTime2") - trace.GetValue("filterTime");
+        
+        SetType(info);	
+        Correlate(corr, info, location);
 
-	int numPulses = trace.GetValue("numPulses");
+        int numPulses = trace.GetValue("numPulses");
 
-	if ( numPulses > 2 ) {
-	    corr.Flag(location, 1);
-	    cout << "Flagging triple event" << endl;
-	    for (int i=3; i <= numPulses; i++) {
-		stringstream str;
-		str << "filterEnergy" << i;
-		info.energy = driver->cal.at(ch->GetID()).Calibrate(trace.GetValue(str.str()));
-		str.str(""); // clear it
-		str << "filterTime" << i;
-		info.time   = trigTime + trace.GetValue(str.str()) - trace.GetValue("filterTime");
+        if ( numPulses > 2 ) {
+            corr.Flag(location, 1);
+            cout << "Flagging triple event" << endl;
+            for (int i=3; i <= numPulses; i++) {
+            stringstream str;
+            str << "filterEnergy" << i;
+            info.energy = driver->cali.GetCalEnergy(ch->GetChanID(),
+                                              trace.GetValue(str.str()));
+            str.str(""); // clear it
+            str << "filterTime" << i;
+            info.time   = trigTime + trace.GetValue(str.str()) - trace.GetValue("filterTime");
 
-		SetType(info);
-		Correlate(corr, info, location);
-	    }
-	}	
-	// corr.Flag(location, 1);	                
+            SetType(info);
+            Correlate(corr, info, location);
+            }
+        }	
+        // corr.Flag(location, 1);	                
 #ifdef VERBOSE
-	cout << "Flagging for pileup" << endl; 
+        cout << "Flagging for pileup" << endl; 
 
-	cout << "fast trace " << fastTracesWritten << " in strip " << location
-	     << " : " << trace.GetValue("filterEnergy") << " " << trace.GetValue("filterTime") 
-	     << " , " << trace.GetValue("filterEnergy2") << " " << trace.GetValue("filterTime2") << endl;
-	cout << "  mcp mult " << info.mcpMult << endl;
+        cout << "fast trace " << fastTracesWritten << " in strip " << location
+            << " : " << trace.GetValue("filterEnergy") << " " << trace.GetValue("filterTime") 
+            << " , " << trace.GetValue("filterEnergy2") << " " << trace.GetValue("filterTime2") << endl;
+        cout << "  mcp mult " << info.mcpMult << endl;
 #endif // VERBOSE
 
-	if (fastTracesWritten < numTraces) {
-	    trace.Plot(D_FAST_DECAY_TRACE + fastTracesWritten);
-	    fastTracesWritten++;
-	}
+        if (fastTracesWritten < numTraces) {
+            trace.Plot(D_FAST_DECAY_TRACE + fastTracesWritten);
+            fastTracesWritten++;
+        }
     }
     
     if (info.energy > 10000 && !ch->IsSaturated() && !isnan(info.position) ) {
@@ -513,6 +514,8 @@ void ImplantSsdProcessor::PlotType(EventInfo &info, int loc, Correlator::ECondit
     const double timeResolution[numGranularities] = 
 	{10e-9, 100e-9, 400e-9, 1e-6, 10e-6, 100e-6, 1e-3, 10e-3, 100e-3};
 
+    double clockInSeconds = Globals::get()->clockInSeconds();
+
     static double prevVeto = 0;
 
     plot(DD_ALL_ENERGY__LOCATION, info.energy, loc);
@@ -533,7 +536,7 @@ void ImplantSsdProcessor::PlotType(EventInfo &info, int loc, Correlator::ECondit
 	    }
 	    if (cond == Correlator::VALID_DECAY) {	 
 		for (unsigned int i = 0; i < numGranularities; i++) {
-		    int timeBin = int(info.dtime * pixie::clockInSeconds / 
+		    int timeBin = int(info.dtime * clockInSeconds / 
 				      timeResolution[i]);
 		
 		    plot(DD_DECAY_ALL_ENERGY__TX + i, info.energy, timeBin);
@@ -553,7 +556,7 @@ void ImplantSsdProcessor::PlotType(EventInfo &info, int loc, Correlator::ECondit
 	    plot(DD_ENERGY__LOCATION_VETO, info.energy, loc);
 	    for (unsigned int i=0; i < numGranularities; i++) {
 		double dt = info.time - prevVeto; // time to previous veto
-		int timeBin = int(dt * pixie::clockInSeconds / timeResolution[i]);
+		int timeBin = int(dt * clockInSeconds / timeResolution[i]);
 		plot(DD_VETO_ENERGY__TX + i, info.energy, timeBin);
 	    }
 	    prevVeto = info.time;

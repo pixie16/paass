@@ -17,13 +17,13 @@
 using namespace std;
 using namespace dammIds::trace;
 
-TauAnalyzer::TauAnalyzer() : TraceAnalyzer(0, 0)
+TauAnalyzer::TauAnalyzer() 
 {
     // type and subtype default to empty string
     name="tau";
 }
 
-TauAnalyzer::TauAnalyzer(const std::string &aType, const std::string &aSubtype) :
+TauAnalyzer::TauAnalyzer(const string &aType, const string &aSubtype) :
   TraceAnalyzer(), type(aType), subtype(aSubtype)
 {
     name="tau";
@@ -34,8 +34,7 @@ TauAnalyzer::~TauAnalyzer()
     // do nothing
 }
 
-void TauAnalyzer::Analyze(Trace &trace, const std::string &aType,
-                          const std::string &aSubtype)
+void TauAnalyzer::Analyze(Trace &trace, const string &aType, const string &aSubtype)
 {
     // don't do analysis for piled-up traces
     if (trace.HasValue("filterEnergy2")) {
@@ -69,7 +68,7 @@ void TauAnalyzer::Analyze(Trace &trace, const std::string &aType,
 	sum2 += double(*it)*(i*n*n-3*i*i*n+2*i*i*i);
 	i+=1.;
     }
-    double tau =  1 / log(sum1 / sum2) * pixie::clockInSeconds;
+    double tau =  1 / log(sum1 / sum2) * Globals::get()->clockInSeconds();
     trace.SetValue("tau", tau);
 
     EndAnalyze(); //update the timer

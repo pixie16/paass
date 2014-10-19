@@ -21,9 +21,8 @@ namespace dammIds {
     }
 } // ssd namespace
 
-SsdProcessor::SsdProcessor() : EventProcessor(OFFSET, RANGE)
+SsdProcessor::SsdProcessor() : EventProcessor(OFFSET, RANGE, "ssd")
 {
-    name = "ssd";
     associatedTypes.insert("ssd");
 }
 

@@ -22,12 +22,13 @@
 class DoubleTraceAnalyzer : public TraceFilterer
 {
  protected:
-    Trace::size_type time2; ///< time of second pulse
-    double energy2;         ///< energy of second pulse
-    
-    int numDoubleTraces; ///< number of double traces found
+    static int numDoubleTraces; ///< number of double traces found
+
  public:
-    DoubleTraceAnalyzer();
+    DoubleTraceAnalyzer(double energyScaleFactor,
+                        short fast_rise, short fast_gap, short fast_threshold,
+                        short energy_rise, short energy_gap,
+                        short slow_rise, short slow_gap, short slow_threshold);
     virtual ~DoubleTraceAnalyzer();
     
     virtual bool Init(void) {return TraceFilterer::Init();}

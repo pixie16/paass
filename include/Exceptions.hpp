@@ -22,6 +22,26 @@ protected:
     const std::string message_;
 };
 
+/** Warning with customizable message. Use derived classes for specific
+ * events. Although looks excatly like GeneralExceptions, the difference is
+ * that warnings are meant to be gently caught without aborting the program
+ * execution.*/
+class GeneralWarning : public std::exception {
+public:
+    explicit GeneralWarning(const std::string& msg) 
+        : exception(), message_(msg) {}
+
+    virtual ~GeneralWarning() throw() {}
+
+    virtual const char* what() const throw()
+    {
+        return message_.c_str();
+    }
+
+protected:
+    const std::string message_;
+};
+
 /** Read/write exception for all file operation related tasks. */
 class IOException : public GeneralException {
     public:
@@ -41,6 +61,20 @@ class TreeCorrelatorException : public GeneralException {
 class ConversionException : public GeneralException {
     public:
         ConversionException(const std::string& msg) : 
+            GeneralException(msg) {}
+};
+
+/** Error in creating or accesing histograms. */
+class HistogramException : public GeneralException {
+    public:
+        HistogramException(const std::string& msg) : 
+            GeneralException(msg) {}
+};
+
+/** Use this exception is feature is not implemented yet. */
+class NotImplemented : public GeneralException {
+    public:
+        NotImplemented(const std::string& msg) : 
             GeneralException(msg) {}
 };
 

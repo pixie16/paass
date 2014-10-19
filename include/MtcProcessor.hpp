@@ -9,13 +9,24 @@
 
 class MtcProcessor : public EventProcessor {
  public:
-    MtcProcessor();
+    /** Enable/disable double stop / start flag 
+     * */
+    MtcProcessor(bool double_stop, bool double_start);
+
     virtual void DeclarePlots(void);
     virtual bool PreProcess(RawEvent &event);
     virtual bool Process(RawEvent &event);
  private:
-    double lastStartTime; //< time of last leading edge
-    double lastStopTime;  //< time of last trailing edge
+    /** In some experiments the MTC stop signal was doubled
+     * this flags enable removal of such an events */
+    bool double_stop_;
+
+    /** In some experiments the MTC start signal was doubled
+     * this flags enable removal of such an events */
+    bool double_start_;
+
+    /** Upper limit in seconds for bad (double) start/stop event */
+    static const double doubleTimeLimit_ = 10e-6;
 };
 
 #endif // __MTCPROCESSOR_HPP_
