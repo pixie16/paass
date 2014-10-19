@@ -56,13 +56,10 @@
 
 #include "BeamLogicProcessor.hpp"
 #include "BetaScintProcessor.hpp"
-#include "Beta4Hen3Processor.hpp"
 #include "DssdProcessor.hpp"
-#include "Dssd4SHEProcessor.hpp"
 #include "Hen3Processor.hpp"
 #include "GeProcessor.hpp"
 #include "GeCalibProcessor.hpp"
-#include "Ge4Hen3Processor.hpp"
 #include "ImplantSsdProcessor.hpp"
 #include "IonChamberProcessor.hpp"
 #include "LiquidScintProcessor.hpp"
@@ -107,8 +104,7 @@ DetectorDriver* DetectorDriver::get() {
 /*! \brief Constructor that initializes the various processors and
   analyzers.
 */
-DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver")
-{
+DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
     Messenger m;
     try {
         m.start("Loading Processors");
@@ -132,8 +128,7 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver")
  *
  * Never actually called since DetectorDriver is now a singleton
  */
-DetectorDriver::~DetectorDriver()
-{
+DetectorDriver::~DetectorDriver() {
     for (vector<EventProcessor *>::iterator it = vecProcess.begin();
 	 it != vecProcess.end(); it++) {
         delete *it;
@@ -164,7 +159,7 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
     /** Force to create Detector Library before loading processors.
      * It is not needed but the output looks nicer ;)
      */
-    DetectorLibrary* modChan = DetectorLibrary::get();
+    DetectorLibrary::get();
 
     pugi::xml_node driver = doc.child("Configuration").child("DetectorDriver");
     for (pugi::xml_node processor = driver.child("Processor"); processor;

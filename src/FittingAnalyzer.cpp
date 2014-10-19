@@ -24,11 +24,11 @@
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_vector.h>
 
-int FitFunction(const gsl_vector *x, void *FitData, 
+int FitFunction(const gsl_vector *x, void *FitData,
 		gsl_vector *f);
-int CalcJacobian(const gsl_vector *x, void *FitData, 
+int CalcJacobian(const gsl_vector *x, void *FitData,
 		      gsl_matrix *J);
-int FitFunctionDerivative(const gsl_vector *x, void *FitData, 
+int FitFunctionDerivative(const gsl_vector *x, void *FitData,
 			  gsl_vector *f, gsl_matrix *J);
 
 using namespace std;
@@ -36,7 +36,7 @@ using namespace dammIds::trace::waveformanalyzer;
 
 //********** DeclarePlots **********
 void FittingAnalyzer::DeclarePlots(void) {
-    Trace sample_trace = Trace(); 
+    Trace sample_trace = Trace();
     sample_trace.DeclareHistogram2D(DD_TRACES, S7, S5, "traces data FitAnalyzer");
     sample_trace.DeclareHistogram2D(DD_AMP, SE, SC, "Fit Amplitude");
     sample_trace.DeclareHistogram1D(D_PHASE, SE, "Fit X0");
@@ -52,7 +52,7 @@ FittingAnalyzer::FittingAnalyzer() {
 
 
 //********** Analyze **********
-void FittingAnalyzer::Analyze(Trace &trace, const string &detType, 
+void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
 			      const string &detSubtype) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype);
 
@@ -61,11 +61,9 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
      	return;
     }
 
-    const double aveBaseline = trace.GetValue("baseline");
     const double sigmaBaseline = trace.GetValue("sigmaBaseline");
     const double maxVal = trace.GetValue("maxval");
     const double qdc = trace.GetValue("tqdc");
-    const double qdcToMax = trace.GetValue("qdcToMax");
     const unsigned int maxPos = (unsigned int)trace.GetValue("maxpos");
     const vector<double> waveform = trace.GetWaveform();
 

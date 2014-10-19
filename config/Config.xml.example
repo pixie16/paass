@@ -3,7 +3,7 @@
     <!-- This is an example configuration file based on a real experiment.
          Copy this file and modify its content to setup your experiment.-->
 
-    <!-- Instructions: 
+    <!-- Instructions:
          Put here your name, email and date (please use Jan, Feb, ..., Dec
          for months names).
      -->
@@ -13,21 +13,21 @@
         <Date>Jan 2013</Date>
     </Author>
 
-    <!-- Instructions: 
+    <!-- Instructions:
          Put short description of your experiment here.
      -->
     <Description>
         LeRIBSS 2011 93Br experiment, 4 Clovers, 2 Beta scitilators, MTC
     </Description>
 
-    <!-- Instructions: 
+    <!-- Instructions:
         Global scan parameters are setup here.
 
         Required fields are:
         * <Revision version="X"/> where X is A, D or F
-        * <EventWidth units="x" value="y"/> 
-            where unit must be s, ms, us or ns; value is floating point 
-        * <EnergyContraction value="x" /> 
+        * <EventWidth units="x" value="y"/>
+            where unit must be s, ms, us or ns; value is floating point
+        * <EnergyContraction value="x" />
             OBSOLETE, please do not use energy contraction (consider
             calibration instead), however if needed for backward compatibility
             put here floating point number
@@ -51,7 +51,6 @@
         <NumOfTraces value="50"/>
     </Global>
 
-
     <!-- Instructions:
          Add
             <Process name="SomethingProcessor"/>
@@ -63,12 +62,6 @@
             * BeamLogicProcessor
             * BetaScintProcessor
             * DssdProcessor
-            * Dssd4SHEProcessor
-               * optional attributes and their default values:
-                  * front_back_correlation_time="300e-9"
-                  * delta_energy="300"
-                  * high_energy_cut="15000"
-                  * low_energy_cut="8000"
             * GeProcessor
                * optional attributes and their default values:
                   * gamma_threshold="1.0"
@@ -81,8 +74,6 @@
                   * cycle_gate1_max="0.0"
                   * cycle_gate2_min="0.0"
                   * cycle_gate2_max="0.0"
-            * Ge4Hen3Processor
-                * see comment above
             * GeCalibProcessor
                * optional attributes and their default values:
                   * gamma_threshold="1.0"
@@ -146,7 +137,7 @@
             cycle_gate2_min="1.6"
             cycle_gate2_max="1.8"
             />
-        <Processor name="MtcProcessor" 
+        <Processor name="MtcProcessor"
             double_stop="True"
             double_start="True"/>
         <Processor name="BetaScintProcessor" />
@@ -154,7 +145,7 @@
 
     <!-- Instructions:
          Channels map. This section replaces the map.txt (map2.txt) and cal.txt
-         files. For each channel in each module that you want to use in 
+         files. For each channel in each module that you want to use in
          analysis you must assign some physical detector type (and subtype)
          which is known to the pixie_scan (see DetectorLibrary.cpp).
          A channel may be also calibrated (by default a raw channel number
@@ -165,7 +156,7 @@
          level during loading of the configuration in this section. These are
          * verbose_map - Loaded modules and channels
          * verbose_calibration - Calibration
-         * verbose_walk - Walk correction 
+         * verbose_walk - Walk correction
          Each attribute default to False, if change to True will show more
          messages concerning loaded parameters etc.
 
@@ -193,13 +184,13 @@
         Note that walk models parameters are intended to operate on natural
         units i.e. raw channel numbers and pixie time tics.
 
-        Both calibration and walk correction operate on some range and 
+        Both calibration and walk correction operate on some range and
         there might be any number of ranges defined for the channel.
         The code does not check if a range overlaps with another. For a given
         channel number the first (in order of appearance) matching range will be
         used.
         If no min/max is specified, a 0 to infinity range is assumed (where
-        infinity is a largest double precision floating point number on a 
+        infinity is a largest double precision floating point number on a
         given machine).
 
         An example below shows the main features of the Map node.
@@ -219,7 +210,7 @@
                     </WalkCorrection>
                 </Channel>
 
-                <Channel number="1" type="beta_scint" 
+                <Channel number="1" type="beta_scint"
                          subtype="beta" location="5"
                          tag1="12" tag2="3">
                 </Channel>
@@ -234,10 +225,7 @@
             ...
         </Map>
     -->
-    <Map verbose_calibration="False"
-         verbose_map="False"
-         verbose_walk="False">
-
+    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
         <Module number="0">
             <Channel number="0" type="ge" subtype="clover_high">
                 <Calibration model="linear">
@@ -489,35 +477,34 @@
         </Module>
     </Map>
 
-    <!--
-        Instructions:
+    <!-- Instructions:
         Create here tree of "places" build of <Place> elements for
         your experiment. Basic places are created automatically from entries
         in the Map section using type_subtype_location pattern.
 
         Root element should be named <TreeCorrelator>.
         Each <Place> element has a following attributes:
-            'name' - required, if last token in name 
+            'name' - required, if last token in name
                     (tokens are separated by '_')
                     characters are in format X-Y,Z where X, Y and Z
-                    are integers, a whole range X to Y is assumed 
+                    are integers, a whole range X to Y is assumed
                     (e.g.  beta_0-1,5,9-10
                     will create beta_0, beta_1, beta_5, beta_9 and beta_10 )
 
             Optional attributes:
             'type' - must be one of types defined in PlaceBuilder.cpp
-                     (see there) currently available are: 
+                     (see there) currently available are:
                     PlaceDetector, PlaceThreshold, PlaceThresholdOR,
                     PlaceCounter, PlaceOR, PlaceAND
                     if type is not used or empty (type="") it is assumed that
-                    place already exists. In particular this is true for all 
+                    place already exists. In particular this is true for all
                     basic places created from channels as defined from Map
             'replace' - if set to 'true', will replace existing place with a
-                one defined in this element. 
+                one defined in this element.
             'fifo' - depth of FIFO of place
             'coincidence' - defines type of relation with parent (true of false)
             'low_limit', 'high_limit' - required for PlaceThreshold and
-                    PlaceThresholdOR defines threshold limits 
+                    PlaceThresholdOR defines threshold limits
                     (calibrated energy).
 
             see PlaceBuilder for other type of places and attributes.
@@ -535,8 +522,7 @@
     </TreeCorrelator>
 
 
-    <!--
-        Instructions:
+    <!-- Instructions:
         Definition of gamma-gamma gates for GeProcessors,
         so far only 2-gammas gates are implemented.
         Example:
@@ -605,7 +591,7 @@
         <Time start="2000" end="2150"/>
     </Reject>
 
-    <!-- Instructions: 
+    <!-- Instructions:
          Configuration of Notebook object that saves handy notes (things
          that are not easy to present on graph e.g. single event details)
          file - file in which the notes are saved
