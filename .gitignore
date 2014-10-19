@@ -6,6 +6,7 @@ pixie_ldf_*
 *.save
 *~
 *.swp
+*.layout
 
 #Documentation directories and files
 html/
