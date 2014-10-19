@@ -1,8 +1,6 @@
-/*!
-  \file ReadBuffData.cpp
-
-  \brief retrieve data from raw buffer array ibuf
-*/
+/** \file ReadBuffData.RevD.cpp
+ * \brief retrieve data from raw buffer array ibuf
+ */
 
 /*----------------------------------------------------------------------
  * Copyright (c) 2005, XIA LLC
@@ -63,12 +61,10 @@ using std::vector;
 extern StatsData stats;
 
 // define tst bit function from pixie16 files
-/*
 unsigned long TstBit(unsigned short bit, unsigned long value)
 {
   return ((value & (unsigned long)(pow(2.0, (double)bit))) >> bit);
 }
-*/
 
 /*!
   \brief extract channel information from raw data
@@ -78,7 +74,7 @@ unsigned long TstBit(unsigned short bit, unsigned long value)
   of the evt objects is placed in the eventlist vector for later time
   sorting.
 */
-int ReadBuffDataDF(word_t *buf, unsigned long *bufLen,
+int ReadBuffData(word_t *buf, unsigned long *bufLen,
 		 vector<ChanEvent*> &eventList)
 {						
   // multiplier for high bits of 48-bit time
@@ -181,10 +177,12 @@ int ReadBuffDataDF(word_t *buf, unsigned long *bufLen,
 	      lastVirtualChannel = currentEvt;
 	  }
       }
+
       currentEvt->energy = energy;
 	  //KM 2012-10-24 reinstating removal of saturated
-      // if(currentEvt->saturatedBit)  currentEvt->energy = 16383;
-
+      if(currentEvt->saturatedBit)
+          currentEvt->energy = 16383;
+          
       currentEvt->trigTime = lowTime;
       currentEvt->cfdTime  = cfdTime;
       currentEvt->eventTimeHi = highTime;
@@ -199,9 +197,8 @@ int ReadBuffDataDF(word_t *buf, unsigned long *bufLen,
 	
 	currentEvt->trace.reserve(traceLength);
 
-	//KM 2012-10-24 reinstating
-	if(currentEvt->saturatedBit)
-	  currentEvt->trace.SetValue("saturation", 1);
+        if(currentEvt->saturatedBit)
+            currentEvt->trace.SetValue("saturation", 1);
 
 	if ( lastVirtualChannel != NULL && lastVirtualChannel->trace.empty() ) {	  
 	    lastVirtualChannel->trace.assign(traceLength, 0);

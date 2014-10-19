@@ -81,20 +81,20 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
 
     double beta, gamma;
     if (detType == "vandleSmall") {
-	beta  = TimingInformation::GetConstant("betaVandle");
-	gamma = TimingInformation::GetConstant("gammaVandle");
+        beta  = TimingInformation::GetConstant("betaVandle");
+        gamma = TimingInformation::GetConstant("gammaVandle");
     }else if (detSubtype == "beta") {
-	beta  = TimingInformation::GetConstant("betaBeta");
-	gamma = TimingInformation::GetConstant("gammaBeta");
+        beta  = TimingInformation::GetConstant("betaBeta");
+        gamma = TimingInformation::GetConstant("gammaBeta");
     }else if(detType == "tvandle") {
-	beta  = TimingInformation::GetConstant("betaTvandle");
-	gamma = TimingInformation::GetConstant("gammaTvandle");
+        beta  = TimingInformation::GetConstant("betaTvandle");
+        gamma = TimingInformation::GetConstant("gammaTvandle");
     }else if(detType == "pulser") {
-	beta  = TimingInformation::GetConstant("betaPulser");
-	gamma = TimingInformation::GetConstant("gammaPulser");
+        beta  = TimingInformation::GetConstant("betaPulser");
+        gamma = TimingInformation::GetConstant("gammaPulser");
     }else {
-	beta  = TimingInformation::GetConstant("betaDefault");
-	gamma = TimingInformation::GetConstant("gammaDefault");
+        beta  = TimingInformation::GetConstant("betaDefault");
+        gamma = TimingInformation::GetConstant("gammaDefault");
     }
 
     const gsl_multifit_fdfsolver_type *T;
