@@ -10,6 +10,7 @@ pixie_ldf_*
 #Documentation directories and files
 html/
 latex/
+tmp/
 doc/classdiagramRawEvent.svg
 
 #DAMM files
