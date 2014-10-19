@@ -3,39 +3,12 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <string>
 #include <vector>
-#include <map>
 #include <deque>
 #include <utility>
-#include <stdexcept>
+
 #include "Globals.hpp"
-
-using namespace std;
-
-/** Simple structure holding basic parameters needed for correlation
- * of events in the same place. */
-class CorrEventData {
-    public:
-        /** Time is always needed, by default status is true,  
-         * Energy is 0 (i.e. N/A) and event type is an empty string.*/
-        CorrEventData(double t, bool s = true, double E = 0, string type = "") {
-            time = t;
-            status = s;
-            energy = E;
-        }
-
-        /** Time and energy type of constructor */
-        CorrEventData(double t, double E, bool s = true, string type = "") {
-            time = t;
-            energy = E;
-            status = s;
-        }
-
-        bool status;
-        double time;
-        double energy;
-};
+#include "EventData.hpp"
 
 /** A pure abstract class to define a "place" for correlator.
  * A place has physical or abstract meaning, might be a detector, 
@@ -52,8 +25,6 @@ class Place {
         }
 
         virtual ~Place() {
-            if (verbose::CORRELATOR_INIT)
-                cout << "~Place" << endl;
         }
 
         /** Defines 'child' of place. A child will report any
@@ -73,7 +44,7 @@ class Place {
 
         /** Activates Place and reports to the parent if place was not active,
          * always saves event data to the fifo.*/
-        virtual void activate(CorrEventData& info) {
+        virtual void activate(EventData& info) {
             if (!status_) {
                 status_ = true;
                 add_info_(info);
@@ -84,9 +55,9 @@ class Place {
         }
 
         /** Simplified activation for counter-like detectors, without
-         * need of creating CorrEventData object outside.*/
+         * need of creating EventData object outside.*/
         virtual void activate(double time) {
-            CorrEventData info(time);
+            EventData info(time);
             activate(info);
         }
 
@@ -95,11 +66,11 @@ class Place {
         virtual void deactivate(double time) {
             if (status_) {
                 status_ = false;
-                CorrEventData info(time, status_);
+                EventData info(time, status_);
                 add_info_(info);
                 report_(info);
             } else {
-                CorrEventData info(time, status_);
+                EventData info(time, status_);
                 add_info_(info);
             }
         }
@@ -134,33 +105,33 @@ class Place {
 
         /** Easy access to stored data in fifo, notice at() function used
          * (raises exception).*/
-        virtual CorrEventData& operator [] (unsigned index) {
+        virtual EventData& operator [] (unsigned index) {
             return info_.at(index);
         }
 
-        virtual CorrEventData operator [] (unsigned index) const {
+        virtual EventData operator [] (unsigned index) const {
             return info_.at(index);
         }
 
         /** Easy access to last (current) element of fifo. If fifo
          * is empty time=-1 event is returned*/
-        virtual CorrEventData last() {
+        virtual EventData last() {
             if (info_.size() > 0)
                 return info_.back();
             else {
-                CorrEventData empty(-1);
+                EventData empty(-1);
                 return empty;
             }
         }
 
         /** Easy access to the second to last element of fifo. If fifo
          * has only one event, time=-1 event is returned. */
-        virtual CorrEventData secondlast() {
+        virtual EventData secondlast() {
             if (info_.size() > 1) {
                 unsigned sz = info_.size();
                 return info_.at(sz - 2);
             } else {
-                CorrEventData empty(-1);
+                EventData empty(-1);
                 return empty;
             }
         }
@@ -176,14 +147,14 @@ class Place {
         /** Pythonic style private field. Use it if you must,
          * but perhaps you should not. Stores information on past 
          * events in a given Place.*/
-        deque<CorrEventData> info_;
+        std::deque<EventData> info_;
 
     protected:
         /** Pure virutal function. The check function should decide how
          * to change status depending on the status of children. Should be 
          * implemented in a derived class.
          */
-        virtual void check_(CorrEventData& info) = 0;
+        virtual void check_(EventData& info) = 0;
 
         /** Fifo (info_) depth */
         unsigned max_size_;
@@ -198,13 +169,13 @@ class Place {
         /** Reports change of status to parents. 
          * Calls check() function for all the parents.
          */
-        virtual void report_(CorrEventData& info) {
-            vector<Place*>::iterator it;
+        virtual void report_(EventData& info) {
+            std::vector<Place*>::iterator it;
             for (it = parents_.begin(); it != parents_.end(); ++it)
                 (*it)->check_(info);
         }
 
-        virtual void add_info_(const CorrEventData& info) {
+        virtual void add_info_(const EventData& info) {
             info_.push_back(info);
             while (info_.size() > max_size_)
                 info_.pop_front();
@@ -223,14 +194,12 @@ class Place {
          * Place* is a pointer to the downstream place, bool describes relation
          * (true for coincidence-like, false for anti-coincidence).
          */
-        vector< pair<Place*, bool> > children_;
+        std::vector< std::pair<Place*, bool> > children_;
 
         /** Vector keeping a list of parents to whom the change of status
          * should be reported.
          */
-        vector<Place*> parents_;
-
-
+        std::vector<Place*> parents_;
 };
 
 /** "Lazy" Place does not store multiple activation or deactivation events.
@@ -242,7 +211,7 @@ class PlaceLazy : public Place {
 
         /** Activates Place and saves event data to deque only if place
          * was not active before.*/
-        virtual void activate(CorrEventData& info) {
+        virtual void activate(EventData& info) {
             if (!status_) {
                 status_ = true;
                 add_info_(info);
@@ -255,7 +224,7 @@ class PlaceLazy : public Place {
         virtual void deactivate(double time) {
             if (status_) {
                 status_ = false;
-                CorrEventData info(time, status_);
+                EventData info(time, status_);
                 add_info_(info);
                 report_(info);
             }
@@ -269,7 +238,7 @@ class PlaceDetector : public Place {
         PlaceDetector(bool resetable = true, unsigned max_size = 2) :
             Place(resetable, max_size) {} 
     protected:
-        virtual void check_(CorrEventData& info);
+        virtual void check_(EventData& info);
 };
 
 /** Each activation must be within the set thresholds. */
@@ -283,7 +252,7 @@ class PlaceThreshold : public Place {
         } 
 
         /** Activate place only if energy is within set limits or both limits are 0 (no threshold). */
-        void activate(CorrEventData& info) {
+        void activate(EventData& info) {
             if (low_limit_ == 0 && high_limit_ == 0) 
                     Place::activate(info);
             else if (info.energy > low_limit_ && info.energy < high_limit_) 
@@ -299,7 +268,7 @@ class PlaceThreshold : public Place {
         }
 
     protected:
-        virtual void check_(CorrEventData& info);
+        virtual void check_(EventData& info);
         /** Threshold low and high limits.*/
         double low_limit_;
         double high_limit_;
@@ -312,7 +281,7 @@ class PlaceThresholdOR : public PlaceThreshold {
         } 
 
     protected:
-        virtual void check_(CorrEventData& info);
+        virtual void check_(EventData& info);
 };
 
 /** Counts number of activations coming from directly or from children.*/
@@ -325,7 +294,7 @@ class PlaceCounter : public Place {
                 counter_ = 0;
         } 
 
-        void activate(CorrEventData& info) {
+        void activate(EventData& info) {
             ++counter_;
             Place::activate(info);
         }
@@ -346,7 +315,7 @@ class PlaceCounter : public Place {
 
     protected:
         int counter_;
-        virtual void check_(CorrEventData& info);
+        virtual void check_(EventData& info);
 };
 
 /** This Place is an abstract place, which status depends on
@@ -360,7 +329,7 @@ class PlaceOR : public Place {
         PlaceOR(bool resetable = true, unsigned max_size = 2) :
             Place(resetable, max_size) {} 
     protected:
-        virtual void check_(CorrEventData& info);
+        virtual void check_(EventData& info);
 };
 
 /** Similar to PlaceOR but uses AND relation. That makes it a suitable choice
@@ -374,7 +343,7 @@ class PlaceAND : public Place {
         PlaceAND(bool resetable = true, unsigned max_size = 2) :
             Place(resetable, max_size) {} 
     protected:
-        virtual void check_(CorrEventData& info);
+        virtual void check_(EventData& info);
 };
 
 #endif

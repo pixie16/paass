@@ -53,8 +53,10 @@ private:
     void ZeroNums(void);       /**< Zero members which do not have constructors associated with them */
     
     // make the front end responsible for reading the data able to set the channel data directly
-    friend int ReadBuffData(pixie::word_t *, unsigned long *, std::vector<ChanEvent *> &);
+    friend int ReadBuffDataA(pixie::word_t *, unsigned long *, std::vector<ChanEvent *> &);
+    friend int ReadBuffDataDF(pixie::word_t *, unsigned long *, std::vector<ChanEvent *> &);
 public:
+    //static const double pixieEnergyContraction = 1.0; ///< energies from pixie16 are contracted by this number
     static double pixieEnergyContraction; ///< energies from pixie16 are contracted by this number
     void SetEnergy(double a)    {energy = a;}    /**< Set the raw energy in case we want
 						    to extract it from the trace ourselves */

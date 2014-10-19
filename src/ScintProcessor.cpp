@@ -1,5 +1,13 @@
 /** \file ScintProcessor.cpp
- * \brief Implementation for scintillator processor
+ *
+ * implementation for scintillator processor
+ *
+ * KM 10/20/12:
+ *
+ * Obsolete file, kept in case of issues with new version
+ * Now ScintProcessor is broken into BetaScint, NeutronScint
+ * and LiquidScint Processors.
+ *
  */
 #include <vector>
 #include <sstream>
@@ -43,9 +51,8 @@ namespace dammIds {
     }
 } 
 
-ScintProcessor::ScintProcessor() : EventProcessor(OFFSET, RANGE)
+ScintProcessor::ScintProcessor() : EventProcessor(OFFSET, RANGE, "scint")
 {
-    name = "scint";
     //? change to associated type "scint:neutr"
     associatedTypes.insert("scint"); // associate with the scint type
 }
@@ -110,7 +117,7 @@ bool ScintProcessor::PreProcess(RawEvent &event){
             double energy = (*it)->GetEnergy();
             // Activate B counter only for betas above some threshold
             if (energy > BETA_THRESHOLD) {
-                CorrEventData data(time, true, energy);
+                EventData data(time, true, energy);
                 TCorrelator::get().places[place]->activate(data);
             }
         } else {
@@ -129,7 +136,7 @@ bool ScintProcessor::PreProcess(RawEvent &event){
         if (TCorrelator::get().places.count(place) == 1) {
             double time   = (*it)->GetTime();
             double energy = (*it)->GetCalEnergy();
-            CorrEventData data(time, true, energy);
+            EventData data(time, true, energy);
             TCorrelator::get().places[place]->activate(data);
         } else {
             cerr << "In ScintProcessor: beta place " << place

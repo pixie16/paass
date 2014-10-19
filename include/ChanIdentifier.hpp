@@ -44,12 +44,30 @@ public:
     void Print(void) const;
     
     bool operator==(const Identifier &x) const {
-	return (type == x.type &&
-		subtype == x.subtype &&
-		location == x.location);
+        return (type == x.type &&
+            subtype == x.subtype &&
+            location == x.location);
     } /**< Compare this identifier with another */
+
     bool operator!=(const Identifier &x) const {
-	return !operator==(x);
+        return !operator==(x);
+    }
+
+    /** Less-then operator needed for map container in WalkCorrector.hpp */
+    bool operator<(const Identifier &x) const {
+       if (type.compare(x.type) > 0)
+           return false;
+       else if (type.compare(x.type) < 0)
+           return true;
+       else {
+           if (subtype.compare(x.subtype) > 0)
+               return false;
+           else if (subtype.compare(x.subtype))
+               return true;
+           else {
+               return (location < x.location);
+           }
+       }
     }
 
     std::string GetPlaceName() const {

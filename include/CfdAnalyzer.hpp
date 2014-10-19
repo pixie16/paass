@@ -9,8 +9,7 @@
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 
-class CfdAnalyzer : public TraceAnalyzer,
-		    public TimingInformation
+class CfdAnalyzer : public TraceAnalyzer
 {
  public:
     CfdAnalyzer();

@@ -1,4 +1,6 @@
-/** \file ReadBuffData.cpp
+/**
+ * \file ReadBuffData.cpp
+ *
  * \brief retrieve data from raw buffer array ibuf
  */
 
@@ -68,7 +70,7 @@ unsigned long TstBit(unsigned short bit, word_t value)
  * it into a ChanEvent structure .  A pointer to each of the ChanEvent objects
  * is placed in the eventlist vector for later sorting.
  */
-int ReadBuffData(word_t *buf, unsigned long *bufLen,
+int ReadBuffDataA(word_t *buf, unsigned long *bufLen,
 		 vector<ChanEvent*> &eventList)
 {
   unsigned long bufSkippedWords;

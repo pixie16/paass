@@ -1,17 +1,17 @@
 /** \file Trace.hpp
  * \brief A simple class to store the traces.
  *
+ * A simple class to store the traces.
  * Used instead of a typedef so additional functionality can be added later.
  */
 
 #ifndef __TRACE_HPP_
-#define __TRACE_HPP_ 1
+#define __TRACE_HPP_
 
+#include <cmath>
 #include <map>
 #include <string>
 #include <vector>
-
-#include <cmath>
 
 #include "DammPlotIds.hpp"
 #include "Globals.hpp"
@@ -38,7 +38,7 @@ class Trace : public std::vector<int>
 {
  private:
     static const unsigned int numBinsBaseline = 15;
-    unsigned int baselineLow;
+    unsigned int baselineLow; 
     unsigned int baselineHigh;
 
     std::vector<double> waveform;
@@ -46,17 +46,18 @@ class Trace : public std::vector<int>
     std::map<std::string, double> doubleTraceData;
     std::map<std::string, int>    intTraceData;
 
-    /** This field is static so all instances of Trace class have access to
+    /** This field is static so all instances of Trace class have access to 
      * the same plots and plots range. */
-    static Plots histo;
+    static Plots histo; 
 
  public:
-
-    Trace() : std::vector<int>()
-	{baselineLow = baselineHigh = U_DELIMITER; };
+     
+    Trace() : std::vector<int>() {
+        baselineLow = baselineHigh = pixie::U_DELIMITER;
+    }
     // an automatic conversion
     Trace(const std::vector<int> &x) : std::vector<int>(x) {
-        baselineLow = baselineHigh = U_DELIMITER;
+        baselineLow = baselineHigh = pixie::U_DELIMITER;
     }
 
     void TrapezoidalFilter(Trace &filter, const TFP &parms,
@@ -71,11 +72,11 @@ class Trace : public std::vector<int>
     }
 
     void InsertValue(std::string name, int value) {
-        intTraceData.insert(make_pair(name,value));
+        intTraceData.insert(make_pair(name,value));	
     }
 
     void SetValue(std::string name, double value) {
-        if (doubleTraceData.count(name) > 0)
+        if (doubleTraceData.count(name) > 0) 
             doubleTraceData[name] = value;
         else
             InsertValue(name,value);
@@ -101,21 +102,34 @@ class Trace : public std::vector<int>
         return NAN;
     }
 
-    std::vector<double> GetWaveform(){return waveform;};
-
-    /*!To allow access to the variables related to timing
-     This is needed in order to calculate the baseline over the
-     range that immediately preceedes the trace. -SVP
-    */
+    //To allow access to the variables related to timing
+    //This is needed in order to calculate the baseline over the 
+    //range that immediately preceedes the trace. -SVP
     TimingInformation constants;
 
-    double DoBaseline(unsigned int lo = 0,
-                      unsigned int numBins = numBinsBaseline);
+    std::vector<double> GetWaveform(){return waveform;};
+
+    double DoBaseline(unsigned int lo = 0, unsigned int numBins = numBinsBaseline);
+    
     double DoDiscrimination(unsigned int lo, unsigned int numBins);
     double DoQDC(unsigned int lo, unsigned int numBins);
+    unsigned int FindMaxInfo(unsigned int lo = 10, unsigned int numBins = 15);
 
-    unsigned int FindMaxInfo(void);
+    virtual void DeclareHistogram1D(int dammId, int xSize, const char* title) {
+        histo.DeclareHistogram1D(dammId, xSize, title);
+    }
+    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize,
+                                    const char* title) {
+        histo.DeclareHistogram2D(dammId, xSize, ySize, title);
+    }
+    
+    /** Basic plot same like in EventProcessor class **/
+    virtual void plot(int dammId, double val1, double val2 = -1, 
+                      double val3 = -1, const char* name="h") const {
+        histo.Plot(dammId, val1, val2, val3, name);
+    }
 
+    /** Traces plots **/
     void Plot(int id);           //< plot trace into a 1D histogram
     void Plot(int id, int row);  //< plot trace into row of a 2D histogram
     void ScalePlot(int id, double scale); //< plot trace absolute value and scaled into a 1D histogram
@@ -130,7 +144,7 @@ class TrapezoidalFilterParameters
  private:
     Trace::size_type gapSamples;
     Trace::size_type riseSamples;
-
+    
     double tau;
  public:
     TrapezoidalFilterParameters(int gap, int rise, double t = NAN) :
@@ -147,7 +161,7 @@ class TrapezoidalFilterParameters
     }
     Trace::size_type GetGapSamples(void) const  {return gapSamples;}
     Trace::size_type GetRiseSamples(void) const {return riseSamples;}
-    Trace::size_type GetSize(void) const
+    Trace::size_type GetSize(void) const  
 	{return 2*riseSamples + gapSamples;}
     double GetTau(void) const      {return tau;}
 };

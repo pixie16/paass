@@ -45,7 +45,7 @@ const double Correlator::minImpTime = 5e-3;
 const double Correlator::corrTime   = 60; // used to be 3300
 const double Correlator::fastTime   = 40e-6;
 
-Correlator::Correlator() : histo(OFFSET, RANGE), 
+Correlator::Correlator() : histo(OFFSET, RANGE, "correlator"), 
     lastImplant(NULL), lastDecay(NULL), condition(UNKNOWN_CONDITION)
 {
 }
@@ -128,8 +128,10 @@ void CorrelationList::PrintDecayList() const
     
     str  << " " << ctime(&theTime)
 	 << "    TAC: " << setw(8) << front().tof
-	 << ",    ts: " << fixed << setprecision(8) << (firstTime*pixie::clockInSeconds) 
-	 << ",    cc: " << scientific << setprecision(3) << front().clockCount << endl;
+	 << ",    ts: " << fixed << setprecision(8) 
+     << (firstTime * Globals::get()->clockInSeconds()) 
+	 << ",    cc: " << scientific << setprecision(3) 
+     << front().clockCount << endl;
     cout << str.str();
 #ifndef ONLINE
     fullLog << str.str();
@@ -137,9 +139,12 @@ void CorrelationList::PrintDecayList() const
     str.str("");
 
     for (const_iterator it = begin(); it != end(); it++) {
-	double dt   = ((*it).time - firstTime) * pixie::clockInSeconds / printTimeResolution;
-	double dt2 = ((*it).time - lastTime) * pixie::clockInSeconds / printTimeResolution;
-	double offt = (*it).offTime * pixie::clockInSeconds / printTimeResolution;
+	double dt   = ((*it).time - firstTime) * 
+                  Globals::get()->clockInSeconds() / printTimeResolution;
+	double dt2 = ((*it).time - lastTime) *
+                 Globals::get()->clockInSeconds() / printTimeResolution;
+	double offt = (*it).offTime *
+                  Globals::get()->clockInSeconds() / printTimeResolution;
 
 	if ((*it).flagged) {
 	    str << " * " << setw(2) << (*it).generation << " E";
@@ -226,6 +231,7 @@ void Correlator::Correlate(EventInfo &event,
     CorrelationList &theList = decaylist[fch][bch];
     
     double lastTime = NAN;
+    double clockInSeconds = Globals::get()->clockInSeconds();
 
     switch (event.type) {
 	case EventInfo::IMPLANT_EVENT:
@@ -238,12 +244,12 @@ void Correlator::Correlate(EventInfo &event,
 	    condition = VALID_IMPLANT;
 	    if ( lastImplant != NULL ) {
 		double dt = event.time - lastImplant->time;
-		plot(D_TIME_BW_ALL_IMPLANTS, dt * pixie::clockInSeconds / 1e-6);
+		plot(D_TIME_BW_ALL_IMPLANTS, dt * clockInSeconds / 1e-6);
 	    } 
 	    if ( !isnan(lastTime) ) {
 		condition = BACK_TO_BACK_IMPLANT;
 		event.dtime = event.time - lastTime;
-		plot(D_TIME_BW_IMPLANTS, event.dtime * pixie::clockInSeconds / 100e-3);
+		plot(D_TIME_BW_IMPLANTS, event.dtime * clockInSeconds / 100e-3);
 	    } else {
 		event.dtime = INFINITY;
 	    }
@@ -295,11 +301,11 @@ void Correlator::Correlate(EventInfo &event,
 		event.dtime = NAN;
 		break;
 	    } // negative correlation itme
-	    if (theList.front().dtime * pixie::clockInSeconds >= minImpTime) {
-		if (dt * pixie::clockInSeconds < corrTime) {
+	    if (theList.front().dtime * clockInSeconds >= minImpTime) {
+		if (dt * clockInSeconds < corrTime) {
 		    // event.dtime = event.time - lastTime; // (FOR CHAINS)
 		    event.dtime = event.time - theList.front().time; // FOR LERIBSS
-		    if (event.dtime * pixie::clockInSeconds < fastTime && event.dtime > 0) {
+		    if (event.dtime * clockInSeconds < fastTime && event.dtime > 0) {
 			// event.flagged = true; 
 		    }
 		} else {
@@ -343,7 +349,8 @@ void Correlator::CorrelateAll(EventInfo &event)
 	for (unsigned int bch=0; bch < arraySize; bch++) {
 	    if (decaylist[fch][bch].size() == 0)
 		continue;
-	    if (event.time - decaylist[fch][bch].back().time < 10e-6 / pixie::clockInSeconds) {
+	    if (event.time - decaylist[fch][bch].back().time <
+                10e-6 / Globals::get()->clockInSeconds()) {
 		// only correlate fast events for now
 		Correlate(event, fch, bch);
 	    }
