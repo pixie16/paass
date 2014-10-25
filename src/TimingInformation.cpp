@@ -21,8 +21,6 @@ using namespace std;
 
 Globals *constants = Globals::get();
 
-TimingInformation::TimingCalMap TimingInformation::calibrationMap;
-
 TimingInformation::TimingData::TimingData(void) : trace(emptyTrace) {
     aveBaseline    = numeric_limits<double>::quiet_NaN();
     discrimination = numeric_limits<double>::quiet_NaN();
@@ -52,7 +50,7 @@ TimingInformation::TimingData::TimingData(ChanEvent *chan) :
     phase          = trace.GetValue("phase")*
                         (Globals::get()->clockInSeconds()*1e+9);
     stdDevBaseline = trace.GetValue("sigmaBaseline");
-    tqdc           = trace.GetValue("tqdc")/qdcCompression;
+    tqdc           = trace.GetValue("tqdc")/Globals::get()->qdcCompression();
     walk           = trace.GetValue("walk");
 
     //Calculate some useful quantities.
@@ -71,7 +69,8 @@ TimingInformation::TimingData::TimingData(ChanEvent *chan) :
 
 TimingInformation::BarData::BarData(const TimingData &Right,
                                     const TimingData &Left,
-                                    const TimingCal &cal, const string &type) {
+                                    const TimingCalibration &cal,
+                                    const string &type) {
     timeOfFlight.clear();
     energy.clear();
     corTimeOfFlight.clear();
@@ -84,36 +83,38 @@ TimingInformation::BarData::BarData(const TimingData &Right,
     rTime     = Right.highResTime;
     qdc       = sqrt(Right.tqdc*Left.tqdc);
     timeAve   = (Right.highResTime + Left.highResTime)*0.5;
-    timeDiff  = (Left.highResTime-Right.highResTime) + cal.lrtOffset;
-    walkCorTimeDiff = (Left.walkCorTime-Right.walkCorTime) + cal.lrtOffset;
+    timeDiff  = (Left.highResTime-Right.highResTime) +
+                cal.GetLeftRightTimeOffset();
+    walkCorTimeDiff = (Left.walkCorTime-Right.walkCorTime) +
+                       cal.GetLeftRightTimeOffset();
     walkCorTimeAve  = (Left.walkCorTime+Right.walkCorTime)*0.5;
 
     event   = BarEventCheck(timeDiff, type);
     flightPath = CalcFlightPath(timeDiff, cal, type);
-    theta      = acos(cal.z0/flightPath);
+    theta      = acos(cal.GetZ0()/flightPath);
 }
 
 bool TimingInformation::BarData::BarEventCheck(const double &timeDiff,
                                                const string &type) {
     if(type == "small") {
-	double lengthSmallTime = constants->smallLengthTime();
-	return(fabs(timeDiff) < lengthSmallTime+20);
+        double lengthSmallTime = constants->smallLengthTime();
+        return(fabs(timeDiff) < lengthSmallTime+20);
     } else if(type == "big") {
-	double lengthBigTime = constants->bigLengthTime();
-	return(fabs(timeDiff) < lengthBigTime+20);
+        double lengthBigTime = constants->bigLengthTime();
+        return(fabs(timeDiff) < lengthBigTime+20);
     } else
-	return(false);
+        return(false);
 }
 
 double TimingInformation::BarData::CalcFlightPath(double &timeDiff,
-                                                  const TimingCal& cal,
+                                                  const TimingCalibration& cal,
                                                   const string &type) {
     if(type == "small")
-        return(sqrt(cal.z0*cal.z0+
-		    pow(constants->speedOfLightSmall()*0.5*timeDiff+cal.xOffset,2)));
+        return(sqrt(cal.GetZ0()*cal.GetZ0()+
+		    pow(constants->speedOfLightSmall()*0.5*timeDiff+cal.GetXOffset(),2)));
     else if(type == "big")
-        return(sqrt(cal.z0*cal.z0 +
- 		    pow(constants->speedOfLightBig()*0.5*timeDiff+cal.xOffset,2)));
+        return(sqrt(cal.GetZ0()*cal.GetZ0() +
+ 		    pow(constants->speedOfLightBig()*0.5*timeDiff+cal.GetXOffset(),2)));
     else
         return(numeric_limits<double>::quiet_NaN());
 }
@@ -121,60 +122,6 @@ double TimingInformation::BarData::CalcFlightPath(double &timeDiff,
 double TimingInformation::CalcEnergy(const double &corTOF, const double &z0) {
     return((0.5*constants->neutronMass()*
             pow((z0/corTOF)/constants->speedOfLight(), 2))*1000);
-}
-
-TimingInformation::TimingCal TimingInformation::GetTimingCal(const IdentKey
-                                                             &identity) {
-    map<IdentKey, TimingCal>::iterator itTemp =
-        calibrationMap.find(identity);
-    if(itTemp == calibrationMap.end()) {
-        cout << endl << endl
-             << "Cannot locate detector named " << identity.second
-             << " at location " << identity.first
-             << "in the Timing Calibration!!"
-             << endl << "Please check timingCal.txt" << endl << endl;
-        exit(EXIT_FAILURE);
-    } else {
-        TimingCal value = (*calibrationMap.find(identity)).second;
-        return(value);
-    }
-}
-
-void TimingInformation::ReadTimingCalibration(void) {
-    TimingCal timingcal;
-
-    string timeCalFileName = Globals::get()->configPath("timingCal.txt");
-
-    ifstream timingCalFile(timeCalFileName.c_str());
-
-    if (!timingCalFile) {
-        cout << endl << "Cannot open file 'timingCal.txt'"
-	     << "-- This is Fatal! Exiting..." << endl << endl;
-	exit(EXIT_FAILURE);
-    } else {
-	while(timingCalFile) {
-	    if (isdigit(timingCalFile.peek())) {
-		unsigned int location = -1;
-		string type = "";
-
-		timingCalFile >> location >> type
-			      >> timingcal.z0 //position stuff
-			      >> timingcal.xOffset >> timingcal.zOffset
-			      >> timingcal.lrtOffset  //time stuff
-			      >> timingcal.tofOffset0 >> timingcal.tofOffset1;
-
-		//minimum distance to the bar
-		timingcal.z0 += timingcal.zOffset;
-
-		IdentKey calKey(location, type);
-
-		calibrationMap.insert(make_pair(calKey, timingcal));
-	    } else{
-		timingCalFile.ignore(1000, '\n');
-	    }
-	} // end while (!timingCalFile) loop
-    }
-    timingCalFile.close();
 }
 
 #ifdef useroot

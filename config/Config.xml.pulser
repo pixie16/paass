@@ -231,31 +231,36 @@
         Here is where we are going to set all of the parameters for the timing
         calibrations. This includes all the VANDLE Bars, liquid scintillators,
         etc. Eventually, this will be updated and expanded based on
-        different VANDLE orientations (i.e. parallel/perpendicular to beam) -->
-    <TimingCalibration verbose_timing="False">
-        <vandle>
+        different VANDLE orientations (i.e. parallel/perpendicular to beam)
+
+        NOTE: We currently do no error checking to make sure that an equivalent
+        bar is defined in the Map. This will be fixed in the future. For now,
+        the user is expected to pay attention!
+    -->
+    <TimeCalibration verbose_timing="False">
+        <Vandle>
             <big>
-                <Bar number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
-                     tofoffset0="0.0" tofoffset1="0.0" />
             </big>
             <medium>
-                <Bar number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
-                     tofoffset0="0.0" tofoffset1="0.0" />
             </medium>
             <small>
                 <Bar number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
                      tofoffset0="0.0" tofoffset1="0.0" />
+                <Bar number="1" r0="0.0" xoffset="0.0" lroffset="0.0"
+                     tofoffset0="0.0" tofoffset1="0.0" />
             </small>
-        </vandle>
-        <scint>
+        </Vandle>
+        <Scint>
             <liquid>
-
+                <Detector number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
+                     tofoffset0="0.0" tofoffset1="0.0" />
             </liquid>
-            <beta>
-
-            </beta>
-        </scint>
-    </TimingCalibration>
+            <start>
+                <Detector number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
+                     tofoffset0="0.0" tofoffset1="0.0" />
+            </start>
+        </Scint>
+    </TimeCalibration>
 
     <!-- Instructions:
         These are all parameters that are necessary for handling the high
