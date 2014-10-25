@@ -13,12 +13,15 @@
 #include <cstdlib>
 #include <stdint.h>
 
+#include "pugixml.hpp"
+
 #include "pixie16app_defs.h"
 
 #include "Exceptions.hpp"
+#include "Messenger.hpp"
 
-/** "Constant" constants, i.e. those who won't change going from different 
- * verison (revision) of board, some magic numbers used in code etc. 
+/** "Constant" constants, i.e. those who won't change going from different
+ * verison (revision) of board, some magic numbers used in code etc.
  * For "variable" constants i.e. revision related or experiment related see
  * Globals class. */
 namespace pixie {
@@ -34,16 +37,15 @@ namespace pixie {
 
     /** THIS SHOULD NOT BE SET LARGER THAN 1,000,000
      * this defines the maximum amount of data that will be
-     * received in a spill. 
+     * received in a spill.
      */
     const unsigned int TOTALREAD = 1000000;
 
     /** An arbitrary vsn used to pass clock data */
-    const pixie::word_t clockVsn = 1000; 
+    const pixie::word_t clockVsn = 1000;
     /** Number of channels in a module. */
     const size_t numberOfChannels = 16;
 };
-
 
 namespace readbuff {
     const int STATS = -10;
@@ -52,37 +54,35 @@ namespace readbuff {
 
 /** Some common string conversion operations */
 namespace strings {
-    /** Converts string to double or throws an exception if not 
-        * succesful */
-    inline double to_double (std::string s) { 
+    /** Converts string to double or throws an exception if not successful */
+    inline double to_double (std::string s) {
         std::istringstream iss(s);
         double value;
         if (!(iss >> value)) {
             std::stringstream ss;
-            ss << "strings::to_double: Could not convert string '" 
+            ss << "strings::to_double: Could not convert string '"
                << s << "' to double" << std::endl;
             throw ConversionException(ss.str());
         }
         return value;
     }
 
-    /** Converts string to int or throws an exception if not 
-        * succesful */
+    /** Converts string to int or throws an exception if not successful */
     inline int to_int (std::string s) {
         std::istringstream iss(s);
         int value;
         if (!(iss >> value)) {
             std::stringstream ss;
-            ss << "strings::to_int: Could not convert string '" 
+            ss << "strings::to_int: Could not convert string '"
                << s << "' to int" << std::endl;
             throw ConversionException(ss.str());
         }
         return value;
     }
 
-    /** Converts string to bool (True, true, 1 and False, false, 0) are 
+    /** Converts string to bool (True, true, 1 and False, false, 0) are
       * accepted; throws an exception if not succesful. Notice tolower
-      * will work only with ascii, not with utf-8, but shouldn't be a 
+      * will work only with ascii, not with utf-8, but shouldn't be a
       * problem for true and false words. */
     inline bool to_bool (std::string s) {
         std::transform(s.begin(), s.end(), s.begin(), ::tolower);
@@ -92,7 +92,7 @@ namespace strings {
             return false;
         else {
             std::stringstream ss;
-            ss << "strings::to_bool: Could not convert string '" 
+            ss << "strings::to_bool: Could not convert string '"
                << s << "' to bool" << std::endl;
             throw ConversionException(ss.str());
         }
@@ -117,95 +117,87 @@ namespace strings {
 
 /** Singleton class holding global parameters.*/
 class Globals {
-    public:
-        /** Returns only instance of Globals class.*/
-        static Globals* get();
-        ~Globals();
+public:
+    /** \return only instance of Globals class.*/
+    static Globals* get();
+    ~Globals();
 
-        double clockInSeconds() const {
-            return clockInSeconds_;
-        }
+    /** \return true if any reject region was defined */
+    bool hasReject() const { return hasReject_; }
 
-        double adcClockInSeconds() const {
-            return adcClockInSeconds_;
-        }
+    double adcClockInSeconds() const {return adcClockInSeconds_;}
+    double clockInSeconds() const {return(clockInSeconds_);}
+    double eventInSeconds() const {return eventInSeconds_; }
+    double energyContraction() const { return energyContraction_; }
+    double filterClockInSeconds() const { return filterClockInSeconds_; }
+    double bigLength() const {return(bigLength_);}
+    double bigLengthTime() const {return(bigLength_/speedOfLightBig_);}
+    double mediumLength() const {return(mediumLength_);}
+    double neutronMass() const {return(neutronMass_);}
+    double smallLength() const {return(smallLength_);}
+    double smallLengthTime() const {return(smallLength_/speedOfLightSmall_);}
+    double speedOfLight() const {return(speedOfLight_);}
+    double speedOfLightBig() const {return(speedOfLightBig_);}
+    double speedOfLightMedium() const {return(speedOfLightMedium_);}
+    double speedOfLightSmall() const {return(speedOfLightSmall_);}
+    double discriminationStart() const {return(discriminationStart_);}
+    double qdcCompression() const {return (qdcCompression_);}
+    double sigmaBaselineThresh() const {return(sigmaBaselineThresh_);}
+    double traceDelay() const {return(traceDelay_);}
+    double traceLength() const {return(traceLength_);}
+    double trapezoidalWalk() const {return(trapezoidalWalk_);}
+    double waveformHigh() const {return(waveformHigh_);}
+    double waveformLow() const {return(waveformLow_);}
+    int eventWidth() const { return eventWidth_; }
+    std::pair<double,double> vandlePars() {return(vandlePars_);}
+    std::pair<double,double> startPars() {return(startPars_);}
+    std::pair<double,double> pulserPars() {return(pulserPars_);}
+    std::pair<double,double> tvandlePars() {return(tvandlePars_);}
+    std::pair<double,double> liquidScintPars() {return(liquidScintPars_);}
+    std::pair<double,double> siPmtPars() {return(siPmtPars_);}
+    /*! \return Joined path to the passed filename by adding the configPath_
+     * This is temporary solution as long as there are some files not
+     * incorporated into Config.xml */
+    std::string configPath(std::string fileName) {
+        std::stringstream ss;
+        ss << configPath_ << fileName;
+        return ss.str();
+    }
+    std::string revision() const { return revision_; }
+    unsigned int maxWords() const { return maxWords_; }
+    /** \return max number of traces stored in 2D spectra
+     * with traces. If not set, by default is 16. */
+    unsigned short numTraces() const { return numTraces_; }
+    /*! \return rejection regions to exclude from scan.
+     * Values should be given in seconds in respect to the beginning
+     of the file */
+    std::vector< std::pair<int, int> > rejectRegions() const {return reject_; };
+private:
+    /** Make constructor, copy-constructor and operator =
+    * private to complete singleton implementation.*/
+    Globals();
+    Globals(Globals const&);
+    void operator=(Globals const&);
+    static Globals* instance;
 
-        double filterClockInSeconds() const {
-            return filterClockInSeconds_;
-        }
+    void SanityCheck();
+    void WarnOfUnknownParameter(Messenger &m, pugi::xml_node_iterator &it);
 
-        double eventInSeconds() const {
-            return eventInSeconds_;
-        }
-
-        int eventWidth() const {
-            return eventWidth_;
-        }
-
-        double energyContraction() const {
-            return energyContraction_;
-        }
-
-        unsigned int maxWords() const {
-            return maxWords_;
-        }
-
-        std::string revision() const {
-            return revision_;
-        }
-
-        /** Returns true if any reject region was defined */
-        bool hasReject() const {
-            return hasReject_;
-        }
-
-        /* Returns rejection regions to exclude from scan.
-         * Values should be given
-         * in seconds in respect to the beginning of the file */
-        std::vector< std::pair<int, int> > rejectRegions() const {
-            return reject_;
-        }
-
-        /** Returns joined path to the passed filename by
-         * adding the configPath_
-         * This is temporary solution as long as there are some 
-         * files not incorporated into Config.xml
-         */
-        std::string configPath(std::string fileName) {
-            std::stringstream ss;
-            ss << configPath_ << fileName;
-            return ss.str();
-        }
-
-        /** Return max number of traces stored in 2D spectra
-         * with traces. If not set, by default is 16.
-         */
-        unsigned short numTraces() const {
-            return numTraces_;
-        }
-
-    private:
-        /** Make constructor, copy-constructor and operator =
-         * private to complete singleton implementation.*/
-        Globals();
-        /* Do not implement*/
-        Globals(Globals const&);
-        void operator=(Globals const&);
-        static Globals* instance;
-
-        void SanityCheck();
-
-        std::string revision_;
-        double clockInSeconds_;
-        double adcClockInSeconds_;
-        double filterClockInSeconds_;
-        double eventInSeconds_;
-        int eventWidth_;
-        double energyContraction_;
-        unsigned int maxWords_;
-        bool hasReject_;
-        std::vector< std::pair<int, int> > reject_;
-        std::string configPath_;
-        unsigned short numTraces_;
+    bool hasReject_;
+    double adcClockInSeconds_, clockInSeconds_, energyContraction_,
+        eventInSeconds_, filterClockInSeconds_;
+    double bigLength_, mediumLength_, neutronMass_, smallLength_,
+        speedOfLight_, speedOfLightBig_, speedOfLightMedium_,
+        speedOfLightSmall_;
+    double discriminationStart_, qdcCompression_, sigmaBaselineThresh_,
+        traceDelay_, traceLength_, trapezoidalWalk_, waveformHigh_,
+        waveformLow_;
+    int eventWidth_;
+    std::pair<double,double> vandlePars_, startPars_, pulserPars_,
+        tvandlePars_, liquidScintPars_, siPmtPars_;
+    std::string configPath_, revision_;
+    unsigned int maxWords_;
+    unsigned short numTraces_;
+    std::vector< std::pair<int, int> > reject_;
 };
-#endif // __GLOBALS_HPP_
+#endif

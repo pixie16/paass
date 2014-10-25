@@ -128,6 +128,7 @@
 		<Unit filename="include/SsdProcessor.hpp" />
 		<Unit filename="include/StatsData.hpp" />
 		<Unit filename="include/TauAnalyzer.hpp" />
+		<Unit filename="include/TimingCalibrator.hpp" />
 		<Unit filename="include/TimingInformation.hpp" />
 		<Unit filename="include/Trace.hpp" />
 		<Unit filename="include/TraceAnalyzer.hpp" />
@@ -157,7 +158,6 @@
 		<Unit filename="scripts/online.bash" />
 		<Unit filename="scripts/start.cmd" />
 		<Unit filename="scripts/test.cmd" />
-		<Unit filename="setup.cfg" />
 		<Unit filename="src/BeamLogicProcessor.cpp" />
 		<Unit filename="src/BetaProcessor.cpp" />
 		<Unit filename="src/BetaScintProcessor.cpp" />
@@ -209,6 +209,9 @@
 		<Unit filename="src/SsdProcessor.cpp" />
 		<Unit filename="src/StatsData.cpp" />
 		<Unit filename="src/TauAnalyzer.cpp" />
+		<Unit filename="src/TimingCalibrator.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="src/TimingInformation.cpp" />
 		<Unit filename="src/Trace.cpp" />
 		<Unit filename="src/TraceAnalyzer.cpp" />

@@ -12,13 +12,15 @@
 #include <limits>
 #include <string>
 
+#include "Globals.hpp"
 #include "RawEvent.hpp"
 #include "TimingInformation.hpp"
 #include "Trace.hpp"
 
 using namespace std;
 
-map<string, double> TimingInformation::constantsMap;
+Globals *constants = Globals::get();
+
 TimingInformation::TimingCalMap TimingInformation::calibrationMap;
 
 TimingInformation::TimingData::TimingData(void) : trace(emptyTrace) {
@@ -67,25 +69,6 @@ TimingInformation::TimingData::TimingData(ChanEvent *chan) :
 	dataValid = false;
 }
 
-#ifdef useroot
-TimingInformation::DataRoot::DataRoot(void) {
-    multiplicity = 0;
-    dummy = -1;
-
-    for (size_t i = 0; i < maxMultiplicity; i++) {
-        aveBaseline[i]    = numeric_limits<double>::quiet_NaN();
-        discrimination[i] = numeric_limits<double>::quiet_NaN();
-        highResTime[i]    = numeric_limits<double>::quiet_NaN();
-        maxpos[i]         = numeric_limits<double>::quiet_NaN();
-        maxval[i]         = numeric_limits<double>::quiet_NaN();
-        phase[i]          = numeric_limits<double>::quiet_NaN();
-        stdDevBaseline[i] = numeric_limits<double>::quiet_NaN();
-        tqdc[i]           = numeric_limits<double>::quiet_NaN();
-        location[i]       = -1;
-    }
-}
-#endif
-
 TimingInformation::BarData::BarData(const TimingData &Right,
                                     const TimingData &Left,
                                     const TimingCal &cal, const string &type) {
@@ -113,10 +96,10 @@ TimingInformation::BarData::BarData(const TimingData &Right,
 bool TimingInformation::BarData::BarEventCheck(const double &timeDiff,
                                                const string &type) {
     if(type == "small") {
-	double lengthSmallTime = TimingInformation::GetConstant("lengthSmallTime");
+	double lengthSmallTime = constants->smallLengthTime();
 	return(fabs(timeDiff) < lengthSmallTime+20);
     } else if(type == "big") {
-	double lengthBigTime = TimingInformation::GetConstant("lengthBigTime");
+	double lengthBigTime = constants->bigLengthTime();
 	return(fabs(timeDiff) < lengthBigTime+20);
     } else
 	return(false);
@@ -125,41 +108,19 @@ bool TimingInformation::BarData::BarEventCheck(const double &timeDiff,
 double TimingInformation::BarData::CalcFlightPath(double &timeDiff,
                                                   const TimingCal& cal,
                                                   const string &type) {
-    if(type == "small") {
-	double speedOfLightSmall =
-	    TimingInformation::GetConstant("speedOfLightSmall");
-	return(sqrt(cal.z0*cal.z0+
-		    pow(speedOfLightSmall*0.5*timeDiff+cal.xOffset,2)));
-    } else if(type == "big") {
-	double speedOfLightBig =
-	    TimingInformation::GetConstant("speedOfLightBig");
- 	return(sqrt(cal.z0*cal.z0 +
- 		    pow(speedOfLightBig*0.5*timeDiff+cal.xOffset,2)));
-    } else
- 	return(numeric_limits<double>::quiet_NaN());
+    if(type == "small")
+        return(sqrt(cal.z0*cal.z0+
+		    pow(constants->speedOfLightSmall()*0.5*timeDiff+cal.xOffset,2)));
+    else if(type == "big")
+        return(sqrt(cal.z0*cal.z0 +
+ 		    pow(constants->speedOfLightBig()*0.5*timeDiff+cal.xOffset,2)));
+    else
+        return(numeric_limits<double>::quiet_NaN());
 }
 
 double TimingInformation::CalcEnergy(const double &corTOF, const double &z0) {
-    double speedOfLight =
-	TimingInformation::GetConstant("speedOfLight");
-    double neutronMass  =
-	TimingInformation::GetConstant("neutronMass");
-    return((0.5*neutronMass*pow((z0/corTOF)/speedOfLight, 2))*1000);
-}
-
-double TimingInformation::GetConstant(const string &name) {
-    map<string, double>::iterator itTemp =
-	constantsMap.find(name);
-    if(itTemp == constantsMap.end()) {
-	cout << endl << endl
-	     << "Cannot Locate " << name << " in the Timing Constants Map!!"
-	     << endl << "Please check timingConstants.txt" << endl << endl;
-	exit(EXIT_FAILURE);
-    } else {
-	double value = (*constantsMap.find(name)).second;
-	return(value);
-    }
-    return (numeric_limits<double>::quiet_NaN());
+    return((0.5*constants->neutronMass()*
+            pow((z0/corTOF)/constants->speedOfLight(), 2))*1000);
 }
 
 TimingInformation::TimingCal TimingInformation::GetTimingCal(const IdentKey
@@ -178,42 +139,6 @@ TimingInformation::TimingCal TimingInformation::GetTimingCal(const IdentKey
         return(value);
     }
 }
-
-void TimingInformation::ReadTimingConstants(void) {
-    string constantsFileName =
-        Globals::get()->configPath("timingConstants.txt");
-
-    ifstream readConstants(constantsFileName.c_str());
-
-    if (!readConstants) {
-        cout << endl << "Cannot open file 'timingConstants.txt'"
-	     << "-- This is Fatal! Exiting..." << endl << endl;
-	exit(EXIT_FAILURE);
-    } else {
-	while(readConstants) {
-	    double value = 0.0;
-	    string name = "";
-
-	    if (isdigit(readConstants.peek())) {
-		readConstants >> value  >> name;
-		constantsMap.insert(make_pair(name, value));
-	    } else{
-		readConstants.ignore(1000, '\n');
-	    }
-	} // end while (!readConstants) loop
-    }
-    readConstants.close();
-
-    double lengthSmallTime =
-	(*constantsMap.find("lengthSmallPhysical")).second /
-	(*constantsMap.find("speedOfLightSmall")).second;
-    double lengthBigTime   =
-	(*constantsMap.find("lengthBigPhysical")).second /
-	(*constantsMap.find("speedOfLightBig")).second;
-
-    constantsMap.insert(make_pair("lengthBigTime", lengthBigTime));
-    constantsMap.insert(make_pair("lengthSmallTime", lengthSmallTime));
-} //void TimingInformation::ReadTimingConstants
 
 void TimingInformation::ReadTimingCalibration(void) {
     TimingCal timingcal;
@@ -251,3 +176,22 @@ void TimingInformation::ReadTimingCalibration(void) {
     }
     timingCalFile.close();
 }
+
+#ifdef useroot
+TimingInformation::DataRoot::DataRoot(void) {
+    multiplicity = 0;
+    dummy = -1;
+
+    for (size_t i = 0; i < maxMultiplicity; i++) {
+        aveBaseline[i]    = numeric_limits<double>::quiet_NaN();
+        discrimination[i] = numeric_limits<double>::quiet_NaN();
+        highResTime[i]    = numeric_limits<double>::quiet_NaN();
+        maxpos[i]         = numeric_limits<double>::quiet_NaN();
+        maxval[i]         = numeric_limits<double>::quiet_NaN();
+        phase[i]          = numeric_limits<double>::quiet_NaN();
+        stdDevBaseline[i] = numeric_limits<double>::quiet_NaN();
+        tqdc[i]           = numeric_limits<double>::quiet_NaN();
+        location[i]       = -1;
+    }
+}
+#endif

@@ -14,7 +14,7 @@
          Put short description of your experiment here.
      -->
     <Description>
-        A timing setup to measure time difference between two puulser signals
+        A timing setup to measure time difference between two pulser signals
     </Description>
 
     <!-- Instructions:
@@ -123,6 +123,8 @@
     -->
     <DetectorDriver>
         <Processor name="PulserProcessor" />
+        <Analyzer name="WaveformAnalyzer"/>
+        <Analyzer name="FittingAnalyzer"/>
     </DetectorDriver>
 
     <!-- Instructions:
@@ -215,13 +217,7 @@
             <Channel number="0" type="pulser" subtype="start">
                 <WalkCorrection model="None">
                 </WalkCorrection>
-                <TimeCalibration>
-                    <R0 value="0.0"/>
-                    <XOffset value="0.0"/>
-                    <XOffset value="0.0"/>
-                    <LROffset value="0.0"/>
-                    <TofOffset1 value="0.0"/>
-                    <TofOffset2 value="0.0"/>
+                <TimeCalibration >
                 </TimeCalibration>
             </Channel>
             <Channel number="1" type="pulser" subtype="stop" >
@@ -231,49 +227,90 @@
         </Module>
     </Map>
 
+    <!-- Information :
+        Here is where we are going to set all of the parameters for the timing
+        calibrations. This includes all the VANDLE Bars, liquid scintillators,
+        etc. Eventually, this will be updated and expanded based on
+        different VANDLE orientations (i.e. parallel/perpendicular to beam) -->
+    <TimingCalibration verbose_timing="False">
+        <vandle>
+            <big>
+                <Bar number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
+                     tofoffset0="0.0" tofoffset1="0.0" />
+            </big>
+            <medium>
+                <Bar number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
+                     tofoffset0="0.0" tofoffset1="0.0" />
+            </medium>
+            <small>
+                <Bar number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
+                     tofoffset0="0.0" tofoffset1="0.0" />
+            </small>
+        </vandle>
+        <scint>
+            <liquid>
+
+            </liquid>
+            <beta>
+
+            </beta>
+        </scint>
+    </TimingCalibration>
+
     <!-- Instructions:
+        These are all parameters that are necessary for handling the high
+        resolution timing algorithms, VANDLE calculations, trace analysis, etc.
+        These values will be accessed through the Globals class. Since they will
+        be useful parameters to have in various stages of the code.
+
+        NOTE: There is currently no error checking on the units for these
+        parameters. It up to the user to make sure they are correct!!
     -->
     <Timing>
-        <NeutronMass unit="MeV/c/c" value="939.565560"/>
-        <SpeedOfLight unit="cm/ns" value="29.9792458"/>
-        <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
-        <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
-        <SmallLength unit="cm" value="60.0"/>
-        <MediumLength unit="cm" value="120.0"/>
-        <BigLength unit="cm" value="200.0"/>
+        <Physical>
+            <NeutronMass unit="MeV/c/c" value="939.565560"/>
+            <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+            <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+            <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+            <SmallLength unit="cm" value="60.0"/>
+            <MediumLength unit="cm" value="120.0"/>
+            <BigLength unit="cm" value="200.0"/>
+        </Physical>
 
         <Trace>
-            <WaveformLow value="5.0"/>
-            <WaveformHigh value="10.0"/>
-            <DiscriminationStart value="3"/>
-            <TrapezoidalWalk value="60"/>
+            <WaveformLow unit="sample" value="5.0"/>
+            <WaveformHigh unit="sample" value="10.0"/>
+            <DiscriminationStart unit="sample" value="3"/>
+            <TrapezoidalWalk unit="ns" value="60"/>
             <TraceDelay unit="ns" value="112"/>
             <TraceLength unit="ns" value="176"/>
+            <QdcCompression value="4.0"/>
         </Trace>
 
         <Fitting>
+            <SigmaBaselineThresh value="3.0"/>
             <Vandle>
                 <Beta value="0.32969"/>
                 <Gamma value="0.212945"/>
             </Vandle>
             <Start>
-                <Beta value="0.32969"/>
-                <Gamma value="0.212945"/>
+                <Beta value="0.574531"/>
+                <Gamma value="0.274512"/>
             </Start>
             <Pulser>
-                <Beta value="0.32969"/>
-                <Gamma value="0.212945"/>
+                <Beta value="0.832272"/>
+                <Gamma value="0.236525"/>
             </Pulser>
             <TVandle>
-                <Beta value="0.32969"/>
-                <Gamma value="0.212945"/>
+                <Beta value="0.362307"/>
+                <Gamma value="0.186129"/>
             </TVandle>
             <LiquidScint>
                 <Beta value="4.52672"/>
                 <Gamma value="1.73376"/>
             </LiquidScint>
             <SiPMT>
-                <Sigma value="0.0"/>
+                <Sigma value="1.4196495999"/>
             </SiPMT>
         </Fitting>
     </Timing>
@@ -320,5 +357,4 @@
          mode - 'a' for append, 'r' - for replace mode
     -->
     <NoteBook file='notes.txt' mode='a'/>
-
 </Configuration>

@@ -13,6 +13,7 @@
 
 #include <ctime>
 
+#include "Globals.hpp"
 #include "DammPlotIds.hpp"
 #include "FittingAnalyzer.hpp"
 
@@ -56,6 +57,8 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
 			      const string &detSubtype) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype);
 
+    Globals *globals = Globals::get();
+
     if(trace.HasValue("saturation") || trace.empty()) {
      	EndAnalyze();
      	return;
@@ -74,28 +77,24 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
 
     trace.plot(D_SIGMA, sigmaBaseline*100);
 
-    if(sigmaBaseline > 3.0) {
-	EndAnalyze();
-	return;
+    if(sigmaBaseline > globals->sigmaBaselineThresh()) {
+        EndAnalyze();
+        return;
     }
 
-    double beta, gamma;
-    if (detType == "vandleSmall") {
-        beta  = TimingInformation::GetConstant("betaVandle");
-        gamma = TimingInformation::GetConstant("gammaVandle");
-    }else if (detSubtype == "beta") {
-        beta  = TimingInformation::GetConstant("betaBeta");
-        gamma = TimingInformation::GetConstant("gammaBeta");
-    }else if(detType == "tvandle") {
-        beta  = TimingInformation::GetConstant("betaTvandle");
-        gamma = TimingInformation::GetConstant("gammaTvandle");
-    }else if(detType == "pulser") {
-        beta  = TimingInformation::GetConstant("betaPulser");
-        gamma = TimingInformation::GetConstant("gammaPulser");
-    }else {
-        beta  = TimingInformation::GetConstant("betaDefault");
-        gamma = TimingInformation::GetConstant("gammaDefault");
-    }
+    pair<double,double> pars;
+    if (detType == "vandleSmall")
+        pars = globals->vandlePars();
+    else if (detSubtype == "beta")
+        pars = globals->startPars();
+    else if(detType == "tvandle")
+        pars = globals->tvandlePars();
+    else if(detType == "pulser")
+        pars = globals->pulserPars();
+    else if (detType == "sipmt")
+        pars = globals->siPmtPars();
+    else
+        pars = globals->vandlePars();
 
     const gsl_multifit_fdfsolver_type *T;
     gsl_multifit_fdfsolver *s;
@@ -106,7 +105,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
     gsl_matrix *covar = gsl_matrix_alloc (numParams, numParams);
     double y[sizeFit], sigma[sizeFit];
     struct FittingAnalyzer::FitData data =
-	{sizeFit, y, sigma, beta,gamma,qdc};
+        {sizeFit, y, sigma, pars.first, pars.second, qdc};
     gsl_multifit_function_fdf f;
 
     double xInit[numParams] = {0.0,2.5};
@@ -120,8 +119,8 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
     f.params = &data;
 
     for(unsigned int i = 0; i < sizeFit; i++) {
-	y[i] = waveform.at(i);
-	sigma[i] = sigmaBaseline;
+        y[i] = waveform.at(i);
+        sigma[i] = sigmaBaseline;
     }
 
     T = gsl_multifit_fdfsolver_lmsder;
@@ -130,10 +129,10 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
 
     for(unsigned int iter = 0; iter < 1e8; iter++) {
     	status = gsl_multifit_fdfsolver_iterate(s);
-	if(status)
+        if(status)
     	    break;
-	status = gsl_multifit_test_delta (s->dx, s->x, 1e-4, 1e-4);
-	if(status != GSL_CONTINUE)
+        status = gsl_multifit_test_delta (s->dx, s->x, 1e-4, 1e-4);
+        if(status != GSL_CONTINUE)
     	    break;
     }
 
@@ -146,8 +145,8 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
 
     for(unsigned int i=0; i < numParams; i++)
 	fitPars.push_back(gsl_vector_get(s->x,i));
-    fitPars.push_back(beta);
-    fitPars.push_back(gamma);
+    fitPars.push_back(pars.first);
+    fitPars.push_back(pars.second);
 
     gsl_multifit_fdfsolver_free (s);
     gsl_matrix_free (covar);
@@ -160,11 +159,10 @@ void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
     trace.plot(D_CHISQPERDOF, chisqPerDof);
 
     EndAnalyze();
-} //void FittingAnalyzer::Analyze
+}
 
 //*********** FitFunction **********
-int FitFunction (const gsl_vector * x, void *FitData, gsl_vector * f)
-{
+int FitFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
     size_t n       = ((struct FittingAnalyzer::FitData *)FitData)->n;
     double *y      = ((struct FittingAnalyzer::FitData *)FitData)->y;
     double *sigma  = ((struct FittingAnalyzer::FitData *)FitData)->sigma;
@@ -192,8 +190,7 @@ int FitFunction (const gsl_vector * x, void *FitData, gsl_vector * f)
 
 
 //********** CalcJacobian **********
-int CalcJacobian (const gsl_vector * x, void *FitData, gsl_matrix * J)
-{
+int CalcJacobian (const gsl_vector * x, void *FitData, gsl_matrix * J) {
     size_t n = ((struct FittingAnalyzer::FitData *)FitData)->n;
     double *sigma = ((struct FittingAnalyzer::FitData *) FitData)->sigma;
     double beta    = ((struct FittingAnalyzer::FitData *)FitData)->beta;
@@ -231,8 +228,7 @@ int CalcJacobian (const gsl_vector * x, void *FitData, gsl_matrix * J)
 
 //********** FitFunctionDerivative **********
 int FitFunctionDerivative (const gsl_vector * x, void *FitData, gsl_vector * f,
-			   gsl_matrix * J)
-{
+                            gsl_matrix * J) {
     FitFunction (x, FitData, f);
     CalcJacobian (x, FitData, J);
     return(GSL_SUCCESS);

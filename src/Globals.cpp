@@ -1,8 +1,7 @@
-#include "pugixml.hpp"
+#include <iostream>
 
 #include "Exceptions.hpp"
 #include "Globals.hpp"
-#include "Messenger.hpp"
 
 Globals* Globals::instance = NULL;
 
@@ -44,78 +43,66 @@ Globals::Globals() {
                 ss.str("");
 
                 if (revision_ == "A") {
-                    clockInSeconds_ = 10e-9; //< one pixie clock is 10 ns
-                    adcClockInSeconds_ = 10e-9; //< one ADC clock is 10 ns
-                    filterClockInSeconds_ = 10e-9; //< one filter clock is 10 ns
+                    clockInSeconds_ = 10e-9;
+                    adcClockInSeconds_ = 10e-9;
+                    filterClockInSeconds_ = 10e-9;
                     maxWords_ = IO_BUFFER_LENGTH;
                 } else if (revision_ == "D") {
-                    clockInSeconds_ = 10e-9; //< one pixie clock is 10 ns
-                    adcClockInSeconds_ = 10e-9; //< one ADC clock is 10 ns
-                    filterClockInSeconds_ = 10e-9; //< one filter clock is 10 ns
+                    clockInSeconds_ = 10e-9;
+                    adcClockInSeconds_ = 10e-9;
+                    filterClockInSeconds_ = 10e-9;
                     maxWords_ = EXTERNAL_FIFO_LENGTH;
                 } else if (revision_ == "F") {
-                    clockInSeconds_ = 8e-9; //< one pixie clock is 8 ns
-                    adcClockInSeconds_ = 4e-9; //< one ADC clock is 4 ns
-                    filterClockInSeconds_ = 8e-9; //< one filter clock is 8 ns
-                    maxWords_ = EXTERNAL_FIFO_LENGTH; 
+                    clockInSeconds_ = 8e-9;
+                    adcClockInSeconds_ = 4e-9;
+                    filterClockInSeconds_ = 8e-9;
+                    maxWords_ = EXTERNAL_FIFO_LENGTH;
                 } else {
-                    throw GeneralException("Globals: unknown revision version " + revision_);
+                    throw GeneralException("Globals: unknown revision version "
+                                           + revision_);
                 }
 
             } else if (std::string(it->name()).compare("EventWidth") == 0) {
 
                 std::string units = it->attribute("unit").as_string("None");
                 double value = it->attribute("value").as_double(-1);
-                if (units == "ns") {
+
+                if (units == "ns")
                     value *= 1e-9;
-                } else if (units == "us"){
+                else if (units == "us")
                     value *= 1e-6;
-                } else if (units == "ms"){
+                else if (units == "ms")
                     value *= 1e-3;
-                } else if (units == "s") {
-                } else {
-                    throw GeneralException("Globals: unknown units " + 
-                                        units);
-                }
+                else if (units == "s")
+                    value *= 1.0;
+                else
+                    throw GeneralException("Globals: unknown units " + units);
+
                 eventInSeconds_ = value;
                 eventWidth_ = (int)(eventInSeconds_ / clockInSeconds_);
-                ss << "Event width: " << eventInSeconds_ * 1e6 
+                ss << "Event width: " << eventInSeconds_ * 1e6
                    << " us" << ", i.e. " << eventWidth_
                    << " pixie16 clock tics.";
                 m.detail(ss.str());
                 ss.str("");
-
             } else if (std::string(it->name()).compare("EnergyContraction") == 0) {
-
                 energyContraction_ = it->attribute("value").as_double(1);
-
             } else if (std::string(it->name()).compare("Path") == 0) {
-
                 configPath_ =  it->text().get();
                 m.detail("Path to other configuration files: " + configPath_);
-
             } else if (std::string(it->name()).compare("NumOfTraces") == 0) {
-
                 numTraces_ =  it->attribute("value").as_uint();
-
-            } else {
-
-                ss << "Unknown global parameter " << it->name();
-                m.warning(ss.str());
-                ss.str("");
-
-            }
+            } else
+                WarnOfUnknownParameter(m, it);
         }
-        /*
-         * Number of traces must be a power of 2
-         */
+
         unsigned int power2 = 1;
         unsigned int maxDammSize = 16384;
         while (power2 < numTraces_ && power2 < maxDammSize) {
             power2 *= 2;
         }
-        ss << "Number of traces set to " << power2 << " (" 
-           << numTraces_ << " )";
+        ss << "Number of traces set to " << power2 << " ("
+           << numTraces_ << ")";
         m.detail(ss.str());
         ss.str("");
         numTraces_ = power2;
@@ -142,6 +129,87 @@ Globals::Globals() {
 
         if (reject_.size() > 0) {
             hasReject_ = true;
+        }
+
+        pugi::xml_node timing = doc.child("Configuration").child("Timing");
+
+        for(pugi::xml_node_iterator it = timing.child("Physical").begin();
+            it != timing.child("Physical").end(); ++it) {
+            if(std::string(it->name()).compare("NeutronMass") == 0)
+                neutronMass_ = it->attribute("value").as_double();
+            else if(std::string(it->name()).compare("SpeedOfLight") == 0)
+                speedOfLight_ = it->attribute("value").as_double();
+            else if(std::string(it->name()).compare("SpeedOfLightSmall") == 0)
+                speedOfLightSmall_ = it->attribute("value").as_double();
+            else if(std::string(it->name()).compare("SpeedOfLightBig") == 0)
+                speedOfLightBig_ = it->attribute("value").as_double();
+            else if(std::string(it->name()).compare("SpeedOfLightMedium") == 0)
+                speedOfLightMedium_ = it->attribute("value").as_double();
+            else if(std::string(it->name()).compare("SmallLength") == 0)
+                smallLength_ = it->attribute("value").as_double();
+            else if(std::string(it->name()).compare("MediumLength") == 0)
+                mediumLength_ = it->attribute("value").as_double();
+            else if(std::string(it->name()).compare("BigLength") == 0)
+                bigLength_ = it->attribute("value").as_double();
+            else
+                WarnOfUnknownParameter(m, it);
+        }
+
+        for(pugi::xml_node_iterator it = timing.child("Trace").begin();
+            it != timing.child("Trace").end(); ++it) {
+            if(std::string(it->name()).compare("WaveformLow") == 0)
+                waveformLow_ = it->attribute("value").as_double();
+            else if(std::string(it->name()).compare("WaveformHigh") == 0)
+                waveformHigh_ = it->attribute("value").as_double();
+            else if(std::string(it->name()).compare("DiscriminationStart") == 0)
+                discriminationStart_ = it->attribute("value").as_double();
+            else if(std::string(it->name()).compare("TrapezoidalWalk") == 0)
+                trapezoidalWalk_ = it->attribute("value").as_double();
+            else if(std::string(it->name()).compare("TraceDelay") == 0)
+                traceDelay_ = it->attribute("value").as_double();
+            else if(std::string(it->name()).compare("TraceLength") == 0)
+                traceLength_ = it->attribute("value").as_double();
+            else if(std::string(it->name()).compare("QdcCompression") == 0)
+                qdcCompression_ = it->attribute("value").as_double();
+            else
+                WarnOfUnknownParameter(m, it);
+        }
+
+        for(pugi::xml_node_iterator it = timing.child("Fitting").begin();
+            it != timing.child("Fitting").end(); ++it) {
+            if(std::string(it->name()).compare("SigmaBaselineThresh") == 0)
+                sigmaBaselineThresh_ = it->attribute("value").as_double();
+            else if (std::string(it->name()).compare("Vandle") == 0) {
+                vandlePars_.first =
+                    it->child("Beta").attribute("value").as_double();
+                vandlePars_.second =
+                    it->child("Gamma").attribute("value").as_double();
+            }else if (std::string(it->name()).compare("Start") == 0) {
+                startPars_.first =
+                    it->child("Beta").attribute("value").as_double();
+                startPars_.second =
+                    it->child("Gamma").attribute("value").as_double();
+            }else if (std::string(it->name()).compare("Pulser") == 0) {
+                pulserPars_.first =
+                    it->child("Beta").attribute("value").as_double();
+                pulserPars_.second =
+                    it->child("Gamma").attribute("value").as_double();
+            }else if (std::string(it->name()).compare("TVandle") == 0) {
+                tvandlePars_.first =
+                    it->child("Beta").attribute("value").as_double();
+                tvandlePars_.second =
+                    it->child("Gamma").attribute("value").as_double();
+            }else if (std::string(it->name()).compare("LiquidScint") == 0) {
+                liquidScintPars_.first =
+                    it->child("Beta").attribute("value").as_double();
+                liquidScintPars_.second =
+                    it->child("Gamma").attribute("value").as_double();
+            }else if (std::string(it->name()).compare("SiPMT") == 0) {
+                siPmtPars_.first =
+                    it->child("Sigma").attribute("value").as_double();
+                siPmtPars_.second = 0.0;
+            }else
+                WarnOfUnknownParameter(m, it);
         }
 
         SanityCheck();
@@ -197,7 +265,7 @@ void Globals::SanityCheck() {
     ss.str("");
     if (energyContraction_ <= 0) {
         ss << "Globals: Surely you don't want to use Energy contraction = "
-            << energyContraction_ << ". I'll better stop the program.";
+            << energyContraction_ << ". I'd better stop the program.";
         throw GeneralException(ss.str());
     } else {
         ss << "Energy contraction: " << energyContraction_;
@@ -205,6 +273,13 @@ void Globals::SanityCheck() {
     }
 
     m.done();
+}
+
+void Globals::WarnOfUnknownParameter(Messenger &m,
+                                     pugi::xml_node_iterator &it) {
+    std::stringstream ss;
+    ss << "Unknown parameter in Config.xml : " << it->path();
+    m.warning(ss.str());
 }
 
 /** Instance is created upon first call */
