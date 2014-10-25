@@ -12,7 +12,6 @@
 #include "Rtypes.h"
 #endif
 
-// Forward declarations for hell of circular dependencies
 // see Trace.hpp
 class Trace;
 // see ChanEvent.hpp
@@ -30,8 +29,7 @@ public:
         double zOffset;
     };
 
-    struct TimingData
-    {
+    struct TimingData {
         TimingData(void);
         TimingData(ChanEvent *chan);
         const Trace &trace;
@@ -52,27 +50,6 @@ public:
 
         int numAboveThresh;
     };
-
-#ifdef useroot
-    struct DataRoot {
-        static const size_t maxMultiplicity = 10;
-
-        DataRoot(void);
-
-        UInt_t   multiplicity;
-        UInt_t   dummy;
-
-        Double_t aveBaseline[maxMultiplicity];
-        Double_t discrimination[maxMultiplicity];
-        Double_t highResTime[maxMultiplicity];
-        Double_t maxpos[maxMultiplicity];
-        Double_t maxval[maxMultiplicity];
-        Double_t phase[maxMultiplicity];
-        Double_t stdDevBaseline[maxMultiplicity];
-        Double_t tqdc[maxMultiplicity];
-        UInt_t   location[maxMultiplicity];
-    };
-#endif
 
     struct BarData {
         BarData(const TimingData& Right, const TimingData& Left,
@@ -112,14 +89,31 @@ public:
 
     double CalcEnergy(const double &timeOfFlight, const double &z0);
 
-    static double GetConstant(const std::string &value);
     static TimingCal GetTimingCal(const IdentKey &identity);
     static void ReadTimingCalibration(void);
-    static void ReadTimingConstants(void);
+
+#ifdef useroot
+    struct DataRoot {
+        static const size_t maxMultiplicity = 10;
+
+        DataRoot(void);
+
+        UInt_t   multiplicity;
+        UInt_t   dummy;
+
+        Double_t aveBaseline[maxMultiplicity];
+        Double_t discrimination[maxMultiplicity];
+        Double_t highResTime[maxMultiplicity];
+        Double_t maxpos[maxMultiplicity];
+        Double_t maxval[maxMultiplicity];
+        Double_t phase[maxMultiplicity];
+        Double_t stdDevBaseline[maxMultiplicity];
+        Double_t tqdc[maxMultiplicity];
+        UInt_t   location[maxMultiplicity];
+    };
+#endif
 private:
     static const double qdcCompression = 4.0;
-
-    static std::map<std::string, double> constantsMap;
     static TimingCalMap calibrationMap;
 }; // class TimingInformation
 #endif //__TIMINGINFORMATION_HPP_

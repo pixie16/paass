@@ -8,15 +8,13 @@
 #include "EventProcessor.hpp"
 #include "TimingInformation.hpp"
 
-class PulserProcessor : public EventProcessor, 
-			public TimingInformation
-{
+class PulserProcessor : public EventProcessor {
  public:
     PulserProcessor(); // no virtual c'tors
     virtual void DeclarePlots(void);
     virtual bool Process(RawEvent &event);
  protected:
-    TimingDataMap pulserMap;
+    TimingInformation::TimingDataMap pulserMap;
  private:
     virtual bool RetrieveData(RawEvent &event);
     virtual void AnalyzeData(void);

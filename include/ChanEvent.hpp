@@ -8,18 +8,16 @@
 #include "Globals.hpp"
 #include "Trace.hpp"
 
-/**
- * \brief A channel event
- * 
+/*! \brief A channel event
+ *
  * All data is grouped together into channels.  For each pixie16 channel that
  * fires the energy, time (both trigger time and event time), and trace (if
- * applicable) are obtained.  Additional information includes the channels 
+ * applicable) are obtained.  Additional information includes the channels
  * identifier, calibrated energies, trace analysis information.
  * Note that this currently stores raw values internally through pixie word types
- *   but returns data values through native C types. This is potentially non-portable. 
+ *   but returns data values through native C types. This is potentially non-portable.
  */
-class ChanEvent
-{
+class ChanEvent {
 private:
     double energy;             /**< Raw channel energy */
     double calEnergy;          /**< Calibrated channel energy,
@@ -51,7 +49,7 @@ private:
     bool   saturatedBit;       /**< Saturation flag from Pixie */
 
     void ZeroNums(void);       /**< Zero members which do not have constructors associated with them */
-    
+
     // make the front end responsible for reading the data able to set the channel data directly
     friend int ReadBuffDataA(pixie::word_t *, unsigned long *, std::vector<ChanEvent *> &);
     friend int ReadBuffDataDF(pixie::word_t *, unsigned long *, std::vector<ChanEvent *> &);
@@ -74,7 +72,7 @@ public:
     double GetEventTime() const   {return eventTime;}  /**< Get the event time */
     const Trace& GetTrace() const {return trace;} /**< Get a reference to the trace */
     Trace& GetTrace() {return trace;} /** Get a reference which can alter the trace */
-    unsigned long GetTrigTime() const    
+    unsigned long GetTrigTime() const
     {return trigTime;}    /**< Return the channel trigger time */
     unsigned long GetEventTimeLo() const
     {return eventTimeLo;} /**< Return the lower 32 bits of event time */
