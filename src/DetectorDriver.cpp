@@ -34,7 +34,6 @@
   calibration and raw parameter plotting) and things that do (differences
   between MTC and RMS experiment, for example).
 */
-
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
@@ -93,11 +92,10 @@ using namespace dammIds::raw;
 
 DetectorDriver* DetectorDriver::instance = NULL;
 
-/** Instance is created upon first call */
+/*! Instance is created upon first call */
 DetectorDriver* DetectorDriver::get() {
-    if (!instance) {
+    if (!instance)
         instance = new DetectorDriver();
-    }
     return instance;
 }
 
@@ -156,9 +154,6 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         throw IOException(ss.str());
     }
 
-    /** Force to create Detector Library before loading processors.
-     * It is not needed but the output looks nicer ;)
-     */
     DetectorLibrary::get();
 
     pugi::xml_node driver = doc.child("Configuration").child("DetectorDriver");
@@ -434,13 +429,12 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
   The calibration file cal.txt is read using the function ReadCal() and
   checked to make sure that all channels have a calibration.
 */
-int DetectorDriver::Init(RawEvent& rawev)
-{
+int DetectorDriver::Init(RawEvent& rawev) {
     // initialize the trace analysis routine
     for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
 	 it != vecAnalyzer.end(); it++) {
-	(*it)->Init();
-	(*it)->SetLevel(20); //! Plot traces
+        (*it)->Init();
+        (*it)->SetLevel(20); //! Plot traces
     }
 
     // initialize processors in the event processing vector
@@ -467,7 +461,6 @@ int DetectorDriver::Init(RawEvent& rawev)
     }
 
     TimingInformation readFiles;
-    readFiles.ReadTimingConstants();
     readFiles.ReadTimingCalibration();
 
     rawev.GetCorrelator().Init(rawev);
@@ -475,8 +468,7 @@ int DetectorDriver::Init(RawEvent& rawev)
     return 0;
 }
 
-/*!
-  \brief controls event processing
+/*! \brief controls event processing
 
   The ProcessEvent() function is called from ScanList() in PixieStd.cpp
   after an event has been constructed. This function is passed the mode
@@ -488,11 +480,7 @@ int DetectorDriver::Init(RawEvent& rawev)
   Currently, both RMS and MTC processing is available.  After all processing
   has occured, appropriate plotting routines are called.
 */
-int DetectorDriver::ProcessEvent(RawEvent& rawev){
-    /*
-      Begin the event processing looping over all the channels
-      that fired in this particular event.
-    */
+int DetectorDriver::ProcessEvent(RawEvent& rawev) {
     plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
 
     try {
@@ -500,16 +488,13 @@ int DetectorDriver::ProcessEvent(RawEvent& rawev){
             it != rawev.GetEventList().end(); ++it) {
             string place = (*it)->GetChanID().GetPlaceName();
 
-            // skip empty channel
             if (place == "__-1")
                 continue;
 
-            // check threshold and calibrate
             PlotRaw((*it));
             ThreshAndCal((*it), rawev);
             PlotCal((*it));
 
-            // Do not activate places if saturated or pileup
             if ( (*it)->IsSaturated() || (*it)->IsPileup() )
                 continue;
 
@@ -521,7 +506,6 @@ int DetectorDriver::ProcessEvent(RawEvent& rawev){
             TreeCorrelator::get()->place(place)->activate(data);
         }
 
-        // have each processor in the event processing vector handle the event
         /* First round is preprocessing, where process result must be guaranteed
         * to not to be dependent on results of other Processors. */
         for (vector<EventProcessor*>::iterator iProc = vecProcess.begin();
@@ -552,12 +536,10 @@ int DetectorDriver::ProcessEvent(RawEvent& rawev){
     return 0;
 }
 
-void DetectorDriver::DeclarePlots()
-{
+void DetectorDriver::DeclarePlots() {
     try {
         DetectorLibrary* modChan = DetectorLibrary::get();
 
-        // Declare plots for each channel
         DeclareHistogram1D(D_HIT_SPECTRUM, S7, "channel hit spectrum");
         DeclareHistogram1D(D_SUBEVENT_GAP, SE,
                            "time btwn chan-in event,10ns bin");
@@ -602,8 +584,6 @@ void DetectorDriver::DeclarePlots()
                                ("CalE " + idstr.str()).c_str() );
         }
 
-        // Now declare histograms present in all used analyzers and
-        // processors
         for (vector<TraceAnalyzer *>::const_iterator it = vecAnalyzer.begin();
              it != vecAnalyzer.end(); it++) {
             (*it)->DeclarePlots();
@@ -615,7 +595,6 @@ void DetectorDriver::DeclarePlots()
         }
 
     } catch (exception &e) {
-        // Any exception in histogram declaration will be intercepted here
         cout << "Exception caught at DetectorDriver::DeclarePlots" << endl;
         cout << "\t" << e.what() << endl;
         exit(EXIT_FAILURE);
@@ -629,15 +608,12 @@ void DetectorDriver::SanityCheck(void) const
      * not succesful */
 }
 
-/*!
-  \brief check threshold and calibrate each channel.
+/*! \brief check threshold and calibrate each channel.
 
   Check the thresholds and calibrate the energy for each channel using the
   calibrations contained in the calibration vector filled during ReadCal()
 */
-
-int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
-{
+int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
     // retrieve information about the channel
     Identifier chanId = chan->GetChanID();
     int id            = chan->GetID();
@@ -731,9 +707,6 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
     chan->SetCalEnergy(cali.GetCalEnergy(chanId, energy));
     chan->SetCorrectedTime(time - walk_correction);
 
-    /*
-      update the detector summary
-    */
     rawev.GetSummary(type)->AddEvent(chan);
     DetectorSummary *summary;
 
@@ -755,8 +728,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev)
   Plot the raw energies of each channel into the damm spectrum number assigned
   to it in the map file with an offset as defined in DammPlotIds.hpp
 */
-int DetectorDriver::PlotRaw(const ChanEvent *chan)
-{
+int DetectorDriver::PlotRaw(const ChanEvent *chan) {
     int id = chan->GetID();
     float energy = chan->GetEnergy() / ChanEvent::pixieEnergyContraction;
 
@@ -769,8 +741,7 @@ int DetectorDriver::PlotRaw(const ChanEvent *chan)
   Plot the calibrated energies of each channel into the damm spectrum number
   assigned to it in the map file with an offset as defined in DammPlotIds.hpp
 */
-int DetectorDriver::PlotCal(const ChanEvent *chan)
-{
+int DetectorDriver::PlotCal(const ChanEvent *chan) {
     int id = chan->GetID();
     float calEnergy = chan->GetCalEnergy();
 
@@ -778,8 +749,7 @@ int DetectorDriver::PlotCal(const ChanEvent *chan)
     return 0;
 }
 
-vector<EventProcessor *> DetectorDriver::GetProcessors(const string& type) const
-{
+vector<EventProcessor *> DetectorDriver::GetProcessors(const string& type) const {
   vector<EventProcessor *> retVec;
 
   for (vector<EventProcessor *>::const_iterator it = vecProcess.begin();

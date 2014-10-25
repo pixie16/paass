@@ -176,6 +176,7 @@ SSDPROCESSORO    = SsdProcessor.$(ObjSuf)
 STATSDATAO       = StatsData.$(ObjSuf)
 TAUANALYZERO     = TauAnalyzer.$(ObjSuf)
 TIMINGINFOO      = TimingInformation.$(ObjSuf)
+TIMINGCALO		 = TimingCalibrator.$(ObjSuf)
 TRIGGERLOGICPROCESSORO = TriggerLogicProcessor.$(ObjSuf)
 TRACEO           = Trace.$(ObjSuf)
 TRACEEXTRACTORO  = TraceExtractor.$(ObjSuf)
@@ -185,7 +186,6 @@ TREECORRELATORO  = TreeCorrelator.$(ObjSuf)
 VANDLEPROCESSORO = VandleProcessor.$(ObjSuf)
 VANDLEROOTO      = VandleROOT.$(ObjSuf)
 WALKCORRECTORO   = WalkCorrector.$(ObjSuf)
-WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
 WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
 
 #----- list of objects
@@ -200,7 +200,7 @@ CXX_OBJS += $(PUGIXMLO) $(PIXIEO) $(CALIBRATORO) $(CORRELATORO)\
 	$(CHANEVENTO) $(CHANIDENTIFIERO) $(DETECTORDRIVERO) $(DETECTORLIBRARYO)\
 	$(DETECTORSUMMARYO) $(EVENTPROCESSORO) $(GLOBALSO) $(INITIALIZEO)\
 	$(MESSENGERO) $(NOTEBOOKO) $(RANDOMPOOLO) $(RAWEVENTO) $(STATSDATAO)\
-	$(WALKCORRECTORO)
+	$(TIMINGCALO) $(WALKCORRECTORO)
 
 #Correlation Objects
 CXX_OBJS += $(PLACEBUILDERO) $(PLACESO) $(TREECORRELATORO)

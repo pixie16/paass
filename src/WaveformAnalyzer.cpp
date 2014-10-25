@@ -47,9 +47,9 @@ void WaveformAnalyzer::Analyze(Trace &trace,
 	    return;
 	}
 
-	unsigned int waveformLow = timing_.GetConstant("waveformLow");
-	unsigned int waveformHigh = timing_.GetConstant("waveformHigh");
-	unsigned int startDiscrimination = timing_.GetConstant("startDiscrimination");
+	unsigned int waveformLow = Globals::get()->waveformLow();
+	unsigned int waveformHigh = Globals::get()->waveformHigh();
+	unsigned int startDiscrimination = Globals::get()->discriminationStart();
 	unsigned int maxPos = trace.FindMaxInfo();
 
 	double qdc = trace.DoQDC(maxPos-waveformLow,
