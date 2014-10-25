@@ -4,10 +4,6 @@ SHELL=/bin/sh
 
 # Uncomment the following line for root functionality
 # USEROOT = 1
-# Uncomment this line if processing Rev. D data
-#REVISIOND = 1
-# Uncomment this line if processing Rev. F data
-REVISIONF = 1
 # Uncomment this line for a more verbose scan
 # CXXFLAGS += -DVERBOSE
 # Undefine to make a "online" version
@@ -21,11 +17,8 @@ REVISIONF = 1
 # Define to see debugging information for TreeCorrelator
 #DEBUG = 1
 
-#These will set the analysis used on the waveforms
 #Uncomment this line to use the Pulse Fitting routine
 PULSEFIT = 1
-#Uncomment this line to use the cfd
-#DCFD = 1
 
 # Use gfortran
 ifeq ($(HHIRF_GFORTRAN),)
@@ -103,9 +96,6 @@ CINCLUDEDIRS  = -Iinclude
 LDLIBS   += -lm -lstdc++
 ifdef PULSEFIT
 LDLIBS   += -lgsl -lgslcblas
-CXXFLAGS += -Dpulsefit
-else ifdef DCFD
-CXXFLAGS += -Ddcfd
 endif
 
 ifeq ($(FC),gfortran)
@@ -136,7 +126,7 @@ READBUFFDATADFO    = ReadBuffData.RevD.$(ObjSuf)
 READBUFFDATAAO    = ReadBuffData.RevA.$(ObjSuf)
 
 BEAMLOGICPROCESSORO  = BeamLogicProcessor.$(ObjSuf)
-BETASCINTPROCESSORO = BetaScintProcessor.$(ObjSuf)
+BETASCINTPROCESSORO  = BetaScintProcessor.$(ObjSuf)
 CALIBRATORO      = Calibrator.$(ObjSuf)
 CFDANALYZERO     = CfdAnalyzer.$(ObjSuf)
 CHANEVENTO       = ChanEvent.$(ObjSuf)
@@ -209,8 +199,9 @@ CXX_OBJS += $(PLACEBUILDERO) $(PLACESO) $(TREECORRELATORO)
 CXX_OBJS += $(HISTOGRAMMERO) $(PLOTSO) $(PLOTSREGISTERO)
 
 #Trace Related Objects
-CXX_OBJS += $(DOUBLETRACEO) $(TAUANALYZERO) $(TIMINGINFOO) $(TRACEO)\
-	$(TRACEEXTRACTORO) $(TRACEFILTERO) $(TRACESUBO) $(WAVEFORMSUBO)
+CXX_OBJS += $(CFDANALYZERO) $(DOUBLETRACEO) $(FITTINGANALYZERO) $(TAUANALYZERO)\
+	$(TIMINGINFOO) $(TRACEO) $(TRACEEXTRACTORO) $(TRACEFILTERO) $(TRACESUBO)\
+	$(WAVEFORMSUBO)
 
 #Processors
 CXX_OBJS += $(BEAMLOGICPROCESSORO) $(BETASCINTPROCESSORO)\
@@ -219,12 +210,6 @@ CXX_OBJS += $(BEAMLOGICPROCESSORO) $(BETASCINTPROCESSORO)\
 	$(LOGICPROCESSORO) $(MCPPROCESSORO) $(MTCPROCESSORO)\
 	$(NEUTRONSCINTPROCESSORO) $(POSITIONPROCESSORO) $(PULSERPROCESSORO)\
 	$(SSDPROCESSORO) $(TRIGGERLOGICPROCESSORO) $(VANDLEPROCESSORO)
-
-ifdef PULSEFIT
-CXX_OBJS += $(FITTINGANALYZERO)
-else ifdef DCFD
-CXX_OBJS += $(CFDANALYZERO)
-endif
 
 #---------- Change the executable name if necessary
 ifdef ONLINE

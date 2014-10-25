@@ -75,6 +75,9 @@ bool PulserProcessor::Process(RawEvent &event) {
 
 bool PulserProcessor::RetrieveData(RawEvent &event) {
     TimingCalibrator *tcal = TimingCalibrator::get();
+
+    TimingCalibration cal0 = tcal->GetCalibration(make_pair(0, "small"));
+
     pulserMap.clear();
 
     static const vector<ChanEvent*> & pulserEvents =
@@ -85,7 +88,7 @@ bool PulserProcessor::RetrieveData(RawEvent &event) {
         unsigned int location = (*itPulser)->GetChanID().GetLocation();
         string subType = (*itPulser)->GetChanID().GetSubtype();
 
-        TimingInformation::IdentKey pulserKey(location, subType);
+        Vandle::BarIdentifier pulserKey(location, subType);
         pulserMap.insert(make_pair(pulserKey,
                                    TimingInformation::TimingData(*itPulser)));
     }
