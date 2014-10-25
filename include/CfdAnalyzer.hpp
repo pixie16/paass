@@ -13,10 +13,9 @@ class CfdAnalyzer : public TraceAnalyzer
 {
  public:
     CfdAnalyzer();
-    virtual void DeclarePlots(void) const;
-    virtual void Analyze(Trace &, const std::string &, 
+    virtual void DeclarePlots(void) const{};
+    virtual void Analyze(Trace &, const std::string &,
 			 const std::string &);
     virtual ~CfdAnalyzer() {};
 };
-
-#endif // __CFDANALYZER_HPP_
+#endif

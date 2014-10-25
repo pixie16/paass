@@ -1,16 +1,17 @@
 /** \file TimingInformation.hpp
  * \brief File holding structures and info for Timing Analysis
  */
-
 #ifndef __TIMINGINFORMATION_HPP_
 #define __TIMINGINFORMATION_HPP_
-
 #include <map>
-//#include "ChanEvent.hpp"
 
 #ifdef useroot
 #include "Rtypes.h"
 #endif
+
+#include "TimingCalibrator.hpp"
+//#include "ChanEvent.hpp"
+//#include "Trace.hpp"
 
 // see Trace.hpp
 class Trace;
@@ -19,16 +20,6 @@ class ChanEvent;
 
 class TimingInformation {
 public:
-    struct TimingCal {
-        double lrtOffset;
-        double r0;
-        double tofOffset0;
-        double tofOffset1;
-        double xOffset;
-        double z0;
-        double zOffset;
-    };
-
     struct TimingData {
         TimingData(void);
         TimingData(ChanEvent *chan);
@@ -53,11 +44,11 @@ public:
 
     struct BarData {
         BarData(const TimingData& Right, const TimingData& Left,
-                const TimingCal &cal, const std::string &type);
-        bool BarEventCheck(const double &timeDiff,
-                    const std::string &type);
-            double CalcFlightPath(double &timeDiff, const TimingCal &cal,
-                                  const std::string &type);
+                const TimingCalibration &cal, const std::string &type);
+        bool BarEventCheck(const double &timeDiff, const std::string &type);
+        double CalcFlightPath(double &timeDiff,
+                              const TimingCalibration &cal,
+                              const std::string &type);
         bool event;
 
         double flightPath;
@@ -80,17 +71,13 @@ public:
         std::map<unsigned int, double> energy;
     };
 
-    //define types for the keys and maps
-    typedef std::pair<unsigned int, std::string> IdentKey;
-    typedef std::map<IdentKey, struct TimingData> TimingDataMap;
-    typedef std::map<IdentKey, struct BarData> BarMap;
-    typedef std::map<IdentKey, struct TimingCal> TimingCalMap;
+    typedef std::map<Vandle::BarIdentifier,
+                     struct TimingData> TimingDataMap;
+    typedef std::map<Vandle::BarIdentifier,
+                     struct BarData> BarMap;
     typedef std::map<unsigned int, double> TimeOfFlightMap;
 
     double CalcEnergy(const double &timeOfFlight, const double &z0);
-
-    static TimingCal GetTimingCal(const IdentKey &identity);
-    static void ReadTimingCalibration(void);
 
 #ifdef useroot
     struct DataRoot {
@@ -112,8 +99,5 @@ public:
         UInt_t   location[maxMultiplicity];
     };
 #endif
-private:
-    static const double qdcCompression = 4.0;
-    static TimingCalMap calibrationMap;
-}; // class TimingInformation
-#endif //__TIMINGINFORMATION_HPP_
+};
+#endif

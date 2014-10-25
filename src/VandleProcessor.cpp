@@ -362,8 +362,8 @@ void VandleProcessor::AnalyzeData(RawEvent& rawev) {
         else
             idOffset = dammIds::BIG_OFFSET;
 
-        TimingCal calibration =
-            GetTimingCal((*itBar).first);
+        TimingCalibration cal =
+            TimingCalibrator::get()->GetCalibration((*itBar).first);
 
         double timeDiff = bar.timeDiff;
 
@@ -385,16 +385,16 @@ void VandleProcessor::AnalyzeData(RawEvent& rawev) {
 
             double tofOffset;
             if(startLoc == 0)
-                tofOffset = calibration.tofOffset0;
+                tofOffset = cal.GetTofOffset0();
             else
-                tofOffset = calibration.tofOffset1;
+                tofOffset = cal.GetTofOffset1();
 
             double TOF = bar.walkCorTimeAve -
                 (*itStart).second.walkCorTime + tofOffset;
             double corTOF =
-                CorrectTOF(TOF, bar.flightPath, calibration.z0);
+                CorrectTOF(TOF, bar.flightPath, cal.GetZ0());
             double energy =
-                CalcEnergy(corTOF, calibration.z0);
+                CalcEnergy(corTOF, cal.GetZ0());
 
             bar.timeOfFlight.insert(make_pair(startLoc, TOF));
             bar.corTimeOfFlight.insert(make_pair(startLoc, corTOF));
@@ -474,13 +474,13 @@ void VandleProcessor::BuildBars(const TimingDataMap &endMap, const string &type,
             continue;
         }
 
-        IdentKey barKey((*itEndA).first.first, type);
+        Vandle::BarIdentifier barKey((*itEndA).first.first, type);
 
-        TimingCal calibrations = GetTimingCal(barKey);
+        TimingCalibration cal = TimingCalibrator::get()->GetCalibration(barKey);
 
         if((*itEndA).second.dataValid && (*itEndB).second.dataValid)
             barMap.insert(make_pair(barKey, BarData((*itEndB).second,
-                                    (*itEndA).second, calibrations, type)));
+                                    (*itEndA).second, cal, type)));
         else {
             itEndA = itEndB;
             continue;
@@ -527,8 +527,8 @@ void VandleProcessor::CrossTalk(void) {
 
     //Information for the bar of interest.
     string barType = "small";
-    IdentKey barA(0, barType);
-    IdentKey barB(1, barType);
+    Vandle::BarIdentifier barA(0, barType);
+    Vandle::BarIdentifier barB(1, barType);
 
     CrossTalkKey barsOfInterest(barA.first, barB.first);
 
@@ -599,7 +599,7 @@ void VandleProcessor::FillMap(const vector<ChanEvent*> &eventList,
 	unsigned int location = (*it)->GetChanID().GetLocation();
 	string subType = (*it)->GetChanID().GetSubtype();
 
-	IdentKey key(location, subType);
+	Vandle::BarIdentifier key(location, subType);
 
 	TimingDataMap::iterator itTemp =
 	    eventMap.insert(make_pair(key, TimingData(*it))).first;

@@ -3,18 +3,33 @@
  *  \author S. V. Paulauskas
  *  \date October 23, 2014
 */
+#include <iostream>
 #include <sstream>
 #include <cmath>
 
 #include "pugixml.hpp"
 
 #include "Exceptions.hpp"
-#include "Messenger.hpp"
 #include "TimingCalibrator.hpp"
 
 using namespace std;
 
 TimingCalibrator* TimingCalibrator::instance = NULL;
+
+TimingCalibration TimingCalibrator::GetCalibration(const Vandle::BarIdentifier &id) {
+    map<Vandle::BarIdentifier, TimingCalibration>::iterator it =
+        calibrations_.find(id);
+
+    if(it == calibrations_.end()) {
+        stringstream ss;
+        ss << "TimingCalibrator: You have attempted to access a "
+            << "time calibration that does not exist (" << id.first << ","
+            << id.second << "). I refuse to continue "
+            << "until you fix this issue." << endl;
+        throw GeneralException(ss.str());
+    }
+    return((*it).second);
+}
 
 /*! Instance is created upon first call */
 TimingCalibrator* TimingCalibrator::get() {
@@ -29,50 +44,68 @@ void TimingCalibrator::ReadTimingCalXml() {
     pugi::xml_parse_result result = doc.load_file("Config.xml");
     if (!result) {
         stringstream ss;
-        ss << "TimingCalibration: error parsing file Config.xml";
+        ss << "TimingCalibrator: error parsing file Config.xml";
         ss << " : " << result.description();
         throw GeneralException(ss.str());
     }
 
     Messenger m;
-    m.start("Loading Timing Calibrations");
+    m.start("Loading Time Calibrations");
 
-    pugi::xml_node map = doc.child("Configuration").child("TimingCalibration");
-    bool verbose = map.attribute("verbose_timing").as_bool();
-//    for (pugi::xml_node module = map.child("Vandle"); module;
-//         module = module.next_sibling("Module")) {
-//        int module_number = module.attribute("number").as_int(-1);
-//        for (pugi::xml_node channel = module.child("Channel"); channel;
-//             channel = channel.next_sibling("Channel")) {
-//            int ch_number = channel.attribute("number").as_int(-1);
-//
-//            bool corrected = false;
-//            for (pugi::xml_node timecorr = channel.child("TimingCalibration");
-//                timecorr; timecorr = timecorr.next_sibling("TimingCalibration")) {
-//                double r0  = timecorr.attribute("r0").as_double(0);
-//                double xoffset = timecorr.attribute("xoffset").as_double(0);
-//                double lroffset = timecorr.attribute("lroffset").as_double(0);
-//                double tofoffset0 = timecorr.attribute("tofoffset0").as_double(0);
-//                double tofoffset1 = timecorr.attribute("tofoffset1").as_double(0);
-//
-//                if (verbose) {
-//                    stringstream ss;
-//                    ss << "Module " << module_number
-//                       << ", channel " << ch_number << ": ";
-//                    ss << " r0 = " << r0;
-//                    m.detail(ss.str(), 1);
-//                }
-//                tcali->AddChannel(chanID, r0, xoffset, lroffset);
-//                corrected = true;
-//            }
-//            if (!corrected && verbose) {
-//                stringstream ss;
-//                ss << "Module " << module_number << ", channel "
-//                << ch_number << ": ";
-//                ss << " not corrected for walk";
-//                m.detail(ss.str(), 1);
-//            }
-//        }
-//    }
+    pugi::xml_node timeCals =
+        doc.child("Configuration").child("TimeCalibration");
+
+    bool verbose = timeCals.attribute("verbose_timing").as_bool();
+
+    for(pugi::xml_node_iterator detType = timeCals.begin();
+        detType != timeCals.end(); ++detType) {
+        string detName = detType->name();
+
+        for(pugi::xml_node_iterator detSubtype = detType->begin();
+            detSubtype != detType->end(); detSubtype++) {
+            string barType = detSubtype->name();
+
+            for(pugi::xml_node_iterator bar = detSubtype->begin();
+                bar != detSubtype->end(); bar++) {
+                int barNumber = bar->attribute("number").as_int(-1);
+                Vandle::BarIdentifier id = make_pair(barNumber, barType);
+
+                TimingCalibration temp;
+                temp.SetLeftRightTimeOffset(bar->
+                    attribute("lroffset").as_double(0.0));
+                temp.SetR0(bar->
+                    attribute("r0").as_double(0.0));
+                temp.SetTofOffset0(bar->
+                    attribute("tofOffset0").as_double(0.0));
+                temp.SetTofOffset1(bar->
+                    attribute("tofOffset1").as_double(0.0));
+                temp.SetXOffset(bar->
+                    attribute("xOffset").as_double(0.0));
+                temp.SetZ0(bar->
+                    attribute("z0").as_double(0.0));
+                temp.SetZOffset(bar->
+                    attribute("zOffset").as_double(0.0));
+
+                if(!calibrations_.insert(make_pair(id, temp)).second) {
+                    stringstream ss;
+                    ss << "TimingCalibrator: We have found a duplicate "
+                       << "entry into the TimingCalibrations at "
+                       << bar->path() << barNumber << endl
+                       << "Ignoring duplicate. ";
+                    m_.warning(ss.str());
+                }
+                if (verbose) {
+                    stringstream ss;
+                    ss << detName << ":" << barType << ":" << barNumber
+                        << "-> r0 = " << temp.GetR0() << ", lroffset = "
+                        << temp.GetLeftRightTimeOffset() << ", xoffset = "
+                        << temp.GetXOffset() << ", z0 = " << temp.GetZ0()
+                        << ", tofOffset0 = " << temp.GetTofOffset0()
+                        << ", tofOffset1 = " << temp.GetTofOffset1() << endl;
+                    m.detail(ss.str(), 1);
+                }
+            }
+        }
+    }
     m.done();
 }

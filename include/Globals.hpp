@@ -52,6 +52,10 @@ namespace readbuff {
     const int ERROR = -100;
 }
 
+namespace Vandle {
+    typedef std::pair<unsigned int, std::string> BarIdentifier;
+}
+
 /** Some common string conversion operations */
 namespace strings {
     /** Converts string to double or throws an exception if not successful */

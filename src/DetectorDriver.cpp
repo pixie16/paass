@@ -392,21 +392,15 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
 
             vecAnalyzer.push_back(new TraceExtractor(type, subtype));
         }
-#if defined(pulsefit) || defined(dcfd)
         else if (name == "WaveformAnalyzer") {
             vecAnalyzer.push_back(new WaveformAnalyzer());
         }
-#endif
-#ifdef pulsefit
         else if (name == "FittingAnalyzer") {
             vecAnalyzer.push_back(new FittingAnalyzer());
         }
-#endif
-#ifdef dcfd
         else if (name == "CfdAnalyzer") {
             vecAnalyzer.push_back(new CfdAnalyzer());
         }
-#endif
         else {
             stringstream ss;
             ss << "DetectorDriver: unknown analyzer type" << name;
@@ -459,9 +453,6 @@ int DetectorDriver::Init(RawEvent& rawev) {
         cout << "Warning caught at DetectorDriver::Init" << endl;
         cout << "\t" << w.what() << endl;
     }
-
-    TimingInformation readFiles;
-    readFiles.ReadTimingCalibration();
 
     rawev.GetCorrelator().Init(rawev);
 
