@@ -740,7 +740,7 @@ int DetectorDriver::PlotCal(const ChanEvent *chan) {
     return 0;
 }
 
-vector<EventProcessor *> DetectorDriver::GetProcessors(const string& type) const {
+vector<EventProcessor *> DetectorDriver::GetProcessors(const std::string& type) const {
   vector<EventProcessor *> retVec;
 
   for (vector<EventProcessor *>::const_iterator it = vecProcess.begin();

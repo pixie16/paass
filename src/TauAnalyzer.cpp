@@ -1,12 +1,6 @@
-/** \file TauAnalyzer.cpp
+/*! \file TauAnalyzer.cpp
  * \brief Implements the determination of the decay constants for a trace
  */
-
-#include "Globals.hpp"
-#include "TauAnalyzer.hpp"
-#include "Trace.hpp"
-#include "DammPlotIds.hpp"
-
 #include <algorithm>
 #include <iostream>
 #include <iterator>
@@ -14,41 +8,38 @@
 
 #include <cmath>
 
+#include "DammPlotIds.hpp"
+#include "Globals.hpp"
+#include "TauAnalyzer.hpp"
+#include "Trace.hpp"
+
 using namespace std;
 using namespace dammIds::trace;
 
-TauAnalyzer::TauAnalyzer() 
-{
-    // type and subtype default to empty string
+TauAnalyzer::TauAnalyzer() {
+    name="tau";
+    type=subtype="";
+}
+
+TauAnalyzer::TauAnalyzer(const std::string &aType, const std::string &aSubtype) :
+  TraceAnalyzer(), type(aType), subtype(aSubtype) {
     name="tau";
 }
 
-TauAnalyzer::TauAnalyzer(const string &aType, const string &aSubtype) :
-  TraceAnalyzer(), type(aType), subtype(aSubtype)
-{
-    name="tau";
-}
-
-TauAnalyzer::~TauAnalyzer()
-{
-    // do nothing
-}
-
-void TauAnalyzer::Analyze(Trace &trace, const string &aType, const string &aSubtype)
-{
+void TauAnalyzer::Analyze(Trace &trace, const std::string &aType,
+                          const std::string &aSubtype) {
     // don't do analysis for piled-up traces
     if (trace.HasValue("filterEnergy2")) {
-	return;
+        return;
     }
     // only do analysis for the proper type and subtype
     if (type != "" && subtype != "" &&
-	type != aType && subtype != aSubtype ) {
-	return;
+        type != aType && subtype != aSubtype ) {
+        return;
     }
 
     TraceAnalyzer::Analyze(trace, type, subtype);
 
-    // find the maximum
     Trace::const_iterator itMax=max_element(trace.begin(), trace.end());
     Trace::const_iterator itMin=min_element(itMax, (Trace::const_iterator)trace.end());
     iterator_traits< Trace::const_iterator >::difference_type  size = distance(itMax, itMin);
@@ -71,5 +62,5 @@ void TauAnalyzer::Analyze(Trace &trace, const string &aType, const string &aSubt
     double tau =  1 / log(sum1 / sum2) * Globals::get()->clockInSeconds();
     trace.SetValue("tau", tau);
 
-    EndAnalyze(); //update the timer
+    EndAnalyze();
 }

@@ -33,7 +33,7 @@ class EventProcessor {
  protected:
     // define the associated detector types and only initialize if present
     std::string name;
-    std::set<std::string> associatedTypes;    
+    std::set<std::string> associatedTypes;
     bool initDone;
     bool didProcess;
     // map of associated detector summary
@@ -58,10 +58,9 @@ class EventProcessor {
     EventProcessor(int offset, int range, std::string name);
     virtual ~EventProcessor();
 
-    // declare associated damm plots (called by drrsub_)
-    virtual void DeclarePlots(void);
+    virtual void DeclarePlots(void){};
     virtual const std::set<std::string>& GetTypes(void) const {
-      return associatedTypes; 
+      return associatedTypes;
     }
     virtual bool DidProcess(void) const {
       return didProcess;
@@ -69,8 +68,8 @@ class EventProcessor {
     // return true on success
     virtual bool HasEvent(void) const;
     virtual bool Init(RawEvent& event);
-    virtual bool PreProcess(RawEvent &event);   
-    virtual bool Process(RawEvent &event);   
+    virtual bool PreProcess(RawEvent &event);
+    virtual bool Process(RawEvent &event);
     void EndProcess(void); // stop the process timer
     std::string GetName(void) const {
       return name;
