@@ -1,4 +1,4 @@
-/** \file Hen3Processor.h
+/** \file Hen3Processor.hpp
  *
  * Processor for 3Hen detectors
  */
@@ -11,7 +11,7 @@
 class Hen3Processor : public EventProcessor
 {
 public:
-    Hen3Processor(); 
+    Hen3Processor();
     virtual bool PreProcess(RawEvent &event);
     virtual bool Process(RawEvent &event);
     virtual void DeclarePlots(void);

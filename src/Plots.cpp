@@ -33,8 +33,7 @@ extern "C" void hd2d_(const int &, const int &, const int &, const int &,
 		      const int &, const int &, const int &, const int &,
 		      const int &, const int &, const char *, int);
 
-Plots::Plots(int offset, int range, string name)
-{  
+Plots::Plots(int offset, int range, std::string name) {
     offset_ = offset;
     range_  = range;
     name_ = name;
@@ -55,13 +54,11 @@ bool Plots::CheckRange(int id) const {
 /**
  * Checks if id is taken
  */
-bool Plots::Exists(int id) const
-{
+bool Plots::Exists(int id) const {
     return (idList.count(id) != 0);
 }
 
-bool Plots::Exists(const string &mne) const
-{
+bool Plots::Exists(const std::string &mne) const {
     // Empty mnemonic is always allowed
     if (mne.size() == 0)
 	return false;
@@ -72,18 +69,17 @@ bool Plots::Exists(const string &mne) const
 /** Constructors based on DeclareHistogram functions. */
 bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
 			       int halfWordsPerChan, int xHistLength,
-			       int xLow, int xHigh, const string &mne)
-{
+			       int xLow, int xHigh, const std::string &mne) {
     if (!CheckRange(dammId)) {
         stringstream ss;
-        ss << "Plots: Histogram titled '" << title << "' requests id " 
+        ss << "Plots: Histogram titled '" << title << "' requests id "
            << dammId << " which is outside of allowed range ("
            << range_ << ") of group with offset (" << offset_ << ").";
         throw HistogramException(ss.str());
     }
     if (Exists(dammId) || Exists(mne)) {
         stringstream ss;
-        ss << "Plots: Histogram titled '" << title << "' requests id " 
+        ss << "Plots: Histogram titled '" << title << "' requests id "
            << dammId + offset_ << " which is already in use by"
            << " histogram '" << titleList[dammId] << "'.";
         throw HistogramException(ss.str());
@@ -102,14 +98,15 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
 }
 
 bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
-			       int halfWordsPerChan /* = 2*/, const string &mne /*=empty*/ )
-{
-    return DeclareHistogram1D(dammId, xSize, title, halfWordsPerChan, xSize, 0, xSize - 1, mne);
+			       int halfWordsPerChan /* = 2*/,
+			       const std::string &mne /*=empty*/ ) {
+    return DeclareHistogram1D(dammId, xSize, title, halfWordsPerChan,
+                              xSize, 0, xSize - 1, mne);
 }
 
 bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
-                               int halfWordsPerChan, int contraction, const string &mne)
-{
+                               int halfWordsPerChan, int contraction,
+                               const std::string &mne) {
     return DeclareHistogram1D(dammId, xSize, title, halfWordsPerChan,
 			      xSize / contraction, 0, xSize / contraction - 1, mne);
 }
@@ -118,18 +115,17 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
                                const char *title, int halfWordsPerChan,
                                int xHistLength, int xLow, int xHigh,
                                int yHistLength, int yLow, int yHigh,
-			       const string &mne)
-{
+			       const std::string &mne) {
     if (!CheckRange(dammId)) {
         stringstream ss;
-        ss << "Plots: Histogram titled '" << title << "' requests id " 
+        ss << "Plots: Histogram titled '" << title << "' requests id "
            << dammId << " which is outside of allowed range ("
            << range_ << ") of group with offset (" << offset_ << ").";
         throw HistogramException(ss.str());
     }
     if (Exists(dammId) || Exists(mne)) {
         stringstream ss;
-        ss << "Plots: Histogram titled '" << title << "' requests id " 
+        ss << "Plots: Histogram titled '" << title << "' requests id "
            << dammId + offset_ << " which is already in use by"
            << " histogram '" << titleList[dammId] << "'.";
         throw HistogramException(ss.str());
@@ -151,8 +147,7 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
 bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
                                const char* title,
                                int halfWordsPerChan /* = 1*/,
-                               const string &mne /* = empty*/)
-{
+                               const std::string &mne /* = empty*/) {
     return DeclareHistogram2D(dammId, xSize, ySize, title, halfWordsPerChan,
 			      xSize, 0, xSize - 1,
 			      ySize, 0, ySize - 1, mne);
@@ -160,17 +155,15 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
 
 bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
 			       const char* title, int halfWordsPerChan,
-			       int xContraction, int yContraction, const string &mne)
-{
+			       int xContraction, int yContraction, const std::string &mne) {
     return DeclareHistogram2D(dammId, xSize, ySize, title, halfWordsPerChan,
 			      xSize / xContraction, 0, xSize / xContraction - 1,
 			      ySize / yContraction, 0, ySize / yContraction - 1,
 			      mne );
 }
 
-
-bool Plots::Plot(int dammId, double val1, double val2, double val3, const char* name)
-{
+bool Plots::Plot(int dammId, double val1, double val2, double val3,
+                 const char* name) {
     /*
       dammid - id of the damm spectrum in absence of root
       val1   - energy of a 1d spectrum
@@ -193,21 +186,19 @@ bool Plots::Plot(int dammId, double val1, double val2, double val3, const char* 
         count1cc_(dammId + offset_, int(val1), 1);
     else if  (val3 == -1 || val3 == 0)
         count1cc_(dammId + offset_, int(val1), int(val2));
-    else 
+    else
         set2cc_(dammId + offset_, int(val1), int(val2), int(val3));
     return true;
 }
 
-bool Plots::Plot(const std::string &mne, double val1, double val2, double val3, const char* name)
-
-{    
+bool Plots::Plot(const std::string &mne, double val1, double val2, double val3,
+                 const char* name) {
     if (!Exists(mne))
         return false;
     return Plot(mneList.find(mne)->second, val1, val2, val3, name);
 }
 
-int Plots::Round(double val) const
-{
+int Plots::Round(double val) const {
     double intpart;
     if(modf(val, &intpart) < 0.5)
 	return(floor(val));
