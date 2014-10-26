@@ -1,4 +1,4 @@
-/** \file SsdProcessor.h
+/** \file SsdBetaProcessor.hpp
  *
  * Header file for DSSD analysis
  */
@@ -14,7 +14,7 @@ class RawEvent;
 /**
  * \brief Handles detectors of type dssd_front and dssd_back
  */
-class SsdProcessor : public EventProcessor 
+class SsdProcessor : public EventProcessor
 {
  private:
     DetectorSummary *ssdSummary; ///< all detectors of type dssd_front

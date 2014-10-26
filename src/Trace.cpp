@@ -18,7 +18,7 @@ namespace dammIds {
 
 const Trace emptyTrace; ///< an empty trace for const references to point to
 
-/*
+/*!
  * Plots are static, class-wide variable, so every trace instance has
  * an access to the same histogram range
  */
@@ -29,8 +29,7 @@ Plots Trace::histo(OFFSET, RANGE, "traces");
  * moving sum windows of width risetime separated by a length gaptime.
  * Filter is calculated from channels lo to hi.
  */
-void Trace::TrapezoidalFilter(Trace &filter,
-			      const TrapezoidalFilterParameters &parms,
+void Trace::TrapezoidalFilter(Trace &filter, const TFP &parms,
 			      unsigned int lo, unsigned int hi) const {
     // don't let the filter work outside of its reasonable range
     lo = max(lo, (unsigned int)parms.GetSize());

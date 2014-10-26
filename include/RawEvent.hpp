@@ -5,10 +5,9 @@
  * \author S. Liddick
  * \date 02 July 2007
  * Modified:
- *    KM = 27 - 11 - 2012 
+ *    KM = 27 - 11 - 2012
  *    some classes moved to their own .hpp and .cpp files
  */
-
 #ifndef __RAWEVENT_HPP_
 #define __RAWEVENT_HPP_ 1
 
@@ -31,7 +30,7 @@ class DetectorSummary;
 
 /** \brief The all important raw event
  *
- * The rawevent serves as the basis for the experimental analysis.  The rawevent 
+ * The rawevent serves as the basis for the experimental analysis.  The rawevent
  * includes a vector of individual channels that have been deemed to be close to
  * each other in time.  This determination is performed in ScanList() from
  * PixieStd.cpp.  The rawevent also includes a map of detector summaries which
@@ -41,22 +40,14 @@ class DetectorSummary;
  * LARGE changes are made to the pixie16 code.  Be careful when altering the
  * rawevent.
  */
-class RawEvent
-{
-private:
-    std::map<std::string, DetectorSummary> sumMap; /**< An STL map containing DetectorSummary classes
-					    associated with detector types */
-    // This only controls whether we output warnings, so it's free to change
-    mutable std::set<std::string> nullSummaries;   /**< Summaries which were requested but don't exist */
-    std::vector<ChanEvent*> eventList;             /**< Pointers to all the channels that are close
-					             enough in time to be considered a single event */
-    Correlator correlator;                         /**< class to correlate decay data with implantation data */
-public:   
-    RawEvent();
+class RawEvent {
+public:
+    RawEvent(){};
+    ~RawEvent(){};
     void Clear(void);
     size_t Size(void) const;
     void Init(const std::set<std::string> &usedTypes);
-    void AddChan(ChanEvent* event);       
+    void AddChan(ChanEvent* event);
     void Zero(const std::set<std::string> &);
 
     Correlator &GetCorrelator()
@@ -65,6 +56,14 @@ public:
     const DetectorSummary *GetSummary(const std::string &a) const;
     const std::vector<ChanEvent *> &GetEventList(void) const
     {return eventList;} /**< Get the list of events */
-};
+private:
+    std::map<std::string, DetectorSummary> sumMap; /**< An STL map containing DetectorSummary classes
+					    associated with detector types */
+    // This only controls whether we output warnings, so it's free to change
+    mutable std::set<std::string> nullSummaries;   /**< Summaries which were requested but don't exist */
+    std::vector<ChanEvent*> eventList;             /**< Pointers to all the channels that are close
+					             enough in time to be considered a single event */
+    Correlator correlator;                         /**< class to correlate decay data with implantation data */
 
+};
 #endif // __RAWEVENT_HPP_

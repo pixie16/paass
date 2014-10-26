@@ -15,23 +15,25 @@
 #include "ChanIdentifier.hpp"
 #include "RawEvent.hpp"
 
-class DetectorLibrary : public std::vector<Identifier>
-{
+class DetectorLibrary : public std::vector<Identifier> {
 public:
     static DetectorLibrary* get();
-    
-    virtual const_reference at(size_type mod, size_type ch) const;
-    virtual const_reference at(size_type idx) const;
-    virtual reference at(size_type mod, size_type ch);
-    virtual reference at(size_type idx);
+
+    virtual const_reference at(DetectorLibrary::size_type mod,
+                               DetectorLibrary::size_type ch) const;
+    virtual const_reference at(DetectorLibrary::size_type idx) const;
+    virtual reference at(DetectorLibrary::size_type mod,
+                         DetectorLibrary::size_type ch);
+    virtual reference at(DetectorLibrary::size_type idx);
 
     virtual void push_back(const Identifier &x);
     virtual ~DetectorLibrary();
 
     const std::set<int> &GetLocations(const Identifier &id) const;
-    const std::set<int> &GetLocations(const std::string &type, const std::string &subtype) const;
+    const std::set<int> &GetLocations(const std::string &type,
+                                      const std::string &subtype) const;
     int GetNextLocation(const Identifier &id) const;
-    int GetNextLocation(const std::string &type, 
+    int GetNextLocation(const std::string &type,
 			const std::string &subtype) const;
     size_type GetIndex(int mod, int chan) const;
     int ModuleFromIndex(int index) const;
@@ -47,7 +49,7 @@ public:
     void PrintMap(void) const;
     void PrintUsedDetectors(RawEvent& rawev) const;
 
-    const std::set<std::string>& GetKnownDetectors(void); 
+    const std::set<std::string>& GetKnownDetectors(void);
     const std::set<std::string>& GetUsedDetectors(void) const;
 
     typedef std::string mapkey_t;
@@ -67,7 +69,7 @@ private:
 
     unsigned int numModules;
     unsigned int numPhysicalModules;
-    
+
     std::set<std::string> usedTypes;
     std::set<std::string> usedSubtypes;
 
