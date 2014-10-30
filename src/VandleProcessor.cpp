@@ -455,7 +455,7 @@ void VandleProcessor::AnalyzeData(RawEvent& rawev) {
     } //(BarMap::iterator itBar
 } //void VandleProcessor::AnalyzeData
 
-void VandleProcessor::BuildBars(const TimingDataMap &endMap, const string &type,
+void VandleProcessor::BuildBars(const TimingDataMap &endMap, const std::string &type,
                                 BarMap &barMap) {
     for(TimingDataMap::const_iterator itEndA = endMap.begin();
         itEndA != endMap.end();) {
@@ -586,8 +586,8 @@ void VandleProcessor::CrossTalk(void) {
 //     }
 }
 
-void VandleProcessor::FillMap(const vector<ChanEvent*> &eventList,
-			      const string type, TimingDataMap &eventMap) {
+void VandleProcessor::FillMap(const std::vector<ChanEvent*> &eventList,
+			      const std::string type, TimingDataMap &eventMap) {
     unsigned int OFFSET = 0;
     if(type == "big")
 	OFFSET = dammIds::BIG_OFFSET;
