@@ -168,9 +168,6 @@
         Note that walk models parameters are intended to operate on natural
         units i.e. raw channel numbers and pixie time tics.
 
-        High Resolution Timing (VANDLE) :
-
-
         Both calibration and walk correction operate on some range and
         there might be any number of ranges defined for the channel.
         The code does not check if a range overlaps with another. For a given
@@ -217,8 +214,6 @@
             <Channel number="0" type="pulser" subtype="start">
                 <WalkCorrection model="None">
                 </WalkCorrection>
-                <TimeCalibration >
-                </TimeCalibration>
             </Channel>
             <Channel number="1" type="pulser" subtype="stop" >
                 <WalkCorrection model="None">

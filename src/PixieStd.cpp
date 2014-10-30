@@ -882,7 +882,8 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
                 //of time - dead time spectrum
                 // deadTime += (clock - bufEnd)*pixie::clockInSeconds;
                 // plot(DD_DEAD_TIME_CUMUL,remainNumSecs,rownum,int(deadTime/runTimeSecs));
-                driver->plot(dammIds::raw::DD_BUFFER_START_TIME, remainNumSecs,rowNumSecs, (clock-bufEnd)/bufLength*1000.);
+                driver->plot(dammIds::raw::DD_BUFFER_START_TIME, remainNumSecs,
+                             rowNumSecs, (clock-bufEnd)/bufLength*1000.);
             }
             break;
         case BUFFER_END:
@@ -922,17 +923,3 @@ void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
         driver->plot(D_SCALAR + id, runTimeSecs);
     }
 }
-
-
-/** \brief pixie16 scan error handling.
- *
- * Print out an error message and terminate program depending on value
- * of errorNum.
- *
- * KM 01.2013: removed, use exceptions from Exception.hpp
- */
-/*
-void Pixie16Error(int errorNum)
-{
-}
-*/

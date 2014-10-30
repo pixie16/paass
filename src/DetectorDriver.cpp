@@ -420,7 +420,7 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
 
 /*!
   Called from PixieStd.cpp during initialization.
-  The calibration file cal.txt is read using the function ReadCal() and
+  The calibration file Cal.xml is read using the function ReadCal() and
   checked to make sure that all channels have a calibration.
 */
 int DetectorDriver::Init(RawEvent& rawev) {
@@ -428,7 +428,7 @@ int DetectorDriver::Init(RawEvent& rawev) {
     for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
 	 it != vecAnalyzer.end(); it++) {
         (*it)->Init();
-        (*it)->SetLevel(20); //! Plot traces
+        (*it)->SetLevel(20);
     }
 
     // initialize processors in the event processing vector
@@ -593,8 +593,7 @@ void DetectorDriver::DeclarePlots() {
 }
 
 // sanity check for all our expectations
-void DetectorDriver::SanityCheck(void) const
-{
+void DetectorDriver::SanityCheck(void) const {
     /** Use Exceptions to throw an exception here if sanity check was
      * not succesful */
 }

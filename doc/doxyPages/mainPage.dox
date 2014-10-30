@@ -35,11 +35,12 @@
 /******************************************************************************/
 
 /** \page useman User's Manual
-  - A \subpage philosophy of the pixie16 code
+  - An \subpage philosophy of the Pixie16 code
   - A \subpage primer for those who have never seen C++
-  - A \subpage directory description
-  - A \subpage quickstart guide
-  - An \subpage faq
+  - A description of the \subpage directory
+  - A \subpage quickstart Guide
+  - An explanation of the \subpage xmlconfig
+  - A \subpage faq
   - Some \subpage codewarn about the code
 */
 
@@ -47,9 +48,8 @@
 
 /** \page codewarn Warnings
 
-  This section provides a list of warnings that appear throughout
-  both the users manual and reference manual.  If you can not
-  determine why something has either failed or produced incorrect
+  This section provides a list of warnings that appear throughout the manual.
+  If you can not determine why something has either failed or produced incorrect
   results look at the list of warnings to see if it has been mentioned.
 
   \warning All channels defined in map.txt must have a corresponding
@@ -67,30 +67,50 @@
 
 /******************************************************************************/
 
-/** \page configxml Configuration
-
-*/
-
-/******************************************************************************/
-
 /** \page directory Directory Structure
-
-  The pixie16 analysis is contained in the directory scan_c++. You
+  The pixie16 analysis is contained in the base directory "pixie_scan". You
   should see at a minimum the following set of files and directories.
-  \verbatim
-  cal.txt  Doxyfile  html  include  latex  Makefile  manual  map.txt  scan  src
-  \endverbatim
+  \section dir-filelist File List
+  \subsection dir-xmlconfig Confix.xml
+  This is a symbolic link to one of the configuration files in
+  \ref dir-config. You can change the type of analysis you want to do by
+  changing where this link points.
+  \subsection dir-copy COPYRIGHT
+  This file contains the copyright information for the software. It should be
+  distributed with each release.
+  \subsection dir-license LICENSE
+  This file contains the licensing information for the software. It should be
+  distributed with any distribution or piece of the code.
+  \subsection dir-readme README.md
+  The README contains useful information about how to get started (such as
+  making this documentation). It also contains information on who to contact
+  with issues or questions.
+  \subsection dir-todo TODO
+  The TODO contains exactly what you think. If you have suggestions, or tackle
+  one of the projects in this directory please let us know!
+  \subsection dir-make Makefile
+  This is a <a href="http://www.gnu.org/software/make/manual/make.html">
+  GNU Makefile</a>, and is responsible for compilation of the program.
 
-  The files map.txt and cal.txt are used to initialize the pixie16
-  analysis and are described in the next section.  The directories src/ and
-  include/ contain the *.cpp and *.h files for the various classes
-  that are used in the analysis.
-  Scan files such as drrsub.f are in the scan/ directory.
-  The html/ and latex/ directories contain the html and latex
-  ouput produced by doxygen.  Links to the pixie16manual in both pdf and
-  html format are in the manual directory.
-  The Doxyfile is the configuration file used
-  with doxygen to create this manual.
+  \section dir-dirlist Directory Listing
+  \subsection dir-config config/
+  This directory contains some of the user contributed configuration files.
+  These files contain all of the configuration information that is necessary
+  to analyze data. For an example file, see \ref xmlconfig.
+  \subsection dir-doc doc/
+  This directory contains the Doxyfile, and the other files necessary for the
+  generation of this documentation. Once the documentation has been generated
+  it will be located in the sub directories: html/ and latex/
+  \subsection dir-inc include/
+  This directory contains all of the ".hpp" files.
+  \subsection dir-scan scan/
+  This directory contains all of the ".f" files. In principle, it is never
+  necessary for a general user (or even a developer) to modify these files.
+  \subsection dir-scripts scripts/
+  This directory contains useful scripts for using the program, either for
+  the running of files, or scripts useful for the use of DAMM.
+  \subsection dir-src src/
+  This directory contains all of the ".cpp" files.
 */
 
 /******************************************************************************/
@@ -105,12 +125,21 @@
 /******************************************************************************/
 
 /** \page philosophy Overview
+  \section overview-v3 Version 3 Overview
+  The code has managed to get to its next major revision. This has not been as
+  extensive overhaul as was done with v2; however, there have still been
+  significant changes done to the code. These changes have been necessary to
+  keep the code useful and relevant to the current directions of the research
+  group. Unfortunately, this has also caused the a break in backwards
+  compatability with the previous versions of the map2.txt and cal.txt.
+
+  \section overview-v2 Version 2 Overview
   The rewrite of the analysis codes was undertaken for a variety of
   reasons including:
   - Provide a consistent framework for event processing.
   - Take advantage of C++ features.
   - Enable the inclusion of ROOT as a post experimental processing tool.
-  - Provide a route for adding new detector and or features that
+  - Provide a route for adding new detectors and/or features that
     do not require alterations significant portions of the code.
 
   \section analysisover Analysis Overview
@@ -118,7 +147,7 @@
   For each channel that triggers the acquisition the channel
   identification, energy, time, and trace (if applicable) are grouped
   together and sorted according to the times at which they occur (based
-  on the Pixie16 100MHz clock).  The time sorted
+  on the Pixie16 clock).  The time sorted
   list of channels is then scanned and channels that fall within a
   certain time window are grouped together into events.  The events
   are subsequently processed in two stages.  The first stage operates channel
@@ -129,8 +158,11 @@
   implant events and decay events.  This section section should be
   altered according to experimental need.
 
-  A schematic data analysis flow chart is shown in the *** file
-  located in the manual directory of the pixie16 analysis code.
+  Below is the data analysis flow chart, it attempts to describe in general
+  terms how the analysis proceeds. (needs revision).
+
+  \image latex analysisflow.eps
+  \image html analysisflow.jpg
 
   \section evcreat Event Creation
   For each buffer that is collected (from either a ldf file or an
@@ -147,23 +179,22 @@
   \section experinde Experiment Independent Processing
   In the function DetectorDriver::ProcessEvent(), the RawEvent is processed.
   Each channel is checked against its threshold value read in during
-  initialization from cal.txt and calibrated using ThreshAndCal().
+  initialization from the \ref xmlconfig and calibrated using ThreshAndCal().
   The function ThreshAndCal() also keeps track of the multiplicities
   of different detector types and the maximum energy deposited into each
   detector type.  The raw and calibrated energies are then plotted using
   the functions PlotRaw() and PlotCal() using the DAMM spectra numbers
-  read in from map.txt. This is the end of general event processing and
-  should not be altered between experiments.
+  read in from the \ref xmlconfig. This is the end of general event processing
+  and should not be altered between experiments.
 
   \section experde Experiment Dependent Processing
   The next step in the event processing is the experiment specific tasks
   and these will vary for different setups but include such
   tasks as determining correlations between decays and implants.
 
-  \section plott Plotting
+  \section over-plot Plotting
   Once all event processing has finished various plotting routines are
   invoked for creating the DAMM spectra we all know and love.
-
 */
 
 /******************************************************************************/
@@ -178,128 +209,68 @@
   - vectors
   - and maps
 
+  For more information on any of the topics mentioned here you are referred to
+  the fantastic resource <a href="http://www.cplusplus.com/">cplusplus.com</a>.
+  This webpage has many thorough descriptions of the ideas presented here, as
+  well as, a complete method listing for the STL templates discussed.
+
   \section Classes Classes
   The C++ code is structured around classes.  Classes are very similar
   to structures in C, and are objects into which data is placed or
-  actions are performed.  For example the class RawEvent is the basic
-  object into which all event data will be placed in the analysis.
-  Another example is the class Correlator which performs a decay-implant
-  correlation using a RawEvent object.  In the analysis, all classes
-  consist of two different files, a '.h' file defines the class,
-  its data members, and the functions that allow a user to
-  manipulate the data members.
-  The following code shows an example for the class called ChanEvent
-  which contains the information for each channel that triggered.
-  \code
-// file RawEvent.h - class ChanEvent \\
-class ChanEvent {
-    private:
-    double energy;             ///< Raw channel energy
-    double calEnergy;          ///< Calibrated channel energy, calibration ...
-    double calTime;            ///< Calibrated time, currently unused
-    vector<double> traceInfo;  ///< Values from trace analysis functions
-    vector<int> trace;         ///< Channel trace if present
-    unsigned long trigTime;    ///< The channel trigger time, trigger time and ...
-    unsigned long eventTimeLo; ///< Lower 32 bits of pixie16 event time
-    unsigned long eventTimeHi; ///< Upper 32 bits of pixie16 event time
-    unsigned long runTime0;    ///< Lower bits of run time
-    unsigned long runTime1;    ///< Upper bits of run time
-    unsigned long runTime2;    ///< Higher bits of run time
+  actions are performed. Functions that are contained within classes are called
+  "methods". For example, the class RawEvent is the basic object into which all
+  event data will be placed in the analysis. Another example is the class
+  GeProcessor, which performs much more complex manipulations of data that is
+  taken using Ge detectors. In the analysis, all classes consist of two
+  different files: a '.hpp' file, and a '.cpp' file. The '.hpp' file defines
+  the class, its data members, and the methods that allow a user to manipulate
+  the data members. The ".cpp" file contains the code necessary for the class
+  to do what you want. The following code shows an example for the class called
+  ChanEvent that contains the information for each channel that triggered.
+  Below, we list the content of ChanEvent in its entirety.
 
-    double time;               ///< Raw channel time, 64 bit from pixie16 channel event time
-    int    modNum;             ///< Module number
-    int    chanNum;            ///< Channel number
+  \include ChanEvent.hpp
 
-    void ZeroNums(void);       ///< Zero members which do not have constructors associated with them
-
-    // make the front end responsible for reading the data able to set the channel data directly
-    friend int ReadBuffData(unsigned int *, unsigned long *, vector<ChanEvent *> &);
- public:
-    static const double pixieEnergyContraction; ///< energies from pixie16 are contracted by this number
-
-
-    void SetEnergy(double a)    {energy = a;}    ///< Set the raw energy in case we want...
-    void SetCalEnergy(double a) {calEnergy = a;} ///< Set the calibrated energy
-    void SetTime(double a)      {time = a;}      ///< Set the raw time
-    void SetCalTime(double a)   {calTime = a;}   ///< Set the calibrated time
-    void AddTraceInfo(double a) {traceInfo.push_back(a);} ///< Add one value to the traceinfo
-
-    double GetEnergy() const      {return energy;}      ///< Get the raw energy
-    double GetCalEnergy() const   {return calEnergy;}   ///< Get the calibrated energy
-    double GetTime() const        {return time;}        ///< Get the raw time
-    double GetCalTime() const     {return calTime;}    ///< Get the calibrated time
-    const vector<int> &GetTraceRef() const {return trace;} ///< Get a reference to the trace
-
-    unsigned long GetTrigTime() const
-        {return trigTime;}    ///< Return the channel trigger time
-    unsigned long GetEventTimeLo() const
-        {return eventTimeLo;} ///< Return the lower 32 bits of event time
-    unsigned long GetEventTimeHi() const
-        {return eventTimeHi;} ///< Return the upper 32 bits of event time
-    unsigned long GetRunTime0() const
-        {return runTime0;}    ///< Return the lower bits of run time
-    unsigned long GetRunTime1() const
-        {return runTime1;}    ///< Return the middle bits of run time
-    unsigned long GetRunTime2() const
-        {return runTime2;}    ///< Return the higher bits of run time
-
-    const Identifier& GetChanID() const; ///< Get the channel identifier
-    int GetID() const;                   ///< Get the channel id defined as pixie module # * 16 + channel number
-    double GetTraceInfo(unsigned int a) const; ///< Get a specific value from the traceinfo
-
-    ChanEvent();
-    void ZeroVar();
-};
-
-  \endcode
   In the ChanEvent example, all the data members are defined as
-  private and functions that act on the data members are public.
-  This means that only the functions belonging to this class such
+  private and methods that act on the data members are public.
+  This means that only the methods belonging to this class such
   as GetEnergy() can access the private data members.  This prevents
   the variables from being inadvertently altered by a different
   portion of the analysis code.  I've tried to keep all data members
   private but haven't in all cases just for simplicity (for example
-  see the rawevent class in the rawevent.h file).
+  see the RawEvent class in the RawEvent.hpp file).
 
-  The arguments that must be passed to a function are defined
-    between the parenthesis after the functions name.  Thus, the
-  function SetEnergy() must be provided a double-precision numerical value
-  in order to work properly and would look like the following:
+  The arguments that must be passed to a method are defined between the
+  parenthesis after the method's name.  Thus, the method SetEnergy() must be
+  provided a double-precision numerical value in order to work properly and
+  would look like the following:
   \code
-  anEvent.SetEnergy(3.1416);
+  chanEvent.SetEnergy(3.1416);
   \endcode
-  The other important aspect of the functions are their return values, which is
-  defined before the function name.  For example, the function GetEnergy()
+  The other important aspect of the methods are their return values, which is
+  defined before the method name.  For example, the method GetEnergy()
   returns the value contained in the variable energy which is a double.
   Therefore to correctly retrieve the value you need to use a double.
   \code
-  double tempEnergy;
-  tempEnergy = anEvent.GetEnergy();
+  double tempEnergy = chanEvent.GetEnergy();
   \endcode
-  Arguments to functions and results therof are not limited to basic data types
+  Arguments to methods and results thereof are not limited to basic data types
   (int, double, char, ...) but can include other objects as well.
-  In the function, GetChanID() function an Identifier object is returned.
-  When using any of the functions make sure you know what type of argument
+  In the method, GetChanID() method an Identifier object is returned.
+  When using any of the methods make sure you know what type of argument
   is required.
 
-  Functions that are defined in the ".h" file of the class are said
-  to be defined "inline".  Most of the functions in ChanEvent are
+  Methods that are defined in the ".hpp" file of the class are said
+  to be defined "inline".  Most of the methods in ChanEvent are
   defined inline. One exception is ZeroVar() which is defined
-  in the corresponding *.cpp file; a portion of which is shown below:
-  \code
-  // file rawevent.cpp - ZeroVar()
-  void ChanEvent::ZeroVar(){
-    ZeroNums();
+  in the corresponding '.cpp' file; a portion of which is shown below:
 
-    // clear objects
-    trace.clear();
-    traceInfo.clear();
-  }
-  \endcode
-  The only exception to this *.h and *.cpp pattern is PixieStd.cpp
+  \snippet ChanEvent.cpp Zero Channel
+
+  The only exception to this *.hpp and *.cpp pattern is PixieStd.cpp
   No class is defined for PixieStd because the main function
   hissub_ is called from the FORTRAN scan program.  A class could
-  probably be constructed but I didn't want to mess with it.
+  probably be constructed but is not strictly necessary in this case.
 
   \section Pointers Pointers
   Pointers are both an incredibly powerful feature of C++ and the easiest
@@ -374,14 +345,14 @@ class ChanEvent {
   retrieve the value at that location.  The following section of code
   would loop over the intVec from beginning to end and print the value
   of the element.  Note the incrementing of the iterator iv using iv++
-  to go to the next element.
+  to go to the next element. Using iterators is, by far, the safest way to
+  access the contents of the vector because an out of bound failure is much
+  more descriptive than simply "Segmentation Fault".
+
   \code
   vector<int>::iterator iv;
-  iv = intVec.begin()
-  while(iv != intVec.end())
-  {
-     cout << *iv << endl;
-     iv++;
+  for(vector<int>::iterator it = intVec.end(); it != intVec.begin(); it++) {
+    cout << *it << endl;
   }
   \endcode
 
@@ -416,31 +387,327 @@ class ChanEvent {
   an unknown number of detector types with data objects as is done
   in the pixie16 analysis.
 
-  \warning   I (SNL) am not a C++ expert! It is possible that in the analysis code
-  things are done inefficiently.  Also, the descriptions I have given
+  \warning   I (SNL) am not a C++ expert! It is possible that in the analysis
+  code things are done inefficiently.  Also, the descriptions I have given
   above may not be completely accurate but instead reflect a lack of
   understanding on my part.  Keep that in mind when reading the manual
   and the code.  If you think things could be done differently for
   clarity or processing speed please let me know.
 
   \warning I (DTM) might be a C++ expert.
+  \warning I (SVP) might be a C++ fanboy.
 */
 
 /******************************************************************************/
 
 /** \page quickstart Quickstart
+  \section qs-overview Overview
+  Here you will find information on how to quickly start using this software.
+  We will be working under the assumption that you have no desire to know the
+  inner workings of the code, but simply want to get some graphs to look at.
+  Because of the major overhauls the original guide is no longer relevant for
+  this software. If you have an older version of the code, I refer you to the
+  \subpage quickstart-v1.
+
+  This guide will assume that you are not going to be using ROOT to perform the
+  analysis. However, we will assume that you will be looking at data that
+  requires high resolution timing algorithms. This is the most common type of
+  user at this point, if you do not require this analysis you can simply not
+  follow those instructions. We will also assume that you have compiled the
+  documentation successfully, otherwise you wouldn't be reading this...
+
+  Let's assume that we have a simple TOF style measurement going. We'll have
+  three channels: two for VANDLE and one for our start detector.
+
+  \section qs-prerequisites Prerequisites
+  The code has a number of prerequisites that need to be met in order for you
+  to begin. Here is a handy check-list:
+  - <a href="ftp://ftp.phy.ornl.gov/pub/upak/Linux/">HRIBF/ORNL Libraries</a> -
+    These need to be compiled and installed on the analysis computer. Please be
+    aware that the installation of these files is not supported by the
+    development team of this software. If you ask nicely they may; however,
+    help.
+  - <a href="https://www.gnu.org/software/gsl/">GNU Scientific Library</a> -
+    This software is usually available as a software package from your favorite
+    Linux distro. It is necessary for the high-resolution timing algorithms, if
+    you do not need them, nor will need them in the future, you can skip this
+    one.
+
+  \subsection qs-env Environment Preparation
+  If you have successfully installed the prerequisites then you are now ready
+  to prepare your Linux environment. You should add the following information
+  into your ".bashrc", which is usually located in the ${HOME} directory of your
+  username.
+
+  \code
+    export HHIRF_DIR=/absolute/path/to/hhirf
+    export ACQ2_LIBDIR=/absolute/path/to/acq2/lib
+    export HHIRF_GFORTRAN=1
+  \endcode
+
+  You should replace "/absolute/path/to" with the proper absolute path to the
+  two directories. The last line in the above code is depends on the FORTRAN
+  compiler that was used to compile the HRIBF libraries. The two you are likely
+  to encounter are 'g77' and 'gfortran'. If you are unsure about the
+  installation, contact your system admin.
+
+  When you are finished making the necessary changes to the '.bashrc', remember
+  to source it.
+  \code
+    source ~/.bashrc
+  \endcode
+
+  \section compile Compilation
+  Moving right along, now we are ready to modify the Makefile to the specific
+  installation. There are a number of flags in the upper part of the Makefile
+  that you can modify to suit your needs. The full list of these flags can be
+  found in \ref makeflags. For now, we just need to make sure that the
+  "PULSEFIT" flag is uncommented.
+
+  \section qs-prepconfig Prepare Configuration File
+  Now comes the most important part. This one is going to be the biggie, the
+  whole mamma-jamma. The configuration file controls the whole operation now.
+  For a complete overview of the configuration, see the page \ref xmlconfig.
+
+  __NOTE: This file is read at runtime, you do not have to recompile when you
+  make changes here!!__
+
+  \subsection qs-author Author Node
+  First, you should update the author information and description. This is not
+  strictly necessary, but it makes it nicer when you are trying to figure out
+  who made the file, and what they were trying to do.
+
+  \subsection qs-global Global Parameters Node
+  We are assuming you want to look at VANDLE related data, so you're going to
+  want to make sure that the Revision version is set to "F" for the Pixie16-250
+  modules.
+
+  You can also change the "energyContraction" and "eventWidth" here. For now,
+  we will assume you're happy with what ever was there when you got the file.
+  Some common values are 1e-6 s for eventWidth and 1.0 for the
+  energyContraction.
+
+  \subsection qs-driver Setup the Detector Driver Node
+  __OK, now we're onto the serious stuff, pay attention!__
+  The node DetectorDriver holds the various Processors and Analyzers that you
+  are going to be using for the analysis. For our simple example we will be
+  wanting the following pieces:
+  \code
+    <Processor name="BetaScintProcessor"/>
+    <Processor name="VandleProcessor" />
+
+    <Analyzer name="WaveformAnalyzer"/>
+    <Analyzer name="FittingAnalyzer"/>
+  \endcode
+
+  The two processor lines define the classes that will handle the manipulation
+  of the data to measure our ToF. The analyzers, work specifically on the
+  traces, and these two will provide the high resolution timing.
+
+  \subsection qs-map Setup the Map Node
+  The Map node tells the program what type of detector is plugged into a given
+  Module/Channel combination. We have moved to this scheme since we now define
+  both the energy calibration and walk calibration at this point. Below is the
+  sample code for our current example:
+  \code
+    <Module number="0">
+        <Channel number="0" type="scint" subtype="beta">
+            <WalkCorrection model="None">
+            </WalkCorrection>
+        </Channel>
+        <Channel number="2" type="vandleSmall" subtype="left">
+            <WalkCorrection model="None">
+            </WalkCorrection>
+        </Channel>
+        <Channel number="3" type="vandleSmall" subtype="right">
+            <WalkCorrection model="None">
+            </WalkCorrection>
+        </Channel>
+    </Module>
+  \endcode
+
+  None of our channels will be corrected for walk, or energy calibrated. This
+  example may be updated in the future to add in a clover.
+
+  \subsection qs-tcal TimeCalibration Node Setup
+  We are now ready to input the timing calibrations. These calibrations are
+  used to align the gamma prompts for the ToF measurement. In addition, this
+  section defines the physical position of the bar relative to the initial
+  position of the measured particle (gamma, neutron, etc.). This calibration
+  differs from the previous one, as it is done on a bar-by-bar basis and not
+  per channel. The "start" detector rarely, if ever, needs to have these
+  calibrations.
+
+  Inside the TimeCalibration node we will have the following code:
+  \code
+    <Vandle>
+        <small>
+            <Bar number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
+                tofoffset0="0.0" tofoffset1="0.0" />
+        </small>
+    </Vandle>
+  \endcode
+
+  You will find a detailed description of these variables in the
+  \subpage timecal section.
+
+  \subsection qs-timing Timing Node Setup
+  The Timing node contains all of the information necessary for the successful
+  extraction of the high resolution timing from a trace. It defines things
+  such as the trace length and delay, the ranges for the waveform, and the
+  fitting parameters for various detectors. The most important things to update
+  in this section are the TraceDelay and TraceLength. Please note the units that
+  are in each of the parameters.
+
+  \subsection qs-treecorr TreeCorrelator Node Setup
+  We will not be using the TreeCorrelator for this example, refer to
+  \subpage treecorr for more info on this.
+
+  \subsection qs-notebook NoteBook Node Setup
+  Finally, you can change the output information from the notebook if you'd
+  like. This is not a critical step.
+
+  \section qs-eventcreat Event Creation
+  Events are created by grouping together channels which triggered at
+  similar times.  This time window is controlled by the variable EventWidth
+  located in the Global node of Config.xml. If two successive channels in the
+  list are within "EventWidth" time, they are grouped together in an event.
+  The variable is in units of Pixie16 clock ticks and must be multiplied by
+  the appropriate sampling time to obtain the event width in ns.  Please note
+  that the "EventWidth" time window is only applied to successive events.
+  Thus it is possible (depending on the total trigger rate) to have events that
+  are longer than the specified time window.
+
+  \section qs-eventret Retrieving Information from the Event
+  After an event has been created it is sent for processing.  The first
+  step of processing is to calibrate the individual channels and summarize
+  the information contained in the event.  For each detector type that is
+  present in the event an object called DetectorSummary is created.
+  This object holds detector related information such as the energy,
+  timestamp, and the multiplicity of the detector among other things.  For
+  example, the following command will retrieve energy of the scint in the event.
+  \code
+  double energy = revt.GetSummary("beta_scint:beta")->GetList().begin()->GetEnergy();
+  \endcode
+  where revt is the name of the variable holding the raw event information
+  and energy will contain the energy of the scintillator.
+
+  To retrieve the multiplicity associated with the VANDLE bar use
+  the following command:
+  \code
+  int fmult = revt.GetSummary("vandleSmall")->GetMult();
+  \endcode
+
+  The reference manual can provide a list of all commands to retrieve
+  information from the detector_summary or the rawevent.
+
+  \section qs-plotting Plotting
+  All plotting is controlled through the "plot" function defined in
+  DeclareHistogram. This function is a C++ wrapper that has been
+  placed around the DAMM count1cc and set2cc subroutines.  This allows for
+  the code to be easily changed between damm and ROOT histograms.  For
+  those using DAMM to view the output of the analysis all plots are created
+  in the "drrsub.f" file located in the scan directory.
+
+  In order to plot into a histogram one must first define it in the DeclarePlots
+  method of the used Processor. In addition, each Processor has a specific range
+  of DAMM IDs that it is allowed to use. This is defined in the DammPlotIds.hpp.
+
+  To define a 1D and a 2D histogram, you must first define the variables for
+  the histogram numbers:
+  \code
+    namespace dammIds {
+        namespace vandle {
+            D_ENERGY_BETA = 0;
+            DD_ENERGY_TIME = 1;
+            DD_BETA_TRACE = 2;
+        }
+    }
+  \endcode
+
+  This is generally found near the top of the '.cpp' file of interest. For the
+  BetaScintProcessor, this will create histograms with IDs 2050, 2051, and 2052.
+  We can now define the histograms themselves in the DeclarePlots method.
+
+  \code
+    DeclareHistogram1D(D_ENERGY_BETA, SA, SA, "Beta Energy");
+    DeclareHistogram2D(D_ENERGY_BETA, SA, SA, "Beta Energy vs Time");
+    DeclareHistogram2D(D_ENERGY_BETA, SA, SA, "Beta Traces");
+  \endcode
+
+  SA is a constant defined for compatibility with DAMM, see DammPlotIds.hpp for
+  their definitions.
+
+  To plot a one dimensional histogram of energies:
+  \code
+    plot(D_ENERGY_BETA,energy);
+  \endcode
+  You can send any type of numerical value to the plot function.  The
+  variable is rounded into an integer before being passed to the DAMM
+  plotting functions. A two dimensional histogram is plotted with the command
+  \code
+    plot(DD_ENERGY_TIME,energy, time);
+  \endcode
+  and a three dimensional histogram (plotting a trace for example) uses
+  the command
+  \code
+    plot(DD_BETATRACE, xval, row, traceval);
+  \endcode
+
+  There are numerous examples in the code on how to do this.
+
+  \section qs-programexec Program Execution
+  After the compilation has completed successfully the executable pixie_ldf_c
+  will be present.  Run the pixie_ldf_c program as you would any other program:
+  \verbatim
+  ./pixie_ldf_c hisname
+  \endverbatim
+  Where "hisname" is the name of the damm histogram that will be created. At the
+  scanor prompt load in the appropriate ldf file as follows
+  \verbatim
+  SCANOR->file tutorial/tutorial.ldf
+  \endverbatim
+  Next start the analysis with the following command
+  \verbatim
+  SCANOR->go
+  \endverbatim
+
+  After starting a variety of output should be printed to the screen.
+  The first lists all the detectors that are being used in the analysis.
+  This includes information about what is happening at various stages of the
+  code, the status of reading in the configuration, and the creation of the
+  detector summaries.
+
+  After completion of the analysis, end the SCANOR program
+  \verbatim
+  SCANOR->end
+  \endverbatim
+  You are now ready to take a look at your output in DAMM. This concludes the
+  main part of the tutorial.
+
+  \subsection qs-end Summary
+  This should complete the basics on how to setup and run the code. There are a
+  variety of histograms predefined in the Processors. Remember, under the new
+  framework, you do not have to recompile when you are switching out Processors.
+  Changes to the source code (new histograms, gates, etc.) necessitate
+  compilation.
+*/
+
+/******************************************************************************/
+
+/** \page quickstart-v1 Original Quickstart
   \section Overview
   This quickstart guide will quickly describe how to use the current pixie16
   analysis.  The guide assumes you have no desire to know how the
   analysis performs various tasks but only want to know how to make
   the program run and do something useful.  If you are unfamiliar with
-  C++ please refer to the C++ primer for a description of a few
+  C++ please refer to the \ref primer for a description of a few
   C++ features used in the code that have no FORTRAN equivalents.
   This chapter will use a sample ldf file taken from an RMS experiment
   with a 40x40 DSSD and one MCP.  This tutorial assumes you have a
   working knowledge of the DAMM program for viewing *.his files.
 
-  \section Complilation
+  \section Compilation
   I assume that ROOT has not been installed on your computer and you do not
   want to compile with ROOT capabilities.  In this case make sure that
   declarations of USEROOT and STANDALONEROOT are commented out in
@@ -454,7 +721,7 @@ class ChanEvent {
   The next flag that must be set correctly is whether your data was
   taken with the new pixie16 readout.  This readout was developed
   for the high data rates at the back of the RMS.  If you have DSSD
-  RMS data taken after March 20th 2008 then it is likely you have used the
+  RMS data taken after March 20, 2008 then it is likely you have used the
   new pixie16 readout scheme.  If so, then make sure the -Dnewreadout
   flag is set in the following line of the Makefile.
   \code
@@ -515,10 +782,15 @@ class ChanEvent {
   the detector plugged into that channel.  The 7 parameters are:
   - module number
   - channel number
-  - damm id - this is the spectrum number that the raw energies from this channel will be plotted.
-  - detector type - this is used to logically group detectors.  For example, all front channels on the DSSD have a detector type of dssd_front.
-  - detector subtype - this is useful in the program if you need the data from a specific channel you can address it by name.  For example, the first channel of a position sensitive MCP would be 1position1.
-  - detector location - this is the physical location of the detector.  For the dssd this is the strip number.
+  - damm id - this is the spectrum number that the raw energies from this
+        channel will be plotted.
+  - detector type - this is used to logically group detectors.  For example, all
+        front channels on the DSSD have a detector type of dssd_front.
+  - detector subtype - this is useful in the program if you need the data from
+        a specific channel you can address it by name.  For example, the first
+        channel of a position sensitive MCP would be 1position1.
+  - detector location - this is the physical location of the detector.  For the
+        dssd this is the strip number.
   - trace - this variable is obsolete.
 
   Comments in the map.txt file are always preceded by "//".  An example
@@ -853,6 +1125,293 @@ class ChanEvent {
 
 /******************************************************************************/
 
+/** \page timecal Time Calibrations and VANDLE Setup
+  Here we will outline the details of the Time Calibrations that you will need
+  to setup for a VANDLE experiment. These parameters are still being actively
+  developed and will likely change in the future.
+
+
+*/
+
+/******************************************************************************/
+
+/** \page xmlconfig XML Based Configuration File
+  The configuration of the code is now handled solely through an XML file. The
+  old style of map files have been deprecated and are no longer supported in
+  the main versions of the code. We summarize here the various sections of
+  the configuration that you will encounter. There is an example configuration
+  file: config/Config.xml.example.
+
+  \section xml-setup Setup for the Config.xml
+  The Config.xml file is a symbolic link to one of the various configuration
+  files in the config directory. In order to switch to different configurations
+  you simply need to issue the following command:
+  \code
+  ln -s -f config/Config.xml.example Config.xml
+  \endcode
+  This will point the Config.xml link to the proper configuration file.
+
+  \section xml-guts The Guts of the Config.xml
+    \subsection xml-author Author Information
+        Put your name, email and date (please use Jan, Feb, ..., Dec
+        for months names).
+    \subsection xml-desc Description
+        Put short description of your experiment here.
+    \subsection xml-global Global Configuration Settings
+    Global scan parameters are setup here.
+    Required fields are:
+    - Revision : \code <Revision version="X"/> \endcode
+        where X is A, D or F
+    - EventWidth : \code <EventWidth units="x" value="y"/> \endcode
+        where unit must be s, ms, us or ns; value is floating point
+    - EnergyContraction : \code <EnergyContraction value="x" /> \endcode
+        OBSOLETE, please do not use energy contraction (consider calibration
+        instead), however if needed for backward compatibility put here
+        floating point number
+    - Path : \code <Path>relatative_path</Path> \endcode
+        where 'relative_path' is a path to the other configurations
+        files not included into this xml document. At the moment only qdc.txt
+        is not incorporated into this file. relative_path must end with '/'
+        unless is empty (which then points to the current directory).
+    - NumOfTraces : \code <NumOfTraces value="x" /> \endcode
+        where x is unsigned integer giving the maximum number of traces in 2D
+        traces histograms. This number is rounded up to the power of 2, since
+        DAMM histograms must have such sizes
+
+    \subsection xml-dd DetectorDriver Setup
+    You will set up the various processors and analyzers in this node. To add
+    a new processor to the analysis:
+    \code <Process name="SomethingProcessor"/> \endcode
+    Similarly for an analyzer :
+    \code <Analyzer name="SomethingAnalyzer"/> \endcode
+    Simply repeat this process for each Processor and Analyzer that you would
+    like to add.
+
+    List of known Processors:
+
+    - BeamLogicProcessor
+    - BetaScintProcessor
+    - DssdProcessor
+    - GeProcessor
+            - optional attributes and their default values:
+            - gamma_threshold="1.0"
+            - low_ratio="1.0"
+            - high_ratio="3.0"
+            - sub_event="100e-9"
+            - gamma_beta_limit="200e-9"
+            - gamma_gamma_limit="200e-9"
+            - cycle_gate1_min="0.0"
+            - cycle_gate1_max="0.0"
+            - cycle_gate2_min="0.0"
+            - cycle_gate2_max="0.0"
+    - GeCalibProcessor
+        - optional attributes and their default values:
+            - gamma_threshold="1.0"
+            - low_ratio="1.0"
+            - high_ratio="3.0"
+    - Hen3Processor
+    - ImplantSsdProcessor
+    - IonChamberProcessor
+    - LiquidScintProcessor
+    - LogicProcessor
+    - McpProcessor
+    - MtcProcessor
+        - optional attributes and their default values:
+            - double_stop="False"
+            - double_start="False"
+    - NeutronScintProcessor
+    - PositionProcessor
+    - PulserProcessor
+    - SsdProcesssor
+    - TriggerLogicProcessor
+    - VandleProcessor
+    - RootProcessor (Requires the USEROOT compiler flag)
+
+    List of known Analyzers:
+    - TraceFilterer
+        - mandatory attributes and their default values:
+            - gain_match="1.0"
+            - fast_rise="10"
+            - fast_gap="10"
+            - fast_threshold="50"
+            - energy_rise="50"
+            - energy_gap="50"
+        - optional attributes and their default values:
+            - slow_rise="20"
+            - slow_gap="20"
+            - slow_threshold="10"
+    - DoubleTraceAnalyzer
+        - see TraceFilterer
+    - TauAnalyzer
+    - TraceExtractor
+    - WaveformAnalyzer
+    - FittingAnalyzer (requires PULSEFIT compiler flag in Makefile)
+    - CfdAnalyzer
+
+    \subsection xml-map Channels map
+    This section replaces the map.txt (map2.txt) and cal.txt
+    files. For each channel in each module that you want to use in
+    analysis you must assign some physical detector type (and subtype)
+    which is known to the pixie_scan (see DetectorLibrary.cpp).
+    A channel may be also calibrated (by default a raw channel number
+    from adc is used) or corrected against walk (by default walk
+    correction is equal to 0).
+
+    The root element (\<Map\>) may have attributes changing the verbosity
+    level during loading of the configuration in this section :
+        - verbose_map - output loaded modules and channels
+        - verbose_calibration - Output energy calibration information
+        - verbose_walk - Output walk correction information
+
+    Each attribute default to False, if change to True will show more
+    messages concerning loaded parameters etc.
+
+    \subsubsection xml-cals Calibrations
+    -Energy :
+        - raw : non-calibrated (also used when no calibration specified)
+        - off : turn channel off (returns always 0)
+        - linear : requires 2 parameters
+        - quadratic : requires 3 parameters
+        - polynomial : more general but slightly slower then the
+            two above : requires at least 1 parameter
+        - hyplin : f(x) = a0/x + a1 + a2*x , suitable if problems with
+            low channels are encountered - requires 3 parameters
+
+    -Time Walk :
+        - None : returns always 0
+        - A : f(x) = a0 + a1 / (a2 + x) + a3 * exp(-x/a4), derived for
+            the ge detectors at 85-86Ga experiment - requires 5 parameters
+        - B1 : f(x) = a0 + (a1 + a2 / (x + 1)) *  exp(-x / a4)
+            This model was developed for the ge detectors at 93Br
+            experiment. Use it for the low energy part of spectra. For
+            the high energy part use B2 model.
+        - B2 f(x) = a0 + a1 *  exp(-x / a2)
+            This function is the second part of 'B' model developed
+            for the 93Br experiment
+    Note that walk models parameters are intended to operate on natural
+    units i.e. raw channel numbers and pixie time tics.
+
+    Both calibration and walk correction operate on some range and
+    there might be any number of ranges defined for the channel.
+    The code does not check if a range overlaps with another. For a given
+    channel number the first (in order of appearance) matching range will be
+    used.
+
+    If no min/max is specified, a 0 to infinity range is assumed (where
+    infinity is a largest double precision floating point number on a
+    given machine).
+
+    \subsubsection xml-mapex Map Example
+    An example below shows the main features of the Map node.
+    \code
+    <Map verbose_map="True" verbose_calibration="True" verbose_walk="True">
+        <Module number="0">
+            <Channel number="0" type="ge" subtype="clover_high">
+                <Calibration model="quadratic" min="0" max="100">
+                    -0.912 0.625 1.2390e-5
+                </Calibration>
+                <Calibration model="linear" min="100">
+                    0.1 0.515
+                </Calibration>
+                <WalkCorrection model="A">
+                    2.322 12487.727 432.257 19.268 140.189
+                </WalkCorrection>
+            </Channel>
+            <Channel number="1" type="beta_scint" subtype="beta" location="5"
+                    tag1="12" tag2="3">
+            </Channel>
+            ...
+        </Module>
+        <Module number="1">
+            ...
+        </Module>
+            ...
+    </Map>
+    \endcode
+
+    \subsection xml-tcal Time Calibrations
+    See the \ref timecal section for more detailed information about the
+    various parameters in this calibration.
+
+    The time calibrations are for the alignment of detectors that use the
+    high resolution timing algorithms in space and time. This includes all the
+    VANDLE Bars, liquid scintillators, etc. Eventually, this will be updated
+    and expanded based on different VANDLE orientations (i.e.
+    parallel/perpendicular to beam).
+
+    NOTE: We currently do no error checking to make sure that an equivalent
+    bar is defined in the Map. This will be fixed in the future. For now,
+    the user is expected to pay attention!
+    \code
+    <TimeCalibration verbose_timing="False">
+        <Vandle>
+            <small>
+                <Bar number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
+                     tofoffset0="0.0" tofoffset1="0.0" />
+                <Bar number="1" r0="0.0" xoffset="0.0" lroffset="0.0"
+                     tofoffset0="0.0" tofoffset1="0.0" />
+            </small>
+        </Vandle>
+        <Scint>
+            <liquid>
+                <Detector number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
+                     tofoffset0="0.0" tofoffset1="0.0" />
+            </liquid>
+            <start>
+                <Detector number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
+                     tofoffset0="0.0" tofoffset1="0.0" />
+            </start>
+        </Scint>
+    </TimeCalibration>
+    \endcode
+
+    \subsection xml-treecorr Tree Correlator Information
+    Create here tree of "places" build of \<Place\> elements for
+    your experiment. Basic places are created automatically from entries
+    in the Map section using type_subtype_location pattern.
+
+    Root element should be named \<TreeCorrelator\>.
+    Each \<Place\> element has a following attributes:
+        - 'name' : required, if last token in name
+                    (tokens are separated by '_')
+                    characters are in format X-Y,Z where X, Y and Z
+                    are integers, a whole range X to Y is assumed
+                    (e.g.  beta_0-1,5,9-10
+                    will create beta_0, beta_1, beta_5, beta_9 and beta_10 )
+        Optional attributes:
+        - 'type' : must be one of types defined in PlaceBuilder.cpp
+                     (see there) currently available are:
+                    PlaceDetector, PlaceThreshold, PlaceThresholdOR,
+                    PlaceCounter, PlaceOR, PlaceAND
+                    if type is not used or empty (type="") it is assumed that
+                    place already exists. In particular this is true for all
+                    basic places created from channels as defined from Map
+        - 'replace' : if set to 'true', will replace existing place with a
+            one defined in this element.
+        - 'fifo' : depth of FIFO of place
+        - 'coincidence' : defines type of relation with parent (true of false)
+        - 'low_limit', 'high_limit' : required for PlaceThreshold and
+                PlaceThresholdOR defines threshold limits
+                (calibrated energy).
+
+    See PlaceBuilder for other type of places and attributes.
+
+    \subsection xml-notes Notebook
+    Configuration of Notebook object that saves handy notes (things that are
+    not easy to present on graph e.g. single event details) file - file in
+    which the notes are saved mode - 'a' for append, 'r' - for replace mode
+*/
+
+/******************************************************************************/
+
+/** \page treecorr Tree Correlator
+  The TreeCorrelator has been documented extensively in the documentation file:
+  doc/guides/treeCorrelatorNotes.pdf. In addition, you can find some
+  documentation in the \ref xml-treecorr section.
+*/
+
+/******************************************************************************/
+
 /** \page refman Reference Manual
   - An \subpage introduction to the pixie16 analysis
   - A list of \subpage dettype used in the analysis
@@ -861,9 +1420,9 @@ class ChanEvent {
        -# \subpage %PixieStd
        -# \subpage %DetectorDriver
   - Experiment Dependent Event Processing
-       -# \subpage MTC
+       -# \subpage leribss
        -# \subpage RMS
-  - A list of \subpage changes in the most recent version
+  - A list of \subpage changes-v3 in the most recent version
 */
 
 /******************************************************************************/
@@ -878,61 +1437,46 @@ class ChanEvent {
   - PlotRaw() - plot raw experimental energies
   - PlotCal() - plot calibrated energies
 
-  \section dd-Initialization
-  As mentioned in PixieStd.cpp \ref pixiestdinit "initialization"
-  section, the DetectorDriver initialization routine
+  \section dd-init Initialization
+  The DetectorDriver initialization routine
   (DetectorDriver::Init()) is called with the detector types that have
-  been identified from the reading of the map.txt. This collection of
-  used types is also provided for the raw event initialization which
-  creates a DetectorSummary for each detector type and places it into
-  the map of detector summaries sumMap using the following code:
-  \code
-  //file RawEvent.cpp
-  bool DetectorDrive::Init(const set<string> &usedTypes,
-                           const set<string> &usedSubtypes) {
-  DetectorSummary ds;
-  ds.Zero();
-
-  for(set<string>::const_iterator it = usedTypes.begin();
-     it != usedTypes.end(); i++) {
-     ds.SetName(*it);
-     sumMap.insert(make_pair(*it,ds));
-  }
-  \endcode
-
-  The detector and analysis specific objects are initialized through
-  their respective routines.
+  been identified from the event. It then initializes the necessary Analyzers
+  and Processors, reads in the energy Calibration and the Walk correction, and
+  finally initializes the Correlator. The Init methods for the Analyzers and
+  Processors are contained in their own codes.
 
   \subsection ReadCal
   The calibrations are read in during the detector driver
-  initialization (DetectorDriver::ReadCal()) from the file cal.txt.
-  Please see \subpage configxml Configuration for detailed information.
+  initialization (DetectorDriver::ReadCal()) from the file Config.xml.
+  Please see \subpage xmlconfig Configuration for detailed information.
 
-  For each line in cal.txt, the calibration is read into the calibration
-  vector.  Each calibration lines is compared to match to a particular
-  channel identifier as defined in the file map.txt. If a channel
-  in map.txt does not exist in cal.txt, the program will
-  issues an error and terminate. All channels not set to "ignore"
-  must have a valid calibration.  The information from the map.txt
-  and cal.txt are combined and output is printed to the screen
-  for visual inspection.
+  For each channel with a calibration the type of calibration, and the
+  calibration parameters are read. They are then added to the list of
+  calibrations. If there is no calibration, then any calls for this channel to
+  calibrate the energy returns the energy.
 
   \section ProcessEvent
-  ProcessEvent() accesses the global RawEvent and processes it.
-  The analysis loops over all channels contained within the RawEvent
-  and checks the threshold, calibrates the energy, plots both the raw and
-  calibrated energies (if the appropriate damm spectra have been
-  created), and performs a trace analysis if a trace is present.
+  ProcessEvent() accesses the global RawEvent and processes it. It first
+  plots the raw and calibrated energy along with performing the calibration and
+  threshold. It then performs two loops over the data.
+
+  The first loop is the PreProcees loop. This loop will call the PreProcess
+  method for each of the used processors. The work done in the PreProcess
+  methods __should not__ depend on the results of other Processors.
+
+  The second loop calls the main "Process" method for each of the Processors.
+  The work done in these methods may depend on the results from other
+  Processors. This is where the main work of the Processors will be done.
 
   \subsection ThreshAndCal
-  ThreshAndCal() receives a pointer to the current channel event.
-  The channel is calibrated using the element at "module number * 16 +
-  channel number" in the calibration vector.  After calibration
-  the DetectorSummary for this detector type is updated.
+  ThreshAndCal() receives a pointer to the current channel event. It then
+  proceeds to set values that are calculated from the traces (qdc, phase, etc.).
+  This is also the point at which the energyContraction is applied to the
+  energies. Finally, it applies the energy calibration and walk corrections.
 
   \subsubsection Trace
   If a trace is included with the channel object then the trace
-  analysis is invoked through the TraceAnalyzer
+  analysis is invoked through the TraceAnalyzer.
 
   \subsection PlotRaw
   The raw energy from the channel is plotted into the appropriate
@@ -941,11 +1485,6 @@ class ChanEvent {
   \subsection PlotCal
   The calibrated energy from the channel is plotted into the
   appropriate damm spectrum if it was created in DeclareHistogram.cpp
-
-  \warning There is no default calibration
-  \warning Provide a calibration line for every channel not
-  set to "ignore" in the map.txt file.  Failure to do so will
-  cause the program to terminate so the user can fix the problem.
 */
 
 /******************************************************************************/
@@ -953,7 +1492,15 @@ class ChanEvent {
 /** \page dettype Detector Types
   This page describes all detector types that are possible
   to use in the current analysis.  These are the only
-  detector types that are valid for use in the map.txt file.
+  detector types that are valid for use in the Config.xml file.
+
+  \section dt-hen 3hen
+  This detector type is used for the 3Hen detector. This is processed by the
+  Hen3Processor.
+
+  \section beta_scint
+  This detector type is for scintillator detectors used to detect beta
+  particles. This is processed by BetaScintProcessor.
 
   \section dssd_front
   This detector type is used for the front of the DSSD.  The front
@@ -977,10 +1524,33 @@ class ChanEvent {
   - sega
   This is processed by GeProcessor.
 
-  \section si
-  This detector type is for all silicon detectors that are not a
-  DSSD.  This type should be used for the silicon box. No sub types
-  for this type yet.
+  \section generic
+  This is a detector type for a generic detector. It could be something that
+  you do not need a full processor for, and simply want to have access to the
+  detector information. There is no dedicated processor.
+
+  \section idssd_front
+  This detector type is for the front of the dssd for implants only.
+  This type is intended for use in fragmentation experiments where
+  the implant and decay signals use two separate electronics chains.
+  Available sub types include:
+  - idssd_front
+
+  Handled by the ImplantSsdProcessor.
+
+  \section ignore
+  This type will be ignored at every step of the analysis.
+
+  \section ion_chamber
+  This type is for an ion chamber. It is handled by the IonChamberProcessor.
+
+  \section liquid_scint
+  This detector type is for liquid scintillator detectors. This is processed by
+  LiquidScintProcessor.
+
+  \section logic
+  This detector type is for Logic signals from traditional electronics. These
+  types are handled by the LogicProcessor.
 
   \section mcp
   This detector type is for all mcp detectors.  Available sub types
@@ -992,25 +1562,13 @@ class ChanEvent {
   - 1time - MCP timing signal.
    This is processed by McpProcessor.
 
-  \section timeclass
-  This detector type is for timing detectors such as TACs and MTCs.
-  Available sub types include
-  - MTC (processed by MtcProcessor)
-  - **
+  \section mtc
+  This type is for the signals from the Moving Tape Collector (MTC). This stuff
+  is handled by the MtcProcessor.
 
-  \section scint
-  This detector type is for scintillator detectors and could be
-  used for NaI, beta scintillators, ...  Available sub types include:
-  - beta
-  - neutr
-  This is processed by ScintProcessor.
-
-  \section idssd_front
-  This detector type is for the front of the dssd for implants only.
-  This type is intended for use in fragmentation experiments where
-  the implant and decay signals use two separate electronics chains.
-  Available sub types include:
-  - idssd_front
+  \section neutron_scint
+  This detector type is for scintillator detectors used to detect neutrons.
+  This is processed by NeutronScintProcessor.
 
   \section position
   This detector type is for a position signal at a fragmentation experiment.
@@ -1019,6 +1577,38 @@ class ChanEvent {
   include:
   - i2spos
 
+  Handled by the PositionProcessor
+
+  \section pulser
+  This type is for simple pulsers. It is mainly designed for measuring the
+  time difference between the subtype "start" and "stop". Handled by the
+  PulserProcessor.
+
+  \section si
+  This detector type is for all silicon detectors that are not a
+  DSSD.  This type should be used for the silicon box. No sub types
+  for this type yet.
+
+  \section ssd
+  A type for an SSD. This is handled by the SsdProcessor.
+
+  \section timeclass
+  This detector type is for timing detectors such as TACs and MTCs.
+  Available sub types include
+  - MTC (processed by MtcProcessor)
+
+  \section tvandle
+  A detector type for a "Teeny VANDLE" detector. Currently, handled by the
+  VandleProcessor, but will have its own at some point.
+
+  \section vandleSmall
+  A type for small VANDLE bars. Handled by the VandleProcessor.
+
+  \section vandleBig
+  A type for big VANDLE bars. Handled by the VandleProcessor.
+
+  \section vandleMed
+  A type for medium VANDLE bars. Handled by the VandleProcessor.
 */
 
 /******************************************************************************/
@@ -1036,78 +1626,72 @@ class ChanEvent {
   DetectorDriver.cpp receives each event and calibrates the energy for
   each channel in the event.  The raw and calibrated energies are plotted
   if the appropriate damm spectra have been created in DeclareHistogram.cpp.
-  Lastly, experiment specific analysis is performed. Experiment specific
-  analysis for generic MTC and RMS experiments remains unimplemented in the
-  current version.
+  Lastly, experiment specific analysis is performed.
 */
 
 /******************************************************************************/
 
-/** \page MTC MTC
+/** \page leribss LeRIBSS Experiments
   This page describes the experiment specific analysis that is
-  conducted when running a beta decay experiment with the MTC
+  conducted when running a beta decay experiment with the MTC. Usually, this
+  type of experiment was done at LeRIBSS.
+
+  __Still needs to be updated__
 
   \section detreq Detector Types
   For an MTC experiment the following detector types and sub types
   are used.
-  - timeclass - MTC1 - this detector type corresponds to an MTC signal.
-  It is in a group with other detectors which provide time information.
-  There is no significance in the energy of the detected MTC signal
-  only its presence.
-  - timeclass - MTC2 - this detector type and sub type are optional
-  but typically represent a delayed MTC signal so that at least one
-  of the MTC channels should register the tape movement.
-  - scint - beta1 and beta2 - beta detectors around the beam pipe
-  for suppresion of background.
+  - beta_scint
+  - mtc
   - ge - clover - a set of clover detectors for gamma ray detection.
-  - mcp - mcp - an optinal MCP detector use for timing decays with
-  respect to an ion implantation.
 
   \section logproc Event Processing
   The MTC, MCP, and beta detectors are checked to see if any of them
   fired in the event.  If any of the three detectors fired the time
   of the respective channel is retrieved.
 
-  \warning Currently no correlation is implemented for the MTC and
-    beta scintillators, the former process is described below and should
-    work with the current code in a similar way.
-
-  If the MTC fired the correlation array is updated.  Front and back
-  channels are set to one to use only one pixel of the correlation
-  array and all decay-implant times are taken with respect to the MTC
-  tape time.  When the MCP is being used the condition for an implant
-  into the correlation array should be either the MTC or MCP.
-
-  If the beta detectors fired a decay event is sent to the correlation
-  array.
-
-  \section mtc-Plotting
-  Correlation time versus gamma-ray energy should be plotted in
-  GeProcessor::Process().
+  \section leribss-corr Correlations
+  You should setup the TreeCorrelator appropriately to make sure that you
+  correlate the beamOn/Off information with your decays.
 */
 
 /******************************************************************************/
 
-/** \page changes Changes
+/** \page changes-v3 Changes for Version 3
+    We will not list all of the changes that have been made in this version.
+    The git repository history will do that for us.
+
+    For changes in the previous version, see \subpage changes-v2.
+*/
+
+/******************************************************************************/
+
+/** \page changes-v2 Changes for Version 2
     \section sec-general General changes
-    - Consistency in the naming conventions of variables/classes included in the code
+    - Consistency in the naming conventions of variables/classes included in the
+        code
     - Names made more descriptive when necessary
     - Prevent as much copying of information between classes for optimization
     - Old ROOT-style functionality currently unimplemented
     - C++ streams used instead of stdio functions as much as possible
     - Comments improved -- simple coding statements within comments removed
-    - Unused variables removed, or commented out when the extension of the program to include their eventual use is evident
-    - Classes are more const correct and therefore users shouldn't be able to mess up things that they shouldn't touch
+    - Unused variables removed, or commented out when the extension of the
+        program to include their eventual use is evident
+    - Classes are more const correct and therefore users shouldn't be able to
+        mess up things that they shouldn't touch
 
     \section sec-correlator Correlator.cpp
     - Previously called \c correlator.cpp
-    - Header now includes correlation structures (previously in \c raw_event.cpp) with different structures for implants and decays
+    - Header now includes correlation structures
+        (previously in \c raw_event.cpp) with different structures for implants
+        and decays
     - Now only one main correlation function exists
     - DSSD decay spectra plotting now located in DssdProcessor.cpp
 
     \section sec-histo DeclareHistogram.cpp
     - New set of global functions which take over the behaviour of \c drrsub.f
-    - Main plotting functions and generic low-level histogram definitions defined here
+    - Main plotting functions and generic low-level histogram definitions
+        defined here
     - All used DAMM plot ids defined in damm_plotids.h
     - No DSSD strip spectra automatically defined
 
@@ -1120,25 +1704,32 @@ class ChanEvent {
     - Most of analysis is now done through a vector of event processors
     - Raw event is now accessed globally
     - Calibrated spectra are now defaulted to damm id# \f$200+ch\f$
-    - Calbrations are now matched to the channel identifiers so only one consistent reading of \c map.txt is done
-    - Random number initializations now done here and are scaled appropriately by the contraction factor of the Pixie energies
+    - Calbrations are now matched to the channel identifiers so only one
+        consistent reading of \c map.txt is done
+    - Random number initializations now done here and are scaled appropriately
+        by the contraction factor of the Pixie energies
     - A local copy of the analysis' used detectors is no longer made
     - Detector summaries have been moved to the RawEvent class
-    - No "temppoint" handling of detector summaries, instead each EventProcessor will keep its own individual map of detector summaries for the detectors it is interested in
+    - No "temppoint" handling of detector summaries, instead each EventProcessor
+        will keep its own individual map of detector summaries for the
+        detectors it is interested in
 
     \section sec-dssd DssdProcessor.cpp
     - Previously called \c dssd_sub.cpp
-    - Handles much of the correlation work that was previously done by the DetectorDriver
+    - Handles much of the correlation work that was previously done by the
+        DetectorDriver
     - Decays required to be anti-coincident with MCP signals
     - Plotting for decay spectra now done here
 
     \section sec-event EventProcessor.cpp
-    - New class which defines the generic behaviour for the processor which handle events for detectors of different types
+    - New class which defines the generic behaviour for the processor which
+        handle events for detectors of different types
     - Includes an interface to ROOT for each individual processor
 
     \section sec-geprocessor GeProcessor.cpp
     - Previously called \c ge.cpp
-    - Number of clovers is now determined using the global vector of identifiers not from reading \c map.txt
+    - Number of clovers is now determined using the global vector of
+        identifiers not from reading \c map.txt
 
     \section sec-make Makefile
     - Implicit rules used for most targets
@@ -1151,22 +1742,30 @@ class ChanEvent {
 
     \section sec-mtc MtcProcessor.cpp
     - Previously called \c timeclass.cpp
-    - Handling of old TOF timeclass for NSCL experiments not currently implemented
+    - Handling of old TOF timeclass for NSCL experiments not currently
+        implemented
 
     \section sec-pixiestd PixieStd.cpp
     - \b Major changes
     - Previously called \c pixie_std.cpp
-    - Chunks starting with a -1 delimiter are now skipped over while looking for the beginning of a spill
-    - If only the last 5-word chunk is missing from the spill, it is reconstructed
-    - The last 5-word chunk is checked to verify that it is the last chunk expected for the spill
+    - Chunks starting with a -1 delimiter are now skipped over while looking
+        for the beginning of a spill
+    - If only the last 5-word chunk is missing from the spill, it is
+        reconstructed
+    - The last 5-word chunk is checked to verify that it is the last chunk
+        expected for the spill
     - Real, system, and user time in analysis reported occasionally
     - Random number initialization moved to DetectorDriver.cpp
     - Modules are only expected to be read out cyclically
     - Support up to 14-slot crates
     - Stand-alone ROOT support currently not implemented
-    - Events now placed into the list of events using their pointers, so they do not need to be copied
-    - Channel identification index numbers are now extracted from the module and channel number in \c map.txt not according to the order of appearance in the file
-    - Multiple definitions of the same channel in \c map.txt will now produce an error
+    - Events now placed into the list of events using their pointers, so they
+        do not need to be copied
+    - Channel identification index numbers are now extracted from the module
+        and channel number in \c map.txt not according to the order of
+        appearance in the file
+    - Multiple definitions of the same channel in \c map.txt will now produce
+        an error
     - Platform independce now more obvious through definition of word_t
 
     \section sec-raw RawEvent.cpp
@@ -1174,43 +1773,53 @@ class ChanEvent {
     - Previously called \c rawevent.cpp
     - Structures for correlation now connected with Correlator.cpp
     - Actual Correlator class now included in the RawEvent
-    - Channel IDs are now returned directly from the data imported from \c map.txt -- individual channel events do not contain their own copies
+    - Channel IDs are now returned directly from the data imported from \c
+        map.txt -- individual channel events do not contain their own copies
     - ID numbers are calculated (not stored) using module and channel numbers
-    - Much less "structification" for channel events -- ReadBuffData() is a friend to set information. In particular, getting a copy of the trace is no longer supported as this can create a large burden on the analysis
-    - Detector summaries are now stored with the RawEvent instead of in the DetectorDriver
-    - Detector summaries now address their constituent events by pointer (not by arbitrary index in RawEvent)
-    - One function call to handle all details regarding associating a channel event to a particular DetectorDriver
-    - Less "structification" for the RawEvent -- access to detector summaries is only allowed by pointers to prevent copying of large amounts of channel data
+    - Much less "structification" for channel events -- ReadBuffData() is a
+        friend to set information. In particular, getting a copy of the trace
+        is no longer supported as this can create a large burden on the analysis
+    - Detector summaries are now stored with the RawEvent instead of in the
+        DetectorDriver
+    - Detector summaries now address their constituent events by pointer
+        (not by arbitrary index in RawEvent)
+    - One function call to handle all details regarding associating a channel
+        event to a particular DetectorDriver
+    - Less "structification" for the RawEvent -- access to detector summaries
+        is only allowed by pointers to prevent copying of large amounts of
+        channel data
     - Asking for an unexpected DetectorDriver will complain accordingly
 
     \section sec-buf ReadBuffData.cpp
     - A version for both Rev. A and Rev. D of the Pixie modules
-    - Main function now directly takes a pointer to the beginning of the data to be processed of Pixie words of the appropriate size
-    - Identifiers are no longer set since they are calculated dynamically in RawEvent.cpp
+    - Main function now directly takes a pointer to the beginning of the data
+        to be processed of Pixie words of the appropriate size
+    - Identifiers are no longer set since they are calculated dynamically in
+        RawEvent.cpp
 
     \section sec-root RootProcessor.cpp
-    - New tact of creating ROOT trees where the data is broken into its constituent detector parts (saved as branches) by the event processors. This is in contrast to the old method of saving raw event data
+    - New tact of creating ROOT trees where the data is broken into its
+        constituent detector parts (saved as branches) by the event processors.
+        This is in contrast to the old method of saving raw event data
 
     \section sec-scint ScintProcessor.cpp
     - Previously called \c scint.cpp
-    - If no Ge detectors are present, processor asks for a NULL detectors summary which has to be treated properly
+    - If no Ge detectors are present, processor asks for a NULL detectors
+        summary which has to be treated properly
     - No more triple counting for plots
     - Discombobulated in general
 
-    \section sec-spline SplineProcessor.cpp
-    - \b "In progress"
-    - Previously called \c pulse_spline.cpp
-    - Little to no modification yet as this is still under active development
-
     \section sec-stats StatsAccumulator.cpp
-    - New simple class which provides a consistent and concise way of calculating means and standard deviations
+    - New simple class which provides a consistent and concise way of
+        calculating means and standard deviations
     - Designed to work with the STL accumulate algorithm defined in \c numeric
     - Example of use in TraceAnalyzer.cpp
 
     \section sec-trace TraceAnalyzer.cpp
     - Previously called \c trace.cpp
     - Better implementation of STL methods
-    - Filter functions now includes a version to fill the vector in place so an unnecessary copy is not made
+    - Filter functions now includes a version to fill the vector in place so
+        an unnecessary copy is not made
     - Processing time information is included
  */
 
@@ -1221,6 +1830,9 @@ class ChanEvent {
   analysis.  These objects are both for detectors and processing.
   All objects are declared, initialized and used in the
   DetectorDriver class.
+
+  __This section has not been updated yet, as the number of Processors and
+  Analyzers has exploded. __
 
   \section obj-detobj Detector Objects
 
@@ -1315,11 +1927,9 @@ class ChanEvent {
   includes five important functions which control event creation:
   - hissub_() - The interface between SCAN and the C++ analysis.
   Reassemble a complete pixie16 spill of data.
-  - InitMap() - Analysis initialization
-  - New map file info - An alternative way to define the analysis
-  - hissub_sec() - extract channel information from the raw pixie16
+  - hissub_sec() - extract channel information from the raw Pixie16
   data spill and sort the triggered channels based on time.
-  - ScanList() - Group channels into events and send to detector_driver
+  - ScanList() - Group channels into events and send to DetectorDriver
   for processing
   - HistoStats() - plot various permanent spectra such as the run
   time and time between events.
@@ -1339,84 +1949,6 @@ class ChanEvent {
   smaller chunks of data for transmission across the network.  hissub_()
   collects the chunks of data to reassemble the complete spill.
 
-  \anchor pixiestdinit
-  \section pstd-Initialization
-
-  Following the reconstruction of the first spill, and before
-  continuing the analysis, the analysis is initialized with InitMap()
-
-  \subsection pstd-InitMap
-  When the first spill has been reconstructed and before analysis
-  begins, InitMap() is called to initialize all routines and variables
-  used in the scanning process.  First the DetectorLibrary
-  class is queried to determine the valid detector types that can be used
-  in the analysis.  This is accomplished with the following line of code
-  in InitMap()
-  \code
-  // file pixie_std.cpp - InitMap()
-  const set<string> &knownDets = driver.GetKnownDetectors()
-  \endcode
-  The detector types that are currently valid for analysis are
-  dssd_front, dssd_back, ge, idssd_front, timeclass, si, position,
-  scint, mcp, mtc, generic, ssd, vandle, pulser, logic, and ion_chamber.
-  The detector types position and idssd_front have to date been
-  exclusively used for fragmentation experiments at MSU (and have no
-  implementation in the current version of code).
-
-  Next the file map.txt is opened to determine a unique detector
-  that is connected to each Pixie16 module.  Please see
-  \subpage configxml Configuration for more information.  For every
-  line in the map.txt file the associated parameters are read into
-  an identifier variable called id and added to the variable
-  modChan (a vector containing a channel identifier for each
-  line in the map.txt) which contains information about the 16 channels
-  for each Pixie module.
-
-  If the entry is to be ignored (by setting the detector type to
-  "ignore"), a dummy entry is inserted into the modChan variable. Channels
-  which do not appear in the map are also ignored based on the default
-  detector type "" in the Identifier constructor. The position of each
-  channel identifier in modChan is retrieved dynamically based on a
-  combination of the channel and module number, nominally
-  \verbatim
-  module number * 16 + channel number.
-  \endverbatim
-  Thus the identifier corresponding to module #2 and channel #10
-  (id = 42) must be stored in modChan element 42 to allow the retrieval
-  to work properly. The file map.txt no longer requires sequential ordering
-  of channels nor the presence of all channels for a particular module.
-
-  After reading in map.txt, the individual trace and event processors
-  contained in the DetectorDriver are initialized.
-
-  For each Pixie16 channel that has not been set to "ignore," the
-  detector type is checked against the known detectors. If the detector
-  type is not listed among the known detectors, the program will
-  terminate to provide the user an opportunity to fix the problem.
-
-  \section pstd-New map file info
-  Alternatively, the detectors can be defined in a new map file format
-  through the "map2.txt" file. Each line contains information in order about
-  the detectors
-  module number, channel number, type, subtype, location
-  followed by arbitrary integer tags identified by a string
-  e.g. traceanalysis=10 virtual start width=100
-  If no value is given, 1 is assumed.
-
-  Module and channel fields can contain ranges (2-4) or asterisks to indicate
-  all unfilled channels. ('e' and 'o' can also be provided to limit to even
-  or odd values.) Single channel specifiers will be processed first.
-
-  Any field after type can be left unspecified:
-    If subtype is blank or "--", the subtype is assumed to be the same as type
-    If location is blank, numbering will begin as low as available (0 start)
-    Tags are often blank.
-  The code is smart enough to recognize (based on whether the field is a
-  number or a string) what you mean except in the case when location and
-  subtype would be left blank. Here use the "--" shorthand for the subtype.
-  Locations for a range are given sequentially looping over channels and then
-  over modules.
-
   \section hissub_sec
 
   Once the spill is reassembled, hissub_sec() scans the
@@ -1429,17 +1961,17 @@ class ChanEvent {
 
   After the list of channels that triggered in the current spill has
   been sorted by time, ScanList() is called.  This function scans the
-  list of channels and groups channels with similar times togther into
-  events. Starting from the begining of the list and continuing to the end,
+  list of channels and groups channels with similar times together into
+  events. Starting from the beginning of the list and continuing to the end,
   an individual channel event time is compared with the previous channel
   event time to determine if they occur within the time period defined by
-  the eventWidth variable (in units of 10 ns) and
+  the EventWidth variable (in units proper to the revision) and
   - if yes - the two channels are considered to belong to the same
   event and the current channel is added to the list of channels
   in rawEvent.
   - if no - the previous rawEvent is considered complete and is
   sent to the DetectorDriver for processing.  Once processing
-  is finished, the rawEvent variable is clared and the current
+  is finished, the rawEvent variable is cleared and the current
   channel is placed inside it to begin a new event.
 */
 
@@ -1449,6 +1981,8 @@ class ChanEvent {
   This page describes the experiment specific analysis that is
   conducted when running a particle decay spectroscopy experiment
   at the back of the RMS.
+
+  __This section is unchanged and may not reflect what you would like to do.__
 
   \section rms-detreq Detector Types
   For an RMS experiment the following detector types and sub types
@@ -1484,151 +2018,93 @@ class ChanEvent {
 /******************************************************************************/
 
 /** \page devman Developer Manual (under construction)
-  - A list of \subpage flags used in the Makefile
-  - A method to \subpage add
-  - Future \subpage improvement ideas
+  - A list of \subpage makeflags
+  - A method for \subpage add
+  - Ideas for future \subpage improvement
   - Some \subpage nameConv for sanity
 */
 
 /******************************************************************************/
 
-/** \page add Add a Detector
-  This page will describe the mechanism for adding a new detector
-  to the analysis.  This should only be done rarely as many detectors
-  should fit into one of the already defined \ref dettype.
+/** \page add Adding a New Detector Processor
+  This page will describe the process for adding a new Processor
+  to the analysis. In principle, you can add a Processor to handle specific
+  detector types, or to handle those that already exist.
 
   To add a new detector first a class must be constructed which
-  defines its behavior by creating a .h and .cpp file. For example,
-  the following section defines a new detector class called "new".
+  defines its behavior by creating a .hpp and .cpp file. For example,
+  the following section defines a new detector class called "Template".
+
+  The hpp file should look something like
+  \include include/TemplateProcessor.hpp
+
+  The cpp file should look something like
+  \include src/TemplateProcessor.cpp
+
+  Once a class exists for your new detector you must create an instance of it
+  in the DetectorDriver.  Include the proper file in DetectorDriver.cpp
   \code
-  //file NewProcessor.h - adding a new detector to analysis
-
-  #ifndef __NEWPROCESSOR_H_
-  #define __NEWPROCESSOR_H_
-
-  #include "EventProcessor.h"
-
-  // add detector
-  class NewProcessor : public EventProcessor
-  {
-  private:
-     //list of private variables
-  public:
-     NewProcessor();
-     virtual void Process(RawEvent &event);
-     virtual void DeclarePlots(void) const;
-
-     // if you want to add root analysis...
-#ifdef USEROOT
-     virtual bool AddBranch(TTree *tree);
-     virtual void FillBranch(void);
-#endif
-  };
-
-  #endif // __NEWPROCESSOR_H_
-
-  //file NewProcessor.cpp - adding a new detector to analysis
-  NewProcessor::NewProcessor() : EventProcessor()
-  {
-     name = "new";
-     associatedTypes.insert("new");
-     //add any special instructions for object creation
-  }
-
-  void NewProcessor::DeclarePlots() const
-  {
-     // add DeclareHistogram?D statements
-     // related descriptions of the ID numbers go in damm_plotids.h
-  }
-
-  bool NewProcessor::Process(RawEvent &evt)
-  {
-     // the following lines are necessary for the timing of the process
-     //   to be implemented, it also ignores the process if none of the
-     //   associated types are part of this event
-     if (!EventProcessor::Process(evt))
-       return false;
-     //define plotting routines.
-
-     EndProcess(); //update the processing time
-     return true;
-  }
-
-  #ifdef USEROOT
-  bool NewProcessor::AddBranch(TTree *tree)
-  {
-    // create the branch in the tree
-    return true;
-  }
-
-  void NewProcessor::FillTree(void)
-  {
-    // update the variables associated with this processor's branch
-    // also, since ROOT trees don't allow unfilled values,
-    //  one should clear the values for detectors with no associated
-    //  events which is often all that is needed since much of the
-    //  relevant processing appears in Process()
-  }
-  #endif // USEROOT
-  \endcode
-
-  Once a class exists for your new detector you must create an
-  instance of it in the DetectorDriver.  Include the proper file in
-  DetectorDriver.cpp
-  \code
-  #include "NewProcessor.h"
+  #include "TemplateProcessor.hpp"
   \endcode
   and initialize it with the other processors in the constructor of
   DetectorDriver.
   \code
-  vecProcess.push_back(new NewProcessor());
+    ...
+    } else if (name == "TemplateProcessor") {
+            vecProcess.push_back(new TemplateProcessor());
+    }
+    ...
   \endcode
 
-  Now the only thing that remains is to add it to the list of known detectors
-  in the GetKnownDetectors() method, and all the rest should be taken care
-  of for you.
+  Your new processor simply needs to be added to the Config.xml and you are
+  ready to do your analysis.
+
+  Adding a new detector type needs only minimal additional changes to the
+  DetectorLibrary. To the list of known detectors
+  \code
+    const unsigned int detTypes = 2;
+    const string detectorStrings[detTypes] = {
+        "3hen", "beta_scint", "dssd_front", "dssd_back", "ge", "generic",
+        "idssd_front", "ignore", "ion_chamber", "liquid_scint", "logic",
+        "mcp", "mtc", "neutron_scint", "position", "pulser", "si", "ssd",
+        "timeclass", "tvandle", "vandleSmall", "vandleBig", "vandleMed",
+        "template"
+    };
+  \endcode
 */
 
 /******************************************************************************/
 
-/** \page flags Control Flags
-  There are currently only three compilation flags that are important
-  for the pixie16 analysis.  These include:
-  - newreadout - This flag signifies that the new readout scheme is
-  being use to transmit data from the pixie16 modules across the
-  network.  On any experiment after Apr 2008 this is the most likely
-  running mode so compile with this option included.  Without this
-  option the code will compile into the old readout scheme for
-  backwards compatability.
+/** \page makeflags Makefile Flags
+  There are several flags in the Makefile that you can use to control the
+  flow of the analysis. These include:
   - USEROOT - To use this flag, you must have installed the ROOT
-  analysis package on your system and have the ROOTSYS, PATH,
-  and LD_LIBRARY_PATH environment variables set correctly (according
-  to the ROOT installation). This  flag compiles in the ability to
-  output a .root file depending on a set of conditions in the
-  RootProcessor but otherwise does not affect the functioning of the code.
-  - REVD - This sets the scan to work on revision D modules, this only
-  effects ReadBuffData() and some functions in PixieStd.cpp
-
-  One flag present in the old analysis will likely be implemented in the future:
-
-  - STANDALONEROOT - The ROOT analysis package mus be installed
-  correctly to use this option.  With this flag the program no
-  longer runs with scan and damm but instead takes an input
-  ROOT file (likely created with the USEROOT option above) and produces
-  another output .root file.  The STANDALONEROOT flag must be used
-  with the USEROOT flag.
+    analysis package on your system and have the ROOTSYS, PATH,
+    and LD_LIBRARY_PATH environment variables set correctly (according
+    to the ROOT installation). This  flag compiles in the ability to
+    output a .root file depending on a set of conditions in the
+    RootProcessor but otherwise does not affect the functioning of the code.
+  - CXXFLAGS += -DVERBOSE - This defines the VERBOSE preprocessor condition.
+    Turn this on in order to have a wickedly verbose scan.
+  - ONLINE - This will create a much quieter scan code. Outputting to the
+    terminal takes time, and you don't always want that when running.
+  - DEBUG - This will enable verbose debugging for the TreeCorrelator. It will
+    be useful if there's something that's going wrong.
+  - PULSEFIT - This includes the libraries for GSL necessary for the high
+    resolution timing.
+  - GGATES - Defines gamma gates for the GeProcessor. This turns on Gamma-Gamma
+    angular distribution and Gamma-Gamma-Gamma gates.
 */
 
 /******************************************************************************/
 
 /** \page improvement Improvements
- - More dynamic system for DAMM id definition which separates modular behaviour such that all plots from a particular processor explicitly start with the same two digits; this makes inheritance easier and frees up damm_plotids.h
- - Generic processor and detector type on which the calibrator and trace analyzer can function
+ - Generic processor and detector type on which the calibrator and trace
+    analyzer can function
  - Optimization and clarification of TraceAnalyzer.cpp
  - Implementation of old standalone root analysis
  - Include QDC and CFD information from channel headers for Revision D
  - Gating class which can be applied to event processors
- - Reading of \c map.txt prior to first buffer so that the correct number of channels and event processor plots can be included in the DAMM file without any excess
  - Expand detector summaries to work on type/subtype combinations
 */
 
@@ -1637,15 +2113,15 @@ class ChanEvent {
 /** \page nameConv Naming Conventions
  Some sort of convention -- maybe not the best, but at least it's a choice. Of
  course, these are solely a suggestion, and exceptions could occur.
- - Classes have names like "ExampleClass"
+ - Classes are things: "ExampleClass"
  - Variables and class members have names like "myVariable"
  - Namespaces like "thisNamespace"
  - Acronyms uncapitalized generally like "DssdProcessor" (exceptions may abound)
  - Global CONSTANT variables can have forms like "CONSTANT_VARIABLE"
- - C++ functions declared as "DoSomething(...)"
+ - C++ functions declared as actions: "DoSomething(...)"
  - Fortran functions called as "func_()"
  - Implementation of classes in files with the same name as the class
- - Files with extensions ".cpp", ".h", and ".f"
+ - Files with extensions ".cpp", ".hpp", and ".f"
  - Generic index variables use "i,j,k" or more explicit names such as "mod, ch";
     if you need more, consider reorganizing your code
  - Enumeration types like "EColors" with members "BLUE, RED, ORANGE"
@@ -1653,6 +2129,4 @@ class ChanEvent {
  - Spectrum IDs use namespaces as appropriate and constant names like "D_ENERGY"
     (1D) or "DD_ENERGY__TIME" (2D, time (y) vs. energy (x)): subject to further
     consideration
- - Consider using "//!" for comments which should be addressed and "//?" for
-    ideas on how things might be improved
  */

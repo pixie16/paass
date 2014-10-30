@@ -321,13 +321,12 @@ void DetectorLibrary::PrintUsedDetectors(RawEvent& rawev) const {
   in the map.txt file.  The currently known detector types are in detectorStrings
 */
 const set<string>& DetectorLibrary::GetKnownDetectors(void) {
-    const unsigned int detTypes = 22;
+    const unsigned int detTypes = 23;
     const string detectorStrings[detTypes] = {
-        "dssd_front", "dssd_back", "idssd_front", "position", "timeclass",
-        "ge", "si", "beta_scint", "neutron_scint", "liquid_scint",
-        "mcp", "mtc", "generic", "ssd", "vandleSmall",
-        "vandleBig", "tvandle","pulser", "logic", "ion_chamber",
-        "3hen", "ignore"
+        "3hen", "beta_scint", "dssd_front", "dssd_back", "ge", "generic",
+        "idssd_front", "ignore", "ion_chamber", "liquid_scint", "logic",
+        "mcp", "mtc", "neutron_scint", "position", "pulser", "si", "ssd",
+        "timeclass", "tvandle", "vandleSmall", "vandleBig", "vandleMed"
     };
 
     // only call this once
