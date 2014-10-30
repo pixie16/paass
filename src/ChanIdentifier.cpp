@@ -5,13 +5,13 @@
 
 using namespace std;
 
-/** 
- * Return the value of a tag 
+/**
+ * Return the value of a tag
  */
-Identifier::TagValue Identifier::GetTag(const string &s) const
+Identifier::TagValue Identifier::GetTag(const std::string &s) const
 {
     map<string, TagValue>::const_iterator it = tag.find(s);
-    
+
     if (it == tag.end()) {
         return TagValue();
     }
@@ -47,15 +47,15 @@ void Identifier::Zero()
 }
 
 /**
- * Print column headings to aid with print 
+ * Print column headings to aid with print
  */
-void Identifier::PrintHeaders(void) 
+void Identifier::PrintHeaders(void)
 {
     cout << setw(10) << "Type"
 	 << setw(10) << "Subtype"
 	 << setw(4)  << "Loc"
 	 << setw(6)  << "DammID"
-	 << "    TAGS" << endl;	 
+	 << "    TAGS" << endl;
 }
 
 /**

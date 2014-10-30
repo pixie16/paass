@@ -49,7 +49,7 @@ void RawEvent::AddChan(ChanEvent *event) {
  * For any detector type that was used in the event, zero the appropriate
  * detector summary in the map, and clear the event list
  */
-void RawEvent::Zero(const set<string> &usedev) {
+void RawEvent::Zero(const std::set<std::string> &usedev) {
     for (map<string, DetectorSummary>::iterator it = sumMap.begin();
 	 it != sumMap.end(); it++) {
         (*it).second.Zero();

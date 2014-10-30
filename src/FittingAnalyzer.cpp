@@ -53,8 +53,8 @@ FittingAnalyzer::FittingAnalyzer() {
 
 
 //********** Analyze **********
-void FittingAnalyzer::Analyze(Trace &trace, const string &detType,
-			      const string &detSubtype) {
+void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
+			      const std::string &detSubtype) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype);
 
     Globals *globals = Globals::get();
