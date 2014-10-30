@@ -8,17 +8,12 @@ SHELL=/bin/sh
 # CXXFLAGS += -DVERBOSE
 # Undefine to make a "online" version
 # ONLINE = 1
-
-# Define to use Gamma-Gamma gates in GeProcessor
-# This turns on Gamma-Gamma angular distribution
-# and Gamma-Gamma-Gamma gates
-# GGATES = 1
-
 # Define to see debugging information for TreeCorrelator
 #DEBUG = 1
-
 #Uncomment this line to use the Pulse Fitting routine
 PULSEFIT = 1
+# Define to use Gamma-Gamma gates in GeProcessor
+# GGATES = 1
 
 # Use gfortran
 ifeq ($(HHIRF_GFORTRAN),)
