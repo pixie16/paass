@@ -70,7 +70,7 @@ TimingInformation::TimingData::TimingData(ChanEvent *chan) :
 TimingInformation::BarData::BarData(const TimingData &Right,
                                     const TimingData &Left,
                                     const TimingCalibration &cal,
-                                    const string &type) {
+                                    const std::string &type) {
     timeOfFlight.clear();
     energy.clear();
     corTimeOfFlight.clear();
@@ -95,7 +95,7 @@ TimingInformation::BarData::BarData(const TimingData &Right,
 }
 
 bool TimingInformation::BarData::BarEventCheck(const double &timeDiff,
-                                               const string &type) {
+                                               const std::string &type) {
     if(type == "small") {
         double lengthSmallTime = constants->smallLengthTime();
         return(fabs(timeDiff) < lengthSmallTime+20);
@@ -108,7 +108,7 @@ bool TimingInformation::BarData::BarEventCheck(const double &timeDiff,
 
 double TimingInformation::BarData::CalcFlightPath(double &timeDiff,
                                                   const TimingCalibration& cal,
-                                                  const string &type) {
+                                                  const std::string &type) {
     if(type == "small")
         return(sqrt(cal.GetZ0()*cal.GetZ0()+
 		    pow(constants->speedOfLightSmall()*0.5*timeDiff+cal.GetXOffset(),2)));

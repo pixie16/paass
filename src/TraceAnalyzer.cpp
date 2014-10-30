@@ -4,7 +4,7 @@
  * Implements a quick online trapezoidal filtering mechanism
  * for the identification of double pulses
  *
- * \author S. Liddick 
+ * \author S. Liddick
  * \date 7-2-07
  * <strong>Modified : </strong> SNL - 2-4-08 - Add plotting spectra
  */
@@ -29,7 +29,7 @@ int TraceAnalyzer::numTracesAnalyzed = 0;
  * for spectra 850 to zero
  */
 bool TraceAnalyzer::Init(void)
-{   
+{
     return true;
 }
 
@@ -39,20 +39,20 @@ bool TraceAnalyzer::Init(void)
 
 using namespace dammIds::trace;
 
-TraceAnalyzer::TraceAnalyzer() : 
+TraceAnalyzer::TraceAnalyzer() :
     userTime(0.), systemTime(0.)
 {
     name = "Trace";
     // start at -1 so that when incremented on first trace analysis,
-    //   row 0 is respectively filled in the trace spectrum of inheritees 
-    numTracesAnalyzed = -1;    
+    //   row 0 is respectively filled in the trace spectrum of inheritees
+    numTracesAnalyzed = -1;
     clocksPerSecond = sysconf(_SC_CLK_TCK);
 }
 
 /** Output time processing traces */
-TraceAnalyzer::~TraceAnalyzer() 
+TraceAnalyzer::~TraceAnalyzer()
 {
-    cout << name << " analyzer : " 
+    cout << name << " analyzer : "
 	 << userTime << " user time, "
 	 << systemTime << " system time" << endl;
 }
@@ -61,7 +61,7 @@ TraceAnalyzer::~TraceAnalyzer()
  * Function to quickly analyze a trace online.
  */
 void TraceAnalyzer::Analyze(Trace &trace,
-			    const string &detType, const string &detSubtype)
+			    const std::string &detType, const std::string &detSubtype)
 {
     times(&tmsBegin); // begin timing process
     numTracesAnalyzed++;
@@ -82,7 +82,7 @@ void TraceAnalyzer::EndAnalyze(Trace &trace)
  * Finish analysis updating the analyzer timing information
  */
 void TraceAnalyzer::EndAnalyze(void)
-{    
+{
     tms tmsEnd;
     times(&tmsEnd);
 

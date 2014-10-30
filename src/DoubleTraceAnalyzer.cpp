@@ -6,7 +6,7 @@
  *
  * \author S. Liddick
  * \date 02 July 2007
- * 
+ *
  * <STRONG>Modified : </STRONG> SNL - 2-4-08 - Add plotting spectra
  */
 
@@ -45,7 +45,7 @@ DoubleTraceAnalyzer::DoubleTraceAnalyzer(double energyScaleFactor,
 }
 
 
-DoubleTraceAnalyzer::~DoubleTraceAnalyzer() 
+DoubleTraceAnalyzer::~DoubleTraceAnalyzer()
 {
     // do nothing
 }
@@ -73,7 +73,7 @@ void DoubleTraceAnalyzer::DeclarePlots()
     sample_trace.DeclareHistogram2D(DD_ENERGY2__ENERGY1, energyBins2,
                                     energyBins2, "E2 vs E1");
 
-    sample_trace.DeclareHistogram2D(DD_TRIPLE_TRACE, traceBins, 
+    sample_trace.DeclareHistogram2D(DD_TRIPLE_TRACE, traceBins,
                                     numTraces, "Interesting triple traces");
     sample_trace.DeclareHistogram2D(DD_TRIPLE_TRACE_FILTER1, traceBins,
                                 numTraces, "Interesting traces (fast filter)");
@@ -87,9 +87,9 @@ void DoubleTraceAnalyzer::DeclarePlots()
  *   Detect a second crossing of the fast filter corresponding to a piled-up
  *     trace and deduce its energy
  */
-void DoubleTraceAnalyzer::Analyze(Trace &trace, 
-				  const string &type, const string &subtype)
-{    
+void DoubleTraceAnalyzer::Analyze(Trace &trace,
+				  const std::string &type, const std::string &subtype)
+{
     if (subtype == "top" || subtype == "bottom")
         return;
 
@@ -104,7 +104,7 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
         /*
          * Show number of traces in messenger
         stringstream ss;
-        ss << "Double trace #" << numDoubleTraces << " for type " 
+        ss << "Double trace #" << numDoubleTraces << " for type "
            << type << ":" << subtype;
         m.run_message(ss.str());
         */
@@ -122,7 +122,7 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
         while (iThr < iHigh) {
             // find the trailing edge (use rise samples?)
             advance(iThr, fastParms.GetGapSamples());
-            iThr = find_if(iThr, iHigh, recrossesThreshold);					
+            iThr = find_if(iThr, iHigh, recrossesThreshold);
             // advance(iThr, fastParms.GetSize());
             advance(iThr, fastParms.GetRiseSamples());
 
@@ -134,7 +134,7 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
             if (pulseVec.size() > pulseLimit) {
 
                 stringstream ss;
-                ss << "Too many pulses, limit = " 
+                ss << "Too many pulses, limit = "
                    << pulseLimit << ", breaking out.";
                 m.warning(ss.str());
 
@@ -142,7 +142,7 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
                 return;
             }
         } // while searching for multiple traces
-        
+
         trace.SetValue("numPulses", (int)pulseVec.size());
 
         // now plot stuff
@@ -160,14 +160,14 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
                 str << "filterTime" << i+1;
                 trace.SetValue(str.str(), (int)pulseVec[i].time);
             }
-            
+
             // plot the double pulse stuff
             trace.Plot(DD_DOUBLE_TRACE, numDoubleTraces);
             if (pulseVec.size() > 2) {
                 static int numTripleTraces = 0;
 
                 stringstream ss;
-                ss << "Found triple trace " << numTripleTraces 
+                ss << "Found triple trace " << numTripleTraces
                    << ", num pulses = " << pulseVec.size()
                    << ", sigma baseline = " << trace.GetValue("sigmaBaseline");
                 m.run_message(ss.str());
@@ -184,9 +184,9 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
             }
 
             trace.plot(D_ENERGY2, pulseVec[1].energy);
-            trace.plot(DD_ENERGY2__TDIFF, 
+            trace.plot(DD_ENERGY2__TDIFF,
                 pulseVec[1].energy, pulseVec[1].time - pulseVec[0].time);
-            trace.plot(DD_ENERGY2__ENERGY1, 
+            trace.plot(DD_ENERGY2__ENERGY1,
                 pulseVec[1].energy, pulseVec[0].energy);
 
             numDoubleTraces++;
