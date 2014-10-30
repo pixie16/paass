@@ -2,7 +2,7 @@
  * \brief Header file for SSD analysis
  */
 
-#ifndef __SSD_PROCESSOR_HPp_
+#ifndef __SSD_PROCESSOR_HPP_
 #define __SSD_PROCESSOR_HPP_
 
 #include "EventProcessor.hpp"
