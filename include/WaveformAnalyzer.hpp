@@ -1,5 +1,5 @@
 /** \file WaveformAnalyzer.hpp
- * \brief Class to analyze traces. 
+ * \brief Class to analyze traces.
  */
 #ifndef __WAVEFORMANALYZER_HPP_
 #define __WAVEFORMANALYZER_HPP_
@@ -11,8 +11,8 @@
 class WaveformAnalyzer : public TraceAnalyzer
 {
     public:
-        WaveformAnalyzer(); 
-        virtual void DeclarePlots(void) const;
+        WaveformAnalyzer();
+        virtual void DeclarePlots(void) const{};
         virtual void Analyze(Trace &, const std::string &,
                 const std::string &);
         virtual ~WaveformAnalyzer() {};
