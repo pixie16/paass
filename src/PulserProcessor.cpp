@@ -19,19 +19,19 @@
 
 namespace dammIds {
     namespace pulser {
-	const int D_TIMEDIFF     = 0;
-	const int D_PROBLEMSTUFF = 1;
+        const int D_TIMEDIFF     = 0;//!< Time Difference
+        const int D_PROBLEMSTUFF = 1;//!< Histogram for problems
 
-	const int DD_QDC         = 2;
-	const int DD_MAX         = 3;
-	const int DD_PVSP        = 4;
-	const int DD_MAXVSTDIFF  = 5;
-	const int DD_QDCVSMAX    = 6;
-	const int DD_AMPMAPSTART = 7;
-	const int DD_AMPMAPSTOP  = 8;
-	const int DD_SNRANDSDEV  = 9;
-	const int DD_PROBLEMS    = 13;
-	const int DD_MAXSVSTDIFF = 14;
+        const int DD_QDC         = 2;//!< QDCs
+        const int DD_MAX         = 3;//!< Max Values
+        const int DD_PVSP        = 4;//!< Phase vs. Phase
+        const int DD_MAXVSTDIFF  = 5;//!< Maximum Start vs. TDiff
+        const int DD_QDCVSMAX    = 6;//!< QDC Start vs. Max Start
+        const int DD_AMPMAPSTART = 7;//!< Amplitude Map Start
+        const int DD_AMPMAPSTOP  = 8;//!< Amplitude Map Stop
+        const int DD_SNRANDSDEV  = 9;//!< SNR and Standard Deviation
+        const int DD_PROBLEMS    = 13;//!< 2D problems
+        const int DD_MAXSVSTDIFF = 14;//!< Maximum Stop vs. Tdiff
     }
 }
 

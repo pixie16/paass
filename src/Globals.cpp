@@ -1,3 +1,7 @@
+/** \file Globals.cpp
+ * \brief constant parameters used in pixie16 analysis
+ * \author K. A. Miernik
+ */
 #include <iostream>
 
 #include "Exceptions.hpp"

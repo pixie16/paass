@@ -1,15 +1,20 @@
-#ifndef PLACEBUILDER_H
-#define PLACEBUILDER_H
+/** \file PlaceBuilder.hpp
+* \brief Defines the various places for the TreeCorrelator
+* \author K. A. Miernik
+* \date November 23, 2012
+*/
+#ifndef __PLACEBUILDER_HPP__
+#define __PLACEBUILDER_HPP__
 
-#include <iostream>
 #include <string>
-#include <sstream>
 #include <map>
+
 #include "Globals.hpp"
 #include "Places.hpp"
 #include "Exceptions.hpp"
 
-/** Create place, alter or add existing place to the tree.
+/** \brief Create place, alter or add existing place to the tree.
+*
 * Accepts map <string, string> to pass place's parameters. The map should
 * consist of the following keys:
 * "parent" - name of a parent place or "root" if there is no parent
@@ -34,7 +39,7 @@
 *          parent place to coin. ("true") or anti-coin. ("false")
 *  "fifo"  - optional, "2" by default, sets the depth of place's fifo
 *          queue
-*   "init" - optional, "false" by default, sets the initial status of the 
+*   "init" - optional, "false" by default, sets the initial status of the
 *            place
 *  "range_min" - requaried for PlaceThreshold, sets the lower
 *              threshold
@@ -43,15 +48,28 @@
 */
 class PlaceBuilder {
     public:
+        /** \return the created place
+        * \param [in] params : the parameters used to create the place
+        * \param [in] verbose : set the verbosity of the builder */
         Place* create(std::map<std::string, std::string>& params, bool verbose);
     private:
+        /** \return the created PlaceDetector
+        * \param [in] params : the parameters used to create the place */
         Place* createPlaceDetector(std::map<std::string, std::string>& params);
+        /** \return the created PlaceThreshold
+        * \param [in] params : the parameters used to create the place */
         Place* createPlaceThreshold(std::map<std::string, std::string>& params);
-        Place* createPlaceThresholdOR(std::map<std::string,
-                                      std::string>& params);
+        /** \return the created PlaceThresholdOR
+        * \param [in] params : the parameters used to create the place */
+        Place* createPlaceThresholdOR(std::map<std::string, std::string>& params);
+        /** \return The created place counter
+        * \param [in] params : the parameters used to create the place */
         Place* createPlaceCounter(std::map<std::string, std::string>& params);
+        /** \return the created PlaceOR
+        * \param [in] params : the parameters used to create the place */
         Place* createPlaceOR(std::map<std::string, std::string>& params);
+        /** \return the created PlaceAND
+        * \param [in] params : the parameters used to create the place */
         Place* createPlaceAND(std::map<std::string, std::string>& params);
 };
-
 #endif

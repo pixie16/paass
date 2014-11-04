@@ -17,7 +17,6 @@ TraceExtractor::TraceExtractor(const std::string& aType,
     name = "Extractor";
 }
 
-/** Declare the damm plots */
 void TraceExtractor::DeclarePlots(void)
 {
     const int traceBins = dammIds::trace::traceBins;
@@ -31,7 +30,6 @@ void TraceExtractor::DeclarePlots(void)
     }
 }
 
-/** Plot the damm spectra of the first few traces analyzed with (level >= 1) */
 void TraceExtractor::Analyze(Trace &trace,
 			     const std::string &aType, const std::string &aSubtype) {
     using namespace dammIds::trace::extractor;

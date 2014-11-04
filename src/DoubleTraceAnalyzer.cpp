@@ -4,7 +4,7 @@
  * Implements a quick online trapezoidal filtering mechanism
  * for the identification of double pulses
  *
- * \author S. Liddick
+ * \author S. N. Liddick
  * \date 02 July 2007
  *
  * <STRONG>Modified : </STRONG> SNL - 2-4-08 - Add plotting spectra
@@ -40,18 +40,10 @@ DoubleTraceAnalyzer::DoubleTraceAnalyzer(double energyScaleFactor,
     TraceFilterer(energyScaleFactor,
                   fast_rise, fast_gap, fast_threshold,
                   energy_rise, energy_gap,
-                  slow_rise, slow_gap, slow_threshold)
-{
+                  slow_rise, slow_gap, slow_threshold) {
 }
 
-
-DoubleTraceAnalyzer::~DoubleTraceAnalyzer()
-{
-    // do nothing
-}
-
-void DoubleTraceAnalyzer::DeclarePlots()
-{
+void DoubleTraceAnalyzer::DeclarePlots() {
     using namespace dammIds::trace::doubletraceanalyzer;
 
     TraceFilterer::DeclarePlots();
@@ -88,8 +80,7 @@ void DoubleTraceAnalyzer::DeclarePlots()
  *     trace and deduce its energy
  */
 void DoubleTraceAnalyzer::Analyze(Trace &trace,
-				  const std::string &type, const std::string &subtype)
-{
+				  const std::string &type, const std::string &subtype) {
     if (subtype == "top" || subtype == "bottom")
         return;
 
@@ -101,29 +92,16 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
 	(less<Trace::value_type>(), fastThreshold);
 
     if ( pulse.isFound && level >= 10 ) {
-        /*
-         * Show number of traces in messenger
-        stringstream ss;
-        ss << "Double trace #" << numDoubleTraces << " for type "
-           << type << ":" << subtype;
-        m.run_message(ss.str());
-        */
-
-        // trace filterer found a first pulse
-
         Trace::iterator iThr = fastFilter.begin() + pulse.time;
         Trace::iterator iHigh = fastFilter.end();
 
         vector<PulseInfo> pulseVec;
-        // put the original pulse in the vector
         pulseVec.push_back(pulse);
         const size_t pulseLimit = 50; // maximum number of pulses to find
 
         while (iThr < iHigh) {
-            // find the trailing edge (use rise samples?)
             advance(iThr, fastParms.GetGapSamples());
             iThr = find_if(iThr, iHigh, recrossesThreshold);
-            // advance(iThr, fastParms.GetSize());
             advance(iThr, fastParms.GetRiseSamples());
 
             FindPulse(iThr, iHigh);
@@ -138,30 +116,24 @@ void DoubleTraceAnalyzer::Analyze(Trace &trace,
                    << pulseLimit << ", breaking out.";
                 m.warning(ss.str());
 
-                EndAnalyze(); // update timing
+                EndAnalyze();
                 return;
             }
-        } // while searching for multiple traces
+        }
 
         trace.SetValue("numPulses", (int)pulseVec.size());
 
-        // now plot stuff
         if ( pulseVec.size() > 1 ) {
             using namespace dammIds::trace::doubletraceanalyzer;
-
-            // fill the trace info
-            // first pulse info is set in TraceFilterer
             for (Trace::size_type i=1; i < pulseVec.size(); i++) {
                 stringstream str;
-                // the first pulse in the vector is the SECOND pulse in the trace
                 str << "filterEnergy" << i+1;
                 trace.SetValue(str.str(), pulseVec[i].energy);
-                str.str(""); // clear the string
+                str.str("");
                 str << "filterTime" << i+1;
                 trace.SetValue(str.str(), (int)pulseVec[i].time);
             }
 
-            // plot the double pulse stuff
             trace.Plot(DD_DOUBLE_TRACE, numDoubleTraces);
             if (pulseVec.size() > 2) {
                 static int numTripleTraces = 0;

@@ -29,8 +29,8 @@ class DoubleTraceAnalyzer : public TraceFilterer
                         short fast_rise, short fast_gap, short fast_threshold,
                         short energy_rise, short energy_gap,
                         short slow_rise, short slow_gap, short slow_threshold);
-    virtual ~DoubleTraceAnalyzer();
-    
+    virtual ~DoubleTraceAnalyzer(){};
+
     virtual bool Init(void) {return TraceFilterer::Init();}
     virtual void DeclarePlots(void);
     virtual void Analyze(Trace &, const std::string &, const std::string &);

@@ -1,9 +1,18 @@
+/** \file PlaceBuilder.cpp
+* \brief Defines the various places for the TreeCorrelator
+* \author K. A. Miernik
+* \date November 23, 2012
+*/
+#include <iostream>
+#include <sstream>
+
 #include "PlaceBuilder.hpp"
 #include "Messenger.hpp"
 
 using namespace std;
 
-Place* PlaceBuilder::create (std::map<std::string, std::string>& params, bool verbose) {
+Place* PlaceBuilder::create (std::map<std::string, std::string>& params,
+                             bool verbose) {
     string type = params["type"];
     if (verbose) {
         Messenger m;

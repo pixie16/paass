@@ -17,14 +17,15 @@
 
 using namespace dammIds::logic;
 
+
 namespace dammIds {
     namespace logic {
-        const int D_COUNTER_BEAM = 0;
-        const int D_TIME_STOP_LENGTH = 1;
+        const int D_COUNTER_BEAM = 0; //!< Beam cycle counter
+        const int D_TIME_STOP_LENGTH = 1;//!< Time between stop events
     }
-} 
+}
 
-BeamLogicProcessor::BeamLogicProcessor(void) : 
+BeamLogicProcessor::BeamLogicProcessor(void) :
   EventProcessor(OFFSET, RANGE, "beamlogic")
 {
     associatedTypes.insert("logic");
@@ -43,13 +44,13 @@ bool BeamLogicProcessor::PreProcess(RawEvent &event)
     if (!EventProcessor::Process(event))
         return false;
 
-    static const vector<ChanEvent*> &logicEvents = 
+    static const vector<ChanEvent*> &logicEvents =
         event.GetSummary("logic", true)->GetList();
 
     for (vector<ChanEvent*>::const_iterator it = logicEvents.begin();
         it != logicEvents.end(); it++)
     {
-        double time = (*it)->GetTime();	
+        double time = (*it)->GetTime();
         string place = (*it)->GetChanID().GetPlaceName();
 
         // for 2d plot of events 1s / bin
@@ -59,7 +60,7 @@ bool BeamLogicProcessor::PreProcess(RawEvent &event)
         const unsigned BEAM_NONE = 2;
 
         if (place == "logic_beam_0") {
-            double last_time = 
+            double last_time =
                 TreeCorrelator::get()->place(place)->secondlast().time;
             double dt_beam_stop = abs(time - last_time);
 
@@ -83,7 +84,7 @@ bool BeamLogicProcessor::PreProcess(RawEvent &event)
                 ss << "Beam started after: " << dt_beam_stop / resolution
                    << " s ";
                 m.run_message(ss.str());
-            } 
+            }
             else {
                 TreeCorrelator::get()->place("Beam")->deactivate(time);
                 ss << "Beam stopped";

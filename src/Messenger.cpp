@@ -1,3 +1,8 @@
+/** \file Messenger.cpp
+ * \brief A class to handle messages and output them prettily
+ * \author K. A. Miernik
+ * \date December 14, 2014
+ */
 #include "Messenger.hpp"
 
 bool Messenger::endline_ = true;
@@ -27,12 +32,12 @@ void Messenger::detail(std::string msg, short level /*= 0*/,
         *out_ << std::endl;
         endline_ = true;
     }
-    
+
     std::vector<std::string>::iterator it = lines.begin();
     *out_ << std::left << std::setfill(' ')
-          << indention.str() << symbol << " " 
+          << indention.str() << symbol << " "
           << std::setw(width) << (*it++) << std::endl;
-    for (; it != lines.end(); ++it) 
+    for (; it != lines.end(); ++it)
         *out_ << indention.str() << "  " << std::setw(width)
               << *it << std::endl;
 }

@@ -1,28 +1,27 @@
 /** \file SsdBetaProcessor.hpp
  *
- * Header file for DSSD analysis
+ * Header file for SsdBeta analysis
  */
-
-#ifndef __SSD_PROCESSOR_H_
-#define __SSD_PROCESSOR_H_
+#ifndef __SSDBETAPROCESSOR_HPP_
+#define __SSDBETAPROCESSOR_HPP_
 
 #include "EventProcessor.h"
 
 class DetectorSummary;
 class RawEvent;
 
-/**
- * \brief Handles detectors of type dssd_front and dssd_back
- */
-class SsdProcessor : public EventProcessor
-{
- private:
+//!Handles detectors of type dssd_front and dssd_back (Deprecated - Duplicate!)
+class SsdProcessor : public EventProcessor {
+private:
     DetectorSummary *ssdSummary; ///< all detectors of type dssd_front
-
- public:
-    SsdProcessor(); // no virtual c'tors
+public:
+    /** Default Constructor */
+    SsdProcessor();
+    /** Declare plots for processor */
     virtual void DeclarePlots(void) const;
+    /** Process an event
+    * \param [in] event : the event to process
+    * \return true if the processing was successful */
     virtual bool Process(RawEvent &event);
 };
-
-#endif // __SSD_POCESSOR_H_
+#endif

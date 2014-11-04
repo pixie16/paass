@@ -9,7 +9,6 @@
 
 RandomPool* RandomPool::instance = NULL;
 
-/** Instance is created upon first call */
 RandomPool* RandomPool::get() {
     if (!instance) {
         instance = new RandomPool();
@@ -17,26 +16,19 @@ RandomPool* RandomPool::get() {
     return instance;
 }
 
-/*! Simple constructor which initializes the generator
- */
-RandomPool::RandomPool() : generator()
-{
+RandomPool::RandomPool() : generator() {
   Generate();
 }
 
-/*! Generate some random numbers using the Mersenne twister */
-void RandomPool::Generate(void)
-{
+void RandomPool::Generate(void) {
     for (size_t i = 0; i < size; i++)
         numbers[i] = generator.rand(1);
     counter = 0;
 }
 
-/*! Get a random number in the range [0,range) */
-double RandomPool::Get(double range)
-{
+double RandomPool::Get(double range) {
     double d = numbers[counter++];
-    
+
     if (counter == size)
       counter = 0;
 

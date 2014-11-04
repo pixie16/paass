@@ -7,23 +7,9 @@
 
 using namespace std;
 
-/** Return the number of channels in the current event */
-size_t RawEvent::Size() const {
-    return eventList.size();
-}
-
-/** Clear the list of individual channel events (Memory is managed elsewhere) */
-void RawEvent::Clear() {
-    eventList.clear();
-}
-
-/** \brief Raw event initialization
- *
- * Set the rawevent detector summary map with the passed argument.
- */
 void RawEvent::Init(const std::set<std::string> &usedTypes)
 {
-    /* initialize the map of used detectors. This will associate the name of a
+    /*! initialize the map of used detectors. This will associate the name of a
        detector type (such as dssd_front, ge ...) with a detector summary.
        See ProcessEvent() for a description of the
        variables in the summary
@@ -38,17 +24,6 @@ void RawEvent::Init(const std::set<std::string> &usedTypes)
     }
 }
 
-/** Add a channel event to the raw event */
-void RawEvent::AddChan(ChanEvent *event) {
-    eventList.push_back(event);
-}
-
-/**
- * Raw event zeroing
- *
- * For any detector type that was used in the event, zero the appropriate
- * detector summary in the map, and clear the event list
- */
 void RawEvent::Zero(const std::set<std::string> &usedev) {
     for (map<string, DetectorSummary>::iterator it = sumMap.begin();
 	 it != sumMap.end(); it++) {
@@ -58,12 +33,6 @@ void RawEvent::Zero(const std::set<std::string> &usedev) {
     eventList.clear();
 }
 
-/**
- * Get a pointer to a specific detector summary
- *
- * Retrieve from the detector summary map a pointer to the specific detector
- * summary that is associated with the passed string.
- */
 DetectorSummary *RawEvent::GetSummary(const std::string& s, bool construct) {
     map<string, DetectorSummary>::iterator it = sumMap.find(s);
     static set<string> nullSummaries;

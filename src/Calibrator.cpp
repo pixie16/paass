@@ -1,3 +1,8 @@
+/** \file Calibrator.cpp
+ * \brief Class to handle energy calibrations for the channels
+ * \author K. A. Miernik
+ * \date 2012
+ */
 #include <cmath>
 #include <iostream>
 
@@ -8,7 +13,7 @@ using namespace std;
 
 
 void Calibrator::AddChannel(const Identifier& chanID, const std::string model,
-                            double min, double max, 
+                            double min, double max,
                             const std::vector<double>& par) {
     CalibrationParams cf;
     unsigned required_parameters = 0;
@@ -46,7 +51,7 @@ void Calibrator::AddChannel(const Identifier& chanID, const std::string model,
 
     cf.min = min;
     cf.max = max;
-    
+
     for (vector<double>::const_iterator it = par.begin(); it != par.end();
         ++it) {
         cf.parameters.push_back(*it);
@@ -54,7 +59,7 @@ void Calibrator::AddChannel(const Identifier& chanID, const std::string model,
 
     if (cf.parameters.size() < required_parameters) {
         stringstream ss;
-        ss << "Calibrator: selected model needs at least " 
+        ss << "Calibrator: selected model needs at least "
            << required_parameters
            << " but only " << cf.parameters.size() << " where found";
         throw GeneralException(ss.str());
@@ -87,25 +92,25 @@ double Calibrator::GetCalEnergy(const Identifier& chanID, double raw) const {
             case cal_raw:
                 return ModelRaw(raw);
                 break;
-            case cal_off: 
+            case cal_off:
                 return ModelOff();
                 break;
-            case cal_linear: 
+            case cal_linear:
                 return ModelLinear(itf->parameters, raw);
                 break;
-            case cal_quadratic: 
+            case cal_quadratic:
                 return ModelQuadratic(itf->parameters, raw);
                 break;
-            case cal_polynomial: 
+            case cal_polynomial:
                 return ModelPolynomial(itf->parameters, raw);
                 break;
-            case cal_hyplin: 
+            case cal_hyplin:
                 return ModelHypLin(itf->parameters, raw);
                 break;
-            case cal_exp: 
+            case cal_exp:
                 return ModelExp(itf->parameters, raw);
                 break;
-            default: 
+            default:
                 break;
         }
     }

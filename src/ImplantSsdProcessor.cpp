@@ -5,8 +5,7 @@
  *   determines whether the events are implants or decays and informs the
  *   correlator accordingly
  */
-
-#include <cfloat> // for DBL_MAX
+#include <cfloat>
 #include <climits>
 #include <iostream>
 #include <sstream>
@@ -30,48 +29,47 @@ using std::vector;
  *  ... implants deposit above 18 MeV
  */
 const double ImplantSsdProcessor::cutoffEnergy  = 1500;
-const double ImplantSsdProcessor::fissionThresh = 4400;
-const double ImplantSsdProcessor::goodAlphaCut  = 950;
-const double ImplantSsdProcessor::implantTof    = 2800;
+const double ImplantSsdProcessor::fissionThresh = 4400;//!< fission threshold
+const double ImplantSsdProcessor::goodAlphaCut  = 950;//!< good alpha cut
+const double ImplantSsdProcessor::implantTof    = 2800;//!< implant time of flight
 
 using namespace dammIds::implantSsd;
 
-// in ImplantSsdProcessor.cpp
 namespace dammIds {
     namespace implantSsd {
-        const int MAX_TOF = 5;
+        const int MAX_TOF = 5;//!< maximum tof
 
-        const int DD_IMPLANT_ENERGY__LOCATION  = 0;
-        const int DD_DECAY_ENERGY__LOCATION    = 1;
-        const int DD_ENERGY__LOCATION_BEAM     = 2;
-        const int DD_ENERGY__LOCATION_NOBEAM   = 3;
-        const int DD_ENERGY__LOCATION_VETO     = 4;
-        const int DD_ENERGY__LOCATION_PROJLIKE = 5;
-        const int DD_ENERGY__LOCATION_UNKNOWN  = 6;
-        const int DD_LOC_VETO__LOC_SSD         = 7;
-        const int DD_TOTENERGY__ENERGY         = 8;
-        const int DD_ALL_ENERGY__LOCATION      = 9;
-        const int DD_FISSION_ENERGY__LOCATION  = 10;
+        const int DD_IMPLANT_ENERGY__LOCATION  = 0;//!< Implant Energy vs. Loc
+        const int DD_DECAY_ENERGY__LOCATION    = 1;//!< SSD Strip vs. Decay E
+        const int DD_ENERGY__LOCATION_BEAM     = 2;//!< SSD Strip vs. E w/ beam
+        const int DD_ENERGY__LOCATION_NOBEAM   = 3;//!< SSD Strip vs. E no beam
+        const int DD_ENERGY__LOCATION_VETO     = 4;//!< SSD Strip vs. E Veto
+        const int DD_ENERGY__LOCATION_PROJLIKE = 5;//!< SSD Strip vs. E Projectile Like
+        const int DD_ENERGY__LOCATION_UNKNOWN  = 6;//!< SSD Strip vs. E (unknown)
+        const int DD_LOC_VETO__LOC_SSD         = 7;//!< Veto pos vs. SSD Pos
+        const int DD_TOTENERGY__ENERGY         = 8;//!< Tot Energy vs. SSD Energy (/8)
+        const int DD_ALL_ENERGY__LOCATION      = 9;//!< All energy vs. location
+        const int DD_FISSION_ENERGY__LOCATION  = 10;//!< Fission energy vs. location
 
-        const int DD_DECAY_ALL_ENERGY__TX     = 20;
-        const int DD_DECAY_NOBEAM_ENERGY__TX  = 30;
-        const int DD_VETO_ENERGY__TX          = 40;
-        const int DD_FIRST_DECAY_ENERGY__TX   = 50;
+        const int DD_DECAY_ALL_ENERGY__TX     = 20;//!< SSD Ty,Ex (various times)
+        const int DD_DECAY_NOBEAM_ENERGY__TX  = 30;//!< SSD Ty,Ex no beam
+        const int DD_VETO_ENERGY__TX          = 40;//!< SSD Veto vs Energy
+        const int DD_FIRST_DECAY_ENERGY__TX   = 50;//!< SSD First decay vs. Energy
 
-        const int DD_ALL_ENERGY__TOFX         = 60;
-        const int DD_IMPLANT_ENERGY__TOFX     = 70;   
-        const int DD_VETO_ENERGY__TOFX        = 80;
-        const int DD_ALL_ENERGY__TOFX_GATED   = 90;
+        const int DD_ALL_ENERGY__TOFX         = 60;//!< SSD All energy vs. ToF
+        const int DD_IMPLANT_ENERGY__TOFX     = 70;//!< Implant energy vs. ToF
+        const int DD_VETO_ENERGY__TOFX        = 80;//!< Veto Energy vs. ToF
+        const int DD_ALL_ENERGY__TOFX_GATED   = 90;//!< All Energy vs. ToF - gated
 
-        const int D_TDIFF_FOIL_IMPLANT = 11;
-        const int D_TDIFF_FOIL_IMPLANT_MULT1 = 12;
+        const int D_TDIFF_FOIL_IMPLANT = 11;//!< Tdiff between Foil and Implant
+        const int D_TDIFF_FOIL_IMPLANT_MULT1 = 12;//!< Tdiff between Foil and Implant - Multiplicity 1
 
-        const int D_FAST_DECAY_TRACE  = 100;
-        const int D_HIGH_ENERGY_TRACE = 200;
+        const int D_FAST_DECAY_TRACE  = 100;//!< Fast decay traces
+        const int D_HIGH_ENERGY_TRACE = 200;//!< High energy traces
     }
 }
 
-ImplantSsdProcessor::ImplantSsdProcessor() : 
+ImplantSsdProcessor::ImplantSsdProcessor() :
     EventProcessor(OFFSET, RANGE, "ssd")
 {
     associatedTypes.insert("ssd");
@@ -82,19 +80,19 @@ void ImplantSsdProcessor::DeclarePlots(void)
     using namespace dammIds::implantSsd;
 
     const int unknownEnergyBins = SE;
-    const int implantEnergyBins = SD; 
+    const int implantEnergyBins = SD;
     const int decayEnergyBins   = SA;
     const int fissionEnergyBins = SC;
     const int locationBins      = S5;
     const int vetoLocationBins  = S3;
     const int timeBins          = S8;
-    const int tofBins           = SD; //! DTM -- LARGE FOR NOW 
+    const int tofBins           = SD; //! DTM -- LARGE FOR NOW
     const int traceBins         = SC;
     const int tdiffBins         = SA;
 
-    DeclareHistogram2D(DD_ALL_ENERGY__LOCATION, 
+    DeclareHistogram2D(DD_ALL_ENERGY__LOCATION,
 		       implantEnergyBins, locationBins, "SSD Strip vs Implant E");
-    DeclareHistogram2D(DD_IMPLANT_ENERGY__LOCATION, 
+    DeclareHistogram2D(DD_IMPLANT_ENERGY__LOCATION,
 		       implantEnergyBins, locationBins, "SSD Strip vs Implant E");
     DeclareHistogram2D(DD_DECAY_ENERGY__LOCATION,
 		       decayEnergyBins, locationBins, "SSD Strip vs Decay E");
@@ -108,7 +106,7 @@ void ImplantSsdProcessor::DeclarePlots(void)
 		       implantEnergyBins, locationBins, "SSD Strip vs E projectile");
     DeclareHistogram2D(DD_ENERGY__LOCATION_UNKNOWN,
 		       unknownEnergyBins, locationBins, "SSD Strip vs E (unknown)");
-    
+
     DeclareHistogram2D(DD_LOC_VETO__LOC_SSD, vetoLocationBins, locationBins,
 		       "Veto pos vs SSD pos");
     histo.DeclareHistogram2D(DD_TOTENERGY__ENERGY, implantEnergyBins, implantEnergyBins,
@@ -116,13 +114,13 @@ void ImplantSsdProcessor::DeclarePlots(void)
 
     DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 0, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (10ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 1, decayEnergyBins, timeBins, 
+    DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 1, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (100ns/ch)(xkeV)");
     DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 2, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (400ns/ch)(xkeV)");
     DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 3, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (1us/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 4, decayEnergyBins, timeBins, 
+    DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 4, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (10us/ch)(xkeV)");
     DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 5, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (100us/ch)(xkeV)");
@@ -135,13 +133,13 @@ void ImplantSsdProcessor::DeclarePlots(void)
 
     DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 0, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (10ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 1, decayEnergyBins, timeBins, 
+    DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 1, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (100ns/ch)(xkeV)");
     DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 2, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (400ns/ch)(xkeV)");
     DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 3, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (1us/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 4, decayEnergyBins, timeBins, 
+    DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 4, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (10us/ch)(xkeV)");
     DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 5, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (100us/ch)(xkeV)");
@@ -154,13 +152,13 @@ void ImplantSsdProcessor::DeclarePlots(void)
 
     DeclareHistogram2D(DD_VETO_ENERGY__TX + 0, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (10ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_VETO_ENERGY__TX + 1, decayEnergyBins, timeBins, 
+    DeclareHistogram2D(DD_VETO_ENERGY__TX + 1, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (100ns/ch)(xkeV)");
     DeclareHistogram2D(DD_VETO_ENERGY__TX + 2, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (400ns/ch)(xkeV)");
     DeclareHistogram2D(DD_VETO_ENERGY__TX + 3, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (1us/ch)(xkeV)");
-    DeclareHistogram2D(DD_VETO_ENERGY__TX + 4, decayEnergyBins, timeBins, 
+    DeclareHistogram2D(DD_VETO_ENERGY__TX + 4, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (10us/ch)(xkeV)");
     DeclareHistogram2D(DD_VETO_ENERGY__TX + 5, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (100us/ch)(xkeV)");
@@ -173,13 +171,13 @@ void ImplantSsdProcessor::DeclarePlots(void)
 
     DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 0, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (10ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 1, decayEnergyBins, timeBins, 
+    DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 1, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (100ns/ch)(xkeV)");
     DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 2, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (400ns/ch)(xkeV)");
     DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 3, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (1us/ch)(xkeV)");
-    DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 4, decayEnergyBins, timeBins, 
+    DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 4, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (10us/ch)(xkeV)");
     DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 5, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (100us/ch)(xkeV)");
@@ -240,7 +238,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	  logProc = reinterpret_cast < LogicProcessor * >(*it);
   	  cout << "Implant SSD processor grabbed logic processor" << endl;
         }
-      }    
+      }
       firstTime=false;
     }
 
@@ -251,7 +249,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
     int location = ch->GetChanID().GetLocation();
     if (ch->IsSaturated()) {
 	info.energy = 16000; // arbitrary large number
-    } else {	
+    } else {
 	info.energy  = ch->GetCalEnergy();
     }
     if (ch->GetTrace().HasValue("position")) {
@@ -289,7 +287,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
     if (mcpSummary) {
 	info.mcpMult = mcpSummary->GetMult();
 	vector<ChanEvent*> mcpEvents = mcpSummary->GetList();
-	
+
 	double dtMin = DBL_MAX;
 
 	for (vector<ChanEvent*>::iterator it = mcpEvents.begin();
@@ -310,13 +308,13 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	info.foilTime = NAN;
     }
     if (impSummary) {
-	info.impMult = impSummary->GetMult();	
+	info.impMult = impSummary->GetMult();
     } else {
 	info.impMult = 0;
     }
     if (boxSummary) {
 	info.boxMult = boxSummary->GetMult();
-	
+
 	if (info.boxMult > 0) {
 	    const ChanEvent *boxCh = boxSummary->GetMaxEvent();
 
@@ -348,7 +346,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
     if (trace.HasValue("filterEnergy2")) {
 	info.pileUp = true;
     }
-    
+
     SetType(info);
     Correlate(corr, info, location);
 
@@ -377,12 +375,12 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
 	    } else if (info.type == EventInfo::PROTON_EVENT) {
 		plot(DD_VETO_ENERGY__TOFX, info.energy, digitalTof);
 	    }
-	}	
+	}
     }
 
     if (info.type == EventInfo::PROTON_EVENT) {
         const ChanEvent *chVeto = vetoSummary->GetMaxEvent();
-        
+
         unsigned int posVeto = chVeto->GetChanID().GetLocation();
         double vetoEnergy = chVeto->GetCalEnergy();
 
@@ -396,8 +394,8 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
         info.energy = driver->cali.GetCalEnergy(ch->GetChanID(),
                                               trace.GetValue("filterEnergy2"));
         info.time = trigTime + trace.GetValue("filterTime2") - trace.GetValue("filterTime");
-        
-        SetType(info);	
+
+        SetType(info);
         Correlate(corr, info, location);
 
         int numPulses = trace.GetValue("numPulses");
@@ -417,13 +415,13 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
             SetType(info);
             Correlate(corr, info, location);
             }
-        }	
-        // corr.Flag(location, 1);	                
+        }
+        // corr.Flag(location, 1);
 #ifdef VERBOSE
-        cout << "Flagging for pileup" << endl; 
+        cout << "Flagging for pileup" << endl;
 
         cout << "fast trace " << fastTracesWritten << " in strip " << location
-            << " : " << trace.GetValue("filterEnergy") << " " << trace.GetValue("filterTime") 
+            << " : " << trace.GetValue("filterEnergy") << " " << trace.GetValue("filterTime")
             << " , " << trace.GetValue("filterEnergy2") << " " << trace.GetValue("filterTime2") << endl;
         cout << "  mcp mult " << info.mcpMult << endl;
 #endif // VERBOSE
@@ -433,7 +431,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event)
             fastTracesWritten++;
         }
     }
-    
+
     if (info.energy > 10000 && !ch->IsSaturated() && !isnan(info.position) ) {
 	corr.Flag(location, info.position);
     }
@@ -473,7 +471,7 @@ EventInfo::EEventTypes ImplantSsdProcessor::SetType(EventInfo &info) const
 		    return (info.type = EventInfo::IMPLANT_EVENT);
 		}
 		return (info.type = EventInfo::PROJECTILE_EVENT);
-	    } else { 
+	    } else {
 		// NO TAC OR MCP
 		if (info.energy > fissionThresh && !info.hasTof && !enoughMcp)
 
@@ -501,17 +499,17 @@ EventInfo::EEventTypes ImplantSsdProcessor::SetType(EventInfo &info) const
     }
     if (info.beamOn && (info.hasTof || enoughMcp) )
 	return (info.type = EventInfo::PROJECTILE_EVENT);
-    
+
     return (info.type = EventInfo::UNKNOWN_EVENT);
 }
 
 void ImplantSsdProcessor::PlotType(EventInfo &info, int loc, Correlator::EConditions cond)
 {
     using namespace dammIds::implantSsd;
-    
+
     const unsigned int numGranularities = 9;
     // time resolution in seconds per bin
-    const double timeResolution[numGranularities] = 
+    const double timeResolution[numGranularities] =
 	{10e-9, 100e-9, 400e-9, 1e-6, 10e-6, 100e-6, 1e-3, 10e-3, 100e-3};
 
     double clockInSeconds = Globals::get()->clockInSeconds();
@@ -531,14 +529,14 @@ void ImplantSsdProcessor::PlotType(EventInfo &info, int loc, Correlator::ECondit
 	    plot(DD_DECAY_ENERGY__LOCATION, info.energy, loc);
 	    if (info.beamOn) {
 		plot(DD_ENERGY__LOCATION_BEAM, info.energy, loc);
-	    } else { 
+	    } else {
 		plot(DD_ENERGY__LOCATION_NOBEAM, info.energy, loc);
 	    }
-	    if (cond == Correlator::VALID_DECAY) {	 
+	    if (cond == Correlator::VALID_DECAY) {
 		for (unsigned int i = 0; i < numGranularities; i++) {
-		    int timeBin = int(info.dtime * clockInSeconds / 
+		    int timeBin = int(info.dtime * clockInSeconds /
 				      timeResolution[i]);
-		
+
 		    plot(DD_DECAY_ALL_ENERGY__TX + i, info.energy, timeBin);
 		    if (!info.beamOn) {
 			plot(DD_DECAY_NOBEAM_ENERGY__TX + i, info.energy, timeBin);
@@ -552,7 +550,7 @@ void ImplantSsdProcessor::PlotType(EventInfo &info, int loc, Correlator::ECondit
 	case EventInfo::PROJECTILE_EVENT:
 	    plot(DD_ENERGY__LOCATION_PROJLIKE, info.energy, loc);
 	    break;
-	case EventInfo::PROTON_EVENT:	    
+	case EventInfo::PROTON_EVENT:
 	    plot(DD_ENERGY__LOCATION_VETO, info.energy, loc);
 	    for (unsigned int i=0; i < numGranularities; i++) {
 		double dt = info.time - prevVeto; // time to previous veto

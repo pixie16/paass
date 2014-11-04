@@ -1,50 +1,72 @@
 /** \file BetaScintProcessor.hpp
  *
  * Processor for beta scintillator detectors
+ * \author K. A. Miernik
+ * \date 2012
  */
-
 #ifndef __BETASCINTPROCESSOR_HPP_
 #define __BETASCINTPROCESSOR_HPP_
 
 #include "EventProcessor.hpp"
 
 namespace dammIds {
+    /*! Namespace containing plot numbers for beta_scint */
     namespace beta_scint {
-        const int D_MULT_BETA = 0;
-        const int D_ENERGY_BETA = 1;
-        const int D_MULT_BETA_THRES_GATED = 2;
-        const int D_ENERGY_BETA_THRES_GATED = 3;
+        const int D_MULT_BETA = 0; //!< Multiplicity
+        const int D_ENERGY_BETA = 1;//!< Energy
+        const int D_MULT_BETA_THRES_GATED = 2;//!< Multi beta threshold gated
+        const int D_ENERGY_BETA_THRES_GATED = 3;//!< Energy threshold gated
 
-        const int D_MULT_BETA_GAMMA_GATED = 4;
-        const int D_ENERGY_BETA_GAMMA_GATED = 5;
-        const int DD_ENERGY_BETA__GAMMA = 6;
+        const int D_MULT_BETA_GAMMA_GATED = 4;//!< Multi beta gamma gated
+        const int D_ENERGY_BETA_GAMMA_GATED = 5;//!< Energy (gamma gated)
+        const int DD_ENERGY_BETA__GAMMA = 6;//!< Beta Energy vs. Gamma Energy
 
-        const int DD_ENERGY_BETA__TIME_TOTAL = 10;
-        const int DD_ENERGY_BETA__TIME_NOG = 11;
-        const int DD_ENERGY_BETA__TIME_G = 12;
+        const int DD_ENERGY_BETA__TIME_TOTAL = 10;//!< Energy vs. Beta Time Total
+        const int DD_ENERGY_BETA__TIME_NOG = 11;//!< Energy vs. Beta Time (w/o gamma)
+        const int DD_ENERGY_BETA__TIME_G = 12;//!< Energy vs. Beta Time (w gamma)
 
-        const int DD_ENERGY_BETA__TIME_TM_TOTAL = 20;
-        const int DD_ENERGY_BETA__TIME_TM_NOG = 21;
-        const int DD_ENERGY_BETA__TIME_TM_G = 22;
+        const int DD_ENERGY_BETA__TIME_TM_TOTAL = 20;//!< Energy vs. Beta Time (tape move)
+        const int DD_ENERGY_BETA__TIME_TM_NOG = 21;//!< Energy vs. Beta Time (tape move - w/o gamma)
+        const int DD_ENERGY_BETA__TIME_TM_G = 22;//!< Energy vs. Beta Time (tape move - w/ gamma)
     }
-} 
+}
 
-class BetaScintProcessor : public EventProcessor
-{
+/// Detector processor that handles scintillator detectors for beta detection
+class BetaScintProcessor : public EventProcessor {
 public:
+    /*! Default Constructor */
+    BetaScintProcessor() {};
+    /*! Default Destructor */
+    ~BetaScintProcessor() {};
     BetaScintProcessor(double gammaBetaLimit, double energyContraction);
+    /*! \brief PreProcessing for the class
+    *
+    * \param [in] event : The RawEvent
+    * \return bool : Status of processing
+    */
     virtual bool PreProcess(RawEvent &event);
+    /*! \brief Main Processing for the class
+    *
+    * \param [in] event : The RawEvent
+    * \return [out] bool : Status of processing
+    */
     virtual bool Process(RawEvent &event);
+    /*! Declare the Plots for the Processor */
     virtual void DeclarePlots(void);
+    /*! Magic number for the resolution of the time spectra */
     static const double timeSpectraTimeResolution = 10e-3;
 
 protected:
+    /*! Finds the most likely gamma associated with a given beta
+    * \param[in] bTime : The time of arrival for the beta particle
+    * \return EventData for the match
+    */
     EventData BestGammaForBeta(double bTime);
-    /** Returns true if gamma-beta correlation time is within limits. */
+    /** \return true if gamma-beta correlation time is within limits. */
     bool GoodGammaBeta(double gTime);
     /** Gamma-beta coin. limit in seconds */
     double gammaBetaLimit_;
-    /** Contraction of beta energy for 2d plots (time-energy and gamma-beta 
+    /** Contraction of beta energy for 2d plots (time-energy and gamma-beta
      * energy */
     double energyContraction_;
 };

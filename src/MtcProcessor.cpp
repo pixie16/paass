@@ -22,36 +22,33 @@ using namespace dammIds::mtc;
 
 namespace dammIds {
     namespace mtc {
-        const int D_TDIFF_BEAM_START   = 0;
-        const int D_TDIFF_BEAM_STOP    = 1;
-        const int D_TDIFF_MOVE_START   = 2;
-        const int D_TDIFF_MOVE_STOP    = 3;
-        const int D_MOVETIME           = 4;
-        const int D_BEAMTIME           = 5;
-        const int D_COUNTER            = 6;
-        const int DD_TIME__DET_MTCEVENTS = 10;
+        const int D_TDIFF_BEAM_START   = 0;//!< Tdiff between beam starts
+        const int D_TDIFF_BEAM_STOP    = 1;//!< Tdiff between beam stops
+        const int D_TDIFF_MOVE_START   = 2;//!< Tdiff between start move signals
+        const int D_TDIFF_MOVE_STOP    = 3;//!< Tdiff between stop move signals
+        const int D_MOVETIME           = 4;//!< Amount of time of the move
+        const int D_BEAMTIME           = 5;//!< Amount of time the beam was on
+        const int D_COUNTER            = 6;//!< A counter for cycles
+        const int DD_TIME__DET_MTCEVENTS = 10;//!< Time vs. MTC Events
 
-        const int MOVE_START_BIN = 1;
-        const int MOVE_STOP_BIN = 3;
-        const int BEAM_START_BIN = 5;
-        const int BEAM_STOP_BIN = 7;
+        const int MOVE_START_BIN = 1;//!< Start move bin
+        const int MOVE_STOP_BIN = 3;//!< Stop move bin
+        const int BEAM_START_BIN = 5;//!< Beam Start bin
+        const int BEAM_STOP_BIN = 7;//!< Beam Stop bin
     }
-} // mtc namespace
-
+}
 
 MtcProcessor::MtcProcessor(bool double_stop, bool double_start)
-    : EventProcessor(OFFSET, RANGE, "mtc")
-{
+    : EventProcessor(OFFSET, RANGE, "mtc") {
     associatedTypes.insert("timeclass"); // old detector type
     associatedTypes.insert("mtc");
     double_stop_ = double_stop;
     double_start_ = double_start;
 }
 
-void MtcProcessor::DeclarePlots(void)
-{
+void MtcProcessor::DeclarePlots(void) {
     using namespace dammIds::mtc;
-    
+
     const int counterBins = S3;
     const int timeBins = SA;
 
@@ -67,8 +64,7 @@ void MtcProcessor::DeclarePlots(void)
     DeclareHistogram2D(DD_TIME__DET_MTCEVENTS, SF, S2, "MTC and beam events");
 }
 
-bool MtcProcessor::PreProcess(RawEvent &event)
-{
+bool MtcProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
 
@@ -76,12 +72,12 @@ bool MtcProcessor::PreProcess(RawEvent &event)
     // plot with 10 ms bins
     const double mtcPlotResolution = 10e-3 / clockInSeconds;
 
-    static const vector<ChanEvent*> &mtcEvents = 
+    static const vector<ChanEvent*> &mtcEvents =
         event.GetSummary("mtc", true)->GetList();
     for (vector<ChanEvent*>::const_iterator it = mtcEvents.begin();
 	 it != mtcEvents.end(); it++) {
         string subtype = (*it)->GetChanID().GetSubtype();
-        double time   = (*it)->GetTime();	
+        double time   = (*it)->GetTime();
         // Time of the first event
         static double t0 = time;
         string place = (*it)->GetChanID().GetPlaceName();
@@ -96,7 +92,7 @@ bool MtcProcessor::PreProcess(RawEvent &event)
 
         if(place == "mtc_start_0") {
 
-            double dt_start = time - 
+            double dt_start = time -
                      TreeCorrelator::get()->place(place)->secondlast().time;
             TreeCorrelator::get()->place("TapeMove")->activate(time);
             TreeCorrelator::get()->place("Cycle")->deactivate(time);
@@ -107,9 +103,9 @@ bool MtcProcessor::PreProcess(RawEvent &event)
 
         } else if (place == "mtc_stop_0") {
 
-            double dt_stop = time - 
+            double dt_stop = time -
                      TreeCorrelator::get()->place(place)->secondlast().time;
-            double dt_move = time - 
+            double dt_move = time -
                      TreeCorrelator::get()->place("mtc_start_0")->last().time;
             TreeCorrelator::get()->place("TapeMove")->deactivate(time);
 
@@ -124,7 +120,7 @@ bool MtcProcessor::PreProcess(RawEvent &event)
                       TreeCorrelator::get()->place(place)->secondlast().time;
             //Remove double starts
             if (double_start_) {
-                double dt_stop = abs(time - 
+                double dt_stop = abs(time -
                   TreeCorrelator::get()->place("mtc_beam_stop_0")->last().time);
                 if (abs(dt_start * clockInSeconds) < doubleTimeLimit_ ||
                     abs(dt_stop * clockInSeconds) < doubleTimeLimit_)
@@ -139,9 +135,9 @@ bool MtcProcessor::PreProcess(RawEvent &event)
 
         } else if (place == "mtc_beam_stop_0") {
 
-            double dt_stop = time - 
+            double dt_stop = time -
                 TreeCorrelator::get()->place(place)->secondlast().time;
-            double dt_beam = time - 
+            double dt_beam = time -
                  TreeCorrelator::get()->place("mtc_beam_start_0")->last().time;
             //Remove double stops
             if (double_stop_) {
