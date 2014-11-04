@@ -17,41 +17,34 @@
 
 using namespace std;
 
-const double IonChamberProcessor::minTime = 
+const double IonChamberProcessor::minTime =
                                 18.0e-6 / Globals::get()->clockInSeconds();
 
 using namespace dammIds::ionChamber;
 
-namespace dammIds
-{
+namespace dammIds {
   namespace ionChamber {
-    // 1d spectra
-    const int D_ENERGYSUM     = 0;
-    const int D_ENERGYTHREE_GROUPX = 10; // + starting det
-    const int D_ENERGYTWO_GROUPX   = 20; // + starting det
-    
-    const int D_DTIME_DETX    = 30; // + detector num
-    const int D_RATE_DETX     = 40; // + detector num
-    // 2d spectra
-    const int DD_ESUM__ENERGY_DETX   = 50; // + detector num    
-    const int DD_EBACK__ENERGY_DETX  = 100; // + detector num
-  };
-};
+    const int D_ENERGYSUM     = 0;//!< Energy Sum
+    const int D_ENERGYTHREE_GROUPX = 10; //!< Energy Three + starting det
+    const int D_ENERGYTWO_GROUPX   = 20; //!< Energy Two  + starting det
+    const int D_DTIME_DETX    = 30; //!< Time + detector num
+    const int D_RATE_DETX     = 40; //!< Rates + detector num
+    const int DD_ESUM__ENERGY_DETX   = 50; //!< Esum vs. Energy + detector num
+    const int DD_EBACK__ENERGY_DETX  = 100; //!< Energy Back vs. Energy + detector num
+  }
+}
 
-IonChamberProcessor::IonChamberProcessor() : 
-    EventProcessor(OFFSET, RANGE, "ionchamber")
-{
-    associatedTypes.insert("ion_chamber"); // associate with the scint type
+IonChamberProcessor::IonChamberProcessor() :
+    EventProcessor(OFFSET, RANGE, "ionchamber") {
+    associatedTypes.insert("ion_chamber");
 
     for (size_t i=0; i < noDets; i++) {
       lastTime[i] = -1;
-      //     timeDiffs.clear();
       timeDiffs[i].clear();
     }
 }
 
-void IonChamberProcessor::DeclarePlots(void)
-{
+void IonChamberProcessor::DeclarePlots(void) {
   DeclareHistogram1D(D_ENERGYSUM, SE, "ion chamber energy");
 
   for (size_t i=0; i < noDets - 2; i++) {
@@ -63,18 +56,17 @@ void IonChamberProcessor::DeclarePlots(void)
   for (size_t i=0; i < noDets; i++) {
     DeclareHistogram1D(D_DTIME_DETX + i, SE, "dtime for det i, 100 ns");
     DeclareHistogram1D(D_RATE_DETX + i, SE, "calc rate for det i, Hz");
-    DeclareHistogram2D(DD_ESUM__ENERGY_DETX + i, 
+    DeclareHistogram2D(DD_ESUM__ENERGY_DETX + i,
 		       SA, SA, "ion seg i v sum");
     DeclareHistogram2D(DD_EBACK__ENERGY_DETX + i,
 		       SA, SA, "ion seg i v ion 234");
   }
 }
 
-bool IonChamberProcessor::Process(RawEvent &event)
-{
+bool IonChamberProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
 	return false;
-     
+
     static const vector<ChanEvent*> &icEvents = sumMap["ion_chamber"]->GetList();
 
     double esum = 0.; // all
@@ -87,7 +79,7 @@ bool IonChamberProcessor::Process(RawEvent &event)
 
     for (vector<ChanEvent*>::const_iterator it = icEvents.begin();
 	 it != icEvents.end(); it++) {
-      // make the energy sum      
+      // make the energy sum
       size_t loc = (*it)->GetChanID().GetLocation();
       double ecal = (*it)->GetCalEnergy();
 
@@ -143,7 +135,7 @@ bool IonChamberProcessor::Process(RawEvent &event)
       if (lastTime[loc] != -1) {
 	double dtime = (*it)->GetTime() - lastTime[loc];
 	plot(D_DTIME_DETX + loc, dtime / 10);
-	
+
 	if (dtime > minTime)
 	  timeDiffs[loc].push_back( dtime );
 	if (timeDiffs[loc].size() >= timesToKeep) {
@@ -153,7 +145,7 @@ bool IonChamberProcessor::Process(RawEvent &event)
 	  //  of the assumed Poissonic distribution
 	  // since there is some dead time only take times greater than a
 	  //  specific safe value (thanks to memorylessness of distribution)
-	  
+
 	  double sum = 0.;
 	  int count = 0;
 
@@ -167,8 +159,8 @@ bool IonChamberProcessor::Process(RawEvent &event)
           (double)(1 / mean / Globals::get()->clockInSeconds()));
 	}
 
-      } 
-      lastTime[loc] = (*it)->GetTime();      
+      }
+      lastTime[loc] = (*it)->GetTime();
     }
     EndProcess(); // update the processing time
     return true;
@@ -189,7 +181,7 @@ bool IonChamberProcessor::AddBranch(TTree *tree)
     TBranch *branch = tree->Branch(name.c_str(), &data,
 				   "raw[6]/D:cal[6]:mult/I");
     return (branch != NULL);
-  }  
+  }
   return false;
 }
 

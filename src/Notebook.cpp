@@ -8,15 +8,12 @@
 
 Notebook* Notebook::instance = NULL;
 
-
-/** Instance is created upon first call */
 Notebook* Notebook::get() {
     if (!instance) {
         instance = new Notebook();
     }
     return instance;
 }
-
 
 Notebook::Notebook() {
     pugi::xml_document doc;
@@ -60,7 +57,6 @@ Notebook::Notebook() {
     note_file.close();
 }
 
-
 const std::string Notebook::currentDateTime() const {
     time_t     now = time(0);
     struct tm  tstruct;
@@ -69,7 +65,6 @@ const std::string Notebook::currentDateTime() const {
     strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
     return buf;
 }
-
 
 void Notebook::report(std::string note) {
     std::ofstream note_file;
@@ -83,7 +78,6 @@ void Notebook::report(std::string note) {
     note_file << note << std::endl;
     note_file.close();
 }
-
 
 Notebook::~Notebook() {
     delete instance;

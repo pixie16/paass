@@ -8,7 +8,6 @@
  * \date 7-2-07
  * <strong>Modified : </strong> SNL - 2-4-08 - Add plotting spectra
  */
-
 #include <iostream>
 #include <string>
 
@@ -22,26 +21,11 @@ using std::cout;
 using std::endl;
 using std::string;
 
-int TraceAnalyzer::numTracesAnalyzed = 0;
-
-/**
- * Initialize the trace analysis class.  Set the row numbers
- * for spectra 850 to zero
- */
-bool TraceAnalyzer::Init(void)
-{
-    return true;
-}
-
-/**
- * Set default filter parameters
- */
+int TraceAnalyzer::numTracesAnalyzed = 0; //!< number of analyzed traces
 
 using namespace dammIds::trace;
 
-TraceAnalyzer::TraceAnalyzer() :
-    userTime(0.), systemTime(0.)
-{
+TraceAnalyzer::TraceAnalyzer() : userTime(0.), systemTime(0.) {
     name = "Trace";
     // start at -1 so that when incremented on first trace analysis,
     //   row 0 is respectively filled in the trace spectrum of inheritees
@@ -49,7 +33,6 @@ TraceAnalyzer::TraceAnalyzer() :
     clocksPerSecond = sysconf(_SC_CLK_TCK);
 }
 
-/** Output time processing traces */
 TraceAnalyzer::~TraceAnalyzer()
 {
     cout << name << " analyzer : "
@@ -57,32 +40,20 @@ TraceAnalyzer::~TraceAnalyzer()
 	 << systemTime << " system time" << endl;
 }
 
-/**
- * Function to quickly analyze a trace online.
- */
 void TraceAnalyzer::Analyze(Trace &trace,
-			    const std::string &detType, const std::string &detSubtype)
-{
-    times(&tmsBegin); // begin timing process
+			    const std::string &detType, const std::string &detSubtype) {
+    times(&tmsBegin);
     numTracesAnalyzed++;
     EndAnalyze(trace);
     return;
 }
 
-/**
- * End the analysis and record the analyzer level in the trace
- */
-void TraceAnalyzer::EndAnalyze(Trace &trace)
-{
+void TraceAnalyzer::EndAnalyze(Trace &trace) {
     trace.SetValue("analyzedLevel", level);
     EndAnalyze();
 }
 
-/**
- * Finish analysis updating the analyzer timing information
- */
-void TraceAnalyzer::EndAnalyze(void)
-{
+void TraceAnalyzer::EndAnalyze(void) {
     tms tmsEnd;
     times(&tmsEnd);
 
@@ -92,10 +63,4 @@ void TraceAnalyzer::EndAnalyze(void)
     // reset the beginning time so multiple calls of EndAnalyze from
     //   derived classes work properly
     times(&tmsBegin);
-}
-
-/** declare the damm plots */
-void TraceAnalyzer::DeclarePlots()
-{
-    // do nothing
 }

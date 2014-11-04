@@ -1,6 +1,8 @@
 /** \file BetaScintProcessor.cpp
  *
  * implementation for beta scintillator processor
+ * \author K. A. Miernik
+ * \date 2012
  */
 
 #include <limits>

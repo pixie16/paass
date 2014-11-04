@@ -14,29 +14,17 @@ using namespace dammIds::trace;
 namespace dammIds {
     namespace trace {
     }
-} // trace namespace
+}
 
 const Trace emptyTrace; ///< an empty trace for const references to point to
-
-/*!
- * Plots are static, class-wide variable, so every trace instance has
- * an access to the same histogram range
- */
 Plots Trace::histo(OFFSET, RANGE, "traces");
 
-/**
- * Defines how to implement a trapezoidal filter characterized by two
- * moving sum windows of width risetime separated by a length gaptime.
- * Filter is calculated from channels lo to hi.
- */
 void Trace::TrapezoidalFilter(Trace &filter, const TFP &parms,
 			      unsigned int lo, unsigned int hi) const {
-    // don't let the filter work outside of its reasonable range
     lo = max(lo, (unsigned int)parms.GetSize());
 
     filter.assign(lo, 0);
 
-    //! check if we're going to do something bad here
     for (unsigned int i = lo; i < hi; i++) {
         int leftSum = accumulate(begin() + i - parms.GetSize(),
                                  begin() + i - parms.GetRiseSamples()

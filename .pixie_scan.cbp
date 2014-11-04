@@ -72,8 +72,6 @@
 		<Unit filename="config/she/qdc.txt" />
 		<Unit filename="config/she/timingCal.txt" />
 		<Unit filename="config/she/timingConstants.txt" />
-		<Unit filename="config/timingCal.txt" />
-		<Unit filename="config/timingConstants.txt" />
 		<Unit filename="doc/Doxyfile" />
 		<Unit filename="doc/doxyPages/mainPage.dox" />
 		<Unit filename="doc/tmp/doxyfile" />
@@ -113,7 +111,6 @@
 		<Unit filename="include/NeutronProcessor.hpp" />
 		<Unit filename="include/NeutronScintProcessor.hpp" />
 		<Unit filename="include/Notebook.hpp" />
-		<Unit filename="include/ParseXml.hpp" />
 		<Unit filename="include/PlaceBuilder.hpp" />
 		<Unit filename="include/Places.hpp" />
 		<Unit filename="include/Plots.hpp" />
@@ -124,7 +121,6 @@
 		<Unit filename="include/RawEvent.hpp" />
 		<Unit filename="include/RootProcessor.hpp" />
 		<Unit filename="include/ScintProcessor.hpp" />
-		<Unit filename="include/ScintROOT.hpp" />
 		<Unit filename="include/SsdBetaProcessor.hpp" />
 		<Unit filename="include/SsdProcessor.hpp" />
 		<Unit filename="include/StatsData.hpp" />
@@ -140,7 +136,6 @@
 		<Unit filename="include/TriggerLogicProcessor.hpp" />
 		<Unit filename="include/ValidProcessor.hpp" />
 		<Unit filename="include/VandleProcessor.hpp" />
-		<Unit filename="include/VandleROOT.hpp" />
 		<Unit filename="include/WalkCorrector.hpp" />
 		<Unit filename="include/WaveformAnalyzer.hpp" />
 		<Unit filename="include/pixie16app_defs.h" />
@@ -192,7 +187,6 @@
 		<Unit filename="src/NeutronProcessor.cpp" />
 		<Unit filename="src/NeutronScintProcessor.cpp" />
 		<Unit filename="src/Notebook.cpp" />
-		<Unit filename="src/ParseXml.cpp" />
 		<Unit filename="src/PixieStd.cpp" />
 		<Unit filename="src/PlaceBuilder.cpp" />
 		<Unit filename="src/Places.cpp" />
@@ -206,7 +200,6 @@
 		<Unit filename="src/ReadBuffData.RevD.cpp" />
 		<Unit filename="src/RootProcessor.cpp" />
 		<Unit filename="src/ScintProcessor.cpp" />
-		<Unit filename="src/ScintROOT.cpp" />
 		<Unit filename="src/SsdBetaProcessor.cpp" />
 		<Unit filename="src/SsdProcessor.cpp" />
 		<Unit filename="src/StatsData.cpp" />
@@ -224,7 +217,6 @@
 		<Unit filename="src/TriggerLogicProcessor.cpp" />
 		<Unit filename="src/ValidProcessor.cpp" />
 		<Unit filename="src/VandleProcessor.cpp" />
-		<Unit filename="src/VandleROOT.cpp" />
 		<Unit filename="src/WalkCorrector.cpp" />
 		<Unit filename="src/WaveformAnalyzer.cpp" />
 		<Unit filename="src/pugixml.cpp" />

@@ -13,7 +13,6 @@
 using namespace std;
 
 PlotsRegister* PlotsRegister::instance = NULL;
-/** Instance is created upon first call */
 PlotsRegister* PlotsRegister::get() {
     if (!instance) {
         instance = new PlotsRegister();
@@ -26,8 +25,7 @@ PlotsRegister::~PlotsRegister() {
     instance = NULL;
 }
 
-bool PlotsRegister::CheckRange (int min, int max) const
-{
+bool PlotsRegister::CheckRange (int min, int max) const {
     bool exists = false;
 
     unsigned sz = reg.size();
@@ -43,8 +41,7 @@ bool PlotsRegister::CheckRange (int min, int max) const
     return exists;
 }
 
-bool PlotsRegister::Add (int offset, int range, std::string name)
-{
+bool PlotsRegister::Add (int offset, int range, std::string name) {
     // Special case: empty Plots list
     if (offset == 0 && range == 0)
         return true;

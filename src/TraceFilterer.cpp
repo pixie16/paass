@@ -2,6 +2,10 @@
  *  \brief Implements the analysis of traces using trapezoidal filters
  *
  *  This trace plots the filtered traces as well as energy and timing info
+ *  I (SVP) Will be overhauling this class with a new implementation of the
+ *  filters at some point.
+ * \author David Miller
+ * \date January 2011
  */
 
 #include <algorithm>
@@ -18,26 +22,9 @@
 using namespace std;
 using namespace dammIds::trace;
 
- //< TO BE USED WITH MAGIC +40 ENERGY SAMPLE LOCATION
+//< TO BE USED WITH MAGIC +40 ENERGY SAMPLE LOCATION
 // const double TraceFilterer::energyScaleFactor = 2.198;
 // const double TraceFilterer::energyScaleFactor = 2.547; //< multiply the energy filter sums by this to gain match to raw spectra
-/**
- *  A do nothing constructor
- */
-TraceFilterer::PulseInfo::PulseInfo()
-{
-    isFound = false;
-}
-
-/**
- *  Constructor so we can build the pulseinfo in place
- */
-TraceFilterer::PulseInfo::PulseInfo(Trace::size_type theTime,
-                                    double theEnergy) :
-                                    time(theTime), energy(theEnergy)
-{
-    isFound = true;
-}
 
 TraceFilterer::TraceFilterer(double energyScaleFactor,
                              short fast_rise, short fast_gap,
@@ -47,28 +34,18 @@ TraceFilterer::TraceFilterer(double energyScaleFactor,
                              short slow_threshold) :
     fastParms(fast_gap, fast_rise),
     energyParms(energy_gap, energy_rise),
-    thirdParms(slow_gap, slow_rise)
-{
+    thirdParms(slow_gap, slow_rise) {
     //? this uses some legacy values for third parms, are they appropriate
     name = "Filterer";
     useThirdFilter = false;
     energyScaleFactor_ = energyScaleFactor;
-
-    //Trace::size_type rise, gap;
 
     // scale thresholds by the length of integration (i.e. rise time)
     fastThreshold = fast_threshold * fastParms.GetRiseSamples();
     slowThreshold = slow_threshold * thirdParms.GetRiseSamples();
 }
 
-
-TraceFilterer::~TraceFilterer()
-{
-    // do nothing
-}
-
-bool TraceFilterer::Init(const std::string &filterFileName /* = filter.txt */)
-{
+bool TraceFilterer::Init(const std::string &filterFileName) {
     const int maxTraceLength = 6400;
 
     fastFilter.reserve(maxTraceLength);
@@ -78,17 +55,14 @@ bool TraceFilterer::Init(const std::string &filterFileName /* = filter.txt */)
 }
 
 
-void TraceFilterer::DeclarePlots(void)
-{
-
+void TraceFilterer::DeclarePlots(void) {
     const int energyBins = SE;
     const int energyBins2 = SB;
     const int traceBins = dammIds::trace::traceBins;
 
     using namespace dammIds::trace::tracefilterer;
-    /*
-     * Declare plots within the trace object
-     */
+
+    //! Declare plots within the trace object
     Trace sample_trace = Trace();
     unsigned short numTraces = Globals::get()->numTraces();
 
@@ -115,8 +89,7 @@ void TraceFilterer::DeclarePlots(void)
 }
 
 void TraceFilterer::Analyze(Trace &trace,
-			    const std::string &type, const std::string &subtype)
-{
+			    const std::string &type, const std::string &subtype) {
     using namespace dammIds::trace::tracefilterer;
 
     if (level >= 5) {
@@ -161,7 +134,6 @@ void TraceFilterer::Analyze(Trace &trace,
             trace.SetValue("filterEnergy", pulse.energy);
         }
 
-        // now plot some stuff
         fastFilter.ScalePlot(DD_FILTER1, numTracesAnalyzed,
                     fastParms.GetRiseSamples() );
         energyFilter.ScalePlot(DD_FILTER2, numTracesAnalyzed,
@@ -171,14 +143,12 @@ void TraceFilterer::Analyze(Trace &trace,
                     thirdParms.GetRiseSamples() );
         }
         trace.plot(D_ENERGY1, pulse.energy);
-    } // sufficient analysis level
-
+    }
     EndAnalyze(trace);
 }
 
-const TraceFilterer::PulseInfo& TraceFilterer::FindPulse(Trace::iterator begin, Trace::iterator end)
-{
-    // class to see if fast filter is above threshold
+const TraceFilterer::PulseInfo& TraceFilterer::FindPulse(Trace::iterator begin,
+                                                         Trace::iterator end) {
     static binder2nd< greater<Trace::value_type> > crossesThreshold
 	(greater<Trace::value_type>(), fastThreshold);
 

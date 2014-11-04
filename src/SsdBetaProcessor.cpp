@@ -1,77 +1,62 @@
-/*! \file SsdProcessor.cpp
+/*! \file SsdBetaProcessor.cpp
  *
  * The SSD processor handles detectors of type ssd_1,2,3  */
-
-#include "damm_plotids.h"
-
-#include "SsdProcessor.h"
-#include "RawEvent.h"
-#include <limits.h>
+#include <limits>
 #include <iostream>
 #include <fstream>
 
- 
+#include "DammPlotIds.hpp"
+#include "RawEvent.hpp"
+#include "SsdProcessor.hpp"
+
 using std::cout;
 using std::endl;
 
-
 SsdProcessor::SsdProcessor() :
-  EventProcessor(), ssdSummary(NULL)
-{
+  EventProcessor(), ssdSummary(NULL) {
     name = "ssd";
     associatedTypes.insert("ssd");
 }
 
-void SsdProcessor::DeclarePlots(void) const
-{
+void SsdProcessor::DeclarePlots(void) const {
     using namespace dammIds::ssd;
 
-    const int EnergyBins = SE; 
+    const int EnergyBins = SE;
     const int positionBins = S4;
     const int timeBins     = S8;
 
-       DeclareHistogram2D(SSD1_POSITION_ENERGY, 
+       DeclareHistogram2D(SSD1_POSITION_ENERGY,
     		       EnergyBins, positionBins, "SSD1 Strip vs E - RF");
-       DeclareHistogram2D(SSD2_POSITION_ENERGY, 
+       DeclareHistogram2D(SSD2_POSITION_ENERGY,
     		       EnergyBins, positionBins, "SSD2 Strip vs E - RF");
-       DeclareHistogram2D(SSD3_POSITION_ENERGY, 
+       DeclareHistogram2D(SSD3_POSITION_ENERGY,
     		       EnergyBins, positionBins, "SSD3 Strip vs E - RF");
 }
 
-bool SsdProcessor::Process(RawEvent &event)
-{
+bool SsdProcessor::Process(RawEvent &event) {
     using namespace dammIds::ssd;
     if (!EventProcessor::Process(event))
-	return false;
-    // first time through, grab the according detector summaries
+        return false;
     if (ssdSummary == NULL)
-	ssdSummary = event.GetSummary("ssd");
-
-    //    static DetectorSummary *mcpSummary = event.GetSummary("mcp");
-    //   static Correlator &corr = event.GetCorrelator();
+        ssdSummary = event.GetSummary("ssd");
 
     int ssdPos = UINT_MAX;
     double ssdEnergy, ssdTime = 0.;
     string ssdSubtype="";
 
     bool hasSsd = ssdSummary && (ssdSummary->GetMult() > 0);
-    // bool hasMcp   = mcpSummary && (mcpSummary->GetMult() > 0);
 
-       string WhichSsd = ssdSummary-> GetName();
-
-       //    cout <<" TST " <<WhichSsd <<endl;
+    string WhichSsd = ssdSummary-> GetName();
 
     if (hasSsd) {
 	const ChanEvent *ch = ssdSummary->GetMaxEvent();
         ssdSubtype =  ch->GetChanID().GetSubtype();
 
       	ssdPos    = ch->GetChanID().GetLocation();
-	//	cout <<" TST " <<ssdSubtype << ssdPos <<endl;
 	ssdEnergy = ch->GetCalEnergy();
 	ssdTime   = ch->GetTime();
-    } else ssdEnergy = 0.;
-
-    // plot stuff
+    } else
+        ssdEnergy = 0.;
 
     if (ssdSubtype=="ssd_1")
       plot(SSD1_POSITION_ENERGY, ssdEnergy, ssdPos);

@@ -20,81 +20,74 @@
 #include "VandleProcessor.hpp"
 
 namespace dammIds {
-    const unsigned int BIG_OFFSET      = 30;
-    const unsigned int MISC_OFFSET     = 60;
-    const unsigned int TVANDLE_OFFSET  = 70;
-    const unsigned int DEBUGGING_OFFSET = 100;
+    const unsigned int BIG_OFFSET      = 30; //!< Offset for big bars
+    const unsigned int MISC_OFFSET     = 60;//!< Offset for misc. histos
+    const unsigned int TVANDLE_OFFSET  = 70;//!< Offset for teeny vandle
+    const unsigned int DEBUGGING_OFFSET = 100;//!< Offset for debugging histos
 
     namespace vandle {
-	//Plots for the general information about VANDLE
-	const int DD_TQDCBARS         = 0;
-	const int DD_MAXIMUMBARS      = 1;
-	const int DD_TIMEDIFFBARS     = 2;
-	const int DD_TOFBARS          = 3;
-	const int DD_CORTOFBARS       = 5;
-	const int D_TOF               = 6;
-	const int DD_TQDCAVEVSTDIFF   = 7;
+	const int DD_TQDCBARS         = 0;//!< QDC for the bars
+	const int DD_MAXIMUMBARS      = 1;//!< Maximum values for the bars
+	const int DD_TIMEDIFFBARS     = 2;//!< time difference in the bars
+	const int DD_TOFBARS          = 3;//!< time of flight for the bars
+	const int DD_CORTOFBARS       = 5;//!< corrected time of flight
+	const int D_TOF               = 6;//!< summed time of flight
+	const int DD_TQDCAVEVSTDIFF   = 7;//!< Trace QDC vs. Time Difference
 
-	//Plots related to the TOF
+	const int DD_TOFVSTDIFF       = 8;//!< ToF vs. Time Difference
+	const int DD_MAXRVSTOF        = 9;//!< Right Max Val vs. ToF
+	const int DD_MAXLVSTOF        = 10;//!< Left Max Val vs. ToF
+	const int DD_TQDCAVEVSTOF     = 11;//!< QDC Ave vs. ToF
 
-	const int DD_TOFVSTDIFF       = 8;
-	const int DD_MAXRVSTOF        = 9;
-	const int DD_MAXLVSTOF        = 10;
-	const int DD_TQDCAVEVSTOF     = 11;
+	const int DD_CORTOFVSTDIFF     = 12;//!< Corrected ToF vs. TDiff
+	const int DD_MAXRVSCORTOF      = 13;//!< Max Right vs. Cor ToF
+	const int DD_MAXLVSCORTOF      = 14;//!< Max Left vs. Cor ToF
+	const int DD_TQDCAVEVSCORTOF   = 15;//!< Ave QDC vs. Cor ToF
+	const int DD_TQDCAVEVSENERGY   = 16;//!< Ave QDC vs. Energy
 
-	//Plots related to the CorTOF
-	const int DD_CORTOFVSTDIFF     = 12;
-	const int DD_MAXRVSCORTOF      = 13;
-	const int DD_MAXLVSCORTOF      = 14;
-	const int DD_TQDCAVEVSCORTOF   = 15;
-	const int DD_TQDCAVEVSENERGY   = 16;
+	const int DD_CORRELATED_TOF      = 17;//!< ToF Correlated w/ Beam
 
-	//Plots related to correlated times
-	const int DD_CORRELATED_TOF      = 17;
+	const int DD_MAXSTART0VSTOF   = 18;//!< Max Start 1 vs. ToF
+	const int DD_MAXSTART1VSTOF   = 19;//!< Max Start 2 vs. ToF
+	const int DD_MAXSTART0VSCORTOF = 20;//!< Max Start 1 vs. Corrected ToF
+	const int DD_MAXSTART1VSCORTOF = 21;//!< Max Start 2 vs. Corrected ToF
+	const int DD_TQDCAVEVSSTARTQDCSUM= 22;//!< Average Vandle QDC vs. Start QDC Sum
+	const int DD_TOFVSSTARTQDCSUM    = 23;//!< ToF vs. Start QDC Sum
 
-	//Plots related to the Start detectors
-	const int DD_MAXSTART0VSTOF   = 18;
-	const int DD_MAXSTART1VSTOF   = 19;
-	const int DD_MAXSTART0VSCORTOF = 20;
-	const int DD_MAXSTART1VSCORTOF = 21;
-	const int DD_TQDCAVEVSSTARTQDCSUM= 22;
-	const int DD_TOFVSSTARTQDCSUM    = 23;
+	const int DD_GAMMAENERGYVSTOF = 24;//!< Gamma Energy vs. ToF
+	const int DD_TQDCAVEVSTOF_VETO= 25;//!< QDC vs. ToF - Vetoed
+	const int DD_TOFBARS_VETO  = 26;//!< ToF - Vetoed
 
-	//Plots related to the Ge detectors
-	const int DD_GAMMAENERGYVSTOF = 24;
-	const int DD_TQDCAVEVSTOF_VETO= 25;
-	const int DD_TOFBARS_VETO  = 26;
+	const int D_PROBLEMS     = 0+MISC_OFFSET;//!< Histogram to Count Problems
+	const int DD_PROBLEMS    = 1+MISC_OFFSET;//!< 2D His to count problems
 
-	//Plots used for debugging
-	const int D_PROBLEMS     = 0+MISC_OFFSET;
-	const int DD_PROBLEMS    = 1+MISC_OFFSET;
-	//CrossTalk Subroutine
-	const int DD_TOFBARBVSBARA      = 2+MISC_OFFSET;
-	const int DD_GATEDTQDCAVEVSTOF  = 3+MISC_OFFSET;
-	const int D_CROSSTALK           = 4+MISC_OFFSET;
+	const int DD_TOFBARBVSBARA      = 2+MISC_OFFSET;//!< ToF Bar A vs. ToF Bar B
+	const int DD_GATEDTQDCAVEVSTOF  = 3+MISC_OFFSET;//!< Gated QDC vs. ToF
+	const int D_CROSSTALK           = 4+MISC_OFFSET;//!< Cross talk histogram
 
-	const int DD_DEBUGGING0  = 0+DEBUGGING_OFFSET;
-	const int DD_DEBUGGING1  = 1+DEBUGGING_OFFSET;
-	const int DD_DEBUGGING2  = 2+DEBUGGING_OFFSET;
-	const int DD_DEBUGGING3  = 3+DEBUGGING_OFFSET;
+	const int DD_DEBUGGING0  = 0+DEBUGGING_OFFSET;//!< Generic for debugging
+	const int DD_DEBUGGING1  = 1+DEBUGGING_OFFSET;//!< Generic for debugging
+	const int DD_DEBUGGING2  = 2+DEBUGGING_OFFSET;//!< Generic for debugging
+	const int DD_DEBUGGING3  = 3+DEBUGGING_OFFSET;//!< Generic for debugging
 
-	const int DD_DEBUGGING4  = 4+DEBUGGING_OFFSET;
-	const int DD_DEBUGGING5  = 5+DEBUGGING_OFFSET;
-	const int DD_DEBUGGING6  = 6+DEBUGGING_OFFSET;
-	const int DD_DEBUGGING7  = 7+DEBUGGING_OFFSET;
-	const int DD_DEBUGGING8  = 8+DEBUGGING_OFFSET;
-    }//namespace vandle
+	const int DD_DEBUGGING4  = 4+DEBUGGING_OFFSET;//!< Generic for debugging
+	const int DD_DEBUGGING5  = 5+DEBUGGING_OFFSET;//!< Generic for debugging
+	const int DD_DEBUGGING6  = 6+DEBUGGING_OFFSET;//!< Generic for debugging
+	const int DD_DEBUGGING7  = 7+DEBUGGING_OFFSET;//!< Generic for debugging
+	const int DD_DEBUGGING8  = 8+DEBUGGING_OFFSET;//!< Generic for debugging
+    }
 
+    /// Namespace for Teeny VANDLE detectors
     namespace tvandle {
-	const int D_TIMEDIFF         = 2  + TVANDLE_OFFSET;
-	const int DD_PVSP            = 3  + TVANDLE_OFFSET;
-	const int DD_MAXRIGHTVSTDIFF = 4  + TVANDLE_OFFSET;
-	const int DD_MAXLEFTVSTDIFF  = 5  + TVANDLE_OFFSET;
-	const int DD_MAXLVSTDIFFGATE = 6  + TVANDLE_OFFSET;
-	const int DD_MAXLVSTDIFFAMP  = 7  + TVANDLE_OFFSET;
-	const int DD_MAXLCORGATE     = 8  + TVANDLE_OFFSET;
-	const int DD_QDCVSMAX        = 9  + TVANDLE_OFFSET;
-	const int DD_SNRANDSDEV      = 10 + TVANDLE_OFFSET;
+	const int D_TIMEDIFF         = 2  + TVANDLE_OFFSET;//!< Time Difference
+	const int DD_PVSP            = 3  + TVANDLE_OFFSET;//!< Phase-Phase
+	const int DD_MAXRIGHTVSTDIFF = 4  + TVANDLE_OFFSET;//!< Max Right vs. Tdiff
+	const int DD_MAXLEFTVSTDIFF  = 5  + TVANDLE_OFFSET;//!< Max Left vs. Tdiff
+	const int DD_MAXLVSTDIFFGATE = 6  + TVANDLE_OFFSET;//!< MaxLeft vs. Tdiff - Gated
+	const int DD_MAXLVSTDIFFAMP  = 7  + TVANDLE_OFFSET;//!< MaxLeft vs. TDiff - Amp gated
+	const int DD_MAXLCORGATE     = 8  + TVANDLE_OFFSET;//!< MaxLeft vs. Cor ToF - gated
+	const int DD_QDCVSMAX        = 9  + TVANDLE_OFFSET;//!< QDC vs. Max Val
+	const int DD_SNRANDSDEV      = 10 + TVANDLE_OFFSET;//!< SNR and Standard Dev Baseline
     }// namespace tvandle
 }//namespace dammIds
 
@@ -500,32 +493,31 @@ void VandleProcessor::ClearMaps(void) {
 void VandleProcessor::CrossTalk(void) {
     //This whole routine is stupidly written, it needs cleaned up something fierce.
     if(barMap.size() < 2)
-	return;
+        return;
 
     for(BarMap::iterator itBarA = barMap.begin();
-	itBarA != barMap.end(); itBarA++) {
-	BarMap::iterator itTemp = itBarA;
-	itTemp++;
+    itBarA != barMap.end(); itBarA++) {
+            BarMap::iterator itTemp = itBarA;
+            itTemp++;
 
-	const double &timeAveA = (*itBarA).second.timeAve;
-	const unsigned int &locA = (*itBarA).first.first;
+            const double &timeAveA = (*itBarA).second.timeAve;
+            const unsigned int &locA = (*itBarA).first.first;
 
-	for(BarMap::iterator itBarB = itTemp; itBarB != barMap.end();
-	    itBarB++) {
-	    if((*itBarA).first.second != (*itBarB).first.second)
-		continue;
-	    if((*itBarA).first == (*itBarB).first)
-		continue;
+            for(BarMap::iterator itBarB = itTemp; itBarB != barMap.end();
+            itBarB++) {
+                    if((*itBarA).first.second != (*itBarB).first.second)
+                        continue;
+                    if((*itBarA).first == (*itBarB).first)
+                        continue;
 
-	    const double &timeAveB = (*itBarB).second.timeAve;
-	    const unsigned int &locB = (*itBarB).first.first;
+                    const double &timeAveB = (*itBarB).second.timeAve;
+                    const unsigned int &locB = (*itBarB).first.first;
 
-	    CrossTalkKey bars(locA, locB);
-	    crossTalk.insert(make_pair(bars, timeAveB - timeAveA));
-	}
+                    CrossTalkKey bars(locA, locB);
+                    crossTalk.insert(make_pair(bars, timeAveB - timeAveA));
+            }
     }
 
-    //Information for the bar of interest.
     string barType = "small";
     Vandle::BarIdentifier barA(0, barType);
     Vandle::BarIdentifier barB(1, barType);
@@ -533,29 +525,28 @@ void VandleProcessor::CrossTalk(void) {
     CrossTalkKey barsOfInterest(barA.first, barB.first);
 
     CrossTalkMap::iterator itBars =
-	crossTalk.find(barsOfInterest);
+        crossTalk.find(barsOfInterest);
 
-    const int resMult = 2; //set resolution of histograms
-    const int resOffset = 200; // set offset of histograms
+    const int resMult = 2; //!<set resolution of histograms
+    const int resOffset = 200; //!< set offset of histograms
 
     if(itBars != crossTalk.end())
-	plot(D_CROSSTALK, (*itBars).second * resMult + resOffset);
+        plot(D_CROSSTALK, (*itBars).second * resMult + resOffset);
 
-    //Carbon Recoil Stuff
     BarMap::iterator itBarA = barMap.find(barA);
     BarMap::iterator itBarB = barMap.find(barB);
 
     if(itBarA == barMap.end() || itBarB == barMap.end())
-	return;
+        return;
 
 //    TimeOfFlightMap::iterator itTofA =
-// 	(*itBarA).second.timeOfFlight.find(startLoc);
+//  (*itBarA).second.timeOfFlight.find(startLoc);
 //     TimeOfFlightMap::iterator itTofB =
-// 	(*itBarB).second.timeOfFlight.find(startLoc);
+//  (*itBarB).second.timeOfFlight.find(startLoc);
 
 //     if(itTofA == (*itBarA).second.timeOfFlight.end() ||
 //        itTofB == (*itBarB).second.timeOfFlight.end())
-// 	return;
+//  return;
 
 //     double tofA = (*itTofA).second;
 //     double tofB = (*itTofB).second;
@@ -568,21 +559,21 @@ void VandleProcessor::CrossTalk(void) {
     bool muon = (qdcA > 7500 && qdcB > 7500);
 
     double muonTOF =
-	(*itBarA).second.timeAve - (*itBarB).second.timeAve;
+        (*itBarA).second.timeAve - (*itBarB).second.timeAve;
 
     plot(3950, tdiffA*resMult+100, tdiffB*resMult+100);
 
-    if(muon){
-	plot(3951, tdiffA*resMult+100, tdiffB*resMult+100);
-	plot(3952, muonTOF*resMult*10 + resOffset);
+    if(muon) {
+            plot(3951, tdiffA*resMult+100, tdiffB*resMult+100);
+            plot(3952, muonTOF*resMult*10 + resOffset);
     }
 
 //     plot(DD_TOFBARBVSBARA, tofA*resMult+resOffset,
-//  	 tofB*resMult+resOffset);
+//       tofB*resMult+resOffset);
 
 //     if((tofB > tofA) && (tofB < (tofA+150))) {
-//  	plot(DD_GATEDTQDCAVEVSTOF, tofA*resMult+resOffset,
-//  	     (*itBarA).second.qdc);
+//      plot(DD_GATEDTQDCAVEVSTOF, tofA*resMult+resOffset,
+//           (*itBarA).second.qdc);
 //     }
 }
 
@@ -590,31 +581,31 @@ void VandleProcessor::FillMap(const std::vector<ChanEvent*> &eventList,
 			      const std::string type, TimingDataMap &eventMap) {
     unsigned int OFFSET = 0;
     if(type == "big")
-	OFFSET = dammIds::BIG_OFFSET;
+        OFFSET = dammIds::BIG_OFFSET;
     else if(type == "tvandle")
-	OFFSET = dammIds::TVANDLE_OFFSET;
+        OFFSET = dammIds::TVANDLE_OFFSET;
 
     for(vector<ChanEvent*>::const_iterator it = eventList.begin();
-	it != eventList.end(); it++) {
-	unsigned int location = (*it)->GetChanID().GetLocation();
-	string subType = (*it)->GetChanID().GetSubtype();
+    it != eventList.end(); it++) {
+        unsigned int location = (*it)->GetChanID().GetLocation();
+        string subType = (*it)->GetChanID().GetSubtype();
 
-	Vandle::BarIdentifier key(location, subType);
+        Vandle::BarIdentifier key(location, subType);
 
-	TimingDataMap::iterator itTemp =
-	    eventMap.insert(make_pair(key, TimingData(*it))).first;
+        TimingDataMap::iterator itTemp =
+            eventMap.insert(make_pair(key, TimingData(*it))).first;
 
-	if(type == "start")
-	    continue;
+        if(type == "start")
+            continue;
 
-	if((*itTemp).second.dataValid && (*itTemp).first.second == "right") {
-	    plot(DD_TQDCBARS + OFFSET, (*itTemp).second.tqdc, location*2);
-	    plot(DD_MAXIMUMBARS + OFFSET, (*itTemp).second.maxval, location*2);
-	}
-	else if((*itTemp).second.dataValid && (*itTemp).first.second == "left") {
-	    plot(DD_TQDCBARS + OFFSET, (*itTemp).second.tqdc, location*2+1);
-	    plot(DD_MAXIMUMBARS + OFFSET, (*itTemp).second.maxval, location*2+1);
-	}
+        if((*itTemp).second.dataValid && (*itTemp).first.second == "right") {
+                plot(DD_TQDCBARS + OFFSET, (*itTemp).second.tqdc, location*2);
+                plot(DD_MAXIMUMBARS + OFFSET, (*itTemp).second.maxval, location*2);
+        }
+        else if((*itTemp).second.dataValid && (*itTemp).first.second == "left") {
+            plot(DD_TQDCBARS + OFFSET, (*itTemp).second.tqdc, location*2+1);
+            plot(DD_MAXIMUMBARS + OFFSET, (*itTemp).second.maxval, location*2+1);
+        }
     }
 }
 
@@ -636,42 +627,41 @@ void VandleProcessor::Tvandle(void) {
     vector<int> trc = right.trace;
     vector<int> trc1 = left.trace;
     if(timeDiff < -5.418 && left.maxval < 90) {
-	for(vector<int>::iterator it = trc.begin(); it != trc.end(); it++)
-    	    plot(dammIds::vandle::DD_PROBLEMS, it-trc.begin(), counter, *it);
-    	for(vector<int>::iterator it = trc1.begin(); it != trc1.end(); it++)
-    	    plot(dammIds::vandle::DD_PROBLEMS, it-trc1.begin(), counter+1, *it);
-    	counter+=2;
+            for(vector<int>::iterator it = trc.begin(); it != trc.end(); it++)
+                plot(dammIds::vandle::DD_PROBLEMS, it-trc.begin(), counter, *it);
+            for(vector<int>::iterator it = trc1.begin(); it != trc1.end(); it++)
+                plot(dammIds::vandle::DD_PROBLEMS, it-trc1.begin(), counter+1, *it);
+            counter+=2;
     }
 
     plot(DD_QDCVSMAX, right.maxval, right.tqdc);
 
-    if(right.dataValid && left.dataValid){
-	double timeRes = 50; //20 ps/bin
-	double timeOff = 500;
+    if(right.dataValid && left.dataValid) {
+            double timeRes = 50; //20 ps/bin
+            double timeOff = 500;
 
-	plot(D_TIMEDIFF, timeDiff*timeRes + timeOff);
-	plot(DD_PVSP, right.tqdc, left.tqdc);
-	plot(DD_MAXRIGHTVSTDIFF, timeDiff*timeRes+timeOff, right.maxval);
-	plot(DD_MAXLEFTVSTDIFF, timeDiff*timeRes+timeOff, left.maxval);
+            plot(D_TIMEDIFF, timeDiff*timeRes + timeOff);
+            plot(DD_PVSP, right.tqdc, left.tqdc);
+            plot(DD_MAXRIGHTVSTDIFF, timeDiff*timeRes+timeOff, right.maxval);
+            plot(DD_MAXLEFTVSTDIFF, timeDiff*timeRes+timeOff, left.maxval);
 
-	//Plot information about the SNR
-	plot(DD_SNRANDSDEV, right.snr+50, 0);
-	plot(DD_SNRANDSDEV, right.stdDevBaseline*timeRes+timeOff, 1);
-	plot(DD_SNRANDSDEV, left.snr+50, 2);
-	plot(DD_SNRANDSDEV, left.stdDevBaseline*timeRes+timeOff, 3);
+            plot(DD_SNRANDSDEV, right.snr+50, 0);
+            plot(DD_SNRANDSDEV, right.stdDevBaseline*timeRes+timeOff, 1);
+            plot(DD_SNRANDSDEV, left.snr+50, 2);
+            plot(DD_SNRANDSDEV, left.stdDevBaseline*timeRes+timeOff, 3);
 
-	//Plot information used to determine the impact of walk.
-	double tempVal = fabs(right.maxval-left.maxval);
-	if(tempVal <= 50)
-	    plot(DD_MAXLVSTDIFFAMP, timeDiff*timeRes+timeOff, left.maxval);
+            //Plot information used to determine the impact of walk.
+            double tempVal = fabs(right.maxval-left.maxval);
+            if(tempVal <= 50)
+                plot(DD_MAXLVSTDIFFAMP, timeDiff*timeRes+timeOff, left.maxval);
 
-	plot(DD_MAXLCORGATE,
-	     corTimeDiff*timeRes+timeOff, left.maxval);
+            plot(DD_MAXLCORGATE,
+            corTimeDiff*timeRes+timeOff, left.maxval);
 
-	if(right.maxval > 3000) {
-	    plot(DD_MAXLVSTDIFFGATE,
-		 timeDiff*timeRes+timeOff, left.maxval);
-	}
-    } else // if(right.dataValid
-	plot(D_PROBLEMS, 2);
+            if(right.maxval > 3000) {
+                    plot(DD_MAXLVSTDIFFGATE,
+                    timeDiff*timeRes+timeOff, left.maxval);
+            }
+    } else
+        plot(D_PROBLEMS, 2);
 }

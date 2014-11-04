@@ -1,5 +1,6 @@
 /** \file Globals.hpp
  * \brief constant parameters used in pixie16 analysis
+ * \author K. A. Miernik
  */
 #ifndef __GLOBALS_HPP_
 #define __GLOBALS_HPP_
@@ -25,9 +26,9 @@
  * For "variable" constants i.e. revision related or experiment related see
  * Globals class. */
 namespace pixie {
-    typedef uint32_t word_t; //< a pixie word
-    typedef uint16_t halfword_t; //< a half pixie word
-    typedef uint32_t bufword_t; //< word in a pixie buffer
+    typedef uint32_t word_t; ///< a pixie word
+    typedef uint16_t halfword_t; ///< a half pixie word
+    typedef uint32_t bufword_t; ///< word in a pixie buffer
 
     /** buffer and module data are terminated with a "-1" value
     *   also used to indicate when a quantity is out of range or peculiar data
@@ -58,7 +59,10 @@ namespace Vandle {
 
 /** Some common string conversion operations */
 namespace strings {
-    /** Converts string to double or throws an exception if not successful */
+    /** Converts string to double or throws an exception if not successful
+    * \param [in] s : String to convert to double
+    * \return The double created from the string
+    */
     inline double to_double (std::string s) {
         std::istringstream iss(s);
         double value;
@@ -71,7 +75,10 @@ namespace strings {
         return value;
     }
 
-    /** Converts string to int or throws an exception if not successful */
+    /** Converts string to int or throws an exception if not successful
+    * \param [in] s : string to convert to int
+    * \return Integer made out of input string
+    */
     inline int to_int (std::string s) {
         std::istringstream iss(s);
         int value;
@@ -87,7 +94,10 @@ namespace strings {
     /** Converts string to bool (True, true, 1 and False, false, 0) are
       * accepted; throws an exception if not succesful. Notice tolower
       * will work only with ascii, not with utf-8, but shouldn't be a
-      * problem for true and false words. */
+      * problem for true and false words.
+      * \param [in] s : String to convert to bool
+      * \return A bool from the input string
+      */
     inline bool to_bool (std::string s) {
         std::transform(s.begin(), s.end(), s.begin(), ::tolower);
         if (s == "true" || s == "1")
@@ -103,7 +113,10 @@ namespace strings {
     }
 
     /** Tokenizes the string, splitting it on a given delimiter.
-      * delimiters are removed from returned vector of tokens.*/
+      * delimiters are removed from returned vector of tokens.
+      * \param [in] str : The string to break up
+      * \param [in] delimiter : character to break up on
+      * \return The vector of tokens */
     inline std::vector<std::string> tokenize(std::string str,
                                              std::string delimiter) {
         std::string temp;

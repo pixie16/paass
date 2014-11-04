@@ -1,3 +1,10 @@
+/** \file TreeCorrelator.cpp
+ * \brief A class to handle complex correlations between various processors
+ *
+ * This guy was originally named "NewCorrelator.cpp" it was renamed.
+ * \author K. A. Miernik
+ * \date August 19, 2012
+ */
 #include "TreeCorrelator.hpp"
 #include "Globals.hpp"
 #include "Exceptions.hpp"
@@ -13,8 +20,7 @@ void Walker::parsePlace(pugi::xml_node node, std::string parent, bool verbose) {
     params["coincidence"] = "true";
     params["fifo"] = "2";
     params["init"] = "false";
-    for (pugi::xml_attribute attr = node.first_attribute();
-         attr;
+    for (pugi::xml_attribute attr = node.first_attribute(); attr;
          attr = attr.next_attribute()) {
         params[attr.name()] = attr.value();
     }
@@ -34,7 +40,6 @@ TreeCorrelator* TreeCorrelator::instance = NULL;
 
 PlaceBuilder TreeCorrelator::builder = PlaceBuilder();
 
-/** Instance is created upon first call */
 TreeCorrelator* TreeCorrelator::get() {
     if (!instance) {
         instance = new TreeCorrelator();

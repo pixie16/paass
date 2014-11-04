@@ -18,27 +18,25 @@ using namespace dammIds::liquid_scint;
 
 namespace dammIds {
     namespace liquid_scint {
-        const int DD_TQDCLIQUID       = 0;
-        const int DD_MAXLIQUID        = 1;
-        const int DD_DISCRIM          = 2;
-        const int DD_TOFLIQUID        = 3;
-        const int DD_TRCLIQUID        = 4;
-        const int DD_TQDCVSDISCRIM    = 5;
-        const int DD_TOFVSDISCRIM     = 6;
-        const int DD_NEVSDISCRIM      = 8;
-        const int DD_TQDCVSLIQTOF     = 10;
-        const int DD_TQDCVSENERGY     = 12;
+        const int DD_TQDCLIQUID       = 0;//!< QDC
+        const int DD_MAXLIQUID        = 1;//!< Maximum values
+        const int DD_DISCRIM          = 2;//!< Discrimination plots
+        const int DD_TOFLIQUID        = 3;//!< ToF for liquids
+        const int DD_TRCLIQUID        = 4;//!< Traces for the liquid
+        const int DD_TQDCVSDISCRIM    = 5;//!< QDC vs. Discrimination
+        const int DD_TOFVSDISCRIM     = 6;//!< ToF vs. Discrimination
+        const int DD_NEVSDISCRIM      = 8;//!< Neutron Energy vs. Discrimination
+        const int DD_TQDCVSLIQTOF     = 10;//!< QDC vs Liquid ToF
+        const int DD_TQDCVSENERGY     = 12;//!< QDC vs. Energy
     }
 }
 
 LiquidScintProcessor::LiquidScintProcessor() :
-    EventProcessor(OFFSET, RANGE, "liquid_scint")
-{
+    EventProcessor(OFFSET, RANGE, "liquid_scint") {
     associatedTypes.insert("liquid_scint");
 }
 
-void LiquidScintProcessor::DeclarePlots(void)
-{
+void LiquidScintProcessor::DeclarePlots(void) {
     /** WARNING
      * This part was commented in the old ScintProcessor and is
      * copied as is.
@@ -60,7 +58,7 @@ void LiquidScintProcessor::DeclarePlots(void)
     // }
 }
 
-bool LiquidScintProcessor::PreProcess(RawEvent &event){
+bool LiquidScintProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
     return true;

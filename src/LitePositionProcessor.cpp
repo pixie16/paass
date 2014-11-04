@@ -17,17 +17,17 @@ using namespace std;
 
 namespace dammIds {
     namespace position {
-	const int QDC_JUMP = 20;
-	const int LOC_SUM  = 18;
+        const int QDC_JUMP = 20; //!< Number of QDCs to jump
+        const int LOC_SUM  = 18;//!< Location Summary
 
-	const int D_QDCNORMN_LOCX          = 2300;
-	const int DD_QDCSUM__ENERGY_LOCX   = 4500;
-	const int D_QDCTOTNORM_LOCX        = 2460;
-	const int D_INFO_LOCX              = 2480;
-	const int DD_QDCN__QDCN_LOCX       = 2500;
-	const int DD_QDCTOT__QDCTOT_LOCX   = 2660;
-	const int DD_POSITION__ENERGY_LOCX = 2680;
-	const int DD_POSITION              = 2699;
+        const int D_QDCNORMN_LOCX          = 2300;//!< QDC Normalized for Loc X
+        const int DD_QDCSUM__ENERGY_LOCX   = 4500;//!< QDC vs. Energy for Loc X
+        const int D_QDCTOTNORM_LOCX        = 2460;//!< Normalized QDC for Loc X
+        const int D_INFO_LOCX              = 2480;//!< Information for Loc X
+        const int DD_QDCN__QDCN_LOCX       = 2500;//!< Norm QDC vs. Norm QDC for Loc X
+        const int DD_QDCTOT__QDCTOT_LOCX   = 2660;//!< Tot QDC vs Tot QDC for Loc X
+        const int DD_POSITION__ENERGY_LOCX = 2680;//!< Position vs. Energy for Loc X
+        const int DD_POSITION              = 2699;//!< Position
     }
 }
 

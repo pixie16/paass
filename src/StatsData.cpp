@@ -18,11 +18,9 @@ using pixie::word_t;
 
 StatsData stats;
 
-/** Clear the statistics data structures */
-StatsData::StatsData()
-{
+StatsData::StatsData() {
   std::stringstream ss;
-  ss << "Allocating " << sizeof(oldData) + sizeof(data) 
+  ss << "Allocating " << sizeof(oldData) + sizeof(data)
      << " bytes for statistics data";
   Messenger m;
   m.detail(ss.str());
@@ -33,15 +31,10 @@ StatsData::StatsData()
   firstTime = NAN;
 }
 
-/** Copy the statistics data from the data stream to a memory block,
- *   preserving a copy of the old statistics data so that the incremental
- *   change can be determined */
- 
-void StatsData::DoStatisticsBlock(word_t *buf, int vsn)
-{
+void StatsData::DoStatisticsBlock(word_t *buf, int vsn) {
   if (memcmp(data[vsn], buf, sizeof(word_t)*statSize) != 0) {
     memcpy(oldData[vsn], data[vsn], sizeof(word_t)*statSize);
-    memcpy(data[vsn], buf, sizeof(word_t)*statSize);    
+    memcpy(data[vsn], buf, sizeof(word_t)*statSize);
     if (firstTime == NAN)
 	firstTime = GetRealTime();
     if (vsn == 0) {
@@ -52,10 +45,8 @@ void StatsData::DoStatisticsBlock(word_t *buf, int vsn)
   }
 }
 
-/** Return the most recent statistics live time for a given id */
-double StatsData::GetCurrTime(unsigned int id) const
-{
-  // from Pixie15DSP_r15428.var  
+double StatsData::GetCurrTime(unsigned int id) const {
+  // from Pixie15DSP_r15428.var
   const size_t offset  = 0x4a340;
   const size_t ltPosHi = 0x4a37f - offset;
   const size_t ltPosLo = 0x4a38f - offset;
@@ -73,10 +64,7 @@ double StatsData::GetCurrTime(unsigned int id) const
   return d;
 }
 
-/** Return the change in the number of fast peaks between the two most 
- *  recent statistics blocks for a given id */
-double StatsData::GetDiffPeaks(unsigned int id) const
-{
+double StatsData::GetDiffPeaks(unsigned int id) const {
   // from Pixie16DSP_r15428.var
   const size_t offset = 0x4a340;
   const size_t peaksPosHi = 0x4a39f - offset;
@@ -94,11 +82,8 @@ double StatsData::GetDiffPeaks(unsigned int id) const
   return d;
 }
 
-/** Return the elapsed live time between the two most recent statistics 
- *  blocks for a given channel */
-double StatsData::GetDiffTime(unsigned int id) const
-{
-  // from Pixie16DSP_r15428.var  
+double StatsData::GetDiffTime(unsigned int id) const {
+  // from Pixie16DSP_r15428.var
   const size_t offset = 0x4a340;
   const size_t ltPosHi = 0x4a37f - offset;
   const size_t ltPosLo = 0x4a38f - offset;
@@ -117,9 +102,7 @@ double StatsData::GetDiffTime(unsigned int id) const
   return d;
 }
 
-/** Get the run time from the statistics block for a given module */
-double StatsData::GetRealTime(unsigned int mod) const
-{
+double StatsData::GetRealTime(unsigned int mod) const {
     // from Pixie16DSP_r15428.var
     const size_t offset  = 0x4a340;
     const size_t rtPosHi = 0x4a340 - offset;
