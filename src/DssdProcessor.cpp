@@ -20,61 +20,58 @@ const double DssdProcessor::cutoffEnergy = 4500;
 
 using namespace dammIds::dssd;
 
-namespace dammIds { 
+namespace dammIds {
     namespace dssd {
-        const int DD_IMPLANT_POSITION = 25;
-        const int DD_DECAY_POSITION   = 26;
-        const int DD_IMPLANT_FRONT_ENERGY__POSITION = 41;
-        const int DD_IMPLANT_BACK_ENERGY__POSITION  = 42;
-        const int DD_DECAY_FRONT_ENERGY__POSITION   = 43;
-        const int DD_DECAY_BACK_ENERGY__POSITION    = 44;
-
-        const int DD_ENERGY__DECAY_TIME_GRANX = 50;
+        const int DD_IMPLANT_POSITION = 25;//!< Implant Position
+        const int DD_DECAY_POSITION   = 26;//!< Decay Position
+        const int DD_IMPLANT_FRONT_ENERGY__POSITION = 41;//!< Implant Front vs. Position
+        const int DD_IMPLANT_BACK_ENERGY__POSITION  = 42;//!< Implant Back vs. Position
+        const int DD_DECAY_FRONT_ENERGY__POSITION   = 43;//!< Decay Front vs. Position
+        const int DD_DECAY_BACK_ENERGY__POSITION    = 44;//!< Decay Back vs. Position
+        const int DD_ENERGY__DECAY_TIME_GRANX = 50;//!< Energy Vs. Decay Time
     }
-} // dssd namespace
+}
 
 
-DssdProcessor::DssdProcessor() : 
+DssdProcessor::DssdProcessor() :
     EventProcessor(OFFSET, RANGE, "dssd"),
-    frontSummary(NULL), backSummary(NULL)
-{
+    frontSummary(NULL), backSummary(NULL) {
     name = "dssd";
 
     associatedTypes.insert("dssd_front");
     associatedTypes.insert("dssd_back");
 }
 
-void DssdProcessor::DeclarePlots(void)
-{
+void DssdProcessor::DeclarePlots(void) {
     using namespace dammIds::dssd;
 
-    const int implantEnergyBins = SE; 
+    const int implantEnergyBins = SE;
     const int decayEnergyBins   = SD;
     const int positionBins = S6;
     const int timeBins     = S8;
 
-    DeclareHistogram2D(DD_IMPLANT_FRONT_ENERGY__POSITION, 
+    DeclareHistogram2D(DD_IMPLANT_FRONT_ENERGY__POSITION,
 		       implantEnergyBins, positionBins, "DSSD Strip vs E - RF");
     DeclareHistogram2D(DD_IMPLANT_BACK_ENERGY__POSITION,
 		       implantEnergyBins, positionBins, "DSSD Strip vs E - RB");
     DeclareHistogram2D(DD_DECAY_FRONT_ENERGY__POSITION,
 		       decayEnergyBins, positionBins, "DSSD Strip vs E - DF");
-    DeclareHistogram2D(DD_DECAY_BACK_ENERGY__POSITION, 
+    DeclareHistogram2D(DD_DECAY_BACK_ENERGY__POSITION,
 		       decayEnergyBins, positionBins, "DSSD Strip vs E - DB");
-    DeclareHistogram2D(DD_IMPLANT_POSITION, 
+    DeclareHistogram2D(DD_IMPLANT_POSITION,
 		       positionBins, positionBins, "DSSD Hit Pattern - R");
-    DeclareHistogram2D(DD_DECAY_POSITION, 
+    DeclareHistogram2D(DD_DECAY_POSITION,
 		       positionBins, positionBins, "DSSD Hit Pattern - D");
 
     DeclareHistogram2D(DD_ENERGY__DECAY_TIME_GRANX + 0, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (10ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_ENERGY__DECAY_TIME_GRANX + 1, decayEnergyBins, timeBins, 
+    DeclareHistogram2D(DD_ENERGY__DECAY_TIME_GRANX + 1, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (100ns/ch)(xkeV)");
     DeclareHistogram2D(DD_ENERGY__DECAY_TIME_GRANX + 2, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (400ns/ch)(xkeV)");
     DeclareHistogram2D(DD_ENERGY__DECAY_TIME_GRANX + 3, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (1us/ch)(xkeV)");
-    DeclareHistogram2D(DD_ENERGY__DECAY_TIME_GRANX + 4, decayEnergyBins, timeBins, 
+    DeclareHistogram2D(DD_ENERGY__DECAY_TIME_GRANX + 4, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (10us/ch)(xkeV)");
     DeclareHistogram2D(DD_ENERGY__DECAY_TIME_GRANX + 5, decayEnergyBins, timeBins,
 		       "DSSD Ty,Ex (100us/ch)(xkeV)");
@@ -87,8 +84,7 @@ void DssdProcessor::DeclarePlots(void)
 
 }
 
-bool DssdProcessor::Process(RawEvent &event)
-{
+bool DssdProcessor::Process(RawEvent &event) {
     using namespace dammIds::dssd;
 
     if (!EventProcessor::Process(event))
@@ -134,12 +130,12 @@ bool DssdProcessor::Process(RawEvent &event)
 	} else {
 	    corEvent.type = EventInfo::UNKNOWN_EVENT;
 	}
-	corr.Correlate(corEvent, frontPos, backPos); 
+	corr.Correlate(corEvent, frontPos, backPos);
     } else if (hasFront) {
   	if (frontEnergy > cutoffEnergy) {
 	    corEvent.type = EventInfo::IMPLANT_EVENT;
 	} else corEvent.type = EventInfo::DECAY_EVENT;
-	   
+
     } else if (hasBack) {
 	if (backEnergy > cutoffEnergy) {
 	    corEvent.type = EventInfo::IMPLANT_EVENT;
@@ -164,11 +160,11 @@ bool DssdProcessor::Process(RawEvent &event)
 	if (corr.GetCondition() == Correlator::VALID_DECAY) {
 	    const unsigned int NumGranularities = 8;
 	    // time resolution in seconds per bin
-	    const double timeResolution[NumGranularities] = 
+	    const double timeResolution[NumGranularities] =
 		{10e-9, 100e-9, 400e-9, 1e-6, 100e-6, 1e-3, 10e-3, 100e-3};
-	 
+
 	    for (unsigned int i = 0; i < NumGranularities; i++) {
-		int timeBin = int(corr.GetDecayTime() * 
+		int timeBin = int(corr.GetDecayTime() *
                 Globals::get()->clockInSeconds() / timeResolution[i]);
 
 		plot(DD_ENERGY__DECAY_TIME_GRANX + i, frontEnergy, timeBin);
@@ -179,5 +175,3 @@ bool DssdProcessor::Process(RawEvent &event)
     EndProcess(); // update the processing time
     return true;
 }
-
-

@@ -17,25 +17,26 @@ using namespace std;
 
 namespace dammIds {
     namespace position {
-        const int QDC_JUMP = 20;
-        const int LOC_SUM  = 18;
+        const int QDC_JUMP = 20;//!< Number of QDCs to Jump?
+        const int LOC_SUM  = 18;//!< Location Summary
 
-        const int D_QDCNORMN_LOCX          = 0;
-        const int D_QDCTOTNORM_LOCX        = 160;
-        const int D_INFO_LOCX              = 180;
-        const int DD_QDCN__QDCN_LOCX       = 200;
-        const int DD_QDCTOT__QDCTOT_LOCX   = 360;
-        const int DD_POSITION__ENERGY_LOCX = 380;
-        const int DD_POSITION              = 399;
+        const int D_QDCNORMN_LOCX          = 0;//!< QDC for Location X
+        const int D_QDCTOTNORM_LOCX        = 160;//!< Tot QDC for Loc X
+        const int D_INFO_LOCX              = 180;//!< Info for Loc X
+        const int DD_QDCN__QDCN_LOCX       = 200;//!< QDC vs. QDC for Loc X
+        const int DD_QDCTOT__QDCTOT_LOCX   = 360;//!< Tot QDC vs. Tot QDC for Loc X
+        const int DD_POSITION__ENERGY_LOCX = 380;//!< Position Vs. Energy for Loc X
+        const int DD_POSITION              = 399;//!< Position
 
-        const int DD_QDCR2__QDCR1_LOCX     = 400;
-        const int DD_QDCR2__QDCR3_LOCX     = 420;
-        const int DD_QDCR2__QDCR4_LOCX     = 440;
-        const int DD_QDC1R__POS_LOCX       = 460;
-        const int DD_QDC2R__POS_LOCX       = 480;
-        const int DD_QDC3R__POS_LOCX       = 500;
-        const int DD_QDC4R__POS_LOCX       = 520;
+        const int DD_QDCR2__QDCR1_LOCX     = 400;//!< QDC Right 2 vs. QDC Right 1 for Loc X
+        const int DD_QDCR2__QDCR3_LOCX     = 420;//!< QDC Right 2 vs. QDC Right 3 for Loc X
+        const int DD_QDCR2__QDCR4_LOCX     = 440;//!< QDC Right 2 vs. QDC Right 4 for Loc X
+        const int DD_QDC1R__POS_LOCX       = 460;//!< QDC Right 1 vs. Pos for Loc X
+        const int DD_QDC2R__POS_LOCX       = 480;//!< QDC Right 2 vs. Pos for Loc X
+        const int DD_QDC3R__POS_LOCX       = 500;//!< QDC Right 3 vs. Pos for Loc X
+        const int DD_QDC4R__POS_LOCX       = 520;//!< QDC Right 4 vs. Pos for Loc X
 
+    //! Enumeration of Flags for information histogram
 	enum EInfo {INFO_OKAY = 0,
 		    INFO_MISSING_BOTTOM_QDC = 1,
 		    INFO_MISSING_TOP_QDC = 2,
@@ -51,31 +52,15 @@ namespace dammIds {
 
 using namespace dammIds::position;
 
-/*!
- * Initialize the qdc to handle ssd events
- */
-PositionProcessor::PositionProcessor() : 
+PositionProcessor::PositionProcessor() :
     EventProcessor(OFFSET, RANGE, "position") {
     associatedTypes.insert("ssd");
 }
 
-/*!
- * Reads in QDC parameters from an input file
- *   The file format allows comment lines at the beginning
- *   Followed by QDC lengths
- *   Which QDC to use for position calculation
- *     followed by the amount to scale the [0,1] result by to physical units
- *   And min and max values of the normalized QDC for each location in form:
- *      (location) (min) (max)
- *   Note that QDC 0 is considered to be a baseline section of the trace for
- *     baseline removal for the other QDCs
- */
 bool PositionProcessor::Init(RawEvent& rawev)
 {
-    // Call the parent function to handle the standard stuff
-    if (!EventProcessor::Init(rawev)) {
+    if (!EventProcessor::Init(rawev))
         return false;
-    }
 
     DetectorLibrary* modChan = DetectorLibrary::get();
 
@@ -156,9 +141,6 @@ bool PositionProcessor::Init(RawEvent& rawev)
     return true;
 }
 
-/**
- *  Declare all the plots we plan on using (part of dammIds::qdc namespace)
- */
 void PositionProcessor::DeclarePlots() {
     using namespace dammIds::position;
 
@@ -245,10 +227,6 @@ void PositionProcessor::DeclarePlots() {
     histo.DeclareHistogram2D(DD_POSITION, locationBins, positionBins, "Qdc Position", 1, "pos");
 }
 
-/**
- *  Process the QDC data involved in top/bottom side for a strip
- *  Note QDC lengths are HARD-CODED at the moment for the plots and to determine the position
- */
 bool PositionProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return false;
@@ -366,7 +344,7 @@ bool PositionProcessor::Process(RawEvent &event) {
         plot(D_INFO_LOCX + LOC_SUM, INFO_OKAY);
 
 
-        for (int i = 1; i < numQdcs; ++i) {		
+        for (int i = 1; i < numQdcs; ++i) {
             if (top->GetQdcValue(i) == pixie::U_DELIMITER) {
                 // Recreate qdc from trace
                 topQdc[i] = accumulate(top->GetTrace().begin() + qdcPos[i-1],
@@ -377,8 +355,8 @@ bool PositionProcessor::Process(RawEvent &event) {
 
             topQdc[i] -= topQdc[0] * qdcLen[i] / qdcLen[0];
             topQdcTot += topQdc[i];
-            topQdc[i] /= qdcLen[i];		
-            
+            topQdc[i] /= qdcLen[i];
+
             if (bottom->GetQdcValue(i) == pixie::U_DELIMITER) {
                 // Recreate qdc from trace
                 bottomQdc[i] = accumulate(bottom->GetTrace().begin() + qdcPos[i-1],
@@ -439,8 +417,6 @@ bool PositionProcessor::Process(RawEvent &event) {
         plot(DD_QDCTOT__QDCTOT_LOCX + LOC_SUM, topQdcTot, bottomQdcTot);
     } // end iteration over sum events
 
-   // test
-
     EndProcess();
 
     return true;
@@ -448,8 +424,7 @@ bool PositionProcessor::Process(RawEvent &event) {
 
 ChanEvent* PositionProcessor::FindMatchingEdge(ChanEvent *match,
 					  vector<ChanEvent*>::const_iterator begin,
-					  vector<ChanEvent*>::const_iterator end) const
-{
+					  vector<ChanEvent*>::const_iterator end) const {
     for (;begin < end; ++begin) {
         if ( (*begin)->GetChanID().GetLocation() == match->GetChanID().GetLocation() &&
             abs( (*begin)->GetTime() - match->GetTime() ) < matchingTimeCut ) {
@@ -461,8 +436,7 @@ ChanEvent* PositionProcessor::FindMatchingEdge(ChanEvent *match,
 
 ChanEvent* PositionProcessor::FindMatchingEdge(ChanEvent *match,
 					  vector<ChanEvent*>::const_reverse_iterator begin,
-					  vector<ChanEvent*>::const_reverse_iterator end) const
-{
+					  vector<ChanEvent*>::const_reverse_iterator end) const {
     for (;begin < end; ++begin) {
         if ( (*begin)->GetChanID().GetLocation() == match->GetChanID().GetLocation() &&
             abs( (*begin)->GetTime() - match->GetTime() ) < matchingTimeCut ) {

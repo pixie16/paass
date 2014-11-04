@@ -5,9 +5,10 @@ currently in no particular order. Some of these features have been tackled by
 Krzys Miernik, but have not been implemented as of yet.
 
 * DOCUMENTATION CHECK and UPDATE
-* Fix issues with the TraceAnalyzers, plotters, filterers, etc. - They are not
-    plotting properly.
-* Incorporate the Globals.xml in a coherent way.
+* Revamp the TraceFilterer
+* Convert Timing Structures into Classes
+* Concatenate all of the logic processors, they do the same things, just with
+    various names
 * Incorporate changes necessary for Pixie-500 data (MAJOR)
 * Update statistics analysis
 * Add support for subsubtypes throughout? (Especially to make subtype summaries
@@ -18,7 +19,6 @@ Krzys Miernik, but have not been implemented as of yet.
 * Find a cogent way to set the analyzer level using "trace" parameter
     from map2.txt
 * Add some conglomerated location/type/subtype structure
-* Output a simple histogram list
 * Roll-over times for scalar/deadtime spectra
 * Check for calibrated energies greater than zero which are always true due to
     float-izing digital values.

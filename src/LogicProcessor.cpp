@@ -19,34 +19,31 @@ using namespace dammIds::logic;
 
 namespace dammIds {
     namespace logic {
-        const int D_COUNTER_START = 0;
-        const int D_COUNTER_STOP  = 5;
-        const int D_TDIFF_STARTX  = 10;
-        const int D_TDIFF_STOPX   = 20;
-        const int D_TDIFF_SUMX    = 30;
-        const int D_TDIFF_LENGTHX = 50;
+        const int D_COUNTER_START = 0;//!< Counter for the starts
+        const int D_COUNTER_STOP  = 5;//!< Counter for the stops
+        const int D_TDIFF_STARTX  = 10;//!< Tdiff between starts
+        const int D_TDIFF_STOPX   = 20;//!< Tdiff between stops
+        const int D_TDIFF_SUMX    = 30;//!< Sum of tdiffs
+        const int D_TDIFF_LENGTHX = 50;//!< Length between tdiff
     }
 } // logic namespace
 
 
-LogicProcessor::LogicProcessor(void) : 
+LogicProcessor::LogicProcessor(void) :
   EventProcessor(OFFSET, RANGE, "logic"),
   lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
-  logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC)
-{
+  logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC) {
     associatedTypes.insert("logic");
 }
 
-LogicProcessor::LogicProcessor(int offset, int range) : 
+LogicProcessor::LogicProcessor(int offset, int range) :
   EventProcessor(offset, range, "logic"),
   lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
-  logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC)
-{
+  logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC) {
     associatedTypes.insert("logic");
 }
 
-void LogicProcessor::DeclarePlots(void)
-{
+void LogicProcessor::DeclarePlots(void) {
     using namespace dammIds::logic;
     const int counterBins = S4;
     const int timeBins = SC;
@@ -61,57 +58,54 @@ void LogicProcessor::DeclarePlots(void)
     }
 }
 
-bool LogicProcessor::Process(RawEvent &event)
-{
+bool LogicProcessor::Process(RawEvent &event) {
     const double logicPlotResolution = 10e-6 / Globals::get()->clockInSeconds();
     if (!EventProcessor::Process(event))
-	return false;
+        return false;
 
     using namespace dammIds::logic;
-    
+
     static const vector<ChanEvent*> &events = sumMap["logic"]->GetList();
-    
+
     for (vector<ChanEvent*>::const_iterator it = events.begin();
-	 it != events.end(); it++) {
-	ChanEvent *chan = *it;
-        
-	string subtype   = chan->GetChanID().GetSubtype();
-	unsigned int loc = chan->GetChanID().GetLocation();
-	double time = chan->GetTime();
+            it != events.end(); it++) {
+            ChanEvent *chan = *it;
 
-	if(subtype == "start") {
-	    if (!isnan(lastStartTime.at(loc))) {
-	        double timediff = time - lastStartTime.at(loc);
-	      
-		plot(D_TDIFF_STARTX + loc, timediff / logicPlotResolution);
-		plot(D_TDIFF_SUMX + loc,   timediff / logicPlotResolution);
-	    }
+            string subtype   = chan->GetChanID().GetSubtype();
+            unsigned int loc = chan->GetChanID().GetLocation();
+            double time = chan->GetTime();
 
-	    //? bounds checking
-	    lastStartTime.at(loc) = time;
-	    logicStatus.at(loc) = true;
+            if(subtype == "start") {
+                if (!isnan(lastStartTime.at(loc))) {
+                        double timediff = time - lastStartTime.at(loc);
+                            plot(D_TDIFF_STARTX + loc, timediff / logicPlotResolution);
+                            plot(D_TDIFF_SUMX + loc,   timediff / logicPlotResolution);
+                        }
 
-	    startCount.at(loc)++;
-	    plot(D_COUNTER_START, loc);
-	} else if (subtype == "stop") {
-  	    if (!isnan(lastStopTime.at(loc))) {
-		double timediff = time - lastStopTime.at(loc);
-		plot(D_TDIFF_STOPX + loc, timediff / logicPlotResolution);
-		plot(D_TDIFF_SUMX + loc,  timediff / logicPlotResolution);
-		if (!isnan(lastStartTime.at(loc))) {
-  		    double moveTime = time - lastStartTime.at(loc);    
-		    plot(D_TDIFF_LENGTHX + loc, moveTime / logicPlotResolution);
-		}
-	    }
-	    //? bounds checking
-	    lastStopTime.at(loc) = time;
-	    logicStatus.at(loc) = false;
+                lastStartTime.at(loc) = time;
+                logicStatus.at(loc) = true;
 
-	    stopCount.at(loc)++;
-	    plot(D_COUNTER_STOP, loc);
+                startCount.at(loc)++;
+                plot(D_COUNTER_START, loc);
+            } else if (subtype == "stop") {
+                if (!isnan(lastStopTime.at(loc))) {
+                double timediff = time - lastStopTime.at(loc);
+                plot(D_TDIFF_STOPX + loc, timediff / logicPlotResolution);
+                plot(D_TDIFF_SUMX + loc,  timediff / logicPlotResolution);
+                if (!isnan(lastStartTime.at(loc))) {
+                    double moveTime = time - lastStartTime.at(loc);
+                    plot(D_TDIFF_LENGTHX + loc, moveTime / logicPlotResolution);
+                }
+            }
+
+            lastStopTime.at(loc) = time;
+            logicStatus.at(loc) = false;
+
+            stopCount.at(loc)++;
+            plot(D_COUNTER_STOP, loc);
+        }
     }
-}
 
-    EndProcess(); // update processing time
+    EndProcess();
     return true;
 }

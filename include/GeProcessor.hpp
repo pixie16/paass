@@ -22,84 +22,81 @@ namespace dammIds {
         * Addback offset = 50
         */
 
-        const unsigned int MAX_CLOVERS = 4; // for *_DETX spectra
-        const unsigned int MAX_TIMEX = 5; // for *_TIMEX spectra
+        const unsigned int MAX_CLOVERS = 4; //!< for *_DETX spectra
+        const unsigned int MAX_TIMEX = 5; //!< for *_TIMEX spectra
 
-        const int D_ENERGY = 0;
-        const int D_ENERGY_CLOVERX = 2; 
+        const int D_ENERGY = 0;//!< Energy
+        const int D_ENERGY_CLOVERX = 2; //!< Energy Full Clover
+        const int D_ENERGY_MOVE = 6;//!< Energy during move
+        const int D_MULT = 9;//!< Multiplicity
+        const int D_ADD_ENERGY = 50; //!< Addback energy
+        const int D_ADD_ENERGY_CLOVERX = 55;//!< Add back energy per clover
+        const int D_ADD_ENERGY_TOTAL = 59;//!< Addback energy total
 
-        const int D_ENERGY_MOVE = 6;
-        const int D_MULT = 9;
+        const int DD_ENERGY = 100;//!< Gamma-Gamma Energy
+        const int DD_ENERGY_PROMPT = 101;//!< Gamma-Gamma Spectra - Prompt
+        const int DD_ENERGY_CGATE1 = 102;//!< Gamma-Gamma - Cycle Gate 1
+        const int DD_ENERGY_CGATE2 = 103;//!< Gamma-Gamma - Cycle Gate 2
 
-        const int D_ADD_ENERGY = 50; 
-        const int D_ADD_ENERGY_CLOVERX = 55;
-        const int D_ADD_ENERGY_TOTAL = 59;
+        const int DD_TDIFF__GATEX = 105;//!< Tdiff Gamma - Beta - Gated
+        const int DD_ENERGY__GATEX = 106;//!< Energy - Gated
+        const int DD_ANGLE__GATEX = 107;//!< Gamma Angle - Gated
 
-        // 2D spectra
-        const int DD_ENERGY = 100;
-        const int DD_ENERGY_PROMPT = 101;
-        const int DD_ENERGY_CGATE1 = 102; 
-        const int DD_ENERGY_CGATE2 = 103; 
+        const int DD_ENERGY__TIMEX = 120;//!< Energy vs. Time
 
-        const int DD_TDIFF__GATEX = 105;
-        const int DD_ENERGY__GATEX = 106;
-        const int DD_ANGLE__GATEX = 107;
+        const int DD_ADD_ENERGY = 150;//!< Addback Energy
 
-        const int DD_ENERGY__TIMEX = 120;
+        const int DD_TDIFF__GAMMA_GAMMA_ENERGY = 155;//!< Tdiff vs Gamma-Gamma Energy
+        const int DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM = 156;//!< Tdiff vs. Gamma-Gamma Energy sum
 
-        const int DD_ADD_ENERGY = 150;
-        //Addback related
-        const int DD_TDIFF__GAMMA_GAMMA_ENERGY = 155;
-        const int DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM = 156;
-
-        const int DD_ADD_ENERGY__TIMEX = 170;
+        const int DD_ADD_ENERGY__TIMEX = 170;//!< Addback Energy vs. Time
 
         namespace betaGated {
-            const int D_ENERGY = 10;
-            const int D_ENERGY_PROMPT = 11;
-            const int D_ENERGY_CLOVERX = 12;
-            const int D_ENERGY_MOVE = 16;
-            const int D_ENERGY_BETA0 = 17; 
-            const int D_ENERGY_BETA1 = 18; 
-            const int DD_ENERGY__BETAGAMMALOC = 19;
+            const int D_ENERGY = 10;//!< Beta Gated Energy
+            const int D_ENERGY_PROMPT = 11;//!< Beta Gated Prompt Energy
+            const int D_ENERGY_CLOVERX = 12;//!< Beta Gated Clover Energy
+            const int D_ENERGY_MOVE = 16;//!< Beta Gated Energy during Move
+            const int D_ENERGY_BETA0 = 17;//!< Energy Beta 0
+            const int D_ENERGY_BETA1 = 18;//!< Energy Beta 1
+            const int DD_ENERGY__BETAGAMMALOC = 19;//!< Energy vs Beta-Gamma Loc
 
-            const int D_ADD_ENERGY = 60; 
-            const int D_ADD_ENERGY_PROMPT = 61; 
-            const int D_ADD_ENERGY_CLOVERX = 65; 
-            const int D_ADD_ENERGY_TOTAL = 69; 
+            const int D_ADD_ENERGY = 60;//!< Beta Gated Addback Energy
+            const int D_ADD_ENERGY_PROMPT = 61;//!< Beta Gated Add Back Prompt Energy
+            const int D_ADD_ENERGY_CLOVERX = 65;//!< Beta Gated Addback Clover Energy
+            const int D_ADD_ENERGY_TOTAL = 69;//!< Beta Gated Addback Total Energy
 
-            const int DD_ENERGY = 110; 
-            const int DD_ENERGY_PROMPT = 111; 
-            const int DD_ENERGY_CGATE1 = 112; 
-            const int DD_ENERGY_CGATE2 = 113; 
-            const int DD_ENERGY_BDELAYED = 114;
+            const int DD_ENERGY = 110;//!< Beta Gated Gamma-Gamma
+            const int DD_ENERGY_PROMPT = 111;//!< Beta Gated Gamma-Gamma Prompt
+            const int DD_ENERGY_CGATE1 = 112;//!< Beta Gated Gamma-Gamma Cycle 1
+            const int DD_ENERGY_CGATE2 = 113;//!< Beta Gated Gamma-Gamma Cycle 2
+            const int DD_ENERGY_BDELAYED = 114;//!< Beta Gated Gamma-Gamma Beta Delayed
 
-            const int DD_TDIFF__GATEX = 115;
-            const int DD_ENERGY__GATEX = 116;
-            const int DD_ANGLE__GATEX = 117;
+            const int DD_TDIFF__GATEX = 115;//!< Beta Gated Time Diff Gated
+            const int DD_ENERGY__GATEX = 116;//!< Beta Gated Energy Gated
+            const int DD_ANGLE__GATEX = 117;//!< Beta Gated Angle Gated
 
-            const int DD_TDIFF__GAMMA_ENERGY = 118;
-            const int DD_TDIFF__BETA_ENERGY = 119;
+            const int DD_TDIFF__GAMMA_ENERGY = 118; //!< Beta Gated TDiff vs. Gamma Energy
+            const int DD_TDIFF__BETA_ENERGY = 119;//!< Beta Gated Tdiff vs. Beta Energy
 
-            const int DD_ENERGY__TIMEX = 130; 
-            const int DD_ENERGY__TIMEX_GROW = 135; 
-            const int DD_ENERGY__TIMEX_DECAY = 140; 
+            const int DD_ENERGY__TIMEX = 130;//!< Beta Gated Energy vs. Time
+            const int DD_ENERGY__TIMEX_GROW = 135;//!< Beta Gated Energy vs. Grow Cycle
+            const int DD_ENERGY__TIMEX_DECAY = 140;//!< Beta Gated Energy vs. Decay Cycle
 
-            const int DD_ADD_ENERGY = 160; 
-            const int DD_ADD_ENERGY_PROMPT = 161; 
-            const int DD_ADD_ENERGY__TIMEX = 180;
+            const int DD_ADD_ENERGY = 160;//!< Beta Gated Gamma-Gamma Addback
+            const int DD_ADD_ENERGY_PROMPT = 161;//!< Beta Gated Gamma-Gamma Prompt addback
+            const int DD_ADD_ENERGY__TIMEX = 180;//!< Beta Gated Addback Energy vs. Time
         }
 
         namespace multi {
-            const int D_ADD_ENERGY = 52; 
-            const int D_ADD_ENERGY_TOTAL = 54; 
-            const int DD_ADD_ENERGY = 152;
+            const int D_ADD_ENERGY = 52;//!< multi gated addback energy
+            const int D_ADD_ENERGY_TOTAL = 54;//!< multi gated addback total energy
+            const int DD_ADD_ENERGY = 152;//!< multi gated addback energy
             namespace betaGated {
-                const int D_ADD_ENERGY = 62; 
-                const int D_ADD_ENERGY_PROMPT = 63; 
-                const int D_ADD_ENERGY_TOTAL = 64; 
-                const int DD_ADD_ENERGY = 162; 
-                const int DD_ADD_ENERGY_PROMPT = 163; 
+                const int D_ADD_ENERGY = 62;//!< beta/multi gated addback energy
+                const int D_ADD_ENERGY_PROMPT = 63;//!< beta/multi gated prompt addback energy
+                const int D_ADD_ENERGY_TOTAL = 64;//!< beta/multi gated total addback energy
+                const int DD_ADD_ENERGY = 162;//!< beta/multi gated addback energy
+                const int DD_ADD_ENERGY_PROMPT = 163;//!< beta/multi gated addback energy
             }
         }
     } // end namespace ge
@@ -172,7 +169,7 @@ class GeProcessor : public EventProcessor
 {
 protected:
     static const unsigned int chansPerClover = 4; /*!< number of channels per clover */
-    
+
     std::map<int, int> leafToClover;   /*!< Translate a leaf location to a clover number */
     std::vector<float> timeResolution; /*!< Contatin time resolutions used */
     unsigned int numClovers;           /*!< number of clovers in map */
@@ -190,10 +187,10 @@ protected:
     /** Preprocessed good ge events, filled in PreProcess.*/
     std::vector<ChanEvent*> geEvents_;
 
-    void DeclareHistogramGranY(int dammId, int xsize, int ysize, 
+    void DeclareHistogramGranY(int dammId, int xsize, int ysize,
 			       const char *title, int halfWordsPerChan,
 			       const std::vector<float> &granularity, const char *units );
-    void granploty(int dammId, double x, double y, 
+    void granploty(int dammId, double x, double y,
                    const std::vector<float> &granularity);
     void symplot(int dammID, double bin1, double bin2);
 
@@ -226,7 +223,7 @@ protected:
     double gammaGammaLimit_;
 
     /** Cycle gates replace early/high limits. Gate set on cycle in time
-     * allows to check the gamma-gamma coincidences within the chosen 
+     * allows to check the gamma-gamma coincidences within the chosen
      * range of cycle (e.g 1 - 1.5 s) */
     double cycle_gate1_min_;
     double cycle_gate1_max_;

@@ -1,5 +1,5 @@
 /*! \file SsdProcessor.cpp
- * \brief The SSD processor handles detectors of type ssd 
+ * \brief The SSD processor handles detectors of type ssd
  */
 
 #include "DammPlotIds.hpp"
@@ -8,7 +8,7 @@
 #include "RawEvent.hpp"
 
 #include <iostream>
- 
+
 using std::cout;
 using std::endl;
 
@@ -16,21 +16,19 @@ using namespace dammIds::ssd;
 
 namespace dammIds {
     namespace ssd {
-        const int NUM_DETECTORS = 4;
-        const int DD_POSITION__ENERGY_DETX = 1; // for x detectors
+        const int NUM_DETECTORS = 4; //!< The number of detectors to make
+        const int DD_POSITION__ENERGY_DETX = 1; //!< for x detectors
     }
-} // ssd namespace
+}
 
-SsdProcessor::SsdProcessor() : EventProcessor(OFFSET, RANGE, "ssd")
-{
+SsdProcessor::SsdProcessor() : EventProcessor(OFFSET, RANGE, "ssd") {
     associatedTypes.insert("ssd");
 }
 
-void SsdProcessor::DeclarePlots(void)
-{
+void SsdProcessor::DeclarePlots(void) {
     using namespace dammIds::ssd;
-    
-    const int energyBins    = SE; 
+
+    const int energyBins    = SE;
     const int positionBins  = S5;
     // const int timeBins     = S8;
 
@@ -40,11 +38,10 @@ void SsdProcessor::DeclarePlots(void)
     }
 }
 
-bool SsdProcessor::Process(RawEvent &event)
-{
+bool SsdProcessor::Process(RawEvent &event) {
     using namespace dammIds::ssd;
     if (!EventProcessor::Process(event))
-	return false;
+        return false;
 
     static bool firstTime = true;
     static const DetectorSummary *ssdSummary[NUM_DETECTORS];
@@ -56,7 +53,7 @@ bool SsdProcessor::Process(RawEvent &event)
         ssdSummary[3] = event.GetSummary("ssd:ssd_4");
         firstTime = false;
     }
-    
+
     for (int i = 0; i < NUM_DETECTORS; i++) {
         if (ssdSummary[i]->GetMult() == 0)
             continue;

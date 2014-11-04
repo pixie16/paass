@@ -9,7 +9,6 @@
 #include <algorithm>
 #include <iostream>
 
-#include <TFile.h>
 #include <TTree.h>
 
 #include "DetectorDriver.hpp"
@@ -24,7 +23,7 @@ RootProcessor::RootProcessor(const char *fileName, const char *treeName)
 {
     name = "RootProcessor";
     file = new TFile(fileName, "recreate"); //! overwrite tree for now
-    tree = new TTree(treeName, treeName);    
+    tree = new TTree(treeName, treeName);
 }
 
 /** Add branches to the tree from the event processors in the driver */
@@ -46,8 +45,8 @@ bool RootProcessor::Init(RawEvent& rawev)
         set_union( (*it)->GetTypes().begin(), (*it)->GetTypes().end(),
             associatedTypes.begin(), associatedTypes.end(),
             inserter(associatedTypes, associatedTypes.begin()) );
-        }	  
-    } 
+        }
+    }
     return EventProcessor::Init(rawev);
 }
 
@@ -59,7 +58,7 @@ bool RootProcessor::Process(RawEvent &event)
 
     for (vector<EventProcessor *>::iterator it = vecProcess.begin();
 	 it != vecProcess.end(); it++) {
-	(*it)->FillBranch();	
+	(*it)->FillBranch();
     }
 
     tree->Fill();

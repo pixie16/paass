@@ -8,8 +8,8 @@
 
 #include "EventProcessor.hpp"
 
-class NeutronProcessor : public EventProcessor
-{
+//! Processor for handling scintillator neutron detectors -  Deprecated
+class NeutronProcessor : public EventProcessor {
 public:
     NeutronProcessor();
     virtual bool PreProcess(RawEvent &event);
