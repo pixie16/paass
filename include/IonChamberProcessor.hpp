@@ -1,7 +1,6 @@
 /** \file IonChamberProcessor.hpp
  * \brief Processor for ion chamber
  */
-
 #ifndef __IONCHAMBERPROCESSOR_HPP_
 #define __IONCHAMBERPROCESSOR_HPP_
 
@@ -9,33 +8,43 @@
 
 #include "EventProcessor.hpp"
 
-class IonChamberProcessor : public EventProcessor 
-{
- private:  
-  static const size_t noDets = 6;
-  static const size_t timesToKeep = 1000;
-  static const double minTime;
+//! Processor to handle ion chambers
+class IonChamberProcessor : public EventProcessor {
+private:
+    static const size_t noDets = 6;//!< Number of detectors
+    static const size_t timesToKeep = 1000;//!< Number of times to keep
+    static const double minTime;//!< Minimum time in the chamber
 
-  struct Data {
-    double raw[noDets];
-    double cal[noDets];
-    int mult;
+    //! A Data structure to handle all of the info for the chamber
+    struct Data {
+        double raw[noDets];//!< raw energies
+        double cal[noDets];//!< calibrated energies
+        int mult;//!< multiplicity
 
-    void Clear(void);
-  } data;
+        /** Clears the data structure */
+        void Clear(void);
+    } data;//!< Creates instance of the data structure for storage
 
-  double lastTime[noDets];
-  std::deque<double> timeDiffs[noDets];
- public:
-  IonChamberProcessor(); // no virtual c'tors
-  virtual bool Process(RawEvent &event);
-  virtual void DeclarePlots(void);
-  // nice and simple raw derived class
-
+    double lastTime[noDets];//!< The last time in the chamber
+    std::deque<double> timeDiffs[noDets];//!< Time difference between events
+public:
+    /** Default Constructor */
+    IonChamberProcessor();
+    /** Default Destructor */
+    ~IonChamberProcessor() {};
+    /** Process an event
+    * \param [in] event : the event to process
+    * \return true if the processing was successful */
+    virtual bool Process(RawEvent &event);
+    /** Declare plots for processor */
+    virtual void DeclarePlots(void);
 #ifdef useroot
-  bool AddBranch(TTree *tree);
-  void FillBranch(void);
-#endif // USEROOT  
+    /** Add the branch to the tree
+    * \param [in] tree : the tree to add the branch to
+    * \return true if you could do it */
+    bool AddBranch(TTree *tree);
+    /** Fill the branch */
+    void FillBranch(void);
+#endif
 };
-
 #endif // __IONCHAMBERPROCSSEOR_HPP_
