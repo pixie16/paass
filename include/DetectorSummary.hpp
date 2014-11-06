@@ -14,6 +14,7 @@
 #include "Trace.hpp"
 
 /** \brief Summary of all channels of one detector type
+ *
  * For each group of detectors that exists in the analysis, a detector summary
  * is created.  The detector summary includes the multiplicity, maximum
  * deposited energy, and physical location (strip number, detector number ...)
@@ -31,24 +32,32 @@ private:
     std::vector<ChanEvent*> eventList; /**< list of events associated with this detector group */
     ChanEvent* maxEvent;               /**< event with maximum energy deposition */
 public:
+    /** Default Constructor */
     DetectorSummary();
+    /** Constructor taking a string and the full channel list
+     * \param [in] str : the type to make the summary for
+     * \param [in] fullList : the full list of channels in the event */
     DetectorSummary(const std::string &str, const std::vector<ChanEvent *> &fullList);
+    /** Zero the summary */
     void Zero();
-    void AddEvent(ChanEvent *ev); /**< Add a channel event to the summary */
+    /** Add an event to the summary
+     * \param [in] ev : the event to add */
+    void AddEvent(ChanEvent *ev);
 
-    void SetName(const std::string& a) {name = a;} /**< Set the detector type name */
+    /** Set the detector name
+     * \param [in] a : the name of the detector */
+    void SetName(const std::string& a) {name = a;}
 
-    const ChanEvent* GetMaxEvent(void) const
-    {return maxEvent;}          /**< Get the max event */
-    ChanEvent* GetMaxEvent(bool fake)
-    {return maxEvent;}          /**< Get the max event with possibility to alter */
-    int GetMult() const
-    {return eventList.size();} /**< Get the multiplicity */
-    const std::string& GetName() const
-    {return name;}              /**< Get the detector type name */
-    const std::vector<ChanEvent*>& GetList() const
-    {return eventList;}         /**< Get the list of all channels in the
-				   rawevent that are of this detector type */
+    /** \return the max event in the summary (constant) */
+    const ChanEvent* GetMaxEvent(void) const {return maxEvent;};
+    /** \return the max event with the ability to change it
+     * \param [in] fake : a bool to allow overloading the function name */
+    ChanEvent* GetMaxEvent(bool fake) {return maxEvent;};
+    /** \return the multiplicity of the summary */
+    int GetMult() const {return eventList.size();}
+    /** \return get the detector name */
+    const std::string& GetName() const {return name;};
+    /** \return the list of al channels in the raw event with this detector type */
+    const std::vector<ChanEvent*>& GetList() const {return eventList;};
 };
-
 #endif

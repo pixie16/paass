@@ -20,8 +20,7 @@ public:
     /** Do the analysis on traces
     * \param [in] trace : the trace to analyze
     * \param [in] detType : the detector type
-    * \param [in] detSubtype : detector subtype
-    */
+    * \param [in] detSubtype : detector subtype */
     virtual void Analyze(Trace &trace, const std::string &detType,
                         const std::string &detSubtype);
 };

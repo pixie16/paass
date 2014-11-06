@@ -7,20 +7,11 @@
 
 using namespace std;
 
-/*! \brief Detector summary zeroing
- *
- * Clear the list of channel events associated with this summary
- */
 void DetectorSummary::Zero() {
     eventList.clear();
     maxEvent = NULL;
 }
 
-/**
- * Detector summary constructor
- *
- * Clear the summary
- */
 DetectorSummary::DetectorSummary() {
     maxEvent = NULL;
 }
@@ -69,8 +60,7 @@ void DetectorSummary::AddEvent(ChanEvent *ev) {
     }
 }
 
-/**
- * Override the < operator
+/** \brief Override the < operator
  *
  * To use the detector summary in the STL map it is necessary to define the
  * behavior of the "<" operator.  The "<" operator between a and b is defined

@@ -10,14 +10,24 @@
 #include "TimingInformation.hpp"
 #include "Trace.hpp"
 
-class LiquidProcessor : public EventProcessor
-{
+//! Processor for Liquid Scintillators - Deprecated
+class LiquidProcessor : public EventProcessor {
 public:
-    LiquidProcessor(); // no virtual c'tors
+    /** Default Constructor */
+    LiquidProcessor();
+    /** Default Destructor */
+    ~LiquidProcessor(){};
+    /** Performs the preprocessing, which cannot depend on other processors
+    * \param [in] event : the event to process
+    * \return true if preprocessing was successful */
     virtual bool PreProcess(RawEvent &event);
+    /** Process an event
+    * \param [in] event : the event to process
+    * \return true if the processing was successful */
     virtual bool Process(RawEvent &event);
+    /** Declare plots for processor */
     virtual void DeclarePlots(void);
 private:
-    TimingInformation timeInfo;
+    TimingInformation timeInfo;//!< Instance of TimingInformation to hold info
 };
 #endif // __LIQUIDPROCSSEOR_HPP_

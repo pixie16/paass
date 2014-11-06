@@ -1,7 +1,6 @@
 /** \file GeProcessor.hpp
  * \brief Processor for germanium detectors
  */
-
 #ifndef __GEPROCESSOR_HPP_
 #define __GEPROCESSOR_HPP_
 
@@ -14,6 +13,7 @@
 #include "RawEvent.hpp"
 
 namespace dammIds {
+    //! Namespace containing histogram definitions for the GE
     namespace ge {
         /*
         * Naming conventions:
@@ -51,6 +51,7 @@ namespace dammIds {
 
         const int DD_ADD_ENERGY__TIMEX = 170;//!< Addback Energy vs. Time
 
+        //! Namespace for the beta gated Ge histograms
         namespace betaGated {
             const int D_ENERGY = 10;//!< Beta Gated Energy
             const int D_ENERGY_PROMPT = 11;//!< Beta Gated Prompt Energy
@@ -87,10 +88,12 @@ namespace dammIds {
             const int DD_ADD_ENERGY__TIMEX = 180;//!< Beta Gated Addback Energy vs. Time
         }
 
+        //! namespace for the multi-gated spectra
         namespace multi {
             const int D_ADD_ENERGY = 52;//!< multi gated addback energy
             const int D_ADD_ENERGY_TOTAL = 54;//!< multi gated addback total energy
             const int DD_ADD_ENERGY = 152;//!< multi gated addback energy
+            //! namespace for the beta gated multi-gated spectra
             namespace betaGated {
                 const int D_ADD_ENERGY = 62;//!< beta/multi gated addback energy
                 const int D_ADD_ENERGY_PROMPT = 63;//!< beta/multi gated prompt addback energy
@@ -103,21 +106,21 @@ namespace dammIds {
 }
 
 #ifdef GGATES
-/** Class to store line gate needed for gamma-gamma gates.
- * Used if GGATES flag is defined in the makefile. */
+/** \brief Class to store line gate needed for gamma-gamma gates.
+ * Used if GGATES flag is defined in the Makefile. */
 class LineGate {
     public:
-        LineGate() {
-            min = -1;
-            max = -1;
-        }
+        /** Constructor for the line gate class setting default values */
+        LineGate() {min = max = -1;};
 
+        /** Constructor setting the low and high bounds for the gate */
         LineGate(double emin, double emax) {
             min = emin;
             max = emax;
         }
 
-        /** Sanity check of gate definition. */
+        /** Sanity check of gate definition.
+         * \return true if the gate makes sense */
         bool Check() {
             if (min > 0 && max > min)
                 return true;
@@ -125,7 +128,8 @@ class LineGate {
                 return false;
         }
 
-        /** Check if x is inside gate (borders included) */
+        /** Check if x is inside gate (borders included)
+         * \return true if the value is inside the gate */
         bool IsWithin(double x) {
             if (x >= min && x <= max)
                 return true;
@@ -133,40 +137,40 @@ class LineGate {
                 return false;
         }
 
+        /** Operator to check if one gate is less than another
+         * \return true if this one is less than the other one */
         bool operator< (const LineGate& other) const {
             return (min < other.min);
         }
 
-        double min;
-        double max;
+        double min; //!< low range of the gate
+        double max; //!< high range of the gate
 };
 #endif
 
-
-/** Simple structure-like class to store info on addback reconstructed
+/** \brief Simple structure-like class to store info on addback reconstructed
  * event.*/
 class AddBackEvent {
     public:
+        /** Default constructor setting things to zero */
         AddBackEvent() {
-            energy = 0;
-            time = 0;
-            multiplicity = 0;
+            energy = time = multiplicity = 0;
         }
 
+        /** Default constructor setting default values */
         AddBackEvent(double ienergy, double itime, unsigned imultiplicity) {
             energy = ienergy;
             time = itime;
             multiplicity = imultiplicity;
         }
 
-        double energy;
-        double time;
-        unsigned multiplicity;
+        double energy;//!< Energy of the addback event
+        double time;//!< time of the addback event
+        unsigned multiplicity;//!< multiplicity of the event
 };
 
-
-class GeProcessor : public EventProcessor
-{
+//! Processor to handle Ge (read as clover) events
+class GeProcessor : public EventProcessor {
 protected:
     static const unsigned int chansPerClover = 4; /*!< number of channels per clover */
 
@@ -174,24 +178,43 @@ protected:
     std::vector<float> timeResolution; /*!< Contatin time resolutions used */
     unsigned int numClovers;           /*!< number of clovers in map */
 
-    /** Returns lowest difference between gamma and beta times and EventData of the beta event.
-     * Takes gTime in pixie clock units, returns value in seconds. */
+    /** \return lowest difference between gamma and beta times and EventData of the beta event.
+     * Takes gTime in pixie clock units, returns value in seconds.
+     * \param [in] gTime : the time of the gamma */
     EventData BestBetaForGamma(double gTime);
 
-    /** Returns true if gamma-beta correlation time within good limits.
+    /** \return true if gamma-beta correlation time within good limits.
      * Browses through all beta events in Beta correlation place to find
      * the lowest difference. Takes gTime in pixie clock, limit in
-     * seconds. */
+     * seconds.
+     * \param [in] gTime : the time of the gamma */
     bool GoodGammaBeta(double gTime);
 
     /** Preprocessed good ge events, filled in PreProcess.*/
     std::vector<ChanEvent*> geEvents_;
 
+    /** Declares a histogram with a range of granularities
+     * \param [in] dammId : the dammID to plot
+     * \param [in] xsize : the size in the x range
+     * \param [in] ysize : the size in the y range
+     * \param [in] title : the title of the histogram
+     * \param [in] halfWordsPerChan : the half words per channel
+     * \param [in] granularity : the list of granularities to plot
+     * \param [in] units : the units for the plot */
     void DeclareHistogramGranY(int dammId, int xsize, int ysize,
 			       const char *title, int halfWordsPerChan,
 			       const std::vector<float> &granularity, const char *units );
+    /** Plotting function to plot in a specific granularity
+     * \param [in] dammId : the damm id to plot into
+     * \param [in] x : the x value to plot
+     * \param [in] y : the y value to plot
+     * \param [in] granularity : the list of granularities to plot into */
     void granploty(int dammId, double x, double y,
                    const std::vector<float> &granularity);
+    /** Symmetric gamma-gamma plots. It will plot (bin1,bin2) and (bin2,bin1).
+     * \param [in] dammID : the ID for the plot
+     * \param [in] bin1 : the first bin to plot into
+     * \param [in] bin2 : the second bin to plot into */
     void symplot(int dammID, double bin1, double bin2);
 
     /** addbackEvents vector of vectors, where first vector
@@ -202,16 +225,14 @@ protected:
      * but there is only one "super-clover" (sum of all detectors)*/
     std::vector<AddBackEvent> tas_;
 #ifdef GGATES
-    std::vector< std::vector<LineGate> > gGates;
+    std::vector< std::vector<LineGate> > gGates; //!< List of Gamma gates to use
 #endif
 
-    /* Gamma low threshold in keV */
+    /** Gamma low threshold in keV */
     double gammaThreshold_;
 
-    /** Low and high ratio between low and high gain to
-     * be accepted (for data without saturation flag */
-    double lowRatio_;
-    double highRatio_;
+    double lowRatio_; //!< ratio between low and high gain to be accepted w/o saturation flag
+    double highRatio_; //!< ratio between low and high gain to be accepted w/o saturation flag
 
     /** Addback subevent window in seconds */
     double subEventWindow_;
@@ -225,20 +246,37 @@ protected:
     /** Cycle gates replace early/high limits. Gate set on cycle in time
      * allows to check the gamma-gamma coincidences within the chosen
      * range of cycle (e.g 1 - 1.5 s) */
-    double cycle_gate1_min_;
-    double cycle_gate1_max_;
-    double cycle_gate2_min_;
-    double cycle_gate2_max_;
+    double cycle_gate1_min_; //!< low value for first cycle gate
+    double cycle_gate1_max_;//!< high value for first cycle gate
+    double cycle_gate2_min_;//!< low value for second cycle gate
+    double cycle_gate2_max_;//!< high value for second cycle gate
 
 public:
+    /** Constructor taking a boat load of arguements
+     * \param [in] gammaThreshold : set the threshold on gamma rays to analyze
+     * \param [in] lowRatio : the low ratio for low-high gains
+     * \param [in] highRatio : the high ratio for low-high gains
+     * \param [in] subEventWindow : the size of the subevent
+     * \param [in] gammaBetaLimit : the amount of time to consider beta-gamma correlations
+     * \param [in] gammaGammaLimit : the amount of time to consider gamma-gamma correlations
+     * \param [in] cycle_gate1_min : the minimum range for the first cycle gate
+     * \param [in] cycle_gate1_max : the maximum range for the first cycle gate
+     * \param [in] cycle_gate2_min : the minimum range for the second cycle gate
+     * \param [in] cycle_gate2_max : the maximum range for the second cycle gate */
     GeProcessor(double gammaThreshold, double lowRatio,
                 double highRatio, double subEventWindow,
                 double gammaBetaLimit, double gammaGammaLimit,
                 double cycle_gate1_min, double cycle_gate1_max,
                 double cycle_gate2_min, double cycle_gate2_max);
-    virtual bool PreProcess(RawEvent &event);
-    virtual bool Process(RawEvent &event);
+    /** Preprocess the event
+     * \param [in] event : the event to preprocess
+     * \return true if successful */
+     virtual bool PreProcess(RawEvent &event);
+    /** Process the event
+     * \param [in] event : the event to process
+     * \return true if successful */
+     virtual bool Process(RawEvent &event);
+    /** Declare the plots for the processor */
     virtual void DeclarePlots(void);
 };
-
 #endif // __GEPROCESSOR_HPP_
