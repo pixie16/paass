@@ -26,7 +26,10 @@ public:
     /** Default Constructor */
     EventProcessor();
 
-    /** Constructor taking histogram information */
+    /** Constructor taking histogram information
+     * \param [in] offset : the offset for the histograms
+     * \param [in] range : the range of the histograms
+     * \param [in] name : the name of the processor */
     EventProcessor(int offset, int range, std::string name);
 
     /** Default Destructor */
@@ -123,7 +126,7 @@ protected:
     }
 
     /*! \brief Declares a 1D histogram calls the C++ wrapper for DAMM
-    * \param [in] dammID : The histogram number to define
+    * \param [in] dammId : The histogram number to define
     * \param [in] xSize : The range of the x-axis
     * \param [in] title : The title for the histogram
     */

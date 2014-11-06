@@ -2,29 +2,31 @@
  *
  * Processor for liquid scintillator detectors
  */
-
 #ifndef __LIQUIDSCINTPROCESSOR_HPP_
 #define __LIQUIDSCINTPROCESSOR_HPP_
 
 #include "EventProcessor.hpp"
 #include "Trace.hpp"
 
+//! Class to handle liquid scintillator
 class LiquidScintProcessor : public EventProcessor,
-		       public TimingInformation
-{
+		       public TimingInformation {
 public:
-    LiquidScintProcessor(); // no virtual c'tors
+    /** Default Constructor */
+    LiquidScintProcessor();
+    /** Default Destructor */
+    ~LiquidProcessor(){};
+    /** Performs the preprocessing, which cannot depend on other processors
+    * \param [in] event : the event to process
+    * \return true if preprocessing was successful */
     virtual bool PreProcess(RawEvent &event);
+    /** Process an event
+    * \param [in] event : the event to process
+    * \return true if the processing was successful */
     virtual bool Process(RawEvent &event);
+    /** Declare plots for processor */
     virtual void DeclarePlots(void);
-
-    /** KM 10/20/12 
-    * Here's some old comment which I leave as a good joke
-    * about multiple inheritance class:
-    */
-    // nice and simple raw derived class
 private:
-   unsigned int counter;
+   unsigned int counter;//!< A counter for counting...
 };
-
 #endif // __LIQUIDSCINTPROCSSEOR_HPP_
