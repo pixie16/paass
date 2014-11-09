@@ -1130,7 +1130,18 @@
   to setup for a VANDLE experiment. These parameters are still being actively
   developed and will likely change in the future.
 
+  Here is a list of the parameters that are used for the corrections:
+   - lrtoffset : The left-right time offset in ns
+   - r0 : the distance between source and the hit location in the bar in cm
+   - tofOffset0 : time offset w.r.t. start number 0 in ns
+   - tofOffset1 : time offset w.r.t. start number 1 in ns
+   - xOffset : offset between the center of the bar and the source in cm
+   - z0 : the perpendicular distance between the bar and source in cm
+   - z0Offset : additional corrections to z0 in cm
 
+  Below we show the physical arrangement of the offsets:
+  \image latex timingCorrection.eps "Diagram for the timing correction " width=3.5in
+  \image html timingCorrection.jpg
 */
 
 /******************************************************************************/
@@ -1407,7 +1418,9 @@
 /** \page treecorr Tree Correlator
   The TreeCorrelator has been documented extensively in the documentation file:
   doc/guides/treeCorrelatorNotes.pdf. In addition, you can find some
-  documentation in the \ref xml-treecorr section.
+  documentation in the \ref xml-treecorr section. The most help will be gained
+  from the classes related to the tree correlator, specifically Place,
+  PlaceBuilder, and TreeCorrelator.
 */
 
 /******************************************************************************/
@@ -2046,7 +2059,11 @@
   \code
   #include "TemplateProcessor.hpp"
   \endcode
-  and initialize it with the other processors in the constructor of
+  Be sure that you put the proper detector type into the "associated types"
+  vector in the constructor. This will ensure that whenever this detector type
+  is in the event the processor will be called.
+
+  Next initialize it with the other processors in the constructor of
   DetectorDriver.
   \code
     ...
@@ -2056,8 +2073,8 @@
     ...
   \endcode
 
-  Your new processor simply needs to be added to the Config.xml and you are
-  ready to do your analysis.
+  Finally, your new processor simply needs to be added to the Config.xml and
+  you are ready to do your analysis.
 
   Adding a new detector type needs only minimal additional changes to the
   DetectorLibrary. To the list of known detectors
