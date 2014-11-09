@@ -15,7 +15,7 @@
 namespace dammIds {
     //! Namespace containing histogram definitions for the GE
     namespace ge {
-        /*
+        /**
         * Naming conventions:
         * Beta offset = 10
         * Decay offset = 20
@@ -157,7 +157,10 @@ class AddBackEvent {
             energy = time = multiplicity = 0;
         }
 
-        /** Default constructor setting default values */
+        /** Default constructor setting default values
+         * \param [in] ienergy : the initial energy
+         * \param [in] itime : the initial time
+         * \param [in] imultiplicity : multiplicity of the event */
         AddBackEvent(double ienergy, double itime, unsigned imultiplicity) {
             energy = ienergy;
             time = itime;

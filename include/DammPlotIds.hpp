@@ -7,9 +7,11 @@
 /**
  * Histogram sizes consts
  */
-const int S1 = 2, S2 = 4, S3 = 8, S4 = 16, S5 = 32, S6 = 64, S7 = 128,
-    S8 = 256, S9 = 512, SA = 1024, SB = 2048, SC = 4096,
-    SD = 8192, SE = 16384, SF = 32768;
+const int S1 = 2 /**< 2**1 */, S2 = 4/**< 2**2 */, S3 = 8/**< 2**3 */,
+    S4 = 16/**< 2**4 */, S5 = 32/**< 2**5 */, S6 = 64/**< 2**6 */,
+    S7 = 128/**< 2**7 */, S8 = 256/**< 2**8 */, S9 = 512/**< 2**9 */,
+    SA = 1024/**< 2**10 */, SB = 2048/**< 2**11 */, SC = 4096/**< 2**12 */,
+    SD = 8192/**< 2**13 */, SE = 16384/**< 2**14 */, SF = 32768/**< 2**15 */;
 
 ///Namespace containing all the histogram id definitions
 namespace dammIds {
@@ -160,34 +162,34 @@ namespace dammIds {
         const int traceBins = SA; //!< Number of Bins for Traces
 
         namespace tracefilterer {
-            const int DD_TRACE = 0;
-            const int DD_FILTER1 = 1;
-            const int DD_FILTER2 = 2;
-            const int DD_FILTER3 = 3;
-            const int DD_AVERAGE_TRACE = 4;
-            const int DD_REJECTED_TRACE = 5;
-            const int DD_ENERGY__BOARD_FILTER = 6;
-            const int D_RATIO_BOARD_FILTER = 7;
-            const int D_ENERGY1 = 8;
+            const int DD_TRACE = 0;//!< traces
+            const int DD_FILTER1 = 1;//!< results for filter 1
+            const int DD_FILTER2 = 2;//!< results for filter 2
+            const int DD_FILTER3 = 3;//!< results for filter 3
+            const int DD_AVERAGE_TRACE = 4;//!< average trace
+            const int DD_REJECTED_TRACE = 5;//!< rejected traces
+            const int DD_ENERGY__BOARD_FILTER = 6;//!< energy of onboard filter
+            const int D_RATIO_BOARD_FILTER = 7;//!< ratio between onboard filter and ours
+            const int D_ENERGY1 = 8; //!< distributions of energy 1
         }
 
         namespace doubletraceanalyzer {
-            const int D_ENERGY2 = 16;
-            const int DD_DOUBLE_TRACE = 20;
-            const int DD_ENERGY2__TDIFF = 21;
-            const int DD_ENERGY2__ENERGY1 = 22;
-            const int DD_TRIPLE_TRACE = 30;
-            const int DD_TRIPLE_TRACE_FILTER1 = 31;
-            const int DD_TRIPLE_TRACE_FILTER2 = 32;
-            const int DD_TRIPLE_TRACE_FILTER3 = 33;
+            const int D_ENERGY2 = 16;//!< distribution of energy 2
+            const int DD_DOUBLE_TRACE = 20;//!< double traces
+            const int DD_ENERGY2__TDIFF = 21;//!< energy 2 vs tdiff between 1 and 2
+            const int DD_ENERGY2__ENERGY1 = 22;//!< energy 1 vs energy 2
+            const int DD_TRIPLE_TRACE = 30;//!< results of triple traces
+            const int DD_TRIPLE_TRACE_FILTER1 = 31;//!< results of trace filter 1
+            const int DD_TRIPLE_TRACE_FILTER2 = 32;//!< results of trace filter 2
+            const int DD_TRIPLE_TRACE_FILTER3 = 33; //!< results of trace filter 3
         }
 
         namespace waveformanalyzer {
-            const int DD_TRACES     = 40;
-            const int D_CHISQPERDOF = 41;
-            const int D_PHASE       = 42;
-            const int DD_AMP        = 43;
-            const int D_SIGMA       = 44;
+            const int DD_TRACES     = 40;//!< Plotted traces
+            const int D_CHISQPERDOF = 41;//!< distributions of chi^2/dof
+            const int D_PHASE       = 42;//!< distribution of phases
+            const int DD_AMP        = 43;//!< Distributions of fitted amplitudes
+            const int D_SIGMA       = 44; //!< Distributions of Std. Dev. Baseline
         }
 
         /// 1D-traces from the extractor

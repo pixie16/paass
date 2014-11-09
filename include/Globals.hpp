@@ -133,7 +133,7 @@ namespace strings {
     }
 };
 
-/** Singleton class holding global parameters.*/
+/** \brief Singleton class holding global parameters.*/
 class Globals {
 public:
     /** \return only instance of Globals class.*/

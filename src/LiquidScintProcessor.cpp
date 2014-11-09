@@ -39,8 +39,7 @@ LiquidScintProcessor::LiquidScintProcessor() :
 void LiquidScintProcessor::DeclarePlots(void) {
     /** WARNING
      * This part was commented in the old ScintProcessor and is
-     * copied as is.
-     */
+     * copied as is. */
 
     //To handle Liquid Scintillators
     // DeclareHistogram2D(DD_TQDCLIQUID, SC, S3, "Liquid vs. Trace QDC");

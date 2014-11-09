@@ -19,7 +19,7 @@
 
 using namespace std;
 
-Globals *constants = Globals::get();
+Globals *constants = Globals::get(); //!< Instance of Globals class
 
 TimingInformation::TimingData::TimingData(void) : trace(emptyTrace) {
     aveBaseline    = numeric_limits<double>::quiet_NaN();

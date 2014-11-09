@@ -4,10 +4,6 @@
  * \date August 2009
  * <STRONG> Modified: </STRONG> Krzysztof Miernik - May 2012
  */
-
-//? Make a clover specific processor
-//This would probably be a good idea -SVP
-
 #include <algorithm>
 #include <cstdlib>
 #include <cmath>
@@ -20,11 +16,10 @@
 
 #include "pugixml.hpp"
 
-#include "GeProcessor.hpp"
-
 #include "DammPlotIds.hpp"
 #include "DetectorLibrary.hpp"
 #include "Exceptions.hpp"
+#include "GeProcessor.hpp"
 #include "Messenger.hpp"
 #include "Notebook.hpp"
 #include "Plots.hpp"
@@ -93,12 +88,12 @@ GeProcessor::GeProcessor(double gammaThreshold, double lowRatio,
 
     // previously used:
     // in seconds/bin
-    // 1e-6, 10e-6, 100e-6, 1e-3, 10e-3, 100e-3 
-    timeResolution.push_back(5e-3); 
-    timeResolution.push_back(10e-3); 
+    // 1e-6, 10e-6, 100e-6, 1e-3, 10e-3, 100e-3
+    timeResolution.push_back(5e-3);
+    timeResolution.push_back(10e-3);
     if (timeResolution.size() > MAX_TIMEX) {
         stringstream ss;
-        ss << "Number of requested time resolution spectra is greater then" 
+        ss << "Number of requested time resolution spectra is greater then"
             << " MAX_TIMEX = " << MAX_TIMEX << "."
             << " See GeProcessor.hpp for details.";
         throw GeneralException(ss.str());
@@ -157,7 +152,7 @@ not implemented");
 }
 
 /** Declare plots including many for decay/implant/neutron gated analysis  */
-void GeProcessor::DeclarePlots(void) 
+void GeProcessor::DeclarePlots(void)
 {
     const int energyBins1  = SD;
     const int energyBins2  = SC;
@@ -182,7 +177,7 @@ void GeProcessor::DeclarePlots(void)
 
     for ( set<int>::const_iterator it = cloverLocations.begin();
 	  it != cloverLocations.end(); it++) {
-        leafToClover[*it] = int(cloverChans / 4); 
+        leafToClover[*it] = int(cloverChans / 4);
         cloverChans++;
     }
 
@@ -199,7 +194,7 @@ void GeProcessor::DeclarePlots(void)
         m.start("Building clovers");
 
         stringstream ss;
-        ss << "A total of " << cloverChans 
+        ss << "A total of " << cloverChans
            << " clover channels were detected: ";
         int lastClover = numeric_limits<int>::min();
         for ( map<int, int>::const_iterator it = leafToClover.begin();
@@ -219,11 +214,11 @@ void GeProcessor::DeclarePlots(void)
         if (numClovers > dammIds::ge::MAX_CLOVERS) {
             m.fail();
             stringstream ss;
-            ss << "Number of detected clovers is greater than defined" 
+            ss << "Number of detected clovers is greater than defined"
                << " MAX_CLOVERS = " << dammIds::ge::MAX_CLOVERS << "."
                << " See GeProcessor.hpp for details.";
             throw GeneralException(ss.str());
-        }   
+        }
         m.done();
     }
 
@@ -247,7 +242,7 @@ void GeProcessor::DeclarePlots(void)
     DeclareHistogram2D(betaGated::DD_ENERGY__BETAGAMMALOC, energyBins2, S4,
                        "Gamma vs. Clover loc * 3 + Beta loc prompt");
 
-    DeclareHistogram1D(D_MULT, S7, "Gamma multiplicity");                  
+    DeclareHistogram1D(D_MULT, S7, "Gamma multiplicity");
 
     DeclareHistogram1D(D_ADD_ENERGY, energyBins1, "Gamma addback");
     DeclareHistogram1D(multi::D_ADD_ENERGY, energyBins1,
@@ -268,7 +263,7 @@ void GeProcessor::DeclarePlots(void)
                        "Beta gated gamma total");
     DeclareHistogram1D(multi::betaGated::D_ADD_ENERGY_TOTAL, energyBins1,
                        "Beta gated gamma total multi-gated");
-    
+
     // for each clover
     for (unsigned int i = 0; i < numClovers; i++) {
         stringstream ss;
@@ -306,10 +301,10 @@ void GeProcessor::DeclarePlots(void)
                        energyBins2, energyBins2,
                        "Gamma gamma beta prompt gated");
     DeclareHistogram2D(betaGated::DD_ENERGY_PROMPT,
-                       energyBins2, energyBins2, 
+                       energyBins2, energyBins2,
                        "Gamma gamma prompt beta prompt gated");
     DeclareHistogram2D(betaGated::DD_ENERGY_BDELAYED,
-                       energyBins2, energyBins2, 
+                       energyBins2, energyBins2,
                        "Beta-gated gamma gamma - beta delayed");
 
     DeclareHistogram2D(betaGated::DD_ENERGY_CGATE1,
@@ -337,7 +332,7 @@ void GeProcessor::DeclarePlots(void)
                     "Beta-gated gamma-gamma addback multi-gated beta-prompt");
 
     DeclareHistogram2D(
-            DD_TDIFF__GAMMA_GAMMA_ENERGY, 
+            DD_TDIFF__GAMMA_GAMMA_ENERGY,
             timeBins1, energyBins2,
             "Same clover, gamma energy, gamma-gamma time diff + 100 (10 ns)");
     DeclareHistogram2D(
@@ -403,9 +398,9 @@ bool GeProcessor::PreProcess(RawEvent &event) {
         addbackEvents_[i].clear();
     tas_.clear();
 
-    static const vector<ChanEvent*> &highEvents = 
+    static const vector<ChanEvent*> &highEvents =
         event.GetSummary("ge:clover_high", true)->GetList();
-    static const vector<ChanEvent*> &lowEvents  = 
+    static const vector<ChanEvent*> &lowEvents  =
         event.GetSummary("ge:clover_low", true)->GetList();
 
     /** Only the high gain events are going to be used. The events where
@@ -436,7 +431,7 @@ bool GeProcessor::PreProcess(RawEvent &event) {
     sort(geEvents_.begin(), geEvents_.end(), CompareCorrectedTime);
 
     /** Here the addback spectra is constructed.
-     *  addbackEvents_ is a vector for each clover 
+     *  addbackEvents_ is a vector for each clover
      *  holding a vector of pairs <energy, time> (both double),
      *  where each element is a one addback event for a given clover.
      * */
@@ -444,23 +439,23 @@ bool GeProcessor::PreProcess(RawEvent &event) {
     /** guarantee the first event will be greater than
      * the subevent window delayed from reference
      */
-    double refTime = -2.0 * subEventWindow_; 
+    double refTime = -2.0 * subEventWindow_;
 
     for (vector<ChanEvent*>::iterator it = geEvents_.begin(); it != geEvents_.end(); it++) {
         ChanEvent *chan = *it;
-        double energy = chan->GetCalEnergy(); 
+        double energy = chan->GetCalEnergy();
         double time = chan->GetCorrectedTime();
         int clover = leafToClover[chan->GetChanID().GetLocation()];
 
         /**
         * Do not take into account events with too low energy
         * (avoid summing of noise with real gammas)
-        */ 
+        */
         if (energy < gammaThreshold_)
             continue;
 
         // entries in map are sorted by time
-        // if event time is outside of subEventWindow, we start new 
+        // if event time is outside of subEventWindow, we start new
         //   events for all clovers and "tas"
         double dtime = abs(time - refTime) * Globals::get()->clockInSeconds();
         if (dtime > subEventWindow_) {
@@ -481,7 +476,7 @@ bool GeProcessor::PreProcess(RawEvent &event) {
     }
 
     return true;
-} 
+}
 
 bool GeProcessor::Process(RawEvent &event) {
     using namespace dammIds::ge;
@@ -499,15 +494,15 @@ bool GeProcessor::Process(RawEvent &event) {
     bool hasBeta = TreeCorrelator::get()->place("Beta")->status();
 
     /** Place Cycle is activated by BeamOn event and deactivated by TapeMove
-     *  This condition will therefore skip events registered during 
+     *  This condition will therefore skip events registered during
      *  tape movement period and before the end of move and the beam start
      */
     if (!TreeCorrelator::get()->place("Cycle")->status()) {
-        for (vector<ChanEvent*>::iterator it = geEvents_.begin(); 
+        for (vector<ChanEvent*>::iterator it = geEvents_.begin();
         it != geEvents_.end(); ++it) {
             ChanEvent* chan = *it;
-            double gEnergy = chan->GetCalEnergy();	
-            if (gEnergy < gammaThreshold_) 
+            double gEnergy = chan->GetCalEnergy();
+            if (gEnergy < gammaThreshold_)
                 continue;
             plot(D_ENERGY_MOVE, gEnergy);
             if (hasBeta)
@@ -522,12 +517,12 @@ bool GeProcessor::Process(RawEvent &event) {
 
     // Note that geEvents_ vector holds only good events (matched
     // low & high gain). See PreProcess
-    for (vector<ChanEvent*>::iterator it1 = geEvents_.begin(); 
+    for (vector<ChanEvent*>::iterator it1 = geEvents_.begin();
 	 it1 != geEvents_.end(); ++it1) {
         ChanEvent* chan = *it1;
-        
-        double gEnergy = chan->GetCalEnergy();	
-        if (gEnergy < gammaThreshold_) 
+
+        double gEnergy = chan->GetCalEnergy();
+        if (gEnergy < gammaThreshold_)
             continue;
 
         double gTime = chan->GetCorrectedTime();
@@ -548,28 +543,28 @@ bool GeProcessor::Process(RawEvent &event) {
             double plotResolution = clockInSeconds;
             plot(betaGated::DD_TDIFF__GAMMA_ENERGY,
                     (int)(gb_dtime / plotResolution + 100), gEnergy);
-            plot(betaGated::DD_TDIFF__BETA_ENERGY, 
-                    (int)(gb_dtime / plotResolution + 100), betaEnergy/10); 
+            plot(betaGated::DD_TDIFF__BETA_ENERGY,
+                    (int)(gb_dtime / plotResolution + 100), betaEnergy/10);
 
             plot(betaGated::D_ENERGY, gEnergy);
             if (GoodGammaBeta(gb_dtime)) {
                 plot(betaGated::D_ENERGY_PROMPT, gEnergy);
                 plot(betaGated::D_ENERGY_CLOVERX + det, gEnergy);
-                granploty(betaGated::DD_ENERGY__TIMEX, 
+                granploty(betaGated::DD_ENERGY__TIMEX,
                           gEnergy, decayTime, timeResolution);
 
                 if (beamOn) {
-                    granploty(betaGated::DD_ENERGY__TIMEX_GROW, 
+                    granploty(betaGated::DD_ENERGY__TIMEX_GROW,
                             gEnergy, decayTime, timeResolution);
                 } else {
                     /** Beam deque should be updated upon beam off so
                     * measure time from that point
                     * (t = 0 is time beam went off)
                     */
-                    double decayTimeOff = (gTime - 
+                    double decayTimeOff = (gTime -
                          TreeCorrelator::get()->place("Beam")->last().time) *
                          clockInSeconds;
-                    granploty(betaGated::DD_ENERGY__TIMEX_DECAY, 
+                    granploty(betaGated::DD_ENERGY__TIMEX_DECAY,
                             gEnergy, decayTimeOff, timeResolution);
                 }
 
@@ -583,16 +578,16 @@ bool GeProcessor::Process(RawEvent &event) {
                      gEnergy, det * 3 +  betaLocation);
             }
         }
-        
+
         for (vector<ChanEvent*>::const_iterator it2 = it1 + 1;
                 it2 != geEvents_.end(); it2++) {
             ChanEvent* chan2 = *it2;
 
-            double gEnergy2 = chan2->GetCalEnergy();            
+            double gEnergy2 = chan2->GetCalEnergy();
             int det2 = leafToClover[chan2->GetChanID().GetLocation()];
             double gTime2 = chan2->GetCorrectedTime();
 
-            if (gEnergy2 < gammaThreshold_) 
+            if (gEnergy2 < gammaThreshold_)
                 continue;
 
             double gg_dtime = (gTime2 - gTime) * clockInSeconds;
@@ -601,10 +596,10 @@ bool GeProcessor::Process(RawEvent &event) {
              * to monitor addback subevent gates. */
             if (det == det2) {
                 double plotResolution = clockInSeconds;
-                plot(DD_TDIFF__GAMMA_GAMMA_ENERGY, 
+                plot(DD_TDIFF__GAMMA_GAMMA_ENERGY,
                      (int)(gg_dtime / plotResolution + 100),
                      gEnergy);
-                plot(DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM, 
+                plot(DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM,
                       (int)(gg_dtime / plotResolution + 100),
                       gEnergy + gEnergy2);
             }
@@ -613,29 +608,29 @@ bool GeProcessor::Process(RawEvent &event) {
              * This condition removes coincidences within the same
              * clover significantly reducing "cross-talk"
              * but also reducing efficiency
-             * (by 20% approx) 
-             */ 
+             * (by 20% approx)
+             */
             if (det2 != det) {
                 symplot(DD_ENERGY, gEnergy, gEnergy2);
 
-                if (decayTime > cycle_gate1_min_ && 
+                if (decayTime > cycle_gate1_min_ &&
                     decayTime < cycle_gate1_max_)
                     symplot(DD_ENERGY_CGATE1, gEnergy, gEnergy2);
-                if (decayTime > cycle_gate2_min_ && 
+                if (decayTime > cycle_gate2_min_ &&
                     decayTime < cycle_gate2_max_)
                     symplot(DD_ENERGY_CGATE2, gEnergy, gEnergy2);
 
                 if (hasBeta) {
                     if (GoodGammaBeta(gb_dtime)) {
                         symplot(betaGated::DD_ENERGY, gEnergy,
-                                gEnergy2);            
-                        if (decayTime > cycle_gate1_min_ && 
+                                gEnergy2);
+                        if (decayTime > cycle_gate1_min_ &&
                             decayTime < cycle_gate1_max_)
-                            symplot(betaGated::DD_ENERGY_CGATE1, 
+                            symplot(betaGated::DD_ENERGY_CGATE1,
                                     gEnergy, gEnergy2);
-                        if (decayTime > cycle_gate2_min_ && 
+                        if (decayTime > cycle_gate2_min_ &&
                             decayTime < cycle_gate2_max_)
-                            symplot(betaGated::DD_ENERGY_CGATE2, 
+                            symplot(betaGated::DD_ENERGY_CGATE2,
                                     gEnergy, gEnergy2);
 
                     } else if (gb_dtime > gammaBetaLimit_) {
@@ -647,8 +642,8 @@ bool GeProcessor::Process(RawEvent &event) {
                 if (abs(gg_dtime) < gammaGammaLimit_) {
                     symplot(DD_ENERGY_PROMPT, gEnergy, gEnergy2);
                     if (hasBeta && GoodGammaBeta(gb_dtime)) {
-                        symplot(betaGated::DD_ENERGY_PROMPT, 
-                                gEnergy, gEnergy2);            
+                        symplot(betaGated::DD_ENERGY_PROMPT,
+                                gEnergy, gEnergy2);
                     }
                 }
             }
@@ -668,10 +663,10 @@ bool GeProcessor::Process(RawEvent &event) {
                     (*it_gate)[1].IsWithin(e2)) {
 
                     double plotResolution = clockInSeconds;
-                    plot(DD_TDIFF__GATEX, 
+                    plot(DD_TDIFF__GATEX,
                          (int)(gg_dtime / plotResolution + 100), ig);
                     if (hasBeta && GoodGammaBeta(gb_dtime))
-                        plot(betaGated::DD_TDIFF__GATEX, 
+                        plot(betaGated::DD_TDIFF__GATEX,
                             (int)(gg_dtime / plotResolution + 100), ig);
 
                     /** Angular corelations:
@@ -698,7 +693,7 @@ bool GeProcessor::Process(RawEvent &event) {
 
                     for (vector<ChanEvent*>::const_iterator it3 = it2 + 1;
                             it3 != geEvents_.end(); it3++) {
-                        double gEnergy3 = (*it3)->GetCalEnergy();            
+                        double gEnergy3 = (*it3)->GetCalEnergy();
                         if (gEnergy3 < gammaThreshold_)
                             continue;
                         plot(DD_ENERGY__GATEX, gEnergy3, ig);
@@ -710,7 +705,7 @@ bool GeProcessor::Process(RawEvent &event) {
             }
 #endif
         } // iteration over other gammas
-    } 
+    }
 
     // Vectors tas and addbackEvents should have the same size
     unsigned nEvents = tas_.size();
@@ -740,7 +735,7 @@ bool GeProcessor::Process(RawEvent &event) {
         }
     }
 
-    // Plot addback spectra 
+    // Plot addback spectra
     for (unsigned int ev = 0; ev < nEvents; ev++) {
         for (unsigned int det = 0; det < numClovers; ++det) {
             double gEnergy = addbackEvents_[det][ev].energy;
@@ -775,7 +770,7 @@ bool GeProcessor::Process(RawEvent &event) {
                 }
             }
 
-            for (unsigned int det2 = det + 1; 
+            for (unsigned int det2 = det + 1;
                     det2 < numClovers; ++det2) {
                 double gEnergy2 = addbackEvents_[det2][ev].energy;
                 if (gEnergy2 < gammaThreshold_)
@@ -820,15 +815,15 @@ void GeProcessor::DeclareHistogramGranY(int dammId, int xsize, int ysize,
 {
     stringstream fullTitle;
 
-    for (unsigned int i=0; i < granularity.size(); i++) {	 
-        //? translate scientific units to engineering units 
+    for (unsigned int i=0; i < granularity.size(); i++) {
+        //? translate scientific units to engineering units
         fullTitle << title << " (" << granularity[i] << " " << units << "/bin)";
         histo.DeclareHistogram2D(dammId + i, xsize, ysize,
                                  fullTitle.str().c_str(),
                                  halfWordsPerChan, 1, 1);
         fullTitle.str("");
     }
-} 
+}
 
 /**
  * Plot to a granularity spectrum

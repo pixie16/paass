@@ -30,7 +30,7 @@ public:
 private:
     static const size_t nPos = 4; //!< number of positions
 
-    /** Data structure to hold MCP data */
+    /** \brief Data structure to hold MCP data */
     struct McpData {
         double raw[nPos];//!< the raw information
         double xpos;//!< the x position
