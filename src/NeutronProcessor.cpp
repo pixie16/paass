@@ -18,22 +18,22 @@ namespace dammIds {
     namespace scint {
         namespace neutron {
             namespace betaGated {
-                const int D_ENERGY_DETX = 0; // for 3 detectors (1-3)
+                const int D_ENERGY_DETX = 0; //!< Beta gated hists for 3 detectors (1-3)
             }
             namespace gammaGated {
-                const int D_ENERGY_DETX = 3; // for 3 detectors (1-3)
+                const int D_ENERGY_DETX = 3; //!< gamma gated hists for 3 detectors (1-3)
             }
             namespace betaGammaGated {
-                const int D_ENERGY_DETX = 6; // for 3 detectors (1-3)
+                const int D_ENERGY_DETX = 6; //!< beta-gamma gated hists for 3 detectors (1-3)
             }
-        } 
+        }
     }
-} 
+}
 
 NeutronProcessor::NeutronProcessor() : EventProcessor(OFFSET, RANGE)
 {
     name = "Neutron";
-    associatedTypes.insert("scint"); 
+    associatedTypes.insert("scint");
 }
 
 void NeutronProcessor::DeclarePlots(void)
@@ -62,9 +62,9 @@ bool NeutronProcessor::Process(RawEvent &event)
     if (!EventProcessor::Process(event))
         return false;
 
-    static const vector<ChanEvent*> &scintNeutrEvents = 
+    static const vector<ChanEvent*> &scintNeutrEvents =
 	event.GetSummary("scint:neutr")->GetList();
-    
+
     for (vector<ChanEvent*>::const_iterator it = scintNeutrEvents.begin();
 	 it != scintNeutrEvents.end(); it++) {
 
@@ -72,13 +72,13 @@ bool NeutronProcessor::Process(RawEvent &event)
         int loc = chan->GetChanID().GetLocation();
         double neutronEnergy = chan->GetCalEnergy();
 
-        if (TreeCorrelator::get()->place("Beta")->status()) { 
+        if (TreeCorrelator::get()->place("Beta")->status()) {
             plot(betaGated::D_ENERGY_DETX + loc, neutronEnergy);
         }
         if (TreeCorrelator::get()->place("Gamma")->status()) {
             plot(gammaGated::D_ENERGY_DETX + loc, neutronEnergy);
         }
-        if (TreeCorrelator::get()->place("GammaBeta")->status()) { 
+        if (TreeCorrelator::get()->place("GammaBeta")->status()) {
             plot(betaGammaGated::D_ENERGY_DETX + loc, neutronEnergy);
         }
     }

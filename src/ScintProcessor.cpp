@@ -27,27 +27,27 @@ namespace dammIds {
     namespace scint {
         namespace neutr {
             namespace betaGated {
-                const int D_ENERGY_DETX = 0; // for 3 detectors (1-3)
+                const int D_ENERGY_DETX = 0; //!< Beta Gated for 3 detectors (1-3)
             }
             namespace gammaGated {
-                const int D_ENERGY_DETX = 3; // for 3 detectors (1-3)
+                const int D_ENERGY_DETX = 3; //!< Gamma Gated for 3 detectors (1-3)
             }
             namespace betaGammaGated {
-                const int D_ENERGY_DETX = 6; // for 3 detectors (1-3)
+                const int D_ENERGY_DETX = 6; //!< BetaGamma Gated  for 3 detectors (1-3)
             }
         } // neutr namespace
-        const int DD_TQDCBETA         = 9;
-        const int DD_MAXBETA          = 10;
-        const int DD_TQDCLIQUID       = 11;
-        const int DD_MAXLIQUID        = 12;
-        const int DD_DISCRIM          = 13;
-        const int DD_TOFLIQUID        = 14;
-        const int DD_TRCLIQUID        = 15;
-        const int DD_TQDCVSDISCRIM    = 16;
-        const int DD_TOFVSDISCRIM     = 18;
-        const int DD_NEVSDISCRIM      = 20;
-        const int DD_TQDCVSLIQTOF     = 22;
-        const int DD_TQDCVSENERGY     = 24;
+        const int DD_TQDCBETA         = 9;//!< TQDCs for beta scints
+        const int DD_MAXBETA          = 10;//!< Maximum for beta scints
+        const int DD_TQDCLIQUID       = 11;//!< Trace QDC distribution for liquid
+        const int DD_MAXLIQUID        = 12;//!< Max Value distributions for Liquid
+        const int DD_DISCRIM          = 13;//!< N-G discrimination
+        const int DD_TOFLIQUID        = 14;//!< ToF for Liquid Scints
+        const int DD_TRCLIQUID        = 15;//!< Traces for Liquid Scints
+        const int DD_TQDCVSDISCRIM    = 16;//!< Trace QDC vs. NG Discrimination
+        const int DD_TOFVSDISCRIM     = 18;//!< ToF vs. Discrimination
+        const int DD_NEVSDISCRIM      = 20;//!< Neutron energy vs. N-Gamma Discrimination
+        const int DD_TQDCVSLIQTOF     = 22;//!< Trace QDC vs. Liquid TOF
+        const int DD_TQDCVSENERGY     = 24;//!< Trace QDC vs. Energy
     }
 }
 

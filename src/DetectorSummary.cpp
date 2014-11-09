@@ -65,6 +65,9 @@ void DetectorSummary::AddEvent(ChanEvent *ev) {
  * To use the detector summary in the STL map it is necessary to define the
  * behavior of the "<" operator.  The "<" operator between a and b is defined
  * as whether the name for a is less than the name for b.
+ * \param [in] a : the Summary on the LHS
+ * \param [in] b : the summary on the RHS
+ * \return true if LHS is less than RHS
  */
 bool operator<(const DetectorSummary &a, const DetectorSummary &b) {
     return a.GetName() < b.GetName();

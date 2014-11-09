@@ -25,17 +25,30 @@
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_vector.h>
 
-int FitFunction(const gsl_vector *x, void *FitData,
-		gsl_vector *f);
-int CalcJacobian(const gsl_vector *x, void *FitData,
-		      gsl_matrix *J);
-int FitFunctionDerivative(const gsl_vector *x, void *FitData,
-			  gsl_vector *f, gsl_matrix *J);
+/** Defines the GSL fitting function for the analysis
+ * \param [in] x : the vector of gsl starting paramters
+ * \param [in] FitData : The data to use for the fit
+ * \param [in] f : pointer to the function
+ * \return an integer that GSL does something magical with */
+int FitFunction(const gsl_vector *x, void *FitData, gsl_vector *f);
+/** Defines the GSL fitting function for the analysis
+ * \param [in] x : the vector of gsl starting paramters
+ * \param [in] FitData : The data to use for the fit
+ * \param [in] J : pointer to the jacobian of the function
+ * \return an integer that GSL does something magical with */
+int CalcJacobian(const gsl_vector *x, void *FitData, gsl_matrix *J);
+/** Defines the GSL fitting function for the analysis
+ * \param [in] x : the vector of gsl starting paramters
+ * \param [in] FitData : The data to use for the fit
+ * \param [in] f : pointer to the function
+ * \param [in] J : pointer to the jacobian of the function
+ * \return an integer that GSL does something magical with */
+int FitFunctionDerivative(const gsl_vector *x, void *FitData, gsl_vector *f,
+                          gsl_matrix *J);
 
 using namespace std;
 using namespace dammIds::trace::waveformanalyzer;
 
-//********** DeclarePlots **********
 void FittingAnalyzer::DeclarePlots(void) {
     Trace sample_trace = Trace();
     sample_trace.DeclareHistogram2D(DD_TRACES, S7, S5, "traces data FitAnalyzer");
@@ -45,14 +58,10 @@ void FittingAnalyzer::DeclarePlots(void) {
     sample_trace.DeclareHistogram1D(D_SIGMA, SE, "Std Dev Baseline");
 }
 
-
-//********** FittingAnalyzer **********
 FittingAnalyzer::FittingAnalyzer() {
     name = "FittingAnalyzer";
 }
 
-
-//********** Analyze **********
 void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
 			      const std::string &detSubtype) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype);

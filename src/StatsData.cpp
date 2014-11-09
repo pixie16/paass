@@ -16,7 +16,7 @@ using std::cout;
 using std::endl;
 using pixie::word_t;
 
-StatsData stats;
+StatsData stats; //!< Instance of the class (not sure why -SVP)
 
 StatsData::StatsData() {
   std::stringstream ss;

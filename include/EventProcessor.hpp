@@ -21,6 +21,7 @@ class RawEvent;
 class TTree;
 #endif
 
+//! Class to handle event processing
 class EventProcessor {
 public:
     /** Default Constructor */

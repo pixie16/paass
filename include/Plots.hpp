@@ -14,9 +14,13 @@
 #include "Globals.hpp"
 #include "PlotsRegister.hpp"
 
-/* Fortran subroutines for plotting histograms */
+/** Do banana gating using ban files args are the Banana number in the ban file,
+ * the x-value to test, and the y-value to test.
+ * \return true if the x,y pair is inside the banana gate */
 extern "C" bool bantesti_(const int &, const int &, const int &);
+/** Defines the DAMM function to call for 1D hists */
 extern "C" void count1cc_(const int &, const int &, const int &);
+/** Defines the DAMM function to call for 2D hists */
 extern "C" void set2cc_(const int &, const int &, const int &, const int &);
 
 //! Holds pointers to all Histograms
@@ -129,7 +133,7 @@ public:
                              int halfWordsPerChan, int xContraction,
                              int yContraction, const std::string &mne = "");
 
-    /*! \brief Declares a 2D histogram calls the C++ wrapper for DAMM
+    /*! \brief Plots into histogram defined by dammId
     * \param [in] dammId : The histogram number to define
     * \param [in] val1 : the x value
     * \param [in] val2 : the y value
@@ -139,7 +143,7 @@ public:
     bool Plot(int dammId, double val1, double val2 = -1, double val3 = -1,
               const char* name="h");
 
-    /*! \brief Declares a 2D histogram calls the C++ wrapper for DAMM
+    /*! \brief Plots into histogram defined by mne
     * \param [in] mne  : the mnemonic to plot into
     * \param [in] val1 : the x value
     * \param [in] val2 : the y value

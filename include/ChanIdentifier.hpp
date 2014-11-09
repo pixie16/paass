@@ -1,4 +1,4 @@
-/** \file ChanIdentifier
+/** \file ChanIdentifier.hpp
  * \brief Defines identifying information for channels
 */
 #ifndef __CHANIDENTIFIER_HPP
@@ -23,8 +23,12 @@
  */
 class Identifier {
 public:
-    /** Default constructor */
-    Identifier();
+    /** Default constructor
+    *
+    * The dammid and detector location variable are set to -1
+    * and the detector type and sub type are both set to ""
+    * when an identifier object is created. */
+    Identifier(){Zero();};
     /** Default Destructor */
     ~Identifier(){};
     /** Constructor taking arguments and setting values
@@ -66,7 +70,11 @@ public:
      * \param [in] s : the name of the tag to get */
     TagValue GetTag(const std::string &s) const;
 
-    /** Zeroes an identifier */
+    /** Zeroes an identifier
+    *
+    * The dammid and detector location variable are reset to -1
+    * and the detector type and sub type are both reset to ""
+    * when an identifier object is zeroed. */
     void Zero();
     /** Print the headers for the Identifier */
     static void PrintHeaders(void);

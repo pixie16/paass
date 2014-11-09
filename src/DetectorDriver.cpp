@@ -1,38 +1,7 @@
-/*    the detector driver class.
-
-      The main analysis program.  A complete event is create in PixieStd
-      passed into this class.  See manual for further details.
-
-      SNL - 7-2-07
-      SNL - 7-12-07
-            Add root analysis. If the ROOT program has been
-            detected on the computer system the and the
-            makefile has the useroot flag declared, ROOT
-            analysis will be included.
-      DTM - Oct. '09
-            Significant structural/cosmetic changes. Event processing is
-	    now primarily handled by individual event processors which
-	    handle their own DetectorDrivers
-
-      SVP - Oct. '10
-            Added the VandleProcessor for use with VANDLE.
-            Added the PulserProcessor for use with Pulsers.
-            Added the WaveformProcessor to determine ps time resolutions.
-      KM  - Dec. '12, Jan. '13
-            Huge changes due to switching to XML configuration file.
-            See git commits comments.
-*/
-
-/*!
-  \file DetectorDriver.cpp
-
-  \brief event processing
-
-  In this file are the details for experimental processing of a raw event
-  created by ScanList() in PixieStd.cpp.  Event processing includes things
-  which do not change from experiment to experiment (such as energy
-  calibration and raw parameter plotting) and things that do (differences
-  between MTC and RMS experiment, for example).
+/*! \file DetectorDriver.cpp
+ *   \brief Main driver for event processing
+ * \author S. N. Liddick
+ * \date July 2, 2007
 */
 #include <algorithm>
 #include <fstream>
@@ -92,25 +61,21 @@ using namespace dammIds::raw;
 
 DetectorDriver* DetectorDriver::instance = NULL;
 
-/*! Instance is created upon first call */
 DetectorDriver* DetectorDriver::get() {
     if (!instance)
         instance = new DetectorDriver();
     return instance;
 }
 
-/*! \brief Constructor that initializes the various processors and
-  analyzers.
-*/
 DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
     Messenger m;
     try {
         m.start("Loading Processors");
         LoadProcessors(m);
     } catch (GeneralException &e) {
-        // Any exception in registering plots in Processors
-        // and possible other exceptions in creating Processors
-        // will be intercepted here
+        /// Any exception in registering plots in Processors
+        /// and possible other exceptions in creating Processors
+        /// will be intercepted here
         m.fail();
         cout << "Exception caught at DetectorDriver::DetectorDriver" << endl;
         cout << "\t" << e.what() << endl;
@@ -122,10 +87,6 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
     m.done();
 }
 
-/*! \brief Destructor
- *
- * Never actually called since DetectorDriver is now a singleton
- */
 DetectorDriver::~DetectorDriver() {
     for (vector<EventProcessor *>::iterator it = vecProcess.begin();
 	 it != vecProcess.end(); it++) {
@@ -418,20 +379,13 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
     }
 }
 
-/*!
-  Called from PixieStd.cpp during initialization.
-  The calibration file Cal.xml is read using the function ReadCal() and
-  checked to make sure that all channels have a calibration.
-*/
 int DetectorDriver::Init(RawEvent& rawev) {
-    // initialize the trace analysis routine
     for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
 	 it != vecAnalyzer.end(); it++) {
         (*it)->Init();
         (*it)->SetLevel(20);
     }
 
-    // initialize processors in the event processing vector
     for (vector<EventProcessor *>::iterator it = vecProcess.begin();
          it != vecProcess.end(); it++) {
         (*it)->Init(rawev);
@@ -441,8 +395,8 @@ int DetectorDriver::Init(RawEvent& rawev) {
         ReadCalXml();
         ReadWalkXml();
     } catch (GeneralException &e) {
-        // Any exception in reading calibration and walk correction
-        // will be intercepted here
+        //! Any exception in reading calibration and walk correction
+        //! will be intercepted here
         cout << endl;
         cout << "Exception caught at DetectorDriver::Init" << endl;
         cout << "\t" << e.what() << endl;
@@ -455,22 +409,9 @@ int DetectorDriver::Init(RawEvent& rawev) {
     }
 
     rawev.GetCorrelator().Init(rawev);
-
     return 0;
 }
 
-/*! \brief controls event processing
-
-  The ProcessEvent() function is called from ScanList() in PixieStd.cpp
-  after an event has been constructed. This function is passed the mode
-  the analysis is currently in (the options are either "scan" or
-  "standaloneroot").  The function checks the thresholds for the individual
-  channels in the event and calibrates their energies.
-  The raw and calibrated energies are plotted if the appropriate DAMM spectra
-  have been created.  Then experiment specific processing is performed.
-  Currently, both RMS and MTC processing is available.  After all processing
-  has occured, appropriate plotting routines are called.
-*/
 int DetectorDriver::ProcessEvent(RawEvent& rawev) {
     plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
 
@@ -497,16 +438,16 @@ int DetectorDriver::ProcessEvent(RawEvent& rawev) {
             TreeCorrelator::get()->place(place)->activate(data);
         }
 
-        /* First round is preprocessing, where process result must be guaranteed
-        * to not to be dependent on results of other Processors. */
+        //!First round is preprocessing, where process result must be guaranteed
+        //!to not to be dependent on results of other Processors.
         for (vector<EventProcessor*>::iterator iProc = vecProcess.begin();
         iProc != vecProcess.end(); iProc++) {
             if ( (*iProc)->HasEvent() ) {
                 (*iProc)->PreProcess(rawev);
             }
         }
-        /* In the second round the Process is called, which may depend on other
-        * Processors. */
+        ///In the second round the Process is called, which may depend on other
+        ///Processors.
         for (vector<EventProcessor *>::iterator iProc = vecProcess.begin();
         iProc != vecProcess.end(); iProc++) {
             if ( (*iProc)->HasEvent() ) {
@@ -514,8 +455,8 @@ int DetectorDriver::ProcessEvent(RawEvent& rawev) {
             }
         }
     } catch (GeneralException &e) {
-        // Any exception in activation of basic places, PreProcess and Process
-        // will be intercepted here
+        /// Any exception in activation of basic places, PreProcess and Process
+        /// will be intercepted here
         cout << "Exception caught at DetectorDriver::ProcessEvent" << endl;
         cout << "\t" << e.what() << endl;
         exit(EXIT_FAILURE);
@@ -592,19 +533,7 @@ void DetectorDriver::DeclarePlots() {
     }
 }
 
-// sanity check for all our expectations
-void DetectorDriver::SanityCheck(void) const {
-    /** Use Exceptions to throw an exception here if sanity check was
-     * not succesful */
-}
-
-/*! \brief check threshold and calibrate each channel.
-
-  Check the thresholds and calibrate the energy for each channel using the
-  calibrations contained in the calibration vector filled during ReadCal()
-*/
 int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
-    // retrieve information about the channel
     Identifier chanId = chan->GetChanID();
     int id            = chan->GetID();
     string type       = chanId.GetType();
@@ -616,12 +545,9 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
 
     double energy = 0.0;
 
-    if (type == "ignore" || type == "") {
+    if (type == "ignore" || type == "")
         return 0;
-    }
-    /*
-      If the channel has a trace get it, analyze it and set the energy.
-    */
+
     if ( !trace.empty() ) {
         plot(D_HAS_TRACE, id);
 
@@ -671,7 +597,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
             chan->SetEnergy(energy);
         } else if (!trace.HasValue("filterEnergy")) {
             energy = chan->GetEnergy() + randoms->Get();
-            energy /= ChanEvent::pixieEnergyContraction;
+            energy /= Globals::get()->energyContraction();
         }
 
         if (trace.HasValue("phase") ) {
@@ -682,12 +608,12 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
         }
 
     } else {
-        // otherwise, use the Pixie on-board calculated energy
-        // add a random number to convert an integer value to a
-        //   uniformly distributed floating point
+        /// otherwise, use the Pixie on-board calculated energy
+        /// add a random number to convert an integer value to a
+        ///   uniformly distributed floating point
 
         energy = chan->GetEnergy() + randoms->Get();
-        energy /= ChanEvent::pixieEnergyContraction;
+        energy /= Globals::get()->energyContraction();
     }
 
     /** Calibrate energy and apply the walk correction. */
@@ -714,23 +640,15 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
     return 1;
 }
 
-/*!
-  Plot the raw energies of each channel into the damm spectrum number assigned
-  to it in the map file with an offset as defined in DammPlotIds.hpp
-*/
 int DetectorDriver::PlotRaw(const ChanEvent *chan) {
     int id = chan->GetID();
-    float energy = chan->GetEnergy() / ChanEvent::pixieEnergyContraction;
+    float energy = chan->GetEnergy() / Globals::get()->energyContraction();
 
     plot(D_RAW_ENERGY + id, energy);
 
     return 0;
 }
 
-/*!
-  Plot the calibrated energies of each channel into the damm spectrum number
-  assigned to it in the map file with an offset as defined in DammPlotIds.hpp
-*/
 int DetectorDriver::PlotCal(const ChanEvent *chan) {
     int id = chan->GetID();
     float calEnergy = chan->GetCalEnergy();
@@ -767,7 +685,7 @@ void DetectorDriver::ReadCalXml() {
 
     pugi::xml_node map = doc.child("Configuration").child("Map");
 
-    /* Note that before this reading in of the xml file, it was already
+    /** Note that before this reading in of the xml file, it was already
      * processed for the purpose of creating the channels map.
      * Some sanity checks (module and channel number) were done there
      * so they are not repeated here/

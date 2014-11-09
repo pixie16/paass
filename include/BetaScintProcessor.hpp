@@ -38,18 +38,17 @@ public:
     BetaScintProcessor() {};
     /*! Default Destructor */
     ~BetaScintProcessor() {};
+    /** Constructor taking limits on beta-gamma correlation and energy contraction
+     * \param [in] gammaBetaLimit : the maximum time diff between beta and gamma events
+     * \param [in] energyContraction : the number to contract the energy by */
     BetaScintProcessor(double gammaBetaLimit, double energyContraction);
     /*! \brief PreProcessing for the class
-    *
     * \param [in] event : The RawEvent
-    * \return bool : Status of processing
-    */
+    * \return bool : Status of processing */
     virtual bool PreProcess(RawEvent &event);
     /*! \brief Main Processing for the class
-    *
     * \param [in] event : The RawEvent
-    * \return [out] bool : Status of processing
-    */
+    * \return bool : Status of processing */
     virtual bool Process(RawEvent &event);
     /*! Declare the Plots for the Processor */
     virtual void DeclarePlots(void);
@@ -58,11 +57,11 @@ public:
 
 protected:
     /*! Finds the most likely gamma associated with a given beta
-    * \param[in] bTime : The time of arrival for the beta particle
-    * \return EventData for the match
-    */
+    * \param [in] bTime : The time of arrival for the beta particle
+    * \return EventData for the match */
     EventData BestGammaForBeta(double bTime);
-    /** \return true if gamma-beta correlation time is within limits. */
+    /** \return true if gamma-beta correlation time is within limits.
+     * \param [in] gTime : the gamma time to check for coincidence  */
     bool GoodGammaBeta(double gTime);
     /** Gamma-beta coin. limit in seconds */
     double gammaBetaLimit_;

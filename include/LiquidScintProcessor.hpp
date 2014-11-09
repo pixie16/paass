@@ -15,7 +15,7 @@ public:
     /** Default Constructor */
     LiquidScintProcessor();
     /** Default Destructor */
-    ~LiquidProcessor(){};
+    ~LiquidScintProcessor(){};
     /** Performs the preprocessing, which cannot depend on other processors
     * \param [in] event : the event to process
     * \return true if preprocessing was successful */

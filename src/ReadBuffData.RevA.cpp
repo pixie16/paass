@@ -54,7 +54,9 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-// define tst bit function from pixie16 files
+/** \return tst bit function from pixie16 files
+ * \param [in] bit : bit to test with
+ * \param [in] value : value to compare with */
 unsigned long TstBit(unsigned short bit, word_t value) {
   return(((value & (word_t)(pow(2.0, (double)bit))) >> bit));
 }
@@ -64,6 +66,10 @@ unsigned long TstBit(unsigned short bit, word_t value) {
  * ReadBuffData extracts channel information from the raw data array and place
  * it into a ChanEvent structure .  A pointer to each of the ChanEvent objects
  * is placed in the eventlist vector for later sorting.
+ * \param [in] buf : the buffer to process
+ * \param [in] bufLen : the length of the buffer
+ * \param [in] eventList : the event list to add the extracted buffer to
+ * \return An unused integer
  */
 int ReadBuffDataA(word_t *buf, unsigned long *bufLen,
 		 vector<ChanEvent*> &eventList) {
