@@ -11,7 +11,6 @@
 
 using namespace std;
 
-
 void Calibrator::AddChannel(const Identifier& chanID, const std::string model,
                             double min, double max,
                             const std::vector<double>& par) {

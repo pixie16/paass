@@ -33,24 +33,24 @@ using namespace std;
 namespace dammIds {
     namespace ge {
         namespace calib {
-            const int D_E_SUM = 400;
-            const int D_E_CRYSTALX = 401;
-            const int DD_E_DETX = 418;
-            const int DD_E_DETX_BETA_GATED = 419;
+            const int D_E_SUM = 400; //!< summed energy for all crystals
+            const int D_E_CRYSTALX = 401;//!< energy for crystal X
+            const int DD_E_DETX = 418;//!< ungated gamma energies
+            const int DD_E_DETX_BETA_GATED = 419; //!< beta gated gamma energies
 
-            const int DD_EGAMMA__EBETA_ALL = 420;
-            const int DD_EGAMMA__EBETA_B0 = 421;
-            const int DD_EGAMMA__EBETA_B1 = 422;
-            const int DD_EGAMMA__EBETA = 423;
+            const int DD_EGAMMA__EBETA_ALL = 420; //!< gamma energy vs all beta energy
+            const int DD_EGAMMA__EBETA_B0 = 421;//!< gamma energy vs beta0 energy
+            const int DD_EGAMMA__EBETA_B1 = 422;//!< gamma energy vs beta1 energy
+            const int DD_EGAMMA__EBETA = 423;//!< Gamma Energy vs beta energy
 
-            const int DD_TDIFF__EGAMMA_ALL = 460;
-            const int DD_TDIFF__EGAMMA_B0 = 461;
-            const int DD_TDIFF__EGAMMA_B1 = 462;
-            const int DD_TDIFF__EGAMMA = 463;
+            const int DD_TDIFF__EGAMMA_ALL = 460;//!< tdiff gamma and all beta
+            const int DD_TDIFF__EGAMMA_B0 = 461;//!< tdiff gamma and beta 0
+            const int DD_TDIFF__EGAMMA_B1 = 462;//!< tdiff gamma and beta 1
+            const int DD_TDIFF__EGAMMA = 463; //!< tdiff between gammas
 
-            const int D_ENERGY_HIGHGAIN = 497;
-            const int D_ENERGY_LOWGAIN = 498;
-            const int DD_CLOVER_ENERGY_RATIO = 499;
+            const int D_ENERGY_HIGHGAIN = 497; //!< High gain energy
+            const int D_ENERGY_LOWGAIN = 498; //!< Low gain energy
+            const int DD_CLOVER_ENERGY_RATIO = 499; //!< Clover energy ratio
         }
     }
 }
@@ -58,14 +58,12 @@ namespace dammIds {
 GeCalibProcessor::GeCalibProcessor(double gammaThreshold, double lowRatio,
                                    double highRatio) :
                          GeProcessor(gammaThreshold, lowRatio, highRatio,
-                                     100e-9, 200e-9, 
-                                     200e-9, 0, 0, 0, 0)
-{
+                                     100e-9, 200e-9,
+                                     200e-9, 0, 0, 0, 0) {
 }
 
 /** Declare plots including many for decay/implant/neutron gated analysis  */
-void GeCalibProcessor::DeclarePlots(void) 
-{
+void GeCalibProcessor::DeclarePlots(void) {
     const int energyBins = SE;
     const int energyBins2 = SC;
     const int energyBins3 = S9;
@@ -81,14 +79,14 @@ void GeCalibProcessor::DeclarePlots(void)
 
     for ( set<int>::const_iterator it = cloverLocations.begin();
 	  it != cloverLocations.end(); it++) {
-        leafToClover[*it] = int(cloverChans / 4); 
+        leafToClover[*it] = int(cloverChans / 4);
         cloverChans++;
     }
 
     if (cloverChans % chansPerClover != 0) {
         cout << " There does not appear to be the proper number of"
             << " channels per clover.\n Program terminating." << endl;
-        exit(EXIT_FAILURE);	
+        exit(EXIT_FAILURE);
     }
 
     if (cloverChans != 0) {
@@ -97,7 +95,7 @@ void GeCalibProcessor::DeclarePlots(void)
         m.start("Building clovers");
 
         stringstream ss;
-        ss << "A total of " << cloverChans 
+        ss << "A total of " << cloverChans
            << " clover channels were detected: ";
         int lastClover = numeric_limits<int>::min();
         for ( map<int, int>::const_iterator it = leafToClover.begin();
@@ -117,11 +115,11 @@ void GeCalibProcessor::DeclarePlots(void)
         if (numClovers > dammIds::ge::MAX_CLOVERS) {
             m.fail();
             stringstream ss;
-            ss << "Number of detected clovers is greater than defined" 
+            ss << "Number of detected clovers is greater than defined"
                << " MAX_CLOVERS = " << dammIds::ge::MAX_CLOVERS << "."
                << " See GeCalibProcessor.hpp for details.";
             throw GeneralException(ss.str());
-        }   
+        }
         m.done();
     }
 
@@ -139,10 +137,10 @@ void GeCalibProcessor::DeclarePlots(void)
                        "Gamma E vs. crystal number beta gated");
 
     DeclareHistogram2D(calib::DD_EGAMMA__EBETA_ALL,
-                       energyBins2, energyBins2, 
+                       energyBins2, energyBins2,
                        "Gamma E, Beta E (all crystals)");
     DeclareHistogram2D(calib::DD_TDIFF__EGAMMA_ALL,
-                       timeBins, energyBins, 
+                       timeBins, energyBins,
                        "dt gamma-beta, gamma E (all)");
 
     DeclareHistogram2D(calib::DD_EGAMMA__EBETA_B0,
@@ -158,13 +156,13 @@ void GeCalibProcessor::DeclarePlots(void)
         stringstream ss;
         for (unsigned i = 0; i < cloverChans; ++i) {
             ss.str("");
-            ss << "Gamma E, beta E; crystal " << i 
+            ss << "Gamma E, beta E; crystal " << i
                << " beta " << b << " (energy/2)";
             DeclareHistogram2D(calib::DD_EGAMMA__EBETA + i * 2 + b,
                                energyBins2, energyBins3, ss.str().c_str());
 
             ss.str("");
-            ss << "dt gamma-beta, gamma E; crystal " 
+            ss << "dt gamma-beta, gamma E; crystal "
                << i << " beta " << b;
             DeclareHistogram2D(calib::DD_TDIFF__EGAMMA + i * 2 + b,
                                timeBins, energyBins, ss.str().c_str());
@@ -177,8 +175,8 @@ void GeCalibProcessor::DeclarePlots(void)
                        "Gamma singles, low gain");
     DeclareHistogram2D(calib::DD_CLOVER_ENERGY_RATIO, S4, S6,
                        "high/low energy ratio (x10)");
-    DeclareHistogram1D(dammIds::ge::D_MULT, S3, 
-                       "Gamma multiplicity");                  
+    DeclareHistogram1D(dammIds::ge::D_MULT, S3,
+                       "Gamma multiplicity");
 }
 
 bool GeCalibProcessor::PreProcess(RawEvent &event) {
@@ -230,7 +228,7 @@ bool GeCalibProcessor::PreProcess(RawEvent &event) {
     sort(geEvents_.begin(), geEvents_.end(), CompareCorrectedTime);
 
     return true;
-} 
+}
 
 
 bool GeCalibProcessor::Process(RawEvent &event) {
@@ -243,10 +241,10 @@ bool GeCalibProcessor::Process(RawEvent &event) {
 
     plot(D_MULT, geEvents_.size());
 
-    for (vector<ChanEvent*>::iterator it = geEvents_.begin(); 
+    for (vector<ChanEvent*>::iterator it = geEvents_.begin();
          it != geEvents_.end(); ++it) {
         ChanEvent* chan = *it;
-        double gEnergy = chan->GetCalEnergy();	
+        double gEnergy = chan->GetCalEnergy();
 
         if (gEnergy < gammaThreshold_)
             continue;
@@ -292,6 +290,6 @@ bool GeCalibProcessor::Process(RawEvent &event) {
 
     }
 
-    EndProcess(); 
+    EndProcess();
     return true;
 }

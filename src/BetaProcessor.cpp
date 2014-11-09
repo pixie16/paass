@@ -16,15 +16,15 @@ using namespace dammIds::scint::beta;
 namespace dammIds {
     namespace scint {
         namespace beta {
-            const int D_MULT_BETA = 0;
-            const int D_ENERGY_BETA = 1;
+            const int D_MULT_BETA = 0; //!< beta multiplicity
+            const int D_ENERGY_BETA = 1;//!< beta energy
         }
     }
-} 
+}
 
 BetaProcessor::BetaProcessor() : EventProcessor(OFFSET, RANGE) {
     name = "Beta";
-    associatedTypes.insert("scint"); 
+    associatedTypes.insert("scint");
 }
 
 void BetaProcessor::DeclarePlots(void) {
@@ -36,11 +36,11 @@ bool BetaProcessor::PreProcess(RawEvent &event){
     if (!EventProcessor::PreProcess(event))
         return false;
 
-    static const vector<ChanEvent*> &scintBetaEvents = 
+    static const vector<ChanEvent*> &scintBetaEvents =
 	event.GetSummary("scint:beta")->GetList();
 
     int multiplicity = 0;
-    for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin(); 
+    for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin();
 	 it != scintBetaEvents.end(); it++) {
         double energy = (*it)->GetEnergy();
         if (energy > detectors::betaThreshold)

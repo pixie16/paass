@@ -69,6 +69,7 @@ using pixie::word_t;
  */
 RawEvent rawev;
 
+/** Enumeration defining points when we should do some basic plotting */
 enum HistoPoints {BUFFER_START, BUFFER_END, EVENT_START = 10, EVENT_CONTINUE};
 
 // Function forward declarations
@@ -77,9 +78,9 @@ void RemoveList(vector<ChanEvent*> &eventList);
 void HistoStats(unsigned int, double, double, HistoPoints);
 
 #ifdef newreadout
-/**
- * \brief Extract channel information from the raw parameter array ibuf
- */
+/** \brief Extract channel information from the raw parameter array ibuf
+ * \param [in] ibuf : the buffer to send to the his subroutines
+ * \param [in] nhw : */
 void hissub_sec(unsigned int *ibuf[],unsigned int *nhw);
 bool MakeModuleData(const word_t *data, unsigned long nWords,
                     unsigned int maxWords);
@@ -118,8 +119,9 @@ int (*ReadBuffData)(word_t *lbuf, unsigned long *BufLen,
  * the new Pixie16 readout (which is the default).  If the old Pixie16 readout
  * is used, the code should be recompiled without the newreadout flag in which
  * case this particular function is not used.
+ * \param [in] ibuf : the array with the data
+ * \param [in] nhw : the number of half words contained in the data buffer
 */
-
 #ifdef newreadout
 extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw) {
     const unsigned int maxChunks = 200;
@@ -280,10 +282,12 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw) {
 
 /** \brief inserts a delimiter in between individual module data and at end of
  * buffer. Data is then passed to hissub_sec() for processing.
- */
+ * \param [in] data : the data to parse
+ * \param [in] nWords : the length of the data
+ * \param [in] maxWords : the maximum words to get
+ * \return true if successful */
 bool MakeModuleData(const word_t *data, unsigned long nWords,
-                    unsigned int maxWords)
-{
+                    unsigned int maxWords) {
     const unsigned int maxVsn = 14; // no more than 14 pixie modules per crate
 
     unsigned int inWords = 0, outWords = 0;
@@ -662,20 +666,14 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
     return;
 }
 
-
-/** Remove events in list from memory when no longer needed */
-void RemoveList(vector<ChanEvent*> &eventList)
-{
-    /*
-      using the iterator and starting from the beginning and going to
-      the end of eventlist, delete the actual objects
-    */
+/** Remove events in list from memory when no longer needed. It deletes the
+ * actual objects then clears the vector.
+ * \param [in] eventList : The event list to parse through */
+void RemoveList(vector<ChanEvent*> &eventList) {
     for(vector<ChanEvent*>::iterator it = eventList.begin();
 	it != eventList.end(); it++) {
         delete *it;
     }
-
-    // once the actual objects are deleted, clear the vector eventList
     eventList.clear();
 }
 
@@ -691,10 +689,9 @@ void RemoveList(vector<ChanEvent*> &eventList)
  *   and the current channel is added to the list of channels for the rawevent
  *   - no - the previous rawevent is sent for processing and once finished, the
  *   rawevent is zeroed and the current channel placed inside it.
- */
-
-void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
-{
+ * \param [in] eventList : The event list to scan
+ * \param [in] rawev : the raw event to read */
+void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev) {
     unsigned long chanTime, eventTime;
 
     DetectorLibrary* modChan = DetectorLibrary::get();
@@ -827,9 +824,12 @@ void ScanList(vector<ChanEvent*> &eventList, RawEvent& rawev)
  * called to increment some low level pixie16 informational and diagnostic
  * spectra.  The list of spectra filled includes runtime in second and
  * milliseconds, the deadtime, time between events, and time width of an event.
+ * \param [in] id : the id of the channel
+ * \param [in] diff : The difference between current clock and last one
+ * \param [in] clock : The current clock
+ * \param [in] event : The type of event we are dealing with
  */
-void HistoStats(unsigned int id, double diff, double clock, HistoPoints event)
-{
+void HistoStats(unsigned int id, double diff, double clock, HistoPoints event) {
     static const int specNoBins = SE;
 
     static double start, stop;

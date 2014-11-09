@@ -14,7 +14,9 @@ class BeamLogicProcessor : public EventProcessor {
 public:
     /*! Default Constructor */
     BeamLogicProcessor();
-    /*! Default Destructor */
+    /** Constructor taking offset and range for plots
+     * \param [in] offset : the offset for the plots
+     * \param [in] range : the range for the plots */
     BeamLogicProcessor(int offset, int range);
     /*! Declare the Plots for the Processor */
     virtual void DeclarePlots(void);

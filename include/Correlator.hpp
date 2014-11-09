@@ -16,7 +16,6 @@
 #include "DammPlotIds.hpp"
 #include "Globals.hpp"
 
-// forward declarations
 class LogicProcessor;
 class RawEvent;
 
@@ -111,7 +110,7 @@ public:
     /** Declare plots for the correlator */
     void DeclarePlots(void);
     /** Initialize the correlator - Does nothing
-     * \param [in] rawevt : the raw even for initialization */
+     * \param [in] rawev : the raw even for initialization */
     void Init(RawEvent &rawev) {};
     /** Correlate two locations in the event
      * \param [in] event : the event to use to correlate
@@ -155,20 +154,22 @@ public:
      * \param [in] fch : first channel that we'll set
      * \param [in] bch : the second channel to set */
     void Flag(int fch, int bch);
+
     /** Check if the two channels that we have are flagged
      * \param [in] fch : the first channel to check
-     * \param [in] bch : the second channel to check */
+     * \param [in] bch : the second channel to check
+     * \return true if it is flagged */
     bool IsFlagged(int fch, int bch);
 
     /** \return The conditions for correlation */
     EConditions GetCondition(void) const {
-	return condition;
+        return condition;
     }
 
 private:
     Plots histo; //!< Instance of the Plots class
 
-    /*! \brief Declares a 2D histogram calls the C++ wrapper for DAMM
+    /*! \brief plots data into a histogram with provided DAMM ID
     * \param [in] dammId  : the dammID to plot into
     * \param [in] val1 : the x value
     * \param [in] val2 : the y value
@@ -187,7 +188,7 @@ private:
         histo.DeclareHistogram1D(dammId, xSize, title);
     }
 
-        /*! \brief Declares a 2D histogram calls the C++ wrapper for DAMM
+    /*! \brief Declares a 2D histogram calls the C++ wrapper for DAMM
     * \param [in] dammId : The histogram number to define
     * \param [in] xSize : The range of the x-axis
     * \param [in] ySize : The range of the y-axis

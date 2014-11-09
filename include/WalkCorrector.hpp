@@ -1,3 +1,8 @@
+/** \file WalkCorrector.hpp
+ * \brief A Class to handle walk corrections for channels
+ * \author K. A. Miernik
+ * \date January 22, 2013
+ */
 #ifndef WALKCORRECTOR_H
 #define WALKCORRECTOR_H
 
@@ -15,15 +20,14 @@ enum WalkModel {
     walk_B2
 };
 
-/** This structure holds walk calibration model identfier and
+/** \brief This structure holds walk calibration model identfier and
  * vector of parameters needed for the function. */
 struct CorrectionParams {
-    WalkModel model;
-    double min;
-    double max;
-    std::vector<double> parameters;
+    WalkModel model; //!< The walk model that is used for the params
+    double min; //!< minimum of range for the correction
+    double max;//!< maximum of range for the correction
+    std::vector<double> parameters;//!< coefficients for function
 };
-
 
 /** \brief Class to correct channels for walk in the onboard filters.
  *

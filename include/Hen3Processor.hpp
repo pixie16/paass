@@ -7,6 +7,7 @@
 
 #include "EventProcessor.hpp"
 
+//! Processor to handle 3Hen detector
 class Hen3Processor : public EventProcessor {
 public:
     /** Default Constructor */

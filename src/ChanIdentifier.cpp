@@ -1,3 +1,6 @@
+/** \file ChanIdentifier.hpp
+ * \brief Defines identifying information for channels
+*/
 #include "ChanIdentifier.hpp"
 #include <string>
 #include <iomanip>
@@ -5,11 +8,7 @@
 
 using namespace std;
 
-/**
- * Return the value of a tag
- */
-Identifier::TagValue Identifier::GetTag(const std::string &s) const
-{
+Identifier::TagValue Identifier::GetTag(const std::string &s) const {
     map<string, TagValue>::const_iterator it = tag.find(s);
 
     if (it == tag.end()) {
@@ -18,26 +17,7 @@ Identifier::TagValue Identifier::GetTag(const std::string &s) const
     return it->second;
 }
 
-/**
- * Identifier constructor
- *
- * The dammid and detector location variable are set to -1
- * and the detector type and sub type are both set to ""
- * when an identifier object is created.
- */
-Identifier::Identifier(){
-    Zero();
-}
-
-/**
- * Identifier zero
- *
- * The dammid and detector location variable are reset to -1
- * and the detector type and sub type are both reset to ""
- * when an identifier object is zeroed.
- */
-void Identifier::Zero()
-{
+void Identifier::Zero() {
     dammID   = -1;
     location = -1;
     type     = "";
@@ -46,11 +26,7 @@ void Identifier::Zero()
     tag.clear();
 }
 
-/**
- * Print column headings to aid with print
- */
-void Identifier::PrintHeaders(void)
-{
+void Identifier::PrintHeaders(void) {
     cout << setw(10) << "Type"
 	 << setw(10) << "Subtype"
 	 << setw(4)  << "Loc"
@@ -58,11 +34,7 @@ void Identifier::PrintHeaders(void)
 	 << "    TAGS" << endl;
 }
 
-/**
- * Print the info containing in the identifier with trailing newline
- */
-void Identifier::Print(void) const
-{
+void Identifier::Print(void) const {
     cout << setw(10) << type
 	 << setw(10) << subtype
 	 << setw(4)  << location
@@ -76,4 +48,3 @@ void Identifier::Print(void) const
     }
     cout << endl;
 }
-

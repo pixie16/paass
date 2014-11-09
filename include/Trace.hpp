@@ -18,6 +18,7 @@
 #include "PlotsRegister.hpp"
 #include "TimingInformation.hpp"
 
+/** A macro defining what kind of NAN to throw */
 #ifndef NAN
 #include <limits>
 #define NAN (numeric_limits<float>::quiet_NaN())
