@@ -22,10 +22,6 @@
 using namespace std;
 using namespace dammIds::trace;
 
-//< TO BE USED WITH MAGIC +40 ENERGY SAMPLE LOCATION
-// const double TraceFilterer::energyScaleFactor = 2.198;
-// const double TraceFilterer::energyScaleFactor = 2.547; //< multiply the energy filter sums by this to gain match to raw spectra
-
 TraceFilterer::TraceFilterer(double energyScaleFactor,
                              short fast_rise, short fast_gap,
                              short fast_threshold,
@@ -53,7 +49,6 @@ bool TraceFilterer::Init(const std::string &filterFileName) {
     thirdFilter.reserve(maxTraceLength);
     return true;
 }
-
 
 void TraceFilterer::DeclarePlots(void) {
     const int energyBins = SE;
@@ -88,8 +83,8 @@ void TraceFilterer::DeclarePlots(void) {
                 energyBins2, "Ratio raw energy to filter (%)");
 }
 
-void TraceFilterer::Analyze(Trace &trace,
-			    const std::string &type, const std::string &subtype) {
+void TraceFilterer::Analyze(Trace &trace, const std::string &type,
+                            const std::string &subtype) {
     using namespace dammIds::trace::tracefilterer;
 
     if (level >= 5) {
@@ -103,8 +98,7 @@ void TraceFilterer::Analyze(Trace &trace,
         // start at sample 5 because first samples are occasionally corrupted
         trace.DoBaseline(5, baselineBins);
         if ( trace.GetValue("sigmaBaseline") > deviationCut ||
-            abs(trailingBaseline - trace.GetValue("baseline")) < deviationCut)
-        {
+            abs(trailingBaseline - trace.GetValue("baseline")) < deviationCut) {
             // perhaps check trailing baseline deviation
             // from a simple linear fit
             static int rejectedTraces = 0;

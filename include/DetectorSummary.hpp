@@ -6,12 +6,17 @@
 #ifndef __DETECTOR_SUMMARY_HPP
 #define __DETECTOR_SUMMARY_HPP
 
-#include <vector>
 #include <string>
+#include <vector>
+
 #include "ChanEvent.hpp"
+
 #include "pixie16app_defs.h"
+
 #include "Globals.hpp"
 #include "Trace.hpp"
+
+class ChanEvent;
 
 /** \brief Summary of all channels of one detector type
  *

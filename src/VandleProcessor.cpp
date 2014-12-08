@@ -13,6 +13,7 @@
 
 #include <cmath>
 
+#include "BarDetector.hpp"
 #include "DammPlotIds.hpp"
 #include "GetArguments.hpp"
 #include "Globals.hpp"
@@ -339,9 +340,9 @@ void VandleProcessor::AnalyzeData(RawEvent& rawev) {
     if(!tvandleMap.empty() && tvandleMap.size()%2 == 0)
         Tvandle();
 
-    for (BarMap::iterator itBar = barMap.begin();
+    for (BarDetector::BarMap::iterator itBar = barMap.begin();
         itBar !=  barMap.end(); itBar++) {
-        if(!(*itBar).second.event)
+        if(!(*itBar).second.GetBarEvent())
             continue;
 
         BarData bar = (*itBar).second;

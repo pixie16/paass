@@ -7,7 +7,7 @@
 #define __LIQUIDPROCESSOR_HPP_
 
 #include "EventProcessor.hpp"
-#include "TimingInformation.hpp"
+#include "HighResTimingData.hpp"
 #include "Trace.hpp"
 
 //! Processor for Liquid Scintillators - Deprecated
@@ -28,6 +28,6 @@ public:
     /** Declare plots for processor */
     virtual void DeclarePlots(void);
 private:
-    TimingInformation timeInfo;//!< Instance of TimingInformation to hold info
+    HighResTimingData timeInfo;//!< Instance of HighResTimingData to hold info
 };
 #endif // __LIQUIDPROCSSEOR_HPP_

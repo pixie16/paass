@@ -17,9 +17,9 @@
 #include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
 #include "Exceptions.hpp"
+#include "HighResTimingData.hpp"
 #include "RandomPool.hpp"
 #include "RawEvent.hpp"
-#include "TimingInformation.hpp"
 #include "TreeCorrelator.hpp"
 
 #include "BeamLogicProcessor.hpp"
@@ -344,7 +344,6 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                             fast_rise, fast_gap, fast_threshold,
                             energy_rise, energy_gap,
                             slow_rise, slow_gap, slow_threshold));
-
         } else if (name == "TauAnalyzer") {
             vecAnalyzer.push_back(new TauAnalyzer());
         } else if (name == "TraceExtractor") {
@@ -352,17 +351,13 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             string subtype = analyzer.attribute("subtype").as_string();
 
             vecAnalyzer.push_back(new TraceExtractor(type, subtype));
-        }
-        else if (name == "WaveformAnalyzer") {
+        } else if (name == "WaveformAnalyzer") {
             vecAnalyzer.push_back(new WaveformAnalyzer());
-        }
-        else if (name == "FittingAnalyzer") {
+        } else if (name == "FittingAnalyzer") {
             vecAnalyzer.push_back(new FittingAnalyzer());
-        }
-        else if (name == "CfdAnalyzer") {
+        } else if (name == "CfdAnalyzer") {
             vecAnalyzer.push_back(new CfdAnalyzer());
-        }
-        else {
+        } else {
             stringstream ss;
             ss << "DetectorDriver: unknown analyzer type" << name;
             throw GeneralException(ss.str());

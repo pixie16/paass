@@ -16,6 +16,7 @@
 				<Option parameters="test00 &lt; scripts/test.cmd" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="include" />
 				</Compiler>
 				<MakeCommands>
 					<Build command="$make" />
@@ -36,11 +37,8 @@
 		<Unit filename="Makefile" />
 		<Unit filename="README.md" />
 		<Unit filename="TODO" />
-		<Unit filename="config/073cu/Globals.xml" />
-		<Unit filename="config/073cu/TreeCorrelator.xml" />
-		<Unit filename="config/073cu/cal.txt" />
-		<Unit filename="config/073cu/map2.txt" />
-		<Unit filename="config/073cu/timingConstants.txt" />
+		<Unit filename="config/Config.xml.73cu" />
+		<Unit filename="config/Config.xml.77cu" />
 		<Unit filename="config/Config.xml.83ga" />
 		<Unit filename="config/Config.xml.85ga" />
 		<Unit filename="config/Config.xml.86ga" />
@@ -50,20 +48,6 @@
 		<Unit filename="config/Config.xml.pulser" />
 		<Unit filename="config/Config.xml.she" />
 		<Unit filename="config/filter.txt" />
-		<Unit filename="config/generic/Globals.xml" />
-		<Unit filename="config/generic/TreeCorrelator.xml" />
-		<Unit filename="config/generic/cal.txt" />
-		<Unit filename="config/generic/filter.txt" />
-		<Unit filename="config/generic/map2.txt" />
-		<Unit filename="config/generic/qdc.txt" />
-		<Unit filename="config/generic/timingCal.txt" />
-		<Unit filename="config/generic/timingConstants.txt" />
-		<Unit filename="config/leribss2011/TreeCorrelator.hybrid.xml" />
-		<Unit filename="config/leribss2011/TreeCorrelator.xml" />
-		<Unit filename="config/leribss2011/cal.txt" />
-		<Unit filename="config/leribss2011/filter.txt" />
-		<Unit filename="config/leribss2011/qdc.txt" />
-		<Unit filename="config/leribss2011/timingCal.txt" />
 		<Unit filename="config/qdc.txt" />
 		<Unit filename="config/she/TreeCorrelator.xml" />
 		<Unit filename="config/she/cal.txt" />
@@ -75,6 +59,7 @@
 		<Unit filename="doc/Doxyfile" />
 		<Unit filename="doc/doxyPages/mainPage.dox" />
 		<Unit filename="doc/tmp/doxyfile" />
+		<Unit filename="include/BarDetector.hpp" />
 		<Unit filename="include/BeamLogicProcessor.hpp" />
 		<Unit filename="include/BetaProcessor.hpp" />
 		<Unit filename="include/BetaScintProcessor.hpp" />
@@ -98,6 +83,7 @@
 		<Unit filename="include/GetArguments.hpp" />
 		<Unit filename="include/Globals.hpp" />
 		<Unit filename="include/Hen3Processor.hpp" />
+		<Unit filename="include/HighResTimingData.hpp" />
 		<Unit filename="include/ImplantSsdProcessor.hpp" />
 		<Unit filename="include/IonChamberProcessor.hpp" />
 		<Unit filename="include/LiquidProcessor.hpp" />
@@ -127,7 +113,6 @@
 		<Unit filename="include/TauAnalyzer.hpp" />
 		<Unit filename="include/TemplateProcessor.hpp" />
 		<Unit filename="include/TimingCalibrator.hpp" />
-		<Unit filename="include/TimingInformation.hpp" />
 		<Unit filename="include/Trace.hpp" />
 		<Unit filename="include/TraceAnalyzer.hpp" />
 		<Unit filename="include/TraceExtractor.hpp" />
@@ -155,6 +140,7 @@
 		<Unit filename="scripts/online.bash" />
 		<Unit filename="scripts/start.cmd" />
 		<Unit filename="scripts/test.cmd" />
+		<Unit filename="src/BarDetector.cpp" />
 		<Unit filename="src/BeamLogicProcessor.cpp" />
 		<Unit filename="src/BetaProcessor.cpp" />
 		<Unit filename="src/BetaScintProcessor.cpp" />
@@ -208,7 +194,6 @@
 		<Unit filename="src/TimingCalibrator.cpp">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="src/TimingInformation.cpp" />
 		<Unit filename="src/Trace.cpp" />
 		<Unit filename="src/TraceAnalyzer.cpp" />
 		<Unit filename="src/TraceExtractor.cpp" />

@@ -56,9 +56,10 @@ namespace readbuff {
     const int ERROR = -100;//!< Defines an error buffer
 }
 
-//! Namespace defining some information for VANDLE related stuff
-namespace Vandle {
-    typedef std::pair<unsigned int, std::string> BarIdentifier; //!< Typedef for bars
+///! Namespace defining some information for Timing related stuff
+namespace TimingDefs {
+    /** Defines a type for bar style detectors */
+    typedef std::pair<unsigned int, std::string> BarIdentifier;
 }
 
 //! Some common string conversion operations

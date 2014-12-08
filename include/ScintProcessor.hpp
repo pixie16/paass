@@ -12,8 +12,7 @@
 #include "Trace.hpp"
 
 //! Obsoltete Class to handle scintillator events
-class ScintProcessor : public EventProcessor,
-    public TimingInformation {
+class ScintProcessor : public EventProcessor {
 public:
     /** Default Constructor */
     ScintProcessor();

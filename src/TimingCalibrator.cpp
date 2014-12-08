@@ -16,8 +16,8 @@ using namespace std;
 
 TimingCalibrator* TimingCalibrator::instance = NULL;
 
-TimingCalibration TimingCalibrator::GetCalibration(const Vandle::BarIdentifier &id) {
-    map<Vandle::BarIdentifier, TimingCalibration>::iterator it =
+TimingCalibration TimingCalibrator::GetCalibration(const TimingDefs::BarIdentifier &id) {
+    map<TimingDefs::BarIdentifier, TimingCalibration>::iterator it =
         calibrations_.find(id);
 
     if(it == calibrations_.end()) {
@@ -68,7 +68,7 @@ void TimingCalibrator::ReadTimingCalXml() {
             for(pugi::xml_node_iterator bar = detSubtype->begin();
                 bar != detSubtype->end(); bar++) {
                 int barNumber = bar->attribute("number").as_int(-1);
-                Vandle::BarIdentifier id = make_pair(barNumber, barType);
+                TimingDefs::BarIdentifier id = make_pair(barNumber, barType);
 
                 TimingCalibration temp;
                 temp.SetLeftRightTimeOffset(bar->
