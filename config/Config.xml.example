@@ -315,6 +315,24 @@
         </Fitting>
     </Timing>
 
+    <Filter>
+        <energyScaleFactor value="2.547"/>
+        <fast>
+            <rise value="10"/>
+            <gap value="10"/>
+            <threshold value="50"/>
+        </fast>
+        <energy>
+            <rise value="25"/>
+            <gap value="25"/>
+        </energy>
+        <secondFast>
+            <rise value="20"/>
+            <gap value="20"/>
+            <threshold value="10"/>
+        </secondFast>
+    </Filter>
+
     <!-- Instructions:
         Create here tree of "places" build of <Place> elements for
         your experiment. Basic places are created automatically from entries
@@ -348,6 +366,38 @@
             see PlaceBuilder for other type of places and attributes.
     -->
     <TreeCorrelator name="root" verbose="False">
+        <Place type="PlaceOR" name="Beta" fifo="10">
+            <Place type="PlaceThreshold" name="beta_scint_beta_0-1"
+                low_limit="10.0" high_limit="16382" fifo="5"
+                replace="true"/>
+        </Place>
+
+        <Place type="PlaceOR" name="Gamma">
+            <Place type="PlaceOR" name="Clover0">
+                <Place type="PlaceThreshold" name="ge_clover_high_0-3"
+                    low_limit="20.0" high_limit="99999"
+                    replace="true"/>
+            </Place>
+            <Place type="PlaceOR" name="Clover1">
+                <Place type="PlaceThreshold" name="ge_clover_high_4-7"
+                    low_limit="20.0" high_limit="99999"
+                    replace="true"/>
+            </Place>
+            <Place type="PlaceOR" name="Clover2">
+                <Place type="PlaceThreshold" name="ge_clover_high_8-11"
+                    low_limit="20.0" high_limit="99999"
+                    replace="true"/>
+            </Place>
+        </Place>
+
+        <Place type="PlaceAND" name="GammaWOBeta">
+            <Place type="" name="Gamma" coincidence="true"/>
+            <Place type="" name="Beta" fifo="10" coincidence="false"/>
+        </Place>
+
+        <Place type="PlaceDetector" name="TapeMove" reset="false"/>
+        <Place type="PlaceDetector" name="Beam" reset="false"/>
+        <Place type="PlaceDetector" name="Cycle" reset="false"/>
     </TreeCorrelator>
 
     <!-- Instructions:

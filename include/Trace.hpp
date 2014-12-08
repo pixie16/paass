@@ -4,8 +4,8 @@
  * A simple class to store the traces.
  * Used instead of a typedef so additional functionality can be added later.
  */
-#ifndef __TRACE_HPP_
-#define __TRACE_HPP_
+#ifndef __TRACE_HPP__
+#define __TRACE_HPP__
 
 #include <cmath>
 #include <map>
@@ -16,7 +16,6 @@
 #include "Globals.hpp"
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
-#include "TimingInformation.hpp"
 
 /** A macro defining what kind of NAN to throw */
 #ifndef NAN

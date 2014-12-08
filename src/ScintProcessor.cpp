@@ -17,7 +17,7 @@
 #include "DammPlotIds.hpp"
 #include "RawEvent.hpp"
 #include "ScintProcessor.hpp"
-#include "TimingInformation.hpp"
+#include "HighResTimingData.hpp"
 #include "Trace.hpp"
 
 using namespace std;

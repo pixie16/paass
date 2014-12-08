@@ -6,7 +6,7 @@
 #ifndef __CFDANALYZER_HPP_
 #define __CFDANALYZER_HPP_
 
-#include "TimingInformation.hpp"
+#include "HighResTimingData.hpp"
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 

@@ -7,10 +7,12 @@
 
 #include <cmath>
 
+#include "BarDetector.hpp"
 #include "DammPlotIds.hpp"
 #include "RawEvent.hpp"
 #include "LiquidScintProcessor.hpp"
-#include "TimingInformation.hpp"
+#include "HighResTimingData.hpp"
+#include "TimingCalibrator.hpp"
 #include "Trace.hpp"
 
 using namespace std;
@@ -89,23 +91,22 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
     for(vector<ChanEvent*>::const_iterator itLiquid = liquidEvents.begin();
 	itLiquid != liquidEvents.end(); itLiquid++) {
         unsigned int loc = (*itLiquid)->GetChanID().GetLocation();
-        TimingData liquid((*itLiquid));
+        HighResTimingData liquid((*itLiquid));
 
-        //Graph traces for the Liquid Scintillators
-        if(liquid.discrimination == 0) {
-            for(Trace::const_iterator i = liquid.trace.begin();
-            i != liquid.trace.end(); i++)
-                plot(DD_TRCLIQUID, int(i-liquid.trace.begin()),
-                    counter, int(*i)-liquid.aveBaseline);
+        if(liquid.GetDiscrimination() == 0) {
+            for(Trace::const_iterator i = liquid.GetTrace()->begin();
+            i != liquid.GetTrace()->end(); i++)
+                plot(DD_TRCLIQUID, int(i-liquid.GetTrace()->begin()),
+                    counter, int(*i)-liquid.GetAveBaseline());
             counter++;
         }
 
-        if(liquid.dataValid) {
-            plot(DD_TQDCLIQUID, liquid.tqdc, loc);
-            plot(DD_MAXLIQUID, liquid.maxval, loc);
+        if(liquid.GetDataValid()) {
+            plot(DD_TQDCLIQUID, liquid.GetTraceQdc(), loc);
+            plot(DD_MAXLIQUID, liquid.GetMaximumValue(), loc);
 
             double discrimNorm =
-            liquid.discrimination/liquid.tqdc;
+            liquid.GetDiscrimination()/liquid.GetTraceQdc();
 
             double discRes = 1000;
             double discOffset = 100;
@@ -116,7 +117,7 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
             if(discrimNorm > 0)
                 plot(DD_DISCRIM, discrimNorm*discRes+discOffset, loc);
             plot(DD_TQDCVSDISCRIM, discrimNorm*discRes+discOffset,
-            liquid.tqdc);
+            liquid.GetTraceQdc());
 
             if((*itLiquid)->GetChanID().HasTag("start"))
                 continue;
@@ -124,21 +125,21 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
             for(vector<ChanEvent*>::iterator itStart = startEvents.begin();
             itStart != startEvents.end(); itStart++) {
                 unsigned int startLoc = (*itStart)->GetChanID().GetLocation();
-                TimingData start((*itStart));
+                HighResTimingData start((*itStart));
                 int histLoc = loc + startLoc;
                 const int resMult = 2;
                 const int resOffset = 2000;
 
-                if(start.dataValid) {
+                if(start.GetDataValid()) {
                     double tofOffset;
                     if(startLoc == 0)
                         tofOffset = cal.GetTofOffset0();
                     else
                         tofOffset = cal.GetTofOffset1();
 
-                    double TOF = liquid.highResTime -
-                        start.highResTime - tofOffset;
-                    double nEnergy = CalcEnergy(TOF, cal.GetR0());
+                    double TOF = liquid.GetHighResTime() -
+                        start.GetHighResTime() - tofOffset;
+                    double nEnergy = liquid.CalcEnergy(TOF, cal.GetR0());
 
                     plot(DD_TOFLIQUID, TOF*resMult+resOffset, histLoc);
                     plot(DD_TOFVSDISCRIM+histLoc,
@@ -146,8 +147,8 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
                     plot(DD_NEVSDISCRIM+histLoc,
                          discrimNorm*discRes+discOffset, nEnergy);
                     plot(DD_TQDCVSLIQTOF+histLoc, TOF*resMult+resOffset,
-                        liquid.tqdc);
-                    plot(DD_TQDCVSENERGY+histLoc, nEnergy, liquid.tqdc);
+                        liquid.GetTraceQdc());
+                    plot(DD_TQDCVSENERGY+histLoc, nEnergy, liquid.GetTraceQdc());
                 }
             }
         }

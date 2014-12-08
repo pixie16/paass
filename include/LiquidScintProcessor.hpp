@@ -9,8 +9,7 @@
 #include "Trace.hpp"
 
 //! Class to handle liquid scintillator
-class LiquidScintProcessor : public EventProcessor,
-		       public TimingInformation {
+class LiquidScintProcessor : public EventProcessor {
 public:
     /** Default Constructor */
     LiquidScintProcessor();

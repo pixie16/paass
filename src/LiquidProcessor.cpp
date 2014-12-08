@@ -10,7 +10,7 @@
 #include "DammPlotIds.hpp"
 #include "RawEvent.hpp"
 #include "LiquidProcessor.hpp"
-#include "TimingInformation.hpp"
+#include "HighResTimingData.hpp"
 #include "Trace.hpp"
 
 using namespace std;
@@ -32,15 +32,12 @@ namespace dammIds {
     }
 }
 
-LiquidProcessor::LiquidProcessor() : EventProcessor(OFFSET, RANGE)
-{
+LiquidProcessor::LiquidProcessor() : EventProcessor(OFFSET, RANGE) {
     name = "Liquid";
     associatedTypes.insert("scint");
 }
 
-void LiquidProcessor::DeclarePlots(void)
-{
-    //To handle Liquid Scintillators
+void LiquidProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_TQDCLIQUID, SC, S3, "Liquid vs. Trace QDC");
     DeclareHistogram2D(DD_MAXLIQUID, SC, S3, "Liquid vs. Maximum");
     DeclareHistogram2D(DD_DISCRIM, SA, S3, "N-Gamma Discrimination");
@@ -83,9 +80,8 @@ bool LiquidProcessor::Process(RawEvent &event) {
     for(vector<ChanEvent*>::const_iterator itLiquid = liquidEvents.begin();
 	itLiquid != liquidEvents.end(); itLiquid++) {
         unsigned int loc = (*itLiquid)->GetChanID().GetLocation();
-        TimingInformation::TimingData liquid((*itLiquid));
+        HighResTimingData liquid((*itLiquid));
 
-        //Graph traces for the Liquid Scintillators
         if(liquid.discrimination == 0) {
             for(Trace::const_iterator i = liquid.trace.begin();
                 i != liquid.trace.end(); i++)
@@ -104,8 +100,8 @@ bool LiquidProcessor::Process(RawEvent &event) {
             double discRes = 1000;
             double discOffset = 100;
 
-            TimingInformation::TimingCal calibration =
-                TimingInformation::GetTimingCal(make_pair(loc, "liquid"));
+            TimingCalibration calibration =
+                TimingCalibrator::get()->GetCalibration(make_pair(loc, "liquid"));
 
             if(discrimNorm > 0)
                 plot(DD_DISCRIM, discrimNorm*discRes+discOffset, loc);
@@ -118,7 +114,7 @@ bool LiquidProcessor::Process(RawEvent &event) {
             for(vector<ChanEvent*>::iterator itStart = startEvents.begin();
                 itStart != startEvents.end(); itStart++) {
                 unsigned int startLoc = (*itStart)->GetChanID().GetLocation();
-                TimingInformation::TimingData start((*itStart));
+                HighResTimingData start((*itStart));
                 int histLoc = loc + startLoc;
                 const int resMult = 2;
                 const int resOffset = 2000;

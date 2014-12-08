@@ -4,7 +4,7 @@
 #ifndef __WAVEFORMANALYZER_HPP_
 #define __WAVEFORMANALYZER_HPP_
 
-#include "TimingInformation.hpp"
+#include "HighResTimingData.hpp"
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 

@@ -8,7 +8,7 @@
 #define __PULSERPROCESSOR_HPP_
 
 #include "EventProcessor.hpp"
-#include "TimingInformation.hpp"
+#include "HighResTimingData.hpp"
 
 //! A class to handle time differences between two pulsers
 class PulserProcessor : public EventProcessor {
@@ -24,7 +24,7 @@ class PulserProcessor : public EventProcessor {
     * \return true if processing was successful */
     virtual bool Process(RawEvent &event);
  protected:
-    TimingInformation::TimingDataMap pulserMap; //!< map of the pulser events
+    HighResTimingData::TimingMap pulserMap; //!< map of the pulser events
  private:
     /** Retrieves the data for the associated types
      * \param [in] event : the event to get data from

@@ -12,13 +12,14 @@
 #define __RAWEVENT_HPP_ 1
 
 #include <iostream>
-#include <vector>
-#include <string>
 #include <map>
 #include <set>
+#include <string>
+#include <vector>
 
 #include "Correlator.hpp"
 #include "pixie16app_defs.h"
+
 #include "Globals.hpp"
 #include "Trace.hpp"
 #include "DetectorSummary.hpp"
@@ -27,6 +28,8 @@
 
 // see DetectorSummary.hpp
 class DetectorSummary;
+//see ChanEvent.hpp
+class ChanEvent;
 
 /** \brief The all important raw event
  *

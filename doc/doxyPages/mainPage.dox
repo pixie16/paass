@@ -1132,12 +1132,14 @@
 
   Here is a list of the parameters that are used for the corrections:
    - lrtoffset : The left-right time offset in ns
-   - r0 : the distance between source and the hit location in the bar in cm
    - tofOffset0 : time offset w.r.t. start number 0 in ns
    - tofOffset1 : time offset w.r.t. start number 1 in ns
    - xOffset : offset between the center of the bar and the source in cm
    - z0 : the perpendicular distance between the bar and source in cm
    - z0Offset : additional corrections to z0 in cm
+   - r0 : The distance between source and the hit location in the bar in cm.
+          This quantity is calculated in the code from z0, the speed of light
+          in the bar, the time difference in the bar and the xOffset.
 
   Below we show the physical arrangement of the offsets:
   \image latex timingCorrection.eps "Diagram for the timing correction " width=3.5in

@@ -3,7 +3,6 @@
  *\author S. V. Paulauskas
  *\date October 26, 2014
  */
-
 #include "DammPlotIds.hpp"
 #include "Globals.hpp"
 #include "RawEvent.hpp"
@@ -11,8 +10,8 @@
 
 namespace dammIds {
     namespace template {
-	const int D_ENERGY  = 0;
-	const int DD_TEMPLATE_VS_PULSER = 1;
+	const int D_ENERGY  = 0; //!< ID for the energy of the template detector
+	const int DD_TEMPLATE_VS_PULSER = 1; //!< Energy Template vs. Energy Pulser
 }//namespace dammIds
 
 using namespace std;

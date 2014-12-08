@@ -13,6 +13,8 @@
 #include "ChanIdentifier.hpp"
 #include "RawEvent.hpp"
 
+//class RawEvent;
+
 //! A class to define a library of detectors known to the analysis
 class DetectorLibrary : public std::vector<Identifier> {
 public:
