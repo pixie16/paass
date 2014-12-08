@@ -88,9 +88,9 @@ bool PulserProcessor::RetrieveData(RawEvent &event) {
         unsigned int location = (*itPulser)->GetChanID().GetLocation();
         string subType = (*itPulser)->GetChanID().GetSubtype();
 
-        Vandle::BarIdentifier pulserKey(location, subType);
+        TimingDefs::BarIdentifier pulserKey(location, subType);
         pulserMap.insert(make_pair(pulserKey,
-                                   TimingInformation::TimingData(*itPulser)));
+                                   HighResTimingData(*itPulser)));
     }
 
     if(pulserMap.empty() || pulserMap.size()%2 != 0) {
@@ -99,55 +99,55 @@ bool PulserProcessor::RetrieveData(RawEvent &event) {
     } else {
         return(true);
     }
-}//bool PulserProcessor::RetrieveData
+}
 
 void PulserProcessor::AnalyzeData(void) {
-    TimingInformation::TimingData start =
+    HighResTimingData start =
         (*pulserMap.find(make_pair(0,"start"))).second;
-    TimingInformation::TimingData stop  =
+    HighResTimingData stop  =
         (*pulserMap.find(make_pair(0,"stop"))).second;
 
     static int counter = 0;
-    for(Trace::const_iterator it = start.trace.begin();
-        it!= start.trace.end(); it++)
-        plot(DD_PROBLEMS, int(it-start.trace.begin()), counter, *it);
+    for(Trace::const_iterator it = start.GetTrace()->begin();
+        it!= start.GetTrace()->end(); it++)
+        plot(DD_PROBLEMS, int(it-start.GetTrace()->begin()), counter, *it);
     counter ++;
 
     // unsigned int cutVal = 15;
     // if(start.maxpos == 41)
-    // if(start.maxval < 2384-cutVal)
-    // 	for(Trace::const_iterator it = start.trace.begin();
-    // 	    it != start.trace.end(); it++)
-    // 	    plot(DD_AMPMAPSTART, int(it-start.trace.begin()), *it);
+    // if(start.GetMaximumValue() < 2384-cutVal)
+    // 	for(Trace::const_iterator it = start.GetTrace()->begin();
+    // 	    it != start.GetTrace()->end(); it++)
+    // 	    plot(DD_AMPMAPSTART, int(it-start.GetTrace()->begin()), *it);
 
-    // if(stop.maxval < 2555-cutVal)
-    // 	for(Trace::const_iterator it = start.trace.begin();
-    // 	    it != start.trace.end(); it++)
-    // 	    plot(DD_AMPMAPSTOP, int(it-start.trace.begin()), *it);
+    // if(stop.GetMaximumValue() < 2555-cutVal)
+    // 	for(Trace::const_iterator it = start.GetTrace()->begin();
+    // 	    it != start.GetTrace()->end(); it++)
+    // 	    plot(DD_AMPMAPSTOP, int(it-start.GetTrace()->begin()), *it);
 
     //Fill histograms
-    if(start.dataValid && stop.dataValid) {
-        double timeDiff = stop.highResTime - start.highResTime;
+    if(start.GetDataValid() && stop.GetDataValid()) {
+        double timeDiff = stop.GetHighResTime() - start.GetHighResTime();
         double timeRes  = 50; //20 ps/bin
         double timeOff  = 30000.;
         double phaseX   = 7000.;
 
 //        cout << timeDiff * timeRes + timeOff << " "
-//             << start.phase*timeRes-phaseX << endl;
+//             << start.GetPhase()*timeRes-phaseX << endl;
 
         plot(D_TIMEDIFF, timeDiff*timeRes + timeOff);
-        plot(DD_PVSP, start.phase*timeRes-phaseX,
-            stop.phase*timeRes-phaseX);
+        plot(DD_PVSP, start.GetPhase()*timeRes-phaseX,
+            stop.GetPhase()*timeRes-phaseX);
 
-        plot(DD_QDC, start.tqdc, 0);
-        plot(DD_MAX, start.maxval, 0);
-        plot(DD_MAXVSTDIFF, timeDiff*timeRes+timeOff, start.maxval);
-        plot(DD_QDCVSMAX, start.maxval, start.tqdc);
-        plot(DD_QDC, stop.tqdc, 1);
-        plot(DD_MAX, stop.maxval, 1);
-        plot(DD_SNRANDSDEV, start.snr+50, 0);
-        plot(DD_SNRANDSDEV, start.stdDevBaseline*timeRes+timeOff, 1);
-        plot(DD_SNRANDSDEV, stop.snr+50, 2);
-        plot(DD_SNRANDSDEV, stop.stdDevBaseline*timeRes+timeOff, 3);
+        plot(DD_QDC, start.GetTraceQdc(), 0);
+        plot(DD_MAX, start.GetMaximumValue(), 0);
+        plot(DD_MAXVSTDIFF, timeDiff*timeRes+timeOff, start.GetMaximumValue());
+        plot(DD_QDCVSMAX, start.GetMaximumValue(), start.GetTraceQdc());
+        plot(DD_QDC, stop.GetTraceQdc(), 1);
+        plot(DD_MAX, stop.GetMaximumValue(), 1);
+        plot(DD_SNRANDSDEV, start.GetSignalToNoiseRatio()+50, 0);
+        plot(DD_SNRANDSDEV, start.GetStdDevBaseline()*timeRes+timeOff, 1);
+        plot(DD_SNRANDSDEV, stop.GetSignalToNoiseRatio()+50, 2);
+        plot(DD_SNRANDSDEV, stop.GetStdDevBaseline()*timeRes+timeOff, 3);
     }
 } // void PulserProcessor::AnalyzeData

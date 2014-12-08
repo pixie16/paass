@@ -1,4 +1,5 @@
 /** \file VandleProcessor.hpp
+ * \brief A class to handle VANDLE bars
  *
  *Processes information from the VANDLE Bars, allows for
  *beta-gamma-neutron correlations. The prototype for this
@@ -11,12 +12,12 @@
 #ifndef __VANDLEPROCESSOR_HPP_
 #define __VANDLEPROCESSOR_HPP_
 
+#include "BarDetector.hpp"
 #include "EventProcessor.hpp"
-#include "TimingInformation.hpp"
+#include "HighResTimingData.hpp"
 
 /// Class to process VANDLE related events
-class VandleProcessor : public EventProcessor,
-    public TimingInformation {
+class VandleProcessor : public EventProcessor {
 public:
     /** Default Constructor */
     VandleProcessor();
@@ -33,11 +34,11 @@ public:
     virtual bool Process(RawEvent &event);
 
 protected:
-    BarMap  barMap; //!< A map to hold all the bars
-    TimingDataMap bigMap;//!< A map to hold all the big ends
-    TimingDataMap smallMap;//!< A map to hold all the small ends
-    TimingDataMap startMap;//!< A map to to hold all the starts
-    TimingDataMap tvandleMap;//!< A map to hold all the Teeny Vandles
+    BarDetector::BarMap  barMap; //!< A map to hold all the bars
+    HighResTimingData::TimingMap bigMap;//!< A map to hold all the big ends
+    HighResTimingData::TimingMap smallMap;//!< A map to hold all the small ends
+    HighResTimingData::TimingMap startMap;//!< A map to to hold all the starts
+    HighResTimingData::TimingMap tvandleMap;//!< A map to hold all the Teeny Vandles
 private:
     /** \brief Retrieve the Data and build the maps
     * \param [in] event : the even to get the data from
@@ -63,8 +64,9 @@ private:
     * \param [in] endMap : Map containing the individual ends
     * \param [in] type : the type of VANDLE bars in the map
     * \param [in] barMap : The bar map that will be filled */
-    virtual void BuildBars(const TimingDataMap &endMap,
-                           const std::string &type, BarMap &barMap);
+    virtual void BuildBars(const HighResTimingData::TimingMap &endMap,
+                           const std::string &type,
+                           BarDetector::BarMap &barMap);
 
     /** Clear the maps in anticipation for the next event */
     virtual void ClearMaps(void);
@@ -77,7 +79,8 @@ private:
     * \param [in] type : the type of VANDLE bar we're filling
     * \param [in] eventMap : The map to fill up */
     virtual void FillMap(const std::vector<ChanEvent*> &eventList,
-                         const std::string type, TimingDataMap &eventMap);
+                         const std::string type,
+                         HighResTimingData::TimingMap &eventMap);
 
     /** Process Teeny VANDLE events, will be moved to dedicated processor */
     virtual void Tvandle(void);

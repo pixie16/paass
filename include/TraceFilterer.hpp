@@ -41,7 +41,7 @@ public:
     /** Initialize the analyzer
     * \param [in] filterFileName : the name of the file containing the filter parameters
     * \returns True if the initialization was successful. */
-    virtual bool Init(const std::string &filterFileName = "filter.txt");
+    virtual bool Init(const std::string &filterFileName = "Config.xml");
 
     /** Declare the plots for the Analyzer */
     virtual void DeclarePlots(void);
@@ -59,8 +59,8 @@ protected:
     TrapezoidalFilterParameters  fastParms; //!< Fast (Trigger) filter parameters
     Trace::value_type            fastThreshold; //!< Threshold for fast filter
     TrapezoidalFilterParameters  energyParms; //!< Slow (Energy) filter parameters
-    TrapezoidalFilterParameters  thirdParms; //!< Parameters for second slow filter
-    Trace::value_type            slowThreshold; //!< Threshold for slow filter
+    TrapezoidalFilterParameters  thirdParms; //!< Parameters for second fast filter
+    Trace::value_type            slowThreshold; //!< Threshold for fast filter
 
     Trace fastFilter;   ///< fast filter of trace
     Trace energyFilter; ///< slow filter of trace
