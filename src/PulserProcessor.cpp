@@ -125,8 +125,7 @@ void PulserProcessor::AnalyzeData(void) {
     // 	    it != start.GetTrace()->end(); it++)
     // 	    plot(DD_AMPMAPSTOP, int(it-start.GetTrace()->begin()), *it);
 
-    //Fill histograms
-    if(start.GetDataValid() && stop.GetDataValid()) {
+    if(start.GetIsValidData() && stop.GetIsValidData()) {
         double timeDiff = stop.GetHighResTime() - start.GetHighResTime();
         double timeRes  = 50; //20 ps/bin
         double timeOff  = 30000.;

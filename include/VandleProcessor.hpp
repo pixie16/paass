@@ -34,11 +34,11 @@ public:
     virtual bool Process(RawEvent &event);
 
 protected:
-    BarDetector::BarMap  barMap; //!< A map to hold all the bars
-    HighResTimingData::TimingMap bigMap;//!< A map to hold all the big ends
-    HighResTimingData::TimingMap smallMap;//!< A map to hold all the small ends
-    HighResTimingData::TimingMap startMap;//!< A map to to hold all the starts
-    HighResTimingData::TimingMap tvandleMap;//!< A map to hold all the Teeny Vandles
+    BarMap  barMap; //!< A map to hold all the bars
+    TimingMap bigMap;//!< A map to hold all the big ends
+    TimingMap smallMap;//!< A map to hold all the small ends
+    TimingMap startMap;//!< A map to to hold all the starts
+    TimingMap tvandleMap;//!< A map to hold all the Teeny Vandles
 private:
     /** \brief Retrieve the Data and build the maps
     * \param [in] event : the even to get the data from
@@ -64,15 +64,15 @@ private:
     * \param [in] endMap : Map containing the individual ends
     * \param [in] type : the type of VANDLE bars in the map
     * \param [in] barMap : The bar map that will be filled */
-    virtual void BuildBars(const HighResTimingData::TimingMap &endMap,
+    virtual void BuildBars(const TimingMap &endMap,
                            const std::string &type,
-                           BarDetector::BarMap &barMap);
+                           BarMap &barMap);
 
     /** Clear the maps in anticipation for the next event */
     virtual void ClearMaps(void);
 
     /** Calculate the crosstalk between bars (near useless) */
-    virtual void CrossTalk(void);
+    //virtual void CrossTalk(void);
 
     /** Fills up the map of VANDLE ends, and plots some useful stuff
     * \param [in] eventList : the list of VANDLE events to fill
@@ -80,10 +80,10 @@ private:
     * \param [in] eventMap : The map to fill up */
     virtual void FillMap(const std::vector<ChanEvent*> &eventList,
                          const std::string type,
-                         HighResTimingData::TimingMap &eventMap);
+                         TimingMap &eventMap);
 
     /** Process Teeny VANDLE events, will be moved to dedicated processor */
-    virtual void Tvandle(void);
+    //virtual void Tvandle(void);
 
     bool hasDecay; //!< True if there was a correlated beta decay
     double decayTime; //!< the time of the decay

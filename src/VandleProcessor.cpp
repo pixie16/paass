@@ -332,20 +332,19 @@ bool VandleProcessor::RetrieveData(RawEvent &event) {
         plot(D_PROBLEMS, 25); //DEBUGGING
         return(false);
     }
-
     return(true);
 }
 
 void VandleProcessor::AnalyzeData(RawEvent& rawev) {
-    if(!tvandleMap.empty() && tvandleMap.size()%2 == 0)
-        Tvandle();
+//    if(!tvandleMap.empty() && tvandleMap.size()%2 == 0)
+//        Tvandle();
 
-    for (BarDetector::BarMap::iterator itBar = barMap.begin();
+    for (BarMap::iterator itBar = barMap.begin();
         itBar !=  barMap.end(); itBar++) {
-        if(!(*itBar).second.GetBarEvent())
+        if(!(*itBar).second.GetHasEvent())
             continue;
 
-        BarData bar = (*itBar).second;
+        BarDetector bar = (*itBar).second;
 
         const int resMult = 2; //set resolution of histograms
         const int resOffset = 200; // offset of histograms
@@ -359,20 +358,20 @@ void VandleProcessor::AnalyzeData(RawEvent& rawev) {
         TimingCalibration cal =
             TimingCalibrator::get()->GetCalibration((*itBar).first);
 
-        double timeDiff = bar.timeDiff;
+        double timeDiff = bar.GetTimeDifference();
 
-        plot(DD_DEBUGGING0, bar.qdcPos*resMult+resOffset,
+        plot(DD_DEBUGGING0, bar.GetQdcPosition()*resMult+resOffset,
             timeDiff*resMult+resOffset);
 
         plot(DD_TIMEDIFFBARS+idOffset,
             timeDiff*resMult+resOffset, barLoc);
         plot(DD_TQDCAVEVSTDIFF+idOffset,
-            timeDiff*resMult+resOffset, bar.qdc);
+            timeDiff*resMult+resOffset, bar.GetQdc());
 
-        for(TimingDataMap::iterator itStart = startMap.begin();
+        for(TimingMap::iterator itStart = startMap.begin();
             itStart != startMap.end(); itStart++) {
-            if(!(*itStart).second.dataValid)
-            continue;
+            if(!(*itStart).second.GetIsValidData())
+                continue;
 
             unsigned int startLoc = (*itStart).first.first;
             unsigned int barPlusStartLoc = barLoc*2 + startLoc;
@@ -383,51 +382,47 @@ void VandleProcessor::AnalyzeData(RawEvent& rawev) {
             else
                 tofOffset = cal.GetTofOffset1();
 
-            double TOF = bar.walkCorTimeAve -
-                (*itStart).second.walkCorTime + tofOffset;
+            double TOF = bar.GetWalkCorTimeAve() -
+                (*itStart).second.GetWalkCorrectedTime() + tofOffset;
             double corTOF =
-                CorrectTOF(TOF, bar.flightPath, cal.GetZ0());
+                CorrectTOF(TOF, bar.GetFlightPath(), cal.GetZ0());
             double energy =
-                CalcEnergy(corTOF, cal.GetZ0());
-
-            bar.timeOfFlight.insert(make_pair(startLoc, TOF));
-            bar.corTimeOfFlight.insert(make_pair(startLoc, corTOF));
-            bar.energy.insert(make_pair(startLoc, energy));
+                (*itStart).second.CalcEnergy(corTOF, cal.GetZ0());
 
             if(corTOF >= 5)
-                plot(DD_TQDCAVEVSENERGY+idOffset, energy, bar.qdc);
+                plot(DD_TQDCAVEVSENERGY+idOffset, energy, bar.GetQdc());
             plot(DD_TOFBARS+idOffset,
                 TOF*resMult+resOffset, barPlusStartLoc);
             plot(DD_TOFVSTDIFF+idOffset, timeDiff*resMult+resOffset,
                  TOF*resMult+resOffset);
             plot(DD_MAXRVSTOF+idOffset,
-                TOF*resMult+resOffset, bar.rMaxVal);
+                TOF*resMult+resOffset, bar.GetRightSide().GetMaximumValue());
             plot(DD_MAXLVSTOF+idOffset,
-                TOF*resMult+resOffset, bar.lMaxVal);
+                TOF*resMult+resOffset, bar.GetLeftSide().GetMaximumValue());
             plot(DD_TQDCAVEVSTOF+idOffset,
-                TOF*resMult+resOffset, bar.qdc);
+                TOF*resMult+resOffset, bar.GetQdc());
 
             plot(DD_CORTOFBARS,
                 corTOF*resMult+resOffset, barPlusStartLoc);
             plot(DD_CORTOFVSTDIFF+idOffset,
                 timeDiff*resMult + resOffset, corTOF*resMult+resOffset);
             plot(DD_MAXRVSCORTOF+idOffset, corTOF*resMult+resOffset,
-                 bar.rMaxVal);
+                 bar.GetRightSide().GetMaximumValue());
             plot(DD_MAXLVSCORTOF+idOffset,
-                corTOF*resMult+resOffset, bar.lMaxVal);
+                corTOF*resMult+resOffset, bar.GetLeftSide().GetMaximumValue());
             plot(DD_TQDCAVEVSCORTOF+idOffset,
-                corTOF*resMult+resOffset, bar.qdc);
+                corTOF*resMult+resOffset, bar.GetQdc());
 
             if(startLoc == 0) {
                 plot(DD_MAXSTART0VSTOF+idOffset,
-                    TOF*resMult+resOffset, (*itStart).second.maxval);
+                    TOF*resMult+resOffset, (*itStart).second.GetMaximumValue());
                 plot(DD_MAXSTART0VSCORTOF+idOffset,
-                    corTOF*resMult+resOffset, (*itStart).second.maxval);
+                    corTOF*resMult+resOffset, (*itStart).second.GetMaximumValue());
             } else if (startLoc == 1) {
                 plot(DD_MAXSTART1VSCORTOF+idOffset,
-                    corTOF*resMult+resOffset, (*itStart).second.maxval);
+                    corTOF*resMult+resOffset, (*itStart).second.GetMaximumValue());
                 plot(DD_MAXSTART1VSCORTOF+idOffset,
-                    corTOF*resMult+resOffset, (*itStart).second.maxval);
+                    corTOF*resMult+resOffset, (*itStart).second.GetMaximumValue());
             }
 
             static const DetectorSummary *geSummary = rawev.GetSummary("ge");
@@ -441,20 +436,20 @@ void VandleProcessor::AnalyzeData(RawEvent& rawev) {
                         plot(DD_GAMMAENERGYVSTOF+idOffset, TOF, calEnergy);
                     }
                 } else {
-                    plot(DD_TQDCAVEVSTOF_VETO+idOffset, TOF, bar.qdc);
+                    plot(DD_TQDCAVEVSTOF_VETO+idOffset, TOF, bar.GetQdc());
                     plot(DD_TOFBARS_VETO+idOffset, TOF, barPlusStartLoc);
                 }
             }
-        } // for(TimingDataMap::iterator itStart
+        } // for(TimingMap::iterator itStart
     } //(BarMap::iterator itBar
 } //void VandleProcessor::AnalyzeData
 
-void VandleProcessor::BuildBars(const TimingDataMap &endMap, const std::string &type,
+void VandleProcessor::BuildBars(const TimingMap &endMap, const std::string &type,
                                 BarMap &barMap) {
-    for(TimingDataMap::const_iterator itEndA = endMap.begin();
+    for(TimingMap::const_iterator itEndA = endMap.begin();
         itEndA != endMap.end();) {
 
-        TimingDataMap::const_iterator itEndB = itEndA;
+        TimingMap::const_iterator itEndB = itEndA;
         itEndB++;
 
         if(itEndB == endMap.end()) //Handle some shit
@@ -463,17 +458,18 @@ void VandleProcessor::BuildBars(const TimingDataMap &endMap, const std::string &
             itEndA = itEndB;
             continue;
         }
-        if(!(*itEndA).second.dataValid || !(*itEndB).second.dataValid){
+        if(!(*itEndA).second.GetIsValidData() ||
+           !(*itEndB).second.GetIsValidData()){
             itEndA = itEndB;
             continue;
         }
 
-        Vandle::BarIdentifier barKey((*itEndA).first.first, type);
+        TimingDefs::BarIdentifier barKey((*itEndA).first.first, type);
 
         TimingCalibration cal = TimingCalibrator::get()->GetCalibration(barKey);
 
-        if((*itEndA).second.dataValid && (*itEndB).second.dataValid)
-            barMap.insert(make_pair(barKey, BarData((*itEndB).second,
+        if((*itEndA).second.GetIsValidData() && (*itEndB).second.GetIsValidData())
+            barMap.insert(make_pair(barKey, BarDetector((*itEndB).second,
                                     (*itEndA).second, cal, type)));
         else {
             itEndA = itEndB;
@@ -491,6 +487,7 @@ void VandleProcessor::ClearMaps(void) {
     tvandleMap.clear();
 }
 
+/*
 void VandleProcessor::CrossTalk(void) {
     //This whole routine is stupidly written, it needs cleaned up something fierce.
     if(barMap.size() < 2)
@@ -520,8 +517,8 @@ void VandleProcessor::CrossTalk(void) {
     }
 
     string barType = "small";
-    Vandle::BarIdentifier barA(0, barType);
-    Vandle::BarIdentifier barB(1, barType);
+    TimingDefs::BarIdentifier barA(0, barType);
+    TimingDefs::BarIdentifier barB(1, barType);
 
     CrossTalkKey barsOfInterest(barA.first, barB.first);
 
@@ -577,9 +574,10 @@ void VandleProcessor::CrossTalk(void) {
 //           (*itBarA).second.qdc);
 //     }
 }
+*/
 
 void VandleProcessor::FillMap(const std::vector<ChanEvent*> &eventList,
-			      const std::string type, TimingDataMap &eventMap) {
+			      const std::string type, TimingMap &eventMap) {
     unsigned int OFFSET = 0;
     if(type == "big")
         OFFSET = dammIds::BIG_OFFSET;
@@ -591,25 +589,26 @@ void VandleProcessor::FillMap(const std::vector<ChanEvent*> &eventList,
         unsigned int location = (*it)->GetChanID().GetLocation();
         string subType = (*it)->GetChanID().GetSubtype();
 
-        Vandle::BarIdentifier key(location, subType);
+        TimingDefs::BarIdentifier key(location, subType);
 
-        TimingDataMap::iterator itTemp =
-            eventMap.insert(make_pair(key, TimingData(*it))).first;
+        TimingMap::iterator itTemp =
+            eventMap.insert(make_pair(key, HighResTimingData(*it))).first;
 
         if(type == "start")
             continue;
 
-        if((*itTemp).second.dataValid && (*itTemp).first.second == "right") {
-                plot(DD_TQDCBARS + OFFSET, (*itTemp).second.tqdc, location*2);
-                plot(DD_MAXIMUMBARS + OFFSET, (*itTemp).second.maxval, location*2);
+        if((*itTemp).second.GetIsValidData() && (*itTemp).first.second == "right") {
+                plot(DD_TQDCBARS + OFFSET, (*itTemp).second.GetTraceQdc(), location*2);
+                plot(DD_MAXIMUMBARS + OFFSET, (*itTemp).second.GetMaximumValue(), location*2);
         }
-        else if((*itTemp).second.dataValid && (*itTemp).first.second == "left") {
-            plot(DD_TQDCBARS + OFFSET, (*itTemp).second.tqdc, location*2+1);
-            plot(DD_MAXIMUMBARS + OFFSET, (*itTemp).second.maxval, location*2+1);
+        else if((*itTemp).second.GetIsValidData() && (*itTemp).first.second == "left") {
+            plot(DD_TQDCBARS + OFFSET, (*itTemp).second.GetTraceQdc(), location*2+1);
+            plot(DD_MAXIMUMBARS + OFFSET, (*itTemp).second.GetMaximumValue(), location*2+1);
         }
     }
 }
 
+/*
 void VandleProcessor::Tvandle(void) {
     //Needs cleaned heavily!!
     using namespace dammIds::tvandle;
@@ -666,3 +665,4 @@ void VandleProcessor::Tvandle(void) {
     } else
         plot(D_PROBLEMS, 2);
 }
+*/
