@@ -28,13 +28,13 @@ public:
             20*log10(trace_->GetValue("maxval") /
                      trace_->GetValue("sigmaBaseline"));
 
-        if(std::isnan(trace_->GetValue("maxval")) &&
-           std::isnan(trace_->GetValue("phase")) &&
-           std::isnan(trace_->GetValue("tqdc")) &&
-           std::isnan(trace_->GetValue("sigmaBaseline")))
-            dataValid_ = true;
-        else
-            dataValid_ = false;
+        if(!std::isnan(trace_->GetValue("maxval")) &&
+           !std::isnan(trace_->GetValue("phase")) &&
+           !std::isnan(trace_->GetValue("tqdc")) &&
+           !std::isnan(trace_->GetValue("sigmaBaseline")) ) {
+            isValidData_ = true;
+        }else
+            isValidData_ = false;
     };
 
     /** Calculate the energy from the time of flight, using a correction
@@ -46,8 +46,8 @@ public:
         pow((z0/tof)/Globals::get()->speedOfLight(), 2)));
     }
 
-    /** \return The current value of dataValid_ */
-    bool GetDataValid() const { return dataValid_; };
+    /** \return The current value of isValidData_ */
+    bool GetIsValidData() const { return isValidData_; };
     /** \return The current value of aveBaseline_ */
     double GetAveBaseline() const { return trace_->GetValue("baseline"); };
     /** \return The current value of discrimination_ */
@@ -80,17 +80,18 @@ public:
 
     /** Set dataValid_
      * \param val New value to set */
-    void SetDataValid(const bool &val) { dataValid_ = val; };
+    void SetDataValid(const bool &val) { isValidData_ = val; };
 
-    /** Defines a map to hold timing data for a channel. */
-    typedef std::map<TimingDefs::BarIdentifier, HighResTimingData> TimingMap;
 private:
     Trace *trace_; //!< the trace for the channel
 
-    bool dataValid_; //!< Member variable "dataValid_"
+    bool isValidData_; //!< Member variable "dataValid_"
     double highResTime_; //!< Member variable "highResTime_"
     double snr_; //!< Member variable "snr_"
     double walk_; //!< Member variable "walk_"
     int numAboveThresh_; //!< Member variable "numAboveThresh_"
 };
+
+/** Defines a map to hold timing data for a channel. */
+typedef std::map<TimingDefs::BarIdentifier, HighResTimingData> TimingMap;
 #endif // __HIGHRESTIMINGDATA_HPP__

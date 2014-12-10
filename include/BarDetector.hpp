@@ -28,7 +28,7 @@ public:
                 const TimingCalibration &cal, const std::string &type);
 
     /** \return the hasEvent_ var */
-    bool GetHasEvent() const {return(event_);};
+    bool GetHasEvent() const {return(hasEvent_);};
     /** \return the  var */
     double GetFlightPath() const {return(flightPath_);};
     /** \return the qdc_ var */
@@ -52,8 +52,6 @@ public:
     /** \return The cal_ var */
     TimingCalibration GetCalibration() const {return(cal_);};
 
-    /** Defines a map to hold Bar Detectors */
-    typedef std::map<TimingDefs::BarIdentifier, BarDetector> BarMap;
 private:
     /** \brief Checks to see if the event could physically be inside the bar
     * \param [in] timeDiff : The time difference inside the bar
@@ -84,4 +82,7 @@ private:
     HighResTimingData left_; //!< The Left side of the detector
     TimingCalibration cal_; //!< The Timing Calibration of the bar
 };
+
+/** Defines a map to hold Bar Detectors */
+typedef std::map<TimingDefs::BarIdentifier, BarDetector> BarMap;
 #endif // __BARDETECTOR_HPP__

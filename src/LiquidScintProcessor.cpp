@@ -101,7 +101,7 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
             counter++;
         }
 
-        if(liquid.GetDataValid()) {
+        if(liquid.GetIsValidData()) {
             plot(DD_TQDCLIQUID, liquid.GetTraceQdc(), loc);
             plot(DD_MAXLIQUID, liquid.GetMaximumValue(), loc);
 
@@ -130,7 +130,7 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
                 const int resMult = 2;
                 const int resOffset = 2000;
 
-                if(start.GetDataValid()) {
+                if(start.GetIsValidData()) {
                     double tofOffset;
                     if(startLoc == 0)
                         tofOffset = cal.GetTofOffset0();
