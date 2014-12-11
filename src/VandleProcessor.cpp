@@ -302,11 +302,13 @@ bool VandleProcessor::RetrieveData(RawEvent &event) {
     static const vector<ChanEvent*> &bigEvents =
         event.GetSummary("vandleBig")->GetList();
     static const vector<ChanEvent*> &betaStarts =
-        event.GetSummary("scint:beta:start")->GetList();
+        event.GetSummary("beta_scint:beta:start")->GetList();
     static const vector<ChanEvent*> &liquidStarts =
-        event.GetSummary("scint:liquid:start")->GetList();
+        event.GetSummary("liquid_scint:liquid:start")->GetList();
     static const vector<ChanEvent*> &tvandleEvents =
         event.GetSummary("tvandle")->GetList();
+
+    //cout << betaStarts.size() << endl;
 
     vector<ChanEvent*> startEvents;
     startEvents.insert(startEvents.end(),
@@ -372,6 +374,8 @@ void VandleProcessor::AnalyzeData(RawEvent& rawev) {
             itStart != startMap.end(); itStart++) {
             if(!(*itStart).second.GetIsValidData())
                 continue;
+
+            cout << "Turned my whole world red..." << endl;
 
             unsigned int startLoc = (*itStart).first.first;
             unsigned int barPlusStartLoc = barLoc*2 + startLoc;
@@ -652,7 +656,7 @@ void VandleProcessor::Tvandle(void) {
 
             //Plot information used to determine the impact of walk.
             double tempVal = fabs(right.maxval-left.maxval);
-            if(tempVal <= 50)
+            if(tempVal <=50)
                 plot(DD_MAXLVSTDIFFAMP, timeDiff*timeRes+timeOff, left.maxval);
 
             plot(DD_MAXLCORGATE,

@@ -37,8 +37,8 @@
 		<Unit filename="Makefile" />
 		<Unit filename="README.md" />
 		<Unit filename="TODO" />
+		<Unit filename="config/077cu/Config.xml.77cu" />
 		<Unit filename="config/Config.xml.73cu" />
-		<Unit filename="config/Config.xml.77cu" />
 		<Unit filename="config/Config.xml.83ga" />
 		<Unit filename="config/Config.xml.85ga" />
 		<Unit filename="config/Config.xml.86ga" />
@@ -47,7 +47,6 @@
 		<Unit filename="config/Config.xml.example" />
 		<Unit filename="config/Config.xml.pulser" />
 		<Unit filename="config/Config.xml.she" />
-		<Unit filename="config/filter.txt" />
 		<Unit filename="config/qdc.txt" />
 		<Unit filename="config/she/TreeCorrelator.xml" />
 		<Unit filename="config/she/cal.txt" />
