@@ -150,6 +150,7 @@
             * off - turn channel off (returns always 0)
             * linear - requires 2 parameters
             * quadratic - requires 3 parameters
+            * cubic - requires 4 parameters
             * polynomial - more general but slightly slower then the
                 two above - requires at least 1 parameter
             * hyplin - f(x) = a0/x + a1 + a2*x , suitable if problems with

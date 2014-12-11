@@ -94,7 +94,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     pair<double,double> pars;
     if (detType == "vandleSmall")
         pars = globals->vandlePars();
-    else if (detSubtype == "beta")
+    else if (detType == "beta_scint")
         pars = globals->startPars();
     else if(detType == "tvandle")
         pars = globals->tvandlePars();
