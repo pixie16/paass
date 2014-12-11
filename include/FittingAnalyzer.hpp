@@ -20,7 +20,6 @@ public:
     FittingAnalyzer();
     /** Default Destructor */
     ~FittingAnalyzer() {};
-
     /** Declare plots for the analyzer */
     virtual void DeclarePlots(void);
     /** Analyzes the traces
@@ -29,6 +28,10 @@ public:
      * \param [in] detSubtype : the subtype of the detector */
     virtual void Analyze(Trace &trace, const std::string &detType,
                          const std::string &detSubtype);
+
+    /** \return the walk of the specified channel due to the fitting function */
+    double CalculateWalk(const double &val, const std::string &type,
+                         const std::string &subType);
 
     //! Structure necessary for the GSL fitting routines
     struct FitData {
