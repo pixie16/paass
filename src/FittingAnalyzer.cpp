@@ -190,7 +190,6 @@ double FittingAnalyzer::CalculateWalk(const double &val, const std::string &type
         return(0.0);
 }
 
-//*********** FitFunction **********
 int FitFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
     size_t n       = ((struct FittingAnalyzer::FitData *)FitData)->n;
     double *y      = ((struct FittingAnalyzer::FitData *)FitData)->y;
@@ -203,22 +202,20 @@ int FitFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
     double alpha   = gsl_vector_get (x, 1);
 
     for(size_t i = 0; i < n; i++) {
-	double t = i;
-	double diff = t-phi;
-	double Yi = 0;
+        double t = i;
+        double diff = t-phi;
+        double Yi = 0;
 
-	if(t < phi)
-	    Yi = 0;
-	else
-	    Yi = qdc * alpha * exp(-beta*diff) * (1-exp(-pow(gamma*diff,4.)));
+        if(t < phi)
+            Yi = 0;
+        else
+            Yi = qdc * alpha * exp(-beta*diff) * (1-exp(-pow(gamma*diff,4.)));
 
-	gsl_vector_set (f, i, (Yi - y[i])/sigma[i]);
-     }
+        gsl_vector_set (f, i, (Yi - y[i])/sigma[i]);
+    }
     return(GSL_SUCCESS);
 }
 
-
-//********** CalcJacobian **********
 int CalcJacobian (const gsl_vector * x, void *FitData, gsl_matrix * J) {
     size_t n = ((struct FittingAnalyzer::FitData *)FitData)->n;
     double *sigma = ((struct FittingAnalyzer::FitData *) FitData)->sigma;
@@ -231,31 +228,25 @@ int CalcJacobian (const gsl_vector * x, void *FitData, gsl_matrix * J) {
 
     double dphi, dalpha;
 
-    for (size_t i = 0; i < n; i++) {
-	//Compute the Jacobian
- 	double t = i;
-	double diff = t-phi;
-	double gaussSq = exp(-pow(gamma*diff,4.));
- 	double s = sigma[i];
-
-	if(t < phi) {
-	    dphi   = 0;
-	    dalpha = 0;
-	}
-	else {
-	    dphi = alpha*beta*qdc*exp(-beta*diff)*(1-gaussSq) -
-		4*alpha*qdc*pow(diff,3.)*exp(-beta*diff)*pow(gamma,4.)*gaussSq;
-	    dalpha = qdc * exp(-beta*diff) * (1-gaussSq);
-	}
-
-	gsl_matrix_set (J,i,0, dphi/s);
-	gsl_matrix_set (J,i,1, dalpha/s);
+    for(size_t i = 0; i < n; i++) {
+        double t = i;
+        double diff = t-phi;
+        double gaussSq = exp(-pow(gamma*diff,4.));
+        double s = sigma[i];
+        if(t < phi) {
+            dphi   = 0;
+            dalpha = 0;
+        } else {
+            dphi = alpha*beta*qdc*exp(-beta*diff)*(1-gaussSq) -
+                    4*alpha*qdc*pow(diff,3.)*exp(-beta*diff)*pow(gamma,4.)*gaussSq;
+            dalpha = qdc * exp(-beta*diff) * (1-gaussSq);
+        }
+        gsl_matrix_set(J,i,0, dphi/s);
+        gsl_matrix_set(J,i,1, dalpha/s);
     }
     return(GSL_SUCCESS);
 }
 
-
-//********** FitFunctionDerivative **********
 int FitFunctionDerivative (const gsl_vector * x, void *FitData, gsl_vector * f,
                             gsl_matrix * J) {
     FitFunction (x, FitData, f);
