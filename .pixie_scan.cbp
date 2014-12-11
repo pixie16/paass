@@ -110,6 +110,7 @@
 		<Unit filename="include/SsdProcessor.hpp" />
 		<Unit filename="include/StatsData.hpp" />
 		<Unit filename="include/TauAnalyzer.hpp" />
+		<Unit filename="include/TeenyVandleProcessor.hpp" />
 		<Unit filename="include/TemplateProcessor.hpp" />
 		<Unit filename="include/TimingCalibrator.hpp" />
 		<Unit filename="include/Trace.hpp" />
@@ -189,6 +190,7 @@
 		<Unit filename="src/SsdProcessor.cpp" />
 		<Unit filename="src/StatsData.cpp" />
 		<Unit filename="src/TauAnalyzer.cpp" />
+		<Unit filename="src/TeenyVandleProcessor.cpp" />
 		<Unit filename="src/TemplateProcessor.cpp" />
 		<Unit filename="src/TimingCalibrator.cpp">
 			<Option target="&lt;{~None~}&gt;" />

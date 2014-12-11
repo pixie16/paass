@@ -93,5 +93,5 @@ private:
 };
 
 /** Defines a map to hold timing data for a channel. */
-typedef std::map<TimingDefs::BarIdentifier, HighResTimingData> TimingMap;
+typedef std::map<TimingDefs::TimingIdentifier, HighResTimingData> TimingMap;
 #endif // __HIGHRESTIMINGDATA_HPP__

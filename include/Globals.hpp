@@ -58,8 +58,8 @@ namespace readbuff {
 
 ///! Namespace defining some information for Timing related stuff
 namespace TimingDefs {
-    /** Defines a type for bar style detectors */
-    typedef std::pair<unsigned int, std::string> BarIdentifier;
+    /** Defines an ID for Timing detectors */
+    typedef std::pair<unsigned int, std::string> TimingIdentifier;
 }
 
 //! Some common string conversion operations

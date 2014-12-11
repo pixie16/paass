@@ -88,7 +88,7 @@ bool PulserProcessor::RetrieveData(RawEvent &event) {
         unsigned int location = (*itPulser)->GetChanID().GetLocation();
         string subType = (*itPulser)->GetChanID().GetSubtype();
 
-        TimingDefs::BarIdentifier pulserKey(location, subType);
+        TimingDefs::TimingIdentifier pulserKey(location, subType);
         pulserMap.insert(make_pair(pulserKey,
                                    HighResTimingData(*itPulser)));
     }
@@ -96,9 +96,8 @@ bool PulserProcessor::RetrieveData(RawEvent &event) {
     if(pulserMap.empty() || pulserMap.size()%2 != 0) {
         plot(D_PROBLEMSTUFF, 27);
         return(false);
-    } else {
+    } else
         return(true);
-    }
 }
 
 void PulserProcessor::AnalyzeData(void) {

@@ -78,7 +78,7 @@ public:
 
     /** \return The calibration for the requested bar
      * \param [in] id : the id of the bar that you want the calibration for */
-    TimingCalibration GetCalibration(const TimingDefs::BarIdentifier &id);
+    TimingCalibration GetCalibration(const TimingDefs::TimingIdentifier &id);
 private:
     TimingCalibrator() {ReadTimingCalXml();}; //!<Default constructor
     TimingCalibrator (const TimingCalibrator&);//!< Overload of the constructor
@@ -88,6 +88,6 @@ private:
     void ReadTimingCalXml(); //!< Reads in the calibrations in the XML config
 
     Messenger m_; //!< Instance of the Messenger class to output information
-    std::map <TimingDefs::BarIdentifier, TimingCalibration> calibrations_; //!< map to hold the calibrations
+    std::map <TimingDefs::TimingIdentifier, TimingCalibration> calibrations_; //!< map to hold the calibrations
 };
 #endif // __TIMINGCALIBRATOR_HPP__
