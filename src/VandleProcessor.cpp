@@ -77,19 +77,6 @@ namespace dammIds {
 	const int DD_DEBUGGING7  = 7+DEBUGGING_OFFSET;//!< Generic for debugging
 	const int DD_DEBUGGING8  = 8+DEBUGGING_OFFSET;//!< Generic for debugging
     }
-
-    /// Namespace for Teeny VANDLE detectors
-    namespace tvandle {
-	const int D_TIMEDIFF         = 2  + TVANDLE_OFFSET;//!< Time Difference
-	const int DD_PVSP            = 3  + TVANDLE_OFFSET;//!< Phase-Phase
-	const int DD_MAXRIGHTVSTDIFF = 4  + TVANDLE_OFFSET;//!< Max Right vs. Tdiff
-	const int DD_MAXLEFTVSTDIFF  = 5  + TVANDLE_OFFSET;//!< Max Left vs. Tdiff
-	const int DD_MAXLVSTDIFFGATE = 6  + TVANDLE_OFFSET;//!< MaxLeft vs. Tdiff - Gated
-	const int DD_MAXLVSTDIFFAMP  = 7  + TVANDLE_OFFSET;//!< MaxLeft vs. TDiff - Amp gated
-	const int DD_MAXLCORGATE     = 8  + TVANDLE_OFFSET;//!< MaxLeft vs. Cor ToF - gated
-	const int DD_QDCVSMAX        = 9  + TVANDLE_OFFSET;//!< QDC vs. Max Val
-	const int DD_SNRANDSDEV      = 10 + TVANDLE_OFFSET;//!< SNR and Standard Dev Baseline
-    }// namespace tvandle
 }//namespace dammIds
 
 using namespace std;
@@ -105,7 +92,6 @@ VandleProcessor::VandleProcessor():
 void VandleProcessor::DeclarePlots(void) {
     bool hasSmall   = true;
     bool hasBig     = false;
-    bool hasTvandle = false;
     const unsigned int numSmallEnds = S7;
     const unsigned int numBigEnds   = S4;
 
@@ -231,24 +217,6 @@ void VandleProcessor::DeclarePlots(void) {
        // DeclareHistogram2D(DD_TOFBARS_VETO+dammIds::BIG_OFFSET, SC, S9,
        // 			  "Bar vs CorTOF - Gamma Veto");
     }//if (hasBig)
-
-    if(hasTvandle) {
-	using namespace dammIds::tvandle;
-	DeclareHistogram2D(DD_TQDCBARS+dammIds::TVANDLE_OFFSET, SD, S1,"QDC");
-	DeclareHistogram2D(DD_MAXIMUMBARS+dammIds::TVANDLE_OFFSET, SC, S1, "Max");
-	DeclareHistogram1D(D_TIMEDIFF, SE, "Time Difference");
-	DeclareHistogram2D(DD_PVSP, SE, SE,"Phase vs. Phase");
-	DeclareHistogram2D(DD_MAXRIGHTVSTDIFF, SA, SD,"Max Right vs. Time Diff");
-	DeclareHistogram2D(DD_MAXLEFTVSTDIFF, SA, SD, "Max Left vs. Time Diff");
-	DeclareHistogram2D(DD_MAXLVSTDIFFGATE, SA, SD,
-			   "Max Left vs. Time Diff - gated on max right");
-	DeclareHistogram2D(DD_MAXLVSTDIFFAMP, SA, SD,
-			   "Max Left vs. Time Diff - amp diff");
-	DeclareHistogram2D(DD_MAXLCORGATE, SA, SD,
-			   "Max Left vs. Cor Time Diff");
-	DeclareHistogram2D(DD_QDCVSMAX, SC, SD,"QDC vs Max - Right");
-	DeclareHistogram2D(DD_SNRANDSDEV, S8, S2, "SNR and SDEV R01/L23");
-    }//if(hasTvandle);
 
     //Debugging histograms - The titles do not necessarily reflect the contents
     DeclareHistogram2D(DD_DEBUGGING0, SA, SA, "TOFL vs. TDIFF");
@@ -462,7 +430,7 @@ void VandleProcessor::BuildBars(const TimingMap &endMap, const std::string &type
             continue;
         }
 
-        TimingDefs::BarIdentifier barKey((*itEndA).first.first, type);
+        TimingDefs::TimingIdentifier barKey((*itEndA).first.first, type);
 
         TimingCalibration cal = TimingCalibrator::get()->GetCalibration(barKey);
 
@@ -587,7 +555,7 @@ void VandleProcessor::FillMap(const std::vector<ChanEvent*> &eventList,
         unsigned int location = (*it)->GetChanID().GetLocation();
         string subType = (*it)->GetChanID().GetSubtype();
 
-        TimingDefs::BarIdentifier key(location, subType);
+        TimingDefs::TimingIdentifier key(location, subType);
 
         TimingMap::iterator itTemp =
             eventMap.insert(make_pair(key, HighResTimingData(*it))).first;

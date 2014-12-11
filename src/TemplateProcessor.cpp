@@ -10,8 +10,9 @@
 
 namespace dammIds {
     namespace template {
-	const int D_ENERGY  = 0; //!< ID for the energy of the template detector
-	const int DD_TEMPLATE_VS_PULSER = 1; //!< Energy Template vs. Energy Pulser
+        const int D_ENERGY  = 0; //!< ID for the energy of the template detector
+        const int DD_TEMPLATE_VS_PULSER = 1; //!< Energy Template vs. Energy Pulser
+    }
 }//namespace dammIds
 
 using namespace std;
@@ -25,8 +26,8 @@ TemplateProcessor::TemplateProcessor():
 
 void TemplateProcessor::DeclarePlots(void) {
     DeclareHistogram1D(D_ENERGY, SA, "Energy");
-    DeclareHistogram2D(DD_TEMPLATE_VS_PULSER, SA, SA, "Template Energy vs.
-                       Pulser Energy");
+    DeclareHistogram2D(DD_TEMPLATE_VS_PULSER, SA, SA,
+                       "Template Energy vs. Pulser Energy");
 }
 
 bool TemplateProcessor::PreProcess(RawEvent &event) {
@@ -38,10 +39,11 @@ bool TemplateProcessor::PreProcess(RawEvent &event) {
 
     for(vector<ChanEvent*>::const_iterator it = templateEvents.begin();
         it != templateEvents.end(); it++) {
-        unsigned int location = it->GetChanID().GetLocation();
+        unsigned int location = (*it)->GetChanID().GetLocation();
         if(location == 0)
-            plot(D_ENERGY, it->GetEnergy());
+            plot(D_ENERGY, (*it)->GetEnergy());
     }
+    return(true);
 }
 
 bool TemplateProcessor::Process(RawEvent &event) {
@@ -49,18 +51,18 @@ bool TemplateProcessor::Process(RawEvent &event) {
         return(false);
 
     static const vector<ChanEvent*> & templateEvents =
-        event.GetSummary("template")->GetList();
-    static const vector<ChanEvent*> & templateEvents =
         event.GetSummary("pulser")->GetList();
 
     for(vector<ChanEvent*>::const_iterator it = templateEvents.begin();
         it != templateEvents.end(); it++) {
-        unsigned int location = it->GetChanID().GetLocation();
-        for(vector<ChanEvent*>::const_iterator itA = templateEvents.begin();
-            itA != templateEvents.end(); itA++) {
-            unsigned int location = it->GetChanID().GetLocation();
-            if(location == 0)
-                plot(DD_TEMPLATE_VS_PULSER, it->GetEnergy(), itA->GetEnergy());
-            }
+        unsigned int location = (*it)->GetChanID().GetLocation();
+        for(vector<ChanEvent*>::const_iterator itA = pulserEvents.begin();
+            itA != pulserEvents.end(); itA++) {
+                unsigned int location = (*it)->GetChanID().GetLocation();
+                if(location == 0)
+                    plot(DD_TEMPLATE_VS_PULSER, (*it)->GetEnergy(),
+                         (*itA)->GetEnergy());
+        }
     }
+    return(true)
 }

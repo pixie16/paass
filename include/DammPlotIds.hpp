@@ -98,7 +98,13 @@ namespace dammIds {
     ///in VandleProcessor.cpp
     namespace vandle{
         const int OFFSET = 3200;//!< Offset for the VandleProcessor
-        const int RANGE = 200;//!< Range for the VandleProcessor
+        const int RANGE = 100;//!< Range for the VandleProcessor
+    }
+
+    ///in TeenyVandleProcessor.cpp
+    namespace teenyvandle {
+        const int OFFSET = 3300;
+        const int RANGE = 20;
     }
 
     ///in PulserProcessor.cpp
