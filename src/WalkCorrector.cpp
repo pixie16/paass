@@ -57,7 +57,6 @@ void WalkCorrector::AddChannel(const Identifier& chanID,
         throw GeneralException(ss.str());
     }
 
-    // Some parameters check are needed to avoid e.g. division by 0
     switch(cf.model) {
         case walk_none:
             break;
@@ -107,7 +106,6 @@ double WalkCorrector::GetCorrection(Identifier& chanID, double raw) const {
             if (itf->min <= raw && raw <= itf->max)
                 break;
         }
-        // If some min-max range is missing zero is returned
         if (itf == itch->second.end()) {
             return 0;
         }
@@ -128,8 +126,6 @@ double WalkCorrector::GetCorrection(Identifier& chanID, double raw) const {
                 break;
         }
     }
-
-    // If no walk correction found, return 0
     return 0;
 }
 

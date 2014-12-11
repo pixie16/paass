@@ -308,8 +308,6 @@ bool VandleProcessor::RetrieveData(RawEvent &event) {
     static const vector<ChanEvent*> &tvandleEvents =
         event.GetSummary("tvandle")->GetList();
 
-    //cout << betaStarts.size() << endl;
-
     vector<ChanEvent*> startEvents;
     startEvents.insert(startEvents.end(),
 		       betaStarts.begin(), betaStarts.end());
@@ -357,8 +355,7 @@ void VandleProcessor::AnalyzeData(RawEvent& rawev) {
         else
             idOffset = dammIds::BIG_OFFSET;
 
-        TimingCalibration cal =
-            TimingCalibrator::get()->GetCalibration((*itBar).first);
+        TimingCalibration cal = bar.GetCalibration();
 
         double timeDiff = bar.GetTimeDifference();
 
@@ -375,10 +372,9 @@ void VandleProcessor::AnalyzeData(RawEvent& rawev) {
             if(!(*itStart).second.GetIsValidData())
                 continue;
 
-            cout << "Turned my whole world red..." << endl;
-
             unsigned int startLoc = (*itStart).first.first;
             unsigned int barPlusStartLoc = barLoc*2 + startLoc;
+            HighResTimingData start = (*itStart).second;
 
             double tofOffset;
             if(startLoc == 0)
@@ -387,46 +383,44 @@ void VandleProcessor::AnalyzeData(RawEvent& rawev) {
                 tofOffset = cal.GetTofOffset1();
 
             double TOF = bar.GetWalkCorTimeAve() -
-                (*itStart).second.GetWalkCorrectedTime() + tofOffset;
+                start.GetWalkCorrectedTime() + tofOffset;
+
+//            cout << bar.GetWalkCorTimeAve() << " "
+//                 << start.GetWalkCorrectedTime() << " "
+//                 << tofOffset << endl;
+
             double corTOF =
                 CorrectTOF(TOF, bar.GetFlightPath(), cal.GetZ0());
-            double energy =
-                (*itStart).second.CalcEnergy(corTOF, cal.GetZ0());
 
-            if(corTOF >= 5)
-                plot(DD_TQDCAVEVSENERGY+idOffset, energy, bar.GetQdc());
-            plot(DD_TOFBARS+idOffset,
-                TOF*resMult+resOffset, barPlusStartLoc);
+            plot(DD_TOFBARS+idOffset, TOF*resMult+resOffset, barPlusStartLoc);
             plot(DD_TOFVSTDIFF+idOffset, timeDiff*resMult+resOffset,
                  TOF*resMult+resOffset);
-            plot(DD_MAXRVSTOF+idOffset,
-                TOF*resMult+resOffset, bar.GetRightSide().GetMaximumValue());
-            plot(DD_MAXLVSTOF+idOffset,
-                TOF*resMult+resOffset, bar.GetLeftSide().GetMaximumValue());
-            plot(DD_TQDCAVEVSTOF+idOffset,
-                TOF*resMult+resOffset, bar.GetQdc());
+            plot(DD_MAXRVSTOF+idOffset, TOF*resMult+resOffset,
+                 bar.GetRightSide().GetMaximumValue());
+            plot(DD_MAXLVSTOF+idOffset, TOF*resMult+resOffset,
+                 bar.GetLeftSide().GetMaximumValue());
+            plot(DD_TQDCAVEVSTOF+idOffset, TOF*resMult+resOffset, bar.GetQdc());
 
-            plot(DD_CORTOFBARS,
-                corTOF*resMult+resOffset, barPlusStartLoc);
-            plot(DD_CORTOFVSTDIFF+idOffset,
-                timeDiff*resMult + resOffset, corTOF*resMult+resOffset);
+            plot(DD_CORTOFBARS, corTOF*resMult+resOffset, barPlusStartLoc);
+            plot(DD_CORTOFVSTDIFF+idOffset, timeDiff*resMult + resOffset,
+                 corTOF*resMult+resOffset);
             plot(DD_MAXRVSCORTOF+idOffset, corTOF*resMult+resOffset,
                  bar.GetRightSide().GetMaximumValue());
-            plot(DD_MAXLVSCORTOF+idOffset,
-                corTOF*resMult+resOffset, bar.GetLeftSide().GetMaximumValue());
-            plot(DD_TQDCAVEVSCORTOF+idOffset,
-                corTOF*resMult+resOffset, bar.GetQdc());
+            plot(DD_MAXLVSCORTOF+idOffset, corTOF*resMult+resOffset,
+                 bar.GetLeftSide().GetMaximumValue());
+            plot(DD_TQDCAVEVSCORTOF+idOffset, corTOF*resMult+resOffset,
+                 bar.GetQdc());
 
             if(startLoc == 0) {
                 plot(DD_MAXSTART0VSTOF+idOffset,
-                    TOF*resMult+resOffset, (*itStart).second.GetMaximumValue());
+                    TOF*resMult+resOffset, start.GetMaximumValue());
                 plot(DD_MAXSTART0VSCORTOF+idOffset,
-                    corTOF*resMult+resOffset, (*itStart).second.GetMaximumValue());
+                    corTOF*resMult+resOffset, start.GetMaximumValue());
             } else if (startLoc == 1) {
                 plot(DD_MAXSTART1VSCORTOF+idOffset,
-                    corTOF*resMult+resOffset, (*itStart).second.GetMaximumValue());
+                    corTOF*resMult+resOffset, start.GetMaximumValue());
                 plot(DD_MAXSTART1VSCORTOF+idOffset,
-                    corTOF*resMult+resOffset, (*itStart).second.GetMaximumValue());
+                    corTOF*resMult+resOffset, start.GetMaximumValue());
             }
 
             static const DetectorSummary *geSummary = rawev.GetSummary("ge");

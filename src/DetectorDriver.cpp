@@ -52,8 +52,6 @@
 
 #ifdef useroot
 #include "RootProcessor.hpp"
-#include "ScintRoot.hpp"
-#include "VandleRoot.hpp"
 #endif
 
 using namespace std;

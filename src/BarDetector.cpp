@@ -13,7 +13,13 @@ BarDetector::BarDetector(const HighResTimingData &Right,
                          const HighResTimingData &Left,
                          const TimingCalibration &cal,
                          const std::string &type) {
+    left_ = Left;
+    right_ = Right;
+    cal_ = cal;
+    type_ = type;
+
     qdc_       = sqrt(Right.GetTraceQdc()*Left.GetTraceQdc());
+    theta_ = acos(cal.GetZ0()/flightPath_);
     timeAve_   = (Right.GetHighResTime() + Left.GetHighResTime())*0.5;
     timeDiff_  = (Left.GetHighResTime()-Right.GetHighResTime()) +
                 cal.GetLeftRightTimeOffset();
@@ -22,32 +28,33 @@ BarDetector::BarDetector(const HighResTimingData &Right,
                         cal.GetLeftRightTimeOffset();
     walkCorTimeAve_ = (Left.GetWalkCorrectedTime() +
                        Right.GetWalkCorrectedTime())*0.5;
-
-    hasEvent_ = BarEventCheck(timeDiff_, type);
-    flightPath_ = CalcFlightPath(timeDiff_, cal, type);
-    theta_ = acos(cal.GetZ0()/flightPath_);
+    CalcFlightPath();
+    BarEventCheck();
 }
 
-bool BarDetector::BarEventCheck(const double &timeDiff,
-                                               const std::string &type) {
-    if(type == "small") {
+void BarDetector::BarEventCheck() {
+    if(type_ == "small") {
         double lengthSmallTime = Globals::get()->smallLengthTime();
-        return(fabs(timeDiff) < lengthSmallTime+20);
-    } else if(type == "big") {
+        hasEvent_ = fabs(timeDiff_) < lengthSmallTime+20;
+    } else if(type_ == "big") {
         double lengthBigTime = Globals::get()->bigLengthTime();
-        return(fabs(timeDiff) < lengthBigTime+20);
+        hasEvent_ = fabs(timeDiff_) < lengthBigTime+20;
+    } else if (type_ == "medium") {
+//        double lengthMediumTime = Globals::get()->mediumLengthTime();
+//        haseEvent_ = fabs(timeDiff) < lengthMediumTime+20;
     } else
-        return(false);
+        hasEvent_ = false;
 }
 
-double BarDetector::CalcFlightPath(double &timeDiff, const TimingCalibration& cal,
-                                   const std::string &type) {
-    if(type == "small")
-        return(sqrt(cal.GetZ0()*cal.GetZ0()+
-                    pow(Globals::get()->speedOfLightSmall()*0.5*timeDiff+cal.GetXOffset(),2)));
-    else if(type == "big")
-        return(sqrt(cal.GetZ0()*cal.GetZ0() +
-                    pow(Globals::get()->speedOfLightBig()*0.5*timeDiff+cal.GetXOffset(),2)));
+void BarDetector::CalcFlightPath() {
+    if(type_ == "small")
+        flightPath_ = sqrt(cal_.GetZ0()*cal_.GetZ0()+
+                    pow(Globals::get()->speedOfLightSmall()*0.5*timeDiff_+
+                        cal_.GetXOffset(),2));
+    else if(type_ == "big")
+        flightPath_ = sqrt(cal_.GetZ0()*cal_.GetZ0() +
+                    pow(Globals::get()->speedOfLightBig()*0.5*timeDiff_+
+                        cal_.GetXOffset(),2));
     else
-        return(numeric_limits<double>::quiet_NaN());
+        flightPath_ = numeric_limits<double>::quiet_NaN();
 }
