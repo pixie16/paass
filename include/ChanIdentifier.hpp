@@ -65,7 +65,10 @@ public:
     /** Check if an identifier has a tag
      * \param [in] s : the tag to search for
      * \return true if the tag is in the identifier */
-    bool HasTag(const std::string &s) const {return (tag.count(s) > 0);}
+    bool HasTag(const std::string &s) const {
+        if(tag.count(s) > 0)
+            return(true);
+        return(false);};
     /** \return Get the requested tag
      * \param [in] s : the name of the tag to get */
     TagValue GetTag(const std::string &s) const;
@@ -128,6 +131,6 @@ private:
     int dammID;            /**< Damm spectrum number for plotting calibrated energies */
     int location;          /**< Specifies the real world location of the channel.
                                 For the DSSD this variable is the strip number */
-    std::map<std::string, TagValue> tag;  /**< A list of tags associated with the identifer */
+    std::map<std::string, TagValue> tag;  /**< A list of tags associated with the Identifier */
 };
 #endif

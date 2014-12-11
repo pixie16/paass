@@ -1,4 +1,4 @@
 zero
-file data/plsr/revf/firm06062012/plsr-1000mV-02ns.ldf
+file data/vandleLeribss2012/negativeIons/a077/vandle_a77_103.ldf
 go
 end

@@ -67,6 +67,7 @@ void DetectorLibrary::LoadXml() {
     reserved.insert("type");
     reserved.insert("subtype");
     reserved.insert("location");
+    reserved.insert("tags");
 
     pugi::xml_node map = doc.child("Configuration").child("Map");
     bool verbose = map.attribute("verbose_map").as_bool();
@@ -78,7 +79,7 @@ void DetectorLibrary::LoadXml() {
         if (module_number < 0) {
             stringstream ss;
             ss << "MapFile: Illegal module number "
-                << "found " << module_number << " in cofiguration file.";
+                << "found " << module_number << " in configuration file.";
             throw GeneralException(ss.str());
         }
         for (pugi::xml_node channel = module.child("Channel"); channel;
@@ -86,8 +87,8 @@ void DetectorLibrary::LoadXml() {
             int ch_number = channel.attribute("number").as_int(-1);
             if (ch_number < 0 || ch_number >= (int)pixie::numberOfChannels ) {
                 stringstream ss;
-                ss << "DetectorDriver::ReadWalk: Illegal channel number "
-                   << "found " << ch_number << " in cofiguration file.";
+                ss << "MapFile : Identifier : Illegal channel number "
+                   << "found " << ch_number << " in configuration file.";
                 throw GeneralException(ss.str());
             }
             if ( HasValue(module_number, ch_number) ) {
@@ -112,13 +113,11 @@ void DetectorLibrary::LoadXml() {
             }
             id.SetLocation(ch_location);
 
-            for (pugi::xml_attribute_iterator ait = channel.attributes_begin();
-                 ait != channel.attributes_end(); ++ait) {
-                string name = ait->name();
-                if (reserved.find(name) != reserved.end()) {
-                    Identifier::TagValue value(ait->as_int());
-                    id.AddTag(name, value);
-                }
+            string ch_tags = channel.attribute("tags").as_string("None");
+            if(ch_tags != "None"){
+                vector<string> tagList = strings::tokenize(ch_tags, ",");
+                for(unsigned int i = 0; i < tagList.size(); i++)
+                    id.AddTag(tagList[i], 1);
             }
 
             Set(module_number, ch_number, id);

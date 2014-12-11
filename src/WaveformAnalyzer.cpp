@@ -29,7 +29,7 @@ void WaveformAnalyzer::Analyze(Trace &trace,
 
     if(detType == "vandleSmall" || detType == "vandleBig"
        || detType == "liquid_scint" || detType == "pulser"
-       || detType == "tvandle") {
+       || detType == "tvandle" || detType == "beta_scint") {
 
         if(trace.HasValue("saturation")) {
             EndAnalyze();
