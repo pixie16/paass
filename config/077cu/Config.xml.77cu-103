@@ -42,7 +42,7 @@
             double_start="True"/>
         <Processor name="BetaScintProcessor"
                    gamma_beta_limit="200e-9"
-                   energy_contraction="2"/>
+                   energy_contraction="1.0"/>
     </DetectorDriver>
 
     <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">

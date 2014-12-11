@@ -49,26 +49,13 @@ public:
     HighResTimingData GetLeftSide() const {return(left_);};
     /** \return the right_ var */
     HighResTimingData GetRightSide() const {return(right_);};
+    /** \return the type of bar detector */
+    std::string GetType() const {return(type_);};
     /** \return The cal_ var */
     TimingCalibration GetCalibration() const {return(cal_);};
 
 private:
-    /** \brief Checks to see if the event could physically be inside the bar
-    * \param [in] timeDiff : The time difference inside the bar
-    * \param [in] type : the type of bar to check for
-    * \return True if the even was inside the bar */
-    bool BarEventCheck(const double &timeDiff, const std::string &type);
-
-    /** \brief Calculates the flight path of the particle
-    * \param [in] timeDiff : The time difference inside the bar
-    * \param [in] cal : The timing calibration for the bar
-    * \param [in] type : the type of bar
-    * \return The flight path of the particle */
-    double CalcFlightPath(double &timeDiff, const TimingCalibration &cal,
-                          const std::string &type);
-
     bool hasEvent_; //!< true if there was an event in the bar
-
     double flightPath_; //!< flight path of the particle to the detector
     double qdc_;//!< QDC for the bar
     double qdcPos_;//!< Position derived from the QDC
@@ -77,10 +64,15 @@ private:
     double timeDiff_;//!< The time difference between the two ends
     double walkCorTimeDiff_;//!< The walk corrected time difference
     double walkCorTimeAve_;//!< The walk corrected time average
-
+    std::string type_; //!< The type of bar detector it is
     HighResTimingData right_; //!< The Right side of the detector
     HighResTimingData left_; //!< The Left side of the detector
     TimingCalibration cal_; //!< The Timing Calibration of the bar
+
+    /** \brief Checks to see if the event could physically be inside the bar*/
+    void BarEventCheck(void);
+    /** \brief Calculates the flight path of the particle */
+    void CalcFlightPath(void);
 };
 
 /** Defines a map to hold Bar Detectors */
