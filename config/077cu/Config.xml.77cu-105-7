@@ -10,7 +10,7 @@
         LeRIBSS 2012 VANDLE experiment, 48 VANDLE Bars, 2 Clovers,
         2 Beta scintillators, MTC
         This configuration file works for the following files:
-        leribss2012/negativeIons/a077/vandle_a77_103.ldf
+        leribss2012/negativeIons/a077/vandle_a77_10{5-7}-.ldf
     </Description>
 
     <Global>
@@ -42,7 +42,7 @@
             double_start="True"/>
         <Processor name="BetaScintProcessor"
                    gamma_beta_limit="200e-9"
-                   energy_contraction="2"/>
+                   energy_contraction="1"/>
     </DetectorDriver>
 
     <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
@@ -365,7 +365,7 @@
         <Module number="7">
             <Channel number="0" type="ge" subtype="clover_high">
                 <Calibration model="cubic" max="8000">
-                    -0.496204   1.25466 -3.29426e-06  8.46747e-10
+                    -0.672267  1.25661  -3.98835e-06  1.02652e-09
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     14.415 20.195 1542.630 305.285
@@ -376,7 +376,7 @@
             </Channel>
             <Channel number="1" type="ge" subtype="clover_high" >
                 <Calibration model="cubic" max="8000">
-                    0.0904204  1.27027  1.58618e-06 -3.8809e-10
+                     0.168046  1.2715    8.17554e-07 -9.50104e-11
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     12.783 21.736 1526.242 323.768
@@ -387,7 +387,7 @@
             </Channel>
             <Channel number="2" type="ge" subtype="clover_high" >
                 <Calibration model="cubic" max="8000">
-                    -0.410798   1.27002 -1.07288e-06  4.192e-10
+                    -0.125675  1.27038  -3.85722e-07  2.46236e-10
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     -10.000 28.051 2205.365 3225.258
@@ -398,7 +398,7 @@
             </Channel>
             <Channel number="3" type="ge" subtype="clover_high" >
                 <Calibration model="cubic" max="8000">
-                    -1.42093    1.27886 -6.72158e-06  2.06998e-09
+                    -0.414085  1.27556  -2.04997e-06  6.82541e-10
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     13.654 20.513 1536.986 322.804
@@ -409,7 +409,7 @@
             </Channel>
             <Channel number="4" type="ge" subtype="clover_high" >
                 <Calibration model="cubic" max="8000">
-                    -2.32729    1.29242 -6.59335e-06  2.02718e-09
+                    -1.39455   1.28933  -3.00506e-06  1.06933e-09
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     14.509 13.615 1986.171 379.228
@@ -420,7 +420,7 @@
             </Channel>
             <Channel number="5" type="ge" subtype="clover_high" >
                 <Calibration model="cubic" max="8000">
-                    -1.13622    1.316   -5.29773e-06  1.92747e-09
+                    -1.27405   1.31786  -6.3995e-06   2.21588e-09
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     13.071 15.834 1906.134 313.287
@@ -431,7 +431,7 @@
             </Channel>
             <Channel number="6" type="ge" subtype="clover_high" >
                 <Calibration model="cubic" max="8000">
-                    0.417907   1.23513  2.12738e-06 -3.63504e-10
+                    -0.0334172 1.23702   1.28869e-06 -1.57839e-10
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     14.437 17.463 1760.453 341.821
@@ -442,7 +442,7 @@
             </Channel>
             <Channel number="7" type="ge" subtype="clover_high" >
                 <Calibration model="cubic" max="8000">
-                    0.518583   1.27374  3.68909e-06 -9.74137e-10
+                     0.871978  1.27352   4.63096e-06 -1.18486e-09
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     13.446 13.760 1956.073 499.302

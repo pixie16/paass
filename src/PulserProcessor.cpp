@@ -74,10 +74,6 @@ bool PulserProcessor::Process(RawEvent &event) {
 }
 
 bool PulserProcessor::RetrieveData(RawEvent &event) {
-    TimingCalibrator *tcal = TimingCalibrator::get();
-
-    TimingCalibration cal0 = tcal->GetCalibration(make_pair(0, "small"));
-
     pulserMap.clear();
 
     static const vector<ChanEvent*> & pulserEvents =
@@ -127,11 +123,11 @@ void PulserProcessor::AnalyzeData(void) {
     if(start.GetIsValidData() && stop.GetIsValidData()) {
         double timeDiff = stop.GetHighResTime() - start.GetHighResTime();
         double timeRes  = 50; //20 ps/bin
-        double timeOff  = 30000.;
+        double timeOff  = 1000.;
         double phaseX   = 7000.;
 
-//        cout << timeDiff * timeRes + timeOff << " "
-//             << start.GetPhase()*timeRes-phaseX << endl;
+        //cout << timeDiff * timeRes + timeOff << " "
+        //     << start.GetPhase()*timeRes-phaseX << endl;
 
         plot(D_TIMEDIFF, timeDiff*timeRes + timeOff);
         plot(DD_PVSP, start.GetPhase()*timeRes-phaseX,
