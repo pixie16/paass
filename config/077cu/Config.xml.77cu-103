@@ -47,12 +47,10 @@
 
     <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
         <Module number="0">
-            <Channel number="0" type="beta_scint" subtype="beta"
-                     tags="start,blah,test">
+            <Channel number="0" type="beta_scint" subtype="beta" tags="start">
                 <Calibration model="raw"> </Calibration>
             </Channel>
-            <Channel number="1" type="beta_scint" subtype="beta"
-                     tags="start,blah,upper">
+            <Channel number="1" type="beta_scint" subtype="beta" tags="start">
                 <Calibration model="raw"> </Calibration>
             </Channel>
             <Channel number="2" type="beta_scint" subtype="beta">
@@ -612,7 +610,7 @@
             <TrapezoidalWalk unit="ns" value="60"/>
             <TraceDelay unit="ns" value="112"/>
             <TraceLength unit="ns" value="176"/>
-            <QdcCompression value="4.0"/>
+            <QdcCompression value="1.0"/>
         </Trace>
 
         <Fitting>
