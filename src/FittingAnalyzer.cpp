@@ -171,8 +171,8 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
 }
 
 double FittingAnalyzer::CalculateWalk(const double &val, const std::string &type,
-				 const std::string &subType) {
-    if(type == "vandleSmall") {
+                                      const std::string &subType) {
+    if(type == "vandleSmall" || type == "tvandle") {
         if(val < 175)
             return(1.09099*log(val)-7.76641);
         if(val > 3700)

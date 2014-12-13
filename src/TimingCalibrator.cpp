@@ -73,18 +73,16 @@ void TimingCalibrator::ReadTimingCalXml() {
                 TimingCalibration temp;
                 temp.SetLeftRightTimeOffset(bar->
                     attribute("lroffset").as_double(0.0));
-                temp.SetR0(bar->
-                    attribute("r0").as_double(0.0));
                 temp.SetTofOffset0(bar->
-                    attribute("tofOffset0").as_double(0.0));
+                    attribute("tofoffset0").as_double(0.0));
                 temp.SetTofOffset1(bar->
-                    attribute("tofOffset1").as_double(0.0));
+                    attribute("tofoffset1").as_double(0.0));
                 temp.SetXOffset(bar->
-                    attribute("xOffset").as_double(0.0));
+                    attribute("xoffset").as_double(0.0));
                 temp.SetZ0(bar->
                     attribute("z0").as_double(0.0));
                 temp.SetZOffset(bar->
-                    attribute("zOffset").as_double(0.0));
+                    attribute("zoffset").as_double(0.0));
 
                 if(!calibrations_.insert(make_pair(id, temp)).second) {
                     stringstream ss;
@@ -97,11 +95,11 @@ void TimingCalibrator::ReadTimingCalXml() {
                 if (verbose) {
                     stringstream ss;
                     ss << detName << ":" << barType << ":" << barNumber
-                        << "-> r0 = " << temp.GetR0() << ", lroffset = "
-                        << temp.GetLeftRightTimeOffset() << ", xoffset = "
-                        << temp.GetXOffset() << ", z0 = " << temp.GetZ0()
-                        << ", tofOffset0 = " << temp.GetTofOffset0()
-                        << ", tofOffset1 = " << temp.GetTofOffset1() << endl;
+                        << "lroffset = " << temp.GetLeftRightTimeOffset()
+                        << ", xoffset = " << temp.GetXOffset()
+                        << ", z0 = " << temp.GetZ0() << ", tofOffset0 = "
+                        << temp.GetTofOffset0() << ", tofOffset1 = "
+                        << temp.GetTofOffset1() << endl;
                     m.detail(ss.str(), 1);
                 }
             }

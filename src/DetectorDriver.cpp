@@ -37,6 +37,7 @@
 #include "PositionProcessor.hpp"
 #include "PulserProcessor.hpp"
 #include "SsdProcessor.hpp"
+#include "TeenyVandleProcessor.hpp"
 #include "TraceFilterer.hpp"
 #include "TriggerLogicProcessor.hpp"
 #include "VandleProcessor.hpp"
@@ -251,6 +252,8 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new TriggerLogicProcessor());
         } else if (name == "VandleProcessor") {
             vecProcess.push_back(new VandleProcessor());
+        } else if (name == "TeenyVandleProcessor") {
+            vecProcess.push_back(new TeenyVandleProcessor());
         }
 #ifdef useroot
         else if (name == "RootProcessor") {
