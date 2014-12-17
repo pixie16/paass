@@ -13,6 +13,7 @@ html/
 latex/
 tmp/
 doc/classdiagramRawEvent.svg
+config/cfgs
 
 #DAMM files
 *.drr
