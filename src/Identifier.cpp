@@ -1,10 +1,11 @@
-/** \file ChanIdentifier.hpp
+/** \file Identifier.hpp
  * \brief Defines identifying information for channels
 */
-#include "ChanIdentifier.hpp"
-#include <string>
 #include <iomanip>
 #include <iostream>
+#include <string>
+
+#include "Identifier.hpp"
 
 using namespace std;
 

@@ -27,7 +27,7 @@ void WaveformAnalyzer::Analyze(Trace &trace,
 			       const std::string &detSubtype) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype);
 
-    if(detType == "vandleSmall" || detType == "vandleBig"
+    if(detType == "vandle"
        || detType == "liquid_scint" || detType == "pulser"
        || detType == "tvandle" || detType == "beta_scint") {
 

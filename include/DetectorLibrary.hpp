@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "ChanIdentifier.hpp"
+#include "Identifier.hpp"
 #include "RawEvent.hpp"
 
 //class RawEvent;

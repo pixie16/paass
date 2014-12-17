@@ -174,6 +174,33 @@ class AddBackEvent {
 
 //! Processor to handle Ge (read as clover) events
 class GeProcessor : public EventProcessor {
+public:
+    /** Constructor taking a boat load of arguements
+     * \param [in] gammaThreshold : set the threshold on gamma rays to analyze
+     * \param [in] lowRatio : the low ratio for low-high gains
+     * \param [in] highRatio : the high ratio for low-high gains
+     * \param [in] subEventWindow : the size of the subevent
+     * \param [in] gammaBetaLimit : the amount of time to consider beta-gamma correlations
+     * \param [in] gammaGammaLimit : the amount of time to consider gamma-gamma correlations
+     * \param [in] cycle_gate1_min : the minimum range for the first cycle gate
+     * \param [in] cycle_gate1_max : the maximum range for the first cycle gate
+     * \param [in] cycle_gate2_min : the minimum range for the second cycle gate
+     * \param [in] cycle_gate2_max : the maximum range for the second cycle gate */
+    GeProcessor(double gammaThreshold, double lowRatio,
+                double highRatio, double subEventWindow,
+                double gammaBetaLimit, double gammaGammaLimit,
+                double cycle_gate1_min, double cycle_gate1_max,
+                double cycle_gate2_min, double cycle_gate2_max);
+    /** Preprocess the event
+     * \param [in] event : the event to preprocess
+     * \return true if successful */
+     virtual bool PreProcess(RawEvent &event);
+    /** Process the event
+     * \param [in] event : the event to process
+     * \return true if successful */
+     virtual bool Process(RawEvent &event);
+    /** Declare the plots for the processor */
+    virtual void DeclarePlots(void);
 protected:
     static const unsigned int chansPerClover = 4; /*!< number of channels per clover */
 
@@ -253,33 +280,5 @@ protected:
     double cycle_gate1_max_;//!< high value for first cycle gate
     double cycle_gate2_min_;//!< low value for second cycle gate
     double cycle_gate2_max_;//!< high value for second cycle gate
-
-public:
-    /** Constructor taking a boat load of arguements
-     * \param [in] gammaThreshold : set the threshold on gamma rays to analyze
-     * \param [in] lowRatio : the low ratio for low-high gains
-     * \param [in] highRatio : the high ratio for low-high gains
-     * \param [in] subEventWindow : the size of the subevent
-     * \param [in] gammaBetaLimit : the amount of time to consider beta-gamma correlations
-     * \param [in] gammaGammaLimit : the amount of time to consider gamma-gamma correlations
-     * \param [in] cycle_gate1_min : the minimum range for the first cycle gate
-     * \param [in] cycle_gate1_max : the maximum range for the first cycle gate
-     * \param [in] cycle_gate2_min : the minimum range for the second cycle gate
-     * \param [in] cycle_gate2_max : the maximum range for the second cycle gate */
-    GeProcessor(double gammaThreshold, double lowRatio,
-                double highRatio, double subEventWindow,
-                double gammaBetaLimit, double gammaGammaLimit,
-                double cycle_gate1_min, double cycle_gate1_max,
-                double cycle_gate2_min, double cycle_gate2_max);
-    /** Preprocess the event
-     * \param [in] event : the event to preprocess
-     * \return true if successful */
-     virtual bool PreProcess(RawEvent &event);
-    /** Process the event
-     * \param [in] event : the event to process
-     * \return true if successful */
-     virtual bool Process(RawEvent &event);
-    /** Declare the plots for the processor */
-    virtual void DeclarePlots(void);
 };
 #endif // __GEPROCESSOR_HPP_

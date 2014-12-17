@@ -108,7 +108,6 @@ void DetectorLibrary::LoadXml() {
 
             int ch_location = channel.attribute("location").as_int(-1);
             if (ch_location == -1) {
-                //Take next available
                 ch_location = GetNextLocation(ch_type, ch_subtype);
             }
             id.SetLocation(ch_location);
@@ -293,12 +292,12 @@ void DetectorLibrary::PrintUsedDetectors(RawEvent& rawev) const {
 }
 
 const set<string>& DetectorLibrary::GetKnownDetectors(void) {
-    const unsigned int detTypes = 23;
+    const unsigned int detTypes = 21;
     const string detectorStrings[detTypes] = {
         "3hen", "beta_scint", "dssd_front", "dssd_back", "ge", "generic",
         "idssd_front", "ignore", "ion_chamber", "liquid_scint", "logic",
         "mcp", "mtc", "neutron_scint", "position", "pulser", "si", "ssd",
-        "timeclass", "tvandle", "vandleSmall", "vandleBig", "vandleMed"
+        "timeclass", "tvandle", "vandle"
     };
 
     if (!knownDetectors.empty())

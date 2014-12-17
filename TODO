@@ -1,12 +1,10 @@
 TODO
 ====
 A list of features to be worked on, implemented, updated, etc. They are
-currently in no particular order. Some of these features have been tackled by
-Krzys Miernik, but have not been implemented as of yet.
+currently in no particular order.
 
 * DOCUMENTATION CHECK and UPDATE
 * Revamp the TraceFilterer
-* Convert Timing Structures into Classes
 * Concatenate all of the logic processors, they do the same things, just with
     various names
 * Incorporate changes necessary for Pixie-500 data (MAJOR)
@@ -26,7 +24,3 @@ Krzys Miernik, but have not been implemented as of yet.
 * Hijack KM's readhis library to create his files natively in C
 * For Redhat systems, libstdc++.so.5 is necessary to compile with ROOT support.
     Compilation needs to be streamlined in this case.
-*Sandbox Processor:
-  - simple processor that people can use to play with different features
-  - Expand syntax from detector summary to get all detectors with specific tag,
-  loc, etc.
