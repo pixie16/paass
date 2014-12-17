@@ -9,8 +9,8 @@
 
 using namespace std;
 
-BarDetector::BarDetector(const HighResTimingData &Right,
-                         const HighResTimingData &Left,
+BarDetector::BarDetector(const HighResTimingData &Left,
+                         const HighResTimingData &Right,
                          const TimingCalibration &cal,
                          const std::string &type) {
     left_ = Left;

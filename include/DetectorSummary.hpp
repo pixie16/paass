@@ -29,22 +29,18 @@ class ChanEvent;
  * summary records the detector name to which it applies.
  */
 class DetectorSummary {
-private:
-    std::string name;                  /**< name associated with this summary */
-    std::string type;                  /**< detector type associated with this summary */
-    std::string subtype;               /**< detector subtype associated with this summary */
-    std::string tag;               /**< detector tag associated with this summary */
-    std::vector<ChanEvent*> eventList; /**< list of events associated with this detector group */
-    ChanEvent* maxEvent;               /**< event with maximum energy deposition */
 public:
     /** Default Constructor */
     DetectorSummary();
+
     /** Constructor taking a string and the full channel list
      * \param [in] str : the type to make the summary for
      * \param [in] fullList : the full list of channels in the event */
     DetectorSummary(const std::string &str, const std::vector<ChanEvent *> &fullList);
+
     /** Zero the summary */
     void Zero();
+
     /** Add an event to the summary
      * \param [in] ev : the event to add */
     void AddEvent(ChanEvent *ev);
@@ -55,14 +51,25 @@ public:
 
     /** \return the max event in the summary (constant) */
     const ChanEvent* GetMaxEvent(void) const {return maxEvent;};
+
     /** \return the max event with the ability to change it
      * \param [in] fake : a bool to allow overloading the function name */
     ChanEvent* GetMaxEvent(bool fake) {return maxEvent;};
+
     /** \return the multiplicity of the summary */
     int GetMult() const {return eventList.size();}
+
     /** \return get the detector name */
     const std::string& GetName() const {return name;};
+
     /** \return the list of al channels in the raw event with this detector type */
     const std::vector<ChanEvent*>& GetList() const {return eventList;};
+private:
+    std::string name;                  /**< name associated with this summary */
+    std::string type;                  /**< detector type associated with this summary */
+    std::string subtype;               /**< detector subtype associated with this summary */
+    std::string tag;               /**< detector tag associated with this summary */
+    std::vector<ChanEvent*> eventList; /**< list of events associated with this detector group */
+    ChanEvent* maxEvent;               /**< event with maximum energy deposition */
 };
 #endif
