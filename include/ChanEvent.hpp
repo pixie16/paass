@@ -7,7 +7,7 @@
 #include <vector>
 #include "DetectorLibrary.hpp"
 #include "pixie16app_defs.h"
-#include "ChanIdentifier.hpp"
+#include "Identifier.hpp"
 #include "Globals.hpp"
 #include "Trace.hpp"
 
@@ -25,38 +25,25 @@ public:
     /** Default constructor that zeroes all values */
     ChanEvent(){ZeroNums();};
 
-
     /** Set the raw energy in case we do not want to extract it from the trace
      * ourselves
      * \param [in] a : the energy to set */
-    void SetEnergy(double a) {
-        energy = a;
-    }
+    void SetEnergy(double a) {energy = a;}
     /** Set the calibrated energy
      * \param [in] a : the calibrated energy */
-    void SetCalEnergy(double a) {
-        calEnergy = a;
-    }
+    void SetCalEnergy(double a) {calEnergy = a;}
     /** Set the time
      * \param [in] a : the time to set */
-    void SetTime(double a)      {
-        time = a;
-    }
+    void SetTime(double a) {time = a;}
     /** Set the Walk corrected time
      * \param [in] a : the walk corrected time */
-    void SetCorrectedTime(double a) {
-        correctedTime = a;
-    }
+    void SetCorrectedTime(double a) { correctedTime = a;}
     /** Set the Calibrated time
      * \param [in] a : the calibrated time */
-    void SetCalTime(double a) {
-        calTime = a;
-    }
+    void SetCalTime(double a) {calTime = a;}
     /** Set the high resolution time (Filter time + phase )
      * \param [in] a : the high resolution time */
-    void SetHighResTime(double a) {
-        highResTime =a;
-    }
+    void SetHighResTime(double a) {highResTime =a;}
 
     double GetEnergy() const      {
         return energy;   /**< \return the raw energy */

@@ -10,7 +10,7 @@
 #include <map>
 #include <string>
 
-#include "ChanIdentifier.hpp"
+#include "Identifier.hpp"
 
 /** A list of known walk correction models (functions). */
 enum WalkModel {

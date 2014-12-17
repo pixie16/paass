@@ -41,7 +41,9 @@
 		<Unit filename="config/077cu/Config.xml.77cu-103" />
 		<Unit filename="config/077cu/Config.xml.77cu-104" />
 		<Unit filename="config/077cu/Config.xml.77cu-105-7" />
+		<Unit filename="config/077cu/Config.xml.77cu-test" />
 		<Unit filename="config/084ga/Config.xml.084ga-001-3" />
+		<Unit filename="config/Config-tvandleWalk.xml" />
 		<Unit filename="config/Config.xml.73cu" />
 		<Unit filename="config/Config.xml.83ga" />
 		<Unit filename="config/Config.xml.85ga" />
@@ -51,7 +53,6 @@
 		<Unit filename="config/Config.xml.example" />
 		<Unit filename="config/Config.xml.pulser" />
 		<Unit filename="config/Config.xml.she" />
-		<Unit filename="config/Config.xml.walk" />
 		<Unit filename="config/qdc.txt" />
 		<Unit filename="config/she/TreeCorrelator.xml" />
 		<Unit filename="config/she/cal.txt" />
@@ -63,6 +64,7 @@
 		<Unit filename="doc/Doxyfile" />
 		<Unit filename="doc/doxyPages/mainPage.dox" />
 		<Unit filename="doc/tmp/doxyfile" />
+		<Unit filename="include/BarBuilder.hpp" />
 		<Unit filename="include/BarDetector.hpp" />
 		<Unit filename="include/BeamLogicProcessor.hpp" />
 		<Unit filename="include/BetaProcessor.hpp" />
@@ -118,6 +120,7 @@
 		<Unit filename="include/TeenyVandleProcessor.hpp" />
 		<Unit filename="include/TemplateProcessor.hpp" />
 		<Unit filename="include/TimingCalibrator.hpp" />
+		<Unit filename="include/TimingMapBuilder.hpp" />
 		<Unit filename="include/Trace.hpp" />
 		<Unit filename="include/TraceAnalyzer.hpp" />
 		<Unit filename="include/TraceExtractor.hpp" />
@@ -145,6 +148,7 @@
 		<Unit filename="scripts/online.bash" />
 		<Unit filename="scripts/start.cmd" />
 		<Unit filename="scripts/test.cmd" />
+		<Unit filename="src/BarBuilder.cpp" />
 		<Unit filename="src/BarDetector.cpp" />
 		<Unit filename="src/BeamLogicProcessor.cpp" />
 		<Unit filename="src/BetaProcessor.cpp" />
@@ -200,6 +204,7 @@
 		<Unit filename="src/TimingCalibrator.cpp">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="src/TimingMapBuilder.cpp" />
 		<Unit filename="src/Trace.cpp" />
 		<Unit filename="src/TraceAnalyzer.cpp" />
 		<Unit filename="src/TraceExtractor.cpp" />

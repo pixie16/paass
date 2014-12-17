@@ -1,3 +1,3 @@
-cmap /home/vincent/templates/cmapbill.dat
+cmap scripts/cmapbill.dat
 fig 11
 dppb

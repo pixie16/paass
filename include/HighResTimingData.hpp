@@ -88,8 +88,6 @@ private:
     bool isValidData_; //!< Member variable "dataValid_"
     double highResTime_; //!< Member variable "highResTime_"
     double snr_; //!< Member variable "snr_"
-    double walk_; //!< Member variable "walk_"
-    int numAboveThresh_; //!< Member variable "numAboveThresh_"
 };
 
 /** Defines a map to hold timing data for a channel. */

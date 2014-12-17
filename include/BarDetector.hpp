@@ -24,7 +24,7 @@ public:
     * \param [in] Left : The left side of the bar
     * \param [in] cal : The timing calibration for the bar
     * \param [in] type : The type of bar that we have */
-    BarDetector(const HighResTimingData &Right, const HighResTimingData &Left,
+    BarDetector(const HighResTimingData &Left, const HighResTimingData &Right,
                 const TimingCalibration &cal, const std::string &type);
 
     /** \return the hasEvent_ var */
@@ -53,7 +53,6 @@ public:
     std::string GetType() const {return(type_);};
     /** \return The cal_ var */
     TimingCalibration GetCalibration() const {return(cal_);};
-
 private:
     bool hasEvent_; //!< true if there was an event in the bar
     double flightPath_; //!< flight path of the particle to the detector

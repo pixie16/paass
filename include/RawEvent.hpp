@@ -24,7 +24,7 @@
 #include "Trace.hpp"
 #include "DetectorSummary.hpp"
 #include "ChanEvent.hpp"
-#include "ChanIdentifier.hpp"
+#include "Identifier.hpp"
 
 // see DetectorSummary.hpp
 class DetectorSummary;

@@ -1,12 +1,12 @@
-/** \file ChanIdentifier.hpp
+/** \file Identifier.hpp
  * \brief Defines identifying information for channels
 */
 #ifndef __CHANIDENTIFIER_HPP
 #define __CHANIDENTIFIER_HPP
 
+#include <map>
 #include <sstream>
 #include <string>
-#include <map>
 
 /** \brief Channel identification
  *
@@ -19,8 +19,7 @@
  * Identifier is a class that will contain basic channel information that
  * will not change including the damm spectrum number where the raw energies
  * will be plotted, the detector type and subtype, and the detector's physical
- * location (strip number, detector location, ...)
- */
+ * location (strip number, detector location, ...)  */
 class Identifier {
 public:
     /** Default constructor
