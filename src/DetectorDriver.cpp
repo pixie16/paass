@@ -251,7 +251,9 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         } else if (name == "TriggerLogicProcessor") {
             vecProcess.push_back(new TriggerLogicProcessor());
         } else if (name == "VandleProcessor") {
-            vecProcess.push_back(new VandleProcessor());
+            vector<string> types =
+                strings::tokenize(processor.attribute("types").as_string(),",");
+            vecProcess.push_back(new VandleProcessor(types));
         } else if (name == "TeenyVandleProcessor") {
             vecProcess.push_back(new TeenyVandleProcessor());
         }

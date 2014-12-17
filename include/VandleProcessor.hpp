@@ -25,6 +25,10 @@ public:
     /** Declare the plots used in the analysis */
     virtual void DeclarePlots(void);
 
+    /** Constructor taking a list of detector types as an argument
+     * \param [in] typeList : the list of bar types that are in the analysis */
+    VandleProcessor(const std::vector<std::string> &typeList);
+
     /** Preprocess the VANDLE data
      * \param [in] event : the event to preprocess
      * \return true if successful */
@@ -58,14 +62,11 @@ private:
     /** Fill up the basic histograms */
     void FillBasicHists();
 
-    /** Calculate the crosstalk between bars (near useless) */
-    //virtual void CrossTalk(void);
-
     bool hasDecay_; //!< True if there was a correlated beta decay
     double decayTime_; //!< the time of the decay
 
-    typedef std::pair<unsigned int, unsigned int> CrossTalkKey; //!< Typedef for crosstalk
-    typedef std::map<CrossTalkKey, double> CrossTalkMap;//!< typedef for map for crosstalk handling
-    std::map<CrossTalkKey, double> crossTalk;//!< map to put in cross talk info
+    bool hasSmall_; //!< True if small bars were requested in the Config
+    bool hasBig_; //!< True if big bars were requested in the Config
+    bool hasMed_; //!< True if medium bars were requested in the Config
 };
 #endif
