@@ -14,6 +14,7 @@ latex/
 tmp/
 doc/classdiagramRawEvent.svg
 config/cfgs
+optional
 
 #DAMM files
 *.drr
