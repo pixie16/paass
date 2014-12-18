@@ -95,7 +95,7 @@ void TimingCalibrator::ReadTimingCalXml() {
                 if (verbose) {
                     stringstream ss;
                     ss << detName << ":" << barType << ":" << barNumber
-                        << "lroffset = " << temp.GetLeftRightTimeOffset()
+                        << " lroffset = " << temp.GetLeftRightTimeOffset()
                         << ", xoffset = " << temp.GetXOffset()
                         << ", z0 = " << temp.GetZ0() << ", tofOffset0 = "
                         << temp.GetTofOffset0() << ", tofOffset1 = "

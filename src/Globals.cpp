@@ -203,7 +203,7 @@ Globals::Globals() {
                     it->child("Beta").attribute("value").as_double();
                 tvandlePars_.second =
                     it->child("Gamma").attribute("value").as_double();
-            }else if (std::string(it->name()).compare("LiquidScint") == 0) {
+            }else if (std::string(it->name()).compare("Liquid") == 0) {
                 liquidScintPars_.first =
                     it->child("Beta").attribute("value").as_double();
                 liquidScintPars_.second =

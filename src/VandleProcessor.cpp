@@ -13,7 +13,6 @@
 
 #include <cmath>
 
-#include "BarDetector.hpp"
 #include "BarBuilder.hpp"
 #include "DammPlotIds.hpp"
 #include "GetArguments.hpp"
@@ -65,9 +64,13 @@ VandleProcessor::VandleProcessor(): EventProcessor(dammIds::vandle::OFFSET,
     associatedTypes.insert("vandle");
 }
 
-VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList):
+VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList,
+                                 const double &res, const double &offset):
     EventProcessor(dammIds::vandle::OFFSET, dammIds::vandle::RANGE, "vandle") {
     associatedTypes.insert("vandle");
+    plotMult_ = res;
+    plotOffset_ = offset;
+
     hasSmall_ = hasMed_ = hasBig_ = false;
     for(vector<string>::const_iterator it = typeList.begin();
     it != typeList.end(); it++) {
@@ -201,27 +204,27 @@ bool VandleProcessor::PreProcess(RawEvent &event) {
         return(false);
     }
 
-    FillBasicHists();
+    FillVandleOnlyHists();
     return(true);
 }
 
 bool VandleProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return(false);
+    plot(D_DEBUGGING, 30);
 
     hasDecay_ =
         (event.GetCorrelator().GetCondition() == Correlator::VALID_DECAY);
     if(hasDecay_)
         decayTime_ = event.GetCorrelator().GetDecayTime() *
                 Globals::get()->clockInSeconds();
-    plot(D_DEBUGGING, 30);
-
-    static const vector<ChanEvent*> &betaStarts =
-        event.GetSummary("beta_scint:beta:start")->GetList();
-    static const vector<ChanEvent*> &liquidStarts =
-        event.GetSummary("liquid_scint:liquid:start")->GetList();
 
     geSummary_ = event.GetSummary("ge");
+
+    static const vector<ChanEvent*> &betaStarts =
+        event.GetSummary("beta_scint:beta")->GetList();
+    static const vector<ChanEvent*> &liquidStarts =
+        event.GetSummary("liquid:scint:start")->GetList();
 
     vector<ChanEvent*> startEvents;
     startEvents.insert(startEvents.end(),
@@ -232,13 +235,21 @@ bool VandleProcessor::Process(RawEvent &event) {
     TimingMapBuilder bldStarts(startEvents);
     starts_ = bldStarts.GetMap();
 
-    AnalyzeData();
+    static const vector<ChanEvent*> &doubleBetaStarts =
+        event.GetSummary("beta:double:start")->GetList();
+    BarBuilder startBars(doubleBetaStarts);
+    barStarts_ = startBars.GetBarMap();
 
+    if(!doubleBetaStarts.empty()) {
+        AnalyzeBarStarts();
+    } else {
+        AnalyzeStarts();
+    }
     EndProcess();
     return(true);
 }
 
-void VandleProcessor::AnalyzeData(void) {
+void VandleProcessor::AnalyzeBarStarts(void) {
     for (BarMap::iterator it = bars_.begin(); it !=  bars_.end(); it++) {
         TimingDefs::TimingIdentifier barId = (*it).first;
         BarDetector bar = (*it).second;
@@ -246,24 +257,63 @@ void VandleProcessor::AnalyzeData(void) {
         if(!bar.GetHasEvent())
             continue;
 
-        unsigned int histTypeOffset = -1;
-        if(barId.second == "small")
-            histTypeOffset = 0;
-        if(barId.second == "big")
-            histTypeOffset = BIG_OFFSET;
-        if(barId.second == "medium")
-            histTypeOffset = MED_OFFSET;
-
-        const int resMult = 2;
-        const int resOffset = 200;
+        unsigned int histTypeOffset = ReturnOffset(bar.GetType());
         unsigned int barLoc = barId.first;
-
         TimingCalibration cal = bar.GetCalibration();
 
-        plot(DD_DEBUGGING0, bar.GetQdcPosition()*resMult+resOffset,
-            bar.GetTimeDifference()*resMult+resOffset);
-        plot(DD_TIMEDIFFBARS+histTypeOffset,
-            bar.GetTimeDifference()*resMult+resOffset, barLoc);
+        for(BarMap::iterator itStart = barStarts_.begin();
+        itStart != barStarts_.end(); itStart++) {
+            unsigned int startLoc = (*itStart).first.first;
+            unsigned int barPlusStartLoc = barLoc*2 + startLoc;
+            BarDetector start = (*itStart).second;
+
+            double tofOffset;
+            if(startLoc == 0)
+                tofOffset = cal.GetTofOffset0();
+            else
+                tofOffset = cal.GetTofOffset1();
+
+            double TOF = bar.GetWalkCorTimeAve() -
+                start.GetWalkCorTimeAve() + tofOffset;
+
+            double corTOF =
+                CorrectTOF(TOF, bar.GetFlightPath(), cal.GetZ0());
+
+            plot(DD_TOFBARS+histTypeOffset, TOF*plotMult_+plotOffset_, barPlusStartLoc);
+            plot(DD_TQDCAVEVSTOF+histTypeOffset, TOF*plotMult_+plotOffset_, bar.GetQdc());
+
+            plot(DD_CORTOFBARS, corTOF*plotMult_+plotOffset_, barPlusStartLoc);
+            plot(DD_TQDCAVEVSCORTOF+histTypeOffset, corTOF*plotMult_+plotOffset_,
+                 bar.GetQdc());
+
+            if (geSummary_) {
+                if (geSummary_->GetMult() > 0) {
+                    const vector<ChanEvent *> &geList = geSummary_->GetList();
+                    for (vector<ChanEvent *>::const_iterator itGe = geList.begin();
+                        itGe != geList.end(); itGe++) {
+                        double calEnergy = (*itGe)->GetCalEnergy();
+                        plot(DD_GAMMAENERGYVSTOF+histTypeOffset, calEnergy, TOF);
+                    }
+                } else {
+                    plot(DD_TQDCAVEVSTOF_VETO+histTypeOffset, TOF, bar.GetQdc());
+                    plot(DD_TOFBARS_VETO+histTypeOffset, TOF, barPlusStartLoc);
+                }
+            }
+        } // for(TimingMap::iterator itStart
+    } //(BarMap::iterator itBar
+} //void VandleProcessor::AnalyzeData
+
+void VandleProcessor::AnalyzeStarts(void) {
+    for (BarMap::iterator it = bars_.begin(); it !=  bars_.end(); it++) {
+        TimingDefs::TimingIdentifier barId = (*it).first;
+        BarDetector bar = (*it).second;
+
+        if(!bar.GetHasEvent())
+            continue;
+
+        unsigned int histTypeOffset = ReturnOffset(bar.GetType());
+        unsigned int barLoc = barId.first;
+        TimingCalibration cal = bar.GetCalibration();
 
         for(TimingMap::iterator itStart = starts_.begin();
         itStart != starts_.end(); itStart++) {
@@ -286,11 +336,11 @@ void VandleProcessor::AnalyzeData(void) {
             double corTOF =
                 CorrectTOF(TOF, bar.GetFlightPath(), cal.GetZ0());
 
-            plot(DD_TOFBARS+histTypeOffset, TOF*resMult+resOffset, barPlusStartLoc);
-            plot(DD_TQDCAVEVSTOF+histTypeOffset, TOF*resMult+resOffset, bar.GetQdc());
+            plot(DD_TOFBARS+histTypeOffset, TOF*plotMult_+plotOffset_, barPlusStartLoc);
+            plot(DD_TQDCAVEVSTOF+histTypeOffset, TOF*plotMult_+plotOffset_, bar.GetQdc());
 
-            plot(DD_CORTOFBARS, corTOF*resMult+resOffset, barPlusStartLoc);
-            plot(DD_TQDCAVEVSCORTOF+histTypeOffset, corTOF*resMult+resOffset,
+            plot(DD_CORTOFBARS, corTOF*plotMult_+plotOffset_, barPlusStartLoc);
+            plot(DD_TQDCAVEVSCORTOF+histTypeOffset, corTOF*plotMult_+plotOffset_,
                  bar.GetQdc());
 
             if (geSummary_) {
@@ -315,24 +365,35 @@ void VandleProcessor::ClearMaps(void) {
     starts_.clear();
 }
 
-void VandleProcessor::FillBasicHists(void) {
-    unsigned int OFFSET;
+void VandleProcessor::FillVandleOnlyHists(void) {
     for(BarMap::const_iterator it = bars_.begin(); it != bars_.end(); it++) {
-        string type = (*it).first.second;
-        if(type == "big")
-            OFFSET = BIG_OFFSET;
-        else if(type == "medium")
-            OFFSET = MED_OFFSET;
-        else
-            OFFSET = 0;
-        unsigned int num = (*it).first.first;
+        TimingDefs::TimingIdentifier barId = (*it).first;
+        BarDetector bar = (*it).second;
+        unsigned int OFFSET = ReturnOffset(barId.second);
+
         plot(DD_TQDCBARS + OFFSET,
-             (*it).second.GetLeftSide().GetTraceQdc(), num * 2);
+             (*it).second.GetLeftSide().GetTraceQdc(), barId.first*2);
         plot(DD_MAXIMUMBARS + OFFSET,
-             (*it).second.GetLeftSide().GetMaximumValue(), num * 2);
+             (*it).second.GetLeftSide().GetMaximumValue(), barId.first*2);
         plot(DD_TQDCBARS + OFFSET,
-             (*it).second.GetRightSide().GetTraceQdc(), num * 2 + 1);
+             (*it).second.GetRightSide().GetTraceQdc(), barId.first*2+1);
         plot(DD_MAXIMUMBARS + OFFSET,
-             (*it).second.GetRightSide().GetMaximumValue(), num * 2 + 1);
+             (*it).second.GetRightSide().GetMaximumValue(), barId.first*2+1);
+        plot(DD_TIMEDIFFBARS+OFFSET,
+            bar.GetTimeDifference()*plotMult_+plotOffset_, barId.first);
+
+        if(barId.first == 12)
+            plot(DD_DEBUGGING0, bar.GetQdcPosition()*plotMult_+plotOffset_,
+                bar.GetTimeDifference()*plotMult_+plotOffset_);
     }
+}
+
+unsigned int VandleProcessor::ReturnOffset(const std::string &type) {
+    if(type == "small")
+        return(0);
+    if(type == "big")
+        return(BIG_OFFSET);
+    if(type == "medium")
+        return(MED_OFFSET);
+    return(-1);
 }

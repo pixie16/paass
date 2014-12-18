@@ -36,6 +36,7 @@
             cycle_gate2_min="1.5"
             cycle_gate2_max="2.0"
         />
+        <Processor name="DoubleBetaProcessor"/>
         <Processor name="VandleProcessor"
             types="small,medium"/>
         <Processor name="MtcProcessor"
@@ -48,10 +49,10 @@
 
     <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
         <Module number="0">
-            <Channel number="0" type="beta_scint" subtype="beta" tags="start">
+            <Channel number="0" type="beta" subtype="double" tags="start,left">
                 <Calibration model="raw"> </Calibration>
             </Channel>
-            <Channel number="1" type="beta_scint" subtype="beta" tags="start">
+            <Channel number="1" type="beta" subtype="double" tags="start,right">
                 <Calibration model="raw"> </Calibration>
             </Channel>
             <Channel number="2" type="beta_scint" subtype="beta">
@@ -317,7 +318,7 @@
 
     <TreeCorrelator name="root" verbose="False">
         <Place type="PlaceOR" name="Beta" fifo="10">
-            <Place type="PlaceThreshold" name="beta_scint_beta_2-3"
+            <Place type="PlaceThreshold" name="beta_scint_beta_0-1"
                 low_limit="50.0" high_limit="16382" fifo="5"
                 replace="true"/>
         </Place>
@@ -397,6 +398,13 @@
                    lroffset="-9.05267" tofoffset0="0.488614" tofoffset1="-8.94454" />
             </medium>
         </Vandle>
+        <Beta>
+            <double>
+                <Bar number="0" z0="0.0" xoffset="0.0" zoffset="0.00"
+                    lroffset="0.0" tofoffset0="0.0" tofoffset1="0.0" />
+            </double>
+
+        </Beta>
     </TimeCalibration>
 
     <Timing>
@@ -404,10 +412,11 @@
             <NeutronMass unit="MeV/c/c" value="939.565560"/>
             <SpeedOfLight unit="cm/ns" value="29.9792458"/>
             <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
-            <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
             <SmallLength unit="cm" value="60.0"/>
-            <MediumLength unit="cm" value="120.0"/>
+            <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
             <BigLength unit="cm" value="200.0"/>
+            <SpeedOfLightMedium unit="cm/ns" value="13.4"/>
+            <MediumLength unit="cm" value="120.0"/>
         </Physical>
 
         <Trace>
@@ -417,7 +426,7 @@
             <TrapezoidalWalk unit="ns" value="60"/>
             <TraceDelay unit="ns" value="112"/>
             <TraceLength unit="ns" value="176"/>
-            <QdcCompression value="1.0"/>
+            <QdcCompression value="4.0"/>
         </Trace>
 
         <Fitting>
@@ -438,10 +447,10 @@
                 <Beta value="0.362307"/>
                 <Gamma value="0.186129"/>
             </TVandle>
-            <LiquidScint>
+            <Liquid>
                 <Beta value="4.52672"/>
                 <Gamma value="1.73376"/>
-            </LiquidScint>
+            </Liquid>
             <SiPMT>
                 <Sigma value="1.4196495999"/>
             </SiPMT>
