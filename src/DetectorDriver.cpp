@@ -24,6 +24,7 @@
 
 #include "BeamLogicProcessor.hpp"
 #include "BetaScintProcessor.hpp"
+#include "DoubleBetaProcessor.hpp"
 #include "DssdProcessor.hpp"
 #include "Hen3Processor.hpp"
 #include "GeProcessor.hpp"
@@ -251,11 +252,15 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         } else if (name == "TriggerLogicProcessor") {
             vecProcess.push_back(new TriggerLogicProcessor());
         } else if (name == "VandleProcessor") {
+            double res = processor.attribute("res").as_double(2.0);
+            double offset = processor.attribute("offset").as_double(200.0);
             vector<string> types =
                 strings::tokenize(processor.attribute("types").as_string(),",");
-            vecProcess.push_back(new VandleProcessor(types));
+            vecProcess.push_back(new VandleProcessor(types, res, offset));
         } else if (name == "TeenyVandleProcessor") {
             vecProcess.push_back(new TeenyVandleProcessor());
+        } else if (name == "DoubleBetaProcessor") {
+            vecProcess.push_back(new DoubleBetaProcessor());
         }
 #ifdef useroot
         else if (name == "RootProcessor") {

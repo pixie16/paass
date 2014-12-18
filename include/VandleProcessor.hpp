@@ -5,6 +5,13 @@
  *beta-gamma-neutron correlations. The prototype for this
  *code was written by M. Madurga.
  *
+ * Currently, the code is set to recognize two types of starts: LeRIBSS style
+ * and the new Double Beta starts (SiPMT implementation). I have currently
+ * coded things to be mutually exclusive. If there are Double Beta Starts then
+ * the code will not analyze the LeRIBSS style starts. This is to alleviate a
+ * potential confusion when it comes to the histogramming. This problem will be
+ * resolved at a later date. -SVP 12/17/2014
+ *
  *\author S. V. Paulauskas
  *\date 26 July 2010
  */
@@ -27,7 +34,8 @@ public:
 
     /** Constructor taking a list of detector types as an argument
      * \param [in] typeList : the list of bar types that are in the analysis */
-    VandleProcessor(const std::vector<std::string> &typeList);
+    VandleProcessor(const std::vector<std::string> &typeList,
+                    const double &res, const double &offset);
 
     /** Preprocess the VANDLE data
      * \param [in] event : the event to preprocess
@@ -41,11 +49,15 @@ public:
 protected:
     BarMap bars_;//!< A map to hold all the bars
     TimingMap starts_;//!< A map to to hold all the starts
+    BarMap barStarts_;//!< A map that holds all of the bar starts
     DetectorSummary *geSummary_;
 private:
-    /** Analyze the data.
-    * \param [in] bartype : the type of bar that we want to analyze. */
-    void AnalyzeData(void);
+    /** Analyze the data for scenarios with Bar Starts; e.g. Double Beta
+     * detectors */
+    void AnalyzeBarStarts(void);
+    /** Analyze the data for scenarios with Single sided Starts; e.g. LeRIBSS
+     * beta scintillators. */
+    void AnalyzeStarts(void);
     /** Clear the maps in anticipation for the next event */
     void ClearMaps(void);
 
@@ -60,10 +72,16 @@ private:
     };
 
     /** Fill up the basic histograms */
-    void FillBasicHists();
+    void FillVandleOnlyHists();
+
+    /** \return Returns the appropriate offset based off the VANDLE bar type*/
+    unsigned int ReturnOffset(const std::string &type);
 
     bool hasDecay_; //!< True if there was a correlated beta decay
     double decayTime_; //!< the time of the decay
+
+    double plotMult_;//!< The resolution multiplier for DAMM histograms
+    double plotOffset_;//!< The offset multiplier for DAMM histograms
 
     bool hasSmall_; //!< True if small bars were requested in the Config
     bool hasBig_; //!< True if big bars were requested in the Config

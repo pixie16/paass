@@ -52,7 +52,7 @@ namespace dammIds {
         const int RANGE = 10;//!< Range for McpProcessor
     }
 
-    ///in BetaScintProcessor.cpp
+    ///in BetaScintProcessor.hpp
     namespace beta_scint {
         const int OFFSET = 2050;//!< Offset for BetaScintProcessor
         const int RANGE = 50;//!< Range for BetaScintProcessor
@@ -67,7 +67,13 @@ namespace dammIds {
     ///in LiquidScintProcessor.cpp
     namespace liquid_scint {
         const int OFFSET = 2150;//!< Offset for LiquidScintProcessor
-        const int RANGE = 50;//!< Range for LiquidScintProcessor
+        const int RANGE = 20;//!< Range for LiquidScintProcessor
+    }
+
+    ///in DoubleBetaProcessor.cpp
+    namespace doublebeta {
+        const int OFFSET = 2170;//!< Offset for DoubleBetaProcessor
+        const int RANGE = 10;//!< Range for DoubleBetaProcessor
     }
 
     ///in Hen3Processor.cpp
