@@ -17,15 +17,13 @@
 class TimingCalibration {
 public:
     /** Default Constructor */
-    TimingCalibration(){};
+    TimingCalibration(){SetDefaults();};
     /** Default Destructor */
     ~TimingCalibration(){};
 
     /** \return The left-right time offset in ns */
     double GetLeftRightTimeOffset(void)const {return(lrtOffset_);};
     /** \return the distance between source and the hit location in the bar in cm */
-    double GetR0(void) const {return(r0_);};
-    /** \return time offset w.r.t. start number 0 in ns */
     double GetTofOffset0(void) const {return(tofOffset0_);};
     /** \return time offset w.r.t. start number 1 in ns */
     double GetTofOffset1(void) const {return(tofOffset1_);};
@@ -39,9 +37,6 @@ public:
     /** Sets the left-right time offset
     * \param [in] a : the offset in ns */
     void SetLeftRightTimeOffset(const double &a) {lrtOffset_ = a;};
-    /** Sets the distance between source and the hit location in the bar
-    * \param [in] a : the distance in cm */
-    void SetR0(const double &a) {r0_ = a;};
     /** Sets the time offset w.r.t. start number 0
     * \param [in] a : the offset in ns */
     void SetTofOffset0(const double &a) {tofOffset0_ = a;};
@@ -59,12 +54,17 @@ public:
     void SetZOffset(const double &a) {zOffset_ = a;};
 private:
     double lrtOffset_;//!< left-right time offset
-    double r0_;//!< distance between source and the hit location in the bar
     double tofOffset0_;//!< time offset w.r.t. start number 0
     double tofOffset1_;//!< time offset w.r.t. start number 1
     double xOffset_;//!< offset between the center of the bar and the source
     double z0_;//!< perpendicular distance between the bar and source
     double zOffset_;//!< additional corrections to z0
+
+    /** Initializer for a default timing calibration */
+    void SetDefaults(void) {
+        lrtOffset_ = tofOffset0_ = tofOffset1_ =
+            xOffset_ = z0_ = zOffset_ = 0.0;
+    };
 };
 
 /*! \brief Class to handle time calibrations for bar type detectors - Singleton
@@ -89,5 +89,6 @@ private:
 
     Messenger m_; //!< Instance of the Messenger class to output information
     std::map <TimingDefs::TimingIdentifier, TimingCalibration> calibrations_; //!< map to hold the calibrations
+    bool isVerbose_;
 };
 #endif // __TIMINGCALIBRATOR_HPP__
