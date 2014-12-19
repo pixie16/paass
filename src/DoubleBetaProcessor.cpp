@@ -5,14 +5,17 @@
  */
 #include "BarBuilder.hpp"
 #include "DammPlotIds.hpp"
+#include "DoubleBetaProcessor.hpp"
 #include "Globals.hpp"
 #include "RawEvent.hpp"
-#include "DoubleBetaProcessor.hpp"
+#include "TimingMapBuilder.hpp"
+
 
 namespace dammIds {
     namespace doublebeta {
-        const int DD_QDC  = 0; //!< ID for the energy of the double beta detector
-        const int DD_TDIFF = 1;//!< ID to plot the Time Difference between ends
+        const int DD_SINGLESQDC = 0;//!< ID for the singles QDC
+        const int DD_QDC  = 1; //!< ID for the Bar QDC of the double beta detector
+        const int DD_TDIFF = 2;//!< ID to plot the Time Difference between ends
     }
 }//namespace dammIds
 
@@ -26,6 +29,7 @@ DoubleBetaProcessor::DoubleBetaProcessor():
 }
 
 void DoubleBetaProcessor::DeclarePlots(void) {
+    DeclareHistogram2D(DD_SINGLESQDC, SD, S3, "Location vs. Singles QDC");
     DeclareHistogram2D(DD_QDC, SD, S3, "Location vs. QDC");
     DeclareHistogram2D(DD_TDIFF, SB, S3, "Location vs. TimeDifference");
 }
@@ -36,6 +40,11 @@ bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
 
     static const vector<ChanEvent*> & events =
         event.GetSummary("beta:double")->GetList();
+
+    TimingMapBuilder singlesMap(events);
+    TimingMap sngls = singlesMap.GetMap();
+    for(TimingMap::iterator it = sngls.begin(); it != sngls.end(); it ++)
+        plot(DD_SINGLESQDC,(*it).second.GetTraceQdc(), (*it).first.first);
 
     BarBuilder builder(events);
     betas_ = builder.GetBarMap();
