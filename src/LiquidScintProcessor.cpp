@@ -139,16 +139,12 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
 
                     double TOF = liquid.GetHighResTime() -
                         start.GetHighResTime() - tofOffset;
-                    double nEnergy = liquid.CalcEnergy(TOF, cal.GetR0());
 
                     plot(DD_TOFLIQUID, TOF*resMult+resOffset, histLoc);
                     plot(DD_TOFVSDISCRIM+histLoc,
                         discrimNorm*discRes+discOffset, TOF*resMult+resOffset);
-                    plot(DD_NEVSDISCRIM+histLoc,
-                         discrimNorm*discRes+discOffset, nEnergy);
                     plot(DD_TQDCVSLIQTOF+histLoc, TOF*resMult+resOffset,
                         liquid.GetTraceQdc());
-                    plot(DD_TQDCVSENERGY+histLoc, nEnergy, liquid.GetTraceQdc());
                 }
             }
         }

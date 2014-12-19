@@ -20,13 +20,15 @@ TimingCalibration TimingCalibrator::GetCalibration(const TimingDefs::TimingIdent
     map<TimingDefs::TimingIdentifier, TimingCalibration>::iterator it =
         calibrations_.find(id);
 
-    if(it == calibrations_.end()) {
+    if(it == calibrations_.end() && isVerbose_) {
         stringstream ss;
         ss << "TimingCalibrator: You have attempted to access a "
             << "time calibration that does not exist (" << id.first << ","
-            << id.second << "). I refuse to continue "
-            << "until you fix this issue." << endl;
-        throw GeneralException(ss.str());
+            << id.second << "). I will be returning a zero calibration "
+            << "until you add one." << endl;
+        throw GeneralWarning(ss.str());
+        TimingCalibration zero;
+        return(zero);
     }
     return((*it).second);
 }
@@ -55,7 +57,7 @@ void TimingCalibrator::ReadTimingCalXml() {
     pugi::xml_node timeCals =
         doc.child("Configuration").child("TimeCalibration");
 
-    bool verbose = timeCals.attribute("verbose_timing").as_bool();
+    isVerbose_ = timeCals.attribute("verbose_timing").as_bool();
 
     for(pugi::xml_node_iterator detType = timeCals.begin();
         detType != timeCals.end(); ++detType) {
@@ -92,7 +94,7 @@ void TimingCalibrator::ReadTimingCalXml() {
                        << "Ignoring duplicate. ";
                     m_.warning(ss.str());
                 }
-                if (verbose) {
+                if (isVerbose_) {
                     stringstream ss;
                     ss << detName << ":" << barType << ":" << barNumber
                         << " lroffset = " << temp.GetLeftRightTimeOffset()
