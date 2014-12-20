@@ -345,7 +345,13 @@
         <Vandle>
             <small>
                 <Bar number="0" z0="50.5" xoffset="1.0" zoffset="0.00"
-                    lroffset="-5.70784" tofoffset0="2.90192" tofoffset1="-6.52371" />
+                    lroffset="-5.70784">
+                    <start loc="0" offset="2.90192"/>
+                    <start loc="1" offset="-6.52371"/>
+                    <start loc="2" offset="1.23556"/>
+                    <start loc="3" offset="-5.56573"/>
+                </Bar>
+
                 <Bar number="1" z0="50.5" xoffset="-.9" zoffset="0.00"
                     lroffset="-5.12791" tofoffset0="0.014031" tofoffset1="-9.422" />
                 <Bar number="2" z0="50.5" xoffset=".6" zoffset="0.00"
