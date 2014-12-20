@@ -23,10 +23,13 @@ public:
 
     /** \return The left-right time offset in ns */
     double GetLeftRightTimeOffset(void)const {return(lrtOffset_);};
-    /** \return the distance between source and the hit location in the bar in cm */
-    double GetTofOffset0(void) const {return(tofOffset0_);};
-    /** \return time offset w.r.t. start number 1 in ns */
-    double GetTofOffset1(void) const {return(tofOffset1_);};
+    /** \return time offset w.r.t. start at location a
+     * \param [in] a : location of the start to get the offset for*/
+    double GetTofOffset(const unsigned int &a) const {
+        if(tofOffsets_.find(a) == tofOffsets_.end())
+            return(0.0);
+        return((*tofOffsets_.find(a)).second);
+    };
     /** \return offset between the center of the bar and the source in cm */
     double GetXOffset(void) const {return(xOffset_);};
     /** \return the perpendicular distance between the bar and source in cm */
@@ -34,15 +37,17 @@ public:
     /** \return additional corrections to z0 in cm */
     double GetZOffset(void) const {return(zOffset_);};
 
+    /** \return the number of ToF Offsets that were read in from the calibration */
+    unsigned int GetNumTofOffsets(void) const {return(tofOffsets_.size());};
+
     /** Sets the left-right time offset
     * \param [in] a : the offset in ns */
     void SetLeftRightTimeOffset(const double &a) {lrtOffset_ = a;};
-    /** Sets the time offset w.r.t. start number 0
-    * \param [in] a : the offset in ns */
-    void SetTofOffset0(const double &a) {tofOffset0_ = a;};
-    /** Sets the time offset w.r.t. start number 1
-    * \param [in] a : the offset in ns */
-    void SetTofOffset1(const double &a) {tofOffset1_ = a;};
+    /** Sets the time offset w.r.t. to start location
+    * \param [in] a : the start location
+    * \param [in] b : the offset in ns */
+    void SetTofOffset(const unsigned int &a, const double &b)
+        {tofOffsets_.insert(std::make_pair(a,b));};
     /** Sets the offset between the center of the bar and the source
     * \param [in] a : the offset in cm */
     void SetXOffset(const double &a) {xOffset_ = a;};
@@ -54,16 +59,15 @@ public:
     void SetZOffset(const double &a) {zOffset_ = a;};
 private:
     double lrtOffset_;//!< left-right time offset
-    double tofOffset0_;//!< time offset w.r.t. start number 0
-    double tofOffset1_;//!< time offset w.r.t. start number 1
     double xOffset_;//!< offset between the center of the bar and the source
     double z0_;//!< perpendicular distance between the bar and source
     double zOffset_;//!< additional corrections to z0
 
+    std::map<unsigned int, double> tofOffsets_; //!< A map holding all of the ToF offsets w.r.t. starts
+
     /** Initializer for a default timing calibration */
     void SetDefaults(void) {
-        lrtOffset_ = tofOffset0_ = tofOffset1_ =
-            xOffset_ = z0_ = zOffset_ = 0.0;
+        lrtOffset_ = xOffset_ = z0_ = zOffset_ = 0.0;
     };
 };
 
@@ -89,6 +93,7 @@ private:
 
     Messenger m_; //!< Instance of the Messenger class to output information
     std::map <TimingDefs::TimingIdentifier, TimingCalibration> calibrations_; //!< map to hold the calibrations
-    bool isVerbose_;
+    TimingCalibration default_; //!< A default (all zeroes) calibration to return if none present
+    bool isVerbose_; //!< The setting of the verbosity of the Timing Calibrations
 };
 #endif // __TIMINGCALIBRATOR_HPP__

@@ -21,19 +21,11 @@ TimingCalibration TimingCalibrator::GetCalibration(const TimingDefs::TimingIdent
         calibrations_.find(id);
 
     if(it == calibrations_.end() && isVerbose_) {
-        stringstream ss;
-        ss << "TimingCalibrator: You have attempted to access a "
-            << "time calibration that does not exist (" << id.first << ","
-            << id.second << "). I will be returning a zero calibration "
-            << "until you add one." << endl;
-        throw GeneralWarning(ss.str());
-        TimingCalibration zero;
-        return(zero);
+        return(default_);
     }
     return((*it).second);
 }
 
-/*! Instance is created upon first call */
 TimingCalibrator* TimingCalibrator::get() {
     if (!instance)
         instance = new TimingCalibrator();
@@ -75,16 +67,17 @@ void TimingCalibrator::ReadTimingCalXml() {
                 TimingCalibration temp;
                 temp.SetLeftRightTimeOffset(bar->
                     attribute("lroffset").as_double(0.0));
-                temp.SetTofOffset0(bar->
-                    attribute("tofoffset0").as_double(0.0));
-                temp.SetTofOffset1(bar->
-                    attribute("tofoffset1").as_double(0.0));
                 temp.SetXOffset(bar->
                     attribute("xoffset").as_double(0.0));
                 temp.SetZ0(bar->
                     attribute("z0").as_double(0.0));
                 temp.SetZOffset(bar->
                     attribute("zoffset").as_double(0.0));
+
+                for(pugi::xml_node::iterator tofoffset = bar->begin();
+                    tofoffset != bar->end(); tofoffset++)
+                    temp.SetTofOffset(tofoffset->attribute("loc").as_int(-1),
+                                      tofoffset->attribute("offset").as_double(0.0));
 
                 if(!calibrations_.insert(make_pair(id, temp)).second) {
                     stringstream ss;
@@ -94,14 +87,16 @@ void TimingCalibrator::ReadTimingCalXml() {
                        << "Ignoring duplicate. ";
                     m_.warning(ss.str());
                 }
+
                 if (isVerbose_) {
                     stringstream ss;
                     ss << detName << ":" << barType << ":" << barNumber
                         << " lroffset = " << temp.GetLeftRightTimeOffset()
                         << ", xoffset = " << temp.GetXOffset()
-                        << ", z0 = " << temp.GetZ0() << ", tofOffset0 = "
-                        << temp.GetTofOffset0() << ", tofOffset1 = "
-                        << temp.GetTofOffset1() << endl;
+                        << ", z0 = " << temp.GetZ0() << ", ToF Offsets = ";
+                    for(unsigned int i = 0; i < temp.GetNumTofOffsets(); i++)
+                        ss << i << ":" << temp.GetTofOffset(i) << ", ";
+                    ss << endl;
                     m.detail(ss.str(), 1);
                 }
             }
