@@ -267,12 +267,7 @@ void VandleProcessor::AnalyzeBarStarts(void) {
             unsigned int barPlusStartLoc = barLoc*2 + startLoc;
             BarDetector start = (*itStart).second;
 
-            double tofOffset;
-            if(startLoc == 0)
-                tofOffset = cal.GetTofOffset0();
-            else
-                tofOffset = cal.GetTofOffset1();
-
+            double tofOffset = cal.GetTofOffset(startLoc);
             double TOF = bar.GetWalkCorTimeAve() -
                 start.GetWalkCorTimeAve() + tofOffset;
 
@@ -324,12 +319,7 @@ void VandleProcessor::AnalyzeStarts(void) {
             unsigned int barPlusStartLoc = barLoc*2 + startLoc;
             HighResTimingData start = (*itStart).second;
 
-            double tofOffset;
-            if(startLoc == 0)
-                tofOffset = cal.GetTofOffset0();
-            else
-                tofOffset = cal.GetTofOffset1();
-
+            double tofOffset = cal.GetTofOffset(startLoc);
             double TOF = bar.GetWalkCorTimeAve() -
                 start.GetWalkCorrectedTime() + tofOffset;
 
