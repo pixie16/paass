@@ -33,7 +33,9 @@ public:
     virtual void DeclarePlots(void);
 
     /** Constructor taking a list of detector types as an argument
-     * \param [in] typeList : the list of bar types that are in the analysis */
+     * \param [in] typeList : the list of bar types that are in the analysis
+     * \param [in] res : The resolution of the DAMM histograms
+     * \param [in] offset : The offset of the DAMM histograms */
     VandleProcessor(const std::vector<std::string> &typeList,
                     const double &res, const double &offset);
 
@@ -50,7 +52,7 @@ protected:
     BarMap bars_;//!< A map to hold all the bars
     TimingMap starts_;//!< A map to to hold all the starts
     BarMap barStarts_;//!< A map that holds all of the bar starts
-    DetectorSummary *geSummary_;
+    DetectorSummary *geSummary_;//!< The Detector Summary for Ge Events
 private:
     /** Analyze the data for scenarios with Bar Starts; e.g. Double Beta
      * detectors */
@@ -74,7 +76,8 @@ private:
     /** Fill up the basic histograms */
     void FillVandleOnlyHists();
 
-    /** \return Returns the appropriate offset based off the VANDLE bar type*/
+    /** \return Returns the appropriate offset based off the VANDLE bar type
+     * \param [in] type : The type of bar that we are dealing with */
     unsigned int ReturnOffset(const std::string &type);
 
     bool hasDecay_; //!< True if there was a correlated beta decay
