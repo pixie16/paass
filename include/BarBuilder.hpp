@@ -37,6 +37,7 @@ private:
      * that the bars are located in adjacent slots so that they are always
      * paired in a {0,1} {2,3} {4,5} ... {n,n+1} manner. This is especially
      * true if using a VANDLE firmware.
+     * \param [in] loc : the location of the current event
      * \return The calculated bar number */
     unsigned int CalcBarNumber(const unsigned int &loc);
     /** Clears out the data maps from any previously built bars and ends */
@@ -51,7 +52,6 @@ private:
     BarMap bars_; //!< Map containing all of the built bars.
     TimingMap lefts_; //!< Map containing the left sides of bars
     TimingMap rights_; //!< Map containing the right sides of bars
-    std::vector<ChanEvent*> list_; //!< List of events to build bars out of.
-    std::map<std::string,std::string> mates_;
+    std::vector<ChanEvent*> list_; //!< Vector of events to build bars out of.
 };
 #endif // __BARBUILDER_HPP_

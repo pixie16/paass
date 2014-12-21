@@ -21,9 +21,13 @@ public:
      * \param [in] evts : The list of events */
     TimingMapBuilder(const std::vector<ChanEvent*> &evts);
 
+    /** \return The map of events that had high resolution timing data. */
     TimingMap GetMap(void){return(map_);};
 private:
+    /** Fills finds all of the events that had high resolution timing data in
+     * the vector of channel events
+     * \param [in] evts : The vector of Channel events to sort through */
     void FillMaps(const std::vector<ChanEvent*> &evts);
-    TimingMap map_;
+    TimingMap map_;//!< A map to store all of the timing events that were found
 };
 #endif // __TIMINGMAPBUILDER_HPP__

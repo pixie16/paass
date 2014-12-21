@@ -172,7 +172,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
 
 double FittingAnalyzer::CalculateWalk(const double &val, const std::string &type,
                                       const std::string &subType) {
-    if(type == "vandleSmall" || type == "tvandle") {
+    if(type == "vandle" || type == "tvandle") {
         if(val < 175)
             return(1.09099*log(val)-7.76641);
         if(val > 3700)
@@ -184,7 +184,7 @@ double FittingAnalyzer::CalculateWalk(const double &val, const std::string &type
         // double f = 92.7907602830327 * exp(-val/186091.225414275) +
         //  0.59140785215161 * exp(val/2068.14618331387) -
         //  95.5388835298589;
-    } else if(subType == "beta_scint")
+    } else if(type == "beta")
         return(-(1.07908*log10(val)-8.27739));
     else
         return(0.0);
