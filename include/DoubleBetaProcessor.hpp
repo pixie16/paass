@@ -29,6 +29,6 @@ public:
     * \return true if processing was successful */
     virtual bool Process(RawEvent &event);
 private:
-    BarMap betas_;
+    BarMap betas_;//!< A map to hold all of the beta events.
 };
 #endif // __DOUBLEBETAPROCESSOR_HPP__

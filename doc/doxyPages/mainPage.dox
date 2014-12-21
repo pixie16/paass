@@ -502,24 +502,36 @@
 
   The two processor lines define the classes that will handle the manipulation
   of the data to measure our ToF. The analyzers, work specifically on the
-  traces, and these two will provide the high resolution timing.
+  traces, and these two will provide the high resolution timing. There are some
+  of the processors that take arguments into their constructors (Ge, Vandle),
+  information on these arguments can be found in the pages for the respective
+  class.
+
+  In some analysis, you do not need to define multiple processors to handle
+  information. For example, the VandleProcessor does not need the Beta or
+  Double Beta processors defined in order to perform time-of-flight
+  calculations. This is because these processors pull the necessary detector
+  summaries themselves and build the required information. In these scenarios,
+  you may simply define the VandleProcessor, unless you require histograms built
+  in the Beta or Double Beta processors.
 
   \subsection qs-map Setup the Map Node
   The Map node tells the program what type of detector is plugged into a given
   Module/Channel combination. We have moved to this scheme since we now define
-  both the energy calibration and walk calibration at this point. Below is the
-  sample code for our current example:
+  both the energy calibration and walk calibration at this point. The tags for
+  a channel are now defined as a comma separated list inside the "tags" key.
+  Below is the sample code for our current example:
   \code
     <Module number="0">
         <Channel number="0" type="scint" subtype="beta">
             <WalkCorrection model="None">
             </WalkCorrection>
         </Channel>
-        <Channel number="2" type="vandleSmall" subtype="left">
+        <Channel number="2" type="vandle" subtype="small" tags="left">
             <WalkCorrection model="None">
             </WalkCorrection>
         </Channel>
-        <Channel number="3" type="vandleSmall" subtype="right">
+        <Channel number="3" type="vandle" subtype="small" tags="right">
             <WalkCorrection model="None">
             </WalkCorrection>
         </Channel>
@@ -535,15 +547,33 @@
   section defines the physical position of the bar relative to the initial
   position of the measured particle (gamma, neutron, etc.). This calibration
   differs from the previous one, as it is done on a bar-by-bar basis and not
-  per channel. The "start" detector rarely, if ever, needs to have these
-  calibrations.
+  per channel.
+
+  If you do not include a calibration for a channel into this node, the program
+  will provide a default calibration of 0.0 for all offsets. In addition, any
+  of the offsets that are left out of the correction, for example if you did not
+  measure an "xoffset", it will automatically be set to zero. This removes the
+  necessity for the declaration of <strong>all</strong> of the detectors in the
+  analysis.
+
+  Finally, the program now recognizes more than two start detectors. This is
+  done through a list of "tofoffsets". Please refer to the sample code below,
+  as well as, the sample configuration: config/Config.xml.example. The "loc"
+  field in the start nodes denote the location of the starts. In the event that
+  the start is a bar style detector, this will refer to the bar number. For
+  a detailed description of these variables refer to \subpage timecal.
 
   Inside the TimeCalibration node we will have the following code:
   \code
     <Vandle>
         <small>
-            <Bar number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
-                tofoffset0="0.0" tofoffset1="0.0" />
+            <Bar number="0" z0="50.5" xoffset="1.0" zoffset="0.00"
+                lroffset="-5.70784">
+                    <start loc="0" offset="2.90192"/>
+                    <start loc="1" offset="-6.52371"/>
+                    <start loc="2" offset="1.23556"/>
+                    <start loc="3" offset="-5.56573"/>
+            </Bar>
         </small>
     </Vandle>
   \endcode
@@ -592,10 +622,10 @@
   where revt is the name of the variable holding the raw event information
   and energy will contain the energy of the scintillator.
 
-  To retrieve the multiplicity associated with the VANDLE bar use
+  To retrieve the multiplicity associated with VANDLE ends use
   the following command:
   \code
-  int fmult = revt.GetSummary("vandleSmall")->GetMult();
+  int fmult = revt.GetSummary("vandle")->GetMult();
   \endcode
 
   The reference manual can provide a list of all commands to retrieve
@@ -1128,12 +1158,12 @@
 /** \page timecal Time Calibrations and VANDLE Setup
   Here we will outline the details of the Time Calibrations that you will need
   to setup for a VANDLE experiment. These parameters are still being actively
-  developed and will likely change in the future.
+  developed and will likely change in the future. See the relevant pages on
+  the \subpage xmlconfig to learn how to set these various parameters.
 
   Here is a list of the parameters that are used for the corrections:
    - lrtoffset : The left-right time offset in ns
-   - tofOffset0 : time offset w.r.t. start number 0 in ns
-   - tofOffset1 : time offset w.r.t. start number 1 in ns
+   - tofOffsets : time offset w.r.t. start number 0 in ns
    - xOffset : offset between the center of the bar and the source in cm
    - z0 : the perpendicular distance between the bar and source in cm
    - z0Offset : additional corrections to z0 in cm
@@ -1204,6 +1234,7 @@
 
     - BeamLogicProcessor
     - BetaScintProcessor
+    - DoubleBetaProcessor
     - DssdProcessor
     - GeProcessor
             - optional attributes and their default values:
@@ -1285,6 +1316,7 @@
         - off : turn channel off (returns always 0)
         - linear : requires 2 parameters
         - quadratic : requires 3 parameters
+        - cubic : a third order polynomial correction, requires 4 parameters
         - polynomial : more general but slightly slower then the
             two above : requires at least 1 parameter
         - hyplin : f(x) = a0/x + a1 + a2*x , suitable if problems with
@@ -1331,7 +1363,7 @@
                 </WalkCorrection>
             </Channel>
             <Channel number="1" type="beta_scint" subtype="beta" location="5"
-                    tag1="12" tag2="3">
+                    tags="12,3,first">
             </Channel>
             ...
         </Module>
@@ -1353,16 +1385,20 @@
     parallel/perpendicular to beam).
 
     NOTE: We currently do no error checking to make sure that an equivalent
-    bar is defined in the Map. This will be fixed in the future. For now,
-    the user is expected to pay attention!
+    bar is defined in the Map. In such an event the code will simply return a
+    calibration of zero for all of the possible corrections.
     \code
     <TimeCalibration verbose_timing="False">
         <Vandle>
             <small>
-                <Bar number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
-                     tofoffset0="0.0" tofoffset1="0.0" />
-                <Bar number="1" r0="0.0" xoffset="0.0" lroffset="0.0"
-                     tofoffset0="0.0" tofoffset1="0.0" />
+                <Bar number="0" z0="50.5" xoffset="1.0" zoffset="0.00"
+                    lroffset="-5.70784">
+                    <start loc="0" offset="2.90192"/>
+                    <start loc="1" offset="-6.52371"/>
+                    <start loc="2" offset="1.23556"/>
+                    <start loc="3" offset="-5.56573"/>
+                </Bar>
+                <Bar number="1" z0="11.0" xoffset="1234.0" lroffset="-244.0" />
             </small>
         </Vandle>
         <Scint>
@@ -1616,14 +1652,9 @@
   A detector type for a "Teeny VANDLE" detector. Currently, handled by the
   VandleProcessor, but will have its own at some point.
 
-  \section vandleSmall
-  A type for small VANDLE bars. Handled by the VandleProcessor.
-
-  \section vandleBig
-  A type for big VANDLE bars. Handled by the VandleProcessor.
-
-  \section vandleMed
-  A type for medium VANDLE bars. Handled by the VandleProcessor.
+  \section vandle
+  A type for all types of VANDLE bars, different sizes are handled via the
+  subtypes: small, med, big. Handled by the VandleProcessor.
 */
 
 /******************************************************************************/
@@ -1847,7 +1878,8 @@
   DetectorDriver class.
 
   __This section has not been updated yet, as the number of Processors and
-  Analyzers has exploded. __
+  Analyzers has exploded. This list is largely unnecessary due to the automatic
+  documentation placed inside of the various class implementations.__
 
   \section obj-detobj Detector Objects
 
@@ -2086,8 +2118,7 @@
         "3hen", "beta_scint", "dssd_front", "dssd_back", "ge", "generic",
         "idssd_front", "ignore", "ion_chamber", "liquid_scint", "logic",
         "mcp", "mtc", "neutron_scint", "position", "pulser", "si", "ssd",
-        "timeclass", "tvandle", "vandleSmall", "vandleBig", "vandleMed",
-        "template"
+        "timeclass", "tvandle", "vandle", "template"
     };
   \endcode
 */
