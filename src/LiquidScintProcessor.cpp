@@ -131,12 +131,7 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
                 const int resOffset = 2000;
 
                 if(start.GetIsValidData()) {
-                    double tofOffset;
-                    if(startLoc == 0)
-                        tofOffset = cal.GetTofOffset0();
-                    else
-                        tofOffset = cal.GetTofOffset1();
-
+                    double tofOffset = cal.GetTofOffset(startLoc);
                     double TOF = liquid.GetHighResTime() -
                         start.GetHighResTime() - tofOffset;
 
