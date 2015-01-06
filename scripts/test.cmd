@@ -1,4 +1,4 @@
 zero
-file data/vandleLeribss2012/negativeIons/a077/vandle_a77_103.ldf
+file data/vandleBeta-12-4-14/CF_all.ldf
 go
 end
