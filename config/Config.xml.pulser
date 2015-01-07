@@ -20,46 +20,19 @@
 
     <DetectorDriver>
         <Processor name="PulserProcessor" />
+        <Analyzer name="TraceExtractor" type="pulser" subtype="start"/>
         <Analyzer name="WaveformAnalyzer"/>
         <Analyzer name="FittingAnalyzer"/>
     </DetectorDriver>
 
     <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
         <Module number="0">
-            <Channel number="0" type="pulser" subtype="start">
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="1" type="pulser" subtype="stop" >
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
+            <Channel number="0" type="pulser" subtype="start"></Channel>
+            <Channel number="1" type="pulser" subtype="stop"></Channel>
         </Module>
     </Map>
 
     <TimeCalibration verbose_timing="False">
-        <Vandle>
-            <big>
-            </big>
-            <medium>
-            </medium>
-            <small>
-                <Bar number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
-                     tofoffset0="0.0" tofoffset1="0.0" />
-                <Bar number="1" r0="0.0" xoffset="0.0" lroffset="0.0"
-                     tofoffset0="0.0" tofoffset1="0.0" />
-            </small>
-        </Vandle>
-        <Scint>
-            <liquid>
-                <Detector number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
-                     tofoffset0="0.0" tofoffset1="0.0" />
-            </liquid>
-            <start>
-                <Detector number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
-                     tofoffset0="0.0" tofoffset1="0.0" />
-            </start>
-        </Scint>
     </TimeCalibration>
 
     <Timing>
@@ -74,13 +47,15 @@
         </Physical>
 
         <Trace>
-            <WaveformLow unit="sample" value="5.0"/>
-            <WaveformHigh unit="sample" value="10.0"/>
+            <WaveformRange>
+                <Low unit="sample" value="5"/>
+                <High unit="sample" value="10"/>
+            </WaveformRange>
             <DiscriminationStart unit="sample" value="3"/>
             <TrapezoidalWalk unit="ns" value="60"/>
             <TraceDelay unit="ns" value="112"/>
             <TraceLength unit="ns" value="176"/>
-            <QdcCompression value="4.0"/>
+            <QdcCompression value="1.0"/>
         </Trace>
 
         <Fitting>
@@ -94,8 +69,8 @@
                 <Gamma value="0.274512"/>
             </Start>
             <Pulser>
-                <Beta value="0.832272"/>
-                <Gamma value="0.236525"/>
+                <Beta value="0.96831"/>
+                <Gamma value="0.22027"/>
             </Pulser>
             <TVandle>
                 <Beta value="0.362307"/>

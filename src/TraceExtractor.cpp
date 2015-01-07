@@ -22,23 +22,18 @@ void TraceExtractor::DeclarePlots(void)
     const int traceBins = dammIds::trace::traceBins;
     using namespace dammIds::trace::extractor;
     Trace sample_trace = Trace();
-    for (int i = 0; i < numTraces; ++i) {
-        std::stringstream ss;
-        ss << "TraceExtractor trace " << i;
-        sample_trace.DeclareHistogram1D(D_TRACE + i, traceBins,
-                                        ss.str().c_str());
-    }
+    sample_trace.DeclareHistogram2D(D_TRACE, traceBins, S7, "Trace Extractor");
 }
 
-void TraceExtractor::Analyze(Trace &trace,
-			     const std::string &aType, const std::string &aSubtype) {
+void TraceExtractor::Analyze(Trace &trace, const std::string &aType,
+                             const std::string &aSubtype) {
     using namespace dammIds::trace::extractor;
+    static unsigned int numPlottedTraces = 0;
 
-    if (type ==  aType &&
-        subtype == aSubtype &&
-        numTracesAnalyzed < numTraces) {
+    if (type ==  aType && subtype == aSubtype && numPlottedTraces < numTraces){
         TraceAnalyzer::Analyze(trace, type, subtype);
-        trace.OffsetPlot(D_TRACE + numTracesAnalyzed, trace.DoBaseline(1,20) );
+        trace.OffsetPlot(D_TRACE, numPlottedTraces, 0.0);
+        numPlottedTraces++;
         EndAnalyze(trace);
     }
 }

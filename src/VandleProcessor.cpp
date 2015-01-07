@@ -74,27 +74,26 @@ VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList,
     hasSmall_ = hasMed_ = hasBig_ = false;
     for(vector<string>::const_iterator it = typeList.begin();
     it != typeList.end(); it++) {
-        string type = (*it);
-        if(type == "small")
+        if((*it) == "small")
             hasSmall_ = true;
-        if(type == "medium")
+        if((*it) == "medium")
             hasMed_ = true;
-        if(type == "big")
+        if((*it) == "big")
             hasBig_ = true;
     }
 }
 
 void VandleProcessor::DeclarePlots(void) {
     if(hasSmall_) {
-        DeclareHistogram2D(DD_TQDCBARS, SD, S7,
+        DeclareHistogram2D(DD_TQDCBARS, SD, S8,
         "Det Loc vs Trace QDC");
-//        DeclareHistogram2D(DD_MAXIMUMBARS, SD, S7,
+//        DeclareHistogram2D(DD_MAXIMUMBARS, SD, S8,
 //        "Det Loc vs Maximum");
-        DeclareHistogram2D(DD_TIMEDIFFBARS, S9, S7,
+        DeclareHistogram2D(DD_TIMEDIFFBARS, S9, S8,
         "Bars vs. Time Differences");
-        DeclareHistogram2D(DD_TOFBARS, SC, S7,
+        DeclareHistogram2D(DD_TOFBARS, SC, S8,
         "Bar vs. Time of Flight");
-        DeclareHistogram2D(DD_CORTOFBARS, SC, S7,
+        DeclareHistogram2D(DD_CORTOFBARS, SC, S8,
         "Bar vs  Cor Time of Flight");
         DeclareHistogram2D(DD_TQDCAVEVSTOF, SC, SD,
         "<E> vs. TOF(0.5ns/bin)");
@@ -114,15 +113,15 @@ void VandleProcessor::DeclarePlots(void) {
 //        "Bar vs CorTOF - Gamma Veto");
     }
     if(hasBig_) {
-        DeclareHistogram2D(DD_TQDCBARS+BIG_OFFSET, SD, S7,
+        DeclareHistogram2D(DD_TQDCBARS+BIG_OFFSET, SD, S8,
         "Det Loc vs Trace QDC");
-//        DeclareHistogram2D(DD_MAXIMUMBARS+BIG_OFFSET, SD, S7,
+//        DeclareHistogram2D(DD_MAXIMUMBARS+BIG_OFFSET, SD, S8,
 //        "Det Loc vs Maximum");
-        DeclareHistogram2D(DD_TIMEDIFFBARS+BIG_OFFSET, S9, S7,
+        DeclareHistogram2D(DD_TIMEDIFFBARS+BIG_OFFSET, S9, S8,
         "Bars vs. Time Differences");
-        DeclareHistogram2D(DD_TOFBARS+BIG_OFFSET, SC, S7,
+        DeclareHistogram2D(DD_TOFBARS+BIG_OFFSET, SC, S8,
         "Bar vs. Time of Flight");
-        DeclareHistogram2D(DD_CORTOFBARS+BIG_OFFSET, SC, S7,
+        DeclareHistogram2D(DD_CORTOFBARS+BIG_OFFSET, SC, S8,
         "Bar vs  Cor Time of Flight");
         DeclareHistogram2D(DD_TQDCAVEVSTOF+BIG_OFFSET, SC, SD,
         "<E> vs. TOF(0.5ns/bin)");
@@ -142,15 +141,15 @@ void VandleProcessor::DeclarePlots(void) {
 //        "Bar vs CorTOF - Gamma Veto");
     }
     if(hasMed_) {
-        DeclareHistogram2D(DD_TQDCBARS+MED_OFFSET, SD, S7,
+        DeclareHistogram2D(DD_TQDCBARS+MED_OFFSET, SD, S8,
         "Det Loc vs Trace QDC");
-//        DeclareHistogram2D(DD_MAXIMUMBARS+MED_OFFSET, SD, S7,
+//        DeclareHistogram2D(DD_MAXIMUMBARS+MED_OFFSET, SD, S8,
 //        "Det Loc vs Maximum");
-        DeclareHistogram2D(DD_TIMEDIFFBARS+MED_OFFSET, S9, S7,
+        DeclareHistogram2D(DD_TIMEDIFFBARS+MED_OFFSET, S9, S8,
         "Bars vs. Time Differences");
-        DeclareHistogram2D(DD_TOFBARS+MED_OFFSET, SC, S7,
+        DeclareHistogram2D(DD_TOFBARS+MED_OFFSET, SC, S8,
         "Bar vs. Time of Flight");
-        DeclareHistogram2D(DD_CORTOFBARS+MED_OFFSET, SC, S7,
+        DeclareHistogram2D(DD_CORTOFBARS+MED_OFFSET, SC, S8,
         "Bar vs  Cor Time of Flight");
         DeclareHistogram2D(DD_TQDCAVEVSTOF+MED_OFFSET, SC, SD,
         "<E> vs. TOF(0.5ns/bin)");
@@ -171,7 +170,7 @@ void VandleProcessor::DeclarePlots(void) {
     }
 
     DeclareHistogram1D(D_DEBUGGING, S5, "1D Debugging");
-    DeclareHistogram2D(DD_DEBUGGING, S7, S7, "2D Debugging");
+    DeclareHistogram2D(DD_DEBUGGING, S8, S8, "2D Debugging");
 //    DeclareHistogram2D(DD_DEBUGGING0, SA, SA, "TOFL vs. TDIFF");
 //    DeclareHistogram2D(DD_DEBUGGING1, S9, SD, "TOFR vs. TDIFF");
 //    DeclareHistogram2D(DD_DEBUGGING2, SD, SD, "CorTOF vs. TDIFF");
@@ -264,7 +263,9 @@ void VandleProcessor::AnalyzeBarStarts(void) {
         for(BarMap::iterator itStart = barStarts_.begin();
         itStart != barStarts_.end(); itStart++) {
             unsigned int startLoc = (*itStart).first.first;
-            unsigned int barPlusStartLoc = barLoc*2 + startLoc;
+
+            unsigned int barPlusStartLoc = barLoc*4 + startLoc;
+
             BarDetector start = (*itStart).second;
 
             double tofOffset = cal.GetTofOffset(startLoc);

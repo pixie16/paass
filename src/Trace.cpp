@@ -91,40 +91,39 @@ double Trace::DoQDC(unsigned int lo, unsigned int numBins) {
     double qdc = 0, fullQdc = 0;
 
     for(unsigned int i = lo; i <= high; i++) {
-	qdc += at(i)-baseline;
-	waveform.push_back(at(i)-baseline);
+        qdc += at(i)-baseline;
+        waveform.push_back(at(i)-baseline);
     }
 
     for(unsigned int i = 0; i < size(); i++)
-	fullQdc += at(i)-baseline;
+        fullQdc += at(i)-baseline;
 
     InsertValue("fullQdc", fullQdc);
     InsertValue("tqdc", qdc);
     return(qdc);
 }
 
-unsigned int Trace::FindMaxInfo(unsigned int lo, unsigned int numBins) {
-    unsigned int hi = Globals::get()->traceDelay() /
+unsigned int Trace::FindMaxInfo(unsigned int lo, unsigned int hi, unsigned int numBins) {
+    unsigned int high = Globals::get()->traceDelay() /
         (Globals::get()->adcClockInSeconds()*1e9);
-    unsigned int low = hi - (Globals::get()->trapezoidalWalk() /
+    unsigned int low = high - (Globals::get()->trapezoidalWalk() /
 			    (Globals::get()->adcClockInSeconds()*1e9)) - 3;
 
-    if(size() < hi)
+    if(size() < high)
         return pixie::U_DELIMITER;
 
-    Trace::const_iterator itTrace = max_element(begin()+low, end()-(size()-hi));
+    Trace::const_iterator itTrace = max_element(begin()+low, end()-(size()-high));
     int maxPos = int(itTrace-begin());
 
-    if(maxPos + Globals::get()->waveformHigh() > size())
+    if(maxPos + hi > size())
 	return pixie::U_DELIMITER;
 
     if(*itTrace >= 4095) {
-	InsertValue("saturation", 1);
-	return(-1);
+        InsertValue("saturation", 1);
+        return(-1);
     }
 
-    DoBaseline(0,maxPos-Globals::get()->waveformLow());
-
+    DoBaseline(0, maxPos-lo);
     InsertValue("maxpos", maxPos);
     InsertValue("maxval", *itTrace-GetValue("baseline"));
 

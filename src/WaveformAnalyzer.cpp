@@ -20,34 +20,46 @@ using namespace std;
 
 WaveformAnalyzer::WaveformAnalyzer() : TraceAnalyzer() {
     name = "Waveform";
+
+    knownTypes_.push_back("vandle");
+    knownTypes_.push_back("beta");
+    knownTypes_.push_back("liquid");
+    knownTypes_.push_back("tvandle");
+    knownTypes_.push_back("pulser");
 }
 
 void WaveformAnalyzer::Analyze(Trace &trace,
-			       const std::string &detType,
-			       const std::string &detSubtype) {
+                               const std::string &detType,
+                               const std::string &detSubtype) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype);
 
-    if(detType == "vandle" || detType == "beta" || detType == "liquid"
-       || detType == "pulser" || detType == "tvandle") {
+    if(CheckIfUnknown(detType) || trace.HasValue("saturation")){
+        EndAnalyze();
+        return;
+    }
 
-        if(trace.HasValue("saturation")) {
-            EndAnalyze();
-            return;
-        }
+    Globals *globals = Globals::get();
 
-        unsigned int waveformLow = Globals::get()->waveformLow();
-        unsigned int waveformHigh = Globals::get()->waveformHigh();
-        unsigned int startDiscrimination = Globals::get()->discriminationStart();
-        unsigned int maxPos = trace.FindMaxInfo();
+    pair<unsigned int, unsigned int> range = globals->waveformRange();
+    if(detType == "beta" && detSubtype == "double")
+        range = globals->siPmtWaveformRange();
+    unsigned int startDiscrimination = globals->discriminationStart();
+    unsigned int maxPos = trace.FindMaxInfo(range.first, range.second);
 
-        double qdc = trace.DoQDC(maxPos-waveformLow,
-                                 waveformHigh+waveformLow);
+    double qdc = trace.DoQDC(maxPos-range.first,
+                            range.second+range.first);
 
-        trace.InsertValue("qdcToMax", qdc/trace.GetValue("maxval"));
+    trace.InsertValue("qdcToMax", qdc/trace.GetValue("maxval"));
 
-        if(detSubtype == "liquid")
-            trace.DoDiscrimination(startDiscrimination,
-                    waveformHigh - startDiscrimination);
-    } //if(detType
+    if(detSubtype == "liquid")
+        trace.DoDiscrimination(startDiscrimination,
+                range.second - startDiscrimination);
+
     EndAnalyze();
+}
+
+bool WaveformAnalyzer::CheckIfUnknown(const std::string &type) {
+    if(find(knownTypes_.begin(), knownTypes_.end(), type) == knownTypes_.end())
+        return true;
+    return false;
 }
