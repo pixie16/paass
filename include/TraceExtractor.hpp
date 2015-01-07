@@ -35,8 +35,8 @@ public:
     * \param [in] trace : the trace to analyze
     * \param [in] aType : the type being analyze
     * \param [in] aSubtype : the subtype begin analyzed */
-    virtual void Analyze(Trace &trace,
-                         const std::string &aType, const std::string &aSubtype);
+    virtual void Analyze(Trace &trace, const std::string &aType,
+                         const std::string &aSubtype);
 protected:
     static const int traceBins; //!< The number of bins for the trace length
     static const int numTraces; //!< The number of traces to analyze

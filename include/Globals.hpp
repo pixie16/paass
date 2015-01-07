@@ -180,30 +180,32 @@ public:
     double qdcCompression() const {return (qdcCompression_);}
     /** \return the cutoff on the std deviation of the baseline for fitting */
     double sigmaBaselineThresh() const {return(sigmaBaselineThresh_);}
+    /** \return the cutoff on the std deviation of the baseline for fitting */
+    double siPmtSigmaBaselineThresh() const {return(siPmtSigmaBaselineThresh_);}
     /** \return the trace delay of the traces in ns */
     double traceDelay() const {return(traceDelay_);}
     /** \return the trace length of the traces in ns */
     double traceLength() const {return(traceLength_);}
     /** \return the approximate size of the trapezoidal walk in ns */
     double trapezoidalWalk() const {return(trapezoidalWalk_);}
-    /** \return the high bound of the waveform (referenced from max) */
-    double waveformHigh() const {return(waveformHigh_);}
-    /** \return the low bound of the waveform (referenced from max) */
-    double waveformLow() const {return(waveformLow_);}
     /** \return the event width */
     int eventWidth() const { return eventWidth_; }
+    /** \return the waveform range for standard PMT signals */
+    std::pair<unsigned int, unsigned int> waveformRange() const {return(waveformRange_);}
+    /** \return the waveform range for a fast SiPMT signal */
+    std::pair<unsigned int, unsigned int> siPmtWaveformRange() const {return(siPmtWaveformRange_);}
     /** \return the vandle fitting parameters */
     std::pair<double,double> vandlePars() {return(vandlePars_);}
-    /** \return the Start detector fitting parameters */
-    std::pair<double,double> startPars() {return(startPars_);}
+    /** \return the Single Beta detector fitting parameters */
+    std::pair<double,double> singleBetaPars() {return(singleBetaPars_);}
+    /** \return the Double Beta detector fitting parameters */
+    std::pair<double,double> doubleBetaPars() {return(doubleBetaPars_);}
     /** \return the Pulser fitting parameters */
     std::pair<double,double> pulserPars() {return(pulserPars_);}
     /** \return the Teeny-VANDLE fitting parameters */
     std::pair<double,double> tvandlePars() {return(tvandlePars_);}
     /** \return the Liquid Scintillator fitting paramters */
     std::pair<double,double> liquidScintPars() {return(liquidScintPars_);}
-    /** \return the SiPMT fitting paramters */
-    std::pair<double,double> siPmtPars() {return(siPmtPars_);}
     /*! \return Joined path to the passed filename by adding the configPath_
      * This is temporary solution as long as there are some files not
      * incorporated into Config.xml
@@ -255,18 +257,19 @@ private:
     double discriminationStart_;//!< starting sample for the n-gamma discrimination
     double qdcCompression_;//!< QDC compression factor for VANDLE related plots
     double sigmaBaselineThresh_;//!< threshold on fitting for Std dev. of the baseline
+    double siPmtSigmaBaselineThresh_;//!< threshold on fitting for Std dev. of the baseline for SiPMTs
     double traceDelay_;//!< the trace delay in ns
     double traceLength_;//!< the trace length in ns
     double trapezoidalWalk_;//!< the approximate walk in ns of the trap filter
-    double waveformHigh_;//!< upper value for the waveform (referenced from max)
-    double waveformLow_;//!< lower value for the waveform (referenced from max)
-    int eventWidth_; //!< the size of the event s
+    int eventWidth_; //!< the size of the events
+    std::pair<unsigned int, unsigned int> waveformRange_; //!< Range for the waveform
+    std::pair<unsigned int, unsigned int> siPmtWaveformRange_; //!< Range for the waveform of a Fast SiPmt
     std::pair<double,double> vandlePars_;//!< VANDLE parameters for fitting
-    std::pair<double,double> startPars_;//!< Start parameters for fitting
+    std::pair<double,double> singleBetaPars_;//!< Single Beta parameters for fitting
+    std::pair<double,double> doubleBetaPars_;//!< Double Beta parameters for fitting
     std::pair<double,double> pulserPars_;//!< Pulser parameters for fitting
     std::pair<double,double> tvandlePars_;//!< Teeny-VANDEL parameters for fitting.
     std::pair<double,double> liquidScintPars_;//!< liquid scint pars for fitting
-    std::pair<double,double> siPmtPars_;//!< SiPMT parameters for fitting.
     std::string configPath_; //!< configuration path
     std::string revision_;//!< the pixie revision
     unsigned int maxWords_;//!< maximum words in the

@@ -23,5 +23,8 @@ public:
     * \param [in] detSubtype : detector subtype */
     virtual void Analyze(Trace &trace, const std::string &detType,
                         const std::string &detSubtype);
+private:
+    bool CheckIfUnknown(const std::string &type);
+    std::vector<std::string> knownTypes_;
 };
 #endif // __WAVEFORMANALYZER_HPP_

@@ -421,14 +421,13 @@ int DetectorDriver::ProcessEvent(RawEvent& rawev) {
     try {
         for (vector<ChanEvent*>::const_iterator it = rawev.GetEventList().begin();
             it != rawev.GetEventList().end(); ++it) {
-            string place = (*it)->GetChanID().GetPlaceName();
-
-            if (place == "__-1")
-                continue;
-
             PlotRaw((*it));
             ThreshAndCal((*it), rawev);
             PlotCal((*it));
+
+            string place = (*it)->GetChanID().GetPlaceName();
+            if (place == "__-1")
+                continue;
 
             if ( (*it)->IsSaturated() || (*it)->IsPileup() )
                 continue;

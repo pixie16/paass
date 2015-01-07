@@ -142,10 +142,11 @@ public:
     double DoQDC(unsigned int lo, unsigned int numBins);
 
     /** Calculate information for the maximum value of the trace
-    * \param [in] lo : the low value for the calculation
+    * \param [in] lo : the low side of the waveform
+    * \param [in] hi : the high side of the waveform
     * \param [in] numBins : the number of bins to look for the max in
     * \return The position of the maximum value in the trace */
-    unsigned int FindMaxInfo(unsigned int lo = 10, unsigned int numBins = 15);
+    unsigned int FindMaxInfo(unsigned int lo = 5, unsigned int hi = 10, unsigned int numBins = 15);
 
     /*! \brief Declares a 1D histogram calls the C++ wrapper for DAMM
     * \param [in] dammId : The histogram number to define
