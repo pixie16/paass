@@ -193,10 +193,22 @@ Globals::Globals() {
             else if(std::string(it->name()).compare("SiPmtSigmaBaselineThresh") == 0)
                 siPmtSigmaBaselineThresh_ = it->attribute("value").as_double();
             else if (std::string(it->name()).compare("Vandle") == 0) {
-                vandlePars_.first =
-                    it->child("Beta").attribute("value").as_double();
-                vandlePars_.second =
-                    it->child("Gamma").attribute("value").as_double();
+                smallVandlePars_.first =
+                    it->child("Small").child("Beta").attribute("value").as_double();
+                smallVandlePars_.second =
+                    it->child("Small").child("Gamma").attribute("value").as_double();
+                mediumVandlePars_.first =
+                    it->child("Medium").child("Beta").attribute("value").as_double();
+                mediumVandlePars_.second =
+                    it->child("Medium").child("Gamma").attribute("value").as_double();
+                bigVandlePars_.first =
+                    it->child("Big").child("Beta").attribute("value").as_double();
+                bigVandlePars_.second =
+                    it->child("Big").child("Gamma").attribute("value").as_double();
+                tvandlePars_.first =
+                    it->child("TeenyVandle").child("Beta").attribute("value").as_double();
+                tvandlePars_.second =
+                    it->child("TeenyVandle").child("Gamma").attribute("value").as_double();
             }else if (std::string(it->name()).compare("SingleBeta") == 0) {
                 singleBetaPars_.first =
                     it->child("Beta").attribute("value").as_double();
@@ -210,11 +222,6 @@ Globals::Globals() {
                 pulserPars_.first =
                     it->child("Beta").attribute("value").as_double();
                 pulserPars_.second =
-                    it->child("Gamma").attribute("value").as_double();
-            }else if (std::string(it->name()).compare("TVandle") == 0) {
-                tvandlePars_.first =
-                    it->child("Beta").attribute("value").as_double();
-                tvandlePars_.second =
                     it->child("Gamma").attribute("value").as_double();
             }else if (std::string(it->name()).compare("Liquid") == 0) {
                 liquidScintPars_.first =
