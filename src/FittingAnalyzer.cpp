@@ -119,9 +119,16 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     }
 
     pair<double,double> pars;
-    if (detType == "vandle")
-        pars = globals->vandlePars();
-    else if (detType == "beta") {
+    if (detType == "vandle") {
+        if(detSubtype == "small")
+            pars = globals->smallVandlePars();
+        else if(detSubtype == "medium")
+            pars = globals->mediumVandlePars();
+        else if(detSubtype == "big")
+            pars = globals->bigVandlePars();
+        else
+            pars = globals->smallVandlePars();
+    } else if (detType == "beta") {
         if(detSubtype == "single")
             pars = globals->singleBetaPars();
         else if(detSubtype == "double")
@@ -132,6 +139,9 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
         pars = globals->pulserPars();
     else
         pars = globals->vandlePars();
+
+    cout << detType << " " << detSubtype << " "
+        << pars.first << " " << pars.second << endl;
 
     const gsl_multifit_fdfsolver_type *T = gsl_multifit_fdfsolver_lmsder;
     gsl_multifit_fdfsolver *s;
