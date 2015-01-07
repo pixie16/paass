@@ -2,7 +2,9 @@
  * \brief Uses a chi^2 minimization to fit waveforms
  *
  * Obtains the phase of a waveform using a Chi^2 fitting algorithm
- * implemented through the GSL libraries.
+ * implemented through the GSL libraries. We have now set up two different
+ * functions for this processor. One of them handles the fast SiPMT signals,
+ * which tend to be more Gaussian in shape than the standard PMT signals.
  *
  * \author S. V. Paulauskas
  * \date 22 July 2011
@@ -25,25 +27,45 @@
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_vector.h>
 
-/** Defines the GSL fitting function for the analysis
- * \param [in] x : the vector of gsl starting paramters
+/** Defines the GSL fitting function for standard PMTs
+ * \param [in] x : the vector of gsl starting parameters
  * \param [in] FitData : The data to use for the fit
  * \param [in] f : pointer to the function
  * \return an integer that GSL does something magical with */
-int FitFunction(const gsl_vector *x, void *FitData, gsl_vector *f);
-/** Defines the GSL fitting function for the analysis
- * \param [in] x : the vector of gsl starting paramters
+int PmtFunction(const gsl_vector *x, void *FitData, gsl_vector *f);
+/** Defines the GSL fitting function for standard PMTs
+ * \param [in] x : the vector of gsl starting parameters
  * \param [in] FitData : The data to use for the fit
- * \param [in] J : pointer to the jacobian of the function
+ * \param [in] J : pointer to the Jacobian of the function
  * \return an integer that GSL does something magical with */
-int CalcJacobian(const gsl_vector *x, void *FitData, gsl_matrix *J);
+int CalcPmtJacobian(const gsl_vector *x, void *FitData, gsl_matrix *J);
 /** Defines the GSL fitting function for the analysis
- * \param [in] x : the vector of gsl starting paramters
+ * \param [in] x : the vector of gsl starting parameters
  * \param [in] FitData : The data to use for the fit
  * \param [in] f : pointer to the function
- * \param [in] J : pointer to the jacobian of the function
+ * \param [in] J : pointer to the Jacobian of the function
  * \return an integer that GSL does something magical with */
-int FitFunctionDerivative(const gsl_vector *x, void *FitData, gsl_vector *f,
+int PmtFunctionDerivative(const gsl_vector *x, void *FitData, gsl_vector *f,
+                          gsl_matrix *J);
+/** Defines the GSL fitting function for the fast output of SiPMTs
+ * \param [in] x : the vector of gsl starting parameters
+ * \param [in] FitData : The data to use for the fit
+ * \param [in] f : pointer to the function
+ * \return an integer that GSL does something magical with */
+int SiPmtFunction(const gsl_vector *x, void *FitData, gsl_vector *f);
+/** Defines the GSL fitting function for the fast output SiPMTs
+ * \param [in] x : the vector of gsl starting parameters
+ * \param [in] FitData : The data to use for the fit
+ * \param [in] J : pointer to the Jacobian of the function
+ * \return an integer that GSL does something magical with */
+int CalcSiPmtJacobian(const gsl_vector *x, void *FitData, gsl_matrix *J);
+/** Defines the GSL fitting function for the fast output of SiPMTs
+ * \param [in] x : the vector of gsl starting parameters
+ * \param [in] FitData : The data to use for the fit
+ * \param [in] f : pointer to the function
+ * \param [in] J : pointer to the Jacobian of the function
+ * \return an integer that GSL does something magical with */
+int SiPmtFunctionDerivative(const gsl_vector *x, void *FitData, gsl_vector *f,
                           gsl_matrix *J);
 
 using namespace std;
@@ -66,12 +88,12 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
 			      const std::string &detSubtype) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype);
 
-    Globals *globals = Globals::get();
-
     if(trace.HasValue("saturation") || trace.empty()) {
      	EndAnalyze();
      	return;
     }
+
+    Globals *globals = Globals::get();
 
     const double sigmaBaseline = trace.GetValue("sigmaBaseline");
     const double maxVal = trace.GetValue("maxval");
@@ -86,7 +108,12 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
 
     trace.plot(D_SIGMA, sigmaBaseline*100);
 
-    if(sigmaBaseline > globals->sigmaBaselineThresh()) {
+    if(sigmaBaseline > globals->sigmaBaselineThresh() && detSubtype != "double") {
+        EndAnalyze();
+        return;
+    }
+
+    if(sigmaBaseline > globals->siPmtSigmaBaselineThresh() && detSubtype == "double") {
         EndAnalyze();
         return;
     }
@@ -94,46 +121,67 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     pair<double,double> pars;
     if (detType == "vandle")
         pars = globals->vandlePars();
-    else if (detType == "beta")
-        pars = globals->startPars();
-    else if(detType == "tvandle")
+    else if (detType == "beta") {
+        if(detSubtype == "single")
+            pars = globals->singleBetaPars();
+        else if(detSubtype == "double")
+            pars = globals->doubleBetaPars();
+    } else if(detType == "tvandle")
         pars = globals->tvandlePars();
     else if(detType == "pulser")
         pars = globals->pulserPars();
-    else if (detType == "sipmt")
-        pars = globals->siPmtPars();
     else
         pars = globals->vandlePars();
 
-    const gsl_multifit_fdfsolver_type *T;
+    const gsl_multifit_fdfsolver_type *T = gsl_multifit_fdfsolver_lmsder;
     gsl_multifit_fdfsolver *s;
-    int status;
-    const size_t numParams = 2;
-    const size_t sizeFit = waveform.size();
-
-    gsl_matrix *covar = gsl_matrix_alloc (numParams, numParams);
-    double y[sizeFit], sigma[sizeFit];
-    struct FittingAnalyzer::FitData data =
-        {sizeFit, y, sigma, pars.first, pars.second, qdc};
+    gsl_matrix *covar;
     gsl_multifit_function_fdf f;
+    gsl_vector_view x;
 
-    double xInit[numParams] = {0.0,2.5};
-    gsl_vector_view x = gsl_vector_view_array (xInit, numParams);
+    int status;
+    double phase, fitAmp;
+    const size_t sizeFit = waveform.size();
+    size_t numParams;
 
-    f.f = &FitFunction;
-    f.df = &CalcJacobian;
-    f.fdf = &FitFunctionDerivative;
-    f.n = sizeFit;
-    f.p = numParams;
-    f.params = &data;
-
+    double y[sizeFit], sigma[sizeFit];
     for(unsigned int i = 0; i < sizeFit; i++) {
         y[i] = waveform.at(i);
         sigma[i] = sigmaBaseline;
     }
 
-    T = gsl_multifit_fdfsolver_lmsder;
-    s = gsl_multifit_fdfsolver_alloc (T, sizeFit, numParams);
+    struct FittingAnalyzer::FitData data =
+        {sizeFit, y, sigma, pars.first, pars.second, qdc};
+
+    f.n = sizeFit;
+    f.params = &data;
+
+    if(detType != "beta" && detSubtype != "double") {
+        numParams = 2;
+        covar = gsl_matrix_alloc (numParams, numParams);
+        double xInit[numParams] = {0.0,2.5};
+        x = gsl_vector_view_array (xInit, numParams);
+
+        f.f = &PmtFunction;
+        f.df = &CalcPmtJacobian;
+        f.fdf = &PmtFunctionDerivative;
+        f.p = numParams;
+
+        s = gsl_multifit_fdfsolver_alloc (T, sizeFit, numParams);
+    } else {
+        numParams = 1;
+        covar = gsl_matrix_alloc (numParams, numParams);
+        double xInit[numParams] = {(double)globals->siPmtWaveformRange().first};
+        x = gsl_vector_view_array (xInit, numParams);
+
+        f.f = &SiPmtFunction;
+        f.df = &CalcSiPmtJacobian;
+        f.fdf = &SiPmtFunctionDerivative;
+        f.p = numParams;
+
+        s = gsl_multifit_fdfsolver_alloc (T, sizeFit, numParams);
+    }
+
     gsl_multifit_fdfsolver_set (s, &f, &x.vector);
 
     for(unsigned int iter = 0; iter < 1e8; iter++) {
@@ -147,26 +195,24 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
 
     gsl_multifit_covar (s->J, 0.0, covar);
 
-    double chi = gsl_blas_dnrm2(s->f);
-    double dof = sizeFit - numParams;
-    double chisqPerDof = pow(chi, 2.0)/dof;
-    vector<double> fitPars;
+    if(detType != "beta" && detSubtype != "double") {
+        phase = gsl_vector_get(s->x,0);
+        fitAmp = gsl_vector_get(s->x,1);
+    } else {
+        phase = gsl_vector_get(s->x,0);
+        fitAmp = 0.0;
+    }
 
-    for(unsigned int i=0; i < numParams; i++)
-	fitPars.push_back(gsl_vector_get(s->x,i));
-    fitPars.push_back(pars.first);
-    fitPars.push_back(pars.second);
+    trace.InsertValue("phase", phase+maxPos);
+    trace.InsertValue("walk", CalculateWalk(maxVal, detType, detSubtype));
+
+    trace.plot(DD_AMP, fitAmp, maxVal);
+    trace.plot(D_PHASE, phase*1000+100);
+    trace.plot(D_CHISQPERDOF,
+               pow(gsl_blas_dnrm2(s->f),2.0)/(sizeFit - numParams));
 
     gsl_multifit_fdfsolver_free (s);
     gsl_matrix_free (covar);
-
-    trace.InsertValue("phase", fitPars.front()+maxPos);
-    trace.InsertValue("walk", CalculateWalk(maxVal, detType, detSubtype));
-
-    trace.plot(DD_AMP, fitPars.at(1), maxVal);
-    trace.plot(D_PHASE, fitPars.at(0)*1000+100);
-    trace.plot(D_CHISQPERDOF, chisqPerDof);
-
     EndAnalyze();
 }
 
@@ -190,7 +236,7 @@ double FittingAnalyzer::CalculateWalk(const double &val, const std::string &type
         return(0.0);
 }
 
-int FitFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
+int PmtFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
     size_t n       = ((struct FittingAnalyzer::FitData *)FitData)->n;
     double *y      = ((struct FittingAnalyzer::FitData *)FitData)->y;
     double *sigma  = ((struct FittingAnalyzer::FitData *)FitData)->sigma;
@@ -216,7 +262,7 @@ int FitFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
     return(GSL_SUCCESS);
 }
 
-int CalcJacobian (const gsl_vector * x, void *FitData, gsl_matrix * J) {
+int CalcPmtJacobian (const gsl_vector * x, void *FitData, gsl_matrix * J) {
     size_t n = ((struct FittingAnalyzer::FitData *)FitData)->n;
     double *sigma = ((struct FittingAnalyzer::FitData *) FitData)->sigma;
     double beta    = ((struct FittingAnalyzer::FitData *)FitData)->beta;
@@ -247,9 +293,56 @@ int CalcJacobian (const gsl_vector * x, void *FitData, gsl_matrix * J) {
     return(GSL_SUCCESS);
 }
 
-int FitFunctionDerivative (const gsl_vector * x, void *FitData, gsl_vector * f,
+int PmtFunctionDerivative (const gsl_vector * x, void *FitData, gsl_vector * f,
                             gsl_matrix * J) {
-    FitFunction (x, FitData, f);
-    CalcJacobian (x, FitData, J);
+    PmtFunction (x, FitData, f);
+    CalcPmtJacobian (x, FitData, J);
+    return(GSL_SUCCESS);
+}
+
+int SiPmtFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
+    size_t n       = ((struct FittingAnalyzer::FitData *)FitData)->n;
+    double *y      = ((struct FittingAnalyzer::FitData *)FitData)->y;
+    double *sigma  = ((struct FittingAnalyzer::FitData *)FitData)->sigma;
+    double gamma   = ((struct FittingAnalyzer::FitData *)FitData)->gamma;
+    double qdc     = ((struct FittingAnalyzer::FitData *)FitData)->qdc;
+
+    double phi = gsl_vector_get (x, 0);
+
+    for(size_t i = 0; i < n; i++) {
+        double t = i;
+        double diff = t-phi;
+        double Yi = (qdc/(gamma*sqrt(2*M_PI)))*exp(-diff*diff/(2*gamma*gamma));
+        gsl_vector_set (f, i, (Yi - y[i])/sigma[i]);
+    }
+    return(GSL_SUCCESS);
+}
+
+int CalcSiPmtJacobian (const gsl_vector * x, void *FitData, gsl_matrix * J) {
+    size_t n       = ((struct FittingAnalyzer::FitData *)FitData)->n;
+    double *sigma  = ((struct FittingAnalyzer::FitData *)FitData)->sigma;
+    double gamma   = ((struct FittingAnalyzer::FitData *)FitData)->gamma;
+    double qdc     = ((struct FittingAnalyzer::FitData *)FitData)->qdc;
+
+    double phi = gsl_vector_get (x, 0);
+    double dphi;
+
+    for (size_t i = 0; i < n; i++) {
+        double t = i;
+        double diff = t-phi;
+        double s = sigma[i];
+
+        dphi = (qdc*diff/(pow(gamma,3)*sqrt(2*M_PI))) *
+            exp(-diff*diff/(2*gamma*gamma));
+
+        gsl_matrix_set (J,i,0, dphi/s);
+    }
+    return(GSL_SUCCESS);
+}
+
+int SiPmtFunctionDerivative (const gsl_vector * x, void *FitData, gsl_vector * f,
+                            gsl_matrix * J) {
+    SiPmtFunction (x, FitData, f);
+    CalcSiPmtJacobian (x, FitData, J);
     return(GSL_SUCCESS);
 }

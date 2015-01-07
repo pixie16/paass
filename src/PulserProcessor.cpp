@@ -77,16 +77,15 @@ bool PulserProcessor::RetrieveData(RawEvent &event) {
     pulserMap.clear();
 
     static const vector<ChanEvent*> & pulserEvents =
-	event.GetSummary("pulser")->GetList();
+        event.GetSummary("pulser")->GetList();
 
     for(vector<ChanEvent*>::const_iterator itPulser = pulserEvents.begin();
 	itPulser != pulserEvents.end(); itPulser++) {
         unsigned int location = (*itPulser)->GetChanID().GetLocation();
         string subType = (*itPulser)->GetChanID().GetSubtype();
 
-        TimingDefs::TimingIdentifier pulserKey(location, subType);
-        pulserMap.insert(make_pair(pulserKey,
-                                   HighResTimingData(*itPulser)));
+        TimingDefs::TimingIdentifier key(location, subType);
+        pulserMap.insert(make_pair(key, HighResTimingData(*itPulser)));
     }
 
     if(pulserMap.empty() || pulserMap.size()%2 != 0) {
@@ -123,11 +122,11 @@ void PulserProcessor::AnalyzeData(void) {
     if(start.GetIsValidData() && stop.GetIsValidData()) {
         double timeDiff = stop.GetHighResTime() - start.GetHighResTime();
         double timeRes  = 50; //20 ps/bin
-        double timeOff  = 1000.;
+        double timeOff  = 31000.;
         double phaseX   = 7000.;
 
-        //cout << timeDiff * timeRes + timeOff << " "
-        //     << start.GetPhase()*timeRes-phaseX << endl;
+//        cout << timeDiff * timeRes + timeOff << " "
+//             << start.GetPhase()*timeRes-phaseX << endl;
 
         plot(D_TIMEDIFF, timeDiff*timeRes + timeOff);
         plot(DD_PVSP, start.GetPhase()*timeRes-phaseX,

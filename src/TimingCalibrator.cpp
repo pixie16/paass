@@ -20,9 +20,8 @@ TimingCalibration TimingCalibrator::GetCalibration(const TimingDefs::TimingIdent
     map<TimingDefs::TimingIdentifier, TimingCalibration>::iterator it =
         calibrations_.find(id);
 
-    if(it == calibrations_.end() && isVerbose_) {
+    if(it == calibrations_.end())
         return(default_);
-    }
     return((*it).second);
 }
 

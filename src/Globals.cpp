@@ -161,10 +161,17 @@ Globals::Globals() {
 
         for(pugi::xml_node_iterator it = timing.child("Trace").begin();
             it != timing.child("Trace").end(); ++it) {
-            if(std::string(it->name()).compare("WaveformLow") == 0)
-                waveformLow_ = it->attribute("value").as_double();
-            else if(std::string(it->name()).compare("WaveformHigh") == 0)
-                waveformHigh_ = it->attribute("value").as_double();
+            if(std::string(it->name()).compare("WaveformRange") == 0) {
+                waveformRange_.first =
+                    it->child("Low").attribute("value").as_int(5);
+                waveformRange_.second =
+                    it->child("High").attribute("value").as_int(10);
+            } else if(std::string(it->name()).compare("SiPmtWaveformRange") == 0) {
+                siPmtWaveformRange_.first =
+                    it->child("Low").attribute("value").as_int(5);
+                siPmtWaveformRange_.second =
+                    it->child("High").attribute("value").as_int(5);
+            }
             else if(std::string(it->name()).compare("DiscriminationStart") == 0)
                 discriminationStart_ = it->attribute("value").as_double();
             else if(std::string(it->name()).compare("TrapezoidalWalk") == 0)
@@ -183,15 +190,21 @@ Globals::Globals() {
             it != timing.child("Fitting").end(); ++it) {
             if(std::string(it->name()).compare("SigmaBaselineThresh") == 0)
                 sigmaBaselineThresh_ = it->attribute("value").as_double();
+            else if(std::string(it->name()).compare("SiPmtSigmaBaselineThresh") == 0)
+                siPmtSigmaBaselineThresh_ = it->attribute("value").as_double();
             else if (std::string(it->name()).compare("Vandle") == 0) {
                 vandlePars_.first =
                     it->child("Beta").attribute("value").as_double();
                 vandlePars_.second =
                     it->child("Gamma").attribute("value").as_double();
-            }else if (std::string(it->name()).compare("Start") == 0) {
-                startPars_.first =
+            }else if (std::string(it->name()).compare("SingleBeta") == 0) {
+                singleBetaPars_.first =
                     it->child("Beta").attribute("value").as_double();
-                startPars_.second =
+                singleBetaPars_.second =
+                    it->child("Gamma").attribute("value").as_double();
+            }else if(std::string(it->name()).compare("DoubleBeta") == 0) {
+                doubleBetaPars_.first = 0.0;
+                doubleBetaPars_.second =
                     it->child("Gamma").attribute("value").as_double();
             }else if (std::string(it->name()).compare("Pulser") == 0) {
                 pulserPars_.first =
@@ -208,10 +221,6 @@ Globals::Globals() {
                     it->child("Beta").attribute("value").as_double();
                 liquidScintPars_.second =
                     it->child("Gamma").attribute("value").as_double();
-            }else if (std::string(it->name()).compare("SiPMT") == 0) {
-                siPmtPars_.first =
-                    it->child("Sigma").attribute("value").as_double();
-                siPmtPars_.second = 0.0;
             }else
                 WarnOfUnknownParameter(m, it);
         }
