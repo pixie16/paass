@@ -138,10 +138,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     else if(detType == "pulser")
         pars = globals->pulserPars();
     else
-        pars = globals->vandlePars();
-
-    cout << detType << " " << detSubtype << " "
-        << pars.first << " " << pars.second << endl;
+        pars = globals->smallVandlePars();
 
     const gsl_multifit_fdfsolver_type *T = gsl_multifit_fdfsolver_lmsder;
     gsl_multifit_fdfsolver *s;
