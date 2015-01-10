@@ -49,21 +49,16 @@ EventData GeProcessor::BestBetaForGamma(double gTime) {
     return betas->info_.at(bestIndex);
 }
 
-
 bool GeProcessor::GoodGammaBeta(double gb_dtime) {
     if (abs(gb_dtime) > gammaBetaLimit_)
         return false;
     return true;
 }
 
-
-// useful function for symmetrically incrementing 2D plots
-void GeProcessor::symplot(int dammID, double bin1, double bin2)
-{
+void GeProcessor::symplot(int dammID, double bin1, double bin2) {
     plot(dammID, bin1, bin2);
     plot(dammID, bin2, bin1);
 }
-
 
 GeProcessor::GeProcessor(double gammaThreshold, double lowRatio,
                          double highRatio, double subEventWindow,
@@ -71,8 +66,7 @@ GeProcessor::GeProcessor(double gammaThreshold, double lowRatio,
                          double cycle_gate1_min, double cycle_gate1_max,
                          double cycle_gate2_min, double cycle_gate2_max) :
                          EventProcessor(OFFSET, RANGE, "ge"),
-                         leafToClover()
-{
+                         leafToClover() {
     associatedTypes.insert("ge"); // associate with germanium detectors
 
     gammaThreshold_ = gammaThreshold;
@@ -152,8 +146,7 @@ not implemented");
 }
 
 /** Declare plots including many for decay/implant/neutron gated analysis  */
-void GeProcessor::DeclarePlots(void)
-{
+void GeProcessor::DeclarePlots(void) {
     const int energyBins1  = SD;
     const int energyBins2  = SC;
     const int timeBins1    = S8;
@@ -392,7 +385,6 @@ bool GeProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
 
-    // Clear all events stored in vectors from previous event
     geEvents_.clear();
     for (unsigned i = 0; i < numClovers; ++i)
         addbackEvents_[i].clear();
@@ -412,7 +404,6 @@ bool GeProcessor::PreProcess(RawEvent &event) {
         if ( (*itHigh)->IsSaturated() || (*itHigh)->IsPileup() )
             continue;
 
-        // find the matching low gain event
         vector <ChanEvent*>::const_iterator itLow = lowEvents.begin();
         for (; itLow != lowEvents.end(); itLow++) {
             if ( (*itLow)->GetChanID().GetLocation() == location ) {
@@ -511,8 +502,6 @@ bool GeProcessor::Process(RawEvent &event) {
         return true;
     }
 
-
-    // Good gamma multiplicity
     plot(D_MULT, geEvents_.size());
 
     // Note that geEvents_ vector holds only good events (matched
