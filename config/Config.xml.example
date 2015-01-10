@@ -91,11 +91,14 @@
             * PulserProcessor
             * SsdProcesssor
             * TriggerLogicProcessor
-            * VandleProcessor
+            * VandleProcessor (if no types given defaults to small)
+                * Mandatory attributes and their defaults:
+                * types="small" (comma separated list of types)
+                    * small
+                    * medium
+                    * big
             With useroot compiler flag:
             * RootProcessor
-            * ScintROOT
-            * VandleROOT
          List of known Analyzers:
             * TraceFilterer
                * mandatory attributes and their default values:
@@ -113,7 +116,8 @@
                 * see TraceFilterer
             * TauAnalyzer
             * TracePlotter
-            * TraceExtracter
+            * TraceExtractor
+                *
             With pulsefit compiler flag
             * WaveformAnalyzer
             * FittingAnalyzer

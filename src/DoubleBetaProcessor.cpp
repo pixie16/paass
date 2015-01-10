@@ -17,10 +17,10 @@ namespace dammIds {
         const int DD_SINGLESQDC = 0;//!< ID for the singles QDC
         const int DD_QDC  = 1; //!< ID for the Bar QDC of the double beta detector
         const int DD_TDIFF = 2;//!< ID to plot the Time Difference between ends
-        const int DD_PP = 3;//!< ID to plot the phase-phase for your favorite bar
-        const int DD_QDCTDIFF = 4;
+        const int DD_PP = 3;//!< ID to plot the phase-phase for your favorite bar (0)
+        const int DD_QDCTDIFF = 4;//!< QDC vs. TDiff for your favorite bar (0)
     }
-}//namespace dammIds
+}
 
 using namespace std;
 using namespace dammIds::doublebeta;
