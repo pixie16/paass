@@ -32,7 +32,7 @@ namespace dammIds {
 	const int DD_TIMEDIFFBARS     = 2;//!< time difference in the bars
 	const int DD_TOFBARS          = 3;//!< time of flight for the bars
 	const int DD_CORTOFBARS       = 4;//!< corrected time of flight
-    const int DD_TQDCAVEVSTOF     = 5;//!< QDC Ave vs. ToF
+    const int DD_TQDCAVEVSTOF     = 5;//!< Ave QDC vs. ToF
 	const int DD_TQDCAVEVSCORTOF  = 6;//!< Ave QDC vs. Cor ToF
 	const int DD_CORRELATED_TOF   = 7;//!< ToF Correlated w/ Beam
 	const int DD_QDCAVEVSSTARTQDCSUM = 8;//!< Average VANDLE QDC vs. Start QDC Sum
@@ -81,14 +81,16 @@ VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList,
         if((*it) == "big")
             hasBig_ = true;
     }
+    if(typeList.size() == 0)
+        hasSmall_ = true;
 }
 
 void VandleProcessor::DeclarePlots(void) {
     if(hasSmall_) {
         DeclareHistogram2D(DD_TQDCBARS, SD, S8,
-        "Det Loc vs Trace QDC");
+        "Det Loc vs Trace QDC - Left Even - Right Odd");
 //        DeclareHistogram2D(DD_MAXIMUMBARS, SD, S8,
-//        "Det Loc vs Maximum");
+//        "Det Loc vs Maximum - Left Even - Right Odd");
         DeclareHistogram2D(DD_TIMEDIFFBARS, S9, S8,
         "Bars vs. Time Differences");
         DeclareHistogram2D(DD_TOFBARS, SC, S8,
@@ -263,23 +265,22 @@ void VandleProcessor::AnalyzeBarStarts(void) {
         for(BarMap::iterator itStart = barStarts_.begin();
         itStart != barStarts_.end(); itStart++) {
             unsigned int startLoc = (*itStart).first.first;
-
             unsigned int barPlusStartLoc = barLoc*4 + startLoc;
 
             BarDetector start = (*itStart).second;
 
             double tofOffset = cal.GetTofOffset(startLoc);
-            double TOF = bar.GetWalkCorTimeAve() -
+            double tof = bar.GetWalkCorTimeAve() -
                 start.GetWalkCorTimeAve() + tofOffset;
 
-            double corTOF =
-                CorrectTOF(TOF, bar.GetFlightPath(), cal.GetZ0());
+            double corTof =
+                CorrectTOF(tof, bar.GetFlightPath(), cal.GetZ0());
 
-            plot(DD_TOFBARS+histTypeOffset, TOF*plotMult_+plotOffset_, barPlusStartLoc);
-            plot(DD_TQDCAVEVSTOF+histTypeOffset, TOF*plotMult_+plotOffset_, bar.GetQdc());
+            plot(DD_TOFBARS+histTypeOffset, tof*plotMult_+plotOffset_, barPlusStartLoc);
+            plot(DD_TQDCAVEVSTOF+histTypeOffset, tof*plotMult_+plotOffset_, bar.GetQdc());
 
-            plot(DD_CORTOFBARS, corTOF*plotMult_+plotOffset_, barPlusStartLoc);
-            plot(DD_TQDCAVEVSCORTOF+histTypeOffset, corTOF*plotMult_+plotOffset_,
+            plot(DD_CORTOFBARS, corTof*plotMult_+plotOffset_, barPlusStartLoc);
+            plot(DD_TQDCAVEVSCORTOF+histTypeOffset, corTof*plotMult_+plotOffset_,
                  bar.GetQdc());
 
             if (geSummary_) {
@@ -288,11 +289,11 @@ void VandleProcessor::AnalyzeBarStarts(void) {
                     for (vector<ChanEvent *>::const_iterator itGe = geList.begin();
                         itGe != geList.end(); itGe++) {
                         double calEnergy = (*itGe)->GetCalEnergy();
-                        plot(DD_GAMMAENERGYVSTOF+histTypeOffset, calEnergy, TOF);
+                        plot(DD_GAMMAENERGYVSTOF+histTypeOffset, calEnergy, tof);
                     }
                 } else {
-                    plot(DD_TQDCAVEVSTOF_VETO+histTypeOffset, TOF, bar.GetQdc());
-                    plot(DD_TOFBARS_VETO+histTypeOffset, TOF, barPlusStartLoc);
+                    plot(DD_TQDCAVEVSTOF_VETO+histTypeOffset, tof, bar.GetQdc());
+                    plot(DD_TOFBARS_VETO+histTypeOffset, tof, barPlusStartLoc);
                 }
             }
         } // for(TimingMap::iterator itStart
@@ -321,17 +322,17 @@ void VandleProcessor::AnalyzeStarts(void) {
             HighResTimingData start = (*itStart).second;
 
             double tofOffset = cal.GetTofOffset(startLoc);
-            double TOF = bar.GetWalkCorTimeAve() -
+            double tof = bar.GetWalkCorTimeAve() -
                 start.GetWalkCorrectedTime() + tofOffset;
 
-            double corTOF =
-                CorrectTOF(TOF, bar.GetFlightPath(), cal.GetZ0());
+            double corTof =
+                CorrectTOF(tof, bar.GetFlightPath(), cal.GetZ0());
 
-            plot(DD_TOFBARS+histTypeOffset, TOF*plotMult_+plotOffset_, barPlusStartLoc);
-            plot(DD_TQDCAVEVSTOF+histTypeOffset, TOF*plotMult_+plotOffset_, bar.GetQdc());
+            plot(DD_TOFBARS+histTypeOffset, tof*plotMult_+plotOffset_, barPlusStartLoc);
+            plot(DD_TQDCAVEVSTOF+histTypeOffset, tof*plotMult_+plotOffset_, bar.GetQdc());
 
-            plot(DD_CORTOFBARS, corTOF*plotMult_+plotOffset_, barPlusStartLoc);
-            plot(DD_TQDCAVEVSCORTOF+histTypeOffset, corTOF*plotMult_+plotOffset_,
+            plot(DD_CORTOFBARS, corTof*plotMult_+plotOffset_, barPlusStartLoc);
+            plot(DD_TQDCAVEVSCORTOF+histTypeOffset, corTof*plotMult_+plotOffset_,
                  bar.GetQdc());
 
             if (geSummary_) {
@@ -340,11 +341,11 @@ void VandleProcessor::AnalyzeStarts(void) {
                     for (vector<ChanEvent *>::const_iterator itGe = geList.begin();
                         itGe != geList.end(); itGe++) {
                         double calEnergy = (*itGe)->GetCalEnergy();
-                        plot(DD_GAMMAENERGYVSTOF+histTypeOffset, calEnergy, TOF);
+                        plot(DD_GAMMAENERGYVSTOF+histTypeOffset, calEnergy, tof);
                     }
                 } else {
-                    plot(DD_TQDCAVEVSTOF_VETO+histTypeOffset, TOF, bar.GetQdc());
-                    plot(DD_TOFBARS_VETO+histTypeOffset, TOF, barPlusStartLoc);
+                    plot(DD_TQDCAVEVSTOF_VETO+histTypeOffset, tof, bar.GetQdc());
+                    plot(DD_TOFBARS_VETO+histTypeOffset, tof, barPlusStartLoc);
                 }
             }
         } // for(TimingMap::iterator itStart

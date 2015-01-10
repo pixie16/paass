@@ -22,9 +22,12 @@ public:
     * \param [in] detType : the detector type
     * \param [in] detSubtype : detector subtype */
     virtual void Analyze(Trace &trace, const std::string &detType,
-                        const std::string &detSubtype);
+                         const std::string &detSubtype);
 private:
+    /** \return True if the detector type given is unknown to the waveform
+     * analysis.
+     * \param [in] type : The type of detector to look for */
     bool CheckIfUnknown(const std::string &type);
-    std::vector<std::string> knownTypes_;
+    std::vector<std::string> knownTypes_;//!< The types known for waveform analysis
 };
 #endif // __WAVEFORMANALYZER_HPP_

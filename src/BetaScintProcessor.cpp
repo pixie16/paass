@@ -26,8 +26,8 @@ BetaScintProcessor::BetaScintProcessor(double gammaBetaLimit,
 }
 
 EventData BetaScintProcessor::BestGammaForBeta(double bTime) {
-    PlaceOR* gammas = dynamic_cast<PlaceOR*>(
-                        TreeCorrelator::get()->place("Gamma"));
+    PlaceOR* gammas =
+        dynamic_cast<PlaceOR*>(TreeCorrelator::get()->place("Gamma"));
     unsigned sz = gammas->info_.size();
 
     if (sz == 0)
@@ -138,8 +138,7 @@ bool BetaScintProcessor::PreProcess(RawEvent &event){
     return true;
 }
 
-bool BetaScintProcessor::Process(RawEvent &event)
-{
+bool BetaScintProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return false;
 
@@ -155,7 +154,6 @@ bool BetaScintProcessor::Process(RawEvent &event)
     double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
 
     /** True if gammas were recorded during the event */
-
     int multiplicityThres = 0;
     int multiplicityGamma = 0;
     for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin();
@@ -165,8 +163,8 @@ bool BetaScintProcessor::Process(RawEvent &event)
         double time = (*it)->GetTime();
         int location = (*it)->GetChanID().GetLocation();
 
-        PlaceOR* betas = dynamic_cast<PlaceOR*>(
-                            TreeCorrelator::get()->place("Beta"));
+        PlaceOR* betas =
+            dynamic_cast<PlaceOR*>(TreeCorrelator::get()->place("Beta"));
         /* Beta events gated by "Beta" place are plotted here
          * Energy-time spectra are gated
          * */
