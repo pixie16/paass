@@ -78,8 +78,6 @@ void TimingCalibrator::ReadTimingCalXml() {
                     temp.SetTofOffset(tofoffset->attribute("location").as_int(-1),
                                       tofoffset->attribute("offset").as_double(0.0));
 
-                cout << temp.GetTofOffset(0) << endl;
-
                 if(!calibrations_.insert(make_pair(id, temp)).second) {
                     stringstream ss;
                     ss << "TimingCalibrator: We have found a duplicate "

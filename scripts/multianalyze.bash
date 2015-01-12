@@ -5,7 +5,7 @@ if [[ -z $1 ]];then
     exit 1;
 fi
 
-if [ ! -d ${HISDIR:="HIS"} ]; then
+if [ ! -d ${HISDIR:="his"} ]; then
     echo "Histogram directory $HISDIR does not exist."
     exit 1
 fi
