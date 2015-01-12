@@ -276,12 +276,17 @@ void VandleProcessor::AnalyzeBarStarts(void) {
             double corTof =
                 CorrectTOF(tof, bar.GetFlightPath(), cal.GetZ0());
 
-            plot(DD_TOFBARS+histTypeOffset, tof*plotMult_+plotOffset_, barPlusStartLoc);
-            plot(DD_TQDCAVEVSTOF+histTypeOffset, tof*plotMult_+plotOffset_, bar.GetQdc());
-
+            plot(DD_TOFBARS+histTypeOffset, tof*plotMult_+plotOffset_,
+                 barPlusStartLoc);
             plot(DD_CORTOFBARS, corTof*plotMult_+plotOffset_, barPlusStartLoc);
-            plot(DD_TQDCAVEVSCORTOF+histTypeOffset, corTof*plotMult_+plotOffset_,
-                 bar.GetQdc());
+
+            if(tofOffset != 0) {
+                plot(DD_TQDCAVEVSTOF+histTypeOffset, tof*plotMult_+plotOffset_,
+                     bar.GetQdc());
+                plot(DD_TQDCAVEVSCORTOF+histTypeOffset,
+                     corTof*plotMult_+plotOffset_, bar.GetQdc());
+            }
+
 
             if (geSummary_) {
                 if (geSummary_->GetMult() > 0) {

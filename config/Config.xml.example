@@ -244,10 +244,18 @@
             <medium>
             </medium>
             <small>
-                <Bar number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
-                     tofoffset0="0.0" tofoffset1="0.0" />
-                <Bar number="1" r0="0.0" xoffset="0.0" lroffset="0.0"
-                     tofoffset0="0.0" tofoffset1="0.0" />
+                <Bar number="0" z0="0.0" xoffset="0.0" lroffset="0.0"
+                     zoffset="0.0">
+                    <TofOffset location="0" offset="0.0" />
+                    <TofOffset location="1" offset="0.0" />
+                    <TofOffset location="3" offset="0.0" />
+                    <TofOffset location="12" offset="0.0" />
+                </Bar>
+                <Bar number="1" z0="0.0" xoffset="0.0" lroffset="0.0"
+                     tofoffset0="0.0" tofoffset1="0.0">
+                    <TofOffset location="0" offset="0.0" />
+                    <TofOffset location="7" offset="0.0" />
+                </Bar>
             </small>
         </Vandle>
         <Scint>

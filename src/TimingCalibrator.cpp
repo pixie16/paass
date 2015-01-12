@@ -75,8 +75,10 @@ void TimingCalibrator::ReadTimingCalXml() {
 
                 for(pugi::xml_node::iterator tofoffset = bar->begin();
                     tofoffset != bar->end(); tofoffset++)
-                    temp.SetTofOffset(tofoffset->attribute("loc").as_int(-1),
+                    temp.SetTofOffset(tofoffset->attribute("location").as_int(-1),
                                       tofoffset->attribute("offset").as_double(0.0));
+
+                cout << temp.GetTofOffset(0) << endl;
 
                 if(!calibrations_.insert(make_pair(id, temp)).second) {
                     stringstream ss;
