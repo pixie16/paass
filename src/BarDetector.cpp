@@ -40,8 +40,8 @@ void BarDetector::BarEventCheck() {
         double lengthBigTime = Globals::get()->bigLengthTime();
         hasEvent_ = fabs(timeDiff_) < lengthBigTime+20;
     } else if (type_ == "medium") {
-//        double lengthMediumTime = Globals::get()->mediumLengthTime();
-//        haseEvent_ = fabs(timeDiff) < lengthMediumTime+20;
+        double lengthMediumTime = Globals::get()->mediumLengthTime();
+        hasEvent_ = fabs(timeDiff_) < lengthMediumTime+20;
     } else
         hasEvent_ = false;
 }
@@ -54,6 +54,10 @@ void BarDetector::CalcFlightPath() {
     else if(type_ == "big")
         flightPath_ = sqrt(cal_.GetZ0()*cal_.GetZ0() +
                     pow(Globals::get()->speedOfLightBig()*0.5*timeDiff_+
+                        cal_.GetXOffset(),2));
+    else if(type_ == "big")
+        flightPath_ = sqrt(cal_.GetZ0()*cal_.GetZ0() +
+                    pow(Globals::get()->speedOfLightMedium()*0.5*timeDiff_+
                         cal_.GetXOffset(),2));
     else
         flightPath_ = numeric_limits<double>::quiet_NaN();

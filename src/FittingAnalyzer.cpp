@@ -150,6 +150,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     double phase, fitAmp;
     const size_t sizeFit = waveform.size();
     size_t numParams;
+    double xInit[3];
 
     double y[sizeFit], sigma[sizeFit];
     for(unsigned int i = 0; i < sizeFit; i++) {
@@ -166,7 +167,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     if(detType != "beta" && detSubtype != "double") {
         numParams = 2;
         covar = gsl_matrix_alloc (numParams, numParams);
-        double xInit[numParams] = {0.0,2.5};
+        xInit[0] = 0.0; xInit[1]=2.5;
         x = gsl_vector_view_array (xInit, numParams);
 
         f.f = &PmtFunction;
@@ -178,7 +179,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     } else {
         numParams = 1;
         covar = gsl_matrix_alloc (numParams, numParams);
-        double xInit[numParams] = {(double)globals->siPmtWaveformRange().first};
+        xInit[0] = (double)globals->siPmtWaveformRange().first;
         x = gsl_vector_view_array (xInit, numParams);
 
         f.f = &SiPmtFunction;
