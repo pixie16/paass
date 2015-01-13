@@ -160,6 +160,8 @@ public:
     double bigLengthTime() const {return(bigLength_/speedOfLightBig_);}
     /** \return the length of the medium VANDLE bars in cm */
     double mediumLength() const {return(mediumLength_);}
+    /** \return the length of the medium VANDLE bars in ns */
+    double mediumLengthTime() const {return(mediumLength_/speedOfLightMedium_);}
     /** \return the mass of the neutron in MeV/c/c */
     double neutronMass() const {return(neutronMass_);}
     /** \return the length of the small VANDLE bar in cm */
