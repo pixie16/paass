@@ -55,7 +55,7 @@ void BarDetector::CalcFlightPath() {
         flightPath_ = sqrt(cal_.GetZ0()*cal_.GetZ0() +
                     pow(Globals::get()->speedOfLightBig()*0.5*timeDiff_-
                         cal_.GetXOffset(),2));
-    else if(type_ == "big")
+    else if(type_ == "medium")
         flightPath_ = sqrt(cal_.GetZ0()*cal_.GetZ0() +
                     pow(Globals::get()->speedOfLightMedium()*0.5*timeDiff_-
                         cal_.GetXOffset(),2));
