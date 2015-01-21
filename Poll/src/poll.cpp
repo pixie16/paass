@@ -17,8 +17,6 @@
 #include <unistd.h>
 #include <netinet/in.h>
 
-// Needed for LIST_MODE_RUNx defs. Incorporate into PixieInterface
-#include "pixie16app_defs.h"
 #include "StatsHandler.hpp"
 
 #include "Acq_Params.h"
@@ -71,7 +69,7 @@ int main(int argc, char **argv)
   string alarmArgument;
 
   // compiled-in configuration
-  const int listMode = LIST_MODE_RUN0; // full header w/ traces
+  const int listMode = LIST_MODE_RUN; // full header w/ traces
   // values associated with the minimum timing between pixie calls (in us)
   // Adjusted to help alleviate the issue with data corruption
   const unsigned int endRunPause = 100;
