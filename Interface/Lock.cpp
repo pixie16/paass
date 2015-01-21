@@ -10,6 +10,10 @@
 #include "Display.h"
 #include "Lock.h"
 
+#ifndef LOCK_DIRECTORY
+#define LOCK_DIRECTORY "/tmp"
+#endif
+
 using namespace Display;
 
 using std::cout;
@@ -18,13 +22,12 @@ using std::find;
 using std::list;
 using std::string;
 
-
 list<string> Lock::lockList;
-const string Lock::lockDirectory = "/var/lock";
 
 Lock::Lock(string name)
 {
-  fileName = lockDirectory + '/' + name;
+  const string lockDirectory = LOCK_DIRECTORY;
+  fileName = lockDirectory + "/" + name;
   LeaderPrint("Creating lock file");
   lockFile = fopen(fileName.c_str(), "r");
   if (lockFile == NULL) { // the file doesn't exist, the device is free
@@ -38,10 +41,10 @@ Lock::Lock(string name)
     // store the pid of the locking process in the file
     fprintf(lockFile, "%10d", getpid());
     fclose(lockFile);
-    if (lockList.empty()) {
+    if (Lock::lockList.empty()) {
 	atexit(RemoveLocks);
     }
-    lockList.push_back(fileName);
+    Lock::lockList.push_back(fileName);
   } else {
     pid_t pid;
 
@@ -71,7 +74,7 @@ void Lock::Remove(std::string &name)
   int errno = remove(name.c_str());
   Display::StatusPrint(errno < 0);
   
-  lockList.remove(name);
+  Lock::lockList.remove(name);
 }
 
 void RemoveLocks(void)
