@@ -2,3 +2,6 @@
 *.tgz
 # ignore any temporaries
 *~
+*.swp
+#Ignore object files
+*.o
