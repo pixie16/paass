@@ -1,0 +1,17 @@
+#Build and installs etup utilities.
+set(SETUP_UTILS adjust_offsets find_tau copy_params 
+	pread pwrite pmread pmwrite
+	rate boot 
+	trace get_traces
+	csr_test
+	toggle_gain toggle_good toggle_polarity toggle_trace toggle_pileup
+	toggle_catcher
+	set_standard set_pileups_only set_pileups_reject set_hybrid)
+
+foreach(UTIL ${SETUP_UTILS})
+	add_executable(${UTIL} ${UTIL}.cpp)
+	target_link_libraries(${UTIL} PixieInterface)
+endforeach(UTIL)
+
+install(TARGETS ${SETUP_UTILS} DESTINATION ${CMAKE_INSTALL_PREFIX})
+

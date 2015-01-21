@@ -1,5 +1,0 @@
-#!/usr/bin/gnuplot
-set terminal x11 size 1024,800
-
-call 'plotTraces_mod'
-pause -1

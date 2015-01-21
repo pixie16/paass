@@ -46,7 +46,7 @@ bool HistogramReader::operator()(PixieFunctionParms<> &par)
 
     try {
         if (firstRun) {
-            string input = "mca_input.txt";
+            string input = "share/mca_input.txt";
             string drr = basename_ + ".drr";
             string his = basename_ + ".his";
 

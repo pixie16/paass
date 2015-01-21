@@ -1,0 +1,52 @@
+cmake_minimum_required(VERSION 2.6)
+
+project(PixieSuite)
+
+#if user does not specify prefix we assign it to the exec directory
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+   message(STATUS "Install Prefix not specified.")
+   file(MAKE_DIRECTORY exec)
+   get_filename_component(INSTALL_DIR ${CMAKE_SOURCE_DIR}/exec REALPATH)
+   set(CMAKE_INSTALL_PREFIX ${INSTALL_DIR} CACHE PATH
+         "Install Prefix" FORCE)
+endif ()
+message(STATUS "Installing to ${CMAKE_INSTALL_PREFIX}")
+
+#Define the default build type
+IF(NOT CMAKE_BUILD_TYPE)
+   SET(CMAKE_BUILD_TYPE Release CACHE STRING
+      "Build type, options are: None Debug Release
+         RelWithDebInfo MinSizeRel."
+      FORCE)
+   message(STATUS "Build type not defined, using default.")
+ENDIF(NOT CMAKE_BUILD_TYPE)
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
+
+#Find the PLX Library
+set(PLX_LIB_DIR /opt/PLX_API/PLX/PlxSdk/Linux/PlxApi/Library)
+link_directories(${PLX_LIB_DIR})
+set(PLX_LIBRARIES -lPlxApi -ldl)
+#add_definitions("-DPLX_LINUX -DPCI_CODE -DPLX_LITTLE_ENDIAN")
+
+#Find the Pixie Firmware
+set(PXI_ROOT /opt/PixieFirmware/current)
+include_directories(${PXI_ROOT}/software/inc ${PXI_ROOT}/software/sys ${PXI_ROOT}/software/app)
+link_directories(${PXI_ROOT}/software)
+set(PXI_LIBRARIES -lPixie16App -lPixie16Sys)
+#The following configuration file path is hardcoded into the PXI software :-(
+install(FILES ${PXI_ROOT}/test/pxisys.ini DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+
+include_directories(Interface/include)
+add_subdirectory(Interface/source)
+
+include_directories(Setup/include)
+add_subdirectory(Setup/source)
+
+add_subdirectory(MCA)
+
+include_directories(Poll/include)
+add_subdirectory(Poll/source)
+
+add_subdirectory(PxiDump/source)
