@@ -5,3 +5,6 @@
 *.swp
 #Ignore object files
 *.o
+#Ignore the build and exec directory
+build/
+exec/

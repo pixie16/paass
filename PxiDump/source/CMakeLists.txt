@@ -1,0 +1,1 @@
+install(PROGRAMS pxiDump.bash DESTINATION ${CMAKE_INSTALL_PREFIX})
