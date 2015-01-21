@@ -13,15 +13,6 @@
 #include <unistd.h>
 #include <netinet/in.h>
 
-// Needed for LIST_MODE_RUNx defs. Incorporate into PixieInterface
-#include "pixie16app_defs.h"
-
-#ifndef LIST_MODE_RUN
-#ifdef LIST_MODE_RUN0
-#define LIST_MODE_RUN LIST_MODE_RUN0
-#endif
-#endif
-
 #include "Acq_Params.h"
 #include "Buffer_Structure.h"
 #include "acq_ctl.h"
@@ -30,6 +21,7 @@
 
 // Interface for the PIXIE-16
 #include "Display.h"
+#include "PixieInterface.h"
 #include "Utility.h"
 
 // some defs borrowed from the Pixie Interface
