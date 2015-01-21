@@ -71,8 +71,7 @@ void Lock::Remove(std::string &name)
 {
   LeaderPrint("Removing lock file " + name);
 
-  int errno = remove(name.c_str());
-  Display::StatusPrint(errno < 0);
+  Display::StatusPrint(remove(name.c_str()) < 0);
   
   Lock::lockList.remove(name);
 }

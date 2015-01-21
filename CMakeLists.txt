@@ -1,6 +1,9 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 
 project(PixieSuite)
+
+#Compile with C++11
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
 #if user does not specify prefix we assign it to the exec directory
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -22,6 +25,22 @@ IF(NOT CMAKE_BUILD_TYPE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
+#Install options
+option(USE_ROOT "Use ROOT for MCA." ON)
+option(USE_DAMM "Use DAMM for MCA." ON)
+
+#Load additional find_package scripts.
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
+
+#Find ROOT if USE_ROOT was set.
+if (${USE_ROOT})
+   find_package (ROOT REQUIRED)
+
+   if (${ROOT_FOUND})
+      include_directories(${ROOT_INCLUDE_DIR})
+      link_directories(${ROOT_LIBRARY_DIR})
+   endif()
+endif()
 
 #Find the PLX Library
 set(PLX_LIB_DIR /opt/PLX_API/PLX/PlxSdk/Linux/PlxApi/Library)
