@@ -3,6 +3,7 @@
 # ignore any temporaries
 *~
 *.swp
+*.swo
 #Ignore object files
 *.o
 #Ignore the build and exec directory
