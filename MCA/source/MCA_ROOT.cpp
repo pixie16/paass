@@ -26,6 +26,8 @@
 #include "TFile.h"
 #include "TH1D.h"
 
+#include <stdio.h>
+
 using namespace std;
 
 const size_t HIS_SIZE = 16384;
@@ -33,55 +35,96 @@ const size_t ADC_SIZE = 32768;
 
 class HistogramReader : public PixieFunction<>
 {
-	TFile* file;
-	map<int,TH1D*> histograms;
-public:
-	string basename_;
-	bool operator()(PixieFunctionParms<> &par);
-	HistogramReader(string basename) : basename_(basename) { 
-		file = new TFile(Form("%s.root",basename_.c_str()),"RECREATE");
-	}
-	~HistogramReader() { 
-		file->Write();
-		file->Close();
-		delete file;
-	}
+	private:
+		TFile* file;
+		map<int,TH1D*> histograms;
+		///A class to handle redirecting stderr
+		/**The class redirects stderr to a text file and also saves output in case the user
+		 * would like to print it. Upon destruction stderr is restored to stdout.
+		 */
+		class cerr_redirect {
+			private:
+			char buf[BUFSIZ];
+			
+			public:
+			cerr_redirect(const char* logFile) 
+			{
+				freopen(logFile,"a",stderr);
+				setbuf(stderr, buf);
+			};
+
+			/**stderr is pointed to a duplicate of stdout, buffering is then set to no buffering.
+ 			*/
+			~cerr_redirect( ) {
+				dup2(fileno(stdout),fileno(stderr));
+				setvbuf(stderr,NULL,_IONBF,BUFSIZ);
+			};
+			void Print() {
+				fprintf(stdout,"%s",buf);
+				fflush(stdout);
+			}
+
+		};
+	public:
+		HistogramReader(string basename, PixieInterface *pif);
+		~HistogramReader();
+		bool operator()(PixieFunctionParms<> &par);
+		///Flush the histogram output to the ROOT file.
+		void Flush();
 };
 
+/**Constructor which build a ROOT file with histograms for MCA.
+ */
+HistogramReader::HistogramReader(string basename,PixieInterface *pif) { 
+	Display::LeaderPrint("Creating new empty histogram");
+
+	cerr_redirect *redirect = new cerr_redirect("Pixie16msg.txt");
+	file = new TFile(Form("%s.root",basename.c_str()),"RECREATE");
+	if (Display::StatusPrint(!(file->IsOpen() && file->IsWritable()))) {
+		redirect->Print();
+		exit(EXIT_FAILURE);
+	}
+	delete redirect;
+	
+	for (int card=0;card < pif->GetNumberCards();card++) {
+		for (int ch=0;ch < pif->GetNumberChannels();ch++) {
+			int id = (card + 1) * 100 + ch;
+			histograms[id] = new TH1D(Form("h%d%02d",card,ch),Form("Mod %d Ch %d",card,ch),ADC_SIZE,0,ADC_SIZE);
+		}
+	}
+	Flush();
+
+}
+HistogramReader::~HistogramReader() { 
+	Flush();
+	file->Close();
+	delete file;
+}
 bool HistogramReader::operator()(PixieFunctionParms<> &par)
 {
 	PixieInterface::word_t histo[ADC_SIZE];
 
 	par.pif.ReadHistogram(histo, ADC_SIZE, par.mod, par.ch);
 
-	try {
-		int id = (par.mod + 1) * 100 + par.ch;
-		auto loc = histograms.find(id);
-		TH1D* histogram;
-		if (loc != histograms.end())	{
-			histogram = loc->second;
-		}
-		else {
-      	Display::LeaderPrint("Creating new empty histogram");
-         histogram = new TH1D(Form("h%d%02d",par.mod,par.ch),Form("Mod %d Ch %d",par.mod,par.ch),ADC_SIZE,0,ADC_SIZE);
-			histograms[id] = histogram;
-		
-         cout << Display::OkayStr() << endl;
-		}
+	int id = (par.mod + 1) * 100 + par.ch;
+	auto loc = histograms.find(id);
+	TH1D* histogram;
+	if (loc == histograms.end())	{
+		return false;
+	}
+	histogram = loc->second;
 
-		for (size_t i = 0; i < ADC_SIZE; i++) {
-			histogram->SetBinContent(i+1,histo[i]);
-      }
+	for (size_t i = 0; i < ADC_SIZE; i++) {
+		histogram->SetBinContent(i+1,histo[i]);
+	}
 
-    } catch (IOError &err) {
-        cout << "I/O Error: " << err.show() << endl;
-        abort();
-    } catch (GenError &err) {
-        cout << "Error: " << err.show() << endl;
-        abort();
-    }
+	file->Write(0,TObject::kOverwrite);
 
   return true;
+}
+void HistogramReader::Flush()
+{
+	file->Write(0,TObject::kOverwrite);
 }
 
 int main(int argc, char *argv[])
@@ -111,9 +154,10 @@ int main(int argc, char *argv[])
   pif.RemovePresetRunLength(0);
   double runTime = 0;
 
+  HistogramReader reader(basename,&pif);
+
   pif.StartHistogramRun();
 
-  HistogramReader reader(basename);
   usleep(100);
   while (runTime < totalTime) {
     sleep(2);
@@ -123,7 +167,8 @@ int main(int argc, char *argv[])
       cout << Display::ErrorStr("Run TERMINATED") << endl;
       break;
     }
-    forChannel(pif, -1, -1, reader);
+		forChannel(pif, -1, -1, reader);
+		reader.Flush();
   }
   runTime += usGetDTime() / 1.0e6;
   cout << endl;
