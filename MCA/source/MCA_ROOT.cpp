@@ -84,6 +84,7 @@ HistogramReader::HistogramReader(string basename,PixieInterface *pif) {
 		redirect->Print();
 		exit(EXIT_FAILURE);
 	}
+	redirect->Print();
 	delete redirect;
 	
 	for (int card=0;card < pif->GetNumberCards();card++) {
