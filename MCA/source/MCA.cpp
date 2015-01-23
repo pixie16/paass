@@ -29,12 +29,16 @@ void MCA::Run(float duration) {
 		}
 		Flush();
 	}
+
 	runTime += usGetDTime() / 1.0e6;
 	std::cout << std::endl;
 	_pif->EndRun();
 	Display::LeaderPrint("Run finished");
 	std::cout << Display::OkayStr() << std::endl;
-	std::cout << std::setw(50) << std::setfill('.');
-	std::cout << "Total running time: ";
+	Display::LeaderPrint("Total running time:");
 	std::cout << std::fixed << std::setprecision(2) << runTime << " s" << std::endl; 
+
+	//Uset cout flags
+	std::cout.unsetf(std::ios_base::floatfield);
+	std::cout.precision(6);
 }
