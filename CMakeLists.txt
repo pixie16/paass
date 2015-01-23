@@ -29,6 +29,13 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 option(USE_ROOT "Use ROOT for MCA." ON)
 option(USE_DAMM "Use DAMM for MCA." ON)
 
+if(${USE_ROOT})
+	add_definitions("-D USE_ROOT")
+endif()
+if(${USE_DAMM})
+	add_definitions("-D USE_DAMM")
+endif()
+
 #Load additional find_package scripts.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 

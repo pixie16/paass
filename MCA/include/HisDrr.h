@@ -12,7 +12,6 @@
 #include <string>
 #include <fstream>
 #include "DrrBlock.h" 
-using namespace std;
 
 /**
  * This structure is used for creating new his and drr files.
