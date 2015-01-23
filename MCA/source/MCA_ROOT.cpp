@@ -1,7 +1,7 @@
 #include "MCA_ROOT.h"
 
 #include <TFile.h>
-#include <TH1D.h>
+#include <TH1F.h>
 
 #include "Display.h"
 
@@ -34,15 +34,27 @@ bool MCA_ROOT::OpenFile(const char* basename) {
 	}
 	redirect->Print();
 	delete redirect;
+	//Turn off compression to avoid errors when reading a file being written.
+	_file->SetCompressionSettings(0);
 
 	//Loop over the number of cards and channels to build the histograms.
 	for (int card=0;card < _pif->GetNumberCards();card++) {
 		for (int ch=0;ch < _pif->GetNumberChannels();ch++) {
 			int id = (card + 1) * 100 + ch;
-			_histograms[id] = new TH1D(Form("h%d%02d",card,ch),Form("Mod %d Ch %d",card,ch),ADC_SIZE,0,ADC_SIZE);
+			_histograms[id] = new TH1F(Form("h%d%02d",card,ch),Form("Mod %d Ch %d",card,ch),ADC_SIZE,0,ADC_SIZE);
 		}
 	}
 
+}
+
+TH1F* MCA_ROOT::GetHistogram(int mod, int ch) {
+	int id = (mod + 1) * 100 + ch;
+	auto loc = _histograms.find(id);
+	TH1F* histogram = nullptr;
+	if (loc != _histograms.end())
+		histogram = loc->second;
+
+	return histogram;
 }
 
 bool MCA_ROOT::StoreData(int mod, int ch) {
@@ -50,22 +62,17 @@ bool MCA_ROOT::StoreData(int mod, int ch) {
 
 	_pif->ReadHistogram(histo, ADC_SIZE, mod, ch);
 
-	int id = (mod + 1) * 100 + ch;
-	auto loc = _histograms.find(id);
-	TH1D* histogram;
-	if (loc == _histograms.end())	{
-		return false;
-	}
-	histogram = loc->second;
+	TH1F *histogram = GetHistogram(mod,ch);
+	if (!histogram) return false;
 
 	for (size_t i = 0; i < ADC_SIZE; i++) {
 		histogram->SetBinContent(i+1,histo[i]);
 	}
-
 
   return true;
 
 }
 void MCA_ROOT::Flush() {
 	_file->Write(0,TObject::kOverwrite);
+	_file->Flush();
 }
