@@ -357,9 +357,10 @@ void PixieInterface::PrintSglModPar(const char *name, int mod)
   strncpy(tmpName, name, nameSize);
 
   if (ReadSglModPar(tmpName, &val, mod)) {    
+	cout.unsetf(ios_base::floatfield);
     cout << "  MOD " << setw(2) << mod 
 	 << "  " << setw(15) << name
-	 << "  " << val << endl;
+	 << "  " << setprecision(6) << val << endl;
   }
 }
 
@@ -395,10 +396,11 @@ void PixieInterface::PrintSglChanPar(const char *name, int mod, int chan)
   strncpy(tmpName, name, nameSize);
 
   if (ReadSglChanPar(tmpName, &val, mod, chan)) {    
+	cout.unsetf(ios_base::floatfield);
     cout << "  MOD " << setw(2) << mod 
 	 << "  CHAN " << setw(2) << chan
 	 << "  " << setw(15) << name
-	 << "  " << val << endl;
+	 << "  " << setprecision(6) << val << endl;
   }
 }
 
