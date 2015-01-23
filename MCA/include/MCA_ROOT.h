@@ -5,12 +5,12 @@
 #include <stdio.h>
 
 class TFile;
-class TH1D;
+class TH1F;
 
 class MCA_ROOT : public MCA {
 	private:
 		TFile* _file;
-		std::map<int,TH1D*> _histograms;
+		std::map<int,TH1F*> _histograms;
 
 		///A class to handle redirecting stderr
 		/**The class redirects stderr to a text file and also saves output in case the user
@@ -50,6 +50,7 @@ class MCA_ROOT : public MCA {
 		bool StoreData(int mod, int ch);
 		void Flush();
 		bool OpenFile(const char* basename);
+		TH1F* GetHistogram(int mod, int ch);
 		
 };
 
