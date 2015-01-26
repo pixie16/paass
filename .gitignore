@@ -9,3 +9,4 @@
 #Ignore the build and exec directory
 build/
 exec/
+doc/
