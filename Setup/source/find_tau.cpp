@@ -49,10 +49,12 @@ int main(int argc, char **argv)
 
 bool TauFinder::operator()(PixieFunctionParms<> &par)
 {
-  double tau;
+  double tau[16];
   
-  int errorNum = Pixie16TauFinder(par.mod, par.ch, &tau);
-  cout << "TAU: " << tau << endl;
+  int errorNum = Pixie16TauFinder(par.mod, tau);
+	if (par.ch < 16) {
+	  cout << "TAU: " << tau[par.ch] << endl;
+	}
   cout << "Errno: " << errorNum << endl;
 
   return (errorNum >= 0);
