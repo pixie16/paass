@@ -72,6 +72,11 @@ bool MCA_ROOT::StoreData(int mod, int ch) {
   return true;
 
 }
+
+void MCA_ROOT::Reset() {
+	for (auto it = _histograms.begin(); it != _histograms.end(); ++it) 
+		it->second->Reset();
+}
 void MCA_ROOT::Flush() {
 	_file->Write(0,TObject::kOverwrite);
 	_file->Flush();

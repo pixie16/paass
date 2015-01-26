@@ -51,6 +51,7 @@ class MCA_ROOT : public MCA {
 		void Flush();
 		bool OpenFile(const char* basename);
 		TH1F* GetHistogram(int mod, int ch);
+		void Reset();
 		
 };
 
