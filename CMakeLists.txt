@@ -50,7 +50,7 @@ if (${USE_ROOT})
 endif()
 
 #Find the PLX Library
-set(PLX_LIB_DIR /opt/PLX_API/PLX/PlxSdk/Linux/PlxApi/Library)
+set(PLX_LIB_DIR /opt/PLX_API/PLX/PlxSdk/PlxApi/Library)
 link_directories(${PLX_LIB_DIR})
 set(PLX_LIBRARIES -lPlxApi -ldl)
 #add_definitions("-DPLX_LINUX -DPCI_CODE -DPLX_LITTLE_ENDIAN")
@@ -68,9 +68,9 @@ include_directories(Interface/include)
 add_subdirectory(Interface/source)
 
 include_directories(Setup/include)
-add_subdirectory(Setup/source)
-
+include_directories(MCA/include)
 add_subdirectory(MCA)
+add_subdirectory(Setup/source)
 
 include_directories(Poll/include)
 add_subdirectory(Poll/source)
