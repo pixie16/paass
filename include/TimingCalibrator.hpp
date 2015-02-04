@@ -34,7 +34,7 @@ public:
     double GetXOffset(void) const {return(xOffset_);};
     /** \return the perpendicular distance between the bar and source in cm */
     double GetZ0(void) const {return(z0_);};
-    /** \return additional corrections to z0 in cm */
+    /** \return additional corrections to z0 in cm (UNUSED)*/
     double GetZOffset(void) const {return(zOffset_);};
 
     /** \return the number of ToF Offsets that were read in from the calibration */

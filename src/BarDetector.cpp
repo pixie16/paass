@@ -49,15 +49,15 @@ void BarDetector::BarEventCheck() {
 void BarDetector::CalcFlightPath() {
     if(type_ == "small")
         flightPath_ = sqrt(cal_.GetZ0()*cal_.GetZ0()+
-                    pow(Globals::get()->speedOfLightSmall()*0.5*timeDiff_-
+                    pow(Globals::get()->speedOfLightSmall()*0.5*timeDiff_+
                         cal_.GetXOffset(),2));
     else if(type_ == "big")
         flightPath_ = sqrt(cal_.GetZ0()*cal_.GetZ0() +
-                    pow(Globals::get()->speedOfLightBig()*0.5*timeDiff_-
+                    pow(Globals::get()->speedOfLightBig()*0.5*timeDiff_+
                         cal_.GetXOffset(),2));
     else if(type_ == "medium")
         flightPath_ = sqrt(cal_.GetZ0()*cal_.GetZ0() +
-                    pow(Globals::get()->speedOfLightMedium()*0.5*timeDiff_-
+                    pow(Globals::get()->speedOfLightMedium()*0.5*timeDiff_+
                         cal_.GetXOffset(),2));
     else
         flightPath_ = numeric_limits<double>::quiet_NaN();
