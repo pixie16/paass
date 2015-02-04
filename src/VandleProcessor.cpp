@@ -369,13 +369,13 @@ void VandleProcessor::FillVandleOnlyHists(void) {
         unsigned int OFFSET = ReturnOffset(barId.second);
 
         plot(DD_TQDCBARS + OFFSET,
-             (*it).second.GetLeftSide().GetTraceQdc(), barId.first*2);
+             bar.GetLeftSide().GetTraceQdc(), barId.first*2);
         plot(DD_MAXIMUMBARS + OFFSET,
-             (*it).second.GetLeftSide().GetMaximumValue(), barId.first*2);
+             bar.GetLeftSide().GetMaximumValue(), barId.first*2);
         plot(DD_TQDCBARS + OFFSET,
-             (*it).second.GetRightSide().GetTraceQdc(), barId.first*2+1);
+             bar.GetRightSide().GetTraceQdc(), barId.first*2+1);
         plot(DD_MAXIMUMBARS + OFFSET,
-             (*it).second.GetRightSide().GetMaximumValue(), barId.first*2+1);
+             bar.GetRightSide().GetMaximumValue(), barId.first*2+1);
         plot(DD_TIMEDIFFBARS+OFFSET,
             bar.GetTimeDifference()*plotMult_+plotOffset_, barId.first);
 
