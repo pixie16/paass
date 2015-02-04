@@ -126,7 +126,8 @@ int ReadBuffDataDF(word_t *buf, unsigned long *bufLen,
                 // buf += EventLength;
                 // continue;
                 // skip the rest of this buffer
-                return numEvents;
+                return readbuff::ERROR;
+                //return numEvents;
             }
             word_t lowTime     = buf[1];
             word_t highTime    = buf[2] & 0x0000FFFF;
