@@ -53,32 +53,6 @@ protected:
     TimingMap starts_;//!< A map to to hold all the starts
     BarMap barStarts_;//!< A map that holds all of the bar starts
     DetectorSummary *geSummary_;//!< The Detector Summary for Ge Events
-private:
-    /** Analyze the data for scenarios with Bar Starts; e.g. Double Beta
-     * detectors */
-    void AnalyzeBarStarts(void);
-    /** Analyze the data for scenarios with Single sided Starts; e.g. LeRIBSS
-     * beta scintillators. */
-    void AnalyzeStarts(void);
-    /** Clear the maps in anticipation for the next event */
-    void ClearMaps(void);
-
-    /** \brief Correct the time of flight based on the geometry of the setup
-    * \param [in] TOF : The time of flight to correct
-    * \param [in] corRadius : the corrected radius for the flight path
-    * \param [in] z0 : perpendicular distance from the source to bar
-    * \return True if the retrieval was successful. */
-    virtual double CorrectTOF(const double &TOF, const double &corRadius,
-                              const double &z0) {
-        return((z0/corRadius)*TOF);
-    };
-
-    /** Fill up the basic histograms */
-    void FillVandleOnlyHists();
-
-    /** \return Returns the appropriate offset based off the VANDLE bar type
-     * \param [in] type : The type of bar that we are dealing with */
-    unsigned int ReturnOffset(const std::string &type);
 
     bool hasDecay_; //!< True if there was a correlated beta decay
     double decayTime_; //!< the time of the decay
@@ -89,5 +63,30 @@ private:
     bool hasSmall_; //!< True if small bars were requested in the Config
     bool hasBig_; //!< True if big bars were requested in the Config
     bool hasMed_; //!< True if medium bars were requested in the Config
+
+    /** \brief Correct the time of flight based on the geometry of the setup
+    * \param [in] TOF : The time of flight to correct
+    * \param [in] corRadius : the corrected radius for the flight path
+    * \param [in] z0 : perpendicular distance from the source to bar
+    * \return True if the retrieval was successful. */
+    virtual double CorrectTOF(const double &TOF, const double &corRadius,
+                              const double &z0) {
+        return((z0/corRadius)*TOF);
+    };
+private:
+    /** Analyze the data for scenarios with Bar Starts; e.g. Double Beta
+     * detectors */
+    void AnalyzeBarStarts(void);
+    /** Analyze the data for scenarios with Single sided Starts; e.g. LeRIBSS
+     * beta scintillators. */
+    void AnalyzeStarts(void);
+    /** Clear the maps in anticipation for the next event */
+    void ClearMaps(void);
+    /** Fill up the basic histograms */
+    void FillVandleOnlyHists();
+
+    /** \return Returns the appropriate offset based off the VANDLE bar type
+     * \param [in] type : The type of bar that we are dealing with */
+    unsigned int ReturnOffset(const std::string &type);
 };
 #endif
