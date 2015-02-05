@@ -241,11 +241,11 @@ bool VandleProcessor::Process(RawEvent &event) {
     BarBuilder startBars(doubleBetaStarts);
     barStarts_ = startBars.GetBarMap();
 
-    if(!doubleBetaStarts.empty()) {
+    if(!doubleBetaStarts.empty())
         AnalyzeBarStarts();
-    } else {
+    else
         AnalyzeStarts();
-    }
+
     EndProcess();
     return(true);
 }
