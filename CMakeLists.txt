@@ -39,6 +39,8 @@ endif()
 #Load additional find_package scripts.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
+find_package (Threads REQUIRED)
+
 #Find ROOT if USE_ROOT was set.
 if (${USE_ROOT})
    find_package (ROOT REQUIRED)
