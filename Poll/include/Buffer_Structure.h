@@ -5,9 +5,14 @@
 extern "C" {
 #endif
 
+struct packet_head{
+	int Sequence;
+	int DataSize;
+};
+
 /* Structures declaration */
 struct data_pack {
-  struct Packet_Header Head;     /* Either packet header              */
+  struct packet_head Head;
   int  TotalEvents;              /* Total events number              */
   unsigned short  Events;        /* Number of events in this packet  */
   unsigned short  Cont;          /* Continuation flag for large evts */
