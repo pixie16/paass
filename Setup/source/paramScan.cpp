@@ -12,7 +12,6 @@
 #include "TH1F.h"
 #include "TF1.h"
 #include "TSpectrum.h"
-#include "TCanvas.h"
 #include "TGraphErrors.h"
 #include "TGraph2DErrors.h"
 
@@ -76,13 +75,12 @@ int main(int argc, char *argv[]) {
 	MCA_ROOT *mca = new MCA_ROOT(&pif,"MCA");
 
 	//Set inital par1 steps
-	par1->stepSize = (par1->stopVal - par1->startVal) / par1->numSteps;
+	par1->stepSize = (par1->stopVal - par1->startVal) / (par1->numSteps-1);
 	par1->value = par1->startVal;
 	//Set inital par2 steps
-	par2->stepSize = (par2->stopVal - par2->startVal) / par2->numSteps;
+	par2->stepSize = (par2->stopVal - par2->startVal) / (par2->numSteps-1);
 
 	for (int step = 0; step < par1->numSteps; ++step) {
-		par1->value += par1->stepSize;
 		if (par1->value > par1->stopVal) break;
 		//Write parameter value
 		pif.WriteSglChanPar(par1->parName,par1->value,mod,ch);
@@ -95,7 +93,6 @@ int main(int argc, char *argv[]) {
 		par2->value = par2->startVal;
 		for (int step2 = 0; step2 < par2->numSteps; ++step2) {
 			if (isTwoDim) {
-				par2->value += par2->stepSize;
 				if (par2->value > par2->stopVal) break;
 				//Write parameter value
 				pif.WriteSglChanPar(par2->parName,par2->value,mod,ch);
@@ -108,35 +105,39 @@ int main(int argc, char *argv[]) {
 			if (mca->IsOpen()) 
 				mca->Run(runTime);
 
-			TCanvas *c = new TCanvas(Form("c%d",step),Form("%s %f",par1->parName,par1->value));
-			if (isTwoDim) {
-				c->SetName(Form("c%d_%d",step,step2));
-				c->SetTitle(Form("%s %f %s %f",par1->parName,par1->value,par2->parName,par2->value));
-			}
-			c->cd();
 			TH1* hist = mca->GetHistogram(mod,ch);
 			TSpectrum *s = new TSpectrum(2);
 			s->Search(hist);
 			TF1 *func = new TF1("func","gaus");
 
-			float maxValX = 0;
+			//Find the tallest peak and initialize the fitting function
+			float maxValY = 0;
 			for (int peak=0;peak < s->GetNPeaks();++peak) {
-				if (maxValX < s->GetPositionX()[peak]) {
-					maxValX = s->GetPositionX()[peak];
-					func->SetRange(maxValX - 1000, maxValX + 1000);
+				if (maxValY < s->GetPositionY()[peak]) {
+					maxValY = s->GetPositionY()[peak];
+					//Estimate parameters
+					float mean = s->GetPositionX()[peak];
+					float sigma = 0.03 * mean; //Reoslutions hould be roughly 3%
+					func->SetRange(mean - 3*sigma, mean + 3 * sigma);
 					func->SetParameter(0,s->GetPositionY()[peak]);
-					func->SetParameter(1,maxValX);
+					func->SetParameter(1,mean);
+					func->SetParameter(2,sigma);
 				}
 			}
-			hist->Fit(func,"RQMESAME");
+			//Fit the peak with options:
+			//	R	Use specified Range
+			//	Q	Quiet output
+			//	M	More Fitting to improve fit
+			//	E	Error Estimation
+			hist->Fit(func,"RQME");
 
-			float res = func->GetParameter(2) / func->GetParameter(1);
+			float res = 100 * func->GetParameter(2) / func->GetParameter(1);
 			float resErr = res * sqrt(pow(func->GetParError(1)/func->GetParameter(1),2) + 
 					pow(func->GetParError(2)/func->GetParameter(2),2));
 
-			if (!isTwoDim) printf("Loop: %2d %5f\n",step,par1->value);
-			else printf("Loop: %2d:%2d %5f %5f \n",step,step2,par1->value,par2->value);
-			printf("%5f\t%5f\t%5f\n",maxValX,func->GetParameter(1),res*100.);
+			if (!isTwoDim) printf("Loop: %2d %5f ",step,par1->value);
+			else printf("Loop: %2d:%2d %5f %5f ",step,step2,par1->value,par2->value);
+			printf("res: %5f\n",res);
 			if (!isTwoDim) {
 				gr->SetPoint(gr->GetN(),par1->value,res);
 				gr->SetPointError(gr->GetN()-1,0,resErr);
@@ -147,8 +148,20 @@ int main(int argc, char *argv[]) {
 			}
 
 			f->cd();
-			c->Write();
+
+			if (!isTwoDim) {
+				hist->SetName(Form("h%d",step));
+				hist->SetTitle(Form("%s %f",par1->parName,par1->value));
+			}
+			else {
+				hist->SetName(Form("h%d_%d",step,step2));
+				hist->SetTitle(Form("%s %f %s %f",par1->parName,par1->value,par2->parName,par2->value));
+			}
+			hist->Write();
+			if (isTwoDim) 
+				par2->value += par2->stepSize;
 		} //end par2 loop
+		par1->value += par1->stepSize;
 	} //end par1 loop
 
 	//Set the titles at the end so that the TGraph2D histogram has been created.
