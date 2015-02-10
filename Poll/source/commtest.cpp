@@ -13,9 +13,7 @@
 #include "orph_udp.h"
 #include "spkt_io_udp.h"
 
-// char *VME = "192.168.13.248";
-// char *VME = "192.168.100.5";
-char *VME = "127.0.0.1";
+const char *VME = "127.0.0.1";
 
 using namespace std;
 
