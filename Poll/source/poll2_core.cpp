@@ -213,20 +213,50 @@ void Poll::help(){
 	std::cout << "   stop (tstop)   - Stop recording data to disk\n";
 	std::cout << "   reboot         - Reboot PIXIE crate\n";
 	std::cout << "   force          - Force dump of current spill\n";
-	std::cout << "   debug			- Toggle debug mode flag\n";
+	std::cout << "   debug          - Toggle debug mode flag\n";
 	std::cout << "   fdir [path]    - Set the output file directory (default='./')\n";
 	std::cout << "   ouf [filename] - Set the output filename (default='pixie.xxx')\n";
 	std::cout << "   clo            - Safely close the current data output file\n";
 	std::cout << "   htit [title]   - Set the title of the current run (default='PIXIE Data File)\n";
 	std::cout << "   hnum [number]  - Set the number of the current run (default=0)\n";
-	std::cout << "   oform [0,1,2]  - Set the format of the output file (default=0)\n\n";
+	std::cout << "   oform [0,1,2]  - Set the format of the output file (default=0)\n";
+	//std::cout << "   mca [filename='MCA.root'] [time=60s] - Use MCA to record data for debugging purposes\n";
+	std::cout << "   pread [mod] [chan] [param]        - Read parameters from individual PIXIE channels\n";
+	std::cout << "   pmread [mod] [param]              - Read parameters from PIXIE modules\n";
+	std::cout << "   pwrite [mod] [chan] [param] [val] - Write parameters to individual PIXIE channels\n";
+	std::cout << "   pmwrite [mod] [param] [val]       - Write parameters to PIXIE modules\n";
+}
 
-	/* Future commands (exciting)
-	std::cout << "   mca [filename='MCA.root'] [time=60s] - Use MCA to record data for debugging purposes\n";
-	std::cout << "   pread [mod] [chan] [param]           - Read parameters from individual PIXIE channels\n";
-	std::cout << "   pmread [mod] [param]                 - Read parameters from PIXIE modules\n";
-	std::cout << "   pwrite [mod] [chan] [param] [val]    - Write parameters to individual PIXIE channels\n";
-	std::cout << "   pmwrite [mod] [param] [val]          - Write parameters to PIXIE modules\n";*/
+/* Print help dialogue for reading/writing pixie channel parameters. */
+void Poll::pchan_help(){
+	std::cout << "  Valid Pixie16 channel parameters:\n";
+	std::cout << "   CHANNEL_CSRA\n";
+	std::cout << "   ENERGY_FLATTOP\n";
+	std::cout << "   ENERGY_RISETIME\n";
+	std::cout << "   TRIGGER_FLATTOP\n";
+	std::cout << "   TRIGGER_RISETIME\n";
+	std::cout << "   TRIGGER_THRESHOLD\n";
+	std::cout << "   TAU\n";
+	std::cout << "   TRACE_DELAY\n";
+	std::cout << "   TRACE_LENGTH\n";
+	std::cout << "   ChanTrigStretch\n";
+	std::cout << "   ExternDelayLen\n";
+	std::cout << "   ExtTrigStretch\n";
+	std::cout << "   FtrigoutDelay\n";
+	std::cout << "   FASTTRIGBACKLEN\n";
+	std::cout << "   BLCUT\n";
+}
+
+/* Print help dialogue for reading/writing pixie module parameters. */
+void Poll::pmod_help(){
+	std::cout << "  Valid Pixie16 module parameters:\n";
+	std::cout << "   MODULE_CSRB\n";
+	std::cout << "   MODULE_FORMAT\n";
+	std::cout << "   SYNCH_WAIT\n";
+	std::cout << "   IN_SYNCH\n";
+	std::cout << "   TrigConfig0\n";
+	std::cout << "   TrigConfig1\n";
+	std::cout << "   TrigConfig2\n";
 }
 
 bool Poll::synch_mods(PixieInterface &pif){
@@ -321,11 +351,15 @@ int Poll::write_data(word_t *data, unsigned int nWords, bool shm_/*=false*/){
 	return -1;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Poll::command_control
+///////////////////////////////////////////////////////////////////////////////
+
 /* Function to control the POLL command line interface */
 void Poll::command_control(){
 	char c;
 	bool cmd_ready = false;
-	std::string cmd = "";
+	std::string cmd = "", arg;
 	std::queue<std::string> old_commands; // FIFO command history storage
 	
 	while(true){
@@ -349,6 +383,12 @@ void Poll::command_control(){
 			if(old_commands.size() > MAXIMUM_NUM_COMMANDS){ old_commands.pop(); }
 			
 			if(cmd == ""){ continue; }
+			
+			size_t index = cmd.find(" ");
+			if(index != std::string::npos){
+				arg = cmd.substr(index+1, cmd.size()-index); // Get the argument from the full input string
+				cmd = cmd.substr(0, index); // Get the command from the full input string
+			}
 			
 			// check for defined commands
 			if(cmd == "quit"){
@@ -409,57 +449,126 @@ void Poll::command_control(){
 					OUTPUT_FILE.CloseFile();
 				}
 				else{ std::cout << SYS_MESSAGE_HEAD << "Failed to perform write test (output file is open)\n"; }			
+			}			
+			else if(cmd == "fdir"){ // Change the output file directory
+				OUTPUT_DIRECTORY = arg; 
+				CURRENT_FILE_NUM = 0;
+				std::cout << SYS_MESSAGE_HEAD << "Set output directory to '" << OUTPUT_DIRECTORY << "'\n";
+			} 
+			else if(cmd == "ouf"){ // Change the output file name
+				OUTPUT_FILENAME = arg; 
+				CURRENT_FILE_NUM = 0;
+				OUTPUT_FILE.SetFilenamePrefix(OUTPUT_FILENAME);
+				std::cout << SYS_MESSAGE_HEAD << "Set output filename to '" << OUTPUT_FILENAME << "'\n";
+			} 
+			else if(cmd == "htit"){ // Change the title of the output file
+				OUTPUT_TITLE = arg; 
+				std::cout << SYS_MESSAGE_HEAD << "Set run title to '" << OUTPUT_TITLE << "'\n";
+			} 
+			else if(cmd == "hnum"){ // Tell POLL to attempt a PIXIE crate reboot
+				OUTPUT_RUN_NUM = atoi(arg.c_str()); 
+				std::cout << SYS_MESSAGE_HEAD << "Set run number to '" << OUTPUT_RUN_NUM << "'\n";
+			} 
+			else if(cmd == "oform"){ // Change the output file format
+				int format = atoi(arg.c_str());
+				if(format == 0 || format == 1 || format == 2){
+					OUTPUT_FORMAT = atoi(arg.c_str());
+					std::cout << SYS_MESSAGE_HEAD << "Set output file format to '" << OUTPUT_FORMAT << "'\n";
+					if(OUTPUT_FORMAT == 1){ std::cout << "  Warning! this output format is experimental and is not recommended\n"; }
+					else if(OUTPUT_FORMAT == 2){ std::cout << "  Warning! this output format is slow and should only be used for debugging/troubleshooting\n"; }
+					OUTPUT_FILE.SetFileFormat(OUTPUT_FORMAT);
+				}
+				else{ 
+					std::cout << SYS_MESSAGE_HEAD << "Unknown output file format ID '" << format << "'\n";
+					std::cout << "  Available file formats include:\n";
+					std::cout << "   0 - .ldf (HRIBF) file format (default)\n";
+					std::cout << "   1 - .pld (PIXIE) file format (experimental)\n";
+					std::cout << "   2 - .root file format (slow, not recommended)\n";
+				}
 			}
-			else if(cmd.find(" ") != std::string::npos){ // Commands with arguments
-				size_t index = cmd.find(" ");
-				std::string cmd2 = cmd.substr(0, index); // Get the command from the full input string
-				std::string arg = cmd.substr(index+1, cmd.size()-index); // Get the argument from the full input string
-				
-				if(cmd2 == "fdir"){ // Change the output file directory
-					OUTPUT_DIRECTORY = arg; 
-					CURRENT_FILE_NUM = 0;
-					std::cout << SYS_MESSAGE_HEAD << "Set output directory to '" << OUTPUT_DIRECTORY << "'\n";
-				} 
-				else if(cmd2 == "ouf"){ // Change the output file name
-					OUTPUT_FILENAME = arg; 
-					CURRENT_FILE_NUM = 0;
-					OUTPUT_FILE.SetFilenamePrefix(OUTPUT_FILENAME);
-					std::cout << SYS_MESSAGE_HEAD << "Set output filename to '" << OUTPUT_FILENAME << "'\n";
-				} 
-				else if(cmd2 == "htit"){ // Change the title of the output file
-					OUTPUT_TITLE = arg; 
-					std::cout << SYS_MESSAGE_HEAD << "Set run title to '" << OUTPUT_TITLE << "'\n";
-				} 
-				else if(cmd2 == "hnum"){ // Tell POLL to attempt a PIXIE crate reboot
-					OUTPUT_RUN_NUM = atoi(arg.c_str()); 
-					std::cout << SYS_MESSAGE_HEAD << "Set run number to '" << OUTPUT_RUN_NUM << "'\n";
-				} 
-				else if(cmd2 == "oform"){ // Change the output file format
-					int format = atoi(arg.c_str());
-					if(format == 0 || format == 1 || format == 2){
-						OUTPUT_FORMAT = atoi(arg.c_str());
-						std::cout << SYS_MESSAGE_HEAD << "Set output file format to '" << OUTPUT_FORMAT << "'\n";
-						if(OUTPUT_FORMAT == 1){ std::cout << "  Warning! this output format is experimental and is not recommended\n"; }
-						else if(OUTPUT_FORMAT == 2){ std::cout << "  Warning! this output format is slow and should only be used for debugging/troubleshooting\n"; }
-						OUTPUT_FILE.SetFileFormat(OUTPUT_FORMAT);
+			else if(cmd == "pwrite" || cmd == "pmwrite"){ // Write pixie parameters
+				if(POLL_RUNNING){ 
+					std::cout << SYS_MESSAGE_HEAD << "Warning! cannot edit pixie parameters while acquisition is running!\n"; 
+					continue;
+				}
+			
+				std::vector<std::string> arguments;
+				unsigned int p_args = split_str(arg, arguments);
+			
+				if(cmd == "pwrite"){ // Syntax "pwrite <module> <channel> <parameter name> <value>"
+					if(p_args > 0 && arguments.at(0) == "help"){ pchan_help(); }
+					else if(p_args >= 4){
+						int mod = atoi(arguments.at(0).c_str());
+						int ch = atoi(arguments.at(1).c_str());
+						float value = atof(arguments.at(3).c_str());
+					
+						ParameterChannelWriter writer;
+						if(forChannel(pif, mod, ch, writer, make_pair(arguments.at(2), value))){ pif.SaveDSPParameters(); }
 					}
-					else{ 
-						std::cout << SYS_MESSAGE_HEAD << "Unknown output file format ID '" << format << "'\n";
-						std::cout << "  Available file formats include:\n";
-						std::cout << "   0 - .ldf (HRIBF) file format (default)\n";
-						std::cout << "   1 - .pld (PIXIE) file format (experimental)\n";
-						std::cout << "   2 - .root file format (slow, not recommended)\n";
+					else{
+						std::cout << SYS_MESSAGE_HEAD << "Invalid number of parameters to pwrite\n";
+						std::cout << SYS_MESSAGE_HEAD << " -SYNTAX- pwrite [module] [channel] [parameter] [value]\n";
 					}
 				}
-				else{ std::cout << SYS_MESSAGE_HEAD << "Unknown command '" << cmd2 << "'\n"; }
+				else if(cmd == "pmwrite"){ // Syntax "pmwrite <module> <parameter name> <value>"
+					if(p_args > 0 && arguments.at(0) == "help"){ pmod_help(); }
+					else if(p_args >= 3){
+						int mod = atoi(arguments.at(0).c_str());
+						unsigned long value = (unsigned long)atol(arguments.at(2).c_str());
+					
+						ParameterModuleWriter writer;
+						if(forModule(pif, mod, writer, make_pair(arguments.at(1), value))){ pif.SaveDSPParameters(); }
+					}
+					else{
+						std::cout << SYS_MESSAGE_HEAD << "Invalid number of parameters to pmwrite\n";
+						std::cout << SYS_MESSAGE_HEAD << " -SYNTAX- pmwrite [module] [parameter] [value]\n";
+					}
+				}
+			}
+			else if(cmd == "pread" || cmd == "pmread"){ // Read pixie parameters
+				std::vector<std::string> arguments;
+				unsigned int p_args = split_str(arg, arguments);
+							
+				if(cmd == "pread"){ // Syntax "pread <module> <channel> <parameter name>"
+					if(p_args > 0 && arguments.at(0) == "help"){ pchan_help(); }
+					else if(p_args >= 3){
+						int mod = atoi(arguments.at(0).c_str());
+						int ch = atoi(arguments.at(1).c_str());
+					
+						ParameterChannelReader reader;
+						forChannel(pif, mod, ch, reader, arguments.at(2));
+					}
+					else{
+						std::cout << SYS_MESSAGE_HEAD << "Invalid number of parameters to pread\n";
+						std::cout << SYS_MESSAGE_HEAD << " -SYNTAX- pread [module] [channel] [parameter]\n";
+					}
+				}
+				else if(cmd == "pmread"){ // Syntax "pmread <module> <parameter name>"
+					if(p_args > 0 && arguments.at(0) == "help"){ pmod_help(); }
+					else if(p_args >= 2){
+						int mod = atoi(arguments.at(0).c_str());
+					
+						ParameterModuleReader reader;
+						forModule(pif, mod, reader, arguments.at(1));
+					}
+					else{
+						std::cout << SYS_MESSAGE_HEAD << "Invalid number of parameters to pmread\n";
+						std::cout << SYS_MESSAGE_HEAD << " -SYNTAX- pread [module] [parameter]\n";
+					}
+				}
 			}
 			else{ std::cout << SYS_MESSAGE_HEAD << "Unknown command '" << cmd << "'\n"; }
+			std::cout << std::endl;
 
 			cmd = "";
 			cmd_ready = false;
 		}
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Poll::run_control
+///////////////////////////////////////////////////////////////////////////////
 
 /* Function to control the gathering and recording of PIXIE data */
 void Poll::run_control(){
@@ -839,6 +948,40 @@ void Poll::run_control(){
 	RUN_CTRL_EXIT = true;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// PREAD/PWRITE
+///////////////////////////////////////////////////////////////////////////////
+
+bool ParameterChannelWriter::operator()(PixieFunctionParms< std::pair<std::string, float> > &par){
+	if(par.pif.WriteSglChanPar(par.par.first.c_str(), par.par.second, par.mod, par.ch)){
+		par.pif.PrintSglChanPar(par.par.first.c_str(), par.mod, par.ch);
+		return true;
+	}
+	return false;
+}
+
+bool ParameterModuleWriter::operator()(PixieFunctionParms< std::pair<std::string, unsigned long> > &par){
+	if(par.pif.WriteSglModPar(par.par.first.c_str(), par.par.second, par.mod)){
+		par.pif.PrintSglModPar(par.par.first.c_str(), par.mod);
+		return true;
+	} 
+	return false;
+}
+
+bool ParameterChannelReader::operator()(PixieFunctionParms<std::string> &par){
+	par.pif.PrintSglChanPar(par.par.c_str(), par.mod, par.ch);
+	return true;
+}
+
+bool ParameterModuleReader::operator()(PixieFunctionParms<std::string> &par){
+	par.pif.PrintSglModPar(par.par.c_str(), par.mod);
+	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Support Functions
+///////////////////////////////////////////////////////////////////////////////
+
 /* Print help dialogue for command line options. */
 void help(){
 	std::cout << "\n SYNTAX: ./poll2 [options]\n";
@@ -938,6 +1081,22 @@ bool get_opt(int argc_, char **argv_, CLoption *options, unsigned int num_valid_
 	return true;
 }
 
+unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_){
+	args.clear();
+	std::string temp = "";
+	unsigned int count = 0;
+	for(unsigned int i = 0; i < str_.size(); i++){
+		if(str_[i] == delimiter_ || i == str_.size()-1){
+			if(i == str_.size()-1){ temp += str_[i]; }
+			args.push_back(temp);
+			temp = "";
+			count++;
+		}
+		else{ temp += str_[i]; }		
+	}
+	return count;
+}
+
 /* Return the length of a character string. */
 unsigned int cstrlen(char *str_){
 	unsigned int output = 0;
@@ -971,4 +1130,57 @@ std::string pad_string(const std::string &input_, unsigned int length_){
 std::string yesno(bool value_){
 	if(value_){ return "Yes"; }
 	return "No";
+}
+
+template<typename T>
+bool forChannel(PixieInterface &pif, int mod, int ch, PixieFunction<T> &f, T par){
+    PixieFunctionParms<T> parms(pif, par);
+    
+    bool hadError = false;
+    
+	if(mod < 0){
+		for(parms.mod = 0; parms.mod < pif.GetNumberCards(); parms.mod++){
+			if(ch < 0){
+				for (parms.ch = 0; parms.ch < pif.GetNumberChannels(); parms.ch++) {
+					if(!f(parms)){ hadError = true; }
+				}
+			} 
+			else{
+				parms.ch = ch;
+				if(!f(parms)){ hadError = true; }
+			}
+		}
+	} 
+	else{
+		parms.mod = mod;
+		if(ch < 0){
+			for(parms.ch = 0; parms.ch < pif.GetNumberChannels(); parms.ch++){
+				if(!f(parms)){ hadError = true; }
+			}
+		} 
+		else{
+			parms.ch = ch;
+			hadError = !f(parms);
+		}
+	}
+
+    return !hadError;
+}
+
+template<typename T>
+bool forModule(PixieInterface &pif, int mod, PixieFunction<T> &f, T par){
+    PixieFunctionParms<T> parms(pif, par);
+    bool hadError = false;
+    
+	if(mod < 0){
+		for(parms.mod = 0; parms.mod < pif.GetNumberCards(); parms.mod++){
+			if(!f(parms)){ hadError = true; }
+		}
+	} 
+	else{
+		parms.mod = mod;
+		hadError = !f(parms);
+	}
+    
+    return !hadError;
 }

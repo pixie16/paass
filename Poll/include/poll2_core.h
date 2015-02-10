@@ -111,9 +111,50 @@ class Poll{
 	
 	void help();
 	
+	void pchan_help();
+	
+	void pmod_help();
+	
 	bool synch_mods(PixieInterface &pif);
 		
 	int write_data(word_t *data, unsigned int nWords, bool shm_=false);
+};
+
+template<typename T=int>
+struct PixieFunctionParms{
+    PixieInterface &pif;
+    unsigned int mod;
+    unsigned int ch;
+    T par;
+  
+    PixieFunctionParms(PixieInterface &p, T x) : pif(p) {par=x;}
+};
+
+template<typename T=int>
+class PixieFunction : public std::unary_function<bool, struct PixieFunctionParms<T> >{
+    public:
+    virtual bool operator()(struct PixieFunctionParms<T> &par) = 0;
+    virtual ~PixieFunction() {};
+};
+
+class ParameterChannelWriter : public PixieFunction< std::pair<std::string, float> >{
+  public:
+	bool operator()(PixieFunctionParms< std::pair<std::string, float> > &par);
+};
+
+class ParameterModuleWriter : public PixieFunction< std::pair<std::string, unsigned long> >{
+  public:
+	bool operator()(PixieFunctionParms< std::pair<std::string, unsigned long> > &par);
+};
+
+class ParameterChannelReader : public PixieFunction<std::string>{
+  public:
+	bool operator()(PixieFunctionParms<std::string> &par);
+};
+
+class ParameterModuleReader : public PixieFunction<std::string>{
+  public:
+	bool operator()(PixieFunctionParms<std::string> &par);
 };
 
 struct CLoption{
@@ -145,8 +186,15 @@ struct CLoption{
 // Function forward definitions
 bool get_opt(int argc_, char **argv_, CLoption *options, unsigned int num_valid_opt_);
 unsigned int cstrlen(char *str_);
+unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_=' ');
 std::string csubstr(char *str_, unsigned int start_index=0);
 std::string pad_string(const std::string &input_, unsigned int length_);
 std::string yesno(bool value_);
+
+template<typename T>
+bool forModule(PixieInterface &pif, int mod, PixieFunction<T> &f, T par = T() );
+
+template<typename T>
+bool forChannel(PixieInterface &pif, int mod, int ch, PixieFunction<T> &f, T par = T() );
 
 #endif
