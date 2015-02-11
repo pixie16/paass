@@ -50,7 +50,9 @@ void BarBuilder::FillMaps(void) {
         Identifier id = (*it)->GetChanID();
         TimingDefs::TimingIdentifier key(CalcBarNumber(id.GetLocation()),
                                          id.GetSubtype());
+
         HighResTimingData data((*it));
+
         if(!data.GetIsValidData())
             continue;
 

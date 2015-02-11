@@ -48,6 +48,12 @@
         <NumOfTraces value="50"/>
     </Global>
 
+    <!-- Sets a rejection region for the data. The time is in seconds and the
+            program will skip any buffers that arrive between these times -->
+    <Reject>
+        <Time start="300" stop="16000"/>
+    </Reject>
+
     <!-- Instructions:
          Add
             <Process name="SomethingProcessor"/>

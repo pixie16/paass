@@ -15,19 +15,10 @@ PULSEFIT = 1
 # Define to use Gamma-Gamma gates in GeProcessor
 # GGATES = 1
 
-# Use gfortran
+# We'll do some tests here to find if environment variables have been set
 ifeq ($(HHIRF_GFORTRAN),)
 HHIRF_GFORTRAN = 1
 endif
-
-#------- instruct make to search through these
-#------- directories to find files
-vpath %.f scan/
-vpath %.hpp include/
-vpath %.h include/
-vpath %.icc include/
-vpath %.cpp src/
-vpath %.o obj/
 
 ifeq ($(HHIRF_DIR),)
 HHIRF_DIR = /usr/hhirf
@@ -44,6 +35,21 @@ ACQ2_LIBDIR = /usr/acq2/lib
 endif
 endif
 endif
+
+ifneq ($(EXTRA_PROCESSORS),)
+vpath %.cpp $(EXTRA_PROCESSORS)/src
+vpath %.hpp $(EXTRA_PROCESSORS)/inc
+CXXFLAGS += -I$(EXTRA_PROCESSORS)/inc
+endif
+
+#------- instruct make to search through these
+#------- directories to find files
+vpath %.f scan/
+vpath %.hpp include/
+vpath %.h include/
+vpath %.icc include/
+vpath %.cpp src/
+vpath %.o obj/
 
 LIBS = $(HHIRF_DIR)/scanorlib.a $(HHIRF_DIR)/orphlib.a \
        $(ACQ2_LIBDIR)/acqlib.a  $(ACQ2_LIBDIR)/ipclib.a
@@ -174,6 +180,7 @@ TRACEFILTERO     = TraceFilterer.$(ObjSuf)
 TRACESUBO        = TraceAnalyzer.$(ObjSuf)
 TREECORRELATORO  = TreeCorrelator.$(ObjSuf)
 VANDLEPROCESSORO = VandleProcessor.$(ObjSuf)
+VANDLEATLERIBSSPROCESSORO = VandleAtLeribssProcessor.$(ObjSuf)
 VANDLEROOTO      = VandleROOT.$(ObjSuf)
 WALKCORRECTORO   = WalkCorrector.$(ObjSuf)
 WAVEFORMSUBO     = WaveformAnalyzer.$(ObjSuf)
@@ -211,7 +218,7 @@ CXX_OBJS += $(BEAMLOGICPROCESSORO) $(BETASCINTPROCESSORO)\
 	$(LOGICPROCESSORO) $(MCPPROCESSORO) $(MTCPROCESSORO)\
 	$(NEUTRONSCINTPROCESSORO) $(POSITIONPROCESSORO) $(PULSERPROCESSORO)\
 	$(SSDPROCESSORO) $(TEENYVANDLEPROCESSORO) $(TRIGGERLOGICPROCESSORO)\
-	$(VANDLEPROCESSORO)
+	$(VANDLEPROCESSORO) $(VANDLEATLERIBSSPROCESSORO)
 
 #---------- Change the executable name if necessary
 ifdef ONLINE

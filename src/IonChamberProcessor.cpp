@@ -166,11 +166,9 @@ bool IonChamberProcessor::Process(RawEvent &event) {
     return true;
 }
 
-void IonChamberProcessor::Data::Clear(void)
-{
-  for (size_t i=0; i < noDets; i++) {
+void IonChamberProcessor::Data::Clear(void) {
+  for (size_t i=0; i < noDets; i++)
     raw[i] = cal[i] = 0;
-  }
   mult = 0;
 }
 

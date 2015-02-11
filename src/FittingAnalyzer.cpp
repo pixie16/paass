@@ -128,8 +128,8 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
             pars = globals->bigVandlePars();
         else
             pars = globals->smallVandlePars();
-    } else if (detType == "beta") {
-        if(detSubtype == "single")
+    } else if (detType == "beta" || detType == "beta_scint") {
+        if(detSubtype == "single" || detSubtype == "beta")
             pars = globals->singleBetaPars();
         else if(detSubtype == "double")
             pars = globals->doubleBetaPars();
