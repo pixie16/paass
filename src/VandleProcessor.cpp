@@ -23,35 +23,26 @@
 
 namespace dammIds {
     namespace vandle {
-    const unsigned int BIG_OFFSET  = 20; //!< Offset for big bars
-    const unsigned int MED_OFFSET  = 40;//!< Offset for medium bars
-    const unsigned int DEBUGGING_OFFSET = 60;//!< Offset for debugging hists
+        const unsigned int BIG_OFFSET  = 20; //!< Offset for big bars
+        const unsigned int MED_OFFSET  = 40;//!< Offset for medium bars
+        const unsigned int DEBUGGING_OFFSET = 60;//!< Offset for debugging hists
 
-	const int DD_TQDCBARS         = 0;//!< QDC for the bars
-	const int DD_MAXIMUMBARS      = 1;//!< Maximum values for the bars
-	const int DD_TIMEDIFFBARS     = 2;//!< time difference in the bars
-	const int DD_TOFBARS          = 3;//!< time of flight for the bars
-	const int DD_CORTOFBARS       = 4;//!< corrected time of flight
-    const int DD_TQDCAVEVSTOF     = 5;//!< Ave QDC vs. ToF
-	const int DD_TQDCAVEVSCORTOF  = 6;//!< Ave QDC vs. Cor ToF
-	const int DD_CORRELATED_TOF   = 7;//!< ToF Correlated w/ Beam
-	const int DD_QDCAVEVSSTARTQDCSUM = 8;//!< Average VANDLE QDC vs. Start QDC Sum
-	const int DD_TOFVSSTARTQDCSUM    = 9;//!< ToF vs. Start QDC Sum
-	const int DD_GAMMAENERGYVSTOF  = 10;//!< Gamma Energy vs. ToF
-	const int DD_TQDCAVEVSTOF_VETO = 11;//!< QDC vs. ToF - Vetoed
-	const int DD_TOFBARS_VETO      = 12;//!< ToF - Vetoed
+        const int DD_TQDCBARS         = 0;//!< QDC for the bars
+        const int DD_MAXIMUMBARS      = 1;//!< Maximum values for the bars
+        const int DD_TIMEDIFFBARS     = 2;//!< time difference in the bars
+        const int DD_TOFBARS          = 3;//!< time of flight for the bars
+        const int DD_CORTOFBARS       = 4;//!< corrected time of flight
+        const int DD_TQDCAVEVSTOF     = 5;//!< Ave QDC vs. ToF
+        const int DD_TQDCAVEVSCORTOF  = 6;//!< Ave QDC vs. Cor ToF
+        const int DD_CORRELATED_TOF   = 7;//!< ToF Correlated w/ Beam
+        const int DD_QDCAVEVSSTARTQDCSUM = 8;//!< Average VANDLE QDC vs. Start QDC Sum
+        const int DD_TOFVSSTARTQDCSUM    = 9;//!< ToF vs. Start QDC Sum
+        const int DD_GAMMAENERGYVSTOF  = 10;//!< Gamma Energy vs. ToF
+        const int DD_TQDCAVEVSTOF_VETO = 11;//!< QDC vs. ToF - Vetoed
+        const int DD_TOFBARS_VETO      = 12;//!< ToF - Vetoed
 
-	const int D_DEBUGGING    = 0+DEBUGGING_OFFSET;//!< Debugging countable problems
-	const int DD_DEBUGGING   = 1+DEBUGGING_OFFSET;//!< 2D Hist to count problems
-	const int DD_DEBUGGING0  = 2+DEBUGGING_OFFSET;//!< Generic for debugging
-	const int DD_DEBUGGING1  = 3+DEBUGGING_OFFSET;//!< Generic for debugging
-	const int DD_DEBUGGING2  = 4+DEBUGGING_OFFSET;//!< Generic for debugging
-	const int DD_DEBUGGING3  = 5+DEBUGGING_OFFSET;//!< Generic for debugging
-	const int DD_DEBUGGING4  = 6+DEBUGGING_OFFSET;//!< Generic for debugging
-	const int DD_DEBUGGING5  = 7+DEBUGGING_OFFSET;//!< Generic for debugging
-	const int DD_DEBUGGING6  = 8+DEBUGGING_OFFSET;//!< Generic for debugging
-	const int DD_DEBUGGING7  = 9+DEBUGGING_OFFSET;//!< Generic for debugging
-	const int DD_DEBUGGING8  = 10+DEBUGGING_OFFSET;//!< Generic for debugging
+        const int D_DEBUGGING    = 0+DEBUGGING_OFFSET;//!< Debugging countable problems
+        const int DD_DEBUGGING   = 1+DEBUGGING_OFFSET;//!< 2D Hist to count problems
     }
 }//namespace dammIds
 
@@ -192,8 +183,11 @@ bool VandleProcessor::PreProcess(RawEvent &event) {
     static const vector<ChanEvent*> &events =
         event.GetSummary("vandle")->GetList();
 
-    if(events.empty()) {
-        plot(D_DEBUGGING, 27);
+    if(events.empty() || events.size() < 2) {
+        if(events.empty())
+            plot(D_DEBUGGING, 27);
+        if(events.size() < 2)
+            plot(D_DEBUGGING, 2);
         return(false);
     }
 
@@ -378,10 +372,6 @@ void VandleProcessor::FillVandleOnlyHists(void) {
              bar.GetRightSide().GetMaximumValue(), barId.first*2+1);
         plot(DD_TIMEDIFFBARS+OFFSET,
             bar.GetTimeDifference()*plotMult_+plotOffset_, barId.first);
-
-        if(barId.first == 12)
-            plot(DD_DEBUGGING0, bar.GetQdcPosition()*plotMult_+plotOffset_,
-                bar.GetTimeDifference()*plotMult_+plotOffset_);
     }
 }
 

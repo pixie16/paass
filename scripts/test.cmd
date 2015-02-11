@@ -1,6 +1,5 @@
 zero
-file data/anl2015/anl_sunday11_01.ldf
-go
-file data/anl2015/anl_sunday11_01-1.ldf
+ban 077cu.ban
+file data/vandleLeribss2012/negativeIons/a077/vandle_a77_103.ldf
 go
 end
