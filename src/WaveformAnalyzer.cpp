@@ -23,6 +23,7 @@ WaveformAnalyzer::WaveformAnalyzer() : TraceAnalyzer() {
 
     knownTypes_.push_back("vandle");
     knownTypes_.push_back("beta");
+    knownTypes_.push_back("beta_scint");
     knownTypes_.push_back("liquid");
     knownTypes_.push_back("tvandle");
     knownTypes_.push_back("pulser");

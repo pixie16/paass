@@ -15,6 +15,7 @@ tmp/
 doc/classdiagramRawEvent.svg
 config/cfgs
 optional
+ValgrindOut.xml
 
 #DAMM files
 *.drr

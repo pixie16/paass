@@ -23,6 +23,7 @@ public:
     HighResTimingData(ChanEvent *chan) {
         trace_ = &chan->GetTrace();
         highResTime_ = chan->GetHighResTime()*1e9;
+        pixieEnergy_ = chan->GetEnergy();
 
         snr_ =
             20*log10(trace_->GetValue("maxval") /
@@ -63,6 +64,8 @@ public:
     /** \return The current value of phase_ */
     double GetPhase() const { return trace_->GetValue("phase")*
                         (Globals::get()->clockInSeconds()*1e+9); };
+    /** \return The pixie Energy */
+    double GetPixieEnergy() const { return(pixieEnergy_); };
     /** \return The current value of snr_ */
     double GetSignalToNoiseRatio() const { return snr_; };
     /** \return The current value of stdDevBaseline_  */
@@ -88,6 +91,7 @@ private:
     bool isValidData_; //!< Member variable "dataValid_"
     double highResTime_; //!< Member variable "highResTime_"
     double snr_; //!< Member variable "snr_"
+    double pixieEnergy_; //!< The energy from pixie
 };
 
 /** Defines a map to hold timing data for a channel. */
