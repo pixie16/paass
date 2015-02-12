@@ -19,18 +19,26 @@
 					<Add directory="include" />
 				</Compiler>
 				<MakeCommands>
-					<Build command="$make" />
+					<Build command="$make -j2" />
 					<CompileFile command="$make -f $makefile $file" />
 					<Clean command="$make clean" />
 					<DistClean command="$make -f $makefile distclean$target" />
 					<AskRebuildNeeded command="$make -q -f $makefile $target" />
-					<SilentBuild command="$make &gt; $(CMD_NULL)" />
+					<SilentBuild command="$make -j2 &gt; $(CMD_NULL)" />
 				</MakeCommands>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="../pixieScanExtraProcs/inc/CrosstalkProcessor.hpp" />
+		<Unit filename="../pixieScanExtraProcs/inc/E11006Processor.hpp" />
+		<Unit filename="../pixieScanExtraProcs/inc/Ge4Hen3Processor.hpp" />
+		<Unit filename="../pixieScanExtraProcs/inc/VandleAtLeribssProcessor.hpp" />
+		<Unit filename="../pixieScanExtraProcs/src/CrosstalkProcessor.cpp" />
+		<Unit filename="../pixieScanExtraProcs/src/E11006Processor.cpp" />
+		<Unit filename="../pixieScanExtraProcs/src/Ge4Hen3Processor.cpp" />
+		<Unit filename="../pixieScanExtraProcs/src/VandleAtLeribssProcessor.cpp" />
 		<Unit filename="../pixieScanOptCfgs/077cu/Config.xml.77cu-01-4" />
 		<Unit filename="../pixieScanOptCfgs/077cu/Config.xml.77cu-103" />
 		<Unit filename="../pixieScanOptCfgs/077cu/Config.xml.77cu-104" />
@@ -96,14 +104,6 @@
 		<Unit filename="../pixieScanOptCfgs/nscl-tofTest/qdc.txt" />
 		<Unit filename="../pixieScanOptCfgs/nscl-tofTest/timingCal.txt" />
 		<Unit filename="../pixieScanOptCfgs/nscl-tofTest/timingConstants.txt" />
-		<Unit filename="../pixieScanExtraProcs/inc/CrosstalkProcessor.hpp" />
-		<Unit filename="../pixieScanExtraProcs/inc/E11006Processor.hpp" />
-		<Unit filename="../pixieScanExtraProcs/inc/Ge4Hen3Processor.hpp" />
-		<Unit filename="../pixieScanExtraProcs/inc/VandleAtLeribssProcessor.hpp" />
-		<Unit filename="../pixieScanExtraProcs/src/CrosstalkProcessor.cpp" />
-		<Unit filename="../pixieScanExtraProcs/src/E11006Processor.cpp" />
-		<Unit filename="../pixieScanExtraProcs/src/Ge4Hen3Processor.cpp" />
-		<Unit filename="../pixieScanExtraProcs/src/VandleAtLeribssProcessor.cpp" />
 		<Unit filename=".gitignore" />
 		<Unit filename="COPYRIGHT" />
 		<Unit filename="LICENSE" />
