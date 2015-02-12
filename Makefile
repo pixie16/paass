@@ -39,7 +39,7 @@ endif
 ifneq ($(EXTRA_PROCESSORS),)
 vpath %.cpp $(EXTRA_PROCESSORS)/src
 vpath %.hpp $(EXTRA_PROCESSORS)/inc
-CXXFLAGS += -I$(EXTRA_PROCESSORS)/inc
+CINCLUDEDIRS = -I$(EXTRA_PROCESSORS)/inc
 endif
 
 #------- instruct make to search through these
@@ -76,6 +76,9 @@ GCC       = gcc
 CXX       = g++
 LINK.o    = $(FC) $(LDFLAGS)
 
+#------- include directories for the pixie c files
+CINCLUDEDIRS += -Iinclude
+
 # -Dnewreadout is needed to account for a change to pixie16 readout
 # structure change on 03/20/08.  Remove for backwards compatability
 #
@@ -89,9 +92,6 @@ CXXFLAGS += -Wall -g -fPIC $(CINCLUDEDIRS) -Dnewreadout
 ifdef ONLINE
 CXXFLAGS += -DONLINE
 endif
-
-#------- include directories for the pixie c files
-CINCLUDEDIRS  = -Iinclude
 
 #------- basic linking instructions
 LDLIBS   += -lm -lstdc++
