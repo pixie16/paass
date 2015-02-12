@@ -42,7 +42,6 @@
 #include "TraceFilterer.hpp"
 #include "TriggerLogicProcessor.hpp"
 #include "VandleProcessor.hpp"
-#include "VandleAtLeribssProcessor.hpp"
 #include "ValidProcessor.hpp"
 
 #include "CfdAnalyzer.hpp"
@@ -252,17 +251,12 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new SsdProcessor());
         } else if (name == "TriggerLogicProcessor") {
             vecProcess.push_back(new TriggerLogicProcessor());
-        } else if (name == "VandleProcessor" || name == "VandleAtLeribssProcessor") {
+        } else if (name == "VandleProcessor") {
             double res = processor.attribute("res").as_double(2.0);
             double offset = processor.attribute("offset").as_double(200.0);
             vector<string> types =
                 strings::tokenize(processor.attribute("types").as_string(),",");
-            if(name == "VandleProcessor")
-                vecProcess.push_back(new VandleProcessor(types, res, offset));
-            else if(name == "VandleAtLeribssProcessor")
-                vecProcess.push_back(new VandleAtLeribssProcessor(types, res, offset));
-            else
-                throw IOException("We have found something bad while initializing the VandleProcessor");
+            vecProcess.push_back(new VandleProcessor(types, res, offset));
         } else if (name == "TeenyVandleProcessor") {
             vecProcess.push_back(new TeenyVandleProcessor());
         } else if (name == "DoubleBetaProcessor") {

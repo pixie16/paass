@@ -8,8 +8,8 @@
 
   \section ql Quick Links
   \subpage useman \n
-  \subpage refman \n
   \subpage devman \n
+  \subpage refman \n
 
   \section briefinto Brief Introduction
   This software was written at the University of Tennessee at Knoxville by
@@ -36,12 +36,12 @@
 
 /** \page useman User's Manual
   - An \subpage philosophy of the Pixie16 code
-  - A \subpage primer for those who have never seen C++
   - A description of the \subpage directory
   - A \subpage quickstart Guide
   - An explanation of the \subpage xmlconfig
   - A \subpage faq
   - Some \subpage codewarn about the code
+  - A \subpage primer for those who have never seen C++
 */
 
 /******************************************************************************/
@@ -52,8 +52,6 @@
   If you can not determine why something has either failed or produced incorrect
   results look at the list of warnings to see if it has been mentioned.
 
-  \warning All channels defined in map.txt must have a corresponding
-  calibration.
   \warning C++ index numbering starts at 0 not at 1 as in FORTRAN.
   Let me repeat since this causes many problems if forgotten.
   C++ indexing numbering starts at 0 not at 1 as in FORTRAN.
@@ -73,7 +71,7 @@
   \section dir-filelist File List
   \subsection dir-xmlconfig Confix.xml
   This is a symbolic link to one of the configuration files in
-  \ref dir-config. You can change the type of analysis you want to do by
+  \ref dir-config. You can change the configuration for the program by
   changing where this link points.
   \subsection dir-copy COPYRIGHT
   This file contains the copyright information for the software. It should be
@@ -93,6 +91,9 @@
   GNU Makefile</a>, and is responsible for compilation of the program.
 
   \section dir-dirlist Directory Listing
+  \subsection dir-ban bananas/
+  This directory contains a test banana file that can be used as a template
+  to use bananas with the scan code.
   \subsection dir-config config/
   This directory contains some of the user contributed configuration files.
   These files contain all of the configuration information that is necessary
@@ -103,6 +104,9 @@
   it will be located in the sub directories: html/ and latex/
   \subsection dir-inc include/
   This directory contains all of the ".hpp" files.
+  \subsection dir-obj obj/
+  This directory is made by the Makefile during compilation. It holds all of
+  the object files for the program.
   \subsection dir-scan scan/
   This directory contains all of the ".f" files. In principle, it is never
   necessary for a general user (or even a developer) to modify these files.
@@ -425,8 +429,7 @@
   - <a href="ftp://ftp.phy.ornl.gov/pub/upak/Linux/">HRIBF/ORNL Libraries</a> -
     These need to be compiled and installed on the analysis computer. Please be
     aware that the installation of these files is not supported by the
-    development team of this software. If you ask nicely they may; however,
-    help.
+    development team of this software. If you ask nicely they may help.
   - <a href="https://www.gnu.org/software/gsl/">GNU Scientific Library</a> -
     This software is usually available as a software package from your favorite
     Linux distro. It is necessary for the high-resolution timing algorithms, if
@@ -443,6 +446,7 @@
     export HHIRF_DIR=/absolute/path/to/hhirf
     export ACQ2_LIBDIR=/absolute/path/to/acq2/lib
     export HHIRF_GFORTRAN=1
+    export EXTRA_PROCESSORS=/absolute/path/to/extra/processors
   \endcode
 
   You should replace "/absolute/path/to" with the proper absolute path to the
@@ -483,7 +487,7 @@
   modules.
 
   You can also change the "energyContraction" and "eventWidth" here. For now,
-  we will assume you're happy with what ever was there when you got the file.
+  we will assume you're happy with whatever was there when you got the file.
   Some common values are 1e-6 s for eventWidth and 1.0 for the
   energyContraction.
 
@@ -494,7 +498,7 @@
   wanting the following pieces:
   \code
     <Processor name="BetaScintProcessor"/>
-    <Processor name="VandleProcessor" />
+    <Processor name="VandleProcessor" types="small" res="2" offset="200"/>
 
     <Analyzer name="WaveformAnalyzer"/>
     <Analyzer name="FittingAnalyzer"/>
@@ -527,7 +531,7 @@
             <WalkCorrection model="None">
             </WalkCorrection>
         </Channel>
-        <Channel number="2" type="vandle" subtype="small" tags="left">
+        <Channel number="2" type="vandle" subtype="small" tags="left" numStarts="2">
             <WalkCorrection model="None">
             </WalkCorrection>
         </Channel>
@@ -1163,7 +1167,7 @@
 
   Here is a list of the parameters that are used for the corrections:
    - lrtoffset : The left-right time offset in ns
-   - tofOffsets : time offset w.r.t. start number 0 in ns
+   - tofOffsets : time offset w.r.t. start number X in ns
    - xOffset : offset between the center of the bar and the source in cm
    - z0 : the perpendicular distance between the bar and source in cm
    - z0Offset : additional corrections to z0 in cm
@@ -2066,14 +2070,71 @@
 
 /** \page devman Developer Manual (under construction)
   - A list of \subpage makeflags
-  - A method for \subpage add
+  - The method for \subpage add
+  - The method for \subpage addopt
   - Ideas for future \subpage improvement
   - Some \subpage nameConv for sanity
 */
 
 /******************************************************************************/
 
-/** \page add Adding a New Detector Processor
+/** \page addopt adding and using an optional detector processor
+    \section addopt-intro Introduction
+    We discuss here the steps one needs to follow in order to add and use an
+    experiment specific detector processor. These types of Processors work in
+    conjunction with their parent processors to provide additional functionality
+    beyond the original processor's intent.
+
+    For example, the use of the VandleAtLeribssProcessor is designed to add
+    additional histograms, gates, and other features that need not be used in
+    the original VandleProcessor. These processors may also be used to
+    provide completely new functionality, while still being part of an existing
+    processor.
+
+    Not every processor is ready to be used in this way and may require some
+    modifications in order to obtain this functionality. For examples of how to
+    update your processors to use this feature take a look at the GeProcessor
+    and the VandleProcessor.
+
+    \section addopt-get Getting the Optional Processors
+    The optional processors are kept in an additional git repository, since they
+    will not all necessarily be useful to everybody who uses this software. They
+    can be downloaded using the following command :
+    \code
+    git clone https://github.com/pixie16/ExperimentProcessors.git
+    \endcode
+
+    \section addopt-setup Setting up the Environment
+    To take advantage and ease the use of these new processors, you should
+    export an additional environmental variable in your .bashrc.
+    \code
+    export EXTRA_PROCESSORS=/absolute/path/to/extra/processors
+    \endcode
+    By exporting this variable, the Makefile will automatically search the
+    directory for the desired files.
+
+    \section addopt-make Setup the Makefile
+    Unfortunately, we still need to add the processor to the Makefile so that
+    it will be compiled and linked with the program. You should add your
+    processor to the list of existing processors.
+    \code
+    VANDLEATLERIBSSPROCESSORO = VandleAtLeribssProcessor.$(ObjSuf)
+    \endcode
+    Second, you need to add the new processor to the list of CXX_OBJS
+    \code
+    $(VANDLEATLERIBSSPROCESSORO)
+    \endcode
+    You can either add it in its own line or with the other processors, it
+    really doesn't matter.
+
+    \section addopt-driv Setup DetectorDriver
+
+    \section addopt-cfg Setup the Configuration File
+*/
+
+/******************************************************************************/
+
+/** \page add adding a New Detector Processor
   This page will describe the process for adding a new Processor
   to the analysis. In principle, you can add a Processor to handle specific
   detector types, or to handle those that already exist.
