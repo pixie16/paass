@@ -37,7 +37,8 @@ public:
      * \param [in] res : The resolution of the DAMM histograms
      * \param [in] offset : The offset of the DAMM histograms */
     VandleProcessor(const std::vector<std::string> &typeList,
-                    const double &res, const double &offset);
+                    const double &res, const double &offset,
+                    const unsigned int &numStarts);
 
     /** Preprocess the VANDLE data
      * \param [in] event : the event to preprocess
@@ -63,6 +64,8 @@ protected:
     bool hasSmall_; //!< True if small bars were requested in the Config
     bool hasBig_; //!< True if big bars were requested in the Config
     bool hasMed_; //!< True if medium bars were requested in the Config
+
+    unsigned int numStarts_; //!< The number of starts set in the Config File
 
     /** \brief Correct the time of flight based on the geometry of the setup
     * \param [in] TOF : The time of flight to correct
