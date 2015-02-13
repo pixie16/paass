@@ -17,6 +17,8 @@
 
 #include "CTerminal.h"
 
+#include "TermColors.h"
+
 std::string CPP_APP_VERSION = "1.0";
 
 #ifdef USE_NCURSES
@@ -289,20 +291,16 @@ void Terminal::in_print_(const char* input_){
 }
 
 // Dump all text in the stream to the output screen
-void Terminal::dump_(){
+void Terminal::flush(){
 	std::string stream_contents = stream.str();
 	if(stream_contents.size() > 0){
-		print(stream_contents.c_str());
+		print(stream_contents);
 		stream.str("");
 		stream.clear();
 	}
 }
 
 Terminal::Terminal(){
-	original = std::cout.rdbuf(); // Back-up cout's streambuf
-	pbuf = stream.rdbuf(); // Get stream's streambuf
-	std::cout.rdbuf(pbuf); // Assign streambuf to cout
-	
 	output_window = NULL;
 	input_window = NULL;
 	init = false;
@@ -310,7 +308,7 @@ Terminal::Terminal(){
 
 Terminal::~Terminal(){
 	if(init){
-		dump_(); // Make sure no text is remaining in the buffer
+		flush(); // Make sure no text is remaining in the buffer
 		Close();
 	}
 }
@@ -318,6 +316,11 @@ Terminal::~Terminal(){
 void Terminal::Initialize(){
 	if(init){ return; }
 
+	original = std::cout.rdbuf(); // Back-up cout's streambuf
+	pbuf = stream.rdbuf(); // Get stream's streambuf
+	std::cout.flush();
+	std::cout.rdbuf(pbuf); // Assign streambuf to cout
+	
 	main = initscr();
 	
 	if(main == NULL ){ // Attempt to initialize ncurses
@@ -346,9 +349,44 @@ void Terminal::Initialize(){
 		cursX = 0; cursY = height-1;
 		update_cursor_();
 		refresh_();
+
+		init_colors();
 	}
 	
 	setup_signal_handlers();
+}
+void Terminal::init_colors() {
+	if(has_colors()) {
+		start_color();
+		//Use user's terminal colors.
+		use_default_colors();
+
+		//Define colors
+		init_pair(1,COLOR_GREEN,-1);
+		init_pair(2,COLOR_RED,-1);
+		init_pair(3,COLOR_BLUE,-1);
+		init_pair(4,COLOR_YELLOW,-1);
+		init_pair(5,COLOR_MAGENTA,-1);
+		init_pair(6,COLOR_CYAN,-1);
+		init_pair(7,COLOR_WHITE,-1);
+		//Assign colors to map
+		attrMap[TermColors::DkGreen] = COLOR_PAIR(1);
+		attrMap[TermColors::BtGreen] = COLOR_PAIR(1);
+		attrMap[TermColors::DkRed] = COLOR_PAIR(2);
+		attrMap[TermColors::BtRed] = COLOR_PAIR(2);
+		attrMap[TermColors::DkBlue] = COLOR_PAIR(3);
+		attrMap[TermColors::BtBlue] = COLOR_PAIR(3);
+		attrMap[TermColors::DkYellow] = COLOR_PAIR(4);
+		attrMap[TermColors::BtYellow] = COLOR_PAIR(4);
+		attrMap[TermColors::DkMagenta] = COLOR_PAIR(5);
+		attrMap[TermColors::BtMagenta] = COLOR_PAIR(5);
+		attrMap[TermColors::DkCyan] = COLOR_PAIR(6);
+		attrMap[TermColors::BtCyan] = COLOR_PAIR(6);
+		attrMap[TermColors::DkWhite] = COLOR_PAIR(7);
+		attrMap[TermColors::BtWhite] = COLOR_PAIR(7);
+		attrMap[TermColors::Flashing] = A_BLINK;
+		attrMap[TermColors::Underline] = A_UNDERLINE;
+	}
 }
 
 void Terminal::SetPrompt(const char *input_){
@@ -363,8 +401,34 @@ void Terminal::putch(const char input_){
 }
 
 // Force text to the output screen
-void Terminal::print(const char* input_){
-	waddstr(output_window, input_);
+void Terminal::print(std::string input_){
+	size_t pos = 0, lastPos = 0;
+	//Search for escape sequences
+	while ((pos = input_.find("\e[",lastPos)) != std::string::npos) {
+		//Output the string from last location to current escape sequence
+		waddstr(output_window, input_.substr(lastPos,pos-lastPos).c_str());
+		lastPos = pos;
+
+		//Identify which escape code we found.
+		//First try reset code then loop through other codes
+		if (pos == input_.find(TermColors::Reset,pos)) {
+			wattrset(output_window, A_NORMAL);
+			lastPos += std::string(TermColors::Reset).length();
+		}
+		else {
+			for(auto it=attrMap.begin(); it!= attrMap.end(); ++it) {
+				//If the attribute is at the same position then we found this attribute and we turn it on
+				if (pos == input_.find(it->first,pos)) {
+					wattron(output_window, it->second);
+					//Iterate position to supress printing the escape string
+					lastPos += std::string(it->first).length();
+					break;
+				}
+			}
+		}	
+	}
+	//Print the remaining string content
+	waddstr(output_window, input_.substr(lastPos).c_str());
 	refresh_();
 }
 
@@ -379,7 +443,7 @@ std::string Terminal::GetCommand(){
 			break;
 		}
 
-		dump_(); // If there is anything in the stream, dump it to the screen
+		flush(); // If there is anything in the stream, dump it to the screen
 		
 		int keypress = wgetch(input_window);
 		if(keypress == ERR){ continue; } // No key was pressed in the interval

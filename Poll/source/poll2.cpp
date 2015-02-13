@@ -27,6 +27,7 @@ void start_cmd_control(Poll *poll_){
 	poll_->command_control();
 }
 
+
 /* Print help dialogue for command line options. */
 void help(){
 	std::cout << "\n SYNTAX: ./poll2 [options]\n";
@@ -47,6 +48,11 @@ int main(int argc, char *argv[]){
 	// Read the FIFO when it is this full
 	unsigned int threshPercent = 50;
 	std::string alarmArgument = "";
+
+	//We make sure the system isn't locked first.
+	// This avoids issues with curses.
+	Lock *lock = new Lock("PixieInterface");
+	delete lock;
 
 	// Main object
 	Poll poll;
@@ -144,7 +150,7 @@ int main(int argc, char *argv[]){
 	std::cout << pad_string("Starting run control thread", 49);
 	std::thread runctrl(start_run_control, &poll);
 	std::cout << Display::OkayStr() << std::endl;
- 
+
 	// Start the command control thread. This needs to be the last thing we do to
 	// initialize, so the user cannot enter commands before setup is complete
 	std::cout << pad_string("Starting command thread", 49);
@@ -157,9 +163,6 @@ int main(int argc, char *argv[]){
 
 	// Close the output file, if one is open
 	poll.close_output_file();
-
-	// Clean up the poll class
-	poll.close();
 
 	return EXIT_SUCCESS;
 }
