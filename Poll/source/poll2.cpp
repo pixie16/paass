@@ -27,7 +27,6 @@ void start_cmd_control(Poll *poll_){
 	poll_->command_control();
 }
 
-
 /* Print help dialogue for command line options. */
 void help(){
 	std::cout << "\n SYNTAX: ./poll2 [options]\n";
@@ -56,20 +55,6 @@ int main(int argc, char *argv[]){
 
 	// Main object
 	Poll poll;
-
-	std::cout << "\n#########      #####    ####      ####       ########\n"; 
-	std::cout << " ##     ##    ##   ##    ##        ##       ##      ##\n";
-	std::cout << " ##      ##  ##     ##   ##        ##                ##\n";
-	std::cout << " ##     ##  ##       ##  ##        ##               ##\n";
-	std::cout << " #######    ##       ##  ##        ##              ##\n";
-	std::cout << " ##         ##       ##  ##        ##            ##\n";
-	std::cout << " ##         ##       ##  ##        ##           ##\n";
-	std::cout << " ##          ##     ##   ##        ##         ##\n";
-	std::cout << " ##           ##   ##    ##    ##  ##    ##  ##\n";
-	std::cout << "####           #####    ######### ######### ###########\n";
-
-	std::cout << "\n POLL2 v" << POLL_VERSION << "\n"; 
-	std::cout << " ==  ==  ==  ==  == \n\n"; 
 
 	// Define all valid command line options
 	// This is done to keep legacy options available while removing dependency on HRIBF libraries
@@ -122,7 +107,24 @@ int main(int argc, char *argv[]){
 	if(valid_opt[9].is_active){ poll.DEBUG_MODE = true; }
 	if(valid_opt[10].is_active){ poll.SHM_MODE = false; }
 	if(valid_opt[11].is_active){ return EXIT_SUCCESS; }
-		
+
+	Display::LeaderPrint("Running poll2");
+  	poll.initialize();
+
+	std::cout << "\n#########      #####    ####      ####       ########\n"; 
+	std::cout << " ##     ##    ##   ##    ##        ##       ##      ##\n";
+	std::cout << " ##      ##  ##     ##   ##        ##                ##\n";
+	std::cout << " ##     ##  ##       ##  ##        ##               ##\n";
+	std::cout << " #######    ##       ##  ##        ##              ##\n";
+	std::cout << " ##         ##       ##  ##        ##            ##\n";
+	std::cout << " ##         ##       ##  ##        ##           ##\n";
+	std::cout << " ##          ##     ##   ##        ##         ##\n";
+	std::cout << " ##           ##   ##    ##    ##  ##    ##  ##\n";
+	std::cout << "####           #####    ######### ######### ###########\n";
+
+	std::cout << "\n POLL2 v" << POLL_VERSION << "\n"; 
+	std::cout << " ==  ==  ==  ==  == \n\n"; 
+	
 	poll.threshWords = EXTERNAL_FIFO_LENGTH * threshPercent / 100;
 	std::cout << "Using FIFO threshold of " << poll.threshWords << " words\n";
 
@@ -136,7 +138,6 @@ int main(int argc, char *argv[]){
 	}
 #endif
   
-  	poll.initialize();
   	StatsHandler handler(poll.N_CARDS);
   	if(poll.STATS_INTERVAL > 0){ poll.set_stat_handler(&handler); }
 
