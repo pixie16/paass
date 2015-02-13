@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <string>
 #include <string.h>
 #include <sstream>
@@ -21,8 +20,6 @@
 #include "StatsHandler.hpp"
 #include "Display.h"
 
-#define MAXIMUM_NUM_COMMANDS 50
-
 // Values associated with the minimum timing between pixie calls (in us)
 // Adjusted to help alleviate the issue with data corruption
 #define END_RUN_PAUSE 100
@@ -33,6 +30,13 @@
 #define WAIT_TRIES 100
 
 Poll::Poll(){
+#ifdef USE_NCURSES
+	// Initialize the terminal before doing anything else;
+	poll_term.Initialize();
+#endif
+
+	pif = new PixieInterface("pixie.cfg");
+
 	// Maximum size of the shared memory buffer
 	MAX_SHM_SIZEL = 4050; // in pixie words
 	MAX_SHM_SIZE = MAX_SHM_SIZEL * sizeof(word_t); // in bytes
@@ -58,6 +62,7 @@ Poll::Poll(){
 	ZERO_CLOCKS = false;
 	DEBUG_MODE = false;
 	SHM_MODE = true;
+	init = false;
 
 	// Options relating to output data file
 	OUTPUT_DIRECTORY = "./"; // Set with 'fdir' command
@@ -80,28 +85,55 @@ Poll::Poll(){
 }
 
 Poll::~Poll(){
+	if(init){
+		close();
+	}
+}
+
+bool Poll::close(){
+	if(!init){ return false; }
+	
+#ifdef USE_NCURSES
+
+	poll_term.Close();
+	
+#else
+
 	restore_terminal();
+	
+#endif
+
 	if(runDone){ delete[] runDone; }
 	if(fifoData){ delete[] fifoData; }
 	if(partialEventData){ delete[] partialEventData; }
+	
+	delete pif;
+	
+	init = false;
 }
 
 bool Poll::initialize(){
+	if(init){ return false; }
+
 	// Set debug mode
 	if(DEBUG_MODE){ 
 		std::cout << SYS_MESSAGE_HEAD << "Setting debug mode\n";
 		OUTPUT_FILE.SetDebugMode(); 
 	}
 
+#ifdef USE_NCURSES
+	poll_term.SetPrompt("POLL2 $ ");
+#endif
+
 	// Initialize the pixie interface and boot
-	pif.GetSlots();
-	if(!pif.Init()){ return false; }
+	pif->GetSlots();
+	if(!pif->Init()){ return false; }
 
 	if(BOOT_FAST){
-		if(!pif.Boot(PixieInterface::DownloadParameters | PixieInterface::SetDAC | PixieInterface::ProgramFPGA)){ return false; } 
+		if(!pif->Boot(PixieInterface::DownloadParameters | PixieInterface::SetDAC | PixieInterface::ProgramFPGA)){ return false; } 
 	}
 	else{
-		if(!pif.Boot(PixieInterface::BootAll)){ return false; }
+		if(!pif->Boot(PixieInterface::BootAll)){ return false; }
 	}
 
 	// Check the scheduler
@@ -111,10 +143,10 @@ bool Poll::initialize(){
 	else if(startScheduler == SCHED_OTHER){ std::cout << Display::InfoStr("STANDARD") << std::endl; }
 	else{ std::cout << Display::WarningStr("UNEXPECTED") << std::endl; }
 
-	if(!synch_mods(pif)){ return EXIT_FAILURE; }
+	if(!synch_mods()){ return EXIT_FAILURE; }
 
 	// Allocate memory buffers for FIFO
-	N_CARDS = pif.GetNumberCards();
+	N_CARDS = pif->GetNumberCards();
 	
 	// Two extra words to store size of data block and module number
 	std::cout << "\nAllocating memory to store FIFO data (" << sizeof(word_t) * (EXTERNAL_FIFO_LENGTH + 2) * N_CARDS / 1024 << " kB)" << std::endl;
@@ -133,9 +165,9 @@ bool Poll::initialize(){
 	histoTime = 0;
 
 	if(HISTO_INTERVAL != -1.){ 
-		std::cout << "Allocating memory to store HISTOGRAM data (" << sizeof(PixieInterface::Histogram)*N_CARDS*pif.GetNumberChannels()/1024 << " kB)" << std::endl;
+		std::cout << "Allocating memory to store HISTOGRAM data (" << sizeof(PixieInterface::Histogram)*N_CARDS*pif->GetNumberChannels()/1024 << " kB)" << std::endl;
 		for (unsigned int mod=0; mod < N_CARDS; mod++){
-			for (unsigned int ch=0; ch < pif.GetNumberChannels(); ch++){
+			for (unsigned int ch=0; ch < pif->GetNumberChannels(); ch++){
 			  chanid_t id(mod, ch);
 			  histoMap[id] = PixieInterface::Histogram();
 			}
@@ -148,9 +180,12 @@ bool Poll::initialize(){
 	waitCounter = 0;
 	nonWaitCounter = 0;
 	partialBufferCounter = 0;
+	init = true;
 	
 	return true;
 }
+
+#ifndef USE_NCURSES
 
 /* Reset the terminal attributes to normal. */
 void Poll::restore_terminal(){
@@ -178,6 +213,8 @@ bool Poll::takeover_terminal(){
 	if(tcsetattr(STDIN_FILENO, TCSAFLUSH, &tattr) == 0){ return true;  }	
 	return false;
 }
+
+#endif
 
 /* Safely close current data file if one is open. */
 bool Poll::close_output_file(){
@@ -259,7 +296,7 @@ void Poll::pmod_help(){
 	std::cout << "   TrigConfig2\n";
 }
 
-bool Poll::synch_mods(PixieInterface &pif){
+bool Poll::synch_mods(){
 	static bool firstTime = true;
 	static char synchString[] = "IN_SYNCH";
 	static char waitString[] = "SYNCH_WAIT";
@@ -269,12 +306,12 @@ bool Poll::synch_mods(PixieInterface &pif){
 
 	if(firstTime){
 		// only need to set this in the first module once
-		if(!pif.WriteSglModPar(waitString, 1, 0)){ hadError = true; }
+		if(!pif->WriteSglModPar(waitString, 1, 0)){ hadError = true; }
 		firstTime = false;
 	}
 	
-	for(unsigned int mod = 0; mod < pif.GetNumberCards(); mod++){
-		if (!pif.WriteSglModPar(synchString, 0, mod)){ hadError = true; }
+	for(unsigned int mod = 0; mod < pif->GetNumberCards(); mod++){
+		if (!pif->WriteSglModPar(synchString, 0, mod)){ hadError = true; }
 	}
 
 	if (!hadError){ std::cout << Display::OkayStr() << std::endl; }
@@ -358,11 +395,22 @@ int Poll::write_data(word_t *data, unsigned int nWords, bool shm_/*=false*/){
 /* Function to control the POLL command line interface */
 void Poll::command_control(){
 	char c;
-	bool cmd_ready = false;
 	std::string cmd = "", arg;
-	std::queue<std::string> old_commands; // FIFO command history storage
+	
+#ifdef USE_NCURSES
+	bool cmd_ready = true;
+#else
+	bool cmd_ready = false;
+#endif
 	
 	while(true){
+#ifdef USE_NCURSES
+		cmd = poll_term.GetCommand();
+		poll_term.print((cmd+"\n").c_str()); // This will force a write before the cout stream dumps to the screen
+		if(cmd == "CTRL_D" || cmd == "CTRL_C"){ 
+			cmd = "quit";
+		}
+#else
 		read(STDIN_FILENO, &c, 1);
 		
 		// check for system control commands
@@ -373,15 +421,11 @@ void Poll::command_control(){
 		else if(c == '\033'){
 			read(STDIN_FILENO, &c, 1); // skip the '['
 			read(STDIN_FILENO, &c, 1);
-			if(c == 'A'){ std::cout << "up\n"; }
-			else if(c == 'B'){ std::cout << "down\n"; }
 		}
 		else{ cmd += c; }
-		
-		if(cmd_ready){
-			old_commands.push(cmd);
-			if(old_commands.size() > MAXIMUM_NUM_COMMANDS){ old_commands.pop(); }
-			
+#endif
+
+		if(cmd_ready){			
 			if(cmd == ""){ continue; }
 			
 			size_t index = cmd.find(" ");
@@ -391,7 +435,7 @@ void Poll::command_control(){
 			}
 			
 			// check for defined commands
-			if(cmd == "quit"){
+			if(cmd == "quit" || cmd == "exit"){
 				if(POLL_RUNNING){ std::cout << SYS_MESSAGE_HEAD << "Warning! cannot quit while acquisition running\n"; }
 				else{ 
 					KILL_ALL = true;
@@ -503,7 +547,7 @@ void Poll::command_control(){
 						float value = atof(arguments.at(3).c_str());
 					
 						ParameterChannelWriter writer;
-						if(forChannel(pif, mod, ch, writer, make_pair(arguments.at(2), value))){ pif.SaveDSPParameters(); }
+						if(forChannel(pif, mod, ch, writer, make_pair(arguments.at(2), value))){ pif->SaveDSPParameters(); }
 					}
 					else{
 						std::cout << SYS_MESSAGE_HEAD << "Invalid number of parameters to pwrite\n";
@@ -517,7 +561,7 @@ void Poll::command_control(){
 						unsigned long value = (unsigned long)atol(arguments.at(2).c_str());
 					
 						ParameterModuleWriter writer;
-						if(forModule(pif, mod, writer, make_pair(arguments.at(1), value))){ pif.SaveDSPParameters(); }
+						if(forModule(pif, mod, writer, make_pair(arguments.at(1), value))){ pif->SaveDSPParameters(); }
 					}
 					else{
 						std::cout << SYS_MESSAGE_HEAD << "Invalid number of parameters to pmwrite\n";
@@ -560,8 +604,10 @@ void Poll::command_control(){
 			else{ std::cout << SYS_MESSAGE_HEAD << "Unknown command '" << cmd << "'\n"; }
 			std::cout << std::endl;
 
+#ifndef USE_NCURSES
 			cmd = "";
 			cmd_ready = false;
+#endif
 		}
 	}
 }
@@ -586,7 +632,7 @@ void Poll::run_control(){
 			if(POLL_RUNNING){ STOP_RUN = true; }
 			else{
 				std::cout << SYS_MESSAGE_HEAD << "Attempting PIXIE crate reboot\n";
-				pif.Boot(PixieInterface::BootAll);
+				pif->Boot(PixieInterface::BootAll);
 				DO_REBOOT = false;
 			}
 		}
@@ -603,19 +649,19 @@ void Poll::run_control(){
 			if(STATS_INTERVAL != -1 && usGetTime(startTime) > lastStatsTime + STATS_INTERVAL * 1e6){
 				usGetDTime(); // start timer
 				for (size_t mod = 0; mod < N_CARDS; mod++) {
-					pif.GetStatistics(mod);
-					PixieInterface::stats_t &stats = pif.GetStatisticsData();
+					pif->GetStatistics(mod);
+					PixieInterface::stats_t &stats = pif->GetStatisticsData();
 					fifoData[dataWords++] = PixieInterface::STAT_SIZE + 3;
 					fifoData[dataWords++] = mod;
-					fifoData[dataWords++] = ((PixieInterface::STAT_SIZE + 1) << 17 ) & ( 1 << 12 ) & ( pif.GetSlotNumber(mod) << 4);
+					fifoData[dataWords++] = ((PixieInterface::STAT_SIZE + 1) << 17 ) & ( 1 << 12 ) & ( pif->GetSlotNumber(mod) << 4);
 					memcpy(&fifoData[dataWords], &stats, sizeof(stats));
 					dataWords += PixieInterface::STAT_SIZE;
 
 					if(IS_QUIET){ std::cout << std::endl; }
 					std::cout << "STATS " << mod << " : ICR ";
-					for (size_t ch = 0; ch < pif.GetNumberChannels(); ch++) {
+					for (size_t ch = 0; ch < pif->GetNumberChannels(); ch++) {
 						std::cout.precision(2);
-						std::cout << " " << pif.GetInputCountRate(mod, ch);
+						std::cout << " " << pif->GetInputCountRate(mod, ch);
 					}
 					std::cout << std::endl << std::flush;
 				}
@@ -632,7 +678,7 @@ void Poll::run_control(){
 				std::ofstream deltaout("deltahisto.dat", std::ios::trunc);
 
 				for (size_t mod=0; mod < N_CARDS; mod++) {
-					for (size_t ch=0; ch < pif.GetNumberChannels(); ch++) {
+					for (size_t ch=0; ch < pif->GetNumberChannels(); ch++) {
 						chanid_t id(mod, ch);
 						PixieInterface::Histogram &histo = histoMap[id];
 
@@ -640,7 +686,7 @@ void Poll::run_control(){
 						deltaHisto = histo;
 						
 						// Performance improvement possible using Pixie16EMbufferIO directly to fetch all channels
-						histo.Read(pif, mod, ch);
+						histo.Read(*pif, mod, ch);
 						histo.Write(out);
 						
 						// Calculate the change using the temporarily stored previous histogram
@@ -659,7 +705,7 @@ void Poll::run_control(){
 			usGetDTime(); // Start timer
 			for (unsigned int timeout = 0; timeout < (STOP_RUN ? 1 : POLL_TRIES); timeout++){ // See if the modules have any data for us
 				for (size_t mod = 0; mod < N_CARDS; mod++) {
-					if(!runDone[mod]){ nWords[mod] = pif.CheckFIFOWords(mod); }
+					if(!runDone[mod]){ nWords[mod] = pif->CheckFIFOWords(mod); }
 					else{ nWords[mod] = 0; }
 				}
 				maxWords = std::max_element(nWords.begin(), nWords.end());
@@ -700,7 +746,7 @@ void Poll::run_control(){
 							partialEventWords[mod] = 0;
 						}
 
-						if(!pif.ReadFIFOWords(&fifoData[dataWords], nWords[mod], mod)){
+						if(!pif->ReadFIFOWords(&fifoData[dataWords], nWords[mod], mod)){
 							std::cout << "Error reading FIFO, bailing out!" << std::endl;
 							// Something is wrong
 							//BailOut(SEND_ALARM, alarmArgument);
@@ -715,7 +761,7 @@ void Poll::run_control(){
 							do{ // Unfortuantely, we have to parse the data to make sure, we grabbed complete events
 								word_t slotRead = ((fifoData[parseWords] & 0xF0) >> 4);
 								word_t chanRead = (fifoData[parseWords] & 0xF);
-								word_t slotExpected = pif.GetSlotNumber(mod);
+								word_t slotExpected = pif->GetSlotNumber(mod);
 								bool virtualChannel = ((fifoData[parseWords] & 0x20000000) != 0);
 
 								eventSize = ((fifoData[parseWords] & 0x1FFE0000) >> 17);
@@ -761,7 +807,7 @@ void Poll::run_control(){
 										word_t testWords;
 
 										while (timeout++ < WAIT_TRIES){
-											testWords = pif.CheckFIFOWords(mod);
+											testWords = pif->CheckFIFOWords(mod);
 											if(testWords >= std::max(waitWords[mod], 2U)){ break; }
 											usleep(POLL_PAUSE);
 										} 
@@ -780,8 +826,8 @@ void Poll::run_control(){
 										else{
 											if(!IS_QUIET){ std::cout << std::endl; }
 											usleep(READ_PAUSE);
-											int testWords = pif.CheckFIFOWords(mod);
-											if(!pif.ReadFIFOWords(&fifoData[dataWords + nWords[mod]], waitWords[mod], mod)){
+											int testWords = pif->CheckFIFOWords(mod);
+											if(!pif->ReadFIFOWords(&fifoData[dataWords + nWords[mod]], waitWords[mod], mod)){
 												std::cout << "Error reading FIFO, bailing out!" << std::endl;
 
 												//BailOut(SEND_ALARM, alarmArgument); // Something is wrong 
@@ -811,7 +857,7 @@ void Poll::run_control(){
 					if(nWords[mod] > EXTERNAL_FIFO_LENGTH * 9 / 10){
 						std::cout << "Abnormally full FIFO with " << nWords[mod] << " words in module " << mod << std::endl;
 						if(fullFIFO){
-							pif.EndRun();
+							pif->EndRun();
 							STOP_RUN = true;
 						}
 					}
@@ -890,7 +936,7 @@ void Poll::run_control(){
 				time(&RAW_TIME);
 				TIME_INFO = localtime(&RAW_TIME);
 				std::cout << SYS_MESSAGE_HEAD << "Stopping run at " << asctime(TIME_INFO);
-				pif.EndRun();
+				pif->EndRun();
 				
 				STOP_RUN = false;
 				POLL_RUNNING = false;
@@ -898,11 +944,11 @@ void Poll::run_control(){
 				
 				// Update whether the run has ended with the data read out
 				for(size_t mod = 0; mod < N_CARDS; mod++){
-					if(!pif.CheckRunStatus(mod)){
+					if(!pif->CheckRunStatus(mod)){
 						runDone[mod] = true;
 						std::cout << "Run ended in module " << mod << std::endl;
 					}
-					if(pif.CheckRunStatus(mod)){
+					if(pif->CheckRunStatus(mod)){
 						std::cout << "Run not properly finished in module " << mod << std::endl;
 					}
 				}			
@@ -918,14 +964,14 @@ void Poll::run_control(){
 					}
 					std::cout << SYS_MESSAGE_HEAD << "Opening output file '" << CURRENT_FILENAME << "'.\n";
 				}
-				if(ZERO_CLOCKS){ synch_mods(pif); }
+				if(ZERO_CLOCKS){ synch_mods(); }
 				for(size_t mod=0; mod < N_CARDS; mod++){ runDone[mod] = false; }
 				lastHistoTime = lastStatsTime = lastSpillTime = usGetTime(startTime);
 				
 				time(&RAW_TIME);
 				TIME_INFO = localtime(&RAW_TIME);
 				std::cout << SYS_MESSAGE_HEAD << "Starting run at " << asctime(TIME_INFO);				
-				if(pif.StartListModeRun(LIST_MODE_RUN, NEW_RUN)){
+				if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)){
 					POLL_RUNNING = true;
 					nonWaitCounter = 0;
 				}
@@ -982,105 +1028,6 @@ bool ParameterModuleReader::operator()(PixieFunctionParms<std::string> &par){
 // Support Functions
 ///////////////////////////////////////////////////////////////////////////////
 
-/* Print help dialogue for command line options. */
-void help(){
-	std::cout << "\n SYNTAX: ./poll2 [options]\n";
-	std::cout << "  -a, --alarm=[e-mail] Call the alarm script with a given e-mail (or no argument)\n"; 
-	std::cout << "  -f, --fast           Fast boot (false by default)\n";
-	std::cout << "  -h, --hist <num>     Dump histogram data every num seconds\n";
-	std::cout << "  -q, --quiet          Run quietly (false by default)\n";
-	std::cout << "  -n, --no-wall-clock  Do not insert the wall clock in the data stream\n";
-	std::cout << "  -r, --rates          Display module rates in quiet mode (false by defualt)\n";
-	std::cout << "  -s, --stats <num>    Output statistics data every num seconds\n";
-	std::cout << "  -t, --thresh <num>   Sets FIFO read threshold to num% full (50% by default)\n";
-	std::cout << "  -z, --zero           Zero clocks on each START_ACQ (false by default)\n";
-	std::cout << "  -d, --debug          Set debug mode to true (false by default)\n";
-	std::cout << "  -m, --memory-share   Do not write data to shared memory (SHM) (true by default)\n\n";
-}
-
-/* Parse all command line entries and find valid options. */
-bool get_opt(int argc_, char **argv_, CLoption *options, unsigned int num_valid_opt_){
-	unsigned int index = 1;
-	unsigned int previous_opt;
-	bool need_an_argument = false;
-	bool may_have_argument = false;
-	bool is_valid_argument = false;
-	while(index < argc_){
-		if(argv_[index][0] == '-'){
-			if(need_an_argument){
-				std::cout << " Error: --" << options[previous_opt].alias << " [-" << options[previous_opt].opt << "] requires an argument\n";
-				help();
-				return false;
-			}
-
-			is_valid_argument = false;
-			if(argv_[index][1] == '-'){ // Word options
-				std::string word_arg = csubstr(argv_[index], 2);
-				for(unsigned int i = 0; i < num_valid_opt_; i++){
-					if(word_arg == options[i].alias && word_arg != "NULL"){
-						options[i].is_active = true; 
-						previous_opt = i;
-						if(options[i].require_arg){ need_an_argument = true; }
-						else{ need_an_argument = false; }
-						if(options[i].optional_arg){ may_have_argument = true; }
-						else{ may_have_argument = false; }
-						is_valid_argument = true;
-					}
-				}
-				if(!is_valid_argument){
-					std::cout << " Error: encountered unknown option --" << word_arg << std::endl;
-					help();
-					return false;
-				}
-			}
-			else{ // Character options
-				unsigned int index2 = 1;
-				while(argv_[index][index2] != '\0'){
-					for(unsigned int i = 0; i < num_valid_opt_; i++){
-						if(argv_[index][index2] == options[i].opt && argv_[index][index2] != 0x0){ 
-							options[i].is_active = true; 
-							previous_opt = i;
-							if(options[i].require_arg){ need_an_argument = true; }
-							else{ need_an_argument = false; }
-							if(options[i].optional_arg){ may_have_argument = true; }
-							else{ may_have_argument = false; }
-							is_valid_argument = true;
-						}
-					}
-					if(!is_valid_argument){
-						std::cout << " Error: encountered unknown option -" << argv_[index][index2] << std::endl;
-						help();
-						return false;
-					}
-					index2++;
-				}
-			}
-		}
-		else{ // An option argument
-			if(need_an_argument || may_have_argument){
-				options[previous_opt].value = csubstr(argv_[index]);
-				need_an_argument = false;
-				may_have_argument = false;
-			}
-			else{
-				std::cout << " Error: --" << options[previous_opt].alias << " [-" << options[previous_opt].opt << "] takes no argument\n";
-				help();
-				return false;			
-			}
-		}
-		
-		// Check for the case where the end option requires an argument, but did not receive it
-		if(index == argc_-1 && need_an_argument){
-			std::cout << " Error: --" << options[previous_opt].alias << " [-" << options[previous_opt].opt << "] requires an argument\n";
-			help();
-			return false;	
-		}
-		
-		index++;
-	}
-	return true;
-}
-
 unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_){
 	args.clear();
 	std::string temp = "";
@@ -1095,27 +1042,6 @@ unsigned int split_str(std::string str_, std::vector<std::string> &args, char de
 		else{ temp += str_[i]; }		
 	}
 	return count;
-}
-
-/* Return the length of a character string. */
-unsigned int cstrlen(char *str_){
-	unsigned int output = 0;
-	while(true){
-		if(str_[output] == '\0' || str_[output] == ' '){ break; }
-		output++;
-	}
-	return output;
-}
-
-/* Extract a string from a character array. */
-std::string csubstr(char *str_, unsigned int start_index_){
-	std::string output = "";
-	unsigned int index = start_index_;
-	while(str_[index] != '\0' && str_[index] != ' '){
-		output += str_[index];
-		index++;
-	}
-	return output;
 }
 
 /* Pad a string with '.' to a specified length. */
@@ -1133,15 +1059,15 @@ std::string yesno(bool value_){
 }
 
 template<typename T>
-bool forChannel(PixieInterface &pif, int mod, int ch, PixieFunction<T> &f, T par){
-    PixieFunctionParms<T> parms(pif, par);
+bool forChannel(PixieInterface *pif, int mod, int ch, PixieFunction<T> &f, T par){
+    PixieFunctionParms<T> parms(*pif, par);
     
     bool hadError = false;
     
 	if(mod < 0){
-		for(parms.mod = 0; parms.mod < pif.GetNumberCards(); parms.mod++){
+		for(parms.mod = 0; parms.mod < pif->GetNumberCards(); parms.mod++){
 			if(ch < 0){
-				for (parms.ch = 0; parms.ch < pif.GetNumberChannels(); parms.ch++) {
+				for (parms.ch = 0; parms.ch < pif->GetNumberChannels(); parms.ch++) {
 					if(!f(parms)){ hadError = true; }
 				}
 			} 
@@ -1154,7 +1080,7 @@ bool forChannel(PixieInterface &pif, int mod, int ch, PixieFunction<T> &f, T par
 	else{
 		parms.mod = mod;
 		if(ch < 0){
-			for(parms.ch = 0; parms.ch < pif.GetNumberChannels(); parms.ch++){
+			for(parms.ch = 0; parms.ch < pif->GetNumberChannels(); parms.ch++){
 				if(!f(parms)){ hadError = true; }
 			}
 		} 
@@ -1168,12 +1094,12 @@ bool forChannel(PixieInterface &pif, int mod, int ch, PixieFunction<T> &f, T par
 }
 
 template<typename T>
-bool forModule(PixieInterface &pif, int mod, PixieFunction<T> &f, T par){
-    PixieFunctionParms<T> parms(pif, par);
+bool forModule(PixieInterface *pif, int mod, PixieFunction<T> &f, T par){
+    PixieFunctionParms<T> parms(*pif, par);
     bool hadError = false;
     
 	if(mod < 0){
-		for(parms.mod = 0; parms.mod < pif.GetNumberCards(); parms.mod++){
+		for(parms.mod = 0; parms.mod < pif->GetNumberCards(); parms.mod++){
 			if(!f(parms)){ hadError = true; }
 		}
 	} 

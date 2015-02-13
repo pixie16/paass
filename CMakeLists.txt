@@ -29,26 +29,32 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 option(USE_ROOT "Use ROOT for MCA." ON)
 option(USE_DAMM "Use DAMM for MCA." ON)
 
-if(${USE_ROOT})
-	add_definitions("-D USE_ROOT")
-endif()
-if(${USE_DAMM})
-	add_definitions("-D USE_DAMM")
-endif()
-
+#Find packages needed for poll2
 #Load additional find_package scripts.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
+#Find thread library for poll2
 find_package (Threads REQUIRED)
+
+#Find curses library used for poll2 prompt
+find_package(Curses)
+if (${CURSES_FOUND})
+	add_definitions("-D USE_NCURSES")
+else()
+	message(STATUS "Curses unavailable, basic terminal will be used.")
+endif()
 
 #Find ROOT if USE_ROOT was set.
 if (${USE_ROOT})
    find_package (ROOT REQUIRED)
 
-   if (${ROOT_FOUND})
-      include_directories(${ROOT_INCLUDE_DIR})
-      link_directories(${ROOT_LIBRARY_DIR})
-   endif()
+	include_directories(${ROOT_INCLUDE_DIR})
+	link_directories(${ROOT_LIBRARY_DIR})
+	add_definitions("-D USE_ROOT")
+endif()
+
+if(${USE_DAMM})
+	add_definitions("-D USE_DAMM")
 endif()
 
 #Find the PLX Library
@@ -64,7 +70,6 @@ link_directories(${PXI_ROOT}/software)
 set(PXI_LIBRARIES -lPixie16App -lPixie16Sys)
 #The following configuration file path is hardcoded into the PXI software :-(
 install(FILES ${PXI_ROOT}/test/pxisys.ini DESTINATION ${CMAKE_INSTALL_PREFIX})
-
 
 include_directories(Interface/include)
 add_subdirectory(Interface/source)

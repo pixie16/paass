@@ -19,8 +19,6 @@
 #include "Display.h"
 #include "StatsHandler.hpp"
 
-PixieInterface pif("pixie.cfg");
-
 void start_run_control(Poll *poll_){
 	poll_->run_control();
 }
@@ -29,7 +27,30 @@ void start_cmd_control(Poll *poll_){
 	poll_->command_control();
 }
 
-int main(int argc,char *argv[]){
+/* Print help dialogue for command line options. */
+void help(){
+	std::cout << "\n SYNTAX: ./poll2 [options]\n";
+	std::cout << "  -a, --alarm=[e-mail] Call the alarm script with a given e-mail (or no argument)\n"; 
+	std::cout << "  -f, --fast           Fast boot (false by default)\n";
+	std::cout << "  -h, --hist <num>     Dump histogram data every num seconds\n";
+	std::cout << "  -q, --quiet          Run quietly (false by default)\n";
+	std::cout << "  -n, --no-wall-clock  Do not insert the wall clock in the data stream\n";
+	std::cout << "  -r, --rates          Display module rates in quiet mode (false by defualt)\n";
+	std::cout << "  -s, --stats <num>    Output statistics data every num seconds\n";
+	std::cout << "  -t, --thresh <num>   Sets FIFO read threshold to num% full (50% by default)\n";
+	std::cout << "  -z, --zero           Zero clocks on each START_ACQ (false by default)\n";
+	std::cout << "  -d, --debug          Set debug mode to true (false by default)\n";
+	std::cout << "  -m, --memory-share   Do not write data to shared memory (SHM) (true by default)\n\n";
+}
+
+int main(int argc, char *argv[]){
+	// Read the FIFO when it is this full
+	unsigned int threshPercent = 50;
+	std::string alarmArgument = "";
+
+	// Main object
+	Poll poll;
+
 	std::cout << "\n#########      #####    ####      ####       ########\n"; 
 	std::cout << " ##     ##    ##   ##    ##        ##       ##      ##\n";
 	std::cout << " ##      ##  ##     ##   ##        ##                ##\n";
@@ -43,13 +64,6 @@ int main(int argc,char *argv[]){
 
 	std::cout << "\n POLL2 v" << POLL_VERSION << "\n"; 
 	std::cout << " ==  ==  ==  ==  == \n\n"; 
-
-	// Read the FIFO when it is this full
-	unsigned int threshPercent = 50;
-	std::string alarmArgument = "";
-
-	// Main object
-	Poll poll;
 
 	// Define all valid command line options
 	// This is done to keep legacy options available while removing dependency on HRIBF libraries
@@ -66,7 +80,7 @@ int main(int argc,char *argv[]){
 	valid_opt[9].Set("debug", false, false);
 	valid_opt[10].Set("memory-share", false, false);
 	valid_opt[11].Set("?", false, false);
-	if(!get_opt(argc, argv, valid_opt, 12)){ return EXIT_FAILURE; }
+	if(!get_opt(argc, argv, valid_opt, 12, help)){ return EXIT_FAILURE; }
 	
 	// Set all of the selected options
 	if(valid_opt[0].is_active){
@@ -106,6 +120,7 @@ int main(int argc,char *argv[]){
 	poll.threshWords = EXTERNAL_FIFO_LENGTH * threshPercent / 100;
 	std::cout << "Using FIFO threshold of " << poll.threshWords << " words\n";
 
+#ifndef USE_NCURSES
 	// Take control of the terminal
 	std::cout << pad_string("Taking control of the terminal", 49);
 	if(poll.takeover_terminal()){ std::cout << Display::OkayStr() << std::endl; }
@@ -113,6 +128,7 @@ int main(int argc,char *argv[]){
 		std::cout << Display::ErrorStr() << std::endl; 
 		return EXIT_FAILURE;
 	}
+#endif
   
   	poll.initialize();
   	StatsHandler handler(poll.N_CARDS);
@@ -142,5 +158,8 @@ int main(int argc,char *argv[]){
 	// Close the output file, if one is open
 	poll.close_output_file();
 
-	exit(EXIT_SUCCESS);
+	// Clean up the poll class
+	poll.close();
+
+	return EXIT_SUCCESS;
 }
