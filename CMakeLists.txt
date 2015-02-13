@@ -79,7 +79,7 @@ include_directories(MCA/include)
 add_subdirectory(MCA)
 add_subdirectory(Setup/source)
 
-include_directories(Poll/include)
-add_subdirectory(Poll/source)
+
+add_subdirectory(Poll)
 
 add_subdirectory(PxiDump/source)
