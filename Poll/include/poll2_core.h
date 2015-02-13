@@ -1,26 +1,37 @@
 #ifndef POLL2_CORE_H
 #define POLL2_CORE_H
 
-#include <queue>
+#include <vector>
+
+#include "CTerminal.h"
+
+#ifndef USE_NCURSES
 #include <termios.h>
+#endif
 
 #include "PixieInterface.h"
 #include "hribf_buffers.h"
 
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
-#define POLL_VERSION 0.1
+#define POLL_VERSION 1.0
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
-
-extern PixieInterface pif;
 
 class StatsHandler;
 
 class Poll{
   public:
+  
+#ifdef USE_NCURSES
+	Terminal poll_term;
+#else
 	struct termios SAVED_ATTRIBUTES;
+#endif
+
 	struct tm *TIME_INFO;
+ 
+	PixieInterface *pif; // The main pixie interface pointer 
   
 	// Maximum size of the shared memory buffer
 	unsigned int MAX_SHM_SIZEL; // In pixie words
@@ -47,6 +58,7 @@ class Poll{
 	bool ZERO_CLOCKS;
 	bool DEBUG_MODE;
 	bool SHM_MODE;
+	bool init;
 
 	// Options relating to output data file
 	std::string OUTPUT_DIRECTORY; // Set with 'fdir' command
@@ -92,12 +104,18 @@ class Poll{
 	~Poll();
 	
 	void set_stat_handler(StatsHandler *handler){ statsHandler = handler; }
+
+	bool close();
 	
 	bool initialize();
-	
+
+#ifndef USE_NCURSES	
+
 	void restore_terminal();
 	
 	bool takeover_terminal();
+	
+#endif
 	
 	void command_control();
 	
@@ -115,7 +133,7 @@ class Poll{
 	
 	void pmod_help();
 	
-	bool synch_mods(PixieInterface &pif);
+	bool synch_mods();
 		
 	int write_data(word_t *data, unsigned int nWords, bool shm_=false);
 };
@@ -157,44 +175,15 @@ class ParameterModuleReader : public PixieFunction<std::string>{
 	bool operator()(PixieFunctionParms<std::string> &par);
 };
 
-struct CLoption{
-	char opt;
-	std::string alias;
-	std::string value;
-	bool require_arg;
-	bool optional_arg;
-	bool is_active;
-	
-	CLoption(){
-		Set("NULL", false, false);
-		opt = 0x0;
-		value = "";
-		is_active = false;
-	}
-	
-	CLoption(std::string name_, bool require_arg_, bool optional_arg_){
-		Set(name_, require_arg_, optional_arg_);
-		value = "";
-		is_active = false;
-	}
-	
-	void Set(std::string name_, bool require_arg_, bool optional_arg_){
-		opt = name_[0]; alias = name_; require_arg = require_arg_; optional_arg = optional_arg_;
-	}
-};
-
 // Function forward definitions
-bool get_opt(int argc_, char **argv_, CLoption *options, unsigned int num_valid_opt_);
-unsigned int cstrlen(char *str_);
 unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_=' ');
-std::string csubstr(char *str_, unsigned int start_index=0);
 std::string pad_string(const std::string &input_, unsigned int length_);
 std::string yesno(bool value_);
 
 template<typename T>
-bool forModule(PixieInterface &pif, int mod, PixieFunction<T> &f, T par = T() );
+bool forModule(PixieInterface *pif, int mod, PixieFunction<T> &f, T par = T() );
 
 template<typename T>
-bool forChannel(PixieInterface &pif, int mod, int ch, PixieFunction<T> &f, T par = T() );
+bool forChannel(PixieInterface *pif, int mod, int ch, PixieFunction<T> &f, T par = T() );
 
 #endif
