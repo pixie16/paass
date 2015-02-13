@@ -1189,7 +1189,7 @@
   the configuration that you will encounter. There is an example configuration
   file: config/Config.xml.example.
 
-  \section xml-setup Setup for the Config.xml
+  \section xml-setup Link the proper Config.xml
   The Config.xml file is a symbolic link to one of the various configuration
   files in the config directory. In order to switch to different configurations
   you simply need to issue the following command:
@@ -1225,6 +1225,13 @@
         traces histograms. This number is rounded up to the power of 2, since
         DAMM histograms must have such sizes
 
+    \subsection xml-ignore Rejection Regions
+    The Reject node isn't for people who have flunked out, but for the rejection
+    of specific time regions of the LDF. For example, if the beam cut out at the
+    end of your run but still want to use the first five minutes you can define
+    \code <Time start="300" stop="16000"/> \endcode
+    The program will now ignore everything after 300 seconds of the file.
+
     \subsection xml-dd DetectorDriver Setup
     You will set up the various processors and analyzers in this node. To add
     a new processor to the analysis:
@@ -1241,7 +1248,7 @@
     - DoubleBetaProcessor
     - DssdProcessor
     - GeProcessor
-            - optional attributes and their default values:
+        - optional attributes and their default values:
             - gamma_threshold="1.0"
             - low_ratio="1.0"
             - high_ratio="3.0"
@@ -1273,6 +1280,11 @@
     - SsdProcesssor
     - TriggerLogicProcessor
     - VandleProcessor
+        - Required Attributes and their Default Values:
+            - bars="small" (CSV list, uses small,medium,big)
+            - NumStarts="2" (the number of start detectors you have)
+            - res="2" (sets the resolution of the time histograms to 0.5 ns/bin)
+            - offset="200" (sets the arbitrary zero of the histogram to 200)
     - RootProcessor (Requires the USEROOT compiler flag)
 
     List of known Analyzers:

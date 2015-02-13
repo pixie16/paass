@@ -56,11 +56,13 @@ VandleProcessor::VandleProcessor(): EventProcessor(dammIds::vandle::OFFSET,
 }
 
 VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList,
-                                 const double &res, const double &offset):
+                                 const double &res, const double &offset,
+                                 const unsigned int &numStarts):
     EventProcessor(dammIds::vandle::OFFSET, dammIds::vandle::RANGE, "vandle") {
     associatedTypes.insert("vandle");
     plotMult_ = res;
     plotOffset_ = offset;
+    numStarts_ = numStarts;
 
     hasSmall_ = hasMed_ = hasBig_ = false;
     for(vector<string>::const_iterator it = typeList.begin();
@@ -259,7 +261,7 @@ void VandleProcessor::AnalyzeBarStarts(void) {
         for(BarMap::iterator itStart = barStarts_.begin();
         itStart != barStarts_.end(); itStart++) {
             unsigned int startLoc = (*itStart).first.first;
-            unsigned int barPlusStartLoc = barLoc*4 + startLoc;
+            unsigned int barPlusStartLoc = barLoc*numStarts_ + startLoc;
 
             BarDetector start = (*itStart).second;
 
@@ -317,7 +319,7 @@ void VandleProcessor::AnalyzeStarts(void) {
                 continue;
 
             unsigned int startLoc = (*itStart).first.first;
-            unsigned int barPlusStartLoc = barLoc*2 + startLoc;
+            unsigned int barPlusStartLoc = barLoc*numStarts_ + startLoc;
             HighResTimingData start = (*itStart).second;
 
             double tofOffset = cal.GetTofOffset(startLoc);

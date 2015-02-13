@@ -254,9 +254,10 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         } else if (name == "VandleProcessor") {
             double res = processor.attribute("res").as_double(2.0);
             double offset = processor.attribute("offset").as_double(200.0);
+            unsigned int numStarts = processor.attribute("NumStarts").as_int(2);
             vector<string> types =
                 strings::tokenize(processor.attribute("types").as_string(),",");
-            vecProcess.push_back(new VandleProcessor(types, res, offset));
+            vecProcess.push_back(new VandleProcessor(types, res, offset, numStarts));
         } else if (name == "TeenyVandleProcessor") {
             vecProcess.push_back(new TeenyVandleProcessor());
         } else if (name == "DoubleBetaProcessor") {
