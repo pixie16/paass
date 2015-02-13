@@ -3,6 +3,7 @@
 
 #include <string>
 #include <sstream>
+#include <map>
 
 #ifdef USE_NCURSES
 
@@ -155,6 +156,7 @@ void setup_signal_handlers();
 
 class Terminal{
   private:
+	std::map< std::string, int > attrMap;
 	std::streambuf *pbuf, *original;
 	std::stringstream stream;
 	WINDOW *main;
@@ -167,23 +169,22 @@ class Terminal{
 	int cursX, cursY;
 	int offset;
 	
-	// Refresh the terminal
+	/// Refresh the terminal
 	void refresh_();
 	
-	// Update the positions of the physical and logical cursors
+	/// Update the positions of the physical and logical cursors
 	void update_cursor_();
 	
-	// Clear the command prompt
+	/// Clear the command prompt
 	void clear_();
 	
-	// Force a character to the input screen
+	/// Force a character to the input screen
 	void in_char_(const char input_);
 
-	// Force a character string to the input screen
+	/// Force a character string to the input screen
 	void in_print_(const char *input_);
 
-	// Dump all text in the stream to the output screen
-	void dump_();
+	void init_colors();
 
   public:
 	Terminal();
@@ -200,8 +201,11 @@ class Terminal{
 	void putch(const char input_);
 
 	// Force a character string to the output screen
-	void print(const char *input_);
+	void print(std::string input_);
 			
+	/// Dump all text in the stream to the output screen
+	void flush();
+
 	// Wait for the user to input a command
 	std::string GetCommand();
 	

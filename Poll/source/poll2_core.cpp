@@ -30,7 +30,9 @@
 #define WAIT_TRIES 100
 
 Poll::Poll(){
+
 #ifdef USE_NCURSES
+	Display::LeaderPrint("Running poll2");
 	// Initialize the terminal before doing anything else;
 	poll_term.Initialize();
 #endif
@@ -96,6 +98,9 @@ bool Poll::close(){
 #ifdef USE_NCURSES
 
 	poll_term.Close();
+	//Reprint the leader as the carriage was returned
+	Display::LeaderPrint(std::string("Running poll2 v").append(POLL_VERSION));
+	std::cout << Display::OkayStr("[Done]") << std::endl;
 	
 #else
 
