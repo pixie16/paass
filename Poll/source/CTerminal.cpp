@@ -19,7 +19,7 @@
 
 #include "TermColors.h"
 
-std::string CPP_APP_VERSION = "1.0";
+#define CTERMINAL_VERSION "1.1.0";
 
 #ifdef USE_NCURSES
 
@@ -51,7 +51,7 @@ bool get_opt(int argc_, char **argv_, CLoption *options, unsigned int num_valid_
 	while(index < argc_){
 		if(argv_[index][0] == '-'){
 			if(need_an_argument){
-				std::cout << " Error: --" << options[previous_opt].alias << " [-" << options[previous_opt].opt << "] requires an argument\n";
+				std::cout << "\n Error: --" << options[previous_opt].alias << " [-" << options[previous_opt].opt << "] requires an argument\n";
 				help_();
 				return false;
 			}
@@ -71,7 +71,7 @@ bool get_opt(int argc_, char **argv_, CLoption *options, unsigned int num_valid_
 					}
 				}
 				if(!is_valid_argument){
-					std::cout << " Error: encountered unknown option --" << word_arg << std::endl;
+					std::cout << "\n Error: encountered unknown option --" << word_arg << std::endl;
 					help_();
 					return false;
 				}
@@ -91,7 +91,7 @@ bool get_opt(int argc_, char **argv_, CLoption *options, unsigned int num_valid_
 						}
 					}
 					if(!is_valid_argument){
-						std::cout << " Error: encountered unknown option -" << argv_[index][index2] << std::endl;
+						std::cout << "\n Error: encountered unknown option -" << argv_[index][index2] << std::endl;
 						help_();
 						return false;
 					}
@@ -106,7 +106,7 @@ bool get_opt(int argc_, char **argv_, CLoption *options, unsigned int num_valid_
 				may_have_argument = false;
 			}
 			else{
-				std::cout << " Error: --" << options[previous_opt].alias << " [-" << options[previous_opt].opt << "] takes no argument\n";
+				std::cout << "\n Error: --" << options[previous_opt].alias << " [-" << options[previous_opt].opt << "] takes no argument\n";
 				help_();
 				return false;			
 			}
@@ -114,7 +114,7 @@ bool get_opt(int argc_, char **argv_, CLoption *options, unsigned int num_valid_
 		
 		// Check for the case where the end option requires an argument, but did not receive it
 		if(index == argc_-1 && need_an_argument){
-			std::cout << " Error: --" << options[previous_opt].alias << " [-" << options[previous_opt].opt << "] requires an argument\n";
+			std::cout << "\n Error: --" << options[previous_opt].alias << " [-" << options[previous_opt].opt << "] requires an argument\n";
 			help_();
 			return false;	
 		}
@@ -290,13 +290,38 @@ void Terminal::in_print_(const char* input_){
 	refresh_();
 }
 
-// Dump all text in the stream to the output screen
-void Terminal::flush(){
-	std::string stream_contents = stream.str();
-	if(stream_contents.size() > 0){
-		print(stream_contents);
-		stream.str("");
-		stream.clear();
+void Terminal::init_colors_() {
+	if(has_colors()) {
+		start_color();
+		//Use user's terminal colors.
+		use_default_colors();
+
+		//Define colors
+		init_pair(1,COLOR_GREEN,-1);
+		init_pair(2,COLOR_RED,-1);
+		init_pair(3,COLOR_BLUE,-1);
+		init_pair(4,COLOR_YELLOW,-1);
+		init_pair(5,COLOR_MAGENTA,-1);
+		init_pair(6,COLOR_CYAN,-1);
+		init_pair(7,COLOR_WHITE,-1);
+		
+		//Assign colors to map
+		attrMap[TermColors::DkGreen] = COLOR_PAIR(1);
+		attrMap[TermColors::BtGreen] = COLOR_PAIR(1);
+		attrMap[TermColors::DkRed] = COLOR_PAIR(2);
+		attrMap[TermColors::BtRed] = COLOR_PAIR(2);
+		attrMap[TermColors::DkBlue] = COLOR_PAIR(3);
+		attrMap[TermColors::BtBlue] = COLOR_PAIR(3);
+		attrMap[TermColors::DkYellow] = COLOR_PAIR(4);
+		attrMap[TermColors::BtYellow] = COLOR_PAIR(4);
+		attrMap[TermColors::DkMagenta] = COLOR_PAIR(5);
+		attrMap[TermColors::BtMagenta] = COLOR_PAIR(5);
+		attrMap[TermColors::DkCyan] = COLOR_PAIR(6);
+		attrMap[TermColors::BtCyan] = COLOR_PAIR(6);
+		attrMap[TermColors::DkWhite] = COLOR_PAIR(7);
+		attrMap[TermColors::BtWhite] = COLOR_PAIR(7);
+		attrMap[TermColors::Flashing] = A_BLINK;
+		attrMap[TermColors::Underline] = A_UNDERLINE;
 	}
 }
 
@@ -350,43 +375,10 @@ void Terminal::Initialize(){
 		update_cursor_();
 		refresh_();
 
-		init_colors();
+		init_colors_();
 	}
 	
 	setup_signal_handlers();
-}
-void Terminal::init_colors() {
-	if(has_colors()) {
-		start_color();
-		//Use user's terminal colors.
-		use_default_colors();
-
-		//Define colors
-		init_pair(1,COLOR_GREEN,-1);
-		init_pair(2,COLOR_RED,-1);
-		init_pair(3,COLOR_BLUE,-1);
-		init_pair(4,COLOR_YELLOW,-1);
-		init_pair(5,COLOR_MAGENTA,-1);
-		init_pair(6,COLOR_CYAN,-1);
-		init_pair(7,COLOR_WHITE,-1);
-		//Assign colors to map
-		attrMap[TermColors::DkGreen] = COLOR_PAIR(1);
-		attrMap[TermColors::BtGreen] = COLOR_PAIR(1);
-		attrMap[TermColors::DkRed] = COLOR_PAIR(2);
-		attrMap[TermColors::BtRed] = COLOR_PAIR(2);
-		attrMap[TermColors::DkBlue] = COLOR_PAIR(3);
-		attrMap[TermColors::BtBlue] = COLOR_PAIR(3);
-		attrMap[TermColors::DkYellow] = COLOR_PAIR(4);
-		attrMap[TermColors::BtYellow] = COLOR_PAIR(4);
-		attrMap[TermColors::DkMagenta] = COLOR_PAIR(5);
-		attrMap[TermColors::BtMagenta] = COLOR_PAIR(5);
-		attrMap[TermColors::DkCyan] = COLOR_PAIR(6);
-		attrMap[TermColors::BtCyan] = COLOR_PAIR(6);
-		attrMap[TermColors::DkWhite] = COLOR_PAIR(7);
-		attrMap[TermColors::BtWhite] = COLOR_PAIR(7);
-		attrMap[TermColors::Flashing] = A_BLINK;
-		attrMap[TermColors::Underline] = A_UNDERLINE;
-	}
 }
 
 void Terminal::SetPrompt(const char *input_){
@@ -430,6 +422,16 @@ void Terminal::print(std::string input_){
 	//Print the remaining string content
 	waddstr(output_window, input_.substr(lastPos).c_str());
 	refresh_();
+}
+
+// Dump all text in the stream to the output screen
+void Terminal::flush(){
+	std::string stream_contents = stream.str();
+	if(stream_contents.size() > 0){
+		print(stream_contents);
+		stream.str("");
+		stream.clear();
+	}
 }
 
 std::string Terminal::GetCommand(){
