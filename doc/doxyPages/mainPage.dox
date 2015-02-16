@@ -2140,8 +2140,42 @@
     really doesn't matter.
 
     \section addopt-driv Setup DetectorDriver
-
+    We now need to update the processor list in DetectorDriver. Since we are
+    inheriting from the VandleProcessor, we will change the entry for the
+    VandleProcessor directly. The code that originally looked like this
+    \code
+        else if (name == "VandleProcessor") {
+            double res = processor.attribute("res").as_double(2.0);
+            double offset = processor.attribute("offset").as_double(200.0);
+            unsigned int numStarts = processor.attribute("NumStarts").as_int(2);
+            vector<string> types =
+                strings::tokenize(processor.attribute("types").as_string(),",");
+            vecProcess.push_back(new VandleProcessor(types, res, offset, numStarts));
+        }
+    \endcode
+    Will now look like
+    \code
+        else if (name == "VandleProcessor" || name == "VandleAtLeribssProcessor") {
+            double res = processor.attribute("res").as_double(2.0);
+            double offset = processor.attribute("offset").as_double(200.0);
+            unsigned int numStarts = processor.attribute("NumStarts").as_int(2);
+            vector<string> types =
+                strings::tokenize(processor.attribute("types").as_string(),",");
+            if(name == "VandleProcessor")
+                vecProcess.push_back(new VandleProcessor(types, res, offset, numStarts));
+            else if (name == "VandleAtLeribssProcessor")
+                vecProcess.push_back(new VandleAtLeribssProcessor(types, res, offset, numStarts));
+        }
+    \endcode
     \section addopt-cfg Setup the Configuration File
+    Finally, we need to update the Config.xml to use the new processor instead of the
+    stock one.
+    \code
+        <Processor name="VandleAtLeribssProcessor"
+            types="small" res="2" offset="200" numStarts="2"/>
+    \endcode
+    This code will replace the line for the VandleProcessor in the DetectorDriver
+    node.
 */
 
 /******************************************************************************/
