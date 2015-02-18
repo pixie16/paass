@@ -13,7 +13,7 @@
 #include "hribf_buffers.h"
 
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
-#define POLL_VERSION "1.1"
+#define POLL_VERSION "1.1.01"
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];

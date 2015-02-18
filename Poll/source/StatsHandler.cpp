@@ -8,7 +8,7 @@
 
 using namespace std;
 
-const string StatsHandler::dumpFile = "rates.txt";
+const string StatsHandler::dumpFile = "/tmp/rates.txt";
 
 StatsHandler::StatsHandler(size_t nCards) :
     nEventsDelta(nCards), nEventsTotal(nCards),

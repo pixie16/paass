@@ -30,13 +30,6 @@
 #define WAIT_TRIES 100
 
 Poll::Poll(){
-
-#ifdef USE_NCURSES
-	Display::LeaderPrint("Running poll2");
-	// Initialize the terminal before doing anything else;
-	poll_term.Initialize();
-#endif
-
 	pif = new PixieInterface("pixie.cfg");
 
 	// Maximum size of the shared memory buffer
@@ -120,15 +113,17 @@ bool Poll::close(){
 bool Poll::initialize(){
 	if(init){ return false; }
 
+#ifdef USE_NCURSES
+	// Initialize the terminal before doing anything else;
+	poll_term.Initialize();
+	poll_term.SetPrompt("POLL2 $ ");
+#endif
+
 	// Set debug mode
 	if(DEBUG_MODE){ 
 		std::cout << SYS_MESSAGE_HEAD << "Setting debug mode\n";
 		OUTPUT_FILE.SetDebugMode(); 
 	}
-
-#ifdef USE_NCURSES
-	poll_term.SetPrompt("POLL2 $ ");
-#endif
 
 	// Initialize the pixie interface and boot
 	pif->GetSlots();
@@ -627,6 +622,7 @@ void Poll::run_control(){
 	std::vector<word_t>::iterator maxWords;
 	parseTime = waitTime = readTime = 0.;
 
+  read_again:
 	while(true){
 		if(KILL_ALL){ // Supercedes all other commands
 			if(POLL_RUNNING){ STOP_RUN = true; }
@@ -662,13 +658,14 @@ void Poll::run_control(){
 					memcpy(&fifoData[dataWords], &stats, sizeof(stats));
 					dataWords += PixieInterface::STAT_SIZE;
 
-					if(IS_QUIET){ std::cout << std::endl; }
-					std::cout << "STATS " << mod << " : ICR ";
-					for (size_t ch = 0; ch < pif->GetNumberChannels(); ch++) {
-						std::cout.precision(2);
-						std::cout << " " << pif->GetInputCountRate(mod, ch);
+					if(!IS_QUIET){
+						std::cout << "\nSTATS " << mod << " : ICR ";
+						for (size_t ch = 0; ch < pif->GetNumberChannels(); ch++) {
+							std::cout.precision(2);
+							std::cout << " " << pif->GetInputCountRate(mod, ch);
+						}
+						std::cout << std::endl << std::flush;
 					}
-					std::cout << std::endl << std::flush;
 				}
 				write_data(fifoData, dataWords);
 				dataWords = 0;
@@ -780,7 +777,7 @@ void Poll::run_control(){
 									//! how to proceed from here
 									// BailOut(SEND_ALARM, alarmArgument);
 									//--------- THIS IS A ROUGH HACK TO FIX THE CORRUPT DATA ISSUE
-									//goto read_again;
+									goto read_again;
 								}
 								parseWords += eventSize;				
 							} while(parseWords < dataWords + nWords[mod]);		 

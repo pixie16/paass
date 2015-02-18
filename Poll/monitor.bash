@@ -1,6 +1,6 @@
 #!/bin/bash
-RATESFILE="rates.txt"
-TMPFILE=".rates.current.tmp"
+RATESFILE="/tmp/rates.txt"
+TMPFILE="/tmp/.rates.current.tmp"
 LASTTIME=""
 
 tput clear
