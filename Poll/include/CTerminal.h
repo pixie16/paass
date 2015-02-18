@@ -79,7 +79,7 @@ class CommandHolder{
 	unsigned int wrap_();
 
   public:		
-	CommandHolder(unsigned int max_size_=5){
+	CommandHolder(unsigned int max_size_=50){
 		max_size = max_size_;
 		commands = new std::string[max_size];
 		fragment = "";
@@ -159,12 +159,14 @@ class Terminal{
 	std::map< std::string, int > attrMap;
 	std::streambuf *pbuf, *original;
 	std::stringstream stream;
+	std::string cmd_filename;
 	WINDOW *main;
 	WINDOW *output_window;
 	WINDOW *input_window;
 	CommandHolder commands;
 	CommandString cmd;
 	bool init;
+	bool save_cmds;
 	int text_length;
 	int cursX, cursY;
 	int offset;
@@ -186,6 +188,12 @@ class Terminal{
 
 	/// Initialize terminal colors
 	void init_colors_();
+	
+	/// Load a list of previous commands from a file
+	bool load_commands_();
+	
+	/// Save previous commands to a file
+	bool save_commands_();
 
   public:
 	Terminal();
@@ -194,6 +202,13 @@ class Terminal{
 		
 	/// Initialize the terminal interface
 	void Initialize();
+	
+	/// Initialize the terminal interface with a list of previous commands
+	void Initialize(std::string cmd_fname_);
+		
+	/// Set the command filename for storing previous commands
+	/// This command will clear all current commands from the history if overwrite_ is set to true
+	void SetCommandFilename(std::string input_, bool overwrite_=false);
 		
 	/// Set the command prompt
 	void SetPrompt(const char *input_);

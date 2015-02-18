@@ -115,7 +115,7 @@ bool Poll::initialize(){
 
 #ifdef USE_NCURSES
 	// Initialize the terminal before doing anything else;
-	poll_term.Initialize();
+	poll_term.Initialize(".poll2.cmd");
 	poll_term.SetPrompt("POLL2 $ ");
 #endif
 
@@ -459,7 +459,7 @@ void Poll::command_control(){
 				std::cout << "   Run starting - " << yesno(START_RUN) << std::endl;
 				std::cout << "   Run stopping - " << yesno(STOP_RUN) << std::endl;
 				std::cout << "   Rebooting    - " << yesno(DO_REBOOT) << std::endl;
-				std::cout << "   Acq running  - " << yesno(POLL_RUNNING) << std::endl << std::endl;
+				std::cout << "   Acq running  - " << yesno(POLL_RUNNING) << std::endl;
 			}
 			else if(cmd == "trun" || cmd == "run"){ START_RUN = true; } // Tell POLL to start taking data
 			else if(cmd == "tstop" || cmd == "stop"){ STOP_RUN = true; } // Tell POLL to stop taking data

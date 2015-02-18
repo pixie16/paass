@@ -6,7 +6,9 @@
 // interactive command line interfaces under a linux environment.
 
 #include <iostream>
+#include <fstream>
 #include <unistd.h>
+#include <vector>
 
 #ifdef USE_NCURSES
 
@@ -19,7 +21,7 @@
 
 #include "TermColors.h"
 
-#define CTERMINAL_VERSION "1.1.0";
+#define CTERMINAL_VERSION "1.1.1";
 
 #ifdef USE_NCURSES
 
@@ -325,10 +327,77 @@ void Terminal::init_colors_() {
 	}
 }
 
+bool Terminal::load_commands_(){
+	std::ifstream input(cmd_filename.c_str());
+	if(!input.good()){ return false; }
+	
+	size_t index;
+	std::string cmd;
+	std::vector<std::string> cmds;
+	while(true){
+		std::getline(input, cmd);
+		if(input.eof()){ break; }
+		
+		// Strip the newline from the end
+		index = cmd.find("\n");
+		if(index != std::string::npos){
+			cmd.erase(index);
+		}
+		
+		// Push the command into the command array
+		if(cmd != ""){ // Just to be safe!
+			cmds.push_back(cmd);
+		}
+	}
+	
+	if(cmds.size() > 0){ // Push commands into the array in reverse order so that the original order is preserved
+		std::vector<std::string>::iterator iter = cmds.end()-1;
+		while(true){
+			commands.Push(*iter);
+			if(iter == cmds.begin()){ break; }
+			else{ iter--; }
+		}
+	}
+	
+	input.close();
+	return true;
+}
+
+bool Terminal::save_commands_(){
+	std::ofstream output(cmd_filename.c_str());
+	if(!output.good()){ return false; }
+	
+	std::string temp;
+	unsigned int num_entries;
+	if(commands.GetTotal() > commands.GetSize()){ num_entries = commands.GetSize(); }
+	else{ num_entries = commands.GetTotal(); }
+	
+	for(unsigned int i = 0; i < num_entries; i++){
+		temp = commands.GetPrev();
+		std::cout << i << "\t" << temp << "\n";
+		if(temp != "NULL"){ // Again, just to be safe
+			output << temp << std::endl;
+		}
+	}
+	
+	output.close();
+	return true;
+}
+
 Terminal::Terminal(){
+	pbuf = NULL; 
+	original = NULL;
+	main = NULL;
 	output_window = NULL;
 	input_window = NULL;
+
+	cmd_filename = "";
 	init = false;
+	save_cmds = false;
+	text_length = 0;
+	cursX = 0; 
+	cursY = 0;
+	offset = 0;
 }
 
 Terminal::~Terminal(){
@@ -379,6 +448,26 @@ void Terminal::Initialize(){
 	}
 	
 	setup_signal_handlers();
+}
+
+void Terminal::Initialize(std::string cmd_fname_){
+	if(init){ return; }
+	
+	Initialize();
+	cmd_filename = cmd_fname_;
+	save_cmds = true;
+	load_commands_();
+}
+
+/// Set the command filename for storing previous commands
+/// This command will clear all current commands from the history if overwrite_ is set to true
+void Terminal::SetCommandFilename(std::string input_, bool overwrite_/*=false*/){
+	if(save_cmds && !overwrite_){ return; }
+
+	cmd_filename = input_;
+	save_cmds = true;
+	commands.Clear();
+	load_commands_();
 }
 
 void Terminal::SetPrompt(const char *input_){
@@ -454,10 +543,12 @@ std::string Terminal::GetCommand(){
 	
 		// Check for internal commands
 		if(keypress == 10){ // Enter key (10)
-			commands.Push(cmd.Get());
-			output = cmd.Get();
-			text_length = 0;
-			break;
+			if(cmd.Get() != ""){ 
+				commands.Push(cmd.Get());
+				output = cmd.Get();
+				text_length = 0;
+				break;
+			}
 		} 
 		else if(keypress == 4){ // ctrl-d (EOT)
 			output = "CTRL_D";
@@ -527,6 +618,8 @@ void Terminal::Close(){
 		delwin(input_window); // Delete the input window
 		delwin(main); // Delete the main window
 		endwin(); // Restore Terminal settings
+		
+		if(save_cmds){ save_commands_(); }
 		init = false;
 	}
 }
