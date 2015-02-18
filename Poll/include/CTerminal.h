@@ -51,13 +51,13 @@ struct CLoption{
 	}
 };
 
-/* Parse all command line entries and find valid options. */
+/// Parse all command line entries and find valid options.
 bool get_opt(int argc_, char **argv_, CLoption *options, unsigned int num_valid_opt_, void (*help_)()=dummy_help);
 
-/* Return the length of a character string. */
+/// Return the length of a character string.
 unsigned int cstrlen(char *str_);
 
-/* Extract a string from a character array. */
+/// Extract a string from a character array.
 std::string csubstr(char *str_, unsigned int start_index_=0);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -184,32 +184,33 @@ class Terminal{
 	/// Force a character string to the input screen
 	void in_print_(const char *input_);
 
-	void init_colors();
+	/// Initialize terminal colors
+	void init_colors_();
 
   public:
 	Terminal();
 	
 	~Terminal();
 		
-	// Initialize the terminal interface
+	/// Initialize the terminal interface
 	void Initialize();
 		
-	// Set the command prompt
+	/// Set the command prompt
 	void SetPrompt(const char *input_);
 	
-	// Force a character to the output screen
+	/// Force a character to the output screen
 	void putch(const char input_);
 
-	// Force a character string to the output screen
+	/// Force a character string to the output screen
 	void print(std::string input_);
 			
 	/// Dump all text in the stream to the output screen
 	void flush();
 
-	// Wait for the user to input a command
+	/// Wait for the user to input a command
 	std::string GetCommand();
 	
-	// Close the window and restore control to the terminal
+	/// Close the window and restore control to the terminal
 	void Close();
 };
 
