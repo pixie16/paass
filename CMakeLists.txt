@@ -58,18 +58,16 @@ if(${USE_DAMM})
 endif()
 
 #Find the PLX Library
-set(PLX_LIB_DIR /opt/PLX_API/PLX/PlxSdk/PlxApi/Library)
-link_directories(${PLX_LIB_DIR})
-set(PLX_LIBRARIES -lPlxApi -ldl)
+find_package(PLX REQUIRED)
+link_directories(${PLX_LIBRARY_DIR})
 #add_definitions("-DPLX_LINUX -DPCI_CODE -DPLX_LITTLE_ENDIAN")
 
 #Find the Pixie Firmware
-set(PXI_ROOT /opt/PixieFirmware/current)
-include_directories(${PXI_ROOT}/software/inc ${PXI_ROOT}/software/sys ${PXI_ROOT}/software/app)
-link_directories(${PXI_ROOT}/software)
-set(PXI_LIBRARIES -lPixie16App -lPixie16Sys)
+find_package(PXI REQUIRED)
+include_directories(${PXI_INCLUDE_DIR})
+link_directories(${PXI_LIBRARY_DIR})
 #The following configuration file path is hardcoded into the PXI software :-(
-install(FILES ${PXI_ROOT}/test/pxisys.ini DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(FILES ${PXI_ROOT_DIR}/test/pxisys.ini DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 include_directories(Interface/include)
 add_subdirectory(Interface/source)

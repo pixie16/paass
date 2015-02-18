@@ -132,7 +132,7 @@ class CommandString{
 	
 	unsigned int GetSize(){ return command.size(); }
 	
-	std::string Get(int size_=std::string::npos){ return command.substr(0, size_); }
+	std::string Get(size_t size_=std::string::npos){ return command.substr(0, size_); }
 	
 	void Set(std::string input_){ command = input_; }
 	
