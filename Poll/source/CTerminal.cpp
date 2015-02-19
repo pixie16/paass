@@ -374,7 +374,6 @@ bool Terminal::save_commands_(){
 	
 	for(unsigned int i = 0; i < num_entries; i++){
 		temp = commands.GetPrev();
-		std::cout << i << "\t" << temp << "\n";
 		if(temp != "NULL"){ // Again, just to be safe
 			output << temp << std::endl;
 		}

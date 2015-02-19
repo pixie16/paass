@@ -3,17 +3,12 @@
 
 #include <vector>
 
-#include "CTerminal.h"
-
-#ifndef USE_NCURSES
-#include <termios.h>
-#endif
-
 #include "PixieInterface.h"
 #include "hribf_buffers.h"
+#include "CTerminal.h"
 
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
-#define POLL_VERSION "1.1.02"
+#define POLL_VERSION "1.1.03"
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
@@ -22,14 +17,7 @@ class StatsHandler;
 
 class Poll{
   public:
-  
-#ifdef USE_NCURSES
-	Terminal poll_term;
-#else
-	struct termios SAVED_ATTRIBUTES;
-#endif
-
-	struct tm *TIME_INFO;
+  	struct tm *TIME_INFO;
  
 	PixieInterface *pif; // The main pixie interface pointer 
   
@@ -103,22 +91,23 @@ class Poll{
 	Poll();
 	~Poll();
 	
+	bool initialize();
+	
 	void set_stat_handler(StatsHandler *handler){ statsHandler = handler; }
 
 	bool close();
-	
-	bool initialize();
+		
+	/// Print help dialogue for POLL options.
+	void help();
 
-#ifndef USE_NCURSES	
+	/// Print help dialogue for reading/writing pixie channel parameters.
+	void pchan_help();
 
-	void restore_terminal();
-	
-	bool takeover_terminal();
-	
-#endif
-	
-	void command_control();
-	
+	/// Print help dialogue for reading/writing pixie module parameters.
+	void pmod_help();
+		
+	void command_control(Terminal *poll_term_);
+		
 	void run_control();
 	
 	std::string get_filename();
@@ -126,12 +115,6 @@ class Poll{
 	bool close_output_file();
 	
 	bool open_new_file();
-	
-	void help();
-	
-	void pchan_help();
-	
-	void pmod_help();
 	
 	bool synch_mods();
 		

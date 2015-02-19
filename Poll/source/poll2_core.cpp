@@ -79,45 +79,8 @@ Poll::Poll(){
 	statsHandler = NULL;
 }
 
-Poll::~Poll(){
-	if(init){
-		close();
-	}
-}
-
-bool Poll::close(){
-	if(!init){ return false; }
-	
-#ifdef USE_NCURSES
-
-	poll_term.Close();
-	//Reprint the leader as the carriage was returned
-	Display::LeaderPrint(std::string("Running poll2 v").append(POLL_VERSION));
-	std::cout << Display::OkayStr("[Done]") << std::endl;
-	
-#else
-
-	restore_terminal();
-	
-#endif
-
-	if(runDone){ delete[] runDone; }
-	if(fifoData){ delete[] fifoData; }
-	if(partialEventData){ delete[] partialEventData; }
-	
-	delete pif;
-	
-	init = false;
-}
-
 bool Poll::initialize(){
 	if(init){ return false; }
-
-#ifdef USE_NCURSES
-	// Initialize the terminal before doing anything else;
-	poll_term.Initialize(".poll2.cmd");
-	poll_term.SetPrompt("POLL2 $ ");
-#endif
 
 	// Set debug mode
 	if(DEBUG_MODE){ 
@@ -143,7 +106,7 @@ bool Poll::initialize(){
 	else if(startScheduler == SCHED_OTHER){ std::cout << Display::InfoStr("STANDARD") << std::endl; }
 	else{ std::cout << Display::WarningStr("UNEXPECTED") << std::endl; }
 
-	if(!synch_mods()){ return EXIT_FAILURE; }
+	if(!synch_mods()){ return false; }
 
 	// Allocate memory buffers for FIFO
 	N_CARDS = pif->GetNumberCards();
@@ -180,41 +143,28 @@ bool Poll::initialize(){
 	waitCounter = 0;
 	nonWaitCounter = 0;
 	partialBufferCounter = 0;
-	init = true;
 	
+	init = true;
 	return true;
 }
 
-#ifndef USE_NCURSES
-
-/* Reset the terminal attributes to normal. */
-void Poll::restore_terminal(){
-	tcsetattr(STDIN_FILENO, TCSANOW, &SAVED_ATTRIBUTES);
-}
-
-/* Take control of the terminal to capture user input. */
-bool Poll::takeover_terminal(){
-	struct termios tattr;
-	char *name;
-
-	/* Make sure stdin is a terminal. */
-	if(!isatty (STDIN_FILENO)){
-		fprintf (stderr, "Not a terminal.\n");
-		return false;
+Poll::~Poll(){
+	if(init){
+		close();
 	}
-
-	/* Save the terminal attributes so we can restore them later. */
-	tcgetattr(STDIN_FILENO, &SAVED_ATTRIBUTES);
-
-	/* Set the terminal modes. */
-	tcgetattr(STDIN_FILENO, &tattr);
-	tattr.c_cc[VMIN] = 1;
-	tattr.c_cc[VTIME] = 0;
-	if(tcsetattr(STDIN_FILENO, TCSAFLUSH, &tattr) == 0){ return true;  }	
-	return false;
 }
 
-#endif
+bool Poll::close(){
+	if(!init){ return false; }
+	
+	if(runDone){ delete[] runDone; }
+	if(fifoData){ delete[] fifoData; }
+	if(partialEventData){ delete[] partialEventData; }
+	
+	delete pif;
+	
+	init = false;
+}
 
 /* Safely close current data file if one is open. */
 bool Poll::close_output_file(){
@@ -237,63 +187,6 @@ bool Poll::close_output_file(){
 	}
 	std::cout << SYS_MESSAGE_HEAD << "No file is open.\n";
 	return true;
-}
-
-/* Print help dialogue for POLL options. */
-void Poll::help(){
-	std::cout << "  Help:\n";
-	std::cout << "   quit           - Close the program\n";
-	std::cout << "   help (h)       - Display this dialogue\n";
-	std::cout << "   version (v)    - Display Poll2 version information\n";
-	std::cout << "   status         - Display system status information\n";
-	std::cout << "   run (trun)     - Start recording data to disk\n";
-	std::cout << "   stop (tstop)   - Stop recording data to disk\n";
-	std::cout << "   reboot         - Reboot PIXIE crate\n";
-	std::cout << "   force          - Force dump of current spill\n";
-	std::cout << "   debug          - Toggle debug mode flag\n";
-	std::cout << "   fdir [path]    - Set the output file directory (default='./')\n";
-	std::cout << "   ouf [filename] - Set the output filename (default='pixie.xxx')\n";
-	std::cout << "   clo            - Safely close the current data output file\n";
-	std::cout << "   htit [title]   - Set the title of the current run (default='PIXIE Data File)\n";
-	std::cout << "   hnum [number]  - Set the number of the current run (default=0)\n";
-	std::cout << "   oform [0,1,2]  - Set the format of the output file (default=0)\n";
-	//std::cout << "   mca [filename='MCA.root'] [time=60s] - Use MCA to record data for debugging purposes\n";
-	std::cout << "   pread [mod] [chan] [param]        - Read parameters from individual PIXIE channels\n";
-	std::cout << "   pmread [mod] [param]              - Read parameters from PIXIE modules\n";
-	std::cout << "   pwrite [mod] [chan] [param] [val] - Write parameters to individual PIXIE channels\n";
-	std::cout << "   pmwrite [mod] [param] [val]       - Write parameters to PIXIE modules\n";
-}
-
-/* Print help dialogue for reading/writing pixie channel parameters. */
-void Poll::pchan_help(){
-	std::cout << "  Valid Pixie16 channel parameters:\n";
-	std::cout << "   CHANNEL_CSRA\n";
-	std::cout << "   ENERGY_FLATTOP\n";
-	std::cout << "   ENERGY_RISETIME\n";
-	std::cout << "   TRIGGER_FLATTOP\n";
-	std::cout << "   TRIGGER_RISETIME\n";
-	std::cout << "   TRIGGER_THRESHOLD\n";
-	std::cout << "   TAU\n";
-	std::cout << "   TRACE_DELAY\n";
-	std::cout << "   TRACE_LENGTH\n";
-	std::cout << "   ChanTrigStretch\n";
-	std::cout << "   ExternDelayLen\n";
-	std::cout << "   ExtTrigStretch\n";
-	std::cout << "   FtrigoutDelay\n";
-	std::cout << "   FASTTRIGBACKLEN\n";
-	std::cout << "   BLCUT\n";
-}
-
-/* Print help dialogue for reading/writing pixie module parameters. */
-void Poll::pmod_help(){
-	std::cout << "  Valid Pixie16 module parameters:\n";
-	std::cout << "   MODULE_CSRB\n";
-	std::cout << "   MODULE_FORMAT\n";
-	std::cout << "   SYNCH_WAIT\n";
-	std::cout << "   IN_SYNCH\n";
-	std::cout << "   TrigConfig0\n";
-	std::cout << "   TrigConfig1\n";
-	std::cout << "   TrigConfig2\n";
 }
 
 bool Poll::synch_mods(){
@@ -388,12 +281,69 @@ int Poll::write_data(word_t *data, unsigned int nWords, bool shm_/*=false*/){
 	return -1;
 }
 
+/* Print help dialogue for POLL options. */
+void Poll::help(){
+	std::cout << "  Help:\n";
+	std::cout << "   quit           - Close the program\n";
+	std::cout << "   help (h)       - Display this dialogue\n";
+	std::cout << "   version (v)    - Display Poll2 version information\n";
+	std::cout << "   status         - Display system status information\n";
+	std::cout << "   run (trun)     - Start recording data to disk\n";
+	std::cout << "   stop (tstop)   - Stop recording data to disk\n";
+	std::cout << "   reboot         - Reboot PIXIE crate\n";
+	std::cout << "   force          - Force dump of current spill\n";
+	std::cout << "   debug          - Toggle debug mode flag\n";
+	std::cout << "   fdir [path]    - Set the output file directory (default='./')\n";
+	std::cout << "   ouf [filename] - Set the output filename (default='pixie.xxx')\n";
+	std::cout << "   clo            - Safely close the current data output file\n";
+	std::cout << "   htit [title]   - Set the title of the current run (default='PIXIE Data File)\n";
+	std::cout << "   hnum [number]  - Set the number of the current run (default=0)\n";
+	std::cout << "   oform [0,1,2]  - Set the format of the output file (default=0)\n";
+	//std::cout << "   mca [filename='MCA.root'] [time=60s] - Use MCA to record data for debugging purposes\n";
+	std::cout << "   pread [mod] [chan] [param]        - Read parameters from individual PIXIE channels\n";
+	std::cout << "   pmread [mod] [param]              - Read parameters from PIXIE modules\n";
+	std::cout << "   pwrite [mod] [chan] [param] [val] - Write parameters to individual PIXIE channels\n";
+	std::cout << "   pmwrite [mod] [param] [val]       - Write parameters to PIXIE modules\n";
+}
+
+/* Print help dialogue for reading/writing pixie channel parameters. */
+void Poll::pchan_help(){
+	std::cout << "  Valid Pixie16 channel parameters:\n";
+	std::cout << "   CHANNEL_CSRA\n";
+	std::cout << "   ENERGY_FLATTOP\n";
+	std::cout << "   ENERGY_RISETIME\n";
+	std::cout << "   TRIGGER_FLATTOP\n";
+	std::cout << "   TRIGGER_RISETIME\n";
+	std::cout << "   TRIGGER_THRESHOLD\n";
+	std::cout << "   TAU\n";
+	std::cout << "   TRACE_DELAY\n";
+	std::cout << "   TRACE_LENGTH\n";
+	std::cout << "   ChanTrigStretch\n";
+	std::cout << "   ExternDelayLen\n";
+	std::cout << "   ExtTrigStretch\n";
+	std::cout << "   FtrigoutDelay\n";
+	std::cout << "   FASTTRIGBACKLEN\n";
+	std::cout << "   BLCUT\n";
+}
+
+/* Print help dialogue for reading/writing pixie module parameters. */
+void Poll::pmod_help(){
+	std::cout << "  Valid Pixie16 module parameters:\n";
+	std::cout << "   MODULE_CSRB\n";
+	std::cout << "   MODULE_FORMAT\n";
+	std::cout << "   SYNCH_WAIT\n";
+	std::cout << "   IN_SYNCH\n";
+	std::cout << "   TrigConfig0\n";
+	std::cout << "   TrigConfig1\n";
+	std::cout << "   TrigConfig2\n";
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Poll::command_control
 ///////////////////////////////////////////////////////////////////////////////
 
 /* Function to control the POLL command line interface */
-void Poll::command_control(){
+void Poll::command_control(Terminal *poll_term_){
 	char c;
 	std::string cmd = "", arg;
 	
@@ -405,8 +355,8 @@ void Poll::command_control(){
 	
 	while(true){
 #ifdef USE_NCURSES
-		cmd = poll_term.GetCommand();
-		poll_term.print((cmd+"\n").c_str()); // This will force a write before the cout stream dumps to the screen
+		cmd = poll_term_->GetCommand();
+		poll_term_->print((cmd+"\n").c_str()); // This will force a write before the cout stream dumps to the screen
 		if(cmd == "CTRL_D" || cmd == "CTRL_C"){ 
 			cmd = "quit";
 		}
