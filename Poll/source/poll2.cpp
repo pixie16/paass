@@ -19,14 +19,39 @@
 #include "Display.h"
 #include "StatsHandler.hpp"
 
-void start_run_control(Poll *poll_){
-	poll_->run_control();
+#ifndef USE_NCURSES
+
+#include <termios.h>
+
+/* Reset the terminal attributes to normal. */
+void restore_terminal(){
+	tcsetattr(STDIN_FILENO, TCSANOW, &SAVED_ATTRIBUTES);
 }
 
-void start_cmd_control(Poll *poll_){
-	poll_->command_control();
+/* Take control of the terminal to capture user input. */
+bool takeover_terminal(){
+	struct termios tattr;
+	char *name;
+
+	/* Make sure stdin is a terminal. */
+	if(!isatty (STDIN_FILENO)){
+		fprintf (stderr, "Not a terminal.\n");
+		return false;
+	}
+
+	/* Save the terminal attributes so we can restore them later. */
+	tcgetattr(STDIN_FILENO, &SAVED_ATTRIBUTES);
+
+	/* Set the terminal modes. */
+	tcgetattr(STDIN_FILENO, &tattr);
+	tattr.c_cc[VMIN] = 1;
+	tattr.c_cc[VTIME] = 0;
+	if(tcsetattr(STDIN_FILENO, TCSAFLUSH, &tattr) == 0){ return true;  }	
+	return false;
 }
 
+#endif
+	
 /* Print help dialogue for command line options. */
 void help(){
 	std::cout << "\n SYNTAX: ./poll2 [options]\n";
@@ -41,9 +66,23 @@ void help(){
 	std::cout << "  -z, --zero           Zero clocks on each START_ACQ (false by default)\n";
 	std::cout << "  -d, --debug          Set debug mode to true (false by default)\n";
 	std::cout << "  -m, --memory-share   Do not write data to shared memory (SHM) (true by default)\n\n";
+}	
+	
+void start_run_control(Poll *poll_){
+	poll_->run_control();
+}
+
+void start_cmd_control(Poll *poll_, Terminal *term_){
+	poll_->command_control(term_);
 }
 
 int main(int argc, char *argv[]){
+#ifdef USE_NCURSES
+	Terminal poll_term;
+#else
+	struct termios SAVED_ATTRIBUTES;
+#endif
+
 	// Read the FIFO when it is this full
 	unsigned int threshPercent = 50;
 	std::string alarmArgument = "";
@@ -108,8 +147,13 @@ int main(int argc, char *argv[]){
 	if(valid_opt[10].is_active){ poll.SHM_MODE = false; }
 	if(valid_opt[11].is_active){ return EXIT_SUCCESS; }
 
-	Display::LeaderPrint("Running poll2");
-  	poll.initialize();
+	if(!poll.initialize()){ return EXIT_FAILURE; }
+
+#ifdef USE_NCURSES
+	// Initialize the terminal before doing anything else;
+	poll_term.Initialize(".poll2.cmd");
+	poll_term.SetPrompt("POLL2 $ ");
+#endif
 
 	std::cout << "\n#########      #####    ####      ####       ########\n"; 
 	std::cout << " ##     ##    ##   ##    ##        ##       ##      ##\n";
@@ -131,7 +175,7 @@ int main(int argc, char *argv[]){
 #ifndef USE_NCURSES
 	// Take control of the terminal
 	std::cout << pad_string("Taking control of the terminal", 49);
-	if(poll.takeover_terminal()){ std::cout << Display::OkayStr() << std::endl; }
+	if(takeover_terminal()){ std::cout << Display::OkayStr() << std::endl; }
 	else{ 
 		std::cout << Display::ErrorStr() << std::endl; 
 		return EXIT_FAILURE;
@@ -155,7 +199,7 @@ int main(int argc, char *argv[]){
 	// Start the command control thread. This needs to be the last thing we do to
 	// initialize, so the user cannot enter commands before setup is complete
 	std::cout << pad_string("Starting command thread", 49);
-	std::thread comctrl(start_cmd_control, &poll);
+	std::thread comctrl(start_cmd_control, &poll, &poll_term);
 	std::cout << Display::OkayStr() << std::endl << std::endl;
 	
 	// Synchronize the threads and wait for completion
@@ -164,6 +208,19 @@ int main(int argc, char *argv[]){
 
 	// Close the output file, if one is open
 	poll.close_output_file();
+
+#ifdef USE_NCURSES
+
+	poll_term.Close();
+	//Reprint the leader as the carriage was returned
+	Display::LeaderPrint(std::string("Running poll2 v").append(POLL_VERSION));
+	std::cout << Display::OkayStr("[Done]") << std::endl;
+	
+#else
+
+	restore_terminal();
+	
+#endif
 
 	return EXIT_SUCCESS;
 }
