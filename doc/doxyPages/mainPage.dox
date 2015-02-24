@@ -2167,6 +2167,11 @@
                 vecProcess.push_back(new VandleAtLeribssProcessor(types, res, offset, numStarts));
         }
     \endcode
+    In addition, we need to add the header file to the list at the top of
+    DetectorDriver.
+    \code
+        #include "VandleAtLeribssProcessor.hpp"
+    \endcode
     \section addopt-cfg Setup the Configuration File
     Finally, we need to update the Config.xml to use the new processor instead of the
     stock one.
@@ -2176,6 +2181,16 @@
     \endcode
     This code will replace the line for the VandleProcessor in the DetectorDriver
     node.
+
+    \section addopt-tips Tips and Tricks
+    One thing to keep in mind is that the constructor for the child processor
+    must accept at a minimum the same number of arguments that the parent does.
+    This does not mean that you are limited in any way for a maximum.
+
+    In this example we could have added an additional argument to the constructor
+    for the VandleAtLeribssProcessor for the number of the banana that we would
+    like to analyze. This argument would not need to be passed to the constructor
+    for the parent.
 */
 
 /******************************************************************************/
