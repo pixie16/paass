@@ -184,7 +184,7 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 		// Write a DATA header if needed
 		buffs_written = 0;
 		if(current_buff_pos < 2){ open_(file_); }
-		else if(current_buff_pos >= ACTUAL_BUFF_SIZE){
+		else if(current_buff_pos > ACTUAL_BUFF_SIZE){
 			if(debug_mode){ std::cout << "debug: previous buffer overfilled by " << current_buff_pos - ACTUAL_BUFF_SIZE << " words!!!\n"; }
 			Close(file_);
 			open_(file_);
@@ -369,31 +369,58 @@ std::string PollOutputFile::get_filename(){
 	return output;
 }
 
-// Overwrite the fourth word of the file
-// The fourth word sets the total number of buffers which the file contains
-bool PollOutputFile::overwrite_dir(){
+/// Overwrite the fourth word of the file with the total number of buffers and close the file
+/// Returns false if no output file is open or if the number of 4 byte words in the file is not 
+/// evenly divisible by the number of words in a buffer
+bool PollOutputFile::overwrite_dir(int total_buffers_/*=-1*/){
 	if(!output_file.is_open()){ return false; }
-	output_file.seekp(12); // Set position to just after the third word
-	output_file.write((char*)&total_num_buffer, 4); // Set the number of buffers
-	output_file.seekp(0, std::ios_base::end); // Reset the file position
+	
+	// Set the buffer count in the "DIR " buffer
+	if(total_buffers_ == -1){ // Set with the internal buffer count
+		int size = output_file.tellp(); // Get the length of the file (in bytes)
+		output_file.seekp(12); // Set position to just after the third word
+	
+		// Calculate the number of buffers in this file
+		int total_num_buffer = size / (4 * ACTUAL_BUFF_SIZE);
+		int overflow = size % (4 * ACTUAL_BUFF_SIZE);
+		output_file.write((char*)&total_num_buffer, 4); 
+		
+		if(debug_mode){ 
+			std::cout << "debug: file size is " << size << " bytes (" << size/4 << " 4 byte words)\n";
+			std::cout << "debug: file contains " << total_num_buffer << " buffers of " << ACTUAL_BUFF_SIZE << " words\n";
+			if(overflow != 0){ std::cout << "debug: file has an overflow of " << overflow << " 4 byte words!\n"; }
+			std::cout << "debug: set .ldf directory buffer number to " << total_num_buffer << std::endl; 
+		}
+		
+		if(overflow != 0){ 
+			output_file.close();
+			return false; 
+		}
+	} 
+	else{ // Set with an external buffer count
+		output_file.write((char*)&total_buffers_, 4); 
+		if(debug_mode){ std::cout << "debug: set .ldf directory buffer number to " << total_buffers_ << std::endl; }	
+	}
+	
+	output_file.close();
 	return true;
 }
 
 PollOutputFile::PollOutputFile(){ 
 	current_file_num = 0; 
 	output_format = 0;
-	total_num_buffer = 0;
 	total_num_bytes = 0;
 	fname_prefix = "poll_data";
+	current_filename = "unknown";
 	debug_mode = false;
 }
 
 PollOutputFile::PollOutputFile(std::string filename_){
 	current_file_num = 0;
 	output_format = 0;
-	total_num_buffer = 0;
 	total_num_bytes = 0;
 	fname_prefix = filename_;
+	current_filename = "unknown";
 	debug_mode = false;
 }
 
@@ -423,17 +450,16 @@ int PollOutputFile::Write(char *data_, unsigned int nWords_){
 
 	unsigned int buffs_written;
 	dataBuff.Write(&output_file, data_, nWords_, buffs_written, output_format);
-	total_num_buffer += buffs_written;
 	
 	return buffs_written;
 }
 
 // Close the current file, if one is open, and open a new file for data output
-bool PollOutputFile::OpenNewFile(std::string title_, unsigned int run_num_, std::string &current_fname, std::string output_directory/*="./"*/){
+bool PollOutputFile::OpenNewFile(std::string title_, unsigned int run_num_, std::string &filename, std::string output_directory/*="./"*/){
 	CloseFile();
 
 	std::ifstream dummy_file;
-	std::string filename = output_directory + get_filename();
+	filename = output_directory + get_filename();
 	while(true){
 		dummy_file.open(filename.c_str());
 		if(dummy_file.is_open()){
@@ -447,8 +473,8 @@ bool PollOutputFile::OpenNewFile(std::string title_, unsigned int run_num_, std:
 				output_file.close();
 				return false;
 			}
-			current_fname = filename;
 			
+			current_filename = filename;			
 			dirBuff.SetRunNumber(run_num_);
 			dirBuff.Write(&output_file); // Every .ldf file gets a DIR header
 			
@@ -456,28 +482,6 @@ bool PollOutputFile::OpenNewFile(std::string title_, unsigned int run_num_, std:
 			headBuff.SetDateTime();
 			headBuff.SetRunNumber(run_num_);
 			headBuff.Write(&output_file); // Every .ldf file gets a HEAD file header
-			total_num_buffer = 2; // Account for the beginning of file buffers in the total buffer count
-			
-			/*// Need to lead off with a spill footer so that the scan code will not skip the first spill
-			// Write the end of spill buffer (5 words + 2 end of buffer words)
-			// We need to trick PixieScan into thinking that a spill fragment preceeded the real data
-			int dumb[6] = {24, 2, 0, 1112364356, 538976288, 1312899923}; // 20, 2, 0, "DUMB", "    ", "SCAN"
-			
-			if(debug_mode){ std::cout << "debug: writing 24 bytes (6 words) for fake spill\n"; }
-			file_->write((char*)&dumb, 24);
-			
-			if(debug_mode){ std::cout << "debug: writing 28 bytes (7 words) for fake spill footer\n"; }
-			
-			int total_num_chunks = 2;
-			int current_chunk_num = 1;
-			file_->write((char*)&buffend, 4); // write 0xFFFFFFFF (signal end of spill)
-			file_->write((char*)&end_spill_size, 4);
-			file_->write((char*)&total_num_chunks, 4);
-			file_->write((char*)&current_chunk_num, 4);
-			file_->write((char*)&pacman_word1, 4);
-			file_->write((char*)&pacman_word2, 4);
-			file_->write((char*)&buffend, 4); // write 0xFFFFFFFF
-			current_buff_pos = 13;*/
 				
 			break;
 		}
@@ -490,14 +494,9 @@ void PollOutputFile::CloseFile(){
 	if(!output_file.is_open()){ return; }
 	
 	dataBuff.Close(&output_file); // Pad the final data buffer with 0xFFFFFFFF
-	total_num_buffer++;
 	
 	eofBuff.Write(&output_file); // First EOF buffer signals end of run
 	eofBuff.Write(&output_file); // Second EOF buffer signals physical end of file
 	
-	total_num_buffer += 2; // Account for the end of file buffers in the total buffer count
-	overwrite_dir(); // Overwrite the total buffer number word
-	if(debug_mode){ std::cout << "debug: set .ldf directory buffer number to " << total_num_buffer << std::endl; }
-		
-	output_file.close();
+	overwrite_dir(); // Overwrite the total buffer number word and close the file
 }

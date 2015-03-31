@@ -70,7 +70,7 @@ Poll::Poll(){
 	CURRENT_FILE_NUM = 0;
 	CURRENT_FILENAME = "";
 	
-	STATS_INTERVAL = 30; //< in seconds
+	STATS_INTERVAL = -1; //< in seconds
 	HISTO_INTERVAL = -1; //< in seconds
 
 	runDone = NULL;
@@ -291,15 +291,15 @@ void Poll::help(){
 	std::cout << "   run (trun)     - Start recording data to disk\n";
 	std::cout << "   stop (tstop)   - Stop recording data to disk\n";
 	std::cout << "   reboot         - Reboot PIXIE crate\n";
-	std::cout << "   force          - Force dump of current spill\n";
+	std::cout << "   force (hup)    - Force dump of current spill\n";
 	std::cout << "   debug          - Toggle debug mode flag\n";
 	std::cout << "   fdir [path]    - Set the output file directory (default='./')\n";
 	std::cout << "   ouf [filename] - Set the output filename (default='pixie.xxx')\n";
-	std::cout << "   clo            - Safely close the current data output file\n";
+	std::cout << "   close (clo)    - Safely close the current data output file\n";
 	std::cout << "   htit [title]   - Set the title of the current run (default='PIXIE Data File)\n";
 	std::cout << "   hnum [number]  - Set the number of the current run (default=0)\n";
 	std::cout << "   oform [0,1,2]  - Set the format of the output file (default=0)\n";
-	std::cout << "   stats [time]   - Set the time delay between statistics output (default=30)\n";
+	std::cout << "   stats [time]   - Set the time delay between statistics output (default=-1)\n";
 	//std::cout << "   mca [filename='MCA.root'] [time=60s] - Use MCA to record data for debugging purposes\n";
 	std::cout << "   pread [mod] [chan] [param]        - Read parameters from individual PIXIE channels\n";
 	std::cout << "   pmread [mod] [param]              - Read parameters from PIXIE modules\n";
@@ -432,19 +432,6 @@ void Poll::command_control(Terminal *poll_term_){
 					DEBUG_MODE = true;
 				}
 			}
-			else if(cmd == "test"){
-				if(!OUTPUT_FILE.IsOpen()){
-					std::cout << SYS_MESSAGE_HEAD << "Performing write test\n";
-					std::string temp;
-					OUTPUT_FILE.OpenNewFile("This is a test file!", 1, temp);
-					int test_data[13141];
-					for(unsigned int i = 0; i < 13141; i++){ test_data[i] = (int)i; }
-					OUTPUT_FILE.Write((char*)test_data, 13141);
-					std::cout << SYS_MESSAGE_HEAD << "Wrote test file '" << temp << "'.\n";
-					OUTPUT_FILE.CloseFile();
-				}
-				else{ std::cout << SYS_MESSAGE_HEAD << "Failed to perform write test (output file is open)\n"; }			
-			}			
 			else if(cmd == "fdir"){ // Change the output file directory
 				OUTPUT_DIRECTORY = arg; 
 				CURRENT_FILE_NUM = 0;
