@@ -70,7 +70,7 @@ Poll::Poll(){
 	CURRENT_FILE_NUM = 0;
 	CURRENT_FILENAME = "";
 	
-	STATS_INTERVAL = -1; //< in seconds
+	STATS_INTERVAL = 30; //< in seconds
 	HISTO_INTERVAL = -1; //< in seconds
 
 	runDone = NULL;
@@ -299,6 +299,7 @@ void Poll::help(){
 	std::cout << "   htit [title]   - Set the title of the current run (default='PIXIE Data File)\n";
 	std::cout << "   hnum [number]  - Set the number of the current run (default=0)\n";
 	std::cout << "   oform [0,1,2]  - Set the format of the output file (default=0)\n";
+	std::cout << "   stats [time]   - Set the time delay between statistics output (default=30)\n";
 	//std::cout << "   mca [filename='MCA.root'] [time=60s] - Use MCA to record data for debugging purposes\n";
 	std::cout << "   pread [mod] [chan] [param]        - Read parameters from individual PIXIE channels\n";
 	std::cout << "   pmread [mod] [param]              - Read parameters from PIXIE modules\n";
@@ -447,6 +448,9 @@ void Poll::command_control(Terminal *poll_term_){
 			else if(cmd == "fdir"){ // Change the output file directory
 				OUTPUT_DIRECTORY = arg; 
 				CURRENT_FILE_NUM = 0;
+				
+				// Append a '/' if the user did not include one
+				if(*(OUTPUT_DIRECTORY.end()-1) != '/'){ OUTPUT_DIRECTORY += '/'; }
 				std::cout << SYS_MESSAGE_HEAD << "Set output directory to '" << OUTPUT_DIRECTORY << "'\n";
 			} 
 			else if(cmd == "ouf"){ // Change the output file name
@@ -478,6 +482,14 @@ void Poll::command_control(Terminal *poll_term_){
 					std::cout << "   0 - .ldf (HRIBF) file format (default)\n";
 					std::cout << "   1 - .pld (PIXIE) file format (experimental)\n";
 					std::cout << "   2 - .root file format (slow, not recommended)\n";
+				}
+			}
+			else if(cmd == "stats"){
+				STATS_INTERVAL = atoi(arg.c_str());
+				if(STATS_INTERVAL > 0){ std::cout << SYS_MESSAGE_HEAD << "Dumping statistics information every " << STATS_INTERVAL << " seconds\n"; } // Stats are turned on
+				else{ 
+					std::cout << SYS_MESSAGE_HEAD << "Disabling statistics output\n"; 
+					STATS_INTERVAL = -1;
 				}
 			}
 			else if(cmd == "pwrite" || cmd == "pmwrite"){ // Write pixie parameters
