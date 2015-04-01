@@ -32,9 +32,6 @@
 Poll::Poll(){
 	pif = new PixieInterface("pixie.cfg");
 
-	// Maximum size of the shared memory buffer
-	MAX_SHM_SIZEL = 4050; // in pixie words
-	MAX_SHM_SIZE = MAX_SHM_SIZEL * sizeof(word_t); // in bytes
 	CLOCK_VSN = 1000;
 
 	// System flags and variables
@@ -56,7 +53,7 @@ Poll::Poll(){
 	SHOW_MODULE_RATES = false;
 	ZERO_CLOCKS = false;
 	DEBUG_MODE = false;
-	SHM_MODE = true;
+	SHM_MODE = false;
 	init = false;
 
 	// Options relating to output data file
@@ -213,67 +210,12 @@ bool Poll::synch_mods(){
 	return !hadError;
 }
 
-int Poll::write_data(word_t *data, unsigned int nWords, bool shm_/*=false*/){
-	static data_pack acqBuf;
-	const unsigned int sendPause = 1;
-
+int Poll::write_data(word_t *data, unsigned int nWords){
 	if(OUTPUT_FORMAT == 0){ // legacy .ldf format		
 		// Handle the writing of buffers to the file
-		return OUTPUT_FILE.Write((char*)data, nWords);
-		
-		/*word_t *pWrite = (word_t *)acqBuf.Data; // Now write to the shared memory
-		unsigned int nBufs = nWords / MAX_SHM_SIZEL;
-		unsigned int wordsLeft = nWords % MAX_SHM_SIZEL;
-		unsigned int totalBufs = nBufs + 1 + ((wordsLeft != 0) ? 1 : 0);
-
-		for(size_t buf=0; buf < nBufs; buf++){
-			OUTPUT_FILE.write((char*)&bufftype, 4);
-			OUTPUT_FILE.write((char*)&buffsize, 4);
-			
-			acqBuf.BufLen = (MAX_SHM_SIZEL + 3) * sizeof(word_t);
-			pWrite[0] = acqBuf.BufLen; // size
-			pWrite[1] = totalBufs; // number of buffers we expect
-			pWrite[2] = buf; 
-			memcpy(&pWrite[3], &data[buf * MAX_SHM_SIZEL], MAX_SHM_SIZE); 
-
-			if(OUTPUT_FILE.is_open()){ OUTPUT_FILE.write(acqBuf.Data, 16212); } // MAX_SHM_SIZE + 3 * sizeof(word_t)
-			if(shm_){ send_buf(&acqBuf); }
-			usleep(sendPause);
-		}
-
-		// send the last fragment (if there is any)
-		if (wordsLeft != 0) {
-			OUTPUT_FILE.write((char*)&bufftype, 4);
-			OUTPUT_FILE.write((char*)&buffsize, 4);
-		
-			acqBuf.BufLen = (wordsLeft + 3) * sizeof(word_t);
-			pWrite[0] = acqBuf.BufLen;
-			pWrite[1] = totalBufs;
-			pWrite[2] = nBufs;
-			memcpy(&pWrite[3], &data[nBufs * MAX_SHM_SIZEL], wordsLeft * sizeof(word_t) );
-
-			if(OUTPUT_FILE.is_open()){ OUTPUT_FILE.write(acqBuf.Data, wordsLeft * sizeof(word_t) + 12); }
-
-			if(shm_){ send_buf(&acqBuf); }
-			usleep(sendPause);
-		}
-
-		// send a buffer to say that we are done
-		acqBuf.BufLen = 5 * sizeof(word_t);
-		pWrite[0] = /;
-		pWrite[1] = totalBufs;
-		pWrite[2] = totalBufs - 1;
-		
-		// pacman looks for the following data
-		pWrite[3] = 0x2; 
-		pWrite[4] = 0x270f; // vsn 9999
-
-		if(OUTPUT_FILE.is_open()){ OUTPUT_FILE.write((char*)pWrite, 5 * sizeof(word_t)); }
-
-		if(shm_){ send_buf(&acqBuf); }*/
+		return OUTPUT_FILE.Write((char*)data, nWords, SHM_MODE);
 	}
 	else if(OUTPUT_FORMAT == 1){ // new .pldf format
-		
 	}
 	else if(OUTPUT_FORMAT == 2){
 	}
@@ -292,14 +234,15 @@ void Poll::help(){
 	std::cout << "   stop (tstop)   - Stop recording data to disk\n";
 	std::cout << "   reboot         - Reboot PIXIE crate\n";
 	std::cout << "   force (hup)    - Force dump of current spill\n";
-	std::cout << "   debug          - Toggle debug mode flag\n";
+	std::cout << "   debug          - Toggle debug mode flag (default=false)\n";
+	std::cout << "   shm            - Toggle shared memory mode flag (default=false)\n";
 	std::cout << "   fdir [path]    - Set the output file directory (default='./')\n";
 	std::cout << "   ouf [filename] - Set the output filename (default='pixie.xxx')\n";
 	std::cout << "   close (clo)    - Safely close the current data output file\n";
 	std::cout << "   htit [title]   - Set the title of the current run (default='PIXIE Data File)\n";
 	std::cout << "   hnum [number]  - Set the number of the current run (default=0)\n";
 	std::cout << "   oform [0,1,2]  - Set the format of the output file (default=0)\n";
-	std::cout << "   stats [time]   - Set the time delay between statistics output (default=-1)\n";
+	std::cout << "   stats [time]   - Set the time delay between statistics dumps (default=-1)\n";
 	//std::cout << "   mca [filename='MCA.root'] [time=60s] - Use MCA to record data for debugging purposes\n";
 	std::cout << "   pread [mod] [chan] [param]        - Read parameters from individual PIXIE channels\n";
 	std::cout << "   pmread [mod] [param]              - Read parameters from PIXIE modules\n";
@@ -430,6 +373,16 @@ void Poll::command_control(Terminal *poll_term_){
 					std::cout << SYS_MESSAGE_HEAD << "Toggling debug mode ON\n";
 					OUTPUT_FILE.SetDebugMode();
 					DEBUG_MODE = true;
+				}
+			}
+			else if(cmd == "shm"){ // Toggle "shared memory" mode
+				if(SHM_MODE){
+					std::cout << SYS_MESSAGE_HEAD << "Toggling shared memory mode OFF\n";
+					SHM_MODE = false;
+				}
+				else{
+					std::cout << SYS_MESSAGE_HEAD << "Toggling shared memory mode ON\n";
+					SHM_MODE = true;
 				}
 			}
 			else if(cmd == "fdir"){ // Change the output file directory
