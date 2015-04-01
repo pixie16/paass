@@ -110,6 +110,10 @@ class PollOutputFile{
 	unsigned long total_num_bytes;
 	bool debug_mode;
 
+	// Maximum size of the shared memory buffer
+	unsigned int max_shm_sizeW; // In pixie words
+	unsigned int max_shm_sizeB; // In bytes
+
 	/// Get the formatted filename of the current file
 	std::string get_filename();
 
@@ -138,7 +142,10 @@ class PollOutputFile{
 	bool IsOpen(){ return output_file.is_open(); }
 	
 	/// Write nWords_ of data to the file
-	int Write(char *data_, unsigned int nWords_);
+	int Write(char *data_, unsigned int nWords_, bool shm_=false);
+
+	/// Write nWords_ of data to shared memory
+	int Shared(char *data_, unsigned int nWords_);
 
 	/// Close the current file, if one is open, and open a new file for data output
 	bool OpenNewFile(std::string title_, unsigned int run_num_, std::string &current_fname, std::string output_dir="./");

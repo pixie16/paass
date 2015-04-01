@@ -183,8 +183,8 @@ int main(int argc, char *argv[]){
 #endif
   
   	StatsHandler handler(poll.N_CARDS);
-  	if(poll.STATS_INTERVAL > 0){ poll.set_stat_handler(&handler); }
-
+  	poll.set_stat_handler(&handler);
+  	
 	if(poll.SEND_ALARM){
 		Display::LeaderPrint("Sending alarms to");
 		if(alarmArgument.empty()){ std::cout << Display::InfoStr("DEFAULT") << std::endl; }

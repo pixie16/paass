@@ -8,7 +8,7 @@
 #include "CTerminal.h"
 
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
-#define POLL_VERSION "1.1.05"
+#define POLL_VERSION "1.1.06"
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
@@ -21,9 +21,6 @@ class Poll{
  
 	PixieInterface *pif; // The main pixie interface pointer 
   
-	// Maximum size of the shared memory buffer
-	unsigned int MAX_SHM_SIZEL; // In pixie words
-	unsigned int MAX_SHM_SIZE; // In bytes
 	word_t CLOCK_VSN;	
 
 	// System flags and variables
@@ -118,7 +115,7 @@ class Poll{
 	
 	bool synch_mods();
 		
-	int write_data(word_t *data, unsigned int nWords, bool shm_=false);
+	int write_data(word_t *data, unsigned int nWords);
 };
 
 template<typename T=int>
