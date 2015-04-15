@@ -8,11 +8,13 @@
 
 find_path(PXI_ROOT_DIR
 	NAMES software firmware dsp configuration 
-	PATHS /opt/PixieFirmware/current)
+	PATHS /opt/PixieFirmware/current
+	DOC "Path to pixie firmware.")
 
 find_path(PXI_LIBRARY_DIR
 	NAMES libPixie16App.a 
-	HINTS ${PXI_ROOT_DIR}/software)
+	HINTS ${PXI_ROOT_DIR}/software
+	DOC "Path to pixie library.")
 
 # Support the REQUIRED and QUIET arguments, and set PUGIXML_FOUND if found.
 include (FindPackageHandleStandardArgs)
@@ -23,4 +25,4 @@ if (PXI_FOUND)
 	set(PXI_LIBRARIES -lPixie16App -lPixie16Sys)
 endif()
 
-mark_as_advanced (PXI_ROOT_DIR PXI_LIBRARY_DIR)
+mark_as_advanced(PXI_LIBRARY_DIR)
