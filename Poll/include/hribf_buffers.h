@@ -84,7 +84,7 @@ class DATA_buffer : public BufferType{
 	bool Close(std::ofstream *file_);
 	
 	/// Write data to file
-	bool Write(std::ofstream *file_, char *data_, unsigned int nWords_, unsigned int &buffs_written, unsigned int output_format_=0);
+	bool Write(std::ofstream *file_, char *data_, unsigned int nWords_, int &buffs_written, int output_format_=0);
 };
 
 /// A single EOF buffer signals the end of a run (pacman .ldf format). A double EOF signals the end of the .ldf file.
@@ -105,9 +105,9 @@ class PollOutputFile{
 	HEAD_buffer headBuff;
 	DATA_buffer dataBuff;
 	EOF_buffer eofBuff;
-	unsigned int current_file_num;
-	unsigned int output_format;
-	unsigned long total_num_bytes;
+	int current_file_num;
+	int output_format;
+	int number_spills;
 	bool debug_mode;
 
 	// Maximum size of the shared memory buffer
@@ -129,11 +129,17 @@ class PollOutputFile{
 	
 	~PollOutputFile(){ CloseFile(); }
 	
+	/// Get the size of the current file, in bytes.
+	std::streampos GetFilesize(){ return output_file.tellp(); }
+	
+	/// Return the total number of spills written since the current file was opened
+	int GetNumberSpills(){ return number_spills; }
+	
 	/// Toggle debug mode
 	void SetDebugMode(bool debug_=true);
 	
 	/// Set the output file format
-	bool SetFileFormat(unsigned int format_);
+	bool SetFileFormat(int format_);
 
 	/// Set the output filename prefix
 	void SetFilenamePrefix(std::string filename_);
@@ -142,13 +148,14 @@ class PollOutputFile{
 	bool IsOpen(){ return output_file.is_open(); }
 	
 	/// Write nWords_ of data to the file
-	int Write(char *data_, unsigned int nWords_, bool shm_=false);
+	int Write(char *data_, unsigned int nWords_);
 
-	/// Write nWords_ of data to shared memory
-	int Shared(char *data_, unsigned int nWords_);
+	/// Build a data spill notification message for broadcast onto the network
+	/// Return the total number of bytes in the packet upon success, and -1 otherwise
+	char *BuildPacket(int &bytes);
 
 	/// Close the current file, if one is open, and open a new file for data output
-	bool OpenNewFile(std::string title_, unsigned int run_num_, std::string &current_fname, std::string output_dir="./");
+	bool OpenNewFile(std::string title_, int run_num_, std::string &current_fname, std::string output_dir="./");
 
 	/// Write the footer and close the file
 	void CloseFile();

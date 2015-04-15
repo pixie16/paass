@@ -8,7 +8,7 @@
 #include "CTerminal.h"
 
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
-#define POLL_VERSION "1.1.06"
+#define POLL_VERSION "1.1.07"
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
@@ -17,49 +17,46 @@ class StatsHandler;
 
 class Poll{
   public:
-  	struct tm *TIME_INFO;
+  	struct tm *time_info;
  
 	PixieInterface *pif; // The main pixie interface pointer 
   
-	word_t CLOCK_VSN;	
+	word_t clock_vsn;	
 
 	// System flags and variables
-	std::string SYS_MESSAGE_HEAD; // Command line message header
-	bool KILL_ALL; // Set to true when the program is exiting
-	bool START_RUN; // Set to true when the command is given to start a run
-	bool STOP_RUN; // Set to true when the command is given to stop a run
-	bool DO_REBOOT; // Set to true when the user tells POLL to reboot PIXIE
-	bool FORCE_SPILL; // Force poll2 to dump the current data spill
-	bool POLL_RUNNING; // Set to true when run_command is recieving data from PIXIE
-	bool RUN_CTRL_EXIT; // Set to true when run_command exits
-	time_t RAW_TIME;
+	std::string sys_message_head; // Command line message header
+	bool kill_all; // Set to true when the program is exiting
+	bool start_run; // Set to true when the command is given to start a run
+	bool stop_run; // Set to true when the command is given to stop a run
+	bool do_reboot; // Set to true when the user tells POLL to reboot PIXIE
+	bool force_spill; // Force poll2 to dump the current data spill
+	bool poll_running; // Set to true when run_command is recieving data from PIXIE
+	bool run_ctrl_exit; // Set to true when run_command exits
+	time_t raw_time;
 
 	// Run control variables
-	bool BOOT_FAST;
-	bool INSERT_WALL_CLOCK;
-	bool IS_QUIET;
-	bool SEND_ALARM;
-	bool SHOW_MODULE_RATES;
-	bool ZERO_CLOCKS;
-	bool DEBUG_MODE;
-	bool SHM_MODE;
-	bool init;
+	bool boot_fast; //
+	bool insert_wall_clock; //
+	bool is_quiet; //
+	bool send_alarm; //
+	bool show_module_rates; //
+	bool zero_clocks; //
+	bool debug_mode; //
+	bool init; //
 
 	// Options relating to output data file
-	std::string OUTPUT_DIRECTORY; // Set with 'fdir' command
-	std::string OUTPUT_FILENAME; // Set with 'ouf' command
-	std::string OUTPUT_TITLE; // Set with 'htit' command
-	int OUTPUT_RUN_NUM; // Set with 'hnum' command
-	int OUTPUT_FORMAT; // Set with 'oform' command
+	std::string output_directory; // Set with 'fdir' command
+	std::string output_filename; // Set with 'ouf' command
+	std::string output_title; // Set with 'htit' command
+	int output_run_num; // Set with 'hnum' command
+	int output_format; // Set with 'oform' command
 
 	// The main output data file and related variables
-	unsigned int CURRENT_FILE_NUM;
-	std::string CURRENT_FILENAME;
-	PollOutputFile OUTPUT_FILE;
-	
-	int STATS_INTERVAL; //< in seconds
-	int HISTO_INTERVAL; //< in seconds
-	size_t N_CARDS;
+	int current_file_num;
+	std::string current_filename;
+	PollOutputFile output_file;
+
+	size_t n_cards;
 
 	// Poll run variables
 	double startTime;
@@ -73,6 +70,8 @@ class Poll{
 	unsigned int partialBufferCounter;
 	time_t pollClock; 
 	PixieInterface::Histogram deltaHisto;
+	
+	int histo_interval, stats_interval;
 	
 	typedef std::pair<unsigned int, unsigned int> chanid_t;
 	std::map<chanid_t, PixieInterface::Histogram> histoMap;

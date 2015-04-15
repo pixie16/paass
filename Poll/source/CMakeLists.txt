@@ -2,7 +2,7 @@ set(POLL_SOURCES poll.cpp sendbuf.c spkt_io_udp.c StatsHandler.cpp)
 add_executable(poll ${POLL_SOURCES})
 target_link_libraries(poll PixieInterface Utility)
 
-set(POLL2_SOURCES poll2.cpp poll2_core.cpp hribf_buffers.cpp CTerminal.cpp sendbuf.c spkt_io_udp.c StatsHandler.cpp)
+set(POLL2_SOURCES poll2.cpp poll2_core.cpp hribf_buffers.cpp CTerminal.cpp poll2_socket.cpp StatsHandler.cpp)
 add_executable(poll2 ${POLL2_SOURCES})
 target_link_libraries(poll2 PixieInterface Utility ${CMAKE_THREAD_LIBS_INIT}
 ${CURSES_LIBRARIES})

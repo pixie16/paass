@@ -1,5 +1,6 @@
 #include <sstream>
 #include <iostream>
+#include <string.h>
 
 #include "hribf_buffers.h"
 
@@ -177,7 +178,7 @@ bool DATA_buffer::Close(std::ofstream *file_){
 }
 
 // Write data to file
-bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_, unsigned int &buffs_written, unsigned int output_format_/*=0*/){
+bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_, int &buffs_written, int output_format_/*=0*/){
 	if(!file_ || !file_->is_open() || !data_ || nWords_ == 0){ return false; }
 
 	if(output_format_ == 0){ // legacy .ldf format
@@ -409,7 +410,7 @@ bool PollOutputFile::overwrite_dir(int total_buffers_/*=-1*/){
 PollOutputFile::PollOutputFile(){ 
 	current_file_num = 0; 
 	output_format = 0;
-	total_num_bytes = 0;
+	number_spills = 0;
 	fname_prefix = "poll_data";
 	current_filename = "unknown";
 	debug_mode = false;
@@ -422,7 +423,7 @@ PollOutputFile::PollOutputFile(){
 PollOutputFile::PollOutputFile(std::string filename_){
 	current_file_num = 0;
 	output_format = 0;
-	total_num_bytes = 0;
+	number_spills = 0;
 	fname_prefix = filename_;
 	current_filename = "unknown";
 	debug_mode = false;
@@ -440,7 +441,7 @@ void PollOutputFile::SetDebugMode(bool debug_/*=true*/){
 	eofBuff.SetDebugMode(debug_);
 }
 
-bool PollOutputFile::SetFileFormat(unsigned int format_){
+bool PollOutputFile::SetFileFormat(int format_){
 	if(format_ <= 2){
 		output_format = format_;
 		return true;
@@ -453,74 +454,68 @@ void PollOutputFile::SetFilenamePrefix(std::string filename_){
 	current_file_num = 0;
 }
 
-int PollOutputFile::Write(char *data_, unsigned int nWords_, bool shm_/*=false*/){
+int PollOutputFile::Write(char *data_, unsigned int nWords_){
 	if(!data_ || nWords_ == 0){ return 0; }
 
-	if(shm_){ // Write data to shared memory
-		/*word_t *pWrite = (word_t *)acqBuf.Data; // Now write to the shared memory
-		unsigned int nBufs = nWords / MAX_SHM_SIZEL;
-		unsigned int wordsLeft = nWords % MAX_SHM_SIZEL;
-		unsigned int totalBufs = nBufs + 1 + ((wordsLeft != 0) ? 1 : 0);
-
-		for(size_t buf=0; buf < nBufs; buf++){
-			OUTPUT_FILE.write((char*)&bufftype, 4);
-			OUTPUT_FILE.write((char*)&buffsize, 4);
-			
-			acqBuf.BufLen = (MAX_SHM_SIZEL + 3) * sizeof(word_t);
-			pWrite[0] = acqBuf.BufLen; // size
-			pWrite[1] = totalBufs; // number of buffers we expect
-			pWrite[2] = buf; 
-			memcpy(&pWrite[3], &data[buf * MAX_SHM_SIZEL], MAX_SHM_SIZE); 
-
-			if(OUTPUT_FILE.is_open()){ OUTPUT_FILE.write(acqBuf.Data, 16212); } // MAX_SHM_SIZE + 3 * sizeof(word_t)
-			if(shm_){ send_buf(&acqBuf); }
-			usleep(sendPause);
-		}
-
-		// send the last fragment (if there is any)
-		if (wordsLeft != 0) {
-			OUTPUT_FILE.write((char*)&bufftype, 4);
-			OUTPUT_FILE.write((char*)&buffsize, 4);
-		
-			acqBuf.BufLen = (wordsLeft + 3) * sizeof(word_t);
-			pWrite[0] = acqBuf.BufLen;
-			pWrite[1] = totalBufs;
-			pWrite[2] = nBufs;
-			memcpy(&pWrite[3], &data[nBufs * MAX_SHM_SIZEL], wordsLeft * sizeof(word_t) );
-
-			if(OUTPUT_FILE.is_open()){ OUTPUT_FILE.write(acqBuf.Data, wordsLeft * sizeof(word_t) + 12); }
-
-			if(shm_){ send_buf(&acqBuf); }
-			usleep(sendPause);
-		}
-
-		// send a buffer to say that we are done
-		acqBuf.BufLen = 5 * sizeof(word_t);
-		pWrite[0] = /;
-		pWrite[1] = totalBufs;
-		pWrite[2] = totalBufs - 1;
-		
-		// pacman looks for the following data
-		pWrite[3] = 0x2; 
-		pWrite[4] = 0x270f; // vsn 9999
-
-		if(OUTPUT_FILE.is_open()){ OUTPUT_FILE.write((char*)pWrite, 5 * sizeof(word_t)); }
-
-		if(shm_){ send_buf(&acqBuf); }*/
-	}
-
-	// Write data to disk
 	if(!output_file.is_open()){ return 0; }
-		
-	unsigned int buffs_written;
+	
+	// Write data to disk
+	int buffs_written;
 	dataBuff.Write(&output_file, data_, nWords_, buffs_written, output_format);
+	number_spills++;
 	
 	return buffs_written;
 }
 
+/// Build a data spill notification message for broadcast onto the network
+/// Return the total number of bytes in the packet upon success, and -1 otherwise
+char *PollOutputFile::BuildPacket(int &bytes){
+	bytes = -1; // size of char array in bytes
+
+	int end_packet = 0xFFFFFFFF;
+	int buff_size = 8194;
+	std::streampos file_size = output_file.tellp();
+
+	char *output;
+
+	if(!output_file.is_open()){
+		bytes = 2 * sizeof(int);
+		output = new char[bytes];
+		memcpy(output, (char *)&bytes, sizeof(int));
+		memcpy(output, (char *)&end_packet, sizeof(int));
+	}
+	else{
+		// Below is the output packet structure
+		// ------------------------------------
+		// 4 byte packet length (inclusive, also includes the end packet flag)
+		// x byte file path (no size limit)
+		// 8 byte file size streampos (long long)
+		// 4 byte spill number ID (unsigned int)
+		// 4 byte buffer size (unsigned int)
+		// 4 byte begin packet flag (0xFFFFFFFF)
+		// The total length of the packet will be 24 + x bytes where x is the
+		// length of the file path.
+		bytes = (5 * sizeof(int)) + sizeof(std::streampos) + current_filename.size();
+		output = new char[bytes];
+		const char *str = current_filename.c_str();
+	
+		memcpy(output, (char *)&bytes, sizeof(int));
+		memcpy(output, (char *)str, current_filename.size());
+		memcpy(output, (char *)&file_size, sizeof(std::streampos));
+		memcpy(output, (char *)&number_spills, sizeof(int));
+		memcpy(output, (char *)&buff_size, sizeof(int));
+		memcpy(output, (char *)&end_packet, sizeof(int));
+	}
+	
+	return output;
+}
+
 // Close the current file, if one is open, and open a new file for data output
-bool PollOutputFile::OpenNewFile(std::string title_, unsigned int run_num_, std::string &filename, std::string output_directory/*="./"*/){
+bool PollOutputFile::OpenNewFile(std::string title_, int run_num_, std::string &filename, std::string output_directory/*="./"*/){
 	CloseFile();
+
+	// Restart the spill counter for the new file
+	number_spills = 0;
 
 	std::ifstream dummy_file;
 	filename = output_directory + get_filename();
