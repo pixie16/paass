@@ -97,7 +97,7 @@ int main(int argc, char *argv[]){
 
 	// Define all valid command line options
 	// This is done to keep legacy options available while removing dependency on HRIBF libraries
-	CLoption valid_opt[12];
+	CLoption valid_opt[11];
 	valid_opt[0].Set("alarm", false, true);
 	valid_opt[1].Set("fast", false, false);
 	valid_opt[2].Set("hist", true, false);
@@ -108,31 +108,30 @@ int main(int argc, char *argv[]){
 	valid_opt[7].Set("thresh", true, false);
 	valid_opt[8].Set("zero", false, false);
 	valid_opt[9].Set("debug", false, false);
-	valid_opt[10].Set("memory-share", false, false);
-	valid_opt[11].Set("?", false, false);
-	if(!get_opt(argc, argv, valid_opt, 12, help)){ return EXIT_FAILURE; }
+	valid_opt[10].Set("?", false, false);
+	if(!get_opt(argc, argv, valid_opt, 11, help)){ return EXIT_FAILURE; }
 	
 	// Set all of the selected options
 	if(valid_opt[0].is_active){
 		if(valid_opt[0].value != ""){ alarmArgument = valid_opt[0].value; }
-		poll.SEND_ALARM = true;
+		poll.send_alarm = true;
 	}
-	if(valid_opt[1].is_active){ poll.BOOT_FAST = true; }
+	if(valid_opt[1].is_active){ poll.boot_fast = true; }
 	if(valid_opt[2].is_active){ 
-		poll.HISTO_INTERVAL = atoi(valid_opt[2].value.c_str()); 
-		if(poll.HISTO_INTERVAL <= 0){ 
+		poll.histo_interval = atoi(valid_opt[2].value.c_str()); 
+		if(poll.histo_interval <= 0){ 
 			std::cout << "Warning! failed to set histogram interval. Using default of 10s\n";
-			poll.HISTO_INTERVAL = 10; 
+			poll.histo_interval = 10; 
 		}
 	}
-	if(valid_opt[3].is_active){ poll.IS_QUIET = true; }
-	if(valid_opt[4].is_active){ poll.INSERT_WALL_CLOCK = false; }
-	if(valid_opt[5].is_active){ poll.SHOW_MODULE_RATES = true; }
+	if(valid_opt[3].is_active){ poll.is_quiet = true; }
+	if(valid_opt[4].is_active){ poll.insert_wall_clock = false; }
+	if(valid_opt[5].is_active){ poll.show_module_rates = true; }
 	if(valid_opt[6].is_active){ 
-		poll.STATS_INTERVAL = atoi(valid_opt[6].value.c_str()); 
-		if(poll.STATS_INTERVAL <= 0){ 
+		poll.stats_interval = atoi(valid_opt[6].value.c_str()); 
+		if(poll.stats_interval <= 0){ 
 			std::cout << "Warning! failed to set statistics interval. Using default of 10s\n";
-			poll.STATS_INTERVAL = 10; 
+			poll.stats_interval = 10; 
 		}
 	}
 	if(valid_opt[7].is_active){ 
@@ -142,10 +141,9 @@ int main(int argc, char *argv[]){
 			threshPercent = 50; 
 		}
 	}
-	if(valid_opt[8].is_active){ poll.ZERO_CLOCKS = true; }
-	if(valid_opt[9].is_active){ poll.DEBUG_MODE = true; }
-	if(valid_opt[10].is_active){ poll.SHM_MODE = false; }
-	if(valid_opt[11].is_active){ return EXIT_SUCCESS; }
+	if(valid_opt[8].is_active){ poll.zero_clocks = true; }
+	if(valid_opt[9].is_active){ poll.debug_mode = true; }
+	if(valid_opt[10].is_active){ return EXIT_SUCCESS; }
 
 	if(!poll.initialize()){ return EXIT_FAILURE; }
 
@@ -182,10 +180,10 @@ int main(int argc, char *argv[]){
 	}
 #endif
   
-  	StatsHandler handler(poll.N_CARDS);
+  	StatsHandler handler(poll.n_cards);
   	poll.set_stat_handler(&handler);
   	
-	if(poll.SEND_ALARM){
+	if(poll.send_alarm){
 		Display::LeaderPrint("Sending alarms to");
 		if(alarmArgument.empty()){ std::cout << Display::InfoStr("DEFAULT") << std::endl; }
 		else { std::cout << Display::WarningStr(alarmArgument) << std::endl; }
