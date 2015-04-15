@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <string.h>
@@ -17,6 +18,7 @@
 
 // Interface for the PIXIE-16
 #include "Utility.h"
+#include "pixie16app_export.h"
 //#include "Buffer_Structure.h"
 #include "StatsHandler.hpp"
 #include "Display.h"
@@ -247,8 +249,9 @@ void Poll::help(){
 	std::cout << "   pmread [mod] [param]              - Read parameters from PIXIE modules\n";
 	std::cout << "   pwrite [mod] [chan] [param] [val] - Write parameters to individual PIXIE channels\n";
 	std::cout << "   pmwrite [mod] [param] [val]       - Write parameters to PIXIE modules\n";
-	//std::cout << "   csr_test [number]                 - Output the CSRA parameters for a given integer\n";
-	//std::cout << "   adjust_offsets [number]           - Adjust voltage offsets for pixie16 channels\n";
+	std::cout << "   csr_test [number]                 - Output the CSRA parameters for a given integer\n";
+	std::cout << "   adjust_offsets [module]           - Adjusts the baselines of a pixie module\n";
+	std::cout << "   find_tau [module] [channel]       - Finds the decay constant for an active pixie channel\n";
 }
 
 /* Print help dialogue for reading/writing pixie channel parameters. */
@@ -492,6 +495,47 @@ void Poll::command_control(Terminal *poll_term_){
 						std::cout << sys_message_head << "Invalid number of parameters to pmread\n";
 						std::cout << sys_message_head << " -SYNTAX- pread [module] [parameter]\n";
 					}
+				}
+			}
+			else if(cmd == "adjust_offsets"){
+				std::vector<std::string> arguments;
+				unsigned int p_args = split_str(arg, arguments);
+			
+				if(p_args >= 1){
+					int mod = atoi(arguments.at(0).c_str());
+					
+					OffsetAdjuster adjuster;
+					if(forModule<int>(pif, mod, adjuster)){ pif->SaveDSPParameters(); }
+				}
+				else{
+					std::cout << sys_message_head << "Invalid number of parameters to adjust_offsets\n";
+					std::cout << sys_message_head << " -SYNTAX- adjust_offsets [module]\n";
+				}
+			}
+			else if(cmd == "find_tau"){
+				std::vector<std::string> arguments;
+				unsigned int p_args = split_str(arg, arguments);
+			
+				if(p_args >= 2){
+					int mod = atoi(arguments.at(0).c_str());
+					int ch = atoi(arguments.at(1).c_str());
+
+					TauFinder finder;
+					forChannel<int>(pif, mod, ch, finder);
+				}
+				else{
+					std::cout << sys_message_head << "Invalid number of parameters to find_tau\n";
+					std::cout << sys_message_head << " -SYNTAX- find_tau [module] [channel]\n";
+				}
+			}
+			else if(cmd == "csr_test"){
+				std::vector<std::string> arguments;
+				unsigned int p_args = split_str(arg, arguments);
+				
+				if(p_args >= 1){ CSRA_test(atoi(arguments.at(0).c_str())); }
+				else{
+					std::cout << sys_message_head << "Invalid number of parameters to csr_test\n";
+					std::cout << sys_message_head << " -SYNTAX- csr_test [number]\n";
 				}
 			}
 			else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
@@ -885,7 +929,7 @@ void Poll::run_control(){
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// PREAD/PWRITE
+// Pixie16 parameter functions
 ///////////////////////////////////////////////////////////////////////////////
 
 bool ParameterChannelWriter::operator()(PixieFunctionParms< std::pair<std::string, float> > &par){
@@ -912,6 +956,69 @@ bool ParameterChannelReader::operator()(PixieFunctionParms<std::string> &par){
 bool ParameterModuleReader::operator()(PixieFunctionParms<std::string> &par){
 	par.pif.PrintSglModPar(par.par.c_str(), par.mod);
 	return true;
+}
+
+bool OffsetAdjuster::operator()(PixieFunctionParms<int> &par){
+	bool hadError = par.pif.AdjustOffsets(par.mod);
+	for(size_t ch = 0; ch < par.pif.GetNumberChannels(); ch++){
+		par.pif.PrintSglChanPar("VOFFSET", par.mod, ch);
+	}
+
+	return hadError;
+}
+
+bool TauFinder::operator()(PixieFunctionParms<> &par){
+	double tau[16];
+  
+	int errorNum = Pixie16TauFinder(par.mod, tau);
+	if(par.ch < 16){
+		std::cout << "TAU: " << tau[par.ch] << std::endl;
+	}
+	std::cout << "Errno: " << errorNum << std::endl;
+
+	return (errorNum >= 0);
+}
+
+void CSRA_test(int input_){
+	const size_t num_bits = 19;
+
+	std::string CSR_TXT[num_bits];
+
+#ifdef PIF_REVA
+	CSR_TXT[0] = "Respond to group triggers only";
+	CSR_TXT[1] = "Measure individual live time";
+	CSR_TXT[3] = "Read always";
+	CSR_TXT[4] = "Enable trigger";
+	CSR_TXT[6] = "GFLT";
+#else  // Rev. A
+	CSR_TXT[CCSRA_TRACEENA] = "Enable trace capture";
+	CSR_TXT[CCSRA_QDCENA]   = "Enable QDC sums capture";
+	CSR_TXT[10] = "Enable CFD trigger mode";
+	CSR_TXT[11] = "Enable global trigger validation";
+	CSR_TXT[12] = "Enable raw energy sums capture";
+	CSR_TXT[13] = "Enable channel trigger validation";
+	CSR_TXT[15] = "Pileup rejection control";
+	CSR_TXT[16] = "Hybrid bit";
+	CSR_TXT[18] = "SHE single trace capture";
+#endif // (else) Rev.A
+
+	CSR_TXT[CCSRA_GOOD]     = "Good Channel";
+	CSR_TXT[CCSRA_POLARITY] = "Trigger positive";
+	CSR_TXT[CCSRA_ENARELAY] = "HI/LO gain";
+
+	std::cout << "  Input: " << std::dec << input_ << " (0x" << std::hex << input_ << ")\n\n";
+	std::cout << "   CSRA bits:\n";
+
+	size_t max_len = 0;
+	for (size_t k = 0; k < num_bits; k++){ 
+		if(CSR_TXT[k].length() > max_len)
+			max_len = CSR_TXT[k].length();
+	}
+
+	for(size_t k = 0; k < num_bits; k++){
+		int retval = APP32_TstBit(k, input_);
+		std::cout << "   " << retval << " " << std::setw(max_len) << CSR_TXT[k] << "  " << std::setw(2) << k << "  " << (1 << k) * retval << std::endl;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
