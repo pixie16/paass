@@ -169,6 +169,16 @@ int main(int argc, char *argv[]){
 	
 	poll.threshWords = EXTERNAL_FIFO_LENGTH * threshPercent / 100;
 	std::cout << "Using FIFO threshold of " << poll.threshWords << " words\n";
+	
+#ifdef PIF_REVA
+	std::cout << "Using Pixie16 revision A\n\n";
+#elif (defined PIF_REVD)
+	std::cout << "Using Pixie16 revision D\n\n";
+#elif (defined PIF_REVF)
+	std::cout << "Using Pixie16 revision F\n\n";
+#else
+	std::cout << "Using unknown Pixie16 revision!!!\n\n";
+#endif
 
 #ifndef USE_NCURSES
 	// Take control of the terminal

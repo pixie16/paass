@@ -8,7 +8,7 @@
 #include "CTerminal.h"
 
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
-#define POLL_VERSION "1.1.07"
+#define POLL_VERSION "1.1.08"
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
@@ -153,6 +153,18 @@ class ParameterModuleReader : public PixieFunction<std::string>{
   public:
 	bool operator()(PixieFunctionParms<std::string> &par);
 };
+
+class OffsetAdjuster : public PixieFunction<int>{
+  public:
+	bool operator()(PixieFunctionParms<int> &par);
+};
+
+class TauFinder : public PixieFunction<>{
+  public:
+	bool operator()(PixieFunctionParms<> &par);
+};
+
+void CSRA_test(int input_);
 
 // Function forward definitions
 unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_=' ');

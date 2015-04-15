@@ -10,8 +10,9 @@
 #Last updated by K. Smith (ksmit218@utk.edu) on Apr 10, 2014
 
 #Find the root-config executable
+set(ROOTSYS $ENV{ROOTSYS} CACHE Path "ROOT directory.")
 find_program(ROOT_CONFIG_EXECUTABLE root-config
-  PATHS $ENV{ROOTSYS}/bin)
+  PATHS ${ROOTSYS}/bin)
 find_program(ROOTCINT_EXECUTABLE rootcint PATHS $ENV{ROOTSYS}/bin)
 find_program(GENREFLEX_EXECUTABLE genreflex PATHS $ENV{ROOTSYS}/bin)
 
@@ -51,7 +52,7 @@ find_package_handle_standard_args(ROOT DEFAULT_MSG
 		ROOTSYS ROOT_CONFIG_EXECUTABLE ROOTCINT_EXECUTABLE GENREFLEX_EXECUTABLE
 		ROOT_VERSION ROOT_INCLUDE_DIR ROOT_LIBRARIES ROOT_LIBRARY_DIR)
 
-mark_as_advanced(ROOTSYS ROOT_LIBRARIES ROOT_GUI_LIBRARIES)
+mark_as_advanced(FORCE ROOT_LIBRARIES ROOT_GUI_LIBRARIES)
 
 #----------------------------------------------------------------------------
 # function ROOT_GENERATE_DICTIONARY( dictionary   
