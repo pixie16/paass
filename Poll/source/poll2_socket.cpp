@@ -3,7 +3,7 @@
 struct sockaddr_in cli_sa, cli_addr, serv_sa;
 bool cli_init(false), serv_init(false);
 int cli_sock, serv_sock;
-size_t cli_size, serv_size;
+socklen_t cli_size, serv_size;
 
 bool client_connected = false;
 
