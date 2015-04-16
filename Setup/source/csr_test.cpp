@@ -22,13 +22,13 @@ int main(int argc, char *argv[])
 
   string CSR_TXT[num_bits];
 
-#if (PIXIE16_REVISION == PIXIE16_REVA)
+#if defined(PIF_REVA)
   CSR_TXT[0] = "Respond to group triggers only";
   CSR_TXT[1] = "Measure individual live time";
   CSR_TXT[3] = "Read always";
   CSR_TXT[4] = "Enable trigger";
   CSR_TXT[6] = "GFLT";
-#else  // Rev. A
+#elif defined(PIF_REVF)
   CSR_TXT[CCSRA_TRACEENA] = "Enable trace capture";
   CSR_TXT[CCSRA_QDCENA]   = "Enable QDC sums capture";
   CSR_TXT[10] = "Enable CFD trigger mode";
