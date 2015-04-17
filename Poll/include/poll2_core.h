@@ -6,10 +6,9 @@
 #include "PixieInterface.h"
 #include "hribf_buffers.h"
 #include "CTerminal.h"
-#include "utilities.h"
 
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
-#define POLL_VERSION "1.1.09"
+#define POLL_VERSION "1.1.10"
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
@@ -133,61 +132,9 @@ class Poll{
 	int write_data(word_t *data, unsigned int nWords);
 };
 
-class ParameterChannelWriter : public PixieFunction< std::pair<std::string, float> >{
-  public:
-	bool operator()(PixieFunctionParms< std::pair<std::string, float> > &par);
-};
-
-class ParameterModuleWriter : public PixieFunction< std::pair<std::string, unsigned long> >{
-  public:
-	bool operator()(PixieFunctionParms< std::pair<std::string, unsigned long> > &par);
-};
-
-class ParameterChannelReader : public PixieFunction<std::string>{
-  public:
-	bool operator()(PixieFunctionParms<std::string> &par);
-};
-
-class ParameterModuleReader : public PixieFunction<std::string>{
-  public:
-	bool operator()(PixieFunctionParms<std::string> &par);
-};
-
-class ParameterChannelDumper : public PixieFunction<std::string>{
-  public:
-	std::ofstream *file;
-	ParameterChannelDumper(std::ofstream *file_){ file = file_; }
-	bool operator()(PixieFunctionParms<std::string> &par);
-};
-
-class ParameterModuleDumper : public PixieFunction<std::string>{
-  public:
-	std::ofstream *file;
-	ParameterModuleDumper(std::ofstream *file_){ file = file_; }
-	bool operator()(PixieFunctionParms<std::string> &par);
-};
-
-class OffsetAdjuster : public PixieFunction<int>{
-  public:
-	bool operator()(PixieFunctionParms<int> &par);
-};
-
-class TauFinder : public PixieFunction<>{
-  public:
-	bool operator()(PixieFunctionParms<> &par);
-};
-
-void CSRA_test(int input_);
-
 // Function forward definitions
 unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_=' ');
 std::string pad_string(const std::string &input_, unsigned int length_);
 std::string yesno(bool value_);
-
-template<typename T>
-bool forModule(PixieInterface *pif, int mod, PixieFunction<T> &f, T par = T() );
-
-template<typename T>
-bool forChannel(PixieInterface *pif, int mod, int ch, PixieFunction<T> &f, T par = T() );
 
 #endif
