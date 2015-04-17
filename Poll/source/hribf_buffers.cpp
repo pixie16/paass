@@ -414,10 +414,6 @@ PollOutputFile::PollOutputFile(){
 	fname_prefix = "poll_data";
 	current_filename = "unknown";
 	debug_mode = false;
-	
-	// Maximum size of the shared memory buffer
-	max_shm_sizeW = 4050; // in pixie words
-	max_shm_sizeB = 4 * max_shm_sizeW; // in bytes
 }
 
 PollOutputFile::PollOutputFile(std::string filename_){
@@ -427,10 +423,6 @@ PollOutputFile::PollOutputFile(std::string filename_){
 	fname_prefix = filename_;
 	current_filename = "unknown";
 	debug_mode = false;
-
-	// Maximum size of the shared memory buffer
-	max_shm_sizeW = 4050; // in pixie words
-	max_shm_sizeB = 4 * max_shm_sizeW; // in bytes
 }
 
 void PollOutputFile::SetDebugMode(bool debug_/*=true*/){
@@ -467,47 +459,69 @@ int PollOutputFile::Write(char *data_, unsigned int nWords_){
 	return buffs_written;
 }
 
+// Return the size of the packet to be built (in bytes)
+unsigned int PollOutputFile::GetPacketSize(){
+	if(!output_file.is_open()){ return (2 + 2 * sizeof(int)); }
+	return ((2 + 4 * sizeof(int)) + sizeof(std::streampos) + current_filename.size());
+}
+
 /// Build a data spill notification message for broadcast onto the network
 /// Return the total number of bytes in the packet upon success, and -1 otherwise
-char *PollOutputFile::BuildPacket(int &bytes){
-	bytes = -1; // size of char array in bytes
-
+int PollOutputFile::BuildPacket(char *output){
 	int end_packet = 0xFFFFFFFF;
 	int buff_size = 8194;
 	std::streampos file_size = output_file.tellp();
 
-	char *output;
+	int bytes = -1; // size of char array in bytes
+	
+	// Size of basic types on this machine. Probably overly cautious, but it only
+	// amounts to sending two extra bytes over the network per packet
+	char size_of_int = sizeof(int); // Size of integer on this machine
+	char size_of_spos = sizeof(std::streampos); // Size of streampos on this machine
 
 	if(!output_file.is_open()){
-		bytes = 2 * sizeof(int);
-		output = new char[bytes];
-		memcpy(output, (char *)&bytes, sizeof(int));
-		memcpy(output, (char *)&end_packet, sizeof(int));
+		// Below is the output packet structure
+		// ------------------------------------
+		// 1 byte size of integer (may not be the same on a different machine)
+		// 1 byte size of streampos (may not be the same on a different machine)
+		// 4 byte packet length (inclusive, also includes the end packet flag)
+		// 4 byte begin packet flag (0xFFFFFFFF)
+		bytes = 2 + 2 * sizeof(int); // Total size of the packet (in bytes)
+		
+		unsigned int index = 0;
+		memcpy(&output[index], (char *)&size_of_int, 1); index += 1;
+		memcpy(&output[index], (char *)&size_of_spos, 1); index += 1;
+		memcpy(&output[index], (char *)&bytes, sizeof(int)); index += sizeof(int);
+		memcpy(&output[index], (char *)&end_packet, sizeof(int)); index += sizeof(int);
 	}
 	else{
 		// Below is the output packet structure
 		// ------------------------------------
+		// 1 byte size of integer (may not be the same on a different machine)
+		// 1 byte size of streampos (may not be the same on a different machine)
 		// 4 byte packet length (inclusive, also includes the end packet flag)
 		// x byte file path (no size limit)
 		// 8 byte file size streampos (long long)
 		// 4 byte spill number ID (unsigned int)
 		// 4 byte buffer size (unsigned int)
 		// 4 byte begin packet flag (0xFFFFFFFF)
-		// The total length of the packet will be 24 + x bytes where x is the
 		// length of the file path.
-		bytes = (5 * sizeof(int)) + sizeof(std::streampos) + current_filename.size();
-		output = new char[bytes];
+		bytes = (2 + 4 * sizeof(int)) + sizeof(std::streampos) + current_filename.size(); // Total size of the packet (in bytes)
 		const char *str = current_filename.c_str();
 	
-		memcpy(output, (char *)&bytes, sizeof(int));
-		memcpy(output, (char *)str, current_filename.size());
-		memcpy(output, (char *)&file_size, sizeof(std::streampos));
-		memcpy(output, (char *)&number_spills, sizeof(int));
-		memcpy(output, (char *)&buff_size, sizeof(int));
-		memcpy(output, (char *)&end_packet, sizeof(int));
+		unsigned int index = 0;
+		memcpy(&output[index], (char *)&size_of_int, 1); index += 1;
+		memcpy(&output[index], (char *)&size_of_spos, 1); index += 1;
+		memcpy(&output[index], (char *)&bytes, sizeof(int)); index += sizeof(int);
+		memcpy(&output[index], (char *)str, (size_t)current_filename.size()); index += current_filename.size();
+		memcpy(&output[index], (char *)&file_size, sizeof(std::streampos)); index += sizeof(std::streampos);
+		memcpy(&output[index], (char *)&number_spills, sizeof(int)); index += sizeof(int);
+		memcpy(&output[index], (char *)&buff_size, sizeof(int)); index += sizeof(int);
+		memcpy(&output[index], (char *)&end_packet, sizeof(int));
 	}
+	output[bytes] = '\0';
 	
-	return output;
+	return bytes;
 }
 
 // Close the current file, if one is open, and open a new file for data output

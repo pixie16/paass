@@ -110,10 +110,6 @@ class PollOutputFile{
 	int number_spills;
 	bool debug_mode;
 
-	// Maximum size of the shared memory buffer
-	unsigned int max_shm_sizeW; // In pixie words
-	unsigned int max_shm_sizeB; // In bytes
-
 	/// Get the formatted filename of the current file
 	std::string get_filename();
 
@@ -150,9 +146,12 @@ class PollOutputFile{
 	/// Write nWords_ of data to the file
 	int Write(char *data_, unsigned int nWords_);
 
+	// Return the size of the packet to be built (in bytes)
+	unsigned int GetPacketSize();
+
 	/// Build a data spill notification message for broadcast onto the network
 	/// Return the total number of bytes in the packet upon success, and -1 otherwise
-	char *BuildPacket(int &bytes);
+	int BuildPacket(char *output);
 
 	/// Close the current file, if one is open, and open a new file for data output
 	bool OpenNewFile(std::string title_, int run_num_, std::string &current_fname, std::string output_dir="./");

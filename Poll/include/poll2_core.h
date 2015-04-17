@@ -6,12 +6,24 @@
 #include "PixieInterface.h"
 #include "hribf_buffers.h"
 #include "CTerminal.h"
+#include "utilities.h"
 
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
-#define POLL_VERSION "1.1.08"
+#define POLL_VERSION "1.1.09"
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
+
+struct MCA_args{
+	bool useRoot;
+	int totalTime;
+	std::string basename;
+	
+	MCA_args();
+	MCA_args(bool useRoot_, int totalTime_, std::string basename_);
+	
+	void Zero();
+};
 
 class StatsHandler;
 
@@ -33,6 +45,10 @@ class Poll{
 	bool poll_running; // Set to true when run_command is recieving data from PIXIE
 	bool run_ctrl_exit; // Set to true when run_command exits
 	time_t raw_time;
+
+	// System MCA flags
+	bool do_MCA_run; // Set to true when the "mca" command is received
+	MCA_args mca_args; // Structure to hold arguments for MCA program
 
 	// Run control variables
 	bool boot_fast; //
@@ -117,23 +133,6 @@ class Poll{
 	int write_data(word_t *data, unsigned int nWords);
 };
 
-template<typename T=int>
-struct PixieFunctionParms{
-    PixieInterface &pif;
-    unsigned int mod;
-    unsigned int ch;
-    T par;
-  
-    PixieFunctionParms(PixieInterface &p, T x) : pif(p) {par=x;}
-};
-
-template<typename T=int>
-class PixieFunction : public std::unary_function<bool, struct PixieFunctionParms<T> >{
-    public:
-    virtual bool operator()(struct PixieFunctionParms<T> &par) = 0;
-    virtual ~PixieFunction() {};
-};
-
 class ParameterChannelWriter : public PixieFunction< std::pair<std::string, float> >{
   public:
 	bool operator()(PixieFunctionParms< std::pair<std::string, float> > &par);
@@ -151,6 +150,20 @@ class ParameterChannelReader : public PixieFunction<std::string>{
 
 class ParameterModuleReader : public PixieFunction<std::string>{
   public:
+	bool operator()(PixieFunctionParms<std::string> &par);
+};
+
+class ParameterChannelDumper : public PixieFunction<std::string>{
+  public:
+	std::ofstream *file;
+	ParameterChannelDumper(std::ofstream *file_){ file = file_; }
+	bool operator()(PixieFunctionParms<std::string> &par);
+};
+
+class ParameterModuleDumper : public PixieFunction<std::string>{
+  public:
+	std::ofstream *file;
+	ParameterModuleDumper(std::ofstream *file_){ file = file_; }
 	bool operator()(PixieFunctionParms<std::string> &par);
 };
 
