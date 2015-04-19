@@ -5,6 +5,8 @@
 
 #include "PixieInterface.h"
 
+#define NUM_TOGGLE_BITS 19
+
 template<typename T=int>
 struct PixieFunctionParms{
     PixieInterface *pif;
@@ -89,6 +91,31 @@ bool forModule(PixieInterface *pif, int mod, PixieFunction<T> &f, T par)
 	return !hadError;
 }
 
+class BitFlipper : public PixieFunction<std::string>{
+  private:
+	unsigned int bit;
+
+	bool operator()(PixieFunctionParms<std::string> &par);
+
+  public:
+	static const std::string toggle_names[NUM_TOGGLE_BITS];
+	static const std::string csr_txt[NUM_TOGGLE_BITS];
+
+	BitFlipper(){ bit = 0; }
+	
+	BitFlipper(unsigned int bit_){ bit = bit_; }
+	
+	void Help();
+	
+	void SetBit(unsigned int bit_){ bit = bit_; }
+	
+	void SetBit(char *bit_);	
+	
+	void SetBit(std::string bit_);
+	
+	void CSRA_test(unsigned int input_);
+};
+
 class ParameterChannelWriter : public PixieFunction< std::pair<std::string, float> >{
   public:
 	bool operator()(PixieFunctionParms< std::pair<std::string, float> > &par);
@@ -132,7 +159,5 @@ class TauFinder : public PixieFunction<int>{
   public:
 	bool operator()(PixieFunctionParms<int> &par);
 };
-
-void CSRA_test(int input_);
 
 #endif
