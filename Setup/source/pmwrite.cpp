@@ -1,59 +1,32 @@
 /********************************************************************/
-/*	pmwrite.cpp						    */
-/*		last updated: 12/17/2009 DTM 	     	       	    */
-/*			       					    */
+/*	pmwrite.cpp                                                       */
+/*		last updated: April 19th, 2015 CRT                          */
 /********************************************************************/
 
 #include <iostream>
-#include <map>
-#include <string>
 
-#include <cstdlib>
-
-#include "utilities.h"
-#include "PixieInterface.h"
-
-using std::cout;
-using std::endl;
-using std::pair;
-using std::string;
-
-class ParameterWriter : public PixieFunction< pair<string, unsigned long> >
-{
-  bool operator()(PixieFunctionParms< pair<string, unsigned long> > &par);
-};
+#include "PixieSupport.h"
 
 int main(int argc, char *argv[])
 {
-  if (argc != 4) {
-    cout << "usage: " << argv[0] << "<module> <parameter name> <value>" << endl;
-    return EXIT_FAILURE;
-  }
-  PixieInterface pif("pixie.cfg");
+	if(argc < 4){
+		std::cout << " Invalid number of arguments to " << argv[0] << std::endl;
+		std::cout << "  SYNTAX: " << argv[0] << " [module] [parameter] [value]\n\n";
+		return 1;
+	}
 
-  int    mod = atoi(argv[1]);
-  string parName(argv[2]);
-  unsigned long val = atol(argv[3]);
+	int mod = atoi(argv[1]);
+	unsigned long value = (unsigned long)atol(argv[3]);
 
-  pif.GetSlots();
-  pif.Init();
-  pif.Boot(PixieInterface::DownloadParameters |
-	   PixieInterface::ProgramFPGA |
-	   PixieInterface::SetDAC, true);
+	PixieInterface pif("pixie.cfg");
 
-  ParameterWriter writer;
-  if ( forModule(pif, mod, writer, make_pair(parName, val) ) )
-      pif.SaveDSPParameters();
+	pif.GetSlots();
+	pif.Init();
+	pif.Boot(PixieInterface::DownloadParameters | PixieInterface::ProgramFPGA | PixieInterface::SetDAC, true);
 
-  return EXIT_SUCCESS;
-}
+	std::string temp_str(argv[2]);
+	ParameterModuleWriter writer;
+	if(forModule(&pif, mod, writer, make_pair(temp_str, value))){ pif.SaveDSPParameters(); }
 
-bool ParameterWriter::operator()(PixieFunctionParms< pair<string, unsigned long> > &par)
-{
-  if (par.pif.WriteSglModPar(par.par.first.c_str(), par.par.second, par.mod)) {
-    par.pif.PrintSglModPar(par.par.first.c_str(), par.mod);
-    return true;
-  } else {
-    return false;
-  }
+	return 0;
 }
