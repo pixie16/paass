@@ -31,12 +31,12 @@
 #define POLL_TRIES 100
 #define WAIT_TRIES 100
 
-std::string chan_params[21] = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP", "TRIGGER_THRESHOLD", "ENERGY_RISETIME", "ENERGY_FLATTOP", "TAU", "TRACE_LENGTH",
-							   "TRACE_DELAY", "VOFFSET", "XDT", "BASELINE_PERCENT", "EMIN", "BINFACTOR", "CHANNEL_CSRA", "CHANNEL_CSRB", "BLCUT",
-							   "ExternDelayLen", "ExtTrigStretch", "ChanTrigStretch", "FtrigoutDelay", "FASTTRIGBACKLEN"};
+const std::string chan_params[21] = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP", "TRIGGER_THRESHOLD", "ENERGY_RISETIME", "ENERGY_FLATTOP", "TAU", "TRACE_LENGTH",
+									 "TRACE_DELAY", "VOFFSET", "XDT", "BASELINE_PERCENT", "EMIN", "BINFACTOR", "CHANNEL_CSRA", "CHANNEL_CSRB", "BLCUT",
+									 "ExternDelayLen", "ExtTrigStretch", "ChanTrigStretch", "FtrigoutDelay", "FASTTRIGBACKLEN"};
 
-std::string mod_params[12] = {"MODULE_CSRA", "MODULE_CSRB", "MODULE_FORMAT", "MAX_EVENTS", "SYNCH_WAIT", "IN_SYNCH", "SLOW_FILTER_RANGE",
-							  "FAST_FILTER_RANGE", "MODULE_NUMBER", "TrigConfig0", "TrigConfig1", "TrigConfig2"};
+const std::string mod_params[12] = {"MODULE_CSRA", "MODULE_CSRB", "MODULE_FORMAT", "MAX_EVENTS", "SYNCH_WAIT", "IN_SYNCH", "SLOW_FILTER_RANGE",
+									"FAST_FILTER_RANGE", "MODULE_NUMBER", "TrigConfig0", "TrigConfig1", "TrigConfig2"};
 
 MCA_args::MCA_args(){ Zero(); }
 	
@@ -273,9 +273,10 @@ void Poll::help(){
 	std::cout << "   pmread [mod] [param]              - Read parameters from PIXIE modules\n";
 	std::cout << "   pwrite [mod] [chan] [param] [val] - Write parameters to individual PIXIE channels\n";
 	std::cout << "   pmwrite [mod] [param] [val]       - Write parameters to PIXIE modules\n";
-	std::cout << "   csr_test [number]                 - Output the CSRA parameters for a given integer\n";
 	std::cout << "   adjust_offsets [module]           - Adjusts the baselines of a pixie module\n";
 	std::cout << "   find_tau [module] [channel]       - Finds the decay constant for an active pixie channel\n";
+	std::cout << "   toggle [module] [channel] [bit]   - Toggle any of the 18 CHANNEL_CSRA bits for a pixie channel\n";
+	std::cout << "   csr_test [number]                 - Output the CSRA parameters for a given integer\n";
 }
 
 /* Print help dialogue for reading/writing pixie channel parameters. */
@@ -363,7 +364,10 @@ void Poll::command_control(Terminal *poll_term_){
 				break;
 			}
 			else if(cmd == "help" || cmd == "h"){ help(); }
-			else if(cmd == "version" || cmd == "v"){ std::cout << "  Poll v" << POLL_VERSION << std::endl; }
+			else if(cmd == "version" || cmd == "v"){ 
+				std::cout << "  Poll v" << POLL_VERSION << " (" << POLL_DATE << ")\n"; 
+				std::cout << "   Cory R. Thornsberry\n";
+			}
 			else if(cmd == "status"){
 				std::cout << "  Poll Run Status:\n";
 				std::cout << "   Run starting    - " << yesno(start_run) << std::endl;
@@ -628,8 +632,33 @@ void Poll::command_control(Terminal *poll_term_){
 					std::cout << sys_message_head << " -SYNTAX- find_tau [module] [channel]\n";
 				}
 			}
+			else if(cmd == "toggle"){ // Toggle a CHANNEL_CSRA bit
+				if(poll_running || do_MCA_run){ 
+					std::cout << sys_message_head << "Warning! cannot edit pixie parameters while acquisition is running\n\n"; 
+					continue;
+				}
+
+				BitFlipper flipper;
+
+				if(p_args >= 3){ 
+					flipper.SetBit((unsigned int)atoi(arguments.at(2).c_str()));
+		
+					flipper.SetBit(arguments.at(3));
+    
+					std::string dum_str = "CHANNEL_CSRA";
+					if(forChannel(pif, atoi(arguments.at(0).c_str()), atoi(arguments.at(1).c_str()), flipper, dum_str)){
+						pif->SaveDSPParameters();
+					}
+				}
+				else{
+					std::cout << sys_message_head << "Invalid number of parameters to toggle\n";
+					std::cout << sys_message_head << " -SYNTAX- toggle [module] [channel] [CSRA bit]\n\n";
+					flipper.Help();				
+				}
+			}
 			else if(cmd == "csr_test"){ // Run csr_test
-				if(p_args >= 1){ CSRA_test(atoi(arguments.at(0).c_str())); }
+				BitFlipper flipper;
+				if(p_args >= 1){ flipper.CSRA_test(atoi(arguments.at(0).c_str())); }
 				else{
 					std::cout << sys_message_head << "Invalid number of parameters to csr_test\n";
 					std::cout << sys_message_head << " -SYNTAX- csr_test [number]\n";

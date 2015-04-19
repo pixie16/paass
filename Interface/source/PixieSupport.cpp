@@ -1,8 +1,126 @@
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 #include "PixieSupport.h"
+#include "pixie16app_defs.h"
 #include "pixie16app_export.h"
+
+bool BitFlipper::operator()(PixieFunctionParms<std::string> &par){
+	if(bit >= NUM_TOGGLE_BITS){ return false; }
+
+	bool active_bits[NUM_TOGGLE_BITS];
+	int bit_values[NUM_TOGGLE_BITS];
+	int count = 1;
+
+	double value;
+	par.pif->ReadSglChanPar(par.par.c_str(), &value, par.mod, par.ch);
+	
+	int old_csra = (int)value;
+	for(unsigned int i = 0; i < NUM_TOGGLE_BITS; i++){
+		bit_values[i] = count; count *= 2;
+		if(old_csra & (1 << i)){ active_bits[i] = true; }
+		else{ active_bits[i] = false; }
+	}
+	
+	int new_csra;
+	if(active_bits[bit]){ // need to toggle bit off (subtract)
+		new_csra = old_csra - bit_values[bit];
+	}
+	else{ // need to toggle bit on (add)
+		new_csra = old_csra + bit_values[bit];
+	}
+	
+	if(par.pif->WriteSglChanPar(par.par.c_str(), new_csra, par.mod, par.ch)){
+		par.pif->PrintSglChanPar(par.par.c_str(), par.mod, par.ch);
+		return true;
+	}
+		
+	return false;
+}
+
+#ifdef PIF_REVA
+const std::string BitFlipper::toggle_names[NUM_TOGGLE_BITS] = {"group", "live", "good", "read", "trigger", "polarity", "GFLT", "", "", 
+															   "", "", "", "", "", "gain", "", "", "", ""};
+const std::string BitFlipper::csr_txt[NUM_TOGGLE_BITS] = {"Respond to group triggers only", "Measure individual live time", "Good Channel", "Read always", "Enable trigger", 
+														  "Trigger positive", "GFLT", "", "", "", "", "", "", "", "HI/LO gain", "", "", "", ""};
+#else
+const std::string BitFlipper::toggle_names[NUM_TOGGLE_BITS] = {"", "", "good", "", "", "polarity", "", "", "trace", "QDC", "CFD", 
+															   "global", "raw", "trigger", "gain", "pileup", "catcher", "", "SHE"};
+const std::string BitFlipper::csr_txt[NUM_TOGGLE_BITS] = {"", "", "Good Channel", "", "", "Trigger positive", "", "", "Enable trace capture", "Enable QDC sums capture", 
+														  "Enable CFD trigger mode", "Enable global trigger validation", "Enable raw energy sums capture", 
+														  "Enable channel trigger validation", "HI/LO gain", "Pileup rejection control", "Hybrid bit", "", 
+														  "SHE single trace capture"};
+#endif
+
+void BitFlipper::Help(){
+	std::cout << " Valid CSRA bits:\n";
+	for(unsigned int i = 0; i < NUM_TOGGLE_BITS; i++){
+		if(toggle_names[i] != ""){
+			if(i < 10){ std::cout << "  0" << i << " - " << toggle_names[i] << std::endl; }
+			else{ std::cout << "  " << i << " - " << toggle_names[i] << std::endl; }
+		}
+		else{
+			if(i < 10){ std::cout << "  0" << i << " - " << toggle_names[i] << std::endl; }
+			else{ std::cout << "  " << i << " - " << toggle_names[i] << std::endl; }
+		}
+	}
+}
+
+void BitFlipper::SetBit(char *bit_){
+	std::stringstream stream;
+	stream << bit_;
+	SetBit(stream.str());
+}
+
+void BitFlipper::SetBit(std::string bit_){
+	SetBit(atoi(bit_.c_str()));
+	
+	for(unsigned int i = 0; i < NUM_TOGGLE_BITS; i++){
+    	if(bit_ == toggle_names[i]){
+    		SetBit(i);
+    		break;
+    	}
+    }
+}
+
+void BitFlipper::CSRA_test(unsigned int input_){
+	bool active_bits[NUM_TOGGLE_BITS];
+	int bit_values[NUM_TOGGLE_BITS];
+	int running_total[NUM_TOGGLE_BITS];
+	
+	int total = 0;
+	int count = 1;
+
+	for(unsigned int i = 0; i < NUM_TOGGLE_BITS; i++){
+		bit_values[i] = count;
+		if(input_ & (1 << i)){ 
+			active_bits[i] = true; 
+			
+			total += count;
+			running_total[i] = total;
+		}
+		else{ 
+			active_bits[i] = false; 
+			running_total[i] = 0;
+		}
+		count *= 2;
+	}
+
+	std::cout << " Input: 0x" << std::hex << input_ << " (" << std::dec << input_ << ")\n";
+	std::cout << "  Bit\tOn?\tValue\tTotal\tBit Function\n";
+
+	for(unsigned int i = 0; i < NUM_TOGGLE_BITS; i++){
+		if(active_bits[i]){ 
+			if(i < 10){ std::cout << "   0" << i << "\t1 \t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
+			else{ std::cout << "   " << i << "\t1 \t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
+		}
+		else{ 
+			if(i < 10){ std::cout << "   0" << i << "\t0\t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
+			else{ std::cout << "   " << i << "\t0\t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
+		}
+	}
+}
 
 bool ParameterChannelWriter::operator()(PixieFunctionParms< std::pair<std::string, float> > &par){
 	if(par.pif->WriteSglChanPar(par.par.first.c_str(), par.par.second, par.mod, par.ch)){
@@ -63,46 +181,4 @@ bool TauFinder::operator()(PixieFunctionParms<> &par){
 	std::cout << "Errno: " << errorNum << std::endl;
 
 	return (errorNum >= 0);
-}
-
-void CSRA_test(int input_){
-	const size_t num_bits = 19;
-
-	std::string CSR_TXT[num_bits];
-
-#ifdef PIF_REVA
-	CSR_TXT[0] = "Respond to group triggers only";
-	CSR_TXT[1] = "Measure individual live time";
-	CSR_TXT[3] = "Read always";
-	CSR_TXT[4] = "Enable trigger";
-	CSR_TXT[6] = "GFLT";
-#else  // Rev. A
-	CSR_TXT[CCSRA_TRACEENA] = "Enable trace capture";
-	CSR_TXT[CCSRA_QDCENA]   = "Enable QDC sums capture";
-	CSR_TXT[10] = "Enable CFD trigger mode";
-	CSR_TXT[11] = "Enable global trigger validation";
-	CSR_TXT[12] = "Enable raw energy sums capture";
-	CSR_TXT[13] = "Enable channel trigger validation";
-	CSR_TXT[15] = "Pileup rejection control";
-	CSR_TXT[16] = "Hybrid bit";
-	CSR_TXT[18] = "SHE single trace capture";
-#endif // (else) Rev.A
-
-	CSR_TXT[CCSRA_GOOD]     = "Good Channel";
-	CSR_TXT[CCSRA_POLARITY] = "Trigger positive";
-	CSR_TXT[CCSRA_ENARELAY] = "HI/LO gain";
-
-	std::cout << "  Input: " << std::dec << input_ << " (0x" << std::hex << input_ << ")\n\n";
-	std::cout << "   CSRA bits:\n";
-
-	size_t max_len = 0;
-	for (size_t k = 0; k < num_bits; k++){ 
-		if(CSR_TXT[k].length() > max_len)
-			max_len = CSR_TXT[k].length();
-	}
-
-	for(size_t k = 0; k < num_bits; k++){
-		int retval = APP32_TstBit(k, input_);
-		std::cout << "   " << retval << " " << std::setw(max_len) << CSR_TXT[k] << "  " << std::setw(2) << k << "  " << (1 << k) * retval << std::endl;
-	}
 }
