@@ -218,8 +218,8 @@ void CommandHolder::Dump(){
 void CommandString::Put(const char ch_, int index_){
 	if(index_ < 0){ return; }
 	else if(index_ < command.size()){ // Overwrite or insert a character
-		if(!insert_mode){ command.at(index_) = ch_; } // Overwrite
-		else{ command.insert(index_, 1, ch_); } // Insert
+		if(!insert_mode) { command.insert(index_, 1, ch_); } // Insert
+		else { command.at(index_) = ch_; } // Overwrite
 	}
 	else{ command.push_back(ch_); } // Appending to the back of the string
 }
@@ -279,7 +279,9 @@ void Terminal::clear_(){
 // Force a character to the input screen
 void Terminal::in_char_(const char input_){
 	cursX++;
-	waddch(input_window, input_);
+	//If in insert mode we overwite the character otherwise insert it.
+	if (cmd.GetInsertMode()) waddch(input_window, input_);
+	else winsch(input_window, input_);
 	update_cursor_();
 	refresh_();
 }
@@ -583,8 +585,11 @@ std::string Terminal::GetCommand(){
 			text_length = cmd.GetSize();
 		}
 		else if(keypress == KEY_DC){ // Delete character (330)
-			cursX--;
+			//Remove character from terminal
 			wdelch(input_window);
+			//Remove character from cmd string
+			cmd.Pop(cursX - offset);
+			cursX--;
 		}
 		else if(keypress == KEY_IC){ cmd.ToggleInsertMode(); } // Insert key (331)
 		else if(keypress == KEY_HOME){ cursX = offset; }
