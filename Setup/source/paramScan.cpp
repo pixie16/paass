@@ -76,30 +76,55 @@ int main(int argc, char *argv[]) {
 
 	//Set inital par1 steps
 	par1->stepSize = (par1->stopVal - par1->startVal) / (par1->numSteps-1);
-	par1->value = par1->startVal;
+	par1->value = par1->startVal - par1->stepSize;
 	//Set inital par2 steps
 	par2->stepSize = (par2->stopVal - par2->startVal) / (par2->numSteps-1);
 
+	printf("Par 1 step size: %f\n",par1->stepSize);
+	if (isTwoDim) printf("Par 2 step size: %f\n",par2->stepSize);
+
 	for (int step = 0; step < par1->numSteps; ++step) {
-		if (par1->value > par1->stopVal) break;
-		//Write parameter value
-		pif.WriteSglChanPar(par1->parName,par1->value,mod,ch);
-		//Read back the value to see what it actually was set to.
-    	pif.PrintSglChanPar(par1->parName, mod, ch);
-		pif.ReadSglChanPar(par1->parName, &par1->value, mod, ch);
-		pif.SaveDSPParameters();
-		
+		double readback = par1->value;
+
+		//Keep iterating until the value changes
+		while (readback == par1->value) {
+			par1->value += par1->stepSize;
+			//If the value is larger than the stop value we exit
+			if (par1->value > par1->stopVal) break;
+
+			//Write parameter value
+			pif.WriteSglChanPar(par1->parName,par1->value,mod,ch);
+			//Read back the value to see what it actually was set to.
+			pif.PrintSglChanPar(par1->parName, mod, ch);
+			pif.ReadSglChanPar(par1->parName, &readback, mod, ch);
+			pif.SaveDSPParameters();
+			printf("Readback : %f\n",readback);
+		}
+		if (par1->value > par1->stopVal || readback > par2->stopVal) break;
+		par1->value = readback;
+
 		//Reset par2 value
-		par2->value = par2->startVal;
+		par2->value = par2->startVal - par2->stepSize;
+
 		for (int step2 = 0; step2 < par2->numSteps; ++step2) {
 			if (isTwoDim) {
-				if (par2->value > par2->stopVal) break;
-				//Write parameter value
-				pif.WriteSglChanPar(par2->parName,par2->value,mod,ch);
-				//Read back the value to see what it actually was set to.
-				pif.PrintSglChanPar(par2->parName, mod, ch);
-				pif.ReadSglChanPar(par2->parName, &par2->value, mod, ch);
-				pif.SaveDSPParameters();
+				readback = par2->value;
+
+				//Keep iterating until the value changes
+				while (readback == par2->value) {
+					par2->value += par2->stepSize;
+					//If the value is larger than the stop value we exit
+					if (par2->value > par2->stopVal) break;
+
+					//Write parameter value
+					pif.WriteSglChanPar(par2->parName,par2->value,mod,ch);
+					//Read back the value to see what it actually was set to.
+					pif.PrintSglChanPar(par2->parName, mod, ch);
+					pif.ReadSglChanPar(par2->parName, &readback, mod, ch);
+					pif.SaveDSPParameters();
+				}
+				if (par2->value > par2->stopVal || readback > par2->stopVal) break;
+				par2->value = readback;
 			}
 
 			if (mca->IsOpen()) 
@@ -158,10 +183,7 @@ int main(int argc, char *argv[]) {
 				hist->SetTitle(Form("%s %f %s %f",par1->parName,par1->value,par2->parName,par2->value));
 			}
 			hist->Write();
-			if (isTwoDim) 
-				par2->value += par2->stepSize;
 		} //end par2 loop
-		par1->value += par1->stepSize;
 	} //end par1 loop
 
 	//Set the titles at the end so that the TGraph2D histogram has been created.
