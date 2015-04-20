@@ -10,6 +10,8 @@
 #include <unistd.h>
 #include <vector>
 
+#include <cstdlib>
+
 #ifdef USE_NCURSES
 
 #include <signal.h>
@@ -252,9 +254,22 @@ void setup_signal_handlers(){
 
 void Terminal::refresh_(){
 	if(!init){ return; }
-	wrefresh(output_window);
+	prefresh(output_window, 
+		_scrollbackBufferSize - _winSizeY - _scrollPosition, 0,  //Pad corner to be placed in top left 
+		 0, 0, _winSizeY - 2, _winSizeX); //Size of window
 	wrefresh(input_window);
 	refresh();
+}
+
+void Terminal::scroll_(int numLines){
+	if (!init){return;}
+	//We subtract so that a negative number is scrolled up resulting in a positive position value.
+	_scrollPosition -= numLines;
+	if(_scrollPosition > _scrollbackBufferSize - (_winSizeY-1)) 
+		_scrollPosition = _scrollbackBufferSize - (_winSizeY-1);
+	else if (_scrollPosition < 0) _scrollPosition = 0;
+	refresh_();
+
 }
 
 void Terminal::update_cursor_(){
@@ -385,7 +400,10 @@ bool Terminal::save_commands_(){
 	return true;
 }
 
-Terminal::Terminal(){
+Terminal::Terminal() :
+	_scrollbackBufferSize(SCROLLBACK_SIZE),
+	_scrollPosition(0)	
+{
 	pbuf = NULL; 
 	original = NULL;
 	main = NULL;
@@ -423,11 +441,11 @@ void Terminal::Initialize(){
 		fprintf(stderr, " Error: failed to initialize ncurses!\n");
 	}
 	else{		
-		int height, width;
-   		getmaxyx(stdscr, height, width);
-		output_window = newwin(height-1, width, 0, 0);
-		input_window = newwin(1, width, height-1, 0);
-		wmove(output_window, height-2, 0); // Set the output cursor at the bottom so that new text will scroll up
+   	getmaxyx(stdscr, _winSizeY, _winSizeX);
+		output_window = newpad(_scrollbackBufferSize, _winSizeX);
+		prefresh(output_window, _scrollbackBufferSize - _winSizeY, 0, 0, 0, _winSizeY, _winSizeX);
+		input_window = newwin(1, _winSizeX, _winSizeY-1, 0);
+		wmove(output_window, _scrollbackBufferSize-1, 0); // Set the output cursor at the bottom so that new text will scroll up
 		
 		halfdelay(5); // Timeout after 5/10 of a second
 		keypad(input_window, true); // Capture special keys
@@ -435,13 +453,13 @@ void Terminal::Initialize(){
 		
 		scrollok(output_window, true);
 		scrollok(input_window, true);
-		
+
 		init = true;
 		text_length = 0;
 		offset = 0;
 		
 		// Set the position of the physical cursor
-		cursX = 0; cursY = height-1;
+		cursX = 0; cursY = _winSizeY-1;
 		update_cursor_();
 		refresh_();
 
@@ -548,6 +566,7 @@ std::string Terminal::GetCommand(){
 				commands.Push(cmd.Get());
 				output = cmd.Get();
 				text_length = 0;
+				_scrollPosition = 0;
 				break;
 			}
 		} 
@@ -578,6 +597,12 @@ std::string Terminal::GetCommand(){
 		}
 		else if(keypress == KEY_LEFT){ cursX--; } // 260
 		else if(keypress == KEY_RIGHT){ cursX++; } // 261
+		else if(keypress == KEY_PPAGE){ //Page up key
+			scroll_(-(_winSizeY-2));
+		}
+		else if(keypress == KEY_NPAGE){ //Page down key
+			scroll_(_winSizeY-2);
+		}
 		else if(keypress == KEY_BACKSPACE){ // 263
 			wmove(input_window, 0, --cursX);
 			wdelch(input_window);
