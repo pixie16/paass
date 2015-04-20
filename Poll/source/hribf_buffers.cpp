@@ -1,6 +1,8 @@
 #include <sstream>
 #include <iostream>
 #include <string.h>
+#include <unistd.h>
+#include <vector>
 
 #include "hribf_buffers.h"
 
@@ -370,6 +372,48 @@ std::string PollOutputFile::get_filename(){
 	return output;
 }
 
+bool PollOutputFile::get_full_filename(std::string &output){
+	int depth = (int)directories.size();
+	
+	// Get the depth of the current filename
+	std::string formatted_filename = "";
+	size_t index = 0;
+	while(index < current_filename.size()){
+		if(current_filename[index] == '.'){
+			if(current_filename[index+1] == '.'){ // '../'
+				if(depth > 0){ depth--; }
+				else{ // user supplied a stupid filename
+					output = current_filename;
+					return false;
+				} 
+				index += 3;
+			}
+			else if(current_filename[index+1] == '/'){ // './'
+				index += 2;
+			}
+			else{ 
+				formatted_filename += current_filename[index]; 
+				index++;
+			}
+		}
+		else{ 
+			formatted_filename += current_filename[index]; 
+			index++;
+		}
+	}
+
+	if(depth > 0){
+		output = "/";
+		for(unsigned int i = 0; i < depth; i++){
+			output += directories.at(i) + "/";
+		}
+		output += formatted_filename;
+	}
+	else{ output = formatted_filename; }
+	
+	return true;
+}
+
 /// Overwrite the fourth word of the file with the total number of buffers and close the file
 /// Returns false if no output file is open or if the number of 4 byte words in the file is not 
 /// evenly divisible by the number of words in a buffer
@@ -407,22 +451,46 @@ bool PollOutputFile::overwrite_dir(int total_buffers_/*=-1*/){
 	return true;
 }
 
-PollOutputFile::PollOutputFile(){ 
+/// Initialize the output file with initial parameters
+void PollOutputFile::initialize(){
 	current_file_num = 0; 
 	output_format = 0;
 	number_spills = 0;
 	fname_prefix = "poll_data";
 	current_filename = "unknown";
+	current_full_filename = "unknown";
 	debug_mode = false;
+	
+	// Get the current working directory
+	// current_directory DOES NOT include a trailing '/'
+	char ch_cwd[1024];
+	getcwd(ch_cwd, 1024);
+	current_directory = std::string(ch_cwd);
+	
+	// Find the depth of the current directory
+	std::string temp = "";
+	for(unsigned int i = 0; i < current_directory.size(); i++){
+		if(current_directory[i] == '/'){
+			if(temp != ""){
+				directories.push_back(temp);
+				temp = "";
+			}
+		}
+		else{ temp += current_directory[i]; }
+	}
+	
+	if(temp != ""){ directories.push_back(temp); }
+	
+	current_depth = directories.size();
+}
+
+PollOutputFile::PollOutputFile(){ 
+	initialize();
 }
 
 PollOutputFile::PollOutputFile(std::string filename_){
-	current_file_num = 0;
-	output_format = 0;
-	number_spills = 0;
+	initialize();
 	fname_prefix = filename_;
-	current_filename = "unknown";
-	debug_mode = false;
 }
 
 void PollOutputFile::SetDebugMode(bool debug_/*=true*/){
@@ -506,14 +574,14 @@ int PollOutputFile::BuildPacket(char *output){
 		// 4 byte buffer size (unsigned int)
 		// 4 byte begin packet flag (0xFFFFFFFF)
 		// length of the file path.
-		bytes = (2 + 4 * sizeof(int)) + sizeof(std::streampos) + current_filename.size(); // Total size of the packet (in bytes)
-		const char *str = current_filename.c_str();
+		bytes = (2 + 4 * sizeof(int)) + sizeof(std::streampos) + current_full_filename.size(); // Total size of the packet (in bytes)
+		const char *str = current_full_filename.c_str();
 	
 		unsigned int index = 0;
 		memcpy(&output[index], (char *)&size_of_int, 1); index += 1;
 		memcpy(&output[index], (char *)&size_of_spos, 1); index += 1;
 		memcpy(&output[index], (char *)&bytes, sizeof(int)); index += sizeof(int);
-		memcpy(&output[index], (char *)str, (size_t)current_filename.size()); index += current_filename.size();
+		memcpy(&output[index], (char *)str, (size_t)current_full_filename.size()); index += current_full_filename.size();
 		memcpy(&output[index], (char *)&file_size, sizeof(std::streampos)); index += sizeof(std::streampos);
 		memcpy(&output[index], (char *)&number_spills, sizeof(int)); index += sizeof(int);
 		memcpy(&output[index], (char *)&buff_size, sizeof(int)); index += sizeof(int);
@@ -547,7 +615,8 @@ bool PollOutputFile::OpenNewFile(std::string title_, int run_num_, std::string &
 				return false;
 			}
 			
-			current_filename = filename;			
+			current_filename = filename;
+			get_full_filename(current_full_filename);		
 			dirBuff.SetRunNumber(run_num_);
 			dirBuff.Write(&output_file); // Every .ldf file gets a DIR header
 			

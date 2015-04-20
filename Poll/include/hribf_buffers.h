@@ -101,6 +101,7 @@ class PollOutputFile{
 	std::ofstream output_file;
 	std::string fname_prefix;
 	std::string current_filename;
+	std::string current_full_filename;
 	DIR_buffer dirBuff;
 	HEAD_buffer headBuff;
 	DATA_buffer dataBuff;
@@ -109,14 +110,24 @@ class PollOutputFile{
 	int output_format;
 	int number_spills;
 	bool debug_mode;
+	
+	int current_depth;
+	std::string current_directory;
+	std::vector<std::string> directories;
 
 	/// Get the formatted filename of the current file
 	std::string get_filename();
+	
+	/// Get the full path of the current file
+	bool get_full_filename(std::string &output);
 
 	/// Overwrite the fourth word of the file with the total number of buffers and close the file
 	/// Returns false if no output file is open or if the number of 4 byte words in the file is not 
 	/// evenly divisible by the number of words in a buffer
 	bool overwrite_dir(int total_buffers_=-1);
+
+	/// Initialize the output file with initial parameters
+	void initialize();
 
   public:
 	PollOutputFile();
