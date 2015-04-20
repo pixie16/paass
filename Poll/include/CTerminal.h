@@ -5,6 +5,9 @@
 #include <sstream>
 #include <map>
 
+///Default size of terminal scroll back buffer in lines.
+#define SCROLLBACK_SIZE 1000
+
 #ifdef USE_NCURSES
 
 #include <curses.h>
@@ -171,9 +174,17 @@ class Terminal{
 	int text_length;
 	int cursX, cursY;
 	int offset;
+	int _winSizeX,_winSizeY;
+	///Size of the scroll back buffer in lines.
+	int _scrollbackBufferSize;
+	///Number of lines scrolled back
+	int _scrollPosition;
 	
 	/// Refresh the terminal
 	void refresh_();
+
+	/// Scroll the output by a specified number of lines.
+	void scroll_(int numLines);
 	
 	/// Update the positions of the physical and logical cursors
 	void update_cursor_();
