@@ -10,8 +10,6 @@
 #include <unistd.h>
 #include <vector>
 
-#include <cstdlib>
-
 #ifdef USE_NCURSES
 
 #include <signal.h>
@@ -454,6 +452,11 @@ void Terminal::Initialize(){
 		scrollok(output_window, true);
 		scrollok(input_window, true);
 
+		if (NCURSES_MOUSE_VERSION > 0) {		
+			mousemask(ALL_MOUSE_EVENTS,NULL);
+			mouseinterval(0);
+		}
+
 		init = true;
 		text_length = 0;
 		offset = 0;
@@ -618,6 +621,22 @@ std::string Terminal::GetCommand(){
 		else if(keypress == KEY_IC){ cmd.ToggleInsertMode(); } // Insert key (331)
 		else if(keypress == KEY_HOME){ cursX = offset; }
 		else if(keypress == KEY_END){ cursX = text_length + offset; }
+		else if(keypress == KEY_MOUSE) { //Handle mouse events
+			MEVENT mouseEvent;
+			//Get information about mouse event.
+			getmouse(&mouseEvent);
+			
+			switch (mouseEvent.bstate) {
+				//Scroll up
+				case BUTTON4_PRESSED:
+					scroll_(-3);
+					break;
+				//Scroll down. (Yes the name is strange.)
+				case REPORT_MOUSE_POSITION:
+					scroll_(3);
+					break;
+			}
+		}	
 		else{ 
 			in_char_((char)keypress); 
 			cmd.Put((char)keypress, cursX - offset - 1);
