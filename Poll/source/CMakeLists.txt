@@ -14,4 +14,7 @@ target_link_libraries(pulser PixieInterface Utility)
 set(COMTEST_SOURCES commtest.cpp sendbuf.c spkt_io_udp.c)
 add_executable(commtest ${COMTEST_SOURCES})
 
-install(TARGETS poll poll2 pulser commtest DESTINATION ${CMAKE_INSTALL_PREFIX})
+set(LISTENER_SOURCES listener.cpp poll2_socket.cpp)
+add_executable(listener ${LISTENER_SOURCES})
+
+install(TARGETS poll poll2 listener pulser commtest DESTINATION ${CMAKE_INSTALL_PREFIX})
