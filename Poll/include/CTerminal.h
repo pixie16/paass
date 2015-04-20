@@ -5,6 +5,9 @@
 #include <sstream>
 #include <map>
 
+///Default size of terminal scroll back buffer in lines.
+#define SCROLLBACK_SIZE 1000
+
 #ifdef USE_NCURSES
 
 #include <curses.h>
@@ -134,12 +137,13 @@ class CommandString{
 	
 	std::string Get(size_t size_=std::string::npos){ return command.substr(0, size_); }
 	
-	void Set(std::string input_){ command = input_; }
-	
+	///Set the string the the specified input.
+	void Set(std::string input_){ command = input_; }	
+	///Put a character into string at specified position.
 	void Put(const char ch_, int index_);
-	
+	///Remove a character from the string.
 	void Pop(int index_);
-	
+	///Clear the string.
 	void Clear(){ command = ""; }
 };
 
@@ -170,9 +174,17 @@ class Terminal{
 	int text_length;
 	int cursX, cursY;
 	int offset;
+	int _winSizeX,_winSizeY;
+	///Size of the scroll back buffer in lines.
+	int _scrollbackBufferSize;
+	///Number of lines scrolled back
+	int _scrollPosition;
 	
 	/// Refresh the terminal
 	void refresh_();
+
+	/// Scroll the output by a specified number of lines.
+	void scroll_(int numLines);
 	
 	/// Update the positions of the physical and logical cursors
 	void update_cursor_();

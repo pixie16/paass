@@ -218,8 +218,8 @@ void CommandHolder::Dump(){
 void CommandString::Put(const char ch_, int index_){
 	if(index_ < 0){ return; }
 	else if(index_ < command.size()){ // Overwrite or insert a character
-		if(!insert_mode){ command.at(index_) = ch_; } // Overwrite
-		else{ command.insert(index_, 1, ch_); } // Insert
+		if(!insert_mode) { command.insert(index_, 1, ch_); } // Insert
+		else { command.at(index_) = ch_; } // Overwrite
 	}
 	else{ command.push_back(ch_); } // Appending to the back of the string
 }
@@ -252,9 +252,22 @@ void setup_signal_handlers(){
 
 void Terminal::refresh_(){
 	if(!init){ return; }
-	wrefresh(output_window);
+	prefresh(output_window, 
+		_scrollbackBufferSize - _winSizeY - _scrollPosition, 0,  //Pad corner to be placed in top left 
+		 0, 0, _winSizeY - 2, _winSizeX); //Size of window
 	wrefresh(input_window);
 	refresh();
+}
+
+void Terminal::scroll_(int numLines){
+	if (!init){return;}
+	//We subtract so that a negative number is scrolled up resulting in a positive position value.
+	_scrollPosition -= numLines;
+	if(_scrollPosition > _scrollbackBufferSize - (_winSizeY-1)) 
+		_scrollPosition = _scrollbackBufferSize - (_winSizeY-1);
+	else if (_scrollPosition < 0) _scrollPosition = 0;
+	refresh_();
+
 }
 
 void Terminal::update_cursor_(){
@@ -279,7 +292,9 @@ void Terminal::clear_(){
 // Force a character to the input screen
 void Terminal::in_char_(const char input_){
 	cursX++;
-	waddch(input_window, input_);
+	//If in insert mode we overwite the character otherwise insert it.
+	if (cmd.GetInsertMode()) waddch(input_window, input_);
+	else winsch(input_window, input_);
 	update_cursor_();
 	refresh_();
 }
@@ -383,7 +398,10 @@ bool Terminal::save_commands_(){
 	return true;
 }
 
-Terminal::Terminal(){
+Terminal::Terminal() :
+	_scrollbackBufferSize(SCROLLBACK_SIZE),
+	_scrollPosition(0)	
+{
 	pbuf = NULL; 
 	original = NULL;
 	main = NULL;
@@ -421,11 +439,11 @@ void Terminal::Initialize(){
 		fprintf(stderr, " Error: failed to initialize ncurses!\n");
 	}
 	else{		
-		int height, width;
-   		getmaxyx(stdscr, height, width);
-		output_window = newwin(height-1, width, 0, 0);
-		input_window = newwin(1, width, height-1, 0);
-		wmove(output_window, height-2, 0); // Set the output cursor at the bottom so that new text will scroll up
+   	getmaxyx(stdscr, _winSizeY, _winSizeX);
+		output_window = newpad(_scrollbackBufferSize, _winSizeX);
+		prefresh(output_window, _scrollbackBufferSize - _winSizeY, 0, 0, 0, _winSizeY, _winSizeX);
+		input_window = newwin(1, _winSizeX, _winSizeY-1, 0);
+		wmove(output_window, _scrollbackBufferSize-1, 0); // Set the output cursor at the bottom so that new text will scroll up
 		
 		halfdelay(5); // Timeout after 5/10 of a second
 		keypad(input_window, true); // Capture special keys
@@ -433,13 +451,18 @@ void Terminal::Initialize(){
 		
 		scrollok(output_window, true);
 		scrollok(input_window, true);
-		
+
+		if (NCURSES_MOUSE_VERSION > 0) {		
+			mousemask(ALL_MOUSE_EVENTS,NULL);
+			mouseinterval(0);
+		}
+
 		init = true;
 		text_length = 0;
 		offset = 0;
 		
 		// Set the position of the physical cursor
-		cursX = 0; cursY = height-1;
+		cursX = 0; cursY = _winSizeY-1;
 		update_cursor_();
 		refresh_();
 
@@ -546,6 +569,7 @@ std::string Terminal::GetCommand(){
 				commands.Push(cmd.Get());
 				output = cmd.Get();
 				text_length = 0;
+				_scrollPosition = 0;
 				break;
 			}
 		} 
@@ -576,6 +600,12 @@ std::string Terminal::GetCommand(){
 		}
 		else if(keypress == KEY_LEFT){ cursX--; } // 260
 		else if(keypress == KEY_RIGHT){ cursX++; } // 261
+		else if(keypress == KEY_PPAGE){ //Page up key
+			scroll_(-(_winSizeY-2));
+		}
+		else if(keypress == KEY_NPAGE){ //Page down key
+			scroll_(_winSizeY-2);
+		}
 		else if(keypress == KEY_BACKSPACE){ // 263
 			wmove(input_window, 0, --cursX);
 			wdelch(input_window);
@@ -583,12 +613,30 @@ std::string Terminal::GetCommand(){
 			text_length = cmd.GetSize();
 		}
 		else if(keypress == KEY_DC){ // Delete character (330)
-			cursX--;
+			//Remove character from terminal
 			wdelch(input_window);
+			//Remove character from cmd string
+			cmd.Pop(cursX - offset);
 		}
 		else if(keypress == KEY_IC){ cmd.ToggleInsertMode(); } // Insert key (331)
 		else if(keypress == KEY_HOME){ cursX = offset; }
 		else if(keypress == KEY_END){ cursX = text_length + offset; }
+		else if(keypress == KEY_MOUSE) { //Handle mouse events
+			MEVENT mouseEvent;
+			//Get information about mouse event.
+			getmouse(&mouseEvent);
+			
+			switch (mouseEvent.bstate) {
+				//Scroll up
+				case BUTTON4_PRESSED:
+					scroll_(-3);
+					break;
+				//Scroll down. (Yes the name is strange.)
+				case REPORT_MOUSE_POSITION:
+					scroll_(3);
+					break;
+			}
+		}	
 		else{ 
 			in_char_((char)keypress); 
 			cmd.Put((char)keypress, cursX - offset - 1);
