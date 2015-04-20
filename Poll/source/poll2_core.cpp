@@ -97,6 +97,8 @@ Poll::Poll(){
 	fifoData = NULL;
 	partialEventData = NULL;
 	statsHandler = NULL;
+	
+	client = new Client();
 }
 
 bool Poll::initialize(){
@@ -164,7 +166,7 @@ bool Poll::initialize(){
 	nonWaitCounter = 0;
 	partialBufferCounter = 0;
 	
-	init_server(45080); // This is the port # pacman uses (udptoipc actually)
+	client->Init("127.0.0.1", 5555);
 	
 	return init = true;
 }
@@ -178,7 +180,8 @@ Poll::~Poll(){
 bool Poll::close(){
 	if(!init){ return false; }
 	
-	close_server();
+	client->SendMessage((char *)"$KILL_SOCKET", 13);
+	client->Close();
 	
 	if(runDone){ delete[] runDone; }
 	if(fifoData){ delete[] fifoData; }
@@ -205,6 +208,7 @@ bool Poll::close_output_file(){
 			return false;			
 		}
 		std::cout << sys_message_head << "Closing output file.\n";
+		client->SendMessage((char *)"$CLOSE_FILE", 12);
 		output_file.CloseFile();
 		return true;
 	}
@@ -240,7 +244,7 @@ int Poll::write_data(word_t *data, unsigned int nWords){
 	// Broadcast a spill notification to the network
 	char packet[output_file.GetPacketSize()];
 	int packet_size = output_file.BuildPacket(packet);
-	server_send_message(packet, packet_size);
+	client->SendMessage(packet, packet_size);
 
 	// Handle the writing of buffers to the file
 	return output_file.Write((char*)data, nWords);
@@ -665,55 +669,11 @@ void Poll::command_control(Terminal *poll_term_){
 				}
 			}
 			else if(cmd == "test"){ // Generic command for testing purposes
+				// Broadcast a spill notification to the network
+				std::cout << sys_message_head << "Broadcasting a spill packet...\n";
 				char packet[output_file.GetPacketSize()];
 				int packet_size = output_file.BuildPacket(packet);
-				char fname[packet_size+1];
-
-				if(packet_size > 10){
-					char ch1, ch2;
-					int jint[4];
-					std::streampos spos;
-	
-					// Process the packet
-					unsigned int index = 0;
-					memcpy(&ch1, (char *)&packet[index], 1); index += 1; // size of integer
-					memcpy(&ch2, (char *)&packet[index], 1); index += 1; // size of streampos
-					int fname_size = packet_size - 4*ch1 - ch2 - 2; // Size of the filename in bytes
-
-					memcpy(&jint[0], (char *)&packet[index], ch1); index += ch1;
-					memcpy(&fname, (char *)&packet[index], fname_size); index += fname_size;
-					memcpy(&spos, (char *)&packet[index], ch2); index += ch2;
-					memcpy(&jint[1], (char *)&packet[index], ch1); index += ch1;
-					memcpy(&jint[2], (char *)&packet[index], ch1); index += ch1;
-					memcpy(&jint[3], (char *)&packet[index], ch1);
-	
-					std::cout << " DEBUG:\n";
-					std::cout << "  Integer Size: " << ch1 << std::endl;
-					std::cout << "  Streampos Size: " << ch2 << std::endl;
-					std::cout << "  Packet Length: " << jint[0] << std::endl;
-					std::cout << "  Filename: " << fname << std::endl;
-					std::cout << "  File Size: " << spos << std::endl;
-					std::cout << "  Spill ID: " << jint[1] << std::endl;
-					std::cout << "  Buffer Size: " << jint[2] << std::endl;
-					std::cout << "  End Packet: " << jint[3] << std::endl;
-				}
-				else{
-					char ch1, ch2;
-					int jint[2];
-	
-					// Process the packet
-					unsigned int index = 0;
-					memcpy(&ch1, (char *)&packet[index], 1); index += 1; // size of integer
-					memcpy(&ch2, (char *)&packet[index], 1); index += 1; // size of streampos
-					memcpy(&jint[0], (char *)&packet[index], ch1); index += ch1;
-					memcpy(&jint[1], (char *)&packet[index], ch1);
-	
-					std::cout << " DEBUG:\n";
-					std::cout << "  Integer Size: " << ch1 << std::endl;
-					std::cout << "  Streampos Size: " << ch2 << std::endl;
-					std::cout << "  Packet Length: " << jint[0] << std::endl;
-					std::cout << "  End Packet: " << jint[1] << std::endl;
-				}
+				client->SendMessage(packet, packet_size);
 			}
 			else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
 			std::cout << std::endl;

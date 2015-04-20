@@ -1,36 +1,78 @@
+/** \file poll2_socket.h
+  * 
+  * \brief Provides network connectivity for poll2
+  * 
+  * \author Cory R. Thornsberry
+  * 
+  * \date April 20th, 2015
+  * 
+  * This file contains classes used by poll2 in order to send packets over the
+  * network. These packets are sent by poll using the Server class and may be
+  * read by any program using the Client class or operating a socket on the
+  * same port.
+*/
+
 #ifndef POLL2_SOCKET_H
 #define POLL2_SOCKET_H
 
-#include <string>
-#include <sstream>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
 
-// Initialize a client for poll2 running on remote a machine at address_:port_
-bool init_client(const char* address_, int port_);
+class Server{
+  private:
+	int sock, length, n;
+	socklen_t fromlen;
+	struct sockaddr_in serv;
+	struct sockaddr_in from;
+	bool init;
 
-// Receive a message from the server
-int client_recv_message(char *message_ , size_t length_);
+  public:
+	Server(){ init = false; }
+  
+	~Server(){ Close(); }
 
-int client_recv_message(std::string &message, size_t max_length_);
+	/** Initialize the serv object and open a specified port. Returns false if the 
+	  * socket fails to open or the socket fails to bind and returns true otherwise. */
+	bool Init(int port_);
 
-// Close the client socket
-bool close_client();
+	/** Receive a message from the socket. Returns the number of bytes received. Returns
+	  * -1 if the receive fails or if the object was not initialized. */
+	int RecvMessage(char *message_, size_t length_);
 
-// Initialize a server on a specified port
-bool init_server(int portNum_);
+	/** Send a message to the socket. Returns the number of bytes sent. Returns
+	  * -1 if the send fails or if the object was not initialized. */
+	int SendMessage(char *message_, size_t length_);
 
-// Send a message to the socket
-int server_send_message(char *message_, size_t length_);
+	/// Close the socket.
+	void Close();
+};
 
-// Receive a message from the socket
-int server_recv_message(char *message_, size_t length_);
+class Client{
+  private:
+	int sock, n;
+	unsigned int length;
+	struct sockaddr_in serv, from;
+	struct hostent *hp;
+	bool init;
 
-// Close the server socket
-bool close_server();
+  public:
+	Client(){ init = false; }
+	
+	~Client(){ Close(); }
+  	
+	/** Initialize the client object and open a specified address and port. Returns false 
+	  * if the socket fails to open or the address is unresolved and returns true otherwise. */
+	bool Init(const char *address_, int port_);
+
+	/** Receive a message from the socket. Returns the number of bytes received. Returns
+	  * -1 if the receive fails or if the object was not initialized. */
+	int RecvMessage(char *message_, size_t length_);
+
+	/** Send a message to the socket. Returns the number of bytes sent. Returns
+	  * -1 if the send fails or if the object was not initialized. */
+	int SendMessage(char *message_, size_t length_);
+	
+	/// Close the socket.
+	void Close();
+};
 
 #endif

@@ -8,8 +8,8 @@
 #include "CTerminal.h"
 
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
-#define POLL_VERSION "1.1.10"
-#define POLL_DATE "April 19th, 2015"
+#define POLL_VERSION "1.1.11"
+#define POLL_DATE "April 20th, 2015"
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
@@ -25,30 +25,34 @@ struct MCA_args{
 	void Zero();
 };
 
+// Forward class declarations
 class StatsHandler;
+class Client;
 
 class Poll{
   public:
   	struct tm *time_info;
- 
-	PixieInterface *pif; // The main pixie interface pointer 
+
+	Client *client; /// UDP client for network access
+
+	PixieInterface *pif; /// The main pixie interface pointer 
   
 	word_t clock_vsn;	
 
 	// System flags and variables
-	std::string sys_message_head; // Command line message header
-	bool kill_all; // Set to true when the program is exiting
-	bool start_run; // Set to true when the command is given to start a run
-	bool stop_run; // Set to true when the command is given to stop a run
-	bool do_reboot; // Set to true when the user tells POLL to reboot PIXIE
-	bool force_spill; // Force poll2 to dump the current data spill
-	bool poll_running; // Set to true when run_command is recieving data from PIXIE
-	bool run_ctrl_exit; // Set to true when run_command exits
+	std::string sys_message_head; /// Command line message header
+	bool kill_all; /// Set to true when the program is exiting
+	bool start_run; /// Set to true when the command is given to start a run
+	bool stop_run; /// Set to true when the command is given to stop a run
+	bool do_reboot; /// Set to true when the user tells POLL to reboot PIXIE
+	bool force_spill; /// Force poll2 to dump the current data spill
+	bool poll_running; /// Set to true when run_command is recieving data from PIXIE
+	bool run_ctrl_exit; /// Set to true when run_command exits
 	time_t raw_time;
 
 	// System MCA flags
-	bool do_MCA_run; // Set to true when the "mca" command is received
-	MCA_args mca_args; // Structure to hold arguments for MCA program
+	bool do_MCA_run; /// Set to true when the "mca" command is received
+	MCA_args mca_args; /// Structure to hold arguments for MCA program
 
 	// Run control variables
 	bool boot_fast; //
@@ -61,11 +65,11 @@ class Poll{
 	bool init; //
 
 	// Options relating to output data file
-	std::string output_directory; // Set with 'fdir' command
-	std::string output_filename; // Set with 'ouf' command
-	std::string output_title; // Set with 'htit' command
-	int output_run_num; // Set with 'hnum' command
-	int output_format; // Set with 'oform' command
+	std::string output_directory; /// Set with 'fdir' command
+	std::string output_filename; /// Set with 'ouf' command
+	std::string output_title; /// Set with 'htit' command
+	int output_run_num; /// Set with 'hnum' command
+	int output_format; /// Set with 'oform' command
 
 	// The main output data file and related variables
 	int current_file_num;
