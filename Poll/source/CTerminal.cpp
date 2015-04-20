@@ -614,7 +614,6 @@ std::string Terminal::GetCommand(){
 			wdelch(input_window);
 			//Remove character from cmd string
 			cmd.Pop(cursX - offset);
-			cursX--;
 		}
 		else if(keypress == KEY_IC){ cmd.ToggleInsertMode(); } // Insert key (331)
 		else if(keypress == KEY_HOME){ cursX = offset; }
