@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <string.h>
+#include <time.h>
 
 #include "poll2_socket.h"
 
@@ -19,6 +20,11 @@ int main(){
 	int total_size, spillID, buffSize;
 	int end_packet_flag;
 	std::streampos file_size;
+	std::streampos new_size;
+	
+	time_t time1;
+	time_t time2;
+	double dT;
 	
 	size_t size_of_int; // The first byte is always the size of an integer on the sending machine
 	size_t size_of_spos; // The second byte is always the size of a std::streampos type on the sending machine
@@ -54,8 +60,10 @@ int main(){
 					std::cout << "  Size of streampos on remote machine: " << size_of_spos << " bytes\n\n";
 					break;
 				}
-				
-				first_packet = false;
+			}
+			else{
+				time(&time2);
+				dT = difftime(time2, time1);
 			}
 		
 			// The third byte is the start of an integer specifying the total length of the packet
@@ -87,20 +95,29 @@ int main(){
 	
 				unsigned int index = 2  + size_of_int;
 				memcpy(fname, (char *)&buffer[index], fname_size); index += fname_size; // Copy the file name
-				memcpy((char *)&file_size, (char *)&buffer[index], size_of_spos); index += size_of_spos; // Copy the file size
+				memcpy((char *)&new_size, (char *)&buffer[index], size_of_spos); index += size_of_spos; // Copy the file size
 				memcpy((char *)&spillID, (char *)&buffer[index], size_of_int); index += size_of_int; // Copy the spill ID
 				memcpy((char *)&buffSize, (char *)&buffer[index], size_of_int); index += size_of_int; // Copy the buffer size
 				memcpy((char *)&end_packet_flag, (char *)&buffer[index], size_of_int); // Copy the end packet flag
 				fname[fname_size] = '\0'; // Terminate the filename string
 				
 				std::cout << "  Packet length: " << total_size << " bytes\n";
-				//printf("  Poll2 filename: %s", fname);
 				std::cout << "  Poll2 filename: " << fname << "\n";
-				std::cout << "  Total file size: " << file_size << " bytes\n";
+				std::cout << "  Total file size: " << new_size << " bytes\n";
 				std::cout << "  Spill number ID: " << spillID << "\n";
 				std::cout << "  Buffer size: " << buffSize << " words\n";
-				std::cout << "  End packet: " << end_packet_flag << "\n\n";				
+				std::cout << "  End packet: " << end_packet_flag << "\n";
+				
+				if(!first_packet){ 
+					std::cout << "  Time diff: " << dT << " s\n";
+					std::cout << "  Data rate: " << ((double)(new_size - file_size))/dT << " B/s\n";
+				}
+				else{ first_packet = false; }
+				std::cout << std::endl;
+				
+				file_size = new_size;
 			}
+			time(&time1);
 		}
 	}
 	else{ return 1; }
