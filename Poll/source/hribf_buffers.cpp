@@ -25,7 +25,12 @@ bool BufferType::Write(std::ofstream *file_){
 	return false;
 }
 
-DIR_buffer::DIR_buffer() : BufferType(542263620, 8192){
+// Returns only false if not overwritten
+bool BufferType::Read(std::ifstream *file_){
+	return false;
+}
+
+DIR_buffer::DIR_buffer() : BufferType(542263620, 8192){ // 0x20524944 "DIR "
 	total_buff_size = 8194;
 	run_num = 0;
 	unknown[0] = 0;
@@ -54,6 +59,22 @@ bool DIR_buffer::Write(std::ofstream *file_){
 		file_->write((char*)&zero, 4);
 	}
 	
+	return true;
+}
+
+bool DIR_buffer::Read(std::ifstream *file_, int &number_buffers){
+	if(!file_ || !file_->is_open()){ return false; }
+	
+	int check_bufftype, check_buffsize;	
+	file_->read((char*)&check_bufftype, 4);
+	file_->read((char*)&check_buffsize, 4);
+	if(check_bufftype != bufftype || check_buffsize != buffsize){ return false; }// Not a valid DIR buffer
+	
+	file_->read((char*)&total_buff_size, 4);
+	file_->read((char*)&number_buffers, 4);
+	file_->read((char*)unknown, 8);
+	file_->read((char*)&run_num, 4);
+
 	return true;
 }
 
@@ -142,6 +163,24 @@ bool HEAD_buffer::Write(std::ofstream *file_){
 	return true;
 }
 
+bool HEAD_buffer::Read(std::ifstream *file_){
+	if(!file_ || !file_->is_open()){ return false; }
+	
+	int check_bufftype, check_buffsize;	
+	file_->read((char*)&check_bufftype, 4);
+	file_->read((char*)&check_buffsize, 4);
+	if(check_bufftype != bufftype || check_buffsize != buffsize){ return false; }// Not a valid HEAD buffer
+	
+	file_->read(facility, 8);
+	file_->read(format, 8);
+	file_->read(type, 16);
+	file_->read(date, 16);
+	file_->read(run_title, 80);
+	file_->read((char*)&run_num, 4);
+
+	return true;
+}
+
 // Write data buffer header (2 words)
 bool DATA_buffer::open_(std::ofstream *file_){
 	if(!file_ || !file_->is_open()){ return false; }
@@ -179,9 +218,32 @@ bool DATA_buffer::Close(std::ofstream *file_){
 	return true;
 }
 
+/*int DATA_buffer::GetSpillSize(std::ifstream *file_){
+	if(!file_ || !file_->is_open()){ return -1; }
+	
+	int buff_head, buff_size;
+	file_->read((char*)&buff_head, 4);
+	file_->read((char*)&buff_size, 4);
+	if(buff_head != bufftype){ return -1; } // Not a DATA buffer
+	
+	int this_chunk_sizeB;
+	int this_chunk_sizeW;
+	int total_num_chunks;
+	int current_chunk_num;
+	file_->write((char*)&this_chunk_sizeB, 4);
+	file_->write((char*)&total_num_chunks, 4);
+	file_->write((char*)&current_chunk_num, 4);
+	this_chunk_sizeW = this_chunk_sizeB / 4;
+	
+	if(this_chunk_sizeB % 4 != 0){ return -1; }
+}*/
+
 // Write data to file
 bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_, int &buffs_written, int output_format_/*=0*/){
-	if(!file_ || !file_->is_open() || !data_ || nWords_ == 0){ return false; }
+	if(!file_ || !file_->is_open() || !data_ || nWords_ == 0){ 
+		if(debug_mode){ std::cout << "debug: !file_ || !file_->is_open() || !data_ || nWords_ == 0\n"; }	
+		return false; 
+	}
 
 	if(output_format_ == 0){ // legacy .ldf format
 		// Write a DATA header if needed
@@ -335,8 +397,200 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 		return false;
 	}
 	
+	if(debug_mode){ std::cout << "debug: unknown error\n"; }
 	return false;
 }
+
+/// Read a data spill from a file
+/*bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int nWords_, int file_format_);
+	if(!file_ || !file_->is_open() || !data_){ 
+		if(debug_mode){ std::cout << "debug: !file_ || !file_->is_open() || !data_\n"; }
+		return false; 
+	}
+
+	int check_bufftype, check_buffsize;	
+	file_->read((char*)&check_bufftype, 4);
+	file_->read((char*)&check_buffsize, 4);
+	if(check_bufftype != bufftype || check_buffsize != buffsize){ return false; }// Not a valid DATA buffer
+
+	if(file_format_ == 0){ // legacy .ldf format
+		int buff_head, buff_size;
+		file_->read((char*)&buff_head, 4);
+		file_->read((char*)&buff_size, 4);
+		
+		if(buff_head == 0x20464F45){ // EOF buffer
+			// Read ahead and look for a second EOF buffer
+			file_->seekg(8192 * 4, std::ifstream::cur);
+			if(!file_.eof()){
+				file_->read((char*)&buff_head, 4);
+				file_->read((char*)&buff_size, 4);
+				if(buff_head == 0x20464F45){ // Second EOF reached
+					
+				}
+			}
+			else{ 
+				std::cout << "debug: physical eof reached during read-ahead for EOF buffer\n"; 
+				return false;
+			}
+		}
+		if(buff_head != 0x41544144){ continue; } // Not a data buffer
+		0x41544144
+		
+		
+		char current_buffer[8194];
+		char read_ahead[8194];		
+		
+		int this_chunk_sizeB;
+		int this_chunk_sizeW;
+		int total_num_chunks;
+		int current_chunk_num;
+
+		file_->read((char*)&this_chunk_sizeB, 4);
+		file_->read((char*)&total_num_chunks, 4);
+		file_->read((char*)&current_chunk_num, 4);
+		this_chunk_sizeW = this_chunk_sizeB/4;
+		
+		
+	
+		// The entire spill needs to be chopped up to fit into buffers
+		// Calculate the number of data chunks we will need
+		unsigned int words_written = 0;
+		int this_chunk_sizeW, this_chunk_sizeB;
+		int total_num_chunks, current_chunk_num;
+		if((nWords_ + 10) >= good_words_remaining){ // Spill needs at least one more buffer	
+			total_num_chunks = 2 + (nWords_ - good_words_remaining + 3) / OPTIMAL_CHUNK_SIZE;
+			if((nWords_ - good_words_remaining + 3) % OPTIMAL_CHUNK_SIZE != 0){ 
+				total_num_chunks++; // Account for the buffer fragment
+			}
+		}
+		else{ // Entire spill (plus footer) will fit in the current buffer
+			if(debug_mode){ std::cout << "debug: writing spill of nWords_=" << nWords_ << " + 10 words\n"; }
+			
+			// Write the spill chunk header
+			this_chunk_sizeW = nWords_ + 3;
+			this_chunk_sizeB = 4 * this_chunk_sizeW;
+			total_num_chunks = 2; 
+			current_chunk_num = 0;
+			file_->write((char*)&this_chunk_sizeB, 4);
+			file_->write((char*)&total_num_chunks, 4);
+			file_->write((char*)&current_chunk_num, 4);
+		
+			// Write the spill
+			file_->write((char*)data_, (this_chunk_sizeB - 12));
+		
+			// Write the end of spill buffer (5 words + 2 end of buffer words)
+			current_chunk_num = 1;
+			file_->write((char*)&buffend, 4);
+			file_->write((char*)&end_spill_size, 4);
+			file_->write((char*)&total_num_chunks, 4);
+			file_->write((char*)&current_chunk_num, 4);
+			file_->write((char*)&pacman_word1, 4);
+			file_->write((char*)&pacman_word2, 4);
+			file_->write((char*)&buffend, 4); // write 0xFFFFFFFF (signal end of spill footer)
+		
+			current_buff_pos += this_chunk_sizeW + 7;
+			buff_words_remaining = ACTUAL_BUFF_SIZE - current_buff_pos;
+				
+			return true;
+		} 
+
+		if(debug_mode){
+			std::cout << "debug: nWords_=" << nWords_ << ", total_num_chunks=" << total_num_chunks << ", current_buff_pos=" << current_buff_pos << std::endl;
+			std::cout << "debug: buff_words_remaining=" << buff_words_remaining << ", good_words_remaining=" << good_words_remaining << std::endl;
+		}
+	
+		current_chunk_num = 0;
+		while(words_written < nWords_){
+			// Calculate the size of this chunk
+			if((nWords_ - words_written + 10) >= good_words_remaining){ // Spill chunk will require more than this buffer
+				this_chunk_sizeW = good_words_remaining;
+			
+				// Write the chunk header
+				this_chunk_sizeB = 4 * this_chunk_sizeW;
+				file_->write((char*)&this_chunk_sizeB, 4);
+				file_->write((char*)&total_num_chunks, 4);
+				file_->write((char*)&current_chunk_num, 4);
+		
+				// Actually write the data
+				if(debug_mode){ std::cout << "debug: writing spill chunk " << current_chunk_num << " of " << total_num_chunks << " with " << this_chunk_sizeW << " words\n"; }
+				file_->write((char*)&data_[4*words_written], (this_chunk_sizeB - 12));
+				file_->write((char*)&buffend, 4); // Mark the end of this chunk
+				current_chunk_num++;
+		
+				current_buff_pos += this_chunk_sizeW + 1;
+				buff_words_remaining = ACTUAL_BUFF_SIZE - current_buff_pos;		
+				good_words_remaining = 0;
+				words_written += this_chunk_sizeW - 3;
+			
+				Close(file_);
+				open_(file_);
+				buffs_written++;
+			}
+			else{ // Spill chunk (plus spill footer) will fit in this buffer. This is the final chunk
+				this_chunk_sizeW = (nWords_ - words_written + 3);
+			
+				// Write the chunk header
+				this_chunk_sizeB = 4 * this_chunk_sizeW;
+				file_->write((char*)&this_chunk_sizeB, 4);
+				file_->write((char*)&total_num_chunks, 4);
+				file_->write((char*)&current_chunk_num, 4);
+		
+				// Actually write the data
+				if(debug_mode){ std::cout << "debug: writing final spill chunk " << current_chunk_num << " with " << this_chunk_sizeW << " words\n"; }
+				file_->write((char*)&data_[4*words_written], (this_chunk_sizeB - 12));
+				file_->write((char*)&buffend, 4); // Mark the end of this chunk
+				current_chunk_num++;
+
+				current_buff_pos += this_chunk_sizeW + 1;
+				buff_words_remaining = ACTUAL_BUFF_SIZE - current_buff_pos;		
+				good_words_remaining = good_words_remaining - this_chunk_sizeW;
+				words_written += this_chunk_sizeW - 3;
+			}
+		}
+
+		// Can't fit spill footer. Fill with 0xFFFFFFFF and start new buffer instead
+		if(good_words_remaining < 7){ 
+			Close(file_);
+			open_(file_);
+			buffs_written++;
+		}
+	
+		if(debug_mode){ std::cout << "debug: writing 24 bytes (6 words) for spill footer (chunk " << current_chunk_num << ")\n"; }
+	
+		// Write the end of spill buffer (5 words + 1 end of buffer words)
+		file_->write((char*)&end_spill_size, 4);
+		file_->write((char*)&total_num_chunks, 4);
+		file_->write((char*)&current_chunk_num, 4);
+		file_->write((char*)&pacman_word1, 4);
+		file_->write((char*)&pacman_word2, 4);
+		file_->write((char*)&buffend, 4); // write 0xFFFFFFFF (signal end of spill footer)
+	
+		current_buff_pos += 6;
+		buff_words_remaining = ACTUAL_BUFF_SIZE - current_buff_pos;
+		good_words_remaining = good_words_remaining - 6;
+	
+		if(debug_mode){ 
+			std::cout << "debug: finished writing spill into " << buffs_written << " new buffers\n"; 
+			if(total_num_chunks != current_chunk_num + 1){ 
+				std::cout << "debug: total number of chunks does not equal number of chunks written (" << total_num_chunks << " != " << current_chunk_num+1 << ")!!!\n"; 
+			}
+			std::cout << std::endl;
+		}
+
+		return true;
+	}
+	else if(file_format_ == 1){
+		if(debug_mode){ std::cout << "debug: .pld output format is not implemented!\n"; }
+		return false;
+	}
+	else if(file_format_ == 2){
+		if(debug_mode){ std::cout << "debug: .root output format is not implemented!\n"; }
+		return false;
+	}
+
+	if(debug_mode){ std::cout << "debug: unknown error\n"; }	
+	return false;
+}*/
 
 // EOF buffer (1 word buffer type, 1 word buffer size, and 8192 end of file words)
 bool EOF_buffer::Write(std::ofstream *file_){
@@ -352,6 +606,17 @@ bool EOF_buffer::Write(std::ofstream *file_){
 	for(unsigned int i = 0; i < 8192; i++){
 		file_->write((char*)&buffend, 4);
 	}
+	
+	return true;
+}
+
+bool EOF_buffer::Read(std::ifstream *file_){
+	if(!file_ || !file_->is_open()){ return false; }
+
+	int check_bufftype, check_buffsize;	
+	file_->read((char*)&check_bufftype, 4);
+	file_->read((char*)&check_buffsize, 4);
+	if(check_bufftype != bufftype || check_buffsize != buffsize){ return false; }// Not a valid EOF buffer
 	
 	return true;
 }

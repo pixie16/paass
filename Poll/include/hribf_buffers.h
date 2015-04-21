@@ -15,8 +15,19 @@ class BufferType{
 	
 	/// Returns only false if not overloaded
 	virtual bool Write(std::ofstream *file_);
+
+	/// Returns only false if not overloaded
+	virtual bool Read(std::ifstream *file_);
 	
   public:
+	int GetBufferType(){ return bufftype; }
+	
+	int GetBufferSize(){ return buffsize; }
+	
+	int GetBufferEndFlag(){ return buffend; }
+	
+	bool DebugMode(){ return debug_mode; }
+  
 	void SetDebugMode(bool debug_=true){ debug_mode = debug_; }
 };
 
@@ -31,12 +42,19 @@ class DIR_buffer : public BufferType{
   public:
 	DIR_buffer();
 	
+	int GetTotalBufferSize(){ return total_buff_size; }
+	
+	int GetRunNumber(){ return run_num; }
+	
 	void SetRunNumber(int input_){ run_num = input_; }
 	
 	/* DIR buffer (1 word buffer type, 1 word buffer size, 1 word for total buffer length,
 	   1 word for total number of buffers, 2 unknown words, 1 word for run number, 1 unknown word,
 	   and 8186 zeros) */
 	bool Write(std::ofstream *file_);
+
+	/// Read a DIR buffer from a file. Return false if buffer has the wrong header and return true otherwise
+	bool Read(std::ifstream *file_, int &number_buffers);
 };
 
 /* The HEAD buffer is written after the DIR buffer for each .ldf file. HEAD contains information
@@ -55,16 +73,31 @@ class HEAD_buffer : public BufferType{
   public:
 	HEAD_buffer();
 		
+	char *GetFacility(){ return facility; }
+	
+	char *GetFormat(){ return format; }
+		
+	char *GetType(){ return format; }
+	
+	char *GetDate(){ return format; }
+	
+	char *GetRunTitle(){ return run_title; }
+		
+	int GetRunNumber(){ return run_num; }
+		
 	bool SetDateTime();
 	
 	bool SetTitle(std::string input_);
 	
 	void SetRunNumber(int input_){ run_num = input_; }
 
-	/* HEAD buffer (1 word buffer type, 1 word buffer size, 2 words for facility, 2 for format, 
-	   3 for type, 1 word separator, 4 word date, 20 word title [80 character], 1 word run number,
-	   30 words of padding, and 8129 end of buffer words) */
+	/** HEAD buffer (1 word buffer type, 1 word buffer size, 2 words for facility, 2 for format, 
+	  * 3 for type, 1 word separator, 4 word date, 20 word title [80 character], 1 word run number,
+	  * 30 words of padding, and 8129 end of buffer words) */
 	bool Write(std::ofstream *file_);
+
+	/// Read a HEAD buffer from a file. Return false if buffer has the wrong header and return true otherwise
+	bool Read(std::ifstream *file_);
 };
 
 /// The DATA buffer contains all physics data within the .ldf file
@@ -78,13 +111,21 @@ class DATA_buffer : public BufferType{
 	bool open_(std::ofstream *file_);
 	
   public:
-	DATA_buffer(); // 0x41544144 "DATA"
+	DATA_buffer(); /// 0x41544144 "DATA"
 
 	/// Close a data buffer by padding with 0xFFFFFFFF
 	bool Close(std::ofstream *file_);
+
+	/** Get the standard data spill size for a given data file. This number is set at runtime by poll
+	  * and should be the same for each and every spill in the file. Returns the spill size in words 
+	  * or -1 in the event of an error. This method should be called whenever a new file is opened. */
+	int GetSpillSize(std::ifstream *file_);
 	
-	/// Write data to file
+	/// Write a data spill to file
 	bool Write(std::ofstream *file_, char *data_, unsigned int nWords_, int &buffs_written, int output_format_=0);
+	
+	/// Read a data spill from a file
+	bool Read(std::ifstream *file_, char *data_, unsigned int &nWords_, int file_format_=0);
 };
 
 /// A single EOF buffer signals the end of a run (pacman .ldf format). A double EOF signals the end of the .ldf file.
@@ -94,6 +135,9 @@ class EOF_buffer : public BufferType{
 	
 	/// EOF buffer (1 word buffer type, 1 word buffer size, and 8192 end of buffer words)
 	bool Write(std::ofstream *file_);
+
+	/// Read an EOF buffer from a file. Return false if buffer has the wrong header and return true otherwise
+	bool Read(std::ifstream *file_);
 };
 
 class PollOutputFile{
@@ -121,9 +165,9 @@ class PollOutputFile{
 	/// Get the full path of the current file
 	bool get_full_filename(std::string &output);
 
-	/// Overwrite the fourth word of the file with the total number of buffers and close the file
-	/// Returns false if no output file is open or if the number of 4 byte words in the file is not 
-	/// evenly divisible by the number of words in a buffer
+	/** Overwrite the fourth word of the file with the total number of buffers and close the file
+	  * Returns false if no output file is open or if the number of 4 byte words in the file is not 
+	  * evenly divisible by the number of words in a buffer */
 	bool overwrite_dir(int total_buffers_=-1);
 
 	/// Initialize the output file with initial parameters
@@ -160,8 +204,8 @@ class PollOutputFile{
 	// Return the size of the packet to be built (in bytes)
 	unsigned int GetPacketSize();
 
-	/// Build a data spill notification message for broadcast onto the network
-	/// Return the total number of bytes in the packet upon success, and -1 otherwise
+	/** Build a data spill notification message for broadcast onto the network
+	  * Return the total number of bytes in the packet upon success, and -1 otherwise */
 	int BuildPacket(char *output);
 
 	/// Close the current file, if one is open, and open a new file for data output
