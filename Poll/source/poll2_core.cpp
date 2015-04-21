@@ -392,7 +392,7 @@ void Poll::command_control(Terminal *poll_term_){
 				std::cout << "   Debug mode  - " << yesno(debug_mode) << std::endl;
 				std::cout << "   Initialized - " << yesno(init) << std::endl;
 			}
-			else if(cmd == "trun" || cmd == "run"){ // Tell POLL to start taking data
+			else if(cmd == "trun" || cmd == "run" || cmd == "start"){ // Tell POLL to start taking data
 				if(poll_running){ std::cout << sys_message_head << "Acquisition is already running\n"; }
 				if(do_MCA_run){ std::cout << sys_message_head << "Warning! cannot run acquisition while MCA program is running\n"; }
 				else{ start_run = true; }
@@ -645,9 +645,7 @@ void Poll::command_control(Terminal *poll_term_){
 				BitFlipper flipper;
 
 				if(p_args >= 3){ 
-					flipper.SetBit((unsigned int)atoi(arguments.at(2).c_str()));
-		
-					flipper.SetBit(arguments.at(3));
+					flipper.SetBit(arguments.at(2));
     
 					std::string dum_str = "CHANNEL_CSRA";
 					if(forChannel(pif, atoi(arguments.at(0).c_str()), atoi(arguments.at(1).c_str()), flipper, dum_str)){

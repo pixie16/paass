@@ -8,8 +8,8 @@
 #include "CTerminal.h"
 
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
-#define POLL_VERSION "1.1.11"
-#define POLL_DATE "April 20th, 2015"
+#define POLL_VERSION "1.1.12"
+#define POLL_DATE "April 21st, 2015"
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
