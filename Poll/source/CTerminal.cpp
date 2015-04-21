@@ -21,7 +21,7 @@
 
 #include "TermColors.h"
 
-#define CTERMINAL_VERSION "1.1.1";
+#define CTERMINAL_VERSION "1.1.2";
 
 #ifdef USE_NCURSES
 
@@ -617,6 +617,7 @@ std::string Terminal::GetCommand(){
 			wdelch(input_window);
 			//Remove character from cmd string
 			cmd.Pop(cursX - offset);
+			text_length = cmd.GetSize();
 		}
 		else if(keypress == KEY_IC){ cmd.ToggleInsertMode(); } // Insert key (331)
 		else if(keypress == KEY_HOME){ cursX = offset; }
