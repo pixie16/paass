@@ -8,6 +8,7 @@
 
 find_path(PXI_ROOT_DIR
 	NAMES software firmware dsp configuration 
+	HINTS ENV PXI_ROOT
 	PATHS /opt/PixieFirmware/current
 	DOC "Path to pixie firmware.")
 
