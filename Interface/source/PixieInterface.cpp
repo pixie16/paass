@@ -324,7 +324,7 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile)
   return goodBoot && !hadError;
 }
 
-bool PixieInterface::WriteSglModPar(const char *name, word_t val, int mod)
+bool PixieInterface::WriteSglModPar(const char *name, unsigned int val, int mod)
 {
   strncpy(tmpName, name, nameSize);
 

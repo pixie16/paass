@@ -4,6 +4,7 @@
 /********************************************************************/
 
 #include <iostream>
+#include <stdlib.h>
 
 #include "PixieSupport.h"
 
@@ -17,7 +18,7 @@ int main(int argc, char *argv[])
 
 	int mod = atoi(argv[1]);
 	int ch = atoi(argv[2]);
-	float value = atof(argv[4]);
+	double value = std::strtod(argv[4], NULL);
 
 	PixieInterface pif("pixie.cfg");
 

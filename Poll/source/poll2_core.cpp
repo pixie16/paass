@@ -6,6 +6,7 @@
 #include <fstream>
 #include <string>
 #include <string.h>
+#include <stdlib.h>
 #include <sstream>
 #include <ctime>
 
@@ -550,7 +551,7 @@ void Poll::command_control(Terminal *poll_term_){
 					else if(p_args >= 4){
 						int mod = atoi(arguments.at(0).c_str());
 						int ch = atoi(arguments.at(1).c_str());
-						float value = atof(arguments.at(3).c_str());
+						double value = std::strtod(arguments.at(3).c_str(), NULL);
 					
 						ParameterChannelWriter writer;
 						if(forChannel(pif, mod, ch, writer, make_pair(arguments.at(2), value))){ pif->SaveDSPParameters(); }
@@ -564,7 +565,7 @@ void Poll::command_control(Terminal *poll_term_){
 					if(p_args > 0 && arguments.at(0) == "help"){ pmod_help(); }
 					else if(p_args >= 3){
 						int mod = atoi(arguments.at(0).c_str());
-						unsigned long value = (unsigned long)atol(arguments.at(2).c_str());
+						unsigned int value = (unsigned int)std::strtoul(arguments.at(2).c_str(), NULL, 0);
 					
 						ParameterModuleWriter writer;
 						if(forModule(pif, mod, writer, make_pair(arguments.at(1), value))){ pif->SaveDSPParameters(); }

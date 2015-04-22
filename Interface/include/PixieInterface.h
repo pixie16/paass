@@ -92,7 +92,7 @@ class PixieInterface
   // wrappers to the pixie-16 app functions
   bool Init(bool offlineMode = false);
   bool Boot(int mode = 0x7f, bool useWorkingSetFile = false);
-  bool WriteSglModPar(const char *name, word_t val, int mod);
+  bool WriteSglModPar(const char *name, unsigned int val, int mod);
   bool ReadSglModPar(const char *name, word_t *pval, int mod);
   void PrintSglModPar(const char *name, int mod);
   bool WriteSglChanPar(const char *name, double val, int mod, int chan);
