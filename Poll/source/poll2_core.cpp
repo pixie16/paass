@@ -35,8 +35,8 @@ const std::string chan_params[21] = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP", "TRI
 									 "TRACE_DELAY", "VOFFSET", "XDT", "BASELINE_PERCENT", "EMIN", "BINFACTOR", "CHANNEL_CSRA", "CHANNEL_CSRB", "BLCUT",
 									 "ExternDelayLen", "ExtTrigStretch", "ChanTrigStretch", "FtrigoutDelay", "FASTTRIGBACKLEN"};
 
-const std::string mod_params[12] = {"MODULE_CSRA", "MODULE_CSRB", "MODULE_FORMAT", "MAX_EVENTS", "SYNCH_WAIT", "IN_SYNCH", "SLOW_FILTER_RANGE",
-									"FAST_FILTER_RANGE", "MODULE_NUMBER", "TrigConfig0", "TrigConfig1", "TrigConfig2"};
+std::vector<std::string> mod_params = {"MODULE_CSRA", "MODULE_CSRB", "MODULE_FORMAT", "MAX_EVENTS", "SYNCH_WAIT", "IN_SYNCH", "SLOW_FILTER_RANGE",
+									"FAST_FILTER_RANGE", "MODULE_NUMBER", "TrigConfig0", "TrigConfig1", "TrigConfig2","TrigConfig3"};
 
 MCA_args::MCA_args(){ Zero(); }
 	
@@ -294,7 +294,7 @@ void Poll::pchan_help(){
 /* Print help dialogue for reading/writing pixie module parameters. */
 void Poll::pmod_help(){
 	std::cout << "  Valid Pixie16 module parameters:\n";
-	for(unsigned int i = 0; i < 12; i++){
+	for(unsigned int i = 0; i < mod_params.size(); i++){
 		std::cout << "   " << mod_params[i] << "\n";
 	}
 }
@@ -531,7 +531,7 @@ void Poll::command_control(Terminal *poll_term_){
 				}
 
 				// Channel independent settings
-				for(unsigned int param = 0; param < 12; param++){
+				for(unsigned int param = 0; param < mod_params.size(); param++){
 					forModule(pif, -1, modReader, mod_params[param]);
 				}
 
