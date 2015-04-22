@@ -7,6 +7,8 @@
 
 #define NUM_TOGGLE_BITS 19
 
+extern bool hasColorTerm;
+
 template<typename T=int>
 struct PixieFunctionParms{
     PixieInterface *pif;
@@ -116,14 +118,14 @@ class BitFlipper : public PixieFunction<std::string>{
 	void CSRA_test(unsigned int input_);
 };
 
-class ParameterChannelWriter : public PixieFunction< std::pair<std::string, float> >{
+class ParameterChannelWriter : public PixieFunction< std::pair<std::string, double> >{
   public:
-	bool operator()(PixieFunctionParms< std::pair<std::string, float> > &par);
+	bool operator()(PixieFunctionParms< std::pair<std::string, double> > &par);
 };
 
-class ParameterModuleWriter : public PixieFunction< std::pair<std::string, unsigned long> >{
+class ParameterModuleWriter : public PixieFunction< std::pair<std::string, unsigned int> >{
   public:
-	bool operator()(PixieFunctionParms< std::pair<std::string, unsigned long> > &par);
+	bool operator()(PixieFunctionParms< std::pair<std::string, unsigned int> > &par);
 };
 
 class ParameterChannelReader : public PixieFunction<std::string>{

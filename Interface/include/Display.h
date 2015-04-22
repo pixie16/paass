@@ -5,6 +5,8 @@
 
 #include <string>
 
+#include "TermColors.h"
+
 namespace Display {
   void SetColorTerm(void);
 

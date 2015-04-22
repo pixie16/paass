@@ -1,6 +1,9 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <stdlib.h>
+
+#include "Display.h"
 
 #include "PixieSupport.h"
 #include "pixie16app_defs.h"
@@ -110,19 +113,39 @@ void BitFlipper::CSRA_test(unsigned int input_){
 	std::cout << " Input: 0x" << std::hex << input_ << " (" << std::dec << input_ << ")\n";
 	std::cout << "  Bit\tOn?\tValue\tTotal\tBit Function\n";
 
-	for(unsigned int i = 0; i < NUM_TOGGLE_BITS; i++){
-		if(active_bits[i]){ 
-			if(i < 10){ std::cout << "   0" << i << "\t1 \t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
-			else{ std::cout << "   " << i << "\t1 \t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
+	if(Display::hasColorTerm){
+		for(unsigned int i = 0; i < NUM_TOGGLE_BITS; i++){
+			if(active_bits[i]){ 
+				if(i < 10){ 
+					std::cout << TermColors::DkGreen << "   0" << i << "\t1\t" << bit_values[i] << "\t";
+					std::cout << running_total[i] << "\t" << csr_txt[i] << TermColors::Reset << std::endl; 
+				}
+				else{ 
+					std::cout << TermColors::DkGreen << "   " << i << "\t1\t" << bit_values[i] << "\t";
+					std::cout << running_total[i] << "\t" << csr_txt[i] << TermColors::Reset << std::endl; 
+				}
+			}
+			else{ 
+				if(i < 10){ std::cout << "   0" << i << "\t0\t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
+				else{ std::cout << "   " << i << "\t0\t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
+			}
 		}
-		else{ 
-			if(i < 10){ std::cout << "   0" << i << "\t0\t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
-			else{ std::cout << "   " << i << "\t0\t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
+	}
+	else{
+		for(unsigned int i = 0; i < NUM_TOGGLE_BITS; i++){
+			if(active_bits[i]){ 
+				if(i < 10){ std::cout << "   0" << i << "\t1\t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
+				else{ std::cout << "   " << i << "\t1\t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
+			}
+			else{ 
+				if(i < 10){ std::cout << "   0" << i << "\t0\t" << bit_values[i] << "\t" << std::cout << running_total[i] << "\t" << csr_txt[i] << std::endl; }
+				else{ std::cout << "   " << i << "\t0\t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
+			}
 		}
 	}
 }
 
-bool ParameterChannelWriter::operator()(PixieFunctionParms< std::pair<std::string, float> > &par){
+bool ParameterChannelWriter::operator()(PixieFunctionParms< std::pair<std::string, double> > &par){
 	if(par.pif->WriteSglChanPar(par.par.first.c_str(), par.par.second, par.mod, par.ch)){
 		par.pif->PrintSglChanPar(par.par.first.c_str(), par.mod, par.ch);
 		return true;
@@ -130,7 +153,7 @@ bool ParameterChannelWriter::operator()(PixieFunctionParms< std::pair<std::strin
 	return false;
 }
 
-bool ParameterModuleWriter::operator()(PixieFunctionParms< std::pair<std::string, unsigned long> > &par){
+bool ParameterModuleWriter::operator()(PixieFunctionParms< std::pair<std::string, unsigned int> > &par){
 	if(par.pif->WriteSglModPar(par.par.first.c_str(), par.par.second, par.mod)){
 		par.pif->PrintSglModPar(par.par.first.c_str(), par.mod);
 		return true;

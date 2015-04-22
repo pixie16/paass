@@ -4,6 +4,7 @@
 /********************************************************************/
 
 #include <iostream>
+#include <stdlib.h>
 
 #include "PixieSupport.h"
 
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
 	}
 
 	int mod = atoi(argv[1]);
-	unsigned long value = (unsigned long)atol(argv[3]);
+	unsigned int value = (unsigned int)std::strtoul(argv[3], NULL, 0);
 
 	PixieInterface pif("pixie.cfg");
 

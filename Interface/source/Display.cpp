@@ -4,7 +4,6 @@
 #include <cstdlib>
 
 #include "Display.h"
-#include "TermColors.h"
 
 using namespace std;
 

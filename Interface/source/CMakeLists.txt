@@ -5,6 +5,7 @@ add_library(PixieInterface STATIC ${Interface_SOURCES})
 #Order is important, PXI before PLX
 target_link_libraries(PixieInterface ${PXI_LIBRARIES} ${PLX_LIBRARIES})
 
-add_library(PixieSupport STATIC PixieSupport.cpp)
+set(Support_SOURCES PixieSupport.cpp Display.cpp)
+add_library(PixieSupport STATIC ${Support_SOURCES})
 
 add_library(Utility STATIC Utility.cpp)
