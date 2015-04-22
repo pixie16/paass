@@ -15,7 +15,10 @@ endforeach(UTIL)
 
 install(TARGETS ${SETUP_UTILS} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
-add_executable(paramScan paramScan.cpp)
-target_link_libraries(paramScan PixieInterface MCA_LIBRARY ${ROOT_LIBRARIES}
-"-lSpectrum")
-install(TARGETS paramScan DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+if(${USE_ROOT})
+	add_executable(paramScan paramScan.cpp)
+	target_link_libraries(paramScan PixieInterface MCA_LIBRARY ${ROOT_LIBRARIES}
+		"-lSpectrum")
+	install(TARGETS paramScan DESTINATION ${CMAKE_INSTALL_PREFIX})
+endif()
