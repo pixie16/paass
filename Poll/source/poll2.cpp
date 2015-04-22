@@ -164,7 +164,7 @@ int main(int argc, char *argv[]){
 	std::cout << " ##           ##   ##    ##    ##  ##    ##  ##\n";
 	std::cout << "####           #####    ######### ######### ###########\n";
 
-	std::cout << "\n POLL2 v" << POLL_VERSION << "\n"; 
+	std::cout << "\n POLL2 v" << POLL2_CORE_VERSION << "\n"; 
 	std::cout << " ==  ==  ==  ==  == \n\n"; 
 	
 	poll.threshWords = EXTERNAL_FIFO_LENGTH * threshPercent / 100;
@@ -221,7 +221,7 @@ int main(int argc, char *argv[]){
 
 	poll_term.Close();
 	//Reprint the leader as the carriage was returned
-	Display::LeaderPrint(std::string("Running poll2 v").append(POLL_VERSION));
+	Display::LeaderPrint(std::string("Running poll2 v").append(POLL2_CORE_VERSION));
 	std::cout << Display::OkayStr("[Done]") << std::endl;
 	
 #else
