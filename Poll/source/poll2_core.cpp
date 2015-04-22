@@ -344,6 +344,7 @@ void Poll::command_control(Terminal *poll_term_){
 				arg = cmd.substr(index+1, cmd.size()-index); // Get the argument from the full input string
 				cmd = cmd.substr(0, index); // Get the command from the full input string
 			}
+			else{ arg = ""; }
 
 			std::vector<std::string> arguments;
 			unsigned int p_args = split_str(arg, arguments);
@@ -369,8 +370,10 @@ void Poll::command_control(Terminal *poll_term_){
 			}
 			else if(cmd == "help" || cmd == "h"){ help(); }
 			else if(cmd == "version" || cmd == "v"){ 
-				std::cout << "  Poll v" << POLL_VERSION << " (" << POLL_DATE << ")\n"; 
-				std::cout << "   Cory R. Thornsberry\n";
+				std::cout << "  Poll2 Core    v" << POLL2_CORE_VERSION << " (" << POLL2_CORE_DATE << ")\n"; 
+				std::cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " (" << POLL2_SOCKET_DATE << ")\n"; 
+				std::cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION << " (" << HRIBF_BUFFERS_DATE << ")\n"; 
+				std::cout << "  CTerminal     v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
 			}
 			else if(cmd == "status"){
 				std::cout << "  Poll Run Status:\n";
@@ -678,6 +681,7 @@ void Poll::command_control(Terminal *poll_term_){
 
 #ifndef USE_NCURSES
 			cmd = "";
+			arg = "";
 			cmd_ready = false;
 #endif
 		}
@@ -1043,7 +1047,8 @@ void Poll::run_control(){
 					if(pif->CheckRunStatus(mod)){
 						std::cout << "Run not properly finished in module " << mod << std::endl;
 					}
-				}			
+				}
+				std::cout << std::endl;			
 			}
 		}
 		else{ 	

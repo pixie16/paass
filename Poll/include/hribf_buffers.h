@@ -3,6 +3,9 @@
 
 #include <fstream>
 
+#define HRIBF_BUFFERS_VERSION "1.1.00"
+#define HRIBF_BUFFERS_DATE "April 21st, 2015"
+
 class BufferType{
   protected:
 	int bufftype;

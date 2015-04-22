@@ -17,6 +17,9 @@
 
 #include <netinet/in.h>
 
+#define POLL2_SOCKET_VERSION "1.1.00"
+#define POLL2_SOCKET_DATE "April 22nd, 2015"
+
 class Server{
   private:
 	int sock, length, n;

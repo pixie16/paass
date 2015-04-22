@@ -8,6 +8,9 @@
 ///Default size of terminal scroll back buffer in lines.
 #define SCROLLBACK_SIZE 1000
 
+#define CTERMINAL_VERSION "1.1.03"
+#define CTERMINAL_DATE "April 22nd, 2015"
+
 #ifdef USE_NCURSES
 
 #include <curses.h>
@@ -75,10 +78,8 @@ class CommandHolder{
 	std::string *commands;
 	std::string fragment;
 
-	void inc_ext_index_();
-	
-	void dec_ext_index_();
-	
+	/** Convert the external index (relative to the most recent command) to the internal index
+	  * which is used to actually access the stored commands in the command array. */
 	unsigned int wrap_();
 
   public:		
@@ -92,22 +93,37 @@ class CommandHolder{
 	
 	~CommandHolder(){ delete[] commands; }
 	
+	/// Get the maximum size of the command array
 	unsigned int GetSize(){ return max_size; }
 	
+	/// Get the total number of commands
 	unsigned int GetTotal(){ return total; }
 	
+	/// Get the current command index (relative to the most recent command)
 	unsigned int GetIndex(){ return external_index; }
 	
+	/// Push a new command into the storage array
 	void Push(const std::string &input_);
 	
+	/// Capture the current command line text and store it for later use
 	void Capture(const std::string &input_){ fragment = input_; }
 		
+	/// Clear the command array
 	void Clear();
 	
+	/// Get the previous command entry
 	std::string GetPrev();
+
+	/// Get the next command entry but do not change the internal array index
+	std::string PeekPrev();
 	
+	/// Get the next command entry
 	std::string GetNext();
+
+	/// Get the next command entry but do not change the internal array index
+	std::string PeekNext();
 	
+	/// Dump all stored commands to the screen
 	void Dump();
 };
 
@@ -126,24 +142,31 @@ class CommandString{
 		insert_mode = false;
 	}
 	
+	/// Return the current "insert character" mode
 	bool GetInsertMode(){ return insert_mode; }
 	
+	/// Toggle "insert character" mode on or off
 	void ToggleInsertMode(){
 		if(insert_mode){ insert_mode = false; }
 		else{ insert_mode = true; }
 	}
 	
+	/// Return the size of the command string
 	unsigned int GetSize(){ return command.size(); }
 	
+	/// Return the command string
 	std::string Get(size_t size_=std::string::npos){ return command.substr(0, size_); }
 	
-	///Set the string the the specified input.
+	/// Set the string the the specified input.
 	void Set(std::string input_){ command = input_; }	
-	///Put a character into string at specified position.
+	
+	/// Put a character into string at specified position.
 	void Put(const char ch_, int index_);
-	///Remove a character from the string.
+	
+	/// Remove a character from the string.
 	void Pop(int index_);
-	///Clear the string.
+	
+	/// Clear the string.
 	void Clear(){ command = ""; }
 };
 
@@ -175,9 +198,11 @@ class Terminal{
 	int cursX, cursY;
 	int offset;
 	int _winSizeX,_winSizeY;
-	///Size of the scroll back buffer in lines.
+	
+	/// Size of the scroll back buffer in lines.
 	int _scrollbackBufferSize;
-	///Number of lines scrolled back
+	
+	/// Number of lines scrolled back
 	int _scrollPosition;
 	
 	/// Refresh the terminal
@@ -218,8 +243,8 @@ class Terminal{
 	/// Initialize the terminal interface with a list of previous commands
 	void Initialize(std::string cmd_fname_);
 		
-	/// Set the command filename for storing previous commands
-	/// This command will clear all current commands from the history if overwrite_ is set to true
+	/** Set the command filename for storing previous commands This command will 
+	  * clear all current commands from the history if overwrite_ is set to true. */
 	void SetCommandFilename(std::string input_, bool overwrite_=false);
 		
 	/// Set the command prompt

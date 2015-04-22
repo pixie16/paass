@@ -21,8 +21,6 @@
 
 #include "TermColors.h"
 
-#define CTERMINAL_VERSION "1.1.2";
-
 #ifdef USE_NCURSES
 
 bool SIGNAL_INTERRUPT = false;
@@ -43,7 +41,7 @@ void dummy_help(){}
 // CLoption
 ///////////////////////////////////////////////////////////////////////////////
 
-/* Parse all command line entries and find valid options. */
+/// Parse all command line entries and find valid options.
 bool get_opt(int argc_, char **argv_, CLoption *options, unsigned int num_valid_opt_, void (*help_)()/*=dummy_help*/){
 	unsigned int index = 1;
 	unsigned int previous_opt;
@@ -126,7 +124,7 @@ bool get_opt(int argc_, char **argv_, CLoption *options, unsigned int num_valid_
 	return true;
 }
 
-/* Return the length of a character string. */
+/// Return the length of a character string.
 unsigned int cstrlen(const char *str_){
 	unsigned int output = 0;
 	while(true){
@@ -136,7 +134,7 @@ unsigned int cstrlen(const char *str_){
 	return output;
 }
 
-/* Extract a string from a character array. */
+/// Extract a string from a character array.
 std::string csubstr(char *str_, unsigned int start_index_/*=0*/){
 	std::string output = "";
 	unsigned int index = start_index_;
@@ -151,6 +149,7 @@ std::string csubstr(char *str_, unsigned int start_index_/*=0*/){
 // CommandHolder
 ///////////////////////////////////////////////////////////////////////////////
 
+/// Push a new command into the storage array
 void CommandHolder::Push(const std::string &input_){
 	commands[index] = input_;
 	total++;
@@ -160,12 +159,15 @@ void CommandHolder::Push(const std::string &input_){
 	if(index >= max_size){ index = 0; }
 }
 
+/// Clear the command array
 void CommandHolder::Clear(){
 	for(unsigned int i = 0; i < max_size; i++){
 		commands[i] = "";
 	}
 }
 
+/** Convert the external index (relative to the most recent command) to the internal index
+  * which is used to actually access the stored commands in the command array. */
 unsigned int CommandHolder::wrap_(){
 	if(index < external_index){
 		unsigned int temp = (external_index - index) % max_size;
@@ -178,7 +180,7 @@ unsigned int CommandHolder::wrap_(){
 	return (index - external_index);
 }
 
-// Get the previous command entry
+/// Get the previous command entry
 std::string CommandHolder::GetPrev(){
 	if(total == 0){ return "NULL"; }
 
@@ -193,7 +195,15 @@ std::string CommandHolder::GetPrev(){
 	return commands[wrap_()];
 }
 
-// Get the next command entry
+/// Get the previous command entry but do not change the internal array index
+std::string CommandHolder::PeekPrev(){
+	if(total == 0){ return "NULL"; }
+	
+	if(index == 0){ return commands[max_size-1]; }
+	return commands[index-1];
+}
+
+/// Get the next command entry
 std::string CommandHolder::GetNext(){
 	if(total == 0){ return "NULL"; }
 
@@ -205,9 +215,18 @@ std::string CommandHolder::GetNext(){
 	return commands[wrap_()]; 
 }
 
+/// Get the next command entry but do not change the internal array index
+std::string CommandHolder::PeekNext(){
+	if(total == 0){ return "NULL"; }
+	
+	if(index == max_size-1){ return commands[0]; }
+	return commands[index+1];
+}
+
+/// Dump all stored commands to the screen
 void CommandHolder::Dump(){
 	for(unsigned int i = 0; i < max_size; i++){
-		std::cout << " " << i << ": " << commands[i] << std::endl;
+		if(commands[i] != ""){ std::cout << " " << i << ": " << commands[i] << std::endl; }
 	}
 }
 
@@ -215,6 +234,7 @@ void CommandHolder::Dump(){
 // CommandString
 ///////////////////////////////////////////////////////////////////////////////
 
+/// Put a character into string at specified position.
 void CommandString::Put(const char ch_, int index_){
 	if(index_ < 0){ return; }
 	else if(index_ < command.size()){ // Overwrite or insert a character
@@ -224,6 +244,7 @@ void CommandString::Put(const char ch_, int index_){
 	else{ command.push_back(ch_); } // Appending to the back of the string
 }
 
+/// Remove a character from the string.
 void CommandString::Pop(int index_){
 	if(index_ < 0){ return ; }
 	else if(index_ < command.size()){ // Pop a character out of the string
@@ -439,7 +460,7 @@ void Terminal::Initialize(){
 		fprintf(stderr, " Error: failed to initialize ncurses!\n");
 	}
 	else{		
-   	getmaxyx(stdscr, _winSizeY, _winSizeX);
+   		getmaxyx(stdscr, _winSizeY, _winSizeX);
 		output_window = newpad(_scrollbackBufferSize, _winSizeX);
 		prefresh(output_window, _scrollbackBufferSize - _winSizeY, 0, 0, 0, _winSizeY, _winSizeX);
 		input_window = newwin(1, _winSizeX, _winSizeY-1, 0);
@@ -565,9 +586,12 @@ std::string Terminal::GetCommand(){
 	
 		// Check for internal commands
 		if(keypress == 10){ // Enter key (10)
-			if(cmd.Get() != ""){ 
-				commands.Push(cmd.Get());
-				output = cmd.Get();
+			std::string temp_cmd = cmd.Get();
+			if(temp_cmd != ""){ 
+				if(temp_cmd != commands.PeekPrev()){ // Only save this command if it is different than the previous command
+					commands.Push(temp_cmd);
+				}
+				output = temp_cmd;
 				text_length = 0;
 				_scrollPosition = 0;
 				break;
@@ -641,7 +665,7 @@ std::string Terminal::GetCommand(){
 		else{ 
 			in_char_((char)keypress); 
 			cmd.Put((char)keypress, cursX - offset - 1);
-			if(cursX >= text_length + offset){ text_length++; }
+			text_length = cmd.GetSize();
 			continue;
 		}
 		
