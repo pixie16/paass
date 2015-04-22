@@ -9,8 +9,9 @@
 
 find_path(PLX_LIBRARY_DIR
 	NAMES libPlxApi.a
+	HINTS $ENV{PLX_SDK_DIR}/PlxApi/Library
 	PATHS /opt/PLX/current/PlxSdk/PlxApi/Library
-			/opt/PLX/current/PlxSdk/Linux/PlxApi/Library)
+	      /opt/PLX/current/PlxSdk/Linux/PlxApi/Library)
 
 # Support the REQUIRED and QUIET arguments, and set PUGIXML_FOUND if found.
 include (FindPackageHandleStandardArgs)
