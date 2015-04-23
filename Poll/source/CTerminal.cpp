@@ -24,6 +24,7 @@
 #ifdef USE_NCURSES
 
 bool SIGNAL_INTERRUPT = false;
+bool SIGNAL_RESIZE = false;
 
 #endif
 
@@ -263,6 +264,11 @@ void sig_int_handler(int ignore_){
 	SIGNAL_INTERRUPT = true;
 }
 
+void signalResize(int ignore_) {
+	SIGNAL_RESIZE = true;
+}
+
+
 // Setup the interrupt signal intercept
 void setup_signal_handlers(){ 
 	if(signal(SIGINT, SIG_IGN) != SIG_IGN){	
@@ -270,15 +276,40 @@ void setup_signal_handlers(){
 			throw std::runtime_error(" Error setting up signal handler!");
 		}
 	}
+
+	//Handle resize signal
+	signal(SIGWINCH, signalResize);
+
+}
+void Terminal::resize_() {
+	//end session and then refresh to get new window sizes.
+	endwin();
+	refresh();
+	//Get new window sizes
+	getmaxyx(stdscr, _winSizeY, _winSizeX);
+
+	//Make pad bigger if needed.
+	int outputSizeY, outputSizeX;
+	getmaxyx(output_window,outputSizeY,outputSizeX);
+	if (outputSizeX < _winSizeX) {
+		wresize(output_window,_scrollbackBufferSize,_winSizeX);
+		wresize(input_window,1,_winSizeX);
+	}
+
+	//Mark resize as handled
+	SIGNAL_RESIZE = false;
 }
 
 void Terminal::refresh_(){
 	if(!init){ return; }
-	prefresh(output_window, 
+	if (SIGNAL_RESIZE) resize_();
+	
+	pnoutrefresh(output_window, 
 		_scrollbackBufferSize - _winSizeY - _scrollPosition, 0,  //Pad corner to be placed in top left 
-		 0, 0, _winSizeY - 2, _winSizeX); //Size of window
-	wrefresh(input_window);
-	refresh();
+		 0, 0, _winSizeY - 2, _winSizeX-1); //Size of window
+	pnoutrefresh(input_window,0,0, _winSizeY-1, 0,_winSizeY,_winSizeX-1);
+	doupdate();
+	
 }
 
 void Terminal::scroll_(int numLines){
@@ -448,7 +479,7 @@ Terminal::~Terminal(){
 
 void Terminal::Initialize(){
 	if(init){ return; }
-
+	
 	original = std::cout.rdbuf(); // Back-up cout's streambuf
 	pbuf = stream.rdbuf(); // Get stream's streambuf
 	std::cout.flush();
@@ -463,8 +494,7 @@ void Terminal::Initialize(){
 	else{		
    		getmaxyx(stdscr, _winSizeY, _winSizeX);
 		output_window = newpad(_scrollbackBufferSize, _winSizeX);
-		prefresh(output_window, _scrollbackBufferSize - _winSizeY, 0, 0, 0, _winSizeY, _winSizeX);
-		input_window = newwin(1, _winSizeX, _winSizeY-1, 0);
+		input_window = newpad(1, _winSizeX);
 		wmove(output_window, _scrollbackBufferSize-1, 0); // Set the output cursor at the bottom so that new text will scroll up
 		
 		halfdelay(5); // Timeout after 5/10 of a second
@@ -663,6 +693,10 @@ std::string Terminal::GetCommand(){
 					break;
 			}
 		}	
+		else if(keypress == KEY_RESIZE) {
+			//Get rid of resize key
+			continue;
+		}
 		else{ 
 			in_char_((char)keypress); 
 			cmd.Put((char)keypress, cursX - offset - 1);
