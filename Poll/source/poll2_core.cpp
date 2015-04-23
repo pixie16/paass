@@ -451,7 +451,7 @@ void Poll::command_control(Terminal *poll_term_){
 				output_title = arg; 
 				std::cout << sys_message_head << "Set run title to '" << output_title << "'\n";
 			} 
-			else if(cmd == "hnum"){ // Tell POLL to attempt a PIXIE crate reboot
+			else if(cmd == "hnum"){ // Change the run number to the specified value
 				output_run_num = atoi(arg.c_str()); 
 				std::cout << sys_message_head << "Set run number to '" << output_run_num << "'\n";
 			} 
