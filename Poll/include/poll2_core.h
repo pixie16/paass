@@ -5,8 +5,6 @@
 
 #include "PixieInterface.h"
 #include "hribf_buffers.h"
-#include "CTerminal.h"
-
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
 #define POLL2_CORE_VERSION "1.1.14"
@@ -29,6 +27,7 @@ struct MCA_args{
 // Forward class declarations
 class StatsHandler;
 class Client;
+class Terminal;
 
 class Poll{
   public:

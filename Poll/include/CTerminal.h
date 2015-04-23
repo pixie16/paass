@@ -256,6 +256,9 @@ class Terminal{
 	/// Force a character to the output screen
 	void putch(const char input_);
 
+	/// Disrupt ncurses while boolean is true
+	void pause(bool &flag);
+
 	/// Force a character string to the output screen
 	void print(std::string input_);
 			
