@@ -103,7 +103,7 @@ class CommandHolder{
 	unsigned int GetIndex(){ return external_index; }
 	
 	/// Push a new command into the storage array
-	void Push(const std::string &input_);
+	void Push(std::string &input_);
 	
 	/// Capture the current command line text and store it for later use
 	void Capture(const std::string &input_){ fragment = input_; }

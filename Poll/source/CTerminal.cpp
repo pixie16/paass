@@ -150,7 +150,8 @@ std::string csubstr(char *str_, unsigned int start_index_/*=0*/){
 ///////////////////////////////////////////////////////////////////////////////
 
 /// Push a new command into the storage array
-void CommandHolder::Push(const std::string &input_){
+void CommandHolder::Push(std::string &input_){
+	input_.erase(input_.find_last_not_of(" \n\t\r")+1);
 	commands[index] = input_;
 	total++;
 	index++;
