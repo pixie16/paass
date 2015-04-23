@@ -18,6 +18,7 @@
 #include "poll2_core.h"
 #include "Display.h"
 #include "StatsHandler.hpp"
+#include "CTerminal.h"
 
 #ifndef USE_NCURSES
 

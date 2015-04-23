@@ -17,6 +17,8 @@
 #include "poll2_core.h"
 #include "poll2_socket.h"
 
+#include "CTerminal.h"
+
 // Interface for the PIXIE-16
 #include "PixieSupport.h"
 #include "Utility.h"
@@ -409,7 +411,9 @@ void Poll::command_control(Terminal *poll_term_){
 			else if(cmd == "reboot"){ // Tell POLL to attempt a PIXIE crate reboot
 				if(do_MCA_run){ std::cout << sys_message_head << "Warning! cannot reboot while MCA is running\n"; }
 				else if(poll_running || do_MCA_run){ std::cout << sys_message_head << "Warning! cannot reboot while acquisition running\n"; }
-				else{ do_reboot = true; }
+				else{ do_reboot = true; 
+					poll_term_->pause(do_reboot);
+				}
 			}
 			else if(cmd == "clo" || cmd == "close"){ // Tell POLL to close the current data file
 				if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
@@ -711,6 +715,8 @@ void Poll::run_control(){
 			else{
 				std::cout << sys_message_head << "Attempting PIXIE crate reboot\n";
 				pif->Boot(PixieInterface::BootAll);
+				printf("Press any key to continue...");
+				std::cin.get();
 				do_reboot = false;
 			}
 		}

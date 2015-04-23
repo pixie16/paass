@@ -300,6 +300,16 @@ void Terminal::resize_() {
 	SIGNAL_RESIZE = false;
 }
 
+void Terminal::pause(bool &flag) {
+	endwin();
+	std::cout.rdbuf(original); // Restore cout's original streambuf
+	setvbuf(stdout,NULL,_IOLBF,0); //Change to line buffering
+	while (flag) sleep(1);
+	std::cout.rdbuf(pbuf); // Restore cout's original streambuf
+	refresh_();
+}
+
+
 void Terminal::refresh_(){
 	if(!init){ return; }
 	if (SIGNAL_RESIZE) resize_();
