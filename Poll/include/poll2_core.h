@@ -7,8 +7,8 @@
 #include "hribf_buffers.h"
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.1.14"
-#define POLL2_CORE_DATE "April 22nd, 2015"
+#define POLL2_CORE_VERSION "1.1.15"
+#define POLL2_CORE_DATE "April 23rd, 2015"
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
@@ -42,11 +42,12 @@ class Poll{
 	// System flags and variables
 	std::string sys_message_head; /// Command line message header
 	bool kill_all; /// Set to true when the program is exiting
-	bool start_run; /// Set to true when the command is given to start a run
-	bool stop_run; /// Set to true when the command is given to stop a run
+	bool start_acq; /// Set to true when the command is given to start a run
+	bool stop_acq; /// Set to true when the command is given to stop a run
+	bool record_data; /// Set to true if data is to be recorded to disk
 	bool do_reboot; /// Set to true when the user tells POLL to reboot PIXIE
 	bool force_spill; /// Force poll2 to dump the current data spill
-	bool poll_running; /// Set to true when run_command is recieving data from PIXIE
+	bool acq_running; /// Set to true when run_command is recieving data from PIXIE
 	bool run_ctrl_exit; /// Set to true when run_command exits
 	time_t raw_time;
 
