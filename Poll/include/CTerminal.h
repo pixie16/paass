@@ -208,6 +208,9 @@ class Terminal{
 	/// Refresh the terminal
 	void refresh_();
 
+	/// Resize the terminal
+	void resize_();
+
 	/// Scroll the output by a specified number of lines.
 	void scroll_(int numLines);
 	
