@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 #include <stdlib.h>
 
 #include "Display.h"
@@ -9,18 +8,27 @@
 #include "pixie16app_defs.h"
 #include "pixie16app_export.h"
 
-bool BitFlipper::operator()(PixieFunctionParms<std::string> &par){
-	if(bit >= NUM_TOGGLE_BITS){ return false; }
+std::string PadStr(const std::string &input_, int width_){
+	std::string output = input_;
+	for(int i = output.size(); i < width_; i++){
+		output += ' ';
+	}
+	
+	return output;
+}
 
-	bool active_bits[NUM_TOGGLE_BITS];
-	int bit_values[NUM_TOGGLE_BITS];
+bool BitFlipper::operator()(PixieFunctionParms<std::string> &par){
+	if(bit >= num_toggle_bits){ return false; }
+
+	bool active_bits[num_toggle_bits];
+	int bit_values[num_toggle_bits];
 	int count = 1;
 
 	double value;
 	par.pif->ReadSglChanPar(par.par.c_str(), &value, par.mod, par.ch);
 	
 	int old_csra = (int)value;
-	for(unsigned int i = 0; i < NUM_TOGGLE_BITS; i++){
+	for(unsigned int i = 0; i < num_toggle_bits; i++){
 		bit_values[i] = count; count *= 2;
 		if(old_csra & (1 << i)){ active_bits[i] = true; }
 		else{ active_bits[i] = false; }
@@ -43,22 +51,22 @@ bool BitFlipper::operator()(PixieFunctionParms<std::string> &par){
 }
 
 #ifdef PIF_REVA
-const std::string BitFlipper::toggle_names[NUM_TOGGLE_BITS] = {"group", "live", "good", "read", "trigger", "polarity", "GFLT", "", "", 
-															   "", "", "", "", "", "gain", "", "", "", ""};
-const std::string BitFlipper::csr_txt[NUM_TOGGLE_BITS] = {"Respond to group triggers only", "Measure individual live time", "Good Channel", "Read always", "Enable trigger", 
-														  "Trigger positive", "GFLT", "", "", "", "", "", "", "", "HI/LO gain", "", "", "", ""};
+const std::string BitFlipper::toggle_names[19] = {"group", "live", "good", "read", "trigger", "polarity", "GFLT", "", "", 
+												  "", "", "", "", "", "gain", "", "", "", ""};
+const std::string BitFlipper::csr_txt[19] = {"Respond to group triggers only", "Measure individual live time", "Good Channel", "Read always", "Enable trigger", 
+											 "Trigger positive", "GFLT", "", "", "", "", "", "", "", "HI/LO gain", "", "", "", ""};
 #else
-const std::string BitFlipper::toggle_names[NUM_TOGGLE_BITS] = {"", "", "good", "", "", "polarity", "", "", "trace", "QDC", "CFD", 
-															   "global", "raw", "trigger", "gain", "pileup", "catcher", "", "SHE"};
-const std::string BitFlipper::csr_txt[NUM_TOGGLE_BITS] = {"", "", "Good Channel", "", "", "Trigger positive", "", "", "Enable trace capture", "Enable QDC sums capture", 
-														  "Enable CFD trigger mode", "Enable global trigger validation", "Enable raw energy sums capture", 
-														  "Enable channel trigger validation", "HI/LO gain", "Pileup rejection control", "Hybrid bit", "", 
-														  "SHE single trace capture"};
+const std::string BitFlipper::toggle_names[19] = {"", "", "good", "", "", "polarity", "", "", "trace", "QDC", "CFD", 
+											      "global", "raw", "trigger", "gain", "pileup", "catcher", "", "SHE"};
+const std::string BitFlipper::csr_txt[19] = {"", "", "Good Channel", "", "", "Trigger positive", "", "", "Enable trace capture", "Enable QDC sums capture", 
+										     "Enable CFD trigger mode", "Enable global trigger validation", "Enable raw energy sums capture", 
+											 "Enable channel trigger validation", "HI/LO gain", "Pileup rejection control", "Hybrid bit", "", 
+											 "SHE single trace capture"};
 #endif
 
 void BitFlipper::Help(){
 	std::cout << " Valid CSRA bits:\n";
-	for(unsigned int i = 0; i < NUM_TOGGLE_BITS; i++){
+	for(unsigned int i = 0; i < num_toggle_bits; i++){
 		if(toggle_names[i] != ""){
 			if(i < 10){ std::cout << "  0" << i << " - " << toggle_names[i] << std::endl; }
 			else{ std::cout << "  " << i << " - " << toggle_names[i] << std::endl; }
@@ -70,16 +78,10 @@ void BitFlipper::Help(){
 	}
 }
 
-void BitFlipper::SetBit(char *bit_){
-	std::stringstream stream;
-	stream << bit_;
-	SetBit(stream.str());
-}
-
-void BitFlipper::SetBit(std::string bit_){
+void BitFlipper::SetCSRAbit(std::string bit_){
 	SetBit(atoi(bit_.c_str()));
 	
-	for(unsigned int i = 0; i < NUM_TOGGLE_BITS; i++){
+	for(unsigned int i = 0; i < num_toggle_bits; i++){
     	if(bit_ == toggle_names[i]){
     		SetBit(i);
     		break;
@@ -87,15 +89,25 @@ void BitFlipper::SetBit(std::string bit_){
     }
 }
 
-void BitFlipper::CSRA_test(unsigned int input_){
-	bool active_bits[NUM_TOGGLE_BITS];
-	int bit_values[NUM_TOGGLE_BITS];
-	int running_total[NUM_TOGGLE_BITS];
-	
-	int total = 0;
-	int count = 1;
+void BitFlipper::SetBit(std::string bit_){
+	SetBit(std::strtoul(bit_.c_str(), NULL, 0));
+}
 
-	for(unsigned int i = 0; i < NUM_TOGGLE_BITS; i++){
+void BitFlipper::CSRAtest(unsigned int input_){
+	Test(19, input_, csr_txt);
+}
+
+bool BitFlipper::Test(unsigned int num_bits_, unsigned int input_, const std::string *text_/*=NULL*/){
+	if(num_bits_ > 32){ return false; } // Too many bits for unsigned int
+	
+	bool active_bits[num_bits_];
+	unsigned int bit_values[num_bits_];
+	unsigned int running_total[num_bits_];
+	
+	unsigned int total = 0;
+	unsigned int count = 1;
+
+	for(unsigned int i = 0; i < num_bits_; i++){
 		bit_values[i] = count;
 		if(input_ & (1 << i)){ 
 			active_bits[i] = true; 
@@ -109,40 +121,45 @@ void BitFlipper::CSRA_test(unsigned int input_){
 		}
 		count *= 2;
 	}
-
+	
 	std::cout << " Input: 0x" << std::hex << input_ << " (" << std::dec << input_ << ")\n";
-	std::cout << "  Bit\tOn?\tValue\tTotal\tBit Function\n";
+	if(text_ != NULL){ std::cout << "  Bit   On?    Value       Total    Bit Function\n"; }
+	else{ std::cout << "  Bit   On?    Value       Total\n"; }
 
-	if(Display::hasColorTerm){
-		for(unsigned int i = 0; i < NUM_TOGGLE_BITS; i++){
-			if(active_bits[i]){ 
+	std::string bit_function;
+	for(unsigned int i = 0; i < num_bits_; i++){
+		if(text_ != NULL){ bit_function = csr_txt[i]; }
+		else{ bit_function = ""; }
+		
+		if(active_bits[i]){ 
+			if(Display::hasColorTerm){
 				if(i < 10){ 
-					std::cout << TermColors::DkGreen << "   0" << i << "\t1\t" << bit_values[i] << "\t";
-					std::cout << running_total[i] << "\t" << csr_txt[i] << TermColors::Reset << std::endl; 
+					std::cout << TermColors::DkGreen << "   0" << i << "    1  " << PadStr(bit_values[i], 12);
+					std::cout << PadStr(running_total[i], 12) << bit_function << TermColors::Reset << std::endl; 
 				}
 				else{ 
-					std::cout << TermColors::DkGreen << "   " << i << "\t1\t" << bit_values[i] << "\t";
-					std::cout << running_total[i] << "\t" << csr_txt[i] << TermColors::Reset << std::endl; 
+					std::cout << TermColors::DkGreen << "   " << i << "    1  " << PadStr(bit_values[i], 12);
+					std::cout << PadStr(running_total[i], 12) << bit_function << TermColors::Reset << std::endl;
 				}
 			}
+			else{
+				if(i < 10){ std::cout << "   " << i << "    1  " << PadStr(bit_values[i], 12) << PadStr(running_total[i], 12) << bit_function << std::endl; }
+				else{ std::cout << "   " << i << "    1  " << PadStr(bit_values[i], 12) << PadStr(running_total[i], 12) << bit_function << std::endl; }
+			}
+		}
+		else{ 
+			if(i < 10){ 
+				std::cout << "   0" << i << "    0  " << PadStr(bit_values[i], 12);
+				std::cout << PadStr(running_total[i], 12) << bit_function << std::endl; 
+			}
 			else{ 
-				if(i < 10){ std::cout << "   0" << i << "\t0\t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
-				else{ std::cout << "   " << i << "\t0\t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
+				std::cout << "   " << i << "    0  " << PadStr(bit_values[i], 12);
+				std::cout << PadStr(running_total[i], 12) << bit_function << std::endl; 
 			}
 		}
 	}
-	else{
-		for(unsigned int i = 0; i < NUM_TOGGLE_BITS; i++){
-			if(active_bits[i]){ 
-				if(i < 10){ std::cout << "   0" << i << "\t1\t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
-				else{ std::cout << "   " << i << "\t1\t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
-			}
-			else{ 
-				if(i < 10){ std::cout << "   0" << i << "\t0\t" << bit_values[i] << "\t" << std::cout << running_total[i] << "\t" << csr_txt[i] << std::endl; }
-				else{ std::cout << "   " << i << "\t0\t" << bit_values[i] << "\t" << running_total[i] << "\t" << csr_txt[i] << std::endl; }
-			}
-		}
-	}
+	
+	return true;
 }
 
 bool ParameterChannelWriter::operator()(PixieFunctionParms< std::pair<std::string, double> > &par){

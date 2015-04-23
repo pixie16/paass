@@ -2,10 +2,9 @@
 #define PIXIE_SUPPORT_H
 
 #include <string>
+#include <sstream>
 
 #include "PixieInterface.h"
-
-#define NUM_TOGGLE_BITS 19
 
 extern bool hasColorTerm;
 
@@ -25,18 +24,6 @@ class PixieFunction : public std::unary_function<bool, struct PixieFunctionParms
     virtual bool operator()(struct PixieFunctionParms<T> &par) = 0;
     virtual ~PixieFunction() {};
 };
-
-/*template<typename T>
-bool forModule(PixieInterface &pif, int mod, 
-	       PixieFunction<T> &f, T par = T() );
-template<typename T>
-bool forChannel(PixieInterface &pif, int mod, int ch, 
-		PixieFunction<T> &f, T par = T() );*/
-
-// implementation follows
-// perform the function for the specified module and channel
-//   except if the channel < 0, do for all channels
-//   or if the module < 0, do for all modules
 
 template<typename T>
 bool forChannel(PixieInterface *pif, int mod, int ch, PixieFunction<T> &f, T par){
@@ -93,29 +80,53 @@ bool forModule(PixieInterface *pif, int mod, PixieFunction<T> &f, T par)
 	return !hadError;
 }
 
+std::string PadStr(const std::string &input_, int width_);
+
+template<typename T>
+std::string PadStr(const T &input_, int width_){
+	std::stringstream stream;
+	stream << input_;
+	
+	std::string output = stream.str();
+	for(int i = output.size(); i < width_; i++){
+		output += ' ';
+	}
+	
+	return output;
+}
+
 class BitFlipper : public PixieFunction<std::string>{
   private:
+  	unsigned int num_toggle_bits;
 	unsigned int bit;
 
 	bool operator()(PixieFunctionParms<std::string> &par);
 
   public:
-	static const std::string toggle_names[NUM_TOGGLE_BITS];
-	static const std::string csr_txt[NUM_TOGGLE_BITS];
+	static const std::string toggle_names[19];
+	static const std::string csr_txt[19];
 
-	BitFlipper(){ bit = 0; }
+	BitFlipper(){ 
+		bit = 0; 
+		num_toggle_bits = 19;
+	}
 	
-	BitFlipper(unsigned int bit_){ bit = bit_; }
+	BitFlipper(unsigned int bit_, unsigned int num_toggle_bits_=19){ 
+		bit = bit_; 
+		num_toggle_bits = num_toggle_bits_;
+	}
 	
 	void Help();
 	
 	void SetBit(unsigned int bit_){ bit = bit_; }
 	
-	void SetBit(char *bit_);	
+	void SetBit(std::string bit_);	
 	
-	void SetBit(std::string bit_);
+	void SetCSRAbit(std::string bit_);
 	
-	void CSRA_test(unsigned int input_);
+	void CSRAtest(unsigned int input_);
+	
+	bool Test(unsigned int num_bits_, unsigned int input_, const std::string *text_=NULL);
 };
 
 class ParameterChannelWriter : public PixieFunction< std::pair<std::string, double> >{

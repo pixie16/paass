@@ -63,11 +63,12 @@ Poll::Poll(){
 	// System flags and variables
 	sys_message_head = " POLL: ";
 	kill_all = false; // Set to true when the program is exiting
-	start_run = false; // Set to true when the command is given to start a run
-	stop_run = false; // Set to true when the command is given to stop a run
+	start_acq = false; // Set to true when the command is given to start a run
+	stop_acq = false; // Set to true when the command is given to stop a run
+	record_data = false; // Set to true if data is to be recorded to disk
 	do_reboot = false; // Set to true when the user tells POLL to reboot PIXIE
 	force_spill = false; // Force poll2 to dump the current data spill
-	poll_running = false; // Set to true when run_command is recieving data from PIXIE
+	acq_running = false; // Set to true when run_command is recieving data from PIXIE
 	run_ctrl_exit = false; // Set to true when run_command exits
 	do_MCA_run = false; // Set to true when the "mca" command is received
 	raw_time = 0;
@@ -198,16 +199,16 @@ bool Poll::close(){
 /* Safely close current data file if one is open. */
 bool Poll::close_output_file(){
 	if(output_file.IsOpen()){ // A file is already open and must be closed
-		if(poll_running){
-			std::cout << sys_message_head << "Warning! attempted to close file while acquisition running.\n";
+		if(acq_running){
+			std::cout << sys_message_head << "Warning! Attempted to close file while acquisition running.\n";
 			return false;
 		}
-		else if(start_run){
-			std::cout << sys_message_head << "Warning! attempted to close file while acquisition is starting.\n";
+		else if(start_acq){
+			std::cout << sys_message_head << "Warning! Attempted to close file while acquisition is starting.\n";
 			return false;		
 		}
-		else if(stop_run){
-			std::cout << sys_message_head << "Warning! attempted to close file while acquisition is stopping.\n";
+		else if(stop_acq){
+			std::cout << sys_message_head << "Warning! Attempted to close file while acquisition is stopping.\n";
 			return false;			
 		}
 		std::cout << sys_message_head << "Closing output file.\n";
@@ -244,6 +245,15 @@ bool Poll::synch_mods(){
 }
 
 int Poll::write_data(word_t *data, unsigned int nWords){
+	// Open an output file if needed
+	if(!output_file.IsOpen()){ 
+		if(!output_file.OpenNewFile(output_title, output_run_num, current_filename, output_directory)){
+			std::cout << sys_message_head << "Failed to open output file! Check that the path is correct.\n";
+			record_data = false;
+		}
+		std::cout << sys_message_head << "Opening output file '" << current_filename << "'.\n";
+	}
+
 	// Broadcast a spill notification to the network
 	char packet[output_file.GetPacketSize()];
 	int packet_size = output_file.BuildPacket(packet);
@@ -258,22 +268,26 @@ int Poll::write_data(word_t *data, unsigned int nWords){
 /* Print help dialogue for POLL options. */
 void Poll::help(){
 	std::cout << "  Help:\n";
-	std::cout << "   quit           - Close the program\n";
-	std::cout << "   help (h)       - Display this dialogue\n";
-	std::cout << "   version (v)    - Display Poll2 version information\n";
-	std::cout << "   status         - Display system status information\n";
-	std::cout << "   run (trun)     - Start recording data to disk\n";
-	std::cout << "   stop (tstop)   - Stop recording data to disk\n";
-	std::cout << "   reboot         - Reboot PIXIE crate\n";
-	std::cout << "   force (hup)    - Force dump of current spill\n";
-	std::cout << "   debug          - Toggle debug mode flag (default=false)\n";
-	std::cout << "   fdir [path]    - Set the output file directory (default='./')\n";
-	std::cout << "   ouf [filename] - Set the output filename (default='pixie.xxx')\n";
-	std::cout << "   close (clo)    - Safely close the current data output file\n";
-	std::cout << "   htit [title]   - Set the title of the current run (default='PIXIE Data File)\n";
-	std::cout << "   hnum [number]  - Set the number of the current run (default=0)\n";
-	std::cout << "   oform [0|1|2]  - Set the format of the output file (default=0)\n";
-	std::cout << "   stats [time]   - Set the time delay between statistics dumps (default=-1)\n";
+	std::cout << "   quit             - Close the program\n";
+	std::cout << "   help (h)         - Display this dialogue\n";
+	std::cout << "   version (v)      - Display Poll2 version information\n";
+	std::cout << "   status           - Display system status information\n";
+	std::cout << "   run (trun|start) - Start data acquisition and start recording data to disk\n";
+	std::cout << "   stop             - Stop data acqusition and stop recording data to disk\n";	
+	std::cout << "   startvme         - Start data acquisition\n";
+	std::cout << "   stopvme          - Stop data acquisition\n";
+	std::cout << "   tstop            - Stop recording data to disk\n";
+	std::cout << "   reboot           - Reboot PIXIE crate\n";
+	std::cout << "   force (hup)      - Force dump of current spill\n";
+	std::cout << "   debug            - Toggle debug mode flag (default=false)\n";
+	std::cout << "   quiet			  - Toggle quiet mode flag (default=false)\n";
+	std::cout << "   fdir [path]      - Set the output file directory (default='./')\n";
+	std::cout << "   ouf [filename]   - Set the output filename (default='pixie.xxx')\n";
+	std::cout << "   close (clo)      - Safely close the current data output file\n";
+	std::cout << "   htit [title]     - Set the title of the current run (default='PIXIE Data File)\n";
+	std::cout << "   hnum [number]    - Set the number of the current run (default=0)\n";
+	std::cout << "   oform [0|1|2]    - Set the format of the output file (default=0)\n";
+	std::cout << "   stats [time]     - Set the time delay between statistics dumps (default=-1)\n";
 	std::cout << "   mca [root|damm] [time] [filename] - Use MCA to record data for debugging purposes\n";
 	std::cout << "   dump [filename]                   - Dump pixie settings to file (default='Fallback.set')\n";
 	std::cout << "   pread [mod] [chan] [param]        - Read parameters from individual PIXIE channels\n";
@@ -283,7 +297,9 @@ void Poll::help(){
 	std::cout << "   adjust_offsets [module]           - Adjusts the baselines of a pixie module\n";
 	std::cout << "   find_tau [module] [channel]       - Finds the decay constant for an active pixie channel\n";
 	std::cout << "   toggle [module] [channel] [bit]   - Toggle any of the 18 CHANNEL_CSRA bits for a pixie channel\n";
+	std::cout << "   toggle_any [mod] [chan] [param] [bit] - Toggle any bit of any parameter of 32 bits or less\n";
 	std::cout << "   csr_test [number]                 - Output the CSRA parameters for a given integer\n";
+	std::cout << "   bit_test [num_bits] [number]      - Display active bits in a given integer up to 32 bits long\n";
 }
 
 /* Print help dialogue for reading/writing pixie channel parameters. */
@@ -354,8 +370,8 @@ void Poll::command_control(Terminal *poll_term_){
 			
 			// check for defined commands
 			if(cmd == "quit" || cmd == "exit"){
-				if(do_MCA_run){ std::cout << sys_message_head << "Warning! cannot quit while MCA program is running\n"; }
-				else if(poll_running){ std::cout << sys_message_head << "Warning! cannot quit while acquisition running\n"; }
+				if(do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot quit while MCA program is running\n"; }
+				else if(acq_running){ std::cout << sys_message_head << "Warning! Cannot quit while acquisition running\n"; }
 				else{
 					kill_all = true;
 					while(!run_ctrl_exit){ sleep(1); }
@@ -363,9 +379,9 @@ void Poll::command_control(Terminal *poll_term_){
 				}
 			}
 			else if(cmd == "kill"){
-				if(poll_running || do_MCA_run){ 
+				if(acq_running || do_MCA_run){ 
 					std::cout << sys_message_head << "Sending KILL signal\n";
-					stop_run = true; 
+					stop_acq = true; 
 				}
 				kill_all = true;
 				while(!run_ctrl_exit){ sleep(1); }
@@ -380,10 +396,11 @@ void Poll::command_control(Terminal *poll_term_){
 			}
 			else if(cmd == "status"){
 				std::cout << "  Poll Run Status:\n";
-				std::cout << "   Run starting    - " << yesno(start_run) << std::endl;
-				std::cout << "   Run stopping    - " << yesno(stop_run) << std::endl;
+				std::cout << "   Acq starting    - " << yesno(start_acq) << std::endl;
+				std::cout << "   Acq stopping    - " << yesno(stop_acq) << std::endl;
+				std::cout << "   Acq running     - " << yesno(acq_running) << std::endl;
+				std::cout << "   Write to disk   - " << yesno(record_data) << std::endl;
 				std::cout << "   Rebooting       - " << yesno(do_reboot) << std::endl;
-				std::cout << "   Acq running     - " << yesno(poll_running) << std::endl;
 				std::cout << "   Force Spill     - " << yesno(force_spill) << std::endl;
 				std::cout << "   Run ctrl Exited - " << yesno(run_ctrl_exit) << std::endl;
 				std::cout << "   Do MCA run      - " << yesno(do_MCA_run) << std::endl;
@@ -398,33 +415,47 @@ void Poll::command_control(Terminal *poll_term_){
 				std::cout << "   Debug mode  - " << yesno(debug_mode) << std::endl;
 				std::cout << "   Initialized - " << yesno(init) << std::endl;
 			}
-			else if(cmd == "trun" || cmd == "run" || cmd == "start"){ // Tell POLL to start taking data
-				if(poll_running){ std::cout << sys_message_head << "Acquisition is already running\n"; }
-				if(do_MCA_run){ std::cout << sys_message_head << "Warning! cannot run acquisition while MCA program is running\n"; }
-				else{ start_run = true; }
+			else if(cmd == "trun" || cmd == "run" || cmd == "start"){ // Tell POLL to start acq and start recording data to disk
+				if(do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot run acquisition while MCA program is running\n"; }
+				else if(!acq_running){ start_acq = true; } // Start data acq
+				else if(record_data){ std::cout << sys_message_head << "Acquisition is already running\n"; }
+				record_data = true;
 			} 
-			else if(cmd == "tstop" || cmd == "stop"){ // Tell POLL to stop taking data
-				if(do_MCA_run){ std::cout << sys_message_head << "Cannot stop MCA run\n"; }
-				else if(!poll_running){ std::cout << sys_message_head << "Acquisition is not running\n"; }
-				else{ stop_run = true; }
+			else if(cmd == "startvme"){ // Tell POLL to start data acquisition
+				if(do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot run acquisition while MCA program is running\n"; }
+				else if(!acq_running){ start_acq = true; } // Start data acq
+				else{ std::cout << sys_message_head << "Acquisition is already running\n"; }
+			}
+			else if(cmd == "tstop"){ // Tell POLL to stop recording to disk
+				if(!record_data || !acq_running){ std::cout << sys_message_head << "Not recording data to disk\n"; }
+				else{ record_data = false; }
+			}
+			else if(cmd == "stop"){ // Tell POLL to stop recording data to disk and stop acq
+				if(!acq_running){ std::cout << sys_message_head << "Acquisition is not running\n"; }
+				else{ stop_acq = true; }
+				record_data = false;
 			} 
+			else if(cmd == "stopvme"){ // Tell POLL to stop data acquisition
+				if(!acq_running){ std::cout << sys_message_head << "Acquisition is not running\n"; }
+				else{ stop_acq = true; }
+			}
 			else if(cmd == "reboot"){ // Tell POLL to attempt a PIXIE crate reboot
-				if(do_MCA_run){ std::cout << sys_message_head << "Warning! cannot reboot while MCA is running\n"; }
-				else if(poll_running || do_MCA_run){ std::cout << sys_message_head << "Warning! cannot reboot while acquisition running\n"; }
+				if(do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot reboot while MCA is running\n"; }
+				else if(acq_running || do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot reboot while acquisition running\n"; }
 				else{ do_reboot = true; 
 					poll_term_->pause(do_reboot);
 				}
 			}
 			else if(cmd == "clo" || cmd == "close"){ // Tell POLL to close the current data file
 				if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
-				else if(poll_running){ std::cout << sys_message_head << "Warning! cannot close file while acquisition running\n"; }
+				else if(acq_running){ std::cout << sys_message_head << "Warning! Cannot close file while acquisition running\n"; }
 				else{ close_output_file(); }
 			}
-			else if(cmd == "hup" || cmd == "force"){ 
+			else if(cmd == "hup" || cmd == "force"){ // Force spill
 				if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
-				else if(!poll_running){ std::cout << sys_message_head << "Acquisition is not running\n"; }
+				else if(!acq_running){ std::cout << sys_message_head << "Acquisition is not running\n"; }
 				else{ force_spill = true; }
-			} // Force spill write to file
+			}
 			else if(cmd == "debug"){ // Toggle debug mode
 				if(debug_mode){
 					std::cout << sys_message_head << "Toggling debug mode OFF\n";
@@ -435,6 +466,16 @@ void Poll::command_control(Terminal *poll_term_){
 					std::cout << sys_message_head << "Toggling debug mode ON\n";
 					output_file.SetDebugMode();
 					debug_mode = true;
+				}
+			}
+			else if(cmd == "quiet"){ // Toggle quiet mode
+				if(is_quiet){
+					std::cout << sys_message_head << "Toggling quiet mode OFF\n";
+					is_quiet = false;
+				}
+				else{
+					std::cout << sys_message_head << "Toggling quiet mode ON\n";
+					is_quiet = true;
 				}
 			}
 			else if(cmd == "fdir"){ // Change the output file directory
@@ -464,8 +505,8 @@ void Poll::command_control(Terminal *poll_term_){
 				if(format == 0 || format == 1 || format == 2){
 					output_format = atoi(arg.c_str());
 					std::cout << sys_message_head << "Set output file format to '" << output_format << "'\n";
-					if(output_format == 1){ std::cout << "  Warning! this output format is experimental and is not recommended\n"; }
-					else if(output_format == 2){ std::cout << "  Warning! this output format is slow and should only be used for debugging/troubleshooting\n"; }
+					if(output_format == 1){ std::cout << "  Warning! This output format is experimental and is not recommended\n"; }
+					else if(output_format == 2){ std::cout << "  Warning! This output format is slow and should only be used for debugging/troubleshooting\n"; }
 					output_file.SetFileFormat(output_format);
 				}
 				else{ 
@@ -489,8 +530,8 @@ void Poll::command_control(Terminal *poll_term_){
 					std::cout << sys_message_head << "MCA program is already running\n\n";
 					continue;
 				}
-				else if(poll_running){ 
-					std::cout << sys_message_head << "Warning! cannot run MCA program while acquisition is running\n\n";
+				else if(acq_running){ 
+					std::cout << sys_message_head << "Warning! Cannot run MCA program while acquisition is running\n\n";
 					continue;
 				}
 
@@ -545,8 +586,8 @@ void Poll::command_control(Terminal *poll_term_){
 				ofile.close();
 			}
 			else if(cmd == "pwrite" || cmd == "pmwrite"){ // Write pixie parameters
-				if(poll_running || do_MCA_run){ 
-					std::cout << sys_message_head << "Warning! cannot edit pixie parameters while acquisition is running\n\n"; 
+				if(acq_running || do_MCA_run){ 
+					std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n"; 
 					continue;
 				}
 			
@@ -610,8 +651,8 @@ void Poll::command_control(Terminal *poll_term_){
 				}
 			}
 			else if(cmd == "adjust_offsets"){ // Run adjust_offsets
-				if(poll_running || do_MCA_run){ 
-					std::cout << sys_message_head << "Warning! cannot edit pixie parameters while acquisition is running\n\n"; 
+				if(acq_running || do_MCA_run){ 
+					std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n"; 
 					continue;
 				}
 
@@ -627,8 +668,8 @@ void Poll::command_control(Terminal *poll_term_){
 				}
 			}
 			else if(cmd == "find_tau"){ // Run find_tau
-				if(poll_running || do_MCA_run){ 
-					std::cout << sys_message_head << "Warning! cannot edit pixie parameters while acquisition is running\n\n"; 
+				if(acq_running || do_MCA_run){ 
+					std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n"; 
 					continue;
 				}
 			
@@ -645,16 +686,16 @@ void Poll::command_control(Terminal *poll_term_){
 				}
 			}
 			else if(cmd == "toggle"){ // Toggle a CHANNEL_CSRA bit
-				if(poll_running || do_MCA_run){ 
-					std::cout << sys_message_head << "Warning! cannot edit pixie parameters while acquisition is running\n\n"; 
+				if(acq_running || do_MCA_run){ 
+					std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n"; 
 					continue;
 				}
 
 				BitFlipper flipper;
 
 				if(p_args >= 3){ 
-					flipper.SetBit(arguments.at(2));
-    
+					flipper.SetCSRAbit(arguments.at(2));
+					
 					std::string dum_str = "CHANNEL_CSRA";
 					if(forChannel(pif, atoi(arguments.at(0).c_str()), atoi(arguments.at(1).c_str()), flipper, dum_str)){
 						pif->SaveDSPParameters();
@@ -666,20 +707,41 @@ void Poll::command_control(Terminal *poll_term_){
 					flipper.Help();				
 				}
 			}
-			else if(cmd == "csr_test"){ // Run csr_test
+			else if(cmd == "toggle_any"){ // Toggle any bit of any parameter under 32 bits long
+				if(acq_running || do_MCA_run){ 
+					std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n"; 
+					continue;
+				}
+
 				BitFlipper flipper;
-				if(p_args >= 1){ flipper.CSRA_test(atoi(arguments.at(0).c_str())); }
+
+				if(p_args >= 4){ 
+					flipper.SetBit(arguments.at(3));
+    
+					if(forChannel(pif, atoi(arguments.at(0).c_str()), atoi(arguments.at(1).c_str()), flipper, arguments.at(2))){
+						pif->SaveDSPParameters();
+					}
+				}
+				else{
+					std::cout << sys_message_head << "Invalid number of parameters to toggle_any\n";
+					std::cout << sys_message_head << " -SYNTAX- toggle_any [module] [channel] [parameter] [bit]\n\n";
+				}
+			}
+			else if(cmd == "csr_test"){ // Run CSRAtest method
+				BitFlipper flipper;
+				if(p_args >= 1){ flipper.CSRAtest((unsigned int)atoi(arguments.at(0).c_str())); }
 				else{
 					std::cout << sys_message_head << "Invalid number of parameters to csr_test\n";
 					std::cout << sys_message_head << " -SYNTAX- csr_test [number]\n";
 				}
 			}
-			else if(cmd == "test"){ // Generic command for testing purposes
-				// Broadcast a spill notification to the network
-				std::cout << sys_message_head << "Broadcasting a spill packet...\n";
-				char packet[output_file.GetPacketSize()];
-				int packet_size = output_file.BuildPacket(packet);
-				client->SendMessage(packet, packet_size);
+			else if(cmd == "bit_test"){ // Run GenericTest method
+				BitFlipper flipper;
+				if(p_args >= 2){ flipper.Test((unsigned int)atoi(arguments.at(0).c_str()), std::strtoul(arguments.at(1).c_str(), NULL, 0)); }
+				else{
+					std::cout << sys_message_head << "Invalid number of parameters to bit_test\n";
+					std::cout << sys_message_head << " -SYNTAX- bit_test [num_bits] [number]\n";
+				}
 			}
 			else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
 			std::cout << std::endl;
@@ -706,12 +768,12 @@ void Poll::run_control(){
   read_again:
 	while(true){
 		if(kill_all){ // Supercedes all other commands
-			if(poll_running){ stop_run = true; } // Safety catch
+			if(acq_running){ stop_acq = true; } // Safety catch
 			else{ break; }
 		}
 		
 		if(do_reboot){ // Attempt to reboot the PIXIE crate
-			if(poll_running){ stop_run = true; } // Safety catch
+			if(acq_running){ stop_acq = true; } // Safety catch
 			else{
 				std::cout << sys_message_head << "Attempting PIXIE crate reboot\n";
 				pif->Boot(PixieInterface::BootAll);
@@ -722,7 +784,7 @@ void Poll::run_control(){
 		}
 
 		if(do_MCA_run){ // Do an MCA run, if the acq is not running
-			if(poll_running){ stop_run = true; } // Safety catch
+			if(acq_running){ stop_acq = true; } // Safety catch
 			else{
 				std::cout << sys_message_head << "Performing MCA data run\n";		
 				pif->RemovePresetRunLength(0);
@@ -745,10 +807,10 @@ void Poll::run_control(){
 		}
 
 		// MAIN DATA ACQUISITION SECTION!!!
-		if(poll_running){
-			if(start_run){
+		if(acq_running){
+			if(start_acq){
 				std::cout << sys_message_head << "Already running!\n";
-				start_run = false;
+				start_acq = false;
 			}
 			
 			// Data acquisition
@@ -773,7 +835,9 @@ void Poll::run_control(){
 						std::cout << std::endl << std::flush;
 					}
 				}
-				write_data(fifoData, dataWords);
+				if(record_data){
+					write_data(fifoData, dataWords);
+				}
 				dataWords = 0;
 				statsTime += usGetDTime();
 				lastStatsTime = usGetTime(startTime);
@@ -811,7 +875,7 @@ void Poll::run_control(){
 						
 			// Check whether we have any data
 			usGetDTime(); // Start timer
-			for (unsigned int timeout = 0; timeout < (stop_run ? 1 : POLL_TRIES); timeout++){ // See if the modules have any data for us
+			for (unsigned int timeout = 0; timeout < (stop_acq ? 1 : POLL_TRIES); timeout++){ // See if the modules have any data for us
 				for (size_t mod = 0; mod < n_cards; mod++) {
 					if(!runDone[mod]){ nWords[mod] = pif->CheckFIFOWords(mod); }
 					else{ nWords[mod] = 0; }
@@ -823,7 +887,7 @@ void Poll::run_control(){
 			pollTime = usGetDTime();
 			
 			int maxmod = maxWords - nWords.begin();
-			bool readData = (*maxWords > threshWords || stop_run);
+			bool readData = (*maxWords > threshWords || stop_acq);
 			if(force_spill){
 				if(!readData){ readData = true; }
 				force_spill = false;
@@ -890,7 +954,7 @@ void Poll::run_control(){
 							if(parseWords > dataWords + nWords[mod]){
 								waitCounter++;
 								// If we have ended the run, we should have all the words
-								if(stop_run){
+								if(stop_acq){
 									std::cout << Display::ErrorStr("Words missing at end of run.") << std::endl;
 									//BailOut(send_alarm, alarmArgument);
 								} 
@@ -961,7 +1025,7 @@ void Poll::run_control(){
 						std::cout << "Abnormally full FIFO with " << nWords[mod] << " words in module " << mod << std::endl;
 						if(fullFIFO){
 							pif->EndRun();
-							stop_run = true;
+							stop_acq = true;
 						}
 					}
 					if(!is_quiet){
@@ -999,7 +1063,10 @@ void Poll::run_control(){
 
 			usGetDTime(); // start send timer
 			
-			int nBufs = write_data(fifoData, dataWords);
+			int nBufs = 0;
+			if(record_data){ 
+				nBufs = write_data(fifoData, dataWords); 
+			}
 			sendTime = usGetDTime();
 
 			if(statsHandler){ statsHandler->AddTime(durSpill * 1e-6); }
@@ -1035,14 +1102,14 @@ void Poll::run_control(){
 			// Reset the number of words of fifo data
 			dataWords = 0;
 			histoTime = statsTime = 0;
-			if(stop_run){ 
+			if(stop_acq){ 
 				time(&raw_time);
 				time_info = localtime(&raw_time);
 				std::cout << sys_message_head << "Stopping run at " << asctime(time_info);
 				pif->EndRun();
 				
-				stop_run = false;
-				poll_running = false;
+				stop_acq = false;
+				acq_running = false;
 				usleep(END_RUN_PAUSE);	
 				
 				// Update whether the run has ended with the data read out
@@ -1059,21 +1126,13 @@ void Poll::run_control(){
 			}
 		}
 		else{ 	
-			if(start_run){
+			if(start_acq){
 				if(do_MCA_run){ 
-					std::cout << sys_message_head << "Warning! cannot run acquisition while MCA program is running!\n"; 
-					start_run = false;
+					std::cout << sys_message_head << "Warning! Cannot run acquisition while MCA program is running!\n"; 
+					start_acq = false;
 					continue;
 				}
 			
-				if(!output_file.IsOpen()){ 
-					if(!output_file.OpenNewFile(output_title, output_run_num, current_filename, output_directory)){
-						std::cout << sys_message_head << "Failed to open output file! Check that the path is correct.\n";
-						start_run = false;
-						continue;
-					}
-					std::cout << sys_message_head << "Opening output file '" << current_filename << "'.\n";
-				}
 				if(zero_clocks){ synch_mods(); }
 				for(size_t mod=0; mod < n_cards; mod++){ runDone[mod] = false; }
 				lastHistoTime = lastStatsTime = lastSpillTime = usGetTime(startTime);
@@ -1082,15 +1141,15 @@ void Poll::run_control(){
 				time_info = localtime(&raw_time);
 				std::cout << sys_message_head << "Starting run at " << asctime(time_info);				
 				if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)){
-					poll_running = true;
+					acq_running = true;
 					nonWaitCounter = 0;
 				}
 				else{ std::cout << sys_message_head << "Failed to start list mode run. Try rebooting PIXIE\n"; }
-				start_run = false;
+				start_acq = false;
 			}
-			else if(stop_run){
+			else if(stop_acq){
 				std::cout << sys_message_head << "Not running!\n";
-				stop_run = false;
+				stop_acq = false;
 			}
 			sleep(1); 
 		}

@@ -16,7 +16,7 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
 	
-	flipper.CSRA_test((unsigned int)atoi(argv[1]));
+	flipper.CSRAtest((unsigned int)atoi(argv[1]));
 
 	return 0;
 }  
