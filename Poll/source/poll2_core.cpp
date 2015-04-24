@@ -1000,8 +1000,12 @@ void Poll::run_control(){
 								if(!virtualChannel && statsHandler){ statsHandler->AddEvent(mod, chanRead, sizeof(word_t) * eventSize); }
 
 								if(eventSize == 0 || slotRead != slotExpected){
-									if( slotRead != slotExpected ){ std::cout << "Slot read (" << slotRead << ") not the same as" << " module expected (" << slotExpected << ")" << std::endl; }
-									if(eventSize == 0){ std::cout << "ZERO EVENT SIZE" << std::endl; }
+									// Removing this comparision is one of Robert's hacks from ANL (CRT)
+									//if( slotRead != slotExpected ){ std::cout << "Slot read (" << slotRead << ") not the same as" << " module expected (" << slotExpected << ")" << std::endl; }
+									if(eventSize == 0){ 
+										std::cout << "ZERO EVENT SIZE" << std::endl; 
+										eventSize = 1; // Another one of Robert's hacks from ANL (CRT)
+									}
 									std::cout << "First header words: " << std::hex << fifoData[parseWords] << " " << fifoData[parseWords + 1] << " " << fifoData[parseWords + 2];
 									std::cout << " at position " << std::dec << parseWords << "\n	parse started at position " << beginData << " reading " << nWords[mod] << " words." << std::endl;
 									//! how to proceed from here
