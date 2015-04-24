@@ -641,6 +641,7 @@ std::string Terminal::GetCommand(){
 		else if(keypress == 4){ // ctrl-d (EOT)
 			output = "CTRL_D";
 			text_length = 0;
+			clear_();
 			break;
 		}
 		else if(keypress == 9){ } // Tab key (9)

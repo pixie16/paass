@@ -8,8 +8,8 @@
 ///Default size of terminal scroll back buffer in lines.
 #define SCROLLBACK_SIZE 1000
 
-#define CTERMINAL_VERSION "1.1.03"
-#define CTERMINAL_DATE "April 22nd, 2015"
+#define CTERMINAL_VERSION "1.1.04"
+#define CTERMINAL_DATE "April 24th, 2015"
 
 #ifdef USE_NCURSES
 
