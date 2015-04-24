@@ -266,7 +266,9 @@ bool Poll::synch_mods(){
 
 int Poll::write_data(word_t *data, unsigned int nWords){
 	// Open an output file if needed
-	open_output_file();
+	if(!output_file.IsOpen()){
+		open_output_file();
+	}
 
 	// Broadcast a spill notification to the network
 	char packet[output_file.GetPacketSize()];
