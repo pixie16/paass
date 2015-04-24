@@ -3,8 +3,8 @@
 
 #include <fstream>
 
-#define HRIBF_BUFFERS_VERSION "1.1.00"
-#define HRIBF_BUFFERS_DATE "April 21st, 2015"
+#define HRIBF_BUFFERS_VERSION "1.1.01"
+#define HRIBF_BUFFERS_DATE "April 24th, 2015"
 
 class BufferType{
   protected:
@@ -185,6 +185,9 @@ class PollOutputFile{
 	
 	/// Get the size of the current file, in bytes.
 	std::streampos GetFilesize(){ return output_file.tellp(); }
+	
+	/// Get the name of the current output file
+	std::string GetCurrentFilename(){ return current_filename; }
 	
 	/// Return the total number of spills written since the current file was opened
 	int GetNumberSpills(){ return number_spills; }
