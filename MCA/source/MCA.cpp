@@ -9,21 +9,22 @@
 
 /**The MCA is initialized and run for the specified duration or until a
  * stop command is received. At specific intervals the MCA output is
- * updated via MCA::StoreData().
+ * updated via MCA::StoreData(). Will continue until external bool (stop)
+ * is set to false. If this pointer is set to NULL, will continue uninterrupted.
  *
- * \parma[in] duration Amount of time to run the MCA.
+ * \param[in] duration Amount of time to run the MCA.
+ * \param[in] stop External boolean flag for stop run command.
  */
-void MCA::Run(float duration) {
-	//Reset stop flag in case it was used for termination.
-	_stop = false;
-
+void MCA::Run(float duration, bool *stop) {
 	//Start the pixie histogram
 	_pif->StartHistogramRun();
 
 	float runTime = 0;
 
 	//Loop until we reach the run duration or a stop is received.
-	while (runTime < duration || !_stop) {
+	while (runTime < duration) {
+		if(stop != NULL && *stop){ break; }
+	
 		sleep(2);
 		//Update run time
 		runTime += usGetDTime() / 1.0e6;
@@ -60,8 +61,4 @@ void MCA::Run(float duration) {
 	std::cout.unsetf(std::ios_base::floatfield);
 	std::cout.precision(6);
 
-}
-
-void MCA::Stop() {
-	_stop = true;
 }

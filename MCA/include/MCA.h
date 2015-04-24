@@ -7,9 +7,6 @@ class PixieInterface;
 
 ///Abstract MCA class
 class MCA {
-	private:
-		bool _stop;
-
 	protected:
 		///Default number of bins in histogram.
 		static const size_t HIS_SIZE = 16384;
@@ -34,10 +31,7 @@ class MCA {
 		///Check if the histogram construction was successful.
 		virtual bool IsOpen() {return _isOpen;};
 		///Start the MCA running.
-		virtual void Run(float duration);
-		///Stop the MCA run.
-		void Stop();
-
+		virtual void Run(float duration, bool *stop=NULL);
 };
 
 #endif 
