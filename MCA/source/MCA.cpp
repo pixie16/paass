@@ -22,8 +22,9 @@ void MCA::Run(float duration, bool *stop) {
 	float runTime = 0;
 
 	//Loop until we reach the run duration or a stop is received.
-	while (runTime < duration) {
+	while (true) {
 		if(stop != NULL && *stop){ break; }
+		else if(duration > 0.0 && (runTime >= duration)){ break; } // Adds support for infinite MCA runs
 	
 		sleep(2);
 		//Update run time

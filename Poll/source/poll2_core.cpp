@@ -294,7 +294,7 @@ void Poll::help(){
 	std::cout << "   reboot           - Reboot PIXIE crate\n";
 	std::cout << "   force (hup)      - Force dump of current spill\n";
 	std::cout << "   debug            - Toggle debug mode flag (default=false)\n";
-	std::cout << "   quiet			  - Toggle quiet mode flag (default=false)\n";
+	std::cout << "   quiet            - Toggle quiet mode flag (default=false)\n";
 	std::cout << "   fdir [path]      - Set the output file directory (default='./')\n";
 	std::cout << "   ouf [filename]   - Set the output filename (default='pixie.xxx')\n";
 	std::cout << "   close (clo)      - Safely close the current data output file\n";
@@ -414,6 +414,7 @@ void Poll::command_control(Terminal *poll_term_){
 				std::cout << "   Acq stopping    - " << yesno(stop_acq) << std::endl;
 				std::cout << "   Acq running     - " << yesno(acq_running) << std::endl;
 				std::cout << "   Write to disk   - " << yesno(record_data) << std::endl;
+				std::cout << "   File open       - " << yesno(output_file.IsOpen()) << std::endl;
 				std::cout << "   Rebooting       - " << yesno(do_reboot) << std::endl;
 				std::cout << "   Force Spill     - " << yesno(force_spill) << std::endl;
 				std::cout << "   Run ctrl Exited - " << yesno(run_ctrl_exit) << std::endl;
@@ -841,7 +842,8 @@ void Poll::run_control(){
 		if(do_MCA_run){ // Do an MCA run, if the acq is not running
 			if(acq_running){ stop_acq = true; } // Safety catch
 			else{
-				std::cout << sys_message_head << "Performing MCA data run\n";		
+				if(mca_args.totalTime > 0.0){ std::cout << sys_message_head << "Performing MCA data run for " << mca_args.totalTime << " s\n"; }
+				else{ std::cout << sys_message_head << "Performing infinite MCA data run. Type \"stop\" to quit\n"; }
 				pif->RemovePresetRunLength(0);
 
 				MCA *mca = NULL;
