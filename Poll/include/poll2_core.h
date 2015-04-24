@@ -7,8 +7,8 @@
 #include "hribf_buffers.h"
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.1.15"
-#define POLL2_CORE_DATE "April 23rd, 2015"
+#define POLL2_CORE_VERSION "1.1.16"
+#define POLL2_CORE_DATE "April 24th, 2015"
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
@@ -131,7 +131,7 @@ class Poll{
 	
 	bool close_output_file();
 	
-	bool open_new_file();
+	bool open_output_file();
 	
 	bool synch_mods();
 		
