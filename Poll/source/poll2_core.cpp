@@ -819,8 +819,6 @@ void Poll::run_control(){
 	std::vector<word_t> nWords(n_cards);
 	//Iterator to determine which card has the most words.
 	std::vector<word_t>::iterator maxWords;
-	//Number of data words read fromt he FIFO
-	size_t dataWords = 0;
 	//The FIFO storage array
 	word_t *fifoData = new word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
 
@@ -897,58 +895,127 @@ void Poll::run_control(){
 				maxWords = std::max_element(nWords.begin(), nWords.end());
 				if(*maxWords > threshWords){ break; }
 			}
-			if (!is_quiet) {
-				std::cout << "Reading out FIFO!\n";
-			}
 			//Decide if we should read data based on threshold.
 			bool readData = (*maxWords > threshWords || stop_acq);
-			if (!is_quiet) std::cout << "readData " << readData << "\n";
-			if (!is_quiet) std::cout << "readData " << readData << "\n";
+
+			//We need to read the data out of the FIFO
 			if (readData || force_spill) {
 				force_spill = false;
+				//Number of data words read from the FIFO
+				size_t dataWords = 0;
+
+				//Loop over each module's FIFO
 				for (int mod=0;mod < n_cards; mod++) {
 					if (!is_quiet) std::cout << "Reading module: " << mod << "\n";
+
+					//if the module has no words in the FIFO we continue to the next module
+					if (nWords[mod] == 0) {
+						// write an empty buffer if there is no data
+						fifoData[dataWords++] = 2;
+						fifoData[dataWords++] = mod;	    
+						continue;
+					}
+					else if (nWords[mod] < 0) {
+						std::cout << "Number of FIFO words less than 0 in module " << mod << std::endl;
+						// write an empty buffer if there is no data
+						fifoData[dataWords++] = 2;
+						fifoData[dataWords++] = mod;	    
+						continue;
+					}
+					
+					
+					//Check if the FIFO is overfilled
 					bool fullFIFO = (nWords[mod] >= EXTERNAL_FIFO_LENGTH);
 					if (fullFIFO) {
 						std::cout << "Really full FIFO: Skipping module " << mod 
 							<< " size: " << nWords[mod] << "/" 
 							<< EXTERNAL_FIFO_LENGTH << std::endl;
-						continue;
-					}
-					//Try to read fifo and catch errors.
-					if(!pif->ReadFIFOWords(&fifoData[dataWords], nWords[mod], mod)){
-						std::cout << "Error reading FIFO, skipping module " 
-							<< mod << "!\n";
-						continue;
+						stop_acq = true;
+						break;
 					}
 
+					//We write the number of words and the module into the FIFO array
+					fifoData[dataWords++] = nWords[mod] + 2;
+					fifoData[dataWords++] = mod;
+
+					//Try to read FIFO and catch errors.
+					if(!pif->ReadFIFOWords(&fifoData[dataWords], nWords[mod], mod)){
+						stop_acq = true;
+						break;
+					}
+					//Previous poll parsed data to make sure it was not corrupted.
+					//	This seems like something that should be done offline.
+					//	We need to have a discussion about online validation.
+					//	The following block is commented out until this is resolved
+					/*
 					//Check first word to see if data makes sense.
+					// Previous version then iterated the number of words forward and continued to parse.
 					// We check the slot and event size.
 					word_t slotRead = ((fifoData[dataWords] & 0xF0) >> 4);
 					word_t slotExpected = pif->GetSlotNumber(mod);
-					word_t eventSize = ((fifoData[dataWords] & 0x1FFE0000) >> 17);
+					word_t eventSize = ((fifoData[dataWords] & 0x7FFE2000) >> 17);
 					if( slotRead != slotExpected ){ 
 						std::cout << "Slot read (" << slotRead 
 							<< ") not the same as" << " module expected (" 
 							<< slotExpected << ")" << std::endl; 
+						//Decrease the number of data words to ignore this dump
+						dataWords -= 2;
 						continue;
 					}
 					else if(eventSize == 0){ 
 						std::cout << "ZERO EVENT SIZE in mod " << mod << "!\n"; 
+						//Decrease the number of data words to ignore this dump
+						dataWords -= 2;
 						continue;
 					}
-					
-					//The data should be good so we iterate the position in the
-					// storage array.
+					*/
+				
+					//Print a message about what we did	
+					if(!is_quiet) {
+						std::cout << "Read " << nWords[mod] << " words from module " << mod << " to buffer position " << dataWords;
+					}
+					//The data should be good so we iterate the position in the storage array.
 					dataWords += nWords[mod];
+				} //End loop over modules for reading FIFO
+
+				//We have read the FIFO now we write the data	
+				if(record_data){ 
+					write_data(fifoData, dataWords); 
 				}
-			}
+			} //If we had exceeded the threshold or forced a flush
 			
-			if(record_data){ 
-				write_data(fifoData, dataWords); 
-			}
+			//Handle a stop signal
+			if(stop_acq){ 
+				//time(&raw_time);
+				//time_info = localtime(&raw_time);
+				//std::cout << sys_message_head << "Stopping run at " << asctime(time_info);
+				pif->EndRun();
+				
+				//Reset status flags
+				stop_acq = false;
+				acq_running = false;
+
+				//Sleep for a bit to allow the modules to finish up
+				usleep(END_RUN_PAUSE);	
+				
+				// Check if each module has ended its run properly.
+				for(size_t mod = 0; mod < n_cards; mod++){
+					if(!pif->CheckRunStatus(mod)){
+						runDone[mod] = true;
+						std::cout << "Run ended in module " << mod << std::endl;
+					}
+					else {
+						std::cout << "Run not properly finished in module " << mod << std::endl;
+					}
+				}
+				std::cout << std::endl;			
+			} //End of handling a stop acq flag
+
 		}
+		
 	}
+
+	delete[] fifoData;
 	run_ctrl_exit = true;
 
 #if 0
