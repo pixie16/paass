@@ -98,7 +98,6 @@ Poll::Poll(){
 	histo_interval = -1; //< in seconds
 
 	runDone = NULL;
-	fifoData = NULL;
 	partialEventData = NULL;
 	statsHandler = NULL;
 	
@@ -139,7 +138,6 @@ bool Poll::initialize(){
 	
 	// Two extra words to store size of data block and module number
 	std::cout << "\nAllocating memory to store FIFO data (" << sizeof(word_t) * (EXTERNAL_FIFO_LENGTH + 2) * n_cards / 1024 << " kB)" << std::endl;
-	fifoData = new word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
 	
 	// Allocate data for partial events
 	std::cout << "Allocating memory for partial events (" << sizeof(eventdata_t) * n_cards / 1024 << " kB)" << std::endl;
@@ -149,7 +147,6 @@ bool Poll::initialize(){
 		waitWords.push_back(0);
 	}
 
-	dataWords = 0;
 	statsTime = 0;
 	histoTime = 0;
 
@@ -191,7 +188,6 @@ bool Poll::close(){
 	if(output_file.IsOpen()){ close_output_file(); }
 	
 	if(runDone){ delete[] runDone; }
-	if(fifoData){ delete[] fifoData; }
 	if(partialEventData){ delete[] partialEventData; }
 	
 	delete pif;
@@ -819,6 +815,143 @@ void Poll::command_control(Terminal *poll_term_){
 
 /// Function to control the gathering and recording of PIXIE data
 void Poll::run_control(){
+	//Number of words in the FIFO of each module.
+	std::vector<word_t> nWords(n_cards);
+	//Iterator to determine which card has the most words.
+	std::vector<word_t>::iterator maxWords;
+	//Number of data words read fromt he FIFO
+	size_t dataWords = 0;
+	//The FIFO storage array
+	word_t *fifoData = new word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
+
+	while(true){
+		if(kill_all){ // Supercedes all other commands
+			if(acq_running){ stop_acq = true; } // Safety catch
+			else{ break; }
+		}
+		
+		if(do_reboot){ // Attempt to reboot the PIXIE crate
+			if(acq_running){ stop_acq = true; } // Safety catch
+			else{
+				std::cout << sys_message_head << "Attempting PIXIE crate reboot\n";
+				pif->Boot(PixieInterface::BootAll);
+				printf("Press any key to continue...");
+				std::cin.get();
+				do_reboot = false;
+			}
+		}
+
+		if(do_MCA_run){ // Do an MCA run, if the acq is not running
+			if(acq_running){ stop_acq = true; } // Safety catch
+			else{
+				if(mca_args.totalTime > 0.0){ std::cout << sys_message_head << "Performing MCA data run for " << mca_args.totalTime << " s\n"; }
+				else{ std::cout << sys_message_head << "Performing infinite MCA data run. Type \"stop\" to quit\n"; }
+				pif->RemovePresetRunLength(0);
+
+				MCA *mca = NULL;
+#if defined(USE_ROOT) && defined(USE_DAMM)
+				if(mca_args.useRoot){ mca = new MCA_ROOT(pif, mca_args.basename.c_str()); }
+				else{ mca = new MCA_DAMM(pif, mca_args.basename.c_str()); }
+#elif defined(USE_ROOT)
+				mca = new MCA_ROOT(pif, mca_args.basename.c_str());
+#elif defined(USE_DAMM)
+				mca = new MCA_DAMM(pif, mca_args.basename.c_str());
+#endif
+
+				if(mca && mca->IsOpen()){ mca->Run(mca_args.totalTime, &stop_acq); }
+				mca_args.Zero();
+				stop_acq = false;
+				do_MCA_run = false;
+				delete mca;
+				
+				std::cout << std::endl;
+			}
+		}
+
+		//Start acquistion
+		if (start_acq && !acq_running) {
+			//Start list mode
+			if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)){
+				acq_running = true;
+			}
+			else{ 
+				std::cout << sys_message_head << "Failed to start list mode run. Try rebooting PIXIE\n"; 
+				acq_running = false;
+			}
+			start_acq = false;
+		}
+		else if (start_acq && acq_running) {
+			std::cout << sys_message_head << "Already running!\n";
+			start_acq = false;
+		}
+
+		if(acq_running){
+
+			//We loop until the FIFO has reached the threshold for any module
+			for (unsigned int timeout = 0; timeout < POLL_TRIES; timeout++){ 
+				//Check the FIFO size for every module
+				for (short mod=0; mod < n_cards; mod++) {
+					nWords[mod] = pif->CheckFIFOWords(mod);
+				}
+				//Find the maximum module
+				maxWords = std::max_element(nWords.begin(), nWords.end());
+				if(*maxWords > threshWords){ break; }
+			}
+			if (!is_quiet) {
+				std::cout << "Reading out FIFO!\n";
+			}
+			//Decide if we should read data based on threshold.
+			bool readData = (*maxWords > threshWords || stop_acq);
+			if (!is_quiet) std::cout << "readData " << readData << "\n";
+			if (!is_quiet) std::cout << "readData " << readData << "\n";
+			if (readData || force_spill) {
+				force_spill = false;
+				for (int mod=0;mod < n_cards; mod++) {
+					if (!is_quiet) std::cout << "Reading module: " << mod << "\n";
+					bool fullFIFO = (nWords[mod] >= EXTERNAL_FIFO_LENGTH);
+					if (fullFIFO) {
+						std::cout << "Really full FIFO: Skipping module " << mod 
+							<< " size: " << nWords[mod] << "/" 
+							<< EXTERNAL_FIFO_LENGTH << std::endl;
+						continue;
+					}
+					//Try to read fifo and catch errors.
+					if(!pif->ReadFIFOWords(&fifoData[dataWords], nWords[mod], mod)){
+						std::cout << "Error reading FIFO, skipping module " 
+							<< mod << "!\n";
+						continue;
+					}
+
+					//Check first word to see if data makes sense.
+					// We check the slot and event size.
+					word_t slotRead = ((fifoData[dataWords] & 0xF0) >> 4);
+					word_t slotExpected = pif->GetSlotNumber(mod);
+					word_t eventSize = ((fifoData[dataWords] & 0x1FFE0000) >> 17);
+					if( slotRead != slotExpected ){ 
+						std::cout << "Slot read (" << slotRead 
+							<< ") not the same as" << " module expected (" 
+							<< slotExpected << ")" << std::endl; 
+						continue;
+					}
+					else if(eventSize == 0){ 
+						std::cout << "ZERO EVENT SIZE in mod " << mod << "!\n"; 
+						continue;
+					}
+					
+					//The data should be good so we iterate the position in the
+					// storage array.
+					dataWords += nWords[mod];
+				}
+			}
+			
+			if(record_data){ 
+				write_data(fifoData, dataWords); 
+			}
+		}
+	}
+	run_ctrl_exit = true;
+
+#if 0
 	std::vector<word_t> nWords(n_cards);
 	std::vector<word_t>::iterator maxWords;
 	parseTime = waitTime = readTime = 0.;
@@ -1223,6 +1356,7 @@ void Poll::run_control(){
 	}
 
 	run_ctrl_exit = true;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
