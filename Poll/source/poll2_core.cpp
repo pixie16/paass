@@ -947,29 +947,36 @@ void Poll::run_control(){
 					//	This seems like something that should be done offline.
 					//	We need to have a discussion about online validation.
 					//	The following block is commented out until this is resolved
-					/*
-					//Check first word to see if data makes sense.
-					// Previous version then iterated the number of words forward and continued to parse.
-					// We check the slot and event size.
-					word_t slotRead = ((fifoData[dataWords] & 0xF0) >> 4);
-					word_t slotExpected = pif->GetSlotNumber(mod);
-					word_t eventSize = ((fifoData[dataWords] & 0x7FFE2000) >> 17);
-					if( slotRead != slotExpected ){ 
-						std::cout << "Slot read (" << slotRead 
-							<< ") not the same as" << " module expected (" 
-							<< slotExpected << ")" << std::endl; 
-						//Decrease the number of data words to ignore this dump
-						dataWords -= 2;
-						continue;
+					
+					size_t parseWords = dataWords;
+					while (parseWords < dataWords + nWords[mod]) {
+						//Check first word to see if data makes sense.
+						// Previous version then iterated the number of words forward and continued to parse.
+						// We check the slot and event size.
+						word_t slotRead = ((fifoData[dataWords] & 0xF0) >> 4);
+						word_t slotExpected = pif->GetSlotNumber(mod);
+						word_t eventSize = ((fifoData[dataWords] & 0x7FFE2000) >> 17);
+						if( slotRead != slotExpected ){ 
+							std::cout << "Slot read (" << slotRead 
+								<< ") not the same as" << " module expected (" 
+								<< slotExpected << ")" << std::endl; 
+							break;
+						}
+						else if(eventSize == 0){ 
+							std::cout << "ZERO EVENT SIZE in mod " << mod << "!\n"; 
+							break;
+						}
+						parseWords += eventSize;
 					}
-					else if(eventSize == 0){ 
-						std::cout << "ZERO EVENT SIZE in mod " << mod << "!\n"; 
-						//Decrease the number of data words to ignore this dump
-						dataWords -= 2;
-						continue;
+
+					//If parseWords is small then the parse failed for some reason
+					if (parseWords < dataWords + nWords[mod]) {
 					}
-					*/
-				
+					//Or we have too many words as an event was not completely pulled form the FIFO
+					else if (parseWords > dataWords + nWords[mod]) {
+						std::cout << "WARNING: Parsing indicates hanging event!\n";
+					}
+
 					//Print a message about what we did	
 					if(!is_quiet) {
 						std::cout << "Read " << nWords[mod] << " words from module " << mod << " to buffer position " << dataWords;
@@ -983,7 +990,7 @@ void Poll::run_control(){
 					write_data(fifoData, dataWords); 
 				}
 			} //If we had exceeded the threshold or forced a flush
-			
+
 			//Handle a stop signal
 			if(stop_acq){ 
 				//time(&raw_time);
