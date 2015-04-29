@@ -120,10 +120,6 @@ PixieInterface::PixieInterface(const char *fn) : hasAlternativeConfig(false), lo
     exit(EXIT_FAILURE);
   }
 
-  for (unsigned int i=0; i < MAX_MODULES; i++) {
-    hasExtra[i] = false;
-    extraWord[i] = 0;
-  }
 }
 
 PixieInterface::~PixieInterface()
@@ -561,40 +557,53 @@ unsigned long PixieInterface::CheckFIFOWords(unsigned short mod)
     return 0;
   }
  
-  return nWords + (hasExtra[mod] ? 1 : 0);
+	return nWords + extraWords[mod].size();
 }
 
 bool PixieInterface::ReadFIFOWords(word_t *buf, unsigned long nWords,
 				   unsigned short mod)
 {
-  if (nWords == 1) {
-    if (hasExtra[mod]) {
-      *buf = extraWord[mod];
-      hasExtra[mod] = false;
-      return true;
-    }
-    word_t minibuf[2];
+	std::cout << "mod " << mod << " nWords " << nWords;
+	std::cout << " extraWords[mod].size " << extraWords[mod].size();
+	if (nWords < MIN_FIFO_READ + extraWords[mod].size()) {
+		if (nWords > extraWords[mod].size()) {
+			word_t minibuf[MIN_FIFO_READ];
+			retval = Pixie16ReadDataFromExternalFIFO(minibuf, MIN_FIFO_READ, mod);
 
-    retval = Pixie16ReadDataFromExternalFIFO(minibuf, 2, mod);
-    *buf = minibuf[0];
-    extraWord[mod] = minibuf[1];
-    hasExtra[mod] = true;
-  } else {
-    if (hasExtra[mod]) {
-      *buf++ = extraWord[mod];
-      hasExtra[mod] = false;
-      nWords--;
-    }
-    retval = Pixie16ReadDataFromExternalFIFO(buf, nWords, mod);
-  }
+			if (retval < 0) {
+				cout << WarningStr("Error reading words from FIFO in module ") << mod << " retVal " << retval << endl;
+				return false;
+			}
+			for (int i=0;i<MIN_FIFO_READ;i++) extraWords[mod].push(minibuf[i]);
+		}
+	}
+	std::cout << " " << extraWords[mod].size();
 
-  if (retval < 0) {
-    cout << WarningStr("Error reading words from FIFO in module ") << mod << endl;
-    return false;
-  }
+	size_t wordsAdded = 0;
+	for (wordsAdded;wordsAdded<nWords && !extraWords[mod].empty();++wordsAdded) {
+		*buf++ = extraWords[mod].front();
+		extraWords[mod].pop();
+	}
+	std::cout << " " << extraWords[mod].size();
 
-  return true;
+	if (nWords < wordsAdded) {
+		std::cout <<std::endl;
+		return true;
+	}
+	nWords -= wordsAdded;
+
+	std::cout << " nWords " << nWords << std::endl;
+
+	retval = Pixie16ReadDataFromExternalFIFO(buf, nWords, mod);
+
+	if (retval < 0) {
+		cout << WarningStr("Error reading words from FIFO in module ") << mod << " retVal " << retval << endl;
+		return false;
+	}
+
+	return true;
 }
+
 #endif // Rev. D FIFO access
 
 bool PixieInterface::EndRun()
