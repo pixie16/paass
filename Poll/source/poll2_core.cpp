@@ -822,6 +822,8 @@ void Poll::run_control(){
 	//The FIFO storage array
 	word_t *fifoData = new word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
 
+	double startTime, lastSpillTime;
+
 	const bool savePartialEvents = false;
 	
 	while(true){
@@ -873,6 +875,8 @@ void Poll::run_control(){
 			//Start list mode
 			if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)){
 				acq_running = true;
+				startTime = usGetTime(0);
+				lastSpillTime = 0;
 			}
 			else{ 
 				std::cout << sys_message_head << "Failed to start list mode run. Try rebooting PIXIE\n"; 
@@ -962,16 +966,11 @@ void Poll::run_control(){
 						//Check first word to see if data makes sense.
 						// Previous version then iterated the number of words forward and continued to parse.
 						// We check the slot and event size.
-						word_t slotRead = ((fifoData[dataWords] & 0xF0) >> 4);
+						word_t slotRead = ((fifoData[parseWords] & 0xF0) >> 4);
 						word_t slotExpected = pif->GetSlotNumber(mod);
-						eventSize = ((fifoData[dataWords] & 0x7FFE2000) >> 17);
+						word_t chanRead = (fifoData[parseWords] & 0xF);
+						eventSize = ((fifoData[parseWords] & 0x7FFE2000) >> 17);
 						bool virtualChannel = ((fifoData[parseWords] & 0x20000000) != 0);
-						
-						// Update the statsHandler with the event (for monitor.bash)
-						if(!virtualChannel && statsHandler){ 
-							word_t chanRead = (fifoData[parseWords] & 0xF);
-							statsHandler->AddEvent(mod, chanRead, sizeof(word_t) * eventSize); 
-						}
 
 						if( slotRead != slotExpected ){ 
 							std::cout << Display::ErrorStr() << " Slot read (" << slotRead 
@@ -979,10 +978,20 @@ void Poll::run_control(){
 								<< slotExpected << ")" << std::endl; 
 							break;
 						}
+						else if (chanRead < 0 || chanRead > 15) {
+							std::cout << Display::ErrorStr() << " Channel read (" << chanRead << ") not valid!\n";
+							break;
+						}
 						else if(eventSize == 0){ 
 							std::cout << "ZERO EVENT SIZE in mod " << mod << "!\n"; 
 							break;
 						}
+
+						// Update the statsHandler with the event (for monitor.bash)
+						if(!virtualChannel && statsHandler){ 
+							statsHandler->AddEvent(mod, chanRead, sizeof(word_t) * eventSize); 
+						}
+
 						parseWords += eventSize;
 					}
 
@@ -1066,6 +1075,10 @@ void Poll::run_control(){
 					write_data(fifoData, dataWords); 
 				}
 				
+				//Get the length of the spill
+				double spillTime = usGetTime(startTime);
+				double durSpill = spillTime - lastSpillTime;
+				lastSpillTime = spillTime;
 				// Add time to the statsHandler (for monitor.bash)
 				if(statsHandler){ statsHandler->AddTime(durSpill * 1e-6); }
 			} //If we had exceeded the threshold or forced a flush
