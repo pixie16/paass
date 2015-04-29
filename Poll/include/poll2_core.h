@@ -80,8 +80,6 @@ class Poll{
 	size_t n_cards;
 
 	// Poll run variables
-	double startTime;
-	double spillTime, lastSpillTime, durSpill;
 	double parseTime, waitTime, readTime, sendTime, pollTime;
 	double lastStatsTime, statsTime;
 	double lastHistoTime, histoTime;
