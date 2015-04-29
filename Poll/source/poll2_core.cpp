@@ -1017,6 +1017,11 @@ void Poll::run_control(){
 						//std::cout << "Getting remaing partial event of " << missingWords << "/" << eventSize << " words!\n";
 						std::cout << "Getting remaing partial event of " << missingWords << "+" << partialSize << "=" << eventSize << " words!\n";
 						word_t partialEventBuffer[EXTERNAL_FIFO_LENGTH] = {0};
+						//We wait until the words are available
+						while (pif->CheckFIFOWords(mod) < missingWords+9) {
+							std::cout << Display::WarningStr("Waiting for words ") << missingWords << std::endl;
+							usleep(15);
+						}
 						if (!pif->ReadFIFOWords(&fifoData[dataWords + nWords[mod]], missingWords, mod)) {
 						//if (!pif->ReadFIFOWords(partialEventBuffer, missingWords, mod)) {
 							stop_acq = true;

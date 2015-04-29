@@ -13,6 +13,8 @@
 #include "Display.h"
 #include "PixieInterface.h"
 
+#define MIN_FIFO_READ 9
+
 using namespace std;
 using namespace Display;
 
@@ -568,6 +570,8 @@ bool PixieInterface::ReadFIFOWords(word_t *buf, unsigned long nWords,
 	if (nWords < MIN_FIFO_READ + extraWords[mod].size()) {
 		if (nWords > extraWords[mod].size()) {
 			word_t minibuf[MIN_FIFO_READ];
+
+			if (CheckFIFOWords(mod)<MIN_FIFO_READ) return false;
 			retval = Pixie16ReadDataFromExternalFIFO(minibuf, MIN_FIFO_READ, mod);
 
 			if (retval < 0) {
@@ -586,7 +590,7 @@ bool PixieInterface::ReadFIFOWords(word_t *buf, unsigned long nWords,
 	}
 	std::cout << " " << extraWords[mod].size();
 
-	if (nWords < wordsAdded) {
+	if (nWords <= wordsAdded) {
 		std::cout <<std::endl;
 		return true;
 	}
@@ -594,6 +598,7 @@ bool PixieInterface::ReadFIFOWords(word_t *buf, unsigned long nWords,
 
 	std::cout << " nWords " << nWords << std::endl;
 
+	if (CheckFIFOWords(mod)<nWords) return false;
 	retval = Pixie16ReadDataFromExternalFIFO(buf, nWords, mod);
 
 	if (retval < 0) {
