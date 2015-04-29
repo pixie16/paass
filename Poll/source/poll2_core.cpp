@@ -926,7 +926,6 @@ void Poll::run_control(){
 						continue;
 					}
 					
-					
 					//Check if the FIFO is overfilled
 					bool fullFIFO = (nWords[mod] >= EXTERNAL_FIFO_LENGTH);
 					if (fullFIFO) {
@@ -956,7 +955,6 @@ void Poll::run_control(){
 					//Previous poll parsed data to make sure it was not corrupted.
 					//	This seems like something that should be done offline.
 					//	We need to have a discussion about online validation.
-					//	The following block is commented out until this is resolved
 					size_t parseWords = dataWords;
 					//We declare the eventSize outside the loop in case there is a partial event.
 					word_t eventSize = 0;
@@ -967,6 +965,14 @@ void Poll::run_control(){
 						word_t slotRead = ((fifoData[dataWords] & 0xF0) >> 4);
 						word_t slotExpected = pif->GetSlotNumber(mod);
 						eventSize = ((fifoData[dataWords] & 0x7FFE2000) >> 17);
+						bool virtualChannel = ((fifoData[parseWords] & 0x20000000) != 0);
+						
+						// Update the statsHandler with the event (for monitor.bash)
+						if(!virtualChannel && statsHandler){ 
+							word_t chanRead = (fifoData[parseWords] & 0xF);
+							statsHandler->AddEvent(mod, chanRead, sizeof(word_t) * eventSize); 
+						}
+
 						if( slotRead != slotExpected ){ 
 							std::cout << Display::ErrorStr() << " Slot read (" << slotRead 
 								<< ") not the same as" << " slot expected (" 
@@ -1051,16 +1057,17 @@ void Poll::run_control(){
 						fifoData[dataWords - 2] = nWords[mod] + 2;
 					
 					}
-
 					//The data should be good so we iterate the position in the storage array.
 					dataWords += nWords[mod];
-
 				} //End loop over modules for reading FIFO
 
 				//We have read the FIFO now we write the data	
 				if(record_data){ 
 					write_data(fifoData, dataWords); 
 				}
+				
+				// Add time to the statsHandler (for monitor.bash)
+				if(statsHandler){ statsHandler->AddTime(durSpill * 1e-6); }
 			} //If we had exceeded the threshold or forced a flush
 
 			//Handle a stop signal
@@ -1089,14 +1096,11 @@ void Poll::run_control(){
 				}
 				std::cout << std::endl;			
 			} //End of handling a stop acq flag
-
 		}
-		
 	}
 
 	delete[] fifoData;
 	run_ctrl_exit = true;
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////
