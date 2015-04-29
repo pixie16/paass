@@ -32,8 +32,6 @@
 #endif
 #endif
 
-#define MIN_FIFO_READ 9
-
 #include <fstream>
 #include <map>
 #include <queue>
