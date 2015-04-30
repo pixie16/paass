@@ -49,7 +49,7 @@
 #define POLL_TRIES 100
 #define WAIT_TRIES 100
 
-#define MAX_FILE_SIZE 4294967296u // 4 GB. Maximum allowable .ldf file size in bytes
+#define MAX_FILE_SIZE 4294967296ll // 4 GB. Maximum allowable .ldf file size in bytes
 
 const std::string chan_params[21] = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP", "TRIGGER_THRESHOLD", "ENERGY_RISETIME", "ENERGY_FLATTOP", "TAU", "TRACE_LENGTH",
 									 "TRACE_DELAY", "VOFFSET", "XDT", "BASELINE_PERCENT", "EMIN", "BINFACTOR", "CHANNEL_CSRA", "CHANNEL_CSRB", "BLCUT",
@@ -295,10 +295,10 @@ int Poll::write_data(word_t *data, unsigned int nWords){
 
 	// Handle the writing of buffers to the file
 	std::streampos current_filesize = output_file.GetFilesize();
-	if(((unsigned int)current_filesize + 4*nWords + 65552) > MAX_FILE_SIZE){
+	if(current_filesize + (std::streampos)(4*nWords + 65552) > MAX_FILE_SIZE){
 		// Adding nWords plus 2 EOF buffers to the file will push it over MAX_FILE_SIZE.
 		// Open a new output file instead
-		std::cout << sys_message_head << "Current filesize is " << (unsigned int)current_filesize + 65552 << " bytes\n";
+		std::cout << sys_message_head << "Current filesize is " << current_filesize + (std::streampos)65552 << " bytes\n";
 		close_output_file();
 		open_output_file();
 	}

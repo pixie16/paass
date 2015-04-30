@@ -24,7 +24,7 @@
 
 #include <fstream>
 
-#define HRIBF_BUFFERS_VERSION "1.1.02"
+#define HRIBF_BUFFERS_VERSION "1.1.03"
 #define HRIBF_BUFFERS_DATE "April 30th, 2015"
 
 class BufferType{
@@ -155,7 +155,7 @@ class DATA_buffer : public BufferType{
 /// A single EOF buffer signals the end of a run (pacman .ldf format). A double EOF signals the end of the .ldf file.
 class EOF_buffer : public BufferType{	
   public:
-	EOF_buffer() : BufferType(541478725, 8192){} /// 0x20464F45 "EOF "
+	EOF_buffer(); /// 0x20464F45 "EOF "
 	
 	/// EOF buffer (1 word buffer type, 1 word buffer size, and 8192 end of buffer words)
 	bool Write(std::ofstream *file_);
