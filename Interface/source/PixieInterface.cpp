@@ -563,10 +563,12 @@ unsigned long PixieInterface::CheckFIFOWords(unsigned short mod)
 }
 
 bool PixieInterface::ReadFIFOWords(word_t *buf, unsigned long nWords,
-				   unsigned short mod)
+				   unsigned short mod, bool verbose)
 {
-	std::cout << "mod " << mod << " nWords " << nWords;
-	std::cout << " extraWords[mod].size " << extraWords[mod].size();
+	if (verbose) {
+		std::cout << "mod " << mod << " nWords " << nWords;
+		std::cout << " extraWords[mod].size " << extraWords[mod].size();
+	}
 	if (nWords < MIN_FIFO_READ + extraWords[mod].size()) {
 		if (nWords > extraWords[mod].size()) {
 			word_t minibuf[MIN_FIFO_READ];
@@ -581,14 +583,14 @@ bool PixieInterface::ReadFIFOWords(word_t *buf, unsigned long nWords,
 			for (int i=0;i<MIN_FIFO_READ;i++) extraWords[mod].push(minibuf[i]);
 		}
 	}
-	std::cout << " " << extraWords[mod].size();
+	if (verbose) std::cout << " " << extraWords[mod].size();
 
 	size_t wordsAdded = 0;
 	for (wordsAdded;wordsAdded<nWords && !extraWords[mod].empty();++wordsAdded) {
 		*buf++ = extraWords[mod].front();
 		extraWords[mod].pop();
 	}
-	std::cout << " " << extraWords[mod].size();
+	if (verbose) std::cout << " " << extraWords[mod].size();
 
 	if (nWords <= wordsAdded) {
 		std::cout <<std::endl;
@@ -596,7 +598,7 @@ bool PixieInterface::ReadFIFOWords(word_t *buf, unsigned long nWords,
 	}
 	nWords -= wordsAdded;
 
-	std::cout << " nWords " << nWords << std::endl;
+	if (verbose) std::cout << " nWords " << nWords << std::endl;
 
 	if (CheckFIFOWords(mod)<nWords) return false;
 	retval = Pixie16ReadDataFromExternalFIFO(buf, nWords, mod);
