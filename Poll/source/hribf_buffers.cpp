@@ -1,3 +1,24 @@
+/** \file hribf_buffers.cpp
+  * 
+  * \brief Handles poll2 output data files
+  * 
+  * The classes within this file are used to open, format,
+  * and properly write data to an hribf style ldf file so
+  * that it may be read by programs which read legacy ldf
+  * files. Each individual buffer class (inheriting from the
+  * BufferType class) is responsible for writting a different
+  * type of buffer to the data file. PollOutputFile is the
+  * class used to stitch all of the individual buffers together
+  * into a correctly formatted output ldf file which may be
+  * read by SCANOR from the hhirf upak library.
+  *
+  * \author Cory R. Thornsberry
+  * 
+  * \date April 30th, 2015
+  * 
+  * \version 1.1.02
+*/
+
 #include <sstream>
 #include <iostream>
 #include <string.h>
@@ -42,7 +63,7 @@ DIR_buffer::DIR_buffer() : BufferType(542263620, 8192){ // 0x20524944 "DIR "
 // 1 word for total number of buffers, 2 unknown words, 1 word for run number, 1 unknown word,
 // and 8186 zeros)
 bool DIR_buffer::Write(std::ofstream *file_){
-	if(!file_ || !file_->is_open()){ return false; }
+	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 	
 	if(debug_mode){ std::cout << "debug: writing 32776 byte DIR buffer\n"; }
 	
@@ -63,7 +84,7 @@ bool DIR_buffer::Write(std::ofstream *file_){
 }
 
 bool DIR_buffer::Read(std::ifstream *file_, int &number_buffers){
-	if(!file_ || !file_->is_open()){ return false; }
+	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 	
 	int check_bufftype, check_buffsize;	
 	file_->read((char*)&check_bufftype, 4);
@@ -136,7 +157,7 @@ bool HEAD_buffer::SetTitle(std::string input_){
 // 3 for type, 1 word separator, 4 word date, 20 word title [80 character], 1 word run number,
 // 30 words of padding, and 8129 end of buffer words)
 bool HEAD_buffer::Write(std::ofstream *file_){
-	if(!file_ || !file_->is_open()){ return false; }
+	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 	
 	if(debug_mode){ std::cout << "debug: writing 32776 byte HEAD buffer\n"; }
 	
@@ -164,7 +185,7 @@ bool HEAD_buffer::Write(std::ofstream *file_){
 }
 
 bool HEAD_buffer::Read(std::ifstream *file_){
-	if(!file_ || !file_->is_open()){ return false; }
+	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 	
 	int check_bufftype, check_buffsize;	
 	file_->read((char*)&check_bufftype, 4);
@@ -183,7 +204,7 @@ bool HEAD_buffer::Read(std::ifstream *file_){
 
 // Write data buffer header (2 words)
 bool DATA_buffer::open_(std::ofstream *file_){
-	if(!file_ || !file_->is_open()){ return false; }
+	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 
 	if(debug_mode){ std::cout << "debug: writing 2 word DATA header\n"; }
 	file_->write((char*)&bufftype, 4); // write buffer header type
@@ -203,7 +224,7 @@ DATA_buffer::DATA_buffer() : BufferType(1096040772, 8192){ // 0x41544144 "DATA"
 
 // Close a data buffer by padding with 0xFFFFFFFF
 bool DATA_buffer::Close(std::ofstream *file_){
-	if(!file_ || !file_->is_open()){ return false; }
+	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 
 	if(current_buff_pos < ACTUAL_BUFF_SIZE){
 		if(debug_mode){ std::cout << "debug: closing buffer with " << ACTUAL_BUFF_SIZE - current_buff_pos << " 0xFFFFFFFF words\n"; }
@@ -240,7 +261,7 @@ bool DATA_buffer::Close(std::ofstream *file_){
 
 // Write data to file
 bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_, int &buffs_written, int output_format_/*=0*/){
-	if(!file_ || !file_->is_open() || !data_ || nWords_ == 0){ 
+	if(!file_ || !file_->is_open() || !file_->good() || !data_ || nWords_ == 0){ 
 		if(debug_mode){ std::cout << "debug: !file_ || !file_->is_open() || !data_ || nWords_ == 0\n"; }	
 		return false; 
 	}
@@ -594,7 +615,7 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 
 // EOF buffer (1 word buffer type, 1 word buffer size, and 8192 end of file words)
 bool EOF_buffer::Write(std::ofstream *file_){
-	if(!file_ || !file_->is_open()){ return false; }
+	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 	
 	if(debug_mode){ std::cout << "debug: writing 32776 byte EOF buffer\n"; }
 	
@@ -611,7 +632,7 @@ bool EOF_buffer::Write(std::ofstream *file_){
 }
 
 bool EOF_buffer::Read(std::ifstream *file_){
-	if(!file_ || !file_->is_open()){ return false; }
+	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 
 	int check_bufftype, check_buffsize;	
 	file_->read((char*)&check_bufftype, 4);
@@ -628,8 +649,8 @@ std::string PollOutputFile::get_filename(){
 	std::string output;
 	
 	if(current_file_num == 0){ output = fname_prefix; }
-	else if(current_file_num < 10){ output = fname_prefix + "0" + run_num_str; }
-	else{ output = fname_prefix + run_num_str; }
+	else if(current_file_num < 10){ output = fname_prefix + "_0" + run_num_str; }
+	else{ output = fname_prefix + "_" + run_num_str; }
 	
 	if(output_format == 0){ output += ".ldf"; }
 	else if(output_format == 1){ output += ".pld"; }
@@ -683,7 +704,7 @@ bool PollOutputFile::get_full_filename(std::string &output){
 /// Returns false if no output file is open or if the number of 4 byte words in the file is not 
 /// evenly divisible by the number of words in a buffer
 bool PollOutputFile::overwrite_dir(int total_buffers_/*=-1*/){
-	if(!output_file.is_open()){ return false; }
+	if(!output_file.is_open() || !output_file.good()){ return false; }
 	
 	// Set the buffer count in the "DIR " buffer
 	if(total_buffers_ == -1){ // Set with the internal buffer count
@@ -780,13 +801,15 @@ void PollOutputFile::SetFilenamePrefix(std::string filename_){
 }
 
 int PollOutputFile::Write(char *data_, unsigned int nWords_){
-	if(!data_ || nWords_ == 0){ return 0; }
+	if(!data_ || nWords_ == 0){ return -1; }
 
-	if(!output_file.is_open()){ return 0; }
+	if(!output_file.is_open() || !output_file.good()){ return -1; }
 	
 	// Write data to disk
 	int buffs_written;
-	dataBuff.Write(&output_file, data_, nWords_, buffs_written, output_format);
+	if(!dataBuff.Write(&output_file, data_, nWords_, buffs_written, output_format)){
+		return -1;
+	}
 	number_spills++;
 	
 	return buffs_written;
@@ -794,7 +817,7 @@ int PollOutputFile::Write(char *data_, unsigned int nWords_){
 
 // Return the size of the packet to be built (in bytes)
 unsigned int PollOutputFile::GetPacketSize(){
-	if(!output_file.is_open()){ return (2 + 2 * sizeof(int)); }
+	if(!output_file.is_open() || !output_file.good()){ return (2 + 2 * sizeof(int)); }
 	return ((2 + 4 * sizeof(int)) + sizeof(std::streampos) + current_filename.size());
 }
 
@@ -812,7 +835,7 @@ int PollOutputFile::BuildPacket(char *output){
 	char size_of_int = sizeof(int); // Size of integer on this machine
 	char size_of_spos = sizeof(std::streampos); // Size of streampos on this machine
 
-	if(!output_file.is_open()){
+	if(!output_file.is_open() || !output_file.good()){
 		// Below is the output packet structure
 		// ------------------------------------
 		// 1 byte size of integer (may not be the same on a different machine)
@@ -875,7 +898,7 @@ bool PollOutputFile::OpenNewFile(std::string title_, int run_num_, std::string &
 		}
 		else{
 			output_file.open(filename.c_str(), std::ios::binary);
-			if(!output_file.is_open()){
+			if(!output_file.is_open() || !output_file.good()){
 				output_file.close();
 				return false;
 			}
@@ -898,7 +921,7 @@ bool PollOutputFile::OpenNewFile(std::string title_, int run_num_, std::string &
 
 // Write the footer and close the file
 void PollOutputFile::CloseFile(){
-	if(!output_file.is_open()){ return; }
+	if(!output_file.is_open() || !output_file.good()){ return; }
 	
 	dataBuff.Close(&output_file); // Pad the final data buffer with 0xFFFFFFFF
 	

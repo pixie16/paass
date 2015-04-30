@@ -5,6 +5,8 @@
   * \author Cory R. Thornsberry
   * 
   * \date April 20th, 2015
+  * 
+  * \version 1.0
 */
 
 #include <iostream>
@@ -17,7 +19,7 @@
 typedef std::chrono::high_resolution_clock hr_clock;
 typedef std::chrono::high_resolution_clock::time_point hr_time;
 
-// Find the order of magnitude of an input double
+/// Find the order of magnitude of an input double
 int order(double input_){
 	if(input_ < 0.0){ input_ *= -1; }
 	if(input_ >= 1.0){
@@ -67,6 +69,11 @@ int main(){
 
 			if(strcmp(buffer, "$CLOSE_FILE") == 0){
 				std::cout << "  Received CLOSE_FILE flag...\n\n";
+				first_packet = true;
+				continue;
+			}
+			else if(strcmp(buffer, "$OPEN_FILE") == 0){
+				std::cout << "  Received OPEN_FILE flag...\n\n";
 				first_packet = true;
 				continue;
 			}

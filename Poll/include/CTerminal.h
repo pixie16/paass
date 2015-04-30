@@ -1,3 +1,17 @@
+/** \file CTerminal.h
+  * 
+  * \brief Library to handle all aspects of a stand-alone command line interface
+  *
+  * Library to facilitate the creation of C++ executables with
+  * interactive command line interfaces under a linux environment
+  *
+  * \author Cory R. Thornsberry
+  * 
+  * \date April 24th, 2015
+  * 
+  * \version 1.1.04
+*/
+
 #ifndef CTERMINAL_H
 #define CTERMINAL_H
 

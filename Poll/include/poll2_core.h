@@ -1,3 +1,21 @@
+/** \file poll2_core.h
+  * 
+  * \brief Controls the poll2 command interpreter and data acquisition system
+  * 
+  * The Poll class is used to control the command interpreter
+  * and data acqusition systems. Command input and the command
+  * line interface of poll2 are handled by the external library
+  * CTerminal. Pixie16 data acquisition is handled by interfacing
+  * with the PixieInterface library.
+  *
+  * \author Cory R. Thornsberry
+  * 
+  * \date April 30th, 2015
+  * 
+  * \version 1.1.18
+*/
+
+
 #ifndef POLL2_CORE_H
 #define POLL2_CORE_H
 
@@ -7,8 +25,8 @@
 #include "hribf_buffers.h"
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.1.17"
-#define POLL2_CORE_DATE "April 24th, 2015"
+#define POLL2_CORE_VERSION "1.1.18"
+#define POLL2_CORE_DATE "April 30th, 2015"
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
