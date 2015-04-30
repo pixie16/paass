@@ -1,10 +1,31 @@
+/** \file hribf_buffers.h
+  * 
+  * \brief Handles poll2 output data files
+  * 
+  * The classes within this file are used to open, format,
+  * and properly write data to an hribf style ldf file so
+  * that it may be read by programs which read legacy ldf
+  * files. Each individual buffer class (inheriting from the
+  * BufferType class) is responsible for writting a different
+  * type of buffer to the data file. PollOutputFile is the
+  * class used to stitch all of the individual buffers together
+  * into a correctly formatted output ldf file which may be
+  * read by SCANOR from the hhirf upak library.
+  *
+  * \author Cory R. Thornsberry
+  * 
+  * \date April 30th, 2015
+  * 
+  * \version 1.1.02
+*/
+
 #ifndef HRIBF_BUFFERS_H
 #define HRIBF_BUFFERS_H
 
 #include <fstream>
 
-#define HRIBF_BUFFERS_VERSION "1.1.01"
-#define HRIBF_BUFFERS_DATE "April 24th, 2015"
+#define HRIBF_BUFFERS_VERSION "1.1.02"
+#define HRIBF_BUFFERS_DATE "April 30th, 2015"
 
 class BufferType{
   protected:
@@ -201,8 +222,8 @@ class PollOutputFile{
 	/// Set the output filename prefix
 	void SetFilenamePrefix(std::string filename_);
 
-	/// Return true if an output file is open and false otherwise
-	bool IsOpen(){ return output_file.is_open(); }
+	/// Return true if an output file is open and writable and false otherwise
+	bool IsOpen(){ return (output_file.is_open() && output_file.good()); }
 	
 	/// Write nWords_ of data to the file
 	int Write(char *data_, unsigned int nWords_);

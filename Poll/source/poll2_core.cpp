@@ -1,4 +1,19 @@
-// poll2_core.cpp
+/** \file poll2_core.cpp
+  * 
+  * \brief Controls the poll2 command interpreter and data acquisition system
+  * 
+  * The Poll class is used to control the command interpreter
+  * and data acqusition systems. Command input and the command
+  * line interface of poll2 are handled by the external library
+  * CTerminal. Pixie16 data acquisition is handled by interfacing
+  * with the PixieInterface library.
+  *
+  * \author Cory R. Thornsberry
+  * 
+  * \date April 30th, 2015
+  * 
+  * \version 1.1.18
+*/
 
 #include <algorithm>
 #include <iostream>
@@ -33,6 +48,8 @@
 #define END_RUN_PAUSE 100
 #define POLL_TRIES 100
 #define WAIT_TRIES 100
+
+#define MAX_FILE_SIZE 4294967296u // 4 GB. Maximum allowable .ldf file size in bytes
 
 const std::string chan_params[21] = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP", "TRIGGER_THRESHOLD", "ENERGY_RISETIME", "ENERGY_FLATTOP", "TAU", "TRACE_LENGTH",
 									 "TRACE_DELAY", "VOFFSET", "XDT", "BASELINE_PERCENT", "EMIN", "BINFACTOR", "CHANNEL_CSRA", "CHANNEL_CSRB", "BLCUT",
@@ -202,7 +219,7 @@ bool Poll::close(){
 /* Safely close current data file if one is open. */
 bool Poll::close_output_file(){
 	if(output_file.IsOpen()){ // A file is already open and must be closed
-		if(acq_running && record_data){
+		/*if(acq_running && record_data){
 			std::cout << sys_message_head << "Warning! Attempted to close file while acquisition running.\n";
 			return false;
 		}
@@ -213,7 +230,7 @@ bool Poll::close_output_file(){
 		else if(stop_acq){
 			std::cout << sys_message_head << "Warning! Attempted to close file while acquisition is stopping.\n";
 			return false;			
-		}
+		}*/
 		std::cout << sys_message_head << "Closing output file.\n";
 		client->SendMessage((char *)"$CLOSE_FILE", 12);
 		output_file.CloseFile();
@@ -231,6 +248,7 @@ bool Poll::open_output_file(){
 			return record_data = false;
 		}
 		std::cout << sys_message_head << "Opening output file '" << current_filename << "'.\n";
+		client->SendMessage((char *)"$OPEN_FILE", 12);
 	}
 	else{ 
 		std::cout << sys_message_head << "Warning! A file is already open. Close the current file before opening a new one.\n"; 
@@ -276,6 +294,14 @@ int Poll::write_data(word_t *data, unsigned int nWords){
 	client->SendMessage(packet, packet_size);
 
 	// Handle the writing of buffers to the file
+	std::streampos current_filesize = output_file.GetFilesize();
+	if(((unsigned int)current_filesize + 4*nWords + 65552) > MAX_FILE_SIZE){
+		// Adding nWords plus 2 EOF buffers to the file will push it over MAX_FILE_SIZE.
+		// Open a new output file instead
+		std::cout << sys_message_head << "Current filesize is " << (unsigned int)current_filesize + 65552 << " bytes\n";
+		close_output_file();
+		open_output_file();
+	}
 	return output_file.Write((char*)data, nWords);
 
 	return -1;
