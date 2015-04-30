@@ -126,7 +126,7 @@ class PixieInterface
 #ifdef PIF_FIFO
   unsigned long CheckFIFOWords(unsigned short mod);
   bool ReadFIFOWords(word_t *buf, unsigned long nWords,
-		     unsigned short mod);
+		     unsigned short mod, bool verbose=false);
 #endif
 
   bool EndRun(void); // end run in all modules
