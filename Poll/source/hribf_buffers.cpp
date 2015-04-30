@@ -16,7 +16,7 @@
   * 
   * \date April 30th, 2015
   * 
-  * \version 1.1.02
+  * \version 1.1.03
 */
 
 #include <sstream>
@@ -98,7 +98,11 @@ bool DIR_buffer::Read(std::ifstream *file_, int &number_buffers){
 	int check_bufftype, check_buffsize;	
 	file_->read((char*)&check_bufftype, 4);
 	file_->read((char*)&check_buffsize, 4);
-	if(check_bufftype != bufftype || check_buffsize != buffsize){ return false; }// Not a valid DIR buffer
+	if(check_bufftype != bufftype || check_buffsize != buffsize){ // Not a valid DIR buffer
+		if(debug_mode){ std::cout << "debug: not a valid DIR buffer\n"; }
+		file_->seekg(-8, file_->cur); // Rewind to the beginning of this buffer
+		return false; 
+	}
 	
 	file_->read((char*)&total_buff_size, 4);
 	file_->read((char*)&number_buffers, 4);
@@ -200,7 +204,11 @@ bool HEAD_buffer::Read(std::ifstream *file_){
 	int check_bufftype, check_buffsize;	
 	file_->read((char*)&check_bufftype, 4);
 	file_->read((char*)&check_buffsize, 4);
-	if(check_bufftype != bufftype || check_buffsize != buffsize){ return false; }// Not a valid HEAD buffer
+	if(check_bufftype != bufftype || check_buffsize != buffsize){ // Not a valid HEAD buffer
+		if(debug_mode){ std::cout << "debug: not a valid HEAD buffer\n"; }
+		file_->seekg(-8, file_->cur); // Rewind to the beginning of this buffer
+		return false; 
+	}
 	
 	file_->read(facility, 8); facility[8] = '\0';
 	file_->read(format, 8); format[8] = '\0';
@@ -208,7 +216,7 @@ bool HEAD_buffer::Read(std::ifstream *file_){
 	file_->read(date, 16); date[16] = '\0';
 	file_->read(run_title, 80); run_title[80] = '\0';
 	file_->read((char*)&run_num, 4);
-	file_->seekg((buffsize*4 - 132), file_->cur); // Skip the rest of the buffer
+	file_->seekg((ACTUAL_BUFF_SIZE*4 - 140), file_->cur); // Skip the rest of the buffer
 
 	return true;
 }
@@ -414,7 +422,7 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 }
 
 /// Read a data spill from a file
-bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, int file_format_/*=0*/){
+bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, bool &full_spill, int file_format_/*=0*/){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 
 	if(file_format_ == 0){ // Legacy .ldf file	
@@ -425,58 +433,91 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 		nBytes = 0;
 	
 		int pacword1, pacword2;
-		int dummy;
+
+		file_->read((char *)&buff_head, 4);
+		file_->read((char*)&buff_size, 4);
+		if(buff_head == DATA){
+			file_->read((char*)&this_chunk_sizeB, 4);
+			file_->read((char*)&total_num_chunks, 4);
+		}
+		else{
+			if(buff_head == ENDFILE){ 
+				if(debug_mode){ std::cout << "debug: encountered EOF buffer before start of spill\n"; }
+				file_->seekg(-8, file_->cur); // Rewind to the start position
+				return false;
+			}
+			if(debug_mode){ std::cout << "debug: encountered non DATA buffer of type 0x" << std::hex << buff_head << std::dec << "\n"; }
+			this_chunk_sizeB = buff_head;
+			total_num_chunks = buff_size;
+		}
+		
+		file_->read((char*)&current_chunk_num, 4);
+		if(current_chunk_num != 0){
+			if(debug_mode){ std::cout << "debug: starting read in middle of spill\n"; }
+			full_spill = false;
+		}
+		else{ full_spill = true; }
+		//std::cout << this_chunk_sizeB << "\t" << total_num_chunks << "\t" << current_chunk_num << std::endl;
 
 		// Construct the spill
 		while(true){
 			if(file_->eof()){
-				if(debug_mode){ std::cout << "debug: encountered physical end-of-file before double EOF buffer\n"; }
+				if(debug_mode){ std::cout << "debug: encountered physical end-of-file before end of spill!\n"; }
 				break;
 			}
-		
-			file_->read((char*)&buff_head, 4);
-			file_->read((char*)&buff_size, 4);
 
-			if(buff_head == ENDFILE){ // EOF buffer
-				// Read ahead and check for a second EOF buffer
-				file_->read((char *)&buff_size, 4); // Size of EOF buffer
-				file_->seekg(buff_size, file_->cur); // Skip the entirety of this buffer
-				file_->read((char *)&buff_head, 4); 
-				if(buff_head == ENDFILE){
-					if(debug_mode){ std::cout << "debug: double EOF buffer encountered\n"; }
-					break;
-				}
-				else if(debug_mode){ std::cout << "debug: expected double EOF buffer, found buffer 0x" << std::hex << buff_head << std::dec << "\n"; }
-			}		
-			else if(buff_head != DATA){
-				if(debug_mode){ std::cout << "debug: skipping buffer of type 0x" << std::hex << buff_head << std::dec << "\n"; }
-				file_->seekg(buff_size, file_->cur); // Skip this entire buffer
-				continue;
-			}
-		
-			file_->read((char*)&this_chunk_sizeB, 4);
-			file_->read((char*)&total_num_chunks, 4);
-			file_->read((char*)&current_chunk_num, 4);
-	
 			if(current_chunk_num == total_num_chunks - 1){ // Spill footer
-				if(end_spill_size != 5 && debug_mode){
-					std::cout << "debug: spill footer (chunk " << current_chunk_num << " of " << total_num_chunks << ") has size " << this_chunk_sizeB << " != 5\n";
+				if(this_chunk_sizeB != end_spill_size){
+					if(debug_mode){ std::cout << "debug: spill footer (chunk " << current_chunk_num << " of " << total_num_chunks << ") has size " << this_chunk_sizeB << " != 5\n"; }
+					return false;
 				}
-				file_->read((char*)&pacword1, 4);
-				file_->read((char*)&pacword2, 4);
-				if(debug_mode){ std::cout << "debug: finished scanning spill of " << nBytes << " bytes\n"; }
+				else if(debug_mode){ std::cout << "debug: finished scanning spill of " << nBytes << " bytes\n"; }
+				file_->seekg(8, file_->cur); // Skip the remaining useless pacman words (2 & 9999)
 				
+				// Scan until the next spill chunk or buffer
+				int dummy;
+				//file_->read((char *)&dummy, 4); std::cout << dummy << std::endl;
+				//file_->read((char *)&dummy, 4); std::cout << dummy << std::endl;
+				while(true){
+					file_->read((char *)&dummy, 4);
+					if(dummy != ENDBUFF){ 
+						file_->seekg(-4, file_->cur); // Rewind to the previous word
+						break; 
+					}
+					//std::cout << dummy << std::endl;
+				}
+				return true;
 			}
 			else{ // Normal spill chunk
 				nBytes += this_chunk_sizeB - 12;
-				file_->seekg(this_chunk_sizeB, file_->cur); // Skip all of the chunk data	
+				file_->seekg(this_chunk_sizeB - 12, file_->cur); // Skip all of the chunk data
 			}
 		
-			// Scan until the next buffer
+			// Scan until the next spill chunk or buffer
 			while(true){
-				file_->read((char *)&dummy, 4);
-				if(dummy != ENDBUFF){ break; }
+				file_->read((char *)&buff_head, 4);
+			
+				if(buff_head != ENDBUFF){ break; }
+				//std::cout << buff_head << std::endl;
 			}
+
+			if(buff_head == ENDFILE){ 
+				if(debug_mode){ std::cout << "debug: encountered EOF buffer before end of spill!\n"; }
+				file_->seekg(-4, file_->cur); // Rewind to the start position
+				return false;
+			}
+			else if(buff_head == DATA){
+				file_->read((char*)&buff_size, 4);
+				file_->read((char*)&this_chunk_sizeB, 4);
+			}
+			else if(debug_mode){ // This is likely the start of a chunk (hopefully)
+				std::cout << "debug: encountered buffer of type 0x" << std::hex << buff_head << std::dec << " before end of spill\n"; 
+				this_chunk_sizeB = buff_head;
+			}
+			
+			file_->read((char*)&total_num_chunks, 4);
+			file_->read((char*)&current_chunk_num, 4);
+			//std::cout << this_chunk_sizeB << "\t" << total_num_chunks << "\t" << current_chunk_num << std::endl;
 		}
 		
 		return true;
@@ -513,7 +554,11 @@ bool EOF_buffer::Read(std::ifstream *file_){
 	int check_bufftype, check_buffsize;	
 	file_->read((char*)&check_bufftype, 4);
 	file_->read((char*)&check_buffsize, 4);
-	if(check_bufftype != bufftype || check_buffsize != buffsize){ return false; }// Not a valid EOF buffer
+	if(check_bufftype != bufftype || check_buffsize != buffsize){ // Not a valid EOF buffer
+		if(debug_mode){ std::cout << "debug: not a valid EOF buffer\n"; }
+		file_->seekg(-8, file_->cur); // Rewind to the beginning of this buffer
+		return false; 
+	}
 	
 	file_->seekg((buffsize*4), file_->cur); // Skip the rest of the buffer
 	

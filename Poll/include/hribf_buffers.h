@@ -16,13 +16,14 @@
   * 
   * \date April 30th, 2015
   * 
-  * \version 1.1.02
+  * \version 1.1.03
 */
 
 #ifndef HRIBF_BUFFERS_H
 #define HRIBF_BUFFERS_H
 
 #include <fstream>
+#include <vector>
 
 #define HRIBF_BUFFERS_VERSION "1.1.03"
 #define HRIBF_BUFFERS_DATE "April 30th, 2015"
@@ -85,11 +86,11 @@ class DIR_buffer : public BufferType{
    about the run including the date/time, the title, and the run number. */
 class HEAD_buffer : public BufferType{
   private:
-	char facility[8];
-	char format[8];
-	char type[16];
-	char date[16];
-	char run_title[80];
+	char facility[9];
+	char format[9];
+	char type[17];
+	char date[17];
+	char run_title[81];
 	int run_num;
 
 	void set_char_array(std::string input_, char *arr_, unsigned int size_);
@@ -101,9 +102,9 @@ class HEAD_buffer : public BufferType{
 	
 	char *GetFormat(){ return format; }
 		
-	char *GetType(){ return format; }
+	char *GetType(){ return type; }
 	
-	char *GetDate(){ return format; }
+	char *GetDate(){ return date; }
 	
 	char *GetRunTitle(){ return run_title; }
 		
@@ -149,7 +150,7 @@ class DATA_buffer : public BufferType{
 	bool Write(std::ofstream *file_, char *data_, unsigned int nWords_, int &buffs_written, int output_format_=0);
 	
 	/// Read a data spill from a file
-	bool Read(std::ifstream *file_, char *data_, unsigned int &nWords_, int file_format_=0);
+	bool Read(std::ifstream *file_, char *data_, unsigned int &nWords_, bool &full_spill, int file_format_=0);
 };
 
 /// A single EOF buffer signals the end of a run (pacman .ldf format). A double EOF signals the end of the .ldf file.
