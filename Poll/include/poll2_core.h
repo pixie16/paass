@@ -12,7 +12,7 @@
   * 
   * \date April 30th, 2015
   * 
-  * \version 1.1.18
+  * \version 1.2.00
 */
 
 
@@ -25,8 +25,8 @@
 #include "hribf_buffers.h"
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.1.18"
-#define POLL2_CORE_DATE "April 30th, 2015"
+#define POLL2_CORE_VERSION "1.2.00"
+#define POLL2_CORE_DATE "May 1st, 2015"
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
