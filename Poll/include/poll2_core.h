@@ -80,12 +80,9 @@ class Poll{
 	size_t n_cards;
 
 	// Poll run variables
-	double startTime;
-	double spillTime, lastSpillTime, durSpill;
 	double parseTime, waitTime, readTime, sendTime, pollTime;
 	double lastStatsTime, statsTime;
 	double lastHistoTime, histoTime;
-	size_t dataWords;
 	bool *runDone, isExiting, justEnded;
 	unsigned int waitCounter, nonWaitCounter;
 	unsigned int partialBufferCounter;
@@ -98,7 +95,6 @@ class Poll{
 	std::map<chanid_t, PixieInterface::Histogram> histoMap;
 
 	// Data variables
-	word_t *fifoData;
 	eventdata_t *partialEventData;
 	std::vector<word_t> partialEventWords;
 	std::vector<word_t> waitWords;

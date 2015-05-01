@@ -34,6 +34,7 @@
 
 #include <fstream>
 #include <map>
+#include <queue>
 #include <string>
 #include <set>
 
@@ -125,7 +126,7 @@ class PixieInterface
 #ifdef PIF_FIFO
   unsigned long CheckFIFOWords(unsigned short mod);
   bool ReadFIFOWords(word_t *buf, unsigned long nWords,
-		     unsigned short mod);
+		     unsigned short mod, bool verbose=false);
 #endif
 
   bool EndRun(void); // end run in all modules
@@ -191,8 +192,7 @@ class PixieInterface
   int retval; // return value from pixie functions
   Lock lock;  // class to prevent simultaneous access to pixies
 
-  word_t extraWord[MAX_MODULES];
-  bool hasExtra[MAX_MODULES];
+  std::queue<word_t> extraWords[MAX_MODULES];
 
   // temporary variables which hold the parameter which is being modified
   //   to deal with the const-incorrectness of the Pixie-16 API
