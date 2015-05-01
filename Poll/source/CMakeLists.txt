@@ -17,4 +17,7 @@ add_executable(commtest ${COMTEST_SOURCES})
 set(LISTENER_SOURCES listener.cpp poll2_socket.cpp)
 add_executable(listener ${LISTENER_SOURCES})
 
-install(TARGETS poll poll2 listener pulser commtest DESTINATION ${CMAKE_INSTALL_PREFIX})
+set(READER_SOURCES ldfReader.cpp hribf_buffers.cpp)
+add_executable(ldfReader ${READER_SOURCES})
+
+install(TARGETS poll poll2 listener ldfReader pulser commtest DESTINATION ${CMAKE_INSTALL_PREFIX})

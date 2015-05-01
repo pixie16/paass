@@ -5,13 +5,39 @@
   * \author Cory R. Thornsberry
   * 
   * \date April 20th, 2015
+  * 
+  * \version 1.0
 */
 
 #include <iostream>
 #include <string.h>
-#include <time.h>
+#include <chrono>
+#include <cmath>
 
 #include "poll2_socket.h"
+
+typedef std::chrono::high_resolution_clock hr_clock;
+typedef std::chrono::high_resolution_clock::time_point hr_time;
+
+/// Find the order of magnitude of an input double
+int order(double input_){
+	if(input_ < 0.0){ input_ *= -1; }
+	if(input_ >= 1.0){
+		for(int i = 0; i <= 100; i++){
+			if(input_/std::pow(10.0, (double)i) < 1.0){
+				return i-1;
+			}
+		}
+	}
+	else{
+		for(int i = -100; i <= 1; i++){
+			if(input_/std::pow(10.0, (double)i) < 1.0){
+				return i-1;
+			}
+		}
+	}
+	return 999;
+}
 
 int main(){
 	char buffer[1024];
@@ -22,9 +48,10 @@ int main(){
 	std::streampos file_size;
 	std::streampos new_size;
 	
-	time_t time1;
-	time_t time2;
+	hr_time clock1;
+	hr_time clock2;
 	double dT;
+	std::chrono::duration<double> time_span;
 	
 	size_t size_of_int; // The first byte is always the size of an integer on the sending machine
 	size_t size_of_spos; // The second byte is always the size of a std::streampos type on the sending machine
@@ -42,6 +69,12 @@ int main(){
 
 			if(strcmp(buffer, "$CLOSE_FILE") == 0){
 				std::cout << "  Received CLOSE_FILE flag...\n\n";
+				first_packet = true;
+				continue;
+			}
+			else if(strcmp(buffer, "$OPEN_FILE") == 0){
+				std::cout << "  Received OPEN_FILE flag...\n\n";
+				first_packet = true;
 				continue;
 			}
 			else if(strcmp(buffer, "$KILL_SOCKET") == 0){
@@ -53,7 +86,7 @@ int main(){
 			if(first_packet){
 				size_of_int = (size_t)buffer[0];
 				size_of_spos = (size_t)buffer[1];
-		
+	
 				if(size_of_int != sizeof(int) || size_of_spos != sizeof(std::streampos)){ 
 					std::cout << "  Warning! basic type size on remote machine does not match local size\n"; 
 					std::cout << "  Size of integer on remote machine: " << size_of_int << " bytes\n";
@@ -62,8 +95,8 @@ int main(){
 				}
 			}
 			else{
-				time(&time2);
-				dT = difftime(time2, time1);
+				clock2 = hr_clock::now();
+				time_span = std::chrono::duration_cast<std::chrono::duration<double> >(clock2 - clock1); // Time between packets in seconds
 			}
 		
 			// The third byte is the start of an integer specifying the total length of the packet
@@ -103,21 +136,41 @@ int main(){
 				
 				std::cout << "  Packet length: " << total_size << " bytes\n";
 				std::cout << "  Poll2 filename: " << fname << "\n";
-				std::cout << "  Total file size: " << new_size << " bytes\n";
+				
+				int magnitude = order(new_size);
+				if(magnitude < 3){ std::cout << "  Total file size: " << new_size << " B\n"; } // B
+				else if(magnitude >= 3 && magnitude < 6){ std::cout << "  Total file size: " << new_size/1E3 << " kB\n"; } // kB
+				else if(magnitude >= 6 && magnitude < 9){ std::cout << "  Total file size: " << new_size/1E6 << " MB\n"; } // MB
+				else{ std::cout << "  Total file size: " << new_size/1E9 << " GB\n"; } // GB
+				
+				
 				std::cout << "  Spill number ID: " << spillID << "\n";
 				std::cout << "  Buffer size: " << buffSize << " words\n";
 				std::cout << "  End packet: " << end_packet_flag << "\n";
 				
 				if(!first_packet){ 
-					std::cout << "  Time diff: " << dT << " s\n";
-					std::cout << "  Data rate: " << ((double)(new_size - file_size))/dT << " B/s\n";
+					dT = time_span.count();
+					double rate = ((double)(new_size - file_size))/dT;
+					
+					magnitude = order(dT);
+					if(magnitude > -3){ std::cout << "  Time diff: " << dT << " s\n"; } // s
+					else if(magnitude <= -3 && magnitude > -6){ std::cout << "  Time diff: " << dT/1E-3 << " ms\n"; } // ms
+					else if(magnitude <= -6 && magnitude > -9){ std::cout << "  Time diff: " << dT/1E-6 << " us\n"; } // us
+					else{ std::cout << "  Time diff: " << dT/1E-9 << " ns\n"; } // ns
+					
+					magnitude = order(rate);
+					if(magnitude < 3){ std::cout << "  Data rate: " << rate << " B/s\n"; } // B/s
+					else if(magnitude >= 3 && magnitude < 6){ std::cout << "  Data rate: " << rate/1E3 << " kB/s\n"; } // kB/s
+					else if(magnitude >= 6 && magnitude < 9){ std::cout << "  Data rate: " << rate/1E6 << " MB/s\n"; } // MB/s
+					else{ std::cout << "  Data rate: " << rate/1E9 << " GB/s\n"; } // GB/s
 				}
 				else{ first_packet = false; }
 				std::cout << std::endl;
+				//std::cout.seekp(0);
 				
 				file_size = new_size;
 			}
-			time(&time1);
+			clock1 = std::chrono::high_resolution_clock::now();
 		}
 	}
 	else{ return 1; }

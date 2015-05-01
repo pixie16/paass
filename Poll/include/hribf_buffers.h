@@ -1,10 +1,32 @@
+/** \file hribf_buffers.h
+  * 
+  * \brief Handles poll2 output data files
+  * 
+  * The classes within this file are used to open, format,
+  * and properly write data to an hribf style ldf file so
+  * that it may be read by programs which read legacy ldf
+  * files. Each individual buffer class (inheriting from the
+  * BufferType class) is responsible for writting a different
+  * type of buffer to the data file. PollOutputFile is the
+  * class used to stitch all of the individual buffers together
+  * into a correctly formatted output ldf file which may be
+  * read by SCANOR from the hhirf upak library.
+  *
+  * \author Cory R. Thornsberry
+  * 
+  * \date April 30th, 2015
+  * 
+  * \version 1.1.03
+*/
+
 #ifndef HRIBF_BUFFERS_H
 #define HRIBF_BUFFERS_H
 
 #include <fstream>
+#include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.1.01"
-#define HRIBF_BUFFERS_DATE "April 24th, 2015"
+#define HRIBF_BUFFERS_VERSION "1.1.03"
+#define HRIBF_BUFFERS_DATE "April 30th, 2015"
 
 class BufferType{
   protected:
@@ -64,11 +86,11 @@ class DIR_buffer : public BufferType{
    about the run including the date/time, the title, and the run number. */
 class HEAD_buffer : public BufferType{
   private:
-	char facility[8];
-	char format[8];
-	char type[16];
-	char date[16];
-	char run_title[80];
+	char facility[9];
+	char format[9];
+	char type[17];
+	char date[17];
+	char run_title[81];
 	int run_num;
 
 	void set_char_array(std::string input_, char *arr_, unsigned int size_);
@@ -80,9 +102,9 @@ class HEAD_buffer : public BufferType{
 	
 	char *GetFormat(){ return format; }
 		
-	char *GetType(){ return format; }
+	char *GetType(){ return type; }
 	
-	char *GetDate(){ return format; }
+	char *GetDate(){ return date; }
 	
 	char *GetRunTitle(){ return run_title; }
 		
@@ -128,13 +150,13 @@ class DATA_buffer : public BufferType{
 	bool Write(std::ofstream *file_, char *data_, unsigned int nWords_, int &buffs_written, int output_format_=0);
 	
 	/// Read a data spill from a file
-	bool Read(std::ifstream *file_, char *data_, unsigned int &nWords_, int file_format_=0);
+	bool Read(std::ifstream *file_, char *data_, unsigned int &nWords_, bool &full_spill, int file_format_=0);
 };
 
 /// A single EOF buffer signals the end of a run (pacman .ldf format). A double EOF signals the end of the .ldf file.
 class EOF_buffer : public BufferType{	
   public:
-	EOF_buffer() : BufferType(541478725, 8192){} /// 0x20464F45 "EOF "
+	EOF_buffer(); /// 0x20464F45 "EOF "
 	
 	/// EOF buffer (1 word buffer type, 1 word buffer size, and 8192 end of buffer words)
 	bool Write(std::ofstream *file_);
@@ -201,8 +223,8 @@ class PollOutputFile{
 	/// Set the output filename prefix
 	void SetFilenamePrefix(std::string filename_);
 
-	/// Return true if an output file is open and false otherwise
-	bool IsOpen(){ return output_file.is_open(); }
+	/// Return true if an output file is open and writable and false otherwise
+	bool IsOpen(){ return (output_file.is_open() && output_file.good()); }
 	
 	/// Write nWords_ of data to the file
 	int Write(char *data_, unsigned int nWords_);
