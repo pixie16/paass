@@ -7,9 +7,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date April 24th, 2015
+  * \date May 4th, 2015
   * 
-  * \version 1.1.04
+  * \version 1.1.05
 */
 
 #include <iostream>
@@ -292,6 +292,10 @@ void Terminal::resize_() {
 	//end session and then refresh to get new window sizes.
 	endwin();
 	refresh();
+
+	//Mark resize as handled
+	SIGNAL_RESIZE = false;
+
 	//Get new window sizes
 	getmaxyx(stdscr, _winSizeY, _winSizeX);
 
@@ -301,10 +305,12 @@ void Terminal::resize_() {
 	if (outputSizeX < _winSizeX) {
 		wresize(output_window,_scrollbackBufferSize,_winSizeX);
 		wresize(input_window,1,_winSizeX);
+		if (status_window) wresize(status_window,_statusWindowSize, _winSizeX);
 	}
 
-	//Mark resize as handled
-	SIGNAL_RESIZE = false;
+	//Update the physical cursor location
+	cursY = _winSizeY - _statusWindowSize - 1;
+
 }
 
 void Terminal::pause(bool &flag) {
@@ -316,17 +322,23 @@ void Terminal::pause(bool &flag) {
 	refresh_();
 }
 
-
+/**Refreshes the specified window or if none specified all windows.
+ *
+ *\param[in] window The pointer to the window to be updated.
+ */
 void Terminal::refresh_(){
 	if(!init){ return; }
 	if (SIGNAL_RESIZE) resize_();
-	
+
 	pnoutrefresh(output_window, 
 		_scrollbackBufferSize - _winSizeY - _scrollPosition, 0,  //Pad corner to be placed in top left 
-		 0, 0, _winSizeY - 2, _winSizeX-1); //Size of window
-	pnoutrefresh(input_window,0,0, _winSizeY-1, 0,_winSizeY,_winSizeX-1);
-	doupdate();
-	
+		0, 0, _winSizeY - _statusWindowSize - 2, _winSizeX-1); //Size of window
+	pnoutrefresh(input_window,0,0, _winSizeY - _statusWindowSize - 1, 0,_winSizeY - _statusWindowSize,_winSizeX-1);
+	if (status_window) 
+		pnoutrefresh(status_window,0,0, _winSizeY - _statusWindowSize, 0, _winSizeY, _winSizeX);
+
+	refresh();
+
 }
 
 void Terminal::scroll_(int numLines){
@@ -344,6 +356,7 @@ void Terminal::update_cursor_(){
 	if(!init){ return; }
 	move(cursY, cursX); // Move the physical cursor
 	wmove(input_window, 0, cursX); // Move the logical cursor in the input window
+	refresh_();
 }
 
 void Terminal::clear_(){
@@ -357,6 +370,39 @@ void Terminal::clear_(){
 	text_length = 0;
 	update_cursor_();
 	refresh_();
+}
+
+/**Creates a status window and the refreshes the output. Takes an optional number of lines, defaulted to 1.
+ *
+ * \param[in] numLines Vertical size of status window.
+ */
+void Terminal::AddStatusWindow(unsigned short numLines) {
+	_statusWindowSize = numLines;	
+	//Create the new status pad.
+	status_window = newpad(_statusWindowSize, _winSizeX);
+
+	for (int i=0;i<numLines;i++) 
+		statusStr.push_back(std::string(""));
+
+	//Update the cursor position
+	cursY = _winSizeY - _statusWindowSize - 1;
+	update_cursor_();
+
+	//Refresh the screen
+	refresh_();
+}
+
+void Terminal::SetStatus(std::string status, unsigned short line) {
+	ClearStatus(line);
+	AppendStatus(status,line);
+}
+
+void Terminal::ClearStatus(unsigned short line) {
+	statusStr.at(line) = "";
+}
+
+void Terminal::AppendStatus(std::string status, unsigned short line) {
+	statusStr.at(line).append(status);
 }
 
 // Force a character to the input screen
@@ -469,8 +515,10 @@ bool Terminal::save_commands_(){
 }
 
 Terminal::Terminal() :
+	status_window(NULL),
 	_scrollbackBufferSize(SCROLLBACK_SIZE),
-	_scrollPosition(0)	
+	_scrollPosition(0),
+	_statusWindowSize(0)	
 {
 	pbuf = NULL; 
 	original = NULL;
@@ -562,8 +610,35 @@ void Terminal::SetCommandFilename(std::string input_, bool overwrite_/*=false*/)
 }
 
 void Terminal::SetPrompt(const char *input_){
-	offset = cstrlen(input_);
-	in_print_(input_);
+	prompt = input_;
+	
+	//Calculate the offset.
+	//This is long winded as we want to ignore the escape sequences
+	offset = 0;
+	int pos = 0, lastPos = 0;
+	while ((pos = prompt.find("\e[",lastPos)) != std::string::npos) {
+		//Increase offset by number characters prior to escape
+		offset += pos - lastPos;
+		lastPos = pos;
+
+		//Identify which escape code we found.
+		//First try reset code then loop through other codes
+		if (pos == prompt.find(TermColors::Reset,pos)) {
+			lastPos += std::string(TermColors::Reset).length();
+		}
+		else {
+			for(auto it=attrMap.begin(); it!= attrMap.end(); ++it) {
+				//If the attribute is at the same position then we found this attribute and we turn it on
+				if (pos == prompt.find(it->first,pos)) {
+					//Iterate position to suppress printing the escape string
+					lastPos += std::string(it->first).length();
+					break;
+				}
+			}
+		}	
+	}
+
+	print(input_window,prompt.c_str());
 }
 
 // Force a character to the output screen
@@ -573,26 +648,26 @@ void Terminal::putch(const char input_){
 }
 
 // Force text to the output screen
-void Terminal::print(std::string input_){
+void Terminal::print(WINDOW* window, std::string input_){
 	size_t pos = 0, lastPos = 0;
 	//Search for escape sequences
 	while ((pos = input_.find("\e[",lastPos)) != std::string::npos) {
 		//Output the string from last location to current escape sequence
-		waddstr(output_window, input_.substr(lastPos,pos-lastPos).c_str());
+		waddstr(window, input_.substr(lastPos,pos-lastPos).c_str());
 		lastPos = pos;
 
 		//Identify which escape code we found.
 		//First try reset code then loop through other codes
 		if (pos == input_.find(TermColors::Reset,pos)) {
-			wattrset(output_window, A_NORMAL);
+			wattrset(window, A_NORMAL);
 			lastPos += std::string(TermColors::Reset).length();
 		}
 		else {
 			for(auto it=attrMap.begin(); it!= attrMap.end(); ++it) {
 				//If the attribute is at the same position then we found this attribute and we turn it on
 				if (pos == input_.find(it->first,pos)) {
-					wattron(output_window, it->second);
-					//Iterate position to supress printing the escape string
+					wattron(window, it->second);
+					//Iterate position to suppress printing the escape string
 					lastPos += std::string(it->first).length();
 					break;
 				}
@@ -600,7 +675,7 @@ void Terminal::print(std::string input_){
 		}	
 	}
 	//Print the remaining string content
-	waddstr(output_window, input_.substr(lastPos).c_str());
+	waddstr(window, input_.substr(lastPos).c_str());
 	refresh_();
 }
 
@@ -608,7 +683,7 @@ void Terminal::print(std::string input_){
 void Terminal::flush(){
 	std::string stream_contents = stream.str();
 	if(stream_contents.size() > 0){
-		print(stream_contents);
+		print(output_window, stream_contents);
 		stream.str("");
 		stream.clear();
 	}
@@ -628,7 +703,6 @@ std::string Terminal::GetCommand(){
 		flush(); // If there is anything in the stream, dump it to the screen
 		
 		int keypress = wgetch(input_window);
-		if(keypress == ERR){ continue; } // No key was pressed in the interval
 
 		//print((" debug: " + to_str(keypress) + "\n").c_str());
 	
@@ -640,6 +714,7 @@ std::string Terminal::GetCommand(){
 					commands.Push(temp_cmd);
 				}
 				output = temp_cmd;
+				std::cout << prompt.c_str() << output << "\n";
 				text_length = 0;
 				_scrollPosition = 0;
 				break;
@@ -712,14 +787,13 @@ std::string Terminal::GetCommand(){
 			}
 		}	
 		else if(keypress == KEY_RESIZE) {
-			//Get rid of resize key
-			continue;
+			//Do nothing with the resize key
 		}
+		else if(keypress == ERR){  } // No key was pressed in the interval
 		else{ 
 			in_char_((char)keypress); 
 			cmd.Put((char)keypress, cursX - offset - 1);
 			text_length = cmd.GetSize();
-			continue;
 		}
 		
 		// Check for cursor too far to the left
@@ -728,6 +802,10 @@ std::string Terminal::GetCommand(){
 		// Check for cursor too far to the right
 		if(cursX > (text_length + offset)){ cursX = text_length + offset; }
 	
+		//Update status message
+		wclear(status_window);
+		print(status_window,statusStr.at(0).c_str());
+
 		update_cursor_();
 		refresh_();
 	}

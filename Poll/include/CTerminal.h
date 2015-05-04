@@ -7,9 +7,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date April 24th, 2015
+  * \date May 4th, 2015
   * 
-  * \version 1.1.04
+  * \version 1.1.05
 */
 
 #ifndef CTERMINAL_H
@@ -22,8 +22,8 @@
 ///Default size of terminal scroll back buffer in lines.
 #define SCROLLBACK_SIZE 1000
 
-#define CTERMINAL_VERSION "1.1.04"
-#define CTERMINAL_DATE "April 24th, 2015"
+#define CTERMINAL_VERSION "1.1.05"
+#define CTERMINAL_DATE "May 4th, 2015"
 
 #ifdef USE_NCURSES
 
@@ -204,6 +204,7 @@ class Terminal{
 	WINDOW *main;
 	WINDOW *output_window;
 	WINDOW *input_window;
+	WINDOW *status_window;
 	CommandHolder commands;
 	CommandString cmd;
 	bool init;
@@ -212,6 +213,10 @@ class Terminal{
 	int cursX, cursY;
 	int offset;
 	int _winSizeX,_winSizeY;
+	int _statusWindowSize;
+	std::vector<std::string> statusStr;
+	///The prompt string.
+	std::string prompt;
 	
 	/// Size of the scroll back buffer in lines.
 	int _scrollbackBufferSize;
@@ -231,7 +236,7 @@ class Terminal{
 	/// Update the positions of the physical and logical cursors
 	void update_cursor_();
 	
-	/// Clear the command prompt
+	/// Clear the command prompt output
 	void clear_();
 	
 	/// Force a character to the input screen
@@ -249,6 +254,9 @@ class Terminal{
 	/// Save previous commands to a file
 	bool save_commands_();
 
+	/// Force a character string to the output screen
+	void print(WINDOW *window, std::string input_);
+			
   public:
 	Terminal();
 	
@@ -259,6 +267,15 @@ class Terminal{
 	
 	/// Initialize the terminal interface with a list of previous commands
 	void Initialize(std::string cmd_fname_);
+
+	/// Initalizes a status window under the input temrinal.
+	void AddStatusWindow(unsigned short numLines = 1);
+	///Set the status message.
+	void SetStatus(std::string status, unsigned short line = 0);
+	///Clear the status line.
+	void ClearStatus(unsigned short line = 0);
+	//Append some text to the status line.
+	void AppendStatus(std::string status, unsigned short line = 0);
 		
 	/** Set the command filename for storing previous commands This command will 
 	  * clear all current commands from the history if overwrite_ is set to true. */
@@ -273,9 +290,6 @@ class Terminal{
 	/// Disrupt ncurses while boolean is true
 	void pause(bool &flag);
 
-	/// Force a character string to the output screen
-	void print(std::string input_);
-			
 	/// Dump all text in the stream to the output screen
 	void flush();
 
