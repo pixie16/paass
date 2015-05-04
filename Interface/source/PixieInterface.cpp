@@ -13,8 +13,6 @@
 #include "Display.h"
 #include "PixieInterface.h"
 
-#define MIN_FIFO_READ 9
-
 using namespace std;
 using namespace Display;
 
@@ -565,6 +563,8 @@ unsigned long PixieInterface::CheckFIFOWords(unsigned short mod)
 bool PixieInterface::ReadFIFOWords(word_t *buf, unsigned long nWords,
 				   unsigned short mod, bool verbose)
 {
+	int availWords = CheckFIFOWords(mod);
+
 	if (verbose) {
 		std::cout << "mod " << mod << " nWords " << nWords;
 		std::cout << " extraWords[mod].size " << extraWords[mod].size();
@@ -573,7 +573,10 @@ bool PixieInterface::ReadFIFOWords(word_t *buf, unsigned long nWords,
 		if (nWords > extraWords[mod].size()) {
 			word_t minibuf[MIN_FIFO_READ];
 
-			if (CheckFIFOWords(mod)<MIN_FIFO_READ) return false;
+			if (availWords < MIN_FIFO_READ) {
+				std::cout << Display::ErrorStr() << " Not enough words available in module " << mod << "'s FIFO for read! (" << availWords << "/" << MIN_FIFO_READ << ")\n";
+				return false;
+			}
 			retval = Pixie16ReadDataFromExternalFIFO(minibuf, MIN_FIFO_READ, mod);
 
 			if (retval < 0) {
@@ -600,7 +603,10 @@ bool PixieInterface::ReadFIFOWords(word_t *buf, unsigned long nWords,
 
 	if (verbose) std::cout << " nWords " << nWords << std::endl;
 
-	if (CheckFIFOWords(mod)<nWords) return false;
+	if (availWords < nWords) {
+		std::cout << Display::ErrorStr() << " Not enough words available in module " << mod << "'s FIFO for read! (" << availWords << "/" << nWords << ")\n";
+		return false;
+	}
 	retval = Pixie16ReadDataFromExternalFIFO(buf, nWords, mod);
 
 	if (retval < 0) {

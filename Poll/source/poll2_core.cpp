@@ -944,7 +944,7 @@ void Poll::run_control(){
 					//if (!is_quiet) std::cout << "Reading module: " << mod << "\n";
 					
 					//if the module has no words in the FIFO we continue to the next module
-					if (nWords[mod] == 0) {
+					if (nWords[mod] < MIN_FIFO_READ) {
 						// write an empty buffer if there is no data
 						fifoData[dataWords++] = 2;
 						fifoData[dataWords++] = mod;	    
