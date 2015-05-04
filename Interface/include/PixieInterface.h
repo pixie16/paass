@@ -8,6 +8,8 @@
 
 #include "pixie16app_defs.h"
 
+#define MIN_FIFO_READ 9
+
 // define PIXIE16_REVD_GENERAL if it isn't defined in the header
 //   or else it will evalute to 0 (i.e. the same as PIXIE16_REVA)
 #ifndef PIXIE16_REVD_GENERAL
