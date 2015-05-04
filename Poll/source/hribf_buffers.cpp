@@ -138,7 +138,7 @@ bool HEAD_buffer::SetDateTime(){
 	int year = local->tm_year;
 	int hour = local->tm_hour;
 	int minute = local->tm_min;
-	int second = local->tm_sec;
+	//int second = local->tm_sec;
 	
 	std::stringstream stream;
 	(month<10) ? stream << "0" << month << "/" : stream << month << "/";
@@ -422,7 +422,7 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 }
 
 /// Read a data spill from a file
-bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, bool &full_spill, int file_format_/*=0*/){
+bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, unsigned int max_bytes_, bool &full_spill, int file_format_/*=0*/){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 
 	if(file_format_ == 0){ // Legacy .ldf file	
@@ -430,10 +430,8 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 		int this_chunk_sizeB;
 		int total_num_chunks;
 		int current_chunk_num;
-		nBytes = 0;
+		nBytes = 0; // Set the number of output words to zero
 	
-		int pacword1, pacword2;
-
 		file_->read((char *)&buff_head, 4);
 		file_->read((char*)&buff_size, 4);
 		if(buff_head == DATA){
@@ -457,7 +455,6 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 			full_spill = false;
 		}
 		else{ full_spill = true; }
-		//std::cout << this_chunk_sizeB << "\t" << total_num_chunks << "\t" << current_chunk_num << std::endl;
 
 		// Construct the spill
 		while(true){
@@ -472,25 +469,63 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 					return false;
 				}
 				else if(debug_mode){ std::cout << "debug: finished scanning spill of " << nBytes << " bytes\n"; }
-				file_->seekg(8, file_->cur); // Skip the remaining useless pacman words (2 & 9999)
+				char spill_footer[8];
+				bool return_val = true;
+				file_->read(spill_footer, 8); // Copy the remaining event length and vsn (2 9999)
+				
+				if(nBytes + 8 > max_bytes_){ // Copying this chunk into the data array will exceed the maximum number of bytes
+					memcpy(&data_[nBytes], spill_footer, max_bytes_-nBytes);
+					if(debug_mode){ std::cout << "debug: exceeded maximum number of bytes by " << 8 - (max_bytes_-nBytes) << " at spill footer\n"; }
+					nBytes += (max_bytes_-nBytes);
+					file_->seekg(8-(max_bytes_-nBytes), file_->cur); // Skip the remaining bytes
+					return_val = false;
+				}
+				else{ // Enough room to fit chunk in data array
+					memcpy(&data_[nBytes], spill_footer, 8);
+					if(debug_mode){
+						int dummy1, dummy2;
+						memcpy((char *)&dummy1, spill_footer, 4);
+						memcpy((char *)&dummy2, &spill_footer[4], 4);
+						std::cout << "debug: spill footer words are " << dummy1 << " and " << dummy2 << std::endl;
+					}
+					nBytes += 8;
+				}
 				
 				// Scan until the next spill chunk or buffer
 				int dummy;
-				//file_->read((char *)&dummy, 4); std::cout << dummy << std::endl;
-				//file_->read((char *)&dummy, 4); std::cout << dummy << std::endl;
 				while(true){
 					file_->read((char *)&dummy, 4);
 					if(dummy != ENDBUFF){ 
 						file_->seekg(-4, file_->cur); // Rewind to the previous word
 						break; 
 					}
-					//std::cout << dummy << std::endl;
 				}
-				return true;
+				return return_val;
 			}
 			else{ // Normal spill chunk
-				nBytes += this_chunk_sizeB - 12;
-				file_->seekg(this_chunk_sizeB - 12, file_->cur); // Skip all of the chunk data
+				unsigned int copied_bytes;
+				if(this_chunk_sizeB <= 12){
+					if(debug_mode){ std::cout << "debug: invalid number of bytes in chunk " << current_chunk_num+1 << " of " << total_num_chunks << ", " <<  this_chunk_sizeB << " B!\n"; }
+					return false;
+				}
+				
+				copied_bytes = this_chunk_sizeB - 12;
+				if(nBytes + copied_bytes > max_bytes_){ // Copying this chunk into the data array will exceed the maximum number of bytes
+					char spill_chunk[max_bytes_-nBytes];
+					file_->read(spill_chunk, max_bytes_-nBytes);
+					memcpy(&data_[nBytes], spill_chunk, max_bytes_-nBytes);
+					if(debug_mode){ std::cout << "debug: exceeded maximum number of bytes by " << copied_bytes - (max_bytes_-nBytes) << " in spill chunk\n"; }
+					nBytes += (max_bytes_-nBytes);
+
+					// Stop reading and abort
+					return false;
+				}
+				else{ // Enough room to fit chunk in data array
+					char spill_chunk[copied_bytes];
+					file_->read(spill_chunk, copied_bytes);
+					memcpy(&data_[nBytes], spill_chunk, copied_bytes);
+					nBytes += copied_bytes;
+				}
 			}
 		
 			// Scan until the next spill chunk or buffer
@@ -498,7 +533,6 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 				file_->read((char *)&buff_head, 4);
 			
 				if(buff_head != ENDBUFF){ break; }
-				//std::cout << buff_head << std::endl;
 			}
 
 			if(buff_head == ENDFILE){ 
@@ -510,14 +544,13 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 				file_->read((char*)&buff_size, 4);
 				file_->read((char*)&this_chunk_sizeB, 4);
 			}
-			else if(debug_mode){ // This is likely the start of a chunk (hopefully)
-				std::cout << "debug: encountered buffer of type 0x" << std::hex << buff_head << std::dec << " before end of spill\n"; 
+			else{ // This is likely the start of a chunk (hopefully)
+				if(debug_mode){ std::cout << "debug: encountered buffer of type 0x" << std::hex << buff_head << std::dec << " before end of spill\n"; }
 				this_chunk_sizeB = buff_head;
 			}
 			
 			file_->read((char*)&total_num_chunks, 4);
 			file_->read((char*)&current_chunk_num, 4);
-			//std::cout << this_chunk_sizeB << "\t" << total_num_chunks << "\t" << current_chunk_num << std::endl;
 		}
 		
 		return true;
@@ -613,7 +646,7 @@ bool PollOutputFile::get_full_filename(std::string &output){
 
 	if(depth > 0){
 		output = "/";
-		for(unsigned int i = 0; i < depth; i++){
+		for(int i = 0; i < depth; i++){
 			output += directories.at(i) + "/";
 		}
 		output += formatted_filename;

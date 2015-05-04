@@ -25,8 +25,8 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.1.03"
-#define HRIBF_BUFFERS_DATE "April 30th, 2015"
+#define HRIBF_BUFFERS_VERSION "1.1.04"
+#define HRIBF_BUFFERS_DATE "May 4th, 2015"
 
 class BufferType{
   protected:
@@ -150,7 +150,7 @@ class DATA_buffer : public BufferType{
 	bool Write(std::ofstream *file_, char *data_, unsigned int nWords_, int &buffs_written, int output_format_=0);
 	
 	/// Read a data spill from a file
-	bool Read(std::ifstream *file_, char *data_, unsigned int &nWords_, bool &full_spill, int file_format_=0);
+	bool Read(std::ifstream *file_, char *data_, unsigned int &nWords_, unsigned int max_bytes_, bool &full_spill, int file_format_=0);
 };
 
 /// A single EOF buffer signals the end of a run (pacman .ldf format). A double EOF signals the end of the .ldf file.
