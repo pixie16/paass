@@ -48,6 +48,9 @@ class Client;
 class Terminal;
 
 class Poll{
+	private:
+		Terminal *poll_term_;
+
   public:
   	struct tm *time_info;
 
@@ -137,7 +140,7 @@ class Poll{
 	/// Print help dialogue for reading/writing pixie module parameters.
 	void pmod_help();
 		
-	void command_control(Terminal *poll_term_);
+	void command_control();
 		
 	void run_control();
 	
@@ -150,6 +153,9 @@ class Poll{
 	bool synch_mods();
 		
 	int write_data(word_t *data, unsigned int nWords);
+
+	///Set the terminal pointer.
+	void set_terminal(Terminal *term) {poll_term_ = term;};
 };
 
 // Function forward definitions

@@ -362,7 +362,7 @@ void Poll::pmod_help(){
 ///////////////////////////////////////////////////////////////////////////////
 
 /* Function to control the POLL command line interface */
-void Poll::command_control(Terminal *poll_term_){
+void Poll::command_control(){
 	char c;
 	std::string cmd = "", arg;
 	
@@ -377,7 +377,8 @@ void Poll::command_control(Terminal *poll_term_){
 		cmd = poll_term_->GetCommand();
 		if(cmd == "CTRL_D"){ cmd = "quit"; }
 		else if(cmd == "CTRL_C"){ continue; }		
-		poll_term_->print((cmd+"\n").c_str()); // This will force a write before the cout stream dumps to the screen
+		poll_term_->flush();
+		//poll_term_->print((cmd+"\n").c_str()); // This will force a write before the cout stream dumps to the screen
 #else
 		read(STDIN_FILENO, &c, 1);
 		
@@ -900,6 +901,8 @@ void Poll::run_control(){
 
 		//Start acquistion
 		if (start_acq && !acq_running) {
+			//Clear the stats
+			statsHandler->Clear();
 			//Start list mode
 			if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)){
 				acq_running = true;
@@ -1116,6 +1119,17 @@ void Poll::run_control(){
 				std::cout << std::endl;			
 			} //End of handling a stop acq flag
 		}
+
+		//Build status string
+		std::stringstream status;
+		if (acq_running && record_data) status << Display::OkayStr("[ACQ]");
+		else if (acq_running && !record_data) status << Display::WarningStr("[ACQ]");
+		else if (do_MCA_run) status << Display::OkayStr("[MCA]");
+		else status << Display::WarningStr("[IDLE]");
+		status << " " << (long long) statsHandler->GetTotalTime() << " s";
+		status << " " << statsHandler->GetTotalDataRate()/1E6 << " MB/s";
+		//Update the status bar
+		poll_term_->SetStatus(status.str());
 	}
 
 	delete[] fifoData;
