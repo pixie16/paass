@@ -73,8 +73,8 @@ void start_run_control(Poll *poll_){
 	poll_->run_control();
 }
 
-void start_cmd_control(Poll *poll_, Terminal *term_){
-	poll_->command_control(term_);
+void start_cmd_control(Poll *poll_){
+	poll_->command_control();
 }
 
 int main(int argc, char *argv[]){
@@ -151,7 +151,8 @@ int main(int argc, char *argv[]){
 #ifdef USE_NCURSES
 	// Initialize the terminal before doing anything else;
 	poll_term.Initialize(".poll2.cmd");
-	poll_term.SetPrompt("POLL2 $ ");
+	poll_term.SetPrompt(Display::InfoStr("POLL2 $ ").c_str());
+	poll_term.AddStatusWindow();
 #endif
 
 	std::cout << "\n#########      #####    ####      ####       ########\n"; 
@@ -193,6 +194,7 @@ int main(int argc, char *argv[]){
   
   	StatsHandler handler(poll.n_cards);
   	poll.set_stat_handler(&handler);
+	poll.set_terminal(&poll_term);
   	
 	if(poll.send_alarm){
 		Display::LeaderPrint("Sending alarms to");
@@ -208,7 +210,7 @@ int main(int argc, char *argv[]){
 	// Start the command control thread. This needs to be the last thing we do to
 	// initialize, so the user cannot enter commands before setup is complete
 	std::cout << pad_string("Starting command thread", 49);
-	std::thread comctrl(start_cmd_control, &poll, &poll_term);
+	std::thread comctrl(start_cmd_control, &poll);
 	std::cout << Display::OkayStr() << std::endl << std::endl;
 	
 	// Synchronize the threads and wait for completion
