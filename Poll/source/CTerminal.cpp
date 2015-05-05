@@ -333,9 +333,9 @@ void Terminal::refresh_(){
 	pnoutrefresh(output_window, 
 		_scrollbackBufferSize - _winSizeY - _scrollPosition, 0,  //Pad corner to be placed in top left 
 		0, 0, _winSizeY - _statusWindowSize - 2, _winSizeX-1); //Size of window
-	pnoutrefresh(input_window,0,0, _winSizeY - _statusWindowSize - 1, 0,_winSizeY - _statusWindowSize,_winSizeX-1);
+	pnoutrefresh(input_window,0,0, _winSizeY - _statusWindowSize - 1, 0, _winSizeY - _statusWindowSize, _winSizeX-1);
 	if (status_window) 
-		pnoutrefresh(status_window,0,0, _winSizeY - _statusWindowSize, 0, _winSizeY, _winSizeX);
+		pnoutrefresh(status_window,0,0, _winSizeY - _statusWindowSize, 0, _winSizeY, _winSizeX-1);
 
 	refresh();
 
