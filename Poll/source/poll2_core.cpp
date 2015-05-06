@@ -25,6 +25,8 @@
 #include <sstream>
 #include <ctime>
 
+#include <cmath>
+
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -87,6 +89,7 @@ Poll::Poll(){
 	force_spill = false; // Force poll2 to dump the current data spill
 	acq_running = false; // Set to true when run_command is recieving data from PIXIE
 	run_ctrl_exit = false; // Set to true when run_command exits
+	had_error = false; //Set to true when aborting due to an error.
 	do_MCA_run = false; // Set to true when the "mca" command is received
 	raw_time = 0;
 
@@ -407,6 +410,8 @@ void Poll::command_control(){
 			std::vector<std::string> arguments;
 			unsigned int p_args = split_str(arg, arguments);
 			
+			//We clear the error flag when a command is entered.
+			had_error = false;
 			// check for defined commands
 			if(cmd == "quit" || cmd == "exit"){
 				if(do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot quit while MCA program is running\n"; }
@@ -912,6 +917,7 @@ void Poll::run_control(){
 			else{ 
 				std::cout << sys_message_head << "Failed to start list mode run. Try rebooting PIXIE\n"; 
 				acq_running = false;
+				had_error = true;
 			}
 			start_acq = false;
 		}
@@ -967,6 +973,7 @@ void Poll::run_control(){
 						std::cout << Display::ErrorStr() << " Full FIFO in module " << mod 
 							<< " size: " << nWords[mod] << "/" 
 							<< EXTERNAL_FIFO_LENGTH << Display::ErrorStr(" ABORTING!") << std::endl;
+						had_error = true;
 						stop_acq = true;
 						break;
 					}
@@ -1070,6 +1077,7 @@ void Poll::run_control(){
 						std::cout << std::dec << std::endl;
 
 						stop_acq = true;
+						had_error = true;
 						break;
 					}
 
@@ -1114,6 +1122,7 @@ void Poll::run_control(){
 					}
 					else {
 						std::cout << "Run not properly finished in module " << mod << std::endl;
+						had_error = true;
 					}
 				}
 				std::cout << std::endl;			
@@ -1122,12 +1131,20 @@ void Poll::run_control(){
 
 		//Build status string
 		std::stringstream status;
-		if (acq_running && record_data) status << Display::OkayStr("[ACQ]");
+		if (had_error) status << Display::ErrorStr("[ERROR]");
+		else if (acq_running && record_data) status << Display::OkayStr("[ACQ]");
 		else if (acq_running && !record_data) status << Display::WarningStr("[ACQ]");
 		else if (do_MCA_run) status << Display::OkayStr("[MCA]");
-		else status << Display::WarningStr("[IDLE]");
-		status << " " << (long long) statsHandler->GetTotalTime() << " s";
-		status << " " << statsHandler->GetTotalDataRate()/1E6 << " MB/s";
+		else status << Display::InfoStr("[IDLE]");
+
+		status << " " << (long long) statsHandler->GetTotalTime() << "s";
+
+		double dataRate = statsHandler->GetTotalDataRate();
+		int power = std::log10(dataRate);
+		if (power >= 9) status << " " << dataRate/1E9 << "GB/s";
+		else if (power >= 6) status << " " << dataRate/1E6 << "MB/s";
+		else if (power >= 3) status << " " << dataRate/1E3 << "kB/s";
+		else status << " " << dataRate << "B/s";
 		//Update the status bar
 		poll_term_->SetStatus(status.str());
 	}
