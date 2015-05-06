@@ -61,10 +61,10 @@ int main(int argc, char *argv[]){
 	std::cout << "  Run number: " << headbuff.GetRunNumber() << std::endl << std::endl;
 	
 	// Now we're ready to read the first data buffer
-	char data[100000];
+	char data[1000000];
 	bool full_spill;
 	unsigned int nWords;
-	while(databuff.Read(&input_file, data, nWords, full_spill)){ 
+	while(databuff.Read(&input_file, data, nWords, 1000000, full_spill)){ 
 		if(full_spill){ std::cout << " Retrieved spill of " << nWords << " words (" << nWords*4 << " bytes)\n"; }
 		else{ std::cout << " Retrieved spill fragment of " << nWords << " words (" << nWords*4 << " bytes)\n"; }
 	}
