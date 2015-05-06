@@ -10,9 +10,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date April 30th, 2015
+  * \date May 6th, 2015
   * 
-  * \version 1.2.00
+  * \version 1.3.00
 */
 
 
@@ -25,8 +25,8 @@
 #include "hribf_buffers.h"
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.2.00"
-#define POLL2_CORE_DATE "May 1st, 2015"
+#define POLL2_CORE_VERSION "1.3.00"
+#define POLL2_CORE_DATE "May 6th, 2015"
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
@@ -50,6 +50,10 @@ class Terminal;
 class Poll{
 	private:
 		Terminal *poll_term_;
+		bool StartRun();
+		bool StopRun();
+		bool StartAcq();
+		bool StopAcq();
 
   public:
   	struct tm *time_info;
@@ -71,6 +75,7 @@ class Poll{
 	bool acq_running; /// Set to true when run_command is recieving data from PIXIE
 	bool run_ctrl_exit; /// Set to true when run_command exits
 	bool had_error;
+	bool file_open;
 	time_t raw_time;
 
 	// System MCA flags
@@ -89,14 +94,13 @@ class Poll{
 
 	// Options relating to output data file
 	std::string output_directory; /// Set with 'fdir' command
-	std::string output_filename; /// Set with 'ouf' command
+	std::string filename_prefix; /// Set with 'ouf' command
 	std::string output_title; /// Set with 'htit' command
 	int output_run_num; /// Set with 'hnum' command
 	int output_format; /// Set with 'oform' command
 
 	// The main output data file and related variables
 	int current_file_num;
-	std::string current_filename;
 	PollOutputFile output_file;
 
 	size_t n_cards;
@@ -105,7 +109,7 @@ class Poll{
 	double parseTime, waitTime, readTime, sendTime, pollTime;
 	double lastStatsTime, statsTime;
 	double lastHistoTime, histoTime;
-	bool *runDone, isExiting, justEnded;
+	bool isExiting, justEnded;
 	unsigned int waitCounter, nonWaitCounter;
 	unsigned int partialBufferCounter;
 	time_t pollClock; 
@@ -117,7 +121,6 @@ class Poll{
 	std::map<chanid_t, PixieInterface::Histogram> histoMap;
 
 	// Data variables
-	eventdata_t *partialEventData;
 	std::vector<word_t> partialEventWords;
 	std::vector<word_t> waitWords;
 	StatsHandler *statsHandler;
@@ -160,6 +163,7 @@ class Poll{
 };
 
 // Function forward definitions
+std::string humanReadable(double size);
 unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_=' ');
 std::string pad_string(const std::string &input_, unsigned int length_);
 std::string yesno(bool value_);

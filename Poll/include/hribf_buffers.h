@@ -14,9 +14,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date April 30th, 2015
+  * \date May 6th, 2015
   * 
-  * \version 1.1.03
+  * \version 1.1.05
 */
 
 #ifndef HRIBF_BUFFERS_H
@@ -25,8 +25,8 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.1.04"
-#define HRIBF_BUFFERS_DATE "May 4th, 2015"
+#define HRIBF_BUFFERS_VERSION "1.1.05"
+#define HRIBF_BUFFERS_DATE "May 6th, 2015"
 
 class BufferType{
   protected:
