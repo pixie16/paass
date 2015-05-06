@@ -14,9 +14,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date April 30th, 2015
+  * \date May 6th, 2015
   * 
-  * \version 1.1.03
+  * \version 1.1.05
 */
 
 #include <sstream>
@@ -837,41 +837,35 @@ int PollOutputFile::BuildPacket(char *output){
 }
 
 // Close the current file, if one is open, and open a new file for data output
-bool PollOutputFile::OpenNewFile(std::string title_, int run_num_, std::string &filename, std::string output_directory/*="./"*/){
+bool PollOutputFile::OpenNewFile(std::string title_, int run_num_, std::string &prefix, std::string output_directory/*="./"*/){
 	CloseFile();
 
 	// Restart the spill counter for the new file
 	number_spills = 0;
 
-	std::ifstream dummy_file;
-	filename = output_directory + get_filename();
-	while(true){
-		dummy_file.open(filename.c_str());
-		if(dummy_file.is_open()){
-			current_file_num++;
-			filename = output_directory + get_filename();
-			dummy_file.close();
-		}
-		else{
-			output_file.open(filename.c_str(), std::ios::binary);
-			if(!output_file.is_open() || !output_file.good()){
-				output_file.close();
-				return false;
-			}
-			
-			current_filename = filename;
-			get_full_filename(current_full_filename);		
-			dirBuff.SetRunNumber(run_num_);
-			dirBuff.Write(&output_file); // Every .ldf file gets a DIR header
-			
-			headBuff.SetTitle(title_);
-			headBuff.SetDateTime();
-			headBuff.SetRunNumber(run_num_);
-			headBuff.Write(&output_file); // Every .ldf file gets a HEAD file header
-				
-			break;
-		}
+	std::stringstream filename;
+	filename << output_directory << prefix << "_" << run_num_ << ".ldf";
+	std::ifstream input_file(filename.str());
+	if (input_file.is_open()) {
+		input_file.close();
+		return false;
 	}
+	output_file.open(filename.str(), std::ios::binary);
+	if(!output_file.is_open() || !output_file.good()){
+		output_file.close();
+		return false;
+	}
+
+	current_filename = filename.str();
+	get_full_filename(current_full_filename);		
+	dirBuff.SetRunNumber(run_num_);
+	dirBuff.Write(&output_file); // Every .ldf file gets a DIR header
+
+	headBuff.SetTitle(title_);
+	headBuff.SetDateTime();
+	headBuff.SetRunNumber(run_num_);
+	headBuff.Write(&output_file); // Every .ldf file gets a HEAD file header
+
 	return true;
 }
 
