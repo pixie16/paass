@@ -97,7 +97,7 @@ class CommandHolder{
 	unsigned int wrap_();
 
   public:		
-	CommandHolder(unsigned int max_size_=50){
+	CommandHolder(unsigned int max_size_=100){
 		max_size = max_size_;
 		commands = new std::string[max_size];
 		fragment = "";
@@ -139,6 +139,9 @@ class CommandHolder{
 	
 	/// Dump all stored commands to the screen
 	void Dump();
+
+	/// Reset history to last item
+	void Reset();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
