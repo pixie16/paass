@@ -109,4 +109,6 @@ void StatsHandler::Clear() {
 	    nEventsDelta.at(i).assign(0);
 	}
 	dataDelta.assign(numCards, 0);
+
+	calcDataRate.assign(numCards, 0);
 }
