@@ -410,6 +410,7 @@ bool Poll::StartAcq() {
 	}
 
 	start_acq = true;
+	while (!acq_running) sleep(1);
 	return true;
 }
 
@@ -946,7 +947,7 @@ void Poll::run_control(){
 		//Start acquistion
 		if (start_acq && !acq_running) {
 			//Start list mode
-			if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)){
+			if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)) {
 				acq_running = true;
 				startTime = usGetTime(0);
 				lastSpillTime = 0;
@@ -1153,11 +1154,14 @@ void Poll::run_control(){
 				
 				// Check if each module has ended its run properly.
 				for(size_t mod = 0; mod < n_cards; mod++){
+					std::stringstream leader;
+					leader << "Run endded in module " << mod;
+					Display::LeaderPrint(leader.str());
 					if(!pif->CheckRunStatus(mod)){
-						std::cout << "Run ended in module " << mod << std::endl;
+						std::cout << Display::OkayStr() << std::endl;
 					}
 					else {
-						std::cout << "Run not properly finished in module " << mod << std::endl;
+						std::cout << Display::ErrorStr() << std::endl;
 						had_error = true;
 					}
 				}
