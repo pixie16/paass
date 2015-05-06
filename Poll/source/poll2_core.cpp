@@ -189,9 +189,6 @@ bool Poll::initialize(){
 }
 
 Poll::~Poll(){
-	//Clear the stats
-	statsHandler->Clear();
-
 	if(init){
 		close();
 	}
