@@ -239,6 +239,10 @@ void CommandHolder::Dump(){
 	}
 }
 
+void CommandHolder::Reset() {
+	external_index = 0;	
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // CommandString
 ///////////////////////////////////////////////////////////////////////////////
@@ -710,6 +714,8 @@ std::string Terminal::GetCommand(){
 		if(keypress == 10){ // Enter key (10)
 			std::string temp_cmd = cmd.Get();
 			if(temp_cmd != ""){ 
+				//Reset the position in the history.
+				commands.Reset();
 				if(temp_cmd != commands.PeekPrev()){ // Only save this command if it is different than the previous command
 					commands.Push(temp_cmd);
 				}
