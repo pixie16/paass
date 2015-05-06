@@ -527,13 +527,13 @@ void Poll::command_control(){
 			}
 			// Tell POLL to start acq and start recording data to disk
 			else if(cmd == "run"){ StartRun(); } 
-			else if(cmd == "startacq"){ // Tell POLL to start data acquisition
+			else if(cmd == "startacq" || cmd == "startvme"){ // Tell POLL to start data acquisition
 				StartAcq();
 			}
 			else if(cmd == "stop"){ // Tell POLL to stop recording data to disk and stop acq
 				StopRun();
 			} 
-			else if(cmd == "stopacq"){ // Tell POLL to stop data acquisition
+			else if(cmd == "stopacq" || cmd == "stopvme"){ // Tell POLL to stop data acquisition
 				StopAcq();
 			}
 			else if(cmd == "reboot"){ // Tell POLL to attempt a PIXIE crate reboot
