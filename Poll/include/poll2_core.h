@@ -70,6 +70,7 @@ class Poll{
 	bool force_spill; /// Force poll2 to dump the current data spill
 	bool acq_running; /// Set to true when run_command is recieving data from PIXIE
 	bool run_ctrl_exit; /// Set to true when run_command exits
+	bool had_error;
 	time_t raw_time;
 
 	// System MCA flags
