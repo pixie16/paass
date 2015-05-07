@@ -109,18 +109,6 @@ class Poll{
 
 	size_t n_cards;
 
-	// Poll run variables
-	double parseTime, waitTime, readTime, sendTime, pollTime;
-	double lastStatsTime, statsTime;
-	double lastHistoTime, histoTime;
-	bool isExiting, justEnded;
-	unsigned int waitCounter, nonWaitCounter;
-	unsigned int partialBufferCounter;
-	time_t pollClock; 
-	PixieInterface::Histogram deltaHisto;
-	
-	int histo_interval, stats_interval;
-	
 	typedef std::pair<unsigned int, unsigned int> chanid_t;
 	std::map<chanid_t, PixieInterface::Histogram> histoMap;
 
