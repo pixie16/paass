@@ -411,8 +411,6 @@ bool Poll::StartAcq() {
 
 	//Set start acq flag to be intercepted by run control.
 	start_acq = true;
-	//Wait until acquistion is running.
-	while (!acq_running) sleep(1);
 
 	return true;
 }
@@ -429,8 +427,6 @@ bool Poll::StopAcq() {
 
 	//Set stop_acq flag to be intercepted by run control.
 	stop_acq = true;
-	//Wait until acquisition is stopped.
-	while (acq_running) sleep(1);
 
 	return true;
 }
@@ -867,7 +863,6 @@ void Poll::command_control(){
 				}
 			}
 			else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
-			std::cout << std::endl;
 
 #ifndef USE_NCURSES
 			cmd = "";
@@ -1171,7 +1166,6 @@ void Poll::run_control(){
 				}
 
 				std::cout << "Run stopped on " << ctime(&currTime);
-				std::cout << std::endl;			
 			} //End of handling a stop acq flag
 		}
 
