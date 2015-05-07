@@ -101,15 +101,13 @@ int main(int argc, char *argv[]){
 	CLoption valid_opt[11];
 	valid_opt[0].Set("alarm", false, true);
 	valid_opt[1].Set("fast", false, false);
-	valid_opt[2].Set("hist", true, false);
-	valid_opt[3].Set("quiet", false, false);
-	valid_opt[4].Set("no-wall-clock", false, false);
-	valid_opt[5].Set("rates", false, false);
-	valid_opt[6].Set("stats", true, false);
-	valid_opt[7].Set("thresh", true, false);
-	valid_opt[8].Set("zero", false, false);
-	valid_opt[9].Set("debug", false, false);
-	valid_opt[10].Set("?", false, false);
+	valid_opt[2].Set("quiet", false, false);
+	valid_opt[3].Set("no-wall-clock", false, false);
+	valid_opt[4].Set("rates", false, false);
+	valid_opt[5].Set("thresh", true, false);
+	valid_opt[6].Set("zero", false, false);
+	valid_opt[7].Set("debug", false, false);
+	valid_opt[8].Set("?", false, false);
 	if(!get_opt(argc, argv, valid_opt, 11, help)){ return EXIT_FAILURE; }
 	
 	// Set all of the selected options
@@ -118,33 +116,19 @@ int main(int argc, char *argv[]){
 		poll.send_alarm = true;
 	}
 	if(valid_opt[1].is_active){ poll.boot_fast = true; }
-	if(valid_opt[2].is_active){ 
-		poll.histo_interval = atoi(valid_opt[2].value.c_str()); 
-		if(poll.histo_interval <= 0){ 
-			std::cout << "Warning! failed to set histogram interval. Using default of 10s\n";
-			poll.histo_interval = 10; 
-		}
-	}
-	if(valid_opt[3].is_active){ poll.is_quiet = true; }
-	if(valid_opt[4].is_active){ poll.insert_wall_clock = false; }
-	if(valid_opt[5].is_active){ poll.show_module_rates = true; }
-	if(valid_opt[6].is_active){ 
-		poll.stats_interval = atoi(valid_opt[6].value.c_str()); 
-		if(poll.stats_interval <= 0){ 
-			std::cout << "Warning! failed to set statistics interval. Using default of 10s\n";
-			poll.stats_interval = 10; 
-		}
-	}
-	if(valid_opt[7].is_active){ 
+	if(valid_opt[2].is_active){ poll.is_quiet = true; }
+	if(valid_opt[3].is_active){ poll.insert_wall_clock = false; }
+	if(valid_opt[4].is_active){ poll.show_module_rates = true; }
+	if(valid_opt[5].is_active){ 
 		threshPercent = atoi(valid_opt[7].value.c_str()); 
 		if(threshPercent <= 0){ 
 			std::cout << "Warning! failed to set threshold level. Using default of 50%\n";
 			threshPercent = 50; 
 		}
 	}
-	if(valid_opt[8].is_active){ poll.zero_clocks = true; }
-	if(valid_opt[9].is_active){ poll.debug_mode = true; }
-	if(valid_opt[10].is_active){ return EXIT_SUCCESS; }
+	if(valid_opt[6].is_active){ poll.zero_clocks = true; }
+	if(valid_opt[7].is_active){ poll.debug_mode = true; }
+	if(valid_opt[8].is_active){ return EXIT_SUCCESS; }
 
 	if(!poll.initialize()){ return EXIT_FAILURE; }
 

@@ -114,9 +114,6 @@ Poll::Poll(){
 	current_file_num = 0;
 	filename_prefix = "run";
 	
-	stats_interval = -1; //< in seconds
-	histo_interval = -1; //< in seconds
-
 	statsHandler = NULL;
 	
 	client = new Client();
@@ -164,25 +161,6 @@ bool Poll::initialize(){
 		waitWords.push_back(0);
 	}
 
-	statsTime = 0;
-	histoTime = 0;
-
-	if(histo_interval != -1.){ 
-		std::cout << "Allocating memory to store HISTOGRAM data (" << sizeof(PixieInterface::Histogram)*n_cards*pif->GetNumberChannels()/1024 << " kB)" << std::endl;
-		for (unsigned int mod=0; mod < n_cards; mod++){
-			for (unsigned int ch=0; ch < pif->GetNumberChannels(); ch++){
-			  chanid_t id(mod, ch);
-			  histoMap[id] = PixieInterface::Histogram();
-			}
-		}
-	}
-
-	isExiting = false;
-
-	waitCounter = 0;
-	nonWaitCounter = 0;
-	partialBufferCounter = 0;
-	
 	client->Init("127.0.0.1", 5555);
 	
 	return init = true;
@@ -666,18 +644,6 @@ void Poll::command_control(){
 				}
 				else{ std::cout << sys_message_head << "Using output file format '" << output_format << "'\n"; }
 				if(output_file.IsOpen()){ std::cout << sys_message_head << "New output format used for new files only! Current file is unchanged.\n"; }
-			}
-			else if(cmd == "stats"){
-				if(arg != ""){
-					stats_interval = atoi(arg.c_str());
-					if(stats_interval > 0){ std::cout << sys_message_head << "Dumping statistics information every " << stats_interval << " seconds\n"; } // Stats are turned on
-					else{ 
-						std::cout << sys_message_head << "Disabling statistics output\n"; 
-						stats_interval = -1;
-					}
-				}
-				else if(stats_interval > 0){ std::cout << sys_message_head << "Dumping statistics information every " << stats_interval << " seconds\n"; }
-				else{ std::cout << sys_message_head << "Statistics output is currently disabled\n"; }
 			}
 			else if(cmd == "mca" || cmd == "MCA"){ // Run MCA program using either root or damm
 				if(do_MCA_run){
