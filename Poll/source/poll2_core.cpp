@@ -945,6 +945,10 @@ void Poll::run_control(){
 		if (start_acq && !acq_running) {
 			//Start list mode
 			if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)) {
+				time_t currTime;
+				time(&currTime);
+				std::cout << "Run started on " << ctime(&currTime);
+
 				acq_running = true;
 				startTime = usGetTime(0);
 				lastSpillTime = 0;
@@ -1141,6 +1145,9 @@ void Poll::run_control(){
 				//time_info = localtime(&raw_time);
 				//std::cout << sys_message_head << "Stopping run at " << asctime(time_info);
 				pif->EndRun();
+
+				time_t currTime;
+				time(&currTime);
 				
 				//Reset status flags
 				stop_acq = false;
@@ -1152,7 +1159,7 @@ void Poll::run_control(){
 				// Check if each module has ended its run properly.
 				for(size_t mod = 0; mod < n_cards; mod++){
 					std::stringstream leader;
-					leader << "Run endded in module " << mod;
+					leader << "Run end staus in module " << mod;
 					Display::LeaderPrint(leader.str());
 					if(!pif->CheckRunStatus(mod)){
 						std::cout << Display::OkayStr() << std::endl;
@@ -1162,6 +1169,8 @@ void Poll::run_control(){
 						had_error = true;
 					}
 				}
+
+				std::cout << "Run stopped on " << ctime(&currTime);
 				std::cout << std::endl;			
 			} //End of handling a stop acq flag
 		}
