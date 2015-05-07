@@ -612,7 +612,7 @@ void Poll::command_control(){
 					//The run number gets iterated before opening a file so we have to back it up one.
 					output_run_num--;
 				}
-				else{ std::cout << sys_message_head << "Using output file run number '" << output_run_num << "'\n"; }
+				else{ std::cout << sys_message_head << "Using output file run number '" << output_run_num+1 << "'\n"; }
 				if(output_file.IsOpen()){ std::cout << sys_message_head << "New run number used for new files only! Current file is unchanged.\n"; }
 			} 
 			else if(cmd == "oform"){ // Change the output file format
