@@ -571,7 +571,7 @@ int main(int argc, char **argv)
 
 		  while (timeout++ < waitTries) {
 		      testWords = pif.CheckFIFOWords(mod);
-		      if ( testWords >= max(waitWords[mod], 2U) )
+		      if ( testWords >= max(waitWords[mod], (unsigned int)MIN_FIFO_READ) )
 			  break;
 		      usleep(pollPause);
 		  } 
