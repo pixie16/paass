@@ -335,7 +335,7 @@ void Terminal::refresh_(){
 	if (SIGNAL_RESIZE) resize_();
 
 	pnoutrefresh(output_window, 
-		_scrollbackBufferSize - _winSizeY - _scrollPosition, 0,  //Pad corner to be placed in top left 
+		_scrollbackBufferSize - _winSizeY - _scrollPosition + 1, 0,  //Pad corner to be placed in top left 
 		0, 0, _winSizeY - _statusWindowSize - 2, _winSizeX-1); //Size of window
 	pnoutrefresh(input_window,0,0, _winSizeY - _statusWindowSize - 1, 0, _winSizeY - _statusWindowSize, _winSizeX-1);
 	if (status_window) 
@@ -721,6 +721,7 @@ std::string Terminal::GetCommand(){
 				}
 				output = temp_cmd;
 				std::cout << prompt.c_str() << output << "\n";
+				flush();
 				text_length = 0;
 				_scrollPosition = 0;
 				break;
