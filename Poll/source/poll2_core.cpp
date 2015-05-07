@@ -405,6 +405,13 @@ bool Poll::StopRun() {
 	}
 
 	StopAcq();
+	
+	if (record_data) {
+		std::stringstream output;
+		output << "Run " << output_run_num << " time";
+		Display::LeaderPrint(output.str());
+		std::cout << statsHandler->GetTotalTime() << "s\n";
+	}
 
 	record_data = false;
 	return true;
