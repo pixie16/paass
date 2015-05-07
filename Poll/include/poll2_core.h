@@ -50,9 +50,13 @@ class Terminal;
 class Poll{
 	private:
 		Terminal *poll_term_;
+		///Start a data recording run.
 		bool StartRun();
+		///Stop an active data recording run.
 		bool StopRun();
+		///Starts data acquisition.
 		bool StartAcq();
+		///Stops data acquisition.
 		bool StopAcq();
 
   public:

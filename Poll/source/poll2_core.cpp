@@ -361,6 +361,12 @@ void Poll::pmod_help(){
 	}
 }
 
+/**Starts a data recording run. Open data file is closed, the run number is iterated and a new file is opened.
+ * If the file was successfully opened the acquisition is started.
+ * If a run is already started a warning is displayed and the process is stopped.
+ *
+ * \return Returns true if successfully starts a run.
+ */
 bool Poll::StartRun() {
 	if(do_MCA_run){
 		std::cout << sys_message_head << "Warning! Cannot run acquisition while MCA program is running\n";
@@ -387,6 +393,11 @@ bool Poll::StartRun() {
 	return true;
 }
 
+/**Current run is stopped. This includes disabling data recording.
+ * This command stops the acquisition even if data recording is not active.
+ *
+ * \return Returns true if successful.
+ */
 bool Poll::StopRun() {
 	if(!acq_running){ 
 		std::cout << sys_message_head << "Acquisition is not running\n"; 
@@ -399,6 +410,10 @@ bool Poll::StopRun() {
 	return true;
 }
 
+/**Starts data acquistion. The process then waits until the acquistion is running.
+ *	
+ *	\return Returns true if successful.
+ */
 bool Poll::StartAcq() {
 	if(do_MCA_run){ 
 		std::cout << sys_message_head << "Warning! Cannot run acquisition while MCA program is running\n"; 
@@ -409,18 +424,27 @@ bool Poll::StartAcq() {
 		return false;
 	}
 
+	//Set start acq flag to be intercepted by run control.
 	start_acq = true;
+	//Wait until acquistion is running.
 	while (!acq_running) sleep(1);
+
 	return true;
 }
 
+/**Stops data acquistion. The process waits until the acquistion is stopped.
+ * 
+ * \return Returns true if succesful.
+ */
 bool Poll::StopAcq() {
 	if(!acq_running){ 
 		std::cout << sys_message_head << "Acquisition is not running\n"; 
 		return false;
 	}
 
+	//Set stop_acq flag to be intercepted by run control.
 	stop_acq = true;
+	//Wait until acquisition is stopped.
 	while (acq_running) sleep(1);
 
 	return true;
