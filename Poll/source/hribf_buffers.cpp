@@ -845,12 +845,12 @@ bool PollOutputFile::OpenNewFile(std::string title_, int run_num_, std::string &
 
 	std::stringstream filename;
 	filename << output_directory << prefix << "_" << run_num_ << ".ldf";
-	std::ifstream input_file(filename.str());
+	std::ifstream input_file(filename.str().c_str());
 	if (input_file.is_open()) {
 		input_file.close();
 		return false;
 	}
-	output_file.open(filename.str(), std::ios::binary);
+	output_file.open(filename.str().c_str(), std::ios::binary);
 	if(!output_file.is_open() || !output_file.good()){
 		output_file.close();
 		return false;
