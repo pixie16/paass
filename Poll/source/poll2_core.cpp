@@ -102,6 +102,7 @@ Poll::Poll(){
 	show_module_rates = false;
 	zero_clocks = false;
 	debug_mode = false;
+	shm_mode = false;
 	init = false;
 
 	// Options relating to output data file
@@ -262,26 +263,57 @@ bool Poll::synch_mods(){
 }
 
 int Poll::write_data(word_t *data, unsigned int nWords){
-	// Open an output file if needed
-	if(!output_file.IsOpen()){
-		open_output_file();
+	if(shm_mode){ // Broadcast the spill onto the network
+		char shm_data[40008]; // 40 kB packets of data
+		char *data_l = (char *)data; // Local pointer to the data array
+		unsigned int num_net_chunks = nWords / 10000;
+		unsigned int num_net_remain = nWords % 10000;
+		if(num_net_remain != 0){ num_net_chunks++; }
+		
+		unsigned int net_chunk = 1;
+		unsigned int words_bcast = 0;
+		if(debug_mode){ std::cout << " debug: Splitting " << nWords << " words into network spill of " << num_net_chunks << " chunks (fragment = " << num_net_remain << " words)\n"; }
+		
+		while(words_bcast < nWords){
+			if(nWords - words_bcast > 10000){ // Broadcast the spill chunks
+				memcpy(&shm_data[0], (char *)&net_chunk, 4);
+				memcpy(&shm_data[4], (char *)&num_net_chunks, 4);
+				memcpy(&shm_data[8], &data_l[words_bcast*4], 40000);
+				client->SendMessage(shm_data, 40008);
+				words_bcast += 10000;
+			}
+			else{ // Broadcast the spill remainder
+				memcpy(&shm_data[0], (char *)&net_chunk, 4);
+				memcpy(&shm_data[4], (char *)&num_net_chunks, 4);
+				memcpy(&shm_data[8], &data_l[words_bcast*4], (nWords-words_bcast)*4);
+				client->SendMessage(shm_data, (nWords - words_bcast + 2)*4);
+				words_bcast += nWords-words_bcast;
+			}
+			net_chunk++;
+		}
+	}
+	else{ // Broadcast a spill notification to the network
+		char packet[output_file.GetPacketSize()];
+		int packet_size = output_file.BuildPacket(packet);
 	}
 
-	// Broadcast a spill notification to the network
-	char packet[output_file.GetPacketSize()];
-	int packet_size = output_file.BuildPacket(packet);
-	client->SendMessage(packet, packet_size);
-
-	// Handle the writing of buffers to the file
-	std::streampos current_filesize = output_file.GetFilesize();
-	if(current_filesize + (std::streampos)(4*nWords + 65552) > MAX_FILE_SIZE){
-		// Adding nWords plus 2 EOF buffers to the file will push it over MAX_FILE_SIZE.
-		// Open a new output file instead
-		std::cout << sys_message_head << "Current filesize is " << current_filesize + (std::streampos)65552 << " bytes\n";
-		close_output_file();
-		open_output_file();
+	if(record_data){
+		// Open an output file if needed
+		if(!output_file.IsOpen()){
+			open_output_file();
+		}
+	
+		// Handle the writing of buffers to the file
+		std::streampos current_filesize = output_file.GetFilesize();
+		if(current_filesize + (std::streampos)(4*nWords + 65552) > MAX_FILE_SIZE){
+			// Adding nWords plus 2 EOF buffers to the file will push it over MAX_FILE_SIZE.
+			// Open a new output file instead
+			std::cout << sys_message_head << "Current filesize is " << current_filesize + (std::streampos)65552 << " bytes\n";
+			close_output_file();
+			open_output_file();
+		}
+		return output_file.Write((char*)data, nWords);
 	}
-	return output_file.Write((char*)data, nWords);
 
 	return -1;
 }
@@ -293,6 +325,7 @@ void Poll::help(){
 	std::cout << "   stop             - Stop data acqusition and stop recording data to disk\n";	
 	std::cout << "   startacq         - Start data acquisition\n";
 	std::cout << "   stopacq          - Stop data acquisition\n";
+	std::cout << "   acq (shm)        - Run in \"shared-memory\" mode\n";
 	std::cout << "   spill (hup)      - Force dump of current spill\n";
 	std::cout << "   prefix [name]    - Set the output filename prefix (default='run_#.ldf')\n";
 	std::cout << "   fdir [path]      - Set the output file directory (default='./')\n";
@@ -459,7 +492,7 @@ void Poll::command_control(){
 		if(c == '\004'){ break; } // ctrl + c
 		else if(c == '\n' || c == '\r'){
 			cmd_ready = true;
-		}
+		}write_data
 		else if(c == '\033'){
 			read(STDIN_FILENO, &c, 1); // skip the '['
 			read(STDIN_FILENO, &c, 1);
@@ -513,6 +546,7 @@ void Poll::command_control(){
 				std::cout << "   Acq starting    - " << yesno(start_acq) << std::endl;
 				std::cout << "   Acq stopping    - " << yesno(stop_acq) << std::endl;
 				std::cout << "   Acq running     - " << yesno(acq_running) << std::endl;
+				std::cout << "   Shared memory   - " << yesno(shm_mode) << std::endl;
 				std::cout << "   Write to disk   - " << yesno(record_data) << std::endl;
 				std::cout << "   File open       - " << yesno(output_file.IsOpen()) << std::endl;
 				std::cout << "   Rebooting       - " << yesno(do_reboot) << std::endl;
@@ -540,6 +574,16 @@ void Poll::command_control(){
 			} 
 			else if(cmd == "stopacq" || cmd == "stopvme"){ // Tell POLL to stop data acquisition
 				StopAcq();
+			}
+			else if(cmd == "acq" || cmd == "shm"){ // Toggle "shared-memory" mode
+				if(shm_mode){
+					std::cout << sys_message_head << "Toggling shared-memory mode OFF\n";
+					shm_mode = false;
+				}
+				else{
+					std::cout << sys_message_head << "Toggling shared-memory mode ON\n";
+					shm_mode = true;
+				}
 			}
 			else if(cmd == "reboot"){ // Tell POLL to attempt a PIXIE crate reboot
 				if(do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot reboot while MCA is running\n"; }
@@ -1122,9 +1166,7 @@ void Poll::run_control(){
 				} //End loop over modules for reading FIFO
 
 				//We have read the FIFO now we write the data	
-				if(record_data){ 
-					write_data(fifoData, dataWords); 
-				}
+				write_data(fifoData, dataWords); 
 				
 				//Get the length of the spill
 				double spillTime = usGetTime(startTime);

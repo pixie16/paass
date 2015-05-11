@@ -120,9 +120,9 @@ int main(int argc, char *argv[]){
 	if(valid_opt[3].is_active){ poll.insert_wall_clock = false; }
 	if(valid_opt[4].is_active){ poll.show_module_rates = true; }
 	if(valid_opt[5].is_active){ 
-		threshPercent = atoi(valid_opt[7].value.c_str()); 
+		threshPercent = atoi(valid_opt[5].value.c_str()); 
 		if(threshPercent <= 0){ 
-			std::cout << "Warning! failed to set threshold level. Using default of 50%\n";
+			std::cout << Display::WarningStr("Warning!") << " failed to set threshold level. Using default of 50%\n";
 			threshPercent = 50; 
 		}
 	}
@@ -153,7 +153,7 @@ int main(int argc, char *argv[]){
 	std::cout << "\n POLL2 v" << POLL2_CORE_VERSION << "\n"; 
 	std::cout << " ==  ==  ==  ==  == \n\n"; 
 	
-	poll.threshWords = EXTERNAL_FIFO_LENGTH * threshPercent / 100;
+	poll.threshWords = EXTERNAL_FIFO_LENGTH * threshPercent / 100.0;
 	std::cout << "Using FIFO threshold of " << poll.threshWords << " words\n";
 	
 #ifdef PIF_REVA

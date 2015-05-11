@@ -32,7 +32,7 @@
 // class Server
 /////////////////////////////////////////////////////////////////////
 
-bool Server::Init(int port_){
+bool Server::Init(int port_, int sec_, int usec_){
 	if(init){ return false; }
 
 	sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -48,6 +48,9 @@ bool Server::Init(int port_){
 	if(bind(sock, (struct sockaddr *)&serv, length) < 0){ return false; } // failed to bind to port
 
 	fromlen = sizeof(struct sockaddr_in);
+
+	to_sec = sec_;
+	to_usec = usec_;
 
 	return init = true;
 }
@@ -66,6 +69,20 @@ int Server::SendMessage(char *message_, size_t length_){
 	if(!init){ return -1; }
 
 	return (int)sendto(sock, message_, length_, 0, (struct sockaddr *)&from, fromlen);
+}
+
+bool Server::Select(int &retval){
+	timeout.tv_sec = to_sec; // Set timeout to sec_
+	timeout.tv_usec = to_usec;
+
+	FD_ZERO(&masterfds);
+	FD_SET(sock, &masterfds);
+	memcpy(&readfds, &masterfds, sizeof(fd_set));
+
+	retval = select(sock+1, &readfds, NULL, NULL, &timeout);
+	if(FD_ISSET(sock, &readfds)){ return true; }
+
+	return false;
 }
 
 void Server::Close(){

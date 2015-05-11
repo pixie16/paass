@@ -10,9 +10,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date May 6th, 2015
+  * \date May 11th, 2015
   * 
-  * \version 1.3.00
+  * \version 1.3.01
 */
 
 
@@ -25,8 +25,8 @@
 #include "hribf_buffers.h"
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.3.00"
-#define POLL2_CORE_DATE "May 6th, 2015"
+#define POLL2_CORE_VERSION "1.3.01"
+#define POLL2_CORE_DATE "May 11th, 2015"
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
@@ -94,6 +94,7 @@ class Poll{
 	bool show_module_rates; //
 	bool zero_clocks; //
 	bool debug_mode; //
+	bool shm_mode; //
 	bool init; //
 
 	// Options relating to output data file

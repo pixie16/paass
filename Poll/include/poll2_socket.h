@@ -17,8 +17,8 @@
 
 #include <netinet/in.h>
 
-#define POLL2_SOCKET_VERSION "1.1.00"
-#define POLL2_SOCKET_DATE "April 22nd, 2015"
+#define POLL2_SOCKET_VERSION "1.1.01"
+#define POLL2_SOCKET_DATE "May 11th, 2015"
 
 class Server{
   private:
@@ -28,14 +28,20 @@ class Server{
 	struct sockaddr_in from;
 	bool init;
 
+	int to_sec, to_usec;
+	fd_set readfds, masterfds;
+	struct timeval timeout;
+
   public:
 	Server(){ init = false; }
   
 	~Server(){ Close(); }
 
+	int Get(){ return sock; }
+
 	/** Initialize the serv object and open a specified port. Returns false if the 
 	  * socket fails to open or the socket fails to bind and returns true otherwise. */
-	bool Init(int port_);
+	bool Init(int port_, int sec_=10, int usec_=0);
 
 	/** Receive a message from the socket. Returns the number of bytes received. Returns
 	  * -1 if the receive fails or if the object was not initialized. */
@@ -44,6 +50,8 @@ class Server{
 	/** Send a message to the socket. Returns the number of bytes sent. Returns
 	  * -1 if the send fails or if the object was not initialized. */
 	int SendMessage(char *message_, size_t length_);
+
+	bool Select(int &retval);
 
 	/// Close the socket.
 	void Close();
@@ -61,7 +69,9 @@ class Client{
 	Client(){ init = false; }
 	
 	~Client(){ Close(); }
-  	
+  
+  	int Get(){ return sock; }
+  
 	/** Initialize the client object and open a specified address and port. Returns false 
 	  * if the socket fails to open or the address is unresolved and returns true otherwise. */
 	bool Init(const char *address_, int port_);
