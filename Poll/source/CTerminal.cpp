@@ -257,6 +257,10 @@ void CommandString::Put(const char ch_, int index_){
 	else{ command.push_back(ch_); } // Appending to the back of the string
 }
 
+void CommandString::Append(const char* str) {
+	command.append(str);
+}
+
 /// Remove a character from the string.
 void CommandString::Pop(int index_){
 	if(index_ < 0){ return ; }
@@ -644,8 +648,10 @@ void Terminal::SetPrompt(const char *input_){
 		}	
 	}
 	offset += prompt.length() - lastPos;
+	update_cursor_();
 
 	print(input_window,prompt.c_str());
+	refresh_();
 }
 
 // Force a character to the output screen
@@ -696,9 +702,60 @@ void Terminal::flush(){
 	}
 }
 
+/**By enabling tab autocomplete the current typed command is returned via GetCommand() with a trailing tab character.
+ *
+ * \param[in] enable State of tab complete.
+ */
+void Terminal::EnableTabComplete(bool enable) {
+	enableTabComplete = enable;
+}
+
+void Terminal::TabComplete(std::vector<std::string> matches) {
+	//No tab complete matches so we do nothing.
+	if (matches.size() == 0) {
+		return;
+	}
+	//A unique match so we extend the command with completed text
+	else if (matches.size() == 1) {
+		cmd.Append(matches.at(0).c_str());
+		in_print_(matches.at(0).c_str());
+		text_length += matches.at(0).length();
+	}
+	else {
+		//Fill out the matching part
+		std::string commonStr = matches.at(0);
+		for (auto it=matches.begin()+1;it!=matches.end();++it) {
+		}
+		//Display the options
+		if (tabCount > 1) {
+			//Compute the header position
+			int headerPos = cmd.Get().find_last_of(" /");
+			std::string header;
+			if (headerPos == std::string::npos) 
+				header = cmd.Get();
+			else
+				header = cmd.Get().substr(headerPos);
+			std::cout << prompt.c_str() << cmd.Get() << "\n";
+			for (auto it=matches.begin();it!=matches.end();++it) {
+				std::cout << header << (*it) << "\t";
+			}
+			std::cout << "\n";
+		}
+	}
+
+	
+}
+
 std::string Terminal::GetCommand(){
 	int keypress;
 	std::string output = "";
+
+	//Update status message
+	if (status_window) {
+		werase(status_window);
+		print(status_window,statusStr.at(0).c_str());
+	}
+
 	while(true){
 		if(SIGNAL_INTERRUPT){ // ctrl-c (SIGINT)
 			SIGNAL_INTERRUPT = false;
@@ -725,13 +782,21 @@ std::string Terminal::GetCommand(){
 				flush();
 				text_length = 0;
 				_scrollPosition = 0;
-				break;
+				clear_();
+				tabCount = 0;
+				return output;
 			}
 		} 
+		else if(keypress == '\t' && enableTabComplete) {
+			tabCount++;
+			output = cmd.Get() + "\t";
+			return output;
+		}
 		else if(keypress == 4){ // ctrl-d (EOT)
 			output = "CTRL_D";
 			text_length = 0;
 			clear_();
+			tabCount = 0;
 			break;
 		}
 		else if(keypress == 9){ } // Tab key (9)
@@ -797,7 +862,7 @@ std::string Terminal::GetCommand(){
 		else if(keypress == KEY_RESIZE) {
 			//Do nothing with the resize key
 		}
-		else if(keypress == ERR){  } // No key was pressed in the interval
+		else if(keypress == ERR){ } // No key was pressed in the interval
 		else{ 
 			in_char_((char)keypress); 
 			cmd.Put((char)keypress, cursX - offset - 1);
@@ -816,10 +881,10 @@ std::string Terminal::GetCommand(){
 			print(status_window,statusStr.at(0).c_str());
 		}
 
+		if (keypress != ERR) tabCount = 0;
 		update_cursor_();
 		refresh_();
 	}
-	clear_();
 	return output;
 }
 

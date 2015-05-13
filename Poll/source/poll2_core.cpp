@@ -356,6 +356,26 @@ void Poll::help(){
 	std::cout << "   version (v)      - Display Poll2 version information\n";
 }
 
+std::vector<std::string> Poll::TabComplete(std::string cmd) {
+	static std::vector<std::string> commands = {"start","startacq","stop","stopacq","prefix","runum","runtitle","close","pread","pwrite","pmwrite","pmread","status","help","version","shm","spill","hup","fdir","reboot","mca","dump","adjust_offsets","find_tau","toggle","toggle_bit","csr_test","bit_test","debug","quiet","quit","oform","title"};
+
+	std::vector<std::string> matches;
+	
+	//If we have no space then we are auto completing a command.	
+	if (cmd.find(" ") == std::string::npos) {
+		for (auto it=commands.begin(); it!=commands.end();++it) {
+			if ((*it).find(cmd) == 0) {
+				matches.push_back((*it).substr(cmd.length()) + " ");
+			}
+		}
+	}
+	else {
+
+	}
+
+	return matches; 
+}
+
 /* Print help dialogue for reading/writing pixie channel parameters. */
 void Poll::pchan_help(){
 	std::cout << "  Valid Pixie16 channel parameters:\n";
@@ -483,6 +503,10 @@ void Poll::command_control(){
 		cmd = poll_term_->GetCommand();
 		if(cmd == "CTRL_D"){ cmd = "quit"; }
 		else if(cmd == "CTRL_C"){ continue; }		
+		if (cmd.find("\t") != std::string::npos) {
+			poll_term_->TabComplete(TabComplete(cmd.substr(0,cmd.length()-1)));
+			continue;
+		}
 		poll_term_->flush();
 		//poll_term_->print((cmd+"\n").c_str()); // This will force a write before the cout stream dumps to the screen
 #else

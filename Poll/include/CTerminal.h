@@ -179,6 +179,8 @@ class CommandString{
 	
 	/// Put a character into string at specified position.
 	void Put(const char ch_, int index_);
+
+	void Append(const char* str);
 	
 	/// Remove a character from the string.
 	void Pop(int index_);
@@ -220,6 +222,10 @@ class Terminal{
 	std::vector<std::string> statusStr;
 	///The prompt string.
 	std::string prompt;
+	///The tab complete flag
+	bool enableTabComplete;
+
+	short tabCount;
 	
 	/// Size of the scroll back buffer in lines.
 	int _scrollbackBufferSize;
@@ -277,9 +283,13 @@ class Terminal{
 	void SetStatus(std::string status, unsigned short line = 0);
 	///Clear the status line.
 	void ClearStatus(unsigned short line = 0);
-	//Append some text to the status line.
+	///Append some text to the status line.
 	void AppendStatus(std::string status, unsigned short line = 0);
 		
+	///Enable tab auto complete functionlity.
+	void EnableTabComplete(bool enable = true);
+	void TabComplete(std::vector<std::string> matches);
+
 	/** Set the command filename for storing previous commands This command will 
 	  * clear all current commands from the history if overwrite_ is set to true. */
 	void SetCommandFilename(std::string input_, bool overwrite_=false);

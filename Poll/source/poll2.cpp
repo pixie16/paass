@@ -137,6 +137,7 @@ int main(int argc, char *argv[]){
 	poll_term.Initialize(".poll2.cmd");
 	poll_term.SetPrompt(Display::InfoStr("POLL2 $ ").c_str());
 	poll_term.AddStatusWindow();
+	poll_term.EnableTabComplete();
 #endif
 
 	std::cout << "\n#########      #####    ####      ####       ########\n"; 
