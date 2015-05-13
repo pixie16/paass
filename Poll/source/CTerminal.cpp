@@ -641,6 +641,7 @@ void Terminal::SetPrompt(const char *input_){
 			}
 		}	
 	}
+	offset += prompt.length() - lastPos;
 
 	print(input_window,prompt.c_str());
 }
