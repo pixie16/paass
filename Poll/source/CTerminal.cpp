@@ -710,6 +710,13 @@ void Terminal::EnableTabComplete(bool enable) {
 	enableTabComplete = enable;
 }
 
+/**Take the list of matching tab complete values and output resulting tab completion.
+ * If the list is empty nothing happens, if a unique value is given the command is completed. If there are multiple
+ * matches the common part of the matches is determined and printed to the input. If there is no common part of the
+ * matches and the tab key has been pressed twice the list of matches is printed for the user to decide.
+ *
+ * \param[in] matches A vector of strings of trailing characters matching the current command.
+ */
 void Terminal::TabComplete(std::vector<std::string> matches) {
 	//No tab complete matches so we do nothing.
 	if (matches.size() == 0) {
@@ -724,8 +731,19 @@ void Terminal::TabComplete(std::vector<std::string> matches) {
 	else {
 		//Fill out the matching part
 		std::string commonStr = matches.at(0);
-		for (auto it=matches.begin()+1;it!=matches.end();++it) {
+		for (auto it=matches.begin()+1;it!=matches.end() && !commonStr.empty();++it) {
+			while (!commonStr.empty()) {
+				if ((*it).find(commonStr) == 0) break;
+				commonStr.erase(commonStr.length() - 1);
+			}
 		}
+		if (!commonStr.empty()) {
+			cmd.Append(commonStr.c_str());
+			in_print_(commonStr.c_str());
+			text_length += commonStr.length();
+			return;
+		}
+
 		//Display the options
 		if (tabCount > 1) {
 			//Compute the header position
