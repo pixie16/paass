@@ -59,6 +59,8 @@ class Poll{
 		///Stops data acquisition.
 		bool StopAcq();
 
+		std::vector<std::string> TabComplete(std::string cmd);
+
   public:
   	struct tm *time_info;
 
