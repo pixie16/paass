@@ -710,8 +710,6 @@ std::string Terminal::GetCommand(){
 		flush(); // If there is anything in the stream, dump it to the screen
 		
 		int keypress = wgetch(input_window);
-
-		//print((" debug: " + to_str(keypress) + "\n").c_str());
 	
 		// Check for internal commands
 		if(keypress == 10){ // Enter key (10)
@@ -814,7 +812,7 @@ std::string Terminal::GetCommand(){
 	
 		//Update status message
 		if (status_window) {
-			wclear(status_window);
+			werase(status_window);
 			print(status_window,statusStr.at(0).c_str());
 		}
 
