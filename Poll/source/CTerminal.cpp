@@ -402,11 +402,13 @@ void Terminal::SetStatus(std::string status, unsigned short line) {
 }
 
 void Terminal::ClearStatus(unsigned short line) {
-	statusStr.at(line) = "";
+	if (status_window)
+		statusStr.at(line) = "";
 }
 
 void Terminal::AppendStatus(std::string status, unsigned short line) {
-	statusStr.at(line).append(status);
+	if (status_window)
+		statusStr.at(line).append(status);
 }
 
 // Force a character to the input screen
@@ -811,8 +813,10 @@ std::string Terminal::GetCommand(){
 		if(cursX > (text_length + offset)){ cursX = text_length + offset; }
 	
 		//Update status message
-		wclear(status_window);
-		print(status_window,statusStr.at(0).c_str());
+		if (status_window) {
+			wclear(status_window);
+			print(status_window,statusStr.at(0).c_str());
+		}
 
 		update_cursor_();
 		refresh_();
