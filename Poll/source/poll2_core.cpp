@@ -53,7 +53,7 @@
 
 #define MAX_FILE_SIZE 4294967296ll // 4 GB. Maximum allowable .ldf file size in bytes
 
-const std::string chan_params[21] = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP", "TRIGGER_THRESHOLD", "ENERGY_RISETIME", "ENERGY_FLATTOP", "TAU", "TRACE_LENGTH",
+std::vector<std::string> chan_params = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP", "TRIGGER_THRESHOLD", "ENERGY_RISETIME", "ENERGY_FLATTOP", "TAU", "TRACE_LENGTH",
 									 "TRACE_DELAY", "VOFFSET", "XDT", "BASELINE_PERCENT", "EMIN", "BINFACTOR", "CHANNEL_CSRA", "CHANNEL_CSRB", "BLCUT",
 									 "ExternDelayLen", "ExtTrigStretch", "ChanTrigStretch", "FtrigoutDelay", "FASTTRIGBACKLEN"};
 
@@ -370,6 +370,24 @@ std::vector<std::string> Poll::TabComplete(std::string cmd) {
 		}
 	}
 	else {
+		//Get the trailing str part to complete
+		std::string strToComplete = cmd.substr(cmd.find_last_of(" ")+1);
+
+		//If the inital command is pwrite or pread we try to auto complete the param names
+		if (cmd.find("pwrite") == 0 || cmd.find("pread") == 0) {
+			for (auto it=chan_params.begin(); it!=chan_params.end();++it) {
+				if ((*it).find(strToComplete) == 0) 
+					matches.push_back((*it).substr(strToComplete.length()));
+			}
+		}
+
+		//If the inital command is pmwrite or pmread we try to auto complete the param names
+		if (cmd.find("pmwrite") == 0 || cmd.find("pmread") == 0) {
+			for (auto it=mod_params.begin(); it!=mod_params.end();++it) {
+				if ((*it).find(strToComplete) == 0) 
+					matches.push_back((*it).substr(strToComplete.length()));
+			}
+		}
 
 	}
 
@@ -379,7 +397,7 @@ std::vector<std::string> Poll::TabComplete(std::string cmd) {
 /* Print help dialogue for reading/writing pixie channel parameters. */
 void Poll::pchan_help(){
 	std::cout << "  Valid Pixie16 channel parameters:\n";
-	for(unsigned int i = 0; i < 21; i++){
+	for(unsigned int i = 0; i < chan_params.size(); i++){
 		std::cout << "   " << chan_params[i] << "\n";
 	}
 }
@@ -759,7 +777,7 @@ void Poll::command_control(){
 				ParameterModuleDumper modReader(&ofile);
 
 				// Channel dependent settings
-				for(unsigned int param = 0; param < 21; param++){
+				for(unsigned int param = 0; param < chan_params.size(); param++){
 					forChannel<std::string>(pif, -1, -1, chanReader, chan_params[param]);
 				}
 
