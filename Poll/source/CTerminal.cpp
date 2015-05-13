@@ -7,9 +7,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date May 4th, 2015
+  * \date May 13th, 2015
   * 
-  * \version 1.1.05
+  * \version 1.1.06
 */
 
 #include <iostream>

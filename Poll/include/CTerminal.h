@@ -7,9 +7,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date May 4th, 2015
+  * \date May 13th, 2015
   * 
-  * \version 1.1.05
+  * \version 1.1.06
 */
 
 #ifndef CTERMINAL_H
@@ -22,8 +22,8 @@
 ///Default size of terminal scroll back buffer in lines.
 #define SCROLLBACK_SIZE 1000
 
-#define CTERMINAL_VERSION "1.1.05"
-#define CTERMINAL_DATE "May 4th, 2015"
+#define CTERMINAL_VERSION "1.1.06"
+#define CTERMINAL_DATE "May 13th, 2015"
 
 #ifdef USE_NCURSES
 
