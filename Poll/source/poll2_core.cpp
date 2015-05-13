@@ -58,7 +58,7 @@ std::vector<std::string> chan_params = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP", "
 									 "ExternDelayLen", "ExtTrigStretch", "ChanTrigStretch", "FtrigoutDelay", "FASTTRIGBACKLEN"};
 
 std::vector<std::string> mod_params = {"MODULE_CSRA", "MODULE_CSRB", "MODULE_FORMAT", "MAX_EVENTS", "SYNCH_WAIT", "IN_SYNCH", "SLOW_FILTER_RANGE",
-									"FAST_FILTER_RANGE", "MODULE_NUMBER", "TrigConfig0", "TrigConfig1", "TrigConfig2","TrigConfig3"};
+									"FAST_FILTER_RANGE", "MODULE_NUMBER", "TrigConfig0", "TrigConfig1", "TrigConfig2","TrigConfig3","SLOW_FILTER_RANGE"};
 
 MCA_args::MCA_args(){ Zero(); }
 	
