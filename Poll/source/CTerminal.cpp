@@ -699,6 +699,7 @@ void Terminal::flush(){
 		print(output_window, stream_contents);
 		if (logFile.good()) {
 			logFile << stream.str();
+			logFile.flush();
 		}
 		stream.str("");
 		stream.clear();
@@ -931,6 +932,7 @@ void Terminal::Close(){
 		if(save_cmds){ save_commands_(); }
 		init = false;
 	}
+	logFile.close();
 }
 
 #endif
