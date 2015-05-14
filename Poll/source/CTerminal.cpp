@@ -697,9 +697,22 @@ void Terminal::flush(){
 	std::string stream_contents = stream.str();
 	if(stream_contents.size() > 0){
 		print(output_window, stream_contents);
+		if (logFile.good()) {
+			logFile << stream.str();
+		}
 		stream.str("");
 		stream.clear();
 	}
+}
+
+bool Terminal::SetLogFile(const char *logFileName) {
+	logFile.open(logFileName);
+	if (!logFile.good()) {
+		std::cout << "[ERROR]: Unable to open log file: "<< logFileName << "!\n";
+		return false;
+	}
+	return true;
+
 }
 
 /**By enabling tab autocomplete the current typed command is returned via GetCommand() with a trailing tab character.
