@@ -18,6 +18,7 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <fstream>
 
 ///Default size of terminal scroll back buffer in lines.
 #define SCROLLBACK_SIZE 1000
@@ -226,6 +227,8 @@ class Terminal{
 	bool enableTabComplete;
 
 	short tabCount;
+
+	std::ofstream logFile;
 	
 	/// Size of the scroll back buffer in lines.
 	int _scrollbackBufferSize;
@@ -276,6 +279,8 @@ class Terminal{
 	
 	/// Initialize the terminal interface with a list of previous commands
 	void Initialize(std::string cmd_fname_);
+
+	bool SetLogFile(const char *logFileName);
 
 	/// Initalizes a status window under the input temrinal.
 	void AddStatusWindow(unsigned short numLines = 1);
