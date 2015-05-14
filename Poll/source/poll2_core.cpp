@@ -501,6 +501,7 @@ bool Poll::StopAcq() {
 
 	return true;
 }
+
 ///////////////////////////////////////////////////////////////////////////////
 // Poll::command_control
 ///////////////////////////////////////////////////////////////////////////////
@@ -1270,9 +1271,11 @@ void Poll::run_control(){
 		status << " " << humanReadable(statsHandler->GetTotalDataRate()) << "/s";
 
 		if (file_open) {
+			if (acq_running && !record_data) status << TermColors::DkYellow;
 			//Add file size to status
 			status << " " << humanReadable(output_file.GetFilesize());
 			status << " " << output_file.GetCurrentFilename();
+			if (acq_running && !record_data) status << TermColors::Reset;
 		}
 
 		//Update the status bar
