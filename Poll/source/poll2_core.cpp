@@ -365,7 +365,7 @@ std::vector<std::string> Poll::TabComplete(std::string cmd) {
 	if (cmd.find(" ") == std::string::npos) {
 		for (auto it=commands.begin(); it!=commands.end();++it) {
 			if ((*it).find(cmd) == 0) {
-				matches.push_back((*it).substr(cmd.length()) + " ");
+				matches.push_back((*it).substr(cmd.length()));
 			}
 		}
 	}

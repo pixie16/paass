@@ -181,7 +181,7 @@ class CommandString{
 	/// Put a character into string at specified position.
 	void Put(const char ch_, int index_);
 
-	void Append(const char* str);
+	void Insert(size_t pos, const char* str);
 	
 	/// Remove a character from the string.
 	void Pop(int index_);
