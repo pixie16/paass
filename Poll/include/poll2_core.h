@@ -61,7 +61,14 @@ class Poll{
 
 		std::vector<std::string> TabComplete(std::string cmd);
 
-  public:
+		///Routine to read Pixie FIFOs
+		bool ReadFIFO();
+		///Time when the acquistion was started.
+		double startTime;
+		///Time when the last spill finished.
+		double lastSpillTime;
+
+	public:
   	struct tm *time_info;
 
 	Client *client; /// UDP client for network access
@@ -115,9 +122,6 @@ class Poll{
 	typedef std::pair<unsigned int, unsigned int> chanid_t;
 	std::map<chanid_t, PixieInterface::Histogram> histoMap;
 
-	// Data variables
-	std::vector<word_t> partialEventWords;
-	std::vector<word_t> waitWords;
 	StatsHandler *statsHandler;
 	word_t threshWords;
 

@@ -47,9 +47,7 @@
 
 // Values associated with the minimum timing between pixie calls (in us)
 // Adjusted to help alleviate the issue with data corruption
-#define END_RUN_PAUSE 100
 #define POLL_TRIES 100
-#define WAIT_TRIES 100
 
 #define MAX_FILE_SIZE 4294967296ll // 4 GB. Maximum allowable .ldf file size in bytes
 
@@ -155,13 +153,6 @@ bool Poll::initialize(){
 	// Two extra words to store size of data block and module number
 	std::cout << "\nAllocating memory to store FIFO data (" << sizeof(word_t) * (EXTERNAL_FIFO_LENGTH + 2) * n_cards / 1024 << " kB)" << std::endl;
 	
-	// Allocate data for partial events
-	std::cout << "Allocating memory for partial events (" << sizeof(eventdata_t) * n_cards / 1024 << " kB)" << std::endl;
-	for(size_t card = 0; card < n_cards; card++){
-		partialEventWords.push_back(0);
-		waitWords.push_back(0);
-	}
-
 	client->Init("127.0.0.1", 5555);
 	
 	return init = true;
@@ -181,7 +172,7 @@ bool Poll::close(){
 	
 	// Just to be safe
 	if(output_file.IsOpen()){ close_output_file(); }
-	
+
 	delete pif;
 	
 	init = false;
@@ -966,19 +957,6 @@ void Poll::command_control(){
 
 /// Function to control the gathering and recording of PIXIE data
 void Poll::run_control(){
-	//Number of words in the FIFO of each module.
-	std::vector<word_t> nWords(n_cards);
-	//Iterator to determine which card has the most words.
-	std::vector<word_t>::iterator maxWords;
-	//The FIFO storage array
-	word_t *fifoData = new word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
-	//A vector to store the partial events
-	std::vector<word_t> partialEvent[n_cards];
-
-	double startTime, lastSpillTime;
-
-	const bool savePartialEvents = false;
-	
 	while(true){
 		if(kill_all){ // Supersedes all other commands
 			if(acq_running){ stop_acq = true; } // Safety catch
@@ -1048,182 +1026,10 @@ void Poll::run_control(){
 		}
 
 		if(acq_running){
-			for (int i=0;i<(EXTERNAL_FIFO_LENGTH+2)*n_cards;i++) fifoData[i] = 0;
-
-			//We loop until the FIFO has reached the threshold for any module
-			for (unsigned int timeout = 0; timeout < POLL_TRIES; timeout++){ 
-				//Check the FIFO size for every module
-				for (short mod=0; mod < n_cards; mod++) {
-					nWords[mod] = pif->CheckFIFOWords(mod);
-				}
-				//Find the maximum module
-				maxWords = std::max_element(nWords.begin(), nWords.end());
-				if(*maxWords > threshWords){ break; }
-			}
-			//Decide if we should read data based on threshold.
-			bool readData = (*maxWords > threshWords || stop_acq);
-
-			//We need to read the data out of the FIFO
-			if (readData || force_spill) {
-				force_spill = false;
-				//Number of data words read from the FIFO
-				size_t dataWords = 0;
-
-				//Loop over each module's FIFO
-				for (int mod=0;mod < n_cards; mod++) {
-					//if (!is_quiet) std::cout << "Reading module: " << mod << "\n";
-					
-					//if the module has no words in the FIFO we continue to the next module
-					if (nWords[mod] < MIN_FIFO_READ) {
-						// write an empty buffer if there is no data
-						fifoData[dataWords++] = 2;
-						fifoData[dataWords++] = mod;	    
-						continue;
-					}
-					else if (nWords[mod] < 0) {
-						std::cout << Display::WarningStr("Number of FIFO words less than 0") << " in module " << mod << std::endl;
-						// write an empty buffer if there is no data
-						fifoData[dataWords++] = 2;
-						fifoData[dataWords++] = mod;	    
-						continue;
-					}
-					
-					//Check if the FIFO is overfilled
-					bool fullFIFO = (nWords[mod] >= EXTERNAL_FIFO_LENGTH);
-					if (fullFIFO) {
-						std::cout << Display::ErrorStr() << " Full FIFO in module " << mod 
-							<< " size: " << nWords[mod] << "/" 
-							<< EXTERNAL_FIFO_LENGTH << Display::ErrorStr(" ABORTING!") << std::endl;
-						had_error = true;
-						stop_acq = true;
-						break;
-					}
-
-					//We inject two words describing the size of the FIFO spill and the module.
-					//We inject the size after it has been computedos we skip it for now and only add the module number.
-					dataWords++;
-					fifoData[dataWords++] = mod;
-
-					//We store the partial event if we had one
-					for (size_t i=0;i<partialEvent[mod].size();i++)
-						fifoData[dataWords + i] = partialEvent[mod].at(i);
-
-					//Try to read FIFO and catch errors.
-					if(!pif->ReadFIFOWords(&fifoData[dataWords + partialEvent[mod].size()], nWords[mod], mod, debug_mode)){
-						stop_acq = true;
-						break;
-					}
-					
-					//Print a message about what we did	
-					if(!is_quiet) {
-						std::cout << "Read " << nWords[mod] << " words from module " << mod;
-						if (!partialEvent[mod].empty())
-							std::cout << " and stored " << partialEvent[mod].size() << " partial event words";
-						std::cout << " to buffer position " << dataWords << std::endl;
-					}
-
-					//After reading the FIFO and printing a sttus message we can update the number of words to include the partial event.
-					nWords[mod] += partialEvent[mod].size();
-					//Clear the partial event
-					partialEvent[mod].clear();
-
-					//We now ned to parse the event to determine if there is a hanging event. Also, allows a check for corrupted data.
-					size_t parseWords = dataWords;
-					//We declare the eventSize outside the loop in case there is a partial event.
-					word_t eventSize = 0;
-					while (parseWords < dataWords + nWords[mod]) {
-						//Check first word to see if data makes sense.
-						// We check the slot, channel and event size.
-						word_t slotRead = ((fifoData[parseWords] & 0xF0) >> 4);
-						word_t slotExpected = pif->GetSlotNumber(mod);
-						word_t chanRead = (fifoData[parseWords] & 0xF);
-						eventSize = ((fifoData[parseWords] & 0x7FFE2000) >> 17);
-						bool virtualChannel = ((fifoData[parseWords] & 0x20000000) != 0);
-
-						if( slotRead != slotExpected ){ 
-							std::cout << Display::ErrorStr() << " Slot read (" << slotRead 
-								<< ") not the same as" << " slot expected (" 
-								<< slotExpected << ")" << std::endl; 
-							break;
-						}
-						else if (chanRead < 0 || chanRead > 15) {
-							std::cout << Display::ErrorStr() << " Channel read (" << chanRead << ") not valid!\n";
-							break;
-						}
-						else if(eventSize == 0){ 
-							std::cout << Display::ErrorStr() << "ZERO EVENT SIZE in mod " << mod << "!\n"; 
-							break;
-						}
-
-						// Update the statsHandler with the event (for monitor.bash)
-						if(!virtualChannel && statsHandler){ 
-							statsHandler->AddEvent(mod, chanRead, sizeof(word_t) * eventSize); 
-						}
-
-						//Iterate to the next event and continue parsing
-						parseWords += eventSize;
-					}
-
-					//We now check the outcome of the data parsing.
-					//If we have too many words as an event was not completely pulled form the FIFO
-					if (parseWords > dataWords + nWords[mod]) {
-						/*
-	 					std::cout << "dataWords: " << dataWords;
-						std::cout << " nWords: " << nWords[mod];
-						std::cout << " parseWords: " << parseWords;
-						std::cout << " eventSize " << eventSize << std::endl;
-						*/
-						word_t missingWords = parseWords - dataWords - nWords[mod];
-						word_t partialSize = eventSize - missingWords;
-						if (debug_mode) std::cout << "Partial event " << partialSize << "/" << eventSize << " words!\n";
-
-						//We could get the words now from the FIFO, but me may have to wait. Instead we store the partial event for the next FIFO read.
-						for(int i=0;i< partialSize;i++) 
-							partialEvent[mod].push_back(fifoData[parseWords - eventSize + i]);
-					
-						//Update the number of words to indicate removal or partial event.
-						nWords[mod] -= partialSize;
-					
-					}
-					//If parseWords is small then the parse failed for some reason
-					else if (parseWords < dataWords + nWords[mod]) {
-						std::cout << Display::ErrorStr() << " Parsing indicated corrupted data at " << parseWords - dataWords << " words into FIFO.\n";
-
-						//Print the first 100 words
-						std::cout << std::hex;
-						for(int i=0;i< 100;i++) {
-							if (i%10 == 0) std::cout << std::endl << "\t";
-							std::cout << fifoData[dataWords + i] << " ";
-						}
-						std::cout << std::dec << std::endl;
-
-						stop_acq = true;
-						had_error = true;
-						break;
-					}
-
-					//Assign the first injected word of spill to final spill length
-					fifoData[dataWords - 2] = nWords[mod] + 2;
-					//The data should be good so we iterate the position in the storage array.
-					dataWords += nWords[mod];
-				} //End loop over modules for reading FIFO
-
-				//We have read the FIFO now we write the data	
-				write_data(fifoData, dataWords); 
-				
-				//Get the length of the spill
-				double spillTime = usGetTime(startTime);
-				double durSpill = spillTime - lastSpillTime;
-				lastSpillTime = spillTime;
-				// Add time to the statsHandler (for monitor.bash)
-				if(statsHandler){ statsHandler->AddTime(durSpill * 1e-6); }
-			} //If we had exceeded the threshold or forced a flush
+			ReadFIFO();
 
 			//Handle a stop signal
 			if(stop_acq){ 
-				//time(&raw_time);
-				//time_info = localtime(&raw_time);
-				//std::cout << sys_message_head << "Stopping run at " << asctime(time_info);
 				pif->EndRun();
 
 				time_t currTime;
@@ -1233,13 +1039,23 @@ void Poll::run_control(){
 				stop_acq = false;
 				acq_running = false;
 
-				//Sleep for a bit to allow the modules to finish up
-				usleep(END_RUN_PAUSE);	
-				
 				// Check if each module has ended its run properly.
 				for(size_t mod = 0; mod < n_cards; mod++){
+					//If the run status is 1 then the run has not finished in the module.
+					// We need to read it out.
+					if(pif->CheckRunStatus(mod) == 1) {
+						if (!is_quiet) std::cout << "Module " << mod << " still has " << pif->CheckFIFOWords(mod) << " words in the FIFO.\n";
+						//We set force_spill to true in case the remaining words is small.
+						force_spill = true;
+						//We sleep to allow the module to finish.
+						sleep(1);
+						//We read the FIFO out.
+						ReadFIFO();
+					}
+
+					//Print the module status.
 					std::stringstream leader;
-					leader << "Run end staus in module " << mod;
+					leader << "Run end status in module " << mod;
 					Display::LeaderPrint(leader.str());
 					if(!pif->CheckRunStatus(mod)){
 						std::cout << Display::OkayStr() << std::endl;
@@ -1282,9 +1098,193 @@ void Poll::run_control(){
 		poll_term_->SetStatus(status.str());
 	}
 
-	delete[] fifoData;
 	run_ctrl_exit = true;
 	std::cout << "Run Control exited\n";
+}
+
+bool Poll::ReadFIFO() {
+ 	static word_t *fifoData = new word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
+
+	if (!acq_running) return false;
+
+	//Number of words in the FIFO of each module.
+	std::vector<word_t> nWords(n_cards);
+	//Iterator to determine which card has the most words.
+	std::vector<word_t>::iterator maxWords;
+	//A vector to store the partial events
+	static std::vector<word_t> *partialEvent = new std::vector<word_t>[n_cards];
+
+	//We loop until the FIFO has reached the threshold for any module
+	for (unsigned int timeout = 0; timeout < POLL_TRIES; timeout++){ 
+		//Check the FIFO size for every module
+		for (short mod=0; mod < n_cards; mod++) {
+			nWords[mod] = pif->CheckFIFOWords(mod);
+		}
+		//Find the maximum module
+		maxWords = std::max_element(nWords.begin(), nWords.end());
+		if(*maxWords > threshWords){ break; }
+	}
+	//Decide if we should read data based on threshold.
+	bool readData = (*maxWords > threshWords || stop_acq);
+
+	//We need to read the data out of the FIFO
+	if (readData || force_spill) {
+		force_spill = false;
+		//Number of data words read from the FIFO
+		size_t dataWords = 0;
+
+		//Loop over each module's FIFO
+		for (int mod=0;mod < n_cards; mod++) {
+
+			//if the module has no words in the FIFO we continue to the next module
+			if (nWords[mod] < MIN_FIFO_READ) {
+				// write an empty buffer if there is no data
+				fifoData[dataWords++] = 2;
+				fifoData[dataWords++] = mod;	    
+				continue;
+			}
+			else if (nWords[mod] < 0) {
+				std::cout << Display::WarningStr("Number of FIFO words less than 0") << " in module " << mod << std::endl;
+				// write an empty buffer if there is no data
+				fifoData[dataWords++] = 2;
+				fifoData[dataWords++] = mod;	    
+				continue;
+			}
+
+			//Check if the FIFO is overfilled
+			bool fullFIFO = (nWords[mod] >= EXTERNAL_FIFO_LENGTH);
+			if (fullFIFO) {
+				std::cout << Display::ErrorStr() << " Full FIFO in module " << mod 
+					<< " size: " << nWords[mod] << "/" 
+					<< EXTERNAL_FIFO_LENGTH << Display::ErrorStr(" ABORTING!") << std::endl;
+				had_error = true;
+				stop_acq = true;
+				return false;
+			}
+
+			//We inject two words describing the size of the FIFO spill and the module.
+			//We inject the size after it has been computedos we skip it for now and only add the module number.
+			dataWords++;
+			fifoData[dataWords++] = mod;
+
+			//We store the partial event if we had one
+			for (size_t i=0;i<partialEvent[mod].size();i++)
+				fifoData[dataWords + i] = partialEvent[mod].at(i);
+
+			//Try to read FIFO and catch errors.
+			if(!pif->ReadFIFOWords(&fifoData[dataWords + partialEvent[mod].size()], nWords[mod], mod, debug_mode)){
+				std::cout << Display::ErrorStr() << " Unable to read " << nWords[mod] << " from module " << mod << "\n";
+				had_error = true;
+				stop_acq = true;
+				return false;
+			}
+
+			//Print a message about what we did	
+			if(!is_quiet) {
+				std::cout << "Read " << nWords[mod] << " words from module " << mod;
+				if (!partialEvent[mod].empty())
+					std::cout << " and stored " << partialEvent[mod].size() << " partial event words";
+				std::cout << " to buffer position " << dataWords << std::endl;
+			}
+
+			//After reading the FIFO and printing a sttus message we can update the number of words to include the partial event.
+			nWords[mod] += partialEvent[mod].size();
+			//Clear the partial event
+			partialEvent[mod].clear();
+
+			//We now ned to parse the event to determine if there is a hanging event. Also, allows a check for corrupted data.
+			size_t parseWords = dataWords;
+			//We declare the eventSize outside the loop in case there is a partial event.
+			word_t eventSize = 0;
+			while (parseWords < dataWords + nWords[mod]) {
+				//Check first word to see if data makes sense.
+				// We check the slot, channel and event size.
+				word_t slotRead = ((fifoData[parseWords] & 0xF0) >> 4);
+				word_t slotExpected = pif->GetSlotNumber(mod);
+				word_t chanRead = (fifoData[parseWords] & 0xF);
+				eventSize = ((fifoData[parseWords] & 0x7FFE2000) >> 17);
+				bool virtualChannel = ((fifoData[parseWords] & 0x20000000) != 0);
+
+				if( slotRead != slotExpected ){ 
+					std::cout << Display::ErrorStr() << " Slot read (" << slotRead 
+						<< ") not the same as" << " slot expected (" 
+						<< slotExpected << ")" << std::endl; 
+					break;
+				}
+				else if (chanRead < 0 || chanRead > 15) {
+					std::cout << Display::ErrorStr() << " Channel read (" << chanRead << ") not valid!\n";
+					break;
+				}
+				else if(eventSize == 0){ 
+					std::cout << Display::ErrorStr() << "ZERO EVENT SIZE in mod " << mod << "!\n"; 
+					break;
+				}
+
+				// Update the statsHandler with the event (for monitor.bash)
+				if(!virtualChannel && statsHandler){ 
+					statsHandler->AddEvent(mod, chanRead, sizeof(word_t) * eventSize); 
+				}
+
+				//Iterate to the next event and continue parsing
+				parseWords += eventSize;
+			}
+
+			//We now check the outcome of the data parsing.
+			//If we have too many words as an event was not completely pulled form the FIFO
+			if (parseWords > dataWords + nWords[mod]) {
+				/*
+					std::cout << "dataWords: " << dataWords;
+					std::cout << " nWords: " << nWords[mod];
+					std::cout << " parseWords: " << parseWords;
+					std::cout << " eventSize " << eventSize << std::endl;
+					*/
+				word_t missingWords = parseWords - dataWords - nWords[mod];
+				word_t partialSize = eventSize - missingWords;
+				if (debug_mode) std::cout << "Partial event " << partialSize << "/" << eventSize << " words!\n";
+
+				//We could get the words now from the FIFO, but me may have to wait. Instead we store the partial event for the next FIFO read.
+				for(int i=0;i< partialSize;i++) 
+					partialEvent[mod].push_back(fifoData[parseWords - eventSize + i]);
+
+				//Update the number of words to indicate removal or partial event.
+				nWords[mod] -= partialSize;
+
+			}
+			//If parseWords is small then the parse failed for some reason
+			else if (parseWords < dataWords + nWords[mod]) {
+				std::cout << Display::ErrorStr() << " Parsing indicated corrupted data at " << parseWords - dataWords << " words into FIFO.\n";
+
+				//Print the first 100 words
+				std::cout << std::hex;
+				for(int i=0;i< 100;i++) {
+					if (i%10 == 0) std::cout << std::endl << "\t";
+					std::cout << fifoData[dataWords + i] << " ";
+				}
+				std::cout << std::dec << std::endl;
+
+				stop_acq = true;
+				had_error = true;
+				break;
+			}
+
+			//Assign the first injected word of spill to final spill length
+			fifoData[dataWords - 2] = nWords[mod] + 2;
+			//The data should be good so we iterate the position in the storage array.
+			dataWords += nWords[mod];
+		} //End loop over modules for reading FIFO
+
+		//We have read the FIFO now we write the data	
+		write_data(fifoData, dataWords); 
+
+		//Get the length of the spill
+		double spillTime = usGetTime(startTime);
+		double durSpill = spillTime - lastSpillTime;
+		lastSpillTime = spillTime;
+		// Add time to the statsHandler (for monitor.bash)
+		if(statsHandler){ statsHandler->AddTime(durSpill * 1e-6); }
+	} //If we had exceeded the threshold or forced a flush
+
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
