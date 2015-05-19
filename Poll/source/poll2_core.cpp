@@ -216,7 +216,7 @@ bool Poll::open_output_file(){
 			record_data = false;
 			return false;
 		}
-		std::cout << sys_message_head << "Opening output file '" << filename_prefix << "_" << output_run_num << ".ldf'.\n";
+		std::cout << sys_message_head << "Opening output file '" << output_file.GetCurrentFilename() << "'.\n";
 		client->SendMessage((char *)"$OPEN_FILE", 12);
 	}
 	else{ 
