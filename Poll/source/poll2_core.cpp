@@ -350,7 +350,7 @@ void Poll::help(){
 }
 
 std::vector<std::string> Poll::TabComplete(std::string cmd) {
-	static std::vector<std::string> commands = {"start","startacq","stop","stopacq","prefix","runum","runtitle","close","pread","pwrite","pmwrite","pmread","status","help","version","shm","spill","hup","fdir","reboot","mca","dump","adjust_offsets","find_tau","toggle","toggle_bit","csr_test","bit_test","debug","quiet","quit","oform","title"};
+	static std::vector<std::string> commands = {"start","startacq","stop","stopacq","prefix","runnum","runtitle","close","pread","pwrite","pmwrite","pmread","status","help","version","shm","spill","hup","fdir","reboot","mca","dump","adjust_offsets","find_tau","toggle","toggle_bit","csr_test","bit_test","debug","quiet","quit","oform","title"};
 
 	std::vector<std::string> matches;
 	
