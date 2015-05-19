@@ -838,13 +838,13 @@ int PollOutputFile::BuildPacket(char *output){
 }
 
 // Close the current file, if one is open, and open a new file for data output
-bool PollOutputFile::OpenNewFile(std::string title_, int &run_num_, std::string prefix, std::string output_directory/*="./"*/){
+bool PollOutputFile::OpenNewFile(std::string title_, int &run_num_, std::string prefix, std::string output_directory/*="./"*/, bool continueRun /*= false*/){
 	CloseFile();
 
 	// Restart the spill counter for the new file
 	number_spills = 0;
 
-	std::string filename = GetNextFileName(run_num_,prefix,output_directory);
+	std::string filename = GetNextFileName(run_num_,prefix,output_directory,continueRun);
 	output_file.open(filename.c_str(), std::ios::binary);
 	if(!output_file.is_open() || !output_file.good()){
 		output_file.close();
@@ -864,15 +864,18 @@ bool PollOutputFile::OpenNewFile(std::string title_, int &run_num_, std::string 
 	return true;
 }
 
-std::string PollOutputFile::GetNextFileName(int &run_num_, std::string prefix, std::string output_directory) {
+std::string PollOutputFile::GetNextFileName(int &run_num_, std::string prefix, std::string output_directory, bool continueRun /*=false*/) {
 	std::stringstream filename;
 	filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << run_num_ << ".ldf";
 	
 	std::ifstream dummy_file(filename.str().c_str());
+	int suffix = 0;
 	while (dummy_file.is_open()) {
 		dummy_file.close();
 		filename.str("");
-		filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << ++run_num_ << ".ldf";
+		if (continueRun) filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << run_num_ << "-" << ++suffix << ".ldf";
+		else 
+			filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << ++run_num_ << ".ldf";
 		dummy_file.open(filename.str().c_str());
 	}
 	return filename.str();

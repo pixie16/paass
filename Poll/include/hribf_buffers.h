@@ -238,9 +238,9 @@ class PollOutputFile{
 	int BuildPacket(char *output);
 
 	/// Close the current file, if one is open, and open a new file for data output
-	bool OpenNewFile(std::string title_, int &run_num_, std::string prefix, std::string output_dir="./");
+	bool OpenNewFile(std::string title_, int &run_num_, std::string prefix, std::string output_dir="./", bool continueRun = false);
 
-	std::string GetNextFileName(int &run_num_, std::string prefix, std::string output_dir);
+	std::string GetNextFileName(int &run_num_, std::string prefix, std::string output_dir, bool continueRun = false);
 	
 	int GetRunNumber() {return dirBuff.GetRunNumber();}
 

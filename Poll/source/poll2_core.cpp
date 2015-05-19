@@ -49,7 +49,8 @@
 // Adjusted to help alleviate the issue with data corruption
 #define POLL_TRIES 100
 
-#define MAX_FILE_SIZE 4294967296ll // 4 GB. Maximum allowable .ldf file size in bytes
+/// 4 GB. Maximum allowable .ldf file size in bytes
+#define MAX_FILE_SIZE 4294967296ll
 
 std::vector<std::string> chan_params = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP", "TRIGGER_THRESHOLD", "ENERGY_RISETIME", "ENERGY_FLATTOP", "TAU", "TRACE_LENGTH",
 									 "TRACE_DELAY", "VOFFSET", "XDT", "BASELINE_PERCENT", "EMIN", "BINFACTOR", "CHANNEL_CSRA", "CHANNEL_CSRB", "BLCUT",
@@ -179,19 +180,19 @@ bool Poll::close(){
 }
 
 /* Safely close current data file if one is open. */
-bool Poll::close_output_file(){
+bool Poll::close_output_file(bool continueRun /*=false*/){
 	file_open = false;
 
 	if(output_file.IsOpen()){ // A file is already open and must be closed
 		//Clear the stats
-		statsHandler->Clear();
+		if (!continueRun) statsHandler->Clear();
 
 		std::cout << sys_message_head << "Closing output file.\n";
 		client->SendMessage((char *)"$CLOSE_FILE", 12);
 		output_file.CloseFile();
 
 		//We call get next file name to update the run number.
-		output_file.GetNextFileName(next_run_num,filename_prefix,output_directory);
+		if (!continueRun) output_file.GetNextFileName(next_run_num,filename_prefix,output_directory);
 
 		return true;
 	}
@@ -199,10 +200,17 @@ bool Poll::close_output_file(){
 	return true;
 }
 
-// Open an output file if needed
-bool Poll::open_output_file(){
+/**Opens a new file if no file is currently open. The new file is 
+ * determined from the output directory, run number and prefix. The run 
+ * number may be interated foreward if a file already exists. 
+ * If this is a continuation run the run number is not iterated and 
+ * instead a suffix number is incremented.
+ *
+ * \param [in] continueRun Flag indicating that this file should be a continuation run and that the run number should not be iterated.
+ */
+bool Poll::open_output_file(bool continueRun){
 	if(!output_file.IsOpen()){ 
-		if(!output_file.OpenNewFile(output_title, next_run_num, filename_prefix, output_directory)){
+		if(!output_file.OpenNewFile(output_title, next_run_num, filename_prefix, output_directory, continueRun)){
 			std::cout << sys_message_head << "Failed to open output file! Check that the path is correct.\n";
 			record_data = false;
 			return false;
@@ -296,9 +304,10 @@ int Poll::write_data(word_t *data, unsigned int nWords){
 	if(current_filesize + (std::streampos)(4*nWords + 65552) > MAX_FILE_SIZE){
 		// Adding nWords plus 2 EOF buffers to the file will push it over MAX_FILE_SIZE.
 		// Open a new output file instead
-		std::cout << sys_message_head << "Current filesize is " << current_filesize + (std::streampos)65552 << " bytes\n";
-		close_output_file();
-		open_output_file();
+		std::cout << sys_message_head << "Current filesize is " << current_filesize + (std::streampos)65552 << " bytes.\n";
+		std::cout << sys_message_head << "Opening new file.\n";
+		close_output_file(true);
+		open_output_file(true);
 	}
 
 	if (!is_quiet) std::cout << "Writing " << nWords << " words.\n";
