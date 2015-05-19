@@ -707,7 +707,7 @@ void Terminal::flush(){
 }
 
 bool Terminal::SetLogFile(const char *logFileName) {
-	logFile.open(logFileName);
+	logFile.open(logFileName,std::ofstream::app);
 	if (!logFile.good()) {
 		std::cout << "[ERROR]: Unable to open log file: "<< logFileName << "!\n";
 		return false;
