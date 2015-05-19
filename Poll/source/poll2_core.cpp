@@ -1099,6 +1099,9 @@ void Poll::run_control(){
 
 		//Update the status bar
 		poll_term_->SetStatus(status.str());
+
+		//Sleep the run control if idle to reduce CPU utilization.
+		if (!acq_running && !do_MCA_run) sleep(1);
 	}
 
 	run_ctrl_exit = true;
