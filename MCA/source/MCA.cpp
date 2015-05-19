@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <unistd.h>
 
 #include "PixieInterface.h"
 #include "Display.h"
