@@ -98,7 +98,7 @@ class CommandHolder{
 	unsigned int wrap_();
 
   public:		
-	CommandHolder(unsigned int max_size_=100){
+	CommandHolder(unsigned int max_size_=1000){
 		max_size = max_size_;
 		commands = new std::string[max_size];
 		fragment = "";
