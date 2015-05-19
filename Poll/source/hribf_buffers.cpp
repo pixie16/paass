@@ -838,30 +838,20 @@ int PollOutputFile::BuildPacket(char *output){
 }
 
 // Close the current file, if one is open, and open a new file for data output
-bool PollOutputFile::OpenNewFile(std::string title_, int &run_num_, std::string &prefix, std::string output_directory/*="./"*/){
+bool PollOutputFile::OpenNewFile(std::string title_, int &run_num_, std::string prefix, std::string output_directory/*="./"*/){
 	CloseFile();
 
 	// Restart the spill counter for the new file
 	number_spills = 0;
 
-	std::stringstream filename;
-	filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << run_num_ << ".ldf";
-	
-	std::ifstream dummy_file(filename.str().c_str());
-	while (dummy_file.is_open()) {
-		dummy_file.close();
-		filename.str("");
-		filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << ++run_num_ << ".ldf";
-		dummy_file.open(filename.str().c_str());
-	}
-
-	output_file.open(filename.str().c_str(), std::ios::binary);
+	std::string filename = GetNextFileName(run_num_,prefix,output_directory);
+	output_file.open(filename.c_str(), std::ios::binary);
 	if(!output_file.is_open() || !output_file.good()){
 		output_file.close();
 		return false;
 	}
 
-	current_filename = filename.str();
+	current_filename = filename;
 	get_full_filename(current_full_filename);		
 	dirBuff.SetRunNumber(run_num_);
 	dirBuff.Write(&output_file); // Every .ldf file gets a DIR header
@@ -872,6 +862,20 @@ bool PollOutputFile::OpenNewFile(std::string title_, int &run_num_, std::string 
 	headBuff.Write(&output_file); // Every .ldf file gets a HEAD file header
 
 	return true;
+}
+
+std::string PollOutputFile::GetNextFileName(int &run_num_, std::string prefix, std::string output_directory) {
+	std::stringstream filename;
+	filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << run_num_ << ".ldf";
+	
+	std::ifstream dummy_file(filename.str().c_str());
+	while (dummy_file.is_open()) {
+		dummy_file.close();
+		filename.str("");
+		filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << ++run_num_ << ".ldf";
+		dummy_file.open(filename.str().c_str());
+	}
+	return filename.str();
 }
 
 // Write the footer and close the file

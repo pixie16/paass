@@ -106,7 +106,7 @@ Poll::Poll(){
 	// Options relating to output data file
 	output_directory = "./"; // Set with 'fdir' command
 	output_title = "PIXIE data file"; // Set with 'title' command
-	output_run_num = 1; // Set with 'hnum' command
+	next_run_num = 1; // Set with 'runnum' command
 	output_format = 0; // Set with 'oform' command
 
 	// The main output data file and related variables
@@ -190,8 +190,8 @@ bool Poll::close_output_file(){
 		client->SendMessage((char *)"$CLOSE_FILE", 12);
 		output_file.CloseFile();
 
-		//Increase the run number
-		output_run_num++;
+		//We call get next file name to update the run number.
+		output_file.GetNextFileName(next_run_num,filename_prefix,output_directory);
 
 		return true;
 	}
@@ -202,7 +202,7 @@ bool Poll::close_output_file(){
 // Open an output file if needed
 bool Poll::open_output_file(){
 	if(!output_file.IsOpen()){ 
-		if(!output_file.OpenNewFile(output_title, output_run_num, filename_prefix, output_directory)){
+		if(!output_file.OpenNewFile(output_title, next_run_num, filename_prefix, output_directory)){
 			std::cout << sys_message_head << "Failed to open output file! Check that the path is correct.\n";
 			record_data = false;
 			return false;
@@ -442,7 +442,7 @@ bool Poll::StopRun() {
 	
 	if (record_data) {
 		std::stringstream output;
-		output << "Run " << output_run_num << " time";
+		output << "Run " << output_file.GetRunNumber() << " time";
 		Display::LeaderPrint(output.str());
 		std::cout << statsHandler->GetTotalTime() << "s\n";
 	}
@@ -654,7 +654,11 @@ void Poll::command_control(){
 				}
 			}
 			else if(cmd == "fdir"){ // Change the output file directory
-				if(arg != ""){
+				if (arg == "") { std::cout << sys_message_head << "Using output directory '" << output_directory << "'\n"; }
+				else if (file_open) {
+					std::cout << sys_message_head << Display::WarningStr("Warning:") << " Directory cannot be changed while a file is open!\n";
+				}
+				else {
 					output_directory = arg; 
 					current_file_num = 0;
 				
@@ -662,35 +666,50 @@ void Poll::command_control(){
 					if(*(output_directory.end()-1) != '/'){ output_directory += '/'; }
 					std::cout << sys_message_head << "Set output directory to '" << output_directory << "'\n";
 				}
-				else{ std::cout << sys_message_head << "Using output directory '" << output_directory << "'\n"; }
-				if(output_file.IsOpen()){ std::cout << sys_message_head << "New directory used for new files only! Current file is unchanged.\n"; }
 			} 
 			else if (cmd == "prefix") {
-				if (arg != "") {
-					filename_prefix = arg;
-					std::cout << sys_message_head << "Set output filename prefix to '" << filename_prefix << "'\n";
+				if (arg == "") {
+					std::cout << sys_message_head << "Using output filename prefix '" << filename_prefix << "'.\n";
+				}
+				else if (file_open) {
+					std::cout << sys_message_head << Display::WarningStr("Warning:") << " Prefix cannot be changed while a file is open!\n";
 				}
 				else {
-					std::cout << sys_message_head << "Using output filename prefix '" << filename_prefix << "'\n";
+					filename_prefix = arg;
+					next_run_num = 1;
+					std::cout << sys_message_head << "Set output filename prefix to '" << filename_prefix << "'.\n";
+					std::cout << sys_message_head << "Next file will be '" << output_file.GetNextFileName(next_run_num,filename_prefix, output_directory) << "'.\n";
 				}
 			}
 			else if(cmd == "title"){ // Change the title of the output file
-				if(arg != ""){
-					output_title = arg; 
-					std::cout << sys_message_head << "Set run title to '" << output_title << "'\n";
+				if (arg == "") { std::cout << sys_message_head << "Using output file title '" << output_title << "'.\n"; }
+				else if (file_open) {
+					std::cout << sys_message_head << Display::WarningStr("Warning:") << " Run title cannot be changed while a file is open!\n";
 				}
-				else{ std::cout << sys_message_head << "Using output file title '" << output_title << "'\n"; }
-				if(output_file.IsOpen()){ std::cout << sys_message_head << "New title used for new files only! Current file is unchanged.\n"; }
+				else {
+					output_title = arg; 
+					std::cout << sys_message_head << "Set run title to '" << output_title << "'.\n";
+				}
 			} 
 			else if(cmd == "runnum"){ // Change the run number to the specified value
-				if(arg != ""){
-					output_run_num = atoi(arg.c_str()); 
-					std::cout << sys_message_head << "Set run number to '" << output_run_num << "'\n";
-					//The run number gets iterated before opening a file so we have to back it up one.
-					output_run_num;
+				if (arg == "") { 
+					if (output_file.IsOpen()) 
+						std::cout << sys_message_head << "Current output file run number '" << output_file.GetRunNumber() << "'.\n"; 
+					if (!output_file.IsOpen() || next_run_num != output_file.GetRunNumber()) 
+						std::cout << sys_message_head << "Next output file run number '" << next_run_num << "' for prefix '" << filename_prefix << "'.\n"; 
 				}
-				else{ std::cout << sys_message_head << "Using output file run number '" << output_run_num << "'\n"; }
-				if(output_file.IsOpen()){ std::cout << sys_message_head << "New run number used for new files only! Current file is unchanged.\n"; }
+				else if (file_open) {
+					std::cout << sys_message_head << Display::WarningStr("Warning:") << " Run number cannot be changed while a file is open!\n";
+				}
+				else {
+					next_run_num = atoi(arg.c_str()); 
+					std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
+					if (next_run_num != atoi(arg.c_str())) {
+						std::cout << sys_message_head << Display::WarningStr("Wanring") << ": Run file existed for run " << atoi(arg.c_str()) << ".\n";
+					}
+					std::cout << sys_message_head << "Set run number to '" << next_run_num << "'.\n";
+					std::cout << sys_message_head << "Next file will be '" << filename << "'.\n";
+				}
 			} 
 			else if(cmd == "oform"){ // Change the output file format
 				if(arg != ""){
@@ -1073,8 +1092,7 @@ void Poll::run_control(){
 		else if (do_MCA_run) status << Display::OkayStr("[MCA]");
 		else status << Display::InfoStr("[IDLE]");
 
-		if (output_run_num) 
-			if (file_open) status << " Run " << output_run_num;
+		if (file_open) status << " Run " << output_file.GetRunNumber();
 
 		//Add run time to status
 		status << " " << (long long) statsHandler->GetTotalTime() << "s";

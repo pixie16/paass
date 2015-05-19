@@ -110,7 +110,7 @@ class Poll{
 	std::string output_directory; /// Set with 'fdir' command
 	std::string filename_prefix; /// Set with 'ouf' command
 	std::string output_title; /// Set with 'htit' command
-	int output_run_num; /// Set with 'hnum' command
+	int next_run_num; /// Set with 'hnum' command
 	int output_format; /// Set with 'oform' command
 
 	// The main output data file and related variables
