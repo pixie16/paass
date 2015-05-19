@@ -207,6 +207,10 @@ bool Poll::open_output_file(){
 			record_data = false;
 			return false;
 		}
+
+		//Clear the stats
+		statsHandler->Clear();
+
 		std::cout << sys_message_head << "Opening output file '" << output_file.GetCurrentFilename() << "'.\n";
 		client->SendMessage((char *)"$OPEN_FILE", 12);
 	}
