@@ -838,7 +838,7 @@ int PollOutputFile::BuildPacket(char *output){
 }
 
 // Close the current file, if one is open, and open a new file for data output
-bool PollOutputFile::OpenNewFile(std::string title_, int run_num_, std::string &prefix, std::string output_directory/*="./"*/){
+bool PollOutputFile::OpenNewFile(std::string title_, int &run_num_, std::string &prefix, std::string output_directory/*="./"*/){
 	CloseFile();
 
 	// Restart the spill counter for the new file
@@ -846,11 +846,15 @@ bool PollOutputFile::OpenNewFile(std::string title_, int run_num_, std::string &
 
 	std::stringstream filename;
 	filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << run_num_ << ".ldf";
-	std::ifstream input_file(filename.str().c_str());
-	if (input_file.is_open()) {
-		input_file.close();
-		return false;
+	
+	std::ifstream dummy_file(filename.str().c_str());
+	while (dummy_file.is_open()) {
+		dummy_file.close();
+		filename.str("");
+		filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << ++run_num_ << ".ldf";
+		dummy_file.open(filename.str().c_str());
 	}
+
 	output_file.open(filename.str().c_str(), std::ios::binary);
 	if(!output_file.is_open() || !output_file.good()){
 		output_file.close();

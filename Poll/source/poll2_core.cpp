@@ -106,7 +106,7 @@ Poll::Poll(){
 	// Options relating to output data file
 	output_directory = "./"; // Set with 'fdir' command
 	output_title = "PIXIE data file"; // Set with 'title' command
-	output_run_num = 0; // Set with 'hnum' command
+	output_run_num = 1; // Set with 'hnum' command
 	output_format = 0; // Set with 'oform' command
 
 	// The main output data file and related variables
@@ -183,25 +183,16 @@ bool Poll::close_output_file(){
 	file_open = false;
 
 	if(output_file.IsOpen()){ // A file is already open and must be closed
-		/*if(acq_running && record_data){
-			std::cout << sys_message_head << "Warning! Attempted to close file while acquisition running.\n";
-			return false;
-		}
-		else if(start_acq){
-			std::cout << sys_message_head << "Warning! Attempted to close file while acquisition is starting.\n";
-			return false;		
-		}
-		else if(stop_acq){
-			std::cout << sys_message_head << "Warning! Attempted to close file while acquisition is stopping.\n";
-			return false;			
-		}*/
-
 		//Clear the stats
 		statsHandler->Clear();
 
 		std::cout << sys_message_head << "Closing output file.\n";
 		client->SendMessage((char *)"$CLOSE_FILE", 12);
 		output_file.CloseFile();
+
+		//Increase the run number
+		output_run_num++;
+
 		return true;
 	}
 	std::cout << sys_message_head << "No file is open.\n";
@@ -421,9 +412,6 @@ bool Poll::StartRun() {
 
 	//Close a file if open
 	if(output_file.IsOpen()){ close_output_file();	}
-
-	//Increase the run number
-	output_run_num++;
 
 	//Preapre the output file
 	if (!open_output_file()) return false;
@@ -695,9 +683,9 @@ void Poll::command_control(){
 					output_run_num = atoi(arg.c_str()); 
 					std::cout << sys_message_head << "Set run number to '" << output_run_num << "'\n";
 					//The run number gets iterated before opening a file so we have to back it up one.
-					output_run_num--;
+					output_run_num;
 				}
-				else{ std::cout << sys_message_head << "Using output file run number '" << output_run_num+1 << "'\n"; }
+				else{ std::cout << sys_message_head << "Using output file run number '" << output_run_num << "'\n"; }
 				if(output_file.IsOpen()){ std::cout << sys_message_head << "New run number used for new files only! Current file is unchanged.\n"; }
 			} 
 			else if(cmd == "oform"){ // Change the output file format

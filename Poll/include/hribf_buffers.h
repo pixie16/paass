@@ -237,7 +237,7 @@ class PollOutputFile{
 	int BuildPacket(char *output);
 
 	/// Close the current file, if one is open, and open a new file for data output
-	bool OpenNewFile(std::string title_, int run_num_, std::string &current_fname, std::string output_dir="./");
+	bool OpenNewFile(std::string title_, int &run_num_, std::string &current_fname, std::string output_dir="./");
 
 	/// Write the footer and close the file
 	void CloseFile();
