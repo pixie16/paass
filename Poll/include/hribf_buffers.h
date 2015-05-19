@@ -179,6 +179,7 @@ class PollOutputFile{
 	int output_format;
 	int number_spills;
 	bool debug_mode;
+	int run_num;
 	
 	int current_depth;
 	std::string current_directory;
@@ -237,7 +238,11 @@ class PollOutputFile{
 	int BuildPacket(char *output);
 
 	/// Close the current file, if one is open, and open a new file for data output
-	bool OpenNewFile(std::string title_, int &run_num_, std::string &current_fname, std::string output_dir="./");
+	bool OpenNewFile(std::string title_, int &run_num_, std::string prefix, std::string output_dir="./");
+
+	std::string GetNextFileName(int &run_num_, std::string prefix, std::string output_dir);
+	
+	int GetRunNumber() {return dirBuff.GetRunNumber();}
 
 	/// Write the footer and close the file
 	void CloseFile();
