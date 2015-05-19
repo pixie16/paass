@@ -23,6 +23,7 @@
 #include <iostream>
 #include <string.h>
 #include <unistd.h>
+#include <iomanip>
 #include <vector>
 
 #include "hribf_buffers.h"
@@ -844,7 +845,7 @@ bool PollOutputFile::OpenNewFile(std::string title_, int run_num_, std::string &
 	number_spills = 0;
 
 	std::stringstream filename;
-	filename << output_directory << prefix << "_" << run_num_ << ".ldf";
+	filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << run_num_ << ".ldf";
 	std::ifstream input_file(filename.str().c_str());
 	if (input_file.is_open()) {
 		input_file.close();
