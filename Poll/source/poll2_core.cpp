@@ -253,7 +253,7 @@ bool Poll::synch_mods(){
 	return !hadError;
 }
 
-int Poll::write_data(word_t *data, unsigned int nWords){
+void Poll::broadcast_data(word_t *data, unsigned int nWords) {
 	if(shm_mode){ // Broadcast the spill onto the network
 		char shm_data[40008]; // 40 kB packets of data
 		char *data_l = (char *)data; // Local pointer to the data array
@@ -287,26 +287,28 @@ int Poll::write_data(word_t *data, unsigned int nWords){
 		char packet[output_file.GetPacketSize()];
 		int packet_size = output_file.BuildPacket(packet);
 	}
+}
 
-	if(record_data){
-		// Open an output file if needed
-		if(!output_file.IsOpen()){
-			open_output_file();
-		}
-	
-		// Handle the writing of buffers to the file
-		std::streampos current_filesize = output_file.GetFilesize();
-		if(current_filesize + (std::streampos)(4*nWords + 65552) > MAX_FILE_SIZE){
-			// Adding nWords plus 2 EOF buffers to the file will push it over MAX_FILE_SIZE.
-			// Open a new output file instead
-			std::cout << sys_message_head << "Current filesize is " << current_filesize + (std::streampos)65552 << " bytes\n";
-			close_output_file();
-			open_output_file();
-		}
-		return output_file.Write((char*)data, nWords);
+int Poll::write_data(word_t *data, unsigned int nWords){
+	// Open an output file if needed
+	if(!output_file.IsOpen()){
+		std::cout << Display::ErrorStr() << " Recording data, but no file is open! Opening a new file.\n";
+		open_output_file();
 	}
 
-	return -1;
+	// Handle the writing of buffers to the file
+	std::streampos current_filesize = output_file.GetFilesize();
+	if(current_filesize + (std::streampos)(4*nWords + 65552) > MAX_FILE_SIZE){
+		// Adding nWords plus 2 EOF buffers to the file will push it over MAX_FILE_SIZE.
+		// Open a new output file instead
+		std::cout << sys_message_head << "Current filesize is " << current_filesize + (std::streampos)65552 << " bytes\n";
+		close_output_file();
+		open_output_file();
+	}
+
+	if (!is_quiet) std::cout << "Writing " << nWords << " words.\n";
+
+	return output_file.Write((char*)data, nWords);
 }
 
 /* Print help dialogue for POLL options. */
@@ -1074,6 +1076,7 @@ void Poll::run_control(){
 		std::stringstream status;
 		if (had_error) status << Display::ErrorStr("[ERROR]");
 		else if (acq_running && record_data) status << Display::OkayStr("[ACQ]");
+		else if (acq_running && file_open && !record_data) status << Display::ErrorStr("[ACQ]");
 		else if (acq_running && !record_data) status << Display::WarningStr("[ACQ]");
 		else if (do_MCA_run) status << Display::OkayStr("[MCA]");
 		else status << Display::InfoStr("[IDLE]");
@@ -1232,12 +1235,6 @@ bool Poll::ReadFIFO() {
 			//We now check the outcome of the data parsing.
 			//If we have too many words as an event was not completely pulled form the FIFO
 			if (parseWords > dataWords + nWords[mod]) {
-				/*
-					std::cout << "dataWords: " << dataWords;
-					std::cout << " nWords: " << nWords[mod];
-					std::cout << " parseWords: " << parseWords;
-					std::cout << " eventSize " << eventSize << std::endl;
-					*/
 				word_t missingWords = parseWords - dataWords - nWords[mod];
 				word_t partialSize = eventSize - missingWords;
 				if (debug_mode) std::cout << "Partial event " << partialSize << "/" << eventSize << " words!\n";
@@ -1254,17 +1251,19 @@ bool Poll::ReadFIFO() {
 			else if (parseWords < dataWords + nWords[mod]) {
 				std::cout << Display::ErrorStr() << " Parsing indicated corrupted data at " << parseWords - dataWords << " words into FIFO.\n";
 
-				//Print the first 100 words
-				std::cout << std::hex;
-				for(int i=0;i< 100;i++) {
-					if (i%10 == 0) std::cout << std::endl << "\t";
-					std::cout << fifoData[dataWords + i] << " ";
+				if (!is_quiet) {
+					//Print the first 100 words
+					std::cout << std::hex;
+					for(int i=0;i< 100;i++) {
+						if (i%10 == 0) std::cout << std::endl << "\t";
+						std::cout << fifoData[dataWords + i] << " ";
+					}
+					std::cout << std::dec << std::endl;
 				}
-				std::cout << std::dec << std::endl;
 
 				stop_acq = true;
 				had_error = true;
-				break;
+				return false;
 			}
 
 			//Assign the first injected word of spill to final spill length
@@ -1273,8 +1272,10 @@ bool Poll::ReadFIFO() {
 			dataWords += nWords[mod];
 		} //End loop over modules for reading FIFO
 
+		if (!is_quiet) std::cout << "Writing/Broadcasting " << dataWords << " words.\n";
 		//We have read the FIFO now we write the data	
-		write_data(fifoData, dataWords); 
+		if (record_data) write_data(fifoData, dataWords); 
+		broadcast_data(fifoData, dataWords);
 
 		//Get the length of the spill
 		double spillTime = usGetTime(startTime);

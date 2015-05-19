@@ -156,6 +156,7 @@ class Poll{
 	bool synch_mods();
 		
 	int write_data(word_t *data, unsigned int nWords);
+	void broadcast_data(word_t *data, unsigned int nWords);
 
 	///Set the terminal pointer.
 	void set_terminal(Terminal *term) {poll_term_ = term;};
