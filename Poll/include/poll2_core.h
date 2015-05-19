@@ -149,9 +149,10 @@ class Poll{
 	
 	std::string get_filename();
 	
-	bool close_output_file();
+	bool close_output_file(bool continueRun = false);
 	
-	bool open_output_file();
+	///Open a new output file.
+	bool open_output_file(bool continueRun=false);
 	
 	bool synch_mods();
 		
