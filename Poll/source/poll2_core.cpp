@@ -155,7 +155,7 @@ bool Poll::initialize(){
 	std::cout << "\nAllocating memory to store FIFO data (" << sizeof(word_t) * (EXTERNAL_FIFO_LENGTH + 2) * n_cards / 1024 << " kB)" << std::endl;
 	
 	client->Init("127.0.0.1", 5555);
-	
+
 	return init = true;
 }
 
@@ -496,6 +496,7 @@ bool Poll::StopAcq() {
 	return true;
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
 // Poll::command_control
 ///////////////////////////////////////////////////////////////////////////////
@@ -673,7 +674,17 @@ void Poll::command_control(){
 				
 					// Append a '/' if the user did not include one
 					if(*(output_directory.end()-1) != '/'){ output_directory += '/'; }
-					std::cout << sys_message_head << "Set output directory to '" << output_directory << "'\n";
+
+					std::cout << sys_message_head << "Set output directory to '" << output_directory << "'.\n";
+
+					//Check what run files already exist.
+					int temp_run_num = next_run_num;
+					std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
+					if (temp_run_num != next_run_num) {
+						std::cout << sys_message_head << Display::WarningStr("Warning") << ": Run file existed for run " << temp_run_num << "! Next run number will be " << next_run_num << ".\n";
+					}
+
+					std::cout << sys_message_head << "Next file will be '" << filename << "'.\n";
 				}
 			} 
 			else if (cmd == "prefix") {
@@ -686,6 +697,14 @@ void Poll::command_control(){
 				else {
 					filename_prefix = arg;
 					next_run_num = 1;
+
+					//Check what run files already exist.
+					int temp_run_num = next_run_num;
+					std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
+					if (next_run_num != 1) {
+						std::cout << sys_message_head << Display::WarningStr("Warning") << ": Some run files existed! Next run number will be " << next_run_num << ".\n";
+					}
+
 					std::cout << sys_message_head << "Set output filename prefix to '" << filename_prefix << "'.\n";
 					std::cout << sys_message_head << "Next file will be '" << output_file.GetNextFileName(next_run_num,filename_prefix, output_directory) << "'.\n";
 				}
