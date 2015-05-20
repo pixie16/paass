@@ -1029,7 +1029,7 @@ void Poll::run_control(){
 			if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)) {
 				time_t currTime;
 				time(&currTime);
-				std::cout << "Run started on " << ctime(&currTime);
+				std::cout << "Run " << output_file.GetRunNumber() << " started on " << ctime(&currTime);
 
 				acq_running = true;
 				startTime = usGetTime(0);
@@ -1088,7 +1088,7 @@ void Poll::run_control(){
 					}
 				}
 
-				std::cout << "Run stopped on " << ctime(&currTime);
+				std::cout << "Run " << output_file.GetRunNumber() << " stopped on " << ctime(&currTime);
 			} //End of handling a stop acq flag
 		}
 
