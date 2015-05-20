@@ -1048,7 +1048,7 @@ void Poll::run_control(){
 			if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)) {
 				time_t currTime;
 				time(&currTime);
-				if (file_open) std::cout << "Run " << output_file.GetRunNumber();
+				if (record_data) std::cout << "Run " << output_file.GetRunNumber();
 				else std::cout << "Acq";
 				std::cout << " started on " << ctime(&currTime);
 
@@ -1109,7 +1109,7 @@ void Poll::run_control(){
 					}
 				}
 
-				if (file_open) std::cout << "Run " << output_file.GetRunNumber();
+				if (record_data) std::cout << "Run " << output_file.GetRunNumber();
 				else std::cout << "Acq";
 				std::cout << " stopped on " << ctime(&currTime);
 			} //End of handling a stop acq flag
@@ -1119,7 +1119,6 @@ void Poll::run_control(){
 		std::stringstream status;
 		if (had_error) status << Display::ErrorStr("[ERROR]");
 		else if (acq_running && record_data) status << Display::OkayStr("[ACQ]");
-		else if (acq_running && file_open && !record_data) status << Display::ErrorStr("[ACQ]");
 		else if (acq_running && !record_data) status << Display::WarningStr("[ACQ]");
 		else if (do_MCA_run) status << Display::OkayStr("[MCA]");
 		else status << Display::InfoStr("[IDLE]");
