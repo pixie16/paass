@@ -40,7 +40,7 @@ void MCA::Run(float duration, bool *stop) {
 
 		//Store the MCA data via the inherited method StoreData()
 		for (int mod = 0;mod < _pif->GetNumberCards(); mod++) {
-			for (int ch = 0; ch < _pif->GetNumberChannels(); ch++) {
+			for (unsigned int ch = 0; ch < _pif->GetNumberChannels(); ch++) {
 				StoreData(mod, ch);
 			}
 		}
