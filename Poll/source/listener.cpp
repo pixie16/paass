@@ -125,7 +125,7 @@ int main(){
 				// 4 byte buffer size (unsigned int)
 				// 4 byte end packet flag (0xFFFFFFFF)
 				size_t fname_size = total_size - (2 + 4*size_of_int) - size_of_spos; // Size of the filename (in bytes)
-				char fname[fname_size+1];
+				char *fname = new char[fname_size+1];
 	
 				unsigned int index = 2  + size_of_int;
 				memcpy(fname, (char *)&buffer[index], fname_size); index += fname_size; // Copy the file name
@@ -170,6 +170,7 @@ int main(){
 				//std::cout.seekp(0);
 				
 				file_size = new_size;
+				delete[] fname;
 			}
 			clock1 = std::chrono::high_resolution_clock::now();
 		}

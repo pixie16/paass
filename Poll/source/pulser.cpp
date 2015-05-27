@@ -47,7 +47,6 @@ int main(int argc, char **argv)
 {
   bool quiet = false;
   bool zeroClocks = false;
-  const int listMode = LIST_MODE_RUN; // full header w/ traces
   // read the FIFO when it is this full
   const unsigned int maxEnergy = 10000;
   const traceword_t baseline = 500;
@@ -63,7 +62,6 @@ int main(int argc, char **argv)
   const unsigned int endRunPause = 100;
   const unsigned int pollPause   = 1;
   const unsigned int readPause   = 10;
-  const unsigned int waitPause   = 10;
   const unsigned int pollTries   = 100;
 
   int opt;
@@ -476,7 +474,7 @@ int main(int argc, char **argv)
       continue;
     
     // Clear our faux FIFO
-    for (int mod=0; mod < nCards; mod++) {
+    for (unsigned int mod=0; mod < nCards; mod++) {
       nWords[mod] = 0;
     }
     spillTime = usGetTime(startTime);

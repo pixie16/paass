@@ -73,7 +73,7 @@ struct CLoption{
 };
 
 /// Parse all command line entries and find valid options.
-bool get_opt(int argc_, char **argv_, CLoption *options, unsigned int num_valid_opt_, void (*help_)()=dummy_help);
+bool get_opt(unsigned int argc_, char **argv_, CLoption *options, unsigned int num_valid_opt_, void (*help_)()=dummy_help);
 
 /// Return the length of a character string.
 unsigned int cstrlen(char *str_);
@@ -179,12 +179,12 @@ class CommandString{
 	void Set(std::string input_){ command = input_; }	
 	
 	/// Put a character into string at specified position.
-	void Put(const char ch_, int index_);
+	void Put(const char ch_, unsigned int index_);
 
 	void Insert(size_t pos, const char* str);
 	
 	/// Remove a character from the string.
-	void Pop(int index_);
+	void Pop(unsigned int index_);
 	
 	/// Clear the string.
 	void Clear(){ command = ""; }

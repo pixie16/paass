@@ -20,6 +20,6 @@ namespace Display {
   bool StatusPrint(bool errorStatus);
 
   extern bool hasColorTerm;
-};
+}
 
 #endif // __DISPLAY_H_

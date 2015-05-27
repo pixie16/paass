@@ -512,20 +512,22 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 				
 				copied_bytes = this_chunk_sizeB - 12;
 				if(nBytes + copied_bytes > max_bytes_){ // Copying this chunk into the data array will exceed the maximum number of bytes
-					char spill_chunk[max_bytes_-nBytes];
+					char *spill_chunk = new char[max_bytes_-nBytes];
 					file_->read(spill_chunk, max_bytes_-nBytes);
 					memcpy(&data_[nBytes], spill_chunk, max_bytes_-nBytes);
 					if(debug_mode){ std::cout << "debug: exceeded maximum number of bytes by " << copied_bytes - (max_bytes_-nBytes) << " in spill chunk\n"; }
 					nBytes += (max_bytes_-nBytes);
 
 					// Stop reading and abort
+					delete[] spill_chunk;
 					return false;
 				}
 				else{ // Enough room to fit chunk in data array
-					char spill_chunk[copied_bytes];
+					char *spill_chunk = new char[copied_bytes];
 					file_->read(spill_chunk, copied_bytes);
 					memcpy(&data_[nBytes], spill_chunk, copied_bytes);
 					nBytes += copied_bytes;
+					delete[] spill_chunk;
 				}
 			}
 		

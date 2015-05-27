@@ -140,7 +140,7 @@ bool TraceGrabber::operator()(PixieFunctionParms<> &par)
     loopCount++;
 
     const size_t size = PixieInterface::GetTraceLength();
-    unsigned short trace[size];
+    unsigned short *trace = new unsigned short[size];
     usleep(10);
     if (par.pif.ReadSglChanTrace(trace, size, par.mod, par.ch)) {
         if (trigger > 0.0 && attempts[par.ch] < maxTries) {
@@ -222,9 +222,11 @@ bool TraceGrabber::operator()(PixieFunctionParms<> &par)
             StoreData(trace, size, par.ch);
             cout << "Channel " << par.ch << " ready, triggerless" << endl;
         }
+			delete[] trace;
         return true;
     } else {
 	// Did not successfully read trace
+			delete[] trace;
         return false;
     }
 }
@@ -334,7 +336,7 @@ int main(int argc, char *argv[])
 	     PixieInterface::SetDAC, true);
 
     const unsigned size = 2 * pif.GetNumberChannels() * PixieInterface::GetTraceLength();
-    unsigned short data[size];
+    unsigned short *data = new unsigned short[size];
     memset(data, 0, sizeof(data));
 
      int loopLength;
@@ -373,6 +375,7 @@ int main(int argc, char *argv[])
         system("gnuplot 'plotTraces' ");    
     cout << "Traces data are in '/tmp/traces.dat' file." << endl;
 
+	delete[] data;
     return EXIT_SUCCESS;
 }
 
