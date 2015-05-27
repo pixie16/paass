@@ -467,9 +467,27 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 			if(current_chunk_num == total_num_chunks - 1){ // Spill footer
 				if(this_chunk_sizeB != end_spill_size){
 					if(debug_mode){ std::cout << "debug: spill footer (chunk " << current_chunk_num << " of " << total_num_chunks << ") has size " << this_chunk_sizeB << " != 5\n"; }
-					return false;
+
+					int temp_int = 0, temp_index = 0;
+					while(temp_int != ENDBUFF){ // Scan for a buffer delimiter (-1)
+						file_->read((char*)&temp_int, 4);
+						if(debug_mode){ std::cout << "debug: Bad spill footer word " << temp_index << ", " << temp_int << std::endl; }
+						temp_index++;
+					}
+					file_->read((char*)&this_chunk_sizeB, 4);
+					file_->read((char*)&total_num_chunks, 4);
+					file_->read((char*)&current_chunk_num, 4);
+
+					if(this_chunk_sizeB != end_spill_size){ // Lost our place in the stream
+						if(debug_mode){ 
+							std::cout << "debug: spill footer (chunk " << current_chunk_num << " of " << total_num_chunks << ") has size " << this_chunk_sizeB << " != 5\n"; 
+							std::cout << "debug: Lost place in data stream!\n";
+						}
+						return false; // Not the correct way to handle this. But it's better than it was
+					}
 				}
 				else if(debug_mode){ std::cout << "debug: finished scanning spill of " << nBytes << " bytes\n"; }
+				
 				char spill_footer[8];
 				bool return_val = true;
 				file_->read(spill_footer, 8); // Copy the remaining event length and vsn (2 9999)
@@ -512,22 +530,20 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 				
 				copied_bytes = this_chunk_sizeB - 12;
 				if(nBytes + copied_bytes > max_bytes_){ // Copying this chunk into the data array will exceed the maximum number of bytes
-					char *spill_chunk = new char[max_bytes_-nBytes];
+					char spill_chunk[max_bytes_-nBytes];
 					file_->read(spill_chunk, max_bytes_-nBytes);
 					memcpy(&data_[nBytes], spill_chunk, max_bytes_-nBytes);
 					if(debug_mode){ std::cout << "debug: exceeded maximum number of bytes by " << copied_bytes - (max_bytes_-nBytes) << " in spill chunk\n"; }
 					nBytes += (max_bytes_-nBytes);
 
 					// Stop reading and abort
-					delete[] spill_chunk;
 					return false;
 				}
 				else{ // Enough room to fit chunk in data array
-					char *spill_chunk = new char[copied_bytes];
+					char spill_chunk[copied_bytes];
 					file_->read(spill_chunk, copied_bytes);
 					memcpy(&data_[nBytes], spill_chunk, copied_bytes);
 					nBytes += copied_bytes;
-					delete[] spill_chunk;
 				}
 			}
 		

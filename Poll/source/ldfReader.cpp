@@ -1,6 +1,6 @@
 /** \file ldfReader.cpp
   * 
-  * \brief Unpacks Pixie16 ldf files
+  * \brief Unpacks run information from Pixie16 ldf files
   * 
   * \author Cory R. Thornsberry
   * 
@@ -60,22 +60,6 @@ int main(int argc, char *argv[]){
 	std::cout << "  Title: " << headbuff.GetRunTitle() << std::endl;
 	std::cout << "  Run number: " << headbuff.GetRunNumber() << std::endl << std::endl;
 	
-	// Now we're ready to read the first data buffer
-	char data[1000000];
-	bool full_spill;
-	unsigned int nWords;
-	while(databuff.Read(&input_file, data, nWords, 1000000, full_spill)){ 
-		if(full_spill){ std::cout << " Retrieved spill of " << nWords << " words (" << nWords*4 << " bytes)\n"; }
-		else{ std::cout << " Retrieved spill fragment of " << nWords << " words (" << nWords*4 << " bytes)\n"; }
-	}
-	
-	if(eofbuff.Read(&input_file) && eofbuff.Read(&input_file)){
-		std::cout << " Encountered double EOF buffer.\n";
-	}
-	else{
-		std::cout << " Failed to reach end of file!\n";
-	}
-
 	input_file.close();	
 
 	return 0;
