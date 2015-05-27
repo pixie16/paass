@@ -43,7 +43,8 @@ int main(){
 	char buffer[1024];
 	Server poll_server;
 	
-	int total_size, spillID, buffSize;
+	size_t total_size;
+	int spillID, buffSize;
 	int end_packet_flag;
 	std::streampos file_size;
 	std::streampos new_size;
