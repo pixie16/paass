@@ -291,6 +291,7 @@ void Poll::broadcast_data(word_t *data, unsigned int nWords) {
 	else{ // Broadcast a spill notification to the network
 		char packet[output_file.GetPacketSize()];
 		int packet_size = output_file.BuildPacket(packet);
+		client->SendMessage(packet, packet_size);
 	}
 }
 
