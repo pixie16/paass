@@ -37,12 +37,14 @@ bool MCA_ROOT::OpenFile(const char* basename) {
 
 	//Loop over the number of cards and channels to build the histograms.
 	for (int card=0;card < _pif->GetNumberCards();card++) {
-		for (int ch=0;ch < _pif->GetNumberChannels();ch++) {
+		for (unsigned int ch=0;ch < _pif->GetNumberChannels();ch++) {
 			int id = (card + 1) * 100 + ch;
 			_histograms[id] = new TH1F(Form("h%d%02d",card,ch),Form("Mod %d Ch %d",card,ch),ADC_SIZE,0,ADC_SIZE);
 		}
 	}
 	_file->Write(0,TObject::kWriteDelete);
+
+	return true;
 
 }
 
