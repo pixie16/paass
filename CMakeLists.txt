@@ -4,6 +4,12 @@ project(PixieSuite)
 
 #Compile with C++11
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+#Make nice color error mesages
+if (CMAKE_COMPILER_IS_GNUCXX)
+	if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "4.9")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color=auto")
+	endif()
+endif()
 
 #if user does not specify prefix we assign it to the exec directory
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
