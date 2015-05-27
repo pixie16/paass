@@ -595,7 +595,7 @@ int main(int argc, char **argv)
 		    if (!isQuiet)
 		      cout << endl;
 		    usleep(readPause);
-		    int testWords = pif.CheckFIFOWords(mod);
+		    testWords = pif.CheckFIFOWords(mod);
 		    if ( !pif.ReadFIFOWords(&fifoData[dataWords + nWords[mod]],
 					    waitWords[mod], mod) ) {
 		      cout << "Error reading FIFO, bailing out!" << endl;
