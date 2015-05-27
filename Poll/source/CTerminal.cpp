@@ -50,7 +50,7 @@ void dummy_help(){}
 ///////////////////////////////////////////////////////////////////////////////
 
 /// Parse all command line entries and find valid options.
-bool get_opt(int argc_, char **argv_, CLoption *options, unsigned int num_valid_opt_, void (*help_)()/*=dummy_help*/){
+bool get_opt(unsigned int argc_, char **argv_, CLoption *options, unsigned int num_valid_opt_, void (*help_)()/*=dummy_help*/){
 	unsigned int index = 1;
 	unsigned int previous_opt;
 	bool need_an_argument = false;
@@ -248,7 +248,7 @@ void CommandHolder::Reset() {
 ///////////////////////////////////////////////////////////////////////////////
 
 /// Put a character into string at specified position.
-void CommandString::Put(const char ch_, int index_){
+void CommandString::Put(const char ch_, unsigned int index_){
 	if(index_ < 0){ return; }
 	else if(index_ < command.size()){ // Overwrite or insert a character
 		if(!insert_mode) { command.insert(index_, 1, ch_); } // Insert
@@ -262,7 +262,7 @@ void CommandString::Insert(size_t pos, const char* str) {
 }
 
 /// Remove a character from the string.
-void CommandString::Pop(int index_){
+void CommandString::Pop(unsigned int index_){
 	if(index_ < 0){ return ; }
 	else if(index_ < command.size()){ // Pop a character out of the string
 		command.erase(index_, 1);
@@ -368,8 +368,7 @@ void Terminal::update_cursor_(){
 }
 
 void Terminal::clear_(){
-	int start = (int)cmd.GetSize() + offset;
-	for(start; start >= offset; start--){
+	for(int start = cmd.GetSize() + offset; start >= offset; start--){
 		wmove(input_window, 0, start);
 		wdelch(input_window);
 	}
@@ -526,9 +525,9 @@ bool Terminal::save_commands_(){
 
 Terminal::Terminal() :
 	status_window(NULL),
+	_statusWindowSize(0),
 	_scrollbackBufferSize(SCROLLBACK_SIZE),
-	_scrollPosition(0),
-	_statusWindowSize(0)	
+	_scrollPosition(0)
 {
 	pbuf = NULL; 
 	original = NULL;
@@ -625,8 +624,8 @@ void Terminal::SetPrompt(const char *input_){
 	//Calculate the offset.
 	//This is long winded as we want to ignore the escape sequences
 	offset = 0;
-	int pos = 0, lastPos = 0;
-	while ((pos = prompt.find("\e[",lastPos)) != std::string::npos) {
+	size_t pos = 0, lastPos = 0;
+	while ((pos = prompt.find("\033[",lastPos)) != std::string::npos) {
 		//Increase offset by number characters prior to escape
 		offset += pos - lastPos;
 		lastPos = pos;
@@ -664,7 +663,7 @@ void Terminal::putch(const char input_){
 void Terminal::print(WINDOW* window, std::string input_){
 	size_t pos = 0, lastPos = 0;
 	//Search for escape sequences
-	while ((pos = input_.find("\e[",lastPos)) != std::string::npos) {
+	while ((pos = input_.find("\033[",lastPos)) != std::string::npos) {
 		//Output the string from last location to current escape sequence
 		waddstr(window, input_.substr(lastPos,pos-lastPos).c_str());
 		lastPos = pos;
@@ -738,7 +737,9 @@ void Terminal::TabComplete(std::vector<std::string> matches) {
 	}
 	//A unique match so we extend the command with completed text
 	else if (matches.size() == 1) {
-		if (matches.at(0).find("/") == std::string::npos && cursX - offset == cmd.Get().length()) matches.at(0).append(" ");
+		if (matches.at(0).find("/") == std::string::npos && (unsigned int) (cursX - offset) == cmd.Get().length()) {
+			matches.at(0).append(" ");
+		}
 		cmd.Insert(cursX - offset, matches.at(0).c_str());
 		waddstr(input_window, cmd.Get().substr(cursX - offset).c_str());
 		cursX += matches.at(0).length();
@@ -762,7 +763,7 @@ void Terminal::TabComplete(std::vector<std::string> matches) {
 		//Display the options
 		else if (tabCount > 1) {
 			//Compute the header position
-			int headerPos = cmd.Get().find_last_of(" /",cursX - offset - 1);
+			size_t headerPos = cmd.Get().find_last_of(" /",cursX - offset - 1);
 			std::string header;
 			if (headerPos == std::string::npos) 
 				header = cmd.Get();
@@ -780,7 +781,6 @@ void Terminal::TabComplete(std::vector<std::string> matches) {
 }
 
 std::string Terminal::GetCommand(){
-	int keypress;
 	std::string output = "";
 
 	//Update status message

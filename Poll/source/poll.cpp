@@ -205,7 +205,7 @@ int main(int argc, char **argv)
   cout << "Allocating memory for partial events ("
        << sizeof(eventdata_t) * nCards / 1024
        << " KiB)" << endl;
-  eventdata_t partialEventData[nCards];
+  eventdata_t *partialEventData = new eventdata_t[nCards];
   vector<word_t> partialEventWords(nCards);
   vector<word_t> waitWords(nCards);
   StatsHandler statsHandler(nCards);
@@ -246,7 +246,7 @@ int main(int argc, char **argv)
 
   PixieInterface::Histogram deltaHisto;
 
-  bool runDone[nCards];
+  bool *runDone = new bool[nCards];
   bool isExiting = false;
 
   int waitCounter = 0, nonWaitCounter = 0;

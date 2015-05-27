@@ -42,9 +42,6 @@ int spkt_close(void);
 int spkt_send(struct UDP_Packet *);
 int spkt_recv(struct UDP_Packet *);
 
-extern int h_errno;              /* global host error number */
-extern int errno;
-
 #ifdef __cplusplus
 }
 #endif

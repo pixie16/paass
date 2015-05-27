@@ -20,8 +20,8 @@ std::string PadStr(const std::string &input_, int width_){
 bool BitFlipper::operator()(PixieFunctionParms<std::string> &par){
 	if(bit >= num_toggle_bits){ return false; }
 
-	bool active_bits[num_toggle_bits];
-	int bit_values[num_toggle_bits];
+	bool *active_bits = new bool[num_toggle_bits];
+	int *bit_values = new int[num_toggle_bits];
 	int count = 1;
 
 	double value;
@@ -46,6 +46,9 @@ bool BitFlipper::operator()(PixieFunctionParms<std::string> &par){
 		par.pif->PrintSglChanPar(par.par.c_str(), par.mod, par.ch);
 		return true;
 	}
+
+	delete[] active_bits;
+	delete[] bit_values;
 		
 	return false;
 }
@@ -100,9 +103,9 @@ void BitFlipper::CSRAtest(unsigned int input_){
 bool BitFlipper::Test(unsigned int num_bits_, unsigned int input_, const std::string *text_/*=NULL*/){
 	if(num_bits_ > 32){ return false; } // Too many bits for unsigned int
 	
-	bool active_bits[num_bits_];
-	unsigned int bit_values[num_bits_];
-	unsigned int running_total[num_bits_];
+	bool *active_bits = new bool[num_bits_];
+	unsigned int *bit_values = new unsigned int[num_bits_];
+	unsigned int *running_total = new unsigned int[num_bits_];
 	
 	unsigned int total = 0;
 	unsigned int count = 1;
@@ -158,6 +161,10 @@ bool BitFlipper::Test(unsigned int num_bits_, unsigned int input_, const std::st
 			}
 		}
 	}
+
+	delete[] active_bits;
+	delete[] bit_values;
+	delete[] running_total;
 	
 	return true;
 }
