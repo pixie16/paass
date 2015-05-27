@@ -177,6 +177,8 @@ bool Poll::close(){
 	delete pif;
 	
 	init = false;
+	
+	return true;
 }
 
 /* Safely close current data file if one is open. */
@@ -503,7 +505,6 @@ bool Poll::StopAcq() {
 
 /* Function to control the POLL command line interface */
 void Poll::command_control(){
-	char c;
 	std::string cmd = "", arg;
 
 #ifdef USE_NCURSES
@@ -699,7 +700,6 @@ void Poll::command_control(){
 					next_run_num = 1;
 
 					//Check what run files already exist.
-					int temp_run_num = next_run_num;
 					std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
 					if (next_run_num != 1) {
 						std::cout << sys_message_head << Display::WarningStr("Warning") << ": Some run files existed! Next run number will be " << next_run_num << ".\n";
@@ -1164,7 +1164,7 @@ bool Poll::ReadFIFO() {
 	//We loop until the FIFO has reached the threshold for any module
 	for (unsigned int timeout = 0; timeout < POLL_TRIES; timeout++){ 
 		//Check the FIFO size for every module
-		for (short mod=0; mod < n_cards; mod++) {
+		for (unsigned short mod=0; mod < n_cards; mod++) {
 			nWords[mod] = pif->CheckFIFOWords(mod);
 		}
 		//Find the maximum module
@@ -1181,7 +1181,7 @@ bool Poll::ReadFIFO() {
 		size_t dataWords = 0;
 
 		//Loop over each module's FIFO
-		for (int mod=0;mod < n_cards; mod++) {
+		for (unsigned short mod=0;mod < n_cards; mod++) {
 
 			//if the module has no words in the FIFO we continue to the next module
 			if (nWords[mod] < MIN_FIFO_READ) {
@@ -1284,7 +1284,7 @@ bool Poll::ReadFIFO() {
 				if (debug_mode) std::cout << "Partial event " << partialSize << "/" << eventSize << " words!\n";
 
 				//We could get the words now from the FIFO, but me may have to wait. Instead we store the partial event for the next FIFO read.
-				for(int i=0;i< partialSize;i++) 
+				for(unsigned short i=0;i< partialSize;i++) 
 					partialEvent[mod].push_back(fifoData[parseWords - eventSize + i]);
 
 				//Update the number of words to indicate removal or partial event.
