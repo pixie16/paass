@@ -25,8 +25,8 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.1.06"
-#define HRIBF_BUFFERS_DATE "May 27th, 2015"
+#define HRIBF_BUFFERS_VERSION "1.1.07"
+#define HRIBF_BUFFERS_DATE "June 1st, 2015"
 
 class BufferType{
   protected:
