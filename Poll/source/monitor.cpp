@@ -22,88 +22,72 @@
 #define MEGABYTE 1048576 // bytes
 #define GIGABYTE 1073741824 // bytes
 
-/// Find the order of magnitude of an input double
-int order(double input_){
+// Expects input rate in Hz
+std::string GetChanRateString(double input_){
 	if(input_ < 0.0){ input_ *= -1; }
-	if(input_ >= 1.0){
-		for(int i = 0; i <= 100; i++){
-			if(input_/std::pow(10.0, (double)i) < 1.0){
-				return i-1;
-			}
-		}
-	}
-	else{
-		for(int i = -100; i <= 1; i++){
-			if(input_/std::pow(10.0, (double)i) < 1.0){
-				return i-1;
-			}
-		}
-	}
-	return 999;
-}
-
-std::string GetChanRateString(float input_){
-	if(input_ < 0.0){ input_ *= -1; }
+	
 	std::stringstream stream;
 	if(input_/1E6 > 1){ stream << input_/1E6 << "M"; } // MHz
 	else if(input_/1E3 > 1){ stream << input_/1E3 << "k"; } // kHz
 	else{ stream << input_; } // Hz
-	return stream.str();
+	
+	// Limit to 1 decimal place due to space constraints
+	std::string output = stream.str();
+	size_t find_index = output.find('.');
+	if(find_index != std::string::npos){
+		std::string temp;
+		temp = output.substr(0, find_index);
+		temp += output.substr(find_index, 2);
+		output = temp;
+	}
+	
+	if(input_/1E6 > 1){ output += "M"; } // MHz
+	else if(input_/1E3 > 1){ output += "k"; } // kHz
+	
+	return output;
 }
 
+// Expects input rate in B/s
 std::string GetRateString(double input_){
 	if(input_ < 0.0){ input_ *= -1; }
+	
 	std::stringstream stream;
 	if(input_/GIGABYTE > 1){ stream << input_/GIGABYTE << " GB/s\n"; } // GB/s
 	else if(input_/MEGABYTE > 1){ stream << input_/MEGABYTE << " MB/s\n"; } // MB/s
 	else if(input_/KILOBYTE > 1){ stream << input_/KILOBYTE << " kB/s\n"; } // kB/s
 	else{ stream << input_ << " B/s\n"; } // B/s
+	
 	return stream.str();
 }
 
+// Expects input time in seconds
 std::string GetTimeString(double input_){
 	if(input_ < 0.0){ input_ *= -1; }
+	
 	long long time = (long long)input_;
 	int hr = time/3600;
 	int min = (time%3600)/60;
 	int sec = (time%3600)%60;
 	int rem = (int)(100*(input_ - time));
+	
 	std::stringstream stream; 
-	if(hr > 0){
-		if(hr < 10){ stream << "0" << hr; }
-		else{ stream << hr; }
-		stream << ":";
-		if(min < 10){ stream << "0" << min; }
-		else{ stream << min; }
-		stream << ":";
-		if(sec < 10){ stream << "0" << sec; }
-		else{ stream << sec; }
-		stream << ".";
-		if(rem < 10){ stream << "0" << rem; }
-		else{ stream << rem; }
-	}
-	else if(min > 0){
-		if(min < 10){ stream << "0" << min; }
-		else{ stream << min; }
-		stream << ":";
-		if(sec < 10){ stream << "0" << sec; }
-		else{ stream << sec; }
-		stream << ".";
-		if(rem < 10){ stream << "0" << rem; }
-		else{ stream << rem; }
-	}
-	else{
-		if(sec < 10){ stream << "0" << sec; }
-		else{ stream << sec; }
-		stream << ".";
-		if(rem < 10){ stream << "0" << rem; }
-		else{ stream << rem; }
-	}
+	if(hr < 10){ stream << "0" << hr; }
+	else{ stream << hr; }
+	stream << ":";
+	if(min < 10){ stream << "0" << min; }
+	else{ stream << min; }
+	stream << ":";
+	if(sec < 10){ stream << "0" << sec; }
+	else{ stream << sec; }
+	stream << ".";
+	if(rem < 10){ stream << "0" << rem; }
+	else{ stream << rem; }
+	
 	return stream.str();
 }
 
 int main(){
-	char buffer[2048]; // 2 kB of stats data
+	char buffer[2048]; // 2 kB of stats data max
 	Server poll_server;
 	
 	int num_modules;
