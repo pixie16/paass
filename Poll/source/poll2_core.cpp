@@ -33,13 +33,13 @@
 
 #include "poll2_core.h"
 #include "poll2_socket.h"
+#include "poll2_stats.h"
 
 #include "CTerminal.h"
 
 // Interface for the PIXIE-16
 #include "PixieSupport.h"
 #include "Utility.h"
-#include "StatsHandler.hpp"
 #include "Display.h"
 
 #include "MCA_ROOT.h"
