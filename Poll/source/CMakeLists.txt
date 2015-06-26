@@ -2,7 +2,7 @@ set(POLL_SOURCES poll.cpp sendbuf.c spkt_io_udp.c StatsHandler.cpp)
 add_executable(poll ${POLL_SOURCES})
 target_link_libraries(poll PixieInterface Utility)
 
-set(POLL2_SOURCES poll2.cpp poll2_core.cpp poll2_socket.cpp hribf_buffers.cpp CTerminal.cpp StatsHandler.cpp)
+set(POLL2_SOURCES poll2.cpp poll2_core.cpp poll2_socket.cpp poll2_stats.cpp hribf_buffers.cpp CTerminal.cpp)
 add_executable(poll2 ${POLL2_SOURCES})
 target_link_libraries(poll2 PixieInterface PixieSupport Utility MCA_LIBRARY ${CMAKE_THREAD_LIBS_INIT}
 ${CURSES_LIBRARIES})
@@ -17,7 +17,7 @@ add_executable(commtest ${COMTEST_SOURCES})
 set(LISTENER_SOURCES listener.cpp poll2_socket.cpp)
 add_executable(listener ${LISTENER_SOURCES})
 
-set(READER_SOURCES ldfReader.cpp hribf_buffers.cpp)
-add_executable(ldfReader ${READER_SOURCES})
+set(MONITOR_SOURCES monitor.cpp poll2_socket.cpp)
+add_executable(monitor ${MONITOR_SOURCES})
 
-install(TARGETS poll poll2 listener ldfReader pulser commtest DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(TARGETS poll poll2 listener monitor pulser commtest DESTINATION ${CMAKE_INSTALL_PREFIX})
