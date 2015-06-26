@@ -14,9 +14,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date May 6th, 2015
+  * \date June 25th, 2015
   * 
-  * \version 1.1.05
+  * \version 1.2.00
 */
 
 #include <sstream>
@@ -46,6 +46,16 @@ const int end_spill_size = 20;
 const int pacman_word1 = 2;
 const int pacman_word2 = 9999;
 
+void set_char_array(const std::string &input_, char *arr_, const unsigned int &size_){
+	unsigned int size_to_copy = size_;
+	if(size_ > input_.size()){ size_to_copy = input_.size(); }
+	for(unsigned int i = 0; i < size_; i++){
+		if(i < size_to_copy){ arr_[i] = input_[i]; }
+		else{ arr_[i] = ' '; }
+	}
+	arr_[size_] = '\0';
+}
+
 bool is_hribf_buffer(const int &input_){
 	return (input_==HEAD || input_==DATA || input_==SCAL || input_==DEAD || input_==DIR || input_==PAC || input_==ENDFILE);
 }
@@ -63,6 +73,162 @@ bool BufferType::Write(std::ofstream *file_){
 // Returns only false if not overwritten
 bool BufferType::Read(std::ifstream *file_){
 	return false;
+}
+
+// Return true if the first word of the current buffer is equal to this buffer type
+bool BufferType::ReadHeader(std::ifstream *file_){
+	int check_bufftype;	
+	file_->read((char*)&check_bufftype, 4);
+	if(check_bufftype != bufftype){ // Not a valid buffer
+		return false;
+	}
+	return true;
+}
+
+PLD_header::PLD_header() : BufferType(HEAD, 0){ // 0x44414548 "HEAD"
+	set_char_array("GENERIC ", facility, 8);
+	set_char_array("PIXIE LIST DATA ", format, 16);
+	set_char_array("Mon Jan 01 00:00:00 2000", date, 24);
+	run_title = NULL;
+	run_num = 0;
+}
+
+PLD_header::~PLD_header(){
+	if(run_title){ delete[] run_title; }
+}
+
+void PLD_header::SetDateTime(){
+	time_t rawtime;
+	time (&rawtime);
+	
+	char *date_holder = ctime(&rawtime);
+	set_char_array(std::string(date_holder), date, 24); // Strip the trailing newline character
+}
+	
+void PLD_header::SetFacility(std::string input_){
+	set_char_array(input_, facility, 8);
+}
+	
+void PLD_header::SetTitle(std::string input_){
+	if(run_title){ delete[] run_title; }
+	run_title = new char[input_.size()+1];
+	for(unsigned int i = 0; i < input_.size(); i++){
+		run_title[i] = input_[i];
+	}
+	run_title[input_.size()] = '\0';
+}
+
+bool PLD_header::Write(std::ofstream *file_){
+	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
+	
+	int len_of_title = strlen(run_title);
+	int padding_bytes = len_of_title / 4;
+	if(len_of_title % 4 != 0){ padding_bytes = ((len_of_title/4)+1)*4 - len_of_title; }
+	int total_title_len = len_of_title + padding_bytes;
+	
+	if(debug_mode){ std::cout << "debug: writing " << 68 + total_title_len << " byte HEAD buffer\n"; }
+	
+	file_->write((char*)&bufftype, 4);
+	file_->write((char*)&run_num, 4);
+	file_->write((char*)&max_spill_size, 4);
+	file_->write(format, 16);
+	file_->write(facility, 8);
+	file_->write(date, 24);
+	file_->write((char*)&total_title_len, 4);
+	file_->write(run_title, len_of_title);
+	
+	char padding = ' ';
+	for(int i = 0; i < padding_bytes; i++){
+		file_->write(&padding, 1);
+	}
+	
+	file_->write((char*)&buffend, 4); // Close the buffer
+	
+	return true;
+}
+
+bool PLD_header::Read(std::ifstream *file_){
+	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
+	
+	int check_bufftype;	
+	file_->read((char*)&check_bufftype, 4);
+	if(check_bufftype != bufftype){ // Not a valid HEAD buffer
+		if(debug_mode){ std::cout << "debug: not a valid HEAD buffer\n"; }
+		file_->seekg(-4, file_->cur); // Rewind to the beginning of this buffer
+		return false; 
+	}
+
+	int end_buff_check;
+	int len_of_title;
+	file_->read((char*)&run_num, 4);
+	file_->read((char*)&max_spill_size, 4);
+	file_->read(format, 16); format[16] = '\0';
+	file_->read(facility, 8); facility[8] = '\0';
+	file_->read(date, 24); date[24] = '\0';
+	file_->read((char*)&len_of_title, 4);
+	
+	if(run_title){ delete[] run_title; }
+	run_title = new char[len_of_title+1];
+	
+	file_->read(run_title, len_of_title); run_title[len_of_title] = '\0';
+	file_->read((char*)&end_buff_check, 4);
+	
+	if(end_buff_check != buffend){ // Buffer was not terminated properly
+		if(debug_mode){ std::cout << "debug: buffer not terminated properly\n"; }
+		return false;
+	}
+
+	return true;
+}
+
+PLD_data::PLD_data() : BufferType(DATA, 0){ // 0x41544144 "DATA"
+}
+
+bool PLD_data::Write(std::ofstream *file_, char *data_, int nWords_){
+	if(!file_ || !file_->is_open() || !file_->good() || nWords_ == 0){ return false; }
+	
+	if(debug_mode){ std::cout << "debug: writing spill of " << nWords_ << " words\n"; }
+	
+	file_->write((char*)&bufftype, 4);
+	file_->write((char*)&nWords_, 4);
+	file_->write(data_, 4*nWords_);
+	
+	file_->write((char*)&buffend, 4); // Close the buffer
+	
+	return true;
+}
+
+bool PLD_data::Read(std::ifstream *file_, char *data_, int &nWords, int max_bytes_){
+	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
+
+	int check_bufftype;	
+	file_->read((char*)&check_bufftype, 4);
+	if(check_bufftype != bufftype){ // Not a valid DATA buffer
+		if(debug_mode){ std::cout << "debug: not a valid DATA buffer\n"; }
+		file_->seekg(-4, file_->cur); // Rewind to the beginning of this buffer
+		return false; 
+	}
+	
+	file_->read((char*)&nWords, 4);
+	nWords = nWords * 4;
+	
+	if(debug_mode){ std::cout << "debug: reading spill of " << nWords << " bytes\n"; }
+	
+	if(nWords > max_bytes_){
+		if(debug_mode){ std::cout << "debug: spill size is greater than size of data array!\n"; }
+		return false;
+	}
+	
+	int end_buff_check;
+	file_->read(data_, nWords);
+	file_->read((char*)&end_buff_check, 4);
+	
+	if(end_buff_check != buffend){ // Buffer was not terminated properly
+		if(debug_mode){ std::cout << "debug: buffer not terminated properly\n"; }
+		return false;
+	}
+
+	return true;
 }
 
 DIR_buffer::DIR_buffer() : BufferType(DIR, NO_HEADER_SIZE){ // 0x20524944 "DIR "
@@ -116,12 +282,6 @@ bool DIR_buffer::Read(std::ifstream *file_, int &number_buffers){
 	file_->seekg((buffsize*4 - 20), file_->cur); // Skip the rest of the buffer
 
 	return true;
-}
-
-void HEAD_buffer::set_char_array(std::string input_, char *arr_, unsigned int size_){
-	for(unsigned int i = 0; i < size_; i++){
-		arr_[i] = input_[i];
-	}
 }
 
 HEAD_buffer::HEAD_buffer() : BufferType(HEAD, 64){ // 0x44414548 "HEAD"
@@ -252,7 +412,7 @@ bool DATA_buffer::Close(std::ofstream *file_){
 
 	if(current_buff_pos < ACTUAL_BUFF_SIZE){
 		if(debug_mode){ std::cout << "debug: closing buffer with " << ACTUAL_BUFF_SIZE - current_buff_pos << " 0xFFFFFFFF words\n"; }
-		for(unsigned int i = current_buff_pos; i < ACTUAL_BUFF_SIZE; i++){
+		for(int i = current_buff_pos; i < ACTUAL_BUFF_SIZE; i++){
 			file_->write((char*)&buffend, 4); 
 		}
 	}
@@ -264,13 +424,12 @@ bool DATA_buffer::Close(std::ofstream *file_){
 }
 
 // Write data to file
-bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_, int &buffs_written, int output_format_/*=0*/){
+bool DATA_buffer::Write(std::ofstream *file_, char *data_, int nWords_, int &buffs_written){
 	if(!file_ || !file_->is_open() || !file_->good() || !data_ || nWords_ == 0){ 
 		if(debug_mode){ std::cout << "debug: !file_ || !file_->is_open() || !data_ || nWords_ == 0\n"; }	
 		return false; 
 	}
 
-	if(output_format_ == 0){ // legacy .ldf format
 		// Write a DATA header if needed
 		buffs_written = 0;
 		if(current_buff_pos < 2){ open_(file_); }
@@ -288,7 +447,7 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 	
 		// The entire spill needs to be chopped up to fit into buffers
 		// Calculate the number of data chunks we will need
-		unsigned int words_written = 0;
+		int words_written = 0;
 		int this_chunk_sizeW, this_chunk_sizeB;
 		int total_num_chunks, current_chunk_num;
 		if((nWords_ + 10) >= good_words_remaining){ // Spill needs at least one more buffer	
@@ -412,28 +571,14 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 		}
 
 		return true;
-	}
-	else if(output_format_ == 1){
-		if(debug_mode){ std::cout << "debug: .pld output format is not implemented!\n"; }
-		return false;
-	}
-	else if(output_format_ == 2){
-		if(debug_mode){ std::cout << "debug: .root output format is not implemented!\n"; }
-		return false;
-	}
-	
-	if(debug_mode){ std::cout << "debug: unknown error\n"; }
-	return false;
 }
 
 static int abs_buffer_pos = 0;
 
 /// Read a data spill from a file
-bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, unsigned int max_bytes_, bool &full_spill, int file_format_/*=0*/){
+bool DATA_buffer::Read(std::ifstream *file_, char *data_, int &nBytes, int max_bytes_, bool &full_spill){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 
-	//unsigned int abs_buffer_pos = 0;
-	if(file_format_ == 0){ // Legacy .ldf file	
 		int buff_head, buff_size;
 		int this_chunk_sizeB;
 		int total_num_chunks;
@@ -558,7 +703,7 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 				return return_val;
 			}
 			else{ // Normal spill chunk
-				unsigned int copied_bytes;
+				int copied_bytes;
 				if(this_chunk_sizeB <= 12){
 					if(debug_mode){ std::cout << "debug: invalid number of bytes in chunk " << current_chunk_num+1 << " of " << total_num_chunks << ", " <<  this_chunk_sizeB << " B!\n"; }
 					return false;
@@ -670,11 +815,6 @@ read_again:
 		}
 		
 		return true;
-	}
-	else if(file_format_ == 1){ return false; } // .pld format
-	else if(file_format_ == 2){ return false; } // .root format
-	
-	return false;
 }
 
 EOF_buffer::EOF_buffer() : BufferType(ENDFILE, NO_HEADER_SIZE){} // 0x20464F45 "EOF "
@@ -690,7 +830,7 @@ bool EOF_buffer::Write(std::ofstream *file_){
 	file_->write((char*)&buffsize, 4);
 	
 	// Fill the rest of the buffer with 0xFFFFFFFF (end of buffer)
-	for(unsigned int i = 0; i < ACTUAL_BUFF_SIZE-2; i++){
+	for(int i = 0; i < ACTUAL_BUFF_SIZE-2; i++){
 		file_->write((char*)&buffend, 4);
 	}
 	
@@ -809,8 +949,27 @@ bool PollOutputFile::overwrite_dir(int total_buffers_/*=-1*/){
 	return true;
 }
 
+bool PollOutputFile::overwrite_max(int max_spill_size_){
+	if(!output_file.is_open() || !output_file.good()){ return false; }
+
+	output_file.seekp(8); // Set position to just after the second word
+
+	if(max_spill_size_ == -1){ // Set with the internal spill size
+		output_file.write((char*)&max_spill_size, 4);
+		if(debug_mode){ std::cout << "debug: set .pld maximum spill size to " << max_spill_size << std::endl; }
+	}
+	else{
+		output_file.write((char*)&max_spill_size, 4);
+		if(debug_mode){ std::cout << "debug: set .pld maximum spill size to " << max_spill_size_ << std::endl; }
+	}
+	
+	output_file.close();
+	return true;
+}
+
 /// Initialize the output file with initial parameters
 void PollOutputFile::initialize(){
+	max_spill_size = -9999;
 	current_file_num = 0; 
 	output_format = 0;
 	number_spills = 0;
@@ -853,6 +1012,8 @@ PollOutputFile::PollOutputFile(std::string filename_){
 
 void PollOutputFile::SetDebugMode(bool debug_/*=true*/){
 	debug_mode = debug_;
+	pldHead.SetDebugMode(debug_);
+	pldData.SetDebugMode(debug_);
 	dirBuff.SetDebugMode(debug_);
 	headBuff.SetDebugMode(debug_);
 	dataBuff.SetDebugMode(debug_);
@@ -872,14 +1033,24 @@ void PollOutputFile::SetFilenamePrefix(std::string filename_){
 	current_file_num = 0;
 }
 
-int PollOutputFile::Write(char *data_, unsigned int nWords_){
+int PollOutputFile::Write(char *data_, int nWords_){
 	if(!data_ || nWords_ == 0){ return -1; }
 
 	if(!output_file.is_open() || !output_file.good()){ return -1; }
+
+	if(nWords_ > max_spill_size){ max_spill_size = nWords_; }
 	
 	// Write data to disk
 	int buffs_written;
-	if(!dataBuff.Write(&output_file, data_, nWords_, buffs_written, output_format)){
+	if(output_format == 0){
+		if(!dataBuff.Write(&output_file, data_, nWords_, buffs_written)){ return -1; }
+	}
+	else if(output_format == 1){
+		if(!pldData.Write(&output_file, data_, nWords_)){ return -1; }
+		buffs_written = 1;
+	}
+	else{
+		if(debug_mode){ std::cout << "debug: invalid output format for PollOutputFile::Write!\n"; }
 		return -1;
 	}
 	number_spills++;
@@ -964,31 +1135,52 @@ bool PollOutputFile::OpenNewFile(std::string title_, int &run_num_, std::string 
 
 	current_filename = filename;
 	get_full_filename(current_full_filename);		
-	dirBuff.SetRunNumber(run_num_);
-	dirBuff.Write(&output_file); // Every .ldf file gets a DIR header
 
-	headBuff.SetTitle(title_);
-	headBuff.SetDateTime();
-	headBuff.SetRunNumber(run_num_);
-	headBuff.Write(&output_file); // Every .ldf file gets a HEAD file header
+	if(output_format == 0){	
+		dirBuff.SetRunNumber(run_num_);
+		dirBuff.Write(&output_file); // Every .ldf file gets a DIR header
+
+		headBuff.SetTitle(title_);
+		headBuff.SetDateTime();
+		headBuff.SetRunNumber(run_num_);
+		headBuff.Write(&output_file); // Every .ldf file gets a HEAD file header
+	}
+	else if(output_format == 1){
+		pldHead.SetTitle(title_);
+		pldHead.SetDateTime();
+		pldHead.SetRunNumber(run_num_);
+		pldHead.Write(&output_file);
+	}
+	else{
+		if(debug_mode){ std::cout << "debug: invalid output format for PollOutputFile::OpenNewFile!\n"; }
+		return false;
+	}
 
 	return true;
 }
 
 std::string PollOutputFile::GetNextFileName(int &run_num_, std::string prefix, std::string output_directory, bool continueRun /*=false*/) {
 	std::stringstream filename;
-	filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << run_num_ << ".ldf";
+	filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << run_num_;
+
+	if(output_format == 0){ filename << ".ldf"; }
+	else if(output_format == 1){ filename << ".pld"; }
 	
 	std::ifstream dummy_file(filename.str().c_str());
 	int suffix = 0;
 	while (dummy_file.is_open()) {
 		dummy_file.close();
 		filename.str("");
-		if (continueRun) filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << run_num_ << "-" << ++suffix << ".ldf";
-		else 
-			filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << ++run_num_ << ".ldf";
+		
+		if(continueRun){ filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << run_num_ << "-" << ++suffix; }
+		else{ filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << ++run_num_; }
+		
+		if(output_format == 0){ filename << ".ldf"; }
+		else if(output_format == 1){ filename << ".pld"; }
+		
 		dummy_file.open(filename.str().c_str());
 	}
+	dummy_file.close();
 	return filename.str();
 }
 
@@ -996,10 +1188,22 @@ std::string PollOutputFile::GetNextFileName(int &run_num_, std::string prefix, s
 void PollOutputFile::CloseFile(){
 	if(!output_file.is_open() || !output_file.good()){ return; }
 	
-	dataBuff.Close(&output_file); // Pad the final data buffer with 0xFFFFFFFF
+	if(output_format == 0){
+		dataBuff.Close(&output_file); // Pad the final data buffer with 0xFFFFFFFF
 	
-	eofBuff.Write(&output_file); // First EOF buffer signals end of run
-	eofBuff.Write(&output_file); // Second EOF buffer signals physical end of file
+		eofBuff.Write(&output_file); // First EOF buffer signals end of run
+		eofBuff.Write(&output_file); // Second EOF buffer signals physical end of file
 	
-	overwrite_dir(); // Overwrite the total buffer number word and close the file
+		overwrite_dir(); // Overwrite the total buffer number word and close the file
+	}
+	else if(output_format == 1){
+		int temp = ENDFILE; // Write an EOF buffer
+		output_file.write((char*)&temp, 4);
+		
+		temp = ENDBUFF; // Signal the end of the file
+		output_file.write((char*)&temp, 4);
+		
+		overwrite_max(); // Overwrite the maximum spill size in this pld file and close the file
+	}
+	else if(debug_mode){ std::cout << "debug: invalid output format for PollOutputFile::CloseFile!\n"; }
 }
