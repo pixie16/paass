@@ -566,7 +566,7 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 				
 				copied_bytes = this_chunk_sizeB - 12;
 				if(nBytes + copied_bytes > max_bytes_){ // Copying this chunk into the data array will exceed the maximum number of bytes
-					char spill_chunk[max_bytes_-nBytes];
+					char *spill_chunk = new char[max_bytes_-nBytes];
 					file_->read(spill_chunk, max_bytes_-nBytes);
 					abs_buffer_pos += (max_bytes_-nBytes)/4;
 					memcpy(&data_[nBytes], spill_chunk, max_bytes_-nBytes);
@@ -577,7 +577,7 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 					return false;
 				}
 				else{ // Enough room to fit chunk in data array
-					char spill_chunk[copied_bytes];
+					char *spill_chunk = new char[copied_bytes];
 					file_->read(spill_chunk, copied_bytes);
 					abs_buffer_pos += copied_bytes/4;
 					memcpy(&data_[nBytes], spill_chunk, copied_bytes);
@@ -887,15 +887,9 @@ int PollOutputFile::Write(char *data_, unsigned int nWords_){
 	return buffs_written;
 }
 
-// Return the size of the packet to be built (in bytes)
-unsigned int PollOutputFile::GetPacketSize(){
-	if(!output_file.is_open() || !output_file.good()){ return (2 + 2 * sizeof(int)); }
-	return ((2 + 4 * sizeof(int)) + sizeof(std::streampos) + current_filename.size());
-}
-
 /// Build a data spill notification message for broadcast onto the network
 /// Return the total number of bytes in the packet upon success, and -1 otherwise
-int PollOutputFile::BuildPacket(char *output){
+int PollOutputFile::BuildPacket(char *&output){
 	int end_packet = ENDBUFF;
 	int buff_size = ACTUAL_BUFF_SIZE;
 	std::streampos file_size = output_file.tellp();
@@ -915,6 +909,7 @@ int PollOutputFile::BuildPacket(char *output){
 		// 4 byte packet length (inclusive, also includes the end packet flag)
 		// 4 byte begin packet flag (0xFFFFFFFF)
 		bytes = 2 + 2 * sizeof(int); // Total size of the packet (in bytes)
+		output = new char[bytes];
 		
 		unsigned int index = 0;
 		memcpy(&output[index], (char *)&size_of_int, 1); index += 1;
@@ -935,6 +930,7 @@ int PollOutputFile::BuildPacket(char *output){
 		// 4 byte begin packet flag (0xFFFFFFFF)
 		// length of the file path.
 		bytes = (2 + 4 * sizeof(int)) + sizeof(std::streampos) + current_full_filename.size(); // Total size of the packet (in bytes)
+		output = new char[bytes];
 		const char *str = current_full_filename.c_str();
 	
 		unsigned int index = 0;

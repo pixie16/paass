@@ -230,12 +230,9 @@ class PollOutputFile{
 	/// Write nWords_ of data to the file
 	int Write(char *data_, unsigned int nWords_);
 
-	// Return the size of the packet to be built (in bytes)
-	unsigned int GetPacketSize();
-
 	/** Build a data spill notification message for broadcast onto the network
 	  * Return the total number of bytes in the packet upon success, and -1 otherwise */
-	int BuildPacket(char *output);
+	int BuildPacket(char *&output);
 
 	/// Close the current file, if one is open, and open a new file for data output
 	bool OpenNewFile(std::string title_, int &run_num_, std::string prefix, std::string output_dir="./", bool continueRun = false);
