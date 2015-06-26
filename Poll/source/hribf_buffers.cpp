@@ -14,9 +14,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date June 25th, 2015
+  * \date June 26th, 2015
   * 
-  * \version 1.2.00
+  * \version 1.2.01
 */
 
 #include <sstream>
@@ -198,7 +198,7 @@ bool PLD_data::Write(std::ofstream *file_, char *data_, int nWords_){
 	return true;
 }
 
-bool PLD_data::Read(std::ifstream *file_, char *data_, int &nWords, int max_bytes_){
+bool PLD_data::Read(std::ifstream *file_, char *data_, int &nBytes, int max_bytes_, bool dry_run_mode/*=false*/){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 
 	int check_bufftype;	
@@ -209,18 +209,19 @@ bool PLD_data::Read(std::ifstream *file_, char *data_, int &nWords, int max_byte
 		return false; 
 	}
 	
-	file_->read((char*)&nWords, 4);
-	nWords = nWords * 4;
+	file_->read((char*)&nBytes, 4);
+	nBytes = nBytes * 4;
 	
-	if(debug_mode){ std::cout << "debug: reading spill of " << nWords << " bytes\n"; }
+	if(debug_mode){ std::cout << "debug: reading spill of " << nBytes << " bytes\n"; }
 	
-	if(nWords > max_bytes_){
+	if(nBytes > max_bytes_){
 		if(debug_mode){ std::cout << "debug: spill size is greater than size of data array!\n"; }
 		return false;
 	}
 	
 	int end_buff_check;
-	file_->read(data_, nWords);
+	if(!dry_run_mode){ file_->read(data_, nBytes); }
+	else{ file_->seekg(nBytes, std::ios::cur); }
 	file_->read((char*)&end_buff_check, 4);
 	
 	if(end_buff_check != buffend){ // Buffer was not terminated properly
@@ -576,7 +577,7 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, int nWords_, int &buf
 static int abs_buffer_pos = 0;
 
 /// Read a data spill from a file
-bool DATA_buffer::Read(std::ifstream *file_, char *data_, int &nBytes, int max_bytes_, bool &full_spill){
+bool DATA_buffer::Read(std::ifstream *file_, char *data_, int &nBytes, int max_bytes_, bool &full_spill, bool dry_run_mode/*=false*/){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 
 		int buff_head, buff_size;
@@ -712,9 +713,12 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, int &nBytes, int max_b
 				copied_bytes = this_chunk_sizeB - 12;
 				if(nBytes + copied_bytes > max_bytes_){ // Copying this chunk into the data array will exceed the maximum number of bytes
 					char *spill_chunk = new char[max_bytes_-nBytes];
-					file_->read(spill_chunk, max_bytes_-nBytes);
+					if(!dry_run_mode){ 
+						file_->read(spill_chunk, max_bytes_-nBytes); 
+						memcpy(&data_[nBytes], spill_chunk, max_bytes_-nBytes);
+					}
+					else{ file_->seekg(max_bytes_-nBytes, std::ios::cur); }
 					abs_buffer_pos += (max_bytes_-nBytes)/4;
-					memcpy(&data_[nBytes], spill_chunk, max_bytes_-nBytes);
 					if(debug_mode){ std::cout << "debug: exceeded maximum number of bytes by " << copied_bytes - (max_bytes_-nBytes) << " in spill chunk\n"; }
 					nBytes += (max_bytes_-nBytes);
 
@@ -723,9 +727,12 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, int &nBytes, int max_b
 				}
 				else{ // Enough room to fit chunk in data array
 					char *spill_chunk = new char[copied_bytes];
-					file_->read(spill_chunk, copied_bytes);
+					if(!dry_run_mode){ 
+						file_->read(spill_chunk, copied_bytes); 
+						memcpy(&data_[nBytes], spill_chunk, copied_bytes);
+					}
+					else{ file_->seekg(max_bytes_-nBytes, std::ios::cur); }
 					abs_buffer_pos += copied_bytes/4;
-					memcpy(&data_[nBytes], spill_chunk, copied_bytes);
 					nBytes += copied_bytes;
 				}
 			}
