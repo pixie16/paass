@@ -335,9 +335,9 @@ int main(int argc, char *argv[])
 	     PixieInterface::ProgramFPGA |
 	     PixieInterface::SetDAC, true);
 
-    const unsigned size = 2 * pif.GetNumberChannels() * PixieInterface::GetTraceLength();
+    const unsigned int size = 2 * pif.GetNumberChannels() * PixieInterface::GetTraceLength();
     unsigned short *data = new unsigned short[size];
-    memset(data, 0, sizeof(data));
+    memset(data, 0, sizeof(unsigned short)*size);
 
      int loopLength;
     if (ch == -1) {
@@ -368,7 +368,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Could not open traces.dat\n");
         exit(EXIT_FAILURE);
     }
-    fout.write((char* )data, sizeof(data));
+    fout.write((char* )data, sizeof(unsigned short)*size);
     fout.close();
 
     if(callGnuplot)
