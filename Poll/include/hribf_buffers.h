@@ -14,9 +14,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date May 6th, 2015
+  * \date June 25th, 2015
   * 
-  * \version 1.1.05
+  * \version 1.2.00
 */
 
 #ifndef HRIBF_BUFFERS_H
@@ -25,8 +25,8 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.1.07"
-#define HRIBF_BUFFERS_DATE "June 1st, 2015"
+#define HRIBF_BUFFERS_VERSION "1.2.00"
+#define HRIBF_BUFFERS_DATE "June 25th, 2015"
 
 class BufferType{
   protected:
@@ -54,6 +54,65 @@ class BufferType{
 	bool DebugMode(){ return debug_mode; }
   
 	void SetDebugMode(bool debug_=true){ debug_mode = debug_; }
+
+	/// Return true if the first word of the current buffer is equal to this buffer type
+	bool ReadHeader(std::ifstream *file_);
+};
+
+/// The pld header contains information about the run including the date/time, the title, and the run number.
+class PLD_header : public BufferType{
+  private:
+	int run_num; // Run number
+	int max_spill_size; // Maximum size of spill in file
+	char format[17]; // PIXIE LIST DATA (15 bytes)
+	char facility[9]; // GENERIC (8 bytes)
+	char date[25]; // Wed Feb 13 16:06:10 2013 (24 bytes)
+	char *run_title; // Unlimited length
+
+  public:
+	PLD_header();
+	~PLD_header();
+		
+	char *GetFacility(){ return facility; }
+	
+	char *GetFormat(){ return format; }
+		
+	char *GetDate(){ return date; }
+	
+	char *GetRunTitle(){ return run_title; }
+		
+	int GetRunNumber(){ return run_num; }
+	
+	int GetMaxSpillSize(){ return max_spill_size; }
+		
+	void SetDateTime();
+
+	void SetFacility(std::string input_);
+	
+	void SetTitle(std::string input_);
+	
+	void SetRunNumber(int input_){ run_num = input_; }
+
+	/** HEAD buffer (1 word buffer type, 1 word run number, 1 word maximum spill size, 4 word format, 
+	  * 2 word facility, 6 word date, 1 word title length (x in bytes), x/4 word title, 1 word end of buffer*/
+	bool Write(std::ofstream *file_);
+
+	/// Read a HEAD buffer from a pld format file. Return false if buffer has the wrong header and return true otherwise
+	bool Read(std::ifstream *file_);
+};
+
+/// The DATA buffer contains all physics data within the .pld file
+class PLD_data : public BufferType{
+  private:
+	
+  public:
+	PLD_data(); /// 0x41544144 "DATA"
+
+	/// Write a data spill to file
+	bool Write(std::ofstream *file_, char *data_, int nWords_);
+	
+	/// Read a data spill from a file
+	bool Read(std::ifstream *file_, char *data_, int &nBytes, int max_bytes_);
 };
 
 /* The DIR buffer is written at the beginning of each .ldf file. When the file is ready
@@ -93,8 +152,6 @@ class HEAD_buffer : public BufferType{
 	char run_title[81];
 	int run_num;
 
-	void set_char_array(std::string input_, char *arr_, unsigned int size_);
-	
   public:
 	HEAD_buffer();
 		
@@ -128,9 +185,9 @@ class HEAD_buffer : public BufferType{
 /// The DATA buffer contains all physics data within the .ldf file
 class DATA_buffer : public BufferType{
   private:
-	unsigned int current_buff_pos; /// Absolute buffer position
-	unsigned int buff_words_remaining; /// Absolute number of buffer words remaining
-	unsigned int good_words_remaining; /// Good buffer words remaining (not counting header or footer words)
+	int current_buff_pos; /// Absolute buffer position
+	int buff_words_remaining; /// Absolute number of buffer words remaining
+	int good_words_remaining; /// Good buffer words remaining (not counting header or footer words)
 
 	/// DATA buffer (1 word buffer type, 1 word buffer size)
 	bool open_(std::ofstream *file_);
@@ -147,10 +204,10 @@ class DATA_buffer : public BufferType{
 	int GetSpillSize(std::ifstream *file_);
 	
 	/// Write a data spill to file
-	bool Write(std::ofstream *file_, char *data_, unsigned int nWords_, int &buffs_written, int output_format_=0);
+	bool Write(std::ofstream *file_, char *data_, int nWords_, int &buffs_written);
 	
 	/// Read a data spill from a file
-	bool Read(std::ifstream *file_, char *data_, unsigned int &nWords_, unsigned int max_bytes_, bool &full_spill, int file_format_=0);
+	bool Read(std::ifstream *file_, char *data_, int &nWords_, int max_bytes_, bool &full_spill);
 };
 
 /// A single EOF buffer signals the end of a run (pacman .ldf format). A double EOF signals the end of the .ldf file.
@@ -171,10 +228,13 @@ class PollOutputFile{
 	std::string fname_prefix;
 	std::string current_filename;
 	std::string current_full_filename;
+	PLD_header pldHead;
+	PLD_data pldData;
 	DIR_buffer dirBuff;
 	HEAD_buffer headBuff;
 	DATA_buffer dataBuff;
 	EOF_buffer eofBuff;
+	int max_spill_size;
 	int current_file_num;
 	int output_format;
 	int number_spills;
@@ -195,6 +255,10 @@ class PollOutputFile{
 	  * Returns false if no output file is open or if the number of 4 byte words in the file is not 
 	  * evenly divisible by the number of words in a buffer */
 	bool overwrite_dir(int total_buffers_=-1);
+
+	/** Overwrite the third word of the pld file with the maximum spill size encountered
+	  * Returns false if no output file is open or if the maximum spill size is negative or zero */
+	bool overwrite_max(int max_spill_size_=-1);
 
 	/// Initialize the output file with initial parameters
 	void initialize();
@@ -228,7 +292,7 @@ class PollOutputFile{
 	bool IsOpen(){ return (output_file.is_open() && output_file.good()); }
 	
 	/// Write nWords_ of data to the file
-	int Write(char *data_, unsigned int nWords_);
+	int Write(char *data_, int nWords_);
 
 	/** Build a data spill notification message for broadcast onto the network
 	  * Return the total number of bytes in the packet upon success, and -1 otherwise */
