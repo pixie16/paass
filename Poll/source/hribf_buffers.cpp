@@ -16,7 +16,7 @@
   * 
   * \date June 26th, 2015
   * 
-  * \version 1.2.01
+  * \version 1.2.02
 */
 
 #include <sstream>
@@ -86,7 +86,7 @@ bool BufferType::ReadHeader(std::ifstream *file_){
 }
 
 PLD_header::PLD_header() : BufferType(HEAD, 0){ // 0x44414548 "HEAD"
-	set_char_array("GENERIC ", facility, 8);
+	set_char_array("U OF TENNESSEE  ", facility, 16);
 	set_char_array("PIXIE LIST DATA ", format, 16);
 	set_char_array("Mon Jan 01 00:00:00 2000", date, 24);
 	run_title = NULL;
@@ -106,7 +106,7 @@ void PLD_header::SetDateTime(){
 }
 	
 void PLD_header::SetFacility(std::string input_){
-	set_char_array(input_, facility, 8);
+	set_char_array(input_, facility, 16);
 }
 	
 void PLD_header::SetTitle(std::string input_){
@@ -132,7 +132,7 @@ bool PLD_header::Write(std::ofstream *file_){
 	file_->write((char*)&run_num, 4);
 	file_->write((char*)&max_spill_size, 4);
 	file_->write(format, 16);
-	file_->write(facility, 8);
+	file_->write(facility, 16);
 	file_->write(date, 24);
 	file_->write((char*)&total_title_len, 4);
 	file_->write(run_title, len_of_title);
@@ -163,7 +163,7 @@ bool PLD_header::Read(std::ifstream *file_){
 	file_->read((char*)&run_num, 4);
 	file_->read((char*)&max_spill_size, 4);
 	file_->read(format, 16); format[16] = '\0';
-	file_->read(facility, 8); facility[8] = '\0';
+	file_->read(facility, 16); facility[16] = '\0';
 	file_->read(date, 24); date[24] = '\0';
 	file_->read((char*)&len_of_title, 4);
 	

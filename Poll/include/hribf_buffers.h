@@ -16,7 +16,7 @@
   * 
   * \date June 26th, 2015
   * 
-  * \version 1.2.01
+  * \version 1.2.02
 */
 
 #ifndef HRIBF_BUFFERS_H
@@ -25,7 +25,7 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.2.01"
+#define HRIBF_BUFFERS_VERSION "1.2.02"
 #define HRIBF_BUFFERS_DATE "June 26th, 2015"
 
 class BufferType{
@@ -64,8 +64,8 @@ class PLD_header : public BufferType{
   private:
 	int run_num; // Run number
 	int max_spill_size; // Maximum size of spill in file
-	char format[17]; // PIXIE LIST DATA (15 bytes)
-	char facility[9]; // GENERIC (8 bytes)
+	char format[17]; // PIXIE LIST DATA (16 bytes)
+	char facility[17]; // GENERIC (16 bytes)
 	char date[25]; // Wed Feb 13 16:06:10 2013 (24 bytes)
 	char *run_title; // Unlimited length
 
