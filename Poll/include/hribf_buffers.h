@@ -278,6 +278,24 @@ class PollOutputFile{
 	
 	/// Return the total number of spills written since the current file was opened
 	int GetNumberSpills(){ return number_spills; }
+
+	/// Return a pointer to the PLD header object
+	PLD_header *GetPLDheader(){ return &pldHead; }
+
+	/// Return a pointer to the PLD data object
+	PLD_data *GetPLDdata(){ return &pldData; }
+	
+	/// Return a pointer to the DIR buffer object
+	DIR_buffer *GetDIRbuffer(){ return &dirBuff; }
+	
+	/// Return a pointer to the HEAD buffer object
+	HEAD_buffer *GetHEADbuffer(){ return &headBuff; }
+
+	/// Return a pointer to the DATA buffer object
+	DATA_buffer *GetDATAbuffer(){ return &dataBuff; }
+	
+	/// Return a pointer to the EOF buffer object
+	EOF_buffer *GetEOFbuffer(){ return &eofBuff; }
 	
 	/// Toggle debug mode
 	void SetDebugMode(bool debug_=true);
