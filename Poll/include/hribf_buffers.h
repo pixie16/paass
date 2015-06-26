@@ -14,9 +14,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date June 25th, 2015
+  * \date June 26th, 2015
   * 
-  * \version 1.2.00
+  * \version 1.2.01
 */
 
 #ifndef HRIBF_BUFFERS_H
@@ -25,8 +25,8 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.2.00"
-#define HRIBF_BUFFERS_DATE "June 25th, 2015"
+#define HRIBF_BUFFERS_VERSION "1.2.01"
+#define HRIBF_BUFFERS_DATE "June 26th, 2015"
 
 class BufferType{
   protected:
@@ -112,7 +112,7 @@ class PLD_data : public BufferType{
 	bool Write(std::ofstream *file_, char *data_, int nWords_);
 	
 	/// Read a data spill from a file
-	bool Read(std::ifstream *file_, char *data_, int &nBytes, int max_bytes_);
+	bool Read(std::ifstream *file_, char *data_, int &nBytes, int max_bytes_, bool dry_run_mode=false);
 };
 
 /* The DIR buffer is written at the beginning of each .ldf file. When the file is ready
@@ -207,7 +207,7 @@ class DATA_buffer : public BufferType{
 	bool Write(std::ofstream *file_, char *data_, int nWords_, int &buffs_written);
 	
 	/// Read a data spill from a file
-	bool Read(std::ifstream *file_, char *data_, int &nWords_, int max_bytes_, bool &full_spill);
+	bool Read(std::ifstream *file_, char *data_, int &nWords_, int max_bytes_, bool &full_spill, bool dry_run_mode=false);
 };
 
 /// A single EOF buffer signals the end of a run (pacman .ldf format). A double EOF signals the end of the .ldf file.
