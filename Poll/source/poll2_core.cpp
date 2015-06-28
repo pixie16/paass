@@ -79,7 +79,7 @@ Poll::Poll(){
 	clock_vsn = 1000;
 
 	// System flags and variables
-	sys_message_head = " POLL: ";
+	sys_message_head = " POLL2: ";
 	kill_all = false; // Set to true when the program is exiting
 	start_acq = false; // Set to true when the command is given to start a run
 	stop_acq = false; // Set to true when the command is given to stop a run
@@ -186,15 +186,14 @@ bool Poll::close_output_file(bool continueRun /*=false*/){
 	file_open = false;
 
 	if(output_file.IsOpen()){ // A file is already open and must be closed
-		//Clear the stats
-		if (!continueRun) statsHandler->Clear();
-
 		std::cout << sys_message_head << "Closing output file.\n";
 		client->SendMessage((char *)"$CLOSE_FILE", 12);
-		output_file.CloseFile();
-
-		//We call get next file name to update the run number.
-		if (!continueRun) output_file.GetNextFileName(next_run_num,filename_prefix,output_directory);
+		output_file.CloseFile((float)statsHandler->GetTotalTime());
+		
+		if (!continueRun) {
+			statsHandler->Clear(); //Clear the stats
+			output_file.GetNextFileName(next_run_num,filename_prefix,output_directory); //We call get next file name to update the run number.
+		}
 
 		return true;
 	}

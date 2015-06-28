@@ -14,9 +14,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date June 26th, 2015
+  * \date June 27th, 2015
   * 
-  * \version 1.2.02
+  * \version 1.2.03
 */
 
 #ifndef HRIBF_BUFFERS_H
@@ -25,8 +25,8 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.2.02"
-#define HRIBF_BUFFERS_DATE "June 26th, 2015"
+#define HRIBF_BUFFERS_VERSION "1.2.03"
+#define HRIBF_BUFFERS_DATE "June 27th, 2015"
 
 class BufferType{
   protected:
@@ -62,37 +62,51 @@ class BufferType{
 /// The pld header contains information about the run including the date/time, the title, and the run number.
 class PLD_header : public BufferType{
   private:
+	float run_time; // Total length of run (time acquisition is running in seconds)
 	int run_num; // Run number
-	int max_spill_size; // Maximum size of spill in file
-	char format[17]; // PIXIE LIST DATA (16 bytes)
-	char facility[17]; // GENERIC (16 bytes)
-	char date[25]; // Wed Feb 13 16:06:10 2013 (24 bytes)
+	int max_spill_size; // Maximum size of spill in file (in words)
+	char format[17]; // 'PIXIE LIST DATA ' (16 bytes)
+	char facility[17]; // 'U OF TENNESSEE  ' (16 bytes)
+	char start_date[25]; // Wed Feb 13 16:06:10 2013 (24 bytes)
+	char end_date[25]; // Wed Feb 13 16:06:10 2013 (24 bytes)
 	char *run_title; // Unlimited length
 
   public:
 	PLD_header();
 	~PLD_header();
-		
+	
+	int GetBufferLength(); /// Get the total length of the buffer
+	
 	char *GetFacility(){ return facility; }
 	
 	char *GetFormat(){ return format; }
 		
-	char *GetDate(){ return date; }
+	char *GetStartDate(){ return start_date; }
+	
+	char *GetEndDate(){ return end_date; }
 	
 	char *GetRunTitle(){ return run_title; }
 		
 	int GetRunNumber(){ return run_num; }
 	
 	int GetMaxSpillSize(){ return max_spill_size; }
+	
+	float GetRunTime(){ return run_time; }
 		
-	void SetDateTime();
+	void SetStartDateTime();
+	
+	void SetEndDateTime();
 
 	void SetFacility(std::string input_);
 	
 	void SetTitle(std::string input_);
 	
 	void SetRunNumber(int input_){ run_num = input_; }
-
+	
+	void SetMaxSpillSize(int max_spill_size_){ max_spill_size = max_spill_size_; }
+	
+	void SetRunTime(float time_){ run_time = time_; }
+	
 	/** HEAD buffer (1 word buffer type, 1 word run number, 1 word maximum spill size, 4 word format, 
 	  * 2 word facility, 6 word date, 1 word title length (x in bytes), x/4 word title, 1 word end of buffer*/
 	bool Write(std::ofstream *file_);
@@ -256,10 +270,6 @@ class PollOutputFile{
 	  * evenly divisible by the number of words in a buffer */
 	bool overwrite_dir(int total_buffers_=-1);
 
-	/** Overwrite the third word of the pld file with the maximum spill size encountered
-	  * Returns false if no output file is open or if the maximum spill size is negative or zero */
-	bool overwrite_max(int max_spill_size_=-1);
-
 	/// Initialize the output file with initial parameters
 	void initialize();
 
@@ -324,7 +334,7 @@ class PollOutputFile{
 	int GetRunNumber() {return dirBuff.GetRunNumber();}
 
 	/// Write the footer and close the file
-	void CloseFile();
+	void CloseFile(float total_run_time_=0.0);
 };
 
 #endif
