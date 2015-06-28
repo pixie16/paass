@@ -14,9 +14,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date June 26th, 2015
+  * \date June 27th, 2015
   * 
-  * \version 1.2.02
+  * \version 1.2.03
 */
 
 #include <sstream>
@@ -88,8 +88,11 @@ bool BufferType::ReadHeader(std::ifstream *file_){
 PLD_header::PLD_header() : BufferType(HEAD, 0){ // 0x44414548 "HEAD"
 	set_char_array("U OF TENNESSEE  ", facility, 16);
 	set_char_array("PIXIE LIST DATA ", format, 16);
-	set_char_array("Mon Jan 01 00:00:00 2000", date, 24);
+	set_char_array("Mon Jan 01 00:00:00 2000", start_date, 24);
+	set_char_array("Mon Jan 01 00:00:00 2000", end_date, 24);
+	max_spill_size = 0;
 	run_title = NULL;
+	run_time = 0.0;
 	run_num = 0;
 }
 
@@ -97,14 +100,29 @@ PLD_header::~PLD_header(){
 	if(run_title){ delete[] run_title; }
 }
 
-void PLD_header::SetDateTime(){
+int PLD_header::GetBufferLength(){
+	int len_of_title = strlen(run_title);
+	int padding_bytes = len_of_title / 4;
+	if(len_of_title % 4 != 0){ padding_bytes = ((len_of_title/4)+1)*4 - len_of_title; }
+	return len_of_title + padding_bytes;
+}
+
+void PLD_header::SetStartDateTime(){
 	time_t rawtime;
 	time (&rawtime);
 	
 	char *date_holder = ctime(&rawtime);
-	set_char_array(std::string(date_holder), date, 24); // Strip the trailing newline character
+	set_char_array(std::string(date_holder), start_date, 24); // Strip the trailing newline character
 }
+
+void PLD_header::SetEndDateTime(){
+	time_t rawtime;
+	time (&rawtime);
 	
+	char *date_holder = ctime(&rawtime);
+	set_char_array(std::string(date_holder), end_date, 24); // Strip the trailing newline character
+}
+
 void PLD_header::SetFacility(std::string input_){
 	set_char_array(input_, facility, 16);
 }
@@ -126,14 +144,16 @@ bool PLD_header::Write(std::ofstream *file_){
 	if(len_of_title % 4 != 0){ padding_bytes = ((len_of_title/4)+1)*4 - len_of_title; }
 	int total_title_len = len_of_title + padding_bytes;
 	
-	if(debug_mode){ std::cout << "debug: writing " << 68 + total_title_len << " byte HEAD buffer\n"; }
+	if(debug_mode){ std::cout << "debug: writing " << 100 + total_title_len << " byte HEAD buffer\n"; }
 	
 	file_->write((char*)&bufftype, 4);
 	file_->write((char*)&run_num, 4);
 	file_->write((char*)&max_spill_size, 4);
+	file_->write((char*)&run_time, 4);
 	file_->write(format, 16);
 	file_->write(facility, 16);
-	file_->write(date, 24);
+	file_->write(start_date, 24);
+	file_->write(end_date, 24);
 	file_->write((char*)&total_title_len, 4);
 	file_->write(run_title, len_of_title);
 	
@@ -162,9 +182,11 @@ bool PLD_header::Read(std::ifstream *file_){
 	int len_of_title;
 	file_->read((char*)&run_num, 4);
 	file_->read((char*)&max_spill_size, 4);
+	file_->read((char*)&run_time, 4);
 	file_->read(format, 16); format[16] = '\0';
 	file_->read(facility, 16); facility[16] = '\0';
-	file_->read(date, 24); date[24] = '\0';
+	file_->read(start_date, 24); start_date[24] = '\0';
+	file_->read(end_date, 24); end_date[24] = '\0';
 	file_->read((char*)&len_of_title, 4);
 	
 	if(run_title){ delete[] run_title; }
@@ -956,24 +978,6 @@ bool PollOutputFile::overwrite_dir(int total_buffers_/*=-1*/){
 	return true;
 }
 
-bool PollOutputFile::overwrite_max(int max_spill_size_){
-	if(!output_file.is_open() || !output_file.good()){ return false; }
-
-	output_file.seekp(8); // Set position to just after the second word
-
-	if(max_spill_size_ == -1){ // Set with the internal spill size
-		output_file.write((char*)&max_spill_size, 4);
-		if(debug_mode){ std::cout << "debug: set .pld maximum spill size to " << max_spill_size << std::endl; }
-	}
-	else{
-		output_file.write((char*)&max_spill_size, 4);
-		if(debug_mode){ std::cout << "debug: set .pld maximum spill size to " << max_spill_size_ << std::endl; }
-	}
-	
-	output_file.close();
-	return true;
-}
-
 /// Initialize the output file with initial parameters
 void PollOutputFile::initialize(){
 	max_spill_size = -9999;
@@ -1154,9 +1158,16 @@ bool PollOutputFile::OpenNewFile(std::string title_, int &run_num_, std::string 
 	}
 	else if(output_format == 1){
 		pldHead.SetTitle(title_);
-		pldHead.SetDateTime();
 		pldHead.SetRunNumber(run_num_);
-		pldHead.Write(&output_file);
+		pldHead.SetStartDateTime();
+		
+		// Write a blank header for now and overwrite it later
+		int temp = 0;
+		for(int i = 0; i < pldHead.GetBufferLength(); i++){
+			output_file.write((char*)&temp, 4);
+		}
+		temp = -1;
+		output_file.write((char*)&temp, 4); // Close the buffer
 	}
 	else{
 		if(debug_mode){ std::cout << "debug: invalid output format for PollOutputFile::OpenNewFile!\n"; }
@@ -1192,7 +1203,7 @@ std::string PollOutputFile::GetNextFileName(int &run_num_, std::string prefix, s
 }
 
 // Write the footer and close the file
-void PollOutputFile::CloseFile(){
+void PollOutputFile::CloseFile(float total_run_time_/*=0.0*/){
 	if(!output_file.is_open() || !output_file.good()){ return; }
 	
 	if(output_format == 0){
@@ -1210,7 +1221,13 @@ void PollOutputFile::CloseFile(){
 		temp = ENDBUFF; // Signal the end of the file
 		output_file.write((char*)&temp, 4);
 		
-		overwrite_max(); // Overwrite the maximum spill size in this pld file and close the file
+		// Overwrite the blank pld header at the beginning of the file and close it
+		output_file.seekp(0);
+		pldHead.SetEndDateTime();
+		pldHead.SetRunTime(total_run_time_);
+		pldHead.SetMaxSpillSize(max_spill_size);
+		pldHead.Write(&output_file);
+		output_file.close();
 	}
 	else if(debug_mode){ std::cout << "debug: invalid output format for PollOutputFile::CloseFile!\n"; }
 }
