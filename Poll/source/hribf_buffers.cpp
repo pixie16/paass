@@ -429,8 +429,10 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 static int abs_buffer_pos = 0;
 
 /// Read a data spill from a file
-bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, unsigned int max_bytes_, bool &full_spill, int file_format_/*=0*/){
+bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, unsigned int max_bytes_, bool &full_spill, bool &bad_spill, int file_format_/*=0*/){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
+	
+	bad_spill = false;
 
 	//unsigned int abs_buffer_pos = 0;
 	if(file_format_ == 0){ // Legacy .ldf file	
@@ -504,6 +506,7 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 						file_->read((char*)&temp_int, 4);
 						abs_buffer_pos++;
 						if(debug_mode){ std::cout << "debug: Bad spill footer word " << temp_index << ", " << temp_int << std::endl; }
+						bad_spill = true;
 						temp_index++;
 					}
 					file_->read((char*)&this_chunk_sizeB, 4);
