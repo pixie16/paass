@@ -18,7 +18,15 @@ StatsHandler::StatsHandler(unsigned int nCards){
 		nEventsTotal[i] = new unsigned int[NUM_CHAN_PER_MOD];
 		calcEventRate[i] = new double[NUM_CHAN_PER_MOD];
 	}
-	
+
+	for(unsigned int i = 0; i < numCards; i++){
+		for(unsigned int j = 0; j < NUM_CHAN_PER_MOD; j++){
+			nEventsDelta[i][j] = 0;
+			nEventsTotal[i][j] = 0;
+			calcEventRate[i][j] = 0.0;
+		}
+	}
+
 	// Define all the 1d arrays
 	dataDelta = new size_t[numCards];
 	dataTotal = new size_t[numCards];
@@ -102,13 +110,18 @@ void StatsHandler::Dump(void){
 	// 8 byte total time of run (in seconds)
 	// 8 byte total data rate (in B/s)
 	// channel 0, 0 rate
+	// channel 0, 0 total
 	// channel 0, 1 rate
+	// channel 0, 1 total
 	// ...
 	// channel 0, 15 rate
+	// channel 0, 15 total
 	// channel 1, 0 rate
+	// channel 1, 0 total
 	// ...
 	// channel N-1, 15 rate
-	size_t msg_size = 20 + numCards*16*8;
+	// channel N-1, 15 total
+	size_t msg_size = 20 + 2*numCards*16*8;
 	char *message = new char[msg_size];
 	char *ptr = message;
 	
@@ -121,6 +134,7 @@ void StatsHandler::Dump(void){
 		for (unsigned int j=0; j < NUM_CHAN_PER_MOD; j++) {	 
 			calcEventRate[i][j] = nEventsDelta[i][j] / timeElapsed;
 			memcpy(ptr, &calcEventRate[i][j], 8); ptr += 8;
+			memcpy(ptr, &nEventsTotal[i][j], 4); ptr += 4;
 		} //Update the status bar
 	}
 	
