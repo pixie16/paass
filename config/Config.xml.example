@@ -297,8 +297,14 @@
         </Physical>
 
         <Trace>
-            <WaveformLow unit="sample" value="5.0"/>
-            <WaveformHigh unit="sample" value="10.0"/>
+            <WaveformRange>
+                <Low unit="sample" value="5"/>
+                <High unit="sample" value="10"/>
+            </WaveformRange>
+            <SiPmtWaveformRange>
+                <Low unit="sample" value="5"/>
+                <High unit="sample" value="5"/>
+            </SiPmtWaveformRange>
             <DiscriminationStart unit="sample" value="3"/>
             <TrapezoidalWalk unit="ns" value="60"/>
             <TraceDelay unit="ns" value="112"/>
