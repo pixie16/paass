@@ -101,10 +101,10 @@ PLD_header::~PLD_header(){
 }
 
 int PLD_header::GetBufferLength(){
-	int len_of_title = strlen(run_title);
-	int padding_bytes = len_of_title / 4;
-	if(len_of_title % 4 != 0){ padding_bytes = ((len_of_title/4)+1)*4 - len_of_title; }
-	return len_of_title + padding_bytes;
+	int buffer_len = 100;
+	buffer_len += strlen(run_title);
+	while(buffer_len % 4 != 0){ buffer_len++; }
+	return buffer_len;
 }
 
 void PLD_header::SetStartDateTime(){
@@ -140,8 +140,10 @@ bool PLD_header::Write(std::ofstream *file_){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 	
 	int len_of_title = strlen(run_title);
-	int padding_bytes = len_of_title / 4;
-	if(len_of_title % 4 != 0){ padding_bytes = ((len_of_title/4)+1)*4 - len_of_title; }
+	int padding_bytes = 0;
+	while((len_of_title + padding_bytes) % 4 != 0){ 
+		padding_bytes++; 
+	}
 	int total_title_len = len_of_title + padding_bytes;
 	
 	if(debug_mode){ std::cout << "debug: writing " << 100 + total_title_len << " byte HEAD buffer\n"; }
@@ -227,8 +229,18 @@ bool PLD_data::Read(std::ifstream *file_, char *data_, int &nBytes, int max_byte
 	file_->read((char*)&check_bufftype, 4);
 	if(check_bufftype != bufftype){ // Not a valid DATA buffer
 		if(debug_mode){ std::cout << "debug: not a valid DATA buffer\n"; }
-		file_->seekg(-4, file_->cur); // Rewind to the beginning of this buffer
-		return false; 
+
+		unsigned int countw = 0;
+		while(check_bufftype != bufftype){
+			file_->read((char*)&check_bufftype, 4);
+			if(file_->eof()){
+				if(debug_mode){ std::cout << "debug: encountered physical end-of-file before start of spill!\n"; }
+				return false;
+			}
+			countw++;
+		}
+		
+		if(debug_mode){ std::cout << "debug: read an extra " << countw << " words to get to first DATA buffer!\n"; }
 	}
 	
 	file_->read((char*)&nBytes, 4);
@@ -599,8 +611,10 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, int nWords_, int &buf
 static int abs_buffer_pos = 0;
 
 /// Read a data spill from a file
-bool DATA_buffer::Read(std::ifstream *file_, char *data_, int &nBytes, int max_bytes_, bool &full_spill, bool dry_run_mode/*=false*/){
+bool DATA_buffer::Read(std::ifstream *file_, char *data_, int &nBytes, int max_bytes_, bool &full_spill, bool &bad_spill, bool dry_run_mode/*=false*/){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
+
+		bad_spill = false;
 
 		int buff_head, buff_size;
 		int this_chunk_sizeB;
@@ -684,6 +698,7 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, int &nBytes, int max_b
 							std::cout << "debug: spill footer (chunk " << current_chunk_num << " of " << total_num_chunks << ") has size " << this_chunk_sizeB << " != 5\n"; 
 							std::cout << "debug: Lost place in data stream!\n";
 						}
+						bad_spill = true;
 						return false; // Not the correct way to handle this. But it's better than it was
 					}
 				}
@@ -1163,7 +1178,7 @@ bool PollOutputFile::OpenNewFile(std::string title_, int &run_num_, std::string 
 		
 		// Write a blank header for now and overwrite it later
 		int temp = 0;
-		for(int i = 0; i < pldHead.GetBufferLength(); i++){
+		for(int i = 0; i < pldHead.GetBufferLength()/4; i++){
 			output_file.write((char*)&temp, 4);
 		}
 		temp = -1;
