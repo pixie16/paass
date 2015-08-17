@@ -75,7 +75,7 @@ class PLD_header : public BufferType{
 	PLD_header();
 	~PLD_header();
 	
-	int GetBufferLength(); /// Get the total length of the buffer
+	int GetBufferLength(); /// Get the total length of the buffer (in bytes)
 	
 	char *GetFacility(){ return facility; }
 	
@@ -221,7 +221,7 @@ class DATA_buffer : public BufferType{
 	bool Write(std::ofstream *file_, char *data_, int nWords_, int &buffs_written);
 	
 	/// Read a data spill from a file
-	bool Read(std::ifstream *file_, char *data_, int &nWords_, int max_bytes_, bool &full_spill, bool dry_run_mode=false);
+	bool Read(std::ifstream *file_, char *data_, int &nWords_, int max_bytes_, bool &full_spill, bool &bad_spill, bool dry_run_mode=false);
 };
 
 /// A single EOF buffer signals the end of a run (pacman .ldf format). A double EOF signals the end of the .ldf file.
