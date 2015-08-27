@@ -31,7 +31,8 @@ void help(){
 	std::cout << "  -t, --thresh <num>   Sets FIFO read threshold to num% full (50% by default)\n";
 	std::cout << "  -z, --zero           Zero clocks on each START_ACQ (false by default)\n";
 	std::cout << "  -d, --debug          Set debug mode to true (false by default)\n";
-	std::cout << "  -p, --pacman         Use classic poll operation for use with Pacman.\n\n";
+	std::cout << "  -p, --pacman         Use classic poll operation for use with Pacman.\n";
+	std::cout << "  -h, --help           Display this help dialogue.\n\n";
 }	
 	
 void start_run_control(Poll *poll_){
@@ -43,23 +44,13 @@ void start_cmd_control(Poll *poll_){
 }
 
 int main(int argc, char *argv[]){
-	Terminal poll_term;
-
 	// Read the FIFO when it is this full
 	unsigned int threshPercent = 50;
 	std::string alarmArgument = "";
 
-	//We make sure the system isn't locked first.
-	// This avoids issues with curses.
-	Lock *lock = new Lock("PixieInterface");
-	delete lock;
-
-	// Main object
-	Poll poll;
-
 	// Define all valid command line options
 	// This is done to keep legacy options available while removing dependency on HRIBF libraries
-	CLoption valid_opt[10];
+	CLoption valid_opt[11];
 	valid_opt[0].Set("alarm", false, true);
 	valid_opt[1].Set("fast", false, false);
 	valid_opt[2].Set("quiet", false, false);
@@ -69,8 +60,25 @@ int main(int argc, char *argv[]){
 	valid_opt[6].Set("zero", false, false);
 	valid_opt[7].Set("debug", false, false);
 	valid_opt[8].Set("pacman", false, false);
-	valid_opt[9].Set("?", false, false);
-	if(!get_opt(argc, argv, valid_opt, 10, help)){ return 1; }
+	valid_opt[9].Set("help", false, false);
+	valid_opt[10].Set("?", false, false);
+	if(!get_opt(argc, argv, valid_opt, 11, help)){ return 1; }
+
+	// Help
+	if(valid_opt[9].is_active){
+		help();
+		return 0;
+	}	
+
+	Terminal poll_term;
+
+	//We make sure the system isn't locked first.
+	// This avoids issues with curses.
+	Lock *lock = new Lock("PixieInterface");
+	delete lock;
+
+	// Main object
+	Poll poll;
 	
 	// Set all of the selected options
 	if(valid_opt[0].is_active){
@@ -91,7 +99,7 @@ int main(int argc, char *argv[]){
 	if(valid_opt[6].is_active){ poll.SetZeroClocks(); }
 	if(valid_opt[7].is_active){ poll.SetDebugMode(); }
 	if(valid_opt[8].is_active){ poll.SetPacmanMode(); }
-	if(valid_opt[9].is_active){ return 0; }
+	if(valid_opt[10].is_active){ return 0; }
 
 	if(!poll.Initialize()){ return 1; }
 
