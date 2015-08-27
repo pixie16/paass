@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.8)
 
 project(PixieSuite)
 
@@ -35,6 +35,7 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 #Install options
 option(USE_ROOT "Use ROOT for MCA." ON)
 option(USE_DAMM "Use DAMM for MCA." ON)
+option(USE_NCURSES "Use ncurses for terminal." ON)
 
 #Find packages needed for poll2
 #Load additional find_package scripts.
@@ -44,12 +45,15 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 find_package (Threads REQUIRED)
 
 #Find curses library used for poll2 prompt
-find_package(Curses)
+if(${USE_NCURSES}) 
+	find_package(Curses)
+endif()
 if (${CURSES_FOUND})
 	add_definitions("-D USE_NCURSES")
 	mark_as_advanced(FORCE CURSES_CURSES_H_PATH CURSES_FORM_LIBRARY)
 else()
 	message(STATUS "Curses unavailable, basic terminal will be used.")
+	set(USE_NCURSES OFF)
 endif()
 
 #Find ROOT if USE_ROOT was set.
@@ -78,6 +82,9 @@ link_directories(${PXI_LIBRARY_DIR})
 #The following configuration file path is hardcoded into the PXI software :-(
 install(FILES ${PXI_ROOT_DIR}/test/pxisys.ini DESTINATION ${CMAKE_INSTALL_PREFIX})
 
+include_directories(Core/include)
+add_subdirectory(Core/source)
+
 include_directories(Interface/include)
 add_subdirectory(Interface/source)
 
@@ -90,3 +97,5 @@ add_subdirectory(Setup/source)
 add_subdirectory(Poll)
 
 add_subdirectory(PxiDump/source)
+
+add_subdirectory(share)
