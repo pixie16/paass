@@ -509,14 +509,9 @@ bool Poll::StopAcq() {
 void Poll::command_control(){
 	std::string cmd = "", arg;
 
-#ifdef USE_NCURSES
 	bool cmd_ready = true;
-#else
-	bool cmd_ready = false;
-#endif
 	
 	while(true){
-#ifdef USE_NCURSES
 		cmd = poll_term_->GetCommand();
 		if(cmd == "CTRL_D"){ cmd = "quit"; }
 		else if(cmd == "CTRL_C"){ continue; }		
@@ -526,20 +521,6 @@ void Poll::command_control(){
 		}
 		poll_term_->flush();
 		//poll_term_->print((cmd+"\n").c_str()); // This will force a write before the cout stream dumps to the screen
-#else
-		read(STDIN_FILENO, &c, 1);
-		
-		// check for system control commands
-		if(c == '\004'){ break; } // ctrl + c
-		else if(c == '\n' || c == '\r'){
-			cmd_ready = true;
-		}write_data
-		else if(c == '\033'){
-			read(STDIN_FILENO, &c, 1); // skip the '['
-			read(STDIN_FILENO, &c, 1);
-		}
-		else{ cmd += c; }
-#endif
 
 		if(cmd_ready){			
 			if(cmd == ""){ continue; }
@@ -985,11 +966,6 @@ void Poll::command_control(){
 			}
 			else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
 
-#ifndef USE_NCURSES
-			cmd = "";
-			arg = "";
-			cmd_ready = false;
-#endif
 		}
 	}
 }

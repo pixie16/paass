@@ -20,39 +20,6 @@
 #include "StatsHandler.hpp"
 #include "CTerminal.h"
 
-#ifndef USE_NCURSES
-
-#include <termios.h>
-
-/* Reset the terminal attributes to normal. */
-void restore_terminal(){
-	tcsetattr(STDIN_FILENO, TCSANOW, &SAVED_ATTRIBUTES);
-}
-
-/* Take control of the terminal to capture user input. */
-bool takeover_terminal(){
-	struct termios tattr;
-	char *name;
-
-	/* Make sure stdin is a terminal. */
-	if(!isatty (STDIN_FILENO)){
-		fprintf (stderr, "Not a terminal.\n");
-		return false;
-	}
-
-	/* Save the terminal attributes so we can restore them later. */
-	tcgetattr(STDIN_FILENO, &SAVED_ATTRIBUTES);
-
-	/* Set the terminal modes. */
-	tcgetattr(STDIN_FILENO, &tattr);
-	tattr.c_cc[VMIN] = 1;
-	tattr.c_cc[VTIME] = 0;
-	if(tcsetattr(STDIN_FILENO, TCSAFLUSH, &tattr) == 0){ return true;  }	
-	return false;
-}
-
-#endif
-	
 /* Print help dialogue for command line options. */
 void help(){
 	std::cout << "\n SYNTAX: ./poll2 [options]\n";
@@ -78,11 +45,7 @@ void start_cmd_control(Poll *poll_){
 }
 
 int main(int argc, char *argv[]){
-#ifdef USE_NCURSES
 	Terminal poll_term;
-#else
-	struct termios SAVED_ATTRIBUTES;
-#endif
 
 	// Read the FIFO when it is this full
 	unsigned int threshPercent = 50;
@@ -132,14 +95,12 @@ int main(int argc, char *argv[]){
 
 	if(!poll.initialize()){ return EXIT_FAILURE; }
 
-#ifdef USE_NCURSES
 	// Initialize the terminal before doing anything else;
 	poll_term.Initialize(".poll2.cmd");
 	poll_term.SetPrompt(Display::InfoStr("POLL2 $ ").c_str());
 	poll_term.AddStatusWindow();
 	poll_term.EnableTabComplete();
 	poll_term.SetLogFile(".poll2.log");
-#endif
 
 	std::cout << "\n#########      #####    ####      ####       ########\n"; 
 	std::cout << " ##     ##    ##   ##    ##        ##       ##      ##\n";
@@ -168,16 +129,6 @@ int main(int argc, char *argv[]){
 	std::cout << "Using unknown Pixie16 revision!!!\n\n";
 #endif
 
-#ifndef USE_NCURSES
-	// Take control of the terminal
-	std::cout << pad_string("Taking control of the terminal", 49);
-	if(takeover_terminal()){ std::cout << Display::OkayStr() << std::endl; }
-	else{ 
-		std::cout << Display::ErrorStr() << std::endl; 
-		return EXIT_FAILURE;
-	}
-#endif
-  
   	StatsHandler handler(poll.n_cards);
   	poll.set_stat_handler(&handler);
 	poll.set_terminal(&poll_term);
@@ -206,18 +157,9 @@ int main(int argc, char *argv[]){
 	// Close the output file, if one is open
 	poll.close_output_file();
 
-#ifdef USE_NCURSES
-
-	poll_term.Close();
 	//Reprint the leader as the carriage was returned
 	Display::LeaderPrint(std::string("Running poll2 v").append(POLL2_CORE_VERSION));
 	std::cout << Display::OkayStr("[Done]") << std::endl;
-	
-#else
-
-	restore_terminal();
-	
-#endif
 
 	return EXIT_SUCCESS;
 }
