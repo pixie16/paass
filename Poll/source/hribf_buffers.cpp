@@ -611,8 +611,10 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, int nWords_, int &buf
 static int abs_buffer_pos = 0;
 
 /// Read a data spill from a file
-bool DATA_buffer::Read(std::ifstream *file_, char *data_, int &nBytes, int max_bytes_, bool &full_spill, bool &bad_spill, bool dry_run_mode/*=false*/){
+bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, unsigned int max_bytes_, bool &full_spill, bool &bad_spill, bool dry_run_mode/*=false*/){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
+	
+	bad_spill = false;
 
 		bad_spill = false;
 
@@ -686,6 +688,7 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, int &nBytes, int max_b
 						file_->read((char*)&temp_int, 4);
 						abs_buffer_pos++;
 						if(debug_mode){ std::cout << "debug: Bad spill footer word " << temp_index << ", " << temp_int << std::endl; }
+						bad_spill = true;
 						temp_index++;
 					}
 					file_->read((char*)&this_chunk_sizeB, 4);
