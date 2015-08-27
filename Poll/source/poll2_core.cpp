@@ -10,9 +10,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date May 6th, 2015
+  * \date June 26th, 2015
   * 
-  * \version 1.3.00
+  * \version 1.3.01
 */
 
 #include <algorithm>
@@ -79,7 +79,7 @@ Poll::Poll(){
 	clock_vsn = 1000;
 
 	// System flags and variables
-	sys_message_head = " POLL: ";
+	sys_message_head = " POLL2: ";
 	kill_all = false; // Set to true when the program is exiting
 	start_acq = false; // Set to true when the command is given to start a run
 	stop_acq = false; // Set to true when the command is given to stop a run
@@ -186,15 +186,14 @@ bool Poll::close_output_file(bool continueRun /*=false*/){
 	file_open = false;
 
 	if(output_file.IsOpen()){ // A file is already open and must be closed
-		//Clear the stats
-		if (!continueRun) statsHandler->Clear();
-
 		std::cout << sys_message_head << "Closing output file.\n";
 		client->SendMessage((char *)"$CLOSE_FILE", 12);
-		output_file.CloseFile();
-
-		//We call get next file name to update the run number.
-		if (!continueRun) output_file.GetNextFileName(next_run_num,filename_prefix,output_directory);
+		output_file.CloseFile((float)statsHandler->GetTotalTime());
+		
+		if (!continueRun) {
+			statsHandler->Clear(); //Clear the stats
+			output_file.GetNextFileName(next_run_num,filename_prefix,output_directory); //We call get next file name to update the run number.
+		}
 
 		return true;
 	}
@@ -331,6 +330,7 @@ void Poll::help(){
 	std::cout << "   prefix [name]    - Set the output filename prefix (default='run_#.ldf')\n";
 	std::cout << "   fdir [path]      - Set the output file directory (default='./')\n";
 	std::cout << "   title [runTitle] - Set the title of the current run (default='PIXIE Data File)\n";
+	std::cout << "   facility [name]  - Set the name of the facility (only for pld output format)\n";
 	std::cout << "   runnum [number]  - Set the number of the current run (default=0)\n";
 	std::cout << "   oform [0|1|2]    - Set the format of the output file (default=0)\n";
 	std::cout << "   close (clo)      - Safely close the current data output file\n";
@@ -358,7 +358,9 @@ void Poll::help(){
 }
 
 std::vector<std::string> Poll::TabComplete(std::string cmd) {
-	static std::vector<std::string> commands = {"start","startacq","stop","stopacq","prefix","runnum","runtitle","close","pread","pwrite","pmwrite","pmread","status","help","version","shm","spill","hup","fdir","reboot","mca","dump","adjust_offsets","find_tau","toggle","toggle_bit","csr_test","bit_test","debug","quiet","quit","oform","title"};
+	static std::vector<std::string> commands = {"start","startacq","stop","stopacq","prefix","runnum","runtitle","close","pread","pwrite","pmwrite","pmread","status",
+												"help","version","shm","spill","hup","fdir","reboot","mca","dump","adjust_offsets","find_tau","toggle","toggle_bit",
+												"csr_test","bit_test","debug","quiet","quit","oform","title","facility"};
 
 	std::vector<std::string> matches;
 	
@@ -701,7 +703,19 @@ void Poll::command_control(){
 					output_title = arg; 
 					std::cout << sys_message_head << "Set run title to '" << output_title << "'.\n";
 				}
-			} 
+			}
+			else if(cmd == "facility"){ // Change the facility of the output file
+				if(arg == ""){ 
+					if(output_format != 1){ std::cout << sys_message_head << "Using output file facility '" << output_file.GetHEADbuffer()->GetFacility() << "'.\n"; }
+					else{ std::cout << sys_message_head << "Using output file facility '" << output_file.GetPLDheader()->GetFacility() << "'.\n"; }
+				}
+				else if(output_format != 1){ std::cout << sys_message_head << "Facility may only be changed for pld output format!\n"; }
+				else if (file_open){ std::cout << sys_message_head << Display::WarningStr("Warning:") << " Run facility cannot be changed while a file is open!\n"; }
+				else{
+					output_file.GetPLDheader()->SetFacility(arg);
+					std::cout << sys_message_head << "Set run facility to '" << output_file.GetPLDheader()->GetFacility() << "'.\n";
+				}
+			}
 			else if(cmd == "runnum"){ // Change the run number to the specified value
 				if (arg == "") { 
 					if (output_file.IsOpen()) 
