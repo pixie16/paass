@@ -55,27 +55,8 @@
 // Length of shm packet header (in bytes)
 #define PKT_HEAD_LEN 8
 
-// Maximum length of UDP data packet (in bytes)
-#define MAX_ORPH_DATA 1464
-
 // Maximum shm packet size (in bytes)
 #define MAX_PKT_DATA (MAX_ORPH_DATA - PKT_HEAD_LEN)
-
-struct UDP_Packet {
-	int Sequence; /// Sequence number for reliable transport
-	int DataSize; /// Number of useable bytes in Data
-	unsigned char Data[MAX_ORPH_DATA]; /// The data to be transmitted
-};
-
-struct data_pack{
-	int Sequence; /// Sequence number for reliable transport
-	int DataSize; /// Number of useable bytes in Data
-	int TotalEvents; /// Total number of events
-	unsigned short Events; /// Number of events in this packet
-	unsigned short Cont; /// Continuation flag for large events
-	unsigned char Data[4*(4050 + 4)]; /// The data to be transmitted
-	int BufLen; /// Length of original Pixie buffer
-};
 
 std::vector<std::string> chan_params = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP", "TRIGGER_THRESHOLD", "ENERGY_RISETIME", "ENERGY_FLATTOP", "TAU", "TRACE_LENGTH",
 									 "TRACE_DELAY", "VOFFSET", "XDT", "BASELINE_PERCENT", "EMIN", "BINFACTOR", "CHANNEL_CSRA", "CHANNEL_CSRB", "BLCUT",
@@ -297,60 +278,80 @@ bool Poll::synch_mods(){
 	return !hadError;
 }
 
+int Poll::write_data(word_t *data, unsigned int nWords){
+	// Open an output file if needed
+	if(!output_file.IsOpen()){
+		std::cout << Display::ErrorStr() << " Recording data, but no file is open! Opening a new file.\n";
+		open_output_file();
+	}
+
+	// Handle the writing of buffers to the file
+	std::streampos current_filesize = output_file.GetFilesize();
+	if(current_filesize + (std::streampos)(4*nWords + 65552) > MAX_FILE_SIZE){
+		// Adding nWords plus 2 EOF buffers to the file will push it over MAX_FILE_SIZE.
+		// Open a new output file instead
+		std::cout << sys_message_head << "Current filesize is " << current_filesize + (std::streampos)65552 << " bytes.\n";
+		std::cout << sys_message_head << "Opening new file.\n";
+		close_output_file(true);
+		open_output_file(true);
+	}
+
+	if (!is_quiet) std::cout << "Writing " << nWords << " words.\n";
+
+	return output_file.Write((char*)data, nWords);
+}
+
 void Poll::broadcast_data(word_t *data, unsigned int nWords) {
 	if(pac_mode){ // Broadcast the spill onto the network using the classic pacman shm style
-		data_pack *AcqBuf = new data_pack();
+		// Maximum size of the shared memory buffer
+		const int maxShmSizeL = 4050; // in pixie words
+		const int maxShmSize  = maxShmSizeL * sizeof(word_t); // in bytes
 	
-		const int BufEnd=0xFFFFFFFF;
-		short int status, cont_pkt;
-		char *bufptr;
-		int size,bytes;
+		unsigned int nBufs = nWords / maxShmSizeL;
+		unsigned int wordsLeft = nWords % maxShmSizeL;
 
-		size = AcqBuf->BufLen;
-		memcpy(AcqBuf->Data+size, &BufEnd, 4);
-		size += 4;
-		if(size % 2 != 0){ 
-			memcpy(AcqBuf->Data+size,&BufEnd,2);
-			size+=2;
+		unsigned int totalBufs = nBufs + 1 + ((wordsLeft != 0) ? 1 : 0);
+
+		word_t *pWrite = (word_t *)AcqBuf.Data;
+		
+		// Chop the data and send it through the network
+		for(size_t buf=0; buf < nBufs; buf++){
+			// Get a long sized pointer to the data block for writing
+			// put a header on each shared memory buffer
+			AcqBuf.BufLen = (maxShmSizeL + 3) * sizeof(word_t);
+			pWrite[0] = AcqBuf.BufLen; // size
+			pWrite[1] = totalBufs; // number of buffers we expect
+			pWrite[2] = buf;
+			memcpy(&pWrite[3], &data[buf * maxShmSizeL], maxShmSize);
+
+			broadcast_pac_data();
+			usleep(1);
 		}
 
-		if(size <= MAX_PKT_DATA){ 
-			AcqBuf->Sequence = udp_sequence++;
-			AcqBuf->DataSize = size + 8;    
-			AcqBuf->TotalEvents = ++total_spill_chunks;
-			AcqBuf->Events = 1;
-			AcqBuf->Cont=0; 
+		// Send the last fragment (if there is any)
+		if (wordsLeft != 0) {
+			AcqBuf.BufLen = (wordsLeft + 3) * sizeof(word_t);
+			pWrite[0] = AcqBuf.BufLen;
+			pWrite[1] = totalBufs;
+			pWrite[2] = nBufs;
+			memcpy(&pWrite[3], &data[nBufs * maxShmSizeL], 
+			wordsLeft * sizeof(word_t) );
 
-			status = client->SendMessage((char *)&AcqBuf, size + PKT_HEAD_LEN + 8);
-			if(status < 0 && debug_mode){ perror(" debug: broadcast_data - error at SendMessage"); }
-
-			return ;
+			broadcast_pac_data();
+			usleep(1);
 		}
 
-		cont_pkt = 1;
-		bufptr =(char *)&AcqBuf;
-		total_spill_chunks++;
-		do{
-			if(size > MAX_PKT_DATA){ 
-				bytes = MAX_PKT_DATA;
-				*((unsigned short *)(bufptr+PKT_HEAD_LEN+4)) = 0;
-			} 
-			else{
-				bytes = size;
-				*((unsigned short *)(bufptr+PKT_HEAD_LEN+4)) = 1;
-			}
-			*((int *)(bufptr+PKT_HEAD_LEN)) = total_spill_chunks;
-			*((unsigned short *)(bufptr+PKT_HEAD_LEN+6)) = cont_pkt;
-			*((unsigned int *)(bufptr)) = udp_sequence++;
-			*((int *)(bufptr+4)) = bytes+8;
+		// Send a buffer to say that we are done
+		AcqBuf.BufLen = 5 * sizeof(word_t);
+		pWrite[0] = AcqBuf.BufLen;
+		pWrite[1] = totalBufs;
+		pWrite[2] = totalBufs - 1;
+		
+		// Pacman looks for the following data
+		pWrite[3] = 0x2; 
+		pWrite[4] = 0x270f; // vsn 9999
 
-			status = client->SendMessage((char *)bufptr, bytes + PKT_HEAD_LEN + 8);
-			if(status < 0 && debug_mode){ perror(" debug: broadcast_data - error at SendMessage"); }
-
-			cont_pkt++;
-			bufptr += bytes;
-			size = size - bytes;
-		}while(size > 0);
+		broadcast_pac_data();  
 	}
 	else if(shm_mode){ // Broadcast the spill onto the network using the new shm style
 		char shm_data[40008]; // 40 kB packets of data
@@ -389,27 +390,57 @@ void Poll::broadcast_data(word_t *data, unsigned int nWords) {
 	}
 }
 
-int Poll::write_data(word_t *data, unsigned int nWords){
-	// Open an output file if needed
-	if(!output_file.IsOpen()){
-		std::cout << Display::ErrorStr() << " Recording data, but no file is open! Opening a new file.\n";
-		open_output_file();
+void Poll::broadcast_pac_data(){
+	const int BufEnd=0xFFFFFFFF;
+	short int status, cont_pkt;
+	char *bufptr;
+	int size,bytes;
+
+	size = AcqBuf.BufLen;
+	memcpy(AcqBuf.Data+size, &BufEnd, 4);
+	size += 4;
+	if(size % 2 != 0){ 
+		memcpy(AcqBuf.Data+size,&BufEnd,2);
+		size+=2;
 	}
 
-	// Handle the writing of buffers to the file
-	std::streampos current_filesize = output_file.GetFilesize();
-	if(current_filesize + (std::streampos)(4*nWords + 65552) > MAX_FILE_SIZE){
-		// Adding nWords plus 2 EOF buffers to the file will push it over MAX_FILE_SIZE.
-		// Open a new output file instead
-		std::cout << sys_message_head << "Current filesize is " << current_filesize + (std::streampos)65552 << " bytes.\n";
-		std::cout << sys_message_head << "Opening new file.\n";
-		close_output_file(true);
-		open_output_file(true);
+	if(size <= MAX_PKT_DATA){ 
+		AcqBuf.Sequence = udp_sequence++;
+		AcqBuf.DataSize = size + 8;    
+		AcqBuf.TotalEvents = ++total_spill_chunks;
+		AcqBuf.Events = 1;
+		AcqBuf.Cont=0; 
+
+		status = client->SendMessage((char *)&AcqBuf, size + PKT_HEAD_LEN + 8);
+		if(status < 0 && debug_mode){ perror(" debug: broadcast_data - error at SendMessage"); }
+
+		return;
 	}
 
-	if (!is_quiet) std::cout << "Writing " << nWords << " words.\n";
+	cont_pkt = 1;
+	bufptr =(char *)&AcqBuf;
+	total_spill_chunks++;
+	do{
+		if(size > MAX_PKT_DATA){ 
+			bytes = MAX_PKT_DATA;
+			*((unsigned short *)(bufptr+PKT_HEAD_LEN+4)) = 0;
+		} 
+		else{
+			bytes = size;
+			*((unsigned short *)(bufptr+PKT_HEAD_LEN+4)) = 1;
+		}
+		*((int *)(bufptr+PKT_HEAD_LEN)) = total_spill_chunks;
+		*((unsigned short *)(bufptr+PKT_HEAD_LEN+6)) = cont_pkt;
+		*((unsigned int *)(bufptr)) = udp_sequence++;
+		*((int *)(bufptr+4)) = bytes+8;
 
-	return output_file.Write((char*)data, nWords);
+		status = client->SendMessage((char *)bufptr, bytes + PKT_HEAD_LEN + 8);
+		if(status < 0 && debug_mode){ perror(" debug: broadcast_data - error at SendMessage"); }
+
+		cont_pkt++;
+		bufptr += bytes;
+		size = size - bytes;
+	}while(size > 0);
 }
 
 /* Print help dialogue for POLL options. */
@@ -1146,7 +1177,7 @@ void Poll::RunControl(){
 					std::cout << "RECV PACMAN COMMAND 0x22 (START_ACQ)\n";
 					if(acq_running){ pacman_command.Data[0] = 0xFC; }
 					else{ pacman_command.Data[0] = 0x00; }
-					//do_start_acq = true;
+					do_start_acq = true;
 				}
 				else if(pacman_command.Data[0] == 0x33){ // STOP_ACQ
 					std::cout << "RECV PACMAN COMMAND 0x33 (STOP_ACQ)\n";
