@@ -1,4 +1,4 @@
-set(PixieCore_SOURCES Display.cpp hribf_buffers.cpp)
+set(PixieCore_SOURCES Display.cpp hribf_buffers.cpp poll2_socket.cpp)
 if (${CURSES_FOUND})
 	list(APPEND PixieCore_SOURCES CTerminal.cpp)
 endif()
