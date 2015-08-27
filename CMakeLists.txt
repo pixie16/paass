@@ -97,3 +97,5 @@ add_subdirectory(Setup/source)
 add_subdirectory(Poll)
 
 add_subdirectory(PxiDump/source)
+
+add_subdirectory(share)
