@@ -28,6 +28,9 @@
 #define POLL2_CORE_VERSION "1.3.02"
 #define POLL2_CORE_DATE "Aug 27th, 2015"
 
+// Maximum length of UDP data packet (in bytes)
+#define MAX_ORPH_DATA 1464
+
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
 
@@ -40,6 +43,22 @@ struct MCA_args{
 	MCA_args(bool useRoot_, int totalTime_, std::string basename_);
 	
 	void Zero();
+};
+
+struct UDP_Packet {
+	int Sequence; /// Sequence number for reliable transport
+	int DataSize; /// Number of useable bytes in Data
+	unsigned char Data[MAX_ORPH_DATA]; /// The data to be transmitted
+};
+
+struct data_pack{
+	int Sequence; /// Sequence number for reliable transport
+	int DataSize; /// Number of useable bytes in Data
+	int TotalEvents; /// Total number of events
+	unsigned short Events; /// Number of events in this packet
+	unsigned short Cont; /// Continuation flag for large events
+	unsigned char Data[4*(4050 + 4)]; /// The data to be transmitted
+	int BufLen; /// Length of original Pixie buffer
 };
 
 // Forward class declarations
@@ -116,6 +135,8 @@ class Poll{
 
 	StatsHandler *statsHandler;
 	
+	data_pack AcqBuf; /// Data packet for class shared-memory broadcast
+	
 	/// Print help dialogue for POLL options.
 	void help();
 
@@ -160,9 +181,12 @@ class Poll{
 	
 	/// Write a data spill to disk.
 	int write_data(word_t *data, unsigned int nWords);
-	
+
 	/// Broadcast a data spill onto the network.
 	void broadcast_data(word_t *data, unsigned int nWords);
+
+	/// Broadcast a data spill onto the network in the classic pacman format.
+	void broadcast_pac_data();
 
   public:
   	/// Default constructor.
