@@ -273,8 +273,6 @@ void CommandString::Pop(unsigned int index_){
 // Terminal
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef USE_NCURSES
-
 void sig_int_handler(int ignore_){
 	SIGNAL_INTERRUPT = true;
 }
@@ -935,5 +933,3 @@ void Terminal::Close(){
 	}
 	logFile.close();
 }
-
-#endif

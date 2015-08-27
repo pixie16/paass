@@ -26,13 +26,9 @@
 #define CTERMINAL_VERSION "1.1.06"
 #define CTERMINAL_DATE "May 13th, 2015"
 
-#ifdef USE_NCURSES
-
 #include <curses.h>
 
 extern bool SIGNAL_INTERRUPT;
-
-#endif
 
 extern std::string CPP_APP_VERSION;
 
@@ -194,8 +190,6 @@ class CommandString{
 // Terminal
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef USE_NCURSES
-
 void sig_int_handler(int ignore_);
 
 // Setup the interrupt signal intercept
@@ -317,7 +311,5 @@ class Terminal{
 	/// Close the window and restore control to the terminal
 	void Close();
 };
-
-#endif
 
 #endif
