@@ -10,7 +10,7 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date May 11th, 2015
+  * \date June 26th, 2015
   * 
   * \version 1.3.01
 */
@@ -26,7 +26,7 @@
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
 #define POLL2_CORE_VERSION "1.3.01"
-#define POLL2_CORE_DATE "May 11th, 2015"
+#define POLL2_CORE_DATE "June 26th, 2015"
 
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
