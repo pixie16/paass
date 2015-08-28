@@ -82,8 +82,8 @@ link_directories(${PXI_LIBRARY_DIR})
 #The following configuration file path is hardcoded into the PXI software :-(
 install(FILES ${PXI_ROOT_DIR}/test/pxisys.ini DESTINATION ${CMAKE_INSTALL_PREFIX})
 
+add_subdirectory(Core)
 include_directories(Core/include)
-add_subdirectory(Core/source)
 
 include_directories(Interface/include)
 add_subdirectory(Interface/source)
