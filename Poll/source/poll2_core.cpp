@@ -1142,7 +1142,6 @@ void Poll::RunControl(){
 				if(pacman_command.Data[0] == 0x11){ // INIT_ACQ
 					std::cout << "RECV PACMAN COMMAND 0x11 (INIT_ACQ)\n";
 					pacman_command.Data[0] = 0x00;
-					kill_all = true;
 				}
 				else if(pacman_command.Data[0] == 0x22){ // START_ACQ
 					std::cout << "RECV PACMAN COMMAND 0x22 (START_ACQ)\n";
