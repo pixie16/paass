@@ -35,6 +35,7 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 #Install options
 option(USE_ROOT "Use ROOT for MCA." ON)
 option(USE_DAMM "Use DAMM for MCA." ON)
+option(USE_SETUP "Include the older setup programs in installation." OFF)
 option(USE_NCURSES "Use ncurses for terminal." ON)
 
 #Find packages needed for poll2
@@ -88,11 +89,13 @@ include_directories(Core/include)
 include_directories(Interface/include)
 add_subdirectory(Interface/source)
 
-include_directories(Setup/include)
+if (USE_SETUP) 
+	include_directories(Setup/include)
+	add_subdirectory(Setup/source)
+endif()
+
 include_directories(MCA/include)
 add_subdirectory(MCA)
-add_subdirectory(Setup/source)
-
 
 add_subdirectory(Poll)
 
