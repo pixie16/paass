@@ -22,42 +22,31 @@
 
 /* Print help dialogue for command line options. */
 void help(){
-	std::cout << "\n SYNTAX: ./poll2 [options]\n";
+	std::cout << "\n SYNTAX: ./poll2 <options>\n";
 	std::cout << "  -a, --alarm=[e-mail] Call the alarm script with a given e-mail (or no argument)\n"; 
 	std::cout << "  -f, --fast           Fast boot (false by default)\n";
-	std::cout << "  -h, --hist <num>     Dump histogram data every num seconds\n";
 	std::cout << "  -q, --quiet          Run quietly (false by default)\n";
 	std::cout << "  -n, --no-wall-clock  Do not insert the wall clock in the data stream\n";
 	std::cout << "  -r, --rates          Display module rates in quiet mode (false by defualt)\n";
-	std::cout << "  -s, --stats <num>    Output statistics data every num seconds\n";
 	std::cout << "  -t, --thresh <num>   Sets FIFO read threshold to num% full (50% by default)\n";
 	std::cout << "  -z, --zero           Zero clocks on each START_ACQ (false by default)\n";
 	std::cout << "  -d, --debug          Set debug mode to true (false by default)\n";
-	std::cout << "  -m, --memory-share   Do not write data to shared memory (SHM) (true by default)\n\n";
+	std::cout << "  -p, --pacman         Use classic poll operation for use with Pacman.\n";
+	std::cout << "  -h, --help           Display this help dialogue.\n\n";
 }	
 	
 void start_run_control(Poll *poll_){
-	poll_->run_control();
+	poll_->RunControl();
 }
 
 void start_cmd_control(Poll *poll_){
-	poll_->command_control();
+	poll_->CommandControl();
 }
 
 int main(int argc, char *argv[]){
-	Terminal poll_term;
-
 	// Read the FIFO when it is this full
 	unsigned int threshPercent = 50;
 	std::string alarmArgument = "";
-
-	//We make sure the system isn't locked first.
-	// This avoids issues with curses.
-	Lock *lock = new Lock("PixieInterface");
-	delete lock;
-
-	// Main object
-	Poll poll;
 
 	// Define all valid command line options
 	// This is done to keep legacy options available while removing dependency on HRIBF libraries
@@ -70,18 +59,36 @@ int main(int argc, char *argv[]){
 	valid_opt[5].Set("thresh", true, false);
 	valid_opt[6].Set("zero", false, false);
 	valid_opt[7].Set("debug", false, false);
-	valid_opt[8].Set("?", false, false);
-	if(!get_opt(argc, argv, valid_opt, 11, help)){ return EXIT_FAILURE; }
+	valid_opt[8].Set("pacman", false, false);
+	valid_opt[9].Set("help", false, false);
+	valid_opt[10].Set("?", false, false);
+	if(!get_opt(argc, argv, valid_opt, 11, help)){ return 1; }
+
+	// Help
+	if(valid_opt[9].is_active){
+		help();
+		return 0;
+	}	
+
+	Terminal poll_term;
+
+	//We make sure the system isn't locked first.
+	// This avoids issues with curses.
+	Lock *lock = new Lock("PixieInterface");
+	delete lock;
+
+	// Main object
+	Poll poll;
 	
 	// Set all of the selected options
 	if(valid_opt[0].is_active){
 		if(valid_opt[0].value != ""){ alarmArgument = valid_opt[0].value; }
-		poll.send_alarm = true;
+		poll.SetSendAlarm();
 	}
-	if(valid_opt[1].is_active){ poll.boot_fast = true; }
-	if(valid_opt[2].is_active){ poll.is_quiet = true; }
-	if(valid_opt[3].is_active){ poll.insert_wall_clock = false; }
-	if(valid_opt[4].is_active){ poll.show_module_rates = true; }
+	if(valid_opt[1].is_active){ poll.SetBootFast(); }
+	if(valid_opt[2].is_active){ poll.SetQuietMode(); }
+	if(valid_opt[3].is_active){ poll.SetWallClock(); }
+	if(valid_opt[4].is_active){ poll.SetShowRates(); }
 	if(valid_opt[5].is_active){ 
 		threshPercent = atoi(valid_opt[5].value.c_str()); 
 		if(threshPercent <= 0){ 
@@ -89,11 +96,12 @@ int main(int argc, char *argv[]){
 			threshPercent = 50; 
 		}
 	}
-	if(valid_opt[6].is_active){ poll.zero_clocks = true; }
-	if(valid_opt[7].is_active){ poll.debug_mode = true; }
-	if(valid_opt[8].is_active){ return EXIT_SUCCESS; }
+	if(valid_opt[6].is_active){ poll.SetZeroClocks(); }
+	if(valid_opt[7].is_active){ poll.SetDebugMode(); }
+	if(valid_opt[8].is_active){ poll.SetPacmanMode(); }
+	if(valid_opt[10].is_active){ return 0; }
 
-	if(!poll.initialize()){ return EXIT_FAILURE; }
+	if(!poll.Initialize()){ return 1; }
 
 	// Initialize the terminal before doing anything else;
 	poll_term.Initialize(".poll2.cmd");
@@ -116,24 +124,27 @@ int main(int argc, char *argv[]){
 	std::cout << "\n POLL2 v" << POLL2_CORE_VERSION << "\n"; 
 	std::cout << " ==  ==  ==  ==  == \n\n"; 
 	
-	poll.threshWords = EXTERNAL_FIFO_LENGTH * threshPercent / 100.0;
-	std::cout << "Using FIFO threshold of " << poll.threshWords << " words\n";
+	poll.SetThreshWords(EXTERNAL_FIFO_LENGTH * threshPercent / 100.0);
+	std::cout << "Using FIFO threshold of " << poll.GetThreshWords() << " words\n";
 	
 #ifdef PIF_REVA
-	std::cout << "Using Pixie16 revision A\n\n";
+	std::cout << "Using Pixie16 revision A\n";
 #elif (defined PIF_REVD)
-	std::cout << "Using Pixie16 revision D\n\n";
+	std::cout << "Using Pixie16 revision D\n";
 #elif (defined PIF_REVF)
-	std::cout << "Using Pixie16 revision F\n\n";
+	std::cout << "Using Pixie16 revision F\n";
 #else
-	std::cout << "Using unknown Pixie16 revision!!!\n\n";
+	std::cout << "Using unknown Pixie16 revision!!!\n";
 #endif
 
-  	StatsHandler handler(poll.n_cards);
-  	poll.set_stat_handler(&handler);
-	poll.set_terminal(&poll_term);
+	if(poll.GetPacmanMode()){ std::cout << "Using pacman mode!\n"; }
+	std::cout << std::endl;
+
+  	StatsHandler handler(poll.GetNcards());
+  	poll.SetStatsHandler(&handler);
+	poll.SetTerminal(&poll_term);
   	
-	if(poll.send_alarm){
+	if(poll.GetSendAlarm()){
 		Display::LeaderPrint("Sending alarms to");
 		if(alarmArgument.empty()){ std::cout << Display::InfoStr("DEFAULT") << std::endl; }
 		else { std::cout << Display::WarningStr(alarmArgument) << std::endl; }
@@ -155,11 +166,11 @@ int main(int argc, char *argv[]){
 	runctrl.join();
 
 	// Close the output file, if one is open
-	poll.close_output_file();
+	poll.Close();
 
 	//Reprint the leader as the carriage was returned
 	Display::LeaderPrint(std::string("Running poll2 v").append(POLL2_CORE_VERSION));
 	std::cout << Display::OkayStr("[Done]") << std::endl;
 
-	return EXIT_SUCCESS;
+	return 0;
 }
