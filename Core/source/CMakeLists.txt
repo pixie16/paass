@@ -1,4 +1,4 @@
-set(PixieCore_SOURCES Display.cpp hribf_buffers.cpp poll2_socket.cpp)
+set(PixieCore_SOURCES Display.cpp hribf_buffers.cpp poll2_socket.cpp ChannelEvent.cpp Unpacker.cpp ScanMain.cpp)
 if (${CURSES_FOUND})
 	list(APPEND PixieCore_SOURCES CTerminal.cpp)
 endif()
@@ -6,6 +6,7 @@ endif()
 add_library(PixieCoreObjects OBJECT ${PixieCore_SOURCES})
 
 add_library(PixieCore SHARED $<TARGET_OBJECTS:PixieCoreObjects>)
+
 add_library(PixieCoreStatic STATIC $<TARGET_OBJECTS:PixieCoreObjects>)
 
 if (${CURSES_FOUND})
