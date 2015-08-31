@@ -37,6 +37,7 @@ option(USE_ROOT "Use ROOT for MCA." ON)
 option(USE_DAMM "Use DAMM for MCA." ON)
 option(USE_SETUP "Include the older setup programs in installation." OFF)
 option(USE_NCURSES "Use ncurses for terminal." ON)
+option(CORE_ONLY "Install only PixieCore." OFF)
 
 #Find packages needed for poll2
 #Load additional find_package scripts.
@@ -71,34 +72,39 @@ if(${USE_DAMM})
 	add_definitions("-D USE_DAMM")
 endif()
 
-#Find the PLX Library
-find_package(PLX REQUIRED)
-link_directories(${PLX_LIBRARY_DIR})
-#add_definitions("-DPLX_LINUX -DPCI_CODE -DPLX_LITTLE_ENDIAN")
+if (NOT ${CORE_ONLY})
+	#Find the PLX Library
+	find_package(PLX REQUIRED)
+	link_directories(${PLX_LIBRARY_DIR})
+	#add_definitions("-DPLX_LINUX -DPCI_CODE -DPLX_LITTLE_ENDIAN")
 
-#Find the Pixie Firmware
-find_package(PXI REQUIRED)
-include_directories(${PXI_INCLUDE_DIR})
-link_directories(${PXI_LIBRARY_DIR})
-#The following configuration file path is hardcoded into the PXI software :-(
-install(FILES ${PXI_ROOT_DIR}/test/pxisys.ini DESTINATION ${CMAKE_INSTALL_PREFIX})
+	#Find the Pixie Firmware
+	find_package(PXI REQUIRED)
+	include_directories(${PXI_INCLUDE_DIR})
+	link_directories(${PXI_LIBRARY_DIR})
+	#The following configuration file path is hardcoded into the PXI software :-(
+	install(FILES ${PXI_ROOT_DIR}/test/pxisys.ini DESTINATION ${CMAKE_INSTALL_PREFIX})
+endif()
 
 add_subdirectory(Core)
 include_directories(Core/include)
 
-include_directories(Interface/include)
-add_subdirectory(Interface/source)
+if (NOT ${CORE_ONLY})
+	include_directories(Interface/include)
+	add_subdirectory(Interface/source)
 
-if (USE_SETUP) 
-	include_directories(Setup/include)
-	add_subdirectory(Setup/source)
+	if (USE_SETUP) 
+		include_directories(Setup/include)
+		add_subdirectory(Setup/source)
+	endif()
+
+	include_directories(MCA/include)
+	add_subdirectory(MCA)
+
+	add_subdirectory(Poll)
+
+	add_subdirectory(PxiDump/source)
 endif()
 
-include_directories(MCA/include)
-add_subdirectory(MCA)
-
-add_subdirectory(Poll)
-
-add_subdirectory(PxiDump/source)
-
 add_subdirectory(share)
+
