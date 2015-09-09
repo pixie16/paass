@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>S. V. Paulauskas</Name>
+        <Email>stanpaulauskas AT gmail DOT com</Email>
+        <Date>January 6, 2015</Date>
+    </Author>
+
+    <Description>
+        Configuration used to test the double beta data. I used the following
+        ldf for the tests :
+        triple_23sep_289_17.ldf
+    </Description>
+
+    <Global>
+        <Revision version="F"/>
+        <EventWidth unit="s" value="1e-6"/>
+        <EnergyContraction value="1.0"/>
+        <Path>config/</Path>
+        <NumOfTraces value="50"/>
+    </Global>
+
+    <DetectorDriver>
+        <Analyzer name="WaveformAnalyzer"/>
+        <Analyzer name="FittingAnalyzer"/>
+        <Processor name="DoubleBetaProcessor"/>
+    </DetectorDriver>
+
+    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+        <Module number="0">
+            <Channel number="10" type="beta" subtype="double" tags="left">
+            </Channel>
+            <Channel number="11" type="beta" subtype="double" tags="right">
+            </Channel>
+        </Module>
+    </Map>
+
+    <TreeCorrelator name="root" verbose="False">
+    </TreeCorrelator>
+
+    <Timing>
+        <Physical>
+            <NeutronMass unit="MeV/c/c" value="939.565560"/>
+            <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+            <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+            <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+            <SmallLength unit="cm" value="60.0"/>
+            <MediumLength unit="cm" value="120.0"/>
+            <BigLength unit="cm" value="200.0"/>
+        </Physical>
+        <Trace>
+            <WaveformRange>
+                <Low unit="sample" value="5"/>
+                <High unit="sample" value="10"/>
+            </WaveformRange>
+            <SiPmtWaveformRange>
+                <Low unit="sample" value="5"/>
+                <High unit="sample" value="5"/>
+            </SiPmtWaveformRange>
+            <DiscriminationStart unit="sample" value="3"/>
+            <TrapezoidalWalk unit="ns" value="60"/>
+            <TraceDelay unit="ns" value="144"/>
+            <TraceLength unit="ns" value="248"/>
+            <QdcCompression value="4.0"/>
+        </Trace>
+        <Fitting>
+            <SigmaBaselineThresh value="3.0"/>
+            <SiPmtSigmaBaselineThresh value = "25.0"/>
+            <Vandle>
+                <Beta value="0.32969"/>
+                <Gamma value="0.212945"/>
+            </Vandle>
+            <SingleBeta>
+                <Beta value="0.574531"/>
+                <Gamma value="0.274512"/>
+            </SingleBeta>
+            <DoubleBeta>
+                <Gamma value="1.4196495999"/>
+            </DoubleBeta>
+            <Pulser>
+                <Beta value="0.32969"/>
+                <Gamma value="0.212945"/>
+            </Pulser>
+            <TVandle>
+                <Beta value="0.32969"/>
+                <Gamma value="0.212945"/>
+            </TVandle>
+            <LiquidScint>
+                <Beta value="4.52672"/>
+                <Gamma value="1.73376"/>
+            </LiquidScint>
+        </Fitting>
+    </Timing>
+
+    <Notebook file="notes.txt" mode="r"/>
+
+</Configuration>

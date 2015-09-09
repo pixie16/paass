@@ -1,0 +1,62 @@
+#The convention for the parameters should be
+#value name
+
+#Physical and Measured Constants
+#mass of neutron MeV/c^2
+939.565560 neutronMass
+#speed of light in vacuum cm/ns
+29.9792458 speedOfLight 
+#speed of light in 60cm bar
+12.65822 speedOfLightSmall 
+#speed of light in 200cm bar
+15.22998 speedOfLightBig 
+#length of small vandle bar in cm
+60.0    lengthSmallPhysical 
+#length of big vandle bar in cm 
+200.0   lengthBigPhysical 
+
+#Values for the WaveformAnalyzer Functions
+#Trace Related Stuff (referenced from max)
+5.0      waveformLow
+10.0     waveformHigh
+3.0      startDiscrimination
+6226.55  averageQdcOneVolt
+#Walk from the Trapezoidal Filter in ns
+60	 trapezoidalWalk
+#For Tvandle and LeRIBSS; times in ns
+#112	 traceDelay
+#176	 traceLength
+#For Pulser data
+4000	 traceDelay
+8000	 traceLength
+
+#FittingRoutine
+#VANDLE
+0.32969 betaVandle
+0.212945 gammaVandle
+#Beta
+0.574531 betaBeta
+0.274512 gammaBeta
+#PULSER
+0.832272 betaPulser
+0.236425 gammaPulser
+#TeenyVandle
+0.362307 betaTvandle
+0.186129 gammaTvandle
+#Default
+0.32969 betaDefault
+0.212945 gammaDefault
+
+#Original Fitting Parameters (100 MHz)
+#3.9626 widthVandle
+#3.2334  decayVandle
+4.52672 widthLiquid
+1.73376 decayLiquid
+
+#SinglePointAnalysis
+0.102        sigmaPulser
+1904.293314  amplitudePulser
+0.039185     sigmaDefault
+1997.157     amplitudeDefault
+0.166597     sigmaTest
+1816.27      amplitudeTest

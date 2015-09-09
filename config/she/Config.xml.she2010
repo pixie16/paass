@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>D. Miller</Name>
+        <Email></Email>
+        <Date>April 27, 2010</Date>
+    </Author>
+
+    <Description>
+        SHE setup for April 27, 2010
+    </Description>
+
+    <Global>
+        <Revision version="D"/>
+        <EventWidth unit="s" value="1e-6"/>
+        <EnergyContraction value="1.0"/>
+        <Path>config/</Path>
+        <NumOfTraces value="50"/>
+    </Global>
+
+    <DetectorDriver>
+        <Processor name="BeamLogicProcessor" />
+        <Analyzer name="SsdProcessor"/>
+        <Analyzer name="LogicProcessor"/>
+        <Analyzer name="DoubleTraceAnalyzer"
+            gain_match="10.00"
+            fast_rise="10"
+            fast_gap="10"
+            fast_threshold="50"
+            energy_rise="25"
+            energy_gap="25"
+            slow_rise="20"
+            slow_gap="20"
+            slow_threshold="10"/>
+    </DetectorDriver>
+
+    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+    <Module number="0">
+        <Channel number="0" type="ssd" subtype="top">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="1" type="ssd" subtype="bottom">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="2" type="ssd" subtype="top">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="3" type="ssd" subtype="bottom">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="4" type="ssd" subtype="top">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="5" type="ssd" subtype="bottom">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="6" type="ssd" subtype="top">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="7" type="ssd" subtype="bottom">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="8" type="ssd" subtype="top">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="9" type="ssd" subtype="bottom">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="10" type="ssd" subtype="top">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="11" type="ssd" subtype="bottom">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="12" type="ssd" subtype="top">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="13" type="ssd" subtype="bottom">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="14" type="ssd" subtype="top">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="15" type="ssd" subtype="bottom">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+    </Module>
+    <Module number="1">
+        <Channel number="0" type="ssd" subtype="top">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="1" type="ssd" subtype="bottom">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="2" type="ssd" subtype="top">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="3" type="ssd" subtype="bottom">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="4" type="ssd" subtype="top">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="5" type="ssd" subtype="bottom">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="6" type="ssd" subtype="top">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="7" type="ssd" subtype="bottom">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="8" type="ssd" subtype="top">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="9" type="ssd" subtype="bottom">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="10" type="ssd" subtype="top">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="11" type="ssd" subtype="bottom">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="12" type="ssd" subtype="top">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="13" type="ssd" subtype="bottom">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="14" type="ssd" subtype="top">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="15" type="ssd" subtype="bottom">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+    </Module>
+    <Module number="2">
+        <Channel number="0" type="ssd" subtype="box">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="1" type="ssd" subtype="box">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="2" type="ssd" subtype="box">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="3" type="ssd" subtype="box">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="4" type="ssd" subtype="box">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="5" type="ssd" subtype="box">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="6" type="ssd" subtype="box">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="7" type="ssd" subtype="box">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="8" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="9" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="10" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="11" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="12" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="13" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="14" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="15" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+    </Module>
+    <Module number="3">
+        <Channel number="0" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="1" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="2" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="3" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="4" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="5" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="6" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="7" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="8" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="9" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="10" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="11" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="12" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="13" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="14" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="15" type="ssd" subtype="box">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+    </Module>
+    <Module number="4">
+        <Channel number="0" type="ssd" subtype="veto">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="1" type="ssd" subtype="veto">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="2" type="ssd" subtype="veto">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="3" type="ssd" subtype="veto">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="4" type="generic" subtype="tac">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="5" type="generic" subtype="tac">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="6" type="generic" subtype="tac">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="7" type="generic" subtype="tac">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="8" type="generic" subtype="tac">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="9" type="ge" subtype="ge">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="10" type="ge" subtype="ge">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="11" type="ge" subtype="ge">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="12" type="ge" subtype="ge">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+    </Module>
+     <Module number="5">
+        <Channel number="0" type="logic" subtype="stop">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="1" type="logic" subtype="start">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="2" type="logic" subtype="stop">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="3" type="logic" subtype="start">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="4" type="logic" subtype="stop">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="5" type="logic" subtype="start">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="6" type="logic" subtype="stop">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="7" type="logic" subtype="start">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="8" type="logic" subtype="stop">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="9" type="logic" subtype="start">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="10" type="logic" subtype="trigger">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="11" type="logic" subtype="mcp">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+    </Module>
+     <Module number="6">
+        <Channel number="0" type="ssd" subtype="sum">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="1" type="ssd" subtype="sum">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="2" type="ssd" subtype="sum">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="3" type="ssd" subtype="sum">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="4" type="ssd" subtype="sum">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="5" type="ssd" subtype="sum">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="6" type="ssd" subtype="sum">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="7" type="ssd" subtype="sum">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="8" type="ssd" subtype="sum">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="9" type="ssd" subtype="sum">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="10" type="ssd" subtype="sum">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="11" type="ssd" subtype="sum">
+            <Calibration model="linear">0.0 1.5</Calibration>
+        </Channel>
+        <Channel number="12" type="ssd" subtype="sum">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="13" type="ssd" subtype="sum">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="14" type="ssd" subtype="sum">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="15" type="ssd" subtype="sum">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+    </Module>
+     <Module number="7">
+        <Channel number="0" type="ssd" subtype="digisum" tags="virtual,uncal">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="2" type="ssd" subtype="digisum" tags="virtual,uncal">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="4" type="ssd" subtype="digisum" tags="virtual,uncal">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="6" type="ssd" subtype="digisum" tags="virtual,uncal">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="8" type="ssd" subtype="digisum" tags="virtual,uncal">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="10" type="ssd" subtype="digisum" tags="virtual,uncal">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="12" type="ssd" subtype="digisum" tags="virtual,uncal">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="14" type="ssd" subtype="digisum" tags="virtual,uncal">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+    </Module>
+     <Module number="8">
+        <Channel number="0" type="ssd" subtype="digisum" tags="virtual,uncal">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="2" type="ssd" subtype="digisum" tags="virtual,uncal">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="4" type="ssd" subtype="digisum" tags="virtual,uncal">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="6" type="ssd" subtype="digisum" tags="virtual,uncal">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="8" type="ssd" subtype="digisum" tags="virtual,uncal">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="10" type="ssd" subtype="digisum" tags="virtual,uncal">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="12" type="ssd" subtype="digisum" tags="virtual,uncal">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+        <Channel number="14" type="ssd" subtype="digisum" tags="virtual,uncal">
+            <Calibration model="raw"></Calibration>
+        </Channel>
+    </Module>
+    </Map>
+
+    <TreeCorrelator name="root" verbose="False">
+        <Place type="PlaceDetector" name="Beam" reset="false" init="true"/>
+    </TreeCorrelator>
+
+    <Notebook file="notes.txt" mode="a"/>
+
+</Configuration>

@@ -36,19 +36,13 @@ endif
 endif
 endif
 
-ifneq ($(EXTRA_PROCESSORS),)
-vpath %.cpp $(EXTRA_PROCESSORS)/src
-vpath %.hpp $(EXTRA_PROCESSORS)/inc
-CINCLUDEDIRS = -I$(EXTRA_PROCESSORS)/inc
-endif
-
 #------- instruct make to search through these
 #------- directories to find files
 vpath %.f scan/
-vpath %.hpp include/
+vpath %.hpp include/:include/experiment
 vpath %.h include/
 vpath %.icc include/
-vpath %.cpp src/
+vpath %.cpp src/analyzers:src/core:src/experiment:src/processors
 vpath %.o obj/
 
 LIBS = $(HHIRF_DIR)/scanorlib.a $(HHIRF_DIR)/orphlib.a \

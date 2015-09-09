@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>S. V. Paulauskas</Name>
+        <Email>stanpaulauskas AT gmail DOT com</Email>
+        <Date>December 2014</Date>
+    </Author>
+
+    <Description>
+        LeRIBSS 2012 VANDLE experiment, 48 VANDLE Bars, 2 Clovers,
+        2 Beta scintillators, MTC
+        This configuration will be used for walk corrections.
+    </Description>
+
+    <Global>
+        <Revision version="F"/>
+        <EventWidth unit="s" value="1e-6"/>
+        <EnergyContraction value="4.0"/>
+        <Path>config/</Path>
+        <NumOfTraces value="50"/>
+    </Global>
+
+    <DetectorDriver>
+        <Analyzer name="WaveformAnalyzer"/>
+        <Analyzer name="FittingAnalyzer"/>
+        <Processor name="TeenyVandleProcessor"/>
+    </DetectorDriver>
+
+    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+        <Module number="0">
+            <Channel number="0" type="tvandle" subtype="left">
+            </Channel>
+            <Channel number="1" type="tvandle" subtype="right">
+            </Channel>
+        </Module>
+    </Map>
+
+    <TreeCorrelator name="root" verbose="False">
+    </TreeCorrelator>
+
+    <Timing>
+        <Physical>
+            <NeutronMass unit="MeV/c/c" value="939.565560"/>
+            <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+            <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+            <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+            <SmallLength unit="cm" value="60.0"/>
+            <MediumLength unit="cm" value="120.0"/>
+            <BigLength unit="cm" value="200.0"/>
+        </Physical>
+
+        <Trace>
+            <WaveformLow unit="sample" value="5.0"/>
+            <WaveformHigh unit="sample" value="10.0"/>
+            <DiscriminationStart unit="sample" value="3"/>
+            <TrapezoidalWalk unit="ns" value="60"/>
+            <TraceDelay unit="ns" value="112"/>
+            <TraceLength unit="ns" value="176"/>
+            <QdcCompression value="4.0"/>
+        </Trace>
+
+        <Fitting>
+            <SigmaBaselineThresh value="3.0"/>
+            <Vandle>
+                <Beta value="0.32969"/>
+                <Gamma value="0.212945"/>
+            </Vandle>
+            <Start>
+                <Beta value="0.574531"/>
+                <Gamma value="0.274512"/>
+            </Start>
+            <Pulser>
+                <Beta value="0.32969"/>
+                <Gamma value="0.212945"/>
+            </Pulser>
+            <TVandle>
+                <Beta value="0.32969"/>
+                <Gamma value="0.212945"/>
+            </TVandle>
+            <LiquidScint>
+                <Beta value="4.52672"/>
+                <Gamma value="1.73376"/>
+            </LiquidScint>
+            <SiPMT>
+                <Sigma value="1.4196495999"/>
+            </SiPMT>
+        </Fitting>
+    </Timing>
+
+    <Notebook file="notes.txt" mode="r"/>
+
+</Configuration>
