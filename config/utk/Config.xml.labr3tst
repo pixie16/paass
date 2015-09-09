@@ -28,6 +28,10 @@
     <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
         <Module number="0">
             <Channel number="0" type="labr3" subtype="r6231_100"></Channel>
+            <Channel number="1" type="tvandle" subtype="single"></Channel>
+        </Module>
+        <Module number="1">
+            <Channel number="0" type="ignore" subtype="ignore"></Channel>
         </Module>
     </Map>
 
@@ -61,14 +65,14 @@
                 <Low unit="sample" value="5"/>
                 <High unit="sample" value="5"/>
             </SiPmtWaveformRange>
-            <LaBr3WaveformRaange>
+            <LaBr3WaveformRange>
                 <Low unit="sample" value="10"/>
                 <High unit="sample" value="15"/>
-            </LaBr3WaveformRaange>
+            </LaBr3WaveformRange>
             <DiscriminationStart unit="sample" value="3"/>
-            <TrapezoidalWalk unit="ns" value="266"/>
-            <TraceDelay unit="ns" value="344"/>
-            <TraceLength unit="ns" value="496"/>
+            <TrapezoidalWalk unit="ns" value="60"/>
+            <TraceDelay unit="ns" value="248"/>
+            <TraceLength unit="ns" value="1000/>
             <QdcCompression value="4.0"/>
         </Trace>
 
