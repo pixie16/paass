@@ -17,6 +17,11 @@ config/cfgs
 optional
 ValgrindOut.xml
 
+#Compressed Files
+*.bz2
+*.tgz
+*.tar.gz
+
 #DAMM files
 *.drr
 *.his
