@@ -98,7 +98,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = include src doc/doxyPages
+INPUT                  = include src/* doc/doxyPages
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.c *.cpp *.d *.hpp *.h *.f *.dox
 RECURSIVE              = NO
