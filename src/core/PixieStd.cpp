@@ -277,7 +277,7 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw) {
             MakeModuleData(totData, dataWords, maxWords);
         } // else the number of buffers is complete
         dataWords = 0; bufInSpill = 0; lastBuf = -1; // reset the number of buffers recorded
-    } while (totWords < nhw[0] / 4);
+    } while (totWords < nhw[0] / 2);
 }
 
 /** \brief inserts a delimiter in between individual module data and at end of
