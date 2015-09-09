@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+
+    <Author>
+        <Name>S. V. Paulauskas</Name>
+        <Email>spaulaus@utk.edu</Email>
+        <Date>Jan 2013</Date>
+    </Author>
+
+    <Description>
+        LeRIBSS 2011 73Cu experiment, 4 Clovers, 2 Beta scitilators, MTC
+    </Description>
+
+    <Global>
+        <Revision version="D"/>
+        <EventWidth unit="s" value="1e-6"/>
+        <EnergyContraction value="4.0"/>
+        <Path>config/</Path>
+    </Global>
+
+    <DetectorDriver>
+        <Processor name="GeProcessor"
+            gamma_threshold="20.0"
+            low_ratio="1.5"
+            high_ratio="3.0"
+            sub_event="100e-9"
+            gamma_beta_limit="100e-9"
+            gamma_gamma_limit="200e-9"
+            cycle_gate1_min="1.0"
+            cycle_gate1_max="1.5"
+            cycle_gate2_min="1.5"
+            cycle_gate2_max="2.0"
+        />
+        <Processor name="MtcProcessor"
+            double_stop="True"
+            double_start="True"/>
+        <Processor name="BetaScintProcessor"
+                   gamma_beta_limit="200e-9"
+                   energy_contraction="2"/>
+    </DetectorDriver>
+
+    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+        <Module number="0">
+            <Channel number="0" type="ge" subtype="clover_high">
+                <Calibration model="quadratic" max="8000">
+                     -0.0410458 0.158681 -2.45914e-09
+                </Calibration>
+                <WalkCorrection model="B1" max="100">
+                    118.482 -2.66767 0.028492 -0.00107801 -40.2608 12.5426 3.84917
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="100">
+                    11.2287 -0.000939443 38.8912 -0.121784 0.00268339 180.146
+                </WalkCorrection>
+            </Channel>
+            <Channel number="1" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="8000">
+                     -0.0252445 0.158215 -1.33936e-09
+                </Calibration>
+                <WalkCorrection model="B1" max="100">
+                    118.482 -2.66767 0.028492 -0.00107801 -40.2608 12.5426 3.84917
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="100">
+                    11.2287 -0.000939443 38.8912 -0.121784 0.00268339 180.146
+                </WalkCorrection>
+            </Channel>
+            <Channel number="2" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="8000">
+                    0.0737644 0.160355 -2.52812e-09
+                </Calibration>
+                <WalkCorrection model="B1" max="100">
+                    118.482 -2.66767 0.028492 -0.00107801 -40.2608 12.5426 3.84917
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="100">
+                    11.2287 -0.000939443 38.8912 -0.121784 0.00268339 180.146
+                </WalkCorrection>
+            </Channel>
+            <Channel number="3" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="8000">
+                    0.169984 0.155906 -4.87182e-09
+                </Calibration>
+                <WalkCorrection model="B1" max="100">
+                    118.482 -2.66767 0.028492 -0.00107801 -40.2608 12.5426 3.84917
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="100">
+                    11.2287 -0.000939443 38.8912 -0.121784 0.00268339 180.146
+                </WalkCorrection>
+            </Channel>
+            <Channel number="4" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="8000">
+                    0.159487 0.171309 -3.38772e-09
+                </Calibration>
+                <WalkCorrection model="B1" max="100">
+                    118.482 -2.66767 0.028492 -0.00107801 -40.2608 12.5426 3.84917
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="100">
+                    11.2287 -0.000939443 38.8912 -0.121784 0.00268339 180.146
+                </WalkCorrection>
+            </Channel>
+            <Channel number="5" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="8000">
+                     0.28032 0.166891 -4.71184e-09
+                </Calibration>
+                <WalkCorrection model="B1" max="100">
+                    118.482 -2.66767 0.028492 -0.00107801 -40.2608 12.5426 3.84917
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="100">
+                    11.2287 -0.000939443 38.8912 -0.121784 0.00268339 180.146
+                </WalkCorrection>
+            </Channel>
+            <Channel number="6" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="8000">
+                    0.173055 0.153894 -5.02094e-09
+                </Calibration>
+                <WalkCorrection model="B1" max="100">
+                    118.482 -2.66767 0.028492 -0.00107801 -40.2608 12.5426 3.84917
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="100">
+                    11.2287 -0.000939443 38.8912 -0.121784 0.00268339 180.146
+                </WalkCorrection>
+            </Channel>
+            <Channel number="7" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="8000">
+                    0.225098 0.154592 -1.28893e-09
+                </Calibration>
+                <WalkCorrection model="B1" max="100">
+                    118.482 -2.66767 0.028492 -0.00107801 -40.2608 12.5426 3.84917
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="100">
+                    11.2287 -0.000939443 38.8912 -0.121784 0.00268339 180.146
+                </WalkCorrection>
+            </Channel>
+            <Channel number="8" type="ge" subtype="clover_high">
+                <Calibration model="quadratic" max="8000">
+                    0.34427 0.161937 -3.17173e-09
+                </Calibration>
+                <WalkCorrection model="B1" max="100">
+                    118.482 -2.66767 0.028492 -0.00107801 -40.2608 12.5426 3.84917
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="100">
+                    11.2287 -0.000939443 38.8912 -0.121784 0.00268339 180.146
+                </WalkCorrection>
+            </Channel>
+            <Channel number="9" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="8000">
+                    0.179278 0.163335 1.88347e-09
+                </Calibration>
+                <WalkCorrection model="B1" max="100">
+                    118.482 -2.66767 0.028492 -0.00107801 -40.2608 12.5426 3.84917
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="100">
+                    11.2287 -0.000939443 38.8912 -0.121784 0.00268339 180.146
+                </WalkCorrection>
+            </Channel>
+            <Channel number="10" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="8000">
+                    0.260267 0.16247 -1.40996e-10
+                </Calibration>
+                <WalkCorrection model="B1" max="100">
+                    118.482 -2.66767 0.028492 -0.00107801 -40.2608 12.5426 3.84917
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="100">
+                    11.2287 -0.000939443 38.8912 -0.121784 0.00268339 180.146
+                </WalkCorrection>
+            </Channel>
+            <Channel number="11" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="8000">
+                    0.307523 0.163955 8.05498e-10
+                </Calibration>
+                <WalkCorrection model="B1" max="100">
+                    118.482 -2.66767 0.028492 -0.00107801 -40.2608 12.5426 3.84917
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="100">
+                    11.2287 -0.000939443 38.8912 -0.121784 0.00268339 180.146
+                </WalkCorrection>
+            </Channel>
+        </Module>
+
+        <Module number="2">
+            <Channel number="0" type="beta_scint" subtype="beta">
+                <Calibration model="linear">
+                    0.0 0.438
+                </Calibration>
+            </Channel>
+
+            <Channel number="1" type="beta_scint" subtype="beta">
+                <Calibration model="linear">
+                    0.0 0.606
+                </Calibration>
+            </Channel>
+            <Channel number="2" type="mtc" subtype="beam_start">
+            </Channel>
+            <Channel number="3" type="mtc" subtype="beam_stop">
+            </Channel>
+            <Channel number="4" type="mtc" subtype="start">
+            </Channel>
+            <Channel number="5" type="mtc" subtype="stop">
+            </Channel>
+        </Module>
+    </Map>
+
+    <TreeCorrelator name="root" verbose="False">
+        <Place type="PlaceOR" name="Beta" fifo="10">
+            <Place type="PlaceThreshold" name="beta_scint_beta_0-1"
+                low_limit="10.0" high_limit="16382" fifo="5"
+                replace="true"/>
+        </Place>
+
+        <Place type="PlaceOR" name="Gamma">
+            <Place type="PlaceOR" name="Clover0">
+                <Place type="PlaceThreshold" name="ge_clover_high_0-3"
+                    low_limit="20.0" high_limit="99999"
+                    replace="true"/>
+            </Place>
+            <Place type="PlaceOR" name="Clover1">
+                <Place type="PlaceThreshold" name="ge_clover_high_4-7"
+                    low_limit="20.0" high_limit="99999"
+                    replace="true"/>
+            </Place>
+            <Place type="PlaceOR" name="Clover2">
+                <Place type="PlaceThreshold" name="ge_clover_high_8-11"
+                    low_limit="20.0" high_limit="99999"
+                    replace="true"/>
+            </Place>
+        </Place>
+
+        <Place type="PlaceAND" name="GammaWOBeta">
+            <Place type="" name="Gamma" coincidence="true"/>
+            <Place type="" name="Beta" fifo="10" coincidence="false"/>
+        </Place>
+
+        <Place type="PlaceDetector" name="TapeMove" reset="false"/>
+        <Place type="PlaceDetector" name="Beam" reset="false"/>
+        <Place type="PlaceDetector" name="Cycle" reset="false"/>
+    </TreeCorrelator>
+
+    <!--
+    <GammaGates>
+        <Gate>
+            <Line min="115" max="120"/>
+            <Line min="240" max="244"/>
+        </Gate>
+        <Gate>
+            <Line min="115" max="120"/>
+            <Line min="245" max="249"/>
+        </Gate>
+        <Gate>
+            <Line min="115" max="118"/>
+            <Line min="237" max="240"/>
+        </Gate>
+        <Gate>
+            <Line min="115" max="118"/>
+            <Line min="232" max="235"/>
+        </Gate>
+        <Gate>
+            <Line min="251" max="256"/>
+            <Line min="251" max="256"/>
+        </Gate>
+        <Gate>
+            <Line min="251" max="256"/>
+            <Line min="180" max="184"/>
+        </Gate>
+        <Gate>
+            <Line min="251" max="256"/>
+            <Line min="2347" max="2354"/>
+        </Gate>
+    </GammaGates>
+    -->
+    <Notebook file="notes.txt" mode="r"/>
+
+</Configuration>

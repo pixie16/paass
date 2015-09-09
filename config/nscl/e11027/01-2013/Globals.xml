@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Globals>
+  <!-- BEGIN ANALYZERS -->
+  <analyzers>
+    <doubleTrc>
+      <pulseLimit>50</pulseLimit>
+    </doubleTrc>
+
+    <filterer>
+      <!-- TO BE USED WITH MAGIC +40 ENERGY SAMPLE LOCATION;
+           multiply the energy filter sums by this to gain 
+           match to raw spectra. Commented Number: 2.547 -->
+      <energyScaleFactor>2.198</energyScaleFactor> 
+      <maxTraceLength>6400</maxTraceLength>
+      <baselineBins>30</baselineBins>
+    </filterer>
+    
+    <fitting>
+      <beta>
+        <beta>0.574531</beta>
+        <gamma>0.274512</gamma>
+      </beta>
+      
+      <default>
+        <beta>0.32969</beta>
+        <gamma>0.212945</gamma>
+      </default>
+      
+      <liquid>
+        <beta>4.52672</beta>
+        <gamma>1.73376</gamma>
+      </liquid>
+      
+      <pulser>
+        <beta>0.832272</beta>
+        <gamma>0.236425</gamma>
+      </pulser>
+      
+      <tvandle>
+        <beta>0.362307</beta>
+        <gamma>0.186129</gamma>
+      </tvandle>
+      
+      <vandle>
+        <beta>0.32969</beta>
+        <gamma>0.212945</gamma>
+      </vandle>
+    </fitting>
+
+    <spt>
+      <pulser>
+        <sigma>0.102</sigma>
+        <amp>1904.293314</amp>
+      </pulser>
+      <default>
+        <sigma>0.039185</sigma>
+        <amp>1997.157</amp>
+      </default>
+      <test>
+        <sigma>0.166597</sigma>
+        <amp>1816.27</amp>      
+      </test>
+    </spt>
+
+    <waveform>
+      <low> 5.56577 </low>
+      <high> 10.0 </high>
+      <discrimBegin> 3.0 </discrimBegin>
+      <trapWalk> 60 </trapWalk>
+      <aveQdcOneVolt> 6226.55 </aveQdcOneVolt>
+      <leribss>
+        <!-- For Tvandle and LeRIBSS; times in ns -->
+        <traceDelay> 112 </traceDelay>
+        <traceLength> 176 </traceLength>
+      </leribss>
+      <pulser>
+        <!-- For Pulser Data; times in ns -->
+        <traceDelay> 4000 </traceDelay>
+        <traceLength> 8000 </traceLength>
+      </pulser>
+    </waveform>
+  </analyzers>
+  <!-- END ANALYZERS -->
+
+  <correlator>
+    <minImpTime>5e-3</minImpTime>
+    <corrTime>60</corrTime> <!-- used to be 3300 -->
+    <fastTime>40e-6</fastTime>
+    <printTimeRes>1e-3</printTimeRes>
+  </correlator>
+  
+  <!-- BEGIN PROCESSOR LISTS -->
+  <processors>
+    <beta>
+      <threshold> 10.0 </threshold>
+    </beta>
+    
+    <dssd>
+      <cutoffEnergy>4500</cutoffEnergy>
+    </dssd>
+    
+    <ge>
+      <addbackEnergyCut> 25 </addbackEnergyCut>
+      <gammaBetaLimit> 200e-9 </gammaBetaLimit>
+      <highRatio>3.0</highRatio>
+      <lowRatio>1.5</lowRatio>
+      <subEventWindow> 100e-9 </subEventWindow>
+      <threshold> 10.0 </threshold>
+    </ge>
+    
+    <hen3>
+      <neutronLowLimit>2500.0 </neutronLowLimit>
+      <neutronHighLimit> 3400.0 </neutronHighLimit>
+    </hen3>
+
+    <implantSsd>
+      <cutoffEnergy>1500</cutoffEnergy>
+      <fissionThresh>4400</fissionThresh>
+      <goodAlphaCut>950</goodAlphaCut>
+      <implantTof>2800</implantTof>
+    </implantSsd>
+
+    <ionChamber>
+      <minTime>18.0e-6</minTime>
+    </ionChamber>
+
+    <liquid>
+      <res>2</res> <!-- 500ps/bin -->
+      <offset>2000</offset>
+    </liquid>
+    
+    <litePosition>
+      <timeCut>5.0</timeCut> <!-- maximum dif btwn edge and sum -->
+    </litePosition>
+
+    <logic>
+      <res0>10e-6</res0>
+      <res1>1e-3</res1>
+    </logic>
+
+    <mtc>
+      <res>10e-3</res>
+      <evtRes>100e-3</evtRes>
+    </mtc>
+
+    <pulser>
+      <resMult>50</resMult> <!-- 20ps/bin -->
+      <resOffset>2000</resOffset>
+    </pulser>
+
+    <vandle>
+      <small>
+        <c> 12.65822 </c>
+        <length> 60.0 </length>
+      </small>
+      <big>
+        <c> 15.22998 </c>
+        <length> 200.0 </length>
+      </big>
+    </vandle>
+  </processors> 
+  <!-- END PROCESSOR LIST -->
+  
+  <misc>
+    <emptyString> </emptyString> <!-- a default blank string -->
+    <emptyValue>-9999</emptyValue> <!-- a default number -->
+    <maxConfigLineLength>100</maxConfigLineLength>
+    <maxPar>32000</maxPar>
+    <u_delimiter>-1</u_delimiter>
+  </misc>
+
+  <physical>
+    <c>29.9792458</c>
+    <massNeutron>939.565560</massNeutron>
+  </physical>
+  
+  <pixie>
+    <revd>
+      <adcClockInSeconds>10e-9</adcClockInSeconds>
+      <clockInSeconds>10e-9</clockInSeconds>
+      <filterClockInSeconds>10e-9</filterClockInSeconds>
+    </revd>
+    <revf>
+      <adcClockInSeconds>4e-9</adcClockInSeconds>
+      <clockInSeconds>8e-9</clockInSeconds>
+      <filterClockInSeconds>8e-9</filterClockInSeconds>
+    </revf>
+
+    <clockVsn>1000</clockVsn> <!-- arbitrary vsn used to pass clock data -->
+    <energyContraction>1.0</energyContraction>
+    <eventInSeconds>3e-6</eventInSeconds>
+    <numberOfChannels>16 </numberOfChannels>
+    <u_delimiter>-1</u_delimiter>
+  </pixie>
+
+  <readbuff>
+    <stats> -10 </stats>
+    <error> -100 </error>
+  </readbuff>
+
+  <verbose>
+    <calibrationInit>0</calibrationInit>
+    <correlatorInit>0</correlatorInit>
+    <mapInit>0</mapInit>
+  </verbose>
+</Globals>
