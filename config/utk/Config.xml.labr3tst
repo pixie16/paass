@@ -3,17 +3,11 @@
     <Author>
         <Name>S. V. Paulauskas</Name>
         <Email>stanpaulauskas AT gmail DOT com</Email>
-        <Date>July 17, 2015</Date>
+        <Date>September 09, 2015</Date>
     </Author>
 
     <Description>
-        This file is the base file for the VANDLE @ ISOLDE experiment. The
-	ISOLDE Experiment numbers 599 and 600 can be analyzed using this
-	configuration file.
-
-        I have also used some of the configuration settings from the VANDLE @
-        LeRIBSS configuration to do preliminary setup of the clovers and
-        logic signals.
+        Configuration file to do tests of LaBr3 detectors at UTK.
     </Description>
 
     <Global>
@@ -34,6 +28,7 @@
     <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
         <Module number="0">
             <Channel number="0" type="labr3" subtype="r6231_100"></Channel>
+        </Module>
     </Map>
 
     <TreeCorrelator name="root" verbose="False">
