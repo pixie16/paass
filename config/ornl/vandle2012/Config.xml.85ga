@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>Krzysztof Miernik</Name>
+        <Email>k.a.miernik@gmail.com</Email>
+        <Date>Jan 2013</Date>
+    </Author>
+
+    <Description>LeRIBSS 2012, 3Hen hybrid, 2 Clovers</Description>
+
+    <Global>
+        <Revision version="F"/>
+        <EventWidth unit="s" value="100e-6"/>
+        <EnergyContraction value="1.0"/>
+        <Path>config/</Path>
+    </Global>
+
+    <DetectorDriver>
+        <Processor name="Ge4Hen3Processor"
+            gamma_threshold="20.0"
+            low_ratio="1.5"
+            high_ratio="3.0"
+            sub_event="100e-9"
+            gamma_beta_limit="200e-9"
+            gamma_gamma_limit="200e-9"
+            cycle_gate1_min="2.0"
+            cycle_gate1_max="2.2"
+            cycle_gate2_min="2.5"
+            cycle_gate2_max="3.0"
+            />
+        <!--
+        <Processor name="GeCalibProcessor" />
+        -->
+        <Processor name="Hen3Processor" />
+        <Processor name="MtcProcessor"
+                   double_stop="True"
+                   double_start="False"/>
+        <Processor name="Beta4Hen3Processor"
+                   gamma_beta_limit="200e-9"
+                   energy_contraction="10"/>
+    </DetectorDriver>
+
+    <Map verbose_calibration="False"
+         verbose_map="False"
+         verbose_walk="False">
+
+        <Module number="0">
+            <Channel number="0" type="beta_scint" subtype="beta">
+                <Calibration model="linear" max="32000">
+                    0.0 0.6793
+                </Calibration>
+            </Channel>
+            <Channel number="1" type="beta_scint" subtype="beta">
+                <Calibration model="linear" max="32000">
+                    0.0 0.5682
+                </Calibration>
+            </Channel>
+        </Module>
+
+        <Module number="1">
+            <Channel number="0" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="1" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="2" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="3" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="4" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="5" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="6" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="7" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="8" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="9" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="10" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="11" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="12" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="13" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="14" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="15" type="3hen" subtype="big">
+            </Channel>
+        </Module>
+
+        <Module number="2">
+            <Channel number="0" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="1" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="2" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="3" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="4" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="5" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="6" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="7" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="8" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="9" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="10" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="11" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="12" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="13" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="14" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="15" type="3hen" subtype="big">
+            </Channel>
+        </Module>
+
+        <Module number="3">
+            <Channel number="0" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="1" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="2" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="3" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="4" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="5" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="6" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="7" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="8" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="9" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="10" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="11" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="12" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="13" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="14" type="3hen" subtype="big">
+            </Channel>
+            <Channel number="15" type="3hen" subtype="big">
+            </Channel>
+        </Module>
+
+        <Module number="7">
+            <Channel number="0" type="ge" subtype="clover_high" location="0">
+                <Calibration model="quadratic" max="32000">
+                    0.086992	0.319588	-3.675986E-08
+                </Calibration>
+                <WalkCorrection model="A">
+                    2.322 12487.727 432.257 19.268 140.189
+                </WalkCorrection>
+            </Channel>
+            <Channel number="1" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="32000">
+                    0.142493	0.326087	3.178130E-08
+                </Calibration>
+                <WalkCorrection model="A">
+                    0.842 12045.038 220.986 -6.722 718.471
+                </WalkCorrection>
+            </Channel>
+            <Channel number="2" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="32000">
+                    0.442061	0.312095	4.875620E-09
+                </Calibration>
+                <WalkCorrection model="A">
+                    2.520 10952.359 268.669 69.013 29.365
+                </WalkCorrection>
+            </Channel>
+            <Channel number="3" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="32000">
+                    0.154337	0.318064	6.233731E-09
+                </Calibration>
+                <WalkCorrection model="A">
+                    2.105 10933.306 184.975 -8.805 281.461
+                </WalkCorrection>
+            </Channel>
+            <Channel number="4" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="32000">
+                    0.542650	0.317998	6.257455E-08
+                </Calibration>
+                <WalkCorrection model="A">
+                    2.112 12596.448 413.154 55.298 78.472
+                </WalkCorrection>
+            </Channel>
+            <Channel number="5" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="32000">
+                    0.027471	0.321558	2.930330E-08
+                </Calibration>
+                <WalkCorrection model="A">
+                    1.937 11868.892 284.199 44.532 61.956
+                </WalkCorrection>
+            </Channel>
+            <Channel number="6" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="32000">
+                    0.692124	0.317359	4.439416E-08
+                </Calibration>
+                <WalkCorrection model="A">
+                    2.202 13499.672 495.552 67.810 75.525
+                </WalkCorrection>
+            </Channel>
+            <Channel number="7" type="ge" subtype="clover_high" >
+                <Calibration model="quadratic" max="32000">
+                    0.570474	0.321462	4.993727E-08
+                </Calibration>
+                <WalkCorrection model="A">
+                    2.453 12188.499 288.695 44.785 64.330
+                </WalkCorrection>
+            </Channel>
+            <Channel number="8" type="mtc" subtype="beam_stop">
+            </Channel>
+            <Channel number="9" type="mtc" subtype="beam_start">
+            </Channel>
+            <Channel number="10" type="mtc" subtype="start">
+            </Channel>
+            <Channel number="11" type="mtc" subtype="stop">
+            </Channel>
+        </Module>
+    </Map>
+
+    <TreeCorrelator name="root" verbose="False">
+
+        <Place type="PlaceAND" name="GammaBeta">
+            <Place type="PlaceOR" name="Beta" fifo="20">
+                <Place type="PlaceThreshold" name="beta_scint_beta_0-1"
+                    low_limit="1500.0" high_limit="99999" fifo="10"
+                    replace="true"/>
+            </Place>
+            <Place type="PlaceOR" name="Gamma" fifo="40">
+                <Place type="PlaceOR" name="Clover0" fifo="20">
+                    <Place type="PlaceThreshold" name="ge_clover_high_0-3"
+                        low_limit="20.0" high_limit="99999" fifo="5"
+                        replace="true"/>
+                </Place>
+                <Place type="PlaceOR" name="Clover1" fifo="20">
+                    <Place type="PlaceThreshold" name="ge_clover_high_4-7"
+                        low_limit="20.0" high_limit="99999" fifo="5"
+                        replace="true"/>
+                </Place>
+            </Place>
+        </Place>
+
+        <Place type="PlaceDetector" name="TapeMove" reset="false"/>
+        <Place type="PlaceDetector" name="Beam" reset="false"/>
+        <Place type="PlaceDetector" name="Cycle" reset="false" init="true"/>
+
+        <Place type="PlaceCounter" name="Hen3">
+            <Place type="" name="3hen_big_0-47"/>
+        </Place>
+
+        <Place type="PlaceCounter" name="Neutrons">
+            <Place type="PlaceThreshold" name="Neutron_0-48"
+                   low_limit="2500.0" high_limit="3400.0"/>
+        </Place>
+
+    </TreeCorrelator>
+
+    <GammaGates>
+            <Gate>
+                <Line min="622" max="626"/>
+                <Line min="761" max="766"/>
+            </Gate>
+            <Gate>
+                <Line min="622" max="626"/>
+                <Line min="770" max="776"/>
+            </Gate>
+            <Gate>
+                <Line min="622" max="626"/>
+                <Line min="802" max="807"/>
+            </Gate>
+            <Gate>
+                <Line min="622" max="626"/>
+                <Line min="810" max="815"/>
+            </Gate>
+    </GammaGates>
+
+    <Notebook file='85ga_notes.txt' mode='a'/>
+
+</Configuration>

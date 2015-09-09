@@ -1,0 +1,760 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>S. V. Paulauskas</Name>
+        <Email>stanpaulauskas AT gmail DOT com</Email>
+        <Date>December 2014</Date>
+    </Author>
+
+    <Description>
+        LeRIBSS 2012 VANDLE experiment, 48 VANDLE Bars, 2 Clovers,
+        2 Beta scintillators, MTC
+        This configuration file works for the following files:
+        leribss2012/negativeIons/a077/vandle_a77_0{1-4}.ldf
+    </Description>
+
+    <Global>
+        <Revision version="F"/>
+        <EventWidth unit="s" value="1e-6"/>
+        <EnergyContraction value="4.0"/>
+        <Path>config/</Path>
+        <NumOfTraces value="50"/>
+    </Global>
+
+    <DetectorDriver>
+        <Analyzer name="WaveformAnalyzer"/>
+        <Analyzer name="FittingAnalyzer"/>
+        <Processor name="GeProcessor"
+            gamma_threshold="20.0"
+            low_ratio="1.5"
+            high_ratio="3.0"
+            sub_event="100e-9"
+            gamma_beta_limit="100e-9"
+            gamma_gamma_limit="200e-9"
+            cycle_gate1_min="1.0"
+            cycle_gate1_max="1.5"
+            cycle_gate2_min="1.5"
+            cycle_gate2_max="2.0"
+        />
+        <Processor name="VandleAtLeribssProcessor"
+            types="small" res="2" offset="200" numStarts="2"/>
+        <Processor name="MtcProcessor"
+            double_stop="True"
+            double_start="True"/>
+        <Processor name="BetaScintProcessor"
+                   gamma_beta_limit="200e-9"
+                   energy_contraction="1"/>
+    </DetectorDriver>
+
+    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+        <Module number="0">
+            <Channel number="0" type="beta_scint" subtype="beta" tags="start">
+                <Calibration model="raw"> </Calibration>
+            </Channel>
+            <Channel number="1" type="beta_scint" subtype="beta" tags="start">
+                <Calibration model="raw"> </Calibration>
+            </Channel>
+            <Channel number="2" type="beta_scint" subtype="beta">
+                <Calibration model="raw"> </Calibration>
+            </Channel>
+            <Channel number="3" type="beta_scint" subtype="beta">
+                <Calibration model="raw"> </Calibration>
+            </Channel>
+        </Module>
+        <Module number="1">
+            <Channel number="0" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="1" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="2" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="3" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="4" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="5" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="6" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="7" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="8" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="9" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="10" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="11" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="12" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="13" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="14" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="15" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+        </Module>
+        <Module number="2">
+            <Channel number="0" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="1" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="2" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="3" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="4" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="5" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="6" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="7" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="8" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="9" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="10" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="11" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="12" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="13" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="14" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="15" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+        </Module>
+        <Module number="3">
+            <Channel number="0" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="1" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="2" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="3" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="4" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="5" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="6" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="7" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="8" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="9" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="10" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="11" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="12" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="13" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="14" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="15" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+        </Module>
+        <Module number="4">
+            <Channel number="0" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="1" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="2" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="3" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="4" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="5" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="6" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="7" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="8" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="9" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="10" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="11" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="12" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="13" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="14" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="15" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+        </Module>
+        <Module number="5">
+            <Channel number="0" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="1" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="2" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="3" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="4" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="5" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="6" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="7" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="8" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="9" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="10" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="11" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="12" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="13" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="14" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="15" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+        </Module>
+        <Module number="6">
+            <Channel number="0" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="1" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="2" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="3" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="4" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="5" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="6" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="7" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="8" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="9" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="10" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="11" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="12" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="13" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="14" type="vandle" subtype="small" tags="left">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="15" type="vandle" subtype="small" tags="right">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+        </Module>
+        <Module number="7">
+            <Channel number="0" type="ge" subtype="clover_high">
+                <Calibration model="cubic" max="8000">
+                    -0.672267  1.25661  -3.98835e-06  1.02652e-09
+                </Calibration>
+                <WalkCorrection model="B1" max="1000">
+                    14.415 20.195 1542.630 305.285
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="1000">
+                    8.765 12.501 1316.259
+                </WalkCorrection>
+            </Channel>
+            <Channel number="1" type="ge" subtype="clover_high" >
+                <Calibration model="cubic" max="8000">
+                     0.168046  1.2715    8.17554e-07 -9.50104e-11
+                </Calibration>
+                <WalkCorrection model="B1" max="1000">
+                    12.783 21.736 1526.242 323.768
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="1000">
+                    7.615 11.741 1516.617
+                </WalkCorrection>
+            </Channel>
+            <Channel number="2" type="ge" subtype="clover_high" >
+                <Calibration model="cubic" max="8000">
+                    -0.125675  1.27038  -3.85722e-07  2.46236e-10
+                </Calibration>
+                <WalkCorrection model="B1" max="1000">
+                    -10.000 28.051 2205.365 3225.258
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="1000">
+                    5.806 10.760 2216.587
+                </WalkCorrection>
+            </Channel>
+            <Channel number="3" type="ge" subtype="clover_high" >
+                <Calibration model="cubic" max="8000">
+                    -0.414085  1.27556  -2.04997e-06  6.82541e-10
+                </Calibration>
+                <WalkCorrection model="B1" max="1000">
+                    13.654 20.513 1536.986 322.804
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="1000">
+                    7.975 11.585 1758.705
+                </WalkCorrection>
+            </Channel>
+            <Channel number="4" type="ge" subtype="clover_high" >
+                <Calibration model="cubic" max="8000">
+                    -1.39455   1.28933  -3.00506e-06  1.06933e-09
+                </Calibration>
+                <WalkCorrection model="B1" max="1000">
+                    14.509 13.615 1986.171 379.228
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="1000">
+                    8.597 13.192 1579.832
+                </WalkCorrection>
+            </Channel>
+            <Channel number="5" type="ge" subtype="clover_high" >
+                <Calibration model="cubic" max="8000">
+                    -1.27405   1.31786  -6.3995e-06   2.21588e-09
+                </Calibration>
+                <WalkCorrection model="B1" max="1000">
+                    13.071 15.834 1906.134 313.287
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="1000">
+                    5.134 11.882 2630.379
+                </WalkCorrection>
+            </Channel>
+            <Channel number="6" type="ge" subtype="clover_high" >
+                <Calibration model="cubic" max="8000">
+                    -0.0334172 1.23702   1.28869e-06 -1.57839e-10
+                </Calibration>
+                <WalkCorrection model="B1" max="1000">
+                    14.437 17.463 1760.453 341.821
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="1000">
+                    7.080 13.158 2266.774
+                </WalkCorrection>
+            </Channel>
+            <Channel number="7" type="ge" subtype="clover_high" >
+                <Calibration model="cubic" max="8000">
+                     0.871978  1.27352   4.63096e-06 -1.18486e-09
+                </Calibration>
+                <WalkCorrection model="B1" max="1000">
+                    13.446 13.760 1956.073 499.302
+                </WalkCorrection>
+                <WalkCorrection model="B2" min="1000">
+                    7.078 13.554 2161.745
+                </WalkCorrection>
+            </Channel>
+            <Channel number="8" type="mtc" subtype="beam_stop">
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="9" type="mtc" subtype="beam_start" >
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="10" type="mtc" subtype="start" >
+                <Calibration model="raw"></Calibration>
+            </Channel>
+            <Channel number="11" type="mtc" subtype="stop" >
+                <Calibration model="raw"></Calibration>
+            </Channel>
+        </Module>
+    </Map>
+
+    <TreeCorrelator name="root" verbose="False">
+        <Place type="PlaceOR" name="Beta" fifo="10">
+            <Place type="PlaceThreshold" name="beta_scint_beta_2-3"
+                low_limit="50.0" high_limit="16382" fifo="5"
+                replace="true"/>
+        </Place>
+
+        <Place type="PlaceOR" name="Gamma">
+            <Place type="PlaceOR" name="Clover0">
+                <Place type="PlaceThreshold" name="ge_clover_high_0-3"
+                    low_limit="20.0" high_limit="99999"
+                    replace="true"/>
+            </Place>
+            <Place type="PlaceOR" name="Clover1">
+                <Place type="PlaceThreshold" name="ge_clover_high_4-7"
+                    low_limit="20.0" high_limit="99999"
+                    replace="true"/>
+            </Place>
+        </Place>
+
+        <Place type="PlaceDetector" name="TapeMove" reset="false"/>
+        <Place type="PlaceDetector" name="Beam" reset="false"/>
+        <Place type="PlaceDetector" name="Cycle" reset="false"/>
+    </TreeCorrelator>
+
+    <TimeCalibration verbose_timing="False">
+        <Vandle>
+            <small>
+                <Bar number="0" lroffset="-5.37004" z0="50.5" xoffset="1.0" zoffset="0.00">
+                    <TofOffset location="0" offset="7.85036"/>
+                    <TofOffset location="1" offset="-.96079"/>
+                </Bar>
+                <Bar number="1" lroffset="-4.82467" z0="50.5" xoffset="-.9" zoffset="0.00">
+                    <TofOffset location="0" offset="4.86671"/>
+                    <TofOffset location="1" offset="-4.00334"/>
+                </Bar>
+                <Bar number="2" lroffset="-4.95127" z0="50.5" xoffset=".6" zoffset="0.00">
+                    <TofOffset location="0" offset="8.23850"/>
+                    <TofOffset location="1" offset="-.77715"/>
+                </Bar>
+                <Bar number="3" lroffset=".24323" z0="50.5" xoffset="-.6" zoffset="0.00">
+                    <TofOffset location="0" offset="3.12877"/>
+                    <TofOffset location="1" offset="-5.66844"/>
+                </Bar>
+                <Bar number="4" lroffset="-3.92053" z0="50.5" xoffset="-1.8" zoffset="0.00">
+                    <TofOffset location="0" offset="9.16653"/>
+                    <TofOffset location="1" offset=".17222"/>
+                </Bar>
+                <Bar number="5" lroffset="2.83851" z0="50.5" xoffset="-.8" zoffset="0.00">
+                    <TofOffset location="0" offset="4.64084"/>
+                    <TofOffset location="1" offset="-4.17148"/>
+                </Bar>
+                <Bar number="6" lroffset="-5.11594" z0="50.5" xoffset="-.1" zoffset="0.00">
+                    <TofOffset location="0" offset="3.87262"/>
+                    <TofOffset location="1" offset="-4.94669"/>
+                </Bar>
+                <Bar number="7" lroffset="3.84229" z0="50.5" xoffset="1.4" zoffset="0.00">
+                    <TofOffset location="0" offset="5.43687"/>
+                    <TofOffset location="1" offset="-3.19231"/>
+                </Bar>
+                <Bar number="8" lroffset="-4.37270" z0="50.5" xoffset="-1.6" zoffset="0.00">
+                    <TofOffset location="0" offset="10.52224"/>
+                    <TofOffset location="1" offset="1.85883"/>
+                </Bar>
+                <Bar number="9" lroffset="3.24161" z0="50.5" xoffset=".1" zoffset="0.00">
+                    <TofOffset location="0" offset="6.24706"/>
+                    <TofOffset location="1" offset="-2.45415"/>
+                </Bar>
+                <Bar number="10" lroffset="-3.68940" z0="50.5" xoffset="-.8" zoffset="0.00">
+                    <TofOffset location="0" offset="9.84118"/>
+                    <TofOffset location="1" offset="1.23679"/>
+                </Bar>
+                <Bar number="11" lroffset=".77271" z0="50.5" xoffset=".2" zoffset="0.00">
+                    <TofOffset location="0" offset="4.35228"/>
+                    <TofOffset location="1" offset="-4.39057"/>
+                </Bar>
+                <Bar number="12" lroffset="-11.55994" z0="50.5" xoffset=".3" zoffset="0.00">
+                    <TofOffset location="0" offset="6.91646"/>
+                    <TofOffset location="1" offset="-1.91552"/>
+                </Bar>
+                <Bar number="13" lroffset=".18131" z0="50.5" xoffset="-1.2" zoffset="0.00">
+                    <TofOffset location="0" offset="4.62271"/>
+                    <TofOffset location="1" offset="-4.12071"/>
+                </Bar>
+                <Bar number="14" lroffset="-9.23865" z0="50.5" xoffset="-.3" zoffset="0.00">
+                    <TofOffset location="0" offset="4.60523"/>
+                    <TofOffset location="1" offset="-4.11398"/>
+                </Bar>
+                <Bar number="15" lroffset="-4.54419" z0="50.5" xoffset="-.5" zoffset="0.00">
+                    <TofOffset location="0" offset="3.52893"/>
+                    <TofOffset location="1" offset="-5.24691"/>
+                </Bar>
+                <Bar number="16" lroffset="-8.71901" z0="50.5" xoffset=".4" zoffset="0.00">
+                    <TofOffset location="0" offset="4.88159"/>
+                    <TofOffset location="1" offset="-3.96542"/>
+                </Bar>
+                <Bar number="17" lroffset="-4.43896" z0="50.5" xoffset="-.7" zoffset="0.00">
+                    <TofOffset location="0" offset="4.30134"/>
+                    <TofOffset location="1" offset="-4.29641"/>
+                </Bar>
+                <Bar number="18" lroffset="-13.49760" z0="50.5" xoffset="-.6" zoffset="0.00">
+                    <TofOffset location="0" offset="8.12428"/>
+                    <TofOffset location="1" offset="-.69433"/>
+                </Bar>
+                <Bar number="19" lroffset="-4.76967" z0="50.5" xoffset=".3" zoffset="0.00">
+                    <TofOffset location="0" offset="6.53423"/>
+                    <TofOffset location="1" offset="-2.45407"/>
+                </Bar>
+                <Bar number="20" lroffset="-5.05202" z0="50.5" xoffset="-.7" zoffset="0.00">
+                    <TofOffset location="0" offset="3.30345"/>
+                    <TofOffset location="1" offset="-5.44698"/>
+                </Bar>
+                <Bar number="21" lroffset="-3.60801" z0="50.5" xoffset="1.3" zoffset="0.00">
+                    <TofOffset location="0" offset="7.86084"/>
+                    <TofOffset location="1" offset="-.76046"/>
+                </Bar>
+                <Bar number="22" lroffset="-.18371" z0="50.5" xoffset="-.2" zoffset="0.00">
+                    <TofOffset location="0" offset="6.05003"/>
+                    <TofOffset location="1" offset="-2.64727"/>
+                </Bar>
+                <Bar number="23" lroffset="-8.78817" z0="50.5" xoffset="-.4" zoffset="0.00">
+                    <TofOffset location="0" offset="5.41531"/>
+                    <TofOffset location="1" offset="-3.47597"/>
+                </Bar>
+                <Bar number="24" lroffset="-6.01075" z0="50.5" xoffset="1.2" zoffset="0.00">
+                    <TofOffset location="0" offset="7.17153"/>
+                    <TofOffset location="1" offset="-2.43449"/>
+                </Bar>
+                <Bar number="25" lroffset="-3.79727" z0="50.5" xoffset="-.2" zoffset="0.00">
+                    <TofOffset location="0" offset="5.73424"/>
+                    <TofOffset location="1" offset="-3.67807"/>
+                </Bar>
+                <Bar number="26" lroffset="-1.29323" z0="50.5" xoffset="1.9" zoffset="0.00">
+                    <TofOffset location="0" offset="9.22994"/>
+                    <TofOffset location="1" offset="-.30368"/>
+                </Bar>
+                <Bar number="27" lroffset="-3.92933" z0="50.5" xoffset="-.4" zoffset="0.00">
+                    <TofOffset location="0" offset="6.75088"/>
+                    <TofOffset location="1" offset="-2.88428"/>
+                </Bar>
+                <Bar number="28" lroffset="-7.44193" z0="50.5" xoffset=".5" zoffset="0.00">
+                    <TofOffset location="0" offset="4.90922"/>
+                    <TofOffset location="1" offset="-4.68837"/>
+                </Bar>
+                <Bar number="29" lroffset="-3.50608" z0="50.5" xoffset="2.7" zoffset="0.00">
+                    <TofOffset location="0" offset="6.08909"/>
+                    <TofOffset location="1" offset="-3.53887"/>
+                </Bar>
+                <Bar number="30" lroffset="-8.47110" z0="50.5" xoffset="2.6" zoffset="0.00">
+                    <TofOffset location="0" offset="6.74697"/>
+                    <TofOffset location="1" offset="-3.07168"/>
+                </Bar>
+                <Bar number="31" lroffset="-4.00247" z0="50.5" xoffset=".40" zoffset="0.00">
+                    <TofOffset location="0" offset="3.13753"/>
+                    <TofOffset location="1" offset="-6.62562"/>
+                </Bar>
+                <Bar number="32" lroffset="-7.67597" z0="50.5" xoffset="1.0" zoffset="0.00">
+                    <TofOffset location="0" offset="6.52640"/>
+                    <TofOffset location="1" offset="-3.27355"/>
+                </Bar>
+                <Bar number="33" lroffset="3.93806" z0="50.5" xoffset="-1.0" zoffset="0.00">
+                    <TofOffset location="0" offset="4.45630"/>
+                    <TofOffset location="1" offset="-5.47334"/>
+                </Bar>
+                <Bar number="34" lroffset="-.33036" z0="50.5" xoffset="1.0" zoffset="0.00">
+                    <TofOffset location="0" offset="7.62600"/>
+                    <TofOffset location="1" offset="-2.33160"/>
+                </Bar>
+                <Bar number="35" lroffset=".61312" z0="50.5" xoffset="-.40" zoffset="0.00">
+                    <TofOffset location="0" offset="8.28112"/>
+                    <TofOffset location="1" offset="-1.57643"/>
+                </Bar>
+                <Bar number="36" lroffset="-2.33986" z0="50.5" xoffset="0.0" zoffset="0.00">
+                    <TofOffset location="0" offset="7.87614"/>
+                    <TofOffset location="1" offset="-1.93331"/>
+                </Bar>
+                <Bar number="37" lroffset=".60696" z0="50.5" xoffset="1.2" zoffset="0.00">
+                    <TofOffset location="0" offset="7.84030"/>
+                    <TofOffset location="1" offset="-1.95629"/>
+                </Bar>
+                <Bar number="38" lroffset="1.16893" z0="50.5" xoffset="-1.0" zoffset="0.00">
+                    <TofOffset location="0" offset="7.74112"/>
+                    <TofOffset location="1" offset="-1.98878"/>
+                </Bar>
+                <Bar number="39" lroffset=".93457" z0="50.5" xoffset=".6" zoffset="0.00">
+                    <TofOffset location="0" offset="5.83395"/>
+                    <TofOffset location="1" offset="-3.92688"/>
+                </Bar>
+                <Bar number="40" lroffset="-7.98318" z0="50.5" xoffset="-2.1" zoffset="0.00">
+                    <TofOffset location="0" offset="8.91042"/>
+                    <TofOffset location="1" offset="-.93174"/>
+                </Bar>
+                <Bar number="41" lroffset="-6.84568" z0="50.5" xoffset=".7" zoffset="0.00">
+                    <TofOffset location="0" offset="6.88690"/>
+                    <TofOffset location="1" offset="-3.06373"/>
+                </Bar>
+                <Bar number="42" lroffset="-5.85197" z0="50.5" xoffset="0.00" zoffset="0.00">
+                    <TofOffset location="0" offset="6.86726"/>
+                    <TofOffset location="1" offset="-2.91161"/>
+                </Bar>
+                <Bar number="43" lroffset="-5.11901" z0="50.5" xoffset="-1.7" zoffset="0.00">
+                    <TofOffset location="0" offset="7.43586"/>
+                    <TofOffset location="1" offset="-2.23322"/>
+                </Bar>
+                <Bar number="44" lroffset="-5.23087" z0="50.5" xoffset="-2.9" zoffset="0.00">
+                    <TofOffset location="0" offset="8.54296"/>
+                    <TofOffset location="1" offset="-1.15486"/>
+                </Bar>
+                <Bar number="45" lroffset="3.54374" z0="50.5" xoffset="-1.8" zoffset="0.00">
+                    <TofOffset location="0" offset="7.11694"/>
+                    <TofOffset location="1" offset="-2.45397"/>
+                </Bar>
+                <Bar number="46" lroffset="-6.49303" z0="50.5" xoffset=".2" zoffset="0.00">
+                    <TofOffset location="0" offset="6.65269"/>
+                    <TofOffset location="1" offset="-3.03126"/>
+                </Bar>
+                <Bar number="47" lroffset="-1.44011" z0="50.5" xoffset="-1.2" zoffset="0.00">
+                    <TofOffset location="0" offset="4.35257"/>
+                    <TofOffset location="1" offset="-5.15192"/>
+                </Bar>
+            </small>
+        </Vandle>
+    </TimeCalibration>
+
+    <Timing>
+        <Physical>
+            <NeutronMass unit="MeV/c/c" value="939.565560"/>
+            <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+            <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+            <SmallLength unit="cm" value="60.0"/>
+            <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+            <BigLength unit="cm" value="200.0"/>
+            <SpeedOfLightMedium unit="cm/ns" value="13.4414"/>
+            <MediumLength unit="cm" value="120.0"/>
+        </Physical>
+        <Trace>
+            <WaveformRange>
+                <Low unit="sample" value="5"/>
+                <High unit="sample" value="10"/>
+            </WaveformRange>
+            <SiPmtWaveformRange>
+                <Low unit="sample" value="5"/>
+                <High unit="sample" value="5"/>
+            </SiPmtWaveformRange>
+            <DiscriminationStart unit="sample" value="3"/>
+            <TrapezoidalWalk unit="ns" value="60"/>
+            <TraceDelay unit="ns" value="122"/>
+            <TraceLength unit="ns" value="176"/>
+            <QdcCompression value="4.0"/>
+        </Trace>
+
+        <Fitting>
+            <SigmaBaselineThresh value="3.0"/>
+            <SiPmtSigmaBaselineThresh value = "25.0"/>
+            <Vandle>
+                <Small>
+                    <Beta value="0.32969"/>
+                    <Gamma value="0.212945"/>
+                </Small>
+                <Medium>
+                    <Beta value="0.254373"/>
+                    <Gamma value="0.208072"/>
+                </Medium>
+                <Big>
+                    <Beta value="0.32969"/>
+                    <Gamma value="0.212945"/>
+                </Big>
+                <TeenyVandle>
+                    <Beta value="0.362307"/>
+                    <Gamma value="0.186129"/>
+                </TeenyVandle>
+            </Vandle>
+            <SingleBeta>
+                <Beta value="0.574531"/>
+                <Gamma value="0.274512"/>
+            </SingleBeta>
+            <DoubleBeta>
+                <Gamma value="1.4196495999"/>
+            </DoubleBeta>
+            <Pulser>
+                <Beta value="0.832272"/>
+                <Gamma value="0.236525"/>
+            </Pulser>
+            <Liquid>
+                <Beta value="4.52672"/>
+                <Gamma value="1.73376"/>
+            </Liquid>
+        </Fitting>
+    </Timing>
+
+    <Notebook file="notes.txt" mode="r"/>
+
+</Configuration>
