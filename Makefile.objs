@@ -1,0 +1,110 @@
+#!/bin/make
+#-------- define file variables -----------------------
+# objects from fortran
+SET2CCO          = set2cc.o
+MESSLOGO         = messlog.o
+MILDATIMO        = mildatim.o
+SCANORO          = scanor.o
+
+#XML parser
+PUGIXMLO = pugixml.o
+
+#---------- Core ----------
+BARDETECTORO     = BarDetector.o
+BARBUILDERO      = BarBuilder.o
+CALIBRATORO      = Calibrator.o
+CHANEVENTO       = ChanEvent.o
+CORRELATORO      = Correlator.o
+DETECTORDRIVERO  = DetectorDriver.o
+DETECTORLIBRARYO = DetectorLibrary.o
+DETECTORSUMMARYO = DetectorSummary.o
+EVENTPROCESSORO  = EventProcessor.o
+GLOBALSO         = Globals.o
+HIGHRESTIMINGDATAO = HighResTimingData.o
+IDENTIFIERO  = Identifier.o
+INITIALIZEO      = Initialize.o
+MESSENGERO       = Messenger.o
+NOTEBOOKO		 = Notebook.o
+PLACEBUILDERO    = PlaceBuilder.o
+PLACESO          = Places.o
+PLOTSO           = Plots.o
+PLOTSREGISTERO   = PlotsRegister.o
+PIXIEO           = PixieStd.o
+RANDOMPOOLO      = RandomPool.o
+RAWEVENTO        = RawEvent.o
+READBUFFDATADFO    = ReadBuffData.RevD.o
+READBUFFDATAAO    = ReadBuffData.RevA.o
+STATSDATAO       = StatsData.o
+TIMINGCALO		 = TimingCalibrator.o
+TIMINGMAPBUILDERO = TimingMapBuilder.o
+TREECORRELATORO  = TreeCorrelator.o
+
+#---------- Analyzers ----------
+CFDANALYZERO     = CfdAnalyzer.o
+DOUBLETRACEO     = DoubleTraceAnalyzer.o
+FITTINGANALYZERO = FittingAnalyzer.o
+TAUANALYZERO     = TauAnalyzer.o
+TRACEO           = Trace.o
+TRACEEXTRACTORO  = TraceExtractor.o
+TRACEFILTERO     = TraceFilterer.o
+TRACESUBO        = TraceAnalyzer.o
+WAVEFORMANALYZERO     = WaveformAnalyzer.o
+
+#---------- Processors ----------
+BEAMLOGICPROCESSORO  = BeamLogicProcessor.o
+BETASCINTPROCESSORO  = BetaScintProcessor.o
+DOUBLEBETAPROCESSORO = DoubleBetaProcessor.o
+DSSDPROCESSORO   = DssdProcessor.o
+GEPROCESSORO     = GeProcessor.o
+GECALIBPROCESSORO= GeCalibProcessor.o
+HEN3PROCESSORO   = Hen3Processor.o
+ISSDPROCESSORO   = ImplantSsdProcessor.o
+IONCHAMBERPROCESSORO = IonChamberProcessor.o
+LIQUIDSCINTPROCESSORO = LiquidScintProcessor.o
+LOGICPROCESSORO  = LogicProcessor.o
+MCPPROCESSORO    = McpProcessor.o
+MTCPROCESSORO    = MtcProcessor.o
+NEUTRONSCINTPROCESSORO  = NeutronScintProcessor.o
+POSITIONPROCESSORO = PositionProcessor.o
+ROOTPROCESSORO   = RootProcessor.o
+PULSERPROCESSORO = PulserProcessor.o
+SSDPROCESSORO    = SsdProcessor.o
+TEENYVANDLEPROCESSORO = TeenyVandleProcessor.o
+TRIGGERLOGICPROCESSORO = TriggerLogicProcessor.o
+VANDLEPROCESSORO = VandleProcessor.o
+WALKCORRECTORO   = WalkCorrector.o
+
+#----- list of objects
+# Fortran objects
+FORT_OBJS = $(SET2CCO) $(MESSLOGO) $(MILDATIMO) $(SCANORO)
+
+# Important to compile READBUFFDATA first
+CXX_OBJS = $(READBUFFDATAAO) $(READBUFFDATADFO)
+
+# Core Objects
+CXX_OBJS += $(PUGIXMLO) $(PIXIEO) $(BARBUILDERO) $(BARDETECTORO) $(CALIBRATORO)\
+	$(CORRELATORO) $(CHANEVENTO) $(DETECTORDRIVERO) $(DETECTORLIBRARYO)\
+	$(DETECTORSUMMARYO) $(EVENTPROCESSORO) $(GLOBALSO) $(IDENTIFIERO) \
+	$(INITIALIZEO) $(MESSENGERO) $(NOTEBOOKO) $(RANDOMPOOLO) $(RAWEVENTO)\
+	$(STATSDATAO) $(TIMINGCALO) $(TIMINGMAPBUILDERO) $(WALKCORRECTORO)
+
+#Correlation Objects
+CXX_OBJS += $(PLACEBUILDERO) $(PLACESO) $(TREECORRELATORO)
+
+#Plotting Related Objects
+CXX_OBJS += $(HISTOGRAMMERO) $(PLOTSO) $(PLOTSREGISTERO)
+
+#Trace Related Objects
+CXX_OBJS += $(CFDANALYZERO) $(DOUBLETRACEO) $(FITTINGANALYZERO)\
+	$(HIGHRESTIMINGDATA) $(TAUANALYZERO) $(TRACEO)\
+	$(TRACEEXTRACTORO) $(TRACEFILTERO) $(TRACESUBO) $(WAVEFORMANALYZERO)
+
+#Processors
+CXX_OBJS += $(BEAMLOGICPROCESSORO) $(BETASCINTPROCESSORO)\
+	$(DSSDPROCESSORO) $(DOUBLEBETAPROCESSORO) $(GEPROCESSORO)\
+	$(GECALIBPROCESSORO) $(HEN3PROCESSORO)\
+	$(ISSDPROCESSORO) $(IONCHAMBERPROCESSORO) $(LIQUIDSCINTPROCESSORO)\
+	$(LOGICPROCESSORO) $(MCPPROCESSORO) $(MTCPROCESSORO)\
+	$(NEUTRONSCINTPROCESSORO) $(POSITIONPROCESSORO) $(PULSERPROCESSORO)\
+	$(SSDPROCESSORO) $(TEENYVANDLEPROCESSORO) $(TRIGGERLOGICPROCESSORO)\
+	$(VANDLEPROCESSORO)
