@@ -72,7 +72,7 @@
             <DiscriminationStart unit="sample" value="3"/>
             <TrapezoidalWalk unit="ns" value="60"/>
             <TraceDelay unit="ns" value="248"/>
-            <TraceLength unit="ns" value="1000/>
+            <TraceLength unit="ns" value="1000"/>
             <QdcCompression value="4.0"/>
         </Trace>
 
