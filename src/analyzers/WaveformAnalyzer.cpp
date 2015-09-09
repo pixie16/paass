@@ -27,6 +27,7 @@ WaveformAnalyzer::WaveformAnalyzer() : TraceAnalyzer() {
     knownTypes_.push_back("liquid");
     knownTypes_.push_back("tvandle");
     knownTypes_.push_back("pulser");
+    knownTypes_.push_back("labr3");
 }
 
 void WaveformAnalyzer::Analyze(Trace &trace,
@@ -44,6 +45,8 @@ void WaveformAnalyzer::Analyze(Trace &trace,
     pair<unsigned int, unsigned int> range = globals->waveformRange();
     if(detType == "beta" && detSubtype == "double")
         range = globals->siPmtWaveformRange();
+    if(detType == "labr3")
+        range = globals->labr3WaveformRange();
     unsigned int startDiscrimination = globals->discriminationStart();
     unsigned int maxPos = trace.FindMaxInfo(range.first, range.second);
 
