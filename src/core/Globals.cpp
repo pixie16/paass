@@ -171,8 +171,12 @@ Globals::Globals() {
                     it->child("Low").attribute("value").as_int(5);
                 siPmtWaveformRange_.second =
                     it->child("High").attribute("value").as_int(5);
-            }
-            else if(std::string(it->name()).compare("DiscriminationStart") == 0)
+            } else if(std::string(it->name()).compare("LaBr3WaveformRange") == 0) {
+                labr3WaveformRange_.first =
+                    it->child("Low").attribute("value").as_int(10);
+                labr3WaveformRange_.second =
+                    it->child("High").attribute("value").as_int(15);
+            } else if(std::string(it->name()).compare("DiscriminationStart") == 0)
                 discriminationStart_ = it->attribute("value").as_double();
             else if(std::string(it->name()).compare("TrapezoidalWalk") == 0)
                 trapezoidalWalk_ = it->attribute("value").as_double();
@@ -228,6 +232,15 @@ Globals::Globals() {
                     it->child("Beta").attribute("value").as_double();
                 liquidScintPars_.second =
                     it->child("Gamma").attribute("value").as_double();
+            }else if (std::string(it->name()).compare("LaBr3") == 0) {
+                labr3_r6231_100Pars_.first =
+                    it->child("r6231_100").child("Beta").attribute("value").as_double(0);
+                labr3_r6231_100Pars_.second =
+                    it->child("r6231_100").child("Gamma").attribute("value").as_double(0);
+                labr3_r7724_100Pars_.first =
+                    it->child("r7724_100").child("Beta").attribute("value").as_double(0);
+                labr3_r7724_100Pars_.second =
+                    it->child("r7724_100").child("Gamma").attribute("value").as_double(0);
             }else
                 WarnOfUnknownParameter(m, it);
         }
