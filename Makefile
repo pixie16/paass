@@ -243,9 +243,10 @@ CXXFLAGS	+= -DDEBUG
 endif
 
 #---------- Update some information about the object files
-FORT_OBJDIR = obj/fortran
+OBJDIR = ./obj
+FORT_OBJDIR = $(OBJDIR)/fortran
 FORT_OBJS_W_DIR = $(addprefix $(FORT_OBJDIR)/,$(FORT_OBJS))
-CXX_OBJDIR = obj/c++
+CXX_OBJDIR = $(OBJDIR)/c++
 CXX_OBJS_W_DIR = $(addprefix $(CXX_OBJDIR)/,$(CXX_OBJS))
 
 #--------- Add to list of known file suffixes
@@ -277,10 +278,10 @@ $(PIXIE): $(FORT_OBJS_W_DIR) $(CXX_OBJS_W_DIR) $(LIBS)
 .PHONY: clean tidy doc
 clean:
 	@echo "Cleaning up..."
-	@rm -f ./$(FORT_OBJDIR)/*.o ./$(CXX_OBJDIR)/*.o $(PIXIE) core *~ *.save \
-	src/*~ include/*~ scan/*~
+	@rm -rf ./$(OBJDIR) $(PIXIE) ./core ./*~ ./*.save \
+	./src/*~ ./include/*~ ./scan/*~ 
 tidy:
 	@echo "Tidying up..."
-	@rm -f core *~ ./src/*~ ./include/*~ ./scan/*~ *.save
+	@rm -f ./core ./*~ ./src/*~ ./include/*~ ./scan/*~ ./*.save
 doc: doc/Doxyfile
 	@doxygen $^
