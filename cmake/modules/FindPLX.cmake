@@ -4,16 +4,16 @@
 #
 # PLX_LIBRARY_DIR - location of PLX library.
 # PLX_LIBRARIES - list of libraries to be linked.
-# PLX_FOUND - true if UPAK was found.
+# PLX_FOUND - true if PLX was found.
 #
 
 find_path(PLX_LIBRARY_DIR
-	NAMES libPlxApi.a
+	NAMES PlxApi.a libPlxApi.a
 	HINTS $ENV{PLX_SDK_DIR}/PlxApi/Library
-	PATHS /opt/PLX/current/PlxSdk/PlxApi/Library
-	      /opt/PLX/current/PlxSdk/Linux/PlxApi/Library)
+	PATHS /opt/plx/current/PlxApi/Library
+	      /opt/plx/current/Linux/PlxApi/Library)
 
-# Support the REQUIRED and QUIET arguments, and set PUGIXML_FOUND if found.
+# Support the REQUIRED and QUIET arguments, and set PLX_FOUND if found.
 include (FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS (PLX DEFAULT_MSG PLX_LIBRARY_DIR)
 
