@@ -1,8 +1,10 @@
 
 #include <iostream>
 #include <sstream>
-#include <string.h>
 #include <thread>
+
+#include <cstring>
+#include <unistd.h>
 
 #include "Unpacker.hpp"
 #include "hribf_buffers.h"
