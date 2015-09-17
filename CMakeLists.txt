@@ -89,6 +89,7 @@ if (NOT ${CORE_ONLY})
 	link_directories(${PXI_LIBRARY_DIR})
 	#The following configuration file path is hardcoded into the PXI software :-(
 	install(FILES ${PXI_ROOT_DIR}/test/pxisys.ini DESTINATION ${CMAKE_INSTALL_PREFIX})
+        install(FILES Setup/source/pixie.cfg DESTINATION ${CMAKE_INSTALL_PREFIX})
 endif()
 
 add_subdirectory(Core)
