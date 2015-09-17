@@ -8,7 +8,7 @@
 #
 
 find_path(PLX_LIBRARY_DIR
-	NAMES PlxApi.a libPlxApi.a
+	NAMES libPlxApi.a
 	HINTS $ENV{PLX_SDK_DIR}/PlxApi/Library
 	PATHS /opt/plx/current/PlxApi/Library
 	      /opt/plx/current/Linux/PlxApi/Library)
