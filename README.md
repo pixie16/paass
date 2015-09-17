@@ -35,6 +35,14 @@ is `PixieSuite2/exec`
 
 *You should ensure that the PLX version and PXI firmware versions are compatable!*
 
+###Options for CMAKE Compilation
+* -DCMAKE\_INSTALL\_PREFIX (default PixieSuite2/exec)
+* -DUSE_ROOT (default ON)
+* -DUSE_DAMM (default ON)
+* -DUSE_SETUP (default OFF)
+* -DUSE_NCURSES (default ON; required for poll2)
+* -DCORE_ONLY (default OFF)
+
 ##Tested Systems
 The softare has been compiled and tested on the following Setups
 
