@@ -9,6 +9,11 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 		#Make compiler messages nice with colored tags.
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color=auto")
 	endif()
+
+        if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+        endif()
+
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
 endif()
 
