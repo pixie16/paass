@@ -6,7 +6,8 @@
 #include "poll2_stats.h"
 #include "poll2_socket.h"
 
-StatsHandler::StatsHandler(size_t nCards){
+StatsHandler::StatsHandler(const size_t nCards){
+
 	numCards = nCards;
 
 	// Define all the 2d arrays

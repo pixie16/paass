@@ -1,12 +1,21 @@
 # ignore any archives creative by make dist
 *.tgz
+
 # ignore any temporaries
 *~
 *.swp
 *.swo
+
 #Ignore object files
 *.o
+
 #Ignore the build and exec directory
 build/
 exec/
 doc/
+
+#Ignore codeblocks files
+PixieSuite2.cbp
+PixieSuite2.cbp.save
+PixieSuite2.layout
+                        
