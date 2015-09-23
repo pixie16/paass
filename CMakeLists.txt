@@ -9,6 +9,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 		#Make compiler messages nice with colored tags.
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color=auto")
 	endif()
+
 	if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
 	   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 	endif()
@@ -88,6 +89,7 @@ if (NOT ${CORE_ONLY})
 	link_directories(${PXI_LIBRARY_DIR})
 	#The following configuration file path is hardcoded into the PXI software :-(
 	install(FILES ${PXI_ROOT_DIR}/test/pxisys.ini DESTINATION ${CMAKE_INSTALL_PREFIX})
+        install(FILES Setup/source/pixie.cfg DESTINATION ${CMAKE_INSTALL_PREFIX})
 endif()
 
 add_subdirectory(Core)
