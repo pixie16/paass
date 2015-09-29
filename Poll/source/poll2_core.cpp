@@ -181,6 +181,8 @@ bool Poll::Initialize(){
 		client->Init("127.0.0.1", 5555);
 	}
 
+	partialEvent = new std::vector<word_t>[n_cards];
+
 	return init = true;
 }
 
@@ -1261,10 +1263,6 @@ void Poll::RunControl(){
 				time_t currTime;
 				time(&currTime);
 				
-				//Reset status flags
-				do_stop_acq = false;
-				acq_running = false;
-
 				// Check if each module has ended its run properly.
 				for(size_t mod = 0; mod < n_cards; mod++){
 					//If the run status is 1 then the run has not finished in the module.
@@ -1282,6 +1280,12 @@ void Poll::RunControl(){
 					//Print the module status.
 					std::stringstream leader;
 					leader << "Run end status in module " << mod;
+					if (!partialEvent[mod].empty()) {
+						///\bug Warning Str colors oversets the number of characters.
+						leader << Display::WarningStr(" (partial evt)");
+						partialEvent[mod].clear();
+					}
+					
 					Display::LeaderPrint(leader.str());
 					if(!pif->CheckRunStatus(mod)){
 						std::cout << Display::OkayStr() << std::endl;
@@ -1290,11 +1294,18 @@ void Poll::RunControl(){
 						std::cout << Display::ErrorStr() << std::endl;
 						had_error = true;
 					}
+				
 				}
+
 
 				if (record_data) std::cout << "Run " << output_file.GetRunNumber();
 				else std::cout << "Acq";
 				std::cout << " stopped on " << ctime(&currTime);
+
+				//Reset status flags
+				do_stop_acq = false;
+				acq_running = false;
+
 			} //End of handling a stop acq flag
 		}
 
@@ -1341,10 +1352,8 @@ bool Poll::ReadFIFO() {
 	std::vector<word_t> nWords(n_cards);
 	//Iterator to determine which card has the most words.
 	std::vector<word_t>::iterator maxWords;
-	//A vector to store the partial events
-	static std::vector<word_t> *partialEvent = new std::vector<word_t>[n_cards];
 
-	//We loop until the FIFO has reached the threshold for any module
+	//We loop until the FIFO has reached the threshold for any module unless we are stopping and then we skip the loop.
 	for (unsigned int timeout = 0; timeout < POLL_TRIES; timeout++){ 
 		//Check the FIFO size for every module
 		for (unsigned short mod=0; mod < n_cards; mod++) {
@@ -1354,11 +1363,9 @@ bool Poll::ReadFIFO() {
 		maxWords = std::max_element(nWords.begin(), nWords.end());
 		if(*maxWords > threshWords){ break; }
 	}
-	//Decide if we should read data based on threshold.
-	bool readData = (*maxWords > threshWords || do_stop_acq);
 
 	//We need to read the data out of the FIFO
-	if (readData || force_spill) {
+	if (*maxWords > threshWords || force_spill) {
 		force_spill = false;
 		//Number of data words read from the FIFO
 		size_t dataWords = 0;
