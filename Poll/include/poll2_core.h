@@ -70,6 +70,8 @@ class Terminal;
 class Poll{
   private:
 	Terminal *poll_term_;
+	///A vector to store the partial events
+	std::vector<word_t> *partialEvent;
 	
 	double startTime; ///Time when the acquistion was started.
 	double lastSpillTime; ///Time when the last spill finished.
