@@ -919,6 +919,16 @@ void Poll::CommandControl(){
 				std::cout << sys_message_head << " -SYNTAX- bit_test [num_bits] [number]\n";
 			}
 		}
+		else if(cmd == "quiet"){ // Toggle quiet mode
+			if(is_quiet){
+				std::cout << sys_message_head << "Toggling quiet mode OFF\n";
+				is_quiet = false;
+			}
+			else{
+				std::cout << sys_message_head << "Toggling quiet mode ON\n";
+				is_quiet = true;
+			}
+		}
 		else if(!pac_mode){ // These command are only available when not running in pacman mode!
 			if(cmd == "run"){ start_run(); } // Tell POLL to start acq and start recording data to disk
 			else if(cmd == "startacq" || cmd == "startvme"){ // Tell POLL to start data acquisition
@@ -968,16 +978,6 @@ void Poll::CommandControl(){
 					std::cout << sys_message_head << "Toggling debug mode ON\n";
 					output_file.SetDebugMode();
 					debug_mode = true;
-				}
-			}
-			else if(cmd == "quiet"){ // Toggle quiet mode
-				if(is_quiet){
-					std::cout << sys_message_head << "Toggling quiet mode OFF\n";
-					is_quiet = false;
-				}
-				else{
-					std::cout << sys_message_head << "Toggling quiet mode ON\n";
-					is_quiet = true;
 				}
 			}
 			else if(cmd == "fdir"){ // Change the output file directory
