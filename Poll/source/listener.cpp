@@ -66,7 +66,7 @@ int main(){
 	bool first_packet = true;
 	if(poll_server.Init(5555)){
 		while(true){
-			std::cout << " recv: " << poll_server.RecvMessage(buffer, 1024) << " bytes\n";
+			int recv_bytes = poll_server.RecvMessage(buffer, 1024);
 
 			if(strcmp(buffer, "$CLOSE_FILE") == 0){
 				std::cout << "  Received CLOSE_FILE flag...\n\n";
@@ -98,6 +98,7 @@ int main(){
 			else{
 				clock2 = hr_clock::now();
 				time_span = std::chrono::duration_cast<std::chrono::duration<double> >(clock2 - clock1); // Time between packets in seconds
+				if(time_span.count() < 2.0){ continue; }
 			}
 		
 			// The third byte is the start of an integer specifying the total length of the packet
@@ -135,6 +136,9 @@ int main(){
 				memcpy((char *)&end_packet_flag, (char *)&buffer[index], size_of_int); // Copy the end packet flag
 				fname[fname_size] = '\0'; // Terminate the filename string
 				
+				system("clear");
+
+				std::cout << " recv: " << recv_bytes << " bytes\n";
 				std::cout << "  Packet length: " << total_size << " bytes\n";
 				std::cout << "  Poll2 filename: " << fname << "\n";
 				
@@ -143,7 +147,6 @@ int main(){
 				else if(magnitude >= 3 && magnitude < 6){ std::cout << "  Total file size: " << new_size/1E3 << " kB\n"; } // kB
 				else if(magnitude >= 6 && magnitude < 9){ std::cout << "  Total file size: " << new_size/1E6 << " MB\n"; } // MB
 				else{ std::cout << "  Total file size: " << new_size/1E9 << " GB\n"; } // GB
-				
 				
 				std::cout << "  Spill number ID: " << spillID << "\n";
 				std::cout << "  Buffer size: " << buffSize << " words\n";
@@ -167,7 +170,6 @@ int main(){
 				}
 				else{ first_packet = false; }
 				std::cout << std::endl;
-				//std::cout.seekp(0);
 				
 				file_size = new_size;
 				delete[] fname;
