@@ -14,9 +14,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date June 27th, 2015
+  * \date Sept. 29th, 2015
   * 
-  * \version 1.2.03
+  * \version 1.2.04
 */
 
 #include <sstream>
@@ -27,25 +27,27 @@
 #include <vector>
 
 #include "hribf_buffers.h"
+#include "poll2_socket.h"
 
-#define SMALLEST_CHUNK_SIZE 20 // Smallest possible size of a chunk in words
-#define ACTUAL_BUFF_SIZE 8194 // HRIBF .ldf file format
-#define NO_HEADER_SIZE 8192 // Size of .ldf buffer with no header
-#define OPTIMAL_CHUNK_SIZE 8187 // = ACTUAL_BUFF_SIZE - 2 (header size) - 2 (end of buffer) - 3 (spill chunk header)
+#define SMALLEST_CHUNK_SIZE 20 /// Smallest possible size of a chunk in words
+#define ACTUAL_BUFF_SIZE 8194 /// HRIBF .ldf file format
+#define NO_HEADER_SIZE 8192 /// Size of .ldf buffer with no header
+#define OPTIMAL_CHUNK_SIZE 8187 /// = ACTUAL_BUFF_SIZE - 2 (header size) - 2 (end of buffer) - 3 (spill chunk header)
 
-#define HEAD 1145128264 // Run begin buffer
-#define DATA 1096040772 // Physics data buffer
-#define SCAL 1279345491 // Scaler type buffer
-#define DEAD 1145128260 // Deadtime buffer
-#define DIR 542263620   // "DIR "
-#define PAC 541278544   // "PAC "
-#define ENDFILE 541478725 // End of file buffer
-#define ENDBUFF -1 // End of buffer marker
+#define HEAD 1145128264 /// Run begin buffer
+#define DATA 1096040772 /// Physics data buffer
+#define SCAL 1279345491 /// Scaler type buffer
+#define DEAD 1145128260 /// Deadtime buffer
+#define DIR 542263620   /// "DIR "
+#define PAC 541278544   /// "PAC "
+#define ENDFILE 541478725 /// End of file buffer
+#define ENDBUFF -1 /// End of buffer marker
 
-const int end_spill_size = 20;
-const int pacman_word1 = 2;
-const int pacman_word2 = 9999;
+const int end_spill_size = 20; /// The size of the end of spill "event" (5 words).
+const int pacman_word1 = 2; /// Words to signify the end of a spill. The scan code searches for these words.
+const int pacman_word2 = 9999; /// End of spill vln. The scan code searches for these words.
 
+///
 void set_char_array(const std::string &input_, char *arr_, const unsigned int &size_){
 	unsigned int size_to_copy = size_;
 	if(size_ > input_.size()){ size_to_copy = input_.size(); }
@@ -56,26 +58,28 @@ void set_char_array(const std::string &input_, char *arr_, const unsigned int &s
 	arr_[size_] = '\0';
 }
 
+/// Return true if the input word corresponds to the header of a ldf style buffer.
 bool is_hribf_buffer(const int &input_){
 	return (input_==HEAD || input_==DATA || input_==SCAL || input_==DEAD || input_==DIR || input_==PAC || input_==ENDFILE);
 }
 
+/// Generic BufferType constructor.
 BufferType::BufferType(int bufftype_, int buffsize_, int buffend_/*=-1*/){
 	bufftype = bufftype_; buffsize = buffsize_; buffend = buffend_; zero = 0;
 	debug_mode = false;
 }
 
-// Returns only false if not overwritten
+/// Returns only false if not overwritten
 bool BufferType::Write(std::ofstream *file_){
 	return false;
 }
 
-// Returns only false if not overwritten
+/// Returns only false if not overwritten
 bool BufferType::Read(std::ifstream *file_){
 	return false;
 }
 
-// Return true if the first word of the current buffer is equal to this buffer type
+/// Return true if the first word of the current buffer is equal to this buffer type
 bool BufferType::ReadHeader(std::ifstream *file_){
 	int check_bufftype;	
 	file_->read((char*)&check_bufftype, 4);
@@ -85,6 +89,7 @@ bool BufferType::ReadHeader(std::ifstream *file_){
 	return true;
 }
 
+/// Default constructor.
 PLD_header::PLD_header() : BufferType(HEAD, 0){ // 0x44414548 "HEAD"
 	set_char_array("U OF TENNESSEE  ", facility, 16);
 	set_char_array("PIXIE LIST DATA ", format, 16);
@@ -96,10 +101,12 @@ PLD_header::PLD_header() : BufferType(HEAD, 0){ // 0x44414548 "HEAD"
 	run_num = 0;
 }
 
+/// Destructor.
 PLD_header::~PLD_header(){
 	if(run_title){ delete[] run_title; }
 }
 
+/// Get the length of the header buffer.
 int PLD_header::GetBufferLength(){
 	int buffer_len = 100;
 	buffer_len += strlen(run_title);
@@ -107,6 +114,7 @@ int PLD_header::GetBufferLength(){
 	return buffer_len;
 }
 
+/// Set the date and tiem of when the file is opened.
 void PLD_header::SetStartDateTime(){
 	time_t rawtime;
 	time (&rawtime);
@@ -115,6 +123,7 @@ void PLD_header::SetStartDateTime(){
 	set_char_array(std::string(date_holder), start_date, 24); // Strip the trailing newline character
 }
 
+/// Set the date and time of when the file is closed.
 void PLD_header::SetEndDateTime(){
 	time_t rawtime;
 	time (&rawtime);
@@ -123,10 +132,12 @@ void PLD_header::SetEndDateTime(){
 	set_char_array(std::string(date_holder), end_date, 24); // Strip the trailing newline character
 }
 
+/// Set the facility of the output pld file (max length 16).
 void PLD_header::SetFacility(std::string input_){
 	set_char_array(input_, facility, 16);
 }
 	
+/// Set the title of the output pld file (unlimited length).
 void PLD_header::SetTitle(std::string input_){
 	if(run_title){ delete[] run_title; }
 	run_title = new char[input_.size()+1];
@@ -136,6 +147,7 @@ void PLD_header::SetTitle(std::string input_){
 	run_title[input_.size()] = '\0';
 }
 
+/// Write a pld style header to a file.
 bool PLD_header::Write(std::ofstream *file_){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 	
@@ -169,6 +181,7 @@ bool PLD_header::Write(std::ofstream *file_){
 	return true;
 }
 
+/// Read a pld style header from a file.
 bool PLD_header::Read(std::ifstream *file_){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 	
@@ -205,9 +218,11 @@ bool PLD_header::Read(std::ifstream *file_){
 	return true;
 }
 
+/// Default constructor.
 PLD_data::PLD_data() : BufferType(DATA, 0){ // 0x41544144 "DATA"
 }
 
+/// Write a pld style data buffer to file.
 bool PLD_data::Write(std::ofstream *file_, char *data_, int nWords_){
 	if(!file_ || !file_->is_open() || !file_->good() || nWords_ == 0){ return false; }
 	
@@ -222,6 +237,7 @@ bool PLD_data::Write(std::ofstream *file_, char *data_, int nWords_){
 	return true;
 }
 
+/// Read a pld style data buffer from file.
 bool PLD_data::Read(std::ifstream *file_, char *data_, int &nBytes, int max_bytes_, bool dry_run_mode/*=false*/){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 
@@ -266,6 +282,7 @@ bool PLD_data::Read(std::ifstream *file_, char *data_, int &nBytes, int max_byte
 	return true;
 }
 
+/// Default constructor.
 DIR_buffer::DIR_buffer() : BufferType(DIR, NO_HEADER_SIZE){ // 0x20524944 "DIR "
 	total_buff_size = ACTUAL_BUFF_SIZE;
 	run_num = 0;
@@ -274,9 +291,10 @@ DIR_buffer::DIR_buffer() : BufferType(DIR, NO_HEADER_SIZE){ // 0x20524944 "DIR "
 	unknown[2] = 2;
 }
 	
-// DIR buffer (1 word buffer type, 1 word buffer size, 1 word for total buffer length,
-// 1 word for total number of buffers, 2 unknown words, 1 word for run number, 1 unknown word,
-// and 8186 zeros)
+/** DIR buffer (1 word buffer type, 1 word buffer size, 1 word for total buffer length,
+  * 1 word for total number of buffers, 2 unknown words, 1 word for run number, 1 unknown word,
+  * and 8186 zeros).
+  */
 bool DIR_buffer::Write(std::ofstream *file_){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 	
@@ -298,6 +316,7 @@ bool DIR_buffer::Write(std::ofstream *file_){
 	return true;
 }
 
+/// Read a ldf DIR buffer.
 bool DIR_buffer::Read(std::ifstream *file_, int &number_buffers){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 	
@@ -319,6 +338,7 @@ bool DIR_buffer::Read(std::ifstream *file_, int &number_buffers){
 	return true;
 }
 
+/// Default constructor.
 HEAD_buffer::HEAD_buffer() : BufferType(HEAD, 64){ // 0x44414548 "HEAD"
 	set_char_array("HHIRF   ", facility, 8);
 	set_char_array("L003    ", format, 8);
@@ -327,6 +347,7 @@ HEAD_buffer::HEAD_buffer() : BufferType(HEAD, 64){ // 0x44414548 "HEAD"
 	run_num = 0;
 }
 
+/// Set the date and time of the ldf file.
 bool HEAD_buffer::SetDateTime(){
 	struct tm * local;
 	time_t temp_time;
@@ -359,6 +380,7 @@ bool HEAD_buffer::SetDateTime(){
 	return true;
 }
 	
+/// Set the title of the ldf file.
 bool HEAD_buffer::SetTitle(std::string input_){
 	for(unsigned int i = 0; i < 80; i++){
 		if(i >= input_.size()){ run_title[i] = ' '; }
@@ -367,9 +389,10 @@ bool HEAD_buffer::SetTitle(std::string input_){
 	return true;
 }
 
-// HEAD buffer (1 word buffer type, 1 word buffer size, 2 words for facility, 2 for format, 
-// 3 for type, 1 word separator, 4 word date, 20 word title [80 character], 1 word run number,
-// 30 words of padding, and 8129 end of buffer words)
+/** ldf style HEAD buffer (1 word buffer type, 1 word buffer size, 2 words for facility, 2 for format, 
+  * 3 for type, 1 word separator, 4 word date, 20 word title [80 character], 1 word run number,
+  * 30 words of padding, and 8129 end of buffer words).
+  */
 bool HEAD_buffer::Write(std::ofstream *file_){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 	
@@ -398,6 +421,7 @@ bool HEAD_buffer::Write(std::ofstream *file_){
 	return true;
 }
 
+/// Read a ldf HEAD buffer.
 bool HEAD_buffer::Read(std::ifstream *file_){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 	
@@ -421,7 +445,7 @@ bool HEAD_buffer::Read(std::ifstream *file_){
 	return true;
 }
 
-// Write data buffer header (2 words)
+/// Write a ldf data buffer header (2 words).
 bool DATA_buffer::open_(std::ofstream *file_){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 
@@ -435,13 +459,14 @@ bool DATA_buffer::open_(std::ofstream *file_){
 	return true;
 }
 
+/// Default constructor.
 DATA_buffer::DATA_buffer() : BufferType(DATA, NO_HEADER_SIZE){ // 0x41544144 "DATA"
 	current_buff_pos = 0; 
 	buff_words_remaining = ACTUAL_BUFF_SIZE;
 	good_words_remaining = OPTIMAL_CHUNK_SIZE;
 }
 
-// Close a data buffer by padding with 0xFFFFFFFF
+/// Close a ldf data buffer by padding with 0xFFFFFFFF.
 bool DATA_buffer::Close(std::ofstream *file_){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 
@@ -458,7 +483,7 @@ bool DATA_buffer::Close(std::ofstream *file_){
 	return true;
 }
 
-// Write data to file
+/// Write a ldf data buffer to disk.
 bool DATA_buffer::Write(std::ofstream *file_, char *data_, int nWords_, int &buffs_written){
 	if(!file_ || !file_->is_open() || !file_->good() || !data_ || nWords_ == 0){ 
 		if(debug_mode){ std::cout << "debug: !file_ || !file_->is_open() || !data_ || nWords_ == 0\n"; }	
@@ -608,9 +633,9 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, int nWords_, int &buf
 		return true;
 }
 
-static int abs_buffer_pos = 0;
+static int abs_buffer_pos = 0; /// Used to keep track of the absolute position in the buffer.
 
-/// Read a data spill from a file
+/// Read a ldf data spill from a file.
 bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, unsigned int max_bytes_, bool &full_spill, bool &bad_spill, bool dry_run_mode/*=false*/){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 	
@@ -866,7 +891,7 @@ read_again:
 
 EOF_buffer::EOF_buffer() : BufferType(ENDFILE, NO_HEADER_SIZE){} // 0x20464F45 "EOF "
 
-// EOF buffer (1 word buffer type, 1 word buffer size, and 8192 end of file words)
+/// Write an end-of-file buffer (1 word buffer type, 1 word buffer size, and 8192 end of file words).
 bool EOF_buffer::Write(std::ofstream *file_){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 	
@@ -884,6 +909,7 @@ bool EOF_buffer::Write(std::ofstream *file_){
 	return true;
 }
 
+/// Read an end-of-file buffer.
 bool EOF_buffer::Read(std::ifstream *file_){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 
@@ -901,7 +927,7 @@ bool EOF_buffer::Read(std::ifstream *file_){
 	return true;
 }
 
-/* Get the formatted filename of the current file. */
+/// Get the formatted filename of the current file.
 std::string PollOutputFile::get_filename(){
 	std::stringstream stream; stream << current_file_num;
 	std::string run_num_str = stream.str();
@@ -917,6 +943,7 @@ std::string PollOutputFile::get_filename(){
 	return output;
 }
 
+/// Get the full filename of the current file including path.
 bool PollOutputFile::get_full_filename(std::string &output){
 	int depth = (int)directories.size();
 	
@@ -959,9 +986,10 @@ bool PollOutputFile::get_full_filename(std::string &output){
 	return true;
 }
 
-/// Overwrite the fourth word of the file with the total number of buffers and close the file
-/// Returns false if no output file is open or if the number of 4 byte words in the file is not 
-/// evenly divisible by the number of words in a buffer
+/** Overwrite the fourth word of the file with the total number of buffers and close the file.
+  * Returns false if no output file is open or if the number of 4 byte words in the file is not 
+  * evenly divisible by the number of words in a buffer.
+  */
 bool PollOutputFile::overwrite_dir(int total_buffers_/*=-1*/){
 	if(!output_file.is_open() || !output_file.good()){ return false; }
 	
@@ -1030,15 +1058,18 @@ void PollOutputFile::initialize(){
 	current_depth = directories.size();
 }
 
+/// Default constructor.
 PollOutputFile::PollOutputFile(){ 
 	initialize();
 }
 
+/// Constructor to set the output filename prefix.
 PollOutputFile::PollOutputFile(std::string filename_){
 	initialize();
 	fname_prefix = filename_;
 }
 
+/// Toggle debug mode.
 void PollOutputFile::SetDebugMode(bool debug_/*=true*/){
 	debug_mode = debug_;
 	pldHead.SetDebugMode(debug_);
@@ -1049,6 +1080,7 @@ void PollOutputFile::SetDebugMode(bool debug_/*=true*/){
 	eofBuff.SetDebugMode(debug_);
 }
 
+/// Set the output file data format.
 bool PollOutputFile::SetFileFormat(int format_){
 	if(format_ <= 2){
 		output_format = format_;
@@ -1057,11 +1089,13 @@ bool PollOutputFile::SetFileFormat(int format_){
 	return false;
 }
 
+/// Set the output filename prefix.
 void PollOutputFile::SetFilenamePrefix(std::string filename_){ 
 	fname_prefix = filename_; 
 	current_file_num = 0;
 }
 
+/// Write nWords_ words of pixie data to disk.
 int PollOutputFile::Write(char *data_, int nWords_){
 	if(!data_ || nWords_ == 0){ return -1; }
 
@@ -1087,9 +1121,12 @@ int PollOutputFile::Write(char *data_, int nWords_){
 	return buffs_written;
 }
 
-/// Build a data spill notification message for broadcast onto the network
-/// Return the total number of bytes in the packet upon success, and -1 otherwise
-int PollOutputFile::BuildPacket(char *&output){
+/** Broadcast a data spill notification message onto the network.
+  * Return the total number of bytes in the packet upon success, and -1 otherwise.
+  */
+int PollOutputFile::SendPacket(Client *cli_){
+	if(!cli_){ return -1; }
+
 	int end_packet = ENDBUFF;
 	int buff_size = ACTUAL_BUFF_SIZE;
 	std::streampos file_size = output_file.tellp();
@@ -1101,24 +1138,26 @@ int PollOutputFile::BuildPacket(char *&output){
 	char size_of_int = sizeof(int); // Size of integer on this machine
 	char size_of_spos = sizeof(std::streampos); // Size of streampos on this machine
 
+	char *packet = NULL;
+
 	if(!output_file.is_open() || !output_file.good()){
-		// Below is the output packet structure
+		// Below is the packet packet structure
 		// ------------------------------------
 		// 1 byte size of integer (may not be the same on a different machine)
 		// 1 byte size of streampos (may not be the same on a different machine)
 		// 4 byte packet length (inclusive, also includes the end packet flag)
 		// 4 byte begin packet flag (0xFFFFFFFF)
 		bytes = 2 + 2 * sizeof(int); // Total size of the packet (in bytes)
-		output = new char[bytes];
+		packet = new char[bytes];
 		
 		unsigned int index = 0;
-		memcpy(&output[index], (char *)&size_of_int, 1); index += 1;
-		memcpy(&output[index], (char *)&size_of_spos, 1); index += 1;
-		memcpy(&output[index], (char *)&bytes, sizeof(int)); index += sizeof(int);
-		memcpy(&output[index], (char *)&end_packet, sizeof(int)); index += sizeof(int);
+		memcpy(&packet[index], (char *)&size_of_int, 1); index += 1;
+		memcpy(&packet[index], (char *)&size_of_spos, 1); index += 1;
+		memcpy(&packet[index], (char *)&bytes, sizeof(int)); index += sizeof(int);
+		memcpy(&packet[index], (char *)&end_packet, sizeof(int)); index += sizeof(int);
 	}
 	else{
-		// Below is the output packet structure
+		// Below is the packet packet structure
 		// ------------------------------------
 		// 1 byte size of integer (may not be the same on a different machine)
 		// 1 byte size of streampos (may not be the same on a different machine)
@@ -1130,25 +1169,27 @@ int PollOutputFile::BuildPacket(char *&output){
 		// 4 byte begin packet flag (0xFFFFFFFF)
 		// length of the file path.
 		bytes = (2 + 4 * sizeof(int)) + sizeof(std::streampos) + current_full_filename.size(); // Total size of the packet (in bytes)
-		output = new char[bytes];
+		packet = new char[bytes];
 		const char *str = current_full_filename.c_str();
 	
 		unsigned int index = 0;
-		memcpy(&output[index], (char *)&size_of_int, 1); index += 1;
-		memcpy(&output[index], (char *)&size_of_spos, 1); index += 1;
-		memcpy(&output[index], (char *)&bytes, sizeof(int)); index += sizeof(int);
-		memcpy(&output[index], (char *)str, (size_t)current_full_filename.size()); index += current_full_filename.size();
-		memcpy(&output[index], (char *)&file_size, sizeof(std::streampos)); index += sizeof(std::streampos);
-		memcpy(&output[index], (char *)&number_spills, sizeof(int)); index += sizeof(int);
-		memcpy(&output[index], (char *)&buff_size, sizeof(int)); index += sizeof(int);
-		memcpy(&output[index], (char *)&end_packet, sizeof(int));
+		memcpy(&packet[index], (char *)&size_of_int, 1); index += 1;
+		memcpy(&packet[index], (char *)&size_of_spos, 1); index += 1;
+		memcpy(&packet[index], (char *)&bytes, sizeof(int)); index += sizeof(int);
+		memcpy(&packet[index], (char *)str, (size_t)current_full_filename.size()); index += current_full_filename.size();
+		memcpy(&packet[index], (char *)&file_size, sizeof(std::streampos)); index += sizeof(std::streampos);
+		memcpy(&packet[index], (char *)&number_spills, sizeof(int)); index += sizeof(int);
+		memcpy(&packet[index], (char *)&buff_size, sizeof(int)); index += sizeof(int);
+		memcpy(&packet[index], (char *)&end_packet, sizeof(int));
 	}
-	output[bytes] = '\0';
+	cli_->SendMessage(packet, bytes);
+	
+	delete[] packet;
 	
 	return bytes;
 }
 
-// Close the current file, if one is open, and open a new file for data output
+/// Close the current file, if one is open, and open a new file for data output
 bool PollOutputFile::OpenNewFile(std::string title_, int &run_num_, std::string prefix, std::string output_directory/*="./"*/, bool continueRun /*= false*/){
 	CloseFile();
 
@@ -1195,6 +1236,7 @@ bool PollOutputFile::OpenNewFile(std::string title_, int &run_num_, std::string 
 	return true;
 }
 
+/// Return the filename of the next output file.
 std::string PollOutputFile::GetNextFileName(int &run_num_, std::string prefix, std::string output_directory, bool continueRun /*=false*/) {
 	std::stringstream filename;
 	filename << output_directory << prefix << "_" << std::setfill('0') << std::setw(3) << run_num_;
@@ -1220,7 +1262,7 @@ std::string PollOutputFile::GetNextFileName(int &run_num_, std::string prefix, s
 	return filename.str();
 }
 
-// Write the footer and close the file
+/// Write the footer and close the file.
 void PollOutputFile::CloseFile(float total_run_time_/*=0.0*/){
 	if(!output_file.is_open() || !output_file.good()){ return; }
 	

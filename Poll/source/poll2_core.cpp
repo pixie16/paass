@@ -10,9 +10,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date May 6th, 2015
+  * \date Sept. 29th, 2015
   * 
-  * \version 1.3.00
+  * \version 1.3.03
 */
 
 #include <algorithm>
@@ -385,10 +385,7 @@ void Poll::broadcast_data(word_t *data, unsigned int nWords) {
 		}
 	}
 	else{ // Broadcast a spill notification to the network
-		char *packet = NULL;
-		int packet_size = output_file.BuildPacket(packet);
-		client->SendMessage(packet, packet_size);
-		delete[] packet;
+		output_file.SendPacket(client);
 	}
 }
 
