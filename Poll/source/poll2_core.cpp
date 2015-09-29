@@ -1251,6 +1251,7 @@ void Poll::RunControl(){
 		}
 
 		if(acq_running){
+			ReadScalers();
 			ReadFIFO();
 
 			//Handle a stop signal
@@ -1340,6 +1341,26 @@ void Poll::RunControl(){
 	std::cout << "Run Control exited\n";
 }
 
+void Poll::ReadScalers() {
+	//Check if enough time has passed since last scaler read.
+	static long long previousReadTime = 0;
+	//The stats interval has not passed so we return without doing anything.
+	if (statsHandler->GetTotalTime() < previousReadTime + statsInterval_) return;
+
+	static std::vector< std::pair<double, double> > xiaRates(16, std::make_pair<double, double>(0,0));
+	static int numChPerMod = pif->GetNumberChannels();
+
+	for (unsigned short mod=0;mod < n_cards; mod++) {
+		//Tell interface to get stats data from the modules.
+		pif->GetStatistics(mod);
+		
+		for (int ch=0;ch< numChPerMod; ch++) 
+			xiaRates[ch] = std::make_pair<double, double>(pif->GetInputCountRate(mod, ch),pif->GetOutputCountRate(mod,ch));
+
+		//Populate Stats Handler with ICR and OCR.
+		statsHandler->SetXiaRates(mod, &xiaRates);
+	}
+}
 bool Poll::ReadFIFO() {
  	static word_t *fifoData = new word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
 

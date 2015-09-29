@@ -13,10 +13,14 @@ StatsHandler::StatsHandler(const size_t nCards){
 	nEventsDelta = new unsigned int*[numCards];
 	nEventsTotal = new unsigned int*[numCards]; 
 	calcEventRate = new double*[numCards];
+	inputCountRate = new double*[numCards];
+	outputCountRate = new double*[numCards];
 	for(unsigned int i = 0; i < numCards; i++){
 		nEventsDelta[i] = new unsigned int[NUM_CHAN_PER_MOD];
 		nEventsTotal[i] = new unsigned int[NUM_CHAN_PER_MOD];
 		calcEventRate[i] = new double[NUM_CHAN_PER_MOD];
+		inputCountRate[i] = new double[NUM_CHAN_PER_MOD];
+		outputCountRate[i] = new double[NUM_CHAN_PER_MOD];
 	}
 
 	for(unsigned int i = 0; i < numCards; i++){
@@ -24,6 +28,8 @@ StatsHandler::StatsHandler(const size_t nCards){
 			nEventsDelta[i][j] = 0;
 			nEventsTotal[i][j] = 0;
 			calcEventRate[i][j] = 0.0;
+			inputCountRate[i][j] = 0.0;
+			outputCountRate[i][j] = 0.0;
 		}
 	}
 
@@ -34,7 +40,7 @@ StatsHandler::StatsHandler(const size_t nCards){
 
 	timeElapsed = 0.0;
 	totalTime = 0.0;
-	dumpTime = 2.0; // Minimum of 2 seconds between updates
+	dumpTime = 3.0; // Minimum of 2 seconds between updates
 	
 	is_able_to_send = true;
 
@@ -53,10 +59,14 @@ StatsHandler::~StatsHandler(){
 		delete[] nEventsDelta[i];
 		delete[] nEventsTotal[i];
 		delete[] calcEventRate[i];
+		delete[] inputCountRate[i];
+		delete[] outputCountRate[i];
 	}
 	delete[] nEventsDelta;
 	delete[] nEventsTotal;
 	delete[] calcEventRate;
+	delete[] inputCountRate;
+	delete[] outputCountRate;
 	
 	// De-allocate the 1d arrays
 	delete[] dataDelta;
@@ -121,7 +131,8 @@ void StatsHandler::Dump(void){
 	// ...
 	// channel N-1, 15 rate
 	// channel N-1, 15 total
-	size_t msg_size = 20 + 2*numCards*16*8;
+	//msg_size = 20 fixed bytes + 4 words/card/ch * numCards * 16 ch * 8 bytes/ word
+	size_t msg_size = 20 + 4*numCards*16*8;
 	char *message = new char[msg_size];
 	char *ptr = message;
 	
@@ -133,6 +144,8 @@ void StatsHandler::Dump(void){
 		calcDataRate[i] = (size_t)(dataDelta[i] / timeElapsed);
 		for (unsigned int j=0; j < NUM_CHAN_PER_MOD; j++) {	 
 			calcEventRate[i][j] = nEventsDelta[i][j] / timeElapsed;
+			memcpy(ptr, &inputCountRate[i][j], 8); ptr += 8;
+			memcpy(ptr, &outputCountRate[i][j], 8); ptr += 8;
 			memcpy(ptr, &calcEventRate[i][j], 8); ptr += 8;
 			memcpy(ptr, &nEventsTotal[i][j], 4); ptr += 4;
 		} //Update the status bar
@@ -175,5 +188,12 @@ void StatsHandler::Clear(){
 		}
 		dataDelta[i] = 0;
 		calcDataRate[i] = 0;
+	}
+}
+
+void StatsHandler::SetXiaRates(int mod, std::vector<std::pair<double, double> > *xiaRates) {
+	for (int ch = 0; ch < NUM_CHAN_PER_MOD; ch++) {
+		inputCountRate[mod][ch] = xiaRates->at(ch).first;
+		outputCountRate[mod][ch] = xiaRates->at(ch).second;
 	}
 }
