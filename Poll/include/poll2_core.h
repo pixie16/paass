@@ -136,6 +136,7 @@ class Poll{
 	std::map<chanid_t, PixieInterface::Histogram> histoMap;
 
 	StatsHandler *statsHandler;
+	static const int statsInterval_ = 3; ///<The amount time between scaler reads in seconds.
 	
 	data_pack AcqBuf; /// Data packet for class shared-memory broadcast
 	
@@ -168,6 +169,8 @@ class Poll{
 
 	///Routine to read Pixie FIFOs
 	bool ReadFIFO();
+	///Routine to read Pixie scalers.
+	void ReadScalers();
 
 	/// Set IN_SYNCH and SYNCH_WAIT parameters on all modules.
 	bool synch_mods();
