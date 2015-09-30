@@ -25,6 +25,9 @@ class StatsHandler{
     
 	///Return the total run time.
 	double GetTotalTime();
+
+	///Set the ICR and OCR from the XIA module.
+	void SetXiaRates(int mod, std::vector<std::pair<double,double>> *xiaRates); 
 	
 	bool CanSend(){ return is_able_to_send; }
 	
@@ -48,6 +51,9 @@ class StatsHandler{
     
     /** calculated event rate in Hz for each channel */
     double **calcEventRate;
+    
+    double **inputCountRate; ///<The XIA Module input count rate.
+    double **outputCountRate; ///<The XIA Module output count rate.
     
     /** calculated data rate in bytes per second for each module */
     size_t *calcDataRate;

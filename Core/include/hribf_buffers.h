@@ -14,9 +14,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date June 27th, 2015
+  * \date Sept. 29th, 2015
   * 
-  * \version 1.2.03
+  * \version 1.2.04
 */
 
 #ifndef HRIBF_BUFFERS_H
@@ -25,8 +25,10 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.2.03"
-#define HRIBF_BUFFERS_DATE "June 27th, 2015"
+#define HRIBF_BUFFERS_VERSION "1.2.04"
+#define HRIBF_BUFFERS_DATE "Sept. 29th, 2015"
+
+class Client;
 
 class BufferType{
   protected:
@@ -324,7 +326,7 @@ class PollOutputFile{
 
 	/** Build a data spill notification message for broadcast onto the network
 	  * Return the total number of bytes in the packet upon success, and -1 otherwise */
-	int BuildPacket(char *&output);
+	int SendPacket(Client *cli_);
 
 	/// Close the current file, if one is open, and open a new file for data output
 	bool OpenNewFile(std::string title_, int &run_num_, std::string prefix, std::string output_dir="./", bool continueRun = false);

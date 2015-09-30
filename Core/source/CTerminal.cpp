@@ -16,6 +16,7 @@
 #include <fstream>
 #include <unistd.h>
 #include <vector>
+#include <ctime>
 
 #ifdef USE_NCURSES
 
@@ -524,6 +525,7 @@ bool Terminal::save_commands_(){
 Terminal::Terminal() :
 	status_window(NULL),
 	_statusWindowSize(0),
+	commandTimeout_(0),
 	_scrollbackBufferSize(SCROLLBACK_SIZE),
 	_scrollPosition(0)
 {
@@ -721,6 +723,17 @@ void Terminal::EnableTabComplete(bool enable) {
 	enableTabComplete = enable;
 }
 
+/**By enabling the timeout the GetCommand() routine returns after a set
+ * timesout period has passed. The current typed text is stored for the next
+ * GetCommand call.
+ *
+ * \param[in] timeout The amount of time to wait before timeout in seconds
+ * 	defaults to 0.5 s.
+ */
+void Terminal::EnableTimeout(float timeout/*=0.5*/) {
+	commandTimeout_ = timeout;
+}
+
 /**Take the list of matching tab complete values and output resulting tab completion.
  * If the list is empty nothing happens, if a unique value is given the command is completed. If there are multiple
  * matches the common part of the matches is determined and printed to the input. If there is no common part of the
@@ -780,6 +793,9 @@ void Terminal::TabComplete(std::vector<std::string> matches) {
 
 std::string Terminal::GetCommand(){
 	std::string output = "";
+	time_t commandRequestTime;
+	time_t currentTime;
+	time(&commandRequestTime);
 
 	//Update status message
 	if (status_window) {
@@ -796,12 +812,22 @@ std::string Terminal::GetCommand(){
 		}
 
 		flush(); // If there is anything in the stream, dump it to the screen
-		
+
+				
 		int keypress = wgetch(input_window);
 	
 		// Check for internal commands
-		if(keypress == 10){ // Enter key (10)
-			std::string temp_cmd = cmd.Get();
+		if(keypress == ERR){ 
+			if (commandTimeout_ > 0) {
+				time(&currentTime);
+				//If the timeout has passed we set timedOut true and set output to "".
+				if (currentTime > commandRequestTime + commandTimeout_) {
+					return "";
+				}
+			}
+		} // No key was pressed in the interval
+		else if(keypress == 10){ // Enter key (10)
+				  std::string temp_cmd = cmd.Get();
 			if(temp_cmd != ""){ 
 				//Reset the position in the history.
 				commands.Reset();
@@ -893,7 +919,6 @@ std::string Terminal::GetCommand(){
 		else if(keypress == KEY_RESIZE) {
 			//Do nothing with the resize key
 		}
-		else if(keypress == ERR){ } // No key was pressed in the interval
 		else{ 
 			in_char_((char)keypress); 
 			cmd.Put((char)keypress, cursX - offset - 1);
