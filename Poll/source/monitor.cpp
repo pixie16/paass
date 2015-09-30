@@ -134,6 +134,8 @@ int main(){
 	double time_in_sec;
 	double data_rate;
 	double **rates = NULL;
+	double **inputCountRate = NULL;
+	double **outputCountRate = NULL;
 	unsigned int **totals = NULL;
 	
 	bool first_packet = true;
@@ -174,9 +176,13 @@ int main(){
 
 			if(first_packet){
 				rates = new double*[num_modules];
+				inputCountRate = new double*[num_modules];
+				outputCountRate = new double*[num_modules];
 				totals = new unsigned int*[num_modules];
 				for(int i = 0; i < num_modules; i++){
 					rates[i] = new double[16];
+					inputCountRate[i] = new double[16];
+					outputCountRate[i] = new double[16];
 					totals[i] = new unsigned int[16];
 				}
 				first_packet = false;
@@ -186,6 +192,8 @@ int main(){
 			memcpy(&data_rate, ptr, 8); ptr += 8;
 			for(int i = 0; i < num_modules; i++){
 				for(int j = 0; j < 16; j++){
+					memcpy(&inputCountRate[i][j], ptr, 8); ptr += 8;
+					memcpy(&outputCountRate[i][j], ptr, 8); ptr += 8;
 					memcpy(&rates[i][j], ptr, 8); ptr += 8;
 					memcpy(&totals[i][j], ptr, 4); ptr += 4;
 				}
@@ -205,7 +213,8 @@ int main(){
 				if(i < 10){ std::cout << "  C0" << i; }
 				else{ std::cout << "  C" << i; }
 				for(unsigned int j = 0; j < (unsigned int)num_modules; j++){
-					std::cout << "\t|" << GetChanRateString(rates[j][i]) << "\t" << GetChanTotalString(totals[j][i]);
+					//std::cout << "\t|" << GetChanRateString(rates[j][i]) << "\t" << GetChanTotalString(totals[j][i]);
+					std::cout << "\t|" << GetChanRateString(inputCountRate[j][i]) << "\t" << GetChanRateString(outputCountRate[j][i]) << "\t" << GetChanRateString(rates[j][i]) << "\t" << GetChanTotalString(totals[j][i]);
 				}
 				std::cout << "|\n";
 			}
@@ -219,6 +228,8 @@ int main(){
 	poll_server.Close();
 	
 	if(rates){ delete[] rates; }
+	if(inputCountRate){ delete[] inputCountRate; }
+	if(outputCountRate){ delete[] outputCountRate; }
 	if(totals){ delete[] totals; }
 
 	return 0;

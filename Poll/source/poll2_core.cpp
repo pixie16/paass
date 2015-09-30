@@ -10,9 +10,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date May 6th, 2015
+  * \date Sept. 29th, 2015
   * 
-  * \version 1.3.00
+  * \version 1.3.03
 */
 
 #include <algorithm>
@@ -385,10 +385,7 @@ void Poll::broadcast_data(word_t *data, unsigned int nWords) {
 		}
 	}
 	else{ // Broadcast a spill notification to the network
-		char *packet = NULL;
-		int packet_size = output_file.BuildPacket(packet);
-		client->SendMessage(packet, packet_size);
-		delete[] packet;
+		output_file.SendPacket(client);
 	}
 }
 
@@ -674,6 +671,72 @@ void Poll::CommandControl(){
 			while(!run_ctrl_exit){ sleep(1); }
 			break;
 		}
+		if(pac_mode){ // Check for commands from pacman, if enabled
+			int select_dummy;
+			if(server->Select(select_dummy)){
+				UDP_Packet pacman_command;
+			
+				// We have a pacman command. Retrieve the command
+				server->RecvMessage((char *)&pacman_command, sizeof(UDP_Packet));
+				
+				/* Valid poll commands
+				    0x11 - INIT_ACQ
+				    0x22 - START_ACQ
+				    0x33 - STOP_ACQ
+				    0x44 - STATUS_ACQ
+				    0x55 - PAC_FILE
+				    0x66 - HOST
+				    0x77 - ZERO_CLK
+				   Return codes:
+				    0x00 - ACQ_OK
+				    0x01 - ACQ_RUN
+				    0x02 - ACQ_STOP
+				    0xFB - ACQ_STP_HALT
+				    0xFC - ACQ_STR_RUN*/
+
+				if(pacman_command.Data[0] == 0x11){ // INIT_ACQ
+					std::cout << "RECV PACMAN COMMAND 0x11 (INIT_ACQ)\n";
+					pacman_command.Data[0] = 0x00;
+				}
+				else if(pacman_command.Data[0] == 0x22){ // START_ACQ
+					std::cout << "RECV PACMAN COMMAND 0x22 (START_ACQ)\n";
+					if(acq_running){ pacman_command.Data[0] = 0xFC; }
+					else{ pacman_command.Data[0] = 0x00; }
+					do_start_acq = true;
+				}
+				else if(pacman_command.Data[0] == 0x33){ // STOP_ACQ
+					std::cout << "RECV PACMAN COMMAND 0x33 (STOP_ACQ)\n";
+					if(!acq_running){ pacman_command.Data[0] = 0xFB; } 
+					else{ pacman_command.Data[0] = 0x00; }
+					do_stop_acq = true;
+				}
+				else if(pacman_command.Data[0] == 0x44){ // STATUS_ACQ
+					std::cout << "RECV PACMAN COMMAND 0x44 (STATUS_ACQ)\n";
+					pacman_command.Data[0] = 0x00;
+					pacman_command.Data[1] = acq_running ? 0x01 : 0x02;
+				}
+				else if(pacman_command.Data[0] == 0x55){ // PAC_FILE
+					std::cout << "RECV PACMAN COMMAND 0x55 (PAC_FILE)\n";
+					pacman_command.Data[0] = 0x00;
+				}
+				else if(pacman_command.Data[0] == 0x66){ // HOST
+					std::cout << "RECV PACMAN COMMAND 0x66 (HOST)\n";
+					pacman_command.Data[0] = 0x00;
+				}
+				else if(pacman_command.Data[0] == 0x77){ // ZERO_CLK
+					std::cout << "RECV PACMAN COMMAND 0x77 (ZERO_CLK)\n";
+					pacman_command.Data[0] = 0x00;
+				}
+				else{ 
+					std::cout << "RECV PACMAN COMMAND 0x" << std::hex << (int)pacman_command.Data[0] << std::dec << " (?)\n";
+					pacman_command.Data[0] = 0x00; 
+				}
+				
+				// Send the reply to pacman
+				server->SendMessage((char *)&pacman_command, sizeof(UDP_Packet));
+			}
+		}
+	
 	
 		cmd = poll_term_->GetCommand();
 		if(cmd == "CTRL_D"){ cmd = "quit"; }
@@ -922,6 +985,16 @@ void Poll::CommandControl(){
 				std::cout << sys_message_head << " -SYNTAX- bit_test [num_bits] [number]\n";
 			}
 		}
+		else if(cmd == "quiet"){ // Toggle quiet mode
+			if(is_quiet){
+				std::cout << sys_message_head << "Toggling quiet mode OFF\n";
+				is_quiet = false;
+			}
+			else{
+				std::cout << sys_message_head << "Toggling quiet mode ON\n";
+				is_quiet = true;
+			}
+		}
 		else if(!pac_mode){ // These command are only available when not running in pacman mode!
 			if(cmd == "run"){ start_run(); } // Tell POLL to start acq and start recording data to disk
 			else if(cmd == "startacq" || cmd == "startvme"){ // Tell POLL to start data acquisition
@@ -971,16 +1044,6 @@ void Poll::CommandControl(){
 					std::cout << sys_message_head << "Toggling debug mode ON\n";
 					output_file.SetDebugMode();
 					debug_mode = true;
-				}
-			}
-			else if(cmd == "quiet"){ // Toggle quiet mode
-				if(is_quiet){
-					std::cout << sys_message_head << "Toggling quiet mode OFF\n";
-					is_quiet = false;
-				}
-				else{
-					std::cout << sys_message_head << "Toggling quiet mode ON\n";
-					is_quiet = true;
 				}
 			}
 			else if(cmd == "fdir"){ // Change the output file directory
@@ -1118,72 +1181,6 @@ void Poll::CommandControl(){
 /// Function to control the gathering and recording of PIXIE data
 void Poll::RunControl(){
 	while(true){
-		if(pac_mode){ // Check for commands from pacman, if enabled
-			int select_dummy;
-			if(server->Select(select_dummy)){
-				UDP_Packet pacman_command;
-			
-				// We have a pacman command. Retrieve the command
-				server->RecvMessage((char *)&pacman_command, sizeof(UDP_Packet));
-				
-				/* Valid poll commands
-				    0x11 - INIT_ACQ
-				    0x22 - START_ACQ
-				    0x33 - STOP_ACQ
-				    0x44 - STATUS_ACQ
-				    0x55 - PAC_FILE
-				    0x66 - HOST
-				    0x77 - ZERO_CLK
-				   Return codes:
-				    0x00 - ACQ_OK
-				    0x01 - ACQ_RUN
-				    0x02 - ACQ_STOP
-				    0xFB - ACQ_STP_HALT
-				    0xFC - ACQ_STR_RUN*/
-
-				if(pacman_command.Data[0] == 0x11){ // INIT_ACQ
-					std::cout << "RECV PACMAN COMMAND 0x11 (INIT_ACQ)\n";
-					pacman_command.Data[0] = 0x00;
-				}
-				else if(pacman_command.Data[0] == 0x22){ // START_ACQ
-					std::cout << "RECV PACMAN COMMAND 0x22 (START_ACQ)\n";
-					if(acq_running){ pacman_command.Data[0] = 0xFC; }
-					else{ pacman_command.Data[0] = 0x00; }
-					do_start_acq = true;
-				}
-				else if(pacman_command.Data[0] == 0x33){ // STOP_ACQ
-					std::cout << "RECV PACMAN COMMAND 0x33 (STOP_ACQ)\n";
-					if(!acq_running){ pacman_command.Data[0] = 0xFB; } 
-					else{ pacman_command.Data[0] = 0x00; }
-					do_stop_acq = true;
-				}
-				else if(pacman_command.Data[0] == 0x44){ // STATUS_ACQ
-					std::cout << "RECV PACMAN COMMAND 0x44 (STATUS_ACQ)\n";
-					pacman_command.Data[0] = 0x00;
-					pacman_command.Data[1] = acq_running ? 0x01 : 0x02;
-				}
-				else if(pacman_command.Data[0] == 0x55){ // PAC_FILE
-					std::cout << "RECV PACMAN COMMAND 0x55 (PAC_FILE)\n";
-					pacman_command.Data[0] = 0x00;
-				}
-				else if(pacman_command.Data[0] == 0x66){ // HOST
-					std::cout << "RECV PACMAN COMMAND 0x66 (HOST)\n";
-					pacman_command.Data[0] = 0x00;
-				}
-				else if(pacman_command.Data[0] == 0x77){ // ZERO_CLK
-					std::cout << "RECV PACMAN COMMAND 0x77 (ZERO_CLK)\n";
-					pacman_command.Data[0] = 0x00;
-				}
-				else{ 
-					std::cout << "RECV PACMAN COMMAND 0x" << std::hex << (int)pacman_command.Data[0] << std::dec << " (?)\n";
-					pacman_command.Data[0] = 0x00; 
-				}
-				
-				// Send the reply to pacman
-				server->SendMessage((char *)&pacman_command, sizeof(UDP_Packet));
-			}
-		}
-	
 		if(kill_all){ // Supersedes all other commands
 			if(acq_running){ do_stop_acq = true; } // Safety catch
 			else{ break; }
@@ -1254,6 +1251,7 @@ void Poll::RunControl(){
 		}
 
 		if(acq_running){
+			ReadScalers();
 			ReadFIFO();
 
 			//Handle a stop signal
@@ -1343,6 +1341,26 @@ void Poll::RunControl(){
 	std::cout << "Run Control exited\n";
 }
 
+void Poll::ReadScalers() {
+	//Check if enough time has passed since last scaler read.
+	static long long previousReadTime = 0;
+	//The stats interval has not passed so we return without doing anything.
+	if (statsHandler->GetTotalTime() < previousReadTime + statsInterval_) return;
+
+	static std::vector< std::pair<double, double> > xiaRates(16, std::make_pair<double, double>(0,0));
+	static int numChPerMod = pif->GetNumberChannels();
+
+	for (unsigned short mod=0;mod < n_cards; mod++) {
+		//Tell interface to get stats data from the modules.
+		pif->GetStatistics(mod);
+		
+		for (int ch=0;ch< numChPerMod; ch++) 
+			xiaRates[ch] = std::make_pair<double, double>(pif->GetInputCountRate(mod, ch),pif->GetOutputCountRate(mod,ch));
+
+		//Populate Stats Handler with ICR and OCR.
+		statsHandler->SetXiaRates(mod, &xiaRates);
+	}
+}
 bool Poll::ReadFIFO() {
  	static word_t *fifoData = new word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
 

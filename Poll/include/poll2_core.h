@@ -10,9 +10,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date May 11th, 2015
+  * \date Sept. 29th, 2015
   * 
-  * \version 1.3.01
+  * \version 1.3.03
 */
 
 
@@ -25,8 +25,8 @@
 #include "hribf_buffers.h"
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.3.02"
-#define POLL2_CORE_DATE "Aug 27th, 2015"
+#define POLL2_CORE_VERSION "1.3.03"
+#define POLL2_CORE_DATE "Sept. 29th, 2015"
 
 // Maximum length of UDP data packet (in bytes)
 #define MAX_ORPH_DATA 1464
@@ -136,6 +136,7 @@ class Poll{
 	std::map<chanid_t, PixieInterface::Histogram> histoMap;
 
 	StatsHandler *statsHandler;
+	static const int statsInterval_ = 3; ///<The amount time between scaler reads in seconds.
 	
 	data_pack AcqBuf; /// Data packet for class shared-memory broadcast
 	
@@ -168,6 +169,8 @@ class Poll{
 
 	///Routine to read Pixie FIFOs
 	bool ReadFIFO();
+	///Routine to read Pixie scalers.
+	void ReadScalers();
 
 	/// Set IN_SYNCH and SYNCH_WAIT parameters on all modules.
 	bool synch_mods();

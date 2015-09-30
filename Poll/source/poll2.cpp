@@ -109,6 +109,7 @@ int main(int argc, char *argv[]){
 	poll_term.AddStatusWindow();
 	poll_term.EnableTabComplete();
 	poll_term.SetLogFile(".poll2.log");
+	if (poll.GetPacmanMode()) poll_term.EnableTimeout();
 
 	std::cout << "\n#########      #####    ####      ####       ########\n"; 
 	std::cout << " ##     ##    ##   ##    ##        ##       ##      ##\n";

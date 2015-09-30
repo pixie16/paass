@@ -219,6 +219,7 @@ class Terminal{
 	std::string prompt;
 	///The tab complete flag
 	bool enableTabComplete;
+	float commandTimeout_; ///<Time in seconds to wait for command.
 
 	short tabCount;
 
@@ -288,6 +289,9 @@ class Terminal{
 	///Enable tab auto complete functionlity.
 	void EnableTabComplete(bool enable = true);
 	void TabComplete(std::vector<std::string> matches);
+
+	///Enable a timeout while waiting fro a command.
+	void EnableTimeout(float timeout = 0.5);
 
 	/** Set the command filename for storing previous commands This command will 
 	  * clear all current commands from the history if overwrite_ is set to true. */
