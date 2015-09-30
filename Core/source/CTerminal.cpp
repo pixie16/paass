@@ -813,18 +813,19 @@ std::string Terminal::GetCommand(){
 
 		flush(); // If there is anything in the stream, dump it to the screen
 
-				
+		if (commandTimeout_ > 0) {
+		  time(&currentTime);
+		  //If the timeout has passed we set timedOut true and set output to "".
+		  if (currentTime > commandRequestTime + commandTimeout_) {
+		    return "";
+		  }
+		}
+		
 		int keypress = wgetch(input_window);
 	
 		// Check for internal commands
 		if(keypress == ERR){ 
-			if (commandTimeout_ > 0) {
-				time(&currentTime);
-				//If the timeout has passed we set timedOut true and set output to "".
-				if (currentTime > commandRequestTime + commandTimeout_) {
-					return "";
-				}
-			}
+		  return(output);
 		} // No key was pressed in the interval
 		else if(keypress == 10){ // Enter key (10)
 				  std::string temp_cmd = cmd.Get();
