@@ -813,12 +813,13 @@ std::string Terminal::GetCommand(){
 
 		flush(); // If there is anything in the stream, dump it to the screen
 
+                //Time out if there is no command within the set interval (default 0.5 s). 
 		if (commandTimeout_ > 0) {
-		  time(&currentTime);
-		  //If the timeout has passed we set timedOut true and set output to "".
-		  if (currentTime > commandRequestTime + commandTimeout_) {
-		    return "";
-		  }
+                    time(&currentTime);
+                    //If the timeout has passed we simply return the empty output string.
+                    if (currentTime > commandRequestTime + commandTimeout_) {
+                        return(output);
+                    }
 		}
 		
 		int keypress = wgetch(input_window);
