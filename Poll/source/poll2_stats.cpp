@@ -48,6 +48,8 @@ StatsHandler::StatsHandler(const size_t nCards){
 	if(!client->Init("127.0.0.1", 5556)){
 		is_able_to_send = false;
 	}
+
+	Clear();
 }
 
 StatsHandler::~StatsHandler(){
@@ -113,6 +115,7 @@ void StatsHandler::Dump(void){
 		dataRate += dataDelta[i];
 	}
 	dataRate /= timeElapsed;
+	if(timeElapsed<=0) dataRate = 0;
 
 	// Below is the stats packet structure (for N modules)
 	// ---------------------------------------------------
@@ -142,8 +145,12 @@ void StatsHandler::Dump(void){
 	memcpy(ptr, &dataRate, 8); ptr += 8;
 	for (unsigned int i=0; i < numCards; i++) {
 		calcDataRate[i] = (size_t)(dataDelta[i] / timeElapsed);
+		if (timeElapsed<=0) 
+			calcDataRate[i] = 0;
 		for (unsigned int j=0; j < NUM_CHAN_PER_MOD; j++) {	 
 			calcEventRate[i][j] = nEventsDelta[i][j] / timeElapsed;
+			if (timeElapsed<=0) 
+				calcEventRate[i][j] = 0;
 			memcpy(ptr, &inputCountRate[i][j], 8); ptr += 8;
 			memcpy(ptr, &outputCountRate[i][j], 8); ptr += 8;
 			memcpy(ptr, &calcEventRate[i][j], 8); ptr += 8;
@@ -178,8 +185,7 @@ double StatsHandler::GetTotalTime() {
 	return totalTime;
 }
 
-void StatsHandler::Clear(){
-	totalTime = 0;
+void StatsHandler::ClearRates(){
 	timeElapsed = 0;
 
 	for(size_t i=0; i < numCards; i++){
@@ -196,4 +202,17 @@ void StatsHandler::SetXiaRates(int mod, std::vector<std::pair<double, double> > 
 		inputCountRate[mod][ch] = xiaRates->at(ch).first;
 		outputCountRate[mod][ch] = xiaRates->at(ch).second;
 	}
+}
+void StatsHandler::ClearTotals(){
+	totalTime = 0;
+	for(size_t i=0; i < numCards; i++){
+		for(size_t j = 0; j < NUM_CHAN_PER_MOD; j++){
+			nEventsTotal[i][j] = 0;
+		}
+	}
+}
+
+void StatsHandler::Clear(){
+	ClearRates();
+	ClearTotals();
 }

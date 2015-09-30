@@ -33,6 +33,10 @@ class StatsHandler{
 	
 	///Clear the stats.
 	void Clear();
+	void ClearRates();
+	void ClearTotals();
+
+    void Dump();
 	
   private:
     Client *client; // UDP client for network access
@@ -72,7 +76,6 @@ class StatsHandler{
 
 	bool is_able_to_send; /// Is StatsHandler able to send on the network?
 
-    void Dump(void);
 };
 
 #endif
