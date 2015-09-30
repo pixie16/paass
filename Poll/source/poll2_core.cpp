@@ -209,7 +209,10 @@ bool Poll::close_output_file(bool continueRun /*=false*/){
 
 	if(output_file.IsOpen()){ // A file is already open and must be closed
 		//Clear the stats
-		if (!continueRun) statsHandler->Clear();
+		if (!continueRun){
+			statsHandler->Clear();
+			statsHandler->Dump();
+		}
 
 		std::cout << sys_message_head << "Closing output file.\n";
 		if(!pac_mode){ client->SendMessage((char *)"$CLOSE_FILE", 12); }
@@ -242,6 +245,7 @@ bool Poll::open_output_file(bool continueRun){
 
 		//Clear the stats
 		statsHandler->Clear();
+		statsHandler->Dump();
 
 		std::cout << sys_message_head << "Opening output file '" << output_file.GetCurrentFilename() << "'.\n";
 		if(!pac_mode){ client->SendMessage((char *)"$OPEN_FILE", 12); }
@@ -1304,6 +1308,9 @@ void Poll::RunControl(){
 				do_stop_acq = false;
 				acq_running = false;
 
+				statsHandler->ClearRates();
+				statsHandler->Dump();
+				statsHandler->ClearTotals();
 			} //End of handling a stop acq flag
 		}
 
