@@ -135,7 +135,7 @@ void StatsHandler::Dump(void){
 	// channel N-1, 15 rate
 	// channel N-1, 15 total
 	//msg_size = 20 fixed bytes + 4 words/card/ch * numCards * 16 ch * 8 bytes/ word
-	size_t msg_size = 20 + 4*numCards*16*8;
+	size_t msg_size = sizeof(numCards) + sizeof(totalTime) + sizeof(dataRate) + numCards*16*(sizeof(inputCountRate[0][0])+sizeof(outputCountRate[0][0])+sizeof(calcEventRate[0][0])+sizeof(nEventsTotal[0][0]));
 	char *message = new char[msg_size];
 	char *ptr = message;
 	
@@ -151,10 +151,10 @@ void StatsHandler::Dump(void){
 			calcEventRate[i][j] = nEventsDelta[i][j] / timeElapsed;
 			if (timeElapsed<=0) 
 				calcEventRate[i][j] = 0;
-			memcpy(ptr, &inputCountRate[i][j], 8); ptr += 8;
-			memcpy(ptr, &outputCountRate[i][j], 8); ptr += 8;
-			memcpy(ptr, &calcEventRate[i][j], 8); ptr += 8;
-			memcpy(ptr, &nEventsTotal[i][j], 4); ptr += 4;
+			memcpy(ptr, &inputCountRate[i][j], sizeof(inputCountRate[i][j])); ptr += sizeof(inputCountRate[i][j]);
+			memcpy(ptr, &outputCountRate[i][j], sizeof(outputCountRate[i][j])); ptr += sizeof(outputCountRate[i][j]);
+			memcpy(ptr, &calcEventRate[i][j], sizeof(calcEventRate[i][j])); ptr += sizeof(calcEventRate[i][j]);
+			memcpy(ptr, &nEventsTotal[i][j], sizeof(nEventsTotal[i][j])); ptr += sizeof(nEventsTotal[i][j]);
 		} //Update the status bar
 	}
 	
