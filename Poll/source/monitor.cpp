@@ -124,7 +124,9 @@ std::string GetTimeString(double input_){
 }
 
 int main(){
-	char buffer[2048]; // 2 kB of stats data max
+	const size_t msg_size = 5844;
+	const int modColumnWidth = 22;
+	char buffer[msg_size]; // 2 kB of stats data max
 	Server poll_server;
 	
 	int num_modules;
@@ -143,7 +145,7 @@ int main(){
 			std::cout << std::setprecision(2);
 	
 	
-			int recv_bytes = poll_server.RecvMessage(buffer, 2048);
+			poll_server.RecvMessage(buffer, msg_size);
 			char *ptr = buffer;
 
 			if(strcmp(buffer, "$KILL_SOCKET") == 0){
@@ -200,13 +202,13 @@ int main(){
 			}
 			
 			// Display the rate information
-			std::cout << " Run Time: " << GetTimeString(time_in_sec);
-			if (num_modules > 2) std::cout << "\t";
+			std::cout << "Run Time: " << GetTimeString(time_in_sec);
+			if (num_modules > 1) std::cout << "\t";
 			else std::cout << "\n";
 			std::cout << "Data Rate: " << GetRateString(data_rate) << std::endl;
 			std::cout << "   ";
 			for(unsigned int i = 0; i < (unsigned int)num_modules; i++){
-				std::cout << "|-----M" << std::setw(2) << std::setfill('0') << i << "----";
+				std::cout << "|" << std::setw((modColumnWidth-2) / 2) << std::setfill('-') << "M" << std::setw(2) << std::setfill('0') << i << std::setw((modColumnWidth-2) / 2) << std::setfill('-') << "";
 			}
 			std::cout << "|\n";
 				
