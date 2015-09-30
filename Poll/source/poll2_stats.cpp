@@ -49,6 +49,8 @@ StatsHandler::StatsHandler(const size_t nCards){
 	if(!client->Init("127.0.0.1", 5556)){
 		is_able_to_send = false;
 	}
+
+	Clear();
 }
 
 StatsHandler::~StatsHandler(){
@@ -114,6 +116,7 @@ void StatsHandler::Dump(void){
 		dataRate += dataDelta[i];
 	}
 	dataRate /= timeElapsed;
+	if(timeElapsed<=0) dataRate = 0;
 
 	// Below is the stats packet structure (for N modules)
 	// ---------------------------------------------------
@@ -133,7 +136,7 @@ void StatsHandler::Dump(void){
 	// channel N-1, 15 rate
 	// channel N-1, 15 total
 	//msg_size = 20 fixed bytes + 4 words/card/ch * numCards * 16 ch * 8 bytes/ word
-	size_t msg_size = 20 + 4*numCards*16*8;
+	size_t msg_size = sizeof(numCards) + sizeof(totalTime) + sizeof(dataRate) + numCards*16*(sizeof(inputCountRate[0][0])+sizeof(outputCountRate[0][0])+sizeof(calcEventRate[0][0])+sizeof(nEventsTotal[0][0]));
 	char *message = new char[msg_size];
 	char *ptr = message;
 	
@@ -143,12 +146,16 @@ void StatsHandler::Dump(void){
 	memcpy(ptr, &dataRate, 8); ptr += 8;
 	for (unsigned int i=0; i < numCards; i++) {
 		calcDataRate[i] = (size_t)(dataDelta[i] / timeElapsed);
+		if (timeElapsed<=0) 
+			calcDataRate[i] = 0;
 		for (unsigned int j=0; j < NUM_CHAN_PER_MOD; j++) {	 
 			calcEventRate[i][j] = nEventsDelta[i][j] / timeElapsed;
-			memcpy(ptr, &inputCountRate[i][j], 8); ptr += 8;
-			memcpy(ptr, &outputCountRate[i][j], 8); ptr += 8;
-			memcpy(ptr, &calcEventRate[i][j], 8); ptr += 8;
-			memcpy(ptr, &nEventsTotal[i][j], 4); ptr += 4;
+			if (timeElapsed<=0) 
+				calcEventRate[i][j] = 0;
+			memcpy(ptr, &inputCountRate[i][j], sizeof(inputCountRate[i][j])); ptr += sizeof(inputCountRate[i][j]);
+			memcpy(ptr, &outputCountRate[i][j], sizeof(outputCountRate[i][j])); ptr += sizeof(outputCountRate[i][j]);
+			memcpy(ptr, &calcEventRate[i][j], sizeof(calcEventRate[i][j])); ptr += sizeof(calcEventRate[i][j]);
+			memcpy(ptr, &nEventsTotal[i][j], sizeof(nEventsTotal[i][j])); ptr += sizeof(nEventsTotal[i][j]);
 		} //Update the status bar
 	}
 	
@@ -179,8 +186,7 @@ double StatsHandler::GetTotalTime() {
 	return totalTime;
 }
 
-void StatsHandler::Clear(){
-	totalTime = 0;
+void StatsHandler::ClearRates(){
 	timeElapsed = 0;
 
 	for(size_t i=0; i < numCards; i++){
@@ -197,4 +203,17 @@ void StatsHandler::SetXiaRates(int mod, std::vector<std::pair<double, double> > 
 		inputCountRate[mod][ch] = xiaRates->at(ch).first;
 		outputCountRate[mod][ch] = xiaRates->at(ch).second;
 	}
+}
+void StatsHandler::ClearTotals(){
+	totalTime = 0;
+	for(size_t i=0; i < numCards; i++){
+		for(size_t j = 0; j < NUM_CHAN_PER_MOD; j++){
+			nEventsTotal[i][j] = 0;
+		}
+	}
+}
+
+void StatsHandler::Clear(){
+	ClearRates();
+	ClearTotals();
 }
