@@ -741,10 +741,19 @@ void Poll::CommandControl(){
 			}
 		}
 	
-	
 		cmd = poll_term_->GetCommand();
-		if(cmd == "CTRL_D"){ cmd = "quit"; }
-		else if(cmd == "CTRL_C"){ continue; }		
+		if(cmd == "CTRL_D"){ 
+			std::cout << sys_message_head << "Received EOF (ctrl-d) signal. Exiting...\n";
+			cmd = "quit"; 
+		}
+		else if(cmd == "CTRL_C"){ 
+			std::cout << sys_message_head << "Warning! Received SIGINT (ctrl-c) signal.\n";
+			continue; 
+		}
+		else if(cmd == "CTRL_Z"){ 
+			std::cout << sys_message_head << "Warning! Received SIGTSTP (ctrl-z) signal.\n";
+			continue; 
+		}	
 		if (cmd.find("\t") != std::string::npos) {
 			poll_term_->TabComplete(TabComplete(cmd.substr(0,cmd.length()-1)));
 			continue;
