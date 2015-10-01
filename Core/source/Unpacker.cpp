@@ -243,8 +243,6 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 }
 
 Unpacker::Unpacker(){
-	raw_event_mode = false;
-	use_hires_time = false;
 	debug_mode = false;
 	init = false;
 	
@@ -253,20 +251,17 @@ Unpacker::Unpacker(){
 }
 
 Unpacker::~Unpacker(){
-	if(init){
-		ClearRawEvent();
-		ClearEventList();
-	}
+	Close();
 }
 
-bool Unpacker::Initialize(){
+bool Unpacker::Initialize(std::string prefix_){
 	if(init){ return false; }
 	return (init = true);
 }
 
 bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbose/*=true*/){
 	if(!init){ return false; }
-
+	
 	const unsigned int maxVsn = 14; // No more than 14 pixie modules per crate
 	unsigned int nWords_read = 0;
 	
@@ -432,4 +427,11 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 	}
 	
 	return true;		
+}
+
+void Unpacker::Close(){
+	if(init){
+		ClearRawEvent();
+		ClearEventList();
+	}
 }

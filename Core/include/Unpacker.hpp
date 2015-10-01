@@ -17,9 +17,6 @@ class Unpacker{
 	
 	unsigned int event_width; /// The width of the raw event in pixie clock ticks (8 ns).
 	
-	bool raw_event_mode; /// Placeholder bool for dumping raw events to file.
-	bool use_hires_time; /// Placeholder bool for using high resolution pulse fitting.
-	
 	bool debug_mode; /// True if debug mode is set.
 	bool init; /// True if the class has been properly initialized.
 
@@ -74,7 +71,7 @@ class Unpacker{
 	/** Initialize the Unpacker object. Does nothing useful if not overloaded
 	 * by a derived class.
 	 */
-	virtual bool Initialize();
+	virtual bool Initialize(std::string prefix_="");
 	
 	/** Initialize the root output. Does nothing useful if not overloaded
 	 * by a derived class.
@@ -86,7 +83,7 @@ class Unpacker{
 
 	/// Toggle debug mode on / off.
 	bool SetDebugMode(bool state_=true){ return (debug_mode = state_); }
-	
+
 	/// Set the width of events in pixie16 clock ticks.
 	unsigned int SetEventWidth(unsigned int width_){ return (event_width = width_); }
 	
@@ -96,9 +93,22 @@ class Unpacker{
 	 */	
 	bool ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbose=true);
 	
-	virtual bool SetRawEventMode(bool state_=true){ return (raw_event_mode = state_); }
+	/// Return the syntax string for this program.
+	virtual void SyntaxStr(const char *name_, std::string prefix_=""){ std::cout << prefix_ << "SYNTAX: " << std::string(name_) << " <options> <input>\n"; }
+
+	/// Print a help dialogue.
+	virtual void Help(std::string prefix_=""){}
 	
-	virtual bool SetHiResMode(bool state_=true){ return (use_hires_time = state_); }
+	/// Scan input arguments and set class variables.
+	virtual bool SetArgs(std::deque<std::string> &args_, std::string &filename_){ return true; }
+
+	/// Print a status message.
+	virtual void PrintStatus(std::string prefix_=""){}
+
+	/// Empty the raw event and the event list.
+	void Close();
 };
+
+extern Unpacker *GetCore(); /// External function which returns a pointer to a class derived from Unpacker.
 
 #endif
