@@ -33,6 +33,12 @@ function(PXI_CONFIG)
 	#Write the base directory
 	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "PixieBaseDir\t\t${PXI_ROOT_DIR}\n")
 
+	#create an installer that can be invoked by
+	#add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)	
+	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake 
+		"file(INSTALL pixie.cfg DESTINATION ${CMAKE_INSTALL_PREFIX})\n" 
+	)
+
 	#Following are lists of keys and the glob expr to find the files
 	set(CONFIG_NAME SpFpgaFile ComFpgaFile DspConfFile DspVarFile DspSetFile DspWorkingSetFile SlotFile)
 	set(CONFIG_EXPR 
@@ -58,17 +64,21 @@ function(PXI_CONFIG)
 		#Check that a unique match was found
 		list(LENGTH FILE_MATCHES NUM_MATCHES)
 		if (NOT NUM_MATCHES EQUAL 1)
-			message(WARNING "Unable to complete configuration! Unique ${KEY} file (${GLOB_EXPR}) not found!")
+			message(STATUS "Warning: Unable to complete configuration! Unique ${KEY} file (${GLOB_EXPR}) not found!")
 		endif()
 
 		if (${KEY} MATCHES "SlotFile")
 			if (NUM_MATCHES EQUAL 1)
 				configure_file(${PXI_ROOT_DIR}/${FILE_MATCHES} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake 
+					"file(INSTALL slot_def.set DESTINATION ${CMAKE_INSTALL_PREFIX})\n")
 			endif()
 			set(FILE_MATCHES "./slot_def.set")
 		elseif (${KEY} MATCHES "DspSetFile")
 			if (NUM_MATCHES EQUAL 1)
 				configure_file(${PXI_ROOT_DIR}/${FILE_MATCHES} ${CMAKE_CURRENT_BINARY_DIR}/current.set COPYONLY)
+				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake 
+					"file(INSTALL current.set DESTINATION ${CMAKE_INSTALL_PREFIX})\n")
 			endif()
 			set(FILE_MATCHES ./current.set)
 		elseif(${KEY} MATCHES "DspWorkingSetFile")
