@@ -12,7 +12,7 @@
   * 
   * \date Oct. 1st, 2015
   * 
-  * \version 1.3.04
+  * \version 1.3.05
 */
 
 #include <algorithm>
@@ -1178,6 +1178,7 @@ void Poll::CommandControl(){
 		
 				do_MCA_run = true;
 			}
+			else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
 		}
 		else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
 	}
