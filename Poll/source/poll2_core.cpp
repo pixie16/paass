@@ -12,7 +12,7 @@
   * 
   * \date Oct. 1st, 2015
   * 
-  * \version 1.3.05
+  * \version 1.3.07
 */
 
 #include <algorithm>
@@ -759,7 +759,6 @@ void Poll::CommandControl(){
 			continue;
 		}
 		poll_term_->flush();
-		//poll_term_->print((cmd+"\n").c_str()); // This will force a write before the cout stream dumps to the screen
 
 		if(cmd == ""){ continue; }
 		

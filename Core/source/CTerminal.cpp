@@ -843,24 +843,22 @@ std::string Terminal::GetCommand(){
 		int keypress = wgetch(input_window);
 	
 		// Check for internal commands
-		if(keypress == ERR){ }// No key was pressed in the interval
+		if(keypress == ERR){ } // No key was pressed in the interval
 		else if(keypress == 10){ // Enter key (10)
 			std::string temp_cmd = cmd.Get();
-			if(temp_cmd != ""){ 
-				//Reset the position in the history.
-				commands.Reset();
-				if(temp_cmd != commands.PeekPrev()){ // Only save this command if it is different than the previous command
-					commands.Push(temp_cmd);
-				}
-				output = temp_cmd;
-				std::cout << prompt.c_str() << output << "\n";
-				flush();
-				text_length = 0;
-				_scrollPosition = 0;
-				clear_();
-				tabCount = 0;
-				break;
+			//Reset the position in the history.
+			commands.Reset();
+			if(temp_cmd != "" && temp_cmd != commands.PeekPrev()){ // Only save this command if it is different than the previous command
+				commands.Push(temp_cmd);
 			}
+			output = temp_cmd;
+			std::cout << prompt << output << "\n";
+			flush();
+			text_length = 0;
+			_scrollPosition = 0;
+			clear_();
+			tabCount = 0;
+			break;
 		} 
 		else if(keypress == '\t' && enableTabComplete) {
 			tabCount++;
