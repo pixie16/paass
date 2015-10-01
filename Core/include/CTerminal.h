@@ -9,7 +9,7 @@
   * 
   * \date Oct. 1st, 2015
   * 
-  * \version 1.2.00
+  * \version 1.2.01
 */
 
 #ifndef CTERMINAL_H
@@ -23,7 +23,7 @@
 ///Default size of terminal scroll back buffer in lines.
 #define SCROLLBACK_SIZE 1000
 
-#define CTERMINAL_VERSION "1.2.00"
+#define CTERMINAL_VERSION "1.2.01"
 #define CTERMINAL_DATE "Oct. 1st, 2015"
 
 #include <curses.h>
