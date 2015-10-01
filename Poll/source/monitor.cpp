@@ -125,8 +125,8 @@ std::string GetTimeString(double input_){
 
 int main(){
 	const size_t msg_size = 5844;
-	const int modColumnWidth = 22;
-	char buffer[msg_size]; // 2 kB of stats data max
+	const int modColumnWidth = 26;
+	char buffer[msg_size]; // 5.8 kB of stats data max
 	Server poll_server;
 	
 	int num_modules;
@@ -143,8 +143,7 @@ int main(){
 
 		while(true){
 			std::cout << std::setprecision(2);
-	
-	
+
 			poll_server.RecvMessage(buffer, msg_size);
 			char *ptr = buffer;
 
@@ -208,20 +207,24 @@ int main(){
 			std::cout << "Data Rate: " << GetRateString(data_rate) << std::endl;
 			std::cout << "   ";
 			for(unsigned int i = 0; i < (unsigned int)num_modules; i++){
-				std::cout << "|" << std::setw((modColumnWidth-2) / 2) << std::setfill('-') << "M" << std::setw(2) << std::setfill('0') << i << std::setw((modColumnWidth-2) / 2) << std::setfill('-') << "";
+			    std::cout << "|" << std::setw((modColumnWidth-2) / 2) 
+				      << std::setfill('-') << "M" << std::setw(2) 
+				      << std::setfill('0') << i 
+				      << std::setw((modColumnWidth-2) / 2) 
+				      << std::setfill('-') << "";
 			}
 			std::cout << "|\n";
 				
 			for(unsigned int i = 0; i < 16; i++){
-				std::cout << "C" << std::setw(2) << std:: setfill('0') << i << "|";
-				for(unsigned int j = 0; j < (unsigned int)num_modules; j++){
-					std::cout << std::setw(5) << std::setfill(' ') << GetChanRateString(inputCountRate[j][i]);
-					std::cout << std::setw(5) << std::setfill(' ') << GetChanRateString(outputCountRate[j][i]);
-					std::cout << std::setw(5) << std::setfill(' ') << GetChanRateString(rates[j][i]);
-					std:: cout << " " << std::setw(6) << GetChanTotalString(totals[j][i]);
-					std::cout << "|";
-				}
-				std::cout << "\n";
+			    std::cout << "C" << std::setw(2) << std:: setfill('0') << i << "|";
+			    for(unsigned int j = 0; j < (unsigned int)num_modules; j++){
+				std::cout << std::setw(5) << std::setfill(' ') << GetChanRateString(inputCountRate[j][i]) << " ";
+				std::cout << std::setw(5) << std::setfill(' ') << GetChanRateString(outputCountRate[j][i]) << " ";
+				std::cout << std::setw(5) << std::setfill(' ') << GetChanRateString(rates[j][i]) << " ";
+				std:: cout << " " << std::setw(6) << GetChanTotalString(totals[j][i]) << " ";
+				std::cout << "|";
+			    }
+			    std::cout << "\n";
 			}
 		}
 	}
