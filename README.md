@@ -14,7 +14,7 @@ through a PACMAN interface (recommended).
 * ncurses
 * PLX 
 * PXI
-* gcc v4.4.7+
+* gcc v4.4.6+
 * cmake v2.8.8+
 
 ###Optional (must have one)
@@ -37,14 +37,18 @@ is `PixieSuite2/exec`
 
 ###Options for CMAKE Compilation
 * -DCMAKE\_INSTALL\_PREFIX (default PixieSuite2/exec)
-* -DUSE_ROOT (default ON)
-* -DUSE_DAMM (default ON)
-* -DUSE_SETUP (default OFF)
-* -DUSE_NCURSES (default ON; required for poll2)
-* -DCORE_ONLY (default OFF)
+* -DUSE\_ROOT (default ON)
+* -DUSE\_DAMM (default ON)
+* -DUSE\_SETUP (default OFF)
+* -DUSE\_NCURSES (default ON; required for poll2)
+* -DCORE\_ONLY (default OFF)
 
 ##Tested Systems
-The softare has been compiled and tested on the following Setups
+The softare has been compiled and tested on the following setups: 
 
-* CentOS 6.5 (Final) w/ kernel 2.6.32-431.17.1.el6.x86_64 and gcc 4.4.7 20120313
-* CentOS 6.2 (Final) w/ kernel 2.6.32-220.el6.i686 and gcc 4.4.6 20120305
+Platform | Kernel | Cmake | GCC
+-------- | ------ |:-----:| ---
+CentOS 6.2 | 2.6.32-220.el6.i686         | ???????? | 4.4.6 20120305
+CentOS 6.3 | 2.6.32-279.19.1.el6.x86\_64 | 2.8.12.2 | 4.4.6
+CentOS 6.5 | 2.6.32-431.17.1.el6.x86\_64 | ???????? | 4.4.7 20120313
+RHEL 6.6   | 2.6.32-504.23.4.el6.x86\_64 | 2.8.12.2 | 4.4.7
