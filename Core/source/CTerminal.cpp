@@ -7,9 +7,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date May 13th, 2015
+  * \date Oct. 1st, 2015
   * 
-  * \version 1.1.06
+  * \version 1.2.00
 */
 
 #include <iostream>
@@ -32,6 +32,7 @@
 #ifdef USE_NCURSES
 
 bool SIGNAL_INTERRUPT = false;
+bool SIGNAL_TERMSTOP = false;
 bool SIGNAL_RESIZE = false;
 
 #endif
@@ -278,6 +279,10 @@ void sig_int_handler(int ignore_){
 	SIGNAL_INTERRUPT = true;
 }
 
+void sig_tstp_handler(int ignore_){
+	SIGNAL_TERMSTOP = true;
+}
+
 void signalResize(int ignore_) {
 	SIGNAL_RESIZE = true;
 }
@@ -285,15 +290,22 @@ void signalResize(int ignore_) {
 
 // Setup the interrupt signal intercept
 void setup_signal_handlers(){ 
+	// Handle ctrl-c press (SIGINT)
 	if(signal(SIGINT, SIG_IGN) != SIG_IGN){	
 		if(signal(SIGINT, sig_int_handler) == SIG_ERR){
-			throw std::runtime_error(" Error setting up signal handler!");
+			throw std::runtime_error(" Error setting up SIGINT signal handler!");
+		}
+	}
+
+	// Handle ctrl-z press (SIGTSTP)
+	if(signal(SIGTSTP, SIG_IGN) != SIG_IGN){
+		if(signal(SIGTSTP, sig_tstp_handler) == SIG_ERR){
+			throw std::runtime_error(" Error setting up SIGTSTP signal handler!");
 		}
 	}
 
 	//Handle resize signal
 	signal(SIGWINCH, signalResize);
-
 }
 void Terminal::resize_() {
 	//end session and then refresh to get new window sizes.
@@ -810,26 +822,30 @@ std::string Terminal::GetCommand(){
 			text_length = 0;
 			break;
 		}
+		else if(SIGNAL_TERMSTOP){ // ctrl-z (SIGTSTP)
+			SIGNAL_TERMSTOP = false;
+			output = "CTRL_Z";
+			text_length = 0;
+			break;
+		}
 
 		flush(); // If there is anything in the stream, dump it to the screen
 
-                //Time out if there is no command within the set interval (default 0.5 s). 
+		//Time out if there is no command within the set interval (default 0.5 s). 
 		if (commandTimeout_ > 0) {
-                    time(&currentTime);
-                    //If the timeout has passed we simply return the empty output string.
-                    if (currentTime > commandRequestTime + commandTimeout_) {
-                        return(output);
-                    }
+			time(&currentTime);
+			//If the timeout has passed we simply return the empty output string.
+			if (currentTime > commandRequestTime + commandTimeout_) {
+				break;
+			}
 		}
 		
 		int keypress = wgetch(input_window);
 	
 		// Check for internal commands
-		if(keypress == ERR){ 
-		  return(output);
-		} // No key was pressed in the interval
+		if(keypress == ERR){ }// No key was pressed in the interval
 		else if(keypress == 10){ // Enter key (10)
-				  std::string temp_cmd = cmd.Get();
+			std::string temp_cmd = cmd.Get();
 			if(temp_cmd != ""){ 
 				//Reset the position in the history.
 				commands.Reset();
@@ -843,13 +859,13 @@ std::string Terminal::GetCommand(){
 				_scrollPosition = 0;
 				clear_();
 				tabCount = 0;
-				return output;
+				break;
 			}
 		} 
 		else if(keypress == '\t' && enableTabComplete) {
 			tabCount++;
 			output = cmd.Get().substr(0,cursX - offset) + "\t";
-			return output;
+			break;
 		}
 		else if(keypress == 4){ // ctrl-d (EOT)
 			output = "CTRL_D";
