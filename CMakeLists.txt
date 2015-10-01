@@ -89,8 +89,12 @@ if (NOT ${CORE_ONLY})
 	link_directories(${PXI_LIBRARY_DIR})
 	#The following configuration file path is hardcoded into the PXI software :-(
 	install(FILES ${PXI_ROOT_DIR}/test/pxisys.ini DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+	#Create pixie.cfg and copy slot_def.set as well as default.set to current.set
 	PXI_CONFIG()
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg DESTINATION ${CMAKE_INSTALL_PREFIX})
+	#Use the cmake script created by PXI_CONFIG to install the files it created when make config is typed
+	add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)	
+
 endif()
 
 add_subdirectory(Core)
