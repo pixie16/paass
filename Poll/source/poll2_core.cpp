@@ -10,9 +10,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date Sept. 29th, 2015
+  * \date Oct. 1st, 2015
   * 
-  * \version 1.3.03
+  * \version 1.3.04
 */
 
 #include <algorithm>
@@ -868,6 +868,11 @@ void Poll::CommandControl(){
 			}
 		}
 		else if(cmd == "pread" || cmd == "pmread"){ // Read pixie parameters
+			if(acq_running || do_MCA_run){ 
+				std::cout << sys_message_head << "Warning! Cannot view pixie parameters while acquisition is running\n\n"; 
+				continue;
+			}
+		
 			if(cmd == "pread"){ // Syntax "pread <module> <channel> <parameter name>"
 				if(p_args > 0 && arguments.at(0) == "help"){ pchan_help(); }
 				else if(p_args >= 3){
