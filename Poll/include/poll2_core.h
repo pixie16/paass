@@ -12,9 +12,8 @@
   * 
   * \date Sept. 29th, 2015
   * 
-  * \version 1.3.03
+  * \version 1.3.07
 */
-
 
 #ifndef POLL2_CORE_H
 #define POLL2_CORE_H
@@ -25,8 +24,8 @@
 #include "hribf_buffers.h"
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.3.03"
-#define POLL2_CORE_DATE "Sept. 29th, 2015"
+#define POLL2_CORE_VERSION "1.3.07"
+#define POLL2_CORE_DATE "Oct. 1st, 2015"
 
 // Maximum length of UDP data packet (in bytes)
 #define MAX_ORPH_DATA 1464
