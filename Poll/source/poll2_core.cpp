@@ -12,7 +12,7 @@
   * 
   * \date Oct. 1st, 2015
   * 
-  * \version 1.3.07
+  * \version 1.3.08
 */
 
 #include <algorithm>
@@ -757,7 +757,12 @@ void Poll::CommandControl(){
 		}
 	
 		cmd = poll_term_->GetCommand();
-		if(cmd == "CTRL_D"){ 
+		if(cmd == "_SIGSEGV_"){
+			std::cout << Display::ErrorStr("SEGMENTATION FAULT") << std::endl;
+			Close();
+			exit(EXIT_FAILURE);
+		}
+		else if(cmd == "CTRL_D"){ 
 			std::cout << sys_message_head << "Received EOF (ctrl-d) signal. Exiting...\n";
 			cmd = "quit"; 
 		}

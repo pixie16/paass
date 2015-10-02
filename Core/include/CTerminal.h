@@ -9,7 +9,7 @@
   * 
   * \date Oct. 1st, 2015
   * 
-  * \version 1.2.01
+  * \version 1.2.02
 */
 
 #ifndef CTERMINAL_H
@@ -23,12 +23,10 @@
 ///Default size of terminal scroll back buffer in lines.
 #define SCROLLBACK_SIZE 1000
 
-#define CTERMINAL_VERSION "1.2.01"
-#define CTERMINAL_DATE "Oct. 1st, 2015"
+#define CTERMINAL_VERSION "1.2.02"
+#define CTERMINAL_DATE "Oct. 2nd, 2015"
 
 #include <curses.h>
-
-extern bool SIGNAL_INTERRUPT;
 
 extern std::string CPP_APP_VERSION;
 

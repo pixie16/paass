@@ -7,9 +7,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date Oct. 1st, 2015
+  * \date Oct. 2nd, 2015
   * 
-  * \version 1.2.00
+  * \version 1.2.02
 */
 
 #include <iostream>
@@ -31,6 +31,7 @@
 
 #ifdef USE_NCURSES
 
+bool SIGNAL_SEGFAULT = false;
 bool SIGNAL_INTERRUPT = false;
 bool SIGNAL_TERMSTOP = false;
 bool SIGNAL_RESIZE = false;
@@ -275,6 +276,10 @@ void CommandString::Pop(unsigned int index_){
 // Terminal
 ///////////////////////////////////////////////////////////////////////////////
 
+void sig_segv_handler(int ignore_){
+	SIGNAL_SEGFAULT = true;
+}
+
 void sig_int_handler(int ignore_){
 	SIGNAL_INTERRUPT = true;
 }
@@ -290,6 +295,13 @@ void signalResize(int ignore_) {
 
 // Setup the interrupt signal intercept
 void setup_signal_handlers(){ 
+	// Handle segmentation faults press (SIGSEGV)
+	if(signal(SIGSEGV, SIG_IGN) != SIG_IGN){	
+		if(signal(SIGSEGV, sig_segv_handler) == SIG_ERR){
+			throw std::runtime_error(" Error setting up SIGSEGV signal handler!");
+		}
+	}
+
 	// Handle ctrl-c press (SIGINT)
 	if(signal(SIGINT, SIG_IGN) != SIG_IGN){	
 		if(signal(SIGINT, sig_int_handler) == SIG_ERR){
@@ -816,6 +828,10 @@ std::string Terminal::GetCommand(){
 	}
 
 	while(true){
+		if(SIGNAL_SEGFAULT){ // segmentation fault (SIGSEGV)
+			Close();
+			return "_SIGSEGV_";
+		}
 		if(SIGNAL_INTERRUPT){ // ctrl-c (SIGINT)
 			SIGNAL_INTERRUPT = false;
 			output = "CTRL_C";
