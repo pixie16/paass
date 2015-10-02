@@ -166,6 +166,9 @@ int main(int argc, char *argv[]){
 	// Close the output file, if one is open
 	poll.Close();
 
+	// Close the terminal.
+	poll_term.Close();
+
 	//Reprint the leader as the carriage was returned
 	Display::LeaderPrint(std::string("Running poll2 v").append(POLL2_CORE_VERSION));
 	std::cout << Display::OkayStr("[Done]") << std::endl;

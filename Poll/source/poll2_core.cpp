@@ -75,18 +75,76 @@ const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread",
 const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "thresh", 
 	"debug", "quiet",	"quit", "help", "version"});
 
-MCA_args::MCA_args(){ Zero(); }
+MCA_args::MCA_args(){ 
+	mca = NULL;
+	Zero(); 
+}
 	
 MCA_args::MCA_args(bool useRoot_, int totalTime_, std::string basename_){
+	running = false;
 	useRoot = useRoot_;
 	totalTime = totalTime_;
 	basename = basename_;
+	
+	mca = NULL;
+}
+
+MCA_args::~MCA_args(){
+	if(mca){ delete mca; }
+}
+
+bool MCA_args::Initialize(PixieInterface *pif_){
+	if(running){ return false; }
+
+	pif_->RemovePresetRunLength(0);
+	
+	// Initialize the MCA object.
+#if defined(USE_ROOT) && defined(USE_DAMM)
+	if(useRoot)
+		mca = (MCA*)(new MCA_ROOT(pif_, basename.c_str()));
+	else
+		mca = (MCA*)(new MCA_DAMM(pif_, basename.c_str()));
+#elif defined(USE_ROOT)
+	mca = (MCA*)(new MCA_ROOT(pif_, basename.c_str()));
+#elif defined(USE_DAMM)
+	mca = (MCA*)(new MCA_DAMM(pif_, basename.c_str()));
+#endif
+
+	pif_->StartHistogramRun();
+
+	if(!mca->IsOpen()){
+		pif_->EndRun();
+		return false;
+	}
+
+	return (running = true);
+}
+
+bool MCA_args::Step(){ 
+	if(!mca){ return false; }
+	return mca->Step();
+}
+
+bool MCA_args::CheckTime(){ 
+	if(!mca || (totalTime <= 0 || (mca->GetRunTime() >= totalTime))){ return false; }
+	return true;
 }
 
 void MCA_args::Zero(){
+	running = false;
 	useRoot = false;
 	totalTime = 0; // Needs to be zero for checking of MCA arguments
 	basename = "MCA";
+	
+	if(mca){ 
+		delete mca; 
+		mca = NULL;
+	}
+}
+
+void MCA_args::Close(PixieInterface *pif_){
+	pif_->EndRun();
+	Zero();
 }
 
 Poll::Poll(){
@@ -1195,16 +1253,19 @@ void Poll::CommandControl(){
 
 				if (p_args >= 1) {
 					std::string type = arguments.at(0);
-					if(type == "root"){ mca_args.useRoot = true; }
-					else if(type != "damm"){ mca_args.totalTime = atoi(type.c_str()); }
+					
+					if(type == "root"){ mca_args.SetUseRoot(); }
+					else if(type != "damm"){ mca_args.SetTotalTime(atoi(type.c_str())); }
+					
 					if(p_args >= 2){
-						if(mca_args.totalTime == 0){ mca_args.totalTime = atoi(arguments.at(1).c_str()); }
-						else{ mca_args.basename = arguments.at(1); }
-						if(p_args >= 3){ mca_args.basename = arguments.at(2); }
+						if(mca_args.GetTotalTime() == 0){ mca_args.SetTotalTime(atoi(arguments.at(1).c_str())); }
+						else{ mca_args.SetBasename(arguments.at(1)); }
+						if(p_args >= 3){ mca_args.SetBasename(arguments.at(2)); }
 					}
 				}
-				if(mca_args.totalTime == 0){ 
-					mca_args.totalTime = 10; 
+				
+				if(mca_args.GetTotalTime() == 0){ 
+					mca_args.SetTotalTime(10);
 					std::cout << sys_message_head << "Using default MCA time of 10 seconds\n";
 				}
 		
@@ -1224,7 +1285,7 @@ void Poll::CommandControl(){
 void Poll::RunControl(){
 	while(true){
 		if(kill_all){ // Supersedes all other commands
-			if(acq_running){ do_stop_acq = true; } // Safety catch
+			if(acq_running || mca_args.IsRunning()){ do_stop_acq = true; } // Safety catch
 			else{ break; }
 		}
 		
@@ -1239,30 +1300,37 @@ void Poll::RunControl(){
 			}
 		}
 
-		if(do_MCA_run){ // Do an MCA run, if the acq is not running
-			if(acq_running){ do_stop_acq = true; } // Safety catch
+		if(do_MCA_run){ // Do an MCA run, if the acq is not running.
+			if(acq_running){ do_stop_acq = true; } // Safety catch.
 			else{
-				if(mca_args.totalTime > 0.0){ std::cout << sys_message_head << "Performing MCA data run for " << mca_args.totalTime << " s\n"; }
-				else{ std::cout << sys_message_head << "Performing infinite MCA data run. Type \"stop\" to quit\n"; }
-				pif->RemovePresetRunLength(0);
+				if(!mca_args.IsRunning()){ // Start the pixie histogram run.
+					if(mca_args.GetTotalTime() > 0.0){ std::cout << sys_message_head << "Performing MCA data run for " << mca_args.GetTotalTime() << " s\n"; }
+					else{ std::cout << sys_message_head << "Performing infinite MCA data run. Type \"stop\" to quit\n"; }
 
-				MCA *mca = NULL;
-#if defined(USE_ROOT) && defined(USE_DAMM)
-				if(mca_args.useRoot){ mca = new MCA_ROOT(pif, mca_args.basename.c_str()); }
-				else{ mca = new MCA_DAMM(pif, mca_args.basename.c_str()); }
-#elif defined(USE_ROOT)
-				mca = new MCA_ROOT(pif, mca_args.basename.c_str());
-#elif defined(USE_DAMM)
-				mca = new MCA_DAMM(pif, mca_args.basename.c_str());
-#endif
-
-				if(mca && mca->IsOpen()){ mca->Run(mca_args.totalTime, &do_stop_acq); }
-				mca_args.Zero();
-				do_stop_acq = false;
-				do_MCA_run = false;
-				delete mca;
+					if(!mca_args.Initialize(pif)){
+						std::cout << Display::ErrorStr("Run TERMINATED") << std::endl;
+						do_MCA_run = false;
+						had_error = true;
+						continue;
+					}
+				}
 				
-				std::cout << std::endl;
+				if(!mca_args.CheckTime() || do_stop_acq){ // End the run.
+					mca_args.Close(pif);
+					std::cout << sys_message_head << "Ending MCA run.\n";
+					std::cout << sys_message_head << "Ran for " << mca_args.GetMCA()->GetRunTime() << " s.\n";
+					do_stop_acq = false;
+					do_MCA_run = false;
+				}
+				else{
+					sleep(1); // Sleep for a small amount of time.
+					if(!mca_args.Step()){ // Update the histograms.
+						std::cout << Display::ErrorStr("Run TERMINATED") << std::endl;
+						mca_args.Close(pif);
+						do_MCA_run = false;
+						had_error = true;
+					}
+				}
 			}
 		}
 
@@ -1333,9 +1401,7 @@ void Poll::RunControl(){
 						std::cout << Display::ErrorStr() << std::endl;
 						had_error = true;
 					}
-				
 				}
-
 
 				if (record_data) std::cout << "Run " << output_file.GetRunNumber();
 				else std::cout << "Acq";
@@ -1361,10 +1427,16 @@ void Poll::RunControl(){
 
 		if (file_open) status << " Run " << output_file.GetRunNumber();
 
-		//Add run time to status
-		status << " " << (long long) statsHandler->GetTotalTime() << "s";
-		//Add data rate to status
-		status << " " << humanReadable(statsHandler->GetTotalDataRate()) << "/s";
+		if(do_MCA_run){
+			status << " " << (int)mca_args.GetMCA()->GetRunTime() << "s";
+			status << " of " << mca_args.GetTotalTime() << "s";
+		}
+		else{
+			//Add run time to status
+			status << " " << (long long) statsHandler->GetTotalTime() << "s";
+			//Add data rate to status
+			status << " " << humanReadable(statsHandler->GetTotalDataRate()) << "/s";
+		}
 
 		if (file_open) {
 			if (acq_running && !record_data) status << TermColors::DkYellow;
