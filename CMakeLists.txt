@@ -104,13 +104,13 @@ if (NOT ${CORE_ONLY})
 	include_directories(Interface/include)
 	add_subdirectory(Interface/source)
 
+	include_directories(MCA/include)
+	add_subdirectory(MCA)
+
 	if (USE_SETUP) 
 		include_directories(Setup/include)
 		add_subdirectory(Setup/source)
 	endif()
-
-	include_directories(MCA/include)
-	add_subdirectory(MCA)
 
 	add_subdirectory(Poll)
 
