@@ -33,15 +33,49 @@
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
 
-struct MCA_args{
+class MCA;
+
+class MCA_args{
+  private:
+	bool running;
 	bool useRoot;
 	int totalTime;
 	std::string basename;
 	
+	MCA *mca;
+
+  public:	
 	MCA_args();
+	
 	MCA_args(bool useRoot_, int totalTime_, std::string basename_);
 	
+	~MCA_args();
+	
+	bool IsRunning(){ return running; }
+	
+	bool UseRoot(){ return useRoot; }
+	
+	int GetTotalTime(){ return totalTime; }
+	
+	std::string GetBasename(){ return basename; }
+	
+	MCA *GetMCA(){ return mca; }
+	
+	void SetUseRoot(bool state_=true){ useRoot = state_; }
+	
+	void SetTotalTime(int totalTime_){ totalTime = totalTime_; }
+	
+	void SetBasename(std::string basename_){ basename = basename_; }
+
+	bool Initialize(PixieInterface *pif_);
+	
+	bool Step();
+	
+	bool CheckTime();
+	
 	void Zero();
+	
+	void Close(PixieInterface *pif_);
 };
 
 struct UDP_Packet {
