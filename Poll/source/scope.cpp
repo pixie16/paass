@@ -7,8 +7,53 @@
 // Local files
 #include "scope.hpp"
 
+// Root files
+#include "TApplication.h"
+#include "TSystem.h"
+#include "TCanvas.h"
+#include "TGraph.h"
+#include "TAxis.h"
+
+#define ADC_TIME_STEP 4 // ns
+
 void Oscilloscope::Plot(ChannelEvent *event_){
-	// Does nothing for now.
+	time_t cur_time;
+	time(&cur_time);
+	
+	// Draw the trace
+	if((int)difftime(cur_time, last_trace) >= delay){
+		if(event_->trace.size() != x_vals.size()){ // The length of the trace has changed.
+			std::cout << "Plot: Changing trace length from " << x_vals.size() << " to " << event_->trace.size() << std::endl;
+			x_vals.clear();
+			x_vals.assign(event_->trace.size(), 0);
+			for(size_t index = 0; index < x_vals.size(); index++){
+				x_vals[index] = ADC_TIME_STEP * index;
+			}
+			
+			// Update the root TGraph
+			delete graph;
+			graph = new TGraph(event_->trace.size());
+			
+			std::stringstream stream;
+			stream << "mod = " << mod << ", chan = " << chan;
+			graph->SetTitle(stream.str().c_str());
+			graph->GetXaxis()->SetTitle("Time (ns)");
+			graph->GetYaxis()->SetTitle("ADC Channel (a.u.)");
+		}
+		
+		int index = 0;
+		std::vector<int>::iterator iterx, itery;
+		for(iterx = x_vals.begin(), itery = event_->trace.begin(); iterx != x_vals.end() && itery != event_->trace.end(); iterx++, itery++){
+			graph->SetPoint(index++, *iterx, *itery);
+		}
+		
+		graph->Draw("APC");
+		canvas->Update();
+		
+		time(&last_trace);
+		num_displayed++;
+	}
+	
 	num_traces++;
 }
 
@@ -31,13 +76,43 @@ void Oscilloscope::ProcessRawEvent(){
 Oscilloscope::Oscilloscope(){
 	mod = 0;
 	chan = 0;
+	delay = 1;
 	num_traces = 0;
+	num_displayed = 0;
+	time(&last_trace);
+	
+	// Variables for root graphics
+	rootapp = new TApplication("scope", 0, NULL);
+	gSystem->Load("libTree");
+	
+	canvas = new TCanvas("scope_canvas", "Oscilloscope");
+	canvas->cd();
+	
+	graph = new TGraph();
 }
 
 Oscilloscope::Oscilloscope(int mod_, int chan_){
 	mod = mod_;
 	chan = chan_; 
+	delay = 1;
 	num_traces = 0;
+	num_displayed = 0;
+	time(&last_trace);
+
+	// Variables for root graphics
+	rootapp = new TApplication("scope", 0, NULL);
+	gSystem->Load("libTree");
+	
+	canvas = new TCanvas("scope_canvas", "Oscilloscope");
+	canvas->cd();
+	
+	graph = new TGraph();
+}
+
+Oscilloscope::~Oscilloscope(){
+	canvas->Close();
+	delete canvas;
+	delete graph;
 }
 
 bool Oscilloscope::Initialize(std::string prefix_){

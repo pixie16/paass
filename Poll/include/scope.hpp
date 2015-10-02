@@ -1,17 +1,37 @@
 #ifndef OSCILLOSCOPE_HPP
 #define OSCILLOSCOPE_HPP
 
+#include <ctime>
+#include <vector>
+
 #include "Unpacker.hpp"
 
 class ChannelEvent;
+class TApplication;
+class TCanvas;
+class TGraph;
 
 class Oscilloscope : public Unpacker{
   private:
 	int mod; /// The module of the signal of interest.
 	int chan; /// The channel of the signal of interest.
+	
+	int delay; /// The number of seconds to wait between drawing traces.
   
-	unsigned int num_traces; /// The number of displayed traces.
+	time_t last_trace; /// The time of the last trace.
   
+	unsigned int num_traces; /// The total number of traces.
+	
+	unsigned int num_displayed; /// The number of displayed traces.
+	
+	std::vector<int> x_vals; /// The x-axis values of the trace.
+
+	TApplication* rootapp;
+
+	TCanvas *canvas; /// The main plotting canvas.
+	
+	TGraph *graph; /// The TGraph for plotting traces.
+
 	/// Plot the current event.
 	void Plot(ChannelEvent *event_);
   
@@ -23,15 +43,22 @@ class Oscilloscope : public Unpacker{
 	
 	Oscilloscope(int mod_, int chan_);
 	
+	~Oscilloscope();
+	
 	bool Initialize(std::string prefix_="");
 
 	int GetMod(){ return mod; }
 	
 	int GetChan(){ return chan; }
 	
+	int GetDelay(){ return delay; }
+	
 	void SetMod(int mod_){ mod = mod_; }
 	
 	void SetChan(int chan_){ chan = chan_; }
+
+	/// Set the number of seconds to wait between drawing of traces.
+	void SetDelay(int delay_){ delay = (delay_>=1)?delay_:1; }
 
 	/// Return the syntax string for this program.
 	void SyntaxStr(const char *name_, std::string prefix_=""){ std::cout << prefix_ << "SYNTAX: " << std::string(name_) << " <options> <input>\n"; }
@@ -42,7 +69,7 @@ class Oscilloscope : public Unpacker{
 	/// Scan input arguments and set class variables.
 	bool SetArgs(std::deque<std::string> &args_, std::string &filename_);
 	
-	void PrintStatus(std::string prefix_=""){ std::cout << prefix_ << "Found and displayed " << num_traces << " traces.\n"; }
+	void PrintStatus(std::string prefix_=""){ std::cout << prefix_ << "Found " << num_traces << " traces and displayed " << num_displayed << ".\n"; }
 };
 
 /// Return a pointer to a new Oscilloscope object.
