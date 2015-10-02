@@ -92,20 +92,15 @@ void StatsHandler::AddEvent(unsigned int mod, unsigned int ch, size_t size, int 
 	dataTotal[mod] += size;
 }
 
-void StatsHandler::AddTime(double dtime) {
+/**
+ *	\return Returns true if the dump interval is exceeded.
+ */
+bool StatsHandler::AddTime(double dtime) {
 	timeElapsed += dtime;
 	totalTime   += dtime;
+
+	return (timeElapsed >= dumpTime);
    
-	if (timeElapsed >= dumpTime) {
-		Dump();
-		timeElapsed = 0;
-		for(size_t i = 0; i < numCards; i++){
-			for(size_t j = 0; j < NUM_CHAN_PER_MOD; j++){
-				nEventsDelta[i][j] = 0;
-			}
-			dataDelta[i] = 0;
-		}
-	}
 }
 
 void StatsHandler::Dump(void){
