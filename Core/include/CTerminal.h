@@ -7,9 +7,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date May 13th, 2015
+  * \date Oct. 1st, 2015
   * 
-  * \version 1.1.06
+  * \version 1.2.02
 */
 
 #ifndef CTERMINAL_H
@@ -23,12 +23,10 @@
 ///Default size of terminal scroll back buffer in lines.
 #define SCROLLBACK_SIZE 1000
 
-#define CTERMINAL_VERSION "1.1.06"
-#define CTERMINAL_DATE "May 13th, 2015"
+#define CTERMINAL_VERSION "1.2.02"
+#define CTERMINAL_DATE "Oct. 2nd, 2015"
 
 #include <curses.h>
-
-extern bool SIGNAL_INTERRUPT;
 
 extern std::string CPP_APP_VERSION;
 
@@ -219,6 +217,7 @@ class Terminal{
 	std::string prompt;
 	///The tab complete flag
 	bool enableTabComplete;
+	float commandTimeout_; ///<Time in seconds to wait for command.
 
 	short tabCount;
 
@@ -288,6 +287,9 @@ class Terminal{
 	///Enable tab auto complete functionlity.
 	void EnableTabComplete(bool enable = true);
 	void TabComplete(std::vector<std::string> matches);
+
+	///Enable a timeout while waiting fro a command.
+	void EnableTimeout(float timeout = 0.5);
 
 	/** Set the command filename for storing previous commands This command will 
 	  * clear all current commands from the history if overwrite_ is set to true. */

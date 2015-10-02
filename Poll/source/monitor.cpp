@@ -38,24 +38,21 @@ double GetOrder(unsigned int input_, unsigned int &power){
 // Expects input rate in Hz
 std::string GetChanRateString(double input_){
 	if(input_ < 0.0){ input_ *= -1; }
+	int power = std::log10(input_);
 	
 	std::stringstream stream;
-	if(input_/1E6 > 1){ stream << input_/1E6 << "M"; } // MHz
-	else if(input_/1E3 > 1){ stream << input_/1E3 << "k"; } // kHz
-	else{ stream << input_; } // Hz
-	
-	// Limit to 1 decimal place due to space constraints
-	std::string output = stream.str();
-	size_t find_index = output.find('.');
-	if(find_index != std::string::npos){
-		std::string temp;
-		temp = output.substr(0, find_index);
-		temp += output.substr(find_index, 2);
-		output = temp;
+	stream << std::setprecision(2) << std::fixed;
+	if(power >= 6){ stream << input_/1E6 << "M"; } // MHz
+	else if(power >= 3){ stream << input_/1E3 << "k"; } // kHz
+	else if (input_ == 0) { 
+		stream << "   0 ";
 	}
-	
-	if(input_/1E6 > 1){ output += "M"; } // MHz
-	else if(input_/1E3 > 1){ output += "k"; } // kHz
+	else {
+		stream << input_ << " "; 
+	} // Hz
+
+	std::string output = stream.str();
+	output = output.substr(0,output.find_last_not_of(".",3)+1) + output.substr(output.length()-1,1);
 	
 	return output;
 }
@@ -127,21 +124,27 @@ std::string GetTimeString(double input_){
 }
 
 int main(){
-	char buffer[2048]; // 2 kB of stats data max
+	const size_t msg_size = 5844;
+	const int modColumnWidth = 26;
+	char buffer[msg_size]; // 5.8 kB of stats data max
 	Server poll_server;
 	
 	int num_modules;
 	double time_in_sec;
 	double data_rate;
 	double **rates = NULL;
+	double **inputCountRate = NULL;
+	double **outputCountRate = NULL;
 	unsigned int **totals = NULL;
 	
 	bool first_packet = true;
 	if(poll_server.Init(5556)){
+		std::cout << " Waiting for first stats packet...\n";			
+
 		while(true){
 			std::cout << std::setprecision(2);
-		
-			int recv_bytes = poll_server.RecvMessage(buffer, 2048);
+
+			poll_server.RecvMessage(buffer, msg_size);
 			char *ptr = buffer;
 
 			if(strcmp(buffer, "$KILL_SOCKET") == 0){
@@ -151,7 +154,7 @@ int main(){
 
 			system("clear");
 			
-			std::cout << " Received: " << recv_bytes << " bytes\n";
+			//std::cout << " Received:\t" << recv_bytes << " bytes\n";
 		
 			// Below is the stats packet structure (for N modules)
 			// ---------------------------------------------------
@@ -174,9 +177,13 @@ int main(){
 
 			if(first_packet){
 				rates = new double*[num_modules];
+				inputCountRate = new double*[num_modules];
+				outputCountRate = new double*[num_modules];
 				totals = new unsigned int*[num_modules];
 				for(int i = 0; i < num_modules; i++){
 					rates[i] = new double[16];
+					inputCountRate[i] = new double[16];
+					outputCountRate[i] = new double[16];
 					totals[i] = new unsigned int[16];
 				}
 				first_packet = false;
@@ -186,30 +193,39 @@ int main(){
 			memcpy(&data_rate, ptr, 8); ptr += 8;
 			for(int i = 0; i < num_modules; i++){
 				for(int j = 0; j < 16; j++){
+					memcpy(&inputCountRate[i][j], ptr, 8); ptr += 8;
+					memcpy(&outputCountRate[i][j], ptr, 8); ptr += 8;
 					memcpy(&rates[i][j], ptr, 8); ptr += 8;
 					memcpy(&totals[i][j], ptr, 4); ptr += 4;
 				}
 			}
 			
 			// Display the rate information
-			std::cout << " Spill Time: " << GetTimeString(time_in_sec) << std::endl;
-			std::cout << " Data Rate: " << GetRateString(data_rate) << std::endl;
-			std::cout << "        |------M00------";
-			for(unsigned int i = 1; i < (unsigned int)num_modules; i++){
-				if(i < 10){ std::cout << "|------M0" << i << "------"; }
-				else{ std::cout << "|------M" << i << "------"; }
+			std::cout << "Run Time: " << GetTimeString(time_in_sec);
+			if (num_modules > 1) std::cout << "\t";
+			else std::cout << "\n";
+			std::cout << "Data Rate: " << GetRateString(data_rate) << std::endl;
+			std::cout << "   ";
+			for(unsigned int i = 0; i < (unsigned int)num_modules; i++){
+			    std::cout << "|" << std::setw((modColumnWidth-2) / 2) 
+				      << std::setfill('-') << "M" << std::setw(2) 
+				      << std::setfill('0') << i 
+				      << std::setw((modColumnWidth-2) / 2) 
+				      << std::setfill('-') << "";
 			}
 			std::cout << "|\n";
 				
 			for(unsigned int i = 0; i < 16; i++){
-				if(i < 10){ std::cout << "  C0" << i; }
-				else{ std::cout << "  C" << i; }
-				for(unsigned int j = 0; j < (unsigned int)num_modules; j++){
-					std::cout << "\t|" << GetChanRateString(rates[j][i]) << "\t" << GetChanTotalString(totals[j][i]);
-				}
-				std::cout << "|\n";
+			    std::cout << "C" << std::setw(2) << std:: setfill('0') << i << "|";
+			    for(unsigned int j = 0; j < (unsigned int)num_modules; j++){
+				std::cout << std::setw(5) << std::setfill(' ') << GetChanRateString(inputCountRate[j][i]) << " ";
+				std::cout << std::setw(5) << std::setfill(' ') << GetChanRateString(outputCountRate[j][i]) << " ";
+				std::cout << std::setw(5) << std::setfill(' ') << GetChanRateString(rates[j][i]) << " ";
+				std:: cout << " " << std::setw(6) << GetChanTotalString(totals[j][i]) << " ";
+				std::cout << "|";
+			    }
+			    std::cout << "\n";
 			}
-			std::cout << "\n";
 		}
 	}
 	else{ 
@@ -219,6 +235,8 @@ int main(){
 	poll_server.Close();
 	
 	if(rates){ delete[] rates; }
+	if(inputCountRate){ delete[] inputCountRate; }
+	if(outputCountRate){ delete[] outputCountRate; }
 	if(totals){ delete[] totals; }
 
 	return 0;
