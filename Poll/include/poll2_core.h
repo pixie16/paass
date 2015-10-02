@@ -169,6 +169,8 @@ class Poll{
 	
 	/// Display run status information.
 	void show_status();
+	/// Display polling threshold.
+	void show_thresh();
 
 	/// Method responsible for handling tab complete of commands and pread/pwrite parameters
 	std::vector<std::string> TabComplete(std::string cmd);

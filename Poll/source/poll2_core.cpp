@@ -72,8 +72,8 @@ const std::vector<std::string> Poll::runControlCommands_ ({"run", "stop",
 const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread", 
 	"pmread", "pwrite", "pmwrite", "adjust_offsets", "find_tau", "toggle", 
 	"toggle_bit", "csr_test", "bit_test"});
-const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "debug", 
-	"quiet",	"quit", "help", "version"});
+const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "thresh", 
+	"debug", "quiet",	"quit", "help", "version"});
 
 MCA_args::MCA_args(){ Zero(); }
 	
@@ -495,6 +495,7 @@ void Poll::help(){
 	std::cout << "   csr_test [number]                 - Output the CSRA parameters for a given integer\n";
 	std::cout << "   bit_test [num_bits] [number]      - Display active bits in a given integer up to 32 bits long\n";
 	std::cout << "   status              - Display system status information\n";
+	std::cout << "   thresh              - Display current polling threshold\n";
 	std::cout << "   debug               - Toggle debug mode flag (default=false)\n";
 	std::cout << "   quiet               - Toggle quiet mode flag (default=false)\n";
 	std::cout << "   quit                - Close the program\n";
@@ -671,6 +672,11 @@ void Poll::show_status(){
 	std::cout << "   Initialized - " << yesno(init) << std::endl;
 }
 
+void Poll::show_thresh() {
+	float threshPercent = (float) threshWords / EXTERNAL_FIFO_LENGTH * 100;
+	std::cout << "Polling Threshold:	" << threshPercent << "% (" << threshWords << "/" << EXTERNAL_FIFO_LENGTH << ")\n";
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Poll::CommandControl
 ///////////////////////////////////////////////////////////////////////////////
@@ -811,6 +817,9 @@ void Poll::CommandControl(){
 		}
 		else if(cmd == "status"){
 			show_status();
+		}
+		else if(cmd == "thresh"){
+			show_thresh();
 		}
 		else if(cmd == "dump"){ // Dump pixie parameters to file
 			std::ofstream ofile;
