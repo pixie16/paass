@@ -12,7 +12,7 @@
   * 
   * \date Oct. 1st, 2015
   * 
-  * \version 1.3.08
+  * \version 1.3.09
 */
 
 #include <algorithm>
@@ -384,11 +384,11 @@ int Poll::write_data(word_t *data, unsigned int nWords){
 }
 
 void Poll::broadcast_data(word_t *data, unsigned int nWords) {
+	// Maximum size of the shared memory buffer
+	static const unsigned int maxShmSizeL = 4050; // in pixie words
+	static const unsigned int maxShmSize  = maxShmSizeL * sizeof(word_t); // in bytes
+
 	if(pac_mode){ // Broadcast the spill onto the network using the classic pacman shm style
-		// Maximum size of the shared memory buffer
-		const int maxShmSizeL = 4050; // in pixie words
-		const int maxShmSize  = maxShmSizeL * sizeof(word_t); // in bytes
-	
 		unsigned int nBufs = nWords / maxShmSizeL;
 		unsigned int wordsLeft = nWords % maxShmSizeL;
 
@@ -436,10 +436,9 @@ void Poll::broadcast_data(word_t *data, unsigned int nWords) {
 		broadcast_pac_data();  
 	}
 	else if(shm_mode){ // Broadcast the spill onto the network using the new shm style
-		char shm_data[40008]; // 40 kB packets of data
-		char *data_l = (char *)data; // Local pointer to the data array
-		unsigned int num_net_chunks = nWords / 10000;
-		unsigned int num_net_remain = nWords % 10000;
+		int shm_data[maxShmSizeL+2]; // packets of data
+		unsigned int num_net_chunks = nWords / maxShmSizeL;
+		unsigned int num_net_remain = nWords % maxShmSizeL;
 		if(num_net_remain != 0){ num_net_chunks++; }
 		
 		unsigned int net_chunk = 1;
@@ -447,20 +446,21 @@ void Poll::broadcast_data(word_t *data, unsigned int nWords) {
 		if(debug_mode){ std::cout << " debug: Splitting " << nWords << " words into network spill of " << num_net_chunks << " chunks (fragment = " << num_net_remain << " words)\n"; }
 		
 		while(words_bcast < nWords){
-			if(nWords - words_bcast > 10000){ // Broadcast the spill chunks
-				memcpy(&shm_data[0], (char *)&net_chunk, 4);
-				memcpy(&shm_data[4], (char *)&num_net_chunks, 4);
-				memcpy(&shm_data[8], &data_l[words_bcast*4], 40000);
-				client->SendMessage(shm_data, 40008);
-				words_bcast += 10000;
+			if(nWords - words_bcast > maxShmSizeL){ // Broadcast the spill chunks
+				memcpy(&shm_data[0], &net_chunk, 4);
+				memcpy(&shm_data[1], &num_net_chunks, 4);
+				memcpy(&shm_data[2], &data[words_bcast], maxShmSize);
+				client->SendMessage((char *)shm_data, maxShmSize+8);
+				words_bcast += maxShmSizeL;
 			}
 			else{ // Broadcast the spill remainder
-				memcpy(&shm_data[0], (char *)&net_chunk, 4);
-				memcpy(&shm_data[4], (char *)&num_net_chunks, 4);
-				memcpy(&shm_data[8], &data_l[words_bcast*4], (nWords-words_bcast)*4);
-				client->SendMessage(shm_data, (nWords - words_bcast + 2)*4);
+				memcpy(&shm_data[0], &net_chunk, 4);
+				memcpy(&shm_data[1], &num_net_chunks, 4);
+				memcpy(&shm_data[2], &data[words_bcast], (nWords-words_bcast)*4);
+				client->SendMessage((char *)shm_data, (nWords - words_bcast + 2)*4);
 				words_bcast += nWords-words_bcast;
 			}
+			usleep(1);
 			net_chunk++;
 		}
 	}
