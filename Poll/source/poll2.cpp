@@ -126,7 +126,7 @@ int main(int argc, char *argv[]){
 	std::cout << " ==  ==  ==  ==  == \n\n"; 
 	
 	poll.SetThreshWords(EXTERNAL_FIFO_LENGTH * threshPercent / 100.0);
-	std::cout << "Using FIFO threshold of " << poll.GetThreshWords() << " words\n";
+	std::cout << "Using FIFO threshold of " << threshPercent << "% (" << poll.GetThreshWords() << "/" << EXTERNAL_FIFO_LENGTH << " words).\n";
 	
 #ifdef PIF_REVA
 	std::cout << "Using Pixie16 revision A\n";
