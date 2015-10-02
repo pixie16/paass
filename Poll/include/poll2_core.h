@@ -136,6 +136,13 @@ class Poll{
 
 	StatsHandler *statsHandler;
 	static const int statsInterval_ = 3; ///<The amount time between scaler reads in seconds.
+
+
+	const static std::vector<std::string> runControlCommands_;
+	const static std::vector<std::string> paramControlCommands_;
+	const static std::vector<std::string> pollStatusCommands_; 
+	std::vector<std::string> commands_;
+
 	
 	data_pack AcqBuf; /// Data packet for class shared-memory broadcast
 	
@@ -263,7 +270,7 @@ class Poll{
 	/// Close the sockets, any open files, and clean up.
 	bool Close();
 };
-
+	
 /// Convert a rate number to more useful form.
 std::string humanReadable(double size);
 
