@@ -137,7 +137,6 @@ class Poll{
 	StatsHandler *statsHandler;
 	static const int statsInterval_ = 3; ///<The amount time between scaler reads in seconds.
 
-
 	const static std::vector<std::string> runControlCommands_;
 	const static std::vector<std::string> paramControlCommands_;
 	const static std::vector<std::string> pollStatusCommands_; 
@@ -233,9 +232,6 @@ class Poll{
 	void SetNcards(const size_t &n_cards_){ n_cards = n_cards_; }
 	
 	void SetThreshWords(const size_t &thresh_){ threshWords = thresh_; }
-
-	/// Set the external poll stats handler
-	void SetStatsHandler(StatsHandler *handler){ statsHandler = handler; }
 
 	///Set the terminal pointer.
 	void SetTerminal(Terminal *term){ poll_term_ = term; };

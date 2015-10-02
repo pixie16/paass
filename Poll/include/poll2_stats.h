@@ -15,7 +15,10 @@ class StatsHandler{
 
     void AddEvent(unsigned int mod, unsigned int ch, size_t size, int delta_=1);
     
-    void AddTime(double dtime);
+    bool AddTime(double dtime);
+
+	///Set the amount of time between scalers dumps in seconds.
+	void SetDumpInterval(double interval) {dumpTime = interval;};
 
     double GetDataRate(size_t mod);
     

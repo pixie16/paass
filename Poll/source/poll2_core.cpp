@@ -134,8 +134,6 @@ Poll::Poll(){
 	udp_sequence = 0; 
 	total_spill_chunks = 0; 
 	
-	statsHandler = NULL;
-	
 	client = new Client();
 }
 
@@ -200,6 +198,9 @@ bool Poll::Initialize(){
 		commands_.insert(commands_.begin(), runControlCommands_.begin(), runControlCommands_.end());
 	}
 
+	statsHandler = new StatsHandler(n_cards);
+	statsHandler->SetDumpInterval(statsInterval_);
+	
 	return init = true;
 }
 
@@ -1292,7 +1293,6 @@ void Poll::RunControl(){
 		}
 
 		if(acq_running){
-			ReadScalers();
 			ReadFIFO();
 
 			//Handle a stop signal
@@ -1386,11 +1386,6 @@ void Poll::RunControl(){
 }
 
 void Poll::ReadScalers() {
-	//Check if enough time has passed since last scaler read.
-	static long long previousReadTime = 0;
-	//The stats interval has not passed so we return without doing anything.
-	if (statsHandler->GetTotalTime() < previousReadTime + statsInterval_) return;
-
 	static std::vector< std::pair<double, double> > xiaRates(16, std::make_pair<double, double>(0,0));
 	static int numChPerMod = pif->GetNumberChannels();
 
@@ -1568,17 +1563,24 @@ bool Poll::ReadFIFO() {
 			dataWords += nWords[mod];
 		} //End loop over modules for reading FIFO
 
+		//Get the length of the spill
+		double spillTime = usGetTime(startTime);
+		double durSpill = spillTime - lastSpillTime;
+		lastSpillTime = spillTime;
+
+		// Add time to the statsHandler and check if interval has been exceeded.
+		//If exceed interval we read the scalers from the modules and dump the stats.
+		if (statsHandler->AddTime(durSpill * 1e-6)) {
+			ReadScalers();
+			statsHandler->Dump();
+			statsHandler->ClearRates();
+		}
+
 		if (!is_quiet) std::cout << "Writing/Broadcasting " << dataWords << " words.\n";
 		//We have read the FIFO now we write the data	
 		if (record_data && !pac_mode) write_data(fifoData, dataWords); 
 		broadcast_data(fifoData, dataWords);
 
-		//Get the length of the spill
-		double spillTime = usGetTime(startTime);
-		double durSpill = spillTime - lastSpillTime;
-		lastSpillTime = spillTime;
-		// Add time to the statsHandler (for monitor.bash)
-		if(statsHandler){ statsHandler->AddTime(durSpill * 1e-6); }
 	} //If we had exceeded the threshold or forced a flush
 
 	return true;

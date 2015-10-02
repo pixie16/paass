@@ -17,7 +17,6 @@
 
 #include "poll2_core.h"
 #include "Display.h"
-#include "StatsHandler.hpp"
 #include "CTerminal.h"
 
 /* Print help dialogue for command line options. */
@@ -141,8 +140,6 @@ int main(int argc, char *argv[]){
 	if(poll.GetPacmanMode()){ std::cout << "Using pacman mode!\n"; }
 	std::cout << std::endl;
 
-  	StatsHandler handler(poll.GetNcards());
-  	poll.SetStatsHandler(&handler);
 	poll.SetTerminal(&poll_term);
   	
 	if(poll.GetSendAlarm()){
