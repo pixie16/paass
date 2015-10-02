@@ -11,8 +11,12 @@
 #include "poll2_socket.h"
 #include "CTerminal.h"
 
-#define SCAN_VERSION "1.2.00"
-#define SCAN_DATE "Oct. 1st, 2015"
+#define SCAN_VERSION "1.2.01"
+#define SCAN_DATE "Oct. 2nd, 2015"
+
+// Maximum size of the shared memory buffer
+static const unsigned int maxShmSizeL = 4052; // in pixie words (4050 + 2 header words)
+static const unsigned int maxShmSize  = maxShmSizeL * 4; // in bytes
 
 std::string prefix, extension;
 
@@ -27,7 +31,6 @@ bool force_overwrite;
 bool shm_mode;
 
 bool kill_all = false;
-bool scan_running = false;
 bool run_ctrl_exit = false;
 
 Server poll_server;
@@ -62,46 +65,56 @@ void start_run_control(Unpacker *core_){
 	// Now we're ready to read the first data buffer
 	if(shm_mode){
 		std::cout << std::endl;
-		unsigned int data[250000];
-		unsigned int shm_data[10002]; // Array to store the temporary shm data (~40 kB)
+		unsigned int data[250000]; // Array for storing spill data. Larger than any RevF spill should be.
+		unsigned int shm_data[maxShmSizeL]; // Array to store the temporary shm data (~16 kB)
 		int dummy;
 		int previous_chunk;
 		int current_chunk;
 		int total_chunks;
-		int nBytes;
-		unsigned int nTotalBytes;
+		int nWords;
+		unsigned int nTotalWords;
 	
+		bool full_spill = false;
+		
 		while(true){
+			if(kill_all == true){ 
+				break;
+			}
+
+			int select_dummy;
 			previous_chunk = 0;
 			current_chunk = 0;
 			total_chunks = -1;
-			nTotalBytes = 0;
+			nTotalWords = 0;
+			full_spill = true;
+
+			std::stringstream status;
+			if(!poll_server.Select(dummy)){
+				status << "\033[0;33m" << "[IDLE]" << "\033[0m" << " Waiting for a spill...";
+				term_->SetStatus(status.str());
+				continue; 
+			}
 		
+			if(!poll_server.Select(select_dummy)){ continue; } // Server timeout
+		
+			// Get the spill
 			while(current_chunk != total_chunks){
-				if(kill_all == true){ 
-					run_ctrl_exit = true;
-					return;
-				}
+				if(!poll_server.Select(select_dummy)){ // Server timeout
+					std::cout << sys_message_head << "Network timeout before recv full spill!\n";
+					full_spill = false;
+					break;
+				} 
 
-				std::stringstream status;
-				if(!poll_server.Select(dummy)){
-					status << "\033[0;33m" << "[IDLE]" << "\033[0m" << " Waiting for a spill...";
-					term_->SetStatus(status.str());
-					continue; 
-				}
-
-				nBytes = poll_server.RecvMessage((char*)shm_data, 40008); // Read from the socket
+				nWords = poll_server.RecvMessage((char*)shm_data, maxShmSize) / 4; // Read from the socket
 				if(strcmp((char*)shm_data, "$CLOSE_FILE") == 0 || strcmp((char*)shm_data, "$OPEN_FILE") == 0 || strcmp((char*)shm_data, "$KILL_SOCKET") == 0){ continue; } // Poll2 network flags
 				// Did not read enough bytes
-				else if(nBytes < 8){
+				else if(nWords < 2){
 					continue;
 				}
-				status << "\033[0;32m" << "[RECV] " << "\033[0m" << nBytes;
-				term_->SetStatus(status.str());
 
-				if(debug_mode){ std::cout << "debug: Received " << nBytes << " bytes from the network\n"; }
+				if(debug_mode){ std::cout << "debug: Received " << nWords << " words from the network\n"; }
 				memcpy((char *)&current_chunk, &shm_data[0], 4);
-				memcpy((char *)&total_chunks, &shm_data[4], 4);
+				memcpy((char *)&total_chunks, &shm_data[1], 4);
 
 				if(previous_chunk == -1 && current_chunk != 1){ // Started reading in the middle of a spill, ignore the rest of it
 					if(debug_mode){ std::cout << "debug: Skipping chunk " << current_chunk << " of " << total_chunks << std::endl; }
@@ -115,24 +128,29 @@ void start_run_control(Unpacker *core_){
 				previous_chunk = current_chunk;
 		
 				// Copy the shm spill chunk into the data array
-				if(nTotalBytes + 2 + nBytes <= 1000000){ // This spill chunk will fit into the data buffer
-					memcpy(&data[nTotalBytes], &shm_data[8], nBytes - 8);
-					nTotalBytes += (nBytes - 8);				
+				if(nTotalWords + 2 + nWords <= 250000){ // This spill chunk will fit into the data buffer
+					memcpy(&data[nTotalWords], &shm_data[2], (nWords - 2)*4);
+					nTotalWords += (nWords - 2);				
 				}
 				else{ 
-					if(debug_mode){ std::cout << "debug: Abnormally full spill buffer with " << nTotalBytes + 2 + nBytes << " bytes!\n"; }
+					if(debug_mode){ std::cout << "debug: Abnormally full spill buffer with " << nTotalWords + 2 + nWords << " words!\n"; }
 					break; 
 				}
 			}
+
+			status << "\033[0;32m" << "[RECV] " << "\033[0m" << nTotalWords << " words";
+			term_->SetStatus(status.str());
 		
-			if(debug_mode){ std::cout << "debug: Retrieved spill of " << nTotalBytes << " bytes (" << nTotalBytes/4 << " words)\n"; }
-			if(!dry_run_mode){ 
+			if(debug_mode){ std::cout << "debug: Retrieved spill of " << nTotalWords << " words (" << nTotalWords*4 << " bytes)\n"; }
+			if(!dry_run_mode && full_spill){ 
 				int word1 = 2, word2 = 9999;
-				memcpy(&data[nTotalBytes], (char *)&word1, 4);
-				memcpy(&data[nTotalBytes+4], (char *)&word2, 4);
-				core_->ReadSpill(data, nTotalBytes/4 + 2, is_verbose); 
+				memcpy(&data[nTotalWords], (char *)&word1, 4);
+				memcpy(&data[nTotalWords+1], (char *)&word2, 4);
+				core_->ReadSpill(data, nTotalWords + 2, is_verbose); 
 			}
-			num_spills_recvd++;
+			
+			if(!full_spill){ std::cout << sys_message_head << "Not processing spill fragment!\n"; }
+			else{ num_spills_recvd++; }
 		}
 	}
 	else if(file_format == 0){
@@ -211,25 +229,34 @@ void start_run_control(Unpacker *core_){
 void start_cmd_control(){
 	std::string cmd = "", arg;
 
-	bool cmd_ready = true;
-	
 	while(true){
 		cmd = term_->GetCommand();
-		if(cmd == "CTRL_D"){ cmd = "quit"; }
-		else if(cmd == "CTRL_C"){ continue; }		
+		if(cmd == "_SIGSEGV_"){
+			std::cout << "\033[0;32mSEGMENTATION FAULT\033[0m" << std::endl;
+			exit(EXIT_FAILURE);
+		}
+		else if(cmd == "CTRL_D"){ 
+			std::cout << sys_message_head << "Received EOF (ctrl-d) signal. Exiting...\n";
+			cmd = "quit"; 
+		}
+		else if(cmd == "CTRL_C"){ 
+			std::cout << sys_message_head << "Warning! Received SIGINT (ctrl-c) signal.\n";
+			continue; 
+		}
+		else if(cmd == "CTRL_Z"){ 
+			std::cout << sys_message_head << "Warning! Received SIGTSTP (ctrl-z) signal.\n";
+			continue; 
+		}	
 		term_->flush();
 
-		if(cmd_ready){
-			if(cmd == "quit" || cmd == "exit"){
-				if(scan_running){ std::cout << sys_message_head << "Warning! Cannot quit while scan is running\n"; }
-				else{
-					kill_all = true;
-					while(!run_ctrl_exit){ sleep(1); }
-					break;
-				}
-			}
-			else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
+		if(cmd == ""){ continue; }
+		
+		if(cmd == "quit" || cmd == "exit"){
+			kill_all = true;
+			while(!run_ctrl_exit){ sleep(1); }
+			break;
 		}
+		else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
 	}		
 }
 
