@@ -65,6 +65,16 @@ std::vector<std::string> chan_params = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP", "
 std::vector<std::string> mod_params = {"MODULE_CSRA", "MODULE_CSRB", "MODULE_FORMAT", "MAX_EVENTS", "SYNCH_WAIT", "IN_SYNCH", "SLOW_FILTER_RANGE",
 									"FAST_FILTER_RANGE", "MODULE_NUMBER", "TrigConfig0", "TrigConfig1", "TrigConfig2","TrigConfig3"};
 
+const std::vector<std::string> Poll::runControlCommands_ ({"run", "stop", 
+	"startacq", "startvme", "stopacq", "stopvme", "acq", "shm", "spill", "hup", 
+	"prefix", "fdir", "title", "runnum", "oform", "close", "reboot", "stats", 
+	"mca"});
+const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread", 
+	"pmread", "pwrite", "pmwrite", "adjust_offsets", "find_tau", "toggle", 
+	"toggle_bit", "csr_test", "bit_test"});
+const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "debug", 
+	"quiet",	"quit", "help", "version"});
+
 MCA_args::MCA_args(){ Zero(); }
 	
 MCA_args::MCA_args(bool useRoot_, int totalTime_, std::string basename_){
@@ -182,6 +192,13 @@ bool Poll::Initialize(){
 	}
 
 	partialEvent = new std::vector<word_t>[n_cards];
+
+	//Build the list of commands
+	commands_.insert(commands_.begin(), pollStatusCommands_.begin(), pollStatusCommands_.end());
+	commands_.insert(commands_.begin(), paramControlCommands_.begin(), paramControlCommands_.end());
+	if (!pac_mode) {
+		commands_.insert(commands_.begin(), runControlCommands_.begin(), runControlCommands_.end());
+	}
 
 	return init = true;
 }
@@ -486,20 +503,12 @@ void Poll::help(){
 }
 
 std::vector<std::string> Poll::TabComplete(std::string cmd) {
-	static std::vector<std::string> commands = {"run", "stop", "startacq", "startvme", "stopacq", "stopvme", "acq", "shm", "spill", "hup", "prefix",
-												"fdir", "title", "runnum", "oform", "close", "reboot", "stats", "mca", "dump", "pread", "pmread",
-												"pwrite", "pmwrite", "adjust_offsets", "find_tau", "toggle", "toggle_bit", "csr_test", "bit_test",
-												"status", "debug", "quiet", "quit", "help", "version"};
-
 	std::vector<std::string> matches;
 	std::vector<std::string>::iterator it;
 	
-	if(!pac_mode){ it = commands.begin(); } // Normal operation
-	else{ it = commands.begin()+19; } // Pacman mode
-	
 	//If we have no space then we are auto completing a command.	
 	if (cmd.find(" ") == std::string::npos) {
-		for (it=commands.begin(); it!=commands.end();++it) {
+		for (it=commands_.begin(); it!=commands_.end();++it) {
 			if ((*it).find(cmd) == 0) {
 				matches.push_back((*it).substr(cmd.length()));
 			}
