@@ -10,11 +10,10 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date May 11th, 2015
+  * \date Oct. 2nd, 2015
   * 
-  * \version 1.3.01
+  * \version 1.3.08
 */
-
 
 #ifndef POLL2_CORE_H
 #define POLL2_CORE_H
@@ -25,8 +24,8 @@
 #include "hribf_buffers.h"
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.3.02"
-#define POLL2_CORE_DATE "Aug 27th, 2015"
+#define POLL2_CORE_VERSION "1.3.08"
+#define POLL2_CORE_DATE "Oct. 2nd, 2015"
 
 // Maximum length of UDP data packet (in bytes)
 #define MAX_ORPH_DATA 1464
@@ -34,15 +33,49 @@
 typedef PixieInterface::word_t word_t;
 typedef word_t eventdata_t[maxEventSize];
 
-struct MCA_args{
+class MCA;
+
+class MCA_args{
+  private:
+	bool running;
 	bool useRoot;
 	int totalTime;
 	std::string basename;
 	
+	MCA *mca;
+
+  public:	
 	MCA_args();
+	
 	MCA_args(bool useRoot_, int totalTime_, std::string basename_);
 	
+	~MCA_args();
+	
+	bool IsRunning(){ return running; }
+	
+	bool UseRoot(){ return useRoot; }
+	
+	int GetTotalTime(){ return totalTime; }
+	
+	std::string GetBasename(){ return basename; }
+	
+	MCA *GetMCA(){ return mca; }
+	
+	void SetUseRoot(bool state_=true){ useRoot = state_; }
+	
+	void SetTotalTime(int totalTime_){ totalTime = totalTime_; }
+	
+	void SetBasename(std::string basename_){ basename = basename_; }
+
+	bool Initialize(PixieInterface *pif_);
+	
+	bool Step();
+	
+	bool CheckTime();
+	
 	void Zero();
+	
+	void Close(PixieInterface *pif_);
 };
 
 struct UDP_Packet {
@@ -70,6 +103,8 @@ class Terminal;
 class Poll{
   private:
 	Terminal *poll_term_;
+	///A vector to store the partial events
+	std::vector<word_t> *partialEvent;
 	
 	double startTime; ///Time when the acquistion was started.
 	double lastSpillTime; ///Time when the last spill finished.
@@ -134,6 +169,13 @@ class Poll{
 	std::map<chanid_t, PixieInterface::Histogram> histoMap;
 
 	StatsHandler *statsHandler;
+	static const int statsInterval_ = 3; ///<The amount time between scaler reads in seconds.
+
+	const static std::vector<std::string> runControlCommands_;
+	const static std::vector<std::string> paramControlCommands_;
+	const static std::vector<std::string> pollStatusCommands_; 
+	std::vector<std::string> commands_;
+
 	
 	data_pack AcqBuf; /// Data packet for class shared-memory broadcast
 	
@@ -160,12 +202,16 @@ class Poll{
 	
 	/// Display run status information.
 	void show_status();
+	/// Display polling threshold.
+	void show_thresh();
 
 	/// Method responsible for handling tab complete of commands and pread/pwrite parameters
 	std::vector<std::string> TabComplete(std::string cmd);
 
 	///Routine to read Pixie FIFOs
 	bool ReadFIFO();
+	///Routine to read Pixie scalers.
+	void ReadScalers();
 
 	/// Set IN_SYNCH and SYNCH_WAIT parameters on all modules.
 	bool synch_mods();
@@ -221,9 +267,6 @@ class Poll{
 	
 	void SetThreshWords(const size_t &thresh_){ threshWords = thresh_; }
 
-	/// Set the external poll stats handler
-	void SetStatsHandler(StatsHandler *handler){ statsHandler = handler; }
-
 	///Set the terminal pointer.
 	void SetTerminal(Terminal *term){ poll_term_ = term; };
 
@@ -259,7 +302,7 @@ class Poll{
 	/// Close the sockets, any open files, and clean up.
 	bool Close();
 };
-
+	
 /// Convert a rate number to more useful form.
 std::string humanReadable(double size);
 

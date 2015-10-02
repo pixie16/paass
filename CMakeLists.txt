@@ -10,10 +10,10 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color=auto")
 	endif()
 
-        if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
-          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-        endif()
-
+	if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+	   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+	endif()
+	
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
 endif()
 
@@ -89,7 +89,12 @@ if (NOT ${CORE_ONLY})
 	link_directories(${PXI_LIBRARY_DIR})
 	#The following configuration file path is hardcoded into the PXI software :-(
 	install(FILES ${PXI_ROOT_DIR}/test/pxisys.ini DESTINATION ${CMAKE_INSTALL_PREFIX})
-        install(FILES Setup/source/pixie.cfg DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+	#Create pixie.cfg and copy slot_def.set as well as default.set to current.set
+	PXI_CONFIG()
+	#Use the cmake script created by PXI_CONFIG to install the files it created when make config is typed
+	add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)	
+
 endif()
 
 add_subdirectory(Core)
@@ -99,13 +104,13 @@ if (NOT ${CORE_ONLY})
 	include_directories(Interface/include)
 	add_subdirectory(Interface/source)
 
+	include_directories(MCA/include)
+	add_subdirectory(MCA)
+
 	if (USE_SETUP) 
 		include_directories(Setup/include)
 		add_subdirectory(Setup/source)
 	endif()
-
-	include_directories(MCA/include)
-	add_subdirectory(MCA)
 
 	add_subdirectory(Poll)
 

@@ -26,7 +26,7 @@ bool MCA_DAMM::OpenFile(const char* basename) {
 	_histogram = new HisDrr(drr, his, input);
 	cout << Display::OkayStr() << endl;
 
-	return true;
+	return (_isOpen = true);
 }
 
 bool MCA_DAMM::StoreData(int mod, int ch) {

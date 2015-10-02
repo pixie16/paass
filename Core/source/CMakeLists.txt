@@ -7,7 +7,11 @@ add_library(PixieCoreObjects OBJECT ${PixieCore_SOURCES})
 
 add_library(PixieCore SHARED $<TARGET_OBJECTS:PixieCoreObjects>)
 
+target_link_libraries(PixieCore ${CMAKE_THREAD_LIBS_INIT})
+
 add_library(PixieCoreStatic STATIC $<TARGET_OBJECTS:PixieCoreObjects>)
+
+target_link_libraries(PixieCoreStatic ${CMAKE_THREAD_LIBS_INIT})
 
 if (${CURSES_FOUND})
 	target_link_libraries(PixieCore ${CURSES_LIBRARIES})

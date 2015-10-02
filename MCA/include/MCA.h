@@ -1,6 +1,8 @@
 #ifndef MCA_H
 #define MCA_H
 
+#include <ctime>
+
 #include "PixieSupport.h"
 
 class PixieInterface;
@@ -8,6 +10,10 @@ class PixieInterface;
 ///Abstract MCA class
 class MCA {
 	protected:
+		/// Timers for the MCA object
+		time_t start_time;
+		time_t stop_time;
+	
 		///Default number of bins in histogram.
 		static const size_t HIS_SIZE = 16384;
 		///Default number of channels in ADC.
@@ -19,9 +25,11 @@ class MCA {
 		PixieInterface *_pif;
 	public:
 		///Default constructor.
-		MCA(PixieInterface *pif) : _pif(pif) {};
+		MCA(PixieInterface *pif);
 		///Default destructor.
 		virtual ~MCA() {};
+		///Return the length of time the MCA has been running.
+		double GetRunTime();
 		///Abstract method describing how the MCA data is stored.
 		virtual bool StoreData(int mod, int ch) = 0;
 		///Abstract method to open a storage file.
@@ -32,6 +40,8 @@ class MCA {
 		virtual bool IsOpen() {return _isOpen;};
 		///Start the MCA running.
 		virtual void Run(float duration, bool *stop=NULL);
+		///Update the MCA histograms.
+		virtual bool Step();
 };
 
 #endif 

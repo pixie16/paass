@@ -11,8 +11,8 @@
 #include "poll2_socket.h"
 #include "CTerminal.h"
 
-#define SCAN_VERSION "1.1.07"
-#define SCAN_DATE "August 28th, 2015"
+#define SCAN_VERSION "1.2.00"
+#define SCAN_DATE "Oct. 1st, 2015"
 
 std::string prefix, extension;
 
@@ -23,9 +23,7 @@ unsigned long num_spills_recvd;
 bool is_verbose;
 bool debug_mode;
 bool dry_run_mode;
-bool dump_raw_events;
 bool force_overwrite;
-bool hires_timing;
 bool shm_mode;
 
 bool kill_all = false;
@@ -43,9 +41,13 @@ HEAD_buffer headbuff;
 DATA_buffer databuff;
 EOF_buffer eofbuff;
 
-std::string sys_message_head = "PixieLDF: ";
+Terminal *term_;
 
-Terminal *terminal_;
+#ifndef PROG_NAME
+#define PROG_NAME "ScanMain"
+#endif
+
+std::string sys_message_head = std::string(PROG_NAME) + ": ";
 
 void start_run_control(Unpacker *core_){
 	if(debug_mode){
@@ -83,8 +85,8 @@ void start_run_control(Unpacker *core_){
 
 				std::stringstream status;
 				if(!poll_server.Select(dummy)){
-					status << "\e[0;33m" << "[IDLE]" << "\e[0m" << " Waiting for a spill...";
-					terminal_->SetStatus(status.str());
+					status << "\033[0;33m" << "[IDLE]" << "\033[0m" << " Waiting for a spill...";
+					term_->SetStatus(status.str());
 					continue; 
 				}
 
@@ -94,8 +96,8 @@ void start_run_control(Unpacker *core_){
 				else if(nBytes < 8){
 					continue;
 				}
-				status << "\e[0;32m" << "[RECV] " << "\e[0m" << nBytes;
-				terminal_->SetStatus(status.str());
+				status << "\033[0;32m" << "[RECV] " << "\033[0m" << nBytes;
+				term_->SetStatus(status.str());
 
 				if(debug_mode){ std::cout << "debug: Received " << nBytes << " bytes from the network\n"; }
 				memcpy((char *)&current_chunk, &shm_data[0], 4);
@@ -206,16 +208,16 @@ void start_run_control(Unpacker *core_){
 	run_ctrl_exit = true;
 }
 
-void start_cmd_control(Terminal *terminal_){
+void start_cmd_control(){
 	std::string cmd = "", arg;
 
 	bool cmd_ready = true;
 	
 	while(true){
-		cmd = terminal_->GetCommand();
+		cmd = term_->GetCommand();
 		if(cmd == "CTRL_D"){ cmd = "quit"; }
 		else if(cmd == "CTRL_C"){ continue; }		
-		terminal_->flush();
+		term_->flush();
 
 		if(cmd_ready){
 			if(cmd == "quit" || cmd == "exit"){
@@ -231,20 +233,19 @@ void start_cmd_control(Terminal *terminal_){
 	}		
 }
 
-std::string GetExtension(const char *filename_, std::string &prefix){
-	unsigned int count = 0;
-	unsigned int last_index = 0;
+std::string GetExtension(std::string filename_, std::string &prefix){
+	size_t count = 0;
+	size_t last_index = 0;
 	std::string output = "";
 	prefix = "";
 	
 	// Find the final period in the filename
-	while(filename_[count] != '\0'){
+	for(count = 0; count < filename_.size(); count++){
 		if(filename_[count] == '.'){ last_index = count; }
-		count++;
 	}
 	
 	// Get the filename prefix and the extension
-	for(unsigned int i = 0; i < count; i++){
+	for(size_t i = 0; i < count; i++){
 		if(i < last_index){ prefix += filename_[i]; }
 		else if(i > last_index){ output += filename_[i]; }
 	}
@@ -252,102 +253,105 @@ std::string GetExtension(const char *filename_, std::string &prefix){
 	return output;
 }
 
-void help(char *name_){
-	std::cout << " SYNTAX: " << name_ << " [output] <options> <input>\n\n";
-	std::cout << " Available options:\n";
-	std::cout << "  --version  - Display version information\n";
-	std::cout << "  --debug    - Enable readout debug mode\n";
-	std::cout << "  --shm      - Enable shared memory readout\n";
-	std::cout << "  --ldf      - Force use of ldf readout\n";
-	std::cout << "  --pld      - Force use of pld readout\n";
-	std::cout << "  --root     - Force use of root readout\n";
-	std::cout << "  --quiet    - Toggle off verbosity flag\n";
-	std::cout << "  --pacman   - Run in classic pacman shm mode\n";
-	std::cout << "  --dry-run  - Extract spills from file, but do no processing\n";
-	std::cout << "  --fast-fwd [word] - Skip ahead to a specified word in the file (start of file at zero)\n";
-	std::cout << "  --dump-raw-events - Write raw event data to the output root file (disabled by default)\n";
-	std::cout << "  --force-overwrite - Force a file overwrite if the output root file exists\n";
-	std::cout << "  --hires-timing    - Toggle pulse fitting (hi-res timing) on\n";
+void help(char *name_, Unpacker *core_){
+	core_->SyntaxStr(name_, " ");
+	std::cout << "  Available options:\n";
+	std::cout << "   --help     - Display this dialogue\n";
+	std::cout << "   --version  - Display version information\n";
+	std::cout << "   --debug    - Enable readout debug mode\n";
+	std::cout << "   --shm      - Enable shared memory readout\n";
+	std::cout << "   --ldf      - Force use of ldf readout\n";
+	std::cout << "   --pld      - Force use of pld readout\n";
+	std::cout << "   --root     - Force use of root readout\n";
+	std::cout << "   --quiet    - Toggle off verbosity flag\n";
+	std::cout << "   --dry-run  - Extract spills from file, but do no processing\n";
+	std::cout << "   --fast-fwd [word] - Skip ahead to a specified word in the file (start of file at zero)\n";
+	core_->Help("   ");
 }
 
 int main(int argc, char *argv[]){
-	if(argc < 2 || argv[1][0] == '-'){
-		if(argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)){ // Display version information
-			std::cout << " PixieLDF-------v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
-			std::cout << " |hribf_buffers-v" << HRIBF_BUFFERS_VERSION << " (" << HRIBF_BUFFERS_DATE << ")\n";
-			std::cout << " |CTerminal-----v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
-			std::cout << " |poll2_socket--v" << POLL2_SOCKET_VERSION << " (" << POLL2_SOCKET_DATE << ")\n";
-		}
-		else{ help(argv[0]); }
-		return 1;
+	if(argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)){ // A stupid way to do this... for now.
+		Unpacker *temp_core = GetCore();
+		help(argv[0], temp_core);
+		delete temp_core;
+		return 0;
+	}
+	else if(argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)){ // Display version information
+		std::cout << " " << PROG_NAME << "-------v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
+		std::cout << " |hribf_buffers-v" << HRIBF_BUFFERS_VERSION << " (" << HRIBF_BUFFERS_DATE << ")\n";
+		std::cout << " |CTerminal-----v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
+		std::cout << " |poll2_socket--v" << POLL2_SOCKET_VERSION << " (" << POLL2_SOCKET_DATE << ")\n";
+		return 0;
 	}
 	
 	debug_mode = false;
 	dry_run_mode = false;
-	dump_raw_events = false;
-	force_overwrite = false;
-	hires_timing = false;
 	shm_mode = false;
 
 	num_spills_recvd = 0;
 
-	std::stringstream output_filename;
-	output_filename << argv[1];
-	
 	long file_start_offset = 0;
 
-	int arg_index = 2;
+	// Fill the argument list.
+	std::deque<std::string> scan_args;
+	std::deque<std::string> core_args;
+	int arg_index = 1;
 	while(arg_index < argc){
-		if(argv[arg_index][0] != '\0' && argv[arg_index][0] != '-'){ // This must be a filename
-			extension = GetExtension(argv[arg_index], prefix);
-		}
-		else if(strcmp(argv[arg_index], "--debug") == 0){ 
+		scan_args.push_back(std::string(argv[arg_index++]));
+	}
+
+	Unpacker *core = GetCore(); // Get a pointer to the main Unpacker object.
+	
+	// Loop through the arg list and extract ScanMain arguments.
+	std::string current_arg;
+	while(!scan_args.empty()){
+		current_arg = scan_args.front();
+		scan_args.pop_front();
+	
+		if(current_arg == "--debug"){ 
+			core->SetDebugMode();
 			debug_mode = true;
 		}
-		else if(strcmp(argv[arg_index], "--dry-run") == 0){
+		else if(current_arg == "--dry-run"){
 			dry_run_mode = true;
 		}
-		else if(strcmp(argv[arg_index], "--fast-fwd") == 0){
-			if(arg_index + 1 >= argc){
+		else if(current_arg == "--fast-fwd"){
+			if(scan_args.empty()){
 				std::cout << " Error: Missing required argument to option '--fast-fwd'!\n";
-				help(argv[0]);
+				help(argv[0], core);
 				return 1;
 			}
-			file_start_offset = atoll(argv[++arg_index]);
+			file_start_offset = atoll(scan_args.front().c_str());
+			scan_args.pop_front();
 		}
-		else if(strcmp(argv[arg_index], "--dump-raw-events") == 0){ 
-			dump_raw_events = true;
-		}
-		else if(strcmp(argv[arg_index], "--force-overwrite") == 0){ 
-			force_overwrite = true;
-		}
-		else if(strcmp(argv[arg_index], "--hires-timing") == 0){ 
-			hires_timing = true;
-		}
-		else if(strcmp(argv[arg_index], "--quiet") == 0){
+		else if(current_arg == "--quiet"){
 			is_verbose = false;
 		}
-		else if(strcmp(argv[arg_index], "--shm") == 0){ 
+		else if(current_arg == "--shm"){ 
 			file_format = 0;
 			shm_mode = true;
+			std::cout << " Using shm mode!\n";
 		}
-		else if(strcmp(argv[arg_index], "--ldf") == 0){ 
+		else if(current_arg == "--ldf"){ 
 			file_format = 0;
 		}
-		else if(strcmp(argv[arg_index], "--pld") == 0){ 
+		else if(current_arg == "--pld"){ 
 			file_format = 1;
 		}
-		else if(strcmp(argv[arg_index], "--root") == 0){ 
+		else if(current_arg == "--root"){ 
 			file_format = 2;
 		}
-		else{ 
-			std::cout << " ERROR: Unrecognized option '" << argv[arg_index] << "'\n"; 
-			return 1;
-		}
-		arg_index++;
+		else{ core_args.push_back(current_arg); } // Unrecognized option.
+	}
+
+	std::string input_filename = "";
+	if(!core->SetArgs(core_args, input_filename)){ 
+		help(argv[0], core);
+		return 1; 
 	}
 
 	if(!shm_mode){
+		extension = GetExtension(input_filename, prefix);
 		if(file_format != -1){
 			if(file_format == 0){ std::cout << sys_message_head << "Forcing ldf file readout.\n"; }
 			else if(file_format == 1){ std::cout << sys_message_head << "Forcing pld file readout.\n"; }
@@ -379,11 +383,15 @@ int main(int argc, char *argv[]){
 		}
 	}
 
+	// Initialize the Unpacker object.
+	core->Initialize(sys_message_head);
+
 	// Initialize the command terminal
 	Terminal terminal;
-	terminal_ = &terminal;
+	term_ = &terminal;
 
 	if(!shm_mode){
+		std::cout << sys_message_head << "Using file prefix " << prefix << ".\n";
 		input_file.open((prefix+"."+extension).c_str(), std::ios::binary);
 		if(!input_file.is_open() || !input_file.good()){
 			std::cout << " ERROR: Failed to open input file '" << prefix+"."+extension << "'! Check that the path is correct.\n";
@@ -397,24 +405,17 @@ int main(int argc, char *argv[]){
 			return 1;
 		}
 
+		std::string temp_name = std::string(PROG_NAME);
+		
 		// Only initialize the terminal if this is shared-memory mode
-		terminal.Initialize(".pixieldf.cmd");
-		terminal.SetPrompt("PIXIELDF $ ");
+		terminal.Initialize(("."+temp_name+".cmd").c_str());
+		terminal.SetPrompt((temp_name+" $ ").c_str());
 		terminal.AddStatusWindow();
 
-		std::cout << "\n PIXIELDF v" << SCAN_VERSION << "\n"; 
+		std::cout << "\n " << PROG_NAME << " v" << SCAN_VERSION << "\n"; 
 		std::cout << " ==  ==  ==  ==  == \n\n"; 
 	}
 
-	// Initialize unpacker core with the output filename
-	Unpacker *core = new Unpacker();
-	if(debug_mode){ core->SetDebugMode(); }
-	if(dump_raw_events){ core->SetRawEventMode(); }
-	
-	core->InitRootOutput(output_filename.str(), force_overwrite);
-	if(hires_timing){ core->SetHiResMode(true); }
-
-	std::cout << sys_message_head << "Using output filename prefix '" << output_filename.str() << "'.\n";
 	if(debug_mode){ std::cout << sys_message_head << "Using debug mode.\n"; }
 	if(dry_run_mode){ std::cout << sys_message_head << "Doing a dry run.\n"; }
 	if(shm_mode){ 
@@ -479,7 +480,7 @@ int main(int argc, char *argv[]){
 		// Start the command control thread. This needs to be the last thing we do to
 		// initialize, so the user cannot enter commands before setup is complete
 		std::cout << "Starting command thread\n\n";
-		std::thread comctrl(start_cmd_control, &terminal);
+		std::thread comctrl(start_cmd_control);
 
 		// Synchronize the threads and wait for completion
 		comctrl.join();
@@ -490,16 +491,18 @@ int main(int argc, char *argv[]){
 		poll_server.Close();
 		
 		//Reprint the leader as the carriage was returned
-		std::cout << "Running PixieLDF v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
+		std::cout << "Running " << PROG_NAME << " v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
 	}
 	
-	std::cout << "\nRetrieved " << num_spills_recvd << " spills!\n";
+	std::cout << sys_message_head << "Retrieved " << num_spills_recvd << " spills!\n";
 
 	input_file.close();	
 
 	// Clean up detector driver
-	std::cout << "\nCleaning up..\n";
+	std::cout << "\nCleaning up...\n";
 	
+	core->PrintStatus(sys_message_head);
+	core->Close();
 	delete core;
 	
 	return 0;

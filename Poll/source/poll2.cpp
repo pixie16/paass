@@ -17,7 +17,6 @@
 
 #include "poll2_core.h"
 #include "Display.h"
-#include "StatsHandler.hpp"
 #include "CTerminal.h"
 
 /* Print help dialogue for command line options. */
@@ -109,6 +108,7 @@ int main(int argc, char *argv[]){
 	poll_term.AddStatusWindow();
 	poll_term.EnableTabComplete();
 	poll_term.SetLogFile(".poll2.log");
+	if (poll.GetPacmanMode()) poll_term.EnableTimeout();
 
 	std::cout << "\n#########      #####    ####      ####       ########\n"; 
 	std::cout << " ##     ##    ##   ##    ##        ##       ##      ##\n";
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]){
 	std::cout << " ==  ==  ==  ==  == \n\n"; 
 	
 	poll.SetThreshWords(EXTERNAL_FIFO_LENGTH * threshPercent / 100.0);
-	std::cout << "Using FIFO threshold of " << poll.GetThreshWords() << " words\n";
+	std::cout << "Using FIFO threshold of " << threshPercent << "% (" << poll.GetThreshWords() << "/" << EXTERNAL_FIFO_LENGTH << " words).\n";
 	
 #ifdef PIF_REVA
 	std::cout << "Using Pixie16 revision A\n";
@@ -140,8 +140,6 @@ int main(int argc, char *argv[]){
 	if(poll.GetPacmanMode()){ std::cout << "Using pacman mode!\n"; }
 	std::cout << std::endl;
 
-  	StatsHandler handler(poll.GetNcards());
-  	poll.SetStatsHandler(&handler);
 	poll.SetTerminal(&poll_term);
   	
 	if(poll.GetSendAlarm()){
@@ -167,6 +165,9 @@ int main(int argc, char *argv[]){
 
 	// Close the output file, if one is open
 	poll.Close();
+
+	// Close the terminal.
+	poll_term.Close();
 
 	//Reprint the leader as the carriage was returned
 	Display::LeaderPrint(std::string("Running poll2 v").append(POLL2_CORE_VERSION));

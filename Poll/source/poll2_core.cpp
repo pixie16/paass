@@ -10,9 +10,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date May 6th, 2015
+  * \date Oct. 1st, 2015
   * 
-  * \version 1.3.00
+  * \version 1.3.08
 */
 
 #include <algorithm>
@@ -63,20 +63,88 @@ std::vector<std::string> chan_params = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP", "
 									 "ExternDelayLen", "ExtTrigStretch", "ChanTrigStretch", "FtrigoutDelay", "FASTTRIGBACKLEN"};
 
 std::vector<std::string> mod_params = {"MODULE_CSRA", "MODULE_CSRB", "MODULE_FORMAT", "MAX_EVENTS", "SYNCH_WAIT", "IN_SYNCH", "SLOW_FILTER_RANGE",
-									"FAST_FILTER_RANGE", "MODULE_NUMBER", "TrigConfig0", "TrigConfig1", "TrigConfig2","TrigConfig3","SLOW_FILTER_RANGE"};
+									"FAST_FILTER_RANGE", "MODULE_NUMBER", "TrigConfig0", "TrigConfig1", "TrigConfig2","TrigConfig3"};
 
-MCA_args::MCA_args(){ Zero(); }
+const std::vector<std::string> Poll::runControlCommands_ ({"run", "stop", 
+	"startacq", "startvme", "stopacq", "stopvme", "acq", "shm", "spill", "hup", 
+	"prefix", "fdir", "title", "runnum", "oform", "close", "reboot", "stats", 
+	"mca"});
+const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread", 
+	"pmread", "pwrite", "pmwrite", "adjust_offsets", "find_tau", "toggle", 
+	"toggle_bit", "csr_test", "bit_test"});
+const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "thresh", 
+	"debug", "quiet",	"quit", "help", "version"});
+
+MCA_args::MCA_args(){ 
+	mca = NULL;
+	Zero(); 
+}
 	
 MCA_args::MCA_args(bool useRoot_, int totalTime_, std::string basename_){
+	running = false;
 	useRoot = useRoot_;
 	totalTime = totalTime_;
 	basename = basename_;
+	
+	mca = NULL;
+}
+
+MCA_args::~MCA_args(){
+	if(mca){ delete mca; }
+}
+
+bool MCA_args::Initialize(PixieInterface *pif_){
+	if(running){ return false; }
+
+	pif_->RemovePresetRunLength(0);
+	
+	// Initialize the MCA object.
+#if defined(USE_ROOT) && defined(USE_DAMM)
+	if(useRoot)
+		mca = (MCA*)(new MCA_ROOT(pif_, basename.c_str()));
+	else
+		mca = (MCA*)(new MCA_DAMM(pif_, basename.c_str()));
+#elif defined(USE_ROOT)
+	mca = (MCA*)(new MCA_ROOT(pif_, basename.c_str()));
+#elif defined(USE_DAMM)
+	mca = (MCA*)(new MCA_DAMM(pif_, basename.c_str()));
+#endif
+
+	pif_->StartHistogramRun();
+
+	if(!mca->IsOpen()){
+		pif_->EndRun();
+		return false;
+	}
+
+	return (running = true);
+}
+
+bool MCA_args::Step(){ 
+	if(!mca){ return false; }
+	return mca->Step();
+}
+
+bool MCA_args::CheckTime(){ 
+	if(!mca || (totalTime <= 0 || (mca->GetRunTime() >= totalTime))){ return false; }
+	return true;
 }
 
 void MCA_args::Zero(){
+	running = false;
 	useRoot = false;
 	totalTime = 0; // Needs to be zero for checking of MCA arguments
 	basename = "MCA";
+	
+	if(mca){ 
+		delete mca; 
+		mca = NULL;
+	}
+}
+
+void MCA_args::Close(PixieInterface *pif_){
+	pif_->EndRun();
+	Zero();
 }
 
 Poll::Poll(){
@@ -123,8 +191,6 @@ Poll::Poll(){
 	
 	udp_sequence = 0; 
 	total_spill_chunks = 0; 
-	
-	statsHandler = NULL;
 	
 	client = new Client();
 }
@@ -181,6 +247,18 @@ bool Poll::Initialize(){
 		client->Init("127.0.0.1", 5555);
 	}
 
+	partialEvent = new std::vector<word_t>[n_cards];
+
+	//Build the list of commands
+	commands_.insert(commands_.begin(), pollStatusCommands_.begin(), pollStatusCommands_.end());
+	commands_.insert(commands_.begin(), paramControlCommands_.begin(), paramControlCommands_.end());
+	if (!pac_mode) {
+		commands_.insert(commands_.begin(), runControlCommands_.begin(), runControlCommands_.end());
+	}
+
+	statsHandler = new StatsHandler(n_cards);
+	statsHandler->SetDumpInterval(statsInterval_);
+	
 	return init = true;
 }
 
@@ -207,7 +285,10 @@ bool Poll::close_output_file(bool continueRun /*=false*/){
 
 	if(output_file.IsOpen()){ // A file is already open and must be closed
 		//Clear the stats
-		if (!continueRun) statsHandler->Clear();
+		if (!continueRun){
+			statsHandler->Clear();
+			statsHandler->Dump();
+		}
 
 		std::cout << sys_message_head << "Closing output file.\n";
 		if(!pac_mode){ client->SendMessage((char *)"$CLOSE_FILE", 12); }
@@ -240,6 +321,7 @@ bool Poll::open_output_file(bool continueRun){
 
 		//Clear the stats
 		statsHandler->Clear();
+		statsHandler->Dump();
 
 		std::cout << sys_message_head << "Opening output file '" << output_file.GetCurrentFilename() << "'.\n";
 		if(!pac_mode){ client->SendMessage((char *)"$OPEN_FILE", 12); }
@@ -383,10 +465,7 @@ void Poll::broadcast_data(word_t *data, unsigned int nWords) {
 		}
 	}
 	else{ // Broadcast a spill notification to the network
-		char *packet = NULL;
-		int packet_size = output_file.BuildPacket(packet);
-		client->SendMessage(packet, packet_size);
-		delete[] packet;
+		output_file.SendPacket(client);
 	}
 }
 
@@ -475,6 +554,7 @@ void Poll::help(){
 	std::cout << "   csr_test [number]                 - Output the CSRA parameters for a given integer\n";
 	std::cout << "   bit_test [num_bits] [number]      - Display active bits in a given integer up to 32 bits long\n";
 	std::cout << "   status              - Display system status information\n";
+	std::cout << "   thresh              - Display current polling threshold\n";
 	std::cout << "   debug               - Toggle debug mode flag (default=false)\n";
 	std::cout << "   quiet               - Toggle quiet mode flag (default=false)\n";
 	std::cout << "   quit                - Close the program\n";
@@ -483,20 +563,12 @@ void Poll::help(){
 }
 
 std::vector<std::string> Poll::TabComplete(std::string cmd) {
-	static std::vector<std::string> commands = {"run", "stop", "startacq", "startvme", "stopacq", "stopvme", "acq", "shm", "spill", "hup", "prefix",
-												"fdir", "title", "runnum", "oform", "close", "reboot", "stats", "mca", "dump", "pread", "pmread",
-												"pwrite", "pmwrite", "adjust_offsets", "find_tau", "toggle", "toggle_bit", "csr_test", "bit_test",
-												"status", "debug", "quiet", "quit", "help", "version"};
-
 	std::vector<std::string> matches;
 	std::vector<std::string>::iterator it;
 	
-	if(!pac_mode){ it = commands.begin(); } // Normal operation
-	else{ it = commands.begin()+19; } // Pacman mode
-	
 	//If we have no space then we are auto completing a command.	
 	if (cmd.find(" ") == std::string::npos) {
-		for (it=commands.begin(); it!=commands.end();++it) {
+		for (it=commands_.begin(); it!=commands_.end();++it) {
 			if ((*it).find(cmd) == 0) {
 				matches.push_back((*it).substr(cmd.length()));
 			}
@@ -659,6 +731,11 @@ void Poll::show_status(){
 	std::cout << "   Initialized - " << yesno(init) << std::endl;
 }
 
+void Poll::show_thresh() {
+	float threshPercent = (float) threshWords / EXTERNAL_FIFO_LENGTH * 100;
+	std::cout << "Polling Threshold:	" << threshPercent << "% (" << threshWords << "/" << EXTERNAL_FIFO_LENGTH << ")\n";
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Poll::CommandControl
 ///////////////////////////////////////////////////////////////////////////////
@@ -672,16 +749,95 @@ void Poll::CommandControl(){
 			while(!run_ctrl_exit){ sleep(1); }
 			break;
 		}
+		if(pac_mode){ // Check for commands from pacman, if enabled
+			int select_dummy;
+			if(server->Select(select_dummy)){
+				UDP_Packet pacman_command;
+			
+				// We have a pacman command. Retrieve the command
+				server->RecvMessage((char *)&pacman_command, sizeof(UDP_Packet));
+				
+				/* Valid poll commands
+				    0x11 - INIT_ACQ
+				    0x22 - START_ACQ
+				    0x33 - STOP_ACQ
+				    0x44 - STATUS_ACQ
+				    0x55 - PAC_FILE
+				    0x66 - HOST
+				    0x77 - ZERO_CLK
+				   Return codes:
+				    0x00 - ACQ_OK
+				    0x01 - ACQ_RUN
+				    0x02 - ACQ_STOP
+				    0xFB - ACQ_STP_HALT
+				    0xFC - ACQ_STR_RUN*/
+
+				if(pacman_command.Data[0] == 0x11){ // INIT_ACQ
+					std::cout << "RECV PACMAN COMMAND 0x11 (INIT_ACQ)\n";
+					pacman_command.Data[0] = 0x00;
+				}
+				else if(pacman_command.Data[0] == 0x22){ // START_ACQ
+					std::cout << "RECV PACMAN COMMAND 0x22 (START_ACQ)\n";
+					if(acq_running){ pacman_command.Data[0] = 0xFC; }
+					else{ pacman_command.Data[0] = 0x00; }
+					do_start_acq = true;
+				}
+				else if(pacman_command.Data[0] == 0x33){ // STOP_ACQ
+					std::cout << "RECV PACMAN COMMAND 0x33 (STOP_ACQ)\n";
+					if(!acq_running){ pacman_command.Data[0] = 0xFB; } 
+					else{ pacman_command.Data[0] = 0x00; }
+					do_stop_acq = true;
+				}
+				else if(pacman_command.Data[0] == 0x44){ // STATUS_ACQ
+					std::cout << "RECV PACMAN COMMAND 0x44 (STATUS_ACQ)\n";
+					pacman_command.Data[0] = 0x00;
+					pacman_command.Data[1] = acq_running ? 0x01 : 0x02;
+				}
+				else if(pacman_command.Data[0] == 0x55){ // PAC_FILE
+					std::cout << "RECV PACMAN COMMAND 0x55 (PAC_FILE)\n";
+					pacman_command.Data[0] = 0x00;
+				}
+				else if(pacman_command.Data[0] == 0x66){ // HOST
+					std::cout << "RECV PACMAN COMMAND 0x66 (HOST)\n";
+					pacman_command.Data[0] = 0x00;
+				}
+				else if(pacman_command.Data[0] == 0x77){ // ZERO_CLK
+					std::cout << "RECV PACMAN COMMAND 0x77 (ZERO_CLK)\n";
+					pacman_command.Data[0] = 0x00;
+				}
+				else{ 
+					std::cout << "RECV PACMAN COMMAND 0x" << std::hex << (int)pacman_command.Data[0] << std::dec << " (?)\n";
+					pacman_command.Data[0] = 0x00; 
+				}
+				
+				// Send the reply to pacman
+				server->SendMessage((char *)&pacman_command, sizeof(UDP_Packet));
+			}
+		}
 	
 		cmd = poll_term_->GetCommand();
-		if(cmd == "CTRL_D"){ cmd = "quit"; }
-		else if(cmd == "CTRL_C"){ continue; }		
+		if(cmd == "_SIGSEGV_"){
+			std::cout << Display::ErrorStr("SEGMENTATION FAULT") << std::endl;
+			Close();
+			exit(EXIT_FAILURE);
+		}
+		else if(cmd == "CTRL_D"){ 
+			std::cout << sys_message_head << "Received EOF (ctrl-d) signal. Exiting...\n";
+			cmd = "quit"; 
+		}
+		else if(cmd == "CTRL_C"){ 
+			std::cout << sys_message_head << "Warning! Received SIGINT (ctrl-c) signal.\n";
+			continue; 
+		}
+		else if(cmd == "CTRL_Z"){ 
+			std::cout << sys_message_head << "Warning! Received SIGTSTP (ctrl-z) signal.\n";
+			continue; 
+		}	
 		if (cmd.find("\t") != std::string::npos) {
 			poll_term_->TabComplete(TabComplete(cmd.substr(0,cmd.length()-1)));
 			continue;
 		}
 		poll_term_->flush();
-		//poll_term_->print((cmd+"\n").c_str()); // This will force a write before the cout stream dumps to the screen
 
 		if(cmd == ""){ continue; }
 		
@@ -725,6 +881,9 @@ void Poll::CommandControl(){
 		}
 		else if(cmd == "status"){
 			show_status();
+		}
+		else if(cmd == "thresh"){
+			show_thresh();
 		}
 		else if(cmd == "dump"){ // Dump pixie parameters to file
 			std::ofstream ofile;
@@ -799,6 +958,11 @@ void Poll::CommandControl(){
 			}
 		}
 		else if(cmd == "pread" || cmd == "pmread"){ // Read pixie parameters
+			if(acq_running || do_MCA_run){ 
+				std::cout << sys_message_head << "Warning! Cannot view pixie parameters while acquisition is running\n\n"; 
+				continue;
+			}
+		
 			if(cmd == "pread"){ // Syntax "pread <module> <channel> <parameter name>"
 				if(p_args > 0 && arguments.at(0) == "help"){ pchan_help(); }
 				else if(p_args >= 3){
@@ -920,6 +1084,16 @@ void Poll::CommandControl(){
 				std::cout << sys_message_head << " -SYNTAX- bit_test [num_bits] [number]\n";
 			}
 		}
+		else if(cmd == "quiet"){ // Toggle quiet mode
+			if(is_quiet){
+				std::cout << sys_message_head << "Toggling quiet mode OFF\n";
+				is_quiet = false;
+			}
+			else{
+				std::cout << sys_message_head << "Toggling quiet mode ON\n";
+				is_quiet = true;
+			}
+		}
 		else if(!pac_mode){ // These command are only available when not running in pacman mode!
 			if(cmd == "run"){ start_run(); } // Tell POLL to start acq and start recording data to disk
 			else if(cmd == "startacq" || cmd == "startvme"){ // Tell POLL to start data acquisition
@@ -969,16 +1143,6 @@ void Poll::CommandControl(){
 					std::cout << sys_message_head << "Toggling debug mode ON\n";
 					output_file.SetDebugMode();
 					debug_mode = true;
-				}
-			}
-			else if(cmd == "quiet"){ // Toggle quiet mode
-				if(is_quiet){
-					std::cout << sys_message_head << "Toggling quiet mode OFF\n";
-					is_quiet = false;
-				}
-				else{
-					std::cout << sys_message_head << "Toggling quiet mode ON\n";
-					is_quiet = true;
 				}
 			}
 			else if(cmd == "fdir"){ // Change the output file directory
@@ -1089,21 +1253,25 @@ void Poll::CommandControl(){
 
 				if (p_args >= 1) {
 					std::string type = arguments.at(0);
-					if(type == "root"){ mca_args.useRoot = true; }
-					else if(type != "damm"){ mca_args.totalTime = atoi(type.c_str()); }
+					
+					if(type == "root"){ mca_args.SetUseRoot(); }
+					else if(type != "damm"){ mca_args.SetTotalTime(atoi(type.c_str())); }
+					
 					if(p_args >= 2){
-						if(mca_args.totalTime == 0){ mca_args.totalTime = atoi(arguments.at(1).c_str()); }
-						else{ mca_args.basename = arguments.at(1); }
-						if(p_args >= 3){ mca_args.basename = arguments.at(2); }
+						if(mca_args.GetTotalTime() == 0){ mca_args.SetTotalTime(atoi(arguments.at(1).c_str())); }
+						else{ mca_args.SetBasename(arguments.at(1)); }
+						if(p_args >= 3){ mca_args.SetBasename(arguments.at(2)); }
 					}
 				}
-				if(mca_args.totalTime == 0){ 
-					mca_args.totalTime = 10; 
+				
+				if(mca_args.GetTotalTime() == 0){ 
+					mca_args.SetTotalTime(10);
 					std::cout << sys_message_head << "Using default MCA time of 10 seconds\n";
 				}
 		
 				do_MCA_run = true;
 			}
+			else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
 		}
 		else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
 	}
@@ -1116,74 +1284,8 @@ void Poll::CommandControl(){
 /// Function to control the gathering and recording of PIXIE data
 void Poll::RunControl(){
 	while(true){
-		if(pac_mode){ // Check for commands from pacman, if enabled
-			int select_dummy;
-			if(server->Select(select_dummy)){
-				UDP_Packet pacman_command;
-			
-				// We have a pacman command. Retrieve the command
-				server->RecvMessage((char *)&pacman_command, sizeof(UDP_Packet));
-				
-				/* Valid poll commands
-				    0x11 - INIT_ACQ
-				    0x22 - START_ACQ
-				    0x33 - STOP_ACQ
-				    0x44 - STATUS_ACQ
-				    0x55 - PAC_FILE
-				    0x66 - HOST
-				    0x77 - ZERO_CLK
-				   Return codes:
-				    0x00 - ACQ_OK
-				    0x01 - ACQ_RUN
-				    0x02 - ACQ_STOP
-				    0xFB - ACQ_STP_HALT
-				    0xFC - ACQ_STR_RUN*/
-
-				if(pacman_command.Data[0] == 0x11){ // INIT_ACQ
-					std::cout << "RECV PACMAN COMMAND 0x11 (INIT_ACQ)\n";
-					pacman_command.Data[0] = 0x00;
-				}
-				else if(pacman_command.Data[0] == 0x22){ // START_ACQ
-					std::cout << "RECV PACMAN COMMAND 0x22 (START_ACQ)\n";
-					if(acq_running){ pacman_command.Data[0] = 0xFC; }
-					else{ pacman_command.Data[0] = 0x00; }
-					do_start_acq = true;
-				}
-				else if(pacman_command.Data[0] == 0x33){ // STOP_ACQ
-					std::cout << "RECV PACMAN COMMAND 0x33 (STOP_ACQ)\n";
-					if(!acq_running){ pacman_command.Data[0] = 0xFB; } 
-					else{ pacman_command.Data[0] = 0x00; }
-					do_stop_acq = true;
-				}
-				else if(pacman_command.Data[0] == 0x44){ // STATUS_ACQ
-					std::cout << "RECV PACMAN COMMAND 0x44 (STATUS_ACQ)\n";
-					pacman_command.Data[0] = 0x00;
-					pacman_command.Data[1] = acq_running ? 0x01 : 0x02;
-				}
-				else if(pacman_command.Data[0] == 0x55){ // PAC_FILE
-					std::cout << "RECV PACMAN COMMAND 0x55 (PAC_FILE)\n";
-					pacman_command.Data[0] = 0x00;
-				}
-				else if(pacman_command.Data[0] == 0x66){ // HOST
-					std::cout << "RECV PACMAN COMMAND 0x66 (HOST)\n";
-					pacman_command.Data[0] = 0x00;
-				}
-				else if(pacman_command.Data[0] == 0x77){ // ZERO_CLK
-					std::cout << "RECV PACMAN COMMAND 0x77 (ZERO_CLK)\n";
-					pacman_command.Data[0] = 0x00;
-				}
-				else{ 
-					std::cout << "RECV PACMAN COMMAND 0x" << std::hex << (int)pacman_command.Data[0] << std::dec << " (?)\n";
-					pacman_command.Data[0] = 0x00; 
-				}
-				
-				// Send the reply to pacman
-				server->SendMessage((char *)&pacman_command, sizeof(UDP_Packet));
-			}
-		}
-	
 		if(kill_all){ // Supersedes all other commands
-			if(acq_running){ do_stop_acq = true; } // Safety catch
+			if(acq_running || mca_args.IsRunning()){ do_stop_acq = true; } // Safety catch
 			else{ break; }
 		}
 		
@@ -1198,30 +1300,37 @@ void Poll::RunControl(){
 			}
 		}
 
-		if(do_MCA_run){ // Do an MCA run, if the acq is not running
-			if(acq_running){ do_stop_acq = true; } // Safety catch
+		if(do_MCA_run){ // Do an MCA run, if the acq is not running.
+			if(acq_running){ do_stop_acq = true; } // Safety catch.
 			else{
-				if(mca_args.totalTime > 0.0){ std::cout << sys_message_head << "Performing MCA data run for " << mca_args.totalTime << " s\n"; }
-				else{ std::cout << sys_message_head << "Performing infinite MCA data run. Type \"stop\" to quit\n"; }
-				pif->RemovePresetRunLength(0);
+				if(!mca_args.IsRunning()){ // Start the pixie histogram run.
+					if(mca_args.GetTotalTime() > 0.0){ std::cout << sys_message_head << "Performing MCA data run for " << mca_args.GetTotalTime() << " s\n"; }
+					else{ std::cout << sys_message_head << "Performing infinite MCA data run. Type \"stop\" to quit\n"; }
 
-				MCA *mca = NULL;
-#if defined(USE_ROOT) && defined(USE_DAMM)
-				if(mca_args.useRoot){ mca = new MCA_ROOT(pif, mca_args.basename.c_str()); }
-				else{ mca = new MCA_DAMM(pif, mca_args.basename.c_str()); }
-#elif defined(USE_ROOT)
-				mca = new MCA_ROOT(pif, mca_args.basename.c_str());
-#elif defined(USE_DAMM)
-				mca = new MCA_DAMM(pif, mca_args.basename.c_str());
-#endif
-
-				if(mca && mca->IsOpen()){ mca->Run(mca_args.totalTime, &do_stop_acq); }
-				mca_args.Zero();
-				do_stop_acq = false;
-				do_MCA_run = false;
-				delete mca;
+					if(!mca_args.Initialize(pif)){
+						std::cout << Display::ErrorStr("Run TERMINATED") << std::endl;
+						do_MCA_run = false;
+						had_error = true;
+						continue;
+					}
+				}
 				
-				std::cout << std::endl;
+				if(!mca_args.CheckTime() || do_stop_acq){ // End the run.
+					mca_args.Close(pif);
+					std::cout << sys_message_head << "Ending MCA run.\n";
+					std::cout << sys_message_head << "Ran for " << mca_args.GetMCA()->GetRunTime() << " s.\n";
+					do_stop_acq = false;
+					do_MCA_run = false;
+				}
+				else{
+					sleep(1); // Sleep for a small amount of time.
+					if(!mca_args.Step()){ // Update the histograms.
+						std::cout << Display::ErrorStr("Run TERMINATED") << std::endl;
+						mca_args.Close(pif);
+						do_MCA_run = false;
+						had_error = true;
+					}
+				}
 			}
 		}
 
@@ -1261,10 +1370,6 @@ void Poll::RunControl(){
 				time_t currTime;
 				time(&currTime);
 				
-				//Reset status flags
-				do_stop_acq = false;
-				acq_running = false;
-
 				// Check if each module has ended its run properly.
 				for(size_t mod = 0; mod < n_cards; mod++){
 					//If the run status is 1 then the run has not finished in the module.
@@ -1282,6 +1387,12 @@ void Poll::RunControl(){
 					//Print the module status.
 					std::stringstream leader;
 					leader << "Run end status in module " << mod;
+					if (!partialEvent[mod].empty()) {
+						///\bug Warning Str colors oversets the number of characters.
+						leader << Display::WarningStr(" (partial evt)");
+						partialEvent[mod].clear();
+					}
+					
 					Display::LeaderPrint(leader.str());
 					if(!pif->CheckRunStatus(mod)){
 						std::cout << Display::OkayStr() << std::endl;
@@ -1295,6 +1406,14 @@ void Poll::RunControl(){
 				if (record_data) std::cout << "Run " << output_file.GetRunNumber();
 				else std::cout << "Acq";
 				std::cout << " stopped on " << ctime(&currTime);
+
+				//Reset status flags
+				do_stop_acq = false;
+				acq_running = false;
+
+				statsHandler->ClearRates();
+				statsHandler->Dump();
+				statsHandler->ClearTotals();
 			} //End of handling a stop acq flag
 		}
 
@@ -1308,10 +1427,16 @@ void Poll::RunControl(){
 
 		if (file_open) status << " Run " << output_file.GetRunNumber();
 
-		//Add run time to status
-		status << " " << (long long) statsHandler->GetTotalTime() << "s";
-		//Add data rate to status
-		status << " " << humanReadable(statsHandler->GetTotalDataRate()) << "/s";
+		if(do_MCA_run){
+			status << " " << (int)mca_args.GetMCA()->GetRunTime() << "s";
+			status << " of " << mca_args.GetTotalTime() << "s";
+		}
+		else{
+			//Add run time to status
+			status << " " << (long long) statsHandler->GetTotalTime() << "s";
+			//Add data rate to status
+			status << " " << humanReadable(statsHandler->GetTotalDataRate()) << "/s";
+		}
 
 		if (file_open) {
 			if (acq_running && !record_data) status << TermColors::DkYellow;
@@ -1332,6 +1457,21 @@ void Poll::RunControl(){
 	std::cout << "Run Control exited\n";
 }
 
+void Poll::ReadScalers() {
+	static std::vector< std::pair<double, double> > xiaRates(16, std::make_pair<double, double>(0,0));
+	static int numChPerMod = pif->GetNumberChannels();
+
+	for (unsigned short mod=0;mod < n_cards; mod++) {
+		//Tell interface to get stats data from the modules.
+		pif->GetStatistics(mod);
+		
+		for (int ch=0;ch< numChPerMod; ch++) 
+			xiaRates[ch] = std::make_pair<double, double>(pif->GetInputCountRate(mod, ch),pif->GetOutputCountRate(mod,ch));
+
+		//Populate Stats Handler with ICR and OCR.
+		statsHandler->SetXiaRates(mod, &xiaRates);
+	}
+}
 bool Poll::ReadFIFO() {
  	static word_t *fifoData = new word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
 
@@ -1341,10 +1481,8 @@ bool Poll::ReadFIFO() {
 	std::vector<word_t> nWords(n_cards);
 	//Iterator to determine which card has the most words.
 	std::vector<word_t>::iterator maxWords;
-	//A vector to store the partial events
-	static std::vector<word_t> *partialEvent = new std::vector<word_t>[n_cards];
 
-	//We loop until the FIFO has reached the threshold for any module
+	//We loop until the FIFO has reached the threshold for any module unless we are stopping and then we skip the loop.
 	for (unsigned int timeout = 0; timeout < POLL_TRIES; timeout++){ 
 		//Check the FIFO size for every module
 		for (unsigned short mod=0; mod < n_cards; mod++) {
@@ -1354,11 +1492,9 @@ bool Poll::ReadFIFO() {
 		maxWords = std::max_element(nWords.begin(), nWords.end());
 		if(*maxWords > threshWords){ break; }
 	}
-	//Decide if we should read data based on threshold.
-	bool readData = (*maxWords > threshWords || do_stop_acq);
 
 	//We need to read the data out of the FIFO
-	if (readData || force_spill) {
+	if (*maxWords > threshWords || force_spill) {
 		force_spill = false;
 		//Number of data words read from the FIFO
 		size_t dataWords = 0;
@@ -1499,17 +1635,24 @@ bool Poll::ReadFIFO() {
 			dataWords += nWords[mod];
 		} //End loop over modules for reading FIFO
 
+		//Get the length of the spill
+		double spillTime = usGetTime(startTime);
+		double durSpill = spillTime - lastSpillTime;
+		lastSpillTime = spillTime;
+
+		// Add time to the statsHandler and check if interval has been exceeded.
+		//If exceed interval we read the scalers from the modules and dump the stats.
+		if (statsHandler->AddTime(durSpill * 1e-6)) {
+			ReadScalers();
+			statsHandler->Dump();
+			statsHandler->ClearRates();
+		}
+
 		if (!is_quiet) std::cout << "Writing/Broadcasting " << dataWords << " words.\n";
 		//We have read the FIFO now we write the data	
 		if (record_data && !pac_mode) write_data(fifoData, dataWords); 
 		broadcast_data(fifoData, dataWords);
 
-		//Get the length of the spill
-		double spillTime = usGetTime(startTime);
-		double durSpill = spillTime - lastSpillTime;
-		lastSpillTime = spillTime;
-		// Add time to the statsHandler (for monitor.bash)
-		if(statsHandler){ statsHandler->AddTime(durSpill * 1e-6); }
 	} //If we had exceeded the threshold or forced a flush
 
 	return true;

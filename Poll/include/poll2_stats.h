@@ -15,7 +15,10 @@ class StatsHandler{
 
     void AddEvent(unsigned int mod, unsigned int ch, size_t size, int delta_=1);
     
-    void AddTime(double dtime);
+    bool AddTime(double dtime);
+
+	///Set the amount of time between scalers dumps in seconds.
+	void SetDumpInterval(double interval) {dumpTime = interval;};
 
     double GetDataRate(size_t mod);
     
@@ -25,11 +28,18 @@ class StatsHandler{
     
 	///Return the total run time.
 	double GetTotalTime();
+
+	///Set the ICR and OCR from the XIA module.
+	void SetXiaRates(int mod, std::vector<std::pair<double,double>> *xiaRates); 
 	
 	bool CanSend(){ return is_able_to_send; }
 	
 	///Clear the stats.
 	void Clear();
+	void ClearRates();
+	void ClearTotals();
+
+    void Dump();
 	
   private:
     Client *client; // UDP client for network access
@@ -49,6 +59,9 @@ class StatsHandler{
     /** calculated event rate in Hz for each channel */
     double **calcEventRate;
     
+    double **inputCountRate; ///<The XIA Module input count rate.
+    double **outputCountRate; ///<The XIA Module output count rate.
+    
     /** calculated data rate in bytes per second for each module */
     size_t *calcDataRate;
 
@@ -66,7 +79,6 @@ class StatsHandler{
 
 	bool is_able_to_send; /// Is StatsHandler able to send on the network?
 
-    void Dump(void);
 };
 
 #endif
