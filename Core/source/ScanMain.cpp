@@ -52,6 +52,22 @@ Terminal *term_;
 
 std::string sys_message_head = std::string(PROG_NAME) + ": ";
 
+unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_=' '){
+	args.clear();
+	std::string temp = "";
+	unsigned int count = 0;
+	for(unsigned int i = 0; i < str_.size(); i++){
+		if(str_[i] == delimiter_ || i == str_.size()-1){
+			if(i == str_.size()-1){ temp += str_[i]; }
+			args.push_back(temp);
+			temp = "";
+			count++;
+		}
+		else{ temp += str_[i]; }		
+	}
+	return count;
+}
+
 void start_run_control(Unpacker *core_){
 	if(debug_mode){
 		pldHead.SetDebugMode();
@@ -226,13 +242,15 @@ void start_run_control(Unpacker *core_){
 	run_ctrl_exit = true;
 }
 
-void start_cmd_control(){
+void start_cmd_control(Unpacker *pack_){
+	if(!pack_){ return; }
+
 	std::string cmd = "", arg;
 
 	while(true){
 		cmd = term_->GetCommand();
 		if(cmd == "_SIGSEGV_"){
-			std::cout << "\033[0;32mSEGMENTATION FAULT\033[0m" << std::endl;
+			std::cout << "\033[0;31m[SEGMENTATION FAULT]\033[0m\n";
 			exit(EXIT_FAILURE);
 		}
 		else if(cmd == "CTRL_D"){ 
@@ -246,17 +264,65 @@ void start_cmd_control(){
 		else if(cmd == "CTRL_Z"){ 
 			std::cout << sys_message_head << "Warning! Received SIGTSTP (ctrl-z) signal.\n";
 			continue; 
-		}	
+		}
 		term_->flush();
 
 		if(cmd == ""){ continue; }
+		
+		size_t index = cmd.find(" ");
+		if(index != std::string::npos){
+			arg = cmd.substr(index+1, cmd.size()-index); // Get the argument from the full input string
+			cmd = cmd.substr(0, index); // Get the command from the full input string
+		}
+		else{ arg = ""; }
+
+		std::vector<std::string> arguments;
+		split_str(arg, arguments);
 		
 		if(cmd == "quit" || cmd == "exit"){
 			kill_all = true;
 			while(!run_ctrl_exit){ sleep(1); }
 			break;
 		}
-		else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
+		else if(cmd == "version" || cmd == "v"){
+			std::cout << "  " << PROG_NAME << "      v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
+			std::cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " (" << POLL2_SOCKET_DATE << ")\n"; 
+			std::cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION << " (" << HRIBF_BUFFERS_DATE << ")\n"; 
+			std::cout << "  CTerminal     v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
+		}
+		else if(cmd == "help" || cmd == "h"){
+			std::cout << "  Help:\n";
+			std::cout << "   debug       - Toggle debug mode flag (default=false)\n";
+			std::cout << "   quiet       - Toggle quiet mode flag (default=false)\n";
+			std::cout << "   quit        - Close the program\n";
+			std::cout << "   help (h)    - Display this dialogue\n";
+			std::cout << "   version (v) - Display Poll2 version information\n";
+			pack_->CmdHelp("   ");
+		}
+		else if(cmd == "debug"){ // Toggle debug mode
+			if(debug_mode){
+				std::cout << sys_message_head << "Toggling debug mode OFF\n";
+				debug_mode = false;
+			}
+			else{
+				std::cout << sys_message_head << "Toggling debug mode ON\n";
+				debug_mode = true;
+			}
+			pack_->SetDebugMode(debug_mode);
+		}
+		else if(cmd == "quiet"){ // Toggle quiet mode
+			if(!is_verbose){
+				std::cout << sys_message_head << "Toggling quiet mode OFF\n";
+				is_verbose = true;
+			}
+			else{
+				std::cout << sys_message_head << "Toggling quiet mode ON\n";
+				is_verbose = false;
+			}
+		}
+		else if(!pack_->CommandControl(cmd, arguments)){ // Unrecognized command. Send it to Unpacker.
+			std::cout << sys_message_head << "Unknown command '" << cmd << "'\n";
+		}
 	}		
 }
 
@@ -293,7 +359,7 @@ void help(char *name_, Unpacker *core_){
 	std::cout << "   --quiet    - Toggle off verbosity flag\n";
 	std::cout << "   --dry-run  - Extract spills from file, but do no processing\n";
 	std::cout << "   --fast-fwd [word] - Skip ahead to a specified word in the file (start of file at zero)\n";
-	core_->Help("   ");
+	core_->ArgHelp("   ");
 }
 
 int main(int argc, char *argv[]){
@@ -304,10 +370,10 @@ int main(int argc, char *argv[]){
 		return 0;
 	}
 	else if(argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)){ // Display version information
-		std::cout << " " << PROG_NAME << "-------v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
-		std::cout << " |hribf_buffers-v" << HRIBF_BUFFERS_VERSION << " (" << HRIBF_BUFFERS_DATE << ")\n";
-		std::cout << " |CTerminal-----v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
-		std::cout << " |poll2_socket--v" << POLL2_SOCKET_VERSION << " (" << POLL2_SOCKET_DATE << ")\n";
+		std::cout << "  " << PROG_NAME << "      v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
+		std::cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " (" << POLL2_SOCKET_DATE << ")\n"; 
+		std::cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION << " (" << HRIBF_BUFFERS_DATE << ")\n"; 
+		std::cout << "  CTerminal     v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
 		return 0;
 	}
 	
@@ -328,6 +394,8 @@ int main(int argc, char *argv[]){
 	}
 
 	Unpacker *core = GetCore(); // Get a pointer to the main Unpacker object.
+	
+	core->SetMsgPrefix(sys_message_head);
 	
 	// Loop through the arg list and extract ScanMain arguments.
 	std::string current_arg;
@@ -507,7 +575,7 @@ int main(int argc, char *argv[]){
 		// Start the command control thread. This needs to be the last thing we do to
 		// initialize, so the user cannot enter commands before setup is complete
 		std::cout << "Starting command thread\n\n";
-		std::thread comctrl(start_cmd_control);
+		std::thread comctrl(start_cmd_control, core);
 
 		// Synchronize the threads and wait for completion
 		comctrl.join();

@@ -63,13 +63,22 @@ class Oscilloscope : public Unpacker{
 	/// Return the syntax string for this program.
 	void SyntaxStr(const char *name_, std::string prefix_=""){ std::cout << prefix_ << "SYNTAX: " << std::string(name_) << " <options> <input>\n"; }
 	
-	/// Print a help dialogue. 
-	void Help(std::string prefix_="");
+	/// Print a command line help dialogue for recognized command line arguments.
+	void ArgHelp(std::string prefix_="");
+	
+	/// Print an in-terminal help dialogue for recognized commands.
+	void CmdHelp(std::string prefix_="");
 	
 	/// Scan input arguments and set class variables.
 	bool SetArgs(std::deque<std::string> &args_, std::string &filename_);
-	
+
+	/// Print a status message.	
 	void PrintStatus(std::string prefix_=""){ std::cout << prefix_ << "Found " << num_traces << " traces and displayed " << num_displayed << ".\n"; }
+
+	/** Search for an input command and perform the desired action. Return
+	  * true if the command is valid and false otherwise.
+	  */
+	bool CommandControl(std::string cmd_, const std::vector<std::string> &args_);
 };
 
 /// Return a pointer to a new Oscilloscope object.

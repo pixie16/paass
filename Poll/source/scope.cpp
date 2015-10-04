@@ -23,7 +23,7 @@ void Oscilloscope::Plot(ChannelEvent *event_){
 	// Draw the trace
 	if((int)difftime(cur_time, last_trace) >= delay){
 		if(event_->trace.size() != x_vals.size()){ // The length of the trace has changed.
-			std::cout << "Plot: Changing trace length from " << x_vals.size() << " to " << event_->trace.size() << std::endl;
+			std::cout << message_head << "Changing trace length from " << x_vals.size() << " to " << event_->trace.size() << std::endl;
 			x_vals.clear();
 			x_vals.assign(event_->trace.size(), 0);
 			for(size_t index = 0; index < x_vals.size(); index++){
@@ -124,10 +124,16 @@ bool Oscilloscope::Initialize(std::string prefix_){
 	return (init = true);
 }
 
-/// Print a help dialogue.
-void Oscilloscope::Help(std::string prefix_){
+/// Print a command line help dialogue for recognized command line arguments.
+void Oscilloscope::ArgHelp(std::string prefix_){
 	std::cout << prefix_ << "--mod [module]   | Module of signal of interest (default=0)\n";
 	std::cout << prefix_ << "--chan [channel] | Channel of signal of interest (default=0)\n";
+}
+
+/// Print an in-terminal help dialogue for recognized commands.
+void Oscilloscope::CmdHelp(std::string prefix_){
+	std::cout << prefix_ << "set [module] [channel] - Set the module and channel of signal of interest (default = 0, 0).\n";
+	std::cout << prefix_ << "delay [time]           - Set the delay between drawing traces (in seconds, default = 1 s).\n";
 }
 
 /// Scan input arguments and set class variables.
@@ -156,5 +162,28 @@ bool Oscilloscope::SetArgs(std::deque<std::string> &args_, std::string &filename
 		else{ filename_ = current_arg; }
 	}
 	
+	return true;
+}
+
+bool Oscilloscope::CommandControl(std::string cmd_, const std::vector<std::string> &args_){
+	if(cmd_ == "set"){ // Toggle debug mode
+		if(args_.size() >= 2){
+			mod = atoi(args_.at(0).c_str());
+			chan = atoi(args_.at(1).c_str());
+		}
+		else{
+			std::cout << message_head << "Invalid number of parameters to 'set'\n";
+			std::cout << message_head << " -SYNTAX- set [module] [channel]\n";
+		}
+	}
+	else if(cmd_ == "delay"){
+		if(args_.size() >= 2){ delay = atoi(args_.at(0).c_str()); }
+		else{
+			std::cout << message_head << "Invalid number of parameters to 'delay'\n";
+			std::cout << message_head << " -SYNTAX- delay [time]\n";
+		}
+	}
+	else{ return false; }
+
 	return true;
 }
