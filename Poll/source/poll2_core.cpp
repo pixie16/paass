@@ -193,6 +193,8 @@ Poll::~Poll(){
 	if(init){
 		Close();
 	}
+
+	delete pif;
 }
 
 bool Poll::Initialize(){
@@ -265,8 +267,6 @@ bool Poll::Close(){
 	// Just to be safe
 	if(output_file.IsOpen()){ close_output_file(); }
 
-	delete pif;
-	
 	init = false;
 	
 	return true;
