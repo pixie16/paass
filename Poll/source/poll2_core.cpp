@@ -147,50 +147,44 @@ void MCA_args::Close(PixieInterface *pif_){
 	Zero();
 }
 
-Poll::Poll(){
-	pif = new PixieInterface("pixie.cfg");
-
-	clock_vsn = 1000;
-
+Poll::Poll() : 
 	// System flags and variables
-	sys_message_head = " POLL: ";
-	kill_all = false; // Set to true when the program is exiting
-	do_start_acq = false; // Set to true when the command is given to start a run
-	do_stop_acq = false; // Set to true when the command is given to stop a run
-	record_data = false; // Set to true if data is to be recorded to disk
-	do_reboot = false; // Set to true when the user tells POLL to reboot PIXIE
-	force_spill = false; // Force poll2 to dump the current data spill
-	acq_running = false; // Set to true when run_command is recieving data from PIXIE
-	run_ctrl_exit = false; // Set to true when run_command exits
-	had_error = false; //Set to true when aborting due to an error.
-	file_open = false; //Set to true when a file is opened.
-	do_MCA_run = false; // Set to true when the "mca" command is received
-	raw_time = 0;
-
+	sys_message_head(" POLL: "),
+	kill_all(false), // Set to true when the program is exiting
+	do_start_acq(false), // Set to true when the command is given to start a run
+	do_stop_acq(false), // Set to true when the command is given to stop a run
+	record_data(false), // Set to true if data is to be recorded to disk
+	do_reboot(false), // Set to true when the user tells POLL to reboot PIXIE
+	force_spill(false), // Force poll2 to dump the current data spill
+	acq_running(false), // Set to true when run_command is recieving data from PIXIE
+	run_ctrl_exit(false), // Set to true when run_command exits
+	had_error(false), //Set to true when aborting due to an error.
+	file_open(false), //Set to true when a file is opened.
+	raw_time(0),
+	do_MCA_run(false), // Set to true when the "mca" command is received
 	// Run control variables
-	boot_fast = false;
-	insert_wall_clock = true;
-	is_quiet = false;
-	send_alarm = false;
-	show_module_rates = false;
-	zero_clocks = false;
-	debug_mode = false;
-	shm_mode = false;
-	pac_mode = false;
-	init = false;
-
+	boot_fast(false),
+	insert_wall_clock(true),
+	is_quiet(false),
+	send_alarm(false),
+	show_module_rates(false),
+	zero_clocks(false),
+	debug_mode(false),
+	shm_mode(false),
+	pac_mode(false),
+	init(false),
 	// Options relating to output data file
-	output_directory = "./"; // Set with 'fdir' command
-	output_title = "PIXIE data file"; // Set with 'title' command
-	next_run_num = 1; // Set with 'runnum' command
-	output_format = 0; // Set with 'oform' command
-
-	// The main output data file and related variables
-	current_file_num = 0;
-	filename_prefix = "run";
-	
-	udp_sequence = 0; 
-	total_spill_chunks = 0; 
+	output_directory("./"), // Set with 'fdir' command
+	filename_prefix("run"),
+	output_title("PIXIE data file"), // Set with 'title' command
+	next_run_num(1), // Set with 'runnum' command
+	output_format(0), // Set with 'oform' command
+	current_file_num(0),
+	// Some pacman stuff
+	udp_sequence(0),
+	total_spill_chunks(0)
+{
+	pif = new PixieInterface("pixie.cfg");
 	
 	client = new Client();
 }
