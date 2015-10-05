@@ -198,12 +198,19 @@ Poll::Poll() :
 	else{ std::cout << Display::WarningStr("UNEXPECTED") << std::endl; }
 
 	client = new Client();
+
+	//Create a stats handler and set the interval.
+	statsHandler = new StatsHandler(n_cards);
+	statsHandler->SetDumpInterval(statsInterval_);
+	
 }
 
 Poll::~Poll(){
 	if(init){
 		Close();
 	}
+
+	delete statsHandler;
 
 	delete pif;
 }
@@ -221,56 +228,71 @@ bool Poll::Initialize(){
 	pif->GetSlots();
 	if(!pif->Init()){ return false; }
 
+	//Boot the modules.
 	if(boot_fast){
 		if(!pif->Boot(PixieInterface::DownloadParameters | PixieInterface::SetDAC | PixieInterface::ProgramFPGA)){ return false; } 
 	}
 	else{
 		if(!pif->Boot(PixieInterface::BootAll)){ return false; }
 	}
-
+	
+	//Set module syncronization parameters
 	if(!synch_mods()){ return false; }
 
 	// Allocate memory buffers for FIFO
 	n_cards = pif->GetNumberCards();
 	
 	if(pac_mode){ 
+		//Initialize pacman data port
 		client->Init("127.0.0.1", 45080);
 		
+		//Initialize pacman command port
 		server = new Server();
 		server->Init(45086, 1); // Set the timeout to 1 second. 
 	}
 	else{ 
-		// This is done to avoid tying up udptoipc's port
+		//Initialize Cory's shm port
+		// This port number is used to avoid tying up udptoipc's port
 		client->Init("127.0.0.1", 5555);
 	}
 
 	//Allocate an array of vectors to store partial events from the FIFO.
-	partialEvent = new std::vector<word_t>[n_cards];
+	partialEvents = new std::vector<word_t>[n_cards];
 
 	//Build the list of commands
 	commands_.insert(commands_.begin(), pollStatusCommands_.begin(), pollStatusCommands_.end());
 	commands_.insert(commands_.begin(), paramControlCommands_.begin(), paramControlCommands_.end());
+	//Omit the run control commands.
 	if (!pac_mode) {
 		commands_.insert(commands_.begin(), runControlCommands_.begin(), runControlCommands_.end());
 	}
 
-	//Create a stats handler and set the interval.
-	statsHandler = new StatsHandler(n_cards);
-	statsHandler->SetDumpInterval(statsInterval_);
-	
 	return init = true;
 }
 
+/**Clean up things that are created during Poll::Initialize().
+ *
+ * \return Returns true if successful.
+ */
 bool Poll::Close(){
+	//We return if the class has not been initialized.
 	if(!init){ return false; }
 	
+	//Send message to Cory's SHM that we are closing.
 	if(!pac_mode){ client->SendMessage((char *)"$KILL_SOCKET", 13); }
+	//Close the pacman command port.
 	else{ server->Close(); }
+	//Close the UDP data / SHM port.
 	client->Close();
 	
 	// Just to be safe
 	if(output_file.IsOpen()){ close_output_file(); }
 
+	//Delete the array of partial event vectors.
+	delete[] partialEvents;
+	partialEvents = NULL;
+
+	// We are no longer initialized.
 	init = false;
 	
 	return true;
@@ -1392,10 +1414,10 @@ void Poll::RunControl(){
 					//Print the module status.
 					std::stringstream leader;
 					leader << "Run end status in module " << mod;
-					if (!partialEvent[mod].empty()) {
+					if (!partialEvents[mod].empty()) {
 						///\bug Warning Str colors oversets the number of characters.
 						leader << Display::WarningStr(" (partial evt)");
-						partialEvent[mod].clear();
+						partialEvents[mod].clear();
 					}
 					
 					Display::LeaderPrint(leader.str());
@@ -1543,11 +1565,11 @@ bool Poll::ReadFIFO() {
 			fifoData[dataWords++] = mod;
 
 			//We store the partial event if we had one
-			for (size_t i=0;i<partialEvent[mod].size();i++)
-				fifoData[dataWords + i] = partialEvent[mod].at(i);
+			for (size_t i=0;i<partialEvents[mod].size();i++)
+				fifoData[dataWords + i] = partialEvents[mod].at(i);
 
 			//Try to read FIFO and catch errors.
-			if(!pif->ReadFIFOWords(&fifoData[dataWords + partialEvent[mod].size()], nWords[mod], mod, debug_mode)){
+			if(!pif->ReadFIFOWords(&fifoData[dataWords + partialEvents[mod].size()], nWords[mod], mod, debug_mode)){
 				std::cout << Display::ErrorStr() << " Unable to read " << nWords[mod] << " from module " << mod << "\n";
 				had_error = true;
 				do_stop_acq = true;
@@ -1557,15 +1579,15 @@ bool Poll::ReadFIFO() {
 			//Print a message about what we did	
 			if(!is_quiet || debug_mode) {
 				std::cout << "Read " << nWords[mod] << " words from module " << mod;
-				if (!partialEvent[mod].empty())
-					std::cout << " and stored " << partialEvent[mod].size() << " partial event words";
+				if (!partialEvents[mod].empty())
+					std::cout << " and stored " << partialEvents[mod].size() << " partial event words";
 				std::cout << " to buffer position " << dataWords << std::endl;
 			}
 
 			//After reading the FIFO and printing a sttus message we can update the number of words to include the partial event.
-			nWords[mod] += partialEvent[mod].size();
+			nWords[mod] += partialEvents[mod].size();
 			//Clear the partial event
-			partialEvent[mod].clear();
+			partialEvents[mod].clear();
 
 			//We now ned to parse the event to determine if there is a hanging event. Also, allows a check for corrupted data.
 			size_t parseWords = dataWords;
@@ -1613,7 +1635,7 @@ bool Poll::ReadFIFO() {
 
 				//We could get the words now from the FIFO, but me may have to wait. Instead we store the partial event for the next FIFO read.
 				for(unsigned short i=0;i< partialSize;i++) 
-					partialEvent[mod].push_back(fifoData[parseWords - eventSize + i]);
+					partialEvents[mod].push_back(fifoData[parseWords - eventSize + i]);
 
 				//Update the number of words to indicate removal or partial event.
 				nWords[mod] -= partialSize;
