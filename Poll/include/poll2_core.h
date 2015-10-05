@@ -109,9 +109,6 @@ class Poll{
 	double startTime; ///Time when the acquistion was started.
 	double lastSpillTime; ///Time when the last spill finished.
 
-	unsigned int udp_sequence; /// ???
-	unsigned int total_spill_chunks; /// Total number of poll data spill chunks sent over the network
-
   	struct tm *time_info;
 
 	Client *client; /// UDP client for network access
@@ -119,8 +116,6 @@ class Poll{
 
 	PixieInterface *pif; /// The main pixie interface pointer 
   
-	word_t clock_vsn;	
-
 	// System flags and variables
 	std::string sys_message_head; /// Command line message header
 	bool kill_all; /// Set to true when the program is exiting
@@ -161,6 +156,10 @@ class Poll{
 	// The main output data file and related variables
 	int current_file_num;
 	PollOutputFile output_file;
+
+	///Pacman related variables
+	unsigned int udp_sequence; ///< The number of UDP packets transmitted.
+	unsigned int total_spill_chunks; ///< Total number of poll data spill chunks sent over the network
 
 	size_t n_cards;
 	size_t threshWords;
