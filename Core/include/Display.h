@@ -14,7 +14,7 @@ namespace Display {
   std::string ErrorStr(const std::string &str = "[ERROR]");
   std::string InfoStr(const std::string &str);
   std::string OkayStr(const std::string &str = "[OK]");
-  std::string WarningStr(const std::string &str);
+  std::string WarningStr(const std::string &str = "[WARNING]");
 
   void LeaderPrint(const std::string &str);
   bool StatusPrint(bool errorStatus);
