@@ -199,18 +199,12 @@ Poll::Poll() :
 
 	client = new Client();
 
-	//Create a stats handler and set the interval.
-	statsHandler = new StatsHandler(n_cards);
-	statsHandler->SetDumpInterval(statsInterval_);
-	
 }
 
 Poll::~Poll(){
 	if(init){
 		Close();
 	}
-
-	delete statsHandler;
 
 	delete pif;
 }
@@ -259,6 +253,10 @@ bool Poll::Initialize(){
 	//Allocate an array of vectors to store partial events from the FIFO.
 	partialEvents = new std::vector<word_t>[n_cards];
 
+	//Create a stats handler and set the interval.
+	statsHandler = new StatsHandler(n_cards);
+	statsHandler->SetDumpInterval(statsInterval_);
+	
 	//Build the list of commands
 	commands_.insert(commands_.begin(), pollStatusCommands_.begin(), pollStatusCommands_.end());
 	commands_.insert(commands_.begin(), paramControlCommands_.begin(), paramControlCommands_.end());
@@ -291,6 +289,9 @@ bool Poll::Close(){
 	//Delete the array of partial event vectors.
 	delete[] partialEvents;
 	partialEvents = NULL;
+
+	delete statsHandler;
+	statsHandler = NULL;
 
 	// We are no longer initialized.
 	init = false;
