@@ -71,11 +71,6 @@ int main(int argc, char *argv[]){
 
 	Terminal poll_term;
 
-	//We make sure the system isn't locked first.
-	// This avoids issues with curses.
-	Lock *lock = new Lock("PixieInterface");
-	delete lock;
-
 	// Main object
 	Poll poll;
 	
