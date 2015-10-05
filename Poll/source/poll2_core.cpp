@@ -394,6 +394,8 @@ void Poll::broadcast_data(word_t *data, unsigned int nWords) {
 
 		unsigned int totalBufs = nBufs + 1 + ((wordsLeft != 0) ? 1 : 0);
 
+		if (debug_mode) std::cout << "Broadcasting " << totalBufs << " pacman buffers.\n";
+
 		word_t *pWrite = (word_t *)AcqBuf.Data;
 		
 		// Chop the data and send it through the network
@@ -483,6 +485,8 @@ void Poll::broadcast_pac_data(){
 		size+=2;
 	}
 
+	if (debug_mode) std::cout << "PAC broadcast size " << size << "/" << MAX_PKT_DATA << " B.\n";
+
 	if(size <= MAX_PKT_DATA){ 
 		AcqBuf.Sequence = udp_sequence++;
 		AcqBuf.DataSize = size + 8;    
@@ -491,7 +495,7 @@ void Poll::broadcast_pac_data(){
 		AcqBuf.Cont=0; 
 
 		status = client->SendMessage((char *)&AcqBuf, size + PKT_HEAD_LEN + 8);
-		if(status < 0 && debug_mode){ perror(" debug: broadcast_data - error at SendMessage"); }
+		if(status < 0){ std::cout << Display::WarningStr("[WARNING]") << ": Error sending UDP message to pacman."; }
 
 		return;
 	}
@@ -499,27 +503,29 @@ void Poll::broadcast_pac_data(){
 	cont_pkt = 1;
 	bufptr =(char *)&AcqBuf;
 	total_spill_chunks++;
-	do{
+	//This loops through the large data packet and writes the header info into 
+	// data_pack::Data for each packet as it goes along. It does not follow the structure.
+	do {
 		if(size > MAX_PKT_DATA){ 
 			bytes = MAX_PKT_DATA;
-			*((unsigned short *)(bufptr+PKT_HEAD_LEN+4)) = 0;
+			*((unsigned short *)(bufptr+PKT_HEAD_LEN+4)) = 0; //Events
 		} 
 		else{
 			bytes = size;
-			*((unsigned short *)(bufptr+PKT_HEAD_LEN+4)) = 1;
+			*((unsigned short *)(bufptr+PKT_HEAD_LEN+4)) = 1; //Events
 		}
-		*((int *)(bufptr+PKT_HEAD_LEN)) = total_spill_chunks;
-		*((unsigned short *)(bufptr+PKT_HEAD_LEN+6)) = cont_pkt;
-		*((unsigned int *)(bufptr)) = udp_sequence++;
-		*((int *)(bufptr+4)) = bytes+8;
+		*((int *)(bufptr+PKT_HEAD_LEN)) = total_spill_chunks; //TotalEvents 
+		*((unsigned short *)(bufptr+PKT_HEAD_LEN+6)) = cont_pkt; //Cont
+		*((unsigned int *)(bufptr)) = udp_sequence++; //Sequence
+		*((int *)(bufptr+4)) = bytes+8; //DataSize
 
 		status = client->SendMessage((char *)bufptr, bytes + PKT_HEAD_LEN + 8);
-		if(status < 0 && debug_mode){ perror(" debug: broadcast_data - error at SendMessage"); }
+		if(status < 0){ std::cout << Display::WarningStr("[WARNING]") << ": Error sending UDP message to pacman."; }
 
 		cont_pkt++;
 		bufptr += bytes;
 		size = size - bytes;
-	}while(size > 0);
+	} while (size > 0);
 }
 
 /* Print help dialogue for POLL options. */
@@ -1094,6 +1100,18 @@ void Poll::CommandControl(){
 				is_quiet = true;
 			}
 		}
+		else if(cmd == "debug"){ // Toggle debug mode
+			if(debug_mode){
+				std::cout << sys_message_head << "Toggling debug mode OFF\n";
+				output_file.SetDebugMode(false);
+				debug_mode = false;
+			}
+			else{
+				std::cout << sys_message_head << "Toggling debug mode ON\n";
+				output_file.SetDebugMode();
+				debug_mode = true;
+			}
+		}
 		else if(!pac_mode){ // These command are only available when not running in pacman mode!
 			if(cmd == "run"){ start_run(); } // Tell POLL to start acq and start recording data to disk
 			else if(cmd == "startacq" || cmd == "startvme"){ // Tell POLL to start data acquisition
@@ -1132,18 +1150,6 @@ void Poll::CommandControl(){
 				if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
 				else if(!acq_running){ std::cout << sys_message_head << "Acquisition is not running\n"; }
 				else{ force_spill = true; }
-			}
-			else if(cmd == "debug"){ // Toggle debug mode
-				if(debug_mode){
-					std::cout << sys_message_head << "Toggling debug mode OFF\n";
-					output_file.SetDebugMode(false);
-					debug_mode = false;
-				}
-				else{
-					std::cout << sys_message_head << "Toggling debug mode ON\n";
-					output_file.SetDebugMode();
-					debug_mode = true;
-				}
 			}
 			else if(cmd == "fdir"){ // Change the output file directory
 				if (arg == "") { std::cout << sys_message_head << "Using output directory '" << output_directory << "'\n"; }
@@ -1546,7 +1552,7 @@ bool Poll::ReadFIFO() {
 			}
 
 			//Print a message about what we did	
-			if(!is_quiet) {
+			if(!is_quiet || debug_mode) {
 				std::cout << "Read " << nWords[mod] << " words from module " << mod;
 				if (!partialEvent[mod].empty())
 					std::cout << " and stored " << partialEvent[mod].size() << " partial event words";
@@ -1562,11 +1568,11 @@ bool Poll::ReadFIFO() {
 			size_t parseWords = dataWords;
 			//We declare the eventSize outside the loop in case there is a partial event.
 			word_t eventSize = 0;
+			word_t slotExpected = pif->GetSlotNumber(mod);
 			while (parseWords < dataWords + nWords[mod]) {
 				//Check first word to see if data makes sense.
 				// We check the slot, channel and event size.
 				word_t slotRead = ((fifoData[parseWords] & 0xF0) >> 4);
-				word_t slotExpected = pif->GetSlotNumber(mod);
 				word_t chanRead = (fifoData[parseWords] & 0xF);
 				eventSize = ((fifoData[parseWords] & 0x7FFE2000) >> 17);
 				bool virtualChannel = ((fifoData[parseWords] & 0x20000000) != 0);
@@ -1614,15 +1620,20 @@ bool Poll::ReadFIFO() {
 			else if (parseWords < dataWords + nWords[mod]) {
 				std::cout << Display::ErrorStr() << " Parsing indicated corrupted data at " << parseWords - dataWords << " words into FIFO.\n";
 
-				if (!is_quiet) {
-					//Print the first 100 words
-					std::cout << std::hex;
-					for(int i=0;i< 100;i++) {
-						if (i%10 == 0) std::cout << std::endl << "\t";
-						std::cout << fifoData[dataWords + i] << " ";
-					}
-					std::cout << std::dec << std::endl;
+				std::cout << std::hex;
+				//Print the previous words
+				std::cout << "Words prior to parsing error:\n";
+				for(int i=0;i< 100;i++) {
+					if (i%10 == 0) std::cout << std::endl << "\t";
+					std::cout << fifoData[dataWords + parseWords - 100 + i] << " ";
 				}
+				//Print the following words 
+				std::cout << "Words following parsing error:\n";
+				for(int i=0;i< 100;i++) {
+					if (i%10 == 0) std::cout << std::endl << "\t";
+					std::cout << fifoData[dataWords + parseWords + i] << " ";
+				}
+				std::cout << std::dec << std::endl;
 
 				do_stop_acq = true;
 				had_error = true;
@@ -1648,7 +1659,7 @@ bool Poll::ReadFIFO() {
 			statsHandler->ClearRates();
 		}
 
-		if (!is_quiet) std::cout << "Writing/Broadcasting " << dataWords << " words.\n";
+		if (!is_quiet || debug_mode) std::cout << "Writing/Broadcasting " << dataWords << " words.\n";
 		//We have read the FIFO now we write the data	
 		if (record_data && !pac_mode) write_data(fifoData, dataWords); 
 		broadcast_data(fifoData, dataWords);
