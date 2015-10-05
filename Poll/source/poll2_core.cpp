@@ -186,6 +186,17 @@ Poll::Poll() :
 {
 	pif = new PixieInterface("pixie.cfg");
 	
+	// Check the scheduler (kernel priority)
+	Display::LeaderPrint("Checking scheduler");
+	int startScheduler = sched_getscheduler(0);
+	if(startScheduler == SCHED_BATCH){ 
+		std::cout << Display::InfoStr("SCHED_BATCH") << std::endl; 
+	}
+	else if(startScheduler == SCHED_OTHER){ 
+		std::cout << Display::InfoStr("STANDARD (SCHED_OTHER)") << std::endl; 
+	}
+	else{ std::cout << Display::WarningStr("UNEXPECTED") << std::endl; }
+
 	client = new Client();
 }
 
@@ -216,13 +227,6 @@ bool Poll::Initialize(){
 	else{
 		if(!pif->Boot(PixieInterface::BootAll)){ return false; }
 	}
-
-	// Check the scheduler
-	Display::LeaderPrint("Checking scheduler");
-	int startScheduler = sched_getscheduler(0);
-	if(startScheduler == SCHED_BATCH){ std::cout << Display::InfoStr("BATCH") << std::endl; }
-	else if(startScheduler == SCHED_OTHER){ std::cout << Display::InfoStr("STANDARD") << std::endl; }
-	else{ std::cout << Display::WarningStr("UNEXPECTED") << std::endl; }
 
 	if(!synch_mods()){ return false; }
 
