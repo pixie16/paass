@@ -233,9 +233,6 @@ bool Poll::Initialize(){
 	// Allocate memory buffers for FIFO
 	n_cards = pif->GetNumberCards();
 	
-	// Two extra words to store size of data block and module number
-	std::cout << "\nAllocating memory to store FIFO data (" << sizeof(word_t) * (EXTERNAL_FIFO_LENGTH + 2) * n_cards / 1024 << " kB)" << std::endl;
-	
 	if(pac_mode){ 
 		client->Init("127.0.0.1", 45080);
 		
@@ -247,6 +244,7 @@ bool Poll::Initialize(){
 		client->Init("127.0.0.1", 5555);
 	}
 
+	//Allocate an array of vectors to store partial events from the FIFO.
 	partialEvent = new std::vector<word_t>[n_cards];
 
 	//Build the list of commands
@@ -256,6 +254,7 @@ bool Poll::Initialize(){
 		commands_.insert(commands_.begin(), runControlCommands_.begin(), runControlCommands_.end());
 	}
 
+	//Create a stats handler and set the interval.
 	statsHandler = new StatsHandler(n_cards);
 	statsHandler->SetDumpInterval(statsInterval_);
 	
@@ -1341,29 +1340,31 @@ void Poll::RunControl(){
 		}
 
 		//Start acquistion
-		if (do_start_acq && !acq_running) {
-			//Start list mode
-			if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)) {
-				time_t currTime;
-				time(&currTime);
-				if (record_data) std::cout << "Run " << output_file.GetRunNumber();
-				else std::cout << "Acq";
-				std::cout << " started on " << ctime(&currTime);
+		if (do_start_acq) {
+			if (!acq_running) {
+				//Start list mode
+				if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)) {
+					time_t currTime;
+					time(&currTime);
+					if (record_data) std::cout << "Run " << output_file.GetRunNumber();
+					else std::cout << "Acq";
+					std::cout << " started on " << ctime(&currTime);
 
-				acq_running = true;
-				startTime = usGetTime(0);
-				lastSpillTime = 0;
+					acq_running = true;
+					startTime = usGetTime(0);
+					lastSpillTime = 0;
+				}
+				else{ 
+					std::cout << sys_message_head << "Failed to start list mode run. Try rebooting PIXIE\n"; 
+					acq_running = false;
+					had_error = true;
+				}
+				do_start_acq = false;
+			} //if(!acq_running)
+			else  {
+				std::cout << sys_message_head << "Already running!\n";
+				do_start_acq = false;
 			}
-			else{ 
-				std::cout << sys_message_head << "Failed to start list mode run. Try rebooting PIXIE\n"; 
-				acq_running = false;
-				had_error = true;
-			}
-			do_start_acq = false;
-		}
-		else if (do_start_acq && acq_running) {
-			std::cout << sys_message_head << "Already running!\n";
-			do_start_acq = false;
 		}
 
 		if(acq_running){
@@ -1413,47 +1414,17 @@ void Poll::RunControl(){
 				else std::cout << "Acq";
 				std::cout << " stopped on " << ctime(&currTime);
 
-				//Reset status flags
-				do_stop_acq = false;
-				acq_running = false;
-
 				statsHandler->ClearRates();
 				statsHandler->Dump();
 				statsHandler->ClearTotals();
-			} //End of handling a stop acq flag
+
+				//Reset status flags
+				do_stop_acq = false;
+				acq_running = false;
+			} //if (do_stop_acq) -- End of handling a stop acq flag
 		}
-
-		//Build status string
-		std::stringstream status;
-		if (had_error) status << Display::ErrorStr("[ERROR]");
-		else if (acq_running && record_data) status << Display::OkayStr("[ACQ]");
-		else if (acq_running && !record_data) status << Display::WarningStr("[ACQ]");
-		else if (do_MCA_run) status << Display::OkayStr("[MCA]");
-		else status << Display::InfoStr("[IDLE]");
-
-		if (file_open) status << " Run " << output_file.GetRunNumber();
-
-		if(do_MCA_run){
-			status << " " << (int)mca_args.GetMCA()->GetRunTime() << "s";
-			status << " of " << mca_args.GetTotalTime() << "s";
-		}
-		else{
-			//Add run time to status
-			status << " " << (long long) statsHandler->GetTotalTime() << "s";
-			//Add data rate to status
-			status << " " << humanReadable(statsHandler->GetTotalDataRate()) << "/s";
-		}
-
-		if (file_open) {
-			if (acq_running && !record_data) status << TermColors::DkYellow;
-			//Add file size to status
-			status << " " << humanReadable(output_file.GetFilesize());
-			status << " " << output_file.GetCurrentFilename();
-			if (acq_running && !record_data) status << TermColors::Reset;
-		}
-
-		//Update the status bar
-		poll_term_->SetStatus(status.str());
+	
+		UpdateStatus();
 
 		//Sleep the run control if idle to reduce CPU utilization.
 		if (!acq_running && !do_MCA_run) sleep(1);
@@ -1462,6 +1433,40 @@ void Poll::RunControl(){
 	run_ctrl_exit = true;
 	std::cout << "Run Control exited\n";
 }
+void Poll::UpdateStatus() {
+	//Build status string
+	std::stringstream status;
+	if (had_error) status << Display::ErrorStr("[ERROR]");
+	else if (acq_running && record_data) status << Display::OkayStr("[ACQ]");
+	else if (acq_running && !record_data) status << Display::WarningStr("[ACQ]");
+	else if (do_MCA_run) status << Display::OkayStr("[MCA]");
+	else status << Display::InfoStr("[IDLE]");
+
+	if (file_open) status << " Run " << output_file.GetRunNumber();
+
+	if(do_MCA_run){
+		status << " " << (int)mca_args.GetMCA()->GetRunTime() << "s";
+		status << " of " << mca_args.GetTotalTime() << "s";
+	}
+	else{
+		//Add run time to status
+		status << " " << (long long) statsHandler->GetTotalTime() << "s";
+		//Add data rate to status
+		status << " " << humanReadable(statsHandler->GetTotalDataRate()) << "/s";
+	}
+
+	if (file_open) {
+		if (acq_running && !record_data) status << TermColors::DkYellow;
+		//Add file size to status
+		status << " " << humanReadable(output_file.GetFilesize());
+		status << " " << output_file.GetCurrentFilename();
+		if (acq_running && !record_data) status << TermColors::Reset;
+	}
+
+	//Update the status bar
+	poll_term_->SetStatus(status.str());
+}
+
 
 void Poll::ReadScalers() {
 	static std::vector< std::pair<double, double> > xiaRates(16, std::make_pair<double, double>(0,0));
@@ -1470,7 +1475,7 @@ void Poll::ReadScalers() {
 	for (unsigned short mod=0;mod < n_cards; mod++) {
 		//Tell interface to get stats data from the modules.
 		pif->GetStatistics(mod);
-		
+
 		for (int ch=0;ch< numChPerMod; ch++) 
 			xiaRates[ch] = std::make_pair<double, double>(pif->GetInputCountRate(mod, ch),pif->GetOutputCountRate(mod,ch));
 
@@ -1479,7 +1484,7 @@ void Poll::ReadScalers() {
 	}
 }
 bool Poll::ReadFIFO() {
- 	static word_t *fifoData = new word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
+	static word_t *fifoData = new word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
 
 	if (!acq_running) return false;
 
