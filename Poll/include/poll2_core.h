@@ -213,6 +213,9 @@ class Poll{
 	///Routine to read Pixie scalers.
 	void ReadScalers();
 
+	///Routine to update the status message.
+	void UpdateStatus();
+
 	/// Set IN_SYNCH and SYNCH_WAIT parameters on all modules.
 	bool synch_mods();
 
