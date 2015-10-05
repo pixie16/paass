@@ -222,7 +222,7 @@ class Poll{
 	std::string get_filename();
 	
 	/// Close the current output file, if one is open.
-	bool close_output_file(bool continueRun = false);
+	bool CloseOutputFile(const bool continueRun = false);
 	
 	/// Opens a new file if no file is currently open.
 	bool open_output_file(bool continueRun = false);

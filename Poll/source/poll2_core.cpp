@@ -286,7 +286,7 @@ bool Poll::Close(){
 	client->Close();
 	
 	// Just to be safe
-	if(output_file.IsOpen()){ close_output_file(); }
+	CloseOutputFile();
 
 	//Delete the array of partial event vectors.
 	delete[] partialEvents;
@@ -298,27 +298,42 @@ bool Poll::Close(){
 	return true;
 }
 
-/* Safely close current data file if one is open. */
-bool Poll::close_output_file(bool continueRun /*=false*/){
-	file_open = false;
-
-	if(output_file.IsOpen()){ // A file is already open and must be closed
-		//Clear the stats
-		if (!continueRun){
-			statsHandler->Clear();
-			statsHandler->Dump();
-		}
-
-		std::cout << sys_message_head << "Closing output file.\n";
-		if(!pac_mode){ client->SendMessage((char *)"$CLOSE_FILE", 12); }
-		output_file.CloseFile();
-
-		//We call get next file name to update the run number.
-		if (!continueRun) output_file.GetNextFileName(next_run_num,filename_prefix,output_directory);
-
+/** Safely close current data file if one is open. The scalers are cleared when this
+ * is called.
+ *
+ * \param[in] continueRun Flag indicating whether we are continuing the same run,
+ *  but opening a new continuation file.
+ *	\return True if the file was closed successfully.
+ */
+bool Poll::CloseOutputFile(const bool continueRun /*=false*/){
+	//No file was open.
+	if(!output_file.IsOpen()){ 
+		std::cout << sys_message_head << "No file is open.\n";
+		file_open = false;
 		return true;
 	}
-	std::cout << sys_message_head << "No file is open.\n";
+
+	//Clear the stats
+	if (!continueRun){
+		statsHandler->Clear();
+		statsHandler->Dump();
+	}
+
+	std::cout << sys_message_head << "Closing output file.\n";
+
+	//Broadcast to Cory's SHM that the file is now closed.
+	if(!pac_mode){ client->SendMessage((char *)"$CLOSE_FILE", 12); }
+
+	output_file.CloseFile();
+
+	//We call get next file name to update the run number.
+	if (!continueRun) {
+		output_file.GetNextFileName(next_run_num,filename_prefix,output_directory);
+	}
+
+	//Set the falg that no file is open.
+	file_open = false;
+
 	return true;
 }
 
@@ -393,7 +408,7 @@ int Poll::write_data(word_t *data, unsigned int nWords){
 		// Open a new output file instead
 		std::cout << sys_message_head << "Current filesize is " << current_filesize + (std::streampos)65552 << " bytes.\n";
 		std::cout << sys_message_head << "Opening new file.\n";
-		close_output_file(true);
+		CloseOutputFile(true);
 		open_output_file(true);
 	}
 
@@ -657,7 +672,7 @@ bool Poll::start_run() {
 	}
 
 	//Close a file if open
-	if(output_file.IsOpen()){ close_output_file();	}
+	if(output_file.IsOpen()){ CloseOutputFile();	}
 
 	//Preapre the output file
 	if (!open_output_file()) return false;
@@ -1163,7 +1178,7 @@ void Poll::CommandControl(){
 			else if(cmd == "clo" || cmd == "close"){ // Tell POLL to close the current data file
 				if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
 				else if(acq_running && record_data){ std::cout << sys_message_head << "Warning! Cannot close file while acquisition running\n"; }
-				else{ close_output_file(); }
+				else{ CloseOutputFile(); }
 			}
 			else if(cmd == "hup" || cmd == "spill"){ // Force spill
 				if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
