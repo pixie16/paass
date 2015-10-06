@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
 		const double stopVal;
 		double value;
 		double stepSize;
+		double initialVal; ///<Value of parameter prior to scan.
 	};
 	int mod = atoi(argv[1]);
 	int ch = atoi(argv[2]);
@@ -46,7 +47,7 @@ int main(int argc, char *argv[]) {
 	if (argc < 11) {
 		isTwoDim = false;
 		par2 = new parInfo{"",1,0,0};
-		if (argc > 8)
+		if (argc > 7)
 			runTime = atoi(argv[7]);
 		if (argc == 9)
 			outputFilename = argv[8];
@@ -54,7 +55,7 @@ int main(int argc, char *argv[]) {
 	else {
 		isTwoDim = true;
 		par2 = new parInfo{argv[7],atoi(argv[8]),atof(argv[9]), atof(argv[10])};
-		if (argc > 12)
+		if (argc > 11)
 		runTime = atoi(argv[11]);
 		if (argc == 13)
 		outputFilename = argv[12];
@@ -63,11 +64,9 @@ int main(int argc, char *argv[]) {
 	std::cout << "Scanning M" << mod << "C" << ch << "\n";
 	std::cout << "Scanning " << par1->parName << " over " << par1->numSteps << " steps from " << par1->startVal << "->" << par1->stopVal << "\n";
 	if (isTwoDim) std::cout << "Scanning " << par2->parName << " over " << par2->numSteps << " steps from " << par2->startVal << "->" << par2->stopVal << "\n";
-	std::cout << "MCA Runs: " << runTime << "s\n";
+	std::cout << "MCA Run time: " << runTime << "s\n";
 	std::cout << "Scan output: " << outputFilename << "\n";
 
-
-		return EXIT_FAILURE;
 
 	PixieInterface pif("pixie.cfg");
 	pif.GetSlots();
@@ -82,6 +81,13 @@ int main(int argc, char *argv[]) {
 
 	pif.RemovePresetRunLength(0);
 
+	pif.ReadSglChanPar(par1->parName, &par1->initialVal, mod, ch);
+	std::cout << par1->parName << " initial value: " << par1->initialVal << "\n";
+	if (isTwoDim) {
+		pif.ReadSglChanPar(par2->parName, &par2->initialVal, mod, ch);
+		std::cout << par2->parName << " initial value: " << par2->initialVal << "\n";
+	}
+
 	TFile *f = new TFile(outputFilename,"RECREATE");
 	TGraphErrors *gr = new TGraphErrors();
 	TGraph2DErrors *gr2d = new TGraph2DErrors();
@@ -89,10 +95,10 @@ int main(int argc, char *argv[]) {
 	MCA_ROOT *mca = new MCA_ROOT(&pif,"MCA");
 
 	//Set inital par1 steps
-	par1->stepSize = (par1->stopVal - par1->startVal) / (par1->numSteps-1);
+	par1->stepSize = (par1->stopVal - par1->startVal) / (par1->numSteps);
 	par1->value = par1->startVal - par1->stepSize;
 	//Set inital par2 steps
-	par2->stepSize = (par2->stopVal - par2->startVal) / (par2->numSteps-1);
+	par2->stepSize = (par2->stopVal - par2->startVal) / (par2->numSteps);
 
 	printf("Par 1 step size: %f\n",par1->stepSize);
 	if (isTwoDim) printf("Par 2 step size: %f\n",par2->stepSize);
@@ -114,7 +120,7 @@ int main(int argc, char *argv[]) {
 			pif.SaveDSPParameters();
 			printf("Readback : %f\n",readback);
 		}
-		if (par1->value > par1->stopVal || readback > par2->stopVal) break;
+		if (par1->value > par1->stopVal || readback > par1->stopVal) break;
 		par1->value = readback;
 
 		//Reset par2 value
@@ -132,10 +138,10 @@ int main(int argc, char *argv[]) {
 
 					//Write parameter value
 					pif.WriteSglChanPar(par2->parName,par2->value,mod,ch);
+					pif.SaveDSPParameters();
 					//Read back the value to see what it actually was set to.
 					pif.PrintSglChanPar(par2->parName, mod, ch);
 					pif.ReadSglChanPar(par2->parName, &readback, mod, ch);
-					pif.SaveDSPParameters();
 				}
 				if (par2->value > par2->stopVal || readback > par2->stopVal) break;
 				par2->value = readback;
@@ -145,7 +151,7 @@ int main(int argc, char *argv[]) {
 				mca->Run(runTime);
 
 			TH1* hist = mca->GetHistogram(mod,ch);
-			TSpectrum *s = new TSpectrum(2);
+			TSpectrum *s = new TSpectrum(100);
 			s->Search(hist);
 			TF1 *func = new TF1("func","gaus");
 
@@ -223,10 +229,20 @@ int main(int argc, char *argv[]) {
 
 	delete mca;
 
+	std::cout << "Restoring initial parameter values.\n";
+	pif.WriteSglChanPar(par1->parName, par1->initialVal, mod, ch);
+	pif.PrintSglChanPar(par1->parName, mod, ch);
+	if (isTwoDim) {
+		pif.WriteSglChanPar(par2->parName, par2->initialVal, mod, ch);
+		pif.PrintSglChanPar(par2->parName, mod, ch);
+	}
+	pif.SaveDSPParameters();
+
 	f->cd();
 	if (!isTwoDim) gr->Write("resGraph");
 	else gr2d->Write("resGraph");
 	f->Write(0,TObject::kOverwrite);
 	f->Close();
 	delete f;
+
 }
