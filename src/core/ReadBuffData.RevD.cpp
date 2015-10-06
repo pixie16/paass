@@ -59,13 +59,6 @@ using std::vector;
 
 extern StatsData stats;
 
-/** \return tst bit function from pixie16 files
- * \param [in] bit : bit to test with
- * \param [in] value : value to compare with */
-unsigned long TstBit(unsigned short bit, unsigned long value) {
-    return ((value & (unsigned long)(pow(2.0, (double)bit))) >> bit);
-}
-
 /*! \brief extract channel information from raw data
 
   ReadBuffData extracts channel information from the raw data arrays
@@ -77,7 +70,7 @@ unsigned long TstBit(unsigned short bit, unsigned long value) {
   \param [in] eventList : the event list to add the extracted buffer to
   \return An unused integer
 */
-int ReadBuffDataDF(word_t *buf, unsigned long *bufLen,
+int ReadBuffDataD(word_t *buf, unsigned long *bufLen,
                    vector<ChanEvent*> &eventList) {
     // multiplier for high bits of 48-bit time
     static const double HIGH_MULT = pow(2., 32.);
