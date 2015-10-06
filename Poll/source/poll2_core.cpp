@@ -340,34 +340,45 @@ bool Poll::CloseOutputFile(const bool continueRun /*=false*/){
 
 /**Opens a new file if no file is currently open. The new file is 
  * determined from the output directory, run number and prefix. The run 
- * number may be interated foreward if a file already exists. 
+ * number may be iterated forward if a file already exists. 
  * If this is a continuation run the run number is not iterated and 
  * instead a suffix number is incremented.
  *
- * \param [in] continueRun Flag indicating that this file should be a continuation run and that the run number should not be iterated.
+ * The scalers are cleared when this is called if a file is not open already.
+ *
+ * \param [in] continueRun Flag indicating that this file should be a 
+ *  continuation run and that the run number should not be iterated.
+ *  \return True if successfully opened a new file.
  */
-bool Poll::open_output_file(bool continueRun){
-	if(!output_file.IsOpen()){ 
-		if(!output_file.OpenNewFile(output_title, next_run_num, filename_prefix, output_directory, continueRun)){
-			std::cout << sys_message_head << "Failed to open output file! Check that the path is correct.\n";
-			record_data = false;
-			return false;
-		}
-
-		//Clear the stats
-		statsHandler->Clear();
-		statsHandler->Dump();
-
-		std::cout << sys_message_head << "Opening output file '" << output_file.GetCurrentFilename() << "'.\n";
-		if(!pac_mode){ client->SendMessage((char *)"$OPEN_FILE", 12); }
-	}
-	else{ 
-		std::cout << sys_message_head << "Warning! A file is already open. Close the current file before opening a new one.\n"; 
+bool Poll::OpenOutputFile(bool continueRun){
+	//A file was already open
+	if(output_file.IsOpen()){ 
+		std::cout << Display::WarningStr() << ": A file is already open. Close the current file before opening a new one.\n"; 
 		return false;
 	}
 
-	file_open = true;
+	//Try to open a file and check if unsuccessful.
+	if(!output_file.OpenNewFile(output_title, next_run_num, filename_prefix, output_directory, continueRun)){
+		//Unsuccessful when opening file print a message.
+		std::cout << Display::ErrorStr() << ": Failed to open output file! Check that the path is correct.\n";
 	
+		//Set the error flag and disable data recording.
+		had_error = true;
+		record_data = false;
+
+		return false;
+	}
+
+	//Clear the stats
+	statsHandler->Clear();
+	statsHandler->Dump();
+
+	std::cout << sys_message_head << "Opening output file '" << output_file.GetCurrentFilename() << "'.\n";
+	//When using Cory's SHM send a message that the file is open.
+	if(!pac_mode){ client->SendMessage((char *)"$OPEN_FILE", 12); }
+
+	file_open = true;
+
 	return true;
 }
 
@@ -399,7 +410,7 @@ int Poll::write_data(word_t *data, unsigned int nWords){
 	// Open an output file if needed
 	if(!output_file.IsOpen()){
 		std::cout << Display::ErrorStr() << " Recording data, but no file is open! Opening a new file.\n";
-		open_output_file();
+		OpenOutputFile();
 	}
 
 	// Handle the writing of buffers to the file
@@ -410,7 +421,7 @@ int Poll::write_data(word_t *data, unsigned int nWords){
 		std::cout << sys_message_head << "Current filesize is " << current_filesize + (std::streampos)65552 << " bytes.\n";
 		std::cout << sys_message_head << "Opening new file.\n";
 		CloseOutputFile(true);
-		open_output_file(true);
+		OpenOutputFile(true);
 	}
 
 	if (!is_quiet) std::cout << "Writing " << nWords << " words.\n";
@@ -676,7 +687,7 @@ bool Poll::start_run() {
 	if(output_file.IsOpen()){ CloseOutputFile();	}
 
 	//Preapre the output file
-	if (!open_output_file()) return false;
+	if (!OpenOutputFile()) return false;
 	record_data = true;
 
 	//Start the acquistion
