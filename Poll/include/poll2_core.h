@@ -225,7 +225,7 @@ class Poll{
 	bool CloseOutputFile(const bool continueRun = false);
 	
 	/// Opens a new file if no file is currently open.
-	bool open_output_file(bool continueRun = false);
+	bool OpenOutputFile(bool continueRun = false);
 	
 	/// Write a data spill to disk.
 	int write_data(word_t *data, unsigned int nWords);
