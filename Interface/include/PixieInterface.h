@@ -8,6 +8,8 @@
 
 #include "pixie16app_defs.h"
 
+#define MIN_FIFO_READ 9
+
 // define PIXIE16_REVD_GENERAL if it isn't defined in the header
 //   or else it will evalute to 0 (i.e. the same as PIXIE16_REVA)
 #ifndef PIXIE16_REVD_GENERAL
@@ -34,6 +36,7 @@
 
 #include <fstream>
 #include <map>
+#include <queue>
 #include <string>
 #include <set>
 
@@ -92,7 +95,7 @@ class PixieInterface
   // wrappers to the pixie-16 app functions
   bool Init(bool offlineMode = false);
   bool Boot(int mode = 0x7f, bool useWorkingSetFile = false);
-  bool WriteSglModPar(const char *name, word_t val, int mod);
+  bool WriteSglModPar(const char *name, unsigned int val, int mod);
   bool ReadSglModPar(const char *name, word_t *pval, int mod);
   void PrintSglModPar(const char *name, int mod);
   bool WriteSglChanPar(const char *name, double val, int mod, int chan);
@@ -125,7 +128,7 @@ class PixieInterface
 #ifdef PIF_FIFO
   unsigned long CheckFIFOWords(unsigned short mod);
   bool ReadFIFOWords(word_t *buf, unsigned long nWords,
-		     unsigned short mod);
+		     unsigned short mod, bool verbose=false);
 #endif
 
   bool EndRun(void); // end run in all modules
@@ -191,8 +194,7 @@ class PixieInterface
   int retval; // return value from pixie functions
   Lock lock;  // class to prevent simultaneous access to pixies
 
-  word_t extraWord[MAX_MODULES];
-  bool hasExtra[MAX_MODULES];
+  std::queue<word_t> extraWords[MAX_MODULES];
 
   // temporary variables which hold the parameter which is being modified
   //   to deal with the const-incorrectness of the Pixie-16 API

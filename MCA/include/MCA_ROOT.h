@@ -3,6 +3,7 @@
 
 #include "MCA.h"
 #include <stdio.h>
+#include <unistd.h>
 
 class TFile;
 class TH1F;

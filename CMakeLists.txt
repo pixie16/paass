@@ -1,9 +1,21 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.8)
 
 project(PixieSuite)
 
 #Compile with C++11
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+if (CMAKE_COMPILER_IS_GNUCXX)
+	if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "4.9")
+		#Make compiler messages nice with colored tags.
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color=auto")
+	endif()
+
+	if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+	   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+	endif()
+	
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
+endif()
 
 #if user does not specify prefix we assign it to the exec directory
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -28,6 +40,9 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 #Install options
 option(USE_ROOT "Use ROOT for MCA." ON)
 option(USE_DAMM "Use DAMM for MCA." ON)
+option(USE_SETUP "Include the older setup programs in installation." OFF)
+option(USE_NCURSES "Use ncurses for terminal." ON)
+option(CORE_ONLY "Install only PixieCore." OFF)
 
 #Find packages needed for poll2
 #Load additional find_package scripts.
@@ -37,12 +52,15 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 find_package (Threads REQUIRED)
 
 #Find curses library used for poll2 prompt
-find_package(Curses)
+if(${USE_NCURSES}) 
+	find_package(Curses)
+endif()
 if (${CURSES_FOUND})
 	add_definitions("-D USE_NCURSES")
 	mark_as_advanced(FORCE CURSES_CURSES_H_PATH CURSES_FORM_LIBRARY)
 else()
 	message(STATUS "Curses unavailable, basic terminal will be used.")
+	set(USE_NCURSES OFF)
 endif()
 
 #Find ROOT if USE_ROOT was set.
@@ -59,27 +77,45 @@ if(${USE_DAMM})
 	add_definitions("-D USE_DAMM")
 endif()
 
-#Find the PLX Library
-find_package(PLX REQUIRED)
-link_directories(${PLX_LIBRARY_DIR})
-#add_definitions("-DPLX_LINUX -DPCI_CODE -DPLX_LITTLE_ENDIAN")
+if (NOT ${CORE_ONLY})
+	#Find the PLX Library
+	find_package(PLX REQUIRED)
+	link_directories(${PLX_LIBRARY_DIR})
+	#add_definitions("-DPLX_LINUX -DPCI_CODE -DPLX_LITTLE_ENDIAN")
 
-#Find the Pixie Firmware
-find_package(PXI REQUIRED)
-include_directories(${PXI_INCLUDE_DIR})
-link_directories(${PXI_LIBRARY_DIR})
-#The following configuration file path is hardcoded into the PXI software :-(
-install(FILES ${PXI_ROOT_DIR}/test/pxisys.ini DESTINATION ${CMAKE_INSTALL_PREFIX})
+	#Find the Pixie Firmware
+	find_package(PXI REQUIRED)
+	include_directories(${PXI_INCLUDE_DIR})
+	link_directories(${PXI_LIBRARY_DIR})
+	#The following configuration file path is hardcoded into the PXI software :-(
+	install(FILES ${PXI_ROOT_DIR}/test/pxisys.ini DESTINATION ${CMAKE_INSTALL_PREFIX})
 
-include_directories(Interface/include)
-add_subdirectory(Interface/source)
+	#Create pixie.cfg and copy slot_def.set as well as default.set to current.set
+	PXI_CONFIG()
+	#Use the cmake script created by PXI_CONFIG to install the files it created when make config is typed
+	add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)	
 
-include_directories(Setup/include)
-include_directories(MCA/include)
-add_subdirectory(MCA)
-add_subdirectory(Setup/source)
+endif()
 
+add_subdirectory(Core)
+include_directories(Core/include)
 
-add_subdirectory(Poll)
+if (NOT ${CORE_ONLY})
+	include_directories(Interface/include)
+	add_subdirectory(Interface/source)
 
-add_subdirectory(PxiDump/source)
+	include_directories(MCA/include)
+	add_subdirectory(MCA)
+
+	if (USE_SETUP) 
+		include_directories(Setup/include)
+		add_subdirectory(Setup)
+	endif()
+
+	add_subdirectory(Poll)
+
+	add_subdirectory(PxiDump/source)
+endif()
+
+add_subdirectory(share)
+

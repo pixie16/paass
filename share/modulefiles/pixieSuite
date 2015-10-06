@@ -1,0 +1,19 @@
+#%Module1.0
+##
+## modules pixieSuite
+##
+## modulefiles/pixieSuite
+##
+proc ModulesHelp {} {
+	global version modroot
+
+	puts stderr "pixieSuite - Pixie Suite provides utilities for XIA Pixie 16 Data Acquisition"
+}
+module-whatis "Pixie Suite provides utilities for XIA Pixie 16 Data Acquisition"
+
+set topdir 	@CMAKE_INSTALL_PREFIX@
+
+prepend-path PATH	$topdir
+prepend-path LD_LIBRARY_PATH	$topdir/lib
+prepend-path CPLUS_INCLUDE_PATH	$topdir/include
+prepend-path LIBRARY_PATH	$topdir/lib

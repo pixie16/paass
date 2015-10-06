@@ -28,7 +28,12 @@ public:
     void AddTime(double dtime);
 
     double GetDataRate(size_t mod);
+    double GetTotalDataRate();
     double GetEventRate(size_t mod);
+	///Return the total run time.
+	double GetTotalTime();
+	///Clear the stats.
+	void Clear();
 private:
     typedef ChannelArray<unsigned int> channel_counter_t;
     typedef ChannelArray<double> channel_rates_t;
@@ -60,6 +65,7 @@ private:
     static const std::string dumpFile;
 
     void Dump(void);
+
 };
 
 #endif // __STATSHANDLER_HPP_

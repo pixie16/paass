@@ -1,0 +1,11 @@
+#!/usr/bin/gnuplot
+# This script is called by 'tra' script
+# CH should be provided by external call
+unset key
+set title "Ch ".CH
+
+min = CH * 8192
+max = (CH + 1) * 8192
+
+set xtics 0,4096
+plot '/tmp/traces.dat' binary format="%ushort%ushort" every ::min::max w histeps t "Channel ".CH

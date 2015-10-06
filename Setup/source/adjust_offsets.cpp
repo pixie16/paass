@@ -1,51 +1,30 @@
-/** Program which adjusts the baselines of a pixie module to a reasonable value 
- *
- * David Miller, May 2010
- */
+/********************************************************************/
+/*	adjust_offsets.cpp                                              */
+/*		last updated: April 19th, 2015 CRT                          */
+/********************************************************************/
 
-#include <cstdio>
-#include <cstdlib>
+#include <iostream>
 
-#include "utilities.h"
-#include "PixieInterface.h"
+#include "PixieSupport.h"
 
-class OffsetAdjuster : public PixieFunction<int>
+int main(int argc, char *argv[])
 {
-  bool operator()(PixieFunctionParms<int> &par);
-};
+	if(argc < 2){
+		std::cout << " Invalid number of arguments to " << argv[0] << std::endl;
+		std::cout << "  SYNTAX: " << argv[0] << " [module]\n\n";
+		return 1;
+	}
 
-int main(int argc, char **argv)
-{
-  if (argc != 2) {
-    printf("usage: %s <module>\n", argv[0]);
-    return EXIT_FAILURE;
-  }
+	int mod = atoi(argv[1]);
 
-  int mod = atoi(argv[1]);
+	PixieInterface pif("pixie.cfg");
 
-  PixieInterface pif("pixie.cfg");
+	pif.GetSlots();
+	pif.Init();
+	pif.Boot(PixieInterface::DownloadParameters | PixieInterface::ProgramFPGA | PixieInterface::SetDAC, true);
 
-  pif.GetSlots();
-  pif.Init();
-  pif.Boot(PixieInterface::DownloadParameters |
-	   PixieInterface::ProgramFPGA |
-	   PixieInterface::SetDAC, true);
+	OffsetAdjuster adjuster;
+	if(forModule(&pif, mod, adjuster, 0)){ pif.SaveDSPParameters(); }
 
-  OffsetAdjuster adjuster;
-
-  if (forModule<int>(pif, mod, adjuster)) {
-    pif.SaveDSPParameters();
-  }
-
-  return EXIT_SUCCESS;
-}
-
-bool OffsetAdjuster::operator()(PixieFunctionParms<int> &par)
-{
-  bool hadError = par.pif.AdjustOffsets(par.mod);
-  for (size_t ch = 0; ch < par.pif.GetNumberChannels(); ch++) {
-    par.pif.PrintSglChanPar("VOFFSET", par.mod, ch);
-  }
-
-  return hadError;
+	return 0;
 }

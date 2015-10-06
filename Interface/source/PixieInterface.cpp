@@ -120,10 +120,6 @@ PixieInterface::PixieInterface(const char *fn) : hasAlternativeConfig(false), lo
     exit(EXIT_FAILURE);
   }
 
-  for (unsigned int i=0; i < MAX_MODULES; i++) {
-    hasExtra[i] = false;
-    extraWord[i] = 0;
-  }
 }
 
 PixieInterface::~PixieInterface()
@@ -252,79 +248,84 @@ bool PixieInterface::Init(bool offlineMode)
 
 bool PixieInterface::Boot(int mode, bool useWorkingSetFile) 
 {
-  string &setFile = useWorkingSetFile ? 
-    configStrings["DspWorkingSetFile"] : configStrings["DspSetFile"];
+	string &setFile = useWorkingSetFile ? 
+		configStrings["DspWorkingSetFile"] : configStrings["DspSetFile"];
 
-  LeaderPrint("Booting Pixie");
+	LeaderPrint("Booting Pixie");
 
- bool goodBoot = true;
+	//Break the leader print for the Boot status.
+	if (mode == BootAll) std::cout << std::endl;
 
-  if (hasAlternativeConfig) {
-    // must proceed through boot module by module
-    cout << InfoStr("[MULTICONFIG]");
-    for (int i=0; i < numberCards; i++) {
-      if (firmwareConfig[i] == 1) {
-	// use the Alt... files
-	retval = Pixie16BootModule(&configStrings["AltComFpgaFile"][0],
-				   &configStrings["AltSpFpgaFile"][0],
-				   &configStrings["AltTrigFpgaFile"][0],
-				   &configStrings["AltDspConfFile"][0],
-				   &setFile[0],
-				   &configStrings["AltDspVarFile"][0],
-				   i, mode);
-      } else {
-	// use the standard files
-	retval = Pixie16BootModule(&configStrings["ComFpgaFile"][0], 
-				   &configStrings["SpFpgaFile"][0], 
-				   &configStrings["TrigFpgaFile"][0],
-				   &configStrings["DspConfFile"][0], 
-				   &setFile[0],
-				   &configStrings["DspVarFile"][0],
-				   i, mode);
-      }
-      goodBoot = (goodBoot && !CheckError(true));
-    }
-  } else {
-    // boot all at once
-    retval = Pixie16BootModule(&configStrings["ComFpgaFile"][0], 
-			       &configStrings["SpFpgaFile"][0], 
-			       &configStrings["TrigFpgaFile"][0],
-			       &configStrings["DspConfFile"][0], 
-			       &setFile[0],
-			       &configStrings["DspVarFile"][0],
-			       numberCards, mode);
-    goodBoot = !CheckError(true);
-  }
- 
-  cout << "  Used set file: " << InfoStr(setFile) << endl;
+	bool goodBoot = true;
 
-  LeaderPrint("Checking SlotIDs");
+	if (hasAlternativeConfig) {
+		// must proceed through boot module by module
+		cout << InfoStr("[MULTICONFIG]");
+		for (int i=0; i < numberCards; i++) {
+			if (firmwareConfig[i] == 1) {
+				// use the Alt... files
+				retval = Pixie16BootModule(&configStrings["AltComFpgaFile"][0],
+						&configStrings["AltSpFpgaFile"][0],
+						&configStrings["AltTrigFpgaFile"][0],
+						&configStrings["AltDspConfFile"][0],
+						&setFile[0],
+						&configStrings["AltDspVarFile"][0],
+						i, mode);
+			} else {
+				// use the standard files
+				retval = Pixie16BootModule(&configStrings["ComFpgaFile"][0], 
+						&configStrings["SpFpgaFile"][0], 
+						&configStrings["TrigFpgaFile"][0],
+						&configStrings["DspConfFile"][0], 
+						&setFile[0],
+						&configStrings["DspVarFile"][0],
+						i, mode);
+			}
+			LeaderPrint("Booting Pixie Module ");
+			goodBoot = (goodBoot && !CheckError(true));
+		}
+	} else {
+		// boot all at once
+		retval = Pixie16BootModule(&configStrings["ComFpgaFile"][0], 
+				&configStrings["SpFpgaFile"][0], 
+				&configStrings["TrigFpgaFile"][0],
+				&configStrings["DspConfFile"][0], 
+				&setFile[0],
+				&configStrings["DspVarFile"][0],
+				numberCards, mode);
+		if (mode == BootAll) LeaderPrint("Booting Pixie");
+		goodBoot = !CheckError(true);
+	}
 
-  bool hadError = false;
-  bool updated = false;
+	cout << "  Used set file: " << InfoStr(setFile) << endl;
 
-  word_t val;
+	LeaderPrint("Checking SlotIDs");
 
-  for (int i=0; i < numberCards; i++) {
-    if (!ReadSglModPar("SlotID", &val, i))
-      hadError = true;
-    if (val != slotMap[i]) {
-      updated = true;
-      if (!WriteSglModPar("SlotID", slotMap[i], i))
-	hadError = true;
-    }
-  }
-  if (hadError) 
-    cout << ErrorStr() << endl;
-  else if (updated)
-    cout << WarningStr("[UPDATED]") << endl;
-  else
-    cout << OkayStr() << endl;
+	bool hadError = false;
+	bool updated = false;
 
-  return goodBoot && !hadError;
+	word_t val;
+
+	for (int i=0; i < numberCards; i++) {
+		if (!ReadSglModPar("SlotID", &val, i))
+			hadError = true;
+		if (val != slotMap[i]) {
+			updated = true;
+			if (!WriteSglModPar("SlotID", slotMap[i], i))
+				hadError = true;
+		}
+	}
+	if (hadError) 
+		cout << ErrorStr() << endl;
+	else if (updated)
+		cout << WarningStr("[UPDATED]") << endl;
+	else
+		cout << OkayStr() << endl;
+
+	return goodBoot && !hadError;
 }
 
-bool PixieInterface::WriteSglModPar(const char *name, word_t val, int mod)
+bool PixieInterface::WriteSglModPar(const char *name, unsigned int val, int mod)
 {
   strncpy(tmpName, name, nameSize);
 
@@ -561,40 +562,66 @@ unsigned long PixieInterface::CheckFIFOWords(unsigned short mod)
     return 0;
   }
  
-  return nWords + (hasExtra[mod] ? 1 : 0);
+	return nWords + extraWords[mod].size();
 }
 
 bool PixieInterface::ReadFIFOWords(word_t *buf, unsigned long nWords,
-				   unsigned short mod)
+				   unsigned short mod, bool verbose)
 {
-  if (nWords == 1) {
-    if (hasExtra[mod]) {
-      *buf = extraWord[mod];
-      hasExtra[mod] = false;
-      return true;
-    }
-    word_t minibuf[2];
+	unsigned long availWords = CheckFIFOWords(mod);
 
-    retval = Pixie16ReadDataFromExternalFIFO(minibuf, 2, mod);
-    *buf = minibuf[0];
-    extraWord[mod] = minibuf[1];
-    hasExtra[mod] = true;
-  } else {
-    if (hasExtra[mod]) {
-      *buf++ = extraWord[mod];
-      hasExtra[mod] = false;
-      nWords--;
-    }
-    retval = Pixie16ReadDataFromExternalFIFO(buf, nWords, mod);
-  }
+	if (verbose) {
+		std::cout << "mod " << mod << " nWords " << nWords;
+		std::cout << " extraWords[mod].size " << extraWords[mod].size();
+	}
+	if (nWords < MIN_FIFO_READ + extraWords[mod].size()) {
+		if (nWords > extraWords[mod].size()) {
+			word_t minibuf[MIN_FIFO_READ];
 
-  if (retval < 0) {
-    cout << WarningStr("Error reading words from FIFO in module ") << mod << endl;
-    return false;
-  }
+			if (availWords < MIN_FIFO_READ) {
+				std::cout << Display::ErrorStr() << " Not enough words available in module " << mod << "'s FIFO for read! (" << availWords << "/" << MIN_FIFO_READ << ")\n";
+				return false;
+			}
+			retval = Pixie16ReadDataFromExternalFIFO(minibuf, MIN_FIFO_READ, mod);
 
-  return true;
+			if (retval < 0) {
+				cout << WarningStr("Error reading words from FIFO in module ") << mod << " retVal " << retval << endl;
+				return false;
+			}
+			for (int i=0;i<MIN_FIFO_READ;i++) extraWords[mod].push(minibuf[i]);
+		}
+	}
+	if (verbose) std::cout << " " << extraWords[mod].size();
+
+	size_t wordsAdded;
+	for (wordsAdded = 0;wordsAdded<nWords && !extraWords[mod].empty();++wordsAdded) {
+		*buf++ = extraWords[mod].front();
+		extraWords[mod].pop();
+	}
+	if (verbose) std::cout << " " << extraWords[mod].size();
+
+	if (nWords <= wordsAdded) {
+		std::cout <<std::endl;
+		return true;
+	}
+	nWords -= wordsAdded;
+
+	if (verbose) std::cout << " nWords " << nWords << std::endl;
+
+	if (availWords < nWords) {
+		std::cout << Display::ErrorStr() << " Not enough words available in module " << mod << "'s FIFO for read! (" << availWords << "/" << nWords << ")\n";
+		return false;
+	}
+	retval = Pixie16ReadDataFromExternalFIFO(buf, nWords, mod);
+
+	if (retval < 0) {
+		cout << WarningStr("Error reading words from FIFO in module ") << mod << " retVal " << retval << endl;
+		return false;
+	}
+
+	return true;
 }
+
 #endif // Rev. D FIFO access
 
 bool PixieInterface::EndRun()
