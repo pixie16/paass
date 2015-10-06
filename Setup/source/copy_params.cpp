@@ -40,7 +40,7 @@ int main(int argc, char **argv)
   unsigned short sourceChan;
   unsigned short destMod;
   unsigned int totChannels = pif.GetNumberChannels() * pif.GetNumberCards();
-  unsigned short destMask[totChannels];
+  unsigned short *destMask = new unsigned short[totChannels];
   bool success = true;
 
   for (unsigned int i=0; i < totChannels; i++)
@@ -71,7 +71,8 @@ int main(int argc, char **argv)
     } else {
       // this shouldn't happen
       cout << ErrorStr() << endl;
-      return EXIT_FAILURE;
+		delete[] destMask;
+		return EXIT_FAILURE;
     }
     if (Pixie16CopyDSPParameters(bitMask, sourceMod, sourceChan, destMask) < 0)
       success = false;
@@ -82,5 +83,6 @@ int main(int argc, char **argv)
     pif.SaveDSPParameters();    
   } else cout << ErrorStr() << endl;
 
+	delete[] destMask;
   return EXIT_SUCCESS;
 }

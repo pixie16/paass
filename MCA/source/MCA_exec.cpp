@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 #elif defined(USE_ROOT)
 	MCA* mca = new MCA_ROOT(&pif,basename);
 #elif defined(USE_DAMM)
-	MCA* mca = new MCA_DAMM(&pif, asename);
+	MCA* mca = new MCA_DAMM(&pif,basename);
 #endif
   if (mca->IsOpen()) 
 	  mca->Run(totalTime);

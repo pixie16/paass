@@ -13,7 +13,7 @@ template<typename T>
 bool inRange(const T& t, const T& low, const T& high) {
     // use only less than operator so that only one operator needs to be defined
     return (!(t < low) && t < high);
-};
+}
 
 /** test if a value t falls in the range between [default value, high) */
 template<typename T>

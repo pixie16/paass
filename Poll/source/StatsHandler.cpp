@@ -77,7 +77,7 @@ void StatsHandler::Dump(void)
 	    out << i << '\t' << j << '\t' 
 		<< calcEventRate.at(i).at(j) << '\t'
 		<< nEventsTotal.at(i).at(j) << '\n';
-	}
+	}//Update the status bar
     }
     out.close();
 }
@@ -86,9 +86,29 @@ double StatsHandler::GetDataRate(size_t mod)
 {
     return calcDataRate.at(mod);
 }
+double StatsHandler::GetTotalDataRate()
+{
+	double rate = 0;
+	for (unsigned int i=0; i < numCards; i++) rate += calcDataRate.at(i);
+	return rate;
+}
 
 double StatsHandler::GetEventRate(size_t mod)
 {
     return accumulate( calcEventRate.at(mod).begin(),
 		       calcEventRate.at(mod).end(), 0. );
+}
+double StatsHandler::GetTotalTime() {
+	return totalTime;
+}
+void StatsHandler::Clear() {
+	totalTime = 0;
+	timeElapsed = 0;
+
+	for (size_t i=0; i < numCards; i++) {
+	    nEventsDelta.at(i).assign(0);
+	}
+	dataDelta.assign(numCards, 0);
+
+	calcDataRate.assign(numCards, 0);
 }

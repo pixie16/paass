@@ -55,7 +55,7 @@ bool TraceGrabber::operator()(PixieFunctionParms<> &par)
   static unsigned int modRead = par.pif.GetNumberCards();
 
   const size_t size = PixieInterface::GetTraceLength();
-  unsigned short trace[size];
+  unsigned short *trace = new unsigned short[size];
    
   if (modRead != par.mod) {
     par.pif.AcquireTraces(par.mod);
@@ -76,6 +76,9 @@ bool TraceGrabber::operator()(PixieFunctionParms<> &par)
 	   (float)sum / size,
 	   (float)sqrt(size * sumsq - sum * sum) / size);
 
+	 delete[] trace;
     return true;
-  } else return false;
+  }
+	delete[] trace;
+	return false;
 }

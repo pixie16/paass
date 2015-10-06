@@ -1,21 +1,18 @@
-#Build and installs etup utilities.
-set(SETUP_UTILS adjust_offsets find_tau copy_params 
-	pread pwrite pmread pmwrite
-	rate boot 
-	trace get_traces
-	csr_test
-	toggle_gain toggle_good toggle_polarity toggle_trace toggle_pileup
-	toggle_catcher
-	set_standard set_pileups_only set_pileups_reject set_hybrid)
+#Build and install setup utilities, and configuration file
+set(SETUP_UTILS adjust_offsets find_tau copy_params pread pwrite pmread pmwrite
+	rate boot trace get_traces csr_test toggle set_standard set_pileups_only 
+	set_pileups_reject set_hybrid)
 
 foreach(UTIL ${SETUP_UTILS})
 	add_executable(${UTIL} ${UTIL}.cpp)
-	target_link_libraries(${UTIL} PixieInterface)
+	target_link_libraries(${UTIL} PixieSupport PixieInterface) # The order matters here! CRT
 endforeach(UTIL)
 
 install(TARGETS ${SETUP_UTILS} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
-add_executable(paramScan paramScan.cpp)
-target_link_libraries(paramScan PixieInterface MCA_LIBRARY ${ROOT_LIBRARIES}
-"-lSpectrum")
-install(TARGETS paramScan DESTINATION ${CMAKE_INSTALL_PREFIX})
+if(${USE_ROOT})
+	add_executable(paramScan paramScan.cpp)
+	target_link_libraries(paramScan PixieInterface MCA_LIBRARY ${ROOT_LIBRARIES}
+		"-lSpectrum")
+	install(TARGETS paramScan DESTINATION ${CMAKE_INSTALL_PREFIX})
+endif()

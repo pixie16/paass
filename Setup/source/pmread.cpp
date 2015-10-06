@@ -1,50 +1,31 @@
 /********************************************************************/
-/*	pmread.cpp	       				            */
-/*		last updated: 08/23/10 DTM	     	       	    */
-/*			       					    */
+/*	pmread.cpp                                                       */
+/*		last updated: April 19th, 2015 CRT                          */
 /********************************************************************/
-#include <string>
 
-#include <cstdio>
-#include <cstdlib>
+#include <iostream>
 
-#include "utilities.h"
-
-#include "PixieInterface.h"
-
-using std::string;
-
-class ParameterReader : public PixieFunction<string>
-{
-  bool operator()(PixieFunctionParms<string> &par);
-};
+#include "PixieSupport.h"
 
 int main(int argc, char *argv[])
 {
-  if (argc != 3) {
-    printf("usage: %s <module> <parameter name>\n", argv[0]);
-    exit(EXIT_FAILURE);
-  }
+	if(argc < 3){
+		std::cout << " Invalid number of arguments to " << argv[0] << std::endl;
+		std::cout << "  SYNTAX: " << argv[0] << " [module] [parameter]\n\n";
+		return 1;
+	}
 
-  int    mod = atoi(argv[1]);
-  string parName(argv[2]);
+	int mod = atoi(argv[1]);
 
-  PixieInterface pif("pixie.cfg");
+	PixieInterface pif("pixie.cfg");
 
-  pif.GetSlots();
-  pif.Init();
-  pif.Boot(PixieInterface::DownloadParameters |
-	   PixieInterface::ProgramFPGA |
-	   PixieInterface::SetDAC, true);
+	pif.GetSlots();
+	pif.Init();
+	pif.Boot(PixieInterface::DownloadParameters | PixieInterface::ProgramFPGA | PixieInterface::SetDAC, true);
 
-  ParameterReader reader;
-  forModule(pif, mod, reader, parName);
+	std::string temp_str(argv[2]);
+	ParameterModuleReader reader;
+	forModule(&pif, mod, reader, temp_str);
 
-  return EXIT_SUCCESS;
-}
-
-bool ParameterReader::operator()(PixieFunctionParms<string> &par)
-{
-  par.pif.PrintSglModPar(par.par.c_str(), par.mod);
-  return true;
+	return 0;
 }

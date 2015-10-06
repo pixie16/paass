@@ -205,7 +205,7 @@ int main(int argc, char **argv)
   cout << "Allocating memory for partial events ("
        << sizeof(eventdata_t) * nCards / 1024
        << " KiB)" << endl;
-  eventdata_t partialEventData[nCards];
+  eventdata_t *partialEventData = new eventdata_t[nCards];
   vector<word_t> partialEventWords(nCards);
   vector<word_t> waitWords(nCards);
   StatsHandler statsHandler(nCards);
@@ -246,7 +246,7 @@ int main(int argc, char **argv)
 
   PixieInterface::Histogram deltaHisto;
 
-  bool runDone[nCards];
+  bool *runDone = new bool[nCards];
   bool isExiting = false;
 
   int waitCounter = 0, nonWaitCounter = 0;
@@ -571,7 +571,7 @@ int main(int argc, char **argv)
 
 		  while (timeout++ < waitTries) {
 		      testWords = pif.CheckFIFOWords(mod);
-		      if ( testWords >= max(waitWords[mod], 2U) )
+		      if ( testWords >= max(waitWords[mod], (unsigned int)MIN_FIFO_READ) )
 			  break;
 		      usleep(pollPause);
 		  } 
@@ -595,7 +595,7 @@ int main(int argc, char **argv)
 		    if (!isQuiet)
 		      cout << endl;
 		    usleep(readPause);
-		    int testWords = pif.CheckFIFOWords(mod);
+		    testWords = pif.CheckFIFOWords(mod);
 		    if ( !pif.ReadFIFOWords(&fifoData[dataWords + nWords[mod]],
 					    waitWords[mod], mod) ) {
 		      cout << "Error reading FIFO, bailing out!" << endl;
