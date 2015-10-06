@@ -91,7 +91,7 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
             ChanEvent *currentEvt = new ChanEvent;
             // decoding event data... see pixie16app.c
             // buf points to the start of channel data
-	    cout << (buf[0] & 0x00000F00) << endl;
+	    cout << binary << (buf[0]) << endl;
             word_t chanNum      = (buf[0] & 0x0000000F);
             word_t slotNum      = (buf[0] & 0x000000F0) >> 4;
             word_t crateNum     = (buf[0] & 0x00000F00) >> 8;
