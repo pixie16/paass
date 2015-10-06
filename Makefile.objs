@@ -21,7 +21,7 @@ DETECTORSUMMARYO = DetectorSummary.o
 EVENTPROCESSORO  = EventProcessor.o
 GLOBALSO         = Globals.o
 HIGHRESTIMINGDATAO = HighResTimingData.o
-IDENTIFIERO  = Identifier.o
+IDENTIFIERO        = Identifier.o
 INITIALIZEO      = Initialize.o
 MESSENGERO       = Messenger.o
 NOTEBOOKO		 = Notebook.o
@@ -32,7 +32,8 @@ PLOTSREGISTERO   = PlotsRegister.o
 PIXIEO           = PixieStd.o
 RANDOMPOOLO      = RandomPool.o
 RAWEVENTO        = RawEvent.o
-READBUFFDATADFO    = ReadBuffData.RevD.o
+READBUFFDATADO    = ReadBuffData.RevD.o
+READBUFFDATAFO    = ReadBuffData.RevF.o
 READBUFFDATAAO    = ReadBuffData.RevA.o
 STATSDATAO       = StatsData.o
 TIMINGCALO		 = TimingCalibrator.o
@@ -79,9 +80,9 @@ WALKCORRECTORO   = WalkCorrector.o
 FORT_OBJS = $(SET2CCO) $(MESSLOGO) $(MILDATIMO) $(SCANORO)
 
 # Important to compile READBUFFDATA first
-CXX_OBJS = $(READBUFFDATAAO) $(READBUFFDATADFO)
+CXX_OBJS = $(READBUFFDATAAO) $(READBUFFDATADO) 	$(READBUFFDATAFO)
 
-# Core Objects
+# Core Objects 
 CXX_OBJS += $(PUGIXMLO) $(PIXIEO) $(BARBUILDERO) $(BARDETECTORO) $(CALIBRATORO)\
 	$(CORRELATORO) $(CHANEVENTO) $(DETECTORDRIVERO) $(DETECTORLIBRARYO)\
 	$(DETECTORSUMMARYO) $(EVENTPROCESSORO) $(GLOBALSO) $(IDENTIFIERO) \

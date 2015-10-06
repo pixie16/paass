@@ -54,13 +54,6 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-/** \return tst bit function from pixie16 files
- * \param [in] bit : bit to test with
- * \param [in] value : value to compare with */
-unsigned long TstBit(unsigned short bit, word_t value) {
-  return(((value & (word_t)(pow(2.0, (double)bit))) >> bit));
-}
-
 /** \brief extract channel information from raw data
  *
  * ReadBuffData extracts channel information from the raw data array and place
@@ -121,7 +114,7 @@ int ReadBuffDataA(word_t *buf, unsigned long *bufLen,
           if( evtPattern != 0 ) {
               for(int ch = 0; ch < NUMBER_OF_CHANNELS; ch++) {
                   /* Check if Channel j has been hit */
-                  if( TstBit(ch, evtPattern) ) {
+                  if( pixie::TstBit(ch, evtPattern) ) {
                       /* Read Channel Length */
                       if( runTask == LIST_MODE_RUN0 || runTask == LIST_MODE_RUN1 ) {
                           chanLength=buf[totalSkippedWords];
