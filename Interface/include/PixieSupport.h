@@ -3,6 +3,7 @@
 
 #include <string>
 #include <sstream>
+#include <bitset>
 
 #include "PixieInterface.h"
 
@@ -10,19 +11,19 @@ extern bool hasColorTerm;
 
 template<typename T=int>
 struct PixieFunctionParms{
-    PixieInterface *pif;
-    unsigned int mod;
-    unsigned int ch;
-    T par;
+	PixieInterface *pif;
+	unsigned int mod;
+	unsigned int ch;
+	T par;
   
-    PixieFunctionParms(PixieInterface *p, T x) : pif(p) {par=x;}
+	PixieFunctionParms(PixieInterface *p, T x) : pif(p) {par=x;}
 };
 
 template<typename T=int>
 class PixieFunction : public std::unary_function<bool, struct PixieFunctionParms<T> >{
-    public:
-    virtual bool operator()(struct PixieFunctionParms<T> &par) = 0;
-    virtual ~PixieFunction() {};
+	public:
+	virtual bool operator()(struct PixieFunctionParms<T> &par) = 0;
+	virtual ~PixieFunction() {};
 };
 
 template<typename T>
@@ -127,6 +128,41 @@ class BitFlipper : public PixieFunction<std::string>{
 	void CSRAtest(unsigned int input_);
 	
 	bool Test(unsigned int num_bits_, unsigned int input_, const std::string *text_=NULL);
+};
+
+class GetTraces : public PixieFunction<int>{
+  private:
+	unsigned short *total_data; /// Array for storing all 16 channels of a module.
+	unsigned short *trace_data; /// Array for storing a single trace.
+
+	int threshold; /// The trigger threshold above baseline.
+
+	size_t total_len; /// Length of total data array.
+	size_t trace_len; /// Length of trace data array.
+	
+	int attempts; /// Number of attempts to reach threshold.
+	float baseline[NUMBER_OF_CHANNELS]; /// Calculated baseline for each channel.
+	float maximum[NUMBER_OF_CHANNELS]; /// The maximum ADC value above baseline for each channel.
+	bool status; /// Set to true when a valid trace is found.
+	bool correct_baselines; /// Correct the baselines of the output traces.
+
+	/// Fit... tau?
+	double FitTau(const unsigned short* trace, size_t b0, size_t b1, size_t x0, size_t x1);
+  
+  public:
+	GetTraces(unsigned short* total_data_, size_t total_size_, unsigned short *trace_data_, size_t trace_size_, int threshold_=0, bool correct_baselines_=false);
+
+	int GetAttempts(){ return attempts; }
+
+	float GetBaseline(size_t chan_){ return (chan_<NUMBER_OF_CHANNELS?baseline[chan_]:-1); }
+
+	float GetMaximum(size_t chan_){ return (chan_<NUMBER_OF_CHANNELS?maximum[chan_]:-1); }
+	
+	bool GetStatus(){ return status; }
+
+	void Help();
+	
+	bool operator()(PixieFunctionParms<int> &par);
 };
 
 class ParameterChannelWriter : public PixieFunction< std::pair<std::string, double> >{

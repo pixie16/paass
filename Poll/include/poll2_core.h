@@ -10,9 +10,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date Oct. 2nd, 2015
+  * \date Oct. 6th, 2015
   * 
-  * \version 1.3.09
+  * \version 1.3.10
 */
 
 #ifndef POLL2_CORE_H
@@ -24,8 +24,8 @@
 #include "hribf_buffers.h"
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.3.09"
-#define POLL2_CORE_DATE "Oct. 2nd, 2015"
+#define POLL2_CORE_VERSION "1.3.10"
+#define POLL2_CORE_DATE "Oct. 6th, 2015"
 
 // Maximum length of UDP data packet (in bytes)
 #define MAX_ORPH_DATA 1464
@@ -201,8 +201,12 @@ class Poll{
 	
 	/// Display run status information.
 	void show_status();
+	
 	/// Display polling threshold.
 	void show_thresh();
+
+	/// Acquire raw traces from a pixie module.
+	void get_traces(int mod_, int chan_, int thresh_=0);
 
 	/// Method responsible for handling tab complete of commands and pread/pwrite parameters
 	std::vector<std::string> TabComplete(std::string cmd);
