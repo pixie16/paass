@@ -21,8 +21,8 @@
 
 ///A program
 int main(int argc, char *argv[]) {
-	if (argc != 8 && argc != 12) {
-		printf("Usage: %s <module> <channel> <parameter name> <numSteps> <start> <stop> <out.root>\n",argv[0]);
+	if (argc < 7 || (argc > 9 && argc < 11) || argc > 13 ) {
+		printf("Usage: %s <module> <channel> <parameter name> <numSteps> <start> <stop> [runtime] [scan.root]\n",argv[0]);
 		return EXIT_FAILURE;
 	}
 
@@ -40,20 +40,34 @@ int main(int argc, char *argv[]) {
 	int mod = atoi(argv[1]);
 	int ch = atoi(argv[2]);
 	parInfo *par1 = new parInfo {argv[3],atoi(argv[4]),atof(argv[5]), atof(argv[6])};
-	const char* outputFilename;
+	const char* outputFilename = "scan.root";
+	float runTime = 10;
 	parInfo *par2;
-	if (argc == 8) {
+	if (argc < 11) {
 		isTwoDim = false;
 		par2 = new parInfo{"",1,0,0};
-		outputFilename = argv[7];
+		if (argc > 8)
+			runTime = atoi(argv[7]);
+		if (argc == 9)
+			outputFilename = argv[8];
 	}
 	else {
 		isTwoDim = true;
 		par2 = new parInfo{argv[7],atoi(argv[8]),atof(argv[9]), atof(argv[10])};
-		outputFilename = argv[11];
+		if (argc > 12)
+		runTime = atoi(argv[11]);
+		if (argc == 13)
+		outputFilename = argv[12];
 	}
-	float runTime = 10;
 
+	std::cout << "Scanning M" << mod << "C" << ch << "\n";
+	std::cout << "Scanning " << par1->parName << " over " << par1->numSteps << " steps from " << par1->startVal << "->" << par1->stopVal << "\n";
+	if (isTwoDim) std::cout << "Scanning " << par2->parName << " over " << par2->numSteps << " steps from " << par2->startVal << "->" << par2->stopVal << "\n";
+	std::cout << "MCA Runs: " << runTime << "s\n";
+	std::cout << "Scan output: " << outputFilename << "\n";
+
+
+		return EXIT_FAILURE;
 
 	PixieInterface pif("pixie.cfg");
 	pif.GetSlots();
@@ -162,7 +176,7 @@ int main(int argc, char *argv[]) {
 
 			if (!isTwoDim) printf("Loop: %2d %5f ",step,par1->value);
 			else printf("Loop: %2d:%2d %5f %5f ",step,step2,par1->value,par2->value);
-			printf("res: %5f\n",res);
+			printf("res: %5f%% FWHM Res: %5f%%\n\n",res,res * 2 * sqrt(2*log(2)));
 			if (!isTwoDim) {
 				gr->SetPoint(gr->GetN(),par1->value,res);
 				gr->SetPointError(gr->GetN()-1,0,resErr);
@@ -197,6 +211,14 @@ int main(int argc, char *argv[]) {
 		gr2d->GetYaxis()->SetTitle(Form("%s",par2->parName));
 		gr2d->GetZaxis()->SetTitle("Resolution");
 		gr2d->SetMinimum(0);
+	}
+
+	std::cout << par1->parName << "\t" << "sigmaRes\t" << "FwhmRes\n";
+	for (int i=0;i<gr->GetN();i++) {
+		double x,y;
+		if (gr->GetPoint(i,x,y) == i)
+			std::cout << x << "\t" << y << "\t" << y * 2 * sqrt(2*log(2)) << "\n";
+	
 	}
 
 	delete mca;
