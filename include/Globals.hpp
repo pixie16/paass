@@ -48,6 +48,13 @@ namespace pixie {
     const pixie::word_t clockVsn = 1000;
     /** Number of channels in a module. */
     const size_t numberOfChannels = 16;
+
+    /** \return tst bit function from pixie16 files
+     * \param [in] bit : bit to test with
+     * \param [in] value : value to compare with */
+    inline unsigned long TstBit(unsigned short bit, unsigned long value) {
+	return ((value & (unsigned long)(pow(2.0, (double)bit))) >> bit);
+    }
 };
 
 //! Namespace defining some buffer related constants

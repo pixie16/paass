@@ -147,8 +147,11 @@ private:
      * channel data directly from ReadBuffDataA - REVISION A */
     friend int ReadBuffDataA(pixie::word_t *, unsigned long *, std::vector<ChanEvent *> &);
     /** Make the front end responsible for reading the data able to set the
-     * channel data directly from ReadBuffDataA - REVISION D and F */
-    friend int ReadBuffDataDF(pixie::word_t *, unsigned long *, std::vector<ChanEvent *> &);
+     * channel data directly from ReadBuffDataA - REVISION D */
+    friend int ReadBuffDataD(pixie::word_t *, unsigned long *, std::vector<ChanEvent *> &);
+    /** Make the front end responsible for reading the data able to set the
+     * channel data directly from ReadBuffDataA - REVISION F */
+    friend int ReadBuffDataF(pixie::word_t *, unsigned long *, std::vector<ChanEvent *> &);
 };
 
 /** Sort by increasing corrected time
