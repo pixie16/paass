@@ -10,9 +10,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date Oct. 1st, 2015
+  * \date Oct. 6th, 2015
   * 
-  * \version 1.3.09
+  * \version 1.3.10
 */
 
 #include <algorithm>
@@ -71,7 +71,7 @@ const std::vector<std::string> Poll::runControlCommands_ ({"run", "stop",
 	"mca"});
 const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread", 
 	"pmread", "pwrite", "pmwrite", "adjust_offsets", "find_tau", "toggle", 
-	"toggle_bit", "csr_test", "bit_test"});
+	"toggle_bit", "csr_test", "bit_test", "get_traces"});
 const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "thresh", 
 	"debug", "quiet",	"quit", "help", "version"});
 
@@ -592,19 +592,20 @@ void Poll::help(){
 		std::cout << "   close (clo)         - Safely close the current data output file\n";
 		std::cout << "   reboot              - Reboot PIXIE crate\n";
 		std::cout << "   stats [time]        - Set the time delay between statistics dumps (default=-1)\n";
-		std::cout << "   mca [root|damm] [time] [filename] - Use MCA to record data for debugging purposes\n";
+		std::cout << "   mca [root|damm] [time] [filename]     - Use MCA to record data for debugging purposes\n";
 	}
-	std::cout << "   dump [filename]                   - Dump pixie settings to file (default='Fallback.set')\n";
-	std::cout << "   pread [mod] [chan] [param]        - Read parameters from individual PIXIE channels\n";
-	std::cout << "   pmread [mod] [param]              - Read parameters from PIXIE modules\n";
-	std::cout << "   pwrite [mod] [chan] [param] [val] - Write parameters to individual PIXIE channels\n";
-	std::cout << "   pmwrite [mod] [param] [val]       - Write parameters to PIXIE modules\n";
-	std::cout << "   adjust_offsets [module]           - Adjusts the baselines of a pixie module\n";
-	std::cout << "   find_tau [module] [channel]       - Finds the decay constant for an active pixie channel\n";
-	std::cout << "   toggle [module] [channel] [bit]   - Toggle any of the 19 CHANNEL_CSRA bits for a pixie channel\n";
+	std::cout << "   dump [filename]                       - Dump pixie settings to file (default='Fallback.set')\n";
+	std::cout << "   pread [mod] [chan] [param]            - Read parameters from individual PIXIE channels\n";
+	std::cout << "   pmread [mod] [param]                  - Read parameters from PIXIE modules\n";
+	std::cout << "   pwrite [mod] [chan] [param] [val]     - Write parameters to individual PIXIE channels\n";
+	std::cout << "   pmwrite [mod] [param] [val]           - Write parameters to PIXIE modules\n";
+	std::cout << "   adjust_offsets [module]               - Adjusts the baselines of a pixie module\n";
+	std::cout << "   find_tau [module] [channel]           - Finds the decay constant for an active pixie channel\n";
+	std::cout << "   toggle [module] [channel] [bit]       - Toggle any of the 19 CHANNEL_CSRA bits for a pixie channel\n";
 	std::cout << "   toggle_bit [mod] [chan] [param] [bit] - Toggle any bit of any parameter of 32 bits or less\n";
-	std::cout << "   csr_test [number]                 - Output the CSRA parameters for a given integer\n";
-	std::cout << "   bit_test [num_bits] [number]      - Display active bits in a given integer up to 32 bits long\n";
+	std::cout << "   csr_test [number]                     - Output the CSRA parameters for a given integer\n";
+	std::cout << "   bit_test [num_bits] [number]          - Display active bits in a given integer up to 32 bits long\n";
+	std::cout << "   get_traces [mod] [chan] <threshold>   - Get traces for all channels in a specified module\n";
 	std::cout << "   status              - Display system status information\n";
 	std::cout << "   thresh              - Display current polling threshold\n";
 	std::cout << "   debug               - Toggle debug mode flag (default=false)\n";
@@ -785,7 +786,64 @@ void Poll::show_status(){
 
 void Poll::show_thresh() {
 	float threshPercent = (float) threshWords / EXTERNAL_FIFO_LENGTH * 100;
-	std::cout << "Polling Threshold:	" << threshPercent << "% (" << threshWords << "/" << EXTERNAL_FIFO_LENGTH << ")\n";
+	std::cout << sys_message_head << "Polling Threshold = " << threshPercent << "% (" << threshWords << "/" << EXTERNAL_FIFO_LENGTH << ")\n";
+}
+
+/// Acquire raw traces from a pixie module.
+void Poll::get_traces(int mod_, int chan_, int thresh_/*=0*/){
+	size_t trace_size = PixieInterface::GetTraceLength();
+	size_t module_size = pif->GetNumberChannels() * trace_size;
+	std::cout << sys_message_head << "Searching for traces from mod = " << mod_ << ", chan = " << chan_ << " above threshold = " << thresh_ << ".\n";
+	std::cout << sys_message_head << "Allocating " << (trace_size+module_size)*sizeof(unsigned short) << " bytes of memory for pixie traces.\n";
+	std::cout << sys_message_head << "Searching for traces. Please wait...\n";
+	poll_term_->flush();
+	
+	unsigned short *trace_data = new unsigned short[trace_size];
+	unsigned short *module_data = new unsigned short[module_size];
+	memset(trace_data, 0, sizeof(unsigned short)*trace_size);
+	memset(module_data, 0, sizeof(unsigned short)*module_size);
+
+	GetTraces gtraces(module_data, module_size, trace_data, trace_size, thresh_);
+	forChannel(pif, mod_, chan_, gtraces, (int)0); 
+
+	if(!gtraces.GetStatus()){ std::cout << sys_message_head << "Failed to find trace above threshold in " << gtraces.GetAttempts() << " attempts!\n"; }
+	else{ std::cout << sys_message_head << "Found trace above threshold in " << gtraces.GetAttempts() << " attempts.\n"; }
+
+	std::cout << "  Baselines:\n";
+	for(unsigned int channel = 0; channel < pif->GetNumberChannels(); channel++){
+		if(channel == (unsigned)chan_){ std::cout << "\033[0;33m"; }
+		if(channel < 10){ std::cout << "   0" << channel << ": "; }
+		else{ std::cout << "   " << channel << ": "; }
+		std::cout << "\t" << gtraces.GetBaseline(channel);
+		std::cout << "\t" << gtraces.GetMaximum(channel) << std::endl;
+		if(channel == (unsigned)chan_){ std::cout << "\033[0m"; }
+	}
+	
+	std::ofstream get_traces_out("/tmp/traces.dat");
+	if(!get_traces_out.good()){ std::cout << sys_message_head << "Could not open /tmp/traces.dat!\n"; }
+	else{ // Write the output file.
+		// Add a header.
+		get_traces_out << "time";
+		for(size_t channel = 0; channel < pif->GetNumberChannels(); channel++){
+			if(channel < 10){ get_traces_out << "\tC0" << channel; }
+			else{ get_traces_out << "\tC" << channel; }
+		}
+		get_traces_out << std::endl;
+		
+		// Write channel traces.
+		for(size_t index = 0; index < trace_size; index++){
+			get_traces_out << index;
+			for(size_t channel = 0; channel < pif->GetNumberChannels(); channel++){
+				get_traces_out << "\t" << module_data[(channel * trace_size) + index];
+			}
+			get_traces_out << std::endl;
+		} 
+		std::cout << sys_message_head << "Traces written to '/tmp/traces.dat'." << std::endl;
+	}
+	get_traces_out.close();
+
+	delete[] trace_data;
+	delete[] module_data;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1134,6 +1192,45 @@ void Poll::CommandControl(){
 			else{
 				std::cout << sys_message_head << "Invalid number of parameters to bit_test\n";
 				std::cout << sys_message_head << " -SYNTAX- bit_test [num_bits] [number]\n";
+			}
+		}
+		else if(cmd == "get_traces"){ // Run GetTraces method
+			if(acq_running || do_MCA_run){ 
+				std::cout << sys_message_head << "Warning! Cannot view live traces while acquisition is running\n\n"; 
+				continue;
+			}
+
+			if(p_args >= 2){
+				int mod = atoi(arguments.at(0).c_str());
+				int chan = atoi(arguments.at(1).c_str());
+				
+				if(mod < 0 || chan < 0){
+					std::cout << sys_message_head << "Error! Must select one module and one channel to trigger on!\n";
+					continue;
+				}
+				else if(mod > (int)n_cards){
+					std::cout << sys_message_head << "Error! Invalid module specification (" << mod << ")!\n";
+					continue;
+				}
+				else if(chan > NUMBER_OF_CHANNELS){
+					std::cout << sys_message_head << "Error! Invalid channel specification (" << chan << ")!\n";
+					continue;
+				}
+
+				int trace_threshold = 0;
+				if(p_args >= 3){
+					trace_threshold = atoi(arguments.at(2).c_str());
+					if(trace_threshold < 0){
+						std::cout << sys_message_head << "Cannot set negative threshold!\n";
+						trace_threshold = 0;
+					}
+				}
+				
+				get_traces(mod, chan, trace_threshold);
+			}
+			else{
+				std::cout << sys_message_head << "Invalid number of parameters to get_traces\n";
+				std::cout << sys_message_head << " -SYNTAX- get_traces [mod] [chan] <threshold> <correct-baselines>\n";
 			}
 		}
 		else if(cmd == "quiet"){ // Toggle quiet mode
