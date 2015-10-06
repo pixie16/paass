@@ -177,6 +177,7 @@ void Oscilloscope::ArgHelp(std::string prefix_){
 void Oscilloscope::CmdHelp(std::string prefix_){
 	std::cout << prefix_ << "set [module] [channel] - Set the module and channel of signal of interest (default = 0, 0).\n";
 	std::cout << prefix_ << "delay [time]           - Set the delay between drawing traces (in seconds, default = 1 s).\n";
+	std::cout << prefix_ << "log                    - Toggle log/linear mode on the y-axis.\n";
 }
 
 /// Scan input arguments and set class variables.
@@ -226,6 +227,16 @@ bool Oscilloscope::CommandControl(std::string cmd_, const std::vector<std::strin
 		else{
 			std::cout << message_head << "Invalid number of parameters to 'delay'\n";
 			std::cout << message_head << " -SYNTAX- delay [time]\n";
+		}
+	}
+	else if(cmd_ == "log"){
+		if(canvas->GetLogy()){ 
+			canvas->SetLogy(0);
+			std::cout << message_head << "y-axis set to linear.\n"; 
+		}
+		else{ 
+			canvas->SetLogy(1); 
+			std::cout << message_head << "y-axis set to log.\n"; 
 		}
 	}
 	else{ return false; }
