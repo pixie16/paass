@@ -109,7 +109,7 @@ if (NOT ${CORE_ONLY})
 
 	if (USE_SETUP) 
 		include_directories(Setup/include)
-		add_subdirectory(Setup/source)
+		add_subdirectory(Setup)
 	endif()
 
 	add_subdirectory(Poll)
