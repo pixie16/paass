@@ -13,8 +13,37 @@
 #include "TCanvas.h"
 #include "TGraph.h"
 #include "TAxis.h"
+#include "TH2F.h"
 
 #define ADC_TIME_STEP 4 // ns
+
+void Oscilloscope::UpdateGraph(int size_){
+	if(size_ != graph->GetN()){
+		std::cout << message_head << "Changing trace length from " << graph->GetN()*ADC_TIME_STEP << " to " << size_*ADC_TIME_STEP << " ns.\n";
+
+		x_vals.clear();
+		x_vals.assign(size_, 0);
+		for(size_t index = 0; index < x_vals.size(); index++){
+			x_vals[index] = ADC_TIME_STEP * index;
+		}	
+
+		// Update the root TGraph
+		delete graph;
+		graph = new TGraph(size_);
+	}
+
+	std::stringstream stream;
+	stream << "mod = " << mod << ", chan = " << chan;
+	his->SetTitle(stream.str().c_str());
+	
+	need_graph_update = false;
+}
+
+void Oscilloscope::UpdateFrame(ChannelEvent *event_){
+	his->SetBins(1, 0, graph->GetN()*ADC_TIME_STEP, 1, 0.9*event_->baseline, 1.1*(event_->baseline+event_->maximum));
+	his->Draw();
+	old_maximum = event_->maximum;
+}
 
 void Oscilloscope::Plot(ChannelEvent *event_){
 	time_t cur_time;
@@ -22,23 +51,10 @@ void Oscilloscope::Plot(ChannelEvent *event_){
 	
 	// Draw the trace
 	if((int)difftime(cur_time, last_trace) >= delay){
-		if(event_->trace.size() != x_vals.size()){ // The length of the trace has changed.
-			std::cout << message_head << "Changing trace length from " << x_vals.size() << " to " << event_->trace.size() << std::endl;
-			x_vals.clear();
-			x_vals.assign(event_->trace.size(), 0);
-			for(size_t index = 0; index < x_vals.size(); index++){
-				x_vals[index] = ADC_TIME_STEP * index;
-			}
-			
-			// Update the root TGraph
-			delete graph;
-			graph = new TGraph(event_->trace.size());
-			
-			std::stringstream stream;
-			stream << "mod = " << mod << ", chan = " << chan;
-			graph->SetTitle(stream.str().c_str());
-			graph->GetXaxis()->SetTitle("Time (ns)");
-			graph->GetYaxis()->SetTitle("ADC Channel (a.u.)");
+		event_->CorrectBaseline();
+	
+		if(need_graph_update || event_->trace.size() != x_vals.size()){ // The length of the trace has changed.
+			UpdateGraph(event_->trace.size());
 		}
 		
 		int index = 0;
@@ -47,7 +63,11 @@ void Oscilloscope::Plot(ChannelEvent *event_){
 			graph->SetPoint(index++, *iterx, *itery);
 		}
 		
-		graph->Draw("APC");
+		if(event_->maximum > old_maximum){
+			UpdateFrame(event_);
+		}
+		
+		graph->Draw("PCSAME");
 		canvas->Update();
 		
 		time(&last_trace);
@@ -76,10 +96,12 @@ void Oscilloscope::ProcessRawEvent(){
 Oscilloscope::Oscilloscope(){
 	mod = 0;
 	chan = 0;
-	delay = 1;
+	delay = 2;
 	num_traces = 0;
 	num_displayed = 0;
 	time(&last_trace);
+	
+	old_maximum = -9999;
 	
 	// Variables for root graphics
 	rootapp = new TApplication("scope", 0, NULL);
@@ -89,15 +111,26 @@ Oscilloscope::Oscilloscope(){
 	canvas->cd();
 	
 	graph = new TGraph();
+	
+	// Setup the default histogram frame.
+	his = new TH2F("his", "", 1, 0, 1, 1, 0, 1);
+	his->SetStats(false);
+	his->GetYaxis()->SetTitleOffset(1.4);
+	his->GetXaxis()->SetTitle("Time (ns)");
+	his->GetYaxis()->SetTitle("ADC Channel (a.u.)");
+	
+	need_graph_update = false;
 }
 
 Oscilloscope::Oscilloscope(int mod_, int chan_){
 	mod = mod_;
 	chan = chan_; 
-	delay = 1;
+	delay = 2;
 	num_traces = 0;
 	num_displayed = 0;
 	time(&last_trace);
+	
+	old_maximum = -9999;
 
 	// Variables for root graphics
 	rootapp = new TApplication("scope", 0, NULL);
@@ -107,12 +140,22 @@ Oscilloscope::Oscilloscope(int mod_, int chan_){
 	canvas->cd();
 	
 	graph = new TGraph();
+	
+	// Setup the default histogram frame.
+	his = new TH2F("his", "", 1, 0, 1, 1, 0, 1);
+	his->SetStats(false);
+	his->GetYaxis()->SetTitleOffset(1.4);
+	his->GetXaxis()->SetTitle("Time (ns)");
+	his->GetYaxis()->SetTitle("ADC Channel (a.u.)");
+	
+	need_graph_update = false;
 }
 
 Oscilloscope::~Oscilloscope(){
 	canvas->Close();
 	delete canvas;
 	delete graph;
+	delete his;
 }
 
 bool Oscilloscope::Initialize(std::string prefix_){
@@ -170,6 +213,8 @@ bool Oscilloscope::CommandControl(std::string cmd_, const std::vector<std::strin
 		if(args_.size() >= 2){
 			mod = atoi(args_.at(0).c_str());
 			chan = atoi(args_.at(1).c_str());
+			need_graph_update = true;
+			old_maximum = -9999;
 		}
 		else{
 			std::cout << message_head << "Invalid number of parameters to 'set'\n";

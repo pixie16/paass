@@ -10,11 +10,16 @@ class ChannelEvent;
 class TApplication;
 class TCanvas;
 class TGraph;
+class TH2F;
 
 class Oscilloscope : public Unpacker{
   private:
 	int mod; /// The module of the signal of interest.
 	int chan; /// The channel of the signal of interest.
+	
+	float old_maximum; /// The maximum value of the largest trace.
+	
+	bool need_graph_update; /// Set to true if the graph range needs updated.
 	
 	int delay; /// The number of seconds to wait between drawing traces.
   
@@ -31,6 +36,12 @@ class Oscilloscope : public Unpacker{
 	TCanvas *canvas; /// The main plotting canvas.
 	
 	TGraph *graph; /// The TGraph for plotting traces.
+
+	TH2F *his; /// Dummy histogram for updating the plotting ranges.
+
+	void UpdateGraph(int size_);
+	
+	void UpdateFrame(ChannelEvent *event_);
 
 	/// Plot the current event.
 	void Plot(ChannelEvent *event_);
