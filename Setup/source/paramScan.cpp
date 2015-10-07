@@ -22,7 +22,7 @@
 ///A program
 int main(int argc, char *argv[]) {
 	if (argc < 7 || (argc > 9 && argc < 11) || argc > 13 ) {
-		printf("Usage: %s <module> <channel> <parameter name> <numSteps> <start> <stop> [runtime] [scan.root]\n",argv[0]);
+		printf("Usage: %s <module> <channel> <parameter name> <start> <stop> <stepSize> [runtime] [scan.root]\n",argv[0]);
 		return EXIT_FAILURE;
 	}
 
@@ -31,22 +31,22 @@ int main(int argc, char *argv[]) {
 
 	struct parInfo {
 		const char* parName;
-		const int numSteps;
 		const double startVal;
 		const double stopVal;
+		const double stepSize;
 		double value;
-		double stepSize;
+		int maxNumSteps;
 		double initialVal; ///<Value of parameter prior to scan.
 	};
 	int mod = atoi(argv[1]);
 	int ch = atoi(argv[2]);
-	parInfo *par1 = new parInfo {argv[3],atoi(argv[4]),atof(argv[5]), atof(argv[6])};
+	parInfo *par1 = new parInfo {argv[3],atof(argv[4]),atof(argv[5]), atof(argv[6])};
 	const char* outputFilename = "scan.root";
 	float runTime = 10;
 	parInfo *par2;
 	if (argc < 11) {
 		isTwoDim = false;
-		par2 = new parInfo{"",1,0,0};
+		par2 = new parInfo{"",1,1,1};
 		if (argc > 7)
 			runTime = atoi(argv[7]);
 		if (argc == 9)
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
 	}
 	else {
 		isTwoDim = true;
-		par2 = new parInfo{argv[7],atoi(argv[8]),atof(argv[9]), atof(argv[10])};
+		par2 = new parInfo{argv[7],atof(argv[8]),atof(argv[9]), atof(argv[10])};
 		if (argc > 11)
 		runTime = atoi(argv[11]);
 		if (argc == 13)
@@ -62,12 +62,29 @@ int main(int argc, char *argv[]) {
 	}
 
 	std::cout << "Scanning M" << mod << "C" << ch << "\n";
-	std::cout << "Scanning " << par1->parName << " over " << par1->numSteps << " steps from " << par1->startVal << "->" << par1->stopVal << "\n";
-	if (isTwoDim) std::cout << "Scanning " << par2->parName << " over " << par2->numSteps << " steps from " << par2->startVal << "->" << par2->stopVal << "\n";
+	std::cout << "Scanning " << par1->parName << " from " << par1->startVal << "->" << par1->stopVal << " with steps of " << par1->stepSize << "\n";
+	if (isTwoDim) {
+		std::cout << "Scanning " << par2->parName << " from " << par2->startVal << "->" << par2->stopVal << " with steps of " << par2->stepSize << "\n";
+	}
 	std::cout << "MCA Run time: " << runTime << "s\n";
 	std::cout << "Scan output: " << outputFilename << "\n";
 
+	par1->maxNumSteps = fabs((par1->stopVal - par1->startVal) / par1->stepSize) + 1.5;
+	par2->maxNumSteps = fabs((par2->stopVal - par2->startVal) / par2->stepSize) + 1.5;
+	if (!isTwoDim) par2->maxNumSteps = 0;
 
+	std::cout << "Max number of steps: " << par1->maxNumSteps;
+	if (isTwoDim) std::cout << ", " << par2->maxNumSteps;
+	std::cout << "\n";
+	
+	if (!isTwoDim) std::cout << "Maximum scan time: " << (par1->maxNumSteps * runTime) / 60.0 << "m\n";
+	else std::cout << "Maximum scan time: " << (par1->maxNumSteps * par2->maxNumSteps * runTime) / 60.0 << "m\n";
+
+	//Set par1 inital scan value
+	par1->value = par1->startVal - par1->stepSize;
+
+
+	std::cout << "\n";
 	PixieInterface pif("pixie.cfg");
 	pif.GetSlots();
 
@@ -81,10 +98,16 @@ int main(int argc, char *argv[]) {
 
 	pif.RemovePresetRunLength(0);
 
-	pif.ReadSglChanPar(par1->parName, &par1->initialVal, mod, ch);
+	if (!pif.ReadSglChanPar(par1->parName, &par1->initialVal, mod, ch)) {
+		std::cout << "Check parameter name!\n";
+		return EXIT_FAILURE;
+	}
 	std::cout << par1->parName << " initial value: " << par1->initialVal << "\n";
 	if (isTwoDim) {
-		pif.ReadSglChanPar(par2->parName, &par2->initialVal, mod, ch);
+		if (!pif.ReadSglChanPar(par2->parName, &par2->initialVal, mod, ch)) {
+			std::cout << "Check parameter name!\n";
+			return EXIT_FAILURE;
+		}
 		std::cout << par2->parName << " initial value: " << par2->initialVal << "\n";
 	}
 
@@ -94,16 +117,7 @@ int main(int argc, char *argv[]) {
 
 	MCA_ROOT *mca = new MCA_ROOT(&pif,"MCA");
 
-	//Set inital par1 steps
-	par1->stepSize = (par1->stopVal - par1->startVal) / (par1->numSteps);
-	par1->value = par1->startVal - par1->stepSize;
-	//Set inital par2 steps
-	par2->stepSize = (par2->stopVal - par2->startVal) / (par2->numSteps);
-
-	printf("Par 1 step size: %f\n",par1->stepSize);
-	if (isTwoDim) printf("Par 2 step size: %f\n",par2->stepSize);
-
-	for (int step = 0; step < par1->numSteps; ++step) {
+	for (int step = 0; step <= par1->maxNumSteps; ++step) {
 		double readback = par1->value;
 
 		//Keep iterating until the value changes
@@ -126,7 +140,7 @@ int main(int argc, char *argv[]) {
 		//Reset par2 value
 		par2->value = par2->startVal - par2->stepSize;
 
-		for (int step2 = 0; step2 < par2->numSteps; ++step2) {
+		for (int step2 = 0; step2 <= par2->maxNumSteps; ++step2) {
 			if (isTwoDim) {
 				readback = par2->value;
 
@@ -138,10 +152,10 @@ int main(int argc, char *argv[]) {
 
 					//Write parameter value
 					pif.WriteSglChanPar(par2->parName,par2->value,mod,ch);
-					pif.SaveDSPParameters();
 					//Read back the value to see what it actually was set to.
 					pif.PrintSglChanPar(par2->parName, mod, ch);
 					pif.ReadSglChanPar(par2->parName, &readback, mod, ch);
+					pif.SaveDSPParameters();
 				}
 				if (par2->value > par2->stopVal || readback > par2->stopVal) break;
 				par2->value = readback;
@@ -151,7 +165,7 @@ int main(int argc, char *argv[]) {
 				mca->Run(runTime);
 
 			TH1* hist = mca->GetHistogram(mod,ch);
-			TSpectrum *s = new TSpectrum(100);
+			TSpectrum *s = new TSpectrum(10);
 			s->Search(hist);
 			TF1 *func = new TF1("func","gaus");
 
@@ -176,13 +190,16 @@ int main(int argc, char *argv[]) {
 			//	E	Error Estimation
 			hist->Fit(func,"RQME");
 
-			float res = 100 * func->GetParameter(2) / func->GetParameter(1);
-			float resErr = res * sqrt(pow(func->GetParError(1)/func->GetParameter(1),2) + 
-					pow(func->GetParError(2)/func->GetParameter(2),2));
+			float res = 100 * func->GetParameter(2) / func->GetParameter(1) * 
+				2 * sqrt(2 * log(2));
+			float resErr = res * 
+				sqrt(pow(func->GetParError(1)/func->GetParameter(1),2) + 
+					pow(func->GetParError(2)/func->GetParameter(2),2)) *
+				2 * sqrt(2 * log(2));
 
 			if (!isTwoDim) printf("Loop: %2d %5f ",step,par1->value);
 			else printf("Loop: %2d:%2d %5f %5f ",step,step2,par1->value,par2->value);
-			printf("res: %5f%% FWHM Res: %5f%%\n\n",res,res * 2 * sqrt(2*log(2)));
+			printf("res: %5f%% FWHM Res: %5f%%\n\n",res / 2 / sqrt(2*log(2)), res );
 			if (!isTwoDim) {
 				gr->SetPoint(gr->GetN(),par1->value,res);
 				gr->SetPointError(gr->GetN()-1,0,resErr);
@@ -209,13 +226,13 @@ int main(int argc, char *argv[]) {
 	//Set the titles at the end so that the TGraph2D histogram has been created.
 	if (!isTwoDim) {
 		gr->GetXaxis()->SetTitle(Form("%s",par1->parName));
-		gr->GetYaxis()->SetTitle("Resolution");
+		gr->GetYaxis()->SetTitle("FWHM Resolution [%]");
 		gr->SetMinimum(0);
 	}
 	else {
 		gr2d->GetXaxis()->SetTitle(Form("%s",par1->parName));
 		gr2d->GetYaxis()->SetTitle(Form("%s",par2->parName));
-		gr2d->GetZaxis()->SetTitle("Resolution");
+		gr2d->GetZaxis()->SetTitle("FWHM Resolution [%]");
 		gr2d->SetMinimum(0);
 	}
 
@@ -223,7 +240,7 @@ int main(int argc, char *argv[]) {
 	for (int i=0;i<gr->GetN();i++) {
 		double x,y;
 		if (gr->GetPoint(i,x,y) == i)
-			std::cout << x << "\t" << y << "\t" << y * 2 * sqrt(2*log(2)) << "\n";
+			std::cout << x << "\t" << y / 2 / sqrt(2 * log(2)) << "%\t" << y << "%\n";
 	
 	}
 
