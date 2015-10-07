@@ -14,6 +14,7 @@
 #include "TGraph.h"
 #include "TAxis.h"
 #include "TH2F.h"
+#include "TFile.h"
 
 #define ADC_TIME_STEP 4 // ns
 
@@ -33,7 +34,7 @@ void Oscilloscope::UpdateGraph(int size_){
 	}
 
 	std::stringstream stream;
-	stream << "mod = " << mod << ", chan = " << chan;
+	stream << "mod = " << mod_ << ", chan = " << chan_;
 	his->SetTitle(stream.str().c_str());
 	
 	need_graph_update = false;
@@ -50,7 +51,7 @@ void Oscilloscope::Plot(ChannelEvent *event_){
 	time(&cur_time);
 	
 	// Draw the trace
-	if((int)difftime(cur_time, last_trace) >= delay){
+	if((int)difftime(cur_time, last_trace) >= delay_){
 		event_->CorrectBaseline();
 	
 		if(need_graph_update || event_->trace.size() != x_vals.size()){ // The length of the trace has changed.
@@ -58,8 +59,7 @@ void Oscilloscope::Plot(ChannelEvent *event_){
 		}
 		
 		int index = 0;
-		std::vector<int>::iterator iterx, itery;
-		for(iterx = x_vals.begin(), itery = event_->trace.begin(); iterx != x_vals.end() && itery != event_->trace.end(); iterx++, itery++){
+		for(auto iterx = x_vals.begin(), itery = event_->trace.begin(); iterx != x_vals.end() && itery != event_->trace.end(); iterx++, itery++){
 			graph->SetPoint(index++, *iterx, *itery);
 		}
 		
@@ -70,10 +70,17 @@ void Oscilloscope::Plot(ChannelEvent *event_){
 		graph->Draw("PCSAME");
 		canvas->Update();
 		
+		if (saveFile_ != "") {
+			TFile f(saveFile_.c_str(), "RECREATE");
+			graph->Clone("trace")->Write();
+			f.Close();
+			saveFile_ = "";
+		}
+
 		time(&last_trace);
 		num_displayed++;
 	}
-	
+
 	num_traces++;
 }
 
@@ -85,7 +92,10 @@ void Oscilloscope::ProcessRawEvent(){
 		current_event = rawEvent.front();
 	
 		// Pass this event to the correct processor
-		if(current_event->modNum == mod && current_event->chanNum == chan){ Plot(current_event); } // This is a signal we wish to plot.
+		if(current_event->modNum == mod_ && current_event->chanNum == chan_){  
+			// This is a signal we wish to plot.
+			Plot(current_event); 
+		}
 		
 		// Remove this event from the raw event deque
 		delete current_event;
@@ -93,41 +103,13 @@ void Oscilloscope::ProcessRawEvent(){
 	}
 }
 
-Oscilloscope::Oscilloscope(){
-	mod = 0;
-	chan = 0;
-	delay = 2;
-	num_traces = 0;
-	num_displayed = 0;
-	time(&last_trace);
-	
-	old_maximum = -9999;
-	
-	// Variables for root graphics
-	rootapp = new TApplication("scope", 0, NULL);
-	gSystem->Load("libTree");
-	
-	canvas = new TCanvas("scope_canvas", "Oscilloscope");
-	canvas->cd();
-	
-	graph = new TGraph();
-	
-	// Setup the default histogram frame.
-	his = new TH2F("his", "", 1, 0, 1, 1, 0, 1);
-	his->SetStats(false);
-	his->GetYaxis()->SetTitleOffset(1.4);
-	his->GetXaxis()->SetTitle("Time (ns)");
-	his->GetYaxis()->SetTitle("ADC Channel (a.u.)");
-	
-	need_graph_update = false;
-}
-
-Oscilloscope::Oscilloscope(int mod_, int chan_){
-	mod = mod_;
-	chan = chan_; 
-	delay = 2;
-	num_traces = 0;
-	num_displayed = 0;
+Oscilloscope::Oscilloscope(int mod /*= 0*/, int chan/*=0*/) :
+	mod_(mod),
+	chan_(chan), 
+	delay_(2),
+	num_traces(0),
+	num_displayed(0)
+{
 	time(&last_trace);
 	
 	old_maximum = -9999;
@@ -162,25 +144,34 @@ bool Oscilloscope::Initialize(std::string prefix_){
 	if(init){ return false; }
 	
 	// Print a small welcome message.
-	std::cout << prefix_ << "Displaying traces for mod = " << mod << ", chan = " << chan << ".\n";
+	std::cout << prefix_ << "Displaying traces for mod = " << mod_ << ", chan = " << chan_ << ".\n";
 	
 	return (init = true);
 }
 
-/// Print a command line help dialogue for recognized command line arguments.
+/**
+ * \param[in] prefix_
+ */
 void Oscilloscope::ArgHelp(std::string prefix_){
 	std::cout << prefix_ << "--mod [module]   | Module of signal of interest (default=0)\n";
 	std::cout << prefix_ << "--chan [channel] | Channel of signal of interest (default=0)\n";
 }
 
-/// Print an in-terminal help dialogue for recognized commands.
+/** 
+ *
+ *	\param[in] prefix_ 
+ */
 void Oscilloscope::CmdHelp(std::string prefix_){
 	std::cout << prefix_ << "set [module] [channel] - Set the module and channel of signal of interest (default = 0, 0).\n";
 	std::cout << prefix_ << "delay [time]           - Set the delay between drawing traces (in seconds, default = 1 s).\n";
 	std::cout << prefix_ << "log                    - Toggle log/linear mode on the y-axis.\n";
+	std::cout << prefix_ << "save <fileName>        - Save the next trace to the specified file name..\n";
 }
 
-/// Scan input arguments and set class variables.
+/**
+ * \param args_
+ * \param filename_
+ */
 bool Oscilloscope::SetArgs(std::deque<std::string> &args_, std::string &filename_){
 	std::string current_arg;
 	while(!args_.empty()){
@@ -192,7 +183,7 @@ bool Oscilloscope::SetArgs(std::deque<std::string> &args_, std::string &filename
 				std::cout << " Error: Missing required argument to option '--mod'!\n";
 				return false;
 			}
-			mod = atoi(args_.front().c_str());
+			mod_ = atoi(args_.front().c_str());
 			args_.pop_front();
 		}
 		else if(current_arg == "--chan"){
@@ -200,7 +191,7 @@ bool Oscilloscope::SetArgs(std::deque<std::string> &args_, std::string &filename
 				std::cout << " Error: Missing required argument to option '--chan'!\n";
 				return false;
 			}
-			chan = atoi(args_.front().c_str());
+			chan_ = atoi(args_.front().c_str());
 			args_.pop_front();
 		}
 		else{ filename_ = current_arg; }
@@ -211,9 +202,9 @@ bool Oscilloscope::SetArgs(std::deque<std::string> &args_, std::string &filename
 
 bool Oscilloscope::CommandControl(std::string cmd_, const std::vector<std::string> &args_){
 	if(cmd_ == "set"){ // Toggle debug mode
-		if(args_.size() >= 2){
-			mod = atoi(args_.at(0).c_str());
-			chan = atoi(args_.at(1).c_str());
+		if(args_.size() == 2){
+			mod_ = atoi(args_.at(0).c_str());
+			chan_ = atoi(args_.at(1).c_str());
 			need_graph_update = true;
 			old_maximum = -9999;
 		}
@@ -222,8 +213,17 @@ bool Oscilloscope::CommandControl(std::string cmd_, const std::vector<std::strin
 			std::cout << message_head << " -SYNTAX- set [module] [channel]\n";
 		}
 	}
+	else if(cmd_ == "save") {
+		if (args_.size() == 1) {
+			saveFile_ = args_.at(0);
+		}
+		else {
+			std::cout << message_head << "Invalid number of parameters to 'save'\n";
+			std::cout << message_head << " -SYNTAX- save <fileName>\n";
+		}
+	}
 	else if(cmd_ == "delay"){
-		if(args_.size() >= 2){ delay = atoi(args_.at(0).c_str()); }
+		if(args_.size() >= 2){ delay_ = atoi(args_.at(0).c_str()); }
 		else{
 			std::cout << message_head << "Invalid number of parameters to 'delay'\n";
 			std::cout << message_head << " -SYNTAX- delay [time]\n";
