@@ -37,6 +37,7 @@
  *----------------------------------------------------------------------*/
 
 #include <iostream>
+#include <iomanip>
 #include <vector>
 
 #include <cmath>
@@ -91,12 +92,14 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
             ChanEvent *currentEvt = new ChanEvent;
             // decoding event data... see pixie16app.c
             // buf points to the start of channel data
-	    cout << binary << (buf[0]) << endl;
             word_t chanNum      = (buf[0] & 0x0000000F);
             word_t slotNum      = (buf[0] & 0x000000F0) >> 4;
             word_t crateNum     = (buf[0] & 0x00000F00) >> 8;
             word_t headerLength = (buf[0] & 0x0001F000) >> 12;
             word_t eventLength  = (buf[0] & 0x1FFE0000) >> 17;
+
+	    cout << buf[0] << " " << chanNum << " " << slotNum << " " 
+		 << crateNum << " " << headerLength << " " << eventLength << endl;
             currentEvt->virtualChannel = ((buf[0] & 0x20000000) != 0);
             currentEvt->saturatedBit   = ((buf[0] & 0x40000000) != 0);
             currentEvt->pileupBit      = ((buf[0] & 0x80000000) != 0);
