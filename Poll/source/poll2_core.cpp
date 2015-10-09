@@ -10,9 +10,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date Oct. 1st, 2015
+  * \date Oct. 6th, 2015
   * 
-  * \version 1.3.08
+  * \version 1.3.10
 */
 
 #include <algorithm>
@@ -71,7 +71,7 @@ const std::vector<std::string> Poll::runControlCommands_ ({"run", "stop",
 	"mca"});
 const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread", 
 	"pmread", "pwrite", "pmwrite", "adjust_offsets", "find_tau", "toggle", 
-	"toggle_bit", "csr_test", "bit_test"});
+	"toggle_bit", "csr_test", "bit_test", "get_traces"});
 const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "thresh", 
 	"debug", "quiet",	"quit", "help", "version"});
 
@@ -147,58 +147,66 @@ void MCA_args::Close(PixieInterface *pif_){
 	Zero();
 }
 
-Poll::Poll(){
-	pif = new PixieInterface("pixie.cfg");
-
-	clock_vsn = 1000;
-
+Poll::Poll() : 
 	// System flags and variables
-	sys_message_head = " POLL: ";
-	kill_all = false; // Set to true when the program is exiting
-	do_start_acq = false; // Set to true when the command is given to start a run
-	do_stop_acq = false; // Set to true when the command is given to stop a run
-	record_data = false; // Set to true if data is to be recorded to disk
-	do_reboot = false; // Set to true when the user tells POLL to reboot PIXIE
-	force_spill = false; // Force poll2 to dump the current data spill
-	acq_running = false; // Set to true when run_command is recieving data from PIXIE
-	run_ctrl_exit = false; // Set to true when run_command exits
-	had_error = false; //Set to true when aborting due to an error.
-	file_open = false; //Set to true when a file is opened.
-	do_MCA_run = false; // Set to true when the "mca" command is received
-	raw_time = 0;
-
+	sys_message_head(" POLL: "),
+	kill_all(false), // Set to true when the program is exiting
+	do_start_acq(false), // Set to true when the command is given to start a run
+	do_stop_acq(false), // Set to true when the command is given to stop a run
+	record_data(false), // Set to true if data is to be recorded to disk
+	do_reboot(false), // Set to true when the user tells POLL to reboot PIXIE
+	force_spill(false), // Force poll2 to dump the current data spill
+	acq_running(false), // Set to true when run_command is recieving data from PIXIE
+	run_ctrl_exit(false), // Set to true when run_command exits
+	had_error(false), //Set to true when aborting due to an error.
+	file_open(false), //Set to true when a file is opened.
+	raw_time(0),
+	do_MCA_run(false), // Set to true when the "mca" command is received
 	// Run control variables
-	boot_fast = false;
-	insert_wall_clock = true;
-	is_quiet = false;
-	send_alarm = false;
-	show_module_rates = false;
-	zero_clocks = false;
-	debug_mode = false;
-	shm_mode = false;
-	pac_mode = false;
-	init = false;
-
+	boot_fast(false),
+	insert_wall_clock(true),
+	is_quiet(false),
+	send_alarm(false),
+	show_module_rates(false),
+	zero_clocks(false),
+	debug_mode(false),
+	shm_mode(false),
+	pac_mode(false),
+	init(false),
 	// Options relating to output data file
-	output_directory = "./"; // Set with 'fdir' command
-	output_title = "PIXIE data file"; // Set with 'title' command
-	next_run_num = 1; // Set with 'runnum' command
-	output_format = 0; // Set with 'oform' command
+	output_directory("./"), // Set with 'fdir' command
+	filename_prefix("run"),
+	output_title("PIXIE data file"), // Set with 'title' command
+	next_run_num(1), // Set with 'runnum' command
+	output_format(0), // Set with 'oform' command
+	current_file_num(0),
+	// Some pacman stuff
+	udp_sequence(0),
+	total_spill_chunks(0)
+{
+	pif = new PixieInterface("pixie.cfg");
+	
+	// Check the scheduler (kernel priority)
+	Display::LeaderPrint("Checking scheduler");
+	int startScheduler = sched_getscheduler(0);
+	if(startScheduler == SCHED_BATCH){ 
+		std::cout << Display::InfoStr("SCHED_BATCH") << std::endl; 
+	}
+	else if(startScheduler == SCHED_OTHER){ 
+		std::cout << Display::InfoStr("STANDARD (SCHED_OTHER)") << std::endl; 
+	}
+	else{ std::cout << Display::WarningStr("UNEXPECTED") << std::endl; }
 
-	// The main output data file and related variables
-	current_file_num = 0;
-	filename_prefix = "run";
-	
-	udp_sequence = 0; 
-	total_spill_chunks = 0; 
-	
 	client = new Client();
+
 }
 
 Poll::~Poll(){
 	if(init){
 		Close();
 	}
+
+	delete pif;
 }
 
 bool Poll::Initialize(){
@@ -214,125 +222,163 @@ bool Poll::Initialize(){
 	pif->GetSlots();
 	if(!pif->Init()){ return false; }
 
+	//Boot the modules.
 	if(boot_fast){
 		if(!pif->Boot(PixieInterface::DownloadParameters | PixieInterface::SetDAC | PixieInterface::ProgramFPGA)){ return false; } 
 	}
 	else{
 		if(!pif->Boot(PixieInterface::BootAll)){ return false; }
 	}
-
-	// Check the scheduler
-	Display::LeaderPrint("Checking scheduler");
-	int startScheduler = sched_getscheduler(0);
-	if(startScheduler == SCHED_BATCH){ std::cout << Display::InfoStr("BATCH") << std::endl; }
-	else if(startScheduler == SCHED_OTHER){ std::cout << Display::InfoStr("STANDARD") << std::endl; }
-	else{ std::cout << Display::WarningStr("UNEXPECTED") << std::endl; }
-
+	
+	//Set module syncronization parameters
 	if(!synch_mods()){ return false; }
 
 	// Allocate memory buffers for FIFO
 	n_cards = pif->GetNumberCards();
 	
-	// Two extra words to store size of data block and module number
-	std::cout << "\nAllocating memory to store FIFO data (" << sizeof(word_t) * (EXTERNAL_FIFO_LENGTH + 2) * n_cards / 1024 << " kB)" << std::endl;
-	
 	if(pac_mode){ 
+		//Initialize pacman data port
 		client->Init("127.0.0.1", 45080);
 		
+		//Initialize pacman command port
 		server = new Server();
 		server->Init(45086, 1); // Set the timeout to 1 second. 
 	}
 	else{ 
-		// This is done to avoid tying up udptoipc's port
+		//Initialize Cory's shm port
+		// This port number is used to avoid tying up udptoipc's port
 		client->Init("127.0.0.1", 5555);
 	}
 
-	partialEvent = new std::vector<word_t>[n_cards];
+	//Allocate an array of vectors to store partial events from the FIFO.
+	partialEvents = new std::vector<word_t>[n_cards];
 
+	//Create a stats handler and set the interval.
+	statsHandler = new StatsHandler(n_cards);
+	statsHandler->SetDumpInterval(statsInterval_);
+	
 	//Build the list of commands
 	commands_.insert(commands_.begin(), pollStatusCommands_.begin(), pollStatusCommands_.end());
 	commands_.insert(commands_.begin(), paramControlCommands_.begin(), paramControlCommands_.end());
+	//Omit the run control commands.
 	if (!pac_mode) {
 		commands_.insert(commands_.begin(), runControlCommands_.begin(), runControlCommands_.end());
 	}
 
-	statsHandler = new StatsHandler(n_cards);
-	statsHandler->SetDumpInterval(statsInterval_);
-	
 	return init = true;
 }
 
+/**Clean up things that are created during Poll::Initialize().
+ *
+ * \return Returns true if successful.
+ */
 bool Poll::Close(){
+	//We return if the class has not been initialized.
 	if(!init){ return false; }
 	
+	//Send message to Cory's SHM that we are closing.
 	if(!pac_mode){ client->SendMessage((char *)"$KILL_SOCKET", 13); }
+	//Close the pacman command port.
 	else{ server->Close(); }
+	//Close the UDP data / SHM port.
 	client->Close();
 	
 	// Just to be safe
-	if(output_file.IsOpen()){ close_output_file(); }
+	CloseOutputFile();
 
-	delete pif;
-	
+	//Delete the array of partial event vectors.
+	delete[] partialEvents;
+	partialEvents = NULL;
+
+	delete statsHandler;
+	statsHandler = NULL;
+
+	// We are no longer initialized.
 	init = false;
 	
 	return true;
 }
 
-/* Safely close current data file if one is open. */
-bool Poll::close_output_file(bool continueRun /*=false*/){
-	file_open = false;
-
-	if(output_file.IsOpen()){ // A file is already open and must be closed
-		//Clear the stats
-		if (!continueRun){
-			statsHandler->Clear();
-			statsHandler->Dump();
-		}
-
-		std::cout << sys_message_head << "Closing output file.\n";
-		if(!pac_mode){ client->SendMessage((char *)"$CLOSE_FILE", 12); }
-		output_file.CloseFile();
-
-		//We call get next file name to update the run number.
-		if (!continueRun) output_file.GetNextFileName(next_run_num,filename_prefix,output_directory);
-
+/** Safely close current data file if one is open. The scalers are cleared when this
+ * is called.
+ *
+ * \param[in] continueRun Flag indicating whether we are continuing the same run,
+ *  but opening a new continuation file.
+ *	\return True if the file was closed successfully.
+ */
+bool Poll::CloseOutputFile(const bool continueRun /*=false*/){
+	//No file was open.
+	if(!output_file.IsOpen()){ 
+		std::cout << sys_message_head << "No file is open.\n";
+		file_open = false;
 		return true;
 	}
-	std::cout << sys_message_head << "No file is open.\n";
+
+	//Clear the stats
+	if (!continueRun){
+		statsHandler->Clear();
+		statsHandler->Dump();
+	}
+
+	std::cout << sys_message_head << "Closing output file.\n";
+
+	//Broadcast to Cory's SHM that the file is now closed.
+	if(!pac_mode){ client->SendMessage((char *)"$CLOSE_FILE", 12); }
+
+	output_file.CloseFile();
+
+	//We call get next file name to update the run number.
+	if (!continueRun) {
+		output_file.GetNextFileName(next_run_num,filename_prefix,output_directory);
+	}
+
+	//Set the falg that no file is open.
+	file_open = false;
+
 	return true;
 }
 
 /**Opens a new file if no file is currently open. The new file is 
  * determined from the output directory, run number and prefix. The run 
- * number may be interated foreward if a file already exists. 
+ * number may be iterated forward if a file already exists. 
  * If this is a continuation run the run number is not iterated and 
  * instead a suffix number is incremented.
  *
- * \param [in] continueRun Flag indicating that this file should be a continuation run and that the run number should not be iterated.
+ * The scalers are cleared when this is called if a file is not open already.
+ *
+ * \param [in] continueRun Flag indicating that this file should be a 
+ *  continuation run and that the run number should not be iterated.
+ *  \return True if successfully opened a new file.
  */
-bool Poll::open_output_file(bool continueRun){
-	if(!output_file.IsOpen()){ 
-		if(!output_file.OpenNewFile(output_title, next_run_num, filename_prefix, output_directory, continueRun)){
-			std::cout << sys_message_head << "Failed to open output file! Check that the path is correct.\n";
-			record_data = false;
-			return false;
-		}
-
-		//Clear the stats
-		statsHandler->Clear();
-		statsHandler->Dump();
-
-		std::cout << sys_message_head << "Opening output file '" << output_file.GetCurrentFilename() << "'.\n";
-		if(!pac_mode){ client->SendMessage((char *)"$OPEN_FILE", 12); }
-	}
-	else{ 
-		std::cout << sys_message_head << "Warning! A file is already open. Close the current file before opening a new one.\n"; 
+bool Poll::OpenOutputFile(bool continueRun){
+	//A file was already open
+	if(output_file.IsOpen()){ 
+		std::cout << Display::WarningStr() << ": A file is already open. Close the current file before opening a new one.\n"; 
 		return false;
 	}
 
-	file_open = true;
+	//Try to open a file and check if unsuccessful.
+	if(!output_file.OpenNewFile(output_title, next_run_num, filename_prefix, output_directory, continueRun)){
+		//Unsuccessful when opening file print a message.
+		std::cout << Display::ErrorStr() << ": Failed to open output file! Check that the path is correct.\n";
 	
+		//Set the error flag and disable data recording.
+		had_error = true;
+		record_data = false;
+
+		return false;
+	}
+
+	//Clear the stats
+	statsHandler->Clear();
+	statsHandler->Dump();
+
+	std::cout << sys_message_head << "Opening output file '" << output_file.GetCurrentFilename() << "'.\n";
+	//When using Cory's SHM send a message that the file is open.
+	if(!pac_mode){ client->SendMessage((char *)"$OPEN_FILE", 12); }
+
+	file_open = true;
+
 	return true;
 }
 
@@ -364,7 +410,7 @@ int Poll::write_data(word_t *data, unsigned int nWords){
 	// Open an output file if needed
 	if(!output_file.IsOpen()){
 		std::cout << Display::ErrorStr() << " Recording data, but no file is open! Opening a new file.\n";
-		open_output_file();
+		OpenOutputFile();
 	}
 
 	// Handle the writing of buffers to the file
@@ -374,8 +420,8 @@ int Poll::write_data(word_t *data, unsigned int nWords){
 		// Open a new output file instead
 		std::cout << sys_message_head << "Current filesize is " << current_filesize + (std::streampos)65552 << " bytes.\n";
 		std::cout << sys_message_head << "Opening new file.\n";
-		close_output_file(true);
-		open_output_file(true);
+		CloseOutputFile(true);
+		OpenOutputFile(true);
 	}
 
 	if (!is_quiet) std::cout << "Writing " << nWords << " words.\n";
@@ -384,15 +430,17 @@ int Poll::write_data(word_t *data, unsigned int nWords){
 }
 
 void Poll::broadcast_data(word_t *data, unsigned int nWords) {
+	// Maximum size of the shared memory buffer
+	static const unsigned int maxShmSizeL = 4050; // in pixie words
+	static const unsigned int maxShmSize  = maxShmSizeL * sizeof(word_t); // in bytes
+
 	if(pac_mode){ // Broadcast the spill onto the network using the classic pacman shm style
-		// Maximum size of the shared memory buffer
-		const int maxShmSizeL = 4050; // in pixie words
-		const int maxShmSize  = maxShmSizeL * sizeof(word_t); // in bytes
-	
 		unsigned int nBufs = nWords / maxShmSizeL;
 		unsigned int wordsLeft = nWords % maxShmSizeL;
 
 		unsigned int totalBufs = nBufs + 1 + ((wordsLeft != 0) ? 1 : 0);
+
+		if (debug_mode) std::cout << "Broadcasting " << totalBufs << " pacman buffers.\n";
 
 		word_t *pWrite = (word_t *)AcqBuf.Data;
 		
@@ -436,10 +484,9 @@ void Poll::broadcast_data(word_t *data, unsigned int nWords) {
 		broadcast_pac_data();  
 	}
 	else if(shm_mode){ // Broadcast the spill onto the network using the new shm style
-		char shm_data[40008]; // 40 kB packets of data
-		char *data_l = (char *)data; // Local pointer to the data array
-		unsigned int num_net_chunks = nWords / 10000;
-		unsigned int num_net_remain = nWords % 10000;
+		int shm_data[maxShmSizeL+2]; // packets of data
+		unsigned int num_net_chunks = nWords / maxShmSizeL;
+		unsigned int num_net_remain = nWords % maxShmSizeL;
 		if(num_net_remain != 0){ num_net_chunks++; }
 		
 		unsigned int net_chunk = 1;
@@ -447,20 +494,21 @@ void Poll::broadcast_data(word_t *data, unsigned int nWords) {
 		if(debug_mode){ std::cout << " debug: Splitting " << nWords << " words into network spill of " << num_net_chunks << " chunks (fragment = " << num_net_remain << " words)\n"; }
 		
 		while(words_bcast < nWords){
-			if(nWords - words_bcast > 10000){ // Broadcast the spill chunks
-				memcpy(&shm_data[0], (char *)&net_chunk, 4);
-				memcpy(&shm_data[4], (char *)&num_net_chunks, 4);
-				memcpy(&shm_data[8], &data_l[words_bcast*4], 40000);
-				client->SendMessage(shm_data, 40008);
-				words_bcast += 10000;
+			if(nWords - words_bcast > maxShmSizeL){ // Broadcast the spill chunks
+				memcpy(&shm_data[0], &net_chunk, 4);
+				memcpy(&shm_data[1], &num_net_chunks, 4);
+				memcpy(&shm_data[2], &data[words_bcast], maxShmSize);
+				client->SendMessage((char *)shm_data, maxShmSize+8);
+				words_bcast += maxShmSizeL;
 			}
 			else{ // Broadcast the spill remainder
-				memcpy(&shm_data[0], (char *)&net_chunk, 4);
-				memcpy(&shm_data[4], (char *)&num_net_chunks, 4);
-				memcpy(&shm_data[8], &data_l[words_bcast*4], (nWords-words_bcast)*4);
-				client->SendMessage(shm_data, (nWords - words_bcast + 2)*4);
+				memcpy(&shm_data[0], &net_chunk, 4);
+				memcpy(&shm_data[1], &num_net_chunks, 4);
+				memcpy(&shm_data[2], &data[words_bcast], (nWords-words_bcast)*4);
+				client->SendMessage((char *)shm_data, (nWords - words_bcast + 2)*4);
 				words_bcast += nWords-words_bcast;
 			}
+			usleep(1);
 			net_chunk++;
 		}
 	}
@@ -483,6 +531,8 @@ void Poll::broadcast_pac_data(){
 		size+=2;
 	}
 
+	if (debug_mode) std::cout << "PAC broadcast size " << size << "/" << MAX_PKT_DATA << " B.\n";
+
 	if(size <= MAX_PKT_DATA){ 
 		AcqBuf.Sequence = udp_sequence++;
 		AcqBuf.DataSize = size + 8;    
@@ -491,7 +541,7 @@ void Poll::broadcast_pac_data(){
 		AcqBuf.Cont=0; 
 
 		status = client->SendMessage((char *)&AcqBuf, size + PKT_HEAD_LEN + 8);
-		if(status < 0 && debug_mode){ perror(" debug: broadcast_data - error at SendMessage"); }
+		if(status < 0){ std::cout << Display::WarningStr("[WARNING]") << ": Error sending UDP message to pacman."; }
 
 		return;
 	}
@@ -499,27 +549,29 @@ void Poll::broadcast_pac_data(){
 	cont_pkt = 1;
 	bufptr =(char *)&AcqBuf;
 	total_spill_chunks++;
-	do{
+	//This loops through the large data packet and writes the header info into 
+	// data_pack::Data for each packet as it goes along. It does not follow the structure.
+	do {
 		if(size > MAX_PKT_DATA){ 
 			bytes = MAX_PKT_DATA;
-			*((unsigned short *)(bufptr+PKT_HEAD_LEN+4)) = 0;
+			*((unsigned short *)(bufptr+PKT_HEAD_LEN+4)) = 0; //Events
 		} 
 		else{
 			bytes = size;
-			*((unsigned short *)(bufptr+PKT_HEAD_LEN+4)) = 1;
+			*((unsigned short *)(bufptr+PKT_HEAD_LEN+4)) = 1; //Events
 		}
-		*((int *)(bufptr+PKT_HEAD_LEN)) = total_spill_chunks;
-		*((unsigned short *)(bufptr+PKT_HEAD_LEN+6)) = cont_pkt;
-		*((unsigned int *)(bufptr)) = udp_sequence++;
-		*((int *)(bufptr+4)) = bytes+8;
+		*((int *)(bufptr+PKT_HEAD_LEN)) = total_spill_chunks; //TotalEvents 
+		*((unsigned short *)(bufptr+PKT_HEAD_LEN+6)) = cont_pkt; //Cont
+		*((unsigned int *)(bufptr)) = udp_sequence++; //Sequence
+		*((int *)(bufptr+4)) = bytes+8; //DataSize
 
 		status = client->SendMessage((char *)bufptr, bytes + PKT_HEAD_LEN + 8);
-		if(status < 0 && debug_mode){ perror(" debug: broadcast_data - error at SendMessage"); }
+		if(status < 0){ std::cout << Display::WarningStr("[WARNING]") << ": Error sending UDP message to pacman."; }
 
 		cont_pkt++;
 		bufptr += bytes;
 		size = size - bytes;
-	}while(size > 0);
+	} while (size > 0);
 }
 
 /* Print help dialogue for POLL options. */
@@ -540,19 +592,20 @@ void Poll::help(){
 		std::cout << "   close (clo)         - Safely close the current data output file\n";
 		std::cout << "   reboot              - Reboot PIXIE crate\n";
 		std::cout << "   stats [time]        - Set the time delay between statistics dumps (default=-1)\n";
-		std::cout << "   mca [root|damm] [time] [filename] - Use MCA to record data for debugging purposes\n";
+		std::cout << "   mca [root|damm] [time] [filename]     - Use MCA to record data for debugging purposes\n";
 	}
-	std::cout << "   dump [filename]                   - Dump pixie settings to file (default='Fallback.set')\n";
-	std::cout << "   pread [mod] [chan] [param]        - Read parameters from individual PIXIE channels\n";
-	std::cout << "   pmread [mod] [param]              - Read parameters from PIXIE modules\n";
-	std::cout << "   pwrite [mod] [chan] [param] [val] - Write parameters to individual PIXIE channels\n";
-	std::cout << "   pmwrite [mod] [param] [val]       - Write parameters to PIXIE modules\n";
-	std::cout << "   adjust_offsets [module]           - Adjusts the baselines of a pixie module\n";
-	std::cout << "   find_tau [module] [channel]       - Finds the decay constant for an active pixie channel\n";
-	std::cout << "   toggle [module] [channel] [bit]   - Toggle any of the 19 CHANNEL_CSRA bits for a pixie channel\n";
+	std::cout << "   dump [filename]                       - Dump pixie settings to file (default='Fallback.set')\n";
+	std::cout << "   pread [mod] [chan] [param]            - Read parameters from individual PIXIE channels\n";
+	std::cout << "   pmread [mod] [param]                  - Read parameters from PIXIE modules\n";
+	std::cout << "   pwrite [mod] [chan] [param] [val]     - Write parameters to individual PIXIE channels\n";
+	std::cout << "   pmwrite [mod] [param] [val]           - Write parameters to PIXIE modules\n";
+	std::cout << "   adjust_offsets [module]               - Adjusts the baselines of a pixie module\n";
+	std::cout << "   find_tau [module] [channel]           - Finds the decay constant for an active pixie channel\n";
+	std::cout << "   toggle [module] [channel] [bit]       - Toggle any of the 19 CHANNEL_CSRA bits for a pixie channel\n";
 	std::cout << "   toggle_bit [mod] [chan] [param] [bit] - Toggle any bit of any parameter of 32 bits or less\n";
-	std::cout << "   csr_test [number]                 - Output the CSRA parameters for a given integer\n";
-	std::cout << "   bit_test [num_bits] [number]      - Display active bits in a given integer up to 32 bits long\n";
+	std::cout << "   csr_test [number]                     - Output the CSRA parameters for a given integer\n";
+	std::cout << "   bit_test [num_bits] [number]          - Display active bits in a given integer up to 32 bits long\n";
+	std::cout << "   get_traces [mod] [chan] <threshold>   - Get traces for all channels in a specified module\n";
 	std::cout << "   status              - Display system status information\n";
 	std::cout << "   thresh              - Display current polling threshold\n";
 	std::cout << "   debug               - Toggle debug mode flag (default=false)\n";
@@ -632,10 +685,10 @@ bool Poll::start_run() {
 	}
 
 	//Close a file if open
-	if(output_file.IsOpen()){ close_output_file();	}
+	if(output_file.IsOpen()){ CloseOutputFile();	}
 
 	//Preapre the output file
-	if (!open_output_file()) return false;
+	if (!OpenOutputFile()) return false;
 	record_data = true;
 
 	//Start the acquistion
@@ -733,7 +786,64 @@ void Poll::show_status(){
 
 void Poll::show_thresh() {
 	float threshPercent = (float) threshWords / EXTERNAL_FIFO_LENGTH * 100;
-	std::cout << "Polling Threshold:	" << threshPercent << "% (" << threshWords << "/" << EXTERNAL_FIFO_LENGTH << ")\n";
+	std::cout << sys_message_head << "Polling Threshold = " << threshPercent << "% (" << threshWords << "/" << EXTERNAL_FIFO_LENGTH << ")\n";
+}
+
+/// Acquire raw traces from a pixie module.
+void Poll::get_traces(int mod_, int chan_, int thresh_/*=0*/){
+	size_t trace_size = PixieInterface::GetTraceLength();
+	size_t module_size = pif->GetNumberChannels() * trace_size;
+	std::cout << sys_message_head << "Searching for traces from mod = " << mod_ << ", chan = " << chan_ << " above threshold = " << thresh_ << ".\n";
+	std::cout << sys_message_head << "Allocating " << (trace_size+module_size)*sizeof(unsigned short) << " bytes of memory for pixie traces.\n";
+	std::cout << sys_message_head << "Searching for traces. Please wait...\n";
+	poll_term_->flush();
+	
+	unsigned short *trace_data = new unsigned short[trace_size];
+	unsigned short *module_data = new unsigned short[module_size];
+	memset(trace_data, 0, sizeof(unsigned short)*trace_size);
+	memset(module_data, 0, sizeof(unsigned short)*module_size);
+
+	GetTraces gtraces(module_data, module_size, trace_data, trace_size, thresh_);
+	forChannel(pif, mod_, chan_, gtraces, (int)0); 
+
+	if(!gtraces.GetStatus()){ std::cout << sys_message_head << "Failed to find trace above threshold in " << gtraces.GetAttempts() << " attempts!\n"; }
+	else{ std::cout << sys_message_head << "Found trace above threshold in " << gtraces.GetAttempts() << " attempts.\n"; }
+
+	std::cout << "  Baselines:\n";
+	for(unsigned int channel = 0; channel < pif->GetNumberChannels(); channel++){
+		if(channel == (unsigned)chan_){ std::cout << "\033[0;33m"; }
+		if(channel < 10){ std::cout << "   0" << channel << ": "; }
+		else{ std::cout << "   " << channel << ": "; }
+		std::cout << "\t" << gtraces.GetBaseline(channel);
+		std::cout << "\t" << gtraces.GetMaximum(channel) << std::endl;
+		if(channel == (unsigned)chan_){ std::cout << "\033[0m"; }
+	}
+	
+	std::ofstream get_traces_out("/tmp/traces.dat");
+	if(!get_traces_out.good()){ std::cout << sys_message_head << "Could not open /tmp/traces.dat!\n"; }
+	else{ // Write the output file.
+		// Add a header.
+		get_traces_out << "time";
+		for(size_t channel = 0; channel < pif->GetNumberChannels(); channel++){
+			if(channel < 10){ get_traces_out << "\tC0" << channel; }
+			else{ get_traces_out << "\tC" << channel; }
+		}
+		get_traces_out << std::endl;
+		
+		// Write channel traces.
+		for(size_t index = 0; index < trace_size; index++){
+			get_traces_out << index;
+			for(size_t channel = 0; channel < pif->GetNumberChannels(); channel++){
+				get_traces_out << "\t" << module_data[(channel * trace_size) + index];
+			}
+			get_traces_out << std::endl;
+		} 
+		std::cout << sys_message_head << "Traces written to '/tmp/traces.dat'." << std::endl;
+	}
+	get_traces_out.close();
+
+	delete[] trace_data;
+	delete[] module_data;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1084,6 +1194,45 @@ void Poll::CommandControl(){
 				std::cout << sys_message_head << " -SYNTAX- bit_test [num_bits] [number]\n";
 			}
 		}
+		else if(cmd == "get_traces"){ // Run GetTraces method
+			if(acq_running || do_MCA_run){ 
+				std::cout << sys_message_head << "Warning! Cannot view live traces while acquisition is running\n\n"; 
+				continue;
+			}
+
+			if(p_args >= 2){
+				int mod = atoi(arguments.at(0).c_str());
+				int chan = atoi(arguments.at(1).c_str());
+				
+				if(mod < 0 || chan < 0){
+					std::cout << sys_message_head << "Error! Must select one module and one channel to trigger on!\n";
+					continue;
+				}
+				else if(mod > (int)n_cards){
+					std::cout << sys_message_head << "Error! Invalid module specification (" << mod << ")!\n";
+					continue;
+				}
+				else if(chan > NUMBER_OF_CHANNELS){
+					std::cout << sys_message_head << "Error! Invalid channel specification (" << chan << ")!\n";
+					continue;
+				}
+
+				int trace_threshold = 0;
+				if(p_args >= 3){
+					trace_threshold = atoi(arguments.at(2).c_str());
+					if(trace_threshold < 0){
+						std::cout << sys_message_head << "Cannot set negative threshold!\n";
+						trace_threshold = 0;
+					}
+				}
+				
+				get_traces(mod, chan, trace_threshold);
+			}
+			else{
+				std::cout << sys_message_head << "Invalid number of parameters to get_traces\n";
+				std::cout << sys_message_head << " -SYNTAX- get_traces [mod] [chan] <threshold> <correct-baselines>\n";
+			}
+		}
 		else if(cmd == "quiet"){ // Toggle quiet mode
 			if(is_quiet){
 				std::cout << sys_message_head << "Toggling quiet mode OFF\n";
@@ -1092,6 +1241,18 @@ void Poll::CommandControl(){
 			else{
 				std::cout << sys_message_head << "Toggling quiet mode ON\n";
 				is_quiet = true;
+			}
+		}
+		else if(cmd == "debug"){ // Toggle debug mode
+			if(debug_mode){
+				std::cout << sys_message_head << "Toggling debug mode OFF\n";
+				output_file.SetDebugMode(false);
+				debug_mode = false;
+			}
+			else{
+				std::cout << sys_message_head << "Toggling debug mode ON\n";
+				output_file.SetDebugMode();
+				debug_mode = true;
 			}
 		}
 		else if(!pac_mode){ // These command are only available when not running in pacman mode!
@@ -1126,24 +1287,12 @@ void Poll::CommandControl(){
 			else if(cmd == "clo" || cmd == "close"){ // Tell POLL to close the current data file
 				if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
 				else if(acq_running && record_data){ std::cout << sys_message_head << "Warning! Cannot close file while acquisition running\n"; }
-				else{ close_output_file(); }
+				else{ CloseOutputFile(); }
 			}
 			else if(cmd == "hup" || cmd == "spill"){ // Force spill
 				if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
 				else if(!acq_running){ std::cout << sys_message_head << "Acquisition is not running\n"; }
 				else{ force_spill = true; }
-			}
-			else if(cmd == "debug"){ // Toggle debug mode
-				if(debug_mode){
-					std::cout << sys_message_head << "Toggling debug mode OFF\n";
-					output_file.SetDebugMode(false);
-					debug_mode = false;
-				}
-				else{
-					std::cout << sys_message_head << "Toggling debug mode ON\n";
-					output_file.SetDebugMode();
-					debug_mode = true;
-				}
 			}
 			else if(cmd == "fdir"){ // Change the output file directory
 				if (arg == "") { std::cout << sys_message_head << "Using output directory '" << output_directory << "'\n"; }
@@ -1335,29 +1484,31 @@ void Poll::RunControl(){
 		}
 
 		//Start acquistion
-		if (do_start_acq && !acq_running) {
-			//Start list mode
-			if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)) {
-				time_t currTime;
-				time(&currTime);
-				if (record_data) std::cout << "Run " << output_file.GetRunNumber();
-				else std::cout << "Acq";
-				std::cout << " started on " << ctime(&currTime);
+		if (do_start_acq) {
+			if (!acq_running) {
+				//Start list mode
+				if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)) {
+					time_t currTime;
+					time(&currTime);
+					if (record_data) std::cout << "Run " << output_file.GetRunNumber();
+					else std::cout << "Acq";
+					std::cout << " started on " << ctime(&currTime);
 
-				acq_running = true;
-				startTime = usGetTime(0);
-				lastSpillTime = 0;
+					acq_running = true;
+					startTime = usGetTime(0);
+					lastSpillTime = 0;
+				}
+				else{ 
+					std::cout << sys_message_head << "Failed to start list mode run. Try rebooting PIXIE\n"; 
+					acq_running = false;
+					had_error = true;
+				}
+				do_start_acq = false;
+			} //if(!acq_running)
+			else  {
+				std::cout << sys_message_head << "Already running!\n";
+				do_start_acq = false;
 			}
-			else{ 
-				std::cout << sys_message_head << "Failed to start list mode run. Try rebooting PIXIE\n"; 
-				acq_running = false;
-				had_error = true;
-			}
-			do_start_acq = false;
-		}
-		else if (do_start_acq && acq_running) {
-			std::cout << sys_message_head << "Already running!\n";
-			do_start_acq = false;
 		}
 
 		if(acq_running){
@@ -1387,10 +1538,10 @@ void Poll::RunControl(){
 					//Print the module status.
 					std::stringstream leader;
 					leader << "Run end status in module " << mod;
-					if (!partialEvent[mod].empty()) {
+					if (!partialEvents[mod].empty()) {
 						///\bug Warning Str colors oversets the number of characters.
 						leader << Display::WarningStr(" (partial evt)");
-						partialEvent[mod].clear();
+						partialEvents[mod].clear();
 					}
 					
 					Display::LeaderPrint(leader.str());
@@ -1407,47 +1558,17 @@ void Poll::RunControl(){
 				else std::cout << "Acq";
 				std::cout << " stopped on " << ctime(&currTime);
 
-				//Reset status flags
-				do_stop_acq = false;
-				acq_running = false;
-
 				statsHandler->ClearRates();
 				statsHandler->Dump();
 				statsHandler->ClearTotals();
-			} //End of handling a stop acq flag
+
+				//Reset status flags
+				do_stop_acq = false;
+				acq_running = false;
+			} //if (do_stop_acq) -- End of handling a stop acq flag
 		}
-
-		//Build status string
-		std::stringstream status;
-		if (had_error) status << Display::ErrorStr("[ERROR]");
-		else if (acq_running && record_data) status << Display::OkayStr("[ACQ]");
-		else if (acq_running && !record_data) status << Display::WarningStr("[ACQ]");
-		else if (do_MCA_run) status << Display::OkayStr("[MCA]");
-		else status << Display::InfoStr("[IDLE]");
-
-		if (file_open) status << " Run " << output_file.GetRunNumber();
-
-		if(do_MCA_run){
-			status << " " << (int)mca_args.GetMCA()->GetRunTime() << "s";
-			status << " of " << mca_args.GetTotalTime() << "s";
-		}
-		else{
-			//Add run time to status
-			status << " " << (long long) statsHandler->GetTotalTime() << "s";
-			//Add data rate to status
-			status << " " << humanReadable(statsHandler->GetTotalDataRate()) << "/s";
-		}
-
-		if (file_open) {
-			if (acq_running && !record_data) status << TermColors::DkYellow;
-			//Add file size to status
-			status << " " << humanReadable(output_file.GetFilesize());
-			status << " " << output_file.GetCurrentFilename();
-			if (acq_running && !record_data) status << TermColors::Reset;
-		}
-
-		//Update the status bar
-		poll_term_->SetStatus(status.str());
+	
+		UpdateStatus();
 
 		//Sleep the run control if idle to reduce CPU utilization.
 		if (!acq_running && !do_MCA_run) sleep(1);
@@ -1456,6 +1577,40 @@ void Poll::RunControl(){
 	run_ctrl_exit = true;
 	std::cout << "Run Control exited\n";
 }
+void Poll::UpdateStatus() {
+	//Build status string
+	std::stringstream status;
+	if (had_error) status << Display::ErrorStr("[ERROR]");
+	else if (acq_running && record_data) status << Display::OkayStr("[ACQ]");
+	else if (acq_running && !record_data) status << Display::WarningStr("[ACQ]");
+	else if (do_MCA_run) status << Display::OkayStr("[MCA]");
+	else status << Display::InfoStr("[IDLE]");
+
+	if (file_open) status << " Run " << output_file.GetRunNumber();
+
+	if(do_MCA_run){
+		status << " " << (int)mca_args.GetMCA()->GetRunTime() << "s";
+		status << " of " << mca_args.GetTotalTime() << "s";
+	}
+	else{
+		//Add run time to status
+		status << " " << (long long) statsHandler->GetTotalTime() << "s";
+		//Add data rate to status
+		status << " " << humanReadable(statsHandler->GetTotalDataRate()) << "/s";
+	}
+
+	if (file_open) {
+		if (acq_running && !record_data) status << TermColors::DkYellow;
+		//Add file size to status
+		status << " " << humanReadable(output_file.GetFilesize());
+		status << " " << output_file.GetCurrentFilename();
+		if (acq_running && !record_data) status << TermColors::Reset;
+	}
+
+	//Update the status bar
+	poll_term_->SetStatus(status.str());
+}
+
 
 void Poll::ReadScalers() {
 	static std::vector< std::pair<double, double> > xiaRates(16, std::make_pair<double, double>(0,0));
@@ -1464,7 +1619,7 @@ void Poll::ReadScalers() {
 	for (unsigned short mod=0;mod < n_cards; mod++) {
 		//Tell interface to get stats data from the modules.
 		pif->GetStatistics(mod);
-		
+
 		for (int ch=0;ch< numChPerMod; ch++) 
 			xiaRates[ch] = std::make_pair<double, double>(pif->GetInputCountRate(mod, ch),pif->GetOutputCountRate(mod,ch));
 
@@ -1473,7 +1628,7 @@ void Poll::ReadScalers() {
 	}
 }
 bool Poll::ReadFIFO() {
- 	static word_t *fifoData = new word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
+	static word_t *fifoData = new word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
 
 	if (!acq_running) return false;
 
@@ -1534,11 +1689,11 @@ bool Poll::ReadFIFO() {
 			fifoData[dataWords++] = mod;
 
 			//We store the partial event if we had one
-			for (size_t i=0;i<partialEvent[mod].size();i++)
-				fifoData[dataWords + i] = partialEvent[mod].at(i);
+			for (size_t i=0;i<partialEvents[mod].size();i++)
+				fifoData[dataWords + i] = partialEvents[mod].at(i);
 
 			//Try to read FIFO and catch errors.
-			if(!pif->ReadFIFOWords(&fifoData[dataWords + partialEvent[mod].size()], nWords[mod], mod, debug_mode)){
+			if(!pif->ReadFIFOWords(&fifoData[dataWords + partialEvents[mod].size()], nWords[mod], mod, debug_mode)){
 				std::cout << Display::ErrorStr() << " Unable to read " << nWords[mod] << " from module " << mod << "\n";
 				had_error = true;
 				do_stop_acq = true;
@@ -1546,27 +1701,27 @@ bool Poll::ReadFIFO() {
 			}
 
 			//Print a message about what we did	
-			if(!is_quiet) {
+			if(!is_quiet || debug_mode) {
 				std::cout << "Read " << nWords[mod] << " words from module " << mod;
-				if (!partialEvent[mod].empty())
-					std::cout << " and stored " << partialEvent[mod].size() << " partial event words";
+				if (!partialEvents[mod].empty())
+					std::cout << " and stored " << partialEvents[mod].size() << " partial event words";
 				std::cout << " to buffer position " << dataWords << std::endl;
 			}
 
 			//After reading the FIFO and printing a sttus message we can update the number of words to include the partial event.
-			nWords[mod] += partialEvent[mod].size();
+			nWords[mod] += partialEvents[mod].size();
 			//Clear the partial event
-			partialEvent[mod].clear();
+			partialEvents[mod].clear();
 
 			//We now ned to parse the event to determine if there is a hanging event. Also, allows a check for corrupted data.
 			size_t parseWords = dataWords;
 			//We declare the eventSize outside the loop in case there is a partial event.
 			word_t eventSize = 0;
+			word_t slotExpected = pif->GetSlotNumber(mod);
 			while (parseWords < dataWords + nWords[mod]) {
 				//Check first word to see if data makes sense.
 				// We check the slot, channel and event size.
 				word_t slotRead = ((fifoData[parseWords] & 0xF0) >> 4);
-				word_t slotExpected = pif->GetSlotNumber(mod);
 				word_t chanRead = (fifoData[parseWords] & 0xF);
 				eventSize = ((fifoData[parseWords] & 0x7FFE2000) >> 17);
 				bool virtualChannel = ((fifoData[parseWords] & 0x20000000) != 0);
@@ -1604,7 +1759,7 @@ bool Poll::ReadFIFO() {
 
 				//We could get the words now from the FIFO, but me may have to wait. Instead we store the partial event for the next FIFO read.
 				for(unsigned short i=0;i< partialSize;i++) 
-					partialEvent[mod].push_back(fifoData[parseWords - eventSize + i]);
+					partialEvents[mod].push_back(fifoData[parseWords - eventSize + i]);
 
 				//Update the number of words to indicate removal or partial event.
 				nWords[mod] -= partialSize;
@@ -1614,15 +1769,20 @@ bool Poll::ReadFIFO() {
 			else if (parseWords < dataWords + nWords[mod]) {
 				std::cout << Display::ErrorStr() << " Parsing indicated corrupted data at " << parseWords - dataWords << " words into FIFO.\n";
 
-				if (!is_quiet) {
-					//Print the first 100 words
-					std::cout << std::hex;
-					for(int i=0;i< 100;i++) {
-						if (i%10 == 0) std::cout << std::endl << "\t";
-						std::cout << fifoData[dataWords + i] << " ";
-					}
-					std::cout << std::dec << std::endl;
+				std::cout << std::hex;
+				//Print the previous words
+				std::cout << "Words prior to parsing error:\n";
+				for(int i=0;i< 100;i++) {
+					if (i%10 == 0) std::cout << std::endl << "\t";
+					std::cout << fifoData[dataWords + parseWords - 100 + i] << " ";
 				}
+				//Print the following words 
+				std::cout << "Words following parsing error:\n";
+				for(int i=0;i< 100;i++) {
+					if (i%10 == 0) std::cout << std::endl << "\t";
+					std::cout << fifoData[dataWords + parseWords + i] << " ";
+				}
+				std::cout << std::dec << std::endl;
 
 				do_stop_acq = true;
 				had_error = true;
@@ -1648,7 +1808,7 @@ bool Poll::ReadFIFO() {
 			statsHandler->ClearRates();
 		}
 
-		if (!is_quiet) std::cout << "Writing/Broadcasting " << dataWords << " words.\n";
+		if (!is_quiet || debug_mode) std::cout << "Writing/Broadcasting " << dataWords << " words.\n";
 		//We have read the FIFO now we write the data	
 		if (record_data && !pac_mode) write_data(fifoData, dataWords); 
 		broadcast_data(fifoData, dataWords);
