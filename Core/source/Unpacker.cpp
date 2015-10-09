@@ -248,6 +248,8 @@ Unpacker::Unpacker(){
 	
 	root_file = NULL;
 	root_tree = NULL;
+	
+	message_head = "";
 }
 
 Unpacker::~Unpacker(){

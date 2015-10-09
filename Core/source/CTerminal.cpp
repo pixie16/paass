@@ -292,7 +292,6 @@ void signalResize(int ignore_) {
 	SIGNAL_RESIZE = true;
 }
 
-
 // Setup the interrupt signal intercept
 void setup_signal_handlers(){ 
 	// Handle segmentation faults press (SIGSEGV)
@@ -319,6 +318,14 @@ void setup_signal_handlers(){
 	//Handle resize signal
 	signal(SIGWINCH, signalResize);
 }
+
+void unset_signal_handlers(){
+	signal(SIGSEGV, SIG_DFL);
+	signal(SIGINT, SIG_DFL);
+	signal(SIGTSTP, SIG_DFL);
+	signal(SIGWINCH, SIG_DFL);
+}
+
 void Terminal::resize_() {
 	//end session and then refresh to get new window sizes.
 	endwin();
@@ -989,4 +996,6 @@ void Terminal::Close(){
 		init = false;
 	}
 	logFile.close();
+	
+	unset_signal_handlers();
 }

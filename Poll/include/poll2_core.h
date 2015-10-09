@@ -10,9 +10,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date Oct. 2nd, 2015
+  * \date Oct. 6th, 2015
   * 
-  * \version 1.3.08
+  * \version 1.3.10
 */
 
 #ifndef POLL2_CORE_H
@@ -24,8 +24,8 @@
 #include "hribf_buffers.h"
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.3.08"
-#define POLL2_CORE_DATE "Oct. 2nd, 2015"
+#define POLL2_CORE_VERSION "1.3.10"
+#define POLL2_CORE_DATE "Oct. 6th, 2015"
 
 // Maximum length of UDP data packet (in bytes)
 #define MAX_ORPH_DATA 1464
@@ -104,13 +104,10 @@ class Poll{
   private:
 	Terminal *poll_term_;
 	///A vector to store the partial events
-	std::vector<word_t> *partialEvent;
+	std::vector<word_t> *partialEvents;
 	
 	double startTime; ///Time when the acquistion was started.
 	double lastSpillTime; ///Time when the last spill finished.
-
-	unsigned int udp_sequence; /// ???
-	unsigned int total_spill_chunks; /// Total number of poll data spill chunks sent over the network
 
   	struct tm *time_info;
 
@@ -119,8 +116,6 @@ class Poll{
 
 	PixieInterface *pif; /// The main pixie interface pointer 
   
-	word_t clock_vsn;	
-
 	// System flags and variables
 	std::string sys_message_head; /// Command line message header
 	bool kill_all; /// Set to true when the program is exiting
@@ -162,6 +157,10 @@ class Poll{
 	int current_file_num;
 	PollOutputFile output_file;
 
+	///Pacman related variables
+	unsigned int udp_sequence; ///< The number of UDP packets transmitted.
+	unsigned int total_spill_chunks; ///< Total number of poll data spill chunks sent over the network
+
 	size_t n_cards;
 	size_t threshWords;
 
@@ -202,8 +201,12 @@ class Poll{
 	
 	/// Display run status information.
 	void show_status();
+	
 	/// Display polling threshold.
 	void show_thresh();
+
+	/// Acquire raw traces from a pixie module.
+	void get_traces(int mod_, int chan_, int thresh_=0);
 
 	/// Method responsible for handling tab complete of commands and pread/pwrite parameters
 	std::vector<std::string> TabComplete(std::string cmd);
@@ -213,6 +216,9 @@ class Poll{
 	///Routine to read Pixie scalers.
 	void ReadScalers();
 
+	///Routine to update the status message.
+	void UpdateStatus();
+
 	/// Set IN_SYNCH and SYNCH_WAIT parameters on all modules.
 	bool synch_mods();
 
@@ -220,10 +226,10 @@ class Poll{
 	std::string get_filename();
 	
 	/// Close the current output file, if one is open.
-	bool close_output_file(bool continueRun = false);
+	bool CloseOutputFile(const bool continueRun = false);
 	
 	/// Opens a new file if no file is currently open.
-	bool open_output_file(bool continueRun = false);
+	bool OpenOutputFile(bool continueRun = false);
 	
 	/// Write a data spill to disk.
 	int write_data(word_t *data, unsigned int nWords);

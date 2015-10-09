@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <stdlib.h>
+#include <cmath>
 
 #include "Display.h"
 
@@ -60,9 +61,9 @@ const std::string BitFlipper::csr_txt[19] = {"Respond to group triggers only", "
 											 "Trigger positive", "GFLT", "", "", "", "", "", "", "", "HI/LO gain", "", "", "", ""};
 #else
 const std::string BitFlipper::toggle_names[19] = {"", "", "good", "", "", "polarity", "", "", "trace", "QDC", "CFD", 
-											      "global", "raw", "trigger", "gain", "pileup", "catcher", "", "SHE"};
+												  "global", "raw", "trigger", "gain", "pileup", "catcher", "", "SHE"};
 const std::string BitFlipper::csr_txt[19] = {"", "", "Good Channel", "", "", "Trigger positive", "", "", "Enable trace capture", "Enable QDC sums capture", 
-										     "Enable CFD trigger mode", "Enable global trigger validation", "Enable raw energy sums capture", 
+											 "Enable CFD trigger mode", "Enable global trigger validation", "Enable raw energy sums capture", 
 											 "Enable channel trigger validation", "HI/LO gain", "Pileup rejection control", "Hybrid bit", "", 
 											 "SHE single trace capture"};
 #endif
@@ -85,11 +86,11 @@ void BitFlipper::SetCSRAbit(std::string bit_){
 	SetBit(atoi(bit_.c_str()));
 	
 	for(unsigned int i = 0; i < num_toggle_bits; i++){
-    	if(bit_ == toggle_names[i]){
-    		SetBit(i);
-    		break;
-    	}
-    }
+		if(bit_ == toggle_names[i]){
+			SetBit(i);
+			break;
+		}
+	}
 }
 
 void BitFlipper::SetBit(std::string bit_){
@@ -126,8 +127,8 @@ bool BitFlipper::Test(unsigned int num_bits_, unsigned int input_, const std::st
 	}
 	
 	std::cout << " Input: 0x" << std::hex << input_ << " (" << std::dec << input_ << ")\n";
-	if(text_ != NULL){ std::cout << "  Bit   On?    Value       Total    Bit Function\n"; }
-	else{ std::cout << "  Bit   On?    Value       Total\n"; }
+	if(text_ != NULL){ std::cout << "  Bit   On?	Value	   Total	Bit Function\n"; }
+	else{ std::cout << "  Bit   On?	Value	   Total\n"; }
 
 	std::string bit_function;
 	for(unsigned int i = 0; i < num_bits_; i++){
@@ -137,26 +138,26 @@ bool BitFlipper::Test(unsigned int num_bits_, unsigned int input_, const std::st
 		if(active_bits[i]){ 
 			if(Display::hasColorTerm){
 				if(i < 10){ 
-					std::cout << TermColors::DkGreen << "   0" << i << "    1  " << PadStr(bit_values[i], 12);
+					std::cout << TermColors::DkGreen << "   0" << i << "	1  " << PadStr(bit_values[i], 12);
 					std::cout << PadStr(running_total[i], 12) << bit_function << TermColors::Reset << std::endl; 
 				}
 				else{ 
-					std::cout << TermColors::DkGreen << "   " << i << "    1  " << PadStr(bit_values[i], 12);
+					std::cout << TermColors::DkGreen << "   " << i << "	1  " << PadStr(bit_values[i], 12);
 					std::cout << PadStr(running_total[i], 12) << bit_function << TermColors::Reset << std::endl;
 				}
 			}
 			else{
-				if(i < 10){ std::cout << "   " << i << "    1  " << PadStr(bit_values[i], 12) << PadStr(running_total[i], 12) << bit_function << std::endl; }
-				else{ std::cout << "   " << i << "    1  " << PadStr(bit_values[i], 12) << PadStr(running_total[i], 12) << bit_function << std::endl; }
+				if(i < 10){ std::cout << "   " << i << "	1  " << PadStr(bit_values[i], 12) << PadStr(running_total[i], 12) << bit_function << std::endl; }
+				else{ std::cout << "   " << i << "	1  " << PadStr(bit_values[i], 12) << PadStr(running_total[i], 12) << bit_function << std::endl; }
 			}
 		}
 		else{ 
 			if(i < 10){ 
-				std::cout << "   0" << i << "    0  " << PadStr(bit_values[i], 12);
+				std::cout << "   0" << i << "	0  " << PadStr(bit_values[i], 12);
 				std::cout << PadStr(running_total[i], 12) << bit_function << std::endl; 
 			}
 			else{ 
-				std::cout << "   " << i << "    0  " << PadStr(bit_values[i], 12);
+				std::cout << "   " << i << "	0  " << PadStr(bit_values[i], 12);
 				std::cout << PadStr(running_total[i], 12) << bit_function << std::endl; 
 			}
 		}
@@ -167,6 +168,151 @@ bool BitFlipper::Test(unsigned int num_bits_, unsigned int input_, const std::st
 	delete[] running_total;
 	
 	return true;
+}
+
+double GetTraces::FitTau(const unsigned short* trace, size_t b0, size_t b1, size_t x0, size_t x1){	
+	double baseline = 0;
+	for (unsigned i = b0; i < b1; ++i)
+		baseline += trace[i];
+	baseline = baseline / double(b1 - b0);
+ 
+	//calculate logarithm 
+	std::vector<double> logtrace;
+	for (size_t i = x0; i < x1; ++i) {
+		double val = trace[i] - baseline;
+		if (val > 0)
+			logtrace.push_back( std::log(val) );
+		else
+			logtrace.push_back( -6.66E-6 ); //such an evil number!
+	}
+
+	// fit a line
+	double S = (x1 - x0);
+	double Sx = ( std::pow(x1,2) - x1 - std::pow(x0,2) + x0) / 2.0;
+	double Sxx = ( 2.0 * std::pow(x1,3) - 3.0 * std::pow(x1,2) + x1
+		   -2.0 * std::pow(x0,3) + 3.0 * std::pow(x0,2) - x0) / 6.0;
+	double Sy = 0;
+	double Sxy = 0;
+
+	unsigned sz = logtrace.size();
+	for (unsigned i = 0; i < sz; i++) {
+		Sy += logtrace[i];
+		Sxy += logtrace[i] * i;
+	}
+	double D = S * Sxx - pow(Sx,2);
+	double a1 = (S * Sxy - Sx * Sy) / D;
+	//double a0 = (Sxx * Sy - Sx * Sxy) / D;
+	
+	if ( a1 != 0.0)
+		return (-1.0 / a1);
+	else
+		return -6.66e6;
+}
+
+GetTraces::GetTraces(unsigned short* total_data_, size_t total_size_, unsigned short *trace_data_, size_t trace_size_, int threshold_/*=0*/, bool correct_baselines_/*=false*/){
+	total_data = total_data_;
+	total_len = total_size_;
+	trace_data = trace_data_;
+	trace_len = trace_size_;
+	threshold = threshold_;
+	correct_baselines = correct_baselines_;
+	
+	attempts = 0;
+	status = false;
+	
+	// Set initial values.
+	for (unsigned int i = 0; i < NUMBER_OF_CHANNELS; i++) {
+		baseline[i] = -1;
+		maximum[i] = -9999;
+	}
+}
+
+void GetTraces::Help(){
+}
+
+bool GetTraces::operator()(PixieFunctionParms<int> &par){
+	float temp_val;
+
+	// Reset parameters.
+	for (unsigned int i = 0; i < NUMBER_OF_CHANNELS; i++) {
+		baseline[i] = -1;
+		maximum[i] = -9999;
+	}
+	status = false;
+
+	size_t baselineSamples = trace_len / 10;
+	unsigned long sum;
+
+	// Get a single channel's trace.
+	// Try to find a pulse above the threshold.
+	for(attempts = 1; attempts <= 100; attempts++){
+		par.pif->AcquireTraces(par.mod); // Acquire new traces.
+		usleep(10);
+		
+		if (par.pif->ReadSglChanTrace(trace_data, trace_len, par.mod, par.ch)) {
+			// Reset the parameters for the trigger channel.
+			baseline[par.ch] = -1;
+			maximum[par.ch] = -9999;
+		
+			// Calculate the channel baseline.
+			sum = 0;
+
+			for (unsigned i = 0; i < baselineSamples; i++)
+				sum += trace_data[i];
+
+			baseline[par.ch] = float(sum)/float(baselineSamples);
+
+			// Correct the baseline
+			//for (unsigned i = 0; i < trace_len; ++i)
+				//data[i] = data[i] - baseline[par.ch];
+		
+			// Find the maximum value above baseline.
+			for (unsigned i = 0; i < trace_len; i++){
+				temp_val = trace_data[i] - baseline[par.ch];
+				if(temp_val > maximum[par.ch]){ maximum[par.ch] = temp_val; }
+				
+				if(!correct_baselines){ total_data[(par.ch * trace_len) + i] = trace_data[i]; }
+				else{ total_data[(par.ch * trace_len) + i] = temp_val; }
+			}
+			
+			// Check that this "trace" is above threshold.
+			if(maximum[par.ch] < threshold){ continue; }
+		
+			status = true;
+			break;
+		} 
+	}
+	
+	// Threshold was not reached. Copy the most recent pulse into
+	// the module traces array.
+	for (unsigned int i = 0; i < NUMBER_OF_CHANNELS; i++) {
+		if(i == par.ch){ continue; } // Already did this channel.
+		
+		if(par.pif->ReadSglChanTrace(trace_data, trace_len, par.mod, i)){
+			// Calculate the channel baseline.
+			sum = 0;
+
+			for (unsigned j = 0; j < baselineSamples; j++)
+				sum += trace_data[j];
+
+			baseline[i] = float(sum)/float(baselineSamples);
+
+			// Correct the baseline
+			//for (unsigned i = 0; i < trace_len; ++i)
+				//data[i] = data[i] - baseline[par.ch];
+		
+			// Find the maximum value above baseline.
+			for (unsigned j = 0; j < trace_len; j++){
+				temp_val = trace_data[j] - baseline[i];
+				if(temp_val > maximum[i]){ maximum[i] = temp_val; }
+				
+				if(!correct_baselines){ total_data[(i * trace_len) + j] = trace_data[j]; }
+				else{ total_data[(i * trace_len) + j] = temp_val; }
+			}
+		}
+	}
+	
+	return status;
 }
 
 bool ParameterChannelWriter::operator()(PixieFunctionParms< std::pair<std::string, double> > &par){
