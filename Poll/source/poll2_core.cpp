@@ -1465,9 +1465,10 @@ void Poll::RunControl(){
 				}
 				
 				if(!mca_args.CheckTime() || do_stop_acq){ // End the run.
-					mca_args.Close(pif);
+					pif->EndRun();
 					std::cout << sys_message_head << "Ending MCA run.\n";
 					std::cout << sys_message_head << "Ran for " << mca_args.GetMCA()->GetRunTime() << " s.\n";
+					mca_args.Close(pif);
 					do_stop_acq = false;
 					do_MCA_run = false;
 				}
