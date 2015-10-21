@@ -703,7 +703,7 @@ bool Poll::start_run() {
  * \return Returns true if successful.
  */
 bool Poll::stop_run() {
-	if(!acq_running){ 
+	if(!acq_running && !do_MCA_run){ 
 		std::cout << sys_message_head << "Acquisition is not running\n"; 
 		return false;
 	}
@@ -746,7 +746,7 @@ bool Poll::start_acq() {
  * \return Returns true if succesful.
  */
 bool Poll::stop_acq() {
-	if(!acq_running){ 
+	if(!acq_running && !do_MCA_run){ 
 		std::cout << sys_message_head << "Acquisition is not running\n"; 
 		return false;
 	}
