@@ -936,13 +936,21 @@ void Poll::CommandControl(){
 			cmd = "quit"; 
 		}
 		else if(cmd == "CTRL_C"){ 
-			std::cout << sys_message_head << "Warning! Received SIGINT (ctrl-c) signal.\n";
-			continue; 
+			std::cout << sys_message_head << "Received SIGINT (ctrl-c) signal.";
+			if (do_MCA_run) { 
+				std::cout << " Stopping MCA...\n";
+				cmd = "stop";
+			}
+			else {
+				std::cout << " Ignoring signal.\n";
+				continue;
+			}
 		}
 		else if(cmd == "CTRL_Z"){ 
 			std::cout << sys_message_head << "Warning! Received SIGTSTP (ctrl-z) signal.\n";
 			continue; 
 		}	
+
 		if (cmd.find("\t") != std::string::npos) {
 			poll_term_->TabComplete(TabComplete(cmd.substr(0,cmd.length()-1)));
 			continue;
