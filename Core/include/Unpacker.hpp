@@ -83,6 +83,9 @@ class Unpacker{
 	/// Return true if Unpacker was properly initialized.
 	bool IsInit(){ return init; }
 
+	/// Perform tasks when waiting for a spill.
+	virtual void IdleTask() {};
+
 	/// Toggle debug mode on / off.
 	bool SetDebugMode(bool state_=true){ return (debug_mode = state_); }
 

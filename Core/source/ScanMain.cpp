@@ -108,6 +108,7 @@ void start_run_control(Unpacker *core_){
 			if(!poll_server.Select(dummy)){
 				status << "\033[0;33m" << "[IDLE]" << "\033[0m" << " Waiting for a spill...";
 				term_->SetStatus(status.str());
+				core_->IdleTask();
 				continue; 
 			}
 		
