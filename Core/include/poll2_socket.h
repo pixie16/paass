@@ -39,8 +39,7 @@ class Server{
 
 	int Get(){ return sock; }
 
-	/** Initialize the serv object and open a specified port. Returns false if the 
-	  * socket fails to open or the socket fails to bind and returns true otherwise. */
+	///Initialize the serv object and open a specified port. Returns false if the socket fails to open or the socket fails to bind and returns true otherwise.
 	bool Init(int port_, int sec_=10, int usec_=0);
 
 	/** Receive a message from the socket. Returns the number of bytes received. Returns
