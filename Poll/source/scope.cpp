@@ -13,63 +13,71 @@
 #include "TCanvas.h"
 #include "TGraph.h"
 #include "TAxis.h"
-#include "TH2F.h"
 #include "TFile.h"
 
 #define ADC_TIME_STEP 4 // ns
 
-void Oscilloscope::UpdateGraph(int size_){
-	if(size_ != graph->GetN()){
-		std::cout << message_head << "Changing trace length from " << graph->GetN()*ADC_TIME_STEP << " to " << size_*ADC_TIME_STEP << " ns.\n";
 
-		x_vals.clear();
-		x_vals.assign(size_, 0);
+void Oscilloscope::ResetGraph(int size) {
+	if(size != x_vals.size()){
+		std::cout << message_head << "Changing trace length from " << x_vals.size()*ADC_TIME_STEP << " to " << size*ADC_TIME_STEP << " ns.\n";
+		x_vals.resize(size);
 		for(size_t index = 0; index < x_vals.size(); index++){
 			x_vals[index] = ADC_TIME_STEP * index;
 		}	
-
-		// Update the root TGraph
-		delete graph;
-		graph = new TGraph(size_);
+		while (graph->GetN() > size) graph->RemovePoint(graph->GetN());
 	}
 
 	std::stringstream stream;
 	stream << "mod = " << mod_ << ", chan = " << chan_;
-	his->SetTitle(stream.str().c_str());
-	
-	need_graph_update = false;
-}
+	graph->SetTitle(stream.str().c_str());
 
-void Oscilloscope::UpdateFrame(ChannelEvent *event_){
-	his->SetBins(1, 0, graph->GetN()*ADC_TIME_STEP, 1, 0.9*event_->baseline, 1.1*(event_->baseline+event_->maximum));
-	his->Draw();
-	old_maximum = event_->maximum;
+	resetGraph_ = false;
 }
 
 void Oscilloscope::Plot(ChannelEvent *event_){
+
+	///The limits of the vertical axis
+	static float axisMin, axisMax;
+
 	time_t cur_time;
 	time(&cur_time);
 	
 	// Draw the trace
 	if((int)difftime(cur_time, last_trace) >= delay_){
 		event_->CorrectBaseline();
-	
-		if(need_graph_update || event_->trace.size() != x_vals.size()){ // The length of the trace has changed.
-			UpdateGraph(event_->trace.size());
-		}
 		
+		if(event_->trace.size() != x_vals.size()){ // The length of the trace has changed.
+			resetGraph_ = true;
+		}
+		if (resetGraph_) {
+			ResetGraph(event_->trace.size());
+			axisMax = 0;
+			axisMin = 1E9;
+		}
+		else {
+			axisMin = graph->GetYaxis()->GetXmin();
+			axisMax = graph->GetYaxis()->GetXmax();
+		}
+
+		if(event_->trace.size() != x_vals.size()){ // The length of the trace has changed.
+			
+		}
+
 		int index = 0;
 		for(auto iterx = x_vals.begin(), itery = event_->trace.begin(); iterx != x_vals.end() && itery != event_->trace.end(); iterx++, itery++){
 			graph->SetPoint(index++, *iterx, *itery);
 		}
 		
-		if(event_->maximum > old_maximum){
-			UpdateFrame(event_);
-		}
-		
-		graph->Draw("PCSAME");
+		if (graph->GetYaxis()->GetXmax() > axisMax) axisMax = graph->GetYaxis()->GetXmax(); 
+		if (graph->GetYaxis()->GetXmin() < axisMin) axisMin = graph->GetYaxis()->GetXmin(); 
+		graph->GetYaxis()->SetLimits(axisMin, axisMax);
+		graph->GetYaxis()->SetRangeUser(axisMin, axisMax);
+
+		graph->Draw("APC");
 		canvas->Update();
-		
+
+
 		if (saveFile_ != "") {
 			TFile f(saveFile_.c_str(), "RECREATE");
 			graph->Clone("trace")->Write();
@@ -80,6 +88,7 @@ void Oscilloscope::Plot(ChannelEvent *event_){
 		time(&last_trace);
 		num_displayed++;
 	}
+	gSystem->ProcessEvents();
 
 	num_traces++;
 }
@@ -96,7 +105,6 @@ void Oscilloscope::ProcessRawEvent(){
 			// This is a signal we wish to plot.
 			Plot(current_event); 
 		}
-		
 		// Remove this event from the raw event deque
 		delete current_event;
 		rawEvent.pop_front();
@@ -112,8 +120,6 @@ Oscilloscope::Oscilloscope(int mod /*= 0*/, int chan/*=0*/) :
 {
 	time(&last_trace);
 	
-	old_maximum = -9999;
-
 	// Variables for root graphics
 	rootapp = new TApplication("scope", 0, NULL);
 	gSystem->Load("libTree");
@@ -122,22 +128,12 @@ Oscilloscope::Oscilloscope(int mod /*= 0*/, int chan/*=0*/) :
 	canvas->cd();
 	
 	graph = new TGraph();
-	
-	// Setup the default histogram frame.
-	his = new TH2F("his", "", 1, 0, 1, 1, 0, 1);
-	his->SetStats(false);
-	his->GetYaxis()->SetTitleOffset(1.4);
-	his->GetXaxis()->SetTitle("Time (ns)");
-	his->GetYaxis()->SetTitle("ADC Channel (a.u.)");
-	
-	need_graph_update = false;
 }
 
 Oscilloscope::~Oscilloscope(){
 	canvas->Close();
 	delete canvas;
 	delete graph;
-	delete his;
 }
 
 bool Oscilloscope::Initialize(std::string prefix_){
@@ -205,8 +201,7 @@ bool Oscilloscope::CommandControl(std::string cmd_, const std::vector<std::strin
 		if(args_.size() == 2){
 			mod_ = atoi(args_.at(0).c_str());
 			chan_ = atoi(args_.at(1).c_str());
-			need_graph_update = true;
-			old_maximum = -9999;
+			resetGraph_ = true;
 		}
 		else{
 			std::cout << message_head << "Invalid number of parameters to 'set'\n";
@@ -223,7 +218,7 @@ bool Oscilloscope::CommandControl(std::string cmd_, const std::vector<std::strin
 		}
 	}
 	else if(cmd_ == "delay"){
-		if(args_.size() >= 2){ delay_ = atoi(args_.at(0).c_str()); }
+		if(args_.size() == 1){ delay_ = atoi(args_.at(0).c_str()); }
 		else{
 			std::cout << message_head << "Invalid number of parameters to 'delay'\n";
 			std::cout << message_head << " -SYNTAX- delay [time]\n";
@@ -242,4 +237,8 @@ bool Oscilloscope::CommandControl(std::string cmd_, const std::vector<std::strin
 	else{ return false; }
 
 	return true;
+}
+
+void Oscilloscope::IdleTask() {
+	gSystem->ProcessEvents();
 }
