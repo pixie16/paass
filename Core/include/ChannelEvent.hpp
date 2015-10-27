@@ -7,7 +7,8 @@
 #include <vector>
 #include <stdlib.h>
 
-struct ChannelEvent{
+class ChannelEvent{
+  public:
 	double energy; /// Raw pixie energy.
 	double time; /// Raw pixie event time. Measured in filter clock ticks (8E-9 Hz for RevF).
 	
