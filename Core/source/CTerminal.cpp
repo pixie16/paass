@@ -995,7 +995,10 @@ void Terminal::Close(){
 		if(save_cmds){ save_commands_(); }
 		init = false;
 	}
-	logFile.close();
+	
+	if(logFile.good()){
+		logFile.close();
+	}
 	
 	unset_signal_handlers();
 }

@@ -32,7 +32,7 @@ class Oscilloscope : public Unpacker{
 	
 	std::string saveFile_; ///< The name of the file to save a trace.
 
-	TApplication* rootapp;
+	TApplication *rootapp; ///< Root application pointer.
 
 	TCanvas *canvas; ///< The main plotting canvas.
 	
