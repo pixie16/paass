@@ -63,6 +63,9 @@ ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
 	prefix = "";
 	extension = "";
 
+	maxShmSizeL = 4052;
+	maxShmSize  = maxShmSizeL * 4;
+
 	max_spill_size = 0;
 	file_format = -1;
 	

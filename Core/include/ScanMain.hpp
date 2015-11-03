@@ -11,8 +11,8 @@ class Unpacker;
 
 class ScanMain{
   private:
-	const unsigned int maxShmSizeL = 4052; /// Max size of shared memory buffer in pixie words (4050 + 2 header words)
-	const unsigned int maxShmSize  = maxShmSizeL * 4; /// Max size of shared memory buffer in bytes
+	unsigned int maxShmSizeL; /// Max size of shared memory buffer in pixie words (4050 + 2 header words)
+	unsigned int maxShmSize; /// Max size of shared memory buffer in bytes
 
 	std::string prefix; /// Input filename prefix (without extension).
 	std::string extension; /// Input file extension.
@@ -27,8 +27,8 @@ class ScanMain{
 	bool dry_run_mode; /// Set to true if a dry run is to be performed i.e. data is to be read but not processed.
 	bool shm_mode; /// Set to true if shared memory mode is to be used.
 
-	bool kill_all = false; /// Set to true when user has sent kill command.
-	bool run_ctrl_exit = false; /// Set to true when run control thread has exited.
+	bool kill_all; /// Set to true when user has sent kill command.
+	bool run_ctrl_exit; /// Set to true when run control thread has exited.
 
 	Server *poll_server; /// Poll2 shared memory server.
 
