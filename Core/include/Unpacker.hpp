@@ -68,7 +68,7 @@ class Unpacker{
 	Unpacker();
 	
 	/// Destructor.
-	~Unpacker();
+	virtual ~Unpacker();
 
 	/** Initialize the Unpacker object. Does nothing useful if not overloaded
 	 * by a derived class.

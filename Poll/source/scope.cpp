@@ -1,7 +1,7 @@
 #include <iostream>
 
 // PixieCore libraries
-#include "Unpacker.hpp"
+#include "ScanMain.hpp"
 #include "ChannelEvent.hpp"
 
 // Local files
@@ -128,12 +128,22 @@ Oscilloscope::Oscilloscope(int mod /*= 0*/, int chan/*=0*/) :
 	canvas->cd();
 	
 	graph = new TGraph();
+	
+	graph->Draw();
 }
 
 Oscilloscope::~Oscilloscope(){
+	std::cout << "~Oscilloscope\n";
+
+	// Cleanup the local variables.
 	canvas->Close();
+	
+	rootapp->Delete();
 	delete canvas;
 	delete graph;
+	
+	// Call Unpacker::Close() to finish cleanup.
+	Close();
 }
 
 bool Oscilloscope::Initialize(std::string prefix_){
@@ -241,4 +251,12 @@ bool Oscilloscope::CommandControl(std::string cmd_, const std::vector<std::strin
 
 void Oscilloscope::IdleTask() {
 	gSystem->ProcessEvents();
+}
+
+int main(int argc, char *argv[]){
+	ScanMain scan_main((Unpacker*)(new Oscilloscope()));
+	
+	scan_main.SetMessageHeader("Scope: ");
+
+	return scan_main.Execute(argc, argv);
 }
