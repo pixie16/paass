@@ -5,6 +5,13 @@
 #include <vector>
 #include <string>
 
+#ifndef MAX_PIXIE_MOD
+#define MAX_PIXIE_MOD 12
+#endif
+#ifndef MAX_PIXIE_CHAN
+#define MAX_PIXIE_CHAN 15
+#endif
+
 class ChannelEvent;
 
 class TFile;
@@ -16,6 +23,8 @@ class Unpacker{
 	static const unsigned int maxWords = 131072; /// Maximum number of data words for revision D.
 	
 	unsigned int event_width; /// The width of the raw event in pixie clock ticks (8 ns).
+	
+	unsigned int channel_counts[MAX_PIXIE_MOD+1][MAX_PIXIE_CHAN+1]; /// Counters for each channel in each module.
 	
 	bool debug_mode; /// True if debug mode is set.
 	bool init; /// True if the class has been properly initialized.
