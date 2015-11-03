@@ -9,9 +9,6 @@
 #include "Unpacker.hpp"
 #include "ChannelEvent.hpp"
 
-#define MAX_PIXIE_MOD 12
-#define MAX_PIXIE_CHAN 15
-
 void Unpacker::ClearRawEvent(){
 	while(!rawEvent.empty()){
 		delete rawEvent.front();
@@ -129,7 +126,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 			unsigned int crateNum     = (buf[0] & 0x00000F00) >> 8;
 			unsigned int headerLength = (buf[0] & 0x0001F000) >> 12;
 			unsigned int eventLength  = (buf[0] & 0x1FFE0000) >> 17;
-			
+
 			currentEvt->virtualChannel = ((buf[0] & 0x20000000) != 0);
 			currentEvt->saturatedBit   = ((buf[0] & 0x40000000) != 0);
 			currentEvt->pileupBit      = ((buf[0] & 0x80000000) != 0);
@@ -195,6 +192,8 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 				}
 			}*/
 
+			channel_counts[modNum][chanNum]++;
+
 			currentEvt->energy = energy;
 			if(currentEvt->saturatedBit){ currentEvt->energy = 16383; }
 					
@@ -230,7 +229,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 			}
  
 			eventList.push_back(currentEvt);
-
+			
 			numEvents++;
 		}
 	} 
@@ -250,6 +249,12 @@ Unpacker::Unpacker(){
 	root_tree = NULL;
 	
 	message_head = "";
+	
+	for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
+		for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
+			channel_counts[i][j] = 0;
+		}
+	}
 }
 
 Unpacker::~Unpacker(){
@@ -435,5 +440,15 @@ void Unpacker::Close(){
 	if(init){
 		ClearRawEvent();
 		ClearEventList();
+		
+		std::ofstream count_output("counts.dat");
+		if(count_output.good()){
+			for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
+				for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
+					count_output << i << "\t" << j << "\t" << channel_counts[i][j] << std::endl;
+				}
+			}
+			count_output.close();
+		}
 	}
 }
