@@ -244,6 +244,10 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 Unpacker::Unpacker(){
 	debug_mode = false;
 	init = false;
+
+	TOTALREAD = 1000000; // Maximum number of data words to read.
+	maxWords = 131072; // Maximum number of data words for revision D.	
+	event_width = 62; // ~ 500 ns in 8 ns pixie clock ticks.
 	
 	root_file = NULL;
 	root_tree = NULL;
