@@ -3,6 +3,7 @@
 
 #include <ctime>
 #include <vector>
+#include <cmath>
 
 #include "Unpacker.hpp"
 
@@ -10,11 +11,21 @@ class ChannelEvent;
 class TApplication;
 class TCanvas;
 class TGraph;
+class TH2F;
+class TF1;
+class TProfile;
 
 class Oscilloscope : public Unpacker{
-  private:
-	int mod_; ///< The module of the signal of interest.
-	int chan_; ///< The channel of the signal of interest.
+	private:
+		int mod_; ///< The module of the signal of interest.
+		int chan_; ///< The channel of the signal of interest.
+		bool acqRun_;
+	bool singleCapture_;
+	unsigned int numAvgWaveforms_;
+	int threshLow_;
+	int threshHigh_;
+	int fitLow_;
+	int fitHigh_;
 	
 	bool need_graph_update; /// Set to true if the graph range needs updated.
 	
@@ -37,11 +48,16 @@ class Oscilloscope : public Unpacker{
 	TCanvas *canvas; ///< The main plotting canvas.
 	
 	TGraph *graph; ///< The TGraph for plotting traces.
+	TH2F *hist; ///<The histogram containing the waveform frequencies.
+	TProfile *prof; ///<The profile of the average histogram.
 
-	void ResetGraph(int size_);
+	TF1 *paulauskasFunc; ///< A TF1 of the Paulauskas Function (NIM A 737 (2014) 22)
+	TF1 *paulauskasFuncText; ///< A TF1 of the Paulauskas Function (NIM A 737 (2014) 22)
+
+	void ResetGraph(unsigned int size_);
 	
 	/// Plot the current event.
-	void Plot(ChannelEvent *event_);
+	void Plot(std::vector<ChannelEvent*> events);
   
 	/// Process all events in the event list.
 	void ProcessRawEvent();
@@ -93,5 +109,6 @@ class Oscilloscope : public Unpacker{
 
 /// Return a pointer to a new Oscilloscope object.
 Unpacker *GetCore(){ return (Unpacker*)(new Oscilloscope()); }
+
 
 #endif
