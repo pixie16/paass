@@ -19,8 +19,8 @@ class TTree;
 
 class Unpacker{
   protected:
-	static const unsigned int TOTALREAD = 1000000; /// Maximum number of data words to read.
-	static const unsigned int maxWords = 131072; /// Maximum number of data words for revision D.
+	unsigned int TOTALREAD; /// Maximum number of data words to read.
+	unsigned int maxWords; /// Maximum number of data words for revision D.
 	
 	unsigned int event_width; /// The width of the raw event in pixie clock ticks (8 ns).
 	
