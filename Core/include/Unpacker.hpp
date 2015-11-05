@@ -26,7 +26,9 @@ class Unpacker{
 	
 	unsigned int channel_counts[MAX_PIXIE_MOD+1][MAX_PIXIE_CHAN+1]; /// Counters for each channel in each module.
 	
+	bool kill_all; /// Set to true if kill all signal received from ScanMain.
 	bool debug_mode; /// True if debug mode is set.
+	bool shm_mode; /// Set to true if shared memory mode is to be used.
 	bool init; /// True if the class has been properly initialized.
 
 	std::deque<ChannelEvent*> eventList; /// The list of all events in the spill.
@@ -97,6 +99,12 @@ class Unpacker{
 
 	/// Toggle debug mode on / off.
 	bool SetDebugMode(bool state_=true){ return (debug_mode = state_); }
+	
+	/// Toggle shared memory mode on/off.
+	bool SetSharedMemMode(bool state_=true){ return (shm_mode = state_); }
+	
+	/// Set the kill flag to true. This should be used to exit gracefully.
+	void KillAll(){ kill_all = true; }
 
 	/// Set the width of events in pixie16 clock ticks.
 	unsigned int SetEventWidth(unsigned int width_){ return (event_width = width_); }
