@@ -87,8 +87,6 @@ if (NOT ${CORE_ONLY})
 	find_package(PXI REQUIRED)
 	include_directories(${PXI_INCLUDE_DIR})
 	link_directories(${PXI_LIBRARY_DIR})
-	#The following configuration file path is hardcoded into the PXI software :-(
-	install(FILES ${PXI_ROOT_DIR}/test/pxisys.ini DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 	#Create pixie.cfg and copy slot_def.set as well as default.set to current.set
 	PXI_CONFIG()

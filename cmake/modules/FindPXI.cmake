@@ -40,18 +40,19 @@ function(PXI_CONFIG)
 	)
 
 	#Following are lists of keys and the glob expr to find the files
-	set(CONFIG_NAME SpFpgaFile ComFpgaFile DspConfFile DspVarFile SlotFile DspSetFile)
+	set(CONFIG_NAME SpFpgaFile ComFpgaFile DspConfFile DspVarFile CrateConfig SlotFile DspSetFile)
 	set(CONFIG_EXPR 
 		firmware/fippixie16*.bin #SpFpgaFile
 		firmware/syspixie16*.bin #ComFpgaFile
 		dsp/Pixie16DSP*.ldr #DspConfFile
 		dsp/Pixie16DSP*.var #DspVarFile
+		test/pxisys.ini #CrateConfig
 		configuration/slot_def.set #SlotFile
 		configuration/default.set #DspSetFile
 	)
 
 	#We loop over each item in the list and search for a matching file
-	foreach(CONFIG_STEP RANGE 0 5)
+	foreach(CONFIG_STEP RANGE 0 6)
 		#Get key name and expression form the list
 		list(GET CONFIG_NAME ${CONFIG_STEP} KEY)
 		list(GET CONFIG_EXPR ${CONFIG_STEP} GLOB_EXPR)

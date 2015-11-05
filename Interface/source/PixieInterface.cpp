@@ -16,6 +16,10 @@
 using namespace std;
 using namespace Display;
 
+//A variable defined by the pxi library containing the path to the crate configuration.
+extern const char* PCISysIniFile;
+
+
 set<string> PixieInterface::validConfigKeys;
 
 // some simple histogram functions
@@ -114,11 +118,14 @@ PixieInterface::PixieInterface(const char *fn) : hasAlternativeConfig(false), lo
     validConfigKeys.insert("SlotFile");
     validConfigKeys.insert("SpFpgaFile");
     validConfigKeys.insert("TrigFpgaFile");
+	 validConfigKeys.insert("CrateConfig");
   }
   if (!ReadConfigurationFile(fn)) {
     cout << ErrorStr("Error reading configuration file") << endl;
     exit(EXIT_FAILURE);
   }
+	//Overwrite the default path 'pxisys.ini' with the one specified in the config file.
+   PCISysIniFile = configStrings["CrateConfig"].c_str();
 
 }
 
