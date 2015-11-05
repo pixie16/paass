@@ -44,6 +44,12 @@ void Unpacker::ScanList(){
 
 	// Loop over the list of channels that fired in this buffer
 	while(!eventList.empty()){
+		if(kill_all){ // Hard abort.
+			ClearRawEvent();
+			ClearEventList();
+			return;
+		}
+	
 		current_event = eventList.front();
 		
 		mod = current_event->modNum;
@@ -117,6 +123,12 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 			return 0;
 		}
 		while( buf < bufStart + bufLen ){
+			if(kill_all){ // Hard abort.
+				ClearRawEvent();
+				ClearEventList();
+				return numEvents;
+			}
+		
 			ChannelEvent *currentEvt = new ChannelEvent();
 
 			// decoding event data... see pixie16app.c
@@ -242,7 +254,9 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 }
 
 Unpacker::Unpacker(){
+	kill_all = false;
 	debug_mode = false;
+	shm_mode = false;
 	init = false;
 
 	TOTALREAD = 1000000; // Maximum number of data words to read.
@@ -279,8 +293,6 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 	//static clock_t clockBegin; // Initialization time
 	//time_t tmsBegin;
 
-	std::vector<ChannelEvent*> eventList; // Vector to hold the events
-
 	int retval = 0; // return value from various functions
 	
 	unsigned long bufLen;
@@ -303,6 +315,12 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 	// While the current location in the buffer has not gone beyond the end
 	// of the buffer (ignoring the last three delimiters, continue reading
 	while (nWords_read <= nWords){
+		if(kill_all){ // Hard abort.
+			ClearRawEvent();
+			ClearEventList();
+			return true;
+		}
+	
 		// Retrieve the record length and the vsn number
 		lenRec = data[nWords_read]; // Number of words in this record
 		vsn = data[nWords_read+1]; // Module number

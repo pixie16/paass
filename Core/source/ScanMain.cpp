@@ -210,6 +210,10 @@ void ScanMain::RunControl(){
 		if(!dry_run_mode){ data = new unsigned int[250000]; }
 		
 		while(databuff.Read(&input_file, (char*)data, nBytes, 1000000, full_spill, bad_spill, dry_run_mode)){ 
+			if(kill_all == true){ 
+				break;
+			}
+		
 			if(full_spill){ 
 				if(debug_mode){ 
 					std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
@@ -245,6 +249,10 @@ void ScanMain::RunControl(){
 		if(!dry_run_mode){ data = new unsigned int[max_spill_size+2]; }
 		
 		while(pldData.Read(&input_file, (char*)data, nBytes, 4*max_spill_size, dry_run_mode)){ 
+			if(kill_all == true){ 
+				break;
+			}
+		
 			if(debug_mode){ 
 				std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
 				std::cout << "debug: Read up to word number " << input_file.tellg()/4 << " in input file\n";
@@ -313,6 +321,7 @@ void ScanMain::CmdControl(){
 		
 		if(cmd == "quit" || cmd == "exit"){
 			kill_all = true;
+			core->KillAll();
 			while(!run_ctrl_exit){ sleep(1); }
 			break;
 		}
@@ -435,6 +444,7 @@ int ScanMain::Execute(int argc, char *argv[]){
 		else if(current_arg == "--shm"){ 
 			file_format = 0;
 			shm_mode = true;
+			core->SetSharedMemMode(true);
 			std::cout << " Using shm mode!\n";
 		}
 		else if(current_arg == "--ldf"){ 
@@ -506,18 +516,18 @@ int ScanMain::Execute(int argc, char *argv[]){
 			std::cout << " ERROR: Failed to open shm socket 5555!\n";
 			return 1;
 		}
-
-		std::string temp_name = std::string(PROG_NAME);
-		
-		// Only initialize the terminal if this is shared-memory mode
-		term = new Terminal();
-		term->Initialize(("."+temp_name+".cmd").c_str());
-		term->SetPrompt((temp_name+" $ ").c_str());
-		term->AddStatusWindow();
-
-		std::cout << "\n " << PROG_NAME << " v" << SCAN_VERSION << "\n"; 
-		std::cout << " ==  ==  ==  ==  == \n\n"; 
 	}
+
+	// Initialize the terminal.
+	std::string temp_name = std::string(PROG_NAME);
+	
+	term = new Terminal();
+	term->Initialize(("."+temp_name+".cmd").c_str());
+	term->SetPrompt((temp_name+" $ ").c_str());
+	term->AddStatusWindow();
+
+	std::cout << "\n " << PROG_NAME << " v" << SCAN_VERSION << "\n"; 
+	std::cout << " ==  ==  ==  ==  == \n\n"; 
 
 	if(debug_mode){ std::cout << sys_message_head << "Using debug mode.\n"; }
 	if(dry_run_mode){ std::cout << sys_message_head << "Doing a dry run.\n"; }
@@ -572,30 +582,30 @@ int ScanMain::Execute(int argc, char *argv[]){
 			input_file.seekg(file_start_offset*4);
 			std::cout << " Input file is now at " << input_file.tellg() << " bytes\n";
 		}
-
-		start_run_control(this);
 	}
-	else{ 
-		// Start the run control thread
-		std::cout << "\nStarting data control thread\n";
-		std::thread runctrl(start_run_control, this);
 	
-		// Start the command control thread. This needs to be the last thing we do to
-		// initialize, so the user cannot enter commands before setup is complete
-		std::cout << "Starting command thread\n\n";
-		std::thread comctrl(start_cmd_control, this);
+	// Start the run control thread
+	std::cout << "\nStarting data control thread\n";
+	std::thread runctrl(start_run_control, this);
 
-		// Synchronize the threads and wait for completion
-		comctrl.join();
-		runctrl.join();
+	// Start the command control thread. This needs to be the last thing we do to
+	// initialize, so the user cannot enter commands before setup is complete
+	std::cout << "Starting command thread\n\n";
+	std::thread comctrl(start_cmd_control, this);
+
+	// Synchronize the threads and wait for completion
+	comctrl.join();
+	runctrl.join();
+
+	// Close the socket and restore the terminal
+	term->Close();
 	
-		// Close the socket and restore the terminal
-		term->Close();
-		poll_server->Close();
-		
-		//Reprint the leader as the carriage was returned
-		std::cout << "Running " << PROG_NAME << " v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
-	}
+	// Only close the server if this is shared memory mode. Otherwise
+	// the server would never have been initialized.
+	if(shm_mode){ poll_server->Close(); }
+	
+	//Reprint the leader as the carriage was returned
+	std::cout << "Running " << PROG_NAME << " v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
 	
 	std::cout << sys_message_head << "Retrieved " << num_spills_recvd << " spills!\n";
 

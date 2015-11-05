@@ -23,6 +23,7 @@
 #include "TPaveStats.h"
 
 #define ADC_TIME_STEP 4 // ns
+#define SLEEP_WAIT 1E4 // When not in shared memory mode, length of time to wait between calls to gSystem->ProcessEvents (in us).
 
 double PaulauskasFitFunc(double *x, double *p) {
 	float diff = (x[0] - p[1])/ADC_TIME_STEP;
@@ -207,9 +208,11 @@ void Oscilloscope::ProcessRawEvent(){
 	static std::vector<ChannelEvent*> events;
 	//static int numWaveforms = 0;
 	//static std::vector<std::pair<int, float>> waveform;
-
+	
 	// Fill the processor event deques with events
 	while(!rawEvent.empty()){
+		if(kill_all){ break; }
+	
 		current_event = rawEvent.front();
 		rawEvent.pop_front();
 
@@ -233,12 +236,37 @@ void Oscilloscope::ProcessRawEvent(){
 			if (events.size() >= numAvgWaveforms_) {
 				time_t cur_time;
 				time(&cur_time);
-				if((int)difftime(cur_time, last_trace) >= delay_){
+				if(!shm_mode){
+					// Sleep while the "acq" is not running.
+					while(!acqRun_){
+						if(kill_all){ break; }
+						usleep(SLEEP_WAIT);
+						gSystem->ProcessEvents();
+					}
+				
+					// If not in shared memory mode, sleep to avoid scanning 
+					// all the data during the delay period.
+					Plot(events); 
+					
+					//If this is a single capture we stop the plotting.
+					if (singleCapture_) acqRun_ = false;
+					
+					// Sleep for the required length of time.
+					int total_us_slept = 0;
+					while(total_us_slept < delay_*1E6){
+						if(kill_all){ break; }
+						usleep(SLEEP_WAIT);
+						total_us_slept += SLEEP_WAIT;
+						gSystem->ProcessEvents();
+					} 				
+				}
+				else if((int)difftime(cur_time, last_trace) >= delay_){
 					if (acqRun_) {
 						Plot(events); 
 						//If this is a single capture we stop the plotting.
 						if (singleCapture_) acqRun_ = false;
 					}
+					
 					time(&last_trace);
 				}
 				while (!events.empty()) {
@@ -248,6 +276,12 @@ void Oscilloscope::ProcessRawEvent(){
 			}
 		}
 		gSystem->ProcessEvents();
+	}
+	
+	// Check to make sure we have no events in the event vector.
+	while (kill_all && !events.empty()) {
+		delete events.back();
+		events.pop_back();
 	}
 }
 
@@ -274,14 +308,15 @@ void Oscilloscope::ArgHelp(std::string prefix_){
  */
 void Oscilloscope::CmdHelp(std::string prefix_){
 	std::cout << prefix_ << "set <module> <channel> - Set the module and channel of signal of interest (default = 0, 0).\n";
-	std::cout << prefix_ << "delay [time]           - Set the delay between drawing traces (in seconds, default = 1 s).\n";
-	std::cout << prefix_ << "run                    - Run the acquistion.\n";
 	std::cout << prefix_ << "stop                   - Stop the acquistion.\n";
+	std::cout << prefix_ << "run                    - Run the acquistion.\n";
 	std::cout << prefix_ << "single                 - Perform a single capture.\n";
-	std::cout << prefix_ << "avg <numWaveforms>     - Set the number of waveforms to average.\n";
+	std::cout << prefix_ << "thresh <low> [high]    - Set the plotting window for trace maximum.\n";
 	std::cout << prefix_ << "fit <low> <high>       - Turn on fitting of waveform.\n";
-	std::cout << prefix_ << "log                    - Toggle log/linear mode on the y-axis.\n";
+	std::cout << prefix_ << "avg <numWaveforms>     - Set the number of waveforms to average.\n";
 	std::cout << prefix_ << "save <fileName>        - Save the next trace to the specified file name..\n";
+	std::cout << prefix_ << "delay [time]           - Set the delay between drawing traces (in seconds, default = 1 s).\n";
+	std::cout << prefix_ << "log                    - Toggle log/linear mode on the y-axis.\n";
 }
 
 /**
