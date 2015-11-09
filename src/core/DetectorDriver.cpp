@@ -101,7 +101,6 @@ DetectorDriver::~DetectorDriver() {
         delete *it;
     }
     vecAnalyzer.clear();
-    delete instance;
     instance = NULL;
 }
 
