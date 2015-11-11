@@ -48,6 +48,8 @@ class ChannelEvent{
 	/// Default constructor.
 	ChannelEvent();
 	
+	~ChannelEvent();
+	
 	/// Get the event ID number (mod * chan).
 	int GetID(){ return modNum*chanNum; }
 	
