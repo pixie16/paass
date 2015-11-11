@@ -133,10 +133,8 @@ void ScanMain::RunControl(){
 			nTotalWords = 0;
 			full_spill = true;
 
-			std::stringstream status;
 			if(!poll_server->Select(dummy)){
-				status << "\033[0;33m" << "[IDLE]" << "\033[0m" << " Waiting for a spill...";
-				term->SetStatus(status.str());
+				term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for a spill...");
 				core->IdleTask();
 				continue; 
 			}
@@ -184,6 +182,7 @@ void ScanMain::RunControl(){
 				}
 			}
 
+			std::stringstream status;
 			status << "\033[0;32m" << "[RECV] " << "\033[0m" << nTotalWords << " words";
 			term->SetStatus(status.str());
 		
@@ -213,6 +212,10 @@ void ScanMain::RunControl(){
 			if(kill_all == true){ 
 				break;
 			}
+
+			std::stringstream status;			
+			status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
+			term->SetStatus(status.str());
 		
 			if(full_spill){ 
 				if(debug_mode){ 
@@ -241,6 +244,8 @@ void ScanMain::RunControl(){
 		}
 		
 		if(!dry_run_mode){ delete[] data; }
+		
+		term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file.");
 	}
 	else if(file_format == 1){
 		unsigned int *data = NULL;
@@ -252,6 +257,10 @@ void ScanMain::RunControl(){
 			if(kill_all == true){ 
 				break;
 			}
+
+			std::stringstream status;
+			status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
+			term->SetStatus(status.str());
 		
 			if(debug_mode){ 
 				std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
@@ -275,6 +284,8 @@ void ScanMain::RunControl(){
 		}
 		
 		if(!dry_run_mode){ delete[] data; }
+		
+		term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file.");
 	}
 	else if(file_format == 2){
 	}
@@ -509,6 +520,9 @@ int ScanMain::Execute(int argc, char *argv[]){
 			input_file.close();
 			return 1;
 		}
+		input_file.seekg(0, input_file.end);
+	 	file_length = input_file.tellg();
+	 	input_file.seekg(0, input_file.beg);
 	}
 	else{
 		poll_server = new Server();
