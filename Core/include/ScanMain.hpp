@@ -33,6 +33,7 @@ class ScanMain{
 	Server *poll_server; /// Poll2 shared memory server.
 
 	std::ifstream input_file; /// Main input binary data file.
+	std::streampos file_length; /// Main input file length (in bytes).
 
 	PLD_header pldHead; /// PLD style HEAD buffer handler.
 	PLD_data pldData; /// PLD style DATA buffer handler.
