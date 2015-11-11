@@ -102,6 +102,12 @@ class Unpacker{
 	
 	/// Toggle shared memory mode on/off.
 	bool SetSharedMemMode(bool state_=true){ return (shm_mode = state_); }
+
+	/// Scan has stopped data acquisition.
+	virtual void StopAcquisition(){  }
+	
+	/// Scan has started data acquisition.
+	virtual void StartAcquisition(){  }
 	
 	/// Set the kill flag to true. This should be used to exit gracefully.
 	void KillAll(){ kill_all = true; }

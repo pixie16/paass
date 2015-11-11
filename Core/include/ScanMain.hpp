@@ -22,6 +22,7 @@ class ScanMain{
 	
 	unsigned long num_spills_recvd; /// The total number of good spills received from either the input file or shared memory.
 
+	bool is_running; /// Set to true if the acqusition is running.
 	bool is_verbose; /// Set to true if the user wishes verbose information to be displayed.
 	bool debug_mode; /// Set to true if the user wishes to display debug information.
 	bool dry_run_mode; /// Set to true if a dry run is to be performed i.e. data is to be read but not processed.
@@ -76,7 +77,7 @@ class ScanMain{
 	bool SetDryRunMode(bool state_=true){ return (dry_run_mode = state_); }
 	
 	bool SetShmMode(bool state_=true){ return (shm_mode = state_); }
-
+	
 	void RunControl();
 	
 	void CmdControl();

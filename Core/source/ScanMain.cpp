@@ -71,6 +71,7 @@ ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
 	
 	num_spills_recvd = 0;
 	
+	is_running = true;
 	is_verbose = true;
 	debug_mode = false;
 	dry_run_mode = false;
@@ -124,6 +125,10 @@ void ScanMain::RunControl(){
 		while(true){
 			if(kill_all == true){ 
 				break;
+			}
+			else if(!is_running){
+				sleep(1);
+				continue;
 			}
 
 			int select_dummy;
@@ -212,6 +217,10 @@ void ScanMain::RunControl(){
 			if(kill_all == true){ 
 				break;
 			}
+			else if(!is_running){
+				sleep(1);
+				continue;
+			}
 
 			std::stringstream status;			
 			status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
@@ -256,6 +265,10 @@ void ScanMain::RunControl(){
 		while(pldData.Read(&input_file, (char*)data, nBytes, 4*max_spill_size, dry_run_mode)){ 
 			if(kill_all == true){ 
 				break;
+			}
+			else if(!is_running){
+				sleep(1);
+				continue;
 			}
 
 			std::stringstream status;
@@ -349,7 +362,18 @@ void ScanMain::CmdControl(){
 			std::cout << "   quit        - Close the program\n";
 			std::cout << "   help (h)    - Display this dialogue\n";
 			std::cout << "   version (v) - Display Poll2 version information\n";
+			std::cout << "   run         - Start acquisition\n";
+			std::cout << "   stop        - Stop acquisition\n";
 			core->CmdHelp("   ");
+		}
+		else if(cmd == "run"){ // Start acquisition.
+			is_running = true;
+			core->StartAcquisition();
+		}
+		else if(cmd == "stop"){ // Stop acquisition.
+			is_running = false;
+			core->StopAcquisition();
+			term->SetStatus("\033[0;33m[IDLE]\033[0m Stopped.");
 		}
 		else if(cmd == "debug"){ // Toggle debug mode
 			if(debug_mode){
