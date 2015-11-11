@@ -369,11 +369,12 @@ void ScanMain::CmdControl(){
 		else if(cmd == "run"){ // Start acquisition.
 			is_running = true;
 			core->StartAcquisition();
+			term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for Unpacker...");
 		}
 		else if(cmd == "stop"){ // Stop acquisition.
 			is_running = false;
 			core->StopAcquisition();
-			term->SetStatus("\033[0;33m[IDLE]\033[0m Stopped.");
+			term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped.");
 		}
 		else if(cmd == "debug"){ // Toggle debug mode
 			if(debug_mode){

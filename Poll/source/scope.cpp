@@ -432,12 +432,12 @@ bool Oscilloscope::CommandControl(std::string cmd_, const std::vector<std::strin
 }
 
 /// Scan has stopped data acquisition.
-void StopAcquisition(){
+void Oscilloscope::StopAcquisition(){
 	acqRun_ = false;
 }
 
 /// Scan has started data acquisition.
-void StartAcquisition(){
+void Oscilloscope::StartAcquisition(){
 	acqRun_ = true;	
 	singleCapture_ = false;
 }
