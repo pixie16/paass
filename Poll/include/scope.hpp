@@ -103,6 +103,12 @@ class Oscilloscope : public Unpacker{
 	  */
 	bool CommandControl(std::string cmd_, const std::vector<std::string> &args_);
 
+	/// Scan has stopped data acquisition.
+	void StopAcquisition();
+	
+	/// Scan has started data acquisition.
+	void StartAcquisition();
+
 	/// Perform tasks when waiting for a spill.
 	virtual void IdleTask();
 };
