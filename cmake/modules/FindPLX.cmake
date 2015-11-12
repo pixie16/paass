@@ -9,9 +9,9 @@
 
 find_path(PLX_LIBRARY_DIR
 	NAMES libPlxApi.a
-	HINTS $ENV{PLX_SDK_DIR}/PlxApi/Library
-	PATHS /opt/plx/current/PlxApi/Library
-	      /opt/plx/current/Linux/PlxApi/Library)
+	HINTS $ENV{PLX_SDK_DIR}
+	PATHS /opt/plx/current/PlxSdk
+	PATH_SUFFIXES PlxApi/Library Linux/PlxApi/Library)
 
 # Support the REQUIRED and QUIET arguments, and set PLX_FOUND if found.
 include (FindPackageHandleStandardArgs)
