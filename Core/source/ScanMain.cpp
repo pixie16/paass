@@ -522,7 +522,8 @@ int ScanMain::Execute(int argc, char *argv[]){
 	std::string temp_name = std::string(PROG_NAME);
 	
 	term = new Terminal();
-	term->Initialize(("."+temp_name+".cmd").c_str());
+	term->Initialize();
+	term->SetCommandHistory(("."+temp_name+".cmd").c_str());
 	term->SetPrompt((temp_name+" $ ").c_str());
 	term->AddStatusWindow();
 
