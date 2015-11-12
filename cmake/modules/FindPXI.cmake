@@ -76,10 +76,10 @@ function(PXI_CONFIG)
 			endif()
 		elseif (${KEY} MATCHES "DspSetFile")
 			if (NUM_MATCHES EQUAL 1)
-				configure_file(${PXI_ROOT_DIR}/${FILE_MATCHES} ${CMAKE_CURRENT_BINARY_DIR}/current.set COPYONLY)
+				configure_file(${PXI_ROOT_DIR}/${FILE_MATCHES} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake 
-					"file(INSTALL current.set DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n")
-				set(FILE_MATCHES ./current.set)
+					"file(INSTALL default.set DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n")
+				set(FILE_MATCHES ./default.set)
 			endif()
 		endif ()
 		#Append the config file
@@ -87,6 +87,6 @@ function(PXI_CONFIG)
 	endforeach()
 
 	#Added the working set file name
-	file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "DspWorkingSetFile\t./current.set")
+	file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "DspWorkingSetFile\t./default.set")
 
 endfunction()
