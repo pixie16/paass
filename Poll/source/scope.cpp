@@ -363,13 +363,6 @@ bool Oscilloscope::CommandControl(std::string cmd_, const std::vector<std::strin
 			std::cout << message_head << " -SYNTAX- set [module] [channel]\n";
 		}
 	}
-	else if(cmd_ == "stop") {
-		acqRun_ = false;	
-	}
-	else if(cmd_ == "run") {
-		acqRun_ = true;	
-		singleCapture_ = false;
-	}
 	else if(cmd_ == "single") {
 		acqRun_ = true;
 		singleCapture_ = true;
@@ -436,6 +429,17 @@ bool Oscilloscope::CommandControl(std::string cmd_, const std::vector<std::strin
 	else{ return false; }
 
 	return true;
+}
+
+/// Scan has stopped data acquisition.
+void Oscilloscope::StopAcquisition(){
+	acqRun_ = false;
+}
+
+/// Scan has started data acquisition.
+void Oscilloscope::StartAcquisition(){
+	acqRun_ = true;	
+	singleCapture_ = false;
 }
 
 void Oscilloscope::IdleTask() {

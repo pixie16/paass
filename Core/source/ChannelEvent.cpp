@@ -8,6 +8,11 @@ ChannelEvent::ChannelEvent(){
 	Clear();
 }
 
+ChannelEvent::~ChannelEvent(){
+	if(xvals){ delete[] xvals; }
+	if(yvals){ delete[] yvals; }
+}
+
 void ChannelEvent::reserve(const size_t &size_){
 	if(size != 0){ return; }
 	size = size_;
