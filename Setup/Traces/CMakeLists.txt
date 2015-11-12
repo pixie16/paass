@@ -1,3 +1,4 @@
-
+#install the traces scripts to share.
 install(DIRECTORY share/traces DESTINATION share)
-install(FILES source/tra DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+install(PROGRAMS source/viewBaseline.sh DESTINATION bin RENAME viewBaseline)

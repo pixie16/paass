@@ -36,7 +36,7 @@ function(PXI_CONFIG)
 	#create an installer that can be invoked by
 	#add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)	
 	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake 
-		"file(INSTALL pixie.cfg DESTINATION ${CMAKE_INSTALL_PREFIX})\n" 
+		"file(INSTALL pixie.cfg DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n" 
 	)
 
 	#Following are lists of keys and the glob expr to find the files
@@ -71,14 +71,14 @@ function(PXI_CONFIG)
 			if (NUM_MATCHES EQUAL 1)
 				configure_file(${PXI_ROOT_DIR}/${FILE_MATCHES} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake 
-					"file(INSTALL slot_def.set DESTINATION ${CMAKE_INSTALL_PREFIX})\n")
+					"file(INSTALL slot_def.set DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n")
 				set(FILE_MATCHES "./slot_def.set")
 			endif()
 		elseif (${KEY} MATCHES "DspSetFile")
 			if (NUM_MATCHES EQUAL 1)
 				configure_file(${PXI_ROOT_DIR}/${FILE_MATCHES} ${CMAKE_CURRENT_BINARY_DIR}/current.set COPYONLY)
 				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake 
-					"file(INSTALL current.set DESTINATION ${CMAKE_INSTALL_PREFIX})\n")
+					"file(INSTALL current.set DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n")
 				set(FILE_MATCHES ./current.set)
 			endif()
 		endif ()

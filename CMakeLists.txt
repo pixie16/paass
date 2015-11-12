@@ -77,6 +77,9 @@ if(${USE_DAMM})
 	add_definitions("-D USE_DAMM")
 endif()
 
+#The following line has backslashes to escape the backslashes which escape the double quotes.
+add_definitions(-D INSTALL_PREFIX="\\"${CMAKE_INSTALL_PREFIX}\\"")
+
 if (NOT ${CORE_ONLY})
 	#Find the PLX Library
 	find_package(PLX REQUIRED)
