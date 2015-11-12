@@ -17,7 +17,8 @@ MCA_DAMM::~MCA_DAMM() {
 
 bool MCA_DAMM::OpenFile(const char* basename) {
 	std::string _basename = basename;
-	string input = "share/mca_input.txt";
+	string input = INSTALL_PREFIX;
+	input.append("/share/mca_input.txt");
 	string drr = _basename + ".drr";
 	string his = _basename + ".his";
 

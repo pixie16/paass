@@ -51,7 +51,7 @@ int main(int argc, char *argv[]){
 
 	// Define all valid command line options
 	// This is done to keep legacy options available while removing dependency on HRIBF libraries
-	CLoption valid_opt[11];
+	CLoption valid_opt[12];
 	valid_opt[0].Set("alarm", false, true);
 	valid_opt[1].Set("fast", false, false);
 	valid_opt[2].Set("quiet", false, false);
@@ -62,14 +62,19 @@ int main(int argc, char *argv[]){
 	valid_opt[7].Set("debug", false, false);
 	valid_opt[8].Set("pacman", false, false);
 	valid_opt[9].Set("help", false, false);
-	valid_opt[10].Set("?", false, false);
-	if(!get_opt(argc, argv, valid_opt, 11, help)){ return 1; }
+	valid_opt[10].Set("prefix", false, false);
+	valid_opt[11].Set("?", false, false);
+	if(!get_opt(argc, argv, valid_opt, 12, help)){ return 1; }
 
 	// Help
 	if(valid_opt[9].is_active){
 		help();
 		return 0;
 	}	
+	if(valid_opt[10].is_active){ 
+		std::cout << INSTALL_PREFIX <<"\n";
+		return 0; 
+	}
 
 	Terminal poll_term;
 
@@ -95,7 +100,7 @@ int main(int argc, char *argv[]){
 	if(valid_opt[6].is_active){ poll.SetZeroClocks(); }
 	if(valid_opt[7].is_active){ poll.SetDebugMode(); }
 	if(valid_opt[8].is_active){ poll.SetPacmanMode(); }
-	if(valid_opt[10].is_active){ return 0; }
+	if(valid_opt[11].is_active){ return 0; }
 
 	if(!poll.Initialize()){ return 1; }
 
