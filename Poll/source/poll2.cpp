@@ -15,6 +15,8 @@
 #include <utility>
 #include <map>
 
+#include <sys/stat.h> //For directory manipulation
+
 #include "poll2_core.h"
 #include "Display.h"
 #include "CTerminal.h"
@@ -97,13 +99,15 @@ int main(int argc, char *argv[]){
 
 	if(!poll.Initialize()){ return 1; }
 
+
+	std::string poll2Dir = getenv("HOME");
+	if (!mkdir(poll2Dir.append("/.poll2/").c_str(), S_IRWXU)) {
+		if (errno == EEXIST) 
+			std::cout << Display::ErrorStr() << "Unable to create poll2 settings directory '" << poll2Dir << "'!\n";
+	}
+
 	// Initialize the terminal before doing anything else;
-	poll_term.Initialize(".poll2.cmd");
-	poll_term.SetPrompt(Display::InfoStr("POLL2 $ ").c_str());
-	poll_term.AddStatusWindow();
-	poll_term.EnableTabComplete();
-	poll_term.SetLogFile(".poll2.log");
-	if (poll.GetPacmanMode()) poll_term.EnableTimeout();
+	poll_term.Initialize();
 
 	std::cout << "\n#########      #####    ####      ####       ########\n"; 
 	std::cout << " ##     ##    ##   ##    ##        ##       ##      ##\n";
@@ -119,6 +123,13 @@ int main(int argc, char *argv[]){
 	std::cout << "\n POLL2 v" << POLL2_CORE_VERSION << "\n"; 
 	std::cout << " ==  ==  ==  ==  == \n\n"; 
 	
+	poll_term.SetCommandHistory(poll2Dir + "poll2.cmd");
+	poll_term.SetPrompt(Display::InfoStr("POLL2 $ ").c_str());
+	poll_term.AddStatusWindow();
+	poll_term.EnableTabComplete();
+	poll_term.SetLogFile(poll2Dir + "poll2.log");
+	if (poll.GetPacmanMode()) poll_term.EnableTimeout();
+
 	poll.SetThreshWords(EXTERNAL_FIFO_LENGTH * threshPercent / 100.0);
 	std::cout << "Using FIFO threshold of " << threshPercent << "% (" << poll.GetThreshWords() << "/" << EXTERNAL_FIFO_LENGTH << " words).\n";
 	

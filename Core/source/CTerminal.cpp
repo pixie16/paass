@@ -497,10 +497,19 @@ void Terminal::init_colors_() {
 	}
 }
 
-bool Terminal::load_commands_(){
-	std::ifstream input(cmd_filename.c_str());
-	if(!input.good()){ return false; }
+bool Terminal::LoadCommandHistory(bool overwrite){
+	std::ifstream input(historyFilename_.c_str());
+	//If the stream doesn't open we assume it has been created before and quietly
+	// fail.
+	if(!input.good()){ 
+		return false; 
+	}
+	//The current commands were to be overwritten
+	if (overwrite) {
+		commands.Clear();
+	}
 	
+	//Read the commands from the specified file.
 	size_t index;
 	std::string cmd;
 	std::vector<std::string> cmds;
@@ -533,9 +542,14 @@ bool Terminal::load_commands_(){
 	return true;
 }
 
-bool Terminal::save_commands_(){
-	std::ofstream output(cmd_filename.c_str());
-	if(!output.good()){ return false; }
+bool Terminal::SaveCommandHistory(){
+	if (historyFilename_.empty()) return true;
+
+	std::ofstream output(historyFilename_.c_str());
+	if(!output.good()){ 
+		std::cout << "ERROR: Unable to open command history for writing! '" << historyFilename_ << "'\n";
+		return false; 
+	}
 	
 	std::string temp;
 	unsigned int num_entries;
@@ -554,21 +568,20 @@ bool Terminal::save_commands_(){
 }
 
 Terminal::Terminal() :
+	pbuf(NULL), 
+	original(NULL),
+	main(NULL),
+	output_window(NULL),
+	input_window(NULL),
 	status_window(NULL),
 	_statusWindowSize(0),
 	commandTimeout_(0),
 	_scrollbackBufferSize(SCROLLBACK_SIZE),
 	_scrollPosition(0)
 {
-	pbuf = NULL; 
-	original = NULL;
-	main = NULL;
-	output_window = NULL;
-	input_window = NULL;
 
-	cmd_filename = "";
+	historyFilename_ = "";
 	init = false;
-	save_cmds = false;
 	text_length = 0;
 	cursX = 0; 
 	cursY = 0;
@@ -629,24 +642,17 @@ void Terminal::Initialize(){
 	setup_signal_handlers();
 }
 
-void Terminal::Initialize(std::string cmd_fname_){
-	if(init){ return; }
-	
-	Initialize();
-	cmd_filename = cmd_fname_;
-	save_cmds = true;
-	load_commands_();
-}
+/** This command will clear all current commands from the history if overwrite is 
+ * set to true. 
+ *
+ * \param[in] filename The filename for the command history.
+ * \param[in] overwrite Flag indicating the current commands should be forgotten.
+ */
+void Terminal::SetCommandHistory(std::string filename, bool overwrite/*=false*/){
+	//Store the command file name.
+	historyFilename_ = filename;
 
-/// Set the command filename for storing previous commands
-/// This command will clear all current commands from the history if overwrite_ is set to true
-void Terminal::SetCommandFilename(std::string input_, bool overwrite_/*=false*/){
-	if(save_cmds && !overwrite_){ return; }
-
-	cmd_filename = input_;
-	save_cmds = true;
-	commands.Clear();
-	load_commands_();
+	LoadCommandHistory(overwrite);
 }
 
 void Terminal::SetPrompt(const char *input_){
@@ -736,10 +742,10 @@ void Terminal::flush(){
 	}
 }
 
-bool Terminal::SetLogFile(const char *logFileName) {
+bool Terminal::SetLogFile(std::string logFileName) {
 	logFile.open(logFileName,std::ofstream::app);
 	if (!logFile.good()) {
-		std::cout << "[ERROR]: Unable to open log file: "<< logFileName << "!\n";
+		std::cout << "ERROR: Unable to open log file: "<< logFileName << "!\n";
 		return false;
 	}
 	return true;
@@ -992,12 +998,12 @@ void Terminal::Close(){
 		delwin(main); // Delete the main window
 		endwin(); // Restore Terminal settings
 		
-		if(save_cmds){ save_commands_(); }
+		SaveCommandHistory();
+		if(logFile.good()){
+			logFile.close();
+		}
+
 		init = false;
-	}
-	
-	if(logFile.good()){
-		logFile.close();
 	}
 	
 	unset_signal_handlers();
