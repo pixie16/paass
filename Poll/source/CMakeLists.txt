@@ -26,12 +26,4 @@ set(MONITOR_SOURCES monitor.cpp)
 add_executable(monitor ${MONITOR_SOURCES})
 target_link_libraries(monitor PixieCoreStatic)
 
-if(USE_ROOT)
-	set(SCOPE_SOURCES scope.cpp)
-	add_executable(scope ${SCOPE_SOURCES})
-	target_link_libraries(scope PixieCoreStatic ${ROOT_LIBRARIES})
-else()
-	message(WARNING "Cannot build scope without root!")
-endif()
-
-install(TARGETS poll listener monitor scope pulser commtest DESTINATION bin)
+install(TARGETS poll listener monitor pulser commtest DESTINATION bin)
