@@ -46,6 +46,12 @@ namespace dammIds {
         const int D_HAS_TRACE = 1812;//!< Plot for Channels w/ Traces
     }
 
+    /// in PspmtProcessor.cpp
+    namespace pspmt {
+        const int OFFSET = 1900;
+        const int RANGE =  99;
+    }
+    
     ///in McpProcessor.cpp
     namespace mcp {
         const int OFFSET = 2000;//!< Offset for McpProcessor
