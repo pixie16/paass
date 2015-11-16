@@ -202,17 +202,33 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 	num_traces++;
 }
 
+void Oscilloscope::ClearEvents() {
+	while (!events_.empty()) {
+		delete events_.back();
+		events_.pop_back();
+	}
+}
 
 void Oscilloscope::ProcessRawEvent(){
 	ChannelEvent *current_event = NULL;
-	static std::vector<ChannelEvent*> events;
 	//static int numWaveforms = 0;
 	//static std::vector<std::pair<int, float>> waveform;
 	
 	// Fill the processor event deques with events
 	while(!rawEvent.empty()){
 		if(kill_all){ break; }
+		//If the acquistion is not runnign we clear the events.
+		//	For the SHM mode we simply break and wait for the next data packet.
+		//	For the ldf mode we sleep and check acqRun again.
+		while(!acqRun_) {
+			//Clean up any stored waveforms.
+			ClearEvents();
+			if(shm_mode || kill_all){ return; }
+			usleep(SLEEP_WAIT);
+			gSystem->ProcessEvents();
+		}
 	
+		//Get the first event int he FIFO.
 		current_event = rawEvent.front();
 		rawEvent.pop_front();
 
@@ -223,65 +239,40 @@ void Oscilloscope::ProcessRawEvent(){
 				delete current_event;
 				continue;
 			}
+			//Check threhsold.
 			if (threshHigh_ > threshLow_ && current_event->maximum > threshHigh_) {
 				delete current_event;
 				continue;
 			}
+
+			//Process the waveform.
 			current_event->FindLeadingEdge();
 			current_event->FindQDC();
 
-			events.push_back(current_event);
+			//Store the waveform in the stack of waveforms to be displayed.
+			events_.push_back(current_event);
 
-			// This is a signal we wish to plot.
-			if (events.size() >= numAvgWaveforms_) {
+			//When we have the correct number of waveforms we plot them.
+			if (events_.size() >= numAvgWaveforms_) {
 				time_t cur_time;
 				time(&cur_time);
-				if(!shm_mode){
-					// Sleep while the "acq" is not running.
-					while(!acqRun_){
-						if(kill_all){ break; }
-						usleep(SLEEP_WAIT);
-						gSystem->ProcessEvents();
-					}
-				
-					// If not in shared memory mode, sleep to avoid scanning 
-					// all the data during the delay period.
-					Plot(events); 
-					
-					//If this is a single capture we stop the plotting.
-					if (singleCapture_) acqRun_ = false;
-					
-					// Sleep for the required length of time.
-					int total_us_slept = 0;
-					while(total_us_slept < delay_*1E6){
-						if(kill_all){ break; }
-						usleep(SLEEP_WAIT);
-						total_us_slept += SLEEP_WAIT;
-						gSystem->ProcessEvents();
-					} 				
-				}
-				else if((int)difftime(cur_time, last_trace) >= delay_){
-					if (acqRun_) {
-						Plot(events); 
-						//If this is a single capture we stop the plotting.
-						if (singleCapture_) acqRun_ = false;
-					}
-					
+				while(difftime(cur_time, last_trace) < delay_) {
+					usleep(SLEEP_WAIT);
+					gSystem->ProcessEvents();
+					time(&cur_time);
+				}	
+
+				Plot(events_); 
+				//If this is a single capture we stop the plotting.
+				if (singleCapture_) acqRun_ = false;
+
 					time(&last_trace);
-				}
-				while (!events.empty()) {
-					delete events.back();
-					events.pop_back();
-				}
+
+				//Clean up the events plotted.
+				ClearEvents();
 			}
 		}
 		gSystem->ProcessEvents();
-	}
-	
-	// Check to make sure we have no events in the event vector.
-	while (kill_all && !events.empty()) {
-		delete events.back();
-		events.pop_back();
 	}
 }
 
@@ -354,8 +345,19 @@ bool Oscilloscope::SetArgs(std::deque<std::string> &args_, std::string &filename
 bool Oscilloscope::CommandControl(std::string cmd_, const std::vector<std::string> &args_){
 	if(cmd_ == "set"){ // Toggle debug mode
 		if(args_.size() == 2){
+			//Set the module and channel.
 			mod_ = atoi(args_.at(0).c_str());
 			chan_ = atoi(args_.at(1).c_str());
+
+			//Store previous run status.
+			bool runStatus = acqRun_;
+			//Stop the run to force the buffer to be cleared.
+			acqRun_ = false;
+			//Wait until the event buffer has been cleared.
+			while(!events_.empty()) usleep(SLEEP_WAIT);
+			//Resotre the previous run status.
+			acqRun_ = runStatus;
+	
 			resetGraph_ = true;
 		}
 		else{
@@ -364,8 +366,7 @@ bool Oscilloscope::CommandControl(std::string cmd_, const std::vector<std::strin
 		}
 	}
 	else if(cmd_ == "single") {
-		acqRun_ = true;
-		singleCapture_ = true;
+		singleCapture_ = !singleCapture_;
 	}
 	else if (cmd_ == "thresh") {
 		if (args_.size() == 1) {
@@ -439,7 +440,6 @@ void Oscilloscope::StopAcquisition(){
 /// Scan has started data acquisition.
 void Oscilloscope::StartAcquisition(){
 	acqRun_ = true;	
-	singleCapture_ = false;
 }
 
 void Oscilloscope::IdleTask() {

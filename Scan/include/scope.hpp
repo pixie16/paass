@@ -54,6 +54,8 @@ class Oscilloscope : public Unpacker{
 	TF1 *paulauskasFunc; ///< A TF1 of the Paulauskas Function (NIM A 737 (2014) 22)
 	TF1 *paulauskasFuncText; ///< A TF1 of the Paulauskas Function (NIM A 737 (2014) 22)
 
+	std::vector<ChannelEvent*> events_; ///<The buffer of waveforms to be plotted.
+
 	void ResetGraph(unsigned int size_);
 	
 	/// Plot the current event.
@@ -61,6 +63,9 @@ class Oscilloscope : public Unpacker{
   
 	/// Process all events in the event list.
 	void ProcessRawEvent();
+	
+	/// Clear any stored waveforms.
+	void ClearEvents();
 	
   public:
 	Oscilloscope(int mod = 0, int chan = 0);
@@ -74,7 +79,7 @@ class Oscilloscope : public Unpacker{
 	int GetChan(){ return chan_; }
 	
 	int GetDelay(){ return delay_; }
-	
+ 	
 	void SetMod(int mod){ mod_ = mod; }
 	
 	void SetChan(int chan){ chan_ = chan; }
