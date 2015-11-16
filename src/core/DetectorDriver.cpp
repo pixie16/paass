@@ -36,6 +36,7 @@
 #include "MtcProcessor.hpp"
 #include "NeutronScintProcessor.hpp"
 #include "PositionProcessor.hpp"
+#include "PspmtProcessor.hpp"
 #include "PulserProcessor.hpp"
 #include "SsdProcessor.hpp"
 #include "TeenyVandleProcessor.hpp"
@@ -262,6 +263,8 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new TeenyVandleProcessor());
         } else if (name == "DoubleBetaProcessor") {
             vecProcess.push_back(new DoubleBetaProcessor());
+        } else if (name == "PspmtProcessor") {
+            vecProcess.push_back(new PspmtProcessor());
         }
 #ifdef useroot
         else if (name == "RootProcessor") {
