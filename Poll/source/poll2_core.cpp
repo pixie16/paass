@@ -607,7 +607,7 @@ void Poll::help(){
 	std::cout << "   bit_test [num_bits] [number]          - Display active bits in a given integer up to 32 bits long\n";
 	std::cout << "   get_traces [mod] [chan] <threshold>   - Get traces for all channels in a specified module\n";
 	std::cout << "   status              - Display system status information\n";
-	std::cout << "   thresh              - Display current polling threshold\n";
+	std::cout << "   thresh [threshold]  - Modify or display the current polling threshold.\n";
 	std::cout << "   debug               - Toggle debug mode flag (default=false)\n";
 	std::cout << "   quiet               - Toggle quiet mode flag (default=false)\n";
 	std::cout << "   quit                - Close the program\n";
@@ -1001,6 +1001,9 @@ void Poll::CommandControl(){
 			show_status();
 		}
 		else if(cmd == "thresh"){
+			if (p_args==1) {
+				SetThreshWords(EXTERNAL_FIFO_LENGTH * atof(arguments.at(0).c_str()) / 100.0);
+			}
 			show_thresh();
 		}
 		else if(cmd == "dump"){ // Dump pixie parameters to file
