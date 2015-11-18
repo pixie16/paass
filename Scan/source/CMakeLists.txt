@@ -15,11 +15,14 @@ endif()
 
 install(TARGETS PixieScan DESTINATION lib)
 
-#Build the scope program
+#Build the scope program and the filterer program
 if(USE_ROOT)
 	set(SCOPE_SOURCES scope.cpp)
 	add_executable(scope ${SCOPE_SOURCES})
 	target_link_libraries(scope PixieScanStatic ${ROOT_LIBRARIES})
+
+	add_executable(filterer filterer.cpp)
+	target_link_libraries(filterer PixieScanStatic ${ROOT_LIBRARIES})
 	
-	install(TARGETS scope DESTINATION bin)
+	install(TARGETS scope filterer DESTINATION bin)
 endif()
