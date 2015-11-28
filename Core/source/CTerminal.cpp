@@ -55,7 +55,7 @@ void dummy_help(){}
 /// Parse all command line entries and find valid options.
 bool get_opt(unsigned int argc_, char **argv_, CLoption *options, unsigned int num_valid_opt_, void (*help_)()/*=dummy_help*/){
 	unsigned int index = 1;
-	unsigned int previous_opt;
+	unsigned int previous_opt = 0;
 	bool need_an_argument = false;
 	bool may_have_argument = false;
 	bool is_valid_argument = false;
@@ -619,7 +619,7 @@ void Terminal::Initialize(){
 			std::cout << "WARNING: Unable to set terminal blocking half delay to 0.5s!\n";
 			std::cout << "\tThis will increase CPU usage in the command thread.\n";
 			if (nodelay(input_window, true) == ERR) { //Disable the blocking timeout.
-				std::cout << "ERROR: Unable to remove terminal blocking!\n"
+				std::cout << "ERROR: Unable to remove terminal blocking!\n";
 				std::cout << "\tThe command thread will be locked until a character is entered. This will reduce functionality of terminal status bar and timeout.\n";
 			}
 		}
@@ -975,7 +975,7 @@ std::string Terminal::GetCommand(){
 		if(cursX < offset){ cursX = offset; }
 	
 		// Check for cursor too far to the right
-		if(cursX > (cmd.GetSize() + offset)){ cursX = cmd.GetSize() + offset; }
+		if(cursX > (int)(cmd.GetSize() + offset)){ cursX = cmd.GetSize() + offset; }
 	
 		if (keypress != ERR) tabCount = 0;
 		update_cursor_();
