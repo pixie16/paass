@@ -19,6 +19,7 @@
 #include <sstream>
 #include <map>
 #include <fstream>
+#include <vector>
 
 ///Default size of terminal scroll back buffer in lines.
 #define SCROLLBACK_SIZE 1000

@@ -689,10 +689,12 @@ void Terminal::SetPrompt(const char *input_){
 			}
 		}	
 	}
+	print(input_window,prompt.c_str());
+
 	offset += prompt.length() - lastPos;
+	cursX = offset;
 	update_cursor_();
 
-	print(input_window,prompt.c_str());
 	refresh_();
 }
 
@@ -972,7 +974,7 @@ std::string Terminal::GetCommand(){
 		}
 
 		// Check for cursor too far to the left
-		if(cursX < offset){ cursX = offset; }
+		if(cursX < offset){ cursX = offset + cmd.GetSize(); }
 	
 		// Check for cursor too far to the right
 		if(cursX > (int)(cmd.GetSize() + offset)){ cursX = cmd.GetSize() + offset; }
