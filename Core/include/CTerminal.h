@@ -5,11 +5,11 @@
   * Library to facilitate the creation of C++ executables with
   * interactive command line interfaces under a linux environment
   *
-  * \author Cory R. Thornsberry
+  * \author Cory R. Thornsberry and Karl Smith
   * 
   * \date Oct. 1st, 2015
   * 
-  * \version 1.2.02
+  * \version 1.2.03
 */
 
 #ifndef CTERMINAL_H
@@ -23,8 +23,8 @@
 ///Default size of terminal scroll back buffer in lines.
 #define SCROLLBACK_SIZE 1000
 
-#define CTERMINAL_VERSION "1.2.02"
-#define CTERMINAL_DATE "Oct. 2nd, 2015"
+#define CTERMINAL_VERSION "1.2.03"
+#define CTERMINAL_DATE "Nov. 27th, 2015"
 
 #include <curses.h>
 
@@ -206,7 +206,6 @@ class Terminal{
 	CommandHolder commands;
 	CommandString cmd;
 	bool init;
-	int text_length;
 	int cursX, cursY;
 	int offset;
 	int _winSizeX,_winSizeY;

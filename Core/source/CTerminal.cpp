@@ -5,11 +5,11 @@
   * Library to facilitate the creation of C++ executables with
   * interactive command line interfaces under a linux environment
   *
-  * \author Cory R. Thornsberry
+  * \author Cory R. Thornsberry and Karl Smith
   * 
-  * \date Oct. 2nd, 2015
+  * \date Nov. 27th, 2015
   * 
-  * \version 1.2.02
+  * \version 1.2.03
 */
 
 #include <iostream>
@@ -99,6 +99,8 @@ bool get_opt(unsigned int argc_, char **argv_, CLoption *options, unsigned int n
 							if(options[i].optional_arg){ may_have_argument = true; }
 							else{ may_have_argument = false; }
 							is_valid_argument = true;
+							
+							break; //We only mark the first match as active.
 						}
 					}
 					if(!is_valid_argument){
@@ -404,7 +406,6 @@ void Terminal::clear_(){
 	}
 	cmd.Clear();
 	cursX = offset;
-	text_length = 0;
 	update_cursor_();
 	refresh_();
 }
@@ -582,7 +583,6 @@ Terminal::Terminal() :
 
 	historyFilename_ = "";
 	init = false;
-	text_length = 0;
 	cursX = 0; 
 	cursY = 0;
 	offset = 0;
@@ -615,7 +615,14 @@ void Terminal::Initialize(){
 		input_window = newpad(1, _winSizeX);
 		wmove(output_window, _scrollbackBufferSize-1, 0); // Set the output cursor at the bottom so that new text will scroll up
 		
-		halfdelay(5); // Timeout after 5/10 of a second
+		if (halfdelay(5) == ERR) { // Timeout after 5/10 of a second
+			std::cout << "WARNING: Unable to set terminal blocking half delay to 0.5s!\n";
+			std::cout << "\tThis will increase CPU usage in the command thread.\n";
+			if (nodelay(input_window, true) == ERR) { //Disable the blocking timeout.
+				std::cout << "ERROR: Unable to remove terminal blocking!\n"
+				std::cout << "\tThe command thread will be locked until a character is entered. This will reduce functionality of terminal status bar and timeout.\n";
+			}
+		}
 		keypad(input_window, true); // Capture special keys
 		noecho(); // Turn key echoing off
 		
@@ -628,7 +635,6 @@ void Terminal::Initialize(){
 		}
 
 		init = true;
-		text_length = 0;
 		offset = 0;
 		
 		// Set the position of the physical cursor
@@ -791,7 +797,6 @@ void Terminal::TabComplete(std::vector<std::string> matches) {
 		cmd.Insert(cursX - offset, matches.at(0).c_str());
 		waddstr(input_window, cmd.Get().substr(cursX - offset).c_str());
 		cursX += matches.at(0).length();
-		text_length += matches.at(0).length();
 	}
 	else {
 		//Fill out the matching part
@@ -806,7 +811,6 @@ void Terminal::TabComplete(std::vector<std::string> matches) {
 			cmd.Insert(cursX - offset, commonStr.c_str());
 			waddstr(input_window, cmd.Get().substr(cursX - offset).c_str());
 			cursX += commonStr.length();
-			text_length += commonStr.length();
 		}
 		//Display the options
 		else if (tabCount > 1) {
@@ -848,14 +852,18 @@ std::string Terminal::GetCommand(){
 		if(SIGNAL_INTERRUPT){ // ctrl-c (SIGINT)
 			SIGNAL_INTERRUPT = false;
 			output = "CTRL_C";
-			text_length = 0;
 			break;
 		}
-		else if(SIGNAL_TERMSTOP){ // ctrl-z (SIGTSTP)
+		if(SIGNAL_TERMSTOP){ // ctrl-z (SIGTSTP)
 			SIGNAL_TERMSTOP = false;
 			output = "CTRL_Z";
-			text_length = 0;
 			break;
+		}
+
+		//Update status message
+		if (status_window) {
+			werase(status_window);
+			print(status_window,statusStr.at(0).c_str());
 		}
 
 		flush(); // If there is anything in the stream, dump it to the screen
@@ -872,7 +880,7 @@ std::string Terminal::GetCommand(){
 		int keypress = wgetch(input_window);
 	
 		// Check for internal commands
-		if(keypress == ERR){ } // No key was pressed in the interval
+		if(keypress == ERR){continue;} // No key was pressed in the interval
 		else if(keypress == 10){ // Enter key (10)
 			std::string temp_cmd = cmd.Get();
 			//Reset the position in the history.
@@ -883,7 +891,6 @@ std::string Terminal::GetCommand(){
 			output = temp_cmd;
 			std::cout << prompt << output << "\n";
 			flush();
-			text_length = 0;
 			_scrollPosition = 0;
 			clear_();
 			tabCount = 0;
@@ -896,7 +903,6 @@ std::string Terminal::GetCommand(){
 		}
 		else if(keypress == 4){ // ctrl-d (EOT)
 			output = "CTRL_D";
-			text_length = 0;
 			clear_();
 			tabCount = 0;
 			break;
@@ -909,7 +915,6 @@ std::string Terminal::GetCommand(){
 				clear_();
 				cmd.Set(temp_cmd);
 				in_print_(cmd.Get().c_str());
-				text_length = cmd.GetSize();
 			}
 		}
 		else if(keypress == KEY_DOWN){ // 258
@@ -918,7 +923,6 @@ std::string Terminal::GetCommand(){
 				clear_();
 				cmd.Set(temp_cmd);
 				in_print_(cmd.Get().c_str());
-				text_length = cmd.GetSize();
 			}
 		}
 		else if(keypress == KEY_LEFT){ cursX--; } // 260
@@ -933,18 +937,16 @@ std::string Terminal::GetCommand(){
 			wmove(input_window, 0, --cursX);
 			wdelch(input_window);
 			cmd.Pop(cursX - offset);
-			text_length = cmd.GetSize();
 		}
 		else if(keypress == KEY_DC){ // Delete character (330)
 			//Remove character from terminal
 			wdelch(input_window);
 			//Remove character from cmd string
 			cmd.Pop(cursX - offset);
-			text_length = cmd.GetSize();
 		}
 		else if(keypress == KEY_IC){ cmd.ToggleInsertMode(); } // Insert key (331)
 		else if(keypress == KEY_HOME){ cursX = offset; }
-		else if(keypress == KEY_END){ cursX = text_length + offset; }
+		else if(keypress == KEY_END){ cursX = cmd.GetSize() + offset; }
 		else if(keypress == KEY_MOUSE) { //Handle mouse events
 			MEVENT mouseEvent;
 			//Get information about mouse event.
@@ -967,21 +969,14 @@ std::string Terminal::GetCommand(){
 		else{ 
 			in_char_((char)keypress); 
 			cmd.Put((char)keypress, cursX - offset - 1);
-			text_length = cmd.GetSize();
 		}
-		
+
 		// Check for cursor too far to the left
 		if(cursX < offset){ cursX = offset; }
 	
 		// Check for cursor too far to the right
-		if(cursX > (text_length + offset)){ cursX = text_length + offset; }
+		if(cursX > (cmd.GetSize() + offset)){ cursX = cmd.GetSize() + offset; }
 	
-		//Update status message
-		if (status_window) {
-			werase(status_window);
-			print(status_window,statusStr.at(0).c_str());
-		}
-
 		if (keypress != ERR) tabCount = 0;
 		update_cursor_();
 		refresh_();
