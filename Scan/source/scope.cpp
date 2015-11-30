@@ -198,8 +198,6 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 	}
 
 	num_displayed++;
-
-	num_traces++;
 }
 
 void Oscilloscope::ClearEvents() {
@@ -213,11 +211,12 @@ void Oscilloscope::ProcessRawEvent(){
 	ChannelEvent *current_event = NULL;
 	//static int numWaveforms = 0;
 	//static std::vector<std::pair<int, float>> waveform;
+
 	
 	// Fill the processor event deques with events
 	while(!rawEvent.empty()){
 		if(kill_all){ break; }
-		//If the acquistion is not runnign we clear the events.
+		//If the acquistion is not running we clear the events.
 		//	For the SHM mode we simply break and wait for the next data packet.
 		//	For the ldf mode we sleep and check acqRun again.
 		while(!acqRun_) {
@@ -234,6 +233,7 @@ void Oscilloscope::ProcessRawEvent(){
 
 		// Pass this event to the correct processor
 		if(current_event->modNum == mod_ && current_event->chanNum == chan_){  
+			num_traces++;
 			current_event->CorrectBaseline();
 			if (current_event->maximum < threshLow_) {
 				delete current_event;
@@ -257,16 +257,23 @@ void Oscilloscope::ProcessRawEvent(){
 				time_t cur_time;
 				time(&cur_time);
 				while(difftime(cur_time, last_trace) < delay_) {
-					usleep(SLEEP_WAIT);
-					gSystem->ProcessEvents();
-					time(&cur_time);
+					//If in shm mode and the plotting time has not alloted the events are cleared and this function is aborted.
+					if (shm_mode) {
+						ClearEvents();
+						return;
+					}
+					else {
+						usleep(SLEEP_WAIT);
+						gSystem->ProcessEvents();
+						time(&cur_time);
+					}
 				}	
 
 				Plot(events_); 
 				//If this is a single capture we stop the plotting.
 				if (singleCapture_) acqRun_ = false;
 
-					time(&last_trace);
+				time(&last_trace);
 
 				//Clean up the events plotted.
 				ClearEvents();
