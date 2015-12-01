@@ -16,7 +16,7 @@
 #include <fstream>
 #include <unistd.h>
 #include <vector>
-#include <ctime>
+#include <chrono>
 
 #ifdef USE_NCURSES
 
@@ -37,6 +37,9 @@ bool SIGNAL_TERMSTOP = false;
 bool SIGNAL_RESIZE = false;
 
 #endif
+
+// Make a typedef for clarity when working with chrono.
+typedef std::chrono::steady_clock sclock;
 
 template <typename T>
 std::string to_str(const T &input_){
@@ -836,9 +839,9 @@ void Terminal::TabComplete(std::vector<std::string> matches) {
 
 std::string Terminal::GetCommand(){
 	std::string output = "";
-	time_t commandRequestTime;
-	time_t currentTime;
-	time(&commandRequestTime);
+	
+	sclock::time_point commandRequestTime = sclock::now();
+	sclock::time_point currentTime;
 
 	//Update status message
 	if (status_window) {
@@ -870,11 +873,14 @@ std::string Terminal::GetCommand(){
 
 		flush(); // If there is anything in the stream, dump it to the screen
 
-		//Time out if there is no command within the set interval (default 0.5 s). 
+		// Time out if there is no command within the set interval (default 0.5 s). 
 		if (commandTimeout_ > 0) {
-			time(&currentTime);
-			//If the timeout has passed we simply return the empty output string.
-			if (currentTime > commandRequestTime + commandTimeout_) {
+			// Update the current time.
+			currentTime = sclock::now();
+			std::chrono::duration<float> time_span = std::chrono::duration_cast<std::chrono::duration<float>>(currentTime - commandRequestTime);
+			
+			// If the timeout has passed we simply return the empty output string.
+			if (time_span.count() > commandTimeout_) {
 				break;
 			}
 		}
