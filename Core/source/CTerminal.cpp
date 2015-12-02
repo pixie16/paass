@@ -39,7 +39,7 @@ bool SIGNAL_RESIZE = false;
 #endif
 
 // Make a typedef for clarity when working with chrono.
-typedef std::chrono::steady_clock sclock;
+typedef std::chrono::system_clock sclock;
 
 template <typename T>
 std::string to_str(const T &input_){
