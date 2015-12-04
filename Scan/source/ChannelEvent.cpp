@@ -8,6 +8,11 @@ ChannelEvent::ChannelEvent(){
 	Clear();
 }
 
+ChannelEvent::~ChannelEvent(){
+	if(xvals){ delete[] xvals; }
+	if(yvals){ delete[] yvals; }
+}
+
 void ChannelEvent::reserve(const size_t &size_){
 	if(size != 0){ return; }
 	size = size_;
@@ -81,16 +86,23 @@ float ChannelEvent::FindLeadingEdge(const float &thresh_/*=0.05*/){
 	return -9999;
 }
 
-float ChannelEvent::FindQDC(const size_t &start_/*=0*/, const size_t &stop_/*=0*/){
+float ChannelEvent::IntegratePulse(const size_t &start_/*=0*/, const size_t &stop_/*=0*/){
 	if(!baseline_corrected && CorrectBaseline() < 0){ return -9999; }
-	else if(qdc != 0.0){ return qdc; }
 	
 	size_t stop = (stop_ == 0?size:stop_);
 	
 	qdc = 0.0;
-	for(size_t index = start_; index < stop; index++){
-		qdc += yvals[index];
+	for(size_t i = start_+1; i < stop; i++){ // Integrate using trapezoidal rule.
+		qdc += 0.5*(yvals[i-1] + yvals[i]);
 	}
+
+	return qdc;
+}
+
+float ChannelEvent::FindQDC(const size_t &start_/*=0*/, const size_t &stop_/*=0*/){
+	if(qdc != 0.0){ return qdc; }
+	
+	qdc = IntegratePulse(start_, stop_);
 
 	return qdc;
 }

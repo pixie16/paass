@@ -3,6 +3,7 @@
 
 #include <ctime>
 #include <vector>
+#include <cmath>
 
 #include "Unpacker.hpp"
 
@@ -11,45 +12,60 @@ class TApplication;
 class TCanvas;
 class TGraph;
 class TH2F;
+class TF1;
+class TProfile;
 
 class Oscilloscope : public Unpacker{
-  private:
-	int mod_; ///< The module of the signal of interest.
-	int chan_; ///< The channel of the signal of interest.
-	
-	float old_maximum; /// The maximum value of the largest trace.
+	private:
+		int mod_; ///< The module of the signal of interest.
+		int chan_; ///< The channel of the signal of interest.
+		bool acqRun_;
+	bool singleCapture_;
+	unsigned int numAvgWaveforms_;
+	int threshLow_;
+	int threshHigh_;
+	int fitLow_;
+	int fitHigh_;
 	
 	bool need_graph_update; /// Set to true if the graph range needs updated.
 	
 	int delay_; /// The number of seconds to wait between drawing traces.
   
+	std::vector<int> x_vals;
+	
+	bool resetGraph_;
+
 	time_t last_trace; ///< The time of the last trace.
   
 	unsigned int num_traces; ///< The total number of traces.
 	
 	unsigned int num_displayed; ///< The number of displayed traces.
 	
-	std::vector<int> x_vals; ///< The x-axis values of the trace.
-	
 	std::string saveFile_; ///< The name of the file to save a trace.
 
-	TApplication* rootapp;
+	TApplication *rootapp; ///< Root application pointer.
 
 	TCanvas *canvas; ///< The main plotting canvas.
 	
 	TGraph *graph; ///< The TGraph for plotting traces.
+	TH2F *hist; ///<The histogram containing the waveform frequencies.
+	TProfile *prof; ///<The profile of the average histogram.
 
-	TH2F *his; /// Dummy histogram for updating the plotting ranges.
+	TF1 *paulauskasFunc; ///< A TF1 of the Paulauskas Function (NIM A 737 (2014) 22)
+	TF1 *paulauskasFuncText; ///< A TF1 of the Paulauskas Function (NIM A 737 (2014) 22)
 
-	void UpdateGraph(int size_);
+	std::vector<ChannelEvent*> events_; ///<The buffer of waveforms to be plotted.
+
+	void ResetGraph(unsigned int size_);
 	
-	void UpdateFrame(ChannelEvent *event_);
-
 	/// Plot the current event.
-	void Plot(ChannelEvent *event_);
+	void Plot(std::vector<ChannelEvent*> events);
   
 	/// Process all events in the event list.
 	void ProcessRawEvent();
+	
+	/// Clear any stored waveforms.
+	void ClearEvents();
 	
   public:
 	Oscilloscope(int mod = 0, int chan = 0);
@@ -63,7 +79,7 @@ class Oscilloscope : public Unpacker{
 	int GetChan(){ return chan_; }
 	
 	int GetDelay(){ return delay_; }
-	
+ 	
 	void SetMod(int mod){ mod_ = mod; }
 	
 	void SetChan(int chan){ chan_ = chan; }
@@ -91,9 +107,19 @@ class Oscilloscope : public Unpacker{
 	  * \return True if the command is valid and false otherwise.
 	  */
 	bool CommandControl(std::string cmd_, const std::vector<std::string> &args_);
+
+	/// Scan has stopped data acquisition.
+	void StopAcquisition();
+	
+	/// Scan has started data acquisition.
+	void StartAcquisition();
+
+	/// Perform tasks when waiting for a spill.
+	virtual void IdleTask();
 };
 
 /// Return a pointer to a new Oscilloscope object.
 Unpacker *GetCore(){ return (Unpacker*)(new Oscilloscope()); }
+
 
 #endif

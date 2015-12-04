@@ -5,18 +5,18 @@
   * Library to facilitate the creation of C++ executables with
   * interactive command line interfaces under a linux environment
   *
-  * \author Cory R. Thornsberry
+  * \author Cory R. Thornsberry and Karl Smith
   * 
-  * \date Oct. 2nd, 2015
+  * \date Nov. 27th, 2015
   * 
-  * \version 1.2.02
+  * \version 1.2.03
 */
 
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
 #include <vector>
-#include <ctime>
+#include <chrono>
 
 #ifdef USE_NCURSES
 
@@ -38,6 +38,9 @@ bool SIGNAL_RESIZE = false;
 
 #endif
 
+// Make a typedef for clarity when working with chrono.
+typedef std::chrono::system_clock sclock;
+
 template <typename T>
 std::string to_str(const T &input_){
 	std::stringstream stream;
@@ -55,7 +58,7 @@ void dummy_help(){}
 /// Parse all command line entries and find valid options.
 bool get_opt(unsigned int argc_, char **argv_, CLoption *options, unsigned int num_valid_opt_, void (*help_)()/*=dummy_help*/){
 	unsigned int index = 1;
-	unsigned int previous_opt;
+	unsigned int previous_opt = 0;
 	bool need_an_argument = false;
 	bool may_have_argument = false;
 	bool is_valid_argument = false;
@@ -99,6 +102,8 @@ bool get_opt(unsigned int argc_, char **argv_, CLoption *options, unsigned int n
 							if(options[i].optional_arg){ may_have_argument = true; }
 							else{ may_have_argument = false; }
 							is_valid_argument = true;
+							
+							break; //We only mark the first match as active.
 						}
 					}
 					if(!is_valid_argument){
@@ -404,7 +409,6 @@ void Terminal::clear_(){
 	}
 	cmd.Clear();
 	cursX = offset;
-	text_length = 0;
 	update_cursor_();
 	refresh_();
 }
@@ -497,10 +501,19 @@ void Terminal::init_colors_() {
 	}
 }
 
-bool Terminal::load_commands_(){
-	std::ifstream input(cmd_filename.c_str());
-	if(!input.good()){ return false; }
+bool Terminal::LoadCommandHistory(bool overwrite){
+	std::ifstream input(historyFilename_.c_str());
+	//If the stream doesn't open we assume it has been created before and quietly
+	// fail.
+	if(!input.good()){ 
+		return false; 
+	}
+	//The current commands were to be overwritten
+	if (overwrite) {
+		commands.Clear();
+	}
 	
+	//Read the commands from the specified file.
 	size_t index;
 	std::string cmd;
 	std::vector<std::string> cmds;
@@ -533,9 +546,14 @@ bool Terminal::load_commands_(){
 	return true;
 }
 
-bool Terminal::save_commands_(){
-	std::ofstream output(cmd_filename.c_str());
-	if(!output.good()){ return false; }
+bool Terminal::SaveCommandHistory(){
+	if (historyFilename_.empty()) return true;
+
+	std::ofstream output(historyFilename_.c_str());
+	if(!output.good()){ 
+		std::cout << "ERROR: Unable to open command history for writing! '" << historyFilename_ << "'\n";
+		return false; 
+	}
 	
 	std::string temp;
 	unsigned int num_entries;
@@ -554,22 +572,20 @@ bool Terminal::save_commands_(){
 }
 
 Terminal::Terminal() :
+	pbuf(NULL), 
+	original(NULL),
+	main(NULL),
+	output_window(NULL),
+	input_window(NULL),
 	status_window(NULL),
 	_statusWindowSize(0),
 	commandTimeout_(0),
 	_scrollbackBufferSize(SCROLLBACK_SIZE),
 	_scrollPosition(0)
 {
-	pbuf = NULL; 
-	original = NULL;
-	main = NULL;
-	output_window = NULL;
-	input_window = NULL;
 
-	cmd_filename = "";
+	historyFilename_ = "";
 	init = false;
-	save_cmds = false;
-	text_length = 0;
 	cursX = 0; 
 	cursY = 0;
 	offset = 0;
@@ -602,7 +618,14 @@ void Terminal::Initialize(){
 		input_window = newpad(1, _winSizeX);
 		wmove(output_window, _scrollbackBufferSize-1, 0); // Set the output cursor at the bottom so that new text will scroll up
 		
-		halfdelay(5); // Timeout after 5/10 of a second
+		if (halfdelay(5) == ERR) { // Timeout after 5/10 of a second
+			std::cout << "WARNING: Unable to set terminal blocking half delay to 0.5s!\n";
+			std::cout << "\tThis will increase CPU usage in the command thread.\n";
+			if (nodelay(input_window, true) == ERR) { //Disable the blocking timeout.
+				std::cout << "ERROR: Unable to remove terminal blocking!\n";
+				std::cout << "\tThe command thread will be locked until a character is entered. This will reduce functionality of terminal status bar and timeout.\n";
+			}
+		}
 		keypad(input_window, true); // Capture special keys
 		noecho(); // Turn key echoing off
 		
@@ -615,7 +638,6 @@ void Terminal::Initialize(){
 		}
 
 		init = true;
-		text_length = 0;
 		offset = 0;
 		
 		// Set the position of the physical cursor
@@ -629,24 +651,17 @@ void Terminal::Initialize(){
 	setup_signal_handlers();
 }
 
-void Terminal::Initialize(std::string cmd_fname_){
-	if(init){ return; }
-	
-	Initialize();
-	cmd_filename = cmd_fname_;
-	save_cmds = true;
-	load_commands_();
-}
+/** This command will clear all current commands from the history if overwrite is 
+ * set to true. 
+ *
+ * \param[in] filename The filename for the command history.
+ * \param[in] overwrite Flag indicating the current commands should be forgotten.
+ */
+void Terminal::SetCommandHistory(std::string filename, bool overwrite/*=false*/){
+	//Store the command file name.
+	historyFilename_ = filename;
 
-/// Set the command filename for storing previous commands
-/// This command will clear all current commands from the history if overwrite_ is set to true
-void Terminal::SetCommandFilename(std::string input_, bool overwrite_/*=false*/){
-	if(save_cmds && !overwrite_){ return; }
-
-	cmd_filename = input_;
-	save_cmds = true;
-	commands.Clear();
-	load_commands_();
+	LoadCommandHistory(overwrite);
 }
 
 void Terminal::SetPrompt(const char *input_){
@@ -677,10 +692,12 @@ void Terminal::SetPrompt(const char *input_){
 			}
 		}	
 	}
+	print(input_window,prompt.c_str());
+
 	offset += prompt.length() - lastPos;
+	cursX = offset;
 	update_cursor_();
 
-	print(input_window,prompt.c_str());
 	refresh_();
 }
 
@@ -736,10 +753,10 @@ void Terminal::flush(){
 	}
 }
 
-bool Terminal::SetLogFile(const char *logFileName) {
+bool Terminal::SetLogFile(std::string logFileName) {
 	logFile.open(logFileName,std::ofstream::app);
 	if (!logFile.good()) {
-		std::cout << "[ERROR]: Unable to open log file: "<< logFileName << "!\n";
+		std::cout << "ERROR: Unable to open log file: "<< logFileName << "!\n";
 		return false;
 	}
 	return true;
@@ -785,7 +802,6 @@ void Terminal::TabComplete(std::vector<std::string> matches) {
 		cmd.Insert(cursX - offset, matches.at(0).c_str());
 		waddstr(input_window, cmd.Get().substr(cursX - offset).c_str());
 		cursX += matches.at(0).length();
-		text_length += matches.at(0).length();
 	}
 	else {
 		//Fill out the matching part
@@ -800,7 +816,6 @@ void Terminal::TabComplete(std::vector<std::string> matches) {
 			cmd.Insert(cursX - offset, commonStr.c_str());
 			waddstr(input_window, cmd.Get().substr(cursX - offset).c_str());
 			cursX += commonStr.length();
-			text_length += commonStr.length();
 		}
 		//Display the options
 		else if (tabCount > 1) {
@@ -824,9 +839,9 @@ void Terminal::TabComplete(std::vector<std::string> matches) {
 
 std::string Terminal::GetCommand(){
 	std::string output = "";
-	time_t commandRequestTime;
-	time_t currentTime;
-	time(&commandRequestTime);
+	
+	sclock::time_point commandRequestTime = sclock::now();
+	sclock::time_point currentTime;
 
 	//Update status message
 	if (status_window) {
@@ -842,23 +857,30 @@ std::string Terminal::GetCommand(){
 		if(SIGNAL_INTERRUPT){ // ctrl-c (SIGINT)
 			SIGNAL_INTERRUPT = false;
 			output = "CTRL_C";
-			text_length = 0;
 			break;
 		}
-		else if(SIGNAL_TERMSTOP){ // ctrl-z (SIGTSTP)
+		if(SIGNAL_TERMSTOP){ // ctrl-z (SIGTSTP)
 			SIGNAL_TERMSTOP = false;
 			output = "CTRL_Z";
-			text_length = 0;
 			break;
+		}
+
+		//Update status message
+		if (status_window) {
+			werase(status_window);
+			print(status_window,statusStr.at(0).c_str());
 		}
 
 		flush(); // If there is anything in the stream, dump it to the screen
 
-		//Time out if there is no command within the set interval (default 0.5 s). 
+		// Time out if there is no command within the set interval (default 0.5 s). 
 		if (commandTimeout_ > 0) {
-			time(&currentTime);
-			//If the timeout has passed we simply return the empty output string.
-			if (currentTime > commandRequestTime + commandTimeout_) {
+			// Update the current time.
+			currentTime = sclock::now();
+			std::chrono::duration<float> time_span = std::chrono::duration_cast<std::chrono::duration<float>>(currentTime - commandRequestTime);
+			
+			// If the timeout has passed we simply return the empty output string.
+			if (time_span.count() > commandTimeout_) {
 				break;
 			}
 		}
@@ -866,7 +888,7 @@ std::string Terminal::GetCommand(){
 		int keypress = wgetch(input_window);
 	
 		// Check for internal commands
-		if(keypress == ERR){ } // No key was pressed in the interval
+		if(keypress == ERR){continue;} // No key was pressed in the interval
 		else if(keypress == 10){ // Enter key (10)
 			std::string temp_cmd = cmd.Get();
 			//Reset the position in the history.
@@ -877,7 +899,6 @@ std::string Terminal::GetCommand(){
 			output = temp_cmd;
 			std::cout << prompt << output << "\n";
 			flush();
-			text_length = 0;
 			_scrollPosition = 0;
 			clear_();
 			tabCount = 0;
@@ -890,7 +911,6 @@ std::string Terminal::GetCommand(){
 		}
 		else if(keypress == 4){ // ctrl-d (EOT)
 			output = "CTRL_D";
-			text_length = 0;
 			clear_();
 			tabCount = 0;
 			break;
@@ -903,7 +923,6 @@ std::string Terminal::GetCommand(){
 				clear_();
 				cmd.Set(temp_cmd);
 				in_print_(cmd.Get().c_str());
-				text_length = cmd.GetSize();
 			}
 		}
 		else if(keypress == KEY_DOWN){ // 258
@@ -912,7 +931,6 @@ std::string Terminal::GetCommand(){
 				clear_();
 				cmd.Set(temp_cmd);
 				in_print_(cmd.Get().c_str());
-				text_length = cmd.GetSize();
 			}
 		}
 		else if(keypress == KEY_LEFT){ cursX--; } // 260
@@ -927,18 +945,16 @@ std::string Terminal::GetCommand(){
 			wmove(input_window, 0, --cursX);
 			wdelch(input_window);
 			cmd.Pop(cursX - offset);
-			text_length = cmd.GetSize();
 		}
 		else if(keypress == KEY_DC){ // Delete character (330)
 			//Remove character from terminal
 			wdelch(input_window);
 			//Remove character from cmd string
 			cmd.Pop(cursX - offset);
-			text_length = cmd.GetSize();
 		}
 		else if(keypress == KEY_IC){ cmd.ToggleInsertMode(); } // Insert key (331)
 		else if(keypress == KEY_HOME){ cursX = offset; }
-		else if(keypress == KEY_END){ cursX = text_length + offset; }
+		else if(keypress == KEY_END){ cursX = cmd.GetSize() + offset; }
 		else if(keypress == KEY_MOUSE) { //Handle mouse events
 			MEVENT mouseEvent;
 			//Get information about mouse event.
@@ -961,21 +977,14 @@ std::string Terminal::GetCommand(){
 		else{ 
 			in_char_((char)keypress); 
 			cmd.Put((char)keypress, cursX - offset - 1);
-			text_length = cmd.GetSize();
-		}
-		
-		// Check for cursor too far to the left
-		if(cursX < offset){ cursX = offset; }
-	
-		// Check for cursor too far to the right
-		if(cursX > (text_length + offset)){ cursX = text_length + offset; }
-	
-		//Update status message
-		if (status_window) {
-			werase(status_window);
-			print(status_window,statusStr.at(0).c_str());
 		}
 
+		// Check for cursor too far to the left
+		if(cursX < offset){ cursX = offset + cmd.GetSize(); }
+	
+		// Check for cursor too far to the right
+		if(cursX > (int)(cmd.GetSize() + offset)){ cursX = cmd.GetSize() + offset; }
+	
 		if (keypress != ERR) tabCount = 0;
 		update_cursor_();
 		refresh_();
@@ -992,10 +1001,13 @@ void Terminal::Close(){
 		delwin(main); // Delete the main window
 		endwin(); // Restore Terminal settings
 		
-		if(save_cmds){ save_commands_(); }
+		SaveCommandHistory();
+		if(logFile.good()){
+			logFile.close();
+		}
+
 		init = false;
 	}
-	logFile.close();
 	
 	unset_signal_handlers();
 }

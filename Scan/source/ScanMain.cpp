@@ -1,58 +1,29 @@
-
 #include <iostream>
 #include <sstream>
 #include <thread>
 
-#include <cstring>
+#include <string.h>
 #include <unistd.h>
 
 #include "Unpacker.hpp"
-#include "hribf_buffers.h"
 #include "poll2_socket.h"
 #include "CTerminal.h"
 
-#define SCAN_VERSION "1.2.01"
-#define SCAN_DATE "Oct. 2nd, 2015"
-
-// Maximum size of the shared memory buffer
-static const unsigned int maxShmSizeL = 4052; // in pixie words (4050 + 2 header words)
-static const unsigned int maxShmSize  = maxShmSizeL * 4; // in bytes
-
-std::string prefix, extension;
-
-int max_spill_size = 0;
-int file_format = -1;
-unsigned long num_spills_recvd;
-
-bool is_verbose;
-bool debug_mode;
-bool dry_run_mode;
-bool force_overwrite;
-bool shm_mode;
-
-bool kill_all = false;
-bool run_ctrl_exit = false;
-
-Server poll_server;
-
-std::ifstream input_file;
-
-PLD_header pldHead;
-PLD_data pldData;
-DIR_buffer dirbuff;
-HEAD_buffer headbuff;
-DATA_buffer databuff;
-EOF_buffer eofbuff;
-
-Terminal *term_;
+#include "ScanMain.hpp"
 
 #ifndef PROG_NAME
 #define PROG_NAME "ScanMain"
 #endif
 
-std::string sys_message_head = std::string(PROG_NAME) + ": ";
+void start_run_control(ScanMain *main_){
+	main_->RunControl();
+}
 
-unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_=' '){
+void start_cmd_control(ScanMain *main_){
+	main_->CmdControl();
+}
+
+unsigned int ScanMain::split_str(std::string str_, std::vector<std::string> &args, char delimiter_/*=' '*/){
 	args.clear();
 	std::string temp = "";
 	unsigned int count = 0;
@@ -68,7 +39,66 @@ unsigned int split_str(std::string str_, std::vector<std::string> &args, char de
 	return count;
 }
 
-void start_run_control(Unpacker *core_){
+std::string ScanMain::get_extension(std::string filename_, std::string &prefix){
+	size_t count = 0;
+	size_t last_index = 0;
+	std::string output = "";
+	prefix = "";
+	
+	// Find the final period in the filename
+	for(count = 0; count < filename_.size(); count++){
+		if(filename_[count] == '.'){ last_index = count; }
+	}
+	
+	// Get the filename prefix and the extension
+	for(size_t i = 0; i < count; i++){
+		if(i < last_index){ prefix += filename_[i]; }
+		else if(i > last_index){ output += filename_[i]; }
+	}
+	
+	return output;
+}
+
+ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
+	prefix = "";
+	extension = "";
+
+	maxShmSizeL = 4052;
+	maxShmSize  = maxShmSizeL * 4;
+
+	max_spill_size = 0;
+	file_format = -1;
+	
+	num_spills_recvd = 0;
+	
+	is_running = true;
+	is_verbose = true;
+	debug_mode = false;
+	dry_run_mode = false;
+	shm_mode = false;
+
+	kill_all = false;
+	run_ctrl_exit = false;
+
+	poll_server = NULL;
+	term = NULL;
+	
+	core = core_;
+	
+	// If a pointer to an Unpacker derived class is not specified, call the
+	// extern function GetCore() to get a pointer to a new object.
+	if(!core){ core = GetCore(); }
+
+	sys_message_head = std::string(PROG_NAME) + ": ";
+}
+
+ScanMain::~ScanMain(){
+	if(poll_server){ delete poll_server; }
+	if(term){ delete term; }
+	if(core){ delete core; }
+}
+
+void ScanMain::RunControl(){
 	if(debug_mode){
 		pldHead.SetDebugMode();
 		pldData.SetDebugMode();
@@ -82,7 +112,7 @@ void start_run_control(Unpacker *core_){
 	if(shm_mode){
 		std::cout << std::endl;
 		unsigned int data[250000]; // Array for storing spill data. Larger than any RevF spill should be.
-		unsigned int shm_data[maxShmSizeL]; // Array to store the temporary shm data (~16 kB)
+		unsigned int *shm_data = new unsigned int[maxShmSizeL]; // Array to store the temporary shm data (~16 kB)
 		int dummy;
 		int previous_chunk;
 		int current_chunk;
@@ -96,6 +126,10 @@ void start_run_control(Unpacker *core_){
 			if(kill_all == true){ 
 				break;
 			}
+			else if(!is_running){
+				sleep(1);
+				continue;
+			}
 
 			int select_dummy;
 			previous_chunk = 0;
@@ -104,24 +138,23 @@ void start_run_control(Unpacker *core_){
 			nTotalWords = 0;
 			full_spill = true;
 
-			std::stringstream status;
-			if(!poll_server.Select(dummy)){
-				status << "\033[0;33m" << "[IDLE]" << "\033[0m" << " Waiting for a spill...";
-				term_->SetStatus(status.str());
+			if(!poll_server->Select(dummy)){
+				term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for a spill...");
+				core->IdleTask();
 				continue; 
 			}
 		
-			if(!poll_server.Select(select_dummy)){ continue; } // Server timeout
+			if(!poll_server->Select(select_dummy)){ continue; } // Server timeout
 		
 			// Get the spill
 			while(current_chunk != total_chunks){
-				if(!poll_server.Select(select_dummy)){ // Server timeout
+				if(!poll_server->Select(select_dummy)){ // Server timeout
 					std::cout << sys_message_head << "Network timeout before recv full spill!\n";
 					full_spill = false;
 					break;
 				} 
 
-				nWords = poll_server.RecvMessage((char*)shm_data, maxShmSize) / 4; // Read from the socket
+				nWords = poll_server->RecvMessage((char*)shm_data, maxShmSize) / 4; // Read from the socket
 				if(strcmp((char*)shm_data, "$CLOSE_FILE") == 0 || strcmp((char*)shm_data, "$OPEN_FILE") == 0 || strcmp((char*)shm_data, "$KILL_SOCKET") == 0){ continue; } // Poll2 network flags
 				// Did not read enough bytes
 				else if(nWords < 2){
@@ -154,20 +187,23 @@ void start_run_control(Unpacker *core_){
 				}
 			}
 
+			std::stringstream status;
 			status << "\033[0;32m" << "[RECV] " << "\033[0m" << nTotalWords << " words";
-			term_->SetStatus(status.str());
+			term->SetStatus(status.str());
 		
 			if(debug_mode){ std::cout << "debug: Retrieved spill of " << nTotalWords << " words (" << nTotalWords*4 << " bytes)\n"; }
 			if(!dry_run_mode && full_spill){ 
 				int word1 = 2, word2 = 9999;
 				memcpy(&data[nTotalWords], (char *)&word1, 4);
 				memcpy(&data[nTotalWords+1], (char *)&word2, 4);
-				core_->ReadSpill(data, nTotalWords + 2, is_verbose); 
+				core->ReadSpill(data, nTotalWords + 2, is_verbose); 
 			}
 			
 			if(!full_spill){ std::cout << sys_message_head << "Not processing spill fragment!\n"; }
 			else{ num_spills_recvd++; }
 		}
+		
+		delete[] shm_data;
 	}
 	else if(file_format == 0){
 		unsigned int *data = NULL;
@@ -178,6 +214,18 @@ void start_run_control(Unpacker *core_){
 		if(!dry_run_mode){ data = new unsigned int[250000]; }
 		
 		while(databuff.Read(&input_file, (char*)data, nBytes, 1000000, full_spill, bad_spill, dry_run_mode)){ 
+			if(kill_all == true){ 
+				break;
+			}
+			else if(!is_running){
+				sleep(1);
+				continue;
+			}
+
+			std::stringstream status;			
+			status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
+			term->SetStatus(status.str());
+		
 			if(full_spill){ 
 				if(debug_mode){ 
 					std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
@@ -185,7 +233,7 @@ void start_run_control(Unpacker *core_){
 				}
 				if(!dry_run_mode){ 
 					if(!bad_spill){ 
-						core_->ReadSpill(data, nBytes/4, is_verbose); 
+						core->ReadSpill(data, nBytes/4, is_verbose); 
 					}
 					else{ std::cout << " WARNING: Spill has been flagged as corrupt, skipping (at word " << input_file.tellg()/4 << " in file)!\n"; }
 				}
@@ -205,6 +253,8 @@ void start_run_control(Unpacker *core_){
 		}
 		
 		if(!dry_run_mode){ delete[] data; }
+		
+		term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file.");
 	}
 	else if(file_format == 1){
 		unsigned int *data = NULL;
@@ -213,6 +263,18 @@ void start_run_control(Unpacker *core_){
 		if(!dry_run_mode){ data = new unsigned int[max_spill_size+2]; }
 		
 		while(pldData.Read(&input_file, (char*)data, nBytes, 4*max_spill_size, dry_run_mode)){ 
+			if(kill_all == true){ 
+				break;
+			}
+			else if(!is_running){
+				sleep(1);
+				continue;
+			}
+
+			std::stringstream status;
+			status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
+			term->SetStatus(status.str());
+		
 			if(debug_mode){ 
 				std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
 				std::cout << "debug: Read up to word number " << input_file.tellg()/4 << " in input file\n";
@@ -222,7 +284,7 @@ void start_run_control(Unpacker *core_){
 				int word1 = 2, word2 = 9999;
 				memcpy(&data[(nBytes/4)], (char *)&word1, 4);
 				memcpy(&data[(nBytes/4)+1], (char *)&word2, 4);
-				core_->ReadSpill(data, nBytes/4 + 2, is_verbose); 
+				core->ReadSpill(data, nBytes/4 + 2, is_verbose); 
 			}
 			num_spills_recvd++;
 		}
@@ -235,6 +297,8 @@ void start_run_control(Unpacker *core_){
 		}
 		
 		if(!dry_run_mode){ delete[] data; }
+		
+		term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file.");
 	}
 	else if(file_format == 2){
 	}
@@ -242,13 +306,13 @@ void start_run_control(Unpacker *core_){
 	run_ctrl_exit = true;
 }
 
-void start_cmd_control(Unpacker *pack_){
-	if(!pack_){ return; }
+void ScanMain::CmdControl(){
+	if(!core){ return; }
 
 	std::string cmd = "", arg;
 
 	while(true){
-		cmd = term_->GetCommand();
+		cmd = term->GetCommand();
 		if(cmd == "_SIGSEGV_"){
 			std::cout << "\033[0;31m[SEGMENTATION FAULT]\033[0m\n";
 			exit(EXIT_FAILURE);
@@ -265,7 +329,7 @@ void start_cmd_control(Unpacker *pack_){
 			std::cout << sys_message_head << "Warning! Received SIGTSTP (ctrl-z) signal.\n";
 			continue; 
 		}
-		term_->flush();
+		term->flush();
 
 		if(cmd == ""){ continue; }
 		
@@ -281,6 +345,7 @@ void start_cmd_control(Unpacker *pack_){
 		
 		if(cmd == "quit" || cmd == "exit"){
 			kill_all = true;
+			core->KillAll();
 			while(!run_ctrl_exit){ sleep(1); }
 			break;
 		}
@@ -297,7 +362,19 @@ void start_cmd_control(Unpacker *pack_){
 			std::cout << "   quit        - Close the program\n";
 			std::cout << "   help (h)    - Display this dialogue\n";
 			std::cout << "   version (v) - Display Poll2 version information\n";
-			pack_->CmdHelp("   ");
+			std::cout << "   run         - Start acquisition\n";
+			std::cout << "   stop        - Stop acquisition\n";
+			core->CmdHelp("   ");
+		}
+		else if(cmd == "run"){ // Start acquisition.
+			is_running = true;
+			core->StartAcquisition();
+			term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for Unpacker...");
+		}
+		else if(cmd == "stop"){ // Stop acquisition.
+			is_running = false;
+			core->StopAcquisition();
+			term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped.");
 		}
 		else if(cmd == "debug"){ // Toggle debug mode
 			if(debug_mode){
@@ -308,7 +385,7 @@ void start_cmd_control(Unpacker *pack_){
 				std::cout << sys_message_head << "Toggling debug mode ON\n";
 				debug_mode = true;
 			}
-			pack_->SetDebugMode(debug_mode);
+			core->SetDebugMode(debug_mode);
 		}
 		else if(cmd == "quiet"){ // Toggle quiet mode
 			if(!is_verbose){
@@ -320,34 +397,14 @@ void start_cmd_control(Unpacker *pack_){
 				is_verbose = false;
 			}
 		}
-		else if(!pack_->CommandControl(cmd, arguments)){ // Unrecognized command. Send it to Unpacker.
+		else if(!core->CommandControl(cmd, arguments)){ // Unrecognized command. Send it to Unpacker.
 			std::cout << sys_message_head << "Unknown command '" << cmd << "'\n";
 		}
 	}		
 }
 
-std::string GetExtension(std::string filename_, std::string &prefix){
-	size_t count = 0;
-	size_t last_index = 0;
-	std::string output = "";
-	prefix = "";
-	
-	// Find the final period in the filename
-	for(count = 0; count < filename_.size(); count++){
-		if(filename_[count] == '.'){ last_index = count; }
-	}
-	
-	// Get the filename prefix and the extension
-	for(size_t i = 0; i < count; i++){
-		if(i < last_index){ prefix += filename_[i]; }
-		else if(i > last_index){ output += filename_[i]; }
-	}
-	
-	return output;
-}
-
-void help(char *name_, Unpacker *core_){
-	core_->SyntaxStr(name_, " ");
+void ScanMain::Help(char *name_, Unpacker *core){
+	core->SyntaxStr(name_, " ");
 	std::cout << "  Available options:\n";
 	std::cout << "   --help     - Display this dialogue\n";
 	std::cout << "   --version  - Display version information\n";
@@ -359,13 +416,13 @@ void help(char *name_, Unpacker *core_){
 	std::cout << "   --quiet    - Toggle off verbosity flag\n";
 	std::cout << "   --dry-run  - Extract spills from file, but do no processing\n";
 	std::cout << "   --fast-fwd [word] - Skip ahead to a specified word in the file (start of file at zero)\n";
-	core_->ArgHelp("   ");
+	core->ArgHelp("   ");
 }
 
-int main(int argc, char *argv[]){
+int ScanMain::Execute(int argc, char *argv[]){
 	if(argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)){ // A stupid way to do this... for now.
 		Unpacker *temp_core = GetCore();
-		help(argv[0], temp_core);
+		Help(argv[0], temp_core);
 		delete temp_core;
 		return 0;
 	}
@@ -387,14 +444,12 @@ int main(int argc, char *argv[]){
 
 	// Fill the argument list.
 	std::deque<std::string> scan_args;
-	std::deque<std::string> core_args;
+	std::deque<std::string> coreargs;
 	int arg_index = 1;
 	while(arg_index < argc){
 		scan_args.push_back(std::string(argv[arg_index++]));
 	}
 
-	Unpacker *core = GetCore(); // Get a pointer to the main Unpacker object.
-	
 	core->SetMsgPrefix(sys_message_head);
 	
 	// Loop through the arg list and extract ScanMain arguments.
@@ -413,7 +468,7 @@ int main(int argc, char *argv[]){
 		else if(current_arg == "--fast-fwd"){
 			if(scan_args.empty()){
 				std::cout << " Error: Missing required argument to option '--fast-fwd'!\n";
-				help(argv[0], core);
+				Help(argv[0], core);
 				return 1;
 			}
 			file_start_offset = atoll(scan_args.front().c_str());
@@ -425,6 +480,7 @@ int main(int argc, char *argv[]){
 		else if(current_arg == "--shm"){ 
 			file_format = 0;
 			shm_mode = true;
+			core->SetSharedMemMode(true);
 			std::cout << " Using shm mode!\n";
 		}
 		else if(current_arg == "--ldf"){ 
@@ -436,17 +492,17 @@ int main(int argc, char *argv[]){
 		else if(current_arg == "--root"){ 
 			file_format = 2;
 		}
-		else{ core_args.push_back(current_arg); } // Unrecognized option.
+		else{ coreargs.push_back(current_arg); } // Unrecognized option.
 	}
 
 	std::string input_filename = "";
-	if(!core->SetArgs(core_args, input_filename)){ 
-		help(argv[0], core);
+	if(!core->SetArgs(coreargs, input_filename)){ 
+		Help(argv[0], core);
 		return 1; 
 	}
 
 	if(!shm_mode){
-		extension = GetExtension(input_filename, prefix);
+		extension = get_extension(input_filename, prefix);
 		if(file_format != -1){
 			if(file_format == 0){ std::cout << sys_message_head << "Forcing ldf file readout.\n"; }
 			else if(file_format == 1){ std::cout << sys_message_head << "Forcing pld file readout.\n"; }
@@ -481,10 +537,6 @@ int main(int argc, char *argv[]){
 	// Initialize the Unpacker object.
 	core->Initialize(sys_message_head);
 
-	// Initialize the command terminal
-	Terminal terminal;
-	term_ = &terminal;
-
 	if(!shm_mode){
 		std::cout << sys_message_head << "Using file prefix " << prefix << ".\n";
 		input_file.open((prefix+"."+extension).c_str(), std::ios::binary);
@@ -493,23 +545,29 @@ int main(int argc, char *argv[]){
 			input_file.close();
 			return 1;
 		}
+		input_file.seekg(0, input_file.end);
+	 	file_length = input_file.tellg();
+	 	input_file.seekg(0, input_file.beg);
 	}
 	else{
-		if(!poll_server.Init(5555, 1)){
+		poll_server = new Server();
+		if(!poll_server->Init(5555, 1)){
 			std::cout << " ERROR: Failed to open shm socket 5555!\n";
 			return 1;
 		}
-
-		std::string temp_name = std::string(PROG_NAME);
-		
-		// Only initialize the terminal if this is shared-memory mode
-		terminal.Initialize(("."+temp_name+".cmd").c_str());
-		terminal.SetPrompt((temp_name+" $ ").c_str());
-		terminal.AddStatusWindow();
-
-		std::cout << "\n " << PROG_NAME << " v" << SCAN_VERSION << "\n"; 
-		std::cout << " ==  ==  ==  ==  == \n\n"; 
 	}
+
+	// Initialize the terminal.
+	std::string temp_name = std::string(PROG_NAME);
+	
+	term = new Terminal();
+	term->Initialize();
+	term->SetCommandHistory(("."+temp_name+".cmd").c_str());
+	term->SetPrompt((temp_name+" $ ").c_str());
+	term->AddStatusWindow();
+
+	std::cout << "\n " << PROG_NAME << " v" << SCAN_VERSION << "\n"; 
+	std::cout << " ==  ==  ==  ==  == \n\n"; 
 
 	if(debug_mode){ std::cout << sys_message_head << "Using debug mode.\n"; }
 	if(dry_run_mode){ std::cout << sys_message_head << "Doing a dry run.\n"; }
@@ -564,30 +622,30 @@ int main(int argc, char *argv[]){
 			input_file.seekg(file_start_offset*4);
 			std::cout << " Input file is now at " << input_file.tellg() << " bytes\n";
 		}
-
-		start_run_control(core);
 	}
-	else{ 
-		// Start the run control thread
-		std::cout << "\nStarting data control thread\n";
-		std::thread runctrl(start_run_control, core);
 	
-		// Start the command control thread. This needs to be the last thing we do to
-		// initialize, so the user cannot enter commands before setup is complete
-		std::cout << "Starting command thread\n\n";
-		std::thread comctrl(start_cmd_control, core);
+	// Start the run control thread
+	std::cout << "\nStarting data control thread\n";
+	std::thread runctrl(start_run_control, this);
 
-		// Synchronize the threads and wait for completion
-		comctrl.join();
-		runctrl.join();
+	// Start the command control thread. This needs to be the last thing we do to
+	// initialize, so the user cannot enter commands before setup is complete
+	std::cout << "Starting command thread\n\n";
+	std::thread comctrl(start_cmd_control, this);
+
+	// Synchronize the threads and wait for completion
+	comctrl.join();
+	runctrl.join();
+
+	// Close the socket and restore the terminal
+	term->Close();
 	
-		// Close the socket and restore the terminal
-		terminal.Close();
-		poll_server.Close();
-		
-		//Reprint the leader as the carriage was returned
-		std::cout << "Running " << PROG_NAME << " v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
-	}
+	// Only close the server if this is shared memory mode. Otherwise
+	// the server would never have been initialized.
+	if(shm_mode){ poll_server->Close(); }
+	
+	//Reprint the leader as the carriage was returned
+	std::cout << "Running " << PROG_NAME << " v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
 	
 	std::cout << sys_message_head << "Retrieved " << num_spills_recvd << " spills!\n";
 
@@ -598,7 +656,6 @@ int main(int argc, char *argv[]){
 	
 	core->PrintStatus(sys_message_head);
 	core->Close();
-	delete core;
 	
 	return 0;
 }

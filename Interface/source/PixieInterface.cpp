@@ -16,6 +16,10 @@
 using namespace std;
 using namespace Display;
 
+//A variable defined by the pxi library containing the path to the crate configuration.
+extern const char* PCISysIniFile;
+
+
 set<string> PixieInterface::validConfigKeys;
 
 // some simple histogram functions
@@ -94,31 +98,35 @@ bool PixieInterface::Histogram::Write(ofstream &out)
 
 PixieInterface::PixieInterface(const char *fn) : hasAlternativeConfig(false), lock("PixieInterface")
 {
-  SetColorTerm();
-  // Set-up valid configuration keys if they don't exist yet
-  if (validConfigKeys.empty()) { 
-    //? perhaps these should allow more than just one alternate firmware configuration 
-    validConfigKeys.insert("AltComFpgaFile");
-    validConfigKeys.insert("AltDspConfFile");
-    validConfigKeys.insert("AltDspVarFile");
-    validConfigKeys.insert("AltSpFpgaFile");
-    validConfigKeys.insert("AltTrigFpgaFile");
-    // standard files
-    validConfigKeys.insert("ComFpgaFile");
-    validConfigKeys.insert("DspConfFile");
-    validConfigKeys.insert("DspVarFile");
-    validConfigKeys.insert("DspSetFile");
-    validConfigKeys.insert("DspWorkingSetFile");
-    validConfigKeys.insert("ListModeFile");
-    validConfigKeys.insert("PixieBaseDir");
-    validConfigKeys.insert("SlotFile");
-    validConfigKeys.insert("SpFpgaFile");
-    validConfigKeys.insert("TrigFpgaFile");
-  }
-  if (!ReadConfigurationFile(fn)) {
-    cout << ErrorStr("Error reading configuration file") << endl;
-    exit(EXIT_FAILURE);
-  }
+	SetColorTerm();
+	// Set-up valid configuration keys if they don't exist yet
+	if (validConfigKeys.empty()) { 
+		//? perhaps these should allow more than just one alternate firmware configuration 
+		validConfigKeys.insert("AltComFpgaFile");
+		validConfigKeys.insert("AltDspConfFile");
+		validConfigKeys.insert("AltDspVarFile");
+		validConfigKeys.insert("AltSpFpgaFile");
+		validConfigKeys.insert("AltTrigFpgaFile");
+		// standard files
+		validConfigKeys.insert("ComFpgaFile");
+		validConfigKeys.insert("DspConfFile");
+		validConfigKeys.insert("DspVarFile");
+		validConfigKeys.insert("DspSetFile");
+		validConfigKeys.insert("DspWorkingSetFile");
+		validConfigKeys.insert("ListModeFile");
+		validConfigKeys.insert("PixieBaseDir");
+		validConfigKeys.insert("SlotFile");
+		validConfigKeys.insert("SpFpgaFile");
+		validConfigKeys.insert("TrigFpgaFile");
+		validConfigKeys.insert("CrateConfig");
+	}
+	if (!ReadConfigurationFile(fn)) {
+		std::cout << Display::ErrorStr() << " Unable to read configuration file: '" << fn << "\n";
+		std::cout << Display::InfoStr() << " Did you forget to copy default configuration files from '" << INSTALL_PREFIX << "/share/config' to the running directory?\n";
+		exit(EXIT_FAILURE);
+	}
+	//Overwrite the default path 'pxisys.ini' with the one specified in the config file.
+	PCISysIniFile = configStrings["CrateConfig"].c_str();
 
 }
 

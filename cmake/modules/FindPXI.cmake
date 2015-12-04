@@ -36,22 +36,23 @@ function(PXI_CONFIG)
 	#create an installer that can be invoked by
 	#add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)	
 	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake 
-		"file(INSTALL pixie.cfg DESTINATION ${CMAKE_INSTALL_PREFIX})\n" 
+		"file(INSTALL pixie.cfg DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n" 
 	)
 
 	#Following are lists of keys and the glob expr to find the files
-	set(CONFIG_NAME SpFpgaFile ComFpgaFile DspConfFile DspVarFile SlotFile DspSetFile)
+	set(CONFIG_NAME SpFpgaFile ComFpgaFile DspConfFile DspVarFile CrateConfig SlotFile DspSetFile)
 	set(CONFIG_EXPR 
 		firmware/fippixie16*.bin #SpFpgaFile
 		firmware/syspixie16*.bin #ComFpgaFile
 		dsp/Pixie16DSP*.ldr #DspConfFile
 		dsp/Pixie16DSP*.var #DspVarFile
+		test/pxisys.ini #CrateConfig
 		configuration/slot_def.set #SlotFile
 		configuration/default.set #DspSetFile
 	)
 
 	#We loop over each item in the list and search for a matching file
-	foreach(CONFIG_STEP RANGE 0 5)
+	foreach(CONFIG_STEP RANGE 0 6)
 		#Get key name and expression form the list
 		list(GET CONFIG_NAME ${CONFIG_STEP} KEY)
 		list(GET CONFIG_EXPR ${CONFIG_STEP} GLOB_EXPR)
@@ -70,15 +71,15 @@ function(PXI_CONFIG)
 			if (NUM_MATCHES EQUAL 1)
 				configure_file(${PXI_ROOT_DIR}/${FILE_MATCHES} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake 
-					"file(INSTALL slot_def.set DESTINATION ${CMAKE_INSTALL_PREFIX})\n")
+					"file(INSTALL slot_def.set DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n")
 				set(FILE_MATCHES "./slot_def.set")
 			endif()
 		elseif (${KEY} MATCHES "DspSetFile")
 			if (NUM_MATCHES EQUAL 1)
-				configure_file(${PXI_ROOT_DIR}/${FILE_MATCHES} ${CMAKE_CURRENT_BINARY_DIR}/current.set COPYONLY)
+				configure_file(${PXI_ROOT_DIR}/${FILE_MATCHES} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake 
-					"file(INSTALL current.set DESTINATION ${CMAKE_INSTALL_PREFIX})\n")
-				set(FILE_MATCHES ./current.set)
+					"file(INSTALL default.set DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n")
+				set(FILE_MATCHES ./default.set)
 			endif()
 		endif ()
 		#Append the config file
@@ -86,6 +87,6 @@ function(PXI_CONFIG)
 	endforeach()
 
 	#Added the working set file name
-	file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "DspWorkingSetFile\t./current.set")
+	file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "DspWorkingSetFile\t./default.set")
 
 endfunction()

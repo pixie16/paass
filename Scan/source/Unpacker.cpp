@@ -9,9 +9,6 @@
 #include "Unpacker.hpp"
 #include "ChannelEvent.hpp"
 
-#define MAX_PIXIE_MOD 12
-#define MAX_PIXIE_CHAN 15
-
 void Unpacker::ClearRawEvent(){
 	while(!rawEvent.empty()){
 		delete rawEvent.front();
@@ -47,6 +44,12 @@ void Unpacker::ScanList(){
 
 	// Loop over the list of channels that fired in this buffer
 	while(!eventList.empty()){
+		if(kill_all){ // Hard abort.
+			ClearRawEvent();
+			ClearEventList();
+			return;
+		}
+	
 		current_event = eventList.front();
 		
 		mod = current_event->modNum;
@@ -120,6 +123,12 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 			return 0;
 		}
 		while( buf < bufStart + bufLen ){
+			if(kill_all){ // Hard abort.
+				ClearRawEvent();
+				ClearEventList();
+				return numEvents;
+			}
+		
 			ChannelEvent *currentEvt = new ChannelEvent();
 
 			// decoding event data... see pixie16app.c
@@ -129,7 +138,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 			unsigned int crateNum     = (buf[0] & 0x00000F00) >> 8;
 			unsigned int headerLength = (buf[0] & 0x0001F000) >> 12;
 			unsigned int eventLength  = (buf[0] & 0x1FFE0000) >> 17;
-			
+
 			currentEvt->virtualChannel = ((buf[0] & 0x20000000) != 0);
 			currentEvt->saturatedBit   = ((buf[0] & 0x40000000) != 0);
 			currentEvt->pileupBit      = ((buf[0] & 0x80000000) != 0);
@@ -195,6 +204,8 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 				}
 			}*/
 
+			channel_counts[modNum][chanNum]++;
+
 			currentEvt->energy = energy;
 			if(currentEvt->saturatedBit){ currentEvt->energy = 16383; }
 					
@@ -230,7 +241,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 			}
  
 			eventList.push_back(currentEvt);
-
+			
 			numEvents++;
 		}
 	} 
@@ -243,13 +254,25 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 }
 
 Unpacker::Unpacker(){
+	kill_all = false;
 	debug_mode = false;
+	shm_mode = false;
 	init = false;
+
+	TOTALREAD = 1000000; // Maximum number of data words to read.
+	maxWords = 131072; // Maximum number of data words for revision D.	
+	event_width = 62; // ~ 500 ns in 8 ns pixie clock ticks.
 	
 	root_file = NULL;
 	root_tree = NULL;
 	
 	message_head = "";
+	
+	for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
+		for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
+			channel_counts[i][j] = 0;
+		}
+	}
 }
 
 Unpacker::~Unpacker(){
@@ -269,8 +292,6 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 	
 	//static clock_t clockBegin; // Initialization time
 	//time_t tmsBegin;
-
-	std::vector<ChannelEvent*> eventList; // Vector to hold the events
 
 	int retval = 0; // return value from various functions
 	
@@ -294,6 +315,12 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 	// While the current location in the buffer has not gone beyond the end
 	// of the buffer (ignoring the last three delimiters, continue reading
 	while (nWords_read <= nWords){
+		if(kill_all){ // Hard abort.
+			ClearRawEvent();
+			ClearEventList();
+			return true;
+		}
+	
 		// Retrieve the record length and the vsn number
 		lenRec = data[nWords_read]; // Number of words in this record
 		vsn = data[nWords_read+1]; // Module number
@@ -435,5 +462,15 @@ void Unpacker::Close(){
 	if(init){
 		ClearRawEvent();
 		ClearEventList();
+		
+		std::ofstream count_output("counts.dat");
+		if(count_output.good()){
+			for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
+				for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
+					count_output << i << "\t" << j << "\t" << channel_counts[i][j] << std::endl;
+				}
+			}
+			count_output.close();
+		}
 	}
 }

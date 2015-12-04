@@ -12,7 +12,7 @@ namespace Display {
 
   std::string CriticalStr(const std::string &str);
   std::string ErrorStr(const std::string &str = "[ERROR]");
-  std::string InfoStr(const std::string &str);
+  std::string InfoStr(const std::string &str = "[INFO]");
   std::string OkayStr(const std::string &str = "[OK]");
   std::string WarningStr(const std::string &str = "[WARNING]");
 
