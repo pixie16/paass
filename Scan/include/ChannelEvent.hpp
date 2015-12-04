@@ -7,7 +7,8 @@
 #include <vector>
 #include <stdlib.h>
 
-struct ChannelEvent{
+class ChannelEvent{
+  public:
 	double energy; /// Raw pixie energy.
 	double time; /// Raw pixie event time. Measured in filter clock ticks (8E-9 Hz for RevF).
 	
@@ -47,6 +48,8 @@ struct ChannelEvent{
 	/// Default constructor.
 	ChannelEvent();
 	
+	~ChannelEvent();
+	
 	/// Get the event ID number (mod * chan).
 	int GetID(){ return modNum*chanNum; }
 	
@@ -65,7 +68,10 @@ struct ChannelEvent{
 	/// Find the leading edge of the pulse at a given percentage of pulse maximum.
 	float FindLeadingEdge(const float &thresh_=0.05);
 	
-	/// Integrate the trace in the range [start_, stop_] and return the result.
+	/// Integrate the baseline corrected trace in the range [start_, stop_] and return the result.
+	float IntegratePulse(const size_t &start_=0, const size_t &stop_=0);
+	
+	/// Integrate the baseline corrected trace in the range [start_, stop_] and return the result.
 	float FindQDC(const size_t &start_=0, const size_t &stop_=0);
 	
 	/// Return true if the time of arrival for rhs is later than that of lhs.

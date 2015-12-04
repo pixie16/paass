@@ -41,7 +41,8 @@ is `PixieSuite2/exec`
 * -DUSE\_DAMM (default ON)
 * -DUSE\_SETUP (default OFF)
 * -DUSE\_NCURSES (default ON; required for poll2)
-* -DCORE\_ONLY (default OFF)
+* -DUSE\_SCAN (default ON)
+* -DUSE\_POLL (default ON)
 
 ##Tested Systems
 The softare has been compiled and tested on the following setups: 

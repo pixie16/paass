@@ -607,7 +607,7 @@ void Poll::help(){
 	std::cout << "   bit_test [num_bits] [number]          - Display active bits in a given integer up to 32 bits long\n";
 	std::cout << "   get_traces [mod] [chan] <threshold>   - Get traces for all channels in a specified module\n";
 	std::cout << "   status              - Display system status information\n";
-	std::cout << "   thresh              - Display current polling threshold\n";
+	std::cout << "   thresh [threshold]  - Modify or display the current polling threshold.\n";
 	std::cout << "   debug               - Toggle debug mode flag (default=false)\n";
 	std::cout << "   quiet               - Toggle quiet mode flag (default=false)\n";
 	std::cout << "   quit                - Close the program\n";
@@ -703,7 +703,7 @@ bool Poll::start_run() {
  * \return Returns true if successful.
  */
 bool Poll::stop_run() {
-	if(!acq_running){ 
+	if(!acq_running && !do_MCA_run){ 
 		std::cout << sys_message_head << "Acquisition is not running\n"; 
 		return false;
 	}
@@ -746,7 +746,7 @@ bool Poll::start_acq() {
  * \return Returns true if succesful.
  */
 bool Poll::stop_acq() {
-	if(!acq_running){ 
+	if(!acq_running && !do_MCA_run){ 
 		std::cout << sys_message_head << "Acquisition is not running\n"; 
 		return false;
 	}
@@ -936,13 +936,21 @@ void Poll::CommandControl(){
 			cmd = "quit"; 
 		}
 		else if(cmd == "CTRL_C"){ 
-			std::cout << sys_message_head << "Warning! Received SIGINT (ctrl-c) signal.\n";
-			continue; 
+			std::cout << sys_message_head << "Received SIGINT (ctrl-c) signal.";
+			if (do_MCA_run) { 
+				std::cout << " Stopping MCA...\n";
+				cmd = "stop";
+			}
+			else {
+				std::cout << " Ignoring signal.\n";
+				continue;
+			}
 		}
 		else if(cmd == "CTRL_Z"){ 
 			std::cout << sys_message_head << "Warning! Received SIGTSTP (ctrl-z) signal.\n";
 			continue; 
 		}	
+
 		if (cmd.find("\t") != std::string::npos) {
 			poll_term_->TabComplete(TabComplete(cmd.substr(0,cmd.length()-1)));
 			continue;
@@ -993,6 +1001,9 @@ void Poll::CommandControl(){
 			show_status();
 		}
 		else if(cmd == "thresh"){
+			if (p_args==1) {
+				SetThreshWords(EXTERNAL_FIFO_LENGTH * atof(arguments.at(0).c_str()) / 100.0);
+			}
 			show_thresh();
 		}
 		else if(cmd == "dump"){ // Dump pixie parameters to file
@@ -1465,9 +1476,10 @@ void Poll::RunControl(){
 				}
 				
 				if(!mca_args.CheckTime() || do_stop_acq){ // End the run.
-					mca_args.Close(pif);
+					pif->EndRun();
 					std::cout << sys_message_head << "Ending MCA run.\n";
 					std::cout << sys_message_head << "Ran for " << mca_args.GetMCA()->GetRunTime() << " s.\n";
+					mca_args.Close(pif);
 					do_stop_acq = false;
 					do_MCA_run = false;
 				}

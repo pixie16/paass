@@ -42,7 +42,11 @@ option(USE_ROOT "Use ROOT for MCA." ON)
 option(USE_DAMM "Use DAMM for MCA." ON)
 option(USE_SETUP "Include the older setup programs in installation." OFF)
 option(USE_NCURSES "Use ncurses for terminal." ON)
-option(CORE_ONLY "Install only PixieCore." OFF)
+option(USE_SCAN "Install PixieScan." ON)
+option(USE_POLL "Install Poll." ON)
+
+#The following line has backslashes to escape the backslashes which escape the double quotes.
+add_definitions(-D INSTALL_PREFIX="\\"${CMAKE_INSTALL_PREFIX}\\"")
 
 #Find packages needed for poll2
 #Load additional find_package scripts.
@@ -77,7 +81,7 @@ if(${USE_DAMM})
 	add_definitions("-D USE_DAMM")
 endif()
 
-if (NOT ${CORE_ONLY})
+if (${USE_POLL})
 	#Find the PLX Library
 	find_package(PLX REQUIRED)
 	link_directories(${PLX_LIBRARY_DIR})
@@ -87,8 +91,6 @@ if (NOT ${CORE_ONLY})
 	find_package(PXI REQUIRED)
 	include_directories(${PXI_INCLUDE_DIR})
 	link_directories(${PXI_LIBRARY_DIR})
-	#The following configuration file path is hardcoded into the PXI software :-(
-	install(FILES ${PXI_ROOT_DIR}/test/pxisys.ini DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 	#Create pixie.cfg and copy slot_def.set as well as default.set to current.set
 	PXI_CONFIG()
@@ -97,25 +99,39 @@ if (NOT ${CORE_ONLY})
 
 endif()
 
-add_subdirectory(Core)
+#Build the core library
 include_directories(Core/include)
+add_subdirectory(Core)
 
-if (NOT ${CORE_ONLY})
+#Build the scan library
+if (${USE_SCAN})
+	include_directories(Scan/include)
+	add_subdirectory(Scan)
+endif()
+
+#Building polling tools
+if (${USE_POLL})
+	#Build the pixie interface
 	include_directories(Interface/include)
 	add_subdirectory(Interface/source)
 
+	#Build the MCA objects
 	include_directories(MCA/include)
 	add_subdirectory(MCA)
 
+	#Build the setup tools
 	if (USE_SETUP) 
 		include_directories(Setup/include)
 		add_subdirectory(Setup)
 	endif()
 
+	#Build poll
 	add_subdirectory(Poll)
 
+	#Build PxiDump
 	add_subdirectory(PxiDump/source)
 endif()
 
+#Build the share objects
 add_subdirectory(share)
 

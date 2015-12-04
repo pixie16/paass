@@ -8,11 +8,11 @@ foreach(UTIL ${SETUP_UTILS})
 	target_link_libraries(${UTIL} PixieSupport PixieInterface) # The order matters here! CRT
 endforeach(UTIL)
 
-install(TARGETS ${SETUP_UTILS} DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(TARGETS ${SETUP_UTILS} DESTINATION bin)
 
 if(${USE_ROOT})
 	add_executable(paramScan paramScan.cpp)
 	target_link_libraries(paramScan PixieInterface MCA_LIBRARY ${ROOT_LIBRARIES}
 		"-lSpectrum")
-	install(TARGETS paramScan DESTINATION ${CMAKE_INSTALL_PREFIX})
+	install(TARGETS paramScan DESTINATION bin)
 endif()

@@ -15,6 +15,8 @@
 #include <utility>
 #include <map>
 
+#include <sys/stat.h> //For directory manipulation
+
 #include "poll2_core.h"
 #include "Display.h"
 #include "CTerminal.h"
@@ -49,7 +51,7 @@ int main(int argc, char *argv[]){
 
 	// Define all valid command line options
 	// This is done to keep legacy options available while removing dependency on HRIBF libraries
-	CLoption valid_opt[11];
+	CLoption valid_opt[12];
 	valid_opt[0].Set("alarm", false, true);
 	valid_opt[1].Set("fast", false, false);
 	valid_opt[2].Set("quiet", false, false);
@@ -60,14 +62,19 @@ int main(int argc, char *argv[]){
 	valid_opt[7].Set("debug", false, false);
 	valid_opt[8].Set("pacman", false, false);
 	valid_opt[9].Set("help", false, false);
-	valid_opt[10].Set("?", false, false);
-	if(!get_opt(argc, argv, valid_opt, 11, help)){ return 1; }
+	valid_opt[10].Set("prefix", false, false);
+	valid_opt[11].Set("?", false, false);
+	if(!get_opt(argc, argv, valid_opt, 12, help)){ return 1; }
 
 	// Help
 	if(valid_opt[9].is_active){
 		help();
 		return 0;
 	}	
+	if(valid_opt[10].is_active){ 
+		std::cout << INSTALL_PREFIX <<"\n";
+		return 0; 
+	}
 
 	Terminal poll_term;
 
@@ -93,17 +100,19 @@ int main(int argc, char *argv[]){
 	if(valid_opt[6].is_active){ poll.SetZeroClocks(); }
 	if(valid_opt[7].is_active){ poll.SetDebugMode(); }
 	if(valid_opt[8].is_active){ poll.SetPacmanMode(); }
-	if(valid_opt[10].is_active){ return 0; }
+	if(valid_opt[11].is_active){ return 0; }
 
 	if(!poll.Initialize()){ return 1; }
 
+
+	std::string poll2Dir = getenv("HOME");
+	if (!mkdir(poll2Dir.append("/.poll2/").c_str(), S_IRWXU)) {
+		if (errno == EEXIST) 
+			std::cout << Display::ErrorStr() << "Unable to create poll2 settings directory '" << poll2Dir << "'!\n";
+	}
+
 	// Initialize the terminal before doing anything else;
-	poll_term.Initialize(".poll2.cmd");
-	poll_term.SetPrompt(Display::InfoStr("POLL2 $ ").c_str());
-	poll_term.AddStatusWindow();
-	poll_term.EnableTabComplete();
-	poll_term.SetLogFile(".poll2.log");
-	if (poll.GetPacmanMode()) poll_term.EnableTimeout();
+	poll_term.Initialize();
 
 	std::cout << "\n#########      #####    ####      ####       ########\n"; 
 	std::cout << " ##     ##    ##   ##    ##        ##       ##      ##\n";
@@ -119,6 +128,13 @@ int main(int argc, char *argv[]){
 	std::cout << "\n POLL2 v" << POLL2_CORE_VERSION << "\n"; 
 	std::cout << " ==  ==  ==  ==  == \n\n"; 
 	
+	poll_term.SetCommandHistory(poll2Dir + "poll2.cmd");
+	poll_term.SetPrompt(Display::InfoStr("POLL2 $ ").c_str());
+	poll_term.AddStatusWindow();
+	poll_term.EnableTabComplete();
+	poll_term.SetLogFile(poll2Dir + "poll2.log");
+	if (poll.GetPacmanMode()) poll_term.EnableTimeout();
+
 	poll.SetThreshWords(EXTERNAL_FIFO_LENGTH * threshPercent / 100.0);
 	std::cout << "Using FIFO threshold of " << threshPercent << "% (" << poll.GetThreshWords() << "/" << EXTERNAL_FIFO_LENGTH << " words).\n";
 	

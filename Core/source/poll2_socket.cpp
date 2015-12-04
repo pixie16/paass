@@ -31,7 +31,12 @@
 /////////////////////////////////////////////////////////////////////
 // class Server
 /////////////////////////////////////////////////////////////////////
-
+/**
+ *	\param[in] port_ The port number to use for the connection.
+ *	\param[in] sec_ The number of seconds to wait for recieve timeout message.
+ *	\param[in] usec_ The number of microseconds in addition to the above seconds to wait for recieve timeout message.
+ *	\return Returns false if the socket fails to open or bind.
+ */
 bool Server::Init(int port_, int sec_, int usec_){
 	if(init){ return false; }
 

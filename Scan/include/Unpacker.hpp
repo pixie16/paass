@@ -5,6 +5,13 @@
 #include <vector>
 #include <string>
 
+#ifndef MAX_PIXIE_MOD
+#define MAX_PIXIE_MOD 12
+#endif
+#ifndef MAX_PIXIE_CHAN
+#define MAX_PIXIE_CHAN 15
+#endif
+
 class ChannelEvent;
 
 class TFile;
@@ -12,12 +19,16 @@ class TTree;
 
 class Unpacker{
   protected:
-	static const unsigned int TOTALREAD = 1000000; /// Maximum number of data words to read.
-	static const unsigned int maxWords = 131072; /// Maximum number of data words for revision D.
+	unsigned int TOTALREAD; /// Maximum number of data words to read.
+	unsigned int maxWords; /// Maximum number of data words for revision D.
 	
 	unsigned int event_width; /// The width of the raw event in pixie clock ticks (8 ns).
 	
+	unsigned int channel_counts[MAX_PIXIE_MOD+1][MAX_PIXIE_CHAN+1]; /// Counters for each channel in each module.
+	
+	bool kill_all; /// Set to true if kill all signal received from ScanMain.
 	bool debug_mode; /// True if debug mode is set.
+	bool shm_mode; /// Set to true if shared memory mode is to be used.
 	bool init; /// True if the class has been properly initialized.
 
 	std::deque<ChannelEvent*> eventList; /// The list of all events in the spill.
@@ -68,7 +79,7 @@ class Unpacker{
 	Unpacker();
 	
 	/// Destructor.
-	~Unpacker();
+	virtual ~Unpacker();
 
 	/** Initialize the Unpacker object. Does nothing useful if not overloaded
 	 * by a derived class.
@@ -83,8 +94,23 @@ class Unpacker{
 	/// Return true if Unpacker was properly initialized.
 	bool IsInit(){ return init; }
 
+	/// Perform tasks when waiting for a spill.
+	virtual void IdleTask() {};
+
 	/// Toggle debug mode on / off.
 	bool SetDebugMode(bool state_=true){ return (debug_mode = state_); }
+	
+	/// Toggle shared memory mode on/off.
+	bool SetSharedMemMode(bool state_=true){ return (shm_mode = state_); }
+
+	/// Scan has stopped data acquisition.
+	virtual void StopAcquisition(){  }
+	
+	/// Scan has started data acquisition.
+	virtual void StartAcquisition(){  }
+	
+	/// Set the kill flag to true. This should be used to exit gracefully.
+	void KillAll(){ kill_all = true; }
 
 	/// Set the width of events in pixie16 clock ticks.
 	unsigned int SetEventWidth(unsigned int width_){ return (event_width = width_); }
