@@ -101,11 +101,14 @@ void PulserProcessor::AnalyzeData(void) {
     HighResTimingData stop  =
         (*pulserMap.find(make_pair(0,"stop"))).second;
 
-    static int counter = 0;
-    for(Trace::const_iterator it = start.GetTrace()->begin();
-        it!= start.GetTrace()->end(); it++)
-        plot(DD_PROBLEMS, int(it-start.GetTrace()->begin()), counter, *it);
-    counter ++;
+    HighResTimingData betaLeft = 
+	
+
+    // static int counter = 0;
+    // for(Trace::const_iterator it = start.GetTrace()->begin();
+    //     it!= start.GetTrace()->end(); it++)
+    //     plot(DD_PROBLEMS, int(it-start.GetTrace()->begin()), counter, *it);
+    // counter ++;
 
     // unsigned int cutVal = 15;
     // if(start.maxpos == 41)
@@ -125,8 +128,8 @@ void PulserProcessor::AnalyzeData(void) {
         double timeOff  = 31000.;
         double phaseX   = 7000.;
 
-//        cout << timeDiff * timeRes + timeOff << " "
-//             << start.GetPhase()*timeRes-phaseX << endl;
+	cout << timeDiff * timeRes + timeOff << " "
+	     << start.GetPhase()*timeRes-phaseX << endl;
 
         plot(D_TIMEDIFF, timeDiff*timeRes + timeOff);
         plot(DD_PVSP, start.GetPhase()*timeRes-phaseX,
