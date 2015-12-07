@@ -56,7 +56,6 @@ Oscilloscope::Oscilloscope(int mod /*= 0*/, int chan/*=0*/) :
 	
 	graph = new TGraph();
 	hist = new TH2F("hist","",256,0,1,256,0,1);
-	hist->SetBit(TH1::kCanRebin);
 
 	paulauskasFunc = new TF1("paulauskas",PaulauskasFitFunc,0,1,4);
 	paulauskasFuncText = new TF1("paulauskasText","[0] * exp(-(x - [1])*[2]) * (1 - exp(-pow((x-[1])*[3],4)))",4);
