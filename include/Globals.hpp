@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 
+#include <cmath>
 #include <cstdlib>
 #include <stdint.h>
 
