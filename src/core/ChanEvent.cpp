@@ -20,6 +20,12 @@ void ChanEvent::ZeroNums() {
     correctedTime = -1;
     highResTime   = -1;
 
+    virtualChannel = false;
+    pileupBit = false;
+    saturatedBit = false;
+    cfdForceTrig = false;
+    cfdTrigSource = false;
+    
     trigTime    = pixie::U_DELIMITER;
     eventTimeLo = pixie::U_DELIMITER;
     eventTimeHi = pixie::U_DELIMITER;

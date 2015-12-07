@@ -56,6 +56,7 @@ using pixie::word_t;
 using pixie::halfword_t;
 using std::cout;
 using std::endl;
+using std::cerr;
 using std::vector;
 
 extern StatsData stats;
@@ -92,63 +93,74 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
             ChanEvent *currentEvt = new ChanEvent;
             // decoding event data... see pixie16app.c
             // buf points to the start of channel data
+
+	    //Decode the first header word
             word_t chanNum      = (buf[0] & 0x0000000F);
             word_t slotNum      = (buf[0] & 0x000000F0) >> 4;
             word_t crateNum     = (buf[0] & 0x00000F00) >> 8;
-            word_t headerLength = (buf[0] & 0x0001F000) >> 12;
-            word_t eventLength  = (buf[0] & 0x1FFE0000) >> 17;
-
-	    cout << buf[0] << " " << chanNum << " " << slotNum << " " 
-		 << crateNum << " " << headerLength << " " << eventLength << endl;
-            currentEvt->virtualChannel = ((buf[0] & 0x20000000) != 0);
-            currentEvt->saturatedBit   = ((buf[0] & 0x40000000) != 0);
+	    word_t headerLength = (buf[0] & 0x0001F000) >> 12;
+            word_t eventLength  = (buf[0] & 0x7FFE0000) >> 17;
             currentEvt->pileupBit      = ((buf[0] & 0x80000000) != 0);
-            // Rev. D header lengths not clearly defined in pixie16app_defs
-            //! magic numbers here for now
-            // make some sanity checks
+
+	    // Sanity check
             if(headerLength == stats.headerLength) {
-                // this is a manual statistics block inserted by the poll program
+                // this is a manual statistics block inserted poll 
                 stats.DoStatisticsBlock(&buf[1], modNum);
                 buf += eventLength;
                 numEvents = readbuff::STATS;
                 continue;
             }
-            if(headerLength != 4  && headerLength != 8 &&
-                headerLength != 12 && headerLength != 16) {
-                cout << "  Unexpected header length: " << headerLength << endl;
-                cout << "    Buffer " << modNum << " of length " << *bufLen << endl;
-                cout << "    CHAN:SLOT:CRATE "
-                     << chanNum << ":" << slotNum << ":" << crateNum << endl;
-                // advance to next event and continue
-                // buf += EventLength;
-                // continue;
-                // skip the rest of this buffer
-                return readbuff::ERROR;
-                //return numEvents;
-            }
+
+	    //Decode the second header word
             word_t lowTime     = buf[1];
+
+	    //Decode the third header word
             word_t highTime    = buf[2] & 0x0000FFFF;
-            word_t cfdTime     = (buf[2] & 0xFFFF0000) >> 16;
+            word_t cfdTime     = (buf[2] & 0x3FFF0000) >> 16;
+	    currentEvt->cfdForceTrig   = ((buf[2] & 0x80000000) != 0);
+	    currentEvt->cfdTrigSource  = ((buf[2] & 0x40000000) != 0);
+
+	    //Decode the foruth header word
             word_t energy      = buf[3] & 0x0000FFFF;
-            word_t traceLength = (buf[3] & 0xFFFF0000) >> 16;
-            if(headerLength == 8 || headerLength == 16) {
-                // skip the onboard partial sums for now
-                //   trailing, leading, gap, baseline
-            }
-            if(headerLength >= 12) {
-                int offset = headerLength - 8;
-                for(int i=0; i < currentEvt->numQdcs; i++) {
+            word_t traceLength = (buf[3] & 0x7FFF0000) >> 16;
+	    currentEvt->saturatedBit   = ((buf[3] & 0x80000000) != 0);
+
+	    int offset = headerLength - 8;
+	    switch(headerLength) {
+	    case 4:
+	    case 6:
+	    case 8:
+	    case 10:
+		break;
+	    case 12:
+	    case 14:
+	    case 16:
+	    case 18:
+                for(int i=0; i < currentEvt->numQdcs; i++)
                         currentEvt->qdcValue[i] = buf[offset + i];
-                }
-            }
+		break;
+	    default:
+		cerr << "  Unexpected header length: " << headerLength << endl;
+                cerr << "    Buffer " << modNum << " of length " << *bufLen << endl;
+                cerr << "    CHAN:SLOT:CRATE "
+                     << chanNum << ":" << slotNum << ":" << crateNum << endl;
+                return readbuff::ERROR;
+		break;
+	    }
+
             // one last sanity check
             if(traceLength / 2 + headerLength != eventLength) {
-                cout << "  Bad event length (" << eventLength
-                    << ") does not correspond with length of header (" << headerLength
-                    << ") and length of trace (" << traceLength << ")" << endl;
+		cerr << headerLength << " " << eventLength << " " 
+		     << traceLength * 0.5 << " " << traceLength << endl;
+		
+                cerr << "  Bad event length (" << eventLength
+		     << ") does not correspond with length of header (" 
+		     << headerLength << ") and length of trace (" 
+		     << traceLength << ")" << endl;
                 buf += eventLength;
                 continue;
             }
+
             // handle multiple crates
             modNum += 100 * crateNum;
             currentEvt->chanNum = chanNum;
@@ -161,7 +173,6 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
                 }
             }
             currentEvt->energy = energy;
-            //KM 2012-10-24 reinstating removal of saturated
             if(currentEvt->saturatedBit)
                 currentEvt->energy = 16383;
             currentEvt->trigTime = lowTime;
@@ -170,6 +181,7 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
             currentEvt->eventTimeLo = lowTime;
             currentEvt->time = highTime * HIGH_MULT + lowTime;
             buf += headerLength;
+
             /* Check if trace data follows the channel header */
             if(traceLength > 0) {
                 // sbuf points to the beginning of trace data
