@@ -120,6 +120,11 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
 	    currentEvt->cfdForceTrig   = ((buf[2] & 0x80000000) != 0);
 	    currentEvt->cfdTrigSource  = ((buf[2] & 0x40000000) != 0);
 
+	    //if(currentEvt->cfdTrigSource != 0)
+	    //if(chanNum == 1)
+		// cout << slotNum << " " << chanNum << " " 
+		//      << currentEvt->cfdTrigSource << endl;
+
 	    //Decode the foruth header word
             word_t energy      = buf[3] & 0x0000FFFF;
             word_t traceLength = (buf[3] & 0x7FFF0000) >> 16;
@@ -150,9 +155,6 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
 
             // one last sanity check
             if(traceLength / 2 + headerLength != eventLength) {
-		cerr << headerLength << " " << eventLength << " " 
-		     << traceLength * 0.5 << " " << traceLength << endl;
-		
                 cerr << "  Bad event length (" << eventLength
 		     << ") does not correspond with length of header (" 
 		     << headerLength << ") and length of trace (" 
