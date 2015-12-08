@@ -24,6 +24,7 @@ public:
         trace_ = &chan->GetTrace();
         highResTime_ = chan->GetHighResTime()*1e9;
         pixieEnergy_ = chan->GetEnergy();
+	cfdSourceBit_ = chan->GetCfdSourceBit();
 
         snr_ =
             20*log10(trace_->GetValue("maxval") /
@@ -49,6 +50,8 @@ public:
 
     /** \return The current value of isValidData_ */
     bool GetIsValidData() const { return isValidData_; };
+    ///\return the CFD source trigger bit
+    bool GetCfdSourceBit() const { return (cfdSourceBit_);};
     /** \return The current value of aveBaseline_ */
     double GetAveBaseline() const { return trace_->GetValue("baseline"); };
     /** \return The current value of discrimination_ */
@@ -88,6 +91,7 @@ public:
 private:
     Trace *trace_; //!< the trace for the channel
 
+    bool cfdSourceBit_; //!< Member variable "cfdSourceBit_"
     bool isValidData_; //!< Member variable "dataValid_"
     double highResTime_; //!< Member variable "highResTime_"
     double snr_; //!< Member variable "snr_"
