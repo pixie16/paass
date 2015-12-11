@@ -3,17 +3,18 @@
 */
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <string>
 
 #include "Identifier.hpp"
 
 using namespace std;
 
-Identifier::TagValue Identifier::GetTag(const std::string &s) const {
-    map<string, TagValue>::const_iterator it = tag.find(s);
+int Identifier::GetTag(const std::string &s) const {
+    map<string, int>::const_iterator it = tag.find(s);
 
     if (it == tag.end()) {
-        return TagValue();
+        return(std::numeric_limits<int>::max());
     }
     return it->second;
 }
@@ -41,7 +42,7 @@ void Identifier::Print(void) const {
 	 << setw(4)  << location
 	 << setw(6)  << dammID
 	 << "    ";
-    for (map<string, TagValue>::const_iterator it = tag.begin();
+    for (map<string, int>::const_iterator it = tag.begin();
 	 it != tag.end(); it++) {
 	if (it != tag.begin())
 	    cout << ", ";
