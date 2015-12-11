@@ -55,6 +55,7 @@ Oscilloscope::Oscilloscope(int mod /*= 0*/, int chan/*=0*/) :
 	canvas->cd();
 	
 	graph = new TGraph();
+	graph->SetMarkerStyle(kFullDotSmall);
 	hist = new TH2F("hist","",256,0,1,256,0,1);
 
 	paulauskasFunc = new TF1("paulauskas",PaulauskasFitFunc,0,1,4);
@@ -119,26 +120,29 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 		for (int i=0;i<2;i++) {
 			axisVals[i][0] = 0;
 			axisVals[i][1] = 1;
+			userZoomVals[i][0] = 0;
+			userZoomVals[i][1] = 1;
 			userZoom[i] = false;
 		}
 	}
+
+	//Get the user zoom settings.
+	userZoomVals[0][0] = canvas->GetUxmin();
+	userZoomVals[0][1] = canvas->GetUxmax();
+	userZoomVals[1][0] = canvas->GetUymin();
+	userZoomVals[1][1] = canvas->GetUymax();
+
+	//Determine if the user had zomed or unzoomed.
+	for (int i=0;i<2;i++) {
+		userZoom[i] =  (userZoomVals[i][0] != axisVals[i][0] || userZoomVals[i][1] != axisVals[i][1]);
+	}
+
 	//For a waveform pulse we use a graph.
-	if (numAvgWaveforms_ == 1) {
+	if (events.size() == 1) {
 		int index = 0;
 		for (size_t i=0;i<events[0]->size;++i) {
 			graph->SetPoint(index, x_vals[i], events[0]->yvals[i]);
 			index++;
-		}
-
-		//Get the user zoom settings.
-		userZoomVals[0][0] = canvas->GetUxmin();
-		userZoomVals[0][1] = canvas->GetUxmax();
-		userZoomVals[1][0] = canvas->GetUymin();
-		userZoomVals[1][1] = canvas->GetUymax();
-
-		//Determine if the user had zomed or unzoomed.
-		for (int i=0;i<2;i++) {
-				userZoom[i] =  (userZoomVals[i][0] != axisVals[i][0] || userZoomVals[i][1] != axisVals[i][1]);
 		}
 
 		//Get and set the updated graph limits.
@@ -170,7 +174,6 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 	}
 	//For multiple events with make a 2D histogram and plot the profile on top.
 	else {
-
 		//Determine the maximum and minimum values of the events.
 		for (auto itr = events.begin(); itr != events.end(); ++itr) {
 			ChannelEvent* evt = *itr;
@@ -178,10 +181,18 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 			if (evt->maximum > axisVals[1][1]) axisVals[1][1] = 1.1 * evt->maximum;
 		}
 
+		//Set the users zoom window.
+		for (int i=0;i<2;i++) {
+			if (!userZoom[i]) {
+				for (int j=0;j<2;j++) userZoomVals[i][j] = axisVals[i][j];
+			}
+		}
+
+
 		//Reset the histogram
 		hist->Reset();
 		//Rebin the histogram
-		hist->SetBins(x_vals.size(), x_vals.front(), x_vals.back() + ADC_TIME_STEP, (axisVals[1][1] - axisVals[1][0])/ADC_TIME_STEP, axisVals[1][0], axisVals[1][1]);
+		hist->SetBins(x_vals.size(), x_vals.front(), x_vals.back() + ADC_TIME_STEP, axisVals[1][1] - axisVals[1][0], axisVals[1][0], axisVals[1][1]);
 
 		//Fill the histogram
 		for (auto itr = events.begin(); itr != events.end(); ++itr) {
@@ -206,6 +217,10 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 		hist->SetStats(false);
 		hist->Draw("COLZ");		
 		prof->Draw("SAMES");
+
+		hist->GetXaxis()->SetRangeUser(userZoomVals[0][0], userZoomVals[0][1]);
+		hist->GetYaxis()->SetRangeUser(userZoomVals[1][0], userZoomVals[1][1]);
+
 		canvas->Update();	
 		TPaveStats* stats = (TPaveStats*) prof->GetListOfFunctions()->FindObject("stats");
 		if (stats) {
@@ -253,7 +268,24 @@ void Oscilloscope::ProcessRawEvent(){
 			usleep(SLEEP_WAIT);
 			gSystem->ProcessEvents();
 		}
-	
+
+		//Check if we have delayed the plotting enough
+		time_t cur_time;
+		time(&cur_time);
+		while(difftime(cur_time, last_trace) < delay_) {
+			//If in shm mode and the plotting time has not alloted the events are cleared and this function is aborted.
+			if (shm_mode) {
+				ClearEvents();
+				return;
+			}
+			else {
+				usleep(SLEEP_WAIT);
+				gSystem->ProcessEvents();
+				time(&cur_time);
+			}
+		}	
+
+
 		//Get the first event int he FIFO.
 		current_event = rawEvent.front();
 		rawEvent.pop_front();
@@ -281,21 +313,6 @@ void Oscilloscope::ProcessRawEvent(){
 
 			//When we have the correct number of waveforms we plot them.
 			if (events_.size() >= numAvgWaveforms_) {
-				time_t cur_time;
-				time(&cur_time);
-				while(difftime(cur_time, last_trace) < delay_) {
-					//If in shm mode and the plotting time has not alloted the events are cleared and this function is aborted.
-					if (shm_mode) {
-						ClearEvents();
-						return;
-					}
-					else {
-						usleep(SLEEP_WAIT);
-						gSystem->ProcessEvents();
-						time(&cur_time);
-					}
-				}	
-
 				Plot(events_); 
 				//If this is a single capture we stop the plotting.
 				if (singleCapture_) acqRun_ = false;
