@@ -543,6 +543,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
     int id            = chan->GetID();
     string type       = chanId.GetType();
     string subtype    = chanId.GetSubtype();
+    map<string, int> tags = chanId.GetTagMap();
     bool hasStartTag  = chanId.HasTag("start");
     Trace &trace      = chan->GetTrace();
 
@@ -558,7 +559,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
 
         for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
             it != vecAnalyzer.end(); it++) {
-                (*it)->Analyze(trace, type, subtype);
+            (*it)->Analyze(trace, type, subtype,tags);
         }
 
         if (trace.HasValue("filterEnergy") ) {
