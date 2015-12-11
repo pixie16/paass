@@ -104,7 +104,10 @@ void Oscilloscope::ResetGraph(unsigned int size) {
 void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 
 	///The limits of the vertical axis
-	static float axisMin, axisMax;
+	static float axisVals[2][2]; //The max and min values of the graph, first index is the axis, second is the min / max
+	static float userZoomVals[2][2];
+	static bool userZoom[2];
+
 
 	// Draw the trace
 
@@ -113,10 +116,12 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 	}
 	if (resetGraph_) {
 		ResetGraph(events[0]->size);
-		axisMax = 0;
-		axisMin = 1E9;
+		for (int i=0;i<2;i++) {
+			axisVals[i][0] = 0;
+			axisVals[i][1] = 1;
+			userZoom[i] = false;
+		}
 	}
-	
 	//For a waveform pulse we use a graph.
 	if (numAvgWaveforms_ == 1) {
 		int index = 0;
@@ -125,12 +130,35 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 			index++;
 		}
 
-		if (graph->GetYaxis()->GetXmax() > axisMax) axisMax = graph->GetYaxis()->GetXmax(); 
-		if (graph->GetYaxis()->GetXmin() < axisMin) axisMin = graph->GetYaxis()->GetXmin(); 
-		graph->GetYaxis()->SetLimits(axisMin, axisMax);
-		graph->GetYaxis()->SetRangeUser(axisMin, axisMax);
+		//Get the user zoom settings.
+		userZoomVals[0][0] = canvas->GetUxmin();
+		userZoomVals[0][1] = canvas->GetUxmax();
+		userZoomVals[1][0] = canvas->GetUymin();
+		userZoomVals[1][1] = canvas->GetUymax();
 
-		graph->Draw("APC0");
+		//Determine if the user had zomed or unzoomed.
+		for (int i=0;i<2;i++) {
+				userZoom[i] =  (userZoomVals[i][0] != axisVals[i][0] || userZoomVals[i][1] != axisVals[i][1]);
+		}
+
+		//Get and set the updated graph limits.
+		if (graph->GetXaxis()->GetXmin() < axisVals[0][0]) axisVals[0][0] = graph->GetXaxis()->GetXmin(); 
+		if (graph->GetXaxis()->GetXmax() > axisVals[0][1]) axisVals[0][1] = graph->GetXaxis()->GetXmax(); 
+		graph->GetXaxis()->SetLimits(axisVals[0][0], axisVals[0][1]);
+		if (graph->GetYaxis()->GetXmin() < axisVals[1][0]) axisVals[1][0] = graph->GetYaxis()->GetXmin(); 
+		if (graph->GetYaxis()->GetXmax() > axisVals[1][1]) axisVals[1][1] = graph->GetYaxis()->GetXmax(); 
+		graph->GetYaxis()->SetLimits(axisVals[1][0], axisVals[1][1]);
+
+		//Set the users zoom window.
+		for (int i=0;i<2;i++) {
+			if (!userZoom[i]) {
+				for (int j=0;j<2;j++) userZoomVals[i][j] = axisVals[i][j];
+			}
+		}
+		graph->GetXaxis()->SetRangeUser(userZoomVals[0][0], userZoomVals[0][1]);
+		graph->GetYaxis()->SetRangeUser(userZoomVals[1][0], userZoomVals[1][1]);
+
+		graph->Draw("AP0");
 
 		float lowVal = (events[0]->max_index - fitLow_) * ADC_TIME_STEP;
 		float highVal = (events[0]->max_index + fitHigh_) * ADC_TIME_STEP;
@@ -146,14 +174,14 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 		//Determine the maximum and minimum values of the events.
 		for (auto itr = events.begin(); itr != events.end(); ++itr) {
 			ChannelEvent* evt = *itr;
-			if (evt->maximum > axisMax) axisMax = 1.1 * evt->maximum;
-			if (evt->stddev < axisMin) axisMin = 0.9 * evt->stddev;
+			if (evt->stddev < axisVals[1][0]) axisVals[1][0] = 0.9 * evt->stddev;
+			if (evt->maximum > axisVals[1][1]) axisVals[1][1] = 1.1 * evt->maximum;
 		}
 
 		//Reset the histogram
 		hist->Reset();
 		//Rebin the histogram
-		hist->SetBins(x_vals.size(), x_vals.front(), x_vals.back() + ADC_TIME_STEP, axisMax - axisMin, axisMin, axisMax);
+		hist->SetBins(x_vals.size(), x_vals.front(), x_vals.back() + ADC_TIME_STEP, (axisVals[1][1] - axisVals[1][0])/ADC_TIME_STEP, axisVals[1][0], axisVals[1][1]);
 
 		//Fill the histogram
 		for (auto itr = events.begin(); itr != events.end(); ++itr) {
