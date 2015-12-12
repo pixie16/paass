@@ -25,7 +25,6 @@ class PulserProcessor : public EventProcessor {
     virtual bool Process(RawEvent &event);
  protected:
     TimingMap pulserMap_; //!< map of the pulser events
-    TimingMap betaMap_; //!< map of the pulser events
  private:
     /** Retrieves the data for the associated types
      * \param [in] event : the event to get data from

@@ -75,38 +75,17 @@ bool PulserProcessor::Process(RawEvent &event) {
 
 bool PulserProcessor::RetrieveData(RawEvent &event) {
     pulserMap_.clear();
-    betaMap_.clear();
 
     static const vector<ChanEvent*> & pulserEvents =
         event.GetSummary("pulser")->GetList();
-
-    static const vector<ChanEvent*> & betaEvents =
-        event.GetSummary("beta:double")->GetList();
 
     for(vector<ChanEvent*>::const_iterator itPulser = pulserEvents.begin();
 	itPulser != pulserEvents.end(); itPulser++) {
         unsigned int location = (*itPulser)->GetChanID().GetLocation();
         string subType = (*itPulser)->GetChanID().GetSubtype();
 
-	//Trace tmp = itPulser->GetTrace();
-
         TimingDefs::TimingIdentifier key(location, subType);
         pulserMap_.insert(make_pair(key, HighResTimingData(*itPulser)));
-    }
-
-    for(vector<ChanEvent*>::const_iterator itBeta = betaEvents.begin();
-	itBeta != betaEvents.end(); itBeta++) {
-        unsigned int location = (*itBeta)->GetChanID().GetLocation();
-	string side;
-	if((*itBeta)->GetChanID().HasTag("left"))
-	    side = "left";
-	else if((*itBeta)->GetChanID().HasTag("right"))
-	    side = "right";
-	else
-	    side = "unk";	    
-	
-        TimingDefs::TimingIdentifier key(location, side);
-        betaMap_.insert(make_pair(key, HighResTimingData(*itBeta)));
     }
     
     if(pulserMap_.empty() || pulserMap_.size()%2 != 0) {
@@ -121,11 +100,6 @@ void PulserProcessor::AnalyzeData(void) {
         (*pulserMap_.find(make_pair(0,"start"))).second;
     HighResTimingData stop  =
         (*pulserMap_.find(make_pair(0,"stop"))).second;
-
-    HighResTimingData betaLeft =         
-	(*betaMap_.find(make_pair(0,"left"))).second;
-    HighResTimingData betaRight =         
-	(*betaMap_.find(make_pair(0,"right"))).second;
 	
     static int counter = 0;
     for(Trace::const_iterator it = start.GetTrace()->begin();
@@ -133,8 +107,7 @@ void PulserProcessor::AnalyzeData(void) {
         plot(DD_PROBLEMS, int(it-start.GetTrace()->begin()), counter, *it);
     counter ++;
     
-
-    //    if(start.GetIsValidData() && stop.GetIsValidData()) {
+    if(start.GetIsValidData() && stop.GetIsValidData()) {
         double timeDiff = stop.GetHighResTime() - start.GetHighResTime();
         double timeRes  = 2; //20 ps/bin
         double timeOff  = 1000.;
@@ -143,7 +116,6 @@ void PulserProcessor::AnalyzeData(void) {
 	// cout << timeDiff * timeRes + timeOff << " "
 	//      << start.GetPhase()*timeRes-phaseX << " " 
 	//      << start.GetCfdSourceBit() << " " << stop.GetCfdSourceBit() << " " 
-	//      << betaLeft.GetCfdSourceBit() << " " << betaRight.GetCfdSourceBit() 
 	//      << endl;
 
         plot(D_TIMEDIFF, timeDiff*timeRes + timeOff);
@@ -160,5 +132,5 @@ void PulserProcessor::AnalyzeData(void) {
         plot(DD_SNRANDSDEV, start.GetStdDevBaseline()*timeRes+timeOff, 1);
         plot(DD_SNRANDSDEV, stop.GetSignalToNoiseRatio()+50, 2);
         plot(DD_SNRANDSDEV, stop.GetStdDevBaseline()*timeRes+timeOff, 3);
-	//    }
+    }
 } // void PulserProcessor::AnalyzeData

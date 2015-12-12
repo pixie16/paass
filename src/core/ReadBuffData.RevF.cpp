@@ -95,12 +95,12 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
             // buf points to the start of channel data
 
 	    //Decode the first header word
-            word_t chanNum      = (buf[0] & 0x0000000F);
-            word_t slotNum      = (buf[0] & 0x000000F0) >> 4;
-            word_t crateNum     = (buf[0] & 0x00000F00) >> 8;
-	    word_t headerLength = (buf[0] & 0x0001F000) >> 12;
-            word_t eventLength  = (buf[0] & 0x7FFE0000) >> 17;
-            currentEvt->pileupBit      = ((buf[0] & 0x80000000) != 0);
+            word_t chanNum        = (buf[0] & 0x0000000F);
+            word_t slotNum        = (buf[0] & 0x000000F0) >> 4;
+            word_t crateNum       = (buf[0] & 0x00000F00) >> 8;
+	    word_t headerLength   = (buf[0] & 0x0001F000) >> 12;
+            word_t eventLength    = (buf[0] & 0x7FFE0000) >> 17;
+            currentEvt->pileupBit = (buf[0] & 0x80000000) != 0;
 
 	    // Sanity check
             if(headerLength == stats.headerLength) {
@@ -117,20 +117,13 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
 	    //Decode the third header word
             word_t highTime    = buf[2] & 0x0000FFFF;
             word_t cfdTime     = (buf[2] & 0x3FFF0000) >> 16;
-	    currentEvt->cfdForceTrig   = ((buf[2] & 0x80000000) != 0);
 	    currentEvt->cfdTrigSource  = ((buf[2] & 0x40000000) != 0);
+	    currentEvt->cfdForceTrig   = ((buf[2] & 0x80000000) != 0);
 
 	    //Decode the foruth header word
             word_t energy      = buf[3] & 0x0000FFFF;
             word_t traceLength = (buf[3] & 0x7FFF0000) >> 16;
 	    currentEvt->saturatedBit   = ((buf[3] & 0x80000000) != 0);
-
-	    //if(currentEvt->cfdTrigSource != 0)
-	    if(currentEvt->saturatedBit)
-		if(chanNum == 0)
-		    cout << slotNum << " " << chanNum << " " 
-			 << currentEvt->cfdTrigSource << " " 
-			 << currentEvt->saturatedBit << endl;
 	    
 	    int offset = headerLength - 8;
 	    switch(headerLength) {

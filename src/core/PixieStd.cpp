@@ -432,10 +432,8 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
         // correct version of ReadBuffData
 	if(revision == "F")
             ReadBuffData = ReadBuffDataF;
-        if (revision == "D")
+        if (revision == "D" || revision == "DF")
             ReadBuffData = ReadBuffDataD;
-	if (revision == "DF")
-	    ReadBuffData = ReadBuffDataD;
         else if (revision == "A")
             ReadBuffData = ReadBuffDataA;
 
