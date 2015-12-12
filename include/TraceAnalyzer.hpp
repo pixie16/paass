@@ -46,6 +46,16 @@ class TraceAnalyzer {
     */
     virtual void Analyze(Trace &trace, const std::string &type,
                          const std::string &subtype);
+
+    /** Function to analyze a trace online.
+     * \param [in] trace: the trace
+    * \param [in] type : the type of detector
+    * \param [in] subtype : the subtype of the detector
+    * \param [in] tagMap : takes a map of all the tags that the channel has
+    */
+    virtual void Analyze(Trace &trace, const std::string &type,
+                         const std::string &subtype,
+                         const std::map<std::string, int> & tagMap);
     /** End the analysis and record the analyzer level in the trace
     * \param [in] trace : the trace
     */

@@ -24,8 +24,9 @@ CfdAnalyzer::CfdAnalyzer() : TraceAnalyzer() {
 }
 
 void CfdAnalyzer::Analyze(Trace &trace, const std::string &detType,
-                          const std::string &detSubtype) {
-    TraceAnalyzer::Analyze(trace, detType, detSubtype);
+                          const std::string &detSubtype,
+                          const std::map<std::string, int> & tagMap) {
+    TraceAnalyzer::Analyze(trace, detType, detSubtype, tagMap);
     Globals *globals = Globals::get();
     unsigned int saturation = (unsigned int)trace.GetValue("saturation");
     if(saturation > 0) {

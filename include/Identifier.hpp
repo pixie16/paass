@@ -37,8 +37,6 @@ public:
     Identifier(const std::string &type, const std::string &subType,
                const int &loc);
 
-    typedef int TagValue; //!< Type definition for the tag vaule
-
     /** Sets the DAMM ID
      * \param [in] a : the id to set */
     void SetDammID(int a) {dammID = a;};
@@ -60,7 +58,7 @@ public:
     /** Insert a tag to the Identifier
      * \param [in] s : the name of the tag to insert
      * \param [in] n : the value of the tag to insert */
-    void AddTag(const std::string &s, TagValue n) {tag[s] = n;}
+    void AddTag(const std::string &s, int n) {tag[s] = n;}
     /** Check if an identifier has a tag
      * \param [in] s : the tag to search for
      * \return true if the tag is in the identifier */
@@ -70,7 +68,10 @@ public:
         return(false);};
     /** \return Get the requested tag
      * \param [in] s : the name of the tag to get */
-    TagValue GetTag(const std::string &s) const;
+    int GetTag(const std::string &s) const;
+
+    /** \return The map with the list of tags */
+    std::map<std::string, int> GetTagMap(void) const {return (tag);};
 
     /** Zeroes an identifier
     *
@@ -130,6 +131,6 @@ private:
     int dammID;            /**< Damm spectrum number for plotting calibrated energies */
     int location;          /**< Specifies the real world location of the channel.
                                 For the DSSD this variable is the strip number */
-    std::map<std::string, TagValue> tag;  /**< A list of tags associated with the Identifier */
+    std::map<std::string, int> tag;  /**< A list of tags associated with the Identifier */
 };
 #endif
