@@ -88,6 +88,8 @@ bool PulserProcessor::RetrieveData(RawEvent &event) {
         unsigned int location = (*itPulser)->GetChanID().GetLocation();
         string subType = (*itPulser)->GetChanID().GetSubtype();
 
+	//Trace tmp = itPulser->GetTrace();
+
         TimingDefs::TimingIdentifier key(location, subType);
         pulserMap_.insert(make_pair(key, HighResTimingData(*itPulser)));
     }
