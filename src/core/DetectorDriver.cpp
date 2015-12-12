@@ -36,6 +36,7 @@
 #include "MtcProcessor.hpp"
 #include "NeutronScintProcessor.hpp"
 #include "PositionProcessor.hpp"
+#include "PspmtProcessor.hpp"
 #include "PulserProcessor.hpp"
 #include "SsdProcessor.hpp"
 #include "TeenyVandleProcessor.hpp"
@@ -100,7 +101,6 @@ DetectorDriver::~DetectorDriver() {
         delete *it;
     }
     vecAnalyzer.clear();
-    delete instance;
     instance = NULL;
 }
 
@@ -262,6 +262,8 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new TeenyVandleProcessor());
         } else if (name == "DoubleBetaProcessor") {
             vecProcess.push_back(new DoubleBetaProcessor());
+        } else if (name == "PspmtProcessor") {
+            vecProcess.push_back(new PspmtProcessor());
         }
 #ifdef useroot
         else if (name == "RootProcessor") {
@@ -541,6 +543,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
     int id            = chan->GetID();
     string type       = chanId.GetType();
     string subtype    = chanId.GetSubtype();
+    map<string, int> tags = chanId.GetTagMap();
     bool hasStartTag  = chanId.HasTag("start");
     Trace &trace      = chan->GetTrace();
 
@@ -556,7 +559,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
 
         for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
             it != vecAnalyzer.end(); it++) {
-                (*it)->Analyze(trace, type, subtype);
+            (*it)->Analyze(trace, type, subtype,tags);
         }
 
         if (trace.HasValue("filterEnergy") ) {

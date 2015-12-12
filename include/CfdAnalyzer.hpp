@@ -24,6 +24,7 @@ public:
     * \param [in] detType : the detector type
     * \param [in] detSubtype : detector subtype */
     virtual void Analyze(Trace &trace, const std::string &detType,
-                         const std::string &detSubtype);
+                         const std::string &detSubtype,
+                         const std::map<std::string, int> &tagMap);
 };
 #endif

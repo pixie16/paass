@@ -27,7 +27,8 @@ TauAnalyzer::TauAnalyzer(const std::string &aType, const std::string &aSubtype) 
 }
 
 void TauAnalyzer::Analyze(Trace &trace, const std::string &aType,
-                          const std::string &aSubtype) {
+                          const std::string &aSubtype,
+                          const std::map<std::string, int> & tagMap) {
     // don't do analysis for piled-up traces
     if (trace.HasValue("filterEnergy2")) {
         return;

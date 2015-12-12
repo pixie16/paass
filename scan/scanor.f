@@ -300,6 +300,9 @@ CX    IF(INTYP.EQ.'SHM ') THEN              !Test  for SHM assigned
 CX    CALL CLOSEIPC()                       !Detach from SHM and
 CX    ENDIF
 C
+C     Cleanup the c++ portion
+      CALL CLEANUP()
+      write(6,*)"Exiting Scanor..."
       STOP
 C
 C     ------------------------------------------------------------------

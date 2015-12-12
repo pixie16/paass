@@ -32,8 +32,9 @@ WaveformAnalyzer::WaveformAnalyzer() : TraceAnalyzer() {
 
 void WaveformAnalyzer::Analyze(Trace &trace,
                                const std::string &detType,
-                               const std::string &detSubtype) {
-    TraceAnalyzer::Analyze(trace, detType, detSubtype);
+                               const std::string &detSubtype,
+                               const std::map<std::string, int> & tagMap) {
+    TraceAnalyzer::Analyze(trace, detType, detSubtype,tagMap);
 
     if(CheckIfUnknown(detType) || trace.HasValue("saturation")){
         EndAnalyze();

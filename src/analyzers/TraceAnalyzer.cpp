@@ -48,6 +48,16 @@ void TraceAnalyzer::Analyze(Trace &trace,
     return;
 }
 
+
+void TraceAnalyzer::Analyze(Trace &trace,
+			    const std::string &detType, const std::string &detSubtype,
+                            const std::map<std::string, int> & tagMap) {
+    times(&tmsBegin);
+    numTracesAnalyzed++;
+    EndAnalyze(trace);
+    return;
+}
+
 void TraceAnalyzer::EndAnalyze(Trace &trace) {
     trace.SetValue("analyzedLevel", level);
     EndAnalyze();

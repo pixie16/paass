@@ -102,6 +102,14 @@ int ReadBuffDataF(word_t *lbuf, unsigned long *BufLen,
 int (*ReadBuffData)(word_t *lbuf, unsigned long *BufLen,
                     vector<ChanEvent *> &eventList);
 
+// Catch the exit call from scanor and clean up c++ objects CRT
+extern "C" void cleanup_()
+{
+    std::cout << "\nCleaning up..\n";
+    DetectorDriver* driver = DetectorDriver::get();
+    delete driver;
+}
+
 /** \fn extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
  * \brief interface between scan and C++
  *

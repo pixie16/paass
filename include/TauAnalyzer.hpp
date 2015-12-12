@@ -27,7 +27,8 @@ public:
     * \param [in] aType : the type being analyze
     * \param [in] aSubtype : the subtype begin analyzed */
     virtual void Analyze(Trace &trace, const std::string &aType,
-                         const std::string &aSubtype);
+                         const std::string &aSubtype,
+                         const std::map<std::string, int> & tagMap);
 private:
     std::string type; //!< the detector type
     std::string subtype;//!< the detector subtype

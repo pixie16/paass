@@ -85,13 +85,16 @@ FittingAnalyzer::FittingAnalyzer() {
 }
 
 void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
-			      const std::string &detSubtype) {
-    TraceAnalyzer::Analyze(trace, detType, detSubtype);
+			      const std::string &detSubtype,
+                              const std::map<std::string, int> & tagMap) {
+    TraceAnalyzer::Analyze(trace, detType, detSubtype, tagMap);
 
     if(trace.HasValue("saturation") || trace.empty()) {
      	EndAnalyze();
      	return;
     }
+
+    bool isDoubleBeta = detType == "beta" && detSubtype == "double";
 
     Globals *globals = Globals::get();
 
@@ -113,7 +116,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
         return;
     }
 
-    if(sigmaBaseline > globals->siPmtSigmaBaselineThresh() && detSubtype == "double") {
+    if(sigmaBaseline > globals->siPmtSigmaBaselineThresh() && isDoubleBeta) {
         EndAnalyze();
         return;
     }
@@ -131,7 +134,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     } else if (detType == "beta" || detType == "beta_scint") {
         if(detSubtype == "single" || detSubtype == "beta")
             pars = globals->singleBetaPars();
-        else if(detSubtype == "double")
+        else
             pars = globals->doubleBetaPars();
     } else if(detType == "tvandle")
         pars = globals->tvandlePars();
@@ -169,7 +172,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     f.n = sizeFit;
     f.params = &data;
 
-    if(detType != "beta" && detSubtype != "double") {
+    if(!isDoubleBeta) {
         numParams = 2;
         covar = gsl_matrix_alloc (numParams, numParams);
         xInit[0] = 0.0; xInit[1]=2.5;
@@ -208,7 +211,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
 
     gsl_multifit_covar (s->J, 0.0, covar);
 
-    if(detType != "beta" && detSubtype != "double") {
+    if(!isDoubleBeta) {
         phase = gsl_vector_get(s->x,0);
         fitAmp = gsl_vector_get(s->x,1);
     } else {
