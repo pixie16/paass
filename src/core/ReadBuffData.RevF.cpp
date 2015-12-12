@@ -120,16 +120,18 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
 	    currentEvt->cfdForceTrig   = ((buf[2] & 0x80000000) != 0);
 	    currentEvt->cfdTrigSource  = ((buf[2] & 0x40000000) != 0);
 
-	    //if(currentEvt->cfdTrigSource != 0)
-	    //if(chanNum == 1)
-		// cout << slotNum << " " << chanNum << " " 
-		//      << currentEvt->cfdTrigSource << endl;
-
 	    //Decode the foruth header word
             word_t energy      = buf[3] & 0x0000FFFF;
             word_t traceLength = (buf[3] & 0x7FFF0000) >> 16;
 	    currentEvt->saturatedBit   = ((buf[3] & 0x80000000) != 0);
 
+	    //if(currentEvt->cfdTrigSource != 0)
+	    if(currentEvt->saturatedBit)
+		if(chanNum == 0)
+		    cout << slotNum << " " << chanNum << " " 
+			 << currentEvt->cfdTrigSource << " " 
+			 << currentEvt->saturatedBit << endl;
+	    
 	    int offset = headerLength - 8;
 	    switch(headerLength) {
 	    case 4:
