@@ -56,7 +56,7 @@ Globals::Globals() {
                     adcClockInSeconds_ = 10e-9;
                     filterClockInSeconds_ = 10e-9;
                     maxWords_ = EXTERNAL_FIFO_LENGTH;
-                } else if (revision_ == "F") {
+                } else if (revision_ == "F" || revision_ == "DF") {
                     clockInSeconds_ = 8e-9;
                     adcClockInSeconds_ = 4e-9;
                     filterClockInSeconds_ = 8e-9;

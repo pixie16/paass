@@ -433,7 +433,9 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
 	if(revision == "F")
             ReadBuffData = ReadBuffDataF;
         if (revision == "D")
-            ReadBuffData = ReadBuffDataF;
+            ReadBuffData = ReadBuffDataD;
+	if (revision == "DF")
+	    ReadBuffData = ReadBuffDataD;
         else if (revision == "A")
             ReadBuffData = ReadBuffDataA;
 
