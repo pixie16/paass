@@ -26,9 +26,9 @@
 #define SLEEP_WAIT 1E4 // When not in shared memory mode, length of time to wait between calls to gSystem->ProcessEvents (in us).
 
 double PaulauskasFitFunc(double *x, double *p) {
-	float diff = (x[0] - p[1])/ADC_TIME_STEP;
+	float diff = (x[0] - p[2])/ADC_TIME_STEP;
 	if (diff < 0 ) return 0;
-	return p[0] * exp(-diff * p[2]) * (1 - exp(-pow(diff * p[3],4)));
+	return p[0] + p[1] * exp(-diff * p[3]) * (1 - exp(-pow(diff * p[4],4)));
 }
 
 Oscilloscope::Oscilloscope(int mod /*= 0*/, int chan/*=0*/) :
@@ -58,9 +58,9 @@ Oscilloscope::Oscilloscope(int mod /*= 0*/, int chan/*=0*/) :
 	graph->SetMarkerStyle(kFullDotSmall);
 	hist = new TH2F("hist","",256,0,1,256,0,1);
 
-	paulauskasFunc = new TF1("paulauskas",PaulauskasFitFunc,0,1,4);
+	paulauskasFunc = new TF1("paulauskas",PaulauskasFitFunc,0,1,5);
 	paulauskasFuncText = new TF1("paulauskasText","[0] * exp(-(x - [1])*[2]) * (1 - exp(-pow((x-[1])*[3],4)))",4);
-	paulauskasFunc->SetParNames("amplitude","phase","beta","gamma");
+	paulauskasFunc->SetParNames("voffset","amplitude","phase","beta","gamma");
 
 	gStyle->SetPalette(51);
 	
@@ -109,8 +109,12 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 	static float userZoomVals[2][2];
 	static bool userZoom[2];
 
+	//Get the user zoom settings.
+	userZoomVals[0][0] = canvas->GetUxmin();
+	userZoomVals[0][1] = canvas->GetUxmax();
+	userZoomVals[1][0] = canvas->GetUymin();
+	userZoomVals[1][1] = canvas->GetUymax();
 
-	// Draw the trace
 
 	if(events[0]->size != x_vals.size()){ // The length of the trace has changed.
 		resetGraph_ = true;
@@ -118,19 +122,13 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 	if (resetGraph_) {
 		ResetGraph(events[0]->size);
 		for (int i=0;i<2;i++) {
-			axisVals[i][0] = 0;
-			axisVals[i][1] = 1;
-			userZoomVals[i][0] = 0;
-			userZoomVals[i][1] = 1;
+			axisVals[i][0] = 1E9;
+			axisVals[i][1] = -1E9;
+			userZoomVals[i][0] = 1E9;
+			userZoomVals[i][1] = -1E9;
 			userZoom[i] = false;
 		}
 	}
-
-	//Get the user zoom settings.
-	userZoomVals[0][0] = canvas->GetUxmin();
-	userZoomVals[0][1] = canvas->GetUxmax();
-	userZoomVals[1][0] = canvas->GetUymin();
-	userZoomVals[1][1] = canvas->GetUymax();
 
 	//Determine if the user had zomed or unzoomed.
 	for (int i=0;i<2;i++) {
@@ -141,7 +139,7 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 	if (events.size() == 1) {
 		int index = 0;
 		for (size_t i=0;i<events[0]->size;++i) {
-			graph->SetPoint(index, x_vals[i], events[0]->yvals[i]);
+			graph->SetPoint(index, x_vals[i], events[0]->trace[i]);
 			index++;
 		}
 
@@ -166,10 +164,12 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 
 		float lowVal = (events[0]->max_index - fitLow_) * ADC_TIME_STEP;
 		float highVal = (events[0]->max_index + fitHigh_) * ADC_TIME_STEP;
+
 		paulauskasFunc->SetRange(lowVal, highVal);
-		paulauskasFunc->SetParameters(events[0]->qdc*0.5,lowVal,0.5,0.1);
-		paulauskasFunc->SetParLimits(0,0,2*events[0]->qdc);
-		paulauskasFunc->SetParLimits(3,0,0.5);
+		paulauskasFunc->SetParameters(events[0]->baseline,events[0]->qdc*0.5,lowVal,0.5,0.1);
+		paulauskasFunc->SetParLimits(0,events[0]->baseline - events[0]->stddev,events[0]->baseline + events[0]->stddev);
+		paulauskasFunc->SetParLimits(1,0,2 * events[0]->qdc);
+		paulauskasFunc->SetParLimits(4,0,0.5);
 		graph->Fit(paulauskasFunc,"QMER");
 	}
 	//For multiple events with make a 2D histogram and plot the profile on top.
@@ -177,8 +177,12 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 		//Determine the maximum and minimum values of the events.
 		for (auto itr = events.begin(); itr != events.end(); ++itr) {
 			ChannelEvent* evt = *itr;
-			if (evt->stddev < axisVals[1][0]) axisVals[1][0] = 0.9 * evt->stddev;
-			if (evt->maximum > axisVals[1][1]) axisVals[1][1] = 1.1 * evt->maximum;
+			float evtMin = *std::min_element(evt->trace.begin(),evt->trace.end());
+			float evtMax = *std::max_element(evt->trace.begin(),evt->trace.end());
+			evtMin -= fabs(0.1 * evtMax);
+			evtMax += fabs(0.1 * evtMax);
+			if (evtMin < axisVals[1][0]) axisVals[1][0] = evtMin;
+			if (evtMax > axisVals[1][1]) axisVals[1][1] = evtMax;
 		}
 
 		//Set the users zoom window.
@@ -198,7 +202,7 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 		for (auto itr = events.begin(); itr != events.end(); ++itr) {
 			ChannelEvent *evt = *itr;
 			for (size_t i=0;i<evt->size;++i) {
-				hist->Fill(x_vals[i],evt->yvals[i]);
+				hist->Fill(x_vals[i],evt->trace[i]);
 			}
 		}
 
@@ -209,9 +213,10 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 		float lowVal = prof->GetBinCenter(prof->GetMaximumBin() - fitLow_);
 		float highVal = prof->GetBinCenter(prof->GetMaximumBin() + fitHigh_);
 		paulauskasFunc->SetRange(lowVal, highVal);
-		paulauskasFunc->SetParameters(events[0]->qdc*0.5,lowVal,0.5,0.1);
-		paulauskasFunc->SetParLimits(0,0,2*events[0]->qdc);
-		paulauskasFunc->SetParLimits(3,0,0.5);
+		paulauskasFunc->SetParameters(events[0]->baseline,events[0]->qdc*0.5,lowVal,0.5,0.1);
+		paulauskasFunc->SetParLimits(0,events[0]->baseline - events[0]->stddev,events[0]->baseline + events[0]->stddev);
+		paulauskasFunc->SetParLimits(1,0,2*events[0]->qdc);
+		paulauskasFunc->SetParLimits(4,0,0.5);
 		prof->Fit(paulauskasFunc,"QMER");
 
 		hist->SetStats(false);
@@ -293,7 +298,6 @@ void Oscilloscope::ProcessRawEvent(){
 		// Pass this event to the correct processor
 		if(current_event->modNum == mod_ && current_event->chanNum == chan_){  
 			num_traces++;
-			current_event->CorrectBaseline();
 			if (current_event->maximum < threshLow_) {
 				delete current_event;
 				continue;
@@ -305,7 +309,8 @@ void Oscilloscope::ProcessRawEvent(){
 			}
 
 			//Process the waveform.
-			current_event->FindLeadingEdge();
+			//current_event->FindLeadingEdge();
+			current_event->CorrectBaseline();
 			current_event->FindQDC();
 
 			//Store the waveform in the stack of waveforms to be displayed.
