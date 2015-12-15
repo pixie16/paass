@@ -296,14 +296,15 @@ void Oscilloscope::ProcessRawEvent(){
 		rawEvent.pop_front();
 
 		// Pass this event to the correct processor
+		int maximum = *std::max_element(current_event->trace.begin(),current_event->trace.end());
 		if(current_event->modNum == mod_ && current_event->chanNum == chan_){  
 			num_traces++;
-			if (current_event->maximum < threshLow_) {
+			if (maximum < threshLow_) {
 				delete current_event;
 				continue;
 			}
 			//Check threhsold.
-			if (threshHigh_ > threshLow_ && current_event->maximum > threshHigh_) {
+			if (threshHigh_ > threshLow_ && maximum > threshHigh_) {
 				delete current_event;
 				continue;
 			}
