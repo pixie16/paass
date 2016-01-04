@@ -467,7 +467,7 @@ int ScanMain::Execute(int argc, char *argv[]){
 		}
 		else if(current_arg == "--fast-fwd"){
 			if(scan_args.empty()){
-				std::cout << " Error: Missing required argument to option '--fast-fwd'!\n";
+				std::cout << " FATAL ERROR! Missing required argument to option '--fast-fwd'!\n";
 				Help(argv[0], core);
 				return 1;
 			}
@@ -510,7 +510,7 @@ int ScanMain::Execute(int argc, char *argv[]){
 		}
 		else{
 			if(prefix == ""){
-				std::cout << " ERROR: Input filename was not specified!\n";
+				std::cout << " FATAL ERROR! Input filename was not specified!\n";
 				return 1;
 			}
 		
@@ -524,7 +524,7 @@ int ScanMain::Execute(int argc, char *argv[]){
 				file_format = 2;
 			}
 			else{
-				std::cout << " ERROR: Invalid file format '" << extension << "'\n";
+				std::cout << " FATAL ERROR! Invalid file format '" << extension << "'\n";
 				std::cout << "  The current valid data formats are:\n";
 				std::cout << "   ldf - list data format (HRIBF)\n";
 				std::cout << "   pld - pixie list data format\n";
@@ -535,13 +535,20 @@ int ScanMain::Execute(int argc, char *argv[]){
 	}
 
 	// Initialize the Unpacker object.
-	core->Initialize(sys_message_head);
+	std::cout << sys_message_head << "Initializing data unpacker object.\n";
+	if(!core->Initialize(sys_message_head)){ // Failed to initialize the unpacker object. Clean up and exit.
+		std::cout << " FATAL ERROR! Failed to initialize unpacker object!\n";
+		std::cout << "\nCleaning up...\n";
+		core->PrintStatus(sys_message_head);
+		core->Close();
+		return 1;
+	}
 
 	if(!shm_mode){
 		std::cout << sys_message_head << "Using file prefix " << prefix << ".\n";
 		input_file.open((prefix+"."+extension).c_str(), std::ios::binary);
 		if(!input_file.is_open() || !input_file.good()){
-			std::cout << " ERROR: Failed to open input file '" << prefix+"."+extension << "'! Check that the path is correct.\n";
+			std::cout << " FATAL ERROR! Failed to open input file '" << prefix+"."+extension << "'! Check that the path is correct.\n";
 			input_file.close();
 			return 1;
 		}
@@ -552,7 +559,7 @@ int ScanMain::Execute(int argc, char *argv[]){
 	else{
 		poll_server = new Server();
 		if(!poll_server->Init(5555, 1)){
-			std::cout << " ERROR: Failed to open shm socket 5555!\n";
+			std::cout << " FATAL ERROR! Failed to open shm socket 5555!\n";
 			return 1;
 		}
 	}
