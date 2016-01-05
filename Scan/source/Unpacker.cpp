@@ -458,19 +458,21 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 	return true;		
 }
 
-void Unpacker::Close(){
+void Unpacker::Close(bool write_count_file/*=false*/){
 	if(init){
 		ClearRawEvent();
 		ClearEventList();
 		
-		std::ofstream count_output("counts.dat");
-		if(count_output.good()){
-			for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
-				for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
-					count_output << i << "\t" << j << "\t" << channel_counts[i][j] << std::endl;
+		if(write_count_file){ // Write all recorded channel counts to a file.
+			std::ofstream count_output("counts.dat");
+			if(count_output.good()){
+				for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
+					for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
+						count_output << i << "\t" << j << "\t" << channel_counts[i][j] << std::endl;
+					}
 				}
+				count_output.close();
 			}
-			count_output.close();
 		}
 	}
 }

@@ -406,15 +406,16 @@ void ScanMain::CmdControl(){
 void ScanMain::Help(char *name_, Unpacker *core){
 	core->SyntaxStr(name_, " ");
 	std::cout << "  Available options:\n";
-	std::cout << "   --help     - Display this dialogue\n";
-	std::cout << "   --version  - Display version information\n";
-	std::cout << "   --debug    - Enable readout debug mode\n";
-	std::cout << "   --shm      - Enable shared memory readout\n";
-	std::cout << "   --ldf      - Force use of ldf readout\n";
-	std::cout << "   --pld      - Force use of pld readout\n";
-	std::cout << "   --root     - Force use of root readout\n";
-	std::cout << "   --quiet    - Toggle off verbosity flag\n";
-	std::cout << "   --dry-run  - Extract spills from file, but do no processing\n";
+	std::cout << "   --help (-h)    - Display this dialogue\n";
+	std::cout << "   --version (-v) - Display version information\n";
+	std::cout << "   --debug        - Enable readout debug mode\n";
+	std::cout << "   --shm          - Enable shared memory readout\n";
+	std::cout << "   --ldf          - Force use of ldf readout\n";
+	std::cout << "   --pld          - Force use of pld readout\n";
+	std::cout << "   --root         - Force use of root readout\n";
+	std::cout << "   --quiet        - Toggle off verbosity flag\n";
+	std::cout << "   --counts       - Write all recorded channel counts to a file\n";
+	std::cout << "   --dry-run      - Extract spills from file, but do no processing\n";
 	std::cout << "   --fast-fwd [word] - Skip ahead to a specified word in the file (start of file at zero)\n";
 	core->ArgHelp("   ");
 }
@@ -437,8 +438,10 @@ int ScanMain::Execute(int argc, char *argv[]){
 	debug_mode = false;
 	dry_run_mode = false;
 	shm_mode = false;
-
+	
 	num_spills_recvd = 0;
+
+	bool write_counts = false;
 
 	long file_start_offset = 0;
 
@@ -461,6 +464,9 @@ int ScanMain::Execute(int argc, char *argv[]){
 		if(current_arg == "--debug"){ 
 			core->SetDebugMode();
 			debug_mode = true;
+		}
+		else if(current_arg == "--counts"){
+			write_counts = true;
 		}
 		else if(current_arg == "--dry-run"){
 			dry_run_mode = true;
@@ -540,7 +546,7 @@ int ScanMain::Execute(int argc, char *argv[]){
 		std::cout << " FATAL ERROR! Failed to initialize unpacker object!\n";
 		std::cout << "\nCleaning up...\n";
 		core->PrintStatus(sys_message_head);
-		core->Close();
+		core->Close(write_counts);
 		return 1;
 	}
 
@@ -662,7 +668,7 @@ int ScanMain::Execute(int argc, char *argv[]){
 	std::cout << "\nCleaning up...\n";
 	
 	core->PrintStatus(sys_message_head);
-	core->Close();
+	core->Close(write_counts);
 	
 	return 0;
 }

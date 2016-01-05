@@ -144,7 +144,7 @@ class Unpacker{
 	virtual bool CommandControl(std::string cmd_, const std::vector<std::string> &args_){ return false; }
 
 	/// Empty the raw event and the event list.
-	void Close();
+	void Close(bool write_count_file=false);
 };
 
 extern Unpacker *GetCore(); /// External function which returns a pointer to a class derived from Unpacker.
