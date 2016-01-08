@@ -76,6 +76,7 @@ ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
 	debug_mode = false;
 	dry_run_mode = false;
 	shm_mode = false;
+	batch_mode = false;
 
 	kill_all = false;
 	run_ctrl_exit = false;
@@ -139,7 +140,7 @@ void ScanMain::RunControl(){
 			full_spill = true;
 
 			if(!poll_server->Select(dummy)){
-				term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for a spill...");
+				if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for a spill..."); }
 				core->IdleTask();
 				continue; 
 			}
@@ -189,7 +190,7 @@ void ScanMain::RunControl(){
 
 			std::stringstream status;
 			status << "\033[0;32m" << "[RECV] " << "\033[0m" << nTotalWords << " words";
-			term->SetStatus(status.str());
+			if(!batch_mode){ term->SetStatus(status.str()); }
 		
 			if(debug_mode){ std::cout << "debug: Retrieved spill of " << nTotalWords << " words (" << nTotalWords*4 << " bytes)\n"; }
 			if(!dry_run_mode && full_spill){ 
@@ -224,7 +225,7 @@ void ScanMain::RunControl(){
 
 			std::stringstream status;			
 			status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
-			term->SetStatus(status.str());
+			if(!batch_mode){ term->SetStatus(status.str()); }
 		
 			if(full_spill){ 
 				if(debug_mode){ 
@@ -254,7 +255,7 @@ void ScanMain::RunControl(){
 		
 		if(!dry_run_mode){ delete[] data; }
 		
-		term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file.");
+		if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file."); }
 	}
 	else if(file_format == 1){
 		unsigned int *data = NULL;
@@ -273,7 +274,7 @@ void ScanMain::RunControl(){
 
 			std::stringstream status;
 			status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
-			term->SetStatus(status.str());
+			if(!batch_mode){ term->SetStatus(status.str()); }
 		
 			if(debug_mode){ 
 				std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
@@ -298,7 +299,7 @@ void ScanMain::RunControl(){
 		
 		if(!dry_run_mode){ delete[] data; }
 		
-		term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file.");
+		if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file."); }
 	}
 	else if(file_format == 2){
 	}
@@ -415,6 +416,7 @@ void ScanMain::Help(char *name_, Unpacker *core){
 	std::cout << "   --root         - Force use of root readout\n";
 	std::cout << "   --quiet        - Toggle off verbosity flag\n";
 	std::cout << "   --counts       - Write all recorded channel counts to a file\n";
+	std::cout << "   --batch        - Run in batch mode (i.e. with no command line)\n";
 	std::cout << "   --dry-run      - Extract spills from file, but do no processing\n";
 	std::cout << "   --fast-fwd [word] - Skip ahead to a specified word in the file (start of file at zero)\n";
 	core->ArgHelp("   ");
@@ -467,6 +469,9 @@ int ScanMain::Execute(int argc, char *argv[]){
 		}
 		else if(current_arg == "--counts"){
 			write_counts = true;
+		}
+		else if(current_arg == "--batch"){
+			batch_mode = true;
 		}
 		else if(current_arg == "--dry-run"){
 			dry_run_mode = true;
@@ -570,14 +575,21 @@ int ScanMain::Execute(int argc, char *argv[]){
 		}
 	}
 
+	if(shm_mode && batch_mode){
+		std::cout << sys_message_head << "Unable to enable batch mode for shared-memory mode!\n";
+		batch_mode = false;
+	}
+
 	// Initialize the terminal.
 	std::string temp_name = std::string(PROG_NAME);
 	
-	term = new Terminal();
-	term->Initialize();
-	term->SetCommandHistory(("."+temp_name+".cmd").c_str());
-	term->SetPrompt((temp_name+" $ ").c_str());
-	term->AddStatusWindow();
+	if(!batch_mode){
+		term = new Terminal();
+		term->Initialize();
+		term->SetCommandHistory(("."+temp_name+".cmd").c_str());
+		term->SetPrompt((temp_name+" $ ").c_str());
+		term->AddStatusWindow();
+	}
 
 	std::cout << "\n " << PROG_NAME << " v" << SCAN_VERSION << "\n"; 
 	std::cout << " ==  ==  ==  ==  == \n\n"; 
@@ -637,21 +649,26 @@ int ScanMain::Execute(int argc, char *argv[]){
 		}
 	}
 	
-	// Start the run control thread
-	std::cout << "\nStarting data control thread\n";
-	std::thread runctrl(start_run_control, this);
+	if(!batch_mode){
+		// Start the run control thread
+		std::cout << "\nStarting data control thread\n";
+		std::thread runctrl(start_run_control, this);
 
-	// Start the command control thread. This needs to be the last thing we do to
-	// initialize, so the user cannot enter commands before setup is complete
-	std::cout << "Starting command thread\n\n";
-	std::thread comctrl(start_cmd_control, this);
+		// Start the command control thread. This needs to be the last thing we do to
+		// initialize, so the user cannot enter commands before setup is complete
+		std::cout << "Starting command thread\n\n";
+		std::thread comctrl(start_cmd_control, this);
 
-	// Synchronize the threads and wait for completion
-	comctrl.join();
-	runctrl.join();
+		// Synchronize the threads and wait for completion
+		comctrl.join();
+		runctrl.join();
+	}
+	else{ start_run_control(this); }
 
 	// Close the socket and restore the terminal
-	term->Close();
+	if(!batch_mode){
+		term->Close();
+	}
 	
 	// Only close the server if this is shared memory mode. Otherwise
 	// the server would never have been initialized.
