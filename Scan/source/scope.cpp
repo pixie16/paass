@@ -295,6 +295,11 @@ void Oscilloscope::ProcessRawEvent(){
 		current_event = rawEvent.front();
 		rawEvent.pop_front();
 
+		// Safety catches for null event or empty trace.
+		if(!current_event || current_event->trace.empty()){
+			continue;
+		}
+
 		// Pass this event to the correct processor
 		int maximum = *std::max_element(current_event->trace.begin(),current_event->trace.end());
 		if(current_event->modNum == mod_ && current_event->chanNum == chan_){  
