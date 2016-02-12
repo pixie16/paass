@@ -14,6 +14,9 @@ class ChannelEvent{
 	
 	double hires_energy; /// High resolution energy from the integration of pulse fits.
 	double hires_time; /// High resolution time taken from pulse fits (in ns).
+    double calEnergy; /// Calibrated channel energy.
+    double correctedTime; /// Energy-walk corrected time.
+    double eventTime; /// The event time recorded by Pixie.
 	bool valid_chan; /// True if the high resolution energy and time are valid.
 	
 	float *xvals; /// x values used for fitting.
@@ -75,6 +78,9 @@ class ChannelEvent{
 	
 	/// Integrate the baseline corrected trace in the range [start_, stop_] and return the result.
 	float FindQDC(const size_t &start_=0, const size_t &stop_=0);
+	
+	/// Return one of the onboard qdc values.
+	unsigned int GetQdcValue(int id){ return (id < 0 || id >= numQdcs ? -1 : qdcValue[id]); }
 	
 	/// Return true if the time of arrival for rhs is later than that of lhs.
 	static bool CompareTime(ChannelEvent *lhs, ChannelEvent *rhs){ return (lhs->time < rhs->time); }
