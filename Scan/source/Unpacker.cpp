@@ -275,9 +275,6 @@ Unpacker::Unpacker(){
 	maxWords = 131072; // Maximum number of data words for revision D.	
 	event_width = 62; // ~ 500 ns in 8 ns pixie clock ticks.
 	
-	root_file = NULL;
-	root_tree = NULL;
-	
 	message_head = "";
 	
 	for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){

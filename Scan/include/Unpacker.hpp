@@ -26,9 +26,6 @@
 
 class ChannelEvent;
 
-class TFile;
-class TTree;
-
 class Unpacker{
   protected:
 	unsigned int TOTALREAD; /// Maximum number of data words to read.
@@ -46,9 +43,6 @@ class Unpacker{
 	std::deque<ChannelEvent*> eventList; /// The list of all events in the spill.
 	std::deque<ChannelEvent*> rawEvent; /// The list of all events in the event window.
 
-	TFile *root_file;
-	TTree *root_tree;
-	
 	std::string message_head; /// Prefix used for text output.
 
 	/** Clear all events in the raw event. WARNING! This method will delete all events in the
