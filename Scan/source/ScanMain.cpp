@@ -45,15 +45,20 @@ std::string ScanMain::get_extension(std::string filename_, std::string &prefix){
 	std::string output = "";
 	prefix = "";
 	
-	// Find the final period in the filename
-	for(count = 0; count < filename_.size(); count++){
-		if(filename_[count] == '.'){ last_index = count; }
-	}
+	if(filename_.find('.') != std::string::npos){
+		// Find the final period in the filename
+		for(count = 0; count < filename_.size(); count++){
+			if(filename_[count] == '.'){ last_index = count; }
+		}
 	
-	// Get the filename prefix and the extension
-	for(size_t i = 0; i < count; i++){
-		if(i < last_index){ prefix += filename_[i]; }
-		else if(i > last_index){ output += filename_[i]; }
+		// Get the filename prefix and the extension
+		for(size_t i = 0; i < count; i++){
+			if(i < last_index){ prefix += filename_[i]; }
+			else if(i > last_index){ output += filename_[i]; }
+		}
+	}
+	else{ // The filename has no extension.
+		prefix = filename_;
 	}
 	
 	return output;
