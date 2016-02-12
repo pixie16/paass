@@ -25,6 +25,7 @@
 #endif
 
 class ChannelEvent;
+class ScanMain;
 
 class Unpacker{
   protected:
@@ -39,6 +40,8 @@ class Unpacker{
 	bool debug_mode; /// True if debug mode is set.
 	bool shm_mode; /// Set to true if shared memory mode is to be used.
 	bool init; /// True if the class has been properly initialized.
+
+	ScanMain *scan_main; /// Pointer to the ScanMain object responsible for reading spill data.
 
 	std::deque<ChannelEvent*> eventList; /// The list of all events in the spill.
 	std::deque<ChannelEvent*> rawEvent; /// The list of all events in the event window.
@@ -108,6 +111,9 @@ class Unpacker{
 	
 	/// Toggle shared memory mode on/off.
 	bool SetSharedMemMode(bool state_=true){ return (shm_mode = state_); }
+
+	/// Link this object to the ScanMain object responsible for packaging spill data.
+	void SetScanMain(ScanMain *main_){ scan_main = main_; }
 
 	/// Scan has stopped data acquisition.
 	virtual void StopAcquisition(){  }
