@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <stdlib.h>
 #include <cmath>
+#include <unistd.h>
 
 #include "Display.h"
 
