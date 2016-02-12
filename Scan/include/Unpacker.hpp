@@ -1,3 +1,15 @@
+/** \file Unpacker.hpp
+ * \brief A class to handle the unpacking of UTK/ORNL style pixie16 data spills.
+ *
+ * This class is intended to be used as a replacement of pixiestd.cpp from Stan
+ * Paulauskas's pixie_scan. The majority of function names and arguments are
+ * preserved as much as possible while allowing for more standardized unpacking
+ * of pixie16 data.
+ * CRT
+ *
+ * \author C. R. Thornsberry
+ * \date Feb. 12th, 2016
+ */
 #ifndef UNPACKER_HPP
 #define UNPACKER_HPP
 
