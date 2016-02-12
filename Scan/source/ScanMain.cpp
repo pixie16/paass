@@ -1,3 +1,15 @@
+/** \file ScanMain.cpp
+ * \brief A class to handle reading from various UTK/ORNL pixie16 data formats.
+ *
+ * This class is intended to be used as a replacement to the older and unsupported
+ * 'scanor' program from the UPAK acq library specifically for .ldf files which are
+ * constructed using the UTK/ORNL pixie16 style. This class also interfaces with poll2
+ * shared memory output without the need to use pacman.
+ * CRT
+ *
+ * \author C. R. Thornsberry
+ * \date Feb. 12th, 2016
+ */
 #include <iostream>
 #include <sstream>
 #include <thread>
