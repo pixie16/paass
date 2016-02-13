@@ -11,15 +11,39 @@
  * \date Feb. 12th, 2016
  */
 #include <string>
+#include <sstream>
+#include <vector>
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.04"
-#define SCAN_DATE "Feb. 12th, 2016"
+#define SCAN_VERSION "1.2.05"
+#define SCAN_DATE "Feb. 13th, 2016"
 
 class Server;
 class Terminal;
 class Unpacker;
+
+class fileInformation{
+  private:
+	std::vector<std::string> parnames;
+	std::vector<std::string> parvalues;
+
+  public:
+	fileInformation(){ }
+	
+	~fileInformation(){ }
+	
+	size_t size(){ return parnames.size(); }
+	
+	bool at(const size_t &index_, std::string &name, std::string &value);
+	
+	template <typename T>
+	bool push_back(const std::string & name_, const T &value_, const std::string &units_="");
+	
+	bool is_in(const std::string & name_);
+	
+	std::string print(const size_t &index_);
+};
 
 class ScanMain{
   private:
@@ -48,6 +72,8 @@ class ScanMain{
 
 	std::ifstream input_file; /// Main input binary data file.
 	std::streampos file_length; /// Main input file length (in bytes).
+
+	fileInformation finfo; /// Data structure for storing binary file header information.
 
 	PLD_header pldHead; /// PLD style HEAD buffer handler.
 	PLD_data pldData; /// PLD style DATA buffer handler.
@@ -81,6 +107,8 @@ class ScanMain{
 	
 	std::string GetMessageHeader(){ return sys_message_head; }
 	
+	fileInformation *GetFileInfo(){ return &finfo; }
+
 	void SetMessageHeader(const std::string &head_){ sys_message_head = head_; }
 	
 	bool SetVerboseMode(bool state_=true){ return (is_verbose = state_); }

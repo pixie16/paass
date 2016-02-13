@@ -95,6 +95,11 @@ class Unpacker{
 	 */
 	virtual bool Initialize(std::string prefix_="");
 	
+	/** Peform any last minute initialization which derived classes need to run
+	  * before processing data.
+	  */
+	virtual void FinalInitialization(){ }
+	
 	/** Initialize the root output. Does nothing useful if not overloaded
 	 * by a derived class.
 	 */

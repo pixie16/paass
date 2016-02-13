@@ -1,4 +1,4 @@
-/** \file ScanMain.cpp
+/** \rile ScanMain.cpp
  * \brief A class to handle reading from various UTK/ORNL pixie16 data formats.
  *
  * This class is intended to be used as a replacement to the older and unsupported
@@ -34,6 +34,48 @@ void start_run_control(ScanMain *main_){
 void start_cmd_control(ScanMain *main_){
 	main_->CmdControl();
 }
+
+/////////////////////////////////////////////////////////////////////
+// class fileInformation
+/////////////////////////////////////////////////////////////////////
+
+bool fileInformation::at(const size_t &index_, std::string &name, std::string &value){
+	if(index_ >= parnames.size()){ return false; }
+	name = parnames.at(index_);
+	value = parvalues.at(index_);
+	return true;
+}
+
+template <typename T>
+bool fileInformation::push_back(const std::string & name_, const T &value_, const std::string &units_/*=""*/){
+	if(!is_in(name_)){
+		std::stringstream stream;
+		stream << value_;
+		if(units_.size() > 0){ 
+			stream << " " << units_; 
+		}
+		parnames.push_back(name_);
+		parvalues.push_back(stream.str());
+		return true;
+	}
+	return false;
+}
+
+bool fileInformation::is_in(const std::string & name_){
+	for(std::vector<std::string>::iterator iter = parnames.begin(); iter != parnames.end(); iter++){
+		if(name_ == (*iter)){ return true; }
+	}
+	return false;
+}
+
+std::string fileInformation::print(const size_t &index_){
+	if(index_ >= parnames.size()){ return ""; }
+	return std::string(parnames.at(index_) + ": " + parvalues.at(index_));
+}
+
+/////////////////////////////////////////////////////////////////////
+// class ScanMain
+/////////////////////////////////////////////////////////////////////
 
 unsigned int ScanMain::split_str(std::string str_, std::vector<std::string> &args, char delimiter_/*=' '*/){
 	args.clear();
@@ -158,6 +200,7 @@ void ScanMain::RunControl(){
 
 			if(!poll_server->Select(dummy)){
 				if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for a spill..."); }
+				else{ std::cout << "\r\033[0;33m[IDLE]\033[0m Waiting for a spill..."; }
 				core->IdleTask();
 				continue; 
 			}
@@ -208,6 +251,7 @@ void ScanMain::RunControl(){
 			std::stringstream status;
 			status << "\033[0;32m" << "[RECV] " << "\033[0m" << nTotalWords << " words";
 			if(!batch_mode){ term->SetStatus(status.str()); }
+			else{ std::cout << "\r" << status.str(); }
 		
 			if(debug_mode){ std::cout << "debug: Retrieved spill of " << nTotalWords << " words (" << nTotalWords*4 << " bytes)\n"; }
 			if(!dry_run_mode && full_spill){ 
@@ -243,6 +287,7 @@ void ScanMain::RunControl(){
 			std::stringstream status;			
 			status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
 			if(!batch_mode){ term->SetStatus(status.str()); }
+			else{ std::cout << "\r" << status.str(); }
 		
 			if(full_spill){ 
 				if(debug_mode){ 
@@ -273,6 +318,7 @@ void ScanMain::RunControl(){
 		if(!dry_run_mode){ delete[] data; }
 		
 		if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file."); }
+		else{ std::cout << std::endl << std::endl; }
 	}
 	else if(file_format == 1){
 		unsigned int *data = NULL;
@@ -292,6 +338,7 @@ void ScanMain::RunControl(){
 			std::stringstream status;
 			status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
 			if(!batch_mode){ term->SetStatus(status.str()); }
+			else{ std::cout << "\r" << status.str(); }
 		
 			if(debug_mode){ 
 				std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
@@ -317,6 +364,7 @@ void ScanMain::RunControl(){
 		if(!dry_run_mode){ delete[] data; }
 		
 		if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file."); }
+		else{ std::cout << std::endl << std::endl; }
 	}
 	else if(file_format == 2){
 	}
@@ -611,11 +659,11 @@ int ScanMain::Execute(int argc, char *argv[]){
 	std::cout << "\n " << PROG_NAME << " v" << SCAN_VERSION << "\n"; 
 	std::cout << " ==  ==  ==  ==  == \n\n"; 
 
-	if(debug_mode){ std::cout << sys_message_head << "Using debug mode.\n"; }
-	if(dry_run_mode){ std::cout << sys_message_head << "Doing a dry run.\n"; }
+	if(debug_mode){ std::cout << sys_message_head << "Using debug mode.\n\n"; }
+	if(dry_run_mode){ std::cout << sys_message_head << "Doing a dry run.\n\n"; }
 	if(shm_mode){ 
-		std::cout << sys_message_head << "Using shared-memory mode.\n"; 
-		std::cout << sys_message_head << "Listening on poll2 SHM port 5555\n";
+		std::cout << sys_message_head << "Using shared-memory mode.\n\n"; 
+		std::cout << sys_message_head << "Listening on poll2 SHM port 5555\n\n";
 	}
 
 	if(!shm_mode){
@@ -626,34 +674,52 @@ int ScanMain::Execute(int argc, char *argv[]){
 			dirbuff.Read(&input_file, num_buffers);
 			headbuff.Read(&input_file);
 			
+			// Store the file information for later use.
+			finfo.push_back("Run number", dirbuff.GetRunNumber());
+			finfo.push_back("Number buffers", num_buffers);
+			finfo.push_back("Facility", headbuff.GetFacility());
+			finfo.push_back("Format", headbuff.GetFormat());
+			finfo.push_back("Type", headbuff.GetType());
+			finfo.push_back("Date", headbuff.GetDate());
+			finfo.push_back("Title", headbuff.GetRunTitle());
+			
 			// Let's read out the file information from these buffers
-			std::cout << "\n 'DIR ' buffer-\n";
-			std::cout << "  Run number: " << dirbuff.GetRunNumber() << std::endl;
-			std::cout << "  Number buffers: " << num_buffers << std::endl << std::endl;
-	
+			std::cout << " 'DIR ' buffer-\n";
+			std::cout << "  " << finfo.print(0) << "\n";
+			std::cout << "  " << finfo.print(1) << "\n";
 			std::cout << " 'HEAD' buffer-\n";
-			std::cout << "  Facility: " << headbuff.GetFacility() << std::endl;
-			std::cout << "  Format: " << headbuff.GetFormat() << std::endl;
-			std::cout << "  Type: " << headbuff.GetType() << std::endl;
-			std::cout << "  Date: " << headbuff.GetDate() << std::endl;
-			std::cout << "  Title: " << headbuff.GetRunTitle() << std::endl;
-			std::cout << "  Run number: " << headbuff.GetRunNumber() << std::endl << std::endl;
+			std::cout << "  " << finfo.print(2) << "\n";
+			std::cout << "  " << finfo.print(3) << "\n";
+			std::cout << "  " << finfo.print(4) << "\n";
+			std::cout << "  " << finfo.print(5) << "\n";
+			std::cout << "  " << finfo.print(6) << "\n";
+			std::cout << "  Run number: " << headbuff.GetRunNumber() << "\n\n";
 		}
 		else if(file_format == 1){
 			pldHead.Read(&input_file);
 			
 			max_spill_size = pldHead.GetMaxSpillSize();
+
+			// Store the file information for later use.
+			finfo.push_back("Facility", pldHead.GetFacility());
+			finfo.push_back("Format", pldHead.GetFormat());
+			finfo.push_back("Start", pldHead.GetStartDate());
+			finfo.push_back("Stop", pldHead.GetEndDate());
+			finfo.push_back("Title", pldHead.GetRunTitle());
+			finfo.push_back("Run number", pldHead.GetRunNumber());
+			finfo.push_back("Max spill", max_spill_size, "words");
+			finfo.push_back("ACQ time", pldHead.GetRunTime(), "seconds");
 			
-			// Let's read out the file information from these buffers
-			std::cout << "\n 'HEAD' buffer-\n";
-			std::cout << "  Facility: " << pldHead.GetFacility() << std::endl;
-			std::cout << "  Format: " << pldHead.GetFormat() << std::endl;
-			std::cout << "  Start: " << pldHead.GetStartDate() << std::endl;
-			std::cout << "  Stop: " << pldHead.GetEndDate() << std::endl; 
-			std::cout << "  Title: " << pldHead.GetRunTitle() << std::endl;
-			std::cout << "  Run number: " << pldHead.GetRunNumber() << std::endl;
-			std::cout << "  Max spill: " << pldHead.GetMaxSpillSize() << " words\n";
-			std::cout << "  ACQ Time: " << pldHead.GetRunTime() << " seconds\n\n";
+			// Let's read out the file information from this buffer
+			std::cout << " 'HEAD' buffer-\n";
+			std::cout << "  " << finfo.print(0) << "\n";
+			std::cout << "  " << finfo.print(1) << "\n";
+			std::cout << "  " << finfo.print(2) << "\n";
+			std::cout << "  " << finfo.print(3) << "\n";
+			std::cout << "  " << finfo.print(4) << "\n";
+			std::cout << "  " << finfo.print(5) << "\n";
+			std::cout << "  " << finfo.print(6) << "\n";
+			std::cout << "  " << finfo.print(7) << "\n\n";			
 		}
 		else if(file_format == 2){
 		}
@@ -665,6 +731,10 @@ int ScanMain::Execute(int argc, char *argv[]){
 			std::cout << " Input file is now at " << input_file.tellg() << " bytes\n";
 		}
 	}
+	
+	// Do any last minute initialization.
+	try{ core->FinalInitialization(); }
+	catch(...){ std::cout << "\nUnpacker object final initialization failed!\n"; }
 	
 	if(!batch_mode){
 		// Start the run control thread
