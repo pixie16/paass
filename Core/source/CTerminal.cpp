@@ -343,12 +343,17 @@ void Terminal::resize_() {
 	getmaxyx(stdscr, _winSizeY, _winSizeX);
 
 	//Make pad bigger if needed.
-	int outputSizeY, outputSizeX;
+	int outputSizeY;
+	int outputSizeX;
 	getmaxyx(output_window,outputSizeY,outputSizeX);
 	if (outputSizeX < _winSizeX) {
 		wresize(output_window,_scrollbackBufferSize,_winSizeX);
 		wresize(input_window,1,_winSizeX);
 		if (status_window) wresize(status_window,_statusWindowSize, _winSizeX);
+	}
+	if (outputSizeY < _winSizeY) {
+		_scrollbackBufferSize = outputSizeY;
+		wresize(output_window,_scrollbackBufferSize,_winSizeX);
 	}
 
 	//Update the physical cursor location

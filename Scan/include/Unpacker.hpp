@@ -1,3 +1,15 @@
+/** \file Unpacker.hpp
+ * \brief A class to handle the unpacking of UTK/ORNL style pixie16 data spills.
+ *
+ * This class is intended to be used as a replacement of pixiestd.cpp from Stan
+ * Paulauskas's pixie_scan. The majority of function names and arguments are
+ * preserved as much as possible while allowing for more standardized unpacking
+ * of pixie16 data.
+ * CRT
+ *
+ * \author C. R. Thornsberry
+ * \date Feb. 12th, 2016
+ */
 #ifndef UNPACKER_HPP
 #define UNPACKER_HPP
 
@@ -12,10 +24,8 @@
 #define MAX_PIXIE_CHAN 15
 #endif
 
-class ChannelEvent;
-
-class TFile;
-class TTree;
+class PixieEvent;
+class ScanMain;
 
 class Unpacker{
   protected:
@@ -31,12 +41,11 @@ class Unpacker{
 	bool shm_mode; /// Set to true if shared memory mode is to be used.
 	bool init; /// True if the class has been properly initialized.
 
-	std::deque<ChannelEvent*> eventList; /// The list of all events in the spill.
-	std::deque<ChannelEvent*> rawEvent; /// The list of all events in the event window.
+	ScanMain *scan_main; /// Pointer to the ScanMain object responsible for reading spill data.
 
-	TFile *root_file;
-	TTree *root_tree;
-	
+	std::deque<PixieEvent*> eventList; /// The list of all events in the spill.
+	std::deque<PixieEvent*> rawEvent; /// The list of all events in the event window.
+
 	std::string message_head; /// Prefix used for text output.
 
 	/** Clear all events in the raw event. WARNING! This method will delete all events in the
@@ -103,6 +112,9 @@ class Unpacker{
 	/// Toggle shared memory mode on/off.
 	bool SetSharedMemMode(bool state_=true){ return (shm_mode = state_); }
 
+	/// Link this object to the ScanMain object responsible for packaging spill data.
+	void SetScanMain(ScanMain *main_){ scan_main = main_; }
+
 	/// Scan has stopped data acquisition.
 	virtual void StopAcquisition(){  }
 	
@@ -144,7 +156,7 @@ class Unpacker{
 	virtual bool CommandControl(std::string cmd_, const std::vector<std::string> &args_){ return false; }
 
 	/// Empty the raw event and the event list.
-	void Close();
+	void Close(bool write_count_file=false);
 };
 
 extern Unpacker *GetCore(); /// External function which returns a pointer to a class derived from Unpacker.

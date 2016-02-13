@@ -1,3 +1,15 @@
+/** \file ScanMain.cpp
+ * \brief A class to handle reading from various UTK/ORNL pixie16 data formats.
+ *
+ * This class is intended to be used as a replacement to the older and unsupported
+ * 'scanor' program from the UPAK acq library specifically for .ldf files which are
+ * constructed using the UTK/ORNL pixie16 style. This class also interfaces with poll2
+ * shared memory output without the need to use pacman.
+ * CRT
+ *
+ * \author C. R. Thornsberry
+ * \date Feb. 12th, 2016
+ */
 #include <iostream>
 #include <sstream>
 #include <thread>
@@ -45,15 +57,20 @@ std::string ScanMain::get_extension(std::string filename_, std::string &prefix){
 	std::string output = "";
 	prefix = "";
 	
-	// Find the final period in the filename
-	for(count = 0; count < filename_.size(); count++){
-		if(filename_[count] == '.'){ last_index = count; }
-	}
+	if(filename_.find('.') != std::string::npos){
+		// Find the final period in the filename
+		for(count = 0; count < filename_.size(); count++){
+			if(filename_[count] == '.'){ last_index = count; }
+		}
 	
-	// Get the filename prefix and the extension
-	for(size_t i = 0; i < count; i++){
-		if(i < last_index){ prefix += filename_[i]; }
-		else if(i > last_index){ output += filename_[i]; }
+		// Get the filename prefix and the extension
+		for(size_t i = 0; i < count; i++){
+			if(i < last_index){ prefix += filename_[i]; }
+			else if(i > last_index){ output += filename_[i]; }
+		}
+	}
+	else{ // The filename has no extension.
+		prefix = filename_;
 	}
 	
 	return output;
@@ -76,6 +93,7 @@ ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
 	debug_mode = false;
 	dry_run_mode = false;
 	shm_mode = false;
+	batch_mode = false;
 
 	kill_all = false;
 	run_ctrl_exit = false;
@@ -139,7 +157,7 @@ void ScanMain::RunControl(){
 			full_spill = true;
 
 			if(!poll_server->Select(dummy)){
-				term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for a spill...");
+				if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for a spill..."); }
 				core->IdleTask();
 				continue; 
 			}
@@ -189,7 +207,7 @@ void ScanMain::RunControl(){
 
 			std::stringstream status;
 			status << "\033[0;32m" << "[RECV] " << "\033[0m" << nTotalWords << " words";
-			term->SetStatus(status.str());
+			if(!batch_mode){ term->SetStatus(status.str()); }
 		
 			if(debug_mode){ std::cout << "debug: Retrieved spill of " << nTotalWords << " words (" << nTotalWords*4 << " bytes)\n"; }
 			if(!dry_run_mode && full_spill){ 
@@ -224,7 +242,7 @@ void ScanMain::RunControl(){
 
 			std::stringstream status;			
 			status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
-			term->SetStatus(status.str());
+			if(!batch_mode){ term->SetStatus(status.str()); }
 		
 			if(full_spill){ 
 				if(debug_mode){ 
@@ -254,7 +272,7 @@ void ScanMain::RunControl(){
 		
 		if(!dry_run_mode){ delete[] data; }
 		
-		term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file.");
+		if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file."); }
 	}
 	else if(file_format == 1){
 		unsigned int *data = NULL;
@@ -273,7 +291,7 @@ void ScanMain::RunControl(){
 
 			std::stringstream status;
 			status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
-			term->SetStatus(status.str());
+			if(!batch_mode){ term->SetStatus(status.str()); }
 		
 			if(debug_mode){ 
 				std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
@@ -298,7 +316,7 @@ void ScanMain::RunControl(){
 		
 		if(!dry_run_mode){ delete[] data; }
 		
-		term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file.");
+		if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file."); }
 	}
 	else if(file_format == 2){
 	}
@@ -406,15 +424,17 @@ void ScanMain::CmdControl(){
 void ScanMain::Help(char *name_, Unpacker *core){
 	core->SyntaxStr(name_, " ");
 	std::cout << "  Available options:\n";
-	std::cout << "   --help     - Display this dialogue\n";
-	std::cout << "   --version  - Display version information\n";
-	std::cout << "   --debug    - Enable readout debug mode\n";
-	std::cout << "   --shm      - Enable shared memory readout\n";
-	std::cout << "   --ldf      - Force use of ldf readout\n";
-	std::cout << "   --pld      - Force use of pld readout\n";
-	std::cout << "   --root     - Force use of root readout\n";
-	std::cout << "   --quiet    - Toggle off verbosity flag\n";
-	std::cout << "   --dry-run  - Extract spills from file, but do no processing\n";
+	std::cout << "   --help (-h)    - Display this dialogue\n";
+	std::cout << "   --version (-v) - Display version information\n";
+	std::cout << "   --debug        - Enable readout debug mode\n";
+	std::cout << "   --shm          - Enable shared memory readout\n";
+	std::cout << "   --ldf          - Force use of ldf readout\n";
+	std::cout << "   --pld          - Force use of pld readout\n";
+	std::cout << "   --root         - Force use of root readout\n";
+	std::cout << "   --quiet        - Toggle off verbosity flag\n";
+	std::cout << "   --counts       - Write all recorded channel counts to a file\n";
+	std::cout << "   --batch        - Run in batch mode (i.e. with no command line)\n";
+	std::cout << "   --dry-run      - Extract spills from file, but do no processing\n";
 	std::cout << "   --fast-fwd [word] - Skip ahead to a specified word in the file (start of file at zero)\n";
 	core->ArgHelp("   ");
 }
@@ -437,8 +457,10 @@ int ScanMain::Execute(int argc, char *argv[]){
 	debug_mode = false;
 	dry_run_mode = false;
 	shm_mode = false;
-
+	
 	num_spills_recvd = 0;
+
+	bool write_counts = false;
 
 	long file_start_offset = 0;
 
@@ -462,12 +484,18 @@ int ScanMain::Execute(int argc, char *argv[]){
 			core->SetDebugMode();
 			debug_mode = true;
 		}
+		else if(current_arg == "--counts"){
+			write_counts = true;
+		}
+		else if(current_arg == "--batch"){
+			batch_mode = true;
+		}
 		else if(current_arg == "--dry-run"){
 			dry_run_mode = true;
 		}
 		else if(current_arg == "--fast-fwd"){
 			if(scan_args.empty()){
-				std::cout << " Error: Missing required argument to option '--fast-fwd'!\n";
+				std::cout << " FATAL ERROR! Missing required argument to option '--fast-fwd'!\n";
 				Help(argv[0], core);
 				return 1;
 			}
@@ -510,7 +538,7 @@ int ScanMain::Execute(int argc, char *argv[]){
 		}
 		else{
 			if(prefix == ""){
-				std::cout << " ERROR: Input filename was not specified!\n";
+				std::cout << " FATAL ERROR! Input filename was not specified!\n";
 				return 1;
 			}
 		
@@ -524,7 +552,7 @@ int ScanMain::Execute(int argc, char *argv[]){
 				file_format = 2;
 			}
 			else{
-				std::cout << " ERROR: Invalid file format '" << extension << "'\n";
+				std::cout << " FATAL ERROR! Invalid file format '" << extension << "'\n";
 				std::cout << "  The current valid data formats are:\n";
 				std::cout << "   ldf - list data format (HRIBF)\n";
 				std::cout << "   pld - pixie list data format\n";
@@ -535,13 +563,20 @@ int ScanMain::Execute(int argc, char *argv[]){
 	}
 
 	// Initialize the Unpacker object.
-	core->Initialize(sys_message_head);
+	std::cout << sys_message_head << "Initializing data unpacker object.\n";
+	if(!core->Initialize(sys_message_head)){ // Failed to initialize the unpacker object. Clean up and exit.
+		std::cout << " FATAL ERROR! Failed to initialize unpacker object!\n";
+		std::cout << "\nCleaning up...\n";
+		core->PrintStatus(sys_message_head);
+		core->Close(write_counts);
+		return 1;
+	}
 
 	if(!shm_mode){
 		std::cout << sys_message_head << "Using file prefix " << prefix << ".\n";
 		input_file.open((prefix+"."+extension).c_str(), std::ios::binary);
 		if(!input_file.is_open() || !input_file.good()){
-			std::cout << " ERROR: Failed to open input file '" << prefix+"."+extension << "'! Check that the path is correct.\n";
+			std::cout << " FATAL ERROR! Failed to open input file '" << prefix+"."+extension << "'! Check that the path is correct.\n";
 			input_file.close();
 			return 1;
 		}
@@ -552,19 +587,26 @@ int ScanMain::Execute(int argc, char *argv[]){
 	else{
 		poll_server = new Server();
 		if(!poll_server->Init(5555, 1)){
-			std::cout << " ERROR: Failed to open shm socket 5555!\n";
+			std::cout << " FATAL ERROR! Failed to open shm socket 5555!\n";
 			return 1;
 		}
+	}
+
+	if(shm_mode && batch_mode){
+		std::cout << sys_message_head << "Unable to enable batch mode for shared-memory mode!\n";
+		batch_mode = false;
 	}
 
 	// Initialize the terminal.
 	std::string temp_name = std::string(PROG_NAME);
 	
-	term = new Terminal();
-	term->Initialize();
-	term->SetCommandHistory(("."+temp_name+".cmd").c_str());
-	term->SetPrompt((temp_name+" $ ").c_str());
-	term->AddStatusWindow();
+	if(!batch_mode){
+		term = new Terminal();
+		term->Initialize();
+		term->SetCommandHistory(("."+temp_name+".cmd").c_str());
+		term->SetPrompt((temp_name+" $ ").c_str());
+		term->AddStatusWindow();
+	}
 
 	std::cout << "\n " << PROG_NAME << " v" << SCAN_VERSION << "\n"; 
 	std::cout << " ==  ==  ==  ==  == \n\n"; 
@@ -624,21 +666,26 @@ int ScanMain::Execute(int argc, char *argv[]){
 		}
 	}
 	
-	// Start the run control thread
-	std::cout << "\nStarting data control thread\n";
-	std::thread runctrl(start_run_control, this);
+	if(!batch_mode){
+		// Start the run control thread
+		std::cout << "\nStarting data control thread\n";
+		std::thread runctrl(start_run_control, this);
 
-	// Start the command control thread. This needs to be the last thing we do to
-	// initialize, so the user cannot enter commands before setup is complete
-	std::cout << "Starting command thread\n\n";
-	std::thread comctrl(start_cmd_control, this);
+		// Start the command control thread. This needs to be the last thing we do to
+		// initialize, so the user cannot enter commands before setup is complete
+		std::cout << "Starting command thread\n\n";
+		std::thread comctrl(start_cmd_control, this);
 
-	// Synchronize the threads and wait for completion
-	comctrl.join();
-	runctrl.join();
+		// Synchronize the threads and wait for completion
+		comctrl.join();
+		runctrl.join();
+	}
+	else{ start_run_control(this); }
 
 	// Close the socket and restore the terminal
-	term->Close();
+	if(!batch_mode){
+		term->Close();
+	}
 	
 	// Only close the server if this is shared memory mode. Otherwise
 	// the server would never have been initialized.
@@ -655,7 +702,7 @@ int ScanMain::Execute(int argc, char *argv[]){
 	std::cout << "\nCleaning up...\n";
 	
 	core->PrintStatus(sys_message_head);
-	core->Close();
+	core->Close(write_counts);
 	
 	return 0;
 }
