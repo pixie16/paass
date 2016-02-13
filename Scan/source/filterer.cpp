@@ -2,7 +2,7 @@
 
 // PixieCore libraries
 #include "ScanMain.hpp"
-#include "ChannelEvent.hpp"
+#include "PixieEvent.hpp"
 
 // Local files
 #include "filterer.hpp"
@@ -163,7 +163,7 @@ void Filterer::Plot(ChannelEvent *event_){
 }
 
 void Filterer::ProcessRawEvent(){
-	ChannelEvent *current_event = NULL;
+	PixieEvent *current_event = NULL;
 	
 	// Fill the processor event deques with events
 	while(!rawEvent.empty()){
@@ -181,23 +181,30 @@ void Filterer::ProcessRawEvent(){
 		//Get the first event int he FIFO.
 		current_event = rawEvent.front();
 		rawEvent.pop_front();
+		
+		// Safety catches for null event or empty adcTrace.
+		if(!current_event || current_event->adcTrace.empty()){
+			continue;
+		}
 
 		// Pass this event to the correct processor
-		if(current_event->modNum == mod_ && current_event->chanNum == chan_){  
-			current_event->CorrectBaseline();
-			if (current_event->maximum < threshLow_) {
-				delete current_event;
+		if(current_event->modNum == mod_ && current_event->chanNum == chan_){ 
+			ChannelEvent *channel_event = new ChannelEvent(current_event);
+		
+			channel_event->CorrectBaseline();
+			if (channel_event->maximum < threshLow_) {
+				delete channel_event;
 				continue;
 			}
 			//Check threhsold.
-			if (threshHigh_ > threshLow_ && current_event->maximum > threshHigh_) {
-				delete current_event;
+			if (threshHigh_ > threshLow_ && channel_event->maximum > threshHigh_) {
+				delete channel_event;
 				continue;
 			}
 
 			//Process the waveform.
-			current_event->FindLeadingEdge();
-			current_event->FindQDC();
+			channel_event->FindLeadingEdge();
+			channel_event->FindQDC();
 
 			time_t cur_time;
 			time(&cur_time);
@@ -207,7 +214,7 @@ void Filterer::ProcessRawEvent(){
 				time(&cur_time);
 			}	
 
-			Plot(current_event); 
+			Plot(channel_event); 
 			
 			//If this is a single capture we stop the plotting.
 			if (singleCapture_) acqRun_ = false;

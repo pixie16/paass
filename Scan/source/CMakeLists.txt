@@ -1,4 +1,4 @@
-set(PixieCore_SOURCES ChannelEvent.cpp Unpacker.cpp ScanMain.cpp)
+set(PixieCore_SOURCES PixieEvent.cpp Unpacker.cpp ScanMain.cpp)
 
 add_library(PixieScanObjects OBJECT ${PixieCore_SOURCES})
 

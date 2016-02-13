@@ -3,7 +3,7 @@
 
 // PixieCore libraries
 #include "ScanMain.hpp"
-#include "ChannelEvent.hpp"
+#include "PixieEvent.hpp"
 
 // Local files
 #include "scope.hpp"
@@ -139,7 +139,7 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 	if (events.size() == 1) {
 		int index = 0;
 		for (size_t i=0;i<events[0]->size;++i) {
-			graph->SetPoint(index, x_vals[i], events[0]->trace[i]);
+			graph->SetPoint(index, x_vals[i], events[0]->event->adcTrace[i]);
 			index++;
 		}
 
@@ -177,8 +177,8 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 		//Determine the maximum and minimum values of the events.
 		for (auto itr = events.begin(); itr != events.end(); ++itr) {
 			ChannelEvent* evt = *itr;
-			float evtMin = *std::min_element(evt->trace.begin(),evt->trace.end());
-			float evtMax = *std::max_element(evt->trace.begin(),evt->trace.end());
+			float evtMin = *std::min_element(evt->event->adcTrace.begin(),evt->event->adcTrace.end());
+			float evtMax = *std::max_element(evt->event->adcTrace.begin(),evt->event->adcTrace.end());
 			evtMin -= fabs(0.1 * evtMax);
 			evtMax += fabs(0.1 * evtMax);
 			if (evtMin < axisVals[1][0]) axisVals[1][0] = evtMin;
@@ -202,7 +202,7 @@ void Oscilloscope::Plot(std::vector<ChannelEvent*> events){
 		for (auto itr = events.begin(); itr != events.end(); ++itr) {
 			ChannelEvent *evt = *itr;
 			for (size_t i=0;i<evt->size;++i) {
-				hist->Fill(x_vals[i],evt->trace[i]);
+				hist->Fill(x_vals[i],evt->event->adcTrace[i]);
 			}
 		}
 
@@ -255,11 +255,10 @@ void Oscilloscope::ClearEvents() {
 }
 
 void Oscilloscope::ProcessRawEvent(){
-	ChannelEvent *current_event = NULL;
+	PixieEvent *current_event = NULL;
 	//static int numWaveforms = 0;
 	//static std::vector<std::pair<int, float>> waveform;
 
-	
 	// Fill the processor event deques with events
 	while(!rawEvent.empty()){
 		if(kill_all){ break; }
@@ -295,13 +294,13 @@ void Oscilloscope::ProcessRawEvent(){
 		current_event = rawEvent.front();
 		rawEvent.pop_front();
 
-		// Safety catches for null event or empty trace.
-		if(!current_event || current_event->trace.empty()){
+		// Safety catches for null event or empty adcTrace.
+		if(!current_event || current_event->adcTrace.empty()){
 			continue;
 		}
 
 		// Pass this event to the correct processor
-		int maximum = *std::max_element(current_event->trace.begin(),current_event->trace.end());
+		int maximum = *std::max_element(current_event->adcTrace.begin(),current_event->adcTrace.end());
 		if(current_event->modNum == mod_ && current_event->chanNum == chan_){  
 			num_traces++;
 			if (maximum < threshLow_) {
@@ -314,13 +313,15 @@ void Oscilloscope::ProcessRawEvent(){
 				continue;
 			}
 
+			ChannelEvent *channel_event = new ChannelEvent(current_event);
+
 			//Process the waveform.
-			//current_event->FindLeadingEdge();
-			current_event->CorrectBaseline();
-			current_event->FindQDC();
+			//channel_event->FindLeadingEdge();
+			channel_event->CorrectBaseline();
+			channel_event->FindQDC();
 
 			//Store the waveform in the stack of waveforms to be displayed.
-			events_.push_back(current_event);
+			events_.push_back(channel_event);
 
 			//When we have the correct number of waveforms we plot them.
 			if (events_.size() >= numAvgWaveforms_) {
