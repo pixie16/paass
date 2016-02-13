@@ -23,12 +23,6 @@ class PixieEvent{
 
 	std::vector<int> adcTrace; /// ADC trace capture.
 
-	double hires_energy; /// High resolution energy from the integration of pulse fits.
-	double hires_time; /// High resolution time taken from pulse fits (in ns).
-    double calEnergy; /// Calibrated channel energy.
-    double correctedTime; /// Energy-walk corrected time.
-    double eventTime; /// The event time recorded by Pixie.
-	
 	static const int numQdcs = 8; /// Number of QDCs onboard.
 	unsigned int qdcValue[numQdcs]; /// QDCs from onboard.
 
@@ -38,6 +32,7 @@ class PixieEvent{
 	unsigned int cfdTime; /// CFD trigger time in units of 1/256 pixie clock ticks.
 	unsigned int eventTimeLo; /// Lower 32 bits of pixie16 event time.
 	unsigned int eventTimeHi; /// Upper 32 bits of pixie16 event time.
+	double eventTime; /// The event time recorded by Pixie.
 
 	bool virtualChannel; /// Flagged if generated virtually in Pixie DSP.
 	bool pileupBit; /// Pile-up flag from Pixie.
@@ -82,6 +77,9 @@ class PixieEvent{
 class ChannelEvent{
   public:
 	bool valid_chan; /// True if the high resolution energy and time are valid.
+
+	double hires_energy; /// High resolution energy from the integration of pulse fits.
+	double hires_time; /// High resolution time taken from pulse fits (in ns).
 
 	float *xvals; /// x values used for fitting.
 	float *yvals; /// y values used for fitting (baseline corrected trace).
