@@ -19,7 +19,7 @@
 #include <algorithm>
 
 #include "Unpacker.hpp"
-#include "ChannelEvent.hpp"
+#include "PixieEvent.hpp"
 
 void Unpacker::ClearRawEvent(){
 	while(!rawEvent.empty()){
@@ -48,7 +48,7 @@ void Unpacker::ScanList(){
 	int mod, chan;
 	std::string type, subtype, tag;
 	
-	ChannelEvent *current_event = eventList.front();
+	PixieEvent *current_event = eventList.front();
 	
 	// Set lastTime to the time of the first event
 	double lastTime = current_event->time;
@@ -69,10 +69,6 @@ void Unpacker::ScanList(){
 		
 		if(mod > MAX_PIXIE_MOD || chan > MAX_PIXIE_CHAN){ // Skip this channel
 			std::cout << "ScanList: Encountered non-physical Pixie ID (mod = " << mod << ", chan = " << chan << ")\n";
-			DeleteCurrentEvent();
-			continue;
-		}
-		else if(current_event->ignore){ // Skip this channel
 			DeleteCurrentEvent();
 			continue;
 		}
@@ -111,7 +107,7 @@ void Unpacker::ScanList(){
 }	
 
 void Unpacker::SortList(){
-	sort(eventList.begin(), eventList.end(), &ChannelEvent::CompareTime);
+	sort(eventList.begin(), eventList.end(), &PixieEvent::compareTime);
 }
 
 int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){						
@@ -128,7 +124,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 	// Read the module number
 	modNum = *buf++;
 
-	ChannelEvent *lastVirtualChannel = NULL;
+	PixieEvent *lastVirtualChannel = NULL;
 
 	if(bufLen > 0){ // Check if the buffer has data
 		if(bufLen == 2){ // this is an empty channel
@@ -141,7 +137,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 				return numEvents;
 			}
 		
-			ChannelEvent *currentEvt = new ChannelEvent();
+			PixieEvent *currentEvt = new PixieEvent();
 
 			// decoding event data... see pixie16app.c
 			// buf points to the start of channel data
@@ -238,7 +234,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 				/*if(currentEvt->saturatedBit)
 					currentEvt->trace.SetValue("saturation", 1);*/
 
-				if( lastVirtualChannel != NULL && lastVirtualChannel->trace.empty() ){		
+				if( lastVirtualChannel != NULL && lastVirtualChannel->adcTrace.empty() ){		
 					lastVirtualChannel->assign(traceLength, 0);
 				}
 				// Read the trace data (2-bytes per sample, i.e. 2 samples per word)
@@ -246,7 +242,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 					currentEvt->push_back(sbuf[k]);
 
 					if(lastVirtualChannel != NULL){
-						lastVirtualChannel->trace[k] += sbuf[k];
+						lastVirtualChannel->adcTrace[k] += sbuf[k];
 					}
 				}
 				buf += traceLength / 2;
