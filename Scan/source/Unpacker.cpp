@@ -1,3 +1,15 @@
+/** \file Unpacker.cpp
+ * \brief A class to handle the unpacking of UTK/ORNL style pixie16 data spills.
+ *
+ * This class is intended to be used as a replacement of pixiestd.cpp from Stan
+ * Paulauskas's pixie_scan. The majority of function names and arguments are
+ * preserved as much as possible while allowing for more standardized unpacking
+ * of pixie16 data.
+ * CRT
+ *
+ * \author C. R. Thornsberry
+ * \date Feb. 12th, 2016
+ */
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -7,7 +19,7 @@
 #include <algorithm>
 
 #include "Unpacker.hpp"
-#include "ChannelEvent.hpp"
+#include "PixieEvent.hpp"
 
 void Unpacker::ClearRawEvent(){
 	while(!rawEvent.empty()){
@@ -36,7 +48,7 @@ void Unpacker::ScanList(){
 	int mod, chan;
 	std::string type, subtype, tag;
 	
-	ChannelEvent *current_event = eventList.front();
+	PixieEvent *current_event = eventList.front();
 	
 	// Set lastTime to the time of the first event
 	double lastTime = current_event->time;
@@ -57,10 +69,6 @@ void Unpacker::ScanList(){
 		
 		if(mod > MAX_PIXIE_MOD || chan > MAX_PIXIE_CHAN){ // Skip this channel
 			std::cout << "ScanList: Encountered non-physical Pixie ID (mod = " << mod << ", chan = " << chan << ")\n";
-			DeleteCurrentEvent();
-			continue;
-		}
-		else if(current_event->ignore){ // Skip this channel
 			DeleteCurrentEvent();
 			continue;
 		}
@@ -99,7 +107,7 @@ void Unpacker::ScanList(){
 }	
 
 void Unpacker::SortList(){
-	sort(eventList.begin(), eventList.end(), &ChannelEvent::CompareTime);
+	sort(eventList.begin(), eventList.end(), &PixieEvent::compareTime);
 }
 
 int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){						
@@ -116,7 +124,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 	// Read the module number
 	modNum = *buf++;
 
-	ChannelEvent *lastVirtualChannel = NULL;
+	PixieEvent *lastVirtualChannel = NULL;
 
 	if(bufLen > 0){ // Check if the buffer has data
 		if(bufLen == 2){ // this is an empty channel
@@ -129,7 +137,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 				return numEvents;
 			}
 		
-			ChannelEvent *currentEvt = new ChannelEvent();
+			PixieEvent *currentEvt = new PixieEvent();
 
 			// decoding event data... see pixie16app.c
 			// buf points to the start of channel data
@@ -226,7 +234,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 				/*if(currentEvt->saturatedBit)
 					currentEvt->trace.SetValue("saturation", 1);*/
 
-				if( lastVirtualChannel != NULL && lastVirtualChannel->trace.empty() ){		
+				if( lastVirtualChannel != NULL && lastVirtualChannel->adcTrace.empty() ){		
 					lastVirtualChannel->assign(traceLength, 0);
 				}
 				// Read the trace data (2-bytes per sample, i.e. 2 samples per word)
@@ -234,7 +242,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 					currentEvt->push_back(sbuf[k]);
 
 					if(lastVirtualChannel != NULL){
-						lastVirtualChannel->trace[k] += sbuf[k];
+						lastVirtualChannel->adcTrace[k] += sbuf[k];
 					}
 				}
 				buf += traceLength / 2;
@@ -262,9 +270,6 @@ Unpacker::Unpacker(){
 	TOTALREAD = 1000000; // Maximum number of data words to read.
 	maxWords = 131072; // Maximum number of data words for revision D.	
 	event_width = 62; // ~ 500 ns in 8 ns pixie clock ticks.
-	
-	root_file = NULL;
-	root_tree = NULL;
 	
 	message_head = "";
 	
@@ -458,19 +463,21 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 	return true;		
 }
 
-void Unpacker::Close(){
+void Unpacker::Close(bool write_count_file/*=false*/){
 	if(init){
 		ClearRawEvent();
 		ClearEventList();
 		
-		std::ofstream count_output("counts.dat");
-		if(count_output.good()){
-			for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
-				for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
-					count_output << i << "\t" << j << "\t" << channel_counts[i][j] << std::endl;
+		if(write_count_file){ // Write all recorded channel counts to a file.
+			std::ofstream count_output("counts.dat");
+			if(count_output.good()){
+				for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
+					for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
+						count_output << i << "\t" << j << "\t" << channel_counts[i][j] << std::endl;
+					}
 				}
+				count_output.close();
 			}
-			count_output.close();
 		}
 	}
 }

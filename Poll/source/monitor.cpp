@@ -124,9 +124,9 @@ std::string GetTimeString(double input_){
 }
 
 int main(){
-	const size_t msg_size = 5844;
-	const int modColumnWidth = 26;
-	char buffer[msg_size]; // 5.8 kB of stats data max
+	const size_t msg_size = 5844;// 5.8 kB of stats data max
+	const int modColumnWidth = 25;
+	char buffer[msg_size]; 
 	Server poll_server;
 	
 	int num_modules;
@@ -207,10 +207,10 @@ int main(){
 			std::cout << "Data Rate: " << GetRateString(data_rate) << std::endl;
 			std::cout << "   ";
 			for(unsigned int i = 0; i < (unsigned int)num_modules; i++){
-			    std::cout << "|" << std::setw((modColumnWidth-2) / 2) 
+			    std::cout << "|" << std::setw((int)((modColumnWidth-1.+0.5) / 2)) 
 				      << std::setfill('-') << "M" << std::setw(2) 
 				      << std::setfill('0') << i 
-				      << std::setw((modColumnWidth-2) / 2) 
+				      << std::setw((int)((modColumnWidth-2.+0.5) / 2)) 
 				      << std::setfill('-') << "";
 			}
 			std::cout << "|\n";
@@ -221,7 +221,7 @@ int main(){
 				std::cout << std::setw(5) << std::setfill(' ') << GetChanRateString(inputCountRate[j][i]) << " ";
 				std::cout << std::setw(5) << std::setfill(' ') << GetChanRateString(outputCountRate[j][i]) << " ";
 				std::cout << std::setw(5) << std::setfill(' ') << GetChanRateString(rates[j][i]) << " ";
-				std:: cout << " " << std::setw(6) << GetChanTotalString(totals[j][i]) << " ";
+				std::cout << std::setw(6) << GetChanTotalString(totals[j][i]) << " ";
 				std::cout << "|";
 			    }
 			    std::cout << "\n";

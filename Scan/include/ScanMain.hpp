@@ -1,9 +1,21 @@
+/** \file ScanMain.hpp
+ * \brief A class to handle reading from various UTK/ORNL pixie16 data formats.
+ *
+ * This class is intended to be used as a replacement to the older and unsupported
+ * 'scanor' program from the UPAK acq library specifically for .ldf files which are
+ * constructed using the UTK/ORNL pixie16 style. This class also interfaces with poll2
+ * shared memory output without the need to use pacman.
+ * CRT
+ *
+ * \author C. R. Thornsberry
+ * \date Feb. 12th, 2016
+ */
 #include <string>
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.02"
-#define SCAN_DATE "Nov. 5th, 2015"
+#define SCAN_VERSION "1.2.04"
+#define SCAN_DATE "Feb. 12th, 2016"
 
 class Server;
 class Terminal;
@@ -27,6 +39,7 @@ class ScanMain{
 	bool debug_mode; /// Set to true if the user wishes to display debug information.
 	bool dry_run_mode; /// Set to true if a dry run is to be performed i.e. data is to be read but not processed.
 	bool shm_mode; /// Set to true if shared memory mode is to be used.
+	bool batch_mode; /// Set to true if the program is to be run with no interactive command line.
 
 	bool kill_all; /// Set to true when user has sent kill command.
 	bool run_ctrl_exit; /// Set to true when run control thread has exited.
