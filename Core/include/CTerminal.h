@@ -20,12 +20,13 @@
 #include <map>
 #include <fstream>
 #include <vector>
+#include <deque>
 
 ///Default size of terminal scroll back buffer in lines.
 #define SCROLLBACK_SIZE 1000
 
-#define CTERMINAL_VERSION "1.2.04"
-#define CTERMINAL_DATE "Dec. 1st, 2015"
+#define CTERMINAL_VERSION "1.2.05"
+#define CTERMINAL_DATE "Mar. 2nd, 2016"
 
 #include <curses.h>
 
@@ -212,6 +213,7 @@ class Terminal{
 	int _winSizeX,_winSizeY;
 	int _statusWindowSize;
 	std::vector<std::string> statusStr;
+	std::deque<std::string> cmd_queue; /// The queue of commands read from a command script.
 	///The prompt string.
 	std::string prompt;
 	///The tab complete flag
@@ -252,6 +254,9 @@ class Terminal{
 	/// Initialize terminal colors
 	void init_colors_();
 	
+	/// Read commands from a command script.
+	bool LoadCommandFile(const char *filename_);
+	
 	/// Load a list of previous commands from a file
 	bool LoadCommandHistory(bool overwrite);
 	
@@ -274,15 +279,19 @@ class Terminal{
 
 	/// Initalizes a status window under the input temrinal.
 	void AddStatusWindow(unsigned short numLines = 1);
+	
 	///Set the status message.
 	void SetStatus(std::string status, unsigned short line = 0);
+	
 	///Clear the status line.
 	void ClearStatus(unsigned short line = 0);
+	
 	///Append some text to the status line.
 	void AppendStatus(std::string status, unsigned short line = 0);
 		
 	///Enable tab auto complete functionlity.
 	void EnableTabComplete(bool enable = true);
+	
 	void TabComplete(std::vector<std::string> matches);
 
 	///Enable a timeout while waiting fro a command.
@@ -304,7 +313,7 @@ class Terminal{
 	void flush();
 
 	/// Wait for the user to input a command
-	std::string GetCommand();
+	std::string GetCommand(const int &prev_cmd_return_=0);
 	
 	/// Close the window and restore control to the terminal
 	void Close();
