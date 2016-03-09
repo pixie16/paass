@@ -37,7 +37,6 @@ StatsHandler::StatsHandler(const size_t nCards){
 	// Define all the 1d arrays
 	dataDelta = new size_t[numCards];
 	dataTotal = new size_t[numCards];
-	calcDataRate = new size_t[numCards];
 
 	timeElapsed = 0.0;
 	totalTime = 0.0;
@@ -74,7 +73,6 @@ StatsHandler::~StatsHandler(){
 	// De-allocate the 1d arrays
 	delete[] dataDelta;
 	delete[] dataTotal;
-	delete[] calcDataRate;
 }
 
 void StatsHandler::AddEvent(unsigned int mod, unsigned int ch, size_t size, int delta_/*=1*/){
@@ -106,12 +104,7 @@ bool StatsHandler::AddTime(double dtime) {
 void StatsHandler::Dump(void){
 	if(!is_able_to_send){ return; }
 
-	double dataRate = 0.0;
-	for(unsigned int i = 0; i < numCards; i++){
-		dataRate += dataDelta[i];
-	}
-	dataRate /= timeElapsed;
-	if(timeElapsed<=0) dataRate = 0;
+	double dataRate = GetTotalDataRate();
 
 	// Below is the stats packet structure (for N modules)
 	// ---------------------------------------------------
@@ -140,9 +133,6 @@ void StatsHandler::Dump(void){
 	memcpy(ptr, &totalTime, 8); ptr += 8;
 	memcpy(ptr, &dataRate, 8); ptr += 8;
 	for (unsigned int i=0; i < numCards; i++) {
-		calcDataRate[i] = (size_t)(dataDelta[i] / timeElapsed);
-		if (timeElapsed<=0) 
-			calcDataRate[i] = 0;
 		for (unsigned int j=0; j < NUM_CHAN_PER_MOD; j++) {	 
 			calcEventRate[i][j] = nEventsDelta[i][j] / timeElapsed;
 			if (timeElapsed<=0) 
@@ -160,12 +150,13 @@ void StatsHandler::Dump(void){
 }
 
 double StatsHandler::GetDataRate(size_t mod){
-	return calcDataRate[mod];
+	if(timeElapsed<=0) return 0;
+	return dataDelta[mod] / timeElapsed;
 }
 
 double StatsHandler::GetTotalDataRate(){
 	double rate = 0;
-	for (unsigned int i=0; i < numCards; i++) rate += calcDataRate[i];
+	for (unsigned int i=0; i < numCards; i++) rate += GetDataRate(i);
 	return rate;
 }
 
@@ -189,7 +180,6 @@ void StatsHandler::ClearRates(){
 			nEventsDelta[i][j] = 0;
 		}
 		dataDelta[i] = 0;
-		calcDataRate[i] = 0;
 	}
 }
 
