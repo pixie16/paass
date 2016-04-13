@@ -12,6 +12,12 @@
 #include "EventProcessor.hpp"
 #include "VandleProcessor.hpp"
 
+#ifdef useroot
+#include <TFile.h>
+#include <TTree.h>
+#include <TH2D.h>
+#endif
+
 /// Class to process VANDLE analysis for ISOLDE experiments 599 and 600 related events
 class IS600Processor : public VandleProcessor {
 public:
@@ -40,8 +46,10 @@ public:
     * \return Returns true if the processing was successful */
     virtual bool Process(RawEvent &event);
 private:
-    std::string fileName_;
-    std::vector<std::string> fileNames_;
+#ifdef useroot
+    TFile *rootfile_;
+    TH2D *qdctof_;
+#endif
     std::ofstream *outstream;
 };
 #endif
