@@ -53,6 +53,11 @@
 #include "TraceExtractor.hpp"
 #include "WaveformAnalyzer.hpp"
 
+#include "IS600Processor.hpp"
+#include "IS600LogicProcessor.hpp"
+#include "IS600GeProcessor.hpp"
+#include "IS600DoubleBetaProcessor.hpp"
+
 #ifdef useroot
 #include "RootProcessor.hpp"
 #endif
@@ -147,7 +152,7 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                                                energy_contraction));
         } else if (name == "DssdProcessor") {
             vecProcess.push_back(new DssdProcessor());
-        } else if (name == "GeProcessor") {
+        } else if (name == "GeProcessor" || name == "IS600GeProcessor") {
             double gamma_threshold =
                 processor.attribute("gamma_threshold").as_double(-1);
             if (gamma_threshold == -1) {
@@ -208,13 +213,18 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                 cycle_gate2_max = 0.0;
                 m.warning("Using default cycle_gate2_max = 0.0", 1);
             }
-            if (name == "GeProcessor") {
+            if (name == "GeProcessor")
                 vecProcess.push_back(new GeProcessor(gamma_threshold,
                             low_ratio, high_ratio, sub_event,
                             gamma_beta_limit, gamma_gamma_limit,
                             cycle_gate1_min, cycle_gate1_max,
                             cycle_gate2_min, cycle_gate2_max));
-            }
+	    if (name == "IS600GeProcessor")
+		vecProcess.push_back(new IS600GeProcessor(gamma_threshold,
+                            low_ratio, high_ratio, sub_event,
+                            gamma_beta_limit, gamma_gamma_limit,
+                            cycle_gate1_min, cycle_gate1_max,
+                            cycle_gate2_min, cycle_gate2_max));
         } else if (name == "GeCalibProcessor") {
             double gamma_threshold =
                 processor.attribute("gamma_threshold").as_double(1);
@@ -236,11 +246,15 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new LogicProcessor());
         } else if (name == "McpProcessor") {
             vecProcess.push_back(new McpProcessor());
-        } else if (name == "MtcProcessor") {
+        } else if (name == "MtcProcessor" || name == "IS600LogicProcessor") {
             /** Default value for as_bool() is false */
             bool double_stop = processor.attribute("double_stop").as_bool();
             bool double_start = processor.attribute("double_start").as_bool();
-            vecProcess.push_back(new MtcProcessor(double_stop, double_start));
+	    if(name == "MtcProcessor")
+	      vecProcess.push_back(new MtcProcessor(double_stop, double_start));
+	    if(name == "IS600LogicProcessor")
+	      vecProcess.push_back(new IS600LogicProcessor(double_stop, 
+							   double_start));
         } else if (name == "NeutronScintProcessor") {
             vecProcess.push_back(new NeutronScintProcessor());
         } else if (name == "PositionProcessor") {
@@ -251,17 +265,26 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new SsdProcessor());
         } else if (name == "TriggerLogicProcessor") {
             vecProcess.push_back(new TriggerLogicProcessor());
-        } else if (name == "VandleProcessor") {
+        } else if (name == "VandleProcessor" || name == "IS600Processor") {
             double res = processor.attribute("res").as_double(2.0);
             double offset = processor.attribute("offset").as_double(200.0);
             unsigned int numStarts = processor.attribute("NumStarts").as_int(2);
             vector<string> types =
                 strings::tokenize(processor.attribute("types").as_string(),",");
-            vecProcess.push_back(new VandleProcessor(types, res, offset, numStarts));
-        } else if (name == "TeenyVandleProcessor") {
+	    if(name == "VandleProcessor")
+		vecProcess.push_back(new VandleProcessor(types, res, 
+							 offset, numStarts));
+	    if(name == "IS600Processor")
+		vecProcess.push_back(new IS600Processor(types, res, 
+							offset, numStarts));
+	} else if (name == "TeenyVandleProcessor") {
             vecProcess.push_back(new TeenyVandleProcessor());
-        } else if (name == "DoubleBetaProcessor") {
-            vecProcess.push_back(new DoubleBetaProcessor());
+        } else if (name == "DoubleBetaProcessor" || 
+		   name == "IS600DoubleBetaProcessor") {
+	    if(name == "DoubleBetaProcessor")
+		vecProcess.push_back(new DoubleBetaProcessor());
+	    if(name == "IS600DoubleBetaProcessor")
+		vecProcess.push_back(new IS600DoubleBetaProcessor());
         } else if (name == "PspmtProcessor") {
             vecProcess.push_back(new PspmtProcessor());
         }

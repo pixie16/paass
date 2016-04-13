@@ -7,6 +7,7 @@
  */
 #ifndef __IS600PROCESSOR_HPP_
 #define __IS600PROCESSOR_HPP_
+#include <fstream>
 
 #include "EventProcessor.hpp"
 #include "VandleProcessor.hpp"
@@ -17,7 +18,7 @@ public:
     /** Default Constructor */
     IS600Processor();
     /** Default Destructor */
-    ~IS600Processor() {};
+    ~IS600Processor();
     /** Declare the plots used in the analysis */
     virtual void DeclarePlots(void);
 
@@ -29,6 +30,11 @@ public:
                     const double &res, const double &offset,
                     const double &numStarts);
 
+    /** Preprocess the VANDLE data
+     * \param [in] event : the event to preprocess
+     * \return true if successful */
+    virtual bool PreProcess(RawEvent &event);
+    
     /** Process the event
     * \param [in] event : the event to process
     * \return Returns true if the processing was successful */
@@ -36,5 +42,6 @@ public:
 private:
     std::string fileName_;
     std::vector<std::string> fileNames_;
+    std::ofstream *outstream;
 };
 #endif
