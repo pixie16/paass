@@ -62,12 +62,22 @@ IS600Processor::IS600Processor(const std::vector<std::string> &typeList,
     stringstream name;
     name << temp << ".dat";
     outstream = new ofstream(name.str().c_str());
+#ifdef useroot
+    stringstream rootname;
+    rootname << temp << ".root";
+    rootfile_ = new TFile(rootname.str().c_str(),"RECREATE");
+    qdctof_ = new TH2D("qdctof","",2000,-1000,1000,16000,0,16000);
+#endif    
 }
 
 IS600Processor::~IS600Processor() {
     outstream->close();
-    cout << "I got here a lotttt" << endl;
-    //delete(outstream);
+    delete(outstream);
+#ifdef useroot
+    qdctof_->Write();
+    rootfile_->Close();
+    delete(rootfile_);
+#endif    
 }
 
 bool IS600Processor::PreProcess(RawEvent &event){
@@ -122,6 +132,9 @@ bool IS600Processor::Process(RawEvent &event) {
 	    bool isLowStart = start.GetQdc() < 300;
 
 	    *outstream << tof << " " << bar.GetQdc() << endl;
+#ifdef useroot
+	    qdctof_->Fill(tof,bar.GetQdc());
+#endif
 
 	    plot(DD_DEBUGGING1, tof*plotMult_+plotOffset_, bar.GetQdc());
 	    if(!isTapeMoving && !isLowStart)

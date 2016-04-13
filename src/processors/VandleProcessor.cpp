@@ -51,7 +51,7 @@ using namespace dammIds::vandle;
 
 VandleProcessor::VandleProcessor(): EventProcessor(dammIds::vandle::OFFSET,
                                                    dammIds::vandle::RANGE,
-                                                   "vandle") {
+                                                   "VANDLE") {
     associatedTypes.insert("vandle");
 }
 

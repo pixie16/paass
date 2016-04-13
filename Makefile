@@ -3,7 +3,7 @@
 SHELL=/bin/sh
 
 # Uncomment the following line for root functionality
-# USEROOT = 1
+ USEROOT = 1
 # Uncomment this line for a more verbose scan
 # CXXFLAGS += -DVERBOSE
 # Undefine to make a "online" version
@@ -116,7 +116,7 @@ endif
 #---------- Adjust compilation if ROOT capability is desired
 ifdef USEROOT
 CXX_OBJS  += $(ROOTPROCESSORO)
-PIXIE = pixie_ldf_c_root$(ExeSuf)
+PIXIE = pixie_ldf_c$(ExeSuf)
 ROOTCONFIG   := root-config
 
 #no uncomment ROOTCLFAGS   := $(filter-out pthread,$(ROOTCFLAGS))
