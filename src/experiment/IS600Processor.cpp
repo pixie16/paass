@@ -60,11 +60,20 @@ IS600Processor::IS600Processor(const std::vector<std::string> &typeList,
     string temp = hisFileName;
     temp = temp.substr(0, temp.find_first_of(" "));
     stringstream name;
-    name << temp;
-    fileName_ = name.str();
-    fileNames_.push_back(fileName_ + "-tof.dat");
-    fileNames_.push_back(fileName_ + "-tof-02Plus.dat");
-    fileNames_.push_back(fileName_ + "-tof-04Plus.dat");
+    name << temp << ".dat";
+    outstream = new ofstream(name.str().c_str());
+}
+
+IS600Processor::~IS600Processor() {
+    outstream->close();
+    delete(outstream);
+}
+
+bool IS600Processor::PreProcess(RawEvent &event){
+    if (!EventProcessor::PreProcess(event))
+        return(false);
+    if(!VandleProcessor::PreProcess(event))
+	return(false);
 }
 
 bool IS600Processor::Process(RawEvent &event) {
@@ -109,7 +118,9 @@ bool IS600Processor::Process(RawEvent &event) {
 	    bool inPeel = histo.BananaTest(bananaNum,
                                            corTof*plotMult_+plotOffset_,
                                            bar.GetQdc());
-	    bool isLowStart = start.GetQdc() < 300;	    
+	    bool isLowStart = start.GetQdc() < 300;
+
+	    *outstream << tof << " " << bar.GetQdc() << endl;
 
 	    plot(DD_DEBUGGING1, tof*plotMult_+plotOffset_, bar.GetQdc());
 	    if(!isTapeMoving && !isLowStart)
