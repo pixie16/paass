@@ -66,7 +66,8 @@ IS600Processor::IS600Processor(const std::vector<std::string> &typeList,
 
 IS600Processor::~IS600Processor() {
     outstream->close();
-    delete(outstream);
+    cout << "I got here a lotttt" << endl;
+    //delete(outstream);
 }
 
 bool IS600Processor::PreProcess(RawEvent &event){
