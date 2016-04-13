@@ -113,10 +113,11 @@ void PulserProcessor::AnalyzeData(void) {
         double timeOff  = 1000.;
         double phaseX   = -22000.;
 
-	// cout << timeDiff * timeRes + timeOff << " "
-	//      << start.GetPhase()*timeRes-phaseX << " " 
-	//      << start.GetCfdSourceBit() << " " << stop.GetCfdSourceBit() << " " 
-	//      << endl;
+	cout << timeDiff * timeRes + timeOff << " "
+	     << start.GetPhase()*timeRes-phaseX << " " 
+	     << start.GetCfdSourceBit() << " " << stop.GetCfdSourceBit() << " " 
+	     << start.GetPixieTime() << " " << stop.GetPixieTime() << " " 
+	     << endl;
 
         plot(D_TIMEDIFF, timeDiff*timeRes + timeOff);
         plot(DD_PVSP, start.GetPhase()*timeRes-phaseX,
