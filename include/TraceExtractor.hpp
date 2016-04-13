@@ -38,8 +38,8 @@ public:
     virtual void Analyze(Trace &trace, const std::string &aType,
                          const std::string &aSubtype);
 protected:
-    static const int traceBins; //!< The number of bins for the trace length
-    static const int numTraces; //!< The number of traces to analyze
+    static const unsigned int traceBins; //!< The number of bins for the trace length
+    static const unsigned int numTraces; //!< The number of traces to analyze
 
     std::string type; //!< the detector type
     std::string subtype; //!< The detector subtype
