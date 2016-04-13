@@ -24,6 +24,7 @@ public:
         trace_ = &chan->GetTrace();
         highResTime_ = chan->GetHighResTime()*1e9;
         pixieEnergy_ = chan->GetEnergy();
+        pixieTime_ = chan->GetTime();
 	cfdSourceBit_ = chan->GetCfdSourceBit();
 
         snr_ =
@@ -69,6 +70,8 @@ public:
                         (Globals::get()->clockInSeconds()*1e+9); };
     /** \return The pixie Energy */
     double GetPixieEnergy() const { return(pixieEnergy_); };
+    /** \return The pixie Energy */
+    double GetPixieTime() const { return(pixieTime_); };
     /** \return The current value of snr_ */
     double GetSignalToNoiseRatio() const { return snr_; };
     /** \return The current value of stdDevBaseline_  */
@@ -96,6 +99,7 @@ private:
     double highResTime_; //!< Member variable "highResTime_"
     double snr_; //!< Member variable "snr_"
     double pixieEnergy_; //!< The energy from pixie
+    double pixieTime_; //!< The time from pixie
 };
 
 /** Defines a map to hold timing data for a channel. */
