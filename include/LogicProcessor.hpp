@@ -14,6 +14,7 @@ class LogicProcessor : public EventProcessor {
 public:
     /** Default Constructor */
     LogicProcessor();
+
     /** Constructor taking histogram offset and range as arguments
     * \param [in] offset : the offset of the histograms
     * \param [in] range : the maximum number of histograms */
