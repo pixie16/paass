@@ -62,33 +62,33 @@ bool LogicProcessor::Process(RawEvent &event) {
     const double logicPlotResolution = 10e-6 / Globals::get()->clockInSeconds();
     if (!EventProcessor::Process(event))
         return false;
-
+    
     using namespace dammIds::logic;
-
+    
     static const vector<ChanEvent*> &events = sumMap["logic"]->GetList();
-
+    
     for (vector<ChanEvent*>::const_iterator it = events.begin();
-            it != events.end(); it++) {
-            ChanEvent *chan = *it;
-
-            string subtype   = chan->GetChanID().GetSubtype();
-            unsigned int loc = chan->GetChanID().GetLocation();
-            double time = chan->GetTime();
-
-            if(subtype == "start") {
-                if (!isnan(lastStartTime.at(loc))) {
-                        double timediff = time - lastStartTime.at(loc);
-                            plot(D_TDIFF_STARTX + loc, timediff / logicPlotResolution);
-                            plot(D_TDIFF_SUMX + loc,   timediff / logicPlotResolution);
-                        }
-
-                lastStartTime.at(loc) = time;
-                logicStatus.at(loc) = true;
-
-                startCount.at(loc)++;
-                plot(D_COUNTER_START, loc);
-            } else if (subtype == "stop") {
-                if (!isnan(lastStopTime.at(loc))) {
+	 it != events.end(); it++) {
+	ChanEvent *chan = *it;
+	
+	string subtype   = chan->GetChanID().GetSubtype();
+	unsigned int loc = chan->GetChanID().GetLocation();
+	double time = chan->GetTime();
+	
+	if(subtype == "start") {
+	    if (!isnan(lastStartTime.at(loc))) {
+		double timediff = time - lastStartTime.at(loc);
+		plot(D_TDIFF_STARTX + loc, timediff / logicPlotResolution);
+		plot(D_TDIFF_SUMX + loc,   timediff / logicPlotResolution);
+	    }
+	    
+	    lastStartTime.at(loc) = time;
+	    logicStatus.at(loc) = true;
+	    
+	    startCount.at(loc)++;
+	    plot(D_COUNTER_START, loc);
+	} else if (subtype == "stop") {
+	    if (!isnan(lastStopTime.at(loc))) {
                 double timediff = time - lastStopTime.at(loc);
                 plot(D_TDIFF_STOPX + loc, timediff / logicPlotResolution);
                 plot(D_TDIFF_SUMX + loc,  timediff / logicPlotResolution);
@@ -97,15 +97,15 @@ bool LogicProcessor::Process(RawEvent &event) {
                     plot(D_TDIFF_LENGTHX + loc, moveTime / logicPlotResolution);
                 }
             }
-
+	    
             lastStopTime.at(loc) = time;
             logicStatus.at(loc) = false;
-
+	    
             stopCount.at(loc)++;
             plot(D_COUNTER_STOP, loc);
         }
     }
-
+    
     EndProcess();
     return true;
 }
