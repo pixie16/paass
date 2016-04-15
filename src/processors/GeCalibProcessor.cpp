@@ -20,7 +20,6 @@
 #include "PlotsRegister.hpp"
 #include "DammPlotIds.hpp"
 
-#include "Correlator.hpp"
 #include "DetectorLibrary.hpp"
 #include "GeProcessor.hpp"
 #include "GeCalibProcessor.hpp"

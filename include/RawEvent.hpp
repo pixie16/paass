@@ -17,7 +17,6 @@
 #include <string>
 #include <vector>
 
-#include "Correlator.hpp"
 #include "pixie16app_defs.h"
 
 #include "Globals.hpp"
@@ -74,9 +73,6 @@ public:
     * \param [in] usedev : the detector summary to zero */
     void Zero(const std::set<std::string> &usedev);
 
-    /** \return A reference to the correlator */
-    Correlator &GetCorrelator() {return(correlator);}
-
     /** \brief Get a pointer to a specific detector summary
     *
     * Retrieve from the detector summary map a pointer to the specific detector
@@ -98,7 +94,5 @@ private:
     mutable std::set<std::string> nullSummaries;   /**< Summaries which were requested but don't exist */
     std::vector<ChanEvent*> eventList; /**< Pointers to all the channels that are close
                                             enough in time to be considered a single event */
-    Correlator correlator; /**< class to correlate decay data with implantation data */
-
 };
 #endif // __RAWEVENT_HPP_

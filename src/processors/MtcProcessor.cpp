@@ -58,7 +58,6 @@ void MtcProcessor::DeclarePlots(void) {
     DeclareHistogram1D(D_TDIFF_MOVE_STOP, timeBins, "Time diff btwn move stops, 10 ms/bin");
     DeclareHistogram1D(D_MOVETIME, timeBins, "Move time, 10 ms/bin");
     DeclareHistogram1D(D_BEAMTIME, timeBins, "Beam on time, 10 ms/bin");
-    // Counter of events; see dammIds::mtc namespace for bin definition
     DeclareHistogram1D(D_COUNTER, counterBins, "MTC and beam counter");
 
     DeclareHistogram2D(DD_TIME__DET_MTCEVENTS, SF, S2, "MTC and beam events");
