@@ -210,11 +210,12 @@ bool VandleProcessor::Process(RawEvent &event) {
         return(false);
     plot(D_DEBUGGING, 30);
 
-    hasDecay_ =
-        (event.GetCorrelator().GetCondition() == Correlator::VALID_DECAY);
-    if(hasDecay_)
-        decayTime_ = event.GetCorrelator().GetDecayTime() *
-                Globals::get()->clockInSeconds();
+    //Removing this until it can be updated with the TreeCorrelator
+    // hasDecay_ =
+    //     (event.GetCorrelator().GetCondition() == Correlator::VALID_DECAY);
+    // if(hasDecay_)
+    //     decayTime_ = event.GetCorrelator().GetDecayTime() *
+    //             Globals::get()->clockInSeconds();
 
     geSummary_ = event.GetSummary("ge");
 
