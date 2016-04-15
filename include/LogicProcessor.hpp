@@ -19,8 +19,19 @@ public:
     * \param [in] range : the maximum number of histograms */
     LogicProcessor(int offset, int range);
 
+    /** Enable/disable double stop / start flag
+     * \param [in] double_stop : sets the double_stop flag
+     * \param [in] double_start : set the double_start flag
+     */
+    LogicProcessor(bool double_stop, bool double_start);
+
     /** Declare plots used in the analysis */
     virtual void DeclarePlots(void);
+
+    /** Preprocess the event
+    * \param [in] event : the event to process
+    * \return true if the preprocess was successful */
+    virtual bool PreProcess(RawEvent &event);
 
     /** Process the event
     * \param [in] event : the event to process
@@ -71,6 +82,19 @@ private:
     void TriggerProcessing(RawEvent &event);
 
     int plotSize; //!< Size of the plots to make
+
+    /** In some experiments the MTC stop signal was doubled
+     * this flags enable removal of such an events */
+    bool double_stop_;
+
+    /** In some experiments the MTC start signal was doubled
+     * this flags enable removal of such an events */
+    bool double_start_;
+
+    /** Upper limit in seconds for bad (double) start/stop event */
+    static const double doubleTimeLimit_ = 10e-6;
+
+    bool NiftyGraph(RawEvent &event);
 };
 
 #endif // __LOGICPROCESSOR_HPP_

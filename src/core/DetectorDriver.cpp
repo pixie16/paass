@@ -414,8 +414,7 @@ int DetectorDriver::Init(RawEvent& rawev) {
         cout << "\t" << w.what() << endl;
     }
 
-    rawev.GetCorrelator().Init(rawev);
-    return 0;
+    return(0);
 }
 
 int DetectorDriver::ProcessEvent(RawEvent& rawev) {
