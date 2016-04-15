@@ -19,6 +19,8 @@ using namespace dammIds::logic;
 
 namespace dammIds {
     namespace logic {
+	static const unsigned int MAX_LOGIC = 10;
+
         const int D_COUNTER_START = 0;//!< Counter for the starts
         const int D_COUNTER_STOP  = 5;//!< Counter for the stops
         const int D_TDIFF_STARTX  = 10;//!< Tdiff between starts

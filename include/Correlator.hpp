@@ -20,8 +20,7 @@ class LogicProcessor;
 class RawEvent;
 
 //! Structure to contain the event info
-struct EventInfo
-{
+struct EventInfo {
     /// types of events passed to the correlator
     enum EEventTypes {IMPLANT_EVENT, ALPHA_EVENT, BETA_EVENT, FISSION_EVENT,
 		      PROTON_EVENT, DECAY_EVENT, PROJECTILE_EVENT, GAMMA_EVENT,
