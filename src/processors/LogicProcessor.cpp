@@ -19,7 +19,11 @@ using namespace dammIds::logic;
 
 namespace dammIds {
     namespace logic {
-	static const unsigned int MAX_LOGIC = 10;
+	static double clockInSeconds = Globals::get()->clockInSeconds();
+	static const unsigned int MAX_LOGIC = 10; //!<Maximum Number of Logic Signals
+	const double logicPlotResolution = 
+	    10e-6 / Globals::get()->clockInSeconds(); //!<Resolution for Logic Plots
+	const double mtcPlotResolution = 10e-3 / clockInSeconds; //!<Res. for MTC Plots
 
         const int D_COUNTER_START = 0;//!< Counter for the starts
         const int D_COUNTER_STOP  = 5;//!< Counter for the stops
@@ -43,18 +47,21 @@ namespace dammIds {
         const int BEAM_STOP_BIN = 7;//!< Beam Stop bin
 
 	const int DD_RUNTIME_LOGIC = 80;//!< Plot of run time logic
+
+	namespace mtc{
+
+	}
     }
 } // logic namespace
 
-LogicProcessor::LogicProcessor(void) :
-    EventProcessor(OFFSET, RANGE, "Logic"),
+LogicProcessor::LogicProcessor(void) : 
+    EventProcessor(dammIds::logic::OFFSET, dammIds::logic::RANGE, "Logic"),
     lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
     logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC) {
     associatedTypes.insert("logic");
 }
 
-LogicProcessor::LogicProcessor(int offset, int range) :
-    EventProcessor(offset, range, "Logic"),
+LogicProcessor::LogicProcessor(int offset, int range) : EventProcessor(offset, range, "Logic"),
     lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
     logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC) {
     associatedTypes.insert("logic");
@@ -69,19 +76,18 @@ LogicProcessor::LogicProcessor(bool double_stop, bool double_start)
 }
 
 void LogicProcessor::DeclarePlots(void) {
-    const int MAX_LOGIC = 10; //!< maximum number of logic signals
     const int counterBins = S4;
     const int timeBins = SC;
     
     DeclareHistogram1D(D_COUNTER_START, counterBins, "logic start counter");
     DeclareHistogram1D(D_COUNTER_STOP, counterBins, "logic stop counter");
-    for (int i=0; i < MAX_LOGIC; i++) {
+    for (unsigned int i=0; i < MAX_LOGIC; i++) {
 	DeclareHistogram1D(D_TDIFF_STARTX + i, timeBins, "tdiff btwn logic starts, 10 us/bin");
 	DeclareHistogram1D(D_TDIFF_STOPX + i, timeBins, "tdiff btwn logic stops, 10 us/bin");
 	DeclareHistogram1D(D_TDIFF_SUMX + i, timeBins, "tdiff btwn both logic, 10 us/bin");
 	DeclareHistogram1D(D_TDIFF_LENGTHX + i, timeBins, "logic high time, 10 us/bin");
     }
-
+    
     DeclareHistogram1D(D_TDIFF_BEAM_START, timeBins, "Time diff btwn beam starts, 10 ms/bin");
     DeclareHistogram1D(D_TDIFF_BEAM_STOP, timeBins, "Time diff btwn beam stops, 10 ms/bin");
     DeclareHistogram1D(D_TDIFF_MOVE_START, timeBins, "Time diff btwn move starts, 10 ms/bin");
@@ -89,25 +95,62 @@ void LogicProcessor::DeclarePlots(void) {
     DeclareHistogram1D(D_MOVETIME, timeBins, "Move time, 10 ms/bin");
     DeclareHistogram1D(D_BEAMTIME, timeBins, "Beam on time, 10 ms/bin");
     DeclareHistogram1D(D_COUNTER, counterBins, "MTC and beam counter");
-
+    
     DeclareHistogram2D(DD_TIME__DET_MTCEVENTS, SF, S2, "MTC and beam events");
-
-         DeclareHistogram2D(DD_RUNTIME_LOGIC, plotSize, plotSize,
+    
+    DeclareHistogram2D(DD_RUNTIME_LOGIC, plotSize, plotSize,
                        "runtime logic [1ms]");
-    for(int i=1; i < MAX_LOGIC; i++)
+    for(unsigned int i=1; i < MAX_LOGIC; i++)
         DeclareHistogram2D(DD_RUNTIME_LOGIC+i, plotSize,
                            plotSize, "runtime logic [1ms]");
-
+    
 }
 
 bool LogicProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
 
-    double clockInSeconds = Globals::get()->clockInSeconds();
-    // plot with 10 ms bins
-    const double mtcPlotResolution = 10e-3 / clockInSeconds;
-
+        static const vector<ChanEvent*> &events = sumMap["logic"]->GetList();
+    
+    for (vector<ChanEvent*>::const_iterator it = events.begin();
+	 it != events.end(); it++) {
+	ChanEvent *chan = *it;
+	
+	string subtype   = chan->GetChanID().GetSubtype();
+	unsigned int loc = chan->GetChanID().GetLocation();
+	double time = chan->GetTime();
+	
+	if(subtype == "start") {
+	    if (!isnan(lastStartTime.at(loc))) {
+		double timediff = time - lastStartTime.at(loc);
+		plot(D_TDIFF_STARTX + loc, timediff / logicPlotResolution);
+		plot(D_TDIFF_SUMX + loc,   timediff / logicPlotResolution);
+	    }
+	    
+	    lastStartTime.at(loc) = time;
+	    logicStatus.at(loc) = true;
+	    
+	    startCount.at(loc)++;
+	    plot(D_COUNTER_START, loc);
+	} else if (subtype == "stop") {
+	    if (!isnan(lastStopTime.at(loc))) {
+                double timediff = time - lastStopTime.at(loc);
+                plot(D_TDIFF_STOPX + loc, timediff / logicPlotResolution);
+                plot(D_TDIFF_SUMX + loc,  timediff / logicPlotResolution);
+                if (!isnan(lastStartTime.at(loc))) {
+                    double moveTime = time - lastStartTime.at(loc);
+                    plot(D_TDIFF_LENGTHX + loc, moveTime / logicPlotResolution);
+                }
+            }
+	    
+            lastStopTime.at(loc) = time;
+            logicStatus.at(loc) = false;
+	    
+            stopCount.at(loc)++;
+            plot(D_COUNTER_STOP, loc);
+        }
+    }
+    
     static const vector<ChanEvent*> &mtcEvents =
         event.GetSummary("mtc", true)->GetList();
     for (vector<ChanEvent*>::const_iterator it = mtcEvents.begin();
@@ -190,59 +233,14 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 
         }
     }
-    return true;
+    return(true);
 }
 
 bool LogicProcessor::Process(RawEvent &event) {
-    const double logicPlotResolution = 10e-6 / Globals::get()->clockInSeconds();
     if (!EventProcessor::Process(event))
-        return false;
-    
-    using namespace dammIds::logic;
-    
-    static const vector<ChanEvent*> &events = sumMap["logic"]->GetList();
-    
-    for (vector<ChanEvent*>::const_iterator it = events.begin();
-	 it != events.end(); it++) {
-	ChanEvent *chan = *it;
-	
-	string subtype   = chan->GetChanID().GetSubtype();
-	unsigned int loc = chan->GetChanID().GetLocation();
-	double time = chan->GetTime();
-	
-	if(subtype == "start") {
-	    if (!isnan(lastStartTime.at(loc))) {
-		double timediff = time - lastStartTime.at(loc);
-		plot(D_TDIFF_STARTX + loc, timediff / logicPlotResolution);
-		plot(D_TDIFF_SUMX + loc,   timediff / logicPlotResolution);
-	    }
-	    
-	    lastStartTime.at(loc) = time;
-	    logicStatus.at(loc) = true;
-	    
-	    startCount.at(loc)++;
-	    plot(D_COUNTER_START, loc);
-	} else if (subtype == "stop") {
-	    if (!isnan(lastStopTime.at(loc))) {
-                double timediff = time - lastStopTime.at(loc);
-                plot(D_TDIFF_STOPX + loc, timediff / logicPlotResolution);
-                plot(D_TDIFF_SUMX + loc,  timediff / logicPlotResolution);
-                if (!isnan(lastStartTime.at(loc))) {
-                    double moveTime = time - lastStartTime.at(loc);
-                    plot(D_TDIFF_LENGTHX + loc, moveTime / logicPlotResolution);
-                }
-            }
-	    
-            lastStopTime.at(loc) = time;
-            logicStatus.at(loc) = false;
-	    
-            stopCount.at(loc)++;
-            plot(D_COUNTER_STOP, loc);
-        }
-    }
-    
+        return(false);
     EndProcess();
-    return true;
+    return(true);
 }
 
 /* // Came from TriggerLogicProcessor.cpp

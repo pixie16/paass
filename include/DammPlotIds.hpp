@@ -97,7 +97,7 @@ namespace dammIds {
     ///in LogicProcessor.cpp
     namespace logic {
         const int OFFSET = 3000;//!< Offset for LogicProcessor
-        const int RANGE = 100;//!< Range for the Logic Processor
+        const int RANGE = 150;//!< Range for the Logic Processor
     }
 
     ///in VandleProcessor.cpp
