@@ -94,7 +94,8 @@ bool DssdProcessor::Process(RawEvent &event) {
 	frontSummary = event.GetSummary("dssd_front");
     if (backSummary == NULL)
 	backSummary = event.GetSummary("dssd_back");
-    static Correlator &corr = event.GetCorrelator();
+    //Removed this until it can be updated with the TreeCorrelator
+    //static Correlator &corr = event.GetCorrelator();
 
     int frontPos = INT_MAX, backPos = INT_MAX;
     double frontEnergy, backEnergy, frontTime = 0.;
