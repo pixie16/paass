@@ -75,5 +75,6 @@ bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
 bool DoubleBetaProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return(false);
+    EndProcess();
     return(true);
 }

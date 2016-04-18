@@ -13,7 +13,8 @@
 #include "Identifier.hpp"
 #include "RawEvent.hpp"
 
-//class RawEvent;
+///Predefine the RawEvnent class
+class RawEvent;
 
 //! A class to define a library of detectors known to the analysis
 class DetectorLibrary : public std::vector<Identifier> {
@@ -135,7 +136,7 @@ private:
      * \param [in] type : the type to make a key out of
      * \param [in] subtype : the subtype to make a key out of
      * \return the constructed map key */
-    mapkey_t MakeKey( const std::string &type, const std::string &subtype ) const;
+    mapkey_t MakeKey(const std::string &type, const std::string &subtype) const;
 
     std::map< mapkey_t, std::set<int> > locations; ///< collection of all used locations for a given type and subtype
     static std::set<int> emptyLocations; ///< dummy locations to return when map key does not exist

@@ -97,14 +97,7 @@ namespace dammIds {
     ///in LogicProcessor.cpp
     namespace logic {
         const int OFFSET = 3000;//!< Offset for LogicProcessor
-        const int RANGE = 100;//!< Range for the Logic Processor
-        const int MAX_LOGIC = 10; //!< maximum number of logic signals
-    }
-
-    ///in TriggerLogicProcessor.cpp
-    namespace triggerlogic {
-        const int OFFSET = 3100;//!< Offset for the TriggerLogicProcessor
-        const int RANGE = 100;//!< Range for the TriggerLogicProcessor
+        const int RANGE = 150;//!< Range for the Logic Processor
     }
 
     ///in VandleProcessor.cpp
@@ -135,12 +128,6 @@ namespace dammIds {
     namespace implantSsd {
         const int OFFSET = 4200;//!< Offset for ImplantSsdProcessor
         const int RANGE = 300;//!< Range for ImplantSsdProcessor
-    }
-
-    /// in MtcProcessor.cpp
-    namespace mtc {
-        const int OFFSET = 4500;//!< Offset for MtcProcessor
-        const int RANGE = 100;//!< Range for MtcProcessor
     }
 
     ///in IonChamberProcessor.cpp

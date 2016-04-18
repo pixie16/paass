@@ -21,7 +21,6 @@
 #include "PlotsRegister.hpp"
 #include "DammPlotIds.hpp"
 
-#include "Correlator.hpp"
 #include "DetectorLibrary.hpp"
 #include "GeProcessor.hpp"
 #include "IS600GeProcessor.hpp"
