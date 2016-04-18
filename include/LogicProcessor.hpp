@@ -63,9 +63,6 @@ public:
         return (LogicStatus(loc) ? (t-lastStartTime.at(loc)) : 0.);
     }
     
-    ///An enum defining some of the logic types that may be encountered.
-    enum LogicTypes{start, stop, mtc, timeclass};
-
 protected:
     std::vector<double> lastStartTime; //!< time of last leading edge
     std::vector<double> lastStopTime;  //!< time of last trailing edge

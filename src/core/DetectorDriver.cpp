@@ -622,7 +622,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
     if (summary != NULL)
         summary->AddEvent(chan);
 
-    if(hasStartTag) {
+    if(hasStartTag && type != "logic") {
         summary =
             rawev.GetSummary(type + ':' + subtype + ':' + "start", false);
         if (summary != NULL)
