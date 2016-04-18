@@ -59,20 +59,21 @@ LogicProcessor::LogicProcessor(void) :
     lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
     logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC) {
     associatedTypes.insert("logic");
+    associatedTypes.insert("timeclass"); // old detector type
+    associatedTypes.insert("mtc");
 }
 
-LogicProcessor::LogicProcessor(int offset, int range) : EventProcessor(offset, range, "Logic"),
+LogicProcessor::LogicProcessor(int offset, int range, bool doubleStop/*=false*/,
+			       bool doubleStart/*=false*/) : 
+    EventProcessor(offset, range, "Logic"),
     lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
     logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC) {
     associatedTypes.insert("logic");
-}
-
-LogicProcessor::LogicProcessor(bool double_stop, bool double_start)
-    : EventProcessor(OFFSET, RANGE, "Logic") {
     associatedTypes.insert("timeclass"); // old detector type
     associatedTypes.insert("mtc");
-    double_stop_ = double_stop;
-    double_start_ = double_start;
+
+    doubleStop_ = doubleStop;
+    doubleStart_ = doubleStart;
 }
 
 void LogicProcessor::DeclarePlots(void) {
@@ -103,7 +104,6 @@ void LogicProcessor::DeclarePlots(void) {
     for(unsigned int i=1; i < MAX_LOGIC; i++)
         DeclareHistogram2D(DD_RUNTIME_LOGIC+i, plotSize,
                            plotSize, "runtime logic [1ms]");
-    
 }
 
 bool LogicProcessor::PreProcess(RawEvent &event) {
@@ -170,7 +170,6 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
         double time_x = int((time - t0) / eventsResolution);
 
         if(place == "mtc_start_0") {
-
             double dt_start = time -
                      TreeCorrelator::get()->place(place)->secondlast().time;
             TreeCorrelator::get()->place("TapeMove")->activate(time);
@@ -179,9 +178,7 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
             plot(D_TDIFF_MOVE_START, dt_start / mtcPlotResolution);
             plot(D_COUNTER, MOVE_START_BIN);
             plot(DD_TIME__DET_MTCEVENTS, time_x, MTC_START);
-
         } else if (place == "mtc_stop_0") {
-
             double dt_stop = time -
                      TreeCorrelator::get()->place(place)->secondlast().time;
             double dt_move = time -
@@ -192,13 +189,11 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
             plot(D_MOVETIME, dt_move / mtcPlotResolution);
             plot(D_COUNTER, MOVE_STOP_BIN);
             plot(DD_TIME__DET_MTCEVENTS, time_x, MTC_STOP);
-
         } else if (place == "mtc_beam_start_0") {
-
-            double dt_start = time -
+	    double dt_start = time -
                       TreeCorrelator::get()->place(place)->secondlast().time;
             //Remove double starts
-            if (double_start_) {
+            if (doubleStart_) {
                 double dt_stop = abs(time -
                   TreeCorrelator::get()->place("mtc_beam_stop_0")->last().time);
                 if (abs(dt_start * clockInSeconds) < doubleTimeLimit_ ||
@@ -211,15 +206,13 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
             plot(D_TDIFF_BEAM_START, dt_start / mtcPlotResolution);
             plot(D_COUNTER, BEAM_START_BIN);
             plot(DD_TIME__DET_MTCEVENTS, time_x, BEAM_START);
-
         } else if (place == "mtc_beam_stop_0") {
-
             double dt_stop = time -
                 TreeCorrelator::get()->place(place)->secondlast().time;
             double dt_beam = time -
                  TreeCorrelator::get()->place("mtc_beam_start_0")->last().time;
             //Remove double stops
-            if (double_stop_) {
+            if (doubleStop_) {
                 if (abs(dt_stop * clockInSeconds) < doubleTimeLimit_ ||
                     abs(dt_beam * clockInSeconds) < doubleTimeLimit_)
                     continue;
@@ -230,7 +223,6 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
             plot(D_BEAMTIME, dt_beam / mtcPlotResolution);
             plot(D_COUNTER, BEAM_STOP_BIN);
             plot(DD_TIME__DET_MTCEVENTS, time_x, BEAM_STOP);
-
         }
     }
     return(true);
