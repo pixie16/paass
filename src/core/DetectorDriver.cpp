@@ -25,15 +25,13 @@
 #include "BeamLogicProcessor.hpp"
 #include "BetaScintProcessor.hpp"
 #include "DoubleBetaProcessor.hpp"
-#include "DssdProcessor.hpp"
 #include "Hen3Processor.hpp"
 #include "GeProcessor.hpp"
 #include "GeCalibProcessor.hpp"
-#include "ImplantSsdProcessor.hpp"
 #include "IonChamberProcessor.hpp"
 #include "LiquidScintProcessor.hpp"
+#include "LogicProcessor.hpp"
 #include "McpProcessor.hpp"
-#include "MtcProcessor.hpp"
 #include "NeutronScintProcessor.hpp"
 #include "PositionProcessor.hpp"
 #include "PspmtProcessor.hpp"
@@ -41,7 +39,6 @@
 #include "SsdProcessor.hpp"
 #include "TeenyVandleProcessor.hpp"
 #include "TraceFilterer.hpp"
-#include "TriggerLogicProcessor.hpp"
 #include "VandleProcessor.hpp"
 #include "ValidProcessor.hpp"
 
@@ -54,7 +51,6 @@
 #include "WaveformAnalyzer.hpp"
 
 #include "IS600Processor.hpp"
-#include "IS600LogicProcessor.hpp"
 #include "IS600GeProcessor.hpp"
 #include "IS600DoubleBetaProcessor.hpp"
 
@@ -150,8 +146,6 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                 vecProcess.push_back(
                         new BetaScintProcessor(gamma_beta_limit,
                                                energy_contraction));
-        } else if (name == "DssdProcessor") {
-            vecProcess.push_back(new DssdProcessor());
         } else if (name == "GeProcessor" || name == "IS600GeProcessor") {
             double gamma_threshold =
                 processor.attribute("gamma_threshold").as_double(-1);
@@ -236,8 +230,6 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                         low_ratio, high_ratio));
         } else if (name == "Hen3Processor") {
             vecProcess.push_back(new Hen3Processor());
-        } else if (name == "ImplantSsdProcessor") {
-            vecProcess.push_back(new ImplantSsdProcessor());
         } else if (name == "IonChamberProcessor") {
             vecProcess.push_back(new IonChamberProcessor());
         } else if (name == "LiquidScintProcessor") {
@@ -246,15 +238,6 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new LogicProcessor());
         } else if (name == "McpProcessor") {
             vecProcess.push_back(new McpProcessor());
-        } else if (name == "MtcProcessor" || name == "IS600LogicProcessor") {
-            /** Default value for as_bool() is false */
-            bool double_stop = processor.attribute("double_stop").as_bool();
-            bool double_start = processor.attribute("double_start").as_bool();
-	    if(name == "MtcProcessor")
-	      vecProcess.push_back(new MtcProcessor(double_stop, double_start));
-	    if(name == "IS600LogicProcessor")
-	      vecProcess.push_back(new IS600LogicProcessor(double_stop, 
-							   double_start));
         } else if (name == "NeutronScintProcessor") {
             vecProcess.push_back(new NeutronScintProcessor());
         } else if (name == "PositionProcessor") {
@@ -263,8 +246,6 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new PulserProcessor());
         } else if (name == "SsdProcessor") {
             vecProcess.push_back(new SsdProcessor());
-        } else if (name == "TriggerLogicProcessor") {
-            vecProcess.push_back(new TriggerLogicProcessor());
         } else if (name == "VandleProcessor" || name == "IS600Processor") {
             double res = processor.attribute("res").as_double(2.0);
             double offset = processor.attribute("offset").as_double(200.0);
@@ -437,8 +418,7 @@ int DetectorDriver::Init(RawEvent& rawev) {
         cout << "\t" << w.what() << endl;
     }
 
-    rawev.GetCorrelator().Init(rawev);
-    return 0;
+    return(0);
 }
 
 int DetectorDriver::ProcessEvent(RawEvent& rawev) {
@@ -659,7 +639,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
     if (summary != NULL)
         summary->AddEvent(chan);
 
-    if(hasStartTag) {
+    if(hasStartTag && type != "logic") {
         summary =
             rawev.GetSummary(type + ':' + subtype + ':' + "start", false);
         if (summary != NULL)

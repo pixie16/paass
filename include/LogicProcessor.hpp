@@ -14,13 +14,20 @@ class LogicProcessor : public EventProcessor {
 public:
     /** Default Constructor */
     LogicProcessor();
+
     /** Constructor taking histogram offset and range as arguments
     * \param [in] offset : the offset of the histograms
     * \param [in] range : the maximum number of histograms */
-    LogicProcessor(int offset, int range);
+    LogicProcessor(int offset, int range, bool doubleStop = false, 
+		   bool doubleStart = false);
 
     /** Declare plots used in the analysis */
     virtual void DeclarePlots(void);
+
+    /** Preprocess the event
+    * \param [in] event : the event to process
+    * \return true if the preprocess was successful */
+    virtual bool PreProcess(RawEvent &event);
 
     /** Process the event
     * \param [in] event : the event to process
@@ -30,6 +37,9 @@ public:
     /** \return The logic status for a given location
      * \param [in] loc : the location to get the status from */
     virtual bool LogicStatus(size_t loc) const { return logicStatus.at(loc); };
+
+    void SetDoubleStart(const bool &a) {doubleStart_ = a;};
+    void SetDoubleStop(const bool &a) {doubleStop_ = a;};
 
     /** \return The stop count for a given location
      * \param [in] loc : the location to get the count from */
@@ -52,7 +62,7 @@ public:
     double TimeOn(size_t loc, double t) const {
         return (LogicStatus(loc) ? (t-lastStartTime.at(loc)) : 0.);
     }
-
+    
 protected:
     std::vector<double> lastStartTime; //!< time of last leading edge
     std::vector<double> lastStopTime;  //!< time of last trailing edge
@@ -71,6 +81,19 @@ private:
     void TriggerProcessing(RawEvent &event);
 
     int plotSize; //!< Size of the plots to make
+
+    /** In some experiments the MTC stop signal was doubled
+     * this flags enable removal of such an events */
+    bool doubleStop_;
+
+    /** In some experiments the MTC start signal was doubled
+     * this flags enable removal of such an events */
+    bool doubleStart_;
+
+    /** Upper limit in seconds for bad (double) start/stop event */
+    static const double doubleTimeLimit_ = 10e-6;
+
+    bool NiftyGraph(RawEvent &event);
 };
 
 #endif // __LOGICPROCESSOR_HPP_

@@ -13,7 +13,6 @@
 
 #include "DammPlotIds.hpp"
 
-#include "Correlator.hpp"
 #include "DetectorDriver.hpp"
 #include "ImplantSsdProcessor.hpp"
 #include "TriggerLogicProcessor.hpp"

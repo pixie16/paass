@@ -15,7 +15,6 @@
 #include "DetectorLibrary.hpp"
 #include "Globals.hpp"
 #include "Messenger.hpp"
-#include "RawEvent.hpp"
 #include "TreeCorrelator.hpp"
 
 using namespace std;
@@ -25,10 +24,9 @@ set<int> DetectorLibrary::emptyLocations;
 DetectorLibrary* DetectorLibrary::instance = NULL;
 
 DetectorLibrary* DetectorLibrary::get() {
-    if (!instance) {
+    if (!instance)
         instance = new DetectorLibrary();
-    }
-    return instance;
+    return(instance);
 }
 
 DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations(),
