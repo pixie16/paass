@@ -100,11 +100,11 @@ void LogicProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_TIME_DET_MTCEVENTS, SF, S2, "MTC and beam events");
     
     ///From TriggerLogicProcessor
-    DeclareHistogram2D(DD_RUNTIME_LOGIC, plotSize, plotSize,
-                       "runtime logic [1ms]");
-    for(unsigned int i=1; i < MAX_LOGIC; i++)
-        DeclareHistogram2D(DD_RUNTIME_LOGIC+i, plotSize,
-                           plotSize, "runtime logic [1ms]");
+    // DeclareHistogram2D(DD_RUNTIME_LOGIC, plotSize, plotSize,
+    //                    "runtime logic [1ms]");
+    // for(unsigned int i=1; i < MAX_LOGIC; i++)
+    //     DeclareHistogram2D(DD_RUNTIME_LOGIC+i, plotSize,
+    //                        plotSize, "runtime logic [1ms]");
 }
 
 bool LogicProcessor::PreProcess(RawEvent &event) {
@@ -120,9 +120,17 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 	string place = (*it)->GetChanID().GetPlaceName();
 	string subtype   = chan->GetChanID().GetSubtype();
 	unsigned int loc = chan->GetChanID().GetLocation();
-	bool isStart = chan->GetChanID().HasTag("start");
-	bool isStop = chan->GetChanID().HasTag("stop");
 	double time = chan->GetTime();
+
+	static double t0 = time;
+	
+	// for 2d plot of events 100ms / bin
+	const double eventsResolution = 100e-3 / clockInSeconds;
+	const unsigned MTC_START = 0;
+	const unsigned MTC_STOP = 1;
+	const unsigned BEAM_START = 2;
+	const unsigned BEAM_STOP = 3;
+	double time_x = int((time - t0) / eventsResolution);
 	
 	if(subtype == "start") {
 	    if (!isnan(lastStartTime.at(loc))) {
@@ -152,83 +160,72 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 	    
             stopCount.at(loc)++;
             plot(D_COUNTER_STOP, loc);
-        } else if (subtype == "mtc" || subtype == "beam") {
-	    static double t0 = time;
+        } else if(place == "logic_mtc_start_0") {
+	    double dt_start = time -
+		TreeCorrelator::get()->place(place)->secondlast().time;
+	    TreeCorrelator::get()->place("TapeMove")->activate(time);
+	    TreeCorrelator::get()->place("Cycle")->deactivate(time);
 	    
-	    // for 2d plot of events 100ms / bin
-	    const double eventsResolution = 100e-3 / clockInSeconds;
-	    const unsigned MTC_START = 0;
-	    const unsigned MTC_STOP = 1;
-	    const unsigned BEAM_START = 2;
-	    const unsigned BEAM_STOP = 3;
-	    double time_x = int((time - t0) / eventsResolution);
+	    plot(D_TDIFF_MOVE_START, dt_start / mtcPlotResolution);
+	    plot(D_COUNTER, MOVE_START_BIN);
+	    plot(DD_TIME_DET_MTCEVENTS, time_x, MTC_START);
+	} else if (place == "logic_mtc_stop_0") {
+	    double dt_stop = time -
+		TreeCorrelator::get()->place(place)->secondlast().time;
+	    double dt_move = time -
+		TreeCorrelator::get()->place("logic_mtc_start_0")->last().time;
+	    TreeCorrelator::get()->place("TapeMove")->deactivate(time);
 	    
-	    if(place == "mtc_start_0") {
-		double dt_start = time -
-		    TreeCorrelator::get()->place(place)->secondlast().time;
-		TreeCorrelator::get()->place("TapeMove")->activate(time);
-		TreeCorrelator::get()->place("Cycle")->deactivate(time);
-		
-		plot(D_TDIFF_MOVE_START, dt_start / mtcPlotResolution);
-		plot(D_COUNTER, MOVE_START_BIN);
-		plot(DD_TIME_DET_MTCEVENTS, time_x, MTC_START);
-	    } else if (place == "mtc_stop_0") {
-		double dt_stop = time -
-                     TreeCorrelator::get()->place(place)->secondlast().time;
-		double dt_move = time -
-		    TreeCorrelator::get()->place("mtc_start_0")->last().time;
-		TreeCorrelator::get()->place("TapeMove")->deactivate(time);
-		
-		plot(D_TDIFF_MOVE_STOP, dt_stop / mtcPlotResolution);
-		plot(D_MOVETIME, dt_move / mtcPlotResolution);
-		plot(D_COUNTER, MOVE_STOP_BIN);
-		plot(DD_TIME_DET_MTCEVENTS, time_x, MTC_STOP);
-	    } else if (place == "mtc_beam_start_0") {
-		double dt_start = time -
-		    TreeCorrelator::get()->place(place)->secondlast().time;
-		//Remove double starts
-		if (doubleStart_) {
-		    double dt_stop = abs(time -
-					 TreeCorrelator::get()->place("mtc_beam_stop_0")->last().time);
-		    if (abs(dt_start * clockInSeconds) < doubleTimeLimit_ ||
-			abs(dt_stop * clockInSeconds) < doubleTimeLimit_)
-			continue;
-		}
-		TreeCorrelator::get()->place("Beam")->activate(time);
-		TreeCorrelator::get()->place("Cycle")->activate(time);
-		
-		plot(D_TDIFF_BEAM_START, dt_start / mtcPlotResolution);
-		plot(D_COUNTER, BEAM_START_BIN);
-		plot(DD_TIME_DET_MTCEVENTS, time_x, BEAM_START);
-	    } else if (place == "mtc_beam_stop_0") {
-		double dt_stop = time -
-		    TreeCorrelator::get()->place(place)->secondlast().time;
-		double dt_beam = time -
-		    TreeCorrelator::get()->place("mtc_beam_start_0")->last().time;
-		//Remove double stops
-		if (doubleStop_) {
-		    if (abs(dt_stop * clockInSeconds) < doubleTimeLimit_ ||
-			abs(dt_beam * clockInSeconds) < doubleTimeLimit_)
-			continue;
-		}
-		TreeCorrelator::get()->place("Beam")->deactivate(time);
-		
-		plot(D_TDIFF_BEAM_STOP, dt_stop / mtcPlotResolution);
-		plot(D_BEAMTIME, dt_beam / mtcPlotResolution);
-		plot(D_COUNTER, BEAM_STOP_BIN);
-		plot(DD_TIME_DET_MTCEVENTS, time_x, BEAM_STOP);
-	    } else if (place == "mtc_t1_0") {
-		//TreeCorrelator::get()->place("Protons")->activate(time);
-		double dt_t1 = time -
-		    TreeCorrelator::get()->place("mtc_t1_0")->last().time;
-		plot(D_TDIFF_T1, dt_t1 / mtcPlotResolution);
-	    } else if (place == "mtc_supercycle_0") {
-		TreeCorrelator::get()->place("Supercycle")->activate(time);
-		double dt_supercycle = time -
-		    TreeCorrelator::get()->place("mtc_supercycle_0")->last().time;
-		plot(D_TDIFF_SUPERCYCLE, dt_supercycle / mtcPlotResolution);
+	    plot(D_TDIFF_MOVE_STOP, dt_stop / mtcPlotResolution);
+	    plot(D_MOVETIME, dt_move / mtcPlotResolution);
+	    plot(D_COUNTER, MOVE_STOP_BIN);
+	    plot(DD_TIME_DET_MTCEVENTS, time_x, MTC_STOP);
+	} else if (place == "logic_beam_start_0") {
+	    double dt_start = time -
+		TreeCorrelator::get()->place(place)->secondlast().time;
+	    //Remove double starts
+	    if (doubleStart_) {
+		double dt_stop = 
+		    abs(time -
+			TreeCorrelator::get()->place("logic_beam_stop_0")->last().time);
+		if (abs(dt_start * clockInSeconds) < doubleTimeLimit_ ||
+		    abs(dt_stop * clockInSeconds) < doubleTimeLimit_)
+		    continue;
 	    }
-	}//else if (subtype == "mtc"
+	    TreeCorrelator::get()->place("Beam")->activate(time);
+	    TreeCorrelator::get()->place("Cycle")->activate(time);
+	    
+	    plot(D_TDIFF_BEAM_START, dt_start / mtcPlotResolution);
+	    plot(D_COUNTER, BEAM_START_BIN);
+	    plot(DD_TIME_DET_MTCEVENTS, time_x, BEAM_START);
+	} else if (place == "logic_beam_stop_0") {
+	    double dt_stop = time -
+		TreeCorrelator::get()->place(place)->secondlast().time;
+	    double dt_beam = time -
+		TreeCorrelator::get()->place("logic_beam_start_0")->last().time;
+	    //Remove double stops
+	    if (doubleStop_) {
+		if (abs(dt_stop * clockInSeconds) < doubleTimeLimit_ ||
+		    abs(dt_beam * clockInSeconds) < doubleTimeLimit_)
+		    continue;
+	    }
+	    TreeCorrelator::get()->place("Beam")->deactivate(time);
+	    
+	    plot(D_TDIFF_BEAM_STOP, dt_stop / mtcPlotResolution);
+	    plot(D_BEAMTIME, dt_beam / mtcPlotResolution);
+	    plot(D_COUNTER, BEAM_STOP_BIN);
+	    plot(DD_TIME_DET_MTCEVENTS, time_x, BEAM_STOP);
+	} else if (place == "logic_t1_0") {
+	    //TreeCorrelator::get()->place("Protons")->activate(time);
+	    double dt_t1 = time -
+		TreeCorrelator::get()->place("logic_t1_0")->last().time;
+	    plot(D_TDIFF_T1, dt_t1 / mtcPlotResolution);
+	} else if (place == "logic_supercycle_0") {
+	    TreeCorrelator::get()->place("Supercycle")->activate(time);
+	    double dt_supercycle = time -
+		TreeCorrelator::get()->place("logic_supercycle_0")->last().time;
+	    plot(D_TDIFF_SUPERCYCLE, dt_supercycle / mtcPlotResolution);
+	}
     }//events loop
     return(true);
 }
