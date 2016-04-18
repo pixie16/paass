@@ -2,6 +2,7 @@
  *  \brief defines functions associated with a rawevent
  */
 #include <sstream>
+
 #include "RawEvent.hpp"
 #include "Messenger.hpp"
 

@@ -351,13 +351,13 @@
                     0.0 0.606
                 </Calibration>
             </Channel>
-            <Channel number="2" type="mtc" subtype="beam_start">
+            <Channel number="2" type="logic" subtype="beam_start">
             </Channel>
-            <Channel number="3" type="mtc" subtype="beam_stop">
+            <Channel number="3" type="logic" subtype="beam_stop">
             </Channel>
-            <Channel number="4" type="mtc" subtype="start">
+            <Channel number="4" type="logic" subtype="mtc_start">
             </Channel>
-            <Channel number="5" type="mtc" subtype="stop">
+            <Channel number="5" type="logic" subtype="mtc_stop">
             </Channel>
         </Module>
     </Map>

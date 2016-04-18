@@ -14,7 +14,6 @@ BARDETECTORO     = BarDetector.o
 BARBUILDERO      = BarBuilder.o
 CALIBRATORO      = Calibrator.o
 CHANEVENTO       = ChanEvent.o
-CORRELATORO      = Correlator.o
 DETECTORDRIVERO  = DetectorDriver.o
 DETECTORLIBRARYO = DetectorLibrary.o
 DETECTORSUMMARYO = DetectorSummary.o
@@ -55,16 +54,15 @@ WAVEFORMANALYZERO     = WaveformAnalyzer.o
 BEAMLOGICPROCESSORO  = BeamLogicProcessor.o
 BETASCINTPROCESSORO  = BetaScintProcessor.o
 DOUBLEBETAPROCESSORO = DoubleBetaProcessor.o
-DSSDPROCESSORO   = DssdProcessor.o
+#DSSDPROCESSORO   = DssdProcessor.o
 GEPROCESSORO     = GeProcessor.o
 GECALIBPROCESSORO= GeCalibProcessor.o
 HEN3PROCESSORO   = Hen3Processor.o
-ISSDPROCESSORO   = ImplantSsdProcessor.o
+#ISSDPROCESSORO   = ImplantSsdProcessor.o
 IONCHAMBERPROCESSORO = IonChamberProcessor.o
 LIQUIDSCINTPROCESSORO = LiquidScintProcessor.o
 LOGICPROCESSORO  = LogicProcessor.o
 MCPPROCESSORO    = McpProcessor.o
-MTCPROCESSORO    = MtcProcessor.o
 NEUTRONSCINTPROCESSORO  = NeutronScintProcessor.o
 POSITIONPROCESSORO = PositionProcessor.o
 ROOTPROCESSORO   = RootProcessor.o
@@ -72,7 +70,6 @@ PULSERPROCESSORO = PulserProcessor.o
 PSPMTPROCESSORO = PspmtProcessor.o
 SSDPROCESSORO    = SsdProcessor.o
 TEENYVANDLEPROCESSORO = TeenyVandleProcessor.o
-TRIGGERLOGICPROCESSORO = TriggerLogicProcessor.o
 VANDLEPROCESSORO = VandleProcessor.o
 WALKCORRECTORO   = WalkCorrector.o
 
@@ -111,5 +108,5 @@ CXX_OBJS += $(BEAMLOGICPROCESSORO) $(BETASCINTPROCESSORO)\
 	$(SSDPROCESSORO) $(TEENYVANDLEPROCESSORO) $(TRIGGERLOGICPROCESSORO)\
 	$(VANDLEPROCESSORO) $(PSPMTPROCESSORO)
 
-CXX_OBJS += IS600DoubleBetaProcessor.o IS600LogicProcessor.o\
+CXX_OBJS += IS600DoubleBetaProcessor.o\
 	IS600GeProcessor.o IS600Processor.o
