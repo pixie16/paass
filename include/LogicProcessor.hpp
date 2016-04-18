@@ -38,6 +38,9 @@ public:
      * \param [in] loc : the location to get the status from */
     virtual bool LogicStatus(size_t loc) const { return logicStatus.at(loc); };
 
+    void SetDoubleStart(const bool &a) {doubleStart_ = a;};
+    void SetDoubleStop(const bool &a) {doubleStop_ = a;};
+
     /** \return The stop count for a given location
      * \param [in] loc : the location to get the count from */
     unsigned long StopCount(size_t loc) const { return stopCount.at(loc);};
