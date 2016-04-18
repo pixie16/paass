@@ -38,9 +38,7 @@
         />
         <Processor name="VandleAtLeribssProcessor"
             types="small" res="2" offset="200" numStarts="2"/>
-        <Processor name="MtcProcessor"
-            double_stop="True"
-            double_start="True"/>
+        <Processor name="LogicProcessor"/>
         <Processor name="BetaScintProcessor"
                    gamma_beta_limit="200e-9"
                    energy_contraction="1"/>
@@ -450,18 +448,10 @@
                     7.078 13.554 2161.745
                 </WalkCorrection>
             </Channel>
-            <Channel number="8" type="mtc" subtype="beam_stop">
-                <Calibration model="raw"></Calibration>
-            </Channel>
-            <Channel number="9" type="mtc" subtype="beam_start" >
-                <Calibration model="raw"></Calibration>
-            </Channel>
-            <Channel number="10" type="mtc" subtype="start" >
-                <Calibration model="raw"></Calibration>
-            </Channel>
-            <Channel number="11" type="mtc" subtype="stop" >
-                <Calibration model="raw"></Calibration>
-            </Channel>
+            <Channel number="8" type="logic" subtype="beam_stop"></Channel>
+            <Channel number="9" type="logic" subtype="beam_start" ></Channel>
+            <Channel number="10" type="logic" subtype="mtc_start" ></Channel>
+            <Channel number="11" type="logic" subtype="mtc_stop" ></Channel>
         </Module>
     </Map>
 
