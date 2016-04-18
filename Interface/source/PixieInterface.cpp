@@ -268,7 +268,7 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile)
 
 	if (hasAlternativeConfig) {
 		// must proceed through boot module by module
-		cout << InfoStr("[MULTICONFIG]");
+		cout << InfoStr("[MULTICONFIG]") << "\n";
 		for (int i=0; i < numberCards; i++) {
 			if (firmwareConfig[i] == 1) {
 				// use the Alt... files
