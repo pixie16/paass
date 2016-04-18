@@ -172,9 +172,9 @@ $(PIXIE): $(FORT_OBJS_W_DIR) $(CXX_OBJS_W_DIR) $(LIBS)
 clean:
 	@echo "Cleaning up..."
 	@rm -rf ./$(OBJDIR) $(PIXIE) ./core ./*~ ./*.save \
-	./src/*/*~ ./include/*~ ./scan/*~ 
+	./src/*/*~ ./include/*~ ./scan/*~ ./src/*/*.orig ./include/*.orig
 tidy:
 	@echo "Tidying up..."
-	@rm -f ./core ./*~ ./src/*/*~ ./include/*~ ./scan/*~ ./*.save
+	@rm -f ./core ./*~ ./src/*/*~ ./src/*/*.orig ./include/*~ ./include/*.orig ./scan/*~ ./*.save
 doc: doc/Doxyfile
 	@doxygen $^
