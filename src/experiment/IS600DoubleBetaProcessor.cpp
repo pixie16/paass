@@ -52,9 +52,9 @@ bool IS600DoubleBetaProcessor::Process(RawEvent &event) {
     static const vector<ChanEvent*> & events =
         event.GetSummary("beta:double")->GetList();
     
-    double lastProtonTime =  TreeCorrelator::get()->place("mtc_t1_0")->last().time;
+    double lastProtonTime =  TreeCorrelator::get()->place("logic_t1_0")->last().time;
     
-    double energy2 = 0., energy3 = 0., time2 = 0., time3 = 0.;
+    double energy2 = 0., energy3 = 0., time2 = 0.;
     
     for(vector<ChanEvent*>::const_iterator it = events.begin();
 	it != events.end(); it++) {
@@ -72,7 +72,7 @@ bool IS600DoubleBetaProcessor::Process(RawEvent &event) {
     plot(DD_PROTONBETA2TDIFF_VS_BETA2EN, energy2, (time2 - lastProtonTime) / plotResolution);
     
     static const vector<ChanEvent*> &labr3Evts =
-	event.GetSummary("generic:labr3")->GetList();
+	event.GetSummary("labr3:mrbig")->GetList();
     
     for(vector<ChanEvent*>::const_iterator it = labr3Evts.begin();
 	it != labr3Evts.end(); it++)
