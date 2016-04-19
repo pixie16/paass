@@ -49,9 +49,13 @@ namespace dammIds {
         const int MOVE_STOP_BIN = 17;//!< Stop move bin
         const int BEAM_START_BIN = 18;//!< Beam Start bin
         const int BEAM_STOP_BIN = 19;//!< Beam Stop bin
+	
+	///From Beam Logic Processor
+	const int D_COUNTER_BEAM = 21; //!< Beam cycle counter
+        const int D_TIME_STOP_LENGTH = 22;//!< Time between stop events
 
 	///Trigger Logic Processor
-	const int DD_RUNTIME_LOGIC = 20;//!< Plot of run time logic
+	const int DD_RUNTIME_LOGIC = 23;//!< Plot of run time logic
     }
 } // logic namespace
 
@@ -98,6 +102,10 @@ void LogicProcessor::DeclarePlots(void) {
     DeclareHistogram1D(D_BEAMTIME, timeBins, "Beam on time, 10 ms/bin");
     DeclareHistogram1D(D_COUNTER, counterBins, "MTC and beam counter");
     DeclareHistogram2D(DD_TIME_DET_MTCEVENTS, SF, S2, "MTC and beam events");
+
+    ///From BeamLogicProcessor
+    DeclareHistogram1D(D_COUNTER_BEAM, S2, "Beam counter toggle/analog/none");
+    DeclareHistogram1D(D_TIME_STOP_LENGTH, SA, "Beam stop length (1 s / bin)");
     
     ///From TriggerLogicProcessor
     // DeclareHistogram2D(DD_RUNTIME_LOGIC, plotSize, plotSize,
@@ -130,6 +138,11 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 	const unsigned MTC_STOP = 1;
 	const unsigned BEAM_START = 2;
 	const unsigned BEAM_STOP = 3;
+        // for 2d plot of events 1s / bin
+        // Bins in plot
+        const unsigned BEAM_TOGGLE = 0;
+        const unsigned BEAM_ANALOG = 1;
+        const unsigned BEAM_NONE = 2;
 	double time_x = int((time - t0) / eventsResolution);
 	
 	if(subtype == "start") {
@@ -225,7 +238,46 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 	    double dt_supercycle = time -
 		TreeCorrelator::get()->place("logic_supercycle_0")->last().time;
 	    plot(D_TDIFF_SUPERCYCLE, dt_supercycle / mtcPlotResolution);
-	}
+	}else if (place == "logic_beam_0") {
+            double last_time =
+                TreeCorrelator::get()->place(place)->secondlast().time;
+            double dt_beam_stop = abs(time - last_time);
+	    
+            Messenger m;
+            stringstream ss;
+            // Check for double recorded same event (1 us limit)
+            if (dt_beam_stop < doubleTimeLimit_) {
+                ss << "Ignore fast beam stop" << endl;
+                m.warning(ss.str());
+                continue;
+            }
+	    
+            // If beam was stopped, activate place and plot stop length
+            if (!TreeCorrelator::get()->place("Beam")->status()) {
+                double clockInSeconds = Globals::get()->clockInSeconds();
+                double resolution = 1.0 / clockInSeconds;
+		
+                plot(D_TIME_STOP_LENGTH, dt_beam_stop / resolution);
+		
+                TreeCorrelator::get()->place("Beam")->activate(time);
+                ss << "Beam started after: " << dt_beam_stop / resolution
+                   << " s ";
+                m.run_message(ss.str());
+            }
+            else {
+                TreeCorrelator::get()->place("Beam")->deactivate(time);
+                ss << "Beam stopped";
+                m.run_message(ss.str());
+            }
+            plot(D_COUNTER_BEAM, BEAM_TOGGLE);
+	    
+        }
+        else if (place == "logic_analog_0") {
+            plot(D_COUNTER_BEAM, BEAM_ANALOG);
+        }
+        else if (place == "logic_none_0") {
+            plot(D_COUNTER_BEAM, BEAM_NONE);
+        }
     }//events loop
     return(true);
 }
