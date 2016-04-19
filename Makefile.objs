@@ -51,7 +51,6 @@ TRACESUBO        = TraceAnalyzer.o
 WAVEFORMANALYZERO     = WaveformAnalyzer.o
 
 #---------- Processors ----------
-BEAMLOGICPROCESSORO  = BeamLogicProcessor.o
 BETASCINTPROCESSORO  = BetaScintProcessor.o
 DOUBLEBETAPROCESSORO = DoubleBetaProcessor.o
 #DSSDPROCESSORO   = DssdProcessor.o
