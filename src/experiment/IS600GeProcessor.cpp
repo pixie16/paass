@@ -105,7 +105,7 @@ bool IS600GeProcessor::Process(RawEvent &event) {
     double clockInSeconds = Globals::get()->clockInSeconds();
     // plot with 10 ms bins
     const double plotResolution = 10e-3 / clockInSeconds;
-    double lastProtonTime =  TreeCorrelator::get()->place("mtc_t1_0")->last().time;
+    double lastProtonTime =  TreeCorrelator::get()->place("logic_t1_0")->last().time;
     
     for (vector<ChanEvent*>::iterator it1 = geEvents_.begin(); 
 	 it1 != geEvents_.end(); ++it1) {
