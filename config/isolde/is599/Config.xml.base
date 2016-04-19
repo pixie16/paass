@@ -3,13 +3,15 @@
   <Author>
     <Name>S. V. Paulauskas</Name>
     <Email>stanpaulauskas AT gmail DOT com</Email>
-    <Date>July 17, 2015</Date>
+    <Date>April 18, 2016</Date>
   </Author>
   
   <Description>
-    This file is the base file for the VANDLE @ ISOLDE experiment. The
-    ISOLDE Experiment numbers 599 and 600 can be analyzed using this
-    configuration file.
+    This is the base configuration file for the IS599 and IS600 experiments. 
+    This file will maintain a clean nature and be void of all calibration 
+    parameters. It supplies the basic setup for the logic signals and for the 
+    processors. Care should be taken to ensure that the appropriate calibrations
+    are input when necessary. 
   </Description>
   
   <Global>
@@ -21,12 +23,10 @@
   </Global>
   
   <DetectorDriver>
-    <Analyzer name="TraceExtractor" type="beta" subtype="double"/>
     <Analyzer name="WaveformAnalyzer"/>
     <Analyzer name="FittingAnalyzer"/>
     
     <Processor name="LogicProcessor"/>
-    
     <Processor name="IS600GeProcessor"
                gamma_threshold="10.0"
                low_ratio="1.5"
@@ -60,46 +60,14 @@
       <Channel number="15" type="generic" subtype="generic"></Channel>
     </Module>
     <Module number="1">
-      <Channel number="0" type="ge" subtype="clover_high">
-        <Calibration model="quadratic" max="16000">
-	  0.011  0.290551 -0.295462E-07
-        </Calibration>
-      </Channel>
-      <Channel number="1" type="ge" subtype="clover_high" >
-        <Calibration model="quadratic" max="16000">
-	  -0.053  0.293319  0.206013E-07
-        </Calibration>
-      </Channel>
-      <Channel number="2" type="ge" subtype="clover_high" >
-        <Calibration model="quadratic" max="16000">
-          0.046  0.291961  0.122746E-07
-        </Calibration> 
-      </Channel>
-      <Channel number="3" type="ge" subtype="clover_high" >
-        <Calibration model="quadratic" max="16000">
-          -0.846  0.289618  0.390775E-08
-        </Calibration> 
-      </Channel>
-      <Channel number="4" type="ge" subtype="clover_high" >
-        <Calibration model="quadratic" max="16000">
-          0.061  0.308628  0.611542E-07
-        </Calibration>
-      </Channel>
-      <Channel number="5" type="ge" subtype="clover_high" >
-        <Calibration model="quadratic" max="16000">
-	  -0.942  0.306066  0.244090E-08
-        </Calibration>
-      </Channel>
-      <Channel number="6" type="ge" subtype="clover_high" >
-        <Calibration model="quadratic" max="16000">
-          -0.065  0.290002  0.217084E-07
-        </Calibration>
-      </Channel>
-      <Channel number="7" type="ge" subtype="clover_high" >
-        <Calibration model="quadratic" max="16000">
-          -0.411  0.286954  0.302260E-08
-        </Calibration>
-      </Channel>
+      <Channel number="0" type="ge" subtype="clover_high"></Channel>
+      <Channel number="1" type="ge" subtype="clover_high" ></Channel>
+      <Channel number="2" type="ge" subtype="clover_high" ></Channel>
+      <Channel number="3" type="ge" subtype="clover_high" ></Channel>
+      <Channel number="4" type="ge" subtype="clover_high" ></Channel>
+      <Channel number="5" type="ge" subtype="clover_high" ></Channel>
+      <Channel number="6" type="ge" subtype="clover_high" ></Channel>
+      <Channel number="7" type="ge" subtype="clover_high" ></Channel>
     </Module>
     <Module number="2">
       <Channel number="0" type="vandle" subtype="medium" tags="left"></Channel>
