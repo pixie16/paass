@@ -118,6 +118,27 @@ std::string ScanMain::get_extension(std::string filename_, std::string &prefix){
 	return output;
 }
 
+void ScanMain::start_scan(){
+	if(!init){ std::cout << " Not initialized!\n"; }
+	else if(is_running){ std::cout << " Already running.\n"; }
+	else{
+		is_running = true;
+		total_stopped = false;
+		core->StartAcquisition();
+		if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for Unpacker..."); }
+	}
+}
+
+void ScanMain::stop_scan(){
+	if(!init){ std::cout << " Not initialized!\n"; }
+	else if(!is_running){ std::cout << " Not running.\n"; }
+	else{
+		is_running = false;
+		core->StopAcquisition();
+		if(!batch_mode){ term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped."); }
+	}
+}
+
 ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
 	prefix = "";
 	extension = "";
@@ -163,6 +184,7 @@ ScanMain::~ScanMain(){
 void ScanMain::RunControl(){
 	// Notify that we are starting run control.
 	run_ctrl_exit = false;
+	total_stopped = false;
 
 	// Set debug mode, if enabled.
 	if(debug_mode){
@@ -180,8 +202,8 @@ void ScanMain::RunControl(){
 		// Now we're ready to read the first data buffer
 		if(total_stopped){
 			// Sleep while waiting for the user to scan more data.
-			std::cout << "HERE!\n";
 			sleep(1);
+			continue;
 		}
 		else if(shm_mode){
 			std::cout << std::endl;
@@ -333,8 +355,6 @@ void ScanMain::RunControl(){
 		
 			if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file."); }
 			else{ std::cout << std::endl << std::endl; }
-			
-			total_stopped = true;
 		}
 		else if(file_format == 1){
 			unsigned int *data = NULL;
@@ -381,12 +401,14 @@ void ScanMain::RunControl(){
 		
 			if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file."); }
 			else{ std::cout << std::endl << std::endl; }
-			
-			total_stopped = true;
 		}
 		else if(file_format == 2){
-			total_stopped = true;
 		}
+		
+		total_stopped = true;
+		stop_scan();
+		
+		if(batch_mode){ break; }
 	}
 	
 	// Notify that run control is exiting.
@@ -457,15 +479,10 @@ void ScanMain::CmdControl(){
 			core->CmdHelp("   ");
 		}
 		else if(cmd == "run"){ // Start acquisition.
-			is_running = true;
-			total_stopped = false;
-			core->StartAcquisition();
-			term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for Unpacker...");
+			start_scan();
 		}
 		else if(cmd == "stop"){ // Stop acquisition.
-			is_running = false;
-			core->StopAcquisition();
-			term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped.");
+			stop_scan();
 		}
 		else if(cmd == "debug"){ // Toggle debug mode
 			if(debug_mode){
@@ -760,6 +777,12 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 
 bool ScanMain::Rewind(){
 	if(!init){ return false; }
+
+	// Ensure that the scan is not running.
+	if(is_running){ 
+		std::cout << " Cannot change file position while scan is running!\n";
+		return false;
+	}
 
 	// Move to the first word in the file.
 	std::cout << " Seeking to word no. " << file_start_offset << " in file\n";
