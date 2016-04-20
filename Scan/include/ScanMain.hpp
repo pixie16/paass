@@ -16,7 +16,7 @@
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.07"
+#define SCAN_VERSION "1.2.08"
 #define SCAN_DATE "April 20th, 2016"
 
 class Server;
@@ -97,6 +97,10 @@ class ScanMain{
 	
 	std::string get_extension(std::string filename_, std::string &prefix);
 
+	void start_scan();
+	
+	void stop_scan();
+
   public:
 	ScanMain(Unpacker *core_=NULL);
 	
@@ -125,6 +129,8 @@ class ScanMain{
 	bool SetDryRunMode(bool state_=true){ return (dry_run_mode = state_); }
 	
 	bool SetShmMode(bool state_=true){ return (shm_mode = state_); }
+	
+	bool SetBatchMode(bool state_=true){ return (batch_mode = state_); }
 	
 	void RunControl();
 	
