@@ -16,8 +16,8 @@
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.05"
-#define SCAN_DATE "Feb. 13th, 2016"
+#define SCAN_VERSION "1.2.06"
+#define SCAN_DATE "April 20th, 2016"
 
 class Server;
 class Terminal;
@@ -57,6 +57,9 @@ class ScanMain{
 	int file_format; /// Input file format to use (0=.ldf, 1=.pld, 2=.root).
 	
 	unsigned long num_spills_recvd; /// The total number of good spills received from either the input file or shared memory.
+	unsigned long file_start_offset; /// The first word in the file at which to start scanning.
+	
+	bool write_counts; ///
 
 	bool is_running; /// Set to true if the acqusition is running.
 	bool is_verbose; /// Set to true if the user wishes verbose information to be displayed.
@@ -64,6 +67,7 @@ class ScanMain{
 	bool dry_run_mode; /// Set to true if a dry run is to be performed i.e. data is to be read but not processed.
 	bool shm_mode; /// Set to true if shared memory mode is to be used.
 	bool batch_mode; /// Set to true if the program is to be run with no interactive command line.
+	bool init;
 
 	bool kill_all; /// Set to true when user has sent kill command.
 	bool run_ctrl_exit; /// Set to true when run control thread has exited.
@@ -94,9 +98,11 @@ class ScanMain{
 
   public:
 	ScanMain(Unpacker *core_=NULL);
-
-	~ScanMain();
 	
+	~ScanMain();
+
+	bool IsInit(){ return init; }
+
 	bool IsVerbose(){ return is_verbose; }
 	
 	bool DebugMode(){ return debug_mode; }
@@ -125,5 +131,9 @@ class ScanMain{
 	
 	void Help(char *name_, Unpacker *core_);
 	
-	int Execute(int argc, char *argv[]);
+	bool Initialize(int argc, char *argv[]);
+	
+	int Execute();
+	
+	bool Close();
 };
