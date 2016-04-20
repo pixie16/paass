@@ -512,7 +512,9 @@ void Oscilloscope::IdleTask() {
 int main(int argc, char *argv[]){
 	ScanMain scan_main((Unpacker*)(new Oscilloscope()));
 	
+	scan_main.Initialize(argc, argv);
+	
 	scan_main.SetMessageHeader("Scope: ");
 
-	return scan_main.Execute(argc, argv);
+	return scan_main.Execute();
 }
