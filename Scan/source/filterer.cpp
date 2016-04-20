@@ -399,7 +399,9 @@ void Filterer::IdleTask() {
 int main(int argc, char *argv[]){
 	ScanMain scan_main((Unpacker*)(new Filterer()));
 	
+	scan_main.Initialize(argc, argv);
+	
 	scan_main.SetMessageHeader("Filterer: ");
 
-	return scan_main.Execute(argc, argv);
+	return scan_main.Execute();
 }
