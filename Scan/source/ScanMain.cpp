@@ -131,6 +131,7 @@ ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
 	file_start_offset = 0;
 	num_spills_recvd = 0;
 	
+	total_stopped = false;
 	write_counts = false;
 	is_running = true;
 	is_verbose = true;
@@ -160,6 +161,10 @@ ScanMain::~ScanMain(){
 }
 
 void ScanMain::RunControl(){
+	// Notify that we are starting run control.
+	run_ctrl_exit = false;
+
+	// Set debug mode, if enabled.
 	if(debug_mode){
 		pldHead.SetDebugMode();
 		pldData.SetDebugMode();
@@ -169,207 +174,222 @@ void ScanMain::RunControl(){
 		eofbuff.SetDebugMode();
 	}
 
-	// Now we're ready to read the first data buffer
-	if(shm_mode){
-		std::cout << std::endl;
-		unsigned int data[250000]; // Array for storing spill data. Larger than any RevF spill should be.
-		unsigned int *shm_data = new unsigned int[maxShmSizeL]; // Array to store the temporary shm data (~16 kB)
-		int dummy;
-		int previous_chunk;
-		int current_chunk;
-		int total_chunks;
-		int nWords;
-		unsigned int nTotalWords;
+	while(true){
+		if(kill_all){ break; }
 	
-		bool full_spill = false;
-		
-		while(true){
-			if(kill_all == true){ 
-				break;
-			}
-			else if(!is_running){
-				sleep(1);
-				continue;
-			}
-
-			int select_dummy;
-			previous_chunk = 0;
-			current_chunk = 0;
-			total_chunks = -1;
-			nTotalWords = 0;
-			full_spill = true;
-
-			if(!poll_server->Select(dummy)){
-				if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for a spill..."); }
-				else{ std::cout << "\r\033[0;33m[IDLE]\033[0m Waiting for a spill..."; }
-				core->IdleTask();
-				continue; 
-			}
-		
-			if(!poll_server->Select(select_dummy)){ continue; } // Server timeout
-		
-			// Get the spill
-			while(current_chunk != total_chunks){
-				if(!poll_server->Select(select_dummy)){ // Server timeout
-					std::cout << sys_message_head << "Network timeout before recv full spill!\n";
-					full_spill = false;
-					break;
-				} 
-
-				nWords = poll_server->RecvMessage((char*)shm_data, maxShmSize) / 4; // Read from the socket
-				if(strcmp((char*)shm_data, "$CLOSE_FILE") == 0 || strcmp((char*)shm_data, "$OPEN_FILE") == 0 || strcmp((char*)shm_data, "$KILL_SOCKET") == 0){ continue; } // Poll2 network flags
-				// Did not read enough bytes
-				else if(nWords < 2){
-					continue;
-				}
-
-				if(debug_mode){ std::cout << "debug: Received " << nWords << " words from the network\n"; }
-				memcpy((char *)&current_chunk, &shm_data[0], 4);
-				memcpy((char *)&total_chunks, &shm_data[1], 4);
-
-				if(previous_chunk == -1 && current_chunk != 1){ // Started reading in the middle of a spill, ignore the rest of it
-					if(debug_mode){ std::cout << "debug: Skipping chunk " << current_chunk << " of " << total_chunks << std::endl; }
-					continue;
-				}
-				else if(previous_chunk != current_chunk - 1){ // We missed a spill chunk somewhere
-					if(debug_mode){ std::cout << "debug: Found chunk " << current_chunk << " but expected chunk " << previous_chunk+1 << std::endl; }
-					break;
-				}
-
-				previous_chunk = current_chunk;
-		
-				// Copy the shm spill chunk into the data array
-				if(nTotalWords + 2 + nWords <= 250000){ // This spill chunk will fit into the data buffer
-					memcpy(&data[nTotalWords], &shm_data[2], (nWords - 2)*4);
-					nTotalWords += (nWords - 2);				
-				}
-				else{ 
-					if(debug_mode){ std::cout << "debug: Abnormally full spill buffer with " << nTotalWords + 2 + nWords << " words!\n"; }
-					break; 
-				}
-			}
-
-			std::stringstream status;
-			status << "\033[0;32m" << "[RECV] " << "\033[0m" << nTotalWords << " words";
-			if(!batch_mode){ term->SetStatus(status.str()); }
-			else{ std::cout << "\r" << status.str(); }
-		
-			if(debug_mode){ std::cout << "debug: Retrieved spill of " << nTotalWords << " words (" << nTotalWords*4 << " bytes)\n"; }
-			if(!dry_run_mode && full_spill){ 
-				int word1 = 2, word2 = 9999;
-				memcpy(&data[nTotalWords], (char *)&word1, 4);
-				memcpy(&data[nTotalWords+1], (char *)&word2, 4);
-				core->ReadSpill(data, nTotalWords + 2, is_verbose); 
-			}
-			
-			if(!full_spill){ std::cout << sys_message_head << "Not processing spill fragment!\n"; }
-			else{ num_spills_recvd++; }
+		// Now we're ready to read the first data buffer
+		if(total_stopped){
+			// Sleep while waiting for the user to scan more data.
+			std::cout << "HERE!\n";
+			sleep(1);
 		}
+		else if(shm_mode){
+			std::cout << std::endl;
+			unsigned int data[250000]; // Array for storing spill data. Larger than any RevF spill should be.
+			unsigned int *shm_data = new unsigned int[maxShmSizeL]; // Array to store the temporary shm data (~16 kB)
+			int dummy;
+			int previous_chunk;
+			int current_chunk;
+			int total_chunks;
+			int nWords;
+			unsigned int nTotalWords;
+	
+			bool full_spill = false;
 		
-		delete[] shm_data;
-	}
-	else if(file_format == 0){
-		unsigned int *data = NULL;
-		bool full_spill;
-		bool bad_spill;
-		unsigned int nBytes;
+			while(true){
+				if(kill_all == true){ 
+					break;
+				}
+				else if(!is_running){
+					sleep(1);
+					continue;
+				}
+
+				int select_dummy;
+				previous_chunk = 0;
+				current_chunk = 0;
+				total_chunks = -1;
+				nTotalWords = 0;
+				full_spill = true;
+
+				if(!poll_server->Select(dummy)){
+					if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for a spill..."); }
+					else{ std::cout << "\r\033[0;33m[IDLE]\033[0m Waiting for a spill..."; }
+					core->IdleTask();
+					continue; 
+				}
 		
-		if(!dry_run_mode){ data = new unsigned int[250000]; }
+				if(!poll_server->Select(select_dummy)){ continue; } // Server timeout
 		
-		while(databuff.Read(&input_file, (char*)data, nBytes, 1000000, full_spill, bad_spill, dry_run_mode)){ 
-			if(kill_all == true){ 
-				break;
+				// Get the spill
+				while(current_chunk != total_chunks){
+					if(!poll_server->Select(select_dummy)){ // Server timeout
+						std::cout << sys_message_head << "Network timeout before recv full spill!\n";
+						full_spill = false;
+						break;
+					} 
+
+					nWords = poll_server->RecvMessage((char*)shm_data, maxShmSize) / 4; // Read from the socket
+					if(strcmp((char*)shm_data, "$CLOSE_FILE") == 0 || strcmp((char*)shm_data, "$OPEN_FILE") == 0 || strcmp((char*)shm_data, "$KILL_SOCKET") == 0){ continue; } // Poll2 network flags
+					// Did not read enough bytes
+					else if(nWords < 2){
+						continue;
+					}
+
+					if(debug_mode){ std::cout << "debug: Received " << nWords << " words from the network\n"; }
+					memcpy((char *)&current_chunk, &shm_data[0], 4);
+					memcpy((char *)&total_chunks, &shm_data[1], 4);
+
+					if(previous_chunk == -1 && current_chunk != 1){ // Started reading in the middle of a spill, ignore the rest of it
+						if(debug_mode){ std::cout << "debug: Skipping chunk " << current_chunk << " of " << total_chunks << std::endl; }
+						continue;
+					}
+					else if(previous_chunk != current_chunk - 1){ // We missed a spill chunk somewhere
+						if(debug_mode){ std::cout << "debug: Found chunk " << current_chunk << " but expected chunk " << previous_chunk+1 << std::endl; }
+						break;
+					}
+
+					previous_chunk = current_chunk;
+		
+					// Copy the shm spill chunk into the data array
+					if(nTotalWords + 2 + nWords <= 250000){ // This spill chunk will fit into the data buffer
+						memcpy(&data[nTotalWords], &shm_data[2], (nWords - 2)*4);
+						nTotalWords += (nWords - 2);				
+					}
+					else{ 
+						if(debug_mode){ std::cout << "debug: Abnormally full spill buffer with " << nTotalWords + 2 + nWords << " words!\n"; }
+						break; 
+					}
+				}
+
+				std::stringstream status;
+				status << "\033[0;32m" << "[RECV] " << "\033[0m" << nTotalWords << " words";
+				if(!batch_mode){ term->SetStatus(status.str()); }
+				else{ std::cout << "\r" << status.str(); }
+		
+				if(debug_mode){ std::cout << "debug: Retrieved spill of " << nTotalWords << " words (" << nTotalWords*4 << " bytes)\n"; }
+				if(!dry_run_mode && full_spill){ 
+					int word1 = 2, word2 = 9999;
+					memcpy(&data[nTotalWords], (char *)&word1, 4);
+					memcpy(&data[nTotalWords+1], (char *)&word2, 4);
+					core->ReadSpill(data, nTotalWords + 2, is_verbose); 
+				}
+			
+				if(!full_spill){ std::cout << sys_message_head << "Not processing spill fragment!\n"; }
+				else{ num_spills_recvd++; }
 			}
-			else if(!is_running){
-				sleep(1);
-				continue;
+		
+			delete[] shm_data;
+		}
+		else if(file_format == 0){
+			unsigned int *data = NULL;
+			bool full_spill;
+			bool bad_spill;
+			unsigned int nBytes;
+		
+			if(!dry_run_mode){ data = new unsigned int[250000]; }
+		
+			while(databuff.Read(&input_file, (char*)data, nBytes, 1000000, full_spill, bad_spill, dry_run_mode)){ 
+				if(kill_all == true){ 
+					break;
+				}
+				else if(!is_running){
+					sleep(1);
+					continue;
+				}
+
+				std::stringstream status;			
+				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
+				if(!batch_mode){ term->SetStatus(status.str()); }
+				else{ std::cout << "\r" << status.str(); }
+		
+				if(full_spill){ 
+					if(debug_mode){ 
+						std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
+						std::cout << "debug: Read up to word number " << input_file.tellg()/4 << " in input file\n";
+					}
+					if(!dry_run_mode){ 
+						if(!bad_spill){ 
+							core->ReadSpill(data, nBytes/4, is_verbose); 
+						}
+						else{ std::cout << " WARNING: Spill has been flagged as corrupt, skipping (at word " << input_file.tellg()/4 << " in file)!\n"; }
+					}
+				}
+				else if(debug_mode){ 
+					std::cout << "debug: Retrieved spill fragment of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
+					std::cout << "debug: Read up to word number " << input_file.tellg()/4 << " in input file\n";
+				}
+				num_spills_recvd++;
 			}
 
-			std::stringstream status;			
-			status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
-			if(!batch_mode){ term->SetStatus(status.str()); }
-			else{ std::cout << "\r" << status.str(); }
+			if(eofbuff.Read(&input_file) && eofbuff.Read(&input_file)){
+				std::cout << sys_message_head << "Encountered double EOF buffer.\n";
+			}
+			else{
+				std::cout << sys_message_head << "Failed to find end of file buffer!\n";
+			}
 		
-			if(full_spill){ 
+			if(!dry_run_mode){ delete[] data; }
+		
+			if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file."); }
+			else{ std::cout << std::endl << std::endl; }
+			
+			total_stopped = true;
+		}
+		else if(file_format == 1){
+			unsigned int *data = NULL;
+			int nBytes;
+		
+			if(!dry_run_mode){ data = new unsigned int[max_spill_size+2]; }
+		
+			while(pldData.Read(&input_file, (char*)data, nBytes, 4*max_spill_size, dry_run_mode)){ 
+				if(kill_all == true){ 
+					break;
+				}
+				else if(!is_running){
+					sleep(1);
+					continue;
+				}
+
+				std::stringstream status;
+				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
+				if(!batch_mode){ term->SetStatus(status.str()); }
+				else{ std::cout << "\r" << status.str(); }
+		
 				if(debug_mode){ 
 					std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
 					std::cout << "debug: Read up to word number " << input_file.tellg()/4 << " in input file\n";
 				}
-				if(!dry_run_mode){ 
-					if(!bad_spill){ 
-						core->ReadSpill(data, nBytes/4, is_verbose); 
-					}
-					else{ std::cout << " WARNING: Spill has been flagged as corrupt, skipping (at word " << input_file.tellg()/4 << " in file)!\n"; }
-				}
-			}
-			else if(debug_mode){ 
-				std::cout << "debug: Retrieved spill fragment of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
-				std::cout << "debug: Read up to word number " << input_file.tellg()/4 << " in input file\n";
-			}
-			num_spills_recvd++;
-		}
-
-		if(eofbuff.Read(&input_file) && eofbuff.Read(&input_file)){
-			std::cout << sys_message_head << "Encountered double EOF buffer.\n";
-		}
-		else{
-			std::cout << sys_message_head << "Failed to find end of file buffer!\n";
-		}
-		
-		if(!dry_run_mode){ delete[] data; }
-		
-		if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file."); }
-		else{ std::cout << std::endl << std::endl; }
-	}
-	else if(file_format == 1){
-		unsigned int *data = NULL;
-		int nBytes;
-		
-		if(!dry_run_mode){ data = new unsigned int[max_spill_size+2]; }
-		
-		while(pldData.Read(&input_file, (char*)data, nBytes, 4*max_spill_size, dry_run_mode)){ 
-			if(kill_all == true){ 
-				break;
-			}
-			else if(!is_running){
-				sleep(1);
-				continue;
-			}
-
-			std::stringstream status;
-			status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
-			if(!batch_mode){ term->SetStatus(status.str()); }
-			else{ std::cout << "\r" << status.str(); }
-		
-			if(debug_mode){ 
-				std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
-				std::cout << "debug: Read up to word number " << input_file.tellg()/4 << " in input file\n";
-			}
 			
-			if(!dry_run_mode){ 
-				int word1 = 2, word2 = 9999;
-				memcpy(&data[(nBytes/4)], (char *)&word1, 4);
-				memcpy(&data[(nBytes/4)+1], (char *)&word2, 4);
-				core->ReadSpill(data, nBytes/4 + 2, is_verbose); 
+				if(!dry_run_mode){ 
+					int word1 = 2, word2 = 9999;
+					memcpy(&data[(nBytes/4)], (char *)&word1, 4);
+					memcpy(&data[(nBytes/4)+1], (char *)&word2, 4);
+					core->ReadSpill(data, nBytes/4 + 2, is_verbose); 
+				}
+				num_spills_recvd++;
 			}
-			num_spills_recvd++;
-		}
 
-		if(eofbuff.ReadHeader(&input_file)){
-			std::cout << sys_message_head << "Encountered EOF buffer.\n";
-		}
-		else{
-			std::cout << sys_message_head << "Failed to find end of file buffer!\n";
-		}
+			if(eofbuff.ReadHeader(&input_file)){
+				std::cout << sys_message_head << "Encountered EOF buffer.\n";
+			}
+			else{
+				std::cout << sys_message_head << "Failed to find end of file buffer!\n";
+			}
 		
-		if(!dry_run_mode){ delete[] data; }
+			if(!dry_run_mode){ delete[] data; }
 		
-		if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file."); }
-		else{ std::cout << std::endl << std::endl; }
-	}
-	else if(file_format == 2){
+			if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file."); }
+			else{ std::cout << std::endl << std::endl; }
+			
+			total_stopped = true;
+		}
+		else if(file_format == 2){
+			total_stopped = true;
+		}
 	}
 	
+	// Notify that run control is exiting.
 	run_ctrl_exit = true;
 }
 
@@ -379,6 +399,8 @@ void ScanMain::CmdControl(){
 	std::string cmd = "", arg;
 
 	while(true){
+		if(run_ctrl_exit){ break; }
+	
 		cmd = term->GetCommand();
 		if(cmd == "_SIGSEGV_"){
 			std::cout << "\033[0;31m[SEGMENTATION FAULT]\033[0m\n";
@@ -431,10 +453,12 @@ void ScanMain::CmdControl(){
 			std::cout << "   version (v) - Display Poll2 version information\n";
 			std::cout << "   run         - Start acquisition\n";
 			std::cout << "   stop        - Stop acquisition\n";
+			std::cout << "   rewind      - Rewind to the beginning of the file\n";
 			core->CmdHelp("   ");
 		}
 		else if(cmd == "run"){ // Start acquisition.
 			is_running = true;
+			total_stopped = false;
 			core->StartAcquisition();
 			term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for Unpacker...");
 		}
@@ -463,6 +487,9 @@ void ScanMain::CmdControl(){
 				std::cout << sys_message_head << "Toggling quiet mode ON\n";
 				is_verbose = false;
 			}
+		}
+		else if(cmd == "rewind"){ // Rewind the file to the start position
+			Rewind();
 		}
 		else if(!core->CommandControl(cmd, arguments)){ // Unrecognized command. Send it to Unpacker.
 			std::cout << sys_message_head << "Unknown command '" << cmd << "'\n";
@@ -727,8 +754,19 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 	// Do any last minute initialization.
 	try{ core->FinalInitialization(); }
 	catch(...){ std::cout << "\nUnpacker object final initialization failed!\n"; }
-	
+
 	return (init = true);
+}
+
+bool ScanMain::Rewind(){
+	if(!init){ return false; }
+
+	// Move to the first word in the file.
+	std::cout << " Seeking to word no. " << file_start_offset << " in file\n";
+	input_file.seekg(file_start_offset*4, input_file.beg);
+	std::cout << " Input file is now at " << input_file.tellg() << " bytes\n";
+
+	return true;
 }
 
 int ScanMain::Execute(){
@@ -737,11 +775,10 @@ int ScanMain::Execute(){
 		return 1; 
 	}
 
-	// Move to the first word in the file.
-	std::cout << " Seeking to word no. " << file_start_offset << " in file\n";
-	input_file.seekg(file_start_offset*4);
-	std::cout << " Input file is now at " << input_file.tellg() << " bytes\n";
+	// Seek to the beginning of the file.
+	Rewind();
 
+	// Process the file.
 	if(!batch_mode){
 		// Start the run control thread
 		std::cout << "\nStarting data control thread\n";

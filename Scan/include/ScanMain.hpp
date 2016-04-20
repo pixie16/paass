@@ -16,7 +16,7 @@
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.06"
+#define SCAN_VERSION "1.2.07"
 #define SCAN_DATE "April 20th, 2016"
 
 class Server;
@@ -61,6 +61,7 @@ class ScanMain{
 	
 	bool write_counts; ///
 
+	bool total_stopped;
 	bool is_running; /// Set to true if the acqusition is running.
 	bool is_verbose; /// Set to true if the user wishes verbose information to be displayed.
 	bool debug_mode; /// Set to true if the user wishes to display debug information.
@@ -132,6 +133,8 @@ class ScanMain{
 	void Help(char *name_, Unpacker *core_);
 	
 	bool Initialize(int argc, char *argv[]);
+	
+	bool Rewind();
 	
 	int Execute();
 	
