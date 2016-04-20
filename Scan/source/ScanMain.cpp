@@ -127,15 +127,18 @@ ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
 
 	max_spill_size = 0;
 	file_format = -1;
-	
+
+	file_start_offset = 0;
 	num_spills_recvd = 0;
 	
+	write_counts = false;
 	is_running = true;
 	is_verbose = true;
 	debug_mode = false;
 	dry_run_mode = false;
 	shm_mode = false;
 	batch_mode = false;
+	init = false;
 
 	kill_all = false;
 	run_ctrl_exit = false;
@@ -153,9 +156,7 @@ ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
 }
 
 ScanMain::~ScanMain(){
-	if(poll_server){ delete poll_server; }
-	if(term){ delete term; }
-	if(core){ delete core; }
+	Close();
 }
 
 void ScanMain::RunControl(){
@@ -487,19 +488,21 @@ void ScanMain::Help(char *name_, Unpacker *core){
 	core->ArgHelp("   ");
 }
 
-int ScanMain::Execute(int argc, char *argv[]){
+bool ScanMain::Initialize(int argc, char *argv[]){
+	if(init){ return false; }
+
 	if(argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)){ // A stupid way to do this... for now.
 		Unpacker *temp_core = GetCore();
 		Help(argv[0], temp_core);
 		delete temp_core;
-		return 0;
+		return false;
 	}
 	else if(argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)){ // Display version information
 		std::cout << "  " << PROG_NAME << "      v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
 		std::cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " (" << POLL2_SOCKET_DATE << ")\n"; 
 		std::cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION << " (" << HRIBF_BUFFERS_DATE << ")\n"; 
 		std::cout << "  CTerminal     v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
-		return 0;
+		return false;
 	}
 	
 	debug_mode = false;
@@ -507,10 +510,6 @@ int ScanMain::Execute(int argc, char *argv[]){
 	shm_mode = false;
 	
 	num_spills_recvd = 0;
-
-	bool write_counts = false;
-
-	long file_start_offset = 0;
 
 	// Fill the argument list.
 	std::deque<std::string> scan_args;
@@ -545,7 +544,7 @@ int ScanMain::Execute(int argc, char *argv[]){
 			if(scan_args.empty()){
 				std::cout << " FATAL ERROR! Missing required argument to option '--fast-fwd'!\n";
 				Help(argv[0], core);
-				return 1;
+				return false;
 			}
 			file_start_offset = atoll(scan_args.front().c_str());
 			scan_args.pop_front();
@@ -574,7 +573,7 @@ int ScanMain::Execute(int argc, char *argv[]){
 	std::string input_filename = "";
 	if(!core->SetArgs(coreargs, input_filename)){ 
 		Help(argv[0], core);
-		return 1; 
+		return false; 
 	}
 
 	if(!shm_mode){
@@ -587,7 +586,7 @@ int ScanMain::Execute(int argc, char *argv[]){
 		else{
 			if(prefix == ""){
 				std::cout << " FATAL ERROR! Input filename was not specified!\n";
-				return 1;
+				return false;
 			}
 		
 			if(extension == "ldf"){ // List data format file
@@ -605,7 +604,7 @@ int ScanMain::Execute(int argc, char *argv[]){
 				std::cout << "   ldf - list data format (HRIBF)\n";
 				std::cout << "   pld - pixie list data format\n";
 				std::cout << "   root - root file containing raw pixie data\n";
-				return 1;
+				return false;
 			}
 		}
 	}
@@ -617,7 +616,7 @@ int ScanMain::Execute(int argc, char *argv[]){
 		std::cout << "\nCleaning up...\n";
 		core->PrintStatus(sys_message_head);
 		core->Close(write_counts);
-		return 1;
+		return false;
 	}
 
 	if(!shm_mode){
@@ -723,19 +722,26 @@ int ScanMain::Execute(int argc, char *argv[]){
 		}
 		else if(file_format == 2){
 		}
-		
-		// Fast forward in the file
-		if(file_start_offset != 0){
-			std::cout << " Skipping ahead to word no. " << file_start_offset << " in file\n";
-			input_file.seekg(file_start_offset*4);
-			std::cout << " Input file is now at " << input_file.tellg() << " bytes\n";
-		}
 	}
 	
 	// Do any last minute initialization.
 	try{ core->FinalInitialization(); }
 	catch(...){ std::cout << "\nUnpacker object final initialization failed!\n"; }
 	
+	return (init = true);
+}
+
+int ScanMain::Execute(){
+	if(!init){
+		std::cout << " FATAL ERROR! ScanMain is not initialized!\n";
+		return 1; 
+	}
+
+	// Move to the first word in the file.
+	std::cout << " Seeking to word no. " << file_start_offset << " in file\n";
+	input_file.seekg(file_start_offset*4);
+	std::cout << " Input file is now at " << input_file.tellg() << " bytes\n";
+
 	if(!batch_mode){
 		// Start the run control thread
 		std::cout << "\nStarting data control thread\n";
@@ -751,6 +757,12 @@ int ScanMain::Execute(int argc, char *argv[]){
 		runctrl.join();
 	}
 	else{ start_run_control(this); }
+	
+	return 0;
+}
+
+bool ScanMain::Close(){
+	if(!init){ return false; }
 
 	// Close the socket and restore the terminal
 	if(!batch_mode){
@@ -774,5 +786,9 @@ int ScanMain::Execute(int argc, char *argv[]){
 	core->PrintStatus(sys_message_head);
 	core->Close(write_counts);
 	
-	return 0;
+	if(poll_server){ delete poll_server; }
+	if(term){ delete term; }
+	if(core){ delete core; }
+	
+	return !(init = false);
 }
