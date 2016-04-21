@@ -46,7 +46,7 @@ EventData GeProcessor::BestBetaForGamma(double gTime) {
             bestIndex = index;
         }
     }
-    return betas->info_.at(bestIndex);
+    return(betas->info_.at(bestIndex));
 }
 
 bool GeProcessor::GoodGammaBeta(double gb_dtime) {
@@ -471,26 +471,26 @@ bool GeProcessor::PreProcess(RawEvent &event) {
 
 bool GeProcessor::Process(RawEvent &event) {
     using namespace dammIds::ge;
-
+    
     if (!EventProcessor::Process(event))
         return false;
-
+    
     double clockInSeconds = Globals::get()->clockInSeconds();
-
+    
     /** Cycle time is measured from the begining of the last BeamON event */
     double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
-
+    
     // beamOn is true for beam on and false for beam off
     bool beamOn =  TreeCorrelator::get()->place("Beam")->status();
     bool hasBeta = TreeCorrelator::get()->place("Beta")->status();
-
+    
     /** Place Cycle is activated by BeamOn event and deactivated by TapeMove
      *  This condition will therefore skip events registered during
      *  tape movement period and before the end of move and the beam start
      */
     if (!TreeCorrelator::get()->place("Cycle")->status()) {
         for (vector<ChanEvent*>::iterator it = geEvents_.begin();
-        it != geEvents_.end(); ++it) {
+	     it != geEvents_.end(); ++it) {
             ChanEvent* chan = *it;
             double gEnergy = chan->GetCalEnergy();
             if (gEnergy < gammaThreshold_)
@@ -499,39 +499,40 @@ bool GeProcessor::Process(RawEvent &event) {
             if (hasBeta)
                 plot(betaGated::D_ENERGY_MOVE, gEnergy);
         }
-        return true;
+	EndProcess();
+        return(true);
     }
-
+    
     plot(D_MULT, geEvents_.size());
-
+    
     // Note that geEvents_ vector holds only good events (matched
     // low & high gain). See PreProcess
     for (vector<ChanEvent*>::iterator it1 = geEvents_.begin();
 	 it1 != geEvents_.end(); ++it1) {
         ChanEvent* chan = *it1;
-
+	
         double gEnergy = chan->GetCalEnergy();
         if (gEnergy < gammaThreshold_)
             continue;
-
+	
         double gTime = chan->GetCorrectedTime();
         double decayTime = (gTime - cycleTime) * clockInSeconds;
         int det = leafToClover[chan->GetChanID().GetLocation()];
-
+	
         plot(D_ENERGY, gEnergy);
         plot(D_ENERGY_CLOVERX + det, gEnergy);
         granploty(DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
-
+	
         double gb_dtime = numeric_limits<double>::max();
         if (hasBeta) {
             EventData bestBeta = BestBetaForGamma(gTime);
             gb_dtime = (gTime - bestBeta.time) * clockInSeconds;
             double betaEnergy = bestBeta.energy;
             int betaLocation = bestBeta.location;
-
+	    
             double plotResolution = clockInSeconds;
             plot(betaGated::DD_TDIFF__GAMMA_ENERGY,
-                    (int)(gb_dtime / plotResolution + 100), gEnergy);
+		 (int)(gb_dtime / plotResolution + 100), gEnergy);
             plot(betaGated::DD_TDIFF__BETA_ENERGY,
                     (int)(gb_dtime / plotResolution + 100), betaEnergy/10);
 
@@ -541,7 +542,6 @@ bool GeProcessor::Process(RawEvent &event) {
                 plot(betaGated::D_ENERGY_CLOVERX + det, gEnergy);
                 granploty(betaGated::DD_ENERGY__TIMEX,
                           gEnergy, decayTime, timeResolution);
-
                 if (beamOn) {
                     granploty(betaGated::DD_ENERGY__TIMEX_GROW,
                             gEnergy, decayTime, timeResolution);

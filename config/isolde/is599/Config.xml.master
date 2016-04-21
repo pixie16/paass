@@ -7,11 +7,11 @@
   </Author>
   
   <Description>
-    This is the base configuration file for the IS599 and IS600 experiments. 
-    This file will maintain a clean nature and be void of all calibration 
-    parameters. It supplies the basic setup for the logic signals and for the 
-    processors. Care should be taken to ensure that the appropriate calibrations
-    are input when necessary. 
+    This is the base configuration file for the IS599 and IS600 experiments for 
+    data taken in July/August. This file will NOT BE altered. It contains all 
+    of the appropriate setup for the processors, TreeCorrelator and fitting 
+    algorithms. In addition, it contains the Care should be taken to ensure that 
+    the appropriate calibrations are input when necessary. 
   </Description>
   
   <Global>
@@ -49,14 +49,15 @@
                tags="start,left,timing"></Channel>
       <Channel number="1" type="beta" subtype="double"
                tags="start,right,timing"></Channel>
-      <Channel number="4" type="beta" subtype="double" tags="left"></Channel>
-      <Channel number="5" type="beta" subtype="double" tags="right"></Channel>
+      <Channel number="4" type="beta" subtype="double" tags="left,gamma"></Channel>
+      <Channel number="5" type="beta" subtype="double" tags="right,gamma"></Channel>
       <Channel number="8" type="logic" subtype="t1"></Channel>
       <Channel number="9" type="logic" subtype="mtc_start" ></Channel>
       <Channel number="10" type="logic" subtype="mtc_stop" ></Channel>
       <Channel number="11" type="logic" subtype="beam_start" ></Channel>
       <Channel number="12" type="logic" subtype="beam_stop"></Channel>
       <Channel number="13" type="logic" subtype="supercycle"></Channel>
+      <Channel number="14" type="labr3" subtype="mrbig"></Channel>
       <Channel number="15" type="generic" subtype="generic"></Channel>
     </Module>
     <Module number="1">
@@ -68,6 +69,14 @@
       <Channel number="5" type="ge" subtype="clover_high" ></Channel>
       <Channel number="6" type="ge" subtype="clover_high" ></Channel>
       <Channel number="7" type="ge" subtype="clover_high" ></Channel>
+      <Channel number="8" type="ge" subtype="clover_low"></Channel>
+      <Channel number="9" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="10" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="11" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="12" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="13" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="14" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="15" type="ge" subtype="clover_low" ></Channel>
     </Module>
     <Module number="2">
       <Channel number="0" type="vandle" subtype="medium" tags="left"></Channel>
@@ -128,8 +137,6 @@
       <Channel number="1" type="vandle" subtype="medium" tags="right"></Channel>
       <Channel number="2" type="vandle" subtype="medium" tags="left"></Channel>
       <Channel number="3" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="4" type="vandle" subtype="small" tags="left"></Channel>
-      <Channel number="5" type="vandle" subtype="small" tags="right"></Channel>
       <Channel number="6" type="vandle" subtype="small" tags="left"></Channel>
       <Channel number="7" type="vandle" subtype="small" tags="right"></Channel>
       <Channel number="8" type="vandle" subtype="small" tags="left"></Channel>
@@ -142,10 +149,10 @@
       <Channel number="15" type="vandle" subtype="small" tags="right"></Channel>
     </Module>
     <Module number="6">
-      <Channel number="0" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="1" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="2" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="3" type="vandle" subtype="medium" tags="right"></Channel>
+      <Channel number="0" type="vandle" subtype="small" tags="left"></Channel>
+      <Channel number="1" type="vandle" subtype="small" tags="right"></Channel>
+      <Channel number="2" type="vandle" subtype="small" tags="left"></Channel>
+      <Channel number="3" type="vandle" subtype="small" tags="right"></Channel>
       <Channel number="4" type="vandle" subtype="small" tags="left"></Channel>
       <Channel number="5" type="vandle" subtype="small" tags="right"></Channel>
       <Channel number="6" type="vandle" subtype="small" tags="left"></Channel>
@@ -161,16 +168,13 @@
   </Map>
   
   <TreeCorrelator name="root" verbose="False">
-    <Place type="PlaceAND" name="DoubleBeta0" fifo="2">
-      <Place type="PlaceThreshold" name="beta_double_2,3"
-             low_limit="50.0" high_limit="16382" fifo="2"
-             replace="true"/>
-    </Place>
-    
-    <Place type="PlaceOR" name="Beta" fifo="10">
-      <Place type="PlaceThreshold" name="beta_double_2,3"
-             low_limit="50.0" high_limit="16382" fifo="5"
-             replace="true"/>
+    <Place type="PlaceOR" name="Beta" fifo="5">
+      <Place type="PlaceDetector" name="DoubleBeta" reset="true" fifo="5"/>
+      <!--
+	 <Place type="PlaceThreshold" name="beta_double_2,3"
+		low_limit="50.0" high_limit="16382" fifo="2"
+		replace="true"/>
+	 -->
     </Place>
     
     <Place type="PlaceOR" name="Gamma">
@@ -196,124 +200,6 @@
   
   <TimeCalibration verbose_timing="False">
     <Vandle>
-      <medium>
-	<Bar number="0" lroffset="-.29200" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="72.84009"/>
-	</Bar>
-	<Bar number="1" lroffset="8.34132" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="80.75094"/>
-	</Bar>
-	<Bar number="2" lroffset="-1.75312" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="71.03265"/>
-	</Bar>
-	<Bar number="3" lroffset="7.75000" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="75.39292"/>
-	</Bar>
-	<Bar number="4" lroffset="4.75000" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="76.02922"/>
-	</Bar>
-	<Bar number="5" lroffset="2.86422" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="80.06402"/>
-	</Bar>
-	<Bar number="6" lroffset="4.05246" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="76.82504"/>
-	</Bar>
-	<Bar number="7" lroffset="-.88228" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="79.89787"/>
-	</Bar>
-	<Bar number="8" lroffset="-2.59296" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="56.96475"/>
-	</Bar>
-	<Bar number="9" lroffset="7.25000" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="58.08784"/>
-	</Bar>
-	<Bar number="10" lroffset="-.92101" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="57.42296"/>
-	</Bar>
-	<Bar number="11" lroffset="13.75000" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="61.85790"/>
-	</Bar>
-	<Bar number="12" lroffset="-1.74125" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="58.83503"/>
-	</Bar>
-	<Bar number="13" lroffset="-1.75000" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="58.66757"/>
-	</Bar>
-	<Bar number="14" lroffset="6.79195" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="53.79067"/>
-	</Bar>
-	<Bar number="15" lroffset="9.57674" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="53.99777"/>
-	</Bar>
-	<Bar number="16" lroffset="9.25000" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="54.99531"/>
-	</Bar>
-	<Bar number="17" lroffset="12.48910" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="56.37578"/>
-	</Bar>
-	<Bar number="18" lroffset="6.34934" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="55.07532"/>
-	</Bar>
-	<Bar number="19" lroffset="9.19612" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="54.54920"/>
-	</Bar>
-	<Bar number="20" lroffset="5.25000" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="55.21078"/>
-	</Bar>
-	<Bar number="21" lroffset="8.75000" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="55.54685"/>
-	</Bar>
-	<Bar number="22" lroffset="2.75000" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="54.18112"/>
-	</Bar>
-	<Bar number="23" lroffset="8.11322" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="55.43087"/>
-	</Bar>
-	<Bar number="24" lroffset="-3.71631" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="73.77314"/>
-	</Bar>
-	<Bar number="25" lroffset="8.80564" z0="100" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="80.81655"/>
-	</Bar>
-      </medium>	
-      <small>
-	<Bar number="0" lroffset="0" z0="47" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="0"/>
-	</Bar>
-	<Bar number="1" lroffset="10.83314" z0="47" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="76.21517"/>
-	</Bar>
-	<Bar number="2" lroffset="8.11081" z0="47" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="76.27532"/>
-	</Bar>
-	<Bar number="3" lroffset="5.77868" z0="47" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="75.53366"/>
-	</Bar>
-	<Bar number="4" lroffset="8.49847" z0="47" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="76.31878"/>
-	</Bar>
-	<Bar number="5" lroffset="6.95049" z0="47" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="77.00562"/>
-	</Bar>
-	<Bar number="6" lroffset=".66462" z0="47" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="76.81209"/>
-	</Bar>
-	<Bar number="7" lroffset="-5.97442" z0="47" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="75.55005"/>
-	</Bar>
-	<Bar number="8" lroffset="-.04143" z0="47" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="76.34406"/>
-	</Bar>
-	<Bar number="9" lroffset=".75000" z0="47" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="78.78713"/>
-	</Bar>
-	<Bar number="10" lroffset="-.12728" z0="47" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="77.21325"/>
-	</Bar>
-	<Bar number="11" lroffset="-1.21748" z0="47" xoffset="0" zoffset="0">
-          <TofOffset location="0" offset="77.02065"/>
-	</Bar>
-      </small>
     </Vandle>
     <Beta>
     </Beta>
