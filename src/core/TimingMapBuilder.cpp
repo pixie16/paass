@@ -3,6 +3,7 @@
  *  \author S. V. Paulauskas
  *  \date December 16, 2014
 */
+#include <iostream>
 #include <vector>
 
 #include "TimingMapBuilder.hpp"

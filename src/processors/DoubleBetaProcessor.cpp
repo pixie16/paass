@@ -54,6 +54,15 @@ bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
     BarBuilder builder(events);
     betas_ = builder.GetBarMap();
 
+    static const vector<ChanEvent*> betaForGe = 
+	event.GetSummary("beta:double:gamma")->GetList();
+
+    if(betaForGe.size() != 2) {
+	cout << "----------STARTING A NEW EVENT-----------" << endl;
+	cout << "Size of Betas for Ge: " << betaForGe.size() << endl;
+	cout << "----------ENDING THAT EVENT-----------" << endl;
+    }
+
     double resolution = 2;
     double offset = 1500;
 

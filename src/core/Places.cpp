@@ -102,7 +102,7 @@ void PlaceAND::check_(EventData& info) {
             if (!result)
                 break;
         }
-
+	
         if (result)
             this->activate(info);
         else
