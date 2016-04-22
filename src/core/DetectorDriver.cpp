@@ -533,7 +533,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
     double energy = 0.0;
 
     if (type == "ignore" || type == "")
-        return 0;
+        return(0);
 
     if ( !trace.empty() ) {
         plot(D_HAS_TRACE, id);
@@ -588,10 +588,10 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
         }
 
         if (trace.HasValue("phase") ) {
-            double phase = trace.GetValue("phase");
-            chan->SetHighResTime( phase * Globals::get()->adcClockInSeconds() +
-                                  chan->GetTrigTime() *
-                                  Globals::get()->filterClockInSeconds());
+            chan->SetHighResTime(trace.GetValue("phase") * 
+				 Globals::get()->adcClockInSeconds() +
+				 chan->GetTrigTime() *
+				 Globals::get()->filterClockInSeconds());
         }
 
     } else {
@@ -601,11 +601,18 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
 
         energy = chan->GetEnergy() + randoms->Get();
         energy /= Globals::get()->energyContraction();
+	chan->SetHighResTime(0.0);
     }
 
     /** Calibrate energy and apply the walk correction. */
-    double time = chan->GetTime();
-    double walk_correction = walk.GetCorrection(chanId, energy);
+    double time, walk_correction;
+    if(chan->GetHighResTime() == 0.0) {
+	time = chan->GetTime();
+	walk_correction = walk.GetCorrection(chanId, energy);
+    } else {
+	time = chan->GetHighResTime();
+	walk_correction = walk.GetCorrection(chanId, trace.GetValue("tqdc"));
+    }
 
     chan->SetCalEnergy(cali.GetCalEnergy(chanId, energy));
     chan->SetCorrectedTime(time - walk_correction);
@@ -624,7 +631,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
             summary->AddEvent(chan);
     }
 
-    return 1;
+    return(1);
 }
 
 int DetectorDriver::PlotRaw(const ChanEvent *chan) {
