@@ -24,7 +24,7 @@
 class Place {
 public:
     /** C'tor. By default the Place is resetable, and internal
-     * fifo remebers only current and previous event.
+     * fifo remembers only current and previous event.
      * \param [in] resetable : if the place resets automatically
      * \param [in] max_size : sets the maximum size of the fifo */
     Place(bool resetable = true, unsigned max_size = 2) {
@@ -216,8 +216,7 @@ protected:
      * or if should persist until status is changed explicitly (false).*/
     bool resetable_;
 
-    /** Vector keeping a list of children on which status of the
-     * Place depends.
+    /** Vector keeping a list of children on which status of the Place depends.
      * Place* is a pointer to the downstream place, bool describes relation
      * (true for coincidence-like, false for anti-coincidence).
      */

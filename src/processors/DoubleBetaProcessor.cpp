@@ -10,7 +10,7 @@
 #include "Globals.hpp"
 #include "RawEvent.hpp"
 #include "TimingMapBuilder.hpp"
-
+#include "TreeCorrelator.hpp"
 
 namespace dammIds {
     namespace doublebeta {
@@ -53,6 +53,14 @@ bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
 
     double resolution = 2;
     double offset = 1500;
+
+    for(map<unsigned int, pair<double,double> >::iterator it = lrtbars.begin();
+	it != lrtbars.end(); it++) {
+	stringstream place;
+	place << "DoubleBeta" << (*it).first;
+	EventData data((*it).second.first, (*it).second.second, (*it).first);
+	TreeCorrelator::get()->place(place.str())->activate(data);
+    }
     
     for(BarMap::const_iterator it = betas.begin(); it != betas.end(); it++) {
         unsigned int barNum = (*it).first.first;
