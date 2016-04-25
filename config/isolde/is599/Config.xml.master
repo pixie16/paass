@@ -46,9 +46,9 @@
   <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
     <Module number="0">
       <Channel number="0" type="beta" subtype="double"
-               tags="start,left,timing"></Channel>
+               tags="start,left"></Channel>
       <Channel number="1" type="beta" subtype="double"
-               tags="start,right,timing"></Channel>
+               tags="start,right"></Channel>
       <Channel number="4" type="beta" subtype="double" tags="left,gamma"></Channel>
       <Channel number="5" type="beta" subtype="double" tags="right,gamma"></Channel>
       <Channel number="8" type="logic" subtype="t1"></Channel>
@@ -212,13 +212,11 @@
     </Physical>
     <Trace>
       <WaveformRange>
-        <Low unit="sample" value="5"/>
-        <High unit="sample" value="10"/>
+	<Range name="default">
+          <Low unit="sample" value="5"/>
+          <High unit="sample" value="10"/>
+	</Range>
       </WaveformRange>
-      <SiPmtWaveformRange>
-        <Low unit="sample" value="5"/>
-        <High unit="sample" value="5"/>
-      </SiPmtWaveformRange>
       <DiscriminationStart unit="sample" value="3"/>
       <TrapezoidalWalk unit="ns" value="266"/>
       <TraceDelay unit="ns" value="344"/>
