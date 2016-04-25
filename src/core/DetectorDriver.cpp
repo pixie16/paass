@@ -588,10 +588,11 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
         }
 
         if (trace.HasValue("phase") ) {
-            chan->SetHighResTime(trace.GetValue("phase") * 
+	    //Saves the time in ns
+            chan->SetHighResTime((trace.GetValue("phase") * 
 				 Globals::get()->adcClockInSeconds() +
 				 chan->GetTrigTime() *
-				 Globals::get()->filterClockInSeconds());
+				  Globals::get()->filterClockInSeconds())*1.e9);
         }
 
     } else {
@@ -607,10 +608,10 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
     /** Calibrate energy and apply the walk correction. */
     double time, walk_correction;
     if(chan->GetHighResTime() == 0.0) {
-	time = chan->GetTime();
+	time = chan->GetTime(); //time is in clock ticks
 	walk_correction = walk.GetCorrection(chanId, energy);
     } else {
-	time = chan->GetHighResTime();
+	time = chan->GetHighResTime(); //time here is in ns
 	walk_correction = walk.GetCorrection(chanId, trace.GetValue("tqdc"));
     }
 

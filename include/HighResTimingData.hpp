@@ -9,7 +9,8 @@
 #include "ChanEvent.hpp"
 #include "Globals.hpp"
 
-//! Class for holding information for high resolution timing
+//! Class for holding information for high resolution timing. All times more 
+//! precise than the filter time will be in nanoseconds (phase, highResTime). 
 class HighResTimingData {
 public:
     /** Default constructor */
@@ -30,7 +31,7 @@ public:
         pow((z0/tof)/Globals::get()->speedOfLight(), 2)));
     }
 
-    ChanEvent* GetChan(void){return(chan_);}
+    const ChanEvent* GetChan(void) const {return(chan_);}
 
     /** \return The current value of isValidData_ */
     bool GetIsValidData() const { 
@@ -51,7 +52,7 @@ public:
     /** \return The current value of discrimination_ */
     double GetDiscrimination() const { return(chan_->GetTrace().GetValue("discrim")); }
     /** \return The current value of highResTime_ */
-    double GetHighResTime() const { return((chan_->GetHighResTime()*1.e9)); }
+    double GetHighResTime() const { return(chan_->GetHighResTime()); }
     /** \return The current value of maxpos_ */
     double GetMaximumPosition() const { return(chan_->GetTrace().GetValue("maxpos")); }
     /** \return The current value of maxval_ */
@@ -61,13 +62,14 @@ public:
 	return(chan_->GetTrace().GetValue("numAboveThresh"));
     }
     /** \return The current value of phase_ */
-    double GetPhase() const { return(chan_->GetTrace().GetValue("phase")*
-				     (Globals::get()->clockInSeconds()*1e9)); 
+    double GetPhase() const {
+	return(chan_->GetTrace().GetValue("phase")*
+	       (Globals::get()->clockInSeconds()*1e9));
     }
     /** \return The pixie Energy */
-    double GetPixieEnergy() const { return(chan_->GetEnergy()); }
+    double GetFilterEnergy() const { return(chan_->GetEnergy()); }
     /** \return The pixie Energy */
-    double GetPixieTime() const { return(chan_->GetTime()); }
+    double GetFilterTime() const { return(chan_->GetTime()); }
     /** \return The current value of snr_ */
     double GetSignalToNoiseRatio() const { 
 	return(20*log10(chan_->GetTrace().GetValue("maxval") /
@@ -77,14 +79,16 @@ public:
     double GetStdDevBaseline() const { 
 	return(chan_->GetTrace().GetValue("sigmaBaseline")); 
     }
+
     /** \return Get the trace associated with the channel */
-    Trace* GetTrace() const { return(&chan_->GetTrace()); }
+    const Trace* GetTrace() const { return(&chan_->GetTrace()); }
+
     /** \return The current value of tqdc_ */
     double GetTraceQdc() const { 
 	return(chan_->GetTrace().GetValue("tqdc")); 
     }
     /** \return Walk corrected time  */
-    double GetWalkCorrectedTime() const { 
+    double GetCorrectedTime() const { 
 	return(chan_->GetCorrectedTime()); 
     }
 private:
