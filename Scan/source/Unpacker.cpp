@@ -388,7 +388,7 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 			if(is_verbose){
 				struct tm * timeinfo;
 				timeinfo = localtime (&theTime);
-				std::cout << "ReadSpill: Read wall clock time of " << asctime(timeinfo);
+				//std::cout << "ReadSpill: Read wall clock time of " << asctime(timeinfo);
 			}
 			nWords_read += lenRec;
 			continue;
