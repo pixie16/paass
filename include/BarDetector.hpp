@@ -6,6 +6,8 @@
 #ifndef __BARDETECTOR_HPP__
 #define __BARDETECTOR_HPP__
 
+#include <iostream>
+#include <limits>
 #include <map>
 
 #include "HighResTimingData.hpp"
@@ -24,54 +26,87 @@ public:
     * \param [in] Left : The left side of the bar
     * \param [in] cal : The timing calibration for the bar
     * \param [in] type : The type of bar that we have */
-    BarDetector(const HighResTimingData &Left, const HighResTimingData &Right,
-                const TimingCalibration &cal, const std::string &type);
+    BarDetector(HighResTimingData Left, HighResTimingData Right,
+		TimingDefs::TimingIdentifier &key) {
+	left_ = Left;
+	right_ = Right;
+	key_ = key;
+    }
 
-    /** \return the hasEvent_ var */
-    bool GetHasEvent() const {return(hasEvent_);};
-    /** \return the  var */
-    double GetFlightPath() const {return(flightPath_);};
-    /** \return the qdc_ var */
-    double GetQdc() const {return(qdc_);};
-    /** \return the qdcPos_ var */
-    double GetQdcPosition() const {return(qdcPos_);};
-    /** \return the theta_ var */
-    double GetTheta() const {return(theta_);};
-    /** \return the timeAve_ var */
-    double GetTimeAverage() const {return(timeAve_);};
+    /** \return the true if there was an event in the bar */
+    bool GetHasEvent() const {
+	if(GetType() == "small") {
+	    double lengthSmallTime = Globals::get()->smallLengthTime();
+	    return(fabs(GetTimeDifference()) < lengthSmallTime+20);
+	} else if(GetType() == "big") {
+	    double lengthBigTime = Globals::get()->bigLengthTime();
+	    return(fabs(GetTimeDifference()) < lengthBigTime+20);
+	} else if (GetType() == "medium") {
+	    double lengthMediumTime = Globals::get()->mediumLengthTime();
+	    return(fabs(GetTimeDifference()) < lengthMediumTime+20);
+	}
+	return(false);
+    }
+    /** \return the flight path of the particle to the detector */
+    double GetFlightPath() const {
+	if(GetType() == "small")
+	    return(sqrt(GetCalibration().GetZ0()*GetCalibration().GetZ0()+
+			pow(Globals::get()->speedOfLightSmall()*0.5*GetTimeDifference()+
+			    GetCalibration().GetXOffset(),2)));
+	else if(GetType() == "big")
+	    return(sqrt(GetCalibration().GetZ0()*GetCalibration().GetZ0() +
+			pow(Globals::get()->speedOfLightBig()*0.5*GetTimeDifference()+
+			    GetCalibration().GetXOffset(),2)));
+	else if(GetType() == "medium")
+	    return(sqrt(GetCalibration().GetZ0()*GetCalibration().GetZ0() +
+			pow(Globals::get()->speedOfLightMedium()*0.5*GetTimeDifference()+
+			    GetCalibration().GetXOffset(),2)));
+	return(std::numeric_limits<double>::quiet_NaN());
+    }
+    /** \return the position independent qdc for the bar */
+    double GetQdc() const {
+	return(sqrt(right_.GetTraceQdc()*left_.GetTraceQdc()));
+    }
+    /** \return the Position derived from the QDC */
+    double GetQdcPosition() const {
+	return( (left_.GetTraceQdc()-right_.GetTraceQdc()) / 
+		(left_.GetTraceQdc() + right_.GetTraceQdc()) );
+    }
+    /** \return the angle of the particle w.r.t. the source */
+    double GetTheta() const {return(acos(GetCalibration().GetZ0()/GetFlightPath()));}
+    /** \return The average arrival time of the left and right ends */
+    double GetTimeAverage() const {
+	return((right_.GetHighResTime() + left_.GetHighResTime())*0.5);
+    }
     /** \return the timeDiff_ var */
-    double GetTimeDifference() const {return(timeDiff_);};
-    /** \return the walkCorTimeAve_ var */
-    double GetWalkCorTimeAve() const {return(walkCorTimeAve_);};
-    /** \return the walkCorTimeDiff_ var */
-    double GetWalkCorTimeDiff() const {return(walkCorTimeDiff_);};
+    double GetTimeDifference() const {
+	return((left_.GetHighResTime()-right_.GetHighResTime()) +
+                  GetCalibration().GetLeftRightTimeOffset());}
+    /** \return The walk corrected time average */
+    double GetCorTimeAve() const {
+	return(left_.GetCorrectedTime() +
+	       right_.GetCorrectedTime()*0.5);
+    }
+    /** \return the The walk corrected time difference */
+    double GetCorTimeDiff() const {
+	return(left_.GetCorrectedTime() -
+	       right_.GetCorrectedTime() +
+	       GetCalibration().GetLeftRightTimeOffset());
+    }
     /** \return the left_ var */
-    HighResTimingData GetLeftSide() const {return(left_);};
+    const HighResTimingData& GetLeftSide() const {return(left_);}
     /** \return the right_ var */
-    HighResTimingData GetRightSide() const {return(right_);};
+    const HighResTimingData& GetRightSide() const {return(right_);}
     /** \return the type of bar detector */
-    std::string GetType() const {return(type_);};
-    /** \return The cal_ var */
-    TimingCalibration GetCalibration() const {return(cal_);};
+    std::string GetType() const {return(key_.second);}
+    /** \return the time calibration var */
+    const TimingCalibration GetCalibration() const {
+	return(TimingCalibrator::get()->GetCalibration(key_));
+    }
 private:
-    bool hasEvent_; //!< true if there was an event in the bar
-    double flightPath_; //!< flight path of the particle to the detector
-    double qdc_;//!< QDC for the bar
-    double qdcPos_;//!< Position derived from the QDC
-    double theta_;//!< the angle of the particle w.r.t. the source
-    double timeAve_;//!< The average arrival time of the left and right ends
-    double timeDiff_;//!< The time difference between the two ends
-    double walkCorTimeDiff_;//!< The walk corrected time difference
-    double walkCorTimeAve_;//!< The walk corrected time average
-    std::string type_; //!< The type of bar detector it is
     HighResTimingData right_; //!< The Right side of the detector
     HighResTimingData left_; //!< The Left side of the detector
-    TimingCalibration cal_; //!< The Timing Calibration of the bar
-
-    /** \brief Checks to see if the event could physically be inside the bar*/
-    void BarEventCheck(void);
-    /** \brief Calculates the flight path of the particle */
-    void CalcFlightPath(void);
+    TimingDefs::TimingIdentifier key_;
 };
 
 /** Defines a map to hold Bar Detectors */
