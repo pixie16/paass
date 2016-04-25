@@ -35,8 +35,9 @@ void CfdAnalyzer::Analyze(Trace &trace, const std::string &detType,
     }
     double aveBaseline = trace.GetValue("baseline");
     unsigned int maxPos = (unsigned int)trace.GetValue("maxpos");
-    unsigned int waveformLow  = (unsigned int)globals->waveformRange().first;
-    unsigned int waveformHigh = (unsigned int)globals->waveformRange().second;
+    pair<unsigned int, unsigned int> range = globals->waveformRange("default");
+    unsigned int waveformLow  = range.first;
+    unsigned int waveformHigh = range.second;
     unsigned int delay = 2;
     double fraction = 0.25;
     vector<double> cfd;

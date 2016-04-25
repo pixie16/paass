@@ -6,6 +6,7 @@
 #define __GLOBALS_HPP_
 
 #include <algorithm>
+#include <map>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -17,10 +18,9 @@
 
 #include "pugixml.hpp"
 
-#include "pixie16app_defs.h"
-
 #include "Exceptions.hpp"
 #include "Messenger.hpp"
+#include "pixie16app_defs.h"
 
 /** \brief Pixie module related things that should not change between revisions
  *
@@ -201,11 +201,11 @@ public:
     /** \return the event width */
     int eventWidth() const { return eventWidth_; }
     /** \return the waveform range for standard PMT signals */
-    std::pair<unsigned int, unsigned int> waveformRange() const {return(waveformRange_);}
-    /** \return the waveform range for a fast SiPMT signal */
-    std::pair<unsigned int, unsigned int> siPmtWaveformRange() const {return(siPmtWaveformRange_);}
-    /** \return the waveform range for a LaBr3 signal */
-    std::pair<unsigned int, unsigned int> labr3WaveformRange() const {return(labr3WaveformRange_);}
+    std::pair<unsigned int, unsigned int> waveformRange(const std::string &str) const {
+	if(waveformRanges_.find(str) != waveformRanges_.end())
+	    return(waveformRanges_.find(str)->second);
+	return(std::make_pair(5,10));
+    }
     /** \return the small VANDLE fitting parameters */
     std::pair<double,double> smallVandlePars() {return(smallVandlePars_);}
     /** \return the medium VANDLE fitting parameters */
@@ -282,9 +282,8 @@ private:
     double traceLength_;//!< the trace length in ns
     double trapezoidalWalk_;//!< the approximate walk in ns of the trap filter
     int eventWidth_; //!< the size of the events
-    std::pair<unsigned int, unsigned int> waveformRange_; //!< Range for the waveform
-    std::pair<unsigned int, unsigned int> siPmtWaveformRange_; //!< Range for the waveform of a Fast SiPmt
-    std::pair<unsigned int, unsigned int> labr3WaveformRange_; //!< Range for the waveform of a LaBr3
+    std::map<std::string, std::pair<unsigned int, unsigned int> > waveformRanges_; //!< Map containing ranges for the waveforms
+    std::map<std::string, std::pair<double,double> > fittingPars_; //!< Map containing all of the parameters to be used in the fitting analyzer
     std::pair<double,double> smallVandlePars_;//!< small VANDLE parameters for fitting
     std::pair<double,double> mediumVandlePars_;//!< medium VANDLE parameters for fitting
     std::pair<double,double> bigVandlePars_;//!< big VANDLE parameters for fitting
