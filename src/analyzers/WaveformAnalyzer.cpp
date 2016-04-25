@@ -43,11 +43,13 @@ void WaveformAnalyzer::Analyze(Trace &trace,
 
     Globals *globals = Globals::get();
 
-    pair<unsigned int, unsigned int> range = globals->waveformRange();
-    if(detType == "beta" && detSubtype == "double")
-        range = globals->siPmtWaveformRange();
-    if(detType == "labr3")
-        range = globals->labr3WaveformRange();
+    pair<unsigned int, unsigned int> range = globals->waveformRange("default");
+    
+    if(tagMap.find("range0") != tagMap.end())
+	range = globals->waveformRange("range0");
+    if(tagMap.find("range1") != tagMap.end())
+	range = globals->waveformRange("range0");
+
     unsigned int startDiscrimination = globals->discriminationStart();
     unsigned int maxPos = trace.FindMaxInfo(range.first, range.second);
 

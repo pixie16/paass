@@ -89,12 +89,11 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
                               const std::map<std::string, int> & tagMap) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype, tagMap);
 
-    if(trace.HasValue("saturation") || trace.empty()) {
+    if(trace.HasValue("saturation") || trace.empty() || 
+       trace.GetWaveform().size() == 0) {
      	EndAnalyze();
      	return;
     }
-
-    bool isDoubleBeta = detType == "beta" && detSubtype == "double";
 
     Globals *globals = Globals::get();
 
@@ -103,20 +102,17 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     const double qdc = trace.GetValue("tqdc");
     const unsigned int maxPos = (unsigned int)trace.GetValue("maxpos");
     const vector<double> waveform = trace.GetWaveform();
-
-    if(waveform.size() == 0) {
-        EndAnalyze();
-        return;
-    }
+    bool isDblBeta = detType == "beta" && detSubtype == "double";
+    bool isDblBetaT = isDblBeta && tagMap.find("timing") != tagMap.end();
 
     trace.plot(D_SIGMA, sigmaBaseline*100);
 
-    if(sigmaBaseline > globals->sigmaBaselineThresh() && detSubtype != "double") {
+    if(sigmaBaseline > globals->sigmaBaselineThresh() && !isDblBetaT) {
         EndAnalyze();
         return;
     }
 
-    if(sigmaBaseline > globals->siPmtSigmaBaselineThresh() && isDoubleBeta) {
+    if(sigmaBaseline > globals->siPmtSigmaBaselineThresh() && isDblBetaT) {
         EndAnalyze();
         return;
     }
@@ -172,7 +168,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     f.n = sizeFit;
     f.params = &data;
 
-    if(!isDoubleBeta) {
+    if(!isDblBetaT) {
         numParams = 2;
         covar = gsl_matrix_alloc (numParams, numParams);
         xInit[0] = 0.0; xInit[1]=2.5;
@@ -187,7 +183,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     } else {
         numParams = 1;
         covar = gsl_matrix_alloc (numParams, numParams);
-        xInit[0] = (double)globals->siPmtWaveformRange().first;
+        xInit[0] = (double)waveform.size()*0.5;
         x = gsl_vector_view_array (xInit, numParams);
 
         f.f = &SiPmtFunction;
@@ -211,7 +207,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
 
     gsl_multifit_covar (s->J, 0.0, covar);
 
-    if(!isDoubleBeta) {
+    if(!isDblBetaT) {
         phase = gsl_vector_get(s->x,0);
         fitAmp = gsl_vector_get(s->x,1);
     } else {
