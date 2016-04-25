@@ -15,9 +15,9 @@ public:
      * Energy is 0 (i.e. N/A), location -1 (N/A),
      * and event type is an empty string.
      * \param [in] ptime : the time to set
+     * \param [in] pstatus : the status to set
      * \param [in] penergy : the energy to set
      * \param [in] plocation : the location to set
-     * \param [in] pstatus : the status to set
      * \param [in] ptype : the type to set */
     EventData(double ptime, bool pstatus = true, double penergy = 0,
               int plocation = -1, std::string ptype = "") {

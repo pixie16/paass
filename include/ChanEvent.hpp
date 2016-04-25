@@ -29,18 +29,23 @@ public:
      * ourselves
      * \param [in] a : the energy to set */
     void SetEnergy(double a) {energy = a;}
+
     /** Set the calibrated energy
      * \param [in] a : the calibrated energy */
     void SetCalEnergy(double a) {calEnergy = a;}
+
     /** Set the time
      * \param [in] a : the time to set */
     void SetTime(double a) {time = a;}
+
     /** Set the Walk corrected time
      * \param [in] a : the walk corrected time */
     void SetCorrectedTime(double a) { correctedTime = a;}
+
     /** Set the Calibrated time
      * \param [in] a : the calibrated time */
     void SetCalTime(double a) {calTime = a;}
+
     /** Set the high resolution time (Filter time + phase )
      * \param [in] a : the high resolution time */
     void SetHighResTime(double a) {highResTime =a;}
@@ -52,25 +57,25 @@ public:
 	return(cfdForceTrig);
     }
 
-    double GetEnergy() const      {
+    double GetEnergy() const {
         return energy;   /**< \return the raw energy */
     }
-    double GetCalEnergy() const   {
+    double GetCalEnergy() const {
         return calEnergy;   /**< \return the calibrated energy */
     }
     double GetCorrectedTime() const {
         return correctedTime;   /**< \return the corrected time */
     }
-    double GetTime() const        {
-        return time;   /**< \return the raw time */
+    double GetTime() const {
+        return time;   /**< \return the raw time in clock ticks*/
     }
-    double GetCalTime() const     {
+    double GetCalTime() const {
         return calTime;   /**< \return the calibrated time */
     }
     double GetHighResTime() const {
-        return highResTime;   /**< \return the high-resolution time */
+        return highResTime;   /**< \return the high-resolution time in ns*/
     }
-    double GetEventTime() const   {
+    double GetEventTime() const {
         return eventTime;   /**< \return the event time */
     }
     const Trace& GetTrace() const {
@@ -113,7 +118,6 @@ public:
     unsigned long GetQdcValue(int i) const;
 
     /** Channel event zeroing
-     *
      * All numerical values are set to -1, and the trace,
      * and traceinfo vectors are cleared and the channel
      * identifier is zeroed using its identifier::zeroid method. */
@@ -125,11 +129,11 @@ private:
                   function in the detector_driver.cpp */
     double calTime;            /**< Calibrated time, currently unused */
     double correctedTime;      /**< Energy-walk corrected time */
-    double highResTime;        /**< timing resolution less than 1 adc size */
+    double highResTime;        /**< timing resolution less than 1 adc sample */
     Trace trace;               /**< Channel trace if present */
-    pixie::word_t trigTime;    /**< The channel trigger time, trigger time and the lower 32 bits
-                  of the event time are not necessarily the same but could be
-                  separated by a constant value.*/
+    pixie::word_t trigTime;    /**< The channel trigger time, trigger time and the lower 
+				  32 bits of the event time are not necessarily the 
+				  same but could be separated by a constant value.*/
     pixie::word_t cfdTime;     /**< CFD trigger time in units of 1/256 pixie clock ticks */
     pixie::word_t eventTimeLo; /**< Lower 32 bits of pixie16 event time */
     pixie::word_t eventTimeHi; /**< Upper 32 bits of pixie16 event time */
