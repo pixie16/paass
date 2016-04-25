@@ -10,8 +10,8 @@
     This is the base configuration file for the IS599 and IS600 experiments for 
     data taken in July/August. This file will NOT BE altered. It contains all 
     of the appropriate setup for the processors, TreeCorrelator and fitting 
-    algorithms. In addition, it contains the Care should be taken to ensure that 
-    the appropriate calibrations are input when necessary. 
+    algorithms. Care should be taken to ensure that the appropriate calibrations 
+    are input when necessary. 
   </Description>
   
   <Global>
@@ -49,8 +49,8 @@
                tags="start,left,timing"></Channel>
       <Channel number="1" type="beta" subtype="double"
                tags="start,right,timing"></Channel>
-      <Channel number="4" type="beta" subtype="double" tags="left,gamma"></Channel>
-      <Channel number="5" type="beta" subtype="double" tags="right,gamma"></Channel>
+      <Channel number="4" type="beta" subtype="double" tags="left"></Channel>
+      <Channel number="5" type="beta" subtype="double" tags="right"></Channel>
       <Channel number="8" type="logic" subtype="t1"></Channel>
       <Channel number="9" type="logic" subtype="mtc_start" ></Channel>
       <Channel number="10" type="logic" subtype="mtc_stop" ></Channel>
@@ -168,7 +168,7 @@
   </Map>
   
   <TreeCorrelator name="root" verbose="False">
-    <Place type="PlaceOR" name="Beta" fifo="5">
+    <Place type="PlaceOR" name="Beta" fifo="4">
       <Place type="PlaceThreshold" name="DoubleBeta1"
 	     low_limit="50.0" high_limit="16382" replace="false"/>
     </Place>
