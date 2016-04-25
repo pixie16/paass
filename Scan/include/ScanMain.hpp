@@ -16,8 +16,8 @@
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.08"
-#define SCAN_DATE "April 20th, 2016"
+#define SCAN_VERSION "1.2.09"
+#define SCAN_DATE "April 25th, 2016"
 
 class Server;
 class Terminal;

@@ -154,7 +154,7 @@ ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
 	
 	total_stopped = false;
 	write_counts = false;
-	is_running = true;
+	is_running = false;
 	is_verbose = true;
 	debug_mode = false;
 	dry_run_mode = false;
@@ -184,7 +184,7 @@ ScanMain::~ScanMain(){
 void ScanMain::RunControl(){
 	// Notify that we are starting run control.
 	run_ctrl_exit = false;
-	total_stopped = false;
+	start_scan();
 
 	// Set debug mode, if enabled.
 	if(debug_mode){
@@ -311,12 +311,24 @@ void ScanMain::RunControl(){
 		
 			if(!dry_run_mode){ data = new unsigned int[250000]; }
 		
-			while(databuff.Read(&input_file, (char*)data, nBytes, 1000000, full_spill, bad_spill, dry_run_mode)){ 
+			while(true){ 
 				if(kill_all == true){ 
 					break;
 				}
 				else if(!is_running){
 					sleep(1);
+					continue;
+				}
+
+				if(!databuff.Read(&input_file, (char*)data, nBytes, 1000000, full_spill, bad_spill, dry_run_mode)){
+					if(databuff.GetRetval() == 2){
+						if(debug_mode){ std::cout << "debug: Encountered double EOF buffer.\n"; }
+						break;
+					}
+					else if(databuff.GetRetval() == 6){
+						if(debug_mode){ std::cout << "debug: Failed to read from input file.\n"; }
+						break;
+					}
 					continue;
 				}
 
@@ -344,13 +356,6 @@ void ScanMain::RunControl(){
 				num_spills_recvd++;
 			}
 
-			if(eofbuff.Read(&input_file) && eofbuff.Read(&input_file)){
-				std::cout << sys_message_head << "Encountered double EOF buffer.\n";
-			}
-			else{
-				std::cout << sys_message_head << "Failed to find end of file buffer!\n";
-			}
-		
 			if(!dry_run_mode){ delete[] data; }
 		
 			if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file."); }
@@ -799,17 +804,17 @@ int ScanMain::Execute(){
 	}
 
 	// Seek to the beginning of the file.
-	Rewind();
+	if(file_start_offset != 0){ Rewind(); }
 
 	// Process the file.
 	if(!batch_mode){
 		// Start the run control thread
-		std::cout << "\nStarting data control thread\n";
+		std::cout << "\n Starting data control thread\n";
 		std::thread runctrl(start_run_control, this);
 
 		// Start the command control thread. This needs to be the last thing we do to
 		// initialize, so the user cannot enter commands before setup is complete
-		std::cout << "Starting command thread\n\n";
+		std::cout << " Starting command thread\n\n";
 		std::thread comctrl(start_cmd_control, this);
 
 		// Synchronize the threads and wait for completion

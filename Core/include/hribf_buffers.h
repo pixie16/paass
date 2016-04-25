@@ -25,8 +25,8 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.2.04"
-#define HRIBF_BUFFERS_DATE "Sept. 29th, 2015"
+#define HRIBF_BUFFERS_VERSION "1.2.05"
+#define HRIBF_BUFFERS_DATE "April 25th, 2016"
 
 class Client;
 
@@ -205,8 +205,24 @@ class DATA_buffer : public BufferType{
 	int buff_words_remaining; /// Absolute number of buffer words remaining
 	int good_words_remaining; /// Good buffer words remaining (not counting header or footer words)
 
+	int retval;
+
+	unsigned int buffer1[8194];
+	unsigned int buffer2[8194];
+
+	unsigned int *curr_buffer;
+	unsigned int *next_buffer;
+	
+	unsigned int bcount;
+	unsigned int buff_head;
+	unsigned int buff_size;
+
+	size_t buff_pos;
+
 	/// DATA buffer (1 word buffer type, 1 word buffer size)
 	bool open_(std::ofstream *file_);
+
+	bool read_next_buffer(std::ifstream *f_, bool force_=false);
 	
   public:
 	DATA_buffer(); /// 0x41544144 "DATA"
@@ -218,12 +234,14 @@ class DATA_buffer : public BufferType{
 	  * and should be the same for each and every spill in the file. Returns the spill size in words 
 	  * or -1 in the event of an error. This method should be called whenever a new file is opened. */
 	int GetSpillSize(std::ifstream *file_);
+
+	int GetRetval(){ return retval; }
 	
 	/// Write a data spill to file
 	bool Write(std::ofstream *file_, char *data_, int nWords_, int &buffs_written);
 	
 	/// Read a data spill from a file
-	bool Read(std::ifstream *file_, char *data_, unsigned int &nWords_, unsigned int max_bytes_, bool &full_spill, bool &bad_spill, bool dry_run_mode=false);
+	bool Read(std::ifstream *file_, char *data_, unsigned int &nBytes_, unsigned int max_bytes_, bool &full_spill, bool &bad_spill, bool dry_run_mode=false);
 };
 
 /// A single EOF buffer signals the end of a run (pacman .ldf format). A double EOF signals the end of the .ldf file.
