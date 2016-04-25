@@ -159,16 +159,11 @@ Globals::Globals() {
                 WarnOfUnknownParameter(m, it);
         }
 
+	
+
+
         for(pugi::xml_node_iterator it = timing.child("Trace").begin();
             it != timing.child("Trace").end(); ++it) {
-
-	    for(pugi::xml_node_iterator waveit = it->child("WaveformRange");
-		waveit != it->child("WaveformRange").end(); ++waveit) {
-		waveformRanges_.insert(std::make_pair(it->attribute("name").as_string(),
-						      std::make_pair(it->child("Low").attribute("value").as_int(5),
-							   it->child("High").attribute("value").as_int(10))));
-	    }
-	    
 	    if(std::string(it->name()).compare("DiscriminationStart") == 0)
 		discriminationStart_ = it->attribute("value").as_double();
 	    else if(std::string(it->name()).compare("TrapezoidalWalk") == 0)
@@ -179,62 +174,32 @@ Globals::Globals() {
 		traceLength_ = it->attribute("value").as_double();
 	    else if(std::string(it->name()).compare("QdcCompression") == 0)
 		qdcCompression_ = it->attribute("value").as_double();
-	    else
+	    else if(std::string(it->name()).compare("WaveformRange") == 0) {
+		for(pugi::xml_node_iterator waveit = it->begin(); 
+		    waveit != it->end(); ++waveit) {
+		    waveformRanges_.insert(std::make_pair(waveit->attribute("name").as_string(),
+							  std::make_pair(waveit->child("Low").attribute("value").as_int(5),
+									 waveit->child("High").attribute("value").as_int(10))));
+		} 
+	    } else
 		WarnOfUnknownParameter(m, it);
 	}
 	
-        for(pugi::xml_node_iterator it = timing.child("Fitting").begin();
+	for(pugi::xml_node_iterator it = timing.child("Fitting").begin();
             it != timing.child("Fitting").end(); ++it) {
+	    
             if(std::string(it->name()).compare("SigmaBaselineThresh") == 0)
                 sigmaBaselineThresh_ = it->attribute("value").as_double();
             else if(std::string(it->name()).compare("SiPmtSigmaBaselineThresh") == 0)
                 siPmtSigmaBaselineThresh_ = it->attribute("value").as_double();
-            else if (std::string(it->name()).compare("Vandle") == 0) {
-                smallVandlePars_.first =
-                    it->child("Small").child("Beta").attribute("value").as_double();
-                smallVandlePars_.second =
-                    it->child("Small").child("Gamma").attribute("value").as_double();
-                mediumVandlePars_.first =
-                    it->child("Medium").child("Beta").attribute("value").as_double();
-                mediumVandlePars_.second =
-                    it->child("Medium").child("Gamma").attribute("value").as_double();
-                bigVandlePars_.first =
-                    it->child("Big").child("Beta").attribute("value").as_double();
-                bigVandlePars_.second =
-                    it->child("Big").child("Gamma").attribute("value").as_double();
-                tvandlePars_.first =
-                    it->child("TeenyVandle").child("Beta").attribute("value").as_double();
-                tvandlePars_.second =
-                    it->child("TeenyVandle").child("Gamma").attribute("value").as_double();
-            }else if (std::string(it->name()).compare("SingleBeta") == 0) {
-                singleBetaPars_.first =
-                    it->child("Beta").attribute("value").as_double();
-                singleBetaPars_.second =
-                    it->child("Gamma").attribute("value").as_double();
-            }else if(std::string(it->name()).compare("DoubleBeta") == 0) {
-                doubleBetaPars_.first = 0.0;
-                doubleBetaPars_.second =
-                    it->child("Gamma").attribute("value").as_double();
-            }else if (std::string(it->name()).compare("Pulser") == 0) {
-                pulserPars_.first =
-                    it->child("Beta").attribute("value").as_double();
-                pulserPars_.second =
-                    it->child("Gamma").attribute("value").as_double();
-            }else if (std::string(it->name()).compare("Liquid") == 0) {
-                liquidScintPars_.first =
-                    it->child("Beta").attribute("value").as_double();
-                liquidScintPars_.second =
-                    it->child("Gamma").attribute("value").as_double();
-            }else if (std::string(it->name()).compare("LaBr3") == 0) {
-                labr3_r6231_100Pars_.first =
-                    it->child("r6231_100").child("Beta").attribute("value").as_double(0);
-                labr3_r6231_100Pars_.second =
-                    it->child("r6231_100").child("Gamma").attribute("value").as_double(0);
-                labr3_r7724_100Pars_.first =
-                    it->child("r7724_100").child("Beta").attribute("value").as_double(0);
-                labr3_r7724_100Pars_.second =
-                    it->child("r7724_100").child("Gamma").attribute("value").as_double(0);
-            }else
+	    else if(std::string(it->name()).compare("Parameters") == 0) {
+		for(pugi::xml_node_iterator parit = it->begin();
+		    parit != it->end(); ++parit) {
+		    fitPars_.insert(std::make_pair(parit->attribute("name").as_string(),
+						   std::make_pair(parit->child("Beta").attribute("value").as_double(0.),
+								  parit->child("Gamma").attribute("value").as_double(0.))));
+		}
+	    } else
                 WarnOfUnknownParameter(m, it);
         }
 

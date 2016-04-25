@@ -45,10 +45,8 @@
   
   <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
     <Module number="0">
-      <Channel number="0" type="beta" subtype="double"
-               tags="start,left"></Channel>
-      <Channel number="1" type="beta" subtype="double"
-               tags="start,right"></Channel>
+      <Channel number="0" type="beta" subtype="double" tags="start,left"></Channel>
+      <Channel number="1" type="beta" subtype="double" tags="start,right"></Channel>
       <Channel number="4" type="beta" subtype="double" tags="left,gamma"></Channel>
       <Channel number="5" type="beta" subtype="double" tags="right,gamma"></Channel>
       <Channel number="8" type="logic" subtype="t1"></Channel>
@@ -210,13 +208,8 @@
       <SpeedOfLightMedium unit="cm/ns" value="13.4414"/>
       <MediumLength unit="cm" value="120.0"/>
     </Physical>
+
     <Trace>
-      <WaveformRange>
-	<Range name="default">
-          <Low unit="sample" value="5"/>
-          <High unit="sample" value="10"/>
-	</Range>
-      </WaveformRange>
       <DiscriminationStart unit="sample" value="3"/>
       <TrapezoidalWalk unit="ns" value="266"/>
       <TraceDelay unit="ns" value="344"/>
@@ -227,40 +220,20 @@
     <Fitting>
       <SigmaBaselineThresh value="3.0"/>
       <SiPmtSigmaBaselineThresh value = "25.0"/>
-      <Vandle>
-        <Small>
-          <Beta value="0.32969"/>
+      <Parameters>
+	<Pars name="vandle:small">
+	  <Beta value="0.32969"/>
           <Gamma value="0.212945"/>
-        </Small>
-        <Medium>
-          <Beta value="0.254373"/>
+	</Pars>
+	<Pars name="vandle:medium">
+	  <Beta value="0.254373"/>
           <Gamma value="0.208072"/>
-        </Medium>
-        <Big>
-          <Beta value="0.32969"/>
-          <Gamma value="0.212945"/>
-        </Big>
-        <TeenyVandle>
-          <Beta value="0.362307"/>
-          <Gamma value="0.186129"/>
-        </TeenyVandle>
-      </Vandle>
-      <SingleBeta>
-        <Beta value="0.574531"/>
-        <Gamma value="0.274512"/>
-      </SingleBeta>
-      <DoubleBeta>
-	<Beta value="0.491724"/>
-        <Gamma value="0.335260"/>
-      </DoubleBeta>
-      <Pulser>
-        <Beta value="0.832272"/>
-        <Gamma value="0.236525"/>
-      </Pulser>
-      <Liquid>
-        <Beta value="4.52672"/>
-        <Gamma value="1.73376"/>
-      </Liquid>
+	</Pars>
+	<Pars name="beta:double">
+	  <Beta value="0.491724"/>
+          <Gamma value="0.335260"/>
+	</Pars>
+      </Parameters>
     </Fitting>
   </Timing>
   

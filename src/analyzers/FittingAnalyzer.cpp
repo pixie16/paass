@@ -107,42 +107,21 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
 
     trace.plot(D_SIGMA, sigmaBaseline*100);
 
-    if(sigmaBaseline > globals->sigmaBaselineThresh() && !isDblBetaT) {
-        EndAnalyze();
-        return;
+    if(!isDblBetaT) {
+	if(sigmaBaseline > globals->sigmaBaselineThresh()) {
+	    EndAnalyze();
+	    return;
+	}
+    } else {
+	if(sigmaBaseline > globals->siPmtSigmaBaselineThresh()) {
+	    EndAnalyze();
+	    return;
+	}
     }
-
-    if(sigmaBaseline > globals->siPmtSigmaBaselineThresh() && isDblBetaT) {
-        EndAnalyze();
-        return;
-    }
-
-    pair<double,double> pars;
-    if (detType == "vandle") {
-        if(detSubtype == "small")
-            pars = globals->smallVandlePars();
-        else if(detSubtype == "medium")
-            pars = globals->mediumVandlePars();
-        else if(detSubtype == "big")
-            pars = globals->bigVandlePars();
-        else
-            pars = globals->smallVandlePars();
-    } else if (detType == "beta" || detType == "beta_scint") {
-        if(detSubtype == "single" || detSubtype == "beta")
-            pars = globals->singleBetaPars();
-        else
-            pars = globals->doubleBetaPars();
-    } else if(detType == "tvandle")
-        pars = globals->tvandlePars();
-    else if (detType =="labr3") {
-      if(detSubtype == "r6231_100")
-        pars = globals->labr3_r6231_100Pars();
-      if(detSubtype == "r7724_100")
-        pars = globals->labr3_r7724_100Pars();
-    } else if(detType == "pulser")
-        pars = globals->pulserPars();
-    else
-        pars = globals->smallVandlePars();
+	
+    pair<double,double> pars =  globals->fitPars(detType+":"+detSubtype);
+    if(isDblBetaT)
+	pars = globals->fitPars(detType+":"+detSubtype+":timing");
 
     const gsl_multifit_fdfsolver_type *T = gsl_multifit_fdfsolver_lmsder;
     gsl_multifit_fdfsolver *s;
