@@ -725,7 +725,7 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 			// Check if this is a spill fragment.
 			if(first_chunk){ // Check for starting read in middle of spill.
 				if(current_chunk_num != 0){
-					if(debug_mode){ std::cout << "debug: starting read in middle of spill (chunk " << current_chunk_num << " of " << total_num_chunks << ")\n"; }
+					if(debug_mode){ std::cout << "debug: starting read in middle of spill (chunk " << current_chunk_num << " of " << total_num_chunks << ")\n"; }			
 					full_spill = false;
 				}
 				else{ full_spill = true; }
@@ -746,6 +746,12 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 					else{ std::cout << "debug: missing multiple spill chunks (" << prev_chunk_num+1 << " to " << current_chunk_num-1 << ")\n"; }
 				}
 				full_spill = false;
+				
+				// We are likely out of position in the spill. Scrap this current buffer and skip to the next one.
+				read_next_buffer(file_, true);
+				
+				retval = 4;
+				return false;
 			}
 
 			// Construct the spill.	
@@ -794,6 +800,10 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 			}
 			else{
 				if(debug_mode){ std::cout << "debug: encountered EOF buffer marking end of run\n"; }
+				
+				// We need to skip this buffer.
+				read_next_buffer(file_, true);
+				
 				retval = 1;
 			}
 			return false;

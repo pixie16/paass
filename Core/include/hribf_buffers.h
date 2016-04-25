@@ -25,7 +25,7 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.2.05"
+#define HRIBF_BUFFERS_VERSION "1.2.06"
 #define HRIBF_BUFFERS_DATE "April 25th, 2016"
 
 class Client;
