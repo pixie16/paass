@@ -459,11 +459,66 @@ bool DATA_buffer::open_(std::ofstream *file_){
 	return true;
 }
 
+/// 
+bool DATA_buffer::read_next_buffer(std::ifstream *f_, bool force_/*=false*/){
+	if(!f_ || !f_->good() || f_->eof()){ return false; }
+
+	if(bcount == 0){
+		f_->read((char *)buffer1, ACTUAL_BUFF_SIZE*4);
+	}
+	else if(buff_pos + 3 <= ACTUAL_BUFF_SIZE-1 && !force_){
+		// Don't need to scan a new buffer yet. There are still
+		// words remaining in the one currently in memory.
+			
+		// Skip end of event delimiters.
+		while(curr_buffer[buff_pos] == ENDBUFF && buff_pos < ACTUAL_BUFF_SIZE-1){
+			buff_pos++;
+		}
+			
+		// If we have more good words in this buffer, keep reading it.
+		if(buff_pos + 3 < ACTUAL_BUFF_SIZE-1){ 
+			return true; 
+		}
+	}
+	
+	// Read the buffer into memory.
+	if(bcount % 2 == 0){
+		f_->read((char *)buffer2, ACTUAL_BUFF_SIZE*4);
+		curr_buffer = buffer1;
+		next_buffer = buffer2;
+	}
+	else{
+		f_->read((char *)buffer1, ACTUAL_BUFF_SIZE*4);
+		curr_buffer = buffer2;
+		next_buffer = buffer1;
+	}
+	
+	// Reset the buffer index.
+	buff_pos = 0;
+	
+	// Increment the number of buffers read.
+	bcount++;
+	
+	// Read the buffer header and length.
+	buff_head = curr_buffer[buff_pos++];
+	buff_size = curr_buffer[buff_pos++];
+
+	if(!f_->good()){ return false; }
+	else if(f_->eof()){ retval = 2; }
+	
+	return true; 
+}
+
 /// Default constructor.
 DATA_buffer::DATA_buffer() : BufferType(DATA, NO_HEADER_SIZE){ // 0x41544144 "DATA"
 	current_buff_pos = 0; 
 	buff_words_remaining = ACTUAL_BUFF_SIZE;
 	good_words_remaining = OPTIMAL_CHUNK_SIZE;
+	curr_buffer = buffer1;
+	next_buffer = buffer2;
+	buff_pos = 0;
+	bcount = 0;
+	retval = 0;
 }
 
 /// Close a ldf data buffer by padding with 0xFFFFFFFF.
@@ -633,260 +688,133 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, int nWords_, int &buf
 		return true;
 }
 
-static int abs_buffer_pos = 0; /// Used to keep track of the absolute position in the buffer.
-
 /// Read a ldf data spill from a file.
 bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, unsigned int max_bytes_, bool &full_spill, bool &bad_spill, bool dry_run_mode/*=false*/){
-	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
+	if(!file_ || !file_->is_open() || !file_->good()){ 
+		retval = 6;
+		return false; 
+	}
 	
 	bad_spill = false;
 
-		bad_spill = false;
+	bool first_chunk = true;
+	unsigned int this_chunk_sizeB;
+	unsigned int total_num_chunks = 0;
+	unsigned int current_chunk_num = 0;
+	unsigned int prev_chunk_num;
+	unsigned int prev_num_chunks;
+	nBytes = 0; // Set the number of output bytes to zero
 
-		int buff_head, buff_size;
-		int this_chunk_sizeB;
-		int total_num_chunks;
-		int current_chunk_num;
-		nBytes = 0; // Set the number of output words to zero
-	
-		file_->read((char *)&buff_head, 4);
-		file_->read((char *)&buff_size, 4);
-		abs_buffer_pos += 2;
-		
-		if(buff_head == ENDFILE){ // Catch the start of the end-of-file buffer and return
-			if(debug_mode){ std::cout << "debug: encountered EOF buffer before start of spill\n"; }
-			file_->seekg(-8, file_->cur); // Rewind to the start position
+	while(true){
+		if(!read_next_buffer(file_)){ 
+			if(debug_mode){ std::cout << "debug: failed to read from input data file\n"; }
+			retval = 6;
 			return false;
 		}
-		else if(buff_head == DATA){ // This is the start of a new DATA buffer
-			if(debug_mode){ std::cout << "debug: encountered DATA buffer before start of spill\n"; }
-			file_->read((char*)&this_chunk_sizeB, 4);
-			file_->read((char*)&total_num_chunks, 4);
-			abs_buffer_pos = 4; // Reset the buffer position since we found a new one
-		}
-		else if(is_hribf_buffer(buff_head)){ // Skip the entire buffer
-			while(buff_head != DATA){ // Search for the next DATA buffer
-				if(debug_mode){ 
-					std::cout << "debug: encountered non DATA type buffer 0x" << std::hex << buff_head << std::dec << "\n";
-					std::cout << "debug: skipping entire remaining " << buff_size << " buffer words!\n";
+	
+		if(buff_head == DATA){
+			prev_chunk_num = current_chunk_num;
+			prev_num_chunks = total_num_chunks;
+			
+			this_chunk_sizeB = curr_buffer[buff_pos++];
+			total_num_chunks = curr_buffer[buff_pos++];
+			current_chunk_num = curr_buffer[buff_pos++];
+			
+			if(debug_mode){ std::cout << "debug: scanning spill chunk " << current_chunk_num << " of " << total_num_chunks << "\n"; }
+			
+			// Check if this is a spill fragment.
+			if(first_chunk){ // Check for starting read in middle of spill.
+				if(current_chunk_num != 0){
+					if(debug_mode){ std::cout << "debug: starting read in middle of spill (chunk " << current_chunk_num << " of " << total_num_chunks << ")\n"; }
+					full_spill = false;
 				}
-				file_->seekg(4*buff_size, file_->cur); // Skip the remaining buffer words
-				if(file_->eof()){ 
-					if(debug_mode){ std::cout << "debug: encountered physical end-of-file before start of spill!\n"; }
-					return false;
-				}
-				file_->read((char*)&buff_head, 4);
-				file_->read((char*)&buff_size, 4);
+				else{ full_spill = true; }
+				first_chunk = false;
 			}
-			file_->read((char*)&this_chunk_sizeB, 4);
-			file_->read((char*)&total_num_chunks, 4);
-			abs_buffer_pos = 4; // Reset the buffer position since we found a new one
-		}
-		else{ // Likely starting spill in middle of buffer
-			this_chunk_sizeB = buff_head;
-			total_num_chunks = buff_size;
-			abs_buffer_pos += 2;
-		}
-		
-		file_->read((char*)&current_chunk_num, 4);
-		abs_buffer_pos++;
-		
-		if(current_chunk_num != 0){
-			if(debug_mode){ std::cout << "debug: starting read in middle of spill (chunk " << current_chunk_num << " of " << total_num_chunks << ")\n"; }
-			full_spill = false;
-		}
-		else{ full_spill = true; }
-
-		// Construct the spill
-		while(true){
-			if(file_->eof()){
-				if(debug_mode){ std::cout << "debug: encountered physical end-of-file before end of spill!\n"; }
+			else if(total_num_chunks != prev_num_chunks){
+				if(debug_mode){ std::cout << "debug: skipped to new spill with " << total_num_chunks << " spill chunks without reading footer of old spill\n"; }
+				
+				// We are likely out of position in the spill. Scrap this current buffer and skip to the next one.
+				read_next_buffer(file_, true);
+				
+				retval = 4;
 				return false;
 			}
+			else if(current_chunk_num != prev_chunk_num + 1){ // Missing a spill chunk.
+				if(debug_mode){ 
+					if(current_chunk_num == prev_chunk_num + 2){ std::cout << "debug: missing single spill chunk (" << prev_chunk_num+1 << ")\n"; }
+					else{ std::cout << "debug: missing multiple spill chunks (" << prev_chunk_num+1 << " to " << current_chunk_num-1 << ")\n"; }
+				}
+				full_spill = false;
+			}
 
+			// Construct the spill.	
 			if(current_chunk_num == total_num_chunks - 1){ // Spill footer
 				if(this_chunk_sizeB != end_spill_size){
 					if(debug_mode){ std::cout << "debug: spill footer (chunk " << current_chunk_num << " of " << total_num_chunks << ") has size " << this_chunk_sizeB << " != 5\n"; }
+					
+					// We are likely out of position in the spill. Scrap this current buffer and skip to the next one.
+					read_next_buffer(file_, true);
+					
+					retval = 5;
+					return false;
+				}
+				else if(debug_mode){ 
+					if(full_spill){ std::cout << "debug: finished scanning spill of " << nBytes << " bytes\n"; }
+					else{ std::cout << "debug: finished scanning spill fragment of " << nBytes << " bytes\n"; }
+				}
+			
+				// Copy data into the output array.
+				memcpy(&data_[nBytes], &curr_buffer[buff_pos], 8);
+				if(debug_mode){ std::cout << "debug: spill footer words are " << curr_buffer[buff_pos] << " and " << curr_buffer[buff_pos+1] << std::endl; }
+				nBytes += 8;
+				buff_pos += 2;
 
-					int temp_int = 0, temp_index = 0;
-					while(temp_int != ENDBUFF){ // Scan for a buffer delimiter (-1)
-						file_->read((char*)&temp_int, 4);
-						abs_buffer_pos++;
-						if(debug_mode){ std::cout << "debug: Bad spill footer word " << temp_index << ", " << temp_int << std::endl; }
-						bad_spill = true;
-						temp_index++;
-					}
-					file_->read((char*)&this_chunk_sizeB, 4);
-					file_->read((char*)&total_num_chunks, 4);
-					file_->read((char*)&current_chunk_num, 4);
-					abs_buffer_pos += 3;
-					std::cout << this_chunk_sizeB << "\t" << total_num_chunks << "\t" << current_chunk_num << std::endl;
-					if(this_chunk_sizeB != end_spill_size){ // Lost our place in the stream
-						if(debug_mode){ 
-							std::cout << "debug: spill footer (chunk " << current_chunk_num << " of " << total_num_chunks << ") has size " << this_chunk_sizeB << " != 5\n"; 
-							std::cout << "debug: Lost place in data stream!\n";
-						}
-						bad_spill = true;
-						return false; // Not the correct way to handle this. But it's better than it was
-					}
-				}
-				else if(debug_mode){ std::cout << "debug: finished scanning spill of " << nBytes << " bytes\n"; }
-				
-				char spill_footer[8];
-				bool return_val = true;
-				file_->read(spill_footer, 8); // Copy the remaining event length and vsn (2 9999)
-				abs_buffer_pos += 2;
-				
-				if(nBytes + 8 > max_bytes_){ // Copying this chunk into the data array will exceed the maximum number of bytes
-					memcpy(&data_[nBytes], spill_footer, max_bytes_-nBytes);
-					if(debug_mode){ std::cout << "debug: exceeded maximum number of bytes by " << 8 - (max_bytes_-nBytes) << " at spill footer\n"; }
-					nBytes += (max_bytes_-nBytes);
-					file_->seekg(8-(max_bytes_-nBytes), file_->cur); // Skip the remaining bytes
-					return_val = false;
-				}
-				else{ // Enough room to fit chunk in data array
-					memcpy(&data_[nBytes], spill_footer, 8);
-					if(debug_mode){
-						int dummy1, dummy2;
-						memcpy((char *)&dummy1, spill_footer, 4);
-						memcpy((char *)&dummy2, &spill_footer[4], 4);
-						std::cout << "debug: spill footer words are " << dummy1 << " and " << dummy2 << std::endl;
-					}
-					nBytes += 8;
-				}
-				
-				// Scan until the next spill chunk or buffer
-				int dummy;
-				while(true){
-					file_->read((char *)&dummy, 4);
-					abs_buffer_pos++;
-					if(dummy != ENDBUFF){ 
-						file_->seekg(-4, file_->cur); // Rewind to the previous word
-						abs_buffer_pos--;
-						break; 
-					}
-				}
-				return return_val;
+				retval = 0;
+				return true;
 			}
 			else{ // Normal spill chunk
 				int copied_bytes;
 				if(this_chunk_sizeB <= 12){
 					if(debug_mode){ std::cout << "debug: invalid number of bytes in chunk " << current_chunk_num+1 << " of " << total_num_chunks << ", " <<  this_chunk_sizeB << " B!\n"; }
+					retval = 4;
 					return false;
 				}
-				
+			
 				copied_bytes = this_chunk_sizeB - 12;
-				if(nBytes + copied_bytes > max_bytes_){ // Copying this chunk into the data array will exceed the maximum number of bytes
-					char *spill_chunk = new char[max_bytes_-nBytes];
-					if(!dry_run_mode){ 
-						file_->read(spill_chunk, max_bytes_-nBytes); 
-						memcpy(&data_[nBytes], spill_chunk, max_bytes_-nBytes);
-					}
-					else{ file_->seekg(max_bytes_-nBytes, std::ios::cur); }
-					abs_buffer_pos += (max_bytes_-nBytes)/4;
-					if(debug_mode){ std::cout << "debug: exceeded maximum number of bytes by " << copied_bytes - (max_bytes_-nBytes) << " in spill chunk\n"; }
-					nBytes += (max_bytes_-nBytes);
-
-					// Stop reading and abort
-					return false;
-				}
-				else{ // Enough room to fit chunk in data array
-					char *spill_chunk = new char[copied_bytes];
-					if(!dry_run_mode){ 
-						file_->read(spill_chunk, copied_bytes); 
-						memcpy(&data_[nBytes], spill_chunk, copied_bytes);
-					}
-					else{ file_->seekg(max_bytes_-nBytes, std::ios::cur); }
-					abs_buffer_pos += copied_bytes/4;
-					nBytes += copied_bytes;
-				}
+				memcpy(&data_[nBytes], &curr_buffer[buff_pos], copied_bytes);
+				nBytes += copied_bytes;
+				buff_pos += copied_bytes/4;
 			}
-		
-			// Scan until the next spill chunk or buffer
-			while(true){
-				file_->read((char *)&buff_head, 4);
-				abs_buffer_pos++;
-				if(buff_head != ENDBUFF){ break; }
+		}
+		else if(buff_head == ENDFILE){ // Catch the start of the end-of-file buffer and return
+			if(next_buffer[0] == ENDFILE){
+				if(debug_mode){ std::cout << "debug: encountered double EOF buffer marking end of file\n"; }
+				retval = 2;
 			}
-
-			if(abs_buffer_pos > 8195 && debug_mode){
-				std::cout << "debug: found over-filled buffer with " << abs_buffer_pos-1 << " words!\n";
+			else{
+				if(debug_mode){ std::cout << "debug: encountered EOF buffer marking end of run\n"; }
+				retval = 1;
 			}
-
-			if(is_hribf_buffer(buff_head)){
-read_again:
-				if(buff_head == ENDFILE){ 
-					if(debug_mode){ std::cout << "debug: encountered EOF buffer before end of spill!\n"; }
-					file_->seekg(-4, file_->cur); // Rewind to the start position
-					return false;
-				}
-				else if(buff_head == DATA){
-					file_->read((char*)&buff_size, 4);
-					file_->read((char*)&this_chunk_sizeB, 4);
-					abs_buffer_pos = 3; // Reset the buffer position since we found a new one
-				}
-				else{
-					file_->seekg(4*(ACTUAL_BUFF_SIZE-1), file_->cur); // Skip the remaining buffer words
-					if(file_->eof()){ 
-						if(debug_mode){ std::cout << "debug: encountered physical end-of-file before end of spill!\n"; }
-						return false;
-					}
-					file_->read((char *)&buff_head, 4);
-					goto read_again;
-				}
-			}
-			else{ // This is likely the start of a chunk (hopefully)
-				if(debug_mode){ std::cout << "debug: encountered buffer of type 0x" << std::hex << buff_head << std::dec << " before end of spill\n"; }
-				this_chunk_sizeB = buff_head;
-				
-				while(this_chunk_sizeB/4 >= ACTUAL_BUFF_SIZE){ // Chunk is too large! Scan to the start of the next data buffer
-					if(debug_mode){ 
-						std::cout << "debug: spill chunk size is too large (" << this_chunk_sizeB/4 << " words)!\n";
-						std::cout << "debug: abs_buffer_pos = " << abs_buffer_pos << std::endl;
-					}
-					
-					if(abs_buffer_pos < 8194){
-						if(debug_mode){ std::cout << "debug: skipping " << (ACTUAL_BUFF_SIZE-abs_buffer_pos)-1 << " remaining words\n"; }
-						file_->seekg(4*(ACTUAL_BUFF_SIZE-abs_buffer_pos), file_->cur);
-						if(file_->eof()){ 
-							if(debug_mode){ std::cout << "debug: encountered physical end-of-file before end of spill!\n"; }
-							return false;
-						}
-					}
-					file_->read((char *)&buff_head, 4);
-					while(buff_head != DATA){
-						if(buff_head == ENDFILE){ 
-							if(debug_mode){ std::cout << "debug: encountered EOF buffer before start of spill\n"; }
-							file_->seekg(-4, file_->cur); // Rewind to the start position
-							return false;
-						}
-						else if(!is_hribf_buffer(buff_head)){ 
-							std::cout << "debug: encountered non HRIBF type buffer 0x" << std::hex << buff_head << std::dec << "!\n";
-							return false; 
-						}
-						if(debug_mode){ 
-							std::cout << "debug: encountered non DATA type buffer 0x" << std::hex << buff_head << std::dec << "\n";
-							std::cout << "debug: skipping entire remaining " << ACTUAL_BUFF_SIZE-1 << " buffer words!\n";
-						}
-						file_->seekg(4*(ACTUAL_BUFF_SIZE-1), file_->cur); // Skip the remaining buffer words
-						if(file_->eof()){ 
-							if(debug_mode){ std::cout << "debug: encountered physical end-of-file before end of spill!\n"; }
-							return false;
-						}
-						file_->read((char *)&buff_head, 4);
-					}
-					file_->read((char*)&buff_size, 4);
-					file_->read((char*)&this_chunk_sizeB, 4);
-					abs_buffer_pos = 3;
-				}
+			return false;
+		}
+		else{ // Skip the entire buffer
+			if(debug_mode){ 
+				std::cout << "debug: encountered non DATA type buffer 0x" << std::hex << buff_head << std::dec << "\n";
+				std::cout << "debug: skipping entire remaining " << buff_size << " buffer words!\n";
 			}
 			
-			file_->read((char*)&total_num_chunks, 4);
-			file_->read((char*)&current_chunk_num, 4);
-			abs_buffer_pos += 2;
+			// This is not a data buffer. We need to force a scan of the next buffer.
+			// read_next_buffer will not scan the next buffer by default because it
+			// thinks there are still words left in this buffer to read.
+			read_next_buffer(file_, true);
+			
+			retval = 3;
+			continue;
 		}
-		
-		return true;
+	}
+
+	return false;
 }
 
 EOF_buffer::EOF_buffer() : BufferType(ENDFILE, NO_HEADER_SIZE){} // 0x20464F45 "EOF "
