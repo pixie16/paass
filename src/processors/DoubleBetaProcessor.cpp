@@ -49,22 +49,22 @@ bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
     builder.BuildBars();
 
     map<unsigned int, pair<double,double> > lrtbars = builder.GetLrtBarMap();
-    betas_ = builder.GetBarMap();
+    BarMap betas = builder.GetBarMap();
 
     double resolution = 2;
     double offset = 1500;
     
-    for(BarMap::const_iterator it = betas_.begin(); it != betas_.end(); it++) {
+    for(BarMap::const_iterator it = betas.begin(); it != betas.end(); it++) {
         unsigned int barNum = (*it).first.first;
-        plot(DD_QDC, (*it).second.GetLeftSide()->GetTraceQdc(), barNum * 2);
-        plot(DD_QDC, (*it).second.GetRightSide()->GetTraceQdc(), barNum * 2 + 1);
-        plot(DD_TDIFF, (*it).second.GetTimeDifference()*resolution + offset, barNum);
-        if(barNum == 0) {
-            plot(DD_PP, (*it).second.GetLeftSide()->GetPhase()*resolution,
-		 (*it).second.GetRightSide()->GetPhase()*resolution);
-            plot(DD_QDCTDIFF, (*it).second.GetTimeDifference()*resolution+offset,
-		 (*it).second.GetLeftSide()->GetTraceQdc());
-        }
+	plot(DD_QDC, (*it).second.GetLeftSide().GetTraceQdc(), barNum * 2);
+	plot(DD_QDC, (*it).second.GetRightSide().GetTraceQdc(), barNum * 2 + 1);
+	plot(DD_TDIFF, (*it).second.GetTimeDifference()*resolution + offset, barNum);
+	if(barNum == 0) {
+	    plot(DD_PP, (*it).second.GetLeftSide().GetPhase()*resolution,
+		 (*it).second.GetRightSide().GetPhase()*resolution);
+	    plot(DD_QDCTDIFF, (*it).second.GetTimeDifference()*resolution+offset,
+		 (*it).second.GetLeftSide().GetTraceQdc());
+	}
     }
     return(true);
 }

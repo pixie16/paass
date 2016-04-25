@@ -73,7 +73,7 @@ bool TeenyVandleProcessor::PreProcess(RawEvent &event) {
     HighResTimingData left  = (*data_.find(make_pair(0,"left"))).second;
 
     double timeDiff = left.GetHighResTime() - right.GetHighResTime();
-    double corTimeDiff = left.GetWalkCorrectedTime() - right.GetWalkCorrectedTime();
+    double corTimeDiff = left.GetCorrectedTime() - right.GetCorrectedTime();
 
     plot(DD_QDCVSMAX, right.GetMaximumValue(), right.GetTraceQdc());
 
