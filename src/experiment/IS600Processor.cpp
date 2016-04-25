@@ -121,8 +121,8 @@ bool IS600Processor::Process(RawEvent &event) {
             BarDetector start = (*itStart).second;
 	    
             double tofOffset = cal.GetTofOffset(startLoc);
-            double tof = bar.GetWalkCorTimeAve() -
-                start.GetWalkCorTimeAve() + tofOffset;
+            double tof = bar.GetCorTimeAve() -
+                start.GetCorTimeAve() + tofOffset;
 	    
             double corTof =
                 CorrectTOF(tof, bar.GetFlightPath(), cal.GetZ0());
@@ -161,8 +161,8 @@ bool IS600Processor::Process(RawEvent &event) {
 		TimingCalibration cal2 = bar2.GetCalibration();
 		
 		double tofOffset2 = cal2.GetTofOffset(startLoc);
-		double tof2 = bar2.GetWalkCorTimeAve() -
-		    start.GetWalkCorTimeAve() + tofOffset2;
+		double tof2 = bar2.GetCorTimeAve() -
+		    start.GetCorTimeAve() + tofOffset2;
 		
 		double corTof2 =
 		    CorrectTOF(tof2, bar2.GetFlightPath(), cal2.GetZ0());
