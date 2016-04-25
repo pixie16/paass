@@ -8,9 +8,9 @@
 
 #include "ChanEvent.hpp"
 #include "Globals.hpp"
-#include "Trace.hpp"
 
-//! Class for holding information for high resolution timing
+//! Class for holding information for high resolution timing. All times more 
+//! precise than the filter time will be in nanoseconds (phase, highResTime). 
 class HighResTimingData {
 public:
     /** Default constructor */
@@ -20,25 +20,7 @@ public:
 
     /** Constructor using the channel event
     * \param [in] chan : the channel event for grabbing values from */
-    HighResTimingData(ChanEvent *chan) {
-        trace_ = &chan->GetTrace();
-        highResTime_ = chan->GetHighResTime()*1e9;
-        pixieEnergy_ = chan->GetEnergy();
-        pixieTime_ = chan->GetTime();
-	cfdSourceBit_ = chan->GetCfdSourceBit();
-
-        snr_ =
-            20*log10(trace_->GetValue("maxval") /
-                     trace_->GetValue("sigmaBaseline"));
-
-        if(!std::isnan(trace_->GetValue("maxval")) &&
-           !std::isnan(trace_->GetValue("phase")) &&
-           !std::isnan(trace_->GetValue("tqdc")) &&
-           !std::isnan(trace_->GetValue("sigmaBaseline")) ) {
-            isValidData_ = true;
-        }else
-            isValidData_ = false;
-    };
+    HighResTimingData(ChanEvent *chan) {chan_ = chan;}
 
     /** Calculate the energy from the time of flight, using a correction
     * \param [in] tof : The time of flight to use for the calculation in ns
@@ -49,57 +31,68 @@ public:
         pow((z0/tof)/Globals::get()->speedOfLight(), 2)));
     }
 
+    const ChanEvent* GetChan(void) const {return(chan_);}
+
     /** \return The current value of isValidData_ */
-    bool GetIsValidData() const { return isValidData_; };
+    bool GetIsValidData() const { 
+	if(!std::isnan(chan_->GetTrace().GetValue("maxval")) &&
+           !std::isnan(chan_->GetTrace().GetValue("phase")) &&
+           !std::isnan(chan_->GetTrace().GetValue("tqdc")) &&
+           !std::isnan(chan_->GetTrace().GetValue("sigmaBaseline")) ) {
+            return(true);
+        }else
+            return(false);
+	return(false);
+    }
+
     ///\return the CFD source trigger bit
-    bool GetCfdSourceBit() const { return (cfdSourceBit_);};
+    bool GetCfdSourceBit() const { return(chan_->GetCfdSourceBit());}
     /** \return The current value of aveBaseline_ */
-    double GetAveBaseline() const { return trace_->GetValue("baseline"); };
+    double GetAveBaseline() const { return(chan_->GetTrace().GetValue("baseline")); }
     /** \return The current value of discrimination_ */
-    double GetDiscrimination() const { return trace_->GetValue("discrim"); };
+    double GetDiscrimination() const { return(chan_->GetTrace().GetValue("discrim")); }
     /** \return The current value of highResTime_ */
-    double GetHighResTime() const { return highResTime_; };
+    double GetHighResTime() const { return(chan_->GetHighResTime()); }
     /** \return The current value of maxpos_ */
-    double GetMaximumPosition() const { return trace_->GetValue("maxpos"); }
+    double GetMaximumPosition() const { return(chan_->GetTrace().GetValue("maxpos")); }
     /** \return The current value of maxval_ */
-    double GetMaximumValue() const { return trace_->GetValue("maxval"); };
+    double GetMaximumValue() const { return(chan_->GetTrace().GetValue("maxval")); }
     /** \return The current value of numAboveThresh_  */
-    int GetNumAboveThresh() const { return trace_->GetValue("numAboveThresh");; };
+    int GetNumAboveThresh() const { 
+	return(chan_->GetTrace().GetValue("numAboveThresh"));
+    }
     /** \return The current value of phase_ */
-    double GetPhase() const { return trace_->GetValue("phase")*
-                        (Globals::get()->clockInSeconds()*1e+9); };
+    double GetPhase() const {
+	return(chan_->GetTrace().GetValue("phase")*
+	       (Globals::get()->clockInSeconds()*1e9));
+    }
     /** \return The pixie Energy */
-    double GetPixieEnergy() const { return(pixieEnergy_); };
+    double GetFilterEnergy() const { return(chan_->GetEnergy()); }
     /** \return The pixie Energy */
-    double GetPixieTime() const { return(pixieTime_); };
+    double GetFilterTime() const { return(chan_->GetTime()); }
     /** \return The current value of snr_ */
-    double GetSignalToNoiseRatio() const { return snr_; };
+    double GetSignalToNoiseRatio() const { 
+	return(20*log10(chan_->GetTrace().GetValue("maxval") /
+			chan_->GetTrace().GetValue("sigmaBaseline"))); 
+    }
     /** \return The current value of stdDevBaseline_  */
-    double GetStdDevBaseline() const { return trace_->GetValue("sigmaBaseline"); };
+    double GetStdDevBaseline() const { 
+	return(chan_->GetTrace().GetValue("sigmaBaseline")); 
+    }
+
     /** \return Get the trace associated with the channel */
-    Trace* GetTrace() const { return trace_; };
+    const Trace* GetTrace() const { return(&chan_->GetTrace()); }
+
     /** \return The current value of tqdc_ */
-    double GetTraceQdc() const { return trace_->GetValue("tqdc") /
-        Globals::get()->qdcCompression(); };
-    /** \return The current value of walk_ */
-    double GetWalk() const { return trace_->GetValue("walk"); };
+    double GetTraceQdc() const { 
+	return(chan_->GetTrace().GetValue("tqdc")); 
+    }
     /** \return Walk corrected time  */
-    double GetWalkCorrectedTime() const
-        { return highResTime_ - trace_->GetValue("walk"); };
-
-    /** Set dataValid_
-     * \param val New value to set */
-    void SetDataValid(const bool &val) { isValidData_ = val; };
-
+    double GetCorrectedTime() const { 
+	return(chan_->GetCorrectedTime()); 
+    }
 private:
-    Trace *trace_; //!< the trace for the channel
-
-    bool cfdSourceBit_; //!< Member variable "cfdSourceBit_"
-    bool isValidData_; //!< Member variable "dataValid_"
-    double highResTime_; //!< Member variable "highResTime_"
-    double snr_; //!< Member variable "snr_"
-    double pixieEnergy_; //!< The energy from pixie
-    double pixieTime_; //!< The time from pixie
+    ChanEvent *chan_; //!< a pointer to the channel event for the high res time
 };
 
 /** Defines a map to hold timing data for a channel. */

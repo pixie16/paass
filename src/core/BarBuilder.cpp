@@ -11,26 +11,32 @@
 
 using namespace std;
 
-BarBuilder::BarBuilder(const std::vector<ChanEvent*> &vec) {
-    list_ = vec;
-    BuildBars();
-}
-
 void BarBuilder::BuildBars(void) {
     ClearMaps();
     FillMaps();
 
-    for(TimingMap::const_iterator it = lefts_.begin(); it != lefts_.end(); it++) {
-        TimingDefs::TimingIdentifier key = (*it).first;
-        TimingMap::const_iterator mate = rights_.find(key);
-
-        if(mate == rights_.end())
-            continue;
-
-        TimingCalibration cal = TimingCalibrator::get()->GetCalibration(key);
-
-        bars_.insert(make_pair(key, BarDetector((*it).second,
-                        (*mate).second, cal, key.second)));
+    for(map<unsigned int, unsigned int>::const_iterator it = lefts_.begin(); 
+	it != lefts_.end(); it++) {
+	map<unsigned int, unsigned int>::const_iterator mate = 
+	    rights_.find(it->first);
+	if(mate == rights_.end())
+	    continue;
+	
+	if(list_.at(it->second)->GetTrace().size() && 
+	   list_.at(mate->second)->GetTrace().size()) {
+	    TimingDefs::TimingIdentifier key = 
+	     	make_pair(it->first, list_.at(it->second)->GetChanID().GetSubtype());
+	    hrtBars_.insert(make_pair(key, 
+				      BarDetector(HighResTimingData(list_.at(it->second)),
+						  HighResTimingData(list_.at(mate->second)), 
+						  key)));
+	} else {
+	    lrtBars_.insert(make_pair(it->first, 
+				      make_pair(0.5*(list_.at(it->second)->GetCorrectedTime()+
+						     list_.at(mate->second)->GetCorrectedTime()), 
+						sqrt(list_.at(it->second)->GetCalEnergy()*
+						     list_.at(mate->second)->GetCalEnergy()))));
+	}
     }
 }
 
@@ -39,7 +45,8 @@ unsigned int BarBuilder::CalcBarNumber(const unsigned int &loc) {
 }
 
 void BarBuilder::ClearMaps(void){
-    bars_.clear();
+    lrtBars_.clear();
+    hrtBars_.clear();
     lefts_.clear();
     rights_.clear();
 }
@@ -47,18 +54,12 @@ void BarBuilder::ClearMaps(void){
 void BarBuilder::FillMaps(void) {
     for(vector<ChanEvent*>::const_iterator it = list_.begin();
     it != list_.end(); it++) {
-        Identifier id = (*it)->GetChanID();
-        TimingDefs::TimingIdentifier key(CalcBarNumber(id.GetLocation()),
-                                         id.GetSubtype());
-
-        HighResTimingData data((*it));
-
-        if(!data.GetIsValidData())
-            continue;
-
-        if(id.HasTag("left") || id.HasTag("up") || id.HasTag("top"))
-            lefts_.insert(make_pair(key,data));
-        if(id.HasTag("right") || id.HasTag("down") || id.HasTag("bottom"))
-            rights_.insert(make_pair(key,data));
+	Identifier id = (*it)->GetChanID();
+	unsigned int barNum = CalcBarNumber(id.GetLocation());
+	unsigned int idx = (unsigned int)(it - list_.begin());
+	if(id.HasTag("left") || id.HasTag("up") || id.HasTag("top"))
+	    lefts_.insert(make_pair(barNum,idx));
+	if(id.HasTag("right") || id.HasTag("down") || id.HasTag("bottom"))
+	    rights_.insert(make_pair(barNum,idx));
     }
 }
