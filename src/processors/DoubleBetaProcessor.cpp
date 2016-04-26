@@ -35,7 +35,7 @@ void DoubleBetaProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_QDC, SD, S3, "Location vs. Coincident QDC");
     DeclareHistogram2D(DD_TDIFF, SB, S3, "Location vs. Time Difference");
     DeclareHistogram2D(DD_PP, SC, SC,"Phase vs. Phase - Bar 0 Only");
-    DeclareHistogram2D(DD_QDCTDIFF, SC, SC,"TimeDiff vs. Coincident QDC");
+    DeclareHistogram2D(DD_QDCTDIFF, SC, SE,"TimeDiff vs. Coincident QDC");
 }
 
 bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
@@ -71,7 +71,7 @@ bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
 	    plot(DD_PP, (*it).second.GetLeftSide().GetPhase()*resolution,
 		 (*it).second.GetRightSide().GetPhase()*resolution);
 	    plot(DD_QDCTDIFF, (*it).second.GetTimeDifference()*resolution+offset,
-		 (*it).second.GetLeftSide().GetTraceQdc());
+		 (*it).second.GetQdc());
 	}
     }
     return(true);
