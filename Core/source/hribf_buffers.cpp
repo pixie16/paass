@@ -30,7 +30,6 @@
 #include "poll2_socket.h"
 
 #define SMALLEST_CHUNK_SIZE 20 /// Smallest possible size of a chunk in words
-#define ACTUAL_BUFF_SIZE 8194 /// HRIBF .ldf file format
 #define NO_HEADER_SIZE 8192 /// Size of .ldf buffer with no header
 #define OPTIMAL_CHUNK_SIZE 8187 /// = ACTUAL_BUFF_SIZE - 2 (header size) - 2 (end of buffer) - 3 (spill chunk header)
 
@@ -519,6 +518,8 @@ DATA_buffer::DATA_buffer() : BufferType(DATA, NO_HEADER_SIZE){ // 0x41544144 "DA
 	buff_pos = 0;
 	bcount = 0;
 	retval = 0;
+	good_chunks = 0;
+	missing_chunks = 0;
 }
 
 /// Close a ldf data buffer by padding with 0xFFFFFFFF.
@@ -725,7 +726,11 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 			// Check if this is a spill fragment.
 			if(first_chunk){ // Check for starting read in middle of spill.
 				if(current_chunk_num != 0){
-					if(debug_mode){ std::cout << "debug: starting read in middle of spill (chunk " << current_chunk_num << " of " << total_num_chunks << ")\n"; }			
+					if(debug_mode){ std::cout << "debug: starting read in middle of spill (chunk " << current_chunk_num << " of " << total_num_chunks << ")\n"; }		
+					
+					// Update the number of dropped chunks.
+					missing_chunks += current_chunk_num;
+						
 					full_spill = false;
 				}
 				else{ full_spill = true; }
@@ -736,6 +741,9 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 				
 				// We are likely out of position in the spill. Scrap this current buffer and skip to the next one.
 				read_next_buffer(file_, true);
+				
+				// Update the number of dropped chunks.
+				missing_chunks += (prev_num_chunks-1) - prev_chunk_num;
 				
 				retval = 4;
 				return false;
@@ -750,6 +758,9 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 				// We are likely out of position in the spill. Scrap this current buffer and skip to the next one.
 				read_next_buffer(file_, true);
 				
+				// Update the number of dropped chunks.
+				missing_chunks += (current_chunk_num-1) - prev_chunk_num;
+				
 				retval = 4;
 				return false;
 			}
@@ -761,6 +772,9 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 					
 					// We are likely out of position in the spill. Scrap this current buffer and skip to the next one.
 					read_next_buffer(file_, true);
+					
+					// Update the number of dropped chunks.
+					//missing_chunks += 1;
 					
 					retval = 5;
 					return false;
@@ -780,12 +794,19 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 				return true;
 			}
 			else{ // Normal spill chunk
-				int copied_bytes;
+				size_t copied_bytes;
 				if(this_chunk_sizeB <= 12){
 					if(debug_mode){ std::cout << "debug: invalid number of bytes in chunk " << current_chunk_num+1 << " of " << total_num_chunks << ", " <<  this_chunk_sizeB << " B!\n"; }
+					
+					// Update the number of dropped chunks.
+					missing_chunks++;
+					
 					retval = 4;
 					return false;
 				}
+			
+				// Update the number of good spill chunks.
+				good_chunks++;
 			
 				copied_bytes = this_chunk_sizeB - 12;
 				memcpy(&data_[nBytes], &curr_buffer[buff_pos], copied_bytes);
