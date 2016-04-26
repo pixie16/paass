@@ -43,7 +43,7 @@
                types="small,medium" res="2" offset="1000" NumStarts="1"/>
   </DetectorDriver>
   
-  <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+  <Map>
     <Module number="0">
       <Channel number="0" type="beta" subtype="double" tags="start,left"></Channel>
       <Channel number="1" type="beta" subtype="double" tags="start,right"></Channel>
@@ -214,7 +214,7 @@
       <TrapezoidalWalk unit="ns" value="266"/>
       <TraceDelay unit="ns" value="344"/>
       <TraceLength unit="ns" value="496"/>
-      <QdcCompression value="4.0"/>
+      <QdcCompression value="1.0"/>
     </Trace>
     
     <Fitting>
@@ -230,8 +230,8 @@
           <Gamma value="0.208072"/>
 	</Pars>
 	<Pars name="beta:double">
-	  <Beta value="0.491724"/>
-          <Gamma value="0.335260"/>
+	  <Beta value="0.19396232"/>
+          <Gamma value="0.258039545"/>
 	</Pars>
       </Parameters>
     </Fitting>
