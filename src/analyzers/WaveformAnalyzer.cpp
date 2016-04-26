@@ -43,22 +43,19 @@ void WaveformAnalyzer::Analyze(Trace &trace,
 
     Globals *globals = Globals::get();
 
-    pair<unsigned int, unsigned int> range = globals->waveformRange();
-    if(detType == "beta" && detSubtype == "double")
-        range = globals->siPmtWaveformRange();
-    if(detType == "labr3")
-        range = globals->labr3WaveformRange();
-    unsigned int startDiscrimination = globals->discriminationStart();
-    unsigned int maxPos = trace.FindMaxInfo(range.first, range.second);
+    pair<unsigned int, unsigned int> range = globals->waveformRange(detType+":"+detSubtype);
 
-    double qdc = trace.DoQDC(maxPos-range.first,
-                            range.second+range.first);
+    if( detType == "beta" && detSubtype == "double" && tagMap.find("timing") != tagMap.end())
+	range = globals->waveformRange(detType+":"+detSubtype+":timing");
+    
+    double qdc = trace.DoQDC(trace.FindMaxInfo(range.first, range.second)-range.first,
+			     range.second+range.first);
 
     trace.InsertValue("qdcToMax", qdc/trace.GetValue("maxval"));
 
     if(detSubtype == "liquid")
-        trace.DoDiscrimination(startDiscrimination,
-                range.second - startDiscrimination);
+        trace.DoDiscrimination(globals->discriminationStart(),
+                range.second - globals->discriminationStart());
 
     EndAnalyze();
 }

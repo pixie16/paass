@@ -28,8 +28,8 @@ IS600DoubleBetaProcessor::IS600DoubleBetaProcessor():
 }
 
 void IS600DoubleBetaProcessor::DeclarePlots(void) {
-  DoubleBetaProcessor::DeclarePlots();
-  DeclareHistogram2D(DD_PROTONBETA2TDIFF_VS_BETA2EN, SD, SA, "BetaProton Tdiff vs. Beta Energy");
+    DoubleBetaProcessor::DeclarePlots();
+    DeclareHistogram2D(DD_PROTONBETA2TDIFF_VS_BETA2EN, SD, SA, "BetaProton Tdiff vs. Beta Energy");
     DeclareHistogram1D(DD_DEBUGGING6, SE, "Vandle Multiplicity");
 }
 
