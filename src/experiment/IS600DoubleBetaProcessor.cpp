@@ -52,8 +52,12 @@ bool IS600DoubleBetaProcessor::Process(RawEvent &event) {
     static const vector<ChanEvent*> & events =
         event.GetSummary("beta:double")->GetList();
     
+    BarBuilder builder(events);
+    builder.BuildBars();
+    map<unsigned int, pair<double,double> > lrtbars = builder.GetLrtBarMap();
+    BarMap betas = builder.GetBarMap();
+
     double lastProtonTime =  TreeCorrelator::get()->place("logic_t1_0")->last().time;
-    
     double energy2 = 0., energy3 = 0., time2 = 0.;
     
     for(vector<ChanEvent*>::const_iterator it = events.begin();
