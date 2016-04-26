@@ -199,7 +199,6 @@ bool VandleProcessor::PreProcess(RawEvent &event) {
 
     if(bars_.empty()) {
         plot(D_DEBUGGING, 25);
-	cout << "No VANDLE BARS!!!" << endl;
         return(false);
     }
 
