@@ -333,7 +333,8 @@ void ScanMain::RunControl(){
 				}
 
 				std::stringstream status;			
-				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
+				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%), ";
+				status << "GOOD = " << databuff.GetNumChunks() << ", LOST = " << databuff.GetNumMissing();
 				if(!batch_mode){ term->SetStatus(status.str()); }
 				else{ std::cout << "\r" << status.str(); }
 		
@@ -846,7 +847,11 @@ bool ScanMain::Close(){
 	input_file.close();	
 
 	// Clean up detector driver
-	std::cout << "\nCleaning up...\n";
+	std::cout << "\n" << sys_message_head << "Cleaning up...\n";
+	
+	// Show the number of lost spill chunks.
+	std::cout << sys_message_head << "Read " << databuff.GetNumChunks() << " spill chunks.\n";
+	std::cout << sys_message_head << "Lost at least " << databuff.GetNumMissing() << " spill chunks.\n";
 	
 	core->PrintStatus(sys_message_head);
 	core->Close(write_counts);

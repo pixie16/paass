@@ -25,8 +25,10 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.2.06"
-#define HRIBF_BUFFERS_DATE "April 25th, 2016"
+#define HRIBF_BUFFERS_VERSION "1.2.07"
+#define HRIBF_BUFFERS_DATE "April 26th, 2016"
+
+#define ACTUAL_BUFF_SIZE 8194 /// HRIBF .ldf file format
 
 class Client;
 
@@ -205,19 +207,21 @@ class DATA_buffer : public BufferType{
 	int buff_words_remaining; /// Absolute number of buffer words remaining
 	int good_words_remaining; /// Good buffer words remaining (not counting header or footer words)
 
-	int retval;
+	int retval; /// The error code for the read method.
 
-	unsigned int buffer1[8194];
-	unsigned int buffer2[8194];
+	unsigned int buffer1[ACTUAL_BUFF_SIZE]; /// Container for a ldf buffer.
+	unsigned int buffer2[ACTUAL_BUFF_SIZE]; /// Container for a second ldf buffer.
 
-	unsigned int *curr_buffer;
-	unsigned int *next_buffer;
+	unsigned int *curr_buffer; /// Pointer to the current ldf buffer.
+	unsigned int *next_buffer; /// Pointer to the next ldf buffer.
 	
-	unsigned int bcount;
-	unsigned int buff_head;
-	unsigned int buff_size;
+	unsigned int bcount; /// The total number of ldf buffers read from file.
+	unsigned int buff_head; /// The ldf buffer header ID.
+	unsigned int buff_size; /// Total size of ldf buffer (in 4 byte words).
+	unsigned int good_chunks; /// Count of the number of good spill chunks which were read.
+	unsigned int missing_chunks; /// Count of the number of missing spill chunks which were dropped.
 
-	size_t buff_pos;
+	size_t buff_pos; /// The actual position in the current ldf buffer.
 
 	/// DATA buffer (1 word buffer type, 1 word buffer size)
 	bool open_(std::ofstream *file_);
@@ -235,7 +239,22 @@ class DATA_buffer : public BufferType{
 	  * or -1 in the event of an error. This method should be called whenever a new file is opened. */
 	int GetSpillSize(std::ifstream *file_);
 
+	/** Get the return value from the read method.
+	  *  0 - Success
+	  *  1 - Encountered single EOF buffer (end of run)
+	  *  2 - Encountered double EOF buffer (end of file)
+	  *  3 - Encountered unknown ldf buffer type
+	  *  4 - Encountered invalid spill chunk
+	  *  5 - Received bad spill footer size
+	  *  6 - Failed to read buffer from file
+	  */
 	int GetRetval(){ return retval; }
+	
+	/// Return the number of good spill chunks which were read.
+	unsigned int GetNumChunks(){ return good_chunks; }
+	
+	/// Return the number of missing or dropped spill chunks.
+	unsigned int GetNumMissing(){ return missing_chunks; }
 	
 	/// Write a data spill to file
 	bool Write(std::ofstream *file_, char *data_, int nWords_, int &buffs_written);
