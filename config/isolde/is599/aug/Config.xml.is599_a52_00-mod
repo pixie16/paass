@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>S. V. Paulauskas</Name>
+        <Email>stanpaulauskas AT gmail DOT com</Email>
+        <Date>July 17, 2015</Date>
+    </Author>
+
+    <Description>
+        This file is the base file for the VANDLE @ ISOLDE experiment. The
+	ISOLDE Experiment numbers 599 and 600 can be analyzed using this
+	configuration file.
+
+        I have also used some of the configuration settings from the VANDLE @
+        LeRIBSS configuration to do preliminary setup of the clovers and
+        logic signals.
+    </Description>
+
+    <Global>
+        <Revision version="F"/>
+        <EventWidth unit="s" value="1e-6"/>
+        <EnergyContraction value="1.0"/>
+        <Path>config/</Path>
+        <NumOfTraces value="50"/>
+    </Global>
+
+    <DetectorDriver>
+ 
+    </DetectorDriver>
+
+    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+ <Module number="0">
+            <Channel number="0" type="generic" subtype="generic"></Channel>
+            <Channel number="1" type="generic" subtype="generic"></Channel>
+            <Channel number="2" type="generic" subtype="generic"></Channel>
+            <Channel number="3" type="generic" subtype="generic"></Channel>
+            <Channel number="4" type="generic" subtype="generic"></Channel>
+            <Channel number="5" type="generic" subtype="generic"></Channel>
+            <Channel number="6" type="generic" subtype="generic"></Channel>
+            <Channel number="7" type="generic" subtype="generic"></Channel>
+            <Channel number="8" type="generic" subtype="generic"></Channel>
+            <Channel number="9" type="generic" subtype="generic"></Channel>
+            <Channel number="10" type="generic" subtype="generic"></Channel>
+            <Channel number="11" type="generic" subtype="generic"></Channel>
+            <Channel number="12" type="generic" subtype="generic"></Channel>
+            <Channel number="13" type="generic" subtype="generic"></Channel>
+            <Channel number="14" type="generic" subtype="generic"></Channel>
+            <Channel number="15" type="generic" subtype="generic"></Channel>
+        </Module>
+	<Module number="1">
+	  <Channel number="0" type="generic" subtype="generic"></Channel>
+          <Channel number="1" type="generic" subtype="generic"></Channel>
+          <Channel number="2" type="generic" subtype="generic"></Channel>
+          <Channel number="3" type="generic" subtype="generic"></Channel>
+          <Channel number="4" type="generic" subtype="generic"></Channel>
+          <Channel number="5" type="generic" subtype="generic"></Channel>
+          <Channel number="6" type="generic" subtype="generic"></Channel>
+          <Channel number="7" type="generic" subtype="generic"></Channel>
+          <Channel number="8" type="generic" subtype="generic"></Channel>
+          <Channel number="9" type="generic" subtype="generic"></Channel>
+          <Channel number="10" type="generic" subtype="generic"></Channel>
+          <Channel number="11" type="generic" subtype="generic"></Channel>
+          <Channel number="12" type="generic" subtype="generic"></Channel>
+          <Channel number="13" type="generic" subtype="generic"></Channel>
+          <Channel number="14" type="generic" subtype="generic"></Channel>
+          <Channel number="15" type="generic" subtype="generic"></Channel>
+	</Module>
+	<Module number="2">
+            <Channel number="0" type="generic" subtype="generic"></Channel>
+            <Channel number="1" type="generic" subtype="generic"></Channel>
+            <Channel number="2" type="generic" subtype="generic"></Channel>
+            <Channel number="3" type="generic" subtype="generic"></Channel>
+            <Channel number="4" type="generic" subtype="generic"></Channel>
+            <Channel number="5" type="generic" subtype="generic"></Channel>
+            <Channel number="6" type="generic" subtype="generic"></Channel>
+            <Channel number="7" type="generic" subtype="generic"></Channel>
+            <Channel number="8" type="generic" subtype="generic"></Channel>
+            <Channel number="9" type="generic" subtype="generic"></Channel>
+            <Channel number="10" type="generic" subtype="generic"></Channel>
+            <Channel number="11" type="generic" subtype="generic"></Channel>
+            <Channel number="12" type="generic" subtype="generic"></Channel>
+            <Channel number="13" type="generic" subtype="generic"></Channel>
+            <Channel number="14" type="generic" subtype="generic"></Channel>
+            <Channel number="15" type="generic" subtype="generic"></Channel>
+	</Module>
+	<Module number="3">
+            <Channel number="0" type="generic" subtype="generic"></Channel>
+            <Channel number="1" type="generic" subtype="generic"></Channel>
+            <Channel number="2" type="generic" subtype="generic"></Channel>
+            <Channel number="3" type="generic" subtype="generic"></Channel>
+            <Channel number="4" type="generic" subtype="generic"></Channel>
+            <Channel number="5" type="generic" subtype="generic"></Channel>
+            <Channel number="6" type="generic" subtype="generic"></Channel>
+            <Channel number="7" type="generic" subtype="generic"></Channel>
+            <Channel number="8" type="generic" subtype="generic"></Channel>
+            <Channel number="9" type="generic" subtype="generic"></Channel>
+            <Channel number="10" type="generic" subtype="generic"></Channel>
+            <Channel number="11" type="generic" subtype="generic"></Channel>
+            <Channel number="12" type="generic" subtype="generic"></Channel>
+            <Channel number="13" type="generic" subtype="generic"></Channel>
+            <Channel number="14" type="generic" subtype="generic"></Channel>
+            <Channel number="15" type="generic" subtype="generic"></Channel>
+	  </Module>
+	<Module number="4">
+            <Channel number="0" type="generic" subtype="generic"></Channel>
+            <Channel number="1" type="generic" subtype="generic"></Channel>
+            <Channel number="2" type="generic" subtype="generic"></Channel>
+            <Channel number="3" type="generic" subtype="generic"></Channel>
+            <Channel number="4" type="generic" subtype="generic"></Channel>
+            <Channel number="5" type="generic" subtype="generic"></Channel>
+            <Channel number="6" type="generic" subtype="generic"></Channel>
+            <Channel number="7" type="generic" subtype="generic"></Channel>
+            <Channel number="8" type="generic" subtype="generic"></Channel>
+            <Channel number="9" type="generic" subtype="generic"></Channel>
+            <Channel number="10" type="generic" subtype="generic"></Channel>
+            <Channel number="11" type="generic" subtype="generic"></Channel>
+            <Channel number="12" type="generic" subtype="generic"></Channel>
+            <Channel number="13" type="generic" subtype="generic"></Channel>
+            <Channel number="14" type="generic" subtype="generic"></Channel>
+            <Channel number="15" type="generic" subtype="generic"></Channel>
+	</Module>
+	<Module number="5">
+            <Channel number="0" type="generic" subtype="generic"></Channel>
+            <Channel number="1" type="generic" subtype="generic"></Channel>
+            <Channel number="2" type="generic" subtype="generic"></Channel>
+            <Channel number="3" type="generic" subtype="generic"></Channel>
+            <Channel number="4" type="generic" subtype="generic"></Channel>
+            <Channel number="5" type="generic" subtype="generic"></Channel>
+            <Channel number="6" type="generic" subtype="generic"></Channel>
+            <Channel number="7" type="generic" subtype="generic"></Channel>
+            <Channel number="8" type="generic" subtype="generic"></Channel>
+            <Channel number="9" type="generic" subtype="generic"></Channel>
+            <Channel number="10" type="generic" subtype="generic"></Channel>
+            <Channel number="11" type="generic" subtype="generic"></Channel>
+            <Channel number="12" type="generic" subtype="generic"></Channel>
+            <Channel number="13" type="generic" subtype="generic"></Channel>
+            <Channel number="14" type="generic" subtype="generic"></Channel>
+            <Channel number="15" type="generic" subtype="generic"></Channel>
+	</Module>
+	<Module number="6">
+            <Channel number="0" type="generic" subtype="generic"></Channel>
+            <Channel number="1" type="generic" subtype="generic"></Channel>
+            <Channel number="2" type="generic" subtype="generic"></Channel>
+            <Channel number="3" type="generic" subtype="generic"></Channel>
+            <Channel number="4" type="generic" subtype="generic"></Channel>
+            <Channel number="5" type="generic" subtype="generic"></Channel>
+            <Channel number="6" type="generic" subtype="generic"></Channel>
+            <Channel number="7" type="generic" subtype="generic"></Channel>
+            <Channel number="8" type="generic" subtype="generic"></Channel>
+            <Channel number="9" type="generic" subtype="generic"></Channel>
+            <Channel number="10" type="generic" subtype="generic"></Channel>
+            <Channel number="11" type="generic" subtype="generic"></Channel>
+            <Channel number="12" type="generic" subtype="generic"></Channel>
+            <Channel number="13" type="generic" subtype="generic"></Channel>
+            <Channel number="14" type="generic" subtype="generic"></Channel>
+            <Channel number="15" type="generic" subtype="generic"></Channel>
+	</Module>
+    </Map>
+
+    <TreeCorrelator name="root" verbose="False">
+    </TreeCorrelator>
+
+    <TimeCalibration verbose_timing="False">
+        <Vandle>
+	</Vandle>
+    </TimeCalibration>
+
+    <Timing>
+        <Physical>
+            <NeutronMass unit="MeV/c/c" value="939.565560"/>
+            <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+            <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+            <SmallLength unit="cm" value="60.0"/>
+            <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+            <BigLength unit="cm" value="200.0"/>
+            <SpeedOfLightMedium unit="cm/ns" value="15.5"/>
+            <MediumLength unit="cm" value="120.0"/>
+        </Physical>
+        <Trace>
+            <WaveformRange>
+                <Low unit="sample" value="5"/>
+                <High unit="sample" value="10"/>
+            </WaveformRange>
+            <SiPmtWaveformRange>
+                <Low unit="sample" value="5"/>
+                <High unit="sample" value="5"/>
+            </SiPmtWaveformRange>
+            <DiscriminationStart unit="sample" value="3"/>
+            <TrapezoidalWalk unit="ns" value="266"/>
+            <TraceDelay unit="ns" value="344"/>
+            <TraceLength unit="ns" value="496"/>
+            <QdcCompression value="4.0"/>
+        </Trace>
+
+        <Fitting>
+            <SigmaBaselineThresh value="3.0"/>
+            <SiPmtSigmaBaselineThresh value = "25.0"/>
+            <Vandle>
+                <Small>
+                    <Beta value="0.32969"/>
+                    <Gamma value="0.212945"/>
+                </Small>
+                <Medium>
+                    <Beta value="0.254373"/>
+                    <Gamma value="0.208072"/>
+                </Medium>
+                <Big>
+                    <Beta value="0.32969"/>
+                    <Gamma value="0.212945"/>
+                </Big>
+                <TeenyVandle>
+                    <Beta value="0.362307"/>
+                    <Gamma value="0.186129"/>
+                </TeenyVandle>
+            </Vandle>
+            <SingleBeta>
+                <Beta value="0.574531"/>
+                <Gamma value="0.274512"/>
+            </SingleBeta>
+            <DoubleBeta>
+	        <Beta value="0.491724"/>
+                <Gamma value="0.335260"/>
+            </DoubleBeta>
+            <Pulser>
+                <Beta value="0.832272"/>
+                <Gamma value="0.236525"/>
+            </Pulser>
+            <Liquid>
+                <Beta value="4.52672"/>
+                <Gamma value="1.73376"/>
+            </Liquid>
+        </Fitting>
+    </Timing>
+
+    <Notebook file="notes.txt" mode="r"/>
+
+</Configuration>
