@@ -230,8 +230,8 @@
           <Gamma value="0.208072"/>
 	</Pars>
 	<Pars name="beta:double">
-	  <Beta value="0.19396232"/>
-          <Gamma value="0.258039545"/>
+	  <Beta value="0.21332816"/>
+          <Gamma value="0.2454749398"/>
 	</Pars>
       </Parameters>
     </Fitting>
