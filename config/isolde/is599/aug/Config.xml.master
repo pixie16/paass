@@ -77,64 +77,116 @@
       <Channel number="15" type="ge" subtype="clover_low" ></Channel>
     </Module>
     <Module number="2">
-      <Channel number="0" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="1" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="2" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="3" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="4" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="5" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="6" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="7" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="8" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="9" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="10" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="11" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="12" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="13" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="14" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="15" type="vandle" subtype="medium" tags="right"></Channel>
+      <Channel number="0" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection> </Channel>
+      <Channel number="1" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="2" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="3" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="4" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="5" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="6" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="7" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="8" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="9" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="10" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="11" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="12" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="13" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="14" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="15" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
     </Module>
     <Module number="3">
-      <Channel number="0" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="1" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="2" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="3" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="4" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="5" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="6" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="7" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="8" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="9" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="10" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="11" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="12" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="13" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="14" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="15" type="vandle" subtype="medium" tags="right"></Channel>
+      <Channel number="0" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="1" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="2" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="3" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="4" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="5" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="6" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="7" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="8" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="9" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="10" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="11" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="12" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="13" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="14" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="15" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
     </Module>
     <Module number="4">
-      <Channel number="0" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="1" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="2" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="3" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="4" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="5" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="6" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="7" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="8" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="9" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="10" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="11" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="12" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="13" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="14" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="15" type="vandle" subtype="medium" tags="right"></Channel>
+      <Channel number="0" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="1" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="2" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="3" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="4" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="5" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="6" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="7" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="8" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="9" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="10" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="11" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="12" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="13" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="14" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="15" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
     </Module>
     <Module number="5">
-      <Channel number="0" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="1" type="vandle" subtype="medium" tags="right"></Channel>
-      <Channel number="2" type="vandle" subtype="medium" tags="left"></Channel>
-      <Channel number="3" type="vandle" subtype="medium" tags="right"></Channel>
+      <Channel number="0" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="1" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="2" type="vandle" subtype="medium" tags="left">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
+      <Channel number="3" type="vandle" subtype="medium" tags="right">
+	<WalkCorrection model="VM"> </WalkCorrection></Channel>
       <Channel number="6" type="vandle" subtype="small" tags="left"></Channel>
       <Channel number="7" type="vandle" subtype="small" tags="right"></Channel>
       <Channel number="8" type="vandle" subtype="small" tags="left"></Channel>
