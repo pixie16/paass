@@ -135,7 +135,6 @@ void ScanMain::stop_scan(){
 	else{
 		is_running = false;
 		core->StopAcquisition();
-		if(!batch_mode){ term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped."); }
 	}
 }
 
@@ -152,7 +151,7 @@ ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
 	file_start_offset = 0;
 	num_spills_recvd = 0;
 	
-	total_stopped = false;
+	total_stopped = true;
 	write_counts = false;
 	is_running = false;
 	is_verbose = true;
@@ -165,6 +164,7 @@ ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
 	kill_all = false;
 	run_ctrl_exit = false;
 
+	input_file = NULL;
 	poll_server = NULL;
 	term = NULL;
 	
@@ -184,7 +184,6 @@ ScanMain::~ScanMain(){
 void ScanMain::RunControl(){
 	// Notify that we are starting run control.
 	run_ctrl_exit = false;
-	start_scan();
 
 	// Set debug mode, if enabled.
 	if(debug_mode){
@@ -198,7 +197,7 @@ void ScanMain::RunControl(){
 
 	while(true){
 		if(kill_all){ break; }
-	
+
 		// Now we're ready to read the first data buffer
 		if(total_stopped){
 			// Sleep while waiting for the user to scan more data.
@@ -311,6 +310,9 @@ void ScanMain::RunControl(){
 		
 			if(!dry_run_mode){ data = new unsigned int[250000]; }
 		
+			// Reset the buffer reader to default values.
+			databuff.Reset();
+		
 			while(true){ 
 				if(kill_all == true){ 
 					break;
@@ -320,20 +322,32 @@ void ScanMain::RunControl(){
 					continue;
 				}
 
-				if(!databuff.Read(&input_file, (char*)data, nBytes, 1000000, full_spill, bad_spill, dry_run_mode)){
-					if(databuff.GetRetval() == 2){
-						if(debug_mode){ std::cout << "debug: Encountered double EOF buffer.\n"; }
+				if(!databuff.Read(input_file, (char*)data, nBytes, 1000000, full_spill, bad_spill, dry_run_mode)){
+					if(databuff.GetRetval() == 1){
+						if(debug_mode){ std::cout << "debug: Encountered single EOF buffer (end of run).\n"; }
+					}
+					else if(databuff.GetRetval() == 2){
+						if(debug_mode){ std::cout << "debug: Encountered double EOF buffer (end of file).\n"; }
 						break;
 					}
+					else if(databuff.GetRetval() == 3){
+						if(debug_mode){ std::cout << "debug: Encountered unknown ldf buffer type.\n"; }
+					}
+					else if(databuff.GetRetval() == 4){
+						if(debug_mode){ std::cout << "debug: Encountered invalid spill chunk.\n"; }
+					}
+					else if(databuff.GetRetval() == 5){
+						if(debug_mode){ std::cout << "debug: Received bad spill footer size.\n"; }
+					}
 					else if(databuff.GetRetval() == 6){
-						if(debug_mode){ std::cout << "debug: Failed to read from input file.\n"; }
+						if(debug_mode){ std::cout << "debug: Failed to read buffer from input file.\n"; }
 						break;
 					}
 					continue;
 				}
 
 				std::stringstream status;			
-				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%), ";
+				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file->tellg()/file_length << "%), ";
 				status << "GOOD = " << databuff.GetNumChunks() << ", LOST = " << databuff.GetNumMissing();
 				if(!batch_mode){ term->SetStatus(status.str()); }
 				else{ std::cout << "\r" << status.str(); }
@@ -341,18 +355,18 @@ void ScanMain::RunControl(){
 				if(full_spill){ 
 					if(debug_mode){ 
 						std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
-						std::cout << "debug: Read up to word number " << input_file.tellg()/4 << " in input file\n";
+						std::cout << "debug: Read up to word number " << input_file->tellg()/4 << " in input file\n";
 					}
 					if(!dry_run_mode){ 
 						if(!bad_spill){ 
 							core->ReadSpill(data, nBytes/4, is_verbose); 
 						}
-						else{ std::cout << " WARNING: Spill has been flagged as corrupt, skipping (at word " << input_file.tellg()/4 << " in file)!\n"; }
+						else{ std::cout << " WARNING: Spill has been flagged as corrupt, skipping (at word " << input_file->tellg()/4 << " in file)!\n"; }
 					}
 				}
 				else if(debug_mode){ 
 					std::cout << "debug: Retrieved spill fragment of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
-					std::cout << "debug: Read up to word number " << input_file.tellg()/4 << " in input file\n";
+					std::cout << "debug: Read up to word number " << input_file->tellg()/4 << " in input file\n";
 				}
 				num_spills_recvd++;
 			}
@@ -368,7 +382,10 @@ void ScanMain::RunControl(){
 		
 			if(!dry_run_mode){ data = new unsigned int[max_spill_size+2]; }
 		
-			while(pldData.Read(&input_file, (char*)data, nBytes, 4*max_spill_size, dry_run_mode)){ 
+			// Reset the buffer reader to default values.
+			pldData.Reset();
+		
+			while(pldData.Read(input_file, (char*)data, nBytes, 4*max_spill_size, dry_run_mode)){ 
 				if(kill_all == true){ 
 					break;
 				}
@@ -378,13 +395,13 @@ void ScanMain::RunControl(){
 				}
 
 				std::stringstream status;
-				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
+				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file->tellg()/file_length << "%)";
 				if(!batch_mode){ term->SetStatus(status.str()); }
 				else{ std::cout << "\r" << status.str(); }
 		
 				if(debug_mode){ 
 					std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
-					std::cout << "debug: Read up to word number " << input_file.tellg()/4 << " in input file\n";
+					std::cout << "debug: Read up to word number " << input_file->tellg()/4 << " in input file\n";
 				}
 			
 				if(!dry_run_mode){ 
@@ -396,7 +413,7 @@ void ScanMain::RunControl(){
 				num_spills_recvd++;
 			}
 
-			if(eofbuff.ReadHeader(&input_file)){
+			if(eofbuff.ReadHeader(input_file)){
 				std::cout << sys_message_head << "Encountered EOF buffer.\n";
 			}
 			else{
@@ -458,7 +475,7 @@ void ScanMain::CmdControl(){
 		else{ arg = ""; }
 
 		std::vector<std::string> arguments;
-		split_str(arg, arguments);
+		unsigned int p_args = split_str(arg, arguments);
 		
 		if(cmd == "quit" || cmd == "exit"){
 			kill_all = true;
@@ -474,14 +491,15 @@ void ScanMain::CmdControl(){
 		}
 		else if(cmd == "help" || cmd == "h"){
 			std::cout << "  Help:\n";
-			std::cout << "   debug       - Toggle debug mode flag (default=false)\n";
-			std::cout << "   quiet       - Toggle quiet mode flag (default=false)\n";
-			std::cout << "   quit        - Close the program\n";
-			std::cout << "   help (h)    - Display this dialogue\n";
-			std::cout << "   version (v) - Display Poll2 version information\n";
-			std::cout << "   run         - Start acquisition\n";
-			std::cout << "   stop        - Stop acquisition\n";
-			std::cout << "   rewind      - Rewind to the beginning of the file\n";
+			std::cout << "   debug           - Toggle debug mode flag (default=false)\n";
+			std::cout << "   quiet           - Toggle quiet mode flag (default=false)\n";
+			std::cout << "   quit            - Close the program\n";
+			std::cout << "   help (h)        - Display this dialogue\n";
+			std::cout << "   version (v)     - Display Poll2 version information\n";
+			std::cout << "   run             - Start acquisition\n";
+			std::cout << "   stop            - Stop acquisition\n";
+			std::cout << "   file <filename> - Load an input file\n";
+			std::cout << "   rewind [offset] - Rewind to the beginning of the file\n";
 			core->CmdHelp("   ");
 		}
 		else if(cmd == "run"){ // Start acquisition.
@@ -511,8 +529,18 @@ void ScanMain::CmdControl(){
 				is_verbose = false;
 			}
 		}
+		else if(cmd == "file"){ // Rewind the file to the start position
+			if(p_args > 0){
+				OpenInputFile(arguments.at(0));
+			}
+			else{
+				std::cout << sys_message_head << "Invalid number of parameters to 'file'\n";
+				std::cout << sys_message_head << " -SYNTAX- file <filename>\n";
+			}
+		}
 		else if(cmd == "rewind"){ // Rewind the file to the start position
-			Rewind();
+			if(p_args > 0){ Rewind(strtoul(arguments.at(0).c_str(), NULL, 0)); }
+			else{ Rewind(); }
 		}
 		else if(!core->CommandControl(cmd, arguments)){ // Unrecognized command. Send it to Unpacker.
 			std::cout << sys_message_head << "Unknown command '" << cmd << "'\n";
@@ -527,9 +555,6 @@ void ScanMain::Help(char *name_, Unpacker *core){
 	std::cout << "   --version (-v) - Display version information\n";
 	std::cout << "   --debug        - Enable readout debug mode\n";
 	std::cout << "   --shm          - Enable shared memory readout\n";
-	std::cout << "   --ldf          - Force use of ldf readout\n";
-	std::cout << "   --pld          - Force use of pld readout\n";
-	std::cout << "   --root         - Force use of root readout\n";
 	std::cout << "   --quiet        - Toggle off verbosity flag\n";
 	std::cout << "   --counts       - Write all recorded channel counts to a file\n";
 	std::cout << "   --batch        - Run in batch mode (i.e. with no command line)\n";
@@ -608,15 +633,6 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 			core->SetSharedMemMode(true);
 			std::cout << " Using shm mode!\n";
 		}
-		else if(current_arg == "--ldf"){ 
-			file_format = 0;
-		}
-		else if(current_arg == "--pld"){ 
-			file_format = 1;
-		}
-		else if(current_arg == "--root"){ 
-			file_format = 2;
-		}
 		else{ coreargs.push_back(current_arg); } // Unrecognized option.
 	}
 
@@ -624,39 +640,6 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 	if(!core->SetArgs(coreargs, input_filename)){ 
 		Help(argv[0], core);
 		return false; 
-	}
-
-	if(!shm_mode){
-		extension = get_extension(input_filename, prefix);
-		if(file_format != -1){
-			if(file_format == 0){ std::cout << sys_message_head << "Forcing ldf file readout.\n"; }
-			else if(file_format == 1){ std::cout << sys_message_head << "Forcing pld file readout.\n"; }
-			else if(file_format == 2){ std::cout << sys_message_head << "Forcing root file readout.\n"; }
-		}
-		else{
-			if(prefix == ""){
-				std::cout << " FATAL ERROR! Input filename was not specified!\n";
-				return false;
-			}
-		
-			if(extension == "ldf"){ // List data format file
-				file_format = 0;
-			}
-			else if(extension == "pld"){ // Pixie list data file format
-				file_format = 1;
-			}
-			else if(extension == "root"){ // Pixie list data file format
-				file_format = 2;
-			}
-			else{
-				std::cout << " FATAL ERROR! Invalid file format '" << extension << "'\n";
-				std::cout << "  The current valid data formats are:\n";
-				std::cout << "   ldf - list data format (HRIBF)\n";
-				std::cout << "   pld - pixie list data format\n";
-				std::cout << "   root - root file containing raw pixie data\n";
-				return false;
-			}
-		}
 	}
 
 	// Initialize the Unpacker object.
@@ -669,29 +652,26 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 		return false;
 	}
 
-	if(!shm_mode){
-		std::cout << sys_message_head << "Using file prefix " << prefix << ".\n";
-		input_file.open((prefix+"."+extension).c_str(), std::ios::binary);
-		if(!input_file.is_open() || !input_file.good()){
-			std::cout << " FATAL ERROR! Failed to open input file '" << prefix+"."+extension << "'! Check that the path is correct.\n";
-			input_file.close();
-			return 1;
-		}
-		input_file.seekg(0, input_file.end);
-	 	file_length = input_file.tellg();
-	 	input_file.seekg(0, input_file.beg);
-	}
-	else{
+	if(shm_mode){
 		poll_server = new Server();
 		if(!poll_server->Init(5555, 1)){
 			std::cout << " FATAL ERROR! Failed to open shm socket 5555!\n";
-			return 1;
+			std::cout << "\nCleaning up...\n";
+			core->PrintStatus(sys_message_head);
+			core->Close(write_counts);
+			return false;
+		}	
+		if(batch_mode){
+			std::cout << sys_message_head << "Unable to enable batch mode for shared-memory mode!\n";
+			batch_mode = false;
 		}
 	}
-
-	if(shm_mode && batch_mode){
-		std::cout << sys_message_head << "Unable to enable batch mode for shared-memory mode!\n";
-		batch_mode = false;
+	else if(!input_filename.empty()){
+		std::cout << sys_message_head << "Using filename " << input_filename << ".\n";
+		OpenInputFile(input_filename);
+		
+		// Start the scan.
+		start_scan();
 	}
 
 	// Initialize the terminal.
@@ -703,6 +683,7 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 		term->SetCommandHistory(("."+temp_name+".cmd").c_str());
 		term->SetPrompt((temp_name+" $ ").c_str());
 		term->AddStatusWindow();
+		term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped.");
 	}
 
 	std::cout << "\n " << PROG_NAME << " v" << SCAN_VERSION << "\n"; 
@@ -715,13 +696,77 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 		std::cout << sys_message_head << "Listening on poll2 SHM port 5555\n\n";
 	}
 
+	// Do any last minute initialization.
+	try{ core->FinalInitialization(); }
+	catch(...){ std::cout << "\nUnpacker object final initialization failed!\n"; }
+
+	return (init = true);
+}
+
+bool ScanMain::OpenInputFile(const std::string &fname_){
+	if(!init){ 
+		std::cout << " ERROR! Not initialized!\n"; 
+		return false;
+	}
+	else if(is_running){ 
+		std::cout << " ERROR! Unable to open input file while scan is running.\n"; 
+		return false;
+	}
+	else if(shm_mode){
+		std::cout << " ERROR! Unable to open input file in shm mode.\n"; 
+		return false;
+	}
+	
+	extension = get_extension(fname_, prefix);
+	if(prefix == ""){
+		std::cout << " ERROR! Input filename was not specified!\n";
+		return false;
+	}
+
+	if(extension == "ldf"){ // List data format file
+		file_format = 0;
+	}
+	else if(extension == "pld"){ // Pixie list data file format
+		file_format = 1;
+	}
+	/*else if(extension == "root"){ // Pixie list data file format
+		file_format = 2;
+	}*/
+	else{
+		std::cout << " ERROR! Invalid file format '" << extension << "'\n";
+		std::cout << "  The current valid data formats are:\n";
+		std::cout << "   ldf - list data format (HRIBF)\n";
+		std::cout << "   pld - pixie list data format\n";
+		//std::cout << "   root - root file containing raw pixie data\n";
+		return false;
+	}
+
+	// Close the previous file, if one is open.
+	if(input_file){
+		std::cout << " Note: Closing previously opened file.\n";
+		input_file->close();
+		delete input_file;
+	}
+
+	// Load the input file.
+	input_file = new std::ifstream(fname_.c_str(), std::ios::binary);
+	if(!input_file->is_open() || !input_file->good()){
+		std::cout << " ERROR! Failed to open input file '" << fname_ << "'! Check that the path is correct.\n";
+		input_file->close();
+		delete input_file;
+		return false;
+	}
+	input_file->seekg(0, input_file->end);
+ 	file_length = input_file->tellg();
+ 	input_file->seekg(0, input_file->beg);
+
 	if(!shm_mode){
 		// Start reading the file
 		// Every poll2 ldf file starts with a DIR buffer followed by a HEAD buffer
 		int num_buffers;
 		if(file_format == 0){
-			dirbuff.Read(&input_file, num_buffers);
-			headbuff.Read(&input_file);
+			dirbuff.Read(input_file, num_buffers);
+			headbuff.Read(input_file);
 			
 			// Store the file information for later use.
 			finfo.push_back("Run number", dirbuff.GetRunNumber());
@@ -745,7 +790,7 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 			std::cout << "  Run number: " << headbuff.GetRunNumber() << "\n\n";
 		}
 		else if(file_format == 1){
-			pldHead.Read(&input_file);
+			pldHead.Read(input_file);
 			
 			max_spill_size = pldHead.GetMaxSpillSize();
 
@@ -774,14 +819,10 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 		}
 	}
 	
-	// Do any last minute initialization.
-	try{ core->FinalInitialization(); }
-	catch(...){ std::cout << "\nUnpacker object final initialization failed!\n"; }
-
-	return (init = true);
+	return true;	
 }
 
-bool ScanMain::Rewind(){
+bool ScanMain::Rewind(const unsigned long &offset_/*=0*/){
 	if(!init){ return false; }
 
 	// Ensure that the scan is not running.
@@ -791,9 +832,9 @@ bool ScanMain::Rewind(){
 	}
 
 	// Move to the first word in the file.
-	std::cout << " Seeking to word no. " << file_start_offset << " in file\n";
-	input_file.seekg(file_start_offset*4, input_file.beg);
-	std::cout << " Input file is now at " << input_file.tellg() << " bytes\n";
+	std::cout << " Seeking to word no. " << offset_ << " in file\n";
+	input_file->seekg(offset_*4, input_file->beg);
+	std::cout << " Input file is now at " << input_file->tellg() << " bytes\n";
 
 	return true;
 }
@@ -844,7 +885,10 @@ bool ScanMain::Close(){
 	
 	std::cout << sys_message_head << "Retrieved " << num_spills_recvd << " spills!\n";
 
-	input_file.close();	
+	if(input_file){
+		input_file->close();	
+		delete input_file;
+	}
 
 	// Clean up detector driver
 	std::cout << "\n" << sys_message_head << "Cleaning up...\n";
