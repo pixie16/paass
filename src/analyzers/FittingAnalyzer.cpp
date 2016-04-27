@@ -195,7 +195,6 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     }
 
     trace.InsertValue("phase", phase+maxPos);
-    trace.InsertValue("walk", CalculateWalk(maxVal, detType, detSubtype));
 
     trace.plot(DD_AMP, fitAmp, maxVal);
     trace.plot(D_PHASE, phase*1000+100);
@@ -205,26 +204,6 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     gsl_multifit_fdfsolver_free (s);
     gsl_matrix_free (covar);
     EndAnalyze();
-}
-
-double FittingAnalyzer::CalculateWalk(const double &val, const std::string &type,
-                                      const std::string &subType) {
-    if(type == "vandle" || type == "tvandle") {
-        if(val < 175)
-            return(1.09099*log(val)-7.76641);
-        if(val > 3700)
-            return(0.0);
-        else
-            return(-(9.13743e-12)*pow(val,3.) + (1.9485e-7)*pow(val,2.)
-            -0.000163286*val-2.13918);
-        //Original Function - RevD
-        // double f = 92.7907602830327 * exp(-val/186091.225414275) +
-        //  0.59140785215161 * exp(val/2068.14618331387) -
-        //  95.5388835298589;
-    } else if(type == "beta")
-        return(-(1.07908*log10(val)-8.27739));
-    else
-        return(0.0);
 }
 
 int PmtFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
