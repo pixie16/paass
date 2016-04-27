@@ -14,10 +14,7 @@
 
 /** A list of known walk correction models (functions). */
 enum WalkModel {
-    walk_none,
-    walk_A,
-    walk_B1,
-    walk_B2
+    none, A, B1, B2, VS, VM, VL, VB, VD
 };
 
 /** \brief This structure holds walk calibration model identfier and
@@ -49,10 +46,8 @@ public:
      * \param[in] min : The lower bound of the correction range
      * \param[in] max : The upper bound of the correction range
      * \param[in] par : The vector of parameters to use for the calibration */
-    void AddChannel(const Identifier& chanID,
-                    const std::string model,
-                    double min, double max,
-                    const std::vector<double>& par);
+    void AddChannel(const Identifier& chanID, const std::string model,
+                    double min, double max, const std::vector<double>& par);
 
     /** Returns time correction that should be subtracted from
      * the raw time. The channel is identified by Identifier class,
@@ -110,5 +105,11 @@ private:
      * \param [in] raw : the raw value to calibrate
      * \return corrected time in pixie units */
     double Model_B2(const std::vector<double>& par, double raw) const;
+
+    double Model_VS(const std::vector<double>& par, double raw) const;
+    double Model_VM(const std::vector<double>& par, double raw) const;
+    double Model_VL(const std::vector<double>& par, double raw) const;
+    double Model_VB(const std::vector<double>& par, double raw) const;
+    double Model_VD(const std::vector<double>& par, double raw) const;
 };
 #endif
