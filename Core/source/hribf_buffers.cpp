@@ -40,7 +40,7 @@
 #define DIR 542263620   /// "DIR "
 #define PAC 541278544   /// "PAC "
 #define ENDFILE 541478725 /// End of file buffer
-#define ENDBUFF -1 /// End of buffer marker
+#define ENDBUFF 0xFFFFFFFF /// End of buffer marker
 
 const int end_spill_size = 20; /// The size of the end of spill "event" (5 words).
 const int pacman_word1 = 2; /// Words to signify the end of a spill. The scan code searches for these words.
