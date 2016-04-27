@@ -16,8 +16,8 @@
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.09"
-#define SCAN_DATE "April 25th, 2016"
+#define SCAN_VERSION "1.2.10"
+#define SCAN_DATE "April 27th, 2016"
 
 class Server;
 class Terminal;
@@ -75,7 +75,7 @@ class ScanMain{
 
 	Server *poll_server; /// Poll2 shared memory server.
 
-	std::ifstream input_file; /// Main input binary data file.
+	std::ifstream *input_file; /// Main input binary data file.
 	std::streampos file_length; /// Main input file length (in bytes).
 
 	fileInformation finfo; /// Data structure for storing binary file header information.
@@ -140,7 +140,9 @@ class ScanMain{
 	
 	bool Initialize(int argc, char *argv[]);
 	
-	bool Rewind();
+	bool OpenInputFile(const std::string &fname_);
+	
+	bool Rewind(const unsigned long &offset_=0);
 	
 	int Execute();
 	
