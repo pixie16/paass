@@ -25,8 +25,8 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.2.07"
-#define HRIBF_BUFFERS_DATE "April 26th, 2016"
+#define HRIBF_BUFFERS_VERSION "1.2.08"
+#define HRIBF_BUFFERS_DATE "April 27th, 2016"
 
 #define ACTUAL_BUFF_SIZE 8194 /// HRIBF .ldf file format
 
@@ -47,6 +47,9 @@ class BufferType{
 
 	/// Returns only false if not overloaded
 	virtual bool Read(std::ifstream *file_);
+	
+	/// Does nothing if not overloaded.
+	virtual void Reset(){  }
 	
   public:
 	int GetBufferType(){ return bufftype; }
@@ -113,10 +116,13 @@ class PLD_header : public BufferType{
 	
 	/** HEAD buffer (1 word buffer type, 1 word run number, 1 word maximum spill size, 4 word format, 
 	  * 2 word facility, 6 word date, 1 word title length (x in bytes), x/4 word title, 1 word end of buffer*/
-	bool Write(std::ofstream *file_);
+	virtual bool Write(std::ofstream *file_);
 
 	/// Read a HEAD buffer from a pld format file. Return false if buffer has the wrong header and return true otherwise
-	bool Read(std::ifstream *file_);
+	virtual bool Read(std::ifstream *file_);
+
+	/// Set initial values.
+	virtual void Reset();
 };
 
 /// The DATA buffer contains all physics data within the .pld file
@@ -127,10 +133,13 @@ class PLD_data : public BufferType{
 	PLD_data(); /// 0x41544144 "DATA"
 
 	/// Write a data spill to file
-	bool Write(std::ofstream *file_, char *data_, int nWords_);
+	virtual bool Write(std::ofstream *file_, char *data_, int nWords_);
 	
 	/// Read a data spill from a file
-	bool Read(std::ifstream *file_, char *data_, int &nBytes, int max_bytes_, bool dry_run_mode=false);
+	virtual bool Read(std::ifstream *file_, char *data_, int &nBytes, int max_bytes_, bool dry_run_mode=false);
+
+	/// Set initial values.
+	virtual void Reset(){ }
 };
 
 /* The DIR buffer is written at the beginning of each .ldf file. When the file is ready
@@ -153,10 +162,13 @@ class DIR_buffer : public BufferType{
 	/* DIR buffer (1 word buffer type, 1 word buffer size, 1 word for total buffer length,
 	   1 word for total number of buffers, 2 unknown words, 1 word for run number, 1 unknown word,
 	   and 8186 zeros) */
-	bool Write(std::ofstream *file_);
+	virtual bool Write(std::ofstream *file_);
 
 	/// Read a DIR buffer from a file. Return false if buffer has the wrong header and return true otherwise
-	bool Read(std::ifstream *file_, int &number_buffers);
+	virtual bool Read(std::ifstream *file_, int &number_buffers);
+
+	/// Set initial values.
+	virtual void Reset();
 };
 
 /* The HEAD buffer is written after the DIR buffer for each .ldf file. HEAD contains information
@@ -194,10 +206,13 @@ class HEAD_buffer : public BufferType{
 	/** HEAD buffer (1 word buffer type, 1 word buffer size, 2 words for facility, 2 for format, 
 	  * 3 for type, 1 word separator, 4 word date, 20 word title [80 character], 1 word run number,
 	  * 30 words of padding, and 8129 end of buffer words) */
-	bool Write(std::ofstream *file_);
+	virtual bool Write(std::ofstream *file_);
 
 	/// Read a HEAD buffer from a file. Return false if buffer has the wrong header and return true otherwise
-	bool Read(std::ifstream *file_);
+	virtual bool Read(std::ifstream *file_);
+
+	/// Set initial values.
+	virtual void Reset();
 };
 
 /// The DATA buffer contains all physics data within the .ldf file
@@ -257,10 +272,13 @@ class DATA_buffer : public BufferType{
 	unsigned int GetNumMissing(){ return missing_chunks; }
 	
 	/// Write a data spill to file
-	bool Write(std::ofstream *file_, char *data_, int nWords_, int &buffs_written);
+	virtual bool Write(std::ofstream *file_, char *data_, int nWords_, int &buffs_written);
 	
 	/// Read a data spill from a file
-	bool Read(std::ifstream *file_, char *data_, unsigned int &nBytes_, unsigned int max_bytes_, bool &full_spill, bool &bad_spill, bool dry_run_mode=false);
+	virtual bool Read(std::ifstream *file_, char *data_, unsigned int &nBytes_, unsigned int max_bytes_, bool &full_spill, bool &bad_spill, bool dry_run_mode=false);
+
+	/// Set initial values.
+	virtual void Reset();
 };
 
 /// A single EOF buffer signals the end of a run (pacman .ldf format). A double EOF signals the end of the .ldf file.
@@ -269,10 +287,13 @@ class EOF_buffer : public BufferType{
 	EOF_buffer(); /// 0x20464F45 "EOF "
 	
 	/// EOF buffer (1 word buffer type, 1 word buffer size, and 8192 end of buffer words)
-	bool Write(std::ofstream *file_);
+	virtual bool Write(std::ofstream *file_);
 
 	/// Read an EOF buffer from a file. Return false if buffer has the wrong header and return true otherwise
-	bool Read(std::ifstream *file_);
+	virtual bool Read(std::ifstream *file_);
+	
+	/// Set initial values.
+	virtual void Reset(){ }
 };
 
 class PollOutputFile{
