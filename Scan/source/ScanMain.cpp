@@ -641,7 +641,7 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 		Help(argv[0], core);
 		return false; 
 	}
-
+	
 	// Initialize the Unpacker object.
 	std::cout << sys_message_head << "Initializing data unpacker object.\n";
 	if(!core->Initialize(sys_message_head)){ // Failed to initialize the unpacker object. Clean up and exit.
@@ -665,13 +665,6 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 			std::cout << sys_message_head << "Unable to enable batch mode for shared-memory mode!\n";
 			batch_mode = false;
 		}
-	}
-	else if(!input_filename.empty()){
-		std::cout << sys_message_head << "Using filename " << input_filename << ".\n";
-		OpenInputFile(input_filename);
-		
-		// Start the scan.
-		start_scan();
 	}
 
 	// Initialize the terminal.
@@ -700,12 +693,23 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 	try{ core->FinalInitialization(); }
 	catch(...){ std::cout << "\nUnpacker object final initialization failed!\n"; }
 
-	return (init = true);
+	init = true;
+
+	// Load the input file, if the user has supplied a filename.
+	if(!shm_mode && !input_filename.empty()){
+		std::cout << sys_message_head << "Using filename " << input_filename << ".\n";
+		OpenInputFile(input_filename);
+		
+		// Start the scan.
+		start_scan();
+	}
+
+	return true;
 }
 
 bool ScanMain::OpenInputFile(const std::string &fname_){
-	if(!init){ 
-		std::cout << " ERROR! Not initialized!\n"; 
+	if(!init){
+		std::cout << " ERROR! ScanMain is not initialized!\n";
 		return false;
 	}
 	else if(is_running){ 
