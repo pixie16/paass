@@ -64,8 +64,12 @@ bool is_hribf_buffer(const int &input_){
 
 /// Generic BufferType constructor.
 BufferType::BufferType(int bufftype_, int buffsize_, int buffend_/*=-1*/){
-	bufftype = bufftype_; buffsize = buffsize_; buffend = buffend_; zero = 0;
+	bufftype = bufftype_; 
+	buffsize = buffsize_; 
+	buffend = buffend_; 
+	zero = 0;
 	debug_mode = false;
+	Reset();
 }
 
 /// Returns only false if not overwritten
@@ -90,14 +94,6 @@ bool BufferType::ReadHeader(std::ifstream *file_){
 
 /// Default constructor.
 PLD_header::PLD_header() : BufferType(HEAD, 0){ // 0x44414548 "HEAD"
-	set_char_array("U OF TENNESSEE  ", facility, 16);
-	set_char_array("PIXIE LIST DATA ", format, 16);
-	set_char_array("Mon Jan 01 00:00:00 2000", start_date, 24);
-	set_char_array("Mon Jan 01 00:00:00 2000", end_date, 24);
-	max_spill_size = 0;
-	run_title = NULL;
-	run_time = 0.0;
-	run_num = 0;
 }
 
 /// Destructor.
@@ -217,6 +213,18 @@ bool PLD_header::Read(std::ifstream *file_){
 	return true;
 }
 
+/// Set initial values.
+void PLD_header::Reset(){
+	set_char_array("U OF TENNESSEE  ", facility, 16);
+	set_char_array("PIXIE LIST DATA ", format, 16);
+	set_char_array("Mon Jan 01 00:00:00 2000", start_date, 24);
+	set_char_array("Mon Jan 01 00:00:00 2000", end_date, 24);
+	max_spill_size = 0;
+	run_title = NULL;
+	run_time = 0.0;
+	run_num = 0;
+}
+
 /// Default constructor.
 PLD_data::PLD_data() : BufferType(DATA, 0){ // 0x41544144 "DATA"
 }
@@ -283,11 +291,6 @@ bool PLD_data::Read(std::ifstream *file_, char *data_, int &nBytes, int max_byte
 
 /// Default constructor.
 DIR_buffer::DIR_buffer() : BufferType(DIR, NO_HEADER_SIZE){ // 0x20524944 "DIR "
-	total_buff_size = ACTUAL_BUFF_SIZE;
-	run_num = 0;
-	unknown[0] = 0;
-	unknown[1] = 1;
-	unknown[2] = 2;
 }
 	
 /** DIR buffer (1 word buffer type, 1 word buffer size, 1 word for total buffer length,
@@ -337,13 +340,17 @@ bool DIR_buffer::Read(std::ifstream *file_, int &number_buffers){
 	return true;
 }
 
+/// Set initial values.
+void DIR_buffer::Reset(){
+	total_buff_size = ACTUAL_BUFF_SIZE;
+	run_num = 0;
+	unknown[0] = 0;
+	unknown[1] = 1;
+	unknown[2] = 2;
+}
+
 /// Default constructor.
 HEAD_buffer::HEAD_buffer() : BufferType(HEAD, 64){ // 0x44414548 "HEAD"
-	set_char_array("HHIRF   ", facility, 8);
-	set_char_array("L003    ", format, 8);
-	set_char_array("LIST DATA       ", type, 16);
-	set_char_array("01/01/01 00:00  ", date, 16);
-	run_num = 0;
 }
 
 /// Set the date and time of the ldf file.
@@ -444,6 +451,15 @@ bool HEAD_buffer::Read(std::ifstream *file_){
 	return true;
 }
 
+/// Set initial values.
+void HEAD_buffer::Reset(){
+	set_char_array("HHIRF   ", facility, 8);
+	set_char_array("L003    ", format, 8);
+	set_char_array("LIST DATA       ", type, 16);
+	set_char_array("01/01/01 00:00  ", date, 16);
+	run_num = 0;
+}
+
 /// Write a ldf data buffer header (2 words).
 bool DATA_buffer::open_(std::ofstream *file_){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
@@ -510,16 +526,6 @@ bool DATA_buffer::read_next_buffer(std::ifstream *f_, bool force_/*=false*/){
 
 /// Default constructor.
 DATA_buffer::DATA_buffer() : BufferType(DATA, NO_HEADER_SIZE){ // 0x41544144 "DATA"
-	current_buff_pos = 0; 
-	buff_words_remaining = ACTUAL_BUFF_SIZE;
-	good_words_remaining = OPTIMAL_CHUNK_SIZE;
-	curr_buffer = buffer1;
-	next_buffer = buffer2;
-	buff_pos = 0;
-	bcount = 0;
-	retval = 0;
-	good_chunks = 0;
-	missing_chunks = 0;
 }
 
 /// Close a ldf data buffer by padding with 0xFFFFFFFF.
@@ -846,6 +852,20 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 	}
 
 	return false;
+}
+
+/// Set initial values.
+void DATA_buffer::Reset(){
+	current_buff_pos = 0; 
+	buff_words_remaining = ACTUAL_BUFF_SIZE;
+	good_words_remaining = OPTIMAL_CHUNK_SIZE;
+	curr_buffer = buffer1;
+	next_buffer = buffer2;
+	buff_pos = 0;
+	bcount = 0;
+	retval = 0;
+	good_chunks = 0;
+	missing_chunks = 0;
 }
 
 EOF_buffer::EOF_buffer() : BufferType(ENDFILE, NO_HEADER_SIZE){} // 0x20464F45 "EOF "
