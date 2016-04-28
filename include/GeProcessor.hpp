@@ -201,6 +201,13 @@ public:
      virtual bool Process(RawEvent &event);
     /** Declare the plots for the processor */
     virtual void DeclarePlots(void);
+
+    /** Returns the events that were added to the geEvents_ vector */
+    std::vector<ChanEvent*> GetGeEvents(void) {return(geEvents_);}
+    /** Returns the events that were added to the addbackEvents_ */
+    std::vector< std::vector<AddBackEvent> > GetAddBackEvents(void) {return(addbackEvents_);}
+    /** Returns the events that were added to the tas_ */
+    std::vector<AddBackEvent> GetTasEvents(void) {return(tas_);}
 protected:
     static const unsigned int chansPerClover = 4; /*!< number of channels per clover */
 
@@ -248,9 +255,9 @@ protected:
     void symplot(int dammID, double bin1, double bin2);
 
     /** addbackEvents vector of vectors, where first vector
-     * enumerates cloves, second events
-     */
+     * enumerates cloves, second events */
     std::vector< std::vector<AddBackEvent> > addbackEvents_;
+    
     /** tas vector for total energy absorbed, similar structure as addback
      * but there is only one "super-clover" (sum of all detectors)*/
     std::vector<AddBackEvent> tas_;

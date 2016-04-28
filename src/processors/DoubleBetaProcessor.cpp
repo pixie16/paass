@@ -40,6 +40,9 @@ void DoubleBetaProcessor::DeclarePlots(void) {
 bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return(false);
+    lrtbars_.clear();
+    bars_.clear();
+    
     
     static const vector<ChanEvent*> & events =
         event.GetSummary("beta:double")->GetList();
@@ -47,21 +50,21 @@ bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
     BarBuilder builder(events);
     builder.BuildBars();
 
-    map<unsigned int, pair<double,double> > lrtbars = builder.GetLrtBarMap();
-    BarMap betas = builder.GetBarMap();
+    lrtbars_ = builder.GetLrtBarMap();
+    bars_ = builder.GetBarMap();
 
     double resolution = 2;
     double offset = 1500;
 
-    for(map<unsigned int, pair<double,double> >::iterator it = lrtbars.begin();
-	it != lrtbars.end(); it++) {
+    for(map<unsigned int, pair<double,double> >::iterator it = lrtbars_.begin();
+	it != lrtbars_.end(); it++) {
 	stringstream place;
 	place << "DoubleBeta" << (*it).first;
 	EventData data((*it).second.first, (*it).second.second, (*it).first);
 	TreeCorrelator::get()->place(place.str())->activate(data);
     }
     
-    for(BarMap::const_iterator it = betas.begin(); it != betas.end(); it++) {
+    for(BarMap::const_iterator it = bars_.begin(); it != bars_.end(); it++) {
         unsigned int barNum = (*it).first.first;
 	plot(DD_QDC, (*it).second.GetLeftSide().GetTraceQdc(), barNum * 2);
 	plot(DD_QDC, (*it).second.GetRightSide().GetTraceQdc(), barNum * 2 + 1);
