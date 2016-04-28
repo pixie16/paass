@@ -42,12 +42,12 @@ public:
     /** Sets the associated types for the derived classes
     * \return The types associated with a Processor */
     virtual const std::set<std::string>& GetTypes(void) const {
-        return associatedTypes;
+        return(associatedTypes);
     }
 
     /** \return The status of the Processor */
     virtual bool DidProcess(void) const {
-        return didProcess;
+        return(didProcess);
     }
 
     /** See if the detectors of interest have any events
@@ -82,7 +82,7 @@ public:
     /** Get the name of the processor
     * \return Name of the processor */
     std::string GetName(void) const {
-        return name;
+        return(name);
     }
 #ifdef useroot
     /** This functions adds the branch to the tree that will be responsible

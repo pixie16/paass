@@ -15,6 +15,7 @@
 
 #include "BarBuilder.hpp"
 #include "DammPlotIds.hpp"
+#include "DetectorDriver.hpp"
 #include "GetArguments.hpp"
 #include "Globals.hpp"
 #include "RawEvent.hpp"
@@ -51,7 +52,7 @@ using namespace dammIds::vandle;
 
 VandleProcessor::VandleProcessor(): EventProcessor(dammIds::vandle::OFFSET,
                                                    dammIds::vandle::RANGE,
-                                                   "vandle") {
+                                                   "VandleProcessor") {
     associatedTypes.insert("vandle");
 }
 

@@ -37,7 +37,7 @@ void McpProcessor::McpData::Clear(void) {
   mult = 0;
 }
 
-McpProcessor::McpProcessor(void) : EventProcessor(OFFSET, RANGE, "mcp") {
+McpProcessor::McpProcessor(void) : EventProcessor(OFFSET, RANGE, "McpProcessor") {
   associatedTypes.insert("mcp");
 }
 
