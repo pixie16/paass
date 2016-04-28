@@ -51,7 +51,7 @@ namespace dammIds {
     }
 }
 
-ScintProcessor::ScintProcessor() : EventProcessor(OFFSET, RANGE, "scint") {
+ScintProcessor::ScintProcessor() : EventProcessor(OFFSET, RANGE, "ScintProcessor") {
     associatedTypes.insert("scint");
 }
 

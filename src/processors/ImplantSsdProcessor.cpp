@@ -68,9 +68,8 @@ namespace dammIds {
     }
 }
 
-ImplantSsdProcessor::ImplantSsdProcessor() :
-    EventProcessor(OFFSET, RANGE, "ssd")
-{
+ImplantSsdProcessor::ImplantSsdProcessor() : 
+    EventProcessor(OFFSET, RANGE, "ImplantSsdProcessor") {
     associatedTypes.insert("ssd");
 }
 

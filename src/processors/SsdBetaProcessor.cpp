@@ -14,7 +14,7 @@ using std::endl;
 
 SsdProcessor::SsdProcessor() :
   EventProcessor(), ssdSummary(NULL) {
-    name = "ssd";
+    name = "SsdBetaProcessor";
     associatedTypes.insert("ssd");
 }
 

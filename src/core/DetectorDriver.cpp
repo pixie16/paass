@@ -652,16 +652,13 @@ int DetectorDriver::PlotCal(const ChanEvent *chan) {
     return 0;
 }
 
-vector<EventProcessor *> DetectorDriver::GetProcessors(const std::string& type) const {
-  vector<EventProcessor *> retVec;
-
-  for (vector<EventProcessor *>::const_iterator it = vecProcess.begin();
-       it != vecProcess.end(); it++) {
-    if ( (*it)->GetTypes().count(type) > 0 )
-      retVec.push_back(*it);
-  }
-
-  return retVec;
+EventProcessor* DetectorDriver::GetProcessor(const std::string& name) const {
+    for (vector<EventProcessor *>::const_iterator it = vecProcess.begin();
+	 it != vecProcess.end(); it++) {
+	if ( (*it)->GetName() == name )
+	    return(*it); 
+    }
+    return(NULL);
 }
 
 void DetectorDriver::ReadCalXml() {

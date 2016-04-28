@@ -30,9 +30,7 @@ namespace dammIds {
     }
 }
 
-NeutronProcessor::NeutronProcessor() : EventProcessor(OFFSET, RANGE)
-{
-    name = "Neutron";
+NeutronProcessor::NeutronProcessor() : EventProcessor(OFFSET, RANGE, "NeutronProcessor") {
     associatedTypes.insert("scint");
 }
 

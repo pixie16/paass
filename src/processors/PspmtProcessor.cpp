@@ -64,7 +64,7 @@ namespace dammIds{
 void PspmtProcessor::PspmtData::Clear(void) {    
 }
 
-PspmtProcessor::PspmtProcessor(void) : EventProcessor(OFFSET, RANGE, "pspmt") {
+PspmtProcessor::PspmtProcessor(void) : EventProcessor(OFFSET, RANGE, "PspmtProcessor") {
     associatedTypes.insert("pspmt");
 }
 
