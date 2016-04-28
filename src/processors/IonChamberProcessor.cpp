@@ -35,7 +35,7 @@ namespace dammIds {
 }
 
 IonChamberProcessor::IonChamberProcessor() :
-    EventProcessor(OFFSET, RANGE, "ionchamber") {
+    EventProcessor(OFFSET, RANGE, "IonChamberProcessor") {
     associatedTypes.insert("ion_chamber");
 
     for (size_t i=0; i < noDets; i++) {

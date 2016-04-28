@@ -144,12 +144,12 @@ public:
 
     /** \return the list of the Event Processors in the analysis */
     const std::vector<EventProcessor *>& GetProcessors(void) const {
-        return vecProcess;
+        return(vecProcess);
     }
-
+    
     /** \return The requested event processor
      * \param [in] type : the name of the processor to return */
-    std::vector<EventProcessor *> GetProcessors(const std::string &type) const;
+    EventProcessor* GetProcessor(const std::string &name) const;
 
     /** \return the set of detectors used in the analysis */
     const std::set<std::string> &GetUsedDetectors(void) const;

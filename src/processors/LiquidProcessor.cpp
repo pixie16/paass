@@ -32,8 +32,7 @@ namespace dammIds {
     }
 }
 
-LiquidProcessor::LiquidProcessor() : EventProcessor(OFFSET, RANGE) {
-    name = "Liquid";
+LiquidProcessor::LiquidProcessor() : EventProcessor(OFFSET, RANGE, "LiquidProcessor") {
     associatedTypes.insert("scint");
 }
 
