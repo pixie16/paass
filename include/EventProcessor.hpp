@@ -47,7 +47,7 @@ public:
 
     /** \return The status of the Processor */
     virtual bool DidProcess(void) const {
-        return didProcess;
+        return(didProcess);
     }
 
     /** See if the detectors of interest have any events

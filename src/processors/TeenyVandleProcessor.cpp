@@ -29,7 +29,7 @@ using namespace dammIds::teenyvandle;
 
 TeenyVandleProcessor::TeenyVandleProcessor():
     EventProcessor(dammIds::teenyvandle::OFFSET, dammIds::teenyvandle::RANGE,
-                   "tvandle") {
+                   "TeenyVandleProcessor") {
     associatedTypes.insert("tvandle");
 }
 

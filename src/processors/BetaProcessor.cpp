@@ -22,8 +22,7 @@ namespace dammIds {
     }
 }
 
-BetaProcessor::BetaProcessor() : EventProcessor(OFFSET, RANGE) {
-    name = "Beta";
+BetaProcessor::BetaProcessor() : EventProcessor(OFFSET, RANGE, "BetaProcessor") {
     associatedTypes.insert("scint");
 }
 
