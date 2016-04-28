@@ -148,6 +148,12 @@ namespace dammIds {
         const int RANGE = 10;//!< Range for Correlator
     }
 
+    /// For Experiment specific processors
+    namespace experiment{
+	const int OFFSET = 6050;
+	const int RANGE = 250;
+    }
+
     /// in DssdProcessor.cpp
     namespace dssd {
         const int OFFSET = 7000;//!< Offset for DssdProcessor
