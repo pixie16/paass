@@ -144,7 +144,7 @@ public:
 
     /** \return the list of the Event Processors in the analysis */
     const std::vector<EventProcessor *>& GetProcessors(void) const {
-        return vecProcess;
+        return(vecProcess);
     }
 
     /** \return The requested event processor

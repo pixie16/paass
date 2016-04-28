@@ -35,11 +35,10 @@ EventProcessor::EventProcessor(int offset, int range, std::string proc_name) :
 }
 
 EventProcessor::~EventProcessor() {
-    if (initDone) {
-        cout << "processor " << name << " : "
-            << userTime << " user time, "
-            << systemTime << " system time" << endl;
-    }
+    if (initDone)
+        cout << name << " : " 
+	     << userTime << " user time, "
+	     << systemTime << " system time" << endl;
 }
 
 bool EventProcessor::HasEvent(void) const {
