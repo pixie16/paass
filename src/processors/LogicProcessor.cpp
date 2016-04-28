@@ -60,7 +60,7 @@ namespace dammIds {
 } // logic namespace
 
 LogicProcessor::LogicProcessor(void) : 
-    EventProcessor(dammIds::logic::OFFSET, dammIds::logic::RANGE, "Logic"),
+    EventProcessor(dammIds::logic::OFFSET, dammIds::logic::RANGE, "LogicProcessor"),
     lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
     logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC) {
     associatedTypes.insert("logic");

@@ -33,8 +33,8 @@ public:
      * \param [in] res : The resolution of the DAMM histograms
      * \param [in] offset : The offset of the DAMM histograms */
     IS600Processor(const std::vector<std::string> &typeList,
-                    const double &res, const double &offset,
-                    const double &numStarts);
+		   const double &res, const double &offset,
+		   const double &numStarts);
 
     /** Preprocess the VANDLE data
      * \param [in] event : the event to preprocess

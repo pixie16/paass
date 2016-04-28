@@ -27,7 +27,7 @@ using namespace dammIds::doublebeta;
 
 DoubleBetaProcessor::DoubleBetaProcessor():
     EventProcessor(dammIds::doublebeta::OFFSET, dammIds::doublebeta::RANGE,
-                   "Double Beta") {
+                   "DoubleBetaProcessor") {
     associatedTypes.insert("beta");
 }
 
