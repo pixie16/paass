@@ -70,7 +70,7 @@ LogicProcessor::LogicProcessor(void) :
 
 LogicProcessor::LogicProcessor(int offset, int range, bool doubleStop/*=false*/,
 			       bool doubleStart/*=false*/) : 
-    EventProcessor(offset, range, "Logic"),
+    EventProcessor(offset, range, "LogicProcessor"),
     lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
     logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC) {
     associatedTypes.insert("logic");

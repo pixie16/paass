@@ -36,7 +36,7 @@ EventProcessor::EventProcessor(int offset, int range, std::string proc_name) :
 
 EventProcessor::~EventProcessor() {
     if (initDone)
-        cout << name << " : " 
+        cout << name << " : "
 	     << userTime << " user time, "
 	     << systemTime << " system time" << endl;
 }
@@ -45,10 +45,10 @@ bool EventProcessor::HasEvent(void) const {
     for (map<string, const DetectorSummary*>::const_iterator it = sumMap.begin();
 	 it != sumMap.end(); it++) {
         if (it->second->GetMult() > 0) {
-            return true;
+            return(true);
         }
     }
-    return false;
+    return(false);
 }
 
 bool EventProcessor::Init(RawEvent& rawev) {
@@ -59,9 +59,8 @@ bool EventProcessor::Init(RawEvent& rawev) {
                      usedDets.begin(), usedDets.end(),
                      back_inserter(intersect) );
 
-    if (intersect.empty()) {
-        return false;
-    }
+    if (intersect.empty())
+        return(false);
 
     for (vector<string>::const_iterator it = intersect.begin();
 	 it != intersect.end(); it++) {
@@ -75,7 +74,7 @@ bool EventProcessor::Init(RawEvent& rawev) {
        << intersect.size() << " detector type(s).";
     m.detail(ss.str());
 
-    return true;
+    return(true);
 }
 
 bool EventProcessor::PreProcess(RawEvent &event) {

@@ -20,7 +20,7 @@ using namespace std;
 stringstream ValidProcessor::fileName;
 
 ValidProcessor::ValidProcessor(): EventProcessor() {
-    name = "Valid";
+    name = "ValidProcessor";
     associatedTypes.insert("valid");
 
 }

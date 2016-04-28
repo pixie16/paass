@@ -19,7 +19,7 @@ using namespace dammIds::beta_scint;
 
 BetaScintProcessor::BetaScintProcessor(double gammaBetaLimit,
                                        double energyContraction) :
-    EventProcessor(OFFSET, RANGE, "beta_scint") {
+    EventProcessor(OFFSET, RANGE, "BetaScintProcessor") {
     associatedTypes.insert("beta_scint");
     gammaBetaLimit_ = gammaBetaLimit;
     energyContraction_ = energyContraction;

@@ -37,7 +37,7 @@ namespace dammIds {
     }
 }
 
-Hen3Processor::Hen3Processor() : EventProcessor(OFFSET, RANGE, "3hen") {
+Hen3Processor::Hen3Processor() : EventProcessor(OFFSET, RANGE, "Hen3Processor") {
     associatedTypes.insert("3hen");
 }
 

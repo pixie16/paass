@@ -65,7 +65,7 @@ GeProcessor::GeProcessor(double gammaThreshold, double lowRatio,
                          double gammaBetaLimit, double gammaGammaLimit,
                          double cycle_gate1_min, double cycle_gate1_max,
                          double cycle_gate2_min, double cycle_gate2_max) :
-                         EventProcessor(OFFSET, RANGE, "ge"),
+                         EventProcessor(OFFSET, RANGE, "GeProcessor"),
                          leafToClover() {
     associatedTypes.insert("ge"); // associate with germanium detectors
 
