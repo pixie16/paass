@@ -28,6 +28,15 @@ public:
     * \param [in] event : the event to process
     * \return true if processing was successful */
     virtual bool Process(RawEvent &event);
+
+    /** \return The map of the bars that had high resolution timing */
+    BarMap GetBars(void){return(bars_);}
+    /** \return the map of the bars that had low resolution timing */
+    std::map<unsigned int, std::pair<double,double> > GetLowResBars(void) {
+	return(lrtbars_);
+    }
 private:
+    BarMap bars_;
+    std::map<unsigned int, std::pair<double,double> > lrtbars_;
 };
 #endif // __DOUBLEBETAPROCESSOR_HPP__
