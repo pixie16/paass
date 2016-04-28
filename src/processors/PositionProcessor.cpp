@@ -53,7 +53,7 @@ namespace dammIds {
 using namespace dammIds::position;
 
 PositionProcessor::PositionProcessor() :
-    EventProcessor(OFFSET, RANGE, "position") {
+    EventProcessor(OFFSET, RANGE, "PositionProcessor") {
     associatedTypes.insert("ssd");
 }
 

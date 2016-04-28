@@ -20,7 +20,7 @@ using namespace dammIds::template;
 
 TemplateProcessor::TemplateProcessor():
     EventProcessor(dammIds::template::OFFSET, dammIds::template::RANGE,
-                   "template") {
+                   "TemplateProcessor") {
     associatedTypes.insert("template");
 }
 

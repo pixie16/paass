@@ -92,7 +92,7 @@ bool IS600Processor::PreProcess(RawEvent &event){
         return(false);
     if(!VandleProcessor::PreProcess(event))
 	return(false);
-    DetectorDriver::get()->GetProcessors("DoubleBetaProcessor").at(0)->PreProcess(event);
+    DetectorDriver::get()->GetProcessor("DoubleBetaProcessor")->PreProcess(event);
 }
 
 bool IS600Processor::Process(RawEvent &event) {
