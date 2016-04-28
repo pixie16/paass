@@ -12,6 +12,8 @@
 
 #include "BarBuilder.hpp"
 #include "DammPlotIds.hpp"
+#include "DoubleBetaProcessor.hpp"
+#include "DetectorDriver.hpp"
 #include "GetArguments.hpp"
 #include "Globals.hpp"
 #include "RawEvent.hpp"
@@ -48,6 +50,7 @@ void IS600Processor::DeclarePlots(void) {
     DeclareHistogram2D(DD_DEBUGGING4, SC, SC, "QDC vs Cor Tof Mult1");
     DeclareHistogram1D(DD_DEBUGGING3, S7, "Vandle Multiplicity");
     DeclareHistogram2D(DD_DEBUGGING5, SC, SC, "Mult2 Sym Plot Tof ");
+    DeclareHistogram1D(DD_DEBUGGING6, SE, "LaBr3 RAW");
 }
 
 IS600Processor::IS600Processor(const std::vector<std::string> &typeList,
@@ -55,6 +58,9 @@ IS600Processor::IS600Processor(const std::vector<std::string> &typeList,
 			       const double &numStarts) :
     VandleProcessor(typeList,res,offset,numStarts) {
     associatedTypes.insert("vandle");
+    associatedTypes.insert("labr3");
+    associatedTypes.insert("beta");
+    associatedTypes.insert("ge");
     
     char hisFileName[32];
     GetArgument(1, hisFileName, 32);
@@ -86,23 +92,27 @@ bool IS600Processor::PreProcess(RawEvent &event){
         return(false);
     if(!VandleProcessor::PreProcess(event))
 	return(false);
-    return(true);
+    DetectorDriver::get()->GetProcessors("DoubleBetaProcessor").at(0)->PreProcess(event);
 }
 
 bool IS600Processor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return(false);
     if(!VandleProcessor::Process(event))
-        return(false);
+	return(false);
+    
+    //Obtain some useful logic statuses 
+    double lastProtonTime =  TreeCorrelator::get()->place("logic_t1_0")->last().time;
+    bool isTapeMoving = TreeCorrelator::get()->place("TapeMove")->status();
 
     int bananaNum = 2;
     bool hasMultOne = bars_.size() == 1;
     bool hasMultTwo = bars_.size() == 2;
     //bool isFirst = true;
-    bool isTapeMoving = TreeCorrelator::get()->place("TapeMove")->status();
 
     plot(DD_DEBUGGING3, bars_.size());
 
+    //Begin processing for VANDLE bars
     for (BarMap::iterator it = bars_.begin(); it !=  bars_.end(); it++) {
         TimingDefs::TimingIdentifier barId = (*it).first;
         BarDetector bar = (*it).second;
@@ -195,6 +205,15 @@ bool IS600Processor::Process(RawEvent &event) {
             }
         } // for(TimingMap::iterator itStart
     } //(BarMap::iterator itBar
+    //End processing for VANDLE bars
+
+    static const vector<ChanEvent*> &labr3Evts =
+	event.GetSummary("labr3:mrbig")->GetList();
+    
+    for(vector<ChanEvent*>::const_iterator it = labr3Evts.begin();
+	it != labr3Evts.end(); it++)
+	plot(DD_DEBUGGING6, (*it)->GetEnergy());
+    
     EndProcess();
     return(true);
 }

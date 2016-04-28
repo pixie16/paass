@@ -30,7 +30,6 @@ IS600DoubleBetaProcessor::IS600DoubleBetaProcessor():
 void IS600DoubleBetaProcessor::DeclarePlots(void) {
     DoubleBetaProcessor::DeclarePlots();
     DeclareHistogram2D(DD_PROTONBETA2TDIFF_VS_BETA2EN, SD, SA, "BetaProton Tdiff vs. Beta Energy");
-    DeclareHistogram1D(DD_DEBUGGING6, SE, "Vandle Multiplicity");
 }
 
 bool IS600DoubleBetaProcessor::PreProcess(RawEvent &event) {
@@ -45,10 +44,6 @@ bool IS600DoubleBetaProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return(false);
     
-    double clockInSeconds = Globals::get()->clockInSeconds();
-    // plot with 10 ms bins
-    const double plotResolution = 10e-3 / clockInSeconds;
-    
     static const vector<ChanEvent*> & events =
         event.GetSummary("beta:double")->GetList();
     
@@ -56,31 +51,13 @@ bool IS600DoubleBetaProcessor::Process(RawEvent &event) {
     builder.BuildBars();
     map<unsigned int, pair<double,double> > lrtbars = builder.GetLrtBarMap();
     BarMap betas = builder.GetBarMap();
-    
     double lastProtonTime =  TreeCorrelator::get()->place("logic_t1_0")->last().time;
-    double energy2 = 0., energy3 = 0., time2 = 0.;
- 
-    for(vector<ChanEvent*>::const_iterator it = events.begin();
-	it != events.end(); it++) {
-	unsigned int loc = (*it)->GetChanID().GetLocation();
-	if(loc == 0 || loc == 1)
-	    continue;
-	else if (loc == 2) {
-	    energy2 = (*it)->GetEnergy();
-	    time2 = (*it)->GetTime();
-	} else if (loc == 3) {
-	    energy3 = (*it)->GetEnergy();
-	}
-    }
     
-    plot(DD_PROTONBETA2TDIFF_VS_BETA2EN, energy2, (time2 - lastProtonTime) / plotResolution);
-    
-    static const vector<ChanEvent*> &labr3Evts =
-	event.GetSummary("labr3:mrbig")->GetList();
-    
-    for(vector<ChanEvent*>::const_iterator it = labr3Evts.begin();
-	it != labr3Evts.end(); it++)
-	plot(DD_DEBUGGING6, (*it)->GetEnergy());
+    for(map<unsigned int, pair<double,double> >::iterator it = lrtbars.begin(); 
+	it != lrtbars.end(); it++)
+	plot(DD_PROTONBETA2TDIFF_VS_BETA2EN, it->second.second, 
+	     (it->second.first - lastProtonTime) / 
+	     (10e-3/Globals::get()->clockInSeconds()) );
     
     EndProcess();
     return(true);
