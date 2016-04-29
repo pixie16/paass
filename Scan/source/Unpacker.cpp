@@ -386,9 +386,9 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 		else if(vsn == 1000){ // Buffer with vsn 1000 was inserted with the time for superheavy exp't
 			memcpy(&theTime, &data[nWords_read+2], sizeof(time_t));
 			if(is_verbose){
-				struct tm * timeinfo;
+				/*struct tm * timeinfo;
 				timeinfo = localtime (&theTime);
-				//std::cout << "ReadSpill: Read wall clock time of " << asctime(timeinfo);
+				std::cout << "ReadSpill: Read wall clock time of " << asctime(timeinfo);*/
 			}
 			nWords_read += lenRec;
 			continue;
