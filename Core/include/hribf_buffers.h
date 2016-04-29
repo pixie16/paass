@@ -25,8 +25,8 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.2.08"
-#define HRIBF_BUFFERS_DATE "April 27th, 2016"
+#define HRIBF_BUFFERS_VERSION "1.2.09"
+#define HRIBF_BUFFERS_DATE "April 28th, 2016"
 
 #define ACTUAL_BUFF_SIZE 8194 /// HRIBF .ldf file format
 
