@@ -73,6 +73,11 @@ std::string fileInformation::print(const size_t &index_){
 	return std::string(parnames.at(index_) + ": " + parvalues.at(index_));
 }
 
+void fileInformation::clear(){
+	parnames.clear();
+	parvalues.clear();
+}
+
 /////////////////////////////////////////////////////////////////////
 // class ScanMain
 /////////////////////////////////////////////////////////////////////
@@ -127,6 +132,9 @@ void ScanMain::start_scan(){
 		core->StartAcquisition();
 		if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for Unpacker..."); }
 	}
+	
+	// Notify the unpacker object that the user has started the scan.
+	core->Notify("START_SCAN");
 }
 
 void ScanMain::stop_scan(){
@@ -136,6 +144,9 @@ void ScanMain::stop_scan(){
 		is_running = false;
 		core->StopAcquisition();
 	}
+	
+	// Notify the unpacker object that the user has stopped the scan.
+	core->Notify("STOP_SCAN");
 }
 
 ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
@@ -427,6 +438,9 @@ void ScanMain::RunControl(){
 		}
 		else if(file_format == 2){
 		}
+
+		// Notify the unpacker object that the scan has completed.
+		core->Notify("SCAN_COMPLETE");
 		
 		total_stopped = true;
 		stop_scan();
@@ -765,6 +779,9 @@ bool ScanMain::OpenInputFile(const std::string &fname_){
  	input_file->seekg(0, input_file->beg);
 
 	if(!shm_mode){
+		// Clear the file information container.
+		finfo.clear();
+	
 		// Start reading the file
 		// Every poll2 ldf file starts with a DIR buffer followed by a HEAD buffer
 		int num_buffers;
@@ -822,6 +839,9 @@ bool ScanMain::OpenInputFile(const std::string &fname_){
 		else if(file_format == 2){
 		}
 	}
+
+	// Notify the unpacker object that the user has loaded a new file.
+	core->Notify("LOAD_FILE");
 	
 	return true;	
 }
@@ -839,6 +859,9 @@ bool ScanMain::Rewind(const unsigned long &offset_/*=0*/){
 	std::cout << " Seeking to word no. " << offset_ << " in file\n";
 	input_file->seekg(offset_*4, input_file->beg);
 	std::cout << " Input file is now at " << input_file->tellg() << " bytes\n";
+
+	// Notify the unpacker object that the user has rewound to the start of the file.
+	core->Notify("REWIND_FILE");
 
 	return true;
 }

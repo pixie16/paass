@@ -16,8 +16,8 @@
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.11"
-#define SCAN_DATE "April 27th, 2016"
+#define SCAN_VERSION "1.2.12"
+#define SCAN_DATE "April 28th, 2016"
 
 class Server;
 class Terminal;
@@ -43,6 +43,8 @@ class fileInformation{
 	bool is_in(const std::string & name_);
 	
 	std::string print(const size_t &index_);
+	
+	void clear();
 };
 
 class ScanMain{

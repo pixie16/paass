@@ -100,6 +100,12 @@ class Unpacker{
 	  */
 	virtual void FinalInitialization(){ }
 	
+	/** Notify the unpacker object of a user action. This method should be
+	  * used in order to pass information to a class derived from Unpacker.
+	  * This method does nothing if it is not overloaded.
+	  */
+	virtual void Notify(const std::string &code_=""){ }
+	
 	/** Initialize the root output. Does nothing useful if not overloaded
 	 * by a derived class.
 	 */
