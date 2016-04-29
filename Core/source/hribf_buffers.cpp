@@ -42,9 +42,9 @@
 #define ENDFILE 541478725 /// End of file buffer
 #define ENDBUFF 0xFFFFFFFF /// End of buffer marker
 
-const int end_spill_size = 20; /// The size of the end of spill "event" (5 words).
-const int pacman_word1 = 2; /// Words to signify the end of a spill. The scan code searches for these words.
-const int pacman_word2 = 9999; /// End of spill vln. The scan code searches for these words.
+const unsigned int end_spill_size = 20; /// The size of the end of spill "event" (5 words).
+const unsigned int pacman_word1 = 2; /// Words to signify the end of a spill. The scan code searches for these words.
+const unsigned int pacman_word2 = 9999; /// End of spill vln. The scan code searches for these words.
 
 ///
 void set_char_array(const std::string &input_, char *arr_, const unsigned int &size_){
@@ -791,7 +791,7 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 				}
 			
 				// Copy data into the output array.
-				memcpy(&data_[nBytes], &curr_buffer[buff_pos], 8);
+				if(!dry_run_mode){ memcpy(&data_[nBytes], &curr_buffer[buff_pos], 8); }
 				if(debug_mode){ std::cout << "debug: spill footer words are " << curr_buffer[buff_pos] << " and " << curr_buffer[buff_pos+1] << std::endl; }
 				nBytes += 8;
 				buff_pos += 2;
@@ -815,7 +815,7 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 				good_chunks++;
 			
 				copied_bytes = this_chunk_sizeB - 12;
-				memcpy(&data_[nBytes], &curr_buffer[buff_pos], copied_bytes);
+				if(!dry_run_mode){ memcpy(&data_[nBytes], &curr_buffer[buff_pos], copied_bytes); }
 				nBytes += copied_bytes;
 				buff_pos += copied_bytes/4;
 			}
