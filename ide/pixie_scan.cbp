@@ -7,25 +7,34 @@
 		<Option execution_dir="../../pixie_scan" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
+		<MakeCommands>
+			<Build command="$make -j20" />
+			<CompileFile command="$make -f $makefile $file" />
+			<Clean command="$make clean" />
+			<DistClean command="$make -f $makefile distclean$target" />
+			<AskRebuildNeeded command="$make -q -f $makefile $target" />
+			<SilentBuild command="$make -j20" />
+		</MakeCommands>
 		<Build>
 			<Target title="master">
 				<Option platforms="Unix;Mac;" />
-				<Option output="pixie_ldf_c" prefix_auto="1" extension_auto="1" />
+				<Option output="../pixie_ldf_c" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="../../pixie_scan" />
 				<Option object_output="../obj" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="test00 &lt; ../scripts/test.cmd" />
+				<Option parameters="test00 &lt; scripts/test.cmd" />
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="include" />
 				</Compiler>
 				<MakeCommands>
-					<Build command="$make -j3" />
+					<Build command="$make -j20" />
 					<CompileFile command="$make -f $makefile $file" />
 					<Clean command="$make clean" />
 					<DistClean command="$make -f $makefile distclean$target" />
 					<AskRebuildNeeded command="$make -q -f $makefile $target" />
-					<SilentBuild command="$make -j2 &gt; $(CMD_NULL)" />
+					<SilentBuild command="$make -j20" />
 				</MakeCommands>
 			</Target>
 		</Build>
@@ -33,6 +42,7 @@
 			<Add option="-Wall" />
 		</Compiler>
 		<Unit filename="../COPYRIGHT" />
+		<Unit filename="../Config.xml" />
 		<Unit filename="../LICENSE" />
 		<Unit filename="../Makefile" />
 		<Unit filename="../Makefile.objs" />
@@ -40,6 +50,25 @@
 		<Unit filename="../TODO" />
 		<Unit filename="../config/Config.xml.cal" />
 		<Unit filename="../config/Config.xml.example" />
+		<Unit filename="../config/anl/1471/135Sb/Config.xml_a135_apr_06" />
+		<Unit filename="../config/anl/1471/135Sb/Config.xml_a135_feb_02" />
+		<Unit filename="../config/anl/1471/135Sb/Config.xml_a135_feb_04" />
+		<Unit filename="../config/anl/1471/135Sb/Config.xml_a135_feb_12" />
+		<Unit filename="../config/anl/1471/136Sb/Config.xml_A136sb_06" />
+		<Unit filename="../config/anl/1471/136Sb/Config.xml_A136sb_07" />
+		<Unit filename="../config/anl/1471/136Sb/Config.xml_A136sb_08" />
+		<Unit filename="../config/anl/1471/136Sb/Config.xml_A136sb_09" />
+		<Unit filename="../config/anl/1471/136Sb/Config.xml_A136sb_10" />
+		<Unit filename="../config/anl/1471/136Sb/Config.xml_A136sb_11" />
+		<Unit filename="../config/anl/1471/85As/Config.xml_as85_apr_01" />
+		<Unit filename="../config/anl/1471/85As/Config.xml_as85_apr_03" />
+		<Unit filename="../config/anl/1471/85As/Config.xml_as85_apr_06" />
+		<Unit filename="../config/anl/1471/85As/Config.xml_as85_apr_07" />
+		<Unit filename="../config/anl/1471/85As/Config.xml_as85_apr_08" />
+		<Unit filename="../config/anl/1471/85As/Config.xml_as85_apr_10" />
+		<Unit filename="../config/anl/1471/85As/Config.xml_as85_apr_11" />
+		<Unit filename="../config/anl/1471/85As/Config.xml_as85_apr_12" />
+		<Unit filename="../config/anl/1471/Config.xml.anl2015" />
 		<Unit filename="../config/anl/2013/Globals.xml" />
 		<Unit filename="../config/anl/2013/TreeCorrelator.xml" />
 		<Unit filename="../config/anl/2013/cal.txt" />
@@ -49,6 +78,44 @@
 		<Unit filename="../config/anl/2013/timingCal.txt" />
 		<Unit filename="../config/anl/2013/timingConstants.txt" />
 		<Unit filename="../config/anl/2015/Config.xml.anl2015" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.gcal" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599-07232015-1219am" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599-cf05" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599.52k_01" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599.52k_01-gOnly" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_52k_00" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_52k_00_new" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_52k_01" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_52k_02" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_52k_04" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_53k_00" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_53k_01" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_53k_02" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_53k_03" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_53k_04" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_53k_08" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_53k_09" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_53k_10" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_53k_12" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_54k_01" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_a52_00-alt" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_a52_00-mod" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.is599_is599_51k_01" />
+		<Unit filename="../config/isolde/is599/aug/Config.xml.master" />
+		<Unit filename="../config/isolde/is600/Config.xml.is600_EMPTY" />
+		<Unit filename="../config/isolde/is600/Config.xml.is600_a130_00" />
+		<Unit filename="../config/isolde/is600/Config.xml.is600_a83_03" />
+		<Unit filename="../config/isolde/is600/Config.xml.is600_a83_07" />
+		<Unit filename="../config/isolde/is600/Config.xml.is600_a83_08" />
+		<Unit filename="../config/isolde/is600/Config.xml.is600_a83_09" />
+		<Unit filename="../config/isolde/is600/Config.xml.is600_a83_10" />
+		<Unit filename="../config/isolde/is600/Config.xml.is600_a83_11" />
+		<Unit filename="../config/isolde/is600/Config.xml.is600_a83_12" />
+		<Unit filename="../config/isolde/is600/Config.xml.is600_a83_13" />
+		<Unit filename="../config/isolde/is600/Config.xml.is600_a83_14" />
+		<Unit filename="../config/isolde/is600/Config.xml.is600_a83_15" />
+		<Unit filename="../config/isolde/is600/Config.xml.is600_cf03" />
+		<Unit filename="../config/isolde/is600/Config.xml.is600_onlyClover" />
 		<Unit filename="../config/nscl/e11027/01-2013/Globals.xml" />
 		<Unit filename="../config/nscl/e11027/01-2013/TreeCorrelator.xml" />
 		<Unit filename="../config/nscl/e11027/01-2013/cal.txt" />
@@ -110,9 +177,10 @@
 		<Unit filename="../config/utk/sipm/Config.xml.doubleBetaTest" />
 		<Unit filename="../config/utk/sipm/Config.xml.sienergytst" />
 		<Unit filename="../doc/doxyPages/mainPage.dox" />
+		<Unit filename="../include/Anl1471Processor.hpp" />
 		<Unit filename="../include/BarBuilder.hpp" />
 		<Unit filename="../include/BarDetector.hpp" />
-		<Unit filename="../include/BeamLogicProcessor.hpp" />
+		<Unit filename="../include/Beta4Hen3Processor.hpp" />
 		<Unit filename="../include/BetaProcessor.hpp" />
 		<Unit filename="../include/BetaScintProcessor.hpp" />
 		<Unit filename="../include/Calibrator.hpp" />
@@ -126,6 +194,7 @@
 		<Unit filename="../include/DetectorSummary.hpp" />
 		<Unit filename="../include/DoubleBetaProcessor.hpp" />
 		<Unit filename="../include/DoubleTraceAnalyzer.hpp" />
+		<Unit filename="../include/Dssd4SHEProcessor.hpp" />
 		<Unit filename="../include/DssdProcessor.hpp" />
 		<Unit filename="../include/E11006Processor.hpp" />
 		<Unit filename="../include/EventData.hpp" />
@@ -139,9 +208,11 @@
 		<Unit filename="../include/Globals.hpp" />
 		<Unit filename="../include/Hen3Processor.hpp" />
 		<Unit filename="../include/HighResTimingData.hpp" />
+		<Unit filename="../include/IS600Processor.hpp" />
 		<Unit filename="../include/Identifier.hpp" />
 		<Unit filename="../include/ImplantSsdProcessor.hpp" />
 		<Unit filename="../include/IonChamberProcessor.hpp" />
+		<Unit filename="../include/LaBr3TestProcessor.hpp" />
 		<Unit filename="../include/LiquidProcessor.hpp" />
 		<Unit filename="../include/LiquidScintProcessor.hpp" />
 		<Unit filename="../include/LitePositionProcessor.hpp" />
@@ -149,7 +220,6 @@
 		<Unit filename="../include/McpProcessor.hpp" />
 		<Unit filename="../include/MersenneTwister.hpp" />
 		<Unit filename="../include/Messenger.hpp" />
-		<Unit filename="../include/MtcProcessor.hpp" />
 		<Unit filename="../include/NeutronProcessor.hpp" />
 		<Unit filename="../include/NeutronScintProcessor.hpp" />
 		<Unit filename="../include/Notebook.hpp" />
@@ -158,11 +228,13 @@
 		<Unit filename="../include/Plots.hpp" />
 		<Unit filename="../include/PlotsRegister.hpp" />
 		<Unit filename="../include/PositionProcessor.hpp" />
+		<Unit filename="../include/PspmtProcessor.hpp" />
 		<Unit filename="../include/PulserProcessor.hpp" />
 		<Unit filename="../include/RandomPool.hpp" />
 		<Unit filename="../include/RawEvent.hpp" />
 		<Unit filename="../include/RootProcessor.hpp" />
 		<Unit filename="../include/ScintProcessor.hpp" />
+		<Unit filename="../include/SheCorrelator.hpp" />
 		<Unit filename="../include/SsdBetaProcessor.hpp" />
 		<Unit filename="../include/SsdProcessor.hpp" />
 		<Unit filename="../include/StatsData.hpp" />
@@ -176,7 +248,6 @@
 		<Unit filename="../include/TraceExtractor.hpp" />
 		<Unit filename="../include/TraceFilterer.hpp" />
 		<Unit filename="../include/TreeCorrelator.hpp" />
-		<Unit filename="../include/TriggerLogicProcessor.hpp" />
 		<Unit filename="../include/ValidProcessor.hpp" />
 		<Unit filename="../include/VandleAtLeribssProcessor.hpp" />
 		<Unit filename="../include/VandleProcessor.hpp" />
@@ -192,6 +263,15 @@
 		<Unit filename="../scan/scanor.f" />
 		<Unit filename="../scan/scanorux.f" />
 		<Unit filename="../scan/set2cc.f" />
+		<Unit filename="../scripts/analyze.bash" />
+		<Unit filename="../scripts/cmapbill.dat" />
+		<Unit filename="../scripts/makedist.bash" />
+		<Unit filename="../scripts/map_to_config.py" />
+		<Unit filename="../scripts/multianalyze.bash" />
+		<Unit filename="../scripts/online.bash" />
+		<Unit filename="../scripts/start.cmd" />
+		<Unit filename="../scripts/tcaltoxml.awk" />
+		<Unit filename="../scripts/test.cmd" />
 		<Unit filename="../src/analyzers/CfdAnalyzer.cpp" />
 		<Unit filename="../src/analyzers/DoubleTraceAnalyzer.cpp" />
 		<Unit filename="../src/analyzers/FittingAnalyzer.cpp" />
@@ -201,7 +281,6 @@
 		<Unit filename="../src/analyzers/TraceFilterer.cpp" />
 		<Unit filename="../src/analyzers/WaveformAnalyzer.cpp" />
 		<Unit filename="../src/core/BarBuilder.cpp" />
-		<Unit filename="../src/core/BarDetector.cpp" />
 		<Unit filename="../src/core/Calibrator.cpp" />
 		<Unit filename="../src/core/ChanEvent.cpp" />
 		<Unit filename="../src/core/Correlator.cpp" />
@@ -222,6 +301,7 @@
 		<Unit filename="../src/core/RawEvent.cpp" />
 		<Unit filename="../src/core/ReadBuffData.RevA.cpp" />
 		<Unit filename="../src/core/ReadBuffData.RevD.cpp" />
+		<Unit filename="../src/core/ReadBuffData.RevF.cpp" />
 		<Unit filename="../src/core/StatsData.cpp" />
 		<Unit filename="../src/core/TimingCalibrator.cpp" />
 		<Unit filename="../src/core/TimingMapBuilder.cpp" />
@@ -229,12 +309,17 @@
 		<Unit filename="../src/core/TreeCorrelator.cpp" />
 		<Unit filename="../src/core/WalkCorrector.cpp" />
 		<Unit filename="../src/core/pugixml.cpp" />
+		<Unit filename="../src/experiment/Anl1471Processor.cpp" />
+		<Unit filename="../src/experiment/Beta4Hen3Processor.cpp" />
 		<Unit filename="../src/experiment/CrosstalkProcessor.cpp" />
+		<Unit filename="../src/experiment/Dssd4SHEProcessor.cpp" />
 		<Unit filename="../src/experiment/E11006Processor.cpp" />
 		<Unit filename="../src/experiment/Ge4Hen3Processor.cpp" />
+		<Unit filename="../src/experiment/IS600Processor.cpp" />
+		<Unit filename="../src/experiment/LaBr3TestProcessor.cpp" />
+		<Unit filename="../src/experiment/SheCorrelator.cpp" />
 		<Unit filename="../src/experiment/VandleAtLeribssProcessor.cpp" />
 		<Unit filename="../src/experiment/WalkVandleBetaProcessor.cpp" />
-		<Unit filename="../src/processors/BeamLogicProcessor.cpp" />
 		<Unit filename="../src/processors/BetaProcessor.cpp" />
 		<Unit filename="../src/processors/BetaScintProcessor.cpp" />
 		<Unit filename="../src/processors/DoubleBetaProcessor.cpp" />
@@ -250,10 +335,10 @@
 		<Unit filename="../src/processors/LitePositionProcessor.cpp" />
 		<Unit filename="../src/processors/LogicProcessor.cpp" />
 		<Unit filename="../src/processors/McpProcessor.cpp" />
-		<Unit filename="../src/processors/MtcProcessor.cpp" />
 		<Unit filename="../src/processors/NeutronProcessor.cpp" />
 		<Unit filename="../src/processors/NeutronScintProcessor.cpp" />
 		<Unit filename="../src/processors/PositionProcessor.cpp" />
+		<Unit filename="../src/processors/PspmtProcessor.cpp" />
 		<Unit filename="../src/processors/PulserProcessor.cpp" />
 		<Unit filename="../src/processors/RootProcessor.cpp" />
 		<Unit filename="../src/processors/ScintProcessor.cpp" />
@@ -261,7 +346,6 @@
 		<Unit filename="../src/processors/SsdProcessor.cpp" />
 		<Unit filename="../src/processors/TeenyVandleProcessor.cpp" />
 		<Unit filename="../src/processors/TemplateProcessor.cpp" />
-		<Unit filename="../src/processors/TriggerLogicProcessor.cpp" />
 		<Unit filename="../src/processors/ValidProcessor.cpp" />
 		<Unit filename="../src/processors/VandleProcessor.cpp" />
 		<Extensions>
