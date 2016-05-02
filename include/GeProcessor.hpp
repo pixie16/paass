@@ -205,7 +205,7 @@ public:
     /** Returns the events that were added to the geEvents_ vector */
     std::vector<ChanEvent*> GetGeEvents(void) {return(geEvents_);}
     /** Returns the events that were added to the addbackEvents_ */
-    std::vector< std::vector<AddBackEvent> > GetAddBackEvents(void) {return(addbackEvents_);}
+    std::vector< std::vector<AddBackEvent> > GetAddbackEvents(void) {return(addbackEvents_);}
     /** Returns the events that were added to the tas_ */
     std::vector<AddBackEvent> GetTasEvents(void) {return(tas_);}
 protected:

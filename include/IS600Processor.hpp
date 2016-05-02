@@ -10,16 +10,16 @@
 #include <fstream>
 
 #include "EventProcessor.hpp"
-#include "VandleProcessor.hpp"
 
 #ifdef useroot
 #include <TFile.h>
 #include <TTree.h>
 #include <TH2D.h>
+#include <TH1D.h>
 #endif
 
-/// Class to process VANDLE analysis for ISOLDE experiments 599 and 600 related events
-class IS600Processor : public VandleProcessor {
+/// Class Analyze for ISOLDE experiments 599 and 600
+class IS600Processor : public EventProcessor {
 public:
     /** Default Constructor */
     IS600Processor();
@@ -28,17 +28,8 @@ public:
     /** Declare the plots used in the analysis */
     virtual void DeclarePlots(void);
 
-    /** Constructor taking a list of detector types as an argument
-     * \param [in] typeList : the list of bar types that are in the analysis
-     * \param [in] res : The resolution of the DAMM histograms
-     * \param [in] offset : The offset of the DAMM histograms */
-    IS600Processor(const std::vector<std::string> &typeList,
-		   const double &res, const double &offset,
-		   const double &numStarts);
-
-    /** Preprocess the VANDLE data
-     * \param [in] event : the event to preprocess
-     * \return true if successful */
+    /** PreProcess does nothing since this is solely dependent on results 
+     from other Processors*/
     virtual bool PreProcess(RawEvent &event);
     
     /** Process the event
@@ -49,6 +40,7 @@ private:
 #ifdef useroot
     TFile *rootfile_;
     TH2D *qdctof_;
+    TH1D *vsize_;
 #endif
     std::ofstream *outstream;
 };

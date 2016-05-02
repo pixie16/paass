@@ -27,7 +27,7 @@
     <Analyzer name="FittingAnalyzer"/>
     
     <Processor name="LogicProcessor"/>
-    <Processor name="IS600GeProcessor"
+    <Processor name="GeProcessor"
                gamma_threshold="10.0"
                low_ratio="1.5"
                high_ratio="3.0"
@@ -38,9 +38,10 @@
                cycle_gate1_max="1.5"
                cycle_gate2_min="1.5"
                cycle_gate2_max="2.0" />
-    <Processor name="IS600DoubleBetaProcessor"/>
-    <Processor name="IS600Processor"
+    <Processor name="DoubleBetaProcessor"/>
+    <Processor name="VandleProcessor"
                types="small,medium" res="2" offset="1000" NumStarts="1"/>
+    <Processor name="IS600Processor"/>
   </DetectorDriver>
   
   <Map>

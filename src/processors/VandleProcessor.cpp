@@ -50,16 +50,15 @@ namespace dammIds {
 using namespace std;
 using namespace dammIds::vandle;
 
-VandleProcessor::VandleProcessor(): EventProcessor(dammIds::vandle::OFFSET,
-                                                   dammIds::vandle::RANGE,
-                                                   "VandleProcessor") {
+VandleProcessor::VandleProcessor(): 
+    EventProcessor(OFFSET, RANGE, "VandleProcessor") {
     associatedTypes.insert("vandle");
 }
 
 VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList,
                                  const double &res, const double &offset,
                                  const unsigned int &numStarts):
-    EventProcessor(dammIds::vandle::OFFSET, dammIds::vandle::RANGE, "vandle") {
+    EventProcessor(OFFSET, RANGE, "VandleProcessor") {
     associatedTypes.insert("vandle");
     plotMult_ = res;
     plotOffset_ = offset;
@@ -167,22 +166,13 @@ void VandleProcessor::DeclarePlots(void) {
 
     DeclareHistogram1D(D_DEBUGGING, S5, "1D Debugging");
     DeclareHistogram2D(DD_DEBUGGING, S8, S8, "2D Debugging");
-//    DeclareHistogram2D(DD_DEBUGGING0, SA, SA, "TOFL vs. TDIFF");
-//    DeclareHistogram2D(DD_DEBUGGING1, S9, SD, "TOFR vs. TDIFF");
-//    DeclareHistogram2D(DD_DEBUGGING2, SD, SD, "CorTOF vs. TDIFF");
-//    DeclareHistogram2D(DD_DEBUGGING4, S9, SC, "TOFL vs. QDCRATIO");
-//    DeclareHistogram2D(DD_DEBUGGING5, SC, SC, "TOFR vs. QDCRATIO");
-//    DeclareHistogram2D(DD_DEBUGGING6, SC, SC, "TOF vs. QDCRATIO");
-//    DeclareHistogram2D(DD_DEBUGGING7, SC, SC, "CorTOF vs. QDCRATIO");
-//    DeclareHistogram2D(DD_DEBUGGING8, SC, SC, "testTOF vs. QDCRATIO");
 }
 
 bool VandleProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
-
     ClearMaps();
-
+    
     static const vector<ChanEvent*> &events =
         event.GetSummary("vandle")->GetList();
 
