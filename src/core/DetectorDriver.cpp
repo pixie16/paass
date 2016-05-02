@@ -50,8 +50,6 @@
 #include "WaveformAnalyzer.hpp"
 
 #include "IS600Processor.hpp"
-#include "IS600GeProcessor.hpp"
-#include "IS600DoubleBetaProcessor.hpp"
 
 #ifdef useroot
 #include "RootProcessor.hpp"
@@ -142,7 +140,7 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                 vecProcess.push_back(
                         new BetaScintProcessor(gamma_beta_limit,
                                                energy_contraction));
-        } else if (name == "GeProcessor" || name == "IS600GeProcessor") {
+        } else if (name == "GeProcessor") {
             double gamma_threshold =
                 processor.attribute("gamma_threshold").as_double(-1);
             if (gamma_threshold == -1) {
@@ -203,18 +201,11 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                 cycle_gate2_max = 0.0;
                 m.warning("Using default cycle_gate2_max = 0.0", 1);
             }
-            if (name == "GeProcessor")
-                vecProcess.push_back(new GeProcessor(gamma_threshold,
-                            low_ratio, high_ratio, sub_event,
-                            gamma_beta_limit, gamma_gamma_limit,
-                            cycle_gate1_min, cycle_gate1_max,
-                            cycle_gate2_min, cycle_gate2_max));
-	    if (name == "IS600GeProcessor")
-		vecProcess.push_back(new IS600GeProcessor(gamma_threshold,
-                            low_ratio, high_ratio, sub_event,
-                            gamma_beta_limit, gamma_gamma_limit,
-                            cycle_gate1_min, cycle_gate1_max,
-                            cycle_gate2_min, cycle_gate2_max));
+	    vecProcess.push_back(new GeProcessor(gamma_threshold,
+						 low_ratio, high_ratio, sub_event,
+						 gamma_beta_limit, gamma_gamma_limit,
+						 cycle_gate1_min, cycle_gate1_max,
+						 cycle_gate2_min, cycle_gate2_max));
         } else if (name == "GeCalibProcessor") {
             double gamma_threshold =
                 processor.attribute("gamma_threshold").as_double(1);
@@ -242,29 +233,23 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new PulserProcessor());
         } else if (name == "SsdProcessor") {
             vecProcess.push_back(new SsdProcessor());
-        } else if (name == "VandleProcessor" || name == "IS600Processor") {
+        } else if (name == "VandleProcessor") {
             double res = processor.attribute("res").as_double(2.0);
             double offset = processor.attribute("offset").as_double(200.0);
             unsigned int numStarts = processor.attribute("NumStarts").as_int(2);
             vector<string> types =
                 strings::tokenize(processor.attribute("types").as_string(),",");
-	    if(name == "VandleProcessor")
-		vecProcess.push_back(new VandleProcessor(types, res, 
-							 offset, numStarts));
-	    if(name == "IS600Processor")
-		vecProcess.push_back(new IS600Processor(types, res, 
-							offset, numStarts));
+	    vecProcess.push_back(new VandleProcessor(types, res, 
+						     offset, numStarts));
 	} else if (name == "TeenyVandleProcessor") {
             vecProcess.push_back(new TeenyVandleProcessor());
-        } else if (name == "DoubleBetaProcessor" || 
-		   name == "IS600DoubleBetaProcessor") {
-	    if(name == "DoubleBetaProcessor")
+        } else if (name == "DoubleBetaProcessor") {
 		vecProcess.push_back(new DoubleBetaProcessor());
-	    if(name == "IS600DoubleBetaProcessor")
-		vecProcess.push_back(new IS600DoubleBetaProcessor());
         } else if (name == "PspmtProcessor") {
             vecProcess.push_back(new PspmtProcessor());
-        }
+        } else if (name == "IS600Processor") {
+	    vecProcess.push_back(new IS600Processor());
+	}
 #ifdef useroot
         else if (name == "RootProcessor") {
             vecProcess.push_back(new RootProcessor("tree.root", "tree"));
