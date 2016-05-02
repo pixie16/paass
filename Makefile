@@ -3,7 +3,7 @@
 SHELL=/bin/sh
 
 # Uncomment the following line for root functionality
- USEROOT = 1
+USEROOT = 1
 # Uncomment this line for a more verbose scan
 # CXXFLAGS += -DVERBOSE
 # Undefine to make a "online" version
@@ -39,7 +39,7 @@ endif
 #------- instruct make to search through these
 #------- directories to find files
 vpath %.f scan/
-vpath %.hpp include/:include/experiment
+vpath %.hpp include/
 vpath %.h include/
 vpath %.icc include/
 vpath %.cpp src/analyzers:src/core:src/experiment:src/processors
@@ -124,6 +124,7 @@ CXXFLAGS     += $(shell $(ROOTCONFIG) --cflags) -Duseroot
 LDFLAGS      += $(shell $(ROOTCONFIG) --ldflags)
 LDLIBS       += $(shell $(ROOTCONFIG) --libs)
 endif
+
 
 #------------ Compile with Gamma-Gamma gates support in GeProcessor
 ifdef GGATES
