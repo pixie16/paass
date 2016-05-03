@@ -1,39 +1,31 @@
-/** \file FittingAnalyzer.hpp
- * \brief Class to fit functions to waveforms
+/** \file WaaAnalyzer.hpp
+ * \brief Class to perform Weighted Average algorithm on waveformms
+ * \author S. V. Paulauskas
+ * \date August 13, 2013
  */
-#ifndef __FITTINGANALYZER_HPP_
-#define __FITTINGANALYZER_HPP_
+#ifndef __WAAANALYZER_HPP_
+#define __WAAANALYZER_HPP_
 
-#include "TimingInformation.hpp"
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 
-class FittingAnalyzer : public TraceAnalyzer,
-			public TimingInformation
-{
+class WaaAnalyzer : public TraceAnalyzer {
  public:
-    FittingAnalyzer();
+    /** Default Constructor */
+    WaaAnalyzer();
+    /** Default Destructor */
+    ~WaaAnalyzer() {};
+    /** Declare plots for the analyzer */
     virtual void DeclarePlots(void);
-    virtual void Analyze(Trace &, const std::string &, const std::string &);
-    virtual ~FittingAnalyzer() {};
- 
-    struct FitData{
-	size_t n;
-	double * y;
-	double * sigma;
-	double beta,gamma,qdc;
-    };
+    /** Analyzes the traces
+     * \param [in] trace : the trace to analyze
+     * \param [in] detType : the detector type we have
+     * \param [in] detSubtype : the subtype of the detector
+     * \param [in] tagMap : Map of tags associated with trace*/
+    virtual void Analyze(Trace &trace, const std::string &detType,
+                         const std::string &detSubtype,
+                         const std::map<std::string, int> & tagMap);
  private:
-    void LoadMask(void);
-    void OutputFittedInformation(const std::vector<double> &waveform, 
-				 const std::vector<double> &fitPars);
-    double ApplyMask(const std::vector<double> &waveform, 
-		     const double &qdc, const double &maxval, 
-		     const double &sigma);
-    double CalcFittedFunction(double &x, 
-			      const std::vector<double> &fitPars);
-    double CalcWalk(const double &maxValue, const std::string &type, 
-		    const std::string &subType);
 };
-#endif // __FITTINGANALYZER_HPP_
+#endif // __WAAANALYZER_HPP_
 // David is awesome.
