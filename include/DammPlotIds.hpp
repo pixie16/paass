@@ -51,7 +51,7 @@ namespace dammIds {
         const int OFFSET = 1900;
         const int RANGE =  99;
     }
-    
+
     ///in McpProcessor.cpp
     namespace mcp {
         const int OFFSET = 2000;//!< Offset for McpProcessor

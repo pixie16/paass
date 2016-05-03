@@ -85,11 +85,11 @@ FittingAnalyzer::FittingAnalyzer() {
 }
 
 void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
-			      const std::string &detSubtype,
+                              const std::string &detSubtype,
                               const std::map<std::string, int> & tagMap) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype, tagMap);
 
-    if(trace.HasValue("saturation") || trace.empty() || 
+    if(trace.HasValue("saturation") || trace.empty() ||
        trace.GetWaveform().size() == 0) {
      	EndAnalyze();
      	return;
@@ -118,7 +118,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
 	    return;
 	}
     }
-	
+
     pair<double,double> pars =  globals->fitPars(detType+":"+detSubtype);
     if(isDblBetaT)
 	pars = globals->fitPars(detType+":"+detSubtype+":timing");

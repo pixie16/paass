@@ -246,6 +246,7 @@
 		<Unit filename="../include/ValidProcessor.hpp" />
 		<Unit filename="../include/VandleAtLeribssProcessor.hpp" />
 		<Unit filename="../include/VandleProcessor.hpp" />
+		<Unit filename="../include/WaaAnalyzer.hpp" />
 		<Unit filename="../include/WalkCorrector.hpp" />
 		<Unit filename="../include/WalkVandleBetaProcessor.hpp" />
 		<Unit filename="../include/WaveformAnalyzer.hpp" />
@@ -274,6 +275,7 @@
 		<Unit filename="../src/analyzers/TraceAnalyzer.cpp" />
 		<Unit filename="../src/analyzers/TraceExtractor.cpp" />
 		<Unit filename="../src/analyzers/TraceFilterer.cpp" />
+		<Unit filename="../src/analyzers/WaaAnalyzer.cpp" />
 		<Unit filename="../src/analyzers/WaveformAnalyzer.cpp" />
 		<Unit filename="../src/core/BarBuilder.cpp" />
 		<Unit filename="../src/core/Calibrator.cpp" />
