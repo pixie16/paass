@@ -456,9 +456,19 @@ void ScanMain::CmdControl(){
 	if(!core){ return; }
 
 	std::string cmd = "", arg;
+	bool waiting_for_run = false;
 
 	while(true){
 		if(run_ctrl_exit){ break; }
+
+		if(waiting_for_run){
+			if(!is_running){ waiting_for_run = false; }
+			else{
+				term->flush(); // Update the terminal so the user knows something is happening.
+				sleep(1); // Sleep and wait for the run to finish.
+				continue;
+			}
+		}
 	
 		cmd = term->GetCommand();
 		if(cmd == "_SIGSEGV_"){
@@ -514,6 +524,7 @@ void ScanMain::CmdControl(){
 			std::cout << "   stop            - Stop acquisition\n";
 			std::cout << "   file <filename> - Load an input file\n";
 			std::cout << "   rewind [offset] - Rewind to the beginning of the file\n";
+			std::cout << "   sync            - Wait for the current run to finish\n";
 			core->CmdHelp("   ");
 		}
 		else if(cmd == "run"){ // Start acquisition.
@@ -555,6 +566,13 @@ void ScanMain::CmdControl(){
 		else if(cmd == "rewind"){ // Rewind the file to the start position
 			if(p_args > 0){ Rewind(strtoul(arguments.at(0).c_str(), NULL, 0)); }
 			else{ Rewind(); }
+		}
+		else if(cmd == "sync"){ // Wait until the current run is completed.
+			if(is_running){
+				std::cout << sys_message_head << "Waiting for current scan to complete.\n";
+				waiting_for_run = true;
+			}
+			else{ std::cout << sys_message_head << "Scan is not running.\n"; }
 		}
 		else if(!core->CommandControl(cmd, arguments)){ // Unrecognized command. Send it to Unpacker.
 			std::cout << sys_message_head << "Unknown command '" << cmd << "'\n";
