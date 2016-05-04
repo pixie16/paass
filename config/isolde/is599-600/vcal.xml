@@ -3,7 +3,7 @@
   <Author>
     <Name>S. V. Paulauskas</Name>
     <Email>stanpaulauskas AT gmail DOT com</Email>
-    <Date>April 18, 2016</Date>
+    <Date>May 04, 2016</Date>
   </Author>
 
   <Description>
@@ -33,8 +33,6 @@
     <Module number="0">
       <Channel number="0" type="beta" subtype="double" tags="start,left"></Channel>
       <Channel number="1" type="beta" subtype="double" tags="start,right"></Channel>
-      <Channel number="4" type="beta" subtype="double" tags="left"></Channel>
-      <Channel number="5" type="beta" subtype="double" tags="right"></Channel>
     </Module>
     <Module number="2">
       <Channel number="0" type="vandle" subtype="medium" tags="left">
@@ -220,7 +218,6 @@
 
     <Fitting>
       <SigmaBaselineThresh value="3.0"/>
-      <SiPmtSigmaBaselineThresh value = "25.0"/>
       <Parameters>
 	<Pars name="vandle:small">
 	  <Beta value="0.32969"/>
