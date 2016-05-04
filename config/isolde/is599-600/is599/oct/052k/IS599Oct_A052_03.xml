@@ -7,11 +7,7 @@
   </Author>
 
   <Description>
-    This is the base configuration file for the IS599 and IS600 experiments for
-    data taken in July/August. This file will NOT BE altered. It contains all
-    of the appropriate setup for the processors, TreeCorrelator and fitting
-    algorithms. Care should be taken to ensure that the appropriate calibrations
-    are input when necessary.
+    Configuration for IS599Oct_A052_03.ldf
   </Description>
 
   <Global>
@@ -20,6 +16,7 @@
     <EnergyContraction value="1.0"/>
     <Path>config/</Path>
     <NumOfTraces value="50"/>
+    <HasRaw value="false"/>
   </Global>
 
   <DetectorDriver>
@@ -245,6 +242,87 @@
 
   <TimeCalibration verbose_timing="False">
     <Vandle>
+    <medium>
+    <Bar number="0" lroffset="0" z0="100.5" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="0"/>
+    </Bar>
+    <Bar number="1" lroffset="0" z0="100" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="0"/>
+    </Bar>
+    <Bar number="2" lroffset="6.97912" z0="100" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="87.16622"/>
+    </Bar>
+    <Bar number="3" lroffset="8.44231" z0="100.7" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="87.86371"/>
+    </Bar>
+    <Bar number="4" lroffset="-2.13872" z0="100.4" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="79.79518"/>
+    </Bar>
+    <Bar number="5" lroffset="2.56402" z0="100.4" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="81.31095"/>
+    </Bar>
+    <Bar number="6" lroffset="-3.51139" z0="100.8" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="80.36718"/>
+    </Bar>
+    <Bar number="7" lroffset="-.42568" z0="101.1" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="79.95735"/>
+    </Bar>
+    <Bar number="8" lroffset="-2.28286" z0="101.2" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="82.47480"/>
+    </Bar>
+    <Bar number="9" lroffset="7.21854" z0="101.4" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="86.50227"/>
+    </Bar>
+    <Bar number="10" lroffset="7.41065" z0="101.9" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="79.75819"/>
+    </Bar>
+    <Bar number="11" lroffset="3.65568" z0="101.7" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="85.59898"/>
+    </Bar>
+    <Bar number="12" lroffset="-1.32211" z0="101.9" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="85.48769"/>
+    </Bar>
+    <Bar number="13" lroffset="8.51375" z0="101.7" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="93.78197"/>
+    </Bar>
+    <Bar number="14" lroffset="-1.41466" z0="101.6" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="84.09768"/>
+    </Bar>
+    <Bar number="15" lroffset="9.65719" z0="102" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="93.39008"/>
+    </Bar>
+    <Bar number="16" lroffset="-.80351" z0="101.5" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="88.85565"/>
+    </Bar>
+    <Bar number="17" lroffset="-3.33966" z0="101.1" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="84.40373"/>
+    </Bar>
+    <Bar number="18" lroffset="6.38859" z0="100.7" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="84.97712"/>
+    </Bar>
+    <Bar number="19" lroffset="9.45616" z0="101.1" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="84.88013"/>
+    </Bar>
+    <Bar number="20" lroffset="-.42931" z0="100.8" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="89.11995"/>
+    </Bar>
+    <Bar number="21" lroffset="-.91384" z0="101.1" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="89.74720"/>
+    </Bar>
+    <Bar number="22" lroffset="-3.72079" z0="100.3" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="86.90437"/>
+    </Bar>
+    <Bar number="23" lroffset="-.25104" z0="100.7" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="89.76699"/>
+    </Bar>
+    <Bar number="24" lroffset="-3.58848" z0="100.8" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="106.39556"/>
+    </Bar>
+    <Bar number="25" lroffset="8.35749" z0="100.2" xoffset="0" zoffset="0">
+        <TofOffset location="0" offset="119.65520"/>
+    </Bar>
+</medium>
+
     </Vandle>
   </TimeCalibration>
 
