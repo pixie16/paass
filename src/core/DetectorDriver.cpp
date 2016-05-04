@@ -239,7 +239,7 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             unsigned int numStarts = processor.attribute("NumStarts").as_int(2);
             vector<string> types =
                 strings::tokenize(processor.attribute("types").as_string(),",");
-	    vecProcess.push_back(new VandleProcessor(types, res, 
+	    vecProcess.push_back(new VandleProcessor(types, res,
 						     offset, numStarts));
 	} else if (name == "TeenyVandleProcessor") {
             vecProcess.push_back(new TeenyVandleProcessor());
@@ -459,50 +459,51 @@ int DetectorDriver::ProcessEvent(RawEvent& rawev) {
 
 void DetectorDriver::DeclarePlots() {
     try {
-        DetectorLibrary* modChan = DetectorLibrary::get();
-
         DeclareHistogram1D(D_HIT_SPECTRUM, S7, "channel hit spectrum");
-        DeclareHistogram1D(D_SUBEVENT_GAP, SE,
-                           "time btwn chan-in event,10ns bin");
-        DeclareHistogram1D(D_EVENT_LENGTH, SE,
-                           "time length of event, 10 ns bin");
-        DeclareHistogram1D(D_EVENT_GAP, SE, "time between events, 10 ns bin");
-        DeclareHistogram1D(D_EVENT_MULTIPLICITY, S7,
-                           "number of channels in event");
-        DeclareHistogram1D(D_BUFFER_END_TIME, SE, "length of buffer, 1 ms bin");
         DeclareHistogram2D(DD_RUNTIME_SEC, SE, S6, "run time - s");
-        DeclareHistogram2D(DD_DEAD_TIME_CUMUL, SE, S6, "dead time - cumul");
-        DeclareHistogram2D(DD_BUFFER_START_TIME, SE, S6, "dead time - 0.1%");
         DeclareHistogram2D(DD_RUNTIME_MSEC, SE, S7, "run time - ms");
-        DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
-        DeclareHistogram1D(D_HAS_TRACE, S8, "channels with traces");
 
-        DetectorLibrary::size_type maxChan = modChan->size();
+        if(Globals::get()->hasRaw()) {
+            DetectorLibrary* modChan = DetectorLibrary::get();
+            DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
+            DeclareHistogram1D(D_HAS_TRACE, S8, "channels with traces");
+            DeclareHistogram2D(DD_BUFFER_START_TIME, SE, S6, "dead time - 0.1%");
+            DeclareHistogram2D(DD_DEAD_TIME_CUMUL, SE, S6, "dead time - cumul");
+            DeclareHistogram1D(D_SUBEVENT_GAP, SE,
+                               "time btwn chan-in event,10ns bin");
+            DeclareHistogram1D(D_EVENT_LENGTH, SE,
+                               "time length of event, 10 ns bin");
+            DeclareHistogram1D(D_EVENT_GAP, SE, "time between events, 10 ns bin");
+            DeclareHistogram1D(D_EVENT_MULTIPLICITY, S7,
+                               "number of channels in event");
+            DeclareHistogram1D(D_BUFFER_END_TIME, SE, "length of buffer, 1 ms bin");
+            DetectorLibrary::size_type maxChan = modChan->size();
 
-        for (DetectorLibrary::size_type i = 0; i < maxChan; i++) {
-            if (!modChan->HasValue(i)) {
-                continue;
+            for (DetectorLibrary::size_type i = 0; i < maxChan; i++) {
+                if (!modChan->HasValue(i)) {
+                    continue;
+                }
+                stringstream idstr;
+
+                const Identifier &id = modChan->at(i);
+
+                idstr << "M" << modChan->ModuleFromIndex(i)
+                    << " C" << modChan->ChannelFromIndex(i)
+                    << " - " << id.GetType()
+                    << ":" << id.GetSubtype()
+                    << " L" << id.GetLocation();
+                DeclareHistogram1D(D_RAW_ENERGY + i, SE,
+                                  ("RawE " + idstr.str()).c_str() );
+                DeclareHistogram1D(D_FILTER_ENERGY + i, SE,
+                                  ("FilterE " + idstr.str()).c_str() );
+                DeclareHistogram1D(D_SCALAR + i, SE,
+                                  ("Scalar " + idstr.str()).c_str() );
+                if (Globals::get()->revision() == "A")
+                    DeclareHistogram1D(D_TIME + i, SE,
+                                       ("Time " + idstr.str()).c_str() );
+                DeclareHistogram1D(D_CAL_ENERGY + i, SE,
+                                  ("CalE " + idstr.str()).c_str() );
             }
-            stringstream idstr;
-
-            const Identifier &id = modChan->at(i);
-
-            idstr << "M" << modChan->ModuleFromIndex(i)
-                  << " C" << modChan->ChannelFromIndex(i)
-                  << " - " << id.GetType()
-                  << ":" << id.GetSubtype()
-                  << " L" << id.GetLocation();
-            DeclareHistogram1D(D_RAW_ENERGY + i, SE,
-                               ("RawE " + idstr.str()).c_str() );
-            DeclareHistogram1D(D_FILTER_ENERGY + i, SE,
-                               ("FilterE " + idstr.str()).c_str() );
-            DeclareHistogram1D(D_SCALAR + i, SE,
-                               ("Scalar " + idstr.str()).c_str() );
-            if (Globals::get()->revision() == "A")
-                DeclareHistogram1D(D_TIME + i, SE,
-                                ("Time " + idstr.str()).c_str() );
-            DeclareHistogram1D(D_CAL_ENERGY + i, SE,
-                               ("CalE " + idstr.str()).c_str() );
         }
 
         for (vector<TraceAnalyzer *>::const_iterator it = vecAnalyzer.begin();
@@ -592,7 +593,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
 
         if (trace.HasValue("phase") ) {
 	    //Saves the time in ns
-            chan->SetHighResTime((trace.GetValue("phase") * 
+            chan->SetHighResTime((trace.GetValue("phase") *
 				 Globals::get()->adcClockInSeconds() +
 				 chan->GetTrigTime() *
 				  Globals::get()->filterClockInSeconds())*1.e9);
@@ -659,7 +660,7 @@ EventProcessor* DetectorDriver::GetProcessor(const std::string& name) const {
     for (vector<EventProcessor *>::const_iterator it = vecProcess.begin();
 	 it != vecProcess.end(); it++) {
 	if ( (*it)->GetName() == name )
-	    return(*it); 
+	    return(*it);
     }
     return(NULL);
 }
