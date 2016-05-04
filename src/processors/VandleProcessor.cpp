@@ -258,7 +258,7 @@ void VandleProcessor::AnalyzeBarStarts(void) {
             unsigned int barPlusStartLoc = barLoc*numStarts_ + startLoc;
 
             BarDetector start = (*itStart).second;
-
+	 
             double tof = bar.GetCorTimeAve() -
                 start.GetCorTimeAve() + cal.GetTofOffset(startLoc);
 
