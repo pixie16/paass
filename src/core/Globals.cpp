@@ -96,6 +96,8 @@ Globals::Globals() {
                 m.detail("Path to other configuration files: " + configPath_);
             } else if (std::string(it->name()).compare("NumOfTraces") == 0) {
                 numTraces_ =  it->attribute("value").as_uint();
+            } else if (std::string(it->name()).compare("HasRaw") == 0) {
+                hasRaw_ = it->attribute("value").as_bool(true);
             } else
                 WarnOfUnknownParameter(m, it);
         }
@@ -159,7 +161,7 @@ Globals::Globals() {
                 WarnOfUnknownParameter(m, it);
         }
 
-	
+
 
 
         for(pugi::xml_node_iterator it = timing.child("Trace").begin();
@@ -175,19 +177,19 @@ Globals::Globals() {
 	    else if(std::string(it->name()).compare("QdcCompression") == 0)
 		qdcCompression_ = it->attribute("value").as_double();
 	    else if(std::string(it->name()).compare("WaveformRange") == 0) {
-		for(pugi::xml_node_iterator waveit = it->begin(); 
+		for(pugi::xml_node_iterator waveit = it->begin();
 		    waveit != it->end(); ++waveit) {
 		    waveformRanges_.insert(std::make_pair(waveit->attribute("name").as_string(),
 							  std::make_pair(waveit->child("Low").attribute("value").as_int(5),
 									 waveit->child("High").attribute("value").as_int(10))));
-		} 
+		}
 	    } else
 		WarnOfUnknownParameter(m, it);
 	}
-	
+
 	for(pugi::xml_node_iterator it = timing.child("Fitting").begin();
             it != timing.child("Fitting").end(); ++it) {
-	    
+
             if(std::string(it->name()).compare("SigmaBaselineThresh") == 0)
                 sigmaBaselineThresh_ = it->attribute("value").as_double();
             else if(std::string(it->name()).compare("SiPmtSigmaBaselineThresh") == 0)
