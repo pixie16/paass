@@ -151,6 +151,7 @@ public:
 
     /** \return true if any reject region was defined */
     bool hasReject() const { return hasReject_; }
+    bool hasRaw() const {return(hasRaw_);}
 
     /** \return the adc clock in seconds */
     double adcClockInSeconds() const {return adcClockInSeconds_;}
@@ -246,7 +247,8 @@ private:
     * \param [in] it : an iterator pointing to the location of the unknown */
     void WarnOfUnknownParameter(Messenger &m, pugi::xml_node_iterator &it);
 
-    bool hasReject_;//!< Has a rejected
+    bool hasReject_;//!< Has a rejection region
+    bool hasRaw_; //!< True for plotting Raw Histograms in DAMM
     double adcClockInSeconds_; //!< adc clock in second
     double clockInSeconds_;//!< the ACQ clock in seconds
     double energyContraction_;//!< energy contraction
