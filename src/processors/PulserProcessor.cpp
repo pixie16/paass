@@ -87,7 +87,7 @@ bool PulserProcessor::RetrieveData(RawEvent &event) {
         TimingDefs::TimingIdentifier key(location, subType);
         pulserMap_.insert(make_pair(key, HighResTimingData(*itPulser)));
     }
-    
+
     if(pulserMap_.empty() || pulserMap_.size()%2 != 0) {
         plot(D_PROBLEMSTUFF, 27);
         return(false);
@@ -100,22 +100,22 @@ void PulserProcessor::AnalyzeData(void) {
         (*pulserMap_.find(make_pair(0,"start"))).second;
     HighResTimingData stop  =
         (*pulserMap_.find(make_pair(0,"stop"))).second;
-	
+
     static int counter = 0;
     for(Trace::const_iterator it = start.GetTrace()->begin();
         it!= start.GetTrace()->end(); it++)
         plot(DD_PROBLEMS, int(it-start.GetTrace()->begin()), counter, *it);
     counter ++;
-    
-    if(start.GetIsValidData() && stop.GetIsValidData()) {
+
+    if(start.GetIsValid() && stop.GetIsValid()) {
         double timeDiff = stop.GetHighResTime() - start.GetHighResTime();
         double timeRes  = 2; //20 ps/bin
         double timeOff  = 1000.;
         double phaseX   = -22000.;
 
 	// cout << timeDiff * timeRes + timeOff << " "
-	//      << start.GetPhase()*timeRes-phaseX << " " 
-	//      << start.GetCfdSourceBit() << " " << stop.GetCfdSourceBit() << " " 
+	//      << start.GetPhase()*timeRes-phaseX << " "
+	//      << start.GetCfdSourceBit() << " " << stop.GetCfdSourceBit() << " "
 	//      << endl;
 
         plot(D_TIMEDIFF, timeDiff*timeRes + timeOff);

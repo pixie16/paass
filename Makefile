@@ -81,7 +81,7 @@ CINCLUDEDIRS += -Iinclude
 #------- define basic compiler flags, no warnings on code that is not our own
 FFLAGS   += -O3
 GCCFLAGS += -fPIC $(CINCLUDEDIRS) -Dnewreadout
-CXXFLAGS += -Wall -g -fPIC $(CINCLUDEDIRS) -Dnewreadout
+CXXFLAGS += -Wall -g -fPIC $(CINCLUDEDIRS) -Dnewreadout -std=c++0x
 
 ifdef ONLINE
 CXXFLAGS += -DONLINE
