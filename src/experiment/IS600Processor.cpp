@@ -22,6 +22,9 @@
 #include "TimingMapBuilder.hpp"
 #include "VandleProcessor.hpp"
 
+double IS600Processor::tof_;
+double IS600Processor::qdc_;
+
 namespace dammIds {
     namespace experiment {
         const int DD_DEBUGGING0  = 0;
@@ -83,8 +86,11 @@ IS600Processor::IS600Processor() : EventProcessor(OFFSET, RANGE, "IS600PRocessor
     stringstream rootname;
     rootname << temp << ".root";
     rootfile_ = new TFile(rootname.str().c_str(),"RECREATE");
-    qdctof_ = new TH2D("qdctof","",2000,-1000,1000,16000,0,16000);
-    vsize_ = new TH1D("vsize","",90,0,90);
+    roottree_ = new TTree("vandle","");
+    roottree_->Branch("tof",&tof_,"tof/D");
+    roottree_->Branch("qdc",&qdc_,"qdc/D");
+    qdctof_ = new TH2D("qdctof","",1000,-100,900,16000,0,16000);
+    vsize_ = new TH1D("vsize","",40,0,40);
 #endif
 }
 
@@ -92,8 +98,7 @@ IS600Processor::~IS600Processor() {
     outstream->close();
     delete(outstream);
 #ifdef useroot
-    vsize_->Write();
-    qdctof_->Write();
+    rootfile_->Write();
     rootfile_->Close();
     delete(rootfile_);
 #endif
@@ -118,19 +123,19 @@ bool IS600Processor::Process(RawEvent &event) {
     vector<vector<AddBackEvent> > geAddback;
 
     if(event.GetSummary("vandle")->GetList().size() != 0)
-	vbars = ((VandleProcessor*)DetectorDriver::get()->
-		 GetProcessor("VandleProcessor"))->GetBars();
+        vbars = ((VandleProcessor*)DetectorDriver::get()->
+            GetProcessor("VandleProcessor"))->GetBars();
     if(event.GetSummary("beta:double")->GetList().size() != 0) {
-	betas = ((DoubleBetaProcessor*)DetectorDriver::get()->
-		 GetProcessor("DoubleBetaProcessor"))->GetBars();
-	lrtBetas = ((DoubleBetaProcessor*)DetectorDriver::get()->
-		    GetProcessor("DoubleBetaProcessor"))->GetLowResBars();
+        betas = ((DoubleBetaProcessor*)DetectorDriver::get()->
+            GetProcessor("DoubleBetaProcessor"))->GetBars();
+        lrtBetas = ((DoubleBetaProcessor*)DetectorDriver::get()->
+            GetProcessor("DoubleBetaProcessor"))->GetLowResBars();
     }
     if(event.GetSummary("ge")->GetList().size() != 0) {
-	geEvts = ((GeProcessor*)DetectorDriver::get()->
-		  GetProcessor("GeProcessor"))->GetGeEvents();
-	geAddback = ((GeProcessor*)DetectorDriver::get()->
-		     GetProcessor("GeProcessor"))->GetAddbackEvents();
+        geEvts = ((GeProcessor*)DetectorDriver::get()->
+            GetProcessor("GeProcessor"))->GetGeEvents();
+        geAddback = ((GeProcessor*)DetectorDriver::get()->
+            GetProcessor("GeProcessor"))->GetAddbackEvents();
     }
     static const vector<ChanEvent*> &labr3Evts =
 	event.GetSummary("labr3:mrbig")->GetList();
@@ -166,6 +171,8 @@ bool IS600Processor::Process(RawEvent &event) {
 	    itStart != betas.end(); itStart++) {
 	    unsigned int startLoc = (*itStart).first.first;
             BarDetector start = (*itStart).second;
+            if(!start.GetHasEvent())
+                continue;
 
             double tofOffset = cal.GetTofOffset(startLoc);
             double tof = bar.GetCorTimeAve() -
@@ -178,13 +185,17 @@ bool IS600Processor::Process(RawEvent &event) {
 
 	    bool notPrompt = corTof > 45.;
 	    bool inPeel = histo.BananaTest(bananaNum,
-                                           corTof*plotMult_+plotOffset_,
-                                           bar.GetQdc());
+            corTof*plotMult_+plotOffset_,
+            bar.GetQdc());
 	    bool isLowStart = start.GetQdc() < 300;
 
 	    *outstream << tof << " " << bar.GetQdc() << endl;
 #ifdef useroot
-	    qdctof_->Fill(tof,bar.GetQdc());
+        qdctof_->Fill(tof,bar.GetQdc());
+        qdc_ = bar.GetQdc();
+        tof_ = tof;
+        roottree_->Fill();
+        qdc_ = tof_ = -9999;
 #endif
 
 	    plot(DD_DEBUGGING1, tof*plotMult_+plotOffset_, bar.GetQdc());
