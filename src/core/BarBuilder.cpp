@@ -15,25 +15,23 @@ void BarBuilder::BuildBars(void) {
     ClearMaps();
     FillMaps();
 
-    for(map<unsigned int, unsigned int>::const_iterator it = lefts_.begin(); 
-	it != lefts_.end(); it++) {
-	map<unsigned int, unsigned int>::const_iterator mate = 
-	    rights_.find(it->first);
+    for(map<unsigned int, unsigned int>::const_iterator it = lefts_.begin();
+        it != lefts_.end(); it++) {
+	map<unsigned int, unsigned int>::const_iterator mate = rights_.find(it->first);
 	if(mate == rights_.end())
 	    continue;
-	
-	if(list_.at(it->second)->GetTrace().size() && 
-	   list_.at(mate->second)->GetTrace().size()) {
-	    TimingDefs::TimingIdentifier key = 
+
+	if(list_.at(it->second)->GetTrace().size() != 0 &&
+	   list_.at(mate->second)->GetTrace().size() != 0) {
+	    TimingDefs::TimingIdentifier key =
 	     	make_pair(it->first, list_.at(it->second)->GetChanID().GetSubtype());
-	    hrtBars_.insert(make_pair(key, 
-				      BarDetector(HighResTimingData(list_.at(it->second)),
-						  HighResTimingData(list_.at(mate->second)), 
-						  key)));
+	    hrtBars_.insert(make_pair(key,
+            BarDetector(HighResTimingData(list_.at(it->second)),
+                        HighResTimingData(list_.at(mate->second)), key)));
 	} else {
-	    lrtBars_.insert(make_pair(it->first, 
+	    lrtBars_.insert(make_pair(it->first,
 				      make_pair(0.5*(list_.at(it->second)->GetCorrectedTime()+
-						     list_.at(mate->second)->GetCorrectedTime()), 
+						     list_.at(mate->second)->GetCorrectedTime()),
 						sqrt(list_.at(it->second)->GetCalEnergy()*
 						     list_.at(mate->second)->GetCalEnergy()))));
 	}

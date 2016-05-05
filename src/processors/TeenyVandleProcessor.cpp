@@ -77,7 +77,7 @@ bool TeenyVandleProcessor::PreProcess(RawEvent &event) {
 
     plot(DD_QDCVSMAX, right.GetMaximumValue(), right.GetTraceQdc());
 
-    if(right.GetIsValidData() && left.GetIsValidData()) {
+    if(right.GetIsValid() && left.GetIsValid()) {
             double timeRes = 50; //20 ps/bin
             double timeOff = 500;
 
