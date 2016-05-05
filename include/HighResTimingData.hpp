@@ -9,8 +9,8 @@
 #include "ChanEvent.hpp"
 #include "Globals.hpp"
 
-//! Class for holding information for high resolution timing. All times more 
-//! precise than the filter time will be in nanoseconds (phase, highResTime). 
+//! Class for holding information for high resolution timing. All times more
+//! precise than the filter time will be in nanoseconds (phase, highResTime).
 class HighResTimingData {
 public:
     /** Default constructor */
@@ -28,21 +28,21 @@ public:
     * \return The particle energy in MeV*/
     double CalcEnergy(const double &tof, const double &z0) {
         return((0.5*Globals::get()->neutronMass()*
-        pow((z0/tof)/Globals::get()->speedOfLight(), 2)));
+                pow((z0/tof)/Globals::get()->speedOfLight(), 2)));
     }
 
     const ChanEvent* GetChan(void) const {return(chan_);}
 
-    /** \return The current value of isValidData_ */
-    bool GetIsValidData() const { 
-	if(!std::isnan(chan_->GetTrace().GetValue("maxval")) &&
+    /** \return True if maxval,phase,tqdc,sigmaBaseline were not NAN */
+    bool GetIsValid() const {
+        if(!std::isnan(chan_->GetTrace().GetValue("maxval")) &&
            !std::isnan(chan_->GetTrace().GetValue("phase")) &&
            !std::isnan(chan_->GetTrace().GetValue("tqdc")) &&
            !std::isnan(chan_->GetTrace().GetValue("sigmaBaseline")) ) {
             return(true);
         }else
             return(false);
-	return(false);
+        return(false);
     }
 
     ///\return the CFD source trigger bit
@@ -58,7 +58,7 @@ public:
     /** \return The current value of maxval_ */
     double GetMaximumValue() const { return(chan_->GetTrace().GetValue("maxval")); }
     /** \return The current value of numAboveThresh_  */
-    int GetNumAboveThresh() const { 
+    int GetNumAboveThresh() const {
 	return(chan_->GetTrace().GetValue("numAboveThresh"));
     }
     /** \return The current value of phase_ */
@@ -71,25 +71,25 @@ public:
     /** \return The pixie Energy */
     double GetFilterTime() const { return(chan_->GetTime()); }
     /** \return The current value of snr_ */
-    double GetSignalToNoiseRatio() const { 
+    double GetSignalToNoiseRatio() const {
 	return(20*log10(chan_->GetTrace().GetValue("maxval") /
-			chan_->GetTrace().GetValue("sigmaBaseline"))); 
+			chan_->GetTrace().GetValue("sigmaBaseline")));
     }
     /** \return The current value of stdDevBaseline_  */
-    double GetStdDevBaseline() const { 
-	return(chan_->GetTrace().GetValue("sigmaBaseline")); 
+    double GetStdDevBaseline() const {
+	return(chan_->GetTrace().GetValue("sigmaBaseline"));
     }
 
     /** \return Get the trace associated with the channel */
     const Trace* GetTrace() const { return(&chan_->GetTrace()); }
 
     /** \return The current value of tqdc_ */
-    double GetTraceQdc() const { 
-	return(chan_->GetTrace().GetValue("tqdc")); 
+    double GetTraceQdc() const {
+	return(chan_->GetTrace().GetValue("tqdc"));
     }
     /** \return Walk corrected time  */
-    double GetCorrectedTime() const { 
-	return(chan_->GetCorrectedTime()); 
+    double GetCorrectedTime() const {
+	return(chan_->GetCorrectedTime());
     }
 private:
     ChanEvent *chan_; //!< a pointer to the channel event for the high res time
