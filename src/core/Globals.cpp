@@ -16,6 +16,7 @@ Globals::Globals() {
     eventInSeconds_ = -1;
     energyContraction_ = 1.0;
     hasReject_ = false;
+    hasRaw_ = true;
     revision_ = "None";
     numTraces_  = 16;
 
