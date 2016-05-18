@@ -1,6 +1,7 @@
 #Build files
 *.o
 pixie_ldf_*
+build/
 
 #Backup files from various editors
 *.save
