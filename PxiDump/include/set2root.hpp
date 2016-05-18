@@ -31,7 +31,7 @@ class parameter{
 	unsigned int getOffset(){ return offset; }
 
 #ifdef USE_ROOT_OUTPUT
-	bool write(TFile *f_);
+	bool write(TFile *f_, const std::string &dir_="");
 #endif
 
 	std::string print();

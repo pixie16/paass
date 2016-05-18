@@ -21,23 +21,19 @@
 
 #define FILTER_CLOCK 8E-3 // Filter clock (in us)
 #define ADC_CLOCK 4E-3 // ADC clock (in us)
+#define READ_SIZE 1280 // Size of each module in the .set file.
 
 #ifdef USE_ROOT_OUTPUT
-bool parameter::write(TFile *f_){
+bool parameter::write(TFile *f_, const std::string &dir_/*=""*/){
 	if(!f_ || !f_->IsOpen() || values.empty()){ return false; }
 
 	if(values.size() == 1){
-		f_->cd();
-		
 		std::stringstream stream;
 		stream << values.front();
 		TNamed named(name.c_str(), stream.str().c_str());
 		named.Write();
 	}
 	else{
-		f_->mkdir(name.c_str());
-		f_->cd(name.c_str());
-	
 		unsigned int count = 0;
 		for(std::vector<unsigned int>::iterator iter = values.begin(); iter != values.end(); iter++){
 			std::stringstream stream;
@@ -134,13 +130,20 @@ bool readVarFile(std::vector<parameter> &params, const char *var_filename_){
   * occured, and the number of entries read upon success.
   *  param[in] params        : Vector filled with parameter objects.
   *  param[in] set_filename_ : Filename of the .set file to read.
+  *  param[in] offset_       : The number of words to skip at the beginning of the file.
   *  param[in] len_          : The number of words to read form the file.
   */
-int readSetFile(std::vector<parameter> &params, const char *set_filename_, const size_t &len_=1280){
+int readSetFile(std::vector<parameter> &params, const char *set_filename_, const size_t &offset_, const size_t &len_=READ_SIZE){
 	if(params.empty()){ return -1; }
 
 	std::ifstream input(set_filename_);
 	if(!input.good()){
+		return -1;
+	}
+	
+	input.seekg(offset_*4);
+	if(input.eof()){
+		input.close();
 		return -1;
 	}
 	
@@ -181,7 +184,7 @@ void closeFile(std::ofstream &f_){
 #endif
 
 void help(char * prog_name_){
-	std::cout << "  SYNTAX: " << prog_name_ << " <output>\n";
+	std::cout << "  SYNTAX: " << prog_name_ << " [startMod] [stopMod] <options> <output>\n";
 	std::cout << "   Available options:\n";
 	std::cout << "    --var [filename] | Specify the path to the dsp .var file (default=./varFile).\n";
 	std::cout << "    --set [filename] | Specify the path to the binary .set file (default=./setFile).\n";
@@ -192,6 +195,22 @@ int main(int argc, char *argv[]){
 		help(argv[0]);
 		return 0;
 	}
+	else if(argc < 3){
+		std::cout << " Invalid number of arguments to " << argv[0] << ". Expected 2, received " << argc-1 << ".\n";
+		help(argv[0]);
+		return 1;
+	}
+
+	int start_mod = atoi(argv[1]);
+	int stop_mod = atoi(argv[2]);
+	if(start_mod < 0 && start_mod != -1){
+		std::cout << " ERROR! Invalid start module specification (" << start_mod << ").\n";
+		return -1;
+	}
+	else if(stop_mod < 0 && stop_mod != -1){
+		std::cout << " ERROR! Invalid stop module specification (" << stop_mod << ").\n";
+		return -1;
+	}
 
 	std::string varFilename = "./varFile";
 	std::string setFilename = "./setFile";
@@ -200,7 +219,7 @@ int main(int argc, char *argv[]){
 #else
 	std::string outFilename = "params.dat";
 #endif
-	int index = 1;
+	int index = 3;
 	while(index < argc){
 		if(strcmp(argv[index], "--var") == 0){
 			if(index + 1 >= argc){
@@ -254,28 +273,54 @@ int main(int argc, char *argv[]){
 	}
 	
 	// Read the .set file.
-	int readEntries = readSetFile(params, setFilename.c_str());
-	if(readEntries > 0){
-		std::cout << " Successfully read " << readEntries << " words from .set file.\n";
-	}
-	else if(readEntries == 0){
-		std::cout << " ERROR! Read zero entries from .set file!\n";
-		closeFile(f);
-		return 1;
-	}
-	else{
-		std::cout << " ERROR! Failed to read .set file '" << setFilename << "'!\n";
-		closeFile(f);
-		return 1;
-	}
+	int readEntries;
+	for(int i = start_mod; i <= stop_mod; i++){
+		for(std::vector<parameter>::iterator iter = params.begin(); iter != params.end(); iter++){
+			iter->values.clear();
+		}
+	
+		readEntries = readSetFile(params, setFilename.c_str(), i*READ_SIZE);
+		if(readEntries > 0){
+			std::cout << " Successfully read " << readEntries << " words from .set file for module " << i << ".\n";
+		}
+		else if(readEntries == 0){
+			std::cout << " ERROR! Read zero entries from .set file for module " << i << "!\n";
+			continue;
+		}
+		else{
+			std::cout << " ERROR! Failed to read from .set file '" << setFilename << "'!\n";
+			closeFile(f);
+			return 1;
+		}
+		
+		std::stringstream stream;
+		stream << "MODULE";
+		if(i < 10)
+			stream << "0";
+		stream << i;
 
-	// Write values to the output file.
-	for(std::vector<parameter>::iterator iter = params.begin(); iter != params.end(); iter++){
 #ifdef USE_ROOT_OUTPUT
-		iter->write(f);
+		f->mkdir(stream.str().c_str()); 
 #else
-		f << iter->print();
+		f << "###############################################################################\n";
+		f << "##                                 " << stream.str() << "                                  ##\n";
+		f << "###############################################################################\n";
 #endif
+
+		// Write values to the output file.
+		for(std::vector<parameter>::iterator iter = params.begin(); iter != params.end(); iter++){
+#ifdef USE_ROOT_OUTPUT
+			if(iter->values.size() > 1){
+				std::string dirname = stream.str()+"/"+iter->getName();
+				f->mkdir(dirname.c_str());
+				f->cd(dirname.c_str());
+			}
+			else{ f->cd(stream.str().c_str()); }
+			iter->write(f);
+#else
+			f << iter->print();
+#endif
+		}
 	}
 
 	closeFile(f);
