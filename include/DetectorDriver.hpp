@@ -87,9 +87,8 @@ public:
     * have been created.  Then experiment specific processing is performed.
     * Currently, both RMS and MTC processing is available.  After all processing
     * has occured, appropriate plotting routines are called.
-    * \param [in] rawev : the raw event to process
-    * \return An unused integer, maybe change to void */
-    int ProcessEvent(RawEvent& rawev);
+    * \param [in] rawev : the raw event to process */
+    void ProcessEvent(RawEvent& rawev);
 
     /*! \brief Check threshold and calibrate each channel.
      * Check the thresholds and calibrate the energy for each channel using the
@@ -102,9 +101,8 @@ public:
     /*! Called from PixieStd.cpp during initialization.
      * The calibration file Config.xml is read using the function ReadCal() and
      * checked to make sure that all channels have a calibration.
-     * \param [in] rawev : the raw event to initialize with
-     * \return an unused integer maybe change to void */
-    int Init(RawEvent& rawev);
+     * \param [in] rawev : the raw event to initialize with */
+    void Init(RawEvent& rawev);
 
     /*! Plot the raw energies of each channel into the damm spectrum number
      * assigned to it in the map file with an offset as defined in

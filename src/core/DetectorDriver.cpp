@@ -38,6 +38,7 @@
 #include "SsdProcessor.hpp"
 #include "TeenyVandleProcessor.hpp"
 #include "TraceFilterer.hpp"
+#include "TemplateProcessor.hpp"
 #include "VandleProcessor.hpp"
 #include "ValidProcessor.hpp"
 
@@ -104,7 +105,6 @@ DetectorDriver::~DetectorDriver() {
 
 void DetectorDriver::LoadProcessors(Messenger& m) {
     pugi::xml_document doc;
-
     pugi::xml_parse_result result = doc.load_file("Config.xml");
     if (!result) {
         stringstream ss;
@@ -117,95 +117,66 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
 
     pugi::xml_node driver = doc.child("Configuration").child("DetectorDriver");
     for (pugi::xml_node processor = driver.child("Processor"); processor;
-         processor = processor.next_sibling("Processor")) {
+        processor = processor.next_sibling("Processor")) {
         string name = processor.attribute("name").value();
 
         m.detail("Loading " + name);
-	if (name == "BetaScintProcessor") {
+        if (name == "BetaScintProcessor") {
             double gamma_beta_limit =
-                processor.attribute("gamma_beta_limit").as_double(-1);
-            if (gamma_beta_limit == -1) {
-                gamma_beta_limit = 200e-9;
+                processor.attribute("gamma_beta_limit").as_double(200.e-9);
+            if (gamma_beta_limit == 200.e-9)
                 m.warning("Using default gamme_beta_limit = 200e-9", 1);
-            }
-
             double energy_contraction =
-                processor.attribute("energy_contraction").as_double(-1);
-            if (energy_contraction == -1) {
-                energy_contraction = 1;
+                processor.attribute("energy_contraction").as_double(1.0);
+            if (energy_contraction == 1)
                 m.warning("Using default energy contraction = 1", 1);
-            }
-
-            if (name == "BetaScintProcessor")
-                vecProcess.push_back(
-                        new BetaScintProcessor(gamma_beta_limit,
-                                               energy_contraction));
+            vecProcess.push_back(new BetaScintProcessor(gamma_beta_limit,
+                                                        energy_contraction));
         } else if (name == "GeProcessor") {
             double gamma_threshold =
-                processor.attribute("gamma_threshold").as_double(-1);
-            if (gamma_threshold == -1) {
-                gamma_threshold = 1.0;
+                processor.attribute("gamma_threshold").as_double(1.0);
+            if (gamma_threshold == 1.0)
                 m.warning("Using default gamma_threshold = 1.0", 1);
-            }
             double low_ratio =
-                processor.attribute("low_ratio").as_double(-1);
-            if (low_ratio == -1) {
-                low_ratio = 1.0;
+                processor.attribute("low_ratio").as_double(1.0);
+            if (low_ratio == 1.0)
                 m.warning("Using default low_ratio = 1.0", 1);
-            }
             double high_ratio =
-                processor.attribute("high_ratio").as_double(3);
-            if (high_ratio == -1) {
-                high_ratio = 3.0;
+                processor.attribute("high_ratio").as_double(3.0);
+            if (high_ratio == 3.0)
                 m.warning("Using default high_ratio = 3.0", 1);
-            }
             double sub_event =
-                processor.attribute("sub_event").as_double(-1);
-            if (sub_event == -1) {
-                sub_event = 100e-9;
+                processor.attribute("sub_event").as_double(100.e-9);
+            if (sub_event == 100.e-9)
                 m.warning("Using default sub_event = 100e-9", 1);
-            }
             double gamma_beta_limit =
-                processor.attribute("gamma_beta_limit").as_double(-1);
-            if (gamma_beta_limit == -1) {
-                gamma_beta_limit = 200e-9;
+                processor.attribute("gamma_beta_limit").as_double(200.e-9);
+            if (gamma_beta_limit == 200.e-9)
                 m.warning("Using default gamme_beta_limit = 200e-9", 1);
-            }
             double gamma_gamma_limit =
-                processor.attribute("gamma_gamma_limit").as_double(-1);
-            if (gamma_gamma_limit == -1) {
-                gamma_gamma_limit = 200e-9;
+                processor.attribute("gamma_gamma_limit").as_double(200.e-9);
+            if (gamma_gamma_limit == 200.e-9)
                 m.warning("Using default gamma_gamma_limit = 200e-9", 1);
-            }
             double cycle_gate1_min =
-                processor.attribute("cycle_gate1_min").as_double(-1);
-            if (cycle_gate1_min == -1) {
-                cycle_gate1_min = 0.0;
+                processor.attribute("cycle_gate1_min").as_double(0.0);
+            if (cycle_gate1_min == 0.0)
                 m.warning("Using default cycle_gate1_min = 0.0", 1);
-            }
             double cycle_gate1_max =
-                processor.attribute("cycle_gate1_max").as_double(-1);
-            if (cycle_gate1_max == -1) {
-                cycle_gate1_max = 0.0;
+                processor.attribute("cycle_gate1_max").as_double(0.0);
+            if (cycle_gate1_max == 0.0)
                 m.warning("Using default cycle_gate1_max = 0.0", 1);
-            }
             double cycle_gate2_min =
-                processor.attribute("cycle_gate2_min").as_double(-1);
-            if (cycle_gate2_min == -1) {
-                cycle_gate2_min = 0.0;
+                processor.attribute("cycle_gate2_min").as_double(0.0);
+            if (cycle_gate2_min == 0.0)
                 m.warning("Using default cycle_gate2_min = 0.0", 1);
-            }
             double cycle_gate2_max =
-                processor.attribute("cycle_gate2_max").as_double(-1);
-            if (cycle_gate2_max == -1) {
-                cycle_gate2_max = 0.0;
+                processor.attribute("cycle_gate2_max").as_double(0.0);
+            if (cycle_gate2_max == 0.0)
                 m.warning("Using default cycle_gate2_max = 0.0", 1);
-            }
-	    vecProcess.push_back(new GeProcessor(gamma_threshold,
-						 low_ratio, high_ratio, sub_event,
-						 gamma_beta_limit, gamma_gamma_limit,
-						 cycle_gate1_min, cycle_gate1_max,
-						 cycle_gate2_min, cycle_gate2_max));
+            vecProcess.push_back(new GeProcessor(gamma_threshold, low_ratio,
+                high_ratio, sub_event, gamma_beta_limit, gamma_gamma_limit,
+                cycle_gate1_min, cycle_gate1_max, cycle_gate2_min,
+                cycle_gate2_max));
         } else if (name == "GeCalibProcessor") {
             double gamma_threshold =
                 processor.attribute("gamma_threshold").as_double(1);
@@ -214,7 +185,7 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             double high_ratio =
                 processor.attribute("high_ratio").as_double(3);
             vecProcess.push_back(new GeCalibProcessor(gamma_threshold,
-                        low_ratio, high_ratio));
+                low_ratio, high_ratio));
         } else if (name == "Hen3Processor") {
             vecProcess.push_back(new Hen3Processor());
         } else if (name == "IonChamberProcessor") {
@@ -223,8 +194,6 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new LiquidScintProcessor());
         } else if (name == "LogicProcessor") {
             vecProcess.push_back(new LogicProcessor());
-        } else if (name == "McpProcessor") {
-            vecProcess.push_back(new McpProcessor());
         } else if (name == "NeutronScintProcessor") {
             vecProcess.push_back(new NeutronScintProcessor());
         } else if (name == "PositionProcessor") {
@@ -239,17 +208,17 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             unsigned int numStarts = processor.attribute("NumStarts").as_int(2);
             vector<string> types =
                 strings::tokenize(processor.attribute("types").as_string(),",");
-	    vecProcess.push_back(new VandleProcessor(types, res,
-						     offset, numStarts));
-	} else if (name == "TeenyVandleProcessor") {
-            vecProcess.push_back(new TeenyVandleProcessor());
+            vecProcess.push_back(new VandleProcessor(types, res,
+                offset, numStarts));
+        } else if (name == "TeenyVandleProcessor") {
+                vecProcess.push_back(new TeenyVandleProcessor());
         } else if (name == "DoubleBetaProcessor") {
-		vecProcess.push_back(new DoubleBetaProcessor());
+            vecProcess.push_back(new DoubleBetaProcessor());
         } else if (name == "PspmtProcessor") {
-            vecProcess.push_back(new PspmtProcessor());
-        } else if (name == "IS600Processor") {
-	    vecProcess.push_back(new IS600Processor());
-	}
+                vecProcess.push_back(new PspmtProcessor());
+        } else if (name == "TemplateProcessor") {
+            vecProcess.push_back(new TemplateProcessor());
+        }
 #ifdef useroot
         else if (name == "RootProcessor") {
             vecProcess.push_back(new RootProcessor("tree.root", "tree"));
@@ -262,7 +231,7 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         }
         stringstream ss;
         for (pugi::xml_attribute_iterator ait = processor.attributes_begin();
-             ait != processor.attributes_end(); ++ait) {
+            ait != processor.attributes_end(); ++ait) {
             ss.str("");
             ss << ait->name();
             if (ss.str().compare("name") != 0) {
@@ -273,79 +242,53 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
     }
 
     for (pugi::xml_node analyzer = driver.child("Analyzer"); analyzer;
-         analyzer = analyzer.next_sibling("Analyzer")) {
+        analyzer = analyzer.next_sibling("Analyzer")) {
         string name = analyzer.attribute("name").value();
-
         m.detail("Loading " + name);
-        if (name == "TraceFilterer" ||
-            name == "DoubleTraceAnalyzer") {
 
-            double gain_match = analyzer.attribute("gain_match").as_double(-1);
-            if (gain_match == -1) {
-                gain_match = 1.0;
+        if (name == "TraceFilterer" || name == "DoubleTraceAnalyzer") {
+            double gain_match = analyzer.attribute("gain_match").as_double(1.0);
+            if (gain_match == 1.0)
                 m.warning("Using gain_match = 1.0", 1);
-            }
-            int fast_rise = analyzer.attribute("fast_rise").as_int(-1);
-            if (fast_rise == -1) {
-                fast_rise = 10;
+            int fast_rise = analyzer.attribute("fast_rise").as_int(10);
+            if (fast_rise == 10)
                 m.warning("Using fast_rise = 10", 1);
-            }
-            int fast_gap = analyzer.attribute("fast_gap").as_int(-1);
-            if (fast_gap == -1) {
-                fast_gap = 10;
+            int fast_gap = analyzer.attribute("fast_gap").as_int(10);
+            if (fast_gap == 10)
                 m.warning("Using fast_gap = 10", 1);
-            }
             int fast_threshold =
-                analyzer.attribute("fast_threshold").as_int(-1);
-            if (fast_threshold == -1) {
-                fast_threshold = 50;
+                analyzer.attribute("fast_threshold").as_int(50);
+            if (fast_threshold == 50)
                 m.warning("Using fast_threshold = 50", 1);
-            }
-            int energy_rise = analyzer.attribute("energy_rise").as_int(-1);
-            if (energy_rise == -1) {
-                energy_rise = 50;
+            int energy_rise = analyzer.attribute("energy_rise").as_int(50);
+            if (energy_rise == 50)
                 m.warning("Using energy_rise = 50", 1);
-            }
-            int energy_gap = analyzer.attribute("energy_gap").as_int(-1);
-            if (energy_gap == -1) {
-                energy_gap = 50;
+            int energy_gap = analyzer.attribute("energy_gap").as_int(50);
+            if (energy_gap == 50)
                 m.warning("Using energy_gap = 50", 1);
-            }
-            int slow_rise = analyzer.attribute("slow_rise").as_int(-1);
-            if (slow_rise == -1) {
-                slow_rise = 20;
+            int slow_rise = analyzer.attribute("slow_rise").as_int(20);
+            if (slow_rise == 20)
                 m.warning("Using slow_rise = 20", 1);
-            }
-            int slow_gap = analyzer.attribute("slow_gap").as_int(-1);
-            if (slow_gap == -1) {
-                slow_gap = 20;
+            int slow_gap = analyzer.attribute("slow_gap").as_int(20);
+            if (slow_gap == 20)
                 m.warning("Using slow_gap = 20", 1);
-            }
             int slow_threshold =
-                analyzer.attribute("slow_threshold").as_int(-1);
-            if (slow_threshold == -1) {
-                slow_threshold = 10;
+                analyzer.attribute("slow_threshold").as_int(10);
+            if (slow_threshold == 10)
                 m.warning("Using slow_threshold = 10", 1);
-            }
-
             if (name == "TraceFilterer")
-                vecAnalyzer.push_back(new TraceFilterer(
-                            gain_match,
-                            fast_rise, fast_gap, fast_threshold,
-                            energy_rise, energy_gap,
-                            slow_rise, slow_gap, slow_threshold));
+                vecAnalyzer.push_back(new TraceFilterer(gain_match, fast_rise,
+                    fast_gap, fast_threshold, energy_rise, energy_gap,
+                    slow_rise, slow_gap, slow_threshold));
             else if (name == "DoubleTraceAnalyzer")
-                vecAnalyzer.push_back(new DoubleTraceAnalyzer(
-                            gain_match,
-                            fast_rise, fast_gap, fast_threshold,
-                            energy_rise, energy_gap,
-                            slow_rise, slow_gap, slow_threshold));
+                vecAnalyzer.push_back(new DoubleTraceAnalyzer(gain_match,
+                    fast_rise, fast_gap, fast_threshold, energy_rise,
+                    energy_gap, slow_rise, slow_gap, slow_threshold));
         } else if (name == "TauAnalyzer") {
             vecAnalyzer.push_back(new TauAnalyzer());
         } else if (name == "TraceExtractor") {
             string type = analyzer.attribute("type").as_string();
             string subtype = analyzer.attribute("subtype").as_string();
-
             vecAnalyzer.push_back(new TraceExtractor(type, subtype));
         } else if (name == "WaveformAnalyzer") {
             vecAnalyzer.push_back(new WaveformAnalyzer());
@@ -358,6 +301,7 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             ss << "DetectorDriver: unknown analyzer type" << name;
             throw GeneralException(ss.str());
         }
+
         for (pugi::xml_attribute_iterator ait = analyzer.attributes_begin();
              ait != analyzer.attributes_end(); ++ait) {
             stringstream ss;
@@ -370,7 +314,7 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
     }
 }
 
-int DetectorDriver::Init(RawEvent& rawev) {
+void DetectorDriver::Init(RawEvent& rawev) {
     for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
 	 it != vecAnalyzer.end(); it++) {
         (*it)->Init();
@@ -398,13 +342,10 @@ int DetectorDriver::Init(RawEvent& rawev) {
         cout << "Warning caught at DetectorDriver::Init" << endl;
         cout << "\t" << w.what() << endl;
     }
-
-    return(0);
 }
 
-int DetectorDriver::ProcessEvent(RawEvent& rawev) {
+void DetectorDriver::ProcessEvent(RawEvent& rawev) {
     plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
-
     try {
         for (vector<ChanEvent*>::const_iterator it = rawev.GetEventList().begin();
             it != rawev.GetEventList().end(); ++it) {
@@ -430,19 +371,15 @@ int DetectorDriver::ProcessEvent(RawEvent& rawev) {
         //!First round is preprocessing, where process result must be guaranteed
         //!to not to be dependent on results of other Processors.
         for (vector<EventProcessor*>::iterator iProc = vecProcess.begin();
-        iProc != vecProcess.end(); iProc++) {
-            if ( (*iProc)->HasEvent() ) {
+        iProc != vecProcess.end(); iProc++)
+            if ( (*iProc)->HasEvent() )
                 (*iProc)->PreProcess(rawev);
-            }
-        }
         ///In the second round the Process is called, which may depend on other
         ///Processors.
         for (vector<EventProcessor *>::iterator iProc = vecProcess.begin();
-        iProc != vecProcess.end(); iProc++) {
-            if ( (*iProc)->HasEvent() ) {
+        iProc != vecProcess.end(); iProc++)
+            if ( (*iProc)->HasEvent() )
                 (*iProc)->Process(rawev);
-            }
-        }
     } catch (GeneralException &e) {
         /// Any exception in activation of basic places, PreProcess and Process
         /// will be intercepted here
@@ -453,8 +390,6 @@ int DetectorDriver::ProcessEvent(RawEvent& rawev) {
         cout << "Warning caught at DetectorDriver::ProcessEvent" << endl;
         cout << "\t" << w.what() << endl;
     }
-
-    return 0;
 }
 
 void DetectorDriver::DeclarePlots() {
