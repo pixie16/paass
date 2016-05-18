@@ -184,10 +184,7 @@ void closeFile(std::ofstream &f_){
 #endif
 
 void help(char * prog_name_){
-	std::cout << "  SYNTAX: " << prog_name_ << " [startMod] [stopMod] <options> <output>\n";
-	std::cout << "   Available options:\n";
-	std::cout << "    --var [filename] | Specify the path to the dsp .var file (default=./varFile).\n";
-	std::cout << "    --set [filename] | Specify the path to the binary .set file (default=./setFile).\n";
+	std::cout << "  SYNTAX: " << prog_name_ << " [startMod] [stopMod] [varFile] [setFile] <output>\n";
 }
 
 int main(int argc, char *argv[]){
@@ -195,8 +192,8 @@ int main(int argc, char *argv[]){
 		help(argv[0]);
 		return 0;
 	}
-	else if(argc < 3){
-		std::cout << " Invalid number of arguments to " << argv[0] << ". Expected 2, received " << argc-1 << ".\n";
+	else if(argc < 5){
+		std::cout << " Invalid number of arguments to " << argv[0] << ". Expected 4, received " << argc-1 << ".\n";
 		help(argv[0]);
 		return 1;
 	}
@@ -212,38 +209,19 @@ int main(int argc, char *argv[]){
 		return -1;
 	}
 
-	std::string varFilename = "./varFile";
-	std::string setFilename = "./setFile";
+	// Set the input filenames.
+	std::string varFilename = std::string(argv[3]);
+	std::string setFilename = std::string(argv[4]);
+	
+	// Get the output filename.
+	std::string outFilename;
+	if(argc > 5){ outFilename = std::string(argv[5]); }
+	else{
 #ifdef USE_ROOT_OUTPUT
-	std::string outFilename = "params.root";
+	outFilename = "params.root";
 #else
-	std::string outFilename = "params.dat";
+	outFilename = "params.dat";
 #endif
-	int index = 3;
-	while(index < argc){
-		if(strcmp(argv[index], "--var") == 0){
-			if(index + 1 >= argc){
-				std::cout << " Error! Missing required argument to '--var'!\n";
-				help(argv[0]);
-				return 1;
-			}
-			varFilename = std::string(argv[++index]);
-			std::cout << " Using dsp .var file '" << varFilename << "'.\n";
-		}
-		else if(strcmp(argv[index], "--set") == 0){
-			if(index + 1 >= argc){
-				std::cout << " Error! Missing required argument to '--set'!\n";
-				help(argv[0]);
-				return 1;
-			}
-			setFilename = std::string(argv[++index]);
-			std::cout << " Using .set file '" << setFilename << "'.\n";
-		}
-		else{ 
-			// Unrecognized option. Must be the output filename.
-			outFilename = std::string(argv[index]);
-		}
-		index++;
 	}
 
 	// Open the output file.
