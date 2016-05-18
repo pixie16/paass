@@ -46,7 +46,7 @@ bool TemplateProcessor::PreProcess(RawEvent &event) {
         it != evts_.end(); it++) {
         unsigned int location = (*it)->GetChanID().GetLocation();
         if(location == 0)
-            plot(D_ENERGY, (*it)->GetEnergy()*a);
+            plot(D_ENERGY, (*it)->GetEnergy()*a_);
     }
     return(true);
 }

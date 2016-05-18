@@ -23,7 +23,7 @@ enum CalibrationModel {
     cal_cubic,
     cal_polynomial,
     cal_hyplin,
-    cal_exp,
+    cal_exp
 };
 
 /** \brief This structure holds walk calibration model identfier, range
