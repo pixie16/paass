@@ -46,6 +46,7 @@
         <EnergyContraction value="1.0"/>
         <Path>config/</Path>
         <NumOfTraces value="50"/>
+        <HasRaw value="true"/>
     </Global>
 
     <!-- Sets a rejection region for the data. The time is in seconds and the
@@ -123,18 +124,12 @@
             * TauAnalyzer
             * TracePlotter
             * TraceExtractor
-                *
-            With pulsefit compiler flag
-            * WaveformAnalyzer
-            * FittingAnalyzer
-            With dcfd compiler flag
-            * WaveformAnalyzer
-            * CfdAnalyzer
     -->
     <DetectorDriver>
-        <Processor name="PulserProcessor" />
         <Analyzer name="WaveformAnalyzer"/>
         <Analyzer name="FittingAnalyzer"/>
+        <Processor name="TemplateProcessor" />
+        <Processor name="GeProcessor"/>
     </DetectorDriver>
 
     <!-- Instructions:
@@ -222,14 +217,19 @@
     -->
     <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
         <Module number="0">
-            <Channel number="0" type="pulser" subtype="start">
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
-            <Channel number="1" type="pulser" subtype="stop" >
-                <WalkCorrection model="None">
-                </WalkCorrection>
-            </Channel>
+            <Channel number="0" type="template" subtype="start"></Channel>
+            <Channel number="1" type="template" subtype="stop" ></Channel>
+        </Module>
+        <Module number="1">
+            <Channel number="0" type="ge" subtype="clover_high"></Channel>
+            <Channel number="1" type="ge" subtype="clover_high" ></Channel>
+            <Channel number="2" type="ge" subtype="clover_high"></Channel>
+            <Channel number="3" type="ge" subtype="clover_high" ></Channel>
+            <Channel number="6" type="pulser" subtype="start"></Channel>
+            <Channel number="7" type="pulser" subtype="stop" ></Channel>
+        </Module>
+        <Module number="6">
+            <Channel number="0" type="ignore" subtype="ignore"></Channel>
         </Module>
     </Map>
 
@@ -245,35 +245,12 @@
     -->
     <TimeCalibration verbose_timing="False">
         <Vandle>
-            <big>
-            </big>
-            <medium>
-            </medium>
             <small>
-                <Bar number="0" z0="0.0" xoffset="0.0" lroffset="0.0"
-                     zoffset="0.0">
-                    <TofOffset location="0" offset="0.0" />
-                    <TofOffset location="1" offset="0.0" />
-                    <TofOffset location="3" offset="0.0" />
-                    <TofOffset location="12" offset="0.0" />
-                </Bar>
-                <Bar number="1" z0="0.0" xoffset="0.0" lroffset="0.0"
-                     tofoffset0="0.0" tofoffset1="0.0">
-                    <TofOffset location="0" offset="0.0" />
-                    <TofOffset location="7" offset="0.0" />
+                <Bar number="25" lroffset="8.28441" z0="100.2" xoffset="0" zoffset="0">
+                    <TofOffset location="0" offset="121.61232"/>
                 </Bar>
             </small>
         </Vandle>
-        <Scint>
-            <liquid>
-                <Detector number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
-                     tofoffset0="0.0" tofoffset1="0.0" />
-            </liquid>
-            <start>
-                <Detector number="0" r0="0.0" xoffset="0.0" lroffset="0.0"
-                     tofoffset0="0.0" tofoffset1="0.0" />
-            </start>
-        </Scint>
     </TimeCalibration>
 
     <!-- Instructions:
@@ -297,61 +274,17 @@
         </Physical>
 
         <Trace>
-            <WaveformRange>
-                <Low unit="sample" value="5"/>
-                <High unit="sample" value="10"/>
-            </WaveformRange>
-            <SiPmtWaveformRange>
-                <Low unit="sample" value="5"/>
-                <High unit="sample" value="5"/>
-            </SiPmtWaveformRange>
-            <DiscriminationStart unit="sample" value="3"/>
-            <TrapezoidalWalk unit="ns" value="60"/>
-            <TraceDelay unit="ns" value="112"/>
-            <TraceLength unit="ns" value="176"/>
-            <QdcCompression value="4.0"/>
+            <TraceDelay unit="ns" value="344"/>
+            <TraceLength unit="ns" value="496"/>
         </Trace>
 
         <Fitting>
-            <SigmaBaselineThresh value="3.0"/>
-            <SiPmtSigmaBaselineThresh value = "25.0"/>
-            <Vandle>
-                <Small>
-                    <Beta value="0.32969"/>
-                    <Gamma value="0.212945"/>
-                </Small>
-                <Medium>
-                    <Beta value="0.254373"/>
-                    <Gamma value="0.208072"/>
-                </Medium>
-                <Big>
-                    <Beta value="0.32969"/>
-                    <Gamma value="0.212945"/>
-                </Big>
-                <TeenyVandle>
-                    <Beta value="0.362307"/>
-                    <Gamma value="0.186129"/>
-                </TeenyVandle>
-            </Vandle>
-            <Start>
-                <Beta value="0.574531"/>
-                <Gamma value="0.274512"/>
-            </Start>
-            <Pulser>
-                <Beta value="0.832272"/>
-                <Gamma value="0.236525"/>
-            </Pulser>
-            <TVandle>
-                <Beta value="0.362307"/>
-                <Gamma value="0.186129"/>
-            </TVandle>
-            <LiquidScint>
-                <Beta value="4.52672"/>
-                <Gamma value="1.73376"/>
-            </LiquidScint>
-            <SiPMT>
-                <Sigma value="1.4196495999"/>
-            </SiPMT>
+            <Parameters>
+                <Pars name="vandle:small">
+                  <Beta value="0.32969"/>
+                  <Gamma value="0.212945"/>
+                </Pars>
+            </Parameters>
         </Fitting>
     </Timing>
 
@@ -407,7 +340,7 @@
     -->
     <TreeCorrelator name="root" verbose="False">
         <Place type="PlaceOR" name="Beta" fifo="10">
-            <Place type="PlaceThreshold" name="beta_scint_beta_0-1"
+            <Place type="PlaceThreshold" name="template_start_0"
                 low_limit="10.0" high_limit="16382" fifo="5"
                 replace="true"/>
         </Place>
@@ -415,16 +348,6 @@
         <Place type="PlaceOR" name="Gamma">
             <Place type="PlaceOR" name="Clover0">
                 <Place type="PlaceThreshold" name="ge_clover_high_0-3"
-                    low_limit="20.0" high_limit="99999"
-                    replace="true"/>
-            </Place>
-            <Place type="PlaceOR" name="Clover1">
-                <Place type="PlaceThreshold" name="ge_clover_high_4-7"
-                    low_limit="20.0" high_limit="99999"
-                    replace="true"/>
-            </Place>
-            <Place type="PlaceOR" name="Clover2">
-                <Place type="PlaceThreshold" name="ge_clover_high_8-11"
                     low_limit="20.0" high_limit="99999"
                     replace="true"/>
             </Place>

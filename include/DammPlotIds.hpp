@@ -49,7 +49,13 @@ namespace dammIds {
     /// in PspmtProcessor.cpp
     namespace pspmt {
         const int OFFSET = 1900;
-        const int RANGE =  99;
+        const int RANGE =  100;
+    }
+
+    ///in TemplateProcessor.cpp
+    namespace dettemplate {
+        const int OFFSET = 2000;//!< Offset for TemplateProcessor
+        const int RANGE = 10;//!< Range for TemplateProcessor
     }
 
     ///in McpProcessor.cpp

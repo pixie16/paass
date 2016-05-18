@@ -143,21 +143,21 @@ Globals::Globals() {
         for(pugi::xml_node_iterator it = timing.child("Physical").begin();
             it != timing.child("Physical").end(); ++it) {
             if(std::string(it->name()).compare("NeutronMass") == 0)
-                neutronMass_ = it->attribute("value").as_double();
+                neutronMass_ = it->attribute("value").as_double(939.565560);
             else if(std::string(it->name()).compare("SpeedOfLight") == 0)
-                speedOfLight_ = it->attribute("value").as_double();
+                speedOfLight_ = it->attribute("value").as_double(29.9792458);
             else if(std::string(it->name()).compare("SpeedOfLightSmall") == 0)
-                speedOfLightSmall_ = it->attribute("value").as_double();
+                speedOfLightSmall_ = it->attribute("value").as_double(12.65822);
             else if(std::string(it->name()).compare("SpeedOfLightBig") == 0)
-                speedOfLightBig_ = it->attribute("value").as_double();
+                speedOfLightBig_ = it->attribute("value").as_double(15.22998);
             else if(std::string(it->name()).compare("SpeedOfLightMedium") == 0)
                 speedOfLightMedium_ = it->attribute("value").as_double();
             else if(std::string(it->name()).compare("SmallLength") == 0)
-                smallLength_ = it->attribute("value").as_double();
+                smallLength_ = it->attribute("value").as_double(60);
             else if(std::string(it->name()).compare("MediumLength") == 0)
-                mediumLength_ = it->attribute("value").as_double();
+                mediumLength_ = it->attribute("value").as_double(120);
             else if(std::string(it->name()).compare("BigLength") == 0)
-                bigLength_ = it->attribute("value").as_double();
+                bigLength_ = it->attribute("value").as_double(200);
             else
                 WarnOfUnknownParameter(m, it);
         }
@@ -167,34 +167,34 @@ Globals::Globals() {
 
         for(pugi::xml_node_iterator it = timing.child("Trace").begin();
             it != timing.child("Trace").end(); ++it) {
-	    if(std::string(it->name()).compare("DiscriminationStart") == 0)
-		discriminationStart_ = it->attribute("value").as_double();
-	    else if(std::string(it->name()).compare("TrapezoidalWalk") == 0)
-		trapezoidalWalk_ = it->attribute("value").as_double();
-	    else if(std::string(it->name()).compare("TraceDelay") == 0)
-		traceDelay_ = it->attribute("value").as_double();
-	    else if(std::string(it->name()).compare("TraceLength") == 0)
-		traceLength_ = it->attribute("value").as_double();
-	    else if(std::string(it->name()).compare("QdcCompression") == 0)
-		qdcCompression_ = it->attribute("value").as_double();
-	    else if(std::string(it->name()).compare("WaveformRange") == 0) {
-		for(pugi::xml_node_iterator waveit = it->begin();
-		    waveit != it->end(); ++waveit) {
-		    waveformRanges_.insert(std::make_pair(waveit->attribute("name").as_string(),
-							  std::make_pair(waveit->child("Low").attribute("value").as_int(5),
-									 waveit->child("High").attribute("value").as_int(10))));
-		}
+            if(std::string(it->name()).compare("DiscriminationStart") == 0)
+            discriminationStart_ = it->attribute("value").as_double(3);
+            else if(std::string(it->name()).compare("TrapezoidalWalk") == 0)
+            trapezoidalWalk_ = it->attribute("value").as_double(266);
+            else if(std::string(it->name()).compare("TraceDelay") == 0)
+            traceDelay_ = it->attribute("value").as_double();
+            else if(std::string(it->name()).compare("TraceLength") == 0)
+            traceLength_ = it->attribute("value").as_double();
+            else if(std::string(it->name()).compare("QdcCompression") == 0)
+            qdcCompression_ = it->attribute("value").as_double(1.0);
+            else if(std::string(it->name()).compare("WaveformRange") == 0) {
+            for(pugi::xml_node_iterator waveit = it->begin();
+                waveit != it->end(); ++waveit) {
+                waveformRanges_.insert(std::make_pair(waveit->attribute("name").as_string(),
+                                  std::make_pair(waveit->child("Low").attribute("value").as_int(5),
+                                         waveit->child("High").attribute("value").as_int(10))));
+            }
 	    } else
-		WarnOfUnknownParameter(m, it);
+            WarnOfUnknownParameter(m, it);
 	}
 
 	for(pugi::xml_node_iterator it = timing.child("Fitting").begin();
             it != timing.child("Fitting").end(); ++it) {
 
             if(std::string(it->name()).compare("SigmaBaselineThresh") == 0)
-                sigmaBaselineThresh_ = it->attribute("value").as_double();
+                sigmaBaselineThresh_ = it->attribute("value").as_double(3.0);
             else if(std::string(it->name()).compare("SiPmtSigmaBaselineThresh") == 0)
-                siPmtSigmaBaselineThresh_ = it->attribute("value").as_double();
+                siPmtSigmaBaselineThresh_ = it->attribute("value").as_double(25.0);
 	    else if(std::string(it->name()).compare("Parameters") == 0) {
 		for(pugi::xml_node_iterator parit = it->begin();
 		    parit != it->end(); ++parit) {
