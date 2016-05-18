@@ -290,12 +290,13 @@ void DetectorLibrary::PrintUsedDetectors(RawEvent& rawev) const {
 }
 
 const set<string>& DetectorLibrary::GetKnownDetectors(void) {
-    const unsigned int detTypes = 24;
+    const unsigned int detTypes = 25;
     const string detectorStrings[detTypes] = {
         "3hen", "beta", "dssd_front", "dssd_back", "ge", "generic",
         "idssd_front", "ignore", "ion_chamber", "liquid", "logic",
         "mcp", "mtc", "neutron_scint", "position", "pulser", "si", "ssd",
-        "timeclass", "tvandle", "vandle", "beta_scint", "labr3", "pspmt"
+        "timeclass", "tvandle", "vandle", "beta_scint", "labr3", "pspmt",
+        "template"
     };
 
     if (!knownDetectors.empty())

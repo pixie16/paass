@@ -3,20 +3,22 @@
  *\author S. V. Paulauskas
  *\date October 26, 2014
  */
+#include <iostream>
+
 #include "DammPlotIds.hpp"
 #include "Globals.hpp"
 #include "RawEvent.hpp"
 #include "TemplateProcessor.hpp"
 
 namespace dammIds {
-    namespace experiment {
+    namespace dettemplate {
         const int D_ENERGY  = 0; //!< ID for the energy of the template detector
         const int DD_TEMPLATE_VS_PULSER = 1; //!< Energy Template vs. Energy Pulser
     }
 }//namespace dammIds
 
 using namespace std;
-using namespace dammIds::experiment;
+using namespace dammIds::dettemplate;
 
 TemplateProcessor::TemplateProcessor():
     EventProcessor(OFFSET, RANGE, "TemplateProcessor") {
@@ -46,7 +48,7 @@ bool TemplateProcessor::PreProcess(RawEvent &event) {
         it != evts_.end(); it++) {
         unsigned int location = (*it)->GetChanID().GetLocation();
         if(location == 0)
-            plot(D_ENERGY, (*it)->GetEnergy()*a);
+            plot(D_ENERGY, (*it)->GetEnergy()*a_);
     }
     return(true);
 }
