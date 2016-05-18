@@ -13,6 +13,8 @@ class TemplateProcessor : public EventProcessor {
 public:
     /** Default Constructor */
     TemplateProcessor();
+    /** Constructor Accepting an argument */
+    TemplateProcessor(const double & a);
     /** Default Destructor */
     ~TemplateProcessor(){};
     /** Declares the plots for the processor */
@@ -25,13 +27,12 @@ public:
     * \param [in] event : the event to process
     * \return true if processing was successful */
     virtual bool Process(RawEvent &event);
+    /** \return The processed Template events */
+    const std::vector<ChanEvent*> * GetTemplateEvents(void) const {
+        return(&evts_);
+    }
 private:
-    /** Retrieves the data for the associated types
-     * \param [in] event : the event to get data from
-     * \return True if it could get data */
-    virtual bool RetrieveData(RawEvent &event);
-    /** Analyze the retrieved data
-     * \param [in] rawev : the raw event with the data */
-    virtual void AnalyzeData(RawEvent& rawev);
+    double a_;
+    std::vector<ChanEvent*> evts_;
 };
 #endif // __TEMPLATEPROCESSOR_HPP__

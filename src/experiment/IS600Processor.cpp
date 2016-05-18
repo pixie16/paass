@@ -183,7 +183,6 @@ bool IS600Processor::Process(RawEvent &event) {
 		 GetProcessor("VandleProcessor"))->
 		CorrectTOF(tof, bar.GetFlightPath(), cal.GetZ0());
 
-	    bool notPrompt = corTof > 45.;
 	    bool inPeel = histo.BananaTest(bananaNum,
             corTof*plotMult_+plotOffset_,
             bar.GetQdc());
