@@ -231,12 +231,18 @@ int main(int argc, char *argv[]){
 		std::cout << " ERROR! Failed to open output root file '" << outFilename << "'!\n";
 		return 1;
 	}
+	TNamed named1("varFile", varFilename.c_str());
+	TNamed named2("setFile", setFilename.c_str());
+	named1.Write();
+	named2.Write();
 #else
 	std::ofstream f(outFilename.c_str());
 	if(!f.good()){
 		std::cout << " ERROR! Failed to open output file '" << outFilename << "'!\n";
 		return 1;
 	}
+	f << "varFile = " << varFilename << "\n";
+	f << "setFile = " << setFilename << "\n";
 #endif
 
 	// Read the .var file.
