@@ -46,12 +46,32 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 #Install options
 option(USE_ROOT "Use ROOT for analysis" ON)
-option(USE_NEWREADOUT "Use new readout format" ON)
 option(USE_GSL "Use GSL for Pulse Fitting" ON)
+option(USE_NEWREADOUT "Use new readout format" ON)
 option(USE_VERBOSE "Make Scan More Verbose" OFF)
 option(USE_ONLINE "Options for Online Scans" OFF)
 option(USE_DEBUG "Debugging info for TreeCorrelator" OFF)
 option(USE_GGATES "Gamma-Gamma gates in GeProcessor" OFF)
+
+if(USE_NEWREADOUT)
+  add_definitions(-D newreadout)
+endif(USE_NEWREADOUT)
+
+if(USE_VERBOSE)
+  add_definitions(-D VERBOSE)
+endif(USE_VERBOSE)
+
+if(USE_ONLINE)
+  add_definitions(-D ONLINE)
+endif(USE_ONLINE)
+
+if(USE_DEBUG)
+  add_definitions(-D DEBUG)
+endif(USE_DEBUG)
+
+if(USE_GGATES)
+  add_definitions(-D GGATES)
+endif(USE_GGATES)
 
 #Find packages needed for pixie_scan
 #Load additional find_package scripts.
@@ -80,22 +100,6 @@ if(USE_GSL)
   endif(NOT ${GSL_VERSION} LESS 1.14)
   set(LIBS ${LIBS} ${GSL_LIBRARIES})
 endif(USE_GSL)
-
-if(USE_VERBOSE)
-  add_definitions(-D VERBOSE)
-endif(USE_VERBOSE)
-
-if(USE_ONLINE)
-  add_definitions(-D ONLINE)
-endif(USE_ONLINE)
-
-if(USE_DEBUG)
-  add_definitions(-D DEBUG)
-endif(USE_DEBUG)
-
-if(USE_GGATES)
-  add_definitions(-D GGATES)
-endif(USE_GGATES)
 
 #Build the core library
 include_directories(include)
