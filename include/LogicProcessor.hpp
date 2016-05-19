@@ -18,7 +18,7 @@ public:
     /** Constructor taking histogram offset and range as arguments
     * \param [in] offset : the offset of the histograms
     * \param [in] range : the maximum number of histograms */
-    LogicProcessor(int offset, int range, bool doubleStop = false, 
+    LogicProcessor(int offset, int range, bool doubleStop = false,
 		   bool doubleStart = false);
 
     /** Declare plots used in the analysis */
@@ -62,7 +62,7 @@ public:
     double TimeOn(size_t loc, double t) const {
         return (LogicStatus(loc) ? (t-lastStartTime.at(loc)) : 0.);
     }
-    
+
 protected:
     std::vector<double> lastStartTime; //!< time of last leading edge
     std::vector<double> lastStopTime;  //!< time of last trailing edge
@@ -89,9 +89,6 @@ private:
     /** In some experiments the MTC start signal was doubled
      * this flags enable removal of such an events */
     bool doubleStart_;
-
-    /** Upper limit in seconds for bad (double) start/stop event */
-    static const double doubleTimeLimit_ = 10e-6;
 
     bool NiftyGraph(RawEvent &event);
 };
