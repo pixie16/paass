@@ -11,6 +11,7 @@ add_executable(pixie_ldf_c
   $<TARGET_OBJECTS:ProcessorObjects>
   $<TARGET_OBJECTS:ExperimentObjects> )
 
+set_target_properties(pixie_ldf_c PROPERTIES LINKER_LANGUAGE Fortran)
 target_link_libraries(pixie_ldf_c ${HRIBF_LIBRARIES})
 
 if(USE_GFORTRAN)
