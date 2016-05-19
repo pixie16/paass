@@ -49,8 +49,8 @@ endif()
 #---Report the status of finding ROOT-------------------
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(ROOT DEFAULT_MSG 
-		ROOTSYS ROOT_CONFIG_EXECUTABLE ROOTCINT_EXECUTABLE GENREFLEX_EXECUTABLE
-		ROOT_VERSION ROOT_INCLUDE_DIR ROOT_LIBRARIES ROOT_LIBRARY_DIR)
+  ROOTSYS ROOT_CONFIG_EXECUTABLE ROOTCINT_EXECUTABLE GENREFLEX_EXECUTABLE
+  ROOT_VERSION ROOT_INCLUDE_DIR ROOT_LIBRARIES ROOT_LIBRARY_DIR)
 
 mark_as_advanced(FORCE ROOT_LIBRARIES ROOT_GUI_LIBRARIES)
 
@@ -66,33 +66,33 @@ function(ROOT_GENERATE_DICTIONARY dictionary)
   get_directory_property(incdirs INCLUDE_DIRECTORIES)
   set(includedirs) 
   foreach( d ${incdirs})    
-  	set(includedirs ${includedirs} -I${d})
+    set(includedirs ${includedirs} -I${d})
   endforeach()
   #---Get LinkDef.h file------------------------------------
   set(linkdefs)
   foreach( f ${ARG_LINKDEF})
-		find_file(linkFile ${f} PATHS ${incdirs} ${CMAKE_CURRENT_SOURCE_DIR})
-		if(NOT linkFile) 
-			message(FATAL_ERROR "Link file \"${f}\" not found!")
-		endif()
-      set(linkdefs ${linkdefs} ${linkFile})
-		unset(linkFile CACHE)
+    find_file(linkFile ${f} PATHS ${incdirs} ${CMAKE_CURRENT_SOURCE_DIR})
+    if(NOT linkFile) 
+      message(FATAL_ERROR "Link file \"${f}\" not found!")
+    endif()
+    set(linkdefs ${linkdefs} ${linkFile})
+    unset(linkFile CACHE)
   endforeach()
   #---Get the list of header files-------------------------
   set(headerfiles)
   foreach(fp ${ARG_UNPARSED_ARGUMENTS})
-		find_file(headerFile ${fp} PATHS ${incdirs} ${CMAKE_CURRENT_SOURCE_DIR})
-		if(NOT headerFile) 
-			message(FATAL_ERROR "Header file \"${fp}\" not found!")
-		endif()
-      set(headerfiles ${headerfiles} ${headerFile})
-		unset(headerFile CACHE)
+    find_file(headerFile ${fp} PATHS ${incdirs} ${CMAKE_CURRENT_SOURCE_DIR})
+    if(NOT headerFile) 
+      message(FATAL_ERROR "Header file \"${fp}\" not found!")
+    endif()
+    set(headerfiles ${headerfiles} ${headerFile})
+    unset(headerFile CACHE)
   endforeach()
   #---call rootcint------------------------------------------
   add_custom_command(OUTPUT ${dictionary}.cxx ${dictionary}.h
-                     COMMAND ${ROOTCINT_EXECUTABLE} -cint -f  ${dictionary}.cxx 
-                                          -c ${ARG_OPTIONS} ${includedirs} ${headerfiles} ${linkdefs} 
-							DEPENDS ${headerfiles} ${linkdefs} VERBATIM)
+    COMMAND ${ROOTCINT_EXECUTABLE} -cint -f  ${dictionary}.cxx 
+    -c ${ARG_OPTIONS} ${includedirs} ${headerfiles} ${linkdefs} 
+    DEPENDS ${headerfiles} ${linkdefs} VERBATIM)
 endfunction()
 
 #----------------------------------------------------------------------------

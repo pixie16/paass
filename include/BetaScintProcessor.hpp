@@ -52,9 +52,6 @@ public:
     virtual bool Process(RawEvent &event);
     /*! Declare the Plots for the Processor */
     virtual void DeclarePlots(void);
-    /*! Magic number for the resolution of the time spectra */
-    static const double timeSpectraTimeResolution = 10e-3;
-
 protected:
     /*! Finds the most likely gamma associated with a given beta
     * \param [in] bTime : The time of arrival for the beta particle

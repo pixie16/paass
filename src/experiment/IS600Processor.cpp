@@ -22,8 +22,10 @@
 #include "TimingMapBuilder.hpp"
 #include "VandleProcessor.hpp"
 
-double IS600Processor::tof_;
-double IS600Processor::qdc_;
+#ifdef useroot
+static double tof_;
+static double qdc_;
+#endif
 
 namespace dammIds {
     namespace experiment {
