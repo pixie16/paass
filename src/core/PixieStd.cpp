@@ -491,7 +491,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
         /* while the current location in the buffer has not gone beyond the end
          * of the buffer (ignoring the last three delimiters,
          * continue reading */
-        while (nWords < (nhw[0]/2 - 6)) {
+        while (nWords < (unsigned int)(nhw[0]/2 - 6)) {
             /*
             Retrieve the record length and the vsn number
             */
@@ -590,7 +590,7 @@ extern "C" void hissub_(unsigned short *ibuf[],unsigned short *nhw)
                 break;
             }
         } // while still have words
-        if (nWords > nhw[0] / 2 - 6) {
+        if (nWords > (unsigned int)nhw[0] / 2 - 6) {
             ss << "This actually happens!";
             messenger.run_message(ss.str());
             ss.str("");

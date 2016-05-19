@@ -16,6 +16,9 @@
 using namespace std;
 using namespace dammIds::hen3;
 
+static double const cycleTimePlotResolution_ = 1e-3;//!< Plot resolution for the Cycle time
+static double const diffTimePlotResolution_ = 1e-6;//!< Plot resolution for the time diffs
+
 namespace dammIds {
     namespace hen3 {
         const int D_MULT_HEN3 = 0;//!< Multiplicity
