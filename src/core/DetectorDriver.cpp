@@ -218,7 +218,9 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                 vecProcess.push_back(new PspmtProcessor());
         } else if (name == "TemplateProcessor") {
             vecProcess.push_back(new TemplateProcessor());
-        }
+        } else if (name == "IS600Processor") {
+	    vecProcess.push_back(new IS600Processor());
+	}
 #ifdef useroot
         else if (name == "RootProcessor") {
             vecProcess.push_back(new RootProcessor("tree.root", "tree"));
