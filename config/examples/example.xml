@@ -130,6 +130,7 @@
         <Analyzer name="FittingAnalyzer"/>
         <Processor name="TemplateProcessor" />
         <Processor name="GeProcessor"/>
+        <Processor name="TemplateExpProcessor"/>
     </DetectorDriver>
 
     <!-- Instructions:

@@ -41,8 +41,7 @@ bool TemplateProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return(false);
 
-    static const vector<ChanEvent*> & evts_ =
-        event.GetSummary("template")->GetList();
+    evts_ = event.GetSummary("template")->GetList();
 
     for(vector<ChanEvent*>::const_iterator it = evts_.begin();
         it != evts_.end(); it++) {
