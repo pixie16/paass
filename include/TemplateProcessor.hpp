@@ -28,8 +28,8 @@ public:
     * \return true if processing was successful */
     virtual bool Process(RawEvent &event);
     /** \return The processed Template events */
-    const std::vector<ChanEvent*> * GetTemplateEvents(void) const {
-        return(&evts_);
+    std::vector<ChanEvent*> GetTemplateEvents(void) const {
+        return(evts_);
     }
 private:
     double a_;
