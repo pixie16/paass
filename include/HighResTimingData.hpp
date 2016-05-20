@@ -59,12 +59,12 @@ public:
     double GetMaximumValue() const { return(chan_->GetTrace().GetValue("maxval")); }
     /** \return The current value of numAboveThresh_  */
     int GetNumAboveThresh() const {
-	return(chan_->GetTrace().GetValue("numAboveThresh"));
+        return(chan_->GetTrace().GetValue("numAboveThresh"));
     }
     /** \return The current value of phase_ */
     double GetPhase() const {
-	return(chan_->GetTrace().GetValue("phase")*
-	       (Globals::get()->clockInSeconds()*1e9));
+        return(chan_->GetTrace().GetValue("phase")*
+               (Globals::get()->clockInSeconds()*1e9));
     }
     /** \return The pixie Energy */
     double GetFilterEnergy() const { return(chan_->GetEnergy()); }
@@ -77,7 +77,7 @@ public:
     }
     /** \return The current value of stdDevBaseline_  */
     double GetStdDevBaseline() const {
-	return(chan_->GetTrace().GetValue("sigmaBaseline"));
+        return(chan_->GetTrace().GetValue("sigmaBaseline"));
     }
 
     /** \return Get the trace associated with the channel */
@@ -85,12 +85,47 @@ public:
 
     /** \return The current value of tqdc_ */
     double GetTraceQdc() const {
-	return(chan_->GetTrace().GetValue("tqdc"));
+        return(chan_->GetTrace().GetValue("tqdc"));
     }
     /** \return Walk corrected time  */
     double GetCorrectedTime() const {
-	return(chan_->GetCorrectedTime());
+        return(chan_->GetCorrectedTime());
     }
+
+#ifdef useroot
+    struct HrtRoot {
+        double qdc;
+        double time;
+        double snr;
+        double wtime;
+        double phase;
+        double abase;
+        double sbase;
+        unsigned int id;
+    };
+
+    void FillRootStructure(HrtRoot &s) const {
+        s.time = GetHighResTime();
+        s.abase = GetAveBaseline();
+        s.sbase = GetStdDevBaseline();
+        s.wtime = GetCorrectedTime();
+        s.phase = GetPhase();
+        s.snr = GetSignalToNoiseRatio();
+        s.qdc = GetTraceQdc();
+        s.id = chan_->GetChanID().GetLocation();
+    }
+
+    void ZeroRootStructure(HrtRoot &s) const {
+        s.time = -9999.;
+        s.abase = -9999.;
+        s.sbase = -9999.;
+        s.wtime = -9999.;
+        s.phase = -9999.;
+        s.snr = -9999.;
+        s.qdc = -9999.;
+        s.id = 9999;
+    }
+#endif
 private:
     ChanEvent *chan_; //!< a pointer to the channel event for the high res time
 };
