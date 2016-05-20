@@ -3,16 +3,17 @@
 	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="pixie_scan" />
+		<Option makefile_is_custom="1" />
 		<Option execution_dir="../../pixie_scan" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<MakeCommands>
-			<Build command="$make -j20" />
-			<CompileFile command="$make -f $makefile $file" />
-			<Clean command="$make clean" />
+			<Build command="$make -C build/ -j20 install" />
+			<CompileFile command="$make -C build/ -f $makefile $file" />
+			<Clean command="$make -C build/ clean" />
 			<DistClean command="$make -f $makefile distclean$target" />
-			<AskRebuildNeeded command="$make -q -f $makefile $target" />
-			<SilentBuild command="$make -j20" />
+			<AskRebuildNeeded command="$make -C build/ -q -f $makefile $target" />
+			<SilentBuild command="$make -C build/ -j20 install" />
 		</MakeCommands>
 		<Build>
 			<Target title="master">
@@ -28,12 +29,12 @@
 					<Add directory="include" />
 				</Compiler>
 				<MakeCommands>
-					<Build command="$make -j20" />
-					<CompileFile command="$make -f $makefile $file" />
-					<Clean command="$make clean" />
+					<Build command="$make -C build/ -j20 install" />
+					<CompileFile command="$make -C build/ -f $makefile $file" />
+					<Clean command="$make -C build/ clean" />
 					<DistClean command="$make -f $makefile distclean$target" />
-					<AskRebuildNeeded command="$make -q -f $makefile $target" />
-					<SilentBuild command="$make -j20" />
+					<AskRebuildNeeded command="$make -C build/ -q -f $makefile $target" />
+					<SilentBuild command="$make -C build/ -j20 install" />
 				</MakeCommands>
 			</Target>
 		</Build>
