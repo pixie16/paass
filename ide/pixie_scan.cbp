@@ -243,6 +243,7 @@
 		<Unit filename="../include/StatsData.hpp" />
 		<Unit filename="../include/TauAnalyzer.hpp" />
 		<Unit filename="../include/TeenyVandleProcessor.hpp" />
+		<Unit filename="../include/TemplateExpProcessor.hpp" />
 		<Unit filename="../include/TemplateProcessor.hpp" />
 		<Unit filename="../include/TimingCalibrator.hpp" />
 		<Unit filename="../include/TimingMapBuilder.hpp" />
@@ -321,6 +322,7 @@
 		<Unit filename="../src/experiment/IS600Processor.cpp" />
 		<Unit filename="../src/experiment/LaBr3TestProcessor.cpp" />
 		<Unit filename="../src/experiment/SheCorrelator.cpp" />
+		<Unit filename="../src/experiment/TemplateExpProcessor.cpp" />
 		<Unit filename="../src/experiment/VandleAtLeribssProcessor.cpp" />
 		<Unit filename="../src/experiment/WalkVandleBetaProcessor.cpp" />
 		<Unit filename="../src/processors/BetaProcessor.cpp" />

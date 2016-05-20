@@ -50,7 +50,7 @@
 #include "TraceExtractor.hpp"
 #include "WaveformAnalyzer.hpp"
 
-#include "IS600Processor.hpp"
+#include "TemplateExpProcessor.hpp"
 
 #ifdef useroot
 #include "RootProcessor.hpp"
@@ -218,8 +218,8 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                 vecProcess.push_back(new PspmtProcessor());
         } else if (name == "TemplateProcessor") {
             vecProcess.push_back(new TemplateProcessor());
-        } else if (name == "IS600Processor") {
-	    vecProcess.push_back(new IS600Processor());
+        } else if (name == "TemplateExpProcessor") {
+            vecProcess.push_back(new TemplateExpProcessor());
 	}
 #ifdef useroot
         else if (name == "RootProcessor") {
