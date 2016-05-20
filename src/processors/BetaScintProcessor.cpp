@@ -17,6 +17,10 @@
 using namespace std;
 using namespace dammIds::beta_scint;
 
+/*! Magic number for the resolution of the time spectra */
+static const double timeSpectraTimeResolution = 10.e-3;
+
+
 BetaScintProcessor::BetaScintProcessor(double gammaBetaLimit,
                                        double energyContraction) :
     EventProcessor(OFFSET, RANGE, "BetaScintProcessor") {

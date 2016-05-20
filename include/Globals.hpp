@@ -56,7 +56,7 @@ namespace pixie {
     inline unsigned long TstBit(unsigned short bit, unsigned long value) {
 	return ((value & (unsigned long)(pow(2.0, (double)bit))) >> bit);
     }
-};
+}
 
 //! Namespace defining some buffer related constants
 namespace readbuff {
@@ -140,7 +140,7 @@ namespace strings {
         tokenized.push_back(str);
         return tokenized;
     }
-};
+}
 
 /** \brief Singleton class holding global parameters.*/
 class Globals {
