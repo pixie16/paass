@@ -3,7 +3,6 @@
 	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="pixie_scan" />
-		<Option makefile_is_custom="1" />
 		<Option execution_dir="../../pixie_scan" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
@@ -41,13 +40,15 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="../CMakeLists.txt" />
 		<Unit filename="../COPYRIGHT" />
 		<Unit filename="../Config.xml" />
 		<Unit filename="../LICENSE" />
-		<Unit filename="../Makefile" />
-		<Unit filename="../Makefile.objs" />
 		<Unit filename="../README.md" />
 		<Unit filename="../TODO" />
+		<Unit filename="../cmakeModules/FindGSL.cmake" />
+		<Unit filename="../cmakeModules/FindHRIBF.cmake" />
+		<Unit filename="../cmakeModules/FindROOT.cmake" />
 		<Unit filename="../config/anl/1471/135Sb/a135_apr_06.xml" />
 		<Unit filename="../config/anl/1471/135Sb/a135_feb_02.xml" />
 		<Unit filename="../config/anl/1471/135Sb/a135_feb_04.xml" />
@@ -259,12 +260,6 @@
 		<Unit filename="../include/pixie16app_defs.h" />
 		<Unit filename="../include/pugiconfig.hpp" />
 		<Unit filename="../include/pugixml.hpp" />
-		<Unit filename="../scan/messlog.f" />
-		<Unit filename="../scan/mildatim.f" />
-		<Unit filename="../scan/scanof.f" />
-		<Unit filename="../scan/scanor.f" />
-		<Unit filename="../scan/scanorux.f" />
-		<Unit filename="../scan/set2cc.f" />
 		<Unit filename="../scripts/analyze.bash" />
 		<Unit filename="../scripts/cmapbill.dat" />
 		<Unit filename="../scripts/makedist.bash" />
@@ -274,6 +269,8 @@
 		<Unit filename="../scripts/start.cmd" />
 		<Unit filename="../scripts/tcaltoxml.awk" />
 		<Unit filename="../scripts/test.cmd" />
+		<Unit filename="../src/CMakeLists.txt" />
+		<Unit filename="../src/analyzers/CMakeLists.txt" />
 		<Unit filename="../src/analyzers/CfdAnalyzer.cpp" />
 		<Unit filename="../src/analyzers/DoubleTraceAnalyzer.cpp" />
 		<Unit filename="../src/analyzers/FittingAnalyzer.cpp" />
@@ -284,6 +281,7 @@
 		<Unit filename="../src/analyzers/WaaAnalyzer.cpp" />
 		<Unit filename="../src/analyzers/WaveformAnalyzer.cpp" />
 		<Unit filename="../src/core/BarBuilder.cpp" />
+		<Unit filename="../src/core/CMakeLists.txt" />
 		<Unit filename="../src/core/Calibrator.cpp" />
 		<Unit filename="../src/core/ChanEvent.cpp" />
 		<Unit filename="../src/core/Correlator.cpp" />
@@ -302,9 +300,9 @@
 		<Unit filename="../src/core/PlotsRegister.cpp" />
 		<Unit filename="../src/core/RandomPool.cpp" />
 		<Unit filename="../src/core/RawEvent.cpp" />
-		<Unit filename="../src/core/ReadBuffData.RevA.cpp" />
-		<Unit filename="../src/core/ReadBuffData.RevD.cpp" />
-		<Unit filename="../src/core/ReadBuffData.RevF.cpp" />
+		<Unit filename="../src/core/ReadBuffDataA.cpp" />
+		<Unit filename="../src/core/ReadBuffDataD.cpp" />
+		<Unit filename="../src/core/ReadBuffDataF.cpp" />
 		<Unit filename="../src/core/StatsData.cpp" />
 		<Unit filename="../src/core/TimingCalibrator.cpp" />
 		<Unit filename="../src/core/TimingMapBuilder.cpp" />
@@ -314,6 +312,7 @@
 		<Unit filename="../src/core/pugixml.cpp" />
 		<Unit filename="../src/experiment/Anl1471Processor.cpp" />
 		<Unit filename="../src/experiment/Beta4Hen3Processor.cpp" />
+		<Unit filename="../src/experiment/CMakeLists.txt" />
 		<Unit filename="../src/experiment/CrosstalkProcessor.cpp" />
 		<Unit filename="../src/experiment/Dssd4SHEProcessor.cpp" />
 		<Unit filename="../src/experiment/E11006Processor.cpp" />
@@ -325,6 +324,7 @@
 		<Unit filename="../src/experiment/WalkVandleBetaProcessor.cpp" />
 		<Unit filename="../src/processors/BetaProcessor.cpp" />
 		<Unit filename="../src/processors/BetaScintProcessor.cpp" />
+		<Unit filename="../src/processors/CMakeLists.txt" />
 		<Unit filename="../src/processors/DoubleBetaProcessor.cpp" />
 		<Unit filename="../src/processors/DssdProcessor.cpp" />
 		<Unit filename="../src/processors/EventProcessor.cpp" />
@@ -351,6 +351,13 @@
 		<Unit filename="../src/processors/TemplateProcessor.cpp" />
 		<Unit filename="../src/processors/ValidProcessor.cpp" />
 		<Unit filename="../src/processors/VandleProcessor.cpp" />
+		<Unit filename="../src/scan/CMakeLists.txt" />
+		<Unit filename="../src/scan/messlog.f" />
+		<Unit filename="../src/scan/mildatim.f" />
+		<Unit filename="../src/scan/scanof.f" />
+		<Unit filename="../src/scan/scanor.f" />
+		<Unit filename="../src/scan/scanorux.f" />
+		<Unit filename="../src/scan/set2cc.f" />
 		<Extensions>
 			<DoxyBlocks>
 				<comment_style block="3" line="1" />
