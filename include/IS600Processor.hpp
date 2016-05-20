@@ -42,8 +42,6 @@ private:
     TTree *roottree_;
     TH2D *qdctof_;
     TH1D *vsize_;
-    static double tof_;
-    static double qdc_;
 #endif
     std::ofstream *outstream;
 };

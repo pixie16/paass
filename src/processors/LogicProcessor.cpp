@@ -17,15 +17,18 @@
 using namespace std;
 using namespace dammIds::logic;
 
+/** Upper limit in seconds for bad (double) start/stop event */
+static const double doubleTimeLimit_ = 10e-6;
+
 namespace dammIds {
     namespace logic {
 	static double clockInSeconds = Globals::get()->clockInSeconds();
 	static const unsigned int MAX_LOGIC = 10; //!<Maximum Number of Logic Signals
-	const double logicPlotResolution = 
+	const double logicPlotResolution =
 	    10e-6 / Globals::get()->clockInSeconds(); //!<Resolution for Logic Plots
 	const double mtcPlotResolution = 10e-3 / clockInSeconds; //!<Res. for MTC Plots
 
-	///Original Logic Processor 
+	///Original Logic Processor
         const int D_COUNTER_START  = 0;//!< Counter for the starts
         const int D_COUNTER_STOP   = 1;//!< Counter for the stops
         const int DD_TDIFF_START   = 2;//!< Tdiff between starts
@@ -44,12 +47,12 @@ namespace dammIds {
 	const int D_TDIFF_SUPERCYCLE = 13;//!< Tdiff between supercycles
         const int D_TDIFF_T1         = 14;//!< Tdiff between T1 signals
         const int DD_TIME_DET_MTCEVENTS = 15;//!< Time vs. MTC Events
-	
+
         const int MOVE_START_BIN = 16;//!< Start move bin
         const int MOVE_STOP_BIN = 17;//!< Stop move bin
         const int BEAM_START_BIN = 18;//!< Beam Start bin
         const int BEAM_STOP_BIN = 19;//!< Beam Stop bin
-	
+
 	///From Beam Logic Processor
 	const int D_COUNTER_BEAM = 21; //!< Beam cycle counter
         const int D_TIME_STOP_LENGTH = 22;//!< Time between stop events
@@ -59,7 +62,7 @@ namespace dammIds {
     }
 } // logic namespace
 
-LogicProcessor::LogicProcessor(void) : 
+LogicProcessor::LogicProcessor(void) :
     EventProcessor(dammIds::logic::OFFSET, dammIds::logic::RANGE, "LogicProcessor"),
     lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
     logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC) {
@@ -69,7 +72,7 @@ LogicProcessor::LogicProcessor(void) :
 }
 
 LogicProcessor::LogicProcessor(int offset, int range, bool doubleStop/*=false*/,
-			       bool doubleStart/*=false*/) : 
+			       bool doubleStart/*=false*/) :
     EventProcessor(offset, range, "LogicProcessor"),
     lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
     logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC) {
@@ -84,7 +87,7 @@ LogicProcessor::LogicProcessor(int offset, int range, bool doubleStop/*=false*/,
 void LogicProcessor::DeclarePlots(void) {
     const int counterBins = S4;
     const int timeBins = SC;
-    
+
     ///From Original Logic Processor
     DeclareHistogram1D(D_COUNTER_START, counterBins, "logic start counter");
     DeclareHistogram1D(D_COUNTER_STOP, counterBins, "logic stop counter");
@@ -106,7 +109,7 @@ void LogicProcessor::DeclarePlots(void) {
     ///From BeamLogicProcessor
     DeclareHistogram1D(D_COUNTER_BEAM, S2, "Beam counter toggle/analog/none");
     DeclareHistogram1D(D_TIME_STOP_LENGTH, SA, "Beam stop length (1 s / bin)");
-    
+
     ///From TriggerLogicProcessor
     // DeclareHistogram2D(DD_RUNTIME_LOGIC, plotSize, plotSize,
     //                    "runtime logic [1ms]");
@@ -120,7 +123,7 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
         return false;
 
     static const vector<ChanEvent*> &events = sumMap["logic"]->GetList();
-    
+
     for (vector<ChanEvent*>::const_iterator it = events.begin();
 	 it != events.end(); it++) {
 	ChanEvent *chan = *it;
@@ -131,7 +134,7 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 	double time = chan->GetTime();
 
 	static double t0 = time;
-	
+
 	// for 2d plot of events 100ms / bin
 	const double eventsResolution = 100e-3 / clockInSeconds;
 	const unsigned MTC_START = 0;
@@ -144,17 +147,17 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
         const unsigned BEAM_ANALOG = 1;
         const unsigned BEAM_NONE = 2;
 	double time_x = int((time - t0) / eventsResolution);
-	
+
 	if(subtype == "start") {
 	    if (!isnan(lastStartTime.at(loc))) {
 		double timediff = time - lastStartTime.at(loc);
 		plot(DD_TDIFF_START, timediff / logicPlotResolution, loc);
 		plot(DD_TDIFF_SUM, timediff / logicPlotResolution, loc);
 	    }
-	    
+
 	    lastStartTime.at(loc) = time;
 	    logicStatus.at(loc) = true;
-	    
+
 	    startCount.at(loc)++;
 	    plot(D_COUNTER_START, loc);
 	} else if (subtype == "stop") {
@@ -167,10 +170,10 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
                     plot(DD_TDIFF_LENGTH, moveTime / logicPlotResolution, loc);
                 }
             }
-	    
+
             lastStopTime.at(loc) = time;
             logicStatus.at(loc) = false;
-	    
+
             stopCount.at(loc)++;
             plot(D_COUNTER_STOP, loc);
         } else if(place == "logic_mtc_start_0") {
@@ -178,7 +181,7 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 		TreeCorrelator::get()->place(place)->secondlast().time;
 	    TreeCorrelator::get()->place("TapeMove")->activate(time);
 	    TreeCorrelator::get()->place("Cycle")->deactivate(time);
-	    
+
 	    plot(D_TDIFF_MOVE_START, dt_start / mtcPlotResolution);
 	    plot(D_COUNTER, MOVE_START_BIN);
 	    plot(DD_TIME_DET_MTCEVENTS, time_x, MTC_START);
@@ -188,7 +191,7 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 	    double dt_move = time -
 		TreeCorrelator::get()->place("logic_mtc_start_0")->last().time;
 	    TreeCorrelator::get()->place("TapeMove")->deactivate(time);
-	    
+
 	    plot(D_TDIFF_MOVE_STOP, dt_stop / mtcPlotResolution);
 	    plot(D_MOVETIME, dt_move / mtcPlotResolution);
 	    plot(D_COUNTER, MOVE_STOP_BIN);
@@ -198,7 +201,7 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 		TreeCorrelator::get()->place(place)->secondlast().time;
 	    //Remove double starts
 	    if (doubleStart_) {
-		double dt_stop = 
+		double dt_stop =
 		    abs(time -
 			TreeCorrelator::get()->place("logic_beam_stop_0")->last().time);
 		if (abs(dt_start * clockInSeconds) < doubleTimeLimit_ ||
@@ -207,7 +210,7 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 	    }
 	    TreeCorrelator::get()->place("Beam")->activate(time);
 	    TreeCorrelator::get()->place("Cycle")->activate(time);
-	    
+
 	    plot(D_TDIFF_BEAM_START, dt_start / mtcPlotResolution);
 	    plot(D_COUNTER, BEAM_START_BIN);
 	    plot(DD_TIME_DET_MTCEVENTS, time_x, BEAM_START);
@@ -223,7 +226,7 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 		    continue;
 	    }
 	    TreeCorrelator::get()->place("Beam")->deactivate(time);
-	    
+
 	    plot(D_TDIFF_BEAM_STOP, dt_stop / mtcPlotResolution);
 	    plot(D_BEAMTIME, dt_beam / mtcPlotResolution);
 	    plot(D_COUNTER, BEAM_STOP_BIN);
@@ -242,7 +245,7 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
             double last_time =
                 TreeCorrelator::get()->place(place)->secondlast().time;
             double dt_beam_stop = abs(time - last_time);
-	    
+
             Messenger m;
             stringstream ss;
             // Check for double recorded same event (1 us limit)
@@ -251,14 +254,14 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
                 m.warning(ss.str());
                 continue;
             }
-	    
+
             // If beam was stopped, activate place and plot stop length
             if (!TreeCorrelator::get()->place("Beam")->status()) {
                 double clockInSeconds = Globals::get()->clockInSeconds();
                 double resolution = 1.0 / clockInSeconds;
-		
+
                 plot(D_TIME_STOP_LENGTH, dt_beam_stop / resolution);
-		
+
                 TreeCorrelator::get()->place("Beam")->activate(time);
                 ss << "Beam started after: " << dt_beam_stop / resolution
                    << " s ";
@@ -270,7 +273,7 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
                 m.run_message(ss.str());
             }
             plot(D_COUNTER_BEAM, BEAM_TOGGLE);
-	    
+
         }
         else if (place == "logic_analog_0") {
             plot(D_COUNTER_BEAM, BEAM_ANALOG);
@@ -295,7 +298,7 @@ bool LogicProcessor::NiftyGraph(RawEvent &event) {
     const long maxBin = plotSize * plotSize;
     static DetectorSummary *stopsSummary    = event.GetSummary("logic:stop");
     static DetectorSummary *triggersSummary = event.GetSummary("logic:trigger");
-    
+
     static const vector<ChanEvent*> &stops    = stopsSummary->GetList();
     static const vector<ChanEvent*> &triggers = triggersSummary->GetList();
     static int firstTimeBin = -1;
