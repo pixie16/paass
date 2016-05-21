@@ -7,21 +7,16 @@
 #ifndef __TRACE_HPP__
 #define __TRACE_HPP__
 
-#include <cmath>
 #include <map>
 #include <string>
 #include <vector>
+
+#include <cmath>
 
 #include "DammPlotIds.hpp"
 #include "Globals.hpp"
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
-
-/** A macro defining what kind of NAN to throw */
-#ifndef NAN
-#include <limits>
-#define NAN (numeric_limits<float>::quiet_NaN())
-#endif
 
 class TrapezoidalFilterParameters; //!< Forward declaration of class for trap filter
 
@@ -52,7 +47,6 @@ public:
                            unsigned int lo = 0) const {
         TrapezoidalFilter(filter, parms, lo, size());
     }
-
 
     /**
     * Defines how to implement a trapezoidal filter characterized by two
