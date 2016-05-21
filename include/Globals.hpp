@@ -22,6 +22,12 @@
 #include "Messenger.hpp"
 #include "pixie16app_defs.h"
 
+/** A macro defining what kind of NAN to throw */
+#ifndef NAN
+#include <limits>
+#define NAN (numeric_limits<float>::quiet_NaN())
+#endif
+
 /** \brief Pixie module related things that should not change between revisions
  *
  * "Constant" constants, i.e. those who won't change going from different
