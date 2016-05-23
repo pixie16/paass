@@ -70,10 +70,9 @@ extern StatsData stats;
   \param [in] buf : the buffer to process
   \param [in] bufLen : the length of the buffer
   \param [in] eventList : the event list to add the extracted buffer to
-  \return An unused integer
-*/
+  \return An unused integer */
 int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
-                   vector<ChanEvent*> &eventList) {
+                  vector<ChanEvent*> &eventList) {
     // multiplier for high bits of 48-bit time
     static const double HIGH_MULT = pow(2., 32.);
     word_t modNum;
@@ -98,13 +97,13 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
             word_t chanNum        = (buf[0] & 0x0000000F);
             word_t slotNum        = (buf[0] & 0x000000F0) >> 4;
             word_t crateNum       = (buf[0] & 0x00000F00) >> 8;
-	    word_t headerLength   = (buf[0] & 0x0001F000) >> 12;
+            word_t headerLength   = (buf[0] & 0x0001F000) >> 12;
             word_t eventLength    = (buf[0] & 0x7FFE0000) >> 17;
             currentEvt->pileupBit = (buf[0] & 0x80000000) != 0;
 
 	    // Sanity check
             if(headerLength == stats.headerLength) {
-                // this is a manual statistics block inserted poll 
+                // this is a manual statistics block inserted poll
                 stats.DoStatisticsBlock(&buf[1], modNum);
                 buf += eventLength;
                 numEvents = readbuff::STATS;
@@ -115,16 +114,16 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
             word_t lowTime     = buf[1];
 
 	    //Decode the third header word
-            word_t highTime    = buf[2] & 0x0000FFFF;
-            word_t cfdTime     = (buf[2] & 0x3FFF0000) >> 16;
+        word_t highTime            = buf[2] & 0x0000FFFF;
+        word_t cfdTime             = (buf[2] & 0x3FFF0000) >> 16;
 	    currentEvt->cfdTrigSource  = ((buf[2] & 0x40000000) != 0);
 	    currentEvt->cfdForceTrig   = ((buf[2] & 0x80000000) != 0);
 
 	    //Decode the foruth header word
-            word_t energy      = buf[3] & 0x0000FFFF;
-            word_t traceLength = (buf[3] & 0x7FFF0000) >> 16;
-	    currentEvt->saturatedBit   = ((buf[3] & 0x80000000) != 0);
-	    
+        word_t energy            = buf[3] & 0x0000FFFF;
+        word_t traceLength       = (buf[3] & 0x7FFF0000) >> 16;
+	    currentEvt->saturatedBit = ((buf[3] & 0x80000000) != 0);
+
 	    int offset = headerLength - 8;
 	    switch(headerLength) {
 	    case 4:
@@ -151,8 +150,8 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
             // one last sanity check
             if(traceLength / 2 + headerLength != eventLength) {
                 cerr << "  Bad event length (" << eventLength
-		     << ") does not correspond with length of header (" 
-		     << headerLength << ") and length of trace (" 
+		     << ") does not correspond with length of header ("
+		     << headerLength << ") and length of trace ("
 		     << traceLength << ")" << endl;
                 buf += eventLength;
                 continue;

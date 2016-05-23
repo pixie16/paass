@@ -18,13 +18,6 @@
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
 
-class TrapezoidalFilterParameters; //!< Forward declaration of class for trap filter
-
-//! Use an alias in this file to make things a bit more readable
-namespace {
-    typedef class TrapezoidalFilterParameters TFP;
-}
-
 //! \brief Store the information for a trace
 class Trace : public std::vector<int> {
 public:
@@ -38,26 +31,6 @@ public:
     Trace(const std::vector<int> &x) : std::vector<int>(x) {
         baselineLow = baselineHigh = pixie::U_DELIMITER;
     }
-
-    /** calculation of the trapezoidal filter
-    * \param [in] filter : the filter for the trace
-    * \param [in] parms : the parameters for the filter
-    * \param [in] lo : the low range for the filter */
-    void TrapezoidalFilter(Trace &filter, const TFP &parms,
-                           unsigned int lo = 0) const {
-        TrapezoidalFilter(filter, parms, lo, size());
-    }
-
-    /**
-    * Defines how to implement a trapezoidal filter characterized by two
-    * moving sum windows of width risetime separated by a length gaptime.
-    * Filter is calculated from channels lo to hi.
-    * \param [in] filter : the filter for the trace
-    * \param [in] parms : the parameters for the filter
-    * \param [in] lo : the low range for the filter
-    * \param [in] hi : the high range for the filter */
-    void TrapezoidalFilter(Trace &filter, const TFP &parms,
-                           unsigned int lo, unsigned int hi) const;
 
     /** Insert a value into the trace map
     * \param [in] name : the name of the parameter to insert
@@ -109,12 +82,12 @@ public:
             return (*doubleTraceData.find(name)).second;
         if(intTraceData.count(name) > 0)
             return (*intTraceData.find(name)).second;
-        return NAN;
+        return(NAN);
     }
 
     /** \return Returns the waveform found inside the trace */
     std::vector<double> GetWaveform() {
-        return waveform;
+        return(waveform);
     };
 
     /** Performs the baseline calculation
@@ -213,54 +186,6 @@ private:
     /** This field is static so all instances of Trace class have access to
      * the same plots and plots range. */
     static Plots histo;
-};
-
-//! \brief Parameters for your typical trapezoidal filter
-class TrapezoidalFilterParameters {
-public:
-    /** Default Constructor */
-    TrapezoidalFilterParameters(){};
-
-    /** Constructor taking the L, G, and t as arguements
-    * \param [in] gap : The flattop for the filter
-    * \param [in] rise : the risetime for the filter
-    * \param [in] t : Either the tau or the trigget threshold for the filter */
-    TrapezoidalFilterParameters(int gap, int rise, double t = NAN) :
-        gapSamples(gap), riseSamples(rise), tau(t) {};
-
-    /** Constructor taking another instance of the TrapzeoidalFilterParameters class
-    * \param [in] x : A different instance of the TrapzeoidalFilterParameters class */
-    TrapezoidalFilterParameters(const TFP &x) :
-        gapSamples(x.gapSamples), riseSamples(x.riseSamples),
-        tau(x.tau) {};
-
-    /** Copy constructor for the class
-    * \param [in] right : A different instance of the TrapzeoidalFilterParameters class
-    * \return the new instance of the TFP */
-    const TFP& operator=(const TFP &right) {
-        gapSamples = right.gapSamples;
-        riseSamples = right.riseSamples;
-        tau = right.tau;
-
-        return (*this);
-    }
-
-    //! \return the value of the Gap
-    Trace::size_type GetGapSamples(void) const {return gapSamples;};
-
-    //! \return the value of the Risetime
-    Trace::size_type GetRiseSamples(void) const {return riseSamples;};
-
-    //! \return the length of the filter
-    Trace::size_type GetSize(void) const {return 2*riseSamples + gapSamples;};
-
-    //! \return the value of tau
-    double GetTau(void) const {return tau;};
-private:
-    Trace::size_type gapSamples; //!< number of samples in the gap
-    Trace::size_type riseSamples; //!< number of samples in the rise time
-
-    double tau; //!< Tau of the energy filter
 };
 
 extern const Trace emptyTrace; //!< Instance of an empty trace for people to grab
