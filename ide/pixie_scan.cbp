@@ -250,7 +250,9 @@
 		<Unit filename="../include/Trace.hpp" />
 		<Unit filename="../include/TraceAnalyzer.hpp" />
 		<Unit filename="../include/TraceExtractor.hpp" />
-		<Unit filename="../include/TraceFilterer.hpp" />
+		<Unit filename="../include/TraceFilter.hpp" />
+		<Unit filename="../include/TraceFilterAnalyzer.hpp" />
+		<Unit filename="../include/TrapFilterParameters.hpp" />
 		<Unit filename="../include/TreeCorrelator.hpp" />
 		<Unit filename="../include/ValidProcessor.hpp" />
 		<Unit filename="../include/VandleAtLeribssProcessor.hpp" />
@@ -279,7 +281,8 @@
 		<Unit filename="../src/analyzers/TauAnalyzer.cpp" />
 		<Unit filename="../src/analyzers/TraceAnalyzer.cpp" />
 		<Unit filename="../src/analyzers/TraceExtractor.cpp" />
-		<Unit filename="../src/analyzers/TraceFilterer.cpp" />
+		<Unit filename="../src/analyzers/TraceFilter.cpp" />
+		<Unit filename="../src/analyzers/TraceFilterAnalyzer.cpp" />
 		<Unit filename="../src/analyzers/WaaAnalyzer.cpp" />
 		<Unit filename="../src/analyzers/WaveformAnalyzer.cpp" />
 		<Unit filename="../src/core/BarBuilder.cpp" />

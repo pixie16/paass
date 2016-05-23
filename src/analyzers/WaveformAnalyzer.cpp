@@ -7,8 +7,6 @@
  *\author S. V. Paulauskas
  *\date 16 July 2009
 */
-#include <algorithm>
-#include <iostream>
 #include <numeric>
 #include <string>
 
@@ -19,8 +17,7 @@
 using namespace std;
 
 WaveformAnalyzer::WaveformAnalyzer() : TraceAnalyzer() {
-    name = "Waveform";
-
+    name = "WaveformAnalyzer";
     knownTypes_.push_back("vandle");
     knownTypes_.push_back("beta");
     knownTypes_.push_back("beta_scint");

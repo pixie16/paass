@@ -79,8 +79,8 @@ void DoubleTraceAnalyzer::DeclarePlots() {
  *   Detect a second crossing of the fast filter corresponding to a piled-up
  *     trace and deduce its energy
  */
-void DoubleTraceAnalyzer::Analyze(Trace &trace,
-				  const std::string &type, const std::string &subtype) {
+void DoubleTraceAnalyzer::Analyze(Trace &trace, const std::string &type,
+                                  const std::string &subtype) {
     if (subtype == "top" || subtype == "bottom")
         return;
 
