@@ -9,7 +9,6 @@
 #include "Trace.hpp"
 
 using namespace std;
-using namespace dammIds::trace;
 
 namespace dammIds {
     namespace trace {
@@ -17,23 +16,7 @@ namespace dammIds {
 }
 
 const Trace emptyTrace; ///< an empty trace for const references to point to
-Plots Trace::histo(OFFSET, RANGE, "traces");
-
-void Trace::TrapezoidalFilter(Trace &filter, const TFP &parms,
-			      unsigned int lo, unsigned int hi) const {
-    lo = max(lo, (unsigned int)parms.GetSize());
-
-    filter.assign(lo, 0);
-
-    for (unsigned int i = lo; i < hi; i++) {
-        int leftSum = accumulate(begin() + i - parms.GetSize(),
-                                 begin() + i - parms.GetRiseSamples()
-                                 - parms.GetGapSamples(), 0);
-        int rightSum = accumulate(begin() + i - parms.GetRiseSamples(),
-                                  begin() + i, 0);
-        filter.push_back(rightSum - leftSum);
-    }
-}
+Plots Trace::histo(dammIds::trace::OFFSET, dammIds::trace::RANGE, "traces");
 
 double Trace::DoBaseline(unsigned int lo, unsigned int numBins) {
     if (size() < lo + numBins) {
@@ -103,7 +86,8 @@ double Trace::DoQDC(unsigned int lo, unsigned int numBins) {
     return(qdc);
 }
 
-unsigned int Trace::FindMaxInfo(unsigned int lo, unsigned int hi, unsigned int numBins) {
+unsigned int Trace::FindMaxInfo(unsigned int lo, unsigned int hi,
+                                unsigned int numBins) {
     unsigned int high = Globals::get()->traceDelay() /
         (Globals::get()->adcClockInSeconds()*1e9);
     unsigned int low = high - (Globals::get()->trapezoidalWalk() /

@@ -37,17 +37,17 @@
 #include "PulserProcessor.hpp"
 #include "SsdProcessor.hpp"
 #include "TeenyVandleProcessor.hpp"
-#include "TraceFilterer.hpp"
 #include "TemplateProcessor.hpp"
 #include "VandleProcessor.hpp"
 #include "ValidProcessor.hpp"
 
 #include "CfdAnalyzer.hpp"
-#include "DoubleTraceAnalyzer.hpp"
+//#include "DoubleTraceAnalyzer.hpp"
 #include "FittingAnalyzer.hpp"
 #include "TauAnalyzer.hpp"
 #include "TraceAnalyzer.hpp"
 #include "TraceExtractor.hpp"
+#include "TraceFilterAnalyzer.hpp"
 #include "WaveformAnalyzer.hpp"
 
 #include "TemplateExpProcessor.hpp"
@@ -89,16 +89,13 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
 
 DetectorDriver::~DetectorDriver() {
     for (vector<EventProcessor *>::iterator it = vecProcess.begin();
-	 it != vecProcess.end(); it++) {
-        delete *it;
-    }
-
+	 it != vecProcess.end(); it++)
+        delete(*it);
     vecProcess.clear();
 
     for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
-	 it != vecAnalyzer.end(); it++) {
-        delete *it;
-    }
+	 it != vecAnalyzer.end(); it++)
+        delete(*it);
     vecAnalyzer.clear();
     instance = NULL;
 }
@@ -248,7 +245,9 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         string name = analyzer.attribute("name").value();
         m.detail("Loading " + name);
 
-        if (name == "TraceFilterer" || name == "DoubleTraceAnalyzer") {
+	if(name == "TraceFilterAnalyzer") {
+	    vecAnalyzer.push_back(new TraceFilterAnalyzer());
+	}/* else if (name == "DoubleTraceAnalyzer") {
             double gain_match = analyzer.attribute("gain_match").as_double(1.0);
             if (gain_match == 1.0)
                 m.warning("Using gain_match = 1.0", 1);
@@ -278,15 +277,11 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                 analyzer.attribute("slow_threshold").as_int(10);
             if (slow_threshold == 10)
                 m.warning("Using slow_threshold = 10", 1);
-            if (name == "TraceFilterer")
-                vecAnalyzer.push_back(new TraceFilterer(gain_match, fast_rise,
-                    fast_gap, fast_threshold, energy_rise, energy_gap,
-                    slow_rise, slow_gap, slow_threshold));
             else if (name == "DoubleTraceAnalyzer")
                 vecAnalyzer.push_back(new DoubleTraceAnalyzer(gain_match,
                     fast_rise, fast_gap, fast_threshold, energy_rise,
                     energy_gap, slow_rise, slow_gap, slow_threshold));
-        } else if (name == "TauAnalyzer") {
+		    }*/ else if (name == "TauAnalyzer") {
             vecAnalyzer.push_back(new TauAnalyzer());
         } else if (name == "TraceExtractor") {
             string type = analyzer.attribute("type").as_string();

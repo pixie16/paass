@@ -14,7 +14,6 @@
   *  along with this program.  If not, see <http://www.gnu.org/licenses/>. *
   **************************************************************************
 */
-
 /** \file TraceFilter.cpp
  *  \brief A class to perform trapezoidal filtering
  *  \author S. V. Paulauskas
@@ -27,7 +26,7 @@
  *  program written at the NSC written by C.Prokop.
  *
  *  Published under the GNU GPL v. 3.0
- *
+ *  source code available from  https://github.com/spaulaus/TraceFiltering.git
  */
 #include <algorithm>
 #include <iostream>
@@ -56,7 +55,7 @@ bool TraceFilter::CalcBaseline(void) {
     for(unsigned int i = 0; i < (unsigned int) offset; i++)
         baseline_ += sig_->at(i);
     baseline_ /= offset;
-    
+
     if(loud_)
         cout << "Baseline Calculation : " << endl
              << "  Range:" << " Low = 0  High = " << offset << endl
@@ -71,7 +70,7 @@ void TraceFilter::CalcFilters(const vector<double> *sig) {
         ConvertToClockticks();
 
     if(!CalcTriggerFilter() || !CalcEnergyFilterLimits() || !CalcBaseline()) {
-        energy_ = 0; 
+        energy_ = 0;
         return;
     }else
         CalcEnergyFilter();
