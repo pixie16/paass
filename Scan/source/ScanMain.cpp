@@ -503,7 +503,6 @@ void ScanMain::CmdControl(){
 		
 		if(cmd == "quit" || cmd == "exit"){
 			kill_all = true;
-			core->KillAll();
 			while(!run_ctrl_exit){ sleep(1); }
 			break;
 		}
