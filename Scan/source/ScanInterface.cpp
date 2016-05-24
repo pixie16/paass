@@ -828,8 +828,6 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 		scan_args.push_back(std::string(argv[arg_index++]));
 	}
 
-	core->SetMsgPrefix(sys_message_head);
-	
 	// Loop through the arg list and extract ScanInterface arguments.
 	std::string current_arg;
 	std::string input_filename = "";
