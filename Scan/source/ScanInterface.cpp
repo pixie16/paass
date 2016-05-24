@@ -1,4 +1,4 @@
-/** \rile ScanMain.cpp
+/** \file ScanInterface.cpp
  * \brief A class to handle reading from various UTK/ORNL pixie16 data formats.
  *
  * This class is intended to be used as a replacement to the older and unsupported
@@ -21,17 +21,17 @@
 #include "poll2_socket.h"
 #include "CTerminal.h"
 
-#include "ScanMain.hpp"
+#include "ScanInterface.hpp"
 
 #ifndef PROG_NAME
-#define PROG_NAME "ScanMain"
+#define PROG_NAME "ScanInterface"
 #endif
 
-void start_run_control(ScanMain *main_){
+void start_run_control(ScanInterface *main_){
 	main_->RunControl();
 }
 
-void start_cmd_control(ScanMain *main_){
+void start_cmd_control(ScanInterface *main_){
 	main_->CmdControl();
 }
 
@@ -79,10 +79,10 @@ void fileInformation::clear(){
 }
 
 /////////////////////////////////////////////////////////////////////
-// class ScanMain
+// class ScanInterface
 /////////////////////////////////////////////////////////////////////
 
-unsigned int ScanMain::split_str(std::string str_, std::vector<std::string> &args, char delimiter_/*=' '*/){
+unsigned int ScanInterface::split_str(std::string str_, std::vector<std::string> &args, char delimiter_/*=' '*/){
 	args.clear();
 	std::string temp = "";
 	unsigned int count = 0;
@@ -98,7 +98,7 @@ unsigned int ScanMain::split_str(std::string str_, std::vector<std::string> &arg
 	return count;
 }
 
-std::string ScanMain::get_extension(std::string filename_, std::string &prefix){
+std::string ScanInterface::get_extension(std::string filename_, std::string &prefix){
 	size_t count = 0;
 	size_t last_index = 0;
 	std::string output = "";
@@ -123,7 +123,7 @@ std::string ScanMain::get_extension(std::string filename_, std::string &prefix){
 	return output;
 }
 
-void ScanMain::start_scan(){
+void ScanInterface::start_scan(){
 	if(!init){ std::cout << " Not initialized!\n"; }
 	else if(is_running){ std::cout << " Already running.\n"; }
 	else{
@@ -136,7 +136,7 @@ void ScanMain::start_scan(){
 	Notify("START_SCAN");
 }
 
-void ScanMain::stop_scan(){
+void ScanInterface::stop_scan(){
 	if(!init){ std::cout << " Not initialized!\n"; }
 	else if(!is_running){ std::cout << " Not running.\n"; }
 	else{
@@ -147,7 +147,7 @@ void ScanMain::stop_scan(){
 	Notify("STOP_SCAN");
 }
 
-void ScanMain::help(char *name_){
+void ScanInterface::help(char *name_){
 	SyntaxStr(name_);
 	std::cout << "  Available options:\n";
 	std::cout << "   --help (-h)    - Display this dialogue\n";
@@ -162,21 +162,21 @@ void ScanMain::help(char *name_){
 	ArgHelp();
 }
 
-bool ScanMain::ExtraArguments(const std::string &arg_, const std::deque<std::string> &others_, std::string &ifname){
+bool ScanInterface::ExtraArguments(const std::string &arg_, const std::deque<std::string> &others_, std::string &ifname){
 	ifname = arg_;
 	return true;
 }
 
-void ScanMain::SyntaxStr(char *name_){
+void ScanInterface::SyntaxStr(char *name_){
 	std::cout << " usage: " << name_ << " [input] [options] [output]\n";
 }
 
-bool ScanMain::Initialize(std::string prefix_){
+bool ScanInterface::Initialize(std::string prefix_){
 	if(init){ return false; }
 	return (init = true);
 }
 
-ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
+ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 	prefix = "";
 	extension = "";
 
@@ -215,11 +215,11 @@ ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
 	sys_message_head = std::string(PROG_NAME) + ": ";
 }
 
-ScanMain::~ScanMain(){
+ScanInterface::~ScanInterface(){
 	Close();
 }
 
-void ScanMain::RunControl(){
+void ScanInterface::RunControl(){
 	// Notify that we are starting run control.
 	run_ctrl_exit = false;
 
@@ -479,7 +479,7 @@ void ScanMain::RunControl(){
 	run_ctrl_exit = true;
 }
 
-void ScanMain::CmdControl(){
+void ScanInterface::CmdControl(){
 	if(!core){ return; }
 
 	std::string cmd = "", arg;
@@ -606,7 +606,7 @@ void ScanMain::CmdControl(){
 	}		
 }
 
-bool ScanMain::Setup(int argc, char *argv[]){
+bool ScanInterface::Setup(int argc, char *argv[]){
 	if(init){ return false; }
 
 	if(argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)){ // A stupid way to do this... for now.
@@ -637,7 +637,7 @@ bool ScanMain::Setup(int argc, char *argv[]){
 
 	core->SetMsgPrefix(sys_message_head);
 	
-	// Loop through the arg list and extract ScanMain arguments.
+	// Loop through the arg list and extract ScanInterface arguments.
 	std::string current_arg;
 	std::string input_filename = "";
 	while(!scan_args.empty()){
@@ -743,9 +743,9 @@ bool ScanMain::Setup(int argc, char *argv[]){
 	return true;
 }
 
-bool ScanMain::open_input_file(const std::string &fname_){
+bool ScanInterface::open_input_file(const std::string &fname_){
 	if(!init){
-		std::cout << " ERROR! ScanMain is not initialized!\n";
+		std::cout << " ERROR! ScanInterface is not initialized!\n";
 		return false;
 	}
 	else if(is_running){ 
@@ -868,7 +868,7 @@ bool ScanMain::open_input_file(const std::string &fname_){
 	return true;	
 }
 
-bool ScanMain::rewind(const unsigned long &offset_/*=0*/){
+bool ScanInterface::rewind(const unsigned long &offset_/*=0*/){
 	if(!init){ return false; }
 
 	// Ensure that the scan is not running.
@@ -888,9 +888,9 @@ bool ScanMain::rewind(const unsigned long &offset_/*=0*/){
 	return true;
 }
 
-int ScanMain::Execute(){
+int ScanInterface::Execute(){
 	if(!init){
-		std::cout << " FATAL ERROR! ScanMain is not initialized!\n";
+		std::cout << " FATAL ERROR! ScanInterface is not initialized!\n";
 		return 1; 
 	}
 
@@ -917,7 +917,7 @@ int ScanMain::Execute(){
 	return 0;
 }
 
-bool ScanMain::Close(){
+bool ScanInterface::Close(){
 	if(!init){ return false; }
 
 	// Close the socket and restore the terminal
