@@ -64,7 +64,6 @@ class Unpacker{
 	unsigned int channel_counts[MAX_PIXIE_MOD+1][MAX_PIXIE_CHAN+1]; /// Counters for each channel in each module.
 	
 	bool debug_mode; /// True if debug mode is set.
-	bool init; /// True if the class has been properly initialized.
 
 	eventList events; /// The list of all events in a spill.
 	std::deque<XiaEvent*> rawEvent; /// The list of all events in the event window.
@@ -90,24 +89,6 @@ class Unpacker{
 	/// Destructor.
 	virtual ~Unpacker();
 
-	/** Initialize the Unpacker object. Does nothing useful if not overloaded
-	 * by a derived class.
-	 */
-	virtual bool Initialize(std::string prefix_="");
-	
-	/** Peform any last minute initialization which derived classes need to run
-	  * before processing data.
-	  */
-	virtual void FinalInitialization(){ }
-	
-	/** Initialize the root output. Does nothing useful if not overloaded
-	 * by a derived class.
-	 */
-	virtual bool InitRootOutput(std::string fname_, bool overwrite_=true){ return false; }
-
-	/// Return true if Unpacker was properly initialized.
-	bool IsInit(){ return init; }
-
 	/// Toggle debug mode on / off.
 	bool SetDebugMode(bool state_=true){ return (debug_mode = state_); }
 	
@@ -122,9 +103,6 @@ class Unpacker{
 	 */	
 	bool ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbose=true);
 	
-	/// Print a status message.
-	virtual void PrintStatus(std::string prefix_=""){}
-
 	/// Empty the raw event and the event list.
 	void Close(bool write_count_file=false);
 };

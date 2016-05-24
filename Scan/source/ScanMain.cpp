@@ -132,7 +132,7 @@ void ScanMain::start_scan(){
 		if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for Unpacker..."); }
 	}
 	
-	// Notify the unpacker object that the user has started the scan.
+	// Notify that the user has started the scan.
 	Notify("START_SCAN");
 }
 
@@ -143,7 +143,7 @@ void ScanMain::stop_scan(){
 		is_running = false;
 	}
 	
-	// Notify the unpacker object that the user has stopped the scan.
+	// Notify that the user has stopped the scan.
 	Notify("STOP_SCAN");
 }
 
@@ -169,6 +169,11 @@ bool ScanMain::ExtraArguments(const std::string &arg_, const std::deque<std::str
 
 void ScanMain::SyntaxStr(char *name_){
 	std::cout << " usage: " << name_ << " [input] [options] [output]\n";
+}
+
+bool ScanMain::Initialize(std::string prefix_){
+	if(init){ return false; }
+	return (init = true);
 }
 
 ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
@@ -461,7 +466,7 @@ void ScanMain::RunControl(){
 		else if(file_format == 2){
 		}
 
-		// Notify the unpacker object that the scan has completed.
+		// Notify that the scan has completed.
 		Notify("SCAN_COMPLETE");
 		
 		total_stopped = true;
@@ -595,13 +600,13 @@ void ScanMain::CmdControl(){
 			}
 			else{ std::cout << sys_message_head << "Scan is not running.\n"; }
 		}
-		else if(!ExtraCommands(cmd, arguments)){ // Unrecognized command. Send it to Unpacker.
+		else if(!ExtraCommands(cmd, arguments)){ // Unrecognized command. Send it to a derived object.
 			std::cout << sys_message_head << "Unknown command '" << cmd << "'\n";
 		}
 	}		
 }
 
-bool ScanMain::Initialize(int argc, char *argv[]){
+bool ScanMain::Setup(int argc, char *argv[]){
 	if(init){ return false; }
 
 	if(argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)){ // A stupid way to do this... for now.
@@ -675,12 +680,11 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 		}
 	}
 	
-	// Initialize the Unpacker object.
-	std::cout << sys_message_head << "Initializing data unpacker object.\n";
-	if(!core->Initialize(sys_message_head)){ // Failed to initialize the unpacker object. Clean up and exit.
-		std::cout << " FATAL ERROR! Failed to initialize unpacker object!\n";
+	// Initialize everything.
+	std::cout << sys_message_head << "Initializing derived class.\n";
+	if(!Initialize(sys_message_head)){ // Failed to initialize the object. Clean up and exit.
+		std::cout << " FATAL ERROR! Failed to initialize derived class!\n";
 		std::cout << "\nCleaning up...\n";
-		core->PrintStatus(sys_message_head);
 		core->Close(write_counts);
 		return false;
 	}
@@ -690,7 +694,6 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 		if(!poll_server->Init(5555, 1)){
 			std::cout << " FATAL ERROR! Failed to open shm socket 5555!\n";
 			std::cout << "\nCleaning up...\n";
-			core->PrintStatus(sys_message_head);
 			core->Close(write_counts);
 			return false;
 		}	
@@ -723,8 +726,8 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 	}
 
 	// Do any last minute initialization.
-	try{ core->FinalInitialization(); }
-	catch(...){ std::cout << "\nUnpacker object final initialization failed!\n"; }
+	try{ FinalInitialization(); }
+	catch(...){ std::cout << "\nFinal initialization failed!\n"; }
 
 	init = true;
 
@@ -859,7 +862,7 @@ bool ScanMain::open_input_file(const std::string &fname_){
 		}
 	}
 
-	// Notify the unpacker object that the user has loaded a new file.
+	// Notify that the user has loaded a new file.
 	Notify("LOAD_FILE");
 	
 	return true;	
@@ -879,7 +882,7 @@ bool ScanMain::rewind(const unsigned long &offset_/*=0*/){
 	input_file->seekg(offset_*4, input_file->beg);
 	std::cout << " Input file is now at " << input_file->tellg() << " bytes\n";
 
-	// Notify the unpacker object that the user has rewound to the start of the file.
+	// Notify that the user has rewound to the start of the file.
 	Notify("REWIND_FILE");
 
 	return true;
@@ -943,7 +946,6 @@ bool ScanMain::Close(){
 	std::cout << sys_message_head << "Read " << databuff.GetNumChunks() << " spill chunks.\n";
 	std::cout << sys_message_head << "Lost at least " << databuff.GetNumMissing() << " spill chunks.\n";
 	
-	core->PrintStatus(sys_message_head);
 	core->Close(write_counts);
 	
 	if(poll_server){ delete poll_server; }
