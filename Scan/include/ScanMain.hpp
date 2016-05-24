@@ -16,7 +16,7 @@
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.14"
+#define SCAN_VERSION "1.2.15"
 #define SCAN_DATE "May 24th, 2016"
 
 class Server;
@@ -122,6 +122,21 @@ class ScanMain{
 
 	virtual void IdleTask(){  }
 
+	/** Initialize the Unpacker object. Does nothing useful if not overloaded
+	 * by a derived class.
+	 */
+	virtual bool Initialize(std::string prefix_="");
+	
+	/** Peform any last minute initialization which derived classes need to run
+	  * before processing data.
+	  */
+	virtual void FinalInitialization(){ }
+	
+	/** Initialize the root output. Does nothing useful if not overloaded
+	 * by a derived class.
+	 */
+	virtual bool InitRootOutput(std::string fname_, bool overwrite_=true){ return false; }
+
   public:
 	ScanMain(Unpacker *core_=NULL);
 	
@@ -163,7 +178,7 @@ class ScanMain{
 	  */
 	virtual void Notify(const std::string &code_=""){ }
 	
-	bool Initialize(int argc, char *argv[]);
+	bool Setup(int argc, char *argv[]);
 	
 	int Execute();
 	

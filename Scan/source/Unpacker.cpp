@@ -276,7 +276,6 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 
 Unpacker::Unpacker(){
 	debug_mode = false;
-	init = false;
 
 	TOTALREAD = 1000000; // Maximum number of data words to read.
 	maxWords = 131072; // Maximum number of data words for revision D.	
@@ -295,14 +294,7 @@ Unpacker::~Unpacker(){
 	Close();
 }
 
-bool Unpacker::Initialize(std::string prefix_){
-	if(init){ return false; }
-	return (init = true);
-}
-
 bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbose/*=true*/){
-	if(!init){ return false; }
-	
 	const unsigned int maxVsn = 14; // No more than 14 pixie modules per crate
 	unsigned int nWords_read = 0;
 	
@@ -475,20 +467,18 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 }
 
 void Unpacker::Close(bool write_count_file/*=false*/){
-	if(init){
-		clearDeque(rawEvent);
-		events.Clear();
-		
-		if(write_count_file){ // Write all recorded channel counts to a file.
-			std::ofstream count_output("counts.dat");
-			if(count_output.good()){
-				for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
-					for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
-						count_output << i << "\t" << j << "\t" << channel_counts[i][j] << std::endl;
-					}
+	clearDeque(rawEvent);
+	events.Clear();
+	
+	if(write_count_file){ // Write all recorded channel counts to a file.
+		std::ofstream count_output("counts.dat");
+		if(count_output.good()){
+			for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
+				for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
+					count_output << i << "\t" << j << "\t" << channel_counts[i][j] << std::endl;
 				}
-				count_output.close();
 			}
+			count_output.close();
 		}
 	}
 }
