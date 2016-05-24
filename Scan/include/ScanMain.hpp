@@ -137,6 +137,12 @@ class ScanMain{
 	 */
 	virtual bool InitRootOutput(std::string fname_, bool overwrite_=true){ return false; }
 
+	/** Notify the unpacker object of a user action. This method should be
+	  * used in order to pass information to a class derived from Unpacker.
+	  * This method does nothing if it is not overloaded.
+	  */
+	virtual void Notify(const std::string &code_=""){ }
+
   public:
 	ScanMain(Unpacker *core_=NULL);
 	
@@ -171,12 +177,6 @@ class ScanMain{
 	void RunControl();
 	
 	void CmdControl();
-	
-	/** Notify the unpacker object of a user action. This method should be
-	  * used in order to pass information to a class derived from Unpacker.
-	  * This method does nothing if it is not overloaded.
-	  */
-	virtual void Notify(const std::string &code_=""){ }
 	
 	bool Setup(int argc, char *argv[]);
 	
