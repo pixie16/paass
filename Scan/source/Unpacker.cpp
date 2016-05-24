@@ -19,7 +19,7 @@
 #include <algorithm>
 
 #include "Unpacker.hpp"
-#include "PixieEvent.hpp"
+#include "XiaEvent.hpp"
 
 void Unpacker::ClearRawEvent(){
 	while(!rawEvent.empty()){
@@ -48,7 +48,7 @@ void Unpacker::ScanList(){
 	int mod, chan;
 	std::string type, subtype, tag;
 	
-	PixieEvent *current_event = eventList.front();
+	XiaEvent *current_event = eventList.front();
 	
 	// Set lastTime to the time of the first event
 	double lastTime = current_event->time;
@@ -107,7 +107,7 @@ void Unpacker::ScanList(){
 }	
 
 void Unpacker::SortList(){
-	sort(eventList.begin(), eventList.end(), &PixieEvent::compareTime);
+	sort(eventList.begin(), eventList.end(), &XiaEvent::compareTime);
 }
 
 int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){						
@@ -124,7 +124,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 	// Read the module number
 	modNum = *buf++;
 
-	PixieEvent *lastVirtualChannel = NULL;
+	XiaEvent *lastVirtualChannel = NULL;
 
 	if(bufLen > 0){ // Check if the buffer has data
 		if(bufLen == 2){ // this is an empty channel
@@ -137,7 +137,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 				return numEvents;
 			}
 		
-			PixieEvent *currentEvt = new PixieEvent();
+			XiaEvent *currentEvt = new XiaEvent();
 
 			// decoding event data... see pixie16app.c
 			// buf points to the start of channel data
