@@ -1,4 +1,4 @@
-set(PixieCore_SOURCES XiaEvent.cpp Unpacker.cpp ScanMain.cpp)
+set(PixieCore_SOURCES XiaEvent.cpp Unpacker.cpp ScanInterface.cpp)
 
 add_library(PixieScanObjects OBJECT ${PixieCore_SOURCES})
 

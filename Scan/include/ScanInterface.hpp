@@ -1,4 +1,4 @@
-/** \file ScanMain.hpp
+/** \file ScanInterface.hpp
  * \brief A class to handle reading from various UTK/ORNL pixie16 data formats.
  *
  * This class is intended to be used as a replacement to the older and unsupported
@@ -47,7 +47,7 @@ class fileInformation{
 	void clear();
 };
 
-class ScanMain{
+class ScanInterface{
   private:
 	unsigned int maxShmSizeL; /// Max size of shared memory buffer in pixie words (4050 + 2 header words)
 	unsigned int maxShmSize; /// Max size of shared memory buffer in bytes
@@ -144,9 +144,9 @@ class ScanMain{
 	virtual void Notify(const std::string &code_=""){ }
 
   public:
-	ScanMain(Unpacker *core_=NULL);
+	ScanInterface(Unpacker *core_=NULL);
 	
-	virtual ~ScanMain();
+	virtual ~ScanInterface();
 
 	bool IsInit(){ return init; }
 
