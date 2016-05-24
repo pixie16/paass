@@ -138,7 +138,7 @@ std::string ScanInterface::get_extension(std::string filename_, std::string &pre
   * \return Nothing.
   */
 void ScanInterface::start_scan(){
-	if(!init){ std::cout << " Not initialized!\n"; }
+	if(!scan_init){ std::cout << " Not initialized!\n"; }
 	else if(is_running){ std::cout << " Already running.\n"; }
 	else{
 		is_running = true;
@@ -154,7 +154,7 @@ void ScanInterface::start_scan(){
   * \return Nothing.
   */
 void ScanInterface::stop_scan(){
-	if(!init){ std::cout << " Not initialized!\n"; }
+	if(!scan_init){ std::cout << " Not initialized!\n"; }
 	else if(!is_running){ std::cout << " Not running.\n"; }
 	else{
 		is_running = false;
@@ -188,7 +188,7 @@ void ScanInterface::help(char *name_){
   * \return True upon success and false otherwise.
   */
 bool ScanInterface::rewind(const unsigned long &offset_/*=0*/){
-	if(!init){ return false; }
+	if(!scan_init){ return false; }
 
 	// Ensure that the scan is not running.
 	if(is_running){ 
@@ -212,7 +212,7 @@ bool ScanInterface::rewind(const unsigned long &offset_/*=0*/){
   * \return True upon successfully opening the file and false otherwise.
   */
 bool ScanInterface::open_input_file(const std::string &fname_){
-	if(!init){
+	if(!scan_init){
 		std::cout << " ERROR! ScanInterface is not initialized!\n";
 		return false;
 	}
@@ -354,8 +354,8 @@ void ScanInterface::SyntaxStr(char *name_){
   * \return True if ScanInterface is not already initialized and false otherwise.
   */
 bool ScanInterface::Initialize(std::string prefix_){
-	if(init){ return false; }
-	return (init = true);
+	if(scan_init){ return false; }
+	return (scan_init = true);
 }
 
 /** Default constructor.
@@ -382,7 +382,7 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 	dry_run_mode = false;
 	shm_mode = false;
 	batch_mode = false;
-	init = false;
+	scan_init = false;
 
 	kill_all = false;
 	run_ctrl_exit = false;
@@ -800,7 +800,7 @@ void ScanInterface::CmdControl(){
   * \return True upon success and false otherwise.
   */
 bool ScanInterface::Setup(int argc, char *argv[]){
-	if(init){ return false; }
+	if(scan_init){ return false; }
 
 	if(argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)){ // A stupid way to do this... for now.
 		help(argv[0]);
@@ -922,7 +922,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	try{ FinalInitialization(); }
 	catch(...){ std::cout << "\nFinal initialization failed!\n"; }
 
-	init = true;
+	scan_init = true;
 
 	// Load the input file, if the user has supplied a filename.
 	if(!shm_mode && !input_filename.empty()){
@@ -941,7 +941,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
   * \return Integer return value. 0 on success and 1 otherwise.
   */
 int ScanInterface::Execute(){
-	if(!init){
+	if(!scan_init){
 		std::cout << " FATAL ERROR! ScanInterface is not initialized!\n";
 		return 1; 
 	}
@@ -973,7 +973,7 @@ int ScanInterface::Execute(){
   * \return True upon success and false if ScanInterface has not been initialized.
   */
 bool ScanInterface::Close(){
-	if(!init){ return false; }
+	if(!scan_init){ return false; }
 
 	// Close the socket and restore the terminal
 	if(!batch_mode){
@@ -1007,6 +1007,6 @@ bool ScanInterface::Close(){
 	if(term){ delete term; }
 	if(core){ delete core; }
 	
-	init = false;
+	scan_init = false;
 	return true;
 }
