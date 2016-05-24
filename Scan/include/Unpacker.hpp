@@ -63,8 +63,6 @@ class Unpacker{
 	std::vector<std::deque<XiaEvent*> > eventList; /// The list of all events in a spill.
 	std::deque<XiaEvent*> rawEvent; /// The list of all events in the event window.
 
-	std::string message_head; /// Prefix used for text output.
-
 	/** Process all events in the event list. This method will do nothing
 	  *  unless it is overloaded by a derived class.
 	  */
@@ -97,8 +95,6 @@ class Unpacker{
 	
 	/// Set the width of events in pixie16 clock ticks.
 	unsigned int SetEventWidth(unsigned int width_){ return (eventWidth = width_); }
-	
-	void SetMsgPrefix(std::string prefix_){ message_head = prefix_; }
 	
 	/** ReadSpill is responsible for constructing a list of pixie16 events from
 	 * a raw data spill. This method performs sanity checks on the spill and
