@@ -130,8 +130,7 @@ if (${USE_POLL})
 endif()
 
 #Build PxiDump
-include_directories(PxiDump/include)
-add_subdirectory(PxiDump/source)
+add_subdirectory(PxiDump)
 
 #Build the share objects
 add_subdirectory(share)
