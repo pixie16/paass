@@ -10,13 +10,16 @@
  * \author C. R. Thornsberry
  * \date Feb. 12th, 2016
  */
+#ifndef SCANINTERFACE_HPP
+#define SCANINTERFACE_HPP
+ 
 #include <string>
 #include <sstream>
 #include <vector>
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.15"
+#define SCAN_VERSION "1.2.16"
 #define SCAN_DATE "May 24th, 2016"
 
 class Server;
@@ -184,3 +187,5 @@ class ScanInterface{
 	
 	bool Close();
 };
+
+#endif
