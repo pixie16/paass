@@ -96,8 +96,6 @@ class ScanInterface{
 
 	Unpacker *core; /// Pointer to class derived from Unpacker class.
   
-	std::string sys_message_head; /// The string to print before program output.
-  
 	/// Split a string about some delimiter.
 	unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_=' ');
 	
@@ -120,6 +118,8 @@ class ScanInterface{
 	bool open_input_file(const std::string &fname_);
 	
   protected:
+	std::string sys_message_head; /// The string to print before program output.
+  
 	/** ExtraCommands is used to send command strings to classes derived
 	  * from ScanInterface. If ScanInterface receives an unrecognized
 	  * command from the user, it will pass it on to the derived class.
