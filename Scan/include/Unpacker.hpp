@@ -24,7 +24,7 @@
 #define MAX_PIXIE_CHAN 15
 #endif
 
-class PixieEvent;
+class XiaEvent;
 class ScanMain;
 
 class Unpacker{
@@ -43,8 +43,8 @@ class Unpacker{
 
 	ScanMain *scan_main; /// Pointer to the ScanMain object responsible for reading spill data.
 
-	std::deque<PixieEvent*> eventList; /// The list of all events in the spill.
-	std::deque<PixieEvent*> rawEvent; /// The list of all events in the event window.
+	std::deque<XiaEvent*> eventList; /// The list of all events in the spill.
+	std::deque<XiaEvent*> rawEvent; /// The list of all events in the event window.
 
 	std::string message_head; /// Prefix used for text output.
 
