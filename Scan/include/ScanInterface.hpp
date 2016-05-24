@@ -73,7 +73,7 @@ class ScanInterface{
 	bool dry_run_mode; /// Set to true if a dry run is to be performed i.e. data is to be read but not processed.
 	bool shm_mode; /// Set to true if shared memory mode is to be used.
 	bool batch_mode; /// Set to true if the program is to be run with no interactive command line.
-	bool init; /// Set to true when ScanInterface is initialized properly and is ready to scan.
+	bool scan_init; /// Set to true when ScanInterface is initialized properly and is ready to scan.
 
 	bool kill_all; /// Set to true when user has sent kill command.
 	bool run_ctrl_exit; /// Set to true when run control thread has exited.
@@ -204,7 +204,7 @@ class ScanInterface{
 	virtual ~ScanInterface();
 
 	/// Return true if the ScanInterface object has been initialized.
-	bool IsInit(){ return init; }
+	bool IsInit(){ return scan_init; }
 
 	/// Return true if verbose output mode is enabled.
 	bool IsVerbose(){ return is_verbose; }
