@@ -27,6 +27,33 @@
 class XiaEvent;
 class ScanMain;
 
+class eventList{
+  public:
+	eventList();
+
+	/// Return the maximum module read from the input file.
+	size_t GetMaxModule(){ return list.size(); }
+
+	/// Scan the event list and sort it by timestamp.
+	void TimeSort();
+
+	/** Scan the time sorted event list and package the events into a raw
+	 * event with a size governed by the event width.
+	 */
+	bool BuildRawEvent(std::deque<XiaEvent*> &rawEvt, const double &eventWidth_);
+	
+	/// Push an event into the event list.
+	bool AddEvent(XiaEvent *event_);
+	
+	/** Clear all events in the spill event list. WARNING! This method will delete all events in the
+	 * event list. This could cause seg faults if the events are used elsewhere.
+	 */	
+	void Clear();
+
+  private:
+	std::vector<std::deque<XiaEvent*> > list; /// The list of events.
+};
+
 class Unpacker{
   protected:
 	unsigned int TOTALREAD; /// Maximum number of data words to read.
@@ -36,45 +63,21 @@ class Unpacker{
 	
 	unsigned int channel_counts[MAX_PIXIE_MOD+1][MAX_PIXIE_CHAN+1]; /// Counters for each channel in each module.
 	
-	bool kill_all; /// Set to true if kill all signal received from ScanMain.
 	bool debug_mode; /// True if debug mode is set.
 	bool shm_mode; /// Set to true if shared memory mode is to be used.
 	bool init; /// True if the class has been properly initialized.
 
 	ScanMain *scan_main; /// Pointer to the ScanMain object responsible for reading spill data.
 
-	std::deque<XiaEvent*> eventList; /// The list of all events in the spill.
+	eventList events; /// The list of all events in a spill.
 	std::deque<XiaEvent*> rawEvent; /// The list of all events in the event window.
 
 	std::string message_head; /// Prefix used for text output.
-
-	/** Clear all events in the raw event. WARNING! This method will delete all events in the
-	 * event list. This could cause seg faults if the events are used elsewhere.
-	 */	
-	void ClearRawEvent();
-
-	/** Clear all events in the spill event list. WARNING! This method will delete all events in the
-	 * event list. This could cause seg faults if the events are used elsewhere.
-	 */	
-	void ClearEventList();
-	
-	/** Delete an event off the front of the event list. WARNING! This method will delete all events
-	 * in the event list. This could cause seg faults if the events are used elsewhere.
-	 */	
-	void DeleteCurrentEvent();
 
 	/** Process all events in the event list. This method will do nothing
 	 *  unless it is overloaded by a derived class.
 	 */
 	virtual void ProcessRawEvent();
-	
-	/** Scan the time sorted event list and package the events into a raw
-	 * event with a size governed by the event width.
-	 */
-	void ScanList();
-	
-	/// Scan the event list and sort it by timestamp.
-	void SortList();
 	
 	/** Called form ReadSpill. Scan the current spill and construct a list of
 	 * events which fired by obtaining the module, channel, trace, etc. of the
@@ -132,9 +135,6 @@ class Unpacker{
 	/// Scan has started data acquisition.
 	virtual void StartAcquisition(){  }
 	
-	/// Set the kill flag to true. This should be used to exit gracefully.
-	void KillAll(){ kill_all = true; }
-
 	/// Set the width of events in pixie16 clock ticks.
 	unsigned int SetEventWidth(unsigned int width_){ return (event_width = width_); }
 	
@@ -147,7 +147,7 @@ class Unpacker{
 	bool ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbose=true);
 	
 	/// Return the syntax string for this program.
-	virtual void SyntaxStr(const char *name_, std::string prefix_=""){ std::cout << prefix_ << "SYNTAX: " << std::string(name_) << " <options> <input>\n"; }
+	virtual void SyntaxStr(const char *name_, std::string prefix_=""){ std::cout << prefix_ << "usage: " << std::string(name_) << " [options] [input]\n"; }
 
 	/// Print a command line help dialogue for recognized command line arguments.
 	virtual void ArgHelp(std::string prefix_=""){}
