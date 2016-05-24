@@ -28,31 +28,26 @@ void clearDeque(std::deque<XiaEvent*> &list){
 	}
 }
 
-/// Default constructor.
-eventList::eventList(){  }
-
 /// Scan the event list and sort it by timestamp.
-void eventList::TimeSort(){
-	for(std::vector<std::deque<XiaEvent*> >::iterator iter = list.begin(); iter != list.end(); iter++){
+void Unpacker::TimeSort(){
+	for(std::vector<std::deque<XiaEvent*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
 		sort(iter->begin(), iter->end(), &XiaEvent::compareTime);
 	}
 }
 
 /** Scan each module's time sorted XIA event list and package the
   * events into a "raw event" with a user specified time width.
-  *  param[out] rawEvt : deque in which to store time XIA events falling in the event window.
-  *  param[in] eventWidth_ : The time width of the event window (in 8 ns clock ticks).
   */
-bool eventList::BuildRawEvent(std::deque<XiaEvent*> &rawEvt, const double &eventWidth_){
-	if(!rawEvt.empty()){
+bool Unpacker::BuildRawEvent(){
+	if(!rawEvent.empty()){
 		std::cout << "BuildRawEvent: Clearing raw event list.\n";
-		clearDeque(rawEvt);
+		ClearRawEvent();
 	}
 
 	unsigned int mod, chan;
 	std::string type, subtype, tag;
 	XiaEvent *current_event = NULL;
-	for(std::vector<std::deque<XiaEvent*> >::iterator iter = list.begin(); iter != list.end(); iter++){
+	for(std::vector<std::deque<XiaEvent*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
 		if(iter->empty()){ continue; }
 	
 		current_event = iter->front();
@@ -80,15 +75,18 @@ bool eventList::BuildRawEvent(std::deque<XiaEvent*> &rawEvt, const double &event
 			// If the time difference between the current and previous event is 
 			// larger than the event width, finalize the current event, otherwise
 			// treat this as part of the current event
-			if((currTime - lastTime) > eventWidth_){ // 62 pixie ticks represents ~0.5 us
+			if((currTime - lastTime) > eventWidth){ // 62 pixie ticks represents ~0.5 us
 				break;
 			}
 
 			// Update the time of the last event
 			lastTime = currTime; 
 		
+			// Update raw stats output with the new event before adding it to the raw event.
+			RawStats(current_event);
+		
 			// Push this channel event into the rawEvent.
-			rawEvt.push_back(current_event);
+			rawEvent.push_back(current_event);
 		
 			// Remove this event from the event list but do not delete it yet.
 			// Deleting of the channel events will be handled by clearing the rawEvent.
@@ -96,21 +94,21 @@ bool eventList::BuildRawEvent(std::deque<XiaEvent*> &rawEvt, const double &event
 		}
 	}
 	
-	return (!rawEvt.empty());
+	return (!rawEvent.empty());
 }	
 
 /// Push an event into the event list.
-bool eventList::AddEvent(XiaEvent *event_){
+bool Unpacker::AddEvent(XiaEvent *event_){
 	if(event_->modNum > MAX_PIXIE_MOD){ return false; }
 	
 	// Check for the need to add a new deque to the event list.
-	if(event_->modNum+1 > (unsigned int)list.size()){
-		for(unsigned int i = 0; i < (event_->modNum+1 - (unsigned int)list.size()); i++){
-			list.push_back(std::deque<XiaEvent*>());
+	if(event_->modNum+1 > (unsigned int)eventList.size()){
+		for(unsigned int i = 0; i < (event_->modNum+1 - (unsigned int)eventList.size()); i++){
+			eventList.push_back(std::deque<XiaEvent*>());
 		}
 	}
 	
-	list.at(event_->modNum).push_back(event_);
+	eventList.at(event_->modNum).push_back(event_);
 	
 	return true;
 }
@@ -118,15 +116,19 @@ bool eventList::AddEvent(XiaEvent *event_){
 /** Clear all events in the spill event list. WARNING! This method will delete all events in the
  * event list. This could cause seg faults if the events are used elsewhere.
  */	
-void eventList::Clear(){
-	for(std::vector<std::deque<XiaEvent*> >::iterator iter = list.begin(); iter != list.end(); iter++){
+void Unpacker::ClearEventList(){
+	for(std::vector<std::deque<XiaEvent*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
 		clearDeque((*iter));
 	}
-	list.clear();
+	eventList.clear();
+}
+
+void Unpacker::ClearRawEvent(){
+	clearDeque(rawEvent);
 }
 
 void Unpacker::ProcessRawEvent(){
-	clearDeque(rawEvent);
+	ClearRawEvent();
 }
 
 int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){						
@@ -261,7 +263,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 				buf += traceLength / 2;
 			}
  
-			events.AddEvent(currentEvt);
+			AddEvent(currentEvt);
 			
 			numEvents++;
 		}
@@ -279,7 +281,7 @@ Unpacker::Unpacker(){
 
 	TOTALREAD = 1000000; // Maximum number of data words to read.
 	maxWords = 131072; // Maximum number of data words for revision D.	
-	event_width = 62; // ~ 500 ns in 8 ns pixie clock ticks.
+	eventWidth = 62; // ~ 500 ns in 8 ns pixie clock ticks.
 	
 	message_head = "";
 	
@@ -351,7 +353,7 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 				if(is_verbose){ 
 					std::cout << "ReadSpill: MISSING BUFFER " << lastVsn+1 << ", lastVsn = " << lastVsn << ", vsn = " << vsn << ", lenrec = " << lenRec << std::endl;
 				}
-				events.Clear();
+				ClearEventList();
 				fullSpill=false; // WHY WAS THIS TRUE!?!? CRT
 			}
 			
@@ -366,7 +368,7 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 				if(is_verbose){ std::cout << "ReadSpill: READOUT PROBLEM " << retval << " in event " << counter << std::endl; }
 				if(retval == -100){
 					if(is_verbose){ std::cout << "ReadSpill:  Remove list " << lastVsn << " " << vsn << std::endl; }
-					events.Clear();
+					ClearEventList();
 				}
 				return false;
 			}
@@ -427,18 +429,18 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 			//double lastTimestamp = (*(eventList.rbegin()))->time;
 
 			// Sort the event list in time
-			events.TimeSort();
+			TimeSort();
 
 			// Once the vector of pointers eventlist is sorted based on time,
 			// begin the event processing in ScanList().
 			// ScanList will also clear the event list for us.
-			while(events.BuildRawEvent(rawEvent, event_width)){
+			while(BuildRawEvent()){
 				// Process the event.
 				ProcessRawEvent();
 			}
 			
 			// Check that the event list is empty. It should be...
-			events.Clear();
+			ClearEventList();
 
 			// Once the eventlist has been scanned, reset the number 
 			// of events to zero and update the event counter
@@ -453,13 +455,13 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 		}
 		else {
 			if(is_verbose){ std::cout << "ReadSpill: Spill split between buffers" << std::endl; }
-			events.Clear(); // This tosses out all events read into the deque so far
+			ClearEventList(); // This tosses out all events read into the deque so far
 			return false; 
 		}		
 	}
 	else if(retval != -10){
 		if(is_verbose){ std::cout << "ReadSpill: bad buffer, numEvents = " << numEvents << std::endl; }
-		events.Clear(); // This tosses out all events read into the deque so far
+		ClearEventList(); // This tosses out all events read into the deque so far
 		return false;
 	}
 	
@@ -467,8 +469,8 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 }
 
 void Unpacker::Close(bool write_count_file/*=false*/){
-	clearDeque(rawEvent);
-	events.Clear();
+	ClearRawEvent();
+	ClearEventList();
 	
 	if(write_count_file){ // Write all recorded channel counts to a file.
 		std::ofstream count_output("counts.dat");
