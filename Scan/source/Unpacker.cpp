@@ -293,7 +293,7 @@ Unpacker::Unpacker(){
 }
 
 Unpacker::~Unpacker(){
-	Close();
+	CloseUnpacker();
 }
 
 bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbose/*=true*/){
@@ -468,7 +468,7 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 	return true;		
 }
 
-void Unpacker::Close(bool write_count_file/*=false*/){
+void Unpacker::CloseUnpacker(bool write_count_file/*=false*/){
 	ClearRawEvent();
 	ClearEventList();
 	

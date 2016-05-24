@@ -107,7 +107,7 @@ class Unpacker{
 	bool ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbose=true);
 	
 	/// Empty the raw event and the event list.
-	void Close(bool write_count_file=false);
+	void CloseUnpacker(bool write_count_file=false);
 };
 
 extern Unpacker *GetCore(); /// External function which returns a pointer to a class derived from Unpacker.
