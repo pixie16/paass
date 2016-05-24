@@ -19,7 +19,7 @@
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.16"
+#define SCAN_VERSION "1.2.17"
 #define SCAN_DATE "May 24th, 2016"
 
 class Server;
@@ -125,17 +125,17 @@ class ScanInterface{
 	  * command from the user, it will pass it on to the derived class.
 	  * Does nothing useful by default.
 	  * \param[in]  cmd_ The command to interpret. Not used by default.
-	  * \param[in]  arg_ Vector or arguments to the user command. Not used by default.
+	  * \param[out] arg_ Vector or arguments to the user command. Not used by default.
 	  * \return True if the command was recognized and false otherwise. Returns false by default.
 	  */
-	virtual bool ExtraCommands(const std::string &cmd_, const std::vector<std::string> &arg_){ return false; }
+	virtual bool ExtraCommands(const std::string &cmd_, std::vector<std::string> &args_){ return false; }
 	
 	/** ExtraArguments is used to send command line arguments to classes derived
 	  * from ScanInterface. If ScanInterface receives an unrecognized
 	  * argument from the user, it will pass it on to the derived class.
 	  * Does nothing useful by default.
 	  */
-	virtual bool ExtraArguments(const std::string &arg_, const std::deque<std::string> &others_, std::string &ifname);
+	virtual bool ExtraArguments(const std::string &arg_, std::deque<std::string> &others_, std::string &ifname);
 	
 	/** CmdHelp is used to allow a derived class to print a help statement about
 	  * its own commands. This method is called whenever the user enters 'help'
@@ -258,7 +258,7 @@ class ScanInterface{
 	int Execute();
 	
 	/// Shutdown cleanly.
-	bool Close();
+	bool CloseInterface();
 };
 
 #endif

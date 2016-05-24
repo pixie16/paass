@@ -332,11 +332,11 @@ bool ScanInterface::open_input_file(const std::string &fname_){
 
 /** Send command line arguments to classes derived from ScanInterface.
   * \param[in]  arg_    The current command line argument to be read.
-  * \param[in]  others_ Deque of following arguments passed from the command line.
+  * \param[out] others_ Deque of following arguments passed from the command line.
   * \param[out] ifname  Input filename to load upon initialization.
   * \return True if the argument is recognized and false otherwise. Returns true by default.
   */
-bool ScanInterface::ExtraArguments(const std::string &arg_, const std::deque<std::string> &others_, std::string &ifname){
+bool ScanInterface::ExtraArguments(const std::string &arg_, std::deque<std::string> &others_, std::string &ifname){
 	ifname = arg_;
 	return true;
 }
@@ -402,7 +402,7 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 
 /// Default destructor.
 ScanInterface::~ScanInterface(){
-	Close();
+	CloseInterface();
 }
 
 /// Main scan control method.
@@ -878,7 +878,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	if(!Initialize(sys_message_head)){ // Failed to initialize the object. Clean up and exit.
 		std::cout << " FATAL ERROR! Failed to initialize derived class!\n";
 		std::cout << "\nCleaning up...\n";
-		core->Close(write_counts);
+		core->CloseUnpacker(write_counts);
 		return false;
 	}
 
@@ -887,7 +887,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 		if(!poll_server->Init(5555, 1)){
 			std::cout << " FATAL ERROR! Failed to open shm socket 5555!\n";
 			std::cout << "\nCleaning up...\n";
-			core->Close(write_counts);
+			core->CloseUnpacker(write_counts);
 			return false;
 		}	
 		if(batch_mode){
@@ -972,7 +972,7 @@ int ScanInterface::Execute(){
 /** Shutdown cleanly. Uninitialize the ScanInterface object.
   * \return True upon success and false if ScanInterface has not been initialized.
   */
-bool ScanInterface::Close(){
+bool ScanInterface::CloseInterface(){
 	if(!scan_init){ return false; }
 
 	// Close the socket and restore the terminal
@@ -1001,7 +1001,7 @@ bool ScanInterface::Close(){
 	std::cout << sys_message_head << "Read " << databuff.GetNumChunks() << " spill chunks.\n";
 	std::cout << sys_message_head << "Lost at least " << databuff.GetNumMissing() << " spill chunks.\n";
 	
-	core->Close(write_counts);
+	core->CloseUnpacker(write_counts);
 	
 	if(poll_server){ delete poll_server; }
 	if(term){ delete term; }
