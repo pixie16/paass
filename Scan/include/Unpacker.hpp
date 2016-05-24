@@ -64,10 +64,7 @@ class Unpacker{
 	unsigned int channel_counts[MAX_PIXIE_MOD+1][MAX_PIXIE_CHAN+1]; /// Counters for each channel in each module.
 	
 	bool debug_mode; /// True if debug mode is set.
-	bool shm_mode; /// Set to true if shared memory mode is to be used.
 	bool init; /// True if the class has been properly initialized.
-
-	ScanMain *scan_main; /// Pointer to the ScanMain object responsible for reading spill data.
 
 	eventList events; /// The list of all events in a spill.
 	std::deque<XiaEvent*> rawEvent; /// The list of all events in the event window.
@@ -86,10 +83,10 @@ class Unpacker{
 	 */	
 	int ReadBuffer(unsigned int *buf, unsigned long &bufLen);
 	
-  public:
   	/// Default constructor.
 	Unpacker();
 	
+  public:
 	/// Destructor.
 	virtual ~Unpacker();
 
@@ -103,12 +100,6 @@ class Unpacker{
 	  */
 	virtual void FinalInitialization(){ }
 	
-	/** Notify the unpacker object of a user action. This method should be
-	  * used in order to pass information to a class derived from Unpacker.
-	  * This method does nothing if it is not overloaded.
-	  */
-	virtual void Notify(const std::string &code_=""){ }
-	
 	/** Initialize the root output. Does nothing useful if not overloaded
 	 * by a derived class.
 	 */
@@ -117,23 +108,8 @@ class Unpacker{
 	/// Return true if Unpacker was properly initialized.
 	bool IsInit(){ return init; }
 
-	/// Perform tasks when waiting for a spill.
-	virtual void IdleTask() {};
-
 	/// Toggle debug mode on / off.
 	bool SetDebugMode(bool state_=true){ return (debug_mode = state_); }
-	
-	/// Toggle shared memory mode on/off.
-	bool SetSharedMemMode(bool state_=true){ return (shm_mode = state_); }
-
-	/// Link this object to the ScanMain object responsible for packaging spill data.
-	void SetScanMain(ScanMain *main_){ scan_main = main_; }
-
-	/// Scan has stopped data acquisition.
-	virtual void StopAcquisition(){  }
-	
-	/// Scan has started data acquisition.
-	virtual void StartAcquisition(){  }
 	
 	/// Set the width of events in pixie16 clock ticks.
 	unsigned int SetEventWidth(unsigned int width_){ return (event_width = width_); }
@@ -146,25 +122,8 @@ class Unpacker{
 	 */	
 	bool ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbose=true);
 	
-	/// Return the syntax string for this program.
-	virtual void SyntaxStr(const char *name_, std::string prefix_=""){ std::cout << prefix_ << "usage: " << std::string(name_) << " [options] [input]\n"; }
-
-	/// Print a command line help dialogue for recognized command line arguments.
-	virtual void ArgHelp(std::string prefix_=""){}
-	
-	/// Print an in-terminal help dialogue for recognized commands.
-	virtual void CmdHelp(std::string prefix_=""){}
-	
-	/// Scan input arguments and set class variables.
-	virtual bool SetArgs(std::deque<std::string> &args_, std::string &filename_){ return true; }
-
 	/// Print a status message.
 	virtual void PrintStatus(std::string prefix_=""){}
-
-	/** Search for an input command and perform the desired action. Return
-	  * true if the command is valid and false otherwise.
-	  */
-	virtual bool CommandControl(std::string cmd_, const std::vector<std::string> &args_){ return false; }
 
 	/// Empty the raw event and the event list.
 	void Close(bool write_count_file=false);

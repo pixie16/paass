@@ -102,11 +102,30 @@ class ScanMain{
 	void start_scan();
 	
 	void stop_scan();
+	
+	void help(char *name_);
+	
+	bool rewind(const unsigned long &offset_=0);
+	
+	bool open_input_file(const std::string &fname_);
+	
+  protected:
+	virtual bool ExtraCommands(const std::string &cmd_, const std::vector<std::string> &arg_){ return false; }
+	
+	virtual bool ExtraArguments(const std::string &arg_, const std::deque<std::string> &others_, std::string &ifname);
+	
+	virtual void CmdHelp(const std::string &prefix_=""){  }
+	
+	virtual void ArgHelp(){  }
+	
+	virtual void SyntaxStr(char *name_);
+
+	virtual void IdleTask(){  }
 
   public:
 	ScanMain(Unpacker *core_=NULL);
 	
-	~ScanMain();
+	virtual ~ScanMain();
 
 	bool IsInit(){ return init; }
 
@@ -138,13 +157,13 @@ class ScanMain{
 	
 	void CmdControl();
 	
-	void Help(char *name_, Unpacker *core_);
+	/** Notify the unpacker object of a user action. This method should be
+	  * used in order to pass information to a class derived from Unpacker.
+	  * This method does nothing if it is not overloaded.
+	  */
+	virtual void Notify(const std::string &code_=""){ }
 	
 	bool Initialize(int argc, char *argv[]);
-	
-	bool OpenInputFile(const std::string &fname_);
-	
-	bool Rewind(const unsigned long &offset_=0);
 	
 	int Execute();
 	

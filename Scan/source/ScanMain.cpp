@@ -129,12 +129,11 @@ void ScanMain::start_scan(){
 	else{
 		is_running = true;
 		total_stopped = false;
-		core->StartAcquisition();
 		if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for Unpacker..."); }
 	}
 	
 	// Notify the unpacker object that the user has started the scan.
-	core->Notify("START_SCAN");
+	Notify("START_SCAN");
 }
 
 void ScanMain::stop_scan(){
@@ -142,11 +141,34 @@ void ScanMain::stop_scan(){
 	else if(!is_running){ std::cout << " Not running.\n"; }
 	else{
 		is_running = false;
-		core->StopAcquisition();
 	}
 	
 	// Notify the unpacker object that the user has stopped the scan.
-	core->Notify("STOP_SCAN");
+	Notify("STOP_SCAN");
+}
+
+void ScanMain::help(char *name_){
+	SyntaxStr(name_);
+	std::cout << "  Available options:\n";
+	std::cout << "   --help (-h)    - Display this dialogue\n";
+	std::cout << "   --version (-v) - Display version information\n";
+	std::cout << "   --debug        - Enable readout debug mode\n";
+	std::cout << "   --shm          - Enable shared memory readout\n";
+	std::cout << "   --quiet        - Toggle off verbosity flag\n";
+	std::cout << "   --counts       - Write all recorded channel counts to a file\n";
+	std::cout << "   --batch        - Run in batch mode (i.e. with no command line)\n";
+	std::cout << "   --dry-run      - Extract spills from file, but do no processing\n";
+	std::cout << "   --fast-fwd [word] - Skip ahead to a specified word in the file (start of file at zero)\n";
+	ArgHelp();
+}
+
+bool ScanMain::ExtraArguments(const std::string &arg_, const std::deque<std::string> &others_, std::string &ifname){
+	ifname = arg_;
+	return true;
+}
+
+void ScanMain::SyntaxStr(char *name_){
+	std::cout << " usage: " << name_ << " [input] [options] [output]\n";
 }
 
 ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
@@ -247,7 +269,7 @@ void ScanMain::RunControl(){
 				if(!poll_server->Select(dummy)){
 					if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for a spill..."); }
 					else{ std::cout << "\r\033[0;33m[IDLE]\033[0m Waiting for a spill..."; }
-					core->IdleTask();
+					IdleTask();
 					continue; 
 				}
 		
@@ -440,7 +462,7 @@ void ScanMain::RunControl(){
 		}
 
 		// Notify the unpacker object that the scan has completed.
-		core->Notify("SCAN_COMPLETE");
+		Notify("SCAN_COMPLETE");
 		
 		total_stopped = true;
 		stop_scan();
@@ -524,7 +546,7 @@ void ScanMain::CmdControl(){
 			std::cout << "   file <filename> - Load an input file\n";
 			std::cout << "   rewind [offset] - Rewind to the beginning of the file\n";
 			std::cout << "   sync            - Wait for the current run to finish\n";
-			core->CmdHelp("   ");
+			CmdHelp("   ");
 		}
 		else if(cmd == "run"){ // Start acquisition.
 			start_scan();
@@ -555,7 +577,7 @@ void ScanMain::CmdControl(){
 		}
 		else if(cmd == "file"){ // Rewind the file to the start position
 			if(p_args > 0){
-				OpenInputFile(arguments.at(0));
+				open_input_file(arguments.at(0));
 			}
 			else{
 				std::cout << sys_message_head << "Invalid number of parameters to 'file'\n";
@@ -563,8 +585,8 @@ void ScanMain::CmdControl(){
 			}
 		}
 		else if(cmd == "rewind"){ // Rewind the file to the start position
-			if(p_args > 0){ Rewind(strtoul(arguments.at(0).c_str(), NULL, 0)); }
-			else{ Rewind(); }
+			if(p_args > 0){ rewind(strtoul(arguments.at(0).c_str(), NULL, 0)); }
+			else{ rewind(); }
 		}
 		else if(cmd == "sync"){ // Wait until the current run is completed.
 			if(is_running){
@@ -573,34 +595,17 @@ void ScanMain::CmdControl(){
 			}
 			else{ std::cout << sys_message_head << "Scan is not running.\n"; }
 		}
-		else if(!core->CommandControl(cmd, arguments)){ // Unrecognized command. Send it to Unpacker.
+		else if(!ExtraCommands(cmd, arguments)){ // Unrecognized command. Send it to Unpacker.
 			std::cout << sys_message_head << "Unknown command '" << cmd << "'\n";
 		}
 	}		
-}
-
-void ScanMain::Help(char *name_, Unpacker *core){
-	core->SyntaxStr(name_, " ");
-	std::cout << "  Available options:\n";
-	std::cout << "   --help (-h)    - Display this dialogue\n";
-	std::cout << "   --version (-v) - Display version information\n";
-	std::cout << "   --debug        - Enable readout debug mode\n";
-	std::cout << "   --shm          - Enable shared memory readout\n";
-	std::cout << "   --quiet        - Toggle off verbosity flag\n";
-	std::cout << "   --counts       - Write all recorded channel counts to a file\n";
-	std::cout << "   --batch        - Run in batch mode (i.e. with no command line)\n";
-	std::cout << "   --dry-run      - Extract spills from file, but do no processing\n";
-	std::cout << "   --fast-fwd [word] - Skip ahead to a specified word in the file (start of file at zero)\n";
-	core->ArgHelp("   ");
 }
 
 bool ScanMain::Initialize(int argc, char *argv[]){
 	if(init){ return false; }
 
 	if(argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)){ // A stupid way to do this... for now.
-		Unpacker *temp_core = GetCore();
-		Help(argv[0], temp_core);
-		delete temp_core;
+		help(argv[0]);
 		return false;
 	}
 	else if(argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)){ // Display version information
@@ -619,7 +624,7 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 
 	// Fill the argument list.
 	std::deque<std::string> scan_args;
-	std::deque<std::string> coreargs;
+	std::deque<std::string> optargs;
 	int arg_index = 1;
 	while(arg_index < argc){
 		scan_args.push_back(std::string(argv[arg_index++]));
@@ -629,10 +634,10 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 	
 	// Loop through the arg list and extract ScanMain arguments.
 	std::string current_arg;
+	std::string input_filename = "";
 	while(!scan_args.empty()){
 		current_arg = scan_args.front();
 		scan_args.pop_front();
-	
 		if(current_arg == "--debug"){ 
 			core->SetDebugMode();
 			debug_mode = true;
@@ -649,7 +654,7 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 		else if(current_arg == "--fast-fwd"){
 			if(scan_args.empty()){
 				std::cout << " FATAL ERROR! Missing required argument to option '--fast-fwd'!\n";
-				Help(argv[0], core);
+				help(argv[0]);
 				return false;
 			}
 			file_start_offset = atoll(scan_args.front().c_str());
@@ -661,16 +666,13 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 		else if(current_arg == "--shm"){ 
 			file_format = 0;
 			shm_mode = true;
-			core->SetSharedMemMode(true);
 			std::cout << " Using shm mode!\n";
 		}
-		else{ coreargs.push_back(current_arg); } // Unrecognized option.
-	}
-
-	std::string input_filename = "";
-	if(!core->SetArgs(coreargs, input_filename)){ 
-		Help(argv[0], core);
-		return false; 
+		else if(!ExtraArguments(current_arg, scan_args, input_filename)){ // Unrecognized option.
+			std::cout << " Error: Unrecognized command line argument '" << current_arg << "'.\n";
+			help(argv[0]);
+			return false;
+		}
 	}
 	
 	// Initialize the Unpacker object.
@@ -729,7 +731,7 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 	// Load the input file, if the user has supplied a filename.
 	if(!shm_mode && !input_filename.empty()){
 		std::cout << sys_message_head << "Using filename " << input_filename << ".\n";
-		OpenInputFile(input_filename);
+		open_input_file(input_filename);
 		
 		// Start the scan.
 		start_scan();
@@ -738,7 +740,7 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 	return true;
 }
 
-bool ScanMain::OpenInputFile(const std::string &fname_){
+bool ScanMain::open_input_file(const std::string &fname_){
 	if(!init){
 		std::cout << " ERROR! ScanMain is not initialized!\n";
 		return false;
@@ -858,12 +860,12 @@ bool ScanMain::OpenInputFile(const std::string &fname_){
 	}
 
 	// Notify the unpacker object that the user has loaded a new file.
-	core->Notify("LOAD_FILE");
+	Notify("LOAD_FILE");
 	
 	return true;	
 }
 
-bool ScanMain::Rewind(const unsigned long &offset_/*=0*/){
+bool ScanMain::rewind(const unsigned long &offset_/*=0*/){
 	if(!init){ return false; }
 
 	// Ensure that the scan is not running.
@@ -878,7 +880,7 @@ bool ScanMain::Rewind(const unsigned long &offset_/*=0*/){
 	std::cout << " Input file is now at " << input_file->tellg() << " bytes\n";
 
 	// Notify the unpacker object that the user has rewound to the start of the file.
-	core->Notify("REWIND_FILE");
+	Notify("REWIND_FILE");
 
 	return true;
 }
@@ -890,7 +892,7 @@ int ScanMain::Execute(){
 	}
 
 	// Seek to the beginning of the file.
-	if(file_start_offset != 0){ Rewind(); }
+	if(file_start_offset != 0){ rewind(); }
 
 	// Process the file.
 	if(!batch_mode){
