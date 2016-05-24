@@ -276,7 +276,6 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 
 Unpacker::Unpacker(){
 	debug_mode = false;
-	shm_mode = false;
 	init = false;
 
 	TOTALREAD = 1000000; // Maximum number of data words to read.
