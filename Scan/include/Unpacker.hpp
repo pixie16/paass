@@ -27,12 +27,12 @@
 class XiaEvent;
 class ScanMain;
 
-class eventList{
-  public:
-	eventList();
-
-	/// Return the maximum module read from the input file.
-	size_t GetMaxModule(){ return list.size(); }
+class Unpacker{
+  private:
+	unsigned int TOTALREAD; /// Maximum number of data words to read.
+	unsigned int maxWords; /// Maximum number of data words for revision D.
+	
+	unsigned int channel_counts[MAX_PIXIE_MOD+1][MAX_PIXIE_CHAN+1]; /// Counters for each channel in each module.
 
 	/// Scan the event list and sort it by timestamp.
 	void TimeSort();
@@ -40,7 +40,7 @@ class eventList{
 	/** Scan the time sorted event list and package the events into a raw
 	 * event with a size governed by the event width.
 	 */
-	bool BuildRawEvent(std::deque<XiaEvent*> &rawEvt, const double &eventWidth_);
+	bool BuildRawEvent();
 	
 	/// Push an event into the event list.
 	bool AddEvent(XiaEvent *event_);
@@ -48,38 +48,38 @@ class eventList{
 	/** Clear all events in the spill event list. WARNING! This method will delete all events in the
 	 * event list. This could cause seg faults if the events are used elsewhere.
 	 */	
-	void Clear();
+	void ClearEventList();
 
-  private:
-	std::vector<std::deque<XiaEvent*> > list; /// The list of events.
-};
+	/** Clear all events in the raw event list. WARNING! This method will delete all events in the
+	 * event list. This could cause seg faults if the events are used elsewhere.
+	 */	
+	void ClearRawEvent();
 
-class Unpacker{
   protected:
-	unsigned int TOTALREAD; /// Maximum number of data words to read.
-	unsigned int maxWords; /// Maximum number of data words for revision D.
-	
-	unsigned int event_width; /// The width of the raw event in pixie clock ticks (8 ns).
-	
-	unsigned int channel_counts[MAX_PIXIE_MOD+1][MAX_PIXIE_CHAN+1]; /// Counters for each channel in each module.
+	unsigned int eventWidth; /// The width of the raw event in pixie clock ticks (8 ns).
 	
 	bool debug_mode; /// True if debug mode is set.
 
-	eventList events; /// The list of all events in a spill.
+	std::vector<std::deque<XiaEvent*> > eventList; /// The list of all events in a spill.
 	std::deque<XiaEvent*> rawEvent; /// The list of all events in the event window.
 
 	std::string message_head; /// Prefix used for text output.
 
 	/** Process all events in the event list. This method will do nothing
-	 *  unless it is overloaded by a derived class.
-	 */
+	  *  unless it is overloaded by a derived class.
+	  */
 	virtual void ProcessRawEvent();
 	
+	/** Add an event to generic statistics output. Does nothing useful unless
+	  * overwritten by a derived class.
+	  */
+	virtual void RawStats(XiaEvent *event_){  }
+	
 	/** Called form ReadSpill. Scan the current spill and construct a list of
-	 * events which fired by obtaining the module, channel, trace, etc. of the
-	 * timestamped event. This method will construct the event list for
-	 * later processing.
-	 */	
+	  * events which fired by obtaining the module, channel, trace, etc. of the
+	  * timestamped event. This method will construct the event list for
+	  * later processing.
+	  */	
 	int ReadBuffer(unsigned int *buf, unsigned long &bufLen);
 	
   	/// Default constructor.
@@ -89,11 +89,14 @@ class Unpacker{
 	/// Destructor.
 	virtual ~Unpacker();
 
+	/// Return the maximum module read from the input file.
+	size_t GetMaxModule(){ return eventList.size(); }
+
 	/// Toggle debug mode on / off.
 	bool SetDebugMode(bool state_=true){ return (debug_mode = state_); }
 	
 	/// Set the width of events in pixie16 clock ticks.
-	unsigned int SetEventWidth(unsigned int width_){ return (event_width = width_); }
+	unsigned int SetEventWidth(unsigned int width_){ return (eventWidth = width_); }
 	
 	void SetMsgPrefix(std::string prefix_){ message_head = prefix_; }
 	
