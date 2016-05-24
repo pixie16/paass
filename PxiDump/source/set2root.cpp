@@ -184,7 +184,7 @@ void closeFile(std::ofstream &f_){
 #endif
 
 void help(char * prog_name_){
-	std::cout << "  SYNTAX: " << prog_name_ << " [startMod] [stopMod] [varFile] [setFile] <output>\n";
+	std::cout << "  SYNTAX: " << prog_name_ << " <varFile> <setFile> <startMod> <stopMod> [output]\n";
 }
 
 int main(int argc, char *argv[]){
@@ -198,20 +198,20 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
 
-	int start_mod = atoi(argv[1]);
-	int stop_mod = atoi(argv[2]);
-	if(start_mod < 0 && start_mod != -1){
+	int start_mod = atoi(argv[3]);
+	int stop_mod = atoi(argv[4]);
+	if(start_mod < -1){
 		std::cout << " ERROR! Invalid start module specification (" << start_mod << ").\n";
 		return -1;
 	}
-	else if(stop_mod < 0 && stop_mod != -1){
+	else if(stop_mod < -1){
 		std::cout << " ERROR! Invalid stop module specification (" << stop_mod << ").\n";
 		return -1;
 	}
 
 	// Set the input filenames.
-	std::string varFilename = std::string(argv[3]);
-	std::string setFilename = std::string(argv[4]);
+	std::string varFilename = std::string(argv[1]);
+	std::string setFilename = std::string(argv[2]);
 	
 	// Get the output filename.
 	std::string outFilename;
