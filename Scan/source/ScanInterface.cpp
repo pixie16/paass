@@ -329,18 +329,22 @@ bool ScanInterface::open_input_file(const std::string &fname_){
 	return true;	
 }
 
-/** Send command line arguments to classes derived from ScanInterface.
-  * \param[in]  arg_    The current command line argument to be read.
-  * \param[out] others_ Deque of following arguments passed from the command line.
-  * \param[out] ifname  Input filename to load upon initialization.
-  * \return True if the argument is recognized and false otherwise. Returns true by default.
+/** ExtraArguments is used to send command line arguments to classes derived
+  * from ScanInterface. If ScanInterface receives an unrecognized
+  * argument from the user, it will pass it on to the derived class.
+  * Does nothing useful by default.
+  * \param[in]  arg_    The argument to interpret.
+  * \param[out] others_ The remaining arguments following arg_.
+  * \param[out] ifname  The input filename to send back to use for reading. Set to arg_ by default.
+  * \return True if the argument was recognized and false otherwise. Returns true by default.
   */
 bool ScanInterface::ExtraArguments(const std::string &arg_, std::deque<std::string> &others_, std::string &ifname){
 	ifname = arg_;
 	return true;
 }
 
-/** Print a linux style usage message to the screen.
+/** SyntaxStr is used to print a linux style usage message to the screen.
+  * Prints a standard usage message by default.
   * \param[in]  name_ The name of the program.
   * \return Nothing.
   */
@@ -349,12 +353,22 @@ void ScanInterface::SyntaxStr(char *name_){
 }
 
 /** Initialize the Unpacker object. 
-  * \param[in]  prefix_ String to append at the start of any output. Not used by default.
-  * \return True if ScanInterface is not already initialized and false otherwise.
+  * Does nothing useful by default.
+  * \param[in]  prefix_ String to append to the beginning of system output.
+  * \return True upon successfully initializing and false otherwise.
   */
 bool ScanInterface::Initialize(std::string prefix_){
 	if(scan_init){ return false; }
 	return (scan_init = true);
+}
+
+/** Return a pointer to the Unpacker object to use for data unpacking.
+  * If no object has been initialized, create a new one.
+  * \return Pointer to an Unpacker object.
+  */
+Unpacker *ScanInterface::GetCore(){ 
+	if(!core){ core = new Unpacker(); }
+	return core;
 }
 
 /** Default constructor.

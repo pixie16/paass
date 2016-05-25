@@ -19,7 +19,7 @@
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.19"
+#define SCAN_VERSION "1.2.20"
 #define SCAN_DATE "May 25th, 2016"
 
 class Server;
@@ -139,6 +139,10 @@ class ScanInterface{
 	  * from ScanInterface. If ScanInterface receives an unrecognized
 	  * argument from the user, it will pass it on to the derived class.
 	  * Does nothing useful by default.
+	  * \param[in]  arg_    The argument to interpret.
+	  * \param[out] others_ The remaining arguments following arg_.
+	  * \param[out] ifname  The input filename to send back to use for reading. Set to arg_ by default.
+	  * \return True if the argument was recognized and false otherwise. Returns true by default.
 	  */
 	virtual bool ExtraArguments(const std::string &arg_, std::deque<std::string> &others_, std::string &ifname);
 	
@@ -161,6 +165,8 @@ class ScanInterface{
 	
 	/** SyntaxStr is used to print a linux style usage message to the screen.
 	  * Prints a standard usage message by default.
+	  * \param[in]  name_ The name of the program.
+	  * \return Nothing.
 	  */
 	virtual void SyntaxStr(char *name_);
 
@@ -175,6 +181,8 @@ class ScanInterface{
 
 	/** Initialize the Unpacker object. 
 	  * Does nothing useful by default.
+	  * \param[in]  prefix_ String to append to the beginning of system output.
+	  * \return True upon successfully initializing and false otherwise.
 	  */
 	virtual bool Initialize(std::string prefix_="");
 	
@@ -201,10 +209,11 @@ class ScanInterface{
 	  */
 	virtual void Notify(const std::string &code_=""){ }
 
-	virtual Unpacker *GetCore(){ 
-		if(!core){ core = new Unpacker(); }
-		return core;
-	}
+	/** Return a pointer to the Unpacker object to use for data unpacking.
+	  * If no object has been initialized, create a new one.
+	  * \return Pointer to an Unpacker object.
+	  */
+	virtual Unpacker *GetCore();
 
   private:
 	unsigned int maxShmSizeL; /// Max size of shared memory buffer in pixie words (4050 + 2 header words)
