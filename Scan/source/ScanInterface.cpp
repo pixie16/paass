@@ -819,6 +819,9 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	// extern function GetCore() to get a pointer to a new object.
 	if(!core){ GetCore(); }
 
+	// Link this object to the Unpacker for cross-calls.
+	core->SetInterface(this);
+
 	if(argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)){ // A stupid way to do this... for now.
 		help(argv[0]);
 		return false;
