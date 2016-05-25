@@ -19,7 +19,7 @@
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.17"
+#define SCAN_VERSION "1.2.18"
 #define SCAN_DATE "May 24th, 2016"
 
 class Server;
@@ -231,7 +231,7 @@ class ScanInterface{
 
 	Server *poll_server; /// Poll2 shared memory server.
 
-	std::ifstream *input_file; /// Main input binary data file.
+	std::ifstream input_file; /// Main input binary data file.
 	std::streampos file_length; /// Main input file length (in bytes).
 
 	fileInformation finfo; /// Data structure for storing binary file header information.

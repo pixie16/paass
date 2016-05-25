@@ -139,6 +139,7 @@ std::string ScanInterface::get_extension(std::string filename_, std::string &pre
   */
 void ScanInterface::start_scan(){
 	if(!scan_init){ std::cout << " Not initialized!\n"; }
+	else if(!input_file.good()){ std::cout << " No input file loaded\n"; }
 	else if(is_running){ std::cout << " Already running.\n"; }
 	else{
 		is_running = true;
@@ -198,8 +199,8 @@ bool ScanInterface::rewind(const unsigned long &offset_/*=0*/){
 
 	// Move to the first word in the file.
 	std::cout << " Seeking to word no. " << offset_ << " in file\n";
-	input_file->seekg(offset_*4, input_file->beg);
-	std::cout << " Input file is now at " << input_file->tellg() << " bytes\n";
+	input_file.seekg(offset_*4, input_file.beg);
+	std::cout << " Input file is now at " << input_file.tellg() << " bytes\n";
 
 	// Notify that the user has rewound to the start of the file.
 	Notify("REWIND_FILE");
@@ -248,21 +249,19 @@ bool ScanInterface::open_input_file(const std::string &fname_){
 	// Close the previous file, if one is open.
 	if(input_file){
 		std::cout << " Note: Closing previously opened file.\n";
-		input_file->close();
-		delete input_file;
+		input_file.close();
 	}
 
 	// Load the input file.
-	input_file = new std::ifstream(fname_.c_str(), std::ios::binary);
-	if(!input_file->is_open() || !input_file->good()){
+	input_file.open(fname_.c_str(), std::ios::binary);
+	if(!input_file.is_open() || !input_file.good()){
 		std::cout << " ERROR! Failed to open input file '" << fname_ << "'! Check that the path is correct.\n";
-		input_file->close();
-		delete input_file;
+		input_file.close();
 		return false;
 	}
-	input_file->seekg(0, input_file->end);
- 	file_length = input_file->tellg();
- 	input_file->seekg(0, input_file->beg);
+	input_file.seekg(0, input_file.end);
+ 	file_length = input_file.tellg();
+ 	input_file.seekg(0, input_file.beg);
 
 	if(!shm_mode){
 		// Clear the file information container.
@@ -272,8 +271,8 @@ bool ScanInterface::open_input_file(const std::string &fname_){
 		// Every poll2 ldf file starts with a DIR buffer followed by a HEAD buffer
 		int num_buffers;
 		if(file_format == 0){
-			dirbuff.Read(input_file, num_buffers);
-			headbuff.Read(input_file);
+			dirbuff.Read(&input_file, num_buffers);
+			headbuff.Read(&input_file);
 			
 			// Store the file information for later use.
 			finfo.push_back("Run number", dirbuff.GetRunNumber());
@@ -297,7 +296,7 @@ bool ScanInterface::open_input_file(const std::string &fname_){
 			std::cout << "  Run number: " << headbuff.GetRunNumber() << "\n\n";
 		}
 		else if(file_format == 1){
-			pldHead.Read(input_file);
+			pldHead.Read(&input_file);
 			
 			max_spill_size = pldHead.GetMaxSpillSize();
 
@@ -387,7 +386,6 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 	kill_all = false;
 	run_ctrl_exit = false;
 
-	input_file = NULL;
 	poll_server = NULL;
 	term = NULL;
 	core = NULL;
@@ -547,7 +545,7 @@ void ScanInterface::RunControl(){
 					continue;
 				}
 
-				if(!databuff.Read(input_file, (char*)data, nBytes, 1000000, full_spill, bad_spill, dry_run_mode)){
+				if(!databuff.Read(&input_file, (char*)data, nBytes, 1000000, full_spill, bad_spill, dry_run_mode)){
 					if(databuff.GetRetval() == 1){
 						if(debug_mode){ std::cout << "debug: Encountered single EOF buffer (end of run).\n"; }
 					}
@@ -572,7 +570,7 @@ void ScanInterface::RunControl(){
 				}
 
 				std::stringstream status;			
-				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file->tellg()/file_length << "%), ";
+				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%), ";
 				status << "GOOD = " << databuff.GetNumChunks() << ", LOST = " << databuff.GetNumMissing();
 				if(!batch_mode){ term->SetStatus(status.str()); }
 				else{ std::cout << "\r" << status.str(); }
@@ -580,18 +578,18 @@ void ScanInterface::RunControl(){
 				if(full_spill){ 
 					if(debug_mode){ 
 						std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
-						std::cout << "debug: Read up to word number " << input_file->tellg()/4 << " in input file\n";
+						std::cout << "debug: Read up to word number " << input_file.tellg()/4 << " in input file\n";
 					}
 					if(!dry_run_mode){ 
 						if(!bad_spill){ 
 							core->ReadSpill(data, nBytes/4, is_verbose); 
 						}
-						else{ std::cout << " WARNING: Spill has been flagged as corrupt, skipping (at word " << input_file->tellg()/4 << " in file)!\n"; }
+						else{ std::cout << " WARNING: Spill has been flagged as corrupt, skipping (at word " << input_file.tellg()/4 << " in file)!\n"; }
 					}
 				}
 				else if(debug_mode){ 
 					std::cout << "debug: Retrieved spill fragment of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
-					std::cout << "debug: Read up to word number " << input_file->tellg()/4 << " in input file\n";
+					std::cout << "debug: Read up to word number " << input_file.tellg()/4 << " in input file\n";
 				}
 				num_spills_recvd++;
 			}
@@ -610,7 +608,7 @@ void ScanInterface::RunControl(){
 			// Reset the buffer reader to default values.
 			pldData.Reset();
 		
-			while(pldData.Read(input_file, (char*)data, nBytes, 4*max_spill_size, dry_run_mode)){ 
+			while(pldData.Read(&input_file, (char*)data, nBytes, 4*max_spill_size, dry_run_mode)){ 
 				if(kill_all == true){ 
 					break;
 				}
@@ -620,13 +618,13 @@ void ScanInterface::RunControl(){
 				}
 
 				std::stringstream status;
-				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file->tellg()/file_length << "%)";
+				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
 				if(!batch_mode){ term->SetStatus(status.str()); }
 				else{ std::cout << "\r" << status.str(); }
 		
 				if(debug_mode){ 
 					std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
-					std::cout << "debug: Read up to word number " << input_file->tellg()/4 << " in input file\n";
+					std::cout << "debug: Read up to word number " << input_file.tellg()/4 << " in input file\n";
 				}
 			
 				if(!dry_run_mode){ 
@@ -638,7 +636,7 @@ void ScanInterface::RunControl(){
 				num_spills_recvd++;
 			}
 
-			if(eofbuff.ReadHeader(input_file)){
+			if(eofbuff.ReadHeader(&input_file)){
 				std::cout << sys_message_head << "Encountered EOF buffer.\n";
 			}
 			else{
@@ -770,7 +768,9 @@ void ScanInterface::CmdControl(){
 		}
 		else if(cmd == "file"){ // Rewind the file to the start position
 			if(p_args > 0){
-				open_input_file(arguments.at(0));
+				if(!open_input_file(arguments.at(0))){
+					std::cout << sys_message_head << "Failed to open input file!\n";
+				}
 			}
 			else{
 				std::cout << sys_message_head << "Invalid number of parameters to 'file'\n";
@@ -925,10 +925,11 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	// Load the input file, if the user has supplied a filename.
 	if(!shm_mode && !input_filename.empty()){
 		std::cout << sys_message_head << "Using filename " << input_filename << ".\n";
-		open_input_file(input_filename);
-		
-		// Start the scan.
-		start_scan();
+		if(open_input_file(input_filename)){
+			// Start the scan.
+			start_scan();
+		}
+		else{ std::cout << sys_message_head << "Failed to load input file!\n"; }
 	}
 
 	return true;
@@ -950,7 +951,7 @@ int ScanInterface::Execute(){
 	// Process the file.
 	if(!batch_mode){
 		// Start the run control thread
-		std::cout << " Starting data control thread\n";
+		std::cout << "\n Starting data control thread\n";
 		std::thread runctrl(start_run_control, this);
 
 		// Start the command control thread. This needs to be the last thing we do to
@@ -987,9 +988,8 @@ bool ScanInterface::CloseInterface(){
 	
 	std::cout << sys_message_head << "Retrieved " << num_spills_recvd << " spills!\n";
 
-	if(input_file){
-		input_file->close();	
-		delete input_file;
+	if(input_file.good()){
+		input_file.close();	
 	}
 
 	// Clean up detector driver
