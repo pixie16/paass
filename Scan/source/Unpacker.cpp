@@ -28,15 +28,18 @@ void clearDeque(std::deque<XiaEvent*> &list){
 	}
 }
 
-/// Scan the event list and sort it by timestamp.
+/** Scan the event list and sort it by timestamp.
+  * \return Nothing.
+  */
 void Unpacker::TimeSort(){
 	for(std::vector<std::deque<XiaEvent*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
 		sort(iter->begin(), iter->end(), &XiaEvent::compareTime);
 	}
 }
 
-/** Scan each module's time sorted XIA event list and package the
-  * events into a "raw event" with a user specified time width.
+/** Scan the time sorted event list and package the events into a raw
+  * event with a size governed by the event width.
+  * \return True if the rawEvent is not empty and false otherwise.
   */
 bool Unpacker::BuildRawEvent(){
 	if(!rawEvent.empty()){
@@ -97,7 +100,10 @@ bool Unpacker::BuildRawEvent(){
 	return (!rawEvent.empty());
 }	
 
-/// Push an event into the event list.
+/** Push an event into the event list.
+  * \param[in]  event_ The XiaEvent to push onto the back of the event list.
+  * \return True if the XiaEvent's module number is valid and false otherwise.
+  */
 bool Unpacker::AddEvent(XiaEvent *event_){
 	if(event_->modNum > MAX_PIXIE_MOD){ return false; }
 	
@@ -114,8 +120,9 @@ bool Unpacker::AddEvent(XiaEvent *event_){
 }
 
 /** Clear all events in the spill event list. WARNING! This method will delete all events in the
- * event list. This could cause seg faults if the events are used elsewhere.
- */	
+  * event list. This could cause seg faults if the events are used elsewhere.
+  * \return Nothing.
+  */	
 void Unpacker::ClearEventList(){
 	for(std::vector<std::deque<XiaEvent*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
 		clearDeque((*iter));
@@ -123,14 +130,30 @@ void Unpacker::ClearEventList(){
 	eventList.clear();
 }
 
+/** Clear all events in the raw event list. WARNING! This method will delete all events in the
+  * event list. This could cause seg faults if the events are used elsewhere.
+  * \return Nothing.
+  */
 void Unpacker::ClearRawEvent(){
 	clearDeque(rawEvent);
 }
 
+/** Process all events in the event list.
+  * \param[in]  addr_ Pointer to a location in memory. Unused by default.
+  * \return Nothing.
+  */
 void Unpacker::ProcessRawEvent(void *addr_/*=NULL*/){
 	ClearRawEvent();
 }
 
+/** Called form ReadSpill. Scan the current spill and construct a list of
+  * events which fired by obtaining the module, channel, trace, etc. of the
+  * timestamped event. This method will construct the event list for
+  * later processing.
+  * \param[in]  buf    Pointer to an array of unsigned ints containing raw buffer data.
+  * \param[out] bufLen The number of words in the buffer.
+  * \return The number of XiaEvents read from the buffer.
+  */
 int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){						
 	// multiplier for high bits of 48-bit time
 	static const double HIGH_MULT = pow(2., 32.); 
@@ -290,10 +313,19 @@ Unpacker::Unpacker(){
 	}
 }
 
+/// Destructor.
 Unpacker::~Unpacker(){
 	CloseUnpacker();
 }
 
+/** ReadSpill is responsible for constructing a list of pixie16 events from
+  * a raw data spill. This method performs sanity checks on the spill and
+  * calls ReadBuffer in order to construct the event list.
+  * \param[in]  data       Pointer to an array of unsigned ints containing the spill data.
+  * \param[in]  nWords     The number of words in the array.
+  * \param[in]  is_verbose Toggle the verbosity flag on/off.
+  * \return True if the spill was read successfully and false otherwise.
+  */	
 bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbose/*=true*/){
 	const unsigned int maxVsn = 14; // No more than 14 pixie modules per crate
 	unsigned int nWords_read = 0;
@@ -466,6 +498,10 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 	return true;		
 }
 
+/** Empty the raw event and the event list.
+  * \param[in]  write_count_file Toggle writting of raw channel counts to file.
+  * \return Nothing.
+  */
 void Unpacker::CloseUnpacker(bool write_count_file/*=false*/){
 	ClearRawEvent();
 	ClearEventList();
