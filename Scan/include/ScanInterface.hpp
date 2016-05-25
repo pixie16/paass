@@ -19,7 +19,7 @@
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.20"
+#define SCAN_VERSION "1.2.21"
 #define SCAN_DATE "May 25th, 2016"
 
 class Server;
@@ -117,7 +117,7 @@ class ScanInterface{
 	int Execute();
 	
 	/// Shutdown cleanly.
-	bool CloseInterface();
+	bool Close();
 
   protected:
 	std::string msgHeader; /// The string to print before program output.

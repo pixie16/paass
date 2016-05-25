@@ -402,12 +402,10 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 
 	poll_server = NULL;
 	term = NULL;
-	core = NULL;
-
-	// If a pointer to an Unpacker derived class is not specified, call the
-	// extern function GetCore() to get a pointer to a new object.
-	if(!core_){ GetCore(); }
-	else{ core = core_; }
+	
+	// Set the Unpacker pointer, if one is specified.
+	if(core_){ core = core_; }
+	else{ core = NULL; }
 
 	progName = std::string(PROG_NAME);
 	msgHeader = progName + ": ";
@@ -415,7 +413,7 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 
 /// Default destructor.
 ScanInterface::~ScanInterface(){
-	CloseInterface();
+	Close();
 }
 
 /// Main scan control method.
@@ -817,6 +815,10 @@ void ScanInterface::CmdControl(){
 bool ScanInterface::Setup(int argc, char *argv[]){
 	if(scan_init){ return false; }
 
+	// If a pointer to an Unpacker derived class is not specified, call the
+	// extern function GetCore() to get a pointer to a new object.
+	if(!core){ GetCore(); }
+
 	if(argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)){ // A stupid way to do this... for now.
 		help(argv[0]);
 		return false;
@@ -891,7 +893,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	if(!Initialize(msgHeader)){ // Failed to initialize the object. Clean up and exit.
 		std::cout << " FATAL ERROR! Failed to initialize derived class!\n";
 		std::cout << "\nCleaning up...\n";
-		core->CloseUnpacker(write_counts);
+		core->Close(write_counts);
 		return false;
 	}
 
@@ -900,7 +902,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 		if(!poll_server->Init(5555, 1)){
 			std::cout << " FATAL ERROR! Failed to open shm socket 5555!\n";
 			std::cout << "\nCleaning up...\n";
-			core->CloseUnpacker(write_counts);
+			core->Close(write_counts);
 			return false;
 		}	
 		if(batch_mode){
@@ -984,7 +986,7 @@ int ScanInterface::Execute(){
 /** Shutdown cleanly. Uninitialize the ScanInterface object.
   * \return True upon success and false if ScanInterface has not been initialized.
   */
-bool ScanInterface::CloseInterface(){
+bool ScanInterface::Close(){
 	if(!scan_init){ return false; }
 
 	// Close the socket and restore the terminal
@@ -1012,7 +1014,7 @@ bool ScanInterface::CloseInterface(){
 	std::cout << msgHeader << "Read " << databuff.GetNumChunks() << " spill chunks.\n";
 	std::cout << msgHeader << "Lost at least " << databuff.GetNumMissing() << " spill chunks.\n";
 	
-	core->CloseUnpacker(write_counts);
+	core->Close(write_counts);
 	
 	if(poll_server){ delete poll_server; }
 	if(term){ delete term; }

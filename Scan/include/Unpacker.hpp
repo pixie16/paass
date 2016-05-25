@@ -126,7 +126,7 @@ class Unpacker{
 	  * \param[in]  write_count_file Toggle writting of raw channel counts to file.
 	  * \return Nothing.
 	  */
-	void CloseUnpacker(bool write_count_file=false);
+	void Close(bool write_count_file=false);
 };
 
 #endif
