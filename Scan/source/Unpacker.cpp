@@ -137,10 +137,10 @@ void Unpacker::ClearRawEvent(){
 }
 
 /** Process all events in the event list.
-  * \param[in]  addr_ Pointer to a location in memory. Unused by default.
+  * \param[in]  addr_ Pointer to a ScanInterface object. Unused by default.
   * \return Nothing.
   */
-void Unpacker::ProcessRawEvent(void *addr_/*=NULL*/){
+void Unpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/){
 	ClearRawEvent();
 }
 
@@ -304,6 +304,8 @@ Unpacker::Unpacker(){
 	maxWords = 131072; // Maximum number of data words for revision D.	
 	eventWidth = 62; // ~ 500 ns in 8 ns pixie clock ticks.
 	
+	interface = NULL;
+	
 	for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
 		for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
 			channel_counts[i][j] = 0;
@@ -464,7 +466,7 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 			// ScanList will also clear the event list for us.
 			while(BuildRawEvent()){
 				// Process the event.
-				ProcessRawEvent();
+				ProcessRawEvent(interface);
 			}
 			
 			// Check that the event list is empty. It should be...

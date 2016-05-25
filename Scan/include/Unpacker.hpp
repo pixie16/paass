@@ -26,6 +26,7 @@
 
 class XiaEvent;
 class ScanMain;
+class ScanInterface;
 
 class Unpacker{
   public:
@@ -46,6 +47,9 @@ class Unpacker{
 	
 	/// Set the width of events in pixie16 clock ticks.
 	unsigned int SetEventWidth(unsigned int width_){ return (eventWidth = width_); }
+	
+	/// Set the address of the scan interface used for file operations.
+	ScanInterface *SetInterface(ScanInterface *interface_){ return (interface = interface_); }
 	
 	/** ReadSpill is responsible for constructing a list of pixie16 events from
 	  * a raw data spill. This method performs sanity checks on the spill and
@@ -71,17 +75,20 @@ class Unpacker{
 	std::vector<std::deque<XiaEvent*> > eventList; /// The list of all events in a spill.
 	std::deque<XiaEvent*> rawEvent; /// The list of all events in the event window.
 
+	ScanInterface *interface; /// Pointer to an object derived from ScanInterface.
+
 	/** Process all events in the event list.
-	  * \param[in]  addr_ Pointer to a location in memory. Unused by default.
+	  * \param[in]  addr_ Pointer to a ScanInterface object. Unused by default.
 	  * \return Nothing.
 	  */
-	virtual void ProcessRawEvent(void *addr_=NULL);
+	virtual void ProcessRawEvent(ScanInterface *addr_=NULL);
 	
 	/** Add an event to generic statistics output.
 	  * \param[in]  event_ Pointer to the current XIA event. Unused by default.
+	  * \param[in]  addr_  Pointer to a ScanInterface object. Unused by default.
 	  * \return Nothing.
 	  */
-	virtual void RawStats(XiaEvent *event_){  }
+	virtual void RawStats(XiaEvent *event_, ScanInterface *addr_=NULL){  }
 	
 	/** Called form ReadSpill. Scan the current spill and construct a list of
 	  * events which fired by obtaining the module, channel, trace, etc. of the
