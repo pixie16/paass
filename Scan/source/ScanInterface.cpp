@@ -390,12 +390,12 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 	input_file = NULL;
 	poll_server = NULL;
 	term = NULL;
-	
-	core = core_;
-	
+	core = NULL;
+
 	// If a pointer to an Unpacker derived class is not specified, call the
 	// extern function GetCore() to get a pointer to a new object.
-	if(!core){ core = GetCore(); }
+	if(!core_){ GetCore(); }
+	else{ core = core_; }
 
 	sys_message_head = std::string(PROG_NAME) + ": ";
 }
@@ -950,7 +950,7 @@ int ScanInterface::Execute(){
 	// Process the file.
 	if(!batch_mode){
 		// Start the run control thread
-		std::cout << "\n Starting data control thread\n";
+		std::cout << " Starting data control thread\n";
 		std::thread runctrl(start_run_control, this);
 
 		// Start the command control thread. This needs to be the last thing we do to

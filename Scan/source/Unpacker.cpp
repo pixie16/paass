@@ -127,7 +127,7 @@ void Unpacker::ClearRawEvent(){
 	clearDeque(rawEvent);
 }
 
-void Unpacker::ProcessRawEvent(){
+void Unpacker::ProcessRawEvent(void *addr_/*=NULL*/){
 	ClearRawEvent();
 }
 
