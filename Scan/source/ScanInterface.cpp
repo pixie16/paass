@@ -23,7 +23,7 @@
 
 #include "ScanInterface.hpp"
 
-#ifndef PROG_NAME
+#if not defined(PROG_NAME)
 #define PROG_NAME "ScanInterface"
 #endif
 
@@ -395,7 +395,8 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 	if(!core_){ GetCore(); }
 	else{ core = core_; }
 
-	sys_message_head = std::string(PROG_NAME) + ": ";
+	progName = std::string(PROG_NAME);
+	msgHeader = progName + ": ";
 }
 
 /// Default destructor.
@@ -468,7 +469,7 @@ void ScanInterface::RunControl(){
 				// Get the spill
 				while(current_chunk != total_chunks){
 					if(!poll_server->Select(select_dummy)){ // Server timeout
-						std::cout << sys_message_head << "Network timeout before recv full spill!\n";
+						std::cout << msgHeader << "Network timeout before recv full spill!\n";
 						full_spill = false;
 						break;
 					} 
@@ -519,7 +520,7 @@ void ScanInterface::RunControl(){
 					core->ReadSpill(data, nTotalWords + 2, is_verbose); 
 				}
 			
-				if(!full_spill){ std::cout << sys_message_head << "Not processing spill fragment!\n"; }
+				if(!full_spill){ std::cout << msgHeader << "Not processing spill fragment!\n"; }
 				else{ num_spills_recvd++; }
 			}
 		
@@ -637,10 +638,10 @@ void ScanInterface::RunControl(){
 			}
 
 			if(eofbuff.ReadHeader(&input_file)){
-				std::cout << sys_message_head << "Encountered EOF buffer.\n";
+				std::cout << msgHeader << "Encountered EOF buffer.\n";
 			}
 			else{
-				std::cout << sys_message_head << "Failed to find end of file buffer!\n";
+				std::cout << msgHeader << "Failed to find end of file buffer!\n";
 			}
 		
 			if(!dry_run_mode){ delete[] data; }
@@ -689,15 +690,15 @@ void ScanInterface::CmdControl(){
 			exit(EXIT_FAILURE);
 		}
 		else if(cmd == "CTRL_D"){ 
-			std::cout << sys_message_head << "Received EOF (ctrl-d) signal. Exiting...\n";
+			std::cout << msgHeader << "Received EOF (ctrl-d) signal. Exiting...\n";
 			cmd = "quit"; 
 		}
 		else if(cmd == "CTRL_C"){ 
-			std::cout << sys_message_head << "Warning! Received SIGINT (ctrl-c) signal.\n";
+			std::cout << msgHeader << "Warning! Received SIGINT (ctrl-c) signal.\n";
 			continue; 
 		}
 		else if(cmd == "CTRL_Z"){ 
-			std::cout << sys_message_head << "Warning! Received SIGTSTP (ctrl-z) signal.\n";
+			std::cout << msgHeader << "Warning! Received SIGTSTP (ctrl-z) signal.\n";
 			continue; 
 		}
 		term->flush();
@@ -747,34 +748,34 @@ void ScanInterface::CmdControl(){
 		}
 		else if(cmd == "debug"){ // Toggle debug mode
 			if(debug_mode){
-				std::cout << sys_message_head << "Toggling debug mode OFF\n";
+				std::cout << msgHeader << "Toggling debug mode OFF\n";
 				debug_mode = false;
 			}
 			else{
-				std::cout << sys_message_head << "Toggling debug mode ON\n";
+				std::cout << msgHeader << "Toggling debug mode ON\n";
 				debug_mode = true;
 			}
 			core->SetDebugMode(debug_mode);
 		}
 		else if(cmd == "quiet"){ // Toggle quiet mode
 			if(!is_verbose){
-				std::cout << sys_message_head << "Toggling quiet mode OFF\n";
+				std::cout << msgHeader << "Toggling quiet mode OFF\n";
 				is_verbose = true;
 			}
 			else{
-				std::cout << sys_message_head << "Toggling quiet mode ON\n";
+				std::cout << msgHeader << "Toggling quiet mode ON\n";
 				is_verbose = false;
 			}
 		}
 		else if(cmd == "file"){ // Rewind the file to the start position
 			if(p_args > 0){
 				if(!open_input_file(arguments.at(0))){
-					std::cout << sys_message_head << "Failed to open input file!\n";
+					std::cout << msgHeader << "Failed to open input file!\n";
 				}
 			}
 			else{
-				std::cout << sys_message_head << "Invalid number of parameters to 'file'\n";
-				std::cout << sys_message_head << " -SYNTAX- file <filename>\n";
+				std::cout << msgHeader << "Invalid number of parameters to 'file'\n";
+				std::cout << msgHeader << " -SYNTAX- file <filename>\n";
 			}
 		}
 		else if(cmd == "rewind"){ // Rewind the file to the start position
@@ -783,13 +784,13 @@ void ScanInterface::CmdControl(){
 		}
 		else if(cmd == "sync"){ // Wait until the current run is completed.
 			if(is_running){
-				std::cout << sys_message_head << "Waiting for current scan to complete.\n";
+				std::cout << msgHeader << "Waiting for current scan to complete.\n";
 				waiting_for_run = true;
 			}
-			else{ std::cout << sys_message_head << "Scan is not running.\n"; }
+			else{ std::cout << msgHeader << "Scan is not running.\n"; }
 		}
 		else if(!ExtraCommands(cmd, arguments)){ // Unrecognized command. Send it to a derived object.
-			std::cout << sys_message_head << "Unknown command '" << cmd << "'\n";
+			std::cout << msgHeader << "Unknown command '" << cmd << "'\n";
 		}
 	}		
 }
@@ -872,8 +873,8 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	}
 	
 	// Initialize everything.
-	std::cout << sys_message_head << "Initializing derived class.\n";
-	if(!Initialize(sys_message_head)){ // Failed to initialize the object. Clean up and exit.
+	std::cout << msgHeader << "Initializing derived class.\n";
+	if(!Initialize(msgHeader)){ // Failed to initialize the object. Clean up and exit.
 		std::cout << " FATAL ERROR! Failed to initialize derived class!\n";
 		std::cout << "\nCleaning up...\n";
 		core->CloseUnpacker(write_counts);
@@ -889,19 +890,17 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 			return false;
 		}	
 		if(batch_mode){
-			std::cout << sys_message_head << "Unable to enable batch mode for shared-memory mode!\n";
+			std::cout << msgHeader << "Unable to enable batch mode for shared-memory mode!\n";
 			batch_mode = false;
 		}
 	}
 
 	// Initialize the terminal.
-	std::string temp_name = std::string(PROG_NAME);
-	
 	if(!batch_mode){
 		term = new Terminal();
 		term->Initialize();
-		term->SetCommandHistory(("."+temp_name+".cmd").c_str());
-		term->SetPrompt((temp_name+" $ ").c_str());
+		term->SetCommandHistory(("."+progName+".cmd").c_str());
+		term->SetPrompt((progName+" $ ").c_str());
 		term->AddStatusWindow();
 		term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped.");
 	}
@@ -909,11 +908,11 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	std::cout << "\n " << PROG_NAME << " v" << SCAN_VERSION << "\n"; 
 	std::cout << " ==  ==  ==  ==  == \n\n"; 
 
-	if(debug_mode){ std::cout << sys_message_head << "Using debug mode.\n\n"; }
-	if(dry_run_mode){ std::cout << sys_message_head << "Doing a dry run.\n\n"; }
+	if(debug_mode){ std::cout << msgHeader << "Using debug mode.\n\n"; }
+	if(dry_run_mode){ std::cout << msgHeader << "Doing a dry run.\n\n"; }
 	if(shm_mode){ 
-		std::cout << sys_message_head << "Using shared-memory mode.\n\n"; 
-		std::cout << sys_message_head << "Listening on poll2 SHM port 5555\n\n";
+		std::cout << msgHeader << "Using shared-memory mode.\n\n"; 
+		std::cout << msgHeader << "Listening on poll2 SHM port 5555\n\n";
 	}
 
 	// Do any last minute initialization.
@@ -924,12 +923,12 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 
 	// Load the input file, if the user has supplied a filename.
 	if(!shm_mode && !input_filename.empty()){
-		std::cout << sys_message_head << "Using filename " << input_filename << ".\n";
+		std::cout << msgHeader << "Using filename " << input_filename << ".\n";
 		if(open_input_file(input_filename)){
 			// Start the scan.
 			start_scan();
 		}
-		else{ std::cout << sys_message_head << "Failed to load input file!\n"; }
+		else{ std::cout << msgHeader << "Failed to load input file!\n"; }
 	}
 
 	return true;
@@ -986,18 +985,18 @@ bool ScanInterface::CloseInterface(){
 	//Reprint the leader as the carriage was returned
 	std::cout << "Running " << PROG_NAME << " v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
 	
-	std::cout << sys_message_head << "Retrieved " << num_spills_recvd << " spills!\n";
+	std::cout << msgHeader << "Retrieved " << num_spills_recvd << " spills!\n";
 
 	if(input_file.good()){
 		input_file.close();	
 	}
 
 	// Clean up detector driver
-	std::cout << "\n" << sys_message_head << "Cleaning up...\n";
+	std::cout << "\n" << msgHeader << "Cleaning up...\n";
 	
 	// Show the number of lost spill chunks.
-	std::cout << sys_message_head << "Read " << databuff.GetNumChunks() << " spill chunks.\n";
-	std::cout << sys_message_head << "Lost at least " << databuff.GetNumMissing() << " spill chunks.\n";
+	std::cout << msgHeader << "Read " << databuff.GetNumChunks() << " spill chunks.\n";
+	std::cout << msgHeader << "Lost at least " << databuff.GetNumMissing() << " spill chunks.\n";
 	
 	core->CloseUnpacker(write_counts);
 	

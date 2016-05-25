@@ -19,8 +19,8 @@
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.18"
-#define SCAN_DATE "May 24th, 2016"
+#define SCAN_VERSION "1.2.19"
+#define SCAN_DATE "May 25th, 2016"
 
 class Server;
 class Terminal;
@@ -78,13 +78,16 @@ class ScanInterface{
 	bool BatchMode(){ return batch_mode; }
 	
 	/// Return the header string used to prefix output messages.
-	std::string GetMessageHeader(){ return sys_message_head; }
+	std::string GetMessageHeader(){ return msgHeader; }
+	
+	/// Return the name of the program.
+	std::string GetProgramName(){ return progName; }
 	
 	/// Return a pointer to a fileInformation object used to store file header info.
 	fileInformation *GetFileInfo(){ return &finfo; }
 
 	/// Set the header string used to prefix output messages.
-	void SetMessageHeader(const std::string &head_){ sys_message_head = head_; }
+	void SetProgramName(const std::string &head_){ progName = head_; msgHeader = head_+": "; }
 	
 	/// Enable or disable verbose output mode.
 	bool SetVerboseMode(bool state_=true){ return (is_verbose = state_); }
@@ -117,7 +120,8 @@ class ScanInterface{
 	bool CloseInterface();
 
   protected:
-	std::string sys_message_head; /// The string to print before program output.
+	std::string msgHeader; /// The string to print before program output.
+	std::string progName; /// The name of the program.
   
 	Unpacker *core; /// Pointer to class derived from Unpacker class.
   
