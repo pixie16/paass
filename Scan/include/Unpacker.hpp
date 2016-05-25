@@ -63,13 +63,15 @@ class Unpacker{
 	std::vector<std::deque<XiaEvent*> > eventList; /// The list of all events in a spill.
 	std::deque<XiaEvent*> rawEvent; /// The list of all events in the event window.
 
-	/** Process all events in the event list. This method will do nothing
-	  *  unless it is overloaded by a derived class.
+	/** Process all events in the event list.
+	  * \param[in]  addr_ Pointer to a location in memory. Unused by default.
+	  * \return Nothing.
 	  */
-	virtual void ProcessRawEvent();
+	virtual void ProcessRawEvent(void *addr_=NULL);
 	
-	/** Add an event to generic statistics output. Does nothing useful unless
-	  * overwritten by a derived class.
+	/** Add an event to generic statistics output.
+	  * \param[in]  event_ Pointer to the current XIA event. Unused by default.
+	  * \return Nothing.
 	  */
 	virtual void RawStats(XiaEvent *event_){  }
 	
@@ -80,15 +82,18 @@ class Unpacker{
 	  */	
 	int ReadBuffer(unsigned int *buf, unsigned long &bufLen);
 	
+  public:
   	/// Default constructor.
 	Unpacker();
-	
-  public:
+
 	/// Destructor.
 	virtual ~Unpacker();
 
 	/// Return the maximum module read from the input file.
 	size_t GetMaxModule(){ return eventList.size(); }
+
+	/// Return the width of the raw event window in pixie16 clock ticks.
+	unsigned int GetEventWidth(){ return eventWidth; }
 
 	/// Toggle debug mode on / off.
 	bool SetDebugMode(bool state_=true){ return (debug_mode = state_); }
@@ -105,7 +110,5 @@ class Unpacker{
 	/// Empty the raw event and the event list.
 	void CloseUnpacker(bool write_count_file=false);
 };
-
-extern Unpacker *GetCore(); /// External function which returns a pointer to a class derived from Unpacker.
 
 #endif

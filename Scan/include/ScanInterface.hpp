@@ -27,10 +27,6 @@ class Terminal;
 class Unpacker;
 
 class fileInformation{
-  private:
-	std::vector<std::string> parnames;
-	std::vector<std::string> parvalues;
-
   public:
 	fileInformation(){ }
 	
@@ -48,77 +44,82 @@ class fileInformation{
 	std::string print(const size_t &index_);
 	
 	void clear();
+
+  private:
+	std::vector<std::string> parnames;
+	
+	std::vector<std::string> parvalues;
 };
 
 class ScanInterface{
-  private:
-	unsigned int maxShmSizeL; /// Max size of shared memory buffer in pixie words (4050 + 2 header words)
-	unsigned int maxShmSize; /// Max size of shared memory buffer in bytes
-
-	std::string prefix; /// Input filename prefix (without extension).
-	std::string extension; /// Input file extension.
-
-	int max_spill_size; /// Maximum size of a spill to read.
-	int file_format; /// Input file format to use (0=.ldf, 1=.pld, 2=.root).
+  public:
+  	/// Default constructor.
+	ScanInterface(Unpacker *core_=NULL);
 	
-	unsigned long num_spills_recvd; /// The total number of good spills received from either the input file or shared memory.
-	unsigned long file_start_offset; /// The first word in the file at which to start scanning.
+	/// Default destructor.
+	virtual ~ScanInterface();
+
+	/// Return true if the ScanInterface object has been initialized.
+	bool IsInit(){ return scan_init; }
+
+	/// Return true if verbose output mode is enabled.
+	bool IsVerbose(){ return is_verbose; }
 	
-	bool write_counts; /// Set to true if raw channel counts are to be written to file.
-
-	bool total_stopped; /// Set to true if when the scan finishes.
-	bool is_running; /// Set to true if the acqusition is running.
-	bool is_verbose; /// Set to true if the user wishes verbose information to be displayed.
-	bool debug_mode; /// Set to true if the user wishes to display debug information.
-	bool dry_run_mode; /// Set to true if a dry run is to be performed i.e. data is to be read but not processed.
-	bool shm_mode; /// Set to true if shared memory mode is to be used.
-	bool batch_mode; /// Set to true if the program is to be run with no interactive command line.
-	bool scan_init; /// Set to true when ScanInterface is initialized properly and is ready to scan.
-
-	bool kill_all; /// Set to true when user has sent kill command.
-	bool run_ctrl_exit; /// Set to true when run control thread has exited.
-
-	Server *poll_server; /// Poll2 shared memory server.
-
-	std::ifstream *input_file; /// Main input binary data file.
-	std::streampos file_length; /// Main input file length (in bytes).
-
-	fileInformation finfo; /// Data structure for storing binary file header information.
-
-	PLD_header pldHead; /// PLD style HEAD buffer handler.
-	PLD_data pldData; /// PLD style DATA buffer handler.
-	DIR_buffer dirbuff; /// HRIBF DIR buffer handler.
-	HEAD_buffer headbuff; /// HRIBF HEAD buffer handler.
-	DATA_buffer databuff; /// HRIBF DATA buffer handler.
-	EOF_buffer eofbuff; /// HRIBF EOF buffer handler.
-
-	Terminal *term; /// ncurses terminal used for displaying output and handling user input.
-
-	Unpacker *core; /// Pointer to class derived from Unpacker class.
-  
-	/// Split a string about some delimiter.
-	unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_=' ');
+	/// Return true if debug mode is enabled.
+	bool DebugMode(){ return debug_mode; }
 	
-	/// Get the file extension from an input filename string.
-	std::string get_extension(std::string filename_, std::string &prefix);
+	/// Return true if dry run mode is enabled.
+	bool DryRunMode(){ return dry_run_mode; }
+	
+	/// Return true if shared memory mode is enabled.
+	bool ShmMode(){ return shm_mode; }
+	
+	/// Return true if batch processing mode is enabled.
+	bool BatchMode(){ return batch_mode; }
+	
+	/// Return the header string used to prefix output messages.
+	std::string GetMessageHeader(){ return sys_message_head; }
+	
+	/// Return a pointer to a fileInformation object used to store file header info.
+	fileInformation *GetFileInfo(){ return &finfo; }
 
-	/// Start the scan.
-	void start_scan();
+	/// Set the header string used to prefix output messages.
+	void SetMessageHeader(const std::string &head_){ sys_message_head = head_; }
 	
-	/// Stop the scan.
-	void stop_scan();
+	/// Enable or disable verbose output mode.
+	bool SetVerboseMode(bool state_=true){ return (is_verbose = state_); }
 	
-	/// Print a command line argument help dialogue.
-	void help(char *name_);
+	/// Enable or disable debug mode.
+	bool SetDebugMode(bool state_=true){ return (debug_mode = state_); }
 	
-	/// Seek to a specified position in the file.
-	bool rewind(const unsigned long &offset_=0);
+	/// Enable or disable dry run mode.
+	bool SetDryRunMode(bool state_=true){ return (dry_run_mode = state_); }
 	
-	/// Open a new binary input file for reading.
-	bool open_input_file(const std::string &fname_);
+	/// Enable or disable shared memory mode.
+	bool SetShmMode(bool state_=true){ return (shm_mode = state_); }
 	
+	/// Enable or disable batch processing mode.
+	bool SetBatchMode(bool state_=true){ return (batch_mode = state_); }
+	
+	/// Main scan control method.
+	void RunControl();
+	
+	/// Main command interpreter method.
+	void CmdControl();
+	
+	/// Setup user options and initialize all required objects.
+	bool Setup(int argc, char *argv[]);
+	
+	/// Run the program.
+	int Execute();
+	
+	/// Shutdown cleanly.
+	bool CloseInterface();
+
   protected:
 	std::string sys_message_head; /// The string to print before program output.
+  
+	Unpacker *core; /// Pointer to class derived from Unpacker class.
   
 	/** ExtraCommands is used to send command strings to classes derived
 	  * from ScanInterface. If ScanInterface receives an unrecognized
@@ -196,69 +197,74 @@ class ScanInterface{
 	  */
 	virtual void Notify(const std::string &code_=""){ }
 
-  public:
-  	/// Default constructor.
-	ScanInterface(Unpacker *core_=NULL);
-	
-	/// Default destructor.
-	virtual ~ScanInterface();
+	virtual Unpacker *GetCore(){ 
+		if(!core){ core = new Unpacker(); }
+		return core;
+	}
 
-	/// Return true if the ScanInterface object has been initialized.
-	bool IsInit(){ return scan_init; }
+  private:
+	unsigned int maxShmSizeL; /// Max size of shared memory buffer in pixie words (4050 + 2 header words)
+	unsigned int maxShmSize; /// Max size of shared memory buffer in bytes
 
-	/// Return true if verbose output mode is enabled.
-	bool IsVerbose(){ return is_verbose; }
-	
-	/// Return true if debug mode is enabled.
-	bool DebugMode(){ return debug_mode; }
-	
-	/// Return true if dry run mode is enabled.
-	bool DryRunMode(){ return dry_run_mode; }
-	
-	/// Return true if shared memory mode is enabled.
-	bool ShmMode(){ return shm_mode; }
-	
-	/// Return true if batch processing mode is enabled.
-	bool BatchMode(){ return batch_mode; }
-	
-	/// Return the header string used to prefix output messages.
-	std::string GetMessageHeader(){ return sys_message_head; }
-	
-	/// Return a pointer to a fileInformation object used to store file header info.
-	fileInformation *GetFileInfo(){ return &finfo; }
+	std::string prefix; /// Input filename prefix (without extension).
+	std::string extension; /// Input file extension.
 
-	/// Set the header string used to prefix output messages.
-	void SetMessageHeader(const std::string &head_){ sys_message_head = head_; }
+	int max_spill_size; /// Maximum size of a spill to read.
+	int file_format; /// Input file format to use (0=.ldf, 1=.pld, 2=.root).
 	
-	/// Enable or disable verbose output mode.
-	bool SetVerboseMode(bool state_=true){ return (is_verbose = state_); }
+	unsigned long num_spills_recvd; /// The total number of good spills received from either the input file or shared memory.
+	unsigned long file_start_offset; /// The first word in the file at which to start scanning.
 	
-	/// Enable or disable debug mode.
-	bool SetDebugMode(bool state_=true){ return (debug_mode = state_); }
+	bool write_counts; /// Set to true if raw channel counts are to be written to file.
+
+	bool total_stopped; /// Set to true if when the scan finishes.
+	bool is_running; /// Set to true if the acqusition is running.
+	bool is_verbose; /// Set to true if the user wishes verbose information to be displayed.
+	bool debug_mode; /// Set to true if the user wishes to display debug information.
+	bool dry_run_mode; /// Set to true if a dry run is to be performed i.e. data is to be read but not processed.
+	bool shm_mode; /// Set to true if shared memory mode is to be used.
+	bool batch_mode; /// Set to true if the program is to be run with no interactive command line.
+	bool scan_init; /// Set to true when ScanInterface is initialized properly and is ready to scan.
+
+	bool kill_all; /// Set to true when user has sent kill command.
+	bool run_ctrl_exit; /// Set to true when run control thread has exited.
+
+	Server *poll_server; /// Poll2 shared memory server.
+
+	std::ifstream *input_file; /// Main input binary data file.
+	std::streampos file_length; /// Main input file length (in bytes).
+
+	fileInformation finfo; /// Data structure for storing binary file header information.
+
+	PLD_header pldHead; /// PLD style HEAD buffer handler.
+	PLD_data pldData; /// PLD style DATA buffer handler.
+	DIR_buffer dirbuff; /// HRIBF DIR buffer handler.
+	HEAD_buffer headbuff; /// HRIBF HEAD buffer handler.
+	DATA_buffer databuff; /// HRIBF DATA buffer handler.
+	EOF_buffer eofbuff; /// HRIBF EOF buffer handler.
+
+	Terminal *term; /// ncurses terminal used for displaying output and handling user input.
+
+	/// Split a string about some delimiter.
+	unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_=' ');
 	
-	/// Enable or disable dry run mode.
-	bool SetDryRunMode(bool state_=true){ return (dry_run_mode = state_); }
+	/// Get the file extension from an input filename string.
+	std::string get_extension(std::string filename_, std::string &prefix);
+
+	/// Start the scan.
+	void start_scan();
 	
-	/// Enable or disable shared memory mode.
-	bool SetShmMode(bool state_=true){ return (shm_mode = state_); }
+	/// Stop the scan.
+	void stop_scan();
 	
-	/// Enable or disable batch processing mode.
-	bool SetBatchMode(bool state_=true){ return (batch_mode = state_); }
+	/// Print a command line argument help dialogue.
+	void help(char *name_);
 	
-	/// Main scan control method.
-	void RunControl();
+	/// Seek to a specified position in the file.
+	bool rewind(const unsigned long &offset_=0);
 	
-	/// Main command interpreter method.
-	void CmdControl();
-	
-	/// Setup user options and initialize all required objects.
-	bool Setup(int argc, char *argv[]);
-	
-	/// Run the program.
-	int Execute();
-	
-	/// Shutdown cleanly.
-	bool CloseInterface();
+	/// Open a new binary input file for reading.
+	bool open_input_file(const std::string &fname_);
 };
 
 #endif
