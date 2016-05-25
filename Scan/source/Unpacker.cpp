@@ -42,10 +42,8 @@ void Unpacker::TimeSort(){
   * \return True if the rawEvent is not empty and false otherwise.
   */
 bool Unpacker::BuildRawEvent(){
-	if(!rawEvent.empty()){
-		std::cout << "BuildRawEvent: Clearing raw event list.\n";
+	if(!rawEvent.empty())
 		ClearRawEvent();
-	}
 
 	unsigned int mod, chan;
 	std::string type, subtype, tag;
@@ -315,7 +313,7 @@ Unpacker::Unpacker(){
 
 /// Destructor.
 Unpacker::~Unpacker(){
-	CloseUnpacker();
+	Close();
 }
 
 /** ReadSpill is responsible for constructing a list of pixie16 events from
@@ -502,7 +500,7 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
   * \param[in]  write_count_file Toggle writting of raw channel counts to file.
   * \return Nothing.
   */
-void Unpacker::CloseUnpacker(bool write_count_file/*=false*/){
+void Unpacker::Close(bool write_count_file/*=false*/){
 	ClearRawEvent();
 	ClearEventList();
 	
