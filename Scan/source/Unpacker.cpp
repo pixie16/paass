@@ -122,9 +122,7 @@ bool Unpacker::AddEvent(XiaEvent *event_){
   * \return Nothing.
   */	
 void Unpacker::ClearEventList(){
-	std::cout << "size=" << eventList.size() << std::endl;
 	for(std::vector<std::deque<XiaEvent*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
-		std::cout << " deque size: " << iter->size() << std::endl;
 		clearDeque((*iter));
 	}
 	eventList.clear();
