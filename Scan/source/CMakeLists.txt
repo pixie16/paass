@@ -21,13 +21,13 @@ target_link_libraries(skeleton PixieScanStatic)
 install (TARGETS skeleton DESTINATION bin)
 
 #Build the scope program and the filterer program
-#if(USE_ROOT)
-#	set(SCOPE_SOURCES scope.cpp)
-#	add_executable(scope ${SCOPE_SOURCES})
-#	target_link_libraries(scope PixieScanStatic ${ROOT_LIBRARIES})
+if(USE_ROOT)
+	set(SCOPE_SOURCES scope.cpp)
+	add_executable(scope ${SCOPE_SOURCES})
+	target_link_libraries(scope PixieScanStatic ${ROOT_LIBRARIES})
 #
 #	add_executable(filterer filterer.cpp)
 #	target_link_libraries(filterer PixieScanStatic ${ROOT_LIBRARIES})
 #	
-#	install(TARGETS scope filterer DESTINATION bin)
-#endif()
+	install(TARGETS scope DESTINATION bin)
+endif()
