@@ -122,7 +122,9 @@ bool Unpacker::AddEvent(XiaEvent *event_){
   * \return Nothing.
   */	
 void Unpacker::ClearEventList(){
+	std::cout << "size=" << eventList.size() << std::endl;
 	for(std::vector<std::deque<XiaEvent*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
+		std::cout << " deque size: " << iter->size() << std::endl;
 		clearDeque((*iter));
 	}
 	eventList.clear();
@@ -316,7 +318,8 @@ Unpacker::Unpacker(){
 
 /// Destructor.
 Unpacker::~Unpacker(){
-	Close();
+	ClearRawEvent();
+	ClearEventList();
 }
 
 /** ReadSpill is responsible for constructing a list of pixie16 events from
@@ -499,23 +502,17 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 	return true;		
 }
 
-/** Empty the raw event and the event list.
-  * \param[in]  write_count_file Toggle writting of raw channel counts to file.
+/** Write all recorded channel counts to a file.
   * \return Nothing.
   */
-void Unpacker::Close(bool write_count_file/*=false*/){
-	ClearRawEvent();
-	ClearEventList();
-	
-	if(write_count_file){ // Write all recorded channel counts to a file.
-		std::ofstream count_output("counts.dat");
-		if(count_output.good()){
-			for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
-				for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
-					count_output << i << "\t" << j << "\t" << channel_counts[i][j] << std::endl;
-				}
+void Unpacker::Write(){
+	std::ofstream count_output("counts.dat");
+	if(count_output.good()){
+		for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
+			for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
+				count_output << i << "\t" << j << "\t" << channel_counts[i][j] << std::endl;
 			}
-			count_output.close();
 		}
+		count_output.close();
 	}
 }

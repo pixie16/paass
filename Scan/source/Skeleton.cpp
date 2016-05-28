@@ -54,8 +54,6 @@ skeletonScanner::~skeletonScanner(){
 	if(init){
 		// Handle some cleanup.
 	}
-
-	GetCore()->Close(); // Close the Unpacker object.
 }
 
 /** ExtraCommands is used to send command strings to classes derived

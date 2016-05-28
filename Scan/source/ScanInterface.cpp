@@ -910,7 +910,8 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	if(!Initialize(msgHeader)){ // Failed to initialize the object. Clean up and exit.
 		std::cout << " FATAL ERROR! Failed to initialize derived class!\n";
 		std::cout << "\nCleaning up...\n";
-		core->Close(write_counts);
+		if(write_counts)
+			core->Write();
 		return false;
 	}
 
@@ -919,7 +920,8 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 		if(!poll_server->Init(5555, 1)){
 			std::cout << " FATAL ERROR! Failed to open shm socket 5555!\n";
 			std::cout << "\nCleaning up...\n";
-			core->Close(write_counts);
+			if(write_counts)
+				core->Write();
 			return false;
 		}	
 		if(batch_mode){
@@ -1031,7 +1033,8 @@ bool ScanInterface::Close(){
 	std::cout << msgHeader << "Read " << databuff.GetNumChunks() << " spill chunks.\n";
 	std::cout << msgHeader << "Lost at least " << databuff.GetNumMissing() << " spill chunks.\n";
 	
-	core->Close(write_counts);
+	if(write_counts)
+		core->Write();
 	
 	if(poll_server){ delete poll_server; }
 	if(term){ delete term; }
