@@ -19,7 +19,7 @@
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.26"
+#define SCAN_VERSION "1.2.27"
 #define SCAN_DATE "May 28th, 2016"
 
 class Server;
@@ -253,6 +253,7 @@ class ScanInterface{
 	bool shm_mode; /// Set to true if shared memory mode is to be used.
 	bool batch_mode; /// Set to true if the program is to be run with no interactive command line.
 	bool scan_init; /// Set to true when ScanInterface is initialized properly and is ready to scan.
+	bool file_open; /// Set to true when an input binary file is successfully opened for reading.
 
 	bool kill_all; /// Set to true when user has sent kill command.
 	bool run_ctrl_exit; /// Set to true when run control thread has exited.
