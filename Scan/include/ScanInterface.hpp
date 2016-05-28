@@ -19,7 +19,7 @@
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.23"
+#define SCAN_VERSION "1.2.24"
 #define SCAN_DATE "May 28th, 2016"
 
 class Server;
@@ -122,15 +122,15 @@ class ScanInterface{
 	/** Add a channel event to the deque of events to send to the processors.
 	  * This method should only be called from Unpacker::ProcessRawEvent().
 	  * \param[in]  event_ The raw XiaEvent to add. Unused by default.
-	  * \return Nothing.
+	  * \return False if not overwritten.
 	  */
-	virtual void AddEvent(XiaEvent *event_){  }
+	virtual bool AddEvent(XiaEvent *event_){ return false; }
 	
 	/** Process all channel events read in from the rawEvent.
 	  * This method should only be called from Unpacker::ProcessRawEvent().
-	  * \return Nothing.
+	  * \return False if not overwritten.
 	  */
-	virtual void ProcessEvents(){  }
+	virtual bool ProcessEvents(){ return false; }
 
   protected:
 	std::string msgHeader; /// The string to print before program output.
