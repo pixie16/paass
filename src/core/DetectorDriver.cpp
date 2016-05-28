@@ -382,6 +382,12 @@ void DetectorDriver::ProcessEvent(RawEvent& rawev) {
         iProc != vecProcess.end(); iProc++)
             if ( (*iProc)->HasEvent() )
                 (*iProc)->Process(rawev);
+        // Clear all places in correlator (if of resetable type)
+	for (map<string, Place*>::iterator it = 
+		 TreeCorrelator::get()->places_.begin(); 
+	     it != TreeCorrelator::get()->places_.end(); ++it)
+	    if ((*it).second->resetable())
+                (*it).second->reset();
     } catch (GeneralException &e) {
         /// Any exception in activation of basic places, PreProcess and Process
         /// will be intercepted here
