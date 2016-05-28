@@ -16,6 +16,7 @@
 
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "Unpacker.hpp"
 #include "poll2_socket.h"
@@ -377,6 +378,13 @@ Unpacker *ScanInterface::GetCore(){
 ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 	prefix = "";
 	extension = "";
+	
+	// Get the current working directory.
+	char workingDirectory[1024];
+	workDir = std::string(getcwd(workingDirectory, 1024));
+	
+	// Get the home directory.
+	homeDir = getenv("HOME");
 
 	maxShmSizeL = 4052;
 	maxShmSize  = maxShmSizeL * 4;
@@ -717,7 +725,11 @@ void ScanInterface::CmdControl(){
 
 		if(cmd == ""){ continue; }
 		
-		size_t index = cmd.find(" ");
+		// Replace the '~' with the user's home directory.
+		if(cmd.find('~') != std::string::npos)
+			cmd.replace(cmd.find('~'), 1, homeDir);
+		
+		size_t index = cmd.find(' ');
 		if(index != std::string::npos){
 			arg = cmd.substr(index+1, cmd.size()-index); // Get the argument from the full input string
 			cmd = cmd.substr(0, index); // Get the command from the full input string

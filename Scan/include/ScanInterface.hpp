@@ -19,8 +19,8 @@
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.22"
-#define SCAN_DATE "May 25th, 2016"
+#define SCAN_VERSION "1.2.23"
+#define SCAN_DATE "May 28th, 2016"
 
 class Server;
 class Terminal;
@@ -234,6 +234,8 @@ class ScanInterface{
 
 	std::string prefix; /// Input filename prefix (without extension).
 	std::string extension; /// Input file extension.
+	std::string workDir; /// Linux system current working directory.
+	std::string homeDir; /// Linux user home directory.
 
 	int max_spill_size; /// Maximum size of a spill to read.
 	int file_format; /// Input file format to use (0=.ldf, 1=.pld, 2=.root).
