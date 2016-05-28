@@ -139,18 +139,23 @@ std::string ScanInterface::get_extension(std::string filename_, std::string &pre
   * \return Nothing.
   */
 void ScanInterface::start_scan(){
-	if(!scan_init){ std::cout << " Not initialized!\n"; }
-	else if(!input_file.good()){ std::cout << " No input file loaded\n"; }
-	else if(is_running){ std::cout << " Already running.\n"; }
+	if(!file_open)
+		std::cout << " No input file loaded.\n";
+	else if(!input_file.good())
+		std::cout << " Error reading from input file!\n";
+	else if(input_file.eof())
+		std::cout << " Physical end-of-file reached.\n";
+	else if(is_running)
+		std::cout << " Already running.\n";
 	else{
 		core->Run();
 		is_running = true;
 		total_stopped = false;
 		if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for Unpacker..."); }
+		
+		// Notify that the user has started the scan.
+		Notify("START_SCAN");		
 	}
-	
-	// Notify that the user has started the scan.
-	Notify("START_SCAN");
 }
 
 /** Stop the scan, if it is running.
@@ -216,11 +221,7 @@ bool ScanInterface::rewind(const unsigned long &offset_/*=0*/){
   * \return True upon successfully opening the file and false otherwise.
   */
 bool ScanInterface::open_input_file(const std::string &fname_){
-	if(!scan_init){
-		std::cout << " ERROR! ScanInterface is not initialized!\n";
-		return false;
-	}
-	else if(is_running){ 
+	if(is_running){ 
 		std::cout << " ERROR! Unable to open input file while scan is running.\n"; 
 		return false;
 	}
@@ -250,16 +251,19 @@ bool ScanInterface::open_input_file(const std::string &fname_){
 	}
 
 	// Close the previous file, if one is open.
-	if(input_file){
+	if(file_open){
 		std::cout << " Note: Closing previously opened file.\n";
 		input_file.close();
 	}
+
+	file_open = true;
 
 	// Load the input file.
 	input_file.open(fname_.c_str(), std::ios::binary);
 	if(!input_file.is_open() || !input_file.good()){
 		std::cout << " ERROR! Failed to open input file '" << fname_ << "'! Check that the path is correct.\n";
 		input_file.close();
+		file_open = false;
 		return false;
 	}
 	input_file.seekg(0, input_file.end);
@@ -406,6 +410,7 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 	shm_mode = false;
 	batch_mode = false;
 	scan_init = false;
+	file_open = false;
 
 	kill_all = false;
 	run_ctrl_exit = false;
@@ -905,7 +910,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 			return false;
 		}
 	}
-	
+
 	// Initialize everything.
 	std::cout << msgHeader << "Initializing derived class.\n";
 	if(!Initialize(msgHeader)){ // Failed to initialize the object. Clean up and exit.
@@ -966,7 +971,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 		}
 		else{ std::cout << msgHeader << "Failed to load input file!\n"; }
 	}
-
+	
 	return true;
 }
 
