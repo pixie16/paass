@@ -128,15 +128,15 @@ class skeletonScanner : public ScanInterface {
 	/** Add a channel event to the deque of events to send to the processors.
 	  * This method should only be called from skeletonUnpacker::ProcessRawEvent().
 	  * \param[in]  event_ The raw XiaEvent to add to the channel event deque.
-	  * \return Nothing.
+	  * \return False.
 	  */
-	virtual void AddEvent(XiaEvent *event_);
+	virtual bool AddEvent(XiaEvent *event_);
 	
 	/** Process all channel events read in from the rawEvent.
 	  * This method should only be called from skeletonUnpacker::ProcessRawEvent().
-	  * \return Nothing.
+	  * \return False.
 	  */
-	virtual void ProcessEvents();
+	virtual bool ProcessEvents();
 
   private:
 	bool init; /// Set to true when the initialization process successfully completes.

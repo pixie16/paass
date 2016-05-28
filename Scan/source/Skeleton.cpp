@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include "XiaEvent.hpp"
+
 // Local files
 #include "Skeleton.hpp"
 
@@ -30,7 +32,8 @@ void skeletonUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/){
 		if(!current_event){ continue; }
 
 		// Send the event to the scan interface object for processing.
-		addr_->AddEvent(current_event);
+		if(addr_->AddEvent(current_event))
+			addr_->ProcessEvents();
 	}
 	
 	// Finish up with this raw event.
@@ -168,20 +171,25 @@ Unpacker *skeletonScanner::GetCore(){
 /** Add a channel event to the deque of events to send to the processors.
   * This method should only be called from skeletonUnpacker::ProcessRawEvent().
   * \param[in]  event_ The raw XiaEvent to add to the channel event deque.
-  * \return Nothing.
+  * \return False.
   */
-void skeletonScanner::AddEvent(XiaEvent *event_){
-	if(!event_){ return; }
+bool skeletonScanner::AddEvent(XiaEvent *event_){
+	if(!event_){ return false; }
 
 	// Handle the individual XiaEvent. Maybe add it to a detector's event list or something.
+	// Do nothing with it for now.
+	delete event_;
+	
+	return false;
 }
 
 /** Process all channel events read in from the rawEvent.
   * This method should only be called from skeletonUnpacker::ProcessRawEvent().
-  * \return Nothing.
+  * \return False.
   */
-void skeletonScanner::ProcessEvents(){
+bool skeletonScanner::ProcessEvents(){
 	// Process all of the events added so far.
+	return false;
 }
 
 int main(int argc, char *argv[]){
