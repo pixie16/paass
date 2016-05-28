@@ -299,6 +299,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 
 Unpacker::Unpacker(){
 	debug_mode = false;
+	running = true;
 
 	TOTALREAD = 1000000; // Maximum number of data words to read.
 	maxWords = 131072; // Maximum number of data words for revision D.	

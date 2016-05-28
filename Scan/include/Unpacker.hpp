@@ -42,6 +42,8 @@ class Unpacker{
 	/// Return the width of the raw event window in pixie16 clock ticks.
 	unsigned int GetEventWidth(){ return eventWidth; }
 
+	bool IsRunning(){ return running; }
+
 	/// Toggle debug mode on / off.
 	bool SetDebugMode(bool state_=true){ return (debug_mode = state_); }
 	
@@ -67,10 +69,21 @@ class Unpacker{
 	  */
 	void Close(bool write_count_file=false);
 	
+	/** Stop the scan. Unused by default.
+	  * \return Nothing.
+	  */
+	void Stop(){ running = false; }
+	
+	/** Run the scan. Unused by default.
+	  * \return Nothing.
+	  */
+	void Run(){ running = true; }
+	
   protected:
 	unsigned int eventWidth; /// The width of the raw event in pixie clock ticks (8 ns).
 	
 	bool debug_mode; /// True if debug mode is set.
+	bool running; /// True if the scan is running.
 
 	std::vector<std::deque<XiaEvent*> > eventList; /// The list of all events in a spill.
 	std::deque<XiaEvent*> rawEvent; /// The list of all events in the event window.
