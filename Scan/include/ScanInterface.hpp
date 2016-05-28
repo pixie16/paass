@@ -19,7 +19,7 @@
 
 #include "hribf_buffers.h"
 
-#define SCAN_VERSION "1.2.25"
+#define SCAN_VERSION "1.2.26"
 #define SCAN_DATE "May 28th, 2016"
 
 class Server;

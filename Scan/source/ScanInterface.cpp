@@ -742,6 +742,7 @@ void ScanInterface::CmdControl(){
 		unsigned int p_args = split_str(arg, arguments);
 		
 		if(cmd == "quit" || cmd == "exit"){
+			stop_scan();
 			kill_all = true;
 			while(!run_ctrl_exit){ sleep(1); }
 			break;
