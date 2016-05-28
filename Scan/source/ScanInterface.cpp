@@ -143,6 +143,7 @@ void ScanInterface::start_scan(){
 	else if(!input_file.good()){ std::cout << " No input file loaded\n"; }
 	else if(is_running){ std::cout << " Already running.\n"; }
 	else{
+		core->Run();
 		is_running = true;
 		total_stopped = false;
 		if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for Unpacker..."); }
@@ -159,6 +160,7 @@ void ScanInterface::stop_scan(){
 	if(!scan_init){ std::cout << " Not initialized!\n"; }
 	else if(!is_running){ std::cout << " Not running.\n"; }
 	else{
+		core->Stop();
 		is_running = false;
 	}
 	
