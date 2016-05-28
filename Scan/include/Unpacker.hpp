@@ -63,11 +63,10 @@ class Unpacker{
 	  */	
 	bool ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbose=true);
 	
-	/** Empty the raw event and the event list.
-	  * \param[in]  write_count_file Toggle writting of raw channel counts to file.
+	/** Write all recorded channel counts to a file.
 	  * \return Nothing.
 	  */
-	void Close(bool write_count_file=false);
+	void Write();
 	
 	/** Stop the scan. Unused by default.
 	  * \return Nothing.
