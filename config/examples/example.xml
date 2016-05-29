@@ -63,7 +63,6 @@
          for each processor or analyzer you want to use.
 
          List of known Processors:
-            * BeamLogicProcessor
             * BetaScintProcessor
             * DssdProcessor
             * GeProcessor
@@ -88,11 +87,10 @@
             * IonChamberProcessor
             * LiquidScintProcessor
             * LogicProcessor
-            * McpProcessor
-            * MtcProcessor
                * optional attributes and their default values:
                   * double_stop="False"
                   * double_start="False"
+            * McpProcessor
             * NeutronScintProcessor
             * PositionProcessor
             * PulserProcessor
@@ -107,18 +105,7 @@
             With useroot compiler flag:
             * RootProcessor
          List of known Analyzers:
-            * TraceFilterer
-               * mandatory attributes and their default values:
-                  * gain_match="1.0"
-                  * fast_rise="10"
-                  * fast_gap="10"
-                  * fast_threshold="50"
-                  * energy_rise="50"
-                  * energy_gap="50"
-               * optional attributes and their default values:
-                  * slow_rise="20"
-                  * slow_gap="20"
-                  * slow_threshold="10"
+            * TraceFilterAnalyzer
             * DoubleTraceAnalyzer
                 * see TraceFilterer
             * TauAnalyzer
@@ -235,8 +222,8 @@
     </Map>
 
     <!-- Information :
-        Here is where we are going to set all of the parameters for the timing
-        calibrations. This includes all the VANDLE Bars, liquid scintillators,
+        Information for time calibrations are set here. 
+	This includes all the VANDLE Bars, liquid scintillators,
         etc. Eventually, this will be updated and expanded based on
         different VANDLE orientations (i.e. parallel/perpendicular to beam)
 
@@ -255,57 +242,110 @@
     </TimeCalibration>
 
     <!-- Instructions:
-        These are all parameters that are necessary for handling the high
-        resolution timing algorithms, VANDLE calculations, trace analysis, etc.
-        These values will be accessed through the Globals class. Since they will
-        be useful parameters to have in various stages of the code.
+	 This node contains a lot of physical information that will be useful 
+	 in the analysis. At the moment it mostly contains information that is
+	 used for timing analysis for VANDLE bars. 
 
-        NOTE: There is currently no error checking on the units for these
-        parameters. It up to the user to make sure they are correct!!
+	 Recognized parameters:
+	 * NeutronMass - mass of the neutron in MeV/c/c
+	 * SpeedOfLight - Speed of light in cm/ns
+	 * SpeedOfLightSmall - Speed of light in a small VANDLE module in cm/ns
+	 * SpeedOfLightMedium - Speed of light in a medium VANDLE module in cm/ns
+	 * SpeedOfLightBig - Speed of light in a big VANDLE module in cm/ns
+	 * SmallLength - Physical length of a small VANDLE bar in cm. 
+	 * MediumLength - Physical length of a medium VANDLE bar in cm. 
+	 * BigLength - Physical length of a big VANDLE bar in cm. 
+	 
+         NOTE: There is currently no error checking on the units for these
+         parameters. It up to the user to make sure they are correct!!
     -->
-    <Timing>
-        <Physical>
-            <NeutronMass unit="MeV/c/c" value="939.565560"/>
-            <SpeedOfLight unit="cm/ns" value="29.9792458"/>
-            <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
-            <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
-            <SmallLength unit="cm" value="60.0"/>
-            <MediumLength unit="cm" value="120.0"/>
-            <BigLength unit="cm" value="200.0"/>
-        </Physical>
+    <Physical>
+      <NeutronMass unit="MeV/c/c" value="939.565560"/>
+      <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+      <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+      <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+      <SmallLength unit="cm" value="60.0"/>
+      <MediumLength unit="cm" value="120.0"/>
+      <BigLength unit="cm" value="200.0"/>
+    </Physical>
 
-        <Trace>
-            <TraceDelay unit="ns" value="344"/>
-            <TraceLength unit="ns" value="496"/>
-        </Trace>
+    <!-- Instructions:
+	 This node contains information related to traces. All of the information
+	 input into this node related to times should be in nanoseconds (ns). 
+	 
+	 Recognized parameters: 
+	 * DiscriminationStart - The starting point referenced from the max value 
+	                         in trace for pulse shape discrimination sums. 
+	                         Default = 3;
+	 * TrapezoidalWalk - The "walk" of the trapezoidal filter in ns. This is 
+	                     used when finding the waveform in the trace. It 
+	                     accounts for the fact that low amplitude signals 
+	                     come later in the trace. Default = 266
+	 * TraceDelay - The value of the trace delay from the set file used to 
+	                take the data. No Default value
+	 * TraceLength - How long the traces are. Taken from the set file. No 
+	                 Default value
+	 * QdcCompression - Compression value for the trace QDC used when 
+             	            plotting into DAMM histograms. Can be used to make 
+	                    histograms smaller. Default value is 1.0
+	 * Waveform Range - The range that the waveform has in the trace. It is 
+	                    taken as [MaxPosition - Low, MaxPosition+High]. 
+	                    Default value is [5,10].
+	 * TrapFilters - Parameters for the two trapezoidal filters used in 
+                       	 conjunction with TraceFilter. There is a trigger and 
+	                 energy filter. They work nearly identically to Pixie.
+	                 
 
-        <Fitting>
-            <Parameters>
-                <Pars name="vandle:small">
-                  <Beta value="0.32969"/>
-                  <Gamma value="0.212945"/>
-                </Pars>
-            </Parameters>
-        </Fitting>
-    </Timing>
-
-    <Filter>
-        <energyScaleFactor value="2.547"/>
-        <fast>
-            <rise value="10"/>
-            <gap value="10"/>
-            <threshold value="50"/>
-        </fast>
-        <energy>
-            <rise value="25"/>
-            <gap value="25"/>
-        </energy>
-        <secondFast>
-            <rise value="20"/>
-            <gap value="20"/>
-            <threshold value="10"/>
-        </secondFast>
-    </Filter>
+         NOTE: There is currently no error checking on the units for these
+         parameters. It up to the user to make sure they are correct!!
+    -->
+    <Trace>
+      <TraceDelay unit="ns" value="344"/>
+      <TraceLength unit="ns" value="496"/>
+      <WaveformRange>
+	<Range name="pulser:start">
+	  <Low value="5" />
+	  <High value="10"/>
+	</Range>
+      </WaveformRange>
+      <TrapFilters> 
+	<Pars name="pulser:start">
+	  <Trigger l="125" g="125" t="10" unit="ns"/>
+	  <Energy l="300" g="300" t="50" unit="ns"/>
+	</Pars>
+	<Pars name="pulser:start">
+	  <Trigger l="125" g="125" t="10" unit="ns"/>
+	  <Energy l="300" g="300" t="50" unit="ns"/>
+	</Pars>
+      </TrapFilters>
+    </Trace>
+    
+    <!-- Instructions:
+	 This node contains information necessary for the high resolution 
+	 fitting of traces. 
+	 
+	 Recognized Parameters: 
+	 * SigmaBaselineThresh - The maximum acceptable standard deviation of 
+	                         the trace baseline for the analysis.
+	 * SiPmtSigmaBaselineThresh - The maximum acceptable standard deviation
+	                              of the trace baseline for SiPm fast 
+	                              signals.
+	 * Parameters - Fitting parameters for the standard VANDLE fitting 
+	                function. The name should correspond to a
+	                detector type:subtype combination defined in the map. 
+         NOTE: There is currently no error checking on the units for these
+         parameters. It up to the user to make sure they are correct!!
+      -->
+    <Fitting>
+      <SigmaBaselineThresh value="3.0"/>
+      <SiPmtSigmaBaselineThresh value = "25.0"/>
+      <Parameters>
+        <Pars name="vandle:small">
+          <Beta value="0.32969"/>
+          <Gamma value="0.212945"/>
+        </Pars>
+      </Parameters>
+    </Fitting>
 
     <!-- Instructions:
         Create here tree of "places" build of <Place> elements for
