@@ -286,7 +286,8 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         } else if (name == "TraceExtractor") {
             string type = analyzer.attribute("type").as_string();
             string subtype = analyzer.attribute("subtype").as_string();
-            vecAnalyzer.push_back(new TraceExtractor(type, subtype));
+            string tag = analyzer.attribute("tag").as_string();
+            vecAnalyzer.push_back(new TraceExtractor(type, subtype,tag));
         } else if (name == "WaveformAnalyzer") {
             vecAnalyzer.push_back(new WaveformAnalyzer());
         } else if (name == "FittingAnalyzer") {
@@ -482,7 +483,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
 
         for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
             it != vecAnalyzer.end(); it++) {
-            (*it)->Analyze(trace, type, subtype,tags);
+            (*it)->Analyze(trace, type, subtype, tags);
         }
 
         if (trace.HasValue("filterEnergy") ) {
