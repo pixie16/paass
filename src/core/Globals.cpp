@@ -179,7 +179,7 @@ Globals::Globals() {
 		        std::make_pair(waveit->child("Low").attribute("value").as_int(5),
 			waveit->child("High").attribute("value").as_int(10))));
 		}
-	    } else if (std::string(it->name()).compare("Filters") == 0) { 
+	    } else if (std::string(it->name()).compare("TrapFilters") == 0) { 
 		for(pugi::xml_node_iterator trapit = it->begin();
 		    trapit != it->end(); ++trapit) {
 		    pugi::xml_node trig = trapit->child("Trigger");
