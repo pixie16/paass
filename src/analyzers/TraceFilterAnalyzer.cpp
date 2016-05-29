@@ -45,17 +45,16 @@ void TraceFilterAnalyzer::Analyze(Trace &trace, const std::string &type,
                                   const std::string &subtype,
                                   const std::map<std::string,int> &tagmap) {
     TraceAnalyzer::Analyze(trace, type, subtype, tagmap);
+    Globals *globs = Globals::get();
     static int numTrigFilters = 0;
     static int rejectedTraces = 0;
-    static unsigned short numTraces = Globals::get()->numTraces();
-
-    //Filter parameters in nanoseconds
-    TrapFilterParameters trigPars(124,125,25);
-    TrapFilterParameters enPars(128,128,50);
+    static unsigned short numTraces = globs->numTraces();
+    pair<TrapFilterParameters, TrapFilterParameters> pars =
+	globs->trapFiltPars(type+":"+subtype);
 
     //Want to put filter clock units of ns/Sample
     TraceFilter filter(Globals::get()->filterClockInSeconds()*1e9,
-		       trigPars,enPars);
+		       pars.first,pars.second);
     filter.CalcFilters(&trace);
     trace.SetValue("triggerPosition", (int)filter.GetTriggerPosition());
 
