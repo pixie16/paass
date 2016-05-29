@@ -178,16 +178,10 @@ namespace dammIds {
         const int RANGE = 150; //!< Range for the traces
         const int traceBins = SA; //!< Number of Bins for Traces
 
-        namespace tracefilterer {
-            const int DD_TRACE = 0;//!< traces
-            const int DD_FILTER1 = 1;//!< results for filter 1
-            const int DD_FILTER2 = 2;//!< results for filter 2
-            const int DD_FILTER3 = 3;//!< results for filter 3
-            const int DD_AVERAGE_TRACE = 4;//!< average trace
-            const int DD_REJECTED_TRACE = 5;//!< rejected traces
-            const int DD_ENERGY__BOARD_FILTER = 6;//!< energy of onboard filter
-            const int D_RATIO_BOARD_FILTER = 7;//!< ratio between onboard filter and ours
-            const int D_ENERGY1 = 8; //!< distributions of energy 1
+        namespace tracefilteranalyzer {
+            const int DD_TRIGGER_FILTER = 0;//!< Trigger Filter
+            const int DD_ENERGY_FILTER = 1;//!< Energy Filter (not implemented)
+            const int DD_REJECTED_TRACE = 2;//!< Traces with Trig Time = 0
         }
 
         namespace doubletraceanalyzer {

@@ -29,40 +29,42 @@
 #include <vector>
 #include <utility>
 
+#include "Trace.hpp"
 #include "TrapFilterParameters.hpp"
 
 /*! The class to perform the filtering */
 class TraceFilter {
 public:
     TraceFilter(){};
-    TraceFilter(const int &adcSample){adc_ = adcSample;};
-    TraceFilter(const unsigned int &adc, 
+    TraceFilter(const int &nsPerSample){nsPerSample_ = nsPerSample;}
+    TraceFilter(const unsigned int &nsPerSample, 
                 const TrapFilterParameters &tFilt,
-                const TrapFilterParameters &eFilt);
+                const TrapFilterParameters &eFilt,
+		const bool verbose=false);
     ~TraceFilter(){};
 
-    double GetAdcSample(void){return(adc_);};
-    double GetBaseline(void){return(baseline_);};
-    double GetEnergy(void){return(energy_);};
-    unsigned int GetTriggerPosition(void){return(trigPos_);};
-    std::vector<double> GetTriggerFilter(void) {return(trigFilter_);};
-    std::vector<double> GetEnergyFilterCoefficients(void) {return(coeffs_);};
-    std::vector<double> GetEnergySums(void) {return(esums_);};
-    std::vector<unsigned int> GetEnergySumLimits(void){return(limits_);};
+    double GetNsPerSample(void){return(nsPerSample_);}
+    double GetBaseline(void){return(baseline_);}
+    double GetEnergy(void){return(energy_);}
+    unsigned int GetTriggerPosition(void){return(trigPos_);}
+    std::vector<double> GetTriggerFilter(void) {return(trigFilter_);}
+    std::vector<double> GetEnergyFilterCoefficients(void) {return(coeffs_);}
+    std::vector<double> GetEnergySums(void) {return(esums_);}
+    std::vector<unsigned int> GetEnergySumLimits(void){return(limits_);}
 
-    void CalcFilters(const std::vector<double> *sig);
+    void CalcFilters(const Trace *sig);
     
-    void SetAdcSample(const double &a){adc_ = a;};
-    void SetSig(const std::vector<double> *sig){sig_ = sig;};
-    void SetVerbose(const bool &a){loud_ = a;};
+    void SetNsPerSample(const double &a){nsPerSample_ = a;}
+    void SetSig(const Trace *sig){sig_ = sig;}
+    void SetVerbose(const bool &a){loud_ = a;}
 private:
     bool loud_, finishedConvert_;
-    unsigned int adc_, trigPos_;
+    unsigned int nsPerSample_, trigPos_;
     double baseline_, energy_;
 
     TrapFilterParameters e_, t_;
     
-    const std::vector<double> *sig_;
+    const Trace *sig_;
     std::vector<double> coeffs_, trigFilter_, esums_;
     std::vector<unsigned int> limits_;
     

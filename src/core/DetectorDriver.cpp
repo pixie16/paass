@@ -489,22 +489,10 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
             if (trace.GetValue("filterEnergy") > 0) {
                 energy = trace.GetValue("filterEnergy");
                 plot(D_FILTER_ENERGY + id, energy);
-
-                /** These plots are used to determine (or check) the
-                 * gain_match parameter to match the filter
-                 * and onboard amplitudes
-                 */
-                using namespace dammIds::trace::tracefilterer;
-                double board_energy = chan->GetEnergy();
-                trace.plot(DD_ENERGY__BOARD_FILTER,
-                            board_energy / 10.0, energy / 10.0);
-                trace.plot(D_RATIO_BOARD_FILTER,
-                            board_energy / energy * 100.0);
-
                 trace.SetValue("filterEnergyCal",
                     cali.GetCalEnergy(chanId, trace.GetValue("filterEnergy")));
             } else {
-                energy = 2;
+                energy = 0.0;
             }
 
             /** Calibrate pulses numbered 2 and forth,
@@ -526,7 +514,6 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
             chan->SetEnergy(energy);
         } else if (!trace.HasValue("filterEnergy")) {
             energy = chan->GetEnergy() + randoms->Get();
-            energy /= Globals::get()->energyContraction();
         }
 
         if (trace.HasValue("phase") ) {
@@ -536,14 +523,11 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
 				 chan->GetTrigTime() *
 				  Globals::get()->filterClockInSeconds())*1.e9);
         }
-
     } else {
         /// otherwise, use the Pixie on-board calculated energy
         /// add a random number to convert an integer value to a
         ///   uniformly distributed floating point
-
         energy = chan->GetEnergy() + randoms->Get();
-        energy /= Globals::get()->energyContraction();
 	chan->SetHighResTime(0.0);
     }
 
@@ -573,25 +557,17 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
         if (summary != NULL)
             summary->AddEvent(chan);
     }
-
     return(1);
 }
 
 int DetectorDriver::PlotRaw(const ChanEvent *chan) {
-    int id = chan->GetID();
-    float energy = chan->GetEnergy() / Globals::get()->energyContraction();
-
-    plot(D_RAW_ENERGY + id, energy);
-
-    return 0;
+    plot(D_RAW_ENERGY + chan->GetID(), chan->GetEnergy());
+    return(0);
 }
 
 int DetectorDriver::PlotCal(const ChanEvent *chan) {
-    int id = chan->GetID();
-    float calEnergy = chan->GetCalEnergy();
-
-    plot(D_CAL_ENERGY + id, calEnergy);
-    return 0;
+    plot(D_CAL_ENERGY + chan->GetID(), chan->GetCalEnergy());
+    return(0);
 }
 
 EventProcessor* DetectorDriver::GetProcessor(const std::string& name) const {
