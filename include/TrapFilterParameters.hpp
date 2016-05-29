@@ -15,7 +15,7 @@
   **************************************************************************
 */
 /** \file TraceFilter.hpp
- *  \brief A class to hold parameters for a trapezoidal filter
+ *  \brief A class to hold parameters for a trapezoidal filter in units of ns
  *  \author S. V. Paulauskas
  *  \date May 21, 2016
  *
@@ -28,6 +28,7 @@ public:
     //!Default Constructor
     TrapFilterParameters(){};
     //!Constructor accepting risetime, flattop, and tau/threshold parameters
+    //!in units of nanoseconds.
     TrapFilterParameters(const double &l, const double &g, const double &t){
         l_ = l;
         g_ = g;
