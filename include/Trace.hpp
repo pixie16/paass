@@ -35,21 +35,21 @@ public:
     /** Insert a value into the trace map
     * \param [in] name : the name of the parameter to insert
     * \param [in] value : the value to insert into the map */
-    void InsertValue(std::string name, double value) {
+    void InsertValue(const std::string &name, const double &value) {
         doubleTraceData.insert(make_pair(name,value));
     }
 
     /** Insert an int value into the trace
     * \param [in] name : the name of the variable to insert
     * \param [in] value : The integer value to insert into the map */
-    void InsertValue(std::string name, int value) {
+    void InsertValue(const std::string &name, const int &value) {
         intTraceData.insert(make_pair(name,value));
     }
 
     /** Set the double value of a parameter in the trace
     * \param [in] name : the name of the parameter to set
     * \param [in] value : the double value to set the parameter to */
-    void SetValue(std::string name, double value) {
+    void SetValue(const std::string &name, const double &value) {
         if(doubleTraceData.count(name) > 0)
             doubleTraceData[name] = value;
         else
@@ -59,7 +59,7 @@ public:
     /** Set the integer value of a parameter in the trace
     * \param [in] name : the name of the parameter to set
     * \param [in] value : the int value to set the parameter to */
-    void SetValue(std::string name, int value) {
+    void SetValue(const std::string &name, const int &value) {
         if(intTraceData.count(name) > 0)
             intTraceData[name] = value;
         else
@@ -69,7 +69,7 @@ public:
     /** Checks to see if a parameter has a value
     * \param [in] name : the name of the parameter to check for
     * \return true if the value exists in the trace */
-    bool HasValue(std::string name) const {
+    bool HasValue(const std::string &name) const {
         return (doubleTraceData.count(name) > 0 ||
                 intTraceData.count(name) > 0);
     }
@@ -77,7 +77,7 @@ public:
     /** Returns the value of the requested parameter
     * \param [in] name : the name of the parameter to get for
     * \return the requested value */
-    double GetValue(std::string name) const {
+    double GetValue(const std::string &name) const {
         if(doubleTraceData.count(name) > 0)
             return (*doubleTraceData.find(name)).second;
         if(intTraceData.count(name) > 0)
@@ -173,12 +173,17 @@ public:
     * \param [in] offset : the offset for the trace*/
     void OffsetPlot(int id, int row, double offset);
 
+    void SetTriggerFilter(const std::vector<double> &a){trigFilter_ = a;}
+    void SetEnergySums(const std::vector<double> &a){esums_ = a;}
+
 private:
     static const unsigned int numBinsBaseline = 15; //!< Number of bins in the baseline
     unsigned int baselineLow; //!< low range for the baseline
     unsigned int baselineHigh;//!< high range for the baseline
 
     std::vector<double> waveform; //!< The waveform inside the trace
+    std::vector<double> trigFilter_; //!< The trigger filter for the trace
+    std::vector<double> esums_; //!< The Energy sums calculated from the trace
 
     std::map<std::string, double> doubleTraceData; //!< Trace data stored as doubles
     std::map<std::string, int>    intTraceData;//!< Trace data stored as ints

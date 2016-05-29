@@ -4,17 +4,20 @@
  */
 #include <iostream>
 
+#include <sys/times.h>
+#include <unistd.h>
+
 #include "Exceptions.hpp"
 #include "Globals.hpp"
 
 Globals* Globals::instance = NULL;
 
 Globals::Globals() {
+    sysClockFreqInHz_ = sysconf(_SC_CLK_TCK);
     clockInSeconds_ = -1;
     adcClockInSeconds_ = -1;
     filterClockInSeconds_ = -1;
     eventInSeconds_ = -1;
-    energyContraction_ = 1.0;
     hasReject_ = false;
     hasRaw_ = true;
     revision_ = "None";
@@ -90,8 +93,6 @@ Globals::Globals() {
                    << " pixie16 clock tics.";
                 m.detail(ss.str());
                 ss.str("");
-            } else if (std::string(it->name()).compare("EnergyContraction") == 0) {
-                energyContraction_ = it->attribute("value").as_double(1);
             } else if (std::string(it->name()).compare("Path") == 0) {
                 configPath_ =  it->text().get();
                 m.detail("Path to other configuration files: " + configPath_);
@@ -250,16 +251,6 @@ void Globals::SanityCheck() {
         m.detail(ss.str());
     } else {
         ss << "Not using rejection regions";
-        m.detail(ss.str());
-    }
-
-    ss.str("");
-    if (energyContraction_ <= 0) {
-        ss << "Globals: Surely you don't want to use Energy contraction = "
-            << energyContraction_ << ". I'd better stop the program.";
-        throw GeneralException(ss.str());
-    } else {
-        ss << "Energy contraction: " << energyContraction_;
         m.detail(ss.str());
     }
 

@@ -16,7 +16,7 @@
 #include "TraceFilterAnalyzer.hpp"
 
 using namespace std;
-using namespace dammIds::trace::tracefilterer;
+using namespace dammIds::trace::tracefilteranalyzer;
 
 TraceFilterAnalyzer::TraceFilterAnalyzer(const TrapFilterParameters &t,
                                          const TrapFilterParameters &e) :
@@ -27,85 +27,53 @@ TraceFilterAnalyzer::TraceFilterAnalyzer(const TrapFilterParameters &t,
 }
 
 void TraceFilterAnalyzer::DeclarePlots(void) {
-    const int energyBins = SE;
-    const int energyBins2 = SB;
-    const int traceBins = dammIds::trace::traceBins;
-
     //! Declare plots within the trace object
     Trace sample_trace = Trace();
-    unsigned short numTraces = Globals::get()->numTraces();
 
-    sample_trace.DeclareHistogram2D(DD_TRACE, traceBins, numTraces,
-                                    "traces data TracePlotter");
-    sample_trace.DeclareHistogram2D(DD_FILTER1, traceBins, numTraces,
-                                    "fast filter");
-    sample_trace.DeclareHistogram2D(DD_FILTER2, traceBins, numTraces,
-                                    "energy filter");
+    const int traceBins = dammIds::trace::traceBins;
+    const unsigned short numTraces = Globals::get()->numTraces();
+
+    sample_trace.DeclareHistogram2D(DD_TRIGGER_FILTER, traceBins, numTraces,
+                                    "Trigger Filter");
+    // sample_trace.DeclareHistogram2D(DD_ENERGY_FILTER, traceBins, numTraces,
+    //                                 "Energy Filter");
     sample_trace.DeclareHistogram2D(DD_REJECTED_TRACE, traceBins, numTraces,
-                                    "rejected traces");
-
-    sample_trace.DeclareHistogram1D(D_ENERGY1, energyBins, "E1 from trace");
-
-    sample_trace.DeclareHistogram2D(DD_ENERGY__BOARD_FILTER,
-                                 energyBins2, energyBins2,
-                                "Board raw energy vs filter energy (/10)");
-    sample_trace.DeclareHistogram1D(D_RATIO_BOARD_FILTER,
-                energyBins2, "Ratio raw energy to filter (%)");
+                                    "Rejected Traces");
 }
 
 void TraceFilterAnalyzer::Analyze(Trace &trace, const std::string &type,
                                   const std::string &subtype,
                                   const std::map<std::string,int> &tagmap) {
-    TraceAnalyzer::Analyze(trace, type, subtype,tagmap);
+    TraceAnalyzer::Analyze(trace, type, subtype, tagmap);
+    static int numTrigFilters = 0;
+    static int rejectedTraces = 0;
+    static unsigned short numTraces = Globals::get()->numTraces();
 
-    TrapFilterParameters  trigPars(0.104,0.0,10);
-    TrapFilterParameters  enPars(0.128,0.048,0.01);
+    //Filter parameters in nanoseconds
+    TrapFilterParameters trigPars(124,125,25);
+    TrapFilterParameters enPars(128,128,50);
 
-    TraceFilter filter(Globals::get()->filterClockInSeconds(), trigPars,
-                       enPars);
-
-    filter.SetVerbose(true);
+    //Want to put filter clock units of ns/Sample
+    TraceFilter filter(Globals::get()->filterClockInSeconds()*1e9,
+		       trigPars,enPars);
     filter.CalcFilters(&trace);
-    vector<double> trig = filter.GetTriggerFilter();
-    vector<double> esums = filter.GetEnergySums();
-    double trcEn = filter.GetEnergy();
+    trace.SetValue("triggerPosition", (int)filter.GetTriggerPosition());
 
-    //     // start at sample 5 because first samples are occasionally corrupted
-    //     trace.DoBaseline(5, baselineBins);
-    //     if ( trace.GetValue("sigmaBaseline") > deviationCut ||
-    //         abs(trailingBaseline - trace.GetValue("baseline")) < deviationCut) {
-    //         // perhaps check trailing baseline deviation
-    //         // from a simple linear fit
-    //         static int rejectedTraces = 0;
-    //         unsigned short numTraces = Globals::get()->numTraces();
-    //         if (rejectedTraces < numTraces)
-    //             trace.Plot(DD_REJECTED_TRACE, rejectedTraces++);
-    //         EndAnalyze(); // update timing
-    //         return;
-    //     }
-
-    //     fastFilter.clear();
-    //     energyFilter.clear();
-
-    //     // determine trace filters, these are trapezoidal filters characterized
-    //     //   by a risetime and a gaptime and a range of the filter
-    //     trace.TrapezoidalFilter(fastFilter, fastParms);
-    //     trace.TrapezoidalFilter(energyFilter, energyParms);
-
-    //     if (useThirdFilter) {
-    //         thirdFilter.clear();
-    //         trace.TrapezoidalFilter(thirdFilter, thirdParms);
-    //     }
-
-    //     fastFilter.ScalePlot(DD_FILTER1, numTracesAnalyzed,
-    //                 fastParms.GetRiseSamples() );
-    //     energyFilter.ScalePlot(DD_FILTER2, numTracesAnalyzed,
-    //                 energyParms.GetRiseSamples() );
-    //     if (useThirdFilter) {
-    //         thirdFilter.ScalePlot(DD_FILTER3, numTracesAnalyzed,
-    //                 thirdParms.GetRiseSamples() );
-    //     }
-    //     trace.plot(D_ENERGY1, 0.0);
-    // }
+    if (filter.GetTriggerPosition() != 0) {
+	vector<double> tfilt = filter.GetTriggerFilter();
+	trace.SetValue("baseline", filter.GetBaseline());
+	trace.SetValue("filterEnergy", filter.GetEnergy());
+	trace.SetTriggerFilter(tfilt);
+	trace.SetEnergySums(filter.GetEnergySums());
+	
+	//500 is an arbitrary offset since DAMM cannot display negative numbers.
+	for(vector<double>::iterator it = tfilt.begin(); it != tfilt.end(); it++)
+	    trace.plot(DD_TRIGGER_FILTER, (int)(it-tfilt.begin()),
+	     	       numTrigFilters, (*it)+500);
+	numTrigFilters++;
+    } else {
+        if (rejectedTraces < numTraces)
+            trace.Plot(DD_REJECTED_TRACE, rejectedTraces++);
+    }
     EndAnalyze(trace);
 }
