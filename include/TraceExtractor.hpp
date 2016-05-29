@@ -23,7 +23,8 @@ public:
     /** Constructor taking the type and subtype to plot
     * \param [in] aType : a type to plot the traces for
     * \param [in] aSubtype : a subtype to plot the traces for */
-    TraceExtractor(const std::string &aType, const std::string &aSubtype);
+    TraceExtractor(const std::string &aType, const std::string &aSubtype,
+		   const std::string &aTag = "");
 
     /** Default Destructor */
     ~TraceExtractor() {};
@@ -36,12 +37,14 @@ public:
     * \param [in] aType : the type being analyze
     * \param [in] aSubtype : the subtype begin analyzed */
     virtual void Analyze(Trace &trace, const std::string &aType,
-                         const std::string &aSubtype);
+                         const std::string &aSubtype, 
+			 const std::map<std::string,int> &tags);
 protected:
     static const unsigned int traceBins; //!< The number of bins for the trace length
     static const unsigned int numTraces; //!< The number of traces to analyze
 
     std::string type; //!< the detector type
     std::string subtype; //!< The detector subtype
+    std::string tag; //!< The tags for the detector
 };
 #endif // __TRACEEXTRACTOR_HPP_
