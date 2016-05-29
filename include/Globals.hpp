@@ -21,6 +21,7 @@
 #include "Exceptions.hpp"
 #include "Messenger.hpp"
 #include "pixie16app_defs.h"
+#include "TrapFilterParameters.hpp"
 
 /** A macro defining what kind of NAN to throw */
 #ifndef NAN
@@ -222,6 +223,16 @@ public:
 	return(std::make_pair(0.254373,0.208072));
     }
 
+    /** \return the trapezoidal filter parameters for the requested detector type:subtype */
+    std::pair<TrapFilterParameters,TrapFilterParameters> trapFiltPars(const std::string &str) const { 
+	if(trapFiltPars_.find(str) != trapFiltPars_.end())
+	    return(trapFiltPars_.find(str)->second);
+	return(std::make_pair(TrapFilterParameters(125,125,10),
+			      TrapFilterParameters(125,125,10)));
+    }
+
+
+
     /*! \return Joined path to the passed filename by adding the configPath_
      * This is temporary solution as long as there are some files not
      * incorporated into Config.xml
@@ -286,7 +297,8 @@ private:
     int eventWidth_; //!< the size of the events
 
     std::map<std::string, std::pair<unsigned int, unsigned int> > waveformRanges_; //!< Map containing ranges for the waveforms
-    std::map<std::string, std::pair<double,double> > fitPars_; //!< Map containing all of the parameters to be used in the fitting analyzer
+    std::map<std::string, std::pair<double,double> > fitPars_; //!< Map containing all of the parameters to be used in the fitting analyzer for a type:subtype
+    std::map<std::string, std::pair<TrapFilterParameters,TrapFilterParameters> > trapFiltPars_; //!<Map containing all of the trapezoidal filter parameters for a given type:subtype
 
     std::string configPath_; //!< configuration path
     std::string revision_;//!< the pixie revision
