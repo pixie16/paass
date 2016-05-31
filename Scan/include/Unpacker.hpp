@@ -151,7 +151,7 @@ class Unpacker{
 
 	/** Scan the time sorted event list and package the events into a raw
 	  * event with a size governed by the event width.
-	  * \return True if the rawEvent is not empty and false otherwise.
+	  * \return True if the event list is not empty and false otherwise.
 	  */
 	bool BuildRawEvent();
 	
@@ -172,6 +172,17 @@ class Unpacker{
 	  * \return Nothing.
 	  */	
 	void ClearRawEvent();
+	
+	/** Get the minimum channel time from the event list.
+	  * \param[out] time The minimum time from the event list in system clock ticks.
+	  * \return True if the event list is not empty and false otherwise.
+	  */
+	bool GetFirstTime(double &time);
+	
+	/** Check whether or not the eventList is empty.
+	  * \return True if the eventList is empty, and false otherwise.
+	  */
+	bool IsEmpty();
 };
 
 #endif

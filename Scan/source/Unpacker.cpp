@@ -40,47 +40,44 @@ void Unpacker::TimeSort(){
 
 /** Scan the time sorted event list and package the events into a raw
   * event with a size governed by the event width.
-  * \return True if the rawEvent is not empty and false otherwise.
+  * \return True if the event list is not empty and false otherwise.
   */
 bool Unpacker::BuildRawEvent(){
 	if(!rawEvent.empty())
 		ClearRawEvent();
 
-	if(numRawEvt++ != 0){ 
-		// Move the event window forward by eventWidth ticks.
-		eventStartTime += eventWidth;
-		realStartTime = eventStartTime+eventWidth;
-		realStopTime = eventStartTime;
-	}
-	else{// This is the first rawEvent. Do some special processing.
+	if(numRawEvt == 0){// This is the first rawEvent. Do some special processing.
 		// Find the first XiaData event. The eventList is time sorted by module.
 		// The first component of each deque will be the earliest time from that module.
 		// The first event time will be the minimum of these first components.
-		firstTime = std::numeric_limits<double>::max();
-		for(std::vector<std::deque<XiaData*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
-			if(iter->empty())
-				continue;
-			if(iter->front()->time < firstTime)
-				firstTime = iter->front()->time;
-		}
+		if(!GetFirstTime(firstTime))
+			return false;
 		std::cout << "BuildRawEvent: First event time is " << firstTime << " clock ticks.\n";
 		eventStartTime = firstTime;
 	}
-
+	else{ 
+		// Move the event window forward to the next valid channel fire.
+		if(!GetFirstTime(eventStartTime))
+			return false;
+		realStartTime = eventStartTime+eventWidth;
+		realStopTime = eventStartTime;
+	}
+	
 	unsigned int mod, chan;
 	std::string type, subtype, tag;
 	XiaData *current_event = NULL;
-	
+
 	// Loop over all time-sorted modules.
 	for(std::vector<std::deque<XiaData*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
-		if(iter->empty()){ continue; }
-	
+		if(iter->empty())
+			continue;
+			
 		// Loop over the list of channels that fired in this buffer
 		while(!iter->empty()){
 			current_event = iter->front();
 			mod = current_event->modNum;
 			chan = current_event->chanNum;
-		
+	
 			if(mod > MAX_PIXIE_MOD || chan > MAX_PIXIE_CHAN){ // Skip this channel
 				std::cout << "BuildRawEvent: Encountered non-physical Pixie ID (mod = " << mod << ", chan = " << chan << ")\n";
 				delete current_event;
@@ -104,24 +101,26 @@ bool Unpacker::BuildRawEvent(){
 			// Check for the minimum time in this raw event.
 			if(currtime < realStartTime)
 				realStartTime = currtime;
-				
+			
 			// Check for the maximum time in this raw event.
 			if(currtime > realStopTime)
 				realStopTime = currtime;
 
 			// Update raw stats output with the new event before adding it to the raw event.
 			RawStats(current_event);
-		
+	
 			// Push this channel event into the rawEvent.
 			rawEvent.push_back(current_event);
-		
+	
 			// Remove this event from the event list but do not delete it yet.
 			// Deleting of the channel events will be handled by clearing the rawEvent.
 			iter->pop_front();
 		}
 	}
+
+	numRawEvt++;
 	
-	return (!rawEvent.empty());
+	return true;
 }	
 
 /** Push an event into the event list.
@@ -151,7 +150,6 @@ void Unpacker::ClearEventList(){
 	for(std::vector<std::deque<XiaData*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
 		clearDeque((*iter));
 	}
-	eventList.clear();
 }
 
 /** Clear all events in the raw event list. WARNING! This method will delete all events in the
@@ -160,6 +158,36 @@ void Unpacker::ClearEventList(){
   */
 void Unpacker::ClearRawEvent(){
 	clearDeque(rawEvent);
+}
+
+/** Get the minimum channel time from the event list.
+  * \param[out] time The minimum time from the event list in system clock ticks.
+  * \return True if the event list is not empty and false otherwise.
+  */
+bool Unpacker::GetFirstTime(double &time){
+	if(IsEmpty())
+		return false;
+
+	time = std::numeric_limits<double>::max();
+	for(std::vector<std::deque<XiaData*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
+		if(iter->empty())
+			continue;
+		if(iter->front()->time < time)
+			time = iter->front()->time;
+	}
+	
+	return true;
+}
+
+/** Check whether or not the eventList is empty.
+  * \return True if the eventList is empty, and false otherwise.
+  */
+bool Unpacker::IsEmpty(){
+	for(std::vector<std::deque<XiaData*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
+		if(!iter->empty())
+			return false;
+	}
+	return true;
 }
 
 /** Process all events in the event list.
@@ -503,9 +531,8 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 				ProcessRawEvent(interface);
 			}
 			
-			// Check that the event list is empty. It should be...
 			ClearEventList();
-
+			
 			// Once the eventlist has been scanned, reset the number 
 			// of events to zero and update the event counter
 			numEvents=0;
