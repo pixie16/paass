@@ -31,7 +31,7 @@ class skeletonUnpacker : public Unpacker {
 	  * \param[in]  addr_  Pointer to a ScanInterface object.
 	  * \return Nothing.
 	  */
-	virtual void RawStats(XiaEvent *event_, ScanInterface *addr_=NULL){  }
+	virtual void RawStats(XiaData *event_, ScanInterface *addr_=NULL){  }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -127,10 +127,10 @@ class skeletonScanner : public ScanInterface {
 
 	/** Add a channel event to the deque of events to send to the processors.
 	  * This method should only be called from skeletonUnpacker::ProcessRawEvent().
-	  * \param[in]  event_ The raw XiaEvent to add to the channel event deque.
+	  * \param[in]  event_ The raw XiaData to add to the channel event deque.
 	  * \return False.
 	  */
-	virtual bool AddEvent(XiaEvent *event_);
+	virtual bool AddEvent(XiaData *event_);
 	
 	/** Process all channel events read in from the rawEvent.
 	  * This method should only be called from skeletonUnpacker::ProcessRawEvent().

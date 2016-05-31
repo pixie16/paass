@@ -121,10 +121,10 @@ class ScanInterface{
 
 	/** Add a channel event to the deque of events to send to the processors.
 	  * This method should only be called from Unpacker::ProcessRawEvent().
-	  * \param[in]  event_ The raw XiaEvent to add. Unused by default.
+	  * \param[in]  event_ The raw XiaData to add. Unused by default.
 	  * \return False if not overwritten.
 	  */
-	virtual bool AddEvent(XiaEvent *event_){ return false; }
+	virtual bool AddEvent(XiaData *event_){ return false; }
 	
 	/** Process all channel events read in from the rawEvent.
 	  * This method should only be called from Unpacker::ProcessRawEvent().

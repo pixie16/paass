@@ -1,5 +1,5 @@
-#ifndef XIAEVENT_HPP
-#define XIAEVENT_HPP
+#ifndef XIADATA_HPP
+#define XIADATA_HPP
 
 #include <iostream>
 #include <fstream>
@@ -16,7 +16,7 @@
  * Note that this currently stores raw values internally through pixie word types
  *   but returns data values through native C types. This is potentially non-portable.
  */
-class XiaEvent{
+class XiaData{
   public:
 	double energy; /// Raw pixie energy.
 	double time; /// Raw pixie event time. Measured in filter clock ticks (8E-9 Hz for RevF).
@@ -41,13 +41,13 @@ class XiaEvent{
 	bool cfdTrigSource; /// The ADC that the CFD/FPGA synched with.
 
 	/// Default constructor.
-	XiaEvent();
+	XiaData();
 	
-	/// Constructor from a pointer to another XiaEvent.
-	XiaEvent(XiaEvent *other_);
+	/// Constructor from a pointer to another XiaData.
+	XiaData(XiaData *other_);
 	
 	/// Virtual destructor.
-	virtual ~XiaEvent();
+	virtual ~XiaData();
 
 	/// Get the event ID number (mod * chan).
 	int getID(){ return modNum*chanNum; }
@@ -62,10 +62,10 @@ class XiaEvent{
 	void push_back(const int &input_); 
 
 	/// Return true if the time of arrival for rhs is later than that of lhs.
-	static bool compareTime(XiaEvent *lhs, XiaEvent *rhs){ return (lhs->time < rhs->time); }
+	static bool compareTime(XiaData *lhs, XiaData *rhs){ return (lhs->time < rhs->time); }
 	
 	/// Return true if lhs has a lower event id (mod * chan) than rhs.
-	static bool compareChannel(XiaEvent *lhs, XiaEvent *rhs){ return ((lhs->modNum*lhs->chanNum) < (rhs->modNum*rhs->chanNum)); }
+	static bool compareChannel(XiaData *lhs, XiaData *rhs){ return ((lhs->modNum*lhs->chanNum) < (rhs->modNum*rhs->chanNum)); }
 	
 	/// Return one of the onboard qdc values.
 	unsigned int getQdcValue(int id){ return (id < 0 || id >= numQdcs ? -1 : qdcValue[id]); }
@@ -95,13 +95,13 @@ class ChannelEvent{
 	bool baseline_corrected; /// True if the trace has been baseline corrected.
 	bool ignore; /// Ignore this event.
 	
-	XiaEvent *event; /// The low level pixie event.
+	XiaData *event; /// The low level pixie event.
 	
 	/// Default constructor.
 	ChannelEvent();
 	
-	/// Constructor from a XiaEvent. ChannelEvent will take ownership of the XiaEvent.
-	ChannelEvent(XiaEvent *event_);
+	/// Constructor from a XiaData. ChannelEvent will take ownership of the XiaData.
+	ChannelEvent(XiaData *event_);
 	
 	/// Destructor.
 	~ChannelEvent();

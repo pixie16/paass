@@ -19,9 +19,9 @@
 #include <algorithm>
 
 #include "Unpacker.hpp"
-#include "XiaEvent.hpp"
+#include "XiaData.hpp"
 
-void clearDeque(std::deque<XiaEvent*> &list){
+void clearDeque(std::deque<XiaData*> &list){
 	while(!list.empty()){
 		delete list.front();
 		list.pop_front();
@@ -32,8 +32,8 @@ void clearDeque(std::deque<XiaEvent*> &list){
   * \return Nothing.
   */
 void Unpacker::TimeSort(){
-	for(std::vector<std::deque<XiaEvent*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
-		sort(iter->begin(), iter->end(), &XiaEvent::compareTime);
+	for(std::vector<std::deque<XiaData*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
+		sort(iter->begin(), iter->end(), &XiaData::compareTime);
 	}
 }
 
@@ -47,8 +47,8 @@ bool Unpacker::BuildRawEvent(){
 
 	unsigned int mod, chan;
 	std::string type, subtype, tag;
-	XiaEvent *current_event = NULL;
-	for(std::vector<std::deque<XiaEvent*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
+	XiaData *current_event = NULL;
+	for(std::vector<std::deque<XiaData*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
 		if(iter->empty()){ continue; }
 	
 		current_event = iter->front();
@@ -99,16 +99,16 @@ bool Unpacker::BuildRawEvent(){
 }	
 
 /** Push an event into the event list.
-  * \param[in]  event_ The XiaEvent to push onto the back of the event list.
-  * \return True if the XiaEvent's module number is valid and false otherwise.
+  * \param[in]  event_ The XiaData to push onto the back of the event list.
+  * \return True if the XiaData's module number is valid and false otherwise.
   */
-bool Unpacker::AddEvent(XiaEvent *event_){
+bool Unpacker::AddEvent(XiaData *event_){
 	if(event_->modNum > MAX_PIXIE_MOD){ return false; }
 	
 	// Check for the need to add a new deque to the event list.
 	if(event_->modNum+1 > (unsigned int)eventList.size()){
 		for(unsigned int i = 0; i < (event_->modNum+1 - (unsigned int)eventList.size()); i++){
-			eventList.push_back(std::deque<XiaEvent*>());
+			eventList.push_back(std::deque<XiaData*>());
 		}
 	}
 	
@@ -122,7 +122,7 @@ bool Unpacker::AddEvent(XiaEvent *event_){
   * \return Nothing.
   */	
 void Unpacker::ClearEventList(){
-	for(std::vector<std::deque<XiaEvent*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
+	for(std::vector<std::deque<XiaData*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
 		clearDeque((*iter));
 	}
 	eventList.clear();
@@ -150,7 +150,7 @@ void Unpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/){
   * later processing.
   * \param[in]  buf    Pointer to an array of unsigned ints containing raw buffer data.
   * \param[out] bufLen The number of words in the buffer.
-  * \return The number of XiaEvents read from the buffer.
+  * \return The number of XiaDatas read from the buffer.
   */
 int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){						
 	// multiplier for high bits of 48-bit time
@@ -166,14 +166,14 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 	// Read the module number
 	modNum = *buf++;
 
-	XiaEvent *lastVirtualChannel = NULL;
+	XiaData *lastVirtualChannel = NULL;
 
 	if(bufLen > 0){ // Check if the buffer has data
 		if(bufLen == 2){ // this is an empty channel
 			return 0;
 		}
 		while( buf < bufStart + bufLen ){
-			XiaEvent *currentEvt = new XiaEvent();
+			XiaData *currentEvt = new XiaData();
 
 			// decoding event data... see pixie16app.c
 			// buf points to the start of channel data

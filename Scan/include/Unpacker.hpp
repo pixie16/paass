@@ -24,7 +24,7 @@
 #define MAX_PIXIE_CHAN 15
 #endif
 
-class XiaEvent;
+class XiaData;
 class ScanMain;
 class ScanInterface;
 
@@ -84,8 +84,8 @@ class Unpacker{
 	bool debug_mode; /// True if debug mode is set.
 	bool running; /// True if the scan is running.
 
-	std::vector<std::deque<XiaEvent*> > eventList; /// The list of all events in a spill.
-	std::deque<XiaEvent*> rawEvent; /// The list of all events in the event window.
+	std::vector<std::deque<XiaData*> > eventList; /// The list of all events in a spill.
+	std::deque<XiaData*> rawEvent; /// The list of all events in the event window.
 
 	ScanInterface *interface; /// Pointer to an object derived from ScanInterface.
 
@@ -100,7 +100,7 @@ class Unpacker{
 	  * \param[in]  addr_  Pointer to a ScanInterface object. Unused by default.
 	  * \return Nothing.
 	  */
-	virtual void RawStats(XiaEvent *event_, ScanInterface *addr_=NULL){  }
+	virtual void RawStats(XiaData *event_, ScanInterface *addr_=NULL){  }
 	
 	/** Called form ReadSpill. Scan the current spill and construct a list of
 	  * events which fired by obtaining the module, channel, trace, etc. of the
@@ -108,7 +108,7 @@ class Unpacker{
 	  * later processing.
 	  * \param[in]  buf    Pointer to an array of unsigned ints containing raw buffer data.
 	  * \param[out] bufLen The number of words in the buffer.
-	  * \return The number of XiaEvents read from the buffer.
+	  * \return The number of XiaDatas read from the buffer.
 	  */	
 	int ReadBuffer(unsigned int *buf, unsigned long &bufLen);
 	
@@ -130,10 +130,10 @@ class Unpacker{
 	bool BuildRawEvent();
 	
 	/** Push an event into the event list.
-	  * \param[in]  event_ The XiaEvent to push onto the back of the event list.
-	  * \return True if the XiaEvent's module number is valid and false otherwise.
+	  * \param[in]  event_ The XiaData to push onto the back of the event list.
+	  * \return True if the XiaData's module number is valid and false otherwise.
 	  */
-	bool AddEvent(XiaEvent *event_);
+	bool AddEvent(XiaData *event_);
 	
 	/** Clear all events in the spill event list. WARNING! This method will delete all events in the
 	  * event list. This could cause seg faults if the events are used elsewhere.
