@@ -39,16 +39,35 @@ class Unpacker{
 	/// Return the maximum module read from the input file.
 	size_t GetMaxModule(){ return eventList.size(); }
 
+	/// Return the number of raw events read from the file.
+	unsigned int GetNumRawEvents(){ return numRawEvents; }
+	
 	/// Return the width of the raw event window in pixie16 clock ticks.
-	unsigned int GetEventWidth(){ return eventWidth; }
+	double GetEventWidth(){ return eventWidth; }
+	
+	/// Return the time of the first fired channel event.
+	double GetFirstTime(){ return firstTime; }
+	
+	/// Get the start time of the current raw event.
+	double GetEventStartTime(){ return eventStartTime; }
+	
+	/// Get the stop time of the current raw event.
+	double GetEventStopTime(){ return eventStartTime+eventWidth; }
 
+	/// Get the time of the first xia event in the raw event.
+	double GetRealStartTime(){ return realStartTime; }
+	
+	/// Get the time of the last xia event in the raw event.
+	double GetRealStopTime(){ return realStopTime; }
+
+	/// Return true if the scan is running and false otherwise.
 	bool IsRunning(){ return running; }
 
 	/// Toggle debug mode on / off.
 	bool SetDebugMode(bool state_=true){ return (debug_mode = state_); }
 	
 	/// Set the width of events in pixie16 clock ticks.
-	unsigned int SetEventWidth(unsigned int width_){ return (eventWidth = width_); }
+	double SetEventWidth(double width_){ return (eventWidth = width_); }
 	
 	/// Set the address of the scan interface used for file operations.
 	ScanInterface *SetInterface(ScanInterface *interface_){ return (interface = interface_); }
@@ -79,7 +98,7 @@ class Unpacker{
 	void Run(){ running = true; }
 	
   protected:
-	unsigned int eventWidth; /// The width of the raw event in pixie clock ticks (8 ns).
+	double eventWidth; /// The width of the raw event in pixie clock ticks (8 ns).
 	
 	bool debug_mode; /// True if debug mode is set.
 	bool running; /// True if the scan is running.
@@ -115,8 +134,17 @@ class Unpacker{
   private:
 	unsigned int TOTALREAD; /// Maximum number of data words to read.
 	unsigned int maxWords; /// Maximum number of data words for revision D.
+	unsigned int numRawEvents; /// The total count of raw events read from file.
 	
 	unsigned int channel_counts[MAX_PIXIE_MOD+1][MAX_PIXIE_CHAN+1]; /// Counters for each channel in each module.
+	
+	double firstTime; /// The first recorded event time.
+	double eventStartTime; /// The start time of the current raw event.
+
+	double realStartTime; /// The time of the first xia event in the raw event.
+	double realStopTime; /// The time of the last xia event in the raw event.
+
+	bool firstRawEvent; /// True if the first raw event has yet to be processed.
 
 	/** Scan the event list and sort it by timestamp.
 	  * \return Nothing.
