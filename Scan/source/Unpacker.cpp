@@ -46,7 +46,7 @@ bool Unpacker::BuildRawEvent(){
 	if(!rawEvent.empty())
 		ClearRawEvent();
 
-	if(!firstRawEvent){ 
+	if(numRawEvt++ != 0){ 
 		// Move the event window forward by eventWidth ticks.
 		eventStartTime += eventWidth;
 		realStartTime = eventStartTime+eventWidth;
@@ -58,12 +58,13 @@ bool Unpacker::BuildRawEvent(){
 		// The first event time will be the minimum of these first components.
 		firstTime = std::numeric_limits<double>::max();
 		for(std::vector<std::deque<XiaData*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
+			if(iter->empty())
+				continue;
 			if(iter->front()->time < firstTime)
 				firstTime = iter->front()->time;
 		}
 		std::cout << "BuildRawEvent: First event time is " << firstTime << " clock ticks.\n";
 		eventStartTime = firstTime;
-		firstRawEvent = false;
 	}
 
 	unsigned int mod, chan;
@@ -119,9 +120,6 @@ bool Unpacker::BuildRawEvent(){
 			iter->pop_front();
 		}
 	}
-	
-	// Increment the number of raw events.
-	numRawEvents++;
 	
 	return (!rawEvent.empty());
 }	
@@ -328,11 +326,10 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 Unpacker::Unpacker(){
 	debug_mode = false;
 	running = true;
-	firstRawEvent = true;
 
 	TOTALREAD = 1000000; // Maximum number of data words to read.
 	maxWords = 131072; // Maximum number of data words for revision D.	
-	numRawEvents = 0; // Count of raw events read from file.
+	numRawEvt = 0; // Count of raw events read from file.
 	eventWidth = 62; // ~ 500 ns in 8 ns pixie clock ticks.
 	
 	firstTime = 0;
