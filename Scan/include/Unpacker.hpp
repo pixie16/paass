@@ -40,7 +40,7 @@ class Unpacker{
 	size_t GetMaxModule(){ return eventList.size(); }
 
 	/// Return the number of raw events read from the file.
-	unsigned int GetNumRawEvents(){ return numRawEvents; }
+	unsigned int GetNumRawEvents(){ return numRawEvt; }
 	
 	/// Return the width of the raw event window in pixie16 clock ticks.
 	double GetEventWidth(){ return eventWidth; }
@@ -134,7 +134,7 @@ class Unpacker{
   private:
 	unsigned int TOTALREAD; /// Maximum number of data words to read.
 	unsigned int maxWords; /// Maximum number of data words for revision D.
-	unsigned int numRawEvents; /// The total count of raw events read from file.
+	unsigned int numRawEvt; /// The total count of raw events read from file.
 	
 	unsigned int channel_counts[MAX_PIXIE_MOD+1][MAX_PIXIE_CHAN+1]; /// Counters for each channel in each module.
 	
@@ -143,8 +143,6 @@ class Unpacker{
 
 	double realStartTime; /// The time of the first xia event in the raw event.
 	double realStopTime; /// The time of the last xia event in the raw event.
-
-	bool firstRawEvent; /// True if the first raw event has yet to be processed.
 
 	/** Scan the event list and sort it by timestamp.
 	  * \return Nothing.
