@@ -17,6 +17,7 @@
 #include <time.h>
 #include <cmath>
 #include <algorithm>
+#include <limits>
 
 #include "Unpacker.hpp"
 #include "XiaData.hpp"
@@ -45,18 +46,34 @@ bool Unpacker::BuildRawEvent(){
 	if(!rawEvent.empty())
 		ClearRawEvent();
 
+	if(!firstRawEvent){ 
+		// Move the event window forward by eventWidth ticks.
+		eventStartTime += eventWidth;
+		realStartTime = eventStartTime+eventWidth;
+		realStopTime = eventStartTime;
+	}
+	else{// This is the first rawEvent. Do some special processing.
+		// Find the first XiaData event. The eventList is time sorted by module.
+		// The first component of each deque will be the earliest time from that module.
+		// The first event time will be the minimum of these first components.
+		firstTime = std::numeric_limits<double>::max();
+		for(std::vector<std::deque<XiaData*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
+			if(iter->front()->time < firstTime)
+				firstTime = iter->front()->time;
+		}
+		std::cout << "BuildRawEvent: First event time is " << firstTime << " clock ticks.\n";
+		eventStartTime = firstTime;
+		firstRawEvent = false;
+	}
+
 	unsigned int mod, chan;
 	std::string type, subtype, tag;
 	XiaData *current_event = NULL;
+	
+	// Loop over all time-sorted modules.
 	for(std::vector<std::deque<XiaData*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
 		if(iter->empty()){ continue; }
 	
-		current_event = iter->front();
-	
-		// Set lastTime to the time of the first event
-		double lastTime = current_event->time;
-		double currTime;
-
 		// Loop over the list of channels that fired in this buffer
 		while(!iter->empty()){
 			current_event = iter->front();
@@ -70,19 +87,27 @@ bool Unpacker::BuildRawEvent(){
 				continue;
 			}
 
-			// Retrieve the current event time.
-			currTime = current_event->time;
+			double currtime = current_event->time;
+
+			// Check for backwards time-skip. This is un-handled currently and needs fixed CRT!!!
+			if(currtime < eventStartTime)
+				std::cout << "BuildRawEvent: Detected backwards time-skip from start=" << eventStartTime << " to " << current_event->time << "???\n";
 
 			// If the time difference between the current and previous event is 
 			// larger than the event width, finalize the current event, otherwise
 			// treat this as part of the current event
-			if((currTime - lastTime) > eventWidth){ // 62 pixie ticks represents ~0.5 us
+			if((currtime - eventStartTime) > eventWidth){ // 62 pixie ticks represents ~0.5 us
 				break;
 			}
 
-			// Update the time of the last event
-			lastTime = currTime; 
-		
+			// Check for the minimum time in this raw event.
+			if(currtime < realStartTime)
+				realStartTime = currtime;
+				
+			// Check for the maximum time in this raw event.
+			if(currtime > realStopTime)
+				realStopTime = currtime;
+
 			// Update raw stats output with the new event before adding it to the raw event.
 			RawStats(current_event);
 		
@@ -94,6 +119,9 @@ bool Unpacker::BuildRawEvent(){
 			iter->pop_front();
 		}
 	}
+	
+	// Increment the number of raw events.
+	numRawEvents++;
 	
 	return (!rawEvent.empty());
 }	
@@ -300,10 +328,17 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 Unpacker::Unpacker(){
 	debug_mode = false;
 	running = true;
+	firstRawEvent = true;
 
 	TOTALREAD = 1000000; // Maximum number of data words to read.
 	maxWords = 131072; // Maximum number of data words for revision D.	
+	numRawEvents = 0; // Count of raw events read from file.
 	eventWidth = 62; // ~ 500 ns in 8 ns pixie clock ticks.
+	
+	firstTime = 0;
+	eventStartTime = 0;
+	realStartTime = 0;
+	realStopTime = 0;
 	
 	interface = NULL;
 	
