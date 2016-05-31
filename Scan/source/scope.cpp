@@ -2,7 +2,7 @@
 #include <algorithm> 
 
 // PixieCore libraries
-#include "XiaEvent.hpp"
+#include "XiaData.hpp"
 
 // Local files
 #include "scope.hpp"
@@ -54,7 +54,7 @@ scopeUnpacker::scopeUnpacker(const unsigned int &mod/*=0*/, const unsigned int &
 void scopeUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/){
 	if(!addr_){ return; }
 
-	XiaEvent *current_event = NULL;
+	XiaData *current_event = NULL;
 
 	// Fill the processor event deques with events
 	while(!rawEvent.empty()){
@@ -358,10 +358,10 @@ Unpacker *scopeScanner::GetCore(){
 
 /** Add a channel event to the deque of events to send to the processors.
   * This method should only be called from skeletonUnpacker::ProcessRawEvent().
-  * \param[in]  event_ The raw XiaEvent to add to the channel event deque.
+  * \param[in]  event_ The raw XiaData to add to the channel event deque.
   * \return True if events are ready to be processed and false otherwise.
   */
-bool scopeScanner::AddEvent(XiaEvent *event_){
+bool scopeScanner::AddEvent(XiaData *event_){
 	if(!event_){ return false; }
 
 	//Get the first event int the FIFO.
@@ -375,7 +375,7 @@ bool scopeScanner::AddEvent(XiaEvent *event_){
 	//Push the channel event into the deque.
 	chanEvents_.push_back(channel_event);
 
-	// Handle the individual XiaEvent.
+	// Handle the individual XiaData.
 	if(chanEvents_.size() >= numAvgWaveforms_)
 		return true;
 		

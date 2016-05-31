@@ -1,18 +1,18 @@
 #include <cmath>
 
-#include "XiaEvent.hpp"
+#include "XiaData.hpp"
 
 /////////////////////////////////////////////////////////////////////
-// XiaEvent
+// XiaData
 /////////////////////////////////////////////////////////////////////
 
 /// Default constructor.
-XiaEvent::XiaEvent(){
+XiaData::XiaData(){
 	clear();
 }
 
-/// Constructor from a pointer to another XiaEvent.
-XiaEvent::XiaEvent(XiaEvent *other_){
+/// Constructor from a pointer to another XiaData.
+XiaData::XiaData(XiaData *other_){
 	adcTrace = other_->adcTrace;
 
 	energy = other_->energy; 
@@ -37,23 +37,23 @@ XiaEvent::XiaEvent(XiaEvent *other_){
 	cfdTrigSource = other_->cfdTrigSource; 
 }
 
-XiaEvent::~XiaEvent(){
+XiaData::~XiaData(){
 }
 
-void XiaEvent::reserve(const size_t &size_){
+void XiaData::reserve(const size_t &size_){
 	if(size_ == 0){ return; }
 	adcTrace.reserve(size_);
 }
 
-void XiaEvent::assign(const size_t &size_, const int &input_){
+void XiaData::assign(const size_t &size_, const int &input_){
 	adcTrace.assign(size_, input_);
 }
 
-void XiaEvent::push_back(const int &input_){
+void XiaData::push_back(const int &input_){
 	adcTrace.push_back(input_);
 }
 
-void XiaEvent::clear(){
+void XiaData::clear(){
 	adcTrace.clear();
 
 	energy = 0.0; 
@@ -90,8 +90,8 @@ ChannelEvent::ChannelEvent(){
 	Clear();
 }
 
-/// Constructor from a XiaEvent. ChannelEvent will take ownership of the XiaEvent.
-ChannelEvent::ChannelEvent(XiaEvent *event_){
+/// Constructor from a XiaData. ChannelEvent will take ownership of the XiaData.
+ChannelEvent::ChannelEvent(XiaData *event_){
 	event = NULL;
 	xvals = NULL;
 	yvals = NULL;
