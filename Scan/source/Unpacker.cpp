@@ -59,9 +59,10 @@ bool Unpacker::BuildRawEvent(){
 		// Move the event window forward to the next valid channel fire.
 		if(!GetFirstTime(eventStartTime))
 			return false;
-		realStartTime = eventStartTime+eventWidth;
-		realStopTime = eventStartTime;
 	}
+
+	realStartTime = eventStartTime+eventWidth;
+	realStopTime = eventStartTime;
 	
 	unsigned int mod, chan;
 	std::string type, subtype, tag;
