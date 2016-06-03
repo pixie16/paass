@@ -24,152 +24,165 @@
 #define MAX_PIXIE_CHAN 15
 #endif
 
-class PixieEvent;
+class XiaData;
 class ScanMain;
+class ScanInterface;
 
 class Unpacker{
-  protected:
-	unsigned int TOTALREAD; /// Maximum number of data words to read.
-	unsigned int maxWords; /// Maximum number of data words for revision D.
-	
-	unsigned int event_width; /// The width of the raw event in pixie clock ticks (8 ns).
-	
-	unsigned int channel_counts[MAX_PIXIE_MOD+1][MAX_PIXIE_CHAN+1]; /// Counters for each channel in each module.
-	
-	bool kill_all; /// Set to true if kill all signal received from ScanMain.
-	bool debug_mode; /// True if debug mode is set.
-	bool shm_mode; /// Set to true if shared memory mode is to be used.
-	bool init; /// True if the class has been properly initialized.
-
-	ScanMain *scan_main; /// Pointer to the ScanMain object responsible for reading spill data.
-
-	std::deque<PixieEvent*> eventList; /// The list of all events in the spill.
-	std::deque<PixieEvent*> rawEvent; /// The list of all events in the event window.
-
-	std::string message_head; /// Prefix used for text output.
-
-	/** Clear all events in the raw event. WARNING! This method will delete all events in the
-	 * event list. This could cause seg faults if the events are used elsewhere.
-	 */	
-	void ClearRawEvent();
-
-	/** Clear all events in the spill event list. WARNING! This method will delete all events in the
-	 * event list. This could cause seg faults if the events are used elsewhere.
-	 */	
-	void ClearEventList();
-	
-	/** Delete an event off the front of the event list. WARNING! This method will delete all events
-	 * in the event list. This could cause seg faults if the events are used elsewhere.
-	 */	
-	void DeleteCurrentEvent();
-
-	/** Process all events in the event list. This method will do nothing
-	 *  unless it is overloaded by a derived class.
-	 */
-	virtual void ProcessRawEvent();
-	
-	/** Scan the time sorted event list and package the events into a raw
-	 * event with a size governed by the event width.
-	 */
-	void ScanList();
-	
-	/// Scan the event list and sort it by timestamp.
-	void SortList();
-	
-	/** Called form ReadSpill. Scan the current spill and construct a list of
-	 * events which fired by obtaining the module, channel, trace, etc. of the
-	 * timestamped event. This method will construct the event list for
-	 * later processing.
-	 */	
-	int ReadBuffer(unsigned int *buf, unsigned long &bufLen);
-	
   public:
   	/// Default constructor.
 	Unpacker();
-	
+
 	/// Destructor.
 	virtual ~Unpacker();
 
-	/** Initialize the Unpacker object. Does nothing useful if not overloaded
-	 * by a derived class.
-	 */
-	virtual bool Initialize(std::string prefix_="");
-	
-	/** Peform any last minute initialization which derived classes need to run
-	  * before processing data.
-	  */
-	virtual void FinalInitialization(){ }
-	
-	/** Notify the unpacker object of a user action. This method should be
-	  * used in order to pass information to a class derived from Unpacker.
-	  * This method does nothing if it is not overloaded.
-	  */
-	virtual void Notify(const std::string &code_=""){ }
-	
-	/** Initialize the root output. Does nothing useful if not overloaded
-	 * by a derived class.
-	 */
-	virtual bool InitRootOutput(std::string fname_, bool overwrite_=true){ return false; }
+	/// Return the maximum module read from the input file.
+	size_t GetMaxModule(){ return eventList.size(); }
 
-	/// Return true if Unpacker was properly initialized.
-	bool IsInit(){ return init; }
+	/// Return the number of raw events read from the file.
+	unsigned int GetNumRawEvents(){ return numRawEvt; }
+	
+	/// Return the width of the raw event window in pixie16 clock ticks.
+	double GetEventWidth(){ return eventWidth; }
+	
+	/// Return the time of the first fired channel event.
+	double GetFirstTime(){ return firstTime; }
+	
+	/// Get the start time of the current raw event.
+	double GetEventStartTime(){ return eventStartTime; }
+	
+	/// Get the stop time of the current raw event.
+	double GetEventStopTime(){ return eventStartTime+eventWidth; }
 
-	/// Perform tasks when waiting for a spill.
-	virtual void IdleTask() {};
+	/// Get the time of the first xia event in the raw event.
+	double GetRealStartTime(){ return realStartTime; }
+	
+	/// Get the time of the last xia event in the raw event.
+	double GetRealStopTime(){ return realStopTime; }
+
+	/// Return true if the scan is running and false otherwise.
+	bool IsRunning(){ return running; }
 
 	/// Toggle debug mode on / off.
 	bool SetDebugMode(bool state_=true){ return (debug_mode = state_); }
 	
-	/// Toggle shared memory mode on/off.
-	bool SetSharedMemMode(bool state_=true){ return (shm_mode = state_); }
-
-	/// Link this object to the ScanMain object responsible for packaging spill data.
-	void SetScanMain(ScanMain *main_){ scan_main = main_; }
-
-	/// Scan has stopped data acquisition.
-	virtual void StopAcquisition(){  }
-	
-	/// Scan has started data acquisition.
-	virtual void StartAcquisition(){  }
-	
-	/// Set the kill flag to true. This should be used to exit gracefully.
-	void KillAll(){ kill_all = true; }
-
 	/// Set the width of events in pixie16 clock ticks.
-	unsigned int SetEventWidth(unsigned int width_){ return (event_width = width_); }
+	double SetEventWidth(double width_){ return (eventWidth = width_); }
 	
-	void SetMsgPrefix(std::string prefix_){ message_head = prefix_; }
+	/// Set the address of the scan interface used for file operations.
+	ScanInterface *SetInterface(ScanInterface *interface_){ return (interface = interface_); }
 	
 	/** ReadSpill is responsible for constructing a list of pixie16 events from
-	 * a raw data spill. This method performs sanity checks on the spill and
-	 * calls ReadBuffer in order to construct the event list.
-	 */	
+	  * a raw data spill. This method performs sanity checks on the spill and
+	  * calls ReadBuffer in order to construct the event list.
+	  * \param[in]  data       Pointer to an array of unsigned ints containing the spill data.
+	  * \param[in]  nWords     The number of words in the array.
+	  * \param[in]  is_verbose Toggle the verbosity flag on/off.
+	  * \return True if the spill was read successfully and false otherwise.
+	  */	
 	bool ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbose=true);
 	
-	/// Return the syntax string for this program.
-	virtual void SyntaxStr(const char *name_, std::string prefix_=""){ std::cout << prefix_ << "SYNTAX: " << std::string(name_) << " <options> <input>\n"; }
-
-	/// Print a command line help dialogue for recognized command line arguments.
-	virtual void ArgHelp(std::string prefix_=""){}
-	
-	/// Print an in-terminal help dialogue for recognized commands.
-	virtual void CmdHelp(std::string prefix_=""){}
-	
-	/// Scan input arguments and set class variables.
-	virtual bool SetArgs(std::deque<std::string> &args_, std::string &filename_){ return true; }
-
-	/// Print a status message.
-	virtual void PrintStatus(std::string prefix_=""){}
-
-	/** Search for an input command and perform the desired action. Return
-	  * true if the command is valid and false otherwise.
+	/** Write all recorded channel counts to a file.
+	  * \return Nothing.
 	  */
-	virtual bool CommandControl(std::string cmd_, const std::vector<std::string> &args_){ return false; }
+	void Write();
+	
+	/** Stop the scan. Unused by default.
+	  * \return Nothing.
+	  */
+	void Stop(){ running = false; }
+	
+	/** Run the scan. Unused by default.
+	  * \return Nothing.
+	  */
+	void Run(){ running = true; }
+	
+  protected:
+	double eventWidth; /// The width of the raw event in pixie clock ticks (8 ns).
+	
+	bool debug_mode; /// True if debug mode is set.
+	bool running; /// True if the scan is running.
 
-	/// Empty the raw event and the event list.
-	void Close(bool write_count_file=false);
+	std::vector<std::deque<XiaData*> > eventList; /// The list of all events in a spill.
+	std::deque<XiaData*> rawEvent; /// The list of all events in the event window.
+
+	ScanInterface *interface; /// Pointer to an object derived from ScanInterface.
+
+	/** Process all events in the event list.
+	  * \param[in]  addr_ Pointer to a ScanInterface object. Unused by default.
+	  * \return Nothing.
+	  */
+	virtual void ProcessRawEvent(ScanInterface *addr_=NULL);
+	
+	/** Add an event to generic statistics output.
+	  * \param[in]  event_ Pointer to the current XIA event. Unused by default.
+	  * \param[in]  addr_  Pointer to a ScanInterface object. Unused by default.
+	  * \return Nothing.
+	  */
+	virtual void RawStats(XiaData *event_, ScanInterface *addr_=NULL){  }
+	
+	/** Called form ReadSpill. Scan the current spill and construct a list of
+	  * events which fired by obtaining the module, channel, trace, etc. of the
+	  * timestamped event. This method will construct the event list for
+	  * later processing.
+	  * \param[in]  buf    Pointer to an array of unsigned ints containing raw buffer data.
+	  * \param[out] bufLen The number of words in the buffer.
+	  * \return The number of XiaDatas read from the buffer.
+	  */	
+	int ReadBuffer(unsigned int *buf, unsigned long &bufLen);
+	
+  private:
+	unsigned int TOTALREAD; /// Maximum number of data words to read.
+	unsigned int maxWords; /// Maximum number of data words for revision D.
+	unsigned int numRawEvt; /// The total count of raw events read from file.
+	
+	unsigned int channel_counts[MAX_PIXIE_MOD+1][MAX_PIXIE_CHAN+1]; /// Counters for each channel in each module.
+	
+	double firstTime; /// The first recorded event time.
+	double eventStartTime; /// The start time of the current raw event.
+
+	double realStartTime; /// The time of the first xia event in the raw event.
+	double realStopTime; /// The time of the last xia event in the raw event.
+
+	/** Scan the event list and sort it by timestamp.
+	  * \return Nothing.
+	  */
+	void TimeSort();
+
+	/** Scan the time sorted event list and package the events into a raw
+	  * event with a size governed by the event width.
+	  * \return True if the event list is not empty and false otherwise.
+	  */
+	bool BuildRawEvent();
+	
+	/** Push an event into the event list.
+	  * \param[in]  event_ The XiaData to push onto the back of the event list.
+	  * \return True if the XiaData's module number is valid and false otherwise.
+	  */
+	bool AddEvent(XiaData *event_);
+	
+	/** Clear all events in the spill event list. WARNING! This method will delete all events in the
+	  * event list. This could cause seg faults if the events are used elsewhere.
+	  * \return Nothing.
+	  */	
+	void ClearEventList();
+
+	/** Clear all events in the raw event list. WARNING! This method will delete all events in the
+	  * event list. This could cause seg faults if the events are used elsewhere.
+	  * \return Nothing.
+	  */	
+	void ClearRawEvent();
+	
+	/** Get the minimum channel time from the event list.
+	  * \param[out] time The minimum time from the event list in system clock ticks.
+	  * \return True if the event list is not empty and false otherwise.
+	  */
+	bool GetFirstTime(double &time);
+	
+	/** Check whether or not the eventList is empty.
+	  * \return True if the eventList is empty, and false otherwise.
+	  */
+	bool IsEmpty();
 };
-
-extern Unpacker *GetCore(); /// External function which returns a pointer to a class derived from Unpacker.
 
 #endif
