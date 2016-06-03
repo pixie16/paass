@@ -1,5 +1,5 @@
-#ifndef PIXIEEVENT_HPP
-#define PIXIEEVENT_HPP
+#ifndef XIADATA_HPP
+#define XIADATA_HPP
 
 #include <iostream>
 #include <fstream>
@@ -16,7 +16,7 @@
  * Note that this currently stores raw values internally through pixie word types
  *   but returns data values through native C types. This is potentially non-portable.
  */
-class PixieEvent{
+class XiaData{
   public:
 	double energy; /// Raw pixie energy.
 	double time; /// Raw pixie event time. Measured in filter clock ticks (8E-9 Hz for RevF).
@@ -26,8 +26,8 @@ class PixieEvent{
 	static const int numQdcs = 8; /// Number of QDCs onboard.
 	unsigned int qdcValue[numQdcs]; /// QDCs from onboard.
 
-	int modNum; /// Module number.
-	int chanNum; /// Channel number.
+	unsigned int modNum; /// Module number.
+	unsigned int chanNum; /// Channel number.
 	unsigned int trigTime; /// The channel trigger time, trigger time and the lower 32 bits of the event time are not necessarily the same but could be separated by a constant value.
 	unsigned int cfdTime; /// CFD trigger time in units of 1/256 pixie clock ticks.
 	unsigned int eventTimeLo; /// Lower 32 bits of pixie16 event time.
@@ -41,13 +41,13 @@ class PixieEvent{
 	bool cfdTrigSource; /// The ADC that the CFD/FPGA synched with.
 
 	/// Default constructor.
-	PixieEvent();
+	XiaData();
 	
-	/// Constructor from a pointer to another PixieEvent.
-	PixieEvent(PixieEvent *other_);
+	/// Constructor from a pointer to another XiaData.
+	XiaData(XiaData *other_);
 	
 	/// Virtual destructor.
-	virtual ~PixieEvent();
+	virtual ~XiaData();
 
 	/// Get the event ID number (mod * chan).
 	int getID(){ return modNum*chanNum; }
@@ -62,10 +62,10 @@ class PixieEvent{
 	void push_back(const int &input_); 
 
 	/// Return true if the time of arrival for rhs is later than that of lhs.
-	static bool compareTime(PixieEvent *lhs, PixieEvent *rhs){ return (lhs->time < rhs->time); }
+	static bool compareTime(XiaData *lhs, XiaData *rhs){ return (lhs->time < rhs->time); }
 	
 	/// Return true if lhs has a lower event id (mod * chan) than rhs.
-	static bool compareChannel(PixieEvent *lhs, PixieEvent *rhs){ return ((lhs->modNum*lhs->chanNum) < (rhs->modNum*rhs->chanNum)); }
+	static bool compareChannel(XiaData *lhs, XiaData *rhs){ return ((lhs->modNum*lhs->chanNum) < (rhs->modNum*rhs->chanNum)); }
 	
 	/// Return one of the onboard qdc values.
 	unsigned int getQdcValue(int id){ return (id < 0 || id >= numQdcs ? -1 : qdcValue[id]); }
@@ -95,13 +95,13 @@ class ChannelEvent{
 	bool baseline_corrected; /// True if the trace has been baseline corrected.
 	bool ignore; /// Ignore this event.
 	
-	PixieEvent *event; /// The low level pixie event.
+	XiaData *event; /// The low level pixie event.
 	
 	/// Default constructor.
 	ChannelEvent();
 	
-	/// Constructor from a PixieEvent. ChannelEvent will take ownership of the PixieEvent.
-	ChannelEvent(PixieEvent *event_);
+	/// Constructor from a XiaData. ChannelEvent will take ownership of the XiaData.
+	ChannelEvent(XiaData *event_);
 	
 	/// Destructor.
 	~ChannelEvent();

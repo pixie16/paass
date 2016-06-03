@@ -1,4 +1,4 @@
-/** \rile ScanMain.cpp
+/** \file ScanInterface.cpp
  * \brief A class to handle reading from various UTK/ORNL pixie16 data formats.
  *
  * This class is intended to be used as a replacement to the older and unsupported
@@ -16,22 +16,23 @@
 
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "Unpacker.hpp"
 #include "poll2_socket.h"
 #include "CTerminal.h"
 
-#include "ScanMain.hpp"
+#include "ScanInterface.hpp"
 
-#ifndef PROG_NAME
-#define PROG_NAME "ScanMain"
+#if not defined(PROG_NAME)
+#define PROG_NAME "ScanInterface"
 #endif
 
-void start_run_control(ScanMain *main_){
+void start_run_control(ScanInterface *main_){
 	main_->RunControl();
 }
 
-void start_cmd_control(ScanMain *main_){
+void start_cmd_control(ScanInterface *main_){
 	main_->CmdControl();
 }
 
@@ -79,10 +80,16 @@ void fileInformation::clear(){
 }
 
 /////////////////////////////////////////////////////////////////////
-// class ScanMain
+// class ScanInterface
 /////////////////////////////////////////////////////////////////////
 
-unsigned int ScanMain::split_str(std::string str_, std::vector<std::string> &args, char delimiter_/*=' '*/){
+/** Split a string into arguments using a specified delimiter.
+  * \param[in]  str_       The input string.
+  * \param[out] args       A vector containing the arguments from the input string.
+  * \param[in]  delimiter_ The character about which to split the input string.
+  * \return The number of sub-strings which were found.
+  */
+unsigned int ScanInterface::split_str(std::string str_, std::vector<std::string> &args, char delimiter_/*=' '*/){
 	args.clear();
 	std::string temp = "";
 	unsigned int count = 0;
@@ -98,7 +105,12 @@ unsigned int ScanMain::split_str(std::string str_, std::vector<std::string> &arg
 	return count;
 }
 
-std::string ScanMain::get_extension(std::string filename_, std::string &prefix){
+/** Get the file extension from an input filename string.
+  * \param[in]  filename_ The full input filename path.
+  * \param[out] prefix    The input filename path without the file extension.
+  * \return The file extension string.
+  */
+std::string ScanInterface::get_extension(std::string filename_, std::string &prefix){
 	size_t count = 0;
 	size_t last_index = 0;
 	std::string output = "";
@@ -123,35 +135,262 @@ std::string ScanMain::get_extension(std::string filename_, std::string &prefix){
 	return output;
 }
 
-void ScanMain::start_scan(){
-	if(!init){ std::cout << " Not initialized!\n"; }
-	else if(is_running){ std::cout << " Already running.\n"; }
+/** Start the scan, if ScanInterface is initialized and is not already running.
+  * \return Nothing.
+  */
+void ScanInterface::start_scan(){
+	if(!file_open)
+		std::cout << " No input file loaded.\n";
+	else if(!input_file.good())
+		std::cout << " Error reading from input file!\n";
+	else if(input_file.eof())
+		std::cout << " Physical end-of-file reached.\n";
+	else if(is_running)
+		std::cout << " Already running.\n";
 	else{
+		core->Run();
 		is_running = true;
 		total_stopped = false;
-		core->StartAcquisition();
 		if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for Unpacker..."); }
+		
+		// Notify that the user has started the scan.
+		Notify("START_SCAN");		
 	}
-	
-	// Notify the unpacker object that the user has started the scan.
-	core->Notify("START_SCAN");
 }
 
-void ScanMain::stop_scan(){
-	if(!init){ std::cout << " Not initialized!\n"; }
+/** Stop the scan, if it is running.
+  * \return Nothing.
+  */
+void ScanInterface::stop_scan(){
+	if(!scan_init){ std::cout << " Not initialized!\n"; }
 	else if(!is_running){ std::cout << " Not running.\n"; }
 	else{
+		core->Stop();
 		is_running = false;
-		core->StopAcquisition();
 	}
 	
-	// Notify the unpacker object that the user has stopped the scan.
-	core->Notify("STOP_SCAN");
+	// Notify that the user has stopped the scan.
+	Notify("STOP_SCAN");
 }
 
-ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
+/** Print a command line argument help dialogue.
+  * \param[in]  name_ The name of the program.
+  * \return Nothing.
+  */
+void ScanInterface::help(char *name_){
+	SyntaxStr(name_);
+	std::cout << "  Available options:\n";
+	std::cout << "   --help (-h)    - Display this dialogue\n";
+	std::cout << "   --version (-v) - Display version information\n";
+	std::cout << "   --debug        - Enable readout debug mode\n";
+	std::cout << "   --shm          - Enable shared memory readout\n";
+	std::cout << "   --quiet        - Toggle off verbosity flag\n";
+	std::cout << "   --counts       - Write all recorded channel counts to a file\n";
+	std::cout << "   --batch        - Run in batch mode (i.e. with no command line)\n";
+	std::cout << "   --dry-run      - Extract spills from file, but do no processing\n";
+	std::cout << "   --fast-fwd [word] - Skip ahead to a specified word in the file (start of file at zero)\n";
+	ArgHelp();
+}
+
+/** Seek to a specified position in the file.
+  * \param[in]  offset_ The position, with respect to the start of the file, to seek to.
+  * \return True upon success and false otherwise.
+  */
+bool ScanInterface::rewind(const unsigned long &offset_/*=0*/){
+	if(!scan_init){ return false; }
+
+	// Ensure that the scan is not running.
+	if(is_running){ 
+		std::cout << " Cannot change file position while scan is running!\n";
+		return false;
+	}
+
+	// Move to the first word in the file.
+	std::cout << " Seeking to word no. " << offset_ << " in file\n";
+	input_file.seekg(offset_*4, input_file.beg);
+	std::cout << " Input file is now at " << input_file.tellg() << " bytes\n";
+
+	// Notify that the user has rewound to the start of the file.
+	Notify("REWIND_FILE");
+
+	return true;
+}
+
+/** Open a new binary input file for reading.
+  * \param[in]  fname_ Input filename to open for reading.
+  * \return True upon successfully opening the file and false otherwise.
+  */
+bool ScanInterface::open_input_file(const std::string &fname_){
+	if(is_running){ 
+		std::cout << " ERROR! Unable to open input file while scan is running.\n"; 
+		return false;
+	}
+	else if(shm_mode){
+		std::cout << " ERROR! Unable to open input file in shm mode.\n"; 
+		return false;
+	}
+	
+	extension = get_extension(fname_, prefix);
+	if(prefix == ""){
+		std::cout << " ERROR! Input filename was not specified!\n";
+		return false;
+	}
+
+	if(extension == "ldf"){ // List data format file
+		file_format = 0;
+	}
+	else if(extension == "pld"){ // Pixie list data file format
+		file_format = 1;
+	}
+	else{
+		std::cout << " ERROR! Invalid file format '" << extension << "'\n";
+		std::cout << "  The current valid data formats are:\n";
+		std::cout << "   ldf - list data format (HRIBF)\n";
+		std::cout << "   pld - pixie list data format\n";
+		return false;
+	}
+
+	// Close the previous file, if one is open.
+	if(file_open){
+		std::cout << " Note: Closing previously opened file.\n";
+		input_file.close();
+	}
+
+	file_open = true;
+
+	// Load the input file.
+	input_file.open(fname_.c_str(), std::ios::binary);
+	if(!input_file.is_open() || !input_file.good()){
+		std::cout << " ERROR! Failed to open input file '" << fname_ << "'! Check that the path is correct.\n";
+		input_file.close();
+		file_open = false;
+		return false;
+	}
+	input_file.seekg(0, input_file.end);
+ 	file_length = input_file.tellg();
+ 	input_file.seekg(0, input_file.beg);
+
+	if(!shm_mode){
+		// Clear the file information container.
+		finfo.clear();
+	
+		// Start reading the file
+		// Every poll2 ldf file starts with a DIR buffer followed by a HEAD buffer
+		int num_buffers;
+		if(file_format == 0){
+			dirbuff.Read(&input_file, num_buffers);
+			headbuff.Read(&input_file);
+			
+			// Store the file information for later use.
+			finfo.push_back("Run number", dirbuff.GetRunNumber());
+			finfo.push_back("Number buffers", num_buffers);
+			finfo.push_back("Facility", headbuff.GetFacility());
+			finfo.push_back("Format", headbuff.GetFormat());
+			finfo.push_back("Type", headbuff.GetType());
+			finfo.push_back("Date", headbuff.GetDate());
+			finfo.push_back("Title", headbuff.GetRunTitle());
+			
+			// Let's read out the file information from these buffers
+			std::cout << " 'DIR ' buffer-\n";
+			std::cout << "  " << finfo.print(0) << "\n";
+			std::cout << "  " << finfo.print(1) << "\n";
+			std::cout << " 'HEAD' buffer-\n";
+			std::cout << "  " << finfo.print(2) << "\n";
+			std::cout << "  " << finfo.print(3) << "\n";
+			std::cout << "  " << finfo.print(4) << "\n";
+			std::cout << "  " << finfo.print(5) << "\n";
+			std::cout << "  " << finfo.print(6) << "\n";
+			std::cout << "  Run number: " << headbuff.GetRunNumber() << "\n\n";
+		}
+		else if(file_format == 1){
+			pldHead.Read(&input_file);
+			
+			max_spill_size = pldHead.GetMaxSpillSize();
+
+			// Store the file information for later use.
+			finfo.push_back("Facility", pldHead.GetFacility());
+			finfo.push_back("Format", pldHead.GetFormat());
+			finfo.push_back("Start", pldHead.GetStartDate());
+			finfo.push_back("Stop", pldHead.GetEndDate());
+			finfo.push_back("Title", pldHead.GetRunTitle());
+			finfo.push_back("Run number", pldHead.GetRunNumber());
+			finfo.push_back("Max spill", max_spill_size, "words");
+			finfo.push_back("ACQ time", pldHead.GetRunTime(), "seconds");
+			
+			// Let's read out the file information from this buffer
+			std::cout << " 'HEAD' buffer-\n";
+			std::cout << "  " << finfo.print(0) << "\n";
+			std::cout << "  " << finfo.print(1) << "\n";
+			std::cout << "  " << finfo.print(2) << "\n";
+			std::cout << "  " << finfo.print(3) << "\n";
+			std::cout << "  " << finfo.print(4) << "\n";
+			std::cout << "  " << finfo.print(5) << "\n";
+			std::cout << "  " << finfo.print(6) << "\n";
+			std::cout << "  " << finfo.print(7) << "\n\n";			
+		}
+	}
+
+	// Notify that the user has loaded a new file.
+	Notify("LOAD_FILE");
+	
+	return true;	
+}
+
+/** ExtraArguments is used to send command line arguments to classes derived
+  * from ScanInterface. If ScanInterface receives an unrecognized
+  * argument from the user, it will pass it on to the derived class.
+  * Does nothing useful by default.
+  * \param[in]  arg_    The argument to interpret.
+  * \param[out] others_ The remaining arguments following arg_.
+  * \param[out] ifname  The input filename to send back to use for reading. Set to arg_ by default.
+  * \return True if the argument was recognized and false otherwise. Returns true by default.
+  */
+bool ScanInterface::ExtraArguments(const std::string &arg_, std::deque<std::string> &others_, std::string &ifname){
+	ifname = arg_;
+	return true;
+}
+
+/** SyntaxStr is used to print a linux style usage message to the screen.
+  * Prints a standard usage message by default.
+  * \param[in]  name_ The name of the program.
+  * \return Nothing.
+  */
+void ScanInterface::SyntaxStr(char *name_){
+	std::cout << " usage: " << name_ << " [input] [options] [output]\n";
+}
+
+/** Initialize the Unpacker object. 
+  * Does nothing useful by default.
+  * \param[in]  prefix_ String to append to the beginning of system output.
+  * \return True upon successfully initializing and false otherwise.
+  */
+bool ScanInterface::Initialize(std::string prefix_){
+	if(scan_init){ return false; }
+	return (scan_init = true);
+}
+
+/** Return a pointer to the Unpacker object to use for data unpacking.
+  * If no object has been initialized, create a new one.
+  * \return Pointer to an Unpacker object.
+  */
+Unpacker *ScanInterface::GetCore(){ 
+	if(!core){ core = new Unpacker(); }
+	return core;
+}
+
+/** Default constructor.
+  * \param[in]  core_ Pointer to an object derived from Unpacker.
+  */
+ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 	prefix = "";
 	extension = "";
+	
+	// Get the current working directory.
+	char workingDirectory[1024];
+	workDir = std::string(getcwd(workingDirectory, 1024));
+	
+	// Get the home directory.
+	homeDir = getenv("HOME");
 
 	maxShmSizeL = 4052;
 	maxShmSize  = maxShmSizeL * 4;
@@ -170,29 +409,30 @@ ScanMain::ScanMain(Unpacker *core_/*=NULL*/){
 	dry_run_mode = false;
 	shm_mode = false;
 	batch_mode = false;
-	init = false;
+	scan_init = false;
+	file_open = false;
 
 	kill_all = false;
 	run_ctrl_exit = false;
 
-	input_file = NULL;
 	poll_server = NULL;
 	term = NULL;
 	
-	core = core_;
-	
-	// If a pointer to an Unpacker derived class is not specified, call the
-	// extern function GetCore() to get a pointer to a new object.
-	if(!core){ core = GetCore(); }
+	// Set the Unpacker pointer, if one is specified.
+	if(core_){ core = core_; }
+	else{ core = NULL; }
 
-	sys_message_head = std::string(PROG_NAME) + ": ";
+	progName = std::string(PROG_NAME);
+	msgHeader = progName + ": ";
 }
 
-ScanMain::~ScanMain(){
+/// Default destructor.
+ScanInterface::~ScanInterface(){
 	Close();
 }
 
-void ScanMain::RunControl(){
+/// Main scan control method.
+void ScanInterface::RunControl(){
 	// Notify that we are starting run control.
 	run_ctrl_exit = false;
 
@@ -247,7 +487,7 @@ void ScanMain::RunControl(){
 				if(!poll_server->Select(dummy)){
 					if(!batch_mode){ term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for a spill..."); }
 					else{ std::cout << "\r\033[0;33m[IDLE]\033[0m Waiting for a spill..."; }
-					core->IdleTask();
+					IdleTask();
 					continue; 
 				}
 		
@@ -256,7 +496,7 @@ void ScanMain::RunControl(){
 				// Get the spill
 				while(current_chunk != total_chunks){
 					if(!poll_server->Select(select_dummy)){ // Server timeout
-						std::cout << sys_message_head << "Network timeout before recv full spill!\n";
+						std::cout << msgHeader << "Network timeout before recv full spill!\n";
 						full_spill = false;
 						break;
 					} 
@@ -307,7 +547,7 @@ void ScanMain::RunControl(){
 					core->ReadSpill(data, nTotalWords + 2, is_verbose); 
 				}
 			
-				if(!full_spill){ std::cout << sys_message_head << "Not processing spill fragment!\n"; }
+				if(!full_spill){ std::cout << msgHeader << "Not processing spill fragment!\n"; }
 				else{ num_spills_recvd++; }
 			}
 		
@@ -333,7 +573,7 @@ void ScanMain::RunControl(){
 					continue;
 				}
 
-				if(!databuff.Read(input_file, (char*)data, nBytes, 1000000, full_spill, bad_spill, dry_run_mode)){
+				if(!databuff.Read(&input_file, (char*)data, nBytes, 1000000, full_spill, bad_spill, dry_run_mode)){
 					if(databuff.GetRetval() == 1){
 						if(debug_mode){ std::cout << "debug: Encountered single EOF buffer (end of run).\n"; }
 					}
@@ -358,7 +598,7 @@ void ScanMain::RunControl(){
 				}
 
 				std::stringstream status;			
-				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file->tellg()/file_length << "%), ";
+				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%), ";
 				status << "GOOD = " << databuff.GetNumChunks() << ", LOST = " << databuff.GetNumMissing();
 				if(!batch_mode){ term->SetStatus(status.str()); }
 				else{ std::cout << "\r" << status.str(); }
@@ -366,18 +606,18 @@ void ScanMain::RunControl(){
 				if(full_spill){ 
 					if(debug_mode){ 
 						std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
-						std::cout << "debug: Read up to word number " << input_file->tellg()/4 << " in input file\n";
+						std::cout << "debug: Read up to word number " << input_file.tellg()/4 << " in input file\n";
 					}
 					if(!dry_run_mode){ 
 						if(!bad_spill){ 
 							core->ReadSpill(data, nBytes/4, is_verbose); 
 						}
-						else{ std::cout << " WARNING: Spill has been flagged as corrupt, skipping (at word " << input_file->tellg()/4 << " in file)!\n"; }
+						else{ std::cout << " WARNING: Spill has been flagged as corrupt, skipping (at word " << input_file.tellg()/4 << " in file)!\n"; }
 					}
 				}
 				else if(debug_mode){ 
 					std::cout << "debug: Retrieved spill fragment of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
-					std::cout << "debug: Read up to word number " << input_file->tellg()/4 << " in input file\n";
+					std::cout << "debug: Read up to word number " << input_file.tellg()/4 << " in input file\n";
 				}
 				num_spills_recvd++;
 			}
@@ -396,7 +636,7 @@ void ScanMain::RunControl(){
 			// Reset the buffer reader to default values.
 			pldData.Reset();
 		
-			while(pldData.Read(input_file, (char*)data, nBytes, 4*max_spill_size, dry_run_mode)){ 
+			while(pldData.Read(&input_file, (char*)data, nBytes, 4*max_spill_size, dry_run_mode)){ 
 				if(kill_all == true){ 
 					break;
 				}
@@ -406,13 +646,13 @@ void ScanMain::RunControl(){
 				}
 
 				std::stringstream status;
-				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file->tellg()/file_length << "%)";
+				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%)";
 				if(!batch_mode){ term->SetStatus(status.str()); }
 				else{ std::cout << "\r" << status.str(); }
 		
 				if(debug_mode){ 
 					std::cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes/4 << " words)\n"; 
-					std::cout << "debug: Read up to word number " << input_file->tellg()/4 << " in input file\n";
+					std::cout << "debug: Read up to word number " << input_file.tellg()/4 << " in input file\n";
 				}
 			
 				if(!dry_run_mode){ 
@@ -424,11 +664,11 @@ void ScanMain::RunControl(){
 				num_spills_recvd++;
 			}
 
-			if(eofbuff.ReadHeader(input_file)){
-				std::cout << sys_message_head << "Encountered EOF buffer.\n";
+			if(eofbuff.ReadHeader(&input_file)){
+				std::cout << msgHeader << "Encountered EOF buffer.\n";
 			}
 			else{
-				std::cout << sys_message_head << "Failed to find end of file buffer!\n";
+				std::cout << msgHeader << "Failed to find end of file buffer!\n";
 			}
 		
 			if(!dry_run_mode){ delete[] data; }
@@ -439,8 +679,8 @@ void ScanMain::RunControl(){
 		else if(file_format == 2){
 		}
 
-		// Notify the unpacker object that the scan has completed.
-		core->Notify("SCAN_COMPLETE");
+		// Notify that the scan has completed.
+		Notify("SCAN_COMPLETE");
 		
 		total_stopped = true;
 		stop_scan();
@@ -452,7 +692,8 @@ void ScanMain::RunControl(){
 	run_ctrl_exit = true;
 }
 
-void ScanMain::CmdControl(){
+/// Main command interpreter method.
+void ScanInterface::CmdControl(){
 	if(!core){ return; }
 
 	std::string cmd = "", arg;
@@ -476,22 +717,26 @@ void ScanMain::CmdControl(){
 			exit(EXIT_FAILURE);
 		}
 		else if(cmd == "CTRL_D"){ 
-			std::cout << sys_message_head << "Received EOF (ctrl-d) signal. Exiting...\n";
+			std::cout << msgHeader << "Received EOF (ctrl-d) signal. Exiting...\n";
 			cmd = "quit"; 
 		}
 		else if(cmd == "CTRL_C"){ 
-			std::cout << sys_message_head << "Warning! Received SIGINT (ctrl-c) signal.\n";
+			std::cout << msgHeader << "Warning! Received SIGINT (ctrl-c) signal.\n";
 			continue; 
 		}
 		else if(cmd == "CTRL_Z"){ 
-			std::cout << sys_message_head << "Warning! Received SIGTSTP (ctrl-z) signal.\n";
+			std::cout << msgHeader << "Warning! Received SIGTSTP (ctrl-z) signal.\n";
 			continue; 
 		}
 		term->flush();
 
 		if(cmd == ""){ continue; }
 		
-		size_t index = cmd.find(" ");
+		// Replace the '~' with the user's home directory.
+		if(cmd.find('~') != std::string::npos)
+			cmd.replace(cmd.find('~'), 1, homeDir);
+		
+		size_t index = cmd.find(' ');
 		if(index != std::string::npos){
 			arg = cmd.substr(index+1, cmd.size()-index); // Get the argument from the full input string
 			cmd = cmd.substr(0, index); // Get the command from the full input string
@@ -502,8 +747,8 @@ void ScanMain::CmdControl(){
 		unsigned int p_args = split_str(arg, arguments);
 		
 		if(cmd == "quit" || cmd == "exit"){
+			stop_scan();
 			kill_all = true;
-			core->KillAll();
 			while(!run_ctrl_exit){ sleep(1); }
 			break;
 		}
@@ -525,7 +770,7 @@ void ScanMain::CmdControl(){
 			std::cout << "   file <filename> - Load an input file\n";
 			std::cout << "   rewind [offset] - Rewind to the beginning of the file\n";
 			std::cout << "   sync            - Wait for the current run to finish\n";
-			core->CmdHelp("   ");
+			CmdHelp("   ");
 		}
 		else if(cmd == "run"){ // Start acquisition.
 			start_scan();
@@ -535,73 +780,70 @@ void ScanMain::CmdControl(){
 		}
 		else if(cmd == "debug"){ // Toggle debug mode
 			if(debug_mode){
-				std::cout << sys_message_head << "Toggling debug mode OFF\n";
+				std::cout << msgHeader << "Toggling debug mode OFF\n";
 				debug_mode = false;
 			}
 			else{
-				std::cout << sys_message_head << "Toggling debug mode ON\n";
+				std::cout << msgHeader << "Toggling debug mode ON\n";
 				debug_mode = true;
 			}
 			core->SetDebugMode(debug_mode);
 		}
 		else if(cmd == "quiet"){ // Toggle quiet mode
 			if(!is_verbose){
-				std::cout << sys_message_head << "Toggling quiet mode OFF\n";
+				std::cout << msgHeader << "Toggling quiet mode OFF\n";
 				is_verbose = true;
 			}
 			else{
-				std::cout << sys_message_head << "Toggling quiet mode ON\n";
+				std::cout << msgHeader << "Toggling quiet mode ON\n";
 				is_verbose = false;
 			}
 		}
 		else if(cmd == "file"){ // Rewind the file to the start position
 			if(p_args > 0){
-				OpenInputFile(arguments.at(0));
+				if(!open_input_file(arguments.at(0))){
+					std::cout << msgHeader << "Failed to open input file!\n";
+				}
 			}
 			else{
-				std::cout << sys_message_head << "Invalid number of parameters to 'file'\n";
-				std::cout << sys_message_head << " -SYNTAX- file <filename>\n";
+				std::cout << msgHeader << "Invalid number of parameters to 'file'\n";
+				std::cout << msgHeader << " -SYNTAX- file <filename>\n";
 			}
 		}
 		else if(cmd == "rewind"){ // Rewind the file to the start position
-			if(p_args > 0){ Rewind(strtoul(arguments.at(0).c_str(), NULL, 0)); }
-			else{ Rewind(); }
+			if(p_args > 0){ rewind(strtoul(arguments.at(0).c_str(), NULL, 0)); }
+			else{ rewind(); }
 		}
 		else if(cmd == "sync"){ // Wait until the current run is completed.
 			if(is_running){
-				std::cout << sys_message_head << "Waiting for current scan to complete.\n";
+				std::cout << msgHeader << "Waiting for current scan to complete.\n";
 				waiting_for_run = true;
 			}
-			else{ std::cout << sys_message_head << "Scan is not running.\n"; }
+			else{ std::cout << msgHeader << "Scan is not running.\n"; }
 		}
-		else if(!core->CommandControl(cmd, arguments)){ // Unrecognized command. Send it to Unpacker.
-			std::cout << sys_message_head << "Unknown command '" << cmd << "'\n";
+		else if(!ExtraCommands(cmd, arguments)){ // Unrecognized command. Send it to a derived object.
+			std::cout << msgHeader << "Unknown command '" << cmd << "'\n";
 		}
 	}		
 }
 
-void ScanMain::Help(char *name_, Unpacker *core){
-	core->SyntaxStr(name_, " ");
-	std::cout << "  Available options:\n";
-	std::cout << "   --help (-h)    - Display this dialogue\n";
-	std::cout << "   --version (-v) - Display version information\n";
-	std::cout << "   --debug        - Enable readout debug mode\n";
-	std::cout << "   --shm          - Enable shared memory readout\n";
-	std::cout << "   --quiet        - Toggle off verbosity flag\n";
-	std::cout << "   --counts       - Write all recorded channel counts to a file\n";
-	std::cout << "   --batch        - Run in batch mode (i.e. with no command line)\n";
-	std::cout << "   --dry-run      - Extract spills from file, but do no processing\n";
-	std::cout << "   --fast-fwd [word] - Skip ahead to a specified word in the file (start of file at zero)\n";
-	core->ArgHelp("   ");
-}
+/** Setup user options and initialize all required objects.
+  * \param[in]  argc Number of arguments passed from the command line.
+  * \param[in]  argv Array of strings passed as arguments from the command line.
+  * \return True upon success and false otherwise.
+  */
+bool ScanInterface::Setup(int argc, char *argv[]){
+	if(scan_init){ return false; }
 
-bool ScanMain::Initialize(int argc, char *argv[]){
-	if(init){ return false; }
+	// If a pointer to an Unpacker derived class is not specified, call the
+	// extern function GetCore() to get a pointer to a new object.
+	if(!core){ GetCore(); }
+
+	// Link this object to the Unpacker for cross-calls.
+	core->SetInterface(this);
 
 	if(argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)){ // A stupid way to do this... for now.
-		Unpacker *temp_core = GetCore();
-		Help(argv[0], temp_core);
-		delete temp_core;
+		help(argv[0]);
 		return false;
 	}
 	else if(argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)){ // Display version information
@@ -620,20 +862,18 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 
 	// Fill the argument list.
 	std::deque<std::string> scan_args;
-	std::deque<std::string> coreargs;
+	std::deque<std::string> optargs;
 	int arg_index = 1;
 	while(arg_index < argc){
 		scan_args.push_back(std::string(argv[arg_index++]));
 	}
 
-	core->SetMsgPrefix(sys_message_head);
-	
-	// Loop through the arg list and extract ScanMain arguments.
+	// Loop through the arg list and extract ScanInterface arguments.
 	std::string current_arg;
+	std::string input_filename = "";
 	while(!scan_args.empty()){
 		current_arg = scan_args.front();
 		scan_args.pop_front();
-	
 		if(current_arg == "--debug"){ 
 			core->SetDebugMode();
 			debug_mode = true;
@@ -650,7 +890,7 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 		else if(current_arg == "--fast-fwd"){
 			if(scan_args.empty()){
 				std::cout << " FATAL ERROR! Missing required argument to option '--fast-fwd'!\n";
-				Help(argv[0], core);
+				help(argv[0]);
 				return false;
 			}
 			file_start_offset = atoll(scan_args.front().c_str());
@@ -662,25 +902,22 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 		else if(current_arg == "--shm"){ 
 			file_format = 0;
 			shm_mode = true;
-			core->SetSharedMemMode(true);
 			std::cout << " Using shm mode!\n";
 		}
-		else{ coreargs.push_back(current_arg); } // Unrecognized option.
+		else if(!ExtraArguments(current_arg, scan_args, input_filename)){ // Unrecognized option.
+			std::cout << " Error: Unrecognized command line argument '" << current_arg << "'.\n";
+			help(argv[0]);
+			return false;
+		}
 	}
 
-	std::string input_filename = "";
-	if(!core->SetArgs(coreargs, input_filename)){ 
-		Help(argv[0], core);
-		return false; 
-	}
-	
-	// Initialize the Unpacker object.
-	std::cout << sys_message_head << "Initializing data unpacker object.\n";
-	if(!core->Initialize(sys_message_head)){ // Failed to initialize the unpacker object. Clean up and exit.
-		std::cout << " FATAL ERROR! Failed to initialize unpacker object!\n";
+	// Initialize everything.
+	std::cout << msgHeader << "Initializing derived class.\n";
+	if(!Initialize(msgHeader)){ // Failed to initialize the object. Clean up and exit.
+		std::cout << " FATAL ERROR! Failed to initialize derived class!\n";
 		std::cout << "\nCleaning up...\n";
-		core->PrintStatus(sys_message_head);
-		core->Close(write_counts);
+		if(write_counts)
+			core->Write();
 		return false;
 	}
 
@@ -689,24 +926,22 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 		if(!poll_server->Init(5555, 1)){
 			std::cout << " FATAL ERROR! Failed to open shm socket 5555!\n";
 			std::cout << "\nCleaning up...\n";
-			core->PrintStatus(sys_message_head);
-			core->Close(write_counts);
+			if(write_counts)
+				core->Write();
 			return false;
 		}	
 		if(batch_mode){
-			std::cout << sys_message_head << "Unable to enable batch mode for shared-memory mode!\n";
+			std::cout << msgHeader << "Unable to enable batch mode for shared-memory mode!\n";
 			batch_mode = false;
 		}
 	}
 
 	// Initialize the terminal.
-	std::string temp_name = std::string(PROG_NAME);
-	
 	if(!batch_mode){
 		term = new Terminal();
 		term->Initialize();
-		term->SetCommandHistory(("."+temp_name+".cmd").c_str());
-		term->SetPrompt((temp_name+" $ ").c_str());
+		term->SetCommandHistory(("."+progName+".cmd").c_str());
+		term->SetPrompt((progName+" $ ").c_str());
 		term->AddStatusWindow();
 		term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped.");
 	}
@@ -714,184 +949,44 @@ bool ScanMain::Initialize(int argc, char *argv[]){
 	std::cout << "\n " << PROG_NAME << " v" << SCAN_VERSION << "\n"; 
 	std::cout << " ==  ==  ==  ==  == \n\n"; 
 
-	if(debug_mode){ std::cout << sys_message_head << "Using debug mode.\n\n"; }
-	if(dry_run_mode){ std::cout << sys_message_head << "Doing a dry run.\n\n"; }
+	if(debug_mode){ std::cout << msgHeader << "Using debug mode.\n\n"; }
+	if(dry_run_mode){ std::cout << msgHeader << "Doing a dry run.\n\n"; }
 	if(shm_mode){ 
-		std::cout << sys_message_head << "Using shared-memory mode.\n\n"; 
-		std::cout << sys_message_head << "Listening on poll2 SHM port 5555\n\n";
+		std::cout << msgHeader << "Using shared-memory mode.\n\n"; 
+		std::cout << msgHeader << "Listening on poll2 SHM port 5555\n\n";
 	}
 
 	// Do any last minute initialization.
-	try{ core->FinalInitialization(); }
-	catch(...){ std::cout << "\nUnpacker object final initialization failed!\n"; }
+	try{ FinalInitialization(); }
+	catch(...){ std::cout << "\nFinal initialization failed!\n"; }
 
-	init = true;
+	scan_init = true;
 
 	// Load the input file, if the user has supplied a filename.
 	if(!shm_mode && !input_filename.empty()){
-		std::cout << sys_message_head << "Using filename " << input_filename << ".\n";
-		OpenInputFile(input_filename);
-		
-		// Start the scan.
-		start_scan();
+		std::cout << msgHeader << "Using filename " << input_filename << ".\n";
+		if(open_input_file(input_filename)){
+			// Start the scan.
+			start_scan();
+		}
+		else{ std::cout << msgHeader << "Failed to load input file!\n"; }
 	}
-
+	
 	return true;
 }
 
-bool ScanMain::OpenInputFile(const std::string &fname_){
-	if(!init){
-		std::cout << " ERROR! ScanMain is not initialized!\n";
-		return false;
-	}
-	else if(is_running){ 
-		std::cout << " ERROR! Unable to open input file while scan is running.\n"; 
-		return false;
-	}
-	else if(shm_mode){
-		std::cout << " ERROR! Unable to open input file in shm mode.\n"; 
-		return false;
-	}
-	
-	extension = get_extension(fname_, prefix);
-	if(prefix == ""){
-		std::cout << " ERROR! Input filename was not specified!\n";
-		return false;
-	}
-
-	if(extension == "ldf"){ // List data format file
-		file_format = 0;
-	}
-	else if(extension == "pld"){ // Pixie list data file format
-		file_format = 1;
-	}
-	/*else if(extension == "root"){ // Pixie list data file format
-		file_format = 2;
-	}*/
-	else{
-		std::cout << " ERROR! Invalid file format '" << extension << "'\n";
-		std::cout << "  The current valid data formats are:\n";
-		std::cout << "   ldf - list data format (HRIBF)\n";
-		std::cout << "   pld - pixie list data format\n";
-		//std::cout << "   root - root file containing raw pixie data\n";
-		return false;
-	}
-
-	// Close the previous file, if one is open.
-	if(input_file){
-		std::cout << " Note: Closing previously opened file.\n";
-		input_file->close();
-		delete input_file;
-	}
-
-	// Load the input file.
-	input_file = new std::ifstream(fname_.c_str(), std::ios::binary);
-	if(!input_file->is_open() || !input_file->good()){
-		std::cout << " ERROR! Failed to open input file '" << fname_ << "'! Check that the path is correct.\n";
-		input_file->close();
-		delete input_file;
-		return false;
-	}
-	input_file->seekg(0, input_file->end);
- 	file_length = input_file->tellg();
- 	input_file->seekg(0, input_file->beg);
-
-	if(!shm_mode){
-		// Clear the file information container.
-		finfo.clear();
-	
-		// Start reading the file
-		// Every poll2 ldf file starts with a DIR buffer followed by a HEAD buffer
-		int num_buffers;
-		if(file_format == 0){
-			dirbuff.Read(input_file, num_buffers);
-			headbuff.Read(input_file);
-			
-			// Store the file information for later use.
-			finfo.push_back("Run number", dirbuff.GetRunNumber());
-			finfo.push_back("Number buffers", num_buffers);
-			finfo.push_back("Facility", headbuff.GetFacility());
-			finfo.push_back("Format", headbuff.GetFormat());
-			finfo.push_back("Type", headbuff.GetType());
-			finfo.push_back("Date", headbuff.GetDate());
-			finfo.push_back("Title", headbuff.GetRunTitle());
-			
-			// Let's read out the file information from these buffers
-			std::cout << " 'DIR ' buffer-\n";
-			std::cout << "  " << finfo.print(0) << "\n";
-			std::cout << "  " << finfo.print(1) << "\n";
-			std::cout << " 'HEAD' buffer-\n";
-			std::cout << "  " << finfo.print(2) << "\n";
-			std::cout << "  " << finfo.print(3) << "\n";
-			std::cout << "  " << finfo.print(4) << "\n";
-			std::cout << "  " << finfo.print(5) << "\n";
-			std::cout << "  " << finfo.print(6) << "\n";
-			std::cout << "  Run number: " << headbuff.GetRunNumber() << "\n\n";
-		}
-		else if(file_format == 1){
-			pldHead.Read(input_file);
-			
-			max_spill_size = pldHead.GetMaxSpillSize();
-
-			// Store the file information for later use.
-			finfo.push_back("Facility", pldHead.GetFacility());
-			finfo.push_back("Format", pldHead.GetFormat());
-			finfo.push_back("Start", pldHead.GetStartDate());
-			finfo.push_back("Stop", pldHead.GetEndDate());
-			finfo.push_back("Title", pldHead.GetRunTitle());
-			finfo.push_back("Run number", pldHead.GetRunNumber());
-			finfo.push_back("Max spill", max_spill_size, "words");
-			finfo.push_back("ACQ time", pldHead.GetRunTime(), "seconds");
-			
-			// Let's read out the file information from this buffer
-			std::cout << " 'HEAD' buffer-\n";
-			std::cout << "  " << finfo.print(0) << "\n";
-			std::cout << "  " << finfo.print(1) << "\n";
-			std::cout << "  " << finfo.print(2) << "\n";
-			std::cout << "  " << finfo.print(3) << "\n";
-			std::cout << "  " << finfo.print(4) << "\n";
-			std::cout << "  " << finfo.print(5) << "\n";
-			std::cout << "  " << finfo.print(6) << "\n";
-			std::cout << "  " << finfo.print(7) << "\n\n";			
-		}
-		else if(file_format == 2){
-		}
-	}
-
-	// Notify the unpacker object that the user has loaded a new file.
-	core->Notify("LOAD_FILE");
-	
-	return true;	
-}
-
-bool ScanMain::Rewind(const unsigned long &offset_/*=0*/){
-	if(!init){ return false; }
-
-	// Ensure that the scan is not running.
-	if(is_running){ 
-		std::cout << " Cannot change file position while scan is running!\n";
-		return false;
-	}
-
-	// Move to the first word in the file.
-	std::cout << " Seeking to word no. " << offset_ << " in file\n";
-	input_file->seekg(offset_*4, input_file->beg);
-	std::cout << " Input file is now at " << input_file->tellg() << " bytes\n";
-
-	// Notify the unpacker object that the user has rewound to the start of the file.
-	core->Notify("REWIND_FILE");
-
-	return true;
-}
-
-int ScanMain::Execute(){
-	if(!init){
-		std::cout << " FATAL ERROR! ScanMain is not initialized!\n";
+/** Run the scan program.
+  * This should be called from main().
+  * \return Integer return value. 0 on success and 1 otherwise.
+  */
+int ScanInterface::Execute(){
+	if(!scan_init){
+		std::cout << " FATAL ERROR! ScanInterface is not initialized!\n";
 		return 1; 
 	}
 
 	// Seek to the beginning of the file.
-	if(file_start_offset != 0){ Rewind(); }
+	if(file_start_offset != 0){ rewind(); }
 
 	// Process the file.
 	if(!batch_mode){
@@ -913,8 +1008,11 @@ int ScanMain::Execute(){
 	return 0;
 }
 
-bool ScanMain::Close(){
-	if(!init){ return false; }
+/** Shutdown cleanly. Uninitialize the ScanInterface object.
+  * \return True upon success and false if ScanInterface has not been initialized.
+  */
+bool ScanInterface::Close(){
+	if(!scan_init){ return false; }
 
 	// Close the socket and restore the terminal
 	if(!batch_mode){
@@ -928,26 +1026,26 @@ bool ScanMain::Close(){
 	//Reprint the leader as the carriage was returned
 	std::cout << "Running " << PROG_NAME << " v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
 	
-	std::cout << sys_message_head << "Retrieved " << num_spills_recvd << " spills!\n";
+	std::cout << msgHeader << "Retrieved " << num_spills_recvd << " spills!\n";
 
-	if(input_file){
-		input_file->close();	
-		delete input_file;
+	if(input_file.good()){
+		input_file.close();	
 	}
 
 	// Clean up detector driver
-	std::cout << "\n" << sys_message_head << "Cleaning up...\n";
+	std::cout << "\n" << msgHeader << "Cleaning up...\n";
 	
 	// Show the number of lost spill chunks.
-	std::cout << sys_message_head << "Read " << databuff.GetNumChunks() << " spill chunks.\n";
-	std::cout << sys_message_head << "Lost at least " << databuff.GetNumMissing() << " spill chunks.\n";
+	std::cout << msgHeader << "Read " << databuff.GetNumChunks() << " spill chunks.\n";
+	std::cout << msgHeader << "Lost at least " << databuff.GetNumMissing() << " spill chunks.\n";
 	
-	core->PrintStatus(sys_message_head);
-	core->Close(write_counts);
+	if(write_counts)
+		core->Write();
 	
 	if(poll_server){ delete poll_server; }
 	if(term){ delete term; }
 	if(core){ delete core; }
 	
-	return !(init = false);
+	scan_init = false;
+	return true;
 }

@@ -526,6 +526,13 @@ bool DATA_buffer::read_next_buffer(std::ifstream *f_, bool force_/*=false*/){
 
 /// Default constructor.
 DATA_buffer::DATA_buffer() : BufferType(DATA, NO_HEADER_SIZE){ // 0x41544144 "DATA"
+	current_buff_pos = 0;
+	buff_words_remaining = 0;
+	good_words_remaining = 0;
+	bcount = 0;
+	good_chunks = 0;
+	missing_chunks = 0;
+	buff_pos = 0;
 }
 
 /// Close a ldf data buffer by padding with 0xFFFFFFFF.
