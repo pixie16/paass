@@ -1,6 +1,5 @@
 set(ANALYZER_SOURCES 
   CfdAnalyzer.cpp 
-#  DoubleTraceAnalyzer.cpp 
   FittingAnalyzer.cpp 
   TauAnalyzer.cpp 
   TraceExtractor.cpp

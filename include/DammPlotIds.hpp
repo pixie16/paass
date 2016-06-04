@@ -179,9 +179,10 @@ namespace dammIds {
         const int traceBins = SA; //!< Number of Bins for Traces
 
         namespace tracefilteranalyzer {
-            const int DD_TRIGGER_FILTER = 0;//!< Trigger Filter
-            const int DD_ENERGY_FILTER = 1;//!< Energy Filter (not implemented)
-            const int DD_REJECTED_TRACE = 2;//!< Traces with Trig Time = 0
+	    const int D_RETVALS = 0; 
+            const int DD_TRIGGER_FILTER = 1;//!< Trigger Filter
+            const int DD_REJECTED_TRACE = 2;//!< Traces with some kind of error
+	    const int DD_PILEUP = 3;
         }
 
         namespace doubletraceanalyzer {
