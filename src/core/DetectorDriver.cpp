@@ -42,7 +42,6 @@
 #include "ValidProcessor.hpp"
 
 #include "CfdAnalyzer.hpp"
-//#include "DoubleTraceAnalyzer.hpp"
 #include "FittingAnalyzer.hpp"
 #include "TauAnalyzer.hpp"
 #include "TraceAnalyzer.hpp"
@@ -246,42 +245,9 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         m.detail("Loading " + name);
 
 	if(name == "TraceFilterAnalyzer") {
-	    vecAnalyzer.push_back(new TraceFilterAnalyzer());
-	}/* else if (name == "DoubleTraceAnalyzer") {
-            double gain_match = analyzer.attribute("gain_match").as_double(1.0);
-            if (gain_match == 1.0)
-                m.warning("Using gain_match = 1.0", 1);
-            int fast_rise = analyzer.attribute("fast_rise").as_int(10);
-            if (fast_rise == 10)
-                m.warning("Using fast_rise = 10", 1);
-            int fast_gap = analyzer.attribute("fast_gap").as_int(10);
-            if (fast_gap == 10)
-                m.warning("Using fast_gap = 10", 1);
-            int fast_threshold =
-                analyzer.attribute("fast_threshold").as_int(50);
-            if (fast_threshold == 50)
-                m.warning("Using fast_threshold = 50", 1);
-            int energy_rise = analyzer.attribute("energy_rise").as_int(50);
-            if (energy_rise == 50)
-                m.warning("Using energy_rise = 50", 1);
-            int energy_gap = analyzer.attribute("energy_gap").as_int(50);
-            if (energy_gap == 50)
-                m.warning("Using energy_gap = 50", 1);
-            int slow_rise = analyzer.attribute("slow_rise").as_int(20);
-            if (slow_rise == 20)
-                m.warning("Using slow_rise = 20", 1);
-            int slow_gap = analyzer.attribute("slow_gap").as_int(20);
-            if (slow_gap == 20)
-                m.warning("Using slow_gap = 20", 1);
-            int slow_threshold =
-                analyzer.attribute("slow_threshold").as_int(10);
-            if (slow_threshold == 10)
-                m.warning("Using slow_threshold = 10", 1);
-            else if (name == "DoubleTraceAnalyzer")
-                vecAnalyzer.push_back(new DoubleTraceAnalyzer(gain_match,
-                    fast_rise, fast_gap, fast_threshold, energy_rise,
-                    energy_gap, slow_rise, slow_gap, slow_threshold));
-		    }*/ else if (name == "TauAnalyzer") {
+	    bool findPileups = analyzer.attribute("FindPileup").as_bool(false);
+	    vecAnalyzer.push_back(new TraceFilterAnalyzer(findPileups));
+	} else if(name == "TauAnalyzer") {
             vecAnalyzer.push_back(new TauAnalyzer());
         } else if (name == "TraceExtractor") {
             string type = analyzer.attribute("type").as_string();
