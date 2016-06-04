@@ -87,7 +87,7 @@ private:
     /** Splits name string into the vector of string. Assumes that if
      * the last token (delimiter being "_") is in format "X-Y,Z" where
      * X, Y are integers, the X and Y are range of base names to be retured
-     * E.g. abc_1-2,4,5-6 will return ["abc_1", "abc_2", "abc_4", "abc_5,
+     * E.g. abc_1-2,4,5-6 will return ["abc_1", "abc_2", "abc_4", "abc_5",
      * "abc_6"]. If no range token or comma is found, the name itself is
      * returned as a only element of the vector
      * \param [in] name : the name string to split

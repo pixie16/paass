@@ -3,11 +3,11 @@
  * Processor for 3Hen detectors
  */
 #ifndef __HEN3PROCESSOR_HPP_
-#define __HEN3PROCESSOR_HPP_ 1
+#define __HEN3PROCESSOR_HPP_
 
 #include "EventProcessor.hpp"
 
-//! Processor to handle 3Hen detector
+/// Processor to handle 3Hen detector
 class Hen3Processor : public EventProcessor {
 public:
     /** Default Constructor */

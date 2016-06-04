@@ -1,4 +1,4 @@
-/** \file StatsData.cpp
+/** \file StatsData.hpp
  *  \brief Stores statistics data from the data stream in its original format
  */
 #ifndef __STATS_DATA_HPP__
@@ -6,13 +6,6 @@
 
 //! Class to store statistics data from data stream in original format
 class StatsData {
-private:
-    static const size_t statSize = N_DSP_PAR - DSP_IO_BORDER; //!< Size of the start
-    static const size_t maxVsn = 14; //!< maximum value of the vsn
-
-    double firstTime; /**< Store the time of the first statistics block */
-    pixie::word_t oldData[maxVsn][statSize]; /**< Older statistics data to calculate the change in statistics */
-    pixie::word_t data[maxVsn][statSize];    /**< Statistics data from each module */
 public:
     static const pixie::word_t headerLength = 1; //!< the header length
 
@@ -45,6 +38,13 @@ public:
     /** \return run time from the statistics block for a given module
     * \param [in] mod : the module you want the time for */
     double GetRealTime(unsigned int mod = 0) const;
+private:
+    static const size_t statSize = N_DSP_PAR - DSP_IO_BORDER; //!< Size of the start
+    static const size_t maxVsn = 14; //!< maximum value of the vsn
+
+    double firstTime; /**< Store the time of the first statistics block */
+    pixie::word_t oldData[maxVsn][statSize]; /**< Older statistics data to calculate the change in statistics */
+    pixie::word_t data[maxVsn][statSize];    /**< Statistics data from each module */
 };
 
 #endif

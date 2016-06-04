@@ -50,11 +50,13 @@ public:
      * \param [in] a : the high resolution time */
     void SetHighResTime(double a) {highResTime =a;}
 
+    /** \return the CFD source bit */ 
     bool GetCfdSourceBit() const {
 	return(cfdTrigSource);
     }
+    /** \return true if the CFD was forced trigger */ 
     bool CfdForceTrig() const {
-	return(cfdForceTrig);
+	return(cfdForceTrig); 
     }
 
     double GetEnergy() const {

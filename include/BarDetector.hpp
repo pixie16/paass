@@ -24,8 +24,7 @@ public:
     /** \brief The constructor for the structure
     * \param [in] Right : The right side of the bar
     * \param [in] Left : The left side of the bar
-    * \param [in] cal : The timing calibration for the bar
-    * \param [in] type : The type of bar that we have */
+    * \param [in] key : The TimingIdentifier for the bar */
     BarDetector(HighResTimingData Left, HighResTimingData Right,
                 TimingDefs::TimingIdentifier &key) {
         left_ = Left;
@@ -34,8 +33,7 @@ public:
     }
 
     /** \return the true if there was an event in the bar */
-    bool GetHasEvent() const {
-
+    bool GetHasEvent(void) const {
         if(GetType() == "small") {
             double lengthSmallTime = Globals::get()->smallLengthTime();
             return(fabs(GetTimeDifference()) < lengthSmallTime+20 &&
@@ -52,7 +50,7 @@ public:
         return(GetRightSide().GetIsValid() && GetLeftSide().GetIsValid());
     }
     /** \return the flight path of the particle to the detector */
-    double GetFlightPath() const {
+    double GetFlightPath(void) const {
         if(GetType() == "small")
             return(sqrt(GetCalibration().GetZ0()*GetCalibration().GetZ0()+
                 pow(Globals::get()->speedOfLightSmall()*0.5*GetTimeDifference()+
@@ -111,7 +109,7 @@ public:
 private:
     HighResTimingData right_; //!< The Right side of the detector
     HighResTimingData left_; //!< The Left side of the detector
-    TimingDefs::TimingIdentifier key_;
+    TimingDefs::TimingIdentifier key_; //!< The key for the detector 
 };
 
 /** Defines a map to hold Bar Detectors */

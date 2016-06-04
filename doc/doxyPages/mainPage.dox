@@ -269,7 +269,9 @@
   defined inline. One exception is ZeroVar() which is defined
   in the corresponding '.cpp' file; a portion of which is shown below:
 
+  \htmlonly
   \snippet ChanEvent.cpp Zero Channel
+  \endhtmlonly
 
   The only exception to this *.hpp and *.cpp pattern is PixieStd.cpp
   No class is defined for PixieStd because the main function
@@ -2208,7 +2210,7 @@
   \include include/TemplateProcessor.hpp
 
   The cpp file should look something like
-  \include src/TemplateProcessor.cpp
+  \include src/processors/TemplateProcessor.cpp
 
   Once a class exists for your new detector you must create an instance of it
   in the DetectorDriver.  Include the proper file in DetectorDriver.cpp

@@ -31,6 +31,7 @@ public:
                 pow((z0/tof)/Globals::get()->speedOfLight(), 2)));
     }
 
+    /** \return The channel event that holds most of our information */
     const ChanEvent* GetChan(void) const {return(chan_);}
 
     /** \return True if maxval,phase,tqdc,sigmaBaseline were not NAN */

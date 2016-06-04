@@ -38,11 +38,11 @@ public:
     virtual bool Process(RawEvent &event);
 private:
 #ifdef useroot
-    TFile *rootfile_;
-    TTree *roottree_;
-    TH2D *qdctof_;
-    TH1D *vsize_;
+    TFile *rootfile_; //!< the root file to be used for output
+    TTree *roottree_; //!< the root tree to be used for storing data
+    TH2D *qdctof_; //!< a 2D histogram in ROOT
+    TH1D *vsize_; //!< a 1D histogram in root
 #endif
-    std::ofstream *outstream;
+    std::ofstream *outstream; //!< filestream to output to text file
 };
 #endif

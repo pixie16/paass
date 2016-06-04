@@ -158,6 +158,7 @@ public:
 
     /** \return true if any reject region was defined */
     bool hasReject() const { return hasReject_; }
+    /** \return true if we will define the raw histograms */
     bool hasRaw() const {return(hasRaw_);}
 
     /** \return the adc clock in seconds */

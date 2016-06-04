@@ -45,7 +45,8 @@ public:
      * \param [in] nsPerSample : The ns/Sample for the ADC 
      * \param [in] tFilt : Parameters for the trigger filter
      * \param [in] eFilt : Paramters for the energy filter
-     * \param [in] analyzePileup : True if we want additional analysis for pileups. */
+     * \param [in] analyzePileup : True if we want additional analysis for pileups. 
+     * \param [in] verbose : true if we want verbose output from the filter */
     TraceFilter(const unsigned int &nsPerSample, 
                 const TrapFilterParameters &tFilt,
                 const TrapFilterParameters &eFilt,
@@ -64,7 +65,7 @@ public:
 
     /** This is the main method that will be used to calculate the filters and 
      * other necessary information. 
-     * \param [in] : The trace that we are going to be filtering  */
+     * \param [in] sig : The trace that we are going to be filtering  */
     unsigned int CalcFilters(const Trace *sig);
     /** \return The number of triggers that were found */
     unsigned int GetNumTriggers(void) {return(trigs_.size());}

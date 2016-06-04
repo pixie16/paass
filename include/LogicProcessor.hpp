@@ -17,7 +17,9 @@ public:
 
     /** Constructor taking histogram offset and range as arguments
     * \param [in] offset : the offset of the histograms
-    * \param [in] range : the maximum number of histograms */
+    * \param [in] range : the maximum number of histograms 
+    * \param [in] doubleStop : if we have doubled the stops in the map
+    * \param [in] doubleStart : if we have doubled the starts in the map */
     LogicProcessor(int offset, int range, bool doubleStop = false,
 		   bool doubleStart = false);
 
@@ -38,7 +40,9 @@ public:
      * \param [in] loc : the location to get the status from */
     virtual bool LogicStatus(size_t loc) const { return logicStatus.at(loc); };
 
+    /** \param [in] a : true if we have cloned the starts in the map */
     void SetDoubleStart(const bool &a) {doubleStart_ = a;};
+    /** \param [in] a : true if we have cloned the stops in the map */
     void SetDoubleStop(const bool &a) {doubleStop_ = a;};
 
     /** \return The stop count for a given location
@@ -90,6 +94,8 @@ private:
      * this flags enable removal of such an events */
     bool doubleStart_;
 
+    /** Prototype for a nifty graph, currently unimplemented 
+     * \param [in] event : the raw event for plotting the nifty graph */
     bool NiftyGraph(RawEvent &event);
 };
 

@@ -32,7 +32,7 @@ public:
         return(evts_);
     }
 private:
-    double a_;
-    std::vector<ChanEvent*> evts_;
+    double a_; //!< a variable global to the class
+    std::vector<ChanEvent*> evts_; //!< vector of events for people to get
 };
 #endif // __TEMPLATEPROCESSOR_HPP__
