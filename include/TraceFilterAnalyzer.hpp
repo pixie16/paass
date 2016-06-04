@@ -33,7 +33,8 @@ public:
     /** The analyzer method to do the analysis
      * \param [in] trace : the trace to analyze
      * \param [in] type : the detector type
-     * \param [in] subtype : the detector subtype */
+     * \param [in] subtype : the detector subtype 
+     * \param [in] tagmap : map of the tags for the channel */
     virtual void Analyze(Trace &trace, const std::string &type,
                          const std::string &subtype,
                          const std::map<std::string,int> &tagmap);

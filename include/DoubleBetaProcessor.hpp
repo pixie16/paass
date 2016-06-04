@@ -36,7 +36,7 @@ public:
 	return(lrtbars_);
     }
 private:
-    BarMap bars_;
-    std::map<unsigned int, std::pair<double,double> > lrtbars_;
+    BarMap bars_; //!< Map holding all the bars we found 
+    std::map<unsigned int, std::pair<double,double> > lrtbars_; //!< map holding low res bars
 };
 #endif // __DOUBLEBETAPROCESSOR_HPP__

@@ -1,4 +1,4 @@
-/** \file Labr3TestProcessor.hpp
+/** \file LaBr3TestProcessor.hpp
  * \brief A Labr3Test class to be used to build others.
  * \author S. V. Paulauskas
  * \date October 26, 2014

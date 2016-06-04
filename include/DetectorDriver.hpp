@@ -31,7 +31,7 @@
  *       See git commits comments.
 */
 #ifndef __DETECTORDRIVER_HPP_
-#define __DETECTORDRIVER_HPP_ 1
+#define __DETECTORDRIVER_HPP_
 
 #include <set>
 #include <string>
@@ -109,7 +109,7 @@ public:
      * DammPlotIds.hpp
      * \param [in] chan : the channel to plot
      * \return an unused integer maybe use void*/
-    int PlotRaw(const ChanEvent *);
+    int PlotRaw(const ChanEvent *chan);
 
     /*! Plot the calibrated energies of each channel into the damm spectrum
      * number assigned to it in the map file with an offset as defined in
@@ -146,7 +146,7 @@ public:
     }
 
     /** \return The requested event processor
-     * \param [in] type : the name of the processor to return */
+     * \param [in] name : the name of the processor to return */
     EventProcessor* GetProcessor(const std::string &name) const;
 
     /** \return the set of detectors used in the analysis */

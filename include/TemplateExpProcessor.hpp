@@ -44,9 +44,9 @@ private:
     /** Sets up the ASCII output file stream */
     void SetupAsciiOutput(void);
 
-    std::string fileName_; //! String to hold the file name from command line
-    std::ofstream *poutstream_; //! Pointer to ouptut ASCII file stream.
-    double gCutoff_; //! Variable used to set gamma cutoff energy
+    std::string fileName_; //!< String to hold the file name from command line
+    std::ofstream *poutstream_; //!< Pointer to ouptut ASCII file stream.
+    double gCutoff_; //!< Variable used to set gamma cutoff energy
 
 #ifdef useroot
     /** Method to setup the ROOT output, tree and histograms */

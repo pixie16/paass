@@ -2,17 +2,15 @@
  * \brief Header file for DSSD analysis
  */
 
-#ifndef __DSSD_PROCESSOR_HPP_
-#define __DSSD_PROCESSOR_HPP_
+#ifndef __DSSDPROCESSOR_HPP_
+#define __DSSDPROCESSOR_HPP_
 
 #include "EventProcessor.hpp"
 
 class DetectorSummary;
 class RawEvent;
 
-/**
- * \brief Handles detectors of type dssd_front and dssd_back
- */
+///Handles detectors of type dssd_front and dssd_back
 class DssdProcessor : public EventProcessor {
  public:
     DssdProcessor(); // no virtual c'tors
@@ -24,4 +22,4 @@ class DssdProcessor : public EventProcessor {
     static const double cutoffEnergy; ///< cutoff energy for implants versus decays
 };
 
-#endif // __DSSD_POCESSOR_HPP_
+#endif // __DSSDPOCESSOR_HPP_
