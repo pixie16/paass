@@ -173,7 +173,11 @@ public:
     * \param [in] offset : the offset for the trace*/
     void OffsetPlot(int id, int row, double offset);
 
+    /** sets the trigger filter if we are using the TriggerFilterAnalyzer 
+     * \param [in] a : the vector with the trigger filter */
     void SetTriggerFilter(const std::vector<double> &a){trigFilter_ = a;}
+    /** sets the energy sums vector if we are using the TriggerFilterAnalyzer 
+     * \param [in] a : the vector of energy sums */    
     void SetEnergySums(const std::vector<double> &a){esums_ = a;}
 
 private:

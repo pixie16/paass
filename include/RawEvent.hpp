@@ -9,7 +9,7 @@
  *    some classes moved to their own .hpp and .cpp files
  */
 #ifndef __RAWEVENT_HPP_
-#define __RAWEVENT_HPP_ 1
+#define __RAWEVENT_HPP_
 
 #include <iostream>
 #include <map>

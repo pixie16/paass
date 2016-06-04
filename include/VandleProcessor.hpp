@@ -35,7 +35,8 @@ public:
     /** Constructor taking a list of detector types as an argument
      * \param [in] typeList : the list of bar types that are in the analysis
      * \param [in] res : The resolution of the DAMM histograms
-     * \param [in] offset : The offset of the DAMM histograms */
+     * \param [in] offset : The offset of the DAMM histograms 
+     * \param [in] numStarts : number of starts we have to process */
     VandleProcessor(const std::vector<std::string> &typeList,
                     const double &res, const double &offset,
                     const unsigned int &numStarts);
@@ -62,8 +63,11 @@ public:
     
     /** \return the map of the build VANDLE bars */
     BarMap GetBars(void) {return(bars_);}
+    /** \return true if we requested small bars in the xml */
     bool GetHasSmall(void) {return(hasSmall_);}
+    /** \return true if we requested medium bars in the xml  */
     bool GetHasMed(void) {return(hasMed_);}
+    /** \return true if we requsted large bars in the xml */
     bool GetHasBig(void) {return(hasBig_);}
 
 protected:

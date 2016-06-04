@@ -8,12 +8,17 @@
 
 #include "EventProcessor.hpp"
 
+///Processor for the e11006 experiment 
 class ValidProcessor : public EventProcessor {
  public:
+    /** Default Constructor */
     E11006Processor(); // no virtual c'tors
+    /** Default Destructor */
     ~E11006Processor(){};
+    /** Process an event 
+     * \param [in] event : the event to process */
     bool Process(RawEvent &event);
+    /** Declares plots */
     void E11006Processor::DeclarePlots(void);
- private:
 };
 #endif // __E11006PROCESSOR_HPP_

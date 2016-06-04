@@ -2,7 +2,7 @@
  * \brief Lists Offsets and Ranges for various Processors
  */
 #ifndef __DAMM_PLOTIDS_HPP_
-#define __DAMM_PLOTIDS_HPP_ 1
+#define __DAMM_PLOTIDS_HPP_
 
 /**
  * Histogram sizes consts
@@ -48,8 +48,8 @@ namespace dammIds {
 
     /// in PspmtProcessor.cpp
     namespace pspmt {
-        const int OFFSET = 1900;
-        const int RANGE =  100;
+        const int OFFSET = 1900; //!< Offset for PspmtProcessor
+        const int RANGE =  100; //!< Range for PspmtProcessor
     }
 
     ///in TemplateProcessor.cpp
@@ -156,8 +156,8 @@ namespace dammIds {
 
     /// For Experiment specific processors
     namespace experiment{
-	const int OFFSET = 6050;
-	const int RANGE = 250;
+	const int OFFSET = 6050; //!< Offset for Experiment processors
+	const int RANGE = 250; //!< Range for Experiment Processors
     }
 
     /// in DssdProcessor.cpp
@@ -179,10 +179,10 @@ namespace dammIds {
         const int traceBins = SA; //!< Number of Bins for Traces
 
         namespace tracefilteranalyzer {
-	    const int D_RETVALS = 0; 
+	    const int D_RETVALS = 0; //!< Return values for TraceFilter class
             const int DD_TRIGGER_FILTER = 1;//!< Trigger Filter
             const int DD_REJECTED_TRACE = 2;//!< Traces with some kind of error
-	    const int DD_PILEUP = 3;
+	    const int DD_PILEUP = 3; //!< Piled up traces
         }
 
         namespace doubletraceanalyzer {

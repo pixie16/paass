@@ -25,7 +25,8 @@ public:
     /** The main analysis driver
     * \param [in] trace : the trace to analyze
     * \param [in] aType : the type being analyze
-    * \param [in] aSubtype : the subtype begin analyzed */
+    * \param [in] aSubtype : the subtype begin analyzed 
+    * \param [in] tagMap : the map of tags for the channel */
     virtual void Analyze(Trace &trace, const std::string &aType,
                          const std::string &aSubtype,
                          const std::map<std::string, int> & tagMap);

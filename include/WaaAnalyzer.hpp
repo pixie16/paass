@@ -1,5 +1,5 @@
 /** \file WaaAnalyzer.hpp
- * \brief Class to perform Weighted Average algorithm on waveformms
+ * \brief Class to perform Weighted Average algorithm on waveforms
  * \author S. V. Paulauskas
  * \date August 13, 2013
  */
@@ -9,6 +9,7 @@
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 
+///Extracts sub-sampling time from trace using weighted average algorithm. 
 class WaaAnalyzer : public TraceAnalyzer {
  public:
     /** Default Constructor */
