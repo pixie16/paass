@@ -20,11 +20,9 @@ public:
     /** Default Constructor */
     TraceFilterAnalyzer(){};
 
-    /** Constructor taking the trigger and energy filter parameters
-     * \param [in] t : trigger filter parameters
-     * \param [in] e : energy filter parameters*/
-    TraceFilterAnalyzer(const TrapFilterParameters &t,
-			const TrapFilterParameters &e);
+    /** Constructor 
+     * \param [in] analyzePileup : True if we want to analyze pileups */
+    TraceFilterAnalyzer(const bool &analyzePileup);
 
     /** Default Destructor */
     virtual ~TraceFilterAnalyzer(){};
@@ -40,6 +38,7 @@ public:
                          const std::string &subtype,
                          const std::map<std::string,int> &tagmap);
 private:
+    bool analyzePileup_; //!< True if looking for pileups
     TrapFilterParameters trigPars_; //!< Trigger filter parameters
     TrapFilterParameters enPars_; //!< energy filter parametersf
     std::vector<double> fastFilter;   //!< fast filter of trace
