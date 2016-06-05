@@ -19,45 +19,45 @@ namespace dammIds{
     namespace pspmt{
         
         // OFFSET = 700//    
-        const int D_RAW1=0;
-        const int D_RAW2=1;
-        const int D_RAW3=2;
-        const int D_RAW4=3;
-        const int D_RAWD=4;
-        const int D_SUM=5;
-        const int DD_POS1_RAW=6;
-        const int DD_POS2_RAW=7;
-        const int DD_POS1=8;
-        const int DD_POS2=9;
+        const int D_RAW1=0; //!< Raw 1
+        const int D_RAW2=1; //!< raw 2
+        const int D_RAW3=2; //!< raw 3
+        const int D_RAW4=3; //!< raw4 
+        const int D_RAWD=4; //!<raw dynode
+        const int D_SUM=5; //!< sum energy 
+        const int DD_POS1_RAW=6; //!< position 1 raw
+        const int DD_POS2_RAW=7; //!< position 2 raw
+        const int DD_POS1=8; //!< position 1 
+        const int DD_POS2=9; //!< position 2
         
-        const int D_ENERGY_TRACE1=10;
-        const int D_ENERGY_TRACE2=11;
-        const int D_ENERGY_TRACE3=12;
-        const int D_ENERGY_TRACE4=13;
-        const int D_ENERGY_TRACED=14;
-        const int D_ENERGY_TRACESUM=15;
-        const int DD_POS1_RAW_TRACE=16;
-        const int DD_POS2_RAW_TRACE=17;
-        const int DD_POS1_TRACE=18;
-        const int DD_POS2_TRACE=19;
+        const int D_ENERGY_TRACE1=10; //!< Trace energy 1
+        const int D_ENERGY_TRACE2=11; //!< Trace Energy 2 
+        const int D_ENERGY_TRACE3=12; //!< Trace Energy 3
+        const int D_ENERGY_TRACE4=13; //!< Trace Energy 4
+        const int D_ENERGY_TRACED=14; //!< Trace energy dynode
+        const int D_ENERGY_TRACESUM=15; //!< Trace energy sum
+        const int DD_POS1_RAW_TRACE=16; //!< Trace  position 1 raw
+        const int DD_POS2_RAW_TRACE=17; //!<Trace position 2 raw
+        const int DD_POS1_TRACE=18; //!<Trace  position 1
+        const int DD_POS2_TRACE=19; //!<Trace  position 2
         
-        const int D_QDC_TRACE1=20;
-        const int D_QDC_TRACE2=21;
-        const int D_QDC_TRACE3=22;
-        const int D_QDC_TRACE4=23;
-        const int D_QDC_TRACED=24;
+        const int D_QDC_TRACE1=20; //!<Trace qdc 1
+        const int D_QDC_TRACE2=21; //!<Trace qdc  2
+        const int D_QDC_TRACE3=22; //!<Trace  qdc 3
+        const int D_QDC_TRACE4=23; //!<Trace  qdc 4
+        const int D_QDC_TRACED=24; //!<Trace  qdc dynode
         
-        const int DD_ESLEW=30;
+        const int DD_ESLEW=30; //!<ESLEW
         
-        const int D_TEMP0=80;
-        const int D_TEMP1=81;
-        const int D_TEMP2=82;
-        const int D_TEMP3=83;
-        const int D_TEMP4=84;
-        const int D_TEMP5=85;
+        const int D_TEMP0=80; //!< temp 0
+        const int D_TEMP1=81; //!<temp 1
+        const int D_TEMP2=82; //!<temp 2
+        const int D_TEMP3=83; //!<temp 3
+        const int D_TEMP4=84; //!<temp 4
+        const int D_TEMP5=85; //!<temp 5
         
-        const int DD_DOUBLE_TRACE=77;
-        const int DD_SINGLE_TRACE=78;
+        const int DD_DOUBLE_TRACE=77; //!< Double traces
+        const int DD_SINGLE_TRACE=78; //!< Single traces
     }
 }
 

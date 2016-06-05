@@ -24,9 +24,9 @@ static double tEnergy;
 
 namespace dammIds {
     namespace experiment {
-        const int D_TSIZE  = 0;
-        const int D_GEENERGY  = 1;
-        const int DD_TENVSGEN  = 2;
+        const int D_TSIZE  = 0; //!< Size of the event
+        const int D_GEENERGY  = 1; //!< Gamma energy 
+        const int DD_TENVSGEN  = 2; //!< Energy vs Gamma Energy 
     }
 }//namespace dammIds
 

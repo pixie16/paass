@@ -15,7 +15,7 @@
 //declare the namespace for the histogram numbers
 namespace dammids {
     namespace e11006 {
-        const int D_TEMP 0;
+        const int D_TEMP 0; //!< Temporary histogram 
     }
 }
 
@@ -28,8 +28,7 @@ void E11006Processor::DeclarePlots(void) {
 }
 
 
-E11006Processor::E11006Processor(): EventProcessor(OFFSET,RANGE)
-{
+E11006Processor::E11006Processor(): EventProcessor(OFFSET,RANGE) {
     name = "e11006";
     //associate the processor with both the tac and scintillator event types
     associatedTypes.insert("tac"); 

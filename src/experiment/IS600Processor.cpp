@@ -29,23 +29,17 @@ static double qdc_;
 
 namespace dammIds {
     namespace experiment {
-        const int DD_DEBUGGING0  = 0;
-        const int DD_DEBUGGING1  = 1;
-        const int DD_DEBUGGING2  = 2;
-        const int DD_DEBUGGING3  = 3;
-        const int DD_DEBUGGING4  = 4;
-        const int DD_DEBUGGING5  = 5;
-        const int DD_DEBUGGING6  = 6;
-        const int DD_DEBUGGING7  = 7;
-        const int DD_DEBUGGING8  = 8;
-        const int DD_DEBUGGING9  = 9;
-        const int DD_DEBUGGING10  = 10;
-        const int DD_DEBUGGING11  = 11;
-        const int DD_DEBUGGING12  = 12;
-        const int DD_PROTONBETA2TDIFF_VS_BETA2EN = 13;
-        const int D_ENERGY = 14;
-        const int D_ENERGYBETA = 15;
-        const int DD_PROTONGAMMATDIFF_VS_GAMMAEN = 16;
+        const int DD_DEBUGGING0  = 0; //!<QDC CTof- No Tape Move
+        const int DD_DEBUGGING1  = 1; //!<QDC ToF Ungated
+        const int DD_DEBUGGING2  = 2; //!<Cor ToF vs. Gamma E
+        const int DD_DEBUGGING3  = 3; //!<Vandle Multiplicity
+        const int DD_DEBUGGING4  = 4; //!<QDC vs Cor Tof Mult1
+        const int DD_DEBUGGING5  = 5; //!<Mult2 Sym Plot Tof 
+        const int DD_DEBUGGING6  = 6; //!<LaBr3 RAW
+        const int DD_PROTONBETA2TDIFF_VS_BETA2EN = 13; //!< BetaProton Tdiff vs. Beta Energy
+        const int D_ENERGY = 14; //!< Gamma singles ungated
+        const int D_ENERGYBETA = 15; //!< Gamma singles beta gated
+        const int DD_PROTONGAMMATDIFF_VS_GAMMAEN = 16; //!< GammaProton TDIFF vs. Gamma Energy
     }
 }//namespace dammIds
 
@@ -56,8 +50,8 @@ void IS600Processor::DeclarePlots(void) {
     DeclareHistogram2D(DD_DEBUGGING0, SC, SD, "QDC CTof- No Tape Move");
     DeclareHistogram2D(DD_DEBUGGING1, SC, SD, "QDC ToF Ungated");
     DeclareHistogram2D(DD_DEBUGGING2, SC, SC, "Cor ToF vs. Gamma E");
-    DeclareHistogram2D(DD_DEBUGGING4, SC, SC, "QDC vs Cor Tof Mult1");
     DeclareHistogram1D(DD_DEBUGGING3, S7, "Vandle Multiplicity");
+    DeclareHistogram2D(DD_DEBUGGING4, SC, SC, "QDC vs Cor Tof Mult1");
     DeclareHistogram2D(DD_DEBUGGING5, SC, SC, "Mult2 Sym Plot Tof ");
     DeclareHistogram1D(DD_DEBUGGING6, SE, "LaBr3 RAW");
     DeclareHistogram2D(DD_PROTONBETA2TDIFF_VS_BETA2EN, SD, SA, "BetaProton Tdiff vs. Beta Energy");

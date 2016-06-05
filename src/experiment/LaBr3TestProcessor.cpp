@@ -1,5 +1,5 @@
-/** \file Labr3TestProcessor.cpp
- *\brief A Labr3Test processor class that can be used to build your own.
+/** \file LaBr3TestProcessor.cpp
+ *\brief A LaBr3Test processor class that can be used to build your own.
  *\author S. V. Paulauskas
  *\date October 26, 2014
  */
@@ -10,20 +10,17 @@
 #include "Labr3TestProcessor.hpp"
 
 namespace dammIds {
-    namespace labr3test {
-      const int OFFSET = 7990;
-      const int RANGE =9;
+    namespace experiment {
         const int D_TDIFF  = 0; //!< ID for the energy of the template detector
         const int DD_PP = 1; //!< Energy Labr3Test vs. Energy Pulser
     }
 }//namespace dammIds
 
 using namespace std;
-using namespace dammIds::labr3test;
+using namespace dammIds::experiment;
 
 Labr3TestProcessor::Labr3TestProcessor():
-    EventProcessor(dammIds::labr3test::OFFSET, dammIds::labr3test::RANGE,
-                   "labr3") {
+    EventProcessor(OFFSET, RANGE, "labr3Processor") {
     associatedTypes.insert("labr3");
 }
 
