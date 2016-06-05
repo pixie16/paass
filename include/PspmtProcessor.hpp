@@ -33,6 +33,6 @@ private:
     struct PspmtData {
 	///Clears the data from the processor 
         void Clear(void);
-    } data_;
+    } data_; //!< instance of structure to hold the data 
 };
 #endif // __PSPMTPROCESSOR_HPP__

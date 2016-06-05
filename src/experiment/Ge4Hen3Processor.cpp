@@ -34,48 +34,48 @@ using namespace std;
 namespace dammIds {
     namespace ge {
         namespace neutron {
-            const int D_ENERGY = 200;
-            const int D_ENERGY_MOVE = 206;
-            const int DD_ENERGY = 202;
-            const int DD_ENERGY_NEUTRON_LOC = 203;
-            const int D_MULT = 209;
-            const int DD_ENERGY__TIMEX = 221; 
-            const int DD_ENERGY__TIMEX_GROW = 223; 
-            const int DD_ENERGY__TIMEX_DECAY = 225; 
+            const int D_ENERGY = 200; //!< energy 
+            const int D_ENERGY_MOVE = 206; //!< energy during move
+            const int DD_ENERGY = 202; //!< energy vs energy 
+            const int DD_ENERGY_NEUTRON_LOC = 203; //!< energy vs neutron location
+            const int D_MULT = 209; //!< multiplicity 
+            const int DD_ENERGY__TIMEX = 221; //!< energy vs grow/decay curve 
+            const int DD_ENERGY__TIMEX_GROW = 223; //!< energy vs grow 
+            const int DD_ENERGY__TIMEX_DECAY = 225; //!< energy vs deay
 
-            const int D_ADD_ENERGY = 250; 
-            const int DD_ADD_ENERGY = 252;
-            const int D_ADD_ENERGY_TOTAL = 255;
-            const int DD_ADD_ENERGY__TIMEX = 271;
+            const int D_ADD_ENERGY = 250; //!< add back energy 
+            const int DD_ADD_ENERGY = 252; //!< add back gamma gamma
+            const int D_ADD_ENERGY_TOTAL = 255; //!< addback total energy
+            const int DD_ADD_ENERGY__TIMEX = 271; //!< addback grow/decay
 
             namespace betaGated {
-                const int D_ENERGY = 210;
-                const int D_ENERGY_PROMPT = 211;
-                const int DD_ENERGY = 212;
-                const int DD_ENERGY__TIMEX = 231; 
+                const int D_ENERGY = 210; //!< beta gated energy 
+                const int D_ENERGY_PROMPT = 211; //!< beta gated prompt 
+                const int DD_ENERGY = 212; //!< beta gated gamma gamma
+                const int DD_ENERGY__TIMEX = 231; //!<  beta gated grow/decy 
 
-                const int D_ADD_ENERGY = 260; 
-                const int D_ADD_ENERGY_TOTAL = 265;
-                const int DD_ADD_ENERGY = 262;
-                const int DD_ADD_ENERGY__TIMEX = 281;
+                const int D_ADD_ENERGY = 260; //!<beta gated addback 
+                const int D_ADD_ENERGY_TOTAL = 265; //!< beta gated total energy 
+                const int DD_ADD_ENERGY = 262; //!< beta gated addback gamma gamma
+                const int DD_ADD_ENERGY__TIMEX = 281; //!< beta gated addback grow/decay
             } 
         }
 
         namespace multiNeutron {
-            const int D_ENERGY = 300;
-            const int DD_ENERGY__TIMEX = 321; 
+            const int D_ENERGY = 300; //!< neutron gated energy 
+            const int DD_ENERGY__TIMEX = 321; //!<  neutron gated grow/decay
 
-            const int D_ADD_ENERGY = 350; 
-            const int D_ADD_ENERGY_TOTAL = 355;
-            const int DD_ADD_ENERGY__TIMEX = 371;
+            const int D_ADD_ENERGY = 350; //!< neutron gated addback energy 
+            const int D_ADD_ENERGY_TOTAL = 355; //!< neutron gated total addback energy 
+            const int DD_ADD_ENERGY__TIMEX = 371; //!< neutron gated addback grow/decy 
             namespace betaGated {
-                const int D_ENERGY = 310;
-                const int D_ENERGY_PROMPT = 311;
-                const int DD_ENERGY__TIMEX = 331; 
+                const int D_ENERGY = 310; //!< n-b gated energy 
+                const int D_ENERGY_PROMPT = 311; //!<n-b gated prompt energy 
+                const int DD_ENERGY__TIMEX = 331; //!<  n-b gated grow/decy 
 
-                const int D_ADD_ENERGY = 360; 
-                const int D_ADD_ENERGY_TOTAL = 365;
-                const int DD_ADD_ENERGY__TIMEX = 381; 
+                const int D_ADD_ENERGY = 360; //!< n-b gated add back 
+                const int D_ADD_ENERGY_TOTAL = 365; //!< n-b gated total addback energy 
+                const int DD_ADD_ENERGY__TIMEX = 381; //!<  n-b gated addback grow/decay
             } 
         }
     }

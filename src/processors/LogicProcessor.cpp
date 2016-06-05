@@ -22,7 +22,7 @@ static const double doubleTimeLimit_ = 10e-6;
 
 namespace dammIds {
     namespace logic {
-	static double clockInSeconds = Globals::get()->clockInSeconds();
+	static double clockInSeconds = Globals::get()->clockInSeconds(); //!< clock in seconds
 	static const unsigned int MAX_LOGIC = 10; //!<Maximum Number of Logic Signals
 	const double logicPlotResolution =
 	    10e-6 / Globals::get()->clockInSeconds(); //!<Resolution for Logic Plots

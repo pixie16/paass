@@ -18,12 +18,17 @@ public:
     /** Default Destructor */
     ~CrosstalkProcessor(){};
     /** Declares the plots for the processor */
-    virtual void DeclarePlots(void);
+    void DeclarePlots(void);
+    
+    /** Preprocess the data for Crosstalk
+     * \param [in] event : the event to preprocess
+     * \return true if successful */
+    bool PreProcess(RawEvent &event);
 
     /** Performs the main processsing, which may depend on other processors
     * \param [in] event : the event to process
     * \return true if processing was successful */
-    virtual bool Process(RawEvent &event);
+    bool Process(RawEvent &event);
 private:
     typedef std::pair<unsigned int, unsigned int> CrossTalkKey; //!< Typedef for crosstalk
     typedef std::map<CrossTalkKey, double> CrossTalkMap;//!< typedef for map for crosstalk handling

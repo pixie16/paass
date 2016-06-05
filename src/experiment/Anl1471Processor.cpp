@@ -22,19 +22,19 @@
 namespace dammIds {
     namespace vandle {
         const unsigned int DEBUGGING_OFFSET = 70;
-        const int DD_DEBUGGING0  = 0+DEBUGGING_OFFSET;
-        const int DD_DEBUGGING1  = 1+DEBUGGING_OFFSET;
-        const int DD_DEBUGGING2  = 2+DEBUGGING_OFFSET;
-        const int DD_DEBUGGING3  = 3+DEBUGGING_OFFSET;
-        const int DD_DEBUGGING4  = 4+DEBUGGING_OFFSET;
-        const int DD_DEBUGGING5  = 5+DEBUGGING_OFFSET;
-        const int DD_DEBUGGING6  = 6+DEBUGGING_OFFSET;
-        const int DD_DEBUGGING7  = 7+DEBUGGING_OFFSET;
-        const int DD_DEBUGGING8  = 8+DEBUGGING_OFFSET;
-        const int DD_DEBUGGING9  = 9+DEBUGGING_OFFSET;
-        const int DD_DEBUGGING10  = 10+DEBUGGING_OFFSET;
-        const int DD_DEBUGGING11  = 11+DEBUGGING_OFFSET;
-        const int DD_DEBUGGING12  = 12+DEBUGGING_OFFSET;
+        const int DD_DEBUGGING0  = 0+DEBUGGING_OFFSET; //!< General Purpose
+        const int DD_DEBUGGING1  = 1+DEBUGGING_OFFSET; //!< TOF - banana 
+        const int DD_DEBUGGING2  = 2+DEBUGGING_OFFSET; //!< TOf -lower bars w/ banana
+        const int DD_DEBUGGING3  = 3+DEBUGGING_OFFSET; //!< TOF - upper bars w/ banana
+        const int DD_DEBUGGING4  = 4+DEBUGGING_OFFSET; //!< TOF gated 600 kev
+        const int DD_DEBUGGING5  = 5+DEBUGGING_OFFSET; //!< TOF gated 700 kev
+        const int DD_DEBUGGING6  = 6+DEBUGGING_OFFSET; //!< TOF - bar 12 ban gated
+        const int DD_DEBUGGING7  = 7+DEBUGGING_OFFSET; //!< Unused
+        const int DD_DEBUGGING8  = 8+DEBUGGING_OFFSET; //!< Unused
+        const int DD_DEBUGGING9  = 9+DEBUGGING_OFFSET; //!< Bar loc vs tof gated
+        const int DD_DEBUGGING10  = 10+DEBUGGING_OFFSET; //!< Decay vs. Tof
+        const int DD_DEBUGGING11  = 11+DEBUGGING_OFFSET; //!< Decay vs. Genergy
+        const int DD_DEBUGGING12  = 12+DEBUGGING_OFFSET; //!< Decay vs Tof banana
     }
 }//namespace dammIds
 
