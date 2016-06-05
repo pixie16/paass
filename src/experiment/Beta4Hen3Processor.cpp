@@ -17,34 +17,30 @@ using namespace dammIds::beta_scint;
 namespace dammIds {
     namespace beta_scint {
         namespace neutron{
-            const int D_ENERGY_BETA_GAMMA_GATED = 7;
-            const int DD_ENERGY_BETA__GAMMA = 8;
-
-            const int DD_ENERGY_BETA__TIME_TOTAL = 15;
-            const int DD_ENERGY_BETA__TIME_NOG = 16;
-            const int DD_ENERGY_BETA__TIME_G = 17;
-
-            const int DD_ENERGY_BETA__TIME_TM_TOTAL = 25;
-            const int DD_ENERGY_BETA__TIME_TM_NOG = 26;
-            const int DD_ENERGY_BETA__TIME_TM_G = 27;
+            const int D_ENERGY_BETA_GAMMA_GATED = 7; //!< Beta energy gamma gated
+            const int DD_ENERGY_BETA__GAMMA = 8; //!< Beta vs. Gamma energy
+            const int DD_ENERGY_BETA__TIME_TOTAL = 15; //!< Energy vs. Time
+            const int DD_ENERGY_BETA__TIME_NOG = 16; //!< Energy vs Time no gamma
+            const int DD_ENERGY_BETA__TIME_G = 17; //!< Energy vs Time Gamma
+            const int DD_ENERGY_BETA__TIME_TM_TOTAL = 25; //!< Energy vs Time total 
+            const int DD_ENERGY_BETA__TIME_TM_NOG = 26; //!< Energy vs time No gamma
+            const int DD_ENERGY_BETA__TIME_TM_G = 27; //!< Energy vs Time gamma
         }
 
         namespace multiNeutron {
-            const int DD_ENERGY_BETA__TIME_TOTAL = 30;
-            const int DD_ENERGY_BETA__TIME_NOG = 31;
-            const int DD_ENERGY_BETA__TIME_G = 32;
-
-            const int DD_ENERGY_BETA__TIME_TM_TOTAL = 35;
-            const int DD_ENERGY_BETA__TIME_TM_NOG = 36;
-            const int DD_ENERGY_BETA__TIME_TM_G = 37;
+            const int DD_ENERGY_BETA__TIME_TOTAL = 30; //!< Energy vs Total Time
+            const int DD_ENERGY_BETA__TIME_NOG = 31; //!< Energy vs time no gamma
+            const int DD_ENERGY_BETA__TIME_G = 32; //!< Energy vs time gamma gated
+            const int DD_ENERGY_BETA__TIME_TM_TOTAL = 35; //!< Energy vs time total
+            const int DD_ENERGY_BETA__TIME_TM_NOG = 36; //!< Energy vs time no gamma
+            const int DD_ENERGY_BETA__TIME_TM_G = 37; //!< Energy vs time gamma
         }
     }
 } 
 
 Beta4Hen3Processor::Beta4Hen3Processor(double gammaBetaLimit,
                                        double energyContraction) :
-    BetaScintProcessor(gammaBetaLimit, energyContraction)
-{
+    BetaScintProcessor(gammaBetaLimit, energyContraction) {
 }
 
 void Beta4Hen3Processor::DeclarePlots(void) {

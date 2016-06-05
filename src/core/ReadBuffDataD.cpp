@@ -1,4 +1,4 @@
-/** \file ReadBuffData.RevD.cpp
+/** \file ReadBuffDataD.cpp
  * \brief retrieve data from raw buffer array ibuf
  */
 /*----------------------------------------------------------------------
