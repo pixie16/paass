@@ -127,10 +127,10 @@ if (${USE_POLL})
 
 	#Build poll
 	add_subdirectory(Poll)
-
-	#Build PxiDump
-	add_subdirectory(PxiDump/source)
 endif()
+
+#Build PxiDump
+add_subdirectory(PxiDump)
 
 #Build the share objects
 add_subdirectory(share)

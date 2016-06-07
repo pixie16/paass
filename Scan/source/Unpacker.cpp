@@ -17,99 +17,196 @@
 #include <time.h>
 #include <cmath>
 #include <algorithm>
+#include <limits>
 
 #include "Unpacker.hpp"
-#include "PixieEvent.hpp"
+#include "XiaData.hpp"
 
-void Unpacker::ClearRawEvent(){
-	while(!rawEvent.empty()){
-		delete rawEvent.front();
-		rawEvent.pop_front();
+void clearDeque(std::deque<XiaData*> &list){
+	while(!list.empty()){
+		delete list.front();
+		list.pop_front();
 	}
 }
 
-void Unpacker::ClearEventList(){
-	while(!eventList.empty()){
-		delete eventList.front();
-		eventList.pop_front();
+/** Scan the event list and sort it by timestamp.
+  * \return Nothing.
+  */
+void Unpacker::TimeSort(){
+	for(std::vector<std::deque<XiaData*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
+		sort(iter->begin(), iter->end(), &XiaData::compareTime);
 	}
 }
 
-void Unpacker::DeleteCurrentEvent(){
-	if(eventList.empty()){ return; }
-	delete eventList.front();
-	eventList.pop_front();
-}
+/** Scan the time sorted event list and package the events into a raw
+  * event with a size governed by the event width.
+  * \return True if the event list is not empty and false otherwise.
+  */
+bool Unpacker::BuildRawEvent(){
+	if(!rawEvent.empty())
+		ClearRawEvent();
 
-void Unpacker::ProcessRawEvent(){
-}
+	if(numRawEvt == 0){// This is the first rawEvent. Do some special processing.
+		// Find the first XiaData event. The eventList is time sorted by module.
+		// The first component of each deque will be the earliest time from that module.
+		// The first event time will be the minimum of these first components.
+		if(!GetFirstTime(firstTime))
+			return false;
+		std::cout << "BuildRawEvent: First event time is " << firstTime << " clock ticks.\n";
+		eventStartTime = firstTime;
+	}
+	else{ 
+		// Move the event window forward to the next valid channel fire.
+		if(!GetFirstTime(eventStartTime))
+			return false;
+	}
 
-void Unpacker::ScanList(){
-	int mod, chan;
+	realStartTime = eventStartTime+eventWidth;
+	realStopTime = eventStartTime;
+	
+	unsigned int mod, chan;
 	std::string type, subtype, tag;
-	
-	PixieEvent *current_event = eventList.front();
-	
-	// Set lastTime to the time of the first event
-	double lastTime = current_event->time;
-	double currTime;
+	XiaData *current_event = NULL;
 
-	// Loop over the list of channels that fired in this buffer
-	while(!eventList.empty()){
-		if(kill_all){ // Hard abort.
-			ClearRawEvent();
-			ClearEventList();
-			return;
-		}
-	
-		current_event = eventList.front();
-		
-		mod = current_event->modNum;
-		chan = current_event->chanNum;
-		
-		if(mod > MAX_PIXIE_MOD || chan > MAX_PIXIE_CHAN){ // Skip this channel
-			std::cout << "ScanList: Encountered non-physical Pixie ID (mod = " << mod << ", chan = " << chan << ")\n";
-			DeleteCurrentEvent();
+	// Loop over all time-sorted modules.
+	for(std::vector<std::deque<XiaData*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
+		if(iter->empty())
 			continue;
-		}
-
-		// Retrieve the current event time.
-		currTime = current_event->time;
-
-		// If the time difference between the current and previous event is 
-		// larger than the event width, finalize the current event, otherwise
-		// treat this as part of the current event
-		if((currTime - lastTime) > event_width){ // 62 pixie ticks represents ~0.5 us
-			if(!rawEvent.empty()){ ProcessRawEvent(); }
-		}
-
-		// Update the time of the last event
-		lastTime = currTime; 
-		
-		// Push this channel event into the rawEvent.
-		rawEvent.push_back(current_event);
-		
-		// Remove this event from the event list but do not delete it yet.
-		// Deleting of the channel events will be handled by clearing the rawEvent.
-		eventList.pop_front();
-	}
-
-	// Process the last event in the buffer
-	if(rawEvent.size() > 0){
-		ProcessRawEvent();
-	}
+			
+		// Loop over the list of channels that fired in this buffer
+		while(!iter->empty()){
+			current_event = iter->front();
+			mod = current_event->modNum;
+			chan = current_event->chanNum;
 	
-	// Check that the event list is empty. It should be...
-	if(!eventList.empty()){
-		std::cout << "ScanList: Attempting to exit ScanList with elements in the event list!\n";
-		ClearEventList();
+			if(mod > MAX_PIXIE_MOD || chan > MAX_PIXIE_CHAN){ // Skip this channel
+				std::cout << "BuildRawEvent: Encountered non-physical Pixie ID (mod = " << mod << ", chan = " << chan << ")\n";
+				delete current_event;
+				iter->pop_front();
+				continue;
+			}
+
+			double currtime = current_event->time;
+
+			// Check for backwards time-skip. This is un-handled currently and needs fixed CRT!!!
+			if(currtime < eventStartTime)
+				std::cout << "BuildRawEvent: Detected backwards time-skip from start=" << eventStartTime << " to " << current_event->time << "???\n";
+
+			// If the time difference between the current and previous event is 
+			// larger than the event width, finalize the current event, otherwise
+			// treat this as part of the current event
+			if((currtime - eventStartTime) > eventWidth){ // 62 pixie ticks represents ~0.5 us
+				break;
+			}
+
+			// Check for the minimum time in this raw event.
+			if(currtime < realStartTime)
+				realStartTime = currtime;
+			
+			// Check for the maximum time in this raw event.
+			if(currtime > realStopTime)
+				realStopTime = currtime;
+
+			// Update raw stats output with the new event before adding it to the raw event.
+			RawStats(current_event);
+	
+			// Push this channel event into the rawEvent.
+			rawEvent.push_back(current_event);
+	
+			// Remove this event from the event list but do not delete it yet.
+			// Deleting of the channel events will be handled by clearing the rawEvent.
+			iter->pop_front();
+		}
 	}
+
+	numRawEvt++;
+	
+	return true;
 }	
 
-void Unpacker::SortList(){
-	sort(eventList.begin(), eventList.end(), &PixieEvent::compareTime);
+/** Push an event into the event list.
+  * \param[in]  event_ The XiaData to push onto the back of the event list.
+  * \return True if the XiaData's module number is valid and false otherwise.
+  */
+bool Unpacker::AddEvent(XiaData *event_){
+	if(event_->modNum > MAX_PIXIE_MOD){ return false; }
+	
+	// Check for the need to add a new deque to the event list.
+	if(event_->modNum+1 > (unsigned int)eventList.size()){
+		for(unsigned int i = 0; i < (event_->modNum+1 - (unsigned int)eventList.size()); i++){
+			eventList.push_back(std::deque<XiaData*>());
+		}
+	}
+	
+	eventList.at(event_->modNum).push_back(event_);
+	
+	return true;
 }
 
+/** Clear all events in the spill event list. WARNING! This method will delete all events in the
+  * event list. This could cause seg faults if the events are used elsewhere.
+  * \return Nothing.
+  */	
+void Unpacker::ClearEventList(){
+	for(std::vector<std::deque<XiaData*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
+		clearDeque((*iter));
+	}
+}
+
+/** Clear all events in the raw event list. WARNING! This method will delete all events in the
+  * event list. This could cause seg faults if the events are used elsewhere.
+  * \return Nothing.
+  */
+void Unpacker::ClearRawEvent(){
+	clearDeque(rawEvent);
+}
+
+/** Get the minimum channel time from the event list.
+  * \param[out] time The minimum time from the event list in system clock ticks.
+  * \return True if the event list is not empty and false otherwise.
+  */
+bool Unpacker::GetFirstTime(double &time){
+	if(IsEmpty())
+		return false;
+
+	time = std::numeric_limits<double>::max();
+	for(std::vector<std::deque<XiaData*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
+		if(iter->empty())
+			continue;
+		if(iter->front()->time < time)
+			time = iter->front()->time;
+	}
+	
+	return true;
+}
+
+/** Check whether or not the eventList is empty.
+  * \return True if the eventList is empty, and false otherwise.
+  */
+bool Unpacker::IsEmpty(){
+	for(std::vector<std::deque<XiaData*> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
+		if(!iter->empty())
+			return false;
+	}
+	return true;
+}
+
+/** Process all events in the event list.
+  * \param[in]  addr_ Pointer to a ScanInterface object. Unused by default.
+  * \return Nothing.
+  */
+void Unpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/){
+	ClearRawEvent();
+}
+
+/** Called form ReadSpill. Scan the current spill and construct a list of
+  * events which fired by obtaining the module, channel, trace, etc. of the
+  * timestamped event. This method will construct the event list for
+  * later processing.
+  * \param[in]  buf    Pointer to an array of unsigned ints containing raw buffer data.
+  * \param[out] bufLen The number of words in the buffer.
+  * \return The number of XiaDatas read from the buffer.
+  */
 int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){						
 	// multiplier for high bits of 48-bit time
 	static const double HIGH_MULT = pow(2., 32.); 
@@ -124,20 +221,14 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 	// Read the module number
 	modNum = *buf++;
 
-	PixieEvent *lastVirtualChannel = NULL;
+	XiaData *lastVirtualChannel = NULL;
 
 	if(bufLen > 0){ // Check if the buffer has data
 		if(bufLen == 2){ // this is an empty channel
 			return 0;
 		}
 		while( buf < bufStart + bufLen ){
-			if(kill_all){ // Hard abort.
-				ClearRawEvent();
-				ClearEventList();
-				return numEvents;
-			}
-		
-			PixieEvent *currentEvt = new PixieEvent();
+			XiaData *currentEvt = new XiaData();
 
 			// decoding event data... see pixie16app.c
 			// buf points to the start of channel data
@@ -248,7 +339,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 				buf += traceLength / 2;
 			}
  
-			eventList.push_back(currentEvt);
+			AddEvent(currentEvt);
 			
 			numEvents++;
 		}
@@ -262,16 +353,20 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 }
 
 Unpacker::Unpacker(){
-	kill_all = false;
 	debug_mode = false;
-	shm_mode = false;
-	init = false;
+	running = true;
 
 	TOTALREAD = 1000000; // Maximum number of data words to read.
 	maxWords = 131072; // Maximum number of data words for revision D.	
-	event_width = 62; // ~ 500 ns in 8 ns pixie clock ticks.
+	numRawEvt = 0; // Count of raw events read from file.
+	eventWidth = 62; // ~ 500 ns in 8 ns pixie clock ticks.
 	
-	message_head = "";
+	firstTime = 0;
+	eventStartTime = 0;
+	realStartTime = 0;
+	realStopTime = 0;
+	
+	interface = NULL;
 	
 	for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
 		for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
@@ -280,18 +375,21 @@ Unpacker::Unpacker(){
 	}
 }
 
+/// Destructor.
 Unpacker::~Unpacker(){
-	Close();
+	ClearRawEvent();
+	ClearEventList();
 }
 
-bool Unpacker::Initialize(std::string prefix_){
-	if(init){ return false; }
-	return (init = true);
-}
-
+/** ReadSpill is responsible for constructing a list of pixie16 events from
+  * a raw data spill. This method performs sanity checks on the spill and
+  * calls ReadBuffer in order to construct the event list.
+  * \param[in]  data       Pointer to an array of unsigned ints containing the spill data.
+  * \param[in]  nWords     The number of words in the array.
+  * \param[in]  is_verbose Toggle the verbosity flag on/off.
+  * \return True if the spill was read successfully and false otherwise.
+  */	
 bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbose/*=true*/){
-	if(!init){ return false; }
-	
 	const unsigned int maxVsn = 14; // No more than 14 pixie modules per crate
 	unsigned int nWords_read = 0;
 	
@@ -320,12 +418,6 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 	// While the current location in the buffer has not gone beyond the end
 	// of the buffer (ignoring the last three delimiters, continue reading
 	while (nWords_read <= nWords){
-		if(kill_all){ // Hard abort.
-			ClearRawEvent();
-			ClearEventList();
-			return true;
-		}
-	
 		// Retrieve the record length and the vsn number
 		lenRec = data[nWords_read]; // Number of words in this record
 		vsn = data[nWords_read+1]; // Module number
@@ -386,9 +478,9 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 		else if(vsn == 1000){ // Buffer with vsn 1000 was inserted with the time for superheavy exp't
 			memcpy(&theTime, &data[nWords_read+2], sizeof(time_t));
 			if(is_verbose){
-				struct tm * timeinfo;
+				/*struct tm * timeinfo;
 				timeinfo = localtime (&theTime);
-				std::cout << "ReadSpill: Read wall clock time of " << asctime(timeinfo);
+				std::cout << "ReadSpill: Read wall clock time of " << asctime(timeinfo);*/
 			}
 			nWords_read += lenRec;
 			continue;
@@ -430,13 +522,18 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 			//double lastTimestamp = (*(eventList.rbegin()))->time;
 
 			// Sort the event list in time
-			SortList();
+			TimeSort();
 
 			// Once the vector of pointers eventlist is sorted based on time,
 			// begin the event processing in ScanList().
 			// ScanList will also clear the event list for us.
-			ScanList();
-
+			while(BuildRawEvent()){
+				// Process the event.
+				ProcessRawEvent(interface);
+			}
+			
+			ClearEventList();
+			
 			// Once the eventlist has been scanned, reset the number 
 			// of events to zero and update the event counter
 			numEvents=0;
@@ -463,21 +560,17 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 	return true;		
 }
 
-void Unpacker::Close(bool write_count_file/*=false*/){
-	if(init){
-		ClearRawEvent();
-		ClearEventList();
-		
-		if(write_count_file){ // Write all recorded channel counts to a file.
-			std::ofstream count_output("counts.dat");
-			if(count_output.good()){
-				for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
-					for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
-						count_output << i << "\t" << j << "\t" << channel_counts[i][j] << std::endl;
-					}
-				}
-				count_output.close();
+/** Write all recorded channel counts to a file.
+  * \return Nothing.
+  */
+void Unpacker::Write(){
+	std::ofstream count_output("counts.dat");
+	if(count_output.good()){
+		for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
+			for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
+				count_output << i << "\t" << j << "\t" << channel_counts[i][j] << std::endl;
 			}
 		}
+		count_output.close();
 	}
 }

@@ -506,13 +506,70 @@ void Terminal::init_colors_() {
 	}
 }
 
-bool Terminal::LoadCommandHistory(bool overwrite){
-	std::ifstream input(historyFilename_.c_str());
-	//If the stream doesn't open we assume it has been created before and quietly
-	// fail.
+/** Read commands from a command script.
+  *  param[in] filename_ : The relative path to the file containing CTerminal commands.
+  *  Returns true if the file opened successfully and false otherwise.
+  *
+  * An example CTerminal script is given below. Comments are denoted by a #.
+  *
+  * # Tell the user something about this script.
+  * .echo This script is intended to be used to test the script reader (i.e. '.cmd').
+  * 
+  * # Issue the user a prompt asking if they would like to continue.
+  * # If the user types anything other than 'yes' or 'y', the script will abort.
+  * .prompt WARNING! This script will do something. Are you sure you wish to proceed?
+  * 
+  * help # Do something just to test that the script is working.
+  *
+  */
+bool Terminal::LoadCommandFile(const char *filename_){
+	std::ifstream input(filename_);
+	
+	// Check that the script opened successfully.
 	if(!input.good()){ 
 		return false; 
 	}
+	
+	// Read the commands from the specified file.
+	std::string cmd;
+	while(true){
+		std::getline(input, cmd);
+		if(input.eof()){ break; }
+
+		// Check for empty string.
+		if(cmd.empty()){ continue; }
+
+		// Search for comments.
+		if(cmd.find('#') != std::string::npos){
+			// Strip off trailing comments.
+			cmd = cmd.substr(0, cmd.find_first_of('#'));
+		}
+
+		// Strip leading whitespace.
+		if(!cmd.empty()){ cmd = cmd.substr(cmd.find_first_not_of(' ')); }
+
+		// Strip trailing whitespace.
+		if(!cmd.empty()){ cmd = cmd.substr(0, cmd.find_last_not_of(' ')+1); }
+
+		// Check for empty string again since we've processed some more.
+		if(cmd.empty()){ continue; }
+
+		// Push the command into the command array
+		cmd_queue.push_back(cmd);
+	}
+	
+	input.close();
+	return true;
+}
+
+bool Terminal::LoadCommandHistory(bool overwrite){
+	std::ifstream input(historyFilename_.c_str());
+	
+	//If the stream doesn't open we assume it has been created before and quietly fail.
+	if(!input.good()){ 
+		return false; 
+	}
+	
 	//The current commands were to be overwritten
 	if (overwrite) {
 		commands.Clear();
@@ -842,8 +899,11 @@ void Terminal::TabComplete(std::vector<std::string> matches) {
 	refresh_();
 }
 
-std::string Terminal::GetCommand(){
+std::string Terminal::GetCommand(const int &prev_cmd_return_/*=0*/){
 	std::string output = "";
+
+	bool from_script = false;
+	bool prompt_user = false;
 	
 	sclock::time_point commandRequestTime = sclock::now();
 	sclock::time_point currentTime;
@@ -854,146 +914,215 @@ std::string Terminal::GetCommand(){
 		print(status_window,statusStr.at(0).c_str());
 	}
 
-	while(true){
-		if(SIGNAL_SEGFAULT){ // segmentation fault (SIGSEGV)
-			Close();
-			return "_SIGSEGV_";
-		}
-		if(SIGNAL_INTERRUPT){ // ctrl-c (SIGINT)
-			SIGNAL_INTERRUPT = false;
-			output = "CTRL_C";
-			break;
-		}
-		if(SIGNAL_TERMSTOP){ // ctrl-z (SIGTSTP)
-			SIGNAL_TERMSTOP = false;
-			output = "CTRL_Z";
-			break;
-		}
+read_command:
 
-		//Update status message
-		if (status_window) {
-			werase(status_window);
-			print(status_window,statusStr.at(0).c_str());
-		}
-
-		flush(); // If there is anything in the stream, dump it to the screen
-
-		// Time out if there is no command within the set interval (default 0.5 s). 
-		if (commandTimeout_ > 0) {
-			// Update the current time.
-			currentTime = sclock::now();
-			std::chrono::duration<float> time_span = std::chrono::duration_cast<std::chrono::duration<float>>(currentTime - commandRequestTime);
+	// Check for commands in the command queue.
+	if(!prompt_user && !cmd_queue.empty()){ 
+		while(true){
+			output = cmd_queue.front();
+			cmd_queue.pop_front();
 			
-			// If the timeout has passed we simply return the empty output string.
-			if (time_span.count() > commandTimeout_) {
+			// Check for blank lines.
+			if(!output.empty()){ break; }
+		}
+		from_script = true;
+	}
+	else{
+		// Get a command from the user.
+		while(true){
+			if(SIGNAL_SEGFAULT){ // segmentation fault (SIGSEGV)
+				Close();
+				return "_SIGSEGV_";
+			}
+			if(SIGNAL_INTERRUPT){ // ctrl-c (SIGINT)
+				SIGNAL_INTERRUPT = false;
+				output = "CTRL_C";
 				break;
 			}
+			if(SIGNAL_TERMSTOP){ // ctrl-z (SIGTSTP)
+				SIGNAL_TERMSTOP = false;
+				output = "CTRL_Z";
+				break;
+			}
+
+			//Update status message
+			if (status_window) {
+				werase(status_window);
+				print(status_window,statusStr.at(0).c_str());
+			}
+
+			flush(); // If there is anything in the stream, dump it to the screen
+
+			// Time out if there is no command within the set interval (default 0.5 s). 
+			if (commandTimeout_ > 0) {
+				// Update the current time.
+				currentTime = sclock::now();
+				std::chrono::duration<float> time_span = std::chrono::duration_cast<std::chrono::duration<float>>(currentTime - commandRequestTime);
+			
+				// If the timeout has passed we simply return the empty output string.
+				if (time_span.count() > commandTimeout_) {
+					break;
+				}
+			}
+		
+			int keypress = wgetch(input_window);
+	
+			// Check for internal commands
+			if(keypress == ERR){continue;} // No key was pressed in the interval
+			else if(keypress == 10){ // Enter key (10)
+				std::string temp_cmd = cmd.Get();
+				//Reset the position in the history.
+				commands.Reset();
+				if(temp_cmd != "" && temp_cmd != commands.PeekPrev()){ // Only save this command if it is different than the previous command
+					commands.Push(temp_cmd);
+				}
+				output = temp_cmd;
+				std::cout << prompt << output << "\n";
+				flush();
+				_scrollPosition = 0;
+				clear_();
+				tabCount = 0;
+				break;
+			} 
+			else if(keypress == '\t' && enableTabComplete) {
+				tabCount++;
+				output = cmd.Get().substr(0,cursX - offset) + "\t";
+				break;
+			}
+			else if(keypress == 4){ // ctrl-d (EOT)
+				output = "CTRL_D";
+				clear_();
+				tabCount = 0;
+				break;
+			}
+			else if(keypress == 9){ } // Tab key (9)
+			else if(keypress == KEY_UP){ // 259
+				if(commands.GetIndex() == 0){ commands.Capture(cmd.Get()); }
+				std::string temp_cmd = commands.GetPrev();
+				if(temp_cmd != "NULL"){
+					clear_();
+					cmd.Set(temp_cmd);
+					in_print_(cmd.Get().c_str());
+				}
+			}
+			else if(keypress == KEY_DOWN){ // 258
+				std::string temp_cmd = commands.GetNext();
+				if(temp_cmd != "NULL"){
+					clear_();
+					cmd.Set(temp_cmd);
+					in_print_(cmd.Get().c_str());
+				}
+			}
+			else if(keypress == KEY_LEFT){ cursX--; } // 260
+			else if(keypress == KEY_RIGHT){ cursX++; } // 261
+			else if(keypress == KEY_PPAGE){ //Page up key
+				scroll_(-(_winSizeY-2));
+			}
+			else if(keypress == KEY_NPAGE){ //Page down key
+				scroll_(_winSizeY-2);
+			}
+			else if(keypress == KEY_BACKSPACE){ // 263
+				wmove(input_window, 0, --cursX);
+				wdelch(input_window);
+				cmd.Pop(cursX - offset);
+			}
+			else if(keypress == KEY_DC){ // Delete character (330)
+				//Remove character from terminal
+				wdelch(input_window);
+				//Remove character from cmd string
+				cmd.Pop(cursX - offset);
+			}
+			else if(keypress == KEY_IC){ cmd.ToggleInsertMode(); } // Insert key (331)
+			else if(keypress == KEY_HOME){ cursX = offset; }
+			else if(keypress == KEY_END){ cursX = cmd.GetSize() + offset; }
+			else if(keypress == KEY_MOUSE) { //Handle mouse events
+				MEVENT mouseEvent;
+				//Get information about mouse event.
+				getmouse(&mouseEvent);
+			
+				switch (mouseEvent.bstate) {
+					//Scroll up
+					case BUTTON4_PRESSED:
+						scroll_(-3);
+						break;
+					//Scroll down. (Yes the name is strange.)
+					case REPORT_MOUSE_POSITION:
+						scroll_(3);
+						break;
+				}
+			}	
+			else if(keypress == KEY_RESIZE) {
+				//Do nothing with the resize key
+			}
+			else{ 
+				in_char_((char)keypress); 
+				cmd.Put((char)keypress, cursX - offset - 1);
+			}
+
+			// Check for cursor too far to the left
+			if(cursX < offset){ cursX = offset + cmd.GetSize(); }
+	
+			// Check for cursor too far to the right
+			if(cursX > (int)(cmd.GetSize() + offset)){ cursX = cmd.GetSize() + offset; }
+	
+			if (keypress != ERR) tabCount = 0;
+			update_cursor_();
+			refresh_();
 		}
 		
-		int keypress = wgetch(input_window);
-	
-		// Check for internal commands
-		if(keypress == ERR){continue;} // No key was pressed in the interval
-		else if(keypress == 10){ // Enter key (10)
-			std::string temp_cmd = cmd.Get();
-			//Reset the position in the history.
-			commands.Reset();
-			if(temp_cmd != "" && temp_cmd != commands.PeekPrev()){ // Only save this command if it is different than the previous command
-				commands.Push(temp_cmd);
+		if(prompt_user){ // Waiting for user to specify yes or no.
+			if(output != "yes" && output != "y"){
+				std::cout << prompt << "Aborting execution!\n";
+				cmd_queue.clear();
 			}
-			output = temp_cmd;
-			std::cout << prompt << output << "\n";
-			flush();
-			_scrollPosition = 0;
-			clear_();
-			tabCount = 0;
-			break;
-		} 
-		else if(keypress == '\t' && enableTabComplete) {
-			tabCount++;
-			output = cmd.Get().substr(0,cursX - offset) + "\t";
-			break;
+			prompt_user = false;
+			goto read_command;
 		}
-		else if(keypress == 4){ // ctrl-d (EOT)
-			output = "CTRL_D";
-			clear_();
-			tabCount = 0;
-			break;
-		}
-		else if(keypress == 9){ } // Tab key (9)
-		else if(keypress == KEY_UP){ // 259
-			if(commands.GetIndex() == 0){ commands.Capture(cmd.Get()); }
-			std::string temp_cmd = commands.GetPrev();
-			if(temp_cmd != "NULL"){
-				clear_();
-				cmd.Set(temp_cmd);
-				in_print_(cmd.Get().c_str());
-			}
-		}
-		else if(keypress == KEY_DOWN){ // 258
-			std::string temp_cmd = commands.GetNext();
-			if(temp_cmd != "NULL"){
-				clear_();
-				cmd.Set(temp_cmd);
-				in_print_(cmd.Get().c_str());
-			}
-		}
-		else if(keypress == KEY_LEFT){ cursX--; } // 260
-		else if(keypress == KEY_RIGHT){ cursX++; } // 261
-		else if(keypress == KEY_PPAGE){ //Page up key
-			scroll_(-(_winSizeY-2));
-		}
-		else if(keypress == KEY_NPAGE){ //Page down key
-			scroll_(_winSizeY-2);
-		}
-		else if(keypress == KEY_BACKSPACE){ // 263
-			wmove(input_window, 0, --cursX);
-			wdelch(input_window);
-			cmd.Pop(cursX - offset);
-		}
-		else if(keypress == KEY_DC){ // Delete character (330)
-			//Remove character from terminal
-			wdelch(input_window);
-			//Remove character from cmd string
-			cmd.Pop(cursX - offset);
-		}
-		else if(keypress == KEY_IC){ cmd.ToggleInsertMode(); } // Insert key (331)
-		else if(keypress == KEY_HOME){ cursX = offset; }
-		else if(keypress == KEY_END){ cursX = cmd.GetSize() + offset; }
-		else if(keypress == KEY_MOUSE) { //Handle mouse events
-			MEVENT mouseEvent;
-			//Get information about mouse event.
-			getmouse(&mouseEvent);
-			
-			switch (mouseEvent.bstate) {
-				//Scroll up
-				case BUTTON4_PRESSED:
-					scroll_(-3);
-					break;
-				//Scroll down. (Yes the name is strange.)
-				case REPORT_MOUSE_POSITION:
-					scroll_(3);
-					break;
-			}
-		}	
-		else if(keypress == KEY_RESIZE) {
-			//Do nothing with the resize key
-		}
-		else{ 
-			in_char_((char)keypress); 
-			cmd.Put((char)keypress, cursX - offset - 1);
-		}
-
-		// Check for cursor too far to the left
-		if(cursX < offset){ cursX = offset + cmd.GetSize(); }
-	
-		// Check for cursor too far to the right
-		if(cursX > (int)(cmd.GetSize() + offset)){ cursX = cmd.GetSize() + offset; }
-	
-		if (keypress != ERR) tabCount = 0;
-		update_cursor_();
-		refresh_();
+		
+		from_script = false;
 	}
+
+	// Check for system commands.
+	std::string temp_cmd_string = output.substr(output.find_first_not_of(' '), output.find_first_of(' ')); // Strip the command from the front of the input.
+	std::string temp_arg_string = output.substr(output.find_first_of(' ')+1, output.find_first_of('#')); // Does not ignore leading whitespace.
+	
+	if(temp_cmd_string.empty() || temp_cmd_string[0] == '#'){
+		// This is a comment line.
+		goto read_command;
+	}
+	
+	if(temp_cmd_string.substr(0, output.find_first_of(' ')).find('.') != std::string::npos){
+		if(temp_cmd_string == ".cmd"){ // Load a command script.
+			std::string command_filename = temp_arg_string.substr(output.find_first_not_of(' ')); // Ignores leading whitespace.
+			if(!LoadCommandFile(command_filename.c_str())){ // Failed to load command script.
+				std::cout << prompt << "Error! Failed to load command script " << command_filename << ".\n";
+			}
+		}
+		else if(temp_cmd_string == ".echo"){ // Print something to the screen.
+			std::cout << prompt << temp_arg_string << std::endl;
+		}
+		else if(temp_cmd_string == ".prompt"){ // Prompt the user with a yes/no question.
+			std::cout << prompt << temp_arg_string << " (yes/no)" << std::endl;
+			prompt_user = true;
+		}
+		else{ // Unrecognized command.
+			std::cout << prompt << "Error! Unrecognized system command " << temp_cmd_string << ".\n";
+		}
+		
+		goto read_command; // Done processing the command. Don't need to send it to the caller.
+	}
+	
+	// Print the command if it was read from a script. This is done so that the user
+	// will know what is happening in the script file. It will also ignore system
+	// commands in the file.
+	if(from_script){
+		std::cout << prompt << output << "\n";
+		flush();
+		_scrollPosition = 0;
+		clear_();
+		tabCount = 0;
+	}
+	
 	return output;
 }
 
