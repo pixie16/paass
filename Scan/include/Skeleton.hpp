@@ -1,58 +1,25 @@
-#ifndef OSCILLOSCOPE_HPP
-#define OSCILLOSCOPE_HPP
+#ifndef SKELETON_HPP
+#define SKELETON_HPP
 
-#include <ctime>
-#include <vector>
-#include <deque>
-#include <cmath>
 #include <string>
 
 // PixieCore libraries
 #include "Unpacker.hpp"
 #include "ScanInterface.hpp"
 
-class ChannelEvent;
-class TApplication;
-class TCanvas;
-class TGraph;
-class TH2F;
-class TF1;
-class TProfile;
-
 ///////////////////////////////////////////////////////////////////////////////
-// class scopeUnpacker
+// class skeletonUnpacker
 ///////////////////////////////////////////////////////////////////////////////
 
-class scopeUnpacker : public Unpacker {
+class skeletonUnpacker : public Unpacker {
   public:
   	/// Default constructor.
-	scopeUnpacker(const unsigned int &mod=0, const unsigned int &chan=0);
+	skeletonUnpacker() : Unpacker() {  }
 	
 	/// Destructor.
-	~scopeUnpacker(){  }
-
-	void SetMod(const unsigned int &mod){ mod_ = mod; }
+	~skeletonUnpacker(){  }
 	
-	void SetChan(const unsigned int &chan){ chan_ = chan; }
-	
-	void SetThreshLow(const int &threshLow){ threshLow_ = threshLow; }
-	
-	void SetThreshHigh(const int &threshHigh){ threshHigh_ = threshHigh; }
-
-	unsigned int GetMod(){ return mod_; }
-	
-	unsigned int GetChan(){ return chan_; }
-	
-	int GetThreshLow(){ return threshLow_; }
-	
-	int GetThreshHigh(){ return threshHigh_; }
-
   private:
-	unsigned int mod_; ///< The module of the signal of interest.
-	unsigned int chan_; ///< The channel of the signal of interest.
-	int threshLow_;
-	int threshHigh_;
-
 	/** Process all events in the event list.
 	  * \param[in]  addr_ Pointer to a ScanInterface object.
 	  * \return Nothing.
@@ -68,34 +35,16 @@ class scopeUnpacker : public Unpacker {
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// class scopeScanner
+// class skeletonScanner
 ///////////////////////////////////////////////////////////////////////////////
 
-class scopeScanner : public ScanInterface {
+class skeletonScanner : public ScanInterface {
   public:
-	/// Default constructor.
-	scopeScanner(int mod = 0, int chan = 0);
+  	/// Default constructor.
+	skeletonScanner();
 	
 	/// Destructor.
-	~scopeScanner();
-	
-	/// Set the time delay between traces (in seconds).
-	int GetDelay(){ return delay_; }
- 	
- 	/// Return the maximum number of events to store.
- 	size_t GetNumEvents(){ return numEvents; }
-
-	/// Set the number of seconds to wait between drawing of traces.
-	void SetDelay(int delay){ delay_ = (delay>1)?delay:1; }
-
-	/// Set the maximum number of events to store.
-	void SetNumEvents(size_t num_){ numEvents = num_; }
-
-	/// Stop the run.
-	void StopACQ(){ running = false; }
-	
-	/// Star the run.
-	void StartACQ(){ running = true; }
+	~skeletonScanner();
 
 	/** ExtraCommands is used to send command strings to classes derived
 	  * from ScanInterface. If ScanInterface receives an unrecognized
@@ -119,10 +68,10 @@ class scopeScanner : public ScanInterface {
 	/** CmdHelp is used to allow a derived class to print a help statement about
 	  * its own commands. This method is called whenever the user enters 'help'
 	  * or 'h' into the interactive terminal (if available).
-	  * \param[in]  prefix_ String to append at the start of any output. Not used by default.
+	  * \param[in]  prefix_ String to append at the start of any output.
 	  * \return Nothing.
 	  */
-	virtual void CmdHelp(const std::string &prefix_="");
+	virtual void CmdHelp();
 	
 	/** ArgHelp is used to allow a derived class to print a help statment about
 	  * its own command line arguments. This method is called at the end of
@@ -143,7 +92,7 @@ class scopeScanner : public ScanInterface {
 	  * (e.g. a root TCanvas) when working with a low data rate. 
 	  * \return Nothing.
 	  */
-	virtual void IdleTask();
+	virtual void IdleTask(){  }
 
 	/** Initialize the map file, the config file, the processor handler, 
 	  * and add all of the required processors.
@@ -155,7 +104,7 @@ class scopeScanner : public ScanInterface {
 	/** Peform any last minute initialization before processing data. 
 	  * /return Nothing.
 	  */
-	virtual void FinalInitialization(){  }
+	virtual void FinalInitialization();
 	
 	/** Initialize the root output. 
 	  * \param[in]  fname_     Filename of the output root file. 
@@ -179,58 +128,18 @@ class scopeScanner : public ScanInterface {
 	/** Add a channel event to the deque of events to send to the processors.
 	  * This method should only be called from skeletonUnpacker::ProcessRawEvent().
 	  * \param[in]  event_ The raw XiaData to add to the channel event deque.
-	  * \return True if events are ready to be processed and false otherwise.
+	  * \return False.
 	  */
 	virtual bool AddEvent(XiaData *event_);
 	
 	/** Process all channel events read in from the rawEvent.
 	  * This method should only be called from skeletonUnpacker::ProcessRawEvent().
-	  * \return True if events were processed and false otherwise.
+	  * \return False.
 	  */
 	virtual bool ProcessEvents();
 
-	/** Clear the event deque.
-	  * \return Nothing.
-	  */
-	void ClearEvents();
-
   private:
-	unsigned int numAvgWaveforms_;
-	unsigned int num_displayed; ///< The number of displayed traces.
-	
-	size_t numEvents; /// The number of waveforms to store.
-	
-	int fitLow_;
-	int fitHigh_;
-	int delay_; /// The number of seconds to wait between drawing traces.
-	
-	bool need_graph_update; /// Set to true if the graph range needs updated.
-	bool resetGraph_;
-	bool acqRun_;
-	bool singleCapture_;
-	bool init;	
-	bool running;
-  
-	std::vector<int> x_vals;
-	std::deque<ChannelEvent*> chanEvents_; ///<The buffer of waveforms to be plotted.
-
-	time_t last_trace; ///< The time of the last trace.
-	
-	std::string saveFile_; ///< The name of the file to save a trace.
-
-	TApplication *rootapp; ///< Root application pointer.
-	TCanvas *canvas; ///< The main plotting canvas.
-	TGraph *graph; ///< The TGraph for plotting traces.
-	TH2F *hist; ///<The histogram containing the waveform frequencies.
-	TProfile *prof; ///<The profile of the average histogram.
-
-	TF1 *paulauskasFunc; ///< A TF1 of the Paulauskas Function (NIM A 737 (2014) 22)
-	TF1 *paulauskasFuncText; ///< A TF1 of the Paulauskas Function (NIM A 737 (2014) 22)
-
-	void ResetGraph(unsigned int size_);
-	
-	/// Plot the current event.
-	void Plot();
+	bool init; /// Set to true when the initialization process successfully completes.
 };
 
 #endif

@@ -1,28 +1,22 @@
 #include <cmath>
 
-#include "PixieEvent.hpp"
+#include "XiaData.hpp"
 
 /////////////////////////////////////////////////////////////////////
-// PixieEvent
+// XiaData
 /////////////////////////////////////////////////////////////////////
 
 /// Default constructor.
-PixieEvent::PixieEvent(){
+XiaData::XiaData(){
 	clear();
 }
 
-/// Constructor from a pointer to another PixieEvent.
-PixieEvent::PixieEvent(PixieEvent *other_){
+/// Constructor from a pointer to another XiaData.
+XiaData::XiaData(XiaData *other_){
 	adcTrace = other_->adcTrace;
 
 	energy = other_->energy; 
 	time = other_->time;
-	
-	hires_energy = other_->hires_energy;
-	hires_time = other_->hires_time;
-    calEnergy = other_->calEnergy;
-    correctedTime = other_->correctedTime;
-    eventTime = other_->eventTime;
 	
 	for(int i = 0; i < numQdcs; i++){
 		qdcValue[i] = other_->qdcValue[i];
@@ -34,6 +28,7 @@ PixieEvent::PixieEvent(PixieEvent *other_){
 	cfdTime = other_->cfdTime;
 	eventTimeLo = other_->eventTimeLo;
 	eventTimeHi = other_->eventTimeHi;
+	eventTime = other_->eventTime;
 
 	virtualChannel = other_->virtualChannel;
 	pileupBit = other_->pileupBit;
@@ -42,33 +37,27 @@ PixieEvent::PixieEvent(PixieEvent *other_){
 	cfdTrigSource = other_->cfdTrigSource; 
 }
 
-PixieEvent::~PixieEvent(){
+XiaData::~XiaData(){
 }
 
-void PixieEvent::reserve(const size_t &size_){
+void XiaData::reserve(const size_t &size_){
 	if(size_ == 0){ return; }
 	adcTrace.reserve(size_);
 }
 
-void PixieEvent::assign(const size_t &size_, const int &input_){
+void XiaData::assign(const size_t &size_, const int &input_){
 	adcTrace.assign(size_, input_);
 }
 
-void PixieEvent::push_back(const int &input_){
+void XiaData::push_back(const int &input_){
 	adcTrace.push_back(input_);
 }
 
-void PixieEvent::clear(){
+void XiaData::clear(){
 	adcTrace.clear();
 
 	energy = 0.0; 
 	time = 0.0;
-	
-	hires_energy = 0.0;
-	hires_time = 0.0;
-    calEnergy = 0.0;
-    correctedTime = 0.0;
-    eventTime = 0.0;
 	
 	for(int i = 0; i < numQdcs; i++){
 		qdcValue[i] = 0;
@@ -80,6 +69,7 @@ void PixieEvent::clear(){
 	cfdTime = 0;
 	eventTimeLo = 0;
 	eventTimeHi = 0;
+	eventTime = 0.0;
 
 	virtualChannel = false;
 	pileupBit = false;
@@ -97,10 +87,15 @@ ChannelEvent::ChannelEvent(){
 	event = NULL;
 	xvals = NULL;
 	yvals = NULL;
+	Clear();
 }
 
-/// Constructor from a PixieEvent. ChannelEvent will take ownership of the PixieEvent.
-ChannelEvent::ChannelEvent(PixieEvent *event_){
+/// Constructor from a XiaData. ChannelEvent will take ownership of the XiaData.
+ChannelEvent::ChannelEvent(XiaData *event_){
+	event = NULL;
+	xvals = NULL;
+	yvals = NULL;
+	Clear();
 	event = event_;
 	size = event->adcTrace.size();
 	if(size != 0){
@@ -200,6 +195,9 @@ void ChannelEvent::Clear(){
 	stddev = -9999;
 	qdc = -9999;
 	max_index = 0;
+
+	hires_energy = -9999;
+	hires_time = -9999;
 	
 	valid_chan = false;
 	baseline_corrected = false;
@@ -208,6 +206,9 @@ void ChannelEvent::Clear(){
 	size = 0;
 	if(xvals){ delete[] xvals; }
 	if(yvals){ delete[] yvals; }
-	
 	if(event){ event->clear(); }
+	
+	event = NULL;
+	xvals = NULL;
+	yvals = NULL;
 }
