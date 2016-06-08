@@ -1,0 +1,562 @@
+/** \mainpage Pixie Suite 2
+
+  \author C. Thornsberry
+  \author K. Smith
+  \author S. V. Paulauskas
+  \author D. Miller
+  \version code - 1.0
+
+  \section ql Quick Links
+  \subpage useman \n
+  \subpage devman \n
+  \subpage refman \n
+
+  \section briefinto Brief Introduction
+  This software was written at the University of Tennessee at Knoxville by
+  members of the <a href="http://www.phys.utk.edu/expnuclear/">Experimental
+  Nuclear Structure Group</a>. The software analyzes provides a framework to
+  acquire data from the <a href="http://www.xia.com/DGF_Pixie-16.html"> XIA, LLC
+  Pixie 16 </a> electronics. These data are then
+  packaged in either a native PLD format, or into an LDF (used by the HRIBF/ORNL
+  data acquisition system). Additionally, the current revision of this code provides
+  an interface with the run conrtol software PACMAN from the old HRIBF/ORNL
+  data acquisition software.
+  
+  This code is heavily based on the work by David Miller. Without the framework
+  that he built this project would have taken much longer to develop. The main
+  difference between the original Pixie Suite and Pixie Suite 2 is that Pixie Suite 2
+  provides a fully integrated user terminal. This eliminates the need to use many
+  of the old command line programs for setup of the Pixie16 Modules. In addition,
+  it integrates many of these programs into a cohesive whole.
+
+  The build platform is through cmake. This allows us to dynamically set various
+  system specific settings in a straight forward way. More about cmake can be found
+  in the \ref cmake section of this webpage.
+
+\section temp Getting Started
+  To get started please see the \ref prereq and the \ref quickstart
+   pages. To find out if your system has been tested before see \ref tstsys .
+*/
+
+/******************************************************************************/
+
+/** \page prereq Prerequisites
+    <h1>Required</h1>
+    <ol>
+      <li>ncurses</li>
+      <li>gcc v4.4.6+</li>
+      <li>cmake v2.8.8+</li>
+      <li>PLX</li>
+      <li>PXI</li>
+    </ol>
+
+    <h1>Optional</h1>
+    <dl>
+        <dt><b>CERN ROOT</b></dt>
+              <dd>MCA outputs into ROOT format (.root)</dd>
+         <dt><b>HRIBF DAQ Software</b></dt>
+             <dd>MCA and histogramming done with HRIBF output (.his)</dd>
+          </dt>
+    </dl>
+*/
+
+/******************************************************************************/
+
+/** \page tstsys Tested Systems
+
+*/
+
+/******************************************************************************/
+
+/** \page useman User's Manual
+  - An \subpage philosophy of the Pixie16 code
+  - A description of the \subpage directory
+  - A \subpage quickstart Guide
+  - An explanation of the \subpage xmlconfig
+  - A \subpage faq
+  - Some \subpage codewarn about the code
+  - A \subpage primer for those who have never seen C++
+*/
+
+/******************************************************************************/
+
+/** \page codewarn Warnings
+
+*/
+
+/******************************************************************************/
+
+/** \page cmake Using Cmake
+
+*/
+
+/******************************************************************************/
+
+/** \page directory Directory Structure
+  The pixie16 analysis is contained in the base directory "pixie_scan". You
+  should see at a minimum the following set of files and directories.
+  \section dir-filelist File List
+  \subsection dir-xmlconfig Confix.xml
+  This is a symbolic link to one of the configuration files in
+  \ref dir-config. You can change the configuration for the program by
+  changing where this link points.
+  \subsection dir-copy COPYRIGHT
+  This file contains the copyright information for the software. It should be
+  distributed with each release.
+  \subsection dir-license LICENSE
+  This file contains the licensing information for the software. It should be
+  distributed with any distribution or piece of the code.
+  \subsection dir-readme README.md
+  The README contains useful information about how to get started (such as
+  making this documentation). It also contains information on who to contact
+  with issues or questions.
+  \subsection dir-todo TODO
+  The TODO contains exactly what you think. If you have suggestions, or tackle
+  one of the projects in this directory please let us know!
+  \subsection dir-make Makefile
+  This is a <a href="http://www.gnu.org/software/make/manual/make.html">
+  GNU Makefile</a>, and is responsible for compilation of the program.
+
+  \section dir-dirlist Directory Listing
+  \subsection dir-ban bananas/
+  This directory contains a test banana file that can be used as a template
+  to use bananas with the scan code.
+  \subsection dir-config config/
+  This directory contains some of the user contributed configuration files.
+  These files contain all of the configuration information that is necessary
+  to analyze data. For an example file, see \ref xmlconfig.
+  \subsection dir-doc doc/
+  This directory contains the Doxyfile, and the other files necessary for the
+  generation of this documentation. Once the documentation has been generated
+  it will be located in the sub directories: html/ and latex/
+  \subsection dir-inc include/
+  This directory contains all of the ".hpp" files.
+  \subsection dir-obj obj/
+  This directory is made by the Makefile during compilation. It holds all of
+  the object files for the program.
+  \subsection dir-scan scan/
+  This directory contains all of the ".f" files. In principle, it is never
+  necessary for a general user (or even a developer) to modify these files.
+  \subsection dir-scripts scripts/
+  This directory contains useful scripts for using the program, either for
+  the running of files, or scripts useful for the use of DAMM.
+  \subsection dir-src src/
+  This directory contains all of the ".cpp" files.
+*/
+
+/******************************************************************************/
+
+/** \page faq FAQ
+
+  This FAQ will be filled based on suggestions accumulated during
+  the manual beta phase.
+
+*/
+
+/******************************************************************************/
+
+/** \page quickstart Quickstart
+  \section qs-overview Overview
+  Here you will find information on how to quickly start using this software.
+  We will be working under the assumption that you have no desire to know the
+  inner workings of the code, but simply want to get some graphs to look at.
+  Because of the major overhauls the original guide is no longer relevant for
+  this software. If you have an older version of the code, I refer you to the
+  \subpage quickstart-v1.
+
+  This guide will assume that you are not going to be using ROOT to perform the
+  analysis. However, we will assume that you will be looking at data that
+  requires high resolution timing algorithms. This is the most common type of
+  user at this point, if you do not require this analysis you can simply not
+  follow those instructions. We will also assume that you have compiled the
+  documentation successfully, otherwise you wouldn't be reading this...
+
+  Let's assume that we have a simple TOF style measurement going. We'll have
+  three channels: two for VANDLE and one for our start detector.
+
+  \section qs-prerequisites Prerequisites
+  The code has a number of prerequisites that need to be met in order for you
+  to begin. Here is a handy check-list:
+  - <a href="ftp://ftp.phy.ornl.gov/pub/upak/Linux/">HRIBF/ORNL Libraries</a> -
+    These need to be compiled and installed on the analysis computer. Please be
+    aware that the installation of these files is not supported by the
+    development team of this software. If you ask nicely they may help.
+  - <a href="https://www.gnu.org/software/gsl/">GNU Scientific Library</a> -
+    This software is usually available as a software package from your favorite
+    Linux distro. It is necessary for the high-resolution timing algorithms, if
+    you do not need them, nor will need them in the future, you can skip this
+    one.
+
+  \subsection qs-env Environment Preparation
+  If you have successfully installed the prerequisites then you are now ready
+  to prepare your Linux environment. You should add the following information
+  into your ".bashrc", which is usually located in the ${HOME} directory of your
+  username.
+
+  \code
+    export HHIRF_DIR=/absolute/path/to/hhirf
+    export ACQ2_LIBDIR=/absolute/path/to/acq2/lib
+    export HHIRF_GFORTRAN=1
+    export EXTRA_PROCESSORS=/absolute/path/to/extra/processors
+  \endcode
+
+  You should replace "/absolute/path/to" with the proper absolute path to the
+  two directories. The last line in the above code is depends on the FORTRAN
+  compiler that was used to compile the HRIBF libraries. The two you are likely
+  to encounter are 'g77' and 'gfortran'. If you are unsure about the
+  installation, contact your system admin.
+
+  When you are finished making the necessary changes to the '.bashrc', remember
+  to source it.
+  \code
+    source ~/.bashrc
+  \endcode
+
+  \section compile Compilation
+  Moving right along, now we are ready to modify the Makefile to the specific
+  installation. There are a number of flags in the upper part of the Makefile
+  that you can modify to suit your needs. The full list of these flags can be
+  found in \ref makeflags. For now, we just need to make sure that the
+  "PULSEFIT" flag is uncommented.
+
+  \section qs-prepconfig Prepare Configuration File
+  Now comes the most important part. This one is going to be the biggie, the
+  whole mamma-jamma. The configuration file controls the whole operation now.
+  For a complete overview of the configuration, see the page \ref xmlconfig.
+
+  __NOTE: This file is read at runtime, you do not have to recompile when you
+  make changes here!!__
+
+  \subsection qs-author Author Node
+  First, you should update the author information and description. This is not
+  strictly necessary, but it makes it nicer when you are trying to figure out
+  who made the file, and what they were trying to do.
+
+  \subsection qs-global Global Parameters Node
+  We are assuming you want to look at VANDLE related data, so you're going to
+  want to make sure that the Revision version is set to "F" for the Pixie16-250
+  modules.
+
+  You can also change the "energyContraction" and "eventWidth" here. For now,
+  we will assume you're happy with whatever was there when you got the file.
+  Some common values are 1e-6 s for eventWidth and 1.0 for the
+  energyContraction.
+
+  \subsection qs-driver Setup the Detector Driver Node
+  __OK, now we're onto the serious stuff, pay attention!__
+  The node DetectorDriver holds the various Processors and Analyzers that you
+  are going to be using for the analysis. For our simple example we will be
+  wanting the following pieces:
+  \code
+    <Processor name="BetaScintProcessor"/>
+    <Processor name="VandleProcessor" types="small" res="2" offset="200"/>
+
+    <Analyzer name="WaveformAnalyzer"/>
+    <Analyzer name="FittingAnalyzer"/>
+  \endcode
+
+  The two processor lines define the classes that will handle the manipulation
+  of the data to measure our ToF. The analyzers, work specifically on the
+  traces, and these two will provide the high resolution timing. There are some
+  of the processors that take arguments into their constructors (Ge, Vandle),
+  information on these arguments can be found in the pages for the respective
+  class.
+
+  In some analysis, you do not need to define multiple processors to handle
+  information. For example, the VandleProcessor does not need the Beta or
+  Double Beta processors defined in order to perform time-of-flight
+  calculations. This is because these processors pull the necessary detector
+  summaries themselves and build the required information. In these scenarios,
+  you may simply define the VandleProcessor, unless you require histograms built
+  in the Beta or Double Beta processors.
+
+  \subsection qs-map Setup the Map Node
+  The Map node tells the program what type of detector is plugged into a given
+  Module/Channel combination. We have moved to this scheme since we now define
+  both the energy calibration and walk calibration at this point. The tags for
+  a channel are now defined as a comma separated list inside the "tags" key.
+  Below is the sample code for our current example:
+  \code
+    <Module number="0">
+        <Channel number="0" type="scint" subtype="beta">
+            <WalkCorrection model="None">
+            </WalkCorrection>
+        </Channel>
+        <Channel number="2" type="vandle" subtype="small" tags="left" numStarts="2">
+            <WalkCorrection model="None">
+            </WalkCorrection>
+        </Channel>
+        <Channel number="3" type="vandle" subtype="small" tags="right">
+            <WalkCorrection model="None">
+            </WalkCorrection>
+        </Channel>
+    </Module>
+  \endcode
+
+  None of our channels will be corrected for walk, or energy calibrated. This
+  example may be updated in the future to add in a clover.
+
+  \subsection qs-tcal TimeCalibration Node Setup
+  We are now ready to input the timing calibrations. These calibrations are
+  used to align the gamma prompts for the ToF measurement. In addition, this
+  section defines the physical position of the bar relative to the initial
+  position of the measured particle (gamma, neutron, etc.). This calibration
+  differs from the previous one, as it is done on a bar-by-bar basis and not
+  per channel.
+
+  If you do not include a calibration for a channel into this node, the program
+  will provide a default calibration of 0.0 for all offsets. In addition, any
+  of the offsets that are left out of the correction, for example if you did not
+  measure an "xoffset", it will automatically be set to zero. This removes the
+  necessity for the declaration of <strong>all</strong> of the detectors in the
+  analysis.
+
+  Finally, the program now recognizes more than two start detectors. This is
+  done through a list of "tofoffsets". Please refer to the sample code below,
+  as well as, the sample configuration: config/Config.xml.example. The "loc"
+  field in the start nodes denote the location of the starts. In the event that
+  the start is a bar style detector, this will refer to the bar number. For
+  a detailed description of these variables refer to \subpage timecal.
+
+  Inside the TimeCalibration node we will have the following code:
+  \code
+    <Vandle>
+        <small>
+            <Bar number="0" z0="50.5" xoffset="1.0" zoffset="0.00"
+                lroffset="-5.70784">
+                    <start loc="0" offset="2.90192"/>
+                    <start loc="1" offset="-6.52371"/>
+                    <start loc="2" offset="1.23556"/>
+                    <start loc="3" offset="-5.56573"/>
+            </Bar>
+        </small>
+    </Vandle>
+  \endcode
+
+  You will find a detailed description of these variables in the
+  \subpage timecal section.
+
+  \subsection qs-timing Timing Node Setup
+  The Timing node contains all of the information necessary for the successful
+  extraction of the high resolution timing from a trace. It defines things
+  such as the trace length and delay, the ranges for the waveform, and the
+  fitting parameters for various detectors. The most important things to update
+  in this section are the TraceDelay and TraceLength. Please note the units that
+  are in each of the parameters.
+
+  \subsection qs-treecorr TreeCorrelator Node Setup
+  We will not be using the TreeCorrelator for this example, refer to
+  \subpage treecorr for more info on this.
+
+  \subsection qs-notebook NoteBook Node Setup
+  Finally, you can change the output information from the notebook if you'd
+  like. This is not a critical step.
+
+  \section qs-eventcreat Event Creation
+  Events are created by grouping together channels which triggered at
+  similar times.  This time window is controlled by the variable EventWidth
+  located in the Global node of Config.xml. If two successive channels in the
+  list are within "EventWidth" time, they are grouped together in an event.
+  The variable is in units of Pixie16 clock ticks and must be multiplied by
+  the appropriate sampling time to obtain the event width in ns.  Please note
+  that the "EventWidth" time window is only applied to successive events.
+  Thus it is possible (depending on the total trigger rate) to have events that
+  are longer than the specified time window.
+
+  \section qs-eventret Retrieving Information from the Event
+  After an event has been created it is sent for processing.  The first
+  step of processing is to calibrate the individual channels and summarize
+  the information contained in the event.  For each detector type that is
+  present in the event an object called DetectorSummary is created.
+  This object holds detector related information such as the energy,
+  timestamp, and the multiplicity of the detector among other things.  For
+  example, the following command will retrieve energy of the scint in the event.
+  \code
+  double energy = revt.GetSummary("beta_scint:beta")->GetList().begin()->GetEnergy();
+  \endcode
+  where revt is the name of the variable holding the raw event information
+  and energy will contain the energy of the scintillator.
+
+  To retrieve the multiplicity associated with VANDLE ends use
+  the following command:
+  \code
+  int fmult = revt.GetSummary("vandle")->GetMult();
+  \endcode
+
+  The reference manual can provide a list of all commands to retrieve
+  information from the detector_summary or the rawevent.
+
+  \section qs-plotting Plotting
+  All plotting is controlled through the "plot" function defined in
+  DeclareHistogram. This function is a C++ wrapper that has been
+  placed around the DAMM count1cc and set2cc subroutines.  This allows for
+  the code to be easily changed between damm and ROOT histograms.  For
+  those using DAMM to view the output of the analysis all plots are created
+  in the "drrsub.f" file located in the scan directory.
+
+  In order to plot into a histogram one must first define it in the DeclarePlots
+  method of the used Processor. In addition, each Processor has a specific range
+  of DAMM IDs that it is allowed to use. This is defined in the DammPlotIds.hpp.
+
+  To define a 1D and a 2D histogram, you must first define the variables for
+  the histogram numbers:
+  \code
+    namespace dammIds {
+        namespace vandle {
+            D_ENERGY_BETA = 0;
+            DD_ENERGY_TIME = 1;
+            DD_BETA_TRACE = 2;
+        }
+    }
+  \endcode
+
+  This is generally found near the top of the '.cpp' file of interest. For the
+  BetaScintProcessor, this will create histograms with IDs 2050, 2051, and 2052.
+  We can now define the histograms themselves in the DeclarePlots method.
+
+  \code
+    DeclareHistogram1D(D_ENERGY_BETA, SA, SA, "Beta Energy");
+    DeclareHistogram2D(D_ENERGY_BETA, SA, SA, "Beta Energy vs Time");
+    DeclareHistogram2D(D_ENERGY_BETA, SA, SA, "Beta Traces");
+  \endcode
+
+  SA is a constant defined for compatibility with DAMM, see DammPlotIds.hpp for
+  their definitions.
+
+  To plot a one dimensional histogram of energies:
+  \code
+    plot(D_ENERGY_BETA,energy);
+  \endcode
+  You can send any type of numerical value to the plot function.  The
+  variable is rounded into an integer before being passed to the DAMM
+  plotting functions. A two dimensional histogram is plotted with the command
+  \code
+    plot(DD_ENERGY_TIME,energy, time);
+  \endcode
+  and a three dimensional histogram (plotting a trace for example) uses
+  the command
+  \code
+    plot(DD_BETATRACE, xval, row, traceval);
+  \endcode
+
+  There are numerous examples in the code on how to do this.
+
+  \section qs-programexec Program Execution
+  After the compilation has completed successfully the executable pixie_ldf_c
+  will be present.  Run the pixie_ldf_c program as you would any other program:
+  \verbatim
+  ./pixie_ldf_c hisname
+  \endverbatim
+  Where "hisname" is the name of the damm histogram that will be created. At the
+  scanor prompt load in the appropriate ldf file as follows
+  \verbatim
+  SCANOR->file tutorial/tutorial.ldf
+  \endverbatim
+  Next start the analysis with the following command
+  \verbatim
+  SCANOR->go
+  \endverbatim
+
+  After starting a variety of output should be printed to the screen.
+  The first lists all the detectors that are being used in the analysis.
+  This includes information about what is happening at various stages of the
+  code, the status of reading in the configuration, and the creation of the
+  detector summaries.
+
+  After completion of the analysis, end the SCANOR program
+  \verbatim
+  SCANOR->end
+  \endverbatim
+  You are now ready to take a look at your output in DAMM. This concludes the
+  main part of the tutorial.
+
+  \subsection qs-end Summary
+  This should complete the basics on how to setup and run the code. There are a
+  variety of histograms predefined in the Processors. Remember, under the new
+  framework, you do not have to recompile when you are switching out Processors.
+  Changes to the source code (new histograms, gates, etc.) necessitate
+  compilation.
+*/
+
+/******************************************************************************/
+
+/** \page refman Reference Manual
+  - An \subpage introduction to the pixie16 analysis
+  - A list of \subpage dettype used in the analysis
+  - A list of \subpage objects (both detector and others) used in the analysis
+  - Experiment Independent Event Processing
+       -# \subpage %PixieStd
+       -# \subpage %DetectorDriver
+  - Experiment Dependent Event Processing
+       -# \subpage leribss
+       -# \subpage RMS
+  - A list of \subpage changes-v3 in the most recent version
+*/
+
+/******************************************************************************/
+
+/** \page devman Developer Manual (under construction)
+  - A list of \subpage makeflags
+  - The method for \subpage add
+  - The method for \subpage addopt
+  - Ideas for future \subpage improvement
+  - Some \subpage nameConv for sanity
+*/
+
+/******************************************************************************/
+
+/** \page makeflags Makefile Flags
+  There are several flags in the Makefile that you can use to control the
+  flow of the analysis. These include:
+  - USEROOT - To use this flag, you must have installed the ROOT
+    analysis package on your system and have the ROOTSYS, PATH,
+    and LD_LIBRARY_PATH environment variables set correctly (according
+    to the ROOT installation). This  flag compiles in the ability to
+    output a .root file depending on a set of conditions in the
+    RootProcessor but otherwise does not affect the functioning of the code.
+  - CXXFLAGS += -DVERBOSE - This defines the VERBOSE preprocessor condition.
+    Turn this on in order to have a wickedly verbose scan.
+  - ONLINE - This will create a much quieter scan code. Outputting to the
+    terminal takes time, and you don't always want that when running.
+  - DEBUG - This will enable verbose debugging for the TreeCorrelator. It will
+    be useful if there's something that's going wrong.
+  - PULSEFIT - This includes the libraries for GSL necessary for the high
+    resolution timing.
+  - GGATES - Defines gamma gates for the GeProcessor. This turns on Gamma-Gamma
+    angular distribution and Gamma-Gamma-Gamma gates.
+*/
+
+/******************************************************************************/
+
+/** \page improvement Improvements
+ - Generic processor and detector type on which the calibrator and trace
+    analyzer can function
+ - Optimization and clarification of TraceAnalyzer.cpp
+ - Implementation of old standalone root analysis
+ - Include QDC and CFD information from channel headers for Revision D
+ - Gating class which can be applied to event processors
+ - Expand detector summaries to work on type/subtype combinations
+*/
+
+/******************************************************************************/
+
+/** \page nameConv Naming Conventions
+ Some sort of convention -- maybe not the best, but at least it's a choice. Of
+ course, these are solely a suggestion, and exceptions could occur.
+ - Classes are things: "ExampleClass"
+ - Variables and class members have names like "myVariable"
+ - Namespaces like "thisNamespace"
+ - Acronyms uncapitalized generally like "DssdProcessor" (exceptions may abound)
+ - Global CONSTANT variables can have forms like "CONSTANT_VARIABLE"
+ - C++ functions declared as actions: "DoSomething(...)"
+ - Fortran functions called as "func_()"
+ - Implementation of classes in files with the same name as the class
+ - Files with extensions ".cpp", ".hpp", and ".f"
+ - Generic index variables use "i,j,k" or more explicit names such as "mod, ch";
+    if you need more, consider reorganizing your code
+ - Enumeration types like "EColors" with members "BLUE, RED, ORANGE"
+ - Typedefs with simple names like "word_t"
+ - Spectrum IDs use namespaces as appropriate and constant names like "D_ENERGY"
+    (1D) or "DD_ENERGY__TIME" (2D, time (y) vs. energy (x)): subject to further
+    consideration
+ */
