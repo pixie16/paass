@@ -1,0 +1,72 @@
+#!/usr/bin/gnuplot
+# This is script is called by 'tra' script
+set multiplot
+set size 0.25,0.25
+
+set origin 0.75,0
+CH=15
+call dir.'plotTraces_ch'
+
+set origin 0.5,0
+CH=14
+call dir.'plotTraces_ch'
+
+set origin 0.25,0
+CH=13
+call dir.'plotTraces_ch'
+
+set origin 0,0
+CH=12
+call dir.'plotTraces_ch'
+
+set origin 0.75,0.25
+CH=11
+call dir.'plotTraces_ch'
+
+set origin 0.5,0.25
+CH=10
+call dir.'plotTraces_ch'
+
+set origin 0.25,0.25
+CH=9
+call dir.'plotTraces_ch'
+
+set origin 0.0,0.25
+CH=8
+call dir.'plotTraces_ch'
+
+set origin 0.75,0.5
+CH=7
+call dir.'plotTraces_ch'
+
+set origin 0.5,0.5
+CH=6
+call dir.'plotTraces_ch'
+
+set origin 0.25,0.5
+CH=5
+call dir.'plotTraces_ch'
+
+set origin 0.0,0.5
+CH=4
+call dir.'plotTraces_ch'
+
+set origin 0.75,0.75
+CH=3
+call dir.'plotTraces_ch'
+
+set origin 0.5,0.75
+CH=2
+call dir.'plotTraces_ch'
+
+set origin 0.25,0.75
+CH=1
+call dir.'plotTraces_ch'
+
+set origin 0.0,0.75
+CH=0
+call dir.'plotTraces_ch'
+
+unset multiplot
+set origin 0,0
+set size 1,1
