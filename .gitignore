@@ -19,17 +19,31 @@ config/cfgs
 optional
 ValgrindOut.xml
 
+#Ignore object files
+*.o
+
+
 #Compressed Files
 *.bz2
 *.tgz
 *.tar.gz
+
+#Ignore the build and exec directory
+build/
+exec/
+doc/
+
+#Ignore codeblocks files
+PixieSuite2.cbp
+PixieSuite2.cbp.save
+PixieSuite2.layout
+
 
 #DAMM files
 *.drr
 *.his
 *.list
 *.log
-
 # Data directories
 HIS
 LDF

@@ -1,0 +1,22 @@
+#!/usr/bin/gnuplot
+# KM 01.2012
+# KS 11.2015
+# This gnuplot script reads traces from pixie modules
+#
+# Usage:
+# from the terminal call: gnuplot "MOD=#;CH=#" tra
+# if CH=-1 then whole module (16 channels) is read
+#
+set terminal x11 size 1024,800
+!rm -f '/tmp/traces.dat'
+
+print "Getting trace for M",MOD,"C",CH
+
+dir = system("poll2 --prefix")."/share/traces/"
+
+system "get_traces ".MOD." ".CH
+
+if (CH<0) n=16; call dir.'plotTraces_mod'; else n=1; call dir.'plotTraces_ch'
+
+print "Press any key to exit..."
+pause -1
