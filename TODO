@@ -1,0 +1,3 @@
+Investigate and add pause between sending UDP packets for poll.
+Break up aspects for different Pixie revisions into different files
+Implement three-phase wait-free readout
