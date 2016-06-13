@@ -139,7 +139,7 @@ std::string ScanInterface::get_extension(std::string filename_, std::string &pre
   * \return Nothing.
   */
 void ScanInterface::start_scan(){
-	if(!file_open)
+	if(!(file_open || shm_mode))
 		std::cout << " No input file loaded.\n";
 	else if(!input_file.good())
 		std::cout << " Error reading from input file!\n";
