@@ -200,7 +200,11 @@ bool ScanInterface::rewind(const unsigned long &offset_/*=0*/){
 	if(!scan_init){ return false; }
 
 	// Ensure that the scan is not running.
-	if(is_running){ 
+	if(!(file_open || shm_mode)){
+		std::cout << " No input file loaded.\n";
+		return false;
+	}
+	else if(is_running){ 
 		std::cout << " Cannot change file position while scan is running!\n";
 		return false;
 	}
