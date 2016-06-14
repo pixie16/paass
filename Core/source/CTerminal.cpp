@@ -531,31 +531,31 @@ bool Terminal::LoadCommandFile(const char *filename_){
 	}
 	
 	// Read the commands from the specified file.
-	std::string cmd;
+	std::string cmdstr;
 	while(true){
-		std::getline(input, cmd);
+		std::getline(input, cmdstr);
 		if(input.eof()){ break; }
 
 		// Check for empty string.
-		if(cmd.empty()){ continue; }
+		if(cmdstr.empty()){ continue; }
 
 		// Search for comments.
-		if(cmd.find('#') != std::string::npos){
+		if(cmdstr.find('#') != std::string::npos){
 			// Strip off trailing comments.
-			cmd = cmd.substr(0, cmd.find_first_of('#'));
+			cmdstr = cmdstr.substr(0, cmdstr.find_first_of('#'));
 		}
 
 		// Strip leading whitespace.
-		if(!cmd.empty()){ cmd = cmd.substr(cmd.find_first_not_of(' ')); }
+		if(!cmdstr.empty()){ cmdstr = cmdstr.substr(cmdstr.find_first_not_of(' ')); }
 
 		// Strip trailing whitespace.
-		if(!cmd.empty()){ cmd = cmd.substr(0, cmd.find_last_not_of(' ')+1); }
+		if(!cmdstr.empty()){ cmdstr = cmdstr.substr(0, cmdstr.find_last_not_of(' ')+1); }
 
 		// Check for empty string again since we've processed some more.
-		if(cmd.empty()){ continue; }
+		if(cmdstr.empty()){ continue; }
 
 		// Push the command into the command array
-		cmd_queue.push_back(cmd);
+		cmd_queue.push_back(cmdstr);
 	}
 	
 	input.close();
@@ -577,21 +577,21 @@ bool Terminal::LoadCommandHistory(bool overwrite){
 	
 	//Read the commands from the specified file.
 	size_t index;
-	std::string cmd;
+	std::string cmdstr;
 	std::vector<std::string> cmds;
 	while(true){
-		std::getline(input, cmd);
+		std::getline(input, cmdstr);
 		if(input.eof()){ break; }
 		
 		// Strip the newline from the end
-		index = cmd.find("\n");
+		index = cmdstr.find("\n");
 		if(index != std::string::npos){
-			cmd.erase(index);
+			cmdstr.erase(index);
 		}
 		
 		// Push the command into the command array
-		if(cmd != ""){ // Just to be safe!
-			cmds.push_back(cmd);
+		if(cmdstr != ""){ // Just to be safe!
+			cmds.push_back(cmdstr);
 		}
 	}
 	
