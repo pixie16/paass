@@ -1082,6 +1082,10 @@ read_command:
 		from_script = false;
 	}
 
+	// If the command string is empty, wait for user input.
+	if(output.empty())
+		goto read_command;
+
 	// Check for system commands.
 	std::string temp_cmd_string = output.substr(output.find_first_not_of(' '), output.find_first_of(' ')); // Strip the command from the front of the input.
 	std::string temp_arg_string = output.substr(output.find_first_of(' ')+1, output.find_first_of('#')); // Does not ignore leading whitespace.
