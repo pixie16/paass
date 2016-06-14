@@ -25,7 +25,7 @@
 ///Default size of terminal scroll back buffer in lines.
 #define SCROLLBACK_SIZE 1000
 
-#define CTERMINAL_VERSION "1.2.06"
+#define CTERMINAL_VERSION "1.2.07"
 #define CTERMINAL_DATE "June 13th, 2016"
 
 #include <curses.h>
