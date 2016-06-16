@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.8) 
 
-project(Pixie_Scan CXX Fortran)
+project(UTK_Scan CXX Fortran)
 
 #Set options depending on the C++ compiler
 if (CMAKE_COMPILER_IS_GNUCXX)
@@ -11,20 +11,6 @@ if (CMAKE_COMPILER_IS_GNUCXX)
   
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -fPIC -std=c++0x")
 endif(CMAKE_COMPILER_IS_GNUCXX)
-
-#Set options depending on the FORTRAN compiler
-get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
-if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
-  set(USE_GFORTRAN TRUE)
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fsecond-underscore")
-  add_definitions(-D LINK_GFORTRAN)
-elseif (Fortran_COMPILER_NAME MATCHES "g77")
-  set(USE_G77 TRUE)
-else (Fortran_COMPILER_NAME MATCHES "gfortran.*")
-  message ("CMAKE_Fortran_COMPILER full path: " ${CMAKE_Fortran_COMPILER})
-  message ("Fortran compiler: " ${Fortran_COMPILER_NAME})
-  error("Unknown FORTRAN Compiler : ${Fortran_COMPILER_NAME}")
-endif (Fortran_COMPILER_NAME MATCHES "gfortran.*")
 
 #if user does not specify prefix we assign it to the exec directory
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -77,9 +63,8 @@ endif(USE_GGATES)
 #Load additional find_package scripts.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmakeModules/")
 
-#Find HRIBF Libraries
-find_package(HRIBF REQUIRED)
-link_directories(${UPAK_LIBRARY_DIR} ${ACQ2_LIBRARY_DIR})
+find_package(PixieSuite REQUIRED)
+set(LIBS ${LIBS} ${PIXIE_SUITE_LIBS})
 
 #Find ROOT if USE_ROOT was set.
 if(USE_ROOT)
@@ -98,7 +83,6 @@ if(USE_GSL)
   if(NOT ${GSL_VERSION} LESS 1.14)
     message(FATAL_ERROR "GSL 1.13 or lower required. Found GSL ${GSL_VERSION}")
   endif(NOT ${GSL_VERSION} LESS 1.14)
-  set(LIBS ${LIBS} ${GSL_LIBRARIES})
 endif(USE_GSL)
 
 #Build the core library
