@@ -11,7 +11,6 @@
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
 #include "GeProcessor.hpp"
-#include "GetArguments.hpp"
 #include "RawEvent.hpp"
 #include "TemplateProcessor.hpp"
 #include "TemplateExpProcessor.hpp"
@@ -98,7 +97,7 @@ void TemplateExpProcessor::SetupRootOutput(void) {
 ///Obtains the name of the histogram file passed via command line
 void TemplateExpProcessor::ObtainHisName(void) {
     char hisFileName[32];
-    GetArgument(1, hisFileName, 32);
+    //    GetArgument(1, hisFileName, 32);
     string temp = hisFileName;
     fileName_ = temp.substr(0, temp.find_first_of(" "));
 }
