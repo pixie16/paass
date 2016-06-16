@@ -5,6 +5,9 @@
 #define __CHANEVENT_HPP
 
 #include <vector>
+
+#include <XiaData.hpp>
+
 #include "DetectorLibrary.hpp"
 #include "pixie16app_defs.h"
 #include "Identifier.hpp"
@@ -25,18 +28,19 @@ public:
     /** Default constructor that zeroes all values */
     ChanEvent(){ZeroNums();};
 
-    /** Set the raw energy in case we do not want to extract it from the trace
-     * ourselves
-     * \param [in] a : the energy to set */
+    ///Constructor setting XIA Data
+    ChanEvent(const XiaData &xiadata) {data_ = xiadata; trace = xiadata.adcTrace;}
+
+    ///Default Destructor
+    ~ChanEvent(){};
+
+    /** Set the energy
+     * \param [in] a : the energy */
     void SetEnergy(double a) {energy = a;}
 
     /** Set the calibrated energy
      * \param [in] a : the calibrated energy */
     void SetCalEnergy(double a) {calEnergy = a;}
-
-    /** Set the time
-     * \param [in] a : the time to set */
-    void SetTime(double a) {time = a;}
 
     /** Set the Walk corrected time
      * \param [in] a : the walk corrected time */
@@ -52,24 +56,24 @@ public:
 
     /** \return the CFD source bit */ 
     bool GetCfdSourceBit() const {
-	return(cfdTrigSource);
+	return(data_.cfdTrigSource);
     }
     /** \return true if the CFD was forced trigger */ 
     bool CfdForceTrig() const {
-	return(cfdForceTrig); 
+	return(data_.cfdForceTrig); 
     }
 
     double GetEnergy() const {
-        return energy;   /**< \return the raw energy */
+        return(data_.energy);   /**< \return the raw energy */
     }
     double GetCalEnergy() const {
-        return calEnergy;   /**< \return the calibrated energy */
+        return(calEnergy);   /**< \return the calibrated energy */
     }
     double GetCorrectedTime() const {
         return correctedTime;   /**< \return the corrected time */
     }
     double GetTime() const {
-        return time;   /**< \return the raw time in clock ticks*/
+        return(data_.time);   /**< \return the raw time in clock ticks*/
     }
     double GetCalTime() const {
         return calTime;   /**< \return the calibrated time */
@@ -81,19 +85,19 @@ public:
         return eventTime;   /**< \return the event time */
     }
     const Trace& GetTrace() const {
-        return trace;   /**< \return a reference to the trace */
+        return(trace);   /**< \return a reference to the trace */
     }
     Trace& GetTrace() {
-        return trace;   /** \return a reference which can alter the trace */
+        return(trace);   /** \return a reference which can alter the trace */
     }
     unsigned long GetTrigTime() const {
         return trigTime;   /**< \return the channel trigger time */
     }
     unsigned long GetEventTimeLo() const {
-        return eventTimeLo;   /**< \return the lower 32 bits of event time */
+        return data_.eventTimeLo;   /**< \return the lower 32 bits of event time */
     }
     unsigned long GetEventTimeHi() const {
-        return eventTimeHi;   /**< \return the upper 32 bits of event time */
+        return data_.eventTimeHi;   /**< \return the upper 32 bits of event time */
     }
     unsigned long GetRunTime0() const {
         return runTime0;   /**< \return the lower bits of run time */
@@ -105,10 +109,10 @@ public:
         return runTime2;   /**< \return the higher bits of run time */
     }
     bool IsPileup() const {
-        return pileupBit;   //!< \return true if channel is pileup
+        return data_.pileupBit;   //!< \return true if channel is pileup
     }
     bool IsSaturated() const { /**< \return whether the trace is saturated */
-        return saturatedBit;
+        return data_.saturatedBit;
     }
 
     //! \return The identifier in the map for the channel event
@@ -125,6 +129,8 @@ public:
      * identifier is zeroed using its identifier::zeroid method. */
     void ZeroVar();
 private:
+    XiaData data_; //!< The data decoded from the XIA header
+
     double energy;             /**< Raw channel energy */
     double calEnergy;          /**< Calibrated channel energy,
                   calibration performed in ThreshAndCal
@@ -136,37 +142,14 @@ private:
     pixie::word_t trigTime;    /**< The channel trigger time, trigger time and the lower 
 				  32 bits of the event time are not necessarily the 
 				  same but could be separated by a constant value.*/
-    pixie::word_t cfdTime;     /**< CFD trigger time in units of 1/256 pixie clock ticks */
-    pixie::word_t eventTimeLo; /**< Lower 32 bits of pixie16 event time */
-    pixie::word_t eventTimeHi; /**< Upper 32 bits of pixie16 event time */
     pixie::word_t runTime0;    /**< Lower bits of run time */
     pixie::word_t runTime1;    /**< Upper bits of run time */
     pixie::word_t runTime2;    /**< Higher bits of run time */
-    static const int numQdcs = 8;     /**< Number of QDCs onboard */
-    pixie::word_t qdcValue[numQdcs];  /**< QDCs from onboard */
 
     double time;               /**< Raw channel time, 64 bit from pixie16 channel event time */
     double eventTime;          /**< The event time recorded by Pixie */
-    int modNum;             /**< Module number */
-    int chanNum;            /**< Channel number */
-
-    bool virtualChannel; /**< Flagged if generated virtually in Pixie DSP */
-    bool pileupBit;      /**< Pile-up flag from Pixie */
-    bool saturatedBit;   /**< Saturation flag from Pixie */
-    bool cfdForceTrig;   //!< CFD was forced to trigger
-    bool cfdTrigSource;  //!< The ADC that the CFD/FPGA synched with
 
     void ZeroNums(void); /**< Zero members which do not have constructors associated with them */
-
-    /** Make the front end responsible for reading the data able to set the
-     * channel data directly from ReadBuffDataA - REVISION A */
-    friend int ReadBuffDataA(pixie::word_t *, unsigned long *, std::vector<ChanEvent *> &);
-    /** Make the front end responsible for reading the data able to set the
-     * channel data directly from ReadBuffDataA - REVISION D */
-    friend int ReadBuffDataD(pixie::word_t *, unsigned long *, std::vector<ChanEvent *> &);
-    /** Make the front end responsible for reading the data able to set the
-     * channel data directly from ReadBuffDataA - REVISION F */
-    friend int ReadBuffDataF(pixie::word_t *, unsigned long *, std::vector<ChanEvent *> &);
 };
 
 /** Sort by increasing corrected time

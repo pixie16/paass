@@ -47,14 +47,14 @@ void PulserProcessor::DeclarePlots(void) {
     DeclareHistogram1D(D_PROBLEMSTUFF, S5, "Problem Stuff");
 
     DeclareHistogram2D(DD_QDC, SD, S1,"QDC");
-    DeclareHistogram2D(DD_MAX, SC, S1, "Max");
+    //DeclareHistogram2D(DD_MAX, SC, S1, "Max");
     DeclareHistogram2D(DD_PVSP, SC, SC,"Phase vs. Phase");
-    DeclareHistogram2D(DD_MAXVSTDIFF, SC, SC, "Max vs. Time Diff");
-    DeclareHistogram2D(DD_QDCVSMAX, SC, SD,"QDC vs Max");
+    //DeclareHistogram2D(DD_MAXVSTDIFF, SC, SC, "Max vs. Time Diff");
+    //DeclareHistogram2D(DD_QDCVSMAX, SC, SD,"QDC vs Max");
     //DeclareHistogram2D(DD_AMPMAPSTART, S7, SC,"Amp Map Start");
     //DeclareHistogram2D(DD_AMPMAPSTOP, S7, SC,"Amp Map Stop");
-    DeclareHistogram2D(DD_SNRANDSDEV, S8, S2, "SNR and SDEV R01/L23");
-    DeclareHistogram2D(DD_PROBLEMS, SB, S5, "Problems - 2D");
+    //DeclareHistogram2D(DD_SNRANDSDEV, S8, S2, "SNR and SDEV R01/L23");
+    //DeclareHistogram2D(DD_PROBLEMS, SB, S5, "Problems - 2D");
 }
 
 bool PulserProcessor::Process(RawEvent &event) {
@@ -111,9 +111,9 @@ void PulserProcessor::AnalyzeData(void) {
         double timeDiff = stop.GetHighResTime() - start.GetHighResTime();
         double timeRes  = 2; //20 ps/bin
         double timeOff  = 1000.;
-        double phaseX   = -22000.;
+        double phaseX   = 0.;
 
-	// cout << timeDiff * timeRes + timeOff << " "
+	// cout << "Pulser Processor: " << timeDiff * timeRes + timeOff << " "
 	//      << start.GetPhase()*timeRes-phaseX << " "
 	//      << start.GetCfdSourceBit() << " " << stop.GetCfdSourceBit() << " "
 	//      << endl;
