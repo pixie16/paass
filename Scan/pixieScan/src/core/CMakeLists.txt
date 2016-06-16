@@ -1,5 +1,4 @@
 set(CORE_SOURCES 
-  PixieStd.cpp 
   BarBuilder.cpp 
   Calibrator.cpp 
   ChanEvent.cpp 
@@ -7,8 +6,8 @@ set(CORE_SOURCES
   DetectorLibrary.cpp 
   DetectorSummary.cpp 
   Globals.cpp 
+  HisFile.cpp
   Identifier.cpp
-  Initialize.cpp 
   Messenger.cpp 
   Notebook.cpp 
   RandomPool.cpp 
@@ -17,6 +16,9 @@ set(CORE_SOURCES
   TimingCalibrator.cpp
   TimingMapBuilder.cpp 
   Trace.cpp 
+  utkscan.cpp
+  UtkScanInterface.cpp
+  UtkUnpacker.cpp
   WalkCorrector.cpp
 )
 
@@ -35,16 +37,9 @@ set (XMLPARSER_SOURCES
   pugixml.cpp
 )
 
-set (READBUFFDATA_SOURCES 
-  ReadBuffDataA.cpp 
-  ReadBuffDataD.cpp 
-  ReadBuffDataF.cpp
-)
-
 add_library(CoreObjects OBJECT 
   ${CORE_SOURCES} 
   ${CORRELATION_SOURCES} 
   ${PLOTTING_SOURCES} 
   ${XMLPARSER_SOURCES} 
-  ${READBUFFDATA_SOURCES}
 )

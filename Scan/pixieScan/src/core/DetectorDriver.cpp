@@ -440,7 +440,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
     RandomPool* randoms = RandomPool::get();
 
     double energy = 0.0;
-
+    
     if (type == "ignore" || type == "")
         return(0);
 
