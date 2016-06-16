@@ -25,8 +25,8 @@
 ///Default size of terminal scroll back buffer in lines.
 #define SCROLLBACK_SIZE 1000
 
-#define CTERMINAL_VERSION "1.2.07"
-#define CTERMINAL_DATE "June 13th, 2016"
+#define CTERMINAL_VERSION "1.2.08"
+#define CTERMINAL_DATE "June 16th, 2016"
 
 #include <curses.h>
 
@@ -223,6 +223,9 @@ class Terminal{
 	short tabCount;
 
 	std::ofstream logFile;
+
+	bool from_script; /// Set to true if a command is read from a script instead of user input.
+	bool prompt_user; /// Set to true if the user should be prompted with a yes/no question.
 	
 	/// Size of the scroll back buffer in lines.
 	int _scrollbackBufferSize;
