@@ -1,0 +1,241 @@
+/** \mainpage Pixie Acquisition and Analysis Software Suite (PAASS)
+
+  This software was written at the University of Tennessee at Knoxville by
+  members of the <a href="http://www.phys.utk.edu/expnuclear/">
+  Experimental  Nuclear Structure Group</a>. The software analyzes
+  provides a framework to acquire and analyze data from the
+  <a href="http://www.xia.com/DGF_Pixie-16.html"> XIA, LLC  DGF Pixie-16
+  modules</a>. These data are then packaged in either a PLD format, or
+  into an LDF (used by the HRIBF/ORNL  data acquisition system). Additionally,
+  the current revision of this code provides an interface with the run conrtol
+  software PACMAN from the old HRIBF/ORNL data acquisition software.
+  
+  This data acquisition software is heavily based on the work by D. Miller. The
+  main difference between the original Pixie Suite and Pixie Suite 2 is that
+  Pixie Suite 2 provides a fully integrated user terminal. This eliminates the
+  need to use many of the old command line programs for setup of the
+  Pixie16 Modules. In addition, it integrates many of these programs into a
+  cohesive whole.
+
+In addition, the utkscan program analyzes the data taken through the DAQ
+The code is capable of processing a variety of detector types, and is written
+in a modular format such that the code can be easily adapted to a variety
+of experimental setups.
+
+These codes are the work of many \ref contributorpage, their names are
+(hopefully) documented in the codes they wrote, and in the documentation
+files. If your name is missing or you have a contribution, please contact
+the code maintainers.
+*/
+
+/******************************************************************************/
+
+/** \page contributorpage Contributors
+  <h1>Data Acquisition Development</h1>
+  \author D. T. Miller
+  \author C. Thornsberry
+  \author K. Smith
+  \author S. V. Paulauskas
+
+  <h1>Data Analysis Development</h1>
+  \author S. N. Liddick
+  \author D. T. Miller
+  \author S. V. Paulauskas
+  \author K. A. Miernik
+
+*/
+
+/******************************************************************************/
+
+/** \page images Images
+    <h1>Analysis Flow Diagram</h1>
+    \image html analysisflow.jpg
+    \image latex analysisflow.eps "Diagram for analysis flow in utkscan"
+
+    <h1>Time-of-flight Diagram</h1>
+    \image html timingCorrection.jpg
+    \image latex timingCorrection.eps "Diagram for the timing correction " width=3.5in
+*/
+
+/******************************************************************************/
+
+/** \page DetectorDriver Event Processing - DetectorDriver
+  This page describes the aspects of DetectorDriver.cpp used for the RawEvent
+  which remain consistent between experiments and includes five different
+  main functions
+  - Init() - initialize the detector driver
+  - ProcessEvent() - processes a complete event passed from ScanList()
+  - ThreshAndCal() - check threshold and calibrate the raw channel energies
+  - PlotRaw() - plot raw experimental energies
+  - PlotCal() - plot calibrated energies
+
+  \section dd-init Initialization
+  The DetectorDriver initialization routine
+  (DetectorDriver::Init()) is called with the detector types that have
+  been identified from the event. It then initializes the necessary Analyzers
+  and Processors, reads in the energy Calibration and the Walk correction, and
+  finally initializes the Correlator. The Init methods for the Analyzers and
+  Processors are contained in their own codes.
+
+  \subsection ReadCal
+  The calibrations are read in during the detector driver
+  initialization (DetectorDriver::ReadCal()) from the file Config.xml.
+  Please see \subpage xmlconfig Configuration for detailed information.
+
+  For each channel with a calibration the type of calibration, and the
+  calibration parameters are read. They are then added to the list of
+  calibrations. If there is no calibration, then any calls for this channel to
+  calibrate the energy returns the energy.
+
+  \section ProcessEvent
+  ProcessEvent() accesses the global RawEvent and processes it. It first
+  plots the raw and calibrated energy along with performing the calibration and
+  threshold. It then performs two loops over the data.
+
+  The first loop is the PreProcees loop. This loop will call the PreProcess
+  method for each of the used processors. The work done in the PreProcess
+  methods __should not__ depend on the results of other Processors.
+
+  The second loop calls the main "Process" method for each of the Processors.
+  The work done in these methods may depend on the results from other
+  Processors. This is where the main work of the Processors will be done.
+
+  \subsection ThreshAndCal
+  ThreshAndCal() receives a pointer to the current channel event. It then
+  proceeds to set values that are calculated from the traces (qdc, phase, etc.).
+  This is also the point at which the energyContraction is applied to the
+  energies. Finally, it applies the energy calibration and walk corrections.
+
+  \subsubsection Trace
+  If a trace is included with the channel object then the trace
+  analysis is invoked through the TraceAnalyzer.
+
+  \subsection PlotRaw
+  The raw energy from the channel is plotted into the appropriate
+  damm spectra as long as it was created in DeclareHistogram.cpp
+
+  \subsection PlotCal
+  The calibrated energy from the channel is plotted into the
+  appropriate damm spectrum if it was created in DeclareHistogram.cpp
+*/
+
+/******************************************************************************/
+
+/** \page dettype Detector Types
+  This page describes all detector types that are possible
+  to use in the current analysis.  These are the only
+  detector types that are valid for use in the Config.xml file.
+
+  \section dt-hen 3hen
+  This detector type is used for the 3Hen detector. This is processed by the
+  Hen3Processor.
+
+  \section beta_scint
+  This detector type is for scintillator detectors used to detect beta
+  particles. This is processed by BetaScintProcessor.
+
+  \section dssd_front
+  This detector type is used for the front of the DSSD.  The front
+  and back of the DSSD must be kept separate to independently determine
+  the strip with the maximum energy for front and back.  Available
+  sub types include:
+  - dssd_front
+  This is processed by DssdProcessor.
+
+  \section dssd_back
+  This detector type is used for the back of the DSSD.  Available
+  sub types include:
+  - dssd_back
+  This is processed by DssdProcessor.
+
+  \section ge
+  This detector type is used for all germanium detectors.  The
+  clover detectors are the furthest developed at present.  Available
+  sub types include:
+  - clover
+  - sega
+  This is processed by GeProcessor.
+
+  \section generic
+  This is a detector type for a generic detector. It could be something that
+  you do not need a full processor for, and simply want to have access to the
+  detector information. There is no dedicated processor.
+
+  \section idssd_front
+  This detector type is for the front of the dssd for implants only.
+  This type is intended for use in fragmentation experiments where
+  the implant and decay signals use two separate electronics chains.
+  Available sub types include:
+  - idssd_front
+
+  Handled by the ImplantSsdProcessor.
+
+  \section ignore
+  This type will be ignored at every step of the analysis.
+
+  \section ion_chamber
+  This type is for an ion chamber. It is handled by the IonChamberProcessor.
+
+  \section liquid_scint
+  This detector type is for liquid scintillator detectors. This is processed by
+  LiquidScintProcessor.
+
+  \section logic
+  This detector type is for Logic signals from traditional electronics. These
+  types are handled by the LogicProcessor.
+
+  \section mcp
+  This detector type is for all mcp detectors.  Available sub types
+  include:
+  - 1position1 - MCP position signal 1.
+  - 1position2 - MCP position signal 2.
+  - 1position3 - MCP position signal 3.
+  - 1position4 - MCP position signal 4.
+  - 1time - MCP timing signal.
+   This is processed by McpProcessor.
+
+  \section mtc
+  This type is for the signals from the Moving Tape Collector (MTC). This stuff
+  is handled by the MtcProcessor.
+
+  \section neutron_scint
+  This detector type is for scintillator detectors used to detect neutrons.
+  This is processed by NeutronScintProcessor.
+
+  \section position
+  This detector type is for a position signal at a fragmentation experiment.
+  This type is intended for correcting a time-of-flight signal based
+  on the position signal at an intermediate focus.  Available sub types
+  include:
+  - i2spos
+
+  Handled by the PositionProcessor
+
+  \section pulser
+  This type is for simple pulsers. It is mainly designed for measuring the
+  time difference between the subtype "start" and "stop". Handled by the
+  PulserProcessor.
+
+  \section si
+  This detector type is for all silicon detectors that are not a
+  DSSD.  This type should be used for the silicon box. No sub types
+  for this type yet.
+
+  \section ssd
+  A type for an SSD. This is handled by the SsdProcessor.
+
+  \section timeclass
+  This detector type is for timing detectors such as TACs and MTCs.
+  Available sub types include
+  - MTC (processed by MtcProcessor)
+
+  \section tvandle
+  A detector type for a "Teeny VANDLE" detector. Currently, handled by the
+  VandleProcessor, but will have its own at some point.
+
+  \section vandle
+  A type for all types of VANDLE bars, different sizes are handled via the
+  subtypes: small, med, big. Handled by the VandleProcessor.
+*/
+
+/******************************************************************************/
