@@ -811,8 +811,12 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = pugi* \
-                                 MersenneTwister.hpp
+EXCLUDE                = Scan/utkscan/include/pugiconfig.hpp  \
+                       Scan/utkscan/include/pugixml.hpp \
+                       Scan/utkscan/include/MersenneTwister.hpp \
+                       Scan/utkscan/src/core/pugixml.cpp \
+                       README.md \
+                       Scan/utkscan/README.md
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -865,7 +869,7 @@ EXAMPLE_RECURSIVE      = NO
 # that contain images that are to be included in the documentation (see the
 # \image command).
 
-IMAGE_PATH             = doc/doxyPages
+IMAGE_PATH             = doc/pics
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program
