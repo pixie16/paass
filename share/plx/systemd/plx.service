@@ -4,8 +4,8 @@ Description=Service file for PLX Driver 9054 for communication with XIA Pixie16 
 [Service]
 Type=oneshot
 Environment="PLX_SDK_DIR=/opt/plx/current/PlxSdk"
-ExecStart=${PLX_SDK_DIR}/Bin/Plx_load 9054 
-ExecStop=${PLX_SDK_DIR}/Bin/Plx_unload 9054
+ExecStart=/opt/plx/current/PlxSdk/Bin/Plx_load 9054 
+ExecStop=/opt/plx/current/PlxSdk/Bin/Plx_unload 9054
 RemainAfterExit=yes
 
 [Install]
