@@ -47,6 +47,7 @@
 #include "TraceAnalyzer.hpp"
 #include "TraceExtractor.hpp"
 #include "TraceFilterAnalyzer.hpp"
+#include "WaaAnalyzer.hpp"
 #include "WaveformAnalyzer.hpp"
 
 #include "TemplateExpProcessor.hpp"
@@ -256,11 +257,17 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecAnalyzer.push_back(new TraceExtractor(type, subtype,tag));
         } else if (name == "WaveformAnalyzer") {
             vecAnalyzer.push_back(new WaveformAnalyzer());
-        } else if (name == "FittingAnalyzer") {
-            vecAnalyzer.push_back(new FittingAnalyzer());
         } else if (name == "CfdAnalyzer") {
             vecAnalyzer.push_back(new CfdAnalyzer());
-        } else {
+        } else if (name == "WaaAnalyzer") {
+            vecAnalyzer.push_back(new WaaAnalyzer());
+        }
+#ifdef usegsl
+        else if (name == "FittingAnalyzer") {
+            vecAnalyzer.push_back(new FittingAnalyzer());
+        }
+#endif
+        else {
             stringstream ss;
             ss << "DetectorDriver: unknown analyzer type" << name;
             throw GeneralException(ss.str());

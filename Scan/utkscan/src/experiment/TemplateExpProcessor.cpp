@@ -44,7 +44,9 @@ TemplateExpProcessor::TemplateExpProcessor() :
     SetAssociatedTypes();
     ObtainHisName();
     SetupAsciiOutput();
+#ifdef useroot
     SetupRootOutput();
+#endif
 }
 
 TemplateExpProcessor::TemplateExpProcessor(const double &gcut) :
@@ -53,7 +55,9 @@ TemplateExpProcessor::TemplateExpProcessor(const double &gcut) :
     SetAssociatedTypes();
     ObtainHisName();
     SetupAsciiOutput();
+#ifdef useroot
     SetupRootOutput();
+#endif
 }
 
 ///Destructor to close output files and clean up pointers
