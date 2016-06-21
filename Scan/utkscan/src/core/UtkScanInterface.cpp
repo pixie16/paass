@@ -50,7 +50,7 @@ bool UtkScanInterface::ExtraCommands(const std::string &cmd_,
 bool UtkScanInterface::ExtraArguments(const std::string &arg_, 
 				      std::deque<std::string> &others_, 
 				      std::string &ifname) {
-    if(arg_ == "--myarg"){
+    if(arg_ == "--config"){
 	// Handle the command line argument.
     }
     else{ // Not a valid option. Must be a filename.
