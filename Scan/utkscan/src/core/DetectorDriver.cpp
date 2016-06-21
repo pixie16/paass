@@ -319,7 +319,7 @@ void DetectorDriver::ProcessEvent(RawEvent& rawev) {
     plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
     try {
         for (vector<ChanEvent*>::const_iterator it = rawev.GetEventList().begin();
-            it != rawev.GetEventList().end(); ++it) {
+             it != rawev.GetEventList().end(); ++it) {
             PlotRaw((*it));
             ThreshAndCal((*it), rawev);
             PlotCal((*it));

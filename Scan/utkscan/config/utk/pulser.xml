@@ -13,16 +13,17 @@
     <Global>
         <Revision version="F"/>
         <EventWidth unit="s" value="1e-6"/>
-        <EnergyContraction value="1.0"/>
-        <Path>config/</Path>
         <NumOfTraces value="50"/>
     </Global>
 
     <DetectorDriver>
-        <Processor name="PulserProcessor" />
         <Analyzer name="TraceExtractor" type="pulser" subtype="start"/>
+        
         <Analyzer name="WaveformAnalyzer"/>
-        <Analyzer name="FittingAnalyzer"/>
+        <!--
+            <Analyzer name="FittingAnalyzer"/>
+        -->
+        <Processor name="PulserProcessor" />
     </DetectorDriver>
 
     <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
@@ -35,56 +36,37 @@
     <TimeCalibration verbose_timing="False">
     </TimeCalibration>
 
-    <Timing>
-        <Physical>
-            <NeutronMass unit="MeV/c/c" value="939.565560"/>
-            <SpeedOfLight unit="cm/ns" value="29.9792458"/>
-            <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
-            <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
-            <SmallLength unit="cm" value="60.0"/>
-            <MediumLength unit="cm" value="120.0"/>
-            <BigLength unit="cm" value="200.0"/>
-        </Physical>
-
-        <Trace>
-            <WaveformRange>
-                <Low unit="sample" value="5"/>
-                <High unit="sample" value="10"/>
-            </WaveformRange>
-            <DiscriminationStart unit="sample" value="3"/>
-            <TrapezoidalWalk unit="ns" value="60"/>
-            <TraceDelay unit="ns" value="112"/>
-            <TraceLength unit="ns" value="176"/>
-            <QdcCompression value="1.0"/>
-        </Trace>
-
-        <Fitting>
-            <SigmaBaselineThresh value="3.0"/>
-            <Vandle>
-                <Beta value="0.32969"/>
-                <Gamma value="0.212945"/>
-            </Vandle>
-            <Start>
-                <Beta value="0.574531"/>
-                <Gamma value="0.274512"/>
-            </Start>
-            <Pulser>
-                <Beta value="0.96831"/>
-                <Gamma value="0.22027"/>
-            </Pulser>
-            <TVandle>
-                <Beta value="0.362307"/>
-                <Gamma value="0.186129"/>
-            </TVandle>
-            <LiquidScint>
-                <Beta value="4.52672"/>
-                <Gamma value="1.73376"/>
-            </LiquidScint>
-            <SiPMT>
-                <Sigma value="1.4196495999"/>
-            </SiPMT>
+    <Physical>
+      <NeutronMass unit="MeV/c/c" value="939.565560"/>
+      <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+      <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+      <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+      <SmallLength unit="cm" value="60.0"/>
+      <MediumLength unit="cm" value="120.0"/>
+      <BigLength unit="cm" value="200.0"/>
+    </Physical>
+    
+    <Trace>
+      <DiscriminationStart unit="sample" value="3"/>
+      <TrapezoidalWalk unit="ns" value="60"/>
+      <TraceDelay unit="ns" value="112"/>
+      <TraceLength unit="ns" value="176"/>
+      <QdcCompression value="1.0"/>
+    </Trace>
+    
+    <Fitting>
+      <SigmaBaselineThresh value="3.0"/>
+      <Parameters>
+	<Pars name="pulser:start">
+          <Beta value="0.96831"/>
+          <Gamma value="0.22027"/>
+	</Pars>
+        <Pars name="pulser:stop">
+          <Beta value="0.96831"/>
+          <Gamma value="0.22027"/>
+	</Pars>
+      </Parameters>
         </Fitting>
-    </Timing>
 
     <TreeCorrelator name="root" verbose="False">
     </TreeCorrelator>
