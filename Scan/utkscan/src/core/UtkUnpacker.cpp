@@ -61,17 +61,18 @@ void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/){
 	
 	/* Make a last check to see that everything is in order for the driver
 	 * before processing data. SanityCheck function throws exception if
-	 * something went wrong.
-	 */
+	 * something went wrong. */
 	try{
 	    driver->SanityCheck(); 
 	} catch(GeneralException &e){
 	    m.fail();
-	    std::cout << "Exception caught while checking DetectorDriver" << " sanity in PixieStd" << std::endl;
+	    std::cout << "Exception caught while checking DetectorDriver"
+                      << " sanity in UtkUnpacker::ProcessRawEvent" << std::endl;
 	    std::cout << "\t" << e.what() << std::endl;
 	    exit(EXIT_FAILURE);
 	} catch(GeneralWarning &w){
-	    std::cout << "Warning caught during checking DetectorDriver" << " at PixieStd" << std::endl;
+	    std::cout << "Warning caught during checking DetectorDriver"
+                      << " at UtkUnpacker::ProcessRawEvent" << std::endl;
 	    std::cout << "\t" << w.what() << std::endl;
 	}
 	
