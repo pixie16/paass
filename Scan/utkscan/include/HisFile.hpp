@@ -18,10 +18,13 @@
 #include <vector>
 
 /// Create a DAMM 1D histogram
-void hd1d_(int dammId, int nHalfWords, int rawlen, int histlen, int min, int max, const char *title, unsigned int length);
+void hd1d_(int dammId, int nHalfWords, int rawlen, int histlen, int min, int max,
+           const char *title, unsigned int length);
 
 /// Create a DAMM 2D histogram
-void hd2d_(int dammId, int nHalfWords, int rawXlen, int histXlen, int xMin, int xMax, int rawYlen, int histYlen, int yMin, int yMax, const char *title, unsigned int length);
+void hd2d_(int dammId, int nHalfWords, int rawXlen, int histXlen, int xMin,
+           int xMax, int rawYlen, int histYlen, int yMin, int yMax, const char *title,
+           unsigned int length);
 
 /// Do banana gating using ban files
 bool bantesti_(const int &id, const double &x, const double &y);
@@ -34,12 +37,6 @@ void set2cc_(const int &dammID, const int &x, const int &y, const int &z);
 
 /// Histogram data storage object
 class HisData{
-  private:
-	unsigned int *data;
-	size_t size;
-	bool use_int;
-	bool init;
-
   public:	
 	/// Default constructor
 	HisData();
@@ -73,6 +70,11 @@ class HisData{
 	
 	/// Array subscript overload. No array range checking!
 	unsigned int& operator[](const size_t &index_);
+  private:
+	unsigned int *data;
+	size_t size;
+	bool use_int;
+	bool init;
 };
 
 /// drr entry information
