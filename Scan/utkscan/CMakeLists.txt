@@ -83,6 +83,7 @@ if(USE_GSL)
   if(NOT ${GSL_VERSION} LESS 1.14)
     message(FATAL_ERROR "GSL 1.13 or lower required. Found GSL ${GSL_VERSION}")
   endif(NOT ${GSL_VERSION} LESS 1.14)
+  add_definitions("-D usegsl")
 endif(USE_GSL)
 
 #Build the core library
