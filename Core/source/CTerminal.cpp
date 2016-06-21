@@ -531,31 +531,31 @@ bool Terminal::LoadCommandFile(const char *filename_){
 	}
 	
 	// Read the commands from the specified file.
-	std::string cmd;
+	std::string cmdstr;
 	while(true){
-		std::getline(input, cmd);
+		std::getline(input, cmdstr);
 		if(input.eof()){ break; }
 
 		// Check for empty string.
-		if(cmd.empty()){ continue; }
+		if(cmdstr.empty()){ continue; }
 
 		// Search for comments.
-		if(cmd.find('#') != std::string::npos){
+		if(cmdstr.find('#') != std::string::npos){
 			// Strip off trailing comments.
-			cmd = cmd.substr(0, cmd.find_first_of('#'));
+			cmdstr = cmdstr.substr(0, cmdstr.find_first_of('#'));
 		}
 
 		// Strip leading whitespace.
-		if(!cmd.empty()){ cmd = cmd.substr(cmd.find_first_not_of(' ')); }
+		if(!cmdstr.empty()){ cmdstr = cmdstr.substr(cmdstr.find_first_not_of(' ')); }
 
 		// Strip trailing whitespace.
-		if(!cmd.empty()){ cmd = cmd.substr(0, cmd.find_last_not_of(' ')+1); }
+		if(!cmdstr.empty()){ cmdstr = cmdstr.substr(0, cmdstr.find_last_not_of(' ')+1); }
 
 		// Check for empty string again since we've processed some more.
-		if(cmd.empty()){ continue; }
+		if(cmdstr.empty()){ continue; }
 
 		// Push the command into the command array
-		cmd_queue.push_back(cmd);
+		cmd_queue.push_back(cmdstr);
 	}
 	
 	input.close();
@@ -577,21 +577,21 @@ bool Terminal::LoadCommandHistory(bool overwrite){
 	
 	//Read the commands from the specified file.
 	size_t index;
-	std::string cmd;
+	std::string cmdstr;
 	std::vector<std::string> cmds;
 	while(true){
-		std::getline(input, cmd);
+		std::getline(input, cmdstr);
 		if(input.eof()){ break; }
 		
 		// Strip the newline from the end
-		index = cmd.find("\n");
+		index = cmdstr.find("\n");
 		if(index != std::string::npos){
-			cmd.erase(index);
+			cmdstr.erase(index);
 		}
 		
 		// Push the command into the command array
-		if(cmd != ""){ // Just to be safe!
-			cmds.push_back(cmd);
+		if(cmdstr != ""){ // Just to be safe!
+			cmds.push_back(cmdstr);
 		}
 	}
 	
@@ -645,7 +645,8 @@ Terminal::Terminal() :
 	_scrollbackBufferSize(SCROLLBACK_SIZE),
 	_scrollPosition(0)
 {
-
+	from_script = false;
+	prompt_user = false;
 	historyFilename_ = "";
 	init = false;
 	cursX = 0; 
@@ -902,9 +903,6 @@ void Terminal::TabComplete(std::vector<std::string> matches) {
 std::string Terminal::GetCommand(const int &prev_cmd_return_/*=0*/){
 	std::string output = "";
 
-	bool from_script = false;
-	bool prompt_user = false;
-	
 	sclock::time_point commandRequestTime = sclock::now();
 	sclock::time_point currentTime;
 
@@ -913,8 +911,6 @@ std::string Terminal::GetCommand(const int &prev_cmd_return_/*=0*/){
 		werase(status_window);
 		print(status_window,statusStr.at(0).c_str());
 	}
-
-read_command:
 
 	// Check for commands in the command queue.
 	if(!prompt_user && !cmd_queue.empty()){ 
@@ -1076,21 +1072,25 @@ read_command:
 				cmd_queue.clear();
 			}
 			prompt_user = false;
-			goto read_command;
+			return "";
 		}
 		
 		from_script = false;
 	}
 
+	// In the event of an empty command, return.
+	if(output.empty())
+		return "";
+		
 	// Check for system commands.
 	std::string temp_cmd_string = output.substr(output.find_first_not_of(' '), output.find_first_of(' ')); // Strip the command from the front of the input.
 	std::string temp_arg_string = output.substr(output.find_first_of(' ')+1, output.find_first_of('#')); // Does not ignore leading whitespace.
-	
+
 	if(temp_cmd_string.empty() || temp_cmd_string[0] == '#'){
 		// This is a comment line.
-		goto read_command;
+		return "";
 	}
-	
+
 	if(temp_cmd_string.substr(0, output.find_first_of(' ')).find('.') != std::string::npos){
 		if(temp_cmd_string == ".cmd"){ // Load a command script.
 			std::string command_filename = temp_arg_string.substr(output.find_first_not_of(' ')); // Ignores leading whitespace.
@@ -1108,10 +1108,10 @@ read_command:
 		else{ // Unrecognized command.
 			std::cout << prompt << "Error! Unrecognized system command " << temp_cmd_string << ".\n";
 		}
-		
-		goto read_command; // Done processing the command. Don't need to send it to the caller.
-	}
 	
+		return ""; // Done processing the command. Don't need to send it to the caller.
+	}
+
 	// Print the command if it was read from a script. This is done so that the user
 	// will know what is happening in the script file. It will also ignore system
 	// commands in the file.
