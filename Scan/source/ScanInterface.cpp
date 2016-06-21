@@ -139,7 +139,7 @@ std::string ScanInterface::get_extension(std::string filename_, std::string &pre
   * \return Nothing.
   */
 void ScanInterface::start_scan(){
-	if(!file_open)
+	if(!(file_open || shm_mode))
 		std::cout << " No input file loaded.\n";
 	else if(!input_file.good())
 		std::cout << " Error reading from input file!\n";
@@ -200,7 +200,11 @@ bool ScanInterface::rewind(const unsigned long &offset_/*=0*/){
 	if(!scan_init){ return false; }
 
 	// Ensure that the scan is not running.
-	if(is_running){ 
+	if(!(file_open || shm_mode)){
+		std::cout << " No input file loaded.\n";
+		return false;
+	}
+	else if(is_running){ 
 		std::cout << " Cannot change file position while scan is running!\n";
 		return false;
 	}
