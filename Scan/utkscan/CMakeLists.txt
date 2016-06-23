@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.8) 
 
-project(UTK_Scan CXX Fortran)
+project(UTK_Scan CXX)
 
 #Set options depending on the C++ compiler
 if (CMAKE_COMPILER_IS_GNUCXX)
@@ -24,11 +24,15 @@ message(STATUS "Installing to ${CMAKE_INSTALL_PREFIX}")
 #Define the default build type
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release CACHE STRING
-    "Build type, options are: None Debug Release RelWithDebInfo MinSizeRel."
+    "Build type, options are: None Debug Release RelWithDebInfo MinSizeRel Gprof."
     FORCE)
   message(STATUS "Build type not defined, using default: ${CMAKE_BUILD_TYPE}")
 ENDIF(NOT CMAKE_BUILD_TYPE)
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
+if(CMAKE_BUILD_TYPE MATCHES "Gprof")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg -g")
+endif(CMAKE_BUILD_TYPE MATCHES "Debug")
 
 #Install options
 option(USE_ROOT "Use ROOT for analysis" ON)

@@ -13,8 +13,10 @@
 #ifndef HISFILE_H
 #define HISFILE_H
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <map>
+#include <set>
 #include <vector>
 
 /// Create a DAMM 1D histogram
@@ -206,6 +208,7 @@ protected:
     
     drr_entry *current_entry; /// Pointer to the current working drr entry
     std::vector<drr_entry *> drr_entries; /// Vector of pointers to all drr_entries in drr file
+    std::map<unsigned int, drr_entry*> drrMap_; //!< Map associating IDs with drr entries.
     
     /// Read an entry from the drr file
     drr_entry *read_entry();
@@ -298,7 +301,7 @@ public:
     //TH2I *GetTH2(int hist_=-1);
     
     /// Get a drr entry from the vector
-    void GetEntry(size_t id_);
+    void GetEntry(const size_t & id);
     
     /// Load the specified histogram
     size_t GetHistogram(unsigned int hist_, bool no_copy_=false);
@@ -327,7 +330,7 @@ private:
     unsigned int Flush_wait; /// Number of fills to wait between Flushes
     unsigned int Flush_count; /// Number of fills since last Flush
     std::vector<fill_queue*> fills_waiting; /// Vector containing list of histograms to be filled
-    std::vector<unsigned int> failed_fills; /// Vector containing list of histogram fills into an invalid his id
+    std::set<unsigned int> failed_fills; /// Vector containing list of histogram fills into an invalid his id
     std::streampos total_his_size; /// Total size of .his file
     
     /// Find the specified .drr entry in the drr list using its histogram id
