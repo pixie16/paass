@@ -170,14 +170,15 @@ void TreeCorrelator::createPlace(std::map<std::string, std::string>& params,
 }
 
 void TreeCorrelator::buildTree() {
+    string cfg = Globals::get()->configfile();
     pugi::xml_document doc;
 
     Messenger m;
     m.start("Creating TreeCorrelator");
-    pugi::xml_parse_result result = doc.load_file("Config.xml");
+    pugi::xml_parse_result result = doc.load_file(cfg.c_str());
     if (!result) {
         stringstream ss;
-        ss << "DetectorDriver: error parsing file Config.xml";
+        ss << "DetectorDriver: error parsing file " << cfg;
         ss << " : " << result.description();
         m.fail();
         throw IOException(ss.str());

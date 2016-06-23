@@ -55,17 +55,14 @@ class skeletonScanner : public ScanInterface {
 	  */
 	virtual bool ExtraCommands(const std::string &cmd_, std::vector<std::string> &args_);
 	
-	/** ExtraArguments is used to send command line arguments to classes derived
-	  * from ScanInterface. If ScanInterface receives an unrecognized
-	  * argument from the user, it will pass it on to the derived class.
-	  * \param[in]  arg_    The argument to interpret.
-	  * \param[out] others_ The remaining arguments following arg_.
-	  * \param[out] ifname  The input filename to send back to use for reading.
-	  * \return True if the argument was recognized and false otherwise.
-	  */
-	virtual bool ExtraArguments(const std::string &arg_, std::deque<std::string> &others_, std::string &ifname);
-	
-	/** CmdHelp is used to allow a derived class to print a help statement about
+    /** ExtraArguments is used to send command line arguments to classes derived
+     * from ScanInterface. It has its own instance of getopts to look for its known 
+     * parameters. 
+     * \param[in] argc : The number of command line arguments
+     * \param[in] argv[] : The arrary containing all command line arguments */
+    virtual void ExtraArguments(int argc, char *argv[]);
+    
+    /** CmdHelp is used to allow a derived class to print a help statement about
 	  * its own commands. This method is called whenever the user enters 'help'
 	  * or 'h' into the interactive terminal (if available).
 	  * \param[in]  prefix_ String to append at the start of any output.
