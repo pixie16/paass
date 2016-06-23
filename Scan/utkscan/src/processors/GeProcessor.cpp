@@ -97,11 +97,12 @@ GeProcessor::GeProcessor(double gammaThreshold, double lowRatio,
     Messenger m;
     m.detail("Loading Gamma-gamma gates", 1);
 
+    string cfg = Globals::get()->configfile();
     pugi::xml_document doc;
-    pugi::xml_parse_result result = doc.load_file("Config.xml");
+    pugi::xml_parse_result result = doc.load_file(cfg.c_str());
     if (!result) {
         stringstream ss;
-        ss << "DetectorDriver: error parsing file Config.xml";
+        ss << "DetectorDriver: error parsing file " << cfg;
         ss << " : " << result.description();
         throw IOException(ss.str());
     }
