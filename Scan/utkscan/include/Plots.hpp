@@ -128,9 +128,9 @@ public:
     /*! \brief Plots into histogram defined by dammId
     * \param [in] dammId : The histogram number to define
     * \param [in] val1 : the x value
-    * \param [in] val2 : the y value
-    * \param [in] val3 : the z value
-    * \param [in] name : the name of the histogram
+    * \param [in] val2 : the y value or weight for a 1D histogram
+    * \param [in] val3 : the z value or weight in a 2D histogram
+    * \param [in] name : the name of the histogram in ROOT (not implemented now)
     * \return true if successful */
     bool Plot(int dammId, double val1, double val2 = -1, double val3 = -1,
               const char* name="h");
@@ -163,7 +163,7 @@ private:
     /** Name of the owner of plots, mainly for debugging */
     std::string name_;
     /** set of int (relative dammId without offsets */
-    std::set <int> idList;
+    std::set <int> idList_;
     /** Map of mnemonic -> int */
     std::map <std::string, int> mneList;
     /** Map of dammid -> title, helps debugging duplicated dammids*/

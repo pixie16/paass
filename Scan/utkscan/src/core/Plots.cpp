@@ -24,25 +24,20 @@ bool Plots::BananaTest(const int &id, const double &x, const double &y) {
     return (bantesti_(id, Round(x), Round(y)));
 }
 
-/**
- * Check if the id falls within the expected range
- */
+/** Check if the id falls within the expected range */
 bool Plots::CheckRange(int id) const {
     return (id < range_ && id >= 0);
 }
 
-/**
- * Checks if id is taken
- */
+/** Checks if id is taken */
 bool Plots::Exists(int id) const {
-    return (idList.count(id) != 0);
+    return (idList_.count(id) != 0);
 }
 
 bool Plots::Exists(const std::string &mne) const {
     // Empty mnemonic is always allowed
     if (mne.size() == 0)
 	return false;
-
     return (mneList.count(mne) != 0);
 }
 
@@ -65,7 +60,7 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char* title,
         throw HistogramException(ss.str());
     }
 
-    pair<set<int>::iterator, bool> result = idList.insert(dammId);
+    pair<set<int>::iterator, bool> result = idList_.insert(dammId);
     if (result.second == false)
         return false;
     // Mnemonic is optional and added only if longer then 0
@@ -111,9 +106,9 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
         throw HistogramException(ss.str());
     }
 
-    pair<set<int>::iterator, bool> result = idList.insert(dammId);
+    pair<set<int>::iterator, bool> result = idList_.insert(dammId);
     if (result.second == false)
-        return false;
+        return(false);
     // Mnemonic is optional and added only if longer then 0
     if (mne.size() > 0)
         mneList.insert( pair<string, int>(mne, dammId) );
@@ -144,23 +139,17 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
 
 bool Plots::Plot(int dammId, double val1, double val2, double val3,
                  const char* name) {
-    /*
-      dammid - id of the damm spectrum in absence of root
-      val1   - energy of a 1d spectrum
-      x value in a 2d
-      val2   - weight in a 1d
-      - y value in a 2d
-      val3   - weight in a 2d
-      name   - name of a root spectrum (NOT CURRENTLY USED)
-    */
-
-    /*
-    // This checks if dammId is a valid one (fortran code is silent on
-    // ploting non-existing plots) but it causes efficiency problems
-    // (?) to be tested!
-    if (!Exists(dammId))
-        return false;
-    */
+    // We will not try to plot into histograms that have not been defined
+    if (!Exists(dammId)) {
+#ifdef VERBOSE
+        std::cerr << "Tried to fill histogram ID " << dammId << "belonging to "
+                  << name_ << ", which is not known to us. You MUST fix this "
+                  << "before continuing with execution." << endl;
+        //We will exit here since this is an error that should be fixed. 
+        exit(0);
+#endif
+        return(false);
+    }
 
     if (val2 == -1 && val3 == -1)
         count1cc_(dammId + offset_, int(val1), 1);
@@ -168,7 +157,7 @@ bool Plots::Plot(int dammId, double val1, double val2, double val3,
         count1cc_(dammId + offset_, int(val1), int(val2));
     else
         set2cc_(dammId + offset_, int(val1), int(val2), int(val3));
-    return true;
+    return(true);
 }
 
 bool Plots::Plot(const std::string &mne, double val1, double val2, double val3,

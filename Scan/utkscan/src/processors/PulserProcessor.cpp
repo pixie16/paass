@@ -101,11 +101,11 @@ void PulserProcessor::AnalyzeData(void) {
     HighResTimingData stop  =
         (*pulserMap_.find(make_pair(0,"stop"))).second;
 
-    static int counter = 0;
-    for(Trace::const_iterator it = start.GetTrace()->begin();
-        it!= start.GetTrace()->end(); it++)
-        plot(DD_PROBLEMS, int(it-start.GetTrace()->begin()), counter, *it);
-    counter ++;
+    // static int counter = 0;
+    // for(Trace::const_iterator it = start.GetTrace()->begin();
+    //     it!= start.GetTrace()->end(); it++)
+    //     plot(DD_PROBLEMS, int(it-start.GetTrace()->begin()), counter, *it);
+    // counter ++;
 
     if(start.GetIsValid() && stop.GetIsValid()) {
         double timeDiff = stop.GetHighResTime() - start.GetHighResTime();
