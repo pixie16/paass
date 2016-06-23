@@ -4,10 +4,8 @@
 #include <deque>
 #include <string>
 
+#include <ScanInterface.hpp>
 #include <XiaData.hpp>
-
-// PixieCore libraries
-#include "ScanInterface.hpp"
 
 ///Class derived from ScanInterface to handle UI for the scan.
 class UtkScanInterface : public ScanInterface {
@@ -28,15 +26,11 @@ public:
 			       std::vector<std::string> &args_);
     
     /** ExtraArguments is used to send command line arguments to classes derived
-     * from ScanInterface. If ScanInterface receives an unrecognized
-     * argument from the user, it will pass it on to the derived class.
-     * \param[in]  arg_    The argument to interpret.
-     * \param[out] others_ The remaining arguments following arg_.
-     * \param[out] ifname  The input filename to send back to use for reading.
-     * \return True if the argument was recognized and false otherwise. */
-    virtual bool ExtraArguments(const std::string &arg_, 
-				std::deque<std::string> &others_, 
-				std::string &ifname);
+     * from ScanInterface. It has its own instance of getopts to look for its known 
+     * parameters. 
+     * \param[in] argc : The number of command line arguments
+     * \param[in] argv[] : The arrary containing all command line arguments */
+    virtual void ExtraArguments(int argc, char *argv[]){}
     
     /** Initialize the map file, the config file, the processor handler, 
      * and add all of the required processors.
@@ -68,7 +62,7 @@ public:
      * its own command line arguments. This method is called at the end of
      * the ScanInterface::help method.
      * \return Nothing. */
-    virtual void ArgHelp(void);
+    virtual void ArgHelp(void){}
     
     /** SyntaxStr is used to print a linux style usage message to the screen.
      * \param[in]  name_ The name of the program.
