@@ -12,7 +12,7 @@ set(CORE_SOURCES
   Notebook.cpp 
   RandomPool.cpp 
   RawEvent.cpp 
-  StatsData.cpp 
+#  StatsData.cpp 
   TimingCalibrator.cpp
   TimingMapBuilder.cpp 
   Trace.cpp 

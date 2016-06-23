@@ -14,9 +14,11 @@
 #include <sstream>
 #include <thread>
 
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
+
 #include <unistd.h>
-#include <stdlib.h>
+#include <getopt.h>
 
 #include "Unpacker.hpp"
 #include "poll2_socket.h"
@@ -179,16 +181,19 @@ void ScanInterface::stop_scan(){
   */
 void ScanInterface::help(char *name_){
 	SyntaxStr(name_);
-	std::cout << "  Available options:\n";
-	std::cout << "   --help (-h)    - Display this dialogue\n";
-	std::cout << "   --version (-v) - Display version information\n";
-	std::cout << "   --debug        - Enable readout debug mode\n";
-	std::cout << "   --shm          - Enable shared memory readout\n";
-	std::cout << "   --quiet        - Toggle off verbosity flag\n";
-	std::cout << "   --counts       - Write all recorded channel counts to a file\n";
-	std::cout << "   --batch        - Run in batch mode (i.e. with no command line)\n";
-	std::cout << "   --dry-run      - Extract spills from file, but do no processing\n";
-	std::cout << "   --fast-fwd [word] - Skip ahead to a specified word in the file (start of file at zero)\n";
+	std::cout << "  Available options:\n"
+                  << "   --batch (-b) - Run in batch mode (i.e. with no command line)\n"
+                  << "   --config (-c) [path to config]  - Specify configuration file to use for scan\n"
+                  << "   --counts       - Write all recorded channel counts to a file\n"
+                  << "   --debug        - Enable readout debug mode\n"
+                  << "   --dry-run (-d) - Extract spills from file, but do no processing\n"
+                  << "   --fast-fwd [word] - Skip ahead to a specified word in the file (start of file at zero)\n"
+                  << "   --help (-h)    - Display this dialogue\n"
+                  << "   --input (-i)  [input file] - Specifies the input file to analyze\n"
+                  << "   --output (-o) [output file] - specifies the name of the output file. Default is \"out\"\n"
+                  << "   --quiet (-q) - Toggle off verbosity flag\n"
+                  << "   --shm          - Enable shared memory readout\n"
+                  << "   --version (-v) - Display version information\n";
 	ArgHelp();
 }
 
@@ -336,27 +341,13 @@ bool ScanInterface::open_input_file(const std::string &fname_){
 	return true;	
 }
 
-/** ExtraArguments is used to send command line arguments to classes derived
-  * from ScanInterface. If ScanInterface receives an unrecognized
-  * argument from the user, it will pass it on to the derived class.
-  * Does nothing useful by default.
-  * \param[in]  arg_    The argument to interpret.
-  * \param[out] others_ The remaining arguments following arg_.
-  * \param[out] ifname  The input filename to send back to use for reading. Set to arg_ by default.
-  * \return True if the argument was recognized and false otherwise. Returns true by default.
-  */
-bool ScanInterface::ExtraArguments(const std::string &arg_, std::deque<std::string> &others_, std::string &ifname){
-	ifname = arg_;
-	return true;
-}
-
 /** SyntaxStr is used to print a linux style usage message to the screen.
   * Prints a standard usage message by default.
   * \param[in]  name_ The name of the program.
   * \return Nothing.
   */
 void ScanInterface::SyntaxStr(char *name_){
-	std::cout << " usage: " << name_ << " [input] [options] [output]\n";
+	std::cout << " usage: " << name_ << "[options] -- [extra options] \n";
 }
 
 /** Initialize the Unpacker object. 
@@ -833,146 +824,170 @@ void ScanInterface::CmdControl(){
   * \return True upon success and false otherwise.
   */
 bool ScanInterface::Setup(int argc, char *argv[]){
-	if(scan_init){ return false; }
+	if(scan_init)
+            return (false);
 
 	// If a pointer to an Unpacker derived class is not specified, call the
 	// extern function GetCore() to get a pointer to a new object.
-	if(!core){ GetCore(); }
+	if(!core)
+            GetCore();
 
 	// Link this object to the Unpacker for cross-calls.
 	core->SetInterface(this);
 
-	if(argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)){ // A stupid way to do this... for now.
-		help(argv[0]);
-		return false;
-	}
-	else if(argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)){ // Display version information
-		std::cout << "  " << PROG_NAME << "      v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
-		std::cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " (" << POLL2_SOCKET_DATE << ")\n"; 
-		std::cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION << " (" << HRIBF_BUFFERS_DATE << ")\n"; 
-		std::cout << "  CTerminal     v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
-		return false;
-	}
-	
-	debug_mode = false;
+        debug_mode = false;
 	dry_run_mode = false;
 	shm_mode = false;
-	
-	num_spills_recvd = 0;
+        num_spills_recvd = 0;
+        std::string input_filename = "";
 
-	// Fill the argument list.
-	std::deque<std::string> scan_args;
-	std::deque<std::string> optargs;
-	int arg_index = 1;
-	while(arg_index < argc){
-		scan_args.push_back(std::string(argv[arg_index++]));
-	}
+        struct option longOpts[] = {
+            { "batch", no_argument, NULL, 'b' },
+            { "config", required_argument, NULL, 'c' },
+            { "counts", no_argument, NULL, 0 },
+            { "debug", no_argument, NULL, 0},
+            { "dry-run", no_argument, NULL, 'd' },
+            { "fast-fwd", required_argument, NULL, 'f'},
+            { "help", no_argument, NULL, 'h' },
+            { "input", required_argument, NULL, 'i'},
+            { "output", required_argument, NULL, 'o' },
+            { "quiet", no_argument, NULL, 'q' },
+            { "shm", no_argument, NULL, 's' },
+            { "version", no_argument, NULL, 'v'},
+            { NULL, no_argument, NULL, 0 }
+        };
 
-	// Loop through the arg list and extract ScanInterface arguments.
-	std::string current_arg;
-	std::string input_filename = "";
-	while(!scan_args.empty()){
-		current_arg = scan_args.front();
-		scan_args.pop_front();
-		if(current_arg == "--debug"){ 
-			core->SetDebugMode();
-			debug_mode = true;
-		}
-		else if(current_arg == "--counts"){
-			write_counts = true;
-		}
-		else if(current_arg == "--batch"){
-			batch_mode = true;
-		}
-		else if(current_arg == "--dry-run"){
-			dry_run_mode = true;
-		}
-		else if(current_arg == "--fast-fwd"){
-			if(scan_args.empty()){
-				std::cout << " FATAL ERROR! Missing required argument to option '--fast-fwd'!\n";
-				help(argv[0]);
-				return false;
-			}
-			file_start_offset = atoll(scan_args.front().c_str());
-			scan_args.pop_front();
-		}
-		else if(current_arg == "--quiet"){
-			is_verbose = false;
-		}
-		else if(current_arg == "--shm"){ 
-			file_format = 0;
-			shm_mode = true;
-			std::cout << " Using shm mode!\n";
-		}
-		else if(!ExtraArguments(current_arg, scan_args, input_filename)){ // Unrecognized option.
-			std::cout << " Error: Unrecognized command line argument '" << current_arg << "'.\n";
-			help(argv[0]);
-			return false;
-		}
-	}
+        std::string optstr = "bc:df:hi:o:qsv";
+        int idx = 0;
+        int retval = 0;
+
+        //getopt_long is not POSIX compliant. It is provided by GNU. This may mean
+        //that we are not compatable with some systems. If we have enough
+        //complaints we can either change it to getopt, or implement our own class. 
+        while ( (retval = getopt_long(argc,argv,optstr.c_str(),longOpts,&idx)) != -1) {
+            switch(retval) {
+            case 'b' :
+                batch_mode = true;
+                break;
+            case 'c':
+                configFile_ = optarg;
+                break;
+            case 'd' :
+                dry_run_mode = true;
+                break;
+            case 'f' :
+                file_start_offset = atoll(optarg);
+                break;
+            case '?' :
+            case 'h':
+                help(argv[0]);
+                exit(0);
+            case 'i' :
+                input_filename = optarg;
+                break;
+            case 'o' :
+                outputFile_ = optarg;
+                break;
+            case 'q' :
+                is_verbose = false;
+                break;
+            case 's':
+                file_format=0;
+                shm_mode = true;
+                break;
+            case 'v' :
+                std::cout << "  " << PROG_NAME << "      v" << SCAN_VERSION
+                          << " (" << SCAN_DATE << ")\n" 
+                          << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " ("
+                          << POLL2_SOCKET_DATE << ")\n" 
+                          << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION
+                          << " (" << HRIBF_BUFFERS_DATE << ")\n" 
+                          << "  CTerminal     v" << CTERMINAL_VERSION << " ("
+                          << CTERMINAL_DATE << ")\n";
+                exit(0);
+            case 0:
+                if( strcmp("counts", longOpts[idx].name) == 0 ) {
+                    std::cout << "Setting write_counts = true" << std::endl;
+                    write_counts = true;
+                } else if(strcmp("debug", longOpts[idx].name) == 0 ) {
+                    std::cout << "Setting debug_mode=true" << std::endl;
+                    core->SetDebugMode();
+                    debug_mode = true;
+                }
+                break;
+            default :
+                break;
+            }//switch(retval)
+        }//while
+
+        //Parse any extra arguments that are known to the 
+        ExtraArguments(argc,argv);
 
 	// Initialize everything.
 	std::cout << msgHeader << "Initializing derived class.\n";
 	if(!Initialize(msgHeader)){ // Failed to initialize the object. Clean up and exit.
-		std::cout << " FATAL ERROR! Failed to initialize derived class!\n";
-		std::cout << "\nCleaning up...\n";
-		if(write_counts)
-			core->Write();
-		return false;
+            std::cout << " FATAL ERROR! Failed to initialize derived class!\n";
+            std::cout << "\nCleaning up...\n";
+            if(write_counts)
+                core->Write();
+            return false;
 	}
-
+        
 	if(shm_mode){
 		poll_server = new Server();
 		if(!poll_server->Init(5555, 1)){
-			std::cout << " FATAL ERROR! Failed to open shm socket 5555!\n";
-			std::cout << "\nCleaning up...\n";
-			if(write_counts)
-				core->Write();
-			return false;
+                    std::cout << " FATAL ERROR! Failed to open shm socket 5555!\n";
+                    std::cout << "\nCleaning up...\n";
+                    if(write_counts)
+                        core->Write();
+                    return false;
 		}	
 		if(batch_mode){
-			std::cout << msgHeader << "Unable to enable batch mode for shared-memory mode!\n";
-			batch_mode = false;
+                    std::cout << msgHeader << "Unable to enable batch mode for shared-memory mode!\n";
+                    batch_mode = false;
 		}
 	}
-
+        
 	// Initialize the terminal.
 	if(!batch_mode){
-		term = new Terminal();
-		term->Initialize();
-		term->SetCommandHistory(("."+progName+".cmd").c_str());
-		term->SetPrompt((progName+" $ ").c_str());
-		term->AddStatusWindow();
-		term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped.");
+            term = new Terminal();
+            term->Initialize();
+            term->SetCommandHistory(("."+progName+".cmd").c_str());
+            term->SetPrompt((progName+" $ ").c_str());
+            term->AddStatusWindow();
+            term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped.");
 	}
-
+        
 	std::cout << "\n " << PROG_NAME << " v" << SCAN_VERSION << "\n"; 
 	std::cout << " ==  ==  ==  ==  == \n\n"; 
 
 	if(debug_mode){ std::cout << msgHeader << "Using debug mode.\n\n"; }
 	if(dry_run_mode){ std::cout << msgHeader << "Doing a dry run.\n\n"; }
 	if(shm_mode){ 
-		std::cout << msgHeader << "Using shared-memory mode.\n\n"; 
-		std::cout << msgHeader << "Listening on poll2 SHM port 5555\n\n";
+            std::cout << msgHeader << "Using shared-memory mode.\n\n"; 
+            std::cout << msgHeader << "Listening on poll2 SHM port 5555\n\n";
 	}
-
+        
 	// Do any last minute initialization.
-	try{ FinalInitialization(); }
-	catch(...){ std::cout << "\nFinal initialization failed!\n"; }
-
+	try {
+            FinalInitialization();
+        }catch(...) {
+            std::cout << "\nFinal initialization failed!\n";
+        }
+        
 	scan_init = true;
-
+        
 	// Load the input file, if the user has supplied a filename.
 	if(!shm_mode && !input_filename.empty()){
-		std::cout << msgHeader << "Using filename " << input_filename << ".\n";
-		if(open_input_file(input_filename)){
-			// Start the scan.
-			start_scan();
-		}
-		else{ std::cout << msgHeader << "Failed to load input file!\n"; }
+            std::cout << msgHeader << "Using filename " << input_filename << ".\n";
+            if(open_input_file(input_filename)){
+                // Start the scan.
+                start_scan();
+            }
+            else{ std::cout << msgHeader << "Failed to load input file!\n"; }
 	}
 	
-	return true;
+	return(true);
 }
 
 /** Run the scan program.
