@@ -32,7 +32,7 @@ int main(int argc, char *argv[]){
     //Cleanup the scanning
     cout << "utkscan.cpp : Closing things out" << endl;
     scanner.Close();
-    
+
     //return how things went
     return(retval);
 }
