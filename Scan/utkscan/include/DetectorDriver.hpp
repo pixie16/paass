@@ -167,7 +167,7 @@ private:
                    energy and time information */
     std::set<std::string> knownDetectors; /**< list of valid detectors that can
                    be used as detector types */
-
+    std::string cfg_; //!< The configuration file to read
     std::pair<double, time_t> pixieToWallClock; /**< rough estimate of pixie to wall clock */
 
 

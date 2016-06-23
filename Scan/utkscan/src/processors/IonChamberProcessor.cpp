@@ -16,10 +16,6 @@
 #endif
 
 using namespace std;
-
-const double IonChamberProcessor::minTime =
-                                18.0e-6 / Globals::get()->clockInSeconds();
-
 using namespace dammIds::ionChamber;
 
 namespace dammIds {
@@ -67,7 +63,10 @@ bool IonChamberProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
 	return false;
 
-    static const vector<ChanEvent*> &icEvents = sumMap["ion_chamber"]->GetList();
+    static const double minTime = 18.0e-6 / Globals::get()->clockInSeconds();
+
+    static const vector<ChanEvent*> &icEvents =
+        sumMap["ion_chamber"]->GetList();
 
     double esum = 0.; // all
     double etwo[noDets-1] = {0};

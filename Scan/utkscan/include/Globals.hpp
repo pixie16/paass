@@ -154,6 +154,8 @@ class Globals {
 public:
     /** \return only instance of Globals class.*/
     static Globals* get();
+        /** \return only instance of Globals class.*/
+    static Globals* get(const std::string &file);
     ~Globals();
 
     /** \return true if any reject region was defined */
@@ -232,8 +234,6 @@ public:
 			      TrapFilterParameters(125,125,10)));
     }
 
-
-
     /*! \return Joined path to the passed filename by adding the configPath_
      * This is temporary solution as long as there are some files not
      * incorporated into Config.xml
@@ -244,7 +244,9 @@ public:
         return ss.str();
     }
     /** \return the revision for the data */
-    std::string revision() const { return revision_; }
+    std::string revision() const { return(revision_); }
+    /** \return the configuration file */
+    std::string configfile() const {return(configFile_);}
 
     /** \return the maximum words */
     unsigned int maxWords() const { return maxWords_; }
@@ -259,7 +261,7 @@ public:
     std::vector< std::pair<int, int> > rejectRegions() const {return reject_; };
 private:
     /** Default Constructor */
-    Globals();
+    Globals(const std::string &file);
     Globals(Globals const&);//!< Overload of the constructor
     void operator=(Globals const&); //!< copy constructor
     static Globals* instance; //!< Create the static instance of the class
@@ -301,7 +303,8 @@ private:
     std::map<std::string, std::pair<double,double> > fitPars_; //!< Map containing all of the parameters to be used in the fitting analyzer for a type:subtype
     std::map<std::string, std::pair<TrapFilterParameters,TrapFilterParameters> > trapFiltPars_; //!<Map containing all of the trapezoidal filter parameters for a given type:subtype
 
-    std::string configPath_; //!< configuration path
+    std::string configFile_;//!< The configuration file
+    std::string configPath_;//!< The path to additional configuration files
     std::string revision_;//!< the pixie revision
 
     unsigned int maxWords_;//!< maximum words in the

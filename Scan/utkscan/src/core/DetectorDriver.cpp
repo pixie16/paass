@@ -68,6 +68,7 @@ DetectorDriver* DetectorDriver::get() {
 }
 
 DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
+    cfg_ = Globals::get()->configfile();
     Messenger m;
     try {
         m.start("Loading Processors");
@@ -102,10 +103,10 @@ DetectorDriver::~DetectorDriver() {
 
 void DetectorDriver::LoadProcessors(Messenger& m) {
     pugi::xml_document doc;
-    pugi::xml_parse_result result = doc.load_file("Config.xml");
+    pugi::xml_parse_result result = doc.load_file(cfg_.c_str());
     if (!result) {
         stringstream ss;
-        ss << "DetectorDriver: error parsing file Config.xml";
+        ss << "DetectorDriver: error parsing file " << cfg_;
         ss << " : " << result.description();
         throw IOException(ss.str());
     }
@@ -555,11 +556,10 @@ EventProcessor* DetectorDriver::GetProcessor(const std::string& name) const {
 
 void DetectorDriver::ReadCalXml() {
     pugi::xml_document doc;
-
-    pugi::xml_parse_result result = doc.load_file("Config.xml");
+    pugi::xml_parse_result result = doc.load_file(cfg_.c_str());
     if (!result) {
         stringstream ss;
-        ss << "DetectorDriver: error parsing file Config.xml";
+        ss << "DetectorDriver: error parsing file" << cfg_;
         ss << " : " << result.description();
         throw GeneralException(ss.str());
     }
@@ -629,10 +629,10 @@ void DetectorDriver::ReadCalXml() {
 void DetectorDriver::ReadWalkXml() {
     pugi::xml_document doc;
 
-    pugi::xml_parse_result result = doc.load_file("Config.xml");
+    pugi::xml_parse_result result = doc.load_file(cfg_.c_str());
     if (!result) {
         stringstream ss;
-        ss << "DetectorDriver: error parsing file Config.xml";
+        ss << "DetectorDriver: error parsing file " << cfg_;
         ss << " : " << result.description();
         throw GeneralException(ss.str());
     }
