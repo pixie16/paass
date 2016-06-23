@@ -1,10 +1,13 @@
 #include <sstream>
-#include <time.h>
-#include "pugixml.hpp"
+#include <string>
 
+#include <ctime>
+
+#include "Exceptions.hpp"
+#include "Globals.hpp"
 #include "Messenger.hpp"
 #include "Notebook.hpp"
-#include "Exceptions.hpp"
+#include "pugixml.hpp"
 
 Notebook* Notebook::instance = NULL;
 
@@ -16,12 +19,13 @@ Notebook* Notebook::get() {
 }
 
 Notebook::Notebook() {
+    std::string cfg = Globals::get()->configfile();
     pugi::xml_document doc;
 
-    pugi::xml_parse_result result = doc.load_file("Config.xml");
+    pugi::xml_parse_result result = doc.load_file(cfg.c_str());
     if (!result) {
         std::stringstream ss;
-        ss << "Notebook: error parsing file Config.xml";
+        ss << "Notebook: error parsing file " << cfg;
         ss << " : " << result.description();
         throw IOException(ss.str());
     }

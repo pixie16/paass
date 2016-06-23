@@ -22,11 +22,7 @@ static const double doubleTimeLimit_ = 10e-6;
 
 namespace dammIds {
     namespace logic {
-	static double clockInSeconds = Globals::get()->clockInSeconds(); //!< clock in seconds
 	static const unsigned int MAX_LOGIC = 10; //!<Maximum Number of Logic Signals
-	const double logicPlotResolution =
-	    10e-6 / Globals::get()->clockInSeconds(); //!<Resolution for Logic Plots
-	const double mtcPlotResolution = 10e-3 / clockInSeconds; //!<Res. for MTC Plots
 
 	///Original Logic Processor
         const int D_COUNTER_START  = 0;//!< Counter for the starts
@@ -121,6 +117,11 @@ void LogicProcessor::DeclarePlots(void) {
 bool LogicProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
+
+    static double clockInSeconds = Globals::get()->clockInSeconds(); //!< clock in seconds
+    const double logicPlotResolution =
+        10e-6 / Globals::get()->clockInSeconds(); //!<Resolution for Logic Plots
+    const double mtcPlotResolution = 10e-3 / clockInSeconds; //!<Res. for MTC Plots
 
     static const vector<ChanEvent*> &events = sumMap["logic"]->GetList();
 
