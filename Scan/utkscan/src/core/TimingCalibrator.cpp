@@ -32,12 +32,12 @@ TimingCalibrator* TimingCalibrator::get() {
 }
 
 void TimingCalibrator::ReadTimingCalXml() {
+    string cfg = Globals::get()->configfile();
     pugi::xml_document doc;
-
-    pugi::xml_parse_result result = doc.load_file("Config.xml");
+    pugi::xml_parse_result result = doc.load_file(cfg.c_str());
     if (!result) {
         stringstream ss;
-        ss << "TimingCalibrator: error parsing file Config.xml";
+        ss << "TimingCalibrator: error parsing file " << cfg;
         ss << " : " << result.description();
         throw GeneralException(ss.str());
     }

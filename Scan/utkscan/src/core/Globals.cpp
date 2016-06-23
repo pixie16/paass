@@ -12,7 +12,8 @@
 
 Globals* Globals::instance = NULL;
 
-Globals::Globals() {
+Globals::Globals(const std::string &file) {
+    configFile_ = file;
     sysClockFreqInHz_ = sysconf(_SC_CLK_TCK);
     clockInSeconds_ = -1;
     adcClockInSeconds_ = -1;
@@ -25,11 +26,11 @@ Globals::Globals() {
 
     try {
         pugi::xml_document doc;
-        pugi::xml_parse_result result = doc.load_file("Config.xml");
+        pugi::xml_parse_result result = doc.load_file(configFile_.c_str());
 
         std::stringstream ss;
         if (!result) {
-            ss << "Globals : error parsing file " << "Config.xml";
+            ss << "Globals : error parsing file " << configFile_;
             ss << " : " << result.description();
             throw GeneralException(ss.str());
         }
@@ -93,9 +94,6 @@ Globals::Globals() {
                    << " pixie16 clock tics.";
                 m.detail(ss.str());
                 ss.str("");
-            } else if (std::string(it->name()).compare("Path") == 0) {
-                configPath_ =  it->text().get();
-                m.detail("Path to other configuration files: " + configPath_);
             } else if (std::string(it->name()).compare("NumOfTraces") == 0) {
                 numTraces_ =  it->attribute("value").as_uint();
             } else if (std::string(it->name()).compare("HasRaw") == 0) {
@@ -271,19 +269,25 @@ void Globals::SanityCheck() {
 void Globals::WarnOfUnknownParameter(Messenger &m,
                                      pugi::xml_node_iterator &it) {
     std::stringstream ss;
-    ss << "Unknown parameter in Config.xml : " << it->path();
+    ss << "Unknown parameter in : " << configFile_ << it->path();
     m.warning(ss.str());
 }
 
 /** Instance is created upon first call */
 Globals* Globals::get() {
-    if (!instance) {
-        instance = new Globals();
-    }
-    return instance;
+    if (!instance)
+        instance = new Globals("Config.xml");
+    return(instance);
+}
+
+/** Instance is created upon first call */
+Globals* Globals::get(const std::string &file) {
+    if (!instance)
+        instance = new Globals(file);
+    return(instance);
 }
 
 Globals::~Globals() {
-    delete instance;
+    delete(instance);
     instance = NULL;
 }

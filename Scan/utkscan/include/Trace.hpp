@@ -7,6 +7,7 @@
 #ifndef __TRACE_HPP__
 #define __TRACE_HPP__
 
+#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
@@ -196,6 +197,4 @@ private:
      * the same plots and plots range. */
     static Plots histo;
 };
-
-extern const Trace emptyTrace; //!< Instance of an empty trace for people to grab
 #endif // __TRACE_H_

@@ -12,8 +12,6 @@
 
 #include "DammPlotIds.hpp"
 
-class Trace;
-
 //! \brief A class to extract traces from events
 class TraceExtractor : public TraceAnalyzer {
 public:
