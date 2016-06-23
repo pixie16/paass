@@ -1,4 +1,7 @@
 
+#include <unistd.h>
+#include <getopt.h>
+
 #include "DetectorDriver.hpp"
 #include "HisFile.hpp"
 #include "UtkScanInterface.hpp"
@@ -15,7 +18,7 @@ UtkScanInterface::UtkScanInterface() : ScanInterface() {
 /// Destructor.
 UtkScanInterface::~UtkScanInterface(){
     if(init_){
-	delete output_his;
+	delete(output_his);
     }
 }
 
@@ -40,26 +43,6 @@ bool UtkScanInterface::ExtraCommands(const std::string &cmd_,
     return(true);
 }
 
-/** ExtraArguments is used to send command line arguments to classes derived
- * from ScanInterface. If ScanInterface receives an unrecognized
- * argument from the user, it will pass it on to the derived class.
- * \param[in]  arg_    The argument to interpret.
- * \param[out] others_ The remaining arguments following arg_.
- * \param[out] ifname  The input filename to send back to use for reading.
- * \return True if the argument was recognized and false otherwise. */
-bool UtkScanInterface::ExtraArguments(const std::string &arg_, 
-				      std::deque<std::string> &others_, 
-				      std::string &ifname) {
-    if(arg_ == "--config"){
-	// Handle the command line argument.
-    }
-    else{ // Not a valid option. Must be a filename.
-	ifname = arg_; // Set the input filename.
-    }
-    
-    return(true);
-}
-
 /** CmdHelp is used to allow a derived class to print a help statement about
  * its own commands. This method is called whenever the user enters 'help'
  * or 'h' into the interactive terminal (if available).
@@ -67,14 +50,6 @@ bool UtkScanInterface::ExtraArguments(const std::string &arg_,
  * \return Nothing. */
 void UtkScanInterface::CmdHelp(){
     std::cout << "   mycmd <param> - Do something useful.\n";
-}
-
-/** ArgHelp is used to allow a derived class to print a help statment about
- * its own command line arguments. This method is called at the end of
- * the ScanInterface::help method.
- * \return Nothing. */
-void UtkScanInterface::ArgHelp(){
-    std::cout << "   --myarg - A useful command line argument.\n";
 }
 
 /** SyntaxStr is used to print a linux style usage message to the screen.
@@ -92,9 +67,11 @@ bool UtkScanInterface::Initialize(std::string prefix_) {
     if(init_)
 	return(false);
 
+    Globals::get(GetConfigFile());
+
     try{
 	// Read in the name of the his file.
-	output_his = new OutputHisFile("out");
+	output_his = new OutputHisFile(GetOutputFile().c_str());
 	
 	output_his->SetDebugMode(false);
 	
@@ -111,8 +88,7 @@ bool UtkScanInterface::Initialize(std::string prefix_) {
 	 */
 	DetectorDriver::get()->DeclarePlots();
 	output_his->Finalize();
-    } 
-    catch(std::exception &e){
+    } catch(std::exception &e){
 	// Any exceptions will be intercepted here
 	std::cout << prefix_ << "Exception caught at Initialize:" << std::endl;
 	std::cout << prefix_ << e.what() << std::endl;

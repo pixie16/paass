@@ -38,19 +38,19 @@ DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations(),
     try {
         TreeCorrelator::get()->buildTree();
     } catch (exception &e) {
-        cout << "Exception caught at MapFile.cpp" << endl;
+        cout << "Exception caught in DetectorLibrary" << endl;
         cout << "\t" << e.what() << endl;
         exit(EXIT_FAILURE);
     }
 }
 
 void DetectorLibrary::LoadXml() {
+    string cfg = Globals::get()->configfile();
     pugi::xml_document doc;
-
-    pugi::xml_parse_result result = doc.load_file("Config.xml");
+    pugi::xml_parse_result result = doc.load_file(cfg.c_str());
     if (!result) {
         stringstream ss;
-        ss << "DetectorDriver: error parsing file Config.xml";
+        ss << "DetectorLibrary: error parsing file " << cfg;
         ss << " : " << result.description();
         cout << ss.str() << endl;
     }
@@ -76,7 +76,7 @@ void DetectorLibrary::LoadXml() {
         int module_number = module.attribute("number").as_int(-1);
         if (module_number < 0) {
             stringstream ss;
-            ss << "MapFile: Illegal module number "
+            ss << "DetectorLibrary: Illegal module number "
                 << "found " << module_number << " in configuration file.";
             throw GeneralException(ss.str());
         }
@@ -85,13 +85,13 @@ void DetectorLibrary::LoadXml() {
             int ch_number = channel.attribute("number").as_int(-1);
             if (ch_number < 0 || ch_number >= (int)pixie::numberOfChannels ) {
                 stringstream ss;
-                ss << "MapFile : Identifier : Illegal channel number "
+                ss << "DetectorLibrary : Identifier : Illegal channel number "
                    << "found " << ch_number << " in configuration file.";
                 throw GeneralException(ss.str());
             }
             if ( HasValue(module_number, ch_number) ) {
                 stringstream ss;
-                ss << "MapFile: Identifier for module " << module_number
+                ss << "DetectorLibrary: Identifier for module " << module_number
                    << ", channel " << ch_number
                    << " is initialized more than once";
                 throw GeneralException(ss.str());
