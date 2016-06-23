@@ -13,7 +13,6 @@ class IonChamberProcessor : public EventProcessor {
 private:
     static const size_t noDets = 6;//!< Number of detectors
     static const size_t timesToKeep = 1000;//!< Number of times to keep
-    static const double minTime;//!< Minimum time in the chamber
 
     //! A Data structure to handle all of the info for the chamber
     struct Data {

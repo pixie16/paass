@@ -15,7 +15,8 @@ namespace dammIds {
     }
 }
 
-const Trace emptyTrace; ///< an empty trace for const references to point to
+///This creates the static instance of the Plots class before main. This may
+///cause a static initialization order fiasco. Be AWARE!!
 Plots Trace::histo(dammIds::trace::OFFSET, dammIds::trace::RANGE, "traces");
 
 double Trace::DoBaseline(unsigned int lo, unsigned int numBins) {

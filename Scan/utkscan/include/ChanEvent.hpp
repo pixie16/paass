@@ -29,7 +29,10 @@ public:
     ChanEvent(){ZeroNums();};
 
     ///Constructor setting XIA Data
-    ChanEvent(const XiaData &xiadata) {data_ = xiadata; trace = xiadata.adcTrace;}
+    ChanEvent(const XiaData &xiadata) {
+        data_ = xiadata;
+        trace = xiadata.adcTrace;
+    }
 
     ///Default Destructor
     ~ChanEvent(){};
