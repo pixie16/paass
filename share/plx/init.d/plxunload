@@ -1,0 +1,2 @@
+#!/bin/bash
+${PLX_SDK_DIR}/Bin/Plx_unload 9054
