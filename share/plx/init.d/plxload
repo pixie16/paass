@@ -1,0 +1,3 @@
+#!/bin/bash
+export PLX_SDK_DIR=/opt/plx/current/PlxSdk
+${PLX_SDK_DIR}/Bin/Plx_load 9054
