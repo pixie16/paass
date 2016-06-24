@@ -38,7 +38,7 @@ public:
     bool GetIsValid() const {
         if(!std::isnan(chan_->GetTrace().GetValue("maxval")) &&
            !std::isnan(chan_->GetTrace().GetValue("phase")) &&
-           !std::isnan(chan_->GetTrace().GetValue("tqdc")) &&
+           !std::isnan(chan_->GetTrace().GetValue("qdc")) &&
            !std::isnan(chan_->GetTrace().GetValue("sigmaBaseline")) ) {
             return(true);
         }else
@@ -86,7 +86,7 @@ public:
 
     /** \return The current value of tqdc_ */
     double GetTraceQdc() const {
-        return(chan_->GetTrace().GetValue("tqdc"));
+        return(chan_->GetTrace().GetValue("qdc"));
     }
     /** \return Walk corrected time  */
     double GetCorrectedTime() const {

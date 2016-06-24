@@ -47,7 +47,7 @@ void PulserProcessor::DeclarePlots(void) {
     DeclareHistogram1D(D_PROBLEMSTUFF, S5, "Problem Stuff");
 
     DeclareHistogram2D(DD_QDC, SD, S1,"QDC");
-    //DeclareHistogram2D(DD_MAX, SC, S1, "Max");
+    DeclareHistogram2D(DD_MAX, SC, S1, "Max");
     DeclareHistogram2D(DD_PVSP, SC, SC,"Phase vs. Phase");
     //DeclareHistogram2D(DD_MAXVSTDIFF, SC, SC, "Max vs. Time Diff");
     //DeclareHistogram2D(DD_QDCVSMAX, SC, SD,"QDC vs Max");
@@ -107,6 +107,14 @@ void PulserProcessor::AnalyzeData(void) {
     //     plot(DD_PROBLEMS, int(it-start.GetTrace()->begin()), counter, *it);
     // counter ++;
 
+
+    // cout << "PulserProcessor::AnalyzeData : "  << start.GetTraceQdc()
+    //      << " " << start.GetMaximumPosition()
+    //      << " " << start.GetStdDevBaseline() << endl;
+    plot(DD_QDC, start.GetTraceQdc(), 0);
+    plot(DD_MAX, start.GetMaximumValue(), 0);
+
+    
     if(start.GetIsValid() && stop.GetIsValid()) {
         double timeDiff = stop.GetHighResTime() - start.GetHighResTime();
         double timeRes  = 2; //20 ps/bin
@@ -122,8 +130,6 @@ void PulserProcessor::AnalyzeData(void) {
         plot(DD_PVSP, start.GetPhase()*timeRes-phaseX,
             stop.GetPhase()*timeRes-phaseX);
 
-        plot(DD_QDC, start.GetTraceQdc(), 0);
-        plot(DD_MAX, start.GetMaximumValue(), 0);
         plot(DD_MAXVSTDIFF, timeDiff*timeRes+timeOff, start.GetMaximumValue());
         plot(DD_QDCVSMAX, start.GetMaximumValue(), start.GetTraceQdc());
         plot(DD_QDC, stop.GetTraceQdc(), 1);
