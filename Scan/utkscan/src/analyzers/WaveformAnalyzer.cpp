@@ -30,7 +30,7 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
         return;
     }
 
-    mean_ = qdc_ = mpos_ = mval_ = 0;
+    mean_ = mval_ = 0;
 
     g_ = Globals::get();
 
@@ -68,7 +68,7 @@ void WaveformAnalyzer::CalculateSums() {
             mean_ += (*it) / numBins;
 
         if(it > wrng_.first && it < wrng_.second) {
-            qdc_ += (*it) - mean_;
+            qdc += (*it) - mean_;
             w.push_back((*it) - mean_);
         }
     }
@@ -84,7 +84,7 @@ void WaveformAnalyzer::CalculateSums() {
     
     trc_->SetWaveform(w);
     trc_->InsertValue("tqdc", sum);
-    trc_->InsertValue("qdc", qdc_);
+    trc_->InsertValue("qdc", qdc);
     trc_->SetValue("baseline", mean_);
     trc_->SetValue("sigmaBaseline", stdev);
     trc_->SetValue("maxval", mval_- mean_);
@@ -99,7 +99,6 @@ void WaveformAnalyzer::CalculateDiscrimination(const unsigned int &lo) {
 
 bool WaveformAnalyzer::FindWaveform(const unsigned int &lo,
                                     const unsigned int &hi) {
-    int maxpos = 0;
     //high bound will be the trace delay
     unsigned int high = g_->traceDelay() / (g_->adcClockInSeconds()*1e9);
 
@@ -128,7 +127,7 @@ bool WaveformAnalyzer::FindWaveform(const unsigned int &lo,
     wrng_ = make_pair(tmp-lo, tmp+hi+1);
     bhi_ = tmp-lo;
 
-    if(mpos_ + hi > trc_->size()) {
+    if(mpos + hi > trc_->size()) {
         cerr << "The max is too close to the end of the trace."
              << endl;
         wrng_.second=trc_->end();
