@@ -27,6 +27,7 @@ set(PROCESSOR_SOURCES
 #  ValidProcessor.cpp
   VandleProcessor.cpp
 )
+
 if(USE_ROOT)
 set(PROCESSOR_SOURCES ${PROCESSOR_SOURCES} RootProcessor.cpp)
 endif(USE_ROOT)
