@@ -10,9 +10,10 @@ set(ANALYZER_SOURCES
   )
 
 if(USE_GSL)
-  set(GSL_SOURCES FittingAnalyzer.cpp)
-  add_library(AnalyzerObjects OBJECT ${GSL_SOURCES})
+  set(ANALYZER_SOURCES ${ANALYZER_SOURCES} FittingAnalyzer.cpp)
 endif(USE_GSL)
 
-
 add_library(AnalyzerObjects OBJECT ${ANALYZER_SOURCES})
+
+
+
