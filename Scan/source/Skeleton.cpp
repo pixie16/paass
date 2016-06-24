@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include <getopt.h>
+
 #include "XiaData.hpp"
 
 // Local files
@@ -79,22 +81,37 @@ bool skeletonScanner::ExtraCommands(const std::string &cmd_, std::vector<std::st
 }
 
 /** ExtraArguments is used to send command line arguments to classes derived
-  * from ScanInterface. If ScanInterface receives an unrecognized
-  * argument from the user, it will pass it on to the derived class.
-  * \param[in]  arg_    The argument to interpret.
-  * \param[out] others_ The remaining arguments following arg_.
-  * \param[out] ifname  The input filename to send back to use for reading.
-  * \return True if the argument was recognized and false otherwise.
-  */
-bool skeletonScanner::ExtraArguments(const std::string &arg_, std::deque<std::string> &others_, std::string &ifname){
-	if(arg_ == "--myarg"){
-		// Handle the command line argument.
-	}
-	else{ // Not a valid option. Must be a filename.
-		ifname = arg_; // Set the input filename.
-	}
-	
-	return true;
+ * from ScanInterface. It has its own instance of getopts to look for its known 
+ * parameters. 
+ * \param[in] argc : The number of command line arguments
+ * \param[in] argv[] : The arrary containing all command line arguments */
+void skeletonScanner::ExtraArguments(int argc, char *argv[]){
+    struct option opts[] = {
+        { "xtra", no_argument, NULL, 'x'},
+        { "kick", required_argument, NULL, 'k'},
+        { "ugh", no_argument, NULL, 'u'},
+        { NULL, no_argument, NULL, 0 }
+    };
+    
+    std::string optstr = "xk:u";
+    int idx = 0;
+    int retval = 0;
+    
+    while ( (retval = getopt_long(argc,argv,optstr.c_str(),opts,&idx)) != -1) {
+        switch(retval) {
+        case 'x':
+            std::cout << "Got option X" << std::endl;
+            break;
+        case 'k':
+            std::cout << "Got option k  " << optarg << std::endl;
+            break;
+        case ':' :
+        case '?' :
+        default:
+            ArgHelp();
+            exit(0);
+        }
+    }
 }
 
 /** CmdHelp is used to allow a derived class to print a help statement about
