@@ -1,35 +1,58 @@
 /** \file WaveformAnalyzer.hpp
  * \brief Class to analyze traces.
+ * \author S. V. Paulauskas
  */
 #ifndef __WAVEFORMANALYZER_HPP_
 #define __WAVEFORMANALYZER_HPP_
 
-#include "HighResTimingData.hpp"
+#include "Globals.hpp"
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 
-//! Class to handle the HRT and waveform analysis
+//! Class to waveform analysis
 class WaveformAnalyzer : public TraceAnalyzer {
 public:
     /** Default Constructor */
     WaveformAnalyzer();
     /** Default destructor */
-    ~WaveformAnalyzer() {};
+    ~WaveformAnalyzer() {}
     /** Declare the plots */
-    virtual void DeclarePlots(void) const {};
+    virtual void DeclarePlots(void) const {}
     /** Do the analysis on traces
     * \param [in] trace : the trace to analyze
-    * \param [in] detType : the detector type
-    * \param [in] detSubtype : detector subtype 
-    * \param [in] tagMap : the map of the tags for the channel */
-    virtual void Analyze(Trace &trace, const std::string &detType,
-                         const std::string &detSubtype,
-                         const std::map<std::string, int> & tagMap);
+    * \param [in] type : the detector type
+    * \param [in] subtype : detector subtype 
+    * \param [in] tags : the map of the tags for the channel */
+    virtual void Analyze(Trace &trace, const std::string &type,
+                         const std::string &subtype,
+                         const std::map<std::string, int> & tags);
 private:
-    /** \return True if the detector type given is unknown to the waveform
-     * analysis.
-     * \param [in] type : The type of detector to look for */
-    bool CheckIfUnknown(const std::string &type);
-    std::vector<std::string> knownTypes_;//!< The types known for waveform analysis
+    double mean_; //!< The mean of the baseline
+    double qdc_; //!< The qdc of the waveform
+    unsigned int mpos_; //!< the position of the maximum as an int
+    unsigned int mval_; //!< the maximum value in the trace
+    std::pair<Trace::iterator,Trace::iterator> wrng_; //!< the waveform range
+    Trace::iterator bhi_; //!< high value for baseline calculation
+    Trace *trc_; //!< A pointer to the trace for the class
+    Globals *g_; //!< A pointer to the globals class for the class
+    
+    /** Performs the baseline calculation
+    * \param [in] lo : the low range for the baseline calculation
+    * \param [in] numBins : The number of bins for the baseline calculation
+    * \return The average value of the baseline in the region */
+    void CalculateSums();
+
+    /** Performs the neutron-gamma discrimination on the traces
+    * \param [in] lo : The low range for the discrimination (referenced from max)
+    * \param [in] numBins : the number of bins to calculate the baseline over
+    * \return The discrimination value */
+    void CalculateDiscrimination(const unsigned int &lo);
+
+    /** Calculate information for the maximum value of the trace
+    * \param [in] lo : the low side of the waveform
+    * \param [in] hi : the high side of the waveform
+    * \param [in] numBins : the number of bins to look for the max in
+    * \return The position of the maximum value in the trace */
+    bool FindWaveform(const unsigned int &lo, const unsigned int &hi);
 };
 #endif // __WAVEFORMANALYZER_HPP_

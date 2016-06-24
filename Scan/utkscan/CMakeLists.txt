@@ -32,7 +32,7 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 if(CMAKE_BUILD_TYPE MATCHES "Gprof")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg -g")
-endif(CMAKE_BUILD_TYPE MATCHES "Debug")
+endif(CMAKE_BUILD_TYPE MATCHES "Gprof")
 
 #Install options
 option(USE_ROOT "Use ROOT for analysis" ON)
