@@ -28,8 +28,6 @@ public:
                          const std::map<std::string, int> & tags);
 private:
     double mean_; //!< The mean of the baseline
-    double qdc_; //!< The qdc of the waveform
-    unsigned int mpos_; //!< the position of the maximum as an int
     unsigned int mval_; //!< the maximum value in the trace
     std::pair<Trace::iterator,Trace::iterator> wrng_; //!< the waveform range
     Trace::iterator bhi_; //!< high value for baseline calculation
