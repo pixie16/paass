@@ -150,7 +150,7 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 	double time_x = int((time - t0) / eventsResolution);
 
 	if(subtype == "start") {
-	    if (!isnan(lastStartTime.at(loc))) {
+	    if (!std::isnan(lastStartTime.at(loc))) {
 		double timediff = time - lastStartTime.at(loc);
 		plot(DD_TDIFF_START, timediff / logicPlotResolution, loc);
 		plot(DD_TDIFF_SUM, timediff / logicPlotResolution, loc);
@@ -162,11 +162,11 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 	    startCount.at(loc)++;
 	    plot(D_COUNTER_START, loc);
 	} else if (subtype == "stop") {
-	    if (!isnan(lastStopTime.at(loc))) {
+	    if (!std::isnan(lastStopTime.at(loc))) {
                 double timediff = time - lastStopTime.at(loc);
                 plot(DD_TDIFF_STOP, timediff / logicPlotResolution, loc);
                 plot(DD_TDIFF_SUM, timediff / logicPlotResolution, loc);
-                if (!isnan(lastStartTime.at(loc))) {
+                if (!std::isnan(lastStartTime.at(loc))) {
                     double moveTime = time - lastStartTime.at(loc);
                     plot(DD_TDIFF_LENGTH, moveTime / logicPlotResolution, loc);
                 }
@@ -313,7 +313,7 @@ bool LogicProcessor::NiftyGraph(RawEvent &event) {
         int timeBin = int(chan->GetTime() / logicPlotResolution);
         int startTimeBin = 0;
 
-        if(!isnan(lastStartTime.at(loc))) {
+        if(!std::isnan(lastStartTime.at(loc))) {
             startTimeBin = int(lastStartTime.at(loc) / logicPlotResolution);
             if(firstTimeBin == -1) {
                 firstTimeBin = startTimeBin;
