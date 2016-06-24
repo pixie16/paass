@@ -7,7 +7,7 @@ add_executable(utkscan
   $<TARGET_OBJECTS:CoreObjects> 
   $<TARGET_OBJECTS:AnalyzerObjects> 
   $<TARGET_OBJECTS:ProcessorObjects>
-  $<TARGET_OBJECTS:ExperimentObjects> )
+  $<TARGET_OBJECTS:ExperimentObjects>)
 
 target_link_libraries(utkscan ${LIBS})
 
