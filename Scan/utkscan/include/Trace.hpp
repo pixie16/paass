@@ -23,15 +23,11 @@
 class Trace : public std::vector<int> {
 public:
     /** Default constructor */
-    Trace() : std::vector<int>() {
-        baselineLow = baselineHigh = pixie::U_DELIMITER;
-    }
+    Trace() : std::vector<int>() {}
 
     /** An automatic conversion for the trace
     * \param [in] x : the trace to store in the class */
-    Trace(const std::vector<int> &x) : std::vector<int>(x) {
-        baselineLow = baselineHigh = pixie::U_DELIMITER;
-    }
+    Trace(const std::vector<int> &x) : std::vector<int>(x) {}
 
     /** Insert a value into the trace map
     * \param [in] name : the name of the parameter to insert
@@ -87,34 +83,7 @@ public:
     }
 
     /** \return Returns the waveform found inside the trace */
-    std::vector<double> GetWaveform() {
-        return(waveform);
-    };
-
-    /** Performs the baseline calculation
-    * \param [in] lo : the low range for the baseline calculation
-    * \param [in] numBins : The number of bins for the baseline calculation
-    * \return The average value of the baseline in the region */
-    double DoBaseline(unsigned int lo = 0, unsigned int numBins = numBinsBaseline);
-
-    /** Performs the neutron-gamma discrimination on the traces
-    * \param [in] lo : The low range for the discrimination (referenced from max)
-    * \param [in] numBins : the number of bins to calculate the baseline over
-    * \return The discrimination value */
-    double DoDiscrimination(unsigned int lo, unsigned int numBins);
-
-    /** Calculate the waveform and QDC for the trace
-    * \param [in] lo : the lo value to for the QDC
-    * \param [in] numBins : the number of bins to calculate the QDC over
-    * \return The QDC for the waveform */
-    double DoQDC(unsigned int lo, unsigned int numBins);
-
-    /** Calculate information for the maximum value of the trace
-    * \param [in] lo : the low side of the waveform
-    * \param [in] hi : the high side of the waveform
-    * \param [in] numBins : the number of bins to look for the max in
-    * \return The position of the maximum value in the trace */
-    unsigned int FindMaxInfo(unsigned int lo = 5, unsigned int hi = 10, unsigned int numBins = 15);
+    std::vector<double> GetWaveform() {return(waveform_);}
 
     /*! \brief Declares a 1D histogram calls the C++ wrapper for DAMM
     * \param [in] dammId : The histogram number to define
@@ -174,6 +143,9 @@ public:
     * \param [in] offset : the offset for the trace*/
     void OffsetPlot(int id, int row, double offset);
 
+    /** sets the waveform 
+     * \param[in] a : the vector with the waveform */
+    void SetWaveform(const std::vector<double> &a){waveform_ = a;}
     /** sets the trigger filter if we are using the TriggerFilterAnalyzer 
      * \param [in] a : the vector with the trigger filter */
     void SetTriggerFilter(const std::vector<double> &a){trigFilter_ = a;}
@@ -182,11 +154,7 @@ public:
     void SetEnergySums(const std::vector<double> &a){esums_ = a;}
 
 private:
-    static const unsigned int numBinsBaseline = 15; //!< Number of bins in the baseline
-    unsigned int baselineLow; //!< low range for the baseline
-    unsigned int baselineHigh;//!< high range for the baseline
-
-    std::vector<double> waveform; //!< The waveform inside the trace
+    std::vector<double> waveform_; //!< The waveform inside the trace
     std::vector<double> trigFilter_; //!< The trigger filter for the trace
     std::vector<double> esums_; //!< The Energy sums calculated from the trace
 
