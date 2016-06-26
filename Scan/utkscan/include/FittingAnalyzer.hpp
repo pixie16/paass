@@ -34,7 +34,6 @@ public:
     struct FitData {
         size_t n;//!< size of the fitting parameters
         double *y;//!< ydata to fit
-        double *sigma;//!< weight of the points
         double beta; //!< the beta parameter for the fit
         double gamma; //!< the gamma parameter for the fit
         double qdc;//!< the QDC for the fit
