@@ -3,7 +3,6 @@
  */
 #ifndef __CHANEVENT_HPP
 #define __CHANEVENT_HPP
-
 #include <vector>
 
 #include <XiaData.hpp>
@@ -55,7 +54,7 @@ public:
 
     /** Set the high resolution time (Filter time + phase )
      * \param [in] a : the high resolution time */
-    void SetHighResTime(double a) {highResTime =a;}
+    void SetHighResTime(double a) {highResTime = a;}
 
     /** \return the CFD source bit */ 
     bool GetCfdSourceBit() const {
@@ -65,7 +64,7 @@ public:
     bool CfdForceTrig() const {
 	return(data_.cfdForceTrig); 
     }
-
+    
     double GetEnergy() const {
         return(data_.energy);   /**< \return the raw energy */
     }
@@ -82,10 +81,10 @@ public:
         return calTime;   /**< \return the calibrated time */
     }
     double GetHighResTime() const {
-        return highResTime;   /**< \return the high-resolution time in ns*/
+        return(highResTime);   /**< \return the high-resolution time in ns*/
     }
     double GetEventTime() const {
-        return eventTime;   /**< \return the event time */
+        return(data_.eventTime);   /**< \return the event time */
     }
     const Trace& GetTrace() const {
         return(trace);   /**< \return a reference to the trace */
@@ -94,7 +93,7 @@ public:
         return(trace);   /** \return a reference which can alter the trace */
     }
     unsigned long GetTrigTime() const {
-        return trigTime;   /**< \return the channel trigger time */
+        return(data_.trigTime);   /**< \return the channel trigger time */
     }
     unsigned long GetEventTimeLo() const {
         return data_.eventTimeLo;   /**< \return the lower 32 bits of event time */
