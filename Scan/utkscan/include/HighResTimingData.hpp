@@ -62,10 +62,10 @@ public:
     int GetNumAboveThresh() const {
         return(chan_->GetTrace().GetValue("numAboveThresh"));
     }
-    /** \return The current value of phase_ */
+    /** \return The current value of phase_ in nanoseconds*/
     double GetPhase() const {
-        return(chan_->GetTrace().GetValue("phase")*
-               (Globals::get()->clockInSeconds()*1e9));
+        return(chan_->GetTrace().GetValue("phase") *
+               Globals::get()->clockInSeconds() * 1e9);
     }
     /** \return The pixie Energy */
     double GetFilterEnergy() const { return(chan_->GetEnergy()); }
