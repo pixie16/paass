@@ -110,21 +110,30 @@ void PulserProcessor::AnalyzeData(void) {
 
     // cout << "PulserProcessor::AnalyzeData : "  << start.GetTraceQdc()
     //      << " " << start.GetMaximumPosition()
-    //      << " " << start.GetStdDevBaseline() << endl;
+    //      << " " << start.GetStdDevBaseline()
+    //      << " " << start.GetPhase() << endl;
     plot(DD_QDC, start.GetTraceQdc(), 0);
     plot(DD_MAX, start.GetMaximumValue(), 0);
 
     
     if(start.GetIsValid() && stop.GetIsValid()) {
         double timeDiff = stop.GetHighResTime() - start.GetHighResTime();
-        double timeRes  = 2; //20 ps/bin
+        double timeRes  = 2; //500 ps/bin
         double timeOff  = 1000.;
         double phaseX   = 0.;
 
-	// cout << "Pulser Processor: " << timeDiff * timeRes + timeOff << " "
-	//      << start.GetPhase()*timeRes-phaseX << " "
-	//      << start.GetCfdSourceBit() << " " << stop.GetCfdSourceBit() << " "
-	//      << endl;
+        // cout << timeDiff*timeRes + timeOff << " "
+        //      << start.GetPhase() * timeRes - phaseX << endl;
+
+        // cout << setprecision(13) << "Pulser Processor: " << start.GetHighResTime() << " "
+        //      << stop.GetHighResTime() << " " << timeDiff << " "
+        //      << start.GetPhase() << " " << stop.GetPhase() << " " 
+        //      << start.GetFilterTime() << " " << stop.GetFilterTime() << " " 
+        //      << (double)start.GetPhase()+(double)start.GetFilterTime() << " "
+        //      << stop.GetPhase() + stop.GetFilterTime() << " "
+        //      << (double)(start.GetPhase()+start.GetFilterTime()) -
+        //     (double)(stop.GetPhase() + stop.GetFilterTime())
+        //      << endl;
 
         plot(D_TIMEDIFF, timeDiff*timeRes + timeOff);
         plot(DD_PVSP, start.GetPhase()*timeRes-phaseX,

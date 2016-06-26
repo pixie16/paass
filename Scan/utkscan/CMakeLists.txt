@@ -84,9 +84,9 @@ endif(USE_ROOT)
 #Check if GSL is installed 
 if(USE_GSL)
   find_package(GSL REQUIRED)
-  if(NOT ${GSL_VERSION} LESS 1.14)
-    message(FATAL_ERROR "GSL 1.13 or lower required. Found GSL ${GSL_VERSION}")
-  endif(NOT ${GSL_VERSION} LESS 1.14)
+  if(${GSL_VERSION} LESS 1.14)
+    message(FATAL_ERROR "GSL 1.14 or higher required. Found GSL ${GSL_VERSION}")
+  endif(${GSL_VERSION} LESS 1.14)
   add_definitions("-D usegsl")
 endif(USE_GSL)
 

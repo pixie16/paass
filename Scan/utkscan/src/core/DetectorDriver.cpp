@@ -492,11 +492,11 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
         }
 
         if (trace.HasValue("phase") ) {
-	    //Saves the time in ns
+	    //Saves the time in nanoseconds
             chan->SetHighResTime((trace.GetValue("phase") *
-				 Globals::get()->adcClockInSeconds() +
-				 chan->GetTrigTime() *
-				  Globals::get()->filterClockInSeconds())*1.e9);
+                                 Globals::get()->adcClockInSeconds() +
+                                  (double)chan->GetTrigTime() *
+                                  Globals::get()->filterClockInSeconds()) * 1e9);
         }
     } else {
         /// otherwise, use the Pixie on-board calculated energy
