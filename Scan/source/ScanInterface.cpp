@@ -252,7 +252,7 @@ bool ScanInterface::open_input_file(const std::string &fname_){
 		// Every poll2 ldf file starts with a DIR buffer followed by a HEAD buffer
 		int num_buffers;
 		if(file_format == 0){
-			dirbuff.Read(&input_file, num_buffers);
+			dirbuff.Read(&input_file);
 			headbuff.Read(&input_file);
 			
 			// Store the file information for later use.
@@ -264,17 +264,9 @@ bool ScanInterface::open_input_file(const std::string &fname_){
 			finfo.push_back("Date", headbuff.GetDate());
 			finfo.push_back("Title", headbuff.GetRunTitle());
 			
-			// Let's read out the file information from these buffers
-			std::cout << " 'DIR ' buffer-\n";
-			std::cout << "  " << finfo.print(0) << "\n";
-			std::cout << "  " << finfo.print(1) << "\n";
-			std::cout << " 'HEAD' buffer-\n";
-			std::cout << "  " << finfo.print(2) << "\n";
-			std::cout << "  " << finfo.print(3) << "\n";
-			std::cout << "  " << finfo.print(4) << "\n";
-			std::cout << "  " << finfo.print(5) << "\n";
-			std::cout << "  " << finfo.print(6) << "\n";
-			std::cout << "  Run number: " << headbuff.GetRunNumber() << "\n\n";
+			dirbuff.Print();
+			headbuff.Print();
+			std::cout << std::endl;
 		}
 		else if(file_format == 1){
 			pldHead.Read(&input_file);
@@ -291,16 +283,8 @@ bool ScanInterface::open_input_file(const std::string &fname_){
 			finfo.push_back("Max spill", max_spill_size, "words");
 			finfo.push_back("ACQ time", pldHead.GetRunTime(), "seconds");
 			
-			// Let's read out the file information from this buffer
-			std::cout << " 'HEAD' buffer-\n";
-			std::cout << "  " << finfo.print(0) << "\n";
-			std::cout << "  " << finfo.print(1) << "\n";
-			std::cout << "  " << finfo.print(2) << "\n";
-			std::cout << "  " << finfo.print(3) << "\n";
-			std::cout << "  " << finfo.print(4) << "\n";
-			std::cout << "  " << finfo.print(5) << "\n";
-			std::cout << "  " << finfo.print(6) << "\n";
-			std::cout << "  " << finfo.print(7) << "\n\n";			
+			pldHead.Print();	
+			std::cout << std::endl;
 		}
 	}
 
