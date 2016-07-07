@@ -225,6 +225,19 @@ void PLD_header::Reset(){
 	run_num = 0;
 }
 
+/// Print header information.
+void PLD_header::Print(){
+	std::cout << " 'HEAD' buffer-\n";
+	std::cout << "  Facility: " << std::string(facility) << "\n";
+	std::cout << "  Format: " << std::string(format) << "\n";
+	std::cout << "  Start: " << std::string(start_date) << "\n";
+	std::cout << "  Stop: " << std::string(end_date) << "\n";
+	std::cout << "  Title: " << std::string(run_title) << "\n";
+	std::cout << "  Run number: " << run_num << "\n";
+	std::cout << "  Max spill: " << max_spill_size << " words\n";
+	std::cout << "  ACQ time: " << run_time << " seconds\n";	
+}
+
 /// Default constructor.
 PLD_data::PLD_data() : BufferType(DATA, 0){ // 0x41544144 "DATA"
 }
@@ -319,7 +332,7 @@ bool DIR_buffer::Write(std::ofstream *file_){
 }
 
 /// Read a ldf DIR buffer.
-bool DIR_buffer::Read(std::ifstream *file_, int &number_buffers){
+bool DIR_buffer::Read(std::ifstream *file_){
 	if(!file_ || !file_->is_open() || !file_->good()){ return false; }
 	
 	int check_bufftype, check_buffsize;	
@@ -332,7 +345,7 @@ bool DIR_buffer::Read(std::ifstream *file_, int &number_buffers){
 	}
 	
 	file_->read((char*)&total_buff_size, 4);
-	file_->read((char*)&number_buffers, 4);
+	file_->read((char*)&total_buff_size, 4);
 	file_->read((char*)unknown, 8);
 	file_->read((char*)&run_num, 4);
 	file_->seekg((buffsize*4 - 20), file_->cur); // Skip the rest of the buffer
@@ -347,6 +360,13 @@ void DIR_buffer::Reset(){
 	unknown[0] = 0;
 	unknown[1] = 1;
 	unknown[2] = 2;
+}
+
+/// Print dir buffer information.
+void DIR_buffer::Print(){
+	std::cout << " 'DIR ' buffer-\n";
+	std::cout << "  Run number: " << run_num << "\n";
+	std::cout << "  Number buffers: " << total_buff_size << "\n";
 }
 
 /// Default constructor.
@@ -458,6 +478,17 @@ void HEAD_buffer::Reset(){
 	set_char_array("LIST DATA       ", type, 16);
 	set_char_array("01/01/01 00:00  ", date, 16);
 	run_num = 0;
+}
+
+/// Print header information.
+void HEAD_buffer::Print(){
+	std::cout << " 'HEAD' buffer-\n";
+	std::cout << "  Facility: " << std::string(facility) << "\n";
+	std::cout << "  Format: " << std::string(format) << "\n";
+	std::cout << "  Type: " << std::string(type) << "\n";
+	std::cout << "  Date: " << std::string(date) << "\n";
+	std::cout << "  Title: " << std::string(run_title) << "\n";
+	std::cout << "  Run number: " << run_num << "\n";	
 }
 
 /// Write a ldf data buffer header (2 words).

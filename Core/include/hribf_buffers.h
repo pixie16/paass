@@ -123,6 +123,9 @@ class PLD_header : public BufferType{
 
 	/// Set initial values.
 	virtual void Reset();
+	
+	/// Print header information.
+	void Print();
 };
 
 /// The DATA buffer contains all physics data within the .pld file
@@ -165,10 +168,13 @@ class DIR_buffer : public BufferType{
 	virtual bool Write(std::ofstream *file_);
 
 	/// Read a DIR buffer from a file. Return false if buffer has the wrong header and return true otherwise
-	virtual bool Read(std::ifstream *file_, int &number_buffers);
+	virtual bool Read(std::ifstream *file_);
 
 	/// Set initial values.
 	virtual void Reset();
+	
+	/// Print dir buffer information.
+	void Print();
 };
 
 /* The HEAD buffer is written after the DIR buffer for each .ldf file. HEAD contains information
@@ -213,6 +219,9 @@ class HEAD_buffer : public BufferType{
 
 	/// Set initial values.
 	virtual void Reset();
+	
+	/// Print header information.
+	void Print();
 };
 
 /// The DATA buffer contains all physics data within the .ldf file
