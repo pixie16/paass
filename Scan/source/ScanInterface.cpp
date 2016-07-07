@@ -105,36 +105,6 @@ unsigned int ScanInterface::split_str(std::string str_, std::vector<std::string>
 	return count;
 }
 
-/** Get the file extension from an input filename string.
-  * \param[in]  filename_ The full input filename path.
-  * \param[out] prefix    The input filename path without the file extension.
-  * \return The file extension string.
-  */
-std::string ScanInterface::get_extension(std::string filename_, std::string &prefix){
-	size_t count = 0;
-	size_t last_index = 0;
-	std::string output = "";
-	prefix = "";
-	
-	if(filename_.find('.') != std::string::npos){
-		// Find the final period in the filename
-		for(count = 0; count < filename_.size(); count++){
-			if(filename_[count] == '.'){ last_index = count; }
-		}
-	
-		// Get the filename prefix and the extension
-		for(size_t i = 0; i < count; i++){
-			if(i < last_index){ prefix += filename_[i]; }
-			else if(i > last_index){ output += filename_[i]; }
-		}
-	}
-	else{ // The filename has no extension.
-		prefix = filename_;
-	}
-	
-	return output;
-}
-
 /** Start the scan, if ScanInterface is initialized and is not already running.
   * \return Nothing.
   */
@@ -1052,4 +1022,34 @@ bool ScanInterface::Close(){
 	
 	scan_init = false;
 	return true;
+}
+
+/** Get the file extension from an input filename string.
+  * \param[in]  filename_ The full input filename path.
+  * \param[out] prefix    The input filename path without the file extension.
+  * \return The file extension string.
+  */
+std::string get_extension(std::string filename_, std::string &prefix){
+	size_t count = 0;
+	size_t last_index = 0;
+	std::string output = "";
+	prefix = "";
+	
+	if(filename_.find('.') != std::string::npos){
+		// Find the final period in the filename
+		for(count = 0; count < filename_.size(); count++){
+			if(filename_[count] == '.'){ last_index = count; }
+		}
+	
+		// Get the filename prefix and the extension
+		for(size_t i = 0; i < count; i++){
+			if(i < last_index){ prefix += filename_[i]; }
+			else if(i > last_index){ output += filename_[i]; }
+		}
+	}
+	else{ // The filename has no extension.
+		prefix = filename_;
+	}
+	
+	return output;
 }
