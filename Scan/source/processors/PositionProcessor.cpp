@@ -118,7 +118,7 @@ bool PositionProcessor::Init(RawEvent& rawev)
         int location;
         in >> location;
         if (in.eof()) {
-            // place this here so a trailing newline is okay in the config file
+            // place this here so a trailing newline is okay in the scancfg file
             break;
         }
         in >> minNormQdc[location] >> maxNormQdc[location];

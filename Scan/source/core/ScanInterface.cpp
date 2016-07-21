@@ -183,7 +183,7 @@ void ScanInterface::help(char *name_){
 	SyntaxStr(name_);
 	std::cout << "  Available options:\n"
                   << "   --batch (-b) - Run in batch mode (i.e. with no command line)\n"
-                  << "   --config (-c) [path to config]  - Specify configuration file to use for scan\n"
+                  << "   --scancfg (-c) [path to scancfg]  - Specify configuration file to use for scan\n"
                   << "   --counts       - Write all recorded channel counts to a file\n"
                   << "   --debug        - Enable readout debug mode\n"
                   << "   --dry-run (-d) - Extract spills from file, but do no processing\n"
@@ -847,7 +847,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 
         struct option longOpts[] = {
             { "batch", no_argument, NULL, 'b' },
-            { "config", required_argument, NULL, 'c' },
+            { "scancfg", required_argument, NULL, 'c' },
             { "counts", no_argument, NULL, 0 },
             { "debug", no_argument, NULL, 0},
             { "dry-run", no_argument, NULL, 'd' },
