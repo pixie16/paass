@@ -10,6 +10,7 @@ build/
 *.layout
 *#*
 .*.cmd
+*.orig
 
 #Documentation directories and files
 html/
