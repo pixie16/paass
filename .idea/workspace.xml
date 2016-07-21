@@ -1,0 +1,728 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" assignedExecutableTargets="true" buildAllGenerated="true">
+    <generated>
+      <config projectName="PixieSuite" targetName="PixieInterface" />
+      <config projectName="PixieSuite" targetName="PixieSupport" />
+      <config projectName="PixieSuite" targetName="toggle" />
+      <config projectName="PixieSuite" targetName="pread" />
+      <config projectName="PixieSuite" targetName="utkscan" />
+      <config projectName="PixieSuite" targetName="ProcessorObjects" />
+      <config projectName="PixieSuite" targetName="monitor" />
+      <config projectName="PixieSuite" targetName="MCA_LIBRARY" />
+      <config projectName="PixieSuite" targetName="find_tau" />
+      <config projectName="PixieSuite" targetName="MCA" />
+      <config projectName="PixieSuite" targetName="get_traces" />
+      <config projectName="PixieSuite" targetName="PixieCoreObjects" />
+      <config projectName="PixieSuite" targetName="AnalyzerObjects" />
+      <config projectName="PixieSuite" targetName="PixieScan" />
+      <config projectName="PixieSuite" targetName="pmwrite" />
+      <config projectName="PixieSuite" targetName="set_hybrid" />
+      <config projectName="PixieSuite" targetName="pmread" />
+      <config projectName="PixieSuite" targetName="set_pileups_only" />
+      <config projectName="PixieSuite" targetName="adjust_offsets" />
+      <config projectName="PixieSuite" targetName="set2ascii" />
+      <config projectName="PixieSuite" targetName="config" />
+      <config projectName="PixieSuite" targetName="poll2" />
+      <config projectName="PixieSuite" targetName="csr_test" />
+      <config projectName="PixieSuite" targetName="listener" />
+      <config projectName="PixieSuite" targetName="set_standard" />
+      <config projectName="PixieSuite" targetName="skeleton" />
+      <config projectName="PixieSuite" targetName="PixieScanStatic" />
+      <config projectName="PixieSuite" targetName="ExperimentObjects" />
+      <config projectName="PixieSuite" targetName="trace" />
+      <config projectName="PixieSuite" targetName="copy_params" />
+      <config projectName="PixieSuite" targetName="set2root" />
+      <config projectName="PixieSuite" targetName="Utility" />
+      <config projectName="PixieSuite" targetName="pwrite" />
+      <config projectName="PixieSuite" targetName="scope" />
+      <config projectName="PixieSuite" targetName="PixieCoreStatic" />
+      <config projectName="PixieSuite" targetName="rate" />
+      <config projectName="PixieSuite" targetName="CoreObjects" />
+      <config projectName="PixieSuite" targetName="PixieScanObjects" />
+      <config projectName="PixieSuite" targetName="boot" />
+      <config projectName="PixieSuite" targetName="paramScan" />
+      <config projectName="PixieSuite" targetName="PixieCore" />
+      <config projectName="PixieSuite" targetName="set_pileups_reject" />
+    </generated>
+  </component>
+  <component name="CMakeSettings" AUTO_RELOAD="true" GENERATION_PASS_SYSTEM_ENVIRONMENT="true">
+    <ADDITIONAL_GENERATION_ENVIRONMENT>
+      <envs />
+    </ADDITIONAL_GENERATION_ENVIRONMENT>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0358534f-29fa-462e-9138-9ca6ed06c2d0" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/paass.iml" afterPath="$PROJECT_DIR$/.idea/paass.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+    </list>
+    <ignored path="paass.iws" />
+    <ignored path=".idea/workspace.xml" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FavoritesManager">
+    <favorites_list name="paass" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file leaf-file-name="CMakeLists.txt" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="13">
+              <caret line="132" column="30" selection-start-line="132" selection-start-column="30" selection-end-line="132" selection-end-column="30" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="S. V. Paulauskas &lt;stanpaulauskas@gmail.com&gt;" />
+      </list>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/Scan/utkscan/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/Core/source/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/Scan/source/core/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/Scan/source/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/Scan/source/processors/GeProcessor.cpp" />
+      </list>
+    </option>
+  </component>
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+    <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="-1" />
+    <option name="y" value="-1" />
+    <option name="width" value="1922" />
+    <option name="height" value="1082" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <OptionsSetting value="true" id="Add" />
+    <OptionsSetting value="true" id="Remove" />
+    <OptionsSetting value="true" id="Checkout" />
+    <OptionsSetting value="true" id="Update" />
+    <OptionsSetting value="true" id="Status" />
+    <OptionsSetting value="true" id="Edit" />
+    <ConfirmationsSetting value="2" id="Add" />
+    <ConfirmationsSetting value="0" id="Remove" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="paass" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="paass" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="paass" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="paass" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="paass" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Scan" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$USER_HOME$/sandbox/cliontst" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="full.screen.before.presentation.mode" value="false" />
+    <property name="settings.editor.selected.configurable" value="preferences.sourceCode.CMake" />
+    <property name="settings.editor.splitter.proportion" value="0.2" />
+    <property name="SearchEverywhereHistoryKey" value="symplot&#9;null&#9;null" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/share" />
+      <recent name="$PROJECT_DIR$/Scan/source/utkscan" />
+      <recent name="$PROJECT_DIR$/Scan/include" />
+      <recent name="$PROJECT_DIR$/Scan/source/core" />
+      <recent name="$PROJECT_DIR$/Core/include" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.Build All">
+    <configuration default="true" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="config" CONFIG_NAME="Debug" TEST_MODE="SUITE_TEST">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="config" CONFIG_NAME="Debug">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
+      <method />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="paass" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="paass" />
+      <method />
+    </configuration>
+    <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+      <node-interpreter>project</node-interpreter>
+      <node-options />
+      <gulpfile />
+      <tasks />
+      <arguments />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="js.build_tools.npm" factoryName="npm">
+      <command value="run-script" />
+      <scripts />
+      <node-interpreter value="project" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Attests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="paass" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Doctests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="paass" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Nosetests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="paass" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Unittests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="paass" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PUREUNITTEST" value="true" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="py.test">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="paass" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="testToRun" value="" />
+      <option name="keywords" value="" />
+      <option name="params" value="" />
+      <option name="USE_PARAM" value="false" />
+      <option name="USE_KEYWORD" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Build All" type="CMakeRunConfiguration" factoryName="Application" WORKING_DIR="" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug" EXPLICIT_BUILD_TARGET_NAME="all">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="config" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="config" CONFIG_NAME="Debug">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="PixieCore" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="PixieCore" CONFIG_NAME="Debug">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="PixieCoreObjects" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="PixieCoreObjects" CONFIG_NAME="Debug">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="PixieCoreStatic" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="PixieCoreStatic" CONFIG_NAME="Debug">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="PixieInterface" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="PixieInterface" CONFIG_NAME="Debug">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="PixieSupport" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="PixieSupport" CONFIG_NAME="Debug">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="Utility" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="Utility" CONFIG_NAME="Debug">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="MCA" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="MCA" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="MCA">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="MCA_LIBRARY" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="MCA_LIBRARY" CONFIG_NAME="Debug">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="listener" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="listener" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="listener">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="monitor" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="monitor" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="monitor">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="poll2" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="poll2" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="poll2">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="set2ascii" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="set2ascii" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="set2ascii">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="set2root" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="set2root" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="set2root">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="PixieScan" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="PixieScan" CONFIG_NAME="Debug">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="PixieScanObjects" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="PixieScanObjects" CONFIG_NAME="Debug">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="PixieScanStatic" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="PixieScanStatic" CONFIG_NAME="Debug">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="scope" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="scope" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="scope">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="skeleton" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="skeleton" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="skeleton">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="adjust_offsets" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="adjust_offsets" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="adjust_offsets">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="boot" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="boot" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="boot">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="copy_params" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="copy_params" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="copy_params">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="csr_test" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="csr_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="csr_test">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="find_tau" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="find_tau" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="find_tau">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="get_traces" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="get_traces" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="get_traces">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="paramScan" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="paramScan" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="paramScan">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="pmread" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="pmread" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="pmread">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="pmwrite" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="pmwrite" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="pmwrite">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="pread" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="pread" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="pread">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="pwrite" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="pwrite" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="pwrite">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="rate" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="rate" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="rate">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="set_hybrid" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="set_hybrid" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="set_hybrid">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="set_pileups_only" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="set_pileups_only" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="set_pileups_only">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="set_pileups_reject" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="set_pileups_reject" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="set_pileups_reject">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="set_standard" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="set_standard" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="set_standard">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="toggle" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="toggle" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="toggle">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="trace" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="trace" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="trace">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="utkscan" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="-i /home/vincent/prof/data/utk/skutek/sipmSkutek_001.ldf -o test00 -c /home/vincent/programs/sources/paass/share/scancfg/svp/skutek.xml -b" WORKING_DIR="file://$USER_HOME$/sandbox" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="utkscan" CONFIG_NAME="Release" RUN_TARGET_PROJECT_NAME="PixieSuite" RUN_TARGET_NAME="utkscan">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="AnalyzerObjects" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="AnalyzerObjects" CONFIG_NAME="Debug">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="CoreObjects" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="CoreObjects" CONFIG_NAME="Debug">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="ExperimentObjects" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="ExperimentObjects" CONFIG_NAME="Debug">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="ProcessorObjects" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PixieSuite" TARGET_NAME="ProcessorObjects" CONFIG_NAME="Debug">
+      <envs />
+      <method />
+    </configuration>
+    <list size="43">
+      <item index="0" class="java.lang.String" itemvalue="Application.Build All" />
+      <item index="1" class="java.lang.String" itemvalue="Application.config" />
+      <item index="2" class="java.lang.String" itemvalue="Application.PixieCore" />
+      <item index="3" class="java.lang.String" itemvalue="Application.PixieCoreObjects" />
+      <item index="4" class="java.lang.String" itemvalue="Application.PixieCoreStatic" />
+      <item index="5" class="java.lang.String" itemvalue="Application.PixieInterface" />
+      <item index="6" class="java.lang.String" itemvalue="Application.PixieSupport" />
+      <item index="7" class="java.lang.String" itemvalue="Application.Utility" />
+      <item index="8" class="java.lang.String" itemvalue="Application.MCA" />
+      <item index="9" class="java.lang.String" itemvalue="Application.MCA_LIBRARY" />
+      <item index="10" class="java.lang.String" itemvalue="Application.listener" />
+      <item index="11" class="java.lang.String" itemvalue="Application.monitor" />
+      <item index="12" class="java.lang.String" itemvalue="Application.poll2" />
+      <item index="13" class="java.lang.String" itemvalue="Application.set2ascii" />
+      <item index="14" class="java.lang.String" itemvalue="Application.set2root" />
+      <item index="15" class="java.lang.String" itemvalue="Application.PixieScan" />
+      <item index="16" class="java.lang.String" itemvalue="Application.PixieScanObjects" />
+      <item index="17" class="java.lang.String" itemvalue="Application.PixieScanStatic" />
+      <item index="18" class="java.lang.String" itemvalue="Application.scope" />
+      <item index="19" class="java.lang.String" itemvalue="Application.skeleton" />
+      <item index="20" class="java.lang.String" itemvalue="Application.adjust_offsets" />
+      <item index="21" class="java.lang.String" itemvalue="Application.boot" />
+      <item index="22" class="java.lang.String" itemvalue="Application.copy_params" />
+      <item index="23" class="java.lang.String" itemvalue="Application.csr_test" />
+      <item index="24" class="java.lang.String" itemvalue="Application.find_tau" />
+      <item index="25" class="java.lang.String" itemvalue="Application.get_traces" />
+      <item index="26" class="java.lang.String" itemvalue="Application.paramScan" />
+      <item index="27" class="java.lang.String" itemvalue="Application.pmread" />
+      <item index="28" class="java.lang.String" itemvalue="Application.pmwrite" />
+      <item index="29" class="java.lang.String" itemvalue="Application.pread" />
+      <item index="30" class="java.lang.String" itemvalue="Application.pwrite" />
+      <item index="31" class="java.lang.String" itemvalue="Application.rate" />
+      <item index="32" class="java.lang.String" itemvalue="Application.set_hybrid" />
+      <item index="33" class="java.lang.String" itemvalue="Application.set_pileups_only" />
+      <item index="34" class="java.lang.String" itemvalue="Application.set_pileups_reject" />
+      <item index="35" class="java.lang.String" itemvalue="Application.set_standard" />
+      <item index="36" class="java.lang.String" itemvalue="Application.toggle" />
+      <item index="37" class="java.lang.String" itemvalue="Application.trace" />
+      <item index="38" class="java.lang.String" itemvalue="Application.utkscan" />
+      <item index="39" class="java.lang.String" itemvalue="Application.AnalyzerObjects" />
+      <item index="40" class="java.lang.String" itemvalue="Application.CoreObjects" />
+      <item index="41" class="java.lang.String" itemvalue="Application.ExperimentObjects" />
+      <item index="42" class="java.lang.String" itemvalue="Application.ProcessorObjects" />
+    </list>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0358534f-29fa-462e-9138-9ca6ed06c2d0" name="Default" comment="" />
+      <created>1468845347767</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1468845347767</updated>
+      <workItem from="1469105070154" duration="568000" />
+      <workItem from="1469105760310" duration="826000" />
+      <workItem from="1469106691228" duration="12853000" />
+      <workItem from="1469127791829" duration="380000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="14627000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-1" y="-1" width="1922" height="1082" extended-state="6" />
+    <editor active="false" />
+    <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17693523" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2857143" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3188406" sideWeight="0.49605057" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3188406" sideWeight="0.50394946" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32194617" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24907847" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32919255" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32919255" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32919255" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+    </layout>
+    <layout-to-restore>
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3291536" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31661442" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2494331" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+    </layout-to-restore>
+  </component>
+  <component name="Vcs.Log.UiProperties">
+    <option name="RECENTLY_FILTERED_USER_GROUPS">
+      <collection />
+    </option>
+    <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+      <collection />
+    </option>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager />
+    <watches-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="672">
+          <caret line="48" column="47" selection-start-line="48" selection-start-column="47" selection-end-line="48" selection-end-column="47" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Scan/utkscan/CMakeLists.txt" />
+    <entry file="file://$PROJECT_DIR$/Scan/utkscan/CMakeLists.txt" />
+    <entry file="file://$PROJECT_DIR$/Scan/utkscan/src/CMakeLists.txt" />
+    <entry file="file://$PROJECT_DIR$/Core/source/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="28">
+          <caret line="2" column="20" selection-start-line="2" selection-start-column="20" selection-end-line="2" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Scan/source/core/OutputHisFile.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Scan/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Scan/source/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="308">
+          <caret line="22" column="56" selection-start-line="22" selection-start-column="56" selection-end-line="22" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Scan/source/core/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="280">
+          <caret line="20" column="30" selection-start-line="20" selection-start-column="30" selection-end-line="20" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Scan/source/processors/GeProcessor.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="352">
+          <caret line="779" column="17" selection-start-line="779" selection-start-column="17" selection-end-line="779" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="13">
+          <caret line="132" column="30" selection-start-line="132" selection-start-column="30" selection-end-line="132" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
