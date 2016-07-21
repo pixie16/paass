@@ -122,10 +122,10 @@ PixieInterface::PixieInterface(const char *fn) : hasAlternativeConfig(false), lo
 	}
 	if (!ReadConfigurationFile(fn)) {
 		std::cout << Display::ErrorStr() << " Unable to read configuration file: '" << fn << "\n";
-		std::cout << Display::InfoStr() << " Did you forget to copy default configuration files from '" << INSTALL_PREFIX << "/share/config' to the running directory?\n";
+		std::cout << Display::InfoStr() << " Did you forget to copy default configuration files from '" << INSTALL_PREFIX << "/share/scancfg' to the running directory?\n";
 		exit(EXIT_FAILURE);
 	}
-	//Overwrite the default path 'pxisys.ini' with the one specified in the config file.
+	//Overwrite the default path 'pxisys.ini' with the one specified in the scancfg file.
 	PCISysIniFile = configStrings["CrateConfig"].c_str();
 
 }
@@ -153,7 +153,7 @@ bool PixieInterface::ReadConfigurationFile(const char *fn)
   stringbuf tag, value;
   string line;
 
-	//Loop over lines in config file
+	//Loop over lines in scancfg file
   while (std::getline(in,line)) {
 		//Get a string stream of current line
 	  std::istringstream lineStream(line);
@@ -215,8 +215,8 @@ bool PixieInterface::GetSlots(const char *slotF)
     if (in.peek() == '*') {
       in.ignore();
       hasAlternativeConfig = true;
-      firmwareConfig[i] = 1; // alternative config
-    } else firmwareConfig[i] = 0; // standard config
+      firmwareConfig[i] = 1; // alternative scancfg
+    } else firmwareConfig[i] = 0; // standard scancfg
 
     in >> slotMap[i];
     in.getline(restOfLine, CONFIG_LINE_LENGTH, '\n');
