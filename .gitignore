@@ -3,8 +3,7 @@
 utkscan
 build/
 
-#Backup files from various editors
-*.save
+#Backup files 
 *~
 *.swp
 *.layout
@@ -17,8 +16,6 @@ html/
 latex/
 tmp/
 doc/classdiagramRawEvent.svg
-config/cfgs
-optional
 ValgrindOut.xml
 
 #Compressed Files
@@ -31,10 +28,11 @@ build/
 exec/
 doc/
 
-#Ignore codeblocks files
-PixieSuite2.cbp
-PixieSuite2.cbp.save
-PixieSuite2.layout
+#Ignore IDE files
+*.cbp
+*.layout
+*.save
+.idea/
 
 #DAMM files
 *.drr
