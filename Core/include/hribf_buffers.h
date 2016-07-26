@@ -25,8 +25,8 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.2.10"
-#define HRIBF_BUFFERS_DATE "May 28th, 2016"
+#define HRIBF_BUFFERS_VERSION "1.2.11"
+#define HRIBF_BUFFERS_DATE "July 26th, 2016"
 
 #define ACTUAL_BUFF_SIZE 8194 /// HRIBF .ldf file format
 
@@ -126,6 +126,9 @@ class PLD_header : public BufferType{
 	
 	/// Print header information.
 	void Print();
+	
+	/// Print header information in a delimited list.
+	void PrintDelimited(const char &delimiter_='\t');
 };
 
 /// The DATA buffer contains all physics data within the .pld file
@@ -175,6 +178,9 @@ class DIR_buffer : public BufferType{
 	
 	/// Print dir buffer information.
 	void Print();
+	
+	/// Print dir buffer information in a delimited list.
+	void PrintDelimited(const char &delimiter_='\t');
 };
 
 /* The HEAD buffer is written after the DIR buffer for each .ldf file. HEAD contains information
@@ -222,6 +228,9 @@ class HEAD_buffer : public BufferType{
 	
 	/// Print header information.
 	void Print();
+	
+	/// Print header information in a delimited list.
+	void PrintDelimited(const char &delimiter_='\t');
 };
 
 /// The DATA buffer contains all physics data within the .ldf file
