@@ -238,6 +238,18 @@ void PLD_header::Print(){
 	std::cout << "  ACQ time: " << run_time << " seconds\n";	
 }
 
+/// Print header information in a delimited list.
+void PLD_header::PrintDelimited(const char &delimiter_/*='\t'*/){
+	std::cout << std::string(facility) << delimiter_;
+	std::cout << std::string(format) << delimiter_;
+	std::cout << std::string(start_date) << delimiter_;
+	std::cout << std::string(end_date) << delimiter_;
+	std::cout << std::string(run_title) << delimiter_;
+	std::cout << run_num << delimiter_;
+	std::cout << max_spill_size << delimiter_;
+	std::cout << run_time;
+}
+
 /// Default constructor.
 PLD_data::PLD_data() : BufferType(DATA, 0){ // 0x41544144 "DATA"
 }
@@ -369,6 +381,12 @@ void DIR_buffer::Print(){
 	std::cout << "  Number buffers: " << total_buff_size << "\n";
 }
 
+/// Print dir buffer information in a delimited list.
+void DIR_buffer::PrintDelimited(const char &delimiter_/*='\t'*/){
+	std::cout << run_num << delimiter_;
+	std::cout << total_buff_size;
+}
+
 /// Default constructor.
 HEAD_buffer::HEAD_buffer() : BufferType(HEAD, 64){ // 0x44414548 "HEAD"
 }
@@ -489,6 +507,16 @@ void HEAD_buffer::Print(){
 	std::cout << "  Date: " << std::string(date) << "\n";
 	std::cout << "  Title: " << std::string(run_title) << "\n";
 	std::cout << "  Run number: " << run_num << "\n";	
+}
+
+/// Print header information in a delimited list.
+void HEAD_buffer::PrintDelimited(const char &delimiter_/*='\t'*/){
+	std::cout << std::string(facility) << delimiter_;
+	std::cout << std::string(format) << delimiter_;
+	std::cout << std::string(type) << delimiter_;
+	std::cout << std::string(date) << delimiter_;
+	std::cout << std::string(run_title) << delimiter_;
+	std::cout << run_num;
 }
 
 /// Write a ldf data buffer header (2 words).

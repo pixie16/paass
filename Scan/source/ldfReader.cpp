@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <string.h>
 
 #include "Unpacker.hpp"
 #include "ScanInterface.hpp"
@@ -10,7 +11,9 @@ HEAD_buffer ldfHead;
 PLD_header pldHead;
 
 void help(char *name_){
-	std::cout << "  SYNTAX: " << name_ << " <files ...>\n";
+	std::cout << "  SYNTAX: " << name_ << " [options] <files ...>\n";
+	std::cout << "   Available options:\n";
+	std::cout << "    --columns | Output file information in tab-delimited columns.\n";
 }
 
 int main(int argc, char *argv[]){
@@ -20,10 +23,21 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
 
+	bool col_output = false;
 	int file_format = -1;
+	int file_count = 1;
 	std::string dummy, extension;
 	for(int i = 1; i < argc; i++){
-		std::cout << "File no. " << i << ": " << argv[i] << std::endl;
+		// Check for command line options.
+		if(strcmp(argv[i], "--columns") == 0){
+			col_output = true;
+			continue;
+		}
+
+		if(!col_output)
+			std::cout << "File no. " << file_count++ << ": " << argv[i] << std::endl;
+		else
+			std::cout << file_count++ << "\t" << argv[i] << "\t";
 
 		extension = get_extension(argv[i], dummy);
 		if(extension == "ldf") // List data format file
@@ -31,13 +45,19 @@ int main(int argc, char *argv[]){
 		else if(extension == "pld") // Pixie list data file format
 			file_format = 1;
 		else{
-			std::cout << " ERROR! Invalid file extension '" << extension << "'.\n\n";
+			if(!col_output) 
+				std::cout << " ERROR! Invalid file extension '" << extension << "'.\n\n";
+			else
+				std::cout << "FAILED\n";
 			continue;
 		}
 		
 		std::ifstream file(argv[i], std::ios::binary);
 		if(!file.is_open() || !file.good()){
-			std::cout << " ERROR! Failed to open input file! Check that the path is correct.\n\n";
+			if(!col_output) 
+				std::cout << " ERROR! Failed to open input file! Check that the path is correct.\n\n";
+			else
+				std::cout << "FAILED\n";
 			file.close();
 			continue;
 		}
@@ -47,17 +67,26 @@ int main(int argc, char *argv[]){
 		if(file_format == 0){
 			ldfDir.Read(&file);
 			ldfHead.Read(&file);
-			ldfDir.Print();
-			ldfHead.Print();
+			if(!col_output){
+				ldfDir.Print();
+				ldfHead.Print();
+			}
+			else{
+				ldfDir.PrintDelimited();
+				ldfHead.PrintDelimited();
+			}
+			std::cout << std::endl;
 		}
 		else if(file_format == 1){
 			pldHead.Read(&file);
-			pldHead.Print();	
+			if(!col_output)
+				pldHead.Print();	
+			else
+				pldHead.PrintDelimited();
+			std::cout << std::endl;
 		}
 		
 		file.close();
-		
-		std::cout << std::endl;
 	}
 	
 	return 0;
