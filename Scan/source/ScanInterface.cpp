@@ -105,36 +105,6 @@ unsigned int ScanInterface::split_str(std::string str_, std::vector<std::string>
 	return count;
 }
 
-/** Get the file extension from an input filename string.
-  * \param[in]  filename_ The full input filename path.
-  * \param[out] prefix    The input filename path without the file extension.
-  * \return The file extension string.
-  */
-std::string ScanInterface::get_extension(std::string filename_, std::string &prefix){
-	size_t count = 0;
-	size_t last_index = 0;
-	std::string output = "";
-	prefix = "";
-	
-	if(filename_.find('.') != std::string::npos){
-		// Find the final period in the filename
-		for(count = 0; count < filename_.size(); count++){
-			if(filename_[count] == '.'){ last_index = count; }
-		}
-	
-		// Get the filename prefix and the extension
-		for(size_t i = 0; i < count; i++){
-			if(i < last_index){ prefix += filename_[i]; }
-			else if(i > last_index){ output += filename_[i]; }
-		}
-	}
-	else{ // The filename has no extension.
-		prefix = filename_;
-	}
-	
-	return output;
-}
-
 /** Start the scan, if ScanInterface is initialized and is not already running.
   * \return Nothing.
   */
@@ -282,7 +252,7 @@ bool ScanInterface::open_input_file(const std::string &fname_){
 		// Every poll2 ldf file starts with a DIR buffer followed by a HEAD buffer
 		int num_buffers;
 		if(file_format == 0){
-			dirbuff.Read(&input_file, num_buffers);
+			dirbuff.Read(&input_file);
 			headbuff.Read(&input_file);
 			
 			// Store the file information for later use.
@@ -294,17 +264,9 @@ bool ScanInterface::open_input_file(const std::string &fname_){
 			finfo.push_back("Date", headbuff.GetDate());
 			finfo.push_back("Title", headbuff.GetRunTitle());
 			
-			// Let's read out the file information from these buffers
-			std::cout << " 'DIR ' buffer-\n";
-			std::cout << "  " << finfo.print(0) << "\n";
-			std::cout << "  " << finfo.print(1) << "\n";
-			std::cout << " 'HEAD' buffer-\n";
-			std::cout << "  " << finfo.print(2) << "\n";
-			std::cout << "  " << finfo.print(3) << "\n";
-			std::cout << "  " << finfo.print(4) << "\n";
-			std::cout << "  " << finfo.print(5) << "\n";
-			std::cout << "  " << finfo.print(6) << "\n";
-			std::cout << "  Run number: " << headbuff.GetRunNumber() << "\n\n";
+			dirbuff.Print();
+			headbuff.Print();
+			std::cout << std::endl;
 		}
 		else if(file_format == 1){
 			pldHead.Read(&input_file);
@@ -321,16 +283,8 @@ bool ScanInterface::open_input_file(const std::string &fname_){
 			finfo.push_back("Max spill", max_spill_size, "words");
 			finfo.push_back("ACQ time", pldHead.GetRunTime(), "seconds");
 			
-			// Let's read out the file information from this buffer
-			std::cout << " 'HEAD' buffer-\n";
-			std::cout << "  " << finfo.print(0) << "\n";
-			std::cout << "  " << finfo.print(1) << "\n";
-			std::cout << "  " << finfo.print(2) << "\n";
-			std::cout << "  " << finfo.print(3) << "\n";
-			std::cout << "  " << finfo.print(4) << "\n";
-			std::cout << "  " << finfo.print(5) << "\n";
-			std::cout << "  " << finfo.print(6) << "\n";
-			std::cout << "  " << finfo.print(7) << "\n\n";			
+			pldHead.Print();	
+			std::cout << std::endl;
 		}
 	}
 
@@ -1052,4 +1006,34 @@ bool ScanInterface::Close(){
 	
 	scan_init = false;
 	return true;
+}
+
+/** Get the file extension from an input filename string.
+  * \param[in]  filename_ The full input filename path.
+  * \param[out] prefix    The input filename path without the file extension.
+  * \return The file extension string.
+  */
+std::string get_extension(std::string filename_, std::string &prefix){
+	size_t count = 0;
+	size_t last_index = 0;
+	std::string output = "";
+	prefix = "";
+	
+	if(filename_.find('.') != std::string::npos){
+		// Find the final period in the filename
+		for(count = 0; count < filename_.size(); count++){
+			if(filename_[count] == '.'){ last_index = count; }
+		}
+	
+		// Get the filename prefix and the extension
+		for(size_t i = 0; i < count; i++){
+			if(i < last_index){ prefix += filename_[i]; }
+			else if(i > last_index){ output += filename_[i]; }
+		}
+	}
+	else{ // The filename has no extension.
+		prefix = filename_;
+	}
+	
+	return output;
 }

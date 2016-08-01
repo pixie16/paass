@@ -18,7 +18,12 @@ install(TARGETS PixieScan DESTINATION lib)
 # Build the scanner skeleton source.
 add_executable(skeleton Skeleton.cpp)
 target_link_libraries(skeleton PixieScanStatic)
-install (TARGETS skeleton DESTINATION bin)
+
+# Build the ldfReader source.
+add_executable(ldfReader ldfReader.cpp)
+target_link_libraries(ldfReader PixieScanStatic)
+
+install (TARGETS skeleton ldfReader DESTINATION bin)
 
 #Build the scope program and the filterer program
 if(USE_ROOT)
