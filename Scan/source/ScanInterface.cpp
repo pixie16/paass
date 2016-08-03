@@ -83,28 +83,6 @@ void fileInformation::clear(){
 // class ScanInterface
 /////////////////////////////////////////////////////////////////////
 
-/** Split a string into arguments using a specified delimiter.
-  * \param[in]  str_       The input string.
-  * \param[out] args       A vector containing the arguments from the input string.
-  * \param[in]  delimiter_ The character about which to split the input string.
-  * \return The number of sub-strings which were found.
-  */
-unsigned int ScanInterface::split_str(std::string str_, std::vector<std::string> &args, char delimiter_/*=' '*/){
-	args.clear();
-	std::string temp = "";
-	unsigned int count = 0;
-	for(unsigned int i = 0; i < str_.size(); i++){
-		if(str_[i] == delimiter_ || i == str_.size()-1){
-			if(i == str_.size()-1){ temp += str_[i]; }
-			args.push_back(temp);
-			temp = "";
-			count++;
-		}
-		else{ temp += str_[i]; }		
-	}
-	return count;
-}
-
 /** Start the scan, if ScanInterface is initialized and is not already running.
   * \return Nothing.
   */
@@ -1036,4 +1014,26 @@ std::string get_extension(std::string filename_, std::string &prefix){
 	}
 	
 	return output;
+}
+
+/** Split a string into arguments using a specified delimiter.
+  * \param[in]  str_       The input string.
+  * \param[out] args       A vector containing the arguments from the input string.
+  * \param[in]  delimiter_ The character about which to split the input string.
+  * \return The number of sub-strings which were found.
+  */
+unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_/*=' '*/){
+	args.clear();
+	std::string temp = "";
+	unsigned int count = 0;
+	for(unsigned int i = 0; i < str_.size(); i++){
+		if(str_[i] == delimiter_ || i == str_.size()-1){
+			if(i == str_.size()-1){ temp += str_[i]; }
+			args.push_back(temp);
+			temp = "";
+			count++;
+		}
+		else{ temp += str_[i]; }		
+	}
+	return count;
 }
