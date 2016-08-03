@@ -56,7 +56,7 @@ option(USE_POLL "Install Poll" ON)
 option(USE_ROOT "Use ROOT" ON)
 option(USE_SETUP "Include the older setup programs in installation" OFF)
 option(USE_SCAN "Install utkscan" ON)
-option(USE_SCAN_LIBS "Install only scan libraries" ON)
+option(USE_SCAN_LIBS "Install only scan libraries" OFF)
 option(USE_TREE_DEBUG "Debugging info for TreeCorrelator" OFF)
 option(USE_VERBOSE "Make Scan More Verbose" OFF)
 
@@ -74,7 +74,7 @@ add_definitions(-D INSTALL_PREFIX="\\"${CMAKE_INSTALL_PREFIX}\\"")
 #Definitions with options
 
 #The MCA will write DAMM histograms as output
-if(${USE_DAMM})
+if(USE_DAMM)
     add_definitions("-D USE_DAMM")
 endif()
 
@@ -90,7 +90,7 @@ endif(USE_ONLINE)
 
 #utkscan will have debugging for the TreeCorrelator
 if(USE_TREE_DEBUG)
-    add_definitions(-D DEBUG)
+    add_definitions(-D TREE_DEBUG)
 endif(USE_TREE_DEBUG)
 
 #utkscan will be more verbose in its output
@@ -108,10 +108,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 find_package (Threads REQUIRED)
 
 #Find curses library used for poll2/scan/skeleton/scope/etc
-if(${USE_NCURSES}) 
+if(USE_NCURSES)
 	find_package(Curses)
 endif()
-if (${CURSES_FOUND})
+if (CURSES_FOUND)
 	add_definitions("-D USE_NCURSES")
 	mark_as_advanced(FORCE CURSES_CURSES_H_PATH CURSES_FORM_LIBRARY)
 else()
@@ -128,7 +128,7 @@ if(USE_GSL)
     add_definitions("-D usegsl")
 endif(USE_GSL)
 
-if (${USE_POLL})
+if (USE_POLL)
     #Find the PLX Library
     find_package(PLX REQUIRED)
     link_directories(${PLX_LIBRARY_DIR})
@@ -147,7 +147,7 @@ if (${USE_POLL})
 endif()
 
 #Find ROOT if USE_ROOT was set.
-if (${USE_ROOT})
+if (USE_ROOT)
     find_package (ROOT REQUIRED)
     mark_as_advanced(FORCE GENREFLEX_EXECUTABLE ROOTCINT_EXECUTABLE
             ROOT_CONFIG_EXECUTABLE)
@@ -164,13 +164,13 @@ include_directories(Core/include)
 add_subdirectory(Core)
 
 #Build the scan library
-if (${USE_SCAN})
+if (USE_SCAN)
 	include_directories(Scan/include)
 	add_subdirectory(Scan)
 endif()
 
 #Building polling tools
-if (${USE_POLL})
+if (USE_POLL)
 	#Build the pixie interface
 	include_directories(Interface/include)
 	add_subdirectory(Interface/source)
