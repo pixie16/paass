@@ -34,7 +34,7 @@ function(PXI_CONFIG)
 	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "PixieBaseDir\t\t${PXI_ROOT_DIR}\n")
 
 	#create an installer that can be invoked by
-	#add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)	
+	#add_custom_target(scancfg ${CMAKE_COMMAND} -P pixie_cfg.cmake)
 	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake 
 		"file(INSTALL pixie.cfg DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n" 
 	)
@@ -82,7 +82,7 @@ function(PXI_CONFIG)
 				set(FILE_MATCHES ./default.set)
 			endif()
 		endif ()
-		#Append the config file
+		#Append the scancfg file
 		file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "${KEY}\t\t${FILE_MATCHES}\n")
 	endforeach()
 
