@@ -16,6 +16,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <deque>
 
 #include "hribf_buffers.h"
 
