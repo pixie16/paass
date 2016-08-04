@@ -1027,6 +1027,7 @@ unsigned int split_str(std::string str_, std::vector<std::string> &args, char de
 	std::string temp = "";
 	unsigned int count = 0;
 	for(unsigned int i = 0; i < str_.size(); i++){
+		if(str_[i] == '#') break;
 		if(str_[i] == delimiter_ || i == str_.size()-1){
 			if(i == str_.size()-1){ temp += str_[i]; }
 			args.push_back(temp);
