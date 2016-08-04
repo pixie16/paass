@@ -628,6 +628,8 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 	unsigned int chunkSizeB;
 	unsigned int totalNumChunks = 0;
 	unsigned int currentNumChunk = 0;
+	
+	char *arrptr = data_;
 
 	// Calculate the total number of spill chunks.
 	while(spillpos < nWords_){
@@ -667,12 +669,13 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 		file_->write((char*)&chunkSizeB, 4);
 		file_->write((char*)&totalNumChunks, 4);
 		file_->write((char*)&currentNumChunk, 4);
-		file_->write((char*)&data_[spillpos], 4*chunkPayload);
+		file_->write((char*)arrptr, 4*chunkPayload);
 		file_->write((char*)&buffend, 4);
 		
 		currentNumChunk++;
 		
 		buff_pos += chunkPayload + 4;
+		arrptr += 4*chunkPayload;
 		
 		if(buff_pos >= 8194){
 			buffs_written++;
