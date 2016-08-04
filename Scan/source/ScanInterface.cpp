@@ -565,7 +565,7 @@ void ScanInterface::RunControl(){
 		}
 		else if(file_format == 1){
 			unsigned int *data = NULL;
-			int nBytes;
+			unsigned int nBytes;
 		
 			if(!dry_run_mode){ data = new unsigned int[max_spill_size+2]; }
 		
