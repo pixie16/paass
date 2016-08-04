@@ -1021,8 +1021,7 @@ void PollOutputFile::initialize(){
 	// Get the current working directory
 	// current_directory DOES NOT include a trailing '/'
 	char ch_cwd[1024];
-	getcwd(ch_cwd, 1024);
-	current_directory = std::string(ch_cwd);
+	current_directory = std::string(getcwd(ch_cwd, 1024));
 	
 	// Find the depth of the current directory
 	std::string temp = "";
