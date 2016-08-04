@@ -34,13 +34,13 @@ class Client;
 
 class BufferType{
   protected:
-	int bufftype;
-	int buffsize;
-	int buffend;
-	int zero;
+	unsigned int bufftype;
+	unsigned int buffsize;
+	unsigned int buffend;
+	unsigned int zero;
 	bool debug_mode;
 	
-	BufferType(int bufftype_, int buffsize_, int buffend_=-1);
+	BufferType(unsigned int bufftype_, unsigned int buffsize_, unsigned int buffend_=0xFFFFFFFF);
 	
 	/// Returns only false if not overloaded
 	virtual bool Write(std::ofstream *file_);
@@ -52,11 +52,11 @@ class BufferType{
 	virtual void Reset(){  }
 	
   public:
-	int GetBufferType(){ return bufftype; }
+	unsigned int GetBufferType(){ return bufftype; }
 	
-	int GetBufferSize(){ return buffsize; }
+	unsigned int GetBufferSize(){ return buffsize; }
 	
-	int GetBufferEndFlag(){ return buffend; }
+	unsigned int GetBufferEndFlag(){ return buffend; }
 	
 	bool DebugMode(){ return debug_mode; }
   
@@ -69,9 +69,9 @@ class BufferType{
 /// The pld header contains information about the run including the date/time, the title, and the run number.
 class PLD_header : public BufferType{
   private:
+	unsigned int run_num; // Run number
+	unsigned int max_spill_size; // Maximum size of spill in file (in words)
 	float run_time; // Total length of run (time acquisition is running in seconds)
-	int run_num; // Run number
-	int max_spill_size; // Maximum size of spill in file (in words)
 	char format[17]; // 'PIXIE LIST DATA ' (16 bytes)
 	char facility[17]; // 'U OF TENNESSEE  ' (16 bytes)
 	char start_date[25]; // Wed Feb 13 16:06:10 2013 (24 bytes)
@@ -82,7 +82,7 @@ class PLD_header : public BufferType{
 	PLD_header();
 	~PLD_header();
 	
-	int GetBufferLength(); /// Get the total length of the buffer (in bytes)
+	unsigned int GetBufferLength(); /// Get the total length of the buffer (in bytes)
 	
 	char *GetFacility(){ return facility; }
 	
@@ -94,9 +94,9 @@ class PLD_header : public BufferType{
 	
 	char *GetRunTitle(){ return run_title; }
 		
-	int GetRunNumber(){ return run_num; }
+	unsigned int GetRunNumber(){ return run_num; }
 	
-	int GetMaxSpillSize(){ return max_spill_size; }
+	unsigned int GetMaxSpillSize(){ return max_spill_size; }
 	
 	float GetRunTime(){ return run_time; }
 		
@@ -108,9 +108,9 @@ class PLD_header : public BufferType{
 	
 	void SetTitle(std::string input_);
 	
-	void SetRunNumber(int input_){ run_num = input_; }
+	void SetRunNumber(unsigned int input_){ run_num = input_; }
 	
-	void SetMaxSpillSize(int max_spill_size_){ max_spill_size = max_spill_size_; }
+	void SetMaxSpillSize(unsigned int max_spill_size_){ max_spill_size = max_spill_size_; }
 	
 	void SetRunTime(float time_){ run_time = time_; }
 	
@@ -139,10 +139,10 @@ class PLD_data : public BufferType{
 	PLD_data(); /// 0x41544144 "DATA"
 
 	/// Write a data spill to file
-	virtual bool Write(std::ofstream *file_, char *data_, int nWords_);
+	virtual bool Write(std::ofstream *file_, char *data_, unsigned int nWords_);
 	
 	/// Read a data spill from a file
-	virtual bool Read(std::ifstream *file_, char *data_, int &nBytes, int max_bytes_, bool dry_run_mode=false);
+	virtual bool Read(std::ifstream *file_, char *data_, unsigned int &nBytes, unsigned int max_bytes_, bool dry_run_mode=false);
 
 	/// Set initial values.
 	virtual void Reset(){ }
@@ -152,18 +152,18 @@ class PLD_data : public BufferType{
    to be closed, the data within the DIR buffer is re-written with run information. */
 class DIR_buffer : public BufferType{
   private:
-  	int total_buff_size;
-	int run_num;
-	int unknown[3];
+  	unsigned int total_buff_size;
+	unsigned int run_num;
+	unsigned int unknown[3];
 	
   public:
 	DIR_buffer();
 	
-	int GetTotalBufferSize(){ return total_buff_size; }
+	unsigned int GetTotalBufferSize(){ return total_buff_size; }
 	
-	int GetRunNumber(){ return run_num; }
+	unsigned int GetRunNumber(){ return run_num; }
 	
-	void SetRunNumber(int input_){ run_num = input_; }
+	void SetRunNumber(unsigned int input_){ run_num = input_; }
 	
 	/* DIR buffer (1 word buffer type, 1 word buffer size, 1 word for total buffer length,
 	   1 word for total number of buffers, 2 unknown words, 1 word for run number, 1 unknown word,
@@ -192,7 +192,7 @@ class HEAD_buffer : public BufferType{
 	char type[17];
 	char date[17];
 	char run_title[81];
-	int run_num;
+	unsigned int run_num;
 
   public:
 	HEAD_buffer();
@@ -207,13 +207,13 @@ class HEAD_buffer : public BufferType{
 	
 	char *GetRunTitle(){ return run_title; }
 		
-	int GetRunNumber(){ return run_num; }
+	unsigned int GetRunNumber(){ return run_num; }
 		
 	bool SetDateTime();
 	
 	bool SetTitle(std::string input_);
 	
-	void SetRunNumber(int input_){ run_num = input_; }
+	void SetRunNumber(unsigned int input_){ run_num = input_; }
 
 	/** HEAD buffer (1 word buffer type, 1 word buffer size, 2 words for facility, 2 for format, 
 	  * 3 for type, 1 word separator, 4 word date, 20 word title [80 character], 1 word run number,
@@ -250,7 +250,7 @@ class DATA_buffer : public BufferType{
 	unsigned int good_chunks; /// Count of the number of good spill chunks which were read.
 	unsigned int missing_chunks; /// Count of the number of missing spill chunks which were dropped.
 
-	size_t buff_pos; /// The actual position in the current ldf buffer.
+	unsigned int buff_pos; /// The actual position in the current ldf buffer.
 
 	/// DATA buffer (1 word buffer type, 1 word buffer size)
 	bool open_(std::ofstream *file_);
@@ -286,7 +286,7 @@ class DATA_buffer : public BufferType{
 	unsigned int GetNumMissing(){ return missing_chunks; }
 	
 	/// Write a data spill to file
-	virtual bool Write(std::ofstream *file_, char *data_, int nWords_, int &buffs_written);
+	virtual bool Write(std::ofstream *file_, char *data_, unsigned int nWords_, int &buffs_written);
 	
 	/// Read a data spill from a file
 	virtual bool Read(std::ifstream *file_, char *data_, unsigned int &nBytes_, unsigned int max_bytes_, bool &full_spill, bool &bad_spill, bool dry_run_mode=false);
@@ -322,14 +322,14 @@ class PollOutputFile{
 	HEAD_buffer headBuff;
 	DATA_buffer dataBuff;
 	EOF_buffer eofBuff;
-	int max_spill_size;
-	int current_file_num;
-	int output_format;
-	int number_spills;
+	unsigned int max_spill_size;
+	unsigned int current_file_num;
+	unsigned int output_format;
+	unsigned int number_spills;
+	unsigned int run_num;
 	bool debug_mode;
-	int run_num;
 	
-	int current_depth;
+	unsigned int current_depth;
 	std::string current_directory;
 	std::vector<std::string> directories;
 
@@ -361,7 +361,7 @@ class PollOutputFile{
 	std::string GetCurrentFilename(){ return current_filename; }
 	
 	/// Return the total number of spills written since the current file was opened
-	int GetNumberSpills(){ return number_spills; }
+	unsigned int GetNumberSpills(){ return number_spills; }
 
 	/// Return a pointer to the PLD header object
 	PLD_header *GetPLDheader(){ return &pldHead; }
@@ -385,7 +385,7 @@ class PollOutputFile{
 	void SetDebugMode(bool debug_=true);
 	
 	/// Set the output file format
-	bool SetFileFormat(int format_);
+	bool SetFileFormat(unsigned int format_);
 
 	/// Set the output filename prefix
 	void SetFilenamePrefix(std::string filename_);
@@ -394,18 +394,18 @@ class PollOutputFile{
 	bool IsOpen(){ return (output_file.is_open() && output_file.good()); }
 	
 	/// Write nWords_ of data to the file
-	int Write(char *data_, int nWords_);
+	int Write(char *data_, unsigned int nWords_);
 
 	/** Build a data spill notification message for broadcast onto the network
 	  * Return the total number of bytes in the packet upon success, and -1 otherwise */
 	int SendPacket(Client *cli_);
 
 	/// Close the current file, if one is open, and open a new file for data output
-	bool OpenNewFile(std::string title_, int &run_num_, std::string prefix, std::string output_dir="./", bool continueRun = false);
+	bool OpenNewFile(std::string title_, unsigned int &run_num_, std::string prefix, std::string output_dir="./", bool continueRun = false);
 
-	std::string GetNextFileName(int &run_num_, std::string prefix, std::string output_dir, bool continueRun = false);
+	std::string GetNextFileName(unsigned int &run_num_, std::string prefix, std::string output_dir, bool continueRun = false);
 	
-	int GetRunNumber() {return dirBuff.GetRunNumber();}
+	unsigned int GetRunNumber() {return dirBuff.GetRunNumber();}
 
 	/// Write the footer and close the file
 	void CloseFile(float total_run_time_=0.0);
