@@ -600,7 +600,7 @@ bool DATA_buffer::Close(std::ofstream *file_){
 			file_->write((char*)&buffend, 4); 
 		}
 	}
-	buff_pos = ACTUAL_BUFF_SIZE;
+	buff_pos = 0;
 
 	return true;
 }
@@ -631,8 +631,8 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 
 	// Calculate the total number of spill chunks.
 	while(spillpos < nWords_){
-		if(nWords_ - spillpos > 8190 - buff_pos)
-			chunkPayload = 8190 - buff_pos;
+		if(nWords_ - spillpos > 8190 - oldBuffPos)
+			chunkPayload = 8190 - oldBuffPos;
 		else
 			chunkPayload = nWords_ - spillpos;
 		
