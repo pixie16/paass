@@ -14,9 +14,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date Sept. 29th, 2015
+  * \date Aug. 4th, 2016
   * 
-  * \version 1.2.04
+  * \version 1.2.12
 */
 
 #ifndef HRIBF_BUFFERS_H
@@ -25,8 +25,8 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.2.11"
-#define HRIBF_BUFFERS_DATE "July 26th, 2016"
+#define HRIBF_BUFFERS_VERSION "1.2.12"
+#define HRIBF_BUFFERS_DATE "Aug. 4th, 2016"
 
 #define ACTUAL_BUFF_SIZE 8194 /// HRIBF .ldf file format
 
@@ -233,13 +233,9 @@ class HEAD_buffer : public BufferType{
 	void PrintDelimited(const char &delimiter_='\t');
 };
 
-/// The DATA buffer contains all physics data within the .ldf file
+//// The DATA buffer contains all physics data within the .ldf file
 class DATA_buffer : public BufferType{
   private:
-	int current_buff_pos; /// Absolute buffer position
-	int buff_words_remaining; /// Absolute number of buffer words remaining
-	int good_words_remaining; /// Good buffer words remaining (not counting header or footer words)
-
 	int retval; /// The error code for the read method.
 
 	unsigned int buffer1[ACTUAL_BUFF_SIZE]; /// Container for a ldf buffer.
