@@ -55,8 +55,8 @@ option(USE_ONLINE "Options for Online Scans" OFF)
 option(USE_POLL "Install Poll" ON)
 option(USE_ROOT "Use ROOT" ON)
 option(USE_SETUP "Include the older setup programs in installation" OFF)
-option(USE_SCAN "Install utkscan" ON)
-option(USE_SCAN_LIBS "Install only scan libraries" OFF)
+option(USE_SCAN "Install utkscan (requires SCAN_LIBS)" ON)
+option(USE_SCAN_LIBS "Install scan libraries" ON)
 option(USE_TREE_DEBUG "Debugging info for TreeCorrelator" OFF)
 option(USE_VERBOSE "Make Scan More Verbose" OFF)
 
@@ -163,8 +163,9 @@ endif()
 include_directories(Core/include)
 add_subdirectory(Core)
 
-#Build the scan library
-if (USE_SCAN)
+#Build the scan libraries
+if (USE_SCAN_LIBS)
+	#Add the scan directory
 	include_directories(Scan/include)
 	add_subdirectory(Scan)
 endif()
