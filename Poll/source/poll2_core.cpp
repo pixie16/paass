@@ -1320,7 +1320,7 @@ void Poll::CommandControl(){
 					std::cout << sys_message_head << "Set output directory to '" << output_directory << "'.\n";
 
 					//Check what run files already exist.
-					int temp_run_num = next_run_num;
+					unsigned int temp_run_num = next_run_num;
 					std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
 					if (temp_run_num != next_run_num) {
 						std::cout << sys_message_head << Display::WarningStr("Warning") << ": Run file existed for run " << temp_run_num << "! Next run number will be " << next_run_num << ".\n";
@@ -1373,7 +1373,7 @@ void Poll::CommandControl(){
 				else {
 					next_run_num = atoi(arg.c_str()); 
 					std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
-					if (next_run_num != atoi(arg.c_str())) {
+					if (next_run_num != (unsigned int)atoi(arg.c_str())) {
 						std::cout << sys_message_head << Display::WarningStr("Wanring") << ": Run file existed for run " << atoi(arg.c_str()) << ".\n";
 					}
 					std::cout << sys_message_head << "Set run number to '" << next_run_num << "'.\n";
