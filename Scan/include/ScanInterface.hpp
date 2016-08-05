@@ -16,12 +16,13 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <deque>
 
 #include "hribf_buffers.h"
 #include "XiaData.hpp"
 
-#define SCAN_VERSION "1.2.27"
-#define SCAN_DATE "May 28th, 2016"
+#define SCAN_VERSION "1.2.28"
+#define SCAN_DATE "Aug. 3rd, 2016"
 
 class Server;
 class Terminal;
