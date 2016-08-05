@@ -578,14 +578,15 @@ void ScanInterface::RunControl(){
 		}
 		else if(file_format == 1){
 			unsigned int *data = NULL;
-			int nBytes;
+			unsigned int nBytes;
 		
 			if(!dry_run_mode){ data = new unsigned int[max_spill_size+2]; }
 		
 			// Reset the buffer reader to default values.
 			pldData.Reset();
 		
-			while(pldData.Read(&input_file, (char*)data, nBytes, 4*max_spill_size, dry_run_mode)){ 
+			while(pldData.Read(&input_file, (char*)data, nBytes,
+							   4*max_spill_size, dry_run_mode)){
 				if(kill_all == true){ 
 					break;
 				}
