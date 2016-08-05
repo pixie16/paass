@@ -16,11 +16,13 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <deque>
 
 #include "hribf_buffers.h"
+#include "XiaData.hpp"
 
-#define SCAN_VERSION "1.2.27"
-#define SCAN_DATE "May 28th, 2016"
+#define SCAN_VERSION "1.2.28"
+#define SCAN_DATE "Aug. 3rd, 2016"
 
 class Server;
 class Terminal;
@@ -83,11 +85,19 @@ class ScanInterface{
 	/// Return the name of the program.
 	std::string GetProgramName(){ return progName; }
 	
+    /// \return The name of the configuration file
+    std::string GetConfigFile(){return(configFile_);}
+    
+    /// \return The name of the output file
+    std::string GetOutputFile(){return(outputFile_);}
 	/// Return a pointer to a fileInformation object used to store file header info.
 	fileInformation *GetFileInfo(){ return &finfo; }
 
 	/// Set the header string used to prefix output messages.
-	void SetProgramName(const std::string &head_){ progName = head_; msgHeader = head_+": "; }
+    void SetProgramName(const std::string &head_){
+        progName = head_;
+        msgHeader = head_+": ";
+    }
 	
 	/// Enable or disable verbose output mode.
 	bool SetVerboseMode(bool state_=true){ return (is_verbose = state_); }
@@ -146,18 +156,15 @@ class ScanInterface{
 	  * \param[out] arg_ Vector or arguments to the user command. Not used by default.
 	  * \return True if the command was recognized and false otherwise. Returns false by default.
 	  */
-	virtual bool ExtraCommands(const std::string &cmd_, std::vector<std::string> &args_){ return false; }
+    virtual bool ExtraCommands(const std::string &cmd_,
+                               std::vector<std::string> &args_){ return false; }
 	
 	/** ExtraArguments is used to send command line arguments to classes derived
-	  * from ScanInterface. If ScanInterface receives an unrecognized
-	  * argument from the user, it will pass it on to the derived class.
-	  * Does nothing useful by default.
-	  * \param[in]  arg_    The argument to interpret.
-	  * \param[out] others_ The remaining arguments following arg_.
-	  * \param[out] ifname  The input filename to send back to use for reading. Set to arg_ by default.
-	  * \return True if the argument was recognized and false otherwise. Returns true by default.
-	  */
-	virtual bool ExtraArguments(const std::string &arg_, std::deque<std::string> &others_, std::string &ifname);
+     * from ScanInterface. It has its own instance of getopts to look for its known 
+     * parameters. This should be overloaded in the derived class.
+     * \param[in] argc : The number of command line arguments
+     * \param[in] argv[] : The arrary containing all command line arguments */
+    virtual void ExtraArguments(int argc, char *argv[]){};
 	
 	/** CmdHelp is used to allow a derived class to print a help statement about
 	  * its own commands. This method is called whenever the user enters 'help'
@@ -236,6 +243,8 @@ class ScanInterface{
 	std::string extension; /// Input file extension.
 	std::string workDir; /// Linux system current working directory.
 	std::string homeDir; /// Linux user home directory.
+    std::string configFile_; //!< Configuration file to be opened
+    std::string outputFile_; //!< Name of file to be used for output
 
 	int max_spill_size; /// Maximum size of a spill to read.
 	int file_format; /// Input file format to use (0=.ldf, 1=.pld, 2=.root).
