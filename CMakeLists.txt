@@ -48,16 +48,18 @@ endif(CMAKE_BUILD_TYPE MATCHES "Debug")
 #------------------------------------------------------------------------------
 
 #Install options
+option(BUILD_SHARED_LIBS "Install only scan libraries" ON)
+option(BUILD_SKELETON "Build and install the skeleton scan" ON)
+option(BUILD_SCOPE "Build and install the scope program" ON)
+option(BUILD_UTKSCAN "Install utkscan" ON)
 option(USE_DAMM "Use DAMM for MCA" ON)
 option(USE_GAMMA_GATES "Gamma-Gamma gates in GeProcessor" OFF)
 option(USE_GSL "Use GSL for Pulse Fitting" ON)
 option(USE_NCURSES "Use ncurses for terminal" ON)
-option(USE_OFFLINE "options for online Scans" OFF)
+option(USE_ONLINE "Options for online scans" OFF)
 option(USE_POLL "Install Poll" ON)
 option(USE_ROOT "Use ROOT" ON)
 option(USE_SETUP "Include the older setup programs in installation" OFF)
-option(USE_SCAN "Install utkscan" ON)
-option(USE_SCAN_LIBS "Install only scan libraries" OFF)
 option(USE_TREE_DEBUG "Debugging info for TreeCorrelator" OFF)
 option(USE_VERBOSE "Make Scan More Verbose" OFF)
 
@@ -159,16 +161,13 @@ if (USE_ROOT)
 endif()
 
 #------------------------------------------------------------------------------
-
 #Build the core library
 include_directories(Core/include)
 add_subdirectory(Core)
 
 #Build the scan library
-if (USE_SCAN)
-	include_directories(Scan/include)
-	add_subdirectory(Scan)
-endif()
+include_directories(Scan/include)
+add_subdirectory(Scan)
 
 #Building polling tools
 if (USE_POLL)
