@@ -58,6 +58,22 @@
 // Maximum shm packet size (in bytes)
 #define MAX_PKT_DATA (MAX_ORPH_DATA - PKT_HEAD_LEN)
 
+/** IsNumeric: Check if an input string is strictly numeric.
+  *  \param[in]  input_ String to check.
+  *  \param[in]  prefix_ String to print before the error message is printed.
+  *  \param[in]  msg_ Error message to print if the value is not numeric.
+  *  \return true if the string is strictly numeric and false otherwise.
+  */
+bool IsNumeric(const std::string &input_, const std::string &prefix_/*=""*/, const std::string &msg_/*=""*/){
+	for(size_t i = 0; i < input_.size(); i++){
+		if((input_[i] < 0x30 || input_[i] > 0x39) && input_[i] != 0x2E){
+			if(!msg_.empty()) std::cout << msg_ << " (" << input_ << ").\n";
+			return false;
+		}
+	}
+	return true;
+}
+
 std::vector<std::string> chan_params = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP", "TRIGGER_THRESHOLD", "ENERGY_RISETIME", "ENERGY_FLATTOP", "TAU", "TRACE_LENGTH",
 									 "TRACE_DELAY", "VOFFSET", "XDT", "BASELINE_PERCENT", "EMIN", "BINFACTOR", "CHANNEL_CSRA", "CHANNEL_CSRB", "BLCUT",
 									 "ExternDelayLen", "ExtTrigStretch", "ChanTrigStretch", "FtrigoutDelay", "FASTTRIGBACKLEN"};
@@ -1001,7 +1017,8 @@ void Poll::CommandControl(){
 			show_status();
 		}
 		else if(cmd == "thresh"){
-			if (p_args==1) {
+			if(p_args==1){
+				if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid FIFO threshold specification")) continue;
 				SetThreshWords(EXTERNAL_FIFO_LENGTH * atof(arguments.at(0).c_str()) / 100.0);
 			}
 			show_thresh();
@@ -1051,6 +1068,9 @@ void Poll::CommandControl(){
 			if(cmd == "pwrite"){ // Syntax "pwrite <module> <channel> <parameter name> <value>"
 				if(p_args > 0 && arguments.at(0) == "help"){ pchan_help(); }
 				else if(p_args >= 4){
+					if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
+					else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
+					else if(!IsNumeric(arguments.at(3), sys_message_head, "Invalid parameter value specification")) continue;
 					int mod = atoi(arguments.at(0).c_str());
 					int ch = atoi(arguments.at(1).c_str());
 					double value = std::strtod(arguments.at(3).c_str(), NULL);
@@ -1060,12 +1080,14 @@ void Poll::CommandControl(){
 				}
 				else{
 					std::cout << sys_message_head << "Invalid number of parameters to pwrite\n";
-					std::cout << sys_message_head << " -SYNTAX- pwrite [module] [channel] [parameter] [value]\n";
+					std::cout << sys_message_head << " -SYNTAX- pwrite <module> <channel> <parameter> <value>\n";
 				}
 			}
 			else if(cmd == "pmwrite"){ // Syntax "pmwrite <module> <parameter name> <value>"
 				if(p_args > 0 && arguments.at(0) == "help"){ pmod_help(); }
 				else if(p_args >= 3){
+					if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
+					else if(!IsNumeric(arguments.at(2), sys_message_head, "Invalid parameter value specification")) continue;
 					int mod = atoi(arguments.at(0).c_str());
 					unsigned int value = (unsigned int)std::strtoul(arguments.at(2).c_str(), NULL, 0);
 				
@@ -1074,7 +1096,7 @@ void Poll::CommandControl(){
 				}
 				else{
 					std::cout << sys_message_head << "Invalid number of parameters to pmwrite\n";
-					std::cout << sys_message_head << " -SYNTAX- pmwrite [module] [parameter] [value]\n";
+					std::cout << sys_message_head << " -SYNTAX- pmwrite <module> <parameter> <value>\n";
 				}
 			}
 		}
@@ -1087,6 +1109,8 @@ void Poll::CommandControl(){
 			if(cmd == "pread"){ // Syntax "pread <module> <channel> <parameter name>"
 				if(p_args > 0 && arguments.at(0) == "help"){ pchan_help(); }
 				else if(p_args >= 3){
+					if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
+					else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
 					int mod = atoi(arguments.at(0).c_str());
 					int ch = atoi(arguments.at(1).c_str());
 				
@@ -1095,12 +1119,13 @@ void Poll::CommandControl(){
 				}
 				else{
 					std::cout << sys_message_head << "Invalid number of parameters to pread\n";
-					std::cout << sys_message_head << " -SYNTAX- pread [module] [channel] [parameter]\n";
+					std::cout << sys_message_head << " -SYNTAX- pread <module> <channel> <parameter>\n";
 				}
 			}
 			else if(cmd == "pmread"){ // Syntax "pmread <module> <parameter name>"
 				if(p_args > 0 && arguments.at(0) == "help"){ pmod_help(); }
 				else if(p_args >= 2){
+					if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
 					int mod = atoi(arguments.at(0).c_str());
 				
 					ParameterModuleReader reader;
@@ -1108,7 +1133,7 @@ void Poll::CommandControl(){
 				}
 				else{
 					std::cout << sys_message_head << "Invalid number of parameters to pmread\n";
-					std::cout << sys_message_head << " -SYNTAX- pread [module] [parameter]\n";
+					std::cout << sys_message_head << " -SYNTAX- pread <module> <parameter>\n";
 				}
 			}
 		}
@@ -1119,6 +1144,7 @@ void Poll::CommandControl(){
 			}
 
 			if(p_args >= 1){
+				if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
 				int mod = atoi(arguments.at(0).c_str());
 				
 				OffsetAdjuster adjuster;
@@ -1126,7 +1152,7 @@ void Poll::CommandControl(){
 			}
 			else{
 				std::cout << sys_message_head << "Invalid number of parameters to adjust_offsets\n";
-				std::cout << sys_message_head << " -SYNTAX- adjust_offsets [module]\n";
+				std::cout << sys_message_head << " -SYNTAX- adjust_offsets <module>\n";
 			}
 		}
 		else if(cmd == "find_tau"){ // Run find_tau
@@ -1134,8 +1160,10 @@ void Poll::CommandControl(){
 				std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n"; 
 				continue;
 			}
-		
+
 			if(p_args >= 2){
+				if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
+				else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
 				int mod = atoi(arguments.at(0).c_str());
 				int ch = atoi(arguments.at(1).c_str());
 
@@ -1144,7 +1172,7 @@ void Poll::CommandControl(){
 			}
 			else{
 				std::cout << sys_message_head << "Invalid number of parameters to find_tau\n";
-				std::cout << sys_message_head << " -SYNTAX- find_tau [module] [channel]\n";
+				std::cout << sys_message_head << " -SYNTAX- find_tau <module> <channel>\n";
 			}
 		}
 		else if(cmd == "toggle"){ // Toggle a CHANNEL_CSRA bit
@@ -1156,6 +1184,8 @@ void Poll::CommandControl(){
 			BitFlipper flipper;
 
 			if(p_args >= 3){ 
+				if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
+				else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
 				flipper.SetCSRAbit(arguments.at(2));
 				
 				std::string dum_str = "CHANNEL_CSRA";
@@ -1165,7 +1195,7 @@ void Poll::CommandControl(){
 			}
 			else{
 				std::cout << sys_message_head << "Invalid number of parameters to toggle\n";
-				std::cout << sys_message_head << " -SYNTAX- toggle [module] [channel] [CSRA bit]\n\n";
+				std::cout << sys_message_head << " -SYNTAX- toggle <module> <channel> <CSRA bit>\n";
 				flipper.Help();				
 			}
 		}
@@ -1178,6 +1208,9 @@ void Poll::CommandControl(){
 			BitFlipper flipper;
 
 			if(p_args >= 4){ 
+				if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
+				else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
+				else if(!IsNumeric(arguments.at(3), sys_message_head, "Invalid bit number specification")) continue;
 				flipper.SetBit(arguments.at(3));
 
 				if(forChannel(pif, atoi(arguments.at(0).c_str()), atoi(arguments.at(1).c_str()), flipper, arguments.at(2))){
@@ -1186,23 +1219,30 @@ void Poll::CommandControl(){
 			}
 			else{
 				std::cout << sys_message_head << "Invalid number of parameters to toggle_any\n";
-				std::cout << sys_message_head << " -SYNTAX- toggle_any [module] [channel] [parameter] [bit]\n\n";
+				std::cout << sys_message_head << " -SYNTAX- toggle_any <module> <channel> <parameter> <bit>\n";
 			}
 		}
 		else if(cmd == "csr_test"){ // Run CSRAtest method
 			BitFlipper flipper;
-			if(p_args >= 1){ flipper.CSRAtest((unsigned int)atoi(arguments.at(0).c_str())); }
+			if(p_args >= 1){ 
+				if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid CSRA value specification")) continue;
+				flipper.CSRAtest((unsigned int)atoi(arguments.at(0).c_str())); 
+			}
 			else{
 				std::cout << sys_message_head << "Invalid number of parameters to csr_test\n";
-				std::cout << sys_message_head << " -SYNTAX- csr_test [number]\n";
+				std::cout << sys_message_head << " -SYNTAX- csr_test <number>\n";
 			}
 		}
 		else if(cmd == "bit_test"){ // Run Test method
 			BitFlipper flipper;
-			if(p_args >= 2){ flipper.Test((unsigned int)atoi(arguments.at(0).c_str()), std::strtoul(arguments.at(1).c_str(), NULL, 0)); }
+			if(p_args >= 2){ 
+				if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid number of bits specified")) continue;
+				else if(!IsNumeric(arguments.at(2), sys_message_head, "Invalid parameter value specification")) continue;
+				flipper.Test((unsigned int)atoi(arguments.at(0).c_str()), std::strtoul(arguments.at(1).c_str(), NULL, 0)); 
+			}
 			else{
 				std::cout << sys_message_head << "Invalid number of parameters to bit_test\n";
-				std::cout << sys_message_head << " -SYNTAX- bit_test [num_bits] [number]\n";
+				std::cout << sys_message_head << " -SYNTAX- bit_test <num_bits> <number>\n";
 			}
 		}
 		else if(cmd == "get_traces"){ // Run GetTraces method
@@ -1212,6 +1252,8 @@ void Poll::CommandControl(){
 			}
 
 			if(p_args >= 2){
+				if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
+				else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
 				int mod = atoi(arguments.at(0).c_str());
 				int chan = atoi(arguments.at(1).c_str());
 				
@@ -1230,10 +1272,13 @@ void Poll::CommandControl(){
 
 				int trace_threshold = 0;
 				if(p_args >= 3){
-					trace_threshold = atoi(arguments.at(2).c_str());
-					if(trace_threshold < 0){
-						std::cout << sys_message_head << "Cannot set negative threshold!\n";
-						trace_threshold = 0;
+					if(!IsNumeric(arguments.at(2), sys_message_head, "Invalid threshold specified")) continue;
+					else{
+						trace_threshold = atoi(arguments.at(2).c_str());
+						if(trace_threshold < 0){
+							std::cout << sys_message_head << "Cannot set negative threshold!\n";
+							trace_threshold = 0;
+						}
 					}
 				}
 				
@@ -1241,7 +1286,7 @@ void Poll::CommandControl(){
 			}
 			else{
 				std::cout << sys_message_head << "Invalid number of parameters to get_traces\n";
-				std::cout << sys_message_head << " -SYNTAX- get_traces [mod] [chan] <threshold> <correct-baselines>\n";
+				std::cout << sys_message_head << " -SYNTAX- get_traces <mod> <chan> [threshold]\n";
 			}
 		}
 		else if(cmd == "quiet"){ // Toggle quiet mode
