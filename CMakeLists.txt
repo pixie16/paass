@@ -4,20 +4,21 @@ project(PixieSuite)
 
 #Compile with c++11 or c++0x depending on the compiler version
 if (CMAKE_COMPILER_IS_GNUCXX)
-	if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "4.3")
-		if(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "4.7")
+	if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "4.3" AND
+            ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "4.7")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-        endif(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "4.7")
-    else(${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "4.6")
+    elseif(${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "4.6")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    endif(${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "4.3")
+    else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    endif(${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "4.3" AND
+            ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "4.7")
 
     #Make compiler messages nice with colored tags.
 	if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "4.9")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color=auto")
 	endif()
 
-    #Set Wall and pedantic compiler flags
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -fPIC")
 endif()
 
@@ -51,7 +52,7 @@ option(USE_DAMM "Use DAMM for MCA" ON)
 option(USE_GAMMA_GATES "Gamma-Gamma gates in GeProcessor" OFF)
 option(USE_GSL "Use GSL for Pulse Fitting" ON)
 option(USE_NCURSES "Use ncurses for terminal" ON)
-option(USE_ONLINE "Options for Online Scans" OFF)
+option(USE_OFFLINE "options for online Scans" OFF)
 option(USE_POLL "Install Poll" ON)
 option(USE_ROOT "Use ROOT" ON)
 option(USE_SETUP "Include the older setup programs in installation" OFF)
