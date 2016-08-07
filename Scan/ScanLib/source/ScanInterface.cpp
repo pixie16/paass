@@ -20,11 +20,11 @@
 #include <unistd.h>
 #include <getopt.h>
 
-#include "Unpacker.hpp"
+#include "../include/Unpacker.hpp"
 #include "poll2_socket.h"
 #include "CTerminal.h"
 
-#include "ScanInterface.hpp"
+#include "../include/ScanInterface.hpp"
 
 #if not defined(PROG_NAME)
 #define PROG_NAME "ScanInterface"
@@ -153,7 +153,7 @@ void ScanInterface::help(char *name_){
 	SyntaxStr(name_);
 	std::cout << "  Available options:\n"
                   << "   --batch (-b) - Run in batch mode (i.e. with no command line)\n"
-                  << "   --scancfg (-c) [path to scancfg]  - Specify configuration file to use for scan\n"
+                  << "   --scan (-c) [path to scan]  - Specify configuration file to use for scan\n"
                   << "   --counts       - Write all recorded channel counts to a file\n"
                   << "   --debug        - Enable readout debug mode\n"
                   << "   --dry-run (-d) - Extract spills from file, but do no processing\n"
@@ -802,7 +802,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 
         struct option longOpts[] = {
             { "batch", no_argument, NULL, 'b' },
-            { "scancfg", required_argument, NULL, 'c' },
+            { "scan", required_argument, NULL, 'c' },
             { "counts", no_argument, NULL, 0 },
             { "debug", no_argument, NULL, 0},
             { "dry-run", no_argument, NULL, 'd' },
