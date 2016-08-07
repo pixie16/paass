@@ -19,8 +19,8 @@
 #include <algorithm>
 #include <limits>
 
-#include "../../include/Unpacker.hpp"
-#include "XiaData.hpp"
+#include "../include/Unpacker.hpp"
+#include "../include/XiaData.hpp"
 
 void clearDeque(std::deque<XiaData*> &list){
 	while(!list.empty()){
