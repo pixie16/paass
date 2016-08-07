@@ -8,8 +8,8 @@
 #include <string>
 
 // PixieCore libraries
-#include "Unpacker.hpp"
-#include "ScanInterface.hpp"
+#include "../../ScanLib/include/Unpacker.hpp"
+#include "../../ScanLib/include/ScanInterface.hpp"
 
 class ChannelEvent;
 class TApplication;

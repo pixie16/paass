@@ -1,6 +1,6 @@
 #include <cmath>
 
-#include "XiaData.hpp"
+#include "../include/XiaData.hpp"
 
 /////////////////////////////////////////////////////////////////////
 // XiaData
