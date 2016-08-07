@@ -2,10 +2,10 @@
 #include <algorithm> 
 
 // PixieCore libraries
-#include "XiaData.hpp"
+#include "../../ScanLib/include/XiaData.hpp"
 
 // Local files
-#include "scope.hpp"
+#include "../include/scope.hpp"
 
 // Root files
 #include "TApplication.h"
