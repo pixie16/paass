@@ -9,14 +9,14 @@
 #
 #Last updated by K. Smith (ksmit218@utk.edu) on Apr 10, 2014
 
-#Find the root-scancfg executable
+#Find the root-config executable
 set(ROOTSYS $ENV{ROOTSYS} CACHE Path "ROOT directory.")
 find_program(ROOT_CONFIG_EXECUTABLE root-config
   PATHS ${ROOTSYS}/bin)
 find_program(ROOTCINT_EXECUTABLE rootcint PATHS $ENV{ROOTSYS}/bin)
 find_program(GENREFLEX_EXECUTABLE genreflex PATHS $ENV{ROOTSYS}/bin)
 
-#If we found root-scancfg then get all relevent varaiables
+#If we found root-config then get all relevent varaiables
 if(ROOT_CONFIG_EXECUTABLE)
   execute_process(
     COMMAND ${ROOT_CONFIG_EXECUTABLE} --prefix 

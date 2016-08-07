@@ -1,6 +1,5 @@
 #Build files
 *.o
-utkscan
 build/
 
 #Backup files 
