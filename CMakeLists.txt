@@ -144,9 +144,9 @@ if (USE_POLL)
 
     #Create pixie.cfg and copy slot_def.set as well as default.set to current.set
     PXI_CONFIG()
-    #Use the cmake script created by PXI_CONFIG to install the files it created when make scancfg is typed
+    #Use the cmake script created by PXI_CONFIG to install the files it
+    #created when make cfg is typed
     add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)
-
 endif()
 
 #Find ROOT if USE_ROOT was set.
@@ -161,7 +161,7 @@ if (USE_ROOT)
 endif()
 
 #------------------------------------------------------------------------------
-#Build the core library
+#Build the Core library
 include_directories(Core/include)
 add_subdirectory(Core)
 
@@ -189,5 +189,5 @@ if (USE_POLL)
 	add_subdirectory(Poll)
 endif()
 
-#Build the share objects
+#Build/install the miscellaneous stuff
 add_subdirectory(share)

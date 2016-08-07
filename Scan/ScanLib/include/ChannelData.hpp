@@ -8,7 +8,7 @@
 
 #include <cstdlib>
 
-#include <XiaData.hpp>
+#include "XiaData.hpp"
 
 class ChannelData{
 public:    

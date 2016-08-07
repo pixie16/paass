@@ -2,10 +2,10 @@
 
 #include <getopt.h>
 
-#include "XiaData.hpp"
+#include "../../ScanLib/include/XiaData.hpp"
 
 // Local files
-#include "Skeleton.hpp"
+#include "../../utkscan/include/Skeleton.hpp"
 
 // Define the name of the program.
 #if not defined(PROG_NAME)
