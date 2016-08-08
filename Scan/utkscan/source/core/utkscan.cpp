@@ -1,8 +1,8 @@
 #include <iostream>
 
 // Local files
-#include "../../include/UtkScanInterface.hpp"
-#include "../../include/UtkUnpacker.hpp"
+#include "UtkScanInterface.hpp"
+#include "UtkUnpacker.hpp"
 
 // Define the name of the program.
 #ifndef PROGRAM_NAME

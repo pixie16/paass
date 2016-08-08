@@ -5,7 +5,7 @@
 #define __CHANEVENT_HPP
 #include <vector>
 
-#include "../../ScanLib/include/XiaData.hpp"
+#include "XiaData.hpp"
 
 #include "DetectorLibrary.hpp"
 #include "pixie16app_defs.h"
