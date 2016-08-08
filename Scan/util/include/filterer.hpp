@@ -5,7 +5,7 @@
 #include <vector>
 #include <cmath>
 
-#include "../../ScanLib/include/Unpacker.hpp"
+#include "Unpacker.hpp"
 
 class ChannelEvent;
 class TApplication;

@@ -3,9 +3,8 @@
 
 #include <string>
 
-// PixieCore libraries
-#include "../../ScanLib/include/Unpacker.hpp"
-#include "../../ScanLib/include/ScanInterface.hpp"
+#include "Unpacker.hpp"
+#include "ScanInterface.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
 // class skeletonUnpacker

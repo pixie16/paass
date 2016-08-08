@@ -6,8 +6,7 @@ if(USE_ROOT AND BUILD_SCOPE)
 endif(USE_ROOT AND BUILD_SCOPE)
 
 if(BUILD_SKELETON)
-# Build the scanner skeleton source.
-add_executable(skeleton Skeleton.cpp)
-target_link_libraries(skeleton ScanStatic)
-install (TARGETS skeleton DESTINATION bin)
+    add_executable(skeleton Skeleton.cpp)
+    target_link_libraries(skeleton ScanStatic)
+    install (TARGETS skeleton DESTINATION bin)
 endif(BUILD_SKELETON)

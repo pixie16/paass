@@ -20,13 +20,13 @@
 #include <unistd.h>
 #include <getopt.h>
 
-#include "../include/Unpacker.hpp"
+#include "Unpacker.hpp"
 #include "poll2_socket.h"
 #include "CTerminal.h"
 
-#include "../include/ScanInterface.hpp"
+#include "ScanInterface.hpp"
 
-#if not defined(PROG_NAME)
+#ifndef PROG_NAME
 #define PROG_NAME "ScanInterface"
 #endif
 
