@@ -1,3 +1,2 @@
-include_directories(include)
-include_directories(../ScanLib/include)
+include_directories(include ../ScanLib/include)
 add_subdirectory(source)
