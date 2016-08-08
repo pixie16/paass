@@ -1,14 +1,15 @@
 #include <iostream>
 
 #include <getopt.h>
+#include <stdlib.h>
 
-#include "../../ScanLib/include/XiaData.hpp"
+#include "XiaData.hpp"
 
 // Local files
-#include "../../utkscan/include/Skeleton.hpp"
+#include "Skeleton.hpp"
 
 // Define the name of the program.
-#if not defined(PROG_NAME)
+#ifndef PROG_NAME
 #define PROG_NAME "Spooky"
 #endif
 
@@ -85,7 +86,7 @@ bool skeletonScanner::ExtraCommands(const std::string &cmd_, std::vector<std::st
  * parameters. 
  * \param[in] argc : The number of command line arguments
  * \param[in] argv[] : The arrary containing all command line arguments */
-void skeletonScanner::ExtraArguments(int argc, char *argv[]){
+void skeletonScanner::ExtraArguments(int argc, char *argv[]) {
     struct option opts[] = {
         { "xtra", no_argument, NULL, 'x'},
         { "kick", required_argument, NULL, 'k'},
