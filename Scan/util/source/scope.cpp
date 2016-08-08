@@ -2,10 +2,10 @@
 #include <algorithm> 
 
 // PixieCore libraries
-#include "../../ScanLib/include/XiaData.hpp"
+#include "XiaData.hpp"
 
 // Local files
-#include "../include/scope.hpp"
+#include "scope.hpp"
 
 // Root files
 #include "TApplication.h"
@@ -22,7 +22,7 @@
 #include "TPaveStats.h"
 
 // Define the name of the program.
-#if not defined(PROG_NAME)
+#ifndef PROG_NAME
 #define PROG_NAME "Scope"
 #endif
 

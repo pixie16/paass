@@ -12,8 +12,8 @@
 #include "DetectorDriver.hpp"
 #include "Places.hpp"
 #include "TreeCorrelator.hpp"
-#include "../../include/UtkScanInterface.hpp"
-#include "../../include/UtkUnpacker.hpp"
+#include "UtkScanInterface.hpp"
+#include "UtkUnpacker.hpp"
 
 using namespace std;
 
