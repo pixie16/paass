@@ -20,9 +20,9 @@ public:
     ///\return the amplitude from the GSL fit
     virtual double GetAmplitude(void) {return amp_;}
     ///\return the chi^2 from the GSL fit
-    virtual double GetChiSq(void) {return chisq_;}
+    virtual double GetChiSq(void) {return chi_*chi_;}
     ///\return the chi^2dof from the GSL fit
-    virtual double GetChiSqPerDof(void) {return chisq_/dof_;}
+    virtual double GetChiSqPerDof(void) {return GetChiSq()/dof_;}
     ///The main driver for the fitting
     /// \param[in] data The data that we would like to try and fit
     /// \param[in] pars The parameters for the fit
@@ -35,7 +35,7 @@ private:
     bool isFastSipm_;
 
     double amp_;
-    double chisq_;
+    double chi_;
     double dof_;
     double phase_;
 };
