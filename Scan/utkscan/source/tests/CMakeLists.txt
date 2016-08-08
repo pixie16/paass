@@ -1,11 +1,11 @@
 #Build the program to test the GslFitter classes and its derived classes
 if(USE_GSL)
     include_directories(../include)
-    if(GSL_VERSION VERSION_GREATER 1.9)
+    if(${GSL_VERSION} GREATER 1.9)
         set(GSL_FITTER_SOURCES ../analyzers/Gsl2Fitter.cpp)
-    else(GSL_VERSION VERSION_LESS 2.0)
+    else(${GSL_VERSION} LESS 2.0)
         set(GSL_FITTER_SOURCES ../analyzers/Gsl1Fitter.cpp)
-    endif(GSL_VERSION VERSION_GREATER 1.9)
+    endif(${GSL_VERSION} GREATER 1.9)
 
     set(GSL_FITTER_SOURCES ${GSL_FITTER_SOURCES} test_gslfitter.cpp)
 

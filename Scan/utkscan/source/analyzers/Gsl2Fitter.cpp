@@ -42,7 +42,6 @@ void GslFitter::PerformFit(const std::vector<double> &data,
                             const std::pair<double, double> &pars,
                             const double &weight/* = 1.*/,
                             const double &area/* = 1.*/) {
-    phase_ = chisq_ = amp_ = 1.0;
     gsl_multifit_function_fdf f;
     int info;
     const size_t n = data.size();
@@ -95,7 +94,7 @@ void GslFitter::PerformFit(const std::vector<double> &data,
     gsl_multifit_covar (jac, 0.0, covar);
 
     gsl_vector *res_f = gsl_multifit_fdfsolver_residual(s);
-    chisq_ = gsl_blas_dnrm2(res_f);
+    chi_ = gsl_blas_dnrm2(res_f);
 
     if(!isFastSipm_) {
         phase_ = gsl_vector_get(s->x,0);
