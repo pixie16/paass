@@ -54,7 +54,6 @@ option(BUILD_SCOPE "Build and install the scope program" ON)
 option(BUILD_UTKSCAN "Install utkscan" ON)
 option(USE_DAMM "Use DAMM for MCA" ON)
 option(USE_GAMMA_GATES "Gamma-Gamma gates in GeProcessor" OFF)
-option(USE_GSL "Use GSL for Pulse Fitting" ON)
 option(USE_NCURSES "Use ncurses for terminal" ON)
 option(USE_ONLINE "Options for online scans" OFF)
 option(USE_POLL "Install Poll" ON)
@@ -121,15 +120,6 @@ else()
 	message(STATUS "Curses unavailable, basic terminal will be used.")
 	set(USE_NCURSES OFF)
 endif()
-
-#Check if GSL is installed
-if(USE_GSL)
-    find_package(GSL REQUIRED)
-    if(${GSL_VERSION} LESS 1.14)
-        message(FATAL_ERROR "GSL 1.14 or higher required. Found GSL ${GSL_VERSION}")
-    endif(${GSL_VERSION} LESS 1.14)
-    add_definitions("-D usegsl")
-endif(USE_GSL)
 
 if (USE_POLL)
     #Find the PLX Library
