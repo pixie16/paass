@@ -262,13 +262,10 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecAnalyzer.push_back(new CfdAnalyzer());
         } else if (name == "WaaAnalyzer") {
             vecAnalyzer.push_back(new WaaAnalyzer());
-        }
-#ifdef usegsl
-        else if (name == "FittingAnalyzer") {
-            vecAnalyzer.push_back(new FittingAnalyzer());
-        }
-#endif
-        else {
+        } else if (name == "FittingAnalyzer") {
+            string type = analyzer.attribute("type").as_string();
+            vecAnalyzer.push_back(new FittingAnalyzer(type));
+        } else {
             stringstream ss;
             ss << "DetectorDriver: unknown analyzer type" << name;
             throw GeneralException(ss.str());

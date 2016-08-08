@@ -26,3 +26,9 @@ endif(USE_ROOT)
 
 #Install utkscan to the bin directory
 install(TARGETS utkscan DESTINATION bin)
+
+#Build optional unit tests for the software
+option(BUILD_UTKSCAN_TESTS "Build unit tests for utkscan" ON)
+if(BUILD_UTKSCAN_TESTS)
+    add_subdirectory(tests)
+endif(BUILD_UTKSCAN_TESTS)
