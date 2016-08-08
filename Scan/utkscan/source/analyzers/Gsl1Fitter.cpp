@@ -59,14 +59,8 @@ void GslFitter::PerformFit(const std::vector<double> &data,
                             const std::pair<double, double> &pars,
                             const double &weight/* = 1.*/,
                             const double &area/* = 1.*/) {
-    const gsl_multifit_fdfsolver_type *T = gsl_multifit_fdfsolver_lmsder;
-    gsl_multifit_fdfsolver *s;
-    gsl_matrix *covar;
     gsl_multifit_function_fdf f;
-    gsl_vector_view x;
-
     int status;
-    double phase, fitAmp;
     const size_t sizeFit = data.size();
     size_t numParams;
     double xInit[3];
@@ -77,40 +71,33 @@ void GslFitter::PerformFit(const std::vector<double> &data,
         sigma[i] = weight;
     }
 
-    struct FitDriver::FitData data =
-            {sizeFit, y, sigma, pars.first, pars.second, qdc};
+    struct FitDriver::FitData fitData =
+            {sizeFit, y, sigma, pars.first, pars.second, area};
 
     f.n = sizeFit;
-    f.params = &data;
+    f.params = &fitData;
 
-    if(!isDblBetaT) {
+    if(!isFastSipm_) {
         numParams = 2;
-        covar = gsl_matrix_alloc (numParams, numParams);
         xInit[0] = 0.0;
         xInit[1] = 2.5;
-
-        x = gsl_vector_view_array (xInit, numParams);
-
         f.f = &PmtFunction;
         f.df = &CalcPmtJacobian;
         f.fdf = &PmtFunctionDerivative;
-        f.p = numParams;
-
-        s = gsl_multifit_fdfsolver_alloc (T, sizeFit, numParams);
     } else {
         numParams = 1;
-        covar = gsl_matrix_alloc (numParams, numParams);
-        xInit[0] = (double)waveform.size()*0.5;
-        x = gsl_vector_view_array (xInit, numParams);
-
+        xInit[0] = (double)data.size()*0.5;
         f.f = &SiPmtFunction;
         f.df = &CalcSiPmtJacobian;
         f.fdf = &SiPmtFunctionDerivative;
-        f.p = numParams;
-
-        s = gsl_multifit_fdfsolver_alloc (T, sizeFit, numParams);
     }
+    dof_ = sizeFit - numParams;
 
+    const gsl_multifit_fdfsolver_type *T = gsl_multifit_fdfsolver_lmsder;
+    gsl_vector_view x = gsl_vector_view_array (xInit, numParams);
+    gsl_multifit_fdfsolver *s = gsl_multifit_fdfsolver_alloc (T, sizeFit, numParams);
+    gsl_matrix *covar = gsl_matrix_alloc (numParams, numParams);
+    f.p = numParams;
     gsl_multifit_fdfsolver_set (s, &f, &x.vector);
 
     for(unsigned int iter = 0; iter < 1e8; iter++) {
@@ -123,8 +110,9 @@ void GslFitter::PerformFit(const std::vector<double> &data,
     }
 
     gsl_multifit_covar (s->J, 0.0, covar);
+    chi_ = gsl_blas_dnrm2(s->f);
 
-    if(!isDblBetaT) {
+    if(!isFastSipm_) {
         phase = gsl_vector_get(s->x,0);
         fitAmp = gsl_vector_get(s->x,1);
     } else {
