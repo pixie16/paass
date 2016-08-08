@@ -10,14 +10,18 @@
 #ifndef __FITTINGANALYZER_HPP_
 #define __FITTINGANALYZER_HPP_
 
+#include <string>
+
+#include "FitDriver.hpp"
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 
 //! Analyzer that handles the fitting of traces for High Resolution Timing
 class FittingAnalyzer : public TraceAnalyzer {
 public:
-    /** Default Constructor */
-    FittingAnalyzer();
+    ///Default Constructor
+    FittingAnalyzer(const std::string &s);
+
     /** Default Destructor */
     ~FittingAnalyzer() {};
     /** Declare plots for the analyzer */
@@ -30,14 +34,8 @@ public:
     virtual void Analyze(Trace &trace, const std::string &detType,
                          const std::string &detSubtype,
                          const std::map<std::string, int> & tagMap);
-    //! Structure necessary for the GSL fitting routines
-    struct FitData {
-        size_t n;//!< size of the fitting parameters
-        double *y;//!< ydata to fit
-        double beta; //!< the beta parameter for the fit
-        double gamma; //!< the gamma parameter for the fit
-        double qdc;//!< the QDC for the fit
-    };
+private:
+    FitDriver::FITTER_TYPE fitterType_;
 };
 #endif // __FITTINGANALYZER_HPP_
 // David is awesome.
