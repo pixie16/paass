@@ -1,3 +1,10 @@
-install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_PREFIX})
+#We will always build this since it includes a static lib for the rest
+add_subdirectory(ScanLib)
 
-add_subdirectory(source)
+if(BUILD_SCOPE OR BUILD_SKELETON)
+    add_subdirectory(util)
+endif(BUILD_SCOPE OR BUILD_SKELETON)
+
+if(BUILD_UTKSCAN)
+    add_subdirectory(utkscan)
+endif(BUILD_UTKSCAN)

@@ -105,7 +105,7 @@ bool LitePositionProcessor::Init(RawEvent& event) {
 	int location;
 	in >> location;
 	if (in.eof()) {
-	    // place this here so a trailing newline is okay in the scancfg file
+	    // place this here so a trailing newline is okay in the scan file
 	    break;
 	}
 	in >> minNormQdc[location] >> maxNormQdc[location];
