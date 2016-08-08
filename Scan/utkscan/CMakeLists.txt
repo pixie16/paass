@@ -9,6 +9,5 @@ if(USE_GSL)
     add_definitions("-D usegsl")
 endif(USE_GSL)
 
-include_directories(include)
-include_directories(../ScanLib/include)
+include_directories(include ../ScanLib/include)
 add_subdirectory(source)
