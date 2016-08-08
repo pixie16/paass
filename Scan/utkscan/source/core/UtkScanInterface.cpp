@@ -3,8 +3,8 @@
 #include <getopt.h>
 
 #include "DetectorDriver.hpp"
-#include "../../include/UtkScanInterface.hpp"
-#include "../../include/UtkUnpacker.hpp"
+#include "UtkScanInterface.hpp"
+#include "UtkUnpacker.hpp"
 
 // Define a pointer to an OutputHisFile for later use.
 OutputHisFile *output_his = NULL;
