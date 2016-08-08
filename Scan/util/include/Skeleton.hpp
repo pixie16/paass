@@ -3,7 +3,6 @@
 
 #include <string>
 
-// PixieCore libraries
 #include "Unpacker.hpp"
 #include "ScanInterface.hpp"
 

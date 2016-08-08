@@ -19,7 +19,7 @@
 #include <algorithm>
 #include <limits>
 
-#include "../../include/Unpacker.hpp"
+#include "Unpacker.hpp"
 #include "XiaData.hpp"
 
 void clearDeque(std::deque<XiaData*> &list){
@@ -133,7 +133,7 @@ bool Unpacker::AddEvent(XiaData *event_){
 	
 	// Check for the need to add a new deque to the event list.
 	if(event_->modNum+1 > (unsigned int)eventList.size()){
-		for(unsigned int i = 0; i < (event_->modNum+1 - (unsigned int)eventList.size()); i++){
+		while (eventList.size() < event_->modNum + 1) {
 			eventList.push_back(std::deque<XiaData*>());
 		}
 	}

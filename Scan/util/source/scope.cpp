@@ -22,7 +22,7 @@
 #include "TPaveStats.h"
 
 // Define the name of the program.
-#if not defined(PROG_NAME)
+#ifndef PROG_NAME
 #define PROG_NAME "Scope"
 #endif
 
