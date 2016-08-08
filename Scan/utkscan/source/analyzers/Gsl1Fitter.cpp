@@ -113,11 +113,11 @@ void GslFitter::PerformFit(const std::vector<double> &data,
     chi_ = gsl_blas_dnrm2(s->f);
 
     if(!isFastSipm_) {
-        phase = gsl_vector_get(s->x,0);
-        fitAmp = gsl_vector_get(s->x,1);
+        phase_ = gsl_vector_get(s->x,0);
+        amp_ = gsl_vector_get(s->x,1);
     } else {
-        phase = gsl_vector_get(s->x,0);
-        fitAmp = 0.0;
+        phase_ = gsl_vector_get(s->x,0);
+        amp_ = 0.0;
     }
 
     gsl_multifit_fdfsolver_free (s);
