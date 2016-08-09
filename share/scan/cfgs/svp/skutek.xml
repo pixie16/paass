@@ -22,7 +22,7 @@
     <DetectorDriver>
       <Analyzer name="TraceExtractor" type="pulser" subtype="start"/>
       <Analyzer name="WaveformAnalyzer"/>
-      <Analyzer name="FittingAnalyzer"/>
+      <Analyzer name="FittingAnalyzer" type="gsl"/>
       <Processor name="PulserProcessor" />
     </DetectorDriver>
 
