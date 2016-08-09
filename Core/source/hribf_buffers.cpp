@@ -14,9 +14,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date Aug. 4th, 2016
+  * \date Aug. 9th, 2016
   * 
-  * \version 1.2.12
+  * \version 1.2.15
 */
 
 #include <sstream>
@@ -28,10 +28,6 @@
 
 #include "hribf_buffers.h"
 #include "poll2_socket.h"
-
-#define SMALLEST_CHUNK_SIZE 20 /// Smallest possible size of a chunk in words
-#define NO_HEADER_SIZE 8192 /// Size of .ldf buffer with no header
-#define OPTIMAL_CHUNK_SIZE 8187 /// = ACTUAL_BUFF_SIZE - 2 (header size) - 2 (end of buffer) - 3 (spill chunk header)
 
 #define HEAD 1145128264 /// Run begin buffer
 #define DATA 1096040772 /// Physics data buffer
@@ -315,7 +311,7 @@ bool PLD_data::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, uns
 }
 
 /// Default constructor.
-DIR_buffer::DIR_buffer() : BufferType(DIR, NO_HEADER_SIZE){ // 0x20524944 "DIR "
+DIR_buffer::DIR_buffer() : BufferType(DIR, ACTUAL_BUFF_SIZE-2){ // 0x20524944 "DIR "
 }
 	
 /** DIR buffer (1 word buffer type, 1 word buffer size, 1 word for total buffer length,
@@ -336,7 +332,7 @@ bool DIR_buffer::Write(std::ofstream *file_){
 	file_->write((char*)&unknown[2], 4);
 	
 	// Fill the rest of the buffer with 0
-	for(unsigned int i = 0; i < NO_HEADER_SIZE-6; i++){
+	for(unsigned int i = 0; i < ACTUAL_BUFF_SIZE-8; i++){
 		file_->write((char*)&zero, 4);
 	}
 	
@@ -582,7 +578,7 @@ bool DATA_buffer::read_next_buffer(std::ifstream *f_, bool force_/*=false*/){
 }
 
 /// Default constructor.
-DATA_buffer::DATA_buffer() : BufferType(DATA, NO_HEADER_SIZE){ // 0x41544144 "DATA"
+DATA_buffer::DATA_buffer() : BufferType(DATA, ACTUAL_BUFF_SIZE-2){ // 0x41544144 "DATA"
 	bcount = 0;
 	good_chunks = 0;
 	missing_chunks = 0;
@@ -615,11 +611,8 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 	buffs_written = 0;
 
 	// If this is a new buffer, write a buffer header.
-	if(buff_pos == 0){
-		file_->write((char*)&bufftype, 4);
-		file_->write((char*)&buffsize, 4);
-		buff_pos = 2;
-	}
+	if(buff_pos == 0)
+		open_(file_);
 
 	unsigned int spillpos = 0;
 	unsigned int chunkPayload;
@@ -633,8 +626,11 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 
 	// Calculate the total number of spill chunks.
 	while(spillpos < nWords_){
-		if(nWords_ - spillpos > 8190 - oldBuffPos)
-			chunkPayload = 8190 - oldBuffPos;
+		if(oldBuffPos + 4 > ACTUAL_BUFF_SIZE)
+			oldBuffPos = 2;
+			
+		if(nWords_ - spillpos + 4 > ACTUAL_BUFF_SIZE - oldBuffPos)
+			chunkPayload = ACTUAL_BUFF_SIZE - oldBuffPos - 4;
 		else
 			chunkPayload = nWords_ - spillpos;
 		
@@ -643,7 +639,7 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 		
 		totalNumChunks++;
 		
-		if(oldBuffPos >= 8194)
+		if(oldBuffPos >= ACTUAL_BUFF_SIZE)
 			oldBuffPos = 2;
 	}
 	
@@ -655,8 +651,14 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 	
 	// Write the spill.
 	while(spillpos < nWords_){
-		if(nWords_ - spillpos > 8190 - buff_pos)
-			chunkPayload = 8190 - buff_pos;
+		if(buff_pos + 4 > ACTUAL_BUFF_SIZE){
+			buffs_written++;
+			Close(file_);
+			open_(file_);
+		}
+		
+		if(nWords_ - spillpos + 4 > ACTUAL_BUFF_SIZE - buff_pos)
+			chunkPayload = ACTUAL_BUFF_SIZE - buff_pos - 4;
 		else
 			chunkPayload = nWords_ - spillpos;
 		
@@ -677,15 +679,22 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 		buff_pos += chunkPayload + 4;
 		arrptr += 4*chunkPayload;
 		
-		if(buff_pos >= 8194){
+		if(buff_pos > ACTUAL_BUFF_SIZE)
+			std::cout << "WARNING: Current ldf buffer overfilled by " << buff_pos - ACTUAL_BUFF_SIZE << " words!\n";
+		
+		if(buff_pos >= ACTUAL_BUFF_SIZE){
 			buffs_written++;
 			open_(file_);
 		}
 	}
 
+	if(buff_pos > ACTUAL_BUFF_SIZE)
+		std::cout << "WARNING: Final ldf buffer overfilled by " << buff_pos - ACTUAL_BUFF_SIZE << " words!\n";
+
 	// Write the spill footer.
-	if(buff_pos + 6 > 8194){
+	if(buff_pos + 6 > ACTUAL_BUFF_SIZE){
 		buffs_written++;
+		Close(file_);
 		open_(file_);
 	}
 	
@@ -848,7 +857,7 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 		else{ // Skip the entire buffer
 			if(debug_mode){ 
 				std::cout << "debug: encountered non DATA type buffer 0x" << std::hex << buff_head << std::dec << "\n";
-				std::cout << "debug: skipping entire remaining " << buff_size << " buffer words!\n";
+				std::cout << "debug: skipping " << ACTUAL_BUFF_SIZE << " words of buffer!\n";
 			}
 			
 			// This is not a data buffer. We need to force a scan of the next buffer.
@@ -875,7 +884,7 @@ void DATA_buffer::Reset(){
 	missing_chunks = 0;
 }
 
-EOF_buffer::EOF_buffer() : BufferType(ENDFILE, NO_HEADER_SIZE){} // 0x20464F45 "EOF "
+EOF_buffer::EOF_buffer() : BufferType(ENDFILE, ACTUAL_BUFF_SIZE-2){} // 0x20464F45 "EOF "
 
 /// Write an end-of-file buffer (1 word buffer type, 1 word buffer size, and 8192 end of file words).
 bool EOF_buffer::Write(std::ofstream *file_){
