@@ -425,7 +425,7 @@ bool Poll::synch_mods(){
 int Poll::write_data(word_t *data, unsigned int nWords){
 	// Open an output file if needed
 	if(!output_file.IsOpen()){
-		std::cout << Display::ErrorStr() << " Recording data, but no file is open! Opening a new file.\n";
+		std::cout << Display::WarningStr("Warning:") << " Recording data, but no file is open! Opening a new file.\n";
 		OpenOutputFile();
 	}
 
