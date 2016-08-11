@@ -611,17 +611,17 @@ void Poll::help(){
 		std::cout << "   mca [root|damm] [time] [filename]     - Use MCA to record data for debugging purposes\n";
 	}
 	std::cout << "   dump [filename]                       - Dump pixie settings to file (default='Fallback.set')\n";
-	std::cout << "   pread [mod] [chan] [param]            - Read parameters from individual PIXIE channels\n";
-	std::cout << "   pmread [mod] [param]                  - Read parameters from PIXIE modules\n";
-	std::cout << "   pwrite [mod] [chan] [param] [val]     - Write parameters to individual PIXIE channels\n";
-	std::cout << "   pmwrite [mod] [param] [val]           - Write parameters to PIXIE modules\n";
-	std::cout << "   adjust_offsets [module]               - Adjusts the baselines of a pixie module\n";
-	std::cout << "   find_tau [module] [channel]           - Finds the decay constant for an active pixie channel\n";
-	std::cout << "   toggle [module] [channel] [bit]       - Toggle any of the 19 CHANNEL_CSRA bits for a pixie channel\n";
-	std::cout << "   toggle_bit [mod] [chan] [param] [bit] - Toggle any bit of any parameter of 32 bits or less\n";
-	std::cout << "   csr_test [number]                     - Output the CSRA parameters for a given integer\n";
-	std::cout << "   bit_test [num_bits] [number]          - Display active bits in a given integer up to 32 bits long\n";
-	std::cout << "   get_traces [mod] [chan] <threshold>   - Get traces for all channels in a specified module\n";
+	std::cout << "   pread <mod> <chan> <param>            - Read parameters from individual PIXIE channels\n";
+	std::cout << "   pmread <mod> <param>                  - Read parameters from PIXIE modules\n";
+	std::cout << "   pwrite <mod> <chan> <param> <val>     - Write parameters to individual PIXIE channels\n";
+	std::cout << "   pmwrite <mod> <param> <val>           - Write parameters to PIXIE modules\n";
+	std::cout << "   adjust_offsets <module>               - Adjusts the baselines of a pixie module\n";
+	std::cout << "   find_tau <module> <channel>           - Finds the decay constant for an active pixie channel\n";
+	std::cout << "   toggle <module> <channel> <bit>       - Toggle any of the 19 CHANNEL_CSRA bits for a pixie channel\n";
+	std::cout << "   toggle_bit <mod> <chan> <param> <bit> - Toggle any bit of any parameter of 32 bits or less\n";
+	std::cout << "   csr_test <number>                     - Output the CSRA parameters for a given integer\n";
+	std::cout << "   bit_test <num_bits> <number>          - Display active bits in a given integer up to 32 bits long\n";
+	std::cout << "   get_traces <mod> <chan> [threshold]   - Get traces for all channels in a specified module\n";
 	std::cout << "   status              - Display system status information\n";
 	std::cout << "   thresh [threshold]  - Modify or display the current polling threshold.\n";
 	std::cout << "   debug               - Toggle debug mode flag (default=false)\n";
