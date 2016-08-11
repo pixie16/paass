@@ -21,8 +21,8 @@
 #include "hribf_buffers.h"
 #include "XiaData.hpp"
 
-#define SCAN_VERSION "1.2.28"
-#define SCAN_DATE "Aug. 3rd, 2016"
+#define SCAN_VERSION "1.2.29"
+#define SCAN_DATE "Aug. 11th, 2016"
 
 class Server;
 class Terminal;
@@ -286,9 +286,6 @@ class ScanInterface{
 	/// Split a string about some delimiter.
 	unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_=' ');
 	
-	/// Get the file extension from an input filename string.
-	std::string get_extension(std::string filename_, std::string &prefix);
-
 	/// Start the scan.
 	void start_scan();
 	
@@ -304,5 +301,8 @@ class ScanInterface{
 	/// Open a new binary input file for reading.
 	bool open_input_file(const std::string &fname_);
 };
+
+/// Get the file extension from an input filename string.
+std::string get_extension(std::string filename_, std::string &prefix);
 
 #endif

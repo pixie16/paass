@@ -1029,7 +1029,7 @@ bool ScanInterface::Close(){
   * \param[out] prefix    The input filename path without the file extension.
   * \return The file extension string.
   */
-std::string ScanInterface::get_extension(std::string filename_, std::string &prefix){
+std::string get_extension(std::string filename_, std::string &prefix){
 	size_t count = 0;
 	size_t last_index = 0;
 	std::string output = "";
