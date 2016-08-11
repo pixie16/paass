@@ -90,6 +90,7 @@ bool BufferType::ReadHeader(std::ifstream *file_){
 
 /// Default constructor.
 PLD_header::PLD_header() : BufferType(HEAD, 0){ // 0x44414548 "HEAD"
+	Reset();
 }
 
 /// Destructor.
@@ -248,6 +249,7 @@ void PLD_header::PrintDelimited(const char &delimiter_/*='\t'*/){
 
 /// Default constructor.
 PLD_data::PLD_data() : BufferType(DATA, 0){ // 0x41544144 "DATA"
+	Reset();
 }
 
 /// Write a pld style data buffer to file.
@@ -312,6 +314,7 @@ bool PLD_data::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, uns
 
 /// Default constructor.
 DIR_buffer::DIR_buffer() : BufferType(DIR, ACTUAL_BUFF_SIZE-2){ // 0x20524944 "DIR "
+	Reset();
 }
 	
 /** DIR buffer (1 word buffer type, 1 word buffer size, 1 word for total buffer length,
@@ -385,6 +388,7 @@ void DIR_buffer::PrintDelimited(const char &delimiter_/*='\t'*/){
 
 /// Default constructor.
 HEAD_buffer::HEAD_buffer() : BufferType(HEAD, 64){ // 0x44414548 "HEAD"
+	Reset();
 }
 
 /// Set the date and time of the ldf file.
@@ -579,10 +583,7 @@ bool DATA_buffer::read_next_buffer(std::ifstream *f_, bool force_/*=false*/){
 
 /// Default constructor.
 DATA_buffer::DATA_buffer() : BufferType(DATA, ACTUAL_BUFF_SIZE-2){ // 0x41544144 "DATA"
-	bcount = 0;
-	good_chunks = 0;
-	missing_chunks = 0;
-	buff_pos = 0;
+	Reset();
 }
 
 /// Close a ldf data buffer by padding with 0xFFFFFFFF.
@@ -884,7 +885,9 @@ void DATA_buffer::Reset(){
 	missing_chunks = 0;
 }
 
-EOF_buffer::EOF_buffer() : BufferType(ENDFILE, ACTUAL_BUFF_SIZE-2){} // 0x20464F45 "EOF "
+EOF_buffer::EOF_buffer() : BufferType(ENDFILE, ACTUAL_BUFF_SIZE-2){ // 0x20464F45 "EOF "
+	Reset();
+}
 
 /// Write an end-of-file buffer (1 word buffer type, 1 word buffer size, and 8192 end of file words).
 bool EOF_buffer::Write(std::ofstream *file_){
@@ -1206,7 +1209,7 @@ bool PollOutputFile::OpenNewFile(std::string title_, unsigned int &run_num_, std
 
 		if(title_.size() > 80){
 			std::cout << "WARNING: Title length " << title_.size() - 80 << " characters too long for ldf format!\n";
-			std::cout << " Setting title to \"" << title.substr(0, 80) << "\".\n";
+			std::cout << " Setting title to \"" << title_.substr(0, 80) << "\".\n";
 		}
 
 		headBuff.SetTitle(title_);
