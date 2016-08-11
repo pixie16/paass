@@ -1204,6 +1204,11 @@ bool PollOutputFile::OpenNewFile(std::string title_, unsigned int &run_num_, std
 		dirBuff.SetRunNumber(run_num_);
 		dirBuff.Write(&output_file); // Every .ldf file gets a DIR header
 
+		if(title_.size() > 80){
+			std::cout << "WARNING: Title length " << title_.size() - 80 << " characters too long for ldf format!\n";
+			std::cout << " Setting title to \"" << title.substr(0, 80) << "\".\n";
+		}
+
 		headBuff.SetTitle(title_);
 		headBuff.SetDateTime();
 		headBuff.SetRunNumber(run_num_);
