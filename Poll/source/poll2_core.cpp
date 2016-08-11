@@ -66,7 +66,7 @@
   */
 bool IsNumeric(const std::string &input_, const std::string &prefix_/*=""*/, const std::string &msg_/*=""*/){
 	for(size_t i = 0; i < input_.size(); i++){
-		if((input_[i] < 0x30 || input_[i] > 0x39) && input_[i] != 0x2E){
+		if((input_[i] < 0x30 || input_[i] > 0x39) && input_[i] != 0x2D && input_[i] != 0x2E){
 			if(!msg_.empty()) std::cout << msg_ << " (" << input_ << ").\n";
 			return false;
 		}
