@@ -10,3 +10,8 @@ if(BUILD_SKELETON)
     target_link_libraries(skeleton ScanStatic)
     install (TARGETS skeleton DESTINATION bin)
 endif(BUILD_SKELETON)
+
+# Install ldfReader executable.
+add_executable(ldfReader ldfReader.cpp)
+target_link_libraries(ldfReader ScanStatic)
+install (TARGETS ldfReader DESTINATION bin)
