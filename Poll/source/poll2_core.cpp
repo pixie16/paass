@@ -688,9 +688,10 @@ void Poll::pmod_help(){
  * If the file was successfully opened the acquisition is started.
  * If a run is already started a warning is displayed and the process is stopped.
  *
+ * \param[in] record_ Record a data file.
  * \return Returns true if successfully starts a run.
  */
-bool Poll::start_run() {
+bool Poll::start_run(const bool &record_/*=true*/) {
 	if(do_MCA_run){
 		std::cout << sys_message_head << "Warning! Cannot run acquisition while MCA program is running\n";
 		return false;
@@ -700,15 +701,18 @@ bool Poll::start_run() {
 		return false;
 	}
 
-	//Close a file if open
-	if(output_file.IsOpen()){ CloseOutputFile();	}
+	if(record_){
+		//Close a file if open
+		if(output_file.IsOpen()){ CloseOutputFile(); }
 
-	//Preapre the output file
-	if (!OpenOutputFile()) return false;
-	record_data = true;
+		//Prepare the output file
+		if (!OpenOutputFile()) return false;
+		record_data = true;
+	}
+	else record_data = false;
 
 	//Start the acquistion
-	start_acq();
+	do_start_acq = true;
 
 	return true;
 }
@@ -724,7 +728,8 @@ bool Poll::stop_run() {
 		return false;
 	}
 
-	stop_acq();
+	// Stop the acquisition.
+	do_stop_acq = true;
 	
 	if (record_data) {
 		std::stringstream output;
@@ -734,42 +739,7 @@ bool Poll::stop_run() {
 	}
 
 	record_data = false;
-	return true;
-}
-
-/**Starts data acquistion. The process then waits until the acquistion is running.
- *	
- *	\return Returns true if successful.
- */
-bool Poll::start_acq() {
-	if(do_MCA_run){ 
-		std::cout << sys_message_head << "Warning! Cannot run acquisition while MCA program is running\n"; 
-		return false;
-	}
-	else if (acq_running) { 
-		std::cout << sys_message_head << "Acquisition is already running\n"; 
-		return false;
-	}
-
-	//Set start acq flag to be intercepted by run control.
-	do_start_acq = true;
-
-	return true;
-}
-
-/**Stops data acquistion. The process waits until the acquistion is stopped.
- * 
- * \return Returns true if succesful.
- */
-bool Poll::stop_acq() {
-	if(!acq_running && !do_MCA_run){ 
-		std::cout << sys_message_head << "Acquisition is not running\n"; 
-		return false;
-	}
-
-	//Set stop_acq flag to be intercepted by run control.
-	do_stop_acq = true;
-
+	
 	return true;
 }
 
@@ -1312,16 +1282,15 @@ void Poll::CommandControl(){
 			}
 		}
 		else if(!pac_mode){ // These command are only available when not running in pacman mode!
-			if(cmd == "run"){ start_run(); } // Tell POLL to start acq and start recording data to disk
-			else if(cmd == "startacq" || cmd == "startvme"){ // Tell POLL to start data acquisition
-				start_acq();
+			if(cmd == "run"){ // Tell POLL to start acq and start recording data to disk.
+				start_run(); 
+			} 
+			else if(cmd == "startacq" || cmd == "startvme"){ // Tell POLL to start data acquisition without recording to disk.
+				start_run(false);
 			}
-			else if(cmd == "stop"){ // Tell POLL to stop recording data to disk and stop acq
+			else if(cmd == "stop" || cmd == "stopacq" || cmd == "stopvme"){ // Tell POLL to stop recording data to disk and stop acq.
 				stop_run();
 			} 
-			else if(cmd == "stopacq" || cmd == "stopvme"){ // Tell POLL to stop data acquisition
-				stop_acq();
-			}
 			else if(cmd == "shm"){ // Toggle "shared-memory" mode
 				if(shm_mode){
 					std::cout << sys_message_head << "Toggling shared-memory mode OFF\n";

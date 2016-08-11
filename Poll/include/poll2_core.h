@@ -24,8 +24,8 @@
 #include "hribf_buffers.h"
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.4.0"
-#define POLL2_CORE_DATE "Nov. 12th, 2015"
+#define POLL2_CORE_VERSION "1.4.1"
+#define POLL2_CORE_DATE "Aug. 11th, 2016"
 
 // Maximum length of UDP data packet (in bytes)
 #define MAX_ORPH_DATA 1464
@@ -188,16 +188,10 @@ class Poll{
 	void pmod_help();
 
 	/// Start a data recording run.
-	bool start_run();
+	bool start_run(const bool &record_=true);
 	
 	/// Stop an active data recording run.
 	bool stop_run();
-	
-	/// Starts data acquisition.
-	bool start_acq();
-	
-	/// Stops data acquisition.
-	bool stop_acq();
 	
 	/// Display run status information.
 	void show_status();
