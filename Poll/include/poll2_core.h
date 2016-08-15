@@ -303,6 +303,14 @@ class Poll{
 	bool Close();
 };
 	
+/** IsNumeric: Check if an input string is strictly numeric.
+  *  \param[in]  input_ String to check.
+  *  \param[in]  prefix_ String to print before the error message is printed.
+  *  \param[in]  msg_ Error message to print if the value is not numeric.
+  *  \return true if the string is strictly numeric and false otherwise.
+  */
+bool IsNumeric(const std::string &input_, const std::string &prefix_="", const std::string &msg_="");
+	
 /// Convert a rate number to more useful form.
 std::string humanReadable(double size);
 
