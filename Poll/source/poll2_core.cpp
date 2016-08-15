@@ -1371,6 +1371,10 @@ void Poll::CommandControl(){
 				}
 				else {
 					output_title = arg; 
+					if(output_format == 0 && output_title.size() > 80){
+						std::cout << sys_message_head << Display::WarningStr("Warning:") << " Title length " << output_title.size() - 80 << " characters too long for ldf format!\n";
+						output_title = output_title.substr(0, 80);
+					}
 					std::cout << sys_message_head << "Set run title to '" << output_title << "'.\n";
 				}
 			} 
