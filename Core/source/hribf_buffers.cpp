@@ -1024,7 +1024,6 @@ bool PollOutputFile::overwrite_dir(int total_buffers_/*=-1*/){
 
 /// Initialize the output file with initial parameters
 void PollOutputFile::initialize(){
-	max_spill_size = -9999;
 	current_file_num = 0; 
 	output_format = 0;
 	number_spills = 0;
@@ -1098,8 +1097,6 @@ int PollOutputFile::Write(char *data_, unsigned int nWords_){
 
 	if(!output_file.is_open() || !output_file.good()){ return -1; }
 
-	if(nWords_ > max_spill_size){ max_spill_size = nWords_; }
-	
 	// Write data to disk
 	int buffs_written;
 	if(output_format == 0){
@@ -1107,6 +1104,7 @@ int PollOutputFile::Write(char *data_, unsigned int nWords_){
 	}
 	else if(output_format == 1){
 		if(!pldData.Write(&output_file, data_, nWords_)){ return -1; }
+		pldHead.UpdateMaxSpillSize(nWords_);
 		buffs_written = 1;
 	}
 	else{
@@ -1282,7 +1280,6 @@ void PollOutputFile::CloseFile(float total_run_time_/*=0.0*/){
 		output_file.seekp(0);
 		pldHead.SetEndDateTime();
 		pldHead.SetRunTime(total_run_time_);
-		pldHead.SetMaxSpillSize(max_spill_size);
 		pldHead.Write(&output_file);
 		output_file.close();
 	}
