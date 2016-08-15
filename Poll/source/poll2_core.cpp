@@ -189,6 +189,7 @@ Poll::Poll() :
 	shm_mode(false),
 	pac_mode(false),
 	init(false),
+	runTime(-1.0),
 	// Options relating to output data file
 	output_directory("./"), // Set with 'fdir' command
 	filename_prefix("run"),
@@ -598,6 +599,7 @@ void Poll::help(){
 		std::cout << "   stop                - Stop data acqusition and stop recording data to disk\n";	
 		std::cout << "   startacq (startvme) - Start data acquisition\n";
 		std::cout << "   stopacq (stopvme)   - Stop data acquisition\n";
+		std::cout << "   timedrun <seconds>  - Run for the specified number of seconds\n";
 		std::cout << "   acq (shm)           - Run in \"shared-memory\" mode\n";
 		std::cout << "   spill (hup)         - Force dump of current spill\n";
 		std::cout << "   prefix [name]       - Set the output filename prefix (default='run_#.ldf')\n";
@@ -689,9 +691,10 @@ void Poll::pmod_help(){
  * If a run is already started a warning is displayed and the process is stopped.
  *
  * \param[in] record_ Record a data file.
+ * \param[in] time_ The approximate number of seconds to run the acquisition.
  * \return Returns true if successfully starts a run.
  */
-bool Poll::start_run(const bool &record_/*=true*/) {
+bool Poll::start_run(const bool &record_/*=true*/, const double &time_/*=-1.0*/){
 	if(do_MCA_run){
 		std::cout << sys_message_head << "Warning! Cannot run acquisition while MCA program is running\n";
 		return false;
@@ -700,6 +703,12 @@ bool Poll::start_run(const bool &record_/*=true*/) {
 		std::cout << sys_message_head << "Acquisition is already running\n";
 		return false;
 	}
+
+	// Set the acquistion time.
+	runTime = time_;
+
+	if(runTime > 0.0)
+		std::cout << sys_message_head << "Running for approximately " << runTime << " seconds.\n";
 
 	if(record_){
 		//Close a file if open
@@ -1283,8 +1292,21 @@ void Poll::CommandControl(){
 		}
 		else if(!pac_mode){ // These command are only available when not running in pacman mode!
 			if(cmd == "run"){ // Tell POLL to start acq and start recording data to disk.
-				start_run(); 
+				start_run();
 			} 
+			else if(cmd == "timedrun"){
+				if(!arg.empty()){
+					double runSeconds = strtod(arg.c_str(), NULL);
+					if(IsNumeric(arg) && runSeconds > 0.0)
+						start_run(true, runSeconds); 
+					else
+						std::cout << sys_message_head << Display::ErrorStr() << " User attempted to run for an invalid length of time (" << arg << ")!\n";
+				}
+				else{
+					std::cout << sys_message_head << "Invalid number of parameters to timedrun\n";
+					std::cout << sys_message_head << " -SYNTAX- timedrun <seconds>\n";
+				}
+			}
 			else if(cmd == "startacq" || cmd == "startvme"){ // Tell POLL to start data acquisition without recording to disk.
 				start_run(false);
 			}
@@ -1461,6 +1483,8 @@ void Poll::CommandControl(){
 
 /// Function to control the gathering and recording of PIXIE data
 void Poll::RunControl(){
+	time_t acqStartTime;
+	time_t currentTime;
 	while(true){
 		if(kill_all){ // Supersedes all other commands
 			if(acq_running || mca_args.IsRunning()){ do_stop_acq = true; } // Safety catch
@@ -1518,11 +1542,10 @@ void Poll::RunControl(){
 			if (!acq_running) {
 				//Start list mode
 				if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)) {
-					time_t currTime;
-					time(&currTime);
+					time(&acqStartTime);
 					if (record_data) std::cout << "Run " << output_file.GetRunNumber();
 					else std::cout << "Acq";
-					std::cout << " started on " << ctime(&currTime);
+					std::cout << " started on " << ctime(&acqStartTime);
 
 					acq_running = true;
 					startTime = usGetTime(0);
@@ -1542,15 +1565,20 @@ void Poll::RunControl(){
 		}
 
 		if(acq_running){
-			ReadFIFO();
+			// Check the run time.
+			time(&currentTime);
 
+			if(runTime > 0.0 && difftime(currentTime, acqStartTime) >= runTime)
+				stop_run(); // Handle this cleanly.
+			
 			//Handle a stop signal
 			if(do_stop_acq){ 
+				// Read data from the modules.
+				ReadFIFO();
+
+				// Instruct all modules to end the current run.
 				pif->EndRun();
 
-				time_t currTime;
-				time(&currTime);
-				
 				// Check if each module has ended its run properly.
 				for(size_t mod = 0; mod < n_cards; mod++){
 					//If the run status is 1 then the run has not finished in the module.
@@ -1586,7 +1614,7 @@ void Poll::RunControl(){
 
 				if (record_data) std::cout << "Run " << output_file.GetRunNumber();
 				else std::cout << "Acq";
-				std::cout << " stopped on " << ctime(&currTime);
+				std::cout << " stopped on " << ctime(&currentTime);
 
 				statsHandler->ClearRates();
 				statsHandler->Dump();
@@ -1596,6 +1624,9 @@ void Poll::RunControl(){
 				do_stop_acq = false;
 				acq_running = false;
 			} //if (do_stop_acq) -- End of handling a stop acq flag
+			
+			// Read data from the modules.
+			ReadFIFO();
 		}
 	
 		UpdateStatus();

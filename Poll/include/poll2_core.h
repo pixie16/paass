@@ -24,8 +24,8 @@
 #include "hribf_buffers.h"
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.4.11"
-#define POLL2_CORE_DATE "Aug. 11th, 2016"
+#define POLL2_CORE_VERSION "1.4.12"
+#define POLL2_CORE_DATE "Aug. 15th, 2016"
 
 // Maximum length of UDP data packet (in bytes)
 #define MAX_ORPH_DATA 1464
@@ -145,6 +145,7 @@ class Poll{
 	bool shm_mode; /// New style shared-memory mode.
 	bool pac_mode; /// Pacman shared-memory mode.
 	bool init; //
+	double runTime; /// Time to run the acquisition, in seconds.
 
 	// Options relating to output data file
 	std::string output_directory; /// Set with 'fdir' command
@@ -188,7 +189,7 @@ class Poll{
 	void pmod_help();
 
 	/// Start a data recording run.
-	bool start_run(const bool &record_=true);
+	bool start_run(const bool &record_=true, const double &time_=-1.0);
 	
 	/// Stop an active data recording run.
 	bool stop_run();
