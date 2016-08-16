@@ -315,9 +315,6 @@ bool IsNumeric(const std::string &input_, const std::string &prefix_="", const s
 /// Convert a rate number to more useful form.
 std::string humanReadable(double size);
 
-/// Split a string by specified delimiter_ and place the result in a vector.
-unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_=' ');
-
 /// Pad a string with periods until it is the specified length_.
 std::string pad_string(const std::string &input_, unsigned int length_);
 

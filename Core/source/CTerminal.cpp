@@ -1145,3 +1145,40 @@ void Terminal::Close(){
 	
 	unset_signal_handlers();
 }
+
+/**Split a string on the delimiter character populating the vector args with 
+ * any substrings formed. Returns the number of substrings found.
+ *	
+ * \param[in] str The string to be parsed.
+ * \param[out] args The vector to populate with substrings.
+ * \param[in] delimiter The character to split the string on.
+ * \return The number of substrings found.
+ */
+unsigned int split_str(std::string str, std::vector<std::string> &args, char delimiter/*=' '*/){
+	args.clear();
+	
+	//Locate the first non delimiter space.
+	size_t strStart = str.find_first_not_of(delimiter);
+	//In case of a line with only delimiters we return 0.
+	if (strStart == std::string::npos) return 0;
+
+	//Locate the last character that is not a delimiter.
+	size_t strStop = str.find_last_not_of(delimiter) + 1;
+
+	//We loop over the string searching for the delimiter keeping track of where 
+	// we found the current delimiter and the previous one.
+	size_t pos = strStart;
+	size_t lastPos = strStart;
+	while ((pos = str.find(delimiter, lastPos)) != std::string::npos) {
+		//Store the substring from the last non delimiter to the current delimiter.
+		args.push_back(str.substr(lastPos, pos - lastPos));
+		
+		//We update the last position looking for the first character that is not
+		// a delimiter.
+		lastPos = str.find_first_not_of(delimiter, pos+1);
+	}
+	//Store the last string.
+	args.push_back(str.substr(lastPos, strStop - lastPos));
+
+	return args.size();
+}
