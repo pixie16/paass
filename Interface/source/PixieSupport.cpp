@@ -27,7 +27,7 @@ bool BitFlipper::operator()(PixieFunctionParms<std::string> &par){
 	int count = 1;
 
 	double value;
-	par.pif->ReadSglChanPar(par.par.c_str(), &value, par.mod, par.ch);
+	par.pif->ReadSglChanPar(par.par.c_str(), value, par.mod, par.ch);
 	
 	int old_csra = (int)value;
 	for(unsigned int i = 0; i < num_toggle_bits; i++){
@@ -45,7 +45,7 @@ bool BitFlipper::operator()(PixieFunctionParms<std::string> &par){
 	}
 	
 	if(par.pif->WriteSglChanPar(par.par.c_str(), new_csra, par.mod, par.ch)){
-		par.pif->PrintSglChanPar(par.par.c_str(), par.mod, par.ch);
+		par.pif->PrintSglChanPar(par.par.c_str(), par.mod, par.ch, value);
 		return true;
 	}
 
@@ -317,16 +317,18 @@ bool GetTraces::operator()(PixieFunctionParms<int> &par){
 }
 
 bool ParameterChannelWriter::operator()(PixieFunctionParms< std::pair<std::string, double> > &par){
-	if(par.pif->WriteSglChanPar(par.par.first.c_str(), par.par.second, par.mod, par.ch)){
-		par.pif->PrintSglChanPar(par.par.first.c_str(), par.mod, par.ch);
+	double previousValue;
+	if(par.pif->WriteSglChanPar(par.par.first.c_str(), par.par.second, par.mod, par.ch, previousValue)){
+		par.pif->PrintSglChanPar(par.par.first.c_str(), par.mod, par.ch, previousValue);
 		return true;
 	}
 	return false;
 }
 
 bool ParameterModuleWriter::operator()(PixieFunctionParms< std::pair<std::string, unsigned int> > &par){
-	if(par.pif->WriteSglModPar(par.par.first.c_str(), par.par.second, par.mod)){
-		par.pif->PrintSglModPar(par.par.first.c_str(), par.mod);
+	unsigned int previousValue;
+	if(par.pif->WriteSglModPar(par.par.first.c_str(), par.par.second, par.mod, previousValue)){
+		par.pif->PrintSglModPar(par.par.first.c_str(), par.mod, previousValue);
 		return true;
 	} 
 	return false;
@@ -344,14 +346,14 @@ bool ParameterModuleReader::operator()(PixieFunctionParms<std::string> &par){
 
 bool ParameterChannelDumper::operator()(PixieFunctionParms<std::string> &par){
 	double value;
-	par.pif->ReadSglChanPar(par.par.c_str(), &value, (int)par.mod, (int)par.ch);
+	par.pif->ReadSglChanPar(par.par.c_str(), value, (int)par.mod, (int)par.ch);
 	*file << par.mod << "\t" << par.ch << "\t" << par.par << "\t" << value << std::endl;
 	return true;
 }
 
 bool ParameterModuleDumper::operator()(PixieFunctionParms<std::string> &par){
 	PixieInterface::word_t value;
-	par.pif->ReadSglModPar(par.par.c_str(), &value, (int)par.mod);
+	par.pif->ReadSglModPar(par.par.c_str(), value, (int)par.mod);
 	*file << par.mod << "\t" << par.par << "\t" << value << std::endl;
 	return true;
 }
