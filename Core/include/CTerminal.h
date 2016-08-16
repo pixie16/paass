@@ -25,8 +25,8 @@
 ///Default size of terminal scroll back buffer in lines.
 #define SCROLLBACK_SIZE 1000
 
-#define CTERMINAL_VERSION "1.2.08"
-#define CTERMINAL_DATE "June 16th, 2016"
+#define CTERMINAL_VERSION "1.2.09"
+#define CTERMINAL_DATE "Aug. 16th, 2016"
 
 #include <curses.h>
 
@@ -295,7 +295,8 @@ class Terminal{
 	///Enable tab auto complete functionlity.
 	void EnableTabComplete(bool enable = true);
 	
-	void TabComplete(std::vector<std::string> matches);
+	///Handle tab complete functionality.
+	void TabComplete(const std::string &input_, const std::vector<std::string> &possibilities_);
 
 	///Enable a timeout while waiting fro a command.
 	void EnableTimeout(float timeout = 0.5);
@@ -315,8 +316,11 @@ class Terminal{
 	/// Dump all text in the stream to the output screen
 	void flush();
 
+	/// Print a command to the terminal output.
+	void PrintCommand(const std::string &cmd_);
+
 	/// Wait for the user to input a command
-	std::string GetCommand(const int &prev_cmd_return_=0);
+	std::string GetCommand(std::string &args, const int &prev_cmd_return_=0);
 	
 	/// Close the window and restore control to the terminal
 	void Close();
@@ -324,5 +328,8 @@ class Terminal{
 
 /// Split a string about some delimiter.
 unsigned int split_str(std::string str, std::vector<std::string> &args, char delimiter=' ');
+
+/// Split a string into multiple commands separated by a ';'.
+void split_commands(const std::string &input_, std::deque<std::string> &cmds);
 
 #endif
