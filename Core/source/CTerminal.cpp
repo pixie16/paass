@@ -850,13 +850,38 @@ void Terminal::EnableTimeout(float timeout/*=0.5*/) {
  * matches the common part of the matches is determined and printed to the input. If there is no common part of the
  * matches and the tab key has been pressed twice the list of matches is printed for the user to decide.
  *
- * \param[in] matches A vector of strings of trailing characters matching the current command.
+ * \param[in] input_ The string to complete.
+ * \param[in] possibilities_ A vector of strings of possible values.
  */
-void Terminal::TabComplete(std::vector<std::string> matches) {
+void Terminal::TabComplete(const std::string &input_, const std::vector<std::string> &possibilities_) {
+	if(input_.empty()) return;
+	
+	std::vector<std::string> matches;
+	std::vector<std::string>::iterator it;
+
+	size_t start = input_.find_last_of(" ");
+	if(start == std::string::npos)
+		start = 0;
+	else
+		start++;
+		
+	size_t stop = input_.length()-1; // Strip off the trailing '\t'.
+
+	//Get the string to complete
+	std::string strToComplete = input_.substr(start, stop-start);
+
+	if(strToComplete.empty()) return;
+
+	for (auto it=possibilities_.begin(); it!=possibilities_.end();++it) {
+		if ((*it).find(strToComplete) == 0) 
+			matches.push_back((*it).substr(strToComplete.length()));
+	}
+	
 	//No tab complete matches so we do nothing.
 	if (matches.size() == 0) {
 		return;
 	}
+	
 	//A unique match so we extend the command with completed text
 	else if (matches.size() == 1) {
 		if (matches.at(0).find("/") == std::string::npos && (unsigned int) (cursX - offset) == cmd.Get().length()) {
@@ -900,7 +925,16 @@ void Terminal::TabComplete(std::vector<std::string> matches) {
 	refresh_();
 }
 
-std::string Terminal::GetCommand(const int &prev_cmd_return_/*=0*/){
+/// Print a command to the terminal output.
+void Terminal::PrintCommand(const std::string &cmd_){
+	std::cout << prompt << cmd_ << "\n";
+	flush();
+	_scrollPosition = 0;
+	clear_();
+	tabCount = 0;
+}
+
+std::string Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/*=0*/){
 	std::string output = "";
 
 	sclock::time_point commandRequestTime = sclock::now();
@@ -982,7 +1016,10 @@ std::string Terminal::GetCommand(const int &prev_cmd_return_/*=0*/){
 			} 
 			else if(keypress == '\t' && enableTabComplete) {
 				tabCount++;
-				output = cmd.Get().substr(0,cursX - offset) + "\t";
+				if(cmd.Get().find(';') == std::string::npos)
+					output = cmd.Get().substr(0,cursX - offset) + "\t";
+				else
+					output = cmd.Get().substr(cmd.Get().find_last_of(';')+1,cursX - offset) + "\t";
 				break;
 			}
 			else if(keypress == 4){ // ctrl-d (EOT)
@@ -1081,28 +1118,46 @@ std::string Terminal::GetCommand(const int &prev_cmd_return_/*=0*/){
 	// In the event of an empty command, return.
 	if(output.empty())
 		return "";
-		
-	// Check for system commands.
-	std::string temp_cmd_string = output.substr(output.find_first_not_of(' '), output.find_first_of(' ')); // Strip the command from the front of the input.
-	std::string temp_arg_string = output.substr(output.find_first_of(' ')+1, output.find_first_of('#')); // Does not ignore leading whitespace.
 
+	// Split the input string into commands separated by ';'.
+	if(output.find(';') != std::string::npos){
+		split_commands(output, cmd_queue);
+		output = cmd_queue.front();
+		cmd_queue.pop_front();
+		PrintCommand(output);
+	}
+		
+	// Split the string into a command and an argument.
+	size_t start = output.find_first_not_of(' ');
+	size_t stop = output.find_first_of(' ', start);
+	std::string temp_cmd_string = output.substr(start, stop-start); // Strip the command from the front of the input.
+	
+	// Strip whitspace from the beginning and end of the argument string.
+	if(stop != std::string::npos){ 
+		start = output.find_first_not_of(' ', stop);
+		stop = output.find_last_not_of(' ');
+		args = output.substr(start, stop-start+1);
+	}
+	else
+		args = "";
+		
 	if(temp_cmd_string.empty() || temp_cmd_string[0] == '#'){
 		// This is a comment line.
 		return "";
 	}
-
-	if(temp_cmd_string.substr(0, output.find_first_of(' ')).find('.') != std::string::npos){
+	
+	if(temp_cmd_string[0] == '.'){
 		if(temp_cmd_string == ".cmd"){ // Load a command script.
-			std::string command_filename = temp_arg_string.substr(output.find_first_not_of(' ')); // Ignores leading whitespace.
+			std::string command_filename = args.substr(args.find_first_not_of(' ')); // Ignores leading whitespace.
 			if(!LoadCommandFile(command_filename.c_str())){ // Failed to load command script.
 				std::cout << prompt << "Error! Failed to load command script " << command_filename << ".\n";
 			}
 		}
 		else if(temp_cmd_string == ".echo"){ // Print something to the screen.
-			std::cout << prompt << temp_arg_string << std::endl;
+			std::cout << prompt << args << std::endl;
 		}
 		else if(temp_cmd_string == ".prompt"){ // Prompt the user with a yes/no question.
-			std::cout << prompt << temp_arg_string << " (yes/no)" << std::endl;
+			std::cout << prompt << args << " (yes/no)" << std::endl;
 			prompt_user = true;
 		}
 		else{ // Unrecognized command.
@@ -1115,15 +1170,10 @@ std::string Terminal::GetCommand(const int &prev_cmd_return_/*=0*/){
 	// Print the command if it was read from a script. This is done so that the user
 	// will know what is happening in the script file. It will also ignore system
 	// commands in the file.
-	if(from_script){
-		std::cout << prompt << output << "\n";
-		flush();
-		_scrollPosition = 0;
-		clear_();
-		tabCount = 0;
-	}
+	if(from_script)
+		PrintCommand(output.substr(output.find_first_not_of(' ')));
 	
-	return output;
+	return temp_cmd_string;
 }
 
 // Close the window and return control to the terminal
@@ -1181,4 +1231,29 @@ unsigned int split_str(std::string str, std::vector<std::string> &args, char del
 	args.push_back(str.substr(lastPos, strStop - lastPos));
 
 	return args.size();
+}
+
+/**Split strings into multiple commands separated by ';'.
+ *	
+ * \param[in] input_ The string to be parsed.
+ * \param[out] cmds The vector to populate with sub-commands.
+ */
+void split_commands(const std::string &input_, std::deque<std::string> &cmds){
+	if(input_.find(';') == std::string::npos) return;
+	size_t start = 0;
+	size_t stop = 0;
+	while(true){
+		stop = input_.find_first_of(';', start);
+		
+		cmds.push_back(input_.substr(start, stop-start));
+		//std::cout << start << "\t" << stop << "\t\"" << cmds.front() << "\"\n";
+		
+		if(stop == std::string::npos)
+			break;
+		
+		start = input_.find_first_not_of(';', stop);
+		
+		if(start == std::string::npos)
+			break;
+	}
 }
