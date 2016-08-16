@@ -322,4 +322,7 @@ class Terminal{
 	void Close();
 };
 
+/// Split a string about some delimiter.
+unsigned int split_str(std::string str, std::vector<std::string> &args, char delimiter=' ');
+
 #endif
