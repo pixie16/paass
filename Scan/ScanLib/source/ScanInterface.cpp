@@ -639,7 +639,7 @@ void ScanInterface::CmdControl(){
 			}
 		}
 	
-		cmd = term->GetCommand();
+		cmd = term->GetCommand(arg);
 		if(cmd == "_SIGSEGV_"){
 			std::cout << "\033[0;31m[SEGMENTATION FAULT]\033[0m\n";
 			exit(EXIT_FAILURE);
@@ -661,16 +661,9 @@ void ScanInterface::CmdControl(){
 		if(cmd == ""){ continue; }
 		
 		// Replace the '~' with the user's home directory.
-		if(cmd.find('~') != std::string::npos)
-			cmd.replace(cmd.find('~'), 1, homeDir);
+		if(!arg.empty() && arg.find('~') != std::string::npos)
+			arg.replace(arg.find('~'), 1, homeDir);
 		
-		size_t index = cmd.find(' ');
-		if(index != std::string::npos){
-			arg = cmd.substr(index+1, cmd.size()-index); // Get the argument from the full input string
-			cmd = cmd.substr(0, index); // Get the command from the full input string
-		}
-		else{ arg = ""; }
-
 		std::vector<std::string> arguments;
 		unsigned int p_args = split_str(arg, arguments);
 		

@@ -24,8 +24,8 @@
 #include "hribf_buffers.h"
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.4.12"
-#define POLL2_CORE_DATE "Aug. 15th, 2016"
+#define POLL2_CORE_VERSION "1.4.13"
+#define POLL2_CORE_DATE "Aug. 16th, 2016"
 
 // Maximum length of UDP data packet (in bytes)
 #define MAX_ORPH_DATA 1464
@@ -175,7 +175,6 @@ class Poll{
 	const static std::vector<std::string> paramControlCommands_;
 	const static std::vector<std::string> pollStatusCommands_; 
 	std::vector<std::string> commands_;
-
 	
 	data_pack AcqBuf; /// Data packet for class shared-memory broadcast
 	
@@ -203,11 +202,12 @@ class Poll{
 	/// Acquire raw traces from a pixie module.
 	void get_traces(int mod_, int chan_, int thresh_=0);
 
-	/// Method responsible for handling tab complete of commands and pread/pwrite parameters
-	std::vector<std::string> TabComplete(std::string cmd);
+	/// Method responsible for handling tab complete.
+	std::vector<std::string> TabComplete(const std::string &value_, const std::vector<std::string> &valid_);
 
 	///Routine to read Pixie FIFOs
 	bool ReadFIFO();
+	
 	///Routine to read Pixie scalers.
 	void ReadScalers();
 

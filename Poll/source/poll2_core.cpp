@@ -635,43 +635,6 @@ void Poll::help(){
 	std::cout << "   version (v)         - Display Poll2 version information\n";
 }
 
-std::vector<std::string> Poll::TabComplete(std::string cmd) {
-	std::vector<std::string> matches;
-	std::vector<std::string>::iterator it;
-	
-	//If we have no space then we are auto completing a command.	
-	if (cmd.find(" ") == std::string::npos) {
-		for (it=commands_.begin(); it!=commands_.end();++it) {
-			if ((*it).find(cmd) == 0) {
-				matches.push_back((*it).substr(cmd.length()));
-			}
-		}
-	}
-	else {
-		//Get the trailing str part to complete
-		std::string strToComplete = cmd.substr(cmd.find_last_of(" ")+1);
-
-		//If the inital command is pwrite or pread we try to auto complete the param names
-		if (cmd.find("pwrite") == 0 || cmd.find("pread") == 0) {
-			for (auto it=chan_params.begin(); it!=chan_params.end();++it) {
-				if ((*it).find(strToComplete) == 0) 
-					matches.push_back((*it).substr(strToComplete.length()));
-			}
-		}
-
-		//If the inital command is pmwrite or pmread we try to auto complete the param names
-		if (cmd.find("pmwrite") == 0 || cmd.find("pmread") == 0) {
-			for (auto it=mod_params.begin(); it!=mod_params.end();++it) {
-				if ((*it).find(strToComplete) == 0) 
-					matches.push_back((*it).substr(strToComplete.length()));
-			}
-		}
-
-	}
-
-	return matches; 
-}
-
 /* Print help dialogue for reading/writing pixie channel parameters. */
 void Poll::pchan_help(){
 	std::cout << "  Valid Pixie16 channel parameters:\n";
@@ -922,7 +885,7 @@ void Poll::CommandControl(){
 			}
 		}
 	
-		cmd = poll_term_->GetCommand();
+		cmd = poll_term_->GetCommand(arg);
 		if(cmd == "_SIGSEGV_"){
 			std::cout << Display::ErrorStr("SEGMENTATION FAULT") << std::endl;
 			Close();
@@ -948,21 +911,21 @@ void Poll::CommandControl(){
 			continue; 
 		}	
 
-		if (cmd.find("\t") != std::string::npos) {
-			poll_term_->TabComplete(TabComplete(cmd.substr(0,cmd.length()-1)));
+		if (cmd.find("\t") != std::string::npos) { // Completing a command.
+			poll_term_->TabComplete(cmd, commands_);
+			continue;
+		}
+		else if (arg.find("\t") != std::string::npos) { // Completing the argument.
+			if(cmd == "pread" || cmd == "pwrite")
+				poll_term_->TabComplete(arg, chan_params);
+			else if(cmd == "pmread" || cmd == "pmwrite")
+				poll_term_->TabComplete(arg, mod_params);
 			continue;
 		}
 		poll_term_->flush();
 
 		if(cmd == ""){ continue; }
 		
-		size_t index = cmd.find(" ");
-		if(index != std::string::npos){
-			arg = cmd.substr(index+1, cmd.size()-index); // Get the argument from the full input string
-			cmd = cmd.substr(0, index); // Get the command from the full input string
-		}
-		else{ arg = ""; }
-
 		std::vector<std::string> arguments;
 		unsigned int p_args = split_str(arg, arguments);
 		
