@@ -82,14 +82,16 @@ std::vector<std::string> mod_params = {"MODULE_CSRA", "MODULE_CSRB", "MODULE_FOR
 									"FAST_FILTER_RANGE", "MODULE_NUMBER", "TrigConfig0", "TrigConfig1", "TrigConfig2","TrigConfig3"};
 
 const std::vector<std::string> Poll::runControlCommands_ ({"run", "stop", 
-	"startacq", "startvme", "stopacq", "stopvme", "acq", "shm", "spill", "hup", 
-	"prefix", "fdir", "title", "runnum", "oform", "close", "reboot", "stats", 
+	"startacq", "startvme", "stopacq", "stopvme", "timedrun", "acq", "shm", "spill",
+	"hup", "prefix", "fdir", "title", "runnum", "oform", "close", "reboot", "stats", 
 	"mca"});
+	
 const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread", 
 	"pmread", "pwrite", "pmwrite", "adjust_offsets", "find_tau", "toggle", 
 	"toggle_bit", "csr_test", "bit_test", "get_traces"});
+	
 const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "thresh", 
-	"debug", "quiet",	"quit", "help", "version"});
+	"debug", "quiet", "quit", "help", "version"});
 
 MCA_args::MCA_args(){ 
 	mca = NULL;
