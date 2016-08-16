@@ -283,9 +283,6 @@ class ScanInterface{
 
 	Terminal *term; /// ncurses terminal used for displaying output and handling user input.
 
-	/// Split a string about some delimiter.
-	unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_=' ');
-	
 	/// Start the scan.
 	void start_scan();
 	
