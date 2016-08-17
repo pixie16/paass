@@ -56,17 +56,17 @@ bool BitFlipper::operator()(PixieFunctionParms<std::string> &par){
 }
 
 #ifdef PIF_REVA
-const std::string BitFlipper::toggle_names[19] = {"group", "live", "good", "read", "trigger", "polarity", "GFLT", "", "", 
-												  "", "", "", "", "", "gain", "", "", "", ""};
-const std::string BitFlipper::csr_txt[19] = {"Respond to group triggers only", "Measure individual live time", "Good Channel", "Read always", "Enable trigger", 
-											 "Trigger positive", "GFLT", "", "", "", "", "", "", "", "HI/LO gain", "", "", "", ""};
+const std::vector<std::string> BitFlipper::toggle_names({"group", "live", "good", "read", "trigger", "polarity", "GFLT", "", "", 
+												         "", "", "", "", "", "gain", "", "", "", ""});
+const std::vector<std::string> BitFlipper::csr_txt({"Respond to group triggers only", "Measure individual live time", "Good Channel", "Read always", "Enable trigger", 
+											        "Trigger positive", "GFLT", "", "", "", "", "", "", "", "HI/LO gain", "", "", "", ""});
 #else
-const std::string BitFlipper::toggle_names[19] = {"", "", "good", "", "", "polarity", "", "", "trace", "QDC", "CFD", 
-												  "global", "raw", "trigger", "gain", "pileup", "catcher", "", "SHE"};
-const std::string BitFlipper::csr_txt[19] = {"", "", "Good Channel", "", "", "Trigger positive", "", "", "Enable trace capture", "Enable QDC sums capture", 
-											 "Enable CFD trigger mode", "Enable global trigger validation", "Enable raw energy sums capture", 
-											 "Enable channel trigger validation", "HI/LO gain", "Pileup rejection control", "Hybrid bit", "", 
-											 "SHE single trace capture"};
+const std::vector<std::string> BitFlipper::toggle_names({"", "", "good", "", "", "polarity", "", "", "trace", "QDC", "CFD", 
+												         "global", "raw", "trigger", "gain", "pileup", "catcher", "", "SHE"});
+const std::vector<std::string> BitFlipper::csr_txt({"", "", "Good Channel", "", "", "Trigger positive", "", "", "Enable trace capture", "Enable QDC sums capture", 
+											        "Enable CFD trigger mode", "Enable global trigger validation", "Enable raw energy sums capture", 
+											        "Enable channel trigger validation", "HI/LO gain", "Pileup rejection control", "Hybrid bit", "", 
+											        "SHE single trace capture"});
 #endif
 
 void BitFlipper::Help(){
@@ -102,7 +102,7 @@ void BitFlipper::CSRAtest(unsigned int input_){
 	Test(19, input_, csr_txt);
 }
 
-bool BitFlipper::Test(unsigned int num_bits_, unsigned int input_, const std::string *text_/*=NULL*/){
+bool BitFlipper::Test(unsigned int num_bits_, unsigned int input_, const std::vector<std::string> &text_){
 	if(num_bits_ > 32){ return false; } // Too many bits for unsigned int
 	
 	bool *active_bits = new bool[num_bits_];
@@ -128,12 +128,12 @@ bool BitFlipper::Test(unsigned int num_bits_, unsigned int input_, const std::st
 	}
 	
 	std::cout << " Input: 0x" << std::hex << input_ << " (" << std::dec << input_ << ")\n";
-	if(text_ != NULL){ std::cout << "  Bit   On?	Value	   Total	Bit Function\n"; }
+	if(!text_.empty()){ std::cout << "  Bit   On?	Value	   Total	Bit Function\n"; }
 	else{ std::cout << "  Bit   On?	Value	   Total\n"; }
 
 	std::string bit_function;
 	for(unsigned int i = 0; i < num_bits_; i++){
-		if(text_ != NULL){ bit_function = csr_txt[i]; }
+		if(!text_.empty()){ bit_function = csr_txt[i]; }
 		else{ bit_function = ""; }
 		
 		if(active_bits[i]){ 
