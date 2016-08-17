@@ -854,7 +854,7 @@ void Terminal::EnableTimeout(float timeout/*=0.5*/) {
  * \param[in] possibilities_ A vector of strings of possible values.
  */
 void Terminal::TabComplete(const std::string &input_, const std::vector<std::string> &possibilities_) {
-	if(input_.empty()) return;
+	if(input_.empty() || possibilities_.empty()) return;
 	
 	std::vector<std::string> matches;
 	std::vector<std::string>::iterator it;
@@ -873,8 +873,10 @@ void Terminal::TabComplete(const std::string &input_, const std::vector<std::str
 	if(strToComplete.empty()) return;
 
 	for (auto it=possibilities_.begin(); it!=possibilities_.end();++it) {
-		if ((*it).find(strToComplete) == 0) 
-			matches.push_back((*it).substr(strToComplete.length()));
+		if (it->empty())
+			continue;
+		if (it->find(strToComplete) == 0) 
+			matches.push_back(it->substr(strToComplete.length()));
 	}
 	
 	//No tab complete matches so we do nothing.
@@ -1246,7 +1248,6 @@ void split_commands(const std::string &input_, std::deque<std::string> &cmds){
 		stop = input_.find_first_of(';', start);
 		
 		cmds.push_back(input_.substr(start, stop-start));
-		//std::cout << start << "\t" << stop << "\t\"" << cmds.front() << "\"\n";
 		
 		if(stop == std::string::npos)
 			break;
