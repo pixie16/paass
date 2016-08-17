@@ -24,8 +24,8 @@
 #include "hribf_buffers.h"
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.4.13"
-#define POLL2_CORE_DATE "Aug. 16th, 2016"
+#define POLL2_CORE_VERSION "1.4.14"
+#define POLL2_CORE_DATE "Aug. 17th, 2016"
 
 // Maximum length of UDP data packet (in bytes)
 #define MAX_ORPH_DATA 1464

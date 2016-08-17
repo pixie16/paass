@@ -1,6 +1,7 @@
 #ifndef PIXIE_SUPPORT_H
 #define PIXIE_SUPPORT_H
 
+#include <vector>
 #include <string>
 #include <sstream>
 #include <bitset>
@@ -104,8 +105,8 @@ class BitFlipper : public PixieFunction<std::string>{
 	bool operator()(PixieFunctionParms<std::string> &par);
 
   public:
-	static const std::string toggle_names[19];
-	static const std::string csr_txt[19];
+	const static std::vector<std::string> toggle_names;
+	const static std::vector<std::string> csr_txt;
 
 	BitFlipper(){ 
 		bit = 0; 
@@ -127,7 +128,7 @@ class BitFlipper : public PixieFunction<std::string>{
 	
 	void CSRAtest(unsigned int input_);
 	
-	bool Test(unsigned int num_bits_, unsigned int input_, const std::string *text_=NULL);
+	bool Test(unsigned int num_bits_, unsigned int input_, const std::vector<std::string> &text_);
 };
 
 class GetTraces : public PixieFunction<int>{

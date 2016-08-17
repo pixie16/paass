@@ -920,6 +920,8 @@ void Poll::CommandControl(){
 				poll_term_->TabComplete(arg, chan_params);
 			else if(cmd == "pmread" || cmd == "pmwrite")
 				poll_term_->TabComplete(arg, mod_params);
+			else if(cmd == "toggle")
+				poll_term_->TabComplete(arg, BitFlipper::toggle_names);
 			continue;
 		}
 		poll_term_->flush();
@@ -1182,7 +1184,8 @@ void Poll::CommandControl(){
 			if(p_args >= 2){ 
 				if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid number of bits specified")) continue;
 				else if(!IsNumeric(arguments.at(2), sys_message_head, "Invalid parameter value specification")) continue;
-				flipper.Test((unsigned int)atoi(arguments.at(0).c_str()), std::strtoul(arguments.at(1).c_str(), NULL, 0)); 
+				std::vector<std::string> empty_vector;
+				flipper.Test((unsigned int)atoi(arguments.at(0).c_str()), std::strtoul(arguments.at(1).c_str(), NULL, 0), empty_vector); 
 			}
 			else{
 				std::cout << sys_message_head << "Invalid number of parameters to bit_test\n";
