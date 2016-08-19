@@ -46,7 +46,7 @@ function(PXI_CONFIG)
 		firmware/syspixie16*.bin #ComFpgaFile
 		dsp/Pixie16DSP*.ldr #DspConfFile
 		dsp/Pixie16DSP*.var #DspVarFile
-		test/pxisys.ini #CrateConfig
+		test/pxisys*.ini #CrateConfig
 		configuration/slot_def.set #SlotFile
 		configuration/default.set #DspSetFile
 	)
