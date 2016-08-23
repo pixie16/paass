@@ -98,13 +98,13 @@ int main(int argc, char *argv[]) {
 
 	pif.RemovePresetRunLength(0);
 
-	if (!pif.ReadSglChanPar(par1->parName, &par1->initialVal, mod, ch)) {
+	if (!pif.ReadSglChanPar(par1->parName, par1->initialVal, mod, ch)) {
 		std::cout << "Check parameter name!\n";
 		return EXIT_FAILURE;
 	}
 	std::cout << par1->parName << " initial value: " << par1->initialVal << "\n";
 	if (isTwoDim) {
-		if (!pif.ReadSglChanPar(par2->parName, &par2->initialVal, mod, ch)) {
+		if (!pif.ReadSglChanPar(par2->parName, par2->initialVal, mod, ch)) {
 			std::cout << "Check parameter name!\n";
 			return EXIT_FAILURE;
 		}
@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
 			pif.WriteSglChanPar(par1->parName,par1->value,mod,ch);
 			//Read back the value to see what it actually was set to.
 			pif.PrintSglChanPar(par1->parName, mod, ch);
-			pif.ReadSglChanPar(par1->parName, &readback, mod, ch);
+			pif.ReadSglChanPar(par1->parName, readback, mod, ch);
 			pif.SaveDSPParameters();
 			printf("Readback : %f\n",readback);
 		}
@@ -154,7 +154,7 @@ int main(int argc, char *argv[]) {
 					pif.WriteSglChanPar(par2->parName,par2->value,mod,ch);
 					//Read back the value to see what it actually was set to.
 					pif.PrintSglChanPar(par2->parName, mod, ch);
-					pif.ReadSglChanPar(par2->parName, &readback, mod, ch);
+					pif.ReadSglChanPar(par2->parName, readback, mod, ch);
 					pif.SaveDSPParameters();
 				}
 				if (par2->value > par2->stopVal || readback > par2->stopVal) break;
