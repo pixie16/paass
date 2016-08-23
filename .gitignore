@@ -24,7 +24,7 @@ ValgrindOut.xml
 
 #Ignore the build and exec directory
 build/
-exec/
+install/
 doc/
 
 #Ignore IDE files
