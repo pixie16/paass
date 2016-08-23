@@ -11,7 +11,7 @@ if(BUILD_SKELETON)
     install (TARGETS skeleton DESTINATION bin)
 endif(BUILD_SKELETON)
 
-# Install ldfReader executable.
-add_executable(ldfReader ldfReader.cpp)
-target_link_libraries(ldfReader ScanStatic)
-install (TARGETS ldfReader DESTINATION bin)
+# Install headReader executable.
+add_executable(headReader headReader.cpp)
+target_link_libraries(headReader ScanStatic)
+install (TARGETS headReader DESTINATION bin)
