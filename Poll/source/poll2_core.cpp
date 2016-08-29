@@ -609,7 +609,6 @@ void Poll::help(){
 		std::cout << "   title [runTitle]    - Set the title of the current run (default='PIXIE Data File)\n";
 		std::cout << "   runnum [number]     - Set the number of the current run (default=0)\n";
 		std::cout << "   oform [0|1|2]       - Set the format of the output file (default=0)\n";
-		std::cout << "   close (clo)         - Safely close the current data output file\n";
 		std::cout << "   reboot              - Reboot PIXIE crate\n";
 		std::cout << "   stats [time]        - Set the time delay between statistics dumps (default=-1)\n";
 		std::cout << "   mca [root|damm] [time] [filename]     - Use MCA to record data for debugging purposes\n";
@@ -710,6 +709,9 @@ bool Poll::stop_run() {
 		output << "Run " << output_file.GetRunNumber() << " time";
 		Display::LeaderPrint(output.str());
 		std::cout << statsHandler->GetTotalTime() << "s\n";
+
+		//Close the output file
+		CloseOutputFile(); }
 	}
 
 	record_data = false;
@@ -1298,11 +1300,6 @@ void Poll::CommandControl(){
 					do_reboot = true; 
 					poll_term_->pause(do_reboot);
 				}
-			}
-			else if(cmd == "clo" || cmd == "close"){ // Tell POLL to close the current data file
-				if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
-				else if(acq_running && record_data){ std::cout << sys_message_head << "Warning! Cannot close file while acquisition running\n"; }
-				else{ CloseOutputFile(); }
 			}
 			else if(cmd == "hup" || cmd == "spill"){ // Force spill
 				if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
