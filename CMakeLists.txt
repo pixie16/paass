@@ -48,27 +48,21 @@ endif(CMAKE_BUILD_TYPE MATCHES "Debug")
 #------------------------------------------------------------------------------
 
 #Install options
+option(BUILD_SCOPE "Build and install the scope program." ON)
+option(BUILD_SETUP "Include the older setup programs in installation" OFF)
 option(BUILD_SHARED_LIBS "Install only scan libraries" ON)
-option(BUILD_SKELETON "Build and install the skeleton scan" ON)
-option(BUILD_SCOPE "Build and install the scope program" ON)
-option(BUILD_UTKSCAN "Install utkscan" ON)
+option(BUILD_SKELETON "Build and install the skeleton scan" OFF)
+option(BUILD_SUITE "Build and install PixieSuite" ON)
+option(BUILD_UTKSCAN "Install utkscan" OFF)
+
 option(USE_DAMM "Use DAMM for MCA" ON)
-option(USE_GAMMA_GATES "Gamma-Gamma gates in GeProcessor" OFF)
 option(USE_NCURSES "Use ncurses for terminal" ON)
-option(USE_ONLINE "Options for online scans" OFF)
-option(USE_POLL "Install Poll" ON)
+mark_as_advanced(USE_NCURSES)
 option(USE_ROOT "Use ROOT" ON)
-option(USE_SETUP "Include the older setup programs in installation" OFF)
-option(USE_TREE_DEBUG "Debugging info for TreeCorrelator" OFF)
-option(USE_VERBOSE "Make Scan More Verbose" OFF)
 
 #------------------------------------------------------------------------------
 
 #Definitions without options
-
-# newreadout is needed to account for a change to pixie16 readout
-# structure change on 03/20/08. Is is REQUIRED!!
-add_definitions(-D newreadout)
 
 #Adds the install prefix for referencing in the source code
 add_definitions(-D INSTALL_PREFIX="\\"${CMAKE_INSTALL_PREFIX}\\"")
@@ -80,34 +74,20 @@ if(USE_DAMM)
     add_definitions("-D USE_DAMM")
 endif()
 
-#utkscan will have Gamma-Gamma gating in the GeProcessor
-if(USE_GAMMA_GATES)
-    add_definitions(-D GGATES)
-endif(USE_GAMMA_GATES)
-
-#utkscan will be streamlined for online processing
-if(USE_ONLINE)
-    add_definitions(-D ONLINE)
-endif(USE_ONLINE)
-
-#utkscan will have debugging for the TreeCorrelator
-if(USE_TREE_DEBUG)
-    add_definitions(-D TREE_DEBUG)
-endif(USE_TREE_DEBUG)
-
-#utkscan will be more verbose in its output
-if(USE_VERBOSE)
-    add_definitions(-D VERBOSE)
-endif(USE_VERBOSE)
-
 #------------------------------------------------------------------------------
 
 #Find packages needed for poll2
 #Load additional find_package scripts.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
-#Find thread library for poll2
+#Find thread library for poll2 and scanLib
 find_package (Threads REQUIRED)
+
+#Find the PLX Library
+find_package (PLX)
+
+#Find the Pixie Firmware
+find_package (PXI)
 
 #Find curses library used for poll2/scan/skeleton/scope/etc
 if(USE_NCURSES)
@@ -115,29 +95,35 @@ if(USE_NCURSES)
 endif()
 if (CURSES_FOUND)
 	add_definitions("-D USE_NCURSES")
-	mark_as_advanced(FORCE CURSES_CURSES_H_PATH CURSES_FORM_LIBRARY)
+	mark_as_advanced(FORCE CURSES_HAVE_CURSES_H CURSES_CURSES_H_PATH CURSES_FORM_LIBRARY)
 else()
 	message(STATUS "Curses unavailable, basic terminal will be used.")
 	set(USE_NCURSES OFF)
 endif()
 
-if (USE_POLL)
-    #Find the PLX Library
-    find_package(PLX REQUIRED)
-    link_directories(${PLX_LIBRARY_DIR})
-    #add_definitions("-DPLX_LINUX -DPCI_CODE -DPLX_LITTLE_ENDIAN")
 
-    #Find the Pixie Firmware
-    find_package(PXI REQUIRED)
-    include_directories(${PXI_INCLUDE_DIR})
-    link_directories(${PXI_LIBRARY_DIR})
+if (BUILD_SUITE)
+	if(NOT BUILD_SUITE_ATTEMPTED AND NOT PLX_FOUND AND NOT PXI_FOUND)
+		set (BUILD_SUITE OFF CACHE BOOL "Build and install PixieSuite" FORCE)
+	else (PLX_FOUND OR PXI_FOUND)
+		#Find the PLX Library
+	   find_package(PLX REQUIRED)
+   	link_directories(${PLX_LIBRARY_DIR})
+	   #add_definitions("-DPLX_LINUX -DPCI_CODE -DPLX_LITTLE_ENDIAN")
 
-    #Create pixie.cfg and copy slot_def.set as well as default.set to current.set
-    PXI_CONFIG()
-    #Use the cmake script created by PXI_CONFIG to install the files it
-    #created when make cfg is typed
-    add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)
-endif()
+	   #Find the Pixie Firmware
+	   find_package(PXI REQUIRED)
+	   include_directories(${PXI_INCLUDE_DIR})
+	   link_directories(${PXI_LIBRARY_DIR})
+
+	   #Create pixie.cfg and copy slot_def.set as well as default.set to current.set
+	   PXI_CONFIG()
+	   #Use the cmake script created by PXI_CONFIG to install the files it
+	   #created when make cfg is typed
+	   add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)
+	endif()
+	set (BUILD_SUITE_ATTEMPTED ON CACHE INTERNAL "Build Suite Attempted")
+endif(BUILD_SUITE)
 
 #Find ROOT if USE_ROOT was set.
 if (USE_ROOT)
@@ -170,7 +156,7 @@ if (USE_POLL)
 	add_subdirectory(MCA)
 
 	#Build the setup tools
-	if (USE_SETUP) 
+	if (BUILD_SETUP) 
 		include_directories(Setup/include)
 		add_subdirectory(Setup)
 	endif()
