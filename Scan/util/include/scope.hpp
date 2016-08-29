@@ -210,6 +210,7 @@ class scopeScanner : public ScanInterface {
 	bool singleCapture_;
 	bool init;	
 	bool running;
+	bool performFit_;
   
 	std::vector<int> x_vals;
 	std::deque<ChannelEvent*> chanEvents_; ///<The buffer of waveforms to be plotted.
@@ -225,7 +226,8 @@ class scopeScanner : public ScanInterface {
 	TProfile *prof; ///<The profile of the average histogram.
 
 	TF1 *paulauskasFunc; ///< A TF1 of the Paulauskas Function (NIM A 737 (2014) 22)
-	TF1 *paulauskasFuncText; ///< A TF1 of the Paulauskas Function (NIM A 737 (2014) 22)
+
+	TF1 *SetupFunc();
 
 	void ResetGraph(unsigned int size_);
 	

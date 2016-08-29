@@ -103,6 +103,7 @@ scopeScanner::scopeScanner(int mod /*= 0*/, int chan/*=0*/) : ScanInterface() {
 	singleCapture_ = false;
 	init = false;
 	running = true;
+	performFit_ = false;
 	numEvents = 20;
 	numAvgWaveforms_ = 1;
 	fitLow_ = 10;
@@ -122,9 +123,7 @@ scopeScanner::scopeScanner(int mod /*= 0*/, int chan/*=0*/) : ScanInterface() {
 	graph->SetMarkerStyle(kFullDotSmall);
 	hist = new TH2F("hist","",256,0,1,256,0,1);
 
-	paulauskasFunc = new TF1("paulauskas",PaulauskasFitFunc,0,1,5);
-	paulauskasFuncText = new TF1("paulauskasText","[0] * exp(-(x - [1])*[2]) * (1 - exp(-pow((x-[1])*[3],4)))",4);
-	paulauskasFunc->SetParNames("voffset","amplitude","phase","beta","gamma");
+	SetupFunc();
 
 	gStyle->SetPalette(51);
 	
@@ -142,6 +141,13 @@ scopeScanner::~scopeScanner(){
 	delete graph;
 	delete hist;
 	delete paulauskasFunc;
+}
+
+TF1 *scopeScanner::SetupFunc() {
+	paulauskasFunc = new TF1("paulauskas",PaulauskasFitFunc,0,1,5);
+	paulauskasFunc->SetParNames("voffset","amplitude","phase","beta","gamma");
+	
+	return paulauskasFunc;
 }
 
 void scopeScanner::ResetGraph(unsigned int size) {
@@ -228,12 +234,14 @@ void scopeScanner::Plot(){
 		float lowVal = (chanEvents_.front()->max_index - fitLow_) * ADC_TIME_STEP;
 		float highVal = (chanEvents_.front()->max_index + fitHigh_) * ADC_TIME_STEP;
 
-		paulauskasFunc->SetRange(lowVal, highVal);
-		paulauskasFunc->SetParameters(chanEvents_.front()->baseline,chanEvents_.front()->qdc*0.5,lowVal,0.5,0.1);
-		paulauskasFunc->SetParLimits(0,chanEvents_.front()->baseline - chanEvents_.front()->stddev,chanEvents_.front()->baseline + chanEvents_.front()->stddev);
-		paulauskasFunc->SetParLimits(1,0,2 * chanEvents_.front()->qdc);
-		paulauskasFunc->SetParLimits(4,0,0.5);
-		graph->Fit(paulauskasFunc,"QMER");
+		if(performFit_){
+			paulauskasFunc->SetRange(lowVal, highVal);
+			paulauskasFunc->SetParameters(chanEvents_.front()->baseline,chanEvents_.front()->qdc*0.5,lowVal,0.5,0.1);
+			paulauskasFunc->SetParLimits(0,chanEvents_.front()->baseline - chanEvents_.front()->stddev,chanEvents_.front()->baseline + chanEvents_.front()->stddev);
+			paulauskasFunc->SetParLimits(1,0,2 * chanEvents_.front()->qdc);
+			paulauskasFunc->SetParLimits(4,0,0.5);
+			graph->Fit(paulauskasFunc,"QMER");
+		}
 	}
 	else { //For multiple events with make a 2D histogram and plot the profile on top.
 		//Determine the maximum and minimum values of the events.
@@ -275,12 +283,15 @@ void scopeScanner::Plot(){
 
 		float lowVal = prof->GetBinCenter(prof->GetMaximumBin() - fitLow_);
 		float highVal = prof->GetBinCenter(prof->GetMaximumBin() + fitHigh_);
-		paulauskasFunc->SetRange(lowVal, highVal);
-		paulauskasFunc->SetParameters(chanEvents_.front()->baseline,chanEvents_.front()->qdc*0.5,lowVal,0.5,0.1);
-		paulauskasFunc->SetParLimits(0,chanEvents_.front()->baseline - chanEvents_.front()->stddev,chanEvents_.front()->baseline + chanEvents_.front()->stddev);
-		paulauskasFunc->SetParLimits(1,0,2*chanEvents_.front()->qdc);
-		paulauskasFunc->SetParLimits(4,0,0.5);
-		prof->Fit(paulauskasFunc,"QMER");
+		
+		if(performFit_){
+			paulauskasFunc->SetRange(lowVal, highVal);
+			paulauskasFunc->SetParameters(chanEvents_.front()->baseline,chanEvents_.front()->qdc*0.5,lowVal,0.5,0.1);
+			paulauskasFunc->SetParLimits(0,chanEvents_.front()->baseline - chanEvents_.front()->stddev,chanEvents_.front()->baseline + chanEvents_.front()->stddev);
+			paulauskasFunc->SetParLimits(1,0,2*chanEvents_.front()->qdc);
+			paulauskasFunc->SetParLimits(4,0,0.5);
+			prof->Fit(paulauskasFunc,"QMER");
+		}
 
 		hist->SetStats(false);
 		hist->Draw("COLZ");		
@@ -531,9 +542,19 @@ bool scopeScanner::ExtraCommands(const std::string &cmd_, std::vector<std::strin
 		}
 	}
 	else if (cmd_ == "fit") {
-		if (args_.size() == 2) {
+		if (args_.size() >= 1 && args_.at(0) == "off") { // Turn root fitting off.
+			if(performFit_){
+				std::cout << msgHeader << "Disabling root fitting.\n"; 
+				canvas->Clear();
+				performFit_ = false;
+			}
+			else{ std::cout << msgHeader << "Fitting is not enabled.\n"; }
+		}
+		else if (args_.size() == 2) { // Turn root fitting on.
 			fitLow_ = atoi(args_.at(0).c_str());
 			fitHigh_ = atoi(args_.at(1).c_str());
+			std::cout << msgHeader << "Setting root fitting range to [" << fitLow_ << ", " << fitHigh_ << "].\n"; 
+			performFit_ = true;
 		}
 		else {
 			std::cout << msgHeader << "Invalid number of parameters to 'fit'\n";
