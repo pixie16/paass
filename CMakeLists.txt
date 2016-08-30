@@ -91,7 +91,7 @@ find_package (PXI)
 
 #Find curses library used for poll2/scan/skeleton/scope/etc
 if(USE_NCURSES)
-	find_package(Curses)
+	find_package(Curses REQUIRED)
 endif()
 if (CURSES_FOUND)
 	add_definitions("-D USE_NCURSES")
