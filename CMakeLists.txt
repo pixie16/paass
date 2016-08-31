@@ -146,7 +146,7 @@ include_directories(Scan/include)
 add_subdirectory(Scan)
 
 #Building polling tools
-if (USE_POLL)
+if (BUILD_SUITE)
 	#Build the pixie interface
 	include_directories(Interface/include)
 	add_subdirectory(Interface/source)
