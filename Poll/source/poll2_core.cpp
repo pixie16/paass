@@ -711,7 +711,7 @@ bool Poll::stop_run() {
 		std::cout << statsHandler->GetTotalTime() << "s\n";
 
 		//Close the output file
-		CloseOutputFile(); }
+		CloseOutputFile(); 
 	}
 
 	record_data = false;
