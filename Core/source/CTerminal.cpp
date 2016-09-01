@@ -870,7 +870,6 @@ void Terminal::TabComplete(const std::string &input_, const std::vector<std::str
 	//Get the string to complete
 	std::string strToComplete = input_.substr(start, stop-start);
 
-	if(strToComplete.empty()) return;
 
 	for (auto it=possibilities_.begin(); it!=possibilities_.end();++it) {
 		if (it->empty())
