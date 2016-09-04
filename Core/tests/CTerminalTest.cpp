@@ -5,8 +5,9 @@
 #include "CTerminal.h"
 
 int main(int argc, char *argv[]){
+	bool debug = false;
 	//Vector of possible commands.
-	std::vector< std::string > commandChoices = {"help", "quit", "tab"};
+	std::vector< std::string > commandChoices = {"help", "quit", "debug", "tab"};
 	//Map of vector possible arguments for a given command.
 	std::map< std::string, std::vector< std::string > > argumentChoices;
 	argumentChoices["tab"] = std::vector< std::string > {"arg1", "arg2"};
@@ -25,7 +26,7 @@ int main(int argc, char *argv[]){
 
 	while (true) {
 		cmd = term.GetCommand(arg);
-		std::cout << "TEST: cmd='" << cmd << "' arg='" << arg << "'\n";
+		if (debug) std::cout << "TEST: cmd='" << cmd << "' arg='" << arg << "'\n";
  
 		if (cmd.find("\t") != std::string::npos) {
 			term.TabComplete(cmd, commandChoices);
@@ -39,6 +40,13 @@ int main(int argc, char *argv[]){
 		if (cmd == "quit") break;
 		else if (cmd == "help") {
 			std::cout << "This is a test program to test the terminal.\n";
+		}
+		else if (cmd == "debug") {
+			debug = !debug;
+			std::cout << "Debug mode ";
+			if (debug) std::cout << "is on.\n";
+			else std::cout << "is off.\n";
+			term.SetDebug(debug);
 		}
 		else if (cmd == "tab") {
 			std::cout << "This command tests the argument tab completion.\n";
