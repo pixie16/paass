@@ -89,17 +89,18 @@ bool skeletonScanner::ExtraCommands(const std::string &cmd_, std::vector<std::st
   */
 void skeletonScanner::ExtraArguments(){
 	if(userOpts.at(0).active)
-		std::cout << msgHeader << "Using option X.\n";
+		std::cout << msgHeader << "Using option --myarg1 (-x).\n";
 	if(userOpts.at(1).active)
-		std::cout << msgHeader << "Using option Y: arg=\"" << userOpts.at(1).argument << "\"\n";
+		std::cout << msgHeader << "Using option --myarg2 (-y): arg=\"" << userOpts.at(1).argument << "\"\n";
 	if(userOpts.at(2).active)
-		std::cout << msgHeader << "Using option Z: arg=\"" << userOpts.at(2).argument << "\"\n";
+		std::cout << msgHeader << "Using option --myarg3 (-z): arg=\"" << userOpts.at(2).argument << "\"\n";
+	if(userOpts.at(3).active)
+		std::cout << msgHeader << "Using option --myarg4.\n";
 }
 
 /** CmdHelp is used to allow a derived class to print a help statement about
   * its own commands. This method is called whenever the user enters 'help'
   * or 'h' into the interactive terminal (if available).
-  * \param[in]  prefix_ String to append at the start of any output.
   * \return Nothing.
   */
 void skeletonScanner::CmdHelp(){
@@ -116,6 +117,7 @@ void skeletonScanner::ArgHelp(){
 	AddOption(optionExt("myarg1", no_argument, NULL, 'x', "", "A useful command line argument."));
 	AddOption(optionExt("myarg2", required_argument, NULL, 'y', "<arg>", "A useful command line argument with a required argument."));
 	AddOption(optionExt("myarg3", optional_argument, NULL, 'z', "[arg]", "A useful command line argument with an optional argument."));
+	AddOption(optionExt("myarg4", no_argument, NULL, 0, "", "A long only command line argument."));
 	
 	// Note that the following single character options are reserved by ScanInterface
 	//  b, h, i, o, q, s, and v
