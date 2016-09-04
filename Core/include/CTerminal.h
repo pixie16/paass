@@ -221,6 +221,7 @@ class Terminal{
 	float commandTimeout_; ///<Time in seconds to wait for command.
 
 	short tabCount;
+	bool debug_; ///<Flag indicating verbose output is enabled.
 
 	std::ofstream logFile;
 
@@ -279,6 +280,9 @@ class Terminal{
 	
 	///Specify the log file to append.
 	bool SetLogFile(std::string logFileName);
+		
+	///Initalize terminal debug mode.
+	void SetDebug(bool debug=true) {debug_=debug;};
 
 	/// Initalizes a status window under the input temrinal.
 	void AddStatusWindow(unsigned short numLines = 1);
