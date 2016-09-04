@@ -445,6 +445,7 @@ void scopeScanner::CmdHelp(const std::string &prefix_/*=""*/){
 	std::cout << "   single                 - Perform a single capture.\n";
 	std::cout << "   thresh <low> [high]    - Set the plotting window for trace maximum.\n";
 	std::cout << "   fit <low> <high>       - Turn on fitting of waveform.\n";
+	std::cout << "                          - Set <low> to \"off\" to disable fitting.\n";
 	std::cout << "   avg <numWaveforms>     - Set the number of waveforms to average.\n";
 	std::cout << "   save <fileName>        - Save the next trace to the specified file name..\n";
 	std::cout << "   delay [time]           - Set the delay between drawing traces (in seconds, default = 1 s).\n";
@@ -545,7 +546,8 @@ bool scopeScanner::ExtraCommands(const std::string &cmd_, std::vector<std::strin
 		if (args_.size() >= 1 && args_.at(0) == "off") { // Turn root fitting off.
 			if(performFit_){
 				std::cout << msgHeader << "Disabling root fitting.\n"; 
-				canvas->Clear();
+				delete graph->GetListOfFunctions()->FindObject(paulauskasFunc->GetName());
+				canvas->Update();
 				performFit_ = false;
 			}
 			else{ std::cout << msgHeader << "Fitting is not enabled.\n"; }
@@ -559,6 +561,7 @@ bool scopeScanner::ExtraCommands(const std::string &cmd_, std::vector<std::strin
 		else {
 			std::cout << msgHeader << "Invalid number of parameters to 'fit'\n";
 			std::cout << msgHeader << " -SYNTAX- fit <low> <high>\n";
+			std::cout << msgHeader << " -SYNTAX- fit off\n";
 		}
 	}
 	else if (cmd_ == "avg") {
