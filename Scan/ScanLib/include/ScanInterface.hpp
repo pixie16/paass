@@ -29,19 +29,26 @@ class Server;
 class Terminal;
 class Unpacker;
 
-class optionExt : public option {
+class optionExt{
   public:
+	const char* name;
+	int has_arg;
+	int *flag;
+	int val;
+  
   	std::string argstr; /// The argument syntax for the command line option.
 	std::string helpstr; /// The help & syntax string to print when -h is passed.
 	std::string argument; /// The argument received from getopt_long (if available).
 	bool active; /// Set to true if this option was selected by the user.
 	
-	optionExt() : option(), active(false) { }
+	optionExt() : has_arg(0), flag(0), val(0), active(false) { }
 	
-	optionExt(const char *name_, int has_arg_, int *flag_, int val_, std::string arg_, std::string help_);
+	optionExt(const char *name_, const int &has_arg_, int *flag_, const int &val_, const std::string &arg_, const std::string &help_);
 	
 	/// Print a help string for this option.
 	void print(const size_t &len_=0, const std::string &prefix_="");
+	
+	option getOption();
 };
 
 class fileInformation{
@@ -163,8 +170,7 @@ class ScanInterface{
 	std::string msgHeader; /// The string to print before program output.
 	std::string progName; /// The name of the program.
 
-	optionExt *longOpts; /// Array of all command line options.
-	size_t optArraySize; /// Size of the array of all command line options.
+	std::vector<option> longOpts; /// Vector of all command line options.
 	std::vector<optionExt> baseOpts; /// Base level command line options for the scan.
 	std::vector<optionExt> userOpts; /// User added command line options.
 	std::string optstr;
