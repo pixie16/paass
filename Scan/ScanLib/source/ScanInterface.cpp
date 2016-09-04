@@ -42,14 +42,8 @@ void start_cmd_control(ScanInterface *main_){
 // class optionExt
 /////////////////////////////////////////////////////////////////////
 
-optionExt::optionExt(const char *name_, int has_arg_, int *flag_, int val_, std::string argstr_, std::string helpstr_) : option() {
-	name = name_;
-	has_arg = has_arg_;
-	flag = flag_;
-	val = val_;
-	argstr = argstr_;
-	helpstr = helpstr_;
-	active = false;
+optionExt::optionExt(const char *name_, const int &has_arg_, int *flag_, const int &val_, const std::string &argstr_, const std::string &helpstr_) : 
+  name(name_), has_arg(has_arg_), flag(flag_), val(val_), argstr(argstr_), helpstr(helpstr_), active(false) {
 }
 
 void optionExt::print(const size_t &len_/*=0*/, const std::string &prefix_/*=""*/){
@@ -63,6 +57,15 @@ void optionExt::print(const size_t &len_/*=0*/, const std::string &prefix_/*=""*
 	
 	stream << "- " << helpstr;
 	std::cout << stream.str() << std::endl;
+}
+
+option optionExt::getOption(){
+	struct option output;
+	output.name = name;
+	output.has_arg = has_arg;
+	output.flag = flag;
+	output.val = val;
+	return output;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -157,9 +160,13 @@ void ScanInterface::stop_scan(){
 void ScanInterface::help(char *name_){
 	SyntaxStr(name_);
 	std::cout << "  Available options:\n";
-	for(size_t i = 0; i < optArraySize; i++){
-		if(!longOpts[i].name) continue;
-		longOpts[i].print(40, "   ");
+	for(std::vector<optionExt>::iterator iter = baseOpts.begin(); iter != baseOpts.end(); iter++){
+		if(!iter->name) continue;
+		iter->print(40, "   ");
+	}
+	for(std::vector<optionExt>::iterator iter = userOpts.begin(); iter != userOpts.end(); iter++){
+		if(!iter->name) continue;
+		iter->print(40, "   ");
 	}
 }
 
@@ -380,7 +387,6 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 	kill_all = false;
 	run_ctrl_exit = false;
 
-	longOpts = NULL;
 	poll_server = NULL;
 	term = NULL;
 	
@@ -822,20 +828,17 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	// Add derived class options to the option list.
 	this->ArgHelp();
 
-	// Build the array of all command line options.
-	optArraySize = (baseOpts.size()+userOpts.size()+1);
-	longOpts = new optionExt[optArraySize];
-	
-	unsigned int index = 0;
+	// Build the vector of all command line options.
 	for(std::vector<optionExt>::iterator iter = baseOpts.begin(); iter != baseOpts.end(); iter++){
-		longOpts[index++] = (*iter);
+		longOpts.push_back(iter->getOption()); 
 	}
 	for(std::vector<optionExt>::iterator iter = userOpts.begin(); iter != userOpts.end(); iter++){
-		longOpts[index++] = (*iter);
+		longOpts.push_back(iter->getOption()); 
 	}
 
 	// Append all zeros onto the option list. Required for getopt_long.
-	longOpts[optArraySize-1] = optionExt(NULL, no_argument, NULL, 0, "", "");
+	struct option zero_opt { 0, 0, 0, 0 };
+	longOpts.push_back(zero_opt);
 
 	int idx = 0;
 	int retval = 0;
@@ -843,7 +846,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	//getopt_long is not POSIX compliant. It is provided by GNU. This may mean
 	//that we are not compatable with some systems. If we have enough
 	//complaints we can either change it to getopt, or implement our own class. 
-	while ( (retval = getopt_long(argc, argv, optstr.c_str(), longOpts, &idx)) != -1) {
+	while ( (retval = getopt_long(argc, argv, optstr.c_str(), longOpts.data(), &idx)) != -1) {
 		if(retval == 0x0){ // Long option
 			if(strcmp("setup", longOpts[idx].name) == 0) {
 				setup_filename = optarg;
@@ -861,6 +864,14 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 				file_start_offset = atoll(optarg);
 			}
 			else{
+				for(std::vector<optionExt>::iterator iter = userOpts.begin(); iter != userOpts.end(); iter++){
+					if(strcmp(iter->name, longOpts[idx].name) == 0){
+						iter->active = true;
+						if(optarg)
+							iter->argument = std::string(optarg);
+						break;
+					}
+				}
 			}
 		}
 		else if(retval == 0x3F){ // Unknown option, '?'
@@ -1052,7 +1063,6 @@ bool ScanInterface::Close(){
 	if(write_counts)
 		core->Write();
 	
-	if(longOpts){ delete longOpts; }
 	if(poll_server){ delete poll_server; }
 	if(term){ delete term; }
 	if(core){ delete core; }
