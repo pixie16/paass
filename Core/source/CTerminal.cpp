@@ -1025,11 +1025,25 @@ std::string Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/
 				break;
 			} 
 			else if(keypress == '\t' && enableTabComplete) {
+				//increase the count for tab presses
 				tabCount++;
-				if(cmd.Get().find(';') == std::string::npos)
-					output = cmd.Get().substr(0,cursX - offset) + "\t";
-				else
-					output = cmd.Get().substr(cmd.Get().find_last_of(';')+1,cursX - offset) + "\t";
+
+				//Compute the boundaris of this command taking into account semicolons.
+				size_t stop = cursX - offset;
+				size_t start = cmd.Get().find_last_of(';', cursX - offset - 1) + 1;
+				//Check that the values are reasonable
+				if (start == std::string::npos) start = 0;
+				if (stop == std::string::npos) stop = cmd.Get().length();
+
+				//Determine string to be passed to tab completer and add '\t' character.
+				output = cmd.Get().substr(start, stop - start) + "\t";
+		
+				//Output debug info.
+				if (debug_) {
+					std::cout << "TERM: Tab complete " << start << "<->" << stop << " ";
+					std::cout << " '" << output << "'" << "\n";
+				}
+
 				break;
 			}
 			else if(keypress == 4){ // ctrl-d (EOT)
