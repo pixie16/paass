@@ -642,6 +642,7 @@ Terminal::Terminal() :
 	status_window(NULL),
 	_statusWindowSize(0),
 	commandTimeout_(0),
+	debug_(false),
 	_scrollbackBufferSize(SCROLLBACK_SIZE),
 	_scrollPosition(0)
 {
@@ -997,10 +998,18 @@ std::string Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/
 			}
 		
 			int keypress = wgetch(input_window);
+
 	
 			// Check for internal commands
 			if(keypress == ERR){continue;} // No key was pressed in the interval
-			else if(keypress == 10){ // Enter key (10)
+
+			if (debug_) {
+				std::cout << "TERM: Curs (" << cursX << ", " << cursY << ") ";
+				std::cout << "Key: " << keypress << " " << (char)keypress << " "; 
+				std::cout << "\n";
+			}
+			
+			if(keypress == 10){ // Enter key (10)
 				std::string temp_cmd = cmd.Get();
 				//Reset the position in the history.
 				commands.Reset();
