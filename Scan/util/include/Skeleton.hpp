@@ -54,14 +54,15 @@ class skeletonScanner : public ScanInterface {
 	  */
 	virtual bool ExtraCommands(const std::string &cmd_, std::vector<std::string> &args_);
 	
-    /** ExtraArguments is used to send command line arguments to classes derived
-     * from ScanInterface. It has its own instance of getopts to look for its known 
-     * parameters. 
-     * \param[in] argc : The number of command line arguments
-     * \param[in] argv[] : The arrary containing all command line arguments */
-    virtual void ExtraArguments(int argc, char *argv[]);
+	/** ExtraArguments is used to send command line arguments to classes derived
+	  * from ScanInterface. This method should loop over the optionExt elements
+	  * in the vector userOpts and check for those options which have been flagged
+	  * as active by ::Setup(). This should be overloaded in the derived class.
+	  * \return Nothing.
+	  */
+	virtual void ExtraArguments();
     
-    /** CmdHelp is used to allow a derived class to print a help statement about
+	/** CmdHelp is used to allow a derived class to print a help statement about
 	  * its own commands. This method is called whenever the user enters 'help'
 	  * or 'h' into the interactive terminal (if available).
 	  * \param[in]  prefix_ String to append at the start of any output.
@@ -69,9 +70,10 @@ class skeletonScanner : public ScanInterface {
 	  */
 	virtual void CmdHelp();
 	
-	/** ArgHelp is used to allow a derived class to print a help statment about
-	  * its own command line arguments. This method is called at the end of
-	  * the ScanInterface::help method.
+	/** ArgHelp is used to allow a derived class to add a command line option
+	  * to the main list of options. This method is called at the end of
+	  * from the ::Setup method.
+	  * Does nothing useful by default.
 	  * \return Nothing.
 	  */
 	virtual void ArgHelp();

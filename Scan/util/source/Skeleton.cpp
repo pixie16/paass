@@ -82,37 +82,18 @@ bool skeletonScanner::ExtraCommands(const std::string &cmd_, std::vector<std::st
 }
 
 /** ExtraArguments is used to send command line arguments to classes derived
- * from ScanInterface. It has its own instance of getopts to look for its known 
- * parameters. 
- * \param[in] argc : The number of command line arguments
- * \param[in] argv[] : The arrary containing all command line arguments */
-void skeletonScanner::ExtraArguments(int argc, char *argv[]) {
-    struct option opts[] = {
-        { "xtra", no_argument, NULL, 'x'},
-        { "kick", required_argument, NULL, 'k'},
-        { "ugh", no_argument, NULL, 'u'},
-        { NULL, no_argument, NULL, 0 }
-    };
-    
-    std::string optstr = "xk:u";
-    int idx = 0;
-    int retval = 0;
-    
-    while ( (retval = getopt_long(argc,argv,optstr.c_str(),opts,&idx)) != -1) {
-        switch(retval) {
-        case 'x':
-            std::cout << "Got option X" << std::endl;
-            break;
-        case 'k':
-            std::cout << "Got option k  " << optarg << std::endl;
-            break;
-        case ':' :
-        case '?' :
-        default:
-            ArgHelp();
-            exit(0);
-        }
-    }
+  * from ScanInterface. This method should loop over the optionExt elements
+  * in the vector userOpts and check for those options which have been flagged
+  * as active by ::Setup(). This should be overloaded in the derived class.
+  * \return Nothing.
+  */
+void skeletonScanner::ExtraArguments(){
+	if(userOpts.at(0).active)
+		std::cout << msgHeader << "Using option X.\n";
+	if(userOpts.at(1).active)
+		std::cout << msgHeader << "Using option Y: arg=\"" << userOpts.at(1).argument << "\"\n";
+	if(userOpts.at(2).active)
+		std::cout << msgHeader << "Using option Z: arg=\"" << userOpts.at(2).argument << "\"\n";
 }
 
 /** CmdHelp is used to allow a derived class to print a help statement about
@@ -125,13 +106,19 @@ void skeletonScanner::CmdHelp(){
 	std::cout << "   mycmd <param> - Do something useful.\n";
 }
 
-/** ArgHelp is used to allow a derived class to print a help statment about
-  * its own command line arguments. This method is called at the end of
-  * the ScanInterface::help method.
+/** ArgHelp is used to allow a derived class to add a command line option
+  * to the main list of options. This method is called at the end of
+  * from the ::Setup method.
+  * Does nothing useful by default.
   * \return Nothing.
   */
 void skeletonScanner::ArgHelp(){
-	std::cout << "   --myarg - A useful command line argument.\n";
+	AddOption(optionExt("myarg1", no_argument, NULL, 'x', "", "A useful command line argument."));
+	AddOption(optionExt("myarg2", required_argument, NULL, 'y', "<arg>", "A useful command line argument with a required argument."));
+	AddOption(optionExt("myarg3", optional_argument, NULL, 'z', "[arg]", "A useful command line argument with an optional argument."));
+	
+	// Note that the following single character options are reserved by ScanInterface
+	//  b, h, i, o, q, s, and v
 }
 
 /** SyntaxStr is used to print a linux style usage message to the screen.
@@ -139,7 +126,7 @@ void skeletonScanner::ArgHelp(){
   * \return Nothing.
   */
 void skeletonScanner::SyntaxStr(char *name_){ 
-	std::cout << " usage: " << std::string(name_) << " [input] [options]\n"; 
+	std::cout << " usage: " << std::string(name_) << " [options]\n"; 
 }
 
 /** Initialize the map file, the config file, the processor handler, 
@@ -216,7 +203,8 @@ int main(int argc, char *argv[]){
 	scanner.SetProgramName(std::string(PROG_NAME));	
 	
 	// Initialize the scanner.
-	scanner.Setup(argc, argv);
+	if(!scanner.Setup(argc, argv))
+		return 1;
 
 	// Run the main loop.
 	int retval = scanner.Execute();
