@@ -1144,7 +1144,7 @@ std::string Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/
 		return "";
 
 	// Split the input string into commands separated by ';'.
-	if(output.find(';') != std::string::npos){
+	if(cmd_queue.empty() && output.find(';') != std::string::npos){
 		split_commands(output, cmd_queue);
 		output = cmd_queue.front();
 		cmd_queue.pop_front();
@@ -1262,21 +1262,51 @@ unsigned int split_str(std::string str, std::vector<std::string> &args, char del
  * \param[in] input_ The string to be parsed.
  * \param[out] cmds The vector to populate with sub-commands.
  */
-void split_commands(const std::string &input_, std::deque<std::string> &cmds){
+void Terminal::split_commands(const std::string &input_, std::deque<std::string> &cmds){
 	if(input_.find(';') == std::string::npos) return;
 	size_t start = 0;
 	size_t stop = 0;
+
+	if (debug_) std::cout << "TERM: MultiCmd: '" << input_ << "' \n";
+
+	int safety = 0;
+	//Loop until we find no more semicolons.
 	while(true){
+		safety++;
+		if (safety> 100) break;
 		stop = input_.find_first_of(';', start);
-		
+		if (debug_) std::cout << "\t" << stop << " ";
+	
+		size_t dblQuotePos = start;
+		int dblQuoteCnt = 0;
+		while (dblQuotePos < stop && stop != std::string::npos) {
+			safety++;
+			if (safety> 100) break;
+			dblQuotePos = input_.find_first_of('"', dblQuotePos+1);
+			if (debug_) std::cout << "dblQuote " << dblQuotePos << " ";
+			
+			if (dblQuotePos == std::string::npos) break;
+			else if (dblQuotePos < stop) dblQuoteCnt++;
+			else if (dblQuotePos > stop && dblQuoteCnt % 2 == 1) {
+				stop = input_.find_first_of(';', dblQuotePos);
+				if (debug_) std::cout << "semicolon inside " << stop << " ";
+				break;
+			}
+		}
+	
 		cmds.push_back(input_.substr(start, stop-start));
+		if (debug_) {
+			std::cout << "Cmd " << start << "<->" << stop << " ";
+			std:: cout << "'" << cmds.back() << "'\n";
+		}
 		
-		if(stop == std::string::npos)
-			break;
+		if(stop == std::string::npos) break;
 		
 		start = input_.find_first_not_of(';', stop);
 		
 		if(start == std::string::npos)
 			break;
 	}
+
+	if (debug_) std::cout << "\n";
 }
