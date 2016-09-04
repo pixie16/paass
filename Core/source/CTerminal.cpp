@@ -1144,11 +1144,11 @@ std::string Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/
 		return "";
 
 	// Split the input string into commands separated by ';'.
-	if(cmd_queue.empty() && output.find(';') != std::string::npos){
+	if(output.find(';') != std::string::npos){
 		split_commands(output, cmd_queue);
 		output = cmd_queue.front();
 		cmd_queue.pop_front();
-		PrintCommand(output);
+		from_script = true;
 	}
 		
 	// Split the string into a command and an argument.
@@ -1264,6 +1264,10 @@ unsigned int split_str(std::string str, std::vector<std::string> &args, char del
  */
 void Terminal::split_commands(const std::string &input_, std::deque<std::string> &cmds){
 	if(input_.find(';') == std::string::npos) return;
+
+	//Build a temporary deque of commands split on semicolon.
+	std::deque< std::string > cmdQueue;
+
 	size_t start = 0;
 	size_t stop = 0;
 
@@ -1275,7 +1279,7 @@ void Terminal::split_commands(const std::string &input_, std::deque<std::string>
 		safety++;
 		if (safety> 100) break;
 		stop = input_.find_first_of(';', start);
-		if (debug_) std::cout << "\t" << stop << " ";
+		if (debug_) std::cout << "\tsemicolon " << stop << " ";
 	
 		size_t dblQuotePos = start;
 		int dblQuoteCnt = 0;
@@ -1294,10 +1298,10 @@ void Terminal::split_commands(const std::string &input_, std::deque<std::string>
 			}
 		}
 	
-		cmds.push_back(input_.substr(start, stop-start));
+		cmdQueue.push_back(input_.substr(start, stop-start));
 		if (debug_) {
 			std::cout << "Cmd " << start << "<->" << stop << " ";
-			std:: cout << "'" << cmds.back() << "'\n";
+			std:: cout << "'" << cmdQueue.back() << "'\n";
 		}
 		
 		if(stop == std::string::npos) break;
@@ -1307,6 +1311,23 @@ void Terminal::split_commands(const std::string &input_, std::deque<std::string>
 		if(start == std::string::npos)
 			break;
 	}
+
+
+	//If the destination queue iis empty we put split commands at the end,
+	// if the detination has commands in it we put the split ones at the beginning.
+	if (cmds.empty()) {
+		while (!cmdQueue.empty()) {
+			cmds.push_back(cmdQueue.front());
+			cmdQueue.pop_front();
+		}
+	}
+	else {
+		while (!cmdQueue.empty()) {
+			cmds.push_front(cmdQueue.back());
+			cmdQueue.pop_back();
+		}
+	}
+
 
 	if (debug_) std::cout << "\n";
 }
