@@ -584,7 +584,6 @@ void ScanInterface::RunControl(){
 					}
 					continue;
 				}
-				sleep(1);
 
 				std::stringstream status;			
 				status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes/4 << " words (" << 100*input_file.tellg()/file_length << "%), ";
