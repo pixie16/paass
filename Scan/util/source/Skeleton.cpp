@@ -67,13 +67,20 @@ skeletonScanner::~skeletonScanner(){
   * \return True if the command was recognized and false otherwise.
   */
 bool skeletonScanner::ExtraCommands(const std::string &cmd_, std::vector<std::string> &args_){
-	if(cmd_ == "mycmd"){
-		if(args_.size() >= 1){
-			// Handle the command.
+	if(cmd_ == "mycmd1"){ // Handle the command.
+	}
+	else if(cmd_ == "mycmd2"){
+		if(args_.size() >= 1){ // Do something with the argument.
 		}
-		else{
-			std::cout << msgHeader << "Invalid number of parameters to 'mycmd'\n";
-			std::cout << msgHeader << " -SYNTAX- mycmd <param>\n";
+		else{ // No argument, do something else.
+		}
+	}
+	else if(cmd_ == "mycmd3"){
+		if(args_.size() >= 1){ // Do something with the single argument.
+		}
+	}
+	else if(cmd_ == "mycmd4"){
+		if(args_.size() >= 2){ // Do something with the two arguments.
 		}
 	}
 	else{ return false; } // Unrecognized command.
@@ -101,10 +108,14 @@ void skeletonScanner::ExtraArguments(){
 /** CmdHelp is used to allow a derived class to print a help statement about
   * its own commands. This method is called whenever the user enters 'help'
   * or 'h' into the interactive terminal (if available).
+  * \param[in]  prefix_ String to append at the start of any output. Not used by default.
   * \return Nothing.
   */
-void skeletonScanner::CmdHelp(){
-	std::cout << "   mycmd <param> - Do something useful.\n";
+void skeletonScanner::CmdHelp(const std::string &prefix_/*=""*/){
+	std::cout << "   mycmd1                   - A useful terminal command.\n";
+	std::cout << "   mycmd2 [param]           - A useful terminal command with an optional argument.\n";
+	std::cout << "   mycmd3 <param>           - A useful terminal command with one argument.\n";
+	std::cout << "   mycmd4 <param1> <param2> - A useful terminal command with two arguments.\n";
 }
 
 /** ArgHelp is used to allow a derived class to add a command line option
