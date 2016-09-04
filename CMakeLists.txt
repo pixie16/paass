@@ -53,6 +53,7 @@ option(BUILD_SETUP "Include the older setup programs in installation" OFF)
 option(BUILD_SHARED_LIBS "Install only scan libraries" ON)
 option(BUILD_SKELETON "Build and install the skeleton scan" OFF)
 option(BUILD_SUITE "Build and install PixieSuite" ON)
+option(BUILD_TESTS "Builds programs designed to test the package." OFF)
 option(BUILD_UTKSCAN "Build utkscan" OFF)
 
 option(USE_DAMM "Use DAMM for MCA" ON)
