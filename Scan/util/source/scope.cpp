@@ -452,14 +452,15 @@ void scopeScanner::CmdHelp(const std::string &prefix_/*=""*/){
 	std::cout << "   clear                  - Clear all stored traces and start over.\n";
 }
 
-/** ArgHelp is used to allow a derived class to print a help statment about
-  * its own command line arguments. This method is called at the end of
-  * the ScanInterface::help method.
+/** ArgHelp is used to allow a derived class to add a command line option
+  * to the main list of options. This method is called at the end of
+  * from the ::Setup method.
+  * Does nothing useful by default.
   * \return Nothing.
   */
 void scopeScanner::ArgHelp(){
-	std::cout << "   --mod [module]   | Module of signal of interest (default=0)\n";
-	std::cout << "   --chan [channel] | Channel of signal of interest (default=0)\n";
+	AddOption(optionExt("mod", required_argument, NULL, 'm', "<module>", "Module of signal of interest (default=0)"));
+	AddOption(optionExt("chan", required_argument, NULL, 'c', "<channel>", "Channel of signal of interest (default=0)"));
 }
 
 /** SyntaxStr is used to print a linux style usage message to the screen.
@@ -467,37 +468,20 @@ void scopeScanner::ArgHelp(){
   * \return Nothing.
   */
 void scopeScanner::SyntaxStr(char *name_){ 
-	std::cout << " usage: " << std::string(name_) << " [input] [options]\n"; 
+	std::cout << " usage: " << std::string(name_) << " [options]\n"; 
 }
 
 /** ExtraArguments is used to send command line arguments to classes derived
-  * from ScanInterface. If ScanInterface receives an unrecognized
-  * argument from the user, it will pass it on to the derived class.
-  * \param[in]  arg_    The argument to interpret.
-  * \param[out] others_ The remaining arguments following arg_.
-  * \param[out] ifname  The input filename to send back to use for reading.
-  * \return True if the argument was recognized and false otherwise.
+  * from ScanInterface. This method should loop over the optionExt elements
+  * in the vector userOpts and check for those options which have been flagged
+  * as active by ::Setup(). This should be overloaded in the derived class.
+  * \return Nothing.
   */
-bool scopeScanner::ExtraArguments(const std::string &arg_, std::deque<std::string> &others_, std::string &ifname){
-	if(arg_ == "--mod"){
-		if(others_.empty()){
-			std::cout << " Error: Missing required argument to option '--mod'!\n";
-			return false;
-		}
-		((scopeUnpacker*)core)->SetMod(atoi(others_.front().c_str()));
-		others_.pop_front();
-	}
-	else if(arg_ == "--chan"){
-		if(others_.empty()){
-			std::cout << " Error: Missing required argument to option '--chan'!\n";
-			return false;
-		}
-		((scopeUnpacker*)core)->SetChan(atoi(others_.front().c_str()));
-		others_.pop_front();
-	}
-	else{ ifname = arg_; }
-	
-	return true;
+void scopeScanner::ExtraArguments(){
+	if(userOpts.at(0).active)
+		std::cout << msgHeader << "Set module to (" << ((scopeUnpacker*)core)->SetMod(atoi(userOpts.at(0).argument.c_str())) << ").\n";
+	if(userOpts.at(1).active)
+		std::cout << msgHeader << "Set channel to (" << ((scopeUnpacker*)core)->SetChan(atoi(userOpts.at(1).argument.c_str())) << ").\n";
 }
 
 /** ExtraCommands is used to send command strings to classes derived
@@ -624,9 +608,8 @@ int main(int argc, char *argv[]){
 	scanner.SetProgramName(std::string(PROG_NAME));	
 	
 	// Initialize the scanner.
-	if(!scanner.Setup(argc, argv)){
+	if(!scanner.Setup(argc, argv))
 		return 1;
-	}
 
 	// Run the main loop.
 	int retval = scanner.Execute();
