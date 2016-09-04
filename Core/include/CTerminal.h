@@ -269,6 +269,9 @@ class Terminal{
 
 	/// Force a character string to the output screen
 	void print(WINDOW *window, std::string input_);
+
+	/// Split a string into multiple commands separated by a ';'.
+	void split_commands(const std::string &input_, std::deque<std::string> &cmds);
 			
   public:
 	Terminal();
@@ -333,7 +336,5 @@ class Terminal{
 /// Split a string about some delimiter.
 unsigned int split_str(std::string str, std::vector<std::string> &args, char delimiter=' ');
 
-/// Split a string into multiple commands separated by a ';'.
-void split_commands(const std::string &input_, std::deque<std::string> &cmds);
 
 #endif
