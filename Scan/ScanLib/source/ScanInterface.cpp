@@ -39,6 +39,36 @@ void start_cmd_control(ScanInterface *main_){
 }
 
 /////////////////////////////////////////////////////////////////////
+// class optionExt
+/////////////////////////////////////////////////////////////////////
+
+optionExt::optionExt(const char *name_, const int &has_arg_, int *flag_, const int &val_, const std::string &argstr_, const std::string &helpstr_) : 
+  name(name_), has_arg(has_arg_), flag(flag_), val(val_), argstr(argstr_), helpstr(helpstr_), active(false) {
+}
+
+void optionExt::print(const size_t &len_/*=0*/, const std::string &prefix_/*=""*/){
+	std::stringstream stream;
+	stream << prefix_ << "--" << name << " ";
+	if(val) stream << "(-" << (char)val << ") ";
+	stream << argstr;
+	
+	if(stream.str().length() < len_)
+		stream << std::string(len_ - stream.str().length(), ' ');
+	
+	stream << "- " << helpstr;
+	std::cout << stream.str() << std::endl;
+}
+
+option optionExt::getOption(){
+	struct option output;
+	output.name = name;
+	output.has_arg = has_arg;
+	output.flag = flag;
+	output.val = val;
+	return output;
+}
+
+/////////////////////////////////////////////////////////////////////
 // class fileInformation
 /////////////////////////////////////////////////////////////////////
 
@@ -126,23 +156,18 @@ void ScanInterface::stop_scan(){
 /** Print a command line argument help dialogue.
   * \param[in]  name_ The name of the program.
   * \return Nothing.
-  */
+  */  
 void ScanInterface::help(char *name_){
 	SyntaxStr(name_);
-	std::cout << "  Available options:\n"
-                  << "   --batch (-b) - Run in batch mode (i.e. with no command line)\n"
-                  << "   --scan (-c) [path to scan]  - Specify configuration file to use for scan\n"
-                  << "   --counts       - Write all recorded channel counts to a file\n"
-                  << "   --debug        - Enable readout debug mode\n"
-                  << "   --dry-run (-d) - Extract spills from file, but do no processing\n"
-                  << "   --fast-fwd [word] - Skip ahead to a specified word in the file (start of file at zero)\n"
-                  << "   --help (-h)    - Display this dialogue\n"
-                  << "   --input (-i)  [input file] - Specifies the input file to analyze\n"
-                  << "   --output (-o) [output file] - specifies the name of the output file. Default is \"out\"\n"
-                  << "   --quiet (-q) - Toggle off verbosity flag\n"
-                  << "   --shm          - Enable shared memory readout\n"
-                  << "   --version (-v) - Display version information\n";
-	ArgHelp();
+	std::cout << "  Available options:\n";
+	for(std::vector<optionExt>::iterator iter = baseOpts.begin(); iter != baseOpts.end(); iter++){
+		if(!iter->name) continue;
+		iter->print(40, "   ");
+	}
+	for(std::vector<optionExt>::iterator iter = userOpts.begin(); iter != userOpts.end(); iter++){
+		if(!iter->name) continue;
+		iter->print(40, "   ");
+	}
 }
 
 /** Seek to a specified position in the file.
@@ -277,13 +302,33 @@ bool ScanInterface::open_input_file(const std::string &fname_){
 	return true;	
 }
 
+/** Add a command line option to the option list.
+  * \param[in]  opt_ The option to add to the list.
+  * \return Nothing.
+  */
+void ScanInterface::AddOption(optionExt opt_){
+	char tempChar = opt_.val;
+	if(tempChar){
+		if(optstr.find(tempChar) != std::string::npos)
+			opt_.val = 0x0;
+		else{
+			optstr += tempChar;
+			if(opt_.has_arg == required_argument)
+				optstr += ":";
+			else if(opt_.has_arg == optional_argument)
+				optstr += "::";
+		}
+	}
+	userOpts.push_back(opt_);
+}
+
 /** SyntaxStr is used to print a linux style usage message to the screen.
   * Prints a standard usage message by default.
   * \param[in]  name_ The name of the program.
   * \return Nothing.
   */
 void ScanInterface::SyntaxStr(char *name_){
-	std::cout << " usage: " << name_ << "[options] -- [extra options] \n";
+	std::cout << " usage: " << name_ << " [options]\n";
 }
 
 /** Initialize the Unpacker object. 
@@ -348,6 +393,22 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 	// Set the Unpacker pointer, if one is specified.
 	if(core_){ core = core_; }
 	else{ core = NULL; }
+
+	// Push back all of the arguments. Annoying, but we only need to do this once.
+	baseOpts.push_back(optionExt("batch", no_argument, NULL, 'b', "", "Run in batch mode (i.e. with no command line)"));
+	baseOpts.push_back(optionExt("setup", required_argument, NULL, 0, "<path>", "Specify path to setup to use for scan"));
+	baseOpts.push_back(optionExt("counts", no_argument, NULL, 0, "", "Write all recorded channel counts to a file"));
+	baseOpts.push_back(optionExt("debug", no_argument, NULL, 0, "", "Enable readout debug mode"));
+	baseOpts.push_back(optionExt("dry-run", no_argument, NULL, 0, "", "Extract spills from file, but do no processing"));
+	baseOpts.push_back(optionExt("fast-fwd", required_argument, NULL, 0, "<word>", "Skip ahead to a specified word in the file (start of file at zero)"));
+	baseOpts.push_back(optionExt("help", no_argument, NULL, 'h', "", "Display this dialogue"));
+	baseOpts.push_back(optionExt("input", required_argument, NULL, 'i', "<filename>", "Specifies the input file to analyze"));
+	baseOpts.push_back(optionExt("output", required_argument, NULL, 'o', "<filename>", "Specifies the name of the output file. Default is \"out\""));
+	baseOpts.push_back(optionExt("quiet", no_argument, NULL, 'q', "", "Toggle off verbosity flag"));
+	baseOpts.push_back(optionExt("shm", no_argument, NULL, 's', "", "Enable shared memory readout"));
+	baseOpts.push_back(optionExt("version", no_argument, NULL, 'v', "", "Display version information"));
+
+	optstr = "bhi:o:qsv";
 
 	progName = std::string(PROG_NAME);
 	msgHeader = progName + ": ";
@@ -674,10 +735,10 @@ void ScanInterface::CmdControl(){
 			break;
 		}
 		else if(cmd == "version" || cmd == "v"){
-			std::cout << "  " << PROG_NAME << "      v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
+			std::cout << "  " << PROG_NAME << "	  v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
 			std::cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " (" << POLL2_SOCKET_DATE << ")\n"; 
 			std::cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION << " (" << HRIBF_BUFFERS_DATE << ")\n"; 
-			std::cout << "  CTerminal     v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
+			std::cout << "  CTerminal	 v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
 		}
 		else if(cmd == "help" || cmd == "h"){
 			std::cout << "  Help:\n";
@@ -755,169 +816,183 @@ void ScanInterface::CmdControl(){
   */
 bool ScanInterface::Setup(int argc, char *argv[]){
 	if(scan_init)
-            return (false);
+		return false;
+
+	debug_mode = false;
+	dry_run_mode = false;
+	shm_mode = false;
+	num_spills_recvd = 0;
+	std::string input_filename = "";
+
+	// Add derived class options to the option list.
+	this->ArgHelp();
+
+	// Build the vector of all command line options.
+	for(std::vector<optionExt>::iterator iter = baseOpts.begin(); iter != baseOpts.end(); iter++){
+		longOpts.push_back(iter->getOption()); 
+	}
+	for(std::vector<optionExt>::iterator iter = userOpts.begin(); iter != userOpts.end(); iter++){
+		longOpts.push_back(iter->getOption()); 
+	}
+
+	// Append all zeros onto the option list. Required for getopt_long.
+	struct option zero_opt { 0, 0, 0, 0 };
+	longOpts.push_back(zero_opt);
+
+	int idx = 0;
+	int retval = 0;
+
+	//getopt_long is not POSIX compliant. It is provided by GNU. This may mean
+	//that we are not compatable with some systems. If we have enough
+	//complaints we can either change it to getopt, or implement our own class. 
+	while ( (retval = getopt_long(argc, argv, optstr.c_str(), longOpts.data(), &idx)) != -1) {
+		if(retval == 0x0){ // Long option
+			if(strcmp("setup", longOpts[idx].name) == 0) {
+				setup_filename = optarg;
+			}
+			else if(strcmp("counts", longOpts[idx].name) == 0) {
+				write_counts = true;
+			} 
+			else if(strcmp("debug", longOpts[idx].name) == 0 ) {
+				debug_mode = true;
+			}
+			else if(strcmp("dry-run", longOpts[idx].name) == 0) {
+				dry_run_mode = true;
+			}
+			else if(strcmp("fast-fwd", longOpts[idx].name) == 0) {
+				file_start_offset = atoll(optarg);
+			}
+			else{
+				for(std::vector<optionExt>::iterator iter = userOpts.begin(); iter != userOpts.end(); iter++){
+					if(strcmp(iter->name, longOpts[idx].name) == 0){
+						iter->active = true;
+						if(optarg)
+							iter->argument = std::string(optarg);
+						break;
+					}
+				}
+			}
+		}
+		else if(retval == 0x3F){ // Unknown option, '?'
+			return false;
+		}
+		else{ // Single character option.
+			switch(retval) {
+				case 'b' :
+					batch_mode = true;
+					break;
+				case 'h' :
+					help(argv[0]);
+					return false;
+				case 'i' :
+					input_filename = optarg;
+					break;
+				case 'o' :
+					output_filename = optarg;
+					break;
+				case 'q' :
+					is_verbose = false;
+					break;
+				case 's':
+					file_format = 0;
+					shm_mode = true;
+					break;
+				case 'v' :
+					std::cout << "  " << PROG_NAME << "	  v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n" ;
+					std::cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " (" << POLL2_SOCKET_DATE << ")\n";
+					std::cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION << " (" << HRIBF_BUFFERS_DATE << ")\n";
+					std::cout << "  CTerminal	 v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
+					return false;
+				default :
+					for(std::vector<optionExt>::iterator iter = userOpts.begin(); iter != userOpts.end(); iter++){
+						if(retval == iter->val){
+							iter->active = true;
+							if(optarg)
+								iter->argument = std::string(optarg);
+							break;
+						}
+					}
+					break;
+			}
+		}
+	}//while
 
 	// If a pointer to an Unpacker derived class is not specified, call the
 	// extern function GetCore() to get a pointer to a new object.
 	if(!core)
-            GetCore();
+			GetCore();
 
 	// Link this object to the Unpacker for cross-calls.
 	core->SetInterface(this);
 
-        debug_mode = false;
-	dry_run_mode = false;
-	shm_mode = false;
-        num_spills_recvd = 0;
-        std::string input_filename = "";
+	if(debug_mode)
+		core->SetDebugMode();
 
-        struct option longOpts[] = {
-            { "batch", no_argument, NULL, 'b' },
-            { "scan", required_argument, NULL, 'c' },
-            { "counts", no_argument, NULL, 0 },
-            { "debug", no_argument, NULL, 0},
-            { "dry-run", no_argument, NULL, 'd' },
-            { "fast-fwd", required_argument, NULL, 'f'},
-            { "help", no_argument, NULL, 'h' },
-            { "input", required_argument, NULL, 'i'},
-            { "output", required_argument, NULL, 'o' },
-            { "quiet", no_argument, NULL, 'q' },
-            { "shm", no_argument, NULL, 's' },
-            { "version", no_argument, NULL, 'v'},
-            { NULL, no_argument, NULL, 0 }
-        };
-
-        std::string optstr = "bc:df:hi:o:qsv";
-        int idx = 0;
-        int retval = 0;
-
-        //getopt_long is not POSIX compliant. It is provided by GNU. This may mean
-        //that we are not compatable with some systems. If we have enough
-        //complaints we can either change it to getopt, or implement our own class. 
-        while ( (retval = getopt_long(argc,argv,optstr.c_str(),longOpts,&idx)) != -1) {
-            switch(retval) {
-            case 'b' :
-                batch_mode = true;
-                break;
-            case 'c':
-                configFile_ = optarg;
-                break;
-            case 'd' :
-                dry_run_mode = true;
-                break;
-            case 'f' :
-                file_start_offset = atoll(optarg);
-                break;
-            case '?' :
-            case 'h':
-                help(argv[0]);
-                exit(0);
-            case 'i' :
-                input_filename = optarg;
-                break;
-            case 'o' :
-                outputFile_ = optarg;
-                break;
-            case 'q' :
-                is_verbose = false;
-                break;
-            case 's':
-                file_format=0;
-                shm_mode = true;
-                break;
-            case 'v' :
-                std::cout << "  " << PROG_NAME << "      v" << SCAN_VERSION
-                          << " (" << SCAN_DATE << ")\n" 
-                          << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " ("
-                          << POLL2_SOCKET_DATE << ")\n" 
-                          << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION
-                          << " (" << HRIBF_BUFFERS_DATE << ")\n" 
-                          << "  CTerminal     v" << CTERMINAL_VERSION << " ("
-                          << CTERMINAL_DATE << ")\n";
-                exit(0);
-            case 0:
-                if( strcmp("counts", longOpts[idx].name) == 0 ) {
-                    std::cout << "Setting write_counts = true" << std::endl;
-                    write_counts = true;
-                } else if(strcmp("debug", longOpts[idx].name) == 0 ) {
-                    std::cout << "Setting debug_mode=true" << std::endl;
-                    core->SetDebugMode();
-                    debug_mode = true;
-                }
-                break;
-            default :
-                break;
-            }//switch(retval)
-        }//while
-
-        //Parse any extra arguments that are known to the 
-        ExtraArguments(argc,argv);
+	// Parse for any extra arguments that are known to the derived class.
+	ExtraArguments();
 
 	// Initialize everything.
 	std::cout << msgHeader << "Initializing derived class.\n";
 	if(!Initialize(msgHeader)){ // Failed to initialize the object. Clean up and exit.
-            std::cout << " FATAL ERROR! Failed to initialize derived class!\n";
-            std::cout << "\nCleaning up...\n";
-            if(write_counts)
-                core->Write();
-            return false;
+		std::cout << " FATAL ERROR! Failed to initialize derived class!\n";
+		std::cout << "\nCleaning up...\n";
+		return false;
 	}
-        
+		
 	if(shm_mode){
 		poll_server = new Server();
 		if(!poll_server->Init(5555, 1)){
-                    std::cout << " FATAL ERROR! Failed to open shm socket 5555!\n";
-                    std::cout << "\nCleaning up...\n";
-                    if(write_counts)
-                        core->Write();
-                    return false;
+			std::cout << " FATAL ERROR! Failed to open shm socket 5555!\n";
+			std::cout << "\nCleaning up...\n";
+			return false;
 		}	
 		if(batch_mode){
-                    std::cout << msgHeader << "Unable to enable batch mode for shared-memory mode!\n";
-                    batch_mode = false;
+			std::cout << msgHeader << "Unable to enable batch mode for shared-memory mode!\n";
+			batch_mode = false;
 		}
 	}
-        
+		
 	// Initialize the terminal.
 	if(!batch_mode){
-            term = new Terminal();
-            term->Initialize();
-            term->SetCommandHistory(("."+progName+".cmd").c_str());
-            term->SetPrompt((progName+" $ ").c_str());
-            term->AddStatusWindow();
-            term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped.");
+		term = new Terminal();
+		term->Initialize();
+		term->SetCommandHistory(("."+progName+".cmd").c_str());
+		term->SetPrompt((progName+" $ ").c_str());
+		term->AddStatusWindow();
+		term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped.");
 	}
-        
+		
 	std::cout << "\n " << PROG_NAME << " v" << SCAN_VERSION << "\n"; 
 	std::cout << " ==  ==  ==  ==  == \n\n"; 
 
 	if(debug_mode){ std::cout << msgHeader << "Using debug mode.\n\n"; }
 	if(dry_run_mode){ std::cout << msgHeader << "Doing a dry run.\n\n"; }
 	if(shm_mode){ 
-            std::cout << msgHeader << "Using shared-memory mode.\n\n"; 
-            std::cout << msgHeader << "Listening on poll2 SHM port 5555\n\n";
+		std::cout << msgHeader << "Using shared-memory mode.\n\n"; 
+		std::cout << msgHeader << "Listening on poll2 SHM port 5555\n\n";
 	}
-        
+		
 	// Do any last minute initialization.
 	try {
-            FinalInitialization();
-        }catch(...) {
-            std::cout << "\nFinal initialization failed!\n";
-        }
-        
+		FinalInitialization();
+	}
+	catch(...) {
+		std::cout << "\nFinal initialization failed!\n";
+	}
+		
 	scan_init = true;
-        
+		
 	// Load the input file, if the user has supplied a filename.
 	if(!shm_mode && !input_filename.empty()){
-            std::cout << msgHeader << "Using filename " << input_filename << ".\n";
-            if(open_input_file(input_filename)){
-                // Start the scan.
-                start_scan();
-            }
-            else{ std::cout << msgHeader << "Failed to load input file!\n"; }
+		std::cout << msgHeader << "Using filename " << input_filename << ".\n";
+		if(open_input_file(input_filename)){
+			// Start the scan.
+			start_scan();
+		}
+		else{ std::cout << msgHeader << "Failed to load input file!\n"; }
 	}
 	
-	return(true);
+	return true;
 }
 
 /** Run the scan program.
@@ -997,7 +1072,7 @@ bool ScanInterface::Close(){
 
 /** Get the file extension from an input filename string.
   * \param[in]  filename_ The full input filename path.
-  * \param[out] prefix    The input filename path without the file extension.
+  * \param[out] prefix	The input filename path without the file extension.
   * \return The file extension string.
   */
 std::string get_extension(std::string filename_, std::string &prefix){
