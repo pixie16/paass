@@ -21,6 +21,12 @@ using namespace std;
 /// referenced in DetectorDriver.cpp, particularly in ProcessEvent().
 RawEvent rawev;
 
+UtkUnpacker::~UtkUnpacker() {
+    //Call destructor for Detector Driver so that we close out Processors
+    // properly
+    DetectorDriver::get()->~DetectorDriver();
+}
+
 /** Process all events in the event list.
   * \param[in]  addr_ Pointer to a location in memory. 
   * \return Nothing. */
