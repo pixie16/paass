@@ -442,7 +442,8 @@ void ScanInterface::RunControl(){
 		// Now we're ready to read the first data buffer
 		if(total_stopped){
 			// Sleep while waiting for the user to scan more data.
-			sleep(1);
+			IdleTask();
+			usleep(0.1);
 			continue;
 		}
 		else if(shm_mode){
