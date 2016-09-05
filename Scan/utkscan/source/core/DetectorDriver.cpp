@@ -34,7 +34,6 @@
 #include "NeutronScintProcessor.hpp"
 #include "PositionProcessor.hpp"
 #include "PspmtProcessor.hpp"
-#include "PulserProcessor.hpp"
 #include "SsdProcessor.hpp"
 #include "TeenyVandleProcessor.hpp"
 #include "TemplateProcessor.hpp"
@@ -50,7 +49,8 @@
 #include "WaaAnalyzer.hpp"
 #include "WaveformAnalyzer.hpp"
 
-#include "TemplateExpProcessor.hpp"
+//#include "TemplateExpProcessor.hpp"
+#include "TwoChanTimingProcessor.hpp"
 
 #ifdef useroot
 #include "RootProcessor.hpp"
@@ -196,8 +196,8 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new NeutronScintProcessor());
         } else if (name == "PositionProcessor") {
             vecProcess.push_back(new PositionProcessor());
-        } else if (name == "PulserProcessor") {
-            vecProcess.push_back(new PulserProcessor());
+        } else if (name == "TwoChanTimingProcessor") {
+            vecProcess.push_back(new TwoChanTimingProcessor());
         } else if (name == "SsdProcessor") {
             vecProcess.push_back(new SsdProcessor());
         } else if (name == "VandleProcessor") {
@@ -216,8 +216,8 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                 vecProcess.push_back(new PspmtProcessor());
         } else if (name == "TemplateProcessor") {
             vecProcess.push_back(new TemplateProcessor());
-        } else if (name == "TemplateExpProcessor") {
-            vecProcess.push_back(new TemplateExpProcessor());
+        } else if (name == "TwoChanTimingProcessor") {
+            vecProcess.push_back(new TwoChanTimingProcessor());
 	}
 #ifdef useroot
         else if (name == "RootProcessor") {
