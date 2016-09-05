@@ -85,7 +85,9 @@ bool PositionProcessor::Init(RawEvent& rawev)
     minNormQdc.resize(numLocations);
     maxNormQdc.resize(numLocations);
 
-    string configFile = Globals::get()->configPath("qdc.txt");
+    //This functionality is deprecated and should be implemented in the XML file
+    //string configFile = Globals::get()->configPath("qdc.txt");
+    string configFile = "";
 
     ifstream in(configFile.c_str());
     if (!in) {
