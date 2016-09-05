@@ -25,7 +25,9 @@
 
 /** A macro defining what kind of NAN to throw */
 #ifndef NAN
+
 #include <limits>
+
 #define NAN (numeric_limits<float>::quiet_NaN())
 #endif
 
@@ -44,7 +46,7 @@ namespace pixie {
     *   also used to indicate when a quantity is out of range or peculiar data
     *   this should theoretically be the same as UINT_MAX in climits header
     */
-    const pixie::word_t U_DELIMITER = (pixie::word_t)-1;
+    const pixie::word_t U_DELIMITER = (pixie::word_t) -1;
 
     /** THIS SHOULD NOT BE SET LARGER THAN 1,000,000
      * this defines the maximum amount of data that will be
@@ -61,7 +63,7 @@ namespace pixie {
      * \param [in] bit : bit to test with
      * \param [in] value : value to compare with */
     inline unsigned long TstBit(unsigned short bit, unsigned long value) {
-	return ((value & (unsigned long)(pow(2.0, (double)bit))) >> bit);
+        return ((value & (unsigned long) (pow(2.0, (double) bit))) >> bit);
     }
 }
 
@@ -82,7 +84,7 @@ namespace strings {
     /** Converts string to double or throws an exception if not successful
     * \param [in] s : String to convert to double
     * \return The double created from the string */
-    inline double to_double (std::string s) {
+    inline double to_double(std::string s) {
         std::istringstream iss(s);
         double value;
         if (!(iss >> value)) {
@@ -97,7 +99,7 @@ namespace strings {
     /** Converts string to int or throws an exception if not successful
     * \param [in] s : string to convert to int
     * \return Integer made out of input string */
-    inline int to_int (std::string s) {
+    inline int to_int(std::string s) {
         std::istringstream iss(s);
         int value;
         if (!(iss >> value)) {
@@ -115,7 +117,7 @@ namespace strings {
       * problem for true and false words.
       * \param [in] s : String to convert to bool
       * \return A bool from the input string */
-    inline bool to_bool (std::string s) {
+    inline bool to_bool(std::string s) {
         std::transform(s.begin(), s.end(), s.begin(), ::tolower);
         if (s == "true" || s == "1")
             return true;
@@ -153,100 +155,131 @@ namespace strings {
 class Globals {
 public:
     /** \return only instance of Globals class.*/
-    static Globals* get();
-        /** \return only instance of Globals class.*/
-    static Globals* get(const std::string &file);
+    static Globals *get();
+
+    /** \return only instance of Globals class.*/
+    static Globals *get(const std::string &file);
+
     ~Globals();
 
     /** \return true if any reject region was defined */
     bool hasReject() const { return hasReject_; }
+
     /** \return true if we will define the raw histograms */
-    bool hasRaw() const {return(hasRaw_);}
+    bool hasRaw() const { return (hasRaw_); }
 
     /** \return the adc clock in seconds */
-    double adcClockInSeconds() const {return adcClockInSeconds_;}
+    double adcClockInSeconds() const { return adcClockInSeconds_; }
+
+    ///\return the bit resolution of the ADC (e.x. 12 bit = 4096)
+    double bitResolution() const { return pow(2, bitResolution_); }
+
     /** \return the length of the big VANDLE bars length in cm */
-    double bigLength() const {return(bigLength_);}
+    double bigLength() const { return (bigLength_); }
+
     /** \return the length of the big VANDLE bars in ns */
-    double bigLengthTime() const {return(bigLength_/speedOfLightBig_);}
+    double bigLengthTime() const { return (bigLength_ / speedOfLightBig_); }
+
     /** \return the pixie clock in seconds */
-    double clockInSeconds() const {return(clockInSeconds_);}
+    double clockInSeconds() const { return (clockInSeconds_); }
+
     /** \return the starting point in the trace for the n-gamma discrimination */
-    double discriminationStart() const {return(discriminationStart_);}
+    double discriminationStart() const { return (discriminationStart_); }
+
     /** \return the event size in seconds */
-    double eventInSeconds() const {return eventInSeconds_; }
+    double eventInSeconds() const { return eventInSeconds_; }
+
     /** \return the filter clock in seconds */
     double filterClockInSeconds() const { return filterClockInSeconds_; }
+
     /** \return the length of the medium VANDLE bars in cm */
-    double mediumLength() const {return(mediumLength_);}
+    double mediumLength() const { return (mediumLength_); }
+
     /** \return the length of the medium VANDLE bars in ns */
-    double mediumLengthTime() const {return(mediumLength_/speedOfLightMedium_);}
+    double mediumLengthTime() const {
+        return (mediumLength_ / speedOfLightMedium_);
+    }
+
     /** \return the mass of the neutron in MeV/c/c */
-    double neutronMass() const {return(neutronMass_);}
+    double neutronMass() const { return (neutronMass_); }
+
     /** \return the compression factor for the QDCs from the trace (VANDLE related) */
-    double qdcCompression() const {return (qdcCompression_);}
+    double qdcCompression() const { return (qdcCompression_); }
+
     /** \return the length of the small VANDLE bar in cm */
-    double smallLength() const {return(smallLength_);}
+    double smallLength() const { return (smallLength_); }
+
     /** \return the length of the small VANDLE bar in ns */
-    double smallLengthTime() const {return(smallLength_/speedOfLightSmall_);}
+    double smallLengthTime() const {
+        return (smallLength_ / speedOfLightSmall_);
+    }
+
     /** \return the speed of light in cm/ns */
-    double speedOfLight() const {return(speedOfLight_);}
+    double speedOfLight() const { return (speedOfLight_); }
+
     /** \return the speed of light in the Big VANDLE bars in cm/ns */
-    double speedOfLightBig() const {return(speedOfLightBig_);}
+    double speedOfLightBig() const { return (speedOfLightBig_); }
+
     /** \return the speed of light in the medium VANDLE bars in cm/ns */
-    double speedOfLightMedium() const {return(speedOfLightMedium_);}
+    double speedOfLightMedium() const { return (speedOfLightMedium_); }
+
     /** \return the speed of light in the small VANDLE bars in cm/ns */
-    double speedOfLightSmall() const {return(speedOfLightSmall_);}
+    double speedOfLightSmall() const { return (speedOfLightSmall_); }
+
     /** \return the cutoff on the std deviation of the baseline for fitting */
-    double sigmaBaselineThresh() const {return(sigmaBaselineThresh_);}
+    double sigmaBaselineThresh() const { return (sigmaBaselineThresh_); }
+
     /** \return the cutoff on the std deviation of the baseline for fitting */
-    double siPmtSigmaBaselineThresh() const {return(siPmtSigmaBaselineThresh_);}
+    double
+    siPmtSigmaBaselineThresh() const { return (siPmtSigmaBaselineThresh_); }
+
     /** \return the frequency of the system clock in Hz*/
-    double systemClockFreqInHz() const {return(sysClockFreqInHz_);}
+    double systemClockFreqInHz() const { return (sysClockFreqInHz_); }
+
     /** \return the trace delay of the traces in ns */
-    double traceDelay() const {return(traceDelay_);}
-    /** \return the trace length of the traces in ns */
-    double traceLength() const {return(traceLength_);}
-    /** \return the approximate size of the trapezoidal walk in ns */
-    double trapezoidalWalk() const {return(trapezoidalWalk_);}
+    double traceDelay() const { return (traceDelay_); }
 
     /** \return the event width */
     int eventWidth() const { return eventWidth_; }
 
     /** \return the waveform range for standard PMT signals */
-    std::pair<unsigned int, unsigned int> waveformRange(const std::string &str) const {
-	if(waveformRanges_.find(str) != waveformRanges_.end())
-	    return(waveformRanges_.find(str)->second);
-	return(std::make_pair(5,10));
+    std::pair<unsigned int, unsigned int>
+    waveformRange(const std::string &str) const {
+        if (waveformRanges_.find(str) != waveformRanges_.end())
+            return (waveformRanges_.find(str)->second);
+        return (std::make_pair(5, 10));
     }
+
     /** \return the requested fitting parameters */
     std::pair<double, double> fitPars(const std::string &str) const {
-	if(fitPars_.find(str) != fitPars_.end())
-	    return(fitPars_.find(str)->second);
-	return(std::make_pair(0.254373,0.208072));
+        if (fitPars_.find(str) != fitPars_.end())
+            return (fitPars_.find(str)->second);
+        return (std::make_pair(0.254373, 0.208072));
     }
 
     /** \return the trapezoidal filter parameters for the requested detector type:subtype */
-    std::pair<TrapFilterParameters,TrapFilterParameters> trapFiltPars(const std::string &str) const { 
-	if(trapFiltPars_.find(str) != trapFiltPars_.end())
-	    return(trapFiltPars_.find(str)->second);
-	return(std::make_pair(TrapFilterParameters(125,125,10),
-			      TrapFilterParameters(125,125,10)));
+    std::pair<TrapFilterParameters, TrapFilterParameters>
+    trapFiltPars(const std::string &str) const {
+        if (trapFiltPars_.find(str) != trapFiltPars_.end())
+            return (trapFiltPars_.find(str)->second);
+        return (std::make_pair(TrapFilterParameters(125, 125, 10),
+                               TrapFilterParameters(125, 125, 10)));
     }
 
-    /*! \return Joined path to the passed filename by adding the configPath_
-     * This is temporary solution as long as there are some files not
-     * incorporated into Config.xml
+    /*! \return path to use to output files, can be different from output
+     * file path
      * \param [in] fileName : the path for the configuration files */
-    std::string configPath(std::string fileName) {
+    std::string outputPath(std::string fileName) {
         std::stringstream ss;
-        ss << configPath_ << fileName;
+        ss << outputPath_ << "/" << fileName;
         return ss.str();
     }
+
     /** \return the revision for the data */
-    std::string revision() const { return(revision_); }
+    std::string revision() const { return (revision_); }
+
     /** \return the configuration file */
-    std::string configfile() const {return(configFile_);}
+    std::string configfile() const { return (configFile_); }
 
     /** \return the maximum words */
     unsigned int maxWords() const { return maxWords_; }
@@ -258,16 +291,18 @@ public:
     /*! \return rejection regions to exclude from scan.
      * Values should be given in seconds in respect to the beginning
      of the file */
-    std::vector< std::pair<int, int> > rejectRegions() const {return reject_; };
+    std::vector<std::pair<int, int> > rejectRegions() const { return reject_; };
 private:
     /** Default Constructor */
     Globals(const std::string &file);
-    Globals(Globals const&);//!< Overload of the constructor
-    void operator=(Globals const&); //!< copy constructor
-    static Globals* instance; //!< Create the static instance of the class
+
+    Globals(Globals const &);//!< Overload of the constructor
+    void operator=(Globals const &); //!< copy constructor
+    static Globals *instance; //!< Create the static instance of the class
 
     /** Check that some of the values make sense */
     void SanityCheck();
+
     /** Warn that we have an unknown parameter in the XML configuration file
     * \param [in] m : an instance of the messenger to send the warning
     * \param [in] it : an iterator pointing to the location of the unknown */
@@ -277,6 +312,7 @@ private:
     bool hasRaw_; //!< True for plotting Raw Histograms in DAMM
 
     double adcClockInSeconds_; //!< adc clock in second
+    double bitResolution_;//!<The Bit resolution of the digitizer that we used.
     double clockInSeconds_;//!< the ACQ clock in seconds
     double discriminationStart_;//!< starting sample for the n-gamma discrimination
     double eventInSeconds_;//!< event width in seconds
@@ -294,22 +330,21 @@ private:
     double speedOfLightSmall_;//!< speed of light in small VANDLE bars in cm/ns
     double sysClockFreqInHz_; //!< frequency of the system clock
     double traceDelay_;//!< the trace delay in ns
-    double traceLength_;//!< the trace length in ns
-    double trapezoidalWalk_;//!< the approximate walk in ns of the trap filter
 
     int eventWidth_; //!< the size of the events
 
     std::map<std::string, std::pair<unsigned int, unsigned int> > waveformRanges_; //!< Map containing ranges for the waveforms
-    std::map<std::string, std::pair<double,double> > fitPars_; //!< Map containing all of the parameters to be used in the fitting analyzer for a type:subtype
-    std::map<std::string, std::pair<TrapFilterParameters,TrapFilterParameters> > trapFiltPars_; //!<Map containing all of the trapezoidal filter parameters for a given type:subtype
+    std::map<std::string, std::pair<double, double> > fitPars_; //!< Map containing all of the parameters to be used in the fitting analyzer for a type:subtype
+    std::map<std::string, std::pair<TrapFilterParameters, TrapFilterParameters> > trapFiltPars_; //!<Map containing all of the trapezoidal filter parameters for a given type:subtype
 
     std::string configFile_;//!< The configuration file
-    std::string configPath_;//!< The path to additional configuration files
+    std::string outputPath_;//!< The path to additional configuration files
     std::string revision_;//!< the pixie revision
 
     unsigned int maxWords_;//!< maximum words in the
     unsigned short numTraces_;//!< number of traces to plot
 
-    std::vector< std::pair<int, int> > reject_;//!< rejection range in time
+    std::vector<std::pair<int, int> > reject_;//!< rejection range in time
 };
+
 #endif
