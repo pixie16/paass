@@ -352,22 +352,19 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 	return numEvents;
 }
 
-Unpacker::Unpacker(){
-        debug_mode = false;
-	running = true;
-
-	TOTALREAD = 1000000; // Maximum number of data words to read.
-	maxWords = 131072; // Maximum number of data words for revision D.	
-	numRawEvt = 0; // Count of raw events read from file.
-	eventWidth = 62; // ~ 500 ns in 8 ns pixie clock ticks.
-	
-	firstTime = 0;
-	eventStartTime = 0;
-	realStartTime = 0;
-	realStopTime = 0;
-	
-	interface = NULL;
-	
+Unpacker::Unpacker() :
+	eventWidth(62), // ~ 500 ns in 8 ns pixie clock ticks.
+   debug_mode(false),
+	running(true),
+	interface(NULL),
+	TOTALREAD(1000000), // Maximum number of data words to read.
+	maxWords(131072), // Maximum number of data words for revision D.	
+	numRawEvt(0), // Count of raw events read from file.
+	firstTime(0),
+	eventStartTime(0),
+	realStartTime(0),
+	realStopTime(0)
+{
 	for(unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
 		for(unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
 			channel_counts[i][j] = 0;

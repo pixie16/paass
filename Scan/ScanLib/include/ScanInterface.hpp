@@ -17,6 +17,7 @@
 #include <sstream>
 #include <vector>
 #include <deque>
+#include <getopt.h>
 
 #include "hribf_buffers.h"
 #include "XiaData.hpp"
@@ -27,6 +28,28 @@
 class Server;
 class Terminal;
 class Unpacker;
+
+class optionExt{
+  public:
+	const char* name;
+	int has_arg;
+	int *flag;
+	int val;
+  
+  	std::string argstr; /// The argument syntax for the command line option.
+	std::string helpstr; /// The help & syntax string to print when -h is passed.
+	std::string argument; /// The argument received from getopt_long (if available).
+	bool active; /// Set to true if this option was selected by the user.
+	
+	optionExt() : has_arg(0), flag(0), val(0), active(false) { }
+	
+	optionExt(const char *name_, const int &has_arg_, int *flag_, const int &val_, const std::string &arg_, const std::string &help_);
+	
+	/// Print a help string for this option.
+	void print(const size_t &len_=0, const std::string &prefix_="");
+	
+	option getOption();
+};
 
 class fileInformation{
   public:
@@ -85,19 +108,20 @@ class ScanInterface{
 	/// Return the name of the program.
 	std::string GetProgramName(){ return progName; }
 	
-    /// \return The name of the configuration file
-    std::string GetConfigFile(){return(configFile_);}
+	/// \return The name of the configuration file
+	std::string GetSetupFilename(){ return(setup_filename); }
     
-    /// \return The name of the output file
-    std::string GetOutputFile(){return(outputFile_);}
+	/// \return The name of the output file
+	std::string GetOutputFilename(){ return(output_filename); }
+    
 	/// Return a pointer to a fileInformation object used to store file header info.
 	fileInformation *GetFileInfo(){ return &finfo; }
 
 	/// Set the header string used to prefix output messages.
-    void SetProgramName(const std::string &head_){
-        progName = head_;
-        msgHeader = head_+": ";
-    }
+	void SetProgramName(const std::string &head_){
+		progName = head_;
+		msgHeader = head_+": ";
+	}
 	
 	/// Enable or disable verbose output mode.
 	bool SetVerboseMode(bool state_=true){ return (is_verbose = state_); }
@@ -145,9 +169,20 @@ class ScanInterface{
   protected:
 	std::string msgHeader; /// The string to print before program output.
 	std::string progName; /// The name of the program.
+
+	std::vector<option> longOpts; /// Vector of all command line options.
+	std::vector<optionExt> baseOpts; /// Base level command line options for the scan.
+	std::vector<optionExt> userOpts; /// User added command line options.
+	std::string optstr;
   
 	Unpacker *core; /// Pointer to class derived from Unpacker class.
-  
+
+	/** Add a command line option to the option list.
+	  * \param[in]  opt_ The option to add to the list.
+	  * \return Nothing.
+	  */
+	void AddOption(optionExt opt_);
+	
 	/** ExtraCommands is used to send command strings to classes derived
 	  * from ScanInterface. If ScanInterface receives an unrecognized
 	  * command from the user, it will pass it on to the derived class.
@@ -156,15 +191,15 @@ class ScanInterface{
 	  * \param[out] arg_ Vector or arguments to the user command. Not used by default.
 	  * \return True if the command was recognized and false otherwise. Returns false by default.
 	  */
-    virtual bool ExtraCommands(const std::string &cmd_,
-                               std::vector<std::string> &args_){ return false; }
-	
+	virtual bool ExtraCommands(const std::string &cmd_, std::vector<std::string> &args_){ return false; }
+
 	/** ExtraArguments is used to send command line arguments to classes derived
-     * from ScanInterface. It has its own instance of getopts to look for its known 
-     * parameters. This should be overloaded in the derived class.
-     * \param[in] argc : The number of command line arguments
-     * \param[in] argv[] : The arrary containing all command line arguments */
-    virtual void ExtraArguments(int argc, char *argv[]){};
+	  * from ScanInterface. This method should loop over the optionExt elements
+	  * in the vector userOpts and check for those options which have been flagged
+	  * as active by ::Setup(). This should be overloaded in the derived class.
+	  * \return Nothing.
+	  */
+	virtual void ExtraArguments(){  }
 	
 	/** CmdHelp is used to allow a derived class to print a help statement about
 	  * its own commands. This method is called whenever the user enters 'help'
@@ -175,9 +210,9 @@ class ScanInterface{
 	  */
 	virtual void CmdHelp(const std::string &prefix_=""){  }
 	
-	/** ArgHelp is used to allow a derived class to print a help statment about
-	  * its own command line arguments. This method is called at the end of
-	  * the ScanInterface::help method.
+	/** ArgHelp is used to allow a derived class to add a command line option
+	  * to the main list of options. This method is called at the end of
+	  * from the ::Setup method.
 	  * Does nothing useful by default.
 	  * \return Nothing.
 	  */
@@ -243,8 +278,8 @@ class ScanInterface{
 	std::string extension; /// Input file extension.
 	std::string workDir; /// Linux system current working directory.
 	std::string homeDir; /// Linux user home directory.
-    std::string configFile_; //!< Configuration file to be opened
-    std::string outputFile_; //!< Name of file to be used for output
+	std::string setup_filename; //!< Configuration file to be opened
+	std::string output_filename; //!< Name of file to be used for output
 
 	int max_spill_size; /// Maximum size of a spill to read.
 	int file_format; /// Input file format to use (0=.ldf, 1=.pld, 2=.root).
