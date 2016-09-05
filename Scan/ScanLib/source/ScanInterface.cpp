@@ -148,7 +148,7 @@ void ScanInterface::stop_scan(){
 		core->Stop();
 		is_running = false;
 		if(!batch_mode){ term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped.");}
-		else{ term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped."); }
+		else{ std::cout << "\033[0;31m[STOP]\033[0m Acquisition stopped.\n"; }
 	}
 	
 	// Notify that the user has stopped the scan.
