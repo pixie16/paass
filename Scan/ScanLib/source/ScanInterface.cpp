@@ -537,6 +537,7 @@ void ScanInterface::RunControl(){
 					memcpy(&data[nTotalWords], (char *)&word1, 4);
 					memcpy(&data[nTotalWords+1], (char *)&word2, 4);
 					core->ReadSpill(data, nTotalWords + 2, is_verbose); 
+					IdleTask();
 				}
 			
 				if(!full_spill){ std::cout << msgHeader << "Not processing spill fragment!\n"; }
@@ -604,6 +605,7 @@ void ScanInterface::RunControl(){
 					if(!dry_run_mode){ 
 						if(!bad_spill){ 
 							core->ReadSpill(data, nBytes/4, is_verbose); 
+							IdleTask();
 						}
 						else{ std::cout << " WARNING: Spill has been flagged as corrupt, skipping (at word " << input_file.tellg()/4 << " in file)!\n"; }
 					}
@@ -655,6 +657,7 @@ void ScanInterface::RunControl(){
 					memcpy(&data[(nBytes/4)], (char *)&word1, 4);
 					memcpy(&data[(nBytes/4)+1], (char *)&word2, 4);
 					core->ReadSpill(data, nBytes/4 + 2, is_verbose); 
+					IdleTask();
 				}
 				num_spills_recvd++;
 			}
