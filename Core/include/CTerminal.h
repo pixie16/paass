@@ -221,6 +221,7 @@ class Terminal{
 	float commandTimeout_; ///<Time in seconds to wait for command.
 
 	short tabCount;
+	bool debug_; ///<Flag indicating verbose output is enabled.
 
 	std::ofstream logFile;
 
@@ -268,6 +269,9 @@ class Terminal{
 
 	/// Force a character string to the output screen
 	void print(WINDOW *window, std::string input_);
+
+	/// Split a string into multiple commands separated by a ';'.
+	void split_commands(const std::string &input_, std::deque<std::string> &cmds);
 			
   public:
 	Terminal();
@@ -279,6 +283,9 @@ class Terminal{
 	
 	///Specify the log file to append.
 	bool SetLogFile(std::string logFileName);
+		
+	///Initalize terminal debug mode.
+	void SetDebug(bool debug=true) {debug_=debug;};
 
 	/// Initalizes a status window under the input temrinal.
 	void AddStatusWindow(unsigned short numLines = 1);
@@ -329,7 +336,5 @@ class Terminal{
 /// Split a string about some delimiter.
 unsigned int split_str(std::string str, std::vector<std::string> &args, char delimiter=' ');
 
-/// Split a string into multiple commands separated by a ';'.
-void split_commands(const std::string &input_, std::deque<std::string> &cmds);
 
 #endif

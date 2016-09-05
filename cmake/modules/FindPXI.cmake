@@ -64,7 +64,7 @@ function(PXI_CONFIG)
 		#Check that a unique match was found
 		list(LENGTH FILE_MATCHES NUM_MATCHES)
 		if (NOT NUM_MATCHES EQUAL 1)
-			message(WARNING "Unable to complete configuration! Unique ${KEY} file (${GLOB_EXPR}) not found!")
+			message(STATUS "WARNING: Unable to autocomplete configuration! Unique ${KEY} file (${GLOB_EXPR}) not found!")
 			file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg 
 				"# Multiple options found! Make a choice on the following line and remove this comment.\n")
 		endif()
