@@ -31,9 +31,9 @@ class scopeUnpacker : public Unpacker {
 	/// Destructor.
 	~scopeUnpacker(){  }
 
-	void SetMod(const unsigned int &mod){ mod_ = mod; }
+	int SetMod(const unsigned int &mod){ return(mod >= 0 ? (mod_ = mod) : (mod_ = 0)); }
 	
-	void SetChan(const unsigned int &chan){ chan_ = chan; }
+	int SetChan(const unsigned int &chan){ return(chan >= 0 ? (chan_ = chan) : (chan_ = 0)); }
 	
 	void SetThreshLow(const int &threshLow){ threshLow_ = threshLow; }
 	
@@ -107,14 +107,12 @@ class scopeScanner : public ScanInterface {
 	virtual bool ExtraCommands(const std::string &cmd_, std::vector<std::string> &args_);
 	
 	/** ExtraArguments is used to send command line arguments to classes derived
-	  * from ScanInterface. If ScanInterface receives an unrecognized
-	  * argument from the user, it will pass it on to the derived class.
-	  * \param[in]  arg_    The argument to interpret.
-	  * \param[out] others_ The remaining arguments following arg_.
-	  * \param[out] ifname  The input filename to send back to use for reading.
-	  * \return True if the argument was recognized and false otherwise.
+	  * from ScanInterface. This method should loop over the optionExt elements
+	  * in the vector userOpts and check for those options which have been flagged
+	  * as active by ::Setup(). This should be overloaded in the derived class.
+	  * \return Nothing.
 	  */
-	virtual bool ExtraArguments(const std::string &arg_, std::deque<std::string> &others_, std::string &ifname);
+    virtual void ExtraArguments();
 	
 	/** CmdHelp is used to allow a derived class to print a help statement about
 	  * its own commands. This method is called whenever the user enters 'help'
@@ -124,9 +122,10 @@ class scopeScanner : public ScanInterface {
 	  */
 	virtual void CmdHelp(const std::string &prefix_="");
 	
-	/** ArgHelp is used to allow a derived class to print a help statment about
-	  * its own command line arguments. This method is called at the end of
-	  * the ScanInterface::help method.
+	/** ArgHelp is used to allow a derived class to add a command line option
+	  * to the main list of options. This method is called at the end of
+	  * from the ::Setup method.
+	  * Does nothing useful by default.
 	  * \return Nothing.
 	  */
 	virtual void ArgHelp();
