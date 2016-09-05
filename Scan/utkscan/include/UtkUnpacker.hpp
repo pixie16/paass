@@ -10,7 +10,7 @@ public:
     /// Default constructor.
     UtkUnpacker() : Unpacker() {}
     /// Destructor.
-    ~UtkUnpacker(){}
+    ~UtkUnpacker();
     
 private:
     /** Process all events in the event list.
@@ -23,7 +23,7 @@ private:
      * \param[in]  addr_  Pointer to a ScanInterface object.
      * \return Nothing. */
     virtual void RawStats(XiaData *event_, ScanInterface *addr_=NULL){
-	//Does nothing for now, we will fill in things to plot later
+	    //Does nothing for now, we will fill in things to plot later
     }
 };
 #endif //__UTKUNPACKER_HPP__

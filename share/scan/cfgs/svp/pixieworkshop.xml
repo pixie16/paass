@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <!-- Instructions:
+     Put here your name, email and date (please use Jan, Feb, ..., Dec
+     for months names).
+    -->
+    <Author>
+        <Name>S. V. Paulauskas</Name>
+        <Email>stanpaulauskas@gmail.com</Email>
+        <Date>August 29, 2016</Date>
+    </Author>
+
+    <!-- Instructions:
+         Put short description of your experiment here.
+     -->
+    <Description>
+        A timing setup to measure time difference between two pulser signals
+    </Description>
+
+    <!-- Instructions:
+        Global scan parameters are setup here.
+
+        Required fields are:
+        * <Revision version="X"/> where X is A, D or F
+        * <EventWidth units="x" value="y"/>
+            where unit must be s, ms, us or ns; value is floating point
+        * <EnergyContraction value="x" />
+            OBSOLETE, please do not use energy contraction (consider
+            calibration instead), however if needed for backward compatibility
+            put here floating point number
+        * <Path>relatative_path</Path>
+            where 'relative_path' is a path to the other configurations
+            files not included into this xml document. At the moment these
+            are: qdc.txt, timingConstants.txt, timingCal.txt
+            relative_path must end with '/' unless is empty (which points
+            to the current directory then)
+        * <NumOfTraces value="x" />
+            where x is unsigned integer giving the maximum number of
+            traces in 2D traces histograms. This number is rounded up
+            to the power of 2, since DAMM histograms must have such sizes
+        * <HasRaw value="true/false"/>
+            This will enable or disable plotting of the raw histograms 1-1900
+            in the DAMM histogram. You will still get most of the 1800 IDs since
+            they are always useful (e.g. run time).
+    -->
+    <Global>
+        <Revision version="F"/>
+        <BitResolution value="12"/>
+        <EventWidth unit="s" value="1e-6"/>
+        <OutputPath value="/tmp"/>
+        <NumOfTraces value="50"/>
+        <HasRaw value="false"/>
+    </Global>
+
+    <!-- Instructions:
+            Add
+               <Process name="SomethingProcessor"/>
+            and
+               <Analyzer name="SomethingAnalyzer"/>
+            for each processor or analyzer you want to use.
+
+            List of known Processors:
+               * TwoChanTimingProcessor - Enables analysis of our data
+               (experiment specific processor)
+            List of known Analyzers:
+               * FittingAnalyzer - Fits the waveforms to extract phase
+                   * Required Argument: type="XXX" (currently only gsl supported)
+               * TraceExtractor - Plots some traces for us in DAMM
+               * WaveformAnalyzer - Finds the waveform and other information
+                    about the trace.
+    -->
+    <DetectorDriver>
+        <Analyzer name="TraceExtractor" type="pulser" subtype="start"/>
+        <Analyzer name="WaveformAnalyzer"/>
+        <Analyzer name="FittingAnalyzer" type="gsl"/>
+        <Processor name="TwoChanTimingProcessor"/>
+    </DetectorDriver>
+
+    <!-- Instructions:
+         Channels map. This section replaces the map.txt (map2.txt) and cal.txt
+         files. For each channel in each module that you want to use in
+         analysis you must assign some physical detector type (and subtype)
+         which is known to the pixie_scan (see DetectorLibrary.cpp).
+         A channel may be also calibrated (by default a raw channel number
+         from adc is used) or corrected against walk (by default walk
+         correction is equal to 0).
+
+         The root element (<Map>) may have attributes changing the verbosity
+         level during loading of the configuration in this section. These are
+         * verbose_map - Loaded modules and channels
+         * verbose_calibration - Calibration
+         * verbose_walk - Walk correction
+         Each attribute default to False, if change to True will show more
+         messages concerning loaded parameters etc.
+    -->
+    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+        <Module number="0">
+            <Channel number="0" type="pulser" subtype="start"></Channel>
+            <Channel number="1" type="pulser" subtype="stop"></Channel>
+        </Module>
+    </Map>
+
+    <!-- Empty since we will be doing nothing with it -->
+    <TimeCalibration verbose_timing="False">
+    </TimeCalibration>
+
+    <!-- Not strictly necessary for this setup -->
+    <Physical>
+        <NeutronMass unit="MeV/c/c" value="939.565560"/>
+        <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+        <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+        <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+        <SmallLength unit="cm" value="60.0"/>
+        <MediumLength unit="cm" value="120.0"/>
+        <BigLength unit="cm" value="200.0"/>
+    </Physical>
+
+
+    <!-- Instructions:
+         This node contains information related to traces. All of the information
+         input into this node related to times should be in nanoseconds (ns).
+
+         * TrapezoidalWalk - The "walk" of the trapezoidal filter in ns. This is
+                             used when finding the waveform in the trace. It
+                             accounts for the fact that low amplitude signals
+                             come later in the trace. Default = 266
+         * TraceDelay - The value of the trace delay from the set file used to
+                        take the data. No Default value
+         * TraceLength - How long the traces are. Taken from the set file. No
+                         Default value
+         * Waveform Range - The range that the waveform has in the trace. It is
+                            taken as [MaxPosition - Low, MaxPosition+High].
+                            Default value is [5,10].
+          NOTE: There is currently no error checking on the units for these
+             parameters. It up to the user to make sure they are correct!!
+    -->
+    <Trace>
+        <WaveformRange>
+            <Range name="pulser:start">
+                <Low value="8"/>
+                <High value="20"/>
+            </Range>
+            <Range name="pulser:stop">
+                <Low value="8"/>
+                <High value="20"/>
+            </Range>
+        </WaveformRange>
+        <DiscriminationStart unit="sample" value="3"/>
+        <TraceDelay unit="ns" value="200"/>
+        <QdcCompression value="1.0"/>
+    </Trace>
+
+    <!-- Instructions:
+         This node contains information necessary for the high resolution
+         fitting of traces.
+
+         Recognized Parameters:
+         * SigmaBaselineThresh - The maximum acceptable standard deviation of
+                                 the trace baseline for the analysis.
+         * Parameters - Fitting parameters for the standard VANDLE fitting
+                        function. The name should correspond to a
+                        detector type:subtype combination defined in the map.
+             NOTE: There is currently no error checking on the units for these
+             parameters. It up to the user to make sure they are correct!!
+     -->
+    <Fitting>
+        <SigmaBaselineThresh value="3.0"/>
+        <Parameters>
+            <Pars name="pulser:start">
+                <Beta value="0.4335"/>
+                <Gamma value="0.03985"/>
+            </Pars>
+            <Pars name="pulser:stop">
+                <Beta value="0.4335"/>
+                <Gamma value="0.03985"/>
+            </Pars>
+        </Parameters>
+    </Fitting>
+
+    <!-- Empty since we are not doing any cross event correlations -->
+    <TreeCorrelator name="root" verbose="False">
+    </TreeCorrelator>
+
+    <!-- We will not be using this but doesn't hurt anything...-->
+    <NoteBook file='notes.txt' mode='a'/>
+</Configuration>
