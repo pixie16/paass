@@ -26,7 +26,7 @@ void help(){
 	std::cout << "\n SYNTAX: ./poll2 <options>\n";
 	std::cout << "  -a, --alarm=[e-mail] Call the alarm script with a given e-mail (or no argument)\n"; 
 	std::cout << "  -f, --fast           Fast boot (false by default)\n";
-	std::cout << "  -q, --quiet          Run quietly (false by default)\n";
+	std::cout << "  -v, --verbose        Run verbosely (false by default)\n";
 	std::cout << "  -n, --no-wall-clock  Do not insert the wall clock in the data stream\n";
 	std::cout << "  -r, --rates          Display module rates in quiet mode (false by defualt)\n";
 	std::cout << "  -t, --thresh <num>   Sets FIFO read threshold to num% full (50% by default)\n";
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]){
 	CLoption valid_opt[12];
 	valid_opt[0].Set("alarm", false, true);
 	valid_opt[1].Set("fast", false, false);
-	valid_opt[2].Set("quiet", false, false);
+	valid_opt[2].Set("verbose", false, false);
 	valid_opt[3].Set("no-wall-clock", false, false);
 	valid_opt[4].Set("rates", false, false);
 	valid_opt[5].Set("thresh", true, false);
@@ -80,6 +80,7 @@ int main(int argc, char *argv[]){
 
 	// Main object
 	Poll poll;
+	poll.SetQuietMode();
 	
 	// Set all of the selected options
 	if(valid_opt[0].is_active){
@@ -87,7 +88,7 @@ int main(int argc, char *argv[]){
 		poll.SetSendAlarm();
 	}
 	if(valid_opt[1].is_active){ poll.SetBootFast(); }
-	if(valid_opt[2].is_active){ poll.SetQuietMode(); }
+	if(valid_opt[2].is_active){ poll.SetQuietMode(false); }
 	if(valid_opt[3].is_active){ poll.SetWallClock(); }
 	if(valid_opt[4].is_active){ poll.SetShowRates(); }
 	if(valid_opt[5].is_active){ 

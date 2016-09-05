@@ -642,6 +642,7 @@ Terminal::Terminal() :
 	status_window(NULL),
 	_statusWindowSize(0),
 	commandTimeout_(0),
+	debug_(false),
 	_scrollbackBufferSize(SCROLLBACK_SIZE),
 	_scrollPosition(0)
 {
@@ -870,7 +871,6 @@ void Terminal::TabComplete(const std::string &input_, const std::vector<std::str
 	//Get the string to complete
 	std::string strToComplete = input_.substr(start, stop-start);
 
-	if(strToComplete.empty()) return;
 
 	for (auto it=possibilities_.begin(); it!=possibilities_.end();++it) {
 		if (it->empty())
@@ -998,10 +998,18 @@ std::string Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/
 			}
 		
 			int keypress = wgetch(input_window);
+
 	
 			// Check for internal commands
 			if(keypress == ERR){continue;} // No key was pressed in the interval
-			else if(keypress == 10){ // Enter key (10)
+
+			if (debug_) {
+				std::cout << "TERM: Curs (" << cursX << ", " << cursY << ") ";
+				std::cout << "Key: " << keypress << " " << (char)keypress << " "; 
+				std::cout << "\n";
+			}
+			
+			if(keypress == 10){ // Enter key (10)
 				std::string temp_cmd = cmd.Get();
 				//Reset the position in the history.
 				commands.Reset();
@@ -1017,11 +1025,25 @@ std::string Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/
 				break;
 			} 
 			else if(keypress == '\t' && enableTabComplete) {
+				//increase the count for tab presses
 				tabCount++;
-				if(cmd.Get().find(';') == std::string::npos)
-					output = cmd.Get().substr(0,cursX - offset) + "\t";
-				else
-					output = cmd.Get().substr(cmd.Get().find_last_of(';')+1,cursX - offset) + "\t";
+
+				//Compute the boundaris of this command taking into account semicolons.
+				size_t stop = cursX - offset;
+				size_t start = cmd.Get().find_last_of(';', cursX - offset - 1) + 1;
+				//Check that the values are reasonable
+				if (start == std::string::npos) start = 0;
+				if (stop == std::string::npos) stop = cmd.Get().length();
+
+				//Determine string to be passed to tab completer and add '\t' character.
+				output = cmd.Get().substr(start, stop - start) + "\t";
+		
+				//Output debug info.
+				if (debug_) {
+					std::cout << "TERM: Tab complete " << start << "<->" << stop << " ";
+					std::cout << " '" << output << "'" << "\n";
+				}
+
 				break;
 			}
 			else if(keypress == 4){ // ctrl-d (EOT)
@@ -1126,7 +1148,7 @@ std::string Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/
 		split_commands(output, cmd_queue);
 		output = cmd_queue.front();
 		cmd_queue.pop_front();
-		PrintCommand(output);
+		from_script = true;
 	}
 		
 	// Split the string into a command and an argument.
@@ -1240,21 +1262,72 @@ unsigned int split_str(std::string str, std::vector<std::string> &args, char del
  * \param[in] input_ The string to be parsed.
  * \param[out] cmds The vector to populate with sub-commands.
  */
-void split_commands(const std::string &input_, std::deque<std::string> &cmds){
+void Terminal::split_commands(const std::string &input_, std::deque<std::string> &cmds){
 	if(input_.find(';') == std::string::npos) return;
+
+	//Build a temporary deque of commands split on semicolon.
+	std::deque< std::string > cmdQueue;
+
 	size_t start = 0;
 	size_t stop = 0;
+
+	if (debug_) std::cout << "TERM: MultiCmd: '" << input_ << "' \n";
+
+	int safety = 0;
+	//Loop until we find no more semicolons.
 	while(true){
+		safety++;
+		if (safety> 100) break;
 		stop = input_.find_first_of(';', start);
+		if (debug_) std::cout << "\tsemicolon " << stop << " ";
+	
+		size_t dblQuotePos = start;
+		int dblQuoteCnt = 0;
+		while (dblQuotePos < stop && stop != std::string::npos) {
+			safety++;
+			if (safety> 100) break;
+			dblQuotePos = input_.find_first_of('"', dblQuotePos+1);
+			if (debug_) std::cout << "dblQuote " << dblQuotePos << " ";
+			
+			if (dblQuotePos == std::string::npos) break;
+			else if (dblQuotePos < stop) dblQuoteCnt++;
+			else if (dblQuotePos > stop && dblQuoteCnt % 2 == 1) {
+				stop = input_.find_first_of(';', dblQuotePos);
+				if (debug_) std::cout << "semicolon inside " << stop << " ";
+				break;
+			}
+		}
+	
+		cmdQueue.push_back(input_.substr(start, stop-start));
+		if (debug_) {
+			std::cout << "Cmd " << start << "<->" << stop << " ";
+			std:: cout << "'" << cmdQueue.back() << "'\n";
+		}
 		
-		cmds.push_back(input_.substr(start, stop-start));
-		
-		if(stop == std::string::npos)
-			break;
+		if(stop == std::string::npos) break;
 		
 		start = input_.find_first_not_of(';', stop);
 		
 		if(start == std::string::npos)
 			break;
 	}
+
+
+	//If the destination queue iis empty we put split commands at the end,
+	// if the detination has commands in it we put the split ones at the beginning.
+	if (cmds.empty()) {
+		while (!cmdQueue.empty()) {
+			cmds.push_back(cmdQueue.front());
+			cmdQueue.pop_front();
+		}
+	}
+	else {
+		while (!cmdQueue.empty()) {
+			cmds.push_front(cmdQueue.back());
+			cmdQueue.pop_back();
+		}
+	}
+
+
+	if (debug_) std::cout << "\n";
 }
