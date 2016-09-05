@@ -1357,7 +1357,10 @@ void Poll::CommandControl(){
 					std::cout << sys_message_head << Display::WarningStr("Warning:") << " Run title cannot be changed while a file is open!\n";
 				}
 				else {
-					output_title = arg; 
+					//Check if argument is within double quotes and strip them. Otherwise take the whole argument.
+					if (arg.find_first_of('"') == 0 && arg.find_last_of('"') == arg.length() - 1) 
+						output_title = arg.substr(1,arg.length() - 2);
+					else output_title = arg; 
 					if(output_format == 0 && output_title.size() > 80){
 						std::cout << sys_message_head << Display::WarningStr("Warning:") << " Title length " << output_title.size() - 80 << " characters too long for ldf format!\n";
 						output_title = output_title.substr(0, 80);
