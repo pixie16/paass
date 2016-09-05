@@ -463,7 +463,8 @@ void ScanInterface::RunControl(){
 					break;
 				}
 				else if(!is_running){
-					sleep(1);
+					IdleTask();
+					usleep(100000); //0.1 seconds
 					continue;
 				}
 
@@ -559,7 +560,8 @@ void ScanInterface::RunControl(){
 					break;
 				}
 				else if(!is_running){
-					sleep(1);
+					IdleTask();
+					usleep(100000); //0.1 seconds
 					continue;
 				}
 
@@ -632,7 +634,8 @@ void ScanInterface::RunControl(){
 					break;
 				}
 				else if(!is_running){
-					sleep(1);
+					IdleTask();
+					usleep(100000); //0.1 seconds
 					continue;
 				}
 
