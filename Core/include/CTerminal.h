@@ -25,8 +25,8 @@
 ///Default size of terminal scroll back buffer in lines.
 #define SCROLLBACK_SIZE 1000
 
-#define CTERMINAL_VERSION "1.2.09"
-#define CTERMINAL_DATE "Aug. 16th, 2016"
+#define CTERMINAL_VERSION "1.2.10"
+#define CTERMINAL_DATE "Sept. 7th, 2016"
 
 #include <curses.h>
 
@@ -34,48 +34,6 @@ extern std::string CPP_APP_VERSION;
 
 template <typename T>
 std::string to_str(const T &input_);
-
-// Default target for get_opt
-void dummy_help();
-
-///////////////////////////////////////////////////////////////////////////////
-// CLoption
-///////////////////////////////////////////////////////////////////////////////
-
-struct CLoption{
-	char opt;
-	std::string alias;
-	std::string value;
-	bool require_arg;
-	bool optional_arg;
-	bool is_active;
-	
-	CLoption(){
-		Set("NULL", false, false);
-		opt = 0x0;
-		value = "";
-		is_active = false;
-	}
-	
-	CLoption(std::string name_, bool require_arg_, bool optional_arg_){
-		Set(name_, require_arg_, optional_arg_);
-		value = "";
-		is_active = false;
-	}
-	
-	void Set(std::string name_, bool require_arg_, bool optional_arg_){
-		opt = name_[0]; alias = name_; require_arg = require_arg_; optional_arg = optional_arg_;
-	}
-};
-
-/// Parse all command line entries and find valid options.
-bool get_opt(unsigned int argc_, char **argv_, CLoption *options, unsigned int num_valid_opt_, void (*help_)()=dummy_help);
-
-/// Return the length of a character string.
-unsigned int cstrlen(char *str_);
-
-/// Extract a string from a character array.
-std::string csubstr(char *str_, unsigned int start_index_=0);
 
 ///////////////////////////////////////////////////////////////////////////////
 // CommandHolder
