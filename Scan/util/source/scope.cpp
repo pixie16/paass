@@ -444,8 +444,7 @@ void scopeScanner::CmdHelp(const std::string &prefix_/*=""*/){
 	std::cout << "   run                    - Run the acquistion.\n";
 	std::cout << "   single                 - Perform a single capture.\n";
 	std::cout << "   thresh <low> [high]    - Set the plotting window for trace maximum.\n";
-	std::cout << "   fit <low> <high>       - Turn on fitting of waveform.\n";
-	std::cout << "                          - Set <low> to \"off\" to disable fitting.\n";
+	std::cout << "   fit <low> <high>       - Turn on fitting of waveform. Set <low> to \"off\" to disable fitting.\n";
 	std::cout << "   avg <numWaveforms>     - Set the number of waveforms to average.\n";
 	std::cout << "   save <fileName>        - Save the next trace to the specified file name..\n";
 	std::cout << "   delay [time]           - Set the delay between drawing traces (in seconds, default = 1 s).\n";
