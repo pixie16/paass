@@ -119,6 +119,7 @@ class PixieInterface
   double GetLiveTime(int mod, int chan);
   double GetRealTime(int mod);
   double GetProcessedEvents(int mod);
+	bool GetModuleInfo(unsigned short mod, unsigned short *rev, unsigned int *serNum, unsigned short *adcBits, unsigned short *adcMsps); 
   // # #
   bool StartHistogramRun(unsigned short mode = NEW_RUN);
   bool StartHistogramRun(unsigned short mod, unsigned short mode);
