@@ -14,6 +14,8 @@
 #include <thread>
 #include <utility>
 #include <map>
+#include <getopt.h>
+#include <string.h>
 
 #include <sys/stat.h> //For directory manipulation
 
@@ -22,19 +24,19 @@
 #include "CTerminal.h"
 
 /* Print help dialogue for command line options. */
-void help(){
-	std::cout << "\n SYNTAX: ./poll2 <options>\n";
-	std::cout << "  -a, --alarm=[e-mail] Call the alarm script with a given e-mail (or no argument)\n"; 
-	std::cout << "  -f, --fast           Fast boot (false by default)\n";
-	std::cout << "  -v, --verbose        Run verbosely (false by default)\n";
-	std::cout << "  -n, --no-wall-clock  Do not insert the wall clock in the data stream\n";
-	std::cout << "  -r, --rates          Display module rates in quiet mode (false by defualt)\n";
-	std::cout << "  -t, --thresh <num>   Sets FIFO read threshold to num% full (50% by default)\n";
-	std::cout << "  -z, --zero           Zero clocks on each START_ACQ (false by default)\n";
-	std::cout << "  -d, --debug          Set debug mode to true (false by default)\n";
-	std::cout << "  -p, --pacman         Use classic poll operation for use with Pacman.\n";
-	std::cout << "  -h, --help           Display this help dialogue.\n\n";
-}	
+void help(const char *progName_){
+	std::cout << "\n SYNTAX: " << progName_ << " [options]\n";
+	std::cout << "  --alarm (-a) [e-mail] | Call the alarm script with a given e-mail (or no argument)\n"; 
+	std::cout << "  --fast (-f)           | Fast boot (false by default)\n";
+	std::cout << "  --verbose (-v)        | Run quietly (false by default)\n";
+	std::cout << "  --no-wall-clock       | Do not insert the wall clock in the data stream\n";
+	std::cout << "  --rates               | Display module rates in quiet mode (false by defualt)\n";
+	std::cout << "  --thresh (-t) <num>   | Sets FIFO read threshold to num% full (50% by default)\n";
+	std::cout << "  --zero                | Zero clocks on each START_ACQ (false by default)\n";
+	std::cout << "  --debug (-d)          | Set debug mode to true (false by default)\n";
+	std::cout << "  --pacman (-p)         | Use classic poll operation for use with Pacman.\n";
+	std::cout << "  --help (-h)           | Display this help dialogue.\n\n";
+}
 	
 void start_run_control(Poll *poll_){
 	poll_->RunControl();
@@ -49,62 +51,87 @@ int main(int argc, char *argv[]){
 	unsigned int threshPercent = 50;
 	std::string alarmArgument = "";
 
-	// Define all valid command line options
-	// This is done to keep legacy options available while removing dependency on HRIBF libraries
-	CLoption valid_opt[12];
-	valid_opt[0].Set("alarm", false, true);
-	valid_opt[1].Set("fast", false, false);
-	valid_opt[2].Set("verbose", false, false);
-	valid_opt[3].Set("no-wall-clock", false, false);
-	valid_opt[4].Set("rates", false, false);
-	valid_opt[5].Set("thresh", true, false);
-	valid_opt[6].Set("zero", false, false);
-	valid_opt[7].Set("debug", false, false);
-	valid_opt[8].Set("pacman", false, false);
-	valid_opt[9].Set("help", false, false);
-	valid_opt[10].Set("prefix", false, false);
-	valid_opt[11].Set("?", false, false);
-	if(!get_opt(argc, argv, valid_opt, 12, help)){ return 1; }
-
-	// Help
-	if(valid_opt[9].is_active){
-		help();
-		return 0;
-	}	
-	if(valid_opt[10].is_active){ 
-		std::cout << INSTALL_PREFIX <<"\n";
-		return 0; 
-	}
-
-	Terminal poll_term;
+	struct option longOpts[] = {
+		{ "alarm", optional_argument, NULL, 'a' },
+		{ "fast", no_argument, NULL, 'f' },
+		{ "verbose", no_argument, NULL, 'v' },
+		{ "no-wall-clock", no_argument, NULL, 0 },
+		{ "rates", no_argument, NULL, 0 },
+		{ "thresh", required_argument, NULL, 't' },
+		{ "zero", no_argument, NULL, 0 },
+		{ "debug", no_argument, NULL, 'd' },
+		{ "pacman", no_argument, NULL, 'p' },
+		{ "help", no_argument, NULL, 'h' },
+		{ "prefix", no_argument, NULL, 0 },
+		{ "?", no_argument, NULL, 0 },
+		{ NULL, no_argument, NULL, 0 }
+	};
 
 	// Main object
 	Poll poll;
 	poll.SetQuietMode();
-	
-	// Set all of the selected options
-	if(valid_opt[0].is_active){
-		if(valid_opt[0].value != ""){ alarmArgument = valid_opt[0].value; }
-		poll.SetSendAlarm();
-	}
-	if(valid_opt[1].is_active){ poll.SetBootFast(); }
-	if(valid_opt[2].is_active){ poll.SetQuietMode(false); }
-	if(valid_opt[3].is_active){ poll.SetWallClock(); }
-	if(valid_opt[4].is_active){ poll.SetShowRates(); }
-	if(valid_opt[5].is_active){ 
-		threshPercent = atoi(valid_opt[5].value.c_str()); 
-		if(threshPercent <= 0){ 
-			std::cout << Display::WarningStr("Warning!") << " failed to set threshold level. Using default of 50%\n";
-			threshPercent = 50; 
-		}
-	}
-	if(valid_opt[6].is_active){ poll.SetZeroClocks(); }
-	if(valid_opt[7].is_active){ poll.SetDebugMode(); }
-	if(valid_opt[8].is_active){ poll.SetPacmanMode(); }
-	if(valid_opt[11].is_active){ return 0; }
+
+	int idx = 0;
+	int retval = 0;
+
+	//getopt_long is not POSIX compliant. It is provided by GNU. This may mean
+	//that we are not compatable with some systems. If we have enough
+	//complaints we can either change it to getopt, or implement our own class. 
+	while ( (retval = getopt_long(argc, argv, "afvt:dph", longOpts, &idx)) != -1) {
+		switch(retval) {
+			case 'a':
+				alarmArgument = optarg;
+				poll.SetSendAlarm();
+				break;
+			case 'f':
+				poll.SetBootFast();
+				break;
+			case 'v':
+				poll.SetQuietMode(false);
+				break;
+			case 't' :
+				threshPercent = atoi(optarg); 
+				if(threshPercent <= 0){ 
+					std::cout << Display::ErrorStr() << " Failed to set threshold level to (" << threshPercent << ")!\n";
+					return 1;
+				}
+				break;
+			case 'd':
+				poll.SetDebugMode();
+				break;								
+			case 'p':
+				poll.SetPacmanMode();
+				break;
+			case 'h' :
+				help(argv[0]);
+				return 0;
+			case 0 :
+				if(strcmp("prefix", longOpts[idx].name) == 0 ) { // --prefix
+					std::cout << INSTALL_PREFIX <<"\n";
+					return 0; 
+				}
+				else if(strcmp("no-wall-clock", longOpts[idx].name) == 0 ) { // --no-wall-clock
+					poll.SetWallClock();
+				}
+				else if(strcmp("rates", longOpts[idx].name) == 0 ) { // --rates
+					poll.SetShowRates();
+				}
+				else if(strcmp("zero", longOpts[idx].name) == 0 ) { // --zero
+					poll.SetZeroClocks();
+				}
+				break;
+			case '?' :
+				help(argv[0]);
+				return 1;
+			default :
+				break;
+		}//switch(retval)
+	}//while
 
 	if(!poll.Initialize()){ return 1; }
 
+	// Main interactive terminal.
+	Terminal poll_term;
 
 	std::string poll2Dir = getenv("HOME");
 	if (!mkdir(poll2Dir.append("/.poll2/").c_str(), S_IRWXU)) {
