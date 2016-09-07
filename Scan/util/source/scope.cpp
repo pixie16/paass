@@ -18,6 +18,7 @@
 #include "TAxis.h"
 #include "TFile.h"
 #include "TF1.h"
+#include "TLine.h"
 #include "TProfile.h"
 #include "TPaveStats.h"
 
@@ -104,8 +105,12 @@ scopeScanner::scopeScanner(int mod /*= 0*/, int chan/*=0*/) : ScanInterface() {
 	init = false;
 	running = true;
 	performFit_ = false;
+	performCfd_ = false;
 	numEvents = 20;
 	numAvgWaveforms_ = 1;
+	cfdF_ = 0.5;
+	cfdD_ = 1;
+	cfdL_ = 1;
 	fitLow_ = 10;
 	fitHigh_ = 15;
 	delay_ = 2;
@@ -117,10 +122,12 @@ scopeScanner::scopeScanner(int mod /*= 0*/, int chan/*=0*/) : ScanInterface() {
 	gSystem->Load("libTree");
 	
 	canvas = new TCanvas("scope_canvas", "scopeScanner");
-	canvas->cd();
 	
 	graph = new TGraph();
-	graph->SetMarkerStyle(kFullDotSmall);
+	cfdGraph = new TGraph();
+	cfdLine = new TLine();
+	cfdLine->SetLineColor(2);
+	
 	hist = new TH2F("hist","",256,0,1,256,0,1);
 
 	SetupFunc();
@@ -139,6 +146,8 @@ scopeScanner::~scopeScanner(){
 	canvas->Close();
 	delete canvas;
 	delete graph;
+	delete cfdGraph;
+	delete cfdLine;
 	delete hist;
 	delete paulauskasFunc;
 }
@@ -151,13 +160,20 @@ TF1 *scopeScanner::SetupFunc() {
 }
 
 void scopeScanner::ResetGraph(unsigned int size) {
+	delete graph;
+	delete cfdGraph;
+		
+	graph = new TGraph(size);
+	graph->SetMarkerStyle(kFullDotSmall);
+	
+	cfdGraph = new TGraph(size);
+	cfdGraph->SetLineColor(4);
+
 	if(size != x_vals.size()){
 		std::cout << msgHeader << "Changing trace length from " << x_vals.size()*ADC_TIME_STEP << " to " << size*ADC_TIME_STEP << " ns.\n";
 		x_vals.resize(size);
-		for(size_t index = 0; index < x_vals.size(); index++){
+		for(size_t index = 0; index < x_vals.size(); index++)
 			x_vals[index] = ADC_TIME_STEP * index;
-		}	
-		while ((unsigned int) graph->GetN() > size) graph->RemovePoint(graph->GetN());
 	}
 	hist->SetBins(x_vals.size(), x_vals.front(), x_vals.back() + ADC_TIME_STEP, 1, 0, 1);
 
@@ -206,8 +222,8 @@ void scopeScanner::Plot(){
 	//For a waveform pulse we use a graph.
 	if (numAvgWaveforms_ == 1) {
 		int index = 0;
-		for (size_t i=0; i<chanEvents_.front()->size; ++i) {
-			graph->SetPoint(index, x_vals[i], chanEvents_.front()->event->adcTrace[i]);
+		for (size_t i = 0; i < chanEvents_.front()->size; ++i) {
+			graph->SetPoint(index, x_vals[i], chanEvents_.front()->event->adcTrace.at(i));
 			index++;
 		}
 
@@ -221,9 +237,9 @@ void scopeScanner::Plot(){
 		graph->GetYaxis()->SetLimits(axisVals[1][0], axisVals[1][1]);
 
 		//Set the users zoom window.
-		for (int i=0;i<2;i++) {
+		for (int i = 0; i < 2; i++) {
 			if (!userZoom[i]) {
-				for (int j=0;j<2;j++) userZoomVals[i][j] = axisVals[i][j];
+				for (int j = 0; j < 2; j++) userZoomVals[i][j] = axisVals[i][j];
 			}
 		}
 		graph->GetXaxis()->SetRangeUser(userZoomVals[0][0], userZoomVals[0][1]);
@@ -233,6 +249,17 @@ void scopeScanner::Plot(){
 
 		float lowVal = (chanEvents_.front()->max_index - fitLow_) * ADC_TIME_STEP;
 		float highVal = (chanEvents_.front()->max_index + fitHigh_) * ADC_TIME_STEP;
+
+		if(performCfd_){
+			// Find the zero-crossing of the cfd waveform.
+			float cfdCrossing = chanEvents_.front()->AnalyzeCFD(cfdF_, cfdD_, cfdL_);
+			
+			// Draw the cfd waveform.
+			for(size_t cfdIndex = 0; cfdIndex < chanEvents_.front()->size; cfdIndex++)
+				cfdGraph->SetPoint((int)cfdIndex, x_vals[cfdIndex], chanEvents_.front()->cfdvals[cfdIndex] + chanEvents_.front()->baseline);
+			cfdLine->DrawLine(cfdCrossing*ADC_TIME_STEP, userZoomVals[1][0], cfdCrossing*ADC_TIME_STEP, userZoomVals[1][1]);
+			cfdGraph->Draw("LSAME");
+		}
 
 		if(performFit_){
 			paulauskasFunc->SetRange(lowVal, highVal);
@@ -439,18 +466,18 @@ void scopeScanner::ClearEvents(){
   * \return Nothing.
   */
 void scopeScanner::CmdHelp(const std::string &prefix_/*=""*/){
-	std::cout << "   set <module> <channel> - Set the module and channel of signal of interest (default = 0, 0).\n";
-	std::cout << "   stop                   - Stop the acquistion.\n";
-	std::cout << "   run                    - Run the acquistion.\n";
-	std::cout << "   single                 - Perform a single capture.\n";
-	std::cout << "   thresh <low> [high]    - Set the plotting window for trace maximum.\n";
-	std::cout << "   fit <low> <high>       - Turn on fitting of waveform.\n";
-	std::cout << "                          - Set <low> to \"off\" to disable fitting.\n";
-	std::cout << "   avg <numWaveforms>     - Set the number of waveforms to average.\n";
-	std::cout << "   save <fileName>        - Save the next trace to the specified file name..\n";
-	std::cout << "   delay [time]           - Set the delay between drawing traces (in seconds, default = 1 s).\n";
-	std::cout << "   log                    - Toggle log/linear mode on the y-axis.\n";
-	std::cout << "   clear                  - Clear all stored traces and start over.\n";
+	std::cout << "   set <module> <channel>  - Set the module and channel of signal of interest (default = 0, 0).\n";
+	std::cout << "   stop                    - Stop the acquistion.\n";
+	std::cout << "   run                     - Run the acquistion.\n";
+	std::cout << "   single                  - Perform a single capture.\n";
+	std::cout << "   thresh <low> [high]     - Set the plotting window for trace maximum.\n";
+	std::cout << "   fit <low> <high>        - Turn on fitting of waveform. Set <low> to \"off\" to disable.\n";
+	std::cout << "   cfd [F=0.5] [D=1] [L=1] - Turn on cfd analysis of waveform. Set [F] to \"off\" to disable.\n";
+	std::cout << "   avg <numWaveforms>      - Set the number of waveforms to average.\n";
+	std::cout << "   save <fileName>         - Save the next trace to the specified file name..\n";
+	std::cout << "   delay [time]            - Set the delay between drawing traces (in seconds, default = 1 s).\n";
+	std::cout << "   log                     - Toggle log/linear mode on the y-axis.\n";
+	std::cout << "   clear                   - Clear all stored traces and start over.\n";
 }
 
 /** ArgHelp is used to allow a derived class to add a command line option
@@ -547,6 +574,38 @@ bool scopeScanner::ExtraCommands(const std::string &cmd_, std::vector<std::strin
 			std::cout << msgHeader << " -SYNTAX- fit <low> <high>\n";
 			std::cout << msgHeader << " -SYNTAX- fit off\n";
 		}
+	}
+	else if (cmd_ == "cfd") {
+		cfdF_ = 0.5;
+		cfdD_ = 1;
+		cfdL_ = 1;
+		if (args_.empty()) { performCfd_ = true; }
+		else if (args_.size() == 1) { 
+			if(args_.at(0) == "off"){ // Turn cfd analysis off.
+				if(performCfd_){
+					std::cout << msgHeader << "Disabling cfd analysis.\n"; 
+					performCfd_ = false;
+				}
+				else{ std::cout << msgHeader << "Cfd is not enabled.\n"; }
+			}
+			else{
+				cfdF_ = atof(args_.at(0).c_str());
+				performCfd_ = true;
+			}
+		}
+		else if (args_.size() == 2) {
+			cfdF_ = atof(args_.at(0).c_str());
+			cfdD_ = atoi(args_.at(1).c_str());
+			performCfd_ = true;
+		}
+		else if (args_.size() == 3) {
+			cfdF_ = atof(args_.at(0).c_str());
+			cfdD_ = atoi(args_.at(1).c_str());
+			cfdL_ = atoi(args_.at(2).c_str());
+			performCfd_ = true;
+		}
+		if(performCfd_)
+			std::cout << msgHeader << "Enabling cfd analysis with F=" << cfdF_ << ", D=" << cfdD_ << ", L=" << cfdL_ << std::endl;
 	}
 	else if (cmd_ == "avg") {
 		if (args_.size() == 1) {
