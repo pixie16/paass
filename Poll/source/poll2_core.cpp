@@ -233,9 +233,10 @@ void Poll::PrintModuleInfo() {
 		unsigned short revision, adcBits, adcMsps;
 		unsigned int serialNumber;
 		if (pif->GetModuleInfo(mod, &revision, &serialNumber, &adcBits, &adcMsps)) {
-			std::cout << "Module 0: " <<
+			std::cout << "Module " << mod << ": " <<
 				"Serial Number " << serialNumber << ", " <<
-				"Rev " << std::hex << std::uppercase << revision << std::dec << ", " <<
+				"Rev " << std::hex << std::uppercase << revision << std::dec << " " <<
+					"(" << revision << "), " <<
 				adcBits << "-bit " << adcMsps << " MS/s " <<
 				std::endl;
 		}
