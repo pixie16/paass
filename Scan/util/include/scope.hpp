@@ -17,6 +17,7 @@ class TCanvas;
 class TGraph;
 class TH2F;
 class TF1;
+class TLine;
 class TProfile;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -199,6 +200,9 @@ class scopeScanner : public ScanInterface {
 	
 	size_t numEvents; /// The number of waveforms to store.
 	
+	float cfdF_;
+	int cfdD_;
+	int cfdL_;
 	int fitLow_;
 	int fitHigh_;
 	int delay_; /// The number of seconds to wait between drawing traces.
@@ -210,6 +214,7 @@ class scopeScanner : public ScanInterface {
 	bool init;	
 	bool running;
 	bool performFit_;
+	bool performCfd_;
   
 	std::vector<int> x_vals;
 	std::deque<ChannelEvent*> chanEvents_; ///<The buffer of waveforms to be plotted.
@@ -221,6 +226,8 @@ class scopeScanner : public ScanInterface {
 	TApplication *rootapp; ///< Root application pointer.
 	TCanvas *canvas; ///< The main plotting canvas.
 	TGraph *graph; ///< The TGraph for plotting traces.
+	TGraph *cfdGraph; ///< The TGraph for plotting cfd analysis.
+	TLine *cfdLine;
 	TH2F *hist; ///<The histogram containing the waveform frequencies.
 	TProfile *prof; ///<The profile of the average histogram.
 
