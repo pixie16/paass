@@ -228,6 +228,21 @@ Poll::~Poll(){
 	delete pif;
 }
 
+void Poll::PrintModuleInfo() {
+	for (int mod=0; mod<pif->GetNumberCards(); mod++) {	
+		unsigned short revision, adcBits, adcMsps;
+		unsigned int serialNumber;
+		if (pif->GetModuleInfo(mod, &revision, &serialNumber, &adcBits, &adcMsps)) {
+			std::cout << "Module " << mod << ": " <<
+				"Serial Number " << serialNumber << ", " <<
+				"Rev " << std::hex << std::uppercase << revision << std::dec << " " <<
+					"(" << revision << "), " <<
+				adcBits << "-bit " << adcMsps << " MS/s " <<
+				std::endl;
+		}
+	}
+}
+
 bool Poll::Initialize(){
 	if(init){ return false; }
 
@@ -240,6 +255,8 @@ bool Poll::Initialize(){
 	// Initialize the pixie interface and boot
 	pif->GetSlots();
 	if(!pif->Init()){ return false; }
+
+	PrintModuleInfo();
 
 	//Boot the modules.
 	if(boot_fast){

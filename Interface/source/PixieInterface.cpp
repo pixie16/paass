@@ -840,3 +840,8 @@ bool PixieInterface::CheckError(bool exitOnError) const
 
   return (retval < 0);
 }
+
+bool PixieInterface::GetModuleInfo(unsigned short mod, unsigned short *rev, unsigned int *serNum, unsigned short *adcBits, unsigned short *adcMsps) {
+	//Return false if error code provided.
+	return (Pixie16ReadModuleInfo(mod,rev,serNum,adcBits,adcMsps) == 0);	
+}

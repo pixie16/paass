@@ -293,6 +293,9 @@ class Poll{
 	size_t GetNcards(){ return n_cards; }
 	
 	size_t GetThreshWords(){ return threshWords; }
+
+	///\brief Prints the information about each module.
+	void PrintModuleInfo();
 	
 	/// Main control loop for handling user input.
 	void CommandControl();

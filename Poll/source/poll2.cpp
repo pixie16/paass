@@ -163,6 +163,8 @@ int main(int argc, char *argv[]){
 	poll_term.SetLogFile(poll2Dir + "poll2.log");
 	if (poll.GetPacmanMode()) poll_term.EnableTimeout();
 
+	poll.PrintModuleInfo();
+
 	poll.SetThreshWords(EXTERNAL_FIFO_LENGTH * threshPercent / 100.0);
 	std::cout << "Using FIFO threshold of " << threshPercent << "% (" << poll.GetThreshWords() << "/" << EXTERNAL_FIFO_LENGTH << " words).\n";
 	
