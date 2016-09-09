@@ -1159,8 +1159,10 @@ unsigned int split_str(std::string str, std::vector<std::string> &args, char del
 		// a delimiter.
 		lastPos = str.find_first_not_of(delimiter, pos+1);
 	}
+	
 	//Store the last string.
-	args.push_back(str.substr(lastPos, strStop - lastPos));
+	if(lastPos != std::string::npos)
+		args.push_back(str.substr(lastPos, strStop - lastPos));
 
 	return args.size();
 }
