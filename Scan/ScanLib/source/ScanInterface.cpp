@@ -398,7 +398,8 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 
 	// Push back all of the arguments. Annoying, but we only need to do this once.
 	baseOpts.push_back(optionExt("batch", no_argument, NULL, 'b', "", "Run in batch mode (i.e. with no command line)"));
-	baseOpts.push_back(optionExt("setup", required_argument, NULL, 0, "<path>", "Specify path to setup to use for scan"));
+	baseOpts.push_back(optionExt("config", required_argument, NULL, 'c',
+								 "<path>", "Specify path to setup to use for scan"));
 	baseOpts.push_back(optionExt("counts", no_argument, NULL, 0, "", "Write all recorded channel counts to a file"));
 	baseOpts.push_back(optionExt("debug", no_argument, NULL, 0, "", "Enable readout debug mode"));
 	baseOpts.push_back(optionExt("dry-run", no_argument, NULL, 0, "", "Extract spills from file, but do no processing"));
@@ -410,7 +411,7 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 	baseOpts.push_back(optionExt("shm", no_argument, NULL, 's', "", "Enable shared memory readout"));
 	baseOpts.push_back(optionExt("version", no_argument, NULL, 'v', "", "Display version information"));
 
-	optstr = "bhi:o:qsv";
+	optstr = "bc:hi:o:qsv";
 
 	progName = std::string(PROG_NAME);
 	msgHeader = progName + ": ";
@@ -856,7 +857,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	//complaints we can either change it to getopt, or implement our own class. 
 	while ( (retval = getopt_long(argc, argv, optstr.c_str(), longOpts.data(), &idx)) != -1) {
 		if(retval == 0x0){ // Long option
-			if(strcmp("setup", longOpts[idx].name) == 0) {
+			if(strcmp("config", longOpts[idx].name) == 0) {
 				setup_filename = optarg;
 			}
 			else if(strcmp("counts", longOpts[idx].name) == 0) {
@@ -889,6 +890,9 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 			switch(retval) {
 				case 'b' :
 					batch_mode = true;
+					break;
+				case 'c' :
+					setup_filename = optarg;
 					break;
 				case 'h' :
 					help(argv[0]);
