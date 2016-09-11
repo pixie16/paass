@@ -21,6 +21,7 @@ RootScanner::~RootScanner() {
   */
 void RootScanner::IdleTask() {
 	gSystem->ProcessEvents();
+	canvas_->Update();
 	usleep(100000);
 }
 
@@ -40,6 +41,8 @@ void RootScanner::ResetZoom(TVirtualPad *pad /*= gPad*/) {
  * zoom is set.
  */
 void RootScanner::UpdateZoom(TAxis *axisX, TAxis *axisY, TVirtualPad *pad /*=gPad*/) {
+	auto itr = zoomInfo_.find(pad);
+	if (itr == zoomInfo_.end()) ResetZoom(pad);
 	AxisInfo* padZoomInfo = &zoomInfo_[pad];
 
 	//If zoom has been reset we continue, otherwise we get current axis limits.
@@ -56,8 +59,8 @@ void RootScanner::UpdateZoom(TAxis *axisX, TAxis *axisY, TVirtualPad *pad /*=gPa
 	// limits to those taken from the canvas.
 	bool userZoom[2];
 	for (int i=0; i<2; i++) {
-		userZoom[i] =  (padZoomInfo->userZoomVals[i][0] != padZoomInfo->axisVals[i][0] || 
-			padZoomInfo->userZoomVals[i][1] != padZoomInfo->axisVals[i][1]);
+		userZoom[i] =  (padZoomInfo->userZoomVals[i][0] > padZoomInfo->axisVals[i][0] || 
+			padZoomInfo->userZoomVals[i][1] < padZoomInfo->axisVals[i][1]);
 	}
 
 	//If the axis min / max are outside current stored values thens We update 
