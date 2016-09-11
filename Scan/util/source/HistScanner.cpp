@@ -46,25 +46,7 @@ bool HistScanner::AddEvent(XiaData* event) {
 }
 
 void HistScanner::IdleTask() {
-	if (tree_->GetEntries()) {
-		for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
-			TVirtualPad *pad = padItr->first;
-			HistMap_ *map = &padItr->second;
-			bool newPlot = false;
-			for (auto itr = map->begin(); itr != map->end(); ++itr) {
-				TH1F* hist = dynamic_cast<TH1F*> (gDirectory->Get(itr->second.c_str()));
-				if (!hist) {
-					auto key = itr->first;
-					int mod = std::get<0>(key);
-					int chan = std::get<1>(key);
-					DataType_ type = std::get<2>(key);
-					Plot(mod, chan, type, pad);
-					newPlot = true;
-				}
-			}
-			if (newPlot) ScaleHistograms(pad);
-		}
-	}
+	ProcessNewHists();
 
 	RootScanner::IdleTask();
 }
@@ -129,7 +111,7 @@ bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string>
 		if (mod < 0 || chan < 0 || type == DataType_::INVALID) return true;
 
 		if (args.size() == 3) {
-			histos_[gPad][std::make_tuple(mod, chan, type)] = "";
+			newHists_.push_back(std::make_tuple(mod, chan, type, gPad));
 		}
 		else {
 			int padIndex = 0;
@@ -143,7 +125,7 @@ bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string>
 				std::cout << "ERROR: Invalid pad index: " << padIndex << ".\n";
 				return true;
 			}
-			histos_[pad][std::make_tuple(mod, chan, type)] = "";
+			newHists_.push_back(std::make_tuple(mod, chan, type, pad));
 		}
 		GetCanvas()->Update();
 		return true;
@@ -199,6 +181,22 @@ bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string>
 	return false;
 }
 
+void HistScanner::ProcessNewHists() {
+	while (!newHists_.empty()) {
+		NewHistKey_ key = newHists_.back();
+		int mod = std::get<0>(key);
+		int chan = std::get<1>(key);
+		DataType_ type = std::get<2>(key);
+		TVirtualPad* pad = std::get<3>(key);
+
+		//Store the new keys in the map with a null hist.
+		histos_[pad][std::make_tuple(mod, chan, type)] = "";
+		//Make the inital plot.
+		Plot(mod, chan, type, pad);
+
+		newHists_.pop_back();
+	}
+}
 void HistScanner::Plot(int mod, int chan, DataType_ type, TVirtualPad *pad /*= gPad*/) {
 	static const std::vector< Color_t > colors = {kBlue + 2, kRed, kGreen + 1, kMagenta + 2};
 
@@ -294,7 +292,7 @@ void HistScanner::Plot(int mod, int chan, DataType_ type, TVirtualPad *pad /*= g
 		
 			histos_[pad][key] = histName.str();
 		}
-		else histos_[pad][key] = nullptr;
+		else histos_[pad][key] = "";
 
 		prevPad->cd();
 	}
