@@ -36,10 +36,15 @@ Unpacker *HistScanner::GetCore(){
 }
 
 bool HistScanner::AddEvent(XiaData* event) {		
+	//Do not delete as it causes segfault.
+	ChannelEvent *chEvent = new ChannelEvent(event);
 	HistScannerChanData data;
 	data.mod = event->modNum;
 	data.chan = event->chanNum;
 	data.filterEn = event->energy; 
+	chEvent->CorrectBaseline();
+	data.peakAdc = chEvent->maximum;
+	data.traceQdc = chEvent->IntegratePulse(chEvent->max_index - 10, chEvent->max_index + 15);
 
 	eventData_->push_back(data);
 	return true;
