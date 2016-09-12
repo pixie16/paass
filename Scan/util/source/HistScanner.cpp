@@ -61,13 +61,9 @@ bool HistScanner::ProcessEvents() {
 			TVirtualPad *pad = padItr->first;
 			HistMap_ *map = &padItr->second;
 			for (auto itr = map->begin(); itr != map->end(); ++itr) {
-				auto key = itr->first;
-				int mod = std::get<0>(key);
-				int chan = std::get<1>(key);
-				DataType_ type = std::get<2>(key);
-				Plot(mod, chan, type, pad);
+				Plot(itr->first, pad);
 			}
-			ScaleHistograms(pad);
+			//ScaleHistograms(pad);
 		}
 		GetCanvas()->Update();
 	}
@@ -100,36 +96,36 @@ bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string>
 		catch (const std::invalid_argument& ia) { 
 			std::cout << "ERROR: Invalid channel argument: '" << args[1] << "'\n"; 
 		}
-		DataType_ type = DataType_::INVALID;
-		if (args[2] == "filter") type = DataType_::FILTEREN;
-		else if (args[2] == "peakadc") type = DataType_::PEAKADC;
-		else if (args[2] == "tqdc") type = DataType_::TRACEQDC;
+		std::string type;
+		if (args[2] == "filter") type = "filterEn";
+		else if (args[2] == "peakadc") type = "peakAdc";
+		else if (args[2] == "tqdc") type = "traceQdc";
 		else {
 			std::cout << "ERROR: Incorrect type: '" << args[2] << "'.\n";
 			std::cout << "Valid choices: filter, peakadc, tqdc\n";
 		}
-		if (mod < 0 || chan < 0 || type == DataType_::INVALID) return true;
+		if (mod < 0 || chan < 0 || type == "") return true;
 
-		if (args.size() == 3) {
-			newHists_.push_back(std::make_tuple(mod, chan, type, gPad));
-		}
-		else {
+		//Determine pad
+		TVirtualPad *pad = gPad;
+		if (args.size() == 4) {
 			int padIndex = 0;
 			try { padIndex = std::stoi(args[3]); }
 			catch (const std::invalid_argument& ia) { 
 				std::cout << "ERROR: Invalid pad index: '" << args[3] << "'\n"; 
 				return true;
 			}
-			TVirtualPad *pad = GetCanvas()->GetPad(padIndex);
+			pad = GetCanvas()->GetPad(padIndex);
 			if (!pad || pad ==0) {
 				std::cout << "ERROR: Invalid pad index: " << padIndex << ".\n";
 				return true;
 			}
-			newHists_.push_back(std::make_tuple(mod, chan, type, pad));
 		}
-		GetCanvas()->Update();
+
+		//Add to the new histogram vector.
+		newHists_.push_back(std::make_pair(std::make_tuple(mod, chan, type), pad));
+
 		return true;
-		
 	}
 	else if (cmd == "clear") {
 		tree_->Reset();
@@ -183,116 +179,164 @@ bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string>
 
 void HistScanner::ProcessNewHists() {
 	while (!newHists_.empty()) {
-		NewHistKey_ key = newHists_.back();
+		auto key = newHists_.back().first;
+		auto pad = newHists_.back().second;
+
 		int mod = std::get<0>(key);
 		int chan = std::get<1>(key);
-		DataType_ type = std::get<2>(key);
-		TVirtualPad* pad = std::get<3>(key);
+		std::string type = std::get<2>(key);
 
-		//Store the new keys in the map with a null hist.
-		histos_[pad][std::make_tuple(mod, chan, type)] = "";
-		//Make the inital plot.
-		Plot(mod, chan, type, pad);
+		std::stringstream histName;
+		histName << "hM" << mod << "C" << chan << "_" << type << "_" << histCount_[key]++;
+
+		histos_[pad][key] = histName.str();
+
+		//Make the initial plot.
+		Plot(key, pad);
+		//Rescale all histograms on the pad.
+		//ScaleHistograms(pad);
 
 		newHists_.pop_back();
 	}
+	GetCanvas()->Update();
 }
-void HistScanner::Plot(int mod, int chan, DataType_ type, TVirtualPad *pad /*= gPad*/) {
+void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 	static const std::vector< Color_t > colors = {kBlue + 2, kRed, kGreen + 1, kMagenta + 2};
 
-	//Determine the name of the branch to plot.
-	std::string branch;
-	switch (type) {
-		case DataType_::FILTEREN :
-			branch = "filterEn"; break;
-		case DataType_::PEAKADC :
-			branch = "peakAdc"; break;
-		case DataType_::TRACEQDC :
-			branch = "traceQdc"; break;
-		default :
-			return;
-	}
+	int mod = std::get<0>(key);
+	int chan = std::get<1>(key);
+	std::string type = std::get<2>(key);
 
 	//Declare string streams used to populate the draw command.
-	std::stringstream histName;
 	std::stringstream drawCmd;
 	std::stringstream drawWeight;
 	std::stringstream drawOpt;
+	std::string histName;
+	Color_t drawColor = kBlack;
 
 	//Determine the weight or cut, we only want data from the specific mod/chan.
 	drawWeight << "mod == " << mod << " && chan == " << chan;
 
-	//Declare a pointer to the histogram.
-	TH1F* hist = nullptr;
-	Color_t drawColor = kBlack;
-	//Determine the key.
-	auto key = std::make_tuple(mod, chan, type);
 	//Find the entry matching the key.
 	auto padItr = histos_.find(pad);
-	HistMap_ *map = nullptr; 
-	if (padItr != histos_.end()) {
-		map = &padItr->second; 
-		auto itr = map->find(key);
+	if (padItr == histos_.end()) {
+		std::cout << "ERROR: Unable to locate pad in map!\n";
+		return;
+	}
 
-		//If we found something set the hist pointer.
-		if (itr != map->end()) hist = dynamic_cast<TH1F*> (gDirectory->Get(itr->second.c_str()));
-		//If this is not the first plot and the map is not empty we set option "SAME".
-		if (itr != map->begin() && !map->empty()) {
-			drawOpt << "SAME";
-		}
-		//Determine the line color if the hist is not defined.
-		if (!hist) {
-			drawColor = colors.at(std::distance(map->begin(), itr));
-		}
+	HistMap_ *histMap = &(padItr->second); 
+	auto histItr = histMap->find(key);
+
+	if (histItr == histMap->end()) {
+		std::cout << "ERROR: Unable to locate key in map!\n";
+		return;
+	}
+
+	histName = histItr->second;
+
+	TH1F* hist = dynamic_cast<TH1F*> (gDirectory->Get(histName.c_str()));
+
+	//If this is not the first plot and the map is not empty we set option "SAME".
+	if (histItr != histMap->begin()) {
+		drawOpt << "SAME";
 	}
 
 	if (hist) {
-		histName << hist->GetName();
-		drawCmd << branch << ">>+" << histName.str();
+		drawCmd << type << ">>+" << histName;
 
-		tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),drawOpt.str().c_str(),std::numeric_limits<Long64_t>::max(),hist->GetEntries());
-		GetCanvas()->Modified();
+		tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),"GOFF",std::numeric_limits<Long64_t>::max(),hist->GetEntries());
+		pad->Modified();
 	}
 	else {
-		histName << "hM" << mod << "C" << chan << "_" << branch;
-		drawCmd << branch << ">>" << histName.str() << "(1000)";
+		drawColor = colors.at(std::distance(histMap->begin(), histItr));
+		drawCmd << type << ">>" << histName << "(1000)";
 
 		TVirtualPad *prevPad = gPad;
 		pad->cd();
-		if (tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),drawOpt.str().c_str())) {
-
-			hist = (TH1F*) gDirectory->Get(histName.str().c_str());
+		//std::cout << "Draw(\"" << drawCmd.str() << "\", \"" << drawWeight.str() << "\", \"" << drawOpt.str() << "\")";
+		if (tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),"GOFF")) {
+			hist = (TH1F*) gDirectory->Get(histName.c_str());
 			if (hist) {
+				//Determine the x and y maximum from the histogram
+				float xMax = hist->GetXaxis()->GetXmax();
+				float yMax = hist->GetBinContent(hist->GetMaximumBin());
+
+				//Check if a pad maximum has been declared.
+				auto padMaxItr = padMaximums_.find(pad);
+				//If none found we seet it to the maximums for this hist.
+				if (padMaxItr == padMaximums_.end()) {
+					padMaximums_[pad] = std::make_pair(xMax,yMax);
+				}
+				//If found we compare to maximusm for this hist and set them accordingly.
+				else {
+					float *padXMax = &(padMaxItr->second.first);
+					float *padYMax = &(padMaxItr->second.second);
+					if (*padXMax > xMax) xMax = *padXMax;
+					else *padXMax = xMax;
+					if (*padYMax > yMax) yMax = *padYMax;
+					else *padYMax = yMax;
+				}
+
+				hist->SetBins(xMax, 0, xMax);
+				hist->Reset();
+
+				drawCmd.str("");
+				drawCmd << type << ">>" << histName;
+
+				tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),"GOFF",std::numeric_limits<Long64_t>::max(),hist->GetEntries());
+
+				hist->GetYaxis()->SetLimits(0,yMax);
+
 				std::stringstream title;
-				title << "M" << mod << "C" << chan << " " << branch;
+				title << "M" << mod << "C" << chan << " " << type;
 				hist->SetTitle(title.str().c_str());
 				hist->SetLineColor(drawColor);
 
-//				float xMin = hist->GetXaxis()->GetXmin();
-//				float xMax = hist->GetXaxis()->GetXmax();
-//				hist->SetBins(xMax - xMin, xMin, xMax);
+				hist->Draw(drawOpt.str().c_str());
 
-				//If the map is not empty and the draw option is not SAME, 
-				//	we need to redraw all the histograms on the pad.
-				if (map && !map->empty() && drawOpt.str() != "SAME") {
-					for (auto itr = map->begin(); itr != map->end(); ++itr) {
-						if (itr != map->begin()) {
-							TH1F* hist = dynamic_cast<TH1F*> (gDirectory->Get(itr->second.c_str()));
-							if (hist) {
-								hist->SetLineColor(colors.at(std::distance(map->begin(), itr)));
-								hist->Draw("SAME");
-							}
+				//				ScaleHistograms(pad);
+
+				if (histItr == histMap->begin() && histMap->size() > 1) {
+					for (auto itr = histMap->begin(); itr != histMap->end(); ++itr) {
+						TH1F* hist = dynamic_cast<TH1F*> (gDirectory->Get(itr->second.c_str()));
+						if (hist) {
+							hist->SetLineColor(colors.at(std::distance(histMap->begin(), itr)));
+							if (itr == histMap->begin()) hist->Draw();
+							else	hist->Draw("SAME");
 						}
 					}
 				}
 
-				ResetZoom(pad);
+
 				pad->Modified();
+				GetCanvas()->Update();
+
+				//ResetZoom(pad);
+				//pad->Modified();
+				//GetCanvas()->Update();
+
+				//If the map is not empty and the draw option is not SAME, 
+				//	we need to redraw all the histograms on the pad.
+				/*
+					if (drawOpt.str() != "SAME" && map->size() > 1) {
+					std::cout << "Need to replot as the order of plots has changed.\n";
+					for (auto itr = map->begin(); itr != map->end(); ++itr) {
+					if (itr != map->begin()) {
+					TH1F* hist = dynamic_cast<TH1F*> (gDirectory->Get(itr->second.c_str()));
+					if (hist) {
+					hist->SetLineColor(colors.at(std::distance(map->begin(), itr)));
+					std::cout << "Plotting " << hist->GetLineColor() << "\n";
+					hist->Draw("SAME");
+					}
+					}
+					}
+					}
+					*/
+				//pad->Modified();
+				//GetCanvas()->Update();
 			}
-		
-			histos_[pad][key] = histName.str();
+
 		}
-		else histos_[pad][key] = "";
 
 		prevPad->cd();
 	}
@@ -311,21 +355,26 @@ void HistScanner::ScaleHistograms(TVirtualPad* pad) {
 				if (hist->GetYaxis()->GetXmin() < yMin) yMin = hist->GetYaxis()->GetXmin();
 				if (hist->GetYaxis()->GetXmax() > yMax) yMax = hist->GetYaxis()->GetXmax();
 				if (hist->GetBinContent(hist->GetMaximumBin()) > yMax) {
+					std::cout << "New ymax " << yMax << "->" << hist->GetBinContent(hist->GetMaximumBin()) << "\n";
 					yMax = hist->GetBinContent(hist->GetMaximumBin());
 				}
-				if (yMin < 0.1) yMin = 0.1;
 			}
 		}
 		for (auto itr = map.begin(); itr != map.end(); ++itr) {
 			TH1F* hist = dynamic_cast<TH1F*> (gDirectory->Get(itr->second.c_str()));
 			if (hist) {
+				std::cout << "Set limits " << xMin << "-" << xMax << " " << yMin << "-" << yMax << "\n";
 				hist->GetXaxis()->SetLimits(xMin, xMax);
 				hist->GetYaxis()->SetLimits(yMin, yMax);
-				if (itr == map.begin()) hist->Draw();
-				else hist->Draw("SAME");
+				//if (itr == map.begin()) hist->Draw();
+				//else hist->Draw("SAME");
+				std::cout << "Get limits " << hist->GetXaxis()->GetXmin() << "-" << hist->GetXaxis()->GetXmax() << " " << hist->GetYaxis()->GetXmin() << "-" << hist->GetYaxis()->GetXmax() << "\n";
 				UpdateZoom(hist->GetXaxis(), hist->GetYaxis(), pad);
+				std::cout << "U Get limits " << hist->GetXaxis()->GetXmin() << "-" << hist->GetXaxis()->GetXmax() << " " << hist->GetYaxis()->GetXmin() << "-" << hist->GetYaxis()->GetXmax() << "\n";
 			}
 		}
+		pad->Modified();
+		GetCanvas()->Update();
 	}
 }
 

@@ -73,6 +73,8 @@ void RootScanner::UpdateZoom(TAxis *axisX, TAxis *axisY, TVirtualPad *pad /*=gPa
 		padZoomInfo->axisVals[1][0] = axisY->GetXmin(); 
 	if (axisY->GetXmax() > padZoomInfo->axisVals[1][1]) 
 		padZoomInfo->axisVals[1][1] = axisY->GetXmax(); 
+
+	std::cout << "R Set limits " << padZoomInfo->axisVals[0][0] << "-" << padZoomInfo->axisVals[0][1] << " " << padZoomInfo->axisVals[1][0] << "-" << padZoomInfo->axisVals[1][1] << "\n";
 	//Set the limits of the axis to the determined min / max.
 	axisX->SetLimits(padZoomInfo->axisVals[0][0], padZoomInfo->axisVals[0][1]);
 	axisY->SetLimits(padZoomInfo->axisVals[1][0], padZoomInfo->axisVals[1][1]);

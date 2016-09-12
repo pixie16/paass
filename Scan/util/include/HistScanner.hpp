@@ -37,15 +37,16 @@ class HistScanner : public RootScanner {
 
 		std::vector< HistScannerChanData > *eventData_; //< Vector containing all the channel data for an event.
 
-		enum class DataType_ {FILTEREN, PEAKADC, TRACEQDC, INVALID}; //< Data types.
-		typedef std::tuple< int, int, DataType_ > HistKey_;
-		typedef std::tuple< int, int, DataType_, TVirtualPad* > NewHistKey_;
+		typedef std::tuple< int, int, std::string > HistKey_;
+		std::vector< std::pair< HistKey_, TVirtualPad* > > newHists_;
 		typedef std::map< HistKey_, std::string > HistMap_;
-		std::vector< NewHistKey_ > newHists_;
 		std::map< TVirtualPad*, HistMap_ > histos_;
+		std::map< HistKey_, int > histCount_;
+
+		std::map< TVirtualPad*, std::pair< float, float > > padMaximums_;
 
 		void ProcessNewHists();
-		void Plot(int mod, int chan, DataType_ type, TVirtualPad *pad = gPad);
+		void Plot(HistKey_ key, TVirtualPad *pad = gPad);
 	
 		void ScaleHistograms(TVirtualPad* pad);
 
