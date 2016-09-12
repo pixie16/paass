@@ -47,6 +47,12 @@ bool HistScanner::AddEvent(XiaData* event) {
 
 void HistScanner::IdleTask() {
 	ProcessNewHists();
+	for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
+		TVirtualPad *pad = padItr->first;
+		//Rescale all histograms on the pad.
+		ScaleHistograms(pad);
+	}
+	GetCanvas()->Update();
 
 	RootScanner::IdleTask();
 }
@@ -63,7 +69,7 @@ bool HistScanner::ProcessEvents() {
 			for (auto itr = map->begin(); itr != map->end(); ++itr) {
 				Plot(itr->first, pad);
 			}
-			//ScaleHistograms(pad);
+			ScaleHistograms(pad);
 		}
 		GetCanvas()->Update();
 	}
@@ -193,8 +199,6 @@ void HistScanner::ProcessNewHists() {
 
 		//Make the initial plot.
 		Plot(key, pad);
-		//Rescale all histograms on the pad.
-		//ScaleHistograms(pad);
 
 		newHists_.pop_back();
 	}
@@ -311,7 +315,7 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 				pad->Modified();
 				GetCanvas()->Update();
 
-				//ResetZoom(pad);
+				ResetZoom(pad);
 				//pad->Modified();
 				//GetCanvas()->Update();
 
@@ -364,6 +368,7 @@ void HistScanner::ScaleHistograms(TVirtualPad* pad) {
 			TH1F* hist = dynamic_cast<TH1F*> (gDirectory->Get(itr->second.c_str()));
 			if (hist) {
 				std::cout << "Set limits " << xMin << "-" << xMax << " " << yMin << "-" << yMax << "\n";
+				hist->SetMaximum(yMax);
 				hist->GetXaxis()->SetLimits(xMin, xMax);
 				hist->GetYaxis()->SetLimits(yMin, yMax);
 				//if (itr == map.begin()) hist->Draw();
