@@ -1,6 +1,7 @@
 #include "HistScanner.hpp"
 
 #include <limits>
+#include <stdexcept>
 
 #include "TDirectory.h"
 #include "TH1F.h"
