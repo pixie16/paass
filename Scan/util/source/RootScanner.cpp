@@ -49,10 +49,10 @@ void RootScanner::UpdateZoom(TAxis *axisX, TAxis *axisY, TVirtualPad *pad /*=gPa
 	if (padZoomInfo->reset) padZoomInfo->reset = false;
 	else {
 		//Get the user zoom settings.
-		padZoomInfo->userZoomVals[0][0] = canvas_->GetUxmin();
-		padZoomInfo->userZoomVals[0][1] = canvas_->GetUxmax();
-		padZoomInfo->userZoomVals[1][0] = canvas_->GetUymin();
-		padZoomInfo->userZoomVals[1][1] = canvas_->GetUymax();
+		padZoomInfo->userZoomVals[0][0] = pad->GetUxmin();
+		padZoomInfo->userZoomVals[0][1] = pad->GetUxmax();
+		padZoomInfo->userZoomVals[1][0] = pad->GetUymin();
+		padZoomInfo->userZoomVals[1][1] = pad->GetUymax();
 	}
 
 	//Determine if the user had zoomed or unzoomed by comparing the current axis
@@ -74,7 +74,6 @@ void RootScanner::UpdateZoom(TAxis *axisX, TAxis *axisY, TVirtualPad *pad /*=gPa
 	if (axisY->GetXmax() > padZoomInfo->axisVals[1][1]) 
 		padZoomInfo->axisVals[1][1] = axisY->GetXmax(); 
 
-	std::cout << "R Set limits " << padZoomInfo->axisVals[0][0] << "-" << padZoomInfo->axisVals[0][1] << " " << padZoomInfo->axisVals[1][0] << "-" << padZoomInfo->axisVals[1][1] << "\n";
 	//Set the limits of the axis to the determined min / max.
 	axisX->SetLimits(padZoomInfo->axisVals[0][0], padZoomInfo->axisVals[0][1]);
 	axisY->SetLimits(padZoomInfo->axisVals[1][0], padZoomInfo->axisVals[1][1]);
