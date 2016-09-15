@@ -6,6 +6,7 @@
 #define __WAVEFORMANALYZER_HPP_
 
 #include "Globals.hpp"
+#include "Messenger.hpp"
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 
@@ -31,12 +32,16 @@ public:
                          const std::map<std::string, int> &tags);
 
 private:
+
     double mean_; //!< The mean of the baseline
     unsigned int mval_; //!< the maximum value in the trace
-    std::pair<Trace::iterator, Trace::iterator> wrng_; //!< the waveform range
+    Messenger *messenger_;//!< A pointer for the messenger class
+    Globals *g_; //!< A pointer to the globals class for the class
+    std::pair<Trace::iterator, Trace::iterator> waverng_; //!< the waveform
+//!< range
     Trace::iterator bhi_; //!< high value for baseline calculation
     Trace *trc_; //!< A pointer to the trace for the class
-    Globals *g_; //!< A pointer to the globals class for the class
+
 
     /** Performs the baseline calculation
     * \param [in] lo : the low range for the baseline calculation
