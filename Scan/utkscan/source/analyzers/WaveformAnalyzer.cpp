@@ -5,7 +5,7 @@
  *will be used for the high resolution timing algorithms to do their thing.
  *
  *\author S. V. Paulauskas
- *\date 16 July 2009
+ *\date July 16, 2009
 */
 #include <numeric>
 #include <string>
@@ -18,7 +18,8 @@ using namespace std;
 
 enum WAVEFORMANALYZER_ERROR_CODES{
     TOO_LOW,
-    MAX_END
+    MAX_END,
+    LOW_GREATER_HIGH
 };
 
 WaveformAnalyzer::WaveformAnalyzer() : TraceAnalyzer() {
@@ -74,6 +75,13 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
                                             "something reasonable. I suggest "
                                             "taking a look at the scope "
                                             "program to view the traces. ", 0);
+                break;
+            case LOW_GREATER_HIGH:
+                messenger_->warning("The high bound for the waveform search "
+                                            "was lower than the low bound. "
+                                            "This should never have happened "
+                                            "and I have no idea why it did.",
+                                    0);
                 break;
             default:
                 stringstream ss;
@@ -149,6 +157,11 @@ bool WaveformAnalyzer::FindWaveform(const unsigned int &lo,
     //If low is less than 0 then we have some serious issues
     if (low < trc_->begin())
         throw(TOO_LOW);
+
+    //Check that the low bound is less than the high bound. Not sure how this
+    // could happen but it has in the past.
+    if(high < low)
+        throw(LOW_GREATER_HIGH);
 
     //Find the maximum value of the waveform in the range of low to high
     Trace::iterator tmp = max_element(low, high);
