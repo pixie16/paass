@@ -34,10 +34,9 @@ public:
     /** \return The channel event that holds most of our information */
     const ChanEvent* GetChan(void) const {return(chan_);}
 
-    /** \return True if maxval,phase,tqdc,sigmaBaseline were not NAN */
+    /** \return True if maxval,tqdc and sigmaBaseline were not NAN */
     bool GetIsValid() const {
         if(!std::isnan(chan_->GetTrace().GetValue("maxval")) &&
-           !std::isnan(chan_->GetTrace().GetValue("phase")) &&
            !std::isnan(chan_->GetTrace().GetValue("qdc")) &&
            !std::isnan(chan_->GetTrace().GetValue("sigmaBaseline")) ) {
             return(true);
