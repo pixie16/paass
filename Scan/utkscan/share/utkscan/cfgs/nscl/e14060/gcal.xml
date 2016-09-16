@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <Author>
+    <Name>S. V. Paulauskas</Name>
+    <Email>stanpaulauskas AT gmail DOT com</Email>
+    <Date>April 18, 2016</Date>
+  </Author>
+  
+  <Description>
+    Configuration file for calibration of the gammma detectors for the IS599/600 
+    experiments. It provides ONLY calibrations for the Clovers.
+  </Description>
+  
+  <Global>
+    <Revision version="F"/>
+    <EventWidth unit="s" value="1e-6"/>
+    <EnergyContraction value="1.0"/>
+    <Path>config/</Path>
+    <NumOfTraces value="50"/>
+  </Global>
+  
+  <DetectorDriver>
+    <Processor name="GeCalibProcessor"
+               gamma_threshold="20.0"
+               low_ratio="1.5"
+               high_ratio="3.0" />
+    <Processor name="LogicProcessor" />
+    <Processor name="DoubleBetaProcessor"/>
+  </DetectorDriver>
+  
+  <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+    <Module number="0">
+      <Channel number="0" type="beta" subtype="double" tags="start,left"></Channel>
+      <Channel number="1" type="beta" subtype="double" tags="start,right"></Channel>
+      <Channel number="4" type="beta" subtype="double" tags="left"></Channel>
+      <Channel number="5" type="beta" subtype="double" tags="right"></Channel>
+      <Channel number="8" type="logic" subtype="t1"></Channel>
+      <Channel number="9" type="logic" subtype="mtc_start" ></Channel>
+      <Channel number="10" type="logic" subtype="mtc_stop" ></Channel>
+      <Channel number="11" type="logic" subtype="beam_start" ></Channel>
+      <Channel number="12" type="logic" subtype="beam_stop"></Channel>
+      <Channel number="13" type="logic" subtype="supercycle"></Channel>
+    </Module>
+    <Module number="1">
+      <Channel number="0" type="ge" subtype="clover_high"></Channel>
+      <Channel number="1" type="ge" subtype="clover_high" ></Channel>
+      <Channel number="2" type="ge" subtype="clover_high" ></Channel>
+      <Channel number="3" type="ge" subtype="clover_high" ></Channel>
+      <Channel number="4" type="ge" subtype="clover_high" ></Channel>
+      <Channel number="5" type="ge" subtype="clover_high" ></Channel>
+      <Channel number="6" type="ge" subtype="clover_high" ></Channel>
+      <Channel number="7" type="ge" subtype="clover_high" ></Channel>
+      <Channel number="8" type="ge" subtype="clover_low"></Channel>
+      <Channel number="9" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="10" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="11" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="12" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="13" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="14" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="15" type="ge" subtype="clover_low" ></Channel>
+    </Module>
+    <Module number="6">
+      <Channel number="15" type="ignore" subtype="ignore"></Channel>
+    </Module>
+  </Map>
+  
+  <TreeCorrelator name="root" verbose="False">
+    <Place type="PlaceOR" name="Beta" fifo="4">
+      <Place type="PlaceThreshold" name="DoubleBeta1"
+	     low_limit="50.0" high_limit="16382" replace="false"/>
+    </Place>
+    
+    <Place type="PlaceOR" name="Gamma">
+      <Place type="PlaceOR" name="Clover0">
+        <Place type="PlaceThreshold" name="ge_clover_high_0-3"
+               low_limit="20.0" high_limit="99999" replace="true"/>
+      </Place>
+      <Place type="PlaceOR" name="Clover1">
+        <Place type="PlaceThreshold" name="ge_clover_high_4-7"
+               low_limit="20.0" high_limit="99999" replace="true"/>
+      </Place>
+    </Place>
+    
+    <Place type="PlaceDetector" name="Vandle" reset="false"/>
+    <Place type="PlaceDetector" name="Proton" reset="false"/>
+    <Place type="PlaceDetector" name="Supercycle" reset="false"/>
+    <Place type="PlaceDetector" name="TapeMove" reset="false"/>
+    <Place type="PlaceDetector" name="Beam" reset="false"/>
+    <Place type="PlaceDetector" name="Cycle" reset="false"/>
+  </TreeCorrelator>
+</Configuration>
