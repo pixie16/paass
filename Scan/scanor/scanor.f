@@ -6,8 +6,6 @@ C     ******************************************************************
 C
       IMPLICIT NONE
 C
-C     Start the c++ unpacker interface CRT!
-      CALL STARTUP()
 C
 C     ------------------------------------------------------------------
       COMMON/LLL/ MSSG(28),NAMPROG(2),LOGUT,LOGUP,LISFLG,MSGF
@@ -89,6 +87,9 @@ C     ------------------------------------------------------------------
 C     Initialize things
 C     ------------------------------------------------------------------
 C
+C     Start the c++ unpacker interface CRT!
+      CALL STARTUP()
+
       CALL COMSET                  !Init some COMMON
 C   
       CALL SCANORNIT               !Init for SCANOR

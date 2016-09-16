@@ -208,7 +208,7 @@ bool skeletonScanner::ProcessEvents(){
 	return false;
 }
 
-int main(int argc, char *argv[]){
+/*int main(int argc, char *argv[]){
 	// Define a new unpacker object.
 	skeletonScanner scanner;
 	
@@ -225,4 +225,4 @@ int main(int argc, char *argv[]){
 	scanner.Close();
 	
 	return retval;
-}
+}*/

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.8)
 
-project(PixieSuite)
+project(PixieSuite C CXX Fortran)
 
 #Compile with c++11 or c++0x depending on the compiler version
 if (CMAKE_COMPILER_IS_GNUCXX)
@@ -143,7 +143,6 @@ include_directories(Core/include)
 add_subdirectory(Core)
 
 #Build the scan library
-include_directories(Scan/include)
 add_subdirectory(Scan)
 
 #Building polling tools
