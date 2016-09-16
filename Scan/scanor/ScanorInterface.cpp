@@ -9,7 +9,7 @@
 #define EXTERNAL_FIFO_LENGTH 131072
 #define U_DELIMITER 0xFFFFFFFF
 
-Unpacker pixieUnpacker;
+extern Unpacker *pixieUnpacker;
 
 extern "C" void startup_()
 {
@@ -21,6 +21,7 @@ extern "C" void cleanup_()
 {
 	// Do some cleanup.
 	std::cout << "\nCleaning up..\n";
+	delete pixieUnpacker;
 }
 
 /** \brief inserts a delimiter in between individual module data and at end of
@@ -76,7 +77,7 @@ bool MakeModuleData(const uint32_t *data, unsigned long nWords, unsigned int max
     }
 
 	// Process the data.
-	pixieUnpacker.ReadSpill(modData, outWords);
+	pixieUnpacker->ReadSpill(modData, outWords);
 
     return true;
 }
