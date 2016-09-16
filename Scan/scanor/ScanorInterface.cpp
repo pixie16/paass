@@ -9,6 +9,8 @@
 #define EXTERNAL_FIFO_LENGTH 131072
 #define U_DELIMITER 0xFFFFFFFF
 
+#define VERBOSE 1
+
 Unpacker pixieUnpacker;
 
 extern "C" void startup_()
@@ -240,7 +242,7 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw) {
 #ifdef VERBOSE
             std::cout << "Five word buffer " << bufNum << " of " << totBuf
                 << " WORDS: "
-                << hex << buf[3] << " " << buf[4] << dec << std::endl;
+                << std::hex << buf[3] << " " << buf[4] << std::dec << std::endl;
 #endif
             }
         } while(nWords != 5 || bufNum != totBuf - 1);
@@ -253,9 +255,9 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw) {
             << spillInvalidCount
             << "\n I/B [  " << bufInSpill << " of " << totBuf << " : pos " << totWords
             << "    " << spillValidCount << " total spills"
-            << "\n| " << hex << buf[0] << " " << buf[1] << "  "
+            << "\n| " << std::hex << buf[0] << " " << buf[1] << "  "
             << buf[2] << " " << buf[3]
-            << "\n| " << dec << buf[totWords] << " " << buf[totWords+1] << "  "
+            << "\n| " << std::dec << buf[totWords] << " " << buf[totWords+1] << "  "
             << buf[totWords+2] << " " << buf[totWords+3] << std::endl;
 #endif
             spillInvalidCount++;
