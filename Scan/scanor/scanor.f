@@ -6,6 +6,9 @@ C     ******************************************************************
 C
       IMPLICIT NONE
 C
+C     Start the c++ unpacker interface CRT!
+      CALL STARTUP()
+C
 C     ------------------------------------------------------------------
       COMMON/LLL/ MSSG(28),NAMPROG(2),LOGUT,LOGUP,LISFLG,MSGF
       INTEGER*4   MSSG,NAMPROG,LOGUT,LOGUP
@@ -300,7 +303,7 @@ CX    IF(INTYP.EQ.'SHM ') THEN              !Test  for SHM assigned
 CX    CALL CLOSEIPC()                       !Detach from SHM and
 CX    ENDIF
 C
-C     Cleanup the c++ portion
+C     Cleanup the c++ portion CRT!
       CALL CLEANUP()
       write(6,*)"Exiting Scanor..."
       STOP
