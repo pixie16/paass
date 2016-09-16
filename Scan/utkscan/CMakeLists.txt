@@ -42,5 +42,8 @@ if(USE_GSL)
     add_definitions("-D usegsl")
 endif(USE_GSL)
 
+#Install utkscan to the bin directory
+install(DIRECTORY share/utkscan DESTINATION share/)
+
 include_directories(include ../ScanLib/include)
 add_subdirectory(source)
