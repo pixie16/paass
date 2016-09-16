@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "Unpacker.hpp"
 
 Unpacker pixieUnpacker;
@@ -42,5 +44,5 @@ extern "C" void hissub_(unsigned short *sbuf[], unsigned short *nhw)
 	unsigned int *buf= (unsigned int*)sbuf;
 
 	// Process the data.
-	pixieUnpacker.ReadSpill(buf, unsigned int nhw[0] / 2);
+	pixieUnpacker.ReadSpill(buf, nhw[0] / 2);
 }
