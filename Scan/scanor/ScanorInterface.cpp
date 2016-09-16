@@ -9,8 +9,6 @@
 #define EXTERNAL_FIFO_LENGTH 131072
 #define U_DELIMITER 0xFFFFFFFF
 
-#define VERBOSE 1
-
 Unpacker pixieUnpacker;
 
 extern "C" void startup_()
@@ -37,8 +35,6 @@ bool MakeModuleData(const uint32_t *data, unsigned long nWords, unsigned int max
     unsigned int inWords = 0, outWords = 0;
 
     static uint32_t modData[TOTALREAD];
-    // create a constant pointer to this data block for passing to hissub_sec
-    static uint32_t* dataPtr = modData;
 
     do {
 	uint32_t lenRec = data[inWords];
@@ -79,13 +75,8 @@ bool MakeModuleData(const uint32_t *data, unsigned long nWords, unsigned int max
         return false;
     }
 
-    //! shouldn't this be 4 * outWords
-    unsigned int nhw = 8 * outWords; // calculate the number of half short ints
-
-	std::cout << " nhw = " << nhw << std::endl;
-
 	// Process the data.
-	pixieUnpacker.ReadSpill(dataPtr, nhw);
+	pixieUnpacker.ReadSpill(modData, outWords);
 
     return true;
 }
