@@ -208,7 +208,8 @@ bool skeletonScanner::ProcessEvents(){
 	return false;
 }
 
-/*int main(int argc, char *argv[]){
+#ifndef USE_HRIBF
+int main(int argc, char *argv[]){
 	// Define a new unpacker object.
 	skeletonScanner scanner;
 	
@@ -225,4 +226,7 @@ bool skeletonScanner::ProcessEvents(){
 	scanner.Close();
 	
 	return retval;
-}*/
+}
+#else
+Unpacker *pixieUnpacker = (Unpacker*)(new skeletonUnpacker());
+#endif
