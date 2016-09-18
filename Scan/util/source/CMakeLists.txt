@@ -1,3 +1,5 @@
+include_directories(../include)
+
 if(USE_ROOT AND BUILD_SCOPE)
 	set(SCOPE_SOURCES scope.cpp)
 	add_executable(scope ${SCOPE_SOURCES})

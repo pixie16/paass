@@ -3,6 +3,7 @@
 #include <sstream>
 #include <stdint.h>
 
+#include "ScanorInterface.hpp"
 #include "Unpacker.hpp"
 
 #define TOTALREAD 1000000
@@ -248,33 +249,6 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw) {
     } while (totWords < nhw[0] / 2);
 }
 
-//! DAMM initialization call
-extern "C" void drrmake_();
-
-//! DAMM declaration wrap-up call
-extern "C" void endrr_();
-
-/** Do banana gating using ban files args are the Banana number in the ban file,
- * the x-value to test, and the y-value to test.
- * \return true if the x,y pair is inside the banana gate */
-extern "C" bool bantesti_(const int &, const int &, const int &);
-
-/** create a DAMM 1D histogram
- * args are damm id, half-words per channel, param length, hist length,
- * low x-range, high x-range, and title
- */
-extern "C" void hd1d_(const int &, const int &, const int &, const int &,
-		      const int &, const int &, const char *, int);
-
-/** create a DAMM 2D histogram
- * args are damm id, half-words per channel, x-param length, x-hist length
- * low x-range, high x-range, y-param length, y-hist length, low y-range
- * high y-range, and title
- */
-extern "C" void hd2d_(const int &, const int &, const int &, const int &,
-		      const int &, const int &, const int &, const int &,
-		      const int &, const int &, const char *, int);
-
 /*! Defines the main interface with the SCANOR library, the program essentially
  * starts here.
  * \param [in] iexist : unused paramter from SCANOR call
@@ -282,10 +256,10 @@ extern "C" void hd2d_(const int &, const int &, const int &, const int &,
 extern "C" void drrsub_(uint32_t& iexist) {
     try {
         drrmake_();
-
+        
 		// Initialize some histograms.
 		// At least one so the damn thing will run :P
-		hd1d_(8000, 1, 1024, 512, 0, 10, "Run DAMM you!", 14);
+		hd1d_(8000, 2, 256, 256, 0, 255, "Run DAMM you!", strlen("Run DAMM you!"));
 
         endrr_();
     } catch (std::exception &e) {
