@@ -31,6 +31,8 @@ void skeletonUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/){
 		current_event = rawEvent.front();
 		rawEvent.pop_front(); // Remove this event from the raw event deque.
 		
+		std::cout << "HERE: " << current_event->modNum << ", " << current_event->chanNum << std::endl;
+		
 		// Check that this channel event exists.
 		if(!current_event){ continue; }
 
@@ -228,5 +230,28 @@ int main(int argc, char *argv[]){
 	return retval;
 }
 #else
-Unpacker *pixieUnpacker = (Unpacker*)(new skeletonUnpacker());
+Unpacker *pixieUnpacker = NULL;
+skeletonScanner scanner;
+
+// Do some startup stuff.
+extern "C" void startup_()
+{
+	// Handle command line arguments.
+	//scanner.Setup(argc, argv); // Need to get these from fortran.
+	
+	// Get a pointer to a class derived from Unpacker.
+	pixieUnpacker = scanner.GetCore();
+	
+	// Link the scanner back to Unpacker (messy).
+	pixieUnpacker->SetInterface(&scanner);
+}
+
+// Catch the exit call from scanor and clean up c++ objects CRT
+extern "C" void cleanup_()
+{
+	// Do some cleanup.
+	std::cout << "\nCleaning up..\n";
+	scanner.Close();
+	delete pixieUnpacker;
+}
 #endif
