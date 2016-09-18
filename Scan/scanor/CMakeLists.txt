@@ -9,3 +9,5 @@ set(SCANOR_SOURCES
 )
 
 add_library(ScanorObjects OBJECT ${SCANOR_SOURCES})
+
+target_include_directories(ScanorObjects PRIVATE ../ScanLib/include)
