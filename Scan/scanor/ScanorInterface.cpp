@@ -11,19 +11,6 @@
 
 extern Unpacker *pixieUnpacker;
 
-extern "C" void startup_()
-{
-	// Do some startup stuff.
-}
-
-// Catch the exit call from scanor and clean up c++ objects CRT
-extern "C" void cleanup_()
-{
-	// Do some cleanup.
-	std::cout << "\nCleaning up..\n";
-	delete pixieUnpacker;
-}
-
 /** \brief inserts a delimiter in between individual module data and at end of
  * buffer. Data is then passed to hissub_sec() for processing.
  * \param [in] data : the data to parse
