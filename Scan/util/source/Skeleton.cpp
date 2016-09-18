@@ -8,6 +8,10 @@
 // Local files
 #include "Skeleton.hpp"
 
+#ifdef USE_HRIBF
+#include "ScanorInterface.hpp"
+#endif
+
 // Define the name of the program.
 #ifndef PROG_NAME
 #define PROG_NAME "Spooky"
@@ -30,9 +34,12 @@ void skeletonUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/){
 	while(!rawEvent.empty()){
 		current_event = rawEvent.front();
 		rawEvent.pop_front(); // Remove this event from the raw event deque.
-		
-		std::cout << "HERE: " << current_event->modNum << ", " << current_event->chanNum << std::endl;
-		
+
+#ifdef USE_HRIBF		
+		// If using scanor, output to the generic histogram so we know that something is happening.
+		count1cc_(8000, (current_event->modNum*16+current_event->chanNum), 1);
+#endif	
+	
 		// Check that this channel event exists.
 		if(!current_event){ continue; }
 
@@ -237,7 +244,7 @@ skeletonScanner scanner;
 extern "C" void startup_()
 {
 	// Handle command line arguments.
-	//scanner.Setup(argc, argv); // Need to get these from fortran.
+	//scanner.Setup(argc, argv); // Need to get these from scanor...
 	
 	// Get a pointer to a class derived from Unpacker.
 	pixieUnpacker = scanner.GetCore();
