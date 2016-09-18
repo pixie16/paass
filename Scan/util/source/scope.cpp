@@ -7,6 +7,10 @@
 // Local files
 #include "scope.hpp"
 
+#ifdef USE_HRIBF
+#include "ScanorInterface.hpp"
+#endif
+
 // Root files
 #include "TApplication.h"
 #include "TSystem.h"
@@ -678,10 +682,11 @@ void scopeScanner::IdleTask(){
 	usleep(SLEEP_WAIT);
 }
 
+#ifndef USE_HRIBF
 int main(int argc, char *argv[]){
 	// Define a new unpacker object.
 	scopeScanner scanner;
-	
+
 	// Set the output message prefix.
 	scanner.SetProgramName(std::string(PROG_NAME));	
 	
@@ -696,3 +701,29 @@ int main(int argc, char *argv[]){
 	
 	return retval;
 }
+#else
+Unpacker *pixieUnpacker = NULL;
+scopeScanner scanner;
+
+// Do some startup stuff.
+extern "C" void startup_()
+{
+	// Handle command line arguments.
+	//scanner.Setup(argc, argv); // Need to get these from scanor...
+	
+	// Get a pointer to a class derived from Unpacker.
+	pixieUnpacker = scanner.GetCore();
+	
+	// Link the scanner back to Unpacker (messy).
+	pixieUnpacker->SetInterface(&scanner);
+}
+
+// Catch the exit call from scanor and clean up c++ objects CRT
+extern "C" void cleanup_()
+{
+	// Do some cleanup.
+	std::cout << "\nCleaning up..\n";
+	scanner.Close();
+	delete pixieUnpacker;
+}
+#endif
