@@ -1,4 +1,5 @@
-set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fsecond-underscore")
+#We need fPIC below to create shared libraries.
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fsecond-underscore -fPIC")
 
 set(SCANOR_SOURCES 
   set2cc.f 
