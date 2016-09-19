@@ -244,13 +244,10 @@ skeletonScanner scanner;
 extern "C" void startup_()
 {
 	// Handle command line arguments.
-	scanner.Setup(fortargc, fortargv); // Need to get these from scanor...
+	scanner.Setup(fortargc, fortargv); // Getting these from scanor...
 	
 	// Get a pointer to a class derived from Unpacker.
 	pixieUnpacker = scanner.GetCore();
-	
-	// Link the scanner back to Unpacker (messy).
-	pixieUnpacker->SetInterface(&scanner);
 }
 
 // Catch the exit call from scanor and clean up c++ objects CRT
@@ -259,6 +256,5 @@ extern "C" void cleanup_()
 	// Do some cleanup.
 	std::cout << "\nCleaning up..\n";
 	scanner.Close();
-	delete pixieUnpacker;
 }
 #endif
