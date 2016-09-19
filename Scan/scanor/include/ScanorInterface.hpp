@@ -1,6 +1,27 @@
 #ifndef SCANOR_INTERFACE_HPP
 #define SCANOR_INTERFACE_HPP
 
+class Unpacker;
+
+extern Unpacker *pixieUnpacker;
+
+// Vector for storing command line arguments.
+extern std::vector<std::string> fort_args;
+extern int fortargc;
+extern char **fortargv;
+
+// Get command line arguments from scanor.
+extern "C" void addcmdarg_(char *arg_);
+
+// Generate an array of c-strings to mimic argc and argv.
+extern "C" void finalizeargs_();
+
+// Do some startup stuff.
+extern "C" void startup_();
+
+// Catch the exit call from scanor and clean up c++ objects CRT
+extern "C" void cleanup_();
+
 //! DAMM initialization call
 extern "C" void drrmake_();
 

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <sstream>
 #include <stdint.h>
+#include <vector>
 
 #include "ScanorInterface.hpp"
 #include "Unpacker.hpp"
@@ -10,7 +11,34 @@
 #define EXTERNAL_FIFO_LENGTH 131072
 #define U_DELIMITER 0xFFFFFFFF
 
-extern Unpacker *pixieUnpacker;
+// Vector for storing command line arguments.
+std::vector<std::string> fort_args;
+
+int fortargc = 0;
+char **fortargv = NULL;
+
+// Get command line arguments from scanor.
+extern "C" void addcmdarg_(char *arg_){
+	std::string temparg = std::string(arg_);
+	fort_args.push_back(temparg.substr(0, temparg.find_first_of(' '))); // Strip trailing whitespace.
+}
+
+// Generate an array of c-strings to mimic argc and argv.
+// Kind of messy, but it works well. We can clean this up later.
+extern "C" void finalizeargs_(){
+	if(fortargv) return; // Only do this once.
+	
+	fortargc = (int)fort_args.size();
+	fortargv = new char*[fortargc];
+	
+	size_t arglen;
+	for(int i = 0; i < fortargc; i++){
+		arglen = fort_args.at(i).length();
+		fortargv[i] = new char[arglen+1];
+		memcpy(fortargv[i], fort_args.at(i).data(), arglen);
+		fortargv[i][arglen] = '\0';
+	}
+}
 
 /** \brief inserts a delimiter in between individual module data and at end of
  * buffer. Data is then passed to hissub_sec() for processing.
