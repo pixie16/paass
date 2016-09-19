@@ -507,8 +507,8 @@ void scopeScanner::CmdHelp(const std::string &prefix_/*=""*/){
   * \return Nothing.
   */
 void scopeScanner::ArgHelp(){
-	AddOption(optionExt("mod", required_argument, NULL, 'm', "<module>", "Module of signal of interest (default=0)"));
-	AddOption(optionExt("chan", required_argument, NULL, 'c', "<channel>", "Channel of signal of interest (default=0)"));
+	AddOption(optionExt("mod", required_argument, NULL, 'M', "<module>", "Module of signal of interest (default=0)"));
+	AddOption(optionExt("chan", required_argument, NULL, 'C', "<channel>", "Channel of signal of interest (default=0)"));
 }
 
 /** SyntaxStr is used to print a linux style usage message to the screen.
@@ -709,13 +709,10 @@ scopeScanner scanner;
 extern "C" void startup_()
 {
 	// Handle command line arguments.
-	scanner.Setup(fortargc, fortargv); // Need to get these from scanor...
+	scanner.Setup(fortargc, fortargv); // Getting these from scanor...
 	
 	// Get a pointer to a class derived from Unpacker.
 	pixieUnpacker = scanner.GetCore();
-	
-	// Link the scanner back to Unpacker (messy).
-	pixieUnpacker->SetInterface(&scanner);
 }
 
 // Catch the exit call from scanor and clean up c++ objects CRT
@@ -724,6 +721,5 @@ extern "C" void cleanup_()
 	// Do some cleanup.
 	std::cout << "\nCleaning up..\n";
 	scanner.Close();
-	delete pixieUnpacker;
 }
 #endif
