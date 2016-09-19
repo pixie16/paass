@@ -709,7 +709,7 @@ scopeScanner scanner;
 extern "C" void startup_()
 {
 	// Handle command line arguments.
-	//scanner.Setup(argc, argv); // Need to get these from scanor...
+	scanner.Setup(fortargc, fortargv); // Need to get these from scanor...
 	
 	// Get a pointer to a class derived from Unpacker.
 	pixieUnpacker = scanner.GetCore();

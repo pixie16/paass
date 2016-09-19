@@ -86,10 +86,20 @@ C
 C     ------------------------------------------------------------------
 C     Initialize things
 C     ------------------------------------------------------------------
+      INTEGER argnum
+      CHARACTER*32 argval
+C
+C     Pass the command line arguments to the c++ source. 
+      DO i = 0, IARGC()
+            CALL GETARG(i, argval)
+            CALL ADDCMDARG(argval)
+      END DO
+C
+      CALL FINALIZEARGS()
 C
 C     Start the c++ unpacker interface CRT!
       CALL STARTUP()
-
+C
       CALL COMSET                  !Init some COMMON
 C   
       CALL SCANORNIT               !Init for SCANOR
