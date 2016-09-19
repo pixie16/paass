@@ -14,9 +14,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date Aug. 9th, 2016
+  * \date Sept. 19th, 2016
   * 
-  * \version 1.2.15
+  * \version 1.3.00
 */
 
 #include <sstream>
@@ -29,6 +29,10 @@
 #include "hribf_buffers.h"
 #include "poll2_socket.h"
 
+#define SMALLEST_CHUNK_SIZE 20 /// Smallest possible size of a chunk in words
+#define NO_HEADER_SIZE 8192 /// Size of .ldf buffer with no header
+#define OPTIMAL_CHUNK_SIZE 8187 /// = ACTUAL_BUFF_SIZE - 2 (header size) - 2 (end of buffer) - 3 (spill chunk header)
+
 #define HEAD 1145128264 /// Run begin buffer
 #define DATA 1096040772 /// Physics data buffer
 #define SCAL 1279345491 /// Scaler type buffer
@@ -38,9 +42,11 @@
 #define ENDFILE 541478725 /// End of file buffer
 #define ENDBUFF 0xFFFFFFFF /// End of buffer marker
 
+#define LDF_DATA_LENGTH 8193 // Maximum length of an ldf style DATA buffer.
+
 const unsigned int end_spill_size = 20; /// The size of the end of spill "event" (5 words).
 const unsigned int pacman_word1 = 2; /// Words to signify the end of a spill. The scan code searches for these words.
-const unsigned int pacman_word2 = 9999; /// End of spill vln. The scan code searches for these words.
+const unsigned int pacman_word2 = 9999; /// End of spill vsn. The scan code searches for these words.
 
 ///
 void set_char_array(const std::string &input_, char *arr_, const unsigned int &size_){
@@ -90,7 +96,6 @@ bool BufferType::ReadHeader(std::ifstream *file_){
 
 /// Default constructor.
 PLD_header::PLD_header() : BufferType(HEAD, 0){ // 0x44414548 "HEAD"
-	Reset();
 }
 
 /// Destructor.
@@ -249,7 +254,6 @@ void PLD_header::PrintDelimited(const char &delimiter_/*='\t'*/){
 
 /// Default constructor.
 PLD_data::PLD_data() : BufferType(DATA, 0){ // 0x41544144 "DATA"
-	Reset();
 }
 
 /// Write a pld style data buffer to file.
@@ -313,8 +317,7 @@ bool PLD_data::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, uns
 }
 
 /// Default constructor.
-DIR_buffer::DIR_buffer() : BufferType(DIR, ACTUAL_BUFF_SIZE-2){ // 0x20524944 "DIR "
-	Reset();
+DIR_buffer::DIR_buffer() : BufferType(DIR, NO_HEADER_SIZE){ // 0x20524944 "DIR "
 }
 	
 /** DIR buffer (1 word buffer type, 1 word buffer size, 1 word for total buffer length,
@@ -335,7 +338,7 @@ bool DIR_buffer::Write(std::ofstream *file_){
 	file_->write((char*)&unknown[2], 4);
 	
 	// Fill the rest of the buffer with 0
-	for(unsigned int i = 0; i < ACTUAL_BUFF_SIZE-8; i++){
+	for(unsigned int i = 0; i < NO_HEADER_SIZE-6; i++){
 		file_->write((char*)&zero, 4);
 	}
 	
@@ -388,7 +391,6 @@ void DIR_buffer::PrintDelimited(const char &delimiter_/*='\t'*/){
 
 /// Default constructor.
 HEAD_buffer::HEAD_buffer() : BufferType(HEAD, 64){ // 0x44414548 "HEAD"
-	Reset();
 }
 
 /// Set the date and time of the ldf file.
@@ -582,8 +584,11 @@ bool DATA_buffer::read_next_buffer(std::ifstream *f_, bool force_/*=false*/){
 }
 
 /// Default constructor.
-DATA_buffer::DATA_buffer() : BufferType(DATA, ACTUAL_BUFF_SIZE-2){ // 0x41544144 "DATA"
-	Reset();
+DATA_buffer::DATA_buffer() : BufferType(DATA, NO_HEADER_SIZE){ // 0x41544144 "DATA"
+	bcount = 0;
+	good_chunks = 0;
+	missing_chunks = 0;
+	buff_pos = 0;
 }
 
 /// Close a ldf data buffer by padding with 0xFFFFFFFF.
@@ -612,6 +617,7 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 	buffs_written = 0;
 
 	// If this is a new buffer, write a buffer header.
+	// We are currently at the start of a new buffer. No need to close.
 	if(buff_pos == 0)
 		open_(file_);
 
@@ -627,11 +633,11 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 
 	// Calculate the total number of spill chunks.
 	while(spillpos < nWords_){
-		if(oldBuffPos + 4 > ACTUAL_BUFF_SIZE)
+		if(oldBuffPos + 4 > LDF_DATA_LENGTH)
 			oldBuffPos = 2;
 			
-		if(nWords_ - spillpos + 4 > ACTUAL_BUFF_SIZE - oldBuffPos)
-			chunkPayload = ACTUAL_BUFF_SIZE - oldBuffPos - 4;
+		if(nWords_ - spillpos + 4 > LDF_DATA_LENGTH - oldBuffPos)
+			chunkPayload = LDF_DATA_LENGTH - oldBuffPos - 4;
 		else
 			chunkPayload = nWords_ - spillpos;
 		
@@ -640,7 +646,7 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 		
 		totalNumChunks++;
 		
-		if(oldBuffPos >= ACTUAL_BUFF_SIZE)
+		if(oldBuffPos >= LDF_DATA_LENGTH)
 			oldBuffPos = 2;
 	}
 	
@@ -652,14 +658,14 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 	
 	// Write the spill.
 	while(spillpos < nWords_){
-		if(buff_pos + 4 > ACTUAL_BUFF_SIZE){
+		if(buff_pos + 4 > LDF_DATA_LENGTH){
 			buffs_written++;
 			Close(file_);
 			open_(file_);
 		}
 		
-		if(nWords_ - spillpos + 4 > ACTUAL_BUFF_SIZE - buff_pos)
-			chunkPayload = ACTUAL_BUFF_SIZE - buff_pos - 4;
+		if(nWords_ - spillpos + 4 > LDF_DATA_LENGTH - buff_pos)
+			chunkPayload = LDF_DATA_LENGTH - buff_pos - 4;
 		else
 			chunkPayload = nWords_ - spillpos;
 		
@@ -680,22 +686,22 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 		buff_pos += chunkPayload + 4;
 		arrptr += 4*chunkPayload;
 		
-		if(buff_pos > ACTUAL_BUFF_SIZE)
-			std::cout << "WARNING: Current ldf buffer overfilled by " << buff_pos - ACTUAL_BUFF_SIZE << " words!\n";
+		if(buff_pos > LDF_DATA_LENGTH)
+			std::cout << "WARNING: Current ldf buffer overfilled by " << buff_pos - LDF_DATA_LENGTH << " words!\n";
 		
-		if(buff_pos >= ACTUAL_BUFF_SIZE){
+		if(buff_pos >= LDF_DATA_LENGTH){
 			buffs_written++;
+			Close(file_);
 			open_(file_);
 		}
 	}
 
-	if(buff_pos > ACTUAL_BUFF_SIZE)
-		std::cout << "WARNING: Final ldf buffer overfilled by " << buff_pos - ACTUAL_BUFF_SIZE << " words!\n";
+	if(buff_pos > LDF_DATA_LENGTH)
+		std::cout << "WARNING: Final ldf buffer overfilled by " << buff_pos - LDF_DATA_LENGTH << " words!\n";
 
 	// Write the spill footer.
-	if(buff_pos + 6 > ACTUAL_BUFF_SIZE){
+	if(buff_pos + 6 > LDF_DATA_LENGTH){
 		buffs_written++;
-		Close(file_);
 		open_(file_);
 	}
 	
@@ -858,7 +864,7 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, 
 		else{ // Skip the entire buffer
 			if(debug_mode){ 
 				std::cout << "debug: encountered non DATA type buffer 0x" << std::hex << buff_head << std::dec << "\n";
-				std::cout << "debug: skipping " << ACTUAL_BUFF_SIZE << " words of buffer!\n";
+				std::cout << "debug: skipping entire remaining " << buff_size << " buffer words!\n";
 			}
 			
 			// This is not a data buffer. We need to force a scan of the next buffer.
@@ -885,9 +891,7 @@ void DATA_buffer::Reset(){
 	missing_chunks = 0;
 }
 
-EOF_buffer::EOF_buffer() : BufferType(ENDFILE, ACTUAL_BUFF_SIZE-2){ // 0x20464F45 "EOF "
-	Reset();
-}
+EOF_buffer::EOF_buffer() : BufferType(ENDFILE, NO_HEADER_SIZE){} // 0x20464F45 "EOF "
 
 /// Write an end-of-file buffer (1 word buffer type, 1 word buffer size, and 8192 end of file words).
 bool EOF_buffer::Write(std::ofstream *file_){
@@ -1024,6 +1028,7 @@ bool PollOutputFile::overwrite_dir(int total_buffers_/*=-1*/){
 
 /// Initialize the output file with initial parameters
 void PollOutputFile::initialize(){
+	max_spill_size = -9999;
 	current_file_num = 0; 
 	output_format = 0;
 	number_spills = 0;
@@ -1097,6 +1102,8 @@ int PollOutputFile::Write(char *data_, unsigned int nWords_){
 
 	if(!output_file.is_open() || !output_file.good()){ return -1; }
 
+	if(nWords_ > max_spill_size){ max_spill_size = nWords_; }
+	
 	// Write data to disk
 	int buffs_written;
 	if(output_format == 0){
@@ -1104,7 +1111,6 @@ int PollOutputFile::Write(char *data_, unsigned int nWords_){
 	}
 	else if(output_format == 1){
 		if(!pldData.Write(&output_file, data_, nWords_)){ return -1; }
-		pldHead.UpdateMaxSpillSize(nWords_);
 		buffs_written = 1;
 	}
 	else{
@@ -1280,6 +1286,7 @@ void PollOutputFile::CloseFile(float total_run_time_/*=0.0*/){
 		output_file.seekp(0);
 		pldHead.SetEndDateTime();
 		pldHead.SetRunTime(total_run_time_);
+		pldHead.SetMaxSpillSize(max_spill_size);
 		pldHead.Write(&output_file);
 		output_file.close();
 	}
