@@ -9,3 +9,6 @@ set(SCANOR_SOURCES
 )
 
 add_library(ScanorObjects OBJECT ${SCANOR_SOURCES})
+
+# Kind of messy, but I didn't know how else to do this. CRT
+install(FILES ../include/ScanorInterface.hpp DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
