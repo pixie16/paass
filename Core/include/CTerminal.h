@@ -100,51 +100,6 @@ class CommandHolder{
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// CommandString
-///////////////////////////////////////////////////////////////////////////////
-
-class CommandString{
-  private:
-	std::string command;
-	bool insert_mode;
-	
-  public:
-	CommandString(){ 
-		command = ""; 
-		insert_mode = false;
-	}
-	
-	/// Return the current "insert character" mode
-	bool GetInsertMode(){ return insert_mode; }
-	
-	/// Toggle "insert character" mode on or off
-	void ToggleInsertMode(){
-		if(insert_mode){ insert_mode = false; }
-		else{ insert_mode = true; }
-	}
-	
-	/// Return the size of the command string
-	unsigned int GetSize(){ return command.size(); }
-	
-	/// Return the command string
-	std::string Get(size_t size_=std::string::npos){ return command.substr(0, size_); }
-	
-	/// Set the string the the specified input.
-	void Set(std::string input_){ command = input_; }	
-	
-	/// Put a character into string at specified position.
-	void Put(const char ch_, unsigned int index_);
-
-	void Insert(size_t pos, const char* str);
-	
-	/// Remove a character from the string.
-	void Pop(unsigned int index_);
-	
-	/// Clear the string.
-	void Clear(){ command = ""; }
-};
-
-///////////////////////////////////////////////////////////////////////////////
 // Terminal
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -164,7 +119,7 @@ class Terminal{
 	WINDOW *input_window;
 	WINDOW *status_window;
 	CommandHolder commands;
-	CommandString cmd;
+	std::string cmd;
 	bool init;
 	int cursX, cursY;
 	int offset;
@@ -177,6 +132,7 @@ class Terminal{
 	///The tab complete flag
 	bool enableTabComplete;
 	float commandTimeout_; ///<Time in seconds to wait for command.
+	bool insertMode_;
 
 	short tabCount;
 	bool debug_; ///<Flag indicating verbose output is enabled.
