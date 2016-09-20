@@ -160,32 +160,6 @@ void CommandHolder::Reset() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CommandString
-///////////////////////////////////////////////////////////////////////////////
-
-/// Put a character into string at specified position.
-void CommandString::Put(const char ch_, unsigned int index_){
-	if(index_ < 0){ return; }
-	else if(index_ < command.size()){ // Overwrite or insert a character
-		if(!insert_mode) { command.insert(index_, 1, ch_); } // Insert
-		else { command.at(index_) = ch_; } // Overwrite
-	}
-	else{ command.push_back(ch_); } // Appending to the back of the string
-}
-
-void CommandString::Insert(size_t pos, const char* str) {
-	command.insert(pos,str);
-}
-
-/// Remove a character from the string.
-void CommandString::Pop(unsigned int index_){
-	if(index_ < 0){ return ; }
-	else if(index_ < command.size()){ // Pop a character out of the string
-		command.erase(index_, 1);
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // Terminal
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -316,11 +290,11 @@ void Terminal::update_cursor_(){
 }
 
 void Terminal::clear_(){
-	for(int start = cmd.GetSize() + offset; start >= offset; start--){
+	for(int start = cmd.length() + offset; start >= offset; start--){
 		wmove(input_window, 0, start);
 		wdelch(input_window);
 	}
-	cmd.Clear();
+	cmd.clear();
 	cursX = offset;
 	update_cursor_();
 	refresh_();
@@ -365,7 +339,7 @@ void Terminal::AppendStatus(std::string status, unsigned short line) {
 void Terminal::in_char_(const char input_){
 	cursX++;
 	//If in insert mode we overwite the character otherwise insert it.
-	if (cmd.GetInsertMode()) waddch(input_window, input_);
+	if (insertMode_) waddch(input_window, input_);
 	else winsch(input_window, input_);
 	update_cursor_();
 	refresh_();
@@ -550,6 +524,7 @@ Terminal::Terminal() :
 	status_window(NULL),
 	_statusWindowSize(0),
 	commandTimeout_(0),
+	insertMode_(false),
 	debug_(false),
 	_scrollbackBufferSize(SCROLLBACK_SIZE),
 	_scrollPosition(0)
@@ -794,11 +769,11 @@ void Terminal::TabComplete(const std::string &input_, const std::vector<std::str
 	
 	//A unique match so we extend the command with completed text
 	else if (matches.size() == 1) {
-		if (matches.at(0).find("/") == std::string::npos && (unsigned int) (cursX - offset) == cmd.Get().length()) {
+		if (matches.at(0).find("/") == std::string::npos && (unsigned int) (cursX - offset) == cmd.length()) {
 			matches.at(0).append(" ");
 		}
-		cmd.Insert(cursX - offset, matches.at(0).c_str());
-		waddstr(input_window, cmd.Get().substr(cursX - offset).c_str());
+		cmd.insert(cursX - offset, matches.at(0).c_str());
+		waddstr(input_window, cmd.substr(cursX - offset).c_str());
 		cursX += matches.at(0).length();
 	}
 	else {
@@ -811,20 +786,20 @@ void Terminal::TabComplete(const std::string &input_, const std::vector<std::str
 			}
 		}
 		if (!commonStr.empty()) {
-			cmd.Insert(cursX - offset, commonStr.c_str());
-			waddstr(input_window, cmd.Get().substr(cursX - offset).c_str());
+			cmd.insert(cursX - offset, commonStr.c_str());
+			waddstr(input_window, cmd.substr(cursX - offset).c_str());
 			cursX += commonStr.length();
 		}
 		//Display the options
 		else if (tabCount > 1) {
 			//Compute the header position
-			size_t headerPos = cmd.Get().find_last_of(" /",cursX - offset - 1);
+			size_t headerPos = cmd.find_last_of(" /",cursX - offset - 1);
 			std::string header;
 			if (headerPos == std::string::npos) 
-				header = cmd.Get();
+				header = cmd;
 			else
-				header = cmd.Get().substr(headerPos+1,cursX - offset - 1 - headerPos);
-			std::cout << prompt.c_str() << cmd.Get() << "\n";
+				header = cmd.substr(headerPos+1,cursX - offset - 1 - headerPos);
+			std::cout << prompt.c_str() << cmd << "\n";
 			for (auto it=matches.begin();it!=matches.end();++it) {
 				std::cout << header << (*it) << "\t";
 			}
@@ -912,13 +887,13 @@ std::string Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/
 			if(keypress == ERR){continue;} // No key was pressed in the interval
 
 			if (debug_) {
-				std::cout << "TERM: Curs (" << cursX << ", " << cursY << ") ";
+				std::cout << "TERM: Curs (" << cursX  << "-" << offset << ", " << cursY << ") ";
 				std::cout << "Key: " << keypress << " " << (char)keypress << " "; 
 				std::cout << "\n";
 			}
 			
 			if(keypress == 10){ // Enter key (10)
-				std::string temp_cmd = cmd.Get();
+				std::string temp_cmd = cmd;
 				//Reset the position in the history.
 				commands.Reset();
 				if(temp_cmd != "" && temp_cmd != commands.PeekPrev()){ // Only save this command if it is different than the previous command
@@ -938,13 +913,13 @@ std::string Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/
 
 				//Compute the boundaris of this command taking into account semicolons.
 				size_t stop = cursX - offset;
-				size_t start = cmd.Get().find_last_of(';', cursX - offset - 1) + 1;
+				size_t start = cmd.find_last_of(';', cursX - offset - 1) + 1;
 				//Check that the values are reasonable
 				if (start == std::string::npos) start = 0;
-				if (stop == std::string::npos) stop = cmd.Get().length();
+				if (stop == std::string::npos) stop = cmd.length();
 
 				//Determine string to be passed to tab completer and add '\t' character.
-				output = cmd.Get().substr(start, stop - start) + "\t";
+				output = cmd.substr(start, stop - start) + "\t";
 		
 				//Output debug info.
 				if (debug_) {
@@ -962,20 +937,20 @@ std::string Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/
 			}
 			else if(keypress == 9){ } // Tab key (9)
 			else if(keypress == KEY_UP){ // 259
-				if(commands.GetIndex() == 0){ commands.Capture(cmd.Get()); }
+				if(commands.GetIndex() == 0){ commands.Capture(cmd); }
 				std::string temp_cmd = commands.GetPrev();
 				if(temp_cmd != "NULL"){
 					clear_();
-					cmd.Set(temp_cmd);
-					in_print_(cmd.Get().c_str());
+					cmd.assign(temp_cmd);
+					in_print_(cmd.c_str());
 				}
 			}
 			else if(keypress == KEY_DOWN){ // 258
 				std::string temp_cmd = commands.GetNext();
 				if(temp_cmd != "NULL"){
 					clear_();
-					cmd.Set(temp_cmd);
-					in_print_(cmd.Get().c_str());
+					cmd.assign(temp_cmd);
+					in_print_(cmd.c_str());
 				}
 			}
 			else if(keypress == KEY_LEFT){ cursX--; } // 260
@@ -987,19 +962,21 @@ std::string Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/
 				scroll_(_winSizeY-2);
 			}
 			else if(keypress == KEY_BACKSPACE){ // 263
-				wmove(input_window, 0, --cursX);
-				wdelch(input_window);
-				cmd.Pop(cursX - offset);
+				if (cursX - offset > 0 ) {
+					wmove(input_window, 0, --cursX);
+					wdelch(input_window);
+					cmd.erase(cursX - offset,1);
+				}
 			}
 			else if(keypress == KEY_DC){ // Delete character (330)
 				//Remove character from terminal
 				wdelch(input_window);
 				//Remove character from cmd string
-				cmd.Pop(cursX - offset);
+				cmd.erase(cursX - offset, 1);
 			}
-			else if(keypress == KEY_IC){ cmd.ToggleInsertMode(); } // Insert key (331)
+			else if(keypress == KEY_IC){ insertMode_ = true; } // Insert key (331)
 			else if(keypress == KEY_HOME){ cursX = offset; }
-			else if(keypress == KEY_END){ cursX = cmd.GetSize() + offset; }
+			else if(keypress == KEY_END){ cursX = cmd.length() + offset; }
 			else if(keypress == KEY_MOUSE) { //Handle mouse events
 				MEVENT mouseEvent;
 				//Get information about mouse event.
@@ -1021,14 +998,18 @@ std::string Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/
 			}
 			else{ 
 				in_char_((char)keypress); 
-				cmd.Put((char)keypress, cursX - offset - 1);
+				if (cursX - offset > (int) cmd.length()) { cmd.push_back(keypress); }
+				else { // Overwrite or insert a character
+					if(!insertMode_) { cmd.insert(cursX - offset - 1, 1, keypress); } // Insert
+					else { cmd.at(cursX - offset - 1) = keypress; } // Overwrite
+				}
 			}
 
 			// Check for cursor too far to the left
-			if(cursX < offset){ cursX = offset + cmd.GetSize(); }
-	
+			if(cursX < offset){ cursX = offset; }
+
 			// Check for cursor too far to the right
-			if(cursX > (int)(cmd.GetSize() + offset)){ cursX = cmd.GetSize() + offset; }
+			if(cursX > (int)(cmd.length() + offset)){ cursX = cmd.length() + offset; }
 	
 			if (keypress != ERR) tabCount = 0;
 			update_cursor_();
