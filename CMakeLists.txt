@@ -166,5 +166,8 @@ if (BUILD_SUITE)
 	add_subdirectory(Poll)
 endif()
 
+#Build PxiDump
+add_subdirectory(PxiDump)
+
 #Build/install the miscellaneous stuff
 add_subdirectory(share)
