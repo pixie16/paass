@@ -954,13 +954,13 @@ std::string Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/
 
 				break;
 			}
+			else if (keypress == KEY_BTAB) { }
 			else if(keypress == 4){ // ctrl-d (EOT)
 				output = "CTRL_D";
 				clear_();
 				tabCount = 0;
 				break;
 			}
-			else if(keypress == 9){ } // Tab key (9)
 			else if(keypress == KEY_UP){ // 259
 				if(commands.GetIndex() == 0){ commands.Capture(cmd.Get()); }
 				std::string temp_cmd = commands.GetPrev();
