@@ -30,9 +30,29 @@
 #define ADC_TIME_STEP 4 // ns
 #define SLEEP_WAIT 1E4 // When not in shared memory mode, length of time to wait after gSystem->ProcessEvents is called (in us).
 
+/**The Paulauskas function is described in NIM A 737 (22), with a slight 
+ * adaptation. We use a step function such that f(x < phase) = baseline.
+ * In addition, we also we formulate gamma such that the gamma in the paper is
+ * gamma_prime = 1 / pow(gamma, 0.25).
+ *
+ * The parameters are:
+ * p[0] = baseline
+ * p[1] = amplitude
+ * p[2] = phase
+ * p[3] = beta
+ * p[4] = gamma
+ *
+ * \param[in] x X value.
+ * \param[in] p Paramater values.
+ *
+ * \return the value of the function for the specified x value and parameters.
+ */
 double PaulauskasFitFunc(double *x, double *p) {
+	//Compute the time difference between x and the phase corrected for clock ticks.
 	float diff = (x[0] - p[2])/ADC_TIME_STEP;
-	if (diff < 0 ) return 0;
+	//If the difference is less than zero we return the baseline.
+	if (diff < 0 ) return p[0];
+	//Return the computed function.
 	return p[0] + p[1] * exp(-diff * p[3]) * (1 - exp(-pow(diff * p[4],4)));
 }
 
@@ -263,10 +283,8 @@ void scopeScanner::Plot(){
 
 		if(performFit_){
 			paulauskasFunc->SetRange(lowVal, highVal);
-			paulauskasFunc->SetParameters(chanEvents_.front()->baseline,chanEvents_.front()->qdc*0.5,lowVal,0.5,0.1);
-			paulauskasFunc->SetParLimits(0,chanEvents_.front()->baseline - chanEvents_.front()->stddev,chanEvents_.front()->baseline + chanEvents_.front()->stddev);
-			paulauskasFunc->SetParLimits(1,0,2 * chanEvents_.front()->qdc);
-			paulauskasFunc->SetParLimits(4,0,0.5);
+			paulauskasFunc->SetParameters(chanEvents_.front()->baseline, 0.5 * chanEvents_.front()->qdc, lowVal, 0.5, 0.1);
+			paulauskasFunc->FixParameter(0, chanEvents_.front()->baseline);
 			graph->Fit(paulauskasFunc,"QMER");
 		}
 	}
@@ -313,10 +331,8 @@ void scopeScanner::Plot(){
 		
 		if(performFit_){
 			paulauskasFunc->SetRange(lowVal, highVal);
-			paulauskasFunc->SetParameters(chanEvents_.front()->baseline,chanEvents_.front()->qdc*0.5,lowVal,0.5,0.1);
-			paulauskasFunc->SetParLimits(0,chanEvents_.front()->baseline - chanEvents_.front()->stddev,chanEvents_.front()->baseline + chanEvents_.front()->stddev);
-			paulauskasFunc->SetParLimits(1,0,2*chanEvents_.front()->qdc);
-			paulauskasFunc->SetParLimits(4,0,0.5);
+			paulauskasFunc->SetParameters(chanEvents_.front()->baseline, 0.5 * chanEvents_.front()->qdc, lowVal, 0.5, 0.2);
+			paulauskasFunc->FixParameter(0, chanEvents_.front()->baseline);
 			prof->Fit(paulauskasFunc,"QMER");
 		}
 
