@@ -319,8 +319,8 @@ bool Poll::Close(){
 	//Close the UDP data / SHM port.
 	client->Close();
 	
-	// Just to be safe
-	CloseOutputFile();
+	// Close any open files.
+	if(output_file.IsOpen()) CloseOutputFile();
 
 	//Delete the array of partial event vectors.
 	delete[] partialEvents;
@@ -340,14 +340,17 @@ bool Poll::Close(){
  *
  * \param[in] continueRun Flag indicating whether we are continuing the same run,
  *  but opening a new continuation file.
- *	\return True if the file was closed successfully.
+ * \return True if the file was closed successfully.
  */
 bool Poll::CloseOutputFile(const bool continueRun /*=false*/){
+	Display::LeaderPrint("Closing output file");
+
 	//No file was open.
 	if(!output_file.IsOpen()){ 
-		std::cout << sys_message_head << "No file is open.\n";
+		std::cout << Display::WarningStr() << std::endl;
+		std::cout << "|- No file is open.\n";
 		file_open = false;
-		return true;
+		return false;
 	}
 
 	//Clear the stats
@@ -356,20 +359,19 @@ bool Poll::CloseOutputFile(const bool continueRun /*=false*/){
 		statsHandler->Dump();
 	}
 
-	std::cout << sys_message_head << "Closing output file.\n";
+	output_file.CloseFile();
 
 	//Broadcast to Cory's SHM that the file is now closed.
 	if(!pac_mode){ client->SendMessage((char *)"$CLOSE_FILE", 12); }
 
-	output_file.CloseFile();
+	//Set the flag that no file is open.
+	file_open = false;
+	std::cout << Display::OkayStr() << std::endl;
 
 	//We call get next file name to update the run number.
 	if (!continueRun) {
 		output_file.GetNextFileName(next_run_num,filename_prefix,output_directory);
 	}
-
-	//Set the falg that no file is open.
-	file_open = false;
 
 	return true;
 }
@@ -387,16 +389,25 @@ bool Poll::CloseOutputFile(const bool continueRun /*=false*/){
  *  \return True if successfully opened a new file.
  */
 bool Poll::OpenOutputFile(bool continueRun){
+	Display::LeaderPrint("Opening output file");
 	//A file was already open
 	if(output_file.IsOpen()){ 
-		std::cout << Display::WarningStr() << ": A file is already open. Close the current file before opening a new one.\n"; 
+		std::cout << Display::ErrorStr() << std::endl;
+		std::cout << "|- A file is already open!\n";
+		CloseOutputFile();
+
+		had_error = true;
+		record_data = false;
+
 		return false;
 	}
 
 	//Try to open a file and check if unsuccessful.
 	if(!output_file.OpenNewFile(output_title, next_run_num, filename_prefix, output_directory, continueRun)){
+		std::cout << Display::ErrorStr() << std::endl;
 		//Unsuccessful when opening file print a message.
-		std::cout << Display::ErrorStr() << ": Failed to open output file! Check that the path is correct.\n";
+		std::cout << "|- Failed to open output file! Check that the path is correct.\n";
+		std::cout << "|- Filename: '" << output_file.GetCurrentFilename() << "'.\n";
 	
 		//Set the error flag and disable data recording.
 		had_error = true;
@@ -404,12 +415,13 @@ bool Poll::OpenOutputFile(bool continueRun){
 
 		return false;
 	}
+	std::cout <<Display::OkayStr() <<std::endl;
+	std::cout << "|- Filename: '" << output_file.GetCurrentFilename() << "'.\n";
 
 	//Clear the stats
 	statsHandler->Clear();
 	statsHandler->Dump();
 
-	std::cout << sys_message_head << "Opening output file '" << output_file.GetCurrentFilename() << "'.\n";
 	//When using Cory's SHM send a message that the file is open.
 	if(!pac_mode){ client->SendMessage((char *)"$OPEN_FILE", 12); }
 
@@ -445,8 +457,10 @@ bool Poll::synch_mods(){
 int Poll::write_data(word_t *data, unsigned int nWords){
 	// Open an output file if needed
 	if(!output_file.IsOpen()){
-		std::cout << Display::WarningStr("Warning:") << " Recording data, but no file is open! Opening a new file.\n";
-		OpenOutputFile();
+		std::cout << Display::ErrorStr() << " Recording data, but no file is open!\n";
+		do_stop_acq = true;
+		had_error = true;
+		return 0;
 	}
 
 	// Handle the writing of buffers to the file
@@ -454,10 +468,10 @@ int Poll::write_data(word_t *data, unsigned int nWords){
 	if(current_filesize + (std::streampos)(4*nWords + 65552) > MAX_FILE_SIZE){
 		// Adding nWords plus 2 EOF buffers to the file will push it over MAX_FILE_SIZE.
 		// Open a new output file instead
+		std::cout << sys_message_head << "Maximum ifile size reached. New output file will be created.\n";
 		std::cout << sys_message_head << "Current filesize is " << current_filesize + (std::streampos)65552 << " bytes.\n";
-		std::cout << sys_message_head << "Opening new file.\n";
 		CloseOutputFile(true);
-		OpenOutputFile(true);
+		OpenOutputFile(true); 
 	}
 
 	if (!is_quiet) std::cout << "Writing " << nWords << " words.\n";
@@ -691,15 +705,7 @@ bool Poll::start_run(const bool &record_/*=true*/, const double &time_/*=-1.0*/)
 	if(runTime > 0.0)
 		std::cout << sys_message_head << "Running for approximately " << runTime << " seconds.\n";
 
-	if(record_){
-		//Close a file if open
-		if(output_file.IsOpen()){ CloseOutputFile(); }
-
-		//Prepare the output file
-		if (!OpenOutputFile()) return false;
-		record_data = true;
-	}
-	else record_data = false;
+	record_data = record_;
 
 	//Start the acquistion
 	do_start_acq = true;
@@ -727,8 +733,6 @@ bool Poll::stop_run() {
 		Display::LeaderPrint(output.str());
 		std::cout << statsHandler->GetTotalTime() << "s\n";
 
-		//Close the output file
-		CloseOutputFile(); 
 	}
 
 	record_data = false;
@@ -1297,6 +1301,9 @@ void Poll::CommandControl(){
 			else if(cmd == "startacq" || cmd == "startvme"){ // Tell POLL to start data acquisition without recording to disk.
 				start_run(false);
 			}
+			else if(cmd == "clo") {
+				CloseOutputFile();
+			}
 			else if(cmd == "stop" || cmd == "stopacq" || cmd == "stopvme"){ // Tell POLL to stop recording data to disk and stop acq.
 				stop_run();
 			} 
@@ -1525,6 +1532,23 @@ void Poll::RunControl(){
 		//Start acquistion
 		if (do_start_acq) {
 			if (!acq_running) {
+				if(record_data){
+					//Close a file if open
+					if(output_file.IsOpen()){ 
+						std::cout << Display::WarningStr() << " Unexpected output file open!\n";
+						CloseOutputFile(); 
+					}
+
+					//Prepare the output file
+					if (!OpenOutputFile()) {
+						do_start_acq = false;
+						acq_running = false;
+						record_data = false;
+						had_error = true;
+						continue;
+					}
+				}
+
 				//Start list mode
 				if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)) {
 					time(&acqStartTime);
@@ -1604,6 +1628,9 @@ void Poll::RunControl(){
 				statsHandler->ClearRates();
 				statsHandler->Dump();
 				statsHandler->ClearTotals();
+
+				//Close the output file
+				if(output_file.IsOpen()) CloseOutputFile();
 
 				//Reset status flags
 				do_stop_acq = false;
