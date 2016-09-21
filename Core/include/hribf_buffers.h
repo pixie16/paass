@@ -14,9 +14,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date Aug. 9th, 2016
+  * \date Sept. 19th, 2016
   * 
-  * \version 1.2.15
+  * \version 1.3.00
 */
 
 #ifndef HRIBF_BUFFERS_H
@@ -25,8 +25,8 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.2.18"
-#define HRIBF_BUFFERS_DATE "Aug. 15th, 2016"
+#define HRIBF_BUFFERS_VERSION "1.3.00"
+#define HRIBF_BUFFERS_DATE "Sept. 19th, 2016"
 
 #define ACTUAL_BUFF_SIZE 8194 /// HRIBF .ldf file format
 
@@ -110,9 +110,9 @@ class PLD_header : public BufferType{
 	
 	void SetRunNumber(unsigned int input_){ run_num = input_; }
 	
+	void SetMaxSpillSize(unsigned int max_spill_size_){ max_spill_size = max_spill_size_; }
+	
 	void SetRunTime(float time_){ run_time = time_; }
-
-	void UpdateMaxSpillSize(unsigned int spill_size_){ if(spill_size_ > max_spill_size) max_spill_size = spill_size_; }
 	
 	/** HEAD buffer (1 word buffer type, 1 word run number, 1 word maximum spill size, 4 word format, 
 	  * 2 word facility, 6 word date, 1 word title length (x in bytes), x/4 word title, 1 word end of buffer*/
@@ -322,6 +322,7 @@ class PollOutputFile{
 	HEAD_buffer headBuff;
 	DATA_buffer dataBuff;
 	EOF_buffer eofBuff;
+	unsigned int max_spill_size;
 	unsigned int current_file_num;
 	unsigned int output_format;
 	unsigned int number_spills;
