@@ -284,6 +284,7 @@ void scopeScanner::Plot(){
 		if(performFit_){
 			paulauskasFunc->SetRange(lowVal, highVal);
 			paulauskasFunc->SetParameters(chanEvents_.front()->baseline, 0.5 * chanEvents_.front()->qdc, lowVal, 0.5, 0.1);
+			paulauskasFunc->FixParameter(0, chanEvents_.front()->baseline);
 			graph->Fit(paulauskasFunc,"QMER");
 		}
 	}
@@ -330,7 +331,8 @@ void scopeScanner::Plot(){
 		
 		if(performFit_){
 			paulauskasFunc->SetRange(lowVal, highVal);
-			paulauskasFunc->SetParameters(chanEvents_.front()->baseline, 0.5 * chanEvents_.front()->qdc, lowVal, 0.5, 0.1);
+			paulauskasFunc->SetParameters(chanEvents_.front()->baseline, 0.5 * chanEvents_.front()->qdc, lowVal, 0.5, 0.2);
+			paulauskasFunc->FixParameter(0, chanEvents_.front()->baseline);
 			prof->Fit(paulauskasFunc,"QMER");
 		}
 
