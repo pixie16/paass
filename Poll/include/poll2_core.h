@@ -24,8 +24,8 @@
 #include "hribf_buffers.h"
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.4.0"
-#define POLL2_CORE_DATE "Nov. 12th, 2015"
+#define POLL2_CORE_VERSION "1.4.14"
+#define POLL2_CORE_DATE "Aug. 17th, 2016"
 
 // Maximum length of UDP data packet (in bytes)
 #define MAX_ORPH_DATA 1464
@@ -145,6 +145,7 @@ class Poll{
 	bool shm_mode; /// New style shared-memory mode.
 	bool pac_mode; /// Pacman shared-memory mode.
 	bool init; //
+	double runTime; /// Time to run the acquisition, in seconds.
 
 	// Options relating to output data file
 	std::string output_directory; /// Set with 'fdir' command
@@ -174,7 +175,6 @@ class Poll{
 	const static std::vector<std::string> paramControlCommands_;
 	const static std::vector<std::string> pollStatusCommands_; 
 	std::vector<std::string> commands_;
-
 	
 	data_pack AcqBuf; /// Data packet for class shared-memory broadcast
 	
@@ -188,16 +188,10 @@ class Poll{
 	void pmod_help();
 
 	/// Start a data recording run.
-	bool start_run();
+	bool start_run(const bool &record_=true, const double &time_=-1.0);
 	
 	/// Stop an active data recording run.
 	bool stop_run();
-	
-	/// Starts data acquisition.
-	bool start_acq();
-	
-	/// Stops data acquisition.
-	bool stop_acq();
 	
 	/// Display run status information.
 	void show_status();
@@ -208,11 +202,12 @@ class Poll{
 	/// Acquire raw traces from a pixie module.
 	void get_traces(int mod_, int chan_, int thresh_=0);
 
-	/// Method responsible for handling tab complete of commands and pread/pwrite parameters
-	std::vector<std::string> TabComplete(std::string cmd);
+	/// Method responsible for handling tab complete.
+	std::vector<std::string> TabComplete(const std::string &value_, const std::vector<std::string> &valid_);
 
 	///Routine to read Pixie FIFOs
 	bool ReadFIFO();
+	
 	///Routine to read Pixie scalers.
 	void ReadScalers();
 
@@ -298,6 +293,9 @@ class Poll{
 	size_t GetNcards(){ return n_cards; }
 	
 	size_t GetThreshWords(){ return threshWords; }
+
+	///\brief Prints the information about each module.
+	void PrintModuleInfo();
 	
 	/// Main control loop for handling user input.
 	void CommandControl();
@@ -309,11 +307,16 @@ class Poll{
 	bool Close();
 };
 	
+/** IsNumeric: Check if an input string is strictly numeric.
+  *  \param[in]  input_ String to check.
+  *  \param[in]  prefix_ String to print before the error message is printed.
+  *  \param[in]  msg_ Error message to print if the value is not numeric.
+  *  \return true if the string is strictly numeric and false otherwise.
+  */
+bool IsNumeric(const std::string &input_, const std::string &prefix_="", const std::string &msg_="");
+	
 /// Convert a rate number to more useful form.
 std::string humanReadable(double size);
-
-/// Split a string by specified delimiter_ and place the result in a vector.
-unsigned int split_str(std::string str_, std::vector<std::string> &args, char delimiter_=' ');
 
 /// Pad a string with periods until it is the specified length_.
 std::string pad_string(const std::string &input_, unsigned int length_);

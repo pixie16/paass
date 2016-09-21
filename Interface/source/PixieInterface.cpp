@@ -317,7 +317,7 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile)
 	word_t val;
 
 	for (int i=0; i < numberCards; i++) {
-		if (!ReadSglModPar("SlotID", &val, i))
+		if (!ReadSglModPar("SlotID", val, i))
 			hadError = true;
 		if (val != slotMap[i]) {
 			updated = true;
@@ -335,27 +335,32 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile)
 	return goodBoot && !hadError;
 }
 
-bool PixieInterface::WriteSglModPar(const char *name, unsigned int val, int mod)
+bool PixieInterface::WriteSglModPar(const char *name, word_t val, int mod)
+{
+	word_t dummy;
+	return WriteSglModPar(name, val, mod, dummy);
+}
+
+bool PixieInterface::WriteSglModPar(const char *name, word_t val, int mod, word_t &pval)
 {
   strncpy(tmpName, name, nameSize);
 
+  Pixie16ReadSglModPar(tmpName, &pval, mod);
   retval = Pixie16WriteSglModPar(tmpName, val, mod);
   if (retval < 0) {
-    cout << "Error writing module parameter " << WarningStr(name) 
-	 << " for module " << mod << endl;
+    cout << "Error writing module parameter " << WarningStr(name) << " for module " << mod << endl;
     return false;      
   }
   return true;
 }
 
-bool PixieInterface::ReadSglModPar(const char *name, word_t *val, int mod)
+bool PixieInterface::ReadSglModPar(const char *name, word_t &val, int mod)
 {
   strncpy(tmpName, name, nameSize);
 
-  retval = Pixie16ReadSglModPar(tmpName, val, mod);
+  retval = Pixie16ReadSglModPar(tmpName, &val, mod);
   if (retval < 0) {
-    cout << "Error reading module parameter " << WarningStr(name) 
-	 << " for module " << mod << endl;
+    cout << "Error reading module parameter " << WarningStr(name) << " for module " << mod << endl;
     return false;      
   }
   return true;
@@ -367,35 +372,50 @@ void PixieInterface::PrintSglModPar(const char *name, int mod)
 
   strncpy(tmpName, name, nameSize);
 
-  if (ReadSglModPar(tmpName, &val, mod)) {    
+  if (ReadSglModPar(tmpName, val, mod)) {    
 	cout.unsetf(ios_base::floatfield);
-    cout << "  MOD " << setw(2) << mod 
-	 << "  " << setw(15) << name
-	 << "  " << setprecision(6) << val << endl;
+    cout << "  MOD " << setw(2) << mod << "  " << setw(15) << name << "  " << setprecision(6) << val << endl;
+  }
+}
+
+void PixieInterface::PrintSglModPar(const char *name, int mod, word_t prev)
+{
+  word_t val;
+
+  strncpy(tmpName, name, nameSize);
+
+  if (ReadSglModPar(tmpName, val, mod)) {    
+	cout.unsetf(ios_base::floatfield);
+    cout << "  MOD " << setw(2) << mod << "  " << setw(15) << name << "  " << setprecision(6) << prev << " -> " << val << endl;
   }
 }
 
 bool PixieInterface::WriteSglChanPar(const char *name, double val, int mod, int chan)
 {
+  double dummy;
+  return WriteSglChanPar(name, val, mod, chan, dummy);
+}
+
+bool PixieInterface::WriteSglChanPar(const char *name, double val, int mod, int chan, double &pval)
+{
   strncpy(tmpName, name, nameSize);
 
+  Pixie16ReadSglChanPar(tmpName, &pval, mod, chan);
   retval = Pixie16WriteSglChanPar(tmpName, val, mod, chan);
   if (retval < 0) {
-    cout << "Error writing channel parameter " << WarningStr(name) 
-	 << " for module " << mod << ", channel " << chan << endl;
+    cout << "Error writing channel parameter " << WarningStr(name) << " for module " << mod << ", channel " << chan << endl;
     return false;      
   }
   return true;
 }
 
-bool PixieInterface::ReadSglChanPar(const char *name, double *pval, int mod, int chan)
+bool PixieInterface::ReadSglChanPar(const char *name, double &pval, int mod, int chan)
 {
   strncpy(tmpName, name, nameSize);
 
-  retval = Pixie16ReadSglChanPar(tmpName, pval, mod, chan);
+  retval = Pixie16ReadSglChanPar(tmpName, &pval, mod, chan);
   if (retval < 0) {
-    cout << "Error reading channel parameter " << WarningStr(name) 
-	 << " for module " << mod << ", channel " << chan << endl;
+    cout << "Error reading channel parameter " << WarningStr(name) << " for module " << mod << ", channel " << chan << endl;
     return false;      
   }
   return true;
@@ -406,12 +426,20 @@ void PixieInterface::PrintSglChanPar(const char *name, int mod, int chan)
   double val;
   strncpy(tmpName, name, nameSize);
 
-  if (ReadSglChanPar(tmpName, &val, mod, chan)) {    
+  if (ReadSglChanPar(tmpName, val, mod, chan)) {    
 	cout.unsetf(ios_base::floatfield);
-    cout << "  MOD " << setw(2) << mod 
-	 << "  CHAN " << setw(2) << chan
-	 << "  " << setw(15) << name
-	 << "  " << setprecision(6) << val << endl;
+    cout << "  MOD " << setw(2) << mod << "  CHAN " << setw(2) << chan << "  " << setw(15) << name << "  " << setprecision(6) << val << endl;
+  }
+}
+
+void PixieInterface::PrintSglChanPar(const char *name, int mod, int chan, double prev)
+{
+  double val;
+  strncpy(tmpName, name, nameSize);
+
+  if (ReadSglChanPar(tmpName, val, mod, chan)) {    
+	cout.unsetf(ios_base::floatfield);
+    cout << "  MOD " << setw(2) << mod << "  CHAN " << setw(2) << chan << "  " << setw(15) << name << "  " << setprecision(6) << prev << " -> " << val << endl;
   }
 }
 
@@ -788,7 +816,7 @@ bool PixieInterface::ToggleChannelBit(int mod, int chan, const char *parameter, 
 {
   double dval;
 
-  ReadSglChanPar(parameter, &dval, mod, chan);
+  ReadSglChanPar(parameter, dval, mod, chan);
   unsigned int ival = (int)dval;
   ival ^= (1 << bit);
   dval = ival;
@@ -811,4 +839,9 @@ bool PixieInterface::CheckError(bool exitOnError) const
   }
 
   return (retval < 0);
+}
+
+bool PixieInterface::GetModuleInfo(unsigned short mod, unsigned short *rev, unsigned int *serNum, unsigned short *adcBits, unsigned short *adcMsps) {
+	//Return false if error code provided.
+	return (Pixie16ReadModuleInfo(mod,rev,serNum,adcBits,adcMsps) == 0);	
 }

@@ -10,3 +10,8 @@ if(BUILD_SKELETON)
     target_link_libraries(skeleton ScanStatic)
     install (TARGETS skeleton DESTINATION bin)
 endif(BUILD_SKELETON)
+
+# Install headReader executable.
+add_executable(headReader headReader.cpp)
+target_link_libraries(headReader ScanStatic)
+install (TARGETS headReader DESTINATION bin)

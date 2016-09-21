@@ -18,7 +18,6 @@ set(PROCESSOR_SOURCES
         NeutronScintProcessor.cpp
         PositionProcessor.cpp
         PspmtProcessor.cpp
-        PulserProcessor.cpp
 #  ScintProcessor.cpp
 #  SsdBetaProcessor.cpp
         SsdProcessor.cpp

@@ -27,7 +27,7 @@ bool BitFlipper::operator()(PixieFunctionParms<std::string> &par){
 	int count = 1;
 
 	double value;
-	par.pif->ReadSglChanPar(par.par.c_str(), &value, par.mod, par.ch);
+	par.pif->ReadSglChanPar(par.par.c_str(), value, par.mod, par.ch);
 	
 	int old_csra = (int)value;
 	for(unsigned int i = 0; i < num_toggle_bits; i++){
@@ -45,7 +45,7 @@ bool BitFlipper::operator()(PixieFunctionParms<std::string> &par){
 	}
 	
 	if(par.pif->WriteSglChanPar(par.par.c_str(), new_csra, par.mod, par.ch)){
-		par.pif->PrintSglChanPar(par.par.c_str(), par.mod, par.ch);
+		par.pif->PrintSglChanPar(par.par.c_str(), par.mod, par.ch, value);
 		return true;
 	}
 
@@ -56,17 +56,17 @@ bool BitFlipper::operator()(PixieFunctionParms<std::string> &par){
 }
 
 #ifdef PIF_REVA
-const std::string BitFlipper::toggle_names[19] = {"group", "live", "good", "read", "trigger", "polarity", "GFLT", "", "", 
-												  "", "", "", "", "", "gain", "", "", "", ""};
-const std::string BitFlipper::csr_txt[19] = {"Respond to group triggers only", "Measure individual live time", "Good Channel", "Read always", "Enable trigger", 
-											 "Trigger positive", "GFLT", "", "", "", "", "", "", "", "HI/LO gain", "", "", "", ""};
+const std::vector<std::string> BitFlipper::toggle_names({"group", "live", "good", "read", "trigger", "polarity", "GFLT", "", "", 
+												         "", "", "", "", "", "gain", "", "", "", ""});
+const std::vector<std::string> BitFlipper::csr_txt({"Respond to group triggers only", "Measure individual live time", "Good Channel", "Read always", "Enable trigger", 
+											        "Trigger positive", "GFLT", "", "", "", "", "", "", "", "HI/LO gain", "", "", "", ""});
 #else
-const std::string BitFlipper::toggle_names[19] = {"", "", "good", "", "", "polarity", "", "", "trace", "QDC", "CFD", 
-												  "global", "raw", "trigger", "gain", "pileup", "catcher", "", "SHE"};
-const std::string BitFlipper::csr_txt[19] = {"", "", "Good Channel", "", "", "Trigger positive", "", "", "Enable trace capture", "Enable QDC sums capture", 
-											 "Enable CFD trigger mode", "Enable global trigger validation", "Enable raw energy sums capture", 
-											 "Enable channel trigger validation", "HI/LO gain", "Pileup rejection control", "Hybrid bit", "", 
-											 "SHE single trace capture"};
+const std::vector<std::string> BitFlipper::toggle_names({"", "", "good", "", "", "polarity", "", "", "trace", "QDC", "CFD", 
+												         "global", "raw", "trigger", "gain", "pileup", "catcher", "", "SHE"});
+const std::vector<std::string> BitFlipper::csr_txt({"", "", "Good Channel", "", "", "Trigger positive", "", "", "Enable trace capture", "Enable QDC sums capture", 
+											        "Enable CFD trigger mode", "Enable global trigger validation", "Enable raw energy sums capture", 
+											        "Enable channel trigger validation", "HI/LO gain", "Pileup rejection control", "Hybrid bit", "", 
+											        "SHE single trace capture"});
 #endif
 
 void BitFlipper::Help(){
@@ -102,7 +102,7 @@ void BitFlipper::CSRAtest(unsigned int input_){
 	Test(19, input_, csr_txt);
 }
 
-bool BitFlipper::Test(unsigned int num_bits_, unsigned int input_, const std::string *text_/*=NULL*/){
+bool BitFlipper::Test(unsigned int num_bits_, unsigned int input_, const std::vector<std::string> &text_){
 	if(num_bits_ > 32){ return false; } // Too many bits for unsigned int
 	
 	bool *active_bits = new bool[num_bits_];
@@ -128,12 +128,12 @@ bool BitFlipper::Test(unsigned int num_bits_, unsigned int input_, const std::st
 	}
 	
 	std::cout << " Input: 0x" << std::hex << input_ << " (" << std::dec << input_ << ")\n";
-	if(text_ != NULL){ std::cout << "  Bit   On?	Value	   Total	Bit Function\n"; }
+	if(!text_.empty()){ std::cout << "  Bit   On?	Value	   Total	Bit Function\n"; }
 	else{ std::cout << "  Bit   On?	Value	   Total\n"; }
 
 	std::string bit_function;
 	for(unsigned int i = 0; i < num_bits_; i++){
-		if(text_ != NULL){ bit_function = csr_txt[i]; }
+		if(!text_.empty()){ bit_function = csr_txt[i]; }
 		else{ bit_function = ""; }
 		
 		if(active_bits[i]){ 
@@ -317,16 +317,18 @@ bool GetTraces::operator()(PixieFunctionParms<int> &par){
 }
 
 bool ParameterChannelWriter::operator()(PixieFunctionParms< std::pair<std::string, double> > &par){
-	if(par.pif->WriteSglChanPar(par.par.first.c_str(), par.par.second, par.mod, par.ch)){
-		par.pif->PrintSglChanPar(par.par.first.c_str(), par.mod, par.ch);
+	double previousValue;
+	if(par.pif->WriteSglChanPar(par.par.first.c_str(), par.par.second, par.mod, par.ch, previousValue)){
+		par.pif->PrintSglChanPar(par.par.first.c_str(), par.mod, par.ch, previousValue);
 		return true;
 	}
 	return false;
 }
 
 bool ParameterModuleWriter::operator()(PixieFunctionParms< std::pair<std::string, unsigned int> > &par){
-	if(par.pif->WriteSglModPar(par.par.first.c_str(), par.par.second, par.mod)){
-		par.pif->PrintSglModPar(par.par.first.c_str(), par.mod);
+	unsigned int previousValue;
+	if(par.pif->WriteSglModPar(par.par.first.c_str(), par.par.second, par.mod, previousValue)){
+		par.pif->PrintSglModPar(par.par.first.c_str(), par.mod, previousValue);
 		return true;
 	} 
 	return false;
@@ -344,14 +346,14 @@ bool ParameterModuleReader::operator()(PixieFunctionParms<std::string> &par){
 
 bool ParameterChannelDumper::operator()(PixieFunctionParms<std::string> &par){
 	double value;
-	par.pif->ReadSglChanPar(par.par.c_str(), &value, (int)par.mod, (int)par.ch);
+	par.pif->ReadSglChanPar(par.par.c_str(), value, (int)par.mod, (int)par.ch);
 	*file << par.mod << "\t" << par.ch << "\t" << par.par << "\t" << value << std::endl;
 	return true;
 }
 
 bool ParameterModuleDumper::operator()(PixieFunctionParms<std::string> &par){
 	PixieInterface::word_t value;
-	par.pif->ReadSglModPar(par.par.c_str(), &value, (int)par.mod);
+	par.pif->ReadSglModPar(par.par.c_str(), value, (int)par.mod);
 	*file << par.mod << "\t" << par.par << "\t" << value << std::endl;
 	return true;
 }

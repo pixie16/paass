@@ -66,7 +66,7 @@
   */
 bool IsNumeric(const std::string &input_, const std::string &prefix_/*=""*/, const std::string &msg_/*=""*/){
 	for(size_t i = 0; i < input_.size(); i++){
-		if((input_[i] < 0x30 || input_[i] > 0x39) && input_[i] != 0x2E){
+		if((input_[i] < 0x30 || input_[i] > 0x39) && input_[i] != 0x2D && input_[i] != 0x2E){
 			if(!msg_.empty()) std::cout << msg_ << " (" << input_ << ").\n";
 			return false;
 		}
@@ -82,14 +82,16 @@ std::vector<std::string> mod_params = {"MODULE_CSRA", "MODULE_CSRB", "MODULE_FOR
 									"FAST_FILTER_RANGE", "MODULE_NUMBER", "TrigConfig0", "TrigConfig1", "TrigConfig2","TrigConfig3"};
 
 const std::vector<std::string> Poll::runControlCommands_ ({"run", "stop", 
-	"startacq", "startvme", "stopacq", "stopvme", "acq", "shm", "spill", "hup", 
-	"prefix", "fdir", "title", "runnum", "oform", "close", "reboot", "stats", 
+	"startacq", "startvme", "stopacq", "stopvme", "timedrun", "acq", "shm", "spill",
+	"hup", "prefix", "fdir", "title", "runnum", "oform", "close", "reboot", "stats", 
 	"mca"});
+	
 const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread", 
 	"pmread", "pwrite", "pmwrite", "adjust_offsets", "find_tau", "toggle", 
 	"toggle_bit", "csr_test", "bit_test", "get_traces"});
+	
 const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "thresh", 
-	"debug", "quiet",	"quit", "help", "version"});
+	"debug", "quiet", "quit", "help", "version"});
 
 MCA_args::MCA_args(){ 
 	mca = NULL;
@@ -189,6 +191,7 @@ Poll::Poll() :
 	shm_mode(false),
 	pac_mode(false),
 	init(false),
+	runTime(-1.0),
 	// Options relating to output data file
 	output_directory("./"), // Set with 'fdir' command
 	filename_prefix("run"),
@@ -225,6 +228,21 @@ Poll::~Poll(){
 	delete pif;
 }
 
+void Poll::PrintModuleInfo() {
+	for (int mod=0; mod<pif->GetNumberCards(); mod++) {	
+		unsigned short revision, adcBits, adcMsps;
+		unsigned int serialNumber;
+		if (pif->GetModuleInfo(mod, &revision, &serialNumber, &adcBits, &adcMsps)) {
+			std::cout << "Module " << mod << ": " <<
+				"Serial Number " << serialNumber << ", " <<
+				"Rev " << std::hex << std::uppercase << revision << std::dec << " " <<
+					"(" << revision << "), " <<
+				adcBits << "-bit " << adcMsps << " MS/s " <<
+				std::endl;
+		}
+	}
+}
+
 bool Poll::Initialize(){
 	if(init){ return false; }
 
@@ -237,6 +255,8 @@ bool Poll::Initialize(){
 	// Initialize the pixie interface and boot
 	pif->GetSlots();
 	if(!pif->Init()){ return false; }
+
+	PrintModuleInfo();
 
 	//Boot the modules.
 	if(boot_fast){
@@ -299,8 +319,8 @@ bool Poll::Close(){
 	//Close the UDP data / SHM port.
 	client->Close();
 	
-	// Just to be safe
-	CloseOutputFile();
+	// Close any open files.
+	if(output_file.IsOpen()) CloseOutputFile();
 
 	//Delete the array of partial event vectors.
 	delete[] partialEvents;
@@ -320,14 +340,17 @@ bool Poll::Close(){
  *
  * \param[in] continueRun Flag indicating whether we are continuing the same run,
  *  but opening a new continuation file.
- *	\return True if the file was closed successfully.
+ * \return True if the file was closed successfully.
  */
 bool Poll::CloseOutputFile(const bool continueRun /*=false*/){
+	Display::LeaderPrint("Closing output file");
+
 	//No file was open.
 	if(!output_file.IsOpen()){ 
-		std::cout << sys_message_head << "No file is open.\n";
+		std::cout << Display::WarningStr() << std::endl;
+		std::cout << "|- No file is open.\n";
 		file_open = false;
-		return true;
+		return false;
 	}
 
 	//Clear the stats
@@ -336,20 +359,19 @@ bool Poll::CloseOutputFile(const bool continueRun /*=false*/){
 		statsHandler->Dump();
 	}
 
-	std::cout << sys_message_head << "Closing output file.\n";
+	output_file.CloseFile();
 
 	//Broadcast to Cory's SHM that the file is now closed.
 	if(!pac_mode){ client->SendMessage((char *)"$CLOSE_FILE", 12); }
 
-	output_file.CloseFile();
+	//Set the flag that no file is open.
+	file_open = false;
+	std::cout << Display::OkayStr() << std::endl;
 
 	//We call get next file name to update the run number.
 	if (!continueRun) {
 		output_file.GetNextFileName(next_run_num,filename_prefix,output_directory);
 	}
-
-	//Set the falg that no file is open.
-	file_open = false;
 
 	return true;
 }
@@ -367,16 +389,25 @@ bool Poll::CloseOutputFile(const bool continueRun /*=false*/){
  *  \return True if successfully opened a new file.
  */
 bool Poll::OpenOutputFile(bool continueRun){
+	Display::LeaderPrint("Opening output file");
 	//A file was already open
 	if(output_file.IsOpen()){ 
-		std::cout << Display::WarningStr() << ": A file is already open. Close the current file before opening a new one.\n"; 
+		std::cout << Display::ErrorStr() << std::endl;
+		std::cout << "|- A file is already open!\n";
+		CloseOutputFile();
+
+		had_error = true;
+		record_data = false;
+
 		return false;
 	}
 
 	//Try to open a file and check if unsuccessful.
 	if(!output_file.OpenNewFile(output_title, next_run_num, filename_prefix, output_directory, continueRun)){
+		std::cout << Display::ErrorStr() << std::endl;
 		//Unsuccessful when opening file print a message.
-		std::cout << Display::ErrorStr() << ": Failed to open output file! Check that the path is correct.\n";
+		std::cout << "|- Failed to open output file! Check that the path is correct.\n";
+		std::cout << "|- Filename: '" << output_file.GetCurrentFilename() << "'.\n";
 	
 		//Set the error flag and disable data recording.
 		had_error = true;
@@ -384,12 +415,13 @@ bool Poll::OpenOutputFile(bool continueRun){
 
 		return false;
 	}
+	std::cout <<Display::OkayStr() <<std::endl;
+	std::cout << "|- Filename: '" << output_file.GetCurrentFilename() << "'.\n";
 
 	//Clear the stats
 	statsHandler->Clear();
 	statsHandler->Dump();
 
-	std::cout << sys_message_head << "Opening output file '" << output_file.GetCurrentFilename() << "'.\n";
 	//When using Cory's SHM send a message that the file is open.
 	if(!pac_mode){ client->SendMessage((char *)"$OPEN_FILE", 12); }
 
@@ -425,8 +457,10 @@ bool Poll::synch_mods(){
 int Poll::write_data(word_t *data, unsigned int nWords){
 	// Open an output file if needed
 	if(!output_file.IsOpen()){
-		std::cout << Display::ErrorStr() << " Recording data, but no file is open! Opening a new file.\n";
-		OpenOutputFile();
+		std::cout << Display::ErrorStr() << " Recording data, but no file is open!\n";
+		do_stop_acq = true;
+		had_error = true;
+		return 0;
 	}
 
 	// Handle the writing of buffers to the file
@@ -434,10 +468,10 @@ int Poll::write_data(word_t *data, unsigned int nWords){
 	if(current_filesize + (std::streampos)(4*nWords + 65552) > MAX_FILE_SIZE){
 		// Adding nWords plus 2 EOF buffers to the file will push it over MAX_FILE_SIZE.
 		// Open a new output file instead
+		std::cout << sys_message_head << "Maximum ifile size reached. New output file will be created.\n";
 		std::cout << sys_message_head << "Current filesize is " << current_filesize + (std::streampos)65552 << " bytes.\n";
-		std::cout << sys_message_head << "Opening new file.\n";
 		CloseOutputFile(true);
-		OpenOutputFile(true);
+		OpenOutputFile(true); 
 	}
 
 	if (!is_quiet) std::cout << "Writing " << nWords << " words.\n";
@@ -598,6 +632,7 @@ void Poll::help(){
 		std::cout << "   stop                - Stop data acqusition and stop recording data to disk\n";	
 		std::cout << "   startacq (startvme) - Start data acquisition\n";
 		std::cout << "   stopacq (stopvme)   - Stop data acquisition\n";
+		std::cout << "   timedrun <seconds>  - Run for the specified number of seconds\n";
 		std::cout << "   acq (shm)           - Run in \"shared-memory\" mode\n";
 		std::cout << "   spill (hup)         - Force dump of current spill\n";
 		std::cout << "   prefix [name]       - Set the output filename prefix (default='run_#.ldf')\n";
@@ -605,23 +640,22 @@ void Poll::help(){
 		std::cout << "   title [runTitle]    - Set the title of the current run (default='PIXIE Data File)\n";
 		std::cout << "   runnum [number]     - Set the number of the current run (default=0)\n";
 		std::cout << "   oform [0|1|2]       - Set the format of the output file (default=0)\n";
-		std::cout << "   close (clo)         - Safely close the current data output file\n";
 		std::cout << "   reboot              - Reboot PIXIE crate\n";
 		std::cout << "   stats [time]        - Set the time delay between statistics dumps (default=-1)\n";
 		std::cout << "   mca [root|damm] [time] [filename]     - Use MCA to record data for debugging purposes\n";
 	}
 	std::cout << "   dump [filename]                       - Dump pixie settings to file (default='Fallback.set')\n";
-	std::cout << "   pread [mod] [chan] [param]            - Read parameters from individual PIXIE channels\n";
-	std::cout << "   pmread [mod] [param]                  - Read parameters from PIXIE modules\n";
-	std::cout << "   pwrite [mod] [chan] [param] [val]     - Write parameters to individual PIXIE channels\n";
-	std::cout << "   pmwrite [mod] [param] [val]           - Write parameters to PIXIE modules\n";
-	std::cout << "   adjust_offsets [module]               - Adjusts the baselines of a pixie module\n";
-	std::cout << "   find_tau [module] [channel]           - Finds the decay constant for an active pixie channel\n";
-	std::cout << "   toggle [module] [channel] [bit]       - Toggle any of the 19 CHANNEL_CSRA bits for a pixie channel\n";
-	std::cout << "   toggle_bit [mod] [chan] [param] [bit] - Toggle any bit of any parameter of 32 bits or less\n";
-	std::cout << "   csr_test [number]                     - Output the CSRA parameters for a given integer\n";
-	std::cout << "   bit_test [num_bits] [number]          - Display active bits in a given integer up to 32 bits long\n";
-	std::cout << "   get_traces [mod] [chan] <threshold>   - Get traces for all channels in a specified module\n";
+	std::cout << "   pread <mod> <chan> <param>            - Read parameters from individual PIXIE channels\n";
+	std::cout << "   pmread <mod> <param>                  - Read parameters from PIXIE modules\n";
+	std::cout << "   pwrite <mod> <chan> <param> <val>     - Write parameters to individual PIXIE channels\n";
+	std::cout << "   pmwrite <mod> <param> <val>           - Write parameters to PIXIE modules\n";
+	std::cout << "   adjust_offsets <module>               - Adjusts the baselines of a pixie module\n";
+	std::cout << "   find_tau <module> <channel>           - Finds the decay constant for an active pixie channel\n";
+	std::cout << "   toggle <module> <channel> <bit>       - Toggle any of the 19 CHANNEL_CSRA bits for a pixie channel\n";
+	std::cout << "   toggle_bit <mod> <chan> <param> <bit> - Toggle any bit of any parameter of 32 bits or less\n";
+	std::cout << "   csr_test <number>                     - Output the CSRA parameters for a given integer\n";
+	std::cout << "   bit_test <num_bits> <number>          - Display active bits in a given integer up to 32 bits long\n";
+	std::cout << "   get_traces <mod> <chan> [threshold]   - Get traces for all channels in a specified module\n";
 	std::cout << "   status              - Display system status information\n";
 	std::cout << "   thresh [threshold]  - Modify or display the current polling threshold.\n";
 	std::cout << "   debug               - Toggle debug mode flag (default=false)\n";
@@ -629,43 +663,6 @@ void Poll::help(){
 	std::cout << "   quit                - Close the program\n";
 	std::cout << "   help (h)            - Display this dialogue\n";
 	std::cout << "   version (v)         - Display Poll2 version information\n";
-}
-
-std::vector<std::string> Poll::TabComplete(std::string cmd) {
-	std::vector<std::string> matches;
-	std::vector<std::string>::iterator it;
-	
-	//If we have no space then we are auto completing a command.	
-	if (cmd.find(" ") == std::string::npos) {
-		for (it=commands_.begin(); it!=commands_.end();++it) {
-			if ((*it).find(cmd) == 0) {
-				matches.push_back((*it).substr(cmd.length()));
-			}
-		}
-	}
-	else {
-		//Get the trailing str part to complete
-		std::string strToComplete = cmd.substr(cmd.find_last_of(" ")+1);
-
-		//If the inital command is pwrite or pread we try to auto complete the param names
-		if (cmd.find("pwrite") == 0 || cmd.find("pread") == 0) {
-			for (auto it=chan_params.begin(); it!=chan_params.end();++it) {
-				if ((*it).find(strToComplete) == 0) 
-					matches.push_back((*it).substr(strToComplete.length()));
-			}
-		}
-
-		//If the inital command is pmwrite or pmread we try to auto complete the param names
-		if (cmd.find("pmwrite") == 0 || cmd.find("pmread") == 0) {
-			for (auto it=mod_params.begin(); it!=mod_params.end();++it) {
-				if ((*it).find(strToComplete) == 0) 
-					matches.push_back((*it).substr(strToComplete.length()));
-			}
-		}
-
-	}
-
-	return matches; 
 }
 
 /* Print help dialogue for reading/writing pixie channel parameters. */
@@ -688,9 +685,11 @@ void Poll::pmod_help(){
  * If the file was successfully opened the acquisition is started.
  * If a run is already started a warning is displayed and the process is stopped.
  *
+ * \param[in] record_ Record a data file.
+ * \param[in] time_ The approximate number of seconds to run the acquisition.
  * \return Returns true if successfully starts a run.
  */
-bool Poll::start_run() {
+bool Poll::start_run(const bool &record_/*=true*/, const double &time_/*=-1.0*/){
 	if(do_MCA_run){
 		std::cout << sys_message_head << "Warning! Cannot run acquisition while MCA program is running\n";
 		return false;
@@ -700,15 +699,16 @@ bool Poll::start_run() {
 		return false;
 	}
 
-	//Close a file if open
-	if(output_file.IsOpen()){ CloseOutputFile();	}
+	// Set the acquistion time.
+	runTime = time_;
 
-	//Preapre the output file
-	if (!OpenOutputFile()) return false;
-	record_data = true;
+	if(runTime > 0.0)
+		std::cout << sys_message_head << "Running for approximately " << runTime << " seconds.\n";
+
+	record_data = record_;
 
 	//Start the acquistion
-	start_acq();
+	do_start_acq = true;
 
 	return true;
 }
@@ -724,52 +724,19 @@ bool Poll::stop_run() {
 		return false;
 	}
 
-	stop_acq();
+	// Stop the acquisition.
+	do_stop_acq = true;
 	
 	if (record_data) {
 		std::stringstream output;
 		output << "Run " << output_file.GetRunNumber() << " time";
 		Display::LeaderPrint(output.str());
 		std::cout << statsHandler->GetTotalTime() << "s\n";
+
 	}
 
 	record_data = false;
-	return true;
-}
-
-/**Starts data acquistion. The process then waits until the acquistion is running.
- *	
- *	\return Returns true if successful.
- */
-bool Poll::start_acq() {
-	if(do_MCA_run){ 
-		std::cout << sys_message_head << "Warning! Cannot run acquisition while MCA program is running\n"; 
-		return false;
-	}
-	else if (acq_running) { 
-		std::cout << sys_message_head << "Acquisition is already running\n"; 
-		return false;
-	}
-
-	//Set start acq flag to be intercepted by run control.
-	do_start_acq = true;
-
-	return true;
-}
-
-/**Stops data acquistion. The process waits until the acquistion is stopped.
- * 
- * \return Returns true if succesful.
- */
-bool Poll::stop_acq() {
-	if(!acq_running && !do_MCA_run){ 
-		std::cout << sys_message_head << "Acquisition is not running\n"; 
-		return false;
-	}
-
-	//Set stop_acq flag to be intercepted by run control.
-	do_stop_acq = true;
-
+	
 	return true;
 }
 
@@ -941,7 +908,7 @@ void Poll::CommandControl(){
 			}
 		}
 	
-		cmd = poll_term_->GetCommand();
+		cmd = poll_term_->GetCommand(arg);
 		if(cmd == "_SIGSEGV_"){
 			std::cout << Display::ErrorStr("SEGMENTATION FAULT") << std::endl;
 			Close();
@@ -967,21 +934,23 @@ void Poll::CommandControl(){
 			continue; 
 		}	
 
-		if (cmd.find("\t") != std::string::npos) {
-			poll_term_->TabComplete(TabComplete(cmd.substr(0,cmd.length()-1)));
+		if (cmd.find("\t") != std::string::npos) { // Completing a command.
+			poll_term_->TabComplete(cmd, commands_);
+			continue;
+		}
+		else if (arg.find("\t") != std::string::npos) { // Completing the argument.
+			if(cmd == "pread" || cmd == "pwrite")
+				poll_term_->TabComplete(arg, chan_params);
+			else if(cmd == "pmread" || cmd == "pmwrite")
+				poll_term_->TabComplete(arg, mod_params);
+			else if(cmd == "toggle")
+				poll_term_->TabComplete(arg, BitFlipper::toggle_names);
 			continue;
 		}
 		poll_term_->flush();
 
 		if(cmd == ""){ continue; }
 		
-		size_t index = cmd.find(" ");
-		if(index != std::string::npos){
-			arg = cmd.substr(index+1, cmd.size()-index); // Get the argument from the full input string
-			cmd = cmd.substr(0, index); // Get the command from the full input string
-		}
-		else{ arg = ""; }
-
 		std::vector<std::string> arguments;
 		unsigned int p_args = split_str(arg, arguments);
 		
@@ -1238,7 +1207,8 @@ void Poll::CommandControl(){
 			if(p_args >= 2){ 
 				if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid number of bits specified")) continue;
 				else if(!IsNumeric(arguments.at(2), sys_message_head, "Invalid parameter value specification")) continue;
-				flipper.Test((unsigned int)atoi(arguments.at(0).c_str()), std::strtoul(arguments.at(1).c_str(), NULL, 0)); 
+				std::vector<std::string> empty_vector;
+				flipper.Test((unsigned int)atoi(arguments.at(0).c_str()), std::strtoul(arguments.at(1).c_str(), NULL, 0), empty_vector); 
 			}
 			else{
 				std::cout << sys_message_head << "Invalid number of parameters to bit_test\n";
@@ -1312,16 +1282,31 @@ void Poll::CommandControl(){
 			}
 		}
 		else if(!pac_mode){ // These command are only available when not running in pacman mode!
-			if(cmd == "run"){ start_run(); } // Tell POLL to start acq and start recording data to disk
-			else if(cmd == "startacq" || cmd == "startvme"){ // Tell POLL to start data acquisition
-				start_acq();
+			if(cmd == "run"){ // Tell POLL to start acq and start recording data to disk.
+				start_run();
+			} 
+			else if(cmd == "timedrun"){
+				if(!arg.empty()){
+					double runSeconds = strtod(arg.c_str(), NULL);
+					if(IsNumeric(arg) && runSeconds > 0.0)
+						start_run(true, runSeconds); 
+					else
+						std::cout << sys_message_head << Display::ErrorStr() << " User attempted to run for an invalid length of time (" << arg << ")!\n";
+				}
+				else{
+					std::cout << sys_message_head << "Invalid number of parameters to timedrun\n";
+					std::cout << sys_message_head << " -SYNTAX- timedrun <seconds>\n";
+				}
 			}
-			else if(cmd == "stop"){ // Tell POLL to stop recording data to disk and stop acq
+			else if(cmd == "startacq" || cmd == "startvme"){ // Tell POLL to start data acquisition without recording to disk.
+				start_run(false);
+			}
+			else if(cmd == "clo") {
+				CloseOutputFile();
+			}
+			else if(cmd == "stop" || cmd == "stopacq" || cmd == "stopvme"){ // Tell POLL to stop recording data to disk and stop acq.
 				stop_run();
 			} 
-			else if(cmd == "stopacq" || cmd == "stopvme"){ // Tell POLL to stop data acquisition
-				stop_acq();
-			}
 			else if(cmd == "shm"){ // Toggle "shared-memory" mode
 				if(shm_mode){
 					std::cout << sys_message_head << "Toggling shared-memory mode OFF\n";
@@ -1339,11 +1324,6 @@ void Poll::CommandControl(){
 					do_reboot = true; 
 					poll_term_->pause(do_reboot);
 				}
-			}
-			else if(cmd == "clo" || cmd == "close"){ // Tell POLL to close the current data file
-				if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
-				else if(acq_running && record_data){ std::cout << sys_message_head << "Warning! Cannot close file while acquisition running\n"; }
-				else{ CloseOutputFile(); }
 			}
 			else if(cmd == "hup" || cmd == "spill"){ // Force spill
 				if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
@@ -1401,7 +1381,14 @@ void Poll::CommandControl(){
 					std::cout << sys_message_head << Display::WarningStr("Warning:") << " Run title cannot be changed while a file is open!\n";
 				}
 				else {
-					output_title = arg; 
+					//Check if argument is within double quotes and strip them. Otherwise take the whole argument.
+					if (arg.find_first_of('"') == 0 && arg.find_last_of('"') == arg.length() - 1) 
+						output_title = arg.substr(1,arg.length() - 2);
+					else output_title = arg; 
+					if(output_format == 0 && output_title.size() > 80){
+						std::cout << sys_message_head << Display::WarningStr("Warning:") << " Title length " << output_title.size() - 80 << " characters too long for ldf format!\n";
+						output_title = output_title.substr(0, 80);
+					}
 					std::cout << sys_message_head << "Set run title to '" << output_title << "'.\n";
 				}
 			} 
@@ -1488,6 +1475,8 @@ void Poll::CommandControl(){
 
 /// Function to control the gathering and recording of PIXIE data
 void Poll::RunControl(){
+	time_t acqStartTime;
+	time_t currentTime;
 	while(true){
 		if(kill_all){ // Supersedes all other commands
 			if(acq_running || mca_args.IsRunning()){ do_stop_acq = true; } // Safety catch
@@ -1543,13 +1532,29 @@ void Poll::RunControl(){
 		//Start acquistion
 		if (do_start_acq) {
 			if (!acq_running) {
+				if(record_data){
+					//Close a file if open
+					if(output_file.IsOpen()){ 
+						std::cout << Display::WarningStr() << " Unexpected output file open!\n";
+						CloseOutputFile(); 
+					}
+
+					//Prepare the output file
+					if (!OpenOutputFile()) {
+						do_start_acq = false;
+						acq_running = false;
+						record_data = false;
+						had_error = true;
+						continue;
+					}
+				}
+
 				//Start list mode
 				if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)) {
-					time_t currTime;
-					time(&currTime);
+					time(&acqStartTime);
 					if (record_data) std::cout << "Run " << output_file.GetRunNumber();
 					else std::cout << "Acq";
-					std::cout << " started on " << ctime(&currTime);
+					std::cout << " started on " << ctime(&acqStartTime);
 
 					acq_running = true;
 					startTime = usGetTime(0);
@@ -1569,15 +1574,20 @@ void Poll::RunControl(){
 		}
 
 		if(acq_running){
-			ReadFIFO();
+			// Check the run time.
+			time(&currentTime);
 
+			if(runTime > 0.0 && difftime(currentTime, acqStartTime) >= runTime)
+				stop_run(); // Handle this cleanly.
+			
 			//Handle a stop signal
 			if(do_stop_acq){ 
+				// Read data from the modules.
+				ReadFIFO();
+
+				// Instruct all modules to end the current run.
 				pif->EndRun();
 
-				time_t currTime;
-				time(&currTime);
-				
 				// Check if each module has ended its run properly.
 				for(size_t mod = 0; mod < n_cards; mod++){
 					//If the run status is 1 then the run has not finished in the module.
@@ -1613,16 +1623,22 @@ void Poll::RunControl(){
 
 				if (record_data) std::cout << "Run " << output_file.GetRunNumber();
 				else std::cout << "Acq";
-				std::cout << " stopped on " << ctime(&currTime);
+				std::cout << " stopped on " << ctime(&currentTime);
 
 				statsHandler->ClearRates();
 				statsHandler->Dump();
 				statsHandler->ClearTotals();
 
+				//Close the output file
+				if(output_file.IsOpen()) CloseOutputFile();
+
 				//Reset status flags
 				do_stop_acq = false;
 				acq_running = false;
 			} //if (do_stop_acq) -- End of handling a stop acq flag
+			
+			// Read data from the modules.
+			ReadFIFO();
 		}
 	
 		UpdateStatus();
@@ -1888,44 +1904,6 @@ std::string humanReadable(double size) {
 	else if (power >= 3) output << size/1024 << "kB";
 	else output << " " << size << "B";
 	return output.str(); 
-}
-
-
-/**Split a string on the delimiter character populating the vector args with 
- * any substrings formed. Returns the number of substrings found.
- *	
- *	\param[in] str The string to be parsed.
- * \param[out] args The vector to populate with substrings.
- * \param[in] delimiter The character to split the string on.
- * \return The number of substrings found.
- */
-unsigned int split_str(std::string str, std::vector<std::string> &args, char delimiter){
-	args.clear();
-	
-	//Locate the first non delimiter space.
-	size_t strStart = str.find_first_not_of(delimiter);
-	//In case of a line with only delimiters we return 0.
-	if (strStart == std::string::npos) return 0;
-
-	//Locate the last character that is not a delimiter.
-	size_t strStop = str.find_last_not_of(delimiter) + 1;
-
-	//We loop over the string searching for the delimiter keeping track of where 
-	// we found the current delimiter and the previous one.
-	size_t pos = strStart;
-	size_t lastPos = strStart;
-	while ((pos = str.find(delimiter, lastPos)) != std::string::npos) {
-		//Store the substring from the last non delimiter to the current delimiter.
-		args.push_back(str.substr(lastPos, pos - lastPos));
-		//We update the last position looking for the first character that is not
-		// a delimiter.
-		lastPos = str.find_first_not_of(delimiter, pos+1);
-		
-	}
-	//Store the last string.
-	args.push_back(str.substr(lastPos, strStop - lastPos));
-
-	return args.size();
 }
 
 /* Pad a string with '.' to a specified length. */
