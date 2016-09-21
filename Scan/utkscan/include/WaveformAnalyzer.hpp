@@ -6,6 +6,7 @@
 #define __WAVEFORMANALYZER_HPP_
 
 #include "Globals.hpp"
+#include "Messenger.hpp"
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 
@@ -14,10 +15,13 @@ class WaveformAnalyzer : public TraceAnalyzer {
 public:
     /** Default Constructor */
     WaveformAnalyzer();
+
     /** Default destructor */
     ~WaveformAnalyzer() {}
+
     /** Declare the plots */
     virtual void DeclarePlots(void) const {}
+
     /** Do the analysis on traces
     * \param [in] trace : the trace to analyze
     * \param [in] type : the detector type
@@ -25,15 +29,20 @@ public:
     * \param [in] tags : the map of the tags for the channel */
     virtual void Analyze(Trace &trace, const std::string &type,
                          const std::string &subtype,
-                         const std::map<std::string, int> & tags);
+                         const std::map<std::string, int> &tags);
+
 private:
+
     double mean_; //!< The mean of the baseline
     unsigned int mval_; //!< the maximum value in the trace
-    std::pair<Trace::iterator,Trace::iterator> wrng_; //!< the waveform range
+    Messenger *messenger_;//!< A pointer for the messenger class
+    Globals *g_; //!< A pointer to the globals class for the class
+    std::pair<Trace::iterator, Trace::iterator> waverng_; //!< the waveform
+//!< range
     Trace::iterator bhi_; //!< high value for baseline calculation
     Trace *trc_; //!< A pointer to the trace for the class
-    Globals *g_; //!< A pointer to the globals class for the class
-    
+
+
     /** Performs the baseline calculation
     * \param [in] lo : the low range for the baseline calculation
     * \param [in] numBins : The number of bins for the baseline calculation
@@ -53,4 +62,5 @@ private:
     * \return The position of the maximum value in the trace */
     bool FindWaveform(const unsigned int &lo, const unsigned int &hi);
 };
+
 #endif // __WAVEFORMANALYZER_HPP_

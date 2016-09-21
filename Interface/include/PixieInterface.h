@@ -95,12 +95,16 @@ class PixieInterface
   // wrappers to the pixie-16 app functions
   bool Init(bool offlineMode = false);
   bool Boot(int mode = 0x7f, bool useWorkingSetFile = false);
-  bool WriteSglModPar(const char *name, unsigned int val, int mod);
-  bool ReadSglModPar(const char *name, word_t *pval, int mod);
+  bool WriteSglModPar(const char *name, word_t val, int mod);
+  bool WriteSglModPar(const char *name, word_t val, int mod, word_t &pval);
+  bool ReadSglModPar(const char *name, word_t &val, int mod);
   void PrintSglModPar(const char *name, int mod);
+  void PrintSglModPar(const char *name, int mod, word_t prev);
   bool WriteSglChanPar(const char *name, double val, int mod, int chan);
-  bool ReadSglChanPar(const char *name, double *pval, int mod, int chan);
+  bool WriteSglChanPar(const char *name, double val, int mod, int chan, double &pval);
+  bool ReadSglChanPar(const char *name, double &val, int mod, int chan);
   void PrintSglChanPar(const char *name, int mod, int chan);
+  void PrintSglChanPar(const char *name, int mod, int chan, double prev);
   bool SaveDSPParameters(const char *fn = NULL);
   bool AcquireTraces(int mod);
   // # AcquireTraces must be called before calling this #
@@ -115,6 +119,7 @@ class PixieInterface
   double GetLiveTime(int mod, int chan);
   double GetRealTime(int mod);
   double GetProcessedEvents(int mod);
+	bool GetModuleInfo(unsigned short mod, unsigned short *rev, unsigned int *serNum, unsigned short *adcBits, unsigned short *adcMsps); 
   // # #
   bool StartHistogramRun(unsigned short mode = NEW_RUN);
   bool StartHistogramRun(unsigned short mod, unsigned short mode);
