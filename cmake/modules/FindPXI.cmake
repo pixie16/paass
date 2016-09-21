@@ -46,7 +46,7 @@ function(PXI_CONFIG)
 		firmware/syspixie16*.bin #ComFpgaFile
 		dsp/Pixie16DSP*.ldr #DspConfFile
 		dsp/Pixie16DSP*.var #DspVarFile
-		test/pxisys.ini #CrateConfig
+		test/pxisys*.ini #CrateConfig
 		configuration/slot_def.set #SlotFile
 		configuration/default.set #DspSetFile
 	)
@@ -64,7 +64,9 @@ function(PXI_CONFIG)
 		#Check that a unique match was found
 		list(LENGTH FILE_MATCHES NUM_MATCHES)
 		if (NOT NUM_MATCHES EQUAL 1)
-			message(STATUS "Warning: Unable to complete configuration! Unique ${KEY} file (${GLOB_EXPR}) not found!")
+			message(STATUS "WARNING: Unable to autocomplete configuration! Unique ${KEY} file (${GLOB_EXPR}) not found!")
+			file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg 
+				"# Multiple options found! Make a choice on the following line and remove this comment.\n")
 		endif()
 
 		if (${KEY} MATCHES "SlotFile")
@@ -78,8 +80,15 @@ function(PXI_CONFIG)
 			if (NUM_MATCHES EQUAL 1)
 				configure_file(${PXI_ROOT_DIR}/${FILE_MATCHES} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake 
-					"file(INSTALL default.set DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n")
-				set(FILE_MATCHES ./default.set)
+					"file(INSTALL default.set 
+						PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+						DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n")
+				#Rename set file to current.set to maintain default.set for backup
+				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake 
+					"file(INSTALL default.set 
+						RENAME current.set
+						DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n")
+				set(FILE_MATCHES ./current.set)
 			endif()
 		endif ()
 		#Append the config file
@@ -87,6 +96,6 @@ function(PXI_CONFIG)
 	endforeach()
 
 	#Added the working set file name
-	file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "DspWorkingSetFile\t./default.set")
+	file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "DspWorkingSetFile\t./current.set")
 
 endfunction()

@@ -14,9 +14,9 @@
   *
   * \author Cory R. Thornsberry
   * 
-  * \date Aug. 4th, 2016
+  * \date Sept. 19th, 2016
   * 
-  * \version 1.2.12
+  * \version 1.3.00
 */
 
 #include <sstream>
@@ -42,9 +42,11 @@
 #define ENDFILE 541478725 /// End of file buffer
 #define ENDBUFF 0xFFFFFFFF /// End of buffer marker
 
+#define LDF_DATA_LENGTH 8193 // Maximum length of an ldf style DATA buffer.
+
 const unsigned int end_spill_size = 20; /// The size of the end of spill "event" (5 words).
 const unsigned int pacman_word1 = 2; /// Words to signify the end of a spill. The scan code searches for these words.
-const unsigned int pacman_word2 = 9999; /// End of spill vln. The scan code searches for these words.
+const unsigned int pacman_word2 = 9999; /// End of spill vsn. The scan code searches for these words.
 
 ///
 void set_char_array(const std::string &input_, char *arr_, const unsigned int &size_){
@@ -615,11 +617,9 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 	buffs_written = 0;
 
 	// If this is a new buffer, write a buffer header.
-	if(buff_pos == 0){
-		file_->write((char*)&bufftype, 4);
-		file_->write((char*)&buffsize, 4);
-		buff_pos = 2;
-	}
+	// We are currently at the start of a new buffer. No need to close.
+	if(buff_pos == 0)
+		open_(file_);
 
 	unsigned int spillpos = 0;
 	unsigned int chunkPayload;
@@ -633,8 +633,11 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 
 	// Calculate the total number of spill chunks.
 	while(spillpos < nWords_){
-		if(nWords_ - spillpos > 8190 - oldBuffPos)
-			chunkPayload = 8190 - oldBuffPos;
+		if(oldBuffPos + 4 > LDF_DATA_LENGTH)
+			oldBuffPos = 2;
+			
+		if(nWords_ - spillpos + 4 > LDF_DATA_LENGTH - oldBuffPos)
+			chunkPayload = LDF_DATA_LENGTH - oldBuffPos - 4;
 		else
 			chunkPayload = nWords_ - spillpos;
 		
@@ -643,7 +646,7 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 		
 		totalNumChunks++;
 		
-		if(oldBuffPos >= 8194)
+		if(oldBuffPos >= LDF_DATA_LENGTH)
 			oldBuffPos = 2;
 	}
 	
@@ -655,8 +658,14 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 	
 	// Write the spill.
 	while(spillpos < nWords_){
-		if(nWords_ - spillpos > 8190 - buff_pos)
-			chunkPayload = 8190 - buff_pos;
+		if(buff_pos + 4 > LDF_DATA_LENGTH){
+			buffs_written++;
+			Close(file_);
+			open_(file_);
+		}
+		
+		if(nWords_ - spillpos + 4 > LDF_DATA_LENGTH - buff_pos)
+			chunkPayload = LDF_DATA_LENGTH - buff_pos - 4;
 		else
 			chunkPayload = nWords_ - spillpos;
 		
@@ -677,14 +686,21 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 		buff_pos += chunkPayload + 4;
 		arrptr += 4*chunkPayload;
 		
-		if(buff_pos >= 8194){
+		if(buff_pos > LDF_DATA_LENGTH)
+			std::cout << "WARNING: Current ldf buffer overfilled by " << buff_pos - LDF_DATA_LENGTH << " words!\n";
+		
+		if(buff_pos >= LDF_DATA_LENGTH){
 			buffs_written++;
+			Close(file_);
 			open_(file_);
 		}
 	}
 
+	if(buff_pos > LDF_DATA_LENGTH)
+		std::cout << "WARNING: Final ldf buffer overfilled by " << buff_pos - LDF_DATA_LENGTH << " words!\n";
+
 	// Write the spill footer.
-	if(buff_pos + 6 > 8194){
+	if(buff_pos + 6 > LDF_DATA_LENGTH){
 		buffs_written++;
 		open_(file_);
 	}

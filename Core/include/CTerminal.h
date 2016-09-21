@@ -25,8 +25,8 @@
 ///Default size of terminal scroll back buffer in lines.
 #define SCROLLBACK_SIZE 1000
 
-#define CTERMINAL_VERSION "1.2.08"
-#define CTERMINAL_DATE "June 16th, 2016"
+#define CTERMINAL_VERSION "1.2.10"
+#define CTERMINAL_DATE "Sept. 7th, 2016"
 
 #include <curses.h>
 
@@ -34,48 +34,6 @@ extern std::string CPP_APP_VERSION;
 
 template <typename T>
 std::string to_str(const T &input_);
-
-// Default target for get_opt
-void dummy_help();
-
-///////////////////////////////////////////////////////////////////////////////
-// CLoption
-///////////////////////////////////////////////////////////////////////////////
-
-struct CLoption{
-	char opt;
-	std::string alias;
-	std::string value;
-	bool require_arg;
-	bool optional_arg;
-	bool is_active;
-	
-	CLoption(){
-		Set("NULL", false, false);
-		opt = 0x0;
-		value = "";
-		is_active = false;
-	}
-	
-	CLoption(std::string name_, bool require_arg_, bool optional_arg_){
-		Set(name_, require_arg_, optional_arg_);
-		value = "";
-		is_active = false;
-	}
-	
-	void Set(std::string name_, bool require_arg_, bool optional_arg_){
-		opt = name_[0]; alias = name_; require_arg = require_arg_; optional_arg = optional_arg_;
-	}
-};
-
-/// Parse all command line entries and find valid options.
-bool get_opt(unsigned int argc_, char **argv_, CLoption *options, unsigned int num_valid_opt_, void (*help_)()=dummy_help);
-
-/// Return the length of a character string.
-unsigned int cstrlen(char *str_);
-
-/// Extract a string from a character array.
-std::string csubstr(char *str_, unsigned int start_index_=0);
 
 ///////////////////////////////////////////////////////////////////////////////
 // CommandHolder
@@ -142,51 +100,6 @@ class CommandHolder{
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// CommandString
-///////////////////////////////////////////////////////////////////////////////
-
-class CommandString{
-  private:
-	std::string command;
-	bool insert_mode;
-	
-  public:
-	CommandString(){ 
-		command = ""; 
-		insert_mode = false;
-	}
-	
-	/// Return the current "insert character" mode
-	bool GetInsertMode(){ return insert_mode; }
-	
-	/// Toggle "insert character" mode on or off
-	void ToggleInsertMode(){
-		if(insert_mode){ insert_mode = false; }
-		else{ insert_mode = true; }
-	}
-	
-	/// Return the size of the command string
-	unsigned int GetSize(){ return command.size(); }
-	
-	/// Return the command string
-	std::string Get(size_t size_=std::string::npos){ return command.substr(0, size_); }
-	
-	/// Set the string the the specified input.
-	void Set(std::string input_){ command = input_; }	
-	
-	/// Put a character into string at specified position.
-	void Put(const char ch_, unsigned int index_);
-
-	void Insert(size_t pos, const char* str);
-	
-	/// Remove a character from the string.
-	void Pop(unsigned int index_);
-	
-	/// Clear the string.
-	void Clear(){ command = ""; }
-};
-
-///////////////////////////////////////////////////////////////////////////////
 // Terminal
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -206,7 +119,7 @@ class Terminal{
 	WINDOW *input_window;
 	WINDOW *status_window;
 	CommandHolder commands;
-	CommandString cmd;
+	std::string cmd;
 	bool init;
 	int cursX, cursY;
 	int offset;
@@ -219,8 +132,10 @@ class Terminal{
 	///The tab complete flag
 	bool enableTabComplete;
 	float commandTimeout_; ///<Time in seconds to wait for command.
+	bool insertMode_;
 
 	short tabCount;
+	bool debug_; ///<Flag indicating verbose output is enabled.
 
 	std::ofstream logFile;
 
@@ -268,6 +183,9 @@ class Terminal{
 
 	/// Force a character string to the output screen
 	void print(WINDOW *window, std::string input_);
+
+	/// Split a string into multiple commands separated by a ';'.
+	void split_commands(const std::string &input_, std::deque<std::string> &cmds);
 			
   public:
 	Terminal();
@@ -279,6 +197,9 @@ class Terminal{
 	
 	///Specify the log file to append.
 	bool SetLogFile(std::string logFileName);
+		
+	///Initalize terminal debug mode.
+	void SetDebug(bool debug=true) {debug_=debug;};
 
 	/// Initalizes a status window under the input temrinal.
 	void AddStatusWindow(unsigned short numLines = 1);
@@ -295,7 +216,8 @@ class Terminal{
 	///Enable tab auto complete functionlity.
 	void EnableTabComplete(bool enable = true);
 	
-	void TabComplete(std::vector<std::string> matches);
+	///Handle tab complete functionality.
+	void TabComplete(const std::string &input_, const std::vector<std::string> &possibilities_);
 
 	///Enable a timeout while waiting fro a command.
 	void EnableTimeout(float timeout = 0.5);
@@ -315,11 +237,18 @@ class Terminal{
 	/// Dump all text in the stream to the output screen
 	void flush();
 
+	/// Print a command to the terminal output.
+	void PrintCommand(const std::string &cmd_);
+
 	/// Wait for the user to input a command
-	std::string GetCommand(const int &prev_cmd_return_=0);
+	std::string GetCommand(std::string &args, const int &prev_cmd_return_=0);
 	
 	/// Close the window and restore control to the terminal
 	void Close();
 };
+
+/// Split a string about some delimiter.
+unsigned int split_str(std::string str, std::vector<std::string> &args, char delimiter=' ');
+
 
 #endif

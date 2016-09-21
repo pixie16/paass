@@ -18,6 +18,7 @@
 #include "TAxis.h"
 #include "TFile.h"
 #include "TF1.h"
+#include "TLine.h"
 #include "TProfile.h"
 #include "TPaveStats.h"
 
@@ -29,9 +30,29 @@
 #define ADC_TIME_STEP 4 // ns
 #define SLEEP_WAIT 1E4 // When not in shared memory mode, length of time to wait after gSystem->ProcessEvents is called (in us).
 
+/**The Paulauskas function is described in NIM A 737 (22), with a slight 
+ * adaptation. We use a step function such that f(x < phase) = baseline.
+ * In addition, we also we formulate gamma such that the gamma in the paper is
+ * gamma_prime = 1 / pow(gamma, 0.25).
+ *
+ * The parameters are:
+ * p[0] = baseline
+ * p[1] = amplitude
+ * p[2] = phase
+ * p[3] = beta
+ * p[4] = gamma
+ *
+ * \param[in] x X value.
+ * \param[in] p Paramater values.
+ *
+ * \return the value of the function for the specified x value and parameters.
+ */
 double PaulauskasFitFunc(double *x, double *p) {
+	//Compute the time difference between x and the phase corrected for clock ticks.
 	float diff = (x[0] - p[2])/ADC_TIME_STEP;
-	if (diff < 0 ) return 0;
+	//If the difference is less than zero we return the baseline.
+	if (diff < 0 ) return p[0];
+	//Return the computed function.
 	return p[0] + p[1] * exp(-diff * p[3]) * (1 - exp(-pow(diff * p[4],4)));
 }
 
@@ -103,8 +124,13 @@ scopeScanner::scopeScanner(int mod /*= 0*/, int chan/*=0*/) : ScanInterface() {
 	singleCapture_ = false;
 	init = false;
 	running = true;
+	performFit_ = false;
+	performCfd_ = false;
 	numEvents = 20;
 	numAvgWaveforms_ = 1;
+	cfdF_ = 0.5;
+	cfdD_ = 1;
+	cfdL_ = 1;
 	fitLow_ = 10;
 	fitHigh_ = 15;
 	delay_ = 2;
@@ -116,15 +142,15 @@ scopeScanner::scopeScanner(int mod /*= 0*/, int chan/*=0*/) : ScanInterface() {
 	gSystem->Load("libTree");
 	
 	canvas = new TCanvas("scope_canvas", "scopeScanner");
-	canvas->cd();
 	
 	graph = new TGraph();
-	graph->SetMarkerStyle(kFullDotSmall);
+	cfdGraph = new TGraph();
+	cfdLine = new TLine();
+	cfdLine->SetLineColor(2);
+	
 	hist = new TH2F("hist","",256,0,1,256,0,1);
 
-	paulauskasFunc = new TF1("paulauskas",PaulauskasFitFunc,0,1,5);
-	paulauskasFuncText = new TF1("paulauskasText","[0] * exp(-(x - [1])*[2]) * (1 - exp(-pow((x-[1])*[3],4)))",4);
-	paulauskasFunc->SetParNames("voffset","amplitude","phase","beta","gamma");
+	SetupFunc();
 
 	gStyle->SetPalette(51);
 	
@@ -140,18 +166,34 @@ scopeScanner::~scopeScanner(){
 	canvas->Close();
 	delete canvas;
 	delete graph;
+	delete cfdGraph;
+	delete cfdLine;
 	delete hist;
 	delete paulauskasFunc;
 }
 
+TF1 *scopeScanner::SetupFunc() {
+	paulauskasFunc = new TF1("paulauskas",PaulauskasFitFunc,0,1,5);
+	paulauskasFunc->SetParNames("voffset","amplitude","phase","beta","gamma");
+	
+	return paulauskasFunc;
+}
+
 void scopeScanner::ResetGraph(unsigned int size) {
+	delete graph;
+	delete cfdGraph;
+		
+	graph = new TGraph(size);
+	graph->SetMarkerStyle(kFullDotSmall);
+	
+	cfdGraph = new TGraph(size);
+	cfdGraph->SetLineColor(4);
+
 	if(size != x_vals.size()){
 		std::cout << msgHeader << "Changing trace length from " << x_vals.size()*ADC_TIME_STEP << " to " << size*ADC_TIME_STEP << " ns.\n";
 		x_vals.resize(size);
-		for(size_t index = 0; index < x_vals.size(); index++){
+		for(size_t index = 0; index < x_vals.size(); index++)
 			x_vals[index] = ADC_TIME_STEP * index;
-		}	
-		while ((unsigned int) graph->GetN() > size) graph->RemovePoint(graph->GetN());
 	}
 	hist->SetBins(x_vals.size(), x_vals.front(), x_vals.back() + ADC_TIME_STEP, 1, 0, 1);
 
@@ -200,8 +242,8 @@ void scopeScanner::Plot(){
 	//For a waveform pulse we use a graph.
 	if (numAvgWaveforms_ == 1) {
 		int index = 0;
-		for (size_t i=0; i<chanEvents_.front()->size; ++i) {
-			graph->SetPoint(index, x_vals[i], chanEvents_.front()->event->adcTrace[i]);
+		for (size_t i = 0; i < chanEvents_.front()->size; ++i) {
+			graph->SetPoint(index, x_vals[i], chanEvents_.front()->event->adcTrace.at(i));
 			index++;
 		}
 
@@ -215,9 +257,9 @@ void scopeScanner::Plot(){
 		graph->GetYaxis()->SetLimits(axisVals[1][0], axisVals[1][1]);
 
 		//Set the users zoom window.
-		for (int i=0;i<2;i++) {
+		for (int i = 0; i < 2; i++) {
 			if (!userZoom[i]) {
-				for (int j=0;j<2;j++) userZoomVals[i][j] = axisVals[i][j];
+				for (int j = 0; j < 2; j++) userZoomVals[i][j] = axisVals[i][j];
 			}
 		}
 		graph->GetXaxis()->SetRangeUser(userZoomVals[0][0], userZoomVals[0][1]);
@@ -228,12 +270,23 @@ void scopeScanner::Plot(){
 		float lowVal = (chanEvents_.front()->max_index - fitLow_) * ADC_TIME_STEP;
 		float highVal = (chanEvents_.front()->max_index + fitHigh_) * ADC_TIME_STEP;
 
-		paulauskasFunc->SetRange(lowVal, highVal);
-		paulauskasFunc->SetParameters(chanEvents_.front()->baseline,chanEvents_.front()->qdc*0.5,lowVal,0.5,0.1);
-		paulauskasFunc->SetParLimits(0,chanEvents_.front()->baseline - chanEvents_.front()->stddev,chanEvents_.front()->baseline + chanEvents_.front()->stddev);
-		paulauskasFunc->SetParLimits(1,0,2 * chanEvents_.front()->qdc);
-		paulauskasFunc->SetParLimits(4,0,0.5);
-		graph->Fit(paulauskasFunc,"QMER");
+		if(performCfd_){
+			// Find the zero-crossing of the cfd waveform.
+			float cfdCrossing = chanEvents_.front()->AnalyzeCFD(cfdF_, cfdD_, cfdL_);
+			
+			// Draw the cfd waveform.
+			for(size_t cfdIndex = 0; cfdIndex < chanEvents_.front()->size; cfdIndex++)
+				cfdGraph->SetPoint((int)cfdIndex, x_vals[cfdIndex], chanEvents_.front()->cfdvals[cfdIndex] + chanEvents_.front()->baseline);
+			cfdLine->DrawLine(cfdCrossing*ADC_TIME_STEP, userZoomVals[1][0], cfdCrossing*ADC_TIME_STEP, userZoomVals[1][1]);
+			cfdGraph->Draw("LSAME");
+		}
+
+		if(performFit_){
+			paulauskasFunc->SetRange(lowVal, highVal);
+			paulauskasFunc->SetParameters(chanEvents_.front()->baseline, 0.5 * chanEvents_.front()->qdc, lowVal, 0.5, 0.1);
+			paulauskasFunc->FixParameter(0, chanEvents_.front()->baseline);
+			graph->Fit(paulauskasFunc,"QMER");
+		}
 	}
 	else { //For multiple events with make a 2D histogram and plot the profile on top.
 		//Determine the maximum and minimum values of the events.
@@ -275,12 +328,13 @@ void scopeScanner::Plot(){
 
 		float lowVal = prof->GetBinCenter(prof->GetMaximumBin() - fitLow_);
 		float highVal = prof->GetBinCenter(prof->GetMaximumBin() + fitHigh_);
-		paulauskasFunc->SetRange(lowVal, highVal);
-		paulauskasFunc->SetParameters(chanEvents_.front()->baseline,chanEvents_.front()->qdc*0.5,lowVal,0.5,0.1);
-		paulauskasFunc->SetParLimits(0,chanEvents_.front()->baseline - chanEvents_.front()->stddev,chanEvents_.front()->baseline + chanEvents_.front()->stddev);
-		paulauskasFunc->SetParLimits(1,0,2*chanEvents_.front()->qdc);
-		paulauskasFunc->SetParLimits(4,0,0.5);
-		prof->Fit(paulauskasFunc,"QMER");
+		
+		if(performFit_){
+			paulauskasFunc->SetRange(lowVal, highVal);
+			paulauskasFunc->SetParameters(chanEvents_.front()->baseline, 0.5 * chanEvents_.front()->qdc, lowVal, 0.5, 0.2);
+			paulauskasFunc->FixParameter(0, chanEvents_.front()->baseline);
+			prof->Fit(paulauskasFunc,"QMER");
+		}
 
 		hist->SetStats(false);
 		hist->Draw("COLZ");		
@@ -428,27 +482,29 @@ void scopeScanner::ClearEvents(){
   * \return Nothing.
   */
 void scopeScanner::CmdHelp(const std::string &prefix_/*=""*/){
-	std::cout << "   set <module> <channel> - Set the module and channel of signal of interest (default = 0, 0).\n";
-	std::cout << "   stop                   - Stop the acquistion.\n";
-	std::cout << "   run                    - Run the acquistion.\n";
-	std::cout << "   single                 - Perform a single capture.\n";
-	std::cout << "   thresh <low> [high]    - Set the plotting window for trace maximum.\n";
-	std::cout << "   fit <low> <high>       - Turn on fitting of waveform.\n";
-	std::cout << "   avg <numWaveforms>     - Set the number of waveforms to average.\n";
-	std::cout << "   save <fileName>        - Save the next trace to the specified file name..\n";
-	std::cout << "   delay [time]           - Set the delay between drawing traces (in seconds, default = 1 s).\n";
-	std::cout << "   log                    - Toggle log/linear mode on the y-axis.\n";
-	std::cout << "   clear                  - Clear all stored traces and start over.\n";
+	std::cout << "   set <module> <channel>  - Set the module and channel of signal of interest (default = 0, 0).\n";
+	std::cout << "   stop                    - Stop the acquistion.\n";
+	std::cout << "   run                     - Run the acquistion.\n";
+	std::cout << "   single                  - Perform a single capture.\n";
+	std::cout << "   thresh <low> [high]     - Set the plotting window for trace maximum.\n";
+	std::cout << "   fit <low> <high>        - Turn on fitting of waveform. Set <low> to \"off\" to disable.\n";
+	std::cout << "   cfd [F=0.5] [D=1] [L=1] - Turn on cfd analysis of waveform. Set [F] to \"off\" to disable.\n";
+	std::cout << "   avg <numWaveforms>      - Set the number of waveforms to average.\n";
+	std::cout << "   save <fileName>         - Save the next trace to the specified file name..\n";
+	std::cout << "   delay [time]            - Set the delay between drawing traces (in seconds, default = 1 s).\n";
+	std::cout << "   log                     - Toggle log/linear mode on the y-axis.\n";
+	std::cout << "   clear                   - Clear all stored traces and start over.\n";
 }
 
-/** ArgHelp is used to allow a derived class to print a help statment about
-  * its own command line arguments. This method is called at the end of
-  * the ScanInterface::help method.
+/** ArgHelp is used to allow a derived class to add a command line option
+  * to the main list of options. This method is called at the end of
+  * from the ::Setup method.
+  * Does nothing useful by default.
   * \return Nothing.
   */
 void scopeScanner::ArgHelp(){
-	std::cout << "   --mod [module]   | Module of signal of interest (default=0)\n";
-	std::cout << "   --chan [channel] | Channel of signal of interest (default=0)\n";
+	AddOption(optionExt("mod", required_argument, NULL, 'm', "<module>", "Module of signal of interest (default=0)"));
+	AddOption(optionExt("chan", required_argument, NULL, 'c', "<channel>", "Channel of signal of interest (default=0)"));
 }
 
 /** SyntaxStr is used to print a linux style usage message to the screen.
@@ -456,37 +512,20 @@ void scopeScanner::ArgHelp(){
   * \return Nothing.
   */
 void scopeScanner::SyntaxStr(char *name_){ 
-	std::cout << " usage: " << std::string(name_) << " [input] [options]\n"; 
+	std::cout << " usage: " << std::string(name_) << " [options]\n"; 
 }
 
 /** ExtraArguments is used to send command line arguments to classes derived
-  * from ScanInterface. If ScanInterface receives an unrecognized
-  * argument from the user, it will pass it on to the derived class.
-  * \param[in]  arg_    The argument to interpret.
-  * \param[out] others_ The remaining arguments following arg_.
-  * \param[out] ifname  The input filename to send back to use for reading.
-  * \return True if the argument was recognized and false otherwise.
+  * from ScanInterface. This method should loop over the optionExt elements
+  * in the vector userOpts and check for those options which have been flagged
+  * as active by ::Setup(). This should be overloaded in the derived class.
+  * \return Nothing.
   */
-bool scopeScanner::ExtraArguments(const std::string &arg_, std::deque<std::string> &others_, std::string &ifname){
-	if(arg_ == "--mod"){
-		if(others_.empty()){
-			std::cout << " Error: Missing required argument to option '--mod'!\n";
-			return false;
-		}
-		((scopeUnpacker*)core)->SetMod(atoi(others_.front().c_str()));
-		others_.pop_front();
-	}
-	else if(arg_ == "--chan"){
-		if(others_.empty()){
-			std::cout << " Error: Missing required argument to option '--chan'!\n";
-			return false;
-		}
-		((scopeUnpacker*)core)->SetChan(atoi(others_.front().c_str()));
-		others_.pop_front();
-	}
-	else{ ifname = arg_; }
-	
-	return true;
+void scopeScanner::ExtraArguments(){
+	if(userOpts.at(0).active)
+		std::cout << msgHeader << "Set module to (" << ((scopeUnpacker*)core)->SetMod(atoi(userOpts.at(0).argument.c_str())) << ").\n";
+	if(userOpts.at(1).active)
+		std::cout << msgHeader << "Set channel to (" << ((scopeUnpacker*)core)->SetChan(atoi(userOpts.at(1).argument.c_str())) << ").\n";
 }
 
 /** ExtraCommands is used to send command strings to classes derived
@@ -531,14 +570,58 @@ bool scopeScanner::ExtraCommands(const std::string &cmd_, std::vector<std::strin
 		}
 	}
 	else if (cmd_ == "fit") {
-		if (args_.size() == 2) {
+		if (args_.size() >= 1 && args_.at(0) == "off") { // Turn root fitting off.
+			if(performFit_){
+				std::cout << msgHeader << "Disabling root fitting.\n"; 
+				delete graph->GetListOfFunctions()->FindObject(paulauskasFunc->GetName());
+				canvas->Update();
+				performFit_ = false;
+			}
+			else{ std::cout << msgHeader << "Fitting is not enabled.\n"; }
+		}
+		else if (args_.size() == 2) { // Turn root fitting on.
 			fitLow_ = atoi(args_.at(0).c_str());
 			fitHigh_ = atoi(args_.at(1).c_str());
+			std::cout << msgHeader << "Setting root fitting range to [" << fitLow_ << ", " << fitHigh_ << "].\n"; 
+			performFit_ = true;
 		}
 		else {
 			std::cout << msgHeader << "Invalid number of parameters to 'fit'\n";
 			std::cout << msgHeader << " -SYNTAX- fit <low> <high>\n";
+			std::cout << msgHeader << " -SYNTAX- fit off\n";
 		}
+	}
+	else if (cmd_ == "cfd") {
+		cfdF_ = 0.5;
+		cfdD_ = 1;
+		cfdL_ = 1;
+		if (args_.empty()) { performCfd_ = true; }
+		else if (args_.size() == 1) { 
+			if(args_.at(0) == "off"){ // Turn cfd analysis off.
+				if(performCfd_){
+					std::cout << msgHeader << "Disabling cfd analysis.\n"; 
+					performCfd_ = false;
+				}
+				else{ std::cout << msgHeader << "Cfd is not enabled.\n"; }
+			}
+			else{
+				cfdF_ = atof(args_.at(0).c_str());
+				performCfd_ = true;
+			}
+		}
+		else if (args_.size() == 2) {
+			cfdF_ = atof(args_.at(0).c_str());
+			cfdD_ = atoi(args_.at(1).c_str());
+			performCfd_ = true;
+		}
+		else if (args_.size() == 3) {
+			cfdF_ = atof(args_.at(0).c_str());
+			cfdD_ = atoi(args_.at(1).c_str());
+			cfdL_ = atoi(args_.at(2).c_str());
+			performCfd_ = true;
+		}
+		if(performCfd_)
+			std::cout << msgHeader << "Enabling cfd analysis with F=" << cfdF_ << ", D=" << cfdD_ << ", L=" << cfdL_ << std::endl;
 	}
 	else if (cmd_ == "avg") {
 		if (args_.size() == 1) {
@@ -603,9 +686,8 @@ int main(int argc, char *argv[]){
 	scanner.SetProgramName(std::string(PROG_NAME));	
 	
 	// Initialize the scanner.
-	if(!scanner.Setup(argc, argv)){
+	if(!scanner.Setup(argc, argv))
 		return 1;
-	}
 
 	// Run the main loop.
 	int retval = scanner.Execute();
