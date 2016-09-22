@@ -38,14 +38,12 @@ endif(USE_GSL)
 
 #------------------------------------------------------------------------------
 
-#Add the includes from ScanLib to our tree
-include_directories(include ../ScanLib/include)
-
 #Add the local include directories to the build tree
-include_directories(include analyzers/include)
-include_directories(include core/include)
-include_directories(include experiment/include)
-include_directories(include processors/include)
+include_directories(
+        analyzers/include
+        core/include
+        experiment/include
+        processors/include)
 
 #Add the Analyzers to the build
 add_subdirectory(analyzers/source)
