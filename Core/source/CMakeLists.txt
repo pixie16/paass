@@ -4,7 +4,7 @@ set(PixieCore_SOURCES
 		poll2_socket.cpp )
 
 if (${CURSES_FOUND})
-	list(APPEND PixieCore_SOURCES CTerminal.cpp)
+	list(APPEND PixieCore_SOURCES CTerminal.cpp CTerminalCommand.cpp)
 endif()
 
 add_library(PixieCoreObjects OBJECT ${PixieCore_SOURCES})
