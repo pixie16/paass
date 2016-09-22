@@ -1301,9 +1301,6 @@ void Poll::CommandControl(){
 			else if(cmd == "startacq" || cmd == "startvme"){ // Tell POLL to start data acquisition without recording to disk.
 				start_run(false);
 			}
-			else if(cmd == "clo") {
-				CloseOutputFile();
-			}
 			else if(cmd == "stop" || cmd == "stopacq" || cmd == "stopvme"){ // Tell POLL to stop recording data to disk and stop acq.
 				stop_run();
 			} 
