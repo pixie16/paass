@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>S. V. Paulauskas</Name>
+        <Email>spaulaus AT utk DOT edu</Email>
+        <Date>September 22, 2016</Date>
+    </Author>
+
+    <Description>
+        252Cf fission correlations with 28 vandle bars and 2 mcps and 1 si
+        and 1 hpge. This configuration is based off one written by W. A.
+        Peters and has been modified to accomplish some validity checks of ldfs.
+    </Description>
+
+    <Global>
+        <Revision version="F"/>
+        <EventWidth unit="s" value="1e-6"/>
+        <EnergyContraction value="1.0"/>
+        <Path>config/</Path>
+        <NumOfTraces value="63"/>
+        <HasRaw value="true"/>
+    </Global>
+
+    <DetectorDriver>
+        <Processor name="VandleProcessor" types="small" NumStarts="2" res="2"
+                   offset="200"/>
+        <Analyzer name="WaveformAnalyzer"/>
+        <Analyzer name="FittingAnalyzer" type="gsl"/>
+    </DetectorDriver>
+
+    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+        <Module number="0">
+            <Channel number="0" type="beta_scint" subtype="beta"
+                     tags="start"></Channel>
+            <Channel number="1" type="beta_scint" subtype="beta"
+                     tags="start"></Channel>
+        </Module>
+        <Module number="1">
+            <Channel number="0" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="1" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="2" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="3" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="4" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="5" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="6" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="7" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="8" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="9" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="10" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="11" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="12" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="13" type="vandle" subtype="small" tags="right">
+            </Channel>
+        </Module>
+        <Module number="2">
+            <Channel number="0" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="1" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="2" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="3" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="4" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="5" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="6" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="7" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="8" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="9" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="10" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="11" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="12" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="13" type="vandle" subtype="small" tags="right">
+            </Channel>
+        </Module>
+        <Module number="3">
+            <Channel number="0" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="1" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="2" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="3" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="4" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="5" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="6" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="7" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="8" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="9" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="10" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="11" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="12" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="13" type="vandle" subtype="small" tags="right">
+            </Channel>
+        </Module>
+        <Module number="4">
+            <Channel number="0" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="1" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="2" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="3" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="4" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="5" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="6" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="7" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="8" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="9" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="10" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="11" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="12" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="13" type="vandle" subtype="small" tags="right">
+            </Channel>
+        </Module>
+        <Module number="5">
+            <Channel number="0" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="1" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="2" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="3" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="4" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="5" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="6" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="7" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="8" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="9" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="10" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="11" type="vandle" subtype="small" tags="right">
+            </Channel>
+            <Channel number="12" type="vandle" subtype="small" tags="left">
+            </Channel>
+            <Channel number="13" type="vandle" subtype="small" tags="right">
+            </Channel>
+        </Module>
+    </Map>
+
+    <TimeCalibration verbose_timing="False">
+    </TimeCalibration>
+
+    <Physical>
+        <NeutronMass unit="MeV/c/c" value="939.565560"/>
+        <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+        <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+        <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+        <SmallLength unit="cm" value="60.0"/>
+        <MediumLength unit="cm" value="120.0"/>
+        <BigLength unit="cm" value="200.0"/>
+    </Physical>
+    
+    <Trace>
+        <TraceDelay unit="ns" value="116"/>
+        <DiscriminationStart unit="sample" value="3"/>
+        <QdcCompression value="1.0"/>
+        <WaveformRange>
+            <Range name="vandle:small">
+                <Low value="6"/>
+                <High value="13"/>
+            </Range>
+        </WaveformRange>
+    </Trace>
+
+    <Fitting>
+        <SigmaBaselineThresh value="3.0"/>
+        <Parameters>
+            <Pars name="vandle:small">
+                <Beta value="0.32969"/>
+                <Gamma value="0.212945"/>
+            </Pars>
+        </Parameters>
+    </Fitting>
+
+    <TreeCorrelator name="root" verbose="False">
+    </TreeCorrelator>
+
+    <NoteBook file='notes.txt' mode='a'/>
+</Configuration>
