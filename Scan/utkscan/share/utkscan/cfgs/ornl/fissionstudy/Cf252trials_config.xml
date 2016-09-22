@@ -19,22 +19,24 @@
         <EnergyContraction value="1.0"/>
         <Path>config/</Path>
         <NumOfTraces value="63"/>
-        <HasRaw value="true"/>
+        <HasRaw value="false"/>
     </Global>
 
     <DetectorDriver>
+        <Analyzer name="TraceExtractor" type="vandle" subtype="small"/>
         <Analyzer name="WaveformAnalyzer"/>
         <Analyzer name="FittingAnalyzer" type="gsl"/>
-        <Processor name="VandleProcessor" types="small" NumStarts="2" res="2"
+        <Processor name="DoubleBetaProcessor"/>
+        <Processor name="VandleProcessor" types="small" NumStarts="1" res="2"
                    offset="200"/>
     </DetectorDriver>
 
     <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
         <Module number="0">
-            <Channel number="0" type="beta_scint" subtype="beta"
-                     tags="start"></Channel>
-            <Channel number="1" type="beta_scint" subtype="beta"
-                     tags="start"></Channel>
+            <Channel number="0" type="beta" subtype="double"
+                     tags="timing,start"> </Channel>
+            <Channel number="1" type="beta" subtype="double"
+                     tags="start,timing"> </Channel>
         </Module>
         <Module number="1">
             <Channel number="0" type="vandle" subtype="small" tags="left">
@@ -202,13 +204,15 @@
     </Physical>
 
     <Trace>
-        <TraceDelay unit="ns" value="116"/>
-        <DiscriminationStart unit="sample" value="3"/>
-        <QdcCompression value="1.0"/>
+        <TraceDelay unit="ns" value="176"/>
         <WaveformRange>
             <Range name="vandle:small">
                 <Low value="6"/>
                 <High value="13"/>
+            </Range>
+            <Range name="beta:double:timing">
+                <Low value="5"/>
+                <High value="5"/>
             </Range>
         </WaveformRange>
     </Trace>
@@ -219,6 +223,9 @@
             <Pars name="vandle:small">
                 <Beta value="0.32969"/>
                 <Gamma value="0.212945"/>
+            </Pars>
+            <Pars name="beta:double:timing">
+                <Gamma value="1.60838"/>
             </Pars>
         </Parameters>
     </Fitting>
