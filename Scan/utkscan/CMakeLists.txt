@@ -39,10 +39,11 @@ endif(USE_GSL)
 #------------------------------------------------------------------------------
 
 #Add the local include directories to the build tree
-include_directories(analyzers/include)
-include_directories(core/include)
-include_directories(experiment/include)
-include_directories(processors/include)
+include_directories(
+        analyzers/include
+        core/include
+        experiment/include
+        processors/include)
 
 #Add the Analyzers to the build
 add_subdirectory(analyzers/source)
