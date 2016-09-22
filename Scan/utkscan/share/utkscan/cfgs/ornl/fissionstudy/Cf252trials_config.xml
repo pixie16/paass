@@ -15,6 +15,7 @@
     <Global>
         <Revision version="F"/>
         <EventWidth unit="s" value="1e-6"/>
+        <BitResolution value="12"/>
         <EnergyContraction value="1.0"/>
         <Path>config/</Path>
         <NumOfTraces value="63"/>
@@ -22,10 +23,10 @@
     </Global>
 
     <DetectorDriver>
-        <Processor name="VandleProcessor" types="small" NumStarts="2" res="2"
-                   offset="200"/>
         <Analyzer name="WaveformAnalyzer"/>
         <Analyzer name="FittingAnalyzer" type="gsl"/>
+        <Processor name="VandleProcessor" types="small" NumStarts="2" res="2"
+                   offset="200"/>
     </DetectorDriver>
 
     <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
@@ -199,7 +200,7 @@
         <MediumLength unit="cm" value="120.0"/>
         <BigLength unit="cm" value="200.0"/>
     </Physical>
-    
+
     <Trace>
         <TraceDelay unit="ns" value="116"/>
         <DiscriminationStart unit="sample" value="3"/>
