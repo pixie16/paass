@@ -1,6 +1,8 @@
 #ifndef SCANOR_INTERFACE_HPP
 #define SCANOR_INTERFACE_HPP
 
+#include <vector>
+
 class Unpacker;
 
 extern Unpacker *pixieUnpacker;
