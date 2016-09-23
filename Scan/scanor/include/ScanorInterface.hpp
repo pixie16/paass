@@ -10,6 +10,7 @@ public:
 
     ~ScanorInterface();
 
+    void Hissub(unsigned short *sbuf[],unsigned short *nhw);
     virtual void Drrsub(uint32_t& iexist);
     ///@param [in] a : A reference to an Unpacker object.
     void SetUnpacker(Unpacker &a) {unpacker_ = a;}
@@ -21,8 +22,6 @@ protected:
     ScanorInterface &operator=(ScanorInterface const &);//!< Equality constructor
 
 private:
-    void Hissub(unsigned short *sbuf[],unsigned short *nhw);
-
     bool MakeModuleData(const uint32_t *data, unsigned long nWords, unsigned
                             int maxWords);
     static ScanorInterface *instance_;//!< The only instance of ScanorInterface

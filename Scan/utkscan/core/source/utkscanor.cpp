@@ -1,6 +1,7 @@
 #include <iostream>
 
 // Local files
+#include "Scanor.hpp"
 #include "ScanorInterface.hpp"
 #include "UtkScanInterface.hpp"
 #include "UtkUnpacker.hpp"
