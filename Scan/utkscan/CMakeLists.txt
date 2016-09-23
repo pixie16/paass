@@ -1,7 +1,8 @@
 #CMake file for UTKScan.
 
-option(USE_GSL "Use GSL for Pulse Fitting" ON)
+option(BUILD_UTKSCAN_TESTS "Build unit tests for utkscan" ON)
 option(UTKSCAN_GAMMA_GATES "Gamma-Gamma gates in GeProcessor" OFF)
+option(USE_GSL "Use GSL for Pulse Fitting" ON)
 option(UTKSCAN_ONLINE "Options for online scans" OFF)
 option(UTKSCAN_TREE_DEBUG "Debugging info for TreeCorrelator" OFF)
 option(UTKSCAN_VERBOSE "Make Scan More Verbose" OFF)
@@ -46,13 +47,13 @@ include_directories(
         processors/include)
 
 #Add the Analyzers to the build
-add_subdirectory(analyzers/source)
+add_subdirectory(analyzers)
 #Add the core classes to the build
-add_subdirectory(core/source)
+add_subdirectory(core)
 #Add the experiment specific processors to the build
-add_subdirectory(experiment/source)
+add_subdirectory(experiment)
 #Add the processors to the build
-add_subdirectory(processors/source)
+add_subdirectory(processors)
 
 #------------------------------------------------------------------------------
 
@@ -85,8 +86,3 @@ install(DIRECTORY share/utkscan DESTINATION share/)
 
 #------------------------------------------------------------------------------
 
-#Build optional tests for the software
-option(BUILD_UTKSCAN_TESTS "Build unit tests for utkscan" ON)
-if(BUILD_UTKSCAN_TESTS)
-    add_subdirectory(tests/source)
-endif(BUILD_UTKSCAN_TESTS)
