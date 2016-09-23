@@ -6,8 +6,7 @@ set(ANALYZER_SOURCES
         TraceFilterAnalyzer.cpp
         TraceAnalyzer.cpp
         WaaAnalyzer.cpp
-        WaveformAnalyzer.cpp
-  )
+        WaveformAnalyzer.cpp)
 
 if(USE_GSL)
   set(ANALYZER_SOURCES ${ANALYZER_SOURCES} FittingAnalyzer.cpp)
