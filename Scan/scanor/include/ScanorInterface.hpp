@@ -2,64 +2,32 @@
 #define SCANOR_INTERFACE_HPP
 
 #include <vector>
+#include "Unpacker.hpp"
 
-class Unpacker;
+class ScanorInterface {
+public:
+    static ScanorInterface *get();
 
-extern Unpacker *pixieUnpacker;
+    ~ScanorInterface();
 
-// Vector for storing command line arguments.
-extern std::vector<std::string> fort_args;
-extern int fortargc;
-extern char **fortargv;
+    virtual void Drrsub(uint32_t& iexist);
+    ///@param [in] a : A reference to an Unpacker object.
+    void SetUnpacker(Unpacker &a) {unpacker_ = a;}
 
-// Get command line arguments from scanor.
-extern "C" void addcmdarg_(char *arg_);
+protected:
+/** Constructor that initializes the various processors and analyzers. */
+    ScanorInterface();
+    ScanorInterface(const ScanorInterface &); //!< Overloaded constructor
+    ScanorInterface &operator=(ScanorInterface const &);//!< Equality constructor
 
-// Generate an array of c-strings to mimic argc and argv.
-extern "C" void finalizeargs_();
+private:
+    void Hissub(unsigned short *sbuf[],unsigned short *nhw);
 
-// Do some startup stuff.
-extern "C" void startup_();
+    bool MakeModuleData(const uint32_t *data, unsigned long nWords, unsigned
+                            int maxWords);
+    static ScanorInterface *instance_;//!< The only instance of ScanorInterface
+    Unpacker unpacker_;//!< The unpacker object that we are going to use to
+                       //!< decode the data.
+};
 
-// Catch the exit call from scanor and clean up c++ objects CRT
-extern "C" void cleanup_();
-
-//! DAMM initialization call
-extern "C" void drrmake_();
-
-//! DAMM declaration wrap-up call
-extern "C" void endrr_();
-
-/** Do banana gating using ban files args are the Banana number in the ban file,
- * the x-value to test, and the y-value to test.
- * \return true if the x,y pair is inside the banana gate */
-extern "C" bool bantesti_(const int &, const int &, const int &);
-
-/** create a DAMM 1D histogram
- * args are damm id, half-words per channel, param length, hist length,
- * low x-range, high x-range, and title
- */
-extern "C" void hd1d_(const int &, const int &, const int &, const int &,
-		      const int &, const int &, const char *, int);
-
-/** create a DAMM 2D histogram
- * args are damm id, half-words per channel, x-param length, x-hist length
- * low x-range, high x-range, y-param length, y-hist length, low y-range
- * high y-range, and title
- */
-extern "C" void hd2d_(const int &, const int &, const int &, const int &,
-		      const int &, const int &, const int &, const int &,
-		      const int &, const int &, const char *, int);
-		      
-/** Do banana gating using ban files args are the Banana number in the ban file,
- * the x-value to test, and the y-value to test.
- * \return true if the x,y pair is inside the banana gate */
-extern "C" bool bantesti_(const int &, const int &, const int &);
-
-/** Defines the DAMM function to call for 1D hists */
-extern "C" void count1cc_(const int &, const int &, const int &);
-
-/** Defines the DAMM function to call for 2D hists */
-extern "C" void set2cc_(const int &, const int &, const int &, const int &);
-
-#endif
+#endif //#ifndef SCANOR_INTERFACE_HPP

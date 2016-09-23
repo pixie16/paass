@@ -1,9 +1,13 @@
 #We need fPIC below to create shared libraries.
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fsecond-underscore -fPIC")
 
-set(SCANOR_SOURCES 
-  set2cc.f messlog.f mildatim.f scanor.f
-  ScanorInterface.cpp
+set(SCANOR_SOURCES
+        set2cc.f
+        messlog.f
+        mildatim.f
+        scanor.f
+        ScanorInterface.cpp
+        Scanor.cpp
 )
 
 add_library(ScanorObjects OBJECT ${SCANOR_SOURCES})

@@ -1,43 +1,40 @@
+///@file ScanorInterface.cpp
+///@authors C. R. Thornsberry, S. V. Paulauskas
+///@date September 16, 2016
+
 #include <iostream>
-#include <string.h>
 #include <sstream>
-#include <stdint.h>
 #include <vector>
 
+#include <cstdint>
+#include <cstring>
+
+#include "Scanor.hpp"
 #include "ScanorInterface.hpp"
-#include "Unpacker.hpp"
 
 #define TOTALREAD 1000000
 #define EXTERNAL_FIFO_LENGTH 131072
 #define U_DELIMITER 0xFFFFFFFF
 
-// Vector for storing command line arguments.
-std::vector<std::string> fort_args;
+//Actually define the instance of the ScanorInterface
+ScanorInterface* ScanorInterface::instance_ = NULL;
 
-int fortargc = 0;
-char **fortargv = NULL;
-
-// Get command line arguments from scanor.
-extern "C" void addcmdarg_(char *arg_){
-	std::string temparg = std::string(arg_);
-	fort_args.push_back(temparg.substr(0, temparg.find_first_of(' '))); // Strip trailing whitespace.
+///The get method returns the only instance of ScanorInterface that will ever
+/// be created. This is the core feature that will make this a singleton.
+ScanorInterface* ScanorInterface::get() {
+    if (!instance_)
+        instance_ = new ScanorInterface();
+    return instance_;
 }
 
-// Generate an array of c-strings to mimic argc and argv.
-// Kind of messy, but it works well. We can clean this up later.
-extern "C" void finalizeargs_(){
-	if(fortargv) return; // Only do this once.
-	
-	fortargc = (int)fort_args.size();
-	fortargv = new char*[fortargc];
-	
-	size_t arglen;
-	for(int i = 0; i < fortargc; i++){
-		arglen = fort_args.at(i).length();
-		fortargv[i] = new char[arglen+1];
-		memcpy(fortargv[i], fort_args.at(i).data(), arglen);
-		fortargv[i][arglen] = '\0';
-	}
+///Constructor for ScanorInterface
+ScanorInterface::ScanorInterface() {
+
+}
+
+///Destructor for ScanorInterface
+ScanorInterface::~ScanorInterface(){
+
 }
 
 /** \brief inserts a delimiter in between individual module data and at end of
@@ -46,7 +43,8 @@ extern "C" void finalizeargs_(){
  * \param [in] nWords : the length of the data
  * \param [in] maxWords : the maximum words to get
  * \return true if successful */
-bool MakeModuleData(const uint32_t *data, unsigned long nWords, unsigned int maxWords) {
+bool ScanorInterface::MakeModuleData(const uint32_t *data, unsigned long nWords,
+                                        unsigned int maxWords) {
     const unsigned int maxVsn = 14; // no more than 14 pixie modules per crate
 
     unsigned int inWords = 0, outWords = 0;
@@ -93,7 +91,7 @@ bool MakeModuleData(const uint32_t *data, unsigned long nWords, unsigned int max
     }
 
 	// Process the data.
-	pixieUnpacker->ReadSpill(modData, outWords);
+	unpacker_.ReadSpill(modData, outWords);
 
     return true;
 }
@@ -120,7 +118,7 @@ bool MakeModuleData(const uint32_t *data, unsigned long nWords, unsigned int max
  * \param [in] ibuf : the array with the data
  * \param [in] nhw : the number of half words contained in the data buffer
 */
-extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw) {
+void ScanorInterface::Hissub(unsigned short **sbuf, unsigned short *nhw) {
     const unsigned int maxChunks = 200;
 
     static uint32_t totData[TOTALREAD];
@@ -281,19 +279,14 @@ extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw) {
  * starts here.
  * \param [in] iexist : unused paramter from SCANOR call
  */
-extern "C" void drrsub_(uint32_t& iexist) {
+void ScanorInterface::Drrsub(uint32_t& iexist) {
     try {
-        drrmake_();
-        
 		// Initialize some histograms.
 		// At least one so the damn thing will run :P
 		hd1d_(8000, 2, 256, 256, 0, 255, "Run DAMM you!", strlen("Run DAMM you!"));
-
-        endrr_();
     } catch (std::exception &e) {
         // Any exceptions will be intercepted here
         std::cout << "Exception caught at Initialize:" << std::endl;
         std::cout << "\t" << e.what() << std::endl;
-        exit(EXIT_FAILURE);
     }
 }
