@@ -422,7 +422,6 @@ void DetectorDriver::DeclarePlots() {
              it != vecProcess.end(); it++) {
             (*it)->DeclarePlots();
         }
-
     } catch (exception &e) {
         cout << "Exception caught at DetectorDriver::DeclarePlots" << endl;
         cout << "\t" << e.what() << endl;

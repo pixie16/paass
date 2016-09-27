@@ -9,7 +9,6 @@
 #include <cstring>
 
 #include "Plots.hpp"
-#include "Exceptions.hpp"
 
 using namespace std;
 

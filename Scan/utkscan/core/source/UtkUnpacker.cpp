@@ -8,7 +8,6 @@
 
 #include <XiaData.hpp>
 
-
 #include "DetectorDriver.hpp"
 #include "Places.hpp"
 #include "TreeCorrelator.hpp"

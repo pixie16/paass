@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include <getopt.h>
-#include <stdlib.h>
+#include <cstring>
 
 #include "XiaData.hpp"
 
@@ -9,6 +9,8 @@
 #include "Skeleton.hpp"
 
 #ifdef USE_HRIBF
+#include "GetArguments.hpp"
+#include "Scanor.hpp"
 #include "ScanorInterface.hpp"
 #endif
 
@@ -237,7 +239,6 @@ int main(int argc, char *argv[]){
 	return retval;
 }
 #else
-Unpacker *pixieUnpacker = NULL;
 skeletonScanner *scanner = NULL;
 
 // Do some startup stuff.
@@ -246,10 +247,19 @@ extern "C" void startup_()
 	scanner = new skeletonScanner();	
 
 	// Handle command line arguments.
-	scanner->Setup(fortargc, fortargv); // Getting these from scanor...
+	scanner->Setup(GetNumberArguments(), GetArguments());
 	
 	// Get a pointer to a class derived from Unpacker.
-	pixieUnpacker = scanner->GetCore();
+	ScanorInterface::get()->SetUnpacker(scanner->GetCore());
+}
+
+///@brief Defines the main interface with the SCANOR library, the program
+/// essentially starts here.
+///@param [in] iexist : unused paramter from SCANOR call
+extern "C" void drrsub_(uint32_t &iexist) {
+	drrmake_();
+	hd1d_(8000, 2, 256, 256, 0, 255, "Run DAMM you!", strlen("Run DAMM you!"));
+	endrr_();
 }
 
 // Catch the exit call from scanor and clean up c++ objects CRT

@@ -19,23 +19,7 @@
 #include <set>
 #include <vector>
 
-/// Create a DAMM 1D histogram
-void hd1d_(int dammId, int nHalfWords, int rawlen, int histlen, int min, int max,
-           const char *title, unsigned int length);
-
-/// Create a DAMM 2D histogram
-void hd2d_(int dammId, int nHalfWords, int rawXlen, int histXlen, int xMin,
-           int xMax, int rawYlen, int histYlen, int yMin, int yMax, const char *title,
-           unsigned int length);
-
-/// Do banana gating using ban files
-bool bantesti_(const int &id, const double &x, const double &y);
-
-/// Increment histogram dammID at x and y
-void count1cc_(const int &dammID, const int &x, const int &y);
-
-/// Unknown
-void set2cc_(const int &dammID, const int &x, const int &y, const int &z);
+#include "Scanor.hpp"
 
 /// Histogram data storage object
 class HisData{
