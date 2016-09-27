@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <sstream>
-#include <cstdlib>
 
 #include "PlotsRegister.hpp"
 #include "Exceptions.hpp"
@@ -13,6 +12,7 @@
 using namespace std;
 
 PlotsRegister* PlotsRegister::instance = NULL;
+
 PlotsRegister* PlotsRegister::get() {
     if (!instance) {
         instance = new PlotsRegister();

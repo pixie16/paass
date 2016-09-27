@@ -853,7 +853,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	int retval = 0;
 
 	//getopt_long is not POSIX compliant. It is provided by GNU. This may mean
-	//that we are not compatable with some systems. If we have enough
+	//that we are not compatible with some systems. If we have enough
 	//complaints we can either change it to getopt, or implement our own class. 
 	while ( (retval = getopt_long(argc, argv, optstr.c_str(), longOpts.data(), &idx)) != -1) {
 		if(retval == 0x0){ // Long option
@@ -933,7 +933,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	// If a pointer to an Unpacker derived class is not specified, call the
 	// extern function GetCore() to get a pointer to a new object.
 	if(!core)
-			GetCore();
+		GetCore();
 
 	// Link this object to the Unpacker for cross-calls.
 	core->SetInterface(this);

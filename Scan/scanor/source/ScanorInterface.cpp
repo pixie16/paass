@@ -1,15 +1,13 @@
 ///@file ScanorInterface.cpp
-///@authors C. R. Thornsberry, S. V. Paulauskas
+///@authors C. R. Thornsberry and S. V. Paulauskas
 ///@date September 16, 2016
 
 #include <iostream>
 #include <sstream>
 #include <vector>
 
-#include <cstdint>
 #include <cstring>
 
-#include "Scanor.hpp"
 #include "ScanorInterface.hpp"
 
 #define TOTALREAD 1000000
@@ -25,16 +23,6 @@ ScanorInterface* ScanorInterface::get() {
     if (!instance_)
         instance_ = new ScanorInterface();
     return instance_;
-}
-
-///Constructor for ScanorInterface
-ScanorInterface::ScanorInterface() {
-
-}
-
-///Destructor for ScanorInterface
-ScanorInterface::~ScanorInterface(){
-
 }
 
 /** \brief inserts a delimiter in between individual module data and at end of
@@ -91,7 +79,7 @@ bool ScanorInterface::MakeModuleData(const uint32_t *data, unsigned long nWords,
     }
 
 	// Process the data.
-	unpacker_.ReadSpill(modData, outWords);
+	unpacker_->ReadSpill(modData, outWords);
 
     return true;
 }
@@ -273,20 +261,4 @@ void ScanorInterface::Hissub(unsigned short **sbuf, unsigned short *nhw) {
         } // else the number of buffers is complete
         dataWords = 0; bufInSpill = 0; lastBuf = -1; // reset the number of buffers recorded
     } while (totWords < nhw[0] / 2);
-}
-
-/*! Defines the main interface with the SCANOR library, the program essentially
- * starts here.
- * \param [in] iexist : unused paramter from SCANOR call
- */
-void ScanorInterface::Drrsub(uint32_t& iexist) {
-    try {
-		// Initialize some histograms.
-		// At least one so the damn thing will run :P
-		hd1d_(8000, 2, 256, 256, 0, 255, "Run DAMM you!", strlen("Run DAMM you!"));
-    } catch (std::exception &e) {
-        // Any exceptions will be intercepted here
-        std::cout << "Exception caught at Initialize:" << std::endl;
-        std::cout << "\t" << e.what() << std::endl;
-    }
 }

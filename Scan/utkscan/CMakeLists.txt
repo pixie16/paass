@@ -67,7 +67,6 @@ if(NOT USE_HRIBF)
             $<TARGET_OBJECTS:ExperimentObjects>)
 else(USE_HRIBF)
     set(SCAN_NAME utkscanor)
-
     add_executable(${SCAN_NAME}
             $<TARGET_OBJECTS:CoreObjects>
             $<TARGET_OBJECTS:AnalyzerObjects>
