@@ -1,14 +1,11 @@
 #CMake file for UTKScan.
 
-#------------------------------------------------------------------------------
-option(USE_GSL "Use GSL for Pulse Fitting" ON)
-
+option(BUILD_UTKSCAN_TESTS "Build unit tests for utkscan" ON)
 option(UTKSCAN_GAMMA_GATES "Gamma-Gamma gates in GeProcessor" OFF)
+option(USE_GSL "Use GSL for Pulse Fitting" ON)
 option(UTKSCAN_ONLINE "Options for online scans" OFF)
 option(UTKSCAN_TREE_DEBUG "Debugging info for TreeCorrelator" OFF)
 option(UTKSCAN_VERBOSE "Make Scan More Verbose" OFF)
-
-#------------------------------------------------------------------------------
 
 # newreadout is needed to account for a change to pixie16 readout
 # structure change on 03/20/08. Is is REQUIRED!!
@@ -34,16 +31,58 @@ if(UTKSCAN_VERBOSE)
     add_definitions(-D VERBOSE)
 endif(UTKSCAN_VERBOSE)
 
-#------------------------------------------------------------------------------
-
 #Check if GSL is installed
 if(USE_GSL)
     find_package(GSL REQUIRED)
     add_definitions("-D usegsl")
 endif(USE_GSL)
 
+#------------------------------------------------------------------------------
+
+#Add the local include directories to the build tree
+include_directories(
+        analyzers/include
+        core/include
+        experiment/include
+        processors/include)
+
+#Add the Analyzers to the build
+add_subdirectory(analyzers)
+#Add the core classes to the build
+add_subdirectory(core)
+#Add the experiment specific processors to the build
+add_subdirectory(experiment)
+#Add the processors to the build
+add_subdirectory(processors)
+
+#------------------------------------------------------------------------------
+
+#Create utkscan program
+add_executable(utkscan
+        $<TARGET_OBJECTS:AnalyzerObjects>
+        $<TARGET_OBJECTS:CoreObjects>
+        $<TARGET_OBJECTS:ExperimentObjects>
+        $<TARGET_OBJECTS:ProcessorObjects>)
+
+#Add libraries to be linked with utkscan
+target_link_libraries(utkscan ${LIBS} ScanStatic)
+
+#If we have GSL installed link
+if(USE_GSL)
+    target_link_libraries(utkscan ${GSL_LIBRARIES})
+endif(USE_GSL)
+
+#If ROOT is installed we'll link
+if(USE_ROOT)
+    target_link_libraries(utkscan ${ROOT_LIBRARIES})
+endif(USE_ROOT)
+
+#------------------------------------------------------------------------------
+
 #Install utkscan to the bin directory
+install(TARGETS utkscan DESTINATION bin)
+#Install configuration files to the share directory
 install(DIRECTORY share/utkscan DESTINATION share/)
 
-include_directories(include ../ScanLib/include)
-add_subdirectory(source)
+#------------------------------------------------------------------------------
+

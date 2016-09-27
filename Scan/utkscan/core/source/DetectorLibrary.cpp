@@ -290,18 +290,19 @@ void DetectorLibrary::PrintUsedDetectors(RawEvent& rawev) const {
 }
 
 const set<string>& DetectorLibrary::GetKnownDetectors(void) {
-    const vector<string> detectorStrings = {
+    const unsigned int detTypes = 25;
+    const string detectorStrings[detTypes] = {
         "3hen", "beta", "dssd_front", "dssd_back", "ge", "generic",
         "idssd_front", "ignore", "ion_chamber", "liquid", "logic",
         "mcp", "mtc", "neutron_scint", "position", "pulser", "si", "ssd",
         "timeclass", "tvandle", "vandle", "beta_scint", "labr3", "pspmt",
-        "template", "tac", "hagrid"
+        "template"
     };
 
     if (!knownDetectors.empty())
         return knownDetectors;
 
-    for (unsigned int i=0; i < detectorStrings.size(); i++)
+    for (unsigned int i=0; i < detTypes; i++)
         knownDetectors.insert(detectorStrings[i]);
 
     return knownDetectors;

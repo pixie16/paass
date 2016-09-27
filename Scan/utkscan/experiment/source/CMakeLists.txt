@@ -1,5 +1,5 @@
 set(EXPERIMENT_SOURCES
-        E14060Processor.cpp
+        TemplateExpProcessor.cpp
 )
 
 add_library(ExperimentObjects OBJECT ${EXPERIMENT_SOURCES})
