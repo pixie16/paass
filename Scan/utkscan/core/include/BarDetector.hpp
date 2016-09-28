@@ -87,8 +87,8 @@ public:
     }
     /** \return The walk corrected time average */
     double GetCorTimeAve() const {
-        return(left_.GetCorrectedTime() +
-               right_.GetCorrectedTime()*0.5);
+        return((left_.GetCorrectedTime() +
+               right_.GetCorrectedTime())*0.5);
     }
     /** \return the The walk corrected time difference */
     double GetCorTimeDiff() const {
