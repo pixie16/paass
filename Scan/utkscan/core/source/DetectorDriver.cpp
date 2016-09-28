@@ -8,18 +8,13 @@
 #include <iomanip>
 #include <iostream>
 #include <iterator>
-#include <limits>
 #include <sstream>
 
 #include "pugixml.hpp"
 
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
-#include "DetectorLibrary.hpp"
-#include "Exceptions.hpp"
-#include "HighResTimingData.hpp"
 #include "RandomPool.hpp"
-#include "RawEvent.hpp"
 #include "TreeCorrelator.hpp"
 
 #include "BetaScintProcessor.hpp"
@@ -30,7 +25,6 @@
 #include "IonChamberProcessor.hpp"
 #include "LiquidScintProcessor.hpp"
 #include "LogicProcessor.hpp"
-#include "McpProcessor.hpp"
 #include "NeutronScintProcessor.hpp"
 #include "PositionProcessor.hpp"
 #include "PspmtProcessor.hpp"
@@ -38,18 +32,16 @@
 #include "TeenyVandleProcessor.hpp"
 #include "TemplateProcessor.hpp"
 #include "VandleProcessor.hpp"
-#include "ValidProcessor.hpp"
 
 #include "CfdAnalyzer.hpp"
 #include "FittingAnalyzer.hpp"
 #include "TauAnalyzer.hpp"
-#include "TraceAnalyzer.hpp"
 #include "TraceExtractor.hpp"
 #include "TraceFilterAnalyzer.hpp"
 #include "WaaAnalyzer.hpp"
 #include "WaveformAnalyzer.hpp"
 
-#include "TemplateExpProcessor.hpp"
+#include "E14060Processor.hpp"
 
 #ifdef useroot
 #include "RootProcessor.hpp"
@@ -213,8 +205,8 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                 vecProcess.push_back(new PspmtProcessor());
         } else if (name == "TemplateProcessor") {
             vecProcess.push_back(new TemplateProcessor());
-        } else if (name == "TemplateExpProcessor") {
-            vecProcess.push_back(new TemplateExpProcessor());
+        } else if (name == "E14060Processor") {
+            vecProcess.push_back(new E14060Processor());
 	}
 #ifdef useroot
         else if (name == "RootProcessor") {
