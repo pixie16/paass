@@ -9,33 +9,37 @@
 
 #include "HistUnpacker.hpp"
 
+///Initialize the scanner as well as create a ROOT file and tree to store 
+/// processed data.
 HistScanner::HistScanner() :
 	RootScanner()
 {
-	file_ = new TFile("blah.root","RECREATE");
+	file_ = new TFile("histScanner.root","RECREATE");
 	eventData_ = new std::vector< HistScannerChanData >;
 	tree_ = new TTree("data","");
 	tree_->Branch("eventData",&eventData_);
 }
 
+///Write the tree to to file, close the file and destory the objects.
 HistScanner::~HistScanner() {
 	tree_->ResetBranchAddresses();
 	file_->Write();
 	file_->Close();
 	delete file_;
-	delete tree_;
 	delete eventData_;
 }
 
-/** Return a pointer to the Unpacker object to use for data unpacking.
-  * If no object has been initialized, create a new one.
-  * \return Pointer to an Unpacker object.
-  */
+/// Return a pointer to the Unpacker object to use for data unpacking.
+/// If no object has been initialized, create a new one.
+/// @return Pointer to an Unpacker object.
 Unpacker *HistScanner::GetCore(){ 
 	if(!core){ core = new HistUnpacker(); }
 	return core;
 }
 
+///Fills a HistScannerChanData with values from XiaData and derived ChannelData.
+/// The HistScannerChanData is then pushed back onto the eventData_ vector to 
+/// be process by ProcessEvents.
 bool HistScanner::AddEvent(XiaData* event) {		
 	//Do not delete as it causes segfault.
 	ChannelEvent *chEvent = new ChannelEvent(event);
@@ -52,30 +56,34 @@ bool HistScanner::AddEvent(XiaData* event) {
 }
 
 void HistScanner::IdleTask() {
+	//Process any new histograms the user defined.
 	ProcessNewHists();
+
+	//Update the zoom on each pad, in case the user modified the histograms
 	for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
 		TVirtualPad *pad = padItr->first;
-		//Rescale all histograms on the pad.
-		ScaleHistograms(pad);
+		UpdateZoom(pad);
 	}
-	GetCanvas()->Update();
 
+	//Run the RootScanner IdleTask.
 	RootScanner::IdleTask();
 }
 
-
+///Processes a built event by filling the tree. After a certain number of 
+/// events the histograms are replotted. This routine clears the event 
+/// after filling the tree.
 bool HistScanner::ProcessEvents() {
 	//Fill the tree with the current event.
 	tree_->Fill();
 
-	if (tree_->GetEntries() % 100 == 0) {
+	if (tree_->GetEntries() % 1000 == 0) {
 		for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
 			TVirtualPad *pad = padItr->first;
 			HistMap_ *map = &padItr->second;
 			for (auto itr = map->begin(); itr != map->end(); ++itr) {
 				Plot(itr->first, pad);
 			}
-			ScaleHistograms(pad);
+			UpdateZoom(pad);
 		}
 		GetCanvas()->Update();
 	}
@@ -159,6 +167,9 @@ bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string>
 				std::cout << "ERROR: Invalid pad argument.\n";
 			}
 			if (pads <= 0) return true;
+			//We need to delete all the histos as their associated pads are to be deleted.
+			histos_.clear();
+			//Clear the canvas
 			GetCanvas()->Clear();
 			GetCanvas()->DivideSquare(pads);
 			return true;
@@ -174,6 +185,9 @@ bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string>
 				std::cout << "ERROR: Invalid pad Y argument: '" << args[1] << "'\n";
 			}
 			if (padsX <= 0 || padsY <= 0) return true;
+			//We need to delete all the histos as their associated pads are to be deleted.
+			histos_.clear();
+			//Clear the canvas
 			GetCanvas()->Clear();
 			GetCanvas()->Divide(padsX, padsY);
 			return true;
@@ -189,6 +203,9 @@ bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string>
 	return false;
 }
 
+///Defines the newly requested histogram's names and pushes them into the 
+/// histogram map to be plotted by Plot(). Plot is then called to provide an 
+/// immediate histogram.
 void HistScanner::ProcessNewHists() {
 	while (!newHists_.empty()) {
 		auto key = newHists_.back().first;
@@ -198,18 +215,28 @@ void HistScanner::ProcessNewHists() {
 		int chan = std::get<1>(key);
 		std::string type = std::get<2>(key);
 
+		//Define the new histograms name.
 		std::stringstream histName;
 		histName << "hM" << mod << "C" << chan << "_" << type << "_" << histCount_[key]++;
 
+		//Push the histogram into the map.
 		histos_[pad][key] = histName.str();
 
 		//Make the initial plot.
 		Plot(key, pad);
+	
+		//Update the zoom ont he pad for the new histogram.
+		UpdateZoom(pad);
 
 		newHists_.pop_back();
 	}
-	GetCanvas()->Update();
 }
+
+
+///The main plotting method. This method determines arguments to be passed to
+/// TTree::Draw() to handle plotting. If a histogram has previously been created
+/// the Draw command only adds new entries after that last draw to reduce time
+/// required to loop over the tree.
 void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 	static const std::vector< Color_t > colors = {kBlue + 2, kRed, kGreen + 1, kMagenta + 2};
 
@@ -251,41 +278,25 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 		drawOpt << "SAME";
 	}
 
+	TVirtualPad *prevPad = gPad;
+	pad->cd();
+
 	if (hist) {
 		drawCmd << type << ">>+" << histName;
 
-		tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),"GOFF",std::numeric_limits<Long64_t>::max(),hist->GetEntries());
+		tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),drawOpt.str().c_str(),std::numeric_limits<Long64_t>::max(),treeEntries_[hist]);
+		treeEntries_[hist] = tree_->GetEntries();
 		pad->Modified();
 	}
 	else {
 		drawColor = colors.at(std::distance(histMap->begin(), histItr));
 		drawCmd << type << ">>" << histName << "(1000)";
 
-		TVirtualPad *prevPad = gPad;
-		pad->cd();
-		//std::cout << "Draw(\"" << drawCmd.str() << "\", \"" << drawWeight.str() << "\", \"" << drawOpt.str() << "\")";
-		if (tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),"GOFF")) {
+		if (tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),drawOpt.str().c_str())) {
 			hist = (TH1F*) gDirectory->Get(histName.c_str());
 			if (hist) {
-				//Determine the x and y maximum from the histogram
+				//Determine the x maximum from the histogram
 				float xMax = hist->GetXaxis()->GetXmax();
-				float yMax = hist->GetBinContent(hist->GetMaximumBin());
-
-				//Check if a pad maximum has been declared.
-				auto padMaxItr = padMaximums_.find(pad);
-				//If none found we seet it to the maximums for this hist.
-				if (padMaxItr == padMaximums_.end()) {
-					padMaximums_[pad] = std::make_pair(xMax,yMax);
-				}
-				//If found we compare to maximusm for this hist and set them accordingly.
-				else {
-					float *padXMax = &(padMaxItr->second.first);
-					float *padYMax = &(padMaxItr->second.second);
-					if (*padXMax > xMax) xMax = *padXMax;
-					else *padXMax = xMax;
-					if (*padYMax > yMax) yMax = *padYMax;
-					else *padYMax = yMax;
-				}
 
 				hist->SetBins(xMax, 0, xMax);
 				hist->Reset();
@@ -293,9 +304,8 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 				drawCmd.str("");
 				drawCmd << type << ">>" << histName;
 
-				tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),"GOFF",std::numeric_limits<Long64_t>::max(),hist->GetEntries());
-
-				hist->GetYaxis()->SetLimits(0,yMax);
+				tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),drawOpt.str().c_str());
+				treeEntries_[hist] = tree_->GetEntries();
 
 				std::stringstream title;
 				title << "M" << mod << "C" << chan << " " << type;
@@ -303,8 +313,6 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 				hist->SetLineColor(drawColor);
 
 				hist->Draw(drawOpt.str().c_str());
-
-				//				ScaleHistograms(pad);
 
 				if (histItr == histMap->begin() && histMap->size() > 1) {
 					for (auto itr = histMap->begin(); itr != histMap->end(); ++itr) {
@@ -316,76 +324,15 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 						}
 					}
 				}
-
-
-				pad->Modified();
-				GetCanvas()->Update();
-
-				ResetZoom(pad);
-				//pad->Modified();
-				//GetCanvas()->Update();
-
-				//If the map is not empty and the draw option is not SAME, 
-				//	we need to redraw all the histograms on the pad.
-				/*
-					if (drawOpt.str() != "SAME" && map->size() > 1) {
-					std::cout << "Need to replot as the order of plots has changed.\n";
-					for (auto itr = map->begin(); itr != map->end(); ++itr) {
-					if (itr != map->begin()) {
-					TH1F* hist = dynamic_cast<TH1F*> (gDirectory->Get(itr->second.c_str()));
-					if (hist) {
-					hist->SetLineColor(colors.at(std::distance(map->begin(), itr)));
-					std::cout << "Plotting " << hist->GetLineColor() << "\n";
-					hist->Draw("SAME");
-					}
-					}
-					}
-					}
-					*/
-				//pad->Modified();
-				//GetCanvas()->Update();
 			}
-
+		}
+		else {
+			//The Draw command didn't add any entries so we delete the hist and try again later.
+			hist = (TH1F*) gDirectory->Get(histName.c_str());
+			delete hist;
 		}
 
 		prevPad->cd();
-	}
-}
-
-void HistScanner::ScaleHistograms(TVirtualPad* pad) {
-	auto padItr = histos_.find(pad);
-	if (padItr != histos_.end()) {
-		HistMap_ map = padItr->second;
-		float xMin, xMax, yMin, yMax;
-		for (auto itr = map.begin(); itr != map.end(); ++itr) {
-			TH1F* hist = dynamic_cast<TH1F*> (gDirectory->Get(itr->second.c_str()));
-			if (hist) {
-				if (hist->GetXaxis()->GetXmin() < xMin) xMin = hist->GetXaxis()->GetXmin();
-				if (hist->GetXaxis()->GetXmax() > xMax) xMax = hist->GetXaxis()->GetXmax();
-				if (hist->GetYaxis()->GetXmin() < yMin) yMin = hist->GetYaxis()->GetXmin();
-				if (hist->GetYaxis()->GetXmax() > yMax) yMax = hist->GetYaxis()->GetXmax();
-				if (hist->GetBinContent(hist->GetMaximumBin()) > yMax) {
-					std::cout << "New ymax " << yMax << "->" << hist->GetBinContent(hist->GetMaximumBin()) << "\n";
-					yMax = hist->GetBinContent(hist->GetMaximumBin());
-				}
-			}
-		}
-		for (auto itr = map.begin(); itr != map.end(); ++itr) {
-			TH1F* hist = dynamic_cast<TH1F*> (gDirectory->Get(itr->second.c_str()));
-			if (hist) {
-				std::cout << "Set limits " << xMin << "-" << xMax << " " << yMin << "-" << yMax << "\n";
-				hist->SetMaximum(yMax);
-				hist->GetXaxis()->SetLimits(xMin, xMax);
-				hist->GetYaxis()->SetLimits(yMin, yMax);
-				//if (itr == map.begin()) hist->Draw();
-				//else hist->Draw("SAME");
-				std::cout << "Get limits " << hist->GetXaxis()->GetXmin() << "-" << hist->GetXaxis()->GetXmax() << " " << hist->GetYaxis()->GetXmin() << "-" << hist->GetYaxis()->GetXmax() << "\n";
-				UpdateZoom(hist->GetXaxis(), hist->GetYaxis(), pad);
-				std::cout << "U Get limits " << hist->GetXaxis()->GetXmin() << "-" << hist->GetXaxis()->GetXmax() << " " << hist->GetYaxis()->GetXmin() << "-" << hist->GetYaxis()->GetXmax() << "\n";
-			}
-		}
-		pad->Modified();
-		GetCanvas()->Update();
 	}
 }
 

@@ -5,7 +5,6 @@
 
 #include "TCanvas.h"
 #include "TApplication.h"
-#include "TAxis.h"
 
 #include "ScanInterface.hpp"
 
@@ -15,15 +14,17 @@ class RootScanner : public ScanInterface {
 		~RootScanner();
 		TCanvas *GetCanvas() {return canvas_;};
 		void IdleTask();
-		void UpdateZoom(TAxis *axisX, TAxis *axisY, TVirtualPad* pad = gPad);
+		void UpdateZoom(TVirtualPad* pad = gPad);
 		void ResetZoom(TVirtualPad *pad = gPad);
 	
 	private:
 		TCanvas *canvas_;
 	
 		struct AxisInfo {	
-			float userZoomVals[2][2];
-			float axisVals[2][2];
+			float rangeUserMin[2];
+			float rangeUserMax[2];
+			float limitMin[2];
+			float limitMax[2];
 			bool reset;
 		};
 		std::map< TVirtualPad*, AxisInfo > zoomInfo_;
