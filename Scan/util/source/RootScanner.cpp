@@ -28,7 +28,6 @@ RootScanner::~RootScanner() {
   */
 void RootScanner::IdleTask() {
 	gSystem->ProcessEvents();
-	canvas_->Update();
 	usleep(100000);
 }
 
@@ -71,6 +70,8 @@ void RootScanner::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
 	//Get the list of items on the pad.
 	TList *list = gPad->GetListOfPrimitives();
 
+	bool limitChange = false;
+
 	//Loop over the objects in the list to determine pad limits.
 	for( TObject *obj = list->First(); obj; obj = list->After(obj)) {
 		TAxis *xAxis, *yAxis; //Pointers to the axes.
@@ -78,7 +79,7 @@ void RootScanner::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
 		if ( TH1* hist = dynamic_cast<TH1*>(obj) ) {
 			xAxis = hist->GetXaxis();
 			yAxis = hist->GetYaxis();
-			if (hist->GetBinContent(hist->GetMaximumBin()) > padZoomInfo->limitMax[1]) {
+			if (hist->GetBinContent(hist->GetMaximumBin()) * 1.1 > padZoomInfo->limitMax[1]) {
 				padZoomInfo->limitMax[1] = 1.1 * hist->GetBinContent(hist->GetMaximumBin());
 			}
 		}
@@ -92,14 +93,22 @@ void RootScanner::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
 
 		//If the axis min / max are outside current stored values thens We update 
 		// the values.
-		if (xAxis->GetXmin() < padZoomInfo->limitMin[0]) 
+		if (xAxis->GetXmin() < padZoomInfo->limitMin[0]) {
 			padZoomInfo->limitMin[0] = xAxis->GetXmin(); 
-		if (xAxis->GetXmax() > padZoomInfo->limitMax[0]) 
+			limitChange = true;
+		}
+		if (xAxis->GetXmax() > padZoomInfo->limitMax[0]) {
 			padZoomInfo->limitMax[0] = xAxis->GetXmax(); 
-		if (yAxis->GetXmin() < padZoomInfo->limitMin[1]) 
+			limitChange = true;
+		}
+		if (yAxis->GetXmin() < padZoomInfo->limitMin[1]) {
 			padZoomInfo->limitMin[1] = yAxis->GetXmin(); 
-		if (yAxis->GetXmax() > padZoomInfo->limitMax[1]) 
+			limitChange = true;
+		}
+		if (yAxis->GetXmax() > padZoomInfo->limitMax[1]) {
 			padZoomInfo->limitMax[1] = yAxis->GetXmax(); 
+			limitChange = true;
+		}
 
 	}
 
@@ -120,11 +129,13 @@ void RootScanner::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
 			xAxis = hist->GetXaxis();
 			yAxis = hist->GetYaxis();
 
-			//Set the axes limits
-			xAxis->SetLimits(padZoomInfo->limitMin[0], padZoomInfo->limitMax[0]);
-			yAxis->SetLimits(padZoomInfo->limitMin[1], padZoomInfo->limitMax[1]);
-			//Set the histogram maximum
-			hist->SetMaximum(padZoomInfo->limitMax[1]);	
+			if (limitChange) {
+				//Set the axes limits
+				xAxis->SetLimits(padZoomInfo->limitMin[0], padZoomInfo->limitMax[0]);
+				yAxis->SetLimits(padZoomInfo->limitMin[1], padZoomInfo->limitMax[1]);
+				//Set the histogram maximum
+				hist->SetMaximum(padZoomInfo->limitMax[1]);	
+			}
 
 		}
 		//Check if the object is a graph
@@ -139,8 +150,9 @@ void RootScanner::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
 		yAxis->SetRangeUser(padZoomInfo->rangeUserMin[1], padZoomInfo->rangeUserMax[1]);
 	}
 		
-	pad->Modified();
-	canvas_->Update();
+	if (limitChange) {
+		pad->Modified();
+	}
 
 }
 
