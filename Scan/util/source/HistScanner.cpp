@@ -147,7 +147,7 @@ bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string>
 
 		return true;
 	}
-	else if (cmd == "clear") {
+	else if (cmd == "zero") {
 		tree_->Reset();
 
 		for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
@@ -156,6 +156,7 @@ bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string>
 				TH1F* hist = dynamic_cast<TH1F*> (gDirectory->Get(itr->second.c_str()));
 				if (hist) hist->Reset();
 			}
+			ResetZoom(padItr->first);
 		}
 		return true;
 	}
