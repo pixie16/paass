@@ -6,6 +6,9 @@
 #include "TDirectory.h"
 #include "TH1F.h"
 #include "TColor.h"
+#include "TTreeFormula.h"
+
+#include "TError.h"
 
 #include "HistUnpacker.hpp"
 
@@ -14,6 +17,9 @@
 HistScanner::HistScanner() :
 	RootScanner()
 {
+	//Only output ROOT errors if they are fatal.
+	gErrorIgnoreLevel = kFatal;
+
 	file_ = new TFile("histScanner.root","RECREATE");
 	eventData_ = new std::vector< HistScannerChanData >;
 	tree_ = new TTree("data","");
@@ -111,8 +117,8 @@ bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string>
 bool HistScanner::HelpCommand(const std::vector<std::string> &args) {
 	if (args.size() == 1) {
 		if (args[0] == "plot") {	
-			std::cout << "Usage: plot <mod> <chan> <type> [pad]\n";
-			std::cout << " Plots a new histogram for module, chan and type specified.\n";
+			std::cout << "Usage: plot <mod> <chan> <expr> [pad]\n";
+			std::cout << " Plots a new histogram for module, chan and expr specified.\n";
 			std::cout << " If no pad is specified the plot is aded to the currently selected pad.\n";
 			return true;
 		}
@@ -137,7 +143,7 @@ bool HistScanner::HelpCommand(const std::vector<std::string> &args) {
 bool HistScanner::PlotCommand(const std::vector<std::string> &args) {
 	if (args.size() != 3 && args.size() != 4) {
 		std::cout << "ERROR: Incorrect syntax for plot command.\n";
-		std::cout << "Usage: plot <mod> <chan> <type> [pad]\n";
+		std::cout << "Usage: plot <mod> <chan> <expr> [pad]\n";
 		return true;
 	}
 	int mod = -1, chan = -1;
@@ -149,15 +155,43 @@ bool HistScanner::PlotCommand(const std::vector<std::string> &args) {
 	catch (const std::invalid_argument& ia) { 
 		std::cout << "ERROR: Invalid channel argument: '" << args[1] << "'\n"; 
 	}
-	std::string type;
-	if (args[2] == "filter") type = "filterEn";
-	else if (args[2] == "peakadc") type = "peakAdc";
-	else if (args[2] == "tqdc") type = "traceQdc";
-	else {
-		std::cout << "ERROR: Incorrect type: '" << args[2] << "'.\n";
-		std::cout << "Valid choices: filter, peakadc, tqdc\n";
+
+	std::string expr = args[2];
+
+	//Test the expression is valid.
+	bool exprValid = true;
+	size_t startPos = 0, stopPos = 0;
+	//Loop over each argument separated by colons.
+	while(stopPos < expr.length()) {
+		stopPos = expr.find_first_of(":", startPos);
+		if (stopPos == std::string::npos) stopPos = expr.length();
+
+		//The plotter can only handle 1D right now.
+		if (stopPos != expr.length()) {
+			std::cout << "ERROR: Only 1D plots are currently supported.\n";
+			exprValid = false;
+			break;
+		}
+
+		//Get the subexpression to test
+		std::string split = expr.substr(startPos, stopPos - startPos);
+
+		//Test it with a TTreeFormula.
+		TTreeFormula formula("test", split.c_str(),tree_);
+		if(formula.GetNdim() == 0) {
+			std::cout << "ERROR: Incorrect expr: '" << expr << "', ";
+			std::cout << "(" << split << ").\n";
+			std::cout << "Valid choices: filterEn, peakAdc, traceQdc\n";
+			exprValid = false;
+			break;
+		}
+		
+		//Iterate the start position forward one unit.
+		startPos = stopPos + 1;
 	}
-	if (mod < 0 || chan < 0 || type == "") return true;
+
+	//Stop if the choice made so far are invalid.
+	if (mod < 0 || chan < 0 || !exprValid) return true;
 
 	//Determine pad
 	TVirtualPad *pad = gPad;
@@ -176,7 +210,7 @@ bool HistScanner::PlotCommand(const std::vector<std::string> &args) {
 		}
 
 		//Add to the new histogram vector.
-		newHists_.push_back(std::make_pair(std::make_tuple(mod, chan, type), pad));
+		newHists_.push_back(std::make_pair(std::make_tuple(mod, chan, expr), pad));
 
 		return true;
 
@@ -246,11 +280,11 @@ void HistScanner::ProcessNewHists() {
 
 		int mod = std::get<0>(key);
 		int chan = std::get<1>(key);
-		std::string type = std::get<2>(key);
+		std::string expr = std::get<2>(key);
 
 		//Define the new histograms name.
 		std::stringstream histName;
-		histName << "hM" << mod << "C" << chan << "_" << type << "_" << histCount_[key]++;
+		histName << "hM" << mod << "C" << chan << "_" << expr << "_" << histCount_[key]++;
 
 		//Push the histogram into the map.
 		histos_[pad][key] = histName.str();
@@ -275,7 +309,7 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 
 	int mod = std::get<0>(key);
 	int chan = std::get<1>(key);
-	std::string type = std::get<2>(key);
+	std::string expr = std::get<2>(key);
 
 	//Declare string streams used to populate the draw command.
 	std::stringstream drawCmd;
@@ -315,7 +349,7 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 	pad->cd();
 
 	if (hist) {
-		drawCmd << type << ">>+" << histName;
+		drawCmd << expr << ">>+" << histName;
 
 		tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),drawOpt.str().c_str(),std::numeric_limits<Long64_t>::max(),treeEntries_[hist]);
 		treeEntries_[hist] = tree_->GetEntries();
@@ -323,7 +357,7 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 	}
 	else {
 		drawColor = colors.at(std::distance(histMap->begin(), histItr));
-		drawCmd << type << ">>" << histName << "(1000)";
+		drawCmd << expr << ">>" << histName << "(1000)";
 
 		if (tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),drawOpt.str().c_str())) {
 			hist = (TH1F*) gDirectory->Get(histName.c_str());
@@ -335,13 +369,13 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 				hist->Reset();
 
 				drawCmd.str("");
-				drawCmd << type << ">>" << histName;
+				drawCmd << expr << ">>" << histName;
 
 				tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),drawOpt.str().c_str());
 				treeEntries_[hist] = tree_->GetEntries();
 
 				std::stringstream title;
-				title << "M" << mod << "C" << chan << " " << type;
+				title << "M" << mod << "C" << chan << " " << expr;
 				hist->SetTitle(title.str().c_str());
 				hist->SetLineColor(drawColor);
 
