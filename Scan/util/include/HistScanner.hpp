@@ -72,6 +72,7 @@ class HistScanner : public RootScanner {
 		bool ZeroCommand(const std::vector< std::string > &args);
 		bool DivideCommand(const std::vector< std::string > &args);
 		bool HelpCommand(const std::vector< std::string > &args);
+		void CmdHelp(const std::string &prefix);
 
 };
 
