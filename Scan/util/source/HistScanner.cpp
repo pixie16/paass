@@ -101,38 +101,71 @@ bool HistScanner::ProcessEvents() {
   * \return True if the command was recognized and false otherwise.
   */
 bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string> &args){
-	if (cmd == "plot") {
-		if (args.size() != 3 && args.size() != 4) {
-			std::cout << "ERROR: Incorrect syntax for plot command.\n";
+	if (cmd == "plot") { return PlotCommand(args); }
+	else if (cmd == "zero") { return ZeroCommand(args); }
+	else if (cmd == "divide") { return DivideCommand(args); }
+	else if (cmd == "help") { return HelpCommand(args); }
+	return false;
+}
+
+bool HistScanner::HelpCommand(const std::vector<std::string> &args) {
+	if (args.size() == 1) {
+		if (args[0] == "plot") {	
 			std::cout << "Usage: plot <mod> <chan> <type> [pad]\n";
+			std::cout << " Plots a new histogram for module, chan and type specified.\n";
+			std::cout << " If no pad is specified the plot is aded to the currently selected pad.\n";
 			return true;
 		}
-		int mod = -1, chan = -1;
-		try { mod = std::stoi(args[0]); }
-		catch (const std::invalid_argument& ia) { 
-			std::cout << "ERROR: Invalid module argument: '" << args[0] << "'\n"; 
+		else if (args[0] == "zero") {
+			std::cout << "Usage: zero\n";
+			std::cout << " Zeros all histograms and stored data.\n";
+			return true;
 		}
-		try { chan = std::stoi(args[1]); }
-		catch (const std::invalid_argument& ia) { 
-			std::cout << "ERROR: Invalid channel argument: '" << args[1] << "'\n"; 
+		else if (args[0] == "divide") {
+			std::cout << "Usage: divide <numPads>\n";
+			std::cout << "       divide <numXPads> <numYPads>\n";
+			std::cout << " Divides the cavas in the selected number of pads.\n";
+			return true;
 		}
-		std::string type;
-		if (args[2] == "filter") type = "filterEn";
-		else if (args[2] == "peakadc") type = "peakAdc";
-		else if (args[2] == "tqdc") type = "traceQdc";
-		else {
-			std::cout << "ERROR: Incorrect type: '" << args[2] << "'.\n";
-			std::cout << "Valid choices: filter, peakadc, tqdc\n";
-		}
-		if (mod < 0 || chan < 0 || type == "") return true;
+	}
+	std::cout << "Specific Commands:	\n";
+	std::cout << " plot   - Creates a plot.\n";
+	std::cout << " zero   - Zeros all plots and associated data.\n";
+	std::cout << " divide - Divides the canvas into multiple pads.\n";
+	return true;
+}
+bool HistScanner::PlotCommand(const std::vector<std::string> &args) {
+	if (args.size() != 3 && args.size() != 4) {
+		std::cout << "ERROR: Incorrect syntax for plot command.\n";
+		std::cout << "Usage: plot <mod> <chan> <type> [pad]\n";
+		return true;
+	}
+	int mod = -1, chan = -1;
+	try { mod = std::stoi(args[0]); }
+	catch (const std::invalid_argument& ia) { 
+		std::cout << "ERROR: Invalid module argument: '" << args[0] << "'\n"; 
+	}
+	try { chan = std::stoi(args[1]); }
+	catch (const std::invalid_argument& ia) { 
+		std::cout << "ERROR: Invalid channel argument: '" << args[1] << "'\n"; 
+	}
+	std::string type;
+	if (args[2] == "filter") type = "filterEn";
+	else if (args[2] == "peakadc") type = "peakAdc";
+	else if (args[2] == "tqdc") type = "traceQdc";
+	else {
+		std::cout << "ERROR: Incorrect type: '" << args[2] << "'.\n";
+		std::cout << "Valid choices: filter, peakadc, tqdc\n";
+	}
+	if (mod < 0 || chan < 0 || type == "") return true;
 
-		//Determine pad
-		TVirtualPad *pad = gPad;
-		if (args.size() == 4) {
-			int padIndex = 0;
-			try { padIndex = std::stoi(args[3]); }
-			catch (const std::invalid_argument& ia) { 
-				std::cout << "ERROR: Invalid pad index: '" << args[3] << "'\n"; 
+	//Determine pad
+	TVirtualPad *pad = gPad;
+	if (args.size() == 4) {
+		int padIndex = 0;
+		try { padIndex = std::stoi(args[3]); }
+		catch (const std::invalid_argument& ia) { 
+			std::cout << "ERROR: Invalid pad index: '" << args[3] << "'\n"; 
 				return true;
 			}
 			pad = GetCanvas()->GetPad(padIndex);
@@ -146,62 +179,61 @@ bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string>
 		newHists_.push_back(std::make_pair(std::make_tuple(mod, chan, type), pad));
 
 		return true;
-	}
-	else if (cmd == "zero") {
-		tree_->Reset();
 
-		for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
-			HistMap_ *map = &padItr->second;
-			for (auto itr = map->begin(); itr != map->end(); ++itr) {
-				TH1F* hist = dynamic_cast<TH1F*> (gDirectory->Get(itr->second.c_str()));
-				if (hist) hist->Reset();
-			}
-			ResetZoom(padItr->first);
+}
+bool HistScanner::ZeroCommand(const std::vector<std::string> &args) {
+	tree_->Reset();
+
+	for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
+		HistMap_ *map = &padItr->second;
+		for (auto itr = map->begin(); itr != map->end(); ++itr) {
+			TH1F* hist = dynamic_cast<TH1F*> (gDirectory->Get(itr->second.c_str()));
+			if (hist) hist->Reset();
 		}
+		ResetZoom(padItr->first);
+	}
+	return true;
+}
+bool HistScanner::DivideCommand(const std::vector<std::string> &args) {
+	if (args.size() == 1) {
+		int pads = 0;
+		try { pads = std::stoi(args[0]); }
+		catch (const std::invalid_argument& ia) { 
+			std::cout << "ERROR: Invalid pad argument.\n";
+		}
+		if (pads <= 0) return true;
+		//We need to delete all the histos as their associated pads are to be deleted.
+		histos_.clear();
+		//Clear the canvas
+		GetCanvas()->Clear();
+		GetCanvas()->DivideSquare(pads);
 		return true;
 	}
-	else if (cmd == "divide") {
-		if (args.size() == 1) {
-			int pads = 0;
-			try { pads = std::stoi(args[0]); }
-			catch (const std::invalid_argument& ia) { 
-				std::cout << "ERROR: Invalid pad argument.\n";
-			}
-			if (pads <= 0) return true;
-			//We need to delete all the histos as their associated pads are to be deleted.
-			histos_.clear();
-			//Clear the canvas
-			GetCanvas()->Clear();
-			GetCanvas()->DivideSquare(pads);
-			return true;
+	else if (args.size() == 2) {
+		int padsX = 0, padsY = 0;
+		try { padsX = std::stoi(args[0]); }
+		catch (const std::invalid_argument& ia) { 
+			std::cout << "ERROR: Invalid pad X argument: '" << args[0] << "'\n";
 		}
-		else if (args.size() == 2) {
-			int padsX = 0, padsY = 0;
-			try { padsX = std::stoi(args[0]); }
-			catch (const std::invalid_argument& ia) { 
-				std::cout << "ERROR: Invalid pad X argument: '" << args[0] << "'\n";
-			}
-			try { padsY = std::stoi(args[1]); }
-			catch (const std::invalid_argument& ia) { 
-				std::cout << "ERROR: Invalid pad Y argument: '" << args[1] << "'\n";
-			}
-			if (padsX <= 0 || padsY <= 0) return true;
-			//We need to delete all the histos as their associated pads are to be deleted.
-			histos_.clear();
-			//Clear the canvas
-			GetCanvas()->Clear();
-			GetCanvas()->Divide(padsX, padsY);
-			return true;
+		try { padsY = std::stoi(args[1]); }
+		catch (const std::invalid_argument& ia) { 
+			std::cout << "ERROR: Invalid pad Y argument: '" << args[1] << "'\n";
 		}
-		else {
-			std::cout << "ERROR: Incorrect syntax for divide command.\n";
-			std::cout << "Usage: divide <numPads>\n";
-			std::cout << "       divide <numXPads> <numYPads>\n";
-			return true;
-		}
+		if (padsX <= 0 || padsY <= 0) return true;
+		//We need to delete all the histos as their associated pads are to be deleted.
+		histos_.clear();
+		//Clear the canvas
+		GetCanvas()->Clear();
+		GetCanvas()->Divide(padsX, padsY);
+		return true;
+	}
+	else {
+		std::cout << "ERROR: Incorrect syntax for divide command.\n";
+		std::cout << "Usage: divide <numPads>\n";
+		std::cout << "       divide <numXPads> <numYPads>\n";
+		return true;
 	}
 
-	return false;
 }
 
 ///Defines the newly requested histogram's names and pushes them into the 
