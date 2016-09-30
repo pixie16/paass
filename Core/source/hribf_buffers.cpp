@@ -96,6 +96,7 @@ bool BufferType::ReadHeader(std::ifstream *file_){
 
 /// Default constructor.
 PLD_header::PLD_header() : BufferType(HEAD, 0){ // 0x44414548 "HEAD"
+	PLD_header::Reset();
 }
 
 /// Destructor.
