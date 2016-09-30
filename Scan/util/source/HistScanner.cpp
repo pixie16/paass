@@ -114,6 +114,10 @@ bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string>
 	return false;
 }
 
+void HistScanner::CmdHelp(const std::string &prefix) {
+	HelpCommand(std::vector< std:: string >());
+}
+
 bool HistScanner::HelpCommand(const std::vector<std::string> &args) {
 	if (args.size() == 1) {
 		if (args[0] == "plot") {	
