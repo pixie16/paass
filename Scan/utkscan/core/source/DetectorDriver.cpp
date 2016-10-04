@@ -190,19 +190,23 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         } else if (name == "SsdProcessor") {
             vecProcess.push_back(new SsdProcessor());
         } else if (name == "VandleProcessor") {
-            double res = processor.attribute("res").as_double(2.0);
-            double offset = processor.attribute("offset").as_double(200.0);
-            unsigned int numStarts = processor.attribute("NumStarts").as_int(2);
-            vector<string> types =
-                strings::tokenize(processor.attribute("types").as_string(),",");
-            vecProcess.push_back(new VandleProcessor(types, res,
-                offset, numStarts));
+            vecProcess.push_back(new VandleProcessor(
+                    strings::tokenize(processor.attribute("types").as_string(),","),
+                    processor.attribute("res").as_double(2.0),
+                    processor.attribute("offset").as_double(200.0),
+                    processor.attribute("NumStarts").as_int(1)
+            ));
         } else if (name == "TeenyVandleProcessor") {
                 vecProcess.push_back(new TeenyVandleProcessor());
         } else if (name == "DoubleBetaProcessor") {
             vecProcess.push_back(new DoubleBetaProcessor());
         } else if (name == "PspmtProcessor") {
-                vecProcess.push_back(new PspmtProcessor());
+                vecProcess.push_back(new PspmtProcessor(
+                        processor.attribute("vd").as_string("SIB064_0926"),
+                        processor.attribute("res").as_double(512),
+                        processor.attribute("offset").as_uint(512),
+                        processor.attribute("threshold").as_double(50.)
+                ));
         } else if (name == "TemplateProcessor") {
             vecProcess.push_back(new TemplateProcessor());
         } else if (name == "E14060Processor") {

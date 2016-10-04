@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>S. V. Paulauskas</Name>
+        <Email>spaulaus AT utk DOT edu</Email>
+        <Date>September 16, 2016</Date>
+    </Author>
+
+    <Description>
+        Configuration for the segmented plastic scintillator tests using the
+        new voltage divider at UTK.
+    </Description>
+
+    <Global>
+        <Revision version="F"/>
+        <BitResolution value="12"/>
+        <EventWidth unit="s" value="1e-6"/>
+        <OutputPath>./</OutputPath>
+        <NumOfTraces value="50"/>
+        <HasRaw value="true"/>
+    </Global>
+
+    <DetectorDriver>
+        <Analyzer name="TraceExtractor" type="pspmt" subtype="anode"/>
+        <Analyzer name="WaveformAnalyzer"/>
+        <Processor name="PspmtProcessor" vd="SIB064_0926" scale="512"
+                   offset="512" threshold="0"/>
+        <Processor name="E14060Processor"/>
+    </DetectorDriver>
+
+    <Map>
+        <Module number="0">
+            <Channel number="4" type="pspmt" subtype="dynode"
+                     tags="start"> </Channel>
+            <Channel number="0" type="pspmt" subtype="anode"
+                     tags="xa"> </Channel>
+            <Channel number="1" type="pspmt" subtype="anode"
+                     tags="xb"> </Channel>
+            <Channel number="2" type="pspmt" subtype="anode"
+                     tags="ya"> </Channel>
+            <Channel number="3" type="pspmt" subtype="anode"
+                     tags="yb"> </Channel>
+        </Module>
+    </Map>
+
+    <TreeCorrelator name="root" verbose="False">
+    </TreeCorrelator>
+
+    <TimeCalibration verbose_timing="False">
+        <Vandle>
+        </Vandle>
+    </TimeCalibration>
+
+    <Physical>
+        <NeutronMass unit="MeV/c/c" value="939.565560"/>
+        <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+        <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+        <SmallLength unit="cm" value="60.0"/>
+        <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+        <BigLength unit="cm" value="200.0"/>
+        <SpeedOfLightMedium unit="cm/ns" value="13.4414"/>
+        <MediumLength unit="cm" value="120.0"/>
+    </Physical>
+
+    <Trace>
+        <TraceDelay unit="ns" value="248"/>
+        <QdcCompression value="4.0"/>
+        <WaveformRange>
+            <Range name="pspmt:anode">
+                <Low value="5"/>
+                <High value="12"/>
+            </Range>
+        </WaveformRange>
+    </Trace>
+
+    <Fitting>
+        <SigmaBaselineThresh value="3.0"/>
+        <Parameters>
+            <Pars name="vandle:medium">
+                <Beta value="0.254373"/>
+                <Gamma value="0.208072"/>
+            </Pars>
+            <Pars name="beta_scint:beta">
+                <Beta value="0.291858"/>
+                <Gamma value="0.219393"/>
+            </Pars>
+        </Parameters>
+    </Fitting>
+
+    <Notebook file="notes.txt" mode="r"/>
+</Configuration>
