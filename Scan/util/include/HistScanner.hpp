@@ -11,6 +11,9 @@
 #include "RootScanner.hpp"
 #include "HistScannerChanData.hpp"
 
+//forward declaration of XiaData.
+class XiaData;
+
 class HistScanner : public RootScanner {
 	public:
 		/// @brief Default constructor.
@@ -42,10 +45,10 @@ class HistScanner : public RootScanner {
 		TTree *tree_; //<Tree containing the current plottable data.
 
 		/// Vector containing all the channel data for an event.
-		std::vector< HistScannerChanData > *eventData_; 
+		HistScannerChanData *eventData_; 
 
 		/// The type for key for the hist map.
-		typedef std::tuple< int, int, std::string > HistKey_;
+		typedef std::tuple< std::string, std::string > HistKey_;
 		/// The type for the histogram map.
 		typedef std::map< HistKey_, std::string > HistMap_;
 
