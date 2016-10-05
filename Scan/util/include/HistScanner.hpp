@@ -71,10 +71,10 @@ class HistScanner : public RootScanner {
 		/// plotted on
 		void Plot(HistKey_ key, TVirtualPad *pad = gPad);
 
-		bool PlotCommand(const std::vector< std::string > &args);
-		bool ZeroCommand(const std::vector< std::string > &args);
-		bool DivideCommand(const std::vector< std::string > &args);
-		bool HelpCommand(const std::vector< std::string > &args);
+		void PlotCommand(const std::vector< std::string > &args);
+		void ZeroCommand(const std::vector< std::string > &args);
+		void DivideCommand(const std::vector< std::string > &args);
+		void HelpCommand(const std::vector< std::string > &args);
 		void CmdHelp(const std::string &prefix);
 
 };
