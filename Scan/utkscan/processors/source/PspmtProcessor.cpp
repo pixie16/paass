@@ -30,7 +30,7 @@ void PspmtProcessor::DeclarePlots(void) {
 
 PspmtProcessor::PspmtProcessor(const std::string &vd, const double &scale,
                                const unsigned int &offset,
-                                const double &threshold) :
+                               const double &threshold) :
         EventProcessor(OFFSET, RANGE, "PspmtProcessor") {
     if(vd == "SIB064_1018")
         vdtype_ = SIB064_1018;
@@ -63,6 +63,11 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
              << "anode events = " << anodeEvents.size() << endl;
         EndProcess();
         return false;
+    }
+
+    for(vector<ChanEvent *>::const_iterator it = dynodeEvents.begin();
+            it != dynodeEvents.end(); it++) {
+        plot(DD_QDC, (*it)->GetTrace().GetValue("qdc"), 0);
     }
 
     //Define some maps that we will use to hold the information necessary to
@@ -132,7 +137,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
          posTrace_.second*histogramScale_+histogramOffset_);
 
     EndProcess();
-    return (true);
+    return true;
 }
 
 bool PspmtProcessor::Process(RawEvent &event) {
@@ -140,7 +145,7 @@ bool PspmtProcessor::Process(RawEvent &event) {
         return false;
     //we may end up doing some correlation stuff in this method
     EndProcess();
-    return (true);
+    return true;
 }
 
 pair<double, double> PspmtProcessor::CalculatePosition(

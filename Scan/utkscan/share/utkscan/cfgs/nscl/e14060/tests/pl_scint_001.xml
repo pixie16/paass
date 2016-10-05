@@ -24,22 +24,22 @@
         <Analyzer name="TraceExtractor" type="pspmt" subtype="anode"/>
         <Analyzer name="WaveformAnalyzer"/>
         <Processor name="PspmtProcessor" vd="SIB064_0926" scale="512"
-                   offset="512" threshold="0"/>
+                   offset="512" threshold="50"/>
         <Processor name="E14060Processor"/>
     </DetectorDriver>
 
     <Map>
         <Module number="0">
-            <Channel number="4" type="pspmt" subtype="dynode"
-                     tags="start"> </Channel>
-            <Channel number="0" type="pspmt" subtype="anode"
-                     tags="xa"> </Channel>
-            <Channel number="1" type="pspmt" subtype="anode"
-                     tags="xb"> </Channel>
-            <Channel number="2" type="pspmt" subtype="anode"
-                     tags="ya"> </Channel>
-            <Channel number="3" type="pspmt" subtype="anode"
-                     tags="yb"> </Channel>
+            <Channel number="0" type="pspmt" subtype="anode" tags="xa">
+            </Channel>
+            <Channel number="1" type="pspmt" subtype="anode" tags="xb">
+            </Channel>
+            <Channel number="2" type="pspmt" subtype="anode" tags="ya">
+            </Channel>
+            <Channel number="3" type="pspmt" subtype="anode" tags="yb">
+            </Channel>
+            <Channel number="4" type="pspmt" subtype="dynode" tags="start">
+            </Channel>
         </Module>
     </Map>
 
