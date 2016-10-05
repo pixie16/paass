@@ -386,7 +386,10 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 		pad->Modified();
 	}
 	else {
-		drawColor = colors.at(std::distance(histMap->begin(), histItr));
+		//Get color for this plot.
+		unsigned int colorIndex = std::distance(histMap->begin(), histItr);
+		if (colorIndex < colors.size()) drawColor = colors.at(colorIndex);
+
 		drawCmd << expr << ">>" << histName << "(1000)";
 
 		if (tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),drawOpt.str().c_str())) {
