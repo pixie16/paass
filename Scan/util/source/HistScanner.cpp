@@ -99,51 +99,53 @@ bool HistScanner::ProcessEvents() {
   * \return True if the command was recognized and false otherwise.
   */
 bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string> &args){
-	if (cmd == "plot") { return PlotCommand(args); }
-	else if (cmd == "zero") { return ZeroCommand(args); }
-	else if (cmd == "divide") { return DivideCommand(args); }
-	else if (cmd == "help") { return HelpCommand(args); }
-	return false;
+	if (cmd == "plot") { PlotCommand(args); }
+	else if (cmd == "zero") { ZeroCommand(args); }
+	else if (cmd == "divide") { DivideCommand(args); }
+	else if (cmd == "help") { HelpCommand(args); }
+	//Command was not matched return false.
+	else { return false; }
+	return true;
 }
 
 void HistScanner::CmdHelp(const std::string &prefix) {
 	HelpCommand(std::vector< std:: string >());
 }
 
-bool HistScanner::HelpCommand(const std::vector<std::string> &args) {
+void HistScanner::HelpCommand(const std::vector<std::string> &args) {
 	if (args.size() == 1) {
 		if (args[0] == "plot") {	
 			std::cout << "Usage: plot <mod> <chan> <expr> [pad]\n";
 			std::cout << "       plot <expr> [pad]\n";
 			std::cout << " Plots a new histogram for module, chan and expr specified.\n";
 			std::cout << " If no pad is specified the plot is added to the currently selected pad.\n";
-			return true;
+			return;
 		}
 		else if (args[0] == "zero") {
 			std::cout << "Usage: zero\n";
 			std::cout << " Zeros all histograms and stored data.\n";
-			return true;
+			return;
 		}
 		else if (args[0] == "divide") {
 			std::cout << "Usage: divide <numPads>\n";
 			std::cout << "       divide <numXPads> <numYPads>\n";
 			std::cout << " Divides the canvas in the selected number of pads.\n";
-			return true;
+			return;
 		}
 	}
 	std::cout << "Specific Commands:	\n";
 	std::cout << " plot   - Creates a plot.\n";
 	std::cout << " zero   - Zeros all plots and associated data.\n";
 	std::cout << " divide - Divides the canvas into multiple pads.\n";
-	return true;
+	return;
 }
 
-bool HistScanner::PlotCommand(const std::vector<std::string> &args) {
+void HistScanner::PlotCommand(const std::vector<std::string> &args) {
 	if (args.size() == 0 || args.size() > 4) {
 		std::cout << "ERROR: Incorrect syntax for plot command.\n";
 		std::cout << "Usage: plot <mod> <chan> <expr> [pad]\n";
 		std::cout << "       plot <expr> [pad]\n";
-		return true;
+		return;
 	}
 
 	int mod = -1, chan = -1;
@@ -157,7 +159,7 @@ bool HistScanner::PlotCommand(const std::vector<std::string> &args) {
 			std::cout << "ERROR: Invalid channel argument: '" << args[1] << "'\n"; 
 		}
 		//Stop if the choice made so far are invalid.
-		if (mod < 0 || chan < 0) return true;
+		if (mod < 0 || chan < 0) return;
 	}
 
 	std::string expr;
@@ -176,7 +178,7 @@ bool HistScanner::PlotCommand(const std::vector<std::string> &args) {
 			std::cout << "ERROR: Only 1D plots are currently supported.\n";
 			
 			//Stop the plot command
-			return true;
+			return;
 		}
 
 		//Get the subexpression to test
@@ -197,7 +199,7 @@ bool HistScanner::PlotCommand(const std::vector<std::string> &args) {
 			std::cout << "\n";
 			
 			//Stop the plot command
-			return true;
+			return;
 		}
 		
 		//Iterate the start position forward one unit.
@@ -226,22 +228,22 @@ bool HistScanner::PlotCommand(const std::vector<std::string> &args) {
 		try { padIndex = std::stoi(padStr); }
 		catch (const std::invalid_argument& ia) { 
 			std::cout << "ERROR: Invalid pad index: '" << padStr << "'\n"; 
-			return true;
+			return;
 		}
 		pad = GetCanvas()->GetPad(padIndex);
 		if (!pad || pad ==0) {
 			std::cout << "ERROR: Invalid pad index: " << padIndex << ".\n";
-			return true;
+			return;
 		}
 	}
 
 	//Add to the new histogram vector.
 	newHists_.push_back(std::make_pair(std::make_tuple(expr, weight.str()), pad));
 
-	return true;
+	return;
 
 }
-bool HistScanner::ZeroCommand(const std::vector<std::string> &args) {
+void HistScanner::ZeroCommand(const std::vector<std::string> &args) {
 	tree_->Reset();
 
 	for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
@@ -256,22 +258,22 @@ bool HistScanner::ZeroCommand(const std::vector<std::string> &args) {
 
 	GetCanvas()->Update();
 
-	return true;
+	return;
 }
-bool HistScanner::DivideCommand(const std::vector<std::string> &args) {
+void HistScanner::DivideCommand(const std::vector<std::string> &args) {
 	if (args.size() == 1) {
 		int pads = 0;
 		try { pads = std::stoi(args[0]); }
 		catch (const std::invalid_argument& ia) { 
 			std::cout << "ERROR: Invalid pad argument.\n";
 		}
-		if (pads <= 0) return true;
+		if (pads <= 0) return;
 		//We need to delete all the histos as their associated pads are to be deleted.
 		histos_.clear();
 		//Clear the canvas
 		GetCanvas()->Clear();
 		GetCanvas()->DivideSquare(pads);
-		return true;
+		return;
 	}
 	else if (args.size() == 2) {
 		int padsX = 0, padsY = 0;
@@ -283,19 +285,19 @@ bool HistScanner::DivideCommand(const std::vector<std::string> &args) {
 		catch (const std::invalid_argument& ia) { 
 			std::cout << "ERROR: Invalid pad Y argument: '" << args[1] << "'\n";
 		}
-		if (padsX <= 0 || padsY <= 0) return true;
+		if (padsX <= 0 || padsY <= 0) return;
 		//We need to delete all the histos as their associated pads are to be deleted.
 		histos_.clear();
 		//Clear the canvas
 		GetCanvas()->Clear();
 		GetCanvas()->Divide(padsX, padsY);
-		return true;
+		return;
 	}
 	else {
 		std::cout << "ERROR: Incorrect syntax for divide command.\n";
 		std::cout << "Usage: divide <numPads>\n";
 		std::cout << "       divide <numXPads> <numYPads>\n";
-		return true;
+		return;
 	}
 
 }
