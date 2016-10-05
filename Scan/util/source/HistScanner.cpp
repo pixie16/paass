@@ -10,6 +10,8 @@
 
 #include "TError.h"
 
+#include "XiaData.hpp"
+
 #include "HistUnpacker.hpp"
 
 ///Initialize the scanner as well as create a ROOT file and tree to store 
@@ -21,12 +23,12 @@ HistScanner::HistScanner() :
 	gErrorIgnoreLevel = kFatal;
 
 	file_ = new TFile("histScanner.root","RECREATE");
-	eventData_ = new std::vector< HistScannerChanData >;
+	eventData_ = new HistScannerChanData();
 	tree_ = new TTree("data","");
 	tree_->Branch("eventData",&eventData_);
 }
 
-///Write the tree to to file, close the file and destory the objects.
+///Write the tree to to file, close the file and destroy the objects.
 HistScanner::~HistScanner() {
 	tree_->ResetBranchAddresses();
 	file_->Write();
@@ -47,17 +49,7 @@ Unpacker *HistScanner::GetCore(){
 /// The HistScannerChanData is then pushed back onto the eventData_ vector to 
 /// be process by ProcessEvents.
 bool HistScanner::AddEvent(XiaData* event) {		
-	//Do not delete as it causes segfault.
-	ChannelEvent *chEvent = new ChannelEvent(event);
-	HistScannerChanData data;
-	data.mod = event->modNum;
-	data.chan = event->chanNum;
-	data.filterEn = event->energy; 
-	chEvent->CorrectBaseline();
-	data.peakAdc = chEvent->maximum;
-	data.traceQdc = chEvent->IntegratePulse(chEvent->max_index - 10, chEvent->max_index + 15);
-
-	eventData_->push_back(data);
+	eventData_->Set(event);
 	return true;
 }
 
@@ -93,8 +85,8 @@ bool HistScanner::ProcessEvents() {
 		}
 		GetCanvas()->Update();
 	}
-	//We've processed the data so we clear the vector for the next data.
-	eventData_->clear();
+	//We've processed the data so we clear the class for the next data.
+	eventData_->Clear();
 
 	return true;
 }
@@ -122,8 +114,9 @@ bool HistScanner::HelpCommand(const std::vector<std::string> &args) {
 	if (args.size() == 1) {
 		if (args[0] == "plot") {	
 			std::cout << "Usage: plot <mod> <chan> <expr> [pad]\n";
+			std::cout << "       plot <expr> [pad]\n";
 			std::cout << " Plots a new histogram for module, chan and expr specified.\n";
-			std::cout << " If no pad is specified the plot is aded to the currently selected pad.\n";
+			std::cout << " If no pad is specified the plot is added to the currently selected pad.\n";
 			return true;
 		}
 		else if (args[0] == "zero") {
@@ -134,7 +127,7 @@ bool HistScanner::HelpCommand(const std::vector<std::string> &args) {
 		else if (args[0] == "divide") {
 			std::cout << "Usage: divide <numPads>\n";
 			std::cout << "       divide <numXPads> <numYPads>\n";
-			std::cout << " Divides the cavas in the selected number of pads.\n";
+			std::cout << " Divides the canvas in the selected number of pads.\n";
 			return true;
 		}
 	}
@@ -144,26 +137,34 @@ bool HistScanner::HelpCommand(const std::vector<std::string> &args) {
 	std::cout << " divide - Divides the canvas into multiple pads.\n";
 	return true;
 }
+
 bool HistScanner::PlotCommand(const std::vector<std::string> &args) {
-	if (args.size() != 3 && args.size() != 4) {
+	if (args.size() == 0 || args.size() > 4) {
 		std::cout << "ERROR: Incorrect syntax for plot command.\n";
 		std::cout << "Usage: plot <mod> <chan> <expr> [pad]\n";
+		std::cout << "       plot <expr> [pad]\n";
 		return true;
 	}
+
 	int mod = -1, chan = -1;
-	try { mod = std::stoi(args[0]); }
-	catch (const std::invalid_argument& ia) { 
-		std::cout << "ERROR: Invalid module argument: '" << args[0] << "'\n"; 
-	}
-	try { chan = std::stoi(args[1]); }
-	catch (const std::invalid_argument& ia) { 
-		std::cout << "ERROR: Invalid channel argument: '" << args[1] << "'\n"; 
+	if (args.size() > 2) {
+		try { mod = std::stoi(args[0]); }
+		catch (const std::invalid_argument& ia) { 
+			std::cout << "ERROR: Invalid module argument: '" << args[0] << "'\n"; 
+		}
+		try { chan = std::stoi(args[1]); }
+		catch (const std::invalid_argument& ia) { 
+			std::cout << "ERROR: Invalid channel argument: '" << args[1] << "'\n"; 
+		}
+		//Stop if the choice made so far are invalid.
+		if (mod < 0 || chan < 0) return true;
 	}
 
-	std::string expr = args[2];
+	std::string expr;
+	if (args.size() > 2) expr = args[2];
+	else expr = args[0];
 
 	//Test the expression is valid.
-	bool exprValid = true;
 	size_t startPos = 0, stopPos = 0;
 	//Loop over each argument separated by colons.
 	while(stopPos < expr.length()) {
@@ -173,8 +174,9 @@ bool HistScanner::PlotCommand(const std::vector<std::string> &args) {
 		//The plotter can only handle 1D right now.
 		if (stopPos != expr.length()) {
 			std::cout << "ERROR: Only 1D plots are currently supported.\n";
-			exprValid = false;
-			break;
+			
+			//Stop the plot command
+			return true;
 		}
 
 		//Get the subexpression to test
@@ -185,38 +187,58 @@ bool HistScanner::PlotCommand(const std::vector<std::string> &args) {
 		if(formula.GetNdim() == 0) {
 			std::cout << "ERROR: Incorrect expr: '" << expr << "', ";
 			std::cout << "(" << split << ").\n";
-			std::cout << "Valid choices: filterEn, peakAdc, traceQdc\n";
-			exprValid = false;
-			break;
+			std::cout << "Valid choices: ";
+
+			TList *list = (TList*) tree_->GetListOfLeaves();
+			for( TObject *obj = list->First(); obj; obj = list->After(obj)) {
+				std::cout << obj->GetName();
+				if (obj != list->Last()) std::cout << ", ";
+			}
+			std::cout << "\n";
+			
+			//Stop the plot command
+			return true;
 		}
 		
 		//Iterate the start position forward one unit.
 		startPos = stopPos + 1;
 	}
 
-	//Stop if the choice made so far are invalid.
-	if (mod < 0 || chan < 0 || !exprValid) return true;
+	//Determine the weight for the provided expression
+	// If the module and channel number are provided we determine the weight
+	// from the multiplicity for that pair.
+	std::stringstream weight;
+	if (mod > -1 && chan > -1) {
+		weight << "mult[" << mod << "][" << chan << "]>0";
+	}
 
 	//Determine pad
 	TVirtualPad *pad = gPad;
-	if (args.size() == 4) {
+
+	//Get the string argument provided for the pad
+	std::string padStr = "";
+	if (args.size() == 2) padStr = args[1];
+	else if (args.size() == 4) padStr = args[3]; 
+
+	//If a string argument was provided we try to find the pad.
+	if (padStr != "") {	
 		int padIndex = 0;
-		try { padIndex = std::stoi(args[3]); }
+		try { padIndex = std::stoi(padStr); }
 		catch (const std::invalid_argument& ia) { 
-			std::cout << "ERROR: Invalid pad index: '" << args[3] << "'\n"; 
-				return true;
-			}
-			pad = GetCanvas()->GetPad(padIndex);
-			if (!pad || pad ==0) {
-				std::cout << "ERROR: Invalid pad index: " << padIndex << ".\n";
-				return true;
-			}
+			std::cout << "ERROR: Invalid pad index: '" << padStr << "'\n"; 
+			return true;
 		}
+		pad = GetCanvas()->GetPad(padIndex);
+		if (!pad || pad ==0) {
+			std::cout << "ERROR: Invalid pad index: " << padIndex << ".\n";
+			return true;
+		}
+	}
 
-		//Add to the new histogram vector.
-		newHists_.push_back(std::make_pair(std::make_tuple(mod, chan, expr), pad));
+	//Add to the new histogram vector.
+	newHists_.push_back(std::make_pair(std::make_tuple(expr, weight.str()), pad));
 
-		return true;
+	return true;
 
 }
 bool HistScanner::ZeroCommand(const std::vector<std::string> &args) {
@@ -229,7 +251,11 @@ bool HistScanner::ZeroCommand(const std::vector<std::string> &args) {
 			if (hist) hist->Reset();
 		}
 		ResetZoom(padItr->first);
+		padItr->first->Modified();
 	}
+
+	GetCanvas()->Update();
+
 	return true;
 }
 bool HistScanner::DivideCommand(const std::vector<std::string> &args) {
@@ -282,13 +308,12 @@ void HistScanner::ProcessNewHists() {
 		auto key = newHists_.back().first;
 		auto pad = newHists_.back().second;
 
-		int mod = std::get<0>(key);
-		int chan = std::get<1>(key);
-		std::string expr = std::get<2>(key);
+		std::string expr = std::get<0>(key);
+		std::string weight = std::get<1>(key);
 
 		//Define the new histograms name.
 		std::stringstream histName;
-		histName << "hM" << mod << "C" << chan << "_" << expr << "_" << histCount_[key]++;
+		histName << "h_" << expr << "_" << histCount_[key]++;
 
 		//Push the histogram into the map.
 		histos_[pad][key] = histName.str();
@@ -296,7 +321,7 @@ void HistScanner::ProcessNewHists() {
 		//Make the initial plot.
 		Plot(key, pad);
 	
-		//Update the zoom ont he pad for the new histogram.
+		//Update the zoom on the pad for the new histogram.
 		UpdateZoom(pad);
 
 		newHists_.pop_back();
@@ -311,9 +336,8 @@ void HistScanner::ProcessNewHists() {
 void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 	static const std::vector< Color_t > colors = {kBlue + 2, kRed, kGreen + 1, kMagenta + 2};
 
-	int mod = std::get<0>(key);
-	int chan = std::get<1>(key);
-	std::string expr = std::get<2>(key);
+	std::string expr = std::get<0>(key);
+	std::string weight = std::get<1>(key);
 
 	//Declare string streams used to populate the draw command.
 	std::stringstream drawCmd;
@@ -323,7 +347,7 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 	Color_t drawColor = kBlack;
 
 	//Determine the weight or cut, we only want data from the specific mod/chan.
-	drawWeight << "mod == " << mod << " && chan == " << chan;
+	drawWeight << weight;//"(" << weight << ")";
 
 	//Find the entry matching the key.
 	auto padItr = histos_.find(pad);
@@ -369,7 +393,7 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 				//Determine the x maximum from the histogram
 				float xMax = hist->GetXaxis()->GetXmax();
 
-				hist->SetBins(xMax, 0, xMax);
+				hist->SetBins(xMax, 1, xMax);
 				hist->Reset();
 
 				drawCmd.str("");
@@ -378,9 +402,6 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 				tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),drawOpt.str().c_str());
 				treeEntries_[hist] = tree_->GetEntries();
 
-				std::stringstream title;
-				title << "M" << mod << "C" << chan << " " << expr;
-				hist->SetTitle(title.str().c_str());
 				hist->SetLineColor(drawColor);
 
 				hist->Draw(drawOpt.str().c_str());
