@@ -7,6 +7,7 @@
 #include "TObject.h"
 #include "TAxis.h"
 #include "TH1.h"
+#include "TH2.h"
 #include "TGraph.h"
 
 RootScanner::RootScanner() : 
@@ -33,7 +34,7 @@ void RootScanner::IdleTask() {
 
 void RootScanner::ResetZoom(TVirtualPad *pad /*= gPad*/) {
 	AxisInfo* padZoomInfo = &zoomInfo_[pad];
-	for (int i=0;i<2;i++) {
+	for (int i=0;i<numAxes_;i++) {
 		padZoomInfo->limitMin[i] = std::numeric_limits<float>::max();
 		padZoomInfo->limitMax[i] = std::numeric_limits<float>::min();
 		padZoomInfo->rangeUserMin[i] = std::numeric_limits<float>::max();
@@ -44,7 +45,7 @@ void RootScanner::ResetZoom(TVirtualPad *pad /*= gPad*/) {
 
 //Update the zoom levels on a pad.
 void RootScanner::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
-	//Get zoom info fo this pad.
+	//Get zoom info for this pad.
 	auto itr = zoomInfo_.find(pad);
 	if (itr == zoomInfo_.end()) ResetZoom(pad);
 	AxisInfo* padZoomInfo = &zoomInfo_[pad];
@@ -57,12 +58,14 @@ void RootScanner::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
 		padZoomInfo->rangeUserMax[0] = pad->GetUxmax();
 		padZoomInfo->rangeUserMin[1] = pad->GetUymin();
 		padZoomInfo->rangeUserMax[1] = pad->GetUymax();
+//		padZoomInfo->rangeUserMin[2] = pad->GetUzmin();
+//		padZoomInfo->rangeUserMax[2] = pad->GetUzmax();
 	}
 
 	//Determine if the user had zoomed or unzoomed by comparing the current axis
 	// limits to those taken from the canvas.
-	bool userZoom[2];
-	for (int i=0; i<2; i++) {
+	bool userZoom[numAxes_];
+	for (int i=0; i<numAxes_; i++) {
 		userZoom[i] =  (padZoomInfo->rangeUserMin[i] > padZoomInfo->limitMin[i] || 
 			padZoomInfo->rangeUserMax[i] < padZoomInfo->limitMax[i]);
 	}	
@@ -74,13 +77,21 @@ void RootScanner::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
 
 	//Loop over the objects in the list to determine pad limits.
 	for( TObject *obj = list->First(); obj; obj = list->After(obj)) {
-		TAxis *xAxis, *yAxis; //Pointers to the axes.
+		TAxis *xAxis, *yAxis, *zAxis = NULL; //Pointers to the axes.
+
 		//Check if the object is a histogram
 		if ( TH1* hist = dynamic_cast<TH1*>(obj) ) {
 			xAxis = hist->GetXaxis();
 			yAxis = hist->GetYaxis();
-			if (hist->GetBinContent(hist->GetMaximumBin()) * 1.1 > padZoomInfo->limitMax[1]) {
-				padZoomInfo->limitMax[1] = 1.1 * hist->GetBinContent(hist->GetMaximumBin());
+			
+			//Check if hist is 2D
+			if (dynamic_cast<TH2*>(hist) ) {
+				zAxis = hist->GetZaxis();
+			}
+			else{
+				if (hist->GetBinContent(hist->GetMaximumBin()) * 1.1 > padZoomInfo->limitMax[1]) {
+					padZoomInfo->limitMax[1] = 1.1 * hist->GetBinContent(hist->GetMaximumBin());
+				}
 			}
 		}
 		//Check if the object is a graph
@@ -91,7 +102,7 @@ void RootScanner::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
 		//Not an object we care about so we continue.
 		else continue;
 
-		//If the axis min / max are outside current stored values thens We update 
+		//If the axis min / max are outside current stored values then we update 
 		// the values.
 		if (xAxis->GetXmin() < padZoomInfo->limitMin[0]) {
 			padZoomInfo->limitMin[0] = xAxis->GetXmin(); 
@@ -109,12 +120,23 @@ void RootScanner::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
 			padZoomInfo->limitMax[1] = yAxis->GetXmax(); 
 			limitChange = true;
 		}
+		if (zAxis) {
+			if (zAxis->GetXmin() < padZoomInfo->limitMin[1]) {
+				padZoomInfo->limitMin[1] = zAxis->GetXmin(); 
+				limitChange = true;
+			}
+			if (yAxis->GetXmax() > padZoomInfo->limitMax[1]) {
+				padZoomInfo->limitMax[1] = zAxis->GetXmax(); 
+				limitChange = true;
+			}
+
+		}
 
 	}
 
 	//If the user didn't zoom we store the current axis limits in the userZoom 
 	// values.
-	for (int axis = 0; axis < 2; axis++) {
+	for (int axis = 0; axis < 3; axis++) {
 		if (!userZoom[axis]) {
 			padZoomInfo->rangeUserMin[axis] = padZoomInfo->limitMin[axis];
 			padZoomInfo->rangeUserMax[axis] = padZoomInfo->limitMax[axis];
@@ -133,8 +155,17 @@ void RootScanner::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
 				//Set the axes limits
 				xAxis->SetLimits(padZoomInfo->limitMin[0], padZoomInfo->limitMax[0]);
 				yAxis->SetLimits(padZoomInfo->limitMin[1], padZoomInfo->limitMax[1]);
-				//Set the histogram maximum
-				hist->SetMaximum(padZoomInfo->limitMax[1]);	
+
+				//Check if hist is 2D
+				if (dynamic_cast<TH2*>(hist) ) {
+					TAxis *zAxis = hist->GetZaxis();
+					zAxis->SetLimits(padZoomInfo->limitMin[2], padZoomInfo->limitMax[2]);
+				}
+				//We assume if not 2D then its 1D.
+				else {
+					//Set the histogram maximum
+					hist->SetMaximum(padZoomInfo->limitMax[1]);	
+				}
 			}
 
 		}

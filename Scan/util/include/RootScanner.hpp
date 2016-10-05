@@ -20,11 +20,12 @@ class RootScanner : public ScanInterface {
 	private:
 		TCanvas *canvas_;
 	
+		static constexpr const int numAxes_ = 3;
 		struct AxisInfo {	
-			float rangeUserMin[2];
-			float rangeUserMax[2];
-			float limitMin[2];
-			float limitMax[2];
+			float rangeUserMin[numAxes_];
+			float rangeUserMax[numAxes_];
+			float limitMin[numAxes_];
+			float limitMax[numAxes_];
 			bool reset;
 		};
 		std::map< TVirtualPad*, AxisInfo > zoomInfo_;
