@@ -4,7 +4,8 @@
 #include <stdexcept>
 
 #include "TDirectory.h"
-#include "TH1F.h"
+#include "TH1.h"
+#include "TH2.h"
 #include "TColor.h"
 #include "TTreeFormula.h"
 
@@ -174,8 +175,8 @@ void HistScanner::PlotCommand(const std::vector<std::string> &args) {
 		if (stopPos == std::string::npos) stopPos = expr.length();
 
 		//The plotter can only handle 1D right now.
-		if (stopPos != expr.length()) {
-			std::cout << "ERROR: Only 1D plots are currently supported.\n";
+		if (stopPos != expr.length() && expr.find_first_of(":", stopPos + 1) != std::string::npos) {
+			std::cout << "ERROR: Only 1D and 2D plots are currently supported.\n";
 			
 			//Stop the plot command
 			return;
@@ -249,7 +250,7 @@ void HistScanner::ZeroCommand(const std::vector<std::string> &args) {
 	for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
 		HistMap_ *map = &padItr->second;
 		for (auto itr = map->begin(); itr != map->end(); ++itr) {
-			TH1F* hist = dynamic_cast<TH1F*> (gDirectory->Get(itr->second.c_str()));
+			TH1* hist = (TH1*) (gDirectory->Get(itr->second.c_str()));
 			if (hist) hist->Reset();
 		}
 		ResetZoom(padItr->first);
@@ -368,7 +369,9 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 
 	histName = histItr->second;
 
-	TH1F* hist = dynamic_cast<TH1F*> (gDirectory->Get(histName.c_str()));
+	//Get pointer to histogram. 
+	// Cast to TH1 as all higher dimension histogram inherit from TH1.
+	TH1* hist = (TH1*) (gDirectory->Get(histName.c_str()));
 
 	//If this is not the first plot and the map is not empty we set option "SAME".
 	if (histItr != histMap->begin()) {
@@ -378,27 +381,54 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 	TVirtualPad *prevPad = gPad;
 	pad->cd();
 
+	//Histogram was found so we append to it.
 	if (hist) {
 		drawCmd << expr << ">>+" << histName;
 
-		tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),drawOpt.str().c_str(),std::numeric_limits<Long64_t>::max(),treeEntries_[hist]);
+		if (dynamic_cast<TH2*>(hist)) drawOpt << "COLZ";
+	
+		tree_->Draw(drawCmd.str().c_str(), drawWeight.str().c_str(), drawOpt.str().c_str(), std::numeric_limits<Long64_t>::max(), treeEntries_[hist]);
+		
+		//Update the number of entries scanned.
 		treeEntries_[hist] = tree_->GetEntries();
+
 		pad->Modified();
 	}
+	//No histogram was found so we need to create one.
 	else {
 		//Get color for this plot.
 		unsigned int colorIndex = std::distance(histMap->begin(), histItr);
 		if (colorIndex < colors.size()) drawColor = colors.at(colorIndex);
 
+		//Make an initial draw command.
 		drawCmd << expr << ">>" << histName << "(1000)";
 
-		if (tree_->Draw(drawCmd.str().c_str(),drawWeight.str().c_str(),drawOpt.str().c_str())) {
-			hist = (TH1F*) gDirectory->Get(histName.c_str());
+		//Attempt to draw and see if we get any counts.
+		if (tree_->Draw(drawCmd.str().c_str(), drawWeight.str().c_str(), drawOpt.str().c_str())) {
+			//Get a pointer to the created object.
+			hist = (TH1*) gDirectory->Get(histName.c_str());
 			if (hist) {
 				//Determine the x maximum from the histogram
 				float xMax = hist->GetXaxis()->GetXmax();
 
-				hist->SetBins(xMax, 1, xMax);
+				//Check if this is a 2D histogram
+				if (dynamic_cast<TH2*>(hist)) {
+
+					float yMax = hist->GetYaxis()->GetXmax();
+
+					int xBins = 256, yBins = 256;
+					if (xMax < xBins) xBins = xMax - 1;
+					if (yMax < yBins) yBins = yMax - 1;
+
+					hist->SetBins(xBins, 1, xMax, yBins, 1, yMax);
+			
+					drawOpt << "COLZ";
+				}
+				//If a 1D histogram
+				else {
+					hist->SetBins(xMax - 1, 1, xMax);
+				}
+				
 				hist->Reset();
 
 				drawCmd.str("");
@@ -413,7 +443,7 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 
 				if (histItr == histMap->begin() && histMap->size() > 1) {
 					for (auto itr = histMap->begin(); itr != histMap->end(); ++itr) {
-						TH1F* hist = dynamic_cast<TH1F*> (gDirectory->Get(itr->second.c_str()));
+						TH1* hist = (TH1*) (gDirectory->Get(itr->second.c_str()));
 						if (hist) {
 							hist->SetLineColor(colors.at(std::distance(histMap->begin(), itr)));
 							if (itr == histMap->begin()) hist->Draw();
@@ -425,7 +455,7 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 		}
 		else {
 			//The Draw command didn't add any entries so we delete the hist and try again later.
-			hist = (TH1F*) gDirectory->Get(histName.c_str());
+			hist = (TH1*) gDirectory->Get(histName.c_str());
 			delete hist;
 		}
 
