@@ -6,7 +6,7 @@ include_directories(ScanLib/include)
 if(USE_HRIBF)
    #Find HRIBF Libraries
    find_package(HRIBF REQUIRED)
-   add_definitions("-DUSE_HRIBF")
+   add_definitions("-D USE_HRIBF")
 
 	#If we are using HRIBF interface we need to include the ScanorInterface header
 	#	for the following code.

@@ -22,6 +22,7 @@
 
 #include "HisFile.hpp"
 
+#ifndef USE_HRIBF
 /// Create a DAMM 1D histogram (implemented for backwards compatibility)
 void hd1d_(int dammId, int nHalfWords, int rawlen, int histlen, int min, int max,
            const char *title, unsigned int length){
@@ -63,6 +64,7 @@ void set2cc_(const int &dammID, const int &x, const int &y, const int &z) {
         return;
     output_his->Fill(dammID, x, y, z);
 }
+#endif
 
 /// Strip trailing whitespace from a c-string
 std::string rstrip(char *input_) {
