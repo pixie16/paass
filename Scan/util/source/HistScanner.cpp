@@ -18,7 +18,9 @@
 ///Initialize the scanner as well as create a ROOT file and tree to store 
 /// processed data.
 HistScanner::HistScanner() :
-	RootScanner()
+	RootScanner(),
+	refreshDelaySec_(2),
+	refreshRequested_(false)
 {
 	//Only output ROOT errors if they are fatal.
 	gErrorIgnoreLevel = kFatal;
@@ -75,16 +77,28 @@ bool HistScanner::ProcessEvents() {
 	//Fill the tree with the current event.
 	tree_->Fill();
 
-	if (tree_->GetEntries() % 1000 == 0) {
-		for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
-			TVirtualPad *pad = padItr->first;
-			HistMap_ *map = &padItr->second;
-			for (auto itr = map->begin(); itr != map->end(); ++itr) {
-				Plot(itr->first, pad);
+	static std::chrono::system_clock::time_point currTime;
+	static std::chrono::duration<float> timeElapsedSec;
+
+	//Only refresh if the delay is greater than 0 or manual refresh requested.
+	if (refreshDelaySec_ > 0 || refreshRequested_) {
+		currTime = std::chrono::system_clock::now();
+		timeElapsedSec = std::chrono::duration_cast<std::chrono::duration<float> >(currTime - lastRefresh_);
+
+		if (timeElapsedSec.count() > refreshDelaySec_) {
+			refreshRequested_ = false;
+
+			for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
+				TVirtualPad *pad = padItr->first;
+				HistMap_ *map = &padItr->second;
+				for (auto itr = map->begin(); itr != map->end(); ++itr) {
+					Plot(itr->first, pad);
+				}
+				UpdateZoom(pad);
 			}
-			UpdateZoom(pad);
+			GetCanvas()->Update();
+			lastRefresh_ = currTime;
 		}
-		GetCanvas()->Update();
 	}
 	//We've processed the data so we clear the class for the next data.
 	eventData_->Clear();
@@ -93,16 +107,17 @@ bool HistScanner::ProcessEvents() {
 }
 
 /** ExtraCommands is used to send command strings to classes derived
-  * from ScanInterface. If ScanInterface receives an unrecognized
-  * command from the user, it will pass it on to the derived class.
-  * \param[in]  cmd_ The command to interpret.
-  * \param[out] arg_ Vector or arguments to the user command.
-  * \return True if the command was recognized and false otherwise.
-  */
+ * from ScanInterface. If ScanInterface receives an unrecognized
+ * command from the user, it will pass it on to the derived class.
+ * \param[in]  cmd_ The command to interpret.
+ * \param[out] arg_ Vector or arguments to the user command.
+ * \return True if the command was recognized and false otherwise.
+ */
 bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string> &args){
 	if (cmd == "plot") { PlotCommand(args); }
 	else if (cmd == "zero") { ZeroCommand(args); }
 	else if (cmd == "divide") { DivideCommand(args); }
+	else if (cmd == "refresh") { RefreshCommand(args); }
 	else if (cmd == "help") { HelpCommand(args); }
 	//Command was not matched return false.
 	else { return false; }
@@ -135,9 +150,10 @@ void HistScanner::HelpCommand(const std::vector<std::string> &args) {
 		}
 	}
 	std::cout << "Specific Commands:	\n";
-	std::cout << " plot   - Creates a plot.\n";
-	std::cout << " zero   - Zeros all plots and associated data.\n";
-	std::cout << " divide - Divides the canvas into multiple pads.\n";
+	std::cout << " plot    - Creates a plot.\n";
+	std::cout << " refresh - Refresh histograms.\n";
+	std::cout << " zero    - Zeros all plots and associated data.\n";
+	std::cout << " divide  - Divides the canvas into multiple pads.\n";
 	return;
 }
 
@@ -242,6 +258,29 @@ void HistScanner::PlotCommand(const std::vector<std::string> &args) {
 	newHists_.push_back(std::make_pair(std::make_tuple(expr, weight.str()), pad));
 
 	return;
+
+}
+
+void HistScanner::RefreshCommand(const std::vector< std::string > &args) {
+	if (args.size() > 1) {
+		std::cout << "ERROR: Incorrect syntax for refresh command.\n";
+		std::cout << "Usage: refresh [delayTimeSec] \n";
+		return;
+	}
+	if (args.empty()) {
+		refreshRequested_ = true;
+	}
+	else if (args.size() == 1) {
+		int refreshDelaySec = 0;
+		try { refreshDelaySec= std::stoi(args[0]); }
+		catch (const std::invalid_argument& ia) { 
+			std::cout << "ERROR: Invalid refresh delay value: '" << refreshDelaySec << "'\n"; 
+			return;
+		}
+		if (refreshDelaySec < 0) refreshDelaySec_ = 0;
+		else refreshDelaySec_ = refreshDelaySec;
+	}
+	
 
 }
 void HistScanner::ZeroCommand(const std::vector<std::string> &args) {

@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <tuple>
+#include <chrono>
 
 #include "TTree.h"
 #include "TFile.h"
@@ -73,9 +74,14 @@ class HistScanner : public RootScanner {
 
 		void PlotCommand(const std::vector< std::string > &args);
 		void ZeroCommand(const std::vector< std::string > &args);
+		void RefreshCommand(const std::vector< std::string > &args);
 		void DivideCommand(const std::vector< std::string > &args);
 		void HelpCommand(const std::vector< std::string > &args);
 		void CmdHelp(const std::string &prefix);
+
+		unsigned int refreshDelaySec_;
+		bool refreshRequested_;
+		std::chrono::system_clock::time_point lastRefresh_;
 
 };
 
