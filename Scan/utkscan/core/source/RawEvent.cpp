@@ -31,6 +31,10 @@ void RawEvent::Zero(const std::set<std::string> &usedev) {
         (*it).second.Zero();
     }
 
+    for(vector<ChanEvent*>::iterator it = eventList.begin();
+                it != eventList.end(); it++)
+        delete *it;
+
     eventList.clear();
 }
 

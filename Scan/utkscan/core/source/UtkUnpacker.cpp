@@ -32,7 +32,7 @@ UtkUnpacker::~UtkUnpacker() {
 void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/){
     if(!addr_)
         return;
-    
+
     DetectorDriver* driver = DetectorDriver::get();
     DetectorLibrary* modChan = DetectorLibrary::get();
     XiaData *current_event = NULL;
