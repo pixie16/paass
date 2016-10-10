@@ -345,6 +345,7 @@ void HistScanner::ClearCommand(const std::vector< std::string > &args) {
 		}
 	}
 
+	ResetZoom(GetCanvas());
 	GetCanvas()->Update();
 
 }
@@ -399,9 +400,7 @@ void HistScanner::DivideCommand(const std::vector<std::string> &args) {
 		}
 		if (pads <= 0) return;
 		//We need to delete all the histos as their associated pads are to be deleted.
-		histos_.clear();
-		//Clear the canvas
-		GetCanvas()->Clear();
+		ClearCommand(std::vector<std::string>());
 		GetCanvas()->DivideSquare(pads);
 		return;
 	}
