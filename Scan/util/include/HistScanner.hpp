@@ -33,6 +33,13 @@ class HistScanner : public RootScanner {
 		virtual bool ExtraCommands(const std::string &cmd_, std::vector<std::string> &args_);
 		void IdleTask();
 
+		/** Receive various status notifications from the scan.
+		 * \param[in] code_ The notification code passed from ScanInterface methods.
+		 * \return Nothing.
+		 */
+		virtual void Notify(const std::string &code_="");
+
+
 
 	protected:
 		/// @brief Create a HistScannerChanData from the porivded XiaData.
@@ -73,10 +80,12 @@ class HistScanner : public RootScanner {
 		void Plot(HistKey_ key, TVirtualPad *pad = gPad);
 
 		void PlotCommand(const std::vector< std::string > &args);
-		void ZeroCommand(const std::vector< std::string > &args);
 		void RefreshCommand(const std::vector< std::string > &args);
+		void ZeroCommand(const std::vector< std::string > &args);
+		void ClearCommand(const std::vector< std::string > &args);
 		void DivideCommand(const std::vector< std::string > &args);
 		void HelpCommand(const std::vector< std::string > &args);
+
 		void CmdHelp(const std::string &prefix);
 
 		unsigned int refreshDelaySec_;

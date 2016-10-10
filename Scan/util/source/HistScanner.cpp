@@ -40,6 +40,19 @@ HistScanner::~HistScanner() {
 	delete eventData_;
 }
 
+/** Receive various status notifications from the scan.
+  * \param[in] code_ The notification code passed from ScanInterface methods.
+  * \return Nothing.
+  */
+void HistScanner::Notify(const std::string &code_/*=""*/){
+	if(code_ == "START_SCAN"){ lastRefresh_ = std::chrono::system_clock::now(); }
+	else if(code_ == "STOP_SCAN"){  }
+	else if(code_ == "SCAN_COMPLETE"){ std::cout << msgHeader << "Scan complete.\n"; }
+	else if(code_ == "LOAD_FILE"){ std::cout << msgHeader << "File loaded.\n"; }
+	else if(code_ == "REWIND_FILE"){  }
+	else{ std::cout << msgHeader << "Unknown notification code '" << code_ << "'!\n"; }
+}
+
 /// Return a pointer to the Unpacker object to use for data unpacking.
 /// If no object has been initialized, create a new one.
 /// @return Pointer to an Unpacker object.
@@ -77,13 +90,11 @@ bool HistScanner::ProcessEvents() {
 	//Fill the tree with the current event.
 	tree_->Fill();
 
-	static std::chrono::system_clock::time_point currTime;
 	static std::chrono::duration<float> timeElapsedSec;
 
 	//Only refresh if the delay is greater than 0 or manual refresh requested.
 	if (refreshDelaySec_ > 0 || refreshRequested_) {
-		currTime = std::chrono::system_clock::now();
-		timeElapsedSec = std::chrono::duration_cast<std::chrono::duration<float> >(currTime - lastRefresh_);
+		timeElapsedSec = std::chrono::duration_cast<std::chrono::duration<float> >(std::chrono::system_clock::now() - lastRefresh_);
 
 		if (timeElapsedSec.count() > refreshDelaySec_) {
 			refreshRequested_ = false;
@@ -97,7 +108,7 @@ bool HistScanner::ProcessEvents() {
 				UpdateZoom(pad);
 			}
 			GetCanvas()->Update();
-			lastRefresh_ = currTime;
+			lastRefresh_ = std::chrono::system_clock::now();
 		}
 	}
 	//We've processed the data so we clear the class for the next data.
@@ -115,9 +126,10 @@ bool HistScanner::ProcessEvents() {
  */
 bool HistScanner::ExtraCommands(const std::string &cmd, std::vector<std::string> &args){
 	if (cmd == "plot") { PlotCommand(args); }
-	else if (cmd == "zero") { ZeroCommand(args); }
-	else if (cmd == "divide") { DivideCommand(args); }
 	else if (cmd == "refresh") { RefreshCommand(args); }
+	else if (cmd == "zero") { ZeroCommand(args); }
+	else if (cmd == "clear") { ClearCommand(args); }
+	else if (cmd == "divide") { DivideCommand(args); }
 	else if (cmd == "help") { HelpCommand(args); }
 	//Command was not matched return false.
 	else { return false; }
@@ -137,9 +149,19 @@ void HistScanner::HelpCommand(const std::vector<std::string> &args) {
 			std::cout << " If no pad is specified the plot is added to the currently selected pad.\n";
 			return;
 		}
+		else if (args[0] == "refresh") {
+			std::cout << "Usage: refresh [delayInSec]\n";
+			std::cout << " Refreshes the histograms after the delay specified has elapsed. If no delay is specified a force refresh occurs.\n";
+			return;
+		}
 		else if (args[0] == "zero") {
 			std::cout << "Usage: zero\n";
 			std::cout << " Zeros all histograms and stored data.\n";
+			return;
+		}
+		else if (args[0] == "clear") {
+			std::cout << "Usage: clear [padNum]\n";
+			std::cout << " Removes all histograms on the specified pad. If none specified the canvas is cleared.\n";
 			return;
 		}
 		else if (args[0] == "divide") {
@@ -153,6 +175,7 @@ void HistScanner::HelpCommand(const std::vector<std::string> &args) {
 	std::cout << " plot    - Creates a plot.\n";
 	std::cout << " refresh - Refresh histograms.\n";
 	std::cout << " zero    - Zeros all plots and associated data.\n";
+	std::cout << " clear   - Removes the plots on a given pad.\n";
 	std::cout << " divide  - Divides the canvas into multiple pads.\n";
 	return;
 }
@@ -166,6 +189,7 @@ void HistScanner::PlotCommand(const std::vector<std::string> &args) {
 	}
 
 	int mod = -1, chan = -1;
+	std::stringstream arrayIndex;
 	if (args.size() > 2) {
 		try { mod = std::stoi(args[0]); }
 		catch (const std::invalid_argument& ia) { 
@@ -177,6 +201,8 @@ void HistScanner::PlotCommand(const std::vector<std::string> &args) {
 		}
 		//Stop if the choice made so far are invalid.
 		if (mod < 0 || chan < 0) return;
+
+		arrayIndex << "[" << mod << "][" << chan << "]";
 	}
 
 	std::string expr;
@@ -185,12 +211,15 @@ void HistScanner::PlotCommand(const std::vector<std::string> &args) {
 
 	//Test the expression is valid.
 	size_t startPos = 0, stopPos = 0;
+	//The revised expression permitting modification for specification of mod / chan.
+	std::stringstream revisedExpr;
+
 	//Loop over each argument separated by colons.
 	while(stopPos < expr.length()) {
 		stopPos = expr.find_first_of(":", startPos);
 		if (stopPos == std::string::npos) stopPos = expr.length();
 
-		//The plotter can only handle 1D right now.
+		//The plotter can only handle 1D and 2D right now.
 		if (stopPos != expr.length() && expr.find_first_of(":", stopPos + 1) != std::string::npos) {
 			std::cout << "ERROR: Only 1D and 2D plots are currently supported.\n";
 			
@@ -200,14 +229,18 @@ void HistScanner::PlotCommand(const std::vector<std::string> &args) {
 
 		//Get the subexpression to test
 		std::string split = expr.substr(startPos, stopPos - startPos);
+		//Append array indices if module and channel number provided.
+		split.append(arrayIndex.str());
 
 		//Test it with a TTreeFormula.
 		TTreeFormula formula("test", split.c_str(),tree_);
 		if(formula.GetNdim() == 0) {
 			std::cout << "ERROR: Incorrect expr: '" << expr << "', ";
 			std::cout << "(" << split << ").\n";
-			std::cout << "Valid choices: ";
+			std::cout << "Check if mod / chan assignment makes sense with expr.\n";
+			std::cout << "Valid branches: ";
 
+			//Print list of valid choices.
 			TList *list = (TList*) tree_->GetListOfLeaves();
 			for( TObject *obj = list->First(); obj; obj = list->After(obj)) {
 				std::cout << obj->GetName();
@@ -218,10 +251,16 @@ void HistScanner::PlotCommand(const std::vector<std::string> &args) {
 			//Stop the plot command
 			return;
 		}
+
+		//Add semicolon between expressions
+		if (startPos != 0) revisedExpr << ":";
+		//Append the split argument.
+		revisedExpr << split;
 		
 		//Iterate the start position forward one unit.
 		startPos = stopPos + 1;
 	}
+	expr = revisedExpr.str();
 
 	//Determine the weight for the provided expression
 	// If the module and channel number are provided we determine the weight
@@ -261,6 +300,55 @@ void HistScanner::PlotCommand(const std::vector<std::string> &args) {
 
 }
 
+void HistScanner::ClearCommand(const std::vector< std::string > &args) {
+	if (args.size() > 1) {
+		std::cout << "ERROR: Incorrect syntax for clear command.\n";
+		std::cout << "Usage: clear [padNum] \n";
+		return;
+	}
+
+	if (args.empty()) {
+		GetCanvas()->Clear();
+		for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
+			HistMap_ *map = &padItr->second;
+			for (auto itr = map->begin(); itr != map->end(); ++itr) {
+				delete gDirectory->Get(itr->second.c_str());
+			}
+			if (!map->empty()) map->clear();
+		}
+	}
+	else {
+		//Get the string argument provided for the pad
+		std::string padStr = args[0];
+
+		int padIndex = 0;
+		try { padIndex = std::stoi(padStr); }
+		catch (const std::invalid_argument& ia) { 
+			std::cout << "ERROR: Invalid pad index: '" << padStr << "'\n"; 
+			return;
+		}
+
+		TVirtualPad* pad = GetCanvas()->GetPad(padIndex);
+		if (!pad || pad ==0) {
+			std::cout << "ERROR: Invalid pad index: " << padIndex << ".\n";
+			return;
+		}
+
+		auto padItr = histos_.find(pad);
+		if (padItr != histos_.end()) {
+			HistMap_ *map = &padItr->second;
+			for (auto itr = map->begin(); itr != map->end(); ++itr) {
+				delete gDirectory->Get(itr->second.c_str());
+			}
+			if (!map->empty()) map->clear();
+			pad->Modified();
+		}
+	}
+
+	GetCanvas()->Update();
+
+}
+
 void HistScanner::RefreshCommand(const std::vector< std::string > &args) {
 	if (args.size() > 1) {
 		std::cout << "ERROR: Incorrect syntax for refresh command.\n";
@@ -269,6 +357,8 @@ void HistScanner::RefreshCommand(const std::vector< std::string > &args) {
 	}
 	if (args.empty()) {
 		refreshRequested_ = true;
+		if (refreshDelaySec_)
+			std::cout << "Refreshing. Time between auto refreshes is " << refreshDelaySec_ << " s.\n";
 	}
 	else if (args.size() == 1) {
 		int refreshDelaySec = 0;
@@ -456,16 +546,16 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 					float yMax = hist->GetYaxis()->GetXmax();
 
 					int xBins = 256, yBins = 256;
-					if (xMax < xBins) xBins = xMax - 1;
-					if (yMax < yBins) yBins = yMax - 1;
+					if (xMax < xBins) xBins = xMax;
+					if (yMax < yBins) yBins = yMax;
 
-					hist->SetBins(xBins, 1, xMax, yBins, 1, yMax);
+					hist->SetBins(xBins, 0, xMax, yBins, 0, yMax);
 			
 					drawOpt << "COLZ";
 				}
 				//If a 1D histogram
 				else {
-					hist->SetBins(xMax - 1, 1, xMax);
+					hist->SetBins(xMax, 0, xMax);
 				}
 				
 				hist->Reset();
