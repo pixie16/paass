@@ -210,7 +210,7 @@ void UtkUnpacker::PrintProcessingTimeInformation(const clock_t &start,
     stringstream ss;
     static float hz = sysconf(_SC_CLK_TCK);
 
-    ss << "Data read up to buffer " << eventCounter << " in "
+    ss << "Data read up to built event number " << eventCounter << " in "
        << (now - start) / hz << " seconds. Current timestamp is "
        << eventTime;
     m.run_message(ss.str());
