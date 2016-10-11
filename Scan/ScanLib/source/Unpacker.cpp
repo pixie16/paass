@@ -412,7 +412,7 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 
 	// While the current location in the buffer has not gone beyond the end
 	// of the buffer (ignoring the last three delimiters, continue reading
-	while (nWords_read <= nWords - 3){
+	while (nWords_read <= nWords){
 		while(data[nWords_read] == 0xFFFFFFFF) // Search for the next non-delimiter.
 			nWords_read++;
 	
@@ -509,7 +509,7 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 	}
 	
 	// Check the number of read words
-	if(is_verbose && nWords_read != nWords - 3){
+	if(is_verbose && nWords_read != nWords){
 		std::cout << "ReadSpill: Received spill of " << nWords << " words, but read " << nWords_read << " words\n";
 	}
 

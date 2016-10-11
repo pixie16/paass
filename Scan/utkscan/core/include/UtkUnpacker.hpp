@@ -27,7 +27,7 @@ public:
 private:
     ///@brief Process all events in the event list.
     ///@param[in]  addr_ Pointer to a ScanInterface object.
-    virtual void ProcessRawEvent(ScanInterface *addr_=NULL);
+    void ProcessRawEvent(ScanInterface *addr_=NULL);
 
     ///@brief Initializes the DetectorLibrary and DetectorDriver
     ///@param[in] driver A pointer to the DetectorDriver that we're using.
