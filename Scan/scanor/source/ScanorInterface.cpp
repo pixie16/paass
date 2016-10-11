@@ -56,12 +56,8 @@ bool ScanorInterface::MakeModuleData(const uint32_t *data, unsigned long nWords,
 	memcpy(&modData[outWords], &data[inWords], lenRec * sizeof(uint32_t));
 	inWords  += lenRec;
 	outWords += lenRec;
-
-	modData[outWords++]=U_DELIMITER;
+        
     } while (inWords < nWords);
-
-    modData[outWords++]=U_DELIMITER;
-    modData[outWords++]=U_DELIMITER;
 
     if(nWords > TOTALREAD || inWords > TOTALREAD || outWords > TOTALREAD ) {
         std::stringstream ess;
