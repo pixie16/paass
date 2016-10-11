@@ -1,201 +1,217 @@
+///@file UtkUnpacker.cpp
+///@brief A child of the Unpacker class that is used to replace some of the
+/// functionality of the PixieStd.cpp from pixie_scan
+///@author S. V. Paulauskas
+///@date June 17, 2016
 #include <iostream>
 #include <set>
-
-#include <ctime>
 
 #include <unistd.h>
 #include <sys/times.h>
 
-#include <XiaData.hpp>
-
-#include "DetectorDriver.hpp"
+#include "DammPlotIds.hpp"
 #include "Places.hpp"
 #include "TreeCorrelator.hpp"
 #include "UtkScanInterface.hpp"
 #include "UtkUnpacker.hpp"
 
 using namespace std;
+using namespace dammIds::raw;
 
 /// Contains event information, the information is filled in ScanList() and is
 /// referenced in DetectorDriver.cpp, particularly in ProcessEvent().
 RawEvent rawev;
 
+///The only thing that we do here is call the destructor of the
+/// DetectorDriver. This will ensure that the memory is freed for all of the
+/// initialized detector and experiment processors and that information about
+/// the amount of time spent in each processor is output to the screen at the
+/// end of execution.
 UtkUnpacker::~UtkUnpacker() {
-    //Call destructor for Detector Driver so that we close out Processors
-    // properly
     DetectorDriver::get()->~DetectorDriver();
 }
 
-/** Process all events in the event list.
-  * \param[in]  addr_ Pointer to a location in memory. 
-  * \return Nothing. */
-void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/){
-    if(!addr_)
+/// This method initializes the DetectorLibrary and DetectorDriver classes so
+/// that we can begin processing the events. We take special action on the
+/// first event so that we can handle somethings poperly. Then we processes
+/// all channels in the event that we have not been told to ignore. The
+/// rejection regions that are defined in the XML file are used here to
+/// ignore chunks of data. We also make some calls to various other private
+/// methods to plot useful spectra and output processing information to the
+/// screen.
+/// @TODO Remove the conversion from XiaData to ChanEvent, these two classes
+/// are effectively identical. This is referenced in issue #
+void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
+    if (!addr_)
         return;
 
-    DetectorDriver* driver = DetectorDriver::get();
-    DetectorLibrary* modChan = DetectorLibrary::get();
-    XiaData *current_event = NULL;
-
-    static float hz = sysconf(_SC_CLK_TCK); // get the number of clock ticks per second
-    static clock_t clockBegin; // initialization time
-    static struct tms tmsBegin;
-    static unsigned int counter = 0;
-
-    // local variable for the detectors used in a given event
+    DetectorDriver *driver = DetectorDriver::get();
+    DetectorLibrary *modChan = DetectorLibrary::get();
     set<string> usedDetectors;
     Messenger m;
     stringstream ss;
-    
-    // Initialize the scan program before the first event
-    if(counter == 0){
-	// Retrieve the current time for use later to determine the total running time of the analysis.
-	m.start("Initializing scan");
-	clockBegin = times(&tmsBegin);
-	ss << "First buffer at " << clockBegin << " sys time";
-	m.detail(ss.str());
-	ss.str("");
-	
-	// After completion the descriptions of all channels are in the modChan
-	// vector, the DetectorDriver and rawevent have been initialized with the
-	// detectors that will be used in this analysis.
-	modChan->PrintUsedDetectors(rawev);
-	driver->Init(rawev);
-	
-	/* Make a last check to see that everything is in order for the driver
-	 * before processing data. SanityCheck function throws exception if
-	 * something went wrong. */
-	try{
-	    driver->SanityCheck(); 
-	} catch(GeneralException &e){
-	    m.fail();
-	    std::cout << "Exception caught while checking DetectorDriver"
-                      << " sanity in UtkUnpacker::ProcessRawEvent" << std::endl;
-	    std::cout << "\t" << e.what() << std::endl;
-	    exit(EXIT_FAILURE);
-	} catch(GeneralWarning &w){
-	    std::cout << "Warning caught during checking DetectorDriver"
-                      << " at UtkUnpacker::ProcessRawEvent" << std::endl;
-	    std::cout << "\t" << w.what() << std::endl;
-	}
-	
-	ss << "Init at " << times(&tmsBegin) << " sys time.";
-	m.detail(ss.str());
-	m.done();
-    } //if(counter == 0)
 
-    //BEGIN SCANLIST PART
-    unsigned long chanTime, eventTime;
-    
-    /** Rejection regions should be defined here*/
-    
-    //The initial event
-    deque<XiaData*>::iterator iEvent = rawEvent.begin();
+    static clock_t systemStartTime;
+    static struct tms systemTimes;
+    static double lastTimeOfPreviousEvent;
+    static unsigned int eventCounter = 0;
 
-    // local variables for the times of the current event, previous
-    // event and time difference between the two
-    double diffTime = 0;
-    //set last_t to the time of the first event
-    double lastTime = (*iEvent)->time;
-    double currTime = lastTime;
-    unsigned int id = (*iEvent)->getID();
+    if (eventCounter == 0)
+        InitializeDriver(driver, modChan, systemStartTime);
+    else if(eventCounter % 5000 == 0 || eventCounter == 1)
+        PrintProcessingTimeInformation(systemStartTime, times(&systemTimes),
+            GetEventStartTime(), eventCounter);
 
-    //Save time of the beginning of the file,
-    //this is needed for the rejection regions
-    static double firstTime = lastTime;
-    bool isFirstEvt = true;
-    bool isLastEvt = false;
-    //HistoStats(id, diffTime, lastTime, BUFFER_START);
+    if (Globals::get()->hasReject()) {
+        double eventTime = (GetEventStartTime() - GetFirstTime()) *
+                                Globals::get()->clockInSeconds();
 
-    // Now clear all places in correlator (if resetable type)
-    for (map<string, Place*>::iterator it =
-	     TreeCorrelator::get()->places_.begin();
-	 it != TreeCorrelator::get()->places_.end(); ++it)
-	if ((*it).second->resetable())
-	    (*it).second->reset();
+        vector< pair<int, int> > rejectRegions = Globals::get()->rejectRegions();
 
-    //loop over the list of channels that fired in this buffer
-    for(deque<XiaData*>::iterator it = rawEvent.begin();
-     	it != rawEvent.end(); it++){
+        for (vector<pair<int, int> >::iterator region = rejectRegions.begin();
+             region != rejectRegions.end(); ++region)
+            if (eventTime > region->first && eventTime < region->second)
+                return;
+    }
 
-        ///Check if this is the last event in the deque.
-        if(rawEvent.size() == 1)
-            isLastEvt = true;
+    driver->plot(D_EVENT_GAP, (GetRealStopTime() - lastTimeOfPreviousEvent) *
+            Globals::get()->clockInSeconds()*1e9);
+    driver->plot(D_BUFFER_END_TIME, GetRealStopTime() *
+            Globals::get()->clockInSeconds()*1e9);
+    driver->plot(D_EVENT_LENGTH, (GetRealStopTime() - GetRealStartTime()) *
+            Globals::get()->clockInSeconds()*1e9);
+    driver->plot(D_EVENT_MULTIPLICITY, rawEvent.size());
 
-        current_event = *it;
+    //loop over the list of channels that fired in this event
+    for (deque<XiaData *>::iterator it = rawEvent.begin();
+         it != rawEvent.end(); it++) {
 
-        // Check that this channel event exists.
-        if(!current_event)
+        if (!(*it))
             continue;
 
-        ///Completely ignore any channel that is set to be ignored
-        if (id == pixie::U_DELIMITER) {
+        RawStats((*it), driver);
+
+        if ((*it)->getID() == pixie::U_DELIMITER) {
             ss << "pattern 0 ignore";
             m.warning(ss.str());
             ss.str("");
             continue;
-	    }
-	
-        if ((*modChan)[id].GetType() == "ignore")
+        }
+
+        //Do not input the channel into the list of detectors used in the event
+        if ((*modChan)[(*it)->getID()].GetType() == "ignore")
             continue;
 
-        // Do something with the current event.
-        ChanEvent *event = new ChanEvent(current_event);
-
-        //calculate some of the parameters of interest
-        id = event->GetID();
-        chanTime  = event->GetTime();
-        eventTime = event->GetEventTimeLo();
-        /* retrieve the current event time and determine the time difference
-           between the current and previous events.
-        */
-        currTime = event->GetTime();
-        diffTime = currTime - lastTime;
+        // Convert an XiaData to a ChanEvent
+        ChanEvent *event = new ChanEvent((*it));
 
         //Add the ChanEvent pointer to the rawev and used detectors.
-        usedDetectors.insert((*modChan)[id].GetType());
+        usedDetectors.insert((*modChan)[(*it)->getID()].GetType());
         rawev.AddChan(event);
 
-        // 	if(isFirstEvt) {
-        // 	    //Save time of the beginning of the file,
-        // 	    //this is needed for the rejection regions
-        // 	    firstTime = lastTime;
-        // 	    //HistoStats(id, diffTime, lastTime, BUFFER_START);
-        // 	    isFirstEvt = false;
-        // 	}else if(isLastEvt) {
-        // 	    string mode;
-        // 	    //HistoStats(id, diffTime, currTime, BUFFER_END);
-
-
-        // 	}else
-        // 	    //HistoStats(id, diffTime, lastTime, EVENT_CONTINUE);
-
-        // 	//REJECTION REGIONS WOULD GO HERE
-
-        //     /* if the time difference between the current and previous event is
-        //     larger than the event width, finalize the current event, otherwise
-        //     treat this as part of the current event
-        //     */
-        //     if ( diffTime > Globals::get()->eventWidth() ) {
-        //         if(rawev.Size() > 0) {
-        //         /* detector driver accesses rawevent externally in order to
-        //         have access to proper detector_summaries
-        //         */
-        // 		cout << rawev.GetEventList().size() << endl;
-        //             driver->ProcessEvent(rawev);
-        //         }
-
-        //         //HistoStats(id, diffTime, currTime, EVENT_START);
-        //     } //else HistoStats(id, diffTime, currTime, EVENT_CONTINUE);
-
-        // 	//DTIME STUFF GOES HERE
-
-        //     // update the time of the last event
-        //     lastTime = currTime;
+        ///@TODO Add back in the processing for the dtime.
     }//for(deque<PixieData*>::iterator
 
     driver->ProcessEvent(rawev);
     rawev.Zero(usedDetectors);
     usedDetectors.clear();
-    counter++;
+
+    // If a place has a resetable type then reset it.
+    for (map<string, Place *>::iterator it =
+            TreeCorrelator::get()->places_.begin();
+         it != TreeCorrelator::get()->places_.end(); ++it)
+        if ((*it).second->resetable())
+            (*it).second->reset();
+
+    eventCounter++;
+    lastTimeOfPreviousEvent = GetRealStopTime();
+}
+
+/// This method plots information about the running time of the program, the
+/// hit spectrum, and the scalars for each of the channels. The two runtime
+/// spectra are critical when we are trying to debug potential data losses in
+/// the system. These spectra print the total number of counts in a given
+/// (milli)second of time.
+void UtkUnpacker::RawStats(XiaData *event_, DetectorDriver *driver,
+                           ScanInterface *addr_) {
+    int id = event_->getID();
+    static const int specNoBins = SE;
+    static double runTimeSecs = 0, remainNumSecs = 0;
+    static double runTimeMsecs = 0, remainNumMsecs = 0;
+    static int rowNumSecs = 0, rowNumMsecs = 0;
+
+    runTimeSecs = (event_->time - GetFirstTime()) *
+                  Globals::get()->clockInSeconds();
+    rowNumSecs = int(runTimeSecs / specNoBins);
+    remainNumSecs = runTimeSecs - rowNumSecs * specNoBins;
+
+    runTimeMsecs = runTimeSecs*1000;
+    rowNumMsecs = int(runTimeMsecs / specNoBins);
+    remainNumMsecs = runTimeMsecs - rowNumMsecs * specNoBins;
+
+    driver->plot(D_HIT_SPECTRUM, id);
+    driver->plot(DD_RUNTIME_SEC, remainNumSecs, rowNumSecs);
+    driver->plot(DD_RUNTIME_MSEC, remainNumMsecs, rowNumMsecs);
+    driver->plot(D_SCALAR + id, runTimeSecs);
+}
+
+/// First we initialize the DetectorLibrary, which reads the Map
+/// node in the XML configuration file. Then we initialize DetectorDriver and
+/// check that everything went all right with DetectorDriver::SanityCheck().
+/// If the sanity check fails then we will terminate the program, if things went
+/// well then we will warn the user about it and continue. If there is an
+/// error parsing the DetectorDriver node in the XML file it will show up as
+/// a General Exception here. This can be extremely useless sometimes...
+/// @TODO Expand the types of exceptions handled so that we can make the
+/// diagnostic information more useful for the user.
+void UtkUnpacker::InitializeDriver(DetectorDriver *driver,
+                                   DetectorLibrary *detlib, clock_t &start) {
+    struct tms systemTimes;
+    Messenger m;
+    stringstream ss;
+
+    m.start("Initializing scan");
+    start = times(&systemTimes);
+    ss << "First buffer at " << start << " system time";
+    m.detail(ss.str());
+    ss.str("");
+
+    detlib->PrintUsedDetectors(rawev);
+    driver->Init(rawev);
+
+    try {
+        driver->SanityCheck();
+    } catch (GeneralException &e) {
+        m.fail();
+        std::cout << "Exception checking DetectorDriver sanity in "
+                "UtkUnpacker::InitializeDriver" << std::endl;
+        std::cout << "\t" << e.what() << std::endl;
+        exit(EXIT_FAILURE);
+    } catch (GeneralWarning &w) {
+        std::cout << "Warning checking DetectorDriver sanity in "
+                "UtkUnpacker::InitializeDriver" << std::endl;
+        std::cout << "\t" << w.what() << std::endl;
+    }
+
+    ss << "Init at " << times(&systemTimes) << " system time.";
+    m.detail(ss.str());
+    m.done();
+}
+
+/// Spits out some useful information about the analysis time, what timestamp
+/// that we are currently on and information about how long it took us to get
+/// to this point. One should note that this does not contain all of the
+/// information that was present in PixieStd.cpp::hissub_. Some of that
+/// information is not available or just not that relevant to us.
+void UtkUnpacker::PrintProcessingTimeInformation(const clock_t &start,
+        const clock_t &now, const double &eventTime,
+        const unsigned int &eventCounter) {
+    Messenger m;
+    stringstream ss;
+    static float hz = sysconf(_SC_CLK_TCK);
+
+    ss << "Data read up to built event number " << eventCounter << " in "
+       << (now - start) / hz << " seconds. Current timestamp is "
+       << eventTime;
+    m.run_message(ss.str());
 }
