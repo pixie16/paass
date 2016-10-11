@@ -34,8 +34,8 @@ namespace dammIds {
 
         const int D_HIT_SPECTRUM = 1801;//!< Channel hit spectrum
         const int D_SUBEVENT_GAP = 1802;//!< Time difference between sub events
-        const int D_EVENT_LENGTH = 1803;//!< Length of the events
-        const int D_EVENT_GAP = 1804;//!< Time difference between buffers
+        const int D_EVENT_LENGTH = 1803;//!< Length of the events in ns
+        const int D_EVENT_GAP = 1804;//!< Time difference between buffers in ns
         const int D_EVENT_MULTIPLICITY = 1805;//!< Event multiplicity
         const int D_BUFFER_END_TIME = 1806;//!< Last time in Buffer
         const int DD_RUNTIME_SEC = 1807;//!< Run time in seconds
