@@ -364,6 +364,11 @@ void DetectorDriver::ProcessEvent(RawEvent& rawev) {
     }
 }
 
+/// Declare some of the raw and basic plots that are going to be used in the
+/// analysis of the data. These include raw and calibrated energy spectra,
+/// information about the run time, and count rates on the detectors. This
+/// also calls the DeclarePlots method that is present in all of the
+/// Analyzers and Processors.
 void DetectorDriver::DeclarePlots() {
     try {
         DeclareHistogram1D(D_HIT_SPECTRUM, S7, "channel hit spectrum");
@@ -374,16 +379,14 @@ void DetectorDriver::DeclarePlots() {
             DetectorLibrary* modChan = DetectorLibrary::get();
             DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
             DeclareHistogram1D(D_HAS_TRACE, S8, "channels with traces");
-            DeclareHistogram2D(DD_BUFFER_START_TIME, SE, S6, "dead time - 0.1%");
-            DeclareHistogram2D(DD_DEAD_TIME_CUMUL, SE, S6, "dead time - cumul");
             DeclareHistogram1D(D_SUBEVENT_GAP, SE,
-                               "time btwn chan-in event,10ns bin");
+                               "Time Between Channels in 10 ns / bin");
             DeclareHistogram1D(D_EVENT_LENGTH, SE,
-                               "time length of event, 10 ns bin");
-            DeclareHistogram1D(D_EVENT_GAP, SE, "time between events, 10 ns bin");
+                               "Event Length in ns");
+            DeclareHistogram1D(D_EVENT_GAP, SE, "Time Between Events in ns");
             DeclareHistogram1D(D_EVENT_MULTIPLICITY, S7,
-                               "number of channels in event");
-            DeclareHistogram1D(D_BUFFER_END_TIME, SE, "length of buffer, 1 ms bin");
+                               "Number of Channels Event");
+            DeclareHistogram1D(D_BUFFER_END_TIME, SE, "Buffer Length in ns");
             DetectorLibrary::size_type maxChan = modChan->size();
 
             for (DetectorLibrary::size_type i = 0; i < maxChan; i++) {

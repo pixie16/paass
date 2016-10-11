@@ -51,7 +51,7 @@ public:
     virtual ~XiaData();
     
     /// Get the event ID number (mod * chan).
-    int getID(){ return(modNum*16+chanNum); }
+    unsigned int getID(){ return(modNum*16+chanNum); }
     
     /// Reserve specified number of bins for the channel trace.
     void reserve(const size_t &size_);
