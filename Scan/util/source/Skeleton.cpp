@@ -1,12 +1,18 @@
 #include <iostream>
 
 #include <getopt.h>
-#include <stdlib.h>
+#include <cstring>
 
 #include "XiaData.hpp"
 
 // Local files
 #include "Skeleton.hpp"
+
+#ifdef USE_HRIBF
+#include "GetArguments.hpp"
+#include "Scanor.hpp"
+#include "ScanorInterface.hpp"
+#endif
 
 // Define the name of the program.
 #ifndef PROG_NAME
@@ -30,7 +36,12 @@ void skeletonUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/){
 	while(!rawEvent.empty()){
 		current_event = rawEvent.front();
 		rawEvent.pop_front(); // Remove this event from the raw event deque.
-		
+
+#ifdef USE_HRIBF		
+		// If using scanor, output to the generic histogram so we know that something is happening.
+		count1cc_(8000, (current_event->modNum*16+current_event->chanNum), 1);
+#endif	
+	
 		// Check that this channel event exists.
 		if(!current_event){ continue; }
 
@@ -208,6 +219,7 @@ bool skeletonScanner::ProcessEvents(){
 	return false;
 }
 
+#ifndef USE_HRIBF
 int main(int argc, char *argv[]){
 	// Define a new unpacker object.
 	skeletonScanner scanner;
@@ -226,3 +238,36 @@ int main(int argc, char *argv[]){
 	
 	return retval;
 }
+#else
+skeletonScanner *scanner = NULL;
+
+// Do some startup stuff.
+extern "C" void startup_()
+{
+	scanner = new skeletonScanner();	
+
+	// Handle command line arguments.
+	scanner->Setup(GetNumberArguments(), GetArguments());
+	
+	// Get a pointer to a class derived from Unpacker.
+	ScanorInterface::get()->SetUnpacker(scanner->GetCore());
+}
+
+///@brief Defines the main interface with the SCANOR library, the program
+/// essentially starts here.
+///@param [in] iexist : unused paramter from SCANOR call
+extern "C" void drrsub_(uint32_t &iexist) {
+	drrmake_();
+	hd1d_(8000, 2, 256, 256, 0, 255, "Run DAMM you!", strlen("Run DAMM you!"));
+	endrr_();
+}
+
+// Catch the exit call from scanor and clean up c++ objects CRT
+extern "C" void cleanup_()
+{
+	// Do some cleanup.
+	std::cout << "\nCleaning up..\n";
+	scanner->Close();
+	delete scanner;
+}
+#endif

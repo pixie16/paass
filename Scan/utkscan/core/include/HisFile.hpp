@@ -19,6 +19,7 @@
 #include <set>
 #include <vector>
 
+#ifndef USE_HRIBF
 /// Create a DAMM 1D histogram
 void hd1d_(int dammId, int nHalfWords, int rawlen, int histlen, int min, int max,
            const char *title, unsigned int length);
@@ -36,6 +37,9 @@ void count1cc_(const int &dammID, const int &x, const int &y);
 
 /// Unknown
 void set2cc_(const int &dammID, const int &x, const int &y, const int &z);
+#else
+#include "Scanor.hpp"
+#endif
 
 /// Histogram data storage object
 class HisData{

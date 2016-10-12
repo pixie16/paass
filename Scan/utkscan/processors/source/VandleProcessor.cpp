@@ -16,7 +16,6 @@
 #include "BarBuilder.hpp"
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
-#include "GetArguments.hpp"
 #include "Globals.hpp"
 #include "RawEvent.hpp"
 #include "TimingMapBuilder.hpp"

@@ -401,11 +401,9 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 	unsigned long numEvents = 0;
 	static int counter = 0; // the number of times this function is called
 	static int evCount;	 // the number of times data is passed to ScanList
-	static unsigned int lastVsn; // the last vsn read from the data
+	unsigned int lastVsn = 0xFFFFFFFF; // the last vsn read from the data
 	time_t theTime = 0;
 
-	// Initialize the scan program before the first event 
-	if(counter==0){ lastVsn=-1; } // Set last vsn to -1 so we expect vsn 0 first 	
 	counter++;
  
 	unsigned int lenRec = 0xFFFFFFFF;
@@ -415,6 +413,9 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 	// While the current location in the buffer has not gone beyond the end
 	// of the buffer (ignoring the last three delimiters, continue reading
 	while (nWords_read <= nWords){
+		while(data[nWords_read] == 0xFFFFFFFF) // Search for the next non-delimiter.
+			nWords_read++;
+	
 		// Retrieve the record length and the vsn number
 		lenRec = data[nWords_read]; // Number of words in this record
 		vsn = data[nWords_read+1]; // Module number
@@ -506,7 +507,7 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 		nWords_read += 2; // Skip it
 		lastVsn = 0xFFFFFFFF;
 	}
-
+	
 	// Check the number of read words
 	if(is_verbose && nWords_read != nWords){
 		std::cout << "ReadSpill: Received spill of " << nWords << " words, but read " << nWords_read << " words\n";

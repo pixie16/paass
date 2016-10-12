@@ -10,7 +10,6 @@
 #include <sstream>
 
 #include "EventProcessor.hpp"
-#include "GetArguments.hpp"
 
 //! Class to handle the Valid signal from MoNA DAQ
 class ValidProcessor : public EventProcessor {
