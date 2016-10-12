@@ -853,7 +853,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	int retval = 0;
 
 	//getopt_long is not POSIX compliant. It is provided by GNU. This may mean
-	//that we are not compatable with some systems. If we have enough
+	//that we are not compatible with some systems. If we have enough
 	//complaints we can either change it to getopt, or implement our own class. 
 	while ( (retval = getopt_long(argc, argv, optstr.c_str(), longOpts.data(), &idx)) != -1) {
 		if(retval == 0x0){ // Long option
@@ -933,7 +933,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	// If a pointer to an Unpacker derived class is not specified, call the
 	// extern function GetCore() to get a pointer to a new object.
 	if(!core)
-			GetCore();
+		GetCore();
 
 	// Link this object to the Unpacker for cross-calls.
 	core->SetInterface(this);
@@ -951,7 +951,8 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 		std::cout << "\nCleaning up...\n";
 		return false;
 	}
-		
+
+#ifndef USE_HRIBF		
 	if(shm_mode){
 		poll_server = new Server();
 		if(!poll_server->Init(5555, 1)){
@@ -985,16 +986,6 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 		std::cout << msgHeader << "Listening on poll2 SHM port 5555\n\n";
 	}
 		
-	// Do any last minute initialization.
-	try {
-		FinalInitialization();
-	}
-	catch(...) {
-		std::cout << "\nFinal initialization failed!\n";
-	}
-		
-	scan_init = true;
-		
 	// Load the input file, if the user has supplied a filename.
 	if(!shm_mode && !input_filename.empty()){
 		std::cout << msgHeader << "Using filename " << input_filename << ".\n";
@@ -1004,8 +995,17 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 		}
 		else{ std::cout << msgHeader << "Failed to load input file!\n"; }
 	}
+#endif
 	
-	return true;
+	// Do any last minute initialization.
+	try {
+		FinalInitialization();
+	}
+	catch(...) {
+		std::cout << "\nFinal initialization failed!\n";
+	}
+		
+	return (scan_init=true);
 }
 
 /** Run the scan program.
@@ -1013,6 +1013,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
   * \return Integer return value. 0 on success and 1 otherwise.
   */
 int ScanInterface::Execute(){
+#ifndef USE_HRIBF
 	if(!scan_init){
 		std::cout << " FATAL ERROR! ScanInterface is not initialized!\n";
 		return 1; 
@@ -1037,7 +1038,7 @@ int ScanInterface::Execute(){
 		runctrl.join();
 	}
 	else{ start_run_control(this); }
-	
+#endif	
 	return 0;
 }
 
@@ -1046,7 +1047,7 @@ int ScanInterface::Execute(){
   */
 bool ScanInterface::Close(){
 	if(!scan_init){ return false; }
-
+#ifndef USE_HRIBF
 	// Close the socket and restore the terminal
 	if(!batch_mode){
 		term->Close();
@@ -1077,8 +1078,9 @@ bool ScanInterface::Close(){
 	
 	if(poll_server){ delete poll_server; }
 	if(term){ delete term; }
+#endif
 	if(core){ delete core; }
-	
+
 	scan_init = false;
 	return true;
 }

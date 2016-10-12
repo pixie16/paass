@@ -1,11 +1,17 @@
+#include <algorithm>
 #include <iostream>
-#include <algorithm> 
 
 // PixieCore libraries
 #include "XiaData.hpp"
 
 // Local files
 #include "scope.hpp"
+
+#ifdef USE_HRIBF
+#include "GetArguments.hpp"
+#include "Scanor.hpp"
+#include "ScanorInterface.hpp"
+#endif
 
 // Root files
 #include "TApplication.h"
@@ -503,8 +509,8 @@ void scopeScanner::CmdHelp(const std::string &prefix_/*=""*/){
   * \return Nothing.
   */
 void scopeScanner::ArgHelp(){
-	AddOption(optionExt("mod", required_argument, NULL, 'm', "<module>", "Module of signal of interest (default=0)"));
-	AddOption(optionExt("chan", required_argument, NULL, 'c', "<channel>", "Channel of signal of interest (default=0)"));
+	AddOption(optionExt("mod", required_argument, NULL, 'M', "<module>", "Module of signal of interest (default=0)"));
+	AddOption(optionExt("chan", required_argument, NULL, 'C', "<channel>", "Channel of signal of interest (default=0)"));
 }
 
 /** SyntaxStr is used to print a linux style usage message to the screen.
@@ -678,10 +684,11 @@ void scopeScanner::IdleTask(){
 	usleep(SLEEP_WAIT);
 }
 
+#ifndef USE_HRIBF
 int main(int argc, char *argv[]){
 	// Define a new unpacker object.
 	scopeScanner scanner;
-	
+
 	// Set the output message prefix.
 	scanner.SetProgramName(std::string(PROG_NAME));	
 	
@@ -696,3 +703,36 @@ int main(int argc, char *argv[]){
 	
 	return retval;
 }
+#else
+scopeScanner *scanner = NULL;
+
+// Do some startup stuff.
+extern "C" void startup_()
+{
+	scanner = new scopeScanner();	
+
+	// Handle command line arguments from SCANOR
+	scanner->Setup(GetNumberArguments(), GetArguments());
+	
+	// Get a pointer to a class derived from Unpacker.
+	ScanorInterface::get()->SetUnpacker(scanner->GetCore());
+}
+
+///@brief Defines the main interface with the SCANOR library, the program
+/// essentially starts here.
+///@param [in] iexist : unused paramter from SCANOR call
+extern "C" void drrsub_(uint32_t &iexist) {
+	drrmake_();
+	hd1d_(8000, 2, 256, 256, 0, 255, "Run DAMM you!", strlen("Run DAMM you!"));
+	endrr_();
+}
+
+// Catch the exit call from scanor and clean up c++ objects CRT
+extern "C" void cleanup_()
+{
+	// Do some cleanup.
+	std::cout << "\nCleaning up..\n";
+	scanner->Close();
+	delete scanner;
+}
+#endif

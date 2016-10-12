@@ -1,11 +1,11 @@
-
-
 #include "DetectorDriver.hpp"
 #include "UtkScanInterface.hpp"
 #include "UtkUnpacker.hpp"
 
 // Define a pointer to an OutputHisFile for later use.
+#ifndef USE_HRIBF
 OutputHisFile *output_his = NULL;
+#endif
 
 /// Default constructor.
 UtkScanInterface::UtkScanInterface() : ScanInterface() {
@@ -14,8 +14,10 @@ UtkScanInterface::UtkScanInterface() : ScanInterface() {
 
 /// Destructor.
 UtkScanInterface::~UtkScanInterface() {
+#ifndef USE_HRIBF
     if (init_)
         delete (output_his);
+#endif
 }
 
 /** ExtraCommands is used to send command strings to classes derived
@@ -65,6 +67,9 @@ bool UtkScanInterface::Initialize(std::string prefix_) {
 
     Globals::get(GetSetupFilename());
 
+    //We remove this whole block in the event that we are using the SCANOR
+    //This should be cleaned up!!
+#ifndef USE_HRIBF
     try {
         // Read in the name of the his file.
         output_his = new OutputHisFile(GetOutputFilename().c_str());
@@ -89,6 +94,7 @@ bool UtkScanInterface::Initialize(std::string prefix_) {
         std::cout << prefix_ << e.what() << std::endl;
         exit(EXIT_FAILURE);
     }
+#endif
     return (init_ = true);
 }
 

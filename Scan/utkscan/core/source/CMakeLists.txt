@@ -6,7 +6,6 @@ set(CORE_SOURCES
         DetectorLibrary.cpp
         DetectorSummary.cpp
         Globals.cpp
-        HisFile.cpp
         Identifier.cpp
         Messenger.cpp
         Notebook.cpp
@@ -16,11 +15,16 @@ set(CORE_SOURCES
         TimingCalibrator.cpp
         TimingMapBuilder.cpp
         Trace.cpp
-        utkscan.cpp
         UtkScanInterface.cpp
         UtkUnpacker.cpp
         WalkCorrector.cpp
 )
+
+if(NOT USE_HRIBF)
+    set(CORE_SOURCES ${CORE_SOURCES} utkscan.cpp HisFile.cpp)
+else(USE_HRIBF)
+    set(CORE_SOURCES ${CORE_SOURCES} utkscanor.cpp)
+endif(NOT USE_HRIBF)
 
 set (CORRELATION_SOURCES
         PlaceBuilder.cpp
