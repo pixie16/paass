@@ -7,7 +7,7 @@
     </Author>
 
     <Description>
-        Master configuration file for e14060 at NSCL. This confuguration should
+        Master configuration file for e14060 at NSCL. This configuration should
         NOT be changed in any way.
     </Description>
 
@@ -17,22 +17,23 @@
         <EventWidth unit="s" value="1e-6"/>
         <OutputPath>./</OutputPath>
         <NumOfTraces value="50"/>
+        <HasRaw value="true"/>
     </Global>
 
     <DetectorDriver>
-        <Analyzer name="TraceExtractor" type="beta_scint" subtype="beta"/>
         <Analyzer name="WaveformAnalyzer"/>
         <Analyzer name="FittingAnalyzer" type="gsl"/>
+        <Processor name="GeProcessor"/>
+        <Processor name="PspmtProcessor" vd="SIB064_0926" scale="512"
+                   offset="512" threshold="50"/>
         <Processor name="VandleProcessor"
                    types="medium" res="2" offset="2000" NumStarts="1"/>
-        <!--
-                <Processor name="E14060Processor"/>
-        -->
+        <Processor name="E14060Processor"/>
     </DetectorDriver>
 
     <Map>
         <Module number="0">
-            <Channel number="0" type="beta_scint" subtype="beta"
+            <Channel number="0" type="pspmt" subtype="dynode"
                      tags="start"> </Channel>
             <Channel number="4" type="pspmt" subtype="anode"
                      tags="xa"> </Channel>
@@ -230,6 +231,8 @@
             <Channel number="1" type="ge" subtype="clover_high"> </Channel>
             <Channel number="2" type="ge" subtype="clover_high"> </Channel>
             <Channel number="3" type="ge" subtype="clover_high"> </Channel>
+            <Channel number="4" type="si" subtype="pin"> </Channel>
+            <Channel number="5" type="si" subtype="pin"> </Channel>
             <Channel number="12" type="tac" subtype="generic"> </Channel>
             <Channel number="13" type="tac" subtype="generic"> </Channel>
             <Channel number="14" type="tac" subtype="generic"> </Channel>
@@ -311,18 +314,29 @@
     </Map>
 
     <TreeCorrelator name="root" verbose="False">
-        <!--
-                <Place type="PlaceOR" name="Beta" fifo="4">
-                    <Place type="PlaceThreshold" name="pspmt_dynode_0"
-                           low_limit="50.0" high_limit="16382" replace="false"/>
-                </Place>
-        -->
+        <!-- This defines the beta place that will be used with the Gamma
+        place to define the beta-gated gamma spectra. -->
+        <Place type="PlaceOR" name="Beta" fifo="4">
+            <Place type="PlaceThreshold" name="pspmt_dynode_0"
+                   low_limit="50.0" high_limit="16382" replace="true"/>
+        </Place>
 
+        <!-- Defines the Gamma place for checking if we had a gamma-ray event
+         in the system -->
         <Place type="PlaceOR" name="Gamma">
             <Place type="PlaceOR" name="Clover0">
                 <Place type="PlaceThreshold" name="ge_clover_high_0-3"
                        low_limit="20.0" high_limit="99999" replace="true"/>
             </Place>
+        </Place>
+
+        <!-- Here we define what makes up an implant event. We have both one
+          of the upstream pins as well as the dynode signal from the PSPMT-->
+        <Place type="PlaceAND" name="Implant">
+            <Place type="PlaceThreshold" name="pspmt_dynode_0"
+                   low_limit="10" high_limit="99999" replace="true"/>
+            <Place type="PlaceThreshold" name="si_pin_0-1"
+                   low_limit="50" high_limit="99999" replace="true"/>
         </Place>
     </TreeCorrelator>
 
@@ -346,7 +360,7 @@
         <TraceDelay unit="ns" value="264"/>
         <QdcCompression value="4.0"/>
         <WaveformRange>
-            <Range name="beta_scint:beta">
+            <Range name="pspmt:dynode">
                 <Low value="5"/>
                 <High value="12"/>
             </Range>
@@ -360,7 +374,7 @@
                 <Beta value="0.254373"/>
                 <Gamma value="0.208072"/>
             </Pars>
-            <Pars name="beta_scint:beta">
+            <Pars name="pspmt:dynode">
                 <Beta value="0.291858"/>
                 <Gamma value="0.219393"/>
             </Pars>

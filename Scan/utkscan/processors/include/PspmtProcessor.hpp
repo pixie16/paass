@@ -35,11 +35,6 @@ public:
      * \return true if successful */
     bool PreProcess(RawEvent &event);
 
-    /** Process the event from the PSPMT data
-     * \param [in] event : the event to process
-     * \return Returns true if the processing was successful */
-    bool Process(RawEvent &event);
-
     ///Enumeration that describes the different voltage dividers that have
     /// been used. Each board may have a different method to calculate the
     /// position of the interaction.
@@ -51,7 +46,7 @@ public:
     /// found from the waveform in the WaveformAnalyzer, the on-board
     /// Pixie-16 energy filter, or the TraceFilterAnalyzer applying a
     /// trapezoidal filter to the trace.
-    std::pair<double, double> GetQdcPosition(std::string &type) {
+    std::pair<double, double> GetPosition(const std::string &type) {
         if (type == "qdc")
             return posQdc_;
         else if (type == "pixie")

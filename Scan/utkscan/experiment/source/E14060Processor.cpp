@@ -4,42 +4,20 @@
  *\author S. V. Paulauskas
  *\date September 15, 2016
  */
-#include <fstream>
 #include <iostream>
+#include <TimingMapBuilder.hpp>
 
-#include <cmath>
-
-#include "BarBuilder.hpp"
-#include "DammPlotIds.hpp"
-#include "DoubleBetaProcessor.hpp"
 #include "DetectorDriver.hpp"
 #include "GeProcessor.hpp"
-#include "GetArguments.hpp"
-#include "Globals.hpp"
 #include "E14060Processor.hpp"
-#include "RawEvent.hpp"
-#include "TimingMapBuilder.hpp"
+#include "PspmtProcessor.hpp"
 #include "VandleProcessor.hpp"
-
-#ifdef useroot
-static double tof_;
-static double qdc_;
-#endif
 
 namespace dammIds {
     namespace experiment {
-        const int DD_DEBUGGING0 = 0; //!<QDC CTof- No Tape Move
-        const int DD_DEBUGGING1 = 1; //!<QDC ToF Ungated
-        const int DD_DEBUGGING2 = 2; //!<Cor ToF vs. Gamma E
-        const int DD_DEBUGGING3 = 3; //!<Vandle Multiplicity
-        const int DD_DEBUGGING4 = 4; //!<QDC vs Cor Tof Mult1
-        const int DD_DEBUGGING5 = 5; //!<Mult2 Sym Plot Tof
+        const int DD_QDCVSTOF = 0; //!<QDC vs ToF
         const int DD_TACS = 6; //!< Spectra from TACS
-        const int DD_HAGRID = 7; //!< HAGRiD spectra
-        const int DD_PROTONBETA2TDIFF_VS_BETA2EN = 13; //!< BetaProton Tdiff vs. Beta Energy
-        const int D_ENERGY = 14; //!< Gamma singles ungated
-        const int D_ENERGYBETA = 15; //!< Gamma singles beta gated
-        const int DD_PROTONGAMMATDIFF_VS_GAMMAEN = 16; //!< GammaProton TDIFF vs. Gamma Energy
+        const int D_HAGRID = 7; //!< HAGRiD spectra
     }
 }//namespace dammIds
 
@@ -47,24 +25,9 @@ using namespace std;
 using namespace dammIds::experiment;
 
 void E14060Processor::DeclarePlots(void) {
-    DeclareHistogram2D(DD_DEBUGGING0, SC, SD, "QDC CTof- No Tape Move");
-    DeclareHistogram2D(DD_DEBUGGING1, SC, SD, "QDC ToF Ungated");
-    DeclareHistogram2D(DD_DEBUGGING2, SC, SC, "Cor ToF vs. Gamma E");
-    DeclareHistogram1D(DD_DEBUGGING3, S7, "Vandle Multiplicity");
-    DeclareHistogram2D(DD_DEBUGGING4, SC, SC, "QDC vs Cor Tof Mult1");
-    DeclareHistogram2D(DD_DEBUGGING5, SC, SC, "Mult2 Sym Plot Tof ");
+    DeclareHistogram2D(DD_QDCVSTOF, SC, SD, "QDC CTof- No Tape Move");
     DeclareHistogram2D(DD_TACS, S3, SD, "Tacs");
-    DeclareHistogram2D(DD_HAGRID, S3, SD, "HAGRiD");
-    DeclareHistogram2D(DD_PROTONBETA2TDIFF_VS_BETA2EN, SD, SA,
-                       "BetaProton Tdiff vs. Beta Energy");
-
-    const int energyBins1 = SD;
-    DeclareHistogram1D(D_ENERGY, energyBins1,
-                       "Gamma singles ungated");
-    DeclareHistogram1D(D_ENERGYBETA, energyBins1,
-                       "Gamma singles beta gated");
-    DeclareHistogram2D(DD_PROTONGAMMATDIFF_VS_GAMMAEN,
-                       SD, SB, "GammaProton TDIFF vs. Gamma Energy");
+    DeclareHistogram1D(D_HAGRID, SE, "HAGRiD");
 }
 
 E14060Processor::E14060Processor() : EventProcessor(OFFSET, RANGE,
@@ -74,45 +37,27 @@ E14060Processor::E14060Processor() : EventProcessor(OFFSET, RANGE,
     associatedTypes.insert("pspmt");
     associatedTypes.insert("ge");
     associatedTypes.insert("tac");
-
-#ifdef useroot
-    rootfile_ = new TFile("/tmp/test00.root","RECREATE");
-    roottree_ = new TTree("vandle","");
-    roottree_->Branch("tof",&tof_,"tof/D");
-    roottree_->Branch("qdc",&qdc_,"qdc/D");
-    qdctof_ = new TH2D("qdctof","",1000,-100,900,16000,0,16000);
-    vsize_ = new TH1D("vsize","",40,0,40);
-#endif
-}
-
-E14060Processor::~E14060Processor() {
-#ifdef useroot
-    rootfile_->Write();
-    rootfile_->Close();
-    delete(rootfile_);
-#endif
-}
-
-///We do nothing here since we're completely dependent on the results of others
-bool E14060Processor::PreProcess(RawEvent &event) {
-    if (!EventProcessor::PreProcess(event))
-        return (false);
-    return (true);
+    associatedTypes.insert("si");
 }
 
 bool E14060Processor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return (false);
-    double plotMult_ = 2;
-    double plotOffset_ = 1000;
+
+    static const double plotMult = 2;
+    static const double plotOffset = 1000;
 
     BarMap vbars;
-    vector < ChanEvent * > geEvts;
-    vector <vector<AddBackEvent>> geAddback;
+    vector<ChanEvent *> geEvts;
+    vector<vector<AddBackEvent>> geAddback;
+    pair<double, double> position;
 
     if (event.GetSummary("vandle")->GetList().size() != 0)
         vbars = ((VandleProcessor *) DetectorDriver::get()->
                 GetProcessor("VandleProcessor"))->GetBars();
+    if (event.GetSummary("pspmt:anode")->GetList().size() != 0)
+        position = ((PspmtProcessor *) DetectorDriver::get()->
+                GetProcessor("PspmtProcessor"))->GetPosition("qdc");
     if (event.GetSummary("ge")->GetList().size() != 0) {
         geEvts = ((GeProcessor *) DetectorDriver::get()->
                 GetProcessor("GeProcessor"))->GetGeEvents();
@@ -120,38 +65,64 @@ bool E14060Processor::Process(RawEvent &event) {
                 GetProcessor("GeProcessor"))->GetAddbackEvents();
     }
 
-    static const vector<ChanEvent *> &hagridEvts =
+    static const vector<ChanEvent *> &pin =
+            event.GetSummary("si:pin")->GetList();
+
+    static const vector<ChanEvent *> &dynode =
+            event.GetSummary("pspmt:dynode")->GetList();
+
+    TimingMapBuilder startbuilder(dynode);
+    TimingMap tdynode = startbuilder.GetMap();
+
+    static const vector<ChanEvent *> &hagrid =
             event.GetSummary("hagrid")->GetList();
 
-    static const vector<ChanEvent *> &tacEvts =
+    static const vector<ChanEvent *> &tac =
             event.GetSummary("tac")->GetList();
 
-#ifdef useroot
-    vsize_->Fill(vbars.size());
-#endif
-    plot(DD_DEBUGGING3, vbars.size());
+    //Here we will check some of the correlation information
+    bool hasIon = pin.size() != 0;
+    bool hasImplant = hasIon && dynode.size() != 0;
+    bool hasDecay = !hasIon && dynode.size() != 0;
 
-    //Begin processing for VANDLE bars
+
     for (BarMap::iterator it = vbars.begin(); it != vbars.end(); it++) {
-        TimingDefs::TimingIdentifier barId = (*it).first;
         BarDetector bar = (*it).second;
 
-        if (!bar.GetHasEvent() || bar.GetType() == "small")
+        if (!bar.GetHasEvent())
             continue;
 
         TimingCalibration cal = bar.GetCalibration();
 
-    } //(BarMap::iterator itBar
-    //End processing for VANDLE bars
+        for (TimingMap::iterator itStart = tdynode.begin();
+             itStart != tdynode.end(); itStart++) {
+
+            if (!(*itStart).second.GetIsValid())
+                continue;
+
+            unsigned int startLoc = (*itStart).first.first;
+            HighResTimingData start = (*itStart).second;
+
+            double tof = bar.GetCorTimeAve() -
+                         start.GetCorrectedTime() + cal.GetTofOffset(startLoc);
+
+            double corTof =
+                    ((VandleProcessor *) DetectorDriver::get()->
+                            GetProcessor("VandleProcessor"))->
+                            CorrectTOF(tof, bar.GetFlightPath(), cal.GetZ0());
+
+            plot(DD_QDCVSTOF, tof * plotMult + plotOffset, bar.GetQdc());
+        }//for(TimingMap::iterator start = tdynode.begin();
+    } //for(BarMap::iterator it = vbars.begin()
 
     //-------------- LaBr3 Processing ---------------
-    for (vector<ChanEvent *>::const_iterator it = hagridEvts.begin();
-         it != hagridEvts.end(); it++)
-        plot(DD_HAGRID, (*it)->GetEnergy(), (*it)->GetChanID().GetLocation());
+    for (vector<ChanEvent *>::const_iterator it = hagrid.begin();
+         it != hagrid.end(); it++)
+        plot(D_HAGRID, (*it)->GetEnergy());
 
     //-------------- TAC Processing ---------------
-    for (vector<ChanEvent *>::const_iterator it = tacEvts.begin();
-         it != tacEvts.end(); it++)
+    for (vector<ChanEvent *>::const_iterator it = tac.begin();
+         it != tac.end(); it++)
         plot(DD_TACS, (*it)->GetEnergy()), (*it)->GetChanID().GetLocation();
 
     EndProcess();

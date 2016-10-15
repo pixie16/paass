@@ -24,8 +24,7 @@ void PspmtProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_QDC, SD, S3, "QDC - Dynode 0 - Anodes 1-4");
     DeclareHistogram2D(DD_POSITION_ENERGY, SB, SB, "Pos from Raw Energy");
     DeclareHistogram2D(DD_POSITION_QDC, SB, SB, "Pos from QDC");
-    DeclareHistogram2D(DD_POSITION_TRACE, SB, SB, "Pos from "
-            "TraceFilter");
+    DeclareHistogram2D(DD_POSITION_TRACE, SB, SB, "Pos from TraceFilter");
 }
 
 PspmtProcessor::PspmtProcessor(const std::string &vd, const double &scale,
@@ -58,7 +57,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
     //We should only have 5 channels per event from the pspmt.
     if (dynodeEvents.size() > 1 || anodeEvents.size() > 4) {
         cerr << "PspmtProcessor : We had too many pspmt triggers in the event "
-                "list, SKIPPING IT!!"
+                "list. We will not analyze this one. !!" << endl
              << "dynode events = " << dynodeEvents.size() << endl
              << "anode events = " << anodeEvents.size() << endl;
         EndProcess();
@@ -130,20 +129,12 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
         posTrace_ = CalculatePosition(m_trace, vdtype_);
 
     plot(DD_POSITION_ENERGY, posEnergy_.first*histogramScale_+histogramOffset_,
-            posEnergy_.second*histogramScale_+histogramOffset_);
+         posEnergy_.second*histogramScale_+histogramOffset_);
     plot(DD_POSITION_QDC, posQdc_.first*histogramScale_+histogramOffset_,
          posQdc_.second*histogramScale_+histogramOffset_);
     plot(DD_POSITION_TRACE, posTrace_.first*histogramScale_+histogramOffset_,
          posTrace_.second*histogramScale_+histogramOffset_);
 
-    EndProcess();
-    return true;
-}
-
-bool PspmtProcessor::Process(RawEvent &event) {
-    if (!EventProcessor::Process(event))
-        return false;
-    //we may end up doing some correlation stuff in this method
     EndProcess();
     return true;
 }
