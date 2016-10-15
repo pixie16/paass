@@ -28,7 +28,7 @@ RawEvent rawev;
 /// the amount of time spent in each processor is output to the screen at the
 /// end of execution.
 UtkUnpacker::~UtkUnpacker() {
-    DetectorDriver::get()->~DetectorDriver();
+    delete DetectorDriver::get();
 }
 
 /// This method initializes the DetectorLibrary and DetectorDriver classes so
@@ -215,3 +215,4 @@ void UtkUnpacker::PrintProcessingTimeInformation(const clock_t &start,
        << eventTime;
     m.run_message(ss.str());
 }
+
