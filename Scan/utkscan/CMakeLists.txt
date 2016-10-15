@@ -94,7 +94,7 @@ endif(USE_ROOT)
 #Install utkscan to the bin directory
 install(TARGETS ${SCAN_NAME} DESTINATION bin)
 #Install configuration files to the share directory
-install(DIRECTORY share/utkscan DESTINATION share/)
+install(DIRECTORY share/utkscan DESTINATION share)
 
 #------------------------------------------------------------------------------
 
