@@ -25,7 +25,11 @@
         <Analyzer name="WaveformAnalyzer"/>
         <Analyzer name="FittingAnalyzer" type="gsl"/>
         <Processor name="VandleProcessor"
+<<<<<<< HEAD
                    types="medium" res="2" offset="2000" NumStarts="1"/>
+=======
+                   types="medium" res="2" offset="1000" NumStarts="1"/>
+>>>>>>> e14060
         <Processor name="E14060Processor"/>
     </DetectorDriver>
 
@@ -224,6 +228,7 @@
 
     <TimeCalibration verbose_timing="False">
         <Vandle>
+<<<<<<< HEAD
             <medium>
                 <Bar number="0" lroffset="-.6000" z0="99.45"
                      xoffset="-1.7" zoffset="">
@@ -353,6 +358,8 @@
                     <TofOffset location="0" offset="398.08564"/>
                 </Bar>
             </medium>
+=======
+>>>>>>> e14060
         </Vandle>
     </TimeCalibration>
 
