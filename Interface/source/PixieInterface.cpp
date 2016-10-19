@@ -96,28 +96,25 @@ bool PixieInterface::Histogram::Write(ofstream &out)
     return true;
 }
 
-PixieInterface::PixieInterface(const char *fn) : hasAlternativeConfig(false), lock("PixieInterface")
+PixieInterface::PixieInterface(const char *fn) : lock("PixieInterface")
 {
 	SetColorTerm();
 	// Set-up valid configuration keys if they don't exist yet
 	if (validConfigKeys.empty()) { 
-		//? perhaps these should allow more than just one alternate firmware configuration 
-		validConfigKeys.insert("AltComFpgaFile");
-		validConfigKeys.insert("AltDspConfFile");
-		validConfigKeys.insert("AltDspVarFile");
-		validConfigKeys.insert("AltSpFpgaFile");
-		validConfigKeys.insert("AltTrigFpgaFile");
-		// standard files
+		// module files
+		validConfigKeys.insert("ModuleType");
+		validConfigKeys.insert("ModuleBaseDir");
+		validConfigKeys.insert("SpFpgaFile");
+		validConfigKeys.insert("TrigFpgaFile");
 		validConfigKeys.insert("ComFpgaFile");
 		validConfigKeys.insert("DspConfFile");
 		validConfigKeys.insert("DspVarFile");
+		// global files
+		validConfigKeys.insert("PixieBaseDir");
 		validConfigKeys.insert("DspSetFile");
 		validConfigKeys.insert("DspWorkingSetFile");
 		validConfigKeys.insert("ListModeFile");
-		validConfigKeys.insert("PixieBaseDir");
 		validConfigKeys.insert("SlotFile");
-		validConfigKeys.insert("SpFpgaFile");
-		validConfigKeys.insert("TrigFpgaFile");
 		validConfigKeys.insert("CrateConfig");
 	}
 	if (!ReadConfigurationFile(fn)) {
@@ -128,7 +125,7 @@ PixieInterface::PixieInterface(const char *fn) : hasAlternativeConfig(false), lo
 		exit(EXIT_FAILURE);
 	}
 	//Overwrite the default path 'pxisys.ini' with the one specified in the scan file.
-	PCISysIniFile = configStrings["CrateConfig"].c_str();
+	PCISysIniFile = configStrings["global"]["CrateConfig"].c_str();
 
 }
 
@@ -145,6 +142,68 @@ PixieInterface::~PixieInterface()
   retval = Pixie16ExitSystem(numberCards);
   CheckError();
 }
+std::string PixieInterface::ParseModuleTypeTag(std::string value) {
+	std::string moduleType = "invalid";
+	int adcRes = -1, msps = -1;
+	string revision = "";
+
+	string adcResStr = "";
+	size_t adcResLocEnd = value.find('b');
+	if (adcResLocEnd != string::npos) {
+		size_t adcResLocBegin = value.find_last_not_of("0123456789", adcResLocEnd - 1);
+		if (adcResLocBegin == string::npos) adcResLocBegin = 0; 
+		else adcResLocBegin++;
+		adcResStr = value.substr(adcResLocBegin, adcResLocEnd - adcResLocBegin);	
+	}
+
+	if (adcResStr.empty()) {
+		std::cout << ErrorStr() << " Invalid ModuleType, ADC resolution not specified: '" << InfoStr(value) << "'.\n"; 
+	}
+	else {
+		try { adcRes = std::stoi(adcResStr); }
+		catch (const std::invalid_argument& ia) { 
+			std::cout << ErrorStr() << " Invalid ADC resolution: '" << value << "' (" << adcResStr << ")\n"; 
+		}
+	}
+
+	string mspsStr = "";
+	size_t mspsLocEnd = value.find('m');
+	if (mspsLocEnd != string::npos) {
+		size_t mspsLocBegin = value.find_last_not_of("0123456789", mspsLocEnd - 1);
+		if (mspsLocBegin == string::npos) mspsLocBegin = 0; 
+		else mspsLocBegin++;
+		mspsStr = value.substr(mspsLocBegin, mspsLocEnd - mspsLocBegin);	
+	}
+
+	if (mspsStr.empty()) {
+		std::cout << ErrorStr() << " Invalid ModuleType, sample rate not specified: '" << InfoStr(value) << "'.\n"; 
+	}
+	else {
+		try { msps = std::stoi(mspsStr); }
+		catch (const std::invalid_argument& ia) { 
+			std::cout << ErrorStr() << " Invalid sample rate: '" << value << "' (" << mspsStr << ")\n"; 
+		}
+	}
+
+	size_t revLoc = value.find("rev");
+	string revStr = "not specified";
+	if (revLoc != string::npos) revStr = value.substr(revLoc+3, 1);
+	if (revStr.length() == 1) {	
+		revision = revStr;
+	}
+	else {
+		std::cout << ErrorStr() << " Invalid Revision: '" << value << "' (" << revStr << ")\n"; 
+	}
+
+	if (adcRes > 0 && msps > 0 && revision != "") {
+		stringstream moduleTypeStream;
+		moduleTypeStream << adcRes << "b" << msps << "m-rev" << revision;
+		moduleType = moduleTypeStream.str();
+	}
+
+	return moduleType;
+
+}
 
 bool PixieInterface::ReadConfigurationFile(const char *fn) 
 {
@@ -155,8 +214,11 @@ bool PixieInterface::ReadConfigurationFile(const char *fn)
   stringbuf tag, value;
   string line;
 
+	std::cout << "Reading Pixie Configuration\n";
+
 	//Loop over lines in config file
-  while (std::getline(in,line)) {
+	string moduleType = "";
+	while (std::getline(in,line)) {
 		//Get a string stream of current line
 	  std::istringstream lineStream(line);
 		//If the line leads with a '#' we ignore it.
@@ -169,9 +231,26 @@ bool PixieInterface::ReadConfigurationFile(const char *fn)
 		  if (validConfigKeys.find(tag) == validConfigKeys.end()) {
 			  cout << "Unrecognized tag " << WarningStr(tag) << " in PixieInterface configuration file." << endl;
 		  }
+
+			//Parse the ModuleType tag.
+			//Moule type is expected as with the following three items ##b, ###m, rev#
+			if (tag == "ModuleType") {
+				moduleType = ParseModuleTypeTag(value);
+				std::cout << "Module Type: " << InfoStr(moduleType) << "\n";
+			}
 			
 			//Store configuration
-		  configStrings[tag] = ConfigFileName(value);
+		  if (tag == "SpFpgaFile" || tag == "ComFpgaFile" || tag == "DspConfFile" || tag == "DspVarFile" || tag == "TrigFpgaFile" || tag == "ModuleBaseDir") {
+				if (moduleType == "") {
+					moduleType = "default";
+					std::cout << "Module Type: " << InfoStr(moduleType) << "\n";
+				}
+			std::cout << " " << tag << "\t" << value << endl;
+		  configStrings[moduleType][tag] = ConfigFileName(moduleType,value);
+			}
+			else {
+		  configStrings["global"][tag] = ConfigFileName("global",value);
+			}
 
 			//Check if BaseDir is defined differently then in the environment
 		  if (tag == "PixieBaseDir") {
@@ -194,7 +273,7 @@ bool PixieInterface::GetSlots(const char *slotF)
   char restOfLine[CONFIG_LINE_LENGTH];
 
   if (slotF == NULL)
-    slotF = configStrings["SlotFile"].c_str();
+    slotF = configStrings["global"]["SlotFile"].c_str();
 
   ifstream in(slotF);
 
@@ -213,13 +292,6 @@ bool PixieInterface::GetSlots(const char *slotF)
   }
 
   for (int i = 0; i < numberCards; i++) {
-    // check if this is a module with an alternative firmware configuration (tagged with '*')
-    if (in.peek() == '*') {
-      in.ignore();
-      hasAlternativeConfig = true;
-      firmwareConfig[i] = 1; // alternative config
-    } else firmwareConfig[i] = 0; // standard config
-
     in >> slotMap[i];
     in.getline(restOfLine, CONFIG_LINE_LENGTH, '\n');
     if (!in.good()) {
@@ -259,51 +331,86 @@ bool PixieInterface::Init(bool offlineMode)
 bool PixieInterface::Boot(int mode, bool useWorkingSetFile) 
 {
 	string &setFile = useWorkingSetFile ? 
-		configStrings["DspWorkingSetFile"] : configStrings["DspSetFile"];
+		configStrings["global"]["DspWorkingSetFile"] : configStrings["global"]["DspSetFile"];
 
-	LeaderPrint("Booting Pixie");
+	LeaderPrint("Boot Configuration");
 
-	//Break the leader print for the Boot status.
-	if (mode == BootAll) std::cout << std::endl;
+	//Loop through each module and determine its type. 
+	//We also check if the modules are all the same. If not we set multiConf to true.
+	bool multiConf = false;
+	std::vector< std::string > moduleTypes;
+	for (int mod = 0; mod < numberCards; mod++) {
+		unsigned short rev, adcBits, adcMsps;
+		unsigned int serNum;
+		GetModuleInfo(mod, &rev, &serNum, &adcBits, &adcMsps);
+
+		stringstream moduleType;
+		moduleType << adcBits << "b" << adcMsps << "m";
+		moduleType << "-rev" << (char)(97 + rev - 10 );
+
+		if (mod > 0 && moduleType.str() != moduleTypes.back()) multiConf = true;
+		moduleTypes.push_back(moduleType.str());
+	}
 
 	bool goodBoot = true;
 
-	if (hasAlternativeConfig) {
+	if (multiConf) {
 		// must proceed through boot module by module
-		cout << InfoStr("[MULTICONFIG]") << "\n";
-		for (int i=0; i < numberCards; i++) {
-			if (firmwareConfig[i] == 1) {
-				// use the Alt... files
-				retval = Pixie16BootModule(&configStrings["AltComFpgaFile"][0],
-						&configStrings["AltSpFpgaFile"][0],
-						&configStrings["AltTrigFpgaFile"][0],
-						&configStrings["AltDspConfFile"][0],
-						&setFile[0],
-						&configStrings["AltDspVarFile"][0],
-						i, mode);
-			} else {
-				// use the standard files
-				retval = Pixie16BootModule(&configStrings["ComFpgaFile"][0], 
-						&configStrings["SpFpgaFile"][0], 
-						&configStrings["TrigFpgaFile"][0],
-						&configStrings["DspConfFile"][0], 
-						&setFile[0],
-						&configStrings["DspVarFile"][0],
-						i, mode);
+		
+		//Break the leader print for the boot configuration status.
+		cout << InfoStr("[MULTI]") << "\n";
+
+		//Check that all module types are valid.
+		bool error = false;
+		for (int mod = 0; mod < numberCards; mod++) {
+			if (configStrings.find(moduleTypes.at(mod)) == configStrings.end()) {
+				std::cout << ErrorStr() << " Configuration not defined for type " << moduleTypes.at(mod) << " (mod " << mod << ")\n";
+				error = true;
 			}
-			LeaderPrint("Booting Pixie Module ");
+		}
+		if (error) return false; 
+
+		for (int i=0; i < numberCards; i++) {
+			retval = Pixie16BootModule(&configStrings[moduleTypes.at(i)]["ComFpgaFile"][0],
+					&configStrings[moduleTypes.at(i)]["SpFpgaFile"][0],
+					&configStrings[moduleTypes.at(i)]["TrigFpgaFile"][0],
+					&configStrings[moduleTypes.at(i)]["DspConfFile"][0],
+					&setFile[0],
+					&configStrings[moduleTypes.at(i)]["DspVarFile"][0],
+					i, mode);
+
+			stringstream leader;
+			leader << "Booting Pixie (" << moduleTypes.at(i) << ") Module " << i;
+			LeaderPrint(leader.str());
 			goodBoot = (goodBoot && !CheckError(true));
 		}
 	} else {
+		//Break the leader print for the boot configuration status.
+		cout << InfoStr("[SINGLE]") << "\n";
+
+		//Determine if we need to use "default" type.
+		string moduleType = moduleTypes.front();
+		if (configStrings.find(moduleType) == configStrings.end()) {
+			moduleType = "default";
+			if (configStrings.find(moduleType) == configStrings.end()) {
+				std::cout << ErrorStr() << " Config not defined for type " << moduleTypes.back() << "\n";
+				return false;
+			}
+		}
+		//std::cout << "Booting all modules as type " << InfoStr(moduleType) << "\n";
+
 		// boot all at once
-		retval = Pixie16BootModule(&configStrings["ComFpgaFile"][0], 
-				&configStrings["SpFpgaFile"][0], 
-				&configStrings["TrigFpgaFile"][0],
-				&configStrings["DspConfFile"][0], 
+		retval = Pixie16BootModule(&configStrings[moduleType]["ComFpgaFile"][0], 
+				&configStrings[moduleType]["SpFpgaFile"][0], 
+				&configStrings[moduleType]["TrigFpgaFile"][0],
+				&configStrings[moduleType]["DspConfFile"][0], 
 				&setFile[0],
-				&configStrings["DspVarFile"][0],
+				&configStrings[moduleType]["DspVarFile"][0],
 				numberCards, mode);
-		if (mode == BootAll) LeaderPrint("Booting Pixie");
+
+		stringstream leader;
+		leader << "Booting Pixie (" << moduleType << ")";
+		LeaderPrint(leader.str());
 		goodBoot = !CheckError(true);
 	}
 
@@ -314,6 +421,7 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile)
 	bool hadError = false;
 	bool updated = false;
 
+/*
 	word_t val;
 
 	for (int i=0; i < numberCards; i++) {
@@ -325,6 +433,7 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile)
 				hadError = true;
 		}
 	}
+*/
 	if (hadError) 
 		cout << ErrorStr() << endl;
 	else if (updated)
@@ -446,7 +555,7 @@ void PixieInterface::PrintSglChanPar(const char *name, int mod, int chan, double
 bool PixieInterface::SaveDSPParameters(const char *fn)
 {
   if (fn == NULL)
-    fn = &configStrings["DspWorkingSetFile"][0];
+    fn = &configStrings["global"]["DspWorkingSetFile"][0];
   strncpy(tmpName, fn, nameSize);
 
   LeaderPrint("Writing DSP parameters");
@@ -824,12 +933,25 @@ bool PixieInterface::ToggleChannelBit(int mod, int chan, const char *parameter, 
   return WriteSglChanPar(parameter, dval, mod, chan);
 }
 
-string PixieInterface::ConfigFileName(const string &str) 
+string PixieInterface::ConfigFileName(const string &type, const string &str) 
 {
-  if (str[0] == '.' || str[0] == '/')
-    return str;
-  else
-    return configStrings["PixieBaseDir"] + '/' + str;
+	//If the file name starts with a '.' or a '/' then we assume the BaseDir should be ignored.
+	if (str[0] == '.' || str[0] == '/') return str;
+
+	//Try to determine correct BaseDir.
+	string baseDir;
+	//If the file is a global type we use PixieBaseDir
+	if (type == "global") baseDir = configStrings["global"]["PixieBaseDir"];
+	//Otherwise we try the ModuleBaseDir for the specified type and then the PixieBaseDir
+	else {
+		baseDir = configStrings[type]["ModuleBaseDir"];
+		if (baseDir.empty()) baseDir = configStrings["global"]["PixieBaseDir"];
+	}
+	//No success so we assume they want the local directory.
+	if (baseDir.empty()) baseDir = ".";
+
+	//Return the appended string.
+	return baseDir + '/' + str;
 }
 
 bool PixieInterface::CheckError(bool exitOnError) const
@@ -841,7 +963,7 @@ bool PixieInterface::CheckError(bool exitOnError) const
   return (retval < 0);
 }
 
-bool PixieInterface::GetModuleInfo(unsigned short mod, unsigned short *rev, unsigned int *serNum, unsigned short *adcBits, unsigned short *adcMsps) {
+bool PixieInterface::GetModuleInfo(const unsigned short &mod, unsigned short *rev, unsigned int *serNum, unsigned short *adcBits, unsigned short *adcMsps) {
 	//Return false if error code provided.
 	return (Pixie16ReadModuleInfo(mod,rev,serNum,adcBits,adcMsps) == 0);	
 }
