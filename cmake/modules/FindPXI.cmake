@@ -6,14 +6,20 @@
 # PXI_FOUND - true if PXI was found.
 #
 
+#find the root directory by looking for the standard names.
 find_path(PXI_ROOT_DIR
 	NAMES software firmware dsp configuration 
 	HINTS ENV PXI_ROOT
         PATHS /opt/xia/current
 	DOC "Path to pixie firmware.")
 
+#Unset any cached value to ensure a fresh search is performed. 
+#This permits the user to change the PXI_ROOT_DIR and have subsequent paths updated.
+unset(PXI_LIBRARY_DIR CACHE)
+
+#Find the library path by looking for the library.
 find_path(PXI_LIBRARY_DIR
-	NAMES libPixie16App.a 
+	NAMES libPixie16App.a libPixie16Sys.a 
 	HINTS ${PXI_ROOT_DIR}/software
 	DOC "Path to pixie library.")
 
