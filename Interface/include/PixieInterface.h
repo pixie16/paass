@@ -91,6 +91,8 @@ class PixieInterface
 
 
   bool ReadConfigurationFile(const char *fn);
+  /// @brief Parses the input from configuration file for the ModuleType tag.
+  std::string ParseModuleTypeTag(std::string value);
   bool GetSlots(const char *slotF = NULL);
   // wrappers to the pixie-16 app functions
   bool Init(bool offlineMode = false);
@@ -119,7 +121,7 @@ class PixieInterface
   double GetLiveTime(int mod, int chan);
   double GetRealTime(int mod);
   double GetProcessedEvents(int mod);
-	bool GetModuleInfo(unsigned short mod, unsigned short *rev, unsigned int *serNum, unsigned short *adcBits, unsigned short *adcMsps); 
+	bool GetModuleInfo(const unsigned short &mod, unsigned short *rev, unsigned int *serNum, unsigned short *adcBits, unsigned short *adcMsps); 
   // # #
   bool StartHistogramRun(unsigned short mode = NEW_RUN);
   bool StartHistogramRun(unsigned short mod, unsigned short mode);
@@ -180,19 +182,17 @@ class PixieInterface
 #endif
 
   static std::set<std::string> validConfigKeys;
-  std::map<std::string, std::string> configStrings;
+  std::map<std::string, std::map<std::string, std::string>> configStrings;
 
   bool doneInit;
 
-  // convert a configuration string to be relative to pixieBaseDir unless it begins with a . 
-  std::string ConfigFileName(const std::string &str);
+  /// @brief Convert a configuration string to be relative to PixieBaseDir unless it begins with a . 
+  std::string ConfigFileName(const std::string &type, const std::string &str);
   // checks retval and outputs default OK/ERROR message
   bool CheckError(bool exitOnError = false) const;
 
   unsigned short numberCards;
   unsigned short slotMap[MAX_MODULES];
-  unsigned short firmwareConfig[MAX_MODULES];
-  bool hasAlternativeConfig;
 
   stats_t statistics;
 
