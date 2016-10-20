@@ -16,8 +16,12 @@
 namespace dammIds {
     namespace experiment {
         const int DD_QDCVSTOF = 0; //!<QDC vs ToF
-        const int DD_TACS = 6; //!< Spectra from TACS
-        const int D_HAGRID = 7; //!< HAGRiD spectra
+        const int DD_EPIN1_VS_TOF_PIN1_I2N = 1; //!<PIN1 vs. ToF between PIN1 and I2N
+        const int DD_EPIN1_VS_TOF_PIN1_I2S = 2; //!<PIN1 vs. ToF between PIN1 and I2S
+        const int DD_EPIN2_VS_TOF_PIN2_I2N = 3; //!<PIN2 vs. ToF between PIN2 and I2N
+        const int DD_EPIN2_VS_TOF_PIN2_I2S = 4; //!<PIN2 vs. ToF between PIN2 and ISS
+        const int DD_EPIN1_VS_TOF_I2N_I2S = 5; //!<PIN1 vs. ToF between I2N and I2S
+        const int DD_PIN1_VS_PIN2 = 6; //!< PIN1 vs. PIN2
     }
 }//namespace dammIds
 
@@ -26,14 +30,17 @@ using namespace dammIds::experiment;
 
 void E14060Processor::DeclarePlots(void) {
     DeclareHistogram2D(DD_QDCVSTOF, SC, SD, "QDC CTof- No Tape Move");
-    DeclareHistogram2D(DD_TACS, S3, SD, "Tacs");
-    DeclareHistogram1D(D_HAGRID, SE, "HAGRiD");
+    DeclareHistogram2D(DD_EPIN1_VS_TOF_PIN1_I2N, SC, SC, "Si Energy vs. TAC1");
+    DeclareHistogram2D(DD_EPIN1_VS_TOF_PIN1_I2S, SC, SC, "Si Energy vs. TAC2");
+    DeclareHistogram2D(DD_EPIN2_VS_TOF_PIN2_I2N, SC, SC, "Si Energy vs. TAC3");
+    DeclareHistogram2D(DD_EPIN2_VS_TOF_PIN2_I2S, SC, SC, "Si Energy vs. TAC4");
+    DeclareHistogram2D(DD_EPIN1_VS_TOF_I2N_I2S, SC, SC, "Si Energy vs. TAC5");
 }
 
 E14060Processor::E14060Processor() : EventProcessor(OFFSET, RANGE,
                                                     "E14060PRocessor") {
     associatedTypes.insert("vandle");
-    associatedTypes.insert("labr3");
+    associatedTypes.insert("hagrid");
     associatedTypes.insert("pspmt");
     associatedTypes.insert("ge");
     associatedTypes.insert("tac");
@@ -65,9 +72,6 @@ bool E14060Processor::Process(RawEvent &event) {
                 GetProcessor("GeProcessor"))->GetAddbackEvents();
     }
 
-    static const vector<ChanEvent *> &pin =
-            event.GetSummary("si:pin")->GetList();
-
     static const vector<ChanEvent *> &dynode =
             event.GetSummary("pspmt:dynode")->GetList();
 
@@ -78,7 +82,13 @@ bool E14060Processor::Process(RawEvent &event) {
             event.GetSummary("hagrid")->GetList();
 
     static const vector<ChanEvent *> &tac =
-            event.GetSummary("tac")->GetList();
+            event.GetSummary("tac", true)->GetList();
+
+    static const vector<ChanEvent *> &pin =
+            event.GetSummary("si:pin", true)->GetList();
+
+    if (tac.size() != 0 && pin.size() != 0)
+        PlotPid(tac, pin);
 
     //Here we will check some of the correlation information
     bool hasIon = pin.size() != 0;
@@ -106,25 +116,34 @@ bool E14060Processor::Process(RawEvent &event) {
             double tof = bar.GetCorTimeAve() -
                          start.GetCorrectedTime() + cal.GetTofOffset(startLoc);
 
-            double corTof =
-                    ((VandleProcessor *) DetectorDriver::get()->
-                            GetProcessor("VandleProcessor"))->
-                            CorrectTOF(tof, bar.GetFlightPath(), cal.GetZ0());
-
             plot(DD_QDCVSTOF, tof * plotMult + plotOffset, bar.GetQdc());
         }//for(TimingMap::iterator start = tdynode.begin();
     } //for(BarMap::iterator it = vbars.begin()
 
-    //-------------- LaBr3 Processing ---------------
-    for (vector<ChanEvent *>::const_iterator it = hagrid.begin();
-         it != hagrid.end(); it++)
-        plot(D_HAGRID, (*it)->GetEnergy());
-
-    //-------------- TAC Processing ---------------
-    for (vector<ChanEvent *>::const_iterator it = tac.begin();
-         it != tac.end(); it++)
-        plot(DD_TACS, (*it)->GetEnergy()), (*it)->GetChanID().GetLocation();
-
     EndProcess();
     return (true);
+}
+
+void E14060Processor::PlotPid(const std::vector<ChanEvent *> &tacs,
+                              const std::vector<ChanEvent *> &pins) {
+    string tac = "", pin = "";
+    double tac_energy = 0.0, pin_energy = 0.0;
+    for (vector<ChanEvent *>::const_iterator it = tacs.begin();
+         it != tacs.end(); it++) {
+        tac = (*it)->GetChanID().GetSubtype();
+        tac_energy = (*it)->GetCalEnergy();
+        for (vector<ChanEvent *>::const_iterator iterator1 = pins.begin();
+             iterator1 != pins.end(); iterator1++) {
+            pin = (*iterator1)->GetChanID().GetSubtype();
+            pin_energy = (*iterator1)->GetCalEnergy();
+            if (tac == "pin1_i2n" && pin == "de1")
+                plot(DD_EPIN1_VS_TOF_PIN1_I2N, tac_energy, pin_energy);
+            if (tac == "pin1_i2s" && pin=="de1")
+                plot(DD_EPIN1_VS_TOF_PIN1_I2S, tac_energy, pin_energy);
+            if (tac == "pin2_i2n" && pin == "de2")
+                plot(DD_EPIN2_VS_TOF_PIN2_I2N, tac_energy, pin_energy);
+            if (tac == "pin2_i2s" && pin == "de2")
+                plot(DD_EPIN2_VS_TOF_PIN2_I2S, tac_energy, pin_energy);
+        }
+    }
 }

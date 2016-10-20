@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>S. V. Paulauskas</Name>
+        <Email>spaulaus AT utk DOT edu</Email>
+        <Date>October 15, 2016</Date>
+    </Author>
+
+    <Description>
+        Master configuration file for e11006 at NSCL. This configuration should
+        NOT be changed in any way. We are using the E14060Processor for now
+        since the dedicated processor does not yet exist.
+    </Description>
+
+    <Global>
+        <Revision version="F"/>
+        <BitResolution value="12"/>
+        <EventWidth unit="s" value="9e-6"/>
+        <OutputPath>./</OutputPath>
+        <NumOfTraces value="50"/>
+        <HasRaw value="true"/>
+    </Global>
+
+    <DetectorDriver>
+        <Processor name="E14060Processor"/>
+    </DetectorDriver>
+
+    <Map>
+        <Module number="0">
+            <Channel number="0" type="si" subtype="pin">
+                <Calibration model="linear" min="0" max="99999">
+                    0.0 0.25
+                </Calibration>
+            </Channel>
+            <Channel number="2" type="generic" subtype="gate">
+                This channel is used to validate that TAC signals.
+            </Channel>
+            <Channel number="4" type="tac" subtype="tac1">
+                This was the TAC between the XFP and the RFSC.
+                <Calibration model="linear" min="0" max="99999">
+                    0.0 0.25
+                </Calibration>
+            </Channel>
+            <Channel number="5" type="tac" subtype="tac2">
+                This was the TAC between the XFP and the PIN
+                <Calibration model="linear" min="0" max="99999">
+                    0.0 0.25
+                </Calibration>
+            </Channel>
+            <Channel number="6" type="tac" subtype="tac3">
+                This was the TAC between the RF and the XFP.
+                <Calibration model="linear" min="0" max="99999">
+                    0.0 0.25
+                </Calibration>
+            </Channel>
+        </Module>
+        <Module number="1">
+            <Channel number="0" type="ignore" subtype="ignore"> </Channel>
+            <Channel number="1" type="ignore" subtype="ignore"> </Channel>
+        </Module>
+    </Map>
+
+    <TreeCorrelator name="root" verbose="False">
+    </TreeCorrelator>
+
+    <Notebook file="notes.txt" mode="r"/>
+</Configuration>

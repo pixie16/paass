@@ -78,6 +78,14 @@ private:
     std::pair<double, double> CalculatePosition(const std::map<std::string,
             double> &map, const VDTYPES &vdtype);
 
+    ///@brief A method to map the position to an integer so that we can use
+    /// some of the old correlator software
+    ///@param[in] pos : The x,y pair that we are going to be mapping onto the
+    /// new integer scheme
+    ///@return The x,y pair mapped onto an integer grid.
+    std::pair<unsigned int, unsigned int> MapPosition(const std::pair<double,
+            double> &pos);
+
     std::pair<double, double> posQdc_; ///< The x,y pair calculated from the
     ///< QDC of the waveform calculated by
     ///< the WaveformAnalyzer

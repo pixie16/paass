@@ -34,6 +34,7 @@ extern "C" void startup_() {
 
     //Set the unpacker object based off what the ScanInterface object created
     ScanorInterface::get()->SetUnpacker(scanner->GetCore());
+    scanner->GetCore()->SetEventWidth(Globals::get()->eventWidth());
 }
 
 ///@brief Defines the main interface with the SCANOR library, the program

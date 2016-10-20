@@ -165,6 +165,11 @@ pair<double, double> PspmtProcessor::CalculatePosition(
     return make_pair(x_val, y_val);
 }
 
+pair<unsigned int,unsigned int> PspmtProcessor::MapPosition(
+        const std::pair<double, double> &pos) {
+    return make_pair(0,0);
+}
+
 pair<map<string, double>::iterator, bool> PspmtProcessor::InsertMapValue(
         std::map<string, double> &map, const std::string &key, const double
 &value) {
