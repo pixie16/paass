@@ -829,6 +829,30 @@ void Poll::get_traces(int mod_, int chan_, int thresh_/*=0*/){
 	delete[] module_data;
 }
 
+/// This method splits the arguments for pread and pwrite on a colon delimeter.
+/// This allows the user to proivde a range for the function for example, 
+/// \code pread 0 0:4 TRIGGER_THRESHOLD \code
+/// will only read the TRIGGER_THRESHOLD for module 0, channels 0 to 4.
+/// If the argument has no colons start and stop will be equal.
+/// If the attmept is unsuccesful the mehtod returns false.
+bool Poll::SplitParameterArgs(const std::string &arg, int &start, int &stop) {
+	//If a character is found that is nonnumeric or is not the delimeter we stop.
+	if (arg.find_first_not_of("0123456789:") != std::string::npos) return false;
+
+	size_t delimeterPos = arg.find(':');
+	try {	
+		start = std::stoi(arg.substr(0, delimeterPos));
+		//If the delimeter was found we can seperate the stop otherwise set start = stop.
+		if (delimeterPos != std::string::npos) {
+			stop = std::stoi(arg.substr(delimeterPos + 1));
+		}
+		else stop = start;
+	}
+	catch (const std::invalid_argument &ia) {
+		return false;
+	}
+	return true;
+}
 ///////////////////////////////////////////////////////////////////////////////
 // Poll::CommandControl
 ///////////////////////////////////////////////////////////////////////////////
@@ -846,10 +870,10 @@ void Poll::CommandControl(){
 			int select_dummy;
 			if(server->Select(select_dummy)){
 				UDP_Packet pacman_command;
-			
+
 				// We have a pacman command. Retrieve the command
 				server->RecvMessage((char *)&pacman_command, sizeof(UDP_Packet));
-				
+
 				/* Valid poll commands
 				    0x11 - INIT_ACQ
 				    0x22 - START_ACQ
@@ -1037,15 +1061,43 @@ void Poll::CommandControl(){
 			if(cmd == "pwrite"){ // Syntax "pwrite <module> <channel> <parameter name> <value>"
 				if(p_args > 0 && arguments.at(0) == "help"){ pchan_help(); }
 				else if(p_args >= 4){
-					if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
-					else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
-					else if(!IsNumeric(arguments.at(3), sys_message_head, "Invalid parameter value specification")) continue;
-					int mod = atoi(arguments.at(0).c_str());
-					int ch = atoi(arguments.at(1).c_str());
-					double value = std::strtod(arguments.at(3).c_str(), NULL);
+					int modStart, modStop;
+					if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
+						std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
+						continue;
+					}
+					int chStart, chStop;
+					if (!SplitParameterArgs(arguments.at(1), chStart, chStop)) {
+						std::cout << "ERROR: Invalid channel argument: '" << arguments.at(1) << "'\n";
+						continue;
+					}
+
+					//Check that there are no characters in the string unless it is hex.
+					std::string &valueStr = arguments.at(3);
+					if (valueStr.find_last_not_of("+-eE0123456789.") != std::string::npos &&
+						!((valueStr.find("0x") == 0 || valueStr.find("0X") == 0) && 
+							valueStr.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos) ) {
+						std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
+						continue;
+					}
+
+					double value;
+					try { value = std::stod(valueStr); }
+					catch (const std::invalid_argument &ia) {
+						std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
+						continue;
+					}
 				
 					ParameterChannelWriter writer;
-					if(forChannel(pif, mod, ch, writer, make_pair(arguments.at(2), value))){ pif->SaveDSPParameters(); }
+					bool error = false;
+					for (int mod = modStart; mod <= modStop; mod++) { 
+						for (int ch = chStart; ch <= chStop; ch++) { 
+							if(forChannel(pif, mod, ch, writer, make_pair(arguments.at(2), value))){ 
+								error = true;
+							}
+						}
+					}
+					if (!error) pif->SaveDSPParameters(); 
 				}
 				else{
 					std::cout << sys_message_head << "Invalid number of parameters to pwrite\n";
@@ -1059,7 +1111,7 @@ void Poll::CommandControl(){
 					else if(!IsNumeric(arguments.at(2), sys_message_head, "Invalid parameter value specification")) continue;
 					int mod = atoi(arguments.at(0).c_str());
 					unsigned int value = (unsigned int)std::strtoul(arguments.at(2).c_str(), NULL, 0);
-				
+
 					ParameterModuleWriter writer;
 					if(forModule(pif, mod, writer, make_pair(arguments.at(1), value))){ pif->SaveDSPParameters(); }
 				}
@@ -1074,17 +1126,27 @@ void Poll::CommandControl(){
 				std::cout << sys_message_head << "Warning! Cannot view pixie parameters while acquisition is running\n\n"; 
 				continue;
 			}
-		
+
 			if(cmd == "pread"){ // Syntax "pread <module> <channel> <parameter name>"
 				if(p_args > 0 && arguments.at(0) == "help"){ pchan_help(); }
 				else if(p_args >= 3){
-					if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
-					else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
-					int mod = atoi(arguments.at(0).c_str());
-					int ch = atoi(arguments.at(1).c_str());
-				
+					int modStart, modStop;
+					if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
+						std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
+						continue;
+					}
+					int chStart, chStop;
+					if (!SplitParameterArgs(arguments.at(1), chStart, chStop)) {
+						std::cout << "ERROR: Invalid channel argument: '" << arguments.at(1) << "'\n";
+						continue;
+					}
+
 					ParameterChannelReader reader;
-					forChannel(pif, mod, ch, reader, arguments.at(2));
+					for (int mod = modStart; mod <= modStop; mod++) { 
+						for (int ch = chStart; ch <= chStop; ch++) { 
+							forChannel(pif, mod, ch, reader, arguments.at(2));
+						}
+					}
 				}
 				else{
 					std::cout << sys_message_head << "Invalid number of parameters to pread\n";
