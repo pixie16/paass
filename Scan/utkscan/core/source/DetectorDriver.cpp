@@ -210,7 +210,10 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         } else if (name == "TemplateProcessor") {
             vecProcess.push_back(new TemplateProcessor());
         } else if (name == "E14060Processor") {
-            vecProcess.push_back(new E14060Processor());
+            pair<double,double> tmp =
+                    make_pair(processor.attribute("GeLow").as_double(0.),
+                              processor.attribute("GeHigh").as_double(0.));
+            vecProcess.push_back(new E14060Processor(tmp));
 	}
 #ifdef useroot
         else if (name == "RootProcessor") {

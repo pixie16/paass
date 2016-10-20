@@ -1,8 +1,7 @@
-/** \file PspmtProcessor.hpp
- *  \brief A processor to handle pixelated PMTs
- *  \author Shintaro Go
- *  \date August 24, 2016
- */
+///@file PspmtProcessor.cpp
+///@brief Processes information from a Position Sensitive PMT.
+///@authors S. Go and S. V. Paulauskas
+///@date August 24, 2016
 #ifndef __PSPMTPROCESSOR_HPP__
 #define __PSPMTPROCESSOR_HPP__
 
@@ -15,8 +14,8 @@
 ///Class to handle processing of position sensitive pmts
 class PspmtProcessor : public EventProcessor {
 public:
-    /** Default Constructor */
-    PspmtProcessor(void){};
+    ///Default Constructor */
+    PspmtProcessor(void) {};
 
     ///@brief Constructor that sets the scale and offset for histograms
     ///@param[in] scale : The multiplicative scaling factor
@@ -24,15 +23,15 @@ public:
     PspmtProcessor(const std::string &vd, const double &scale,
                    const unsigned int &offset, const double &threshold);
 
-    /** Default Destructor */
+    ///Default Destructor
     ~PspmtProcessor() {};
 
-    /** Declare the plots used in the analysis */
+    ///Declare the plots used in the analysis
     void DeclarePlots(void);
 
-    /** Preprocess the PSPMT data
-     * \param [in] event : the event to preprocess
-     * \return true if successful */
+    ///Preprocess the PSPMT data
+    ///@param [in] event : the event to preprocess
+    ///@return true if successful */
     bool PreProcess(RawEvent &event);
 
     ///Enumeration that describes the different voltage dividers that have
@@ -53,6 +52,23 @@ public:
             return posEnergy_;
         else if (type == "trace")
             return posTrace_;
+        else
+            return std::pair<double, double>(0., 0.);
+    }
+
+    ///This method takes the floating point numbers for the X,Y position of
+    /// the itneraction in the PSPMT and converts them to an integer map.
+    ///@return The pixel that fired, if the requested type does not exist we
+    /// simply return a pixel of 0,0.
+    ///@param[in] type : The type of energy that should be used to calculate
+    /// the pixel information.
+    std::pair<unsigned int, unsigned int> GetPixel(const std::string &type) {
+        if (type == "qdc")
+            return CalculatePixel(posQdc_);
+        else if (type == "pixie")
+            return CalculatePixel(posEnergy_);
+        else if (type == "trace")
+            return CalculatePixel(posTrace_);
         else
             return std::pair<double, double>(0., 0.);
     }
@@ -83,7 +99,7 @@ private:
     ///@param[in] pos : The x,y pair that we are going to be mapping onto the
     /// new integer scheme
     ///@return The x,y pair mapped onto an integer grid.
-    std::pair<unsigned int, unsigned int> MapPosition(const std::pair<double,
+    std::pair<unsigned int, unsigned int> CalculatePixel(const std::pair<double,
             double> &pos);
 
     std::pair<double, double> posQdc_; ///< The x,y pair calculated from the
@@ -99,8 +115,8 @@ private:
     unsigned int histogramOffset_; ///< The offset that we need for the the
     ///< DAMM output
     double threshold_; ///< The threshold that the energy calculated by
-                       ///< the Pixie-16 trapezoidal filter needs to reach
-                       ///< before we can analyze the signals.
+    ///< the Pixie-16 trapezoidal filter needs to reach
+    ///< before we can analyze the signals.
 };
 
 #endif // __PSPMTPROCESSOR_HPP__

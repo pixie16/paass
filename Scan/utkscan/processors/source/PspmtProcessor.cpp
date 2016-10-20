@@ -1,8 +1,7 @@
-/** \file PspmtProcessor.cpp
- * \brief Class for development of Pspmt
- *\author S. Go
- *\date August 24, 2016
- */
+///@file PspmtProcessor.cpp
+///@brief Processes information from a Position Sensitive PMT.
+///@authors S. Go and S. V. Paulauskas
+///@date August 24, 2016
 #include <iostream>
 
 #include "DammPlotIds.hpp"
@@ -165,7 +164,7 @@ pair<double, double> PspmtProcessor::CalculatePosition(
     return make_pair(x_val, y_val);
 }
 
-pair<unsigned int,unsigned int> PspmtProcessor::MapPosition(
+pair<unsigned int,unsigned int> PspmtProcessor::CalculatePixel(
         const std::pair<double, double> &pos) {
     return make_pair(0,0);
 }

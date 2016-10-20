@@ -28,23 +28,43 @@
                    offset="512" threshold="50"/>
         <Processor name="VandleProcessor"
                    types="medium" res="2" offset="2000" NumStarts="1"/>
-        <Processor name="E14060Processor"/>
+        <Processor name="E14060Processor" GeLow="0" GeHigh="99999"/>
     </DetectorDriver>
 
     <Map>
         <Module number="0">
-            <Channel number="0" type="pspmt" subtype="dynode"
-                     tags="start"> </Channel>
-            <Channel number="4" type="pspmt" subtype="anode"
-                     tags="xa"> </Channel>
-            <Channel number="5" type="pspmt" subtype="anode"
-                     tags="xb"> </Channel>
-            <Channel number="6" type="pspmt" subtype="anode"
-                     tags="ya"> </Channel>
-            <Channel number="7" type="pspmt" subtype="anode"
-                     tags="yb"> </Channel>
-            <Channel number="8" type="generic" subtype="veto"> </Channel>
-            <Channel number="9" type="generic" subtype="veto"> </Channel>
+            <Channel number="0" type="pspmt" subtype="dynode" tags="start">
+                The high gain dynode signal that will be used to gate the gamma
+                ray detectors as well as provide the start signal for VANDLE.
+            </Channel>
+            <Channel number="1" type="pspmt" subtype="dynode">
+                The low gain dynode signal that will be used to look at
+                implants. This is a carbon copy of M0C0. </Channel>
+            <Channel number="4" type="pspmt" subtype="anode" tags="xa">
+                XA position from the PSPMT in high gain. </Channel>
+            <Channel number="5" type="pspmt" subtype="anode" tags="xb">
+                XB position from the PSPMT in high gain. </Channel>
+            <Channel number="6" type="pspmt" subtype="anode" tags="ya">
+                YA position from the PSPMT in high gain. </Channel>
+            <Channel number="7" type="pspmt" subtype="anode" tags="yb">
+                YB position from the PSPMT in high gain. </Channel>
+            <Channel number="8" type="pspmt" subtype="anode" tags="xa">
+                XA position from the PSPMT in low gain. </Channel>
+            <Channel number="9" type="pspmt" subtype="anode" tags="xb">
+                XB position from the PSPMT in low gain. </Channel>
+            <Channel number="10" type="pspmt" subtype="anode" tags="ya">
+                YA position from the PSPMT in low gain. </Channel>
+            <Channel number="11" type="pspmt" subtype="anode" tags="yb">
+                YB position from the PSPMT in low gain. </Channel>
+            <Channel number="12" type="generic" subtype="veto">
+                The left side of the veto detector that is situated behind
+                the PSPMT. </Channel>
+            <Channel number="13" type="generic" subtype="veto">
+                The left side of the veto detector that is situated behind
+                the PSPMT. </Channel>
+            <Channel number="15" type="generic" subtype="pulser">
+                This channel has a 100 Hz pulser connected for monitoring
+                dead time related issues. </Channel>
         </Module>
         <Module number="1">
             <Channel number="0" type="vandle" subtype="medium"
@@ -231,12 +251,28 @@
             <Channel number="1" type="ge" subtype="clover_high"> </Channel>
             <Channel number="2" type="ge" subtype="clover_high"> </Channel>
             <Channel number="3" type="ge" subtype="clover_high"> </Channel>
-            <Channel number="4" type="si" subtype="pin"> </Channel>
-            <Channel number="5" type="si" subtype="pin"> </Channel>
-            <Channel number="12" type="tac" subtype="generic"> </Channel>
-            <Channel number="13" type="tac" subtype="generic"> </Channel>
-            <Channel number="14" type="tac" subtype="generic"> </Channel>
-            <Channel number="15" type="tac" subtype="generic"> </Channel>
+            <Channel number="4" type="ge" subtype="clover_low"> </Channel>
+            <Channel number="5" type="ge" subtype="clover_low"> </Channel>
+            <Channel number="6" type="ge" subtype="clover_low"> </Channel>
+            <Channel number="7" type="ge" subtype="clover_low"> </Channel>
+            <Channel number="8" type="pin" subtype="de1">
+                This is the pin that the beam will first encounter.
+                The upstream pin. </Channel>
+            <Channel number="9" type="pin" subtype="de2">
+                This is the second pin that the beam will encounter.
+                The downstream pin. </Channel>
+            <Channel number="11" type="tac" subtype="i2n_i2s">
+                This TAC will measure the time difference between the
+                I2N and I2S. Provides rough positioning of the beam in
+                the scintillator. </Channel>
+            <Channel number="12" type="tac" subtype="pin1_i2n">
+                Measures the ToF between the I2N signal and PIN1. </Channel>
+            <Channel number="13" type="tac" subtype="pin1_i2s">
+                Measures the ToF between the I2S signal and PIN1. </Channel>
+            <Channel number="14" type="tac" subtype="pin2_i2n">
+                Measures the ToF between the I2N signal and PIN2. </Channel>
+            <Channel number="15" type="tac" subtype="pin2_i2s">
+                Measures the ToF between the I2S signal and PIN2. </Channel>
         </Module>
         <Module number="8">
             <Channel number="0" type="hagrid" subtype="hagrid">
@@ -361,8 +397,8 @@
         <QdcCompression value="4.0"/>
         <WaveformRange>
             <Range name="pspmt:dynode">
-                <Low value="5"/>
-                <High value="12"/>
+                <Low value="7"/>
+                <High value="25"/>
             </Range>
         </WaveformRange>
     </Trace>
@@ -375,11 +411,10 @@
                 <Gamma value="0.208072"/>
             </Pars>
             <Pars name="pspmt:dynode">
-                <Beta value="0.291858"/>
-                <Gamma value="0.219393"/>
+                <Beta value=" 0.125515810164938"/>
+                <Gamma value="0.173426623471837"/>
             </Pars>
         </Parameters>
     </Fitting>
-
     <Notebook file="notes.txt" mode="r"/>
 </Configuration>
