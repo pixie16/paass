@@ -235,6 +235,13 @@ class Poll{
 	/// Broadcast a data spill onto the network in the classic pacman format.
 	void broadcast_pac_data();
 
+	/// @brief Splits the arguments to pread and pwrite on a colon delimeter.
+	/// @param[in] arg The argument to be split.
+	/// @param[out] start The first value in the string indicating the first mod / ch.
+	/// @param[out] start The second value in the string indicating the last mod / ch.
+	/// @return Whether the attempt was succesful.
+	bool SplitParameterArgs(const std::string &arg, int &start, int &stop);
+
   public:
   	/// Default constructor.
 	Poll();
