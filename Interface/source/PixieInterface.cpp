@@ -427,7 +427,6 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile)
 	bool hadError = false;
 	bool updated = false;
 
-/*
 	word_t val;
 
 	for (int i=0; i < numberCards; i++) {
@@ -439,7 +438,7 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile)
 				hadError = true;
 		}
 	}
-*/
+
 	if (hadError) 
 		cout << ErrorStr() << endl;
 	else if (updated)
