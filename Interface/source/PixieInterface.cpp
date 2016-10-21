@@ -237,6 +237,12 @@ bool PixieInterface::ReadConfigurationFile(const char *fn)
 			if (tag == "ModuleType") {
 				moduleType = ParseModuleTypeTag(value);
 				std::cout << "Module Type: " << InfoStr(moduleType) << "\n";
+
+				//If we have two multiple entires for one type we use only the first.
+				if (configStrings.find(moduleType) != configStrings.end()) {
+					std::cout << WarningStr() << " Duplicate module type information will be ignored. (" << moduleType << ")\n";
+					moduleType = "ignored_" + moduleType;
+				}
 			}
 			
 			//Store configuration
