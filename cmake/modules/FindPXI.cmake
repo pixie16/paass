@@ -14,9 +14,11 @@ unset(PXI_LIBRARY_DIR CACHE)
 find_path(PXI_LIBRARY_DIR
 	NAMES libPixie16App.a libPixie16Sys.a 
 	HINTS ${PXI_ROOT_DIR}
-	PATHS /opt/xia/current
+	PATHS /opt/xia/current /opt/xia/software
 	PATH_SUFFIXES software
 	DOC "Path to pixie library.")
+
+get_filename_component(PXI_LIBRARY_DIR "${PXI_LIBRARY_DIR}" REALPATH)
 
 if(NOT PXI_FIRMWARE_DIR)
 	get_filename_component(PXI_FIRMWARE_DIR "${PXI_LIBRARY_DIR}/../.." REALPATH)
@@ -69,7 +71,7 @@ function(PXI_CONFIG)
 		#Check that a unique match was found
 		list(LENGTH FILE_MATCHES NUM_MATCHES)
 		if (NOT NUM_MATCHES EQUAL 1)
-			message(STATUS "WARNING: Unable to autocomplete configuration!\n\tUnique ${KEY} file (${GLOB_EXPR}) not found!")
+			message(STATUS "WARNING: Unable to autocomplete global configuration!\n\tUnique ${KEY} file (${GLOB_EXPR}) not found!")
 			file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg 
 				"# Multiple / zero options found! Choose below and remove this comment.\n")
 		endif()
@@ -111,6 +113,13 @@ function(PXI_CONFIG)
 	endif(NOT EXISTS ${PXI_FIRMWARE_DIR})
 	subdirlist(PXI_FIRMWARE_DIRS ${PXI_FIRMWARE_DIR})
 
+	#remove directories without subdirectories firmware and dsp.
+	foreach(FIRMWARE_DIR ${PXI_FIRMWARE_DIRS})
+		if (NOT (EXISTS ${FIRMWARE_DIR}/firmware OR EXISTS ${FIRMWARE_FIR}/dsp))
+			list(REMOVE_ITEM PXI_FIRMWARE_DIRS ${FIRMWARE_DIR})
+		endif (NOT (EXISTS ${FIRMWARE_DIR}/firmware OR EXISTS ${FIRMWARE_FIR}/dsp))
+	endforeach(FIRMWARE_DIR ${PXI_FIRMWARE_DIRS})
+	
 	#Following are lists of keys and the glob expr to find the files
 	set(CONFIG_NAME SpFpgaFile ComFpgaFile DspConfFile DspVarFile)
 	set(CONFIG_EXPR 
@@ -145,6 +154,8 @@ function(PXI_CONFIG)
 				"# Multiple / zero options found! Choose below and remove this comment.\n")
 		endif()
 
+		message(STATUS "Autoconfiguring module type: ${MODULE_TYPE}.")
+
 		file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "ModuleType\t\t${MODULE_TYPE}\n")
 		file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "ModuleBaseDir\t\t${FIRMWARE_DIR}\n")
 
@@ -161,7 +172,8 @@ function(PXI_CONFIG)
 			#Check that a unique match was found
 			list(LENGTH FILE_MATCHES NUM_MATCHES)
 			if (NOT NUM_MATCHES EQUAL 1)
-				message(STATUS "WARNING: Unable to autocomplete configuration!\n\tUnique ${KEY} file (${GLOB_EXPR}) not found!")
+				message(STATUS "WARNING: Unable to autocomplete ${MODULE_TYPE} configuration!")
+				message(STATUS "\tUnique ${KEY} file (${GLOB_EXPR}) not found!")
 				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg 
 					"# Multiple / zero options found! Choose below and remove this comment.\n")
 			endif()
