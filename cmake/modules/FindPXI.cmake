@@ -136,9 +136,9 @@ function(PXI_CONFIG)
 		foreach(FILENAME ${FILE_MATCHES})
 			string(REGEX MATCH "[01234567890]+b[0123456789]+m" TYPE ${FILENAME})
 			string(REGEX MATCH "rev[abcdf]" REVISION ${FILENAME})
-			#If type is missing we can add it for revd as they should all be 12b100m
-			if (${REVISION} STREQUAL "revd" AND "${TYPE}" STREQUAL "")
-				set(TYPE "12b100m")
+			#If type is missing we set it to "unknown"
+			if ("${TYPE}" STREQUAL "")
+				set(TYPE "unknown")
 			endif()
 			if (NOT MODULE_TYPE)
 				set(MODULE_TYPE "${TYPE}-${REVISION}")
