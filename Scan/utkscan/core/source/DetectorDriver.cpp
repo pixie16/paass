@@ -203,7 +203,7 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         } else if (name == "PspmtProcessor") {
                 vecProcess.push_back(new PspmtProcessor(
                         processor.attribute("vd").as_string("SIB064_0926"),
-                        processor.attribute("res").as_double(512),
+                        processor.attribute("scale").as_double(512.),
                         processor.attribute("offset").as_uint(512),
                         processor.attribute("threshold").as_double(50.)
                 ));

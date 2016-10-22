@@ -236,6 +236,7 @@
             <Channel number="15" type="vandle" subtype="medium"
                      tags="right"> </Channel>
         </Module>
+
         <Module number="6">
             <Channel number="0" type="vandle" subtype="medium"
                      tags="left"> </Channel>
@@ -261,18 +262,19 @@
             <Channel number="9" type="pin" subtype="de2">
                 This is the second pin that the beam will encounter.
                 The downstream pin. </Channel>
-            <Channel number="11" type="tac" subtype="i2n_i2s">
+            <Channel number="11" type="tac" subtype="pin1_i2n">
+                Measures the ToF between the I2N signal and PIN1. </Channel>
+            <Channel number="12" type="tac" subtype="pin1_i2s">
+                Measures the ToF between the I2S signal and PIN1. </Channel>
+            <Channel number="13" type="tac" subtype="pin2_i2n">
+                Measures the ToF between the I2N signal and PIN2. </Channel>
+            <Channel number="14" type="tac" subtype="pin2_i2s">
+                Measures the ToF between the I2S signal and PIN2. </Channel>
+            <Channel number="15" type="tac" subtype="i2n_i2s">
                 This TAC will measure the time difference between the
                 I2N and I2S. Provides rough positioning of the beam in
-                the scintillator. </Channel>
-            <Channel number="12" type="tac" subtype="pin1_i2n">
-                Measures the ToF between the I2N signal and PIN1. </Channel>
-            <Channel number="13" type="tac" subtype="pin1_i2s">
-                Measures the ToF between the I2S signal and PIN1. </Channel>
-            <Channel number="14" type="tac" subtype="pin2_i2n">
-                Measures the ToF between the I2N signal and PIN2. </Channel>
-            <Channel number="15" type="tac" subtype="pin2_i2s">
-                Measures the ToF between the I2S signal and PIN2. </Channel>
+                the scintillator.  This will need to be calibrated for
+                the TOF so that the rest </Channel>
         </Module>
         <Module number="8">
             <Channel number="0" type="hagrid" subtype="hagrid">
@@ -337,12 +339,6 @@
             <Channel number="7" type="nai" subtype="beast">
                 <Calibration model="raw"> </Calibration>
             </Channel>
-            <Channel number="8" type="nai" subtype="beast">
-                <Calibration model="raw"> </Calibration>
-            </Channel>
-            <Channel number="9" type="nai" subtype="beast">
-                <Calibration model="raw"> </Calibration>
-            </Channel>
         </Module>
         <Module number="10">
             <Channel number="15" type="ignore" subtype="ignore"> </Channel>
@@ -371,7 +367,9 @@
         <Place type="PlaceAND" name="Implant">
             <Place type="PlaceThreshold" name="pspmt_dynode_0"
                    low_limit="10" high_limit="99999" replace="true"/>
-            <Place type="PlaceThreshold" name="si_pin_0-1"
+            <Place type="PlaceThreshold" name="pin_de1_0"
+                   low_limit="50" high_limit="99999" replace="true"/>
+            <Place type="PlaceThreshold" name="pin_de2_0"
                    low_limit="50" high_limit="99999" replace="true"/>
         </Place>
     </TreeCorrelator>

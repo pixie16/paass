@@ -15,51 +15,53 @@
 
 namespace dammIds {
     namespace experiment {
-        const int DD_EPIN1_VS_TOF_PIN1_I2N = 0; //!<PIN1 vs. ToF between PIN1
+        const int D_TRACE_MAX_DYNODE = 0;//!< Max value of the Dynode trace.
+        const int DD_EPIN1_VS_TOF_PIN1_I2N = 1; //!<PIN1 vs. ToF between PIN1
 //!< and I2N
-        const int DD_EPIN1_VS_TOF_PIN1_I2S = 1; //!<PIN1 vs. ToF between PIN1
+        const int DD_EPIN1_VS_TOF_PIN1_I2S = 2; //!<PIN1 vs. ToF between PIN1
 //!< and I2S
-        const int DD_EPIN2_VS_TOF_PIN2_I2N = 2; //!<PIN2 vs. ToF between PIN2
+        const int DD_EPIN2_VS_TOF_PIN2_I2N = 3; //!<PIN2 vs. ToF between PIN2
 //!< and I2N
-        const int DD_EPIN2_VS_TOF_PIN2_I2S = 3; //!<PIN2 vs. ToF between PIN2
+        const int DD_EPIN2_VS_TOF_PIN2_I2S = 4; //!<PIN2 vs. ToF between PIN2
 //!< and ISS
-        const int DD_EPIN1_VS_TOF_I2N_I2S = 4; //!<PIN1 vs. ToF between I2N
+        const int DD_EPIN1_VS_TOF_I2N_I2S = 5; //!<PIN1 vs. ToF between I2N
 //!< and I2S
-        const int DD_PIN1_VS_PIN2 = 5; //!< PIN1 vs. PIN2
+        const int DD_TOF_I2NS_VS_TOF_PIN1_I2S = 6;
+        const int DD_PIN1_VS_PIN2 = 6; //!< PIN1 vs. PIN2
 
         namespace DECAY_GATED {
-            const int DD_QDCVSTOF = 6; //!<QDC vs ToF
-            const int DD_HAGRID = 7; //!< Location vs. HAGRiD En
-            const int DD_NAI = 8; //!< Location vs. NaI En
+            const int DD_QDCVSTOF = 7; //!<QDC vs ToF
+            const int DD_HAGRID = 8; //!< Location vs. HAGRiD En
+            const int DD_NAI = 9; //!< Location vs. NaI En
         }
 
         namespace IMPLANT_GATED {
-            const int DD_QDCVSTOF = 7; //!<QDC vs ToF
+            const int DD_QDCVSTOF = 10; //!<QDC vs ToF
         }
 
         namespace PIN_GATED {
-            const int DD_PSPMT_POS = 8; //!< PSPMT Position Gated with PIN
+            const int DD_PSPMT_POS = 11; //!< PSPMT Position Gated with PIN
         }
 
         namespace PSPMT_GATED {
-            const int DD_EPIN1_VS_TOF_PIN1_I2N = 9; //!<PIN1 vs. ToF between
+            const int DD_EPIN1_VS_TOF_PIN1_I2N = 12; //!<PIN1 vs. ToF between
 //!< PIN1 and I2N
-            const int DD_EPIN1_VS_TOF_PIN1_I2S = 10; //!<PIN1 vs. ToF between
+            const int DD_EPIN1_VS_TOF_PIN1_I2S = 13; //!<PIN1 vs. ToF between
 //!< PIN1 and I2S
-            const int DD_EPIN2_VS_TOF_PIN2_I2N = 11; //!<PIN2 vs. ToF between
+            const int DD_EPIN2_VS_TOF_PIN2_I2N = 14; //!<PIN2 vs. ToF between
 //!< PIN2 and I2N
-            const int DD_EPIN2_VS_TOF_PIN2_I2S = 12; //!<PIN2 vs. ToF between
+            const int DD_EPIN2_VS_TOF_PIN2_I2S = 15; //!<PIN2 vs. ToF between
 //!< PIN2 and ISS
         }
 
         namespace GE_GATED {
-            const int DD_EPIN1_VS_TOF_PIN1_I2N = 13; //!<PIN1 vs. ToF between
+            const int DD_EPIN1_VS_TOF_PIN1_I2N = 16; //!<PIN1 vs. ToF between
 //!< PIN1 and I2N
-            const int DD_EPIN1_VS_TOF_PIN1_I2S = 14; //!<PIN1 vs. ToF between
+            const int DD_EPIN1_VS_TOF_PIN1_I2S = 17; //!<PIN1 vs. ToF between
 //!< PIN1 and I2S
-            const int DD_EPIN2_VS_TOF_PIN2_I2N = 15; //!<PIN2 vs. ToF between
+            const int DD_EPIN2_VS_TOF_PIN2_I2N = 18; //!<PIN2 vs. ToF between
 //!< PIN2 and I2N
-            const int DD_EPIN2_VS_TOF_PIN2_I2S = 16; //!<PIN2 vs. ToF between
+            const int DD_EPIN2_VS_TOF_PIN2_I2S = 19; //!<PIN2 vs. ToF between
 //!< PIN2 and ISS
         }
     }
@@ -69,17 +71,19 @@ using namespace std;
 using namespace dammIds::experiment;
 
 void E14060Processor::DeclarePlots(void) {
-    DeclareHistogram2D(DD_EPIN1_VS_TOF_PIN1_I2N, SC, SC, "EPIN1 vs. ToF"
+    DeclareHistogram1D(D_TRACE_MAX_DYNODE, SC, "Trace Max Dynode");
+    DeclareHistogram2D(DD_EPIN1_VS_TOF_PIN1_I2N, SB, SB, "EPIN1 vs. ToF"
             "(I2N-PIN1)");
-    DeclareHistogram2D(DD_EPIN1_VS_TOF_PIN1_I2S, SC, SC, "EPIN1 vs. ToF"
+    DeclareHistogram2D(DD_EPIN1_VS_TOF_PIN1_I2S, SB, SB, "EPIN1 vs. ToF"
             "(I2S-PIN1)");
-    DeclareHistogram2D(DD_EPIN2_VS_TOF_PIN2_I2N, SC, SC, "EPIN2 vs. ToF"
+    DeclareHistogram2D(DD_EPIN2_VS_TOF_PIN2_I2N, SB, SB, "EPIN2 vs. ToF"
             "(I2N-PIN2)");
-    DeclareHistogram2D(DD_EPIN2_VS_TOF_PIN2_I2S, SC, SC, "EPIN2 vs. ToF"
+    DeclareHistogram2D(DD_EPIN2_VS_TOF_PIN2_I2S, SB, SB, "EPIN2 vs. ToF"
             "(I2S-PIN2)");
-    DeclareHistogram2D(DD_EPIN1_VS_TOF_I2N_I2S, SC, SC, "Si Energy vs. TOF"
+    DeclareHistogram2D(DD_EPIN1_VS_TOF_I2N_I2S, SB, SB, "Si Energy vs. TOF"
             "(I2N-I2S)");
-    DeclareHistogram2D(DD_PIN1_VS_PIN2, SC, SC, "EPin1 vs. EPin2");
+    //DeclareHistogram2D(DD_TOF_I2NS_VS_TOF_PIN1_I2S)
+    DeclareHistogram2D(DD_PIN1_VS_PIN2, SB, SB, "EPin1 vs. EPin2");
 
     //----- Histograms gated with decays
     DeclareHistogram2D(DECAY_GATED::DD_QDCVSTOF, SC, SD, "Decay - QDC vs. ToF");
@@ -89,27 +93,27 @@ void E14060Processor::DeclarePlots(void) {
             "ToF");
 
     //---------- Histograms Gated with the PIN
-    DeclareHistogram2D(PIN_GATED::DD_PSPMT_POS, SC, SC,
+    DeclareHistogram2D(PIN_GATED::DD_PSPMT_POS, SB, SB,
                        "PSPMT Pos - Pin Gated");
 
     //---------- Histograms Gated with the PSPMT
-    DeclareHistogram2D(PSPMT_GATED::DD_EPIN1_VS_TOF_PIN1_I2N, SC, SC,
+    DeclareHistogram2D(PSPMT_GATED::DD_EPIN1_VS_TOF_PIN1_I2N, SB, SB,
                        "EPIN1 vs. ToF (I2N-PIN1) - YAP");
-    DeclareHistogram2D(PSPMT_GATED::DD_EPIN1_VS_TOF_PIN1_I2S, SC, SC,
+    DeclareHistogram2D(PSPMT_GATED::DD_EPIN1_VS_TOF_PIN1_I2S, SB, SB,
                        "EPIN1 vs. ToF (I2S-PIN1) - YAP");
-    DeclareHistogram2D(PSPMT_GATED::DD_EPIN2_VS_TOF_PIN2_I2N, SC, SC,
+    DeclareHistogram2D(PSPMT_GATED::DD_EPIN2_VS_TOF_PIN2_I2N, SB, SB,
                        "EPIN2 vs. ToF (I2N-PIN2) - YAP");
-    DeclareHistogram2D(PSPMT_GATED::DD_EPIN2_VS_TOF_PIN2_I2S, SC, SC,
+    DeclareHistogram2D(PSPMT_GATED::DD_EPIN2_VS_TOF_PIN2_I2S, SB, SB,
                        "EPIN2 vs. ToF (I2S-PIN2) - YAP");
 
     //----------- Histograms gated with the Clover
-    DeclareHistogram2D(GE_GATED::DD_EPIN1_VS_TOF_PIN1_I2N, SC, SC,
+    DeclareHistogram2D(GE_GATED::DD_EPIN1_VS_TOF_PIN1_I2N, SB, SB,
                        "EPIN1 vs. ToF (I2N-PIN1) - YAP");
-    DeclareHistogram2D(GE_GATED::DD_EPIN1_VS_TOF_PIN1_I2S, SC, SC,
+    DeclareHistogram2D(GE_GATED::DD_EPIN1_VS_TOF_PIN1_I2S, SB, SB,
                        "EPIN1 vs. ToF (I2S-PIN1) - YAP");
-    DeclareHistogram2D(GE_GATED::DD_EPIN2_VS_TOF_PIN2_I2N, SC, SC,
+    DeclareHistogram2D(GE_GATED::DD_EPIN2_VS_TOF_PIN2_I2N, SB, SB,
                        "EPIN2 vs. ToF (I2N-PIN2) - YAP");
-    DeclareHistogram2D(GE_GATED::DD_EPIN2_VS_TOF_PIN2_I2S, SC, SC,
+    DeclareHistogram2D(GE_GATED::DD_EPIN2_VS_TOF_PIN2_I2S, SB, SB,
                        "EPIN2 vs. ToF (I2S-PIN2) - YAP");
 }
 
@@ -175,6 +179,9 @@ bool E14060Processor::Process(RawEvent &event) {
     static const vector<ChanEvent *> &pin =
             event.GetSummary("pin", true)->GetList();
 
+
+    //Loop over the Ge events to ensure that we had ourselves something in
+    // the region of interest.
     bool hasGe = false;
     for(vector<ChanEvent *>::const_iterator iterator2 = geEvts.begin();
         iterator2 != geEvts.end(); iterator2++) {
@@ -182,6 +189,11 @@ bool E14060Processor::Process(RawEvent &event) {
            (*iterator2)->GetCalEnergy() < energyRange_.second)
             hasGe = true;
     }
+
+    //Loop over the dynode events to plot the maximum value
+    for(TimingMap::const_iterator iterator3 = tdynode.begin(); iterator3 !=
+            tdynode.end(); iterator3++)
+        plot(D_TRACE_MAX_DYNODE, iterator3->second.GetMaximumValue());
 
     //Basic correlation information
     bool hasIon = pin.size() != 0;

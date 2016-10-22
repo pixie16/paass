@@ -23,8 +23,8 @@
     <DetectorDriver>
         <Analyzer name="TraceExtractor" type="pspmt" subtype="anode"/>
         <Analyzer name="WaveformAnalyzer"/>
-        <Processor name="PspmtProcessor" vd="SIB064_0926" scale="512"
-                   offset="512" threshold="50"/>
+        <Processor name="PspmtProcessor" vd="SIB064_0926" scale="1000"
+                   offset="1000" threshold="50"/>
         <Processor name="E14060Processor"/>
     </DetectorDriver>
 
