@@ -263,7 +263,10 @@
                 This is the second pin that the beam will encounter.
                 The downstream pin. </Channel>
             <Channel number="11" type="tac" subtype="pin1_i2n">
-                Measures the ToF between the I2N signal and PIN1. </Channel>
+                Measures the ToF between the I2N signal and PIN1. A
+                calibration will need to be added to this channel to
+                straighten the ToF(I2N-I2S) vs. ToF(Pin1-I2N)
+                histogram. </Channel>
             <Channel number="12" type="tac" subtype="pin1_i2s">
                 Measures the ToF between the I2S signal and PIN1. </Channel>
             <Channel number="13" type="tac" subtype="pin2_i2n">

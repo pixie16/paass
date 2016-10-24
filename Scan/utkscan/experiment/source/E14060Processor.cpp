@@ -35,34 +35,25 @@ namespace dammIds {
             const int DD_NAI = 9; //!< Location vs. NaI En
         }
 
+        namespace PSPMT_GATED {
+            const int DD_EPIN1_VS_TOF_PIN1_I2N = 12; //!<PIN1 vs. ToF between
+//!< PIN1 and I2N anti-gated with the PSPMT signal
+        }
+
         namespace IMPLANT_GATED {
             const int DD_QDCVSTOF = 10; //!<QDC vs ToF
+            const int DD_EPIN1_VS_TOF_PIN1_I2N = 12; //!<PIN1 vs. ToF between
+//!< PIN1 and I2N
         }
 
         namespace PIN_GATED {
             const int DD_PSPMT_POS = 11; //!< PSPMT Position Gated with PIN
         }
 
-        namespace PSPMT_GATED {
-            const int DD_EPIN1_VS_TOF_PIN1_I2N = 12; //!<PIN1 vs. ToF between
-//!< PIN1 and I2N
-            const int DD_EPIN1_VS_TOF_PIN1_I2S = 13; //!<PIN1 vs. ToF between
-//!< PIN1 and I2S
-            const int DD_EPIN2_VS_TOF_PIN2_I2N = 14; //!<PIN2 vs. ToF between
-//!< PIN2 and I2N
-            const int DD_EPIN2_VS_TOF_PIN2_I2S = 15; //!<PIN2 vs. ToF between
-//!< PIN2 and ISS
-        }
-
         namespace GE_GATED {
             const int DD_EPIN1_VS_TOF_PIN1_I2N = 16; //!<PIN1 vs. ToF between
 //!< PIN1 and I2N
-            const int DD_EPIN1_VS_TOF_PIN1_I2S = 17; //!<PIN1 vs. ToF between
-//!< PIN1 and I2S
-            const int DD_EPIN2_VS_TOF_PIN2_I2N = 18; //!<PIN2 vs. ToF between
-//!< PIN2 and I2N
-            const int DD_EPIN2_VS_TOF_PIN2_I2S = 19; //!<PIN2 vs. ToF between
-//!< PIN2 and ISS
+            const int DD_EPIN1_VS_GE = 17; //!< PIN1 Energy vs. Ge energy
         }
     }
 }//namespace dammIds
@@ -82,7 +73,8 @@ void E14060Processor::DeclarePlots(void) {
             "(I2S-PIN2)");
     DeclareHistogram2D(DD_EPIN1_VS_TOF_I2N_I2S, SB, SB, "Si Energy vs. TOF"
             "(I2N-I2S)");
-    //DeclareHistogram2D(DD_TOF_I2NS_VS_TOF_PIN1_I2S)
+    //DeclareHistogram2D(DD_TOF_I2NS_VS_TOF_PIN1_I2S, )
+
     DeclareHistogram2D(DD_PIN1_VS_PIN2, SB, SB, "EPin1 vs. EPin2");
 
     //----- Histograms gated with decays
@@ -91,30 +83,21 @@ void E14060Processor::DeclarePlots(void) {
     //----- Histograms gated on implants
     DeclareHistogram2D(IMPLANT_GATED::DD_QDCVSTOF, SC, SD, "Implant - QDC vs. "
             "ToF");
+    DeclareHistogram2D(IMPLANT_GATED::DD_EPIN1_VS_TOF_PIN1_I2N, SB, SB,
+                       "EPIN1 vs. ToF (I2N-PIN1) - YAP");
 
     //---------- Histograms Gated with the PIN
     DeclareHistogram2D(PIN_GATED::DD_PSPMT_POS, SB, SB,
                        "PSPMT Pos - Pin Gated");
 
-    //---------- Histograms Gated with the PSPMT
-    DeclareHistogram2D(PSPMT_GATED::DD_EPIN1_VS_TOF_PIN1_I2N, SB, SB,
-                       "EPIN1 vs. ToF (I2N-PIN1) - YAP");
-    DeclareHistogram2D(PSPMT_GATED::DD_EPIN1_VS_TOF_PIN1_I2S, SB, SB,
-                       "EPIN1 vs. ToF (I2S-PIN1) - YAP");
-    DeclareHistogram2D(PSPMT_GATED::DD_EPIN2_VS_TOF_PIN2_I2N, SB, SB,
-                       "EPIN2 vs. ToF (I2N-PIN2) - YAP");
-    DeclareHistogram2D(PSPMT_GATED::DD_EPIN2_VS_TOF_PIN2_I2S, SB, SB,
-                       "EPIN2 vs. ToF (I2S-PIN2) - YAP");
-
     //----------- Histograms gated with the Clover
     DeclareHistogram2D(GE_GATED::DD_EPIN1_VS_TOF_PIN1_I2N, SB, SB,
                        "EPIN1 vs. ToF (I2N-PIN1) - YAP");
-    DeclareHistogram2D(GE_GATED::DD_EPIN1_VS_TOF_PIN1_I2S, SB, SB,
-                       "EPIN1 vs. ToF (I2S-PIN1) - YAP");
-    DeclareHistogram2D(GE_GATED::DD_EPIN2_VS_TOF_PIN2_I2N, SB, SB,
-                       "EPIN2 vs. ToF (I2N-PIN2) - YAP");
-    DeclareHistogram2D(GE_GATED::DD_EPIN2_VS_TOF_PIN2_I2S, SB, SB,
-                       "EPIN2 vs. ToF (I2S-PIN2) - YAP");
+    DeclareHistogram2D(GE_GATED::DD_EPIN1_VS_GE, SC, SB, "EPIN1 vs. Ge");
+
+    //----------- Histograms gated with the PSPMT
+    DeclareHistogram2D(PSPMT_GATED::DD_EPIN1_VS_TOF_PIN1_I2N, SB, SB,
+                       "EPIN1 vs. ToF (I2N-PIN1)");
 }
 
 E14060Processor::E14060Processor(std::pair<double, double> &energyRange) :
@@ -181,18 +164,24 @@ bool E14060Processor::Process(RawEvent &event) {
 
 
     //Loop over the Ge events to ensure that we had ourselves something in
-    // the region of interest.
+    // the region of interest. We also take the time to plot the PIN1 energy
+    // vs. Ge Energy
     bool hasGe = false;
-    for(vector<ChanEvent *>::const_iterator iterator2 = geEvts.begin();
-        iterator2 != geEvts.end(); iterator2++) {
-        if((*iterator2)->GetCalEnergy() > energyRange_.first &&
-           (*iterator2)->GetCalEnergy() < energyRange_.second)
+    for (vector<ChanEvent *>::const_iterator iterator2 = geEvts.begin();
+         iterator2 != geEvts.end(); iterator2++) {
+        if ((*iterator2)->GetCalEnergy() > energyRange_.first &&
+            (*iterator2)->GetCalEnergy() < energyRange_.second)
             hasGe = true;
+        for (vector<ChanEvent *>::const_iterator iterator1 = pin.begin();
+             iterator1 != pin.end(); iterator1++)
+            if ((*iterator1)->GetChanID().GetSubtype() == "de1")
+                plot(GE_GATED::DD_EPIN1_VS_GE, (*iterator2)->GetCalEnergy(),
+                     (*iterator1)->GetCalEnergy());
     }
 
     //Loop over the dynode events to plot the maximum value
-    for(TimingMap::const_iterator iterator3 = tdynode.begin(); iterator3 !=
-            tdynode.end(); iterator3++)
+    for (TimingMap::const_iterator iterator3 = tdynode.begin();
+         iterator3 != tdynode.end(); iterator3++)
         plot(D_TRACE_MAX_DYNODE, iterator3->second.GetMaximumValue());
 
     //Basic correlation information
@@ -250,54 +239,42 @@ bool E14060Processor::Process(RawEvent &event) {
 void E14060Processor::PlotPid(const std::vector<ChanEvent *> &tacs,
                               const std::vector<ChanEvent *> &pins,
                               const bool &hasGe, const bool &hasImplant) {
-
-    //Need to have YAP and Ge Gated spectra as well.
     string tac = "", pin = "";
     double tac_energy = 0.0, pin_energy = 0.0;
+    double i2ns = 0.0, pin1_i2n = 0.0;
     for (vector<ChanEvent *>::const_iterator it = tacs.begin();
          it != tacs.end(); it++) {
         tac = (*it)->GetChanID().GetSubtype();
         tac_energy = (*it)->GetCalEnergy();
+        if(tac == "i2n_i2s")
+            i2ns = tac_energy;
+        if(tac == "pin1_i2n")
+            pin1_i2n = tac_energy;
         for (vector<ChanEvent *>::const_iterator iterator1 = pins.begin();
              iterator1 != pins.end(); iterator1++) {
             pin = (*iterator1)->GetChanID().GetSubtype();
             pin_energy = (*iterator1)->GetCalEnergy();
             if (tac == "pin1_i2n" && pin == "de1") {
+
                 plot(DD_EPIN1_VS_TOF_PIN1_I2N, tac_energy, pin_energy);
                 if (hasGe)
                     plot(GE_GATED::DD_EPIN1_VS_TOF_PIN1_I2N, tac_energy,
                          pin_energy);
                 if (hasImplant)
+                    plot(IMPLANT_GATED::DD_EPIN1_VS_TOF_PIN1_I2N, tac_energy,
+                         pin_energy);
+                if(!hasImplant)
                     plot(PSPMT_GATED::DD_EPIN1_VS_TOF_PIN1_I2N, tac_energy,
-                         pin_energy);
+                        pin_energy);
             }
-            if (tac == "pin1_i2s" && pin == "de1") {
+            if (tac == "pin1_i2s" && pin == "de1")
                 plot(DD_EPIN1_VS_TOF_PIN1_I2S, tac_energy, pin_energy);
-                if (hasGe)
-                    plot(GE_GATED::DD_EPIN1_VS_TOF_PIN1_I2S, tac_energy,
-                         pin_energy);
-                if (hasImplant)
-                    plot(PSPMT_GATED::DD_EPIN1_VS_TOF_PIN1_I2S, tac_energy,
-                         pin_energy);
-            }
-            if (tac == "pin2_i2n" && pin == "de2") {
+            if (tac == "pin2_i2n" && pin == "de2")
                 plot(DD_EPIN2_VS_TOF_PIN2_I2N, tac_energy, pin_energy);
-                if (hasGe)
-                    plot(GE_GATED::DD_EPIN2_VS_TOF_PIN2_I2N, tac_energy,
-                         pin_energy);
-                if (hasImplant)
-                    plot(PSPMT_GATED::DD_EPIN2_VS_TOF_PIN2_I2N, tac_energy,
-                         pin_energy);
-            }
-            if (tac == "pin2_i2s" && pin == "de2") {
+            if (tac == "pin2_i2s" && pin == "de2")
                 plot(DD_EPIN2_VS_TOF_PIN2_I2S, tac_energy, pin_energy);
-                if (hasGe)
-                    plot(GE_GATED::DD_EPIN2_VS_TOF_PIN2_I2S, tac_energy,
-                         pin_energy);
-                if (hasImplant)
-                    plot(PSPMT_GATED::DD_EPIN2_VS_TOF_PIN2_I2S, tac_energy,
-                         pin_energy);
-            }
         }
     }
+    if(i2ns != 0.0 && pin1_i2n != 0.0)
+        plot(DD_TOF_I2NS_VS_TOF_PIN1_I2S, pin1_i2n, i2ns);
 }
