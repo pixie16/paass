@@ -27,33 +27,33 @@ namespace dammIds {
         const int DD_EPIN1_VS_TOF_I2N_I2S = 5; //!<PIN1 vs. ToF between I2N
 //!< and I2S
         const int DD_TOF_I2NS_VS_TOF_PIN1_I2S = 6;
-        const int DD_PIN1_VS_PIN2 = 6; //!< PIN1 vs. PIN2
+        const int DD_PIN1_VS_PIN2 = 7; //!< PIN1 vs. PIN2
 
         namespace DECAY_GATED {
-            const int DD_QDCVSTOF = 7; //!<QDC vs ToF
-            const int DD_HAGRID = 8; //!< Location vs. HAGRiD En
-            const int DD_NAI = 9; //!< Location vs. NaI En
+            const int DD_QDCVSTOF = 8; //!<QDC vs ToF
+            const int DD_HAGRID = 9; //!< Location vs. HAGRiD En
+            const int DD_NAI = 10; //!< Location vs. NaI En
         }
 
         namespace PSPMT_GATED {
-            const int DD_EPIN1_VS_TOF_PIN1_I2N = 12; //!<PIN1 vs. ToF between
+            const int DD_EPIN1_VS_TOF_PIN1_I2N = 11; //!<PIN1 vs. ToF between
 //!< PIN1 and I2N anti-gated with the PSPMT signal
         }
 
         namespace IMPLANT_GATED {
-            const int DD_QDCVSTOF = 10; //!<QDC vs ToF
-            const int DD_EPIN1_VS_TOF_PIN1_I2N = 12; //!<PIN1 vs. ToF between
+            const int DD_QDCVSTOF = 12; //!<QDC vs ToF
+            const int DD_EPIN1_VS_TOF_PIN1_I2N = 13; //!<PIN1 vs. ToF between
 //!< PIN1 and I2N
         }
 
         namespace PIN_GATED {
-            const int DD_PSPMT_POS = 11; //!< PSPMT Position Gated with PIN
+            const int DD_PSPMT_POS = 14; //!< PSPMT Position Gated with PIN
         }
 
         namespace GE_GATED {
-            const int DD_EPIN1_VS_TOF_PIN1_I2N = 16; //!<PIN1 vs. ToF between
+            const int DD_EPIN1_VS_TOF_PIN1_I2N = 15; //!<PIN1 vs. ToF between
 //!< PIN1 and I2N
-            const int DD_EPIN1_VS_GE = 17; //!< PIN1 Energy vs. Ge energy
+            const int DD_EPIN1_VS_GE = 16; //!< PIN1 Energy vs. Ge energy
         }
     }
 }//namespace dammIds
@@ -162,6 +162,8 @@ bool E14060Processor::Process(RawEvent &event) {
     static const vector<ChanEvent *> &pin =
             event.GetSummary("pin", true)->GetList();
 
+    //Check to see if we had a veto detector in the event.
+    static bool hasVeto = event.GetSummary("generic:veto")->GetMult() != 0;
 
     //Loop over the Ge events to ensure that we had ourselves something in
     // the region of interest. We also take the time to plot the PIN1 energy
