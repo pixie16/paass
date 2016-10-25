@@ -568,12 +568,12 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 			hist = (TH1*) gDirectory->Get(histName.c_str());
 			if (hist) {
 				//Determine the x maximum from the histogram
-				float xMax = hist->GetXaxis()->GetXmax();
+				double xMax = hist->GetXaxis()->GetXmax();
 
 				//Check if this is a 2D histogram
 				if (dynamic_cast<TH2*>(hist)) {
 
-					float yMax = hist->GetYaxis()->GetXmax();
+					double yMax = hist->GetYaxis()->GetXmax();
 
 					int xBins = 256, yBins = 256;
 					if (xMax < xBins) xBins = xMax;

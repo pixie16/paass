@@ -22,10 +22,10 @@ class RootScanner : public ScanInterface {
 	
 		static constexpr const int numAxes_ = 3;
 		struct AxisInfo {	
-			float rangeUserMin[numAxes_];
-			float rangeUserMax[numAxes_];
-			float limitMin[numAxes_];
-			float limitMax[numAxes_];
+			double rangeUserMin[numAxes_];
+			double rangeUserMax[numAxes_];
+			double limitMin[numAxes_];
+			double limitMax[numAxes_];
 			bool reset;
 		};
 		std::map< TVirtualPad*, AxisInfo > zoomInfo_;

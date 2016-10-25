@@ -8,7 +8,11 @@ HistScannerChanData::HistScannerChanData() :
 	mult{0},
 	filterEn{0},
 	peakAdc{0},
-	traceQdc{0}
+	traceQdc{0},
+	baseline{0},
+	timeStampNs{0},
+	cfdBin{0},
+	timeCfdNs{0}
 {
 
 }
@@ -30,13 +34,18 @@ NUMMODULES << "\n";
 	mult[mod][chan]++;
 	filterEn[mod][chan] = data->energy; 
 
+	timeStampNs[mod][chan] = data->time * 8; // 8 NS / SYSTEM Clock
+
 	//Do not delete as it causes segfault.
 	ChannelEvent *chEvent = new ChannelEvent(data);
 
-	chEvent->CorrectBaseline();
+	baseline[mod][chan] = chEvent->CorrectBaseline();
 
 	peakAdc[mod][chan] = chEvent->maximum;
 	traceQdc[mod][chan] = chEvent->IntegratePulse(chEvent->max_index - 10, chEvent->max_index + 15);
+
+	cfdBin[mod][chan] = chEvent->AnalyzeCFD(); //BIN
+	timeCfdNs[mod][chan] = timeStampNs[mod][chan] + cfdBin[mod][chan] * 4; // 4 NS / ADC Clock
 
 	hitMap_.push_back(std::make_pair(mod, chan));
 }
@@ -50,6 +59,10 @@ void HistScannerChanData::Clear() {
 		filterEn[mod][chan] = 0;
 		peakAdc[mod][chan] = 0;
 		traceQdc[mod][chan] = 0;
+		baseline[mod][chan] = 0;
+		timeStampNs[mod][chan] = 0;
+		cfdBin[mod][chan] = 0;
+		timeCfdNs[mod][chan] = 0;
 	}
 
 	hitMap_.clear();
