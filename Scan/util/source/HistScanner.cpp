@@ -78,6 +78,8 @@ void HistScanner::IdleTask() {
 		TVirtualPad *pad = padItr->first;
 		UpdateZoom(pad);
 	}
+		
+	GetCanvas()->Update();
 
 	//Run the RootScanner IdleTask.
 	RootScanner::IdleTask();
@@ -87,36 +89,42 @@ void HistScanner::IdleTask() {
 /// events the histograms are replotted. This routine clears the event 
 /// after filling the tree.
 bool HistScanner::ProcessEvents() {
+	//Get the lock for tree access.
+	std::unique_lock<std::mutex> treeLock(treeMutex_);
 	//Fill the tree with the current event.
 	tree_->Fill();
 
-	static std::chrono::duration<float> timeElapsedSec;
-
-	//Check that we can make changes to histograms.
-	std::unique_lock<std::mutex> lock(histMutex_, std::try_to_lock);
-	if (lock.owns_lock()) {
-		//Only refresh if the delay is greater than 0 or manual refresh requested.
-		if (refreshDelaySec_ > 0 || refreshRequested_) {
-			timeElapsedSec = std::chrono::duration_cast<std::chrono::duration<float> >(std::chrono::system_clock::now() - lastRefresh_);
-
-			if (timeElapsedSec.count() > refreshDelaySec_) {
-				refreshRequested_ = false;
-
-				for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
-					TVirtualPad *pad = padItr->first;
-					HistMap_ *map = &padItr->second;
-					for (auto itr = map->begin(); itr != map->end(); ++itr) {
-						Plot(itr->first, pad);
-					}
-					UpdateZoom(pad);
-				}
-				GetCanvas()->Update();
-				lastRefresh_ = std::chrono::system_clock::now();
-			}
-		}
-	}
 	//We've processed the data so we clear the class for the next data.
 	eventData_->Clear();
+
+	//Check that we can make changes to histograms.
+	// If not we return to handle more data while other thread is busy.
+	std::unique_lock<std::mutex> lock(histMutex_, std::try_to_lock);
+	if (!lock.owns_lock()) {
+		return true;
+	}
+
+	static std::chrono::duration<float> timeElapsedSec;
+
+	//Only refresh if the delay is greater than 0 or manual refresh requested.
+	if (refreshDelaySec_ > 0 || refreshRequested_) {
+		timeElapsedSec = std::chrono::duration_cast<std::chrono::duration<float> >(std::chrono::system_clock::now() - lastRefresh_);
+
+		if (timeElapsedSec.count() > refreshDelaySec_) {
+			refreshRequested_ = false;
+
+			for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
+				TVirtualPad *pad = padItr->first;
+				HistMap_ *map = &padItr->second;
+				for (auto itr = map->begin(); itr != map->end(); ++itr) {
+					Plot(itr->first, pad);
+				}
+				UpdateZoom(pad);
+			}
+			GetCanvas()->Update();
+			lastRefresh_ = std::chrono::system_clock::now();
+		}
+	}
 
 	return true;
 }
@@ -311,7 +319,7 @@ void HistScanner::ClearCommand(const std::vector< std::string > &args) {
 		return;
 	}
 
-	//Get lock for hitograms.
+	//Get lock for histograms.
 	std::unique_lock<std::mutex> lock(histMutex_);
 
 	if (args.empty()) {
@@ -390,10 +398,13 @@ void HistScanner::RefreshCommand(const std::vector< std::string > &args) {
 
 }
 void HistScanner::ZeroCommand(const std::vector<std::string> &args) {
-	tree_->Reset();
+	//Get lock for histograms.
+	std::unique_lock<std::mutex> treeLock(histMutex_);
 
-	//Get lock for hitograms.
-	std::unique_lock<std::mutex> lock(histMutex_);
+	//Get lock for tree.
+	std::unique_lock<std::mutex> histLock(treeMutex_);
+
+	tree_->Reset();
 
 	for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
 		HistMap_ *map = &padItr->second;
@@ -472,6 +483,7 @@ void HistScanner::ProcessNewHists() {
 	
 		//Update the zoom on the pad for the new histogram.
 		UpdateZoom(pad);
+		GetCanvas()->Update();
 
 		newHists_.pop_back();
 	}
@@ -585,8 +597,6 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 
 				hist->SetLineColor(drawColor);
 
-				hist->Draw(drawOpt.str().c_str());
-
 				if (histItr == histMap->begin() && histMap->size() > 1) {
 					for (auto itr = histMap->begin(); itr != histMap->end(); ++itr) {
 						TH1* hist = (TH1*) (gDirectory->Get(itr->second.c_str()));
@@ -597,6 +607,7 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 						}
 					}
 				}
+				GetCanvas()->Update();
 			}
 		}
 		else {
