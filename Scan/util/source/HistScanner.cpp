@@ -561,6 +561,7 @@ void HistScanner::Plot(HistKey_ key, TVirtualPad *pad /*= gPad*/) {
 		//Make an initial draw command.
 		drawCmd << expr << ">>" << histName << "(1000)";
 
+		ResetZoom(pad);
 		//Attempt to draw and see if we get any counts.
 		if (tree_->Draw(drawCmd.str().c_str(), drawWeight.str().c_str(), drawOpt.str().c_str())) {
 			//Get a pointer to the created object.
