@@ -35,10 +35,10 @@ void RootScanner::IdleTask() {
 void RootScanner::ResetZoom(TVirtualPad *pad /*= gPad*/) {
 	AxisInfo* padZoomInfo = &zoomInfo_[pad];
 	for (int i=0;i<numAxes_;i++) {
-		padZoomInfo->limitMin[i] = std::numeric_limits<float>::max();
-		padZoomInfo->limitMax[i] = std::numeric_limits<float>::min();
-		padZoomInfo->rangeUserMin[i] = std::numeric_limits<float>::max();
-		padZoomInfo->rangeUserMax[i] = std::numeric_limits<float>::min();
+		padZoomInfo->limitMin[i] = std::numeric_limits<double>::max();
+		padZoomInfo->limitMax[i] = std::numeric_limits<double>::min();
+		padZoomInfo->rangeUserMin[i] = std::numeric_limits<double>::max();
+		padZoomInfo->rangeUserMax[i] = std::numeric_limits<double>::min();
 	}
 	padZoomInfo->reset = true;
 }

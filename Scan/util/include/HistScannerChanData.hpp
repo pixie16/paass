@@ -24,6 +24,10 @@ class HistScannerChanData : public TObject{
 		float filterEn[NUMMODULES][NUMCHANNELS];
 		float peakAdc[NUMMODULES][NUMCHANNELS];
 		float traceQdc[NUMMODULES][NUMCHANNELS];
+		float baseline[NUMMODULES][NUMCHANNELS];
+		double timeStampNs[NUMMODULES][NUMCHANNELS];
+		float cfdBin[NUMMODULES][NUMCHANNELS];
+		double timeCfdNs[NUMMODULES][NUMCHANNELS];
 		std::vector< std::pair< int, int > > hitMap_; //!Do not include in dictionary.
 
 	ClassDef(HistScannerChanData, 1);
