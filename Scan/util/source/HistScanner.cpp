@@ -92,23 +92,27 @@ bool HistScanner::ProcessEvents() {
 
 	static std::chrono::duration<float> timeElapsedSec;
 
-	//Only refresh if the delay is greater than 0 or manual refresh requested.
-	if (refreshDelaySec_ > 0 || refreshRequested_) {
-		timeElapsedSec = std::chrono::duration_cast<std::chrono::duration<float> >(std::chrono::system_clock::now() - lastRefresh_);
+	//Check that we can make changes to histograms.
+	std::unique_lock<std::mutex> lock(histMutex_, std::try_to_lock);
+	if (lock.owns_lock()) {
+		//Only refresh if the delay is greater than 0 or manual refresh requested.
+		if (refreshDelaySec_ > 0 || refreshRequested_) {
+			timeElapsedSec = std::chrono::duration_cast<std::chrono::duration<float> >(std::chrono::system_clock::now() - lastRefresh_);
 
-		if (timeElapsedSec.count() > refreshDelaySec_) {
-			refreshRequested_ = false;
+			if (timeElapsedSec.count() > refreshDelaySec_) {
+				refreshRequested_ = false;
 
-			for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
-				TVirtualPad *pad = padItr->first;
-				HistMap_ *map = &padItr->second;
-				for (auto itr = map->begin(); itr != map->end(); ++itr) {
-					Plot(itr->first, pad);
+				for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
+					TVirtualPad *pad = padItr->first;
+					HistMap_ *map = &padItr->second;
+					for (auto itr = map->begin(); itr != map->end(); ++itr) {
+						Plot(itr->first, pad);
+					}
+					UpdateZoom(pad);
 				}
-				UpdateZoom(pad);
+				GetCanvas()->Update();
+				lastRefresh_ = std::chrono::system_clock::now();
 			}
-			GetCanvas()->Update();
-			lastRefresh_ = std::chrono::system_clock::now();
 		}
 	}
 	//We've processed the data so we clear the class for the next data.
@@ -307,6 +311,9 @@ void HistScanner::ClearCommand(const std::vector< std::string > &args) {
 		return;
 	}
 
+	//Get lock for hitograms.
+	std::unique_lock<std::mutex> lock(histMutex_);
+
 	if (args.empty()) {
 		GetCanvas()->Clear();
 		for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
@@ -315,6 +322,7 @@ void HistScanner::ClearCommand(const std::vector< std::string > &args) {
 				delete gDirectory->Get(itr->second.c_str());
 			}
 			if (!map->empty()) map->clear();
+			ResetZoom(padItr->first);
 		}
 	}
 	else {
@@ -341,11 +349,12 @@ void HistScanner::ClearCommand(const std::vector< std::string > &args) {
 				delete gDirectory->Get(itr->second.c_str());
 			}
 			if (!map->empty()) map->clear();
+
+			ResetZoom(pad);
 			pad->Modified();
 		}
 	}
 
-	ResetZoom(GetCanvas());
 	GetCanvas()->Update();
 
 }
@@ -362,20 +371,29 @@ void HistScanner::RefreshCommand(const std::vector< std::string > &args) {
 			std::cout << "Refreshing. Time between auto refreshes is " << refreshDelaySec_ << " s.\n";
 	}
 	else if (args.size() == 1) {
-		int refreshDelaySec = 0;
-		try { refreshDelaySec= std::stoi(args[0]); }
+		float refreshDelaySec = 0;
+		try { refreshDelaySec = std::stof(args[0]); }
 		catch (const std::invalid_argument& ia) { 
 			std::cout << "ERROR: Invalid refresh delay value: '" << refreshDelaySec << "'\n"; 
 			return;
 		}
-		if (refreshDelaySec < 0) refreshDelaySec_ = 0;
-		else refreshDelaySec_ = refreshDelaySec;
+		if (refreshDelaySec < 0) {
+			refreshDelaySec_ = 0;
+			std::cout << "Auto refresh disabled.\n";
+		}
+		else {
+			refreshDelaySec_ = refreshDelaySec;
+			std::cout << "Auto refresh delay set to " << refreshDelaySec_ << " s.\n";
+		}
 	}
 	
 
 }
 void HistScanner::ZeroCommand(const std::vector<std::string> &args) {
 	tree_->Reset();
+
+	//Get lock for hitograms.
+	std::unique_lock<std::mutex> lock(histMutex_);
 
 	for (auto padItr=histos_.begin(); padItr != histos_.end(); ++padItr) {
 		HistMap_ *map = &padItr->second;
