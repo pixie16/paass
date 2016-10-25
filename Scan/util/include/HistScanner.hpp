@@ -5,6 +5,7 @@
 #include <map>
 #include <tuple>
 #include <chrono>
+#include <mutex>
 
 #include "TTree.h"
 #include "TFile.h"
@@ -71,6 +72,8 @@ class HistScanner : public RootScanner {
 		/// corresponding histogram.
 		std::map< TH1*, long > treeEntries_;
 
+		std::mutex histMutex_;
+
 		///@brief Initialize and plot newly requested plots.
 		void ProcessNewHists();
 		///@brief Plot the histogram corresponding to the provided key.
@@ -88,7 +91,7 @@ class HistScanner : public RootScanner {
 
 		void CmdHelp(const std::string &prefix);
 
-		unsigned int refreshDelaySec_;
+		float refreshDelaySec_;
 		bool refreshRequested_;
 		std::chrono::system_clock::time_point lastRefresh_;
 
