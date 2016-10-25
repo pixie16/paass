@@ -1783,10 +1783,10 @@ bool Poll::ReadFIFO() {
 			//Clear the partial event
 			partialEvents[mod].clear();
 
-			//We now ned to parse the event to determine if there is a hanging event. Also, allows a check for corrupted data.
-			size_t parseWords = dataWords;
+			//We now need to parse the event to determine if there is a hanging event. Also, allows a check for corrupted data.
+			size_t parseWords = dataWords; 
 			//We declare the eventSize outside the loop in case there is a partial event.
-			word_t eventSize = 0;
+			word_t eventSize = 0, prevEventSize = 0;
 			word_t slotExpected = pif->GetSlotNumber(mod);
 			while (parseWords < dataWords + nWords[mod]) {
 				//Check first word to see if data makes sense.
@@ -1797,9 +1797,10 @@ bool Poll::ReadFIFO() {
 				bool virtualChannel = ((fifoData[parseWords] & 0x20000000) != 0);
 
 				if( slotRead != slotExpected ){ 
-					std::cout << Display::ErrorStr() << " Slot read (" << slotRead 
-						<< ") not the same as" << " slot expected (" 
-						<< slotExpected << ")" << std::endl; 
+					std::cout << Display::ErrorStr() << " Slot read " << slotRead 
+						<< " not the same as slot expected " 
+						<< slotExpected << std::endl; 
+					std::cout << std::hex << fifoData[parseWords] << std::dec << std::endl;
 					break;
 				}
 				else if (chanRead < 0 || chanRead > 15) {
@@ -1807,7 +1808,7 @@ bool Poll::ReadFIFO() {
 					break;
 				}
 				else if(eventSize == 0){ 
-					std::cout << Display::ErrorStr() << "ZERO EVENT SIZE in mod " << mod << "!\n"; 
+					std::cout << Display::ErrorStr() << " ZERO EVENT SIZE in mod " << mod << "!\n"; 
 					break;
 				}
 
@@ -1818,6 +1819,7 @@ bool Poll::ReadFIFO() {
 
 				//Iterate to the next event and continue parsing
 				parseWords += eventSize;
+				prevEventSize = eventSize;
 			}
 
 			//We now check the outcome of the data parsing.
@@ -1837,22 +1839,35 @@ bool Poll::ReadFIFO() {
 			}
 			//If parseWords is small then the parse failed for some reason
 			else if (parseWords < dataWords + nWords[mod]) {
-				std::cout << Display::ErrorStr() << " Parsing indicated corrupted data at " << parseWords - dataWords << " words into FIFO.\n";
+				//Determine the fifo position from successfully parsed words plus the last event length.
+				std::cout << Display::ErrorStr() << " Parsing indicated corrupted data for module " << mod 
+						<< " at " << parseWords - dataWords << "/" << nWords[mod]
+						<< " (" << parseWords << "/" << dataWords  + nWords[mod] << ") words into FIFO." << std::endl; 
 
+				//Print the previous event
+				std::cout << "\nEvent prior to parsing error:";
 				std::cout << std::hex;
-				//Print the previous words
-				std::cout << "Words prior to parsing error:\n";
-				for(int i=0;i< 100;i++) {
-					if (i%10 == 0) std::cout << std::endl << "\t";
-					std::cout << fifoData[dataWords + parseWords - 100 + i] << " ";
-				}
-				//Print the following words 
-				std::cout << "Words following parsing error:\n";
-				for(int i=0;i< 100;i++) {
-					if (i%10 == 0) std::cout << std::endl << "\t";
-					std::cout << fifoData[dataWords + parseWords + i] << " ";
+				for(size_t i=0;i< eventSize;i++) {
+					if (i%5 == 0) std::cout << std::endl << "\t";
+					std::cout << "0x" << std::right << std::setw(8) << std::setfill('0');
+					std::cout << fifoData[parseWords - prevEventSize + i] << " ";
 				}
 				std::cout << std::dec << std::endl;
+
+				//Print the following event 
+				std::cout << "\nEvent following parsing error:";
+				size_t outputSize = eventSize;
+				if (eventSize > 50) {	
+					outputSize = 50;
+					std::cout << " (Truncated at " << outputSize << " words.)";
+				}
+				std::cout << std::hex;
+				for(size_t i=0;i< outputSize;i++) {
+					if (i%5 == 0) std::cout << std::endl << "\t";
+					std::cout << "0x" << std::right << std::setw(8) << std::setfill('0');
+					std::cout << fifoData[parseWords + i] << " ";
+				}
+				std::cout << std::dec << std::endl << std::endl;	
 
 				do_stop_acq = true;
 				had_error = true;
