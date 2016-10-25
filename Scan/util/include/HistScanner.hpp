@@ -73,6 +73,7 @@ class HistScanner : public RootScanner {
 		std::map< TH1*, long > treeEntries_;
 
 		std::mutex histMutex_;
+		std::mutex treeMutex_;
 
 		///@brief Initialize and plot newly requested plots.
 		void ProcessNewHists();
