@@ -1881,7 +1881,7 @@ bool Poll::ReadFIFO() {
 				if (eventSize > 50) outputSize = 50;
 				if (parseWords + eventSize + outputSize >= dataWords + nWords[mod]) 
 					outputSize = dataWords + nWords[mod] - (parseWords + eventSize);
-				if (outputSize != eventSize) 
+				if (outputSize != nextEventSize) 
 					std::cout << "\n| (Truncated at " << outputSize << " words.)";
 
 				std::cout << std::hex << std::setfill('0');
