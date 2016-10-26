@@ -1580,7 +1580,7 @@ void Poll::RunControl(){
 			//Handle a stop signal
 			if(do_stop_acq){ 
 				// Read data from the modules.
-				ReadFIFO();
+				if (!had_error) ReadFIFO();
 
 				// Instruct all modules to end the current run.
 				pif->EndRun();
@@ -1596,7 +1596,7 @@ void Poll::RunControl(){
 						//We sleep to allow the module to finish.
 						sleep(1);
 						//We read the FIFO out.
-						ReadFIFO();
+						if (!had_error) ReadFIFO();
 					}
 
 					//Print the module status.
@@ -1800,7 +1800,6 @@ bool Poll::ReadFIFO() {
 					std::cout << Display::ErrorStr() << " Slot read " << slotRead 
 						<< " not the same as slot expected " 
 						<< slotExpected << std::endl; 
-					std::cout << std::hex << fifoData[parseWords] << std::dec << std::endl;
 					break;
 				}
 				else if (chanRead < 0 || chanRead > 15) {
@@ -1840,34 +1839,58 @@ bool Poll::ReadFIFO() {
 			//If parseWords is small then the parse failed for some reason
 			else if (parseWords < dataWords + nWords[mod]) {
 				//Determine the fifo position from successfully parsed words plus the last event length.
-				std::cout << Display::ErrorStr() << " Parsing indicated corrupted data for module " << mod 
-						<< " at " << parseWords - dataWords << "/" << nWords[mod]
+				std::cout << Display::ErrorStr() << " Parsing indicated corrupted data for module " << mod << ".\n";
+				std::cout << "| Parsing failed at " << parseWords - dataWords << "/" << nWords[mod]
 						<< " (" << parseWords << "/" << dataWords  + nWords[mod] << ") words into FIFO." << std::endl; 
 
 				//Print the previous event
-				std::cout << "\nEvent prior to parsing error (" << prevEventSize << " words):";
-				std::cout << std::hex;
+				std::cout << "|\n| Event prior to parsing error (" << prevEventSize << " words):";
+				std::cout << std::hex << std::setfill('1');
 				for(size_t i=0;i< prevEventSize;i++) {
-					if (i%5 == 0) std::cout << std::endl << "\t";
+					if (i%5 == 0) std::cout << std::endl << "|  ";
 					std::cout << "0x" << std::right << std::setw(8) << std::setfill('0');
 					std::cout << fifoData[parseWords - prevEventSize + i] << " ";
 				}
-				std::cout << std::dec << std::endl;
+				std::cout << std::dec << std::setfill(' ') << std::endl;	
 
-				//Print the following event 
-				std::cout << "\nEvent following parsing error (" << eventSize << " words):";
+				//Print the parsed event 
+				std::cout << "|\n| Event at parsing error (" << eventSize << " words):";
 				size_t outputSize = eventSize;
 				if (eventSize > 50) {	
 					outputSize = 50;
-					std::cout << " (Truncated at " << outputSize << " words.)";
+					std::cout << "\n| (Truncated at " << outputSize << " words.)";
 				}
-				std::cout << std::hex;
+				std::cout << std::hex << std::setfill('0');
 				for(size_t i=0;i< outputSize;i++) {
-					if (i%5 == 0) std::cout << std::endl << "\t";
+					if (i%5 == 0) std::cout << std::endl << "|  ";
 					std::cout << "0x" << std::right << std::setw(8) << std::setfill('0');
 					std::cout << fifoData[parseWords + i] << " ";
 				}
-				std::cout << std::dec << std::endl << std::endl;	
+				std::cout << std::dec << std::setfill(' ') << std::endl;	
+
+				//Print the following event 
+				//Determine size of following event.
+				word_t nextEventSize = 0;
+				if (parseWords + eventSize < dataWords + nWords[mod]) {
+					nextEventSize = ((fifoData[parseWords + eventSize] & 0x7FFE2000) >> 17);
+				}
+				std::cout << "|\n| Event after parsing error (" << nextEventSize << " words):";
+
+				//Determine output size for event.
+				outputSize = nextEventSize;
+				if (eventSize > 50) outputSize = 50;
+				if (parseWords + eventSize + outputSize >= dataWords + nWords[mod]) 
+					outputSize = dataWords + nWords[mod] - (parseWords + eventSize);
+				if (outputSize != eventSize) 
+					std::cout << "\n| (Truncated at " << outputSize << " words.)";
+
+				std::cout << std::hex << std::setfill('0');
+				for(size_t i=0;i< outputSize;i++) {
+					if (i%5 == 0) std::cout << std::endl << "|  ";
+					std::cout << "0x" << std::right << std::setw(8);
+					std::cout << fifoData[parseWords + eventSize + i] << " ";
+				}
+				std::cout << std::dec << std::setfill(' ') << std::endl << "|\n";	
 
 				do_stop_acq = true;
 				had_error = true;
