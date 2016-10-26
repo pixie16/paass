@@ -1778,7 +1778,7 @@ bool Poll::ReadFIFO() {
 				std::cout << " to buffer position " << dataWords << std::endl;
 			}
 
-			//After reading the FIFO and printing a sttus message we can update the number of words to include the partial event.
+			//After reading the FIFO and printing a status message we can update the number of words to include the partial event.
 			nWords[mod] += partialEvents[mod].size();
 			//Clear the partial event
 			partialEvents[mod].clear();
@@ -1800,16 +1800,17 @@ bool Poll::ReadFIFO() {
 					std::cout << Display::ErrorStr() << " Slot read " << slotRead 
 						<< " not the same as slot expected " 
 						<< slotExpected << std::endl; 
-					break;
+					had_error = true;
 				}
-				else if (chanRead < 0 || chanRead > 15) {
+				if (chanRead < 0 || chanRead > 15) {
 					std::cout << Display::ErrorStr() << " Channel read (" << chanRead << ") not valid!\n";
-					break;
+					had_error = true;
 				}
-				else if(eventSize == 0){ 
+				if(eventSize == 0){ 
 					std::cout << Display::ErrorStr() << " ZERO EVENT SIZE in mod " << mod << "!\n"; 
-					break;
+					had_error = true;
 				}
+				if (had_error) break;
 
 				// Update the statsHandler with the event (for monitor.bash)
 				if(!virtualChannel && statsHandler){ 
@@ -1834,7 +1835,6 @@ bool Poll::ReadFIFO() {
 
 				//Update the number of words to indicate removal or partial event.
 				nWords[mod] -= partialSize;
-
 			}
 			//If parseWords is small then the parse failed for some reason
 			else if (parseWords < dataWords + nWords[mod]) {
