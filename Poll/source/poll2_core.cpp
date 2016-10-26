@@ -1845,9 +1845,9 @@ bool Poll::ReadFIFO() {
 						<< " (" << parseWords << "/" << dataWords  + nWords[mod] << ") words into FIFO." << std::endl; 
 
 				//Print the previous event
-				std::cout << "\nEvent prior to parsing error:";
+				std::cout << "\nEvent prior to parsing error (" << prevEventSize << " words):";
 				std::cout << std::hex;
-				for(size_t i=0;i< eventSize;i++) {
+				for(size_t i=0;i< prevEventSize;i++) {
 					if (i%5 == 0) std::cout << std::endl << "\t";
 					std::cout << "0x" << std::right << std::setw(8) << std::setfill('0');
 					std::cout << fifoData[parseWords - prevEventSize + i] << " ";
@@ -1855,7 +1855,7 @@ bool Poll::ReadFIFO() {
 				std::cout << std::dec << std::endl;
 
 				//Print the following event 
-				std::cout << "\nEvent following parsing error:";
+				std::cout << "\nEvent following parsing error (" << eventSize << " words):";
 				size_t outputSize = eventSize;
 				if (eventSize > 50) {	
 					outputSize = 50;
