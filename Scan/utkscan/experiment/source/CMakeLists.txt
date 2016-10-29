@@ -1,5 +1,5 @@
 set(EXPERIMENT_SOURCES
-        TemplateExpProcessor.cpp
+        Ornl2016Processor.cpp
 )
 
 add_library(ExperimentObjects OBJECT ${EXPERIMENT_SOURCES})

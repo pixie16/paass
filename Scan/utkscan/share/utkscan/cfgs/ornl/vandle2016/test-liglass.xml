@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>S. V. Paulauskas</Name>
+        <Email>stanpaulauskas AT gmail DOT com</Email>
+        <Date>February 10, 2016</Date>
+    </Author>
+
+    <Description>
+      Configuration for SVP To test stuffs.
+    </Description>
+
+    <Global>
+        <Revision version="F"/>
+        <EventWidth unit="s" value="1e-6"/>
+        <EnergyContraction value="1.0"/>
+        <Path>config/</Path>
+        <NumOfTraces value="50"/>
+    </Global>
+
+    <DetectorDriver>
+      <Analyzer name="WaveformAnalyzer"/>
+      <Analyzer name="FittingAnalyzer"/>
+      <Processor name="ORNL2016Processor"
+		 types="medium" res="2" offset="1000" NumStarts="1"/>
+    </DetectorDriver>
+    
+    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+        <Module number="0">
+            <Channel number="0" type="beta" subtype="double" tags="start,left"></Channel>
+            <Channel number="1" type="beta" subtype="double" tags="start,right"></Channel>
+            <Channel number="11" type="liglass" subtype="six"></Channel>
+	    <Channel number="12" type="liglass" subtype="seven"></Channel>
+	    <Channel number="13" type="liglass" subtype="six"></Channel>
+	    <Channel number="14" type="liglass" subtype="six"></Channel>
+	    <Channel number="15" type="liglass" subtype="six"></Channel>
+	</Module>
+	<Module number="9">
+	  <Channel number="14" type="beta" subtype="double" tags="left"></Channel>
+          <Channel number="15" type="beta" subtype="double" tags="right"></Channel>
+        </Module>
+	
+	<Module number="10">
+          <Channel number="15" type="ignore" subtype="ignore"></Channel>
+        </Module>
+    </Map>
+    
+    <TreeCorrelator name="root" verbose="False">
+      <Place type="PlaceAND" name="DoubleBeta0" fifo="2">
+        <Place type="PlaceThreshold" name="beta_double_2,3"
+               low_limit="50.0" high_limit="16382" fifo="5"
+               replace="true"/>
+      </Place>
+      
+      <Place type="PlaceOR" name="Beta" fifo="10">
+        <Place type="PlaceThreshold" name="beta_double_2,3"
+               low_limit="50.0" high_limit="16382" fifo="5"
+               replace="true"/>
+      </Place>
+      
+      <Place type="PlaceDetector" name="Vandle" reset="false"/>
+      <Place type="PlaceDetector" name="TapeMove" reset="false"/>
+      <Place type="PlaceDetector" name="Beam" reset="false"/>
+      <Place type="PlaceDetector" name="Cycle" reset="false"/>
+    </TreeCorrelator>
+    
+    <TimeCalibration verbose_timing="False">
+      <Vandle>
+	<medium>
+	  <Bar number="0" lroffset="8.38577" z0="0.944" xoffset="0.0" zoffset="0.0">
+            <TofOffset location="0" offset="174.75682"/>
+	  </Bar>
+	  <Bar number="1" lroffset="-2.92975" >
+            <TofOffset location="0" offset="176.95856"/>
+	  </Bar>
+	  <Bar number="2" lroffset="7.37797" >
+            <TofOffset location="0" offset="173.90091"/>
+	  </Bar>
+	  <Bar number="3" lroffset=".33371" >
+            <TofOffset location="0" offset="178.37015"/>
+	  </Bar>
+	  <Bar number="4" lroffset="7.43003" >
+            <TofOffset location="0" offset="174.41503"/>
+	  </Bar>
+	  <Bar number="5" lroffset=".19646" >
+            <TofOffset location="0" offset="178.89668"/>
+	  </Bar>
+	  <Bar number="6" lroffset="1.15186" >
+            <TofOffset location="0" offset="179.32981"/>
+	  </Bar>
+	  <Bar number="7" lroffset="-9.68028" >
+            <TofOffset location="0" offset="181.86246"/>
+	  </Bar>
+	  <Bar number="8" lroffset="5.07285" >
+            <TofOffset location="0" offset="175.66778"/>
+	  </Bar>
+	  <Bar number="9" lroffset="-8.15173" >
+            <TofOffset location="0" offset="181.98502"/>
+	  </Bar>
+	  <Bar number="10" lroffset="1.11634" >
+            <TofOffset location="0" offset="176.26290"/>
+	  </Bar>
+	  <Bar number="11" lroffset="-7.63781" >
+            <TofOffset location="0" offset="179.55417"/>
+	  </Bar>
+	  <Bar number="12" lroffset="8.24739" >
+            <TofOffset location="0" offset="177.35824"/>
+	  </Bar>
+	  <Bar number="13" lroffset="-9.32288" >
+            <TofOffset location="0" offset="178.62808"/>
+	  </Bar>
+	  <Bar number="14" lroffset="3.95765" >
+            <TofOffset location="0" offset="178.09750"/>
+	  </Bar>
+	  <Bar number="15" lroffset="-12.00315" >
+            <TofOffset location="0" offset="176.59468"/>
+	  </Bar>
+	  <Bar number="16" lroffset="5.79809" >
+            <TofOffset location="0" offset="174.35281"/>
+	  </Bar>
+	  <Bar number="17" lroffset="-7.98704" >
+            <TofOffset location="0" offset="174.39108"/>
+	  </Bar>
+	  <Bar number="18" lroffset="7.98792" >
+            <TofOffset location="0" offset="175.16825"/>
+	  </Bar>
+	  <Bar number="19" lroffset="-2.12562" >
+            <TofOffset location="0" offset="177.50493"/>
+	  </Bar>
+	  <Bar number="20" lroffset="1.17875" >
+            <TofOffset location="0" offset="178.59157"/>
+	  </Bar>
+	  <Bar number="21" lroffset="-2.07824" >
+            <TofOffset location="0" offset="178.50678"/>
+	  </Bar>
+	  <Bar number="22" lroffset="5.24238" >
+            <TofOffset location="0" offset="178.57410"/>
+	  </Bar>
+	  <Bar number="23" lroffset="-7.92354" >
+            <TofOffset location="0" offset="182.65548"/>
+	  </Bar>
+	  <Bar number="24" lroffset="7.47193" >
+            <TofOffset location="0" offset="177.77286"/>
+	  </Bar>
+	  <Bar number="25" lroffset="-.49219" >
+            <TofOffset location="0" offset="181.43966"/>
+	  </Bar>
+	  <Bar number="26" lroffset="-.97542" >
+            <TofOffset location="0" offset="173.47160"/>
+	  </Bar>
+	  <Bar number="27" lroffset="-6.68742" >
+            <TofOffset location="0" offset="179.57935"/>
+	  </Bar>
+	  <Bar number="28" lroffset="6.44394" >
+            <TofOffset location="0" offset="177.38788"/>
+	  </Bar>
+	  <Bar number="29" lroffset="2.38323" >
+            <TofOffset location="0" offset="180.58107"/>
+	  </Bar>
+	  <Bar number="30" lroffset="6.57187" >
+            <TofOffset location="0" offset="178.85648"/>
+	  </Bar>
+	  <Bar number="31" lroffset="-.34765" >
+            <TofOffset location="0" offset="182.82636"/>
+	  </Bar>
+	  <Bar number="32" lroffset="-1.25363" >
+            <TofOffset location="0" offset="177.54982"/>
+	  </Bar>
+	  <Bar number="33" lroffset="-7.53653" >
+            <TofOffset location="0" offset="180.25185"/>
+	  </Bar>
+	  <Bar number="34" lroffset="6.53533" >
+            <TofOffset location="0" offset="173.70309"/>
+	  </Bar>
+	  <Bar number="35" lroffset="-.26282" >
+            <TofOffset location="0" offset="177.56793"/>
+	  </Bar>
+	  <Bar number="36" lroffset="-.21007" >
+            <TofOffset location="0" offset="176.62181"/>
+	  </Bar>
+	  <Bar number="37" lroffset="-5.86999" >
+            <TofOffset location="0" offset="180.57740"/>
+	  </Bar>
+	  <Bar number="38" lroffset="-2.68413" >
+            <TofOffset location="0" offset="177.19568"/>
+	  </Bar>
+	  <Bar number="39" lroffset="-8.72398" >
+            <TofOffset location="0" offset="181.41716"/>
+	  </Bar>
+	  <Bar number="40" lroffset="9.27005" >
+            <TofOffset location="0" offset="177.16640"/>
+	  </Bar>
+	  <Bar number="41" lroffset=".05802" >
+            <TofOffset location="0" offset="180.16747"/>
+	  </Bar>
+	</medium>
+      </Vandle>
+      
+      <Beta>
+      </Beta>
+    </TimeCalibration>
+    
+    <Timing>
+      <Physical>
+        <NeutronMass unit="MeV/c/c" value="939.565560"/>
+        <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+        <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+        <SmallLength unit="cm" value="60.0"/>
+        <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+        <BigLength unit="cm" value="200.0"/>
+        <SpeedOfLightMedium unit="cm/ns" value="13.4414"/>
+        <MediumLength unit="cm" value="120.0"/>
+      </Physical>
+      <Trace>
+        <WaveformRange>
+          <Low unit="sample" value="5"/>
+          <High unit="sample" value="10"/>
+        </WaveformRange>
+        <SiPmtWaveformRange>
+          <Low unit="sample" value="25"/>
+          <High unit="sample" value="50"/>
+        </SiPmtWaveformRange>
+        <DiscriminationStart unit="sample" value="3"/>
+        <TrapezoidalWalk unit="ns" value="100"/>
+        <TraceDelay unit="ns" value="220"/>
+        <TraceLength unit="ns" value="520"/>
+        <QdcCompression value="4.0"/>
+      </Trace>
+      
+      <Fitting>
+        <SigmaBaselineThresh value="3.0"/>
+        <SiPmtSigmaBaselineThresh value = "10.0"/>
+        <Vandle>
+          <Small>
+            <Beta value="0.32969"/>
+            <Gamma value="0.212945"/>
+          </Small>
+          <Medium>
+            <Beta value="0.254373"/>
+            <Gamma value="0.208072"/>
+          </Medium>
+          <Big>
+            <Beta value="0.32969"/>
+            <Gamma value="0.212945"/>
+          </Big>
+          <TeenyVandle>
+            <Beta value="0.362307"/>
+            <Gamma value="0.186129"/>
+          </TeenyVandle>
+        </Vandle>
+        <SingleBeta>
+          <Beta value="0.574531"/>
+          <Gamma value="0.274512"/>
+        </SingleBeta>
+        <DoubleBeta>
+	  <Beta value="0.004329388"/>
+          <Gamma value="0.163596"/>
+        </DoubleBeta>
+        <Pulser>
+          <Beta value="0.832272"/>
+          <Gamma value="0.236525"/>
+        </Pulser>
+        <Liquid>
+          <Beta value="4.52672"/>
+          <Gamma value="1.73376"/>
+        </Liquid>
+	<LiGlass>
+          <Beta value="0.049601"/>
+          <Gamma value="0.163596"/>	      
+	</LiGlass>
+      </Fitting>
+    </Timing>
+    
+    <Notebook file="notes.txt" mode="r"/>
+</Configuration>
