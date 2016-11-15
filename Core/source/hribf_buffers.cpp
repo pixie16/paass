@@ -101,7 +101,6 @@ PLD_header::PLD_header() : BufferType(HEAD, 0){ // 0x44414548 "HEAD"
 
 /// Destructor.
 PLD_header::~PLD_header(){
-	if(run_title){ delete[] run_title; }
 }
 
 /// Get the length of the header buffer.
