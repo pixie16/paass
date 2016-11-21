@@ -236,7 +236,8 @@ void scopeScanner::Plot(){
 
 		if(performCfd_){
 			// Find the zero-crossing of the cfd waveform.
-			float cfdCrossing = chanEvents_.front()->AnalyzeCFD(cfdF_, cfdD_, cfdL_);
+			//float cfdCrossing = chanEvents_.front()->AnalyzeCFD(cfdF_, cfdD_, cfdL_);
+			float cfdCrossing = chanEvents_.front()->AnalyzeCFD(cfdF_);
 			
 			// Draw the cfd waveform.
 			for(size_t cfdIndex = 0; cfdIndex < chanEvents_.front()->size; cfdIndex++)
