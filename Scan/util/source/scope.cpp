@@ -378,8 +378,7 @@ bool scopeScanner::AddEvent(XiaData *event_){
 	ChannelEvent *channel_event = new ChannelEvent(event_);
 
 	//Process the waveform.
-	//channel_event->FindLeadingEdge();
-	channel_event->CorrectBaseline();
+	channel_event->ComputeBaseline();
 	channel_event->FindQDC();
 	
 	//Push the channel event into the deque.

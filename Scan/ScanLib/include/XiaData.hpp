@@ -81,9 +81,7 @@ public:
     
     double hires_energy; /// High resolution energy from the integration of pulse fits.
     double hires_time; /// High resolution time taken from pulse fits (in ns).
-    
-    float *xvals; /// x values used for fitting.
-    float *yvals; /// y values used for fitting (baseline corrected trace).
+
     float *cfdvals; /// y values for the cfd analyzed waveform.
     size_t size; /// Size of xvals and yvals arrays and of trace vector.
     
@@ -95,7 +93,6 @@ public:
     float cfdCrossing; /// The zero-crossing point of the cfd waveform.
     size_t max_index; /// The index of the maximum trace bin (in ADC clock ticks).
     
-    bool baseline_corrected; /// True if the trace has been baseline corrected.
     bool ignore; /// Ignore this event.
     
     XiaData *event; /// The low level pixie event.
@@ -111,9 +108,6 @@ public:
 
     /// Compute the trace baseline, baseline standard deviation, and find the pulse maximum.
     float ComputeBaseline();
-    
-    /// Correct the trace baseline.
-    float CorrectBaseline();
     
     /// Find the leading edge of the pulse at a given percentage of pulse maximum.
     float FindLeadingEdge(const float &thresh_=0.05);
