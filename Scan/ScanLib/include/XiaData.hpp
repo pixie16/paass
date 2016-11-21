@@ -93,6 +93,8 @@ public:
     float cfdCrossing; /// The zero-crossing point of the cfd waveform.
     size_t max_index; /// The index of the maximum trace bin (in ADC clock ticks).
     
+    float cfdPar[7]; /// Array of floats for storing cfd polynomial fits.
+
     bool ignore; /// Ignore this event.
     
     XiaData *event; /// The low level pixie event.
@@ -128,12 +130,8 @@ public:
     void Clear();
 };
 
-void calculateP2(const short &x0, const std::vector<int> &trace, float &p0, float &p1, float &p2);
+float calculateP2(const short &x0, const std::vector<int> &trace, float &p0, float &p1, float &p2);
 
-float calculateP2(const short &x0, const std::vector<int> &trace, float &Xmax);
-
-void calculateP3(const short &x0, const std::vector<int> &trace, float &p0, float &p1, float &p2, float &p3);
-
-float calculateP3(const short &x0, const std::vector<int> &trace, float &Xmax);
+float calculateP3(const short &x0, const std::vector<int> &trace, float &p0, float &p1, float &p2, float &p3);
 
 #endif
