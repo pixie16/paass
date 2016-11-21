@@ -51,7 +51,7 @@ public:
     virtual ~XiaData();
     
     /// Get the event ID number (mod * chan).
-    unsigned int getID(){ return(modNum*16+chanNum); }
+    int getID(){ return(modNum*16+chanNum); }
     
     /// Reserve specified number of bins for the channel trace.
     void reserve(const size_t &size_);
@@ -108,8 +108,11 @@ public:
     
     /// Destructor.
     ~ChannelEvent();
+
+    /// Compute the trace baseline, baseline standard deviation, and find the pulse maximum.
+    float ComputeBaseline();
     
-    /// Correct the trace baseline, baseline standard deviation, and find the pulse maximum.
+    /// Correct the trace baseline.
     float CorrectBaseline();
     
     /// Find the leading edge of the pulse at a given percentage of pulse maximum.
@@ -117,15 +120,26 @@ public:
     
     /// Integrate the baseline corrected trace in the range [start_, stop_] and return the result.
     float IntegratePulse(const size_t &start_=0, const size_t &stop_=0);
-    
+
     /// Integrate the baseline corrected trace in the range [start_, stop_] and return the result.
     float FindQDC(const size_t &start_=0, const size_t &stop_=0);
-    
-    /// Perform CFD analysis on the waveform.
-    float AnalyzeCFD(const float &F_=0.5, const size_t &D_=1, const size_t &L_=1);
+
+    /// Perform CFD analysis on the waveform using the XIA algorithm.
+    float AnalyzeXiaCFD(const float &F_=0.5, const size_t &D_=1, const size_t &L_=1);
+
+    /// Perform CFD analysis on the waveform using the pol3 + pol2 algorithm.
+    float AnalyzeCFD(const float &F_=0.5);
     
     /// Clear all variables and clear the trace vector and arrays.
     void Clear();
 };
+
+void calculateP2(const short &x0, const std::vector<int> &trace, float &p0, float &p1, float &p2);
+
+float calculateP2(const short &x0, const std::vector<int> &trace, float &Xmax);
+
+void calculateP3(const short &x0, const std::vector<int> &trace, float &p0, float &p1, float &p2, float &p3);
+
+float calculateP3(const short &x0, const std::vector<int> &trace, float &Xmax);
 
 #endif
