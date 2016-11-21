@@ -85,8 +85,6 @@ void XiaData::clear(){
 /// Default constructor.
 ChannelEvent::ChannelEvent(){
 	event = NULL;
-	xvals = NULL;
-	yvals = NULL;
 	cfdvals = NULL;
 	Clear();
 }
@@ -94,22 +92,15 @@ ChannelEvent::ChannelEvent(){
 /// Constructor from a XiaData. ChannelEvent will take ownership of the XiaData.
 ChannelEvent::ChannelEvent(XiaData *event_){
 	event = NULL;
-	xvals = NULL;
-	yvals = NULL;
 	cfdvals = NULL;
 	Clear();
 	event = event_;
 	size = event->adcTrace.size();
-	if(size != 0){
-		xvals = new float[size];
-		yvals = new float[size];
-	}
 }
 
 ChannelEvent::~ChannelEvent(){
 	if(event){ delete event; }
-	if(xvals){ delete[] xvals; }
-	if(yvals){ delete[] yvals; }
+	if(cfdvals){ delete[] cfdvals; }
 }
 
 /// Compute the trace baseline, baseline standard deviation, and find the pulse maximum.
@@ -151,40 +142,22 @@ float ChannelEvent::ComputeBaseline(){
 	return baseline;
 }
 
-float ChannelEvent::CorrectBaseline(){
-	if(!event || size == 0){ return -9999; }
-	else if(baseline_corrected){ return maximum; }
-	
-	// Calculate the baseline.
-	this->ComputeBaseline();
-
-	// Find the maximum value, the maximum bin, and correct the baseline
-	for(size_t i = 0; i < event->adcTrace.size(); i++){
-		xvals[i] = i;
-		yvals[i] = event->adcTrace[i]-baseline;
-	}
-	
-	baseline_corrected = true;
-	
-	return maximum;
-}
-
 float ChannelEvent::FindLeadingEdge(const float &thresh_/*=0.05*/){
-	if(!event || (!baseline_corrected && CorrectBaseline() < 0)){ return -9999; }
+	if(!event || ComputeBaseline() < 0){ return -9999; }
 	else if(phase >= 0.0){ return phase; }
 
 	// Check if this is a valid pulse
 	if(maximum <= 0 || max_index == 0){ return -9999; }
 
 	for(size_t index = max_index; index > 0; index--){
-		if(yvals[index] <= thresh_ * maximum){ 
+		if(event->adcTrace[index] <= thresh_ * maximum){ 
 			// Interpolate and return the value
 			// y = thresh_ * maximum
 			// x = (x1 + (y-y1)/(y2-y1))
 			// x1 = index, x2 = index+1
-			// y1 = yvals[index], y2 = yvals[index+1]
-			if(yvals[index+1] == yvals[index]){ return index+1; }
-			else{ return (phase = (index + (thresh_ * maximum - yvals[index])/(yvals[index+1] - yvals[index]))); }
+			// y1 = event->adcTrace[index], y2 = event->adcTrace[index+1]
+			if(event->adcTrace[index+1] == event->adcTrace[index]){ return index+1; }
+			else{ return (phase = (index + (thresh_ * maximum - event->adcTrace[index])/(event->adcTrace[index+1] - event->adcTrace[index]))); }
 		}
 	}
 	
@@ -192,13 +165,13 @@ float ChannelEvent::FindLeadingEdge(const float &thresh_/*=0.05*/){
 }
 
 float ChannelEvent::IntegratePulse(const size_t &start_/*=0*/, const size_t &stop_/*=0*/){
-	if(!event || (!baseline_corrected && CorrectBaseline() < 0)){ return -9999; }
+	if(!event || ComputeBaseline() < 0){ return -9999; }
 	
 	size_t stop = (stop_ == 0?size:stop_);
 	
 	qdc = 0.0;
 	for(size_t i = start_+1; i < stop; i++){ // Integrate using trapezoidal rule.
-		qdc += 0.5*(yvals[i-1] + yvals[i]);
+		qdc += 0.5*(event->adcTrace[i-1] + event->adcTrace[i]) - baseline;
 	}
 
 	return qdc;
@@ -287,18 +260,13 @@ void ChannelEvent::Clear(){
 	hires_time = -9999;
 	
 	valid_chan = false;
-	baseline_corrected = false;
 	ignore = false;
 	
 	size = 0;
-	if(xvals){ delete[] xvals; }
-	if(yvals){ delete[] yvals; }
 	if(cfdvals){ delete[] cfdvals; }
 	if(event){ event->clear(); }
 	
 	event = NULL;
-	xvals = NULL;
-	yvals = NULL;
 	cfdvals = NULL;
 }
 
