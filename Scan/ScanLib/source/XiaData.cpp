@@ -133,11 +133,10 @@ float ChannelEvent::ComputeBaseline(){
 	}
 
 	// Find the pulse maximum by fitting with a third order polynomial.
-	float realMax;
 	if(event->adcTrace[max_index-1] >= event->adcTrace[max_index+1]) // Favor the left side of the pulse.
-		maximum = calculateP3(max_index-2, event->adcTrace, realMax) - baseline;
+		maximum = calculateP3(max_index-2, event->adcTrace, cfdPar[0], cfdPar[1], cfdPar[2], cfdPar[3]) - baseline;
 	else // Favor the right side of the pulse.
-		maximum = calculateP3(max_index-1, event->adcTrace, realMax) - baseline;
+		maximum = calculateP3(max_index-1, event->adcTrace, cfdPar[0], cfdPar[1], cfdPar[2], cfdPar[3]) - baseline;
 
 	return baseline;
 }
@@ -270,7 +269,7 @@ void ChannelEvent::Clear(){
 	cfdvals = NULL;
 }
 
-void calculateP2(const short &x0, const std::vector<int> &trace, float &p0, float &p1, float &p2){
+float calculateP2(const short &x0, const std::vector<int> &trace, float &p0, float &p1, float &p2){
 	float x1[3], x2[3];
 	for(size_t i = 0; i < 3; i++){
 		x1[i] = (x0+i);
@@ -285,18 +284,12 @@ void calculateP2(const short &x0, const std::vector<int> &trace, float &p0, floa
 	p0 = (y[0]*(x1[1]*x2[2]-x2[1]*x1[2]) - x1[0]*(y[1]*x2[2]-x2[1]*y[2]) + x2[0]*(y[1]*x1[2]-x1[1]*y[2]))/denom;
 	p1 = (1*(y[1]*x2[2]-x2[1]*y[2]) - y[0]*(1*x2[2]-x2[1]*1) + x2[0]*(1*y[2]-y[1]*1))/denom;
 	p2 = (1*(x1[1]*y[2]-y[1]*x1[2]) - x1[0]*(1*y[2]-y[1]*1) + y[0]*(1*x1[2]-x1[1]*1))/denom;
-}
-
-float calculateP2(const short &x0, const std::vector<int> &trace, float &Xmax){
-	float p0, p1, p2;
-	calculateP2(x0, trace, p0, p1, p2);
 
 	// Calculate the maximum of the polynomial.
-	Xmax = -p1/(2*p2);
-	return (p0 + p1*Xmax + p2*Xmax*Xmax);
+	return (p0 - p1*p1/(4*p2));
 }
 
-void calculateP3(const short &x0, const std::vector<int> &trace, float &p0, float &p1, float &p2, float &p3){
+float calculateP3(const short &x0, const std::vector<int> &trace, float &p0, float &p1, float &p2, float &p3){
 	float x1[4], x2[4], x3[4];
 	for(size_t i = 0; i < 4; i++){
 		x1[i] = (x0+i);
@@ -313,21 +306,13 @@ void calculateP3(const short &x0, const std::vector<int> &trace, float &p0, floa
 	p1 = (1*(y[1]*(x2[2]*x3[3]-x2[3]*x3[2]) - y[2]*(x2[1]*x3[3]-x2[3]*x3[1]) + y[3]*(x2[1]*x3[2]-x2[2]*x3[1])) - y[0]*(1*(x2[2]*x3[3]-x2[3]*x3[2]) - 1*(x2[1]*x3[3]-x2[3]*x3[1]) + 1*(x2[1]*x3[2]-x2[2]*x3[1])) + x2[0]*(1*(y[2]*x3[3]-y[3]*x3[2]) - 1*(y[1]*x3[3]-y[3]*x3[1]) + 1*(y[1]*x3[2]-y[2]*x3[1])) - x3[0]*(1*(y[2]*x2[3]-y[3]*x2[2]) - 1*(y[1]*x2[3]-y[3]*x2[1]) + 1*(y[1]*x2[2]-y[2]*x2[1])))/denom;
 	p2 = (1*(x1[1]*(y[2]*x3[3]-y[3]*x3[2]) - x1[2]*(y[1]*x3[3]-y[3]*x3[1]) + x1[3]*(y[1]*x3[2]-y[2]*x3[1])) - x1[0]*(1*(y[2]*x3[3]-y[3]*x3[2]) - 1*(y[1]*x3[3]-y[3]*x3[1]) + 1*(y[1]*x3[2]-y[2]*x3[1])) + y[0]*(1*(x1[2]*x3[3]-x1[3]*x3[2]) - 1*(x1[1]*x3[3]-x1[3]*x3[1]) + 1*(x1[1]*x3[2]-x1[2]*x3[1])) - x3[0]*(1*(x1[2]*y[3]-x1[3]*y[2]) - 1*(x1[1]*y[3]-x1[3]*y[1]) + 1*(x1[1]*y[2]-x1[2]*y[1])))/denom;
 	p3 = (1*(x1[1]*(x2[2]*y[3]-x2[3]*y[2]) - x1[2]*(x2[1]*y[3]-x2[3]*y[1]) + x1[3]*(x2[1]*y[2]-x2[2]*y[1])) - x1[0]*(1*(x2[2]*y[3]-x2[3]*y[2]) - 1*(x2[1]*y[3]-x2[3]*y[1]) + 1*(x2[1]*y[2]-x2[2]*y[1])) + x2[0]*(1*(x1[2]*y[3]-x1[3]*y[2]) - 1*(x1[1]*y[3]-x1[3]*y[1]) + 1*(x1[1]*y[2]-x1[2]*y[1])) - y[0]*(1*(x1[2]*x2[3]-x1[3]*x2[2]) - 1*(x1[1]*x2[3]-x1[3]*x2[1]) + 1*(x1[1]*x2[2]-x1[2]*x2[1])))/denom;
-}
 
-float calculateP3(const short &x0, const std::vector<int> &trace, float &Xmax){
-	float p0, p1, p2, p3;
-	calculateP3(x0, trace, p0, p1, p2, p3);
-	
 	// Calculate the maximum of the polynomial.
 	float xmax1 = (-2*p2+std::sqrt(4*p2*p2-12*p3*p1))/(6*p3);
 	float xmax2 = (-2*p2-std::sqrt(4*p2*p2-12*p3*p1))/(6*p3);
 
-	if((2*p2+6*p3*xmax1) < 0){ // The second derivative is negative (i.e. this is a maximum).
-		Xmax = xmax1;
+	if((2*p2+6*p3*xmax1) < 0) // The second derivative is negative (i.e. this is a maximum).
 		return (p0 + p1*xmax1 + p2*xmax1*xmax1 + p3*xmax1*xmax1*xmax1);
-	}
 
-	Xmax = xmax2;
 	return (p0 + p1*xmax2 + p2*xmax2*xmax2 + p3*xmax2*xmax2*xmax2);
 }
