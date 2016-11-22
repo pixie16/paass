@@ -132,11 +132,16 @@ float ChannelEvent::ComputeBaseline(){
 		}
 	}
 
+	std::cout << "-----------------------------------------\n";
+	std::cout << "maximum = " << maximum << std::endl;
+
 	// Find the pulse maximum by fitting with a third order polynomial.
 	if(event->adcTrace[max_index-1] >= event->adcTrace[max_index+1]) // Favor the left side of the pulse.
-		maximum = calculateP3(max_index-2, event->adcTrace, cfdPar[0], cfdPar[1], cfdPar[2], cfdPar[3]) - baseline;
+		maximum = calculateP3(max_index-2, &event->adcTrace.data()[max_index-2], cfdPar[0], cfdPar[1], cfdPar[2], cfdPar[3]) - baseline;
 	else // Favor the right side of the pulse.
-		maximum = calculateP3(max_index-1, event->adcTrace, cfdPar[0], cfdPar[1], cfdPar[2], cfdPar[3]) - baseline;
+		maximum = calculateP3(max_index-1, &event->adcTrace.data()[max_index-1], cfdPar[0], cfdPar[1], cfdPar[2], cfdPar[3]) - baseline;
+
+	std::cout << "maximum = " << maximum << std::endl;
 
 	return baseline;
 }
@@ -221,15 +226,13 @@ float ChannelEvent::AnalyzeCFD(const float &F_/*=0.5*/){
 	float threshold = F_*maximum + baseline;
 
 	phase = -9999;
-	for(size_t cfdIndex = max_index; cfdIndex > 0; cfdIndex--){
+	for(cfdIndex = max_index; cfdIndex > 0; cfdIndex--){
 		if(event->adcTrace[cfdIndex-1] < threshold && event->adcTrace[cfdIndex] >= threshold){
-			float p0, p1, p2;
-
 			// Fit the rise of the trace to a 2nd order polynomial.
-			calculateP2(cfdIndex-1, event->adcTrace, p0, p1, p2);
+			calculateP2(cfdIndex-1, &event->adcTrace.data()[cfdIndex-1], cfdPar[4], cfdPar[5], cfdPar[6]);
 			
 			// Calculate the phase of the trace.
-			phase = (-p1+std::sqrt(p1*p1 - 4*p2*(p0 - threshold)))/(2*p2);
+			phase = (-cfdPar[5]+std::sqrt(cfdPar[5]*cfdPar[5] - 4*cfdPar[6]*(cfdPar[4] - threshold)))/(2*cfdPar[6]);
 
 			break;
 		}
@@ -254,6 +257,7 @@ void ChannelEvent::Clear(){
 	qdc = -9999;
 	cfdCrossing = -9999;
 	max_index = 0;
+	cfdIndex = 0;
 
 	hires_energy = -9999;
 	hires_time = -9999;
@@ -269,15 +273,12 @@ void ChannelEvent::Clear(){
 	cfdvals = NULL;
 }
 
-float calculateP2(const short &x0, const std::vector<int> &trace, float &p0, float &p1, float &p2){
+float calculateP2(const short &x0, int *y, float &p0, float &p1, float &p2){
 	float x1[3], x2[3];
 	for(size_t i = 0; i < 3; i++){
 		x1[i] = (x0+i);
 		x2[i] = std::pow(x0+i, 2);
 	}
-
-	// messy
-	const int *y = &trace.data()[x0];
 
 	float denom = 1*(x1[1]*x2[2]-x2[1]*x1[2]) - x1[0]*(1*x2[2]-x2[1]*1) + x2[0]*(1*x1[2]-x1[1]*1);
 
@@ -289,16 +290,13 @@ float calculateP2(const short &x0, const std::vector<int> &trace, float &p0, flo
 	return (p0 - p1*p1/(4*p2));
 }
 
-float calculateP3(const short &x0, const std::vector<int> &trace, float &p0, float &p1, float &p2, float &p3){
+float calculateP3(const short &x0, int *y, float &p0, float &p1, float &p2, float &p3){
 	float x1[4], x2[4], x3[4];
 	for(size_t i = 0; i < 4; i++){
 		x1[i] = (x0+i);
 		x2[i] = std::pow(x0+i, 2);
 		x3[i] = std::pow(x0+i, 3);
 	}
-
-	// messy
-	const int *y = &trace.data()[x0];
 
 	float denom = 1*(x1[1]*(x2[2]*x3[3]-x2[3]*x3[2]) - x1[2]*(x2[1]*x3[3]-x2[3]*x3[1]) + x1[3]*(x2[1]*x3[2]-x2[2]*x3[1])) - x1[0]*(1*(x2[2]*x3[3]-x2[3]*x3[2]) - 1*(x2[1]*x3[3]-x2[3]*x3[1]) + 1*(x2[1]*x3[2]-x2[2]*x3[1])) + x2[0]*(1*(x1[2]*x3[3]-x1[3]*x3[2]) - 1*(x1[1]*x3[3]-x1[3]*x3[1]) + 1*(x1[1]*x3[2]-x1[2]*x3[1])) - x3[0]*(1*(x1[2]*x2[3]-x1[3]*x2[2]) - 1*(x1[1]*x2[3]-x1[3]*x2[1]) + 1*(x1[1]*x2[2]-x1[2]*x2[1]));
 
