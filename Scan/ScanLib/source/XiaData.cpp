@@ -132,16 +132,11 @@ float ChannelEvent::ComputeBaseline(){
 		}
 	}
 
-	std::cout << "-----------------------------------------\n";
-	std::cout << "maximum = " << maximum << std::endl;
-
 	// Find the pulse maximum by fitting with a third order polynomial.
 	if(event->adcTrace[max_index-1] >= event->adcTrace[max_index+1]) // Favor the left side of the pulse.
 		maximum = calculateP3(max_index-2, &event->adcTrace.data()[max_index-2], cfdPar[0], cfdPar[1], cfdPar[2], cfdPar[3]) - baseline;
 	else // Favor the right side of the pulse.
 		maximum = calculateP3(max_index-1, &event->adcTrace.data()[max_index-1], cfdPar[0], cfdPar[1], cfdPar[2], cfdPar[3]) - baseline;
-
-	std::cout << "maximum = " << maximum << std::endl;
 
 	return baseline;
 }
