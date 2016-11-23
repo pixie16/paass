@@ -31,7 +31,6 @@ DetectorLibrary* DetectorLibrary::get() {
 
 DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations(),
     numModules(0) {
-    GetKnownDetectors();
     LoadXml();
     /* At this point basic Correlator places build automatically from
      * map file should be created so we can call buildTree function */
@@ -213,23 +212,8 @@ bool DetectorLibrary::HasValue(int index) const {
 }
 
 void DetectorLibrary::Set(int index, const Identifier& value) {
-    /// Search the list of known detectors; if the detector type
-    ///    is not matched, print out an error message and terminate
-    if (knownDetectors.find(value.GetType()) == knownDetectors.end()) {
-        stringstream ss;
-        ss << "The detector called '" << value.GetType() << "'"
-        << "read in from the file 'map2.txt' "
-        << "is unknown to this program!.  This is a "
-        << "fatal error.  Program execution halted! "
-        << "If you believe this detector should exist, "
-        << "please edit the 'getKnownDetectors' "
-        << "function inside the 'DetectorLibrary.cpp' file."
-        << endl;
-        ss << "The currently known detectors include:" << endl;
-        copy(knownDetectors.begin(), knownDetectors.end(),
-            ostream_iterator<string>(ss, " "));
-        throw GeneralException(ss.str());
-    }
+    if (knownDetectors.find(value.GetType()) == knownDetectors.end())
+        knownDetectors.insert(value.GetType());
 
     unsigned int module = ModuleFromIndex(index);
     if (module >= numModules ) {
@@ -287,25 +271,6 @@ void DetectorLibrary::PrintUsedDetectors(RawEvent& rawev) const {
     m.detail(ss.str(), 1);
 
     rawev.Init(usedTypes);
-}
-
-const set<string>& DetectorLibrary::GetKnownDetectors(void) {
-    const unsigned int detTypes = 25;
-    const string detectorStrings[detTypes] = {
-        "3hen", "beta", "dssd_front", "dssd_back", "ge", "generic",
-        "idssd_front", "ignore", "ion_chamber", "liquid", "logic",
-        "mcp", "mtc", "neutron_scint", "position", "pulser", "si", "ssd",
-        "timeclass", "tvandle", "vandle", "beta_scint", "labr3", "pspmt",
-        "template"
-    };
-
-    if (!knownDetectors.empty())
-        return knownDetectors;
-
-    for (unsigned int i=0; i < detTypes; i++)
-        knownDetectors.insert(detectorStrings[i]);
-
-    return knownDetectors;
 }
 
 const set<string>& DetectorLibrary::GetUsedDetectors(void) const {
