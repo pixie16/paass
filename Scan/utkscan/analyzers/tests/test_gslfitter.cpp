@@ -8,24 +8,24 @@
 
 using namespace std;
 
-int main(int argc, char* argv[]){
+int main(int argc, char *argv[]) {
     cout << "Testing functionality of FitDriver and GslFitter" << endl;
 
     //Baseline for the trace we're going to fit
     double baseline = 436.742857142857;
 
     //Raw data that we want to fit - This is a VANDLE trace
-    vector<double> data {
+    vector<double> data{
             437, 501, 1122, 2358, 3509, 3816, 3467, 2921, 2376,
             1914, 1538, 1252, 1043, 877, 750, 667
     };
 
     //Subtract the baseline from the data
-    for(vector<double>::iterator it = data.begin(); it != data.end(); it++ )
+    for (vector<double>::iterator it = data.begin(); it != data.end(); it++)
         (*it) -= baseline;
 
     //Set the <beta, gamma> for the fitting
-    pair<double,double> pars = make_pair(0.2659404170, 0.208054799179688);
+    pair<double, double> pars = make_pair(0.2659404170, 0.208054799179688);
 
     //Standard deviation of the baseline provides weight
     double weight = 1.9761847389475;
@@ -42,14 +42,14 @@ int main(int argc, char* argv[]){
     //Actually perform the fitting
     try {
         fitter.PerformFit(data, pars, weight, area);
-    } catch(...) {
+    } catch (...) {
         cerr << "Something went wrong with the fit" << endl;
     }
 
     //Output the fit results and compare to what we get with gnuplot
-    cout << "Amplitude = " << fitter.GetAmplitude() << endl
+    cout << "Chi^2 = " << fitter.GetChiSq() << endl
          << "Amplitude from Gnuplot = 0.8565802" << endl
-         << "Chi^2 = " << fitter.GetChiSq() << endl
-         << "Phase = " << fitter.GetPhase() << endl
-         << "Phase from Gnuplot = -0.0826487" << endl;
+         << "Amplitude = " << fitter.GetAmplitude() << endl
+         << "Phase from Gnuplot = -0.0826487" << endl
+         << "Phase = " << fitter.GetPhase() << endl;
 }
