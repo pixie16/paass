@@ -90,14 +90,6 @@ find_package (PLX)
 #Find the Pixie Firmware
 find_package (PXI)
 
-#Find the UnitTest++ Package. This package can be obtained from
-#https://github.com/unittest-cpp/unittest-cpp.git
-if(BUILD_TESTS)
-	find_package(UnitTest++)
-	link_directories(${UNITTEST++_LIBRARY_DIR})
-	include_directories(${UNITTEST++_INCLUDE_DIR})
-endif(BUILD_TESTS)
-
 #Find curses library used for poll2/scan/skeleton/scope/etc
 if(USE_NCURSES)
 	find_package(Curses REQUIRED)
