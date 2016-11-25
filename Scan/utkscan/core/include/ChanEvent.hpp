@@ -5,13 +5,11 @@
 #define __CHANEVENT_HPP
 #include <vector>
 
-#include "XiaData.hpp"
-
 #include "DetectorLibrary.hpp"
-#include "pixie16app_defs.h"
 #include "Identifier.hpp"
 #include "Globals.hpp"
 #include "Trace.hpp"
+#include "XiaData.hpp"
 
 /*! \brief A channel event
  *
