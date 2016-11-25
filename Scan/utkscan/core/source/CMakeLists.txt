@@ -20,12 +20,6 @@ set(CORE_SOURCES
         WalkCorrector.cpp
 )
 
-if(NOT USE_HRIBF)
-    set(CORE_SOURCES ${CORE_SOURCES} utkscan.cpp HisFile.cpp)
-else(USE_HRIBF)
-    set(CORE_SOURCES ${CORE_SOURCES} utkscanor.cpp)
-endif(NOT USE_HRIBF)
-
 set (CORRELATION_SOURCES
         PlaceBuilder.cpp
         Places.cpp
@@ -40,6 +34,14 @@ set (PLOTTING_SOURCES
 set (XMLPARSER_SOURCES
         pugixml.cpp
 )
+
+if(NOT USE_HRIBF)
+    set(MAIN_SOURCES utkscan.cpp HisFile.cpp)
+else(USE_HRIBF)
+    set(MAIN_SOURCES utkscanor.cpp)
+endif(NOT USE_HRIBF)
+
+add_library(MainObjects OBJECT ${MAIN_SOURCES})
 
 add_library(CoreObjects OBJECT
     ${CORE_SOURCES}
