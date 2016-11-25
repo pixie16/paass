@@ -10,10 +10,10 @@
 
 using namespace std;
 
-void WalkCorrector::AddChannel(const Identifier& chanID,
-                               const std::string model,
-                               double min, double max,
-                               const std::vector<double>& par) {
+void WalkCorrector::AddChannel(const Identifier &chanID,
+                               const std::string &model,
+                               const double &min, const double &max,
+                               const std::vector<double> &par) {
     CorrectionParams cf;
 
     unsigned required_parameters = 0;
@@ -158,8 +158,8 @@ double WalkCorrector::Model_None() const {
     return(0.0);
 }
 
-double WalkCorrector::Model_A(const std::vector<double>& par,
-                              double raw) const {
+double WalkCorrector::Model_A(const std::vector<double> &par,
+                              const double &raw) const {
     return(par[0] + 
 	   par[1] / (par[2] + raw) + 
 	   par[3] * exp(-raw / par[4]));
@@ -181,11 +181,11 @@ double WalkCorrector::Model_B2(const std::vector<double>& par,
 double WalkCorrector::Model_VS(const std::vector<double> &par, 
 			       double raw) const {
     if(raw < 175)
-	return(1.09099*log(raw)-7.76641);
+	    return(1.09099*log(raw)-7.76641);
     if(raw > 3700)
-	return(0.0);
-    return(-(9.13743e-12)*pow(raw,3.) + (1.9485e-7)*pow(raw,2.)
-	   -0.000163286*raw-2.13918);
+	    return(0.0);
+    return -(9.13743e-12)*pow(raw,3.) + (1.9485e-7)*pow(raw,2.)
+	   -0.000163286*raw-2.13918;
 }
 
 double WalkCorrector::Model_VB(const std::vector<double> &par,
@@ -195,9 +195,9 @@ double WalkCorrector::Model_VB(const std::vector<double> &par,
 
 double WalkCorrector::Model_VD(const std::vector<double> &par,
 			       double raw) const {
-    return(92.7907602830327 * exp(-raw/186091.225414275) +
+    return 92.7907602830327 * exp(-raw/186091.225414275) +
 	   0.59140785215161 * exp(raw/2068.14618331387) -
-	   95.5388835298589);
+	   95.5388835298589;
 }
 
 double WalkCorrector::Model_VM(const std::vector<double> &par,
