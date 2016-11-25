@@ -17,8 +17,6 @@
 #include <string>
 #include <vector>
 
-#include "pixie16app_defs.h"
-
 #include "Globals.hpp"
 #include "DetectorSummary.hpp"
 #include "ChanEvent.hpp"
