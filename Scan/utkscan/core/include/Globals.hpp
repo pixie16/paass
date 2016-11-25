@@ -20,14 +20,11 @@
 
 #include "Exceptions.hpp"
 #include "Messenger.hpp"
-#include "pixie16app_defs.h"
 #include "TrapFilterParameters.hpp"
 
 /** A macro defining what kind of NAN to throw */
 #ifndef NAN
-
 #include <limits>
-
 #define NAN (numeric_limits<float>::quiet_NaN())
 #endif
 
@@ -281,9 +278,6 @@ public:
     /** \return the configuration file */
     std::string configfile() const { return (configFile_); }
 
-    /** \return the maximum words */
-    unsigned int maxWords() const { return maxWords_; }
-
     /** \return max number of traces stored in 2D spectra
      * with traces. If not set, by default is 16. */
     unsigned short numTraces() const { return numTraces_; }
@@ -341,7 +335,6 @@ private:
     std::string outputPath_;//!< The path to additional configuration files
     std::string revision_;//!< the pixie revision
 
-    unsigned int maxWords_;//!< maximum words in the
     unsigned short numTraces_;//!< number of traces to plot
 
     std::vector<std::pair<int, int> > reject_;//!< rejection range in time

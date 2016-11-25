@@ -10,9 +10,6 @@
 #include <vector>
 
 #include "ChanEvent.hpp"
-
-#include "pixie16app_defs.h"
-
 #include "Globals.hpp"
 #include "Trace.hpp"
 
