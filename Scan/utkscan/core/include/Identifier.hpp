@@ -30,48 +30,59 @@ public:
     Identifier(){Zero();};
     /** Default Destructor */
     ~Identifier(){};
+
     /** Constructor taking arguments and setting values
-     * \param [in] type : the type to set
+     * \param [in] atype : the type to set
      * \param [in] subType : the subType to set
      * \param [in] loc : the location to set */
-    Identifier(const std::string &type, const std::string &subType,
-               const int &loc);
+    Identifier(const std::string &atype, const std::string &subType,
+               const unsigned int &loc) {
+        type = atype;
+        subtype = subType;
+        location = loc;
+    }
 
     /** Sets the DAMM ID
      * \param [in] a : the id to set */
-    void SetDammID(int a) {dammID = a;};
+    void SetDammID(unsigned int &a) {dammID = a;}
     /** Sets the type
      * \param [in] a : the type to set */
-    void SetType(const std::string &a) {type = a;};
+    void SetType(const std::string &a) {type = a;}
     /** Sets the subtype of the channel
      * \param [in] a : the subtype to set */
-    void SetSubtype(const std::string &a) {subtype = a;};
+    void SetSubtype(const std::string &a) {subtype = a;}
     /** Sets the location
      * \param [in] a : sets the location for the channel */
-    void SetLocation(int a) {location = a;};
+    void SetLocation(const unsigned int &a) {location = a;}
 
-    int GetDammID() const                 {return dammID;}   /**< \return Get the dammid */
-    const std::string& GetType() const    {return type;}     /**< \return Get the detector type */
-    const std::string& GetSubtype() const {return subtype;}  /**< \return Get the detector subtype */
-    int GetLocation() const               {return location;} /**< \return Get the detector location */
+    ///@return The value of the private variable dammID
+    unsigned int GetDammID() const {return dammID;}
+    ///@return The value of the private variable type
+    const std::string& GetType() const {return type;}
+    ///@return the value of the private variable subtype
+    const std::string& GetSubtype() const {return subtype;}
+    ///@return The value of the private variable location
+    unsigned int GetLocation() const {return location;}
 
     /** Insert a tag to the Identifier
      * \param [in] s : the name of the tag to insert
      * \param [in] n : the value of the tag to insert */
     void AddTag(const std::string &s, int n) {tag[s] = n;}
+
     /** Check if an identifier has a tag
      * \param [in] s : the tag to search for
      * \return true if the tag is in the identifier */
     bool HasTag(const std::string &s) const {
         if(tag.count(s) > 0)
             return(true);
-        return(false);};
+        return(false);}
+
     /** \return Get the requested tag
      * \param [in] s : the name of the tag to get */
     int GetTag(const std::string &s) const;
 
     /** \return The map with the list of tags */
-    std::map<std::string, int> GetTagMap(void) const {return (tag);};
+    std::map<std::string, int> GetTagMap(void) const {return (tag);}
 
     /** Zeroes an identifier
     *
@@ -119,6 +130,12 @@ public:
        }
     }
 
+    ///@param[in] rhs : The right hand side that we are comparing with.
+    ///@return The negative of the less than operator.
+    bool operator>(const Identifier & rhs) const {
+        return !operator<(rhs);
+    }
+
     /** \return The name of the place associated with the channel */
     std::string GetPlaceName() const {
         std::stringstream ss;
@@ -128,8 +145,9 @@ public:
 private:
     std::string type;      /**< Specifies the detector type */
     std::string subtype;   /**< Specifies the detector sub type */
-    int dammID;            /**< Damm spectrum number for plotting calibrated energies */
-    int location;          /**< Specifies the real world location of the channel.
+    unsigned int dammID; /**< Damm spectrum number for plotting
+ * calibrated energies */
+    unsigned int location; /**< Specifies the real world location of the channel.
                                 For the DSSD this variable is the strip number */
     std::map<std::string, int> tag;  /**< A list of tags associated with the Identifier */
 };
