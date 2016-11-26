@@ -13,12 +13,13 @@
 
 using namespace std;
 
-///@brief Test for the method Model_None that will always return a zero.
+///Initialize an Identifier object to test methods.
+Identifier id("unit", "test", 3);
+
 TEST_FIXTURE(WalkCorrector, Test_Model_None) {
     CHECK(Model_None() == 0.0);
 }
 
-///@brief Test for method Model_A
 TEST_FIXTURE(WalkCorrector, Test_ModelA) {
     vector<double> par = {0.5,2.1,3.7,0.4,0.1};
     double raw = 20.3;
@@ -89,7 +90,5 @@ TEST_FIXTURE(WalkCorrector, Test_Model_VD) {
 }
 
 int main(int argv, char* argc[]) {
-//    Identifier id("unit", "test", 123);
-
     return(UnitTest::RunAllTests());
 }
