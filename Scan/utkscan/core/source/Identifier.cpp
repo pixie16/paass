@@ -9,12 +9,12 @@
 
 using namespace std;
 
+
+
 int Identifier::GetTag(const std::string &s) const {
     map<string, int>::const_iterator it = tag.find(s);
-
-    if (it == tag.end()) {
+    if (it == tag.end())
         return(std::numeric_limits<int>::max());
-    }
     return it->second;
 }
 
