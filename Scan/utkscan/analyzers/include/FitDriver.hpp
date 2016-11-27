@@ -41,6 +41,7 @@ public:
     /// \param[in] weight The weight for the fit
     virtual void PerformFit(const std::vector<double> &data,
                             const std::pair<double,double> &pars,
+                            const bool &isFastSipm,
                             const double &weight = 1.,
                             const double &area = 1.) {};
     /// Sets the data that we are going to fit
@@ -66,9 +67,6 @@ public:
         double gamma; //!< the gamma parameter for the fit
         double qdc;//!< the QDC for the fit
     };
-
-    /// An enum listing the known Fitter types for use with the FittingAnalyzer
-    enum FITTER_TYPE{GSL, UNKNOWN};
 protected:
     std::vector<double> data_;//!< Vector of data to fit
     std::pair<double,double> pars_;//!< parameters for the fit function

@@ -2,13 +2,6 @@
 /// \brief Implementation of the GSL fitting routine for GSL v2+
 /// \author S. V. Paulauskas
 /// \date August 8, 2016
-#include <iostream>
-#include <cmath>
-
-#include <gsl/gsl_blas.h>
-#include <gsl/gsl_fit.h>
-#include <gsl/gsl_multifit_nlin.h>
-
 #include "GslFitter.hpp"
 
 /** Defines the GSL fitting function for standard PMTs
@@ -40,6 +33,7 @@ using namespace std;
 
 void GslFitter::PerformFit(const std::vector<double> &data,
                             const std::pair<double, double> &pars,
+                            const bool & isSipmFast/*= false */,
                             const double &weight/* = 1.*/,
                             const double &area/* = 1.*/) {
     gsl_multifit_function_fdf f;
@@ -48,7 +42,7 @@ void GslFitter::PerformFit(const std::vector<double> &data,
     size_t p;
     double xInit[3];
 
-    if(!isFastSipm_) {
+    if(!isSipmFast) {
         p = 2;
         xInit[0] = 0.0;
         xInit[1] = 2.5;
@@ -75,8 +69,8 @@ void GslFitter::PerformFit(const std::vector<double> &data,
     gsl_vector_view x = gsl_vector_view_array (xInit,p);
     gsl_vector_view w = gsl_vector_view_array (weights,n);
 
-    double xtol = 1e-10;
-    double gtol = 1e-10;
+    double xtol = 1e-4;
+    double gtol = 1e-4;
     double ftol = 0.0;
 
     f.n = n;
@@ -89,21 +83,20 @@ void GslFitter::PerformFit(const std::vector<double> &data,
     }
 
     gsl_multifit_fdfsolver_wset (s, &f, &x.vector, &w.vector);
-    gsl_multifit_fdfsolver_driver(s, 1000, xtol, gtol, ftol, &info);
+    gsl_multifit_fdfsolver_driver(s, 100, xtol, gtol, ftol, &info);
     gsl_multifit_fdfsolver_jac(s,jac);
     gsl_multifit_covar (jac, 0.0, covar);
 
     gsl_vector *res_f = gsl_multifit_fdfsolver_residual(s);
     chi_ = gsl_blas_dnrm2(res_f);
 
-    if(!isFastSipm_) {
+    if(!isSipmFast) {
         phase_ = gsl_vector_get(s->x,0);
         amp_ = gsl_vector_get(s->x,1);
     } else {
         phase_ = gsl_vector_get(s->x,0);
         amp_ = 0.0;
     }
-
     gsl_multifit_fdfsolver_free (s);
     gsl_matrix_free (covar);
     gsl_matrix_free(jac);
