@@ -8,12 +8,9 @@
     </Author>
 
     <Description>
-        Master configuration file for the VANDLE experiment carried out from
-        February to March 2016 at OLTF in HRIBF at ORNL. This file represents
-        the channel map as it existed on February 17, 2016. The first
-        production runs were taken using this channel map.
-
-        VALID : February 17, 2016 - ???
+        Configuration file for the 097rb_02*.ldf data. This configuration
+        file will only analyze VANDLE data and ignore everything else other
+        than the Ge.
     </Description>
 
     <Global>
@@ -22,20 +19,21 @@
         <EventWidth unit="s" value="1e-6"/>
         <OutputPath>./</OutputPath>
         <NumOfTraces value="50"/>
+        <HasRaw value="true"/>
     </Global>
 
     <DetectorDriver>
         <Analyzer name="WaveformAnalyzer"/>
-        <Analyzer name="FittingAnalyzer"/>
+        <Analyzer name="FittingAnalyzer" type="gsl"/>
 
         <Processor name="GeProcessor"/>
-        <Processor name="LogicProcessor"
-                   double_stop="True"
-                   double_start="True"/>
+        <Processor name="LogicProcessor"/>
         <Processor name="DoubleBetaProcessor"/>
         <Processor name="VandleProcessor"
                    types="medium" res="2" offset="1000" NumStarts="1"/>
+        <!--
         <Processor name="Ornl2016Processor"/>
+        -->
     </DetectorDriver>
 
     <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
@@ -44,30 +42,6 @@
                      tags="start,left"></Channel>
             <Channel number="1" type="beta" subtype="double"
                      tags="start,right"></Channel>
-            <Channel number="2" type="labr3" subtype="hagrid"></Channel>
-            <Channel number="3" type="labr3" subtype="hagrid"></Channel>
-            <Channel number="4" type="labr3" subtype="hagrid">
-            </Channel>
-            <Channel number="5" type="labr3" subtype="hagrid">
-
-            </Channel>
-            <Channel number="6" type="labr3" subtype="hagrid">
-
-            </Channel>
-            <Channel number="7" type="labr3" subtype="hagrid">
-
-            </Channel>
-            <Channel number="8" type="labr3" subtype="hagrid">
-
-            </Channel>
-            <Channel number="9" type="labr3" subtype="hagrid">
-
-            </Channel>
-            <Channel number="11" type="liglass" subtype="six"></Channel>
-            <Channel number="12" type="liglass" subtype="seven"></Channel>
-            <Channel number="13" type="liglass" subtype="six"></Channel>
-            <Channel number="14" type="liglass" subtype="six"></Channel>
-            <Channel number="15" type="liglass" subtype="six"></Channel>
         </Module>
         <Module number="1">
             <Channel number="0" type="vandle" subtype="medium"
@@ -270,11 +244,11 @@
                 This signals the end of the irridation time (beam stop).
                 Provided by the LABJACK
             </Channel>
-            <Channel number="10" type="logic" subtype="measure_start">
+            <Channel number="10" type="generic" subtype="measure_start">
                 This signals the beginning of the measurement period.
                 Provided by the LABJACK
             </Channel>
-            <Channel number="11" type="logic" subtype="measure_stop">
+            <Channel number="11" type="generic" subtype="measure_stop">
                 This signals the end of the measurement period.
                 Provided by the LABJACK
             </Channel>
@@ -286,7 +260,7 @@
                 This signals the end of the tape move. Provided by the
                 LABJACK.
             </Channel>
-            <Channel number="14" type="logic" subtype="tape_start">
+            <Channel number="14" type="generic" subtype="tape_start">
                 Signals the beginning of the tape move. Provided by the MTC
                 control box.
             </Channel>
@@ -295,43 +269,7 @@
                 control box.
             </Channel>
         </Module>
-        <Module number="8">
-            <Channel number="0" type="labr3" subtype="hagrid"></Channel>
-            <Channel number="1" type="labr3" subtype="hagrid"></Channel>
-            <Channel number="2" type="labr3" subtype="hagrid"></Channel>
-            <Channel number="7" type="labr3" subtype="hagrid"></Channel>
-            <Channel number="3" type="labr3" subtype="hagrid">
-            </Channel>
-            <Channel number="4" type="labr3" subtype="hagrid">
-            </Channel>
-            <Channel number="5" type="labr3" subtype="hagrid">
-            </Channel>
-            <Channel number="14" type="generic" subtype="generic">
-            </Channel>
-            <Channel number="15" type="labr3" subtype="hagrid">
-            </Channel>
-        </Module>
         <Module number="9">
-            <Channel number="0" type="nai" subtype="beast">
-            </Channel>
-            <Channel number="1" type="nai" subtype="beast">
-            </Channel>
-            <Channel number="2" type="nai" subtype="beast">
-            </Channel>
-            <Channel number="3" type="nai" subtype="beast">
-            </Channel>
-            <Channel number="4" type="nai" subtype="beast">
-            </Channel>
-            <Channel number="5" type="nai" subtype="beast">
-            </Channel>
-            <Channel number="6" type="nai" subtype="beast">
-            </Channel>
-            <Channel number="7" type="nai" subtype="beast">
-            </Channel>
-            <Channel number="8" type="nai" subtype="beast">
-            </Channel>
-            <Channel number="9" type="nai" subtype="beast">
-            </Channel>
             <Channel number="14" type="beta" subtype="double"
                      tags="left">
             </Channel>
@@ -396,17 +334,9 @@
                 <Low value="25"/>
                 <High value="50"/>
             </Range>
-            <Range name="liglass:six">
-                <Low value="15"/>
-                <High value="50"/>
-            </Range>
-            <Range name="liglass:seven">
-                <Low value="15"/>
-                <High value="50"/>
-            </Range>
         </WaveformRange>
-        <TraceDelay unit="ns" value="112"/>
-        <QdcCompression value="4.0"/>
+        <TraceDelay unit="ns" value="250"/>
+        <QdcCompression value="1.0"/>
     </Trace>
 
     <Fitting>
@@ -418,14 +348,6 @@
             </Pars>
             <Pars name="double:beta">
                 <Beta value="0.004329388"/>
-                <Gamma value="0.163596"/>
-            </Pars>
-            <Pars name="liglass:six">
-                <Beta value="0.049601"/>
-                <Gamma value="0.163596"/>
-            </Pars>
-            <Pars name="liglass:seven">
-                <Beta value="0.049601"/>
                 <Gamma value="0.163596"/>
             </Pars>
         </Parameters>
