@@ -13,6 +13,7 @@
 #include <string>
 
 #include "FitDriver.hpp"
+#include "Globals.hpp"
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 
@@ -23,7 +24,7 @@ public:
     FittingAnalyzer(const std::string &s);
 
     /** Default Destructor */
-    ~FittingAnalyzer() {};
+    ~FittingAnalyzer();
     /** Declare plots for the analyzer */
     virtual void DeclarePlots(void);
     /** Analyzes the traces
@@ -35,7 +36,8 @@ public:
                          const std::string &detSubtype,
                          const std::map<std::string, int> & tagMap);
 private:
-    FitDriver::FITTER_TYPE fitterType_;
+    FitDriver *driver_;
+    Globals *globals_;
 };
 #endif // __FITTINGANALYZER_HPP_
 // David is awesome.

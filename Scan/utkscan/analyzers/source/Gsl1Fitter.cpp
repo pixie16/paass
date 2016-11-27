@@ -2,14 +2,6 @@
 /// \brief Implementation of the GSL fitting routine for GSL v2+
 /// \author S. V. Paulauskas
 /// \date August 8, 2016
-#include <iostream>
-
-#include <cmath>
-
-#include <gsl/gsl_blas.h>
-#include <gsl/gsl_fit.h>
-#include <gsl/gsl_multifit_nlin.h>
-
 #include "GslFitter.hpp"
 
 /** Defines the GSL fitting function for standard PMTs
@@ -57,7 +49,8 @@ using namespace std;
 
 void GslFitter::PerformFit(const std::vector<double> &data,
                             const std::pair<double, double> &pars,
-                            const double &weight/* = 1.*/,
+                           const bool & isSipmFast/*= false */,
+                           const double &weight/* = 1.*/,
                             const double &area/* = 1.*/) {
     gsl_multifit_function_fdf f;
     int status;
@@ -77,7 +70,7 @@ void GslFitter::PerformFit(const std::vector<double> &data,
     f.n = sizeFit;
     f.params = &fitData;
 
-    if(!isFastSipm_) {
+    if(!isSipmFast) {
         numParams = 2;
         xInit[0] = 0.0;
         xInit[1] = 2.5;
