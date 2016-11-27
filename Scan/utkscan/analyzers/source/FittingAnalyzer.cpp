@@ -15,7 +15,6 @@
 
 #include <ctime>
 
-#include "Globals.hpp"
 #include "DammPlotIds.hpp"
 #include "FitDriver.hpp"
 #include "FittingAnalyzer.hpp"
@@ -36,10 +35,14 @@ void FittingAnalyzer::DeclarePlots(void) {
 FittingAnalyzer::FittingAnalyzer(const std::string &s) {
     name = "FittingAnalyzer";
     if(s == "GSL" || s == "gsl") {
-        fitterType_ = FitDriver::GSL;
+        driver_ = new GslFitter();
     } else {
-        fitterType_ = FitDriver::UNKNOWN;
+        driver_ = NULL;
     }
+}
+
+FittingAnalyzer::~FittingAnalyzer() {
+    delete driver_;
 }
 
 void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
@@ -47,13 +50,18 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
                               const std::map<std::string, int> & tagMap) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype, tagMap);
 
+    if(!driver_) {
+        EndAnalyze();
+        return;
+    }
+
     if(trace.HasValue("saturation") || trace.empty() ||
        trace.GetWaveform().size() == 0) {
      	EndAnalyze();
      	return;
     }
 
-    Globals *globals = Globals::get();
+    globals_ = Globals::get();
 
     const double sigmaBaseline = trace.GetValue("sigmaBaseline");
     const double maxVal = trace.GetValue("maxval");
@@ -66,39 +74,27 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     trace.plot(D_SIGMA, sigmaBaseline*100);
 
     if(!isDblBetaT) {
-        if(sigmaBaseline > globals->sigmaBaselineThresh()) {
+        if(sigmaBaseline > globals_->sigmaBaselineThresh()) {
             EndAnalyze();
             return;
         }
     } else {
-        if(sigmaBaseline > globals->siPmtSigmaBaselineThresh()) {
+        if(sigmaBaseline > globals_->siPmtSigmaBaselineThresh()) {
             EndAnalyze();
             return;
         }
     }
 
-    pair<double,double> pars =  globals->fitPars(detType+":"+detSubtype);
+    pair<double,double> pars =  globals_->fitPars(detType+":"+detSubtype);
     if(isDblBetaT)
-	    pars = globals->fitPars(detType+":"+detSubtype+":timing");
+	    pars = globals_->fitPars(detType+":"+detSubtype+":timing");
 
-    FitDriver *driver;
-    switch(fitterType_) {
-        case FitDriver::GSL:
-            driver = new GslFitter(isDblBetaT);
-            break;
-        case FitDriver::UNKNOWN:
-        default:
-            EndAnalyze();
-            return;
-    }
-
-    driver->PerformFit(waveform, pars, sigmaBaseline, qdc);
-    trace.InsertValue("phase", driver->GetPhase()+maxPos);
+    driver_->PerformFit(waveform, pars, isDblBetaT, sigmaBaseline, qdc);
+    trace.InsertValue("phase", driver_->GetPhase()+maxPos);
     
-    trace.plot(DD_AMP, driver->GetAmplitude(), maxVal);
-    trace.plot(D_PHASE, driver->GetPhase()*1000+100);
-    trace.plot(D_CHISQPERDOF, driver->GetChiSqPerDof());
+    trace.plot(DD_AMP, driver_->GetAmplitude(), maxVal);
+    trace.plot(D_PHASE, driver_->GetPhase()*1000+100);
+    trace.plot(D_CHISQPERDOF, driver_->GetChiSqPerDof());
 
-    delete(driver);
     EndAnalyze();
 }
