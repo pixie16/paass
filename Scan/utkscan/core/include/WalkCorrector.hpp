@@ -61,6 +61,7 @@ public:
      * \return The walk corrected value of raw */
     double GetCorrection(Identifier& chanID, double raw) const;
 
+protected:
     /** \return always 0.
      * Use if you want to switch off the correction. Also not adding
      * the channel to the list results in returning 0 from GetCorrection

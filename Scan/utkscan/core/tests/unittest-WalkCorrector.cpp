@@ -13,9 +13,6 @@
 
 using namespace std;
 
-///Initialize an Identifier object to test methods.
-Identifier id("unit", "test", 3);
-
 TEST_FIXTURE(WalkCorrector, Test_Model_None) {
     CHECK(Model_None() == 0.0);
 }
@@ -87,6 +84,20 @@ TEST_FIXTURE(WalkCorrector, Test_Model_VD) {
                       95.5388835298589;
     double result = Model_VD(par,raw);
     CHECK(result == expected);
+}
+
+TEST_FIXTURE(WalkCorrector, Test_GetCorrection) {
+    ///Initialize an Identifier object
+    Identifier id("unit", "test", 3);
+    double min = 0.0;
+    double max = 1000.;
+    vector<double> par = {0.5,2.1,3.7,0.4,0.1};
+    double raw = 20.3;
+    string model = "A";
+    double expected = par[0] + par[1] / (par[2] + raw) +
+                      par[3] * exp(-raw / par[4]);
+    AddChannel(id, "A", min, max, par);
+    CHECK_EQUAL(expected, GetCorrection(id, raw));
 }
 
 int main(int argv, char* argc[]) {
