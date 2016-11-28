@@ -25,15 +25,14 @@
     <DetectorDriver>
         <Analyzer name="WaveformAnalyzer"/>
         <Analyzer name="FittingAnalyzer" type="gsl"/>
+        <Analyzer name="TraceExtractor" type="beta" subtype="double"/>
 
         <Processor name="GeProcessor"/>
         <Processor name="LogicProcessor"/>
         <Processor name="DoubleBetaProcessor"/>
         <Processor name="VandleProcessor"
                    types="medium" res="2" offset="1000" NumStarts="1"/>
-        <!--
         <Processor name="Ornl2016Processor"/>
-        -->
     </DetectorDriver>
 
     <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
@@ -331,24 +330,24 @@
                 <High value="10"/>
             </Range>
             <Range name="double:beta">
-                <Low value="25"/>
+                <Low value="20"/>
                 <High value="50"/>
             </Range>
         </WaveformRange>
         <TraceDelay unit="ns" value="250"/>
-        <QdcCompression value="1.0"/>
+        <QdcCompression value="4.0"/>
     </Trace>
 
     <Fitting>
         <SigmaBaselineThresh value="3.0"/>
         <Parameters>
             <Pars name="vandle:medium">
-                <Beta value="0.254373"/>
-                <Gamma value="0.208072"/>
+                <Beta value="0.242750956720921"/>
+                <Gamma value="0.229018726511014"/>
             </Pars>
             <Pars name="double:beta">
-                <Beta value="0.004329388"/>
-                <Gamma value="0.163596"/>
+                <Beta value="0.00432622033367301"/>
+                <Gamma value="0.149001742167633"/>
             </Pars>
         </Parameters>
     </Fitting>

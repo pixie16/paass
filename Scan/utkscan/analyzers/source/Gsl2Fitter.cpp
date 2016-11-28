@@ -75,8 +75,8 @@ void GslFitter::PerformFit(const std::vector<double> &data,
     gsl_vector_view x = gsl_vector_view_array (xInit,p);
     gsl_vector_view w = gsl_vector_view_array (weights,n);
 
-    double xtol = 1e-10;
-    double gtol = 1e-10;
+    double xtol = 1e-4;
+    double gtol = 1e-4;
     double ftol = 0.0;
 
     f.n = n;

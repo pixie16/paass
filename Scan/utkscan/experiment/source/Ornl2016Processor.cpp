@@ -119,8 +119,8 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                 TimingDefs::TimingIdentifier barId = (*it).first;
                 BarDetector bar = (*it).second;
 
-                if (!bar.GetHasEvent())
-                    continue;
+//                if (!bar.GetHasEvent())
+//                    continue;
 
                 TimingCalibration cal = bar.GetCalibration();
 
@@ -133,10 +133,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                         CorrectTOF(tof, bar.GetFlightPath(), cal.GetZ0());
 
                 plot(DD_QDCTOFNOGATE, tof * plotMult_ + plotOffset_,
-                     bar.GetQdc());
-                if (hasMultOne)
-                    plot(DD_QDCVSCORTOFMULT1, corTof * plotMult_ + plotOffset_,
-                         bar.GetQdc());
+                     bar.GetQdc() / Globals::get()->qdcCompression());
 
                 for (vector<ChanEvent *>::const_iterator it = labr3Evts.begin();
                      it != labr3Evts.end(); it++)

@@ -132,11 +132,11 @@ void VandleProcessor::DeclarePlots(void) {
 	//        "Bar vs CorTOF - Gamma Veto");
     }
     if(hasMed_) {
-        DeclareHistogram2D(DD_TQDCBARS+MED_OFFSET, SD, S6,
+        DeclareHistogram2D(DD_TQDCBARS+MED_OFFSET, SD, S7,
 			   "Det Loc vs Trace QDC");
 //        DeclareHistogram2D(DD_MAXIMUMBARS+MED_OFFSET, SD, S8,
 //        "Det Loc vs Maximum");
-        DeclareHistogram2D(DD_TIMEDIFFBARS+MED_OFFSET, SB, S6,
+        DeclareHistogram2D(DD_TIMEDIFFBARS+MED_OFFSET, SB, S7,
 			   "Bars vs. Time Differences");
         DeclareHistogram2D(DD_TOFBARS+MED_OFFSET, SC, S6,
         "Bar vs. Time of Flight");
