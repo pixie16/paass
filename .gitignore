@@ -1,6 +1,6 @@
 #Build files
 *.o
-build/
+*build*
 
 #Backup files 
 *~
