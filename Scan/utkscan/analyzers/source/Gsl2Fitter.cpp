@@ -69,9 +69,10 @@ void GslFitter::PerformFit(const std::vector<double> &data,
     gsl_vector_view x = gsl_vector_view_array (xInit,p);
     gsl_vector_view w = gsl_vector_view_array (weights,n);
 
-    double xtol = 1e-4;
-    double gtol = 1e-4;
-    double ftol = 0.0;
+    static const unsigned int maxIter = 100;
+    static const double xtol = 1e-4;
+    static const double gtol = 1e-4;
+    static const double ftol = 0.0;
 
     f.n = n;
     f.p = p;
@@ -83,7 +84,7 @@ void GslFitter::PerformFit(const std::vector<double> &data,
     }
 
     gsl_multifit_fdfsolver_wset (s, &f, &x.vector, &w.vector);
-    gsl_multifit_fdfsolver_driver(s, 100, xtol, gtol, ftol, &info);
+    gsl_multifit_fdfsolver_driver(s, maxIter, xtol, gtol, ftol, &info);
     gsl_multifit_fdfsolver_jac(s,jac);
     gsl_multifit_covar (jac, 0.0, covar);
 
