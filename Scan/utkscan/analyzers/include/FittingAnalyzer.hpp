@@ -13,7 +13,6 @@
 #include <string>
 
 #include "FitDriver.hpp"
-#include "Globals.hpp"
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 
