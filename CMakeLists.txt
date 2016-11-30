@@ -102,7 +102,6 @@ else()
 	set(USE_NCURSES OFF)
 endif()
 
-
 if (BUILD_SUITE)
 	if(NOT BUILD_SUITE_ATTEMPTED AND NOT PLX_FOUND AND NOT PXI_FOUND)
 		set (BUILD_SUITE OFF CACHE BOOL "Build and install PixieSuite" FORCE)

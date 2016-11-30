@@ -7,6 +7,14 @@ option(UTKSCAN_ONLINE "Options for online scans" OFF)
 option(UTKSCAN_TREE_DEBUG "Debugging info for TreeCorrelator" OFF)
 option(UTKSCAN_VERBOSE "Make Scan More Verbose" OFF)
 
+#Find the UnitTest++ Package. This package can be obtained from
+#https://github.com/unittest-cpp/unittest-cpp.git
+if(BUILD_UTKSCAN_TESTS)
+    find_package(UnitTest++ REQUIRED)
+    link_directories(${UNITTEST++_LIBRARY_DIR})
+    include_directories(${UNITTEST++_INCLUDE_DIR})
+endif(BUILD_UTKSCAN_TESTS)
+
 # newreadout is needed to account for a change to pixie16 readout
 # structure change on 03/20/08. Is is REQUIRED!!
 add_definitions(-D newreadout)
@@ -61,6 +69,7 @@ add_subdirectory(processors)
 if(NOT USE_HRIBF)
     set(SCAN_NAME utkscan)
     add_executable(${SCAN_NAME}
+            $<TARGET_OBJECTS:MainObjects>
             $<TARGET_OBJECTS:CoreObjects>
             $<TARGET_OBJECTS:AnalyzerObjects>
             $<TARGET_OBJECTS:ProcessorObjects>
@@ -68,6 +77,7 @@ if(NOT USE_HRIBF)
 else(USE_HRIBF)
     set(SCAN_NAME utkscanor)
     add_executable(${SCAN_NAME}
+            $<TARGET_OBJECTS:MainObjects>
             $<TARGET_OBJECTS:CoreObjects>
             $<TARGET_OBJECTS:AnalyzerObjects>
             $<TARGET_OBJECTS:ProcessorObjects>
@@ -97,4 +107,3 @@ install(TARGETS ${SCAN_NAME} DESTINATION bin)
 install(DIRECTORY share/utkscan DESTINATION share)
 
 #------------------------------------------------------------------------------
-

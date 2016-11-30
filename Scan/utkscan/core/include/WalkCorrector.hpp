@@ -46,8 +46,9 @@ public:
      * \param[in] min : The lower bound of the correction range
      * \param[in] max : The upper bound of the correction range
      * \param[in] par : The vector of parameters to use for the calibration */
-    void AddChannel(const Identifier& chanID, const std::string model,
-                    double min, double max, const std::vector<double>& par);
+    void AddChannel(const Identifier &chanID, const std::string &model,
+                    const double &min, const double &max,
+                    const std::vector<double> &par);
 
     /** Returns time correction that should be subtracted from
      * the raw time. The channel is identified by Identifier class,
@@ -60,12 +61,7 @@ public:
      * \return The walk corrected value of raw */
     double GetCorrection(Identifier& chanID, double raw) const;
 
-private:
-    /** Map where key is a channel Identifier
-     * and value is a vector holding struct with calibration range
-     * and walk correction model and parameters. */
-    std::map<Identifier, std::vector<CorrectionParams> > channels_;
-
+protected:
     /** \return always 0.
      * Use if you want to switch off the correction. Also not adding
      * the channel to the list results in returning 0 from GetCorrection
@@ -80,7 +76,7 @@ private:
      * \param [in] par : the vector of parameters for calibration
      * \param [in] raw : the raw value to calibrate
      * \return The corrected time in pixie units */
-    double Model_A(const std::vector<double>& par, double raw) const;
+    double Model_A(const std::vector<double> &par, const double &raw) const;
 
     /** This model was developed for the 93Br experiment
      * f(x) = a0 + a1 * x + a2 * x^2 + a3 * x^3 +
@@ -106,19 +102,19 @@ private:
      * \return corrected time in pixie units */
     double Model_B2(const std::vector<double>& par, double raw) const;
 
-    /** The correction for Small VANDLE bars 
+    /** The correction for Small VANDLE bars
      * the returned value is in ns
      * \param [in] par : the vector of parameters for calibration
      * \param [in] raw : the raw value to calibrate
      * \return corrected time in ns */
     double Model_VS(const std::vector<double>& par, double raw) const;
-    /** The correction for Medium VANDLE bars 
+    /** The correction for Medium VANDLE bars
      * the returned value is in ns
      * \param [in] par : the vector of parameters for calibration
      * \param [in] raw : the raw value to calibrate
      * \return corrected time in ns */
     double Model_VM(const std::vector<double>& par, double raw) const;
-    /** The correction for Large VANDLE bars 
+    /** The correction for Large VANDLE bars
      * the returned value is in ns
      * \param [in] par : the vector of parameters for calibration
      * \param [in] raw : the raw value to calibrate
@@ -136,5 +132,10 @@ private:
      * \param [in] raw : the raw value to calibrate
      * \return corrected time in ns */
     double Model_VD(const std::vector<double>& par, double raw) const;
+private:
+    /** Map where key is a channel Identifier
+     * and value is a vector holding struct with calibration range
+     * and walk correction model and parameters. */
+    std::map<Identifier, std::vector<CorrectionParams> > channels_;
 };
 #endif
