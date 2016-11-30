@@ -105,7 +105,7 @@ void GslFitter::PerformFit(const std::vector<double> &data,
     gsl_multifit_covar (s->J, 0.0, covar);
     chi_ = gsl_blas_dnrm2(s->f);
 
-    if(!isFastSipm_) {
+    if(!isSipmFast) {
         phase_ = gsl_vector_get(s->x,0);
         amp_ = gsl_vector_get(s->x,1);
     } else {
