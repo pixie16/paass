@@ -37,7 +37,6 @@ public:
                          const std::map<std::string, int> & tagMap);
 private:
     FitDriver *driver_;
-    Globals *globals_;
 };
 #endif // __FITTINGANALYZER_HPP_
 // David is awesome.
