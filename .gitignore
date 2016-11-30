@@ -1,6 +1,5 @@
 #Build files
 *.o
-*build*
 
 #Backup files 
 *~
@@ -24,6 +23,7 @@ ValgrindOut.xml
 
 #Ignore the build and exec directory
 build/
+*-build-*/
 install/
 doc/
 
