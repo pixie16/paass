@@ -61,7 +61,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
      	return;
     }
 
-    globals_ = Globals::get();
+    Globals *globals = Globals::get();
 
     const double sigmaBaseline = trace.GetValue("sigmaBaseline");
     const double maxVal = trace.GetValue("maxval");
@@ -74,20 +74,20 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     trace.plot(D_SIGMA, sigmaBaseline*100);
 
     if(!isDblBetaT) {
-        if(sigmaBaseline > globals_->sigmaBaselineThresh()) {
+        if(sigmaBaseline > globals->sigmaBaselineThresh()) {
             EndAnalyze();
             return;
         }
     } else {
-        if(sigmaBaseline > globals_->siPmtSigmaBaselineThresh()) {
+        if(sigmaBaseline > globals->siPmtSigmaBaselineThresh()) {
             EndAnalyze();
             return;
         }
     }
 
-    pair<double,double> pars =  globals_->fitPars(detType+":"+detSubtype);
+    pair<double,double> pars =  globals->fitPars(detType+":"+detSubtype);
     if(isDblBetaT)
-	    pars = globals_->fitPars(detType+":"+detSubtype+":timing");
+	    pars = globals->fitPars(detType+":"+detSubtype+":timing");
 
     driver_->PerformFit(waveform, pars, isDblBetaT, sigmaBaseline, qdc);
     trace.InsertValue("phase", driver_->GetPhase()+maxPos);
