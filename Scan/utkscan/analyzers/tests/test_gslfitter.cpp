@@ -37,11 +37,11 @@ int main(int argc, char* argv[]){
     bool isSiPmTiming = false;
 
     //Instance the fitter and pass in the flag for the SiPm
-    GslFitter fitter(isSiPmTiming);
+    GslFitter fitter;
 
     //Actually perform the fitting
     try {
-        fitter.PerformFit(data, pars, weight, area);
+        fitter.PerformFit(data, pars, isSiPmTiming, weight, area);
     } catch(...) {
         cerr << "Something went wrong with the fit" << endl;
     }
