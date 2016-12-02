@@ -7,12 +7,12 @@
 #Locate the Include directory
 find_path(UNITTEST++_INCLUDE_DIR
         NAMES UnitTest++.h
-        PATHS /opt/UnitTest++/include
+        PATHS /opt/UnitTest++/include /usr/local/include
         PATH_SUFFIXES UnitTest++)
 #Locate the library
 find_path(UNITTEST++_LIBRARY_DIR
         NAMES libUnitTest++.a
-        PATHS /opt/UnitTest++
+        PATHS /opt/UnitTest++ /usr/lib/
         PATH_SUFFIXES lib)
 
 include (FindPackageHandleStandardArgs)
