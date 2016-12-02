@@ -1,5 +1,5 @@
-if(BUILD_UTKSCAN_TESTS)
+if(BUILD_UNITTESTS)
     add_subdirectory(tests)
-endif(BUILD_UTKSCAN_TESTS)
+endif(BUILD_UNITTESTS)
 
 add_subdirectory(source)
