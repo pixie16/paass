@@ -54,6 +54,7 @@ option(BUILD_SHARED_LIBS "Install only scan libraries" ON)
 option(BUILD_SKELETON "Build and install the skeleton scan" OFF)
 option(BUILD_SUITE "Build and install PixieSuite" ON)
 option(BUILD_TESTS "Builds programs designed to test the package." OFF)
+option(BUILD_UNITTESTS "Bulid Unit Tests using UnitTest++ Framework" OFF)
 option(BUILD_UTKSCAN "Build utkscan" OFF)
 
 option(USE_DAMM "Use DAMM for MCA" ON)
@@ -101,6 +102,14 @@ else()
 	message(STATUS "Curses unavailable, basic terminal will be used.")
 	set(USE_NCURSES OFF)
 endif()
+
+#Find the UnitTest++ Package. This package can be obtained from
+#https://github.com/unittest-cpp/unittest-cpp.git
+if(BUILD_UNITTESTS)
+	find_package(UnitTest++ REQUIRED)
+	link_directories(${UNITTEST++_LIBRARY_DIR})
+	include_directories(${UNITTEST++_INCLUDE_DIR})
+endif(BUILD_UNITTESTS)
 
 if (BUILD_SUITE)
 	if(NOT BUILD_SUITE_ATTEMPTED AND NOT PLX_FOUND AND NOT PXI_FOUND)
