@@ -72,8 +72,13 @@ function(PXI_CONFIG)
 		list(LENGTH FILE_MATCHES NUM_MATCHES)
 		if (NOT NUM_MATCHES EQUAL 1)
 			message(STATUS "WARNING: Unable to autocomplete global configuration!\n\tUnique ${KEY} file (${GLOB_EXPR}) not found!")
-			file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg 
-				"# Multiple / zero options found! Choose below and remove this comment.\n")
+			if (NUM_MATCHES EQUAL 0)
+				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg 
+					"#ERROR: No ${KEY} found! Please specify and remove this comment.\n")
+			else (NUM_MATCHES EQUAL 0)
+				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg 
+					"#ERROR: Multiple ${KEY}s found! Please choose one and remove this comment.\n")
+			endif (NUM_MATCHES EQUAL 0)
 		endif()
 
 		if (${KEY} MATCHES "SlotFile")
@@ -140,25 +145,41 @@ function(PXI_CONFIG)
 			if ("${TYPE}" STREQUAL "")
 				set(TYPE "unknown")
 			endif()
-			if (NOT MODULE_TYPE)
-				set(MODULE_TYPE "${TYPE}-${REVISION}")
-			else (NOT MODULE_TYPE)
-				if(NOT MODULE_TYPE EQUAL "${TYPE}-${REVISION}")
-					list(APPEND MODULE_TYPE "${TYPE}-${REVISION}")
-				endif(NOT MODULE_TYPE EQUAL "${TYPE}-${REVISION}")
-			endif (NOT MODULE_TYPE)
+			
+			#If revision is missing we set it to "revUnknown"
+			if ("${REVISION}" STREQUAL "")
+				set(REVISION "revUnknown")
+			endif()
+
+			#Only add the module type if it is not in the list.
+			if(NOT MODULE_TYPE MATCHES "${TYPE}-${REVISION}")
+				list(APPEND MODULE_TYPE "${TYPE}-${REVISION}")
+			endif(NOT MODULE_TYPE MATCHES "${TYPE}-${REVISION}")
 		endforeach(FILENAME ${FILE_MATCHES})
 
 		file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "\n")
 
-		list(LENGTH MODULE_TYPE NUM_MATCHES)
-		if (NOT NUM_MATCHES EQUAL 1)
-				message(STATUS "WARNING: Multiple module types found in ${FIRMWARE_DIR}")
-			file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg 
-				"# Multiple / zero options found! Choose below and remove this comment.\n")
-		endif()
-
 		message(STATUS "Autoconfiguring module type: ${MODULE_TYPE}.")
+
+		list(LENGTH MODULE_TYPE NUM_MATCHES)
+		if (NUM_MATCHES EQUAL 1)
+			if (${MODULE_TYPE} MATCHES "unknown")
+				message(STATUS "WARNING: Incomplete module type (${MODULE_TYPE}) found in:")
+				message("    ${FIRMWARE_DIR}")
+				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg 
+					"#ERROR: Incomplete ModuleType found! Please correct and remove this comment.\n")
+			endif (${MODULE_TYPE} MATCHES "unknown")
+		else (NUM_MATCHES EQUAL 1)
+			message(STATUS "WARNING: Multiple module types (${MODULE_TYPE}) found in:")
+			message("    ${FIRMWARE_DIR}")
+			if (NUM_MATCHES EQUAL 0)
+				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg 
+					"#ERROR: No ModuleType found! Please specify and remove this comment.\n")
+			else (NUM_MATCHES EQUAL 0)
+				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg 
+					"#ERROR: Multiple ModuleTypes found! Please choose one and remove this comment.\n")
+			endif (NUM_MATCHES EQUAL 0)
+		endif (NUM_MATCHES EQUAL 1)
 
 		file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "ModuleType\t\t${MODULE_TYPE}\n")
 		file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "ModuleBaseDir\t\t${FIRMWARE_DIR}\n")
@@ -176,10 +197,18 @@ function(PXI_CONFIG)
 			#Check that a unique match was found
 			list(LENGTH FILE_MATCHES NUM_MATCHES)
 			if (NOT NUM_MATCHES EQUAL 1)
-				message(STATUS "WARNING: Unable to autocomplete ${MODULE_TYPE} configuration!")
-				message(STATUS "\tUnique ${KEY} file (${GLOB_EXPR}) not found!")
-				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg 
-					"# Multiple / zero options found! Choose below and remove this comment.\n")
+				if (NOT ERROR)
+					set(ERROR TRUE)
+					message(STATUS "WARNING: Unable to autocomplete ${MODULE_TYPE} configuration!")
+				endif (NOT ERROR)
+					message("    Unique ${KEY} file (${GLOB_EXPR}) not found!")
+				if (NUM_MATCHES EQUAL 0)
+					file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg 
+						"#ERROR: No ${KEY} found! Please specify and remove this comment.\n")
+				else (NUM_MATCHES EQUAL 0)
+					file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg 
+						"#ERROR: Multiple ${KEY}s found! Please choose one and remove this comment.\n")
+				endif (NUM_MATCHES EQUAL 0)
 			endif()
 
 			#Append the config file
