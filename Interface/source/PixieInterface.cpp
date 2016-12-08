@@ -118,10 +118,11 @@ PixieInterface::PixieInterface(const char *fn) : lock("PixieInterface")
 		validConfigKeys.insert("CrateConfig");
 	}
 	if (!ReadConfigurationFile(fn)) {
-		std::cout << Display::ErrorStr() << " Unable to read configuration file: '" << fn << "\n";
-		std::cout << Display::InfoStr() << " Did you forget to copy default "
-                "configuration files from '" << INSTALL_PREFIX
-                  << "/share/config' to the running directory?\n";
+		std::cout << Display::ErrorStr() << " Unable to read configuration file: '" << fn << "'\n";
+		if (configStrings.find("global") == configStrings.end()) {
+			std::cout << Display::InfoStr() << " Are the configuration files in the running directory?\n";
+			std::cout << "Autoconfigured files are avaialable in " << INSTALL_PREFIX << "\n";
+		}
 		exit(EXIT_FAILURE);
 	}
 	//Overwrite the default path 'pxisys.ini' with the one specified in the scan file.
@@ -217,6 +218,7 @@ bool PixieInterface::ReadConfigurationFile(const char *fn)
 	std::cout << "Reading Pixie Configuration\n";
 
 	//Loop over lines in config file
+	bool error = false;
 	string moduleType = "";
 	while (std::getline(in,line)) {
 		//Get a string stream of current line
@@ -235,32 +237,53 @@ bool PixieInterface::ReadConfigurationFile(const char *fn)
 			//Parse the ModuleType tag.
 			//Moule type is expected as with the following three items ##b, ###m, rev#
 			if (tag == "ModuleType") {
+				
 				moduleType = ParseModuleTypeTag(value);
-				std::cout << "Module Type: " << InfoStr(moduleType) << "\n";
 
-				//If we have two multiple entires for one type we use only the first.
+				std::cout << "Module Type: ";
+
+				//If we have multiple entires for one type we throw and error.
 				if (configStrings.find(moduleType) != configStrings.end()) {
-					std::cout << WarningStr() << " Duplicate module type information will be ignored. (" << moduleType << ")\n";
+					error = true;
+
+					std::cout << ErrorStr(moduleType) << "\n";
+
+					std::cout << ErrorStr() << " Duplicate module type information found for " << moduleType << "!\n";
+					std::cout << "        Remove or comment out tags to be ignored.\n";
+
 					moduleType = "ignored_" + moduleType;
 				}
+				else {std::cout << InfoStr(moduleType) << "\n";}
 			}
 			
 			//Store configuration
-		  if (tag == "SpFpgaFile" || tag == "ComFpgaFile" || tag == "DspConfFile" || tag == "DspVarFile" || tag == "TrigFpgaFile" || tag == "ModuleBaseDir") {
+			else if (tag == "SpFpgaFile" || tag == "ComFpgaFile" || tag == "DspConfFile" || tag == "DspVarFile" || tag == "TrigFpgaFile" || tag == "ModuleBaseDir") {
 				if (moduleType == "") {
 					moduleType = "default";
 					std::cout << "Module Type: " << InfoStr(moduleType) << "\n";
 				}
-			std::cout << " " << tag << "\t" << value << endl;
-		  configStrings[moduleType][tag] = ConfigFileName(moduleType,value);
+				if (configStrings[moduleType][tag] != "") {
+					error = true;
+					
+					std::cout << " " << ErrorStr(tag) << "\t" << value << endl;
+
+					std::cout << ErrorStr() << " Duplicate " << tag << " specified for " << moduleType << "!\n";
+					std::cout << "        Remove or comment out tags to be ignored.\n";
+							
+					tag = "ignored_" + tag;
+				}
+				else {
+					std::cout << " " << tag << "\t" << value << endl;
+				}
+				configStrings[moduleType][tag] = ConfigFileName(moduleType,value);
 			}
 			else {
-		  configStrings["global"][tag] = ConfigFileName("global",value);
+				std::cout << " " << tag << "\t" << value << endl;
+				configStrings["global"][tag] = ConfigFileName("global",value);
 			}
 
 			//Check if BaseDir is defined differently then in the environment
 		  if (tag == "PixieBaseDir") {
-			  cout << "Pixie base directory is " << InfoStr(value) << endl;
 			  // check if this matches the environment PXI_ROOT if it is set
 			  if (getenv("PXI_ROOT") != NULL) {
 				  if ( value != string(getenv("PXI_ROOT")) ) {
@@ -270,6 +293,8 @@ bool PixieInterface::ReadConfigurationFile(const char *fn)
 		  }
 	  }
   }
+
+	if (error) return false;
 
   return true;
 }
