@@ -48,8 +48,32 @@ function(PXI_CONFIG)
 		"file(INSTALL pixie.cfg DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n" 
 	)
 
+	#Write some useful info.
+	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg
+		"#Pixie Configuration\n"
+		"#\n" 
+		"#The following lines provide the configuration for a XIA Pixie16 data acquistion  \n"
+		"#system. The configuration file is broken into two sections a global section for  \n"
+		"#tags that affect the entire system and a module specific section. The global tags\n"
+		"#include: PixieBaseDir, CrateConfig, SlotFile, DspSetFileFile, and                \n"
+		"#DspWorkingSetFile. The module	tags include: ModuleType, ModuleBaseDir,          \n"
+		"#SpFpgaFile, ComFpgaFile, DspConfFile, and DspVarFile. The module tags are        \n"
+		"#associated with the type specified prior to the tag. If no type is specified the \n"
+		"#type 'default' is used.                                                          \n"
+		"#\n"
+		"#The tag values are prepended with a base directory unless the first character in \n"
+		"#the value is forward slash, '/',  or a period '.', permiting the use of absolute \n"
+		"#and relative paths. The global tags are prepended with the PixieBaseDir. Module  \n"
+		"#tags are prepended with the ModuleBaseDir if specified otherwise the PixieBaseDir\n"
+		"#is used. If no base directory is determined the path is assumed to be local to   \n"
+		"#the running directory.\n"
+		"\n"
+	)
+
+	file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "# Global Tags\n\n")
+
 	#Write the base directory
-	file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "PixieBaseDir\t\t${PXI_ROOT_DIR}\n")
+	file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "PixieBaseDir\t\t${PXI_ROOT_DIR}\n")
 
 	#Following are lists of keys and the glob expr to find the files
 	set(CONFIG_NAME CrateConfig SlotFile DspSetFile)
@@ -110,6 +134,8 @@ function(PXI_CONFIG)
 
 	#Added the working set file name
 	file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "DspWorkingSetFile\t./current.set\n")
+
+	file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "\n# Module Tags\n")
 
 	#Look in the root directory for the XIA library
 	if(NOT EXISTS ${PXI_FIRMWARE_DIR})
