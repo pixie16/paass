@@ -219,6 +219,7 @@ bool PixieInterface::ReadConfigurationFile(const char *fn)
 
 	//Loop over lines in config file
 	bool error = false;
+	bool newModule = false;
 	string moduleType = "";
 	while (std::getline(in,line)) {
 		//Get a string stream of current line
@@ -254,6 +255,8 @@ bool PixieInterface::ReadConfigurationFile(const char *fn)
 					moduleType = "ignored_" + moduleType;
 				}
 				else {std::cout << InfoStr(moduleType) << "\n";}
+
+				newModule = true;
 			}
 			
 			//Store configuration
@@ -262,6 +265,10 @@ bool PixieInterface::ReadConfigurationFile(const char *fn)
 					moduleType = "default";
 					std::cout << "Module Type: " << InfoStr(moduleType) << "\n";
 				}
+				if (newModule && tag != "ModuleBaseDir") {
+					std::cout << " PixieBaseDir\t" << configStrings["global"]["PixieBaseDir"] << "\n";
+				}
+				newModule = false;
 				if (configStrings[moduleType][tag] != "") {
 					error = true;
 					
