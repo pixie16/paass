@@ -1308,8 +1308,24 @@ void Poll::CommandControl(){
 		else if(cmd == "csr_test"){ // Run CSRAtest method
 			BitFlipper flipper;
 			if(p_args >= 1){ 
-				if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid CSRA value specification")) continue;
-				flipper.CSRAtest((unsigned int)atoi(arguments.at(0).c_str())); 
+				//Check that there are no characters in the string unless it is hex.
+				std::string &valueStr = arguments.at(0);
+				if (valueStr.find_last_not_of("0123456789") != std::string::npos &&
+						!((valueStr.find("0x") == 0 || valueStr.find("0X") == 0) &&
+							valueStr.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos) ) {
+					std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
+					continue;
+				}
+				unsigned int value;
+				//Use stod to add hex capability. The decimal and negative values are
+				// caught above and rejected.
+				try { value = (unsigned int) std::stod(valueStr); }
+				catch (const std::invalid_argument &ia) {
+					std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
+					continue;
+				}
+
+				flipper.CSRAtest(value);
 			}
 			else{
 				std::cout << sys_message_head << "Invalid number of parameters to csr_test\n";
