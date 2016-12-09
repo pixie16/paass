@@ -1133,11 +1133,13 @@ void Poll::CommandControl(){
 					}
 
 					ParameterModuleWriter writer;
+					bool error = false;
 					for (int mod = modStart; mod <= modStop; mod++) {
-						if(forModule(pif, mod, writer, make_pair(arguments.at(1), value))){
-							pif->SaveDSPParameters();
+						if(!forModule(pif, mod, writer, make_pair(arguments.at(1), value))){
+							error = true;
 						}
 					}
+					if (!error) pif->SaveDSPParameters();
 				}
 				else{
 					std::cout << sys_message_head << "Invalid number of parameters to pmwrite\n";
@@ -1211,9 +1213,11 @@ void Poll::CommandControl(){
 				}
 
 				OffsetAdjuster adjuster;
+				bool error = false;
 				for (int mod = modStart; mod <= modStop; mod++) {
-					if(forModule(pif, mod, adjuster, 0)){ pif->SaveDSPParameters(); }
+					if(!forModule(pif, mod, adjuster, 0)){ error = true; }
 				}
+				if (!error) pif->SaveDSPParameters();
 			}
 			else{
 				std::cout << sys_message_head << "Invalid number of parameters to adjust_offsets\n";
