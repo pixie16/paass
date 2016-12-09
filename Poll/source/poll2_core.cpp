@@ -1091,14 +1091,14 @@ void Poll::CommandControl(){
 				
 					ParameterChannelWriter writer;
 					bool error = false;
-					for (int mod = modStart; mod <= modStop; mod++) { 
-						for (int ch = chStart; ch <= chStop; ch++) { 
+					for (int mod = modStart; mod <= modStop; mod++) {
+						for (int ch = chStart; ch <= chStop; ch++) {
 							if(forChannel(pif, mod, ch, writer, make_pair(arguments.at(2), value))){ 
 								error = true;
 							}
 						}
 					}
-					if (!error) pif->SaveDSPParameters(); 
+					if (!error) pif->SaveDSPParameters();
 				}
 				else{
 					std::cout << sys_message_head << "Invalid number of parameters to pwrite\n";
@@ -1108,13 +1108,36 @@ void Poll::CommandControl(){
 			else if(cmd == "pmwrite"){ // Syntax "pmwrite <module> <parameter name> <value>"
 				if(p_args > 0 && arguments.at(0) == "help"){ pmod_help(); }
 				else if(p_args >= 3){
-					if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
-					else if(!IsNumeric(arguments.at(2), sys_message_head, "Invalid parameter value specification")) continue;
-					int mod = atoi(arguments.at(0).c_str());
-					unsigned int value = (unsigned int)std::strtoul(arguments.at(2).c_str(), NULL, 0);
+					int modStart, modStop;
+					if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
+						std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
+						continue;
+					}
+
+					//Check that there are no characters in the string unless it is hex.
+					std::string &valueStr = arguments.at(2);
+					if (valueStr.find_last_not_of("0123456789") != std::string::npos &&
+						!((valueStr.find("0x") == 0 || valueStr.find("0X") == 0) &&
+							valueStr.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos) ) {
+						std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
+						continue;
+					}
+
+					unsigned int value;
+					//Use stod to add hex capability. The decimal and negative values are
+					// caught above and rejected.
+					try { value = (unsigned int) std::stod(valueStr); }
+					catch (const std::invalid_argument &ia) {
+						std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
+						continue;
+					}
 
 					ParameterModuleWriter writer;
-					if(forModule(pif, mod, writer, make_pair(arguments.at(1), value))){ pif->SaveDSPParameters(); }
+					for (int mod = modStart; mod <= modStop; mod++) {
+						if(forModule(pif, mod, writer, make_pair(arguments.at(1), value))){
+							pif->SaveDSPParameters();
+						}
+					}
 				}
 				else{
 					std::cout << sys_message_head << "Invalid number of parameters to pmwrite\n";
@@ -1157,11 +1180,16 @@ void Poll::CommandControl(){
 			else if(cmd == "pmread"){ // Syntax "pmread <module> <parameter name>"
 				if(p_args > 0 && arguments.at(0) == "help"){ pmod_help(); }
 				else if(p_args >= 2){
-					if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
-					int mod = atoi(arguments.at(0).c_str());
+					int modStart, modStop;
+					if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
+						std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
+						continue;
+					}
 				
 					ParameterModuleReader reader;
-					forModule(pif, mod, reader, arguments.at(1));
+					for (int mod = modStart; mod <= modStop; mod++) {
+						forModule(pif, mod, reader, arguments.at(1));
+					}
 				}
 				else{
 					std::cout << sys_message_head << "Invalid number of parameters to pmread\n";
@@ -2017,3 +2045,4 @@ std::string yesno(bool value_){
 	if(value_){ return "Yes"; }
 	return "No";
 }
+
