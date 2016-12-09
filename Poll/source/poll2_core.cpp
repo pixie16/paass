@@ -837,7 +837,7 @@ void Poll::get_traces(int mod_, int chan_, int thresh_/*=0*/){
 /// If the attmept is unsuccesful the mehtod returns false.
 bool Poll::SplitParameterArgs(const std::string &arg, int &start, int &stop) {
 	//If a character is found that is nonnumeric or is not the delimeter we stop.
-	if (arg.find_first_not_of("0123456789:") != std::string::npos) return false;
+	if (arg.find_first_not_of("-0123456789:") != std::string::npos) return false;
 
 	size_t delimeterPos = arg.find(':');
 	try {	
@@ -845,6 +845,7 @@ bool Poll::SplitParameterArgs(const std::string &arg, int &start, int &stop) {
 		//If the delimeter was found we can seperate the stop otherwise set start = stop.
 		if (delimeterPos != std::string::npos) {
 			stop = std::stoi(arg.substr(delimeterPos + 1));
+			if (start < 0 || stop < 0 || start > stop) return false;
 		}
 		else stop = start;
 	}
