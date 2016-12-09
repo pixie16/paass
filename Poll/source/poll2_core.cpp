@@ -1204,11 +1204,16 @@ void Poll::CommandControl(){
 			}
 
 			if(p_args >= 1){
-				if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
-				int mod = atoi(arguments.at(0).c_str());
-				
+				int modStart, modStop;
+				if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
+					std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
+					continue;
+				}
+
 				OffsetAdjuster adjuster;
-				if(forModule(pif, mod, adjuster, 0)){ pif->SaveDSPParameters(); }
+				for (int mod = modStart; mod <= modStop; mod++) {
+					if(forModule(pif, mod, adjuster, 0)){ pif->SaveDSPParameters(); }
+				}
 			}
 			else{
 				std::cout << sys_message_head << "Invalid number of parameters to adjust_offsets\n";
