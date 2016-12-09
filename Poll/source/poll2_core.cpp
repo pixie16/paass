@@ -1249,14 +1249,28 @@ void Poll::CommandControl(){
 			BitFlipper flipper;
 
 			if(p_args >= 3){ 
-				if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
-				else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
+				int modStart, modStop;
+				if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
+					std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
+					continue;
+				}
+				int chStart, chStop;
+				if (!SplitParameterArgs(arguments.at(1), chStart, chStop)) {
+					std::cout << "ERROR: Invalid channel argument: '" << arguments.at(1) << "'\n";
+					continue;
+				}
 				flipper.SetCSRAbit(arguments.at(2));
 				
 				std::string dum_str = "CHANNEL_CSRA";
-				if(forChannel(pif, atoi(arguments.at(0).c_str()), atoi(arguments.at(1).c_str()), flipper, dum_str)){
-					pif->SaveDSPParameters();
+				bool error = false;
+				for (int mod = modStart; mod <= modStop; mod++) {
+					for (int ch = chStart; ch <= chStop; ch++) {
+						if(!forChannel(pif, mod, ch, flipper, dum_str)){
+							error = true;
+						}
+					}
 				}
+				if (!error) pif->SaveDSPParameters();
 			}
 			else{
 				std::cout << sys_message_head << "Invalid number of parameters to toggle\n";
