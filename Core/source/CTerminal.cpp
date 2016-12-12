@@ -961,14 +961,14 @@ std::string Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/
 			else if(keypress == KEY_NPAGE){ //Page down key
 				scroll_(_winSizeY-2);
 			}
-			else if(keypress == KEY_BACKSPACE){ // 263
+			else if(keypress == KEY_BACKSPACE || keypress == 8){ // ncurses.h backspace character (KEY_BACKSPACE=263), ASCII code BS =8
 				if (cursX - offset > 0 ) {
 					wmove(input_window, 0, --cursX);
 					wdelch(input_window);
 					cmd.erase(cursX - offset,1);
 				}
 			}
-			else if(keypress == KEY_DC){ // Delete character (330)
+			else if(keypress == KEY_DC || keypress == 127){ // ncurses.h Delete character (KEY_DC=330), ASCII code DEL=127
 				//Remove character from terminal
 				wdelch(input_window);
 				//Remove character from cmd string
