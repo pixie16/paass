@@ -1,8 +1,0 @@
-//
-// Created by vincent on 11/25/16.
-//
-
-#ifndef PIXIESUITE_UTILITIES_HPP
-#define PIXIESUITE_UTILITIES_HPP
-
-#endif //PIXIESUITE_UTILITIES_HPP
