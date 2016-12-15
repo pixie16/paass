@@ -17,8 +17,9 @@
 using namespace std;
 
 namespace Polynomial {
+    template <class T>
     static const pair<double, vector<double> > CalculatePoly2(
-            const vector<unsigned int> &data, const unsigned int &startBin) {
+            const vector<T> &data, const unsigned int &startBin) {
         double x1[3], x2[3];
         for (size_t i = 0; i < 3; i++) {
             x1[i] = (startBin + i);
@@ -52,8 +53,9 @@ namespace Polynomial {
         return make_pair(p0 - p1 * p1 / (4 * p2), coeffs);
     }
 
+    template <class T>
     static const pair<double, vector<double> > CalculatePoly3(
-            const vector<unsigned int> &data, const unsigned int &startBin) {
+            const vector<T> &data, const unsigned int &startBin) {
         if (data.size() < 4)
             throw range_error("Polynomial::CalculatePoly3 - The data vector "
                                       "had the wrong size : " + data.size());
