@@ -162,9 +162,10 @@ namespace Polynomial {
 }//Polynomial namespace
 
 namespace Statistics {
-    inline double CalculateAverage(const vector<unsigned int> &data) {
+    template <class T>
+    inline double CalculateAverage(const vector<T> &data) {
         double sum = 0.0;
-        for (vector<unsigned int>::const_iterator i = data.begin();
+        for (typename vector<T>::const_iterator i = data.begin();
              i != data.end(); i++)
             sum += *i;
         sum /= data.size();
@@ -173,10 +174,11 @@ namespace Statistics {
 
     //This calculation for the standard deviation assumes that we are
     // analyzing the full population, which we are in this case.
-    inline double CalculateStandardDeviation(const vector<unsigned int> &data,
+    template <class T>
+    inline double CalculateStandardDeviation(const vector<T> &data,
                                              const double &mean) {
         double stddev = 0.0;
-        for (vector<unsigned int>::const_iterator it = data.begin();
+        for (typename vector<T>::const_iterator it = data.begin();
              it != data.end(); it++)
             stddev += pow(*it - mean, 2);
         stddev = sqrt(stddev / (double) data.size());
@@ -188,7 +190,8 @@ namespace Statistics {
     /// like that to keep things general.
     ///@param[in] data : The data that we want to integrate.
     ///@return The integrated value
-    inline double CalculateIntegral(const vector<unsigned int> &data) {
+    template <class T>
+    inline double CalculateIntegral(const vector<T> &data) {
         if (data.size() < 2)
             throw range_error("Statistical::CalculateIntegral - The data "
                                       "vector was too small to integrate. We "
@@ -215,7 +218,8 @@ namespace TraceFunctions {
     ///@return A pair with the first element being the average of the
     /// baseline and the second element being the standard deviation of the
     /// baseline.
-    inline pair<double, double> CalculateBaseline(const vector<unsigned int>
+    template <class T>
+    inline pair<double, double> CalculateBaseline(const vector<T>
                                                   &data,
                                                   const pair<unsigned int,
                                                           unsigned int>
@@ -238,11 +242,11 @@ namespace TraceFunctions {
                                       " necessary range.");
         double baseline =
                 Statistics::CalculateAverage(
-                        vector<unsigned int>(data.begin(), data.begin() +
+                        vector<T>(data.begin(), data.begin() +
                                                            range.second));
         double stddev =
                 Statistics::CalculateStandardDeviation(
-                        vector<unsigned int>(data.begin(), data.begin() +
+                        vector<T>(data.begin(), data.begin() +
                                                            range.second),
                         baseline);
         return make_pair(baseline, stddev);
@@ -258,8 +262,9 @@ namespace TraceFunctions {
     /// @param[in] maxInfo : The low resolution maximum information that we
     /// need to determine where to start the fit.
     /// @return An STL pair containing the maximum that we found and the
+    template <class T>
     inline pair<double, vector<double> > ExtrapolateMaximum(
-            const vector<unsigned int> &data, const pair<unsigned int,
+            const vector<T> &data, const pair<unsigned int,
             double> &maxInfo) {
         if (data.size() < 4)
             throw range_error("TraceFunctions::ExtrapolateMaximum - "
@@ -295,8 +300,9 @@ namespace TraceFunctions {
     /// set for this particular trace.
     /// @return A STL pair containing the bin and value of the maximum found
     /// in the trace.
+    template <class T>
     inline pair<unsigned int, double> FindMaximum(
-            const vector<unsigned int> &data,
+            const vector<T> &data,
             const unsigned int &traceDelayInBins) {
         stringstream msg;
         if (data.size() == 0)
@@ -324,7 +330,7 @@ namespace TraceFunctions {
         // too close to beginning of the trace. The lower bound for the
         // search will be the beginning of the trace plus the
         // minimum_baseline_length.
-        vector<unsigned int>::const_iterator itPos =
+        typename vector<T>::const_iterator itPos =
                 max_element(data.begin() + minimum_baseline_length,
                             data.begin() + traceDelayInBins);
 
@@ -374,7 +380,8 @@ namespace TraceFunctions {
     ///This is an exclusive calculation, meaning that the value at the low
     /// and high end of the calculation will not be used to calculate the
     /// integral.
-    inline double CalculateQdc(const vector<unsigned int> &data,
+    template <class T>
+    inline double CalculateQdc(const vector<T> &data,
                                const pair<unsigned int, unsigned int> &range) {
         stringstream msg;
         if (data.size() == 0)
@@ -386,13 +393,13 @@ namespace TraceFunctions {
                 << "," << range.second << "].";
             throw range_error(msg.str());
         }
-        vector<unsigned int> tmp();
         return Statistics::CalculateIntegral(
-                vector<unsigned int>(data.begin() + range.first,
+                vector<T>(data.begin() + range.first,
                                      data.begin() + range.second));
     }
 
-    inline double CalculateTailRatio(const vector<unsigned int> &data,
+    template <class T>
+    inline double CalculateTailRatio(const vector<T> &data,
                                      const pair<unsigned int, unsigned int> &range,
                                      const double &qdc) {
         stringstream msg;
@@ -411,7 +418,7 @@ namespace TraceFunctions {
                                       "issues.");
 
         return Statistics::CalculateIntegral(
-                vector<unsigned int>(data.begin() + range.first,
+                vector<T>(data.begin() + range.first,
                                      data.begin() + range.second)) / qdc;
 
     }
