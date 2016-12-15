@@ -2,7 +2,6 @@
 
 option(BUILD_UTKSCAN_TESTS "Build unit tests for utkscan" ON)
 option(UTKSCAN_GAMMA_GATES "Gamma-Gamma gates in GeProcessor" OFF)
-option(USE_GSL "Use GSL for Pulse Fitting" ON)
 option(UTKSCAN_ONLINE "Options for online scans" OFF)
 option(UTKSCAN_TREE_DEBUG "Debugging info for TreeCorrelator" OFF)
 option(UTKSCAN_VERBOSE "Make Scan More Verbose" OFF)
@@ -30,12 +29,6 @@ endif(UTKSCAN_TREE_DEBUG)
 if(UTKSCAN_VERBOSE)
     add_definitions(-D VERBOSE)
 endif(UTKSCAN_VERBOSE)
-
-#Check if GSL is installed
-if(USE_GSL)
-    find_package(GSL REQUIRED)
-    add_definitions("-D usegsl")
-endif(USE_GSL)
 
 #------------------------------------------------------------------------------
 

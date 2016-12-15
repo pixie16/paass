@@ -109,30 +109,8 @@ public:
     /// Destructor.
     ~ChannelEvent();
 
-    /// Compute the trace baseline, baseline standard deviation, and find the pulse maximum.
-    float ComputeBaseline();
-    
-    /// Find the leading edge of the pulse at a given percentage of pulse maximum.
-    float FindLeadingEdge(const float &thresh_=0.05);
-    
-    /// Integrate the baseline corrected trace in the range [start_, stop_] and return the result.
-    float IntegratePulse(const size_t &start_=0, const size_t &stop_=0);
-
-    /// Integrate the baseline corrected trace in the range [start_, stop_] and return the result.
-    float FindQDC(const size_t &start_=0, const size_t &stop_=0);
-
-    /// Perform CFD analysis on the waveform using the XIA algorithm.
-    float AnalyzeXiaCFD(const float &F_=0.5, const size_t &D_=1, const size_t &L_=1);
-
-    /// Perform CFD analysis on the waveform using the pol3 + pol2 algorithm.
-    float AnalyzeCFD(const float &F_=0.5);
-    
     /// Clear all variables and clear the trace vector and arrays.
     void Clear();
 };
-
-float calculateP2(const short &x0, int *y, float &p0, float &p1, float &p2);
-
-float calculateP3(const short &x0, int *y, float &p0, float &p1, float &p2, float &p3);
 
 #endif
