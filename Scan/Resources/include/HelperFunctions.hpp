@@ -371,6 +371,9 @@ namespace TraceFunctions {
         return val;
     }
 
+    ///This is an exclusive calculation, meaning that the value at the low
+    /// and high end of the calculation will not be used to calculate the
+    /// integral.
     inline double CalculateQdc(const vector<unsigned int> &data,
                                const pair<unsigned int, unsigned int> &range) {
         stringstream msg;
@@ -388,48 +391,39 @@ namespace TraceFunctions {
                 vector<unsigned int>(data.begin() + range.first,
                                      data.begin() + range.second));
     }
-/*
 
-    void WaveformAnalyzer::CalculateSums() {
-        if (trc_->HasValue("baseline"))
-            return;
-
-        double sum = 0, qdc = 0;
-        vector<double> w;
-        double numBins = (double) (bhi_ - trc_->begin());
-        mean_ = 0;
-        for (Trace::iterator it = trc_->begin(); it != trc_->end(); it++) {
-            sum += (*it);
-            if (it < bhi_)
-                mean_ += (*it) / numBins;
-
-            if (it > waverng_.first && it < waverng_.second) {
-                qdc += (*it) - mean_;
-                w.push_back((*it) - mean_);
-            }
+    inline double CalculateTailRatio(const vector<unsigned int> &data,
+                                     const pair<unsigned int, unsigned int> &range,
+                                     const double &qdc) {
+        stringstream msg;
+        if (data.size() == 0)
+            throw range_error("TraceFunctions::CalculateTailRatio - The size of "
+                                      "the data vector was zero.");
+        if (data.size() < range.second) {
+            msg << "TraceFunctions::CalculateTailRatio - The specified "
+                << "range was larger than the range : [" << range.first
+                << "," << range.second << "].";
+            throw range_error(msg.str());
         }
+        if (qdc == 0)
+            throw range_error("TraceFunctions::CalculateTailRatio - The QDC "
+                                      "had a value of zero. This will cause "
+                                      "issues.");
 
+        return Statistics::CalculateIntegral(
+                vector<unsigned int>(data.begin() + range.first,
+                                     data.begin() + range.second)) / qdc;
 
-
-        //Subtract the baseline from the full trace qdc
-        sum -= mean_ * trc_->size();
-
-        trc_->SetWaveform(w);
-        trc_->InsertValue("tqdc", sum);
-        trc_->InsertValue("qdc", qdc);
-        trc_->SetValue("baseline", mean_);
-        trc_->SetValue("sigmaBaseline", stdev);
-        trc_->SetValue("maxval", mval_ - mean_);
     }
 
-    void WaveformAnalyzer::CalculateDiscrimination(const unsigned int &lo) {
-        int discrim = 0;
-        for (Trace::iterator i = waverng_.first + lo; i <= waverng_.second; i++)
-            discrim += (*i) - mean_;
-        trc_->InsertValue("discrim", discrim);
+    ///@brief This namespace holds functions that are used to validate the
+    /// functions.
+    ///@TODO Impelement the validation functions for the functions in the
+    /// TraceFunctions namespace. Necessary to simplify the codebase.
+    namespace Validation {
+
+
+
     }
-
-
-*/
 }
 #endif //PIXIESUITE_HELPERFUNCTIONS_HPP

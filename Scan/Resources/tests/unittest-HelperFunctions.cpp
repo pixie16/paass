@@ -24,7 +24,6 @@ static const vector<unsigned int> data = {
         446, 441, 440, 444, 456, 459, 451, 450, 447, 445, 449, 456, 456, 455
 };
 
-
 //An empty data vector to test error checking.
 static const vector<unsigned int> empty_data;
 //A data vector that contains constant data.
@@ -44,8 +43,8 @@ static const double expected_maximum_value = 3816;
 //This is the expected position of the maximum
 static const unsigned int expected_max_position = 76;
 //This is the pair made from the expected maximum information
-static const pair<unsigned int, double> expected_max_info =
-        make_pair(expected_max_position, expected_maximum_value);
+static const pair<unsigned int, double> expected_max_info(expected_max_position,
+                                                          expected_maximum_value);
 
 ///This tests that the TraceFunctions::CalculateBaseline function works as
 /// expected. This also verifies the Statistics functions CalculateAverage
@@ -206,13 +205,32 @@ TEST(TestCalculateIntegral) {
 TEST(TestCalculateQdc) {
     static const double expected = 6;
     //Check that we are throwing an error when the data is empty
-    CHECK_THROW(TraceFunctions::CalculateQdc(empty_data, make_pair(0,4)),
+    CHECK_THROW(TraceFunctions::CalculateQdc(empty_data, make_pair(0, 4)),
                 range_error);
     //Check that we are throwing an error when the range is too large
-    CHECK_THROW(TraceFunctions::CalculateQdc(data, make_pair(0,1000)),
+    CHECK_THROW(TraceFunctions::CalculateQdc(data, make_pair(0, 1000)),
                 range_error);
     CHECK_EQUAL(expected, TraceFunctions::CalculateQdc
-            (integration_data, make_pair(2,5)));
+            (integration_data, make_pair(2, 5)));
+}
+
+TEST(TestCalculateTailRatio) {
+    static const double expected_ratio = 0.2960894762;
+    //Check that we are throwing an error when the data is empty
+    CHECK_THROW(TraceFunctions::CalculateTailRatio(empty_data, make_pair(0, 4),
+                                                   100.0), range_error);
+    //Check that the upper bound of the range is not too big
+    CHECK_THROW(TraceFunctions::CalculateTailRatio(empty_data,
+                                                   make_pair(0, 400), 100.0),
+                range_error);
+    //Check that the QDC we passed actually makes sense
+    CHECK_THROW(TraceFunctions::CalculateTailRatio(data, make_pair(0, 4),
+                                                   0.0), range_error);
+
+    double qdc = TraceFunctions::CalculateQdc(data, make_pair(70, 91));
+    pair<unsigned int, unsigned int> range(80, 91);
+    double result = TraceFunctions::CalculateTailRatio(data, range, qdc);
+    CHECK_CLOSE(expected_ratio, result, 1e-6);
 }
 
 int main(int argv, char *argc[]) {
