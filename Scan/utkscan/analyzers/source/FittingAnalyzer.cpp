@@ -16,7 +16,7 @@
 #include <ctime>
 
 #include "DammPlotIds.hpp"
-#include "FitDriver.hpp"
+#include "TimingAnalysisDriver.hpp"
 #include "FittingAnalyzer.hpp"
 #include "GslFitter.hpp"
 

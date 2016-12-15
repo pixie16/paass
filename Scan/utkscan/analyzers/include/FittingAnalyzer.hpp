@@ -12,7 +12,7 @@
 
 #include <string>
 
-#include "FitDriver.hpp"
+#include "TimingAnalysisDriver.hpp"
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 

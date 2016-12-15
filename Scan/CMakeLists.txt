@@ -1,6 +1,15 @@
 option(USE_HRIBF "Use HRIBF library for scan base." OFF)
+option(USE_GSL "Use GSL for Pulse Fitting" OFF)
 
-#Everything below is dependent on ScanLib, so we include the headers.
+#Check if GSL is installed
+if(USE_GSL)
+   find_package(GSL REQUIRED)
+   add_definitions("-D usegsl")
+endif(USE_GSL)
+
+#Everything below is dependent on these two sets of libaries so we include the
+#headers.
+include_directories(Resources/include)
 include_directories(ScanLib/include)
 
 if(USE_HRIBF)
@@ -14,12 +23,13 @@ if(USE_HRIBF)
    add_subdirectory(scanor)
 endif(USE_HRIBF)
 
-#We will always build this since it includes a static lib for the rest
-include_directories(ScanLib/include)
+#We will always build these two since they include static lib for the rest
 add_subdirectory(ScanLib)
+add_subdirectory(Resources)
 
 #Build utilities.
 add_subdirectory(util)
+
 
 if(BUILD_UTKSCAN)
     add_subdirectory(utkscan)

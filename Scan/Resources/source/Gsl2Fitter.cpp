@@ -64,7 +64,7 @@ void GslFitter::PerformFit(const std::vector<double> &data,
     gsl_matrix *jac=gsl_matrix_alloc(n,p);
     gsl_matrix *covar = gsl_matrix_alloc (p,p);
     double y[n], weights[n];
-    struct FitDriver::FitData fitData = {n, y, weights, pars.first,
+    struct FitData fitData = {n, y, weights, pars.first,
                                          pars.second, area};
     gsl_vector_view x = gsl_vector_view_array (xInit,p);
     gsl_vector_view w = gsl_vector_view_array (weights,n);
@@ -104,11 +104,11 @@ void GslFitter::PerformFit(const std::vector<double> &data,
 }
 
 int PmtFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
-    size_t n       = ((struct FitDriver::FitData *)FitData)->n;
-    double *y      = ((struct FitDriver::FitData *)FitData)->y;
-    double beta    = ((struct FitDriver::FitData *)FitData)->beta;
-    double gamma   = ((struct FitDriver::FitData *)FitData)->gamma;
-    double qdc     = ((struct FitDriver::FitData *)FitData)->qdc;
+    size_t n       = ((struct TimingDriver::FitData *)FitData)->n;
+    double *y      = ((struct TimingDriver::FitData *)FitData)->y;
+    double beta    = ((struct TimingDriver::FitData *)FitData)->beta;
+    double gamma   = ((struct TimingDriver::FitData *)FitData)->gamma;
+    double qdc     = ((struct TimingDriver::FitData *)FitData)->qdc;
 
     double phi     = gsl_vector_get (x, 0);
     double alpha   = gsl_vector_get (x, 1);
@@ -129,10 +129,10 @@ int PmtFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
 }
 
 int CalcPmtJacobian (const gsl_vector * x, void *FitData, gsl_matrix * J) {
-    size_t n = ((struct FitDriver::FitData *)FitData)->n;
-    double beta    = ((struct FitDriver::FitData *)FitData)->beta;
-    double gamma   = ((struct FitDriver::FitData *)FitData)->gamma;
-    double qdc    = ((struct FitDriver::FitData *)FitData)->qdc;
+    size_t n = ((struct TimingDriver::FitData *)FitData)->n;
+    double beta    = ((struct TimingDriver::FitData *)FitData)->beta;
+    double gamma   = ((struct TimingDriver::FitData *)FitData)->gamma;
+    double qdc    = ((struct TimingDriver::FitData *)FitData)->qdc;
 
     double phi     = gsl_vector_get (x, 0);
     double alpha   = gsl_vector_get (x, 1);
@@ -158,10 +158,10 @@ int CalcPmtJacobian (const gsl_vector * x, void *FitData, gsl_matrix * J) {
 }
 
 int SiPmtFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
-    size_t n       = ((struct FitDriver::FitData *)FitData)->n;
-    double *y      = ((struct FitDriver::FitData *)FitData)->y;
-    double gamma   = ((struct FitDriver::FitData *)FitData)->gamma;
-    double qdc     = ((struct FitDriver::FitData *)FitData)->qdc;
+    size_t n       = ((struct TimingDriver::FitData *)FitData)->n;
+    double *y      = ((struct TimingDriver::FitData *)FitData)->y;
+    double gamma   = ((struct TimingDriver::FitData *)FitData)->gamma;
+    double qdc     = ((struct TimingDriver::FitData *)FitData)->qdc;
 
     double phi = gsl_vector_get (x, 0);
 
@@ -175,9 +175,9 @@ int SiPmtFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
 }
 
 int CalcSiPmtJacobian (const gsl_vector * x, void *FitData, gsl_matrix * J) {
-    size_t n       = ((struct FitDriver::FitData *)FitData)->n;
-    double gamma   = ((struct FitDriver::FitData *)FitData)->gamma;
-    double qdc     = ((struct FitDriver::FitData *)FitData)->qdc;
+    size_t n       = ((struct TimingDriver::FitData *)FitData)->n;
+    double gamma   = ((struct TimingDriver::FitData *)FitData)->gamma;
+    double qdc     = ((struct TimingDriver::FitData *)FitData)->qdc;
 
     double phi = gsl_vector_get (x, 0);
     double dphi;
