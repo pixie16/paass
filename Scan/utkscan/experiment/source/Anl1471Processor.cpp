@@ -15,7 +15,7 @@
 #include "DoubleBetaProcessor.hpp"
 #include "DetectorDriver.hpp"
 #include "GeProcessor.hpp"
-#include "GetArguments.hpp"
+//#include "GetArguments.hpp"
 #include "Globals.hpp"
 #include "Anl1471Processor.hpp"
 #include "RawEvent.hpp"
@@ -114,12 +114,13 @@ Anl1471Processor::Anl1471Processor() : EventProcessor(OFFSET, RANGE, "Anl1471PRo
     associatedTypes.insert("beta");
     associatedTypes.insert("ge");
 
-    char hisFileName[32];
-    GetArgument(1, hisFileName, 32);
-    string temp = hisFileName;
-    temp = temp.substr(0, temp.find_first_of(" "));
+//    char hisFileName[32];
+//    GetArgument(1, hisFileName, 32);
+//    string temp = hisFileName;
+//    temp = temp.substr(0, temp.find_first_of(" "));
 #ifdef useroot
     stringstream rootname;
+    string temp = "TEST_ROOT_NAME";
     rootname << temp << ".root";
     rootfile_ = new TFile(rootname.str().c_str(),"RECREATE");
 

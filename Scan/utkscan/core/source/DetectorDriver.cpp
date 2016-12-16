@@ -50,6 +50,7 @@
 #include "WaveformAnalyzer.hpp"
 
 #include "TemplateExpProcessor.hpp"
+#include "Anl1471Processor.hpp"
 
 #ifdef useroot
 #include "RootProcessor.hpp"
@@ -213,8 +214,11 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
                 vecProcess.push_back(new PspmtProcessor());
         } else if (name == "TemplateProcessor") {
             vecProcess.push_back(new TemplateProcessor());
-        } else if (name == "TemplateExpProcessor") {
-            vecProcess.push_back(new TemplateExpProcessor());
+        //} else if (name == "TemplateExpProcessor") {
+          //  vecProcess.push_back(new TemplateExpProcessor());
+        } else if (name == "Anl1471Processor") {
+            vecProcess.push_back(new Anl1471Processor());
+
 	}
 #ifdef useroot
         else if (name == "RootProcessor") {
