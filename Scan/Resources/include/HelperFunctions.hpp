@@ -346,7 +346,8 @@ namespace TraceFunctions {
         return make_pair((unsigned int) (itPos - data.begin()), *itPos);
     }
 
-    inline unsigned int FindLeadingEdge(const vector<unsigned int> &data,
+    template <class T>
+    inline unsigned int FindLeadingEdge(const vector<T> &data,
                                         const double &threshold,
                                         const pair<unsigned int, double> &maxInfo) {
         if (threshold <= 0)
