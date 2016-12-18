@@ -1,63 +1,18 @@
 ///@file unittest-HelperFunctions.cpp
 ///@author S. V. Paulauskas
 ///@date December 12, 2016
-#include <stdexcept>
-#include <utility>
-#include <vector>
-
 #include <UnitTest++.h>
 
 #include "HelperFunctions.hpp"
+#include "UnitTestExampleTrace.hpp"
 
 using namespace std;
-
-//This is a trace taken from a medium VANDLE module.
-static const vector<unsigned int> data = {
-        437, 436, 434, 434, 437, 437, 438, 435, 434, 438, 439, 437, 438, 434,
-        435, 439, 438, 434, 434, 435, 437, 440, 439, 435, 437, 439, 438, 435,
-        436, 436, 437, 439, 435, 433, 434, 436, 439, 441, 436, 437, 439, 438,
-        438, 435, 434, 434, 438, 438, 434, 434, 437, 440, 439, 438, 434, 436,
-        439, 439, 437, 436, 434, 436, 438, 437, 436, 437, 440, 440, 439, 436,
-        435, 437, 501, 1122, 2358, 3509, 3816, 3467, 2921, 2376, 1914, 1538,
-        1252, 1043, 877, 750, 667, 619, 591, 563, 526, 458, 395, 403, 452, 478,
-        492, 498, 494, 477, 460, 459, 462, 461, 460, 456, 452, 452, 455, 453,
-        446, 441, 440, 444, 456, 459, 451, 450, 447, 445, 449, 456, 456, 455
-};
-
-//An empty data vector to test error checking.
-static const vector<unsigned int> empty_data;
-//A data vector that contains constant data.
-static const vector<unsigned int> const_data = {1000, 4};
-//A data vector to test the integration
-static const vector<unsigned int> integration_data = {0, 1, 2, 3, 4, 5};
-//The expected value from the CalculateIntegral function
-static const double expected_integral = 12.5;
-
-//The expected maximum from the poly3 fitting
-static const double expected_poly3_val = 3818.0718412264;
-//The expected maximum from the pol2 fitting
-static const double expected_poly2_val = 10737.0720588236;
-
-//This is the expected value of the maximum
-static const double expected_maximum_value = 3816;
-//This is the expected position of the maximum
-static const unsigned int expected_max_position = 76;
-//This is the pair made from the expected maximum information
-static const pair<unsigned int, double> expected_max_info(expected_max_position,
-                                                          expected_maximum_value);
+using namespace unittest_trace_variables;
 
 ///This tests that the TraceFunctions::CalculateBaseline function works as
 /// expected. This also verifies the Statistics functions CalculateAverage
 /// and CalculateStandardDeviation
 TEST(TestCalculateBaseline) {
-    //These two values were obtained using the first 70 values of the above trace.
-    //The expected baseline value was obtained using the AVERAGE function in
-    // Google Sheets.
-    static const double expected_baseline = 436.7428571;
-    //The expected standard deviation was obtained using the STDEVP function in
-    // Google Sheets.
-    static const double expected_standard_deviation = 1.976184739;
-
     //Checking that we throw a range_error when the range is too small
     CHECK_THROW(TraceFunctions::CalculateBaseline(data, make_pair(0, 1)),
                 range_error);
@@ -83,8 +38,6 @@ TEST(TestCalculateBaseline) {
 }
 
 TEST(TestFindMaxiumum) {
-    static const unsigned int trace_delay = 80;
-
     //Checking that we throw a range_error when the data vector is sized 0
     CHECK_THROW(TraceFunctions::FindMaximum(empty_data, trace_delay),
                 range_error);
@@ -135,14 +88,6 @@ TEST(TestFindLeadingEdge) {
 }
 
 TEST(TestCalculatePoly3) {
-    //A data vector that contains only the four points for the Poly3 Fitting.
-    static const vector<unsigned int> poly3_data(data.begin() + 74,
-                                                 data.begin() + 78);
-    //A vector containing the coefficients obtained from gnuplot using the data
-    // from pol3_data with an x value starting at 0
-    static const vector<double> expected_poly3_coeffs =
-            {2358.0, 1635.66666666667, -516.0, 31.3333333333333};
-
     //Check that we throw an error when the passed data vector is too small.
     CHECK_THROW(Polynomial::CalculatePoly3(empty_data, 0), range_error);
 
@@ -161,10 +106,6 @@ TEST(TestCalculatePoly3) {
 //For determination of the maximum value of the trace this traces favors the
 // left side since max+1 is less than max - 1
 TEST(TestExtrapolateMaximum) {
-    static const vector<double> expected_coeffs =
-            {-15641316.0007084, 592747.666694852, -7472.00000037373,
-             31.3333333349849};
-
     //Check that we throw an error when the passed data vector is too small.
     CHECK_THROW(TraceFunctions::ExtrapolateMaximum(empty_data,
                                                    expected_max_info),
@@ -182,13 +123,6 @@ TEST(TestExtrapolateMaximum) {
 }
 
 TEST(TestCalculatePoly2) {
-    //A data vector containing only the three points for the Poly2 fitting
-    static const vector<unsigned int> poly2_data(data.begin() + 73,
-                                                 data.begin() + 75);
-    //Vector containing the expected coefficients from the poly 2 fit
-    static const vector<double> expected_poly2_coeffs =
-            {1122.0, 1278.5, -42.4999999999999};
-
     pair<double, vector<double> > result =
             Polynomial::CalculatePoly2(poly2_data, 0);
 
@@ -215,7 +149,6 @@ TEST(TestCalculateQdc) {
 }
 
 TEST(TestCalculateTailRatio) {
-    static const double expected_ratio = 0.2960894762;
     //Check that we are throwing an error when the data is empty
     CHECK_THROW(TraceFunctions::CalculateTailRatio(empty_data, make_pair(0, 4),
                                                    100.0), range_error);
