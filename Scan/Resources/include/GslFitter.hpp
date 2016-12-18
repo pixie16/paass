@@ -1,9 +1,10 @@
-/// \file GslFitter.hpp
-/// \brief Implementation of the GSL fitting routine for GSL v2+
-/// \author S. V. Paulauskas
-/// \date August 8, 2016
+/// @file GslFitter.hpp
+/// @brief Implementation of the GSL fitting routine for GSL v2+
+/// @author S. V. Paulauskas
+/// @date August 8, 2016
 #ifndef PIXIESUITE_GSLFITTER_HPP
 #define PIXIESUITE_GSLFITTER_HPP
+
 #include <iostream>
 
 #include <cmath>
@@ -17,29 +18,31 @@
 class GslFitter : public TimingDriver {
 public:
     ///Default Constructor
-    GslFitter() : TimingDriver() {};
+    GslFitter() : TimingDriver() { isFastSiPm_ = false; }
+
     ///Default Destructor
-    ~GslFitter() {};
+    ~GslFitter() {}
 
-    ///\return the phase from the GSL fit
-    double GetPhase(void){return phase_;}
-    ///\return the amplitude from the GSL fit
-    double GetAmplitude(void) {return amp_;}
-    ///\return the chi^2 from the GSL fit
-    double GetChiSq(void) {return chi_*chi_;}
-    ///\return the chi^2dof from the GSL fit
-    double GetChiSqPerDof(void) {return GetChiSq()/dof_;}
-    ///The main driver for the fitting
-    /// \param[in] data The data that we would like to try and fit
-    /// \param[in] pars The parameters for the fit
-    /// \param[in] weight The weight for the fit
-    void PerformFit(const std::vector<double> &data,
-                            const std::pair<double,double> &pars,
-                            const bool &isSipmFast = false,
-                            const double &weight = 1.,
-                            const double &area = 1.);
+    /// @return the amplitude from the GSL fit
+    double GetAmplitude(void) { return amp_; }
 
-    //! Structure necessary for the GSL fitting routines
+    /// @return the chi^2 from the GSL fit
+    double GetChiSq(void) { return chi_ * chi_; }
+
+    /// @return the chi^2dof from the GSL fit
+    double GetChiSqPerDof(void) { return GetChiSq() / dof_; }
+
+    ///The ever important phase calculation
+    /// @param[in] data The data that we would like to try and fit
+    /// @param[in] pars The parameters for the fit
+    double CalculatePhase(const std::vector<unsigned int> &data,
+                          const std::pair<double, double> &pars);
+
+    ///Sets the isFastSiPm_ flag
+    ///@param[in] a : The value that we are going to set
+    void SetIsFastSiPm(const bool &a) { isFastSiPm_ = a; }
+
+    /// @brief Structure necessary for the GSL fitting routines
     struct FitData {
         size_t n;//!< size of the fitting parameters
         double *y;//!< ydata to fit
@@ -49,10 +52,11 @@ public:
         double qdc;//!< the QDC for the fit
     };
 private:
+    bool isFastSiPm_;
+
     double amp_;
     double chi_;
     double dof_;
-    double phase_;
 };
 
 

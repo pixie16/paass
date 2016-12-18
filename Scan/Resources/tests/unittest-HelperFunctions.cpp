@@ -118,12 +118,12 @@ TEST(TestFindLeadingEdge) {
                 range_error);
     //Check that we throw an error if if we have a vector that isn't big
     // enough to do proper analysis.
-    CHECK_THROW(TraceFunctions::FindLeadingEdge(empty_data, 0.05,
+    CHECK_THROW(TraceFunctions::FindLeadingEdge(empty_data, 0.5,
                                                 expected_max_info),
                 range_error);
     //Check that if we have a maximum position that is larger than the size
     // of the data vector we throw a range error.
-    CHECK_THROW(TraceFunctions::FindLeadingEdge(const_data, 0.05,
+    CHECK_THROW(TraceFunctions::FindLeadingEdge(const_data, 0.5,
                                                 make_pair(2000, 3)),
                 range_error);
 
