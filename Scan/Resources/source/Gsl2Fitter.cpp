@@ -63,7 +63,8 @@ double GslFitter::CalculatePhase(const std::vector<unsigned int> &data,
     gsl_multifit_fdfsolver *s = gsl_multifit_fdfsolver_alloc(T, n, p);
     gsl_matrix *jac = gsl_matrix_alloc(n, p);
     gsl_matrix *covar = gsl_matrix_alloc(p, p);
-    double y[n], weights[n];
+    double *y = new double[n];
+    double *weights = new double[n];
     struct FitData fitData = {n, y, weights, pars.first,
                               pars.second, qdc_};
     gsl_vector_view x = gsl_vector_view_array(xInit, p);
@@ -103,6 +104,8 @@ double GslFitter::CalculatePhase(const std::vector<unsigned int> &data,
     gsl_multifit_fdfsolver_free(s);
     gsl_matrix_free(covar);
     gsl_matrix_free(jac);
+    delete y;
+    delete weights;
 
     return phase;
 }
