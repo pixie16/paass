@@ -12,36 +12,31 @@ int main(int argc, char *argv[]) {
     cout << "Testing functionality of FitDriver and GslFitter" << endl;
 
     //Baseline for the trace we're going to fit
-    double baseline = 436.742857142857;
+    pair<double,double> baseline(436.742857142857, 1.9761847389475);
+    //Set the <beta, gamma> for the fitting
+    pair<double, double> pars(0.2659404170, 0.208054799179688);
+    //Qdc of the trace is necessary to initialization of the fit
+    double area = 21329.85714285;
 
     //Raw data that we want to fit - This is a VANDLE trace
-    vector<double> data{
+    vector<unsigned int> data{
             437, 501, 1122, 2358, 3509, 3816, 3467, 2921, 2376,
             1914, 1538, 1252, 1043, 877, 750, 667
     };
 
-    //Subtract the baseline from the data
-    for (vector<double>::iterator it = data.begin(); it != data.end(); it++)
-        (*it) -= baseline;
-
-    //Set the <beta, gamma> for the fitting
-    pair<double, double> pars = make_pair(0.2659404170, 0.208054799179688);
-
-    //Standard deviation of the baseline provides weight
-    double weight = 1.9761847389475;
-
-    //Qdc of the trace is necessary to initialization of the fit
-    double area = 21329.85714285;
-
-    //We are not fitting a SiPm Fast signal (basically a Gaussian)
-    bool isSiPmTiming = false;
-
     //Instance the fitter and pass in the flag for the SiPm
     GslFitter fitter;
 
+    fitter.SetBaseline(baseline);
+    fitter.SetQdc(area);
+
+    double phase;
     //Actually perform the fitting
+    ///@TODO : We should never catch ALL throws using this syntax. It's bad
+    /// practice. Until we can figure out what to throw here then we'll leave
+    /// it.
     try {
-        fitter.PerformFit(data, pars, isSiPmTiming, weight, area);
+        phase = fitter.CalculatePhase(data, pars);
     } catch(...) {
         cerr << "Something went wrong with the fit" << endl;
     }
@@ -51,5 +46,5 @@ int main(int argc, char *argv[]) {
          << "Amplitude from Gnuplot = 0.8565802" << endl
          << "Amplitude = " << fitter.GetAmplitude() << endl
          << "Phase from Gnuplot = -0.0826487" << endl
-         << "Phase = " << fitter.GetPhase() << endl;
+         << "Phase = " << phase << endl;
 }
