@@ -123,8 +123,15 @@ TEST(TestExtrapolateMaximum) {
 }
 
 TEST(TestCalculatePoly2) {
+    //Check that we throw an error when the passed data vector is too small.
+    CHECK_THROW(Polynomial::CalculatePoly2(empty_data, 0), range_error);
+
     pair<double, vector<double> > result =
             Polynomial::CalculatePoly2(poly2_data, 0);
+
+    //Check that we are returning the correct coefficients for the data being
+    // passed.
+    CHECK_ARRAY_CLOSE(expected_poly2_coeffs, result.second, 3, 1e-3);
 
     CHECK_CLOSE(expected_poly2_val, result.first, 1e-4);
 }
