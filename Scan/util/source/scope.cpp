@@ -1,5 +1,5 @@
-#include <algorithm>
 #include <iostream>
+#include <algorithm> 
 
 // PixieCore libraries
 #include "XiaData.hpp"
@@ -14,11 +14,9 @@
 #endif
 
 // Root files
-#include "TApplication.h"
 #include "TSystem.h"
 #include "TStyle.h"
 #include "TMath.h"
-#include "TCanvas.h"
 #include "TGraph.h"
 #include "TH2F.h"
 #include "TAxis.h"
@@ -88,7 +86,7 @@ void scopeUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/){
 		if(!running)
 			break;
 	
-		//Get the first event int he FIFO.
+		//Get the first event in the FIFO.
 		current_event = rawEvent.front();
 		rawEvent.pop_front();
 
@@ -123,7 +121,7 @@ void scopeUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/){
 ///////////////////////////////////////////////////////////////////////////////
 
 /// Default constructor.
-scopeScanner::scopeScanner(int mod /*= 0*/, int chan/*=0*/) : ScanInterface() {
+scopeScanner::scopeScanner(int mod /*= 0*/, int chan/*=0*/) : RootScanner() {
 	need_graph_update = false;
 	resetGraph_ = false;
 	acqRun_ = true;
@@ -142,12 +140,6 @@ scopeScanner::scopeScanner(int mod /*= 0*/, int chan/*=0*/) : ScanInterface() {
 	delay_ = 2;
 	num_displayed = 0;
 	time(&last_trace);
-	
-	// Variables for root graphics
-	rootapp = new TApplication("scope", 0, NULL);
-	gSystem->Load("libTree");
-	
-	canvas = new TCanvas("scope_canvas", "scopeScanner");
 	
 	graph = new TGraph();
 	cfdGraph = new TGraph();
@@ -169,8 +161,6 @@ scopeScanner::scopeScanner(int mod /*= 0*/, int chan/*=0*/) : ScanInterface() {
 
 /// Destructor.
 scopeScanner::~scopeScanner(){
-	canvas->Close();
-	delete canvas;
 	delete graph;
 	delete cfdGraph;
 	delete cfdLine;
@@ -212,37 +202,21 @@ void scopeScanner::ResetGraph(unsigned int size) {
 }
 
 void scopeScanner::Plot(){
+	static float histAxis[2][2];
+
 	if(chanEvents_.size() < numAvgWaveforms_)
 		return;
-
-	///The limits of the vertical axis
-	static float axisVals[2][2]; //The max and min values of the graph, first index is the axis, second is the min / max
-	static float userZoomVals[2][2];
-	static bool userZoom[2];
-
-	//Get the user zoom settings.
-	userZoomVals[0][0] = canvas->GetUxmin();
-	userZoomVals[0][1] = canvas->GetUxmax();
-	userZoomVals[1][0] = canvas->GetUymin();
-	userZoomVals[1][1] = canvas->GetUymax();
 
 	if(chanEvents_.front()->size != x_vals.size()){ // The length of the trace has changed.
 		resetGraph_ = true;
 	}
 	if (resetGraph_) {
 		ResetGraph(chanEvents_.front()->size);
+		ResetZoom();
 		for (int i=0;i<2;i++) {
-			axisVals[i][0] = 1E9;
-			axisVals[i][1] = -1E9;
-			userZoomVals[i][0] = 1E9;
-			userZoomVals[i][1] = -1E9;
-			userZoom[i] = false;
-		}
-	}
-
-	//Determine if the user had zoomed or unzoomed.
-	for (int i=0; i<2; i++) {
-		userZoom[i] =  (userZoomVals[i][0] != axisVals[i][0] || userZoomVals[i][1] != axisVals[i][1]);
+			histAxis[i][0] = 1E9;
+			histAxis[i][1] = -1E9;
+		}		
 	}
 
 	//For a waveform pulse we use a graph.
@@ -253,23 +227,7 @@ void scopeScanner::Plot(){
 			index++;
 		}
 
-		//Get and set the updated graph limits.
-		if (graph->GetXaxis()->GetXmin() < axisVals[0][0]) axisVals[0][0] = graph->GetXaxis()->GetXmin(); 
-		if (graph->GetXaxis()->GetXmax() > axisVals[0][1]) axisVals[0][1] = graph->GetXaxis()->GetXmax(); 
-		graph->GetXaxis()->SetLimits(axisVals[0][0], axisVals[0][1]);
-		
-		if (graph->GetYaxis()->GetXmin() < axisVals[1][0]) axisVals[1][0] = graph->GetYaxis()->GetXmin(); 
-		if (graph->GetYaxis()->GetXmax() > axisVals[1][1]) axisVals[1][1] = graph->GetYaxis()->GetXmax(); 
-		graph->GetYaxis()->SetLimits(axisVals[1][0], axisVals[1][1]);
-
-		//Set the users zoom window.
-		for (int i = 0; i < 2; i++) {
-			if (!userZoom[i]) {
-				for (int j = 0; j < 2; j++) userZoomVals[i][j] = axisVals[i][j];
-			}
-		}
-		graph->GetXaxis()->SetRangeUser(userZoomVals[0][0], userZoomVals[0][1]);
-		graph->GetYaxis()->SetRangeUser(userZoomVals[1][0], userZoomVals[1][1]);
+		UpdateZoom();
 
 		graph->Draw("AP0");
 
@@ -283,7 +241,7 @@ void scopeScanner::Plot(){
 			// Draw the cfd waveform.
 			for(size_t cfdIndex = 0; cfdIndex < chanEvents_.front()->size; cfdIndex++)
 				cfdGraph->SetPoint((int)cfdIndex, x_vals[cfdIndex], chanEvents_.front()->cfdvals[cfdIndex] + chanEvents_.front()->baseline);
-			cfdLine->DrawLine(cfdCrossing*ADC_TIME_STEP, userZoomVals[1][0], cfdCrossing*ADC_TIME_STEP, userZoomVals[1][1]);
+			cfdLine->DrawLine(cfdCrossing*ADC_TIME_STEP, GetCanvas()->GetUymin(), cfdCrossing*ADC_TIME_STEP, GetCanvas()->GetUymax());
 			cfdGraph->Draw("LSAME");
 		}
 
@@ -302,23 +260,15 @@ void scopeScanner::Plot(){
 			float evtMax = *std::max_element(evt->event->adcTrace.begin(), evt->event->adcTrace.end());
 			evtMin -= fabs(0.1 * evtMax);
 			evtMax += fabs(0.1 * evtMax);
-			if (evtMin < axisVals[1][0]) axisVals[1][0] = evtMin;
-			if (evtMax > axisVals[1][1]) axisVals[1][1] = evtMax;
-		}
-
-		//Set the users zoom window.
-		for (int i=0; i<2; i++) {
-			if (!userZoom[i]) {
-				for (int j=0; j<2; j++) 
-					userZoomVals[i][j] = axisVals[i][j];
-			}
+			if (evtMin < histAxis[1][0]) histAxis[1][0] = evtMin;
+			if (evtMax > histAxis[1][1]) histAxis[1][1] = evtMax;
 		}
 
 		//Reset the histogram
 		hist->Reset();
 		
 		//Rebin the histogram
-		hist->SetBins(x_vals.size(), x_vals.front(), x_vals.back() + ADC_TIME_STEP, axisVals[1][1] - axisVals[1][0], axisVals[1][0], axisVals[1][1]);
+		hist->SetBins(x_vals.size(), x_vals.front(), x_vals.back() + ADC_TIME_STEP, histAxis[1][1] - histAxis[1][0], histAxis[1][0], histAxis[1][1]);
 
 		//Fill the histogram
 		for (unsigned int i = 0; i < numAvgWaveforms_; i++) {
@@ -346,10 +296,9 @@ void scopeScanner::Plot(){
 		hist->Draw("COLZ");		
 		prof->Draw("SAMES");
 
-		hist->GetXaxis()->SetRangeUser(userZoomVals[0][0], userZoomVals[0][1]);
-		hist->GetYaxis()->SetRangeUser(userZoomVals[1][0], userZoomVals[1][1]);
+		UpdateZoom();
 
-		canvas->Update();	
+		GetCanvas()->Update();	
 		TPaveStats* stats = (TPaveStats*) prof->GetListOfFunctions()->FindObject("stats");
 		if (stats) {
 			stats->SetX1NDC(0.55);
@@ -364,7 +313,7 @@ void scopeScanner::Plot(){
 	}
 
 	// Update the canvas.
-	canvas->Update();
+	GetCanvas()->Update();
 
 	// Save the TGraph to a file.
 	if (saveFile_ != "") {
@@ -580,7 +529,7 @@ bool scopeScanner::ExtraCommands(const std::string &cmd_, std::vector<std::strin
 			if(performFit_){
 				std::cout << msgHeader << "Disabling root fitting.\n"; 
 				delete graph->GetListOfFunctions()->FindObject(paulauskasFunc->GetName());
-				canvas->Update();
+				GetCanvas()->Update();
 				performFit_ = false;
 			}
 			else{ std::cout << msgHeader << "Fitting is not enabled.\n"; }
@@ -655,12 +604,12 @@ bool scopeScanner::ExtraCommands(const std::string &cmd_, std::vector<std::strin
 		}
 	}
 	else if(cmd_ == "log"){
-		if(canvas->GetLogy()){ 
-			canvas->SetLogy(0);
+		if(GetCanvas()->GetLogy()){ 
+			GetCanvas()->SetLogy(0);
 			std::cout << msgHeader << "y-axis set to linear.\n"; 
 		}
 		else{ 
-			canvas->SetLogy(1); 
+			GetCanvas()->SetLogy(1); 
 			std::cout << msgHeader << "y-axis set to log.\n"; 
 		}
 	}
@@ -673,22 +622,12 @@ bool scopeScanner::ExtraCommands(const std::string &cmd_, std::vector<std::strin
 	return true;
 }
 
-/** IdleTask is called whenever a scan is running in shared
-  * memory mode, and a spill has yet to be received. This method may
-  * be used to update things which need to be updated every so often
-  * (e.g. a root TCanvas) when working with a low data rate. 
-  * \return Nothing.
-  */
-void scopeScanner::IdleTask(){
-	gSystem->ProcessEvents();
-	usleep(SLEEP_WAIT);
-}
 
 #ifndef USE_HRIBF
 int main(int argc, char *argv[]){
 	// Define a new unpacker object.
 	scopeScanner scanner;
-
+	
 	// Set the output message prefix.
 	scanner.SetProgramName(std::string(PROG_NAME));	
 	
@@ -709,30 +648,31 @@ scopeScanner *scanner = NULL;
 // Do some startup stuff.
 extern "C" void startup_()
 {
-	scanner = new scopeScanner();	
+       scanner = new scopeScanner();   
 
-	// Handle command line arguments from SCANOR
-	scanner->Setup(GetNumberArguments(), GetArguments());
-	
-	// Get a pointer to a class derived from Unpacker.
-	ScanorInterface::get()->SetUnpacker(scanner->GetCore());
+       // Handle command line arguments from SCANOR
+       scanner->Setup(GetNumberArguments(), GetArguments());
+       
+       // Get a pointer to a class derived from Unpacker.
+       ScanorInterface::get()->SetUnpacker(scanner->GetCore());
 }
 
 ///@brief Defines the main interface with the SCANOR library, the program
 /// essentially starts here.
 ///@param [in] iexist : unused paramter from SCANOR call
 extern "C" void drrsub_(uint32_t &iexist) {
-	drrmake_();
-	hd1d_(8000, 2, 256, 256, 0, 255, "Run DAMM you!", strlen("Run DAMM you!"));
-	endrr_();
+       drrmake_();
+       hd1d_(8000, 2, 256, 256, 0, 255, "Run DAMM you!", strlen("Run DAMM you!"));
+       endrr_();
 }
 
 // Catch the exit call from scanor and clean up c++ objects CRT
 extern "C" void cleanup_()
 {
-	// Do some cleanup.
-	std::cout << "\nCleaning up..\n";
-	scanner->Close();
-	delete scanner;
+       // Do some cleanup.
+       std::cout << "\nCleaning up..\n";
+       scanner->Close();
+       delete scanner;
 }
 #endif
+
