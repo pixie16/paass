@@ -5,29 +5,21 @@
 #include <iostream>
 
 #include "GslFitter.hpp"
+#include "UnitTestExampleTrace.hpp"
 
 using namespace std;
+using namespace unittest_trace_variables;
 
 int main(int argc, char *argv[]) {
     cout << "Testing functionality of FitDriver and GslFitter" << endl;
 
-    //Baseline for the trace we're going to fit
-    pair<double,double> baseline(436.742857142857, 1.9761847389475);
-    //Set the <beta, gamma> for the fitting
-    pair<double, double> pars(0.2659404170, 0.208054799179688);
     //Qdc of the trace is necessary to initialization of the fit
     double area = 21329.85714285;
-
-    //Raw data that we want to fit - This is a VANDLE trace
-    vector<unsigned int> data{
-            437, 501, 1122, 2358, 3509, 3816, 3467, 2921, 2376,
-            1914, 1538, 1252, 1043, 877, 750, 667
-    };
 
     //Instance the fitter and pass in the flag for the SiPm
     GslFitter fitter;
 
-    fitter.SetBaseline(baseline);
+    fitter.SetBaseline(expected_baseline_pair);
     fitter.SetQdc(area);
 
     double phase;
@@ -36,7 +28,7 @@ int main(int argc, char *argv[]) {
     /// practice. Until we can figure out what to throw here then we'll leave
     /// it.
     try {
-        phase = fitter.CalculatePhase(data, pars);
+        phase = fitter.CalculatePhase(waveform, expected_trace_pars);
     } catch(...) {
         cerr << "Something went wrong with the fit" << endl;
     }

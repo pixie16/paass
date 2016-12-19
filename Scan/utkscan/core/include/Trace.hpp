@@ -85,6 +85,11 @@ public:
     /** \return Returns the waveform found inside the trace */
     std::vector<double> GetWaveform() {return(waveform_);}
 
+    ///@return Returns the waveform that still has the baseline
+    std::vector<unsigned int> GetWaveformWithBaseline() {
+        return waveformWithBaseline_;
+    }
+
     /*! \brief Declares a 1D histogram calls the C++ wrapper for DAMM
     * \param [in] dammId : The histogram number to define
     * \param [in] xSize : The range of the x-axis
@@ -146,7 +151,14 @@ public:
     /** sets the waveform 
      * \param[in] a : the vector with the waveform */
     void SetWaveform(const std::vector<double> &a){waveform_ = a;}
-    /** sets the trigger filter if we are using the TriggerFilterAnalyzer 
+
+    ///@brief sets the waveform that has the baseline in it
+    ///@param[in] a : The vector that we are going to assign.
+    void SetWaveformWithBaseline(const std::vector<unsigned int> &a){
+        waveformWithBaseline_ = a;
+    }
+
+    /** sets the trigger filter if we are using the TriggerFilterAnalyzer
      * \param [in] a : the vector with the trigger filter */
     void SetTriggerFilter(const std::vector<double> &a){trigFilter_ = a;}
     /** sets the energy sums vector if we are using the TriggerFilterAnalyzer 
@@ -155,8 +167,11 @@ public:
 
 private:
     std::vector<double> waveform_; //!< The waveform inside the trace
+//!< without baseline subtraction
     std::vector<double> trigFilter_; //!< The trigger filter for the trace
     std::vector<double> esums_; //!< The Energy sums calculated from the trace
+    std::vector<unsigned int> waveformWithBaseline_; ///! Waveform with
+/// baseline.
 
     std::map<std::string, double> doubleTraceData; //!< Trace data stored as doubles
     std::map<std::string, int>    intTraceData;//!< Trace data stored as ints

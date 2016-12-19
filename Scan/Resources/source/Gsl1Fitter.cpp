@@ -47,21 +47,21 @@ int SiPmtFunctionDerivative(const gsl_vector *x, void *FitData, gsl_vector *f,
 
 using namespace std;
 
-void GslFitter::PerformFit(const std::vector<double> &data,
-                            const std::pair<double, double> &pars,
-                           const bool & isSipmFast/*= false */,
-                           const double &weight/* = 1.*/,
-                            const double &area/* = 1.*/) {
+void GslFitter::PerformFit(const std::vector<unsigned int> &data,
+                           const std::pair<double, double> &pars,
+                           const std::pair<unsigned int, double> &max,
+                           const std::pair<double, double> baseline) {
     gsl_multifit_function_fdf f;
     int status;
     const size_t sizeFit = data.size();
     size_t numParams;
     double xInit[3];
 
-    double y[sizeFit], sigma[sizeFit];
+    double *y = new double[sizeFit];
+    double *sigma = new double[sizeFit];
     for(unsigned int i = 0; i < sizeFit; i++) {
-        y[i] = data.at(i);
-        sigma[i] = weight;
+        y[i] = data.at(i) - baseline.first;
+        sigma[i] = baseline.second;
     }
 
     struct FitDriver::FitData fitData =
@@ -93,11 +93,14 @@ void GslFitter::PerformFit(const std::vector<double> &data,
     f.p = numParams;
     gsl_multifit_fdfsolver_set (s, &f, &x.vector);
 
-    for(unsigned int iter = 0; iter < 1e8; iter++) {
+    static const maxIter = 1e8;
+    static const tolerance = 1e-4;
+
+    for(unsigned int iter = 0; iter < maxIter; iter++) {
         status = gsl_multifit_fdfsolver_iterate(s);
         if(status)
             break;
-        status = gsl_multifit_test_delta (s->dx, s->x, 1e-4, 1e-4);
+        status = gsl_multifit_test_delta (s->dx, s->x, tolerance, tolerance);
         if(status != GSL_CONTINUE)
             break;
     }
