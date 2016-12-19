@@ -61,7 +61,7 @@ namespace unittest_trace_variables {
 
     //A data vector containing only the three points for the Poly2 fitting
     static const std::vector<unsigned int> poly2_data(data.begin() + 73,
-                                                      data.begin() + 75);
+                                                      data.begin() + 76);
     //Vector containing the expected coefficients from the poly 2 fit
     static const std::vector<double> expected_poly2_coeffs =
             {1122.0, 1278.5, -42.4999999999999};
