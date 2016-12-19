@@ -12,7 +12,7 @@
 
 #include <string>
 
-#include "TimingAnalysisDriver.hpp"
+#include "TimingDriver.hpp"
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 
@@ -35,7 +35,7 @@ public:
                          const std::string &detSubtype,
                          const std::map<std::string, int> & tagMap);
 private:
-    FitDriver *driver_;
+    TimingDriver *driver_;
 };
 #endif // __FITTINGANALYZER_HPP_
 // David is awesome.

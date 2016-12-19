@@ -43,9 +43,8 @@ public:
     ///@return The phase calculated by the algorithm.
     virtual double CalculatePhase(const std::vector<unsigned int> &data,
                                   const std::pair<double, double> &pars,
-                                  const std::pair<unsigned int, double>
-                                  &maxInfo,
-                                  std::pair<double, double> baseline) {
+                                  const std::pair<unsigned int, double> &max,
+                                  const std::pair<double, double> baseline) {
         return 0.0;
     }
 

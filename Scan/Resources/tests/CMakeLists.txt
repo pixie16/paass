@@ -20,4 +20,12 @@ if(BUILD_UNITTESTS)
             ../source/PolynomialCfd.cpp)
     target_link_libraries(unittest-PolynomialCfd UnitTest++)
     install(TARGETS unittest-PolynomialCfd DESTINATION bin/unittests)
+
+    if(USE_ROOT)
+        add_executable(unittest-RootFitter unittest-RootFitter.cpp
+                ../source/RootFitter.cpp ../source/VandleTimingFunction.cpp)
+        target_link_libraries(unittest-RootFitter
+                ${ROOT_LIBRARIES})
+        install(TARGETS unittest-RootFitter DESTINATION bin/unittests)
+    endif(USE_ROOT)
 endif(BUILD_UNITTESTS)

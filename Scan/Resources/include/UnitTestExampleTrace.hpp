@@ -66,7 +66,7 @@ namespace unittest_trace_variables {
     static const std::vector<double> expected_poly2_coeffs =
             {1122.0, 1278.5, -42.4999999999999};
 
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     // Variables related to calculation of the maximum of a trace
     /// This is the expected value of the maximum
     static const double expected_maximum_value = 3816;
