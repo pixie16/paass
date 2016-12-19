@@ -17,9 +17,13 @@
 using namespace std;
 
 namespace Polynomial {
-    template <class T>
+    template<class T>
     static const pair<double, vector<double> > CalculatePoly2(
             const vector<T> &data, const unsigned int &startBin) {
+        if (data.size() < 3)
+            throw range_error("Polynomial::CalculatePoly2 - The data vector "
+                                      "had the wrong size : " + data.size());
+
         double x1[3], x2[3];
         for (size_t i = 0; i < 3; i++) {
             x1[i] = (startBin + i);
@@ -30,30 +34,25 @@ namespace Polynomial {
                 (x1[1] * x2[2] - x2[1] * x1[2]) - x1[0] * (x2[2] - x2[1] * 1) +
                 x2[0] * (x1[2] - x1[1] * 1);
 
-        double p0 = (double) ((data[x1[0]] * (x1[1] * x2[2] - x2[1] * x1[2]) -
-                               x1[0] *
-                               (data[x1[1]] * x2[2] - x2[1] * data[x1[2]]) +
-                               x2[0] *
-                               (data[x1[1]] * x1[2] - x1[1] * data[x1[2]])) /
-                              denom);
-        double p1 = (double) (
-                ((data[x1[1]] * x2[2] - x2[1] * data[x1[2]]) -
-                 data[x1[0]] * (x2[2] - x2[1] * 1) +
-                 x2[0] * (data[x1[2]] - data[x1[1]] * 1)) / denom);
-        double p2 = (double) (
-                ((x1[1] * data[x1[2]] - data[x1[1]] * x1[2]) -
-                 x1[0] * (data[x1[2]] - data[x1[1]] * 1) +
-                 data[x1[0]] * (x1[2] - x1[1] * 1)) / denom);
+        double p0 = ((data[x1[0]] * (x1[1] * x2[2] - x2[1] * x1[2]) -
+                      x1[0] *
+                      (data[x1[1]] * x2[2] - x2[1] * data[x1[2]]) +
+                      x2[0] *
+                      (data[x1[1]] * x1[2] - x1[1] * data[x1[2]])) / denom);
+        double p1 = (((data[x1[1]] * x2[2] - x2[1] * data[x1[2]]) -
+                      data[x1[0]] * (x2[2] - x2[1] * 1) +
+                      x2[0] * (data[x1[2]] - data[x1[1]] * 1)) / denom);
+        double p2 = (((x1[1] * data[x1[2]] - data[x1[1]] * x1[2]) -
+                      x1[0] * (data[x1[2]] - data[x1[1]] * 1) +
+                      data[x1[0]] * (x1[2] - x1[1] * 1)) / denom);
 
         //Put the coefficients into a vector in ascending power order
         vector<double> coeffs = {p0, p1, p2};
 
-        // Calculate the maximum of the polynomial.
-        //@TODO Is this actually the maximum of the polynomial??
-        return make_pair(p0 - p1 * p1 / (4 * p2), coeffs);
+        return make_pair(p0 - ((p1 * p1) / (4 * p2)), coeffs);
     }
 
-    template <class T>
+    template<class T>
     static const pair<double, vector<double> > CalculatePoly3(
             const vector<T> &data, const unsigned int &startBin) {
         if (data.size() < 4)
@@ -164,7 +163,7 @@ namespace Polynomial {
 }//Polynomial namespace
 
 namespace Statistics {
-    template <class T>
+    template<class T>
     inline double CalculateAverage(const vector<T> &data) {
         double sum = 0.0;
         for (typename vector<T>::const_iterator i = data.begin();
@@ -176,7 +175,7 @@ namespace Statistics {
 
     //This calculation for the standard deviation assumes that we are
     // analyzing the full population, which we are in this case.
-    template <class T>
+    template<class T>
     inline double CalculateStandardDeviation(const vector<T> &data,
                                              const double &mean) {
         double stddev = 0.0;
@@ -192,7 +191,7 @@ namespace Statistics {
     /// like that to keep things general.
     ///@param[in] data : The data that we want to integrate.
     ///@return The integrated value
-    template <class T>
+    template<class T>
     inline double CalculateIntegral(const vector<T> &data) {
         if (data.size() < 2)
             throw range_error("Statistical::CalculateIntegral - The data "
@@ -220,7 +219,7 @@ namespace TraceFunctions {
     ///@return A pair with the first element being the average of the
     /// baseline and the second element being the standard deviation of the
     /// baseline.
-    template <class T>
+    template<class T>
     inline pair<double, double> CalculateBaseline(const vector<T>
                                                   &data,
                                                   const pair<unsigned int,
@@ -245,11 +244,11 @@ namespace TraceFunctions {
         double baseline =
                 Statistics::CalculateAverage(
                         vector<T>(data.begin(), data.begin() +
-                                                           range.second));
+                                                range.second));
         double stddev =
                 Statistics::CalculateStandardDeviation(
                         vector<T>(data.begin(), data.begin() +
-                                                           range.second),
+                                                range.second),
                         baseline);
         return make_pair(baseline, stddev);
     }
@@ -264,7 +263,7 @@ namespace TraceFunctions {
     /// @param[in] maxInfo : The low resolution maximum information that we
     /// need to determine where to start the fit.
     /// @return An STL pair containing the maximum that we found and the
-    template <class T>
+    template<class T>
     inline pair<double, vector<double> > ExtrapolateMaximum(
             const vector<T> &data, const pair<unsigned int,
             double> &maxInfo) {
@@ -302,7 +301,7 @@ namespace TraceFunctions {
     /// set for this particular trace.
     /// @return A STL pair containing the bin and value of the maximum found
     /// in the trace.
-    template <class T>
+    template<class T>
     inline pair<unsigned int, double> FindMaximum(
             const vector<T> &data,
             const unsigned int &traceDelayInBins) {
@@ -346,7 +345,7 @@ namespace TraceFunctions {
         return make_pair((unsigned int) (itPos - data.begin()), *itPos);
     }
 
-    template <class T>
+    template<class T>
     inline unsigned int FindLeadingEdge(const vector<T> &data,
                                         const double &threshold,
                                         const pair<unsigned int, double> &maxInfo) {
@@ -383,7 +382,7 @@ namespace TraceFunctions {
     ///This is an exclusive calculation, meaning that the value at the low
     /// and high end of the calculation will not be used to calculate the
     /// integral.
-    template <class T>
+    template<class T>
     inline double CalculateQdc(const vector<T> &data,
                                const pair<unsigned int, unsigned int> &range) {
         stringstream msg;
@@ -398,17 +397,18 @@ namespace TraceFunctions {
         }
         return Statistics::CalculateIntegral(
                 vector<T>(data.begin() + range.first,
-                                     data.begin() + range.second));
+                          data.begin() + range.second));
     }
 
-    template <class T>
+    template<class T>
     inline double CalculateTailRatio(const vector<T> &data,
                                      const pair<unsigned int, unsigned int> &range,
                                      const double &qdc) {
         stringstream msg;
         if (data.size() == 0)
-            throw range_error("TraceFunctions::CalculateTailRatio - The size of "
-                                      "the data vector was zero.");
+            throw range_error(
+                    "TraceFunctions::CalculateTailRatio - The size of "
+                            "the data vector was zero.");
         if (data.size() < range.second) {
             msg << "TraceFunctions::CalculateTailRatio - The specified "
                 << "range was larger than the range : [" << range.first
@@ -422,7 +422,7 @@ namespace TraceFunctions {
 
         return Statistics::CalculateIntegral(
                 vector<T>(data.begin() + range.first,
-                                     data.begin() + range.second)) / qdc;
+                          data.begin() + range.second)) / qdc;
 
     }
 
@@ -431,7 +431,6 @@ namespace TraceFunctions {
     ///@TODO Impelement the validation functions for the functions in the
     /// TraceFunctions namespace. Necessary to simplify the codebase.
     namespace Validation {
-
 
 
     }
