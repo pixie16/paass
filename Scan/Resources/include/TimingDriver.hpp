@@ -36,26 +36,23 @@ public:
     ///@param[in] pars : The pair of parameters that we want to use for the
     /// algorithm. For Fitters this will be beta and gamma, for CFDs this
     /// will be the fraction and the delay.
-    /// @param[in] maxInfo : The information about the maximum. NOTE : The
-    /// value of the maximum for CFD based calculations should be the
-    /// extrapolated maximum.
+    /// @param[in] maxInfo : The information about the maximum in a pair
+    /// of <position, value> NOTE : The value of the maximum for CFD based
+    /// calculations should be the extrapolated maximum.
+    /// @param[in] a : The baseline information in a pair<baseline, stddev>
     ///@return The phase calculated by the algorithm.
     virtual double CalculatePhase(const std::vector<unsigned int> &data,
                                   const std::pair<double, double> &pars,
-                                  const std::pair<unsigned int, double> &maxInfo) {
+                                  const std::pair<unsigned int, double>
+                                  &maxInfo,
+                                  std::pair<double, double> baseline) {
         return 0.0;
     }
-
-    /// We set the information about the baseline.
-    /// @param[in] a : The baseline information in a pair<baseline, stddev>
-    void SetBaseline(const std::pair<double, double> &a) { baseline_ = a; }
 
     /// Sets the QDC that we want to set
     /// \param[in] a the qdc of the waveform for the fit
     void SetQdc(const double &a) { qdc_ = a; }
-
 protected:
-    std::pair<double, double> baseline_; //!< The baseline and stddev
     std::vector<double> results_; //!< Vector containing results
     double qdc_;//!< qdc of the waveform being fitted
 };

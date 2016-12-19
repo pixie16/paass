@@ -5,8 +5,6 @@
 #ifndef PIXIESUITE_POLYNOMIALCFD_HPP
 #define PIXIESUITE_POLYNOMIALCFD_HPP
 
-#include <vector>
-
 #include "TimingDriver.hpp"
 
 class PolynomialCfd : public TimingDriver {
