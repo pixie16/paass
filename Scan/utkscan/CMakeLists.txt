@@ -72,7 +72,7 @@ else(USE_HRIBF)
 endif(NOT USE_HRIBF)
 
 #Add libraries to be linked with utkscan
-target_link_libraries(${SCAN_NAME} ${LIBS} ScanStatic)
+target_link_libraries(${SCAN_NAME} ${LIBS} ScanStatic ResourceStatic)
 
 #If we have GSL installed link
 if(USE_GSL)
