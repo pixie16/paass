@@ -7,13 +7,11 @@
 #include <cmath>
 #include <string>
 
-// PixieCore libraries
 #include "Unpacker.hpp"
-#include "ScanInterface.hpp"
+
+#include "RootScanner.hpp"
 
 class ChannelEvent;
-class TApplication;
-class TCanvas;
 class TGraph;
 class TH2F;
 class TF1;
@@ -72,7 +70,7 @@ class scopeUnpacker : public Unpacker {
 // class scopeScanner
 ///////////////////////////////////////////////////////////////////////////////
 
-class scopeScanner : public ScanInterface {
+class scopeScanner : public RootScanner {
   public:
 	/// Default constructor.
 	scopeScanner(int mod = 0, int chan = 0);
@@ -136,14 +134,6 @@ class scopeScanner : public ScanInterface {
 	  * \return Nothing.
 	  */
 	virtual void SyntaxStr(char *name_);
-
-	/** IdleTask is called whenever a scan is running in shared
-	  * memory mode, and a spill has yet to be received. This method may
-	  * be used to update things which need to be updated every so often
-	  * (e.g. a root TCanvas) when working with a low data rate. 
-	  * \return Nothing.
-	  */
-	virtual void IdleTask();
 
 	/** Initialize the map file, the config file, the processor handler, 
 	  * and add all of the required processors.
@@ -223,8 +213,6 @@ class scopeScanner : public ScanInterface {
 	
 	std::string saveFile_; ///< The name of the file to save a trace.
 
-	TApplication *rootapp; ///< Root application pointer.
-	TCanvas *canvas; ///< The main plotting canvas.
 	TGraph *graph; ///< The TGraph for plotting traces.
 	TGraph *cfdGraph; ///< The TGraph for plotting cfd analysis.
 	TLine *cfdLine;
