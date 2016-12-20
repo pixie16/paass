@@ -64,7 +64,7 @@ public:
     /** \return The current value of phase_ in nanoseconds*/
     double GetPhase() const {
         return(chan_->GetTrace().GetValue("phase") *
-               Globals::get()->clockInSeconds() * 1e9);
+               Globals::get()->adcClockInSeconds() * 1e9);
     }
     /** \return The pixie Energy */
     double GetFilterEnergy() const { return(chan_->GetEnergy()); }
