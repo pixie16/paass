@@ -37,8 +37,8 @@ namespace dammIds {
 using namespace std;
 using namespace dammIds::experiment;
 
-TwoChanTimingProcessor::TwoChanTimingProcessor() : EventProcessor(OFFSET, RANGE,
-                                                                  "TwoChanTimingProcessor") {
+TwoChanTimingProcessor::TwoChanTimingProcessor() :
+        EventProcessor(OFFSET, RANGE, "TwoChanTimingProcessor") {
     associatedTypes.insert("pulser");
 
     trcfile.open(Globals::get()->outputPath("trace.dat").c_str());
@@ -58,9 +58,6 @@ TwoChanTimingProcessor::~TwoChanTimingProcessor() {
     rootfile->Write();
     rootfile->Close();
     trcfile.close();
-}
-
-void TwoChanTimingProcessor::DeclarePlots(void) {
 }
 
 bool TwoChanTimingProcessor::Process(RawEvent &event) {
@@ -100,8 +97,8 @@ bool TwoChanTimingProcessor::Process(RawEvent &event) {
 
     static int trcCounter = 0;
     int bin;
-    for(vector<int>::const_iterator it = start.GetTrace()->begin(); it !=
-            start.GetTrace()->end(); it++) {
+    for(vector<unsigned int>::const_iterator it = start.GetTrace()->begin();
+        it != start.GetTrace()->end(); it++) {
         bin = (int)(it-start.GetTrace()->begin());
         traces->Fill(bin, trcCounter, *it);
         //Only output the 500th trace to make sure that we are not at the

@@ -6,7 +6,7 @@
 #ifndef __CFDANALYZER_HPP_
 #define __CFDANALYZER_HPP_
 
-#include "HighResTimingData.hpp"
+#include "TimingDriver.hpp"
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 
@@ -14,18 +14,24 @@
 class CfdAnalyzer : public TraceAnalyzer {
 public:
     /** Default constructor */
-    CfdAnalyzer();
+    CfdAnalyzer(const std::string &s);
+
     /** Default Destructor */
-    ~CfdAnalyzer(){};
+    ~CfdAnalyzer() {};
+
     /** Declare the plots */
-    virtual void DeclarePlots(void) const {};
+    void DeclarePlots(void) const {};
+
     /** Do the analysis on traces
     * \param [in] trace : the trace to analyze
     * \param [in] detType : the detector type
     * \param [in] detSubtype : detector subtype 
     * \param [in] tagMap : the map of tags for the channel */
-    virtual void Analyze(Trace &trace, const std::string &detType,
+    void Analyze(Trace &trace, const std::string &detType,
                          const std::string &detSubtype,
                          const std::map<std::string, int> &tagMap);
+private:
+    TimingDriver *driver_;
 };
+
 #endif

@@ -21,7 +21,7 @@ public:
     double energy; /// Raw pixie energy.
     double time; /// Raw pixie event time. Measured in filter clock ticks (8E-9 Hz for RevF).
     
-    std::vector<int> adcTrace; /// ADC trace capture.
+    std::vector<unsigned int> adcTrace; /// ADC trace capture.
     
     static const int numQdcs = 8; /// Number of QDCs onboard.
     unsigned int qdcValue[numQdcs]; /// QDCs from onboard.

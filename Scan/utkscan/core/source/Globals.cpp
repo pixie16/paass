@@ -197,6 +197,20 @@ Globals::Globals(const std::string &file) {
                 WarnOfUnknownParameter(m, it);
         }
 
+        pugi::xml_node cfd = doc.child("Configuration").child("Cfd");
+        for (pugi::xml_node_iterator it = cfd.begin(); it != cfd.end(); ++it) {
+            if (std::string(it->name()).compare("Parameters") == 0) {
+                for (pugi::xml_node_iterator parit = it->begin();
+                     parit != it->end(); ++parit) {
+                    fitPars_.insert(
+                            std::make_pair(parit->attribute("name").as_string(),
+                                           std::make_pair(parit->child("Fraction").attribute("value").as_double(0.),
+                                                          parit->child("Delay").attribute("value").as_double(0.))));
+                }
+            } else
+                WarnOfUnknownParameter(m, it);
+        }
+
         pugi::xml_node fit = doc.child("Configuration").child("Fitting");
         for (pugi::xml_node_iterator it = fit.begin(); it != fit.end(); ++it) {
             if (std::string(it->name()).compare("SigmaBaselineThresh") == 0)

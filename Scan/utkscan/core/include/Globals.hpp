@@ -247,6 +247,13 @@ public:
         return (std::make_pair(5, 10));
     }
 
+    /** \return the requested cfd parameters parameters */
+    std::pair<double, double> cfdPars(const std::string &str) const {
+        if (fitPars_.find(str) != fitPars_.end())
+            return (fitPars_.find(str)->second);
+        return (std::make_pair(0.5, 1));
+    }
+
     /** \return the requested fitting parameters */
     std::pair<double, double> fitPars(const std::string &str) const {
         if (fitPars_.find(str) != fitPars_.end())
@@ -329,6 +336,7 @@ private:
 
     std::map<std::string, std::pair<unsigned int, unsigned int> > waveformRanges_; //!< Map containing ranges for the waveforms
     std::map<std::string, std::pair<double, double> > fitPars_; //!< Map containing all of the parameters to be used in the fitting analyzer for a type:subtype
+    std::map<std::string, std::pair<double, double> > cfdPars_; //!< Map containing all of the parameters to be used in the cfd analyzer for a type:subtype
     std::map<std::string, std::pair<TrapFilterParameters, TrapFilterParameters> > trapFiltPars_; //!<Map containing all of the trapezoidal filter parameters for a given type:subtype
 
     std::string configFile_;//!< The configuration file
