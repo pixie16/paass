@@ -13,30 +13,41 @@ using namespace std;
 /// Perform CFD analysis on the waveform.
 double PolynomialCfd::CalculatePhase(const std::vector<unsigned int> &data,
                                      const std::pair<double, double> &pars,
-                                     const std::pair<unsigned int, double> &maxInfo) {
+                                     const std::pair<unsigned int, double> &max,
+                                     const std::pair<double, double> baseline) {
     if (data.size() == 0)
         throw range_error("PolynomialCfd::CalculatePhase - The data vector "
                                   "was empty!");
-    if (data.size() < maxInfo.first)
+    if (data.size() < max.first)
         throw range_error("PolynomialCfd::CalculatePhase - The maximum "
                                   "position is larger than the size of the "
                                   "data vector.");
 
-    double threshold = pars.first * maxInfo.second;
+    double threshold = pars.first * max.second;
     double phase = -9999;
 
     vector<double> result;
-
-    for (unsigned int cfdIndex = maxInfo.first; cfdIndex > 0; cfdIndex--) {
+    for (unsigned int cfdIndex = max.first; cfdIndex > 0; cfdIndex--) {
         if (data[cfdIndex - 1] < threshold && data[cfdIndex] >= threshold) {
             // Fit the rise of the trace to a 2nd order polynomial.
             result = Polynomial::CalculatePoly2(data, cfdIndex - 1).second;
 
+            //We want to stop things here so that the user can do some
+            // debugging of potential issues.
+            if (result[2] > 0)
+                throw range_error("PolynomialCfd::CalculatePhase : The "
+                                          "calculated coefficients were for a"
+                                          " concave-upward parabola. Try "
+                                          "increasing your fraction to "
+                                          "improve quality.");
+
             // Calculate the phase of the trace.
-            phase = (-result[1] + std::sqrt(result[1] * result[1] -
-                                            4 * result[2] *
-                                            (result[0] - threshold))) /
+            phase = (-result[1] +
+                     sqrt(result[1] * result[1] -
+                                       4 * result[2] *
+                                       (result[0] - threshold))) /
                     (2 * result[2]);
+
             break;
         }
     }
