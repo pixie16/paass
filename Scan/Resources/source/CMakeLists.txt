@@ -1,5 +1,5 @@
 #Set the utility sources that we will make a lib out of
-set(ResourceSources PolynomialCfd.cpp)
+set(ResourceSources PolynomialCfd.cpp TraditionalCfd.cpp)
 
 if (USE_GSL)
     if (${GSL_VERSION} GREATER 1.9)
