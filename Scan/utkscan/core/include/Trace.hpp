@@ -20,14 +20,14 @@
 #include "PlotsRegister.hpp"
 
 //! \brief Store the information for a trace
-class Trace : public std::vector<int> {
+class Trace : public std::vector<unsigned int> {
 public:
     /** Default constructor */
-    Trace() : std::vector<int>() {}
+    Trace() : std::vector<unsigned int>() {}
 
     /** An automatic conversion for the trace
     * \param [in] x : the trace to store in the class */
-    Trace(const std::vector<int> &x) : std::vector<int>(x) {}
+    Trace(const std::vector<unsigned int> &x) : std::vector<unsigned int>(x) {}
 
     /** Insert a value into the trace map
     * \param [in] name : the name of the parameter to insert

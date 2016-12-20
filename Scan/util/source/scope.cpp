@@ -234,6 +234,8 @@ void scopeScanner::Plot(){
 		float lowVal = (chanEvents_.front()->max_index - fitLow_) * ADC_TIME_STEP;
 		float highVal = (chanEvents_.front()->max_index + fitHigh_) * ADC_TIME_STEP;
 
+		///@TODO Renable the CFD with the proper functionality.
+		/*
 		if(performCfd_){
 			ChannelEvent *evt = chanEvents_.front();
 
@@ -262,6 +264,7 @@ void scopeScanner::Plot(){
 			cfdPol2->SetRange((evt->cfdIndex - 1)*ADC_TIME_STEP, (evt->cfdIndex + 1)*ADC_TIME_STEP);
 			cfdPol2->Draw("SAME");
 		}
+		 */
 
 		if(performFit_){
 			paulauskasFunc->SetRange(lowVal, highVal);
@@ -395,8 +398,9 @@ bool scopeScanner::AddEvent(XiaData *event_){
 	ChannelEvent *channel_event = new ChannelEvent(event_);
 
 	//Process the waveform.
-	channel_event->ComputeBaseline();
-	channel_event->FindQDC();
+	///@TODO : Renable this with the Helper functions.
+	//channel_event->ComputeBaseline();
+	//channel_event->FindQDC();
 	
 	//Push the channel event into the deque.
 	chanEvents_.push_back(channel_event);

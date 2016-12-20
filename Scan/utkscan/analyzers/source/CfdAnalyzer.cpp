@@ -9,71 +9,53 @@
  * \author S. V. Paulauskas
  * \date 22 July 2011
  */
-#include <algorithm>
 #include <iostream>
-#include <numeric>
-#include <string>
 #include <vector>
+#include <utility>
 
 #include "CfdAnalyzer.hpp"
+#include "HelperFunctions.hpp"
+#include "PolynomialCfd.hpp"
 
 using namespace std;
 
-CfdAnalyzer::CfdAnalyzer() : TraceAnalyzer() {
+CfdAnalyzer::CfdAnalyzer(const std::string &s) : TraceAnalyzer() {
     name = "CfdAnalyzer";
+    if (s == "polynomial" || s == "poly") {
+        driver_ = new PolynomialCfd();
+    } else {
+        driver_ = NULL;
+    }
 }
 
 void CfdAnalyzer::Analyze(Trace &trace, const std::string &detType,
                           const std::string &detSubtype,
-                          const std::map<std::string, int> & tagMap) {
+                          const std::map<std::string, int> &tagMap) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype, tagMap);
-    Globals *globals = Globals::get();
-    unsigned int saturation = (unsigned int)trace.GetValue("saturation");
-    if(saturation > 0) {
-            EndAnalyze();
-            return;
+
+    if (!driver_) {
+        EndAnalyze();
+        return;
     }
-    double aveBaseline = trace.GetValue("baseline");
-    unsigned int maxPos = (unsigned int)trace.GetValue("maxpos");
-    pair<unsigned int, unsigned int> range = globals->waveformRange("default");
-    unsigned int waveformLow  = range.first;
-    unsigned int waveformHigh = range.second;
-    unsigned int delay = 2;
-    double fraction = 0.25;
-    vector<double> cfd;
-    Trace::iterator cfdStart = trace.begin();
-    advance(cfdStart, (int)(maxPos - waveformLow - 2));
-    Trace::iterator cfdStop  = trace.begin();
-    advance(cfdStop, (int)(maxPos + waveformHigh));
-    for(Trace::iterator it = cfdStart;  it != cfdStop; it++) {
-            Trace::iterator it0 = it;
-            advance(it0, delay);
-            double origVal = *it;
-            double transVal = *it0;
-            cfd.insert(cfd.end(), fraction *
-                       (origVal - transVal - aveBaseline));
+
+    if (trace.HasValue("saturation") || trace.empty() ||
+        trace.GetWaveform().size() == 0) {
+        EndAnalyze();
+        return;
     }
-    vector<double>::iterator cfdMax =
-        max_element(cfd.begin(), cfd.end());
-    vector<double> fitY;
-    fitY.insert(fitY.end(), cfd.begin(), cfdMax);
-    fitY.insert(fitY.end(), *cfdMax);
-    vector<double>fitX;
-    for(unsigned int i = 0; i < fitY.size(); i++)
-        fitX.insert(fitX.end(), i);
-    double num = fitY.size();
-    double sumXSq = 0, sumX = 0, sumXY = 0, sumY = 0;
-    for(unsigned int i = 0; i < num; i++) {
-            sumXSq += fitX.at(i)*fitX.at(i);
-            sumX += fitX.at(i);
-            sumY += fitY.at(i);
-            sumXY += fitX.at(i)*fitY.at(i);
-    }
-    double deltaPrime = num*sumXSq - sumX*sumX;
-    double intercept =
-        (1/deltaPrime)*(sumXSq*sumY - sumX*sumXY);
-    double slope =
-        (1/deltaPrime)*(num*sumXY - sumX*sumY);
-    trace.InsertValue("phase", (-intercept/slope)+maxPos);
+
+    const pair<double, double> baseline(trace.GetValue("baseline"),
+                                        trace.GetValue("sigmaBaseline"));
+    pair<unsigned int, double> max(trace.GetValue("maxpos"),
+                                   trace.GetValue("maxval"));
+
+    //For the CFD we need to obtain the extrapolated maximum value
+    max.second = TraceFunctions::ExtrapolateMaximum(trace, max).first;
+
+    pair<double, double> pars =
+            Globals::get()->cfdPars(detType + ":" + detSubtype);
+
+    trace.InsertValue("phase",
+                      driver_->CalculatePhase(trace, pars, max, baseline));
     EndAnalyze();
 }
