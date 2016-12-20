@@ -16,16 +16,19 @@
 #include "CfdAnalyzer.hpp"
 #include "HelperFunctions.hpp"
 #include "PolynomialCfd.hpp"
+#include "TraditionalCfd.hpp"
 
 using namespace std;
 
 CfdAnalyzer::CfdAnalyzer(const std::string &s) : TraceAnalyzer() {
     name = "CfdAnalyzer";
-    if (s == "polynomial" || s == "poly") {
+    if (s == "polynomial" || s == "poly")
         driver_ = new PolynomialCfd();
-    } else {
+    else if(s == "traditional" || s == "trad")
+        driver_ = new TraditionalCfd();
+    else
         driver_ = NULL;
-    }
+
 }
 
 void CfdAnalyzer::Analyze(Trace &trace, const std::string &detType,

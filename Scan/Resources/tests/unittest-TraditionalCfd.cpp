@@ -1,4 +1,4 @@
-///@file unittest-PolynomialCfd.cpp
+///@file unittest-TraditionalCfd.cpp
 ///@author S. V. Paulauskas
 ///@date December 12, 2016
 #include <iostream>
@@ -7,7 +7,7 @@
 
 #include <UnitTest++.h>
 
-#include "PolynomialCfd.hpp"
+#include "TraditionalCfd.hpp"
 #include "UnitTestExampleTrace.hpp"
 
 using namespace std;
@@ -18,7 +18,7 @@ using namespace unittest_trace_variables;
 static const pair<unsigned int, double> max_info(expected_max_position,
                                                  expected_poly3_val);
 
-TEST_FIXTURE(PolynomialCfd, TestPolynomialCfd) {
+TEST_FIXTURE(TraditionalCfd, TestTraditionalCfd) {
     static const pair<double, double> pars(0.5, 2.);
 
     //Checking that we throw a range_error when the data vector is zero
@@ -34,7 +34,7 @@ TEST_FIXTURE(PolynomialCfd, TestPolynomialCfd) {
     double result = CalculatePhase(data, pars, max_info,
                                    expected_baseline_pair);
     CHECK(-9999 != result);
-    cout << "PolynomialCfd result is " << result << endl;
+    cout << "TraditionalCfd result is " << result << endl;
 }
 
 int main(int argv, char *argc[]) {
