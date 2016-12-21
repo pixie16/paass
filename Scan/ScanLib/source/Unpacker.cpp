@@ -230,8 +230,10 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 		while( buf < bufStart + bufLen ){
 			XiaData *currentEvt = new XiaData();
 
-			// decoding event data... see pixie16app.c
+			// decoding event data...
 			// buf points to the start of channel data
+			///@TODO we need to update this so that we are decoding the data
+			/// properly
 			unsigned int chanNum      = (buf[0] & 0x0000000F);
 			unsigned int slotNum      = (buf[0] & 0x000000F0) >> 4;
 			unsigned int crateNum     = (buf[0] & 0x00000F00) >> 8;
@@ -306,6 +308,8 @@ int Unpacker::ReadBuffer(unsigned int *buf, unsigned long &bufLen){
 			channel_counts[modNum][chanNum]++;
 
 			currentEvt->energy = energy;
+			///@TODO Update this so that it takes into account both 12 and 14
+			/// bit modules.
 			if(currentEvt->saturatedBit){ currentEvt->energy = 16383; }
 					
 			currentEvt->trigTime = lowTime;
