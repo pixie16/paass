@@ -48,6 +48,16 @@ public:
         return 0.0;
     }
 
+    ///@Brief Overload of the Calculate phase method to allow for data
+    /// vectors of type double. We do this since we cannot template a virtual
+    /// method.
+    virtual double CalculatePhase(const std::vector<double> &data,
+                                  const std::pair<double, double> &pars,
+                                  const std::pair<unsigned int, double> &max,
+                                  const std::pair<double, double> baseline) {
+        return 0.0;
+    }
+
     /// Sets the QDC that we want to set
     /// \param[in] a the qdc of the waveform for the fit
     void SetQdc(const double &a) { qdc_ = a; }

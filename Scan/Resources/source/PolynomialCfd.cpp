@@ -11,7 +11,7 @@
 using namespace std;
 
 /// Perform CFD analysis on the waveform.
-double PolynomialCfd::CalculatePhase(const std::vector<unsigned int> &data,
+double PolynomialCfd::CalculatePhase(const std::vector<double> &data,
                                      const std::pair<double, double> &pars,
                                      const std::pair<unsigned int, double> &max,
                                      const std::pair<double, double> baseline) {
@@ -23,28 +23,22 @@ double PolynomialCfd::CalculatePhase(const std::vector<unsigned int> &data,
                                   "position is larger than the size of the "
                                   "data vector.");
 
-    vector<double> tmp;
-    for(unsigned int i = 0; i < data.size(); i++)
-        tmp.push_back(data[i] - baseline.first);
-
-    double threshold = pars.first * (max.second - baseline.first);
+    double threshold = pars.first * max.second;
     double phase = -9999;
 
     vector<double> result;
     for (unsigned int cfdIndex = max.first; cfdIndex > 0; cfdIndex--) {
-        if (tmp[cfdIndex - 1] < threshold && tmp[cfdIndex] >= threshold) {
+        if (data[cfdIndex - 1] < threshold && data[cfdIndex] >= threshold) {
             // Fit the rise of the trace to a 2nd order polynomial.
-            ///@TODO Fix this so that we do not need to baseline subtract the
-            /// whole trace.
-            result = Polynomial::CalculatePoly2(tmp, cfdIndex - 1).second;
+            result = Polynomial::CalculatePoly2(data, cfdIndex - 1).second;
 
             //We want to stop things here so that the user can do some
             // debugging of potential issues.
             if (result[2] > 0)
                 throw range_error("PolynomialCfd::CalculatePhase : The "
                                           "calculated coefficients were for a"
-                                          " concave-upward parabola. Try "
-                                          "increasing your fraction to "
+                                          " concave-upward parabola. "
+                                          "Increase your fraction to "
                                           "improve quality.");
 
             // Calculate the phase of the trace.

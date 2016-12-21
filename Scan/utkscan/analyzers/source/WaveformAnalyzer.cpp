@@ -54,32 +54,35 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
 
         //Next we calculate the baseline and its standard deviation
         pair<double, double> baseline =
-                TraceFunctions::CalculateBaseline(trace,
-                                                  make_pair(0, max.first -
-                                                               range.first));
+                TraceFunctions::CalculateBaseline(trace, make_pair(0,
+                                                                   max.first -
+                                                                   range.first));
+        vector<double> traceNoBaseline;
+        for (unsigned int i = 0; i < trace.size(); i++)
+            traceNoBaseline.push_back(trace[i] - baseline.first);
 
         //Finally, we calculate the QDC in the waveform range and subtract
         // the baseline from it.
-        pair<unsigned int, unsigned int> qdcRange(max.first - range.first,
-                                                  max.first + range.second);
-        double qdc = TraceFunctions::CalculateQdc(trace, qdcRange) -
-                (qdcRange.second - qdcRange.first) * baseline.first;
+        pair<unsigned int, unsigned int> waveformRange(max.first - range.first,
+                                                       max.first +
+                                                       range.second);
+        double qdc = TraceFunctions::CalculateQdc(traceNoBaseline,
+                                                  waveformRange) -
+                     (waveformRange.second - waveformRange.first) *
+                     baseline.first;
 
         //Now we are going to set all the different values into the trace.
         trace.InsertValue("qdc", qdc);
         trace.InsertValue("baseline", baseline.first);
         trace.InsertValue("sigmaBaseline", baseline.second);
         trace.InsertValue("maxval", max.second - baseline.first);
-        trace.InsertValue("maxpos", (int)max.first);
+        trace.InsertValue("extrapolatedMaxVal",
+                          TraceFunctions::ExtrapolateMaximum(trace, max).first -
+                                  baseline.first);
+        trace.InsertValue("maxpos", (int) max.first);
+        trace.SetBaselineSubtractedTrace(traceNoBaseline);
+        trace.SetWaveformRange(waveformRange);
 
-        vector<double> waveform;
-        vector<unsigned int> waveformWithBaseline;
-        for(unsigned int i = qdcRange.first; i < qdcRange.second; i++) {
-            waveform.push_back(trace[i] - baseline.first);
-            waveformWithBaseline.push_back(trace[i]);
-        }
-        trace.SetWaveform(waveform);
-        trace.SetWaveformWithBaseline(waveformWithBaseline);
     } catch (range_error &ex) {
         cerr << "WaveformAnalyzer::Analyze - " << ex.what() << endl;
         EndAnalyze();
