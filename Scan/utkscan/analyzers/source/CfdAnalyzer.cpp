@@ -50,15 +50,13 @@ void CfdAnalyzer::Analyze(Trace &trace, const std::string &detType,
     const pair<double, double> baseline(trace.GetValue("baseline"),
                                         trace.GetValue("sigmaBaseline"));
     pair<unsigned int, double> max(trace.GetValue("maxpos"),
-                                   trace.GetValue("maxval"));
-
-    //For the CFD we need to obtain the extrapolated maximum value
-    max.second = TraceFunctions::ExtrapolateMaximum(trace, max).first;
+                                   trace.GetValue("extrapolatedMaxVal"));
 
     pair<double, double> pars =
             Globals::get()->cfdPars(detType + ":" + detSubtype);
 
     trace.InsertValue("phase",
-                      driver_->CalculatePhase(trace, pars, max, baseline));
+                      driver_->CalculatePhase(trace.GetBaselineSubtractedTrace()
+                              , pars, max, baseline));
     EndAnalyze();
 }

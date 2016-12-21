@@ -8,7 +8,7 @@
 
 using namespace std;
 
-double TraditionalCfd::CalculatePhase(const std::vector<unsigned int> &data,
+double TraditionalCfd::CalculatePhase(const std::vector<double> &data,
                                       const std::pair<double, double> &pars,
                                       const std::pair<unsigned int, double> &max,
                                       const std::pair<double, double> baseline) {
@@ -26,8 +26,7 @@ double TraditionalCfd::CalculatePhase(const std::vector<unsigned int> &data,
 
     //We are going to calculate the CFD here.
     for (unsigned int i = 0; i < data.size() - delay; i++)
-        cfd.push_back(fraction * ((double) data[i] - (double) data[i + delay] -
-                                  baseline.first));
+        cfd.push_back(fraction * (data[i] - data[i + delay]));
 
     //Now we find the maximum and minimum position to locate the zero crossing.
     vector<double>::iterator cfdMin = min_element(cfd.begin(), cfd.end());
