@@ -23,14 +23,20 @@ double PolynomialCfd::CalculatePhase(const std::vector<unsigned int> &data,
                                   "position is larger than the size of the "
                                   "data vector.");
 
-    double threshold = pars.first * max.second;
+    vector<double> tmp;
+    for(unsigned int i = 0; i < data.size(); i++)
+        tmp.push_back(data[i] - baseline.first);
+
+    double threshold = pars.first * (max.second - baseline.first);
     double phase = -9999;
 
     vector<double> result;
     for (unsigned int cfdIndex = max.first; cfdIndex > 0; cfdIndex--) {
-        if (data[cfdIndex - 1] < threshold && data[cfdIndex] >= threshold) {
+        if (tmp[cfdIndex - 1] < threshold && tmp[cfdIndex] >= threshold) {
             // Fit the rise of the trace to a 2nd order polynomial.
-            result = Polynomial::CalculatePoly2(data, cfdIndex - 1).second;
+            ///@TODO Fix this so that we do not need to baseline subtract the
+            /// whole trace.
+            result = Polynomial::CalculatePoly2(tmp, cfdIndex - 1).second;
 
             //We want to stop things here so that the user can do some
             // debugging of potential issues.
