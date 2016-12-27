@@ -4,3 +4,7 @@ if(BUILD_SHARED_LIBS)
 endif(BUILD_SHARED_LIBS)
 
 add_subdirectory(source)
+
+if(BUILD_UNITTESTS)
+    add_subdirectory(tests)
+endif(BUILD_UNITTESTS)
