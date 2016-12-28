@@ -1028,7 +1028,7 @@ bool PollOutputFile::overwrite_dir(int total_buffers_/*=-1*/){
 
 /// Initialize the output file with initial parameters
 void PollOutputFile::initialize(){
-	max_spill_size = -9999;
+	max_spill_size = 0;
 	current_file_num = 0; 
 	output_format = 0;
 	number_spills = 0;
