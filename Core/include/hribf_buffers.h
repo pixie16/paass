@@ -405,7 +405,7 @@ class PollOutputFile{
 
 	std::string GetNextFileName(unsigned int &run_num_, std::string prefix, std::string output_dir, bool continueRun = false);
 	
-	unsigned int GetRunNumber() {return dirBuff.GetRunNumber();}
+	unsigned int GetRunNumber();
 
 	/// Write the footer and close the file
 	void CloseFile(float total_run_time_=0.0);
