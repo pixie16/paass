@@ -1263,6 +1263,13 @@ std::string PollOutputFile::GetNextFileName(unsigned int &run_num_, std::string 
 	return filename.str();
 }
 
+unsigned int PollOutputFile::GetRunNumber() {
+	if(output_format == 0) return dirBuff.GetRunNumber();
+	else if(output_format == 1) return pldHead.GetRunNumber();
+	else if(debug_mode) std::cout << "debug: invalid output format for PollOutputFile::GetRunNumber!\n";
+	return 0;
+}
+
 /// Write the footer and close the file.
 void PollOutputFile::CloseFile(float total_run_time_/*=0.0*/){
 	if(!output_file.is_open() || !output_file.good()){ return; }
