@@ -113,19 +113,20 @@ unsigned int PLD_header::GetBufferLength(){
 
 /// Set the date and tiem of when the file is opened.
 void PLD_header::SetStartDateTime(){
-	time_t rawtime;
-	time (&rawtime);
+	time (&runStartTime);
 	
-	char *date_holder = ctime(&rawtime);
+	char *date_holder = ctime(&runStartTime);
 	set_char_array(std::string(date_holder), start_date, 24); // Strip the trailing newline character
 }
 
 /// Set the date and time of when the file is closed.
 void PLD_header::SetEndDateTime(){
-	time_t rawtime;
-	time (&rawtime);
+	time (&runStopTime);
+
+	// Calculate the time difference between stop and start.
+	run_time = (float)difftime(runStopTime, runStartTime);
 	
-	char *date_holder = ctime(&rawtime);
+	char *date_holder = ctime(&runStopTime);
 	set_char_array(std::string(date_holder), end_date, 24); // Strip the trailing newline character
 }
 
@@ -1296,7 +1297,6 @@ void PollOutputFile::CloseFile(float total_run_time_/*=0.0*/){
 		// Overwrite the blank pld header at the beginning of the file and close it
 		output_file.seekp(0);
 		pldHead.SetEndDateTime();
-		pldHead.SetRunTime(total_run_time_);
 		pldHead.SetMaxSpillSize(max_spill_size);
 		pldHead.Write(&output_file);
 		output_file.close();
