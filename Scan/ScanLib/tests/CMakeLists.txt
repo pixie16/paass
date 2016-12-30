@@ -4,3 +4,10 @@ add_executable(unittest-XiaListModeDataDecoder
         ../source/XiaListModeDataDecoder.cpp)
 target_link_libraries(unittest-XiaListModeDataDecoder UnitTest++ ${LIBS})
 install(TARGETS unittest-XiaListModeDataDecoder DESTINATION bin/unittests)
+
+add_executable(unittest-XiaListModeDataMask
+        unittest-XiaListModeDataMask.cpp
+        ../source/XiaData.cpp
+        ../source/XiaListModeDataMask.cpp)
+target_link_libraries(unittest-XiaListModeDataMask UnitTest++ ${LIBS})
+install(TARGETS unittest-XiaListModeDataMask DESTINATION bin/unittests)
