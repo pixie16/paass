@@ -2,6 +2,7 @@
 #include <algorithm> 
 
 // PixieCore libraries
+#include "ChannelEvent.hpp"
 #include "XiaData.hpp"
 
 // Local files
