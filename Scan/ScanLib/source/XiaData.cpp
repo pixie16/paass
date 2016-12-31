@@ -19,27 +19,20 @@
 //	trace_.push_back(input);
 //}
 
-///Clears all of the varaibles. For values where 0 is a valid option
-/// (crateNum_, chanNum_, etc.) the values are set to 9999. The vectors
-/// are all cleared using the clear() method. This method is called when the
-/// class is first initiatlized so that it has some default values for the
-/// software to use in the event that they are needed.
+///Clears all of the variables. The vectors are all cleared using the clear()
+/// method. This method is called when the class is first initalizied so that
+/// it has some default values for the software to use in the event that they
+/// are needed.
 void XiaData::Clear(){
-    cfdForceTrig_ = false;
-    cfdTrigSource_ = false;
-    isPileup_ = false;
-    isSaturated_ = false;
+    cfdForceTrig_ = cfdTrigSource_ = isPileup_ = isSaturated_ = false;
     isVirtualChannel_ = false;
 
-    energy_ = 0.0;
+    energy_ = baseline_ = 0.0;
 
-	chanNum_ = 9999;
-	cfdTime_ = 0;
-    crateNum_ = 9999;
-    eventTimeHigh_ = 0;
-	eventTimeLow_ = 0;
-    slotNum_ = 9999;
+	chanNum_ = crateNum_ = moduleNum_ = slotNum_ = cfdTime_ = 0;
+    eventTimeHigh_ = eventTimeLow_ = externalTimeLow_ = externalTimeHigh_ = 0;
 
+    eSums_.clear();
     qdc_.clear();
     trace_.clear();
 }
