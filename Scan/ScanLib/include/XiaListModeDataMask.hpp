@@ -114,6 +114,12 @@ public:
     ///@return The pair of the mask and bit shift to use to decode the data.
     std::pair<unsigned int, unsigned int> GetTraceLengthMask() const;
 
+    ///Getter for the Mask and shift for the trace words.
+    ///@return The pair of the mask and bit shift to use to decode the data.
+    std::pair<unsigned int, unsigned int> GetTraceMask() const {
+        return std::make_pair(0x0000FFFF, 16);
+    };
+
     ///Getter for the value of the FIRMWARE so that we can test that things
     /// are working as expected.
     ///@return The current value of the internal firmware_ variable.
