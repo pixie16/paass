@@ -12,29 +12,9 @@
 using namespace std;
 
 TEST_FIXTURE(XiaListModeDataMask, TestXiaListModeDataMask) {
-    //Check that we throw an invalid argument when we put in an unrecognized
-    // option.
-    CHECK_THROW(SetFirmware("test"), invalid_argument);
-
-    //Checking that the if statement works as expected when converting to the
-    // different firmware revisions.
-    SetFirmware("R29432");
-    CHECK_EQUAL(R29432, GetFirmware());
-
-    SetFirmware("R30474");
-    CHECK_EQUAL(R30474, GetFirmware());
-
-    SetFirmware("R30980");
-    CHECK_EQUAL(R30980, GetFirmware());
-
-    SetFirmware("R30981");
-    CHECK_EQUAL(R30981, GetFirmware());
-
-    SetFirmware("R34688");
-    CHECK_EQUAL(R34688, GetFirmware());
-
     //We do not need to test more than on version of these since they are
     // identical across all firmware versions.
+    SetFirmware(R30474);
     CHECK_EQUAL((unsigned int) 0x0000000F, GetChannelNumberMask().first);
     CHECK_EQUAL((unsigned int) 0, GetChannelNumberMask().second);
 
@@ -61,7 +41,7 @@ TEST_FIXTURE(XiaListModeDataMask, TestXiaListModeDataMask) {
 TEST_FIXTURE(XiaListModeDataMask, Test_100MSps_Word2) {
     SetFrequency(100);
 
-    SetFirmware("R29432");
+    SetFirmware(R29432);
     CHECK_EQUAL((unsigned int) 0xFFFF0000, GetCfdFractionalTimeMask().first);
     CHECK_EQUAL((unsigned int) 16, GetCfdFractionalTimeMask().second);
 
@@ -71,8 +51,8 @@ TEST_FIXTURE(XiaListModeDataMask, Test_100MSps_Word2) {
     CHECK_EQUAL((unsigned int) 0, GetCfdTriggerSourceMask().first);
     CHECK_EQUAL((unsigned int) 0, GetCfdTriggerSourceMask().second);
 
-    vector<string> firm = {"R30474", "R30980", "R30981", "R34688"};
-    for (vector<string>::iterator it = firm.begin(); it != firm.end(); it++) {
+    vector<FIRMWARE> firm = {R30474, R30980, R30981, R34688};
+    for (vector<FIRMWARE>::iterator it = firm.begin(); it != firm.end(); it++) {
         SetFirmware(*it);
         CHECK_EQUAL((unsigned int) 0x7FFF0000,
                     GetCfdFractionalTimeMask().first);
@@ -91,7 +71,7 @@ TEST_FIXTURE(XiaListModeDataMask, Test_100MSps_Word2) {
 TEST_FIXTURE(XiaListModeDataMask, Test_250Msps_Word2) {
     SetFrequency(250);
 
-    SetFirmware("R29432");
+    SetFirmware(R29432);
     CHECK_EQUAL((unsigned int) 0x7FFF0000, GetCfdFractionalTimeMask().first);
     CHECK_EQUAL((unsigned int) 16, GetCfdFractionalTimeMask().second);
 
@@ -101,8 +81,8 @@ TEST_FIXTURE(XiaListModeDataMask, Test_250Msps_Word2) {
     CHECK_EQUAL((unsigned int) 0x80000000, GetCfdTriggerSourceMask().first);
     CHECK_EQUAL((unsigned int) 31, GetCfdTriggerSourceMask().second);
 
-    vector<string> firm = {"R30474", "R30980", "R30981", "R34688"};
-    for (vector<string>::iterator it = firm.begin(); it != firm.end(); it++) {
+    vector<FIRMWARE> firm = {R30474, R30980, R30981, R34688};
+    for (vector<FIRMWARE>::iterator it = firm.begin(); it != firm.end(); it++) {
         SetFirmware(*it);
         CHECK_EQUAL((unsigned int) 0x3FFF0000,
                     GetCfdFractionalTimeMask().first);
@@ -121,9 +101,9 @@ TEST_FIXTURE(XiaListModeDataMask, Test_250Msps_Word2) {
 TEST_FIXTURE(XiaListModeDataMask, Test_500MSps_Word2) {
     SetFrequency(500);
 
-    vector<string> firm = {"R29432", "R30474", "R30980", "R30981", "R34688"};
+    vector<FIRMWARE> firm = {R29432, R30474, R30980, R30981, R34688};
 
-    for (vector<string>::iterator it = firm.begin(); it != firm.end(); it++) {
+    for (vector<FIRMWARE>::iterator it = firm.begin(); it != firm.end(); it++) {
         SetFirmware(*it);
         CHECK_EQUAL((unsigned int) 0x1FFF0000,
                     GetCfdFractionalTimeMask().first);
@@ -139,8 +119,10 @@ TEST_FIXTURE(XiaListModeDataMask, Test_500MSps_Word2) {
 
 TEST_FIXTURE(XiaListModeDataMask, Test_R29432_To_R30981_Word3) {
     vector<unsigned int> freq = {100, 250, 500};
-    vector<string> firm = {"R29432", "R30474", "R30980", "R30981"};
-    for (vector<string>::iterator it = firm.begin(); it != firm.end(); it++) {
+
+    vector<FIRMWARE> firm = {R29432, R30474, R30980, R30981};
+
+    for (vector<FIRMWARE>::iterator it = firm.begin(); it != firm.end(); it++) {
         SetFirmware(*it);
         for (vector<unsigned>::iterator it1 = freq.begin();
              it1 != freq.end(); it1++) {
@@ -159,7 +141,7 @@ TEST_FIXTURE(XiaListModeDataMask, Test_R29432_To_R30981_Word3) {
 }
 
 TEST_FIXTURE(XiaListModeDataMask, Test_R34688_Word3) {
-    SetFirmware("R34688");
+    SetFirmware(R34688);
     vector<unsigned int> freq = {100, 250, 500};
     for (vector<unsigned>::iterator it = freq.begin();
          it != freq.end(); it++) {
