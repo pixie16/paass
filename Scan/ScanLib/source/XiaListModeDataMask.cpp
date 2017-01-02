@@ -243,3 +243,44 @@ string XiaListModeDataMask::BadMaskErrorMessage(const std::string &func) const {
         << " and frequency " << frequency_ << ". Check your settings.";
     return msg.str();
 }
+
+double XiaListModeDataMask::GetCfdSize() const {
+    if (firmware_ == UNKNOWN || frequency_ == 0)
+        throw invalid_argument(BadMaskErrorMessage
+                                       ("GetCfdFractionalTimeMask"));
+    if(frequency_ == 500)
+        return 8192.;
+
+    double val = 0;
+    if (frequency_ == 100) {
+        switch (firmware_) {
+            case R29432:
+                val = 65536;
+                break;
+            case R30474:
+            case R30980:
+            case R30981:
+            case R34688:
+                val = 32768;
+                break;
+            case UNKNOWN:
+                break;
+        }
+    } else if (frequency_ == 250) {
+        switch (firmware_) {
+            case R29432:
+                val = 32768;
+                break;
+            case R30980:
+            case R30981:
+            case R34688:
+            case R30474:
+                val = 16384;
+                break;
+            case UNKNOWN:
+                break;
+        }
+    }
+
+    return val;
+}

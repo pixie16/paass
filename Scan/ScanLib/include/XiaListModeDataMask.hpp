@@ -102,6 +102,12 @@ public:
     ///@return The pair of the mask and bit shift to use to decode the data.
     std::pair<unsigned int, unsigned int> GetCfdTriggerSourceMask() const;
 
+    //Getter for the CFD size
+    ///@return The decimal size of the CFD, i.e. 13-bit = 8192. It returns a
+    /// double since we're generally using this size in calculations of the
+    /// arrival time of the pulse.
+    double GetCfdSize() const;
+
     ///Getter for the Mask and Shift of the Energy.
     ///@return The pair of the mask and bit shift to use to decode the data.
     std::pair<unsigned int, unsigned int> GetEventEnergyMask() const;

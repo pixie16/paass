@@ -158,6 +158,40 @@ TEST_FIXTURE(XiaListModeDataMask, Test_R34688_Word3) {
     }
 }
 
+TEST_FIXTURE(XiaListModeDataMask, Test_Cfd_Size_Mask) {
+    //This firmware has a unique CFD size.
+    SetFirmware(R29432);
+    SetFrequency(100);
+    CHECK_EQUAL(65536, GetCfdSize());
+    //This firmware has a different format for the 250 MS/s
+    SetFrequency(250);
+    CHECK_EQUAL(32768, GetCfdSize());
+
+
+    //All of the 500 MS/s modules have the same sized CFD.
+    SetFrequency(500);
+    vector<FIRMWARE> firm = {R29432, R30474, R30980, R30981, R34688};
+    for (vector<FIRMWARE>::iterator it = firm.begin(); it != firm.end(); it++) {
+        SetFirmware(*it);
+        CHECK_EQUAL(8192, GetCfdSize());
+    }
+
+    //The 100 MHz and 250 MS/s revisions have the same structure for the
+    // following four firmwares
+    firm = {R30474, R30980, R30981, R34688};
+    SetFrequency(100);
+    for (vector<FIRMWARE>::iterator it = firm.begin(); it != firm.end(); it++) {
+        SetFirmware(*it);
+        CHECK_EQUAL(32768, GetCfdSize());
+    }
+
+    SetFrequency(250);
+    for (vector<FIRMWARE>::iterator it = firm.begin(); it != firm.end(); it++) {
+        SetFirmware(*it);
+        CHECK_EQUAL(16384, GetCfdSize());
+    }
+}
+
 int main(int argv, char *argc[]) {
     return (UnitTest::RunAllTests());
 }
