@@ -26,9 +26,9 @@ public:
     ChanEvent(){ZeroNums();};
 
     ///Constructor setting XIA Data
-    ChanEvent(const XiaData &xiadata) {
-        data_ = xiadata;
-        trace = xiadata.adcTrace;
+    ChanEvent(const XiaData &data) {
+        data_ = data;
+        trace = data.GetTrace();
     }
 
     ///Default Destructor
@@ -56,15 +56,15 @@ public:
 
     /** \return the CFD source bit */ 
     bool GetCfdSourceBit() const {
-	return(data_.cfdTrigSource);
+	return(data_.GetCfdTriggerSourceBit());
     }
     /** \return true if the CFD was forced trigger */ 
     bool CfdForceTrig() const {
-	return(data_.cfdForceTrig); 
+	return(data_.GetCfdForcedTriggerBit());
     }
     
     double GetEnergy() const {
-        return(data_.energy);   /**< \return the raw energy */
+        return(data_.GetEnergy());   /**< \return the raw energy */
     }
     double GetCalEnergy() const {
         return(calEnergy);   /**< \return the calibrated energy */
@@ -73,7 +73,7 @@ public:
         return correctedTime;   /**< \return the corrected time */
     }
     double GetTime() const {
-        return(data_.time);   /**< \return the raw time in clock ticks*/
+        return(data_.GetTime());   /**< \return the raw time in clock ticks*/
     }
     double GetCalTime() const {
         return calTime;   /**< \return the calibrated time */
@@ -82,7 +82,7 @@ public:
         return(highResTime);   /**< \return the high-resolution time in ns*/
     }
     double GetEventTime() const {
-        return(data_.eventTime);   /**< \return the event time */
+        return(data_.GetTime());   /**< \return the event time */
     }
     const Trace& GetTrace() const {
         return(trace);   /**< \return a reference to the trace */
@@ -91,13 +91,13 @@ public:
         return(trace);   /** \return a reference which can alter the trace */
     }
     unsigned long GetTrigTime() const {
-        return(data_.trigTime);   /**< \return the channel trigger time */
+        return(data_.GetTime());   /**< \return the channel trigger time */
     }
     unsigned long GetEventTimeLo() const {
-        return data_.eventTimeLo;   /**< \return the lower 32 bits of event time */
+        return data_.GetEventTimeLow();   /**< \return the lower 32 bits of event time */
     }
     unsigned long GetEventTimeHi() const {
-        return data_.eventTimeHi;   /**< \return the upper 32 bits of event time */
+        return data_.GetEventTimeHigh();   /**< \return the upper 32 bits of event time */
     }
     unsigned long GetRunTime0() const {
         return runTime0;   /**< \return the lower bits of run time */
@@ -109,10 +109,10 @@ public:
         return runTime2;   /**< \return the higher bits of run time */
     }
     bool IsPileup() const {
-        return data_.pileupBit;   //!< \return true if channel is pileup
+        return data_.IsPileup();   //!< \return true if channel is pileup
     }
     bool IsSaturated() const { /**< \return whether the trace is saturated */
-        return data_.saturatedBit;
+        return data_.IsSaturated();
     }
 
     //! \return The identifier in the map for the channel event

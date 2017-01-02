@@ -91,7 +91,7 @@ void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
 
         RawStats((*it), driver);
 
-        if ((*it)->getID() == pixie::U_DELIMITER) {
+        if ((*it)->GetId() == pixie::U_DELIMITER) {
             ss << "pattern 0 ignore";
             m.warning(ss.str());
             ss.str("");
@@ -99,14 +99,14 @@ void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
         }
 
         //Do not input the channel into the list of detectors used in the event
-        if ((*modChan)[(*it)->getID()].GetType() == "ignore")
+        if ((*modChan)[(*it)->GetId()].GetType() == "ignore")
             continue;
 
         // Convert an XiaData to a ChanEvent
-        ChanEvent *event = new ChanEvent((*it));
+        ChanEvent *event = new ChanEvent(*(*it));
 
         //Add the ChanEvent pointer to the rawev and used detectors.
-        usedDetectors.insert((*modChan)[(*it)->getID()].GetType());
+        usedDetectors.insert((*modChan)[(*it)->GetId()].GetType());
         rawev.AddChan(event);
 
         ///@TODO Add back in the processing for the dtime.
@@ -134,13 +134,13 @@ void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
 /// (milli)second of time.
 void UtkUnpacker::RawStats(XiaData *event_, DetectorDriver *driver,
                            ScanInterface *addr_) {
-    int id = event_->getID();
+    int id = event_->GetId();
     static const int specNoBins = SE;
     static double runTimeSecs = 0, remainNumSecs = 0;
     static double runTimeMsecs = 0, remainNumMsecs = 0;
     static int rowNumSecs = 0, rowNumMsecs = 0;
 
-    runTimeSecs = (event_->time - GetFirstTime()) *
+    runTimeSecs = (event_->GetTime() - GetFirstTime()) *
                   Globals::get()->clockInSeconds();
     rowNumSecs = int(runTimeSecs / specNoBins);
     remainNumSecs = runTimeSecs - rowNumSecs * specNoBins;

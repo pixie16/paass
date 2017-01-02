@@ -98,7 +98,7 @@ bool TwoChanTimingProcessor::Process(RawEvent &event) {
     static int trcCounter = 0;
     int bin;
     for(vector<unsigned int>::const_iterator it = start.GetTrace()->begin();
-        it != start.GetTrace()->end(); it++) {
+            it != start.GetTrace()->end(); it++) {
         bin = (int)(it-start.GetTrace()->begin());
         traces->Fill(bin, trcCounter, *it);
         //Only output the 500th trace to make sure that we are not at the

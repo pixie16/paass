@@ -21,7 +21,7 @@ ChannelData::ChannelData(XiaData *event_){
 	yvals = NULL;
 	Clear();
 	event = event_;
-	size = event->adcTrace.size();
+	size = event->GetTrace().size();
 	if(size != 0){
 		xvals = new float[size];
 		yvals = new float[size];
@@ -74,7 +74,7 @@ void ChannelData::Clear() {
 	size = 0;
 	if(xvals){ delete[] xvals; }
 	if(yvals){ delete[] yvals; }
-	if(event){ event->clear(); }
+	if(event){ event->Clear(); }
 	
 	event = NULL;
 	xvals = NULL;
