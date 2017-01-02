@@ -107,10 +107,7 @@ public:
     /// module types and firmwares. It doesn't and this value simply needs to
     /// be set explicitly by the Decoder
     ///@return The time for the channel.
-    double GetTime() const {
-        return (cfdTime_ / pow(2., 14)) + eventTimeLow_ +
-               (eventTimeHigh_ * pow(2., 32)) - cfdTrigSource_;
-    }
+    double GetTime() const { return time_; }
 
     ///@return The CFD fractional time in clockticks
     unsigned int GetCfdFractionalTime() const { return cfdTime_; }
@@ -225,6 +222,10 @@ public:
     ///@param[in] a : The value to set
     void SetSlotNumber(const unsigned int &a) { slotNum_ = a; }
 
+    ///@brief Sets the calculated arrival time of the signal
+    ///@param[in] a : The value to set
+    void SetTime(const double &a) { time_ = a; }
+
     ///@brief Sets the trace recorded on board
     ///@param[in] a : The value to set
     void SetTrace(const std::vector<unsigned int> &a) { trace_ = a; }
@@ -254,6 +255,7 @@ private:
 
     double energy_; /// Raw pixie energy.
     double baseline_;///Baseline that was recorded with the energy sums
+    double time_;
 
     unsigned int cfdTime_; /// CFD trigger time
     unsigned int chanNum_; /// Channel number.

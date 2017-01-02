@@ -9,9 +9,13 @@
 
 using namespace std;
 
+///@TODO These need to be expanded so that we cover all of the nine different
+/// firmware and frequency combinations.
+static const XiaListModeDataMask mask(R30474, 250);
+
 ///We have added in the first to elements for the pixie module data header.
 /// It contains the information about how many words are in the buffer and
-/// the module VSN (number).
+/// the module VSN (number). This header is for firmware R30474
 ///This 4 word header has the following characteristics:
 /// 1. Word 0
 ///     * Channel Number [3:0] : 13
@@ -53,15 +57,20 @@ unsigned int header_N_qdc[14] = {
         123, 456, 789, 987, 654, 321, 135, 791
 };
 
+//This header has the CFD fractional time set to 1234.
+unsigned int header_N_Cfd[6] {4, 0, 540717, 123456789, 80897425, 2345};
+
 //Here is all of the expected data for the above header.
 static const unsigned int expected_chan = 13;
 static const unsigned int expected_size = 1;
 static const unsigned int expected_ts_high = 26001;
 static const unsigned int expected_ts_low = 123456789;
+static const unsigned int expected_cfd_fractional_time = 1234;
 static const unsigned int expected_slot = 2;
 static const unsigned int expected_energy = 2345;
 static const double expected_ts = 111673568120085;
-static const vector<int> expected_trace = {
+static const double expected_ts_w_cfd = 223347136240170.075317;
+static const vector<unsigned int> expected_trace = {
         437, 436, 434, 434, 437, 437, 438, 435, 434, 438, 439, 437, 438, 434,
         435, 439, 438, 434, 434, 435, 437, 440, 439, 435, 437, 439, 438, 435,
         436, 436, 437, 439, 435, 433, 434, 436, 439, 441, 436, 437, 439, 438,
@@ -75,53 +84,62 @@ static const vector<int> expected_trace = {
 static const vector<unsigned int> expected_qdc = {123, 456, 789, 987, 654,
                                                   321, 135, 791};
 
+//Test the error handling in the class
 TEST_FIXTURE(XiaListModeDataDecoder, TestBufferLengthChecks) {
     //Check for a length_error when the buffer length is zero
     unsigned int buffer_len_zero[6] = {0, 0};
-    CHECK_THROW(DecodeBuffer(&buffer_len_zero[0]), length_error);
+    CHECK_THROW(DecodeBuffer(&buffer_len_zero[0], mask), length_error);
     //Check for an empty vector when the buffer length is 2 (empty module)
     unsigned int buffer_len_two[6] = {2, 0};
     unsigned int expected_size = 0;
-    CHECK_EQUAL(expected_size, DecodeBuffer(&buffer_len_two[0]).size());
+    CHECK_EQUAL(expected_size, DecodeBuffer(&buffer_len_two[0], mask).size());
 }
-///Test fixture testing if we can decode a simple 4 word
-/// header that includes the Pixie Module Data Header.
+///Test if we can decode a simple 4 word header that includes the Pixie
+/// Module Data Header.
 TEST_FIXTURE(XiaListModeDataDecoder, TestHeaderDecoding) {
     //Check for length_error when the header has an impossible size.
     ///A header with a header length 20 instead of the true header length 4
     unsigned int header_w_bad_len[6] = {4, 0, 3887149, 123456789, 26001, 2345};
-    CHECK_THROW(DecodeBuffer(&header_w_bad_len[0]), length_error);
+    CHECK_THROW(DecodeBuffer(&header_w_bad_len[0], mask), length_error);
 
     //Check that we can decode a simple 4-word header.
-    vector<XiaData> result = DecodeBuffer(&header[0]);
+    vector<XiaData> result = DecodeBuffer(&header[0], mask);
     XiaData result_data = result.front();
 
     CHECK_EQUAL(expected_size, result.size());
-    CHECK_EQUAL(expected_slot, result_data.slotNum);
-    CHECK_EQUAL(expected_chan, result_data.chanNum);
-    CHECK_EQUAL(expected_energy, result_data.energy);
-    CHECK_EQUAL(expected_ts_high, result_data.eventTimeHi);
-    CHECK_EQUAL(expected_ts_low, result_data.eventTimeLo);
-    CHECK_EQUAL(expected_ts, result_data.time);
-    CHECK_EQUAL(expected_ts_low, result_data.trigTime);
+    CHECK_EQUAL(expected_slot, result_data.GetSlotNumber());
+    CHECK_EQUAL(expected_chan, result_data.GetChannelNumber());
+    CHECK_EQUAL(expected_energy, result_data.GetEnergy());
+    CHECK_EQUAL(expected_ts_high, result_data.GetEventTimeHigh());
+    CHECK_EQUAL(expected_ts_low, result_data.GetEventTimeLow());
+    CHECK_EQUAL(expected_ts, result_data.GetTime());
 }
 
-//Test fixture testing if we can decode a trace properly
+//Test if we can decode a trace properly
 TEST_FIXTURE(XiaListModeDataDecoder, TestTraceDecoding) {
     unsigned int badlen[6] = {
             59, 0, 7749677, 123456789, 26001, 8128809};
     //Check that we throw length_error when the event length doesn't match.
-    CHECK_THROW(DecodeBuffer(&badlen[0]), length_error);
+    CHECK_THROW(DecodeBuffer(&badlen[0], mask), length_error);
 
-    XiaData result = DecodeBuffer(&header_N_trace[0]).front();
-    CHECK_ARRAY_EQUAL(expected_trace, result.adcTrace, expected_trace.size());
+    XiaData result = DecodeBuffer(&header_N_trace[0], mask).front();
+    CHECK_ARRAY_EQUAL(expected_trace, result.GetTrace(), expected_trace.size());
 }
 
-//Test fixture testing if we can decode the qdc properly
+//Test if we can decode the qdc properly
 TEST_FIXTURE(XiaListModeDataDecoder, TestQdcDecoding) {
-    XiaData result = DecodeBuffer(&header_N_qdc[0]).front();
-    CHECK_ARRAY_EQUAL(expected_qdc, result.qdcValue, expected_qdc.size());
+    XiaData result = DecodeBuffer(&header_N_qdc[0], mask).front();
+    CHECK_ARRAY_EQUAL(expected_qdc, result.GetQdc(), expected_qdc.size());
 }
+
+//Test that we can get the right timestamp if we involve the CFD.
+TEST_FIXTURE(XiaListModeDataDecoder, TestCfdTimeCalculation) {
+    XiaData result = DecodeBuffer(&header_N_Cfd[0], mask).front();
+
+    CHECK_EQUAL(expected_cfd_fractional_time, result.GetCfdFractionalTime());
+    CHECK_CLOSE(expected_ts_w_cfd, result.GetTime(), 1e-5);
+}
+
 
 int main(int argv, char *argc[]) {
     return (UnitTest::RunAllTests());
