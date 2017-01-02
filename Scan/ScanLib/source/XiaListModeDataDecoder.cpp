@@ -18,7 +18,7 @@ enum HEADER_CODES {
     HEADER_W_ESUM_QDC = 16, HEADER_W_ESUM_QDC_ETS = 18
 };
 
-vector<XiaData> XiaListModeDataDecoder::DecodeBuffer(
+vector<XiaData*> XiaListModeDataDecoder::DecodeBuffer(
         unsigned int *buf, const XiaListModeDataMask &mask) {
 
     unsigned int *bufStart = buf;
@@ -36,28 +36,28 @@ vector<XiaData> XiaListModeDataDecoder::DecodeBuffer(
     //For empty buffers we just return an empty vector.
     static const unsigned int emptyBufferLength = 2;
     if (bufLen == emptyBufferLength)
-        return vector<XiaData>();
+        return vector<XiaData*>();
 
     stringstream msg;
-    vector<XiaData> events;
+    vector<XiaData*> events;
 
     while (buf < bufStart + bufLen) {
-        XiaData data;
+        XiaData* data = new XiaData();
         bool hasExternalTimestamp = false;
         bool hasQdc = false;
         bool hasEnergySums = false;
 
         pair<unsigned int, unsigned int> lengths =
-                DecodeWordZero(buf[0], data, mask);
+                DecodeWordZero(buf[0], *data, mask);
         unsigned int headerLength = lengths.first;
         unsigned int eventLength = lengths.second;
 
         //This will handles the possibilty of up to 100 crates
-        data.SetModuleNumber(modNum += 100 * data.GetCrateNumber());
+        data->SetModuleNumber(modNum += 100 * data->GetCrateNumber());
 
-        data.SetEventTimeLow(buf[1]);
-        DecodeWordTwo(buf[2], data, mask);
-        unsigned int traceLength = DecodeWordThree(buf[3], data, mask);
+        data->SetEventTimeLow(buf[1]);
+        DecodeWordTwo(buf[2], *data, mask);
+        unsigned int traceLength = DecodeWordThree(buf[3], *data, mask);
 
         //We check the header length here to set the appropriate flags for
         // processing the rest of the header words. If we encounter a header
@@ -102,9 +102,9 @@ vector<XiaData> XiaListModeDataDecoder::DecodeBuffer(
                     << headerLength << endl << "ReadBuffer:   Buffer "
                     << modNum << " of length " << bufLen << endl
                     << "ReadBuffer:   CHAN:SLOT:CRATE "
-                    << data.GetChannelNumber() << ":"
-                    << data.GetSlotNumber() << ":"
-                    << data.GetCrateNumber() << endl;
+                    << data->GetChannelNumber() << ":"
+                    << data->GetSlotNumber() << ":"
+                    << data->GetCrateNumber() << endl;
                 throw length_error(msg.str());
         }
 
@@ -124,7 +124,7 @@ vector<XiaData> XiaListModeDataDecoder::DecodeBuffer(
             for (unsigned int i = 0; i < numQdcs; i++) {
                 tmp.push_back(buf[offset + i]);
             }
-            data.SetQdc(tmp);
+            data->SetQdc(tmp);
         }
 
         ///@TODO Figure out where to put this...
@@ -133,11 +133,11 @@ vector<XiaData> XiaListModeDataDecoder::DecodeBuffer(
         ///@TODO This needs to be revised to take into account the bit
         /// resolution of the modules. I've currently set it to the maximum
         /// bit resolution of any module (16-bit).
-        if (data.IsSaturated())
-            data.SetEnergy(65536);
+        if (data->IsSaturated())
+            data->SetEnergy(65536);
 
         //We set the time according to the revision and firmware.
-        data.SetTime(CalculateTimeInSamples(mask, data));
+        data->SetTime(CalculateTimeInSamples(mask, *data));
 
         // One last check
         if (traceLength / 2 + headerLength != eventLength) {
@@ -150,7 +150,7 @@ vector<XiaData> XiaListModeDataDecoder::DecodeBuffer(
             buf += headerLength;
 
         if (traceLength > 0) {
-            DecodeTrace(buf, data, traceLength);
+            DecodeTrace(buf, *data, traceLength);
             buf += traceLength / 2;
         }
         events.push_back(data);
