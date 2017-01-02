@@ -1,6 +1,7 @@
 #Set the scan sources that we will make a lib out of
 set(ScanSources ScanInterface.cpp Unpacker.cpp XiaData.cpp ChannelData.cpp
-        ChannelEvent.cpp)
+        ChannelEvent.cpp XiaListModeDataMask.cpp XiaListModeDataDecoder.cpp
+        XiaListModeDataEncoder.cpp)
 
 #Add the sources to the library
 add_library(ScanObjects OBJECT ${ScanSources})

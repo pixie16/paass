@@ -302,8 +302,8 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
                 plot(D_TEMP4,f*qd);
             }
             
-            for(vector<unsigned int>::iterator ittr = trace.begin();ittr !=
-                    trace.end();ittr++)
+            for(vector<unsigned int>::iterator ittr = trace.begin();
+                ittr != trace.end();ittr++)
                 plot(DD_SINGLE_TRACE,ittr-trace.begin(),traceNum,*ittr);
         }
     } // end of channel event
