@@ -24,8 +24,8 @@ public:
     ///@param[in] buf : Pointer to the beginning of the data buffer.
     ///@param[in] mask : The mask set that we need to decode the data
     ///@return A vector containing all of the decoded XiaData events.
-    std::vector<XiaData> DecodeBuffer(unsigned int *buf,
-                                      const XiaListModeDataMask &mask);
+    std::vector<XiaData*> DecodeBuffer(unsigned int *buf,
+                                       const XiaListModeDataMask &mask);
 
 private:
     ///Method to decode word zero from the header.
