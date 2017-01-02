@@ -17,6 +17,8 @@
 #include <vector>
 #include <string>
 
+#include "XiaListModeDataMask.hpp"
+
 #ifndef MAX_PIXIE_MOD
 #define MAX_PIXIE_MOD 12
 #endif
@@ -68,6 +70,12 @@ class Unpacker{
 	
 	/// Set the width of events in pixie16 clock ticks.
 	double SetEventWidth(double width_){ return (eventWidth = width_); }
+
+	void InitializeDataMask(const std::string &firmware,
+							const unsigned int& frequency) {
+		mask_.SetFrequency(frequency);
+		mask_.SetFirmware(firmware);
+	}
 	
 	/// Set the address of the scan interface used for file operations.
 	ScanInterface *SetInterface(ScanInterface *interface_){ return (interface = interface_); }
@@ -98,6 +106,9 @@ class Unpacker{
 	void Run(){ running = true; }
 	
   protected:
+	XiaListModeDataMask mask_; //Object providing the masks necessary to
+	// decode the data.
+
 	double eventWidth; /// The width of the raw event in pixie clock ticks (8 ns).
 	
 	bool debug_mode; /// True if debug mode is set.
@@ -129,9 +140,12 @@ class Unpacker{
 	  * \param[out] bufLen The number of words in the buffer.
 	  * \return The number of XiaDatas read from the buffer.
 	  */	
-	int ReadBuffer(unsigned int *buf, unsigned long &bufLen);
+	int ReadBuffer(unsigned int *buf);
 	
   private:
+	///Vector containing the list of channels decoded from
+	std::vector<XiaData*> decodedList_;
+
 	unsigned int TOTALREAD; /// Maximum number of data words to read.
 	unsigned int maxWords; /// Maximum number of data words for revision D.
 	unsigned int numRawEvt; /// The total count of raw events read from file.

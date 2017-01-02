@@ -396,22 +396,25 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 	if(core_){ core = core_; }
 	else{ core = NULL; }
 
-	// Push back all of the arguments. Annoying, but we only need to do this once.
-	baseOpts.push_back(optionExt("batch", no_argument, NULL, 'b', "", "Run in batch mode (i.e. with no command line)"));
-	baseOpts.push_back(optionExt("config", required_argument, NULL, 'c',
-								 "<path>", "Specify path to setup to use for scan"));
-	baseOpts.push_back(optionExt("counts", no_argument, NULL, 0, "", "Write all recorded channel counts to a file"));
-	baseOpts.push_back(optionExt("debug", no_argument, NULL, 0, "", "Enable readout debug mode"));
-	baseOpts.push_back(optionExt("dry-run", no_argument, NULL, 0, "", "Extract spills from file, but do no processing"));
-	baseOpts.push_back(optionExt("fast-fwd", required_argument, NULL, 0, "<word>", "Skip ahead to a specified word in the file (start of file at zero)"));
-	baseOpts.push_back(optionExt("help", no_argument, NULL, 'h', "", "Display this dialogue"));
-	baseOpts.push_back(optionExt("input", required_argument, NULL, 'i', "<filename>", "Specifies the input file to analyze"));
-	baseOpts.push_back(optionExt("output", required_argument, NULL, 'o', "<filename>", "Specifies the name of the output file. Default is \"out\""));
-	baseOpts.push_back(optionExt("quiet", no_argument, NULL, 'q', "", "Toggle off verbosity flag"));
-	baseOpts.push_back(optionExt("shm", no_argument, NULL, 's', "", "Enable shared memory readout"));
-	baseOpts.push_back(optionExt("version", no_argument, NULL, 'v', "", "Display version information"));
+	//Setup all the arguments that are known to the program.
+	baseOpts = {
+			optionExt("batch", no_argument, NULL, 'b', "", "Run in batch mode (i.e. with no command line)"),
+			optionExt("config", required_argument, NULL, 'c', "<path>", "Specify path to setup to use for scan"),
+			optionExt("counts", no_argument, NULL, 0, "", "Write all recorded channel counts to a file"),
+			optionExt("debug", no_argument, NULL, 0, "", "Enable readout debug mode"),
+			optionExt("dry-run", no_argument, NULL, 0, "", "Extract spills from file, but do no processing"),
+			optionExt("fast-fwd", required_argument, NULL, 0, "<word>", "Skip ahead to a specified word in the file (start of file at zero)"),
+			optionExt("firmware", required_argument, NULL, 'f', "<firmware>", "Sets the firmware revision for decoding the data"),
+			optionExt("frequency", required_argument, NULL, 0, "<frequency in MHz or MS/s>", "Specifies the sampling frequency used to collect the data."),
+			optionExt("help", no_argument, NULL, 'h', "", "Display this dialogue"),
+			optionExt("input", required_argument, NULL, 'i', "<filename>", "Specifies the input file to analyze"),
+			optionExt("output", required_argument, NULL, 'o', "<filename>", "Specifies the name of the output file. Default is \"out\""),
+			optionExt("quiet", no_argument, NULL, 'q', "", "Toggle off verbosity flag"),
+			optionExt("shm", no_argument, NULL, 's', "", "Enable shared memory readout"),
+			optionExt("version", no_argument, NULL, 'v', "", "Display version information"),
+	};
 
-	optstr = "bc:hi:o:qsv";
+	optstr = "bc:f:hi:o:qsv";
 
 	progName = std::string(PROG_NAME);
 	msgHeader = progName + ": ";
@@ -461,7 +464,7 @@ void ScanInterface::RunControl(){
 			bool full_spill = false;
 		
 			while(true){
-				if(kill_all == true){ 
+				if(kill_all == true){
 					break;
 				}
 				else if(!is_running){
@@ -832,6 +835,8 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	dry_run_mode = false;
 	shm_mode = false;
 	num_spills_recvd = 0;
+	unsigned int samplingFrequency = 0;
+	std::string firmware = "";
 	std::string input_filename = "";
 
 	// Add derived class options to the option list.
@@ -872,6 +877,10 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 			else if(strcmp("fast-fwd", longOpts[idx].name) == 0) {
 				file_start_offset = atoll(optarg);
 			}
+			else if(strcmp("frequency", longOpts[idx].name) == 0)
+				samplingFrequency = (unsigned int) atoi(optarg);
+			else if(strcmp("firmware", longOpts[idx].name) == 0)
+				firmware = optarg;
 			else{
 				for(std::vector<optionExt>::iterator iter = userOpts.begin(); iter != userOpts.end(); iter++){
 					if(strcmp(iter->name, longOpts[idx].name) == 0){
@@ -893,6 +902,9 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 					break;
 				case 'c' :
 					setup_filename = optarg;
+					break;
+				case 'f' :
+					firmware = optarg;
 					break;
 				case 'h' :
 					help(argv[0]);
@@ -937,6 +949,12 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 
 	// Link this object to the Unpacker for cross-calls.
 	core->SetInterface(this);
+
+	//Initialize the data mask for decoding the data
+	///@TODO We need to be able to handle mixed systems, which is not
+	/// implemented yet.
+	std::cout << firmware << " " << samplingFrequency << std::endl;
+	core->InitializeDataMask(firmware, samplingFrequency);
 
 	if(debug_mode)
 		core->SetDebugMode();

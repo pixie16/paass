@@ -23,7 +23,7 @@ ChannelEvent::ChannelEvent(XiaData *event_){
     cfdvals = NULL;
     Clear();
     event = event_;
-    size = event->adcTrace.size();
+    size = event->GetTrace().size();
     if(size != 0){
         xvals = new float[size];
         yvals = new float[size];
@@ -44,22 +44,22 @@ float ChannelEvent::CorrectBaseline(){
     baseline = 0.0;
     size_t sample_size = (10 <= size ? 10:size);
     for(size_t i = 0; i < sample_size; i++){
-        baseline += (float)event->adcTrace[i];
+        baseline += (float)event->GetTrace()[i];
     }
     baseline = baseline/sample_size;
 
     // Calculate the standard deviation
     stddev = 0.0;
     for(size_t i = 0; i < sample_size; i++){
-        stddev += ((float)event->adcTrace[i] - baseline)*((float)event->adcTrace[i] - baseline);
+        stddev += ((float)event->GetTrace()[i] - baseline)*((float)event->GetTrace()[i] - baseline);
     }
     stddev = std::sqrt((1.0/sample_size) * stddev);
 
     // Find the maximum value, the maximum bin, and correct the baseline
     maximum = -9999.0;
-    for(size_t i = 0; i < event->adcTrace.size(); i++){
+    for(size_t i = 0; i < event->GetTrace().size(); i++){
         xvals[i] = i;
-        yvals[i] = event->adcTrace[i]-baseline;
+        yvals[i] = event->GetTrace()[i]-baseline;
         if(yvals[i] > maximum){
             maximum = yvals[i];
             max_index = i;
@@ -175,7 +175,7 @@ void ChannelEvent::Clear(){
     if(xvals){ delete[] xvals; }
     if(yvals){ delete[] yvals; }
     if(cfdvals){ delete[] cfdvals; }
-    if(event){ event->clear(); }
+    if(event){ event->Clear(); }
 
     event = NULL;
     xvals = NULL;
