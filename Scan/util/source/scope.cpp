@@ -91,14 +91,14 @@ void scopeUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/){
 		current_event = rawEvent.front();
 		rawEvent.pop_front();
 
-		// Safety catches for null event or empty adcTrace.
-		if(!current_event || current_event->adcTrace.empty()){
+		// Safety catches for null event or empty ->GetTrace().
+		if(!current_event || current_event->GetTrace().empty()){
 			continue;
 		}
 
 		// Pass this event to the correct processor
-		int maximum = *std::max_element(current_event->adcTrace.begin(),current_event->adcTrace.end());
-		if(current_event->modNum == mod_ && current_event->chanNum == chan_){  
+		int maximum = *std::max_element(current_event->GetTrace().begin(), current_event->GetTrace().end());
+		if(current_event->GetModuleNumber() == mod_ && current_event->GetChannelNumber() == chan_){
 			//Check threhsold.
 			if (maximum < threshLow_) {
 				delete current_event;
@@ -224,7 +224,7 @@ void scopeScanner::Plot(){
 	if (numAvgWaveforms_ == 1) {
 		int index = 0;
 		for (size_t i = 0; i < chanEvents_.front()->size; ++i) {
-			graph->SetPoint(index, x_vals[i], chanEvents_.front()->event->adcTrace.at(i));
+			graph->SetPoint(index, x_vals[i], chanEvents_.front()->event->GetTrace().at(i));
 			index++;
 		}
 
@@ -278,8 +278,8 @@ void scopeScanner::Plot(){
 		//Determine the maximum and minimum values of the events.
 		for (unsigned int i = 0; i < numAvgWaveforms_; i++) {
 			ChannelEvent* evt = chanEvents_.at(i);
-			float evtMin = *std::min_element(evt->event->adcTrace.begin(), evt->event->adcTrace.end());
-			float evtMax = *std::max_element(evt->event->adcTrace.begin(), evt->event->adcTrace.end());
+			float evtMin = *std::min_element(evt->event->GetTrace().begin(), evt->event->GetTrace().end());
+			float evtMax = *std::max_element(evt->event->GetTrace().begin(), evt->event->GetTrace().end());
 			evtMin -= fabs(0.1 * evtMax);
 			evtMax += fabs(0.1 * evtMax);
 			if (evtMin < histAxis[1][0]) histAxis[1][0] = evtMin;
@@ -296,7 +296,7 @@ void scopeScanner::Plot(){
 		for (unsigned int i = 0; i < numAvgWaveforms_; i++) {
 			ChannelEvent* evt = chanEvents_.at(i);
 			for (size_t i=0; i < evt->size; ++i) {
-				hist->Fill(x_vals[i], evt->event->adcTrace[i]);
+				hist->Fill(x_vals[i], evt->event->GetTrace()[i]);
 			}
 		}
 
