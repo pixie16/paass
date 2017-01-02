@@ -13,19 +13,18 @@
 using namespace std;
 
 enum HEADER_CODES {
-    STATS_BLOCK = 1, HEADER = 4, HEADER_W_TS = 6, HEADER_W_ESUMS = 8,
-    HEADER_W_QDC = 12, HEADER_W_TS_ESUM = 10, HEADER_W_ESUM_QDC = 14,
-    HEADER_W_TS_QDC_ESUM = 16
+    STATS_BLOCK = 1, HEADER = 4, HEADER_W_ETS = 6, HEADER_W_ESUM = 8,
+    HEADER_W_ESUM_ETS = 10, HEADER_W_QDC = 12, HEADER_W_QDC_ETS = 14,
+    HEADER_W_ESUM_QDC = 16, HEADER_W_ESUM_QDC_ETS = 18
 };
 
-vector<XiaData> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf) {
+vector<XiaData> XiaListModeDataDecoder::DecodeBuffer(
+        unsigned int *buf, const XiaListModeDataMask &mask) {
+
     unsigned int *bufStart = buf;
     ///@NOTE : These two pieces here are the Pixie Module Data Header. They
     /// tell us the number of words read from the module (bufLen) and the VSN
-    /// of the module (module number). Do these technically belong here? They
-    /// are not part of decoding the XIA data. In addition, we are passing in
-    /// the bufLen, but not using is in ReadSpill.
-    ///@TODO : Reevaluate where these two things go.
+    /// of the module (module number).
     unsigned int bufLen = *buf++;
     unsigned int modNum = *buf++;
 
@@ -41,24 +40,30 @@ vector<XiaData> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf) {
 
     stringstream msg;
     vector<XiaData> events;
-    XiaData *lastVirtualChannel = NULL;
 
     while (buf < bufStart + bufLen) {
-        XiaData currentEvt;
+        XiaData data;
         bool hasExternalTimestamp = false;
         bool hasQdc = false;
         bool hasEnergySums = false;
 
-        unsigned int chanNum = (buf[0] & 0x0000000F);
-        unsigned int slotNum = (buf[0] & 0x000000F0) >> 4;
-        unsigned int crateNum = (buf[0] & 0x00000F00) >> 8;
-        unsigned int headerLength = (buf[0] & 0x0001F000) >> 12;
-        unsigned int eventLength = (buf[0] & 0x1FFE0000) >> 17;
+        pair<unsigned int, unsigned int> lengths =
+                DecodeWordZero(buf[0], data, mask);
+        unsigned int headerLength = lengths.first;
+        unsigned int eventLength = lengths.second;
 
-        currentEvt.virtualChannel = ((buf[0] & 0x20000000) != 0);
-        currentEvt.saturatedBit = ((buf[0] & 0x40000000) != 0);
-        currentEvt.pileupBit = ((buf[0] & 0x80000000) != 0);
+        //This will handles the possibilty of up to 100 crates
+        data.SetModuleNumber(modNum += 100 * data.GetCrateNumber());
 
+        data.SetEventTimeLow(buf[1]);
+        DecodeWordTwo(buf[2], data, mask);
+        unsigned int traceLength = DecodeWordThree(buf[3], data, mask);
+
+        //We check the header length here to set the appropriate flags for
+        // processing the rest of the header words. If we encounter a header
+        // length that we do not know we will throw an error as this
+        // generally indicates an issue with the data file or processing at a
+        // higher level.
         switch (headerLength) {
             case STATS_BLOCK : // Manual statistics block inserted by poll
                 // this is a manual statistics block inserted by the poll program
@@ -68,23 +73,27 @@ vector<XiaData> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf) {
                 continue;
             case HEADER :
                 break;
-            case HEADER_W_TS :
+            case HEADER_W_ETS :
                 hasExternalTimestamp = true;
                 break;
             case HEADER_W_QDC :
                 hasQdc = true;
                 break;
-            case HEADER_W_ESUMS :
+            case HEADER_W_ESUM :
                 hasEnergySums = true;
                 break;
-            case HEADER_W_TS_ESUM :
+            case HEADER_W_ESUM_ETS :
                 hasExternalTimestamp = hasEnergySums = true;
                 break;
             case HEADER_W_ESUM_QDC :
                 hasEnergySums = hasQdc = true;
                 break;
-            case HEADER_W_TS_QDC_ESUM :
+            case HEADER_W_ESUM_QDC_ETS :
                 hasEnergySums = hasExternalTimestamp = hasQdc = true;
+                break;
+            case HEADER_W_QDC_ETS :
+                hasQdc = hasExternalTimestamp = true;
+                break;
             default:
                 msg << "XiaListModeDataDecoder::ReadBuffer : We encountered an "
                         "unrecognized header length ("
@@ -92,18 +101,14 @@ vector<XiaData> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf) {
                     << endl << "ReadBuffer: Unexpected header length: "
                     << headerLength << endl << "ReadBuffer:   Buffer "
                     << modNum << " of length " << bufLen << endl
-                    << "ReadBuffer:   CHAN:SLOT:CRATE " << chanNum << ":"
-                    << slotNum << ":" << crateNum << endl;
+                    << "ReadBuffer:   CHAN:SLOT:CRATE "
+                    << data.GetChannelNumber() << ":"
+                    << data.GetSlotNumber() << ":"
+                    << data.GetCrateNumber() << endl;
                 throw length_error(msg.str());
         }
 
-        unsigned int lowTime = buf[1];
-        unsigned int highTime = buf[2] & 0x0000FFFF;
-        unsigned int cfdTime = (buf[2] & 0xFFFF0000) >> 16;
-        unsigned int energy = buf[3] & 0x0000FFFF;
-        unsigned int traceLength = (buf[3] & 0xFFFF0000) >> 16;
-
-        if(hasExternalTimestamp) {
+        if (hasExternalTimestamp) {
             //Do nothing for now
         }
 
@@ -113,36 +118,26 @@ vector<XiaData> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf) {
         }
 
         if (hasQdc) {
-            int offset = headerLength - 8;
-            for (int i = 0; i < currentEvt.numQdcs; i++) {
-                currentEvt.qdcValue[i] = buf[offset + i];
+            static const unsigned int numQdcs = 8;
+            vector<unsigned int> tmp;
+            unsigned int offset = headerLength - numQdcs;
+            for (unsigned int i = 0; i < numQdcs; i++) {
+                tmp.push_back(buf[offset + i]);
             }
+            data.SetQdc(tmp);
         }
-
-        currentEvt.chanNum = chanNum;
-        currentEvt.modNum = modNum += 100 * crateNum;
-        currentEvt.slotNum = slotNum;
-
-        /*if(currentEvt.virtualChannel){
-            DetectorLibrary* modChan = DetectorLibrary::get();
-
-            currentEvt.modNum += modChan->GetPhysicalModules();
-            if(modChan->at(modNum, chanNum).HasTag("construct_trace")){
-                lastVirtualChannel = currentEvt;
-            }
-        }*/
 
         ///@TODO Figure out where to put this...
         //channel_counts[modNum][chanNum]++;
 
-        currentEvt.energy = energy;
-        if (currentEvt.saturatedBit) { currentEvt.energy = 16383; }
+        ///@TODO This needs to be revised to take into account the bit
+        /// resolution of the modules. I've currently set it to the maximum
+        /// bit resolution of any module (16-bit).
+        if (data.IsSaturated())
+            data.SetEnergy(65536);
 
-        currentEvt.trigTime = lowTime;
-        currentEvt.cfdTime = cfdTime;
-        currentEvt.eventTimeHi = highTime;
-        currentEvt.eventTimeLo = lowTime;
-        currentEvt.time = highTime * pow(2., 32.) + lowTime;
+        //We set the time according to the revision and firmware.
+        data.SetTime(CalculateTimeInSamples(mask, data));
 
         // One last check
         if (traceLength / 2 + headerLength != eventLength) {
@@ -151,30 +146,101 @@ vector<XiaData> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf) {
                 << headerLength << ") and length of trace (" << traceLength
                 << ")";
             throw length_error(msg.str());
-        }
+        } else //Advance the buffer past the header and to the trace
+            buf += headerLength;
 
-        buf += headerLength;
         if (traceLength > 0) {
-            // sbuf points to the beginning of trace data
-            unsigned short *sbuf = (unsigned short *) buf;
-
-            currentEvt.reserve(traceLength);
-
-            if (lastVirtualChannel != NULL &&
-                lastVirtualChannel->adcTrace.empty()) {
-                lastVirtualChannel->assign(traceLength, 0);
-            }
-            // Read the trace data (2-bytes per sample, i.e. 2 samples per word)
-            for (unsigned int k = 0; k < traceLength; k++) {
-                currentEvt.push_back(sbuf[k]);
-
-                if (lastVirtualChannel != NULL) {
-                    lastVirtualChannel->adcTrace[k] += sbuf[k];
-                }
-            }
+            DecodeTrace(buf, data, traceLength);
             buf += traceLength / 2;
-        } // if(traceLength > 0)
-        events.push_back(currentEvt);
-    }
+        }
+        events.push_back(data);
+    }// while(buf < bufStart + bufLen)
     return events;
+}
+
+std::pair<unsigned int, unsigned int> XiaListModeDataDecoder::DecodeWordZero(
+        const unsigned int &word, XiaData &data,
+        const XiaListModeDataMask &mask) {
+
+    data.SetChannelNumber(word & mask.GetChannelNumberMask().first);
+    data.SetSlotNumber((word & mask.GetSlotIdMask().first)
+                               >> mask.GetSlotIdMask().second);
+    data.SetCrateNumber((word & mask.GetCrateIdMask().first)
+                                >> mask.GetCrateIdMask().second);
+    data.SetPileup((word & mask.GetFinishCodeMask().first) != 0);
+
+    return make_pair((word & mask.GetHeaderLengthMask().first)
+                             >> mask.GetHeaderLengthMask().second,
+                     (word & mask.GetEventLengthMask().first)
+                             >> mask.GetEventLengthMask().second);
+}
+
+void XiaListModeDataDecoder::DecodeWordTwo(
+        const unsigned int &word, XiaData &data,
+        const XiaListModeDataMask &mask) {
+    data.SetEventTimeHigh(word & mask.GetEventTimeHighMask().first);
+    data.SetCfdFractionalTime((word & mask.GetCfdFractionalTimeMask().first)
+                                      >> mask.GetCfdFractionalTimeMask().second);
+    data.SetCfdForcedTriggerBit(
+            (bool) ((word & mask.GetCfdForcedTriggerBitMask().first)
+                    >> mask.GetCfdForcedTriggerBitMask().second));
+    data.SetCfdTriggerSourceBit(
+            (bool) (word & mask.GetCfdTriggerSourceMask().first)
+                    >> mask.GetCfdTriggerSourceMask().second);
+}
+
+unsigned int XiaListModeDataDecoder::DecodeWordThree(
+        const unsigned int &word, XiaData &data,
+        const XiaListModeDataMask &mask) {
+    data.SetEnergy(word & mask.GetEventEnergyMask().first);
+    data.SetSaturation((bool) (word & mask.GetTraceOutOfRangeFlagMask().first));
+
+    return ((word & mask.GetTraceLengthMask().first)
+            >> mask.GetTraceLengthMask().second);
+}
+
+void XiaListModeDataDecoder::DecodeTrace(unsigned int *buf, XiaData &data,
+                                         const unsigned int &traceLength) {
+    vector<unsigned int> tmp;
+    // sbuf points to the beginning of trace data
+    unsigned short *sbuf = (unsigned short *) buf;
+
+    // Read the trace data (2-bytes per sample, i.e. 2 samples per word)
+    for (unsigned int k = 0; k < traceLength; k++)
+        tmp.push_back((unsigned int &&) sbuf[k]);
+
+    data.SetTrace(tmp);
+}
+
+double XiaListModeDataDecoder::CalculateTimeInSamples(
+        const XiaListModeDataMask &mask, const XiaData &data) {
+    double filterTime =
+            data.GetEventTimeLow() + data.GetEventTimeHigh() * pow(2., 32);
+
+    if(data.GetCfdFractionalTime() == 0 || data.GetCfdForcedTriggerBit())
+        return filterTime;
+
+    double cfdTime = 0, multiplier = 1;
+    if (mask.GetFrequency() == 100)
+        cfdTime = data.GetCfdFractionalTime() / mask.GetCfdSize();
+
+    if (mask.GetFrequency() == 250) {
+        multiplier = 2;
+        cfdTime = data.GetCfdFractionalTime() / mask.GetCfdSize() -
+                  data.GetCfdTriggerSourceBit();
+    }
+
+    if (mask.GetFrequency() == 500) {
+        multiplier = 10;
+        cfdTime = data.GetCfdFractionalTime() / mask.GetCfdSize() +
+                  data.GetCfdTriggerSourceBit() - 1;
+    }
+
+    return filterTime * multiplier + cfdTime;
+}
+
+double XiaListModeDataDecoder::CalculateTimeInNs(
+        const XiaListModeDataMask &mask, const XiaData &data) {
+    double conversionToNs = 1. / (mask.GetFrequency() * 1.e6);
+    return CalculateTimeInSamples(mask, data) * conversionToNs;
 }
