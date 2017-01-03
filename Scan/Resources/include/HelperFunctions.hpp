@@ -345,6 +345,7 @@ namespace TraceFunctions {
         return make_pair((unsigned int) (itPos - data.begin()), *itPos);
     }
 
+    ///@TODO Fix this method so that it works properly.
     template<class T>
     inline unsigned int FindLeadingEdge(const vector<T> &data,
                                         const double &threshold,
@@ -395,6 +396,12 @@ namespace TraceFunctions {
                 << "," << range.second << "].";
             throw range_error(msg.str());
         }
+
+        if(range.first > range.second) {
+            msg << "TraceFunctions::CalculateQdc - The specified "
+                << "range was inverted.";
+            throw range_error(msg.str());
+        }
         return Statistics::CalculateIntegral(
                 vector<T>(data.begin() + range.first,
                           data.begin() + range.second));
@@ -415,6 +422,7 @@ namespace TraceFunctions {
                 << "," << range.second << "].";
             throw range_error(msg.str());
         }
+
         if (qdc == 0)
             throw range_error("TraceFunctions::CalculateTailRatio - The QDC "
                                       "had a value of zero. This will cause "

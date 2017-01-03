@@ -1,10 +1,11 @@
-//
-// Created by vincent on 12/6/16.
-//
+///@file TraditionalCfd.cpp
+///@brief Same CFD algorithm implemented by Xia LLC but offline.
+///@author S. V. Paulauskas
+///@date July 22, 2011
 
 #include "XiaCfd.hpp"
 
-/// Perform CFD analysis on the waveform.
+/// Perform CFD analysis on the waveform
 double XiaCfd::CalculatePhase(const double &F_/*=0.5*/,
                                   const size_t &D_/*=1*/,
                                   const size_t &L_/*=1*/) {

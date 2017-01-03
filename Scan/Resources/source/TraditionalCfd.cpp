@@ -1,5 +1,6 @@
 ///@file TraditionalCfd.cpp
-///@brief Traditional CFD implemented digitally
+///@brief Traditional CFD implemented digitally, similar behavior to a NIM
+/// Module.
 ///@author S. V. Paulauskas
 ///@date July 22, 2011
 

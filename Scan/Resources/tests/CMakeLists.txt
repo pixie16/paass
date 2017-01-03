@@ -8,7 +8,7 @@ if(USE_GSL AND BUILD_TESTS)
     #Build the test to see if the GSL fitting algorithm is behaving.
     set(GSL_FITTER_SOURCES ${GSL_FITTER_SOURCES} test_gslfitter.cpp)
     add_executable(test_gslfitter ${GSL_FITTER_SOURCES})
-    target_link_libraries(test_gslfitter ${GSL_LIBRARIES} UnitTest++)
+    target_link_libraries(test_gslfitter ${GSL_LIBRARIES})
 endif(USE_GSL AND BUILD_TESTS)
 
 if(BUILD_UNITTESTS)
