@@ -61,6 +61,7 @@ TEST(TestFindMaxiumum) {
     CHECK_EQUAL(expected_maximum_value, result.second);
 }
 
+
 TEST(TestFindLeadingEdge) {
     //This is the expected position of the leading edge of signal.
     static const unsigned int expected_leading_edge_position = 72;
@@ -97,14 +98,15 @@ TEST(TestCalculatePoly3) {
 
     //Check that we are returning the correct coefficients for the data being
     // passed.
-    CHECK_ARRAY_CLOSE(expected_poly3_coeffs, result.second, 4, 1e-6);
+    CHECK_ARRAY_CLOSE(expected_poly3_coeffs, result.second,
+                      expected_poly3_coeffs.size(), 1e-6);
 
     //Check that the calculated maximum value is accurate
     CHECK_CLOSE(expected_poly3_val, result.first, 1e-6);
 }
 
-//For determination of the maximum value of the trace this traces favors the
-// left side since max+1 is less than max - 1
+//For determination of the extrapolated maximum value of the trace. This trace
+// favors the left side since f(max+1) is less than f(max - 1).
 TEST(TestExtrapolateMaximum) {
     //Check that we throw an error when the passed data vector is too small.
     CHECK_THROW(TraceFunctions::ExtrapolateMaximum(empty_data,
@@ -119,7 +121,8 @@ TEST(TestExtrapolateMaximum) {
 
     //Check that we are returning the correct coefficients for the data being
     // passed.
-    CHECK_ARRAY_CLOSE(expected_coeffs, result.second, 4, 1e-3);
+    CHECK_ARRAY_CLOSE(expected_coeffs, result.second,
+                      expected_coeffs.size(), 1e-3);
 }
 
 TEST(TestCalculatePoly2) {
@@ -131,7 +134,8 @@ TEST(TestCalculatePoly2) {
 
     //Check that we are returning the correct coefficients for the data being
     // passed.
-    CHECK_ARRAY_CLOSE(expected_poly2_coeffs, result.second, 3, 1e-3);
+    CHECK_ARRAY_CLOSE(expected_poly2_coeffs, result.second,
+                      expected_poly2_coeffs.size(), 1e-3);
 
     CHECK_CLOSE(expected_poly2_val, result.first, 1e-4);
 }
@@ -151,6 +155,8 @@ TEST(TestCalculateQdc) {
     //Check that we are throwing an error when the range is too large
     CHECK_THROW(TraceFunctions::CalculateQdc(data, make_pair(0, 1000)),
                 range_error);
+    CHECK_THROW(TraceFunctions::CalculateQdc(data, make_pair(1000, 0)),
+                range_error);
     CHECK_EQUAL(expected, TraceFunctions::CalculateQdc
             (integration_data, make_pair(2, 5)));
 }
@@ -159,14 +165,13 @@ TEST(TestCalculateTailRatio) {
     //Check that we are throwing an error when the data is empty
     CHECK_THROW(TraceFunctions::CalculateTailRatio(empty_data, make_pair(0, 4),
                                                    100.0), range_error);
-    //Check that the upper bound of the range is not too big
-    CHECK_THROW(TraceFunctions::CalculateTailRatio(empty_data,
+    //Check that the upper bound of the range is not bigger than the data size
+    CHECK_THROW(TraceFunctions::CalculateTailRatio(data,
                                                    make_pair(0, 400), 100.0),
                 range_error);
-    //Check that the QDC we passed actually makes sense
+    //Check that the QDC is not zero
     CHECK_THROW(TraceFunctions::CalculateTailRatio(data, make_pair(0, 4),
                                                    0.0), range_error);
-
     double qdc = TraceFunctions::CalculateQdc(data, make_pair(70, 91));
     pair<unsigned int, unsigned int> range(80, 91);
     double result = TraceFunctions::CalculateTailRatio(data, range, qdc);

@@ -36,6 +36,8 @@ double RootFitter::CalculatePhase(const std::vector<unsigned int> &data,
     TF1 func("func", vandleTimingFunction, 0., 1.e6, 5);
     func.SetParameters(0, qdc_ * 0.5, 0.5, 0.5, baseline.first);
 
+    ///@TODO We need to get this working, it's suffering from some strange
+    /// issues with ROOT and linked libraries.
     //TFitResultPtr fitResults = graph->Fit(&func, "MENRS", "", 0, data.size());
     //int fitStatus = fitResults;
 

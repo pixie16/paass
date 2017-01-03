@@ -1,4 +1,3 @@
-include_directories(include)
 add_subdirectory(source)
 
 if(BUILD_TESTS OR BUILD_UNITTESTS)

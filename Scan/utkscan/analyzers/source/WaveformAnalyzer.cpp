@@ -28,7 +28,7 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
                                const std::map<std::string, int> &tags) {
     TraceAnalyzer::Analyze(trace, type, subtype, tags);
 
-    if (trace.HasValue("saturation") || trace.size() == 0) {
+    if (trace.HasValue("saturation") || trace.empty()) {
         EndAnalyze();
         return;
     }
