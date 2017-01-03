@@ -42,17 +42,17 @@ void CfdAnalyzer::Analyze(Trace &trace, const std::string &detType,
     }
 
     if (trace.HasValue("saturation") || trace.empty() ||
-        trace.GetWaveform().size() == 0) {
+            trace.GetWaveform().empty()) {
         EndAnalyze();
         return;
     }
 
     const pair<double, double> baseline(trace.GetValue("baseline"),
                                         trace.GetValue("sigmaBaseline"));
-    pair<unsigned int, double> max(trace.GetValue("maxpos"),
+    const pair<unsigned int, double> max(trace.GetValue("maxpos"),
                                    trace.GetValue("extrapolatedMaxVal"));
 
-    pair<double, double> pars =
+    const pair<double, double> pars =
             Globals::get()->cfdPars(detType + ":" + detSubtype);
 
     trace.InsertValue("phase",

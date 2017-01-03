@@ -13,7 +13,7 @@
 //! Class to analyze traces using a digital CFD
 class CfdAnalyzer : public TraceAnalyzer {
 public:
-    /** Default constructor */
+    /** Default constructor taking an argument*/
     CfdAnalyzer(const std::string &s);
 
     /** Default Destructor */
