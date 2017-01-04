@@ -34,7 +34,7 @@ TEST_FIXTURE(XiaListModeDataEncoder, TestSimpleHeaderEncoding) {
     data.SetEnergy(energy);
     data.SetSlotNumber(slotId);
     data.SetChannelNumber(channelNumber);
-    data.SetCrateNumber(crate);
+    data.SetCrateNumber(crateId);
     data.SetEventTimeLow(ts_low);
     data.SetEventTimeHigh(ts_high);
 

@@ -8,138 +8,125 @@
 
 #include <UnitTest++.h>
 
+#include "UnitTestSampleData.hpp"
 #include "XiaData.hpp"
 
 using namespace std;
+using namespace unittest_trace_variables;
+using namespace unittest_decoded_data;
 
-static const bool test_bool = true;
-static const double test_baseline = 32.2;
-static const double test_energy = 123.4;
-static const unsigned int test_cfd_time = 124;
-static const unsigned int test_channel_number = 13;
-static const unsigned int test_crate_number = 0;
-static const unsigned int test_event_time_high = 1234;
-static const unsigned int test_event_time_low = 123456789;
-static const unsigned int test_external_time_high = 4321;
-static const unsigned int test_external_time_low = 987654321;
-static const unsigned int test_slot_number = 3;
-static const unsigned int test_module_number = 1;
-static const vector<unsigned int> test_energy_sums = {12, 13, 14};
-static const vector<unsigned int> test_qdc = {12, 13, 14, 78, 23, 34, 35, 6};
-static const vector<unsigned int> test_trace = {12, 12, 12, 12, 12, 75, 90, 54,
-                                                32, 12, 12};
 XiaData lhs, rhs;
 
 TEST_FIXTURE(XiaData, Test_GetBaseline) {
-    SetBaseline(test_baseline);
-    CHECK_EQUAL(test_baseline, GetBaseline());
+    SetBaseline(baseline);
+    CHECK_EQUAL(baseline, GetBaseline());
 }
 
 TEST_FIXTURE(XiaData, Test_GetId) {
-    SetSlotNumber(test_slot_number);
-    SetChannelNumber(test_channel_number);
-    SetCrateNumber(test_crate_number);
-    CHECK_EQUAL(test_crate_number * 208 + test_module_number * 16 +
-                test_channel_number, GetId());
+    SetSlotNumber(slotId);
+    SetChannelNumber(channelNumber);
+    SetCrateNumber(crateId);
+    CHECK_EQUAL(crateId * 208 + GetModuleNumber() * 16 +
+                        channelNumber, GetId());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetCfdForcedTrig) {
-    SetCfdForcedTriggerBit(test_bool);
+    SetCfdForcedTriggerBit(cfd_forced_trigger);
     CHECK(GetCfdForcedTriggerBit());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetCfdFractionalTime) {
-    SetCfdFractionalTime(test_cfd_time);
-    CHECK_EQUAL(test_cfd_time, GetCfdFractionalTime());
+    SetCfdFractionalTime(cfd_fractional_time);
+    CHECK_EQUAL(cfd_fractional_time, GetCfdFractionalTime());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetCfdTriggerSourceBit) {
-    SetCfdTriggerSourceBit(test_bool);
+    SetCfdTriggerSourceBit(cfd_source_trigger_bit);
     CHECK(GetCfdTriggerSourceBit());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetChannelNumber) {
-    SetChannelNumber(test_channel_number);
-    CHECK_EQUAL(test_channel_number, GetChannelNumber());
+    SetChannelNumber(channelNumber);
+    CHECK_EQUAL(channelNumber, GetChannelNumber());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetCrateNumber) {
-    SetCrateNumber(test_crate_number);
-    CHECK_EQUAL(test_crate_number, GetCrateNumber());
+    SetCrateNumber(crateId);
+    CHECK_EQUAL(crateId, GetCrateNumber());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetEnergy) {
-    SetEnergy(test_energy);
-    CHECK_EQUAL(test_energy, GetEnergy());
+    SetEnergy(energy);
+    CHECK_EQUAL(energy, GetEnergy());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetEnergySums) {
-    SetEnergySums(test_energy_sums);
-    CHECK_ARRAY_EQUAL(test_energy_sums, GetEnergySums(),
-                      test_energy_sums.size());
+    SetEnergySums(energy_sums);
+    CHECK_ARRAY_EQUAL(energy_sums, GetEnergySums(),
+                      energy_sums.size());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetEventTimeHigh) {
-    SetEventTimeHigh(test_event_time_high);
-    CHECK_EQUAL(test_event_time_high, GetEventTimeHigh());
+    SetEventTimeHigh(ts_high);
+    CHECK_EQUAL(ts_high, GetEventTimeHigh());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetEventTimeLow) {
-    SetEventTimeLow(test_event_time_low);
-    CHECK_EQUAL(test_event_time_low, GetEventTimeLow());
+    SetEventTimeLow(ts_low);
+    CHECK_EQUAL(ts_low, GetEventTimeLow());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetExternalTimeHigh) {
-    SetExternalTimeHigh(test_external_time_high);
-    CHECK_EQUAL(test_external_time_high, GetExternalTimeHigh());
+    SetExternalTimeHigh(ex_ts_high);
+    CHECK_EQUAL(ex_ts_high, GetExternalTimeHigh());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetExternalTimeLow) {
-    SetExternalTimeLow(test_external_time_low);
-    CHECK_EQUAL(test_external_time_low, GetExternalTimeLow());
+    SetExternalTimeLow(ex_ts_low);
+    CHECK_EQUAL(ex_ts_low, GetExternalTimeLow());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetPileup) {
-    SetPileup(test_bool);
+    SetPileup(pileup_bit);
     CHECK(IsPileup());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetQdc) {
-    SetQdc(test_qdc);
-    CHECK_ARRAY_EQUAL(test_qdc, GetQdc(), test_qdc.size());
+    SetQdc(qdc);
+    CHECK_ARRAY_EQUAL(qdc, GetQdc(), qdc.size());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetSaturation) {
-    SetSaturation(test_bool);
+    SetSaturation(trace_out_of_range);
     CHECK(IsSaturated());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetSlotNumber) {
-    SetSlotNumber(test_slot_number);
-    CHECK_EQUAL(test_slot_number, GetSlotNumber());
+    SetSlotNumber(slotId);
+    CHECK_EQUAL(slotId, GetSlotNumber());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetTrace) {
-    SetTrace(test_trace);
-    CHECK_ARRAY_EQUAL(test_trace, GetTrace(), test_trace.size());
+    SetTrace(trace);
+    CHECK_ARRAY_EQUAL(trace, GetTrace(), trace.size());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetVirtualChannel) {
-    SetVirtualChannel(test_bool);
+    SetVirtualChannel(virtual_channel);
     CHECK(IsVirtualChannel());
 }
 
 TEST_FIXTURE(XiaData, Test_GetTime) {
-    SetTime(123456789.);
-    CHECK_EQUAL(123456789, GetTime());
+    SetTime(ts);
+    CHECK_EQUAL(ts, GetTime());
 }
 
 ///This will test that the Time for the rhs is greater than the lhs
 TEST(Test_CompareTime){
     lhs.Clear(); rhs.Clear();
 
-    lhs.SetTime(123456789.);
-    rhs.SetTime(123456799.);
+    lhs.SetTime(ts);
+    rhs.SetTime(ts+10);
 
     CHECK(lhs.CompareTime(&lhs, &rhs));
 }
@@ -147,31 +134,31 @@ TEST(Test_CompareTime){
 //This will test that the ID for the rhs is greater than the lhs
 TEST(Test_CompareId) {
     lhs.Clear(); rhs.Clear();
-    lhs.SetChannelNumber(test_channel_number);
-    lhs.SetSlotNumber(test_slot_number);
-    lhs.SetCrateNumber(test_crate_number);
+    lhs.SetChannelNumber(channelNumber);
+    lhs.SetSlotNumber(slotId);
+    lhs.SetCrateNumber(crateId);
 
-    rhs.SetChannelNumber(test_channel_number);
-    rhs.SetSlotNumber(test_slot_number+2);
-    rhs.SetCrateNumber(test_crate_number);
+    rhs.SetChannelNumber(channelNumber);
+    rhs.SetSlotNumber(slotId+2);
+    rhs.SetCrateNumber(crateId);
 
     CHECK(lhs.CompareId(&lhs, &rhs));
 }
 
 TEST(Test_Equality) {
     lhs.Clear(); rhs.Clear();
-    lhs.SetChannelNumber(test_channel_number);
-    lhs.SetSlotNumber(test_slot_number);
-    lhs.SetCrateNumber(test_crate_number);
+    lhs.SetChannelNumber(channelNumber);
+    lhs.SetSlotNumber(slotId);
+    lhs.SetCrateNumber(crateId);
     rhs = lhs;
     CHECK(lhs == rhs);
 }
 
 TEST(Test_LessThanOperator) {
     lhs.Clear(); rhs.Clear();
-    lhs.SetTime(123456789);
+    lhs.SetTime(ts);
     rhs = lhs;
-    rhs.SetTime(123456799);
+    rhs.SetTime(ts+10);
     CHECK(lhs < rhs);
 }
 

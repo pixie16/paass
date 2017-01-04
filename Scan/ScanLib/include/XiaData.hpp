@@ -7,9 +7,6 @@
 
 #include <vector>
 
-#include <cmath>
-#include <cstdlib>
-
 /*! \brief A pixie16 channel event
  *
  * All data is grouped together into channels.  For each pixie16 channel that
