@@ -34,8 +34,7 @@ TEST_FIXTURE(XiaListModeDataDecoder, TestHeaderDecoding) {
     CHECK_THROW(DecodeBuffer(&header_w_bad_headerlen[0], mask), length_error);
 
     //Check that we can decode a simple 4-word header.
-    vector<XiaData*> result = DecodeBuffer(&header[0], mask);
-    XiaData result_data = *result.front();
+    XiaData result_data = *(DecodeBuffer(&header[0], mask).front());
 
     CHECK_EQUAL(slotId, result_data.GetSlotNumber());
     CHECK_EQUAL(channelNumber, result_data.GetChannelNumber());
@@ -50,20 +49,20 @@ TEST_FIXTURE(XiaListModeDataDecoder, TestTraceDecoding) {
     //Check that we throw length_error when the event length doesn't match.
     CHECK_THROW(DecodeBuffer(&header_w_bad_eventlen[0], mask), length_error);
 
-    XiaData result = *DecodeBuffer(&header_N_trace[0], mask).front();
+    XiaData result = *(DecodeBuffer(&header_N_trace[0], mask).front());
     CHECK_ARRAY_EQUAL(unittest_trace_variables::trace, result.GetTrace(),
                       unittest_trace_variables::trace.size());
 }
 
 //Test if we can decode the qdc properly
 TEST_FIXTURE(XiaListModeDataDecoder, TestQdcDecoding) {
-    XiaData result = *DecodeBuffer(&header_N_qdc[0], mask).front();
+    XiaData result = *(DecodeBuffer(&header_N_qdc[0], mask).front());
     CHECK_ARRAY_EQUAL(qdc, result.GetQdc(), qdc.size());
 }
 
 //Test that we can get the right timestamp if we involve the CFD.
 TEST_FIXTURE(XiaListModeDataDecoder, TestCfdTimeCalculation) {
-    XiaData result = *DecodeBuffer(&header_N_Cfd[0], mask).front();
+    XiaData result = *(DecodeBuffer(&header_N_Cfd[0], mask).front());
     CHECK_EQUAL(cfd_fractional_time, result.GetCfdFractionalTime());
     CHECK_CLOSE(ts_w_cfd, result.GetTime(), 1e-5);
 }

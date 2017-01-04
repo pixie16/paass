@@ -16,7 +16,7 @@
 namespace unittest_decoded_data {
     //Here is all of the expected data for the above header.
     static const unsigned int channelNumber = 13;
-    static const unsigned int crate = 0;
+    static const unsigned int crateId = 0;
     static const unsigned int expected_size = 1;
     static const unsigned int ts_high = 26001;
     static const unsigned int ts_low = 123456789;
@@ -24,7 +24,14 @@ namespace unittest_decoded_data {
     static const unsigned int slotId = 2;
     static const unsigned int energy = 2345;
     static const unsigned int ex_ts_high = 26001;
-    static const unsigned int ex_ts_low = 123456789;
+    static const unsigned int ex_ts_low = 987654321;
+    static const bool cfd_forced_trigger = true;
+    static const bool cfd_source_trigger_bit = true;
+    static const bool pileup_bit = true;
+    static const bool trace_out_of_range = true;
+    static const bool virtual_channel = true;
+
+    static const std::vector<unsigned int> energy_sums = {12, 13, 14};
 
     static const std::vector<unsigned int> qdc = {123, 456, 789, 987, 654,
                                                       321, 135, 791};

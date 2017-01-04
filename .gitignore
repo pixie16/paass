@@ -25,7 +25,7 @@ doxywarning.txt
 
 #Ignore the build and exec directory
 build/
-*-build-*/
+*build-*/
 install/
 
 

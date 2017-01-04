@@ -1,8 +1,6 @@
 ///@file unittest-HelperFunctions.cpp
 ///@author S. V. Paulauskas
 ///@date December 12, 2016
-#include <iostream>
-
 #include <UnitTest++.h>
 
 #include "HelperFunctions.hpp"

@@ -5,6 +5,8 @@
 #ifndef PIXIESUITE_CHANNELEVENT_HPP
 #define PIXIESUITE_CHANNELEVENT_HPP
 
+#include <cstddef>
+
 #include "XiaData.hpp"
 
 class ChannelEvent{
@@ -41,6 +43,7 @@ public:
     /// Destructor.
     ~ChannelEvent();
 
+    ///@TODO These methods need to be removed. At a later date.
     /// Correct the trace baseline, baseline standard deviation, and find the pulse maximum.
     float CorrectBaseline();
 
