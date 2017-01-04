@@ -411,7 +411,7 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 			optionExt("output", required_argument, NULL, 'o', "<filename>", "Specifies the name of the output file. Default is \"out\""),
 			optionExt("quiet", no_argument, NULL, 'q', "", "Toggle off verbosity flag"),
 			optionExt("shm", no_argument, NULL, 's', "", "Enable shared memory readout"),
-			optionExt("version", no_argument, NULL, 'v', "", "Display version information"),
+			optionExt("version", no_argument, NULL, 'v', "", "Display version information")
 	};
 
 	optstr = "bc:f:hi:o:qsv";
@@ -878,7 +878,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 				file_start_offset = atoll(optarg);
 			}
 			else if(strcmp("frequency", longOpts[idx].name) == 0)
-				samplingFrequency = (unsigned int) atoi(optarg);
+				samplingFrequency = (unsigned int)std::stoi(optarg);
 			else if(strcmp("firmware", longOpts[idx].name) == 0)
 				firmware = optarg;
 			else{
