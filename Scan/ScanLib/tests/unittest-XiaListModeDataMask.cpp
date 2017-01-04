@@ -7,9 +7,11 @@
 
 #include <UnitTest++.h>
 
+#include "HelperEnumerations.hpp"
 #include "XiaListModeDataMask.hpp"
 
 using namespace std;
+using namespace DataProcessing;
 
 TEST_FIXTURE(XiaListModeDataMask, TestXiaListModeDataMask) {
     //We do not need to test more than on version of these since they are

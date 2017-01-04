@@ -8,15 +8,11 @@
 
 #include <cmath>
 
+#include "HelperEnumerations.hpp"
 #include "XiaListModeDataDecoder.hpp"
 
 using namespace std;
-
-enum HEADER_CODES {
-    STATS_BLOCK = 1, HEADER = 4, HEADER_W_ETS = 6, HEADER_W_ESUM = 8,
-    HEADER_W_ESUM_ETS = 10, HEADER_W_QDC = 12, HEADER_W_QDC_ETS = 14,
-    HEADER_W_ESUM_QDC = 16, HEADER_W_ESUM_QDC_ETS = 18
-};
+using namespace DataProcessing;
 
 vector<XiaData*> XiaListModeDataDecoder::DecodeBuffer(
         unsigned int *buf, const XiaListModeDataMask &mask) {
@@ -51,9 +47,6 @@ vector<XiaData*> XiaListModeDataDecoder::DecodeBuffer(
                 DecodeWordZero(buf[0], *data, mask);
         unsigned int headerLength = lengths.first;
         unsigned int eventLength = lengths.second;
-
-        //This will handles the possibilty of up to 100 crates
-        data->SetModuleNumber(modNum += 100 * data->GetCrateNumber());
 
         data->SetEventTimeLow(buf[1]);
         DecodeWordTwo(buf[2], *data, mask);

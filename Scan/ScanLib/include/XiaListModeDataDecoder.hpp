@@ -27,6 +27,21 @@ public:
     std::vector<XiaData*> DecodeBuffer(unsigned int *buf,
                                        const XiaListModeDataMask &mask);
 
+    ///Method to calculate the arrival time of the signal in samples
+    ///@param[in] mask : The data mask containing the necessary information
+    /// to calculate the time.
+    ///@param[in] data : The data that we will use to calculate the time
+    ///@return The calculated time in clock samples
+    static double CalculateTimeInSamples(const XiaListModeDataMask &mask,
+                                  const XiaData &data);
+
+    ///Method to calculate the arrival time of the signal in nanoseconds
+    ///@param[in] mask : The data mask containing the necessary information
+    /// to calculate the time.
+    ///@param[in] data : The data that we will use to calculate the time
+    ///@return The calculated time in nanoseconds
+    static double CalculateTimeInNs(const XiaListModeDataMask &mask,
+                             const XiaData &data);
 private:
     ///Method to decode word zero from the header.
     ///@param[in] word : The word that we need to decode
@@ -57,26 +72,6 @@ private:
     ///@param[in] data : The XiaData object that we are going to fill.
     void DecodeTrace(unsigned int *buf, XiaData &data,
                      const unsigned int &traceLength);
-
-    ///Method to calculate the arrival time of the signal in samples
-    ///@param[in] mask : The data mask containing the necessary information
-    /// to calculate the time.
-    ///@param[in] data : The data that we will use to calculate the time
-    ///@return The calculated time in clock samples
-    ///@TODO This method needs to be moved to Resources so that it
-    /// can be taken advantage of by other classes.
-    double CalculateTimeInSamples(const XiaListModeDataMask &mask,
-                                  const XiaData &data);
-
-    ///Method to calculate the arrival time of the signal in nanoseconds
-    ///@param[in] mask : The data mask containing the necessary information
-    /// to calculate the time.
-    ///@param[in] data : The data that we will use to calculate the time
-    ///@return The calculated time in nanoseconds
-    ///@TODO This method needs to be moved to Resources so that it
-    /// can be taken advantage of by other classes.
-    double CalculateTimeInNs(const XiaListModeDataMask &mask,
-                             const XiaData &data);
 };
 
 #endif //PIXIESUITE_XIALISTMODEDATADECODER_HPP

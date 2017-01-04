@@ -2,39 +2,35 @@
 ///@author S. V. Paulauskas
 ///@date December 12, 2016
 #include <iostream>
-#include <utility>
-#include <vector>
 
 #include <UnitTest++.h>
 
 #include "TraditionalCfd.hpp"
-#include "UnitTestExampleTrace.hpp"
+#include "UnitTestSampleData.hpp"
 
 using namespace std;
 using namespace unittest_trace_variables;
-
-//This pair provides us with the expected extrapolated maximum and the
-// position of the maximum.
-static const pair<unsigned int, double> max_info(expected_max_position,
-                                                 expected_poly3_val);
+using namespace unittest_cfd_variables;
 
 TEST_FIXTURE(TraditionalCfd, TestTraditionalCfd) {
-    static const pair<double, double> pars(0.5, 2.);
-
     //Checking that we throw a range_error when the data vector is zero
-    CHECK_THROW(CalculatePhase(empty_data, pars, max_info,
-                               expected_baseline_pair), range_error);
+    CHECK_THROW(CalculatePhase(empty_vector_double, cfd_test_pars, max_pair,
+                               baseline_pair), range_error);
 
-    //Checking that we throw a range_error when the max index is too large
-    // for the data
-    static const pair<unsigned int, double> tmp(1000, expected_poly3_val);
-    CHECK_THROW(CalculatePhase(data, pars, tmp,
-                               expected_baseline_pair), range_error);
+    //Check that we throw a range error when the max position is larger than
+    // the data we provided.
+    CHECK_THROW(CalculatePhase(trace_sans_baseline, cfd_test_pars,
+                               make_pair(trace_sans_baseline.size()+3, 100),
+                               baseline_pair), range_error);
 
-    double result = CalculatePhase(data, pars, max_info,
-                                   expected_baseline_pair);
-    CHECK(-9999 != result);
-    cout << "TraditionalCfd result is " << result << endl;
+    //The expected value in this case is the value that I obtained after
+    // debugging the algorithm using other means. This check is here simply
+    // to tell us whether or not the algorithm has changed drastically from
+    // the "acceptable" value.
+    CHECK_CLOSE(75.1408,
+                CalculatePhase(trace_sans_baseline, cfd_test_pars,
+                               extrapolated_maximum_pair,baseline_pair),
+                5);
 }
 
 int main(int argv, char *argc[]) {

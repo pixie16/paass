@@ -8,18 +8,7 @@
 #include <string>
 #include <utility>
 
-///An enum for the different firmware revisions for the Pixie-16 modules.
-/// * R29432 is valid from 02/15/2014 and 07/28/2014
-/// * R30474, R30980, R30981 is valid from 07/28/2014 and 03/08/2016
-/// * R29432 is valid from 03/08/2016
-/// * UNKNOWN is used for unspecified firmware revisions.
-///These dates do not imply that the particular data set being analyzed was
-/// taken with the expected firmware. These dates are meant only to help
-/// guide the user if they do not know the particular firmware that was used
-/// to obtain their data set.
-enum FIRMWARE {
-    R29432, R30474, R30980, R30981, R34688, UNKNOWN
-};
+#include "HelperEnumerations.hpp"
 
 ///A class that provides the necessary data masks and bit shifts to decode the
 /// XIA Pixie-16 List Mode Data headers. To decode the data we apply the mask
@@ -33,14 +22,15 @@ public:
     ///Default constructor
     XiaListModeDataMask() {
         frequency_ = 0;
-        firmware_ = UNKNOWN;
+        firmware_ = DataProcessing::UNKNOWN;
     }
 
     ///Constructor accepting a string with the firmware type and the frequency
     ///@param[in] firmware : The value we want to set for the firmware
     ///@param[in] freq : The value in MS/s or MHz that we want to assign to the
     /// frequency.
-    XiaListModeDataMask(const FIRMWARE &firmware, const unsigned int &freq) {
+    XiaListModeDataMask(const DataProcessing::FIRMWARE &firmware,
+                        const unsigned int &freq) {
         firmware_ = firmware;
         frequency_ = freq;
     }
@@ -129,7 +119,7 @@ public:
     ///Getter for the value of the FIRMWARE so that we can test that things
     /// are working as expected.
     ///@return The current value of the internal firmware_ variable.
-    FIRMWARE GetFirmware() const { return firmware_; }
+    DataProcessing::FIRMWARE GetFirmware() const { return firmware_; }
 
     ///Getter for the value of the frequency that we're using.
     ///@return The current value of the internal frequency_ variable
@@ -137,7 +127,7 @@ public:
 
     ///Sets the firmware version
     ///@param[in] firmware : The firmware type that we would like to set.
-    void SetFirmware(const FIRMWARE &firmware) {
+    void SetFirmware(const DataProcessing::FIRMWARE &firmware) {
         firmware_ = firmware;
     }
 
@@ -156,13 +146,13 @@ public:
 
 private:
     ///The firmware version that we are using.
-    FIRMWARE firmware_;
+    DataProcessing::FIRMWARE firmware_;
     ///The frequency of the module that we want to decode.
     unsigned int frequency_;
 
     std::string BadMaskErrorMessage(const std::string &func) const;
 
-    FIRMWARE ConvertStringToFirmware(const std::string &type);
+    DataProcessing::FIRMWARE ConvertStringToFirmware(const std::string &type);
 };
 
 #endif //PIXIESUITE_XIALISTMODEDATAMASK_HPP
