@@ -39,14 +39,8 @@ TEST_FIXTURE(XiaData, Test_GetId) {
     SetSlotNumber(test_slot_number);
     SetChannelNumber(test_channel_number);
     SetCrateNumber(test_crate_number);
-    SetModuleNumber(test_module_number);
     CHECK_EQUAL(test_crate_number * 208 + test_module_number * 16 +
                 test_channel_number, GetId());
-}
-
-TEST_FIXTURE(XiaData, Test_ModuleNumber) {
-    SetModuleNumber(test_module_number);
-    CHECK_EQUAL(test_module_number, GetModuleNumber());
 }
 
 TEST_FIXTURE(XiaData, Test_GetSetCfdForcedTrig) {
@@ -136,27 +130,16 @@ TEST_FIXTURE(XiaData, Test_GetSetVirtualChannel) {
 }
 
 TEST_FIXTURE(XiaData, Test_GetTime) {
-    SetCfdFractionalTime(test_cfd_time);
-    SetEventTimeHigh(test_event_time_high);
-    SetEventTimeLow(test_event_time_low);
-    SetCfdTriggerSourceBit(test_bool);
-    CHECK_EQUAL(test_cfd_time / pow(2., 14) + test_event_time_low +
-                test_event_time_high * pow(2., 32) - test_bool, GetTime());
+    SetTime(123456789.);
+    CHECK_EQUAL(123456789, GetTime());
 }
 
 ///This will test that the Time for the rhs is greater than the lhs
 TEST(Test_CompareTime){
     lhs.Clear(); rhs.Clear();
 
-    lhs.SetCfdFractionalTime(test_cfd_time);
-    lhs.SetEventTimeHigh(test_event_time_high);
-    lhs.SetEventTimeLow(test_event_time_low);
-    lhs.SetCfdTriggerSourceBit(test_bool);
-
-    rhs.SetCfdFractionalTime(test_cfd_time+12);
-    rhs.SetEventTimeHigh(test_event_time_high);
-    rhs.SetEventTimeLow(test_event_time_low+36);
-    rhs.SetCfdTriggerSourceBit(test_bool);
+    lhs.SetTime(123456789.);
+    rhs.SetTime(123456799.);
 
     CHECK(lhs.CompareTime(&lhs, &rhs));
 }
@@ -167,12 +150,10 @@ TEST(Test_CompareId) {
     lhs.SetChannelNumber(test_channel_number);
     lhs.SetSlotNumber(test_slot_number);
     lhs.SetCrateNumber(test_crate_number);
-    lhs.SetModuleNumber(test_module_number);
 
     rhs.SetChannelNumber(test_channel_number);
     rhs.SetSlotNumber(test_slot_number+2);
     rhs.SetCrateNumber(test_crate_number);
-    rhs.SetModuleNumber(test_module_number+2);
 
     CHECK(lhs.CompareId(&lhs, &rhs));
 }
@@ -188,14 +169,9 @@ TEST(Test_Equality) {
 
 TEST(Test_LessThanOperator) {
     lhs.Clear(); rhs.Clear();
-    lhs.SetCfdFractionalTime(test_cfd_time);
-    lhs.SetEventTimeHigh(test_event_time_high);
-    lhs.SetEventTimeLow(test_event_time_low);
-    lhs.SetCfdTriggerSourceBit(test_bool);
-
+    lhs.SetTime(123456789);
     rhs = lhs;
-    rhs.SetEventTimeLow(test_event_time_low+100);
-
+    rhs.SetTime(123456799);
     CHECK(lhs < rhs);
 }
 
