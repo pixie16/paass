@@ -4,21 +4,6 @@
 ///@authors C. R. Thornsberry and S. V. Paulauskas
 #include "XiaData.hpp"
 
-///@TODO These methods are commented out since I'm not sure that we need them
-/// . This should be verified at some point.
-//void XiaData::reserve(const size_t &size){
-//	if(size == 0){ return; }
-//	trace_.reserve(size);
-//}
-//
-//void XiaData::assign(const size_t &size, const unsigned int &input){
-//	trace_.assign(size, input);
-//}
-//
-//void XiaData::push_back(const unsigned int &input){
-//	trace_.push_back(input);
-//}
-
 ///Clears all of the variables. The vectors are all cleared using the clear()
 /// method. This method is called when the class is first initalizied so that
 /// it has some default values for the software to use in the event that they
@@ -29,7 +14,7 @@ void XiaData::Clear(){
 
     energy_ = baseline_ = 0.0;
 
-	chanNum_ = crateNum_ = moduleNum_ = slotNum_ = cfdTime_ = 0;
+	chanNum_ = crateNum_ = slotNum_ = cfdTime_ = 0;
     eventTimeHigh_ = eventTimeLow_ = externalTimeLow_ = externalTimeHigh_ = 0;
 
     eSums_.clear();

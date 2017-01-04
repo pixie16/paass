@@ -5,10 +5,12 @@
 //#include <UnitTest++.h>
 
 #include "RootFitter.hpp"
-#include "UnitTestExampleTrace.hpp"
+#include "UnitTestSampleData.hpp"
 
 using namespace std;
 using namespace unittest_trace_variables;
+using namespace unittest_fit_variables;
+
 
 //TEST_FIXTURE(RootFitter, TestRootFitter) {
 //    CHECK_THROW(CalculatePhase(empty_data, expected_trace_pars,
@@ -23,9 +25,7 @@ using namespace unittest_trace_variables;
 
 int main(int argv, char *argc[]) {
     RootFitter fitter;
-    fitter.CalculatePhase(waveform, expected_trace_pars, expected_max_info,
-                          expected_baseline_pair);
-
-
+    fitter.CalculatePhase(waveform, fitting_parameters, max_pair,
+                          baseline_pair);
     //return (UnitTest::RunAllTests());
 }

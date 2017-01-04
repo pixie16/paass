@@ -133,13 +133,17 @@ public:
     unsigned int GetExternalTimeLow() const { return externalTimeLow_; }
 
     ///@return The unique ID of the channel.
+    ///We can have a maximum of 208 channels in a crate, the first module
+    /// (#0) is always in the second slot of the crate, and we always have 16
+    /// channels
     unsigned int GetId() const {
-        return crateNum_ * 208 + moduleNum_ * 16 + chanNum_;
+        return crateNum_ * 208 + GetModuleNumber() * 16 + chanNum_;
     }
 
-    ///@brief This method returns the module number.
-    ///@return The module number
-    unsigned int GetModuleNumber() const { return moduleNum_; }
+    ///@return the module number
+    unsigned int GetModuleNumber() const {
+        return slotNum_ - 2;
+    }
 
     ///@return The slot that the module was in
     unsigned int GetSlotNumber() const { return slotNum_; }
@@ -202,10 +206,6 @@ public:
     ///@param[in] a : The value to set
     void SetExternalTimeLow(const unsigned int &a) { externalTimeLow_ = a; }
 
-    ///@brief Sets the module number
-    ///@param[in] a : The value to set
-    void SetModuleNumber(const unsigned int &a) { moduleNum_ = a; }
-
     ///@brief Sets if we had a pileup found on-board
     ///@param[in] a : The value to set
     void SetPileup(const bool &a) { isPileup_ = a; }
@@ -234,15 +234,6 @@ public:
     ///@param[in] a : True if we this channel was generated on-board
     void SetVirtualChannel(const bool &a) { isVirtualChannel_ = a; }
 
-    /// Reserve specified number of bins for the channel trace.
-    //void reserve(const size_t &size);
-
-    /// Fill the trace vector with a specified value.
-    //void assign(const size_t &size, const unsigned int &input);
-
-    /// Push back the trace vector with a value.
-    //void push_back(const unsigned int &input);
-
     ///@brief Clear all variables and set them to some default values.
     void Clear();
 
@@ -264,7 +255,6 @@ private:
     unsigned int eventTimeLow_; /// Lower 32 bits of pixie16 event time.
     unsigned int externalTimeHigh_; ///Upper 16 bits of external time stamp
     unsigned int externalTimeLow_; ///Lower 32 bits of external time stamp
-    unsigned int moduleNum_; ///Module number set from the data stream
     unsigned int slotNum_; ///Slot number
 
     std::vector<unsigned int> eSums_;///Energy sums recorded by the module

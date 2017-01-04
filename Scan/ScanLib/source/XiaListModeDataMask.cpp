@@ -7,6 +7,7 @@
 #include "XiaListModeDataMask.hpp"
 
 using namespace std;
+using namespace DataProcessing;
 
 FIRMWARE XiaListModeDataMask::ConvertStringToFirmware(const std::string &type) {
     FIRMWARE firmware = UNKNOWN;

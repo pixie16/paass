@@ -8,9 +8,11 @@
 
 #include <cmath>
 
+#include "HelperEnumerations.hpp"
 #include "XiaListModeDataEncoder.hpp"
 
 using namespace std;
+using namespace DataProcessing;
 
 std::vector<unsigned int> XiaListModeDataEncoder::EncodeXiaData(
         const XiaData &data,

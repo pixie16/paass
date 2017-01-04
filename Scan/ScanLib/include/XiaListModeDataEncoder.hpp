@@ -27,7 +27,7 @@ public:
     ///@param[in] frequency : The sampling frequency in MHz or MS/s
     ///@return A vector containing the encoded data.
     std::vector<unsigned int> EncodeXiaData(const XiaData &data,
-                                            const FIRMWARE &firmware,
+                                            const DataProcessing::FIRMWARE &firmware,
                                             const unsigned int &frequency);
 
 private:
