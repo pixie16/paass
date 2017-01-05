@@ -273,7 +273,6 @@ public:
     /*! \return returns name of specified output file */
     std::string outputFile() const {return outputFilename_;}
 
-
     /*! \return path to use to output files, can be different from output
      * file path
      * \param [in] fileName : the path for the configuration files */

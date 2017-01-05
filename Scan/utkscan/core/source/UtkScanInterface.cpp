@@ -75,7 +75,6 @@ bool UtkScanInterface::Initialize(std::string prefix_) {
         output_his = new OutputHisFile(GetOutputFilename().c_str());
         output_his->SetDebugMode(false);
 
-
         Globals::get()->SetOutputFilename(GetOutputFilename());
 
         /** The DetectorDriver constructor will load processors
