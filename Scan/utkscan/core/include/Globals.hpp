@@ -270,6 +270,10 @@ public:
                                TrapFilterParameters(125, 125, 10)));
     }
 
+    /*! \return returns name of specified output file */
+    std::string outputFile() const {return outputFilename_;}
+
+
     /*! \return path to use to output files, can be different from output
      * file path
      * \param [in] fileName : the path for the configuration files */
@@ -293,6 +297,10 @@ public:
      * Values should be given in seconds in respect to the beginning
      of the file */
     std::vector<std::pair<int, int> > rejectRegions() const { return reject_; };
+
+    /*! Sets output Filename from scan interface */
+    void SetOutputFilename(const std::string &a){outputFilename_ = a; }
+
 private:
     /** Default Constructor */
     Globals(const std::string &file);
@@ -339,6 +347,7 @@ private:
     std::map<std::string, std::pair<double, double> > cfdPars_; //!< Map containing all of the parameters to be used in the cfd analyzer for a type:subtype
     std::map<std::string, std::pair<TrapFilterParameters, TrapFilterParameters> > trapFiltPars_; //!<Map containing all of the trapezoidal filter parameters for a given type:subtype
 
+    std::string outputFilename_; //!<Output Filename
     std::string configFile_;//!< The configuration file
     std::string outputPath_;//!< The path to additional configuration files
     std::string revision_;//!< the pixie revision
