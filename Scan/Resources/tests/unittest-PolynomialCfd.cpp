@@ -2,6 +2,7 @@
 ///@author S. V. Paulauskas
 ///@date December 12, 2016
 #include <iostream>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
