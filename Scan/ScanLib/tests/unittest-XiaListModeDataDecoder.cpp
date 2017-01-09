@@ -2,7 +2,8 @@
 ///@brief Unit tests for the XiaListModeDataDecoder class
 ///@author S. V. Paulauskas
 ///@author December 25, 2016
-#include <exception>
+#include <stdexcept>
+
 #include <UnitTest++.h>
 
 #include "HelperEnumerations.hpp"
