@@ -2,6 +2,7 @@
 ///@brief Unit testing of the XiaListModeDataMask class
 ///@author S. V. Paulauskas
 ///@date December 29, 2016
+#include <stdexcept>
 #include <vector>
 
 #include <UnitTest++.h>
