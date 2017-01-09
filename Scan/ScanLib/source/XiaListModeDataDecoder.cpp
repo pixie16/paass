@@ -5,6 +5,7 @@
 /// @date December 23, 2016
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 #include <cmath>
 

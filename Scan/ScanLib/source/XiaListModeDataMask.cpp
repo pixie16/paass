@@ -3,6 +3,7 @@
 /// @author S. V. Paulauskas
 /// @date December 29, 2016
 #include <sstream>
+#include <stdexcept>
 
 #include "XiaListModeDataMask.hpp"
 
