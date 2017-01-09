@@ -3,6 +3,7 @@
 ///\author S. V. Paulauskas
 ///\date August 8, 2016
 #include <iostream>
+#include <stdexcept>
 
 #include <UnitTest++.h>
 
