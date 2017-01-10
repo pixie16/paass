@@ -206,7 +206,7 @@ namespace Statistics {
 
 namespace TraceFunctions {
     ///The minimum length that is necessary for a good baseline calculation.
-    static const unsigned int minimum_baseline_length = 30;
+    static const unsigned int minimum_baseline_length = 10;
 
     ///@brief Compute the trace baseline and its standard deviation. This
     /// function takes a data range in the event that someone wants to
@@ -220,11 +220,9 @@ namespace TraceFunctions {
     /// baseline and the second element being the standard deviation of the
     /// baseline.
     template<class T>
-    inline pair<double, double> CalculateBaseline(const vector<T>
-                                                  &data,
-                                                  const pair<unsigned int,
-                                                          unsigned int>
-                                                  &range) {
+    inline pair<double, double> CalculateBaseline(
+            const vector<T> &data,
+            const pair<unsigned int, unsigned int> &range) {
         if (data.size() == 0)
             throw range_error("TraceFunctions::ComputeBaseline - Data vector "
                                       "sized 0");
@@ -265,8 +263,8 @@ namespace TraceFunctions {
     /// @return An STL pair containing the maximum that we found and the
     template<class T>
     inline pair<double, vector<double> > ExtrapolateMaximum(
-            const vector<T> &data, const pair<unsigned int,
-            double> &maxInfo) {
+            const vector<T> &data,
+            const pair<unsigned int, double> &maxInfo) {
         if (data.size() < 4)
             throw range_error("TraceFunctions::ExtrapolateMaximum - "
                                       "The data vector has less than 4 "
@@ -348,9 +346,9 @@ namespace TraceFunctions {
     ///@TODO Fix this method so that it works properly.
     template<class T>
     inline unsigned int FindLeadingEdge(const vector<T> &data,
-                                        const double &threshold,
+                                        const double &fraction,
                                         const pair<unsigned int, double> &maxInfo) {
-        if (threshold <= 0)
+        if (fraction <= 0)
             throw range_error("TraceFunctions::FindLeadingEdge - The "
                                       "threshold was below zero.");
         if (data.size() < minimum_baseline_length)
@@ -361,23 +359,14 @@ namespace TraceFunctions {
             throw range_error("TraceFunctions::FindLeadingEdge - The "
                                       "position of the maximum is outside of "
                                       "the size of the data vector.");
-        unsigned int val = 9999;
+
+        double threshold = fraction * maxInfo.second;
+        unsigned int idx = 9999;
         for (size_t index = maxInfo.first;
-             index > minimum_baseline_length; index--) {
-            if (data[index] <= threshold * maxInfo.second) {
-                // Interpolate and return the value
-                // y = thresh_ * maximum
-                // x = (x1 + (y-y1)/(y2-y1))
-                // x1 = index, x2 = index+1
-                // y1 = data[index], y2 = data[index+1]
-                if (data[index + 1] == data[index])
-                    val = index + 1;
-                else
-                    val = index + (threshold * maxInfo.second - data[index]) /
-                                  (data[index + 1] - data[index]);
-            }
-        }
-        return val;
+             index > minimum_baseline_length; index--)
+            if (data[index - 1] < threshold && data[index] >= threshold)
+                idx = index - 1;
+        return idx;
     }
 
     ///This is an exclusive calculation, meaning that the value at the low
