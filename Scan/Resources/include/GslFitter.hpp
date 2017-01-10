@@ -37,7 +37,7 @@ public:
     /// @param[in] pars The parameters for the fit
     /// @param[in] max : Information about the maximum position and value
     /// @param[in] baseline : The average and standard deviation of the baseline
-    double CalculatePhase(const std::vector<unsigned int> &data,
+    double CalculatePhase(const std::vector<double> &data,
                           const std::pair<double, double> &pars,
                           const std::pair<unsigned int, double> &max,
                           const std::pair<double, double> baseline);
