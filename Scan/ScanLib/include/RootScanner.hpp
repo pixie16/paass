@@ -20,7 +20,7 @@ class RootScanner : public ScanInterface {
 	private:
 		TCanvas *canvas_;
 	
-		static constexpr const int numAxes_ = 3;
+		static const int numAxes_ = 3;
 		struct AxisInfo {	
 			double rangeUserMin[numAxes_];
 			double rangeUserMax[numAxes_];
