@@ -13,7 +13,7 @@
 
 using namespace std;
 
-double RootFitter::CalculatePhase(const std::vector<unsigned int> &data,
+double RootFitter::CalculatePhase(const std::vector<double> &data,
                                   const std::pair<double, double> &pars,
                                   const std::pair<unsigned int, double> &maxInfo,
                                   std::pair<double, double> baseline) {

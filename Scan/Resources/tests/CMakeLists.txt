@@ -9,6 +9,7 @@ if (USE_GSL)
     set(GSL_FITTER_SOURCES ${GSL_FITTER_SOURCES} unittest-GslFitter.cpp)
     add_executable(unittest-GslFitter ${GSL_FITTER_SOURCES})
     target_link_libraries(unittest-GslFitter ${GSL_LIBRARIES} UnitTest++)
+    install(TARGETS unittest-GslFitter DESTINATION bin/unittests)
 endif (USE_GSL)
 
 add_executable(unittest-HelperFunctions unittest-HelperFunctions.cpp)

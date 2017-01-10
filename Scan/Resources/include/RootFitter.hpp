@@ -14,7 +14,7 @@ public:
     ~RootFitter() {};
 
     /// Perform CFD analysis on the waveform using the pol2 algorithm.
-    double CalculatePhase(const std::vector<unsigned int> &data,
+    double CalculatePhase(const std::vector<double> &data,
                           const std::pair<double, double> &pars,
                           const std::pair<unsigned int, double> &maxInfo,
                           std::pair<double, double> baseline);
