@@ -1,6 +1,4 @@
 #CMake file for UTKScan.
-
-option(BUILD_UTKSCAN_TESTS "Build unit tests for utkscan" ON)
 option(UTKSCAN_GAMMA_GATES "Gamma-Gamma gates in GeProcessor" OFF)
 option(UTKSCAN_ONLINE "Options for online scans" OFF)
 option(UTKSCAN_TREE_DEBUG "Debugging info for TreeCorrelator" OFF)
