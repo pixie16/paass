@@ -34,7 +34,7 @@ int CalcSiPmtJacobian(const gsl_vector *x, void *FitData, gsl_matrix *J);
 
 using namespace std;
 
-double GslFitter::CalculatePhase(const std::vector<unsigned int> &data,
+double GslFitter::CalculatePhase(const std::vector<double> &data,
                                  const std::pair<double, double> &pars,
                                  const std::pair<unsigned int, double> &max,
                                  const std::pair<double, double> baseline) {
@@ -83,7 +83,7 @@ double GslFitter::CalculatePhase(const std::vector<unsigned int> &data,
 
     for (unsigned int i = 0; i < n; i++) {
         weights[i] = baseline.second;
-        y[i] = data[i] - baseline.first;
+        y[i] = data[i];
     }
 
     gsl_multifit_fdfsolver_wset(s, &f, &x.vector, &w.vector);

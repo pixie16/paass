@@ -185,8 +185,9 @@ namespace unittest_trace_variables {
 
     //This is the region that should be defined as the waveform for the above
     // trace
-    static const std::vector<unsigned int> waveform(trace.begin() + 71,
-                                                    trace.begin() + 86);
+    static const std::vector<double> waveform(
+            trace_sans_baseline.begin() + 71,
+            trace_sans_baseline.begin() + 86);
 
     //An empty data vector to test error checking.
     static const std::vector<unsigned int> empty_vector_uint;

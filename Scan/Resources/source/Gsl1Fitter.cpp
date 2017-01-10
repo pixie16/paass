@@ -47,7 +47,7 @@ int SiPmtFunctionDerivative(const gsl_vector *x, void *FitData, gsl_vector *f,
 
 using namespace std;
 
-void GslFitter::PerformFit(const std::vector<unsigned int> &data,
+double GslFitter::CalculatePhase(const std::vector<double> &data,
                            const std::pair<double, double> &pars,
                            const std::pair<unsigned int, double> &max,
                            const std::pair<double, double> baseline) {
@@ -60,17 +60,17 @@ void GslFitter::PerformFit(const std::vector<unsigned int> &data,
     double *y = new double[sizeFit];
     double *sigma = new double[sizeFit];
     for(unsigned int i = 0; i < sizeFit; i++) {
-        y[i] = data.at(i) - baseline.first;
+        y[i] = data.at(i);
         sigma[i] = baseline.second;
     }
 
-    struct FitDriver::FitData fitData =
+    struct GslFitter::FitData fitData =
             {sizeFit, y, sigma, pars.first, pars.second, area};
 
     f.n = sizeFit;
     f.params = &fitData;
 
-    if(!isSipmFast) {
+    if(!isFastSiPm_) {
         numParams = 2;
         xInit[0] = 0.0;
         xInit[1] = 2.5;
@@ -93,8 +93,8 @@ void GslFitter::PerformFit(const std::vector<unsigned int> &data,
     f.p = numParams;
     gsl_multifit_fdfsolver_set (s, &f, &x.vector);
 
-    static const maxIter = 1e8;
-    static const tolerance = 1e-4;
+    static const double maxIter = 1e8;
+    static const double tolerance = 1e-4;
 
     for(unsigned int iter = 0; iter < maxIter; iter++) {
         status = gsl_multifit_fdfsolver_iterate(s);
@@ -108,25 +108,24 @@ void GslFitter::PerformFit(const std::vector<unsigned int> &data,
     gsl_multifit_covar (s->J, 0.0, covar);
     chi_ = gsl_blas_dnrm2(s->f);
 
-    if(!isSipmFast) {
-        phase_ = gsl_vector_get(s->x,0);
+    if(!isFastSiPm_)
         amp_ = gsl_vector_get(s->x,1);
-    } else {
-        phase_ = gsl_vector_get(s->x,0);
+    else
         amp_ = 0.0;
-    }
 
     gsl_multifit_fdfsolver_free (s);
     gsl_matrix_free (covar);
+
+    return gsl_vector_get(s->x,0);
 }
 
 int PmtFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
-    size_t n       = ((struct FitDriver::FitData *)FitData)->n;
-    double *y      = ((struct FitDriver::FitData *)FitData)->y;
-    double *sigma  = ((struct FitDriver::FitData *)FitData)->sigma;
-    double beta    = ((struct FitDriver::FitData *)FitData)->beta;
-    double gamma   = ((struct FitDriver::FitData *)FitData)->gamma;
-    double qdc     = ((struct FitDriver::FitData *)FitData)->qdc;
+    size_t n       = ((struct GslFitter::FitData *)FitData)->n;
+    double *y      = ((struct GslFitter::FitData *)FitData)->y;
+    double *sigma  = ((struct GslFitter::FitData *)FitData)->sigma;
+    double beta    = ((struct GslFitter::FitData *)FitData)->beta;
+    double gamma   = ((struct GslFitter::FitData *)FitData)->gamma;
+    double qdc     = ((struct GslFitter::FitData *)FitData)->qdc;
 
     double phi     = gsl_vector_get (x, 0);
     double alpha   = gsl_vector_get (x, 1);
@@ -147,11 +146,11 @@ int PmtFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
 }
 
 int CalcPmtJacobian (const gsl_vector * x, void *FitData, gsl_matrix * J) {
-    size_t n = ((struct FitDriver::FitData *)FitData)->n;
-    double *sigma = ((struct FitDriver::FitData *) FitData)->sigma;
-    double beta    = ((struct FitDriver::FitData *)FitData)->beta;
-    double gamma   = ((struct FitDriver::FitData *)FitData)->gamma;
-    double qdc    = ((struct FitDriver::FitData *)FitData)->qdc;
+    size_t n = ((struct GslFitter::FitData *)FitData)->n;
+    double *sigma = ((struct GslFitter::FitData *) FitData)->sigma;
+    double beta    = ((struct GslFitter::FitData *)FitData)->beta;
+    double gamma   = ((struct GslFitter::FitData *)FitData)->gamma;
+    double qdc    = ((struct GslFitter::FitData *)FitData)->qdc;
 
     double phi     = gsl_vector_get (x, 0);
     double alpha   = gsl_vector_get (x, 1);
@@ -185,11 +184,11 @@ int PmtFunctionDerivative (const gsl_vector * x, void *FitData, gsl_vector * f,
 }
 
 int SiPmtFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
-    size_t n       = ((struct FitDriver::FitData *)FitData)->n;
-    double *y      = ((struct FitDriver::FitData *)FitData)->y;
-    double *sigma  = ((struct FitDriver::FitData *)FitData)->sigma;
-    double gamma   = ((struct FitDriver::FitData *)FitData)->gamma;
-    double qdc     = ((struct FitDriver::FitData *)FitData)->qdc;
+    size_t n       = ((struct GslFitter::FitData *)FitData)->n;
+    double *y      = ((struct GslFitter::FitData *)FitData)->y;
+    double *sigma  = ((struct GslFitter::FitData *)FitData)->sigma;
+    double gamma   = ((struct GslFitter::FitData *)FitData)->gamma;
+    double qdc     = ((struct GslFitter::FitData *)FitData)->qdc;
 
     double phi = gsl_vector_get (x, 0);
 
@@ -203,10 +202,10 @@ int SiPmtFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
 }
 
 int CalcSiPmtJacobian (const gsl_vector * x, void *FitData, gsl_matrix * J) {
-    size_t n       = ((struct FitDriver::FitData *)FitData)->n;
-    double *sigma  = ((struct FitDriver::FitData *)FitData)->sigma;
-    double gamma   = ((struct FitDriver::FitData *)FitData)->gamma;
-    double qdc     = ((struct FitDriver::FitData *)FitData)->qdc;
+    size_t n       = ((struct GslFitter::FitData *)FitData)->n;
+    double *sigma  = ((struct GslFitter::FitData *)FitData)->sigma;
+    double gamma   = ((struct GslFitter::FitData *)FitData)->gamma;
+    double qdc     = ((struct GslFitter::FitData *)FitData)->qdc;
 
     double phi = gsl_vector_get (x, 0);
     double dphi;
