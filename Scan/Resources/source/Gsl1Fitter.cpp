@@ -65,7 +65,7 @@ double GslFitter::CalculatePhase(const std::vector<double> &data,
     }
 
     struct GslFitter::FitData fitData =
-            {sizeFit, y, sigma, pars.first, pars.second, area};
+            {sizeFit, y, sigma, pars.first, pars.second, qdc_};
 
     f.n = sizeFit;
     f.params = &fitData;
