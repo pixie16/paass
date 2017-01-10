@@ -247,7 +247,6 @@ namespace unittest_helper_functions {
     //Expected QDC result of the integral for the above pair
     static const double integration_qdc = 6;
 
-
     //--------------------------------------------------------------------------
     //A data vector that contains only the four points for the Poly3 Fitting.
     static const std::vector<unsigned int> poly3_data
@@ -279,7 +278,7 @@ namespace unittest_helper_functions {
 
     //--------------------------------------------------------------------------
     //This is the expected position of the leading edge of signal.
-    static const unsigned int leading_edge_position = 72;
+    static const unsigned int leading_edge_position = 73;
     static const double leading_edge_fraction = 0.5;
     static const double bad_fraction = -0.5;
 }
