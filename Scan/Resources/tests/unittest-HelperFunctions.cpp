@@ -29,8 +29,8 @@ TEST(TestCalculateBaseline) {
 
     //Checking that we throw a range_error when the range is larger than the
     // data vector
-    CHECK_THROW(TraceFunctions::CalculateBaseline(trace, make_pair(0, trace.size() + 100)),
-                range_error);
+    CHECK_THROW(TraceFunctions::CalculateBaseline(
+            trace, make_pair(0, trace.size() + 100)), range_error);
 
     //Check that we are actually calculating the parameters properly
     pair<double, double> result =
@@ -51,7 +51,7 @@ TEST(TestFindMaxiumum) {
 
     //Checking that when the trace delay is smaller than the minimum number of
     // samples for the baseline we throw an error
-    CHECK_THROW(TraceFunctions::FindMaximum(trace, 10), range_error);
+    CHECK_THROW(TraceFunctions::FindMaximum(trace, 5), range_error);
 
     //Checking that we throw a range error if we could not find a maximum in
     // the specified range.
@@ -77,8 +77,8 @@ TEST(TestFindLeadingEdge) {
                                                 max_pair), range_error);
     //Check that if we have a maximum position that is larger than the size
     // of the data vector we throw a range error.
-    CHECK_THROW(TraceFunctions::FindLeadingEdge(trace, leading_edge_fraction,
-                                                make_pair(trace.size()+10, 3.)),
+    CHECK_THROW(TraceFunctions::FindLeadingEdge(
+            trace, leading_edge_fraction, make_pair(trace.size() + 10, 3.)),
                 range_error);
 
     //Check that we are getting what we expect for the leading edge
