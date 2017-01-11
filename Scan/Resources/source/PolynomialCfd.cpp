@@ -25,6 +25,7 @@ double PolynomialCfd::CalculatePhase(const std::vector<double> &data,
 
     double threshold = pars.first * max.second;
     double phase = -9999;
+    float multiplier = 1.;
 
     vector<double> result;
     for (unsigned int cfdIndex = max.first; cfdIndex > 0; cfdIndex--) {
@@ -32,17 +33,11 @@ double PolynomialCfd::CalculatePhase(const std::vector<double> &data,
             // Fit the rise of the trace to a 2nd order polynomial.
             result = Polynomial::CalculatePoly2(data, cfdIndex - 1).second;
 
-            //We want to stop things here so that the user can do some
-            // debugging of potential issues.
-            if (result[2] > 0)
-                throw range_error("PolynomialCfd::CalculatePhase : The "
-                                          "calculated coefficients were for a"
-                                          " concave-upward parabola. "
-                                          "Increase your fraction to "
-                                          "improve quality.");
-
             // Calculate the phase of the trace.
-            phase = (-result[1] +
+            if(result[2] > 1)
+                multiplier = -1.;
+
+            phase = (-result[1] + multiplier *
                      sqrt(result[1] * result[1] -
                                        4 * result[2] *
                                        (result[0] - threshold))) /
