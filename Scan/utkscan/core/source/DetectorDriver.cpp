@@ -340,7 +340,7 @@ void DetectorDriver::ProcessEvent(RawEvent& rawev) {
             PlotCal((*it));
 
             string place = (*it)->GetChanID().GetPlaceName();
-            if (place == "__-1")
+            if (place == "__9999")
                 continue;
 
             if ( (*it)->IsSaturated() || (*it)->IsPileup() )
