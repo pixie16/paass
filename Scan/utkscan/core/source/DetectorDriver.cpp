@@ -56,6 +56,7 @@
 #include "ValidProcessor.hpp"
 
 //These headers are for handling experiment specific processing.
+#include "IS600Processor.hpp"
 #include "TemplateExpProcessor.hpp"
 #include "TwoChanTimingProcessor.hpp"
 
@@ -225,6 +226,8 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new TemplateExpProcessor());
 	    } else if (name == "TwoChanTimingProcessor") {
             vecProcess.push_back(new TwoChanTimingProcessor());
+        } else if (name == "IS600Processor") {
+            vecProcess.push_back(new IS600Processor());
         }
 #ifdef useroot
         else if (name == "RootProcessor") {
