@@ -4,6 +4,7 @@ set(EXPERIMENT_SOURCES
 
 if(USE_ROOT)
 list(APPEND EXPERIMENT_SOURCES
+        Anl1471Processor.cpp
         IS600Processor.cpp
         TwoChanTimingProcessor.cpp)
 endif(USE_ROOT)
