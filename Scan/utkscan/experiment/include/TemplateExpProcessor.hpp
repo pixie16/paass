@@ -37,14 +37,11 @@ public:
     * \return Returns true if the processing was successful */
     virtual bool Process(RawEvent &event);
 private:
-    /** Obtain the name of the histogram file */
-    void ObtainHisName(void);
     /** Sets the detectors that are associated with this processor */
     void SetAssociatedTypes(void);
     /** Sets up the ASCII output file stream */
     void SetupAsciiOutput(void);
 
-    std::string fileName_; //!< String to hold the file name from command line
     std::ofstream *poutstream_; //!< Pointer to ouptut ASCII file stream.
     double gCutoff_; //!< Variable used to set gamma cutoff energy
 
