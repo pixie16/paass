@@ -42,7 +42,6 @@ TemplateExpProcessor::TemplateExpProcessor() :
     EventProcessor(OFFSET, RANGE, "TemplateExpProcessor") {
     gCutoff_ = 0.; ///Set the gamma cuttoff energy to a default of 0.
     SetAssociatedTypes();
-    ObtainHisName();
     SetupAsciiOutput();
 #ifdef useroot
     SetupRootOutput();
@@ -53,7 +52,6 @@ TemplateExpProcessor::TemplateExpProcessor(const double &gcut) :
     EventProcessor(OFFSET, RANGE, "TemplateExpProcessor") {
     gCutoff_ = gcut;
     SetAssociatedTypes();
-    ObtainHisName();
     SetupAsciiOutput();
 #ifdef useroot
     SetupRootOutput();
@@ -80,7 +78,7 @@ void TemplateExpProcessor::SetAssociatedTypes(void) {
 ///Sets up the name of the output ascii data file
 void TemplateExpProcessor::SetupAsciiOutput(void) {
     stringstream name;
-    name << fileName_ << ".dat";
+    name << Globals::get()->outputPath(Globals::get()->outputFile()) << ".dat";
     poutstream_ = new ofstream(name.str().c_str());
 }
 
@@ -88,7 +86,8 @@ void TemplateExpProcessor::SetupAsciiOutput(void) {
 ///Sets up ROOT output file, tree, branches, histograms.
 void TemplateExpProcessor::SetupRootOutput(void) {
     stringstream rootname;
-    rootname << fileName_ << ".root";
+    rootname << Globals::get()->outputPath(Globals::get()->outputFile())
+             << ".root";
     prootfile_ = new TFile(rootname.str().c_str(),"RECREATE");
     proottree_ = new TTree("data","");
     proottree_->Branch("tof",&tof_,"tof/D");
@@ -97,14 +96,6 @@ void TemplateExpProcessor::SetupRootOutput(void) {
     ptsize_ = new TH1D("tsize","",40,0,40);
 }
 #endif
-
-///Obtains the name of the histogram file passed via command line
-void TemplateExpProcessor::ObtainHisName(void) {
-    char hisFileName[32];
-    //    GetArgument(1, hisFileName, 32);
-    string temp = hisFileName;
-    fileName_ = temp.substr(0, temp.find_first_of(" "));
-}
 
 ///We do nothing here since we're completely dependent on the resutls of others
 bool TemplateExpProcessor::PreProcess(RawEvent &event){
@@ -159,11 +150,15 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
             double gEnergy = chan->GetCalEnergy();
             double gTime   = chan->GetCorrectedTime();
 
-            ///Plot the Template Energy vs. Ge Energy
-            plot(DD_TENVSGEN, gEnergy, (*tit)->GetEnergy());
+            ///Plot the Template Energy vs. Ge Energy if tape isn't moving
+            if(!isTapeMoving)
+                plot(DD_TENVSGEN, gEnergy, (*tit)->GetEnergy());
 
-            ///Output template and ge energy to text file
-            *poutstream_ << (*tit)->GetEnergy() << " " << gEnergy << endl;
+            ///Output template and ge energy to text file if we had a beta
+            /// along with the runtime in seconds.
+            if(hasBeta)
+                *poutstream_ << (*tit)->GetEnergy() << " " << gEnergy << " "
+                             << clockInSeconds << endl;
             ///Fill ROOT histograms and tree with the information
             #ifdef useroot
                 ptvsge_->Fill((*tit)->GetEnergy(), gEnergy);
