@@ -11,8 +11,12 @@
 #include <limits>
 #include <sstream>
 
+//This header is for decoding the XML
+///@TODO The XML decoding should be moved out of this file and into a
+/// dedicated class.
 #include "pugixml.hpp"
 
+//These headers are core headers and are needed for basic functionality
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
@@ -22,6 +26,17 @@
 #include "RawEvent.hpp"
 #include "TreeCorrelator.hpp"
 
+//These headers handle trace analysis
+#include "CfdAnalyzer.hpp"
+#include "FittingAnalyzer.hpp"
+#include "TauAnalyzer.hpp"
+#include "TraceAnalyzer.hpp"
+#include "TraceExtractor.hpp"
+#include "TraceFilterAnalyzer.hpp"
+#include "WaaAnalyzer.hpp"
+#include "WaveformAnalyzer.hpp"
+
+//These headers handle processing of specific detector types
 #include "BetaScintProcessor.hpp"
 #include "DoubleBetaProcessor.hpp"
 #include "Hen3Processor.hpp"
@@ -40,15 +55,7 @@
 #include "VandleProcessor.hpp"
 #include "ValidProcessor.hpp"
 
-#include "CfdAnalyzer.hpp"
-#include "FittingAnalyzer.hpp"
-#include "TauAnalyzer.hpp"
-#include "TraceAnalyzer.hpp"
-#include "TraceExtractor.hpp"
-#include "TraceFilterAnalyzer.hpp"
-#include "WaaAnalyzer.hpp"
-#include "WaveformAnalyzer.hpp"
-
+//These headers are for handling experiment specific processing.
 #include "TemplateExpProcessor.hpp"
 
 #ifdef useroot
@@ -215,7 +222,7 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new TemplateProcessor());
         } else if (name == "TemplateExpProcessor") {
             vecProcess.push_back(new TemplateExpProcessor());
-	}
+	    }
 #ifdef useroot
         else if (name == "RootProcessor") {
             vecProcess.push_back(new RootProcessor("tree.root", "tree"));
