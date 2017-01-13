@@ -59,6 +59,7 @@
 #include "TemplateExpProcessor.hpp"
 
 #ifdef useroot //Some processors REQURE ROOT to function
+#include "Anl1471Processor.hpp"
 #include "IS600Processor.hpp"
 #include "RootProcessor.hpp"
 #include "TwoChanTimingProcessor.hpp"
@@ -226,7 +227,9 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new TemplateExpProcessor());
 	    }
 #ifdef useroot //Certain process REQURE root to actually work
-        else if (name == "TwoChanTimingProcessor") {
+        else if (name == "Anl1471Processor") {
+            vecProcess.push_back(new Anl1471Processor());
+        } else if (name == "TwoChanTimingProcessor") {
             vecProcess.push_back(new TwoChanTimingProcessor());
         } else if (name == "IS600Processor") {
             vecProcess.push_back(new IS600Processor());
