@@ -37,43 +37,43 @@ public:
      * \param [in] loc : the location to set */
     Identifier(const std::string &atype, const std::string &subType,
                const unsigned int &loc) {
-        type = atype;
-        subtype = subType;
-        location = loc;
+        type_ = atype;
+        subtype_ = subType;
+        location_ = loc;
     }
 
     /** Sets the DAMM ID
      * \param [in] a : the id to set */
-    void SetDammID(unsigned int &a) {dammID = a;}
+    void SetDammID(unsigned int &a) {dammID_ = a;}
     /** Sets the type
      * \param [in] a : the type to set */
-    void SetType(const std::string &a) {type = a;}
+    void SetType(const std::string &a) {type_ = a;}
     /** Sets the subtype of the channel
      * \param [in] a : the subtype to set */
-    void SetSubtype(const std::string &a) {subtype = a;}
+    void SetSubtype(const std::string &a) {subtype_ = a;}
     /** Sets the location
      * \param [in] a : sets the location for the channel */
-    void SetLocation(const unsigned int &a) {location = a;}
+    void SetLocation(const unsigned int &a) {location_ = a;}
 
     ///@return The value of the private variable dammID
-    unsigned int GetDammID() const {return dammID;}
+    unsigned int GetDammID() const {return dammID_;}
     ///@return The value of the private variable type
-    const std::string& GetType() const {return type;}
+    const std::string& GetType() const {return type_;}
     ///@return the value of the private variable subtype
-    const std::string& GetSubtype() const {return subtype;}
+    const std::string& GetSubtype() const {return subtype_;}
     ///@return The value of the private variable location
-    unsigned int GetLocation() const {return location;}
+    unsigned int GetLocation() const {return location_;}
 
     /** Insert a tag to the Identifier
      * \param [in] s : the name of the tag to insert
      * \param [in] n : the value of the tag to insert */
-    void AddTag(const std::string &s, int n) {tag[s] = n;}
+    void AddTag(const std::string &s, int n) {tag_[s] = n;}
 
     /** Check if an identifier has a tag
      * \param [in] s : the tag to search for
      * \return true if the tag is in the identifier */
     bool HasTag(const std::string &s) const {
-        if(tag.count(s) > 0)
+        if(tag_.count(s) > 0)
             return(true);
         return(false);}
 
@@ -82,7 +82,7 @@ public:
     int GetTag(const std::string &s) const;
 
     /** \return The map with the list of tags */
-    std::map<std::string, int> GetTagMap(void) const {return (tag);}
+    std::map<std::string, int> GetTagMap(void) const {return tag_;}
 
     /** Zeroes an identifier
     *
@@ -99,9 +99,9 @@ public:
      * \param [in] x : the Identifier to compare to
      * \return true if this is equal to x */
     bool operator==(const Identifier &x) const {
-        return (type == x.type &&
-            subtype == x.subtype &&
-            location == x.location);
+        return (type_ == x.type_ &&
+            subtype_ == x.subtype_ &&
+            location_ == x.location_);
     }
 
     /** Not - Equality operator for identifier
@@ -115,17 +115,17 @@ public:
      * \param [in] x : the Identifier to compare
      * \return true if this is less than x */
     bool operator<(const Identifier &x) const {
-       if (type.compare(x.type) > 0)
+       if (type_.compare(x.type_) > 0)
            return false;
-       else if (type.compare(x.type) < 0)
+       else if (type_.compare(x.type_) < 0)
            return true;
        else {
-           if (subtype.compare(x.subtype) > 0)
+           if (subtype_.compare(x.subtype_) > 0)
                return false;
-           else if (subtype.compare(x.subtype))
+           else if (subtype_.compare(x.subtype_))
                return true;
            else {
-               return (location < x.location);
+               return (location_ < x.location_);
            }
        }
     }
@@ -139,16 +139,18 @@ public:
     /** \return The name of the place associated with the channel */
     std::string GetPlaceName() const {
         std::stringstream ss;
-        ss << GetType() << "_" << GetSubtype() << "_" << GetLocation();
+        ss << type_ << "_" << subtype_ << "_" << location_;
         return ss.str();
     }
 private:
-    std::string type;      /**< Specifies the detector type */
-    std::string subtype;   /**< Specifies the detector sub type */
-    unsigned int dammID; /**< Damm spectrum number for plotting
+    std::string type_;      /**< Specifies the detector type */
+    std::string subtype_;   /**< Specifies the detector sub type */
+    unsigned int dammID_; /**< Damm spectrum number for plotting
  * calibrated energies */
-    unsigned int location; /**< Specifies the real world location of the channel.
+    unsigned int location_; /**< Specifies the real world location of the
+ * channel.
                                 For the DSSD this variable is the strip number */
-    std::map<std::string, int> tag;  /**< A list of tags associated with the Identifier */
+    std::map<std::string, int> tag_;  /**< A list of tags associated with the
+ * Identifier */
 };
 #endif
