@@ -56,12 +56,12 @@
 #include "ValidProcessor.hpp"
 
 //These headers are for handling experiment specific processing.
-#include "IS600Processor.hpp"
 #include "TemplateExpProcessor.hpp"
-#include "TwoChanTimingProcessor.hpp"
 
-#ifdef useroot
+#ifdef useroot //Some processors REQURE ROOT to function
+#include "IS600Processor.hpp"
 #include "RootProcessor.hpp"
+#include "TwoChanTimingProcessor.hpp"
 #endif
 
 using namespace std;
@@ -224,13 +224,13 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new TemplateProcessor());
         } else if (name == "TemplateExpProcessor") {
             vecProcess.push_back(new TemplateExpProcessor());
-	    } else if (name == "TwoChanTimingProcessor") {
+	    }
+#ifdef useroot //Certain process REQURE root to actually work
+        else if (name == "TwoChanTimingProcessor") {
             vecProcess.push_back(new TwoChanTimingProcessor());
         } else if (name == "IS600Processor") {
             vecProcess.push_back(new IS600Processor());
-        }
-#ifdef useroot
-        else if (name == "RootProcessor") {
+        } else if (name == "RootProcessor") {
             vecProcess.push_back(new RootProcessor("tree.root", "tree"));
         }
 #endif
@@ -334,7 +334,7 @@ void DetectorDriver::ProcessEvent(RawEvent& rawev) {
             PlotCal((*it));
 
             string place = (*it)->GetChanID().GetPlaceName();
-            if (place == "__-1")
+            if (place == "__4294967295")
                 continue;
 
             if ( (*it)->IsSaturated() || (*it)->IsPileup() )
