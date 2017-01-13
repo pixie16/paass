@@ -17,24 +17,10 @@
 #include <iostream>
 #include <vector>
 
-#include <ctime>
-
-#include "DammPlotIds.hpp"
 #include "FittingAnalyzer.hpp"
 #include "GslFitter.hpp"
 
 using namespace std;
-using namespace dammIds::trace::waveformanalyzer;
-
-void FittingAnalyzer::DeclarePlots(void) {
-    Trace sample_trace = Trace();
-    sample_trace.DeclareHistogram2D(DD_TRACES, S7, S5,
-                                    "traces data FitAnalyzer");
-    sample_trace.DeclareHistogram2D(DD_AMP, SE, SC, "Fit Amplitude");
-    sample_trace.DeclareHistogram1D(D_PHASE, SE, "Fit X0");
-    sample_trace.DeclareHistogram1D(D_CHISQPERDOF, SE, "Chi^2/dof");
-    sample_trace.DeclareHistogram1D(D_SIGMA, SE, "Std Dev Baseline");
-}
 
 FittingAnalyzer::FittingAnalyzer(const std::string &s) {
     name = "FittingAnalyzer";
@@ -71,12 +57,13 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
                                         trace.GetValue("sigmaBaseline"));
     const pair<unsigned int, double> max(trace.GetValue("maxpos"),
                                          trace.GetValue("maxval"));
-    bool isDblBeta = detType == "beta" && detSubtype == "double";
-    bool isDblBetaT = isDblBeta && tagMap.find("timing") != tagMap.end();
 
-    trace.plot(D_SIGMA, baseline.second * 100);
+    //We need to check and make sure that we don't need to use the timing
+    // functions for the SiPM fast signals
+    bool isFastSiPm = detType == "beta" && detSubtype == "double"
+                      && tagMap.find("timing") != tagMap.end();
 
-    if (!isDblBetaT) {
+    if (!isFastSiPm) {
         if (baseline.second > globals->sigmaBaselineThresh()) {
             EndAnalyze();
             return;
@@ -89,11 +76,11 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     }
 
     pair<double, double> pars = globals->fitPars(detType + ":" + detSubtype);
-    if (isDblBetaT)
+    if (isFastSiPm)
         pars = globals->fitPars(detType + ":" + detSubtype + ":timing");
 
     driver_->SetQdc(trace.GetValue("qdc"));
-    double phase = driver_->CalculatePhase(trace.GetWaveformWithBaseline(),
+    double phase = driver_->CalculatePhase(trace.GetWaveform(),
                                            pars, max, baseline);
 
     trace.InsertValue("phase", phase + max.first);
