@@ -47,8 +47,8 @@ TEST_FIXTURE(XiaListModeDataDecoder, TestHeaderDecoding) {
 
 //Test if we can decode a trace properly
 TEST_FIXTURE(XiaListModeDataDecoder, TestTraceDecoding) {
-    //Check that we throw length_error when the event length doesn't match.
-    CHECK_THROW(DecodeBuffer(&header_w_bad_eventlen[0], mask), length_error);
+    //Now doing this just to view the error message
+    DecodeBuffer(&header_w_bad_eventlen[0], mask);
 
     XiaData result = *(DecodeBuffer(&header_N_trace[0], mask).front());
     CHECK_ARRAY_EQUAL(unittest_trace_variables::trace, result.GetTrace(),
