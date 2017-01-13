@@ -57,6 +57,7 @@
 
 //These headers are for handling experiment specific processing.
 #include "TemplateExpProcessor.hpp"
+#include "VandleOrnl2012Processor.hpp"
 
 #ifdef useroot //Some processors REQURE ROOT to function
 #include "Anl1471Processor.hpp"
@@ -233,6 +234,8 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new TwoChanTimingProcessor());
         } else if (name == "IS600Processor") {
             vecProcess.push_back(new IS600Processor());
+        } else if (name == "VandleOrnl2012Processor") {
+            vecProcess.push_back(new VandleOrnl2012Processor());
         } else if (name == "RootProcessor") {
             vecProcess.push_back(new RootProcessor("tree.root", "tree"));
         }

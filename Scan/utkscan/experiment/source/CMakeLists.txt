@@ -1,5 +1,6 @@
 set(EXPERIMENT_SOURCES
         TemplateExpProcessor.cpp
+        VandleOrnl2012Processor.cpp
 )
 
 if(USE_ROOT)
