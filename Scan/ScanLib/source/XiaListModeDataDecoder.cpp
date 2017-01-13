@@ -98,9 +98,9 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(
                      << "Unexpected header length: " << headerLength << endl
                      << "ReadBuffer:   Buffer " << modNum << " of length "
                      << bufLen << endl
-                     << "ReadBuffer:   CRATE:SLOT:CHAN "
+                     << "ReadBuffer:   CRATE:SLOT(MOD):CHAN "
                      << data->GetCrateNumber() << ":"
-                     << data->GetSlotNumber() << ":"
+                     << data->GetSlotNumber() << "(" << modNum << "):"
                      << data->GetChannelNumber() << endl;
                 return vector<XiaData *>();
         }
