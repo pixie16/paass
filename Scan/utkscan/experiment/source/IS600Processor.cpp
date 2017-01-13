@@ -1,25 +1,18 @@
-/** \file IS600Processor.cpp
- * \brief A class to process data from ISOLDE 599 and 600 experiments using
- * VANDLE.
- *
- *\author S. V. Paulauskas
- *\date July 14, 2015
- */
+///@file IS600Processor.cpp
+///@brief A class to process data from ISOLDE 599 and 600 experiments using
+/// VANDLE.
+///@author S. V. Paulauskas
+///@date July 14, 2015
 #include <fstream>
 #include <iostream>
 
 #include <cmath>
 
 #include "BarBuilder.hpp"
-#include "DammPlotIds.hpp"
 #include "DoubleBetaProcessor.hpp"
 #include "DetectorDriver.hpp"
 #include "GeProcessor.hpp"
-#include "GetArguments.hpp"
-#include "Globals.hpp"
 #include "IS600Processor.hpp"
-#include "RawEvent.hpp"
-#include "TimingMapBuilder.hpp"
 #include "VandleProcessor.hpp"
 
 #ifdef useroot
@@ -71,16 +64,13 @@ IS600Processor::IS600Processor() : EventProcessor(OFFSET, RANGE, "IS600PRocessor
     associatedTypes.insert("beta");
     associatedTypes.insert("ge");
 
-    char hisFileName[32];
-    GetArgument(1, hisFileName, 32);
-    string temp = hisFileName;
-    temp = temp.substr(0, temp.find_first_of(" "));
     stringstream name;
-    name << temp << ".dat";
+    name << Globals::get()->outputPath(Globals::get()->outputFile()) << ".dat";
     outstream = new ofstream(name.str().c_str());
 #ifdef useroot
     stringstream rootname;
-    rootname << temp << ".root";
+    rootname << Globals::get()->outputPath(Globals::get()->outputFile()) << ".root";
+    cout << rootname.str() << endl;
     rootfile_ = new TFile(rootname.str().c_str(),"RECREATE");
     roottree_ = new TTree("vandle","");
     roottree_->Branch("tof",&tof_,"tof/D");
