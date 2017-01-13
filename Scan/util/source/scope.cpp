@@ -3,6 +3,7 @@
 
 // PixieCore libraries
 #include "ChannelEvent.hpp"
+#include "HelperFunctions.hpp"
 #include "XiaData.hpp"
 
 // Local files
@@ -97,7 +98,9 @@ void scopeUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/){
 		}
 
 		// Pass this event to the correct processor
-		int maximum = *std::max_element(current_event->GetTrace().begin(), current_event->GetTrace().end());
+		double maximum =
+				TraceFunctions::FindMaximum(current_event->GetTrace(),
+											current_event->GetTrace().size()).second;
 		if(current_event->GetModuleNumber() == mod_ && current_event->GetChannelNumber() == chan_){
 			//Check threhsold.
 			if (maximum < threshLow_) {
