@@ -37,6 +37,7 @@ vector<XiaData*> XiaListModeDataDecoder::DecodeBuffer(
 
     stringstream msg;
     vector<XiaData*> events;
+    unsigned int numSkippedTriggers = 0;
 
     while (buf < bufStart + bufLen) {
         XiaData* data = new XiaData();
@@ -133,13 +134,17 @@ vector<XiaData*> XiaListModeDataDecoder::DecodeBuffer(
         //We set the time according to the revision and firmware.
         data->SetTime(CalculateTimeInSamples(mask, *data));
 
-        // One last check
+        // One last check to ensure event length matches what we think it
+        // should be.
         if (traceLength / 2 + headerLength != eventLength) {
-            msg << "ReadBuffer: Bad event length (" << eventLength
-                << ") does not correspond with length of header ("
-                << headerLength << ") and length of trace (" << traceLength
-                << ")";
-            throw length_error(msg.str());
+            numSkippedTriggers++;
+            cerr << "XiaListModeDataDecoder::ReadBuffer : Event"
+                    "length (" << eventLength << ") does not correspond to "
+                    "header length (" << headerLength << ") and trace length ("
+                 << traceLength / 2 << "). Skipping this trigger. Skipped "
+                    "trigger(s) this buffer " << numSkippedTriggers << ".";
+            buf += eventLength;
+            continue;
         } else //Advance the buffer past the header and to the trace
             buf += headerLength;
 
