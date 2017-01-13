@@ -57,6 +57,7 @@
 
 //These headers are for handling experiment specific processing.
 #include "TemplateExpProcessor.hpp"
+#include "TwoChanTimingProcessor.hpp"
 
 #ifdef useroot
 #include "RootProcessor.hpp"
@@ -222,7 +223,9 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             vecProcess.push_back(new TemplateProcessor());
         } else if (name == "TemplateExpProcessor") {
             vecProcess.push_back(new TemplateExpProcessor());
-	    }
+	    } else if (name == "TwoChanTimingProcessor") {
+            vecProcess.push_back(new TwoChanTimingProcessor());
+        }
 #ifdef useroot
         else if (name == "RootProcessor") {
             vecProcess.push_back(new RootProcessor("tree.root", "tree"));
@@ -230,7 +233,7 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
 #endif
         else {
             stringstream ss;
-            ss << "DetectorDriver: unknown processor type" << name;
+            ss << "DetectorDriver: unknown processor type : " << name;
             throw GeneralException(ss.str());
         }
         stringstream ss;
