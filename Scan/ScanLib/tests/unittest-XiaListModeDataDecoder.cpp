@@ -31,8 +31,9 @@ TEST_FIXTURE(XiaListModeDataDecoder, TestBufferLengthChecks) {
 ///Test if we can decode a simple 4 word header that includes the Pixie
 /// Module Data Header.
 TEST_FIXTURE(XiaListModeDataDecoder, TestHeaderDecoding) {
-    //Check for length_error when the header has an impossible size.
-    CHECK_THROW(DecodeBuffer(&header_w_bad_headerlen[0], mask), length_error);
+    //Check that we get an empty vector when the header has an impossible size.
+    CHECK_EQUAL((unsigned int)0,
+                DecodeBuffer(&header_w_bad_headerlen[0], mask).size());
 
     //Check that we can decode a simple 4-word header.
     XiaData result_data = *(DecodeBuffer(&header[0], mask).front());
@@ -47,8 +48,9 @@ TEST_FIXTURE(XiaListModeDataDecoder, TestHeaderDecoding) {
 
 //Test if we can decode a trace properly
 TEST_FIXTURE(XiaListModeDataDecoder, TestTraceDecoding) {
-    //Now doing this just to view the error message
-    DecodeBuffer(&header_w_bad_eventlen[0], mask);
+    //Testing that we return an empty event list.
+    CHECK_EQUAL((unsigned int)0,
+                DecodeBuffer(&header_w_bad_eventlen[0], mask).size());
 
     XiaData result = *(DecodeBuffer(&header_N_trace[0], mask).front());
     CHECK_ARRAY_EQUAL(unittest_trace_variables::trace, result.GetTrace(),

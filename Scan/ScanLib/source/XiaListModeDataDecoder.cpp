@@ -5,7 +5,6 @@
 /// @date December 23, 2016
 #include <iostream>
 #include <sstream>
-#include <stdexcept>
 
 #include <cmath>
 
@@ -15,7 +14,7 @@
 using namespace std;
 using namespace DataProcessing;
 
-vector<XiaData*> XiaListModeDataDecoder::DecodeBuffer(
+vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(
         unsigned int *buf, const XiaListModeDataMask &mask) {
 
     unsigned int *bufStart = buf;
@@ -33,14 +32,14 @@ vector<XiaData*> XiaListModeDataDecoder::DecodeBuffer(
     //For empty buffers we just return an empty vector.
     static const unsigned int emptyBufferLength = 2;
     if (bufLen == emptyBufferLength)
-        return vector<XiaData*>();
+        return vector<XiaData *>();
 
     stringstream msg;
-    vector<XiaData*> events;
-    unsigned int numSkippedTriggers = 0;
+    vector<XiaData *> events;
+    static unsigned int numSkippedBuffers = 0;
 
     while (buf < bufStart + bufLen) {
-        XiaData* data = new XiaData();
+        XiaData *data = new XiaData();
         bool hasExternalTimestamp = false;
         bool hasQdc = false;
         bool hasEnergySums = false;
@@ -90,17 +89,20 @@ vector<XiaData*> XiaListModeDataDecoder::DecodeBuffer(
                 hasQdc = hasExternalTimestamp = true;
                 break;
             default:
-                msg << "XiaListModeDataDecoder::ReadBuffer : We encountered an "
-                        "unrecognized header length ("
-                    << headerLength << "). Skipping the remaining buffer."
-                    << endl << "ReadBuffer: Unexpected header length: "
-                    << headerLength << endl << "ReadBuffer:   Buffer "
-                    << modNum << " of length " << bufLen << endl
-                    << "ReadBuffer:   CHAN:SLOT:CRATE "
-                    << data->GetChannelNumber() << ":"
-                    << data->GetSlotNumber() << ":"
-                    << data->GetCrateNumber() << endl;
-                throw length_error(msg.str());
+                numSkippedBuffers++;
+                cerr << "XiaListModeDataDecoder::ReadBuffer : We encountered "
+                        "an unrecognized header length (" << headerLength
+                     << "). " << endl
+                     << "Skipped " << numSkippedBuffers
+                     << " buffers in the file." << endl
+                     << "Unexpected header length: " << headerLength << endl
+                     << "ReadBuffer:   Buffer " << modNum << " of length "
+                     << bufLen << endl
+                     << "ReadBuffer:   CRATE:SLOT:CHAN "
+                     << data->GetCrateNumber() << ":"
+                     << data->GetSlotNumber() << ":"
+                     << data->GetChannelNumber() << endl;
+                return vector<XiaData *>();
         }
 
         if (hasExternalTimestamp) {
@@ -137,14 +139,14 @@ vector<XiaData*> XiaListModeDataDecoder::DecodeBuffer(
         // One last check to ensure event length matches what we think it
         // should be.
         if (traceLength / 2 + headerLength != eventLength) {
-            numSkippedTriggers++;
+            numSkippedBuffers++;
             cerr << "XiaListModeDataDecoder::ReadBuffer : Event"
                     "length (" << eventLength << ") does not correspond to "
-                    "header length (" << headerLength << ") and trace length ("
-                 << traceLength / 2 << "). Skipping this trigger. Skipped "
-                    "trigger(s) this buffer " << numSkippedTriggers << ".";
-            buf += eventLength;
-            continue;
+                         "header length (" << headerLength
+                 << ") and trace length ("
+                 << traceLength / 2 << "). Skipped a total of "
+                 << numSkippedBuffers << " buffers in this file." << endl;
+            return vector<XiaData *>();
         } else //Advance the buffer past the header and to the trace
             buf += headerLength;
 
@@ -216,7 +218,7 @@ double XiaListModeDataDecoder::CalculateTimeInSamples(
     double filterTime =
             data.GetEventTimeLow() + data.GetEventTimeHigh() * pow(2., 32);
 
-    if(data.GetCfdFractionalTime() == 0 || data.GetCfdForcedTriggerBit())
+    if (data.GetCfdFractionalTime() == 0 || data.GetCfdForcedTriggerBit())
         return filterTime;
 
     double cfdTime = 0, multiplier = 1;
