@@ -75,7 +75,8 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
         trace.InsertValue("sigmaBaseline", baseline.second);
         trace.InsertValue("maxval", max.second - baseline.first);
         trace.InsertValue("extrapolatedMaxVal",
-                          TraceFunctions::ExtrapolateMaximum(traceNoBaseline, max).first);
+                          TraceFunctions::ExtrapolateMaximum(trace, max)
+                                  .first - baseline.first);
         trace.InsertValue("maxpos", (int)max.first);
         trace.SetBaselineSubtractedTrace(traceNoBaseline);
         trace.SetWaveformRange(waveformRange);
