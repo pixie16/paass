@@ -25,13 +25,23 @@ public:
         firmware_ = DataProcessing::UNKNOWN;
     }
 
-    ///Constructor accepting a string with the firmware type and the frequency
+    ///Constructor accepting a FIRMWARE enum as an argument
     ///@param[in] firmware : The value we want to set for the firmware
     ///@param[in] freq : The value in MS/s or MHz that we want to assign to the
     /// frequency.
     XiaListModeDataMask(const DataProcessing::FIRMWARE &firmware,
                         const unsigned int &freq) {
         firmware_ = firmware;
+        frequency_ = freq;
+    }
+
+    ///Constructor accepting a string with the firmware type and the frequency
+    ///@param[in] firmware : The value we want to set for the firmware
+    ///@param[in] freq : The value in MS/s or MHz that we want to assign to the
+    /// frequency.
+    XiaListModeDataMask(const std::string &firmware,
+                        const unsigned int &freq) {
+        firmware_ = ConvertStringToFirmware(firmware);
         frequency_ = freq;
     }
 
@@ -123,7 +133,7 @@ public:
 
     ///Getter for the value of the frequency that we're using.
     ///@return The current value of the internal frequency_ variable
-    unsigned int GetFrequency() const { return  frequency_; }
+    unsigned int GetFrequency() const { return frequency_; }
 
     ///Sets the firmware version
     ///@param[in] firmware : The firmware type that we would like to set.
@@ -143,6 +153,12 @@ public:
     /// are working with.
     void SetFrequency(const unsigned int &freq) { frequency_ = freq; }
 
+    ///Converts a string to a firmware version this is used to set the
+    /// firmware using SetFirmware(string) method.
+    ///@param[in] type : A string of the firmware version that we would like.
+    /// It can be prepended with the "R" or not.
+    ///@return The firmware ENUM for the firmware type.
+    DataProcessing::FIRMWARE ConvertStringToFirmware(const std::string &type);
 
 private:
     ///The firmware version that we are using.
@@ -151,8 +167,6 @@ private:
     unsigned int frequency_;
 
     std::string BadMaskErrorMessage(const std::string &func) const;
-
-    DataProcessing::FIRMWARE ConvertStringToFirmware(const std::string &type);
 };
 
 #endif //PIXIESUITE_XIALISTMODEDATAMASK_HPP
