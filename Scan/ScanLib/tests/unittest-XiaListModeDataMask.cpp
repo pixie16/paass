@@ -13,6 +13,36 @@
 using namespace std;
 using namespace DataProcessing;
 
+//Test that we can convert all the firmware names to the right values.
+TEST_FIXTURE(XiaListModeDataMask, TestConvertStringToFirmware) {
+    //Check the exact names.
+    CHECK_EQUAL(R29432, ConvertStringToFirmware("R29432"));
+    CHECK_EQUAL(R29432, ConvertStringToFirmware("29432"));
+
+    CHECK_EQUAL(R30474, ConvertStringToFirmware("R30474"));
+    CHECK_EQUAL(R30474, ConvertStringToFirmware("30474"));
+
+    CHECK_EQUAL(R30980, ConvertStringToFirmware("R30980"));
+    CHECK_EQUAL(R30980, ConvertStringToFirmware("30980"));
+
+    CHECK_EQUAL(R30981, ConvertStringToFirmware("R30981"));
+    CHECK_EQUAL(R30981, ConvertStringToFirmware("30981"));
+            
+    CHECK_EQUAL(R34688, ConvertStringToFirmware("R34688"));
+    CHECK_EQUAL(R34688, ConvertStringToFirmware("34688"));
+
+    //Check values in between numbers
+    CHECK_EQUAL(R29432, ConvertStringToFirmware("29700"));
+    CHECK_EQUAL(R30474, ConvertStringToFirmware("30670"));
+    CHECK_EQUAL(R30981, ConvertStringToFirmware("32000"));
+
+    //Two cases for absolute failure of the method is when we have a firmware
+    // version that is higher than the highest known one, and a version
+    // smaller than the smallest known version.
+    CHECK_THROW(ConvertStringToFirmware("45000"), invalid_argument);
+    CHECK_THROW(ConvertStringToFirmware("12"), invalid_argument);
+}
+
 TEST_FIXTURE(XiaListModeDataMask, TestXiaListModeDataMask) {
     //We do not need to test more than on version of these since they are
     // identical across all firmware versions.

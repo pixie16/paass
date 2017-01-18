@@ -2,8 +2,10 @@
 /// @brief Class that provides the data masks for XIA list mode data
 /// @author S. V. Paulauskas
 /// @date December 29, 2016
+#include <iostream>
 #include <sstream>
-#include <stdexcept>
+
+#include <cstdlib>
 
 #include "XiaListModeDataMask.hpp"
 
@@ -12,16 +14,25 @@ using namespace DataProcessing;
 
 FIRMWARE XiaListModeDataMask::ConvertStringToFirmware(const std::string &type) {
     FIRMWARE firmware = UNKNOWN;
+    unsigned int firmwareNumber = 0;
     stringstream msg;
-    if (type == "R29432")
+
+    //First convert the string into a number
+    if (type.find("R") == 0) {
+        string tmp(type.begin() +1, type.end());
+        firmwareNumber = (unsigned int)atoi(tmp.c_str());
+    } else
+        firmwareNumber = (unsigned int)atoi(type.c_str());
+
+    if(firmwareNumber >= 29432 && firmwareNumber < 30474)
         firmware = R29432;
-    else if (type == "R30474")
+    else if(firmwareNumber >= 30474 && firmwareNumber < 30980)
         firmware = R30474;
-    else if (type == "R30980")
+    else if(firmwareNumber >= 30980 && firmwareNumber < 30981)
         firmware = R30980;
-    else if (type == "R30981")
+    else if(firmwareNumber >= 30981 && firmwareNumber < 34688)
         firmware = R30981;
-    else if (type == "R34688")
+    else if(firmwareNumber == 34688) //compare exactly here since nothing higher
         firmware = R34688;
     else {
         msg << "XiaListModeDataMask::CovnertStringToFirmware : "
@@ -250,7 +261,7 @@ double XiaListModeDataMask::GetCfdSize() const {
     if (firmware_ == UNKNOWN || frequency_ == 0)
         throw invalid_argument(BadMaskErrorMessage
                                        ("GetCfdFractionalTimeMask"));
-    if(frequency_ == 500)
+    if (frequency_ == 500)
         return 8192.;
 
     double val = 0;
