@@ -46,49 +46,47 @@ public:
     }
 
     ///Default Destructor
-    ~XiaListModeDataMask() {};
+    ~XiaListModeDataMask() {}
 
     ///Getter for the Mask and Shift of the Channel Number.
     ///@return The pair of the mask and bit shift to use to decode the data.
     std::pair<unsigned int, unsigned int> GetChannelNumberMask() const {
         return std::make_pair(0x0000000F, 0);
-    };
+    }
 
     ///Getter for the Mask and Shift of the Slot Id.
     ///@return The pair of the mask and bit shift to use to decode the data.
     std::pair<unsigned int, unsigned int> GetSlotIdMask() const {
         return std::make_pair(0x000000F0, 4);
-    };
+    }
 
     ///Getter for the Mask and Shift of the Crate ID.
     ///@return The pair of the mask and bit shift to use to decode the data.
     std::pair<unsigned int, unsigned int> GetCrateIdMask() const {
         return std::make_pair(0x00000F00, 8);
-    };
+    }
 
     ///Getter for the Mask and Shift of the Header Length.
     ///@return The pair of the mask and bit shift to use to decode the data.
     std::pair<unsigned int, unsigned int> GetHeaderLengthMask() const {
         return std::make_pair(0x0001F000, 12);
-    };
+    }
 
     ///Getter for the Mask and Shift of the Event Length.
     ///@return The pair of the mask and bit shift to use to decode the data.
-    std::pair<unsigned int, unsigned int> GetEventLengthMask() const {
-        return std::make_pair(0x1FFE0000, 17);
-    };
+    std::pair<unsigned int, unsigned int> GetEventLengthMask() const;
 
     ///Getter for the Mask and Shift of the Finish Code.
     ///@return The pair of the mask and bit shift to use to decode the data.
     std::pair<unsigned int, unsigned int> GetFinishCodeMask() const {
         return std::make_pair(0x80000000, 31);
-    };
+    }
 
     ///Getter for the Mask and Shift of the Event Time High.
     ///@return The pair of the mask and bit shift to use to decode the data.
     std::pair<unsigned int, unsigned int> GetEventTimeHighMask() const {
         return std::make_pair(0x0000FFFF, 0);
-    };
+    }
 
     ///Getter for the Mask and Shift of the Event Time High.
     ///@return The pair of the mask and bit shift to use to decode the data.
