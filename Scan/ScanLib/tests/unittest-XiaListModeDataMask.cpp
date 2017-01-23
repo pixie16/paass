@@ -16,6 +16,15 @@ using namespace DataProcessing;
 //Test that we can convert all the firmware names to the right values.
 TEST_FIXTURE(XiaListModeDataMask, TestConvertStringToFirmware) {
     //Check the exact names.
+    CHECK_EQUAL(R17562, ConvertStringToFirmware("R17562"));
+    CHECK_EQUAL(R17562, ConvertStringToFirmware("17562"));
+
+    CHECK_EQUAL(R20466, ConvertStringToFirmware("R20466"));
+    CHECK_EQUAL(R20466, ConvertStringToFirmware("20466"));
+
+    CHECK_EQUAL(R27361, ConvertStringToFirmware("R27361"));
+    CHECK_EQUAL(R27361, ConvertStringToFirmware("27361"));
+    
     CHECK_EQUAL(R29432, ConvertStringToFirmware("R29432"));
     CHECK_EQUAL(R29432, ConvertStringToFirmware("29432"));
 
@@ -27,11 +36,14 @@ TEST_FIXTURE(XiaListModeDataMask, TestConvertStringToFirmware) {
 
     CHECK_EQUAL(R30981, ConvertStringToFirmware("R30981"));
     CHECK_EQUAL(R30981, ConvertStringToFirmware("30981"));
-            
+    
     CHECK_EQUAL(R34688, ConvertStringToFirmware("R34688"));
     CHECK_EQUAL(R34688, ConvertStringToFirmware("34688"));
 
     //Check values in between numbers
+    CHECK_EQUAL(R17562, ConvertStringToFirmware("19000"));
+    CHECK_EQUAL(R20466, ConvertStringToFirmware("23000"));
+    CHECK_EQUAL(R27361, ConvertStringToFirmware("28000"));
     CHECK_EQUAL(R29432, ConvertStringToFirmware("29700"));
     CHECK_EQUAL(R30474, ConvertStringToFirmware("30670"));
     CHECK_EQUAL(R30981, ConvertStringToFirmware("32000"));
@@ -58,9 +70,6 @@ TEST_FIXTURE(XiaListModeDataMask, TestXiaListModeDataMask) {
 
     CHECK_EQUAL((unsigned int) 0x0001F000, GetHeaderLengthMask().first);
     CHECK_EQUAL((unsigned int) 12, GetHeaderLengthMask().second);
-
-    CHECK_EQUAL((unsigned int) 0x1FFE0000, GetEventLengthMask().first);
-    CHECK_EQUAL((unsigned int) 17, GetEventLengthMask().second);
 
     CHECK_EQUAL((unsigned int) 0x80000000, GetFinishCodeMask().first);
     CHECK_EQUAL((unsigned int) 31, GetFinishCodeMask().second);
