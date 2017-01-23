@@ -171,6 +171,20 @@ std::pair<unsigned int, unsigned int> XiaListModeDataDecoder::DecodeWordZero(
                                 >> mask.GetCrateIdMask().second);
     data.SetPileup((word & mask.GetFinishCodeMask().first) != 0);
 
+    //We have to check if we have one of these three firmwares since they
+    // have the Trace-Out-of-Range flag in this word.
+    switch(mask.GetFirmware()) {
+        case R17562:
+        case R20466:
+        case R27361:
+            data.SetSaturation((bool)
+                ((word & mask.GetTraceOutOfRangeFlagMask().first)
+                    >> mask.GetTraceOutOfRangeFlagMask().second));
+            break;
+        default:
+            break;
+    }
+
     return make_pair((word & mask.GetHeaderLengthMask().first)
                              >> mask.GetHeaderLengthMask().second,
                      (word & mask.GetEventLengthMask().first)
@@ -195,7 +209,21 @@ unsigned int XiaListModeDataDecoder::DecodeWordThree(
         const unsigned int &word, XiaData &data,
         const XiaListModeDataMask &mask) {
     data.SetEnergy(word & mask.GetEventEnergyMask().first);
-    data.SetSaturation((bool) (word & mask.GetTraceOutOfRangeFlagMask().first));
+
+    //Reverse the logic that we used in DecodeWordZero, since if we do not
+    // have these three firmwares we need to check this word for the
+    // Trace-Out-of-Range flag.
+    switch(mask.GetFirmware()) {
+        case R17562:
+        case R20466:
+        case R27361:
+            break;
+        default:
+            data.SetSaturation((bool)
+               ((word & mask.GetTraceOutOfRangeFlagMask().first)
+                      >> mask.GetTraceOutOfRangeFlagMask().second));
+            break;
+    }
 
     return ((word & mask.GetTraceLengthMask().first)
             >> mask.GetTraceLengthMask().second);
