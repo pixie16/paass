@@ -237,7 +237,7 @@ namespace TraceFunctions {
 
         if (range.second - range.first < minimum_baseline_length)
             throw range_error("TraceFunctions::ComputeBaseline - The range "
-                                      "specified is smaller than the minumum"
+                                      "specified is smaller than the minimum"
                                       " necessary range.");
         double baseline =
                 Statistics::CalculateAverage(
