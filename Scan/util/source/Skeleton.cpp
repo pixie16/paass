@@ -39,7 +39,7 @@ void skeletonUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/){
 
 #ifdef USE_HRIBF		
 		// If using scanor, output to the generic histogram so we know that something is happening.
-		count1cc_(8000, (current_event->modNum*16+current_event->chanNum), 1);
+		count1cc_(8000, (current_event->GetId()), 1);
 #endif	
 	
 		// Check that this channel event exists.
