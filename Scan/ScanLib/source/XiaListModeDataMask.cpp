@@ -5,8 +5,6 @@
 #include <iostream>
 #include <sstream>
 
-#include <cstdlib>
-
 #include "XiaListModeDataMask.hpp"
 
 using namespace std;
@@ -19,20 +17,27 @@ FIRMWARE XiaListModeDataMask::ConvertStringToFirmware(const std::string &type) {
 
     //First convert the string into a number
     if (type.find("R") == 0) {
-        string tmp(type.begin() +1, type.end());
-        firmwareNumber = (unsigned int)atoi(tmp.c_str());
+        string tmp(type.begin() + 1, type.end());
+        firmwareNumber = (unsigned int) atoi(tmp.c_str());
     } else
-        firmwareNumber = (unsigned int)atoi(type.c_str());
+        firmwareNumber = (unsigned int) atoi(type.c_str());
 
-    if(firmwareNumber >= 29432 && firmwareNumber < 30474)
+    if (firmwareNumber >= 17562 && firmwareNumber < 20466)
+        firmware = R17562;
+    else if (firmwareNumber >= 20466 && firmwareNumber < 27361)
+        firmware = R20466;
+    else if (firmwareNumber >= 27361 && firmwareNumber < 29432)
+        firmware = R27361;
+    else if (firmwareNumber >= 29432 && firmwareNumber < 30474)
         firmware = R29432;
-    else if(firmwareNumber >= 30474 && firmwareNumber < 30980)
+    else if (firmwareNumber >= 30474 && firmwareNumber < 30980)
         firmware = R30474;
-    else if(firmwareNumber >= 30980 && firmwareNumber < 30981)
+    else if (firmwareNumber >= 30980 && firmwareNumber < 30981)
         firmware = R30980;
-    else if(firmwareNumber >= 30981 && firmwareNumber < 34688)
+    else if (firmwareNumber >= 30981 && firmwareNumber < 34688)
         firmware = R30981;
-    else if(firmwareNumber == 34688) //compare exactly here since nothing higher
+    else if (firmwareNumber ==
+             34688) //compare exactly here since nothing higher
         firmware = R34688;
     else {
         msg << "XiaListModeDataMask::CovnertStringToFirmware : "
@@ -52,6 +57,7 @@ XiaListModeDataMask::GetCfdFractionalTimeMask() const {
     unsigned int mask = 0;
     if (frequency_ == 100) {
         switch (firmware_) {
+            case R17562:
             case R29432:
                 mask = 0xFFFF0000;
                 break;
@@ -61,11 +67,15 @@ XiaListModeDataMask::GetCfdFractionalTimeMask() const {
             case R34688:
                 mask = 0x7FFF0000;
                 break;
-            case UNKNOWN:
+            default:
                 break;
         }
     } else if (frequency_ == 250) {
         switch (firmware_) {
+            case R20466:
+                mask = 0xFFFF0000;
+                break;
+            case R27361:
             case R29432:
                 mask = 0x7FFF0000;
                 break;
@@ -75,7 +85,7 @@ XiaListModeDataMask::GetCfdFractionalTimeMask() const {
             case R34688:
                 mask = 0x3FFF0000;
                 break;
-            case UNKNOWN:
+            default:
                 break;
         }
     } else if (frequency_ == 500) {
@@ -87,26 +97,49 @@ XiaListModeDataMask::GetCfdFractionalTimeMask() const {
             case R34688:
                 mask = 0x1FFF0000;
                 break;
-            case UNKNOWN:
+            default:
                 break;
         }
     }
     return make_pair(mask, 16);
 }
 
+std::pair<unsigned int, unsigned int> XiaListModeDataMask::GetEventLengthMask()
+const {
+    if(firmware_ == UNKNOWN)
+        throw invalid_argument(BadMaskErrorMessage("GetEventLengthMask"));
+    unsigned int mask = 0;
+    unsigned int bit = 0;
+    switch(firmware_) {
+        case R17562:
+        case R20466:
+        case R27361:
+            mask = 0x3FFE0000;
+            bit = 17;
+            break;
+        case R29432:
+        case R30474:
+        case R30980:
+        case R30981:
+        case R34688:
+            mask = 0x1FFE0000;
+            bit = 17;
+            break;
+        default:
+            break;
+    }
+    return make_pair(mask, bit);
+}
+
 pair<unsigned int, unsigned int>
 XiaListModeDataMask::GetCfdForcedTriggerBitMask() const {
     if (firmware_ == UNKNOWN || frequency_ == 0)
         throw invalid_argument(BadMaskErrorMessage
-                                       ("GetCfdFractionalTimeMask"));
+                                       ("GetCfdForcedTriggerBitMask"));
     unsigned int mask = 0;
     unsigned int bit = 0;
     if (frequency_ == 100) {
         switch (firmware_) {
-            case R29432:
-                mask = 0;
-                bit = 0;
-                break;
             case R30474:
             case R30980:
             case R30981:
@@ -114,7 +147,7 @@ XiaListModeDataMask::GetCfdForcedTriggerBitMask() const {
                 mask = 0x80000000;
                 bit = 31;
                 break;
-            case UNKNOWN:
+            default:
                 break;
         }
     } else if (frequency_ == 250) {
@@ -126,8 +159,7 @@ XiaListModeDataMask::GetCfdForcedTriggerBitMask() const {
                 mask = 0x80000000;
                 bit = 31;
                 break;
-            case R29432:
-            case UNKNOWN:
+            default:
                 break;
         }
     }
@@ -138,11 +170,12 @@ pair<unsigned int, unsigned int>
 XiaListModeDataMask::GetCfdTriggerSourceMask() const {
     if (firmware_ == UNKNOWN || frequency_ == 0)
         throw invalid_argument(BadMaskErrorMessage
-                                       ("GetCfdFractionalTimeMask"));
+                                       ("GetCfdTriggerSourceMask"));
     unsigned int mask = 0;
     unsigned int bit = 0;
     if (frequency_ == 250) {
         switch (firmware_) {
+            case R27361:
             case R29432:
                 mask = 0x80000000;
                 bit = 31;
@@ -154,7 +187,7 @@ XiaListModeDataMask::GetCfdTriggerSourceMask() const {
                 mask = 0x40000000;
                 bit = 30;
                 break;
-            case UNKNOWN:
+            default:
                 break;
         }
     } else if (frequency_ == 500) {
@@ -167,7 +200,7 @@ XiaListModeDataMask::GetCfdTriggerSourceMask() const {
                 mask = 0xE0000000;
                 bit = 29;
                 break;
-            case UNKNOWN:
+            default:
                 break;
         }
     }
@@ -189,10 +222,13 @@ const {
         case R30981:
             mask = 0x00007FFF;
             break;
+        case R17562:
+        case R20466:
+        case R27361:
         case R34688:
             mask = 0x0000FFFF;
             break;
-        case UNKNOWN:
+        default:
             break;
     }
     return make_pair(mask, 0);
@@ -204,11 +240,17 @@ pair<unsigned int, unsigned int>
 XiaListModeDataMask::GetTraceOutOfRangeFlagMask() const {
     if (firmware_ == UNKNOWN || frequency_ == 0)
         throw invalid_argument(BadMaskErrorMessage
-                                       ("GetCfdFractionalTimeMask"));
+                                       ("GetTraceOutOfRangeFlagMask"));
 
     unsigned int mask = 0;
     unsigned int bit = 0;
     switch (firmware_) {
+        case R17562:
+        case R20466:
+        case R27361:
+            mask = 0x40000000;
+            bit = 30;
+            break;
         case R29432:
         case R30474:
         case R30980:
@@ -220,7 +262,7 @@ XiaListModeDataMask::GetTraceOutOfRangeFlagMask() const {
             mask = 0x80000000;
             bit = 31;
             break;
-        case UNKNOWN:
+        default:
             break;
     }
     return make_pair(mask, bit);
@@ -234,6 +276,9 @@ const {
                                        ("GetCfdFractionalTimeMask"));
     unsigned int mask = 0;
     switch (firmware_) {
+        case R17562:
+        case R20466:
+        case R27361:
         case R29432:
         case R30474:
         case R30980:
@@ -243,7 +288,7 @@ const {
         case R34688:
             mask = 0x7FFF0000;
             break;
-        case UNKNOWN:
+        default:
             break;
     }
     return make_pair(mask, 16);
@@ -267,6 +312,7 @@ double XiaListModeDataMask::GetCfdSize() const {
     double val = 0;
     if (frequency_ == 100) {
         switch (firmware_) {
+            case R17562:
             case R29432:
                 val = 65536;
                 break;
@@ -276,11 +322,15 @@ double XiaListModeDataMask::GetCfdSize() const {
             case R34688:
                 val = 32768;
                 break;
-            case UNKNOWN:
+            default:
                 break;
         }
     } else if (frequency_ == 250) {
         switch (firmware_) {
+            case R20466:
+                val = 65536;
+                break;
+            case R27361:
             case R29432:
                 val = 32768;
                 break;
@@ -290,7 +340,7 @@ double XiaListModeDataMask::GetCfdSize() const {
             case R30474:
                 val = 16384;
                 break;
-            case UNKNOWN:
+            default:
                 break;
         }
     }
