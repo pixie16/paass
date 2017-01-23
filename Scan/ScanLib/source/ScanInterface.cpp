@@ -12,6 +12,7 @@
  */
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <thread>
 
 #include <cstdlib>
@@ -957,8 +958,15 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 	//Initialize the data mask for decoding the data
 	///@TODO We need to be able to handle mixed systems, which is not
 	/// implemented yet.
-	std::cout << firmware << " " << samplingFrequency << std::endl;
-	core->InitializeDataMask(firmware, samplingFrequency);
+	if(samplingFrequency == 0 || firmware == "") {
+		if (samplingFrequency == 0)
+			throw std::invalid_argument(
+					"ScanInterface::Setup - The frequency has not been set.");
+		if(firmware == "")
+			throw std::invalid_argument("ScanInterface::Setup - The firmware "
+													   "has not been set.");
+	} else
+		core->InitializeDataMask(firmware, samplingFrequency);
 
 	if(debug_mode)
 		core->SetDebugMode();
