@@ -4,6 +4,7 @@
 /// @date December 29, 2016
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 #include "XiaListModeDataMask.hpp"
 
