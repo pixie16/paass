@@ -17,7 +17,7 @@ FIRMWARE XiaListModeDataMask::ConvertStringToFirmware(const std::string &type) {
     stringstream msg;
 
     //First convert the string into a number
-    if (type.find("R") == 0) {
+    if (type.find("R") == 0 || type.find("r") == 0) {
         string tmp(type.begin() + 1, type.end());
         firmwareNumber = (unsigned int) atoi(tmp.c_str());
     } else
