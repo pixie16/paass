@@ -18,6 +18,7 @@
 
 #include "DammPlotIds.hpp"
 #include "DetectorLibrary.hpp"
+#include "Display.h"
 #include "Exceptions.hpp"
 #include "GeProcessor.hpp"
 #include "Messenger.hpp"
@@ -164,8 +165,8 @@ void GeProcessor::DeclarePlots(void) {
     */
     DetectorLibrary* modChan = DetectorLibrary::get();
 
-    const set<int> &cloverLocations = modChan->GetLocations("ge",
-                                                            "clover_high");
+    const set<int> &cloverLocations =
+            modChan->GetLocations("ge", "clover_high");
     // could set it now but we'll iterate through the locations to set this
     unsigned int cloverChans = 0;
 
@@ -479,11 +480,32 @@ bool GeProcessor::Process(RawEvent &event) {
     double clockInSeconds = Globals::get()->clockInSeconds();
     
     /** Cycle time is measured from the begining of the last BeamON event */
-    double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
+    double cycleTime = 0 ;
+    try{
+        cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
+    } catch (exception &ex) {
+        cout << Display::ErrorStr("GeProcessor::Process - Exception caught "
+                                          "while trying to get Cycle time.\n");
+        throw;
+    }
     
     // beamOn is true for beam on and false for beam off
-    bool beamOn =  TreeCorrelator::get()->place("Beam")->status();
-    bool hasBeta = TreeCorrelator::get()->place("Beta")->status();
+    bool beamOn = false;
+    try{
+        beamOn = TreeCorrelator::get()->place("Beam")->status();
+    } catch (exception &ex) {
+        cout << Display::ErrorStr("GeProcessor::Process - Exception caught "
+                                          "while trying to get Beam status.\n");
+        throw;
+    }
+    bool hasBeta = false;
+    try{
+        hasBeta = TreeCorrelator::get()->place("Beta")->status();
+    }catch (exception &ex) {
+        cout << Display::ErrorStr("GeProcessor::Process - Exception caught "
+                                          "while trying to get Beta status.\n");
+        throw;
+    }
     
     /** Place Cycle is activated by BeamOn event and deactivated by TapeMove
      *  This condition will therefore skip events registered during
