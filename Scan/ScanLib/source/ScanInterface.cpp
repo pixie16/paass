@@ -386,6 +386,10 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 	scan_init = false;
 	file_open = false;
 
+    //Initialize the setup and output file names
+    output_filename = "";
+    setup_filename = "";
+
 	kill_all = false;
 	run_ctrl_exit = false;
 
