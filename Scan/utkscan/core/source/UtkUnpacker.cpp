@@ -112,19 +112,24 @@ void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
         ///@TODO Add back in the processing for the dtime.
     }//for(deque<PixieData*>::iterator
 
-    driver->ProcessEvent(rawev);
-    rawev.Zero(usedDetectors);
-    usedDetectors.clear();
+    try {
+        driver->ProcessEvent(rawev);
+        rawev.Zero(usedDetectors);
+        usedDetectors.clear();
 
-    // If a place has a resetable type then reset it.
-    for (map<string, Place *>::iterator it =
-            TreeCorrelator::get()->places_.begin();
-         it != TreeCorrelator::get()->places_.end(); ++it)
-        if ((*it).second->resetable())
-            (*it).second->reset();
+        // If a place has a resetable type then reset it.
+        for (map<string, Place *>::iterator it =
+                TreeCorrelator::get()->places_.begin();
+             it != TreeCorrelator::get()->places_.end(); ++it)
+            if ((*it).second->resetable())
+                (*it).second->reset();
+    } catch (exception &ex) {
+        throw;
+    }
 
     eventCounter++;
     lastTimeOfPreviousEvent = GetRealStopTime();
+
 }
 
 /// This method plots information about the running time of the program, the
