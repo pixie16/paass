@@ -20,6 +20,7 @@
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
+#include "Display.h"
 #include "Exceptions.hpp"
 #include "HighResTimingData.hpp"
 #include "RandomPool.hpp"
@@ -90,7 +91,7 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
         m.fail();
         cout << "Exception caught at DetectorDriver::DetectorDriver" << endl;
         cout << "\t" << e.what() << endl;
-        exit(EXIT_FAILURE);
+        throw;
     } catch (GeneralWarning &w) {
         cout << "Warning found at DetectorDriver::DetectorDriver" << endl;
         cout << "\t" << w.what() << endl;
@@ -375,12 +376,15 @@ void DetectorDriver::ProcessEvent(RawEvent& rawev) {
     } catch (GeneralException &e) {
         /// Any exception in activation of basic places, PreProcess and Process
         /// will be intercepted here
-        cout << "Exception caught at DetectorDriver::ProcessEvent" << endl;
-        cout << "\t" << e.what() << endl;
-        exit(EXIT_FAILURE);
+        cout << endl
+             << Display::ErrorStr("Exception caught at DetectorDriver::ProcessEvent")
+             << endl;
+        throw;
     } catch (GeneralWarning &w) {
-        cout << "Warning caught at DetectorDriver::ProcessEvent" << endl;
-        cout << "\t" << w.what() << endl;
+        cout << Display::WarningStr("Warning caught at "
+                                            "DetectorDriver::ProcessEvent")
+             << endl;
+        cout << "\t" << Display::WarningStr(w.what()) << endl;
     }
 }
 
@@ -446,9 +450,10 @@ void DetectorDriver::DeclarePlots() {
             (*it)->DeclarePlots();
         }
     } catch (exception &e) {
-        cout << "Exception caught at DetectorDriver::DeclarePlots" << endl;
-        cout << "\t" << e.what() << endl;
-        exit(EXIT_FAILURE);
+        cout << Display::ErrorStr("Exception caught at "
+                                          "DetectorDriver::DeclarePlots")
+             << endl;
+        throw;
     }
 }
 

@@ -1,6 +1,8 @@
+#include <exception>
 #include <iostream>
 
 // Local files
+#include "Display.h"
 #include "UtkScanInterface.hpp"
 #include "UtkUnpacker.hpp"
 
@@ -27,7 +29,12 @@ int main(int argc, char *argv[]){
 
     // Run the main loop.
     cout << "utkscan.cpp : Performing Execute method" << endl;
-    int retval = scanner.Execute();
+    int retval = 0;
+    try {
+        retval = scanner.Execute();
+    }catch(std::exception &ex) {
+        cout << Display::ErrorStr(ex.what()) << endl;
+    }
     
     //Cleanup the scanning
     cout << "utkscan.cpp : Closing things out" << endl;
