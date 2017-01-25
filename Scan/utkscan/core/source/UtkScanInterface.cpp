@@ -1,4 +1,7 @@
+#include <stdexcept>
+
 #include "DetectorDriver.hpp"
+#include "Display.h"
 #include "UtkScanInterface.hpp"
 #include "UtkUnpacker.hpp"
 
@@ -71,7 +74,11 @@ bool UtkScanInterface::Initialize(std::string prefix_) {
     //This should be cleaned up!!
 #ifndef USE_HRIBF
     try {
-        // Read in the name of the his file.
+        if(GetOutputFilename() == "") {
+            throw std::invalid_argument("The output file name was not "
+                                                "provided.");
+        }
+
         output_his = new OutputHisFile(GetOutputFilename().c_str());
         output_his->SetDebugMode(false);
 
@@ -91,10 +98,9 @@ bool UtkScanInterface::Initialize(std::string prefix_) {
         DetectorDriver::get()->DeclarePlots();
         output_his->Finalize();
     } catch (std::exception &e) {
-        // Any exceptions will be intercepted here
-        std::cout << prefix_ << "Exception caught at Initialize:" << std::endl;
-        std::cout << prefix_ << e.what() << std::endl;
-        exit(EXIT_FAILURE);
+        std::cout << Display::ErrorStr(prefix_ + "Exception caught at UtkScanInterface::Initialize")
+                  << std::endl;
+        throw;
     }
 #endif
     return (init_ = true);
