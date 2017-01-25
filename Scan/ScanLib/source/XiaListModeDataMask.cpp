@@ -123,7 +123,7 @@ const {
         case R30980:
         case R30981:
         case R34688:
-            mask = 0x1FFE0000;
+            mask = 0x7FFE0000;
             bit = 17;
             break;
         default:
@@ -214,7 +214,7 @@ pair<unsigned int, unsigned int> XiaListModeDataMask::GetEventEnergyMask()
 const {
     if (firmware_ == UNKNOWN || frequency_ == 0)
         throw invalid_argument(BadMaskErrorMessage
-                                       ("GetCfdFractionalTimeMask"));
+                                       ("GetEventEnergyMask"));
     unsigned int mask = 0;
     switch (firmware_) {
         case R29432:
@@ -274,7 +274,7 @@ pair<unsigned int, unsigned int> XiaListModeDataMask::GetTraceLengthMask()
 const {
     if (firmware_ == UNKNOWN || frequency_ == 0)
         throw invalid_argument(BadMaskErrorMessage
-                                       ("GetCfdFractionalTimeMask"));
+                                       ("GetTraceLengthMask"));
     unsigned int mask = 0;
     switch (firmware_) {
         case R17562:
@@ -306,7 +306,7 @@ string XiaListModeDataMask::BadMaskErrorMessage(const std::string &func) const {
 double XiaListModeDataMask::GetCfdSize() const {
     if (firmware_ == UNKNOWN || frequency_ == 0)
         throw invalid_argument(BadMaskErrorMessage
-                                       ("GetCfdFractionalTimeMask"));
+                                       ("GetCfdSize"));
     if (frequency_ == 500)
         return 8192.;
 
