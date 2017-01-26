@@ -409,7 +409,10 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 			optionExt("debug", no_argument, NULL, 0, "", "Enable readout debug mode"),
 			optionExt("dry-run", no_argument, NULL, 0, "", "Extract spills from file, but do no processing"),
 			optionExt("fast-fwd", required_argument, NULL, 0, "<word>", "Skip ahead to a specified word in the file (start of file at zero)"),
-			optionExt("firmware", required_argument, NULL, 'f', "<firmware>", "Sets the firmware revision for decoding the data"),
+			optionExt("firmware", required_argument, NULL, 'f', "<firmware>",
+					  "Sets the firmware revision for decoding the data. "
+							  "See the wiki or HelperEnumerations.hpp "
+                              "for more information."),
 			optionExt("frequency", required_argument, NULL, 0, "<frequency in MHz or MS/s>", "Specifies the sampling frequency used to collect the data."),
 			optionExt("help", no_argument, NULL, 'h', "", "Display this dialogue"),
 			optionExt("input", required_argument, NULL, 'i', "<filename>", "Specifies the input file to analyze"),
