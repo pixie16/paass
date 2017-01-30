@@ -64,11 +64,6 @@ option(USE_ROOT "Use ROOT" ON)
 
 #------------------------------------------------------------------------------
 
-#Definitions without options
-
-#Adds the install prefix for referencing in the source code
-add_definitions(-D INSTALL_PREFIX="\\"${CMAKE_INSTALL_PREFIX}\\"")
-
 #Definitions with options
 
 #The MCA will write DAMM histograms as output
@@ -155,6 +150,9 @@ add_subdirectory(Scan)
 
 #Building polling tools
 if (BUILD_SUITE)
+	#Adds the install prefix for referencing in the source code
+	add_definitions(-D INSTALL_PREFIX="\\"${CMAKE_INSTALL_PREFIX}\\"")
+
 	#Build the pixie interface
 	include_directories(Interface/include)
 	add_subdirectory(Interface/source)
