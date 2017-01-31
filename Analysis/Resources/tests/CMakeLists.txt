@@ -12,10 +12,6 @@ if (USE_GSL)
     install(TARGETS unittest-GslFitter DESTINATION bin/unittests)
 endif (USE_GSL)
 
-add_executable(unittest-HelperFunctions unittest-HelperFunctions.cpp)
-target_link_libraries(unittest-HelperFunctions UnitTest++)
-install(TARGETS unittest-HelperFunctions DESTINATION bin/unittests)
-
 add_executable(unittest-PolynomialCfd unittest-PolynomialCfd.cpp
         ../source/PolynomialCfd.cpp)
 target_link_libraries(unittest-PolynomialCfd UnitTest++)
