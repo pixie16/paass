@@ -3,15 +3,14 @@ set(ResourceSources PolynomialCfd.cpp TraditionalCfd.cpp)
 
 if (USE_GSL)
     if (${GSL_VERSION} GREATER 1.9)
-        set(ResourceSources ${ResourceSources} Gsl2Fitter.cpp)
+        list(APPEND ResourceSources Gsl2Fitter.cpp)
     else (${GSL_VERSION} LESS 2.0)
-        set(ResourceSources ${ResourceSources} Gsl1Fitter.cpp)
+        list(APPEND ResourceSources Gsl1Fitter.cpp)
     endif (${GSL_VERSION} GREATER 1.9)
 endif (USE_GSL)
 
 if (USE_ROOT)
-    set(ResourceSources ${ResourceSources} RootFitter.cpp
-            VandleTimingFunction.cpp)
+    list(APPEND ResourceSources RootFitter.cpp VandleTimingFunction.cpp)
 endif (USE_ROOT)
 
 #Add the sources to the library
@@ -20,7 +19,7 @@ add_library(ResourceObjects OBJECT ${ResourceSources})
 if (BUILD_SHARED_LIBS)
     message(STATUS "Building Utility Shared Objects")
     add_library(UtilityLibrary SHARED $<TARGET_OBJECTS:ResourceObjects>)
-    target_link_libraries(UtilityLibrary PixieCoreStatic)
+    target_link_libraries(UtilityLibrary PaassCoreStatic)
     if (USE_ROOT)
         target_link_libraries(UtilityLibrary ${ROOT_LIBRARIES})
     endif (USE_ROOT)

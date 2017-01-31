@@ -1,28 +1,28 @@
 #Set the scan sources that we will make a lib out of
-set(ScanSources ScanInterface.cpp Unpacker.cpp XiaData.cpp ChannelData.cpp
+set(PaassScanSources ScanInterface.cpp Unpacker.cpp XiaData.cpp ChannelData.cpp
         ChannelEvent.cpp XiaListModeDataMask.cpp XiaListModeDataDecoder.cpp
         XiaListModeDataEncoder.cpp)
 
 if(USE_ROOT)
-    list(APPEND ScanSources RootScanner.cpp)
+    list(APPEND PaassScanSources RootScanner.cpp)
 endif(USE_ROOT)
 
 #Add the sources to the library
-add_library(ScanObjects OBJECT ${ScanSources})
+add_library(PaassScanObjects OBJECT ${PaassScanSources})
 
 if(BUILD_SHARED_LIBS)
     message(STATUS "Building Scan Shared Objects")
-    add_library(Scan SHARED $<TARGET_OBJECTS:ScanObjects>)
-    target_link_libraries(Scan PixieCoreStatic ${CMAKE_THREAD_LIBS_INIT})
+    add_library(PaassScan SHARED $<TARGET_OBJECTS:PaassScanObjects>)
+    target_link_libraries(PaassScan PaassCoreStatic ${CMAKE_THREAD_LIBS_INIT})
     if (${CURSES_FOUND})
-        target_link_libraries(Scan ${CURSES_LIBRARIES})
+        target_link_libraries(PaassScan ${CURSES_LIBRARIES})
     endif()
-    install(TARGETS Scan DESTINATION lib)
+    install(TARGETS PaassScan DESTINATION lib)
 endif(BUILD_SHARED_LIBS)
 
 #Create PixieScan static library and add ncurses if we have it
-add_library(ScanStatic STATIC $<TARGET_OBJECTS:ScanObjects>)
-target_link_libraries(ScanStatic PixieCoreStatic ${CMAKE_THREAD_LIBS_INIT})
+add_library(PaassScanStatic STATIC $<TARGET_OBJECTS:PaassScanObjects>)
+target_link_libraries(PaassScanStatic PaassCoreStatic ${CMAKE_THREAD_LIBS_INIT})
 if (${CURSES_FOUND})
-    target_link_libraries(ScanStatic ${CURSES_LIBRARIES})
+    target_link_libraries(PaassScanStatic ${CURSES_LIBRARIES})
 endif()
