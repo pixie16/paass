@@ -9,10 +9,10 @@ endif()
 
 set(LISTENER_SOURCES listener.cpp)
 add_executable(listener ${LISTENER_SOURCES})
-target_link_libraries(listener PixieCoreStatic)
+target_link_libraries(listener PaassCoreStatic)
 
 set(MONITOR_SOURCES monitor.cpp)
 add_executable(monitor ${MONITOR_SOURCES})
-target_link_libraries(monitor PixieCoreStatic)
+target_link_libraries(monitor PaassCoreStatic)
 
 install(TARGETS listener monitor DESTINATION bin)

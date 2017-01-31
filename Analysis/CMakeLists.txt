@@ -10,7 +10,7 @@ endif(USE_GSL)
 #Everything below is dependent on these two sets of libaries so we include the
 #headers.
 include_directories(Resources/include)
-include_directories(ScanLib/include)
+include_directories(ScanLibraries/include)
 
 if(USE_HRIBF)
    #Find HRIBF Libraries
@@ -19,18 +19,17 @@ if(USE_HRIBF)
 
 	#If we are using HRIBF interface we need to include the ScanorInterface header
 	#	for the following code.
-   include_directories(scanor/include)
-   add_subdirectory(scanor)
+   include_directories(Scanor/include)
+   add_subdirectory(Scanor)
 endif(USE_HRIBF)
 
 #We will always build these two since they include static lib for the rest
-add_subdirectory(ScanLib)
+add_subdirectory(ScanLibraries)
 add_subdirectory(Resources)
 
 #Build utilities.
-add_subdirectory(util)
-
+add_subdirectory(Utilities)
 
 if(BUILD_UTKSCAN)
-    add_subdirectory(utkscan)
+    add_subdirectory(Utkscan)
 endif(BUILD_UTKSCAN)

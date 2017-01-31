@@ -22,7 +22,11 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -fPIC")
 endif()
 
-#if user does not specify prefix we assign it to the exec directory
+#if user does not specify prefix we assign it to the install directory
+#@TODO I do not like the fact that it makes the install directory before I'm
+#ready for it. There are cases where I do not want to actually install just
+#build. This configuration adds additional junk to my directory that I may
+#not actually want or need.
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
    message(STATUS "Install Prefix not specified.")
    file(MAKE_DIRECTORY install)
@@ -52,7 +56,7 @@ option(BUILD_SCOPE "Build and install the scope program." ON)
 option(BUILD_SETUP "Include the older setup programs in installation" OFF)
 option(BUILD_SHARED_LIBS "Install only scan libraries" ON)
 option(BUILD_SKELETON "Build and install the skeleton scan" OFF)
-option(BUILD_SUITE "Build and install PixieSuite" ON)
+option(BUILD_SUITE "Build and install Acquisition software" ON)
 option(BUILD_TESTS "Builds programs designed to test the package." OFF)
 option(BUILD_UNITTESTS "Bulid Unit Tests using UnitTest++ Framework" OFF)
 option(BUILD_UTKSCAN "Build utkscan" OFF)
@@ -65,7 +69,6 @@ option(USE_ROOT "Use ROOT" ON)
 #------------------------------------------------------------------------------
 
 #Definitions with options
-
 #The MCA will write DAMM histograms as output
 if(USE_DAMM)
     add_definitions("-D USE_DAMM")
@@ -73,9 +76,9 @@ endif()
 
 #------------------------------------------------------------------------------
 
-#Find packages needed for poll2
+#Find packages needed for the
 #Load additional find_package scripts.
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/Cmake/modules/")
 
 #Find thread library for poll2 and scanLib
 find_package (Threads REQUIRED)
@@ -112,8 +115,7 @@ if (BUILD_SUITE)
 	else (PLX_FOUND OR PXI_FOUND)
 		#Find the PLX Library
 	   find_package(PLX REQUIRED)
-   	link_directories(${PLX_LIBRARY_DIR})
-	   #add_definitions("-DPLX_LINUX -DPCI_CODE -DPLX_LITTLE_ENDIAN")
+	   link_directories(${PLX_LIBRARY_DIR})
 
 	   #Find the Pixie Firmware
 	   find_package(PXI REQUIRED)
@@ -141,38 +143,24 @@ if (USE_ROOT)
 endif()
 
 #------------------------------------------------------------------------------
-#Build the Core library
+#First thing we need to do is build the PaassCoreLibrary.
 include_directories(Core/include)
 add_subdirectory(Core)
 
-#Build the scan library
-add_subdirectory(Scan)
+#Next we are going to build any of the ThirdParty software that we've included.
+include_directories(ThirdParty/include)
+#We'll go straight to the source directory since for now we don't need any
+#fancy logic in the base directory.
+add_subdirectory(ThirdParty)
 
-#Building polling tools
+#Build Acquisition software, we don't have this broken into as fine of a
+#granularity as the Analysis software, so we just wrap the whole thing in an if.
 if (BUILD_SUITE)
-	#Adds the install prefix for referencing in the source code
-	add_definitions(-D INSTALL_PREFIX="\\"${CMAKE_INSTALL_PREFIX}\\"")
-
-	#Build the pixie interface
-	include_directories(Interface/include)
-	add_subdirectory(Interface/source)
-
-	#Build the MCA objects
-	include_directories(MCA/include)
-	add_subdirectory(MCA)
-
-	#Build the setup tools
-	if (BUILD_SETUP) 
-		include_directories(Setup/include)
-		add_subdirectory(Setup)
-	endif()
-
-	#Build poll
-	add_subdirectory(Poll)
+	add_subdirectory(Acquisition)
 endif()
 
-#Build PxiDump
-add_subdirectory(PxiDump)
+#Build any of the analysis related things that we need to build.
+add_subdirectory(Analysis)
 
 #Build/install the miscellaneous stuff
-add_subdirectory(share)
+add_subdirectory(Share)
