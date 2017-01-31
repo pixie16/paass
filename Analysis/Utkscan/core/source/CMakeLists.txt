@@ -31,10 +31,6 @@ set (PLOTTING_SOURCES
         PlotsRegister.cpp
 )
 
-set (XMLPARSER_SOURCES
-        pugixml.cpp
-)
-
 if(NOT USE_HRIBF)
     set(MAIN_SOURCES utkscan.cpp HisFile.cpp)
 else(USE_HRIBF)
@@ -47,5 +43,4 @@ add_library(CoreObjects OBJECT
     ${CORE_SOURCES}
     ${CORRELATION_SOURCES}
     ${PLOTTING_SOURCES}
-    ${XMLPARSER_SOURCES}
 )
