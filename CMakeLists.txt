@@ -143,7 +143,11 @@ if (USE_ROOT)
 endif()
 
 #------------------------------------------------------------------------------
-#First thing we need to do is build the PaassCoreLibrary.
+#Include and build the Resources that everybody should have access to.
+include_directories(Resources/include)
+add_subdirectory(Resources)
+
+#Build the PaassCoreLibrary.
 include_directories(Core/include)
 add_subdirectory(Core)
 
@@ -152,6 +156,8 @@ include_directories(ThirdParty/include)
 #We'll go straight to the source directory since for now we don't need any
 #fancy logic in the base directory.
 add_subdirectory(ThirdParty)
+
+
 
 #Build Acquisition software, we don't have this broken into as fine of a
 #granularity as the Analysis software, so we just wrap the whole thing in an if.
