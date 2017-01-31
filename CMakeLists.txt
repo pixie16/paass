@@ -52,11 +52,11 @@ endif(CMAKE_BUILD_TYPE MATCHES "Debug")
 #------------------------------------------------------------------------------
 
 #Install options
+option(BUILD_ACQ "Build and install Acquisition software" ON)
 option(BUILD_SCOPE "Build and install the scope program." ON)
 option(BUILD_SETUP "Include the older setup programs in installation" OFF)
 option(BUILD_SHARED_LIBS "Install only scan libraries" ON)
 option(BUILD_SKELETON "Build and install the skeleton scan" OFF)
-option(BUILD_SUITE "Build and install Acquisition software" ON)
 option(BUILD_TESTS "Builds programs designed to test the package." OFF)
 option(BUILD_UNITTESTS "Bulid Unit Tests using UnitTest++ Framework" OFF)
 option(BUILD_UTKSCAN "Build utkscan" OFF)
@@ -68,15 +68,14 @@ option(USE_ROOT "Use ROOT" ON)
 
 #------------------------------------------------------------------------------
 
-#Definitions with options
+#Definitions with compiler options
 #The MCA will write DAMM histograms as output
 if(USE_DAMM)
     add_definitions("-D USE_DAMM")
 endif()
 
 #------------------------------------------------------------------------------
-
-#Find packages needed for the
+#Find packages needed for the software.
 #Load additional find_package scripts.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/Cmake/modules/")
 
@@ -109,9 +108,9 @@ if(BUILD_UNITTESTS)
 	include_directories(${UNITTEST++_INCLUDE_DIR})
 endif(BUILD_UNITTESTS)
 
-if (BUILD_SUITE)
-	if(NOT BUILD_SUITE_ATTEMPTED AND NOT PLX_FOUND AND NOT PXI_FOUND)
-		set (BUILD_SUITE OFF CACHE BOOL "Build and install PixieSuite" FORCE)
+if (BUILD_ACQ)
+	if(NOT BUILD_ACQ_ATTEMPTED AND NOT PLX_FOUND AND NOT PXI_FOUND)
+		set (BUILD_ACQ OFF CACHE BOOL "Build and install PixieSuite" FORCE)
 	else (PLX_FOUND OR PXI_FOUND)
 		#Find the PLX Library
 	   find_package(PLX REQUIRED)
@@ -128,8 +127,8 @@ if (BUILD_SUITE)
 	   #created when make cfg is typed
 	   add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)
 	endif()
-	set (BUILD_SUITE_ATTEMPTED ON CACHE INTERNAL "Build Suite Attempted")
-endif(BUILD_SUITE)
+	set (BUILD_ACQ_ATTEMPTED ON CACHE INTERNAL "Build Suite Attempted")
+endif(BUILD_ACQ)
 
 #Find ROOT if USE_ROOT was set.
 if (USE_ROOT)
@@ -157,11 +156,9 @@ include_directories(ThirdParty/include)
 #fancy logic in the base directory.
 add_subdirectory(ThirdParty)
 
-
-
 #Build Acquisition software, we don't have this broken into as fine of a
 #granularity as the Analysis software, so we just wrap the whole thing in an if.
-if (BUILD_SUITE)
+if (BUILD_ACQ)
 	add_subdirectory(Acquisition)
 endif()
 

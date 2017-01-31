@@ -1,9 +1,12 @@
-set(ThirdPartySources pugixml.cpp)
+#We will build a separate library for each one of the third party
+#libraries/codes that we are going to use. However, we'll dump them all into
+#the same folder for simplicity's sake.
 
-add_library(ThirdPartyObjects OBJECT ${ThirdPartySources})
-add_library(ThirdPartyStatic STATIC $<TARGET_OBJECTS:ThirdPartyObjects>)
-
+#Build pugixml. This software is used to parse XML files.
+set(PugixmlSources pugixml.cpp)
+add_library(PugixmlObjects OBJECT ${PugixmlSources})
+add_library(PugixmlStatic STATIC $<TARGET_OBJECTS:PugixmlObjects>)
 if(BUILD_SHARED_LIBS)
-    add_library(ThirdParty SHARED $<TARGET_OBJECTS:ThirdPartyObjects>)
-    install(TARGETS ThirdParty DESTINATION lib)
+    add_library(Pugixml SHARED $<TARGET_OBJECTS:PugixmlObjects>)
+    install(TARGETS Pugixml DESTINATION lib)
 endif(BUILD_SHARED_LIBS)
