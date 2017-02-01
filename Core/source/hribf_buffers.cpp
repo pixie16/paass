@@ -704,9 +704,10 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 	if(buff_pos > LDF_DATA_LENGTH)
 		std::cout << "WARNING: Final ldf buffer overfilled by " << buff_pos - LDF_DATA_LENGTH << " words!\n";
 
-	// Write the spill footer.
-	if(buff_pos + 6 > LDF_DATA_LENGTH){
+	// Check if we can fit the spill footer into the current buffer.
+	if(buff_pos + 6 > LDF_DATA_LENGTH){ // Close the current buffer and open a new one.
 		buffs_written++;
+		Close(file_);
 		open_(file_);
 	}
 	
