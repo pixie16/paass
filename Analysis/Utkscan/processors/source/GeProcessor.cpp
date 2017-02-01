@@ -402,7 +402,7 @@ bool GeProcessor::PreProcess(RawEvent &event) {
      */
     for (vector<ChanEvent*>::const_iterator itHigh = highEvents.begin();
 	 itHigh != highEvents.end(); itHigh++) {
-        int location = (*itHigh)->GetChanID().GetLocation();
+        unsigned int location = (*itHigh)->GetChanID().GetLocation();
         if ( (*itHigh)->IsSaturated() || (*itHigh)->IsPileup() )
             continue;
 
