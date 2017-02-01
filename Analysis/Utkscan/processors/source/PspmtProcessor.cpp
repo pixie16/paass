@@ -145,7 +145,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
     double xtre_r=0,xtre_l=0,ytre_t=0,ytre_b=0;
     
     double qqdc_r=0,qqdc_l=0,qqdc_t=0,qqdc_b=0,qqdc_s=0;
-    double xqdc_r=0,xqdc_l=0,yqdc_t=0,yqdc_b=0;
+    //double xqdc_r=0,xqdc_l=0,yqdc_t=0,yqdc_b=0;
     
     double pxright=0,pxleft=0,pytop=0,pybottom=0;
     double pxtre_r=0,pxtre_l=0,pytre_t=0,pytre_b=0;
@@ -171,7 +171,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
         
         double trace_energy;
         //double trace_time;
-        double baseline;
+        //double baseline;
         double qdc;
         //int    num        = trace.GetValue("numPulses");
         
@@ -179,7 +179,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
             traceNum++;   	  
             //trace_time      = trace.GetValue("filterTime");
             trace_energy  = trace.GetValue("filterEnergy");
-            baseline         = trace.GetValue("baseline");
+            //baseline         = trace.GetValue("baseline");
             qdc                 = trace.GetValue("qdc");
             
             if(ch==0){
@@ -275,10 +275,10 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
             qqdc_r=(qdc4+qdc1)/2;
             qqdc_s=(qqdc_t+qqdc_l+qqdc_b+qqdc_r)/2;
             
-            xqdc_r=(qqdc_r/qqdc_s)*512+100;
-            xqdc_l=(qqdc_l/qqdc_s)*512+100;
-            yqdc_t=(qqdc_t/qqdc_s)*512+100;
-            yqdc_b=(qqdc_b/qqdc_s)*512+100;
+//            xqdc_r=(qqdc_r/qqdc_s)*512+100;
+//            xqdc_l=(qqdc_l/qqdc_s)*512+100;
+//            yqdc_t=(qqdc_t/qqdc_s)*512+100;
+//            yqdc_b=(qqdc_b/qqdc_s)*512+100;
             
             plot(D_ENERGY_TRACESUM,qqdc_s);
         }

@@ -200,7 +200,7 @@ bool GeCalibProcessor::PreProcess(RawEvent &event) {
     
     for (vector<ChanEvent*>::const_iterator itHigh = highEvents.begin();
 	 itHigh != highEvents.end(); itHigh++) {
-        int location = (*itHigh)->GetChanID().GetLocation();
+        unsigned int location = (*itHigh)->GetChanID().GetLocation();
         plot(calib::D_ENERGY_HIGHGAIN, (*itHigh)->GetCalEnergy());
 	
         if ( (*itHigh)->IsSaturated() || (*itHigh)->IsPileup() )
