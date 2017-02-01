@@ -178,6 +178,12 @@ TEST(TestCalculateTailRatio) {
     CHECK_CLOSE(tail_ratio, result, 1e-6);
 }
 
+TEST(TestIeeeFloatingToDecimal) {
+    unsigned int input = 1164725159;
+    double expected = 3780.7283;
+    CHECK_CLOSE(expected, IeeeStandards::IeeeFloatingToDecimal(input), 1e-4);
+}
+
 int main(int argv, char *argc[]) {
     return (UnitTest::RunAllTests());
 }

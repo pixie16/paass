@@ -17,6 +17,7 @@
 #include "TFile.h"
 #endif
 
+#include "HelperFunctions.hpp"
 #include "set2root.hpp"
 
 #define FILTER_CLOCK 8E-3 // Filter clock (in us)
@@ -68,7 +69,12 @@ std::string parameter::print(){
 			stream << name << "[";
 			if(count < 10)
 				stream << "0";
-			stream << count << "]" << "\t" << (*iter) << "\n";
+			stream << count << "]" << "\t";
+			if(name != "PreampTau")
+				stream << (*iter);
+			else
+				stream << IeeeStandards::IeeeFloatingToDecimal((*iter));
+			stream << "\n";
 			count++;
 		}
 	}
