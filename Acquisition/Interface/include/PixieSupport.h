@@ -28,36 +28,46 @@ class PixieFunction : public std::unary_function<bool, struct PixieFunctionParms
 };
 
 template<typename T>
-bool forChannel(PixieInterface *pif, int mod, int ch, PixieFunction<T> &f, T par){
+bool forChannel(PixieInterface *pif, int modStart, int modStop, int chStart, int chStop, PixieFunction<T> &f, T par){
 	PixieFunctionParms<T> parms(pif, par);
 
 	bool hadError = false;
 
-	if (mod < 0) {
-		for (parms.mod = 0; parms.mod < pif->GetNumberCards(); parms.mod++) {
-			if (ch < 0) {
-				for (parms.ch = 0; parms.ch < pif->GetNumberChannels(); parms.ch++) {
-					if (!f(parms)){ hadError = true; }
-				}
-			} 
-			else {
-				parms.ch = ch;
-				if (!f(parms))
-					hadError = true;
-			}
+	if (modStart < 0) {
+		modStart = 0;
+		modStop = pif->GetNumberCards() - 1;
+	}
+	if (chStart < 0) {
+		chStart = 0;
+		chStop = pif->GetNumberChannels() - 1;
+	}
+
+	for (parms.mod = modStart; parms.mod <= modStop; parms.mod++) {
+		for (parms.ch = chStart; parms.ch <= chStop; parms.ch++) {
+			if (!f(parms)){ hadError = true; }
 		}
 	} 
-	else {
-		parms.mod = mod;
-		if (ch < 0) {
-			for (parms.ch = 0; parms.ch < pif->GetNumberChannels(); parms.ch++) {
-				if (!f(parms)){ hadError = true; }
-			}
-		} 
-		else {
-			parms.ch = ch;
-			hadError = !f(parms);
-		}
+
+	return !hadError;
+}
+
+template<typename T>
+bool forChannel(PixieInterface *pif, int mod, int ch, PixieFunction<T> &f, T par){
+	return forChannel(pif, mod, mod, ch, ch, f, par);
+}
+
+template<typename T>
+bool forModule(PixieInterface *pif, int modStart, int modStop, PixieFunction<T> &f, T par)
+{
+	PixieFunctionParms<T> parms(pif, par);
+	bool hadError = false;
+
+	if (modStart < 0) {
+		modStart = 0;
+		modStop = pif->GetNumberCards() -1;
+	}
+	for (parms.mod = modStart; parms.mod <= modStop; parms.mod++) {
+		if (!f(parms)){ hadError = true; }
 	}
 
 	return !hadError;
@@ -66,21 +76,9 @@ bool forChannel(PixieInterface *pif, int mod, int ch, PixieFunction<T> &f, T par
 template<typename T>
 bool forModule(PixieInterface *pif, int mod, PixieFunction<T> &f, T par)
 {
-	PixieFunctionParms<T> parms(pif, par);
-	bool hadError = false;
-
-	if (mod < 0) {
-		for (parms.mod = 0; parms.mod < pif->GetNumberCards(); parms.mod++) {
-			if (!f(parms)){ hadError = true; }
-		}
-	} 
-	else {
-		parms.mod = mod;
-		hadError = !f(parms);
-	}
-
-	return !hadError;
+	return forModule(pif, mod, mod, f, par);
 }
+
 
 std::string PadStr(const std::string &input_, int width_);
 
