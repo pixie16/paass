@@ -19,7 +19,9 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <stdexcept>
 #include <string>
+
 #include <string.h>
 #include <stdlib.h>
 #include <sstream>
