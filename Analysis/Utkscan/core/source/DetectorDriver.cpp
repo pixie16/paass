@@ -481,60 +481,37 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
             (*it)->Analyze(trace, type, subtype, tags);
         }
 
-        if (trace.HasValue("filterEnergy") ) {
-            if (trace.GetValue("filterEnergy") > 0) {
-                energy = trace.GetValue("filterEnergy");
-                plot(D_FILTER_ENERGY + id, energy);
-                trace.SetValue("filterEnergyCal",
-                    cali.GetCalEnergy(chanId, trace.GetValue("filterEnergy")));
-            } else {
-                energy = 0.0;
-            }
-
-            /** Calibrate pulses numbered 2 and forth,
-             * add filterEnergyXCal to the trace */
-            int pulses = trace.GetValue("numPulses");
-            for (int i = 1; i < pulses; ++i) {
-                stringstream energyName;
-                energyName << "filterEnergy" << i + 1;
-                stringstream energyCalName;
-                energyCalName << "filterEnergy" << i + 1 << "Cal";
-                trace.SetValue(energyCalName.str(),
-                    cali.GetCalEnergy(chanId,
-                                      trace.GetValue(energyName.str())));
-            }
-        }
-
-        if (trace.HasValue("calcEnergy") ) {
-            energy = trace.GetValue("calcEnergy");
-            chan->SetEnergy(energy);
-        } else if (!trace.HasValue("filterEnergy")) {
+        //We are going to handle the filtered energies here.
+        vector<double> filteredEnergies = trace.GetFilteredEnergies();
+        if (filteredEnergies.empty()) {
             energy = chan->GetEnergy() + randoms->Get();
-        }
 
-        if (trace.HasValue("phase") ) {
-	    //Saves the time in nanoseconds
-            chan->SetHighResTime((trace.GetValue("phase") *
-                                 Globals::get()->adcClockInSeconds() +
-                                  (double)chan->GetTrigTime() *
-                                  Globals::get()->filterClockInSeconds()) * 1e9);
+            //Saves the time in nanoseconds
+            chan->SetHighResTime((trace.GetPhase() *
+                                  Globals::get()->adcClockInSeconds() +
+                                  (double) chan->GetTrigTime() *
+                                  Globals::get()->filterClockInSeconds()) *
+                                 1e9);
+        } else {
+            energy = filteredEnergies.front();
+            plot(D_FILTER_ENERGY + id, energy);
         }
     } else {
         /// otherwise, use the Pixie on-board calculated energy
         /// add a random number to convert an integer value to a
         ///   uniformly distributed floating point
         energy = chan->GetEnergy() + randoms->Get();
-	chan->SetHighResTime(0.0);
+	    chan->SetHighResTime(0.0);
     }
 
     /** Calibrate energy and apply the walk correction. */
     double time, walk_correction;
     if(chan->GetHighResTime() == 0.0) {
 	time = chan->GetTime(); //time is in clock ticks
-	walk_correction = walk.GetCorrection(chanId, energy);
+	    walk_correction = walk.GetCorrection(chanId, energy);
     } else {
 	time = chan->GetHighResTime(); //time here is in ns
-	walk_correction = walk.GetCorrection(chanId, trace.GetValue("tqdc"));
+	    walk_correction = walk.GetCorrection(chanId, trace.GetQdc());
     }
 
     chan->SetCalEnergy(cali.GetCalEnergy(chanId, energy));
