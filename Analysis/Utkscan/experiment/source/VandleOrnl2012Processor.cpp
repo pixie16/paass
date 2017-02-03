@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include "BarBuilder.hpp"
+#include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
 #include "GeProcessor.hpp"
 #include "VandleProcessor.hpp"
