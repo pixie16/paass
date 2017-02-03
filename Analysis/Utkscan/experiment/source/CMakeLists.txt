@@ -10,4 +10,4 @@ list(APPEND EXPERIMENT_SOURCES
         TwoChanTimingProcessor.cpp)
 endif(USE_ROOT)
 
-add_library(ExperimentObjects OBJECT ${EXPERIMENT_SOURCES})
+add_library(UtkscanExperimentObjects OBJECT ${EXPERIMENT_SOURCES})
