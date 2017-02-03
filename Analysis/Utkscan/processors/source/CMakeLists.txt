@@ -28,7 +28,7 @@ set(PROCESSOR_SOURCES
 )
 
 if(USE_ROOT)
-set(PROCESSOR_SOURCES ${PROCESSOR_SOURCES} RootProcessor.cpp)
+list(APPEND PROCESSOR_SOURCES RootProcessor.cpp)
 endif(USE_ROOT)
 
-add_library(ProcessorObjects OBJECT ${PROCESSOR_SOURCES})
+add_library(UtkscanProcessorObjects OBJECT ${PROCESSOR_SOURCES})
