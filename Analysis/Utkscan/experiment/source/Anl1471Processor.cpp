@@ -10,6 +10,7 @@
 #include <TH1D.h>
 
 #include "BarBuilder.hpp"
+#include "DammPlotIds.hpp"
 #include "DoubleBetaProcessor.hpp"
 #include "DetectorDriver.hpp"
 #include "GeProcessor.hpp"
