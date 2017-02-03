@@ -214,7 +214,17 @@ int main(){
 				      << std::setfill('-') << "";
 			}
 			std::cout << "|\n";
+
+			std::cout << "   | ";
+			for(unsigned int j = 0; j < (unsigned int)num_modules; j++){
 				
+				std::cout << "ICR  ";
+				std::cout << " OCR ";
+				std::cout << " Data ";
+				std::cout << "  Total | ";
+			}
+			std::cout << "\n";			
+	
 			for(unsigned int i = 0; i < 16; i++){
 			    std::cout << "C" << std::setw(2) << std:: setfill('0') << i << "|";
 			    for(unsigned int j = 0; j < (unsigned int)num_modules; j++){
