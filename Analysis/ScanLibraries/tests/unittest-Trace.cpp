@@ -52,6 +52,9 @@ TEST_FIXTURE(Trace, TestingGettersAndSetters){
 
     SetIsSaturated(true);
     CHECK(IsSaturated());
+
+    SetPhase(100.);
+    CHECK_EQUAL(100., GetPhase());
 }
 
 int main(int argv, char *argc[]) {
