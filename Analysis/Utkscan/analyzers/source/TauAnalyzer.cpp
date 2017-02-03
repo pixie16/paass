@@ -30,9 +30,11 @@ void TauAnalyzer::Analyze(Trace &trace, const std::string &aType,
                           const std::string &aSubtype,
                           const std::map<std::string, int> & tagMap) {
     // don't do analysis for piled-up traces
-    if (trace.HasValue("filterEnergy2")) {
-        return;
-    }
+    ///@TODO renable this, not a huge priority since Tau analyzer isn't used
+    /// much.
+//    if (trace.HasValue("filterEnergy2")) {
+//        return;
+//    }
     // only do analysis for the proper type and subtype
     if (type != "" && subtype != "" &&
         type != aType && subtype != aSubtype ) {
@@ -61,7 +63,7 @@ void TauAnalyzer::Analyze(Trace &trace, const std::string &aType,
             i+=1.;
     }
     double tau =  1 / log(sum1 / sum2) * Globals::get()->clockInSeconds();
-    trace.SetValue("tau", tau);
+    trace.SetTau(tau);
 
     EndAnalyze();
 }

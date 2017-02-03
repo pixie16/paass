@@ -14,7 +14,6 @@
 #include <utility>
 
 #include "CfdAnalyzer.hpp"
-#include "HelperFunctions.hpp"
 #include "PolynomialCfd.hpp"
 #include "TraditionalCfd.hpp"
 
@@ -24,7 +23,7 @@ CfdAnalyzer::CfdAnalyzer(const std::string &s) : TraceAnalyzer() {
     name = "CfdAnalyzer";
     if (s == "polynomial" || s == "poly")
         driver_ = new PolynomialCfd();
-    else if(s == "traditional" || s == "trad")
+    else if (s == "traditional" || s == "trad")
         driver_ = new TraditionalCfd();
     else
         driver_ = NULL;
@@ -41,22 +40,18 @@ void CfdAnalyzer::Analyze(Trace &trace, const std::string &detType,
         return;
     }
 
-    if (trace.HasValue("saturation") || trace.empty() ||
-            trace.GetWaveform().empty()) {
+    if (trace.IsSaturated() || trace.empty() ||
+        trace.GetWaveform().empty()) {
         EndAnalyze();
         return;
     }
 
-    const pair<double, double> baseline(trace.GetValue("baseline"),
-                                        trace.GetValue("sigmaBaseline"));
-    const pair<unsigned int, double> max(trace.GetValue("maxpos"),
-                                   trace.GetValue("extrapolatedMaxVal"));
-
     const pair<double, double> pars =
             Globals::get()->cfdPars(detType + ":" + detSubtype);
 
-    trace.InsertValue("phase",
-                      driver_->CalculatePhase(trace.GetBaselineSubtractedTrace()
-                              , pars, max, baseline));
+    trace.SetPhase(driver_->CalculatePhase(trace.GetTraceSansBaseline(),
+                                           pars,
+                                           trace.GetExtrapolatedMaxInfo(),
+                                           trace.GetBaselineInfo()));
     EndAnalyze();
 }
