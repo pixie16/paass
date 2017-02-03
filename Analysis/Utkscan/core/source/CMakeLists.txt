@@ -14,7 +14,6 @@ set(CORE_SOURCES
 #  StatsData.cpp 
         TimingCalibrator.cpp
         TimingMapBuilder.cpp
-        Trace.cpp
         UtkScanInterface.cpp
         UtkUnpacker.cpp
         WalkCorrector.cpp
