@@ -31,16 +31,19 @@ public:
     /// Default Destructor.
     ~ProcessedXiaData() {};
 
-    ///\return The calibrated energy for the channel
+    ///@return The calibrated energy for the channel
     double GetCalibratedEnergy() const { return calibratedEnergy_; }
 
-    ///\return The sub-sampling arrival time of the signal in nanoseconds.
+    ///@return The sub-sampling arrival time of the signal in nanoseconds.
     double GetHighResTimeInNs() const { return highResTimeInNs_; }
 
-    ///\return The Trace object.
-    Trace GetTrace() const { return trace_; }
+    ///@return A constant reference to the trace.
+    const Trace& GetTrace() const { return trace_; }
 
-    ///\return The Walk corrected time of the channel
+    ///@return An editable trace.
+    Trace& GetTrace() { return trace_; }
+
+    ///@return The Walk corrected time of the channel
     double GetWalkCorrectedTime() const { return walkCorrectedTime_; }
 
     ///Set the calibrated energy
