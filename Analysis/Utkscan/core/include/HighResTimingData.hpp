@@ -36,9 +36,9 @@ public:
 
     /** \return True if maxval,tqdc and sigmaBaseline were not NAN */
     bool GetIsValid() const {
-        if(!std::isnan(chan_->GetTrace().GetValue("maxval")) &&
-           !std::isnan(chan_->GetTrace().GetValue("qdc")) &&
-           !std::isnan(chan_->GetTrace().GetValue("sigmaBaseline")) ) {
+        if(!std::isnan(chan_->GetTrace().GetMaxInfo().second) &&
+           !std::isnan(chan_->GetTrace().GetQdc()) &&
+           !std::isnan(chan_->GetTrace().GetBaselineInfo().first) ) {
             return(true);
         }else
             return(false);
@@ -48,22 +48,19 @@ public:
     ///\return the CFD source trigger bit
     bool GetCfdSourceBit() const { return(chan_->GetCfdSourceBit());}
     /** \return The current value of aveBaseline_ */
-    double GetAveBaseline() const { return(chan_->GetTrace().GetValue("baseline")); }
+    double GetAveBaseline() const { return(chan_->GetTrace().GetBaselineInfo().first); }
     /** \return The current value of discrimination_ */
-    double GetDiscrimination() const { return(chan_->GetTrace().GetValue("discrim")); }
+    double GetDiscrimination() const { return chan_->GetTrace().GetTailRatio(); }
     /** \return The current value of highResTime_ */
     double GetHighResTime() const { return(chan_->GetHighResTime()); }
     /** \return The current value of maxpos_ */
-    double GetMaximumPosition() const { return(chan_->GetTrace().GetValue("maxpos")); }
+    double GetMaximumPosition() const { return(chan_->GetTrace().GetMaxInfo().first); }
     /** \return The current value of maxval_ */
-    double GetMaximumValue() const { return(chan_->GetTrace().GetValue("maxval")); }
-    /** \return The current value of numAboveThresh_  */
-    int GetNumAboveThresh() const {
-        return(chan_->GetTrace().GetValue("numAboveThresh"));
-    }
+    double GetMaximumValue() const { return chan_->GetTrace().GetMaxInfo().second; }
+
     /** \return The current value of phase_ in nanoseconds*/
     double GetPhase() const {
-        return(chan_->GetTrace().GetValue("phase") *
+        return(chan_->GetTrace().GetPhase() *
                Globals::get()->adcClockInSeconds() * 1e9);
     }
     /** \return The pixie Energy */
@@ -72,12 +69,12 @@ public:
     double GetFilterTime() const { return(chan_->GetTime()); }
     /** \return The current value of snr_ */
     double GetSignalToNoiseRatio() const {
-	return(20*log10(chan_->GetTrace().GetValue("maxval") /
-			chan_->GetTrace().GetValue("sigmaBaseline")));
+	return(20*log10(chan_->GetTrace().GetMaxInfo().second /
+			chan_->GetTrace().GetBaselineInfo().second));
     }
     /** \return The current value of stdDevBaseline_  */
     double GetStdDevBaseline() const {
-        return(chan_->GetTrace().GetValue("sigmaBaseline"));
+        return(chan_->GetTrace().GetBaselineInfo().second);
     }
 
     /** \return Get the trace associated with the channel */
@@ -85,7 +82,7 @@ public:
 
     /** \return The current value of tqdc_ */
     double GetTraceQdc() const {
-        return(chan_->GetTrace().GetValue("qdc"));
+        return(chan_->GetTrace().GetQdc());
     }
     /** \return Walk corrected time  */
     double GetCorrectedTime() const {

@@ -9,6 +9,7 @@
 #include <sstream>
 #include <vector>
 
+#include "DammPlotIds.hpp"
 #include "PositionProcessor.hpp"
 #include "DetectorLibrary.hpp"
 #include "RawEvent.hpp"
@@ -48,7 +49,6 @@ namespace dammIds {
 	};
     }
 }
-
 
 using namespace dammIds::position;
 
@@ -381,7 +381,8 @@ bool PositionProcessor::Process(RawEvent &event) {
             if (i == whichQdc) {
                 position = posScale * (frac - minNormQdc[location]) /
                     (maxNormQdc[location] - minNormQdc[location]);
-                sumchan->GetTrace().InsertValue("position", position);
+                ///@TODO Figure out how to handle this cleanly
+                //sumchan->GetTrace().InsertValue("position", position);
                 plot(DD_POSITION__ENERGY_LOCX + location, position, sumchan->GetCalEnergy());
                 plot(DD_POSITION__ENERGY_LOCX + LOC_SUM, position, sumchan->GetCalEnergy());
             }
@@ -391,7 +392,8 @@ bool PositionProcessor::Process(RawEvent &event) {
 
                 // MAGIC NUMBERS HERE, move to qdc.txt
                 if (qdcSum < 1000 && sumchan->GetCalEnergy() > 15000) {
-                    sumchan->GetTrace().InsertValue("badqdc", 1);
+                    ///@TODO Figure out how to handle this cleanly
+                    //sumchan->GetTrace().InsertValue("badqdc", 1);
                 } else if ( !isnan(position) ) {
                     plot(DD_POSITION, location, position);
                 }
