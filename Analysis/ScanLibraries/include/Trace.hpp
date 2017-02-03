@@ -32,10 +32,6 @@ public:
     /// respectively.
     std::pair<double, double> GetBaselineInfo() const { return baseline_; }
 
-    ///@return Returns the waveform sans baseline
-    std::vector<double> GetTraceSansBaseline() const {
-        return traceSansBaseline_; }
-
     ///@return Returns the energy sums that were set.
     std::vector<double> GetEnergySums() const { return esums_; }
 
@@ -52,8 +48,15 @@ public:
     /// respectively.
     std::pair<unsigned int, double> GetMaxInfo() const { return max_; }
 
+    ///@return The phase of the trace.
+    double GetPhase() const { return phase_; }
+
     ///@return The value of the QDC for the waveform
     double GetQdc() const { return qdc_; }
+
+    ///@return Returns the waveform sans baseline
+    std::vector<double> GetTraceSansBaseline() const {
+        return traceSansBaseline_; }
 
     ///@return Returns the Trigger Filter that was set.
     std::vector<double> GetTriggerFilter() const { return trigFilter_; }
@@ -83,11 +86,6 @@ public:
     /// standard deviation.
     void SetBaseline(const std::pair<double, double> &a) { baseline_ = a; }
 
-    ///Sets the baseline subtracted trace.
-    ///@param[in] a : The vector that we are going to assign.
-    void SetTraceSansBaseline(const std::vector<double> &a) {
-        traceSansBaseline_ = a; }
-
     ///sets the energy sums vector if we are using the TriggerFilterAnalyzer
     ///@param [in] a : the vector of energy sums
     void SetEnergySums(const std::vector<double> &a) { esums_ = a; }
@@ -110,9 +108,19 @@ public:
     /// baseline subtracted value.
     void SetMax(const std::pair<unsigned int, double> &a) { max_ = a; }
 
+    ///Sets the sub-sampling phase of the trace.
+    ///@param[in] a : The value of the phase that we want to set. This
+    /// comes from a fit or CFD analysis of the trace.
+    void SetPhase(const double &a) { phase_ = a; }
+
     ///Sets the value of the QDC that was calculated from the waveform
     ///@param[in] a : The value that we are going to set
     void SetQdc(const double &a) { qdc_ = a; }
+
+    ///Sets the baseline subtracted trace.
+    ///@param[in] a : The vector that we are going to assign.
+    void SetTraceSansBaseline(const std::vector<double> &a) {
+        traceSansBaseline_ = a; }
 
     ///sets the trigger filter if we are using the TriggerFilterAnalyzer
     ///@param [in] a : the vector with the trigger filter
@@ -126,6 +134,7 @@ public:
 private:
     bool isSaturated_; ///< True if the trace was flagged as saturated.
 
+    double phase_; ///< The sub-sampling phase of the trace.
     double qdc_; ///< The qdc that was calculated from the waveform.
 
     std::pair<double, double> baseline_; ///< Baseline Average and Std. Dev.
