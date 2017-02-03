@@ -8,8 +8,11 @@
  * \date 7-2-07
  * <strong>Modified : </strong> SNL - 2-4-08 - Add plotting spectra
  */
+#include <algorithm>
 #include <iostream>
 #include <string>
+
+#include <cmath>
 
 #include <unistd.h>
 
@@ -17,15 +20,55 @@
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 
-using std::cout;
-using std::endl;
-using std::string;
+using namespace std;
 
 int TraceAnalyzer::numTracesAnalyzed = 0; //!< number of analyzed traces
 
 using namespace dammIds::trace;
 
-TraceAnalyzer::TraceAnalyzer() : userTime(0.), systemTime(0.) {
+void TraceAnalyzer::Plot(const vector<unsigned int> &trc,
+                         const int &id) {
+    for (unsigned int i=0; i < trc.size(); i++) {
+        histo.Plot(id, i, 1, (int)trc.at(i));
+    }
+}
+
+void TraceAnalyzer::Plot(const vector<unsigned int> &trc, int id, int row) {
+    for (unsigned int i=0; i < trc.size(); i++) {
+        histo.Plot(id, i, row, (int)trc.at(i));
+    }
+}
+
+void TraceAnalyzer::ScalePlot(const vector<unsigned int> &trc, int id, double
+scale) {
+    for (unsigned int i=0; i < trc.size(); i++) {
+        histo.Plot(id, i, 1, abs((int)trc.at(i)) / scale);
+    }
+}
+
+void TraceAnalyzer::ScalePlot(const vector<unsigned int> &trc, int id, int
+row, double scale) {
+    for (unsigned int i=0; i < trc.size(); i++) {
+        histo.Plot(id, i, row, abs((int)trc.at(i)) / scale);
+    }
+}
+
+void TraceAnalyzer::OffsetPlot(const vector<unsigned int> &trc, int id,
+                               double offset) {
+    for (unsigned int i=0; i < trc.size(); i++) {
+        histo.Plot(id, i, 1, max(0., (int)trc.at(i) - offset));
+    }
+}
+
+void TraceAnalyzer::OffsetPlot(const vector<unsigned int> &trc, int id, int
+row, double offset) {
+    for (unsigned int i=0; i < trc.size(); i++) {
+        histo.Plot(id, i, row, max(0., (int)trc.at(i) - offset));
+    }
+}
+
+TraceAnalyzer::TraceAnalyzer() : histo(0, 0, "generic"), userTime(0.),
+                                 systemTime(0.) {
     name = "Trace";
     // start at -1 so that when incremented on first trace analysis,
     //   row 0 is respectively filled in the trace spectrum of inheritees
@@ -59,7 +102,6 @@ void TraceAnalyzer::Analyze(Trace &trace,
 }
 
 void TraceAnalyzer::EndAnalyze(Trace &trace) {
-    trace.SetValue("analyzedLevel", level);
     EndAnalyze();
 }
 
