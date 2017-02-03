@@ -45,7 +45,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
         return;
     }
 
-    if (trace.HasValue("saturation") || trace.empty() ||
+    if (trace.IsSaturated() || trace.empty() ||
         trace.GetWaveform().size() == 0) {
         EndAnalyze();
         return;
@@ -53,23 +53,18 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
 
     Globals *globals = Globals::get();
 
-    const pair<double, double> baseline(trace.GetValue("baseline"),
-                                        trace.GetValue("sigmaBaseline"));
-    const pair<unsigned int, double> max(trace.GetValue("maxpos"),
-                                         trace.GetValue("maxval"));
-
     //We need to check and make sure that we don't need to use the timing
     // functions for the SiPM fast signals
     bool isFastSiPm = detType == "beta" && detSubtype == "double"
                       && tagMap.find("timing") != tagMap.end();
 
     if (!isFastSiPm) {
-        if (baseline.second > globals->sigmaBaselineThresh()) {
+        if (trace.GetBaselineInfo().second > globals->sigmaBaselineThresh()) {
             EndAnalyze();
             return;
         }
     } else {
-        if (baseline.second > globals->siPmtSigmaBaselineThresh()) {
+        if (trace.GetBaselineInfo().second > globals->siPmtSigmaBaselineThresh()) {
             EndAnalyze();
             return;
         }
@@ -79,11 +74,11 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     if (isFastSiPm)
         pars = globals->fitPars(detType + ":" + detSubtype + ":timing");
 
-    driver_->SetQdc(trace.GetValue("qdc"));
+    driver_->SetQdc(trace.GetQdc());
     double phase = driver_->CalculatePhase(trace.GetWaveform(),
-                                           pars, max, baseline);
-
-    trace.InsertValue("phase", phase + max.first);
+                                           pars, trace.GetMaxInfo(),
+                                           trace.GetBaselineInfo());
+    trace.SetPhase(phase + trace.GetMaxInfo().first);
 
     EndAnalyze();
 }
