@@ -150,7 +150,7 @@ HisDrr::HisDrr(const string &drr, const string &his, const string &input) {
 
     // Using information from drrData drr header is created
     DrrHeader head;
-    int totLength;
+    int totLength = 0;
     for (unsigned int i = 0; i < drrData.size(); ++i) 
         totLength += (drrData[i].scaled[0]+drrData[i].scaled[1])*drrData[i].halfWords; 
     // Magic words (whatever they do...)
