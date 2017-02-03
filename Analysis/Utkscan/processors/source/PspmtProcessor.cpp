@@ -175,12 +175,12 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
         double qdc;
         //int    num        = trace.GetValue("numPulses");
         
-        if(trace.HasValue("filterEnergy")){
+        if(!trace.GetFilteredEnergies().empty()){
             traceNum++;   	  
             //trace_time      = trace.GetValue("filterTime");
-            trace_energy  = trace.GetValue("filterEnergy");
+            trace_energy  = trace.GetFilteredEnergies().front();
             //baseline         = trace.GetValue("baseline");
-            qdc                 = trace.GetValue("qdc");
+            qdc                 = trace.GetQdc();
             
             if(ch==0){
                 qdc1 = qdc;
