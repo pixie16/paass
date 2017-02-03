@@ -1,4 +1,4 @@
-set(ANALYZER_SOURCES
+set(UTKSCAN_ANALYZER_SOURCES
         CfdAnalyzer.cpp
         TauAnalyzer.cpp
         TraceExtractor.cpp
@@ -9,10 +9,10 @@ set(ANALYZER_SOURCES
         WaveformAnalyzer.cpp)
 
 if(USE_GSL)
-    set(ANALYZER_SOURCES ${ANALYZER_SOURCES} FittingAnalyzer.cpp)
+    list(APPEND UTKSCAN_ANALYZER_SOURCES FittingAnalyzer.cpp)
 endif(USE_GSL)
 
-add_library(AnalyzerObjects OBJECT ${ANALYZER_SOURCES})
+add_library(UtkscanAnalyzerObjects OBJECT ${UTKSCAN_ANALYZER_SOURCES})
 
 
 

@@ -35,10 +35,7 @@ endif(UTKSCAN_VERBOSE)
 #------------------------------------------------------------------------------
 
 #Add the local include directories to the build tree
-include_directories(
-        analyzers/include
-        core/include
-        experiment/include
+include_directories(analyzers/include core/include experiment/include
         processors/include)
 
 #Add the Analyzers to the build
@@ -56,19 +53,19 @@ add_subdirectory(processors)
 if(NOT USE_HRIBF)
     set(SCAN_NAME utkscan)
     add_executable(${SCAN_NAME}
-            $<TARGET_OBJECTS:MainObjects>
-            $<TARGET_OBJECTS:CoreObjects>
-            $<TARGET_OBJECTS:AnalyzerObjects>
-            $<TARGET_OBJECTS:ProcessorObjects>
-            $<TARGET_OBJECTS:ExperimentObjects>)
+            $<TARGET_OBJECTS:UtkscanMainObjects>
+            $<TARGET_OBJECTS:UtkscanCoreObjects>
+            $<TARGET_OBJECTS:UtkscanAnalyzerObjects>
+            $<TARGET_OBJECTS:UtkscanProcessorObjects>
+            $<TARGET_OBJECTS:UtkscanExperimentObjects>)
 else(USE_HRIBF)
     set(SCAN_NAME utkscanor)
     add_executable(${SCAN_NAME}
-            $<TARGET_OBJECTS:MainObjects>
-            $<TARGET_OBJECTS:CoreObjects>
-            $<TARGET_OBJECTS:AnalyzerObjects>
-            $<TARGET_OBJECTS:ProcessorObjects>
-            $<TARGET_OBJECTS:ExperimentObjects>
+            $<TARGET_OBJECTS:UtkscanMainObjects>
+            $<TARGET_OBJECTS:UtkscanCoreObjects>
+            $<TARGET_OBJECTS:UtkscanAnalyzerObjects>
+            $<TARGET_OBJECTS:UtkscanProcessorObjects>
+            $<TARGET_OBJECTS:UtkscanExperimentObjects>
             $<TARGET_OBJECTS:ScanorObjects>)
     target_link_libraries(utkscanor ${HRIBF_LIBRARIES})
 endif(NOT USE_HRIBF)
@@ -93,5 +90,3 @@ endif(USE_ROOT)
 install(TARGETS ${SCAN_NAME} DESTINATION bin)
 #Install configuration files to the share directory
 install(DIRECTORY share/utkscan DESTINATION share)
-
-#------------------------------------------------------------------------------
