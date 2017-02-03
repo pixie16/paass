@@ -50,7 +50,7 @@ public:
 
     ///Set to true if the energy and time are not bogus values.
     ///@param[in] a : The value that we would like to set
-    void SetIsValidData(const bool &a) { isValidData_; }
+    void SetIsValidData(const bool &a) { isValidData_ = a; }
 
     ///Set the high resolution time (Filter time (sans CFD) + phase )
     ///@param [in] a : the high resolution time
