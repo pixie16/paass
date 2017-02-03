@@ -34,11 +34,14 @@ public:
     ///\return The calibrated energy for the channel
     double GetCalibratedEnergy() const { return calibratedEnergy_; }
 
-    ///\return The Walk corrected time of the channel
-    double GetWalkCorrectedTime() const { return walkCorrectedTime_; }
-
     ///\return The sub-sampling arrival time of the signal in nanoseconds.
     double GetHighResTimeInNs() const { return highResTimeInNs_; }
+
+    ///\return The Trace object.
+    Trace GetTrace() const { return trace_; }
+
+    ///\return The Walk corrected time of the channel
+    double GetWalkCorrectedTime() const { return walkCorrectedTime_; }
 
     ///Set the calibrated energy
     ///@param [in] a : the calibrated energy
