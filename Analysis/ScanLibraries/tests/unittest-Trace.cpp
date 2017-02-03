@@ -16,6 +16,8 @@ using namespace unittest_trace_variables;
 using namespace unittest_decoded_data;
 
 TEST_FIXTURE(Trace, TestingGettersAndSetters){
+    double double_input = 100.;
+
     SetBaseline(baseline_pair);
     CHECK_EQUAL(baseline_pair.first, GetBaselineInfo().first);
     CHECK_EQUAL(baseline_pair.second, GetBaselineInfo().second);
@@ -41,8 +43,8 @@ TEST_FIXTURE(Trace, TestingGettersAndSetters){
     SetEnergySums(waveform);
     CHECK_ARRAY_EQUAL(waveform, GetEnergySums(), waveform.size());
 
-    SetQdc(100.);
-    CHECK_EQUAL(100., GetQdc());
+    SetQdc(double_input);
+    CHECK_EQUAL(double_input, GetQdc());
 
     SetExtrapolatedMax(extrapolated_maximum_pair);
     CHECK_EQUAL(extrapolated_maximum_pair.first,
@@ -53,8 +55,11 @@ TEST_FIXTURE(Trace, TestingGettersAndSetters){
     SetIsSaturated(true);
     CHECK(IsSaturated());
 
-    SetPhase(100.);
-    CHECK_EQUAL(100., GetPhase());
+    SetPhase(double_input);
+    CHECK_EQUAL(double_input, GetPhase());
+
+    SetTau(double_input);
+    CHECK_EQUAL(double_input, GetTau());
 }
 
 int main(int argv, char *argc[]) {

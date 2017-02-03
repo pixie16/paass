@@ -40,7 +40,16 @@ public:
     /// maximum that's been extrapolated and baseline subtracted as the .first
     /// and .second respectively.
     std::pair<unsigned int, double> GetExtrapolatedMaxInfo() const {
-        return extrapolatedMax_; }
+        return extrapolatedMax_;
+    }
+
+    ///@return The baseline that goes with the filtered energies
+    double GetFilteredBaseline() const { return filteredBaseline_; }
+
+    ///@return The energies found by filtering the trace.
+    std::vector<double> GetFilteredEnergies() const {
+        return filteredEnergies_;
+    }
 
     ///@return Returns a std::pair<unsigned int, double> containing the
     /// position of the maximum value in the trace and the amplitude of the
@@ -48,34 +57,54 @@ public:
     /// respectively.
     std::pair<unsigned int, double> GetMaxInfo() const { return max_; }
 
+    ///@return The number of triggers that were found in the trace
+    unsigned int GetNumberOfTriggers() const {
+        return triggerPositions_.size();
+    }
+
     ///@return The phase of the trace.
     double GetPhase() const { return phase_; }
 
     ///@return The value of the QDC for the waveform
     double GetQdc() const { return qdc_; }
 
+    ///@return The value of the tail-ratio for the waveform.
+    double GetTailRatio() const { return tailRatio_; }
+
+    ///@return The value of tau that was calculated from the trace.
+    double GetTau() const { return tau_; }
+
     ///@return Returns the waveform sans baseline
     std::vector<double> GetTraceSansBaseline() const {
-        return traceSansBaseline_; }
+        return traceSansBaseline_;
+    }
 
     ///@return Returns the Trigger Filter that was set.
     std::vector<double> GetTriggerFilter() const { return trigFilter_; }
+
+    ///@return Returns a vector containing all of the found triggers
+    std::vector<unsigned int> GetTriggerPositions() const {
+        return triggerPositions_;
+    }
 
     ///@return Returns the baseline subtracted waveform found inside the trace.
     std::vector<double> GetWaveform() {
         return std::vector<double>(traceSansBaseline_.begin() +
                                    waveformRange_.first,
                                    traceSansBaseline_.begin() +
-                                   waveformRange_.second); }
+                                   waveformRange_.second);
+    }
 
     ///@return The bounds of the waveform in the trace
     std::pair<unsigned int, unsigned int> GetWaveformRange() const {
-        return waveformRange_; }
+        return waveformRange_;
+    }
 
     ///@return Returns the waveform with the baseline
     std::vector<unsigned int> GetWaveformWithBaseline() {
         return std::vector<unsigned int>(begin() + waveformRange_.first,
-                                         begin() + waveformRange_.second); }
+                                         begin() + waveformRange_.second);
+    }
 
     ///@return True if the trace was saturated
     bool IsSaturated() { return isSaturated_; }
@@ -95,7 +124,19 @@ public:
     ///@param[in] a : The pair<unsigned int ,double> containing the position and
     /// baseline subtracted extrapolated value.
     void SetExtrapolatedMax(const std::pair<unsigned int, double> &a) {
-        extrapolatedMax_ = a; }
+        extrapolatedMax_ = a;
+    }
+
+    ///Sets the baseline value found via a filter of the trace. This value is
+    /// in the "filtered" units.
+    void SetFilteredBaseline(const double &a) { filteredBaseline_ = a; }
+
+    ///Sets the vector containing the energys found by performing a
+    /// trapezoidal filter on the trace.
+    ///@param[in] a : The vector containing the energies.
+    void SetFilteredEnergies(const std::vector<double> &a) {
+        filteredEnergies_ = a;
+    }
 
     ///Sets the isSaturated_ private variable.
     ///@param[in] a : Sets to true if the trace was flagged as saturated by
@@ -120,31 +161,59 @@ public:
     ///Sets the baseline subtracted trace.
     ///@param[in] a : The vector that we are going to assign.
     void SetTraceSansBaseline(const std::vector<double> &a) {
-        traceSansBaseline_ = a; }
+        traceSansBaseline_ = a;
+    }
+
+    ///Sets the value of the tail-ratio method used for doing discrimination
+    /// on signals that have a varying decay constant. This is generally
+    /// defined as the integral of the "tail" of the waveform divided by the
+    /// QDC of the waveform.
+    ///@param[in] a : The value that we're going to set.
+    void SetTailRatio(const double &a) { tailRatio_ = a; }
+
+    ///Sets the value of Tau as calculated from the waveform
+    ///@param[in] a : The value that we are going to assign.
+    void SetTau(const double &a) { tau_ = a; }
 
     ///sets the trigger filter if we are using the TriggerFilterAnalyzer
     ///@param [in] a : the vector with the trigger filter
     void SetTriggerFilter(const std::vector<double> &a) { trigFilter_ = a; }
 
+    ///Sets the trigger positions that were located by a trapezoidal filter
+    /// of the trace.
+    ///@param[in] a : The vector containing the trigger positions.
+    void SetTriggerPositions(const std::vector<unsigned int> &a) {
+        triggerPositions_ = a;
+    }
+
     ///Sets the bounds for the waveform
     ///@param[in] a : the range we want to set
     void SetWaveformRange(const std::pair<unsigned int, unsigned int> &a) {
-        waveformRange_ = a; }
+        waveformRange_ = a;
+    }
 
 private:
     bool isSaturated_; ///< True if the trace was flagged as saturated.
 
     double phase_; ///< The sub-sampling phase of the trace.
     double qdc_; ///< The qdc that was calculated from the waveform.
+    double tailRatio_; ///< The tail-ratio of the trace.
+    double tau_; ///< The tau as calculated from the waveform
+    double filteredBaseline_; ///< Baseline calculated from filtering the trc.
+
+    unsigned int numTriggers_; ///< The number of triggers in the trace.
 
     std::pair<double, double> baseline_; ///< Baseline Average and Std. Dev.
     std::pair<unsigned int, double> max_; ///< Max position and value sans baseline
     std::pair<unsigned int, double> extrapolatedMax_; ///< Max position and extrapolated value
     std::pair<unsigned int, unsigned int> waveformRange_; ///< Waveform Range
 
+    std::vector<double> filteredEnergies_; ///< Energies from filtering the trc.
     std::vector<double> traceSansBaseline_; ///< Baseline subtracted trace
     std::vector<double> trigFilter_; ///< The trigger filter for the trace
     std::vector<double> esums_; ///< The Energy sums calculated from the trace
+
+    std::vector<unsigned int> triggerPositions_; ///< Trigger positions in trc.
 };
 
 #endif // __TRACE_H_
