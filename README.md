@@ -34,7 +34,7 @@ through a PACMAN interface (recommended).
 ###Required
 * ncurses
 * PLX 
-* PXI
+* XIA
 * gcc v4.4.6+
 * cmake v2.8.8+
 
@@ -45,16 +45,16 @@ through a PACMAN interface (recommended).
 ##Installation (assuming admin rights)
 1. (admin) Install PLX software: `/opt/plx/<VERSION>/`
 2. (admin) Create the PLX link: `ln -s /opt/plx/<VERSION>/PlxSdk /opt/plx/current`
-3. (admin) Install PXI firmware files: `/opt/xia/firmware/`
-4. (admin) Change PXI firmware directory group to acq: `chgrp -R acq /opt/xia/firmware/`
+3. (admin) Install XIA firmware files: `/opt/xia/firmware/`
+4. (admin) Change XIA firmware directory group to acq: `chgrp -R acq /opt/xia/firmware/`
 5. (admin) Add acquisition user to acq group : `usermod -a -G acq <username>`
-6. (admin) Create the PXI link: `ln -s /opt/xia/firmware/<VERSION> /opt/xia/current`
+6. (admin) Create the XIA link: `ln -s /opt/xia/firmware/<VERSION> /opt/xia/current`
 7. In PixieSuite2 base directory create the "build" directory: "`mkdir build`"
 8. Change to build directory and execute cmake: `cmake ../`
 9. If all goes well, "`make clean && make && sudo make install && sudo make config`".
    Default install directory is `PixieSuite2/exec`
 
-*You should ensure that the PLX version and PXI firmware versions are compatable!*
+*You should ensure that the PLX version and XIA firmware versions are compatable!*
 
 ###Options for CMAKE Compilation
 * -DCMAKE\_INSTALL\_PREFIX (default PixieSuite2/exec)

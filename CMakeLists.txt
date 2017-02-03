@@ -86,7 +86,7 @@ find_package (Threads REQUIRED)
 find_package (PLX)
 
 #Find the Pixie Firmware
-find_package (PXI)
+find_package (XIA)
 
 #Find curses library used for poll2/scan/skeleton/scope/etc
 if(USE_NCURSES)
@@ -109,21 +109,21 @@ if(BUILD_UNITTESTS)
 endif(BUILD_UNITTESTS)
 
 if (BUILD_ACQ)
-	if(NOT BUILD_ACQ_ATTEMPTED AND NOT PLX_FOUND AND NOT PXI_FOUND)
+	if(NOT BUILD_ACQ_ATTEMPTED AND NOT PLX_FOUND AND NOT XIA_FOUND)
 		set (BUILD_ACQ OFF CACHE BOOL "Build and install PixieSuite" FORCE)
-	else (PLX_FOUND OR PXI_FOUND)
+	else (PLX_FOUND OR XIA_FOUND)
 		#Find the PLX Library
 	   find_package(PLX REQUIRED)
 	   link_directories(${PLX_LIBRARY_DIR})
 
 	   #Find the Pixie Firmware
-	   find_package(PXI REQUIRED)
-	   include_directories(${PXI_INCLUDE_DIR})
-	   link_directories(${PXI_LIBRARY_DIR})
+	   find_package(XIA REQUIRED)
+	   include_directories(${XIA_INCLUDE_DIR})
+	   link_directories(${XIA_LIBRARY_DIR})
 
 	   #Create pixie.cfg and copy slot_def.set as well as default.set to current.set
-	   PXI_CONFIG()
-	   #Use the cmake script created by PXI_CONFIG to install the files it
+	   XIA_CONFIG()
+	   #Use the cmake script created by XIA_CONFIG to install the files it
 	   #created when make cfg is typed
 	   add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)
 	endif()
