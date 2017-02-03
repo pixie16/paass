@@ -1,46 +1,46 @@
-# Find the PXI Library
+# Find the XIA Library
 #
 # Sets the usual variables expected for find_package scripts:
 #
-# PXI_LIBRARY_DIR
-# PXI_FOUND - true if PXI was found.
+# XIA_LIBRARY_DIR
+# XIA_FOUND - true if XIA was found.
 #
 
 #Unset any cached value to ensure a fresh search is performed. 
-#This permits the user to change the PXI_ROOT_DIR and have subsequent paths updated.
-unset(PXI_LIBRARY_DIR CACHE)
+#This permits the user to change the XIA_ROOT_DIR and have subsequent paths updated.
+unset(XIA_LIBRARY_DIR CACHE)
 
 #Find the library path by looking for the library.
-find_path(PXI_LIBRARY_DIR
+find_path(XIA_LIBRARY_DIR
 	NAMES libPixie16App.a libPixie16Sys.a 
-	HINTS ${PXI_ROOT_DIR}
+	HINTS ${XIA_ROOT_DIR}
 	PATHS /opt/xia/current /opt/xia/software
 	PATH_SUFFIXES software
 	DOC "Path to pixie library.")
 
-get_filename_component(PXI_LIBRARY_DIR "${PXI_LIBRARY_DIR}" REALPATH)
+get_filename_component(XIA_LIBRARY_DIR "${XIA_LIBRARY_DIR}" REALPATH)
 
-if(NOT PXI_FIRMWARE_DIR)
-	get_filename_component(PXI_FIRMWARE_DIR "${PXI_LIBRARY_DIR}/../.." REALPATH)
-endif(NOT PXI_FIRMWARE_DIR)
-set(PXI_FIRMWARE_DIR ${PXI_FIRMWARE_DIR} CACHE PATH "Path to folder containing XIA firmware.")
+if(NOT XIA_FIRMWARE_DIR)
+	get_filename_component(XIA_FIRMWARE_DIR "${XIA_LIBRARY_DIR}/../.." REALPATH)
+endif(NOT XIA_FIRMWARE_DIR)
+set(XIA_FIRMWARE_DIR ${XIA_FIRMWARE_DIR} CACHE PATH "Path to folder containing XIA firmware.")
 
 #The order is strange here as we are really interested in the libraries first
 # then we determine the root directory from there.
 
-# Support the REQUIRED and QUIET arguments, and set PXI_FOUND if found.
+# Support the REQUIRED and QUIET arguments, and set XIA_FOUND if found.
 include (FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS (PXI DEFAULT_MSG PXI_LIBRARY_DIR)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS (XIA DEFAULT_MSG XIA_LIBRARY_DIR)
 
-if (PXI_FOUND)
-	set (PXI_INCLUDE_DIR ${PXI_LIBRARY_DIR}/inc ${PXI_LIBRARY_DIR}/sys ${PXI_LIBRARY_DIR}/app)
-	set(PXI_LIBRARIES -lPixie16App -lPixie16Sys)
+if (XIA_FOUND)
+	set (XIA_INCLUDE_DIR ${XIA_LIBRARY_DIR}/inc ${XIA_LIBRARY_DIR}/sys ${XIA_LIBRARY_DIR}/app)
+	set(XIA_LIBRARIES -lPixie16App -lPixie16Sys)
 endif()
 
-function(PXI_CONFIG)
+function(XIA_CONFIG)
 	message(STATUS "Creating Pixie configuration.")
 
-	get_filename_component(PXI_ROOT_DIR "${PXI_LIBRARY_DIR}/.." REALPATH)
+	get_filename_component(XIA_ROOT_DIR "${XIA_LIBRARY_DIR}/.." REALPATH)
 
 	#create an installer that can be invoked by
 	#add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)
@@ -73,7 +73,7 @@ function(PXI_CONFIG)
 	file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "# Global Tags\n\n")
 
 	#Write the base directory
-	file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "PixieBaseDir\t\t${PXI_ROOT_DIR}\n")
+	file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "PixieBaseDir\t\t${XIA_ROOT_DIR}\n")
 
 	#Following are lists of keys and the glob expr to find the files
 	set(CONFIG_NAME CrateConfig SlotFile DspSetFile)
@@ -90,7 +90,7 @@ function(PXI_CONFIG)
 
 		#Find all files matching the expression
 		# Returns the path of the file relative to the base directory.
-		file(GLOB FILE_MATCHES RELATIVE ${PXI_ROOT_DIR} ${PXI_ROOT_DIR}/${GLOB_EXPR})
+		file(GLOB FILE_MATCHES RELATIVE ${XIA_ROOT_DIR} ${XIA_ROOT_DIR}/${GLOB_EXPR})
 
 		#Check that a unique match was found
 		list(LENGTH FILE_MATCHES NUM_MATCHES)
@@ -107,14 +107,14 @@ function(PXI_CONFIG)
 
 		if (${KEY} MATCHES "SlotFile")
 			if (NUM_MATCHES EQUAL 1)
-				configure_file(${PXI_ROOT_DIR}/${FILE_MATCHES} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+				configure_file(${XIA_ROOT_DIR}/${FILE_MATCHES} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake 
 					"file(INSTALL slot_def.set DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n")
 				set(FILE_MATCHES "./slot_def.set")
 			endif()
 		elseif (${KEY} MATCHES "DspSetFile")
 			if (NUM_MATCHES EQUAL 1)
-				configure_file(${PXI_ROOT_DIR}/${FILE_MATCHES} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+				configure_file(${XIA_ROOT_DIR}/${FILE_MATCHES} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 				file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake 
 					"file(INSTALL default.set 
 						PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
@@ -138,18 +138,18 @@ function(PXI_CONFIG)
 	file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "\n# Module Tags\n")
 
 	#Look in the root directory for the XIA library
-	if(NOT EXISTS ${PXI_FIRMWARE_DIR})
-		message(WARNING "Configuration Error - Invalid Pixie firmware directory: ${PXI_FIRMWARE_DIR}")
+	if(NOT EXISTS ${XIA_FIRMWARE_DIR})
+		message(WARNING "Configuration Error - Invalid Pixie firmware directory: ${XIA_FIRMWARE_DIR}")
 		return()
-	endif(NOT EXISTS ${PXI_FIRMWARE_DIR})
-	subdirlist(PXI_FIRMWARE_DIRS ${PXI_FIRMWARE_DIR})
+	endif(NOT EXISTS ${XIA_FIRMWARE_DIR})
+	subdirlist(XIA_FIRMWARE_DIRS ${XIA_FIRMWARE_DIR})
 
 	#remove directories without subdirectories firmware and dsp.
-	foreach(FIRMWARE_DIR ${PXI_FIRMWARE_DIRS})
+	foreach(FIRMWARE_DIR ${XIA_FIRMWARE_DIRS})
 		if (NOT (EXISTS ${FIRMWARE_DIR}/firmware OR EXISTS ${FIRMWARE_FIR}/dsp))
-			list(REMOVE_ITEM PXI_FIRMWARE_DIRS ${FIRMWARE_DIR})
+			list(REMOVE_ITEM XIA_FIRMWARE_DIRS ${FIRMWARE_DIR})
 		endif (NOT (EXISTS ${FIRMWARE_DIR}/firmware OR EXISTS ${FIRMWARE_FIR}/dsp))
-	endforeach(FIRMWARE_DIR ${PXI_FIRMWARE_DIRS})
+	endforeach(FIRMWARE_DIR ${XIA_FIRMWARE_DIRS})
 	
 	#Following are lists of keys and the glob expr to find the files
 	set(CONFIG_NAME SpFpgaFile ComFpgaFile DspConfFile DspVarFile)
@@ -160,7 +160,7 @@ function(PXI_CONFIG)
 		dsp/Pixie16DSP*.var #DspVarFile
 	)
 
-	foreach(FIRMWARE_DIR ${PXI_FIRMWARE_DIRS})
+	foreach(FIRMWARE_DIR ${XIA_FIRMWARE_DIRS})
 		#determine the module type from the fippi SpFpga File
 		unset(MODULE_TYPE)
 		file(GLOB FILE_MATCHES RELATIVE ${FIRMWARE_DIR} ${FIRMWARE_DIR}/firmware/fippixie16*.bin)
@@ -240,7 +240,7 @@ function(PXI_CONFIG)
 			#Append the config file
 			file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "${KEY}\t\t${FILE_MATCHES}\n")
 		endforeach(CONFIG_STEP RANGE 0 3)
-	endforeach(FIRMWARE_DIR ${PXI_FIRMWARE_DIRS})
+	endforeach(FIRMWARE_DIR ${XIA_FIRMWARE_DIRS})
 
 endfunction()
 
