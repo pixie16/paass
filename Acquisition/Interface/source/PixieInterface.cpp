@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 #include <cstdlib>
 #include <cstring>
