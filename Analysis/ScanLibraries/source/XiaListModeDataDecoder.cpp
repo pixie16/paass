@@ -5,7 +5,6 @@
 /// @date December 23, 2016
 #include <iostream>
 #include <sstream>
-#include <stdexcept>
 
 #include <cmath>
 
@@ -135,7 +134,9 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(
             data->SetEnergy(65536);
 
         //We set the time according to the revision and firmware.
-        data->SetTime(CalculateTimeInSamples(mask, *data));
+        pair<double, double> times = CalculateTimeInSamples(mask, *data);
+        data->SetTimeSansCfd(times.first);
+        data->SetTime(times.second);
 
         // One last check to ensure event length matches what we think it
         // should be.
@@ -173,13 +174,14 @@ std::pair<unsigned int, unsigned int> XiaListModeDataDecoder::DecodeWordZero(
 
     //We have to check if we have one of these three firmwares since they
     // have the Trace-Out-of-Range flag in this word.
-    switch(mask.GetFirmware()) {
+    switch (mask.GetFirmware()) {
         case R17562:
         case R20466:
         case R27361:
             data.SetSaturation((bool)
-                ((word & mask.GetTraceOutOfRangeFlagMask().first)
-                    >> mask.GetTraceOutOfRangeFlagMask().second));
+                                       ((word &
+                                         mask.GetTraceOutOfRangeFlagMask().first)
+                                               >> mask.GetTraceOutOfRangeFlagMask().second));
             break;
         default:
             break;
@@ -213,15 +215,16 @@ unsigned int XiaListModeDataDecoder::DecodeWordThree(
     //Reverse the logic that we used in DecodeWordZero, since if we do not
     // have these three firmwares we need to check this word for the
     // Trace-Out-of-Range flag.
-    switch(mask.GetFirmware()) {
+    switch (mask.GetFirmware()) {
         case R17562:
         case R20466:
         case R27361:
             break;
         default:
             data.SetSaturation((bool)
-               ((word & mask.GetTraceOutOfRangeFlagMask().first)
-                      >> mask.GetTraceOutOfRangeFlagMask().second));
+                                       ((word &
+                                         mask.GetTraceOutOfRangeFlagMask().first)
+                                               >> mask.GetTraceOutOfRangeFlagMask().second));
             break;
     }
 
@@ -242,13 +245,13 @@ void XiaListModeDataDecoder::DecodeTrace(unsigned int *buf, XiaData &data,
     data.SetTrace(tmp);
 }
 
-double XiaListModeDataDecoder::CalculateTimeInSamples(
+pair<double, double> XiaListModeDataDecoder::CalculateTimeInSamples(
         const XiaListModeDataMask &mask, const XiaData &data) {
     double filterTime =
             data.GetEventTimeLow() + data.GetEventTimeHigh() * pow(2., 32);
 
     if (data.GetCfdFractionalTime() == 0 || data.GetCfdForcedTriggerBit())
-        return filterTime;
+        return make_pair(filterTime, filterTime);
 
     double cfdTime = 0, multiplier = 1;
     if (mask.GetFrequency() == 100)
@@ -266,11 +269,11 @@ double XiaListModeDataDecoder::CalculateTimeInSamples(
                   data.GetCfdTriggerSourceBit() - 1;
     }
 
-    return filterTime * multiplier + cfdTime;
+    return make_pair(filterTime, filterTime * multiplier + cfdTime);
 }
 
 double XiaListModeDataDecoder::CalculateTimeInNs(
         const XiaListModeDataMask &mask, const XiaData &data) {
     double conversionToNs = 1. / (mask.GetFrequency() * 1.e6);
-    return CalculateTimeInSamples(mask, data) * conversionToNs;
+    return CalculateTimeInSamples(mask, data).second * conversionToNs;
 }

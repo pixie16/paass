@@ -26,14 +26,14 @@ void BarBuilder::BuildBars(void) {
 	    TimingDefs::TimingIdentifier key =
 	     	make_pair(it->first, list_.at(it->second)->GetChanID().GetSubtype());
 	    hrtBars_.insert(make_pair(key,
-            BarDetector(HighResTimingData(list_.at(it->second)),
-                        HighResTimingData(list_.at(mate->second)), key)));
+            BarDetector(HighResTimingData(*list_.at(it->second)),
+                        HighResTimingData(*list_.at(mate->second)), key)));
 	} else {
 	    lrtBars_.insert(make_pair(it->first,
-				      make_pair(0.5*(list_.at(it->second)->GetCorrectedTime()+
-						     list_.at(mate->second)->GetCorrectedTime()),
-						sqrt(list_.at(it->second)->GetCalEnergy()*
-						     list_.at(mate->second)->GetCalEnergy()))));
+				      make_pair(0.5*(list_.at(it->second)->GetWalkCorrectedTime()+
+						     list_.at(mate->second)->GetWalkCorrectedTime()),
+						sqrt(list_.at(it->second)->GetCalibratedEnergy()*
+						     list_.at(mate->second)->GetCalibratedEnergy()))));
 	}
     }
 }

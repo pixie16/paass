@@ -243,14 +243,14 @@ bool Anl1471Processor::Process(RawEvent &event) {
             }
 
             plot(DD_DEBUGGING9, beta_start.GetLeftSide().GetTraceQdc(),
-                 beta_start.GetLeftSide().GetSignalToNoiseRatio());
+                 beta_start.GetLeftSide().GetTrace().GetSignalToNoiseRatio());
 
             //adding HPGE energy info to vandle tree
             double HPGE_energy = -9999.0;
             if (geEvts.size() != 0) {
                 for (vector<ChanEvent *>::const_iterator itHPGE = geEvts.begin();
                      itHPGE != geEvts.end(); itHPGE++) {
-                    HPGE_energy = (*itHPGE)->GetCalEnergy();
+                    HPGE_energy = (*itHPGE)->GetCalibratedEnergy();
                 }
 
             } else {
@@ -259,15 +259,15 @@ bool Anl1471Processor::Process(RawEvent &event) {
 
             vroot.tof = corTof * 2 + 1000;//to make identicle to damm output
             vroot.qdc = bar.GetQdc();
-            vroot.snrl = bar.GetLeftSide().GetSignalToNoiseRatio();
-            vroot.snrr = bar.GetRightSide().GetSignalToNoiseRatio();
+            vroot.snrl = bar.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
+            vroot.snrr = bar.GetRightSide().GetTrace().GetSignalToNoiseRatio();
             vroot.pos = bar.GetQdcPosition();
             vroot.tdiff = bar.GetTimeDifference();
             vroot.ben = beta_start.GetQdc();
-            vroot.bqdcl = beta_start.GetLeftSide().GetTraceQdc();
-            vroot.bqdcr = beta_start.GetRightSide().GetTraceQdc();
-            vroot.bsnrl = beta_start.GetLeftSide().GetSignalToNoiseRatio();
-            vroot.bsnrr = beta_start.GetRightSide().GetSignalToNoiseRatio();
+            vroot.bqdcl = beta_start.GetLeftSide().GetTrace().GetQdc();
+            vroot.bqdcr = beta_start.GetRightSide().GetTrace().GetQdc();
+            vroot.bsnrl = beta_start.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
+            vroot.bsnrr = beta_start.GetRightSide().GetTrace().GetSignalToNoiseRatio();
             vroot.cyc = 0;  /////////it.GetEventTime();
             vroot.bcyc = 0;  /////////itStart.GetEventTime()
             vroot.HPGE = HPGE_energy;
@@ -304,9 +304,9 @@ bool Anl1471Processor::Process(RawEvent &event) {
             int ge_id = -9999;
             int gb_startLoc = -9999;
             BarDetector gb_start;
-            ge_energy = (*itGe)->GetCalEnergy();
+            ge_energy = (*itGe)->GetCalibratedEnergy();
             ge_id = (*itGe)->GetChanID().GetLocation();
-            ge_time = (*itGe)->GetCorrectedTime();
+            ge_time = (*itGe)->GetWalkCorrectedTime();
             ge_time *= (Globals::get()->clockInSeconds() * 1.e9);//in ns now
 
             if (TreeCorrelator::get()->place("Cycle")->status()) {
@@ -325,8 +325,10 @@ bool Anl1471Processor::Process(RawEvent &event) {
                     gb_start = (*itGB).second;
                     gb_startLoc = (*itGB).first.first;
                     gb_en = gb_start.GetQdc();
-                    gb_time_L = gb_start.GetLeftSide().GetHighResTime();//GetCorrectedTime()??
-                    gb_time_R = gb_start.GetRightSide().GetHighResTime();//GetTimeAverage()??
+                    gb_time_L = gb_start.GetLeftSide().GetHighResTimeInNs();
+                    //GetCorrectedTime()??
+                    gb_time_R = gb_start.GetRightSide().GetHighResTimeInNs();
+                    //GetTimeAverage()??
                     gb_time = (gb_time_L + gb_time_R) / 2;
                     gb_time *= (Globals::get()->clockInSeconds() *
                                 1.e9);//in ns now

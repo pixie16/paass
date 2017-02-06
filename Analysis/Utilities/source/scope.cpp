@@ -417,7 +417,7 @@ bool scopeScanner::AddEvent(XiaData *event_){
 	if(!event_){ return false; }
 
 	//Get the first event int the FIFO.
-	ProcessedXiaData *channel_event = new ProcessedXiaData(event_);
+	ProcessedXiaData *channel_event = new ProcessedXiaData(*event_);
 
 	//Process the waveform.
 	///@TODO This needs cleaned up quite a bit to make it more generalized

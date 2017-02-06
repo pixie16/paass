@@ -4,7 +4,6 @@
 ///@date December 2, 2016
 #ifndef PIXIESUITE_PROCESSEDXIADATA_HPP
 #define PIXIESUITE_PROCESSEDXIADATA_HPP
-
 #include "Trace.hpp"
 #include "XiaData.hpp"
 
@@ -15,21 +14,18 @@
 class ProcessedXiaData : public XiaData {
 public:
     /// Default constructor.
-    ProcessedXiaData() {}
+    ProcessedXiaData() { }
 
-    /// Constructor from XiaData. ProcessedXiaData will take ownership via
-    /// the unique pointer. We also assign the trace to the Trace class and
-    /// set the saturation flag in the Trace. This will allow people to
-    /// access this information should the Trace be passed separately from
-    /// the rest of the data.
-    ProcessedXiaData(XiaData *event) {
-        data_ = event;
-        trace_ = data_->GetTrace();
-        trace_.SetIsSaturated(data_->IsSaturated());
-    }
+    ///Constructor taking the base class as an argument so that we can set
+    /// the trace information properly
+    ///@param[in] evt : The event that we are going to assign here.
+    ProcessedXiaData(XiaData &evt) : XiaData(evt) {
+        trace_ = evt.GetTrace();
+        trace_.SetIsSaturated(evt.IsSaturated());
+    };
 
     /// Default Destructor.
-    ~ProcessedXiaData() {};
+    ~ProcessedXiaData() { }
 
     ///@return The calibrated energy for the channel
     double GetCalibratedEnergy() const { return calibratedEnergy_; }
@@ -38,10 +34,10 @@ public:
     double GetHighResTimeInNs() const { return highResTimeInNs_; }
 
     ///@return A constant reference to the trace.
-    const Trace& GetTrace() const { return trace_; }
+    const Trace &GetTrace() const { return trace_; }
 
     ///@return An editable trace.
-    Trace& GetTrace() { return trace_; }
+    Trace &GetTrace() { return trace_; }
 
     ///@return The Walk corrected time of the channel
     double GetWalkCorrectedTime() const { return walkCorrectedTime_; }
@@ -58,16 +54,19 @@ public:
     ///@param[in] a : The value that we would like to set
     void SetIsValidData(const bool &a) { isValidData_ = a; }
 
-    ///Set the high resolution time (Filter time (sans CFD) + phase )
+    ///Set the high resolution time (Filter time (sans CFD) + phase ).
     ///@param [in] a : the high resolution time
     void SetHighResTime(const double &a) { highResTimeInNs_ = a; }
+
+    ///Sets the trace appropriately
+    ///@param[in] a : The trace that we want to set
+    void SetTrace(const std::vector<unsigned int> &a) { trace_ = a; }
 
     ///Set the Walk corrected time
     ///@param [in] a : the walk corrected time */
     void SetWalkCorrectedTime(const double &a) { walkCorrectedTime_ = a; }
 
 private:
-    XiaData *data_; ///< A pointer to the XiaData that we now own.
     Trace trace_; ///< A Trace object to handle the Trace related stuff.
 
     bool isIgnored_; ///< True if we ignore this event.

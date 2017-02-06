@@ -31,17 +31,20 @@ public:
     ///@param[in] mask : The data mask containing the necessary information
     /// to calculate the time.
     ///@param[in] data : The data that we will use to calculate the time
-    ///@return The calculated time in clock samples
-    static double CalculateTimeInSamples(const XiaListModeDataMask &mask,
-                                  const XiaData &data);
+    ///@return A pair of doubles where the first element is the time
+    /// calculated just using the trapezoidal filter (no CFD) and the second
+    /// element is the time calculated using all available CFD information.
+    /// If the CFD information is unavailable these two elements are identical.
+    static std::pair<double,double> CalculateTimeInSamples(
+            const XiaListModeDataMask &mask, const XiaData &data);
 
     ///Method to calculate the arrival time of the signal in nanoseconds
     ///@param[in] mask : The data mask containing the necessary information
     /// to calculate the time.
     ///@param[in] data : The data that we will use to calculate the time
     ///@return The calculated time in nanoseconds
-    static double CalculateTimeInNs(const XiaListModeDataMask &mask,
-                             const XiaData &data);
+    static double CalculateTimeInNs(
+            const XiaListModeDataMask &mask, const XiaData &data);
 private:
     ///Method to decode word zero from the header.
     ///@param[in] word : The word that we need to decode

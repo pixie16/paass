@@ -147,8 +147,8 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
             it1 != geEvts.end(); ++it1) {
             ChanEvent *chan = *it1;
 
-            double gEnergy = chan->GetCalEnergy();
-            double gTime   = chan->GetCorrectedTime();
+            double gEnergy = chan->GetCalibratedEnergy();
+            double gTime   = chan->GetWalkCorrectedTime();
 
             ///Plot the Template Energy vs. Ge Energy if tape isn't moving
             if(!isTapeMoving)

@@ -63,7 +63,7 @@ bool TeenyVandleProcessor::PreProcess(RawEvent &event) {
         unsigned int location = (*it)->GetChanID().GetLocation();
         string subType = (*it)->GetChanID().GetSubtype();
         TimingDefs::TimingIdentifier id(location, subType);
-        data_.insert(make_pair(id, HighResTimingData(*it)));
+        data_.insert(make_pair(id, HighResTimingData(*(*it))));
     }
 
     if(data_.size() != 2)
@@ -72,8 +72,8 @@ bool TeenyVandleProcessor::PreProcess(RawEvent &event) {
     HighResTimingData right = (*data_.find(make_pair(0,"right"))).second;
     HighResTimingData left  = (*data_.find(make_pair(0,"left"))).second;
 
-    double timeDiff = left.GetHighResTime() - right.GetHighResTime();
-    double corTimeDiff = left.GetCorrectedTime() - right.GetCorrectedTime();
+    double timeDiff = left.GetHighResTimeInNs() - right.GetHighResTimeInNs();
+    double corTimeDiff = left.GetWalkCorrectedTime() - right.GetWalkCorrectedTime();
 
     plot(DD_QDCVSMAX, right.GetMaximumValue(), right.GetTraceQdc());
 
@@ -82,7 +82,7 @@ bool TeenyVandleProcessor::PreProcess(RawEvent &event) {
             double timeOff = 500;
 
             plot(D_TIMEDIFF, timeDiff*timeRes + timeOff);
-            plot(DD_PVSP, right.GetPhase()*timeRes, left.GetPhase()*timeRes);
+            plot(DD_PVSP, right.GetPhaseInNs()*timeRes, left.GetPhaseInNs()*timeRes);
             plot(DD_MAXRIGHTVSTDIFF, timeDiff*timeRes+timeOff, right.GetMaximumValue());
             plot(DD_MAXLEFTVSTDIFF, timeDiff*timeRes+timeOff, left.GetMaximumValue());
 
@@ -90,9 +90,9 @@ bool TeenyVandleProcessor::PreProcess(RawEvent &event) {
             plot(DD_MAX, left.GetMaximumValue(), 1);
             plot(DD_TQDC, right.GetTraceQdc(), 0);
             plot(DD_TQDC, left.GetTraceQdc(), 1);
-            plot(DD_SNRANDSDEV, right.GetSignalToNoiseRatio()+50, 0);
+            plot(DD_SNRANDSDEV, right.GetTrace().GetSignalToNoiseRatio()+50, 0);
             plot(DD_SNRANDSDEV, right.GetStdDevBaseline()*timeRes+timeOff, 1);
-            plot(DD_SNRANDSDEV, left.GetSignalToNoiseRatio()+50, 2);
+            plot(DD_SNRANDSDEV, left.GetTrace().GetSignalToNoiseRatio()+50, 2);
             plot(DD_SNRANDSDEV, left.GetStdDevBaseline()*timeRes+timeOff, 3);
 
             double ampDiff = fabs(right.GetMaximumValue()-left.GetMaximumValue());
