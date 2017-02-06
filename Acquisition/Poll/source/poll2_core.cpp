@@ -51,8 +51,8 @@
 // Adjusted to help alleviate the issue with data corruption
 #define POLL_TRIES 100
 
-// 4 GB. Maximum allowable .ldf file size in bytes
-#define MAX_FILE_SIZE 4294967296ll
+// 2 GB. Maximum allowable .ldf file size in bytes
+#define MAX_FILE_SIZE 2147483648ll
 
 // Length of shm packet header (in bytes)
 #define PKT_HEAD_LEN 8
@@ -466,6 +466,7 @@ int Poll::write_data(word_t *data, unsigned int nWords){
 	}
 
 	// Handle the writing of buffers to the file
+	//65552 = 8194 * 4 * 2 , 2 EOF buffers are need 8194 words at 4 bytes per word
 	std::streampos current_filesize = output_file.GetFilesize();
 	if(current_filesize + (std::streampos)(4*nWords + 65552) > MAX_FILE_SIZE){
 		// Adding nWords plus 2 EOF buffers to the file will push it over MAX_FILE_SIZE.
