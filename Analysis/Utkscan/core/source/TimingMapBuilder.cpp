@@ -21,7 +21,7 @@ void TimingMapBuilder::FillMaps(const std::vector<ChanEvent*> &evts) {
         Identifier id = (*it)->GetChanID();
         TimingDefs::TimingIdentifier key(id.GetLocation(), id.GetSubtype());
 
-        HighResTimingData data((*it));
+        HighResTimingData data(*(*it));
         if(!data.GetIsValid())
             continue;
         map_.insert(make_pair(key,data));

@@ -307,8 +307,8 @@ bool PositionProcessor::Process(RawEvent &event) {
         float bottomQdcTot = 0;
         float position = NAN;
 
-        topQdc[0] = top->GetQdcValue(0);
-        bottomQdc[0] = bottom->GetQdcValue(0);
+        topQdc[0] = top->GetQdc().at(0);
+        bottomQdc[0] = bottom->GetQdc().at(0);
         if (bottomQdc[0] == pixie::U_DELIMITER || topQdc[0] == pixie::U_DELIMITER) {
             // This happens naturally for traces which have double triggers
             //   Onboard DSP does not write QDCs in this case
@@ -347,24 +347,24 @@ bool PositionProcessor::Process(RawEvent &event) {
 
 
         for (int i = 1; i < numQdcs; ++i) {
-            if (top->GetQdcValue(i) == pixie::U_DELIMITER) {
+            if (top->GetQdc().at(i) == pixie::U_DELIMITER) {
                 // Recreate qdc from trace
                 topQdc[i] = accumulate(top->GetTrace().begin() + qdcPos[i-1],
                 top->GetTrace().begin() + qdcPos[i], 0);
             } else {
-                topQdc[i] = top->GetQdcValue(i);
+                topQdc[i] = top->GetQdc().at(i);
             }
 
             topQdc[i] -= topQdc[0] * qdcLen[i] / qdcLen[0];
             topQdcTot += topQdc[i];
             topQdc[i] /= qdcLen[i];
 
-            if (bottom->GetQdcValue(i) == pixie::U_DELIMITER) {
+            if (bottom->GetQdc().at(i) == pixie::U_DELIMITER) {
                 // Recreate qdc from trace
                 bottomQdc[i] = accumulate(bottom->GetTrace().begin() + qdcPos[i-1],
                                           bottom->GetTrace().begin() + qdcPos[i], 0);
             } else {
-                bottomQdc[i] = bottom->GetQdcValue(i);
+                bottomQdc[i] = bottom->GetQdc().at(i);
             }
 
             bottomQdc[i] -= bottomQdc[0] * qdcLen[i] / qdcLen[0];
@@ -383,15 +383,17 @@ bool PositionProcessor::Process(RawEvent &event) {
                     (maxNormQdc[location] - minNormQdc[location]);
                 ///@TODO Figure out how to handle this cleanly
                 //sumchan->GetTrace().InsertValue("position", position);
-                plot(DD_POSITION__ENERGY_LOCX + location, position, sumchan->GetCalEnergy());
-                plot(DD_POSITION__ENERGY_LOCX + LOC_SUM, position, sumchan->GetCalEnergy());
+                plot(DD_POSITION__ENERGY_LOCX + location, position,
+                     sumchan->GetCalibratedEnergy());
+                plot(DD_POSITION__ENERGY_LOCX + LOC_SUM, position,
+                     sumchan->GetCalibratedEnergy());
             }
             if (i == 6 && !sumchan->IsSaturated()) {
                 // compare the long qdc to the energy
                 int qdcSum = topQdc[i] + bottomQdc[i];
 
                 // MAGIC NUMBERS HERE, move to qdc.txt
-                if (qdcSum < 1000 && sumchan->GetCalEnergy() > 15000) {
+                if (qdcSum < 1000 && sumchan->GetCalibratedEnergy() > 15000) {
                     ///@TODO Figure out how to handle this cleanly
                     //sumchan->GetTrace().InsertValue("badqdc", 1);
                 } else if ( !isnan(position) ) {

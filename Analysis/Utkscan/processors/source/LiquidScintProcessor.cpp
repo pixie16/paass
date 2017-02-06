@@ -91,12 +91,12 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
     for(vector<ChanEvent*>::const_iterator itLiquid = liquidEvents.begin();
 	itLiquid != liquidEvents.end(); itLiquid++) {
         unsigned int loc = (*itLiquid)->GetChanID().GetLocation();
-        HighResTimingData liquid((*itLiquid));
+        HighResTimingData liquid(*(*itLiquid));
 
         if(liquid.GetDiscrimination() == 0) {
-            for(Trace::const_iterator i = liquid.GetTrace()->begin();
-            i != liquid.GetTrace()->end(); i++)
-                plot(DD_TRCLIQUID, int(i-liquid.GetTrace()->begin()),
+            for(Trace::const_iterator i = liquid.GetTrace().begin();
+            i != liquid.GetTrace().end(); i++)
+                plot(DD_TRCLIQUID, int(i-liquid.GetTrace().begin()),
                     counter, int(*i)-liquid.GetAveBaseline());
             counter++;
         }
@@ -125,15 +125,15 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
             for(vector<ChanEvent*>::iterator itStart = startEvents.begin();
             itStart != startEvents.end(); itStart++) {
                 unsigned int startLoc = (*itStart)->GetChanID().GetLocation();
-                HighResTimingData start((*itStart));
+                HighResTimingData start(*(*itStart));
                 int histLoc = loc + startLoc;
                 const int resMult = 2;
                 const int resOffset = 2000;
 
                 if(start.GetIsValid()) {
                     double tofOffset = cal.GetTofOffset(startLoc);
-                    double TOF = liquid.GetHighResTime() -
-                        start.GetHighResTime() - tofOffset;
+                    double TOF = liquid.GetHighResTimeInNs() -
+                        start.GetHighResTimeInNs() - tofOffset;
 
                     plot(DD_TOFLIQUID, TOF*resMult+resOffset, histLoc);
                     plot(DD_TOFVSDISCRIM+histLoc,

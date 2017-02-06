@@ -95,16 +95,13 @@ public:
     ///@return The energy that was calculated on the module
     double GetEnergy() const { return energy_; }
 
-    ///@brief Method that will return the time for the channel. The actual
-    /// time is a 48-bit number. We multiply 2^32 by the eventTimeHigh_ so
-    /// that we account for the missing upper 16 bits of the number. The
-    /// cfdTime_ contains all of the fractional time information, and so we
-    /// divide by 2^16 here.
-    ///@TODO Verify that this method works properly for all of the different
-    /// module types and firmwares. It doesn't and this value simply needs to
-    /// be set explicitly by the Decoder
-    ///@return The time for the channel.
+    ///@return The time for the channel including all of the CFD information
+    /// when available.
     double GetTime() const { return time_; }
+
+    ///@return The arrival time of the signal without any CFD information in
+    /// the calculation
+    double GetTimeSansCfd() const {return timeSansCfd_;}
 
     ///@return The CFD fractional time in clockticks
     unsigned int GetCfdFractionalTime() const { return cfdTime_; }
@@ -223,6 +220,11 @@ public:
     ///@param[in] a : The value to set
     void SetTime(const double &a) { time_ = a; }
 
+    ///@brief Sets the calculated arrival time of the signal sans the CFD
+    /// fractional time components.
+    ///@param[in] a : The value to set
+    void SetTimeSansCfd(const double &a) {timeSansCfd_ = a;}
+
     ///@brief Sets the trace recorded on board
     ///@param[in] a : The value to set
     void SetTrace(const std::vector<unsigned int> &a) { trace_ = a; }
@@ -236,14 +238,15 @@ public:
 
 private:
     bool cfdForceTrig_; /// CFD was forced to trigger.
-    bool cfdTrigSource_; /// The ADC that the CFD/FPGA synched with.
+    bool cfdTrigSource_; /// The ADC that the CFD/FPGA synced with.
     bool isPileup_; /// Pile-up flag from Pixie.
     bool isSaturated_; /// Saturation flag from Pixie.
     bool isVirtualChannel_; /// Flagged if generated virtually in Pixie DSP.
 
     double energy_; /// Raw pixie energy.
     double baseline_;///Baseline that was recorded with the energy sums
-    double time_;
+    double time_; ///< The time of arrival using all parts of the time
+    double timeSansCfd_; ///< The time of arrival of the signal sans CFD time.
 
     unsigned int cfdTime_; /// CFD trigger time
     unsigned int chanNum_; /// Channel number.

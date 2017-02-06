@@ -280,7 +280,7 @@ void VandleProcessor::AnalyzeBarStarts(void) {
                     const vector<ChanEvent *> &geList = geSummary_->GetList();
                     for (vector<ChanEvent *>::const_iterator itGe = geList.begin();
                         itGe != geList.end(); itGe++) {
-                        double calEnergy = (*itGe)->GetCalEnergy();
+                        double calEnergy = (*itGe)->GetCalibratedEnergy();
                         plot(DD_GAMMAENERGYVSTOF+histTypeOffset, calEnergy, tof);
                     }
                 } else {
@@ -314,7 +314,7 @@ void VandleProcessor::AnalyzeStarts(void) {
             HighResTimingData start = (*itStart).second;
 
             double tof = bar.GetCorTimeAve() -
-                start.GetCorrectedTime() + cal.GetTofOffset(startLoc);
+                start.GetWalkCorrectedTime() + cal.GetTofOffset(startLoc);
 
             double corTof =
                 CorrectTOF(tof, bar.GetFlightPath(), cal.GetZ0());
@@ -331,7 +331,7 @@ void VandleProcessor::AnalyzeStarts(void) {
                     const vector<ChanEvent *> &geList = geSummary_->GetList();
                     for (vector<ChanEvent *>::const_iterator itGe = geList.begin();
                         itGe != geList.end(); itGe++) {
-                        double calEnergy = (*itGe)->GetCalEnergy();
+                        double calEnergy = (*itGe)->GetCalibratedEnergy();
                         plot(DD_GAMMAENERGYVSTOF+histTypeOffset, calEnergy, tof);
                     }
                 } else {

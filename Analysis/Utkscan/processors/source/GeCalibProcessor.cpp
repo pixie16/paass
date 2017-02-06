@@ -195,13 +195,13 @@ bool GeCalibProcessor::PreProcess(RawEvent &event) {
      */
     for (vector<ChanEvent*>::const_iterator itLow = lowEvents.begin();
 	 itLow != lowEvents.end(); ++itLow) {
-        plot(calib::D_ENERGY_LOWGAIN, (*itLow)->GetCalEnergy());
+        plot(calib::D_ENERGY_LOWGAIN, (*itLow)->GetCalibratedEnergy());
     }
     
     for (vector<ChanEvent*>::const_iterator itHigh = highEvents.begin();
 	 itHigh != highEvents.end(); itHigh++) {
         unsigned int location = (*itHigh)->GetChanID().GetLocation();
-        plot(calib::D_ENERGY_HIGHGAIN, (*itHigh)->GetCalEnergy());
+        plot(calib::D_ENERGY_HIGHGAIN, (*itHigh)->GetCalibratedEnergy());
 	
         if ( (*itHigh)->IsSaturated() || (*itHigh)->IsPileup() )
             continue;
@@ -243,12 +243,12 @@ bool GeCalibProcessor::Process(RawEvent &event) {
     for (vector<ChanEvent*>::iterator it = geEvents_.begin();
          it != geEvents_.end(); ++it) {
         ChanEvent* chan = *it;
-        double gEnergy = chan->GetCalEnergy();
+        double gEnergy = chan->GetCalibratedEnergy();
 	
         if (gEnergy < gammaThreshold_)
             continue;
 	
-        double gTime = chan->GetCorrectedTime();
+        double gTime = chan->GetWalkCorrectedTime();
         int det = chan->GetChanID().GetLocation();
 	
         plot(calib::D_E_CRYSTALX + det, gEnergy);
