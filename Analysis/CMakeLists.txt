@@ -1,5 +1,6 @@
 option(USE_HRIBF "Use HRIBF library for scan base." OFF)
-option(USE_GSL "Use GSL for Pulse Fitting" OFF)
+CMAKE_DEPENDENT_OPTION(USE_GSL "Compile with GSL" ON "BUILD_UTKSCAN" OFF)
+mark_as_advanced(USE_GSL)
 
 #Check if GSL is installed
 if(USE_GSL)

@@ -50,6 +50,9 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
 endif(CMAKE_BUILD_TYPE MATCHES "Debug")
 
 #------------------------------------------------------------------------------
+#We are going to include this additional module here since it could be useful
+#when setting all of the following options.
+include(CMakeDependentOption)
 
 #Install options
 option(BUILD_ACQ "Build and install Acquisition software" ON)
