@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#include <cmath>
+
 /// @brief This defines a more extensible implementation of a digitized trace.
 /// The class is derived from a vector of unsigned integers. This is the basic
 /// form of a trace from most digitizers. The Trace class enables processed
@@ -67,6 +69,11 @@ public:
 
     ///@return The value of the QDC for the waveform
     double GetQdc() const { return qdc_; }
+
+    ///@returns the Signal to noise ratio of the trace
+    double GetSignalToNoiseRatio() const {
+            return 20*std::log10(max_.second / baseline_.second);
+    }
 
     ///@return The value of the tail-ratio for the waveform.
     double GetTailRatio() const { return tailRatio_; }
