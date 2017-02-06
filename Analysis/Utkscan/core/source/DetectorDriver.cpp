@@ -348,7 +348,7 @@ void DetectorDriver::ProcessEvent(RawEvent& rawev) {
                 continue;
 
             double time = (*it)->GetTime();
-            double energy = (*it)->GetCalEnergy();
+            double energy = (*it)->GetCalibratedEnergy();
             int location = (*it)->GetChanID().GetLocation();
 
             EventData data(time, energy, location);
@@ -485,37 +485,35 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
         vector<double> filteredEnergies = trace.GetFilteredEnergies();
         if (filteredEnergies.empty()) {
             energy = chan->GetEnergy() + randoms->Get();
-
-            //Saves the time in nanoseconds
-            chan->SetHighResTime((trace.GetPhase() *
-                                  Globals::get()->adcClockInSeconds() +
-                                  (double) chan->GetTrigTime() *
-                                  Globals::get()->filterClockInSeconds()) *
-                                 1e9);
         } else {
             energy = filteredEnergies.front();
             plot(D_FILTER_ENERGY + id, energy);
         }
+
+        //Saves the time in nanoseconds
+        chan->SetHighResTime(
+                (trace.GetPhase() * Globals::get()->adcClockInSeconds() +
+                chan->GetTimeSansCfd() * Globals::get()->filterClockInSeconds())
+                * 1e9);
     } else {
-        /// otherwise, use the Pixie on-board calculated energy
-        /// add a random number to convert an integer value to a
-        ///   uniformly distributed floating point
+        /// otherwise, use the Pixie on-board calculated energy and high res
+        /// time is zero.
         energy = chan->GetEnergy() + randoms->Get();
 	    chan->SetHighResTime(0.0);
     }
 
     /** Calibrate energy and apply the walk correction. */
     double time, walk_correction;
-    if(chan->GetHighResTime() == 0.0) {
+    if(chan->GetHighResTimeInNs() == 0.0) {
 	time = chan->GetTime(); //time is in clock ticks
 	    walk_correction = walk.GetCorrection(chanId, energy);
     } else {
-	time = chan->GetHighResTime(); //time here is in ns
+	time = chan->GetHighResTimeInNs(); //time here is in ns
 	    walk_correction = walk.GetCorrection(chanId, trace.GetQdc());
     }
 
-    chan->SetCalEnergy(cali.GetCalEnergy(chanId, energy));
-    chan->SetCorrectedTime(time - walk_correction);
+    chan->SetCalibratedEnergy(cali.GetCalEnergy(chanId, energy));
+    chan->SetWalkCorrectedTime(time - walk_correction);
 
     rawev.GetSummary(type)->AddEvent(chan);
     DetectorSummary *summary;
@@ -539,7 +537,7 @@ int DetectorDriver::PlotRaw(const ChanEvent *chan) {
 }
 
 int DetectorDriver::PlotCal(const ChanEvent *chan) {
-    plot(D_CAL_ENERGY + chan->GetID(), chan->GetCalEnergy());
+    plot(D_CAL_ENERGY + chan->GetID(), chan->GetCalibratedEnergy());
     return(0);
 }
 

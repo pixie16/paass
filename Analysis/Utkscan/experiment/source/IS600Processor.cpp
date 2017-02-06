@@ -270,8 +270,8 @@ bool IS600Processor::Process(RawEvent &event) {
 	 it1 != geEvts.end(); ++it1) {
         ChanEvent *chan = *it1;
 
-        double gEnergy = chan->GetCalEnergy();
-        double gTime   = chan->GetCorrectedTime();
+        double gEnergy = chan->GetCalibratedEnergy();
+        double gTime   = chan->GetWalkCorrectedTime();
         if (gEnergy < 10.) //hard coded fix later.
             continue;
 

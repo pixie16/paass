@@ -59,7 +59,7 @@ bool SsdProcessor::Process(RawEvent &event) {
             continue;
         const ChanEvent *ch = ssdSummary[i]->GetMaxEvent();
         int position = ch->GetChanID().GetLocation();
-        double energy   = ch->GetCalEnergy();
+        double energy   = ch->GetCalibratedEnergy();
 
         plot(DD_POSITION__ENERGY_DETX + i, energy, position);
     }
