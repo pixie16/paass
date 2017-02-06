@@ -1441,6 +1441,36 @@ void Poll::CommandControl(){
 				debug_mode = true;
 			}
 		}
+		else if(cmd == "mca" || cmd == "MCA"){ // Run MCA program using either root or damm
+				if(do_MCA_run){
+					std::cout << sys_message_head << "MCA program is already running\n\n";
+					continue;
+				}
+				else if(acq_running){ 
+					std::cout << sys_message_head << "Warning! Cannot run MCA program while acquisition is running\n\n";
+					continue;
+				}
+
+				if (p_args >= 1) {
+					std::string type = arguments.at(0);
+					
+					if(type == "root"){ mca_args.SetUseRoot(); }
+					else if(type != "damm"){ mca_args.SetTotalTime(atoi(type.c_str())); }
+					
+					if(p_args >= 2){
+						if(mca_args.GetTotalTime() == 0){ mca_args.SetTotalTime(atoi(arguments.at(1).c_str())); }
+						else{ mca_args.SetBasename(arguments.at(1)); }
+						if(p_args >= 3){ mca_args.SetBasename(arguments.at(2)); }
+					}
+				}
+				
+				if(mca_args.GetTotalTime() == 0){ 
+					mca_args.SetTotalTime(10);
+					std::cout << sys_message_head << "Using default MCA time of 10 seconds\n";
+				}
+		
+				do_MCA_run = true;
+		}
 		else if(!pac_mode){ // These command are only available when not running in pacman mode!
 			if(cmd == "run"){ // Tell POLL to start acq and start recording data to disk.
 				start_run();
@@ -1590,7 +1620,7 @@ void Poll::CommandControl(){
 				else{ std::cout << sys_message_head << "Using output file format '" << output_format << "'\n"; }
 				if(output_file.IsOpen()){ std::cout << sys_message_head << "New output format used for new files only! Current file is unchanged.\n"; }
 			}
-			else if(cmd == "mca" || cmd == "MCA"){ // Run MCA program using either root or damm
+		/*else if(cmd == "mca" || cmd == "MCA"){ // Run MCA program using either root or damm
 				if(do_MCA_run){
 					std::cout << sys_message_head << "MCA program is already running\n\n";
 					continue;
@@ -1620,6 +1650,7 @@ void Poll::CommandControl(){
 		
 				do_MCA_run = true;
 			}
+		*/
 			else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
 		}
 		else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
