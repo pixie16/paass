@@ -11,7 +11,7 @@
 
 //! Class for holding information for high resolution timing. All times more
 //! precise than the filter time will be in nanoseconds (phase, highResTime).
-class HighResTimingData {
+class HighResTimingData : public ChanEvent {
 public:
     /** Default constructor */
     HighResTimingData() {};
@@ -20,7 +20,7 @@ public:
 
     /** Constructor using the channel event
     * \param [in] chan : the channel event for grabbing values from */
-    HighResTimingData(ChanEvent *chan) {chan_ = chan;}
+    HighResTimingData(ChanEvent &evt) : ChanEvent(evt) {}
 
     /** Calculate the energy from the time of flight, using a correction
     * \param [in] tof : The time of flight to use for the calculation in ns
@@ -31,62 +31,39 @@ public:
                 pow((z0/tof)/Globals::get()->speedOfLight(), 2)));
     }
 
-    /** \return The channel event that holds most of our information */
-    const ChanEvent* GetChan(void) const {return(chan_);}
-
     /** \return True if maxval,tqdc and sigmaBaseline were not NAN */
     bool GetIsValid() const {
-        if(!std::isnan(chan_->GetTrace().GetMaxInfo().second) &&
-           !std::isnan(chan_->GetTrace().GetQdc()) &&
-           !std::isnan(chan_->GetTrace().GetBaselineInfo().first) ) {
+        if(!std::isnan(GetTrace().GetMaxInfo().second) &&
+           !std::isnan(GetTrace().GetQdc()) &&
+           !std::isnan(GetTrace().GetBaselineInfo().first) ) {
             return(true);
-        }else
-            return(false);
+        }
         return(false);
     }
 
-    ///\return the CFD source trigger bit
-    bool GetCfdSourceBit() const { return(chan_->GetCfdSourceBit());}
     /** \return The current value of aveBaseline_ */
-    double GetAveBaseline() const { return(chan_->GetTrace().GetBaselineInfo().first); }
+    double GetAveBaseline() const { return GetTrace().GetBaselineInfo().first; }
     /** \return The current value of discrimination_ */
-    double GetDiscrimination() const { return chan_->GetTrace().GetTailRatio(); }
-    /** \return The current value of highResTime_ */
-    double GetHighResTime() const { return(chan_->GetHighResTime()); }
+    double GetDiscrimination() const { return GetTrace().GetTailRatio(); }
     /** \return The current value of maxpos_ */
-    double GetMaximumPosition() const { return(chan_->GetTrace().GetMaxInfo().first); }
+    double GetMaximumPosition() const { return GetTrace().GetMaxInfo().first; }
     /** \return The current value of maxval_ */
-    double GetMaximumValue() const { return chan_->GetTrace().GetMaxInfo().second; }
+    double GetMaximumValue() const { return GetTrace().GetMaxInfo().second; }
 
     /** \return The current value of phase_ in nanoseconds*/
-    double GetPhase() const {
-        return(chan_->GetTrace().GetPhase() *
-               Globals::get()->adcClockInSeconds() * 1e9);
-    }
-    /** \return The pixie Energy */
-    double GetFilterEnergy() const { return(chan_->GetEnergy()); }
-    /** \return The pixie Energy */
-    double GetFilterTime() const { return(chan_->GetTime()); }
-    /** \return The current value of snr_ */
-    double GetSignalToNoiseRatio() const {
-	return(20*log10(chan_->GetTrace().GetMaxInfo().second /
-			chan_->GetTrace().GetBaselineInfo().second));
-    }
-    /** \return The current value of stdDevBaseline_  */
-    double GetStdDevBaseline() const {
-        return(chan_->GetTrace().GetBaselineInfo().second);
+    double GetPhaseInNs() const {
+        return GetTrace().GetPhase() *
+                Globals::get()->adcClockInSeconds() * 1e9;
     }
 
-    /** \return Get the trace associated with the channel */
-    const Trace* GetTrace() const { return(&chan_->GetTrace()); }
+    /** \return The current value of stdDevBaseline_  */
+    double GetStdDevBaseline() const {
+        return GetTrace().GetBaselineInfo().second;
+    }
 
     /** \return The current value of tqdc_ */
     double GetTraceQdc() const {
-        return(chan_->GetTrace().GetQdc());
-    }
-    /** \return Walk corrected time  */
-    double GetCorrectedTime() const {
-        return(chan_->GetCorrectedTime());
+        return GetTrace().GetQdc() ;
     }
 
 #ifdef useroot
@@ -102,14 +79,14 @@ public:
     };
 
     void FillRootStructure(HrtRoot &s) const {
-        s.time = GetHighResTime();
-        s.abase = GetAveBaseline();
-        s.sbase = GetStdDevBaseline();
-        s.wtime = GetCorrectedTime();
-        s.phase = GetPhase();
-        s.snr = GetSignalToNoiseRatio();
-        s.qdc = GetTraceQdc();
-        s.id = chan_->GetChanID().GetLocation();
+        s.time = GetHighResTimeInNs();
+        s.abase = GetTrace().GetBaselineInfo().first;
+        s.sbase = GetTrace().GetBaselineInfo().second;
+        s.wtime = GetWalkCorrectedTime();
+        s.phase = GetPhaseInNs();
+        s.snr = GetTrace().GetSignalToNoiseRatio();
+        s.qdc = GetTrace().GetQdc();
+        s.id = GetChanID().GetLocation();
     }
 
     void ZeroRootStructure(HrtRoot &s) const {
@@ -123,8 +100,6 @@ public:
         s.id = 9999;
     }
 #endif
-private:
-    ChanEvent *chan_; //!< a pointer to the channel event for the high res time
 };
 
 /** Defines a map to hold timing data for a channel. */

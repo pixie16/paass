@@ -165,7 +165,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
         ChanEvent *chan   = *it;
         string subtype    = chan->GetChanID().GetSubtype();
         int    ch         = chan->GetChanID().GetLocation();
-        double calEnergy  = chan->GetCalEnergy();
+        double calEnergy  = chan->GetCalibratedEnergy();
         //double pspmtTime  = chan->GetTime();
         Trace trace       = chan->GetTrace();
         

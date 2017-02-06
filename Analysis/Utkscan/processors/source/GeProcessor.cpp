@@ -436,8 +436,8 @@ bool GeProcessor::PreProcess(RawEvent &event) {
 
     for (vector<ChanEvent*>::iterator it = geEvents_.begin(); it != geEvents_.end(); it++) {
         ChanEvent *chan = *it;
-        double energy = chan->GetCalEnergy();
-        double time = chan->GetCorrectedTime();
+        double energy = chan->GetCalibratedEnergy();
+        double time = chan->GetWalkCorrectedTime();
         int clover = leafToClover[chan->GetChanID().GetLocation()];
 
         /**
@@ -515,7 +515,7 @@ bool GeProcessor::Process(RawEvent &event) {
         for (vector<ChanEvent*>::iterator it = geEvents_.begin();
 	     it != geEvents_.end(); ++it) {
             ChanEvent* chan = *it;
-            double gEnergy = chan->GetCalEnergy();
+            double gEnergy = chan->GetCalibratedEnergy();
             if (gEnergy < gammaThreshold_)
                 continue;
             plot(D_ENERGY_MOVE, gEnergy);
@@ -534,11 +534,11 @@ bool GeProcessor::Process(RawEvent &event) {
 	 it1 != geEvents_.end(); ++it1) {
         ChanEvent* chan = *it1;
 	
-        double gEnergy = chan->GetCalEnergy();
+        double gEnergy = chan->GetCalibratedEnergy();
         if (gEnergy < gammaThreshold_)
             continue;
 	
-        double gTime = chan->GetCorrectedTime();
+        double gTime = chan->GetWalkCorrectedTime();
         double decayTime = (gTime - cycleTime) * clockInSeconds;
         int det = leafToClover[chan->GetChanID().GetLocation()];
 	
@@ -595,9 +595,9 @@ bool GeProcessor::Process(RawEvent &event) {
                 it2 != geEvents_.end(); it2++) {
             ChanEvent* chan2 = *it2;
 
-            double gEnergy2 = chan2->GetCalEnergy();
+            double gEnergy2 = chan2->GetCalibratedEnergy();
             int det2 = leafToClover[chan2->GetChanID().GetLocation()];
-            double gTime2 = chan2->GetCorrectedTime();
+            double gTime2 = chan2->GetWalkCorrectedTime();
 
             if (gEnergy2 < gammaThreshold_)
                 continue;

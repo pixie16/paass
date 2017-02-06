@@ -79,7 +79,7 @@ bool TwoChanTimingProcessor::Process(RawEvent &event) {
         string subType = (*itPulser)->GetChanID().GetSubtype();
 
         TimingDefs::TimingIdentifier key(location, subType);
-        pulserMap.insert(make_pair(key, HighResTimingData(*itPulser)));
+        pulserMap.insert(make_pair(key, HighResTimingData(*(*itPulser))));
     }
 
     if (pulserMap.empty() || pulserMap.size() % 2 != 0) {
@@ -97,9 +97,9 @@ bool TwoChanTimingProcessor::Process(RawEvent &event) {
 
     static int trcCounter = 0;
     int bin;
-    for(vector<unsigned int>::const_iterator it = start.GetTrace()->begin();
-            it != start.GetTrace()->end(); it++) {
-        bin = (int)(it-start.GetTrace()->begin());
+    for(vector<unsigned int>::const_iterator it = start.GetTrace().begin();
+            it != start.GetTrace().end(); it++) {
+        bin = (int)(it-start.GetTrace().begin());
         traces->Fill(bin, trcCounter, *it);
         //Only output the 500th trace to make sure that we are not at the
         // beginning of the file and we're a ways into the data.

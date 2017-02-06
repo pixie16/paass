@@ -70,8 +70,8 @@ bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
 	plot(DD_QDC, (*it).second.GetRightSide().GetTraceQdc(), barNum * 2 + 1);
 	plot(DD_TDIFF, (*it).second.GetTimeDifference()*resolution + offset, barNum);
 	if(barNum == 0) {
-	    plot(DD_PP, (*it).second.GetLeftSide().GetPhase()*resolution,
-		 (*it).second.GetRightSide().GetPhase()*resolution);
+	    plot(DD_PP, (*it).second.GetLeftSide().GetPhaseInNs()*resolution,
+		 (*it).second.GetRightSide().GetPhaseInNs()*resolution);
 	    plot(DD_QDCTDIFF, (*it).second.GetTimeDifference()*resolution+offset,
 		 (*it).second.GetQdc());
 	}
