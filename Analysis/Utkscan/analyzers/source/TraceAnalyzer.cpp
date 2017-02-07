@@ -21,10 +21,11 @@
 #include "TraceAnalyzer.hpp"
 
 using namespace std;
+using namespace dammIds::trace;
+
+Plots TraceAnalyzer::histo(OFFSET, RANGE, "Analyzers");
 
 int TraceAnalyzer::numTracesAnalyzed = 0; //!< number of analyzed traces
-
-using namespace dammIds::trace;
 
 void TraceAnalyzer::Plot(const vector<unsigned int> &trc,
                          const int &id) {
@@ -67,8 +68,7 @@ row, double offset) {
     }
 }
 
-TraceAnalyzer::TraceAnalyzer() : histo(0, 0, "generic"), userTime(0.),
-                                 systemTime(0.) {
+TraceAnalyzer::TraceAnalyzer() : userTime(0.), systemTime(0.) {
     name = "Trace";
     // start at -1 so that when incremented on first trace analysis,
     //   row 0 is respectively filled in the trace spectrum of inheritees
