@@ -1,3 +1,7 @@
+if (NOT USE_GSL)
+    message(FATAL_ERROR "GSL is required to build Utkscan!")
+endif (NOT USE_GSL)
+
 #CMake file for UTKScan.
 option(UTKSCAN_GAMMA_GATES "Gamma-Gamma gates in GeProcessor" OFF)
 option(UTKSCAN_ONLINE "Options for online scans" OFF)
