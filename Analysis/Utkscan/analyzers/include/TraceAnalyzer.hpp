@@ -60,7 +60,7 @@ protected:
     /// done in EventProcessor.
     /** Plots class for given Processor, takes care of declaration
     * and plotting within boundaries allowed by PlotsRegistry */
-    Plots histo;
+    static Plots histo;
 
     /*! \brief Declares a 1D histogram calls the C++ wrapper for DAMM
     * \param [in] dammId : The histogram number to define
