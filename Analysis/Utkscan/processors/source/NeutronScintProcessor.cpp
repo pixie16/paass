@@ -66,7 +66,7 @@ bool NeutronScintProcessor::Process(RawEvent &event)
 
         ChanEvent *chan = *it;
         int loc = chan->GetChanID().GetLocation();
-        double neutronEnergy = chan->GetCalEnergy();
+        double neutronEnergy = chan->GetCalibratedEnergy();
 
         if (TreeCorrelator::get()->place("Beta")->status()) {
             plot(betaGated::D_ENERGY_DETX + loc, neutronEnergy);

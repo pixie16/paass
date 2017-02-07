@@ -78,22 +78,22 @@ public:
     double GetTheta() const {return(acos(GetCalibration().GetZ0()/GetFlightPath()));}
     /** \return The average arrival time of the left and right ends */
     double GetTimeAverage() const {
-        return((right_.GetHighResTime() + left_.GetHighResTime())*0.5);
+        return((right_.GetHighResTimeInNs() + left_.GetHighResTimeInNs())*0.5);
     }
     /** \return the timeDiff_ var */
     double GetTimeDifference() const {
-        return((left_.GetHighResTime()-right_.GetHighResTime()) +
+        return((left_.GetHighResTimeInNs()-right_.GetHighResTimeInNs()) +
                       GetCalibration().GetLeftRightTimeOffset());
     }
     /** \return The walk corrected time average */
     double GetCorTimeAve() const {
-        return((left_.GetCorrectedTime() +
-               right_.GetCorrectedTime())*0.5);
+        return((left_.GetWalkCorrectedTime() +
+               right_.GetWalkCorrectedTime())*0.5);
     }
     /** \return the The walk corrected time difference */
     double GetCorTimeDiff() const {
-        return(left_.GetCorrectedTime() -
-               right_.GetCorrectedTime() +
+        return(left_.GetWalkCorrectedTime() -
+               right_.GetWalkCorrectedTime() +
                GetCalibration().GetLeftRightTimeOffset());
     }
     /** \return the left_ var */

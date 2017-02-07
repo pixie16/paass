@@ -11,7 +11,7 @@
 
 #include "RootScanner.hpp"
 
-class ChannelEvent;
+class ProcessedXiaData;
 class TGraph;
 class TH2F;
 class TF1;
@@ -207,7 +207,7 @@ class scopeScanner : public RootScanner {
 	bool performCfd_;
   
 	std::vector<int> x_vals;
-	std::deque<ChannelEvent*> chanEvents_; ///<The buffer of waveforms to be plotted.
+	std::deque<ProcessedXiaData*> chanEvents_; ///<The buffer of waveforms to be plotted.
 
 	time_t last_trace; ///< The time of the last trace.
 	

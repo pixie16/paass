@@ -55,7 +55,7 @@ DetectorSummary::DetectorSummary(const std::string &str,
 void DetectorSummary::AddEvent(ChanEvent *ev) {
     eventList.push_back(ev);
 
-    if (maxEvent == NULL || ev->GetCalEnergy() > maxEvent->GetCalEnergy()) {
+    if (maxEvent == NULL || ev->GetCalibratedEnergy() > maxEvent->GetCalibratedEnergy()) {
         maxEvent = ev;
     }
 }

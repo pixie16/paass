@@ -80,7 +80,7 @@ bool IonChamberProcessor::Process(RawEvent &event) {
 	 it != icEvents.end(); it++) {
       // make the energy sum
       size_t loc = (*it)->GetChanID().GetLocation();
-      double ecal = (*it)->GetCalEnergy();
+      double ecal = (*it)->GetCalibratedEnergy();
 
       data.raw[loc] += (*it)->GetEnergy();
       data.cal[loc] += ecal;
@@ -108,7 +108,7 @@ bool IonChamberProcessor::Process(RawEvent &event) {
     for (vector<ChanEvent*>::const_iterator it = icEvents.begin();
 	 it != icEvents.end(); it++) {
       size_t loc = (*it)->GetChanID().GetLocation();
-      double ecal = (*it)->GetCalEnergy();
+      double ecal = (*it)->GetCalibratedEnergy();
       if (loc > noDets) {
 	// unexpected location
 	continue;

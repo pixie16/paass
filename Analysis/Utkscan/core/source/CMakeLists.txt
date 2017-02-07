@@ -14,7 +14,6 @@ set(CORE_SOURCES
 #  StatsData.cpp 
         TimingCalibrator.cpp
         TimingMapBuilder.cpp
-        Trace.cpp
         UtkScanInterface.cpp
         UtkUnpacker.cpp
         WalkCorrector.cpp
@@ -37,10 +36,8 @@ else(USE_HRIBF)
     set(MAIN_SOURCES utkscanor.cpp)
 endif(NOT USE_HRIBF)
 
-add_library(MainObjects OBJECT ${MAIN_SOURCES})
+add_library(UtkscanMainObjects OBJECT ${MAIN_SOURCES})
 
-add_library(CoreObjects OBJECT
-    ${CORE_SOURCES}
-    ${CORRELATION_SOURCES}
+add_library(UtkscanCoreObjects OBJECT ${CORE_SOURCES} ${CORRELATION_SOURCES}
     ${PLOTTING_SOURCES}
 )

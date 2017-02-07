@@ -183,11 +183,14 @@ namespace unittest_trace_variables {
             19.2571, 18.2571
     };
 
+    //This is the range of the waveform in the trace.
+    static const std::pair<unsigned int, unsigned int> waveform_range(71, 86);
+
     //This is the region that should be defined as the waveform for the above
     // trace
     static const std::vector<double> waveform(
-            trace_sans_baseline.begin() + 71,
-            trace_sans_baseline.begin() + 86);
+            trace_sans_baseline.begin() + waveform_range.first,
+            trace_sans_baseline.begin() + waveform_range.second);
 
     //An empty data vector to test error checking.
     static const std::vector<unsigned int> empty_vector_uint;
@@ -232,6 +235,7 @@ namespace unittest_trace_variables {
 
     //Value of the extrapolated maximum for the above trace
     static const double extrapolated_maximum = 3818.0718412264;
+
     //Pair of the maximum position and extrapolated maximum
     static const std::pair<unsigned int, double> extrapolated_maximum_pair(
             max_position, extrapolated_maximum);

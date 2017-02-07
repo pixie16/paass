@@ -103,6 +103,9 @@ void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
             continue;
 
         // Convert an XiaData to a ChanEvent
+        ///@TODO we need to ensure that all of the memory is getting freed
+        /// appropriately at the end of processing an event. I'm not sure
+        /// that it is right now.
         ChanEvent *event = new ChanEvent(*(*it));
 
         //Add the ChanEvent pointer to the rawev and used detectors.

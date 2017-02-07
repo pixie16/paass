@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include "BarBuilder.hpp"
+#include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
 #include "GeProcessor.hpp"
 #include "VandleProcessor.hpp"
@@ -114,12 +115,12 @@ bool VandleOrnl2012Processor::Process(RawEvent &event) {
             unsigned int startLoc = (*itStart).first.first;
 
             //!--------- CUT On Beta Energy ----------
-            if (start.GetFilterEnergy() < 1000)
+            if (start.GetEnergy() < 1000)
                 continue;
 
             double tofOffset = cal.GetTofOffset(startLoc);
             double tof = bar.GetCorTimeAve() -
-                         start.GetCorrectedTime() + tofOffset;
+                         start.GetWalkCorrectedTime() + tofOffset;
             double corTof =
                     ((VandleProcessor*)DetectorDriver::get()->
                             GetProcessor("VandleProcessor"))->
@@ -193,7 +194,7 @@ bool VandleOrnl2012Processor::Process(RawEvent &event) {
             if (!geEvts.empty() && isCleared && inPeel) {
                 for (vector<ChanEvent *>::const_iterator itGe = geEvts.begin();
                      itGe != geEvts.end(); itGe++) {
-                    double calEnergy = (*itGe)->GetCalEnergy();
+                    double calEnergy = (*itGe)->GetCalibratedEnergy();
                     plot(DD_DEBUGGING11, calEnergy, decayTime * 1e-9);
                     if (calEnergy >= 595 && calEnergy <= 603) {
                         if (isLower) {

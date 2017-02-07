@@ -133,7 +133,7 @@ bool BetaScintProcessor::PreProcess(RawEvent &event){
     int multiplicity = 0;
     for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin();
 	 it != scintBetaEvents.end(); it++) {
-        double energy = (*it)->GetCalEnergy();
+        double energy = (*it)->GetCalibratedEnergy();
         int energyBin = int(energy / energyContraction_);
         ++multiplicity;
         plot(D_ENERGY_BETA, energyBin);
@@ -162,7 +162,7 @@ bool BetaScintProcessor::Process(RawEvent &event) {
     int multiplicityGamma = 0;
     for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin();
 	 it != scintBetaEvents.end(); it++) {
-        double energy = (*it)->GetCalEnergy();
+        double energy = (*it)->GetCalibratedEnergy();
         int energyBin = int(energy / energyContraction_);
         double time = (*it)->GetTime();
         int location = (*it)->GetChanID().GetLocation();
