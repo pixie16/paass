@@ -1,10 +1,10 @@
 #Install include directories to support the shared library.
-if(BUILD_SHARED_LIBS)
+if(PAASS_BUILD_SHARED_LIBS)
   install(DIRECTORY include DESTINATION ${CMAKE_INSTALL_PREFIX})
-endif(BUILD_SHARED_LIBS)
+endif(PAASS_BUILD_SHARED_LIBS)
 
-if(BUILD_UNITTESTS)
+if(PAASS_BUILD_UNITTESTS)
     add_subdirectory(tests)
-endif(BUILD_UNITTESTS)
+endif(PAASS_BUILD_UNITTESTS)
 
 add_subdirectory(source)
