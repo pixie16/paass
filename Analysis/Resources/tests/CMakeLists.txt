@@ -1,4 +1,4 @@
-if (USE_GSL)
+if (PAASS_USE_GSL)
     if (${GSL_VERSION} GREATER 1.9)
         set(GSL_FITTER_SOURCES ../source/Gsl2Fitter.cpp)
     else (${GSL_VERSION} LESS 2.0)
@@ -10,7 +10,7 @@ if (USE_GSL)
     add_executable(unittest-GslFitter ${GSL_FITTER_SOURCES})
     target_link_libraries(unittest-GslFitter ${GSL_LIBRARIES} UnitTest++)
     install(TARGETS unittest-GslFitter DESTINATION bin/unittests)
-endif (USE_GSL)
+endif (PAASS_USE_GSL)
 
 add_executable(unittest-PolynomialCfd unittest-PolynomialCfd.cpp
         ../source/PolynomialCfd.cpp)
@@ -22,10 +22,10 @@ add_executable(unittest-TraditionalCfd unittest-TraditionalCfd.cpp
 target_link_libraries(unittest-TraditionalCfd UnitTest++)
 install(TARGETS unittest-TraditionalCfd DESTINATION bin/unittests)
 
-if (USE_ROOT)
+if (PAASS_USE_ROOT)
     add_executable(unittest-RootFitter unittest-RootFitter.cpp
             ../source/RootFitter.cpp ../source/VandleTimingFunction.cpp)
     target_link_libraries(unittest-RootFitter
             ${ROOT_LIBRARIES})
     install(TARGETS unittest-RootFitter DESTINATION bin/unittests)
-endif (USE_ROOT)
+endif (PAASS_USE_ROOT)

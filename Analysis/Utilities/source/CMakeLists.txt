@@ -1,26 +1,26 @@
-if(USE_ROOT AND BUILD_SCOPE)
-	if(USE_HRIBF)
+if(PAASS_USE_ROOT AND PAASS_BUILD_SCOPE)
+	if(PAASS_USE_HRIBF)
 		add_executable(scope scope.cpp $<TARGET_OBJECTS:ScanorObjects>)
 		target_link_libraries(scope ${HRIBF_LIBRARIES})
 	else()
 		add_executable(scope scope.cpp)
-	endif()
+	endif(PAASS_USE_HRIBF)
 
 	target_link_libraries(scope PaassScanStatic ${ROOT_LIBRARIES})
    install(TARGETS scope DESTINATION bin)
-endif(USE_ROOT AND BUILD_SCOPE)
+endif(PAASS_USE_ROOT AND PAASS_BUILD_SCOPE)
 
-if(BUILD_SKELETON)
+if(PAASS_BUILD_SKELETON)
 	if(USE_HRIBF)
 		add_executable(skeleton Skeleton.cpp $<TARGET_OBJECTS:ScanorObjects>)
 		target_link_libraries(skeleton ${HRIBF_LIBRARIES})
 	else()
 	    add_executable(skeleton Skeleton.cpp)
-	endif()
+	endif(USE_HRIBF)
 
    target_link_libraries(skeleton PaassScanStatic)
    install (TARGETS skeleton DESTINATION bin)
-endif(BUILD_SKELETON)
+endif(PAASS_BUILD_SKELETON)
 
 # Install headReader executable.
 add_executable(headReader headReader.cpp)

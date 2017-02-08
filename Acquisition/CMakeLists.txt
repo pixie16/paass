@@ -16,6 +16,6 @@ add_subdirectory(PxiDump)
 add_subdirectory(Poll)
 
 #Build the setup tools
-if (BUILD_SETUP)
+if (PAASS_BUILD_SETUP)
     add_subdirectory(Setup)
-endif()
+endif(PAASS_BUILD_SETUP)

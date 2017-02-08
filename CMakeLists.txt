@@ -55,27 +55,27 @@ endif(CMAKE_BUILD_TYPE MATCHES "Debug")
 include(CMakeDependentOption)
 
 #Install options
-option(BUILD_ACQ "Build and install Acquisition software" ON)
-option(BUILD_SCOPE "Build and install the scope program." ON)
-option(BUILD_SETUP "Include the older setup programs in installation" OFF)
-option(BUILD_SHARED_LIBS "Install only scan libraries" ON)
-option(BUILD_SKELETON "Build and install the skeleton scan" OFF)
-option(BUILD_TESTS "Builds programs designed to test the package." OFF)
-option(BUILD_UNITTESTS "Bulid Unit Tests using UnitTest++ Framework" OFF)
-option(BUILD_UTKSCAN "Build utkscan" OFF)
+option(PAASS_BUILD_ACQ "Build and install Acquisition software" ON)
+option(PAASS_BUILD_SCOPE "Build and install the scope program." ON)
+option(PAASS_BUILD_SETUP "Include the older setup programs in installation" OFF)
+option(PAASS_BUILD_SHARED_LIBS "Install only scan libraries" ON)
+option(PAASS_BUILD_SKELETON "Build and install the skeleton scan" OFF)
+option(PAASS_BUILD_TESTS "Builds programs designed to test the package." OFF)
+option(PAASS_BUILD_UNITTESTS "Bulid Unit Tests using UnitTest++ Framework" OFF)
+option(PAASS_BUILD_UTKSCAN "Build utkscan" OFF)
 
-option(USE_DAMM "Use DAMM for MCA" ON)
-option(USE_NCURSES "Use ncurses for terminal" ON)
+option(PAASS_USE_DAMM "Use DAMM for MCA" ON)
+option(PAASS_USE_NCURSES "Use ncurses for terminal" ON)
 mark_as_advanced(USE_NCURSES)
-option(USE_ROOT "Use ROOT" ON)
+option(PAASS_USE_ROOT "Use ROOT" ON)
 
 #------------------------------------------------------------------------------
 
 #Definitions with compiler options
 #The MCA will write DAMM histograms as output
-if(USE_DAMM)
+if(PAASS_USE_DAMM)
     add_definitions("-D USE_DAMM")
-endif()
+endif(PAASS_USE_DAMM)
 
 #------------------------------------------------------------------------------
 #Find packages needed for the software.
@@ -91,29 +91,30 @@ find_package (PLX)
 #Find the Pixie Firmware
 find_package (XIA)
 
-#Find curses library used for poll2/scan/skeleton/scope/etc
-if(USE_NCURSES)
+#Find curses library used for pretty much everything at this point.
+if(PAASS_USE_NCURSES)
 	find_package(Curses REQUIRED)
-endif()
+endif(PAASS_USE_NCURSES)
+
 if (CURSES_FOUND)
 	add_definitions("-D USE_NCURSES")
 	mark_as_advanced(FORCE CURSES_HAVE_CURSES_H CURSES_CURSES_H_PATH CURSES_FORM_LIBRARY)
 else()
 	message(STATUS "Curses unavailable, basic terminal will be used.")
-	set(USE_NCURSES OFF)
-endif()
+	set(PAASS_USE_NCURSES OFF)
+endif(CURSES_FOUND)
 
 #Find the UnitTest++ Package. This package can be obtained from
 #https://github.com/unittest-cpp/unittest-cpp.git
-if(BUILD_UNITTESTS)
+if(PAASS_BUILD_UNITTESTS)
 	find_package(UnitTest++ REQUIRED)
 	link_directories(${UNITTEST++_LIBRARY_DIR})
 	include_directories(${UNITTEST++_INCLUDE_DIR})
-endif(BUILD_UNITTESTS)
+endif(PAASS_BUILD_UNITTESTS)
 
-if (BUILD_ACQ)
-	if(NOT BUILD_ACQ_ATTEMPTED AND NOT (PLX_FOUND AND XIA_FOUND))
-		set (BUILD_ACQ OFF CACHE BOOL "Build and install Acquisition" FORCE)
+if (PAASS_BUILD_ACQ)
+	if(NOT PAASS_BUILD_ACQ_ATTEMPTED AND NOT (PLX_FOUND AND XIA_FOUND))
+		set (PAASS_BUILD_ACQ OFF CACHE BOOL "Build and install Acquisition" FORCE)
 	else (PLX_FOUND OR XIA_FOUND)
 		#Find the PLX Library
 	   find_package(PLX REQUIRED)
@@ -130,11 +131,11 @@ if (BUILD_ACQ)
 	   #created when make cfg is typed
 	   add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)
 	endif()
-	set (BUILD_ACQ_ATTEMPTED ON CACHE INTERNAL "Build Suite Attempted")
-endif(BUILD_ACQ)
+	set (PAASS_BUILD_ACQ_ATTEMPTED ON CACHE INTERNAL "Build Suite Attempted")
+endif(PAASS_BUILD_ACQ)
 
 #Find ROOT if USE_ROOT was set.
-if (USE_ROOT)
+if (PAASS_USE_ROOT)
     find_package (ROOT REQUIRED)
     mark_as_advanced(FORCE GENREFLEX_EXECUTABLE ROOTCINT_EXECUTABLE
             ROOT_CONFIG_EXECUTABLE)
@@ -142,7 +143,7 @@ if (USE_ROOT)
 	link_directories(${ROOT_LIBRARY_DIR})
 	add_definitions("-D USE_ROOT")
     add_definitions("-D useroot")
-endif()
+endif(PAASS_USE_ROOT)
 
 #------------------------------------------------------------------------------
 #Include and build the Resources that everybody should have access to.
@@ -161,12 +162,12 @@ add_subdirectory(ThirdParty)
 
 #Build Acquisition software, we don't have this broken into as fine of a
 #granularity as the Analysis software, so we just wrap the whole thing in an if.
-if (BUILD_ACQ)
+if (PAASS_BUILD_ACQ)
 	add_subdirectory(Acquisition)
 else()
 	#Ensure that we can still build set2* even when BUILD_ACQ is off
 	add_subdirectory(Acquisition/PxiDump)
-endif(BUILD_ACQ)
+endif(PAASS_BUILD_ACQ)
 
 #Build any of the analysis related things that we need to build.
 add_subdirectory(Analysis)
