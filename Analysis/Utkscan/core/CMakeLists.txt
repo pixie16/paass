@@ -1,5 +1,5 @@
-if(BUILD_UNITTESTS)
+if (PAASS_BUILD_UNITTESTS)
     add_subdirectory(tests)
-endif(BUILD_UNITTESTS)
+endif (PAASS_BUILD_UNITTESTS)
 
 add_subdirectory(source)

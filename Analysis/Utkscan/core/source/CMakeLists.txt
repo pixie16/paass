@@ -11,30 +11,27 @@ set(CORE_SOURCES
         Notebook.cpp
         RandomPool.cpp
         RawEvent.cpp
-#  StatsData.cpp 
+        #  StatsData.cpp
         TimingCalibrator.cpp
         TimingMapBuilder.cpp
         UtkScanInterface.cpp
         UtkUnpacker.cpp
-        WalkCorrector.cpp
-)
+        WalkCorrector.cpp)
 
-set (CORRELATION_SOURCES
+set(CORRELATION_SOURCES
         PlaceBuilder.cpp
         Places.cpp
-        TreeCorrelator.cpp
-)
+        TreeCorrelator.cpp)
 
-set (PLOTTING_SOURCES
+set(PLOTTING_SOURCES
         Plots.cpp
-        PlotsRegister.cpp
-)
+        PlotsRegister.cpp)
 
-if(NOT USE_HRIBF)
+if (NOT PAASS_USE_HRIBF)
     set(MAIN_SOURCES utkscan.cpp HisFile.cpp)
-else(USE_HRIBF)
+else (PAASS_USE_HRIBF)
     set(MAIN_SOURCES utkscanor.cpp)
-endif(NOT USE_HRIBF)
+endif (NOT PAASS_USE_HRIBF)
 
 add_library(UtkscanMainObjects OBJECT ${MAIN_SOURCES})
 

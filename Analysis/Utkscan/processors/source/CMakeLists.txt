@@ -27,8 +27,8 @@ set(PROCESSOR_SOURCES
         VandleProcessor.cpp
 )
 
-if(USE_ROOT)
-list(APPEND PROCESSOR_SOURCES RootProcessor.cpp)
-endif(USE_ROOT)
+if(PAASS_USE_ROOT)
+    list(APPEND PROCESSOR_SOURCES RootProcessor.cpp)
+endif(PAASS_USE_ROOT)
 
 add_library(UtkscanProcessorObjects OBJECT ${PROCESSOR_SOURCES})
