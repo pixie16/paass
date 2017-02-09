@@ -5,12 +5,14 @@
  * \author K. A. Miernik
  * \date August 19, 2012
  */
-#include "TreeCorrelator.hpp"
-#include "Globals.hpp"
 #include "Exceptions.hpp"
+#include "Globals.hpp"
 #include "Messenger.hpp"
+#include "StringManipulationFunctions.hpp"
+#include "TreeCorrelator.hpp"
 
 using namespace std;
+using namespace StringManipulation;
 
 void Walker::parsePlace(pugi::xml_node node, std::string parent, bool verbose) {
     map<string, string> params;
@@ -79,7 +81,7 @@ void TreeCorrelator::addChild(std::string parent, std::string child,
 
 vector<string> TreeCorrelator::split_names(std::string name) {
     vector<string> names;
-    vector<string> name_tokens = strings::tokenize(name, "_");
+    vector<string> name_tokens = TokenizeString(name, "_");
 
     if (name_tokens.size() > 1) {
         string base_name;
@@ -90,16 +92,16 @@ vector<string> TreeCorrelator::split_names(std::string name) {
 
         if (name_tokens.back().find("-") != string::npos ||
                 name_tokens.back().find(",") != string::npos) {
-            vector<string> comma_token = strings::tokenize(name_tokens.back(), ",");
+            vector<string> comma_token =
+                    TokenizeString(name_tokens.back(), ",");
             for (vector<string>::iterator itc = comma_token.begin();
                     itc != comma_token.end();
                     ++itc) {
-                vector<string> range_tokens =
-                                        strings::tokenize((*itc), "-");
-                int range_min = strings::to_int(range_tokens[0]);
+                vector<string> range_tokens = TokenizeString((*itc), "-");
+                int range_min = stoi(range_tokens[0]);
                 int range_max = range_min;
                 if (range_tokens.size() > 1)
-                    range_max = strings::to_int(range_tokens[1]);
+                    range_max = stoi(range_tokens[1]);
 
                 for (int i = range_min; i <= range_max; ++i) {
                     stringstream ss;
@@ -120,12 +122,10 @@ void TreeCorrelator::createPlace(std::map<std::string, std::string>& params,
                                  bool verbose) {
     bool replace = false;
     if (params["replace"] != "")
-        replace = strings::to_bool(params["replace"]);
+        replace = StringToBool(params["replace"]);
 
     vector<string> names = split_names(params["name"]);
-    for (vector<string>::iterator it = names.begin();
-         it != names.end();
-         ++it) {
+    for (vector<string>::iterator it = names.begin(); it != names.end(); ++it) {
 
         if (params["type"] != "") {
             if (replace) {
@@ -157,15 +157,14 @@ void TreeCorrelator::createPlace(std::map<std::string, std::string>& params,
             }
             Place* current = builder.create(params, verbose);
             places_[(*it)] = current;
-            if (strings::to_bool(params["init"]))
+            if (StringToBool(params["init"]))
                 current->activate(0.0);
         }
 
         if (params["parent"] != "root") {
-            bool coincidence = strings::to_bool(params["coincidence"]);
+            bool coincidence = StringToBool(params["coincidence"]);
             addChild(params["parent"], (*it), coincidence, verbose);
         }
-
     }
 }
 
