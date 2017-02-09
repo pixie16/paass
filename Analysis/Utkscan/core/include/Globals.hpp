@@ -22,12 +22,6 @@
 #include "Messenger.hpp"
 #include "TrapFilterParameters.hpp"
 
-/** A macro defining what kind of NAN to throw */
-#ifndef NAN
-#include <limits>
-#define NAN (numeric_limits<float>::quiet_NaN())
-#endif
-
 ///! Namespace defining some information for Timing related stuff
 namespace TimingDefs {
     /** Defines an ID for Timing detectors */
