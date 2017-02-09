@@ -72,7 +72,7 @@ endif(NOT PAASS_USE_HRIBF)
 
 #Add libraries to be linked with utkscan
 target_link_libraries(${SCAN_NAME} ${LIBS} PaassScanStatic ResourceStatic
-        PaassCoreStatic PugixmlStatic)
+        PaassCoreStatic PugixmlStatic PaassResourceStatic)
 
 #If we have GSL installed link
 if(PAASS_USE_GSL)
