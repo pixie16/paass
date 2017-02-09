@@ -315,7 +315,7 @@ bool PositionProcessor::Process(RawEvent &event) {
 #ifdef VERBOSE
             cout << "SSD strip edges are missing QDC information for location " << location << endl;
 #endif
-            if (topQdc[0] == pixie::U_DELIMITER) {
+            if (topQdc[0] == std::numeric_limits<unsigned int>::max()) {
                 // [2] -> Missing top QDC
                 plot(D_INFO_LOCX + location, INFO_MISSING_TOP_QDC);
                 plot(D_INFO_LOCX + LOC_SUM, INFO_MISSING_TOP_QDC);
@@ -326,7 +326,7 @@ bool PositionProcessor::Process(RawEvent &event) {
                     topQdc[0] = 0;
                 }
             }
-            if (bottomQdc[0] == pixie::U_DELIMITER) {
+            if (bottomQdc[0] == std::numeric_limits<unsigned int>::max()) {
                 // [1] -> Missing bottom QDC
                 plot(D_INFO_LOCX + location, INFO_MISSING_BOTTOM_QDC);
                 plot(D_INFO_LOCX + LOC_SUM, INFO_MISSING_BOTTOM_QDC);

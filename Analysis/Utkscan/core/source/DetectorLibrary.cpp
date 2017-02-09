@@ -11,11 +11,12 @@
 #include <string>
 
 #include "pugixml.hpp"
-#include "StringManipulationFunctions.hpp"
 
+#include "Constants.hpp"
 #include "DetectorLibrary.hpp"
 #include "Globals.hpp"
 #include "Messenger.hpp"
+#include "StringManipulationFunctions.hpp"
 #include "TreeCorrelator.hpp"
 
 using namespace std;
@@ -82,8 +83,9 @@ void DetectorLibrary::LoadXml() {
         }
         for (pugi::xml_node channel = module.child("Channel"); channel;
              channel = channel.next_sibling("Channel")) {
-            int ch_number = channel.attribute("number").as_int(-1);
-            if (ch_number < 0 || ch_number >= (int)pixie::numberOfChannels ) {
+            unsigned int ch_number =
+                    channel.attribute("number").as_uint(std::numeric_limits<unsigned int>::max());
+            if (ch_number < 0 || ch_number >= Pixie16::maximumNumberOfChannels ) {
                 stringstream ss;
                 ss << "DetectorLibrary : Identifier : Illegal channel number "
                    << "found " << ch_number << " in configuration file.";
@@ -202,7 +204,7 @@ int DetectorLibrary::GetNextLocation(const std::string &type,
 }
 
 DetectorLibrary::size_type DetectorLibrary::GetIndex(int mod, int chan) const {
-  return mod * pixie::numberOfChannels + chan;
+  return mod * Pixie16::maximumNumberOfChannels + chan;
 }
 
 bool DetectorLibrary::HasValue(int mod, int chan) const {
@@ -220,7 +222,7 @@ void DetectorLibrary::Set(int index, const Identifier& value) {
     unsigned int module = ModuleFromIndex(index);
     if (module >= numModules ) {
         numModules = module + 1;
-        resize(numModules * pixie::numberOfChannels);
+        resize(numModules * Pixie16::maximumNumberOfChannels);
         if (!value.HasTag("virtual")) {
             numPhysicalModules = module + 1;
         }
@@ -280,11 +282,11 @@ const set<string>& DetectorLibrary::GetUsedDetectors(void) const {
 }
 
 int DetectorLibrary::ModuleFromIndex(int index) const {
-    return int(index / pixie::numberOfChannels);
+    return int(index / Pixie16::maximumNumberOfChannels);
 }
 
 int DetectorLibrary::ChannelFromIndex(int index) const {
-    return (index % pixie::numberOfChannels);
+    return (index % Pixie16::maximumNumberOfChannels);
 }
 
 DetectorLibrary::mapkey_t DetectorLibrary::MakeKey(const std::string &type,
