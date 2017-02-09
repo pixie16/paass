@@ -3,15 +3,20 @@
  * \author K. A. Miernik
  */
 #include <iostream>
+#include <sstream>
 
 #include <unistd.h>
 
 #include "Exceptions.hpp"
 #include "Globals.hpp"
+#include "XmlInterface.hpp"
 
 Globals *Globals::instance = NULL;
 
 Globals::Globals(const std::string &file) {
+    XmlInterface::get(file);
+    const pugi::xml_document *doc = XmlInterface::get()->GetDocument();
+
     configFile_ = file;
     sysClockFreqInHz_ = sysconf(_SC_CLK_TCK);
     clockInSeconds_ = -1;
@@ -24,24 +29,15 @@ Globals::Globals(const std::string &file) {
     numTraces_ = 16;
 
     try {
-        pugi::xml_document doc;
-        pugi::xml_parse_result result = doc.load_file(configFile_.c_str());
-
         std::stringstream ss;
-        if (!result) {
-            ss << "Globals : error parsing file " << configFile_;
-            ss << " : " << result.description();
-            throw GeneralException(ss.str());
-        }
-
         Messenger m;
         pugi::xml_node description =
-                doc.child("Configuration").child("Description");
+                doc->child("Configuration").child("Description");
         std::string desc_text = description.text().get();
         m.detail("Experiment: " + desc_text);
 
         m.start("Loading global parameters");
-        pugi::xml_node global = doc.child("Configuration").child("Global");
+        pugi::xml_node global = doc->child("Configuration").child("Global");
         for (pugi::xml_node_iterator it = global.begin();
              it != global.end(); ++it) {
             if (std::string(it->name()).compare("Revision") == 0) {
@@ -113,7 +109,7 @@ Globals::Globals(const std::string &file) {
         numTraces_ = power2;
 
         m.detail("Loading rejection regions");
-        pugi::xml_node reject = doc.child("Configuration").child("Reject");
+        pugi::xml_node reject = doc->child("Configuration").child("Reject");
         for (pugi::xml_node time = reject.child("Time"); time;
              time = time.next_sibling("Time")) {
             int start = time.attribute("start").as_int(-1);
@@ -135,7 +131,7 @@ Globals::Globals(const std::string &file) {
             hasReject_ = true;
         }
 
-        pugi::xml_node phys = doc.child("Configuration").child("Physical");
+        pugi::xml_node phys = doc->child("Configuration").child("Physical");
         for (pugi::xml_node_iterator it = phys.begin();
              it != phys.end(); ++it) {
             if (std::string(it->name()).compare("NeutronMass") == 0)
@@ -158,7 +154,7 @@ Globals::Globals(const std::string &file) {
                 WarnOfUnknownParameter(m, it);
         }
 
-        pugi::xml_node trc = doc.child("Configuration").child("Trace");
+        pugi::xml_node trc = doc->child("Configuration").child("Trace");
         for (pugi::xml_node_iterator it = trc.begin(); it != trc.end(); ++it) {
             if (std::string(it->name()).compare("DiscriminationStart") == 0)
                 discriminationStart_ = it->attribute("value").as_double(3);
@@ -197,7 +193,7 @@ Globals::Globals(const std::string &file) {
                 WarnOfUnknownParameter(m, it);
         }
 
-        pugi::xml_node cfd = doc.child("Configuration").child("Cfd");
+        pugi::xml_node cfd = doc->child("Configuration").child("Cfd");
         for (pugi::xml_node_iterator it = cfd.begin(); it != cfd.end(); ++it) {
             if (std::string(it->name()).compare("Parameters") == 0) {
                 for (pugi::xml_node_iterator parit = it->begin();
@@ -211,7 +207,7 @@ Globals::Globals(const std::string &file) {
                 WarnOfUnknownParameter(m, it);
         }
 
-        pugi::xml_node fit = doc.child("Configuration").child("Fitting");
+        pugi::xml_node fit = doc->child("Configuration").child("Fitting");
         for (pugi::xml_node_iterator it = fit.begin(); it != fit.end(); ++it) {
             if (std::string(it->name()).compare("SigmaBaselineThresh") == 0)
                 sigmaBaselineThresh_ = it->attribute("value").as_double(3.0);
