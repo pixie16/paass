@@ -11,10 +11,11 @@
 #include <limits>
 #include <sstream>
 
-//This header is for decoding the XML
+//Headers included from PAASS Resources
 ///@TODO The XML decoding should be moved out of this file and into a
 /// dedicated class.
 #include "pugixml.hpp"
+#include "StringManipulationFunctions.hpp"
 
 //These headers are core headers and are needed for basic functionality
 #include "DammPlotIds.hpp"
@@ -60,7 +61,7 @@
 #include "TemplateExpProcessor.hpp"
 #include "VandleOrnl2012Processor.hpp"
 
-#ifdef useroot //Some processors REQURE ROOT to function
+#ifdef useroot //Some processors REQUIRE ROOT to function
 #include "Anl1471Processor.hpp"
 #include "IS600Processor.hpp"
 #include "RootProcessor.hpp"
@@ -214,7 +215,8 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
             double offset = processor.attribute("offset").as_double(200.0);
             unsigned int numStarts = processor.attribute("NumStarts").as_int(2);
             vector<string> types =
-                strings::tokenize(processor.attribute("types").as_string(),",");
+                StringManipulation::TokenizeString(
+                        processor.attribute("types").as_string(),",");
             vecProcess.push_back(new VandleProcessor(types, res,
                 offset, numStarts));
         } else if (name == "TeenyVandleProcessor") {

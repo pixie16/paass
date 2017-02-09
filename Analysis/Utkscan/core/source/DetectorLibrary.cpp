@@ -11,6 +11,7 @@
 #include <string>
 
 #include "pugixml.hpp"
+#include "StringManipulationFunctions.hpp"
 
 #include "DetectorLibrary.hpp"
 #include "Globals.hpp"
@@ -111,7 +112,8 @@ void DetectorLibrary::LoadXml() {
 
             string ch_tags = channel.attribute("tags").as_string("None");
             if(ch_tags != "None"){
-                vector<string> tagList = strings::tokenize(ch_tags, ",");
+                vector<string> tagList =
+                        StringManipulation::TokenizeString(ch_tags, ",");
                 for(unsigned int i = 0; i < tagList.size(); i++)
                     id.AddTag(tagList[i], 1);
             }
