@@ -113,7 +113,7 @@ endif(BUILD_UNITTESTS)
 
 if (BUILD_ACQ)
 	if(NOT BUILD_ACQ_ATTEMPTED AND NOT (PLX_FOUND AND XIA_FOUND))
-		set (BUILD_ACQ OFF CACHE BOOL "Build and install PixieSuite" FORCE)
+		set (BUILD_ACQ OFF CACHE BOOL "Build and install Acquisition" FORCE)
 	else (PLX_FOUND OR XIA_FOUND)
 		#Find the PLX Library
 	   find_package(PLX REQUIRED)
@@ -163,7 +163,10 @@ add_subdirectory(ThirdParty)
 #granularity as the Analysis software, so we just wrap the whole thing in an if.
 if (BUILD_ACQ)
 	add_subdirectory(Acquisition)
-endif()
+else()
+	#Ensure that we can still build set2* even when BUILD_ACQ is off
+	add_subdirectory(Acquisition/PxiDump)
+endif(BUILD_ACQ)
 
 #Build any of the analysis related things that we need to build.
 add_subdirectory(Analysis)
