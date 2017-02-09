@@ -1,7 +1,7 @@
 /** \file ChanEvent.cpp
  * \brief A Class to define what a channel event is
  */
-
+#include <limits>
 #include "ChanEvent.hpp"
 
 bool CompareCorrectedTime(const ChanEvent *a, const ChanEvent *b) {

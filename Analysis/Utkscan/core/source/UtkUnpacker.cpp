@@ -91,7 +91,7 @@ void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
 
         RawStats((*it), driver);
 
-        if ((*it)->GetId() == pixie::U_DELIMITER) {
+        if ((*it)->GetId() == std::numeric_limits<unsigned int>::max()) {
             ss << "pattern 0 ignore";
             m.warning(ss.str());
             ss.str("");
