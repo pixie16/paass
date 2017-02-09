@@ -28,48 +28,6 @@
 #define NAN (numeric_limits<float>::quiet_NaN())
 #endif
 
-/** \brief Pixie module related things that should not change between revisions
- *
- * "Constant" constants, i.e. those who won't change going from different
- * verison (revision) of board, some magic numbers used in code etc.
- * For "variable" constants i.e. revision related or experiment related see
- * Globals class. */
-namespace pixie {
-    typedef uint32_t word_t; ///< a pixie word
-    typedef uint16_t halfword_t; ///< a half pixie word
-    typedef uint32_t bufword_t; ///< word in a pixie buffer
-
-    /** buffer and module data are terminated with a "-1" value
-    *   also used to indicate when a quantity is out of range or peculiar data
-    *   this should theoretically be the same as UINT_MAX in climits header
-    */
-    const pixie::word_t U_DELIMITER = (pixie::word_t) -1;
-
-    /** THIS SHOULD NOT BE SET LARGER THAN 1,000,000
-     * this defines the maximum amount of data that will be
-     * received in a spill.
-     */
-    const unsigned int TOTALREAD = 1000000;
-
-    /** An arbitrary vsn used to pass clock data */
-    const pixie::word_t clockVsn = 1000;
-    /** Number of channels in a module. */
-    const size_t numberOfChannels = 16;
-
-    /** \return tst bit function from pixie16 files
-     * \param [in] bit : bit to test with
-     * \param [in] value : value to compare with */
-    inline unsigned long TstBit(unsigned short bit, unsigned long value) {
-        return ((value & (unsigned long) (pow(2.0, (double) bit))) >> bit);
-    }
-}
-
-//! Namespace defining some buffer related constants
-namespace readbuff {
-    const int STATS = -10;//!< a stats buffer
-    const int ERROR = -100;//!< Defines an error buffer
-}
-
 ///! Namespace defining some information for Timing related stuff
 namespace TimingDefs {
     /** Defines an ID for Timing detectors */
