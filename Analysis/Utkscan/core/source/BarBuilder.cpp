@@ -26,8 +26,8 @@ void BarBuilder::BuildBars(void) {
 	    TimingDefs::TimingIdentifier key =
 	     	make_pair(it->first, list_.at(it->second)->GetChanID().GetSubtype());
 	    hrtBars_.insert(make_pair(key,
-            BarDetector(HighResTimingData(*list_.at(it->second)),
-                        HighResTimingData(*list_.at(mate->second)), key)));
+            BarDetector(HighResTimingData( *(list_.at(it->second)) ),
+                        HighResTimingData( *(list_.at(mate->second)) ), key)));
 	} else {
 	    lrtBars_.insert(make_pair(it->first,
 				      make_pair(0.5*(list_.at(it->second)->GetWalkCorrectedTime()+
