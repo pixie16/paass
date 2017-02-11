@@ -136,7 +136,7 @@ public:
      * \param [in] d : the pixie time to convert to wall time */
     time_t GetWallTime(double d) const {
         return (time_t)((d - pixieToWallClock.first) *
-                        Globals::get()->clockInSeconds() +
+                        Globals::get()->GetClockInSeconds() +
                         pixieToWallClock.second);
     }
 
