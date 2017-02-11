@@ -459,4 +459,30 @@ namespace IeeeStandards {
     }
 }
 
+namespace Conversions {
+    inline double ConvertSecondsWithPrefix(const double &value,
+                                           const std::string &units) {
+        double val = value;
+        if(units == "s")
+            return val;
+        else if (units == "ms")
+            val *= 1e-3;
+        else if (units == "us")
+            val *= 1e-6;
+        else if (units == "ns")
+            val *= 1e-9;
+        else if (units == "As")
+            val *= 1e-10;
+        else if (units == "ps")
+            val *= 1e-12;
+        else if (units == "fs")
+            val *= 1e-15;
+        else
+            throw std::invalid_argument
+                    ("HelperFunctions::ConvertSecondsWithPrefix : Unknown "
+                             "units " + units);
+        return val;
+    }
+}
+
 #endif //PIXIESUITE_HELPERFUNCTIONS_HPP
