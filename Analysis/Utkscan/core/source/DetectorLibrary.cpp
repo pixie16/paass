@@ -46,7 +46,7 @@ DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations(),
 }
 
 void DetectorLibrary::LoadXml() {
-    string cfg = Globals::get()->configfile();
+    string cfg = Globals::get()->GetConfigFileName();
     pugi::xml_document doc;
     pugi::xml_parse_result result = doc.load_file(cfg.c_str());
     if (!result) {

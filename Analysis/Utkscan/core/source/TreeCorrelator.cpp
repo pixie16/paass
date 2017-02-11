@@ -169,7 +169,7 @@ void TreeCorrelator::createPlace(std::map<std::string, std::string>& params,
 }
 
 void TreeCorrelator::buildTree() {
-    string cfg = Globals::get()->configfile();
+    string cfg = Globals::get()->GetConfigFileName();
     pugi::xml_document doc;
 
     Messenger m;

@@ -35,15 +35,15 @@ public:
     /** \return the true if there was an event in the bar */
     bool GetHasEvent(void) const {
         if(GetType() == "small") {
-            double lengthSmallTime = Globals::get()->smallLengthTime();
+            double lengthSmallTime = Globals::get()->GetVandleSmallLengthInNs();
             return(fabs(GetTimeDifference()) < lengthSmallTime+20 &&
                    GetRightSide().GetIsValid() && GetLeftSide().GetIsValid());
         } else if(GetType() == "big") {
-            double lengthBigTime = Globals::get()->bigLengthTime();
+            double lengthBigTime = Globals::get()->GetVandleBigLengthInNs();
             return(fabs(GetTimeDifference()) < lengthBigTime+20 &&
                    GetRightSide().GetIsValid() && GetLeftSide().GetIsValid());
         } else if (GetType() == "medium") {
-            double lengthMediumTime = Globals::get()->mediumLengthTime();
+            double lengthMediumTime = Globals::get()->GetVandleBigLengthInNs();
             return(fabs(GetTimeDifference()) < lengthMediumTime+20 &&
                    GetRightSide().GetIsValid() && GetLeftSide().GetIsValid());
         }
@@ -53,15 +53,15 @@ public:
     double GetFlightPath(void) const {
         if(GetType() == "small")
             return(sqrt(GetCalibration().GetZ0()*GetCalibration().GetZ0()+
-                pow(Globals::get()->speedOfLightSmall()*0.5*GetTimeDifference()+
+                pow(Globals::get()->GetVandleSmallSpeedOfLightInCmPerNs()*0.5*GetTimeDifference()+
                     GetCalibration().GetXOffset(),2)));
         else if(GetType() == "big")
             return(sqrt(GetCalibration().GetZ0()*GetCalibration().GetZ0() +
-                pow(Globals::get()->speedOfLightBig()*0.5*GetTimeDifference()+
+                pow(Globals::get()->GetVandleBigSpeedOfLightInCmPerNs()*0.5*GetTimeDifference()+
                     GetCalibration().GetXOffset(),2)));
         else if(GetType() == "medium")
             return(sqrt(GetCalibration().GetZ0()*GetCalibration().GetZ0() +
-                pow(Globals::get()->speedOfLightMedium()*0.5*GetTimeDifference()+
+                pow(Globals::get()->GetVandleMediumSpeedOfLightInCmPerNs()*0.5*GetTimeDifference()+
                     GetCalibration().GetXOffset(),2)));
         return(std::numeric_limits<double>::quiet_NaN());
     }

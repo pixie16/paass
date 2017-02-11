@@ -68,6 +68,7 @@ bool UtkScanInterface::Initialize(std::string prefix_) {
     if (init_)
         return (false);
 
+    //We setup the globals class now.
     Globals::get(GetSetupFilename());
 
     //We remove this whole block in the event that we are using the SCANOR

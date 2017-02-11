@@ -80,7 +80,7 @@ DetectorDriver* DetectorDriver::get() {
 }
 
 DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
-    cfg_ = Globals::get()->configfile();
+    cfg_ = Globals::get()->GetConfigFileName();
     Messenger m;
     try {
         m.start("Loading Processors");
@@ -401,7 +401,7 @@ void DetectorDriver::DeclarePlots() {
         DeclareHistogram2D(DD_RUNTIME_SEC, SE, S6, "run time - s");
         DeclareHistogram2D(DD_RUNTIME_MSEC, SE, S7, "run time - ms");
 
-        if(Globals::get()->hasRaw()) {
+        if(Globals::get()->HasRawHistogramsDefined()) {
             DetectorLibrary* modChan = DetectorLibrary::get();
             DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
             DeclareHistogram1D(D_HAS_TRACE, S8, "channels with traces");
@@ -434,7 +434,7 @@ void DetectorDriver::DeclarePlots() {
                                   ("FilterE " + idstr.str()).c_str() );
                 DeclareHistogram1D(D_SCALAR + i, SE,
                                   ("Scalar " + idstr.str()).c_str() );
-                if (Globals::get()->revision() == "A")
+                if (Globals::get()->GetPixieRevision() == "A")
                     DeclareHistogram1D(D_TIME + i, SE,
                                        ("Time " + idstr.str()).c_str() );
                 DeclareHistogram1D(D_CAL_ENERGY + i, SE,
@@ -494,8 +494,8 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
 
         //Saves the time in nanoseconds
         chan->SetHighResTime(
-                (trace.GetPhase() * Globals::get()->adcClockInSeconds() +
-                chan->GetTimeSansCfd() * Globals::get()->filterClockInSeconds())
+                (trace.GetPhase() * Globals::get()->GetAdcClockInSeconds() +
+                chan->GetTimeSansCfd() * Globals::get()->GetFilterClockInSeconds())
                 * 1e9);
     } else {
         /// otherwise, use the Pixie on-board calculated energy and high res

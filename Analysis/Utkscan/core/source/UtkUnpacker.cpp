@@ -62,24 +62,25 @@ void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
         PrintProcessingTimeInformation(systemStartTime, times(&systemTimes),
             GetEventStartTime(), eventCounter);
 
-    if (Globals::get()->hasReject()) {
+    if (Globals::get()->HasRejectionRegion()) {
         double eventTime = (GetEventStartTime() - GetFirstTime()) *
-                                Globals::get()->clockInSeconds();
+                                Globals::get()->GetClockInSeconds();
 
-        vector< pair<int, int> > rejectRegions = Globals::get()->rejectRegions();
+        vector< pair<unsigned int, unsigned int> > rejectRegions =
+                Globals::get()->GetRejectionRegions();
 
-        for (vector<pair<int, int> >::iterator region = rejectRegions.begin();
-             region != rejectRegions.end(); ++region)
+        for (vector<pair<unsigned int, unsigned int> >::iterator region =
+                rejectRegions.begin(); region != rejectRegions.end(); ++region)
             if (eventTime > region->first && eventTime < region->second)
                 return;
     }
 
     driver->plot(D_EVENT_GAP, (GetRealStopTime() - lastTimeOfPreviousEvent) *
-            Globals::get()->clockInSeconds()*1e9);
+            Globals::get()->GetClockInSeconds()*1e9);
     driver->plot(D_BUFFER_END_TIME, GetRealStopTime() *
-            Globals::get()->clockInSeconds()*1e9);
+            Globals::get()->GetClockInSeconds()*1e9);
     driver->plot(D_EVENT_LENGTH, (GetRealStopTime() - GetRealStartTime()) *
-            Globals::get()->clockInSeconds()*1e9);
+            Globals::get()->GetClockInSeconds()*1e9);
     driver->plot(D_EVENT_MULTIPLICITY, rawEvent.size());
 
     //loop over the list of channels that fired in this event
@@ -149,7 +150,7 @@ void UtkUnpacker::RawStats(XiaData *event_, DetectorDriver *driver,
     static int rowNumSecs = 0, rowNumMsecs = 0;
 
     runTimeSecs = (event_->GetTime() - GetFirstTime()) *
-                  Globals::get()->clockInSeconds();
+                  Globals::get()->GetClockInSeconds();
     rowNumSecs = int(runTimeSecs / specNoBins);
     remainNumSecs = runTimeSecs - rowNumSecs * specNoBins;
 
