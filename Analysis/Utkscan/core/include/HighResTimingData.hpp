@@ -7,6 +7,7 @@
 #define __HIGHRESTIMINGDATA_HPP__
 
 #include "ChanEvent.hpp"
+#include "Constants.hpp"
 #include "Globals.hpp"
 
 //! Class for holding information for high resolution timing. All times more
@@ -27,8 +28,8 @@ public:
     * \param [in] z0 : The perpendicular distance between the bar and the source in cm
     * \return The particle energy in MeV*/
     double CalcEnergy(const double &tof, const double &z0) {
-        return((0.5*Globals::get()->neutronMass()*
-                pow((z0/tof)/Globals::get()->speedOfLight(), 2)));
+        return((0.5*Physical::neutronMassInMeVcc*
+                pow((z0/tof)/Physical::speedOfLightInCmPerNs, 2)));
     }
 
     /** \return True if maxval,tqdc and sigmaBaseline were not NAN */
@@ -53,7 +54,7 @@ public:
     /** \return The current value of phase_ in nanoseconds*/
     double GetPhaseInNs() const {
         return GetTrace().GetPhase() *
-                Globals::get()->adcClockInSeconds() * 1e9;
+                Globals::get()->GetAdcClockInSeconds() * 1e9;
     }
 
     /** \return The current value of stdDevBaseline_  */
