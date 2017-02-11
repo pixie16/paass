@@ -133,7 +133,7 @@ bool Hen3Processor::Process(RawEvent &event) {
     int neutron_count = dynamic_cast<PlaceCounter*>(
             TreeCorrelator::get()->place("Neutrons"))->getCounter();
 
-    double clockInSeconds = Globals::get()->clockInSeconds();
+    double clockInSeconds = Globals::get()->GetClockInSeconds();
     /** Place Cycle is activated by BeamOn event and deactivated by TapeMove*/
     bool tapeMove = !(TreeCorrelator::get()->place("Cycle")->status());
     /** Cycle time is measured from the beginning of the last BeamON event */

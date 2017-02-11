@@ -78,7 +78,8 @@ void TemplateExpProcessor::SetAssociatedTypes(void) {
 ///Sets up the name of the output ascii data file
 void TemplateExpProcessor::SetupAsciiOutput(void) {
     stringstream name;
-    name << Globals::get()->outputPath(Globals::get()->outputFile()) << ".dat";
+    name << Globals::get()->GetOutputPath()
+         << Globals::get()->GetOutputFileName() << ".dat";
     poutstream_ = new ofstream(name.str().c_str());
 }
 
@@ -86,8 +87,8 @@ void TemplateExpProcessor::SetupAsciiOutput(void) {
 ///Sets up ROOT output file, tree, branches, histograms.
 void TemplateExpProcessor::SetupRootOutput(void) {
     stringstream rootname;
-    rootname << Globals::get()->outputPath(Globals::get()->outputFile())
-             << ".root";
+    rootname << Globals::get()->GetOutputPath()
+         << Globals::get()->GetOutputFileName() << ".root";
     prootfile_ = new TFile(rootname.str().c_str(),"RECREATE");
     proottree_ = new TTree("data","");
     proottree_->Branch("tof",&tof_,"tof/D");
@@ -137,7 +138,7 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
     ///Obtain some useful logic statuses
     bool isTapeMoving = TreeCorrelator::get()->place("TapeMove")->status();
     bool hasBeta = TreeCorrelator::get()->place("Beta")->status();
-    double clockInSeconds = Globals::get()->clockInSeconds();
+    double clockInSeconds = Globals::get()->GetClockInSeconds();
 
     ///Begin loop over template events
     for(vector<ChanEvent*>::iterator tit = tEvts.begin();

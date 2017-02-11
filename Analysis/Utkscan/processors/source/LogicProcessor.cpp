@@ -118,9 +118,9 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
 
-    static double clockInSeconds = Globals::get()->clockInSeconds(); //!< clock in seconds
+    static double clockInSeconds = Globals::get()->GetClockInSeconds(); //!< clock in seconds
     const double logicPlotResolution =
-        10e-6 / Globals::get()->clockInSeconds(); //!<Resolution for Logic Plots
+        10e-6 / Globals::get()->GetClockInSeconds(); //!<Resolution for Logic Plots
     const double mtcPlotResolution = 10e-3 / clockInSeconds; //!<Res. for MTC Plots
 
     static const vector<ChanEvent*> &events = sumMap["logic"]->GetList();
@@ -258,7 +258,7 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 
             // If beam was stopped, activate place and plot stop length
             if (!TreeCorrelator::get()->place("Beam")->status()) {
-                double clockInSeconds = Globals::get()->clockInSeconds();
+                double clockInSeconds = Globals::get()->GetClockInSeconds();
                 double resolution = 1.0 / clockInSeconds;
 
                 plot(D_TIME_STOP_LENGTH, dt_beam_stop / resolution);
