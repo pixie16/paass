@@ -16,7 +16,9 @@ set(CORE_SOURCES
         TimingMapBuilder.cpp
         UtkScanInterface.cpp
         UtkUnpacker.cpp
-        WalkCorrector.cpp)
+        WalkCorrector.cpp
+        XmlParser.cpp
+)
 
 set(CORRELATION_SOURCES
         PlaceBuilder.cpp
