@@ -59,20 +59,20 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
                       && tagMap.find("timing") != tagMap.end();
 
     if (!isFastSiPm) {
-        if (trace.GetBaselineInfo().second > globals->sigmaBaselineThresh()) {
+        if (trace.GetBaselineInfo().second > globals->GetSigmaBaselineThresh()) {
             EndAnalyze();
             return;
         }
     } else {
-        if (trace.GetBaselineInfo().second > globals->siPmtSigmaBaselineThresh()) {
+        if (trace.GetBaselineInfo().second > globals->GetSiPmSigmaBaselineThresh()) {
             EndAnalyze();
             return;
         }
     }
 
-    pair<double, double> pars = globals->fitPars(detType + ":" + detSubtype);
+    pair<double, double> pars = globals->GetFitPars(detType + ":" + detSubtype);
     if (isFastSiPm)
-        pars = globals->fitPars(detType + ":" + detSubtype + ":timing");
+        pars = globals->GetFitPars(detType + ":" + detSubtype + ":timing");
 
     driver_->SetQdc(trace.GetQdc());
     double phase = driver_->CalculatePhase(trace.GetWaveform(),

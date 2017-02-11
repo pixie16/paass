@@ -62,7 +62,7 @@ void TauAnalyzer::Analyze(Trace &trace, const std::string &aType,
             sum2 += double(*it)*(i*n*n-3*i*i*n+2*i*i*i);
             i+=1.;
     }
-    double tau =  1 / log(sum1 / sum2) * Globals::get()->clockInSeconds();
+    double tau =  1 / log(sum1 / sum2) * Globals::get()->GetClockInSeconds();
     trace.SetTau(tau);
 
     EndAnalyze();

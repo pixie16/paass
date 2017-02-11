@@ -21,19 +21,11 @@ TraceFilterAnalyzer::TraceFilterAnalyzer(const bool &analyzePileup) :
 }
 
 void TraceFilterAnalyzer::DeclarePlots(void) {
-    //! Declare plots within the trace object
-    Trace sample_trace = Trace();
-
     const int traceBins = dammIds::trace::traceBins;
-    const unsigned short numTraces = Globals::get()->numTraces();
-
     DeclareHistogram1D(D_RETVALS, S3,"Retvals for Filtering");
-    DeclareHistogram2D(DD_TRIGGER_FILTER, traceBins, numTraces,
-                                    "Trigger Filter");
-    DeclareHistogram2D(DD_REJECTED_TRACE, traceBins, numTraces,
-                                    "Rejected Traces");
-    DeclareHistogram2D(DD_PILEUP, traceBins, numTraces,
-                                    "Rejected Traces");
+    DeclareHistogram2D(DD_TRIGGER_FILTER, traceBins, S7, "Trigger Filter");
+    DeclareHistogram2D(DD_REJECTED_TRACE, traceBins, S7, "Rejected Traces");
+    DeclareHistogram2D(DD_PILEUP, traceBins, S7, "Rejected Traces");
 }
 
 void TraceFilterAnalyzer::Analyze(Trace &trace, const std::string &type,
@@ -44,13 +36,13 @@ void TraceFilterAnalyzer::Analyze(Trace &trace, const std::string &type,
     static int numTrigFilters = 0;
     static int numRejected = 0;
     static int numPileup = 0;
-    static unsigned short numTraces = globs->numTraces();
+    static unsigned short numTraces = S7;
 
     pair<TrapFilterParameters, TrapFilterParameters> pars =
-	globs->trapFiltPars(type+":"+subtype);
+	globs->GetFilterPars(type+":"+subtype);
 
     //Want to put filter clock units of ns/Sample
-    TraceFilter filter(globs->filterClockInSeconds()*1e9,
+    TraceFilter filter(globs->GetFilterClockInSeconds()*1e9,
 		       pars.first, pars.second, analyzePileup_);
     unsigned int retval = filter.CalcFilters(&trace);
     
