@@ -309,7 +309,8 @@ bool PositionProcessor::Process(RawEvent &event) {
 
         topQdc[0] = top->GetQdc().at(0);
         bottomQdc[0] = bottom->GetQdc().at(0);
-        if (bottomQdc[0] == pixie::U_DELIMITER || topQdc[0] == pixie::U_DELIMITER) {
+        if (bottomQdc[0] == std::numeric_limits<unsigned int>::max() ||
+                topQdc[0] == std::numeric_limits<unsigned int>::max()) {
             // This happens naturally for traces which have double triggers
             //   Onboard DSP does not write QDCs in this case
 #ifdef VERBOSE
@@ -347,7 +348,7 @@ bool PositionProcessor::Process(RawEvent &event) {
 
 
         for (int i = 1; i < numQdcs; ++i) {
-            if (top->GetQdc().at(i) == pixie::U_DELIMITER) {
+            if (top->GetQdc().at(i) == std::numeric_limits<unsigned int>::max()) {
                 // Recreate qdc from trace
                 topQdc[i] = accumulate(top->GetTrace().begin() + qdcPos[i-1],
                 top->GetTrace().begin() + qdcPos[i], 0);
@@ -359,7 +360,7 @@ bool PositionProcessor::Process(RawEvent &event) {
             topQdcTot += topQdc[i];
             topQdc[i] /= qdcLen[i];
 
-            if (bottom->GetQdc().at(i) == pixie::U_DELIMITER) {
+            if (bottom->GetQdc().at(i) == std::numeric_limits<unsigned int>::max()) {
                 // Recreate qdc from trace
                 bottomQdc[i] = accumulate(bottom->GetTrace().begin() + qdcPos[i-1],
                                           bottom->GetTrace().begin() + qdcPos[i], 0);

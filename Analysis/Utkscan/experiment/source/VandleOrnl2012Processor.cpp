@@ -63,7 +63,8 @@ VandleOrnl2012Processor::VandleOrnl2012Processor() :
     associatedTypes.insert("vandle");
 
     stringstream name;
-    name << Globals::get()->outputPath(Globals::get()->outputFile());
+    name << Globals::get()->GetOutputPath()
+         << Globals::get()->GetOutputFileName();
     fileName_ = name.str();
     fileNames_.push_back(fileName_ + "-tof.dat");
     fileNames_.push_back(fileName_ + "-tof-02Plus.dat");
@@ -180,7 +181,7 @@ bool VandleOrnl2012Processor::Process(RawEvent &event) {
 
             double cycleTime = TreeCorrelator::get()->place(
                     "Cycle")->last().time;
-            cycleTime *= (Globals::get()->clockInSeconds() * 1.e9);
+            cycleTime *= (Globals::get()->GetClockInSeconds() * 1.e9);
 
             double decayTime = (bar.GetTimeAverage() - cycleTime) / 0.01;
 

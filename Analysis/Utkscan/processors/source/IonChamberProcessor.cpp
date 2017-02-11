@@ -63,7 +63,7 @@ bool IonChamberProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
 	return false;
 
-    static const double minTime = 18.0e-6 / Globals::get()->clockInSeconds();
+    static const double minTime = 18.0e-6 / Globals::get()->GetClockInSeconds();
 
     static const vector<ChanEvent*> &icEvents =
         sumMap["ion_chamber"]->GetList();
@@ -155,7 +155,7 @@ bool IonChamberProcessor::Process(RawEvent &event) {
 	  }
 	  double mean = double(sum / count);
 	  plot(D_RATE_DETX + loc,
-          (double)(1 / mean / Globals::get()->clockInSeconds()));
+          (double)(1 / mean / Globals::get()->GetClockInSeconds()));
 	}
 
       }
