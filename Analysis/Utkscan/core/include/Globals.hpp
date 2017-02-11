@@ -1,9 +1,9 @@
-/** \file Globals.hpp
- * \brief constant parameters used in pixie16 analysis
- * \author K. A. Miernik
- */
-#ifndef __GLOBALS_HPP_
-#define __GLOBALS_HPP_
+///@file Globals.hpp
+///@brief constant parameters used in pixie16 analysis
+///@author D. T. Miller, K. A. Miernik and S. V. Paulauskas
+///@date Sometime before June 9, 2012
+#ifndef _PAASS_GLOBALS_HPP_
+#define _PAASS_GLOBALS_HPP_
 
 #include <algorithm>
 #include <map>
@@ -18,222 +18,312 @@
 
 #include "pugixml.hpp"
 
+#include "Constants.hpp"
 #include "Exceptions.hpp"
 #include "Messenger.hpp"
 #include "TrapFilterParameters.hpp"
 
 ///! Namespace defining some information for Timing related stuff
 namespace TimingDefs {
-    /** Defines an ID for Timing detectors */
+    ///Defines an ID for Timing detectors 
     typedef std::pair<unsigned int, std::string> TimingIdentifier;
 }
 
-/** \brief Singleton class holding global parameters.*/
+///@brief Singleton class holding global parameters.
 class Globals {
 public:
-    /** \return only instance of Globals class.*/
+    ///@return only instance of Globals class.
     static Globals *get();
 
-    /** \return only instance of Globals class.*/
+    ///@return only instance of Globals class.
     static Globals *get(const std::string &file);
 
+    ///The default destructor
     ~Globals();
 
-    /** \return true if any reject region was defined */
-    bool hasReject() const { return hasReject_; }
+    ///@return the adc clock in seconds 
+    double GetAdcClockInSeconds() const { return adcClockInSeconds_; }
 
-    /** \return true if we will define the raw histograms */
-    bool hasRaw() const { return (hasRaw_); }
-
-    /** \return the adc clock in seconds */
-    double adcClockInSeconds() const { return adcClockInSeconds_; }
-
-    ///\return the bit resolution of the ADC (e.x. 12 bit = 4096)
-    double bitResolution() const { return pow(2, bitResolution_); }
-
-    /** \return the length of the big VANDLE bars length in cm */
-    double bigLength() const { return (bigLength_); }
-
-    /** \return the length of the big VANDLE bars in ns */
-    double bigLengthTime() const { return (bigLength_ / speedOfLightBig_); }
-
-    /** \return the pixie clock in seconds */
-    double clockInSeconds() const { return (clockInSeconds_); }
-
-    /** \return the starting point in the trace for the n-gamma discrimination */
-    double discriminationStart() const { return (discriminationStart_); }
-
-    /** \return the event size in seconds */
-    double eventInSeconds() const { return eventInSeconds_; }
-
-    /** \return the filter clock in seconds */
-    double filterClockInSeconds() const { return filterClockInSeconds_; }
-
-    /** \return the length of the medium VANDLE bars in cm */
-    double mediumLength() const { return (mediumLength_); }
-
-    /** \return the length of the medium VANDLE bars in ns */
-    double mediumLengthTime() const {
-        return (mediumLength_ / speedOfLightMedium_);
+    ///@param[in] str : A string of the form "type:subtype" used to find
+    /// parameters
+    ///@return the requested cfd parameters parameters
+    std::pair<double, double> GetCfdPars(const std::string &str) const {
+        if (fitPars_.find(str) != fitPars_.end())
+            return fitPars_.find(str)->second;
+        return std::make_pair(0.5, 1);
     }
 
-    /** \return the mass of the neutron in MeV/c/c */
-    double neutronMass() const { return (neutronMass_); }
+    ///@return the pixie clock in seconds 
+    double GetClockInSeconds() const { return clockInSeconds_; }
 
-    /** \return the compression factor for the QDCs from the trace (VANDLE related) */
-    double qdcCompression() const { return (qdcCompression_); }
+    ///@return the configuration file
+    std::string GetConfigFileName() const { return configFile_; }
 
-    /** \return the length of the small VANDLE bar in cm */
-    double smallLength() const { return (smallLength_); }
+    ///@return the starting point in the trace for the n-gamma discrimination 
+    double GetDiscriminationStart() const { return discriminationStart_; }
 
-    /** \return the length of the small VANDLE bar in ns */
-    double smallLengthTime() const {
-        return (smallLength_ / speedOfLightSmall_);
+    ///@return the event size in seconds 
+    double GetEventLengthInSeconds() const { return eventLengthInSeconds_; }
+
+    ///@return the event width
+    unsigned int GetEventLengthInTicks() const { return eventLengthInTicks_; }
+
+    ///@return the filter clock in seconds 
+    double GetFilterClockInSeconds() const { return filterClockInSeconds_; }
+
+    ///@param[in] str : A string of the form "type:subtype" used to find
+    /// parameters
+    ///@return the trapezoidal filter parameters for the requested detector type:subtype
+    std::pair<TrapFilterParameters, TrapFilterParameters> GetFilterPars(
+            const std::string &str) const {
+        if (trapFiltPars_.find(str) != trapFiltPars_.end())
+            return trapFiltPars_.find(str)->second;
+        return std::make_pair(TrapFilterParameters(125, 125, 10),
+                              TrapFilterParameters(125, 125, 10));
     }
 
-    /** \return the speed of light in cm/ns */
-    double speedOfLight() const { return (speedOfLight_); }
+    ///@param[in] str : A string of the form "type:subtype" used to find
+    /// parameters
+    ///@return the requested fitting parameters
+    std::pair<double, double> GetFitPars(const std::string &str) const {
+        if (fitPars_.find(str) != fitPars_.end())
+            return fitPars_.find(str)->second;
+        return std::make_pair(0.254373, 0.208072);
+    }
 
-    /** \return the speed of light in the Big VANDLE bars in cm/ns */
-    double speedOfLightBig() const { return (speedOfLightBig_); }
+    ///@return returns name of specified output file
+    std::string GetOutputFileName() const { return outputFilename_; }
 
-    /** \return the speed of light in the medium VANDLE bars in cm/ns */
-    double speedOfLightMedium() const { return (speedOfLightMedium_); }
+    ///@return Path where additional files will be output.
+    std::string GetOutputPath() { return outputPath_; }
 
-    /** \return the speed of light in the small VANDLE bars in cm/ns */
-    double speedOfLightSmall() const { return (speedOfLightSmall_); }
+    ///@return the revision for the data
+    std::string GetPixieRevision() const { return revision_; }
 
-    /** \return the cutoff on the std deviation of the baseline for fitting */
-    double sigmaBaselineThresh() const { return (sigmaBaselineThresh_); }
+    ///@return the compression factor for the QDCs from the trace
+    double GetQdcCompression() const { return qdcCompression_; }
 
-    /** \return the cutoff on the std deviation of the baseline for fitting */
-    double
-    siPmtSigmaBaselineThresh() const { return (siPmtSigmaBaselineThresh_); }
+    ///@return rejection regions to exclude from scan.
+    std::vector<std::pair<unsigned int, unsigned int> > GetRejectionRegions() const {
+        return reject_;
+    }
 
-    /** \return the frequency of the system clock in Hz*/
-    double systemClockFreqInHz() const { return (sysClockFreqInHz_); }
+    ///@return the cutoff on the std deviation of the baseline for fitting 
+    double GetSigmaBaselineThresh() const { return sigmaBaselineThresh_; }
 
-    /** \return the trace delay of the traces in ns */
-    double traceDelay() const { return (traceDelay_); }
+    ///@return the cutoff on the std deviation of SiPm baselines for fitting
+    double GetSiPmSigmaBaselineThresh() const {
+        return siPmSigmaBaselineThresh_;
+    }
 
-    /** \return the event width */
-    int eventWidth() const { return eventWidth_; }
+    ///@return the frequency of the system clock in Hz
+    double GetSystemClockFreqInHz() const { return sysClockFreqInHz_; }
 
-    /** \return the waveform range for standard PMT signals */
-    std::pair<unsigned int, unsigned int>
-    waveformRange(const std::string &str) const {
+    ///@return the trace delay of the traces in ns 
+    double GetTraceDelayInNs() const { return traceDelay_; }
+
+    ///@return the length of the big VANDLE bars in ns
+    double GetVandleBigLengthInNs() const {
+        return Vandle::lengthOfBigBarInCm / vandleBigSpeedOfLight_;
+    }
+
+    ///@return the speed of light in the Big VANDLE bars in cm/ns
+    double GetVandleBigSpeedOfLightInCmPerNs() const {
+        return vandleBigSpeedOfLight_;
+    }
+
+    ///@return the length of the medium VANDLE bars in ns
+    double GetVandleMediumLengthInNs() const {
+        return Vandle::lengthOfMediumBarInCm / vandleMediumSpeedOfLight_;
+    }
+
+    ///@return the speed of light in the medium VANDLE bars in cm/ns
+    double GetVandleMediumSpeedOfLightInCmPerNs() const {
+        return vandleMediumSpeedOfLight_;
+    }
+
+    ///@return the length of the small VANDLE bar in ns
+    double GetVandleSmallLengthInNs() const {
+        return (Vandle::lengthOfSmallBarInCm / vandleSmallSpeedOfLight_);
+    }
+
+    ///@return the speed of light in the small VANDLE bars in cm/ns
+    double GetVandleSmallSpeedOfLightInCmPerNs() const {
+        return vandleSmallSpeedOfLight_;
+    }
+
+    ///@param[in] str : A string of the form "type:subtype" used to find
+    /// parameters
+    ///@return the waveform range that we found in the map
+    std::pair<unsigned int, unsigned int> GetWaveformRange(
+            const std::string &str) const {
         if (waveformRanges_.find(str) != waveformRanges_.end())
             return (waveformRanges_.find(str)->second);
         return (std::make_pair(5, 10));
     }
 
-    /** \return the requested cfd parameters parameters */
-    std::pair<double, double> cfdPars(const std::string &str) const {
-        if (fitPars_.find(str) != fitPars_.end())
-            return (fitPars_.find(str)->second);
-        return (std::make_pair(0.5, 1));
+    ///@return true if any reject region was defined
+    bool HasRejectionRegion() const { return !reject_.empty(); }
+
+    ///@return true if we will define the raw histograms
+    bool HasRawHistogramsDefined() const { return hasRawHistogramsDefined_; }
+
+    ///Sets the Pixie-16 ADC clock speed in seconds.
+    ///@param[in] a : The parameter that we are going to set
+    void SetAdcClockInSeconds (const double &a) { adcClockInSeconds_ = a; }
+
+    ///Sets the CFD parameters that we are gonig to need to analyze.
+    ///@param[in] a : The parameter that we are going to set
+    void SetCfdParameters(
+            const std::map<std::string, std::pair<double, double> > & a) {
+        cfdPars_ = a;
     }
 
-    /** \return the requested fitting parameters */
-    std::pair<double, double> fitPars(const std::string &str) const {
-        if (fitPars_.find(str) != fitPars_.end())
-            return (fitPars_.find(str)->second);
-        return (std::make_pair(0.254373, 0.208072));
+    ///Sets the speed Pixie-16 clock in seconds.
+    ///@param[in] a : The parameter that we are going to set
+    void SetClockInSeconds(const double &a) { clockInSeconds_ = a; }
+
+    ///Sets when we will start integrating the tail of a signal for a ratio.
+    ///@param[in] a : The parameter that we are going to set
+    void SetDiscriminationStart(const unsigned int &a) {
+        discriminationStart_ = a;
     }
 
-    /** \return the trapezoidal filter parameters for the requested detector type:subtype */
-    std::pair<TrapFilterParameters, TrapFilterParameters>
-    trapFiltPars(const std::string &str) const {
-        if (trapFiltPars_.find(str) != trapFiltPars_.end())
-            return (trapFiltPars_.find(str)->second);
-        return (std::make_pair(TrapFilterParameters(125, 125, 10),
-                               TrapFilterParameters(125, 125, 10)));
+    ///Sets the event length in seconds that we will use to create events.
+    ///@param[in] a : The parameter that we are going to set
+    void SetEventLengthInSeconds (const double &a) {
+        eventLengthInSeconds_ = a;
     }
 
-    /*! \return returns name of specified output file */
-    std::string outputFile() const {return outputFilename_;}
-
-    /*! \return path to use to output files, can be different from output
-     * file path
-     * \param [in] fileName : the path for the configuration files */
-    std::string outputPath(std::string fileName) {
-        std::stringstream ss;
-        ss << outputPath_ << "/" << fileName;
-        return ss.str();
+    ///Sets the event length in clock ticks that we will use to create events.
+    ///@param[in] a : The parameter that we are going to set
+    void SetEventLengthInTicks (const unsigned int &a) {
+        eventLengthInTicks_ = a;
     }
 
-    /** \return the revision for the data */
-    std::string revision() const { return (revision_); }
+    ///Sets the Pixie-16 Filter clock value.
+    ///@param[in] a : The parameter that we are going to set
+    void SetFilterClockInSeconds(const double &a) { filterClockInSeconds_ = a; }
 
-    /** \return the configuration file */
-    std::string configfile() const { return (configFile_); }
+    ///Sets the map containing all of the fitting paramters we need.
+    ///@param[in] a : The parameter that we are going to set
+    void SetFittingParameters(
+            const std::map<std::string, std::pair<double, double> > & a) {
+        fitPars_ = a;
+    }
 
-    /** \return max number of traces stored in 2D spectra
-     * with traces. If not set, by default is 16. */
-    unsigned short numTraces() const { return numTraces_; }
+    ///Sets a flag that controls if we output the raw histograms to DAMM
+    ///@param[in] a : The parameter that we are going to set
+    void SetHasRawHistogramsDefined (const bool &a) {
+        hasRawHistogramsDefined_ = a;
+    }
 
-    /*! \return rejection regions to exclude from scan.
-     * Values should be given in seconds in respect to the beginning
-     of the file */
-    std::vector<std::pair<int, int> > rejectRegions() const { return reject_; };
+    ///Sets output Filename from scan interface
+    ///@param[in] a : The parameter that we are going to set
+    void SetOutputFilename(const std::string &a) { outputFilename_ = a; }
 
-    /*! Sets output Filename from scan interface */
-    void SetOutputFilename(const std::string &a){outputFilename_ = a; }
+    ///Sets the path that we are going to output all of the files to.
+    ///@param[in] a : The parameter that we are going to set
+    void SetOutputPath(const std::string &a) { outputPath_ = a; }
 
+    ///Sets the Qdc Compression factor for plotting QDCs into DAMM.
+    ///@param[in] a : The parameter that we are going to set
+    void SetQdcCompression(const double &a) { qdcCompression_ = a; }
+
+    ///Sets the revision of the pixie modules that we had.
+    ///@param[in] a : The parameter that we are going to set
+    ///@TODO this will eventually be supersceded by information coming
+    /// directly from the Map node.
+    void SetRevision(const std::string &a) { revision_ = a; }
+
+    ///Sets the threshold on the standard deviation of the baseline.
+    ///@param[in] a : The parameter that we are going to set
+    void SetSigmaBaselineThreshold(const double &a) {
+        sigmaBaselineThresh_ = a;
+    }
+
+    ///Sets the threshold on the SiPM standard deviation of the baseline
+    ///@param[in] a : The parameter that we are going to set
+    void SetSiPmBaselineThreshold(const double &a) {
+        siPmSigmaBaselineThresh_ = a;
+    }
+
+    ///Sets the trace delay that will be used to find the waveform.
+    ///@param[in] a : Sets the trace delay in units of ns.
+    void SetTraceDelay(const unsigned int &a) { traceDelay_ = a; }
+
+    ///Sets the map containing all of the filter parameters that we are going
+    /// to need.
+    ///@param[in] a : The map containing all of the parameters
+    void SetTrapFilterParameters(
+            const std::map<std::string, std::pair<TrapFilterParameters,
+                    TrapFilterParameters> > & a) { trapFiltPars_ = a; }
+
+    ///Sets the speed of light in a Big VANDLE module.
+    ///@param[in] a : The speed of light in units of cm/ns
+    void SetVandleBigSpeedOfLight(const double &a) {
+        vandleBigSpeedOfLight_ = a;
+    }
+
+    ///Sets the speed of light in a Medium VANDLE module.
+    ///@param[in] a : The speed of light in units of cm/ns
+    void SetVandleMediumSpeedOfLight(const double &a) {
+        vandleMediumSpeedOfLight_ = a;
+    }
+
+    ///Sets the speed of light in a small VANDLE module.
+    ///@param[in] a : The speed of light in units of cm/ns
+    void SetVandleSmallSpeedOfLight(const double &a) {
+        vandleSmallSpeedOfLight_ = a;
+    }
+
+    ///Sets the map containing the waveform ranges.
+    ///@param[in] a : The parameter that we are going to set
+    void SetWaveformRanges(
+            const std::map<std::string, std::pair<unsigned int, unsigned int> >
+            & a) { waveformRanges_ = a; }
 private:
-    /** Default Constructor */
+    ///Default Constructor 
     Globals(const std::string &file);
 
-    Globals(Globals const &);//!< Overload of the constructor
-    void operator=(Globals const &); //!< copy constructor
-    static Globals *instance; //!< Create the static instance of the class
+    ///The default constructor
+    Globals(Globals const &);
 
-    /** Check that some of the values make sense */
-    void SanityCheck();
+    ///Copy constructor
+    void operator=(Globals const &);
 
-    /** Warn that we have an unknown parameter in the XML configuration file
-    * \param [in] m : an instance of the messenger to send the warning
-    * \param [in] it : an iterator pointing to the location of the unknown */
-    void WarnOfUnknownParameter(Messenger &m, pugi::xml_node_iterator &it);
+    ///The one and only one instance of the class.
+    static Globals *instance_;
 
-    bool hasReject_;//!< Has a rejection region
-    bool hasRaw_; //!< True for plotting Raw Histograms in DAMM
+    ///A method that simply initializes all of the member varaiables to some
+    /// default values. This will prevent too many errors down the line if
+    /// they are not set properly due to invalid up configuration files.
+    void InitializeMemberVariables(void);
 
     double adcClockInSeconds_; //!< adc clock in second
-    double bitResolution_;//!<The Bit resolution of the digitizer that we used.
-    double clockInSeconds_;//!< the ACQ clock in seconds
-    double discriminationStart_;//!< starting sample for the n-gamma discrimination
-    double eventInSeconds_;//!< event width in seconds
-    double filterClockInSeconds_;//!< filter clock in seconds
-    double bigLength_;//!< length of big VANDLE bars in cm
-    double mediumLength_;//!< length of medium VANDLE bars in cm
-    double neutronMass_;//!< mass of neutrons in MeV/c/c
-    double qdcCompression_;//!< QDC compression factor for VANDLE related plots
-    double smallLength_;//!< length of small VANDLE bars in cm
-    double sigmaBaselineThresh_;//!< threshold on fitting for Std dev. of the baseline
-    double siPmtSigmaBaselineThresh_;//!< threshold on fitting for Std dev. of the baseline for SiPMTs
-    double speedOfLight_;//!< speed of light in cm/ns
-    double speedOfLightBig_;//!< speed of light in big VANDLE bars in cm/ns
-    double speedOfLightMedium_;//!< speed of light in medium VANDLE bars in cm/ns
-    double speedOfLightSmall_;//!< speed of light in small VANDLE bars in cm/ns
-    double sysClockFreqInHz_; //!< frequency of the system clock
-    double traceDelay_;//!< the trace delay in ns
-
-    int eventWidth_; //!< the size of the events
-
-    std::map<std::string, std::pair<unsigned int, unsigned int> > waveformRanges_; //!< Map containing ranges for the waveforms
-    std::map<std::string, std::pair<double, double> > fitPars_; //!< Map containing all of the parameters to be used in the fitting analyzer for a type:subtype
     std::map<std::string, std::pair<double, double> > cfdPars_; //!< Map containing all of the parameters to be used in the cfd analyzer for a type:subtype
-    std::map<std::string, std::pair<TrapFilterParameters, TrapFilterParameters> > trapFiltPars_; //!<Map containing all of the trapezoidal filter parameters for a given type:subtype
-
+    double clockInSeconds_;//!< the ACQ clock in seconds
+    std::string configFile_; //!< The configuration file
+    unsigned int  discriminationStart_;//!< starting sample for the n-gamma discrimination
+    double eventLengthInSeconds_;//!< event width in seconds
+    unsigned int eventLengthInTicks_; //!< the size of the events
+    double filterClockInSeconds_;//!< filter clock in seconds
+    std::map<std::string, std::pair<double, double> > fitPars_; //!< Map containing all of the parameters to be used in the fitting analyzer for a type:subtype
+    bool hasRawHistogramsDefined_; //!< True if we are plotting Raw Histograms
     std::string outputFilename_; //!<Output Filename
-    std::string configFile_;//!< The configuration file
-    std::string outputPath_;//!< The path to additional configuration files
-    std::string revision_;//!< the pixie revision
-
-    unsigned short numTraces_;//!< number of traces to plot
-
-    std::vector<std::pair<int, int> > reject_;//!< rejection range in time
+    std::string outputPath_; //!< The path to additional configuration files
+    double qdcCompression_;//!< QDC compression factor for VANDLE related plots
+    std::string revision_; //!< the pixie revision
+    double sigmaBaselineThresh_;//!< threshold on fitting for Std dev. of the baseline
+    double siPmSigmaBaselineThresh_;//!< threshold on fitting for Std dev. of the baseline for SiPMTs
+    double sysClockFreqInHz_; //!< frequency of the system clock
+    std::vector<std::pair<unsigned int, unsigned int> > reject_; ///< Rejection regions
+    unsigned int traceDelay_;//!< the trace delay in ns
+    std::map<std::string, std::pair<TrapFilterParameters, TrapFilterParameters> > trapFiltPars_; //!<Map containing all of the trapezoidal filter parameters for a given type:subtype
+    double vandleBigSpeedOfLight_;//!< speed of light in big VANDLE bars in cm/ns
+    double vandleMediumSpeedOfLight_;//!< speed of light in medium VANDLE bars in cm/ns
+    double vandleSmallSpeedOfLight_;//!< speed of light in small VANDLE bars in cm/ns
+    std::map<std::string, std::pair<unsigned int, unsigned int> > waveformRanges_; //!< Map containing ranges for the waveforms
 };
 
-#endif
+#endif // #ifdef _PAASS_GLOBALS_HPP_
