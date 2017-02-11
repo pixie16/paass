@@ -36,17 +36,17 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
     Globals *globals = Globals::get();
 
     pair<unsigned int, unsigned int> range =
-            globals->waveformRange(type + ":" + subtype);
+            globals->GetWaveformRange(type + ":" + subtype);
 
     if (type == "beta" && subtype == "double" &&
         tags.find("timing") != tags.end())
-        range = globals->waveformRange(type + ":" + subtype + ":timing");
+        range = globals->GetWaveformRange(type + ":" + subtype + ":timing");
 
     try {
         //First we calculate the position of the maximum.
         pair<unsigned int, double> max =
-                TraceFunctions::FindMaximum(trace, globals->traceDelay() /
-                                                   (globals->adcClockInSeconds() *
+                TraceFunctions::FindMaximum(trace, globals->GetTraceDelayInNs() /
+                                                   (globals->GetAdcClockInSeconds() *
                                                     1.e9));
 
         //Next we calculate the baseline and its standard deviation
