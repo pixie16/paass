@@ -47,7 +47,7 @@ void CfdAnalyzer::Analyze(Trace &trace, const std::string &detType,
     }
 
     const pair<double, double> pars =
-            Globals::get()->cfdPars(detType + ":" + detSubtype);
+            Globals::get()->GetCfdPars(detType + ":" + detSubtype);
 
     trace.SetPhase(driver_->CalculatePhase(trace.GetTraceSansBaseline(),
                                            pars,
