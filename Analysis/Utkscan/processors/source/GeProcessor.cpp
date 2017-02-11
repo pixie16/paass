@@ -450,7 +450,7 @@ bool GeProcessor::PreProcess(RawEvent &event) {
         // entries in map are sorted by time
         // if event time is outside of subEventWindow, we start new
         //   events for all clovers and "tas"
-        double dtime = abs(time - refTime) * Globals::get()->clockInSeconds();
+        double dtime = abs(time - refTime) * Globals::get()->GetClockInSeconds();
         if (dtime > subEventWindow_) {
             for (unsigned i = 0; i < numClovers; ++i) {
                 addbackEvents_[i].push_back(AddBackEvent());
@@ -477,7 +477,7 @@ bool GeProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return false;
     
-    double clockInSeconds = Globals::get()->clockInSeconds();
+    double clockInSeconds = Globals::get()->GetClockInSeconds();
     
     /** Cycle time is measured from the begining of the last BeamON event */
     double cycleTime = 0 ;

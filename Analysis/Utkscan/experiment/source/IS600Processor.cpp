@@ -66,11 +66,13 @@ IS600Processor::IS600Processor() : EventProcessor(OFFSET, RANGE, "IS600PRocessor
     associatedTypes.insert("ge");
 
     stringstream name;
-    name << Globals::get()->outputPath(Globals::get()->outputFile()) << ".dat";
+    name << Globals::get()->GetOutputPath()
+         << Globals::get()->GetOutputFileName() << ".dat";
     outstream = new ofstream(name.str().c_str());
 #ifdef useroot
     stringstream rootname;
-    rootname << Globals::get()->outputPath(Globals::get()->outputFile()) << ".root";
+    rootname << Globals::get()->GetOutputPath()
+         << Globals::get()->GetOutputFileName() << ".root";
     cout << rootname.str() << endl;
     rootfile_ = new TFile(rootname.str().c_str(),"RECREATE");
     roottree_ = new TTree("vandle","");
@@ -257,12 +259,12 @@ bool IS600Processor::Process(RawEvent &event) {
 	it != lrtBetas.end(); it++)
 	plot(DD_PROTONBETA2TDIFF_VS_BETA2EN, it->second.second,
 	     (it->second.first - lastProtonTime) /
-	     (10e-3/Globals::get()->clockInSeconds()) );
+	     (10e-3/Globals::get()->GetClockInSeconds()) );
 
 
     //----------------- GE Processing -------------------
     bool hasBeta = TreeCorrelator::get()->place("Beta")->status();
-    double clockInSeconds = Globals::get()->clockInSeconds();
+    double clockInSeconds = Globals::get()->GetClockInSeconds();
     // plot with 10 ms bins
     const double plotResolution = 10e-3 / clockInSeconds;
 
