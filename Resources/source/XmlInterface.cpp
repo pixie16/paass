@@ -17,12 +17,14 @@ XmlInterface::XmlInterface(const std::string &file) {
     if (!result) {
         std::stringstream ss;
         ss << "XmlInterface::XmlInterface : We were unable to open a "
-                "configuration file named \"" << file << "\".";
+                "configuration file named \"" << file << "\"."
+           << " Received the following from pugixml : "
+           << result.description();
         throw std::invalid_argument(ss.str());
     }
 
     std::cout << "XmlInterface - Successfully loaded \"" << file
-         << "\" into memory " << std::endl;
+         << "\" into memory." << std::endl;
 }
 
 /** Instance is created upon first call */
