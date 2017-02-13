@@ -49,6 +49,7 @@ endif(CMAKE_BUILD_TYPE MATCHES "Debug")
 
 #Install options
 option(BUILD_SCOPE "Build and install the scope program." ON)
+option(BUILD_EVENT_READER "Build and install the eventReader program." ON)
 option(BUILD_SETUP "Include the older setup programs in installation" OFF)
 option(BUILD_SHARED_LIBS "Install only scan libraries" ON)
 option(BUILD_SKELETON "Build and install the skeleton scan" OFF)

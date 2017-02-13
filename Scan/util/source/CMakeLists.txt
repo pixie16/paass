@@ -10,6 +10,18 @@ if(USE_ROOT AND BUILD_SCOPE)
    install(TARGETS scope DESTINATION bin)
 endif(USE_ROOT AND BUILD_SCOPE)
 
+if(BUILD_EVENT_READER)
+	if(USE_HRIBF)
+		add_executable(eventReader eventReader.cpp $<TARGET_OBJECTS:ScanorObjects>)
+		target_link_libraries(eventReader ${HRIBF_LIBRARIES})
+	else()
+		add_executable(eventReader eventReader.cpp)
+	endif()
+
+	target_link_libraries(eventReader ScanStatic ${ROOT_LIBRARIES})
+   install(TARGETS eventReader DESTINATION bin)
+endif(BUILD_EVENT_READER)
+
 if(BUILD_SKELETON)
 	if(USE_HRIBF)
 		add_executable(skeleton Skeleton.cpp $<TARGET_OBJECTS:ScanorObjects>)
