@@ -1,5 +1,5 @@
 #Set the utility sources that we will make a lib out of
-set(PaassResourceSources XmlInterface.cpp)
+set(PaassResourceSources XmlInterface.cpp XmlParser.cpp)
 
 #Add the sources to the library
 add_library(PaassResourceObjects OBJECT ${PaassResourceSources})
