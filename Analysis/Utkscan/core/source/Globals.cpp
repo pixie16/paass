@@ -11,8 +11,8 @@
 
 #include "Exceptions.hpp"
 #include "Globals.hpp"
+#include "GlobalsXmlParser.hpp"
 #include "XmlInterface.hpp"
-#include "XmlParser.hpp"
 
 ///Initializes the instance_ of the class to a null pointer.
 Globals *Globals::instance_ = NULL;
@@ -41,7 +41,7 @@ Globals::Globals(const std::string &file) {
     const pugi::xml_node rootNode =
             XmlInterface::get(file)->GetDocument()->child("Configuration");
 
-    XmlParser xmlParser;
+    GlobalsXmlParser xmlParser;
 
     if(!rootNode)
         throw std::invalid_argument("The root node \"/Configuration\" does "
