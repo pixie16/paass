@@ -22,17 +22,18 @@ public:
     ///@throw invalid_argument if the node cannot be found.
     virtual void ParseNode(const pugi::xml_node &node);
 
+protected:
+    ///Constructs a message string for the throws
+    ///@param[in] name : The name of the node where we had the error
+    ///@return The message that we want the throw to contain.
+    std::string CriticalNodeMessage(const std::string &name);
+
     ///Warn that we have an unknown parameter in the node.
     ///@param [in] node : an iterator pointing to the location of the unknown
     ///@param [in] knownChildren: A list of the nodes that are known.
     virtual void WarnOfUnknownChildren(
             const pugi::xml_node &node,
             const std::set<std::string> &knownChildren);
-private:
-    ///Constructs a message string for the throws
-    ///@param[in] name : The name of the node where we had the error
-    ///@return The message that we want the throw to contain.
-    std::string CriticalNodeMessage(const std::string &name);
 };
 
 #endif //#ifdef _PAASS_XMLPARSER_HPP
