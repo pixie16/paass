@@ -1,5 +1,6 @@
-///@file XmlParser.cpp
-///@brief
+///@file GlobalsXmlParser.cpp
+///@brief Class to parse nodes needed for the Global's class from utkscan's
+/// configuration file
 ///@author S. V. Paulauskas
 ///@date February 09, 2017
 #include <iostream>
@@ -8,7 +9,7 @@
 
 #include "HelperFunctions.hpp"
 #include "TrapFilterParameters.hpp"
-#include "XmlParser.hpp"
+#include "GlobalsXmlParser.hpp"
 
 using namespace std;
 
@@ -16,7 +17,7 @@ using namespace std;
 /// to the proper function of the various Cfd timing codes. The only
 /// currently recognized node here is the Parameters node. If the Cfd node
 /// exists then the Paramter node must also exist.
-void XmlParser::ParseCfdNode(const pugi::xml_node &node, Globals *globals) {
+void GlobalsXmlParser::ParseCfdNode(const pugi::xml_node &node, Globals *globals) {
     if (!node.child("Parameters").empty()) {
         std::map<std::string, std::pair<double, double> > pars;
         for (pugi::xml_node_iterator it = node.begin(); it != node.end(); ++it)
@@ -37,7 +38,7 @@ void XmlParser::ParseCfdNode(const pugi::xml_node &node, Globals *globals) {
 ///This method parses the Description node. The description node contains
 /// information related to the experiment. This node can contain any text
 /// that the user thinks could be useful to know when the program starts up.
-string XmlParser::ParseDescriptionNode(const pugi::xml_node &node) {
+string GlobalsXmlParser::ParseDescriptionNode(const pugi::xml_node &node) {
     return node.text().get();
 }
 
@@ -45,7 +46,7 @@ string XmlParser::ParseDescriptionNode(const pugi::xml_node &node) {
 /// the moment. The main part of this node is the fitting parameters. These
 /// parameters are critical to the function of the software. I the fitting node
 /// is present then the Parameters node must also be.
-void XmlParser::ParseFittingNode(const pugi::xml_node &node,
+void GlobalsXmlParser::ParseFittingNode(const pugi::xml_node &node,
                                  Globals *globals) {
     if (!node.child("SigmaBaselineThresh").empty())
         globals->SetSigmaBaselineThreshold(
@@ -88,7 +89,7 @@ void XmlParser::ParseFittingNode(const pugi::xml_node &node,
 /// information about the analysis. All of the nodes with the exception of
 /// the HasRaw node are critical nodes. They must always be present for the
 /// analysis to work properly.
-void XmlParser::ParseGlobalNode(const pugi::xml_node &node, Globals *globals) {
+void GlobalsXmlParser::ParseGlobalNode(const pugi::xml_node &node, Globals *globals) {
     if (!node.child("Revision").empty()) {
         string revision =
                 node.child("Revision").attribute("version").as_string();
@@ -103,7 +104,7 @@ void XmlParser::ParseGlobalNode(const pugi::xml_node &node, Globals *globals) {
             globals->SetFilterClockInSeconds(8e-9);
         } else {
             throw invalid_argument(
-                    "XmlParser::ParseGlobal - The revision \"" +
+                    "GlobalsXmlParser::ParseGlobal - The revision \"" +
                     revision + "\", is not known to us. Known "
                             "revisions are A, D, F");
         }
@@ -149,7 +150,7 @@ void XmlParser::ParseGlobalNode(const pugi::xml_node &node, Globals *globals) {
 ///This method parses the Reject node. The rejection regions are regions of
 /// the data files that the user would like to ignore. These rejection
 /// regions must be entered with units of seconds.
-vector<pair<unsigned int, unsigned int> > XmlParser::ParseRejectNode(
+vector<pair<unsigned int, unsigned int> > GlobalsXmlParser::ParseRejectNode(
         const pugi::xml_node &node) {
     vector<pair<unsigned int, unsigned int> > regions;
     for (pugi::xml_node time = node.child("Time"); time;
@@ -177,7 +178,7 @@ vector<pair<unsigned int, unsigned int> > XmlParser::ParseRejectNode(
 ///This method parses the Root node. For utkscan the root node is always
 /// named Configuration. We throw invalid_arguments if we do not find a few
 /// of the critial nodes.
-void XmlParser::ParseRootNode(const pugi::xml_node &node) {
+void GlobalsXmlParser::ParseRootNode(const pugi::xml_node &node) {
     set<string> knownChildren = {"Author", "Description", "Global",
                                  "DetectorDriver", "Map", "Vandle",
                                  "TreeCorrelator", "TimeCalibration",
@@ -194,7 +195,7 @@ void XmlParser::ParseRootNode(const pugi::xml_node &node) {
 /// necessary for the users to do trace analysis. The only critical node here
 /// is the WaveformRange node. If the Trace node exists then this node must
 /// also exist.
-void XmlParser::ParseTraceNode(const pugi::xml_node &node, Globals *globals) {
+void GlobalsXmlParser::ParseTraceNode(const pugi::xml_node &node, Globals *globals) {
     if (!node.child("DiscriminationStart").empty())
         globals->SetDiscriminationStart(
                 node.child("DiscriminationStart").attribute("value").as_uint());
@@ -270,7 +271,7 @@ void XmlParser::ParseTraceNode(const pugi::xml_node &node, Globals *globals) {
 
 ///Parses the Vandle node. This node contains some information that is
 /// specific to the analysis and function of VANDLE detectors.
-void XmlParser::ParseVandleNode(const pugi::xml_node &node, Globals *globals) {
+void GlobalsXmlParser::ParseVandleNode(const pugi::xml_node &node, Globals *globals) {
     if (!node.child("SpeedOfLightBig").empty())
         globals->SetVandleBigSpeedOfLight(
                 node.child("SpeedOfLightBig").attribute("value").as_double());
@@ -311,7 +312,7 @@ void XmlParser::ParseVandleNode(const pugi::xml_node &node, Globals *globals) {
 
 ///This method simply warns the user of extraneous information that was
 /// contained in the node.
-void XmlParser::WarnOfUnknownChildren(const pugi::xml_node &node,
+void GlobalsXmlParser::WarnOfUnknownChildren(const pugi::xml_node &node,
                                       const set<string> &knownChildren) {
     for (pugi::xml_node_iterator it = node.begin(); it != node.end(); ++it)
         if (knownChildren.find(it->name()) == knownChildren.end()) {
@@ -320,11 +321,4 @@ void XmlParser::WarnOfUnknownChildren(const pugi::xml_node &node,
             messenger_.detail(sstream_.str());
             sstream_.str("");
         }
-}
-
-///We simply return an error message that will be used to give the user
-/// information about what went wrong.
-string XmlParser::CriticalNodeMessage(const std::string &name) {
-    return "XmlParser::ParseGlobal - We couldn't find the"
-            " \"" + name + "\" node. This node is critical to operation.";
 }
