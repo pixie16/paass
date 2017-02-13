@@ -4,10 +4,10 @@
 
 // Local files
 #include "Display.h"
+#include "GlobalsXmlParser.hpp"
 #include "UtkScanInterface.hpp"
 #include "UtkUnpacker.hpp"
 #include "XmlInterface.hpp"
-#include "XmlParser.hpp"
 
 // Define the name of the program.
 #ifndef PROGRAM_NAME
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]){
              << endl;
         //Do some initial parsing of the configuration file:
         XmlInterface::get(scanner.GetSetupFilename());
-        XmlParser xmlParser;
+        GlobalsXmlParser xmlParser;
         xmlParser.ParseRootNode(XmlInterface::get()->GetDocument()->child("Configuration"));
 
         // Run the main loop.

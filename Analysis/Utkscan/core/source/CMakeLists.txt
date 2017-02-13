@@ -6,6 +6,7 @@ set(CORE_SOURCES
         DetectorLibrary.cpp
         DetectorSummary.cpp
         Globals.cpp
+        GlobalsXmlParser.cpp
         Identifier.cpp
         Messenger.cpp
         Notebook.cpp
@@ -17,7 +18,6 @@ set(CORE_SOURCES
         UtkScanInterface.cpp
         UtkUnpacker.cpp
         WalkCorrector.cpp
-        XmlParser.cpp
 )
 
 set(CORRELATION_SOURCES
