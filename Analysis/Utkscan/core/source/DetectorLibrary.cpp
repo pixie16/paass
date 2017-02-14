@@ -12,11 +12,9 @@
 
 #include "pugixml.hpp"
 
-#include "Constants.hpp"
 #include "DetectorLibrary.hpp"
-#include "Globals.hpp"
+#include "MapNodeXmlParser.hpp"
 #include "Messenger.hpp"
-#include "StringManipulationFunctions.hpp"
 #include "TreeCorrelator.hpp"
 
 using namespace std;
@@ -33,9 +31,13 @@ DetectorLibrary* DetectorLibrary::get() {
 
 DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations(),
     numModules(0) {
-    LoadXml();
+    MapNodeXmlParser parser;
+    parser.ParseNode(this);
+
     /* At this point basic Correlator places build automatically from
      * map file should be created so we can call buildTree function */
+    ///@TODO this needs to be moved out of this constructor and into a
+    /// location that's more fitting.
     try {
         TreeCorrelator::get()->buildTree();
     } catch (exception &e) {
@@ -43,108 +45,6 @@ DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations(),
         cout << "\t" << e.what() << endl;
         exit(EXIT_FAILURE);
     }
-}
-
-void DetectorLibrary::LoadXml() {
-    string cfg = Globals::get()->GetConfigFileName();
-    pugi::xml_document doc;
-    pugi::xml_parse_result result = doc.load_file(cfg.c_str());
-    if (!result) {
-        stringstream ss;
-        ss << "DetectorLibrary: error parsing file " << cfg;
-        ss << " : " << result.description();
-        cout << ss.str() << endl;
-    }
-
-    Messenger m;
-    m.start("Loading channels map");
-
-    /** These attributes have reserved meaning, all other
-     * attributes of [Channel] are treated as tags */
-    set<string> reserved;
-    reserved.insert("number");
-    reserved.insert("type");
-    reserved.insert("subtype");
-    reserved.insert("location");
-    reserved.insert("tags");
-
-    pugi::xml_node map = doc.child("Configuration").child("Map");
-    bool verbose = map.attribute("verbose_map").as_bool();
-    pugi::xml_node tree = doc.child("Configuration").child("TreeCorrelator");
-    bool verbose_tree = tree.attribute("verbose").as_bool(false);
-    for (pugi::xml_node module = map.child("Module"); module;
-         module = module.next_sibling("Module")) {
-        int module_number = module.attribute("number").as_int(-1);
-        if (module_number < 0) {
-            stringstream ss;
-            ss << "DetectorLibrary: Illegal module number "
-                << "found " << module_number << " in configuration file.";
-            throw GeneralException(ss.str());
-        }
-        for (pugi::xml_node channel = module.child("Channel"); channel;
-             channel = channel.next_sibling("Channel")) {
-            unsigned int ch_number =
-                    channel.attribute("number").as_uint(std::numeric_limits<unsigned int>::max());
-            if (ch_number < 0 || ch_number >= Pixie16::maximumNumberOfChannels ) {
-                stringstream ss;
-                ss << "DetectorLibrary : Identifier : Illegal channel number "
-                   << "found " << ch_number << " in configuration file.";
-                throw GeneralException(ss.str());
-            }
-            if ( HasValue(module_number, ch_number) ) {
-                stringstream ss;
-                ss << "DetectorLibrary: Identifier for module " << module_number
-                   << ", channel " << ch_number
-                   << " is initialized more than once";
-                throw GeneralException(ss.str());
-            }
-            Identifier id;
-
-            string ch_type = channel.attribute("type").as_string("None");
-            id.SetType(ch_type);
-
-            string ch_subtype = channel.attribute("subtype").as_string("None");
-            id.SetSubtype(ch_subtype);
-
-            int ch_location = channel.attribute("location").as_int(-1);
-            if (ch_location == -1) {
-                ch_location = GetNextLocation(ch_type, ch_subtype);
-            }
-            id.SetLocation(ch_location);
-
-            string ch_tags = channel.attribute("tags").as_string("None");
-            if(ch_tags != "None"){
-                vector<string> tagList =
-                        StringManipulation::TokenizeString(ch_tags, ",");
-                for(unsigned int i = 0; i < tagList.size(); i++)
-                    id.AddTag(tagList[i], 1);
-            }
-
-            Set(module_number, ch_number, id);
-
-            /** Create basic place for TreeCorrelator */
-            std::map <string, string> params;
-            params["name"] = id.GetPlaceName();
-            params["parent"] = "root";
-            params["type"] = "PlaceDetector";
-            params["reset"] = "true";
-            params["fifo"] = "2";
-            params["init"] = "false";
-            TreeCorrelator::get()->createPlace(params, verbose_tree);
-
-            if (verbose) {
-                stringstream ss;
-                ss << "Module " << module_number
-                   << ", channel " << ch_number  << ", type "
-                   << ch_type << " "
-                   << ch_subtype << ", location "
-                   << ch_location;
-                Messenger m;
-                m.detail(ss.str(), 1);
-            }
-        }
-    }
-    m.done();
 }
 
 DetectorLibrary::const_reference DetectorLibrary::at(DetectorLibrary::size_type idx) const {

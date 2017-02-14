@@ -129,9 +129,6 @@ private:
     DetectorLibrary& operator= (DetectorLibrary const&); //!< Define copy constructor
     static DetectorLibrary* instance; //!< the static instance of the class
 
-    /** Load the XML configuration file */
-    void LoadXml();
-
     /** Make a unique map key for the given type,subtype
      * \param [in] type : the type to make a key out of
      * \param [in] subtype : the subtype to make a key out of
