@@ -8,6 +8,7 @@ set(CORE_SOURCES
         Globals.cpp
         GlobalsXmlParser.cpp
         Identifier.cpp
+        MapNodeXmlParser.cpp
         Messenger.cpp
         Notebook.cpp
         RandomPool.cpp
