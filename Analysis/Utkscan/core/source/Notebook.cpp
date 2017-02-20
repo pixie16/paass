@@ -7,7 +7,8 @@
 #include "Globals.hpp"
 #include "Messenger.hpp"
 #include "Notebook.hpp"
-#include "pugixml.hpp"
+#include "XmlInterface.hpp"
+
 
 Notebook* Notebook::instance = NULL;
 
@@ -19,18 +20,9 @@ Notebook* Notebook::get() {
 }
 
 Notebook::Notebook() {
-    std::string cfg = Globals::get()->GetConfigFileName();
-    pugi::xml_document doc;
-
-    pugi::xml_parse_result result = doc.load_file(cfg.c_str());
-    if (!result) {
-        std::stringstream ss;
-        ss << "Notebook: error parsing file " << cfg;
-        ss << " : " << result.description();
-        throw IOException(ss.str());
-    }
-
-    pugi::xml_node note = doc.child("Configuration").child("Notebook");
+    pugi::xml_node note =
+            XmlInterface::get()->GetDocument()->
+                    child("Configuration").child("Notebook");
 
     file_name_ = std::string(note.attribute("file").as_string());
     mode_ = std::string(note.attribute("mode").as_string("a"));
