@@ -10,8 +10,10 @@
 #include <string>
 #include <vector>
 
+#include "Calibrator.hpp"
 #include "Identifier.hpp"
 #include "RawEvent.hpp"
+#include "WalkCorrector.hpp"
 
 ///Predefine the RawEvnent class
 class RawEvent;
@@ -123,6 +125,24 @@ public:
 
     typedef std::string mapkey_t; //!< typedef for a mapkey
 
+    ///@return A pointer to the Calibrator object containing all of the
+    /// calibrations.
+    const Calibrator* GetCalibrations() const { return &energyCalibrations_; }
+
+    ///@return a pointer to the WalkCorrector object containing walk
+    /// corrections.
+    const WalkCorrector* GetWalkCorrections() const {
+        return &walkCorrections_;
+    }
+
+    ///Sets the pointer to the Calibration object
+    ///param[in] a : The pointer that we intend to set
+    void SetCalibrations(const Calibrator &a) { energyCalibrations_ = a; }
+
+    ///Sets the pointer to the Calibration object
+    ///param[in] a : The pointer that we intend to set
+    void SetWalkCorrection(const WalkCorrector &a) { walkCorrections_ = a; }
+
 private:
     DetectorLibrary();//!< Default Constructor
     DetectorLibrary (const DetectorLibrary&); //!< Define the constructor with itself
@@ -144,5 +164,8 @@ private:
     std::set<std::string> usedTypes;//!< used types
     std::set<std::string> usedSubtypes; //!< used subtypes
     std::set<std::string> knownDetectors; //!< known detectors in the analysis
+
+    WalkCorrector walkCorrections_;
+    Calibrator energyCalibrations_;
 };
 #endif // __DETECTORLIBRARY_HPP_

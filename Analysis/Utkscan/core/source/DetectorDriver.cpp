@@ -10,6 +10,7 @@
 #include <iterator>
 #include <limits>
 #include <sstream>
+#include <MapNodeXmlParser.hpp>
 
 //Headers included from PAASS Resources
 ///@TODO The XML decoding should be moved out of this file and into a
@@ -123,6 +124,10 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
         throw IOException(ss.str());
     }
 
+    //The detector library is instanced here.
+    ///@TODO Move this higher up in the process of the code. That way the map
+    /// gets parsed out well before this point and we can throw an error
+    /// sooner.
     DetectorLibrary::get();
 
     pugi::xml_node driver = doc.child("Configuration").child("DetectorDriver");
@@ -315,22 +320,8 @@ void DetectorDriver::Init(RawEvent& rawev) {
         (*it)->Init(rawev);
     }
 
-    try {
-        ReadCalXml();
-        ReadWalkXml();
-    } catch (GeneralException &e) {
-        //! Any exception in reading calibration and walk correction
-        //! will be intercepted here
-        cout << endl;
-        cout << "Exception caught at DetectorDriver::Init" << endl;
-        cout << "\t" << e.what() << endl;
-        Messenger m;
-        m.fail();
-        exit(EXIT_FAILURE);
-    } catch (GeneralWarning &w) {
-        cout << "Warning caught at DetectorDriver::Init" << endl;
-        cout << "\t" << w.what() << endl;
-    }
+    walk_ = DetectorLibrary::get()->GetWalkCorrections();
+    cali_ = DetectorLibrary::get()->GetCalibrations();
 }
 
 void DetectorDriver::ProcessEvent(RawEvent& rawev) {
@@ -508,13 +499,13 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
     double time, walk_correction;
     if(chan->GetHighResTimeInNs() == 0.0) {
 	time = chan->GetTime(); //time is in clock ticks
-	    walk_correction = walk.GetCorrection(chanId, energy);
+	    walk_correction = walk_->GetCorrection(chanId, energy);
     } else {
 	time = chan->GetHighResTimeInNs(); //time here is in ns
-	    walk_correction = walk.GetCorrection(chanId, trace.GetQdc());
+	    walk_correction = walk_->GetCorrection(chanId, trace.GetQdc());
     }
 
-    chan->SetCalibratedEnergy(cali.GetCalEnergy(chanId, energy));
+    chan->SetCalibratedEnergy(cali_->GetCalEnergy(chanId, energy));
     chan->SetWalkCorrectedTime(time - walk_correction);
 
     rawev.GetSummary(type)->AddEvent(chan);
@@ -550,145 +541,4 @@ EventProcessor* DetectorDriver::GetProcessor(const std::string& name) const {
 	    return(*it);
     }
     return(NULL);
-}
-
-void DetectorDriver::ReadCalXml() {
-    pugi::xml_document doc;
-    pugi::xml_parse_result result = doc.load_file(cfg_.c_str());
-    if (!result) {
-        stringstream ss;
-        ss << "DetectorDriver: error parsing file" << cfg_;
-        ss << " : " << result.description();
-        throw GeneralException(ss.str());
-    }
-
-    Messenger m;
-    m.start("Loading Calibration");
-
-    pugi::xml_node map = doc.child("Configuration").child("Map");
-
-    /** Note that before this reading in of the xml file, it was already
-     * processed for the purpose of creating the channels map.
-     * Some sanity checks (module and channel number) were done there
-     * so they are not repeated here/
-     */
-    bool verbose = map.attribute("verbose_calibration").as_bool();
-    for (pugi::xml_node module = map.child("Module"); module;
-         module = module.next_sibling("Module")) {
-        int module_number = module.attribute("number").as_int(-1);
-        for (pugi::xml_node channel = module.child("Channel"); channel;
-             channel = channel.next_sibling("Channel")) {
-            int ch_number = channel.attribute("number").as_int(-1);
-            Identifier chanID = DetectorLibrary::get()->at(module_number,
-                                                           ch_number);
-            bool calibrated = false;
-            for (pugi::xml_node cal = channel.child("Calibration");
-                cal; cal = cal.next_sibling("Calibration")) {
-                string model = cal.attribute("model").as_string("None");
-                double min = cal.attribute("min").as_double(0);
-                double max =
-                  cal.attribute("max").as_double(numeric_limits<double>::max());
-
-                stringstream pars(cal.text().as_string());
-                vector<double> parameters;
-                while (true) {
-                    double p;
-                    pars >> p;
-                    if (pars)
-                        parameters.push_back(p);
-                    else
-                        break;
-                }
-                if (verbose) {
-                    stringstream ss;
-                    ss << "Module " << module_number << ", channel "
-                       << ch_number << ": ";
-                    ss << " model-" << model;
-                    for (vector<double>::iterator it = parameters.begin();
-                         it != parameters.end(); ++it)
-                        ss << " " << (*it);
-                    m.detail(ss.str(), 1);
-                }
-                cali.AddChannel(chanID, model, min, max, parameters);
-                calibrated = true;
-            }
-            if (!calibrated && verbose) {
-                stringstream ss;
-                ss << "Module " << module_number << ", channel "
-                   << ch_number << ": ";
-                ss << " non-calibrated";
-                m.detail(ss.str(), 1);
-            }
-        }
-    }
-    m.done();
-}
-
-void DetectorDriver::ReadWalkXml() {
-    pugi::xml_document doc;
-
-    pugi::xml_parse_result result = doc.load_file(cfg_.c_str());
-    if (!result) {
-        stringstream ss;
-        ss << "DetectorDriver: error parsing file " << cfg_;
-        ss << " : " << result.description();
-        throw GeneralException(ss.str());
-    }
-
-    Messenger m;
-    m.start("Loading Walk Corrections");
-
-    pugi::xml_node map = doc.child("Configuration").child("Map");
-    /** See comment in the similiar place at ReadCalXml() */
-    bool verbose = map.attribute("verbose_walk").as_bool();
-    for (pugi::xml_node module = map.child("Module"); module;
-         module = module.next_sibling("Module")) {
-        int module_number = module.attribute("number").as_int(-1);
-        for (pugi::xml_node channel = module.child("Channel"); channel;
-             channel = channel.next_sibling("Channel")) {
-            int ch_number = channel.attribute("number").as_int(-1);
-            Identifier chanID = DetectorLibrary::get()->at(module_number,
-                                                           ch_number);
-            bool corrected = false;
-            for (pugi::xml_node walkcorr = channel.child("WalkCorrection");
-                walkcorr; walkcorr = walkcorr.next_sibling("WalkCorrection")) {
-                string model = walkcorr.attribute("model").as_string("None");
-                double min = walkcorr.attribute("min").as_double(0);
-                double max =
-                  walkcorr.attribute("max").as_double(
-                                              numeric_limits<double>::max());
-
-                stringstream pars(walkcorr.text().as_string());
-                vector<double> parameters;
-                while (true) {
-                    double p;
-                    pars >> p;
-                    if (pars)
-                        parameters.push_back(p);
-                    else
-                        break;
-                }
-                if (verbose) {
-                    stringstream ss;
-                    ss << "Module " << module_number
-                       << ", channel " << ch_number << ": ";
-                    ss << " model: " << model;
-                    for (vector<double>::iterator it = parameters.begin();
-                         it != parameters.end(); ++it)
-                        ss << " " << (*it);
-                    m.detail(ss.str(), 1);
-                }
-                walk.AddChannel(chanID, model, min, max, parameters);
-                corrected = true;
-            }
-            if (!corrected && verbose) {
-                stringstream ss;
-                ss << "Module " << module_number << ", channel "
-                << ch_number << ": ";
-                ss << " not corrected for walk";
-                m.detail(ss.str(), 1);
-            }
-        }
-    }
-    m.done();
 }
