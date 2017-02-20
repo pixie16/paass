@@ -3,6 +3,7 @@ set(CORE_SOURCES
         Calibrator.cpp
         ChanEvent.cpp
         DetectorDriver.cpp
+        DetectorDriverXmlParser.cpp
         DetectorLibrary.cpp
         DetectorSummary.cpp
         Globals.cpp
