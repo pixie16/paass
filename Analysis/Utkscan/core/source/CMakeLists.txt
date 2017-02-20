@@ -19,13 +19,13 @@ set(CORE_SOURCES
         TimingMapBuilder.cpp
         UtkScanInterface.cpp
         UtkUnpacker.cpp
-        WalkCorrector.cpp
-)
+        WalkCorrector.cpp)
 
 set(CORRELATION_SOURCES
         PlaceBuilder.cpp
         Places.cpp
-        TreeCorrelator.cpp)
+        TreeCorrelator.cpp
+        TreeCorrelatorXmlParser.cpp)
 
 set(PLOTTING_SOURCES
         Plots.cpp
