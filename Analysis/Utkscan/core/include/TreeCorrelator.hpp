@@ -18,26 +18,6 @@
 #include "PlaceBuilder.hpp"
 #include "Exceptions.hpp"
 
-/** \brief XML document walker and parser for TreeCorrelator xml config file*/
-class Walker {
-public:
-    /** Parse specific place
-    * \param [in] node : the xml node to parse
-    * \param [in] parent : the string of the parent node
-    * \param [in] verbose : verbosity
-    */
-    void parsePlace(pugi::xml_node node, std::string parent,
-                    bool verbose);
-
-    /** Walks recursively through the tree
-    * \param [in] node : the xml node to parse
-    * \param [in] parent : the string of the parent node
-    * \param [in] verbose : verbosity
-    */
-    void traverseTree(pugi::xml_node node, std::string parent,
-                      bool verbose);
-};
-
 /** \brief Singleton class holding map of all places.*/
 class TreeCorrelator {
 public:
@@ -85,13 +65,13 @@ private:
     static PlaceBuilder builder; //!< Instance of the PlaceBuilder
 
     /** Splits name string into the vector of string. Assumes that if
-     * the last token (delimiter being "_") is in format "X-Y,Z" where
-     * X, Y are integers, the X and Y are range of base names to be retured
-     * E.g. abc_1-2,4,5-6 will return ["abc_1", "abc_2", "abc_4", "abc_5",
-     * "abc_6"]. If no range token or comma is found, the name itself is
-     * returned as a only element of the vector
-     * \param [in] name : the name string to split
-     * \return a vector of the split names */
+    * the last token (delimiter being "_") is in format "X-Y,Z" where
+    * X, Y are integers, the X and Y are range of base names to be retured
+    * E.g. abc_1-2,4,5-6 will return ["abc_1", "abc_2", "abc_4", "abc_5",
+    * "abc_6"]. If no range token or comma is found, the name itself is
+    * returned as a only element of the vector
+    * \param [in] name : the name string to split
+    * \return a vector of the split names */
     std::vector<std::string> split_names(std::string name);
 };
 
