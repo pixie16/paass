@@ -61,8 +61,8 @@ public:
     /*! \return Instance is created upon first call */
     static DetectorDriver* get();
 
-    WalkCorrector walk; //!< Instance of the walk correction
-    Calibrator cali;//!< Instance of the calibrator
+    const WalkCorrector *walk_; //!< Instance of the walk correction
+    const Calibrator *cali_;//!< Instance of the calibrator
     Plots histo;//!< Instance of the histogram class
 
     /*! \brief Plots into histogram defined by dammId
@@ -192,11 +192,6 @@ private:
     /** Load the processors from the XML file
      * \param [in] m : the messenger to pass the loading messages through */
     void LoadProcessors(Messenger& m);
-
-    /** Read in the Calibration parameters from the Config.xml */
-    void ReadCalXml();
-    /** Read in the Walk correction parameters from the Config.xml */
-    void ReadWalkXml();
 };
 
 #endif // __DETECTORDRIVER_HPP_
