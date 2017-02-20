@@ -142,7 +142,7 @@ public:
 
     /** \return the list of the Event Processors in the analysis */
     const std::vector<EventProcessor *>& GetProcessors(void) const {
-        return(vecProcess);
+        return vecProcess;
     }
 
     /** \return The requested event processor
@@ -152,7 +152,19 @@ public:
     /** \return the set of detectors used in the analysis */
     const std::set<std::string> &GetUsedDetectors(void) const;
 
-    /** Default Destructor - Not called due to singleton nature */
+    ///Sets the processor list
+    ///@param[in] a : The vector containing the pointer to the event processors
+    void SetEventProcessors(const std::vector<EventProcessor*> &a) {
+        vecProcess = a;
+    }
+
+    ///Sets the analyzer list
+    ///@param[in] a : The vector containing the pointer to the Trace Analyzers
+    void SetTraceAnalyzers(const std::vector<TraceAnalyzer*> &a) {
+        vecAnalyzer = a;
+    }
+
+    /** Default Destructor */
     virtual ~DetectorDriver();
 private:
     /** Constructor that initializes the various processors and analyzers. */
@@ -188,10 +200,6 @@ private:
                                     const char* title) {
         histo.DeclareHistogram2D(dammId, xSize, ySize, title);
     }
-
-    /** Load the processors from the XML file
-     * \param [in] m : the messenger to pass the loading messages through */
-    void LoadProcessors(Messenger& m);
 };
 
 #endif // __DETECTORDRIVER_HPP_
