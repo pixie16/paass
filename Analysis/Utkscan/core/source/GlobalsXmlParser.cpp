@@ -8,10 +8,76 @@
 #include <string>
 
 #include "HelperFunctions.hpp"
-#include "TrapFilterParameters.hpp"
 #include "GlobalsXmlParser.hpp"
+#include "TrapFilterParameters.hpp"
+#include "XmlInterface.hpp"
 
 using namespace std;
+
+void GlobalsXmlParser::ParseNode(Globals *globals) {
+    const pugi::xml_node root =
+            XmlInterface::get()->GetDocument()->child("Configuration");
+
+    if(!root)
+        throw std::invalid_argument("The root node \"/Configuration\" does "
+                                            "not exist. No configuration can "
+                                            "be loaded.");
+    else
+        ParseRootNode(root);
+
+    std::stringstream ss;
+    Messenger m;
+
+    m.start("Loading Globals");
+
+    m.detail("Experiment Summary : " + ParseDescriptionNode(
+            root.child("Description")));
+
+    try {
+        if(root.child("Global")) {
+            m.start("Loading Global Node");
+            ParseGlobalNode(root.child("Global"), globals);
+            m.done();
+        } else
+            throw GeneralException("Globals::Globals : We are missing "
+                                           "the Globals node!");
+
+        if(root.child("Reject")) {
+            m.start("Loading Reject Node");
+            globals->SetRejectionRegions(ParseRejectNode(root.child("Reject")));
+            m.done();
+        }
+
+        if(root.child("Vandle")) {
+            m.start("Loading Vandle Node");
+            ParseVandleNode(root.child("Vandle"), globals);
+            m.done();
+        }
+
+        if(root.child("Trace")) {
+            m.start("Loading Trace Node");
+            ParseTraceNode(root.child("Trace"), globals);
+            m.done();
+        }
+
+        if(root.child("Cfd")) {
+            m.start("Loading Cfd Node");
+            ParseCfdNode(root.child("Cfd"), globals);
+            m.done();
+        }
+
+        if(root.child("Fitting")) {
+            m.start("Loading Fitting Node");
+            ParseFittingNode(root.child("Fitting"), globals);
+            m.done();
+        }
+    } catch (std::exception &e) {
+        m.detail("Globals::Globals : Exception caught while parsing "
+                         "configuration file.");
+        throw;
+    }
+    m.done();
+}
 
 ///We parse the Cfd node here. This node contains the information necessary
 /// to the proper function of the various Cfd timing codes. The only

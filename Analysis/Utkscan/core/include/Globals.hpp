@@ -16,8 +16,6 @@
 #include <cstdlib>
 #include <stdint.h>
 
-#include "pugixml.hpp"
-
 #include "Constants.hpp"
 #include "Exceptions.hpp"
 #include "Messenger.hpp"
@@ -229,6 +227,11 @@ public:
     ///Sets the Qdc Compression factor for plotting QDCs into DAMM.
     ///@param[in] a : The parameter that we are going to set
     void SetQdcCompression(const double &a) { qdcCompression_ = a; }
+
+    ///Sets the rejection regions parsed from the config file
+    ///@param[in] a : The vector containing the regions.
+    void SetRejectionRegions(const std::vector<std::pair<unsigned int,
+            unsigned int> > &a) { reject_ = a; }
 
     ///Sets the revision of the pixie modules that we had.
     ///@param[in] a : The parameter that we are going to set

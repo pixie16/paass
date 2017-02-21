@@ -12,7 +12,8 @@
 #include "Exceptions.hpp"
 #include "Globals.hpp"
 #include "GlobalsXmlParser.hpp"
-#include "XmlInterface.hpp"
+
+using namespace std;
 
 ///Initializes the instance_ of the class to a null pointer.
 Globals *Globals::instance_ = NULL;
@@ -38,68 +39,15 @@ Globals::~Globals() {
 }
 
 Globals::Globals(const std::string &file) {
-    const pugi::xml_node rootNode =
-            XmlInterface::get(file)->GetDocument()->child("Configuration");
-
-    GlobalsXmlParser xmlParser;
-
-    if(!rootNode)
-        throw std::invalid_argument("The root node \"/Configuration\" does "
-                                            "not exist. No configuration can "
-                                            "be loaded");
-    else
-        xmlParser.ParseRootNode(rootNode);
-
     InitializeMemberVariables();
     configFile_ = file;
 
-    std::stringstream ss;
-    Messenger m;
-
-    m.detail("Experiment Summary : " + xmlParser.ParseDescriptionNode(
-            rootNode.child("Description")));
-
     try {
-        if(rootNode.child("Global")) {
-            m.start("Loading Global Node");
-            xmlParser.ParseGlobalNode(rootNode.child("Global"), this);
-            m.done();
-        } else
-            throw GeneralException("Globals::Globals : We are missing "
-                                                "the Globals node!");
-
-        if(rootNode.child("Reject")) {
-            m.start("Loading Reject Node");
-            reject_ = xmlParser.ParseRejectNode(rootNode.child("Reject"));
-            m.done();
-        }
-
-        if(rootNode.child("Vandle")) {
-            m.start("Loading Vandle Node");
-            xmlParser.ParseVandleNode(rootNode.child("Vandle"), this);
-            m.done();
-        }
-
-        if(rootNode.child("Trace")) {
-            m.start("Loading Trace Node");
-            xmlParser.ParseTraceNode(rootNode.child("Trace"), this);
-            m.done();
-        }
-
-        if(rootNode.child("Cfd")) {
-            m.start("Loading Cfd Node");
-            xmlParser.ParseCfdNode(rootNode.child("Cfd"), this);
-            m.done();
-        }
-
-        if(rootNode.child("Fitting")) {
-            m.start("Loading Fitting Node");
-            xmlParser.ParseFittingNode(rootNode.child("Fitting"), this);
-            m.done();
-        }
-    } catch (std::exception &e) {
-        m.detail("Globals::Globals : Exception caught while parsing "
-                         "configuration file.");
+        GlobalsXmlParser parser;
+        parser.ParseNode(this);
+    }catch (invalid_argument &invalidArgument){
+        throw;
+    } catch (GeneralException &ex) {
         throw;
     }
 }
