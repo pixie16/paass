@@ -9,8 +9,6 @@
 #include <set>
 #include <sstream>
 
-#include "pugixml.hpp"
-
 #include "Globals.hpp"
 #include "Messenger.hpp"
 #include "XmlParser.hpp"
@@ -24,6 +22,10 @@ public:
 
     ///Default Destructor
     ~GlobalsXmlParser() {}
+
+    ///Handles the main processing of the Globals node.
+    ///@param[in] globals : Pointer to the globals class.
+    void ParseNode(Globals *globals);
 
     ///Parses the Cfd node from the xml configuration file.
     ///@param[in] node : The node that we are going to parse
