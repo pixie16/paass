@@ -37,22 +37,13 @@ DetectorDriver* DetectorDriver::get() {
 }
 
 DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
-    cfg_ = Globals::get()->GetConfigFileName();
-    Messenger m;
     try {
-        //The detector library is instanced here.
-        ///@TODO Move this higher up in the process of the code. That way the map
-        /// gets parsed out well before this point and we can throw an error
-        /// sooner.
-        DetectorLibrary::get();
-
         DetectorDriverXmlParser parser;
         parser.ParseNode(this);
     } catch (GeneralException &e) {
         /// Any exception in registering plots in Processors
         /// and possible other exceptions in creating Processors
         /// will be intercepted here
-        m.fail();
         cout << "Exception caught at DetectorDriver::DetectorDriver" << endl;
         cout << "\t" << e.what() << endl;
         throw;
@@ -60,7 +51,6 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
         cout << "Warning found at DetectorDriver::DetectorDriver" << endl;
         cout << "\t" << w.what() << endl;
     }
-    m.done();
 }
 
 DetectorDriver::~DetectorDriver() {
