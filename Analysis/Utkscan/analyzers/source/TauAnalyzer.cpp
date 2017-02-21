@@ -8,13 +8,10 @@
 
 #include <cmath>
 
-#include "DammPlotIds.hpp"
 #include "Globals.hpp"
 #include "TauAnalyzer.hpp"
-#include "Trace.hpp"
 
 using namespace std;
-using namespace dammIds::trace;
 
 TauAnalyzer::TauAnalyzer() {
     name="tau";
