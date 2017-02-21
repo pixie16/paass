@@ -10,12 +10,9 @@
 #include <map>
 #include <string>
 
-#include "pugixml.hpp"
-
 #include "DetectorLibrary.hpp"
 #include "MapNodeXmlParser.hpp"
 #include "Messenger.hpp"
-#include "TreeCorrelator.hpp"
 
 using namespace std;
 
@@ -31,19 +28,11 @@ DetectorLibrary* DetectorLibrary::get() {
 
 DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations(),
     numModules(0) {
-    MapNodeXmlParser parser;
-    parser.ParseNode(this);
-
-    /* At this point basic Correlator places build automatically from
-     * map file should be created so we can call buildTree function */
-    ///@TODO this needs to be moved out of this constructor and into a
-    /// location that's more fitting.
     try {
-        TreeCorrelator::get()->buildTree();
-    } catch (exception &e) {
-        cout << "Exception caught in DetectorLibrary" << endl;
-        cout << "\t" << e.what() << endl;
-        exit(EXIT_FAILURE);
+        MapNodeXmlParser parser;
+        parser.ParseNode(this);
+    } catch (invalid_argument &ia) {
+        throw;
     }
 }
 

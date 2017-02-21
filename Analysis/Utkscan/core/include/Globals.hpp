@@ -229,7 +229,7 @@ public:
     void SetQdcCompression(const double &a) { qdcCompression_ = a; }
 
     ///Sets the rejection regions parsed from the config file
-    ///@param[in] a : The vector containing the regions.
+    ///@param[in] a : The rejection regions.
     void SetRejectionRegions(const std::vector<std::pair<unsigned int,
             unsigned int> > &a) { reject_ = a; }
 
