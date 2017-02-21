@@ -4,10 +4,8 @@
 
 // Local files
 #include "Display.h"
-#include "GlobalsXmlParser.hpp"
 #include "UtkScanInterface.hpp"
 #include "UtkUnpacker.hpp"
-#include "XmlInterface.hpp"
 
 // Define the name of the program.
 #ifndef PROGRAM_NAME
@@ -30,16 +28,6 @@ int main(int argc, char *argv[]){
     scanner.Setup(argc, argv);
 
     try {
-        ///@TODO This needs to be updated so that the Globals class is not
-        /// initialized before this. Otherwise this error handling that we're
-        /// intending will not work properly.
-        cout << "utkscan.cpp : Initial error checking of Configuration file"
-             << endl;
-        //Do some initial parsing of the configuration file:
-        XmlInterface::get(scanner.GetSetupFilename());
-        GlobalsXmlParser xmlParser;
-        xmlParser.ParseRootNode(XmlInterface::get()->GetDocument()->child("Configuration"));
-
         // Run the main loop.
         cout << "utkscan.cpp : Performing Execute method" << endl;
         scanner.Execute();
