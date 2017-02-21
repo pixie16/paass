@@ -17,14 +17,24 @@ class TraceAnalyzer {
 public:
      /** Default Constructor */
     TraceAnalyzer();
+
     /** Default Destructor */
     virtual ~TraceAnalyzer();
+
+    /** Constructor taking histogram information
+    * \param [in] offset : the offset for the histograms
+    * \param [in] range : the range of the histograms
+    * \param [in] name : the name of the processor */
+    TraceAnalyzer(const unsigned int &offset, const unsigned int &range,
+                  const std::string &name);
 
     /** Initializes the Analyzer
     * \return True if the init was successful */
     virtual bool Init(void){return(true);};
+
     /** Declare Plots (empty for now) */
     virtual void DeclarePlots(void){};
+
     /** Function to analyze a trace online.
      * \param [in] trace: the trace
      * \param [in] type : the type of detector
@@ -60,7 +70,7 @@ protected:
     /// done in EventProcessor.
     /** Plots class for given Processor, takes care of declaration
     * and plotting within boundaries allowed by PlotsRegistry */
-    static Plots histo;
+    Plots histo;
 
     /*! \brief Declares a 1D histogram calls the C++ wrapper for DAMM
     * \param [in] dammId : The histogram number to define

@@ -39,8 +39,6 @@ UtkUnpacker::~UtkUnpacker() {
 /// ignore chunks of data. We also make some calls to various other private
 /// methods to plot useful spectra and output processing information to the
 /// screen.
-/// @TODO Remove the conversion from XiaData to ChanEvent, these two classes
-/// are effectively identical. This is referenced in issue #
 void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
     if (!addr_)
         return;

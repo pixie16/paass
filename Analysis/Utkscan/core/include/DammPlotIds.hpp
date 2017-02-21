@@ -173,16 +173,22 @@ namespace dammIds {
     }
 
     /// Definitions for all of the traces
-    namespace trace {
-        const int OFFSET = 7500; //!< Offset for the traces
-        const int RANGE = 150; //!< Range for the traces
+    namespace analyzers {
         const int traceBins = SA; //!< Number of Bins for Traces
 
-        namespace tracefilteranalyzer {
-	    const int D_RETVALS = 0; //!< Return values for TraceFilter class
-            const int DD_TRIGGER_FILTER = 1;//!< Trigger Filter
-            const int DD_REJECTED_TRACE = 2;//!< Traces with some kind of error
-	    const int DD_PILEUP = 3; //!< Piled up traces
+        namespace tracefilter{
+            const unsigned int OFFSET = 7500;
+            const unsigned int RANGE = 10;
+        }
+
+        namespace extractor {
+            const unsigned int OFFSET = 7550;
+            const unsigned int RANGE = 1;
+        }
+
+        namespace waa {
+            const unsigned int OFFSET = 7510;
+            const unsigned int RANGE = 1;
         }
 
         namespace doubletraceanalyzer {
@@ -194,20 +200,6 @@ namespace dammIds {
             const int DD_TRIPLE_TRACE_FILTER1 = 31;//!< results of trace filter 1
             const int DD_TRIPLE_TRACE_FILTER2 = 32;//!< results of trace filter 2
             const int DD_TRIPLE_TRACE_FILTER3 = 33; //!< results of trace filter 3
-        }
-
-        namespace waveformanalyzer {
-            const int DD_TRACES     = 40;//!< Plotted traces
-            const int D_CHISQPERDOF = 41;//!< distributions of chi^2/dof
-            const int D_PHASE       = 42;//!< distribution of phases
-            const int DD_AMP        = 43;//!< Distributions of fitted amplitudes
-            const int D_SIGMA       = 44; //!< Distributions of Std. Dev. Baseline
-        }
-
-        /// 1D-traces from the extractor
-        namespace extractor {
-            const int maxSingleTraces = 99; ///< Number of traces to plot
-            const int D_TRACE = 50; ///< His number for traces
         }
     }
 }

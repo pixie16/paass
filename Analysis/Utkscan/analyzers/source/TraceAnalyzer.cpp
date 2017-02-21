@@ -21,11 +21,26 @@
 #include "TraceAnalyzer.hpp"
 
 using namespace std;
-using namespace dammIds::trace;
 
-Plots TraceAnalyzer::histo(OFFSET, RANGE, "Analyzers");
+int TraceAnalyzer::numTracesAnalyzed = -1; //!< number of analyzed traces
 
-int TraceAnalyzer::numTracesAnalyzed = 0; //!< number of analyzed traces
+TraceAnalyzer::TraceAnalyzer() : histo(0, 0, "generic"),
+                                 userTime(0.), systemTime(0.) {
+    clocksPerSecond = sysconf(_SC_CLK_TCK);
+}
+
+TraceAnalyzer::TraceAnalyzer(const unsigned int &offset,
+                             const unsigned int &range,
+                             const std::string &name) :
+        histo(offset, range, name), userTime(0.), systemTime(0.) {
+    clocksPerSecond = sysconf(_SC_CLK_TCK);
+}
+
+TraceAnalyzer::~TraceAnalyzer() {
+    cout << name << " analyzer : "
+         << userTime << " user time, "
+         << systemTime << " system time" << endl;
+}
 
 void TraceAnalyzer::Plot(const vector<unsigned int> &trc,
                          const int &id) {
@@ -66,21 +81,6 @@ row, double offset) {
     for (unsigned int i=0; i < trc.size(); i++) {
         histo.Plot(id, i, row, max(0., (int)trc.at(i) - offset));
     }
-}
-
-TraceAnalyzer::TraceAnalyzer() : userTime(0.), systemTime(0.) {
-    name = "Trace";
-    // start at -1 so that when incremented on first trace analysis,
-    //   row 0 is respectively filled in the trace spectrum of inheritees
-    numTracesAnalyzed = -1;
-    clocksPerSecond = sysconf(_SC_CLK_TCK);
-}
-
-TraceAnalyzer::~TraceAnalyzer()
-{
-    cout << name << " analyzer : "
-	 << userTime << " user time, "
-	 << systemTime << " system time" << endl;
 }
 
 void TraceAnalyzer::Analyze(Trace &trace,
