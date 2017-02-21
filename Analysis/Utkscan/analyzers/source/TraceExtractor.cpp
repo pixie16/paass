@@ -9,7 +9,6 @@
 #include "TraceExtractor.hpp"
 
 using namespace std;
-
 using namespace dammIds::analyzers::extractor;
 
 namespace dammIds {
@@ -22,9 +21,9 @@ namespace dammIds {
 
 TraceExtractor::TraceExtractor(const std::string& aType,
                                const std::string &aSubtype,
-			       const std::string &aTag) :
-    type(aType), subtype(aSubtype), tag(aTag){
-    name = "TraceExtractor";
+                               const std::string &aTag) :
+        TraceAnalyzer(OFFSET, RANGE, "Trace Extractor"), type(aType),
+        subtype(aSubtype), tag(aTag) {
 }
 
 void TraceExtractor::DeclarePlots(void)
