@@ -4,15 +4,21 @@
 #include <iostream>
 #include <sstream>
 
+#include "DammPlotIds.hpp"
 #include "Trace.hpp"
 #include "TraceExtractor.hpp"
-#include "DammPlotIds.hpp"
-
-using std::string;
 
 using namespace std;
 
-const unsigned int TraceExtractor::numTraces = dammIds::trace::extractor::maxSingleTraces;
+using namespace dammIds::analyzers::extractor;
+
+namespace dammIds {
+    namespace analyzers {
+        namespace extractor {
+            const unsigned int DD_TRACE = 0;
+        }
+    }
+}
 
 TraceExtractor::TraceExtractor(const std::string& aType,
                                const std::string &aSubtype,
@@ -23,22 +29,21 @@ TraceExtractor::TraceExtractor(const std::string& aType,
 
 void TraceExtractor::DeclarePlots(void)
 {
-    const int traceBins = dammIds::trace::traceBins;
-    using namespace dammIds::trace::extractor;
-    DeclareHistogram2D(D_TRACE, traceBins, S7, "Trace Extractor");
+    const int traceBins = dammIds::analyzers::traceBins;
+    DeclareHistogram2D(DD_TRACE, traceBins, S7, "Trace Extractor");
 }
 
-void TraceExtractor::Analyze(Trace &trace, const std::string &aType,
-                             const std::string &aSubtype, 
-			     const std::map<std::string,int> &tags) {
-    using namespace dammIds::trace::extractor;
+void TraceExtractor::Analyze(
+        Trace &trace, const std::string &aType, const std::string &aSubtype,
+        const std::map<std::string,int> &tags) {
     static unsigned int numPlottedTraces = 0;
+    static unsigned int numTraces = S8;
 
     if (type ==  aType && subtype == aSubtype && 
 	(tag == "" || tags.find(tag) != tags.end()) &&
 	numPlottedTraces < numTraces){
         TraceAnalyzer::Analyze(trace, type, subtype, tags);
-        OffsetPlot(trace, D_TRACE, numPlottedTraces, 0.0);
+        OffsetPlot(trace, DD_TRACE, numPlottedTraces, 0.0);
         numPlottedTraces++;
         EndAnalyze(trace);
     }

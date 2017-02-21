@@ -12,7 +12,15 @@
 #include "WaaAnalyzer.hpp"
 
 using namespace std;
-using namespace dammIds::trace::waveformanalyzer;
+using namespace dammIds::analyzers::waa;
+
+namespace dammIds {
+    namespace analyzers {
+        namespace waa {
+            const unsigned int DD_TRACES = 0;
+        }
+    }
+}
 
 void WaaAnalyzer::DeclarePlots(void) {
     DeclareHistogram2D(DD_TRACES, S7, S5, "traces data Waa");

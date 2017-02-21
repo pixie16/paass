@@ -12,16 +12,27 @@
 #include "TraceFilterAnalyzer.hpp"
 
 using namespace std;
-using namespace dammIds::trace::tracefilteranalyzer;
+using namespace dammIds::analyzers::tracefilter;
+
+namespace dammIds {
+    namespace analyzers {
+        namespace tracefilter {
+            const unsigned int D_RETVALS = 0; //!< Return values for TraceFilter class
+            const unsigned int DD_TRIGGER_FILTER = 1;//!< Trigger Filter
+            const unsigned int DD_REJECTED_TRACE = 2;//!< Traces with some kind of error
+            const unsigned int DD_PILEUP = 3; //!< Piled up traces
+        }
+    }
+}
 
 TraceFilterAnalyzer::TraceFilterAnalyzer(const bool &analyzePileup) :
-    TraceAnalyzer() {
+    TraceAnalyzer(OFFSET, RANGE, "TraceFilterAnalyzer") {
     analyzePileup_ = analyzePileup;
     name = "TraceFilterAnalyzer";
 }
 
 void TraceFilterAnalyzer::DeclarePlots(void) {
-    const int traceBins = dammIds::trace::traceBins;
+    const int traceBins = dammIds::analyzers::traceBins;
     DeclareHistogram1D(D_RETVALS, S3,"Retvals for Filtering");
     DeclareHistogram2D(DD_TRIGGER_FILTER, traceBins, S7, "Trigger Filter");
     DeclareHistogram2D(DD_REJECTED_TRACE, traceBins, S7, "Rejected Traces");
