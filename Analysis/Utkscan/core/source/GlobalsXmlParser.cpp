@@ -251,9 +251,9 @@ void GlobalsXmlParser::ParseRootNode(const pugi::xml_node &node) {
                                  "Trace", "Fitting", "Cfd", "Reject",
                                  "Notebook"};
     if(node.child("Map").empty())
-        throw invalid_argument(CriticalNodeMessage(node.child("Map").name()));
+        throw invalid_argument(CriticalNodeMessage("Map"));
     if(node.child("Global").empty())
-        throw invalid_argument(CriticalNodeMessage(node.child("Global").name()));
+        throw invalid_argument(CriticalNodeMessage("Global"));
     WarnOfUnknownChildren(node, knownChildren);
 }
 
