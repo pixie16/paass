@@ -89,7 +89,9 @@ public:
     ///@return True if this channel was generated on the module
     bool IsVirtualChannel() const { return isVirtualChannel_; }
 
-    ///@return The baseline as it was calculated on the module
+    ///@return The baseline as it was calculated on the module.
+    ///The calculation was done using a filter.
+    /// This requires that ESUMS parameter be enabled on the modules during acquisition.
     double GetBaseline() const { return baseline_; }
 
     ///@return The energy that was calculated on the module
