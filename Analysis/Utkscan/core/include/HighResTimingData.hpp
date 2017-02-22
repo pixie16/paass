@@ -42,7 +42,8 @@ public:
         return(false);
     }
 
-    /** \return The current value of aveBaseline_ */
+    /** \return The current value of aveBaseline_ .
+      This value is calculated during the fitting procedure as a straight sum, from the trace. */
     double GetAveBaseline() const { return GetTrace().GetBaselineInfo().first; }
     /** \return The current value of discrimination_ */
     double GetDiscrimination() const { return GetTrace().GetTailRatio(); }
