@@ -4,8 +4,6 @@
 /// @date December 18, 2016
 #include <stdexcept>
 
-#include <TMinuit.h>
-
 #include "RootFitter.hpp"
 #include "VandleTimingFunction.hpp"
 
