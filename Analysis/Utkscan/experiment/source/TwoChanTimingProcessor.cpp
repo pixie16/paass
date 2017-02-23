@@ -21,7 +21,10 @@ static HighResTimingData::HrtRoot rstop;
 TFile *rootfile;
 TTree *tree;
 TH1I *codes;
-TH2I *traces;
+TH2I *startTraces;
+TH2I *startAmpDistribution;
+TH2I *stopTraces;
+TH2I *stopAmpDistribution;
 
 enum CODES {
     PROCESS_CALLED,
@@ -47,8 +50,13 @@ TwoChanTimingProcessor::TwoChanTimingProcessor() :
     tree->Branch("start", &rstart,
                  "qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
     tree->Branch("stop", &rstop, "qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
-    codes = new TH1I("codes", "", 40, 0, 40);
-    traces = new TH2I("traces","",1000,0,1000,1000,0,1000);
+    codes = new TH1I("codes", "", 20, 0, 20);
+    startTraces = new TH2I("startTraces", "", 250, 0, 250, 2000, 0, 2000);
+    stopTraces = new TH2I("stopTraces", "", 250, 0, 250, 2000, 0, 2000);
+    startAmpDistribution =
+            new TH2I("startAmpDistribution", "", 250, 0, 250, 16384, 0, 16384);
+    stopAmpDistribution =
+            new TH2I("stopAmpDistribution", "", 250, 0, 250, 16384, 0, 16384);
 }
 
 TwoChanTimingProcessor::~TwoChanTimingProcessor() {
@@ -93,18 +101,30 @@ bool TwoChanTimingProcessor::Process(RawEvent &event) {
             (*pulserMap.find(make_pair(0, "stop"))).second;
 
     static int trcCounter = 0;
-    for(vector<unsigned int>::const_iterator it = start.GetTrace().begin();
-            it != start.GetTrace().end(); it++)
-        traces->Fill((int)(it-start.GetTrace().begin()), trcCounter, *it);
+    int bin = 0;
+    for (vector<unsigned int>::const_iterator it = start.GetTrace().begin();
+         it != start.GetTrace().end(); it++) {
+        bin = (int) (it - start.GetTrace().begin());
+        startTraces->Fill(bin, trcCounter, *it);
+        startAmpDistribution->Fill(bin, *it);
+    }
+
+    for (vector<unsigned int>::const_iterator it = stop.GetTrace().begin();
+         it != stop.GetTrace().end(); it++) {
+        bin = (int) (it - stop.GetTrace().begin());
+        stopTraces->Fill(bin, trcCounter, *it);
+        stopAmpDistribution->Fill(bin, *it);
+    }
+
     trcCounter++;
 
     //We only plot and analyze the data if the data is validated
     if (start.GetIsValid() && stop.GetIsValid()) {
-            start.FillRootStructure(rstart);
-            stop.FillRootStructure(rstop);
-            tree->Fill();
-            start.ZeroRootStructure(rstart);
-            stop.ZeroRootStructure(rstop);
+        start.FillRootStructure(rstart);
+        stop.FillRootStructure(rstop);
+        tree->Fill();
+        start.ZeroRootStructure(rstart);
+        stop.ZeroRootStructure(rstop);
     }
     EndProcess();
     return true;
