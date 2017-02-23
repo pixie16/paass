@@ -192,6 +192,9 @@ namespace unittest_trace_variables {
             trace_sans_baseline.begin() + waveform_range.first,
             trace_sans_baseline.begin() + waveform_range.second);
 
+    //This is the qdc for the waveform
+    static const double waveform_qdc = 21329.9;
+
     //An empty data vector to test error checking.
     static const std::vector<unsigned int> empty_vector_uint;
     static const std::vector<double> empty_vector_double;
@@ -206,8 +209,8 @@ namespace unittest_trace_variables {
     static const unsigned int max_position = 76;
 
     /// This is the pair made from the expected maximum information
-    static const std::pair<unsigned int, double> max_pair(
-            max_position, maximum_value);
+    static const std::pair<unsigned int, double> max_pair(max_position,
+                                                          maximum_value);
 
     //These two values were obtained using the first 70 values of the above trace.
     //The expected baseline value was obtained using the AVERAGE function in
