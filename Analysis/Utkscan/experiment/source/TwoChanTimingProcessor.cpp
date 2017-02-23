@@ -18,7 +18,6 @@
 static HighResTimingData::HrtRoot rstart;
 static HighResTimingData::HrtRoot rstop;
 
-std::ofstream trcfile;
 TFile *rootfile;
 TTree *tree;
 TH1I *codes;
@@ -28,11 +27,6 @@ enum CODES {
     PROCESS_CALLED,
     WRONG_NUM
 };
-
-namespace dammIds {
-    namespace experiment {
-    }
-}
 
 using namespace std;
 using namespace dammIds::experiment;
@@ -61,7 +55,6 @@ TwoChanTimingProcessor::~TwoChanTimingProcessor() {
     codes->Write();
     rootfile->Write();
     rootfile->Close();
-    trcfile.close();
 }
 
 bool TwoChanTimingProcessor::Process(RawEvent &event) {
@@ -100,25 +93,18 @@ bool TwoChanTimingProcessor::Process(RawEvent &event) {
             (*pulserMap.find(make_pair(0, "stop"))).second;
 
     static int trcCounter = 0;
-    int bin;
     for(vector<unsigned int>::const_iterator it = start.GetTrace().begin();
-            it != start.GetTrace().end(); it++) {
-        bin = (int)(it-start.GetTrace().begin());
-        traces->Fill(bin, trcCounter, *it);
-        //Only output the 500th trace to make sure that we are not at the
-        // beginning of the file and we're a ways into the data.
-        if(trcCounter == 500)
-            trcfile << bin << " " << *it << " " << sqrt(*it) << endl;
-    }
+            it != start.GetTrace().end(); it++)
+        traces->Fill((int)(it-start.GetTrace().begin()), trcCounter, *it);
     trcCounter++;
 
     //We only plot and analyze the data if the data is validated
     if (start.GetIsValid() && stop.GetIsValid()) {
-        start.FillRootStructure(rstart);
-        stop.FillRootStructure(rstop);
-        tree->Fill();
-        start.ZeroRootStructure(rstart);
-        stop.ZeroRootStructure(rstop);
+            start.FillRootStructure(rstart);
+            stop.FillRootStructure(rstop);
+            tree->Fill();
+            start.ZeroRootStructure(rstart);
+            stop.ZeroRootStructure(rstop);
     }
     EndProcess();
     return true;
