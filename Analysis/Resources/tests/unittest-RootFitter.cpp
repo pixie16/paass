@@ -2,7 +2,9 @@
 /// @brief Unit tests for the RootFitter class
 /// @author S. V. Paulauskas
 /// @date December 18, 2016
-//#include <UnitTest++.h>
+#include <iostream>
+
+#include <UnitTest++.h>
 
 #include "RootFitter.hpp"
 #include "UnitTestSampleData.hpp"
@@ -11,21 +13,15 @@ using namespace std;
 using namespace unittest_trace_variables;
 using namespace unittest_fit_variables;
 
+TEST_FIXTURE(RootFitter, TestRootFitter) {
+    CHECK_THROW(CalculatePhase(empty_vector_double, fitting_parameters,
+                               max_pair, baseline_pair), range_error);
 
-//TEST_FIXTURE(RootFitter, TestRootFitter) {
-//    CHECK_THROW(CalculatePhase(empty_data, expected_trace_pars,
-//                               expected_max_info, expected_baseline_pair),
-//                range_error);
-//
-//    CalculatePhase(waveform, expected_trace_pars, expected_max_info,
-//                   expected_baseline_pair);
-//
-//    //CHECK( != 0.0);
-//}
+    SetQdc(waveform_qdc);
+    CHECK_CLOSE(-0.581124, CalculatePhase(waveform, fitting_parameters,
+                                          max_pair, baseline_pair), 1.);
+}
 
 int main(int argv, char *argc[]) {
-    RootFitter fitter;
-    fitter.CalculatePhase(waveform, fitting_parameters, max_pair,
-                          baseline_pair);
-    //return (UnitTest::RunAllTests());
+    return (UnitTest::RunAllTests());
 }

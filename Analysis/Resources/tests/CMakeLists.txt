@@ -25,7 +25,6 @@ install(TARGETS unittest-TraditionalCfd DESTINATION bin/unittests)
 if (PAASS_USE_ROOT)
     add_executable(unittest-RootFitter unittest-RootFitter.cpp
             ../source/RootFitter.cpp ../source/VandleTimingFunction.cpp)
-    target_link_libraries(unittest-RootFitter
-            ${ROOT_LIBRARIES})
+    target_link_libraries(unittest-RootFitter ${ROOT_LIBRARIES} UnitTest++)
     install(TARGETS unittest-RootFitter DESTINATION bin/unittests)
 endif (PAASS_USE_ROOT)
