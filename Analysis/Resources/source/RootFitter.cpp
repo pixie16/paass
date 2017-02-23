@@ -4,50 +4,42 @@
 /// @date December 18, 2016
 #include <stdexcept>
 
-#include <TF1.h>
-#include <TFitResult.h>
-#include <TGraphErrors.h>
+#include <TMinuit.h>
 
 #include "RootFitter.hpp"
 #include "VandleTimingFunction.hpp"
 
 using namespace std;
 
+RootFitter::RootFitter() {
+    vandleTimingFunction_ = new VandleTimingFunction();
+    func_ = new TF1("func", vandleTimingFunction_, 0., 1.e6, 5);
+}
+
+RootFitter::~RootFitter() {
+    delete vandleTimingFunction_;
+    delete func_;
+}
+
 double RootFitter::CalculatePhase(const std::vector<double> &data,
                                   const std::pair<double, double> &pars,
                                   const std::pair<unsigned int, double> &maxInfo,
                                   std::pair<double, double> baseline) {
     if (data.size() == 0)
-        throw range_error("RootFitter::CalculatePhase - The data was sized "
-                                  "zero.");
+        throw range_error("RootFitter::CalculatePhase - The data was sized zero.");
 
-    vector<double> xvals, yvals;
-    for (unsigned int i = 0; i < data.size(); i++) {
+    vector<double> xvals;
+    for (unsigned int i = 0; i < data.size(); i++)
         xvals.push_back(double(i));
-        yvals.push_back(double(data[i]));
-    }
 
-    TGraphErrors *graph =
-            new TGraphErrors(data.size(), &(xvals[0]), &(yvals[0]));
-    for (unsigned int i = 0; i < xvals.size(); i++)
-        graph->SetPointError(i, 0.0, baseline.second);
+    TGraphErrors graph((int)data.size(), &(xvals[0]), &(data[0]));
 
-    VandleTimingFunction vandleTimingFunction;
-    TF1 func("func", vandleTimingFunction, 0., 1.e6, 5);
-    func.SetParameters(0, qdc_ * 0.5, 0.5, 0.5, baseline.first);
+    func_->SetParameters(0, qdc_ * 0.5, pars.first, pars.second, 0);
+    func_->SetParLimits(2, 1, 1);
+    func_->SetParLimits(3, 1, 1);
+    func_->SetParLimits(4, 1, 1);
 
-    ///@TODO We need to get this working, it's suffering from some strange
-    /// issues with ROOT and linked libraries.
-    //TFitResultPtr fitResults = graph->Fit(&func, "MENRS", "", 0, data.size());
-    //int fitStatus = fitResults;
+    graph.Fit(func_, "NRQ", "", 0, data.size());
 
-//    cout << "Fit Status : " << fitStatus << endl;
-//    cout << "QDC : " << qdc_ << endl;
-//    cout << "Phase : " << func->GetParameter(0) << endl;
-//    cout << "Amplitude : " << func->GetParameter(1) << endl;
-//    cout << "Beta : " << func->GetParameter(2) << endl;
-//    cout << "Gamma : " << func->GetParameter(3) << endl;
-//    cout << "Baseline : " << func->GetParameter(4) << endl;
-    //delete func;
-    return 0.0;
+    return func_->GetParameter(0);
 }
