@@ -25,13 +25,12 @@ using namespace std;
 
 FittingAnalyzer::FittingAnalyzer(const std::string &s) {
     name = "FittingAnalyzer";
-    if (s == "GSL" || s == "gsl") {
+    if (s == "GSL" || s == "gsl")
         driver_ = new GslFitter();
-    } else if (s == "ROOT" || s == "root") {
+    else if (s == "ROOT" || s == "root")
         driver_ = new RootFitter();
-    } else {
+    else
         driver_ = NULL;
-    }
 }
 
 FittingAnalyzer::~FittingAnalyzer() {
