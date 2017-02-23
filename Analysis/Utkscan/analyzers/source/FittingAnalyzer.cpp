@@ -19,6 +19,7 @@
 
 #include "FittingAnalyzer.hpp"
 #include "GslFitter.hpp"
+#include "RootFitter.hpp"
 
 using namespace std;
 
@@ -26,6 +27,8 @@ FittingAnalyzer::FittingAnalyzer(const std::string &s) {
     name = "FittingAnalyzer";
     if (s == "GSL" || s == "gsl") {
         driver_ = new GslFitter();
+    } else if (s == "ROOT" || s == "root") {
+        driver_ = new RootFitter();
     } else {
         driver_ = NULL;
     }
@@ -40,13 +43,12 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
                               const std::map<std::string, int> &tagMap) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype, tagMap);
 
-    if (!driver_) {
-        EndAnalyze();
-        return;
-    }
+    if (!driver_)
+        throw invalid_argument("FittingAnalyzer::Analyze : A fitting driver "
+                                       "was not provided. This is a fatal "
+                                       "error.");
 
-    if (trace.IsSaturated() || trace.empty() ||
-        trace.GetWaveform().size() == 0) {
+    if (trace.IsSaturated() || trace.empty() || trace.GetWaveform().empty()) {
         EndAnalyze();
         return;
     }
@@ -59,12 +61,14 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
                       && tagMap.find("timing") != tagMap.end();
 
     if (!isFastSiPm) {
-        if (trace.GetBaselineInfo().second > globals->GetSigmaBaselineThresh()) {
+        if (trace.GetBaselineInfo().second >
+            globals->GetSigmaBaselineThresh()) {
             EndAnalyze();
             return;
         }
     } else {
-        if (trace.GetBaselineInfo().second > globals->GetSiPmSigmaBaselineThresh()) {
+        if (trace.GetBaselineInfo().second >
+            globals->GetSiPmSigmaBaselineThresh()) {
             EndAnalyze();
             return;
         }
@@ -75,8 +79,8 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
         pars = globals->GetFitPars(detType + ":" + detSubtype + ":timing");
 
     driver_->SetQdc(trace.GetQdc());
-    double phase = driver_->CalculatePhase(trace.GetWaveform(),
-                                           pars, trace.GetMaxInfo(),
+    double phase = driver_->CalculatePhase(trace.GetWaveform(), pars,
+                                           trace.GetMaxInfo(),
                                            trace.GetBaselineInfo());
     trace.SetPhase(phase + trace.GetMaxInfo().first);
 
