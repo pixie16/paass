@@ -41,11 +41,13 @@ TwoChanTimingProcessor::TwoChanTimingProcessor() :
         EventProcessor(OFFSET, RANGE, "TwoChanTimingProcessor") {
     associatedTypes.insert("pulser");
 
-    string trcFilename = Globals::get()->GetOutputPath() + "/trace.dat";
-    trcfile.open(trcFilename.c_str());
-
-    string rootFilename = Globals::get()->GetOutputPath() + "/test00.root";
-    rootfile = new TFile(rootFilename.c_str(), "RECREATE");
+    trcfile.open(
+            Globals::get()->AppendOutputPath(
+                    Globals::get()->GetOutputFileName() + "-trc.dat").c_str());
+    rootfile =
+            new TFile(Globals::get()->AppendOutputPath(
+                    Globals::get()->GetOutputFileName() + ".root").c_str(),
+                      "RECREATE");
 
     tree = new TTree("timing", "");
     tree->Branch("start", &rstart,
