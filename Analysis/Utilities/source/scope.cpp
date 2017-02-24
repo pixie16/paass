@@ -7,6 +7,7 @@
 
 // Local files
 #include "scope.hpp"
+#include "VandleTimingFunction.hpp"
 
 #ifdef USE_HRIBF
 #include "GetArguments.hpp"
@@ -33,37 +34,9 @@
 #endif
 
 #define ADC_TIME_STEP 4 // ns
-#define SLEEP_WAIT 1E4 // When not in shared memory mode, length of time to wait after gSystem->ProcessEvents is called (in us).
 
 using namespace std;
 using namespace TraceFunctions;
-
-
-/**The Paulauskas function is described in NIM A 737 (22), with a slight 
- * adaptation. We use a step function such that f(x < phase) = baseline.
- * In addition, we also we formulate gamma such that the gamma in the paper is
- * gamma_prime = 1 / pow(gamma, 0.25).
- *
- * The parameters are:
- * p[0] = baseline
- * p[1] = amplitude
- * p[2] = phase
- * p[3] = beta
- * p[4] = gamma
- *
- * \param[in] x X value.
- * \param[in] p Paramater values.
- *
- * \return the value of the function for the specified x value and parameters.
- */
-double PaulauskasFitFunc(double *x, double *p) {
-	//Compute the time difference between x and the phase corrected for clock ticks.
-	float diff = (x[0] - p[2])/ADC_TIME_STEP;
-	//If the difference is less than zero we return the baseline.
-	if (diff < 0 ) return p[0];
-	//Return the computed function.
-	return p[0] + p[1] * exp(-diff * p[3]) * (1 - exp(-pow(diff * p[4],4)));
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // class scopeUnpacker
@@ -176,14 +149,16 @@ scopeScanner::~scopeScanner(){
 	delete cfdPol3;
 	delete cfdPol2;
 	delete hist;
-	delete paulauskasFunc;
+	delete fittingFunction_;
 }
 
 TF1 *scopeScanner::SetupFunc() {
-	paulauskasFunc = new TF1("paulauskas",PaulauskasFitFunc,0,1,5);
-	paulauskasFunc->SetParNames("voffset","amplitude","phase","beta","gamma");
-	
-	return paulauskasFunc;
+	vandleTimingFunction_ = new VandleTimingFunction();
+	fittingFunction_ =
+            new TF1("func", vandleTimingFunction_, 0., 1.e6, 5);
+	fittingFunction_->SetParNames("phase", "amplitude","beta","gamma",
+								  "baseline");
+	return fittingFunction_;
 }
 
 void scopeScanner::ResetGraph(unsigned int size) {
@@ -231,7 +206,6 @@ void scopeScanner::Plot(){
 		}		
 	}
 
-	//For a waveform pulse we use a graph.
 	if (numAvgWaveforms_ == 1) {
 		int index = 0;
 		for (size_t i = 0; i < traceSize; ++i) {
@@ -281,15 +255,12 @@ void scopeScanner::Plot(){
 		 */
 
 		if(performFit_){
-			paulauskasFunc->SetRange(lowVal, highVal);
-			paulauskasFunc->SetParameters(
-					chanEvents_.front()->GetTrace().GetBaselineInfo().first,
-					0.5 * chanEvents_.front()->GetTrace().GetQdc(),
-					lowVal, 0.5, 0.1);
-			paulauskasFunc->FixParameter(
-					0, chanEvents_.front()->GetTrace().GetBaselineInfo().first);
-			graph->Fit(paulauskasFunc,"QMER");
-		}
+			fittingFunction_->SetParameters(lowVal,
+                    0.5 * chanEvents_.front()->GetTrace().GetQdc(), 0.3, 0.1);
+			fittingFunction_->FixParameter(
+					4, chanEvents_.front()->GetTrace().GetBaselineInfo().first);
+            graph->Fit(fittingFunction_, "WRQ", "", lowVal, highVal);
+        }
 	}
 	else { //For multiple events with make a 2D histogram and plot the profile on top.
 		//Determine the maximum and minimum values of the events.
@@ -307,7 +278,10 @@ void scopeScanner::Plot(){
 		hist->Reset();
 		
 		//Rebin the histogram
-		hist->SetBins(x_vals.size(), x_vals.front(), x_vals.back() + ADC_TIME_STEP, histAxis[1][1] - histAxis[1][0], histAxis[1][0], histAxis[1][1]);
+		hist->SetBins(x_vals.size(), x_vals.front(),
+                      x_vals.back() + ADC_TIME_STEP,
+                      histAxis[1][1] - histAxis[1][0],
+                      histAxis[1][0], histAxis[1][1]);
 
 		//Fill the histogram
 		for (unsigned int i = 0; i < numAvgWaveforms_; i++) {
@@ -321,18 +295,15 @@ void scopeScanner::Plot(){
 		prof->SetLineColor(kRed);
 		prof->SetMarkerColor(kRed);
 
-		float lowVal = prof->GetBinCenter(prof->GetMaximumBin() - fitLow_);
-		float highVal = prof->GetBinCenter(prof->GetMaximumBin() + fitHigh_);
+		double lowVal = prof->GetBinCenter(prof->GetMaximumBin() - fitLow_);
+		double highVal = prof->GetBinCenter(prof->GetMaximumBin() + fitHigh_);
 		
 		if(performFit_){
-			paulauskasFunc->SetRange(lowVal, highVal);
-			paulauskasFunc->SetParameters(
-					chanEvents_.front()->GetTrace().GetBaselineInfo().first,
-					0.5 * chanEvents_.front()->GetTrace().GetQdc(),
-					lowVal, 0.5, 0.2);
-			paulauskasFunc->FixParameter(
-					0, chanEvents_.front()->GetTrace().GetBaselineInfo().first);
-			prof->Fit(paulauskasFunc,"QMER");
+            fittingFunction_->SetParameters(lowVal,
+                    0.5 * chanEvents_.front()->GetTrace().GetQdc(), 0.3, 0.1);
+            fittingFunction_->FixParameter(
+                    4, chanEvents_.front()->GetTrace().GetBaselineInfo().first);
+            hist->Fit(fittingFunction_, "WRQ", "", lowVal, highVal);
 		}
 
 		hist->SetStats(false);
@@ -378,7 +349,8 @@ bool scopeScanner::Initialize(string prefix_){
 	if(init){ return false; }
 
 	// Print a small welcome message.
-	cout << "  Displaying traces for mod = " << ((scopeUnpacker*)core)->GetMod() << ", chan = " << ((scopeUnpacker*)core)->GetChan() << ".\n";
+	cout << "  Displaying traces for mod = " << ((scopeUnpacker*)core)->GetMod()
+         << ", chan = " << ((scopeUnpacker*)core)->GetChan() << ".\n";
 
 	return (init = true);
 }
@@ -416,7 +388,8 @@ Unpacker *scopeScanner::GetCore(){
 bool scopeScanner::AddEvent(XiaData *event_){
 	if(!event_){ return false; }
 
-	//Get the first event int the FIFO.
+	//Get the firs
+    // t event int the FIFO.
 	ProcessedXiaData *channel_event = new ProcessedXiaData(*event_);
 
 	//Process the waveform.
@@ -425,10 +398,12 @@ bool scopeScanner::AddEvent(XiaData *event_){
 	channel_event->GetTrace().SetBaseline(CalculateBaseline
 												  (channel_event->GetTrace(),
 												   make_pair(0, 10)));
-	channel_event->GetTrace().SetMax(FindMaximum
+
+    channel_event->GetTrace().SetMax(FindMaximum
 											 (channel_event->GetTrace(),
 											 channel_event->GetTrace().size()));
-	channel_event->GetTrace().SetQdc(CalculateQdc
+
+    channel_event->GetTrace().SetQdc(CalculateQdc
 											 (channel_event->GetTrace(),
 											  make_pair(5,15)));
 
@@ -579,7 +554,7 @@ bool scopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_){
 		if (args_.size() >= 1 && args_.at(0) == "off") { // Turn root fitting off.
 			if(performFit_){
 				cout << msgHeader << "Disabling root fitting.\n"; 
-				delete graph->GetListOfFunctions()->FindObject(paulauskasFunc->GetName());
+				delete graph->GetListOfFunctions()->FindObject(fittingFunction_->GetName());
 				GetCanvas()->Update();
 				performFit_ = false;
 			}
