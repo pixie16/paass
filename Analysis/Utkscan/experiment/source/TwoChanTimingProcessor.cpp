@@ -38,9 +38,6 @@ TwoChanTimingProcessor::TwoChanTimingProcessor() :
         EventProcessor(OFFSET, RANGE, "TwoChanTimingProcessor") {
     associatedTypes.insert("pulser");
 
-    trcfile.open(
-            Globals::get()->AppendOutputPath(
-                    Globals::get()->GetOutputFileName() + "-trc.dat").c_str());
     rootfile =
             new TFile(Globals::get()->AppendOutputPath(
                     Globals::get()->GetOutputFileName() + ".root").c_str(),

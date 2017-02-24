@@ -5,12 +5,9 @@
 #ifndef _PIXIESUITE_ROOTFITTER_HPP_
 #define _PIXIESUITE_ROOTFITTER_HPP_
 
-#include <TF1.h>
-#include <TFitResult.h>
-#include <TGraphErrors.h>
-
 #include "TimingDriver.hpp"
 
+class TF1;
 class VandleTimingFunction;
 
 class RootFitter : public TimingDriver {
