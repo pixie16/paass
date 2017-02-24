@@ -122,6 +122,8 @@ scopeScanner::scopeScanner(int mod /*= 0*/, int chan/*=0*/) : RootScanner() {
 	time(&last_trace);
 	
 	graph = new TGraph();
+    hist = new TH2F("hist","",256,0,1,256,0,1);
+
 	cfdLine = new TLine();
 	cfdLine->SetLineColor(kRed);
 	cfdPol3 = new TF1("cfdPol3", "pol3");
@@ -129,9 +131,7 @@ scopeScanner::scopeScanner(int mod /*= 0*/, int chan/*=0*/) : RootScanner() {
 	cfdPol2 = new TF1("cfdPol2", "pol2");
 	cfdPol2->SetLineColor(kMagenta+1);
 
-	hist = new TH2F("hist","",256,0,1,256,0,1);
-
-	SetupFunc();
+    SetupFunc();
 
 	gStyle->SetPalette(51);
 	
@@ -150,6 +150,7 @@ scopeScanner::~scopeScanner(){
 	delete cfdPol2;
 	delete hist;
 	delete fittingFunction_;
+    delete vandleTimingFunction_;
 }
 
 TF1 *scopeScanner::SetupFunc() {
@@ -168,15 +169,20 @@ void scopeScanner::ResetGraph(unsigned int size) {
 	graph->SetMarkerStyle(kFullDotSmall);
 	
 	if(size != x_vals.size()){
-		cout << msgHeader << "Changing trace length from " << x_vals.size()*ADC_TIME_STEP << " to " << size*ADC_TIME_STEP << " ns.\n";
+		cout << msgHeader << "Changing trace length from "
+             << x_vals.size() << " to " << size
+             << " ns.\n";
 		x_vals.resize(size);
 		for(size_t index = 0; index < x_vals.size(); index++)
-			x_vals[index] = ADC_TIME_STEP * index;
+			x_vals[index] = index;
 	}
-	hist->SetBins(x_vals.size(), x_vals.front(), x_vals.back() + ADC_TIME_STEP, 1, 0, 1);
+
+	hist->SetBins(x_vals.size(), x_vals.front(), x_vals.back(),
+                  1, 0, 1);
 
 	stringstream stream;
-	stream << "M" << ((scopeUnpacker*)core)->GetMod() << "C" << ((scopeUnpacker*)core)->GetChan();
+	stream << "M" << ((scopeUnpacker*)core)->GetMod() << "C"
+           << ((scopeUnpacker*)core)->GetChan();
 	graph->SetTitle(stream.str().c_str());
 	hist->SetTitle(stream.str().c_str());
 
@@ -191,12 +197,9 @@ void scopeScanner::Plot(){
 
 	unsigned int traceSize = chanEvents_.front()->GetTrace().size();
 
-	if(traceSize != x_vals.size()){ // The length
-		// of the
-		// trace
-		// has changed.
+	if(traceSize != x_vals.size())
 		resetGraph_ = true;
-	}
+
 	if (resetGraph_) {
 		ResetGraph(traceSize);
 		ResetZoom();
@@ -208,19 +211,17 @@ void scopeScanner::Plot(){
 
 	if (numAvgWaveforms_ == 1) {
 		int index = 0;
-		for (size_t i = 0; i < traceSize; ++i) {
+		for (size_t i = 0; i < traceSize; ++i, index++)
 			graph->SetPoint(index, x_vals[i], chanEvents_.front()->GetTrace().at(i));
-			index++;
-		}
 
 		UpdateZoom();
 
 		graph->Draw("AP0");
 
 		float lowVal = (chanEvents_.front()->GetTrace().GetMaxInfo().first -
-				fitLow_) * ADC_TIME_STEP;
+				fitLow_);
 		float highVal = (chanEvents_.front()->GetTrace().GetMaxInfo().first +
-				fitHigh_) * ADC_TIME_STEP;
+				fitHigh_);
 
 		///@TODO Renable the CFD with the proper functionality.
 		/*
@@ -261,8 +262,8 @@ void scopeScanner::Plot(){
 					4, chanEvents_.front()->GetTrace().GetBaselineInfo().first);
             graph->Fit(fittingFunction_, "WRQ", "", lowVal, highVal);
         }
-	}
-	else { //For multiple events with make a 2D histogram and plot the profile on top.
+	} else {
+        //For multiple events with make a 2D histogram and plot the profile on top.
 		//Determine the maximum and minimum values of the events.
 		for (unsigned int i = 0; i < numAvgWaveforms_; i++) {
 			ProcessedXiaData* evt = chanEvents_.at(i);
@@ -279,7 +280,7 @@ void scopeScanner::Plot(){
 		
 		//Rebin the histogram
 		hist->SetBins(x_vals.size(), x_vals.front(),
-                      x_vals.back() + ADC_TIME_STEP,
+                      x_vals.back(),
                       histAxis[1][1] - histAxis[1][0],
                       histAxis[1][0], histAxis[1][1]);
 
