@@ -334,6 +334,17 @@ void ScanInterface::SyntaxStr(char *name_){
 	std::cout << " usage: " << name_ << " [options]\n";
 }
 
+void ScanInterface::SetOutputInformation(const std::string &a) {
+	unsigned long found = a.find_last_of("/");
+	if(found == std::string::npos) {
+		outputFilename_ = a;
+		outputPath_ = "./";
+	} else {
+		outputFilename_ = a.substr(found+1, a.size());
+		outputPath_ = a.substr(0, found+1);
+	}
+}
+
 /** Initialize the Unpacker object. 
   * Does nothing useful by default.
   * \param[in]  prefix_ String to append to the beginning of system output.
@@ -387,8 +398,9 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/){
 	scan_init = false;
 	file_open = false;
 
-    //Initialize the setup and output file names
-    output_filename = "";
+    //Initialize the setup and output file names and path
+    outputFilename_ = "";
+	outputPath_ = "";
     setup_filename = "";
 
 	kill_all = false;
@@ -921,7 +933,7 @@ bool ScanInterface::Setup(int argc, char *argv[]){
 					input_filename = optarg;
 					break;
 				case 'o' :
-					output_filename = optarg;
+					SetOutputInformation(optarg);
 					break;
 				case 'q' :
 					is_verbose = false;
@@ -1123,6 +1135,8 @@ bool ScanInterface::Close(){
   * \param[out] prefix	The input filename path without the file extension.
   * \return The file extension string.
   */
+///@TODO This method needs cleaned up signficantly. This should only take
+/// about 4 lines of code if using string::find_last_of()
 std::string get_extension(std::string filename_, std::string &prefix){
 	size_t count = 0;
 	size_t last_index = 0;

@@ -75,11 +75,15 @@ void UtkScanInterface::SyntaxStr(char *name_) {
  * \return True upon successfully initializing and false otherwise. */
 bool UtkScanInterface::Initialize(string prefix_) {
     if (init_)
-        return (false);
+        return false;
+
+    if(GetOutputFilename() == "")
+        throw invalid_argument("UtkScaninterface::Initialize : The output file "
+                                       "name was not provided.");
 
     try {
-        cout << "UtkScanInterface::Initialize : Initial error checking of "
-                "Configuration file" << endl;
+        cout << "UtkScanInterface::Initialize : Now attempting to load and "
+                "parse " << GetSetupFilename() << endl;
         XmlInterface::get(GetSetupFilename());
         Globals::get(GetSetupFilename());
         DetectorLibrary::get();
@@ -88,19 +92,17 @@ bool UtkScanInterface::Initialize(string prefix_) {
         throw;
     }
 
+    Globals::get()->SetOutputFilename(GetOutputFilename());
+    Globals::get()->SetOutputPath(GetOutputPath());
+
     //We remove this whole block in the event that we are using the SCANOR
     //This should be cleaned up!!
 #ifndef USE_HRIBF
     try {
-        if(GetOutputFilename() == "") {
-            throw invalid_argument("The output file name was not "
-                                                "provided.");
-        }
-
-        output_his = new OutputHisFile(GetOutputFilename().c_str());
+        output_his =
+                new OutputHisFile(
+                        (GetOutputPath()+GetOutputFilename()).c_str());
         output_his->SetDebugMode(false);
-
-        Globals::get()->SetOutputFilename(GetOutputFilename());
 
         /** The DetectorDriver constructor will load processors
          *  from the xml configuration file upon first call.
