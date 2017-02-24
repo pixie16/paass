@@ -143,6 +143,7 @@ void GlobalsXmlParser::ParseFittingNode(const pugi::xml_node &node,
                                        std::make_pair(
                                                parit->child("Beta").attribute("value").as_double(0.),
                                                parit->child("Gamma").attribute("value").as_double(0.))));
+        globals->SetFittingParameters(pars);
     } else
         throw invalid_argument(CriticalNodeMessage(node.child("Parameters").name()));
 
