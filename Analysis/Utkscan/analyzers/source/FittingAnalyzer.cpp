@@ -39,8 +39,8 @@ FittingAnalyzer::FittingAnalyzer(const std::string &s) {
 #endif
     else {
         stringstream ss;
-        ss << "FittingAnalyzer::Analyze - The driver type \"" << s << "\" was "
-                "unknown. Please choose a valid driver.";
+        ss << "FittingAnalyzer::FittingAnalyzer - The driver type \"" << s
+           << "\" was unknown. Please choose a valid driver.";
         throw GeneralException(ss.str());
     }
 }
