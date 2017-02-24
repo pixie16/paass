@@ -17,6 +17,7 @@ class TH2F;
 class TF1;
 class TLine;
 class TProfile;
+class VandleTimingFunction;
 
 ///////////////////////////////////////////////////////////////////////////////
 // class scopeUnpacker
@@ -220,7 +221,8 @@ class scopeScanner : public RootScanner {
 	TH2F *hist; ///<The histogram containing the waveform frequencies.
 	TProfile *prof; ///<The profile of the average histogram.
 
-	TF1 *paulauskasFunc; ///< A TF1 of the Paulauskas Function (NIM A 737 (2014) 22)
+	TF1 *fittingFunction_;
+	VandleTimingFunction *vandleTimingFunction_;
 
 	TF1 *SetupFunc();
 
