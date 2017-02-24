@@ -6,7 +6,8 @@ if(PAASS_USE_ROOT AND PAASS_BUILD_SCOPE)
 		add_executable(scope scope.cpp)
 	endif(PAASS_USE_HRIBF)
 
-	target_link_libraries(scope PaassScanStatic ${ROOT_LIBRARIES})
+	target_link_libraries(scope ResourceStatic PaassScanStatic
+			${ROOT_LIBRARIES})
    install(TARGETS scope DESTINATION bin)
 endif(PAASS_USE_ROOT AND PAASS_BUILD_SCOPE)
 

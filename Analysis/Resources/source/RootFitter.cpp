@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 #include <TF1.h>
+
 #include <TGraph.h>
 
 #include "RootFitter.hpp"
@@ -36,10 +37,10 @@ double RootFitter::CalculatePhase(const std::vector<double> &data,
 
     TGraph graph((int) data.size(), &(xvals[0]), &(data[0]));
 
-    func_->SetParameters(0, qdc_ * 0.5, pars.first, pars.second, 0);
-    func_->SetParLimits(2, 1, 1);
-    func_->SetParLimits(3, 1, 1);
-    func_->SetParLimits(4, 1, 1);
+    func_->SetParameters(0, qdc_ * 0.5);
+    func_->FixParameter(2, pars.first);
+    func_->FixParameter(3, pars.second);
+    func_->FixParameter(4, 0.0);
 
     graph.Fit(func_, "WRQ", "", 0, data.size());
 
