@@ -4,6 +4,9 @@
 /// @date December 18, 2016
 #include <stdexcept>
 
+#include <TF1.h>
+#include <TGraph.h>
+
 #include "RootFitter.hpp"
 #include "VandleTimingFunction.hpp"
 
@@ -31,14 +34,14 @@ double RootFitter::CalculatePhase(const std::vector<double> &data,
     for (unsigned int i = 0; i < data.size(); i++)
         xvals.push_back(double(i));
 
-    TGraphErrors graph((int) data.size(), &(xvals[0]), &(data[0]));
+    TGraph graph((int) data.size(), &(xvals[0]), &(data[0]));
 
     func_->SetParameters(0, qdc_ * 0.5, pars.first, pars.second, 0);
     func_->SetParLimits(2, 1, 1);
     func_->SetParLimits(3, 1, 1);
     func_->SetParLimits(4, 1, 1);
 
-    graph.Fit(func_, "NRQ", "", 0, data.size());
+    graph.Fit(func_, "WRQ", "", 0, data.size());
 
     return func_->GetParameter(0);
 }
