@@ -111,8 +111,11 @@ class ScanInterface{
 	/// \return The name of the configuration file
 	std::string GetSetupFilename(){ return(setup_filename); }
     
-	/// \return The name of the output file
-	std::string GetOutputFilename(){ return(output_filename); }
+	/// \return The name of the output file that doesn't include the path
+	std::string GetOutputFilename(){ return outputFilename_ ; }
+
+	/// @return The path for the output file
+	std::string GetOutputPath() { return outputPath_; }
     
 	/// Return a pointer to a fileInformation object used to store file header info.
 	fileInformation *GetFileInfo(){ return &finfo; }
@@ -279,7 +282,8 @@ class ScanInterface{
 	std::string workDir; /// Linux system current working directory.
 	std::string homeDir; /// Linux user home directory.
 	std::string setup_filename; //!< Configuration file to be opened
-	std::string output_filename; //!< Name of file to be used for output
+	std::string outputFilename_; //!< Name of file to be used for output
+	std::string outputPath_;
 
 	int max_spill_size; /// Maximum size of a spill to read.
 	int file_format; /// Input file format to use (0=.ldf, 1=.pld, 2=.root).
@@ -332,6 +336,10 @@ class ScanInterface{
 	
 	/// Open a new binary input file for reading.
 	bool open_input_file(const std::string &fname_);
+
+	///Sets output Filename and path that were passed using the -o flag.
+	///@param[in] a : The parameter that we are going to set
+	void SetOutputInformation(const std::string &a);
 };
 
 /// Get the file extension from an input filename string.
