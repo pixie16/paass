@@ -203,13 +203,7 @@ void GlobalsXmlParser::ParseGlobalNode(const pugi::xml_node &node, Globals *glob
     else
         globals->SetHasRawHistogramsDefined(true);
 
-    if (!node.child("OutputPath").empty())
-        globals->SetHasRawHistogramsDefined(
-                node.child("OutputPath").attribute("value").as_bool(true));
-    else
-        throw invalid_argument(CriticalNodeMessage("OutputPath"));
-
-    set<string> knownNodes = {"Revision", "EventWidth", "HasRaw", "OutputPath"};
+    set<string> knownNodes = {"Revision", "EventWidth", "HasRaw"};
     WarnOfUnknownChildren(node, knownNodes);
 }
 

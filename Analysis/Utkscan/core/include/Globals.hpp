@@ -39,6 +39,14 @@ public:
     ///The default destructor
     ~Globals();
 
+    ///Method that appends the output path to the provided string.
+    ///@param[in] a : The string that we want to append to the output path.
+    /// Most often this is going to be a filename of some sort.
+    ///@return The concatenation of the provided string and the Output Path
+    std::string AppendOutputPath(const std::string &a) {
+        return outputPath_ + a;
+    }
+
     ///@return the adc clock in seconds 
     double GetAdcClockInSeconds() const { return adcClockInSeconds_; }
 
