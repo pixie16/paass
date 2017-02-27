@@ -56,7 +56,7 @@ include(CMakeDependentOption)
 
 #Install options
 option(PAASS_BUILD_ACQ "Build and install Acquisition software" ON)
-option(PAASS_BUILD_SCOPE "Build and install the scope program." ON)
+option(PAASS_BUILD_SCAN_UTILITIES "Build and install the Analysis Utilities" ON)
 option(PAASS_BUILD_SETUP "Include the older setup programs in installation" OFF)
 option(PAASS_BUILD_SHARED_LIBS "Install only scan libraries" ON)
 option(PAASS_BUILD_SKELETON "Build and install the skeleton scan" OFF)
