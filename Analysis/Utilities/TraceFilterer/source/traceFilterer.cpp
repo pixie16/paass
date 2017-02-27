@@ -1,8 +1,8 @@
 #include <iostream>
 
 // PixieCore libraries
-#include "ScanMain.hpp"
-#include "PixieEvent.hpp"
+#include "ScanInterface.hpp"
+#include "XiaData.hpp"
 
 // Local files
 #include "filterer.hpp"
