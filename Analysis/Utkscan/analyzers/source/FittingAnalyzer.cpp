@@ -19,7 +19,10 @@
 
 #include "FittingAnalyzer.hpp"
 #include "GslFitter.hpp"
+
+#ifdef USE_ROOT
 #include "RootFitter.hpp"
+#endif
 
 using namespace std;
 
@@ -27,8 +30,10 @@ FittingAnalyzer::FittingAnalyzer(const std::string &s) {
     name = "FittingAnalyzer";
     if (s == "GSL" || s == "gsl")
         driver_ = new GslFitter();
+#ifdef USE_ROOT
     else if (s == "ROOT" || s == "root")
         driver_ = new RootFitter();
+#endif
     else
         driver_ = NULL;
 }
