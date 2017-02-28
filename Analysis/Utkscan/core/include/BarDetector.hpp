@@ -43,7 +43,8 @@ public:
             return(fabs(GetTimeDifference()) < lengthBigTime+20 &&
                    GetRightSide().GetIsValid() && GetLeftSide().GetIsValid());
         } else if (GetType() == "medium") {
-            double lengthMediumTime = Globals::get()->GetVandleBigLengthInNs();
+            double lengthMediumTime =
+                    Globals::get()->GetVandleMediumLengthInNs();
             return(fabs(GetTimeDifference()) < lengthMediumTime+20 &&
                    GetRightSide().GetIsValid() && GetLeftSide().GetIsValid());
         }
