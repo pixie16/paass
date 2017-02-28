@@ -460,6 +460,12 @@ namespace IeeeStandards {
 }
 
 namespace Conversions {
+    /// Function that will calculate seconds from a value that has time units
+    /// other than seconds
+    /// @param[in] value : The value that we want to covnert that has units
+    /// other than seconds
+    /// @param[in] units : The units that the value has
+    /// @return The value with units of seconds.
     inline double ConvertSecondsWithPrefix(const double &value,
                                            const std::string &units) {
         double val = value;
