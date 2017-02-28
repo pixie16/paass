@@ -4,6 +4,7 @@
 ///@author S. V. Paulauskas
 ///@date February 09, 2017
 #include <iostream>
+#include <stdexcept>
 
 #include "XmlParser.hpp"
 
