@@ -7,10 +7,9 @@
 #include <sstream>
 #include <cmath>
 
-#include "pugixml.hpp"
-
 #include "Exceptions.hpp"
 #include "TimingCalibrator.hpp"
+#include "XmlInterface.hpp"
 
 using namespace std;
 
@@ -32,23 +31,14 @@ TimingCalibrator* TimingCalibrator::get() {
 }
 
 void TimingCalibrator::ReadTimingCalXml() {
-    string cfg = Globals::get()->GetConfigFileName();
-    pugi::xml_document doc;
-    pugi::xml_parse_result result = doc.load_file(cfg.c_str());
-    if (!result) {
-        stringstream ss;
-        ss << "TimingCalibrator: error parsing file " << cfg;
-        ss << " : " << result.description();
-        throw GeneralException(ss.str());
-    }
-
     Messenger m;
     m.start("Loading Time Calibrations");
 
     pugi::xml_node timeCals =
-        doc.child("Configuration").child("TimeCalibration");
+            XmlInterface::get()->GetDocument()->
+                    child("Configuration").child("TimeCalibration");
 
-    isVerbose_ = timeCals.attribute("verbose_timing").as_bool();
+    isVerbose_ = timeCals.attribute("verbose").as_bool();
 
     for(pugi::xml_node_iterator detType = timeCals.begin();
         detType != timeCals.end(); ++detType) {

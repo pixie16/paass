@@ -26,8 +26,7 @@ TraceExtractor::TraceExtractor(const std::string& aType,
         subtype(aSubtype), tag(aTag) {
 }
 
-void TraceExtractor::DeclarePlots(void)
-{
+void TraceExtractor::DeclarePlots(void) {
     const int traceBins = dammIds::analyzers::traceBins;
     DeclareHistogram2D(DD_TRACE, traceBins, S7, "Trace Extractor");
 }
