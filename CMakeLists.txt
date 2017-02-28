@@ -146,19 +146,20 @@ if (PAASS_USE_ROOT)
 endif(PAASS_USE_ROOT)
 
 #------------------------------------------------------------------------------
-#Include and build the Resources that everybody should have access to.
+#Put all the include directories that we might need at this point. Ensure
+#that the Third party includes come before the Resources.
+include_directories(ThirdParty/include)
 include_directories(Resources/include)
+include_directories(Core/include)
+
+#Build the Third party software since it's useful for other programs
+add_subdirectory(ThirdParty)
+
+#Add the resources to compilation
 add_subdirectory(Resources)
 
 #Build the PaassCoreLibrary.
-include_directories(Core/include)
 add_subdirectory(Core)
-
-#Next we are going to build any of the ThirdParty software that we've included.
-include_directories(ThirdParty/include)
-#We'll go straight to the source directory since for now we don't need any
-#fancy logic in the base directory.
-add_subdirectory(ThirdParty)
 
 #Build Acquisition software, we don't have this broken into as fine of a
 #granularity as the Analysis software, so we just wrap the whole thing in an if.
