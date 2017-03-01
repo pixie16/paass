@@ -23,15 +23,6 @@ public:
     ///Default Destructor
     ~GslFitter() {}
 
-    /// @return the amplitude from the GSL fit
-    double GetAmplitude(void) { return amp_; }
-
-    /// @return the chi^2 from the GSL fit
-    double GetChiSq(void) { return chi_ * chi_; }
-
-    /// @return the chi^2dof from the GSL fit
-    double GetChiSqPerDof(void) { return GetChiSq() / dof_; }
-
     ///The ever important phase calculation
     /// @param[in] data The baseline subtracted data for the fitting
     /// @param[in] pars The parameters for the fit
@@ -41,10 +32,6 @@ public:
                           const std::pair<double, double> &pars,
                           const std::pair<unsigned int, double> &max,
                           const std::pair<double, double> baseline);
-
-    ///Sets the isFastSiPm_ flag
-    ///@param[in] a : The value that we are going to set
-    void SetIsFastSiPm(const bool &a) { isFastSiPm_ = a; }
 
     /// @brief Structure necessary for the GSL fitting routines
     struct FitData {
@@ -56,12 +43,8 @@ public:
         double qdc;//!< the QDC for the fit
     };
 private:
-    bool isFastSiPm_;
-
     double amp_;
     double chi_;
     double dof_;
 };
-
-
 #endif //PIXIESUITE_GSLFITTER_HPP
