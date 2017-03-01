@@ -15,13 +15,16 @@
  */
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 #include "FittingAnalyzer.hpp"
 #include "GslFitter.hpp"
 
 #ifdef USE_ROOT
+
 #include "RootFitter.hpp"
+
 #endif
 
 using namespace std;
@@ -34,8 +37,12 @@ FittingAnalyzer::FittingAnalyzer(const std::string &s) {
     else if (s == "ROOT" || s == "root")
         driver_ = new RootFitter();
 #endif
-    else
-        driver_ = NULL;
+    else {
+        stringstream ss;
+        ss << "FittingAnalyzer::Analyze - The driver type \"" << s << "\" was "
+                "unknown. Please choose a valid driver.";
+        throw GeneralException(ss.str());
+    }
 }
 
 FittingAnalyzer::~FittingAnalyzer() {
@@ -52,7 +59,8 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
                                        "was not provided. This is a fatal "
                                        "error.");
 
-    if (trace.IsSaturated() || trace.empty() || trace.GetWaveform().empty()) {
+    if (trace.IsSaturated() || trace.empty() || !trace.HasValidAnalysis()) {
+        trace.SetPhase(0.0);
         EndAnalyze();
         return;
     }
