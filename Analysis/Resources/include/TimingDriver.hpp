@@ -58,10 +58,25 @@ public:
         return 0.0;
     }
 
+    /// @return the amplitude from fits
+    virtual double GetAmplitude(void) { return 0.0; }
+
+    /// @return the chi^2 from the GSL fit
+    virtual double GetChiSq(void) { return 0.0; }
+
+    /// @return the chi^2dof from the GSL fit
+    virtual double GetChiSqPerDof(void) { return 0.0; }
+
+    ///Sets the isFastSiPm_ flag
+    ///@param[in] a : The value that we are going to set
+    void SetIsFastSiPm(const bool &a) { isFastSiPm_ = a; }
+
     /// Sets the QDC that we want to set
     /// \param[in] a the qdc of the waveform for the fit
     void SetQdc(const double &a) { qdc_ = a; }
 protected:
+    ///! True if we want to analyze signals from SiPM fast outputs
+    bool isFastSiPm_;
     std::vector<double> results_; //!< Vector containing results
     double qdc_;//!< qdc of the waveform being fitted
 };

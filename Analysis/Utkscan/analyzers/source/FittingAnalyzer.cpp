@@ -22,9 +22,7 @@
 #include "GslFitter.hpp"
 
 #ifdef USE_ROOT
-
 #include "RootFitter.hpp"
-
 #endif
 
 using namespace std;
@@ -53,11 +51,6 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
                               const std::string &detSubtype,
                               const std::map<std::string, int> &tagMap) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype, tagMap);
-
-    if (!driver_)
-        throw invalid_argument("FittingAnalyzer::Analyze : A fitting driver "
-                                       "was not provided. This is a fatal "
-                                       "error.");
 
     if (trace.IsSaturated() || trace.empty() || !trace.HasValidAnalysis()) {
         trace.SetPhase(0.0);
@@ -91,6 +84,8 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
         pars = globals->GetFitPars(detType + ":" + detSubtype + ":timing");
 
     driver_->SetQdc(trace.GetQdc());
+    if(isFastSiPm)
+        driver_->SetIsFastSiPm(isFastSiPm);
     double phase = driver_->CalculatePhase(trace.GetWaveform(), pars,
                                            trace.GetMaxInfo(),
                                            trace.GetBaselineInfo());
