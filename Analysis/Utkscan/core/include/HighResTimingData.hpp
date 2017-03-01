@@ -32,13 +32,11 @@ public:
                 pow((z0/tof)/Physical::speedOfLightInCmPerNs, 2)));
     }
 
-    /** \return True if maxval,tqdc and sigmaBaseline were not NAN */
+    ///@return True if the trace was successfully analyzed and we managed to
+    /// find a phase.
     bool GetIsValid() const {
-        if(!std::isnan(GetTrace().GetMaxInfo().second) &&
-           !std::isnan(GetTrace().GetQdc()) &&
-           !std::isnan(GetTrace().GetBaselineInfo().first) ) {
+        if(GetTrace().HasValidAnalysis() && GetTrace().GetPhase() != 0.0)
             return(true);
-        }
         return(false);
     }
 
