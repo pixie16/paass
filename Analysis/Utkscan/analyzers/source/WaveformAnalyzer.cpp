@@ -29,6 +29,7 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
     TraceAnalyzer::Analyze(trace, type, subtype, tags);
 
     if (trace.IsSaturated() || trace.empty()) {
+        trace.SetHasValidAnalysis(false);
         EndAnalyze();
         return;
     }
@@ -46,11 +47,13 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
     pair<unsigned int, double> max;
     try {
         max = TraceFunctions::FindMaximum(
-                trace,
-                globals->traceDelay() / (globals->adcClockInSeconds() * 1.e9));
+                trace, globals->GetTraceDelayInNs() /
+                        (globals->GetAdcClockInSeconds() * 1.e9));
     } catch(range_error &ex) {
-        cerr << "WaveformAnalyzer::Analyze - " << ex.what() << endl;
+        trace.SetHasValidAnalysis(false);
+        cout << "WaveformAnalyzer::Analyze - " << ex.what() << endl;
         EndAnalyze();
+        return;
     }
 
     //If the position of the maximum doesn't give us enough bins on the
@@ -58,16 +61,20 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
     // some of the variables to be used later to zero and end the analysis of
     // the waveform now.
     if(max.first - range.first < TraceFunctions::minimum_baseline_length) {
+#ifdef VERBOSE
+        cout << "WaveformAnalyzer::Analyze - The low bound for the trace "
+                "overlaps with the minimum bins for the baseline." << endl;
+#endif
         trace.SetHasValidAnalysis(false);
         EndAnalyze();
+        return;
     }
 
     try{
         //Next we calculate the baseline and its standard deviation
         pair<double, double> baseline =
-                TraceFunctions::CalculateBaseline(trace,
-                                                  make_pair(0, max.first -
-                                                               range.first));
+                TraceFunctions::CalculateBaseline(
+                        trace, make_pair(0, max.first - range.first));
 
         //Subtract the baseline from the maximum value.
         max.second -= baseline.first;
@@ -96,7 +103,8 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
         trace.SetHasValidAnalysis(true);
     } catch (range_error &ex) {
         trace.SetHasValidAnalysis(false);
-        cerr << "WaveformAnalyzer::Analyze - " << ex.what() << endl;
+        cout << "WaveformAnalyzer::Analyze - " << ex.what() << endl;
         EndAnalyze();
+        return;
     }
 }
