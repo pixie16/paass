@@ -51,11 +51,12 @@ double GslFitter::CalculatePhase(const std::vector<double> &data,
                            const std::pair<double, double> &pars,
                            const std::pair<unsigned int, double> &max,
                            const std::pair<double, double> baseline) {
+
     gsl_multifit_function_fdf f;
     int status;
     const size_t sizeFit = data.size();
     size_t numParams;
-    double xInit[3];
+    double xInit[2];
 
     double *y = new double[sizeFit];
     double *sigma = new double[sizeFit];
@@ -73,7 +74,7 @@ double GslFitter::CalculatePhase(const std::vector<double> &data,
     if(!isFastSiPm_) {
         numParams = 2;
         xInit[0] = 0.0;
-        xInit[1] = 2.5;
+        xInit[1] = 0.3;
         f.f = &PmtFunction;
         f.df = &CalcPmtJacobian;
         f.fdf = &PmtFunctionDerivative;
@@ -84,7 +85,6 @@ double GslFitter::CalculatePhase(const std::vector<double> &data,
         f.df = &CalcSiPmtJacobian;
         f.fdf = &SiPmtFunctionDerivative;
     }
-    dof_ = sizeFit - numParams;
 
     const gsl_multifit_fdfsolver_type *T = gsl_multifit_fdfsolver_lmsder;
     gsl_vector_view x = gsl_vector_view_array (xInit, numParams);
@@ -105,18 +105,14 @@ double GslFitter::CalculatePhase(const std::vector<double> &data,
             break;
     }
 
-    gsl_multifit_covar (s->J, 0.0, covar);
-    chi_ = gsl_blas_dnrm2(s->f);
-
-    if(!isFastSiPm_)
-        amp_ = gsl_vector_get(s->x,1);
-    else
-        amp_ = 0.0;
+    double phase = gsl_vector_get(s->x, 0);
 
     gsl_multifit_fdfsolver_free (s);
     gsl_matrix_free (covar);
+    delete y;
+    delete sigma;
 
-    return gsl_vector_get(s->x,0);
+    return phase;
 }
 
 int PmtFunction (const gsl_vector * x, void *FitData, gsl_vector * f) {
