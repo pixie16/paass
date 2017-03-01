@@ -89,9 +89,10 @@ public:
     ///@return True if this channel was generated on the module
     bool IsVirtualChannel() const { return isVirtualChannel_; }
 
-    ///@return The baseline as it was calculated on the module.
-    ///The calculation was done using a filter.
-    /// This requires that ESUMS parameter be enabled on the modules during acquisition.
+    ///@return The baseline as calculated on-board the Pixie-16 modules using
+    /// the energy filter. This parameter is only set if the data set
+    /// contains the Energy Sums in the list mode data. This baseline cannot
+    /// be used in conjunction with trace information.
     double GetBaseline() const { return baseline_; }
 
     ///@return The energy that was calculated on the module

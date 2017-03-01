@@ -42,13 +42,17 @@ public:
         return(false);
     }
 
-    /** \return The current value of aveBaseline_ .
-      This value is calculated during the fitting procedure as a straight sum, from the trace. */
+    /**This baseline value is calculated from the trace by averaging the
+     * points preceding the waveform
+        \return The current value of aveBaseline_ .*/
     double GetAveBaseline() const { return GetTrace().GetBaselineInfo().first; }
+
     /** \return The current value of discrimination_ */
     double GetDiscrimination() const { return GetTrace().GetTailRatio(); }
+
     /** \return The current value of maxpos_ */
     double GetMaximumPosition() const { return GetTrace().GetMaxInfo().first; }
+
     /** \return The current value of maxval_ */
     double GetMaximumValue() const { return GetTrace().GetMaxInfo().second; }
 
