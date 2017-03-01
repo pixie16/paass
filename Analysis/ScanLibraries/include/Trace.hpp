@@ -113,6 +113,9 @@ public:
                                          begin() + waveformRange_.second);
     }
 
+    ///@return True if we were able to successfully analyze the trace.
+    bool HasValidAnalysis() const { return hasValidAnalysis_; }
+
     ///@return True if the trace was saturated
     bool IsSaturated() { return isSaturated_; }
 
@@ -145,6 +148,11 @@ public:
         filteredEnergies_ = a;
     }
 
+    ///Sets the value of hasValidAnalysis_
+    ///@param[in] a : True if we were able to successfully analyze this trace
+    /// for information about the maximum, baseline, phase, etc.
+    void SetHasValidAnalysis(const bool &a) { hasValidAnalysis_ = a; }
+
     ///Sets the isSaturated_ private variable.
     ///@param[in] a : Sets to true if the trace was flagged as saturated by
     /// the electronics.
@@ -156,7 +164,7 @@ public:
     /// baseline subtracted value.
     void SetMax(const std::pair<unsigned int, double> &a) { max_ = a; }
 
-    ///Sets the sub-sampling phase of the trace.
+    ///Sets the sub-sampling phase of the trace in units of samples.
     ///@param[in] a : The value of the phase that we want to set. This
     /// comes from a fit or CFD analysis of the trace.
     void SetPhase(const double &a) { phase_ = a; }
@@ -201,6 +209,7 @@ public:
 
 private:
     bool isSaturated_; ///< True if the trace was flagged as saturated.
+    bool hasValidAnalysis_;///< True if the analysis of the trace was successful
 
     double phase_; ///< The sub-sampling phase of the trace.
     double qdc_; ///< The qdc that was calculated from the waveform.
