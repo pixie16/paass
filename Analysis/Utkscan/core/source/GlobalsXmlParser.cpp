@@ -220,7 +220,7 @@ vector<pair<unsigned int, unsigned int> > GlobalsXmlParser::ParseRejectNode(
         int end = time.attribute("end").as_int(0);
 
         std::stringstream ss;
-        if (start == 0 || end == 0 || start > end) {
+        if ( (start == 0 && end == 0) || start > end) {
             ss << "Globals: incomplete or wrong rejection region "
                << "declaration: " << start << ", " << end;
             throw invalid_argument(ss.str());
