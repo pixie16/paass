@@ -22,7 +22,6 @@ TEST_FIXTURE(GslFitter, TestGslFitter) {
     double phase = CalculatePhase(waveform, fitting_parameters,
                                   max_pair, baseline_pair);
 
-    CHECK_CLOSE(0.8565802, GetAmplitude(), 0.1);
     CHECK_CLOSE(-0.0826487, phase, 1.);
 }
 
