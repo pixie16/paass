@@ -60,9 +60,6 @@ void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
         PrintProcessingTimeInformation(systemStartTime, times(&systemTimes),
             GetEventStartTime(), eventCounter);
 
-    //set eventWidth from Globals (loaded from config file)
-    eventWidth = Globals::get()->GetEventLengthInTicks();
- 
     if (Globals::get()->HasRejectionRegion()) {
         double eventTime = (GetEventStartTime() - GetFirstTime()) *
                                 Globals::get()->GetClockInSeconds();
@@ -203,6 +200,9 @@ void UtkUnpacker::InitializeDriver(DetectorDriver *driver,
         std::cout << "\t" << w.what() << std::endl;
     }
 
+    //set eventWidth from Globals (loaded from config file)
+    SetEventWidth(Globals::get()->GetEventLengthInTicks());
+ 
     ss << "Init at " << times(&systemTimes) << " system time.";
     m.detail(ss.str());
     m.done();
