@@ -94,6 +94,8 @@ bool UtkScanInterface::Initialize(string prefix_) {
 
     Globals::get()->SetOutputFilename(GetOutputFilename());
     Globals::get()->SetOutputPath(GetOutputPath());
+    //set eventWidth from Globals (loaded from config file)
+    GetCore()->SetEventWidth(Globals::get()->GetEventLengthInTicks());
 
     //We remove this whole block in the event that we are using the SCANOR
     //This should be cleaned up!!
