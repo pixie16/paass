@@ -44,10 +44,10 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
 
     try {
         //First we calculate the position of the maximum.
+        TDdet_ = type + ":" + subtype;
         pair<unsigned int, double> max =
-                TraceFunctions::FindMaximum(trace, globals->GetTraceDelayInNs() /
-                                                   (globals->GetAdcClockInSeconds() *
-                                                    1.e9));
+                TraceFunctions::FindMaximum(trace, globals->GetTraceDelayInNs
+                        (TDdet_) / (globals->GetAdcClockInSeconds() * 1.e9));
 
         //Next we calculate the baseline and its standard deviation
         pair<double, double> baseline =

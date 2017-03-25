@@ -56,7 +56,7 @@ void Globals::InitializeMemberVariables() {
     sysClockFreqInHz_ = sysconf(_SC_CLK_TCK);
     hasRawHistogramsDefined_ = true;
     outputFilename_ = outputPath_ = revision_ = "";
-    eventLengthInTicks_ = traceDelay_ = discriminationStart_ = 0;
+    eventLengthInTicks_ = discriminationStart_ = 0;
     qdcCompression_ = 1.0;
     adcClockInSeconds_ = clockInSeconds_ = eventLengthInSeconds_ =
     filterClockInSeconds_ = sigmaBaselineThresh_ =

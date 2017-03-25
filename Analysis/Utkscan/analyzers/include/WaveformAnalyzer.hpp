@@ -33,6 +33,7 @@ public:
 
 private:
     Messenger *messenger_;//!< A pointer for the messenger class
+    std::string TDdet_; //!<string of type:subtype for the tracedelay function
 };
 
 #endif // __WAVEFORMANALYZER_HPP_
