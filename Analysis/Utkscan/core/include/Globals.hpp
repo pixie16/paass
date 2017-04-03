@@ -268,8 +268,8 @@ public:
 
     ///Sets the trace delay that will be used to find the waveform.
     ///@param[in] a : Sets the trace delay in units of ns.
-    void SetTraceDelay(const std::string &str , const unsigned int
-    &a) { traceDelay_=std::map<&str,&a>; }
+    void SetTraceDelay(const std::map<std::string , unsigned int > &a) {
+        traceDelay_ = a; }
 
     ///Sets the map containing all of the filter parameters that we are going
     /// to need.
