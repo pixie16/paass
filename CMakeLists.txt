@@ -94,12 +94,26 @@ find_package (XIA)
 #Find curses library used for pretty much everything at this point.
 if(PAASS_USE_NCURSES)
 	find_package(Curses REQUIRED)
-	list(APPEND CURSES_LIBRARIES -ltinfo)
 endif(PAASS_USE_NCURSES)
 
 if (CURSES_FOUND)
 	add_definitions("-D USE_NCURSES")
-	mark_as_advanced(FORCE CURSES_HAVE_CURSES_H CURSES_CURSES_H_PATH CURSES_FORM_LIBRARY)
+    CHECK_LIBRARY_EXISTS("${CURSES_NCURSES_LIBRARY}"
+            cbreak "" CURSES_NCURSES_HAS_CBREAK)
+    if(NOT CURSES_NCURSES_HAS_CBREAK)
+        find_library(CURSES_EXTRA_LIBRARY tinfo "${_cursesLibDir}")
+        find_library(CURSES_EXTRA_LIBRARY tinfo )
+        CHECK_LIBRARY_EXISTS("${CURSES_EXTRA_LIBRARY}"
+                cbreak "" CURSES_TINFO_HAS_CBREAK)
+    endif()
+    if (NOT CURSES_TINFO_HAS_CBREAK)
+        find_library(CURSES_EXTRA_LIBRARY cur_colr "${_cursesLibDir}")
+        find_library(CURSES_EXTRA_LIBRARY cur_colr )
+    endif()
+
+    mark_as_advanced(FORCE CURSES_HAVE_CURSES_H CURSES_CURSES_H_PATH
+            CURSES_FORM_LIBRARY CURSES_NCURSES_HAS_BREAK
+            CURSES_ITINFO_HAS_CBREAK)
 else()
 	message(STATUS "Curses unavailable, basic terminal will be used.")
 	set(PAASS_USE_NCURSES OFF)
