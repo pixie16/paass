@@ -90,7 +90,7 @@ const std::vector<std::string> Poll::runControlCommands_ ({"run", "stop",
 	
 const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread", 
 	"pmread", "pwrite", "pmwrite", "adjust_offsets", "find_tau", "toggle", 
-	"toggle_bit", "csr_test", "bit_test", "get_traces"});
+	"toggle_bit", "csr_test", "bit_test", "get_traces", "save"});
 	
 const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "thresh", 
 	"debug", "quiet", "quit", "help", "version"});
@@ -658,6 +658,7 @@ void Poll::help(){
 	std::cout << "   toggle_bit <mod> <chan> <param> <bit> - Toggle any bit of any parameter of 32 bits or less\n";
 	std::cout << "   csr_test <number>                     - Output the CSRA parameters for a given integer\n";
 	std::cout << "   bit_test <num_bits> <number>          - Display active bits in a given integer up to 32 bits long\n";
+	std::cout << "   save [setFilename]                    - Writes the DSP Parameters to disk\n;
 	std::cout << "   get_traces <mod> <chan> [threshold]   - Get traces for all channels in a specified module\n";
 	std::cout << "   status              - Display system status information\n";
 	std::cout << "   thresh [threshold]  - Modify or display the current polling threshold.\n";
@@ -666,6 +667,11 @@ void Poll::help(){
 	std::cout << "   quit                - Close the program\n";
 	std::cout << "   help (h)            - Display this dialogue\n";
 	std::cout << "   version (v)         - Display Poll2 version information\n";
+}
+
+void Poll::save_help() {
+	std::cout << "  Saves the DSP parameters to disk. Optionally, a file can be"
+		"provided, otherwise the file set file from pixie.cfg is used.\n";
 }
 
 /* Print help dialogue for reading/writing pixie channel parameters. */
@@ -1148,6 +1154,24 @@ void Poll::CommandControl(){
 					std::cout << sys_message_head << "Invalid number of parameters to pmwrite\n";
 					std::cout << sys_message_head << " -SYNTAX- pmwrite <module> <parameter> <value>\n";
 				}
+			}
+		}
+		else if (cmd == "save") {
+			if(acq_running || do_MCA_run){
+				std::cout << sys_message_head << "Warning! Cannot view pixie parameters while acquisition is running\n\n";
+				continue;
+			}
+			if(p_args > 0 && arguments.at(0) == "help"){ save_help(); }
+			if(p_args == 0) {
+				pif->SaveDSPParameters();
+			}
+			else if (p_args == 1) {
+				pif->SaveDSPParameters(arguments.at(0).c_str());
+			}
+			else {
+				std::cout << sys_message_head << "Invalid number of parameters to save\n";
+				std::cout << sys_message_head << " -SYNTAX- save [setFilename]\n";
+				continue;
 			}
 		}
 		else if(cmd == "pread" || cmd == "pmread"){ // Read pixie parameters

@@ -187,6 +187,9 @@ class Poll{
 	/// Print help dialogue for reading/writing pixie module parameters.
 	void pmod_help();
 
+	/// Print help dialogue for writing pixie DSP parameters.
+	void save_help();
+
 	/// Start a data recording run.
 	bool start_run(const bool &record_=true, const double &time_=-1.0);
 	
