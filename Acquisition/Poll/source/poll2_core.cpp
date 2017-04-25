@@ -8,11 +8,11 @@
   * CTerminal. Pixie16 data acquisition is handled by interfacing
   * with the PixieInterface library.
   *
-  * \author Cory R. Thornsberry
+  * \author Karl Smith, Robert Grzywacz, David Miller, and Cory R. Thornsberry
   * 
-  * \date Oct. 6th, 2015
+  * \date Apr. 25th, 2017
   * 
-  * \version 1.3.10
+  * \version 1.3.11
 */
 
 #include <algorithm>
@@ -1096,7 +1096,7 @@ void Poll::CommandControl(){
 					bool error = false;
 					for (int mod = modStart; mod <= modStop; mod++) {
 						for (int ch = chStart; ch <= chStop; ch++) {
-							if(forChannel(pif, mod, ch, writer, make_pair(arguments.at(2), value))){ 
+							if( ! forChannel(pif, mod, ch, writer, make_pair(arguments.at(2), value))){
 								error = true;
 							}
 						}
