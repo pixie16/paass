@@ -277,7 +277,8 @@ void VandleProcessor::AnalyzeBarStarts(void) {
                  barPlusStartLoc);
             plot(DD_CORTOFBARS, corTof*plotMult_+plotOffset_, barPlusStartLoc);
 
-            plot(DD_NONCORTOFVSQDC+histTypeOffset,ngTOF,bar.GetQdc()/qdcComp_);
+            plot(DD_NONCORTOFVSQDC+histTypeOffset,
+                 ngTOF*plotMult_+plotOffset_, bar.GetQdc()/qdcComp_);
             if(cal.GetTofOffset(startLoc) != 0) {
                 plot(DD_TQDCAVEVSTOF+histTypeOffset, tof*plotMult_+plotOffset_,
                      bar.GetQdc()/qdcComp_);
