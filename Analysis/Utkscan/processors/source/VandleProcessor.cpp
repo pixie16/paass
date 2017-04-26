@@ -75,6 +75,8 @@ VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList,
     }
     if(typeList.size() == 0)
         hasSmall_ = true;
+
+     qdcComp_=Globals::get()->GetQdcCompression();
 }
 
 void VandleProcessor::DeclarePlots(void) {
@@ -244,6 +246,8 @@ void VandleProcessor::AnalyzeBarStarts(void) {
         TimingDefs::TimingIdentifier barId = (*it).first;
         BarDetector bar = (*it).second;
 
+
+
         if(!bar.GetHasEvent())
             continue;
 
@@ -270,7 +274,7 @@ void VandleProcessor::AnalyzeBarStarts(void) {
 
             if(cal.GetTofOffset(startLoc) != 0) {
                 plot(DD_TQDCAVEVSTOF+histTypeOffset, tof*plotMult_+plotOffset_,
-                     bar.GetQdc());
+                     bar.GetQdc()/qdcComp_);
                 plot(DD_TQDCAVEVSCORTOF+histTypeOffset,
                      corTof*plotMult_+plotOffset_, bar.GetQdc());
             }
@@ -355,11 +359,11 @@ void VandleProcessor::FillVandleOnlyHists(void) {
         unsigned int OFFSET = ReturnOffset(barId.second);
 
         plot(DD_TQDCBARS + OFFSET,
-             bar.GetLeftSide().GetTraceQdc(), barId.first*2);
+             bar.GetLeftSide().GetTraceQdc()/qdcComp_, barId.first*2);
         plot(DD_MAXIMUMBARS + OFFSET,
              bar.GetLeftSide().GetMaximumValue(), barId.first*2);
         plot(DD_TQDCBARS + OFFSET,
-             bar.GetRightSide().GetTraceQdc(), barId.first*2+1);
+             bar.GetRightSide().GetTraceQdc()/qdcComp_, barId.first*2+1);
         plot(DD_MAXIMUMBARS + OFFSET,
              bar.GetRightSide().GetMaximumValue(), barId.first*2+1);
         plot(DD_TIMEDIFFBARS+OFFSET,

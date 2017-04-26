@@ -94,6 +94,7 @@ find_package (XIA)
 #Find curses library used for pretty much everything at this point.
 if(PAASS_USE_NCURSES)
 	find_package(Curses REQUIRED)
+	list(APPEND CURSES_LIBRARIES -ltinfo)
 endif(PAASS_USE_NCURSES)
 
 if (CURSES_FOUND)
