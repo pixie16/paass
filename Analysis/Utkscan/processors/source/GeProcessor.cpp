@@ -228,6 +228,12 @@ void GeProcessor::DeclarePlots(void) {
     DeclareHistogram1D(betaGated::D_ENERGY_MOVE, energyBins1,
                        "Beta gated gamma tape move period");
     DeclareHistogram1D(betaGated::D_ENERGY, energyBins1, "Beta gated gamma");
+    DeclareHistogram1D(D_NONCYCGATEDENERGY,energyBins1,"Non Cycle Gated Gamma"
+            " Singles");
+    DeclareHistogram1D(betaGated::D_NONCYCGATEDENERGY,energyBins1,"Beta Gated"
+            " Non Cycle Gated Gamma Singles");
+        
+
     DeclareHistogram1D(betaGated::D_ENERGY_PROMPT, energyBins1,
                       "Beta gated gamma prompt");
     DeclareHistogram1D(betaGated::D_ENERGY_BETA0, energyBins1,
@@ -478,7 +484,23 @@ bool GeProcessor::Process(RawEvent &event) {
         return false;
     
     double clockInSeconds = Globals::get()->GetClockInSeconds();
-    
+
+    /** TO be safe im adding these 2 here */
+
+
+    for (vector<ChanEvent*>::iterator it1 = geEvents_.begin();
+         it1 != geEvents_.end(); ++it1) {
+        ChanEvent *chan = *it1;
+
+        double gEnergy = chan->GetCalibratedEnergy();
+        if (gEnergy < gammaThreshold_)
+            continue;
+        plot(betaGated::D_NONCYCGATEDENERGY, gEnergy);
+        plot(D_NONCYCGATEDENERGY, gEnergy);
+    }
+
+
+
     /** Cycle time is measured from the begining of the last BeamON event */
     double cycleTime = 0 ;
     try{
