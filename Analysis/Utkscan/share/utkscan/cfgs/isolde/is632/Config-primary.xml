@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>T. T. King</Name>
+        <Email>tking36 AT vols.utk DOT edu</Email>
+        <Date>April 17, 2017</Date>
+    </Author>
+
+    <Description>
+      First Config.xml for IS632. based on 2016's file
+    </Description>
+
+    <Global>
+        <Revision version="F"/>
+        <EventWidth unit="s" value="2e-6"/>
+        <HasRaw value="true"/>
+    </Global>
+
+    <DetectorDriver>
+        <Analyzer name="WaveformAnalyzer"/>
+        <Analyzer name="FittingAnalyzer" type="gsl"/>
+
+        <Processor name="GeProcessor"
+                   gamma_threshold="10.0"
+                   low_ratio="1.5"
+                   high_ratio="3.0"
+                   sub_event="1e-6"
+                   gamma_beta_limit="1e-6"
+                   gamma_gamma_limit="2e-6"
+                   cycle_gate1_min="1.0"
+                   cycle_gate1_max="1.5"
+                   cycle_gate2_min="1.5"
+                   cycle_gate2_max="2.0" />
+        <Processor name="LogicProcessor"
+                   double_stop="True"
+                   double_start="True"/>
+        <Processor name="DoubleBetaProcessor"/>
+        <Processor name="VandleProcessor"
+                   types="medium" res="2" offset="2000" NumStarts="1"/>
+ 
+    </DetectorDriver>
+
+    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+      
+      <Module number="0">
+	<Channel number="0" type="beta" subtype="double" tags="start,left"></Channel>
+	<Channel number="1" type="beta" subtype="double" tags="start,right"></Channel>
+	<Channel number="4" type="beta" subtype="double" tags="left"></Channel>
+	<Channel number="5" type="beta" subtype="double" tags="right"></Channel>
+
+	<Channel number="9" type="logic" subtype="t1"></Channel>
+	<Channel number="10" type="logic" subtype="mtc_start" ></Channel>
+	<Channel number="11" type="logic" subtype="mtc_stop" ></Channel>
+	<Channel number="12" type="logic" subtype="beam_start" ></Channel>
+	<Channel number="13" type="logic" subtype="beam_stop"></Channel>
+	<Channel number="14" type="logic" subtype="supercycle"></Channel>
+
+	<Channel number="15" type="pulser" subtype="pulser"></Channel>
+      </Module>
+
+      <Module number="1">
+	<Channel number="0" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="1" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="2" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="3" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="4" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="5" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="6" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="7" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="8" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="9" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="10" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="11" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="12" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="13" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="14" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="15" type="vandle" subtype="medium" tags="right"></Channel>
+      </Module>
+      
+      <Module number="2">
+	<Channel number="0" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="1" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="2" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="3" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="4" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="5" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="6" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="7" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="8" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="9" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="10" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="11" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="12" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="13" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="14" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="15" type="vandle" subtype="medium" tags="right"></Channel>
+      </Module>
+
+      <Module number="3">
+	<Channel number="0" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="1" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="2" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="3" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="4" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="5" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="6" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="7" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="8" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="9" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="10" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="11" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="12" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="13" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="14" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="15" type="vandle" subtype="medium" tags="right"></Channel>
+      </Module>
+
+
+      <Module number="4">
+	<Channel number="0" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="1" type="vandle" subtype="medium" tags="right"></Channel>
+	<Channel number="2" type="vandle" subtype="medium" tags="left"></Channel>
+	<Channel number="3" type="vandle" subtype="medium" tags="right"></Channel>
+      </Module>
+      
+      <Module number="5">
+	<Channel number="0" type="ge" subtype="clover_high" >
+	  <Calibration model="linear" min="0">
+            0 1
+          </Calibration>
+	</Channel>
+	<Channel number="1" type="ge" subtype="clover_high" >
+	  <Calibration model="linear" min="0">
+            0 1
+          </Calibration>
+	</Channel>
+	<Channel number="2" type="ge" subtype="clover_high" >
+ 	  <Calibration model="linear" min="0">
+            0 1
+          </Calibration> 
+	</Channel>
+	<Channel number="3" type="ge" subtype="clover_high" >
+ 	  <Calibration model="linear" min="0">
+            0 1
+          </Calibration> 
+	</Channel>
+	<Channel number="4" type="ge" subtype="clover_high" >
+ 	  <Calibration model="linear" min="0">
+            0 1
+          </Calibration> 
+	</Channel>
+	<Channel number="5" type="ge" subtype="clover_high" >
+ 	  <Calibration model="linear" min="0">
+            0 1
+          </Calibration> 	
+	</Channel>
+	<Channel number="6" type="ge" subtype="clover_high" >
+ 	  <Calibration model="linear" min="0">
+            0 1
+          </Calibration> 
+	</Channel>
+	<Channel number="7" type="ge" subtype="clover_high" >
+	  <Calibration model="linear" min="0">
+            0 1
+          </Calibration> 
+	</Channel>
+	<Channel number="8" type="ge" subtype="clover_high" >
+	  <Calibration model="linear" min="0">
+            0 1
+          </Calibration> 
+	</Channel>
+	<Channel number="9" type="ge" subtype="clover_high" >
+	  <Calibration model="linear" min="0">
+            0 1 
+          </Calibration> 
+	</Channel>
+	<Channel number="10" type="ge" subtype="clover_high" >
+ 	  <Calibration model="linear" min="0">
+            0 1 
+          </Calibration> 
+	</Channel>
+	<Channel number="11" type="ge" subtype="clover_high" >
+ 	  <Calibration model="linear" min="0">
+            0 1
+          </Calibration> 
+	</Channel>
+	<Channel number="12" type="ge" subtype="clover_high" >
+ 	  <Calibration model="linear" min="0">
+            0 1
+          </Calibration> 
+	</Channel>
+	<Channel number="13" type="ge" subtype="clover_high" >
+ 	  <Calibration model="linear" min="0">
+	    0 1
+          </Calibration> 
+	</Channel>
+	<Channel number="14" type="ge" subtype="clover_high" >
+ 	  <Calibration model="linear" min="0">
+            0 1
+          </Calibration> 
+	</Channel>
+	<Channel number="15" type="ge" subtype="clover_high" >
+ 	  <Calibration model="linear" min="0">
+            0 1
+          </Calibration> 
+	</Channel>
+      </Module>
+      
+      
+<!--    
+    <Module number="5">
+      <Channel number="4" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="5" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="6" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="7" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="8" type="ge" subtype="clover_low"></Channel>
+      <Channel number="9" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="10" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="11" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="12" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="13" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="14" type="ge" subtype="clover_low" ></Channel>
+      <Channel number="15" type="ge" subtype="clover_low" ></Channel>
+    </Module>
+-->
+  </Map>
+
+  
+    <TreeCorrelator name="root" verbose="False">
+
+ <Place type="PlaceAND" name="DoubleBeta1" fifo="2">
+            <Place type="PlaceThreshold" name="beta_double_2,3"
+                   low_limit="50.0" high_limit="16382" fifo="5"
+                   replace="true"/>
+        </Place>
+
+        <Place type="PlaceOR" name="Beta" fifo="10">
+            <Place type="PlaceThreshold" name="beta_double_2,3"
+                   low_limit="50.0" high_limit="16382" fifo="5"
+                   replace="true"/>
+        </Place>
+
+    <Place type="PlaceDetector" name="Beam" reset="false" />
+    <Place type="PlaceDetector" name="TapeMove" reset="false" />
+    <Place type="PlaceDetector" name="Vandle" reset="false" />
+    <Place type="PlaceDetector" name="Cycle" reset="false" />
+    <Place type="PlaceDetector" name="Supercycle" reset="false" />
+
+    </TreeCorrelator>
+
+    <TimeCalibration verbose_timing="False">
+    </TimeCalibration>
+
+    <Vandle>
+        <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+        <SpeedOfLightMedium unit="cm/ns" value="13.4414"/>
+        <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+    </Vandle>
+
+    <Trace>
+        <WaveformRange>
+            <Range name="vandle:medium">
+                <Low unit="sample" value="5"/>
+                <High unit="sample" value="10"/>
+            </Range>
+            <Range name="beta:double">
+                <Low unit="sample" value="5"/>
+                <High unit="sample" value="10"/>
+            </Range>
+        </WaveformRange>
+        <TraceDelay unit="ns" value="264"/>
+        <QdcCompression value="4.0"/>
+    </Trace>
+
+    <Fitting>
+        <SigmaBaselineThresh value="3.0"/>
+        <SiPmSigmaBaselineThresh value="10.0"/>
+        <Parameters>
+            <Pars name="vandle:medium">
+                <Beta value="0.254373"/>
+                <Gamma value="0.208072"/>
+            </Pars>
+            <Pars name="double:beta">
+                <Beta value="0.491724"/>
+                <Gamma value="0.335260"/>
+            </Pars>
+        </Parameters>
+    </Fitting>
+
+    <Notebook file="notes.txt" mode="r"/>
+</Configuration>
