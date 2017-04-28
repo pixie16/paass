@@ -56,6 +56,7 @@ bool GeProcessor::GoodGammaBeta(double gb_dtime) {
     return true;
 }
 
+
 void GeProcessor::symplot(int dammID, double bin1, double bin2) {
     plot(dammID, bin1, bin2);
     plot(dammID, bin2, bin1);
@@ -485,19 +486,6 @@ bool GeProcessor::Process(RawEvent &event) {
     
     double clockInSeconds = Globals::get()->GetClockInSeconds();
 
-    /** TO be safe im adding these 2 here */
-
-
-    for (vector<ChanEvent*>::iterator it1 = geEvents_.begin();
-         it1 != geEvents_.end(); ++it1) {
-        ChanEvent *chan = *it1;
-
-        double gEnergy = chan->GetCalibratedEnergy();
-        if (gEnergy < gammaThreshold_)
-            continue;
-        plot(betaGated::D_NONCYCGATEDENERGY, gEnergy);
-        plot(D_NONCYCGATEDENERGY, gEnergy);
-    }
 
 
 
@@ -522,13 +510,32 @@ bool GeProcessor::Process(RawEvent &event) {
     }
     bool hasBeta = false;
     try{
-        hasBeta = TreeCorrelator::get()->place("Beta")->status();
+        hasBeta = TreeCorrelator::get()->place("DoubleBeta1")->status();
     }catch (exception &ex) {
         cout << Display::ErrorStr("GeProcessor::Process - Exception caught "
                                           "while trying to get Beta status.\n");
         throw;
     }
-    
+
+    /** TO be safe im adding these 2 here */
+
+
+    for (vector<ChanEvent*>::iterator it1 = geEvents_.begin();
+         it1 != geEvents_.end(); ++it1) {
+        ChanEvent *chan = *it1;
+
+        double gEnergy = chan->GetCalibratedEnergy();
+        if (gEnergy < gammaThreshold_)
+            continue;
+        if (hasBeta) {
+        plot(betaGated::D_NONCYCGATEDENERGY, gEnergy);
+        }
+        plot(D_NONCYCGATEDENERGY, gEnergy);
+    }
+
+
+
+
     /** Place Cycle is activated by BeamOn event and deactivated by TapeMove
      *  This condition will therefore skip events registered during
      *  tape movement period and before the end of move and the beam start
