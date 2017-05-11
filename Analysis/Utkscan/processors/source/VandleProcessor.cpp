@@ -40,6 +40,7 @@ namespace dammIds {
         const int DD_GAMMAENERGYVSTOF  = 10;//!< Gamma Energy vs. ToF
         const int DD_TQDCAVEVSTOF_VETO = 11;//!< QDC vs. ToF - Vetoed
         const int DD_TOFBARS_VETO      = 12;//!< ToF - Vetoed
+        const int DD_NONCORTOFVSQDC    = 13;//!< Non time calibrated qdc vs tof
 
         const int D_DEBUGGING    = 0+DEBUGGING_OFFSET;//!< Debugging countable problems
         const int DD_DEBUGGING   = 1+DEBUGGING_OFFSET;//!< 2D Hist to count problems
@@ -107,6 +108,7 @@ void VandleProcessor::DeclarePlots(void) {
 //        "<E> VANDLE vs. CorTOF VANDLE - Gamma Veto");
 //        DeclareHistogram2D(DD_TOFBARS_VETO, SC, S9,
 //        "Bar vs CorTOF - Gamma Veto");
+        DeclareHistogram2D(DD_NONCORTOFVSQDC,SC,SD,"Non Time-Caled <E> vs. TOF(0.5ns/bin)");
     }
     if(hasBig_) {
         DeclareHistogram2D(DD_TQDCBARS+BIG_OFFSET, SD, S6,
@@ -135,6 +137,7 @@ void VandleProcessor::DeclarePlots(void) {
 	//        "<E> VANDLE vs. CorTOF VANDLE - Gamma Veto");
 	//        DeclareHistogram2D(DD_TOFBARS_VETO+BIG_OFFSET, SC, S9,
 	//        "Bar vs CorTOF - Gamma Veto");
+        DeclareHistogram2D(DD_NONCORTOFVSQDC+BIG_OFFSET,SC,SD,"Non Time-Caled <E> vs. TOF(0.5ns/bin)");
     }
     if(hasMed_) {
         DeclareHistogram2D(DD_TQDCBARS+MED_OFFSET, SD, S6,
@@ -163,6 +166,7 @@ void VandleProcessor::DeclarePlots(void) {
 //        "<E> VANDLE vs. CorTOF VANDLE - Gamma Veto");
 //        DeclareHistogram2D(DD_TOFBARS_VETO+MED_OFFSET, SC, S9,
 //        "Bar vs CorTOF - Gamma Veto");
+        DeclareHistogram2D(DD_NONCORTOFVSQDC+MED_OFFSET,SC,SD,"Non Time-Caled <E> vs. TOF(0.5ns/bin)");
     }
 
     DeclareHistogram1D(D_DEBUGGING, S5, "1D Debugging");
@@ -263,6 +267,8 @@ void VandleProcessor::AnalyzeBarStarts(void) {
             double tof = bar.GetCorTimeAve() -
                 start.GetCorTimeAve() + cal.GetTofOffset(startLoc);
 
+            double ngTOF = bar.GetTimeAverage() - start.GetTimeAverage();
+
             double corTof =
                 CorrectTOF(tof, bar.GetFlightPath(), cal.GetZ0());
 
@@ -270,6 +276,8 @@ void VandleProcessor::AnalyzeBarStarts(void) {
                  barPlusStartLoc);
             plot(DD_CORTOFBARS, corTof*plotMult_+plotOffset_, barPlusStartLoc);
 
+            plot(DD_NONCORTOFVSQDC+histTypeOffset,
+                 ngTOF*plotMult_+plotOffset_, bar.GetQdc()/qdcComp_);
             if(cal.GetTofOffset(startLoc) != 0) {
                 plot(DD_TQDCAVEVSTOF+histTypeOffset, tof*plotMult_+plotOffset_,
                      bar.GetQdc()/qdcComp_);
