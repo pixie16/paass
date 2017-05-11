@@ -75,6 +75,7 @@ VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList,
     }
     if(typeList.size() == 0)
         hasSmall_ = true;
+     qdcComp_=Globals::get()->GetQdcCompression();
 }
 
 void VandleProcessor::DeclarePlots(void) {
@@ -270,9 +271,9 @@ void VandleProcessor::AnalyzeBarStarts(void) {
 
             if(cal.GetTofOffset(startLoc) != 0) {
                 plot(DD_TQDCAVEVSTOF+histTypeOffset, tof*plotMult_+plotOffset_,
-                     bar.GetQdc());
+                     bar.GetQdc()/qdcComp_);
                 plot(DD_TQDCAVEVSCORTOF+histTypeOffset,
-                     corTof*plotMult_+plotOffset_, bar.GetQdc());
+                     corTof*plotMult_+plotOffset_, bar.GetQdc()/qdcComp_);
             }
 
             if (geSummary_) {
@@ -284,7 +285,8 @@ void VandleProcessor::AnalyzeBarStarts(void) {
                         plot(DD_GAMMAENERGYVSTOF+histTypeOffset, calEnergy, tof);
                     }
                 } else {
-                    plot(DD_TQDCAVEVSTOF_VETO+histTypeOffset, tof, bar.GetQdc());
+                    plot(DD_TQDCAVEVSTOF_VETO+histTypeOffset, tof,
+                         bar.GetQdc()/qdcComp_);
                     plot(DD_TOFBARS_VETO+histTypeOffset, tof, barPlusStartLoc);
                 }
             }
@@ -320,11 +322,12 @@ void VandleProcessor::AnalyzeStarts(void) {
                 CorrectTOF(tof, bar.GetFlightPath(), cal.GetZ0());
 
             plot(DD_TOFBARS+histTypeOffset, tof*plotMult_+plotOffset_, barPlusStartLoc);
-            plot(DD_TQDCAVEVSTOF+histTypeOffset, tof*plotMult_+plotOffset_, bar.GetQdc());
+            plot(DD_TQDCAVEVSTOF+histTypeOffset, tof*plotMult_+plotOffset_,
+                 bar.GetQdc()/qdcComp_);
 
             plot(DD_CORTOFBARS, corTof*plotMult_+plotOffset_, barPlusStartLoc);
             plot(DD_TQDCAVEVSCORTOF+histTypeOffset, corTof*plotMult_+plotOffset_,
-                 bar.GetQdc());
+                 bar.GetQdc()/qdcComp_);
 
             if (geSummary_) {
                 if (geSummary_->GetMult() > 0) {
@@ -335,7 +338,8 @@ void VandleProcessor::AnalyzeStarts(void) {
                         plot(DD_GAMMAENERGYVSTOF+histTypeOffset, calEnergy, tof);
                     }
                 } else {
-                    plot(DD_TQDCAVEVSTOF_VETO+histTypeOffset, tof, bar.GetQdc());
+                    plot(DD_TQDCAVEVSTOF_VETO+histTypeOffset, tof,
+                         bar.GetQdc()/qdcComp_);
                     plot(DD_TOFBARS_VETO+histTypeOffset, tof, barPlusStartLoc);
                 }
             }
@@ -355,11 +359,11 @@ void VandleProcessor::FillVandleOnlyHists(void) {
         unsigned int OFFSET = ReturnOffset(barId.second);
 
         plot(DD_TQDCBARS + OFFSET,
-             bar.GetLeftSide().GetTraceQdc(), barId.first*2);
+             bar.GetLeftSide().GetTraceQdc()/qdcComp_, barId.first*2);
         plot(DD_MAXIMUMBARS + OFFSET,
              bar.GetLeftSide().GetMaximumValue(), barId.first*2);
         plot(DD_TQDCBARS + OFFSET,
-             bar.GetRightSide().GetTraceQdc(), barId.first*2+1);
+             bar.GetRightSide().GetTraceQdc()/qdcComp_, barId.first*2+1);
         plot(DD_MAXIMUMBARS + OFFSET,
              bar.GetRightSide().GetMaximumValue(), barId.first*2+1);
         plot(DD_TIMEDIFFBARS+OFFSET,
