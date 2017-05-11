@@ -81,6 +81,7 @@ protected:
 
     double plotMult_;//!< The resolution multiplier for DAMM histograms
     double plotOffset_;//!< The offset multiplier for DAMM histograms
+    double qdcComp_; //!<QDC compression value as read from the config file
 
     bool hasSmall_; //!< True if small bars were requested in the Config
     bool hasBig_; //!< True if big bars were requested in the Config
