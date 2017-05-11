@@ -1,5 +1,5 @@
-Pixie Acquisition and Analysis Software Suite (PAASS)
-======================================
+# Pixie Acquisition and Analysis Software Suite (PAASS)
+
 This project combines the PixieSuite(2) and pixie_scan projects developed
 at the [University of Tennessee at Knoxville](https://utk.edu) by the
 [Experimental Nuclear Structure Group](http://www.phys.utk.edu/expnuclear/),
@@ -8,41 +8,41 @@ the Physics Division.
 
 The DAQ component of this software suite is taken from the
 [PixieSuite2 project](https://github.com/pixie16/PixieSuite2) that was started
-by K. Smith and C. Thornsberry. The orignal software comes from the
+by K. Smith and C. Thornsberry. The original software comes from the
 [PixieSuite](https://github.com/pixie16/PixieSuite) project developed primarily
-by D. Miller. These two projects will soon be superceded by this one.
+by D. Miller. These two projects will soon be superseded by this one.
 
 The analysis component of the software comes from the
 [pixie_scan project](https://github.com/pixie16/pixie_scan). This software is
 the result of more than a decade of work by many people . There have been
 numerous changes to the base analysis software to improve execution
-effciency. 
+efficiency. 
 
 This marks a major milestone in both DAQ and analysis due to the
 independence from the HIRBF data acquisition and analysis libraries. These
-libaries are still supported by the DAQ but not by the scan software.
+libraries are still supported by the DAQ but not by the scan software.
 
 
-#Data Acquisition
-#Introduction 
+# Data Acquisition
+## Introduction 
 In addition to fixing various polling issues, this project provides a much
 cleaner UI, and its own data format (pld). This version of the software may still
 be used with the HRIBF data acquisition software via LDF output (default) or
 through a PACMAN interface (recommended).
 
-##Dependencies
-###Required
+## Dependencies
+### Required
 * ncurses
 * PLX 
 * XIA
 * gcc v4.4.6+
 * cmake v2.8.8+
 
-###Optional (must have one)
+### Optional (must have one)
 * CERN ROOT - MCA outputs into ROOT format (.root)
 * HRIBF - MCA and histogramming done with HRIBF output (.his)
 
-##Installation (assuming admin rights)
+## Installation (assuming admin rights)
 1. (admin) Install PLX software: `/opt/plx/<VERSION>/`
 2. (admin) Create the PLX link: `ln -s /opt/plx/<VERSION>/PlxSdk /opt/plx/current`
 3. (admin) Install XIA firmware files: `/opt/xia/firmware/`
@@ -54,9 +54,9 @@ through a PACMAN interface (recommended).
 9. If all goes well, "`make clean && make && sudo make install && sudo make config`".
    Default install directory is `PixieSuite2/exec`
 
-*You should ensure that the PLX version and XIA firmware versions are compatable!*
+*You should ensure that the PLX version and XIA firmware versions are compatible!*
 
-###Options for CMAKE Compilation
+### Options for CMAKE Compilation
 * -DCMAKE\_INSTALL\_PREFIX (default PixieSuite2/exec)
 * -DUSE\_ROOT (default ON)
 * -DUSE\_DAMM (default ON)
@@ -65,8 +65,8 @@ through a PACMAN interface (recommended).
 * -DUSE\_SCAN (default ON)
 * -DUSE\_POLL (default ON)
 
-##Tested Systems
-The softare has been compiled and tested on the following setups: 
+## Tested Systems
+The software has been compiled and tested on the following setups: 
 
 Platform | Kernel | Cmake | GCC
 -------- | ------ |:-----:| ---
@@ -74,9 +74,10 @@ CentOS 6.2 | 2.6.32-220.el6.i686         | ???????? | 4.4.6 20120305
 CentOS 6.3 | 2.6.32-279.19.1.el6.x86\_64 | 2.8.12.2 | 4.4.6
 CentOS 6.5 | 2.6.32-431.17.1.el6.x86\_64 | ???????? | 4.4.7 20120313
 RHEL 6.6   | 2.6.32-504.23.4.el6.x86\_64 | 2.8.12.2 | 4.4.7
+Bash on Ubuntu on Windows | 4.4.0-43-Microsoft | 3.5.1 | 5.4.0 20160609
 
-#Data Analysis
-##Introduction 
+# Data Analysis
+## Introduction 
 This software analyzes data from the Pixie-16 data acquisition system produced
 by XIA, LLC. The recognized data format is currently .ldf, which are produced
 by the HRIBF/ORNL data acquisition libraries. The code is capable of processing
@@ -88,12 +89,12 @@ This code is the work of many people, their names are (hopefully) documented in
 the codes they wrote, and in the documentation files. If your name is missing
 or you have a contribution, please contact the code maintainers.
 
-#Licensing
+# Licensing
 This code is licensed under the GNU GPL v. 3.0. If you have received a copy of
 this code without this license you should download it and familiarize yourself
 with its contents.
 
-#Copyright
+# Copyright
 Copyright (c) 2009 - 2016, University of Tennessee Board of Trustees
 All rights reserved.
 
