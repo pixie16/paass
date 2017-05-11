@@ -283,10 +283,14 @@ void GlobalsXmlParser::ParseTraceNode(const pugi::xml_node &node, Globals *globa
     else
         globals->SetQdcCompression(1.0);
 
-    sstream_ << "QDC Compression : " << globals->GetQdcCompression();
-    messenger_.detail(sstream_.str());
-    sstream_.str("");
-
+    if( globals->GetQdcCompression() == 0.0 )
+        throw invalid_argument(CriticalAttributeMessage("QDC compression can "
+                                                                "NOT be zero"));
+    else {
+        sstream_ << "QDC Compression : " << globals->GetQdcCompression();
+        messenger_.detail(sstream_.str());
+        sstream_.str("");
+    }
     if (!node.child("WaveformRange").empty()) {
         std::map<std::string, std::pair<unsigned int, unsigned int> > waveRngs;
         for (pugi::xml_node_iterator waveit = node.child("WaveformRange").begin();

@@ -28,6 +28,11 @@ protected:
     ///@return The message that we want the throw to contain.
     std::string CriticalNodeMessage(const std::string &name);
 
+    ///Constructs a custom critical error string for the throws
+    ///@param[in] message : The error we want to throw
+    ///@return The message that we want the throw to contain.
+    std::string CriticalAttributeMessage(const std::string &message);
+
     ///Warn that we have an unknown parameter in the node.
     ///@param [in] node : an iterator pointing to the location of the unknown
     ///@param [in] knownChildren: A list of the nodes that are known.
