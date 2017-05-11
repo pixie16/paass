@@ -46,3 +46,9 @@ string XmlParser::CriticalNodeMessage(const std::string &name) {
                    " \"" + name +
            "\" node. This node is critical to operation.";
 }
+
+///We simply return an error message that will be used to give the user
+/// information about what went wrong.
+string XmlParser::CriticalAttributeMessage(const std::string &message) {
+    return "XmlParser::ParseGlobal - \"" + message;
+}
