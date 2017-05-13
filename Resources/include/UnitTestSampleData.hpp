@@ -34,7 +34,7 @@ namespace unittest_decoded_data {
     static const std::vector<unsigned int> energy_sums = {12, 13, 14};
 
     static const std::vector<unsigned int> qdc = {123, 456, 789, 987, 654,
-                                                      321, 135, 791};
+                                                  321, 135, 791};
 
     //Need to figure out where to put these as they are Firmware / Frequency
     // specific values. They are for R30747, 250 MS/s.

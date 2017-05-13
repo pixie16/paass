@@ -22,7 +22,7 @@ void XmlParser::ParseNode(const pugi::xml_node &node) {
         cout << "Found child named " << it->name() << " with attributes : ";
         for (pugi::xml_attribute_iterator ait = it->attributes_begin();
              ait != it->attributes_end(); ++ait) {
-            cout << " " <<  ait->name() << " = " << ait->value();
+            cout << " " << ait->name() << " = " << ait->value();
         }
         cout << endl;
     }

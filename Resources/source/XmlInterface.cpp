@@ -24,7 +24,7 @@ XmlInterface::XmlInterface(const std::string &file) {
     }
 
     std::cout << "XmlInterface - Successfully loaded \"" << file
-         << "\" into memory." << std::endl;
+              << "\" into memory." << std::endl;
 }
 
 /** Instance is created upon first call */

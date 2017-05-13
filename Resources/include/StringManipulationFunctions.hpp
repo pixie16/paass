@@ -4,6 +4,7 @@
 ///@date February 09, 2017
 #ifndef PAASS_STRINGMANIPULATIONFUNCTIONS_HPP
 #define PAASS_STRINGMANIPULATIONFUNCTIONS_HPP
+
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
@@ -36,14 +37,14 @@ namespace StringManipulation {
     ///@param [in] str : The string to break up
     ///@param [in] delimiter : character to break up on
     ///@return The vector of tokens
-    inline std::vector <std::string> TokenizeString(
+    inline std::vector<std::string> TokenizeString(
             const std::string &str, const std::string &delimiter) {
-        std::vector <std::string> tokenized;
+        std::vector<std::string> tokenized;
         size_t current, next = -1;
         do {
             current = next + 1;
             next = str.find_first_of(delimiter, current);
-            tokenized.push_back(str.substr( current, next - current ));
+            tokenized.push_back(str.substr(current, next - current));
         } while (next != std::string::npos);
         return tokenized;
     }

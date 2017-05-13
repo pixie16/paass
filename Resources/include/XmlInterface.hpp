@@ -5,6 +5,7 @@
 ///@date February 09, 2017
 #ifndef PIXIESUITE_XMLINTERFACE_HPP
 #define PIXIESUITE_XMLINTERFACE_HPP
+
 #include <string>
 
 #include "pugixml.hpp"
@@ -22,10 +23,11 @@ public:
     static XmlInterface *get(const std::string &file);
 
     ///@return A constant pointer to the document that was opened up
-    const pugi::xml_document* GetDocument() const { return &xmlDocument_; }
+    const pugi::xml_document *GetDocument() const { return &xmlDocument_; }
 
     ///Default destructor that deletes the instance when its called.
     ~XmlInterface();
+
 private:
     ///Constructor taking a file name as the argument
     ///@param[in] file : The file name that we want to open.
