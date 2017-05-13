@@ -1,8 +1,7 @@
-/** \file GeProcessor.hpp
- * \brief Processor for germanium detectors
- */
-#ifndef __GEPROCESSOR_HPP_
-#define __GEPROCESSOR_HPP_
+///@file CloverProcessor.hpp
+///@brief Processor for Clovers
+#ifndef __CloverProcessor_HPP_
+#define __CloverProcessor_HPP_
 
 #include <map>
 #include <vector>
@@ -14,7 +13,7 @@
 
 namespace dammIds {
     //! Namespace containing histogram definitions for the GE
-    namespace ge {
+    namespace clover {
         /**
         * Naming conventions:
         * Beta offset = 10
@@ -173,7 +172,7 @@ public:
 };
 
 //! Processor to handle Ge (read as clover) events
-class GeProcessor : public EventProcessor {
+class CloverProcessor : public EventProcessor {
 public:
     /** Constructor taking a boat load of arguements
      * \param [in] gammaThreshold : set the threshold on gamma rays to analyze
@@ -186,7 +185,7 @@ public:
      * \param [in] cycle_gate1_max : the maximum range for the first cycle gate
      * \param [in] cycle_gate2_min : the minimum range for the second cycle gate
      * \param [in] cycle_gate2_max : the maximum range for the second cycle gate */
-    GeProcessor(double gammaThreshold, double lowRatio,
+    CloverProcessor(double gammaThreshold, double lowRatio,
                 double highRatio, double subEventWindow,
                 double gammaBetaLimit, double gammaGammaLimit,
                 double cycle_gate1_min, double cycle_gate1_max,
@@ -299,4 +298,4 @@ protected:
     double cycle_gate2_max_;//!< high value for second cycle gate
 };
 
-#endif // __GEPROCESSOR_HPP_
+#endif // __CloverProcessor_HPP_

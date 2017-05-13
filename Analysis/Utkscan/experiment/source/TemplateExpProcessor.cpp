@@ -10,7 +10,7 @@
 
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
-#include "GeProcessor.hpp"
+#include "CloverProcessor.hpp"
 #include "RawEvent.hpp"
 #include "TemplateProcessor.hpp"
 #include "TemplateExpProcessor.hpp"
@@ -123,12 +123,12 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
                 GetProcessor("TemplateProcessor"))->GetTemplateEvents();
 
     ///Obtain the list of Ge events and addback events that were created
-    ///in GeProcessor::PreProecess
+    ///in CloverProcessor::PreProecess
     if (event.GetSummary("ge")->GetList().size() != 0) {
-        geEvts = ((GeProcessor *) DetectorDriver::get()->
-                GetProcessor("GeProcessor"))->GetGeEvents();
-        geAddback = ((GeProcessor *) DetectorDriver::get()->
-                GetProcessor("GeProcessor"))->GetAddbackEvents();
+        geEvts = ((CloverProcessor *) DetectorDriver::get()->
+                GetProcessor("CloverProcessor"))->GetGeEvents();
+        geAddback = ((CloverProcessor *) DetectorDriver::get()->
+                GetProcessor("CloverProcessor"))->GetAddbackEvents();
     }
 
     ///Plot the size of the template events vector in two ways

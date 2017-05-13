@@ -1,9 +1,5 @@
-/** \file GeCalibProcessor.cpp
- *
- * implementation for germanium processor for calibration and diagnostic
- */
-
-//? Make a clover specific processor
+///@file CloverCalibProcessor.cpp
+///implementation for germanium processor for calibration and diagnostic
 
 #include <algorithm>
 #include <fstream>
@@ -20,17 +16,13 @@
 #include "PlotsRegister.hpp"
 #include "DammPlotIds.hpp"
 
-#include "DetectorLibrary.hpp"
-#include "GeProcessor.hpp"
-#include "GeCalibProcessor.hpp"
-#include "RawEvent.hpp"
+#include "CloverCalibProcessor.hpp"
 #include "Messenger.hpp"
 #include "Exceptions.hpp"
 
-using namespace std;
 
 namespace dammIds {
-    namespace ge {
+    namespace clover {
         namespace calib {
             const int D_E_SUM = 400; //!< summed energy for all crystals
             const int D_E_CRYSTALX = 401;//!< energy for crystal X
@@ -54,21 +46,22 @@ namespace dammIds {
     }
 }
 
-GeCalibProcessor::GeCalibProcessor(double gammaThreshold, double lowRatio,
+using namespace dammIds::clover;
+using namespace std;
+
+CloverCalibProcessor::CloverCalibProcessor(double gammaThreshold, double lowRatio,
                                    double highRatio) :
-        GeProcessor(gammaThreshold, lowRatio, highRatio,
+        CloverProcessor(gammaThreshold, lowRatio, highRatio,
                     100e-9, 200e-9,
                     200e-9, 0, 0, 0, 0) {
 }
 
 /** Declare plots including many for decay/implant/neutron gated analysis  */
-void GeCalibProcessor::DeclarePlots(void) {
+void CloverCalibProcessor::DeclarePlots(void) {
     const int energyBins = SE;
     const int energyBins2 = SC;
     const int energyBins3 = S9;
     const int timeBins = S7;
-
-    using namespace dammIds::ge;
 
     DetectorLibrary *modChan = DetectorLibrary::get();
 
@@ -112,12 +105,12 @@ void GeCalibProcessor::DeclarePlots(void) {
         }
         m.detail(ss.str());
 
-        if (numClovers > dammIds::ge::MAX_CLOVERS) {
+        if (numClovers > dammIds::clover::MAX_CLOVERS) {
             m.fail();
             stringstream ss;
             ss << "Number of detected clovers is greater than defined"
-               << " MAX_CLOVERS = " << dammIds::ge::MAX_CLOVERS << "."
-               << " See GeCalibProcessor.hpp for details.";
+               << " MAX_CLOVERS = " << dammIds::clover::MAX_CLOVERS << "."
+               << " See CloverCalibProcessor.hpp for details.";
             throw GeneralException(ss.str());
         }
         m.done();
@@ -175,11 +168,11 @@ void GeCalibProcessor::DeclarePlots(void) {
                        "Gamma singles, low gain");
     DeclareHistogram2D(calib::DD_CLOVER_ENERGY_RATIO, S4, S6,
                        "high/low energy ratio (x10)");
-    DeclareHistogram1D(dammIds::ge::D_MULT, S3,
+    DeclareHistogram1D(dammIds::clover::D_MULT, S3,
                        "Gamma multiplicity");
 }
 
-bool GeCalibProcessor::PreProcess(RawEvent &event) {
+bool CloverCalibProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
 
@@ -233,7 +226,7 @@ bool GeCalibProcessor::PreProcess(RawEvent &event) {
 }
 
 
-bool GeCalibProcessor::Process(RawEvent &event) {
+bool CloverCalibProcessor::Process(RawEvent &event) {
     using namespace dammIds::ge;
 
     if (!EventProcessor::Process(event))
