@@ -167,7 +167,7 @@ if (PAASS_BUILD_ACQ)
     add_subdirectory(Acquisition)
 else ()
     #Ensure that we can still build set2* even when BUILD_ACQ is off
-    add_subdirectory(Acquisition/PxiDump)
+    add_subdirectory(Acquisition/set2root)
 endif (PAASS_BUILD_ACQ)
 
 #Build any of the analysis related things that we need to build.
