@@ -58,7 +58,7 @@ public:
     ///Parses the Reject node from the xml configuration file.
     ///@param[in] node : The node that we are going to parse
     ///@return The vector containing all of the rejection regions
-    std::vector <std::pair<unsigned int, unsigned int>> ParseRejectNode(
+    std::vector<std::pair<unsigned int, unsigned int>> ParseRejectNode(
             const pugi::xml_node &node);
 
     ///Parses the Configuration node from the xml configuration file.
@@ -84,7 +84,7 @@ public:
     ///@param [in] node : an iterator pointing to the location of the unknown
     ///@param [in] knownChildren: A list of the nodes that are known.
     void WarnOfUnknownChildren(const pugi::xml_node &node,
-                               const std::set <std::string> &knownChildren);
+                               const std::set<std::string> &knownChildren);
 
 private:
     //An instance of the messenger class so that we can output pretty info

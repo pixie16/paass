@@ -53,7 +53,7 @@ bool EventProcessor::HasEvent(void) const {
 }
 
 bool EventProcessor::Init(RawEvent &rawev) {
-    vector <string> intersect;
+    vector<string> intersect;
     const set <string> &usedDets = DetectorLibrary::get()->GetUsedDetectors();
 
     set_intersection(associatedTypes.begin(), associatedTypes.end(),

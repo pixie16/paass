@@ -56,7 +56,7 @@ VandleProcessor::VandleProcessor() :
     associatedTypes.insert("vandle");
 }
 
-VandleProcessor::VandleProcessor(const std::vector <std::string> &typeList,
+VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList,
                                  const double &res, const double &offset,
                                  const unsigned int &numStarts) :
         EventProcessor(OFFSET, RANGE, "VandleProcessor") {

@@ -257,7 +257,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event) {
         return false;
     }
     if (firstTime) {
-        vector < EventProcessor * > vecProc = driver->GetProcessors("logic");
+        vector<EventProcessor *> vecProc = driver->GetProcessors("logic");
         for (vector<EventProcessor *>::iterator it = vecProc.begin();
              it != vecProc.end(); it++) {
             if ((*it)->GetName() == "triggerlogic" ||
@@ -314,7 +314,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event) {
     double digitalTof = NAN;
     if (mcpSummary) {
         info.mcpMult = mcpSummary->GetMult();
-        vector < ChanEvent * > mcpEvents = mcpSummary->GetList();
+        vector<ChanEvent *> mcpEvents = mcpSummary->GetList();
 
         double dtMin = DBL_MAX;
 

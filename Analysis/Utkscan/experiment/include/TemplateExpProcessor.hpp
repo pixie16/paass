@@ -11,10 +11,12 @@
 #include "EventProcessor.hpp"
 
 #ifdef useroot
+
 #include <TFile.h>
 #include <TTree.h>
 #include <TH2D.h>
 #include <TH1D.h>
+
 #endif
 
 /// Working template class for experiment processors
@@ -52,8 +54,10 @@ private:
     double gCutoff_; //!< Variable used to set gamma cutoff energy
 
 #ifdef useroot
+
     /** Method to setup the ROOT output, tree and histograms */
     void SetupRootOutput(void);
+
     TFile *prootfile_; //! pointer to root file
     TTree *proottree_; //! pointer to root tree
     TH2D *ptvsge_;    //! pointer to ROOT 2D histogram

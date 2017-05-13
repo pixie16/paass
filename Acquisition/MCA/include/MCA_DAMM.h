@@ -6,14 +6,18 @@
 class HisDrr;
 
 class MCA_DAMM : public MCA {
-	private:
-		HisDrr *_histogram;
-	public:
-		MCA_DAMM(PixieInterface *pif, const char* basename);
-		~MCA_DAMM();
-		bool OpenFile(const char* basename);
-		bool StoreData(int mod, int ch);
-		void Flush() {};
+private:
+    HisDrr *_histogram;
+public:
+    MCA_DAMM(PixieInterface *pif, const char *basename);
+
+    ~MCA_DAMM();
+
+    bool OpenFile(const char *basename);
+
+    bool StoreData(int mod, int ch);
+
+    void Flush() {};
 };
 
 #endif

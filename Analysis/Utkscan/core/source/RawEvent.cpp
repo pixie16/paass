@@ -8,7 +8,7 @@
 
 using namespace std;
 
-void RawEvent::Init(const std::set <std::string> &usedTypes) {
+void RawEvent::Init(const std::set<std::string> &usedTypes) {
     /*! initialize the map of used detectors. This will associate the name of a
        detector type (such as dssd_front, ge ...) with a detector summary.
        See ProcessEvent() for a description of the
@@ -24,7 +24,7 @@ void RawEvent::Init(const std::set <std::string> &usedTypes) {
     }
 }
 
-void RawEvent::Zero(const std::set <std::string> &usedev) {
+void RawEvent::Zero(const std::set<std::string> &usedev) {
     for (map<string, DetectorSummary>::iterator it = sumMap.begin();
          it != sumMap.end(); it++) {
         (*it).second.Zero();

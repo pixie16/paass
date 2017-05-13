@@ -222,7 +222,7 @@ bool LitePositionProcessor::Process(RawEvent &event) {
     static const vector<ChanEvent *> &bottomEvents =
             event.GetSummary("ssd:bottom", true)->GetList();
 
-    vector < ChanEvent * > allEvents;
+    vector<ChanEvent *> allEvents;
     // just add in the digisum events for now
     allEvents.insert(allEvents.begin(), digisumEvents.begin(),
                      digisumEvents.end());

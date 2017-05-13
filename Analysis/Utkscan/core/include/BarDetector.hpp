@@ -134,5 +134,5 @@ private:
 };
 
 /** Defines a map to hold Bar Detectors */
-typedef std::map <TimingDefs::TimingIdentifier, BarDetector> BarMap;
+typedef std::map<TimingDefs::TimingIdentifier, BarDetector> BarMap;
 #endif // __BARDETECTOR_HPP__

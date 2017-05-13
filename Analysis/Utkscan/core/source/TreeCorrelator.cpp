@@ -56,13 +56,13 @@ void TreeCorrelator::addChild(std::string parent, std::string child,
     }
 }
 
-void TreeCorrelator::createPlace(std::map <std::string, std::string> &params,
+void TreeCorrelator::createPlace(std::map<std::string, std::string> &params,
                                  bool verbose) {
     bool replace = false;
     if (params["replace"] != "")
         replace = StringToBool(params["replace"]);
 
-    vector <string> names = split_names(params["name"]);
+    vector<string> names = split_names(params["name"]);
     for (vector<string>::iterator it = names.begin(); it != names.end(); ++it) {
 
         if (params["type"] != "") {
@@ -116,9 +116,9 @@ void TreeCorrelator::buildTree() {
     m.done();
 }
 
-vector <string> TreeCorrelator::split_names(std::string name) {
-    vector <string> names;
-    vector <string> name_tokens = TokenizeString(name, "_");
+vector<string> TreeCorrelator::split_names(std::string name) {
+    vector<string> names;
+    vector<string> name_tokens = TokenizeString(name, "_");
 
     if (name_tokens.size() > 1) {
         string base_name;
@@ -129,12 +129,12 @@ vector <string> TreeCorrelator::split_names(std::string name) {
 
         if (name_tokens.back().find("-") != string::npos ||
             name_tokens.back().find(",") != string::npos) {
-            vector <string> comma_token =
+            vector<string> comma_token =
                     TokenizeString(name_tokens.back(), ",");
             for (vector<string>::iterator itc = comma_token.begin();
                  itc != comma_token.end();
                  ++itc) {
-                vector <string> range_tokens = TokenizeString((*itc), "-");
+                vector<string> range_tokens = TokenizeString((*itc), "-");
                 int range_min = stoi(range_tokens[0]);
                 int range_max = range_min;
                 if (range_tokens.size() > 1)

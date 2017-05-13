@@ -28,7 +28,7 @@ std::string GetArgument(const int &i) {
 ///\brief Returns an argv style array that can be used to pass to getopt and
 /// other similar functions.
 char **GetArguments(void) {
-    static std::vector <std::string> args;
+    static std::vector<std::string> args;
     for (int i = 0; i < GetNumberArguments(); i++)
         args.push_back(GetArgument(i));
 

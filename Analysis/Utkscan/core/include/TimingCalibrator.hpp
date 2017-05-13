@@ -104,7 +104,7 @@ private:
     void ReadTimingCalXml(); //!< Reads in the calibrations in the XML config
 
     Messenger m_; //!< Instance of the Messenger class to output information
-    std::map <TimingDefs::TimingIdentifier, TimingCalibration> calibrations_; //!< map to hold the calibrations
+    std::map<TimingDefs::TimingIdentifier, TimingCalibration> calibrations_; //!< map to hold the calibrations
     TimingCalibration default_; //!< A default (all zeroes) calibration to return if none present
     bool isVerbose_; //!< The setting of the verbosity of the Timing Calibrations
 };

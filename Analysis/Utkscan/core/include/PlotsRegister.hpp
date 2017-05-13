@@ -40,7 +40,7 @@ private:
     PlotsRegister &operator=(PlotsRegister const &);//!< the copy constructor
     static PlotsRegister *instance;//!< static instance of the class
 
-    std::vector <std::pair<int, int>> reg; //!< Vector of min, max of histogram numbers
+    std::vector<std::pair<int, int>> reg; //!< Vector of min, max of histogram numbers
 };
 
 #endif // __PLOTSREGISTER_HPP_

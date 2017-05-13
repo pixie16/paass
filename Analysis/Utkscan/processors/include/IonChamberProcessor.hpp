@@ -42,12 +42,15 @@ public:
     virtual void DeclarePlots(void);
 
 #ifdef useroot
+
     /** Add the branch to the tree
     * \param [in] tree : the tree to add the branch to
     * \return true if you could do it */
     bool AddBranch(TTree *tree);
+
     /** Fill the branch */
     void FillBranch(void);
+
 #endif
 };
 

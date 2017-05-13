@@ -31,7 +31,7 @@ public:
     /** Create place, alter or add existing place to the tree.
     * \param [in] params : the map of the parameters
     * \param [in] verbose : verbosity */
-    void createPlace(std::map <std::string, std::string> &params,
+    void createPlace(std::map<std::string, std::string> &params,
                      bool verbose);
 
     /** Add child to place parent with coincidence coin.
@@ -73,7 +73,7 @@ private:
     * returned as a only element of the vector
     * \param [in] name : the name string to split
     * \return a vector of the split names */
-    std::vector <std::string> split_names(std::string name);
+    std::vector<std::string> split_names(std::string name);
 };
 
 #endif

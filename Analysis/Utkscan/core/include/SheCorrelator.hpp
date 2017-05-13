@@ -110,7 +110,7 @@ public:
 private:
     int size_x_; //!< size in the x direction
     int size_y_; //!< size in the y direction 
-    std::deque <SheEvent> **pixels_; //!< deque of the pixels hit
+    std::deque<SheEvent> **pixels_; //!< deque of the pixels hit
     /** flushes the chain */
     bool flush_chain(int x, int y);
 };

@@ -65,7 +65,7 @@ TemplateExpProcessor::~TemplateExpProcessor() {
 #ifdef useroot
     prootfile_->Write();
     prootfile_->Close();
-    delete(prootfile_);
+    delete (prootfile_);
 #endif
 }
 
@@ -84,18 +84,20 @@ void TemplateExpProcessor::SetupAsciiOutput(void) {
 }
 
 #ifdef useroot
+
 ///Sets up ROOT output file, tree, branches, histograms.
 void TemplateExpProcessor::SetupRootOutput(void) {
     stringstream rootname;
     rootname << Globals::get()->GetOutputPath()
-         << Globals::get()->GetOutputFileName() << ".root";
-    prootfile_ = new TFile(rootname.str().c_str(),"RECREATE");
-    proottree_ = new TTree("data","");
-    proottree_->Branch("tof",&tof_,"tof/D");
-    proottree_->Branch("ten",&tEnergy,"ten/D");
-    ptvsge_ = new TH2D("tvsge","",1000,-100,900,16000,0,16000);
-    ptsize_ = new TH1D("tsize","",40,0,40);
+             << Globals::get()->GetOutputFileName() << ".root";
+    prootfile_ = new TFile(rootname.str().c_str(), "RECREATE");
+    proottree_ = new TTree("data", "");
+    proottree_->Branch("tof", &tof_, "tof/D");
+    proottree_->Branch("ten", &tEnergy, "ten/D");
+    ptvsge_ = new TH2D("tvsge", "", 1000, -100, 900, 16000, 0, 16000);
+    ptsize_ = new TH1D("tsize", "", 40, 0, 40);
 }
+
 #endif
 
 ///We do nothing here since we're completely dependent on the resutls of others

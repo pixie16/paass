@@ -74,14 +74,14 @@ IS600Processor::IS600Processor() : EventProcessor(OFFSET, RANGE,
 #ifdef useroot
     stringstream rootname;
     rootname << Globals::get()->GetOutputPath()
-         << Globals::get()->GetOutputFileName() << ".root";
+             << Globals::get()->GetOutputFileName() << ".root";
     cout << rootname.str() << endl;
-    rootfile_ = new TFile(rootname.str().c_str(),"RECREATE");
-    roottree_ = new TTree("vandle","");
-    roottree_->Branch("tof",&tof_,"tof/D");
-    roottree_->Branch("qdc",&qdc_,"qdc/D");
-    qdctof_ = new TH2D("qdctof","",1000,-100,900,16000,0,16000);
-    vsize_ = new TH1D("vsize","",40,0,40);
+    rootfile_ = new TFile(rootname.str().c_str(), "RECREATE");
+    roottree_ = new TTree("vandle", "");
+    roottree_->Branch("tof", &tof_, "tof/D");
+    roottree_->Branch("qdc", &qdc_, "qdc/D");
+    qdctof_ = new TH2D("qdctof", "", 1000, -100, 900, 16000, 0, 16000);
+    vsize_ = new TH1D("vsize", "", 40, 0, 40);
 #endif
 }
 
@@ -91,7 +91,7 @@ IS600Processor::~IS600Processor() {
 #ifdef useroot
     rootfile_->Write();
     rootfile_->Close();
-    delete(rootfile_);
+    delete (rootfile_);
 #endif
 }
 
@@ -181,7 +181,7 @@ bool IS600Processor::Process(RawEvent &event) {
 
             *outstream << tof << " " << bar.GetQdc() << endl;
 #ifdef useroot
-            qdctof_->Fill(tof,bar.GetQdc());
+            qdctof_->Fill(tof, bar.GetQdc());
             qdc_ = bar.GetQdc();
             tof_ = tof;
             roottree_->Fill();
@@ -261,13 +261,13 @@ bool IS600Processor::Process(RawEvent &event) {
 
 
     //------------------ Double Beta Processing --------------
-    for (map < unsigned int, pair < double, double > >
-                                            ::iterator it = lrtBetas.begin();
-    it != lrtBetas.end();
-    it++)
-    plot(DD_PROTONBETA2TDIFF_VS_BETA2EN, it->second.second,
-         (it->second.first - lastProtonTime) /
-         (10e-3 / Globals::get()->GetClockInSeconds()));
+    for (map<unsigned int, pair<double, double> >
+         ::iterator it = lrtBetas.begin();
+         it != lrtBetas.end();
+         it++)
+        plot(DD_PROTONBETA2TDIFF_VS_BETA2EN, it->second.second,
+             (it->second.first - lastProtonTime) /
+             (10e-3 / Globals::get()->GetClockInSeconds()));
 
 
     //----------------- GE Processing -------------------

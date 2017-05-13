@@ -98,7 +98,7 @@ public:
     void CmdHelp(std::string prefix_ = "");
 
     /// Scan input arguments and set class variables.
-    bool SetArgs(std::deque <std::string> &args_, std::string &filename_);
+    bool SetArgs(std::deque<std::string> &args_, std::string &filename_);
 
     /// Print a status message.
     void PrintStatus(std::string prefix_ = "") {
@@ -111,7 +111,7 @@ public:
       * \return True if the command is valid and false otherwise.
       */
     bool
-    CommandControl(std::string cmd_, const std::vector <std::string> &args_);
+    CommandControl(std::string cmd_, const std::vector<std::string> &args_);
 
     /// Scan has stopped data acquisition.
     void StopAcquisition();

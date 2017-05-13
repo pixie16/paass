@@ -151,8 +151,8 @@ bool Anl1471Processor::Process(RawEvent &event) {
     map<unsigned int, pair<double, double> > lrtBetas;
 
     BarMap betaStarts_;
-    vector < ChanEvent * > geEvts;
-    vector <vector<AddBackEvent>> geAddback;
+    vector<ChanEvent *> geEvts;
+    vector<vector<AddBackEvent>> geAddback;
 
     if (event.GetSummary("vandle")->GetList().size() != 0)
         vbars = ((VandleProcessor *) DetectorDriver::get()->

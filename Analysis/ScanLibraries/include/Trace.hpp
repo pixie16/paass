@@ -109,9 +109,9 @@ public:
 
     ///@return Returns the waveform with the baseline
     std::vector<unsigned int> GetWaveformWithBaseline() {
-        return std::vector < unsigned
-        int > (begin() + waveformRange_.first,
-                begin() + waveformRange_.second);
+        return std::vector<unsigned
+        int>(begin() + waveformRange_.first,
+             begin() + waveformRange_.second);
     }
 
     ///@return True if we were able to successfully analyze the trace.

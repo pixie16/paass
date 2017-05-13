@@ -286,7 +286,7 @@ void Filterer::CmdHelp(std::string prefix_) {
  * \param filename_
  */
 bool
-Filterer::SetArgs(std::deque <std::string> &args_, std::string &filename_) {
+Filterer::SetArgs(std::deque<std::string> &args_, std::string &filename_) {
     std::string current_arg;
     while (!args_.empty()) {
         current_arg = args_.front();
@@ -315,7 +315,7 @@ Filterer::SetArgs(std::deque <std::string> &args_, std::string &filename_) {
 }
 
 bool Filterer::CommandControl(std::string cmd_,
-                              const std::vector <std::string> &args_) {
+                              const std::vector<std::string> &args_) {
     if (cmd_ == "set") { // Toggle debug mode
         if (args_.size() == 2) {
             //Set the module and channel.

@@ -1019,8 +1019,7 @@ Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/*=0*/) {
                 in_char_((char) keypress);
                 if (cursX - offset > (int) cmd.length()) {
                     cmd.push_back(keypress);
-                }
-                else { // Overwrite or insert a character
+                } else { // Overwrite or insert a character
                     if (!insertMode_) {
                         cmd.insert(cursX - offset - 1, 1, keypress);
                     } // Insert

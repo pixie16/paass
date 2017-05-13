@@ -134,10 +134,10 @@ public:
      * routine has been defined making it possible to declare this detector type
      * in the map.txt file.  The currently known detector types are in detectorString
      * \return Get the detectors known to the analysis */
-    const std::set <std::string> &GetKnownDetectors(void);
+    const std::set<std::string> &GetKnownDetectors(void);
 
     /** \return the used detectors */
-    const std::set <std::string> &GetUsedDetectors(void) const;
+    const std::set<std::string> &GetUsedDetectors(void) const;
 
     typedef std::string mapkey_t; //!< typedef for a mapkey
 
@@ -173,15 +173,15 @@ private:
      * \return the constructed map key */
     mapkey_t MakeKey(const std::string &type, const std::string &subtype) const;
 
-    std::map <mapkey_t, std::set<int>> locations; ///< collection of all used locations for a given type and subtype
+    std::map<mapkey_t, std::set<int>> locations; ///< collection of all used locations for a given type and subtype
     static std::set<int> emptyLocations; ///< dummy locations to return when map key does not exist
 
     unsigned int numModules;//!< number of modules
     unsigned int numPhysicalModules; //!< number of physical modules
 
-    std::set <std::string> usedTypes;//!< used types
-    std::set <std::string> usedSubtypes; //!< used subtypes
-    std::set <std::string> knownDetectors; //!< known detectors in the analysis
+    std::set<std::string> usedTypes;//!< used types
+    std::set<std::string> usedSubtypes; //!< used subtypes
+    std::set<std::string> knownDetectors; //!< known detectors in the analysis
 
     WalkCorrector walkCorrections_;
     Calibrator energyCalibrations_;

@@ -218,7 +218,7 @@ void GeProcessor::DeclarePlots(void) {
     }
 
     for (unsigned i = 0; i < numClovers; ++i) {
-        vector <AddBackEvent> empty;
+        vector<AddBackEvent> empty;
         addbackEvents_.push_back(empty);
     }
 
