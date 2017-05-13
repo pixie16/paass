@@ -10,7 +10,7 @@ include_directories(MCA/include)
 add_subdirectory(MCA)
 
 #Build PxiDump
-add_subdirectory(PxiDump)
+add_subdirectory(set2root)
 
 #Build poll
 add_subdirectory(Poll)
