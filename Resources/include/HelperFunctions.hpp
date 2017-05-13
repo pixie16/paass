@@ -386,7 +386,7 @@ namespace TraceFunctions {
             throw range_error(msg.str());
         }
 
-        if(range.first > range.second) {
+        if (range.first > range.second) {
             msg << "TraceFunctions::CalculateQdc - The specified "
                 << "range was inverted.";
             throw range_error(msg.str());
@@ -447,14 +447,15 @@ namespace IeeeStandards {
     inline double IeeeFloatingToDecimal(
             const unsigned int &IeeeFloatingNumber) {
         double result;
-        short signbit = (short)(IeeeFloatingNumber >> 31);
-        short exponent = (short)((IeeeFloatingNumber & 0x7F800000) >> 23) - 127;
+        short signbit = (short) (IeeeFloatingNumber >> 31);
+        short exponent =
+                (short) ((IeeeFloatingNumber & 0x7F800000) >> 23) - 127;
         double mantissa =
-                1.0 + (double)(IeeeFloatingNumber & 0x7FFFFF) / pow(2.0, 23.0);
-        if(signbit == 0)
-            result = mantissa * pow(2.0, (double)exponent);
+                1.0 + (double) (IeeeFloatingNumber & 0x7FFFFF) / pow(2.0, 23.0);
+        if (signbit == 0)
+            result = mantissa * pow(2.0, (double) exponent);
         else
-            result = - mantissa * pow(2.0, (double)exponent);
+            result = -mantissa * pow(2.0, (double) exponent);
         return result;
     }
 }
@@ -469,7 +470,7 @@ namespace Conversions {
     inline double ConvertSecondsWithPrefix(const double &value,
                                            const std::string &units) {
         double val = value;
-        if(units == "s")
+        if (units == "s")
             return val;
         else if (units == "ms")
             val *= 1e-3;

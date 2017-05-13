@@ -32,386 +32,398 @@
 
 class Client;
 
-class BufferType{
-  protected:
-	unsigned int bufftype;
-	unsigned int buffsize;
-	unsigned int buffend;
-	unsigned int zero;
-	bool debug_mode;
-	
-	BufferType(unsigned int bufftype_, unsigned int buffsize_, unsigned int buffend_=0xFFFFFFFF);
-	
-	/// Returns only false if not overloaded
-	virtual bool Write(std::ofstream *file_);
+class BufferType {
+protected:
+    unsigned int bufftype;
+    unsigned int buffsize;
+    unsigned int buffend;
+    unsigned int zero;
+    bool debug_mode;
 
-	/// Returns only false if not overloaded
-	virtual bool Read(std::ifstream *file_);
-	
-	/// Does nothing if not overloaded.
-	virtual void Reset(){  }
-	
-  public:
-	unsigned int GetBufferType(){ return bufftype; }
-	
-	unsigned int GetBufferSize(){ return buffsize; }
-	
-	unsigned int GetBufferEndFlag(){ return buffend; }
-	
-	bool DebugMode(){ return debug_mode; }
-  
-	void SetDebugMode(bool debug_=true){ debug_mode = debug_; }
+    BufferType(unsigned int bufftype_, unsigned int buffsize_,
+               unsigned int buffend_ = 0xFFFFFFFF);
 
-	/// Return true if the first word of the current buffer is equal to this buffer type
-	bool ReadHeader(std::ifstream *file_);
+    /// Returns only false if not overloaded
+    virtual bool Write(std::ofstream *file_);
+
+    /// Returns only false if not overloaded
+    virtual bool Read(std::ifstream *file_);
+
+    /// Does nothing if not overloaded.
+    virtual void Reset() {}
+
+public:
+    unsigned int GetBufferType() { return bufftype; }
+
+    unsigned int GetBufferSize() { return buffsize; }
+
+    unsigned int GetBufferEndFlag() { return buffend; }
+
+    bool DebugMode() { return debug_mode; }
+
+    void SetDebugMode(bool debug_ = true) { debug_mode = debug_; }
+
+    /// Return true if the first word of the current buffer is equal to this buffer type
+    bool ReadHeader(std::ifstream *file_);
 };
 
 /// The pld header contains information about the run including the date/time, the title, and the run number.
-class PLD_header : public BufferType{
-  private:
-	unsigned int run_num; // Run number
-	unsigned int max_spill_size; // Maximum size of spill in file (in words)
-	float run_time; // Total length of run (time acquisition is running in seconds)
-	char format[17]; // 'PIXIE LIST DATA ' (16 bytes)
-	char facility[17]; // 'U OF TENNESSEE  ' (16 bytes)
-	char start_date[25]; // Wed Feb 13 16:06:10 2013 (24 bytes)
-	char end_date[25]; // Wed Feb 13 16:06:10 2013 (24 bytes)
-	char *run_title; // Unlimited length
+class PLD_header : public BufferType {
+private:
+    unsigned int run_num; // Run number
+    unsigned int max_spill_size; // Maximum size of spill in file (in words)
+    float run_time; // Total length of run (time acquisition is running in seconds)
+    char format[17]; // 'PIXIE LIST DATA ' (16 bytes)
+    char facility[17]; // 'U OF TENNESSEE  ' (16 bytes)
+    char start_date[25]; // Wed Feb 13 16:06:10 2013 (24 bytes)
+    char end_date[25]; // Wed Feb 13 16:06:10 2013 (24 bytes)
+    char *run_title; // Unlimited length
 
-	time_t runStartTime;
-	time_t runStopTime; 
+    time_t runStartTime;
+    time_t runStopTime;
 
-  public:
-	PLD_header();
-	~PLD_header();
-	
-	unsigned int GetBufferLength(); /// Get the total length of the buffer (in bytes)
-	
-	char *GetFacility(){ return facility; }
-	
-	char *GetFormat(){ return format; }
-		
-	char *GetStartDate(){ return start_date; }
-	
-	char *GetEndDate(){ return end_date; }
-	
-	char *GetRunTitle(){ return run_title; }
-		
-	unsigned int GetRunNumber(){ return run_num; }
-	
-	unsigned int GetMaxSpillSize(){ return max_spill_size; }
-	
-	float GetRunTime(){ return run_time; }
-		
-	void SetStartDateTime();
-	
-	void SetEndDateTime();
+public:
+    PLD_header();
 
-	void SetFacility(std::string input_);
-	
-	void SetTitle(std::string input_);
-	
-	void SetRunNumber(unsigned int input_){ run_num = input_; }
-	
-	void SetMaxSpillSize(unsigned int max_spill_size_){ max_spill_size = max_spill_size_; }
-	
-	void SetRunTime(float time_){ run_time = time_; }
-	
-	/** HEAD buffer (1 word buffer type, 1 word run number, 1 word maximum spill size, 4 word format, 
-	  * 2 word facility, 6 word date, 1 word title length (x in bytes), x/4 word title, 1 word end of buffer*/
-	virtual bool Write(std::ofstream *file_);
+    ~PLD_header();
 
-	/// Read a HEAD buffer from a pld format file. Return false if buffer has the wrong header and return true otherwise
-	virtual bool Read(std::ifstream *file_);
+    unsigned int
+    GetBufferLength(); /// Get the total length of the buffer (in bytes)
 
-	/// Set initial values.
-	virtual void Reset();
-	
-	/// Print header information.
-	void Print();
-	
-	/// Print header information in a delimited list.
-	void PrintDelimited(const char &delimiter_='\t');
+    char *GetFacility() { return facility; }
+
+    char *GetFormat() { return format; }
+
+    char *GetStartDate() { return start_date; }
+
+    char *GetEndDate() { return end_date; }
+
+    char *GetRunTitle() { return run_title; }
+
+    unsigned int GetRunNumber() { return run_num; }
+
+    unsigned int GetMaxSpillSize() { return max_spill_size; }
+
+    float GetRunTime() { return run_time; }
+
+    void SetStartDateTime();
+
+    void SetEndDateTime();
+
+    void SetFacility(std::string input_);
+
+    void SetTitle(std::string input_);
+
+    void SetRunNumber(unsigned int input_) { run_num = input_; }
+
+    void SetMaxSpillSize(
+            unsigned int max_spill_size_) { max_spill_size = max_spill_size_; }
+
+    void SetRunTime(float time_) { run_time = time_; }
+
+    /** HEAD buffer (1 word buffer type, 1 word run number, 1 word maximum spill size, 4 word format,
+      * 2 word facility, 6 word date, 1 word title length (x in bytes), x/4 word title, 1 word end of buffer*/
+    virtual bool Write(std::ofstream *file_);
+
+    /// Read a HEAD buffer from a pld format file. Return false if buffer has the wrong header and return true otherwise
+    virtual bool Read(std::ifstream *file_);
+
+    /// Set initial values.
+    virtual void Reset();
+
+    /// Print header information.
+    void Print();
+
+    /// Print header information in a delimited list.
+    void PrintDelimited(const char &delimiter_ = '\t');
 };
 
 /// The DATA buffer contains all physics data within the .pld file
-class PLD_data : public BufferType{
-  private:
-	
-  public:
-	PLD_data(); /// 0x41544144 "DATA"
+class PLD_data : public BufferType {
+private:
 
-	/// Write a data spill to file
-	virtual bool Write(std::ofstream *file_, char *data_, unsigned int nWords_);
-	
-	/// Read a data spill from a file
-	virtual bool Read(std::ifstream *file_, char *data_, unsigned int &nBytes, unsigned int max_bytes_, bool dry_run_mode=false);
+public:
+    PLD_data(); /// 0x41544144 "DATA"
 
-	/// Set initial values.
-	virtual void Reset(){ }
+    /// Write a data spill to file
+    virtual bool Write(std::ofstream *file_, char *data_, unsigned int nWords_);
+
+    /// Read a data spill from a file
+    virtual bool Read(std::ifstream *file_, char *data_, unsigned int &nBytes,
+                      unsigned int max_bytes_, bool dry_run_mode = false);
+
+    /// Set initial values.
+    virtual void Reset() {}
 };
 
 /* The DIR buffer is written at the beginning of each .ldf file. When the file is ready
    to be closed, the data within the DIR buffer is re-written with run information. */
-class DIR_buffer : public BufferType{
-  private:
-  	unsigned int total_buff_size;
-	unsigned int run_num;
-	unsigned int unknown[3];
-	
-  public:
-	DIR_buffer();
-	
-	unsigned int GetTotalBufferSize(){ return total_buff_size; }
-	
-	unsigned int GetRunNumber(){ return run_num; }
-	
-	void SetRunNumber(unsigned int input_){ run_num = input_; }
-	
-	/* DIR buffer (1 word buffer type, 1 word buffer size, 1 word for total buffer length,
-	   1 word for total number of buffers, 2 unknown words, 1 word for run number, 1 unknown word,
-	   and 8186 zeros) */
-	virtual bool Write(std::ofstream *file_);
+class DIR_buffer : public BufferType {
+private:
+    unsigned int total_buff_size;
+    unsigned int run_num;
+    unsigned int unknown[3];
 
-	/// Read a DIR buffer from a file. Return false if buffer has the wrong header and return true otherwise
-	virtual bool Read(std::ifstream *file_);
+public:
+    DIR_buffer();
 
-	/// Set initial values.
-	virtual void Reset();
-	
-	/// Print dir buffer information.
-	void Print();
-	
-	/// Print dir buffer information in a delimited list.
-	void PrintDelimited(const char &delimiter_='\t');
+    unsigned int GetTotalBufferSize() { return total_buff_size; }
+
+    unsigned int GetRunNumber() { return run_num; }
+
+    void SetRunNumber(unsigned int input_) { run_num = input_; }
+
+    /* DIR buffer (1 word buffer type, 1 word buffer size, 1 word for total buffer length,
+       1 word for total number of buffers, 2 unknown words, 1 word for run number, 1 unknown word,
+       and 8186 zeros) */
+    virtual bool Write(std::ofstream *file_);
+
+    /// Read a DIR buffer from a file. Return false if buffer has the wrong header and return true otherwise
+    virtual bool Read(std::ifstream *file_);
+
+    /// Set initial values.
+    virtual void Reset();
+
+    /// Print dir buffer information.
+    void Print();
+
+    /// Print dir buffer information in a delimited list.
+    void PrintDelimited(const char &delimiter_ = '\t');
 };
 
 /* The HEAD buffer is written after the DIR buffer for each .ldf file. HEAD contains information
    about the run including the date/time, the title, and the run number. */
-class HEAD_buffer : public BufferType{
-  private:
-	char facility[9];
-	char format[9];
-	char type[17];
-	char date[17];
-	char run_title[81];
-	unsigned int run_num;
+class HEAD_buffer : public BufferType {
+private:
+    char facility[9];
+    char format[9];
+    char type[17];
+    char date[17];
+    char run_title[81];
+    unsigned int run_num;
 
-  public:
-	HEAD_buffer();
-		
-	char *GetFacility(){ return facility; }
-	
-	char *GetFormat(){ return format; }
-		
-	char *GetType(){ return type; }
-	
-	char *GetDate(){ return date; }
-	
-	char *GetRunTitle(){ return run_title; }
-		
-	unsigned int GetRunNumber(){ return run_num; }
-		
-	bool SetDateTime();
-	
-	bool SetTitle(std::string input_);
-	
-	void SetRunNumber(unsigned int input_){ run_num = input_; }
+public:
+    HEAD_buffer();
 
-	/** HEAD buffer (1 word buffer type, 1 word buffer size, 2 words for facility, 2 for format, 
-	  * 3 for type, 1 word separator, 4 word date, 20 word title [80 character], 1 word run number,
-	  * 30 words of padding, and 8129 end of buffer words) */
-	virtual bool Write(std::ofstream *file_);
+    char *GetFacility() { return facility; }
 
-	/// Read a HEAD buffer from a file. Return false if buffer has the wrong header and return true otherwise
-	virtual bool Read(std::ifstream *file_);
+    char *GetFormat() { return format; }
 
-	/// Set initial values.
-	virtual void Reset();
-	
-	/// Print header information.
-	void Print();
-	
-	/// Print header information in a delimited list.
-	void PrintDelimited(const char &delimiter_='\t');
+    char *GetType() { return type; }
+
+    char *GetDate() { return date; }
+
+    char *GetRunTitle() { return run_title; }
+
+    unsigned int GetRunNumber() { return run_num; }
+
+    bool SetDateTime();
+
+    bool SetTitle(std::string input_);
+
+    void SetRunNumber(unsigned int input_) { run_num = input_; }
+
+    /** HEAD buffer (1 word buffer type, 1 word buffer size, 2 words for facility, 2 for format,
+      * 3 for type, 1 word separator, 4 word date, 20 word title [80 character], 1 word run number,
+      * 30 words of padding, and 8129 end of buffer words) */
+    virtual bool Write(std::ofstream *file_);
+
+    /// Read a HEAD buffer from a file. Return false if buffer has the wrong header and return true otherwise
+    virtual bool Read(std::ifstream *file_);
+
+    /// Set initial values.
+    virtual void Reset();
+
+    /// Print header information.
+    void Print();
+
+    /// Print header information in a delimited list.
+    void PrintDelimited(const char &delimiter_ = '\t');
 };
 
 //// The DATA buffer contains all physics data within the .ldf file
-class DATA_buffer : public BufferType{
-  private:
-	int retval; /// The error code for the read method.
+class DATA_buffer : public BufferType {
+private:
+    int retval; /// The error code for the read method.
 
-	unsigned int buffer1[ACTUAL_BUFF_SIZE]; /// Container for a ldf buffer.
-	unsigned int buffer2[ACTUAL_BUFF_SIZE]; /// Container for a second ldf buffer.
+    unsigned int buffer1[ACTUAL_BUFF_SIZE]; /// Container for a ldf buffer.
+    unsigned int buffer2[ACTUAL_BUFF_SIZE]; /// Container for a second ldf buffer.
 
-	unsigned int *curr_buffer; /// Pointer to the current ldf buffer.
-	unsigned int *next_buffer; /// Pointer to the next ldf buffer.
-	
-	unsigned int bcount; /// The total number of ldf buffers read from file.
-	unsigned int buff_head; /// The ldf buffer header ID.
-	unsigned int buff_size; /// Total size of ldf buffer (in 4 byte words).
-	unsigned int good_chunks; /// Count of the number of good spill chunks which were read.
-	unsigned int missing_chunks; /// Count of the number of missing spill chunks which were dropped.
+    unsigned int *curr_buffer; /// Pointer to the current ldf buffer.
+    unsigned int *next_buffer; /// Pointer to the next ldf buffer.
 
-	unsigned int buff_pos; /// The actual position in the current ldf buffer.
+    unsigned int bcount; /// The total number of ldf buffers read from file.
+    unsigned int buff_head; /// The ldf buffer header ID.
+    unsigned int buff_size; /// Total size of ldf buffer (in 4 byte words).
+    unsigned int good_chunks; /// Count of the number of good spill chunks which were read.
+    unsigned int missing_chunks; /// Count of the number of missing spill chunks which were dropped.
 
-	/// DATA buffer (1 word buffer type, 1 word buffer size)
-	bool open_(std::ofstream *file_);
+    unsigned int buff_pos; /// The actual position in the current ldf buffer.
 
-	bool read_next_buffer(std::ifstream *f_, bool force_=false);
-	
-  public:
-	DATA_buffer(); /// 0x41544144 "DATA"
+    /// DATA buffer (1 word buffer type, 1 word buffer size)
+    bool open_(std::ofstream *file_);
 
-	/// Close a data buffer by padding with 0xFFFFFFFF
-	bool Close(std::ofstream *file_);
+    bool read_next_buffer(std::ifstream *f_, bool force_ = false);
 
-	/** Get the standard data spill size for a given data file. This number is set at runtime by poll
-	  * and should be the same for each and every spill in the file. Returns the spill size in words 
-	  * or -1 in the event of an error. This method should be called whenever a new file is opened. */
-	int GetSpillSize(std::ifstream *file_);
+public:
+    DATA_buffer(); /// 0x41544144 "DATA"
 
-	/** Get the return value from the read method.
-	  *  0 - Success
-	  *  1 - Encountered single EOF buffer (end of run)
-	  *  2 - Encountered double EOF buffer (end of file)
-	  *  3 - Encountered unknown ldf buffer type
-	  *  4 - Encountered invalid spill chunk
-	  *  5 - Received bad spill footer size
-	  *  6 - Failed to read buffer from file
-	  */
-	int GetRetval(){ return retval; }
-	
-	/// Return the number of good spill chunks which were read.
-	unsigned int GetNumChunks(){ return good_chunks; }
-	
-	/// Return the number of missing or dropped spill chunks.
-	unsigned int GetNumMissing(){ return missing_chunks; }
-	
-	/// Write a data spill to file
-	virtual bool Write(std::ofstream *file_, char *data_, unsigned int nWords_, int &buffs_written);
-	
-	/// Read a data spill from a file
-	virtual bool Read(std::ifstream *file_, char *data_, unsigned int &nBytes_, unsigned int max_bytes_, bool &full_spill, bool &bad_spill, bool dry_run_mode=false);
+    /// Close a data buffer by padding with 0xFFFFFFFF
+    bool Close(std::ofstream *file_);
 
-	/// Set initial values.
-	virtual void Reset();
+    /** Get the standard data spill size for a given data file. This number is set at runtime by poll
+      * and should be the same for each and every spill in the file. Returns the spill size in words
+      * or -1 in the event of an error. This method should be called whenever a new file is opened. */
+    int GetSpillSize(std::ifstream *file_);
+
+    /** Get the return value from the read method.
+      *  0 - Success
+      *  1 - Encountered single EOF buffer (end of run)
+      *  2 - Encountered double EOF buffer (end of file)
+      *  3 - Encountered unknown ldf buffer type
+      *  4 - Encountered invalid spill chunk
+      *  5 - Received bad spill footer size
+      *  6 - Failed to read buffer from file
+      */
+    int GetRetval() { return retval; }
+
+    /// Return the number of good spill chunks which were read.
+    unsigned int GetNumChunks() { return good_chunks; }
+
+    /// Return the number of missing or dropped spill chunks.
+    unsigned int GetNumMissing() { return missing_chunks; }
+
+    /// Write a data spill to file
+    virtual bool Write(std::ofstream *file_, char *data_, unsigned int nWords_,
+                       int &buffs_written);
+
+    /// Read a data spill from a file
+    virtual bool Read(std::ifstream *file_, char *data_, unsigned int &nBytes_,
+                      unsigned int max_bytes_, bool &full_spill,
+                      bool &bad_spill, bool dry_run_mode = false);
+
+    /// Set initial values.
+    virtual void Reset();
 };
 
 /// A single EOF buffer signals the end of a run (pacman .ldf format). A double EOF signals the end of the .ldf file.
-class EOF_buffer : public BufferType{	
-  public:
-	EOF_buffer(); /// 0x20464F45 "EOF "
-	
-	/// EOF buffer (1 word buffer type, 1 word buffer size, and 8192 end of buffer words)
-	virtual bool Write(std::ofstream *file_);
+class EOF_buffer : public BufferType {
+public:
+    EOF_buffer(); /// 0x20464F45 "EOF "
 
-	/// Read an EOF buffer from a file. Return false if buffer has the wrong header and return true otherwise
-	virtual bool Read(std::ifstream *file_);
-	
-	/// Set initial values.
-	virtual void Reset(){ }
+    /// EOF buffer (1 word buffer type, 1 word buffer size, and 8192 end of buffer words)
+    virtual bool Write(std::ofstream *file_);
+
+    /// Read an EOF buffer from a file. Return false if buffer has the wrong header and return true otherwise
+    virtual bool Read(std::ifstream *file_);
+
+    /// Set initial values.
+    virtual void Reset() {}
 };
 
-class PollOutputFile{
-  private:
-	std::ofstream output_file;
-	std::string fname_prefix;
-	std::string current_filename;
-	std::string current_full_filename;
-	PLD_header pldHead;
-	PLD_data pldData;
-	DIR_buffer dirBuff;
-	HEAD_buffer headBuff;
-	DATA_buffer dataBuff;
-	EOF_buffer eofBuff;
-	unsigned int max_spill_size;
-	unsigned int current_file_num;
-	unsigned int output_format;
-	unsigned int number_spills;
-	unsigned int run_num;
-	bool debug_mode;
-	
-	unsigned int current_depth;
-	std::string current_directory;
-	std::vector<std::string> directories;
+class PollOutputFile {
+private:
+    std::ofstream output_file;
+    std::string fname_prefix;
+    std::string current_filename;
+    std::string current_full_filename;
+    PLD_header pldHead;
+    PLD_data pldData;
+    DIR_buffer dirBuff;
+    HEAD_buffer headBuff;
+    DATA_buffer dataBuff;
+    EOF_buffer eofBuff;
+    unsigned int max_spill_size;
+    unsigned int current_file_num;
+    unsigned int output_format;
+    unsigned int number_spills;
+    unsigned int run_num;
+    bool debug_mode;
 
-	/// Get the formatted filename of the current file
-	std::string get_filename();
-	
-	/// Get the full path of the current file
-	bool get_full_filename(std::string &output);
+    unsigned int current_depth;
+    std::string current_directory;
+    std::vector<std::string> directories;
 
-	/** Overwrite the fourth word of the file with the total number of buffers and close the file
-	  * Returns false if no output file is open or if the number of 4 byte words in the file is not 
-	  * evenly divisible by the number of words in a buffer */
-	bool overwrite_dir(int total_buffers_=-1);
+    /// Get the formatted filename of the current file
+    std::string get_filename();
 
-	/// Initialize the output file with initial parameters
-	void initialize();
+    /// Get the full path of the current file
+    bool get_full_filename(std::string &output);
 
-  public:
-	PollOutputFile();
+    /** Overwrite the fourth word of the file with the total number of buffers and close the file
+      * Returns false if no output file is open or if the number of 4 byte words in the file is not
+      * evenly divisible by the number of words in a buffer */
+    bool overwrite_dir(int total_buffers_ = -1);
 
-	PollOutputFile(std::string filename_);
-	
-	~PollOutputFile(){ CloseFile(); }
-	
-	/// Get the size of the current file, in bytes.
-	std::streampos GetFilesize(){ return output_file.tellp(); }
-	
-	/// Get the name of the current output file
-	std::string GetCurrentFilename(){ return current_filename; }
-	
-	/// Return the total number of spills written since the current file was opened
-	unsigned int GetNumberSpills(){ return number_spills; }
+    /// Initialize the output file with initial parameters
+    void initialize();
 
-	/// Return a pointer to the PLD header object
-	PLD_header *GetPLDheader(){ return &pldHead; }
+public:
+    PollOutputFile();
 
-	/// Return a pointer to the PLD data object
-	PLD_data *GetPLDdata(){ return &pldData; }
-	
-	/// Return a pointer to the DIR buffer object
-	DIR_buffer *GetDIRbuffer(){ return &dirBuff; }
-	
-	/// Return a pointer to the HEAD buffer object
-	HEAD_buffer *GetHEADbuffer(){ return &headBuff; }
+    PollOutputFile(std::string filename_);
 
-	/// Return a pointer to the DATA buffer object
-	DATA_buffer *GetDATAbuffer(){ return &dataBuff; }
-	
-	/// Return a pointer to the EOF buffer object
-	EOF_buffer *GetEOFbuffer(){ return &eofBuff; }
-	
-	/// Toggle debug mode
-	void SetDebugMode(bool debug_=true);
-	
-	/// Set the output file format
-	bool SetFileFormat(unsigned int format_);
+    ~PollOutputFile() { CloseFile(); }
 
-	/// Set the output filename prefix
-	void SetFilenamePrefix(std::string filename_);
+    /// Get the size of the current file, in bytes.
+    std::streampos GetFilesize() { return output_file.tellp(); }
 
-	/// Return true if an output file is open and writable and false otherwise
-	bool IsOpen(){ return (output_file.is_open() && output_file.good()); }
-	
-	/// Write nWords_ of data to the file
-	int Write(char *data_, unsigned int nWords_);
+    /// Get the name of the current output file
+    std::string GetCurrentFilename() { return current_filename; }
 
-	/** Build a data spill notification message for broadcast onto the network
-	  * Return the total number of bytes in the packet upon success, and -1 otherwise */
-	int SendPacket(Client *cli_);
+    /// Return the total number of spills written since the current file was opened
+    unsigned int GetNumberSpills() { return number_spills; }
 
-	/// Close the current file, if one is open, and open a new file for data output
-	bool OpenNewFile(std::string title_, unsigned int &run_num_, std::string prefix, std::string output_dir="./", bool continueRun = false);
+    /// Return a pointer to the PLD header object
+    PLD_header *GetPLDheader() { return &pldHead; }
 
-	std::string GetNextFileName(unsigned int &run_num_, std::string prefix, std::string output_dir, bool continueRun = false);
-	
-	unsigned int GetRunNumber();
+    /// Return a pointer to the PLD data object
+    PLD_data *GetPLDdata() { return &pldData; }
 
-	/// Write the footer and close the file
-	void CloseFile(float total_run_time_=0.0);
+    /// Return a pointer to the DIR buffer object
+    DIR_buffer *GetDIRbuffer() { return &dirBuff; }
+
+    /// Return a pointer to the HEAD buffer object
+    HEAD_buffer *GetHEADbuffer() { return &headBuff; }
+
+    /// Return a pointer to the DATA buffer object
+    DATA_buffer *GetDATAbuffer() { return &dataBuff; }
+
+    /// Return a pointer to the EOF buffer object
+    EOF_buffer *GetEOFbuffer() { return &eofBuff; }
+
+    /// Toggle debug mode
+    void SetDebugMode(bool debug_ = true);
+
+    /// Set the output file format
+    bool SetFileFormat(unsigned int format_);
+
+    /// Set the output filename prefix
+    void SetFilenamePrefix(std::string filename_);
+
+    /// Return true if an output file is open and writable and false otherwise
+    bool IsOpen() { return (output_file.is_open() && output_file.good()); }
+
+    /// Write nWords_ of data to the file
+    int Write(char *data_, unsigned int nWords_);
+
+    /** Build a data spill notification message for broadcast onto the network
+      * Return the total number of bytes in the packet upon success, and -1 otherwise */
+    int SendPacket(Client *cli_);
+
+    /// Close the current file, if one is open, and open a new file for data output
+    bool
+    OpenNewFile(std::string title_, unsigned int &run_num_, std::string prefix,
+                std::string output_dir = "./", bool continueRun = false);
+
+    std::string GetNextFileName(unsigned int &run_num_, std::string prefix,
+                                std::string output_dir,
+                                bool continueRun = false);
+
+    unsigned int GetRunNumber();
+
+    /// Write the footer and close the file
+    void CloseFile(float total_run_time_ = 0.0);
 };
 
 #endif

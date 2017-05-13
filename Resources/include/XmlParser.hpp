@@ -4,6 +4,7 @@
 ///@date February 09, 2017
 #ifndef _PAASS_XMLPARSER_HPP
 #define _PAASS_XMLPARSER_HPP
+
 #include <set>
 
 #include "pugixml.hpp"

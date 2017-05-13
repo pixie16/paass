@@ -15,7 +15,7 @@ find_path(UNITTEST++_LIBRARY_DIR
         PATHS /opt/UnitTest++ /usr/lib/
         PATH_SUFFIXES lib)
 
-include (FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS (UnitTest++ DEFAULT_MSG
+include(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(UnitTest++ DEFAULT_MSG
         UNITTEST++_INCLUDE_DIR)
-mark_as_advanced (UNITTEST++_INCLUDE_DIR UNITTEST++_LIBRARY_DIR)
+mark_as_advanced(UNITTEST++_INCLUDE_DIR UNITTEST++_LIBRARY_DIR)
