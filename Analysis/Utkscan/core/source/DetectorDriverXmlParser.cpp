@@ -185,7 +185,11 @@ vector<TraceAnalyzer *> DetectorDriverXmlParser::ParseAnalyzers(
                     analyzer.attribute("subtype").as_string(),
                     analyzer.attribute("tag").as_string()));
         } else if (name == "WaveformAnalyzer") {
-            vecAnalyzer.push_back(new WaveformAnalyzer());
+            std::vector<std::string> tokens =
+                    StringManipulation::TokenizeString(
+                            analyzer.attribute("ignored").as_string(""),",");
+            vecAnalyzer.push_back(new WaveformAnalyzer(
+                    std::set<std::string>(tokens.begin(), tokens.end())));
         } else if (name == "CfdAnalyzer") {
             vecAnalyzer.push_back(new CfdAnalyzer(
                     analyzer.attribute("type").as_string("poly")));

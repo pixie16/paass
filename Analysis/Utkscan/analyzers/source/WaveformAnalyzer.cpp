@@ -18,9 +18,10 @@
 
 using namespace std;
 
-WaveformAnalyzer::WaveformAnalyzer() : TraceAnalyzer() {
+WaveformAnalyzer::WaveformAnalyzer(const std::set<std::string> &ignoredTypes)
+        : TraceAnalyzer() {
     name = "WaveformAnalyzer";
-    messenger_ = new Messenger();
+    ignoredTypes_ = ignoredTypes;
 }
 
 void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
@@ -28,7 +29,8 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
                                const std::map<std::string, int> &tags) {
     TraceAnalyzer::Analyze(trace, type, subtype, tags);
 
-    if (trace.IsSaturated() || trace.empty()) {
+    if (trace.IsSaturated() || trace.empty() ||
+            ignoredTypes_.find(type) != ignoredTypes_.end()) {
         trace.SetHasValidAnalysis(false);
         EndAnalyze();
         return;
