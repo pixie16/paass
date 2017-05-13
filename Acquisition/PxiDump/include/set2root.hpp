@@ -18,27 +18,28 @@
 class TFile;
 #endif
 
-class parameter{
-  public:
-	std::vector<unsigned int> values;
-  
-	parameter() : name(), offset() { }
+class parameter {
+public:
+    std::vector<unsigned int> values;
 
-	parameter(const std::string &name_, const unsigned int &offset_) : name(name_), offset(offset_) { }
+    parameter() : name(), offset() {}
 
-	std::string getName(){ return name; }
-	
-	unsigned int getOffset(){ return offset; }
+    parameter(const std::string &name_, const unsigned int &offset_) : name(
+            name_), offset(offset_) {}
+
+    std::string getName() { return name; }
+
+    unsigned int getOffset() { return offset; }
 
 #ifdef USE_ROOT_OUTPUT
-	bool write(TFile *f_, const std::string &dir_="");
+    bool write(TFile *f_, const std::string &dir_="");
 #endif
 
-	std::string print();
+    std::string print();
 
-  private:
-	std::string name; /// The name of the pixie16 parameter.
-	unsigned int offset; /// The offset of this parameter in the .set file (in words).
+private:
+    std::string name; /// The name of the pixie16 parameter.
+    unsigned int offset; /// The offset of this parameter in the .set file (in words).
 };
 
 #endif
