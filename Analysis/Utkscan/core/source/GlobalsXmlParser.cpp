@@ -323,7 +323,7 @@ GlobalsXmlParser::ParseTraceNode(const pugi::xml_node &node, Globals *globals) {
     } else
         throw invalid_argument(CriticalNodeMessage("WaveformRange"));
 
-    if (!node.child("TrapFilters")) {
+    if (!node.child("TrapFilters").empty()) {
         std::map<std::string, std::pair<TrapFilterParameters,
                 TrapFilterParameters>> tmp;
         for (pugi::xml_node_iterator trapit = node.child("TrapFilters").begin();
