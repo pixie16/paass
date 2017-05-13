@@ -8,6 +8,7 @@
 #include "TimingDriver.hpp"
 
 class TF1;
+
 class VandleTimingFunction;
 
 class RootFitter : public TimingDriver {

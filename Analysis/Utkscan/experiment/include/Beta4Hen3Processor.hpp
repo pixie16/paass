@@ -13,8 +13,10 @@ class Beta4Hen3Processor : public BetaScintProcessor {
 public:
     /** Constructor taking two arguments */
     Beta4Hen3Processor(double gammaBetaLimit, double energyContracion);
+
     /** Process the events */
     virtual bool Process(RawEvent &event);
+
     /** Declare the plots */
     virtual void DeclarePlots(void);
 };

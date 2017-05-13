@@ -74,6 +74,7 @@ public:
     /// Sets the QDC that we want to set
     /// \param[in] a the qdc of the waveform for the fit
     void SetQdc(const double &a) { qdc_ = a; }
+
 protected:
     ///! True if we want to analyze signals from SiPM fast outputs
     bool isFastSiPm_;

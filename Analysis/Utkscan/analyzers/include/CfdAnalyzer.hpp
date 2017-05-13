@@ -28,8 +28,9 @@ public:
     * \param [in] detSubtype : detector subtype 
     * \param [in] tagMap : the map of tags for the channel */
     void Analyze(Trace &trace, const std::string &detType,
-                         const std::string &detSubtype,
-                         const std::map<std::string, int> &tagMap);
+                 const std::string &detSubtype,
+                 const std::map<std::string, int> &tagMap);
+
 private:
     TimingDriver *driver_;
 };

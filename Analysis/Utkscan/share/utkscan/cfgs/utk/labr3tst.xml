@@ -78,7 +78,7 @@
 
         <Fitting>
             <SigmaBaselineThresh value="3.0"/>
-            <SiPmtSigmaBaselineThresh value = "25.0"/>
+            <SiPmtSigmaBaselineThresh value="25.0"/>
             <Vandle>
                 <Small>
                     <Beta value="0.32969"/>
@@ -112,7 +112,7 @@
                 <Gamma value="0.274512"/>
             </SingleBeta>
             <DoubleBeta>
-	        <Beta value="0.491724"/>
+                <Beta value="0.491724"/>
                 <Gamma value="0.335260"/>
             </DoubleBeta>
             <Pulser>

@@ -40,5 +40,5 @@ endif (NOT PAASS_USE_HRIBF)
 add_library(UtkscanMainObjects OBJECT ${MAIN_SOURCES})
 
 add_library(UtkscanCoreObjects OBJECT ${CORE_SOURCES} ${CORRELATION_SOURCES}
-    ${PLOTTING_SOURCES}
-)
+        ${PLOTTING_SOURCES}
+        )

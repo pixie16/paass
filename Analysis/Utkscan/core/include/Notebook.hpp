@@ -13,7 +13,7 @@
 class Notebook {
 public:
     /** \return only instance of Notebook class. */
-    static Notebook* get();
+    static Notebook *get();
 
     /** Save string to file
     * \param [in] note : the note to report in the file */
@@ -27,11 +27,12 @@ public:
 
 private:
     Notebook(); //!<Default constructor
-    Notebook(Notebook const&); //!< Overload of the constructor
-    void operator=(Notebook const&);//!< the copy constructor
-    static Notebook* instance;//!< static instance of the class
+    Notebook(Notebook const &); //!< Overload of the constructor
+    void operator=(Notebook const &);//!< the copy constructor
+    static Notebook *instance;//!< static instance of the class
 
     std::string mode_; //!< the mode for the notebook class
     std::string file_name_;//!< the file name to output into
 };
+
 #endif

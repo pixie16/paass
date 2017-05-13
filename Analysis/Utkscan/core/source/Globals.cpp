@@ -45,7 +45,7 @@ Globals::Globals(const std::string &file) {
     try {
         GlobalsXmlParser parser;
         parser.ParseNode(this);
-    }catch (invalid_argument &invalidArgument){
+    } catch (invalid_argument &invalidArgument) {
         throw;
     } catch (GeneralException &ex) {
         throw;

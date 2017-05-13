@@ -28,13 +28,13 @@ SsdProcessor::SsdProcessor() : EventProcessor(OFFSET, RANGE, "SsdProcessor") {
 void SsdProcessor::DeclarePlots(void) {
     using namespace dammIds::ssd;
 
-    const int energyBins    = SE;
-    const int positionBins  = S5;
+    const int energyBins = SE;
+    const int positionBins = S5;
     // const int timeBins     = S8;
 
-    for (int i=0; i < NUM_DETECTORS; i++) {
+    for (int i = 0; i < NUM_DETECTORS; i++) {
         DeclareHistogram2D(DD_POSITION__ENERGY_DETX + i,
-                energyBins, positionBins, "SSD Strip vs E");
+                           energyBins, positionBins, "SSD Strip vs E");
     }
 }
 
@@ -59,7 +59,7 @@ bool SsdProcessor::Process(RawEvent &event) {
             continue;
         const ChanEvent *ch = ssdSummary[i]->GetMaxEvent();
         int position = ch->GetChanID().GetLocation();
-        double energy   = ch->GetCalibratedEnergy();
+        double energy = ch->GetCalibratedEnergy();
 
         plot(DD_POSITION__ENERGY_DETX + i, energy, position);
     }

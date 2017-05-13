@@ -28,9 +28,9 @@
 using namespace std;
 using namespace dammIds::raw;
 
-DetectorDriver* DetectorDriver::instance = NULL;
+DetectorDriver *DetectorDriver::instance = NULL;
 
-DetectorDriver* DetectorDriver::get() {
+DetectorDriver *DetectorDriver::get() {
     if (!instance)
         instance = new DetectorDriver();
     return instance;
@@ -55,20 +55,20 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
 
 DetectorDriver::~DetectorDriver() {
     for (vector<EventProcessor *>::iterator it = vecProcess.begin();
-	 it != vecProcess.end(); it++)
-        delete(*it);
+         it != vecProcess.end(); it++)
+        delete (*it);
     vecProcess.clear();
 
     for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
-	 it != vecAnalyzer.end(); it++)
-        delete(*it);
+         it != vecAnalyzer.end(); it++)
+        delete (*it);
     vecAnalyzer.clear();
     instance = NULL;
 }
 
-void DetectorDriver::Init(RawEvent& rawev) {
+void DetectorDriver::Init(RawEvent &rawev) {
     for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
-	 it != vecAnalyzer.end(); it++) {
+         it != vecAnalyzer.end(); it++) {
         (*it)->Init();
         (*it)->SetLevel(20);
     }
@@ -82,10 +82,10 @@ void DetectorDriver::Init(RawEvent& rawev) {
     cali_ = DetectorLibrary::get()->GetCalibrations();
 }
 
-void DetectorDriver::ProcessEvent(RawEvent& rawev) {
+void DetectorDriver::ProcessEvent(RawEvent &rawev) {
     plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
     try {
-        for (vector<ChanEvent*>::const_iterator it = rawev.GetEventList().begin();
+        for (vector<ChanEvent *>::const_iterator it = rawev.GetEventList().begin();
              it != rawev.GetEventList().end(); ++it) {
             PlotRaw((*it));
             ThreshAndCal((*it), rawev);
@@ -95,7 +95,7 @@ void DetectorDriver::ProcessEvent(RawEvent& rawev) {
             if (place == "__9999")
                 continue;
 
-            if ( (*it)->IsSaturated() || (*it)->IsPileup() )
+            if ((*it)->IsSaturated() || (*it)->IsPileup())
                 continue;
 
             double time = (*it)->GetTime();
@@ -108,27 +108,28 @@ void DetectorDriver::ProcessEvent(RawEvent& rawev) {
 
         //!First round is preprocessing, where process result must be guaranteed
         //!to not to be dependent on results of other Processors.
-        for (vector<EventProcessor*>::iterator iProc = vecProcess.begin();
-        iProc != vecProcess.end(); iProc++)
-            if ( (*iProc)->HasEvent() )
+        for (vector<EventProcessor *>::iterator iProc = vecProcess.begin();
+             iProc != vecProcess.end(); iProc++)
+            if ((*iProc)->HasEvent())
                 (*iProc)->PreProcess(rawev);
         ///In the second round the Process is called, which may depend on other
         ///Processors.
         for (vector<EventProcessor *>::iterator iProc = vecProcess.begin();
-        iProc != vecProcess.end(); iProc++)
-            if ( (*iProc)->HasEvent() )
+             iProc != vecProcess.end(); iProc++)
+            if ((*iProc)->HasEvent())
                 (*iProc)->Process(rawev);
         // Clear all places in correlator (if of resetable type)
-	for (map<string, Place*>::iterator it = 
-		 TreeCorrelator::get()->places_.begin(); 
-	     it != TreeCorrelator::get()->places_.end(); ++it)
-	    if ((*it).second->resetable())
+        for (map<string, Place *>::iterator it =
+                TreeCorrelator::get()->places_.begin();
+             it != TreeCorrelator::get()->places_.end(); ++it)
+            if ((*it).second->resetable())
                 (*it).second->reset();
     } catch (GeneralException &e) {
         /// Any exception in activation of basic places, PreProcess and Process
         /// will be intercepted here
         cout << endl
-             << Display::ErrorStr("Exception caught at DetectorDriver::ProcessEvent")
+             << Display::ErrorStr(
+                     "Exception caught at DetectorDriver::ProcessEvent")
              << endl;
         throw;
     } catch (GeneralWarning &w) {
@@ -150,8 +151,8 @@ void DetectorDriver::DeclarePlots() {
         DeclareHistogram2D(DD_RUNTIME_SEC, SE, S6, "run time - s");
         DeclareHistogram2D(DD_RUNTIME_MSEC, SE, S7, "run time - ms");
 
-        if(Globals::get()->HasRawHistogramsDefined()) {
-            DetectorLibrary* modChan = DetectorLibrary::get();
+        if (Globals::get()->HasRawHistogramsDefined()) {
+            DetectorLibrary *modChan = DetectorLibrary::get();
             DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
             DeclareHistogram1D(D_HAS_TRACE, S8, "channels with traces");
             DeclareHistogram1D(D_SUBEVENT_GAP, SE,
@@ -173,21 +174,21 @@ void DetectorDriver::DeclarePlots() {
                 const Identifier &id = modChan->at(i);
 
                 idstr << "M" << modChan->ModuleFromIndex(i)
-                    << " C" << modChan->ChannelFromIndex(i)
-                    << " - " << id.GetType()
-                    << ":" << id.GetSubtype()
-                    << " L" << id.GetLocation();
+                      << " C" << modChan->ChannelFromIndex(i)
+                      << " - " << id.GetType()
+                      << ":" << id.GetSubtype()
+                      << " L" << id.GetLocation();
                 DeclareHistogram1D(D_RAW_ENERGY + i, SE,
-                                  ("RawE " + idstr.str()).c_str() );
+                                   ("RawE " + idstr.str()).c_str());
                 DeclareHistogram1D(D_FILTER_ENERGY + i, SE,
-                                  ("FilterE " + idstr.str()).c_str() );
+                                   ("FilterE " + idstr.str()).c_str());
                 DeclareHistogram1D(D_SCALAR + i, SE,
-                                  ("Scalar " + idstr.str()).c_str() );
+                                   ("Scalar " + idstr.str()).c_str());
                 if (Globals::get()->GetPixieRevision() == "A")
                     DeclareHistogram1D(D_TIME + i, SE,
-                                       ("Time " + idstr.str()).c_str() );
+                                       ("Time " + idstr.str()).c_str());
                 DeclareHistogram1D(D_CAL_ENERGY + i, SE,
-                                  ("CalE " + idstr.str()).c_str() );
+                                   ("CalE " + idstr.str()).c_str());
             }
         }
 
@@ -208,27 +209,27 @@ void DetectorDriver::DeclarePlots() {
     }
 }
 
-int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
+int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
     Identifier chanId = chan->GetChanID();
-    int id            = chan->GetID();
-    string type       = chanId.GetType();
-    string subtype    = chanId.GetSubtype();
+    int id = chan->GetID();
+    string type = chanId.GetType();
+    string subtype = chanId.GetSubtype();
     map<string, int> tags = chanId.GetTagMap();
-    bool hasStartTag  = chanId.HasTag("start");
-    Trace &trace      = chan->GetTrace();
+    bool hasStartTag = chanId.HasTag("start");
+    Trace &trace = chan->GetTrace();
 
-    RandomPool* randoms = RandomPool::get();
+    RandomPool *randoms = RandomPool::get();
 
     double energy = 0.0;
-    
-    if (type == "ignore" || type == "")
-        return(0);
 
-    if ( !trace.empty() ) {
+    if (type == "ignore" || type == "")
+        return (0);
+
+    if (!trace.empty()) {
         plot(D_HAS_TRACE, id);
 
         for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
-            it != vecAnalyzer.end(); it++) {
+             it != vecAnalyzer.end(); it++) {
             (*it)->Analyze(trace, type, subtype, tags);
         }
 
@@ -244,23 +245,24 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
         //Saves the time in nanoseconds
         chan->SetHighResTime(
                 (trace.GetPhase() * Globals::get()->GetAdcClockInSeconds() +
-                chan->GetTimeSansCfd() * Globals::get()->GetFilterClockInSeconds())
+                 chan->GetTimeSansCfd() *
+                 Globals::get()->GetFilterClockInSeconds())
                 * 1e9);
     } else {
         /// otherwise, use the Pixie on-board calculated energy and high res
         /// time is zero.
         energy = chan->GetEnergy() + randoms->Get();
-	    chan->SetHighResTime(0.0);
+        chan->SetHighResTime(0.0);
     }
 
     /** Calibrate energy and apply the walk correction. */
     double time, walk_correction;
-    if(chan->GetHighResTimeInNs() == 0.0) {
-	time = chan->GetTime(); //time is in clock ticks
-	    walk_correction = walk_->GetCorrection(chanId, energy);
+    if (chan->GetHighResTimeInNs() == 0.0) {
+        time = chan->GetTime(); //time is in clock ticks
+        walk_correction = walk_->GetCorrection(chanId, energy);
     } else {
-	time = chan->GetHighResTimeInNs(); //time here is in ns
-	    walk_correction = walk_->GetCorrection(chanId, trace.GetQdc());
+        time = chan->GetHighResTimeInNs(); //time here is in ns
+        walk_correction = walk_->GetCorrection(chanId, trace.GetQdc());
     }
 
     chan->SetCalibratedEnergy(cali_->GetCalEnergy(chanId, energy));
@@ -273,30 +275,30 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
     if (summary != NULL)
         summary->AddEvent(chan);
 
-    if(hasStartTag && type != "logic") {
+    if (hasStartTag && type != "logic") {
         summary =
-            rawev.GetSummary(type + ':' + subtype + ':' + "start", false);
+                rawev.GetSummary(type + ':' + subtype + ':' + "start", false);
         if (summary != NULL)
             summary->AddEvent(chan);
     }
-    return(1);
+    return (1);
 }
 
 int DetectorDriver::PlotRaw(const ChanEvent *chan) {
     plot(D_RAW_ENERGY + chan->GetID(), chan->GetEnergy());
-    return(0);
+    return (0);
 }
 
 int DetectorDriver::PlotCal(const ChanEvent *chan) {
     plot(D_CAL_ENERGY + chan->GetID(), chan->GetCalibratedEnergy());
-    return(0);
+    return (0);
 }
 
-EventProcessor* DetectorDriver::GetProcessor(const std::string& name) const {
+EventProcessor *DetectorDriver::GetProcessor(const std::string &name) const {
     for (vector<EventProcessor *>::const_iterator it = vecProcess.begin();
-	 it != vecProcess.end(); it++) {
-	if ( (*it)->GetName() == name )
-	    return(*it);
+         it != vecProcess.end(); it++) {
+        if ((*it)->GetName() == name)
+            return (*it);
     }
-    return(NULL);
+    return (NULL);
 }

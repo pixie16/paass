@@ -48,8 +48,8 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
     try {
         max = TraceFunctions::FindMaximum(
                 trace, globals->GetTraceDelayInNs() /
-                        (globals->GetAdcClockInSeconds() * 1.e9));
-    } catch(range_error &ex) {
+                       (globals->GetAdcClockInSeconds() * 1.e9));
+    } catch (range_error &ex) {
         trace.SetHasValidAnalysis(false);
         cout << "WaveformAnalyzer::Analyze - " << ex.what() << endl;
         EndAnalyze();
@@ -60,7 +60,7 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
     // baseline to calculate the average baseline then we're going to set
     // some of the variables to be used later to zero and end the analysis of
     // the waveform now.
-    if(max.first - range.first < TraceFunctions::minimum_baseline_length) {
+    if (max.first - range.first < TraceFunctions::minimum_baseline_length) {
 #ifdef VERBOSE
         cout << "WaveformAnalyzer::Analyze - The low bound for the trace "
                 "overlaps with the minimum bins for the baseline." << endl;
@@ -70,7 +70,7 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
         return;
     }
 
-    try{
+    try {
         //Next we calculate the baseline and its standard deviation
         pair<double, double> baseline =
                 TraceFunctions::CalculateBaseline(
@@ -83,7 +83,7 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
         // hard limit of 50 as a cutoff since anything with a standard
         // deviation of this high will never be something we want to analyze.
         static const double extremeBaselineVariation = 50;
-        if(baseline.second >= extremeBaselineVariation) {
+        if (baseline.second >= extremeBaselineVariation) {
             trace.SetHasValidAnalysis(false);
             EndAnalyze();
             return;
@@ -99,7 +99,8 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
         //Finally, we calculate the QDC in the waveform range and subtract
         // the baseline from it.
         pair<unsigned int, unsigned int> waveformRange(max.first - range.first,
-                                                       max.first + range.second);
+                                                       max.first +
+                                                       range.second);
         double qdc =
                 TraceFunctions::CalculateQdc(traceNoBaseline, waveformRange);
 
@@ -110,7 +111,7 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
         trace.SetExtrapolatedMax(
                 make_pair(max.first,
                           TraceFunctions::ExtrapolateMaximum(trace, max).first -
-                                  baseline.first));
+                          baseline.first));
         trace.SetTraceSansBaseline(traceNoBaseline);
         trace.SetWaveformRange(waveformRange);
         trace.SetHasValidAnalysis(true);

@@ -31,10 +31,12 @@ public:
      * \param [in] detSubtype : the subtype of the detector 
      * \param [in] tagMap : the map of tags for the channel */
     void Analyze(Trace &trace, const std::string &detType,
-                         const std::string &detSubtype,
-                         const std::map<std::string, int> & tagMap);
+                 const std::string &detSubtype,
+                 const std::map<std::string, int> &tagMap);
+
 private:
     TimingDriver *driver_;
 };
+
 #endif // __FITTINGANALYZER_HPP_
 // David is awesome.

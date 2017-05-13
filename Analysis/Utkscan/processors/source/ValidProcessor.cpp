@@ -19,14 +19,14 @@ using namespace std;
 
 stringstream ValidProcessor::fileName;
 
-ValidProcessor::ValidProcessor(): EventProcessor() {
+ValidProcessor::ValidProcessor() : EventProcessor() {
     name = "ValidProcessor";
     associatedTypes.insert("valid");
 
 }
 
 bool ValidProcessor::Process(RawEvent &event) {
-    if(!EventProcessor::Process(event))
+    if (!EventProcessor::Process(event))
         return false;
 
     OutputData(event);
@@ -35,10 +35,10 @@ bool ValidProcessor::Process(RawEvent &event) {
 }
 
 void ValidProcessor::OutputData(RawEvent &event) {
-    static const vector<ChanEvent*> & validEvents =
-        event.GetSummary("valid")->GetList();
+    static const vector<ChanEvent *> &validEvents =
+            event.GetSummary("valid")->GetList();
 
-    if(fileName.str() == "") {
+    if (fileName.str() == "") {
         char hisFileName[32];
         GetArgument(1, hisFileName, 32);
         string temp = hisFileName;
@@ -49,15 +49,15 @@ void ValidProcessor::OutputData(RawEvent &event) {
     ofstream data;
     data.open(fileName.str().c_str(), fstream::app);
 
-    for(vector<ChanEvent*>::const_iterator itValid = validEvents.begin();
-        itValid != validEvents.end(); itValid++) {
+    for (vector<ChanEvent *>::const_iterator itValid = validEvents.begin();
+         itValid != validEvents.end(); itValid++) {
 
         string type = (*itValid)->GetChanID().GetType();
         bool hasTag = (*itValid)->GetChanID().GetTag("output");
         unsigned int location = (*itValid)->GetChanID().GetLocation();
         unsigned int long timeLow = (*itValid)->GetQdcValue(0);
         unsigned int long timeHigh = (*itValid)->GetQdcValue(1);
-        if(hasTag)
+        if (hasTag)
             data << type << " " << location << " "
                  << timeLow << " " << timeHigh << endl;
     }

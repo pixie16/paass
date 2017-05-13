@@ -29,14 +29,18 @@ private:
 public:
     /** Default Constructor */
     IonChamberProcessor();
+
     /** Default Destructor */
     ~IonChamberProcessor() {};
+
     /** Process an event
     * \param [in] event : the event to process
     * \return true if the processing was successful */
     virtual bool Process(RawEvent &event);
+
     /** Declare plots for processor */
     virtual void DeclarePlots(void);
+
 #ifdef useroot
     /** Add the branch to the tree
     * \param [in] tree : the tree to add the branch to
@@ -46,4 +50,5 @@ public:
     void FillBranch(void);
 #endif
 };
+
 #endif // __IONCHAMBERPROCSSEOR_HPP_

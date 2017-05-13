@@ -14,18 +14,23 @@ class TeenyVandleProcessor : public EventProcessor {
 public:
     /** Default Constructor */
     TeenyVandleProcessor();
+
     /** Default Destructor */
-    ~TeenyVandleProcessor(){};
+    ~TeenyVandleProcessor() {};
+
     /** Declares the plots for the processor */
     virtual void DeclarePlots(void);
+
     /** Performs the preprocessing, which cannot depend on other processors
     * \param [in] event : the event to process
     * \return true if preprocessing was successful */
     virtual bool PreProcess(RawEvent &event);
+
     /** Performs the main processsing, which may depend on other processors
     * \param [in] event : the event to process
     * \return true if processing was successful */
     virtual bool Process(RawEvent &event);
+
 private:
     /** Retrieves the data for the associated types
      * \param [in] event : the event to get data from
@@ -37,4 +42,5 @@ private:
 
     TimingMap data_;
 };
+
 #endif // __TEENYVANDLEPROCESSOR_HPP__

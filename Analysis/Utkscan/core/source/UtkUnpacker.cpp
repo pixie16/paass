@@ -45,7 +45,7 @@ void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
 
     DetectorDriver *driver = DetectorDriver::get();
     DetectorLibrary *modChan = DetectorLibrary::get();
-    set<string> usedDetectors;
+    set <string> usedDetectors;
     Messenger m;
     stringstream ss;
 
@@ -56,15 +56,15 @@ void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
 
     if (eventCounter == 0)
         InitializeDriver(driver, modChan, systemStartTime);
-    else if(eventCounter % 5000 == 0 || eventCounter == 1)
+    else if (eventCounter % 5000 == 0 || eventCounter == 1)
         PrintProcessingTimeInformation(systemStartTime, times(&systemTimes),
-            GetEventStartTime(), eventCounter);
+                                       GetEventStartTime(), eventCounter);
 
     if (Globals::get()->HasRejectionRegion()) {
         double eventTime = (GetEventStartTime() - GetFirstTime()) *
-                                Globals::get()->GetClockInSeconds();
+                           Globals::get()->GetClockInSeconds();
 
-        vector< pair<unsigned int, unsigned int> > rejectRegions =
+        vector <pair<unsigned int, unsigned int>> rejectRegions =
                 Globals::get()->GetRejectionRegions();
 
         for (vector<pair<unsigned int, unsigned int> >::iterator region =
@@ -74,11 +74,11 @@ void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
     }
 
     driver->plot(D_EVENT_GAP, (GetRealStopTime() - lastTimeOfPreviousEvent) *
-            Globals::get()->GetClockInSeconds()*1e9);
+                              Globals::get()->GetClockInSeconds() * 1e9);
     driver->plot(D_BUFFER_END_TIME, GetRealStopTime() *
-            Globals::get()->GetClockInSeconds()*1e9);
+                                    Globals::get()->GetClockInSeconds() * 1e9);
     driver->plot(D_EVENT_LENGTH, (GetRealStopTime() - GetRealStartTime()) *
-            Globals::get()->GetClockInSeconds()*1e9);
+                                 Globals::get()->GetClockInSeconds() * 1e9);
     driver->plot(D_EVENT_MULTIPLICITY, rawEvent.size());
 
     //loop over the list of channels that fired in this event
@@ -90,7 +90,7 @@ void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
 
         RawStats((*it), driver);
 
-        if ((*it)->GetId() == std::numeric_limits<unsigned int>::max()) {
+        if ((*it)->GetId() == std::numeric_limits < unsigned int > ::max()) {
             ss << "pattern 0 ignore";
             m.warning(ss.str());
             ss.str("");
@@ -152,7 +152,7 @@ void UtkUnpacker::RawStats(XiaData *event_, DetectorDriver *driver,
     rowNumSecs = int(runTimeSecs / specNoBins);
     remainNumSecs = runTimeSecs - rowNumSecs * specNoBins;
 
-    runTimeMsecs = runTimeSecs*1000;
+    runTimeMsecs = runTimeSecs * 1000;
     rowNumMsecs = int(runTimeMsecs / specNoBins);
     remainNumMsecs = runTimeMsecs - rowNumMsecs * specNoBins;
 
@@ -202,7 +202,7 @@ void UtkUnpacker::InitializeDriver(DetectorDriver *driver,
 
     //set eventWidth from Globals (loaded from config file)
     SetEventWidth(Globals::get()->GetEventLengthInTicks());
- 
+
     ss << "Init at " << times(&systemTimes) << " system time.";
     m.detail(ss.str());
     m.done();
@@ -214,8 +214,9 @@ void UtkUnpacker::InitializeDriver(DetectorDriver *driver,
 /// information that was present in PixieStd.cpp::hissub_. Some of that
 /// information is not available or just not that relevant to us.
 void UtkUnpacker::PrintProcessingTimeInformation(const clock_t &start,
-        const clock_t &now, const double &eventTime,
-        const unsigned int &eventCounter) {
+                                                 const clock_t &now,
+                                                 const double &eventTime,
+                                                 const unsigned int &eventCounter) {
     Messenger m;
     stringstream ss;
     static float hz = sysconf(_SC_CLK_TCK);

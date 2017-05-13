@@ -39,12 +39,12 @@ private:
     ///Parses the list of processors from the configuration file.
     ///@param[in] node : The first processor node that we have.
     ///@return A vector containing pointers to the newly created classes
-    std::vector<EventProcessor*> ParseProcessors(const pugi::xml_node &node);
+    std::vector<EventProcessor *> ParseProcessors(const pugi::xml_node &node);
 
     ///Parses the list of analyzers from the configuration file.
     ///@param[in] node : The first processor node that we have.
     ///@return A vector containing pointers to the newly created classes
-    std::vector<TraceAnalyzer*> ParseAnalyzers(const pugi::xml_node &node);
+    std::vector<TraceAnalyzer *> ParseAnalyzers(const pugi::xml_node &node);
 
     ///Prints all of the attributes for a node to the screen.
     ///@param[in] node : The node that we'd like to print the attirbutes for.

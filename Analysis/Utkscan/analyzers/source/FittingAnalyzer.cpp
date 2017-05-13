@@ -32,8 +32,8 @@ FittingAnalyzer::FittingAnalyzer(const std::string &s) {
     if (s == "GSL" || s == "gsl")
         driver_ = new GslFitter();
 #ifdef USE_ROOT
-    else if (s == "ROOT" || s == "root")
-        driver_ = new RootFitter();
+        else if (s == "ROOT" || s == "root")
+            driver_ = new RootFitter();
 #endif
     else {
         stringstream ss;
@@ -84,7 +84,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
         pars = globals->GetFitPars(detType + ":" + detSubtype + ":timing");
 
     driver_->SetQdc(trace.GetQdc());
-    if(isFastSiPm)
+    if (isFastSiPm)
         driver_->SetIsFastSiPm(isFastSiPm);
     double phase = driver_->CalculatePhase(trace.GetWaveform(), pars,
                                            trace.GetMaxInfo(),

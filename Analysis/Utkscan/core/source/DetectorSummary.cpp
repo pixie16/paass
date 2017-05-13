@@ -17,7 +17,8 @@ DetectorSummary::DetectorSummary() {
 }
 
 DetectorSummary::DetectorSummary(const std::string &str,
-				 const std::vector<ChanEvent *> &fullList) : name(str) {
+                                 const std::vector<ChanEvent *> &fullList)
+        : name(str) {
     maxEvent = NULL;
 
     // go find all channel events with appropriate type and subtype
@@ -27,24 +28,24 @@ DetectorSummary::DetectorSummary(const std::string &str,
     type = str.substr(0, colonPos);
 
     if (colonPos == string::npos) {
-	subtype = ""; // no associated subtype
+        subtype = ""; // no associated subtype
     } else {
-	if(colonPos != colonPos1) {
-	    subtype = str.substr(colonPos+1, colonPos1-colonPos-1);
-	    tag = str.substr(colonPos1+1);
-	} else {
-	    subtype = str.substr(colonPos+1);
-	    tag = "";
-	}
+        if (colonPos != colonPos1) {
+            subtype = str.substr(colonPos + 1, colonPos1 - colonPos - 1);
+            tag = str.substr(colonPos1 + 1);
+        } else {
+            subtype = str.substr(colonPos + 1);
+            tag = "";
+        }
     }
 
     for (vector<ChanEvent *>::const_iterator it = fullList.begin();
-	 it != fullList.end(); it++) {
-        const Identifier& id = (*it)->GetChanID();
+         it != fullList.end(); it++) {
+        const Identifier &id = (*it)->GetChanID();
 
-        if ( id.GetType() != type )
+        if (id.GetType() != type)
             continue;
-        if ( subtype != "" && id.GetSubtype() != subtype )
+        if (subtype != "" && id.GetSubtype() != subtype)
             continue;
         if (tag != "" && !id.HasTag(tag))
             continue;
@@ -55,7 +56,8 @@ DetectorSummary::DetectorSummary(const std::string &str,
 void DetectorSummary::AddEvent(ChanEvent *ev) {
     eventList.push_back(ev);
 
-    if (maxEvent == NULL || ev->GetCalibratedEnergy() > maxEvent->GetCalibratedEnergy()) {
+    if (maxEvent == NULL ||
+        ev->GetCalibratedEnergy() > maxEvent->GetCalibratedEnergy()) {
         maxEvent = ev;
     }
 }

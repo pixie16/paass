@@ -14,15 +14,16 @@ using namespace std;
 using namespace unittest_trace_variables;
 using namespace unittest_fit_variables;
 
-TEST_FIXTURE(GslFitter, TestGslFitter) {
-    //We need to set the QDC before the fit
-    SetQdc(21329.85714285);
+TEST_FIXTURE(GslFitter, TestGslFitter
+) {
+//We need to set the QDC before the fit
+SetQdc(21329.85714285);
 
-    //Actually perform the fitting
-    double phase = CalculatePhase(waveform, fitting_parameters,
-                                  max_pair, baseline_pair);
+//Actually perform the fitting
+double phase = CalculatePhase(waveform, fitting_parameters,
+                              max_pair, baseline_pair);
 
-    CHECK_CLOSE(-0.0826487, phase, 1.);
+CHECK_CLOSE(-0.0826487, phase, 1.);
 }
 
 int main(int argv, char *argc[]) {

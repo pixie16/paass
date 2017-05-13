@@ -18,18 +18,23 @@ class LitePositionProcessor : public EventProcessor {
 public:
     /** Default Constructor */
     LitePositionProcessor();
+
     /** Default Destructor */
-    ~LitePositionProcessor(){};
+    ~LitePositionProcessor() {};
+
     /** Initialize the processor
     * \param [in] event : the event to use for init
     * \return true if init was successful */
     virtual bool Init(RawEvent &event);
-        /** Process an event
-    * \param [in] event : the event to process
-    * \return true if the processing was successful */
+
+    /** Process an event
+* \param [in] event : the event to process
+* \return true if the processing was successful */
     virtual bool Process(RawEvent &event);
-        /** Declare plots for processor */
+
+    /** Declare plots for processor */
     virtual void DeclarePlots(void);
+
 protected:
     static const std::string configFile; //!< Configuration file name
     static const int numQdcs = 8;//!< Number of QDCs to calculate
@@ -48,9 +53,9 @@ protected:
     * \param [in] begin : an iterator to the beginning of the event
     * \param [in] end : an iterator to the end of the event
     * \return a pointer to the matching ChanEvent */
-    ChanEvent* FindMatchingEdge(ChanEvent *match,
-				std::vector<ChanEvent*>::const_iterator begin,
-				std::vector<ChanEvent*>::const_iterator end) const;
+    ChanEvent *FindMatchingEdge(ChanEvent *match,
+                                std::vector<ChanEvent *>::const_iterator begin,
+                                std::vector<ChanEvent *>::const_iterator end) const;
 };
 
 #endif // __LITEPOSITIONPROCESSOR_HPP_

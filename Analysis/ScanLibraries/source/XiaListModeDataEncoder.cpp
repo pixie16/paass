@@ -34,25 +34,25 @@ std::vector<unsigned int> XiaListModeDataEncoder::EncodeXiaData(
     XiaListModeDataMask mask(firmware, frequency);
 
     header.push_back(EncodeWordZero(data, mask));
-    header.push_back(EncodeWordOne(data,mask));
-    header.push_back(EncodeWordTwo(data,mask));
-    header.push_back(EncodeWordThree(data,mask));
+    header.push_back(EncodeWordOne(data, mask));
+    header.push_back(EncodeWordTwo(data, mask));
+    header.push_back(EncodeWordThree(data, mask));
 
     //The following calls are required in this order due to the structure of
     // the XIA list mode data format.
-    if(data.GetEnergySums().size() != 0) {
+    if (data.GetEnergySums().size() != 0) {
         vector<unsigned int> tmp = EncodeEsums(data, mask);
         header.insert(header.end(), tmp.begin(), tmp.end());
     }
 
     ///Each QDC value takes up a single 32-bit word. No need to do anything
     /// special here.
-    if(data.GetQdc().size() != 0) {
-        for(unsigned int i = 0; i < data.GetQdc().size(); i++)
-            header.push_back((unsigned int &&)data.GetQdc().at(i));
+    if (data.GetQdc().size() != 0) {
+        for (unsigned int i = 0; i < data.GetQdc().size(); i++)
+            header.push_back((unsigned int &&) data.GetQdc().at(i));
     }
 
-    if(data.GetExternalTimeLow() != 0) {
+    if (data.GetExternalTimeLow() != 0) {
         //The External timestamps work essentially the same as the internal time
         // stamps in terms of the structure. The major difference here is that
         // the upper bits of the high word are all zero. No special
@@ -62,7 +62,7 @@ std::vector<unsigned int> XiaListModeDataEncoder::EncodeXiaData(
     }
 
     ///Trace comes last since it comes after the header.
-    if(data.GetTrace().size() != 0) {
+    if (data.GetTrace().size() != 0) {
         vector<unsigned int> tmp = EncodeTrace(data.GetTrace(),
                                                mask.GetTraceMask());
         header.insert(header.end(), tmp.begin(), tmp.end());
@@ -84,20 +84,20 @@ unsigned int XiaListModeDataEncoder::EncodeWordZero(
     if (data.GetQdc().size() != 0)
         headerLength += 8;
     unsigned int eventLength =
-            (unsigned int)ceil(data.GetTrace().size() * 0.5) + headerLength;
+            (unsigned int) ceil(data.GetTrace().size() * 0.5) + headerLength;
 
     unsigned int word = 0;
     word |= data.GetChannelNumber() & mask.GetChannelNumberMask().first;
     word |= (data.GetSlotNumber() << mask.GetSlotIdMask().second) &
-                 mask.GetSlotIdMask().first;
+            mask.GetSlotIdMask().first;
     word |= (data.GetCrateNumber() << mask.GetCrateIdMask().second) &
-                 mask.GetCrateIdMask().first;
+            mask.GetCrateIdMask().first;
     word |= (headerLength << mask.GetHeaderLengthMask().second) &
-                 mask.GetHeaderLengthMask().first;
+            mask.GetHeaderLengthMask().first;
     word |= (eventLength << mask.GetEventLengthMask().second) &
-                 mask.GetEventLengthMask().first;
+            mask.GetEventLengthMask().first;
     word |= (data.IsPileup() << mask.GetFinishCodeMask().second) &
-                 mask.GetFinishCodeMask().first;
+            mask.GetFinishCodeMask().first;
     return word;
 }
 
@@ -107,39 +107,41 @@ unsigned int XiaListModeDataEncoder::EncodeWordOne(
 }
 
 unsigned int XiaListModeDataEncoder::EncodeWordTwo(
-        const XiaData &data, const XiaListModeDataMask &mask){
+        const XiaData &data, const XiaListModeDataMask &mask) {
     unsigned int word = 0;
     word |= data.GetEventTimeHigh() & mask.GetEventTimeHighMask().first;
-    word |= (data.GetCfdFractionalTime() << mask.GetCfdFractionalTimeMask().second) &
-                 mask.GetCfdFractionalTimeMask().first;
+    word |= (data.GetCfdFractionalTime()
+            << mask.GetCfdFractionalTimeMask().second) &
+            mask.GetCfdFractionalTimeMask().first;
     word |= (data.GetCfdForcedTriggerBit() << mask.GetCfdForcedTriggerBitMask()
             .second) & mask.GetCfdForcedTriggerBitMask().first;
-    word |= (data.GetCfdTriggerSourceBit() << mask.GetCfdTriggerSourceMask().second) &
-                 mask.GetCfdTriggerSourceMask().first;
+    word |= (data.GetCfdTriggerSourceBit()
+            << mask.GetCfdTriggerSourceMask().second) &
+            mask.GetCfdTriggerSourceMask().first;
     return word;
 }
 
 unsigned int XiaListModeDataEncoder::EncodeWordThree(
-        const XiaData &data, const XiaListModeDataMask &mask){
+        const XiaData &data, const XiaListModeDataMask &mask) {
     unsigned int word = 0;
     word |= (unsigned int) data.GetEnergy() & mask.GetEventEnergyMask().first;
     word |= (data.IsSaturated() << mask.GetTraceOutOfRangeFlagMask()
             .second) & mask.GetTraceOutOfRangeFlagMask().first;
     word |= (data.GetTrace().size() << mask.GetTraceLengthMask().second) &
-                  mask.GetTraceLengthMask().first;
+            mask.GetTraceLengthMask().first;
     return word;
 }
 
 vector<unsigned int> XiaListModeDataEncoder::EncodeTrace(
         const std::vector<unsigned int> &trc, const std::pair<unsigned int,
-        unsigned int> &mask){
+        unsigned int> &mask) {
     vector<unsigned int> tmp;
-    for(vector<unsigned int>::const_iterator it = trc.begin();
-        it != trc.end(); it+=2) {
+    for (vector<unsigned int>::const_iterator it = trc.begin();
+         it != trc.end(); it += 2) {
         vector<unsigned int>::const_iterator next = it + 1;
         unsigned int word = 0;
         word |= *it;
-        if(next != trc.end())
+        if (next != trc.end())
             word |= *next << mask.second;
         tmp.push_back(word);
     }
@@ -149,6 +151,6 @@ vector<unsigned int> XiaListModeDataEncoder::EncodeTrace(
 ///@TODO This needs to be updated so that it actually formats the baseline in
 /// one of the IEEE standard formats properly before we return.
 vector<unsigned int> XiaListModeDataEncoder::EncodeEsums(
-        const XiaData &data, const XiaListModeDataMask &mask){
+        const XiaData &data, const XiaListModeDataMask &mask) {
     return data.GetEnergySums();
 }

@@ -46,8 +46,11 @@
 #include "WalkCorrector.hpp"
 
 class Calibration;
+
 class RawEvent;
+
 class EventProcessor;
+
 class TraceAnalyzer;
 
 /*! \brief DetectorDriver controls event processing
@@ -59,7 +62,7 @@ class TraceAnalyzer;
 class DetectorDriver {
 public:
     /*! \return Instance is created upon first call */
-    static DetectorDriver* get();
+    static DetectorDriver *get();
 
     const WalkCorrector *walk_; //!< Instance of the walk correction
     const Calibrator *cali_;//!< Instance of the calibrator
@@ -72,7 +75,7 @@ public:
     * \param [in] val3 : the z value
     * \param [in] name : the name of the histogram */
     virtual void plot(int dammId, double val1, double val2 = -1,
-                      double val3 = -1, const char* name="h") {
+                      double val3 = -1, const char *name = "h") {
         histo.Plot(dammId, val1, val2, val3, name);
     }
 
@@ -88,7 +91,7 @@ public:
     * Currently, both RMS and MTC processing is available.  After all processing
     * has occured, appropriate plotting routines are called.
     * \param [in] rawev : the raw event to process */
-    void ProcessEvent(RawEvent& rawev);
+    void ProcessEvent(RawEvent &rawev);
 
     /*! \brief Check threshold and calibrate each channel.
      * Check the thresholds and calibrate the energy for each channel using the
@@ -96,13 +99,13 @@ public:
      * \param [in] chan : the channel to do the calibration on
      * \param [in] rawev : the raw event to write the information into
      * \return an unused integer (maybe change to void) */
-    int ThreshAndCal(ChanEvent *chan, RawEvent& rawev);
+    int ThreshAndCal(ChanEvent *chan, RawEvent &rawev);
 
     /*! Called from PixieStd.cpp during initialization.
      * The calibration file Config.xml is read using the function ReadCal() and
      * checked to make sure that all channels have a calibration.
      * \param [in] rawev : the raw event to initialize with */
-    void Init(RawEvent& rawev);
+    void Init(RawEvent &rawev);
 
     /*! Plot the raw energies of each channel into the damm spectrum number
      * assigned to it in the map file with an offset as defined in
@@ -129,7 +132,7 @@ public:
      * \param [in] d : the pixie time to correlate
      * \param [in] t : the wall time to correlate */
     void CorrelateClock(double d, time_t t) {
-        pixieToWallClock=std::make_pair(d, t);
+        pixieToWallClock = std::make_pair(d, t);
     }
 
     /** \return The wall time
@@ -141,43 +144,45 @@ public:
     }
 
     /** \return the list of the Event Processors in the analysis */
-    const std::vector<EventProcessor *>& GetProcessors(void) const {
+    const std::vector<EventProcessor *> &GetProcessors(void) const {
         return vecProcess;
     }
 
     /** \return The requested event processor
      * \param [in] name : the name of the processor to return */
-    EventProcessor* GetProcessor(const std::string &name) const;
+    EventProcessor *GetProcessor(const std::string &name) const;
 
     /** \return the set of detectors used in the analysis */
-    const std::set<std::string> &GetUsedDetectors(void) const;
+    const std::set <std::string> &GetUsedDetectors(void) const;
 
     ///Sets the processor list
     ///@param[in] a : The vector containing the pointer to the event processors
-    void SetEventProcessors(const std::vector<EventProcessor*> &a) {
+    void SetEventProcessors(const std::vector<EventProcessor *> &a) {
         vecProcess = a;
     }
 
     ///Sets the analyzer list
     ///@param[in] a : The vector containing the pointer to the Trace Analyzers
-    void SetTraceAnalyzers(const std::vector<TraceAnalyzer*> &a) {
+    void SetTraceAnalyzers(const std::vector<TraceAnalyzer *> &a) {
         vecAnalyzer = a;
     }
 
     /** Default Destructor */
     virtual ~DetectorDriver();
+
 private:
     /** Constructor that initializes the various processors and analyzers. */
     DetectorDriver();
-    DetectorDriver(const DetectorDriver&); //!< Overloaded constructor
-    DetectorDriver& operator= (DetectorDriver const&);//!< Equality constructor
-    static DetectorDriver* instance;//!< The only instance of DetectorDriver
 
-    std::vector<EventProcessor*> vecProcess; /**< vector of processors to handle each event */
+    DetectorDriver(const DetectorDriver &); //!< Overloaded constructor
+    DetectorDriver &operator=(DetectorDriver const &);//!< Equality constructor
+    static DetectorDriver *instance;//!< The only instance of DetectorDriver
 
-    std::vector<TraceAnalyzer*> vecAnalyzer; /**< object which analyzes traces of channels to extract
+    std::vector<EventProcessor *> vecProcess; /**< vector of processors to handle each event */
+
+    std::vector<TraceAnalyzer *> vecAnalyzer; /**< object which analyzes traces of channels to extract
                    energy and time information */
-    std::set<std::string> knownDetectors; /**< list of valid detectors that can
+    std::set <std::string> knownDetectors; /**< list of valid detectors that can
                    be used as detector types */
     std::string cfg_; //!< The configuration file to read
     std::pair<double, time_t> pixieToWallClock; /**< rough estimate of pixie to wall clock */
@@ -187,7 +192,7 @@ private:
     * \param [in] dammId : The histogram number to define
     * \param [in] xSize : The range of the x-axis
     * \param [in] title : The title for the histogram */
-    virtual void DeclareHistogram1D(int dammId, int xSize, const char* title) {
+    virtual void DeclareHistogram1D(int dammId, int xSize, const char *title) {
         histo.DeclareHistogram1D(dammId, xSize, title);
     }
 
@@ -197,7 +202,7 @@ private:
     * \param [in] ySize : The range of the y-axis
     * \param [in] title : The title of the histogram */
     virtual void DeclareHistogram2D(int dammId, int xSize, int ySize,
-                                    const char* title) {
+                                    const char *title) {
         histo.DeclareHistogram2D(dammId, xSize, ySize, title);
     }
 };

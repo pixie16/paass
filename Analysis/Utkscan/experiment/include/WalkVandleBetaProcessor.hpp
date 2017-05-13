@@ -14,8 +14,10 @@ class WalkVandleBetaProcessor : public VandleProcessor {
 public:
     /** Default Constructor */
     WalkVandleBetaProcessor();
+
     /** Default Destructor */
     ~WalkVandleBetaProcessor() {};
+
     /** Declare the plots used in the analysis */
     virtual void DeclarePlots(void);
 
@@ -24,13 +26,14 @@ public:
      * \param [in] res : The resolution of the DAMM histograms
      * \param [in] offset : The offset of the DAMM histograms 
      * \param [in] numStarts : the number of starts in the analysis */
-    WalkVandleBetaProcessor(const std::vector<std::string> &typeList,
-                    const double &res, const double &offset,
-                    const double &numStarts);
+    WalkVandleBetaProcessor(const std::vector <std::string> &typeList,
+                            const double &res, const double &offset,
+                            const double &numStarts);
 
     /** Process the event
     * \param [in] event : the event to process
     * \return Returns true if the processing was successful */
     virtual bool Process(RawEvent &event);
 };
+
 #endif

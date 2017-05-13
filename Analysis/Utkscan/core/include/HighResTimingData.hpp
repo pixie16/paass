@@ -16,6 +16,7 @@ class HighResTimingData : public ChanEvent {
 public:
     /** Default constructor */
     HighResTimingData() {};
+
     /** Default destructor */
     virtual ~HighResTimingData() {};
 
@@ -28,16 +29,16 @@ public:
     * \param [in] z0 : The perpendicular distance between the bar and the source in cm
     * \return The particle energy in MeV*/
     double CalcEnergy(const double &tof, const double &z0) {
-        return((0.5*Physical::neutronMassInMeVcc*
-                pow((z0/tof)/Physical::speedOfLightInCmPerNs, 2)));
+        return ((0.5 * Physical::neutronMassInMeVcc *
+                 pow((z0 / tof) / Physical::speedOfLightInCmPerNs, 2)));
     }
 
     ///@return True if the trace was successfully analyzed and we managed to
     /// find a phase.
     bool GetIsValid() const {
-        if(GetTrace().HasValidAnalysis() && GetTrace().GetPhase() != 0.0)
-            return(true);
-        return(false);
+        if (GetTrace().HasValidAnalysis() && GetTrace().GetPhase() != 0.0)
+            return (true);
+        return (false);
     }
 
     /**This baseline value is calculated from the trace by averaging the
@@ -57,7 +58,7 @@ public:
     /** \return The current value of phase_ in nanoseconds*/
     double GetPhaseInNs() const {
         return GetTrace().GetPhase() *
-                Globals::get()->GetAdcClockInSeconds() * 1e9;
+               Globals::get()->GetAdcClockInSeconds() * 1e9;
     }
 
     /** \return The current value of stdDevBaseline_  */
@@ -67,7 +68,7 @@ public:
 
     /** \return The current value of tqdc_ */
     double GetTraceQdc() const {
-        return GetTrace().GetQdc() ;
+        return GetTrace().GetQdc();
     }
 
 #ifdef useroot
@@ -107,5 +108,5 @@ public:
 };
 
 /** Defines a map to hold timing data for a channel. */
-typedef std::map<TimingDefs::TimingIdentifier, HighResTimingData> TimingMap;
+typedef std::map <TimingDefs::TimingIdentifier, HighResTimingData> TimingMap;
 #endif // __HIGHRESTIMINGDATA_HPP__

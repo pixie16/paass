@@ -11,8 +11,9 @@ public:
 
     /** Default Constructor that clears the data structures  */
     StatsData(void);
+
     /** Default Destructor */
-    ~StatsData(){};
+    ~StatsData() {};
 
     /** Copy the statistics data from the data stream to a memory block,
      * preserving a copy of the old statistics data so that the incremental
@@ -38,8 +39,10 @@ public:
     /** \return run time from the statistics block for a given module
     * \param [in] mod : the module you want the time for */
     double GetRealTime(unsigned int mod = 0) const;
+
 private:
-    static const size_t statSize = N_DSP_PAR - DSP_IO_BORDER; //!< Size of the start
+    static const size_t statSize =
+            N_DSP_PAR - DSP_IO_BORDER; //!< Size of the start
     static const size_t maxVsn = 14; //!< maximum value of the vsn
 
     double firstTime; /**< Store the time of the first statistics block */

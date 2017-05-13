@@ -5,6 +5,7 @@
  */
 #ifndef __TEMPLATEEXPPROCESSOR_HPP_
 #define __TEMPLATEEXPPROCESSOR_HPP_
+
 #include <fstream>
 
 #include "EventProcessor.hpp"
@@ -21,10 +22,13 @@ class TemplateExpProcessor : public EventProcessor {
 public:
     /** Default Constructor */
     TemplateExpProcessor();
+
     /** Constructor to take an argument for the gamma cutoff */
     TemplateExpProcessor(const double &gcut);
+
     /** Default Destructor */
     ~TemplateExpProcessor();
+
     /** Declare the plots used in the analysis */
     virtual void DeclarePlots(void);
 
@@ -36,9 +40,11 @@ public:
     * \param [in] event : the event to process
     * \return Returns true if the processing was successful */
     virtual bool Process(RawEvent &event);
+
 private:
     /** Sets the detectors that are associated with this processor */
     void SetAssociatedTypes(void);
+
     /** Sets up the ASCII output file stream */
     void SetupAsciiOutput(void);
 
@@ -54,4 +60,5 @@ private:
     TH1D *ptsize_;     //! pointer to ROOT 1D histogram
 #endif
 };
+
 #endif

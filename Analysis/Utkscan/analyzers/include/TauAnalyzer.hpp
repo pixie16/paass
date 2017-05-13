@@ -20,7 +20,7 @@ public:
     TauAnalyzer(const std::string &aType, const std::string &aSubtype);
 
     /** Default Destructor */
-    ~TauAnalyzer(){};
+    ~TauAnalyzer() {};
 
     /** The main analysis driver
     * \param [in] trace : the trace to analyze
@@ -29,7 +29,8 @@ public:
     * \param [in] tagMap : the map of tags for the channel */
     virtual void Analyze(Trace &trace, const std::string &aType,
                          const std::string &aSubtype,
-                         const std::map<std::string, int> & tagMap);
+                         const std::map<std::string, int> &tagMap);
+
 private:
     std::string type; //!< the detector type
     std::string subtype;//!< the detector subtype

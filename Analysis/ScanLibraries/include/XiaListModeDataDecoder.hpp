@@ -24,8 +24,8 @@ public:
     ///@param[in] buf : Pointer to the beginning of the data buffer.
     ///@param[in] mask : The mask set that we need to decode the data
     ///@return A vector containing all of the decoded XiaData events.
-    std::vector<XiaData*> DecodeBuffer(unsigned int *buf,
-                                       const XiaListModeDataMask &mask);
+    std::vector<XiaData *> DecodeBuffer(unsigned int *buf,
+                                        const XiaListModeDataMask &mask);
 
     ///Method to calculate the arrival time of the signal in samples
     ///@param[in] mask : The data mask containing the necessary information
@@ -35,7 +35,7 @@ public:
     /// calculated just using the trapezoidal filter (no CFD) and the second
     /// element is the time calculated using all available CFD information.
     /// If the CFD information is unavailable these two elements are identical.
-    static std::pair<double,double> CalculateTimeInSamples(
+    static std::pair<double, double> CalculateTimeInSamples(
             const XiaListModeDataMask &mask, const XiaData &data);
 
     ///Method to calculate the arrival time of the signal in nanoseconds
@@ -45,6 +45,7 @@ public:
     ///@return The calculated time in nanoseconds
     static double CalculateTimeInNs(
             const XiaListModeDataMask &mask, const XiaData &data);
+
 private:
     ///Method to decode word zero from the header.
     ///@param[in] word : The word that we need to decode

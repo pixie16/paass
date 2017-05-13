@@ -39,13 +39,13 @@ UtkScanInterface::~UtkScanInterface() {
  * \param[out] arg_ Vector or arguments to the user command.
  * \return True if the command was recognized and false otherwise. */
 bool UtkScanInterface::ExtraCommands(const string &cmd_,
-                                     vector<string> &args_) {
+                                     vector <string> &args_) {
     if (cmd_ == "mycmd") {
         if (args_.size() >= 1) {
             // Handle the command.
         } else {
             cout << msgHeader
-                      << "Invalid number of parameters to 'mycmd'\n";
+                 << "Invalid number of parameters to 'mycmd'\n";
             cout << msgHeader << " -SYNTAX- mycmd <param>\n";
         }
     } else
@@ -77,7 +77,7 @@ bool UtkScanInterface::Initialize(string prefix_) {
     if (init_)
         return false;
 
-    if(GetOutputFilename() == "")
+    if (GetOutputFilename() == "")
         throw invalid_argument("UtkScaninterface::Initialize : The output file "
                                        "name was not provided.");
 
@@ -88,7 +88,7 @@ bool UtkScanInterface::Initialize(string prefix_) {
         Globals::get(GetSetupFilename());
         DetectorLibrary::get();
         TreeCorrelator::get()->buildTree();
-    }catch (invalid_argument &ex) {
+    } catch (invalid_argument &ex) {
         throw;
     }
 
@@ -103,7 +103,7 @@ bool UtkScanInterface::Initialize(string prefix_) {
     try {
         output_his =
                 new OutputHisFile(
-                        (GetOutputPath()+GetOutputFilename()).c_str());
+                        (GetOutputPath() + GetOutputFilename()).c_str());
         output_his->SetDebugMode(false);
 
         /** The DetectorDriver constructor will load processors
@@ -120,8 +120,9 @@ bool UtkScanInterface::Initialize(string prefix_) {
         DetectorDriver::get()->DeclarePlots();
         output_his->Finalize();
     } catch (exception &e) {
-        cout << Display::ErrorStr(prefix_ + "Exception caught at UtkScanInterface::Initialize")
-                  << endl;
+        cout << Display::ErrorStr(
+                prefix_ + "Exception caught at UtkScanInterface::Initialize")
+             << endl;
         throw;
     }
 #endif
@@ -147,7 +148,7 @@ void UtkScanInterface::Notify(const string &code_/*=""*/) {
     } else if (code_ == "REWIND_FILE") {
     } else {
         cout << msgHeader << "Unknown notification code '" << code_
-                  << "'!\n";
+             << "'!\n";
     }
 }
 
@@ -156,7 +157,7 @@ void UtkScanInterface::Notify(const string &code_/*=""*/) {
  * \return Pointer to an Unpacker object. */
 Unpacker *UtkScanInterface::GetCore() {
     if (!core)
-        core = (Unpacker *) (new UtkUnpacker());
+        core = (Unpacker * )(new UtkUnpacker());
     return (core);
 }
 

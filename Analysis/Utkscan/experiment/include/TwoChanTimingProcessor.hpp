@@ -11,7 +11,7 @@
 
 //! A class that handles a simple timing experiment
 class TwoChanTimingProcessor : public EventProcessor {
- public:
+public:
     /** Default Constructor */
     TwoChanTimingProcessor();
 
@@ -24,4 +24,5 @@ class TwoChanTimingProcessor : public EventProcessor {
     * \return true if processing was successful */
     bool Process(RawEvent &event);
 };
+
 #endif // __TWOCHANTIMINGPROCESSOR_HPP_

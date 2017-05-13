@@ -7,9 +7,9 @@
 
 #include "RandomPool.hpp"
 
-RandomPool* RandomPool::instance = NULL;
+RandomPool *RandomPool::instance = NULL;
 
-RandomPool* RandomPool::get() {
+RandomPool *RandomPool::get() {
     if (!instance) {
         instance = new RandomPool();
     }
@@ -17,7 +17,7 @@ RandomPool* RandomPool::get() {
 }
 
 RandomPool::RandomPool() : generator() {
-  Generate();
+    Generate();
 }
 
 void RandomPool::Generate(void) {
@@ -30,7 +30,7 @@ double RandomPool::Get(double range) {
     double d = numbers[counter++];
 
     if (counter == size)
-      counter = 0;
+        counter = 0;
 
     return d * range;
 }

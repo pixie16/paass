@@ -10,9 +10,9 @@
 #include "XmlInterface.hpp"
 
 
-Notebook* Notebook::instance = NULL;
+Notebook *Notebook::instance = NULL;
 
-Notebook* Notebook::get() {
+Notebook *Notebook::get() {
     if (!instance) {
         instance = new Notebook();
     }
@@ -54,9 +54,9 @@ Notebook::Notebook() {
 }
 
 const std::string Notebook::currentDateTime() const {
-    time_t     now = time(0);
-    struct tm  tstruct;
-    char       buf[80];
+    time_t now = time(0);
+    struct tm tstruct;
+    char buf[80];
     tstruct = *localtime(&now);
     strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
     return buf;

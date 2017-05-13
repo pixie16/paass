@@ -15,7 +15,7 @@
 ///Abstract class that all trace analyzers are derived from
 class TraceAnalyzer {
 public:
-     /** Default Constructor */
+    /** Default Constructor */
     TraceAnalyzer();
 
     /** Default Destructor */
@@ -30,10 +30,10 @@ public:
 
     /** Initializes the Analyzer
     * \return True if the init was successful */
-    virtual bool Init(void){return(true);};
+    virtual bool Init(void) { return (true); };
 
     /** Declare Plots (empty for now) */
-    virtual void DeclarePlots(void){};
+    virtual void DeclarePlots(void) {};
 
     /** Function to analyze a trace online.
      * \param [in] trace: the trace
@@ -49,17 +49,21 @@ public:
      * \param [in] tagMap : takes a map of all the tags that the channel has */
     virtual void Analyze(Trace &trace, const std::string &type,
                          const std::string &subtype,
-                         const std::map<std::string, int> & tagMap);
+                         const std::map<std::string, int> &tagMap);
+
     /** End the analysis and record the analyzer level in the trace
      * \param [in] trace : the trace */
     void EndAnalyze(Trace &trace);
+
     /** Finish analysis updating the analyzer timing information */
     void EndAnalyze(void);
+
     /** Set the level of the trace analysis
      * \param [in] i : the level of the analysis to be done */
-    void SetLevel(int i) {level=i;}
+    void SetLevel(int i) { level = i; }
+
     /** \return the level of the trace analysis */
-    int  GetLevel() {return level;}
+    int GetLevel() { return level; }
 
 protected:
     int level;                ///< the level of analysis to proceed with
@@ -77,7 +81,7 @@ protected:
     * \param [in] xSize : The range of the x-axis
     * \param [in] title : The title for the histogram
     */
-    virtual void DeclareHistogram1D(int dammId, int xSize, const char* title) {
+    virtual void DeclareHistogram1D(int dammId, int xSize, const char *title) {
         histo.DeclareHistogram1D(dammId, xSize, title);
     }
 
@@ -88,7 +92,7 @@ protected:
     * \param [in] title : The title of the histogram
     */
     virtual void DeclareHistogram2D(int dammId, int xSize, int ySize,
-                                    const char* title) {
+                                    const char *title) {
         histo.DeclareHistogram2D(dammId, xSize, ySize, title);
     }
 
@@ -103,7 +107,7 @@ protected:
     * \param [in] name : The name of the histogram
     */
     virtual void plot(int dammId, double val1, double val2 = -1,
-                      double val3 = -1, const char* name="h") {
+                      double val3 = -1, const char *name = "h") {
         histo.Plot(dammId, val1, val2, val3, name);
     }
 
@@ -123,7 +127,7 @@ protected:
     * \param [in] id : histogram ID to plot into
     * \param [in] scale : the scaling for the trace */
     void ScalePlot(const std::vector<unsigned int> &trc, int id, double
-            scale);
+    scale);
 
     /** plot trace absolute value and scaled into a 2D histogram
      * \param [in] trc : The trace that we want to plot
@@ -131,14 +135,14 @@ protected:
     * \param [in] row : the row to plot the histogram into
     * \param [in] scale : the scaling for the trace */
     void ScalePlot(const std::vector<unsigned int> &trc, int id, int row,
-    double scale);
+                   double scale);
 
     /** plot trace with a vertical offset in a 1D histogram
      * \param [in] trc : The trace that we want to plot
     * \param [in] id : histogram ID to plot into
     * \param [in] offset : the offset for the trace */
     void OffsetPlot(const std::vector<unsigned int> &trc, int id, double
-            offset);
+    offset);
 
     /** plot trace with a vertical offset in a 2D histogram
      * \param [in] trc : The trace that we want to plot
@@ -147,10 +151,12 @@ protected:
     * \param [in] offset : the offset for the trace*/
     void OffsetPlot(const std::vector<unsigned int> &trc, int id, int row,
                     double offset);
+
 private:
     tms tmsBegin;             ///< time at which the analyzer began
     double userTime;          ///< user time used by this class
     double systemTime;        ///< system time used by this class
     double clocksPerSecond;   ///< frequency of system clock
 };
+
 #endif // __TRACEANALYZER_HPP_

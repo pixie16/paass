@@ -8,16 +8,16 @@ bool CompareCorrectedTime(const ChanEvent *a, const ChanEvent *b) {
     return (a->GetWalkCorrectedTime() < b->GetWalkCorrectedTime());
 }
 
-bool CompareTime(const ChanEvent *a, const ChanEvent *b){
+bool CompareTime(const ChanEvent *a, const ChanEvent *b) {
     return (a->GetTime() < b->GetTime());
 }
 
-const Identifier& ChanEvent::GetChanID() const {
+const Identifier &ChanEvent::GetChanID() const {
     return DetectorLibrary::get()->at(GetModuleNumber(),
                                       GetChannelNumber());
 }
 
 int ChanEvent::GetID() const {
-    return (int)DetectorLibrary::get()->GetIndex(GetModuleNumber(),
-                                                 GetChannelNumber());
+    return (int) DetectorLibrary::get()->GetIndex(GetModuleNumber(),
+                                                  GetChannelNumber());
 }

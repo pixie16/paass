@@ -27,9 +27,10 @@ public:
     * The dammid and detector location variable are set to -1
     * and the detector type and sub type are both set to ""
     * when an identifier object is created. */
-    Identifier(){Zero();};
+    Identifier() { Zero(); };
+
     /** Default Destructor */
-    ~Identifier(){};
+    ~Identifier() {};
 
     /** Constructor taking arguments and setting values
      * \param [in] atype : the type to set
@@ -44,45 +45,52 @@ public:
 
     /** Sets the DAMM ID
      * \param [in] a : the id to set */
-    void SetDammID(unsigned int &a) {dammID_ = a;}
+    void SetDammID(unsigned int &a) { dammID_ = a; }
+
     /** Sets the type
      * \param [in] a : the type to set */
-    void SetType(const std::string &a) {type_ = a;}
+    void SetType(const std::string &a) { type_ = a; }
+
     /** Sets the subtype of the channel
      * \param [in] a : the subtype to set */
-    void SetSubtype(const std::string &a) {subtype_ = a;}
+    void SetSubtype(const std::string &a) { subtype_ = a; }
+
     /** Sets the location
      * \param [in] a : sets the location for the channel */
-    void SetLocation(const unsigned int &a) {location_ = a;}
+    void SetLocation(const unsigned int &a) { location_ = a; }
 
     ///@return The value of the private variable dammID
-    unsigned int GetDammID() const {return dammID_;}
+    unsigned int GetDammID() const { return dammID_; }
+
     ///@return The value of the private variable type
-    const std::string& GetType() const {return type_;}
+    const std::string &GetType() const { return type_; }
+
     ///@return the value of the private variable subtype
-    const std::string& GetSubtype() const {return subtype_;}
+    const std::string &GetSubtype() const { return subtype_; }
+
     ///@return The value of the private variable location
-    unsigned int GetLocation() const {return location_;}
+    unsigned int GetLocation() const { return location_; }
 
     /** Insert a tag to the Identifier
      * \param [in] s : the name of the tag to insert
      * \param [in] n : the value of the tag to insert */
-    void AddTag(const std::string &s, int n) {tag_[s] = n;}
+    void AddTag(const std::string &s, int n) { tag_[s] = n; }
 
     /** Check if an identifier has a tag
      * \param [in] s : the tag to search for
      * \return true if the tag is in the identifier */
     bool HasTag(const std::string &s) const {
-        if(tag_.count(s) > 0)
-            return(true);
-        return(false);}
+        if (tag_.count(s) > 0)
+            return (true);
+        return (false);
+    }
 
     /** \return Get the requested tag
      * \param [in] s : the name of the tag to get */
     int GetTag(const std::string &s) const;
 
     /** \return The map with the list of tags */
-    std::map<std::string, int> GetTagMap(void) const {return tag_;}
+    std::map<std::string, int> GetTagMap(void) const { return tag_; }
 
     /** Zeroes an identifier
     *
@@ -90,8 +98,10 @@ public:
     * and the detector type and sub type are both reset to ""
     * when an identifier object is zeroed. */
     void Zero();
+
     /** Print the headers for the Identifier */
     static void PrintHeaders(void);
+
     /** Print all of the info for the Identifier */
     void Print(void) const;
 
@@ -100,8 +110,8 @@ public:
      * \return true if this is equal to x */
     bool operator==(const Identifier &x) const {
         return (type_ == x.type_ &&
-            subtype_ == x.subtype_ &&
-            location_ == x.location_);
+                subtype_ == x.subtype_ &&
+                location_ == x.location_);
     }
 
     /** Not - Equality operator for identifier
@@ -115,24 +125,24 @@ public:
      * \param [in] x : the Identifier to compare
      * \return true if this is less than x */
     bool operator<(const Identifier &x) const {
-       if (type_.compare(x.type_) > 0)
-           return false;
-       else if (type_.compare(x.type_) < 0)
-           return true;
-       else {
-           if (subtype_.compare(x.subtype_) > 0)
-               return false;
-           else if (subtype_.compare(x.subtype_))
-               return true;
-           else {
-               return (location_ < x.location_);
-           }
-       }
+        if (type_.compare(x.type_) > 0)
+            return false;
+        else if (type_.compare(x.type_) < 0)
+            return true;
+        else {
+            if (subtype_.compare(x.subtype_) > 0)
+                return false;
+            else if (subtype_.compare(x.subtype_))
+                return true;
+            else {
+                return (location_ < x.location_);
+            }
+        }
     }
 
     ///@param[in] rhs : The right hand side that we are comparing with.
     ///@return The negative of the less than operator.
-    bool operator>(const Identifier & rhs) const {
+    bool operator>(const Identifier &rhs) const {
         return !operator<(rhs);
     }
 
@@ -142,6 +152,7 @@ public:
         ss << type_ << "_" << subtype_ << "_" << location_;
         return ss.str();
     }
+
 private:
     std::string type_;      /**< Specifies the detector type */
     std::string subtype_;   /**< Specifies the detector sub type */
@@ -153,4 +164,5 @@ private:
     std::map<std::string, int> tag_;  /**< A list of tags associated with the
  * Identifier */
 };
+
 #endif

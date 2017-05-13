@@ -20,20 +20,20 @@
 
     <DetectorDriver>
         <Processor name="GeProcessor"
-            gamma_threshold="20.0"
-            low_ratio="1.5"
-            high_ratio="3.0"
-            sub_event="100e-9"
-            gamma_beta_limit="100e-9"
-            gamma_gamma_limit="200e-9"
-            cycle_gate1_min="1.0"
-            cycle_gate1_max="1.5"
-            cycle_gate2_min="1.5"
-            cycle_gate2_max="2.0"
-            />
-        <Processor name="MtcProcessor" 
-            double_stop="True"
-            double_start="True"/>
+                   gamma_threshold="20.0"
+                   low_ratio="1.5"
+                   high_ratio="3.0"
+                   sub_event="100e-9"
+                   gamma_beta_limit="100e-9"
+                   gamma_gamma_limit="200e-9"
+                   cycle_gate1_min="1.0"
+                   cycle_gate1_max="1.5"
+                   cycle_gate2_min="1.5"
+                   cycle_gate2_max="2.0"
+        />
+        <Processor name="MtcProcessor"
+                   double_stop="True"
+                   double_start="True"/>
         <Processor name="BetaScintProcessor"
                    gamma_beta_limit="200e-9"
                    energy_contraction="2"/>
@@ -46,7 +46,7 @@
         <Module number="0">
             <Channel number="0" type="ge" subtype="clover_high">
                 <Calibration model="linear" max="8000">
-                     0.184711 0.639394
+                    0.184711 0.639394
                 </Calibration>
                 <!-- Walk correction removed since 
                      the channel is broken and switched off-->
@@ -57,9 +57,9 @@
                     8.765 12.501 1316.259
                 </WalkCorrection>
             </Channel>
-            <Channel number="1" type="ge" subtype="clover_high" >
+            <Channel number="1" type="ge" subtype="clover_high">
                 <Calibration model="linear" max="8000">
-                     0.257746652   0.633075279
+                    0.257746652 0.633075279
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     12.783 21.736 1526.242 323.768
@@ -68,9 +68,9 @@
                     7.615 11.741 1516.617
                 </WalkCorrection>
             </Channel>
-            <Channel number="2" type="ge" subtype="clover_high" >
+            <Channel number="2" type="ge" subtype="clover_high">
                 <Calibration model="linear" max="8000">
-                    0.429804576   0.641512598
+                    0.429804576 0.641512598
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     -10.000 28.051 2205.365 3225.258
@@ -79,9 +79,9 @@
                     5.806 10.760 2216.587
                 </WalkCorrection>
             </Channel>
-            <Channel number="3" type="ge" subtype="clover_high" >
+            <Channel number="3" type="ge" subtype="clover_high">
                 <Calibration model="linear" max="8000">
-                    0.449299041   0.623329126
+                    0.449299041 0.623329126
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     13.654 20.513 1536.986 322.804
@@ -90,9 +90,9 @@
                     7.975 11.585 1758.705
                 </WalkCorrection>
             </Channel>
-            <Channel number="4" type="ge" subtype="clover_high" >
+            <Channel number="4" type="ge" subtype="clover_high">
                 <Calibration model="linear" max="8000">
-                    0.398875809   0.685485700
+                    0.398875809 0.685485700
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     14.509 13.615 1986.171 379.228
@@ -101,9 +101,9 @@
                     8.597 13.192 1579.832
                 </WalkCorrection>
             </Channel>
-            <Channel number="5" type="ge" subtype="clover_high" >
+            <Channel number="5" type="ge" subtype="clover_high">
                 <Calibration model="linear" max="8000">
-                     0.368173307   0.667626215
+                    0.368173307 0.667626215
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     13.071 15.834 1906.134 313.287
@@ -112,9 +112,9 @@
                     5.134 11.882 2630.379
                 </WalkCorrection>
             </Channel>
-            <Channel number="6" type="ge" subtype="clover_high" >
+            <Channel number="6" type="ge" subtype="clover_high">
                 <Calibration model="linear" max="8000">
-                    0.407849264   0.615687270
+                    0.407849264 0.615687270
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     14.437 17.463 1760.453 341.821
@@ -123,9 +123,9 @@
                     7.080 13.158 2266.774
                 </WalkCorrection>
             </Channel>
-            <Channel number="7" type="ge" subtype="clover_high" >
+            <Channel number="7" type="ge" subtype="clover_high">
                 <Calibration model="linear" max="8000">
-                    0.481072068   0.618435670
+                    0.481072068 0.618435670
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     13.446 13.760 1956.073 499.302
@@ -136,7 +136,7 @@
             </Channel>
             <Channel number="8" type="ge" subtype="clover_high">
                 <Calibration model="linear" max="8000">
-                    0.644606165   0.647714008
+                    0.644606165 0.647714008
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     12.523 20.545 1647.858 368.118
@@ -145,9 +145,9 @@
                     7.039 11.509 1825.886
                 </WalkCorrection>
             </Channel>
-            <Channel number="9" type="ge" subtype="clover_high" >
+            <Channel number="9" type="ge" subtype="clover_high">
                 <Calibration model="linear" max="8000">
-                    0.449792617601133 	0.65348036527328
+                    0.449792617601133 0.65348036527328
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     11.003 20.573 1651.573 414.505
@@ -156,9 +156,9 @@
                     6.486 11.920 1800.062
                 </WalkCorrection>
             </Channel>
-            <Channel number="10" type="ge" subtype="clover_high" >
+            <Channel number="10" type="ge" subtype="clover_high">
                 <Calibration model="linear" max="8000">
-                    0.549072961   0.649961211
+                    0.549072961 0.649961211
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     13.401 19.780 1685.770 327.314
@@ -167,9 +167,9 @@
                     7.767 11.886 1617.658
                 </WalkCorrection>
             </Channel>
-            <Channel number="11" type="ge" subtype="clover_high" >
+            <Channel number="11" type="ge" subtype="clover_high">
                 <Calibration model="linear" max="8000">
-                    0.731484643   0.654519643
+                    0.731484643 0.654519643
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     13.067 17.667 1913.361 350.045
@@ -178,9 +178,9 @@
                     8.191 17.098 1006.562
                 </WalkCorrection>
             </Channel>
-            <Channel number="12" type="ge" subtype="clover_high" >
+            <Channel number="12" type="ge" subtype="clover_high">
                 <Calibration model="linear" max="8000">
-                    0.420410077   0.659157188
+                    0.420410077 0.659157188
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     15.283 14.621 1779.298 324.313
@@ -189,9 +189,9 @@
                     8.970 12.024 1786.485
                 </WalkCorrection>
             </Channel>
-            <Channel number="13" type="ge" subtype="clover_high" >
+            <Channel number="13" type="ge" subtype="clover_high">
                 <Calibration model="linear" max="8000">
-                    0.427338224   0.662418971
+                    0.427338224 0.662418971
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     15.394 18.060 1744.793 268.970
@@ -200,9 +200,9 @@
                     8.097 14.043 1610.491
                 </WalkCorrection>
             </Channel>
-            <Channel number="14" type="ge" subtype="clover_high" >
+            <Channel number="14" type="ge" subtype="clover_high">
                 <Calibration model="linear" max="8000">
-                    0.418389127   0.646237880
+                    0.418389127 0.646237880
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     14.178 16.809 1786.054 295.778
@@ -211,9 +211,9 @@
                     7.238 11.568 2171.996
                 </WalkCorrection>
             </Channel>
-            <Channel number="15" type="ge" subtype="clover_high" >
+            <Channel number="15" type="ge" subtype="clover_high">
                 <Calibration model="linear" max="8000">
-                    0.461761745   0.658536732
+                    0.461761745 0.658536732
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     12.323 11.395 1963.237 430.594
@@ -227,56 +227,56 @@
         <Module number="1">
             <Channel number="0" type="ge" subtype="clover_low">
                 <Calibration model="linear">
-                    1.03885141071601	 1.49837431622482
+                    1.03885141071601 1.49837431622482
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>
             </Channel>
-            <Channel number="1" type="ge" subtype="clover_low" >
+            <Channel number="1" type="ge" subtype="clover_low">
                 <Calibration model="linear">
-                    0.492481221       1.481532588
+                    0.492481221 1.481532588
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>
             </Channel>
-            <Channel number="2" type="ge" subtype="clover_low" >
+            <Channel number="2" type="ge" subtype="clover_low">
                 <Calibration model="linear">
-                    0.825569342       1.497697252
+                    0.825569342 1.497697252
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>
             </Channel>
-            <Channel number="3" type="ge" subtype="clover_low" >
+            <Channel number="3" type="ge" subtype="clover_low">
                 <Calibration model="linear">
-                    0.921246590	  1.446141132
+                    0.921246590 1.446141132
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>
             </Channel>
-            <Channel number="4" type="ge" subtype="clover_low" >
+            <Channel number="4" type="ge" subtype="clover_low">
                 <Calibration model="linear">
-                    1.097046572       1.590759031
+                    1.097046572 1.590759031
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>
             </Channel>
-            <Channel number="5" type="ge" subtype="clover_low" >
+            <Channel number="5" type="ge" subtype="clover_low">
                 <Calibration model="linear">
-                    0.803521581	  1.51828202
+                    0.803521581 1.51828202
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>
             </Channel>
-            <Channel number="6" type="ge" subtype="clover_low" >
+            <Channel number="6" type="ge" subtype="clover_low">
                 <Calibration model="linear">
-                    0.730257394	  1.40677080
+                    0.730257394 1.40677080
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>
             </Channel>
-            <Channel number="7" type="ge" subtype="clover_low" >
+            <Channel number="7" type="ge" subtype="clover_low">
                 <Calibration model="linear">
-                    0.707678856	  1.4214541654
+                    0.707678856 1.4214541654
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>
@@ -288,51 +288,51 @@
                 <WalkCorrection model="None">
                 </WalkCorrection>
             </Channel>
-            <Channel number="9" type="ge" subtype="clover_low" >
+            <Channel number="9" type="ge" subtype="clover_low">
                 <Calibration model="linear">
-                    1.07427816772622  1.49768806637341
+                    1.07427816772622 1.49768806637341
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>
             </Channel>
-            <Channel number="10" type="ge" subtype="clover_low" >
+            <Channel number="10" type="ge" subtype="clover_low">
                 <Calibration model="linear">
                     0.708174107670516 1.44812789526924
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>
             </Channel>
-            <Channel number="11" type="ge" subtype="clover_low" >
+            <Channel number="11" type="ge" subtype="clover_low">
                 <Calibration model="linear">
                     0.504851920284523 1.4969150995614
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>
             </Channel>
-            <Channel number="12" type="ge" subtype="clover_low" >
+            <Channel number="12" type="ge" subtype="clover_low">
                 <Calibration model="linear">
-                    0.955384954       1.495692988
+                    0.955384954 1.495692988
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>
             </Channel>
-            <Channel number="13" type="ge" subtype="clover_low" >
+            <Channel number="13" type="ge" subtype="clover_low">
                 <Calibration model="linear">
-                    0.730398309	  1.523824533
+                    0.730398309 1.523824533
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>
             </Channel>
-            <Channel number="14" type="ge" subtype="clover_low" >
+            <Channel number="14" type="ge" subtype="clover_low">
                 <Calibration model="linear">
-                    0.636957428        1.495848911
+                    0.636957428 1.495848911
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>
             </Channel>
-            <Channel number="15" type="ge" subtype="clover_low" >
+            <Channel number="15" type="ge" subtype="clover_low">
                 <Calibration model="linear">
-                    0.954099487        1.512432598
+                    0.954099487 1.512432598
                 </Calibration>
                 <WalkCorrection model="None">
                 </WalkCorrection>
@@ -365,20 +365,20 @@
     <TreeCorrelator name="root" verbose="False">
         <Place type="PlaceOR" name="Beta" fifo="10">
             <Place type="PlaceThreshold" name="beta_scint_beta_0-1"
-                low_limit="50.0" high_limit="16382" fifo="5"
-                replace="true"/>
+                   low_limit="50.0" high_limit="16382" fifo="5"
+                   replace="true"/>
         </Place>
 
         <Place type="PlaceOR" name="Gamma">
             <Place type="PlaceOR" name="Clover0">
                 <Place type="PlaceThreshold" name="ge_clover_high_0-3"
-                    low_limit="20.0" high_limit="99999"
-                    replace="true"/>
+                       low_limit="20.0" high_limit="99999"
+                       replace="true"/>
             </Place>
             <Place type="PlaceOR" name="Clover1">
                 <Place type="PlaceThreshold" name="ge_clover_high_4-7"
-                    low_limit="20.0" high_limit="99999"
-                    replace="true"/>
+                       low_limit="20.0" high_limit="99999"
+                       replace="true"/>
             </Place>
         </Place>
 

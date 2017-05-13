@@ -54,16 +54,16 @@ bool RootProcessor::Init(RawEvent& rawev)
 bool RootProcessor::Process(RawEvent &event)
 {
     if (!EventProcessor::Process(event))
-	return false;
+    return false;
 
     for (vector<EventProcessor *>::iterator it = vecProcess.begin();
-	 it != vecProcess.end(); it++) {
-	(*it)->FillBranch();
+     it != vecProcess.end(); it++) {
+    (*it)->FillBranch();
     }
 
     tree->Fill();
     if (tree->GetEntries() % 1000 == 0) {
-	tree->AutoSave();
+    tree->AutoSave();
     }
 
     EndProcess();

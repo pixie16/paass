@@ -31,6 +31,7 @@ public:
     ///@param[in] node : The node that we are going to parse
     ///@throw invalid_argument if the node cannot be found.
     void ParseNode(DetectorLibrary *lib);
+
 private:
     ///An instance of the messenger class so that we can output pretty info
     Messenger messenger_;

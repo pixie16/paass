@@ -49,4 +49,5 @@ public:
     int location;//!< the location of the detector
     std::string type;//!< the detector type
 };
+
 #endif

@@ -8,6 +8,7 @@
 #include "EventProcessor.h"
 
 class DetectorSummary;
+
 class RawEvent;
 
 //!Handles detectors of type dssd_front and dssd_back (Deprecated - Duplicate!)
@@ -17,11 +18,14 @@ private:
 public:
     /** Default Constructor */
     SsdProcessor();
+
     /** Declare plots for processor */
     virtual void DeclarePlots(void) const;
+
     /** Process an event
     * \param [in] event : the event to process
     * \return true if the processing was successful */
     virtual bool Process(RawEvent &event);
 };
+
 #endif

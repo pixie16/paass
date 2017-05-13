@@ -14,15 +14,15 @@
 
 using namespace std;
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[]) {
     // Define a new unpacker object.
     cout << "utkscan.cpp : Instancing the UtkScanInterface" << endl;
     UtkScanInterface scanner;
-    
+
     // Set the output message prefix.
     cout << "utkscan.cpp : Setting the Program Name" << endl;
     scanner.SetProgramName(std::string(PROGRAM_NAME));
-    
+
     // Initialize the scanner.
     cout << "utkscan.cpp : Performing the setup routine" << endl;
     scanner.Setup(argc, argv);
@@ -32,7 +32,7 @@ int main(int argc, char *argv[]){
         cout << "utkscan.cpp : Performing Execute method" << endl;
         scanner.Execute();
 
-    } catch(std::exception &ex) {
+    } catch (std::exception &ex) {
         cout << Display::ErrorStr(ex.what()) << endl;
     }
 

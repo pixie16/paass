@@ -20,21 +20,21 @@ using namespace dammIds::liquid_scint;
 
 namespace dammIds {
     namespace liquid_scint {
-        const int DD_TQDCLIQUID       = 0;//!< QDC
-        const int DD_MAXLIQUID        = 1;//!< Maximum values
-        const int DD_DISCRIM          = 2;//!< Discrimination plots
-        const int DD_TOFLIQUID        = 3;//!< ToF for liquids
-        const int DD_TRCLIQUID        = 4;//!< Traces for the liquid
-        const int DD_TQDCVSDISCRIM    = 5;//!< QDC vs. Discrimination
-        const int DD_TOFVSDISCRIM     = 6;//!< ToF vs. Discrimination
-        const int DD_NEVSDISCRIM      = 8;//!< Neutron Energy vs. Discrimination
-        const int DD_TQDCVSLIQTOF     = 10;//!< QDC vs Liquid ToF
-        const int DD_TQDCVSENERGY     = 12;//!< QDC vs. Energy
+        const int DD_TQDCLIQUID = 0;//!< QDC
+        const int DD_MAXLIQUID = 1;//!< Maximum values
+        const int DD_DISCRIM = 2;//!< Discrimination plots
+        const int DD_TOFLIQUID = 3;//!< ToF for liquids
+        const int DD_TRCLIQUID = 4;//!< Traces for the liquid
+        const int DD_TQDCVSDISCRIM = 5;//!< QDC vs. Discrimination
+        const int DD_TOFVSDISCRIM = 6;//!< ToF vs. Discrimination
+        const int DD_NEVSDISCRIM = 8;//!< Neutron Energy vs. Discrimination
+        const int DD_TQDCVSLIQTOF = 10;//!< QDC vs Liquid ToF
+        const int DD_TQDCVSENERGY = 12;//!< QDC vs. Energy
     }
 }
 
 LiquidScintProcessor::LiquidScintProcessor() :
-    EventProcessor(OFFSET, RANGE, "LiquidScintProcessor") {
+        EventProcessor(OFFSET, RANGE, "LiquidScintProcessor") {
     associatedTypes.insert("liquid_scint");
 }
 
@@ -75,71 +75,73 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return false;
 
-    static const vector<ChanEvent*> &liquidEvents =
-	event.GetSummary("liquid_scint:liquid")->GetList();
-    static const vector<ChanEvent*> &betaStartEvents =
-	event.GetSummary("liquid_scint:beta:start")->GetList();
-    static const vector<ChanEvent*> &liquidStartEvents =
-	event.GetSummary("liquid_scint:liquid:start")->GetList();
+    static const vector<ChanEvent *> &liquidEvents =
+            event.GetSummary("liquid_scint:liquid")->GetList();
+    static const vector<ChanEvent *> &betaStartEvents =
+            event.GetSummary("liquid_scint:beta:start")->GetList();
+    static const vector<ChanEvent *> &liquidStartEvents =
+            event.GetSummary("liquid_scint:liquid:start")->GetList();
 
-    vector<ChanEvent*> startEvents;
+    vector < ChanEvent * > startEvents;
     startEvents.insert(startEvents.end(), betaStartEvents.begin(),
-		       betaStartEvents.end());
+                       betaStartEvents.end());
     startEvents.insert(startEvents.end(), liquidStartEvents.begin(),
-		       liquidStartEvents.end());
+                       liquidStartEvents.end());
 
-    for(vector<ChanEvent*>::const_iterator itLiquid = liquidEvents.begin();
-	itLiquid != liquidEvents.end(); itLiquid++) {
+    for (vector<ChanEvent *>::const_iterator itLiquid = liquidEvents.begin();
+         itLiquid != liquidEvents.end(); itLiquid++) {
         unsigned int loc = (*itLiquid)->GetChanID().GetLocation();
         HighResTimingData liquid(*(*itLiquid));
 
-        if(liquid.GetDiscrimination() == 0) {
-            for(Trace::const_iterator i = liquid.GetTrace().begin();
-            i != liquid.GetTrace().end(); i++)
-                plot(DD_TRCLIQUID, int(i-liquid.GetTrace().begin()),
-                    counter, int(*i)-liquid.GetAveBaseline());
+        if (liquid.GetDiscrimination() == 0) {
+            for (Trace::const_iterator i = liquid.GetTrace().begin();
+                 i != liquid.GetTrace().end(); i++)
+                plot(DD_TRCLIQUID, int(i - liquid.GetTrace().begin()),
+                     counter, int(*i) - liquid.GetAveBaseline());
             counter++;
         }
 
-        if(liquid.GetIsValid()) {
+        if (liquid.GetIsValid()) {
             plot(DD_TQDCLIQUID, liquid.GetTraceQdc(), loc);
             plot(DD_MAXLIQUID, liquid.GetMaximumValue(), loc);
 
             double discrimNorm =
-            liquid.GetDiscrimination()/liquid.GetTraceQdc();
+                    liquid.GetDiscrimination() / liquid.GetTraceQdc();
 
             double discRes = 1000;
             double discOffset = 100;
 
             TimingCalibration cal =
-                TimingCalibrator::get()->GetCalibration(make_pair(loc, "liquid"));
+                    TimingCalibrator::get()->GetCalibration(
+                            make_pair(loc, "liquid"));
 
-            if(discrimNorm > 0)
-                plot(DD_DISCRIM, discrimNorm*discRes+discOffset, loc);
-            plot(DD_TQDCVSDISCRIM, discrimNorm*discRes+discOffset,
-            liquid.GetTraceQdc());
+            if (discrimNorm > 0)
+                plot(DD_DISCRIM, discrimNorm * discRes + discOffset, loc);
+            plot(DD_TQDCVSDISCRIM, discrimNorm * discRes + discOffset,
+                 liquid.GetTraceQdc());
 
-            if((*itLiquid)->GetChanID().HasTag("start"))
+            if ((*itLiquid)->GetChanID().HasTag("start"))
                 continue;
 
-            for(vector<ChanEvent*>::iterator itStart = startEvents.begin();
-            itStart != startEvents.end(); itStart++) {
+            for (vector<ChanEvent *>::iterator itStart = startEvents.begin();
+                 itStart != startEvents.end(); itStart++) {
                 unsigned int startLoc = (*itStart)->GetChanID().GetLocation();
                 HighResTimingData start(*(*itStart));
                 int histLoc = loc + startLoc;
                 const int resMult = 2;
                 const int resOffset = 2000;
 
-                if(start.GetIsValid()) {
+                if (start.GetIsValid()) {
                     double tofOffset = cal.GetTofOffset(startLoc);
                     double TOF = liquid.GetHighResTimeInNs() -
-                        start.GetHighResTimeInNs() - tofOffset;
+                                 start.GetHighResTimeInNs() - tofOffset;
 
-                    plot(DD_TOFLIQUID, TOF*resMult+resOffset, histLoc);
-                    plot(DD_TOFVSDISCRIM+histLoc,
-                        discrimNorm*discRes+discOffset, TOF*resMult+resOffset);
-                    plot(DD_TQDCVSLIQTOF+histLoc, TOF*resMult+resOffset,
-                        liquid.GetTraceQdc());
+                    plot(DD_TOFLIQUID, TOF * resMult + resOffset, histLoc);
+                    plot(DD_TOFVSDISCRIM + histLoc,
+                         discrimNorm * discRes + discOffset,
+                         TOF * resMult + resOffset);
+                    plot(DD_TQDCVSLIQTOF + histLoc, TOF * resMult + resOffset,
+                         liquid.GetTraceQdc());
                 }
             }
         }
