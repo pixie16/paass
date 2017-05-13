@@ -1,4 +1,4 @@
-/** \file GeProcessor.cpp
+/** \file CloverProcessor.cpp
  * \brief Implementation for germanium processor
  * \author David Miller
  * \date August 2009
@@ -20,7 +20,7 @@
 #include "DetectorLibrary.hpp"
 #include "Display.h"
 #include "Exceptions.hpp"
-#include "GeProcessor.hpp"
+#include "CloverProcessor.hpp"
 #include "Messenger.hpp"
 #include "Notebook.hpp"
 #include "Plots.hpp"
@@ -28,9 +28,9 @@
 #include "RawEvent.hpp"
 
 using namespace std;
-using namespace dammIds::ge;
+using namespace dammIds::clover;
 
-EventData GeProcessor::BestBetaForGamma(double gTime) {
+EventData CloverProcessor::BestBetaForGamma(double gTime) {
     PlaceOR *betas = dynamic_cast<PlaceOR *>(
             TreeCorrelator::get()->place("Beta"));
     unsigned sz = betas->info_.size();
@@ -50,23 +50,23 @@ EventData GeProcessor::BestBetaForGamma(double gTime) {
     return (betas->info_.at(bestIndex));
 }
 
-bool GeProcessor::GoodGammaBeta(double gb_dtime) {
+bool CloverProcessor::GoodGammaBeta(double gb_dtime) {
     if (abs(gb_dtime) > gammaBetaLimit_)
         return false;
     return true;
 }
 
-void GeProcessor::symplot(int dammID, double bin1, double bin2) {
+void CloverProcessor::symplot(int dammID, double bin1, double bin2) {
     plot(dammID, bin1, bin2);
     plot(dammID, bin2, bin1);
 }
 
-GeProcessor::GeProcessor(double gammaThreshold, double lowRatio,
+CloverProcessor::CloverProcessor(double gammaThreshold, double lowRatio,
                          double highRatio, double subEventWindow,
                          double gammaBetaLimit, double gammaGammaLimit,
                          double cycle_gate1_min, double cycle_gate1_max,
                          double cycle_gate2_min, double cycle_gate2_max) :
-        EventProcessor(OFFSET, RANGE, "GeProcessor"),
+        EventProcessor(OFFSET, RANGE, "CloverProcessor"),
         leafToClover() {
     associatedTypes.insert("ge"); // associate with germanium detectors
 
@@ -90,7 +90,7 @@ GeProcessor::GeProcessor(double gammaThreshold, double lowRatio,
         stringstream ss;
         ss << "Number of requested time resolution spectra is greater then"
            << " MAX_TIMEX = " << MAX_TIMEX << "."
-           << " See GeProcessor.hpp for details.";
+           << " See CloverProcessor.hpp for details.";
         throw GeneralException(ss.str());
     }
 
@@ -148,7 +148,7 @@ not implemented");
 }
 
 /** Declare plots including many for decay/implant/neutron gated analysis  */
-void GeProcessor::DeclarePlots(void) {
+void CloverProcessor::DeclarePlots(void) {
     const int energyBins1 = SD;
     const int energyBins2 = SC;
     const int timeBins1 = S8;
@@ -206,12 +206,12 @@ void GeProcessor::DeclarePlots(void) {
         }
         m.detail(ss.str());
 
-        if (numClovers > dammIds::ge::MAX_CLOVERS) {
+        if (numClovers > dammIds::clover::MAX_CLOVERS) {
             m.fail();
             stringstream ss;
             ss << "Number of detected clovers is greater than defined"
-               << " MAX_CLOVERS = " << dammIds::ge::MAX_CLOVERS << "."
-               << " See GeProcessor.hpp for details.";
+               << " MAX_CLOVERS = " << dammIds::clover::MAX_CLOVERS << "."
+               << " See CloverProcessor.hpp for details.";
             throw GeneralException(ss.str());
         }
         m.done();
@@ -384,7 +384,7 @@ void GeProcessor::DeclarePlots(void) {
 }
 
 
-bool GeProcessor::PreProcess(RawEvent &event) {
+bool CloverProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
 
@@ -474,7 +474,7 @@ bool GeProcessor::PreProcess(RawEvent &event) {
     return true;
 }
 
-bool GeProcessor::Process(RawEvent &event) {
+bool CloverProcessor::Process(RawEvent &event) {
     using namespace dammIds::ge;
 
     if (!EventProcessor::Process(event))
@@ -487,7 +487,7 @@ bool GeProcessor::Process(RawEvent &event) {
     try {
         cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
     } catch (exception &ex) {
-        cout << Display::ErrorStr("GeProcessor::Process - Exception caught "
+        cout << Display::ErrorStr("CloverProcessor::Process - Exception caught "
                                           "while trying to get Cycle time.\n");
         throw;
     }
@@ -497,7 +497,7 @@ bool GeProcessor::Process(RawEvent &event) {
     try {
         beamOn = TreeCorrelator::get()->place("Beam")->status();
     } catch (exception &ex) {
-        cout << Display::ErrorStr("GeProcessor::Process - Exception caught "
+        cout << Display::ErrorStr("CloverProcessor::Process - Exception caught "
                                           "while trying to get Beam status.\n");
         throw;
     }
@@ -505,7 +505,7 @@ bool GeProcessor::Process(RawEvent &event) {
     try {
         hasBeta = TreeCorrelator::get()->place("Beta")->status();
     } catch (exception &ex) {
-        cout << Display::ErrorStr("GeProcessor::Process - Exception caught "
+        cout << Display::ErrorStr("CloverProcessor::Process - Exception caught "
                                           "while trying to get Beta status.\n");
         throw;
     }
@@ -825,7 +825,7 @@ bool GeProcessor::Process(RawEvent &event) {
 /**
  * Declare a 2D plot with a range of granularites on the Y axis
  */
-void GeProcessor::DeclareHistogramGranY(int dammId, int xsize, int ysize,
+void CloverProcessor::DeclareHistogramGranY(int dammId, int xsize, int ysize,
                                         const char *title, int halfWordsPerChan,
                                         const vector<float> &granularity,
                                         const char *units) {
@@ -844,7 +844,7 @@ void GeProcessor::DeclareHistogramGranY(int dammId, int xsize, int ysize,
 /**
  * Plot to a granularity spectrum
  */
-void GeProcessor::granploty(int dammId, double x, double y,
+void CloverProcessor::granploty(int dammId, double x, double y,
                             const vector<float> &granularity) {
     for (unsigned int i = 0; i < granularity.size(); i++) {
         plot(dammId + i, x, y / granularity[i]);

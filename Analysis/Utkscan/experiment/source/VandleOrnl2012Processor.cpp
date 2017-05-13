@@ -7,7 +7,7 @@
 #include "BarBuilder.hpp"
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
-#include "GeProcessor.hpp"
+#include "CloverProcessor.hpp"
 #include "VandleProcessor.hpp"
 #include "VandleOrnl2012Processor.hpp"
 
@@ -87,10 +87,10 @@ bool VandleOrnl2012Processor::Process(RawEvent &event) {
         vbars = ((VandleProcessor *) DetectorDriver::get()->
                 GetProcessor("VandleProcessor"))->GetBars();
     if (event.GetSummary("ge")->GetList().size() != 0) {
-        geEvts = ((GeProcessor *) DetectorDriver::get()->
-                GetProcessor("GeProcessor"))->GetGeEvents();
-        geAddback = ((GeProcessor *) DetectorDriver::get()->
-                GetProcessor("GeProcessor"))->GetAddbackEvents();
+        geEvts = ((CloverProcessor *) DetectorDriver::get()->
+                GetProcessor("CloverProcessor"))->GetGeEvents();
+        geAddback = ((CloverProcessor *) DetectorDriver::get()->
+                GetProcessor("CloverProcessor"))->GetAddbackEvents();
     }
 
     for (BarMap::iterator it = vbars.begin(); it != vbars.end(); it++) {

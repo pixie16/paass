@@ -13,7 +13,7 @@
 #include "DammPlotIds.hpp"
 #include "DoubleBetaProcessor.hpp"
 #include "DetectorDriver.hpp"
-#include "GeProcessor.hpp"
+#include "CloverProcessor.hpp"
 #include "Anl1471Processor.hpp"
 #include "VandleProcessor.hpp"
 
@@ -166,10 +166,10 @@ bool Anl1471Processor::Process(RawEvent &event) {
     betaStarts_ = startBars.GetBarMap();
 
     if (event.GetSummary("ge")->GetList().size() != 0) {
-        geEvts = ((GeProcessor *) DetectorDriver::get()->
-                GetProcessor("GeProcessor"))->GetGeEvents();
-        geAddback = ((GeProcessor *) DetectorDriver::get()->
-                GetProcessor("GeProcessor"))->GetAddbackEvents();
+        geEvts = ((CloverProcessor *) DetectorDriver::get()->
+                GetProcessor("CloverProcessor"))->GetGeEvents();
+        geAddback = ((CloverProcessor *) DetectorDriver::get()->
+                GetProcessor("CloverProcessor"))->GetAddbackEvents();
     }
 
     Vsize->Fill(vbars.size());

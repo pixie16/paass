@@ -27,7 +27,7 @@
 #include "DoubleBetaProcessor.hpp"
 #include "Hen3Processor.hpp"
 #include "GeProcessor.hpp"
-#include "GeCalibProcessor.hpp"
+#include "CloverCalibProcessor.hpp"
 #include "IonChamberProcessor.hpp"
 #include "LiquidScintProcessor.hpp"
 #include "LogicProcessor.hpp"
@@ -88,10 +88,10 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(
             vecProcess.push_back(new BetaScintProcessor(
                     processor.attribute("gamma_beta_limit").as_double(200.e-9),
                     processor.attribute("energy_contraction").as_double(1.0)));
-        } else if (name == "GeProcessor") {
+        } else if (name == "CloverProcessor") {
             ///@TODO This needs to be cleaned. No method should have this
             /// many variables as arguments.
-            vecProcess.push_back(new GeProcessor(
+            vecProcess.push_back(new CloverProcessor(
                     processor.attribute("gamma_threshold").as_double(1.0),
                     processor.attribute("low_ratio").as_double(1.0),
                     processor.attribute("high_ratio").as_double(3.0),
@@ -102,8 +102,10 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(
                     processor.attribute("cycle_gate1_max").as_double(0.0),
                     processor.attribute("cycle_gate2_min").as_double(0.0),
                     processor.attribute("cycle_gate2_max").as_double(0.0)));
-        } else if (name == "GeCalibProcessor") {
-            vecProcess.push_back(new GeCalibProcessor(
+        } else if (name == "GeProcessor")
+            vecProcess.push_back(new GeProcessor());
+        else if (name == "CloverCalibProcessor") {
+            vecProcess.push_back(new CloverCalibProcessor(
                     processor.attribute("gamma_threshold").as_double(1),
                     processor.attribute("low_ratio").as_double(1),
                     processor.attribute("high_ratio").as_double(3)));

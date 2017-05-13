@@ -12,7 +12,7 @@
 #include "DammPlotIds.hpp"
 #include "DoubleBetaProcessor.hpp"
 #include "DetectorDriver.hpp"
-#include "GeProcessor.hpp"
+#include "CloverProcessor.hpp"
 #include "IS600Processor.hpp"
 #include "VandleProcessor.hpp"
 
@@ -123,10 +123,10 @@ bool IS600Processor::Process(RawEvent &event) {
                 GetProcessor("DoubleBetaProcessor"))->GetLowResBars();
     }
     if (event.GetSummary("ge")->GetList().size() != 0) {
-        geEvts = ((GeProcessor *) DetectorDriver::get()->
-                GetProcessor("GeProcessor"))->GetGeEvents();
-        geAddback = ((GeProcessor *) DetectorDriver::get()->
-                GetProcessor("GeProcessor"))->GetAddbackEvents();
+        geEvts = ((CloverProcessor *) DetectorDriver::get()->
+                GetProcessor("CloverProcessor"))->GetGeEvents();
+        geAddback = ((CloverProcessor *) DetectorDriver::get()->
+                GetProcessor("CloverProcessor"))->GetAddbackEvents();
     }
     static const vector<ChanEvent *> &labr3Evts =
             event.GetSummary("labr3:mrbig")->GetList();

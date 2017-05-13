@@ -2,9 +2,10 @@ set(PROCESSOR_SOURCES
         #  BetaProcessor.cpp
         BetaScintProcessor.cpp
         DoubleBetaProcessor.cpp
+        CloverCalibProcessor.cpp
+        CloverProcessor.cpp
         #  DssdProcessor.cpp
         EventProcessor.cpp
-        GeCalibProcessor.cpp
         GeProcessor.cpp
         Hen3Processor.cpp
         #  ImplantSsdProcessor.cpp
