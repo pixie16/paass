@@ -271,8 +271,7 @@ void GlobalsXmlParser::ParseTraceNode(const pugi::xml_node &node, Globals *globa
         globals->SetTraceDelay(
                 node.child("TraceDelay").attribute("value").as_uint());
     } else
-        throw invalid_argument(CriticalNodeMessage(node.child("TraceDelay")
-                                                           .name()));
+        throw invalid_argument(CriticalNodeMessage("TraceDelay"));
 
     sstream_ << "Trace Delay : " << globals->GetTraceDelayInNs() << " ns";
     messenger_.detail(sstream_.str());
