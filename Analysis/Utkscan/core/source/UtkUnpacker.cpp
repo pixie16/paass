@@ -39,10 +39,7 @@ UtkUnpacker::~UtkUnpacker() {
 /// ignore chunks of data. We also make some calls to various other private
 /// methods to plot useful spectra and output processing information to the
 /// screen.
-void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
-    if (!addr_)
-        return;
-
+void UtkUnpacker::ProcessRawEvent() {
     DetectorDriver *driver = DetectorDriver::get();
     DetectorLibrary *modChan = DetectorLibrary::get();
     set<string> usedDetectors;
@@ -139,8 +136,7 @@ void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
 /// spectra are critical when we are trying to debug potential data losses in
 /// the system. These spectra print the total number of counts in a given
 /// (milli)second of time.
-void UtkUnpacker::RawStats(XiaData *event_, DetectorDriver *driver,
-                           ScanInterface *addr_) {
+void UtkUnpacker::RawStats(XiaData *event_, DetectorDriver *driver) {
     int id = event_->GetId();
     static const int specNoBins = SE;
     static double runTimeSecs = 0, remainNumSecs = 0;

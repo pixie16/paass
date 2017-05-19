@@ -10,10 +10,8 @@
 #include "TH2.h"
 #include "TGraph.h"
 
-RootScanner::RootScanner() :
-        ScanInterface() {
+RootScanner::RootScanner() : ScanInterface() {
     new TApplication("scanner", 0, NULL);
-
     canvas_ = new TCanvas("canvas", "");
 }
 

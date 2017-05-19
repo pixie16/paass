@@ -55,9 +55,7 @@ scopeUnpacker::scopeUnpacker(const unsigned int &mod/*=0*/,
   * \param[in]  addr_ Pointer to a location in memory. 
   * \return Nothing.
   */
-void scopeUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
-    if (!addr_) { return; }
-
+void scopeUnpacker::ProcessRawEvent() {
     XiaData *current_event = NULL;
 
     // Fill the processor event deques with events
@@ -91,9 +89,8 @@ void scopeUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
             }
 
             //Store the waveform in the stack of waveforms to be displayed.
-            if (addr_->AddEvent(current_event)) {
-                addr_->ProcessEvents();
-            }
+            if (AddEvent(current_event))
+                ProcessEvents();
         }
     }
 }
@@ -183,8 +180,8 @@ void scopeScanner::ResetGraph(unsigned int size) {
                   1, 0, 1);
 
     stringstream stream;
-    stream << "M" << ((scopeUnpacker *) core)->GetMod() << "C"
-           << ((scopeUnpacker *) core)->GetChan();
+    stream << "M" << unpacker_.GetMod() << "C"
+           << unpacker_.GetChan();
     graph->SetTitle(stream.str().c_str());
     hist->SetTitle(stream.str().c_str());
 
@@ -361,8 +358,8 @@ bool scopeScanner::Initialize(string prefix_) {
 
     // Print a small welcome message.
     cout << "  Displaying traces for mod = "
-         << ((scopeUnpacker *) core)->GetMod()
-         << ", chan = " << ((scopeUnpacker *) core)->GetChan() << ".\n";
+         << unpacker_.GetMod()
+         << ", chan = " << unpacker_.GetChan() << ".\n";
 
     return (init = true);
 }
@@ -383,15 +380,6 @@ void scopeScanner::Notify(const string &code_/*=""*/) {
     else {
         cout << msgHeader << "Unknown notification code '" << code_ << "'!\n";
     }
-}
-
-/** Return a pointer to the Unpacker object to use for data unpacking.
-  * If no object has been initialized, create a new one.
-  * \return Pointer to an Unpacker object.
-  */
-Unpacker *scopeScanner::GetCore() {
-    if (!core) { core = (Unpacker *) (new scopeUnpacker()); }
-    return core;
 }
 
 /** Add a channel event to the deque of events to send to the processors.
@@ -529,11 +517,11 @@ void scopeScanner::SyntaxStr(char *name_) {
 void scopeScanner::ExtraArguments() {
     if (userOpts.at(0).active)
         cout << msgHeader << "Set module to ("
-             << ((scopeUnpacker *) core)->SetMod(
+             << unpacker_.SetMod(
                      atoi(userOpts.at(0).argument.c_str())) << ").\n";
     if (userOpts.at(1).active)
         cout << msgHeader << "Set channel to ("
-             << ((scopeUnpacker *) core)->SetChan(
+             << unpacker_.SetChan(
                      atoi(userOpts.at(1).argument.c_str())) << ").\n";
 }
 
@@ -551,8 +539,8 @@ bool scopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
             ClearEvents();
 
             // Set the module and channel.
-            ((scopeUnpacker *) core)->SetMod(atoi(args_.at(0).c_str()));
-            ((scopeUnpacker *) core)->SetChan(atoi(args_.at(1).c_str()));
+            unpacker_.SetMod(atoi(args_.at(0).c_str()));
+            unpacker_.SetChan(atoi(args_.at(1).c_str()));
 
             resetGraph_ = true;
         } else {
@@ -563,11 +551,11 @@ bool scopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
         singleCapture_ = !singleCapture_;
     } else if (cmd_ == "thresh") {
         if (args_.size() == 1) {
-            ((scopeUnpacker *) core)->SetThreshLow(atoi(args_.at(0).c_str()));
-            ((scopeUnpacker *) core)->SetThreshHigh(-1);
+            unpacker_.SetThreshLow(atoi(args_.at(0).c_str()));
+            unpacker_.SetThreshHigh(-1);
         } else if (args_.size() == 2) {
-            ((scopeUnpacker *) core)->SetThreshLow(atoi(args_.at(0).c_str()));
-            ((scopeUnpacker *) core)->SetThreshHigh(atoi(args_.at(1).c_str()));
+            unpacker_.SetThreshLow(atoi(args_.at(0).c_str()));
+            unpacker_.SetThreshHigh(atoi(args_.at(1).c_str()));
         } else {
             cout << msgHeader << "Invalid number of parameters to 'thresh'\n";
             cout << msgHeader

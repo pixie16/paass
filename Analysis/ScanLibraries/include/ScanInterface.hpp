@@ -84,7 +84,7 @@ private:
 class ScanInterface {
 public:
     /// Default constructor.
-    ScanInterface(Unpacker *core_ = NULL);
+    ScanInterface();
 
     /// Default destructor.
     virtual ~ScanInterface();
@@ -153,26 +153,16 @@ public:
     void CmdControl();
 
     /// Setup user options and initialize all required objects.
-    bool Setup(int argc, char *argv[]);
+    ///\param[in] argc : Number of arguments. Comes from main()
+    ///\param[in] argv : Argument list. Comes from main()
+    ///\param[in] unpacker : A pointer to an unpacker object if need one.
+    bool Setup(int argc, char *argv[], Unpacker *unpacker = NULL);
 
     /// Run the program.
     int Execute();
 
     /// Shutdown cleanly.
     bool Close();
-
-    /** Add a channel event to the deque of events to send to the processors.
-      * This method should only be called from Unpacker::ProcessRawEvent().
-      * \param[in]  event_ The raw XiaData to add. Unused by default.
-      * \return False if not overwritten.
-      */
-    virtual bool AddEvent(XiaData *event_) { return false; }
-
-    /** Process all channel events read in from the rawEvent.
-      * This method should only be called from Unpacker::ProcessRawEvent().
-      * \return False if not overwritten.
-      */
-    virtual bool ProcessEvents() { return false; }
 
 protected:
     std::string msgHeader; /// The string to print before program output.
@@ -183,7 +173,7 @@ protected:
     std::vector<optionExt> userOpts; /// User added command line options.
     std::string optstr;
 
-    Unpacker *core; /// Pointer to class derived from Unpacker class.
+    Unpacker *unpacker_; /// Pointer to class derived from Unpacker class.
 
     /** Add a command line option to the option list.
       * \param[in]  opt_ The option to add to the list.
@@ -200,7 +190,9 @@ protected:
       * \return True if the command was recognized and false otherwise. Returns false by default.
       */
     virtual bool ExtraCommands(const std::string &cmd_,
-                               std::vector<std::string> &args_) { return false; }
+                               std::vector<std::string> &args_) {
+        return false;
+    }
 
     /** ExtraArguments is used to send command line arguments to classes derived
       * from ScanInterface. This method should loop over the optionExt elements
@@ -243,7 +235,7 @@ protected:
       */
     virtual void IdleTask() {}
 
-    /** Initialize the Unpacker object.
+    /** Initialize the program
       * Does nothing useful by default.
       * \param[in]  prefix_ String to append to the beginning of system output.
       * \return True upon successfully initializing and false otherwise.
@@ -263,8 +255,9 @@ protected:
       * \param[in]  overwrite_ Set to true if the user wishes to overwrite the output file. Not used by default.
       * \return True upon successfully opening the output file and false otherwise. Returns false by default.
       */
-    virtual bool
-    InitRootOutput(std::string fname_, bool overwrite_ = true) { return false; }
+    virtual bool InitRootOutput(std::string fname_, bool overwrite_ = true) {
+        return false;
+    }
 
     /** Notify the unpacker object of a user action. This method should be
       * used in order to pass information to a class derived from Unpacker.
@@ -273,12 +266,6 @@ protected:
       * \return Nothing.
       */
     virtual void Notify(const std::string &code_ = "") {}
-
-    /** Return a pointer to the Unpacker object to use for data unpacking.
-      * If no object has been initialized, create a new one.
-      * \return Pointer to an Unpacker object.
-      */
-    virtual Unpacker *GetCore();
 
 private:
     unsigned int maxShmSizeL; /// Max size of shared memory buffer in pixie words (4050 + 2 header words)

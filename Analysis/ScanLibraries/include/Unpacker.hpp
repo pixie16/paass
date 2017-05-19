@@ -27,10 +27,7 @@
 #endif
 
 class XiaData;
-
 class ScanMain;
-
-class ScanInterface;
 
 class Unpacker {
 public:
@@ -47,7 +44,7 @@ public:
     unsigned int GetNumRawEvents() { return numRawEvt; }
 
     /// Return the width of the raw event window in pixie16 clock ticks.
-    double GetEventWidth() { return eventWidth; }
+    double GetEventWidth() { return eventWidth_; }
 
     /// Return the time of the first fired channel event.
     double GetFirstTime() { return firstTime; }
@@ -56,7 +53,7 @@ public:
     double GetEventStartTime() { return eventStartTime; }
 
     /// Get the stop time of the current raw event.
-    double GetEventStopTime() { return eventStartTime + eventWidth; }
+    double GetEventStopTime() { return eventStartTime + eventWidth_; }
 
     /// Get the time of the first xia event in the raw event.
     double GetRealStartTime() { return realStartTime; }
@@ -71,17 +68,13 @@ public:
     bool SetDebugMode(bool state_ = true) { return (debug_mode = state_); }
 
     /// Set the width of events in pixie16 clock ticks.
-    double SetEventWidth(double width_) { return (eventWidth = width_); }
+    void SetEventWidth(double width) { eventWidth_ = width; }
 
     void InitializeDataMask(const std::string &firmware,
                             const unsigned int &frequency) {
         mask_.SetFrequency(frequency);
         mask_.SetFirmware(firmware);
     }
-
-    /// Set the address of the scan interface used for file operations.
-    ScanInterface *
-    SetInterface(ScanInterface *interface_) { return (interface = interface_); }
 
     /** ReadSpill is responsible for constructing a list of pixie16 events from
       * a raw data spill. This method performs sanity checks on the spill and
@@ -91,8 +84,8 @@ public:
       * \param[in]  is_verbose Toggle the verbosity flag on/off.
       * \return True if the spill was read successfully and false otherwise.
       */
-    bool
-    ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbose = true);
+    bool ReadSpill(unsigned int *data, unsigned int nWords,
+                   bool is_verbose = true);
 
     /** Write all recorded channel counts to a file.
       * \return Nothing.
@@ -113,7 +106,8 @@ protected:
     XiaListModeDataMask mask_; //Object providing the masks necessary to
     // decode the data.
 
-    double eventWidth; /// The width of the raw event in pixie clock ticks (8 ns).
+    double eventWidth_; /// The width of the raw event in pixie clock ticks
+/// (8 ns).
 
     bool debug_mode; /// True if debug mode is set.
     bool running; /// True if the scan is running.
@@ -121,20 +115,18 @@ protected:
     std::vector<std::deque<XiaData *>> eventList; /// The list of all events in a spill.
     std::deque<XiaData *> rawEvent; /// The list of all events in the event window.
 
-    ScanInterface *interface; /// Pointer to an object derived from ScanInterface.
-
     /** Process all events in the event list.
       * \param[in]  addr_ Pointer to a ScanInterface object. Unused by default.
       * \return Nothing.
       */
-    virtual void ProcessRawEvent(ScanInterface *addr_ = NULL);
+    virtual void ProcessRawEvent();
 
     /** Add an event to generic statistics output.
       * \param[in]  event_ Pointer to the current XIA event. Unused by default.
       * \param[in]  addr_  Pointer to a ScanInterface object. Unused by default.
       * \return Nothing.
       */
-    virtual void RawStats(XiaData *event_, ScanInterface *addr_ = NULL) {}
+    virtual void RawStats(XiaData *event_) {}
 
     /** Called form ReadSpill. Scan the current spill and construct a list of
       * events which fired by obtaining the module, channel, trace, etc. of the

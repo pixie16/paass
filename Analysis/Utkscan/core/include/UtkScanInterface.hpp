@@ -46,11 +46,6 @@ public:
         return (false);
     }
 
-    /** Return a pointer to the Unpacker object to use for data unpacking.
-     * If no object has been initialized, create a new one.
-     * \return Pointer to an Unpacker object. */
-    virtual Unpacker *GetCore();
-
     /** CmdHelp is used to allow a derived class to print a help statement about
      * its own commands. This method is called whenever the user enters 'help'
      * or 'h' into the interactive terminal (if available).

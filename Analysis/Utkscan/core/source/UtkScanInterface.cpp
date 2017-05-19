@@ -92,6 +92,7 @@ bool UtkScanInterface::Initialize(string prefix_) {
         throw;
     }
 
+    unpacker_->SetEventWidth(Globals::get()->GetEventLengthInTicks());
     Globals::get()->SetOutputFilename(GetOutputFilename());
     Globals::get()->SetOutputPath(GetOutputPath());
     //set eventWidth from Globals (loaded from config file)
@@ -101,9 +102,8 @@ bool UtkScanInterface::Initialize(string prefix_) {
     //This should be cleaned up!!
 #ifndef USE_HRIBF
     try {
-        output_his =
-                new OutputHisFile(
-                        (GetOutputPath() + GetOutputFilename()).c_str());
+        output_his = new OutputHisFile(
+                (GetOutputPath() + GetOutputFilename()).c_str());
         output_his->SetDebugMode(false);
 
         /** The DetectorDriver constructor will load processors
@@ -151,13 +151,3 @@ void UtkScanInterface::Notify(const string &code_/*=""*/) {
              << "'!\n";
     }
 }
-
-/** Return a pointer to the Unpacker object to use for data unpacking.
- * If no object has been initialized, create a new one.
- * \return Pointer to an Unpacker object. */
-Unpacker *UtkScanInterface::GetCore() {
-    if (!core)
-        core = (Unpacker * )(new UtkUnpacker());
-    return (core);
-}
-
