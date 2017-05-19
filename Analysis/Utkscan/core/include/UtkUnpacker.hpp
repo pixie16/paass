@@ -28,7 +28,7 @@ public:
 private:
     ///@brief Process all events in the event list.
     ///@param[in]  addr_ Pointer to a ScanInterface object.
-    void ProcessRawEvent(ScanInterface *addr_ = NULL);
+    void ProcessRawEvent();
 
     ///@brief Initializes the DetectorLibrary and DetectorDriver
     ///@param[in] driver A pointer to the DetectorDriver that we're using.
@@ -51,8 +51,7 @@ private:
     ///@param[in] event_ Pointer to the current XIA event.
     ///@param[in] driver Pointer to the DetectorDriver class that we're using.
     ///@param[in] addr_  Pointer to a ScanInterface object.
-    virtual void RawStats(XiaData *event_, DetectorDriver *driver,
-                          ScanInterface *addr_ = NULL);
+    virtual void RawStats(XiaData *event_, DetectorDriver *driver);
 };
 
 #endif //__UTKUNPACKER_HPP__

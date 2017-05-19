@@ -12,7 +12,7 @@
  */
 #include <iostream>
 #include <sstream>
-#include <stdexcept>
+#include <exception>
 #include <thread>
 
 #include <cstdlib>
@@ -31,6 +31,8 @@
 #define PROG_NAME "ScanInterface"
 #endif
 
+using namespace std;
+
 void start_run_control(ScanInterface *main_) {
     main_->RunControl();
 }
@@ -44,24 +46,24 @@ void start_cmd_control(ScanInterface *main_) {
 /////////////////////////////////////////////////////////////////////
 
 optionExt::optionExt(const char *name_, const int &has_arg_, int *flag_,
-                     const int &val_, const std::string &argstr_,
-                     const std::string &helpstr_) :
+                     const int &val_, const string &argstr_,
+                     const string &helpstr_) :
         name(name_), has_arg(has_arg_), flag(flag_), val(val_), argstr(argstr_),
         helpstr(helpstr_), active(false) {
 }
 
 void
-optionExt::print(const size_t &len_/*=0*/, const std::string &prefix_/*=""*/) {
-    std::stringstream stream;
+optionExt::print(const size_t &len_/*=0*/, const string &prefix_/*=""*/) {
+    stringstream stream;
     stream << prefix_ << "--" << name << " ";
     if (val) stream << "(-" << (char) val << ") ";
     stream << argstr;
 
     if (stream.str().length() < len_)
-        stream << std::string(len_ - stream.str().length(), ' ');
+        stream << string(len_ - stream.str().length(), ' ');
 
     stream << "- " << helpstr;
-    std::cout << stream.str() << std::endl;
+    cout << stream.str() << endl;
 }
 
 option optionExt::getOption() {
@@ -77,8 +79,8 @@ option optionExt::getOption() {
 // class fileInformation
 /////////////////////////////////////////////////////////////////////
 
-bool fileInformation::at(const size_t &index_, std::string &name,
-                         std::string &value) {
+bool fileInformation::at(const size_t &index_, string &name,
+                         string &value) {
     if (index_ >= parnames.size()) { return false; }
     name = parnames.at(index_);
     value = parvalues.at(index_);
@@ -86,10 +88,10 @@ bool fileInformation::at(const size_t &index_, std::string &name,
 }
 
 template<typename T>
-bool fileInformation::push_back(const std::string &name_, const T &value_,
-                                const std::string &units_/*=""*/) {
+bool fileInformation::push_back(const string &name_, const T &value_,
+                                const string &units_/*=""*/) {
     if (!is_in(name_)) {
-        std::stringstream stream;
+        stringstream stream;
         stream << value_;
         if (units_.size() > 0) {
             stream << " " << units_;
@@ -101,17 +103,17 @@ bool fileInformation::push_back(const std::string &name_, const T &value_,
     return false;
 }
 
-bool fileInformation::is_in(const std::string &name_) {
-    for (std::vector<std::string>::iterator iter = parnames.begin();
+bool fileInformation::is_in(const string &name_) {
+    for (vector<string>::iterator iter = parnames.begin();
          iter != parnames.end(); iter++) {
         if (name_ == (*iter)) { return true; }
     }
     return false;
 }
 
-std::string fileInformation::print(const size_t &index_) {
+string fileInformation::print(const size_t &index_) {
     if (index_ >= parnames.size()) { return ""; }
-    return std::string(parnames.at(index_) + ": " + parvalues.at(index_));
+    return string(parnames.at(index_) + ": " + parvalues.at(index_));
 }
 
 void fileInformation::clear() {
@@ -123,20 +125,18 @@ void fileInformation::clear() {
 // class ScanInterface
 /////////////////////////////////////////////////////////////////////
 
-/** Start the scan, if ScanInterface is initialized and is not already running.
-  * \return Nothing.
-  */
+///Start the scan, if ScanInterface is initialized and is not already running.
 void ScanInterface::start_scan() {
     if (!(file_open || shm_mode))
-        std::cout << " No input file loaded.\n";
+        cout << " No input file loaded.\n";
     else if (!input_file.good())
-        std::cout << " Error reading from input file!\n";
+        cout << " Error reading from input file!\n";
     else if (input_file.eof())
-        std::cout << " Physical end-of-file reached.\n";
+        cout << " Physical end-of-file reached.\n";
     else if (is_running)
-        std::cout << " Already running.\n";
+        cout << " Already running.\n";
     else {
-        core->Run();
+        unpacker_->Run();
         is_running = true;
         total_stopped = false;
         if (!batch_mode) {
@@ -152,15 +152,15 @@ void ScanInterface::start_scan() {
   * \return Nothing.
   */
 void ScanInterface::stop_scan() {
-    if (!scan_init) { std::cout << " Not initialized!\n"; }
-    else if (!is_running) { std::cout << " Not running.\n"; }
+    if (!scan_init) { cout << " Not initialized!\n"; }
+    else if (!is_running) { cout << " Not running.\n"; }
     else {
-        core->Stop();
+        unpacker_->Stop();
         is_running = false;
         if (!batch_mode) {
             term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped.");
         } else {
-            std::cout << "\033[0;31m[STOP]\033[0m Acquisition stopped.\n";
+            cout << "\033[0;31m[STOP]\033[0m Acquisition stopped.\n";
         }
     }
 
@@ -174,13 +174,13 @@ void ScanInterface::stop_scan() {
   */
 void ScanInterface::help(char *name_) {
     SyntaxStr(name_);
-    std::cout << "  Available options:\n";
-    for (std::vector<optionExt>::iterator iter = baseOpts.begin();
+    cout << "  Available options:\n";
+    for (vector<optionExt>::iterator iter = baseOpts.begin();
          iter != baseOpts.end(); iter++) {
         if (!iter->name) continue;
         iter->print(40, "   ");
     }
-    for (std::vector<optionExt>::iterator iter = userOpts.begin();
+    for (vector<optionExt>::iterator iter = userOpts.begin();
          iter != userOpts.end(); iter++) {
         if (!iter->name) continue;
         iter->print(40, "   ");
@@ -196,17 +196,17 @@ bool ScanInterface::rewind(const unsigned long &offset_/*=0*/) {
 
     // Ensure that the scan is not running.
     if (!(file_open || shm_mode)) {
-        std::cout << " No input file loaded.\n";
+        cout << " No input file loaded.\n";
         return false;
     } else if (is_running) {
-        std::cout << " Cannot change file position while scan is running!\n";
+        cout << " Cannot change file position while scan is running!\n";
         return false;
     }
 
     // Move to the first word in the file.
-    std::cout << " Seeking to word no. " << offset_ << " in file\n";
+    cout << " Seeking to word no. " << offset_ << " in file\n";
     input_file.seekg(offset_ * 4, input_file.beg);
-    std::cout << " Input file is now at " << input_file.tellg() << " bytes\n";
+    cout << " Input file is now at " << input_file.tellg() << " bytes\n";
 
     // Notify that the user has rewound to the start of the file.
     Notify("REWIND_FILE");
@@ -218,19 +218,19 @@ bool ScanInterface::rewind(const unsigned long &offset_/*=0*/) {
   * \param[in]  fname_ Input filename to open for reading.
   * \return True upon successfully opening the file and false otherwise.
   */
-bool ScanInterface::open_input_file(const std::string &fname_) {
+bool ScanInterface::open_input_file(const string &fname_) {
     if (is_running) {
-        std::cout
+        cout
                 << " ERROR! Unable to open input file while scan is running.\n";
         return false;
     } else if (shm_mode) {
-        std::cout << " ERROR! Unable to open input file in shm mode.\n";
+        cout << " ERROR! Unable to open input file in shm mode.\n";
         return false;
     }
 
     extension = get_extension(fname_, prefix);
     if (prefix == "") {
-        std::cout << " ERROR! Input filename was not specified!\n";
+        cout << " ERROR! Input filename was not specified!\n";
         return false;
     }
 
@@ -239,25 +239,25 @@ bool ScanInterface::open_input_file(const std::string &fname_) {
     } else if (extension == "pld") { // Pixie list data file format
         file_format = 1;
     } else {
-        std::cout << " ERROR! Invalid file format '" << extension << "'\n";
-        std::cout << "  The current valid data formats are:\n";
-        std::cout << "   ldf - list data format (HRIBF)\n";
-        std::cout << "   pld - pixie list data format\n";
+        cout << " ERROR! Invalid file format '" << extension << "'\n";
+        cout << "  The current valid data formats are:\n";
+        cout << "   ldf - list data format (HRIBF)\n";
+        cout << "   pld - pixie list data format\n";
         return false;
     }
 
     // Close the previous file, if one is open.
     if (file_open) {
-        std::cout << " Note: Closing previously opened file.\n";
+        cout << " Note: Closing previously opened file.\n";
         input_file.close();
     }
 
     file_open = true;
 
     // Load the input file.
-    input_file.open(fname_.c_str(), std::ios::binary);
+    input_file.open(fname_.c_str(), ios::binary);
     if (!input_file.is_open() || !input_file.good()) {
-        std::cout << " ERROR! Failed to open input file '" << fname_
+        cout << " ERROR! Failed to open input file '" << fname_
                   << "'! Check that the path is correct.\n";
         input_file.close();
         file_open = false;
@@ -289,7 +289,7 @@ bool ScanInterface::open_input_file(const std::string &fname_) {
 
             dirbuff.Print();
             headbuff.Print();
-            std::cout << std::endl;
+            cout << endl;
         } else if (file_format == 1) {
             pldHead.Read(&input_file);
 
@@ -306,7 +306,7 @@ bool ScanInterface::open_input_file(const std::string &fname_) {
             finfo.push_back("ACQ time", pldHead.GetRunTime(), "seconds");
 
             pldHead.Print();
-            std::cout << std::endl;
+            cout << endl;
         }
     }
 
@@ -323,7 +323,7 @@ bool ScanInterface::open_input_file(const std::string &fname_) {
 void ScanInterface::AddOption(optionExt opt_) {
     char tempChar = opt_.val;
     if (tempChar) {
-        if (optstr.find(tempChar) != std::string::npos)
+        if (optstr.find(tempChar) != string::npos)
             opt_.val = 0x0;
         else {
             optstr += tempChar;
@@ -342,12 +342,12 @@ void ScanInterface::AddOption(optionExt opt_) {
   * \return Nothing.
   */
 void ScanInterface::SyntaxStr(char *name_) {
-    std::cout << " usage: " << name_ << " [options]\n";
+    cout << " usage: " << name_ << " [options]\n";
 }
 
-void ScanInterface::SetOutputInformation(const std::string &a) {
+void ScanInterface::SetOutputInformation(const string &a) {
     unsigned long found = a.find_last_of("/");
-    if (found == std::string::npos) {
+    if (found == string::npos) {
         outputFilename_ = a;
         outputPath_ = "./";
     } else {
@@ -361,30 +361,20 @@ void ScanInterface::SetOutputInformation(const std::string &a) {
   * \param[in]  prefix_ String to append to the beginning of system output.
   * \return True upon successfully initializing and false otherwise.
   */
-bool ScanInterface::Initialize(std::string prefix_) {
+bool ScanInterface::Initialize(string prefix_) {
     if (scan_init) { return false; }
     return (scan_init = true);
 }
 
-/** Return a pointer to the Unpacker object to use for data unpacking.
-  * If no object has been initialized, create a new one.
-  * \return Pointer to an Unpacker object.
-  */
-Unpacker *ScanInterface::GetCore() {
-    if (!core) { core = new Unpacker(); }
-    return core;
-}
-
-/** Default constructor.
-  * \param[in]  core_ Pointer to an object derived from Unpacker.
-  */
-ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/) {
+///Default constructor. We set quite a number of default values here
+///@param[in]  unpacker Pointer to an object derived from Unpacker.
+ScanInterface::ScanInterface() {
     prefix = "";
     extension = "";
 
     // Get the current working directory.
     char workingDirectory[1024];
-    workDir = std::string(getcwd(workingDirectory, 1024));
+    workDir = string(getcwd(workingDirectory, 1024));
 
     // Get the home directory.
     homeDir = getenv("HOME");
@@ -419,10 +409,6 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/) {
 
     poll_server = NULL;
     term = NULL;
-
-    // Set the Unpacker pointer, if one is specified.
-    if (core_) { core = core_; }
-    else { core = NULL; }
 
     //Setup all the arguments that are known to the program.
     baseOpts = {
@@ -461,7 +447,7 @@ ScanInterface::ScanInterface(Unpacker *core_/*=NULL*/) {
 
     optstr = "bc:f:hi:o:qsv";
 
-    progName = std::string(PROG_NAME);
+    progName = string(PROG_NAME);
     msgHeader = progName + ": ";
 }
 
@@ -495,7 +481,7 @@ void ScanInterface::RunControl() {
             usleep(0.1);
             continue;
         } else if (shm_mode) {
-            std::cout << std::endl;
+            cout << endl;
             unsigned int data[250000]; // Array for storing spill data. Larger than any RevF spill should be.
             unsigned int *shm_data = new unsigned int[maxShmSizeL]; // Array to store the temporary shm data (~16 kB)
             int dummy;
@@ -528,7 +514,7 @@ void ScanInterface::RunControl() {
                         term->SetStatus(
                                 "\033[0;33m[IDLE]\033[0m Waiting for a spill...");
                     } else {
-                        std::cout
+                        cout
                                 << "\r\033[0;33m[IDLE]\033[0m Waiting for a spill...";
                     }
                     IdleTask();
@@ -541,7 +527,7 @@ void ScanInterface::RunControl() {
                 // Get the spill
                 while (current_chunk != total_chunks) {
                     if (!poll_server->Select(select_dummy)) { // Server timeout
-                        std::cout << msgHeader
+                        cout << msgHeader
                                   << "Network timeout before recv full spill!\n";
                         full_spill = false;
                         break;
@@ -560,7 +546,7 @@ void ScanInterface::RunControl() {
                     }
 
                     if (debug_mode) {
-                        std::cout << "debug: Received " << nWords
+                        cout << "debug: Received " << nWords
                                   << " words from the network\n";
                     }
                     memcpy((char *) &current_chunk, &shm_data[0], 4);
@@ -569,17 +555,17 @@ void ScanInterface::RunControl() {
                     if (previous_chunk == -1 && current_chunk !=
                                                 1) { // Started reading in the middle of a spill, ignore the rest of it
                         if (debug_mode) {
-                            std::cout << "debug: Skipping chunk "
+                            cout << "debug: Skipping chunk "
                                       << current_chunk << " of " << total_chunks
-                                      << std::endl;
+                                      << endl;
                         }
                         continue;
                     } else if (previous_chunk != current_chunk -
                                                  1) { // We missed a spill chunk somewhere
                         if (debug_mode) {
-                            std::cout << "debug: Found chunk " << current_chunk
+                            cout << "debug: Found chunk " << current_chunk
                                       << " but expected chunk "
-                                      << previous_chunk + 1 << std::endl;
+                                      << previous_chunk + 1 << endl;
                         }
                         break;
                     }
@@ -594,7 +580,7 @@ void ScanInterface::RunControl() {
                         nTotalWords += (nWords - 2);
                     } else {
                         if (debug_mode) {
-                            std::cout
+                            cout
                                     << "debug: Abnormally full spill buffer with "
                                     << nTotalWords + 2 + nWords << " words!\n";
                         }
@@ -602,26 +588,26 @@ void ScanInterface::RunControl() {
                     }
                 }
 
-                std::stringstream status;
+                stringstream status;
                 status << "\033[0;32m" << "[RECV] " << "\033[0m" << nTotalWords
                        << " words";
                 if (!batch_mode) { term->SetStatus(status.str()); }
-                else { std::cout << "\r" << status.str(); }
+                else { cout << "\r" << status.str(); }
 
                 if (debug_mode) {
-                    std::cout << "debug: Retrieved spill of " << nTotalWords
+                    cout << "debug: Retrieved spill of " << nTotalWords
                               << " words (" << nTotalWords * 4 << " bytes)\n";
                 }
                 if (!dry_run_mode && full_spill) {
                     int word1 = 2, word2 = 9999;
                     memcpy(&data[nTotalWords], (char *) &word1, 4);
                     memcpy(&data[nTotalWords + 1], (char *) &word2, 4);
-                    core->ReadSpill(data, nTotalWords + 2, is_verbose);
+                    unpacker_->ReadSpill(data, nTotalWords + 2, is_verbose);
                     IdleTask();
                 }
 
                 if (!full_spill) {
-                    std::cout << msgHeader
+                    cout << msgHeader
                               << "Not processing spill fragment!\n";
                 } else { num_spills_recvd++; }
             }
@@ -651,33 +637,33 @@ void ScanInterface::RunControl() {
                                    full_spill, bad_spill, dry_run_mode)) {
                     if (databuff.GetRetval() == 1) {
                         if (debug_mode) {
-                            std::cout
+                            cout
                                     << "debug: Encountered single EOF buffer (end of run).\n";
                         }
                     } else if (databuff.GetRetval() == 2) {
                         if (debug_mode) {
-                            std::cout
+                            cout
                                     << "debug: Encountered double EOF buffer (end of file).\n";
                         }
                         break;
                     } else if (databuff.GetRetval() == 3) {
                         if (debug_mode) {
-                            std::cout
+                            cout
                                     << "debug: Encountered unknown ldf buffer type.\n";
                         }
                     } else if (databuff.GetRetval() == 4) {
                         if (debug_mode) {
-                            std::cout
+                            cout
                                     << "debug: Encountered invalid spill chunk.\n";
                         }
                     } else if (databuff.GetRetval() == 5) {
                         if (debug_mode) {
-                            std::cout
+                            cout
                                     << "debug: Received bad spill footer size.\n";
                         }
                     } else if (databuff.GetRetval() == 6) {
                         if (debug_mode) {
-                            std::cout
+                            cout
                                     << "debug: Failed to read buffer from input file.\n";
                         }
                         break;
@@ -685,37 +671,37 @@ void ScanInterface::RunControl() {
                     continue;
                 }
 
-                std::stringstream status;
+                stringstream status;
                 status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes / 4
                        << " words (" << 100 * input_file.tellg() / file_length
                        << "%), ";
                 status << "GOOD = " << databuff.GetNumChunks() << ", LOST = "
                        << databuff.GetNumMissing();
                 if (!batch_mode) { term->SetStatus(status.str()); }
-                else { std::cout << "\r" << status.str(); }
+                else { cout << "\r" << status.str(); }
 
                 if (full_spill) {
                     if (debug_mode) {
-                        std::cout << "debug: Retrieved spill of " << nBytes
+                        cout << "debug: Retrieved spill of " << nBytes
                                   << " bytes (" << nBytes / 4 << " words)\n";
-                        std::cout << "debug: Read up to word number "
+                        cout << "debug: Read up to word number "
                                   << input_file.tellg() / 4
                                   << " in input file\n";
                     }
                     if (!dry_run_mode) {
                         if (!bad_spill) {
-                            core->ReadSpill(data, nBytes / 4, is_verbose);
+                            unpacker_->ReadSpill(data, nBytes / 4, is_verbose);
                             IdleTask();
                         } else {
-                            std::cout
+                            cout
                                     << " WARNING: Spill has been flagged as corrupt, skipping (at word "
                                     << input_file.tellg() / 4 << " in file)!\n";
                         }
                     }
                 } else if (debug_mode) {
-                    std::cout << "debug: Retrieved spill fragment of " << nBytes
+                    cout << "debug: Retrieved spill fragment of " << nBytes
                               << " bytes (" << nBytes / 4 << " words)\n";
-                    std::cout << "debug: Read up to word number "
+                    cout << "debug: Read up to word number "
                               << input_file.tellg() / 4 << " in input file\n";
                 }
                 num_spills_recvd++;
@@ -726,7 +712,7 @@ void ScanInterface::RunControl() {
             if (!batch_mode) {
                 term->SetStatus(
                         "\033[0;33m[IDLE]\033[0m Finished scanning file.");
-            } else { std::cout << std::endl << std::endl; }
+            } else { cout << endl << endl; }
         } else if (file_format == 1) {
             unsigned int *data = NULL;
             unsigned int nBytes;
@@ -746,17 +732,17 @@ void ScanInterface::RunControl() {
                     continue;
                 }
 
-                std::stringstream status;
+                stringstream status;
                 status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes / 4
                        << " words (" << 100 * input_file.tellg() / file_length
                        << "%)";
                 if (!batch_mode) { term->SetStatus(status.str()); }
-                else { std::cout << "\r" << status.str(); }
+                else { cout << "\r" << status.str(); }
 
                 if (debug_mode) {
-                    std::cout << "debug: Retrieved spill of " << nBytes
+                    cout << "debug: Retrieved spill of " << nBytes
                               << " bytes (" << nBytes / 4 << " words)\n";
-                    std::cout << "debug: Read up to word number "
+                    cout << "debug: Read up to word number "
                               << input_file.tellg() / 4 << " in input file\n";
                 }
 
@@ -764,16 +750,16 @@ void ScanInterface::RunControl() {
                     int word1 = 2, word2 = 9999;
                     memcpy(&data[(nBytes / 4)], (char *) &word1, 4);
                     memcpy(&data[(nBytes / 4) + 1], (char *) &word2, 4);
-                    core->ReadSpill(data, nBytes / 4 + 2, is_verbose);
+                    unpacker_->ReadSpill(data, nBytes / 4 + 2, is_verbose);
                     IdleTask();
                 }
                 num_spills_recvd++;
             }
 
             if (eofbuff.ReadHeader(&input_file)) {
-                std::cout << msgHeader << "Encountered EOF buffer.\n";
+                cout << msgHeader << "Encountered EOF buffer.\n";
             } else {
-                std::cout << msgHeader
+                cout << msgHeader
                           << "Failed to find end of file buffer!\n";
             }
 
@@ -782,7 +768,7 @@ void ScanInterface::RunControl() {
             if (!batch_mode) {
                 term->SetStatus(
                         "\033[0;33m[IDLE]\033[0m Finished scanning file.");
-            } else { std::cout << std::endl << std::endl; }
+            } else { cout << endl << endl; }
         } else if (file_format == 2) {
         }
 
@@ -801,9 +787,9 @@ void ScanInterface::RunControl() {
 
 /// Main command interpreter method.
 void ScanInterface::CmdControl() {
-    if (!core) { return; }
+    if (!unpacker_) { return; }
 
-    std::string cmd = "", arg;
+    string cmd = "", arg;
     bool waiting_for_run = false;
 
     while (true) {
@@ -820,18 +806,18 @@ void ScanInterface::CmdControl() {
 
         cmd = term->GetCommand(arg);
         if (cmd == "_SIGSEGV_") {
-            std::cout << "\033[0;31m[SEGMENTATION FAULT]\033[0m\n";
+            cout << "\033[0;31m[SEGMENTATION FAULT]\033[0m\n";
             exit(EXIT_FAILURE);
         } else if (cmd == "CTRL_D") {
-            std::cout << msgHeader
+            cout << msgHeader
                       << "Received EOF (ctrl-d) signal. Exiting...\n";
             cmd = "quit";
         } else if (cmd == "CTRL_C") {
-            std::cout << msgHeader
+            cout << msgHeader
                       << "Warning! Received SIGINT (ctrl-c) signal.\n";
             continue;
         } else if (cmd == "CTRL_Z") {
-            std::cout << msgHeader
+            cout << msgHeader
                       << "Warning! Received SIGTSTP (ctrl-z) signal.\n";
             continue;
         }
@@ -840,10 +826,10 @@ void ScanInterface::CmdControl() {
         if (cmd == "") { continue; }
 
         // Replace the '~' with the user's home directory.
-        if (!arg.empty() && arg.find('~') != std::string::npos)
+        if (!arg.empty() && arg.find('~') != string::npos)
             arg.replace(arg.find('~'), 1, homeDir);
 
-        std::vector<std::string> arguments;
+        vector<string> arguments;
         unsigned int p_args = split_str(arg, arguments);
 
         if (cmd == "quit" || cmd == "exit") {
@@ -852,30 +838,30 @@ void ScanInterface::CmdControl() {
             while (!run_ctrl_exit) { sleep(1); }
             break;
         } else if (cmd == "version" || cmd == "v") {
-            std::cout << "  " << PROG_NAME << "	  v" << SCAN_VERSION << " ("
+            cout << "  " << PROG_NAME << "	  v" << SCAN_VERSION << " ("
                       << SCAN_DATE << ")\n";
-            std::cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " ("
+            cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " ("
                       << POLL2_SOCKET_DATE << ")\n";
-            std::cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION << " ("
+            cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION << " ("
                       << HRIBF_BUFFERS_DATE << ")\n";
-            std::cout << "  CTerminal	 v" << CTERMINAL_VERSION << " ("
+            cout << "  CTerminal	 v" << CTERMINAL_VERSION << " ("
                       << CTERMINAL_DATE << ")\n";
         } else if (cmd == "help" || cmd == "h") {
-            std::cout << "  Help:\n";
-            std::cout
+            cout << "  Help:\n";
+            cout
                     << "   debug           - Toggle debug mode flag (default=false)\n";
-            std::cout
+            cout
                     << "   quiet           - Toggle quiet mode flag (default=false)\n";
-            std::cout << "   quit            - Close the program\n";
-            std::cout << "   help (h)        - Display this dialogue\n";
-            std::cout
+            cout << "   quit            - Close the program\n";
+            cout << "   help (h)        - Display this dialogue\n";
+            cout
                     << "   version (v)     - Display Poll2 version information\n";
-            std::cout << "   run             - Start acquisition\n";
-            std::cout << "   stop            - Stop acquisition\n";
-            std::cout << "   file <filename> - Load an input file\n";
-            std::cout
+            cout << "   run             - Start acquisition\n";
+            cout << "   stop            - Stop acquisition\n";
+            cout << "   file <filename> - Load an input file\n";
+            cout
                     << "   rewind [offset] - Rewind to the beginning of the file\n";
-            std::cout
+            cout
                     << "   sync            - Wait for the current run to finish\n";
             CmdHelp("   ");
         } else if (cmd == "run") { // Start acquisition.
@@ -884,30 +870,30 @@ void ScanInterface::CmdControl() {
             stop_scan();
         } else if (cmd == "debug") { // Toggle debug mode
             if (debug_mode) {
-                std::cout << msgHeader << "Toggling debug mode OFF\n";
+                cout << msgHeader << "Toggling debug mode OFF\n";
                 debug_mode = false;
             } else {
-                std::cout << msgHeader << "Toggling debug mode ON\n";
+                cout << msgHeader << "Toggling debug mode ON\n";
                 debug_mode = true;
             }
-            core->SetDebugMode(debug_mode);
+            unpacker_->SetDebugMode(debug_mode);
         } else if (cmd == "quiet") { // Toggle quiet mode
             if (!is_verbose) {
-                std::cout << msgHeader << "Toggling quiet mode OFF\n";
+                cout << msgHeader << "Toggling quiet mode OFF\n";
                 is_verbose = true;
             } else {
-                std::cout << msgHeader << "Toggling quiet mode ON\n";
+                cout << msgHeader << "Toggling quiet mode ON\n";
                 is_verbose = false;
             }
         } else if (cmd == "file") { // Rewind the file to the start position
             if (p_args > 0) {
                 if (!open_input_file(arguments.at(0))) {
-                    std::cout << msgHeader << "Failed to open input file!\n";
+                    cout << msgHeader << "Failed to open input file!\n";
                 }
             } else {
-                std::cout << msgHeader
+                cout << msgHeader
                           << "Invalid number of parameters to 'file'\n";
-                std::cout << msgHeader << " -SYNTAX- file <filename>\n";
+                cout << msgHeader << " -SYNTAX- file <filename>\n";
             }
         } else if (cmd == "rewind") { // Rewind the file to the start position
             if (p_args > 0) {
@@ -915,13 +901,13 @@ void ScanInterface::CmdControl() {
             } else { rewind(); }
         } else if (cmd == "sync") { // Wait until the current run is completed.
             if (is_running) {
-                std::cout << msgHeader
+                cout << msgHeader
                           << "Waiting for current scan to complete.\n";
                 waiting_for_run = true;
-            } else { std::cout << msgHeader << "Scan is not running.\n"; }
+            } else { cout << msgHeader << "Scan is not running.\n"; }
         } else if (!ExtraCommands(cmd,
                                   arguments)) { // Unrecognized command. Send it to a derived object.
-            std::cout << msgHeader << "Unknown command '" << cmd << "'\n";
+            cout << msgHeader << "Unknown command '" << cmd << "'\n";
         }
     }
 }
@@ -931,7 +917,8 @@ void ScanInterface::CmdControl() {
   * \param[in]  argv Array of strings passed as arguments from the command line.
   * \return True upon success and false otherwise.
   */
-bool ScanInterface::Setup(int argc, char *argv[]) {
+bool ScanInterface::Setup(int argc, char *argv[],
+                          Unpacker *unpacker/*=NULL*/) {
     if (scan_init)
         return false;
 
@@ -940,18 +927,18 @@ bool ScanInterface::Setup(int argc, char *argv[]) {
     shm_mode = false;
     num_spills_recvd = 0;
     unsigned int samplingFrequency = 0;
-    std::string firmware = "";
-    std::string input_filename = "";
+    string firmware = "";
+    string input_filename = "";
 
     // Add derived class options to the option list.
     this->ArgHelp();
 
     // Build the vector of all command line options.
-    for (std::vector<optionExt>::iterator iter = baseOpts.begin();
+    for (vector<optionExt>::iterator iter = baseOpts.begin();
          iter != baseOpts.end(); iter++) {
         longOpts.push_back(iter->getOption());
     }
-    for (std::vector<optionExt>::iterator iter = userOpts.begin();
+    for (vector<optionExt>::iterator iter = userOpts.begin();
          iter != userOpts.end(); iter++) {
         longOpts.push_back(iter->getOption());
     }
@@ -980,16 +967,16 @@ bool ScanInterface::Setup(int argc, char *argv[]) {
             } else if (strcmp("fast-fwd", longOpts[idx].name) == 0) {
                 file_start_offset = atoll(optarg);
             } else if (strcmp("frequency", longOpts[idx].name) == 0)
-                samplingFrequency = (unsigned int) std::stoi(optarg);
+                samplingFrequency = (unsigned int) stoi(optarg);
             else if (strcmp("firmware", longOpts[idx].name) == 0)
                 firmware = optarg;
             else {
-                for (std::vector<optionExt>::iterator iter = userOpts.begin();
+                for (vector<optionExt>::iterator iter = userOpts.begin();
                      iter != userOpts.end(); iter++) {
                     if (strcmp(iter->name, longOpts[idx].name) == 0) {
                         iter->active = true;
                         if (optarg)
-                            iter->argument = std::string(optarg);
+                            iter->argument = string(optarg);
                         break;
                     }
                 }
@@ -1024,22 +1011,22 @@ bool ScanInterface::Setup(int argc, char *argv[]) {
                     shm_mode = true;
                     break;
                 case 'v' :
-                    std::cout << "  " << PROG_NAME << "	  v" << SCAN_VERSION
+                    cout << "  " << PROG_NAME << "	  v" << SCAN_VERSION
                               << " (" << SCAN_DATE << ")\n";
-                    std::cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION
+                    cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION
                               << " (" << POLL2_SOCKET_DATE << ")\n";
-                    std::cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION
+                    cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION
                               << " (" << HRIBF_BUFFERS_DATE << ")\n";
-                    std::cout << "  CTerminal	 v" << CTERMINAL_VERSION
+                    cout << "  CTerminal	 v" << CTERMINAL_VERSION
                               << " (" << CTERMINAL_DATE << ")\n";
                     return false;
                 default :
-                    for (std::vector<optionExt>::iterator iter = userOpts.begin();
+                    for (vector<optionExt>::iterator iter = userOpts.begin();
                          iter != userOpts.end(); iter++) {
                         if (retval == iter->val) {
                             iter->active = true;
                             if (optarg)
-                                iter->argument = std::string(optarg);
+                                iter->argument = string(optarg);
                             break;
                         }
                     }
@@ -1048,39 +1035,38 @@ bool ScanInterface::Setup(int argc, char *argv[]) {
         }
     }//while
 
-    // If a pointer to an Unpacker derived class is not specified, call the
-    // extern function GetCore() to get a pointer to a new object.
-    if (!core)
-        GetCore();
-
-    // Link this object to the Unpacker for cross-calls.
-    core->SetInterface(this);
+    //We check that the unpacker object has been set.
+    unpacker_ = unpacker;
+    if (!unpacker_)
+        throw invalid_argument("ScanInterface::Setup - The pointer to the "
+                                       "Unpacker object has not been set "
+                                       "properly.");
 
     //Initialize the data mask for decoding the data
     ///@TODO We need to be able to handle mixed systems, which is not
     /// implemented yet.
     if (samplingFrequency == 0 || firmware == "") {
         if (samplingFrequency == 0)
-            throw std::invalid_argument(
+            throw invalid_argument(
                     "ScanInterface::Setup - The frequency has not been set.");
         if (firmware == "")
-            throw std::invalid_argument("ScanInterface::Setup - The firmware "
+            throw invalid_argument("ScanInterface::Setup - The firmware "
                                                 "has not been set.");
     } else
-        core->InitializeDataMask(firmware, samplingFrequency);
+        unpacker_->InitializeDataMask(firmware, samplingFrequency);
 
     if (debug_mode)
-        core->SetDebugMode();
+        unpacker_->SetDebugMode();
 
     // Parse for any extra arguments that are known to the derived class.
     ExtraArguments();
 
     // Initialize everything.
-    std::cout << msgHeader << "Initializing derived class.\n";
+    cout << msgHeader << "Initializing derived class.\n";
     if (!Initialize(
             msgHeader)) { // Failed to initialize the object. Clean up and exit.
-        std::cout << " FATAL ERROR! Failed to initialize derived class!\n";
-        std::cout << "\nCleaning up...\n";
+        cout << " FATAL ERROR! Failed to initialize derived class!\n";
+        cout << "\nCleaning up...\n";
         return false;
     }
 
@@ -1088,12 +1074,12 @@ bool ScanInterface::Setup(int argc, char *argv[]) {
     if (shm_mode) {
         poll_server = new Server();
         if (!poll_server->Init(5555, 1)) {
-            std::cout << " FATAL ERROR! Failed to open shm socket 5555!\n";
-            std::cout << "\nCleaning up...\n";
+            cout << " FATAL ERROR! Failed to open shm socket 5555!\n";
+            cout << "\nCleaning up...\n";
             return false;
         }
         if (batch_mode) {
-            std::cout << msgHeader
+            cout << msgHeader
                       << "Unable to enable batch mode for shared-memory mode!\n";
             batch_mode = false;
         }
@@ -1109,23 +1095,23 @@ bool ScanInterface::Setup(int argc, char *argv[]) {
         term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped.");
     }
 
-    std::cout << "\n " << PROG_NAME << " v" << SCAN_VERSION << "\n";
-    std::cout << " ==  ==  ==  ==  == \n\n";
+    cout << "\n " << PROG_NAME << " v" << SCAN_VERSION << "\n";
+    cout << " ==  ==  ==  ==  == \n\n";
 
-    if (debug_mode) { std::cout << msgHeader << "Using debug mode.\n\n"; }
-    if (dry_run_mode) { std::cout << msgHeader << "Doing a dry run.\n\n"; }
+    if (debug_mode) { cout << msgHeader << "Using debug mode.\n\n"; }
+    if (dry_run_mode) { cout << msgHeader << "Doing a dry run.\n\n"; }
     if (shm_mode) {
-        std::cout << msgHeader << "Using shared-memory mode.\n\n";
-        std::cout << msgHeader << "Listening on poll2 SHM port 5555\n\n";
+        cout << msgHeader << "Using shared-memory mode.\n\n";
+        cout << msgHeader << "Listening on poll2 SHM port 5555\n\n";
     }
 
     // Load the input file, if the user has supplied a filename.
     if (!shm_mode && !input_filename.empty()) {
-        std::cout << msgHeader << "Using filename " << input_filename << ".\n";
+        cout << msgHeader << "Using filename " << input_filename << ".\n";
         if (open_input_file(input_filename)) {
             // Start the scan.
             start_scan();
-        } else { std::cout << msgHeader << "Failed to load input file!\n"; }
+        } else { cout << msgHeader << "Failed to load input file!\n"; }
     }
 #endif
 
@@ -1133,8 +1119,9 @@ bool ScanInterface::Setup(int argc, char *argv[]) {
     try {
         FinalInitialization();
     }
-    catch (...) {
-        std::cout << "\nFinal initialization failed!\n";
+    catch (exception &ex) {
+        cout << ex.what() << endl;
+        cout << "\nFinal initialization failed!\n";
     }
 
     return (scan_init = true);
@@ -1147,23 +1134,24 @@ bool ScanInterface::Setup(int argc, char *argv[]) {
 int ScanInterface::Execute() {
 #ifndef USE_HRIBF
     if (!scan_init) {
-        std::cout << " FATAL ERROR! ScanInterface is not initialized!\n";
+        cout << " FATAL ERROR! ScanInterface is not initialized!\n";
         return 1;
     }
 
     // Seek to the beginning of the file.
-    if (file_start_offset != 0) { rewind(); }
+    if (file_start_offset != 0)
+        rewind();
 
     // Process the file.
     if (!batch_mode) {
         // Start the run control thread
-        std::cout << "\n Starting data control thread\n";
-        std::thread runctrl(start_run_control, this);
+        cout << "\n Starting data control thread\n";
+        thread runctrl(start_run_control, this);
 
         // Start the command control thread. This needs to be the last thing we do to
         // initialize, so the user cannot enter commands before setup is complete
-        std::cout << " Starting command thread\n\n";
-        std::thread comctrl(start_cmd_control, this);
+        cout << " Starting command thread\n\n";
+        thread comctrl(start_cmd_control, this);
 
         // Synchronize the threads and wait for completion
         comctrl.join();
@@ -1177,7 +1165,8 @@ int ScanInterface::Execute() {
   * \return True upon success and false if ScanInterface has not been initialized.
   */
 bool ScanInterface::Close() {
-    if (!scan_init) { return false; }
+    if (!scan_init)
+        return false;
 #ifndef USE_HRIBF
     // Close the socket and restore the terminal
     if (!batch_mode) {
@@ -1189,32 +1178,30 @@ bool ScanInterface::Close() {
     if (shm_mode) { poll_server->Close(); }
 
     //Reprint the leader as the carriage was returned
-    std::cout << "Running " << PROG_NAME << " v" << SCAN_VERSION << " ("
+    cout << "Running " << PROG_NAME << " v" << SCAN_VERSION << " ("
               << SCAN_DATE << ")\n";
 
-    std::cout << msgHeader << "Retrieved " << num_spills_recvd << " spills!\n";
+    cout << msgHeader << "Retrieved " << num_spills_recvd << " spills!\n";
 
     if (input_file.good()) {
         input_file.close();
     }
 
     // Clean up detector driver
-    std::cout << "\n" << msgHeader << "Cleaning up...\n";
+    cout << "\n" << msgHeader << "Cleaning up...\n";
 
     // Show the number of lost spill chunks.
-    std::cout << msgHeader << "Read " << databuff.GetNumChunks()
+    cout << msgHeader << "Read " << databuff.GetNumChunks()
               << " spill chunks.\n";
-    std::cout << msgHeader << "Lost at least " << databuff.GetNumMissing()
+    cout << msgHeader << "Lost at least " << databuff.GetNumMissing()
               << " spill chunks.\n";
 
     if (write_counts)
-        core->Write();
+        unpacker_->Write();
 
     if (poll_server) { delete poll_server; }
     if (term) { delete term; }
 #endif
-    if (core) { delete core; }
-
     scan_init = false;
     return true;
 }
@@ -1226,13 +1213,13 @@ bool ScanInterface::Close() {
   */
 ///@TODO This method needs cleaned up signficantly. This should only take
 /// about 4 lines of code if using string::find_last_of()
-std::string get_extension(std::string filename_, std::string &prefix) {
+string get_extension(string filename_, string &prefix) {
     size_t count = 0;
     size_t last_index = 0;
-    std::string output = "";
+    string output = "";
     prefix = "";
 
-    if (filename_.find('.') != std::string::npos) {
+    if (filename_.find('.') != string::npos) {
         // Find the final period in the filename
         for (count = 0; count < filename_.size(); count++) {
             if (filename_[count] == '.') { last_index = count; }

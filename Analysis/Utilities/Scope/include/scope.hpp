@@ -67,14 +67,14 @@ private:
       * \param[in]  addr_ Pointer to a ScanInterface object.
       * \return Nothing.
       */
-    virtual void ProcessRawEvent(ScanInterface *addr_ = NULL);
+    virtual void ProcessRawEvent();
 
     /** Add an event to generic statistics output.
       * \param[in]  event_ Pointer to the current XIA event.
       * \param[in]  addr_  Pointer to a ScanInterface object.
       * \return Nothing.
       */
-    virtual void RawStats(XiaData *event_, ScanInterface *addr_ = NULL) {}
+    virtual void RawStats(XiaData *event_) {}
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -173,12 +173,6 @@ public:
       */
     virtual void Notify(const std::string &code_ = "");
 
-    /** Return a pointer to the Unpacker object to use for data unpacking.
-      * If no object has been initialized, create a new one.
-      * \return Pointer to an Unpacker object.
-      */
-    virtual Unpacker *GetCore();
-
     /** Add a channel event to the deque of events to send to the processors.
       * This method should only be called from skeletonUnpacker::ProcessRawEvent().
       * \param[in]  event_ The raw XiaData to add to the channel event deque.
@@ -198,6 +192,7 @@ public:
     void ClearEvents();
 
 private:
+    scopeUnpacker unpacker_;
     unsigned int numAvgWaveforms_;
     unsigned int num_displayed; ///< The number of displayed traces.
 

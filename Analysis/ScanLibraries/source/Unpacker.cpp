@@ -46,8 +46,7 @@ bool Unpacker::BuildRawEvent() {
     if (!rawEvent.empty())
         ClearRawEvent();
 
-    if (numRawEvt ==
-        0) {// This is the first rawEvent. Do some special processing.
+    if (numRawEvt == 0) {// This is the first rawEvent. Do some special processing.
         // Find the first XiaData event. The eventList is time sorted by module.
         // The first component of each deque will be the earliest time from that module.
         // The first event time will be the minimum of these first components.
@@ -62,7 +61,7 @@ bool Unpacker::BuildRawEvent() {
             return false;
     }
 
-    realStartTime = eventStartTime + eventWidth;
+    realStartTime = eventStartTime + eventWidth_;
     realStopTime = eventStartTime;
 
     unsigned int mod, chan;
@@ -103,8 +102,7 @@ bool Unpacker::BuildRawEvent() {
             // If the time difference between the current and previous event is
             // larger than the event width, finalize the current event, otherwise
             // treat this as part of the current event
-            if ((currtime - eventStartTime) >
-                eventWidth) { // 62 pixie ticks represents ~0.5 us
+            if ((currtime - eventStartTime) > eventWidth_) {
                 break;
             }
 
@@ -206,11 +204,8 @@ bool Unpacker::IsEmpty() {
     return true;
 }
 
-/** Process all events in the event list.
-  * \param[in]  addr_ Pointer to a ScanInterface object. Unused by default.
-  * \return Nothing.
-  */
-void Unpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
+///Process all events in the event list.
+void Unpacker::ProcessRawEvent() {
     ClearRawEvent();
 }
 
@@ -231,10 +226,9 @@ int Unpacker::ReadBuffer(unsigned int *buf) {
 }
 
 Unpacker::Unpacker() :
-        eventWidth(62), // ~ 500 ns in 8 ns pixie clock ticks.
+        eventWidth_(62),
         debug_mode(false),
         running(true),
-        interface(NULL),
         TOTALREAD(1000000), // Maximum number of data words to read.
         maxWords(131072), // Maximum number of data words for revision D.
         numRawEvt(0), // Count of raw events read from file.
@@ -410,7 +404,7 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords,
             // ScanList will also clear the event list for us.
             while (BuildRawEvent()) {
                 // Process the event.
-                ProcessRawEvent(interface);
+                ProcessRawEvent();
             }
 
             ClearEventList();
