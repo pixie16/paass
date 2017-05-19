@@ -28,6 +28,7 @@ class VandleTimingFunction;
 ///////////////////////////////////////////////////////////////////////////////
 // class scopeUnpacker
 ///////////////////////////////////////////////////////////////////////////////
+class scopeScanner;
 
 class scopeUnpacker : public Unpacker {
 public:
@@ -67,14 +68,14 @@ private:
       * \param[in]  addr_ Pointer to a ScanInterface object.
       * \return Nothing.
       */
-    virtual void ProcessRawEvent();
+    virtual void ProcessRawEvent(scopeScanner *pInterface = NULL);
 
     /** Add an event to generic statistics output.
       * \param[in]  event_ Pointer to the current XIA event.
       * \param[in]  addr_  Pointer to a ScanInterface object.
       * \return Nothing.
       */
-    virtual void RawStats(XiaData *event_) {}
+    virtual void RawStats(XiaData *event_, scopeScanner *addr_ = NULL) {}
 };
 
 ///////////////////////////////////////////////////////////////////////////////
