@@ -55,7 +55,7 @@ scopeUnpacker::scopeUnpacker(const unsigned int &mod/*=0*/,
   * \param[in]  addr_ Pointer to a location in memory. 
   * \return Nothing.
   */
-void scopeUnpacker::ProcessRawEvent() {
+void scopeUnpacker::ProcessRawEvent(scopeScanner *pInterface /*=NULL*/) {
     XiaData *current_event = NULL;
 
     // Fill the processor event deques with events
@@ -89,8 +89,8 @@ void scopeUnpacker::ProcessRawEvent() {
             }
 
             //Store the waveform in the stack of waveforms to be displayed.
-            if (AddEvent(current_event))
-                ProcessEvents();
+            if (pInterface->AddEvent(current_event))
+                pInterface->ProcessEvents();
         }
     }
 }
@@ -348,40 +348,6 @@ void scopeScanner::Plot() {
     num_displayed++;
 }
 
-/** Initialize the map file, the config file, the processor handler, 
-  * and add all of the required processors.
-  * \param[in]  prefix_ String to append to the beginning of system output.
-  * \return True upon successfully initializing and false otherwise.
-  */
-bool scopeScanner::Initialize(string prefix_) {
-    if (init) { return false; }
-
-    // Print a small welcome message.
-    cout << "  Displaying traces for mod = "
-         << unpacker_.GetMod()
-         << ", chan = " << unpacker_.GetChan() << ".\n";
-
-    return (init = true);
-}
-
-/** Receive various status notifications from the scan.
-  * \param[in] code_ The notification code passed from ScanInterface methods.
-  * \return Nothing.
-  */
-void scopeScanner::Notify(const string &code_/*=""*/) {
-    if (code_ == "START_SCAN") {
-        ClearEvents();
-        acqRun_ = true;
-    } else if (code_ == "STOP_SCAN") { acqRun_ = false; }
-    else if (code_ == "SCAN_COMPLETE") {
-        cout << msgHeader << "Scan complete.\n";
-    } else if (code_ == "LOAD_FILE") { cout << msgHeader << "File loaded.\n"; }
-    else if (code_ == "REWIND_FILE") {}
-    else {
-        cout << msgHeader << "Unknown notification code '" << code_ << "'!\n";
-    }
-}
-
 /** Add a channel event to the deque of events to send to the processors.
   * This method should only be called from skeletonUnpacker::ProcessRawEvent().
   * \param[in]  event_ The raw XiaData to add to the channel event deque.
@@ -457,6 +423,40 @@ void scopeScanner::ClearEvents() {
     }
 }
 
+
+/** Initialize the map file, the config file, the processor handler, 
+  * and add all of the required processors.
+  * \param[in]  prefix_ String to append to the beginning of system output.
+  * \return True upon successfully initializing and false otherwise.
+  */
+bool scopeScanner::Initialize(string prefix_) {
+    if (init) { return false; }
+
+    // Print a small welcome message.
+    cout << "  Displaying traces for mod = " << unpacker_.GetMod()
+         << ", chan = " << unpacker_.GetChan() << ".\n";
+
+    return (init = true);
+}
+
+/** Receive various status notifications from the scan.
+  * \param[in] code_ The notification code passed from ScanInterface methods.
+  * \return Nothing.
+  */
+void scopeScanner::Notify(const string &code_/*=""*/) {
+    if (code_ == "START_SCAN") {
+        ClearEvents();
+        acqRun_ = true;
+    } else if (code_ == "STOP_SCAN") { acqRun_ = false; }
+    else if (code_ == "SCAN_COMPLETE") {
+        cout << msgHeader << "Scan complete.\n";
+    } else if (code_ == "LOAD_FILE") { cout << msgHeader << "File loaded.\n"; }
+    else if (code_ == "REWIND_FILE") {}
+    else {
+        cout << msgHeader << "Unknown notification code '" << code_ << "'!\n";
+    }
+}
+
 /** CmdHelp is used to allow a derived class to print a help statement about
   * its own commands. This method is called whenever the user enters 'help'
   * or 'h' into the interactive terminal (if available).
@@ -464,8 +464,7 @@ void scopeScanner::ClearEvents() {
   * \return Nothing.
   */
 void scopeScanner::CmdHelp(const string &prefix_/*=""*/) {
-    cout
-            << "   set <module> <channel>  - Set the module and channel of signal of interest (default = 0, 0).\n";
+    cout << "   set <module> <channel>  - Set the module and channel of signal of interest (default = 0, 0).\n";
     cout << "   stop                    - Stop the acquistion.\n";
     cout << "   run                     - Run the acquistion.\n";
     cout << "   single                  - Perform a single capture.\n";
@@ -646,18 +645,17 @@ bool scopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
     return true;
 }
 
-
 #ifndef USE_HRIBF
-
 int main(int argc, char *argv[]) {
     // Define a new unpacker object.
+    scopeUnpacker unpacker;
     scopeScanner scanner;
 
     // Set the output message prefix.
     scanner.SetProgramName(string(PROG_NAME));
 
     // Initialize the scanner.
-    if (!scanner.Setup(argc, argv))
+    if (!scanner.Setup(argc, argv, &unpacker))
         return 1;
 
     // Run the main loop.
@@ -667,7 +665,6 @@ int main(int argc, char *argv[]) {
 
     return retval;
 }
-
 #else
 scopeScanner *scanner = NULL;
 
