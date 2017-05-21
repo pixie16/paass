@@ -137,6 +137,9 @@ void ScopeUnpacker::ProcessRawEvent() {
         if (!current_event || current_event->GetTrace().empty())
             continue;
 
+        cout << "ScopeUnpacker::ProcessRawEvent : " << mod_ << " " << chan_
+             << endl;
+
         if (current_event->GetModuleNumber() != mod_ &&
             current_event->GetChannelNumber() != chan_)
             continue;
@@ -177,6 +180,8 @@ void ScopeUnpacker::Plot() {
         return;
 
     unsigned long traceSize = chanEvents_.front()->GetTrace().size();
+
+    ResetGraph(traceSize);
 
     if (traceSize != x_vals.size())
         resetGraph_ = true;
@@ -347,7 +352,7 @@ bool ScopeUnpacker::ProcessEvents() {
 //            IdleTask();
            time(&cur_time);
 //        }
-//    }
+    }
 
     //When we have the correct number of waveforms we plot them.
     Plot();

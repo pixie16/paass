@@ -9,7 +9,8 @@
 using namespace std;
 
 /// Default constructor.
-ScopeScanner::ScopeScanner() : RootScanner() {
+ScopeScanner::ScopeScanner(ScopeUnpacker *unpacker) : RootScanner() {
+    unpacker_ = unpacker;
     need_graph_update = false;
     acqRun_ = true;
     init = false;
@@ -26,8 +27,8 @@ bool ScopeScanner::Initialize(string prefix_) {
         return false;
 
     // Print a small welcome message.
-    cout << "  Displaying traces for mod = " << unpacker_.GetModuleNumber()
-         << ", chan = " << unpacker_.GetChannelNumber() << ".\n";
+    cout << "  Displaying traces for mod = " << unpacker_->GetModuleNumber()
+         << ", chan = " << unpacker_->GetChannelNumber() << ".\n";
 
     return init = true;
 }
@@ -38,7 +39,7 @@ bool ScopeScanner::Initialize(string prefix_) {
   */
 void ScopeScanner::Notify(const string &code_/*=""*/) {
     if (code_ == "START_SCAN") {
-        unpacker_.ClearEvents();
+        unpacker_->ClearEvents();
         acqRun_ = true;
     } else if (code_ == "STOP_SCAN")
         acqRun_ = false;
@@ -107,8 +108,8 @@ void ScopeScanner::SyntaxStr(char *name_) {
   * \return Nothing.
   */
 void ScopeScanner::ExtraArguments() {
-    unpacker_.SetModuleNumber(atoi(userOpts.at(0).argument.c_str()));
-    unpacker_.SetChannelNumber(atoi(userOpts.at(1).argument.c_str()));
+    unpacker_->SetModuleNumber(atoi(userOpts.at(0).argument.c_str()));
+    unpacker_->SetChannelNumber(atoi(userOpts.at(1).argument.c_str()));
     if (userOpts.at(0).active)
         cout << msgHeader << "Set module to ("
              << userOpts.at(0).argument.c_str() << ").\n";
@@ -127,23 +128,23 @@ void ScopeScanner::ExtraArguments() {
 bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
     if (cmd_ == "set") {
         if (args_.size() == 2) {
-            unpacker_.ClearEvents();
-            unpacker_.SetModuleNumber(atoi(args_.at(0).c_str()));
-            unpacker_.SetChannelNumber(atoi(args_.at(1).c_str()));
-            unpacker_.SetResetGraph(true);
+            unpacker_->ClearEvents();
+            unpacker_->SetModuleNumber(atoi(args_.at(0).c_str()));
+            unpacker_->SetChannelNumber(atoi(args_.at(1).c_str()));
+            unpacker_->SetResetGraph(true);
         } else {
             cout << msgHeader << "Invalid number of parameters to 'set'\n";
             cout << msgHeader << " -SYNTAX- set <module> <channel>\n";
         }
     } else if (cmd_ == "single") {
-        unpacker_.SetNumberTracesToAverage(1);
+        unpacker_->SetNumberTracesToAverage(1);
     } else if (cmd_ == "thresh") {
         if (args_.size() == 1) {
-            unpacker_.SetThreshLow(atoi(args_.at(0).c_str()));
-            unpacker_.SetThreshHigh(numeric_limits<unsigned int>::max());
+            unpacker_->SetThreshLow(atoi(args_.at(0).c_str()));
+            unpacker_->SetThreshHigh(numeric_limits<unsigned int>::max());
         } else if (args_.size() == 2) {
-            unpacker_.SetThreshLow(atoi(args_.at(0).c_str()));
-            unpacker_.SetThreshHigh(atoi(args_.at(1).c_str()));
+            unpacker_->SetThreshLow(atoi(args_.at(0).c_str()));
+            unpacker_->SetThreshHigh(atoi(args_.at(1).c_str()));
         } else {
             cout << msgHeader << "Invalid number of parameters to 'thresh'\n";
             cout << msgHeader
@@ -152,21 +153,21 @@ bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
     } else if (cmd_ == "fit") {
         if (args_.size() == 1 && args_.at(0) == "off") {
             // Turn root fitting off.
-            if (unpacker_.PerformFit()) {
+            if (unpacker_->PerformFit()) {
                 cout << msgHeader << "Disabling root fitting.\n";
 //                delete graph->GetListOfFunctions()->FindObject(
 //                        fittingFunction_->GetName());
                 GetCanvas()->Update();
-                unpacker_.SetPerformFit(false);
+                unpacker_->SetPerformFit(false);
             } else
                 cout << msgHeader << "Fitting is not enabled.\n";
         } else if (args_.size() == 2) { // Turn root fitting on.
-            unpacker_.SetFitLow(atoi(args_.at(0).c_str()));
-            unpacker_.SetFitHigh(atoi(args_.at(1).c_str()));
+            unpacker_->SetFitLow(atoi(args_.at(0).c_str()));
+            unpacker_->SetFitHigh(atoi(args_.at(1).c_str()));
             cout << msgHeader << "Setting root fitting range to ["
                  << args_.at(0).c_str() << ", " << args_.at(1).c_str()
                  << "].\n";
-            unpacker_.SetPerformFit(true);
+            unpacker_->SetPerformFit(true);
         } else {
             cout << msgHeader << "Invalid number of parameters to 'fit'\n";
             cout << msgHeader << " -SYNTAX- fit <low> <high>\n";
@@ -174,20 +175,20 @@ bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
         }
     } else if (cmd_ == "cfd") {
         if (args_.empty())
-            unpacker_.SetPerformCfd(true);
+            unpacker_->SetPerformCfd(true);
         else if (args_.size() == 1) {
             if (args_.at(0) == "off") { // Turn cfd analysis off.
-                if (unpacker_.PerformCfd()) {
+                if (unpacker_->PerformCfd()) {
                     cout << msgHeader << "Disabling cfd analysis.\n";
-                    unpacker_.SetPerformCfd(false);
+                    unpacker_->SetPerformCfd(false);
                 } else
                     cout << msgHeader << "Cfd is not enabled.\n";
             }
         } else if (args_.size() == 3) {
-            unpacker_.SetCfdFraction(atof(args_.at(0).c_str()));
-            unpacker_.SetCfdDelay(atoi(args_.at(1).c_str()));
-            unpacker_.SetCfdShift(atoi(args_.at(2).c_str()));
-            unpacker_.SetPerformCfd(true);
+            unpacker_->SetCfdFraction(atof(args_.at(0).c_str()));
+            unpacker_->SetCfdDelay(atoi(args_.at(1).c_str()));
+            unpacker_->SetCfdShift(atoi(args_.at(2).c_str()));
+            unpacker_->SetPerformCfd(true);
             cout << msgHeader << "Enabling cfd analysis with F="
                  << args_.at(0).c_str() << ", D=" << args_.at(1).c_str()
                  << ", L=" << args_.at(2).c_str() << endl;
@@ -198,7 +199,7 @@ bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
         }
     } else if (cmd_ == "avg") {
         if (args_.size() == 1) {
-            unpacker_.SetNumberTracesToAverage(atoi(args_.at(0).c_str()));
+            unpacker_->SetNumberTracesToAverage(atoi(args_.at(0).c_str()));
         } else {
             cout << msgHeader << "Invalid number of parameters to 'avg'\n";
             cout << msgHeader << " -SYNTAX- avg <numWavefroms>\n";
@@ -212,7 +213,7 @@ bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
         }
     } else if (cmd_ == "delay") {
         if (args_.size() == 1)
-            unpacker_.SetDelayInSeconds(atoi(args_.at(0).c_str()));
+            unpacker_->SetDelayInSeconds(atoi(args_.at(0).c_str()));
         else {
             cout << msgHeader << "Invalid number of parameters to 'delay'\n";
             cout << msgHeader << " -SYNTAX- delay <time>\n";
@@ -226,7 +227,7 @@ bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
             cout << msgHeader << "y-axis set to log.\n";
         }
     } else if (cmd_ == "clear") {
-        unpacker_.ClearEvents();
+        unpacker_->ClearEvents();
         cout << msgHeader << "Event deque cleared.\n";
     } else
         return false;

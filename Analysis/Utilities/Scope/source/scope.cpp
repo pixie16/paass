@@ -17,7 +17,7 @@
 int main(int argc, char *argv[]) {
     // Define a new unpacker object.
     ScopeUnpacker unpacker;
-    ScopeScanner scanner;
+    ScopeScanner scanner(&unpacker);
 
     // Set the output message prefix.
     scanner.SetProgramName(std::string(PROG_NAME));

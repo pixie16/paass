@@ -17,7 +17,7 @@
 class ScopeScanner : public RootScanner {
 public:
     /// Default constructor.
-    ScopeScanner();
+    ScopeScanner(ScopeUnpacker *unpacker);
 
     /// Destructor.
     ~ScopeScanner(){};
@@ -95,7 +95,7 @@ public:
     virtual void Notify(const std::string &code_ = "");
 
 private:
-    ScopeUnpacker unpacker_;
+    ScopeUnpacker *unpacker_;
     unsigned int numAvgWaveforms_;
     unsigned int num_displayed; ///< The number of displayed traces.
 
@@ -110,8 +110,5 @@ private:
     time_t last_trace; ///< The time of the last trace.
 
     std::string saveFile_; ///< The name of the file to save a trace.
-
 };
-
-
 #endif //PIXIESUITE_SCOPESCANNER_HPP
