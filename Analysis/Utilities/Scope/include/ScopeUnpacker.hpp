@@ -70,6 +70,8 @@ public:
 
     void SetResetGraph(const bool &a) { resetGraph_ = a; }
 
+    void SetSaveFile(const std::string &a) { saveFile_ = a; }
+
     void SetThreshLow(const int &a) { threshLow_ = a; }
 
     void SetThreshHigh(const int &a) { threshHigh_ = a; }
@@ -92,6 +94,8 @@ private:
     double cfdF_;
     int cfdD_;
     int cfdL_;
+
+    std::string saveFile_;
 
     //Parameters for the Fitting
     bool performFit_;

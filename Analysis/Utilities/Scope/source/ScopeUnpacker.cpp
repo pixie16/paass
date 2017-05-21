@@ -32,6 +32,7 @@ using namespace TraceFunctions;
 /// Default constructor.
 ScopeUnpacker::ScopeUnpacker(const unsigned int &mod/*=0*/,
                              const unsigned int &chan/*=0*/) : Unpacker() {
+    saveFile_ = "";
     mod_ = mod;
     chan_ = chan;
     threshLow_ = 0;
@@ -137,9 +138,6 @@ void ScopeUnpacker::ProcessRawEvent() {
         // Safety catches for null event or empty ->GetTrace().
         if (!current_event || current_event->GetTrace().empty())
             continue;
-
-        cout << "ScopeUnpacker::ProcessRawEvent : " << mod_ << " " << chan_
-             << endl;
 
         if (current_event->GetModuleNumber() != mod_ &&
             current_event->GetChannelNumber() != chan_)
@@ -295,14 +293,14 @@ void ScopeUnpacker::Plot() {
 
     // Update the canvas.
     canvas_->Update();
-//
-//    // Save the TGraph to a file.
-//    if (saveFile_ != "") {
-//        TFile f(saveFile_.c_str(), "RECREATE");
-//        graph->Clone("trace")->Write();
-//        f.Close();
-//        saveFile_ = "";
-//    }
+
+    // Save the TGraph to a file.
+    if (saveFile_ != "") {
+        TFile f(saveFile_.c_str(), "RECREATE");
+        graph->Clone("trace")->Write();
+        f.Close();
+        saveFile_ = "";
+    }
 
     numTracesDisplayed_++;
 }
