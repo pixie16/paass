@@ -1038,7 +1038,7 @@ bool ScanInterface::Setup(int argc, char *argv[],
     //We check that the unpacker object has been set.
     unpacker_ = unpacker;
     if (!unpacker_)
-        throw invalid_argument("ScanInterface::Setup - The pointer to the "
+        throw invalid_argument("ScanInterface::Setup - The"
                                        "Unpacker object has not been set "
                                        "properly.");
 
