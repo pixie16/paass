@@ -206,7 +206,7 @@ bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
         }
     } else if (cmd_ == "save") {
         if (args_.size() == 1) {
-            saveFile_ = args_.at(0);
+            unpacker_->SetSaveFile(args_.at(0));
         } else {
             cout << msgHeader << "Invalid number of parameters to 'save'\n";
             cout << msgHeader << " -SYNTAX- save <fileName>\n";

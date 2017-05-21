@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
     // Set the output message prefix.
     scanner.SetProgramName(std::string(PROG_NAME));
 
+    //Pass the canvas to the unpacker so it will be able to plot.
     unpacker.SetCanvas(scanner.GetCanvas());
 
     // Initialize the scanner.
