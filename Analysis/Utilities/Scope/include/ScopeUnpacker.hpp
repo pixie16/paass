@@ -10,11 +10,18 @@
 #include "VandleTimingFunction.hpp"
 
 class TGraph;
+
 class TH2F;
+
 class TF1;
+
 class TLine;
+
 class TProfile;
 
+class TCanvas;
+
+///Class that handles unpacking data and process for use with scope.
 class ScopeUnpacker : public Unpacker {
 public:
     /// Default constructor.
@@ -23,62 +30,84 @@ public:
     /// Destructor.
     ~ScopeUnpacker();
 
-    int SetMod(const unsigned int &mod) {
-        return (mod >= 0 ? (mod_ = mod) : (mod_ = 0));
-    }
+    unsigned int GetModuleNumber() { return mod_; }
 
-    int SetChan(const unsigned int &chan) {
-        return (chan >= 0 ? (chan_ = chan) : (chan_ = 0));
-    }
-
-    void SetThreshLow(const int &threshLow) { threshLow_ = threshLow; }
-
-    void SetThreshHigh(const int &threshHigh) { threshHigh_ = threshHigh; }
-
-    unsigned int GetMod() { return mod_; }
-
-    unsigned int GetChan() { return chan_; }
+    unsigned int GetChannelNumber() { return chan_; }
 
     int GetThreshLow() { return threshLow_; }
 
     int GetThreshHigh() { return threshHigh_; }
 
+    bool PerformCfd() { return performCfd_; }
+
+    bool PerformFit() { return performFit_; }
+
+    void SetCfdFraction(const double &a) { cfdF_ = a; }
+
+    void SetCfdDelay(const unsigned int &a) { cfdD_ = a; }
+
+    void SetCfdShift(const unsigned int &a) { cfdL_ = a; }
+
+    void SetCanvas(TCanvas *canvas) { canvas_ = canvas; }
+
+    void SetChannelNumber(const unsigned int &a) { chan_ = a; }
+
+    void SetDelayInSeconds(const unsigned int &a) { delayInSeconds_ = a; }
+
+    void SetFitLow(const unsigned int &a) { fitLow_ = a; }
+
+    void SetFitHigh(const unsigned int &a) { fitHigh_ = a; }
+
+    void SetModuleNumber(const unsigned int &a) { mod_ = a; }
+
+    void SetNumEvents(size_t num_) { numEvents_ = num_; }
+
+    void SetNumberTracesToAverage(const unsigned int &a) { numAvgWaveforms_ = a; }
+
+    void SetPerformCfd(const bool &a) { performCfd_ = a; }
+
+    void SetPerformFit(const bool &a) { performFit_ = a; }
+
     void SetResetGraph(const bool &a) { resetGraph_ = a; }
 
-    /** Clear the event deque.
-  * \return Nothing.
-  */
+    void SetThreshLow(const int &a) { threshLow_ = a; }
+
+    void SetThreshHigh(const int &a) { threshHigh_ = a; }
+
     void ClearEvents();
 
 private:
     unsigned int mod_; ///< The module of the signal of interest.
     unsigned int chan_; ///< The channel of the signal of interest.
-    int threshLow_;
-    int threshHigh_;
-    bool resetGraph_;
+    unsigned int threshLow_;
+    unsigned int threshHigh_;
     unsigned int numAvgWaveforms_;
-    unsigned int num_displayed; ///< The number of displayed traces.
+    unsigned int delayInSeconds_; /// The number of seconds to wait between
+/// drawing traces.
+    unsigned int numTracesDisplayed_; ///< The number of displayed traces.
+    unsigned int numEvents_; /// The number of waveforms to store.
 
-    size_t numEvents; /// The number of waveforms to store.
-
-    float cfdF_;
+    //Parameters for the CFD
+    bool performCfd_;
+    double cfdF_;
     int cfdD_;
     int cfdL_;
+
+    //Parameters for the Fitting
+    bool performFit_;
     int fitLow_;
     int fitHigh_;
-    int delay_; /// The number of seconds to wait between drawing traces.
 
+    bool resetGraph_;
     bool need_graph_update; /// Set to true if the graph range needs updated.
     bool acqRun_;
     bool singleCapture_;
     bool init;
-    bool running;
-    bool performFit_;
-    bool performCfd_;
 
     time_t last_trace; ///< The time of the last trace.
     TF1 *SetupFunc();
 
+    TCanvas *canvas_;
     TGraph *graph; ///< The TGraph for plotting traces.
     TLine *cfdLine;
     TF1 *cfdPol3;
@@ -100,20 +129,11 @@ private:
       */
     void ProcessRawEvent();
 
-    /** Add a channel event to the deque of events to send to the processors.
-      * This method should only be called from skeletonUnpacker::ProcessRawEvent().
-      * \param[in]  event_ The raw XiaData to add to the channel event deque.
-      * \return True if events are ready to be processed and false otherwise.
-      */
-    bool AddEvent(XiaData *event_);
-
     /** Process all channel events read in from the rawEvent.
       * This method should only be called from skeletonUnpacker::ProcessRawEvent().
       * \return True if events were processed and false otherwise.
       */
     bool ProcessEvents();
-
-
 
     /// Plot the current event.
     void Plot();

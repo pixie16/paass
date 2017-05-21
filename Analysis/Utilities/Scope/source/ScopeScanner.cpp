@@ -2,6 +2,7 @@
 ///@brief
 ///@author S. V. Paulauskas
 ///@date May 19, 2017
+#include <limits>
 
 #include "ScopeScanner.hpp"
 
@@ -11,21 +12,8 @@ using namespace std;
 ScopeScanner::ScopeScanner() : RootScanner() {
     need_graph_update = false;
     acqRun_ = true;
-    singleCapture_ = false;
     init = false;
     running = true;
-    performFit_ = false;
-    performCfd_ = false;
-    numEvents = 20;
-    numAvgWaveforms_ = 1;
-    cfdF_ = 0.5;
-    cfdD_ = 1;
-    cfdL_ = 1;
-    fitLow_ = 10;
-    fitHigh_ = 15;
-    delay_ = 2;
-    num_displayed = 0;
-    time(&last_trace);
 }
 
 /** Initialize the map file, the config file, the processor handler,
@@ -34,13 +22,14 @@ ScopeScanner::ScopeScanner() : RootScanner() {
   * \return True upon successfully initializing and false otherwise.
   */
 bool ScopeScanner::Initialize(string prefix_) {
-    if (init) { return false; }
+    if (init)
+        return false;
 
     // Print a small welcome message.
-    cout << "  Displaying traces for mod = " << unpacker_.GetMod()
-         << ", chan = " << unpacker_.GetChan() << ".\n";
+    cout << "  Displaying traces for mod = " << unpacker_.GetModuleNumber()
+         << ", chan = " << unpacker_.GetChannelNumber() << ".\n";
 
-    return (init = true);
+    return init = true;
 }
 
 /** Receive various status notifications from the scan.
@@ -51,14 +40,14 @@ void ScopeScanner::Notify(const string &code_/*=""*/) {
     if (code_ == "START_SCAN") {
         unpacker_.ClearEvents();
         acqRun_ = true;
-    } else if (code_ == "STOP_SCAN") { acqRun_ = false; }
-    else if (code_ == "SCAN_COMPLETE") {
+    } else if (code_ == "STOP_SCAN")
+        acqRun_ = false;
+    else if (code_ == "SCAN_COMPLETE")
         cout << msgHeader << "Scan complete.\n";
-    } else if (code_ == "LOAD_FILE") { cout << msgHeader << "File loaded.\n"; }
-    else if (code_ == "REWIND_FILE") {}
-    else {
+    else if (code_ == "LOAD_FILE")
+        cout << msgHeader << "File loaded.\n";
+    else
         cout << msgHeader << "Unknown notification code '" << code_ << "'!\n";
-    }
 }
 
 /** CmdHelp is used to allow a derived class to print a help statement about
@@ -69,8 +58,8 @@ void ScopeScanner::Notify(const string &code_/*=""*/) {
   */
 void ScopeScanner::CmdHelp(const string &prefix_/*=""*/) {
     cout << "   set <module> <channel>  - Set the module and channel of signal of interest (default = 0, 0).\n";
-    cout << "   stop                    - Stop the acquistion.\n";
-    cout << "   run                     - Run the acquistion.\n";
+    cout << "   stop                    - Stop the acquisition.\n";
+    cout << "   run                     - Run the acquisition.\n";
     cout << "   single                  - Perform a single capture.\n";
     cout
             << "   thresh <low> [high]     - Set the plotting window for trace maximum.\n";
@@ -118,14 +107,14 @@ void ScopeScanner::SyntaxStr(char *name_) {
   * \return Nothing.
   */
 void ScopeScanner::ExtraArguments() {
+    unpacker_.SetModuleNumber(atoi(userOpts.at(0).argument.c_str()));
+    unpacker_.SetChannelNumber(atoi(userOpts.at(1).argument.c_str()));
     if (userOpts.at(0).active)
         cout << msgHeader << "Set module to ("
-             << unpacker_.SetMod(
-                     atoi(userOpts.at(0).argument.c_str())) << ").\n";
+             << userOpts.at(0).argument.c_str() << ").\n";
     if (userOpts.at(1).active)
         cout << msgHeader << "Set channel to ("
-             << unpacker_.SetChan(
-                     atoi(userOpts.at(1).argument.c_str())) << ").\n";
+             << atoi(userOpts.at(1).argument.c_str()) << ").\n";
 }
 
 /** ExtraCommands is used to send command strings to classes derived
@@ -136,22 +125,22 @@ void ScopeScanner::ExtraArguments() {
   * \return True if the command was recognized and false otherwise.
   */
 bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
-    if (cmd_ == "set") { // Toggle debug mode
+    if (cmd_ == "set") {
         if (args_.size() == 2) {
             unpacker_.ClearEvents();
-            unpacker_.SetMod(atoi(args_.at(0).c_str()));
-            unpacker_.SetChan(atoi(args_.at(1).c_str()));
+            unpacker_.SetModuleNumber(atoi(args_.at(0).c_str()));
+            unpacker_.SetChannelNumber(atoi(args_.at(1).c_str()));
             unpacker_.SetResetGraph(true);
         } else {
             cout << msgHeader << "Invalid number of parameters to 'set'\n";
             cout << msgHeader << " -SYNTAX- set <module> <channel>\n";
         }
     } else if (cmd_ == "single") {
-        singleCapture_ = !singleCapture_;
+        unpacker_.SetNumberTracesToAverage(1);
     } else if (cmd_ == "thresh") {
         if (args_.size() == 1) {
             unpacker_.SetThreshLow(atoi(args_.at(0).c_str()));
-            unpacker_.SetThreshHigh(-1);
+            unpacker_.SetThreshHigh(numeric_limits<unsigned int>::max());
         } else if (args_.size() == 2) {
             unpacker_.SetThreshLow(atoi(args_.at(0).c_str()));
             unpacker_.SetThreshHigh(atoi(args_.at(1).c_str()));
@@ -161,57 +150,55 @@ bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
                  << " -SYNTAX- thresh <lowerThresh> [upperThresh]\n";
         }
     } else if (cmd_ == "fit") {
-        if (args_.size() >= 1 &&
-            args_.at(0) == "off") { // Turn root fitting off.
-            if (performFit_) {
+        if (args_.size() == 1 && args_.at(0) == "off") {
+            // Turn root fitting off.
+            if (unpacker_.PerformFit()) {
                 cout << msgHeader << "Disabling root fitting.\n";
 //                delete graph->GetListOfFunctions()->FindObject(
 //                        fittingFunction_->GetName());
                 GetCanvas()->Update();
-                performFit_ = false;
-            } else { cout << msgHeader << "Fitting is not enabled.\n"; }
+                unpacker_.SetPerformFit(false);
+            } else
+                cout << msgHeader << "Fitting is not enabled.\n";
         } else if (args_.size() == 2) { // Turn root fitting on.
-            fitLow_ = atoi(args_.at(0).c_str());
-            fitHigh_ = atoi(args_.at(1).c_str());
-            cout << msgHeader << "Setting root fitting range to [" << fitLow_
-                 << ", " << fitHigh_ << "].\n";
-            performFit_ = true;
+            unpacker_.SetFitLow(atoi(args_.at(0).c_str()));
+            unpacker_.SetFitHigh(atoi(args_.at(1).c_str()));
+            cout << msgHeader << "Setting root fitting range to ["
+                 << args_.at(0).c_str() << ", " << args_.at(1).c_str()
+                 << "].\n";
+            unpacker_.SetPerformFit(true);
         } else {
             cout << msgHeader << "Invalid number of parameters to 'fit'\n";
             cout << msgHeader << " -SYNTAX- fit <low> <high>\n";
             cout << msgHeader << " -SYNTAX- fit off\n";
         }
     } else if (cmd_ == "cfd") {
-        cfdF_ = 0.5;
-        cfdD_ = 1;
-        cfdL_ = 1;
-        if (args_.empty()) { performCfd_ = true; }
+        if (args_.empty())
+            unpacker_.SetPerformCfd(true);
         else if (args_.size() == 1) {
             if (args_.at(0) == "off") { // Turn cfd analysis off.
-                if (performCfd_) {
+                if (unpacker_.PerformCfd()) {
                     cout << msgHeader << "Disabling cfd analysis.\n";
-                    performCfd_ = false;
-                } else { cout << msgHeader << "Cfd is not enabled.\n"; }
-            } else {
-                cfdF_ = atof(args_.at(0).c_str());
-                performCfd_ = true;
+                    unpacker_.SetPerformCfd(false);
+                } else
+                    cout << msgHeader << "Cfd is not enabled.\n";
             }
-        } else if (args_.size() == 2) {
-            cfdF_ = atof(args_.at(0).c_str());
-            cfdD_ = atoi(args_.at(1).c_str());
-            performCfd_ = true;
         } else if (args_.size() == 3) {
-            cfdF_ = atof(args_.at(0).c_str());
-            cfdD_ = atoi(args_.at(1).c_str());
-            cfdL_ = atoi(args_.at(2).c_str());
-            performCfd_ = true;
+            unpacker_.SetCfdFraction(atof(args_.at(0).c_str()));
+            unpacker_.SetCfdDelay(atoi(args_.at(1).c_str()));
+            unpacker_.SetCfdShift(atoi(args_.at(2).c_str()));
+            unpacker_.SetPerformCfd(true);
+            cout << msgHeader << "Enabling cfd analysis with F="
+                 << args_.at(0).c_str() << ", D=" << args_.at(1).c_str()
+                 << ", L=" << args_.at(2).c_str() << endl;
+        } else {
+            cout << msgHeader << "Invalid number of parameters to 'cfd'\n";
+            cout << msgHeader << " -SYNTAX- cfd <F> <D> <L>\n";
+            cout << msgHeader << " -SYNTAX- fit off\n";
         }
-        if (performCfd_)
-            cout << msgHeader << "Enabling cfd analysis with F=" << cfdF_
-                 << ", D=" << cfdD_ << ", L=" << cfdL_ << endl;
     } else if (cmd_ == "avg") {
         if (args_.size() == 1) {
-            numAvgWaveforms_ = atoi(args_.at(0).c_str());
+            unpacker_.SetNumberTracesToAverage(atoi(args_.at(0).c_str()));
         } else {
             cout << msgHeader << "Invalid number of parameters to 'avg'\n";
             cout << msgHeader << " -SYNTAX- avg <numWavefroms>\n";
@@ -224,7 +211,8 @@ bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
             cout << msgHeader << " -SYNTAX- save <fileName>\n";
         }
     } else if (cmd_ == "delay") {
-        if (args_.size() == 1) { delay_ = atoi(args_.at(0).c_str()); }
+        if (args_.size() == 1)
+            unpacker_.SetDelayInSeconds(atoi(args_.at(0).c_str()));
         else {
             cout << msgHeader << "Invalid number of parameters to 'delay'\n";
             cout << msgHeader << " -SYNTAX- delay <time>\n";
@@ -240,7 +228,8 @@ bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
     } else if (cmd_ == "clear") {
         unpacker_.ClearEvents();
         cout << msgHeader << "Event deque cleared.\n";
-    } else { return false; }
+    } else
+        return false;
 
     return true;
 }

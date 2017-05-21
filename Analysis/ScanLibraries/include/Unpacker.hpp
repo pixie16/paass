@@ -107,7 +107,6 @@ protected:
     // decode the data.
 
     double eventWidth_; /// The width of the raw event in pixie clock ticks
-/// (8 ns).
 
     bool debug_mode; /// True if debug mode is set.
     bool running; /// True if the scan is running.

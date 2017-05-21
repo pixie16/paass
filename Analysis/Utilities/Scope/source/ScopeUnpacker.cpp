@@ -9,12 +9,11 @@
 #include <string>
 
 // Root files
+#include <TCanvas.h>
 #include <TSystem.h>
 #include <TStyle.h>
-#include <TMath.h>
 #include <TGraph.h>
 #include <TH2F.h>
-#include <TAxis.h>
 #include <TFile.h>
 #include <TF1.h>
 #include <TLine.h>
@@ -35,8 +34,22 @@ ScopeUnpacker::ScopeUnpacker(const unsigned int &mod/*=0*/,
     mod_ = mod;
     chan_ = chan;
     threshLow_ = 0;
-    threshHigh_ = -1;
+    threshHigh_ = numeric_limits<unsigned int>::max();
     resetGraph_ = false;
+
+    time(&last_trace);
+
+    performFit_ = false;
+    performCfd_ = false;
+    numEvents_ = 20;
+    numAvgWaveforms_ = 1;
+    cfdF_ = 0.5;
+    cfdD_ = 1;
+    cfdL_ = 1;
+    fitLow_ = 10;
+    fitHigh_ = 15;
+    delayInSeconds_ = 2;
+    numTracesDisplayed_ = 0;
 
     graph = new TGraph();
     hist = new TH2F("hist", "", 256, 0, 1, 256, 0, 1);
@@ -88,7 +101,7 @@ void ScopeUnpacker::ResetGraph(unsigned int size) {
                   1, 0, 1);
 
     stringstream stream;
-    stream << "M" << GetMod() << "C" << GetChan();
+    stream << "M" << mod_ << "C" << chan_;
     graph->SetTitle(stream.str().c_str());
     hist->SetTitle(stream.str().c_str());
 
@@ -121,30 +134,39 @@ void ScopeUnpacker::ProcessRawEvent() {
         rawEvent.pop_front();
 
         // Safety catches for null event or empty ->GetTrace().
-        if (!current_event || current_event->GetTrace().empty()) {
+        if (!current_event || current_event->GetTrace().empty())
+            continue;
+
+        if (current_event->GetModuleNumber() != mod_ &&
+            current_event->GetChannelNumber() != chan_)
+            continue;
+
+        pair<double, double> baseline =
+                CalculateBaseline(current_event->GetTrace(), make_pair(0, 10));
+        pair<double, double> maximum = FindMaximum(current_event->GetTrace(),
+                                                   current_event->GetTrace().size());
+        double qdc = CalculateQdc(current_event->GetTrace(), make_pair(5, 15));
+
+        if (maximum.second < threshLow_ ||
+                (threshHigh_ > threshLow_ && maximum.second > threshHigh_) ) {
+            delete current_event;
             continue;
         }
 
-        // Pass this event to the correct processor
-        double maximum =
-                FindMaximum(current_event->GetTrace(),
-                            current_event->GetTrace().size()).second;
-        if (current_event->GetModuleNumber() == mod_ &&
-            current_event->GetChannelNumber() == chan_) {
-            //Check threhsold.
-            if (maximum < threshLow_) {
-                delete current_event;
-                continue;
-            }
-            if (threshHigh_ > threshLow_ && maximum > threshHigh_) {
-                delete current_event;
-                continue;
-            }
+        //Convert the XiaData object into a ProcessedXiaData object
+        ProcessedXiaData *channel_event =
+                new ProcessedXiaData(*current_event);
 
-            //Store the waveform in the stack of waveforms to be displayed.
-            if (AddEvent(current_event))
-                ProcessEvents();
-        }
+        channel_event->GetTrace().SetBaseline(baseline);
+        channel_event->GetTrace().SetMax(maximum);
+        channel_event->GetTrace().SetQdc(qdc);
+
+        //Push the channel event into the deque.
+        chanEvents_.push_back(channel_event);
+
+        // Handle the individual XiaData.
+        if (chanEvents_.size() >= numAvgWaveforms_)
+            ProcessEvents();
     }
 }
 
@@ -154,7 +176,7 @@ void ScopeUnpacker::Plot() {
     if (chanEvents_.size() < numAvgWaveforms_)
         return;
 
-    unsigned int traceSize = chanEvents_.front()->GetTrace().size();
+    unsigned long traceSize = chanEvents_.front()->GetTrace().size();
 
     if (traceSize != x_vals.size())
         resetGraph_ = true;
@@ -163,8 +185,8 @@ void ScopeUnpacker::Plot() {
         ResetGraph(traceSize);
         //ResetZoom();
         for (int i = 0; i < 2; i++) {
-            histAxis[i][0] = 1E9;
-            histAxis[i][1] = -1E9;
+            histAxis[i][0] = numeric_limits<float>::max();
+            histAxis[i][1] = -numeric_limits<float>::max();
         }
     }
 
@@ -183,7 +205,7 @@ void ScopeUnpacker::Plot() {
         float highVal = (chanEvents_.front()->GetTrace().GetMaxInfo().first +
                          fitHigh_);
 
-        ///@TODO Renable the CFD with the proper functionality.
+        ///@TODO Enable the CFD with the proper functionality.
         /*
         if(performCfd_){
             ProcessedXiaData *evt = chanEvents_.front();
@@ -243,8 +265,7 @@ void ScopeUnpacker::Plot() {
         hist->Reset();
 
         //Rebin the histogram
-        hist->SetBins(x_vals.size(), x_vals.front(),
-                      x_vals.back(),
+        hist->SetBins(x_vals.size(), x_vals.front(), x_vals.back(),
                       histAxis[1][1] - histAxis[1][0],
                       histAxis[1][0], histAxis[1][1]);
 
@@ -279,9 +300,9 @@ void ScopeUnpacker::Plot() {
 
         //UpdateZoom();
 
-        //GetCanvas()->Update();
-        TPaveStats *stats = (TPaveStats *) prof->GetListOfFunctions()->FindObject(
-                "stats");
+       canvas_->Update();
+        TPaveStats *stats =
+                (TPaveStats *) prof->GetListOfFunctions()->FindObject("stats");
         if (stats) {
             stats->SetX1NDC(0.55);
             stats->SetX2NDC(0.9);
@@ -295,7 +316,7 @@ void ScopeUnpacker::Plot() {
     }
 
     // Update the canvas.
-//    GetCanvas()->Update();
+    canvas_->Update();
 //
 //    // Save the TGraph to a file.
 //    if (saveFile_ != "") {
@@ -305,44 +326,7 @@ void ScopeUnpacker::Plot() {
 //        saveFile_ = "";
 //    }
 
-    num_displayed++;
-}
-
-/** Add a channel event to the deque of events to send to the processors.
-  * This method should only be called from skeletonUnpacker::ProcessRawEvent().
-  * \param[in]  event_ The raw XiaData to add to the channel event deque.
-  * \return True if events are ready to be processed and false otherwise.
-  */
-bool ScopeUnpacker::AddEvent(XiaData *event_) {
-    if (!event_) { return false; }
-
-    //Get the firs
-    // t event int the FIFO.
-    ProcessedXiaData *channel_event = new ProcessedXiaData(*event_);
-
-    //Process the waveform.
-    ///@TODO This needs cleaned up quite a bit to make it more generalized
-    /// and remove some of the magic numbers.
-    channel_event->GetTrace().SetBaseline(CalculateBaseline
-                                                  (channel_event->GetTrace(),
-                                                   make_pair(0, 10)));
-
-    channel_event->GetTrace().SetMax(FindMaximum
-                                             (channel_event->GetTrace(),
-                                              channel_event->GetTrace().size()));
-
-    channel_event->GetTrace().SetQdc(CalculateQdc
-                                             (channel_event->GetTrace(),
-                                              make_pair(5, 15)));
-
-    //Push the channel event into the deque.
-    chanEvents_.push_back(channel_event);
-
-    // Handle the individual XiaData.
-    if (chanEvents_.size() >= numAvgWaveforms_)
-        return true;
-
-    return false;
+    numTracesDisplayed_++;
 }
 
 /** Process all channel events read in from the rawEvent.
@@ -351,16 +335,17 @@ bool ScopeUnpacker::AddEvent(XiaData *event_) {
   */
 bool ScopeUnpacker::ProcessEvents() {
     //Check if we have delayed the plotting enough
-//    time_t cur_time;
-//    time(&cur_time);
-//    while (difftime(cur_time, last_trace) < delay_) {
-//        //If in shm mode and the plotting time has not alloted the events are cleared and this function is aborted.
+    time_t cur_time;
+    time(&cur_time);
+    while (difftime(cur_time, last_trace) < delayInSeconds_) {
+        //If in shm mode and the plotting time has not allotted the events are
+        // cleared and this function is aborted.
 //        if (ShmMode()) {
 //            ClearEvents();
 //            return false;
 //        } else {
 //            IdleTask();
-//            time(&cur_time);
+           time(&cur_time);
 //        }
 //    }
 
@@ -368,7 +353,8 @@ bool ScopeUnpacker::ProcessEvents() {
     Plot();
 
     //If this is a single capture we stop the plotting.
-    if (singleCapture_) running = false;
+    if (singleCapture_)
+        running = false;
 
     //Update the time.
     time(&last_trace);
