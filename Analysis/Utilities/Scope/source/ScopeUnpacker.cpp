@@ -21,6 +21,7 @@
 #include <TPaveStats.h>
 
 #include "HelperFunctions.hpp"
+#include "PolynomialCfd.hpp"
 #include "ScopeUnpacker.hpp"
 
 using namespace std;
@@ -151,7 +152,7 @@ void ScopeUnpacker::ProcessRawEvent() {
         double qdc = CalculateQdc(current_event->GetTrace(), make_pair(5, 15));
 
         if (maximum.second < threshLow_ ||
-                (threshHigh_ > threshLow_ && maximum.second > threshHigh_) ) {
+            (threshHigh_ > threshLow_ && maximum.second > threshHigh_)) {
             delete current_event;
             continue;
         }
@@ -196,59 +197,31 @@ void ScopeUnpacker::Plot() {
     }
 
     if (numAvgWaveforms_ == 1) {
+        Trace trc = chanEvents_.front()->GetTrace();
         int index = 0;
         for (size_t i = 0; i < traceSize; ++i, index++)
-            graph->SetPoint(index, x_vals[i],
-                            chanEvents_.front()->GetTrace().at(i));
+            graph->SetPoint(index, x_vals[i], trc.at(i));
 
         //UpdateZoom();
 
         graph->Draw("AP0");
 
-        float lowVal = (chanEvents_.front()->GetTrace().GetMaxInfo().first -
-                        fitLow_);
-        float highVal = (chanEvents_.front()->GetTrace().GetMaxInfo().first +
-                         fitHigh_);
+        float lowVal = (trc.GetMaxInfo().first - fitLow_);
+        float highVal = (trc.GetMaxInfo().first + fitHigh_);
 
-        ///@TODO Enable the CFD with the proper functionality.
-        /*
-        if(performCfd_){
-            ProcessedXiaData *evt = chanEvents_.front();
-
-            // Find the zero-crossing of the cfd waveform.
-            float cfdCrossing = evt->AnalyzeCFD(cfdF_);
-
-            // Draw the cfd crossing line.
-            cfdLine->DrawLine(cfdCrossing*ADC_TIME_STEP, userZoomVals[1][0], cfdCrossing*ADC_TIME_STEP, userZoomVals[1][1]);
-
-            // Draw the 3rd order polynomial.
-            cfdPol3->SetParameter(0, evt->cfdPar[0]);
-            cfdPol3->SetParameter(1, evt->cfdPar[1]/ADC_TIME_STEP);
-            cfdPol3->SetParameter(2, evt->cfdPar[2]/pow(ADC_TIME_STEP, 2.0));
-            cfdPol3->SetParameter(3, evt->cfdPar[3]/pow(ADC_TIME_STEP, 3.0));
-            // Find the pulse maximum by fitting with a third order polynomial.
-            if(evt->event->adcTrace[evt->max_index-1] >= evt->event->adcTrace[evt->max_index+1]) // Favor the left side of the pulse.
-                cfdPol3->SetRange((evt->max_index - 2)*ADC_TIME_STEP, (evt->max_index + 1)*ADC_TIME_STEP);
-            else // Favor the right side of the pulse.
-                cfdPol3->SetRange((evt->max_index - 1)*ADC_TIME_STEP, (evt->max_index + 2)*ADC_TIME_STEP);
-            cfdPol3->Draw("SAME");
-
-            // Draw the 2nd order polynomial.
-            cfdPol2->SetParameter(0, evt->cfdPar[4]);
-            cfdPol2->SetParameter(1, evt->cfdPar[5]/ADC_TIME_STEP);
-            cfdPol2->SetParameter(2, evt->cfdPar[6]/pow(ADC_TIME_STEP, 2.0));
-            cfdPol2->SetRange((evt->cfdIndex - 1)*ADC_TIME_STEP, (evt->cfdIndex + 1)*ADC_TIME_STEP);
-            cfdPol2->Draw("SAME");
-        }
-         */
+//        if (performCfd_ && trc.GetTraceSansBaseline().size() != 0) {
+//            PolynomialCfd cfd;
+//            double phase = cfd.CalculatePhase(trc.GetTraceSansBaseline(),
+//                                              make_pair(cfdF_, cfdD_),
+//                                              trc.GetMaxInfo(),
+//                                              trc.GetBaselineInfo());
+//            cout << "Unpacker::Plot - CFD Phase = " << phase << endl;
+//        }
 
         if (performFit_) {
-            fittingFunction_->SetParameters(lowVal,
-                                            0.5 *
-                                            chanEvents_.front()->GetTrace().GetQdc(),
+            fittingFunction_->SetParameters(lowVal, 0.5 * trc.GetQdc(),
                                             0.3, 0.1);
-            fittingFunction_->FixParameter(
-                    4, chanEvents_.front()->GetTrace().GetBaselineInfo().first);
+            fittingFunction_->FixParameter(4, trc.GetBaselineInfo().first);
             graph->Fit(fittingFunction_, "WRQ", "", lowVal, highVal);
         }
     } else {
@@ -305,7 +278,7 @@ void ScopeUnpacker::Plot() {
 
         //UpdateZoom();
 
-       canvas_->Update();
+        canvas_->Update();
         TPaveStats *stats =
                 (TPaveStats *) prof->GetListOfFunctions()->FindObject("stats");
         if (stats) {
@@ -350,7 +323,7 @@ bool ScopeUnpacker::ProcessEvents() {
 //            return false;
 //        } else {
 //            IdleTask();
-           time(&cur_time);
+        time(&cur_time);
 //        }
     }
 
