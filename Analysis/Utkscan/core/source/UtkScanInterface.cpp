@@ -95,11 +95,9 @@ bool UtkScanInterface::Initialize(string prefix_) {
     unpacker_->SetEventWidth(Globals::get()->GetEventLengthInTicks());
     Globals::get()->SetOutputFilename(GetOutputFilename());
     Globals::get()->SetOutputPath(GetOutputPath());
-    //set eventWidth from Globals (loaded from config file)
-    GetCore()->SetEventWidth(Globals::get()->GetEventLengthInTicks());
 
     //We remove this whole block in the event that we are using the SCANOR
-    //This should be cleaned up!!
+    //@TODO find a better way to handle HRIBF...This should be cleaned up!!
 #ifndef USE_HRIBF
     try {
         output_his = new OutputHisFile(

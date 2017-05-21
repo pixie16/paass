@@ -46,6 +46,8 @@ void UtkUnpacker::ProcessRawEvent() {
     Messenger m;
     stringstream ss;
 
+    cout << eventWidth_ << endl;
+
     static clock_t systemStartTime;
     static struct tms systemTimes;
     static double lastTimeOfPreviousEvent;
