@@ -22,6 +22,8 @@ int main(int argc, char *argv[]) {
     // Set the output message prefix.
     scanner.SetProgramName(std::string(PROG_NAME));
 
+    unpacker.SetCanvas(scanner.GetCanvas());
+
     // Initialize the scanner.
     if (!scanner.Setup(argc, argv, &unpacker))
         return 1;

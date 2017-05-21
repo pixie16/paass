@@ -14,7 +14,7 @@ public:
 
     ~RootScanner();
 
-    TCanvas *GetCanvas() { return canvas_; };
+    TCanvas *GetCanvas() { return canvas_; }
 
     void IdleTask();
 

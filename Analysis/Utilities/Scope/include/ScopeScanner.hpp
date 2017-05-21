@@ -22,18 +22,6 @@ public:
     /// Destructor.
     ~ScopeScanner(){};
 
-    /// Set the time delay between traces (in seconds).
-    int GetDelay() { return delay_; }
-
-    /// Return the maximum number of events to store.
-    size_t GetNumEvents() { return numEvents; }
-
-    /// Set the number of seconds to wait between drawing of traces.
-    void SetDelay(int delay) { delay_ = (delay > 1) ? delay : 1; }
-
-    /// Set the maximum number of events to store.
-    void SetNumEvents(size_t num_) { numEvents = num_; }
-
     /// Stop the run.
     void StopACQ() { running = false; }
 
@@ -110,15 +98,6 @@ private:
     ScopeUnpacker unpacker_;
     unsigned int numAvgWaveforms_;
     unsigned int num_displayed; ///< The number of displayed traces.
-
-    size_t numEvents; /// The number of waveforms to store.
-
-    float cfdF_;
-    int cfdD_;
-    int cfdL_;
-    int fitLow_;
-    int fitHigh_;
-    int delay_; /// The number of seconds to wait between drawing traces.
 
     bool need_graph_update; /// Set to true if the graph range needs updated.
     bool acqRun_;
