@@ -6,5 +6,6 @@ else ()
     add_executable(scope scope.cpp ScopeUnpacker.cpp ScopeScanner.cpp)
 endif (PAASS_USE_HRIBF)
 
-target_link_libraries(scope ResourceStatic PaassScanStatic ${ROOT_LIBRARIES})
+target_link_libraries(scope ResourceStatic PaassResourceStatic PaassScanStatic
+        ${ROOT_LIBRARIES})
 install(TARGETS scope DESTINATION bin)

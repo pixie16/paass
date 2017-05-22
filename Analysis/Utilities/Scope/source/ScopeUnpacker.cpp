@@ -22,6 +22,7 @@
 
 #include "HelperFunctions.hpp"
 #include "PolynomialCfd.hpp"
+#include "RootInterface.hpp"
 #include "ScopeUnpacker.hpp"
 
 using namespace std;
@@ -84,7 +85,7 @@ ScopeUnpacker::~ScopeUnpacker() {
     delete vandleTimingFunction_;
 }
 
-void ScopeUnpacker::ResetGraph(unsigned int size) {
+void ScopeUnpacker::ResetGraph(const unsigned int &size) {
     delete graph;
 
     graph = new TGraph(size);
@@ -99,8 +100,7 @@ void ScopeUnpacker::ResetGraph(unsigned int size) {
             x_vals[index] = index;
     }
 
-    hist->SetBins(x_vals.size(), x_vals.front(), x_vals.back(),
-                  1, 0, 1);
+    hist->SetBins(x_vals.size(), x_vals.front(), x_vals.back(), 1, 0, 1);
 
     stringstream stream;
     stream << "M" << mod_ << "C" << chan_;
@@ -187,7 +187,7 @@ void ScopeUnpacker::Plot() {
 
     if (resetGraph_) {
         ResetGraph(traceSize);
-        //ResetZoom();
+        RootInterface::get()->ResetZoom();
         for (int i = 0; i < 2; i++) {
             histAxis[i][0] = numeric_limits<float>::max();
             histAxis[i][1] = -numeric_limits<float>::max();
@@ -200,7 +200,7 @@ void ScopeUnpacker::Plot() {
         for (size_t i = 0; i < traceSize; ++i, index++)
             graph->SetPoint(index, x_vals[i], trc.at(i));
 
-        //UpdateZoom();
+        RootInterface::get()->UpdateZoom();
 
         graph->Draw("AP0");
 
@@ -274,9 +274,9 @@ void ScopeUnpacker::Plot() {
         hist->Draw("COLZ");
         prof->Draw("SAMES");
 
-        //UpdateZoom();
+        RootInterface::get()->UpdateZoom();
 
-        canvas_->Update();
+        RootInterface::get()->GetCanvas()->Update();
         TPaveStats *stats =
                 (TPaveStats *) prof->GetListOfFunctions()->FindObject("stats");
         if (stats) {
@@ -292,7 +292,7 @@ void ScopeUnpacker::Plot() {
     }
 
     // Update the canvas.
-    canvas_->Update();
+    RootInterface::get()->GetCanvas()->Update();
 
     // Save the TGraph to a file.
     if (saveFile_ != "") {

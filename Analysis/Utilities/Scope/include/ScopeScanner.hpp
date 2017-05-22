@@ -11,10 +11,10 @@
 #include <cmath>
 #include <string>
 
-#include "RootScanner.hpp"
+#include "ScanInterface.hpp"
 #include "ScopeUnpacker.hpp"
 
-class ScopeScanner : public RootScanner {
+class ScopeScanner : public ScanInterface {
 public:
     /// Default constructor.
     ScopeScanner(ScopeUnpacker *unpacker);

@@ -48,8 +48,6 @@ public:
 
     void SetCfdShift(const unsigned int &a) { cfdL_ = a; }
 
-    void SetCanvas(TCanvas *canvas) { canvas_ = canvas; }
-
     void SetChannelNumber(const unsigned int &a) { chan_ = a; }
 
     void SetDelayInSeconds(const unsigned int &a) { delayInSeconds_ = a; }
@@ -111,7 +109,6 @@ private:
     time_t last_trace; ///< The time of the last trace.
     TF1 *SetupFunc();
 
-    TCanvas *canvas_;
     TGraph *graph; ///< The TGraph for plotting traces.
     TLine *cfdLine;
     TF1 *cfdPol3;
@@ -125,7 +122,7 @@ private:
     std::vector<int> x_vals;
     std::deque<ProcessedXiaData *> chanEvents_; ///<The buffer of waveforms to be plotted.
 
-    void ResetGraph(unsigned int size_);
+    void ResetGraph(const unsigned int &size);
 
     /** Process all events in the event list.
       * \param[in]  addr_ Pointer to a ScanInterface object.

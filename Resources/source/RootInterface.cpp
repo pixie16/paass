@@ -1,5 +1,7 @@
-#include "RootScanner.hpp"
-
+///@file RootInterface.hpp
+///@brief Provides an interface to ROOT for scan programs
+///@author K. Smith and S. V. Paulauskas
+///@date May 21, 2017
 #include <limits>
 
 #include "TSystem.h"
@@ -10,14 +12,28 @@
 #include "TH2.h"
 #include "TGraph.h"
 
-RootScanner::RootScanner() : ScanInterface() {
+#include "RootInterface.hpp"
+
+RootInterface *RootInterface::instance_ = NULL;
+
+/** Instance is created upon first call */
+RootInterface *RootInterface::get() {
+    if (!instance_)
+        instance_ = new RootInterface();
+    return (instance_);
+}
+
+RootInterface::RootInterface() {
     new TApplication("scanner", 0, NULL);
     canvas_ = new TCanvas("canvas", "");
 }
 
-RootScanner::~RootScanner() {
+RootInterface::~RootInterface() {
     canvas_->Close();
     delete canvas_;
+
+    delete instance_;
+    instance_ = NULL;
 }
 
 /** IdleTask is called whenever a scan is not busy doing things. This method 
@@ -25,12 +41,12 @@ RootScanner::~RootScanner() {
   * (e.g. a root TCanvas).
   * \return Nothing.
   */
-void RootScanner::IdleTask() {
+void RootInterface::IdleTask() {
     gSystem->ProcessEvents();
     usleep(100000);
 }
 
-void RootScanner::ResetZoom(TVirtualPad *pad /*= gPad*/) {
+void RootInterface::ResetZoom(TVirtualPad *pad /*= gPad*/) {
     AxisInfo *padZoomInfo = &zoomInfo_[pad];
     for (int i = 0; i < numAxes_; i++) {
         padZoomInfo->limitMin[i] = std::numeric_limits<double>::max();
@@ -42,7 +58,7 @@ void RootScanner::ResetZoom(TVirtualPad *pad /*= gPad*/) {
 }
 
 //Update the zoom levels on a pad.
-void RootScanner::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
+void RootInterface::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
     //Get zoom info for this pad.
     auto itr = zoomInfo_.find(pad);
     if (itr == zoomInfo_.end()) ResetZoom(pad);

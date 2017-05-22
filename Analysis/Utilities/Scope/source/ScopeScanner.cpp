@@ -4,12 +4,13 @@
 ///@date May 19, 2017
 #include <limits>
 
+#include "RootInterface.hpp"
 #include "ScopeScanner.hpp"
 
 using namespace std;
 
 /// Default constructor.
-ScopeScanner::ScopeScanner(ScopeUnpacker *unpacker) : RootScanner() {
+ScopeScanner::ScopeScanner(ScopeUnpacker *unpacker) {
     unpacker_ = unpacker;
     need_graph_update = false;
     acqRun_ = true;
@@ -155,9 +156,6 @@ bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
             // Turn root fitting off.
             if (unpacker_->PerformFit()) {
                 cout << msgHeader << "Disabling root fitting.\n";
-//                delete graph->GetListOfFunctions()->FindObject(
-//                        fittingFunction_->GetName());
-                GetCanvas()->Update();
                 unpacker_->SetPerformFit(false);
             } else
                 cout << msgHeader << "Fitting is not enabled.\n";
@@ -219,11 +217,11 @@ bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
             cout << msgHeader << " -SYNTAX- delay <time>\n";
         }
     } else if (cmd_ == "log") {
-        if (GetCanvas()->GetLogy()) {
-            GetCanvas()->SetLogy(0);
+        if (RootInterface::get()->GetCanvas()->GetLogy()) {
+            RootInterface::get()->GetCanvas()->SetLogy(0);
             cout << msgHeader << "y-axis set to linear.\n";
         } else {
-            GetCanvas()->SetLogy(1);
+            RootInterface::get()->GetCanvas()->SetLogy(1);
             cout << msgHeader << "y-axis set to log.\n";
         }
     } else if (cmd_ == "clear") {
