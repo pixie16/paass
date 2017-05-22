@@ -3,10 +3,6 @@ set(PaassScanSources ScanInterface.cpp Unpacker.cpp
         XiaData.cpp XiaListModeDataMask.cpp XiaListModeDataDecoder.cpp
         XiaListModeDataEncoder.cpp)
 
-if (PAASS_USE_ROOT)
-    list(APPEND PaassScanSources RootScanner.cpp)
-endif (PAASS_USE_ROOT)
-
 #Add the sources to the library
 add_library(PaassScanObjects OBJECT ${PaassScanSources})
 
