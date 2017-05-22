@@ -30,7 +30,9 @@ add_subdirectory(ScanLibraries)
 add_subdirectory(Resources)
 
 #Build utilities.
-add_subdirectory(Utilities)
+if(PAASS_BUILD_SCAN_UTILITIES)
+    add_subdirectory(Utilities)
+endif(PAASS_BUILD_SCAN_UTILITIES)
 
 if (PAASS_BUILD_UTKSCAN)
     add_subdirectory(Utkscan)
