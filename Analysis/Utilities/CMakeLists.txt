@@ -1,5 +1,6 @@
 if (PAASS_USE_ROOT)
     add_subdirectory(Scope)
+    add_subdirectory(RootScanner)
 endif (PAASS_USE_ROOT)
 
 add_subdirectory(Skeleton)
