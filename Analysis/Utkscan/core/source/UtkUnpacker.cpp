@@ -46,8 +46,6 @@ void UtkUnpacker::ProcessRawEvent() {
     Messenger m;
     stringstream ss;
 
-    cout << eventWidth_ << endl;
-
     static clock_t systemStartTime;
     static struct tms systemTimes;
     static double lastTimeOfPreviousEvent;
@@ -130,7 +128,6 @@ void UtkUnpacker::ProcessRawEvent() {
 
     eventCounter++;
     lastTimeOfPreviousEvent = GetRealStopTime();
-
 }
 
 /// This method plots information about the running time of the program, the
@@ -197,9 +194,6 @@ void UtkUnpacker::InitializeDriver(DetectorDriver *driver,
                 "UtkUnpacker::InitializeDriver" << std::endl;
         std::cout << "\t" << w.what() << std::endl;
     }
-
-    //set eventWidth from Globals (loaded from config file)
-    SetEventWidth(Globals::get()->GetEventLengthInTicks());
 
     ss << "Init at " << times(&systemTimes) << " system time.";
     m.detail(ss.str());
