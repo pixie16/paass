@@ -1038,9 +1038,8 @@ bool ScanInterface::Setup(int argc, char *argv[],
     //We check that the unpacker object has been set.
     unpacker_ = unpacker;
     if (!unpacker_)
-        throw invalid_argument("ScanInterface::Setup - The"
-                                       "Unpacker object has not been set "
-                                       "properly.");
+        throw invalid_argument("ScanInterface::Setup - The Unpacker object has "
+                                       "not been set properly.");
 
     //Initialize the data mask for decoding the data
     ///@TODO We need to be able to handle mixed systems, which is not

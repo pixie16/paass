@@ -75,11 +75,6 @@ public:
       */
     virtual bool Initialize(std::string prefix_ = "");
 
-    /** Peform any last minute initialization before processing data.
-      * /return Nothing.
-      */
-    virtual void FinalInitialization() {}
-
     /** Initialize the root output.
       * \param[in]  fname_     Filename of the output root file.
       * \param[in]  overwrite_ Set to true if the user wishes to overwrite the output file.
