@@ -43,7 +43,7 @@ RootInterface::~RootInterface() {
   */
 void RootInterface::IdleTask() {
     gSystem->ProcessEvents();
-    usleep(100000);
+    usleep(10);
 }
 
 void RootInterface::ResetZoom(TVirtualPad *pad /*= gPad*/) {

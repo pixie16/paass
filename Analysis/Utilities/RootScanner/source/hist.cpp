@@ -1,14 +1,16 @@
 #include "HistScanner.hpp"
+#include "HistUnpacker.hpp"
 
 int main(int argc, char *argv[]) {
     // Define a new unpacker object.
-    HistScanner scanner;
+    HistUnpacker unpacker;
+    HistScanner scanner(&unpacker);
 
     // Set the output message prefix.
     scanner.SetProgramName("hist");
 
     // Initialize the scanner.
-    if (!scanner.Setup(argc, argv))
+    if (!scanner.Setup(argc, argv, &unpacker))
         return 1;
 
     // Run the main loop.

@@ -38,15 +38,16 @@ void HistScannerChanData::Set(XiaData *data) {
     //Do not delete as it causes segfault.
     ProcessedXiaData *chEvent = new ProcessedXiaData(*data);
 
-    baseline[mod][chan] = chEvent->CorrectBaseline();
+    //baseline[mod][chan] = chEvent->CorrectBaseline();
 
-    peakAdc[mod][chan] = chEvent->maximum;
-    traceQdc[mod][chan] = chEvent->IntegratePulse(chEvent->max_index - 10,
-                                                  chEvent->max_index + 15);
+    //peakAdc[mod][chan] = chEvent->maximum;
+    //traceQdc[mod][chan] = chEvent->IntegratePulse(chEvent->max_index - 10,
+    //                                              chEvent->max_index + 15);
 
-    cfdBin[mod][chan] = chEvent->AnalyzeCFD(); //BIN
-    timeCfdNs[mod][chan] =
-            timeStampNs[mod][chan] + cfdBin[mod][chan] * 4; // 4 NS / ADC Clock
+    //cfdBin[mod][chan] = chEvent->AnalyzeCFD(); //BIN
+    //timeCfdNs[mod][chan] =
+    //        timeStampNs[mod][chan] + cfdBin[mod][chan] * 4; // 4 NS / ADC
+    // Clock
 
     hitMap_.push_back(make_pair(mod, chan));
 }
