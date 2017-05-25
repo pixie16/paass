@@ -16,6 +16,7 @@
 #define POLL2_SOCKET_H
 
 #include <netinet/in.h>
+#include <sys/time.h>
 
 #define POLL2_SOCKET_VERSION "1.1.01"
 #define POLL2_SOCKET_DATE "May 11th, 2015"
