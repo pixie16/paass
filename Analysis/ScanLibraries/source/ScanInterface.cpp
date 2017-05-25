@@ -465,7 +465,7 @@ void ScanInterface::RunControl() {
         if (total_stopped) {
             // Sleep while waiting for the user to scan more data.
             IdleTask();
-            usleep(0.1);
+            usleep(1);
             continue;
         } else if (shm_mode) {
             cout << endl;

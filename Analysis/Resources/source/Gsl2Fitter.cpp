@@ -106,8 +106,8 @@ double GslFitter::CalculatePhase(const std::vector<double> &data,
     gsl_multifit_fdfsolver_free(s);
     gsl_matrix_free(covar);
     gsl_matrix_free(jac);
-    delete y;
-    delete weights;
+    delete[] y;
+    delete[] weights;
 
     return phase;
 }

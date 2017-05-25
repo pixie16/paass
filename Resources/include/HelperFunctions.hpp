@@ -10,6 +10,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #include <cmath>
@@ -22,7 +23,7 @@ namespace Polynomial {
             const vector<T> &data, const unsigned int &startBin) {
         if (data.size() < 3)
             throw range_error("Polynomial::CalculatePoly2 - The data vector "
-                                      "had the wrong size : " + data.size());
+                                      "had the wrong size : " + std::to_string(data.size()));
 
         double x1[3], x2[3];
         for (size_t i = 0; i < 3; i++) {
@@ -57,7 +58,7 @@ namespace Polynomial {
             const vector<T> &data, const unsigned int &startBin) {
         if (data.size() < 4)
             throw range_error("Polynomial::CalculatePoly3 - The data vector "
-                                      "had the wrong size : " + data.size());
+                                      "had the wrong size : " + std::to_string(data.size()));
 
         double x1[4], x2[4], x3[4];
         for (size_t i = 0; i < 4; i++) {
