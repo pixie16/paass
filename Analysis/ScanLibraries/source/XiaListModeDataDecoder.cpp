@@ -27,8 +27,7 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(
 
     //A buffer length of zero is an issue, we'll throw a length error.
     if (bufLen == 0)
-        throw length_error("Unpacker::ReadBuffer - The buffer length was "
-                                   "sized 0. This is a huge issue.");
+        throw length_error("Unpacker::ReadBuffer - The buffer length was sized 0. This is a huge issue.");
 
     //For empty buffers we just return an empty vector.
     static const unsigned int emptyBufferLength = 2;
@@ -62,9 +61,9 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(
         switch (headerLength) {
             case STATS_BLOCK : // Manual statistics block inserted by poll
                 // this is a manual statistics block inserted by the poll program
-                /*stats.DoStatisticsBlock(&buf[1], modNum);
+                //stats.DoStatisticsBlock(&buf[1], modNum);
                 buf += eventLength;
-                numEvents = -10;*/
+                //numEvents = -10;
                 continue;
             case HEADER :
                 break;
