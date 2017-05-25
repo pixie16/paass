@@ -125,10 +125,8 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(
             vecProcess.push_back(new SsdProcessor());
         } else if (name == "VandleProcessor") {
             vecProcess.push_back(new VandleProcessor(
-                    StringManipulation::TokenizeString(
-                            processor.attribute("types").as_string(), ","),
-                    processor.attribute("res").as_double(2.0),
-                    processor.attribute("offset").as_double(1000.0),
+                    StringManipulation::TokenizeString(processor.attribute("types").as_string(), ","),
+                    processor.attribute("res").as_double(2.0), processor.attribute("offset").as_double(1000.0),
                     processor.attribute("NumStarts").as_uint(1)));
         } else if (name == "TeenyVandleProcessor") {
             vecProcess.push_back(new TeenyVandleProcessor());
