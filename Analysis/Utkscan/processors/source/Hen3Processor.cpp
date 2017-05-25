@@ -169,7 +169,6 @@ bool Hen3Processor::Process(RawEvent &event) {
         if (TreeCorrelator::get()->place("Beta")->status()) {
             EventData bestBeta = BestBetaForNeutron(time);
             double nb_dtime = (time - bestBeta.time) * clockInSeconds;
-            TreeCorrelator::get()->place("Beta")->last().time;
             double dt = 100 + nb_dtime / diffTimePlotResolution_;
             if (dt > S8)
                 dt = S8 - 1;
