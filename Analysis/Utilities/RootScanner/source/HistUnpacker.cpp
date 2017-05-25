@@ -3,6 +3,7 @@
 
 #include <TTreeFormula.h>
 #include <TH2.h>
+#include <TError.h>
 
 #include "HistUnpacker.hpp"
 #include "RootInterface.hpp"

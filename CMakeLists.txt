@@ -1,19 +1,14 @@
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 3.1)
 
 project(PixieSuite C CXX Fortran)
 
-#Compile with c++11 or c++0x depending on the compiler version
-if (CMAKE_COMPILER_IS_GNUCXX)
-    if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "4.3" AND
-            ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "4.7")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-    elseif (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "4.6")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    else ()
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    endif (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "4.3" AND
-            ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "4.7")
+#Set the C++ standard to c++11.
+set(CMAKE_CXX_STANDARD 11)
 
+#Use rpath on Mac OS
+set(CMAKE_MACOSX_RPATH TRUE)
+
+if (CMAKE_COMPILER_IS_GNUCXX)
     #Make compiler messages nice with colored tags.
     if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "4.9")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color=auto")
@@ -59,8 +54,7 @@ option(PAASS_BUILD_ACQ "Build and install Acquisition software" ON)
 option(PAASS_BUILD_SCAN_UTILITIES "Build and install the Analysis Utilities" ON)
 option(PAASS_BUILD_SETUP "Include the older setup programs in installation" OFF)
 option(PAASS_BUILD_SHARED_LIBS "Install only scan libraries" ON)
-option(PAASS_BUILD_TESTS "Builds programs designed to test the package." OFF)
-option(PAASS_BUILD_UNITTESTS "Bulid Unit Tests using UnitTest++ Framework" OFF)
+option(PAASS_BUILD_TESTS "Builds programs designed to test the package. Including UnitTest++ test." OFF)
 option(PAASS_BUILD_UTKSCAN "Build utkscan" OFF)
 
 option(PAASS_USE_DAMM "Use DAMM for MCA" ON)
@@ -105,11 +99,11 @@ endif (CURSES_FOUND)
 
 #Find the UnitTest++ Package. This package can be obtained from
 #https://github.com/unittest-cpp/unittest-cpp.git
-if (PAASS_BUILD_UNITTESTS)
+if (PAASS_BUILD_TESTS)
     find_package(UnitTest++ REQUIRED)
     link_directories(${UNITTEST++_LIBRARY_DIR})
     include_directories(${UNITTEST++_INCLUDE_DIR})
-endif (PAASS_BUILD_UNITTESTS)
+endif (PAASS_BUILD_TESTS)
 
 if (PAASS_BUILD_ACQ)
     if (NOT PAASS_BUILD_ACQ_ATTEMPTED AND NOT (PLX_FOUND AND XIA_FOUND))
