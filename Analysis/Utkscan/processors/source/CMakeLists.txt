@@ -4,7 +4,7 @@ set(PROCESSOR_SOURCES
         DoubleBetaProcessor.cpp
         CloverCalibProcessor.cpp
         CloverProcessor.cpp
-        #  DssdProcessor.cpp
+        DssdProcessor.cpp
         EventProcessor.cpp
         GeProcessor.cpp
         Hen3Processor.cpp
@@ -20,12 +20,9 @@ set(PROCESSOR_SOURCES
         PositionProcessor.cpp
         PspmtProcessor.cpp
         #  ScintProcessor.cpp
-        #  SsdBetaProcessor.cpp
-        SsdProcessor.cpp
         TeenyVandleProcessor.cpp
         TemplateProcessor.cpp
-        VandleProcessor.cpp
-        )
+        VandleProcessor.cpp)
 
 if (PAASS_USE_ROOT)
     list(APPEND PROCESSOR_SOURCES RootProcessor.cpp)

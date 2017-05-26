@@ -35,11 +35,9 @@
 #include "NeutronScintProcessor.hpp"
 #include "PositionProcessor.hpp"
 #include "PspmtProcessor.hpp"
-#include "SsdProcessor.hpp"
 #include "TeenyVandleProcessor.hpp"
 #include "TemplateProcessor.hpp"
 #include "VandleProcessor.hpp"
-#include "ValidProcessor.hpp"
 
 //These headers are for handling experiment specific processing.
 #include "E11027Processor.hpp"
@@ -121,8 +119,6 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new NeutronScintProcessor());
         } else if (name == "PositionProcessor") {
             vecProcess.push_back(new PositionProcessor());
-        } else if (name == "SsdProcessor") {
-            vecProcess.push_back(new SsdProcessor());
         } else if (name == "VandleProcessor") {
             vecProcess.push_back(new VandleProcessor(
                     StringManipulation::TokenizeString(processor.attribute("types").as_string(), ","),

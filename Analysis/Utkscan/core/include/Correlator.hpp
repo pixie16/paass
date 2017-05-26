@@ -4,21 +4,19 @@
  * Class which handles implant/decay correlations
  */
 
-#ifndef __CORRELATOR_PROCESSOR_HPP_
-#define __CORRELATOR_PROCESSOR_HPP_
+#ifndef __CORRELATOR_HPP_
+#define __CORRELATOR_HPP_
 
 #include <utility>
 #include <vector>
 
 #include <cmath>
 
-#include "Plots.hpp"
 #include "DammPlotIds.hpp"
 #include "Globals.hpp"
-
-class LogicProcessor;
-
-class RawEvent;
+#include "LogicProcessor.hpp"
+#include "Plots.hpp"
+#include "RawEvent.hpp"
 
 //! Structure to contain the event info
 struct EventInfo {
@@ -50,8 +48,7 @@ struct EventInfo {
     bool pileUp;   ///< trace is piled-up
 
     unsigned long clockCount;//!< the counter on the clock
-    unsigned char logicBits[
-            dammIds::logic::MAX_LOGIC + 1];//!< array of logic bits
+    unsigned char logicBits[10];//!< array of logic bits
 
     /** Default Constructor */
     EventInfo();
