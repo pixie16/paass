@@ -8,7 +8,7 @@ set(PROCESSOR_SOURCES
         EventProcessor.cpp
         GeProcessor.cpp
         Hen3Processor.cpp
-        #  ImplantSsdProcessor.cpp
+        ImplantSsdProcessor.cpp
         IonChamberProcessor.cpp
         #  LiquidProcessor.cpp
         LiquidScintProcessor.cpp
