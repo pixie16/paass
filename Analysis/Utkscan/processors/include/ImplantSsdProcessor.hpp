@@ -4,6 +4,7 @@
 #ifndef __IMPLANT_SSD_PROCESSOR_HPP_
 #define __IMPLANT_SSD_PROCESSOR_HPP_
 
+#include "Correlator.hpp"
 #include "EventProcessor.hpp"
 
 class RawEvent;
