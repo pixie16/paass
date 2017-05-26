@@ -40,7 +40,7 @@ void TemplateExpProcessor::DeclarePlots(void) {
 
 TemplateExpProcessor::TemplateExpProcessor() :
         EventProcessor(OFFSET, RANGE, "TemplateExpProcessor") {
-    gCutoff_ = 0.; ///Set the gamma cuttoff energy to a default of 0.
+    gCutoff_ = 0.; ///Set the gamma cutoff energy to a default of 0.
     SetAssociatedTypes();
     SetupAsciiOutput();
 #ifdef useroot
@@ -72,7 +72,7 @@ TemplateExpProcessor::~TemplateExpProcessor() {
 ///Associates this Experiment Processor with template and ge detector types
 void TemplateExpProcessor::SetAssociatedTypes(void) {
     associatedTypes.insert("template");
-    associatedTypes.insert("ge");
+    associatedTypes.insert("clover");
 }
 
 ///Sets up the name of the output ascii data file
@@ -100,7 +100,7 @@ void TemplateExpProcessor::SetupRootOutput(void) {
 
 #endif
 
-///We do nothing here since we're completely dependent on the resutls of others
+///We do nothing here since we're completely dependent on the results of others
 bool TemplateExpProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return (false);
@@ -123,8 +123,8 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
                 GetProcessor("TemplateProcessor"))->GetTemplateEvents();
 
     ///Obtain the list of Ge events and addback events that were created
-    ///in CloverProcessor::PreProecess
-    if (event.GetSummary("ge")->GetList().size() != 0) {
+    ///in CloverProcessor::PreProcess
+    if (event.GetSummary("clover")->GetList().size() != 0) {
         geEvts = ((CloverProcessor *) DetectorDriver::get()->
                 GetProcessor("CloverProcessor"))->GetGeEvents();
         geAddback = ((CloverProcessor *) DetectorDriver::get()->
