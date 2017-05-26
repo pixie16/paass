@@ -23,8 +23,7 @@ public:
     * \param [in] aType : a type to plot the traces for
     * \param [in] aSubtype : a subtype to plot the traces for 
     * \param [in] aTag : the tag for what we want to plot */
-    TraceExtractor(const std::string &aType, const std::string &aSubtype,
-                   const std::string &aTag = "");
+    TraceExtractor(const std::string &aType, const std::string &aSubtype, const std::string &aTag = "");
 
     /** Default Destructor */
     ~TraceExtractor() {};
@@ -37,9 +36,7 @@ public:
     * \param [in] aType : the type being analyze
     * \param [in] aSubtype : the subtype begin analyzed 
     * \param [in] tags : the map of tags for the channel */
-    virtual void Analyze(Trace &trace, const std::string &aType,
-                         const std::string &aSubtype,
-                         const std::map<std::string, int> &tags);
+    virtual void Analyze(Trace &trace, const std::string &aType, const std::string &aSubtype, const std::set<std::string> &tags);
 
 protected:
     static const unsigned int traceBins; //!< The number of bins for the trace length

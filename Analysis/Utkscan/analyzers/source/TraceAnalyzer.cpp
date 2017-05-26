@@ -93,10 +93,8 @@ void TraceAnalyzer::Analyze(Trace &trace,
 }
 
 
-void TraceAnalyzer::Analyze(Trace &trace,
-                            const std::string &detType,
-                            const std::string &detSubtype,
-                            const std::map<std::string, int> &tagMap) {
+void TraceAnalyzer::Analyze(Trace &trace, const std::string &detType, const std::string &detSubtype,
+                            const std::set<std::string> &tags) {
     times(&tmsBegin);
     numTracesAnalyzed++;
     EndAnalyze(trace);

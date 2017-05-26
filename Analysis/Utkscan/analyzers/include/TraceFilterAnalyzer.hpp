@@ -35,9 +35,7 @@ public:
      * \param [in] type : the detector type
      * \param [in] subtype : the detector subtype 
      * \param [in] tagmap : map of the tags for the channel */
-    virtual void Analyze(Trace &trace, const std::string &type,
-                         const std::string &subtype,
-                         const std::map<std::string, int> &tagmap);
+    virtual void Analyze(Trace &trace, const std::string &type, const std::string &subtype, const std::set<std::string> &tagmap);
 
 private:
     bool analyzePileup_; //!< True if looking for pileups

@@ -214,7 +214,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
     int id = chan->GetID();
     string type = chanId.GetType();
     string subtype = chanId.GetSubtype();
-    map<string, int> tags = chanId.GetTagMap();
+    set<string> tags = chanId.GetTags();
     bool hasStartTag = chanId.HasTag("start");
     Trace &trace = chan->GetTrace();
 

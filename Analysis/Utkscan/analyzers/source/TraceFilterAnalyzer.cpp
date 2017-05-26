@@ -39,10 +39,9 @@ void TraceFilterAnalyzer::DeclarePlots(void) {
     DeclareHistogram2D(DD_PILEUP, traceBins, S7, "Rejected Traces");
 }
 
-void TraceFilterAnalyzer::Analyze(Trace &trace, const std::string &type,
-                                  const std::string &subtype,
-                                  const std::map<std::string, int> &tagmap) {
-    TraceAnalyzer::Analyze(trace, type, subtype, tagmap);
+void TraceFilterAnalyzer::Analyze(Trace &trace, const std::string &type, const std::string &subtype,
+                                  const std::set<std::string> &tags) {
+    TraceAnalyzer::Analyze(trace, type, subtype, tags);
     Globals *globs = Globals::get();
     static int numTrigFilters = 0;
     static int numRejected = 0;

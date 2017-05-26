@@ -24,9 +24,8 @@ WaveformAnalyzer::WaveformAnalyzer(const std::set<std::string> &ignoredTypes)
     ignoredTypes_ = ignoredTypes;
 }
 
-void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
-                               const std::string &subtype,
-                               const std::map<std::string, int> &tags) {
+void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type, const std::string &subtype,
+                               const std::set<std::string> &tags) {
     TraceAnalyzer::Analyze(trace, type, subtype, tags);
 
     if (trace.IsSaturated() || trace.empty() ||

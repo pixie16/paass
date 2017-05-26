@@ -19,9 +19,7 @@ namespace dammIds {
     }
 }
 
-TraceExtractor::TraceExtractor(const std::string &aType,
-                               const std::string &aSubtype,
-                               const std::string &aTag) :
+TraceExtractor::TraceExtractor(const std::string &aType, const std::string &aSubtype, const std::string &aTag) :
         TraceAnalyzer(OFFSET, RANGE, "Trace Extractor"), type(aType),
         subtype(aSubtype), tag(aTag) {
 }
@@ -31,9 +29,8 @@ void TraceExtractor::DeclarePlots(void) {
     DeclareHistogram2D(DD_TRACE, traceBins, S7, "Trace Extractor");
 }
 
-void TraceExtractor::Analyze(
-        Trace &trace, const std::string &aType, const std::string &aSubtype,
-        const std::map<std::string, int> &tags) {
+void TraceExtractor::Analyze(Trace &trace, const std::string &aType, const std::string &aSubtype,
+                             const std::set<std::string> &tags) {
     static unsigned int numPlottedTraces = 0;
     static unsigned int numTraces = S8;
 
