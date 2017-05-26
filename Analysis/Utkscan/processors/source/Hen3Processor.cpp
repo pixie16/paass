@@ -10,7 +10,7 @@
 #include "RawEvent.hpp"
 #include "ChanEvent.hpp"
 #include "Hen3Processor.hpp"
-#include "ScintProcessor.hpp"
+#include "BetaScintProcessor.hpp"
 #include "Trace.hpp"
 
 using namespace std;
@@ -74,28 +74,21 @@ EventData Hen3Processor::BestBetaForNeutron(double nTime) {
 void Hen3Processor::DeclarePlots(void) {
     DeclareHistogram1D(D_MULT_HEN3, S4, "3Hen event multiplicity");
     DeclareHistogram1D(D_MULT_NEUTRON, S4, "3Hen real neutron multiplicity");
-    DeclareHistogram1D(beta::D_MULT_NEUTRON, S4,
-                       "Beta gated 3Hen real neutron multiplicity");
+    DeclareHistogram1D(beta::D_MULT_NEUTRON, S4, "Beta gated 3Hen real neutron multiplicity");
 
     DeclareHistogram1D(D_ENERGY_HEN3, SE, "3Hen raw energy");
     DeclareHistogram1D(D_ENERGY_NEUTRON, SE, "Neutron raw energy");
 
-    DeclareHistogram1D(beta::D_ENERGY_NEUTRON, SE,
-                       "Beta gated neutron raw energy");
+    DeclareHistogram1D(beta::D_ENERGY_NEUTRON, SE, "Beta gated neutron raw energy");
 
-    DeclareHistogram1D(beta::D_TDIFF_HEN3_BETA, S8,
-                       "time diff hen3 - beta + 100 (1 us/ch)");
-    DeclareHistogram1D(beta::D_TDIFF_NEUTRON_BETA, S8,
-                       "time diff neutron - beta + 100 (1 us/ch)");
-    DeclareHistogram1D(D_ENERGY_HEN3_TAPE, SE,
-                       "3Hen raw energy, tape move period");
+    DeclareHistogram1D(beta::D_TDIFF_HEN3_BETA, S8, "time diff hen3 - beta + 100 (1 us/ch)");
+    DeclareHistogram1D(beta::D_TDIFF_NEUTRON_BETA, S8, "time diff neutron - beta + 100 (1 us/ch)");
+    DeclareHistogram1D(D_ENERGY_HEN3_TAPE, SE, "3Hen raw energy, tape move period");
 
-    DeclareHistogram1D(D_TIME_NEUTRON, SD,
-                       "Neutron events vs cycle time (1 ms / bin");
+    DeclareHistogram1D(D_TIME_NEUTRON, SD, "Neutron events vs cycle time (1 ms / bin");
 
     DeclareHistogram2D(DD_DISTR_HEN3, S5, S5, "3Hen event distribution");
-    DeclareHistogram2D(DD_DISTR_NEUTRON, S5, S5,
-                       "3Hen neutron distribution");
+    DeclareHistogram2D(DD_DISTR_NEUTRON, S5, S5, "3Hen neutron distribution");
 }
 
 bool Hen3Processor::PreProcess(RawEvent &event) {

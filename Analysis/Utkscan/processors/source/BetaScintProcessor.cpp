@@ -20,9 +20,7 @@ using namespace dammIds::beta_scint;
 /*! Magic number for the resolution of the time spectra */
 static const double timeSpectraTimeResolution = 10.e-3;
 
-
-BetaScintProcessor::BetaScintProcessor(double gammaBetaLimit,
-                                       double energyContraction) :
+BetaScintProcessor::BetaScintProcessor(double gammaBetaLimit, double energyContraction) :
         EventProcessor(OFFSET, RANGE, "BetaScintProcessor") {
     associatedTypes.insert("beta_scint");
     gammaBetaLimit_ = gammaBetaLimit;
@@ -30,8 +28,7 @@ BetaScintProcessor::BetaScintProcessor(double gammaBetaLimit,
 }
 
 EventData BetaScintProcessor::BestGammaForBeta(double bTime) {
-    PlaceOR *gammas =
-            dynamic_cast<PlaceOR *>(TreeCorrelator::get()->place("Gamma"));
+    PlaceOR *gammas = dynamic_cast<PlaceOR *>(TreeCorrelator::get()->place("Gamma"));
     unsigned sz = gammas->info_.size();
 
     if (sz == 0)
@@ -67,60 +64,48 @@ void BetaScintProcessor::DeclarePlots(void) {
     title << "Beta energy/" << energyContraction_;
     DeclareHistogram1D(D_ENERGY_BETA, energyBins, title.str().c_str());
 
-    DeclareHistogram1D(D_MULT_BETA_THRES_GATED, S4,
-                       "Beta multiplicity threshold gated");
+    DeclareHistogram1D(D_MULT_BETA_THRES_GATED, S4, "Beta multiplicity threshold gated");
 
     title.str("");
     title << "Beta energy/" << energyContraction_ << " threshold gated";
-    DeclareHistogram1D(D_ENERGY_BETA_THRES_GATED, energyBins,
-                       title.str().c_str());
+    DeclareHistogram1D(D_ENERGY_BETA_THRES_GATED, energyBins, title.str().c_str());
 
-    DeclareHistogram1D(D_MULT_BETA_GAMMA_GATED, S4,
-                       "Beta multiplicity gamma gated");
+    DeclareHistogram1D(D_MULT_BETA_GAMMA_GATED, S4, "Beta multiplicity gamma gated");
 
     title.str("");
     title << "Beta energy/" << energyContraction_ << " gamma gated";
-    DeclareHistogram1D(D_ENERGY_BETA_GAMMA_GATED, energyBins,
-                       title.str().c_str());
+    DeclareHistogram1D(D_ENERGY_BETA_GAMMA_GATED, energyBins, title.str().c_str());
 
     title.str("");
     title << "Beta energy/" << energyContraction_ << " vs gamma energy ";
-    DeclareHistogram2D(DD_ENERGY_BETA__GAMMA, energyBins, SC,
-                       title.str().c_str());
+    DeclareHistogram2D(DD_ENERGY_BETA__GAMMA, energyBins, SC, title.str().c_str());
 
     stringstream title_end;
-    title_end << "energy/" << energyContraction_ << " vs time "
-              << timeSpectraTimeResolution << "/bin (s)";
+    title_end << "energy/" << energyContraction_ << " vs time " << timeSpectraTimeResolution << "/bin (s)";
 
     title.str("");
     title << "Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TOTAL, energyBins, timeBins,
-                       title.str().c_str());
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TOTAL, energyBins, timeBins, title.str().c_str());
 
     title.str("");
     title << "No-gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_NOG, energyBins, timeBins,
-                       title.str().c_str());
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_NOG, energyBins, timeBins, title.str().c_str());
 
     title.str("");
     title << "Gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_G, energyBins, timeBins,
-                       title.str().c_str());
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_G, energyBins, timeBins, title.str().c_str());
 
     title.str("");
     title << "Tape move Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_TOTAL, energyBins, timeBins,
-                       title.str().c_str());
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_TOTAL, energyBins, timeBins, title.str().c_str());
 
     title.str("");
     title << "Tape move No-gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_NOG, energyBins, timeBins,
-                       title.str().c_str());
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_NOG, energyBins, timeBins, title.str().c_str());
 
     title.str("");
     title << "Tape move Gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_G, energyBins, timeBins,
-                       title.str().c_str());
+    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_G, energyBins, timeBins, title.str().c_str());
 }
 
 bool BetaScintProcessor::PreProcess(RawEvent &event) {
@@ -131,8 +116,7 @@ bool BetaScintProcessor::PreProcess(RawEvent &event) {
             event.GetSummary("beta_scint:beta", true)->GetList();
 
     int multiplicity = 0;
-    for (vector<ChanEvent *>::const_iterator it = scintBetaEvents.begin();
-         it != scintBetaEvents.end(); it++) {
+    for (vector<ChanEvent *>::const_iterator it = scintBetaEvents.begin(); it != scintBetaEvents.end(); it++) {
         double energy = (*it)->GetCalibratedEnergy();
         int energyBin = int(energy / energyContraction_);
         ++multiplicity;
@@ -160,20 +144,17 @@ bool BetaScintProcessor::Process(RawEvent &event) {
     /** True if gammas were recorded during the event */
     int multiplicityThres = 0;
     int multiplicityGamma = 0;
-    for (vector<ChanEvent *>::const_iterator it = scintBetaEvents.begin();
-         it != scintBetaEvents.end(); it++) {
+    for (vector<ChanEvent *>::const_iterator it = scintBetaEvents.begin(); it != scintBetaEvents.end(); it++) {
         double energy = (*it)->GetCalibratedEnergy();
         int energyBin = int(energy / energyContraction_);
         double time = (*it)->GetTime();
         int location = (*it)->GetChanID().GetLocation();
 
-        PlaceOR *betas =
-                dynamic_cast<PlaceOR *>(TreeCorrelator::get()->place("Beta"));
+        PlaceOR *betas = dynamic_cast<PlaceOR *>(TreeCorrelator::get()->place("Beta"));
         /* Beta events gated by "Beta" place are plotted here
          * Energy-time spectra are gated
          * */
-        for (deque<EventData>::iterator itb = betas->info_.begin();
-             itb != betas->info_.end(); ++itb) {
+        for (deque<EventData>::iterator itb = betas->info_.begin(); itb != betas->info_.end(); ++itb) {
             if (itb->energy == energy && itb->time == time &&
                 itb->location == location) {
                 ++multiplicityThres;
@@ -200,23 +181,17 @@ bool BetaScintProcessor::Process(RawEvent &event) {
         }
 
         if (tapeMove) {
-            plot(DD_ENERGY_BETA__TIME_TM_TOTAL,
-                 energyBin, decayTimeBin);
+            plot(DD_ENERGY_BETA__TIME_TM_TOTAL, energyBin, decayTimeBin);
             if (GoodGammaBeta(gb_dtime))
-                plot(DD_ENERGY_BETA__TIME_TM_G,
-                     energyBin, decayTimeBin);
+                plot(DD_ENERGY_BETA__TIME_TM_G, energyBin, decayTimeBin);
             else
-                plot(DD_ENERGY_BETA__TIME_TM_NOG,
-                     energyBin, decayTimeBin);
+                plot(DD_ENERGY_BETA__TIME_TM_NOG, energyBin, decayTimeBin);
         } else {
-            plot(DD_ENERGY_BETA__TIME_TOTAL,
-                 energyBin, decayTimeBin);
+            plot(DD_ENERGY_BETA__TIME_TOTAL, energyBin, decayTimeBin);
             if (GoodGammaBeta(gb_dtime))
-                plot(DD_ENERGY_BETA__TIME_G,
-                     energyBin, decayTimeBin);
+                plot(DD_ENERGY_BETA__TIME_G, energyBin, decayTimeBin);
             else
-                plot(DD_ENERGY_BETA__TIME_NOG,
-                     energyBin, decayTimeBin);
+                plot(DD_ENERGY_BETA__TIME_NOG, energyBin, decayTimeBin);
         }
     }
 
