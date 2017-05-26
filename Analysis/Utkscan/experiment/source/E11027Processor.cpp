@@ -47,7 +47,7 @@ bool E11027Processor::Process(RawEvent &event) {
     static const vector<ChanEvent *> &validEvents = event.GetSummary("valid")->GetList();
 
     for (vector<ChanEvent *>::const_iterator itValid = validEvents.begin(); itValid != validEvents.end(); itValid++)
-        if ((*itValid)->GetChanID().GetTag("output"))
+        if ((*itValid)->GetChanID().HasTag("output"))
             *poutstream_ << (*itValid)->GetChanID().GetType() << " " << (*itValid)->GetChanID().GetLocation() << " "
                         << (*itValid)->GetQdc()[0] << " " << (*itValid)->GetQdc()[1] << endl;
 

@@ -26,9 +26,8 @@ public:
      * \param [in] detType : the detector type we have
      * \param [in] detSubtype : the subtype of the detector
      * \param [in] tagMap : Map of tags associated with trace*/
-    virtual void Analyze(Trace &trace, const std::string &detType,
-                         const std::string &detSubtype,
-                         const std::map<std::string, int> &tagMap);
+    virtual void Analyze(Trace &trace, const std::string &detType, const std::string &detSubtype,
+                         const std::set<std::string> &tagMap);
 
 private:
 };

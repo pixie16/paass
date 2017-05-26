@@ -49,9 +49,8 @@ FittingAnalyzer::~FittingAnalyzer() {
     delete driver_;
 }
 
-void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
-                              const std::string &detSubtype,
-                              const std::map<std::string, int> &tagMap) {
+void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType, const std::string &detSubtype,
+                              const std::set<std::string> &tagMap) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype, tagMap);
 
     if (trace.IsSaturated() || trace.empty() || !trace.HasValidAnalysis()) {

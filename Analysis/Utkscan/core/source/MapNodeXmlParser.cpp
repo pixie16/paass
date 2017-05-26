@@ -97,7 +97,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
                 vector<string> tagList =
                         StringManipulation::TokenizeString(ch_tags, ",");
                 for (unsigned int i = 0; i < tagList.size(); i++)
-                    id.AddTag(tagList[i], 1);
+                    id.AddTag(tagList[i]);
             }
 
             if (isVerbose) {

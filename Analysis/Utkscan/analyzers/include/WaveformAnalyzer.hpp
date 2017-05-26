@@ -29,9 +29,7 @@ public:
     * \param [in] type : the detector type
     * \param [in] subtype : detector subtype 
     * \param [in] tags : the map of the tags for the channel */
-    void Analyze(Trace &trace, const std::string &type,
-                 const std::string &subtype,
-                 const std::map<std::string, int> &tags);
+    void Analyze(Trace &trace, const std::string &type, const std::string &subtype, const std::set<std::string> &tags);
 
 private:
     std::set<std::string> ignoredTypes_;

@@ -30,9 +30,8 @@ CfdAnalyzer::CfdAnalyzer(const std::string &s) : TraceAnalyzer() {
 
 }
 
-void CfdAnalyzer::Analyze(Trace &trace, const std::string &detType,
-                          const std::string &detSubtype,
-                          const std::map<std::string, int> &tagMap) {
+void CfdAnalyzer::Analyze(Trace &trace, const std::string &detType, const std::string &detSubtype,
+                          const std::set<std::string> &tagMap) {
     TraceAnalyzer::Analyze(trace, detType, detSubtype, tagMap);
 
     if (!driver_) {
@@ -46,12 +45,9 @@ void CfdAnalyzer::Analyze(Trace &trace, const std::string &detType,
         return;
     }
 
-    const pair<double, double> pars =
-            Globals::get()->GetCfdPars(detType + ":" + detSubtype);
+    const pair<double, double> pars = Globals::get()->GetCfdPars(detType + ":" + detSubtype);
 
-    trace.SetPhase(driver_->CalculatePhase(trace.GetTraceSansBaseline(),
-                                           pars,
-                                           trace.GetExtrapolatedMaxInfo(),
+    trace.SetPhase(driver_->CalculatePhase(trace.GetTraceSansBaseline(), pars, trace.GetExtrapolatedMaxInfo(),
                                            trace.GetBaselineInfo()));
     EndAnalyze();
 }

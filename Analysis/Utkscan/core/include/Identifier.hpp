@@ -4,7 +4,7 @@
 #ifndef __CHANIDENTIFIER_HPP
 #define __CHANIDENTIFIER_HPP
 
-#include <map>
+#include <set>
 #include <sstream>
 #include <string>
 
@@ -36,8 +36,7 @@ public:
      * \param [in] atype : the type to set
      * \param [in] subType : the subType to set
      * \param [in] loc : the location to set */
-    Identifier(const std::string &atype, const std::string &subType,
-               const unsigned int &loc) {
+    Identifier(const std::string &atype, const std::string &subType, const unsigned int &loc) {
         type_ = atype;
         subtype_ = subType;
         location_ = loc;
@@ -74,23 +73,15 @@ public:
     /** Insert a tag to the Identifier
      * \param [in] s : the name of the tag to insert
      * \param [in] n : the value of the tag to insert */
-    void AddTag(const std::string &s, int n) { tag_[s] = n; }
+    void AddTag(const std::string &s) { tags_.insert(s); }
 
     /** Check if an identifier has a tag
      * \param [in] s : the tag to search for
      * \return true if the tag is in the identifier */
-    bool HasTag(const std::string &s) const {
-        if (tag_.count(s) > 0)
-            return (true);
-        return (false);
-    }
+    bool HasTag(const std::string &s) const { return tags_.find(s) != tags_.end(); }
 
-    /** \return Get the requested tag
-     * \param [in] s : the name of the tag to get */
-    int GetTag(const std::string &s) const;
-
-    /** \return The map with the list of tags */
-    std::map<std::string, int> GetTagMap(void) const { return tag_; }
+    ///@return Get the tag list
+    std::set<std::string> GetTags() const { return tags_; }
 
     /** Zeroes an identifier
     *
@@ -109,9 +100,7 @@ public:
      * \param [in] x : the Identifier to compare to
      * \return true if this is equal to x */
     bool operator==(const Identifier &x) const {
-        return (type_ == x.type_ &&
-                subtype_ == x.subtype_ &&
-                location_ == x.location_);
+        return type_ == x.type_ && subtype_ == x.subtype_ && location_ == x.location_;
     }
 
     /** Not - Equality operator for identifier
@@ -156,13 +145,9 @@ public:
 private:
     std::string type_;      /**< Specifies the detector type */
     std::string subtype_;   /**< Specifies the detector sub type */
-    unsigned int dammID_; /**< Damm spectrum number for plotting
- * calibrated energies */
-    unsigned int location_; /**< Specifies the real world location of the
- * channel.
-                                For the DSSD this variable is the strip number */
-    std::map<std::string, int> tag_;  /**< A list of tags associated with the
- * Identifier */
+    unsigned int dammID_; /**< Damm spectrum number for plotting calibrated energies */
+    unsigned int location_; /**< Specifies the real world location of the channel. */
+    std::set<std::string> tags_;  /**< A list of tags associated with the Identifier */
 };
 
 #endif

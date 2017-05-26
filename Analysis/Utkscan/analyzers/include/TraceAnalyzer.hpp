@@ -25,8 +25,7 @@ public:
     * \param [in] offset : the offset for the histograms
     * \param [in] range : the range of the histograms
     * \param [in] name : the name of the processor */
-    TraceAnalyzer(const unsigned int &offset, const unsigned int &range,
-                  const std::string &name);
+    TraceAnalyzer(const unsigned int &offset, const unsigned int &range, const std::string &name);
 
     /** Initializes the Analyzer
     * \return True if the init was successful */
@@ -39,17 +38,14 @@ public:
      * \param [in] trace: the trace
      * \param [in] type : the type of detector
      * \param [in] subtype : the subtype of the detector */
-    virtual void Analyze(Trace &trace, const std::string &type,
-                         const std::string &subtype);
+    virtual void Analyze(Trace &trace, const std::string &type, const std::string &subtype);
 
     /** Function to analyze a trace online.
      * \param [in] trace: the trace
      * \param [in] type : the type of detector
      * \param [in] subtype : the subtype of the detector
      * \param [in] tagMap : takes a map of all the tags that the channel has */
-    virtual void Analyze(Trace &trace, const std::string &type,
-                         const std::string &subtype,
-                         const std::map<std::string, int> &tagMap);
+    virtual void Analyze(Trace &trace, const std::string &type, const std::string &subtype, const std::set<std::string> &tagMap);
 
     /** End the analysis and record the analyzer level in the trace
      * \param [in] trace : the trace */
