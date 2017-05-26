@@ -2,7 +2,6 @@ set(CORE_SOURCES
         BarBuilder.cpp
         Calibrator.cpp
         ChanEvent.cpp
-        Correlator.cpp
         DetectorDriver.cpp
         DetectorDriverXmlParser.cpp
         DetectorLibrary.cpp
@@ -22,6 +21,7 @@ set(CORE_SOURCES
         WalkCorrector.cpp)
 
 set(CORRELATION_SOURCES
+        Correlator.cpp
         PlaceBuilder.cpp
         Places.cpp
         TreeCorrelator.cpp
