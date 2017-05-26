@@ -2,6 +2,7 @@ set(CORE_SOURCES
         BarBuilder.cpp
         Calibrator.cpp
         ChanEvent.cpp
+        Correlator.cpp
         DetectorDriver.cpp
         DetectorDriverXmlParser.cpp
         DetectorLibrary.cpp
@@ -14,7 +15,6 @@ set(CORE_SOURCES
         Notebook.cpp
         RandomPool.cpp
         RawEvent.cpp
-        #  StatsData.cpp
         TimingCalibrator.cpp
         TimingMapBuilder.cpp
         UtkScanInterface.cpp
@@ -39,6 +39,4 @@ endif (NOT PAASS_USE_HRIBF)
 
 add_library(UtkscanMainObjects OBJECT ${MAIN_SOURCES})
 
-add_library(UtkscanCoreObjects OBJECT ${CORE_SOURCES} ${CORRELATION_SOURCES}
-        ${PLOTTING_SOURCES}
-        )
+add_library(UtkscanCoreObjects OBJECT ${CORE_SOURCES} ${CORRELATION_SOURCES} ${PLOTTING_SOURCES})
