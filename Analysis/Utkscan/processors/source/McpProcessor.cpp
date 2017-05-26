@@ -8,12 +8,6 @@
  * \date 02 Feb 2008
  * <STRONG>Modified : </strong> D. Miller 09-09
  */
-#ifdef useroot
-
-#include <TTree.h>
-
-#endif
-
 #include "DammPlotIds.hpp"
 #include "McpProcessor.hpp"
 #include "RawEvent.hpp"
@@ -39,8 +33,7 @@ void McpProcessor::McpData::Clear(void) {
     mult = 0;
 }
 
-McpProcessor::McpProcessor(void) : EventProcessor(OFFSET, RANGE,
-                                                  "McpProcessor") {
+McpProcessor::McpProcessor(void) : EventProcessor(OFFSET, RANGE, "McpProcessor") {
     associatedTypes.insert("mcp");
 }
 
@@ -55,8 +48,8 @@ void McpProcessor::DeclarePlots(void) {
 }
 
 
-bool McpProcessor::Process(RawEvent &event) {
-    if (!EventProcessor::Process(event))
+bool McpProcessor::PreProcess(RawEvent &event) {
+    if (!EventProcessor::PreProcess(event))
         return false;
 
     double qTotal, qRight, qTop;
@@ -69,7 +62,7 @@ bool McpProcessor::Process(RawEvent &event) {
         ChanEvent *chan = *it;
 
         string subtype = chan->GetChanID().GetSubtype();
-        double calEnergy = chan->GetCalEnergy();
+        double calEnergy = chan->GetCalibratedEnergy();
 
         if (subtype == "1time") {
             // do nothing
@@ -114,23 +107,3 @@ bool McpProcessor::Process(RawEvent &event) {
     EndProcess();
     return (data.mult == 4);
 }
-
-#ifdef useroot
-
-bool McpProcessor::AddBranch(TTree *tree) {
-    if (tree) {
-        TBranch *mcpBranch =
-                tree->Branch(name.c_str(), &data, "raw[4]/D:xpos:ypos:mult/I");
-
-        return (mcpBranch != NULL);
-    }
-
-    return false;
-}
-
-void McpProcessor::FillBranch(void) {
-    if (!HasEvent())
-        data.Clear();
-}
-
-#endif //useroot

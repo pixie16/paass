@@ -14,7 +14,7 @@ set(PROCESSOR_SOURCES
         LiquidScintProcessor.cpp
         #  LitePositionProcessor.cpp
         LogicProcessor.cpp
-        #  McpProcessor.cpp
+        McpProcessor.cpp
         #  NeutronProcessor.cpp
         NeutronScintProcessor.cpp
         PositionProcessor.cpp
