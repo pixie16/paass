@@ -13,25 +13,12 @@ public:
     McpProcessor();
 
     /** Declare the plots for the analysis */
-    virtual void DeclarePlots(void);
+    void DeclarePlots(void);
 
     /** Process the event
      * \param [in] rEvent : the event to process
      * \return true if the process was successful */
-    virtual bool Process(RawEvent &rEvent);
-
-#ifdef useroot
-
-    /** Add the branch to the tree
-    * \param [in] tree : the tree to add the branch to
-    * \return true if you could do it */
-    virtual bool AddBranch(TTree *tree);
-
-    /** Fill the branch */
-    virtual void FillBranch(void);
-
-#endif
-
+    bool PreProcess(RawEvent &rEvent);
 private:
     static const size_t nPos = 4; //!< number of positions
 
