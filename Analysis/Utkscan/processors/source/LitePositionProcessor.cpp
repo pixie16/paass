@@ -8,10 +8,11 @@
 #include <sstream>
 #include <vector>
 
-#include "PositionProcessor.hpp"
+#include "DammPlotIds.hpp"
 #include "DetectorLibrary.hpp"
-#include "RawEvent.hpp"
 #include "Messenger.hpp"
+#include "LitePositionProcessor.hpp"
+#include "RawEvent.hpp"
 
 using namespace std;
 
@@ -31,14 +32,10 @@ namespace dammIds {
     }
 }
 
-using namespace dammIds::position;
-
-//! @cond
-const string PositionProcessor::configFile("qdc.txt");
+using namespace dammIds::ssd;
 
 //! Initialize the qdc to handle ssd events
-LitePositionProcessor::PositionProcessor() :
-        EventProcessor(OFFSET, RANGE, "LitePositionProcessor") {
+LitePositionProcessor::LitePositionProcessor() : EventProcessor(OFFSET, RANGE, "LitePositionProcessor") {
     associatedTypes.insert("ssd");
 }
 //!@endcond
@@ -75,7 +72,7 @@ bool LitePositionProcessor::Init(RawEvent &event) {
     minNormQdc.resize(numLocations);
     maxNormQdc.resize(numLocations);
 
-    ifstream in(configFile.c_str());
+    ifstream in("qdc.txt");
     if (!in) {
         cerr << "Failed to open the QDC parameter file, QDC processor disabled."
              << endl;
@@ -89,9 +86,9 @@ bool LitePositionProcessor::Init(RawEvent &event) {
         in.ignore(1000, '\n');
         linesIgnored++;
     }
+
     if (linesIgnored != 0) {
-        cout << "Ignored " << linesIgnored << " comment lines in "
-             << configFile << endl;
+        cout << "Ignored " << linesIgnored << " comment lines in " << "qdc.txt" << endl;
     }
 
     for (int i = 0; i < numQdcs; i++)
@@ -282,16 +279,16 @@ bool LitePositionProcessor::Process(RawEvent &event) {
         float bottomQdcTot = 0;
         float position = NAN;
 
-        topQdc[0] = top->GetQdcValue(0);
-        bottomQdc[0] = bottom->GetQdcValue(0);
-        if (bottomQdc[0] == pixie::U_DELIMITER ||
-            topQdc[0] == pixie::U_DELIMITER) {
+        topQdc[0] = top->GetQdc().at(0);
+        bottomQdc[0] = bottom->GetQdc().at(0);
+        if (bottomQdc[0] == numeric_limits<unsigned int>::max() ||
+            topQdc[0] == numeric_limits<unsigned int>::max()) {
             // This happens naturally for traces which have double triggers
             //   Onboard DSP does not write QDCs in this case
 #ifdef VERBOSE
             cout << "SSD strip edges are missing QDC information for location " << location << endl;
 #endif
-            if (topQdc[0] == pixie::U_DELIMITER) {
+            if (topQdc[0] == numeric_limits<unsigned int>::max()) {
                 plot(D_INFO_LOCX + location, 1);
                 plot(D_INFO_LOCX + LOC_SUM, 1);
                 if (!top->GetTrace().empty()) {
@@ -302,7 +299,7 @@ bool LitePositionProcessor::Process(RawEvent &event) {
                     topQdc[0] = 0;
                 }
             }
-            if (bottomQdc[0] == pixie::U_DELIMITER) {
+            if (bottomQdc[0] == numeric_limits<unsigned int>::max()) {
                 plot(D_INFO_LOCX + location, 2);
                 plot(D_INFO_LOCX + LOC_SUM, 2);
                 if (!bottom->GetTrace().empty()) {
@@ -321,23 +318,23 @@ bool LitePositionProcessor::Process(RawEvent &event) {
         plot(D_INFO_LOCX + LOC_SUM, 0); // good stuff
 
         for (int i = 1; i < numQdcs; i++) {
-            if (top->GetQdcValue(i) == pixie::U_DELIMITER) {
+            if (top->GetQdc().at(i) == numeric_limits<unsigned int>::max()) {
                 topQdc[i] = accumulate(top->GetTrace().begin() + qdcPos[i - 1],
                                        top->GetTrace().begin() + qdcPos[i], 0);
             } else {
-                topQdc[i] = top->GetQdcValue(i);
+                topQdc[i] = top->GetQdc().at(i);
             }
 
             topQdc[i] -= topQdc[0] * qdcLen[i] / qdcLen[0];
             topQdcTot += topQdc[i];
             topQdc[i] /= qdcLen[i];
 
-            if (bottom->GetQdcValue(i) == pixie::U_DELIMITER) {
+            if (bottom->GetQdc().at(i) == numeric_limits<unsigned int>::max()) {
                 bottomQdc[i] = accumulate(
                         bottom->GetTrace().begin() + qdcPos[i - 1],
                         bottom->GetTrace().begin() + qdcPos[i], 0);
             } else {
-                bottomQdc[i] = bottom->GetQdcValue(i);
+                bottomQdc[i] = bottom->GetQdc().at(i);
             }
 
             bottomQdc[i] -= bottomQdc[0] * qdcLen[i] / qdcLen[0];
@@ -349,35 +346,32 @@ bool LitePositionProcessor::Process(RawEvent &event) {
             plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + LOC_SUM, topQdc[i],
                  bottomQdc[i]);
 
-            float frac =
-                    topQdc[i] / (topQdc[i] + bottomQdc[i]) * 1000.; // per mil
+            double frac = topQdc[i] / (topQdc[i] + bottomQdc[i]) * 1000.; // per mil
             plot(D_QDCNORMN_LOCX + QDC_JUMP * i + location, frac);
             plot(D_QDCNORMN_LOCX + QDC_JUMP * i + LOC_SUM, frac);
             if (i == whichQdc) {
-                position = posScale * (frac - minNormQdc[location]) /
-                           (maxNormQdc[location] - minNormQdc[location]);
-                sumchan->GetTrace().InsertValue("position", position);
+                position = posScale * (frac - minNormQdc[location]) / (maxNormQdc[location] - minNormQdc[location]);
+                //sumchan->GetTrace().InsertValue("position", position);
                 // plot(DD_POSITION, location, position);
                 plot(DD_POSITION__ENERGY_LOCX + location, position,
-                     sumchan->GetCalEnergy());
+                     sumchan->GetCalibratedEnergy());
                 plot(DD_POSITION__ENERGY_LOCX + LOC_SUM, position,
-                     sumchan->GetCalEnergy());
+                     sumchan->GetCalibratedEnergy());
             }
             if (i == 6 && !sumchan->IsSaturated()) {
                 // compare the long qdc to the energy
                 int qdcSum = topQdc[i] + bottomQdc[i];
 
                 // MAGIC NUMBERS HERE, move to qdc.txt
-                if (qdcSum < 1000 && sumchan->GetCalEnergy() > 15000) {
-                    sumchan->GetTrace().InsertValue("badqdc", 1);
+                if (qdcSum < 1000 && sumchan->GetCalibratedEnergy() > 15000) {
+                    //sumchan->GetTrace().InsertValue("badqdc", 1);
                 } else {
-                    plot(DD_POSITION, location,
-                         sumchan->GetTrace().GetValue("position"));
+                    //plot(DD_POSITION, location, sumchan->GetTrace().GetValue("position"));
                 }
                 plot(DD_QDCSUM__ENERGY_LOCX + location, qdcSum,
-                     sumchan->GetCalEnergy() / 10);
+                     sumchan->GetCalibratedEnergy() / 10);
                 plot(DD_QDCSUM__ENERGY_LOCX + LOC_SUM, qdcSum,
-                     sumchan->GetCalEnergy() / 10);
+                     sumchan->GetCalibratedEnergy() / 10);
             }
         } // end loop over qdcs
         topQdcTot /= totLen;
@@ -392,15 +386,13 @@ bool LitePositionProcessor::Process(RawEvent &event) {
     return true;
 }
 
-ChanEvent *LitePositionProcessor::FindMatchingEdge(ChanEvent *match,
-                                                   vector<ChanEvent *>::const_iterator begin,
+ChanEvent *LitePositionProcessor::FindMatchingEdge(ChanEvent *match, vector<ChanEvent *>::const_iterator begin,
                                                    vector<ChanEvent *>::const_iterator end) const {
     const float timeCut = 5.; // maximum difference between edge and sum timestamps
 
     for (; begin < end; begin++) {
-        if ((*begin)->GetChanID().GetLocation() ==
-            match->GetChanID().GetLocation() &&
-            abs((*begin)->GetTime() - match->GetTime()) < timeCut) {
+        if ((*begin)->GetChanID().GetLocation() == match->GetChanID().GetLocation() &&
+                abs((*begin)->GetTime() - match->GetTime()) < timeCut) {
             return *begin;
         }
     }

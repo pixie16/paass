@@ -11,6 +11,20 @@ class RawEvent;
 
 //! Handles detectors of type ssd:implant
 class ImplantSsdProcessor : public EventProcessor {
+public:
+    /** Default Constructor */
+    ImplantSsdProcessor();
+
+    /** Default Destructor */
+    ~ImplantSsdProcessor() {};
+
+    /** Declares the plots */
+    virtual void DeclarePlots(void);
+
+    /** Process an event
+    * \param [in] event : the event to process
+    * \return true if the processing was successful */
+    bool Process(RawEvent &event);
 private:
     static const double cutoffEnergy; ///< cutoff energy for implants versus decays
     static const double implantTof;   ///< minimum time-of-flight for an implant
@@ -38,21 +52,6 @@ private:
      * \param [in] info : the information to correlate
      * \param [in] location : the location for the correlations */
     void Correlate(Correlator &corr, EventInfo &info, int location);
-
-public:
-    /** Default Constructor */
-    ImplantSsdProcessor();
-
-    /** Default Destructor */
-    ~ImplantSsdProcessor() {};
-
-    /** Declares the plots */
-    virtual void DeclarePlots(void);
-
-    /** Process an event
-    * \param [in] event : the event to process
-    * \return true if the processing was successful */
-    virtual bool Process(RawEvent &event);
 };
 
 #endif // __IMPLANT_SSD_PROCESSOR_HPP_

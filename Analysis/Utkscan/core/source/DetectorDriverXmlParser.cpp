@@ -30,6 +30,7 @@
 #include "CloverCalibProcessor.hpp"
 #include "ImplantSsdProcessor.hpp"
 #include "IonChamberProcessor.hpp"
+#include "LitePositionProcessor.hpp"
 #include "LiquidScintProcessor.hpp"
 #include "LogicProcessor.hpp"
 #include "McpProcessor.hpp"
@@ -141,6 +142,8 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new McpProcessor());
         else if (name == "ImplantSsdProcessor")
             vecProcess.push_back(new ImplantSsdProcessor());
+        else if (name == "LitePositionProcessor")
+            vecProcess.push_back(new LitePositionProcessor());
 #ifdef useroot //Certain processors REQUIRE ROOT to actually work
         else if (name == "Anl1471Processor") {
             vecProcess.push_back(new Anl1471Processor());
