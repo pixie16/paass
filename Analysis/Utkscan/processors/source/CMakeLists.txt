@@ -12,7 +12,7 @@ set(PROCESSOR_SOURCES
         IonChamberProcessor.cpp
         #  LiquidProcessor.cpp
         LiquidScintProcessor.cpp
-        #  LitePositionProcessor.cpp
+        LitePositionProcessor.cpp
         LogicProcessor.cpp
         McpProcessor.cpp
         #  NeutronProcessor.cpp
