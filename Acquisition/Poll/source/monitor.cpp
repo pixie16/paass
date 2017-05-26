@@ -6,7 +6,6 @@
   * 
   * \date June 4th, 2015
   * 
-  * \version 1.0
 */
 
 #include <stdlib.h>

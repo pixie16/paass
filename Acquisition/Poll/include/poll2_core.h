@@ -11,9 +11,7 @@
   * \author Cory R. Thornsberry
   * 
   * \date Oct. 6th, 2015
-  * 
-  * \version 1.3.10
-*/
+  * */
 
 #ifndef POLL2_CORE_H
 #define POLL2_CORE_H

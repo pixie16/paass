@@ -12,7 +12,6 @@
   * 
   * \date Apr. 25th, 2017
   * 
-  * \version 1.3.11
 */
 
 #include <algorithm>
