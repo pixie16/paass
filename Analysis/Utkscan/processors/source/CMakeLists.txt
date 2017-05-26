@@ -24,7 +24,6 @@ set(PROCESSOR_SOURCES
         SsdProcessor.cpp
         TeenyVandleProcessor.cpp
         TemplateProcessor.cpp
-        #  ValidProcessor.cpp
         VandleProcessor.cpp
         )
 

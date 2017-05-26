@@ -42,6 +42,7 @@
 #include "ValidProcessor.hpp"
 
 //These headers are for handling experiment specific processing.
+#include "E11027Processor.hpp"
 #include "TemplateExpProcessor.hpp"
 #include "VandleOrnl2012Processor.hpp"
 
@@ -75,8 +76,7 @@ void DetectorDriverXmlParser::ParseNode(DetectorDriver *driver) {
     messenger_.done();
 }
 
-vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(
-        const pugi::xml_node &node) {
+vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xml_node &node) {
     std::vector<EventProcessor *> vecProcess;
 
     for (pugi::xml_node processor = node; processor;
@@ -138,7 +138,8 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(
             vecProcess.push_back(new TemplateProcessor());
         } else if (name == "TemplateExpProcessor") {
             vecProcess.push_back(new TemplateExpProcessor());
-        }
+        } else if (name == "E11027Processor")
+            vecProcess.push_back(new E11027Processor());
 #ifdef useroot //Certain processors REQUIRE ROOT to actually work
         else if (name == "Anl1471Processor") {
             vecProcess.push_back(new Anl1471Processor());
