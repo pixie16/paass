@@ -5,9 +5,7 @@
   * \author Cory R. Thornsberry
   * 
   * \date April 20th, 2015
-  * 
-  * \version 1.0
-*/
+  * */
 
 #include <iostream>
 #include <string.h>

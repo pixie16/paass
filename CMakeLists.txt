@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 
-project(PixieSuite C CXX Fortran)
+project(PAASS C CXX Fortran)
 
 #Set the C++ standard to c++11.
 set(CMAKE_CXX_STANDARD 11)

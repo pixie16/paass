@@ -16,7 +16,6 @@
   * 
   * \date Sept. 19th, 2016
   * 
-  * \version 1.3.00
 */
 
 #include <sstream>

@@ -9,7 +9,6 @@
   * 
   * \date Nov. 27th, 2015
   * 
-  * \version 1.2.03
 */
 
 #include <iostream>
