@@ -42,29 +42,6 @@ through a PACMAN interface (recommended).
 * CERN ROOT - MCA outputs into ROOT format (.root)
 * HRIBF - MCA and histogramming done with HRIBF output (.his)
 
-## Installation (assuming admin rights)
-1. (admin) Install PLX software: `/opt/plx/<VERSION>/`
-2. (admin) Create the PLX link: `ln -s /opt/plx/<VERSION>/PlxSdk /opt/plx/current`
-3. (admin) Install XIA firmware files: `/opt/xia/firmware/`
-4. (admin) Change XIA firmware directory group to acq: `chgrp -R acq /opt/xia/firmware/`
-5. (admin) Add acquisition user to acq group : `usermod -a -G acq <username>`
-6. (admin) Create the XIA link: `ln -s /opt/xia/firmware/<VERSION> /opt/xia/current`
-7. In PixieSuite2 base directory create the "build" directory: "`mkdir build`"
-8. Change to build directory and execute cmake: `cmake ../`
-9. If all goes well, "`make clean && make && sudo make install && sudo make config`".
-   Default install directory is `PixieSuite2/exec`
-
-*You should ensure that the PLX version and XIA firmware versions are compatible!*
-
-### Options for CMAKE Compilation
-* -DCMAKE\_INSTALL\_PREFIX (default PixieSuite2/exec)
-* -DUSE\_ROOT (default ON)
-* -DUSE\_DAMM (default ON)
-* -DUSE\_SETUP (default OFF)
-* -DUSE\_NCURSES (default ON; required for poll2)
-* -DUSE\_SCAN (default ON)
-* -DUSE\_POLL (default ON)
-
 ## Tested Systems
 The software has been compiled and tested on the following setups: 
 
@@ -95,7 +72,7 @@ this code without this license you should download it and familiarize yourself
 with its contents.
 
 # Copyright
-Copyright (c) 2009 - 2016, University of Tennessee Board of Trustees
+Copyright (c) 2009 - 2017, University of Tennessee Board of Trustees
 All rights reserved.
 
 This code was developed as part of the research efforts of the
