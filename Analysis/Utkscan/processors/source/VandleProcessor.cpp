@@ -114,7 +114,7 @@ bool VandleProcessor::Process(RawEvent &event) {
 
     plot(D_DEBUGGING, 30);
 
-    geSummary_ = event.GetSummary("ge");
+    geSummary_ = event.GetSummary("clover");
 
     static const vector<ChanEvent *> &betaStarts = event.GetSummary("beta_scint:beta")->GetList();
     static const vector<ChanEvent *> &liquidStarts = event.GetSummary("liquid:scint:start")->GetList();
