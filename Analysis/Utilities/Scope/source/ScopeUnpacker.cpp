@@ -63,7 +63,7 @@ ScopeUnpacker::ScopeUnpacker(const unsigned int &mod/*=0*/, const unsigned int &
     cfdPol2 = new TF1("cfdPol2", "pol2");
     cfdPol2->SetLineColor(kMagenta + 1);
 
-    SetupFunc();
+    SetupFittingFunctions();
 
     gStyle->SetPalette(51);
 
@@ -81,6 +81,10 @@ ScopeUnpacker::~ScopeUnpacker() {
     delete cfdPol2;
     delete hist;
     delete fittingFunction_;
+    delete crystalBallFunction_;
+    delete csiFunction_;
+    delete emCalTimingFunction_;
+    delete siPmtFastTimingFunction_;
     delete vandleTimingFunction_;
 }
 
@@ -107,7 +111,7 @@ void ScopeUnpacker::ResetGraph(const unsigned int &size) {
     resetGraph_ = false;
 }
 
-TF1 *ScopeUnpacker::SetupFunc() {
+TF1 *ScopeUnpacker::SetupFittingFunctions() {
     vandleTimingFunction_ = new VandleTimingFunction();
     fittingFunction_ = new TF1("func", vandleTimingFunction_, 0., 1.e6, 5);
     fittingFunction_->SetParNames("phase", "amplitude", "beta", "gamma", "baseline");

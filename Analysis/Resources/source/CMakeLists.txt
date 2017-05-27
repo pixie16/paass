@@ -10,7 +10,8 @@ if (PAASS_USE_GSL)
 endif (PAASS_USE_GSL)
 
 if (PAASS_USE_ROOT)
-    list(APPEND ResourceSources RootFitter.cpp VandleTimingFunction.cpp)
+    list(APPEND ResourceSources CrystalBallFunction.cpp CsiFunction.cpp EmCalTimingFunction.cpp SiPmtFastTimingFunction.cpp
+            RootFitter.cpp VandleTimingFunction.cpp)
 endif (PAASS_USE_ROOT)
 
 #Add the sources to the library
