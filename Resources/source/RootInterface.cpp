@@ -11,6 +11,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TGraph.h"
+#include "Math/MinimizerOptions.h"
 
 #include "RootInterface.hpp"
 
@@ -26,6 +27,7 @@ RootInterface *RootInterface::get() {
 RootInterface::RootInterface() {
     new TApplication("scanner", 0, NULL);
     canvas_ = new TCanvas("canvas", "");
+    ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2","Migrad");
 }
 
 RootInterface::~RootInterface() {
