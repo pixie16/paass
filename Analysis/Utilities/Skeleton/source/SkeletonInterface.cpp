@@ -9,6 +9,18 @@
 
 using namespace std;
 
+SkeletonInterface::SkeletonInterface() : ScanInterface() {
+    init = false;
+
+    auxillaryKnownArgumentMap_.insert(make_pair("mycmd1", "A useful terminal command."));
+    auxillaryKnownArgumentMap_.insert(make_pair("mycmd2",
+                                                "Usage : mycmd2 [param] | A useful terminal command with an optional argument."));
+    auxillaryKnownArgumentMap_.insert(make_pair("mycmd3",
+                                                "Usage : mycmd3 <param> | A useful terminal command with one argument."));
+    auxillaryKnownArgumentMap_.insert(make_pair("mycmd4", "Usage : mycmd4 <param1> <param2> | A useful terminal command with two"
+            " arguments."));
+}
+
 /** ExtraCommands is used to send command strings to classes derived
   * from ScanInterface. If ScanInterface receives an unrecognized
   * command from the user, it will pass it on to the derived class.
@@ -51,22 +63,6 @@ void SkeletonInterface::ExtraArguments() {
                   << userOpts.at(2).argument << "\"\n";
     if (userOpts.at(3).active)
         cout << msgHeader << "Using option --myarg4.\n";
-}
-
-/** CmdHelp is used to allow a derived class to print a help statement about
-  * its own commands. This method is called whenever the user enters 'help'
-  * or 'h' into the interactive terminal (if available).
-  * \param[in]  prefix_ String to append at the start of any output. Not used by default.
-  * \return Nothing.
-  */
-void SkeletonInterface::CmdHelp(const string &prefix_/*=""*/) {
-    cout << "   mycmd1                   - A useful terminal command.\n";
-    cout
-            << "   mycmd2 [param]           - A useful terminal command with an optional argument.\n";
-    cout
-            << "   mycmd3 <param>           - A useful terminal command with one argument.\n";
-    cout
-            << "   mycmd4 <param1> <param2> - A useful terminal command with two arguments.\n";
 }
 
 /** ArgHelp is used to allow a derived class to add a command line option

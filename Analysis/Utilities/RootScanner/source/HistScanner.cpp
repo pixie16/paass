@@ -6,6 +6,21 @@
 
 using namespace std;
 
+HistScanner::HistScanner(HistUnpacker *unpacker) {
+    unpacker_ = unpacker;
+
+    auxillaryKnownArgumentMap_.insert(make_pair("plot", "Usage1 : plot <mod> <chan> <val> [pad] | Usage 2 : plot <val> [pad] | "
+            "Plots a new histogram for module, chan, and value specified. If no pad is specified the plot is added to the "
+            "currently selected pad."));
+    auxillaryKnownArgumentMap_.insert(make_pair("refresh", "Usage : refresh [delayInSec] | Refreshes histograms after the "
+            "delay specified has elapsed. If no delay is specified a force refresh occurs."));
+    auxillaryKnownArgumentMap_.insert(make_pair("zero", "Usage : zero | Zeros all histograms and stored data."));
+    auxillaryKnownArgumentMap_.insert(make_pair("clear", "Usage : clear [padNum] | Removes all histograms on the specified pad"
+            ". If none are specified the canvas is cleared."));
+    auxillaryKnownArgumentMap_.insert(make_pair("divide", "Usage: divide <numPads> | Usage : divide <numXPads> <numYpads> | "
+            "Divides the canvas into the selected number of pads."));
+}
+
 /** Receive various status notifications from the scan.
   * \param[in] code_ The notification code passed from ScanInterface methods.
   * \return Nothing.
@@ -45,54 +60,7 @@ bool HistScanner::ExtraCommands(const string &cmd,
         unpacker_->ClearCommand(args);
     else if (cmd == "divide")
         unpacker_->DivideCommand(args);
-    else if (cmd == "help")
-        HelpCommand(args);
     else
         return false;
     return true;
-}
-
-void HistScanner::CmdHelp(const string &prefix) {
-    HelpCommand(vector<string>());
-}
-
-void HistScanner::HelpCommand(const vector<string> &args) {
-    if (args.size() == 1) {
-        if (args[0] == "plot") {
-            cout << "Usage: plot <mod> <chan> <expr> [pad]\n";
-            cout << "       plot <expr> [pad]\n";
-            cout
-                    << " Plots a new histogram for module, chan and expr specified.\n";
-            cout
-                    << " If no pad is specified the plot is added to the currently selected pad.\n";
-            return;
-        } else if (args[0] == "refresh") {
-            cout << "Usage: refresh [delayInSec]\n";
-            cout
-                    << " Refreshes the histograms after the delay specified has elapsed. If no delay is specified a force refresh occurs.\n";
-            return;
-        } else if (args[0] == "zero") {
-            cout << "Usage: zero\n";
-            cout << " Zeros all histograms and stored data.\n";
-            return;
-        } else if (args[0] == "clear") {
-            cout << "Usage: clear [padNum]\n";
-            cout
-                    << " Removes all histograms on the specified pad. If none specified the canvas is cleared.\n";
-            return;
-        } else if (args[0] == "divide") {
-            cout << "Usage: divide <numPads>\n";
-            cout << "       divide <numXPads> <numYPads>\n";
-            cout
-                    << " Divides the canvas in the selected number of pads.\n";
-            return;
-        }
-    }
-    cout << "Specific Commands:	\n";
-    cout << " plot    - Creates a plot.\n";
-    cout << " refresh - Refresh histograms.\n";
-    cout << " zero    - Zeros all plots and associated data.\n";
-    cout << " clear   - Removes the plots on a given pad.\n";
-    cout << " divide  - Divides the canvas into multiple pads.\n";
-    return;
 }

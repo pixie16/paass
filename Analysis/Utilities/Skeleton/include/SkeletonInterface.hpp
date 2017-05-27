@@ -14,9 +14,7 @@
 class SkeletonInterface : public ScanInterface {
 public:
     /// Default constructor.
-    SkeletonInterface() : ScanInterface() {
-        init = false;
-    }
+    SkeletonInterface();
 
     /// Destructor.
     ~SkeletonInterface(){
@@ -32,8 +30,7 @@ public:
       * \param[out] arg_ Vector or arguments to the user command.
       * \return True if the command was recognized and false otherwise.
       */
-    bool
-    ExtraCommands(const std::string &cmd_, std::vector<std::string> &args_);
+    bool ExtraCommands(const std::string &cmd_, std::vector<std::string> &args_);
 
     /** ExtraArguments is used to send command line arguments to classes derived
       * from ScanInterface. This method should loop over the optionExt elements
@@ -42,14 +39,6 @@ public:
       * \return Nothing.
       */
     void ExtraArguments();
-
-    /** CmdHelp is used to allow a derived class to print a help statement about
-      * its own commands. This method is called whenever the user enters 'help'
-      * or 'h' into the interactive terminal (if available).
-      * \param[in]  prefix_ String to append at the start of any output. Not used by default.
-      * \return Nothing.
-      */
-    void CmdHelp(const std::string &prefix_ = "");
 
     /** ArgHelp is used to allow a derived class to add a command line option
       * to the main list of options. This method is called at the end of

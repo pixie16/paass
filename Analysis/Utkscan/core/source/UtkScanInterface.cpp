@@ -54,14 +54,6 @@ bool UtkScanInterface::ExtraCommands(const string &cmd_,
     return (true);
 }
 
-/** CmdHelp is used to allow a derived class to print a help statement about
- * its own commands. This method is called whenever the user enters 'help'
- * or 'h' into the interactive terminal (if available).
- * \param[in]  prefix_ String to append at the start of any output. */
-void UtkScanInterface::CmdHelp() {
-    cout << "   mycmd <param> - Do something useful.\n";
-}
-
 /** SyntaxStr is used to print a linux style usage message to the screen.
  * \param[in]  name_ The name of the program.
  * \return Nothing. */

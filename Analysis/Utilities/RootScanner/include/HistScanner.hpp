@@ -7,7 +7,7 @@
 class HistScanner : public ScanInterface {
 public:
     /// @brief Default constructor.
-    HistScanner(HistUnpacker *unpacker) { unpacker_ = unpacker; }
+    HistScanner(HistUnpacker *unpacker);
 
     /// @brief Default destructor.
     ~HistScanner() {};
@@ -29,10 +29,6 @@ public:
 
 private:
     HistUnpacker *unpacker_;
-
-    void HelpCommand(const std::vector<std::string> &args);
-
-    void CmdHelp(const std::string &prefix);
 };
 
 #endif //HISTSCANNER_H

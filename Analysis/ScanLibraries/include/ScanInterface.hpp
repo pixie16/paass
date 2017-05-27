@@ -13,10 +13,12 @@
 #ifndef SCANINTERFACE_HPP
 #define SCANINTERFACE_HPP
 
+#include <deque>
+#include <map>
 #include <string>
 #include <sstream>
 #include <vector>
-#include <deque>
+
 #include <getopt.h>
 
 #include "hribf_buffers.h"
@@ -165,6 +167,9 @@ public:
     bool Close();
 
 protected:
+    std::map<std::string, std::string> knownArgumentMap_; //!< Arguments that are known by the parent class.
+    std::map<std::string, std::string> auxillaryKnownArgumentMap_; //!< Arguments that are supplied by the derived classes.
+
     std::string msgHeader; /// The string to print before program output.
     std::string progName; /// The name of the program.
 
@@ -189,10 +194,7 @@ protected:
       * \param[out] arg_ Vector or arguments to the user command. Not used by default.
       * \return True if the command was recognized and false otherwise. Returns false by default.
       */
-    virtual bool ExtraCommands(const std::string &cmd_,
-                               std::vector<std::string> &args_) {
-        return false;
-    }
+    virtual bool ExtraCommands(const std::string &cmd_, std::vector<std::string> &args_) { return false; }
 
     /** ExtraArguments is used to send command line arguments to classes derived
       * from ScanInterface. This method should loop over the optionExt elements
@@ -201,15 +203,6 @@ protected:
       * \return Nothing.
       */
     virtual void ExtraArguments() {}
-
-    /** CmdHelp is used to allow a derived class to print a help statement about
-      * its own commands. This method is called whenever the user enters 'help'
-      * or 'h' into the interactive terminal (if available).
-      * Does nothing useful by default.
-      * \param[in]  prefix_ String to append at the start of any output. Not used by default.
-      * \return Nothing.
-      */
-    virtual void CmdHelp(const std::string &prefix_ = "") {}
 
     /** ArgHelp is used to allow a derived class to add a command line option
       * to the main list of options. This method is called at the end of
@@ -255,9 +248,7 @@ protected:
       * \param[in]  overwrite_ Set to true if the user wishes to overwrite the output file. Not used by default.
       * \return True upon successfully opening the output file and false otherwise. Returns false by default.
       */
-    virtual bool InitRootOutput(std::string fname_, bool overwrite_ = true) {
-        return false;
-    }
+    virtual bool InitRootOutput(std::string fname_, bool overwrite_ = true) { return false; }
 
     /** Notify the unpacker object of a user action. This method should be
       * used in order to pass information to a class derived from Unpacker.
@@ -267,6 +258,19 @@ protected:
       */
     virtual void Notify(const std::string &code_ = "") {}
 
+    ///Print a help message for the provided argument
+    ///@param[in] arg : The argument that we've asked about
+    ///@param[in] help : A brief message about the argument.
+    void OutputCommandHelpArgument(const std::string &arg, const std::string &help);
+
+    ///Print a help message for the provided argument
+    ///@param[in] arg : The argument that we've asked about
+    ///@param[in] help : A brief message about the argument.
+    void OutputCommandHelpArguments(const std::map<std::string, std::string> &args);
+
+    ///Print a message when the user asks for help with an unkonwn command.
+    ///@param[in] arg : The argument that we didn't recognize
+    void OutputUnkownCommandMessage(const std::string &arg);
 private:
     unsigned int maxShmSizeL; /// Max size of shared memory buffer in pixie words (4050 + 2 header words)
     unsigned int maxShmSize; /// Max size of shared memory buffer in bytes
@@ -323,7 +327,7 @@ private:
     void stop_scan();
 
     /// Print a command line argument help dialogue.
-    void help(char *name_);
+    void OutputCommandLineHelp(char *name_);
 
     /// Seek to a specified position in the file.
     bool rewind(const unsigned long &offset_ = 0);
