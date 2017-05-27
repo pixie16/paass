@@ -23,14 +23,14 @@ ScopeScanner::ScopeScanner(ScopeUnpacker *unpacker) {
     auxillaryKnownArgumentMap_.insert(make_pair("single", "Perform a single capture."));
     auxillaryKnownArgumentMap_.insert(make_pair("thresh", "Usage: <low> [high] | Set the plotting window for trace maximum. "));
     auxillaryKnownArgumentMap_.insert(make_pair("fit", "Usage : fit <low> <high> | "
-                                                "Turn on fitting of waveform. Set <low> to \"off\" to disable."));
+            "Turn on fitting of waveform. Set <low> to \"off\" to disable."));
     auxillaryKnownArgumentMap_.insert(make_pair("cfd", "Usage : cfd <F> <D> [L] "
-                                                "Turn on cfd analysis of waveform. Set [F] to \"off\" to disable."));
+            "Turn on cfd analysis of waveform. Set [F] to \"off\" to disable."));
     auxillaryKnownArgumentMap_.insert(make_pair("avg", "Usage : avg <number> | Set the number of waveforms to average."));
     auxillaryKnownArgumentMap_.insert(make_pair("save", "Usage : save <fileName> | "
-                                                "Save the next trace to the specified file name. Do not provide the extension!"));
+            "Save the next trace to the specified file name. Do not provide the extension!"));
     auxillaryKnownArgumentMap_.insert(make_pair("delay", "Usage: delay <val> | "
-                                                "Set the delay between drawing traces in seconds. Default = 1 s)."));
+            "Set the delay between drawing traces in seconds. Default = 1 s)."));
     auxillaryKnownArgumentMap_.insert(make_pair("log", "Toggle log/linear mode on the y-axis."));
     auxillaryKnownArgumentMap_.insert(make_pair("clear", "Clear all stored traces and start over."));
 }
@@ -209,6 +209,12 @@ bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
     } else if (cmd_ == "clear") {
         unpacker_->ClearEvents();
         cout << msgHeader << "Event deque cleared.\n";
+    } else if (cmd_ == "func" || cmd_ == "funk") {
+        if (args_.size() == 1) {
+            if (!unpacker_->SelectFittingFunction(args_.at(0)))
+                cout << msgHeader << "Unknown fitting function requested." << endl;
+        } else
+            cout << msgHeader << "Invalid number of parameters. Usage : func <functionName>" << endl;
     } else
         return false;
 
