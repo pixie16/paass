@@ -63,35 +63,25 @@ void ScopeScanner::CmdHelp(const string &prefix_/*=""*/) {
     cout << "   stop                    - Stop the acquisition.\n";
     cout << "   run                     - Run the acquisition.\n";
     cout << "   single                  - Perform a single capture.\n";
-    cout
-            << "   thresh <low> [high]     - Set the plotting window for trace maximum.\n";
-    cout
-            << "   fit <low> <high>        - Turn on fitting of waveform. Set <low> to \"off\" to disable.\n";
-    cout
-            << "   cfd [F=0.5] [D=1] [L=1] - Turn on cfd analysis of waveform. Set [F] to \"off\" to disable.\n";
-    cout
-            << "   avg <numWaveforms>      - Set the number of waveforms to average.\n";
-    cout
-            << "   save <fileName>         - Save the next trace to the specified file name..\n";
-    cout
-            << "   delay [time]            - Set the delay between drawing traces (in seconds, default = 1 s).\n";
-    cout
-            << "   log                     - Toggle log/linear mode on the y-axis.\n";
-    cout
-            << "   clear                   - Clear all stored traces and start over.\n";
+    cout << "   thresh <low> [high]     - Set the plotting window for trace maximum.\n";
+    cout << "   fit <low> <high>        - Turn on fitting of waveform. Set <low> to \"off\" to disable.\n";
+    cout << "   cfd [F=0.5] [D=1] [L=1] - Turn on cfd analysis of waveform. Set [F] to \"off\" to disable.\n";
+    cout << "   avg <numWaveforms>      - Set the number of waveforms to average.\n";
+    cout << "   save <fileName>         - Save the next trace to the specified file name..\n";
+    cout << "   delay [time]            - Set the delay between drawing traces (in seconds, default = 1 s).\n";
+    cout << "   log                     - Toggle log/linear mode on the y-axis.\n";
+    cout << "   clear                   - Clear all stored traces and start over.\n";
 }
 
-/** ArgHelp is used to allow a derived class to add a command line option
-  * to the main list of options. This method is called at the end of
+/** ArgHelp is used to allow a derived class to add a command line option to the main list of options. This method is called at
+  * the end of
   * from the ::Setup method.
   * Does nothing useful by default.
   * \return Nothing.
   */
 void ScopeScanner::ArgHelp() {
-    AddOption(optionExt("mod", required_argument, NULL, 'M', "<module>",
-                        "Module of signal of interest (default=0)"));
-    AddOption(optionExt("chan", required_argument, NULL, 'C', "<channel>",
-                        "Channel of signal of interest (default=0)"));
+    AddOption(optionExt("mod", required_argument, NULL, 'M', "<module>", "Module of signal of interest (default=0)"));
+    AddOption(optionExt("chan", required_argument, NULL, 'C', "<channel>", "Channel of signal of interest (default=0)"));
 }
 
 /** SyntaxStr is used to print a linux style usage message to the screen.
@@ -112,11 +102,9 @@ void ScopeScanner::ExtraArguments() {
     unpacker_->SetModuleNumber(atoi(userOpts.at(0).argument.c_str()));
     unpacker_->SetChannelNumber(atoi(userOpts.at(1).argument.c_str()));
     if (userOpts.at(0).active)
-        cout << msgHeader << "Set module to ("
-             << userOpts.at(0).argument.c_str() << ").\n";
+        cout << msgHeader << "Set module to (" << userOpts.at(0).argument.c_str() << ").\n";
     if (userOpts.at(1).active)
-        cout << msgHeader << "Set channel to ("
-             << atoi(userOpts.at(1).argument.c_str()) << ").\n";
+        cout << msgHeader << "Set channel to (" << atoi(userOpts.at(1).argument.c_str()) << ").\n";
 }
 
 /** ExtraCommands is used to send command strings to classes derived
@@ -162,8 +150,7 @@ bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
         } else if (args_.size() == 2) { // Turn root fitting on.
             unpacker_->SetFitLow(atoi(args_.at(0).c_str()));
             unpacker_->SetFitHigh(atoi(args_.at(1).c_str()));
-            cout << msgHeader << "Setting root fitting range to ["
-                 << args_.at(0).c_str() << ", " << args_.at(1).c_str()
+            cout << msgHeader << "Setting root fitting range to [" << args_.at(0).c_str() << ", " << args_.at(1).c_str()
                  << "].\n";
             unpacker_->SetPerformFit(true);
         } else {
@@ -187,8 +174,7 @@ bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
             unpacker_->SetCfdDelay(atoi(args_.at(1).c_str()));
             unpacker_->SetCfdShift(atoi(args_.at(2).c_str()));
             unpacker_->SetPerformCfd(true);
-            cout << msgHeader << "Enabling cfd analysis with F="
-                 << args_.at(0).c_str() << ", D=" << args_.at(1).c_str()
+            cout << msgHeader << "Enabling cfd analysis with F=" << args_.at(0).c_str() << ", D=" << args_.at(1).c_str()
                  << ", L=" << args_.at(2).c_str() << endl;
         } else {
             cout << msgHeader << "Invalid number of parameters to 'cfd'\n";
