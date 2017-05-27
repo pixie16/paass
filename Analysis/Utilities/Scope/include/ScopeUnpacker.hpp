@@ -5,7 +5,11 @@
 #ifndef PIXIESUITE_SCOPEUNPACKER_HPP
 #define PIXIESUITE_SCOPEUNPACKER_HPP
 
+#include "CrystalBallFunction.hpp"
+#include "CsiFunction.hpp"
+#include "EmCalTimingFunction.hpp"
 #include "ProcessedXiaData.hpp"
+#include "SiPmtFastTimingFunction.hpp"
 #include "Unpacker.hpp"
 #include "VandleTimingFunction.hpp"
 
@@ -107,7 +111,6 @@ private:
     bool init;
 
     time_t last_trace; ///< The time of the last trace.
-    TF1 *SetupFunc();
 
     TGraph *graph; ///< The TGraph for plotting traces.
     TLine *cfdLine;
@@ -116,7 +119,12 @@ private:
     TH2F *hist; ///<The histogram containing the waveform frequencies.
     TProfile *prof; ///<The profile of the average histogram.
 
+    TF1 * SetupFittingFunctions();
     TF1 *fittingFunction_;
+    CrystalBallFunction *crystalBallFunction_;
+    CsiFunction *csiFunction_;
+    EmCalTimingFunction *emCalTimingFunction_;
+    SiPmtFastTimingFunction *siPmtFastTimingFunction_;
     VandleTimingFunction *vandleTimingFunction_;
 
     std::vector<int> x_vals;
