@@ -16,6 +16,23 @@ ScopeScanner::ScopeScanner(ScopeUnpacker *unpacker) {
     acqRun_ = true;
     init = false;
     running = true;
+
+    //We setup the commands that ScopeScanner knows about.
+    auxillaryKnownArgumentMap_.insert(make_pair("set", "Usage : set <module> <channel> | "
+            "Set the module and channel of signal of interest (default = 0, 0)."));
+    auxillaryKnownArgumentMap_.insert(make_pair("single", "Perform a single capture."));
+    auxillaryKnownArgumentMap_.insert(make_pair("thresh", "Usage: <low> [high] | Set the plotting window for trace maximum. "));
+    auxillaryKnownArgumentMap_.insert(make_pair("fit", "Usage : fit <low> <high> | "
+                                                "Turn on fitting of waveform. Set <low> to \"off\" to disable."));
+    auxillaryKnownArgumentMap_.insert(make_pair("cfd", "Usage : cfd <F> <D> [L] "
+                                                "Turn on cfd analysis of waveform. Set [F] to \"off\" to disable."));
+    auxillaryKnownArgumentMap_.insert(make_pair("avg", "Usage : avg <number> | Set the number of waveforms to average."));
+    auxillaryKnownArgumentMap_.insert(make_pair("save", "Usage : save <fileName> | "
+                                                "Save the next trace to the specified file name. Do not provide the extension!"));
+    auxillaryKnownArgumentMap_.insert(make_pair("delay", "Usage: delay <val> | "
+                                                "Set the delay between drawing traces in seconds. Default = 1 s)."));
+    auxillaryKnownArgumentMap_.insert(make_pair("log", "Toggle log/linear mode on the y-axis."));
+    auxillaryKnownArgumentMap_.insert(make_pair("clear", "Clear all stored traces and start over."));
 }
 
 /** Initialize the map file, the config file, the processor handler,
@@ -50,27 +67,6 @@ void ScopeScanner::Notify(const string &code_/*=""*/) {
         cout << msgHeader << "File loaded.\n";
     else
         cout << msgHeader << "Unknown notification code '" << code_ << "'!\n";
-}
-
-/** CmdHelp is used to allow a derived class to print a help statement about
-  * its own commands. This method is called whenever the user enters 'help'
-  * or 'h' into the interactive terminal (if available).
-  * \param[in]  prefix_ String to append at the start of any output. Not used by default.
-  * \return Nothing.
-  */
-void ScopeScanner::CmdHelp(const string &prefix_/*=""*/) {
-    cout << "   set <module> <channel>  - Set the module and channel of signal of interest (default = 0, 0).\n";
-    cout << "   stop                    - Stop the acquisition.\n";
-    cout << "   run                     - Run the acquisition.\n";
-    cout << "   single                  - Perform a single capture.\n";
-    cout << "   thresh <low> [high]     - Set the plotting window for trace maximum.\n";
-    cout << "   fit <low> <high>        - Turn on fitting of waveform. Set <low> to \"off\" to disable.\n";
-    cout << "   cfd [F=0.5] [D=1] [L=1] - Turn on cfd analysis of waveform. Set [F] to \"off\" to disable.\n";
-    cout << "   avg <numWaveforms>      - Set the number of waveforms to average.\n";
-    cout << "   save <fileName>         - Save the next trace to the specified file name..\n";
-    cout << "   delay [time]            - Set the delay between drawing traces (in seconds, default = 1 s).\n";
-    cout << "   log                     - Toggle log/linear mode on the y-axis.\n";
-    cout << "   clear                   - Clear all stored traces and start over.\n";
 }
 
 /** ArgHelp is used to allow a derived class to add a command line option to the main list of options. This method is called at
