@@ -1,12 +1,14 @@
 ///@file ScopeUnpacker.cpp
-///@brief
+///@brief Unpacker class for scope program
 ///@author S. V. Paulauskas
 ///@date May 19, 2017
-#include <ctime>
-#include <vector>
 #include <deque>
-#include <cmath>
+#include <fstream>
 #include <string>
+#include <vector>
+
+#include <cmath>
+#include <ctime>
 
 // Root files
 #include <TCanvas.h>
@@ -28,11 +30,8 @@
 using namespace std;
 using namespace TraceFunctions;
 
-#define ADC_TIME_STEP 4 // ns
-
 /// Default constructor.
-ScopeUnpacker::ScopeUnpacker(const unsigned int &mod/*=0*/,
-                             const unsigned int &chan/*=0*/) : Unpacker() {
+ScopeUnpacker::ScopeUnpacker(const unsigned int &mod/*=0*/, const unsigned int &chan/*=0*/) : Unpacker() {
     saveFile_ = "";
     mod_ = mod;
     chan_ = chan;
@@ -92,9 +91,7 @@ void ScopeUnpacker::ResetGraph(const unsigned int &size) {
     graph->SetMarkerStyle(kFullDotSmall);
 
     if (size != x_vals.size()) {
-        cout << "ScopeUnpacker::ResetGraph : " << "Changing trace length from "
-             << x_vals.size() << " to " << size
-             << " ns.\n";
+        cout << "ScopeUnpacker::ResetGraph : " << "Changing trace length from " << x_vals.size() << " to " << size << " ns.\n";
         x_vals.resize(size);
         for (size_t index = 0; index < x_vals.size(); index++)
             x_vals[index] = index;
@@ -112,10 +109,8 @@ void ScopeUnpacker::ResetGraph(const unsigned int &size) {
 
 TF1 *ScopeUnpacker::SetupFunc() {
     vandleTimingFunction_ = new VandleTimingFunction();
-    fittingFunction_ =
-            new TF1("func", vandleTimingFunction_, 0., 1.e6, 5);
-    fittingFunction_->SetParNames("phase", "amplitude", "beta", "gamma",
-                                  "baseline");
+    fittingFunction_ = new TF1("func", vandleTimingFunction_, 0., 1.e6, 5);
+    fittingFunction_->SetParNames("phase", "amplitude", "beta", "gamma", "baseline");
     return fittingFunction_;
 }
 
@@ -143,21 +138,17 @@ void ScopeUnpacker::ProcessRawEvent() {
             current_event->GetChannelNumber() != chan_)
             continue;
 
-        pair<double, double> baseline =
-                CalculateBaseline(current_event->GetTrace(), make_pair(0, 10));
-        pair<double, double> maximum = FindMaximum(current_event->GetTrace(),
-                                                   current_event->GetTrace().size());
+        pair<double, double> baseline = CalculateBaseline(current_event->GetTrace(), make_pair(0, 10));
+        pair<double, double> maximum = FindMaximum(current_event->GetTrace(), current_event->GetTrace().size());
         double qdc = CalculateQdc(current_event->GetTrace(), make_pair(5, 15));
 
-        if (maximum.second < threshLow_ ||
-            (threshHigh_ > threshLow_ && maximum.second > threshHigh_)) {
+        if (maximum.second < threshLow_ || (threshHigh_ > threshLow_ && maximum.second > threshHigh_)) {
             delete current_event;
             continue;
         }
 
         //Convert the XiaData object into a ProcessedXiaData object
-        ProcessedXiaData *channel_event =
-                new ProcessedXiaData(*current_event);
+        ProcessedXiaData *channel_event = new ProcessedXiaData(*current_event);
 
         channel_event->GetTrace().SetBaseline(baseline);
         channel_event->GetTrace().SetMax(maximum);
@@ -217,8 +208,7 @@ void ScopeUnpacker::Plot() {
 //        }
 
         if (performFit_) {
-            fittingFunction_->SetParameters(lowVal, 0.5 * trc.GetQdc(),
-                                            0.3, 0.1);
+            fittingFunction_->SetParameters(lowVal, 0.5 * trc.GetQdc(), 0.3, 0.1);
             fittingFunction_->FixParameter(4, trc.GetBaselineInfo().first);
             graph->Fit(fittingFunction_, "WRQ", "", lowVal, highVal);
         }
@@ -227,10 +217,8 @@ void ScopeUnpacker::Plot() {
         //Determine the maximum and minimum values of the events.
         for (unsigned int i = 0; i < numAvgWaveforms_; i++) {
             ProcessedXiaData *evt = chanEvents_.at(i);
-            float evtMin = *min_element(evt->GetTrace().begin(),
-                                        evt->GetTrace().end());
-            float evtMax = *max_element(evt->GetTrace().begin(),
-                                        evt->GetTrace().end());
+            float evtMin = *min_element(evt->GetTrace().begin(), evt->GetTrace().end());
+            float evtMax = *max_element(evt->GetTrace().begin(), evt->GetTrace().end());
             evtMin -= fabs(0.1 * evtMax);
             evtMax += fabs(0.1 * evtMax);
             if (evtMin < histAxis[1][0]) histAxis[1][0] = evtMin;
@@ -241,8 +229,7 @@ void ScopeUnpacker::Plot() {
         hist->Reset();
 
         //Rebin the histogram
-        hist->SetBins(x_vals.size(), x_vals.front(), x_vals.back(),
-                      histAxis[1][1] - histAxis[1][0],
+        hist->SetBins(x_vals.size(), x_vals.front(), x_vals.back(), histAxis[1][1] - histAxis[1][0],
                       histAxis[1][0], histAxis[1][1]);
 
         //Fill the histogram
@@ -261,12 +248,8 @@ void ScopeUnpacker::Plot() {
         double highVal = prof->GetBinCenter(prof->GetMaximumBin() + fitHigh_);
 
         if (performFit_) {
-            fittingFunction_->SetParameters(lowVal,
-                                            0.5 *
-                                            chanEvents_.front()->GetTrace().GetQdc(),
-                                            0.3, 0.1);
-            fittingFunction_->FixParameter(
-                    4, chanEvents_.front()->GetTrace().GetBaselineInfo().first);
+            fittingFunction_->SetParameters(lowVal, 0.5 * chanEvents_.front()->GetTrace().GetQdc(), 0.3, 0.1);
+            fittingFunction_->FixParameter(4, chanEvents_.front()->GetTrace().GetBaselineInfo().first);
             hist->Fit(fittingFunction_, "WRQ", "", lowVal, highVal);
         }
 
@@ -275,20 +258,13 @@ void ScopeUnpacker::Plot() {
         prof->Draw("SAMES");
 
         RootInterface::get()->UpdateZoom();
-
         RootInterface::get()->GetCanvas()->Update();
-        TPaveStats *stats =
-                (TPaveStats *) prof->GetListOfFunctions()->FindObject("stats");
+
+        TPaveStats *stats = (TPaveStats *) prof->GetListOfFunctions()->FindObject("stats");
         if (stats) {
             stats->SetX1NDC(0.55);
             stats->SetX2NDC(0.9);
         }
-    }
-
-    // Remove the events from the deque.
-    for (unsigned int i = 0; i < numAvgWaveforms_; i++) {
-        delete chanEvents_.front();
-        chanEvents_.pop_front();
     }
 
     // Update the canvas.
@@ -296,10 +272,21 @@ void ScopeUnpacker::Plot() {
 
     // Save the TGraph to a file.
     if (saveFile_ != "") {
-        TFile f(saveFile_.c_str(), "RECREATE");
+        TFile f((saveFile_+".root").c_str(), "RECREATE");
         graph->Clone("trace")->Write();
         f.Close();
+
+        ofstream ascii((saveFile_+".dat").c_str());
+        vector<unsigned int> trc = chanEvents_.front()->GetTrace();
+        for(vector<unsigned int>::iterator it = trc.begin(); it != trc.end(); it++)
+            ascii << int(it - trc.begin()) << " " << *it << endl;
         saveFile_ = "";
+    }
+
+    // Remove the events from the deque.
+    for (unsigned int i = 0; i < numAvgWaveforms_; i++) {
+        delete chanEvents_.front();
+        chanEvents_.pop_front();
     }
 
     numTracesDisplayed_++;
