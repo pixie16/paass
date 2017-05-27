@@ -7,7 +7,7 @@
 # ROOT_GUI_LIBRARIES  Most common gui libraries
 # ROOT_LIBRARY_DIR    PATH to the library directory 
 #
-#Last updated by K. Smith (ksmit218@utk.edu) on Apr 10, 2014
+#Last updated by S. V. Paulauskas (stanpaulauskas AT gmail DOT com) on May 27, 2017
 
 #Find the root-config executable
 set(ROOTSYS $ENV{ROOTSYS} CACHE Path "ROOT directory.")
@@ -44,6 +44,11 @@ if (ROOT_CONFIG_EXECUTABLE)
             OUTPUT_STRIP_TRAILING_WHITESPACE)
 
     set(ROOT_LIBRARY_DIR ${ROOTSYS}/lib)
+
+    execute_process(
+            COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-minuit2
+            OUTPUT_VARIABLE ROOT_HAS_MINUIT2
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif ()
 
 #---Report the status of finding ROOT-------------------

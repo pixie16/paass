@@ -56,7 +56,6 @@ option(PAASS_BUILD_SETUP "Include the older setup programs in installation" OFF)
 option(PAASS_BUILD_SHARED_LIBS "Install only scan libraries" ON)
 option(PAASS_BUILD_TESTS "Builds programs designed to test the package. Including UnitTest++ test." OFF)
 option(PAASS_BUILD_UTKSCAN "Build utkscan" OFF)
-
 option(PAASS_USE_DAMM "Use DAMM for MCA" ON)
 option(PAASS_USE_NCURSES "Use ncurses for terminal" ON)
 mark_as_advanced(PAASS_USE_NCURSES)
