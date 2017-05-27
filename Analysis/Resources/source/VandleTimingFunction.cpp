@@ -6,8 +6,7 @@
 
 #include "VandleTimingFunction.hpp"
 
-///This defines the stock VANDLE timing function. Here is a breakdown of the
-/// parameters:
+///This defines the stock VANDLE timing function. Here is a breakdown of the parameters:
 /// * p[0] = phase
 /// * p[1] = amplitude
 /// * p[2] = beta

@@ -4,7 +4,6 @@
 ///@date May 19, 2017
 #include <deque>
 #include <fstream>
-#include <string>
 #include <vector>
 
 #include <cmath>
@@ -23,7 +22,6 @@
 #include <TPaveStats.h>
 
 #include "HelperFunctions.hpp"
-#include "PolynomialCfd.hpp"
 #include "RootInterface.hpp"
 #include "ScopeUnpacker.hpp"
 
@@ -63,7 +61,7 @@ ScopeUnpacker::ScopeUnpacker(const unsigned int &mod/*=0*/, const unsigned int &
     cfdPol2 = new TF1("cfdPol2", "pol2");
     cfdPol2->SetLineColor(kMagenta + 1);
 
-    SetupFittingFunctions();
+    SelectFittingFunction("vandle");
 
     gStyle->SetPalette(51);
 
@@ -111,11 +109,30 @@ void ScopeUnpacker::ResetGraph(const unsigned int &size) {
     resetGraph_ = false;
 }
 
-TF1 *ScopeUnpacker::SetupFittingFunctions() {
-    vandleTimingFunction_ = new VandleTimingFunction();
-    fittingFunction_ = new TF1("func", vandleTimingFunction_, 0., 1.e6, 5);
-    fittingFunction_->SetParNames("phase", "amplitude", "beta", "gamma", "baseline");
-    return fittingFunction_;
+bool ScopeUnpacker::SelectFittingFunction(const std::string &func) {
+    if (func == "crystalball" || func == "cb") {
+        crystalBallFunction_ = new CrystalBallFunction();
+        fittingFunction_ = new TF1("func", crystalBallFunction_, 0., 1.e6, 6);
+        fittingFunction_->SetParNames("phase", "amplitude", "alpha", "n", "sigma", "baseline");
+    } else if (func == "csi") {
+        csiFunction_ = new CsiFunction();
+        fittingFunction_ = new TF1("func", csiFunction_, 0., 1.e6, 5);
+        fittingFunction_->SetParNames("phase", "amplitude", "n", "tau0", "baseline");
+    } else if (func == "emcal") {
+        emCalTimingFunction_ = new EmCalTimingFunction();
+        fittingFunction_ = new TF1("func", emCalTimingFunction_, 0., 1.e6, 5);
+        fittingFunction_->SetParNames("phase", "amplitude", "n", "tau", "baseline");
+    } else if (func == "sipm-fast") {
+        siPmtFastTimingFunction_ = new SiPmtFastTimingFunction();
+        fittingFunction_ = new TF1("func", siPmtFastTimingFunction_, 0., 1.e6, 4);
+        fittingFunction_->SetParNames("phase", "amplitude", "sigma", "baseline");
+    } else if (func == "vandle") {
+        vandleTimingFunction_ = new VandleTimingFunction();
+        fittingFunction_ = new TF1("func", vandleTimingFunction_, 0., 1.e6, 5);
+        fittingFunction_->SetParNames("phase", "amplitude", "beta", "gamma", "baseline");
+    } else
+        return false;
+    return true;
 }
 
 /** Process all events in the event list.
@@ -212,8 +229,8 @@ void ScopeUnpacker::Plot() {
 //        }
 
         if (performFit_) {
-            fittingFunction_->SetParameters(lowVal, 0.5 * trc.GetQdc(), 0.3, 0.1);
-            fittingFunction_->FixParameter(4, trc.GetBaselineInfo().first);
+            fittingFunction_->SetParameters(trc.GetMaxInfo().first, 0.5 * trc.GetQdc(), 0.4, 0.1, 4);
+            fittingFunction_->FixParameter(fittingFunction_->GetParNumber("baseline"), trc.GetBaselineInfo().first);
             graph->Fit(fittingFunction_, "WRQ", "", lowVal, highVal);
         }
     } else {
@@ -276,13 +293,13 @@ void ScopeUnpacker::Plot() {
 
     // Save the TGraph to a file.
     if (saveFile_ != "") {
-        TFile f((saveFile_+".root").c_str(), "RECREATE");
+        TFile f((saveFile_ + ".root").c_str(), "RECREATE");
         graph->Clone("trace")->Write();
         f.Close();
 
-        ofstream ascii((saveFile_+".dat").c_str());
+        ofstream ascii((saveFile_ + ".dat").c_str());
         vector<unsigned int> trc = chanEvents_.front()->GetTrace();
-        for(vector<unsigned int>::iterator it = trc.begin(); it != trc.end(); it++)
+        for (vector<unsigned int>::iterator it = trc.begin(); it != trc.end(); it++)
             ascii << int(it - trc.begin()) << " " << *it << endl;
         saveFile_ = "";
     }

@@ -78,6 +78,8 @@ public:
 
     void SetThreshHigh(const int &a) { threshHigh_ = a; }
 
+    bool SelectFittingFunction(const std::string &func);
+
     void ClearEvents();
 
 private:
@@ -86,8 +88,7 @@ private:
     unsigned int threshLow_;
     unsigned int threshHigh_;
     unsigned int numAvgWaveforms_;
-    unsigned int delayInSeconds_; /// The number of seconds to wait between
-/// drawing traces.
+    unsigned int delayInSeconds_; /// The number of seconds to wait between drawing traces.
     unsigned int numTracesDisplayed_; ///< The number of displayed traces.
     unsigned int numEvents_; /// The number of waveforms to store.
 
@@ -119,7 +120,6 @@ private:
     TH2F *hist; ///<The histogram containing the waveform frequencies.
     TProfile *prof; ///<The profile of the average histogram.
 
-    TF1 * SetupFittingFunctions();
     TF1 *fittingFunction_;
     CrystalBallFunction *crystalBallFunction_;
     CsiFunction *csiFunction_;
