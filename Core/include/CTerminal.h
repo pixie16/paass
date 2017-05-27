@@ -9,7 +9,6 @@
   * 
   * \date Oct. 1st, 2015
   * 
-  * \version 1.2.03
 */
 
 #ifndef CTERMINAL_H
