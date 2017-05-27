@@ -2,6 +2,7 @@
 ///@brief Provides an interface to ROOT for scan programs
 ///@author K. Smith and S. V. Paulauskas
 ///@date May 21, 2017
+#include <iostream>
 #include <limits>
 
 #include "TSystem.h"
@@ -27,7 +28,10 @@ RootInterface *RootInterface::get() {
 RootInterface::RootInterface() {
     new TApplication("scanner", 0, NULL);
     canvas_ = new TCanvas("canvas", "");
+#ifdef ROOT_HAS_MINUIT2
+    std::cout << "RootInterface::RootInterface - Setting MINUIT2 Minimizer" << std::endl;
     ROOT::Math::MinimizerOptions::SetDefaultMinimizer("Minuit2","Migrad");
+#endif
 }
 
 RootInterface::~RootInterface() {

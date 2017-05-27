@@ -2,6 +2,9 @@
 set(PaassResourceSources XmlInterface.cpp XmlParser.cpp)
 
 if (PAASS_USE_ROOT)
+    if(ROOT_HAS_MINUIT2)
+        add_definitions("-D ROOT_HAS_MINUIT2")
+    endif(ROOT_HAS_MINUIT2)
     list(APPEND PaassResourceSources RootInterface.cpp)
 endif (PAASS_USE_ROOT)
 
