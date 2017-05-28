@@ -54,29 +54,24 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
 }
 
 DetectorDriver::~DetectorDriver() {
-    for (vector<EventProcessor *>::iterator it = vecProcess.begin();
-         it != vecProcess.end(); it++)
+    for (vector<EventProcessor *>::iterator it = vecProcess.begin(); it != vecProcess.end(); it++)
         delete (*it);
     vecProcess.clear();
 
-    for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
-         it != vecAnalyzer.end(); it++)
+    for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin(); it != vecAnalyzer.end(); it++)
         delete (*it);
     vecAnalyzer.clear();
     instance = NULL;
 }
 
 void DetectorDriver::Init(RawEvent &rawev) {
-    for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
-         it != vecAnalyzer.end(); it++) {
+    for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin(); it != vecAnalyzer.end(); it++) {
         (*it)->Init();
         (*it)->SetLevel(20);
     }
 
-    for (vector<EventProcessor *>::iterator it = vecProcess.begin();
-         it != vecProcess.end(); it++) {
+    for (vector<EventProcessor *>::iterator it = vecProcess.begin(); it != vecProcess.end(); it++)
         (*it)->Init(rawev);
-    }
 
     walk_ = DetectorLibrary::get()->GetWalkCorrections();
     cali_ = DetectorLibrary::get()->GetCalibrations();
@@ -85,8 +80,7 @@ void DetectorDriver::Init(RawEvent &rawev) {
 void DetectorDriver::ProcessEvent(RawEvent &rawev) {
     plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
     try {
-        for (vector<ChanEvent *>::const_iterator it = rawev.GetEventList().begin();
-             it != rawev.GetEventList().end(); ++it) {
+        for (vector<ChanEvent *>::const_iterator it = rawev.GetEventList().begin(); it != rawev.GetEventList().end(); ++it) {
             PlotRaw((*it));
             ThreshAndCal((*it), rawev);
             PlotCal((*it));
@@ -108,34 +102,26 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
 
         //!First round is preprocessing, where process result must be guaranteed
         //!to not to be dependent on results of other Processors.
-        for (vector<EventProcessor *>::iterator iProc = vecProcess.begin();
-             iProc != vecProcess.end(); iProc++)
+        for (vector<EventProcessor *>::iterator iProc = vecProcess.begin(); iProc != vecProcess.end(); iProc++)
             if ((*iProc)->HasEvent())
                 (*iProc)->PreProcess(rawev);
         ///In the second round the Process is called, which may depend on other
         ///Processors.
-        for (vector<EventProcessor *>::iterator iProc = vecProcess.begin();
-             iProc != vecProcess.end(); iProc++)
+        for (vector<EventProcessor *>::iterator iProc = vecProcess.begin(); iProc != vecProcess.end(); iProc++)
             if ((*iProc)->HasEvent())
                 (*iProc)->Process(rawev);
         // Clear all places in correlator (if of resetable type)
-        for (map<string, Place *>::iterator it =
-                TreeCorrelator::get()->places_.begin();
+        for (map<string, Place *>::iterator it = TreeCorrelator::get()->places_.begin();
              it != TreeCorrelator::get()->places_.end(); ++it)
             if ((*it).second->resetable())
                 (*it).second->reset();
     } catch (GeneralException &e) {
         /// Any exception in activation of basic places, PreProcess and Process
         /// will be intercepted here
-        cout << endl
-             << Display::ErrorStr(
-                     "Exception caught at DetectorDriver::ProcessEvent")
-             << endl;
+        cout << endl << Display::ErrorStr("Exception caught at DetectorDriver::ProcessEvent") << endl;
         throw;
     } catch (GeneralWarning &w) {
-        cout << Display::WarningStr("Warning caught at "
-                                            "DetectorDriver::ProcessEvent")
-             << endl;
+        cout << Display::WarningStr("Warning caught at DetectorDriver::ProcessEvent") << endl;
         cout << "\t" << Display::WarningStr(w.what()) << endl;
     }
 }
@@ -155,20 +141,17 @@ void DetectorDriver::DeclarePlots() {
             DetectorLibrary *modChan = DetectorLibrary::get();
             DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
             DeclareHistogram1D(D_HAS_TRACE, S8, "channels with traces");
-            DeclareHistogram1D(D_SUBEVENT_GAP, SE,
-                               "Time Between Channels in 10 ns / bin");
-            DeclareHistogram1D(D_EVENT_LENGTH, SE,
-                               "Event Length in ns");
+            DeclareHistogram1D(D_SUBEVENT_GAP, SE, "Time Between Channels in 10 ns / bin");
+            DeclareHistogram1D(D_EVENT_LENGTH, SE, "Event Length in ns");
             DeclareHistogram1D(D_EVENT_GAP, SE, "Time Between Events in ns");
-            DeclareHistogram1D(D_EVENT_MULTIPLICITY, S7,
-                               "Number of Channels Event");
+            DeclareHistogram1D(D_EVENT_MULTIPLICITY, S7, "Number of Channels Event");
             DeclareHistogram1D(D_BUFFER_END_TIME, SE, "Buffer Length in ns");
             DetectorLibrary::size_type maxChan = modChan->size();
 
             for (DetectorLibrary::size_type i = 0; i < maxChan; i++) {
-                if (!modChan->HasValue(i)) {
+                if (!modChan->HasValue(i))
                     continue;
-                }
+
                 stringstream idstr;
 
                 const Identifier &id = modChan->at(i);
@@ -178,33 +161,23 @@ void DetectorDriver::DeclarePlots() {
                       << " - " << id.GetType()
                       << ":" << id.GetSubtype()
                       << " L" << id.GetLocation();
-                DeclareHistogram1D(D_RAW_ENERGY + i, SE,
-                                   ("RawE " + idstr.str()).c_str());
-                DeclareHistogram1D(D_FILTER_ENERGY + i, SE,
-                                   ("FilterE " + idstr.str()).c_str());
-                DeclareHistogram1D(D_SCALAR + i, SE,
-                                   ("Scalar " + idstr.str()).c_str());
+                DeclareHistogram1D(D_RAW_ENERGY + i, SE, ("RawE " + idstr.str()).c_str());
+                DeclareHistogram1D(D_FILTER_ENERGY + i, SE, ("FilterE " + idstr.str()).c_str());
+                DeclareHistogram1D(D_SCALAR + i, SE, ("Scalar " + idstr.str()).c_str());
                 if (Globals::get()->GetPixieRevision() == "A")
-                    DeclareHistogram1D(D_TIME + i, SE,
-                                       ("Time " + idstr.str()).c_str());
-                DeclareHistogram1D(D_CAL_ENERGY + i, SE,
-                                   ("CalE " + idstr.str()).c_str());
+                    DeclareHistogram1D(D_TIME + i, SE, ("Time " + idstr.str()).c_str());
+                DeclareHistogram1D(D_CAL_ENERGY + i, SE, ("CalE " + idstr.str()).c_str());
             }
         }
 
-        for (vector<TraceAnalyzer *>::const_iterator it = vecAnalyzer.begin();
-             it != vecAnalyzer.end(); it++) {
+        for (vector<TraceAnalyzer *>::const_iterator it = vecAnalyzer.begin(); it != vecAnalyzer.end(); it++)
             (*it)->DeclarePlots();
-        }
 
-        for (vector<EventProcessor *>::const_iterator it = vecProcess.begin();
-             it != vecProcess.end(); it++) {
+        for (vector<EventProcessor *>::const_iterator it = vecProcess.begin(); it != vecProcess.end(); it++)
             (*it)->DeclarePlots();
-        }
+
     } catch (exception &e) {
-        cout << Display::ErrorStr("Exception caught at "
-                                          "DetectorDriver::DeclarePlots")
-             << endl;
+        cout << Display::ErrorStr("Exception caught at DetectorDriver::DeclarePlots") << endl;
         throw;
     }
 }
@@ -228,10 +201,8 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
     if (!trace.empty()) {
         plot(D_HAS_TRACE, id);
 
-        for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
-             it != vecAnalyzer.end(); it++) {
+        for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin(); it != vecAnalyzer.end(); it++)
             (*it)->Analyze(trace, type, subtype, tags);
-        }
 
         //We are going to handle the filtered energies here.
         vector<double> filteredEnergies = trace.GetFilteredEnergies();
@@ -243,11 +214,8 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
         }
 
         //Saves the time in nanoseconds
-        chan->SetHighResTime(
-                (trace.GetPhase() * Globals::get()->GetAdcClockInSeconds() +
-                 chan->GetTimeSansCfd() *
-                 Globals::get()->GetFilterClockInSeconds())
-                * 1e9);
+        chan->SetHighResTime((trace.GetPhase() * Globals::get()->GetAdcClockInSeconds() +
+                chan->GetTimeSansCfd() * Globals::get()->GetFilterClockInSeconds()) * 1e9);
     } else {
         /// otherwise, use the Pixie on-board calculated energy and high res
         /// time is zero.
@@ -276,8 +244,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
         summary->AddEvent(chan);
 
     if (hasStartTag && type != "logic") {
-        summary =
-                rawev.GetSummary(type + ':' + subtype + ':' + "start", false);
+        summary = rawev.GetSummary(type + ':' + subtype + ':' + "start", false);
         if (summary != NULL)
             summary->AddEvent(chan);
     }
@@ -295,8 +262,7 @@ int DetectorDriver::PlotCal(const ChanEvent *chan) {
 }
 
 EventProcessor *DetectorDriver::GetProcessor(const std::string &name) const {
-    for (vector<EventProcessor *>::const_iterator it = vecProcess.begin();
-         it != vecProcess.end(); it++) {
+    for (vector<EventProcessor *>::const_iterator it = vecProcess.begin(); it != vecProcess.end(); it++) {
         if ((*it)->GetName() == name)
             return (*it);
     }

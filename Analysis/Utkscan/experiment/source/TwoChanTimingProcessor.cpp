@@ -8,6 +8,7 @@
 #include "DammPlotIds.hpp"
 #include "Globals.hpp"
 #include "HighResTimingData.hpp"
+#include "RawEvent.hpp"
 #include "TwoChanTimingProcessor.hpp"
 
 #include <TFile.h>

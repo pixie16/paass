@@ -1,13 +1,12 @@
 /** \file ChanEvent.hpp
  * \brief A Class to define what a channel event is
  */
-#ifndef __CHANEVENT_HPP
-#define __CHANEVENT_HPP
+#ifndef __CHANEVENT_HPP__
+#define __CHANEVENT_HPP__
 
 #include <vector>
 
 #include "ProcessedXiaData.hpp"
-#include "DetectorLibrary.hpp"
 #include "Identifier.hpp"
 #include "Globals.hpp"
 #include "Trace.hpp"
@@ -30,7 +29,7 @@ public:
     ///Constructor taking the base class as an argument so that we can set
     /// the trace information properly
     ///@param[in] evt : The event that we are going to assign here.
-    ChanEvent(XiaData &evt) : ProcessedXiaData(evt) {};
+    ChanEvent(XiaData &evt) : ProcessedXiaData(evt) {}
 
     ///Default Destructor
     ~ChanEvent() {}

@@ -26,8 +26,7 @@ namespace StringManipulation {
             return false;
         else {
             std::stringstream ss;
-            ss << "strings::to_bool: Could not convert string '"
-               << s << "' to bool" << std::endl;
+            ss << "strings::to_bool: Could not convert string '" << s << "' to bool" << std::endl;
             throw std::invalid_argument(ss.str());
         }
     }
@@ -37,8 +36,7 @@ namespace StringManipulation {
     ///@param [in] str : The string to break up
     ///@param [in] delimiter : character to break up on
     ///@return The vector of tokens
-    inline std::vector<std::string> TokenizeString(
-            const std::string &str, const std::string &delimiter) {
+    inline std::vector<std::string> TokenizeString(const std::string &str, const std::string &delimiter) {
         std::vector<std::string> tokenized;
         size_t current, next = -1;
         do {
