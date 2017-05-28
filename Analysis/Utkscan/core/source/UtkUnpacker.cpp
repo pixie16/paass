@@ -54,33 +54,25 @@ void UtkUnpacker::ProcessRawEvent() {
     if (eventCounter == 0)
         InitializeDriver(driver, modChan, systemStartTime);
     else if (eventCounter % 5000 == 0 || eventCounter == 1)
-        PrintProcessingTimeInformation(systemStartTime, times(&systemTimes),
-                                       GetEventStartTime(), eventCounter);
+        PrintProcessingTimeInformation(systemStartTime, times(&systemTimes), GetEventStartTime(), eventCounter);
 
     if (Globals::get()->HasRejectionRegion()) {
-        double eventTime = (GetEventStartTime() - GetFirstTime()) *
-                           Globals::get()->GetClockInSeconds();
+        double eventTime = (GetEventStartTime() - GetFirstTime()) * Globals::get()->GetClockInSeconds();
+        vector <pair<unsigned int, unsigned int>> rejectRegions = Globals::get()->GetRejectionRegions();
 
-        vector <pair<unsigned int, unsigned int>> rejectRegions =
-                Globals::get()->GetRejectionRegions();
-
-        for (vector<pair<unsigned int, unsigned int> >::iterator region =
-                rejectRegions.begin(); region != rejectRegions.end(); ++region)
+        for (vector<pair<unsigned int, unsigned int> >::iterator region = rejectRegions.begin();
+             region != rejectRegions.end(); ++region)
             if (eventTime > region->first && eventTime < region->second)
                 return;
     }
 
-    driver->plot(D_EVENT_GAP, (GetRealStopTime() - lastTimeOfPreviousEvent) *
-                              Globals::get()->GetClockInSeconds() * 1e9);
-    driver->plot(D_BUFFER_END_TIME, GetRealStopTime() *
-                                    Globals::get()->GetClockInSeconds() * 1e9);
-    driver->plot(D_EVENT_LENGTH, (GetRealStopTime() - GetRealStartTime()) *
-                                 Globals::get()->GetClockInSeconds() * 1e9);
+    driver->plot(D_EVENT_GAP, (GetRealStopTime() - lastTimeOfPreviousEvent) * Globals::get()->GetClockInSeconds() * 1e9);
+    driver->plot(D_BUFFER_END_TIME, GetRealStopTime() * Globals::get()->GetClockInSeconds() * 1e9);
+    driver->plot(D_EVENT_LENGTH, (GetRealStopTime() - GetRealStartTime()) * Globals::get()->GetClockInSeconds() * 1e9);
     driver->plot(D_EVENT_MULTIPLICITY, rawEvent.size());
 
     //loop over the list of channels that fired in this event
-    for (deque<XiaData *>::iterator it = rawEvent.begin();
-         it != rawEvent.end(); it++) {
+    for (deque<XiaData *>::iterator it = rawEvent.begin(); it != rawEvent.end(); it++) {
 
         if (!(*it))
             continue;
@@ -117,8 +109,7 @@ void UtkUnpacker::ProcessRawEvent() {
         usedDetectors.clear();
 
         // If a place has a resetable type then reset it.
-        for (map<string, Place *>::iterator it =
-                TreeCorrelator::get()->places_.begin();
+        for (map<string, Place *>::iterator it = TreeCorrelator::get()->places_.begin();
              it != TreeCorrelator::get()->places_.end(); ++it)
             if ((*it).second->resetable())
                 (*it).second->reset();

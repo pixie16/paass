@@ -34,22 +34,14 @@ endif (PAASS_UTKSCAN_VERBOSE)
 
 #------------------------------------------------------------------------------
 
-#Add the local include directories to the build tree
-include_directories(analyzers/include core/include experiment/include
-        processors/include)
-
-#Add the Analyzers to the build
+include_directories(analyzers/include core/include experiment/include processors/include)
 add_subdirectory(analyzers)
-#Add the core classes to the build
 add_subdirectory(core)
-#Add the experiment specific processors to the build
 add_subdirectory(experiment)
-#Add the processors to the build
 add_subdirectory(processors)
 
 #------------------------------------------------------------------------------
 
-#Create utkscan program
 if (NOT PAASS_USE_HRIBF)
     set(SCAN_NAME utkscan)
     add_executable(${SCAN_NAME}
@@ -70,23 +62,17 @@ else (PAASS_USE_HRIBF)
     target_link_libraries(utkscanor ${HRIBF_LIBRARIES})
 endif (NOT PAASS_USE_HRIBF)
 
-#Add libraries to be linked with utkscan
-target_link_libraries(${SCAN_NAME} ${LIBS} PaassScanStatic ResourceStatic
-        PaassCoreStatic PugixmlStatic PaassResourceStatic)
+target_link_libraries(${SCAN_NAME} ${LIBS} PaassScanStatic ResourceStatic PaassCoreStatic PugixmlStatic PaassResourceStatic)
 
-#If we have GSL installed link
 if (PAASS_USE_GSL)
     target_link_libraries(${SCAN_NAME} ${GSL_LIBRARIES})
 endif (PAASS_USE_GSL)
 
-#If ROOT is installed we'll link
 if (PAASS_USE_ROOT)
     target_link_libraries(${SCAN_NAME} ${ROOT_LIBRARIES})
 endif (PAASS_USE_ROOT)
 
 #------------------------------------------------------------------------------
 
-#Install utkscan to the bin directory
 install(TARGETS ${SCAN_NAME} DESTINATION bin)
-#Install configuration files to the share directory
 install(DIRECTORY share/utkscan DESTINATION share)

@@ -12,13 +12,14 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "Plots.hpp"
-#include "PlotsRegister.hpp"
-#include "DammPlotIds.hpp"
 
 #include "CloverCalibProcessor.hpp"
-#include "Messenger.hpp"
+#include "DammPlotIds.hpp"
+#include "DetectorLibrary.hpp"
 #include "Exceptions.hpp"
+#include "Messenger.hpp"
+#include "Plots.hpp"
+#include "PlotsRegister.hpp"
 
 
 namespace dammIds {

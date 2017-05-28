@@ -17,21 +17,17 @@ void RawEvent::Init(const std::set<std::string> &usedTypes) {
     DetectorSummary ds;
     ds.Zero();
 
-    for (set<string>::const_iterator it = usedTypes.begin();
-         it != usedTypes.end(); it++) {
+    for (set<string>::const_iterator it = usedTypes.begin(); it != usedTypes.end(); it++) {
         ds.SetName(*it);
         sumMap.insert(make_pair(*it, ds));
     }
 }
 
 void RawEvent::Zero(const std::set<std::string> &usedev) {
-    for (map<string, DetectorSummary>::iterator it = sumMap.begin();
-         it != sumMap.end(); it++) {
+    for (map<string, DetectorSummary>::iterator it = sumMap.begin(); it != sumMap.end(); it++)
         (*it).second.Zero();
-    }
 
-    for (vector<ChanEvent *>::iterator it = eventList.begin();
-         it != eventList.end(); it++)
+    for (vector<ChanEvent *>::iterator it = eventList.begin(); it != eventList.end(); it++)
         delete *it;
 
     eventList.clear();
@@ -67,8 +63,7 @@ const DetectorSummary *RawEvent::GetSummary(const std::string &s) const {
 
     if (it == sumMap.end()) {
         if (nullSummaries.count(s) == 0) {
-            cout << "Returning NULL const detector summary for type " << s
-                 << endl;
+            cout << "Returning NULL const detector summary for type " << s << endl;
             nullSummaries.insert(s);
         }
         return NULL;

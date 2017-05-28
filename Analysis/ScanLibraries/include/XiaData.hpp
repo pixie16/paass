@@ -1,6 +1,5 @@
 ///@file XiaData.cpp
-///@brief A class that holds information from the XIA LLC. Pixie-16 List
-/// Mode Data
+///@brief A class that holds information from the XIA LLC. Pixie-16 List Mode Data
 ///@authors C. R. Thornsberry and S. V. Paulauskas
 #ifndef XIADATA_HPP
 #define XIADATA_HPP
@@ -28,32 +27,24 @@ public:
     /// channel (i.e. the ID and Time are identical)
     ///@param[in] rhs : The right hand side of the comparison
     ///@return True if the two XiaData classes are equal.
-    bool operator==(const XiaData &rhs) const {
-        return GetId() == rhs.GetId() && GetTime() == rhs.GetTime();
-    }
+    bool operator==(const XiaData &rhs) const { return GetId() == rhs.GetId() && GetTime() == rhs.GetTime(); }
 
     ///@brief The conjugate of the equality operator
     ///@param[in] rhs : The right hand side for the comparison
     ///@return True if the two are not equal.
-    bool operator!=(const XiaData &rhs) const {
-        return !operator==(rhs);
-    }
+    bool operator!=(const XiaData &rhs) const { return !operator==(rhs); }
 
     ///@brief The less than operator that compares if the time of the current
     /// class is less than the time of the comparison class.
     ///@param[in] rhs : The right hand side for the comparison
     ///@return True if this instance arrived earlier than the right hand side.
-    bool operator<(const XiaData &rhs) const {
-        return GetTime() < rhs.GetTime();
-    }
+    bool operator<(const XiaData &rhs) const { return GetTime() < rhs.GetTime(); }
 
     ///@brief The conjugate of the less than operator
     ///@param[in] rhs : The right hand side for the comparison
     ///@return True if the right hand side arrived ealier than the left hand
     /// side.
-    bool operator>(const XiaData &rhs) const {
-        return !operator<(rhs);
-    }
+    bool operator>(const XiaData &rhs) const { return !operator<(rhs); }
 
     ///@brief A method that will compare the times of two XiaData classes
     /// this method can be used in conjunction with sorting methods
@@ -61,18 +52,14 @@ public:
     ///@param[in] rhs : A pointer to the right hand side of the comparison
     ///@return True if the time of arrival for right hand side is later than
     /// that of the left hand side.
-    static bool CompareTime(const XiaData *lhs, const XiaData *rhs) {
-        return lhs->GetTime() < rhs->GetTime();
-    }
+    static bool CompareTime(const XiaData *lhs, const XiaData *rhs) { return lhs->GetTime() < rhs->GetTime(); }
 
     ///@brief A method that will compare the unique ID of two XiaData classes
     ///@param[in] lhs : A pointer to the left hand side of the comparison
     ///@param[in] rhs : A pointer to the right hand side of the comparison
     ///@return Return true if left hand side has a lower ID than the right
     /// hand side.
-    static bool CompareId(const XiaData *lhs, const XiaData *rhs) {
-        return (lhs->GetId() < rhs->GetId());
-    }
+    static bool CompareId(const XiaData *lhs, const XiaData *rhs) { return (lhs->GetId() < rhs->GetId()); }
 
     ///@return The status of the CFD Forced Trigger Bit
     bool GetCfdForcedTriggerBit() const { return cfdForceTrig_; }
@@ -130,17 +117,12 @@ public:
     unsigned int GetExternalTimeLow() const { return externalTimeLow_; }
 
     ///@return The unique ID of the channel.
-    ///We can have a maximum of 208 channels in a crate, the first module
-    /// (#0) is always in the second slot of the crate, and we always have 16
-    /// channels
-    unsigned int GetId() const {
-        return crateNum_ * 208 + GetModuleNumber() * 16 + chanNum_;
-    }
+    ///We can have a maximum of 208 channels in a crate, the first module (#0) is always in the second slot of the crate, and
+    /// we always have 16 channels
+    unsigned int GetId() const { return crateNum_ * 208 + GetModuleNumber() * 16 + chanNum_; }
 
     ///@return the module number
-    unsigned int GetModuleNumber() const {
-        return slotNum_ - 2;
-    }
+    unsigned int GetModuleNumber() const { return slotNum_ - 2; }
 
     ///@return The slot that the module was in
     unsigned int GetSlotNumber() const { return slotNum_; }
