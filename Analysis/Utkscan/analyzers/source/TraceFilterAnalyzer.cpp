@@ -7,7 +7,7 @@
 
 #include "DammPlotIds.hpp"
 #include "Globals.hpp"
-#include "RandomPool.hpp"
+#include "RandomInterface.hpp"
 #include "TraceFilter.hpp"
 #include "TraceFilterAnalyzer.hpp"
 

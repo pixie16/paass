@@ -1,5 +1,5 @@
 add_executable(unittest-DetectorSummary unittest-DetectorSummary.cpp ../source/DetectorSummary.cpp ../source/ChanEvent.cpp
-        ../source/DetectorLibrary.cpp ../source/MapNodeXmlParser.cpp ../source/Messenger.cpp ../source/TreeCorrelator.cpp
+        ../source/DetectorLibrary.cpp ../source/MapNodeXmlParser.cpp ../source/TreeCorrelator.cpp
         ../source/Identifier.cpp ../source/TreeCorrelatorXmlParser.cpp ../source/WalkCorrector.cpp ../source/Calibrator.cpp
         ../source/PlaceBuilder.cpp ../source/Places.cpp ../source/RawEvent.cpp)
 target_link_libraries(unittest-DetectorSummary UnitTest++ PaassScanStatic PaassCoreStatic PugixmlStatic
