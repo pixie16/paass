@@ -7,18 +7,17 @@
 
 bool Messenger::endline_ = true;
 
-void Messenger::detail(std::string msg, short level /*= 0*/,
-                       std::string symbol /* = "*" */) {
+void Messenger::detail(std::string msg, short level /*= 0*/, std::string symbol /* = "*" */) {
     std::vector <std::string> lines;
-    int width = 61 - 4 * level - symbol.length();
+    unsigned long width = 120 - 4 * level - symbol.length();
     std::stringstream indention;
     for (short i = 0; i < level; ++i)
         indention << "    ";
     indention << "   ";
 
-    while ((int) msg.length() > 0) {
+    while (msg.length() > 0) {
         std::string line;
-        if ((int) msg.length() > width) {
+        if (msg.length() > width) {
             line = msg.substr(0, width);
             msg = msg.substr(width, msg.length());
         } else {
@@ -34,12 +33,9 @@ void Messenger::detail(std::string msg, short level /*= 0*/,
     }
 
     std::vector<std::string>::iterator it = lines.begin();
-    *out_ << std::left << std::setfill(' ')
-          << indention.str() << symbol << " "
-          << std::setw(width) << (*it++) << std::endl;
+    *out_ << std::left << std::setfill(' ') << indention.str() << symbol << " " << std::setw(width) << (*it++) << std::endl;
     for (; it != lines.end(); ++it)
-        *out_ << indention.str() << "  " << std::setw(width)
-              << *it << std::endl;
+        *out_ << indention.str() << "  " << std::setw(width) << *it << std::endl;
 }
 
 void Messenger::warning(std::string msg, short level) {

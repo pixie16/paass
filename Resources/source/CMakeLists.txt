@@ -1,5 +1,5 @@
 #Set the utility sources that we will make a lib out of
-set(PaassResourceSources XmlInterface.cpp XmlParser.cpp)
+set(PaassResourceSources Messenger.cpp Notebook.cpp RandomInterface.cpp XmlInterface.cpp XmlParser.cpp )
 
 if (PAASS_USE_ROOT)
     if(ROOT_HAS_MINUIT2)

@@ -20,7 +20,7 @@
 #include "EventProcessor.hpp"
 #include "Exceptions.hpp"
 #include "HighResTimingData.hpp"
-#include "RandomPool.hpp"
+#include "RandomInterface.hpp"
 #include "RawEvent.hpp"
 #include "TraceAnalyzer.hpp"
 #include "TreeCorrelator.hpp"
@@ -191,7 +191,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
     bool hasStartTag = chanId.HasTag("start");
     Trace &trace = chan->GetTrace();
 
-    RandomPool *randoms = RandomPool::get();
+    RandomInterface *randoms = RandomInterface::get();
 
     double energy = 0.0;
 
@@ -207,7 +207,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
         //We are going to handle the filtered energies here.
         vector<double> filteredEnergies = trace.GetFilteredEnergies();
         if (filteredEnergies.empty()) {
-            energy = chan->GetEnergy() + randoms->Get();
+            energy = chan->GetEnergy() + randoms->Generate();
         } else {
             energy = filteredEnergies.front();
             plot(D_FILTER_ENERGY + id, energy);
@@ -219,7 +219,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
     } else {
         /// otherwise, use the Pixie on-board calculated energy and high res
         /// time is zero.
-        energy = chan->GetEnergy() + randoms->Get();
+        energy = chan->GetEnergy() + randoms->Generate();
         chan->SetHighResTime(0.0);
     }
 
@@ -262,9 +262,8 @@ int DetectorDriver::PlotCal(const ChanEvent *chan) {
 }
 
 EventProcessor *DetectorDriver::GetProcessor(const std::string &name) const {
-    for (vector<EventProcessor *>::const_iterator it = vecProcess.begin(); it != vecProcess.end(); it++) {
+    for (vector<EventProcessor *>::const_iterator it = vecProcess.begin(); it != vecProcess.end(); it++)
         if ((*it)->GetName() == name)
             return (*it);
-    }
     return (NULL);
 }

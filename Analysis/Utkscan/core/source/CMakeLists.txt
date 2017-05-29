@@ -10,9 +10,6 @@ set(CORE_SOURCES
         GlobalsXmlParser.cpp
         Identifier.cpp
         MapNodeXmlParser.cpp
-        Messenger.cpp
-        Notebook.cpp
-        RandomPool.cpp
         RawEvent.cpp
         TimingCalibrator.cpp
         TimingMapBuilder.cpp

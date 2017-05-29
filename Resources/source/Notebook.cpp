@@ -4,7 +4,6 @@
 #include <ctime>
 
 #include "Exceptions.hpp"
-#include "Globals.hpp"
 #include "Messenger.hpp"
 #include "Notebook.hpp"
 #include "XmlInterface.hpp"
@@ -13,16 +12,13 @@
 Notebook *Notebook::instance = NULL;
 
 Notebook *Notebook::get() {
-    if (!instance) {
+    if (!instance)
         instance = new Notebook();
-    }
     return instance;
 }
 
 Notebook::Notebook() {
-    pugi::xml_node note =
-            XmlInterface::get()->GetDocument()->
-                    child("Configuration").child("Notebook");
+    pugi::xml_node note = XmlInterface::get()->GetDocument()->child("Configuration").child("Notebook");
 
     file_name_ = std::string(note.attribute("file").as_string());
     mode_ = std::string(note.attribute("mode").as_string("a"));
