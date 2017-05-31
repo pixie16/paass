@@ -505,7 +505,7 @@ bool GeProcessor::Process(RawEvent &event) {
     }
     bool hasBeta = false;
     try{
-        hasBeta = TreeCorrelator::get()->place("DoubleBeta1")->status();
+        hasBeta = TreeCorrelator::get()->place("Beta")->status();
     }catch (exception &ex) {
         cout << Display::ErrorStr("GeProcessor::Process - Exception caught "
                                           "while trying to get Beta status.\n");
