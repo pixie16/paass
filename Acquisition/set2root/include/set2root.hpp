@@ -24,8 +24,7 @@ public:
 
     parameter() : name(), offset() {}
 
-    parameter(const std::string &name_, const unsigned int &offset_) : name(
-            name_), offset(offset_) {}
+    parameter(const std::string &name_, const unsigned int &offset_) : name(name_), offset(offset_) {}
 
     std::string getName() { return name; }
 
