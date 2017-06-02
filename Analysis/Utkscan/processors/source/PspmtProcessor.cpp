@@ -1,3 +1,7 @@
+///@file PspmtProcessor.cpp
+///@brief Processes information from a Position Sensitive PMT.
+///@authors S. Go and S. V. Paulauskas
+///@date August 24, 2016
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
@@ -7,315 +11,173 @@
 #include <signal.h>
 #include <limits.h>
 
-#include "PspmtProcessor.hpp"
 #include "DammPlotIds.hpp"
+#include "PspmtProcessor.hpp"
 #include "Globals.hpp"
 #include "Messenger.hpp"
 
 using namespace std;
 using namespace dammIds::pspmt;
 
-namespace dammIds{
-    namespace pspmt{
-        
-        // OFFSET = 700//    
-        const int D_RAW1=0; //!< Raw 1
-        const int D_RAW2=1; //!< raw 2
-        const int D_RAW3=2; //!< raw 3
-        const int D_RAW4=3; //!< raw4 
-        const int D_RAWD=4; //!<raw dynode
-        const int D_SUM=5; //!< sum energy 
-        const int DD_POS1_RAW=6; //!< position 1 raw
-        const int DD_POS2_RAW=7; //!< position 2 raw
-        const int DD_POS1=8; //!< position 1 
-        const int DD_POS2=9; //!< position 2
-        
-        const int D_ENERGY_TRACE1=10; //!< Trace energy 1
-        const int D_ENERGY_TRACE2=11; //!< Trace Energy 2 
-        const int D_ENERGY_TRACE3=12; //!< Trace Energy 3
-        const int D_ENERGY_TRACE4=13; //!< Trace Energy 4
-        const int D_ENERGY_TRACED=14; //!< Trace energy dynode
-        const int D_ENERGY_TRACESUM=15; //!< Trace energy sum
-        const int DD_POS1_RAW_TRACE=16; //!< Trace  position 1 raw
-        const int DD_POS2_RAW_TRACE=17; //!<Trace position 2 raw
-        const int DD_POS1_TRACE=18; //!<Trace  position 1
-        const int DD_POS2_TRACE=19; //!<Trace  position 2
-        
-        const int D_QDC_TRACE1=20; //!<Trace qdc 1
-        const int D_QDC_TRACE2=21; //!<Trace qdc  2
-        const int D_QDC_TRACE3=22; //!<Trace  qdc 3
-        const int D_QDC_TRACE4=23; //!<Trace  qdc 4
-        const int D_QDC_TRACED=24; //!<Trace  qdc dynode
-        
-        const int DD_ESLEW=30; //!<ESLEW
-        
-        const int D_TEMP0=80; //!< temp 0
-        const int D_TEMP1=81; //!<temp 1
-        const int D_TEMP2=82; //!<temp 2
-        const int D_TEMP3=83; //!<temp 3
-        const int D_TEMP4=84; //!<temp 4
-        const int D_TEMP5=85; //!<temp 5
-        
-        const int DD_DOUBLE_TRACE=77; //!< Double traces
-        const int DD_SINGLE_TRACE=78; //!< Single traces
+namespace dammIds {
+    namespace pspmt {
+        const int DD_QDC = 0;
+        const int DD_POSITION_ENERGY = 1;
+        const int DD_POSITION_QDC = 2;
+        const int DD_POSITION_TRACE = 3;
     }
+} // namespace dammIds
+
+
+
+void PspmtProcessor::DeclarePlots(void) {
+    DeclareHistogram2D(DD_QDC, SD, S3, "QDC - Dynode 0 - Anodes 1-4");
+    DeclareHistogram2D(DD_POSITION_ENERGY, SB, SB, "Pos from Raw Energy");
+    DeclareHistogram2D(DD_POSITION_QDC, SB, SB, "Pos from QDC");
+    DeclareHistogram2D(DD_POSITION_TRACE, SB, SB, "Pos from TraceFilter");
 }
 
-void PspmtProcessor::PspmtData::Clear(void) {    
-}
+PspmtProcessor::PspmtProcessor(const std::string &vd, const double &scale,
+                               const unsigned int &offset,
+                               const double &threshold) :
+        EventProcessor(OFFSET, RANGE, "PspmtProcessor") {
+    if(vd == "SIB064_1018")
+        vdtype_ = SIB064_1018;
+    else if(vd == "SIB064_0926")
+        vdtype_ = SIB064_0926;
+    else
+        vdtype_ = UNKNOWN;
+    histogramScale_ = scale;
+    histogramOffset_ = offset;
+    threshold_ = threshold;
 
-PspmtProcessor::PspmtProcessor(void) : EventProcessor(OFFSET, RANGE, "PspmtProcessor") {
+    ///Associates this processor with the pspmt detector type
     associatedTypes.insert("pspmt");
 }
 
-void PspmtProcessor::DeclarePlots(void) {
-    const int posBins      = 32; 
-    const int energyBins   = 8192;
-    const int traceBins    = 128;
-    const int traceBins2   = 512;
-    const int Bins         = 2500;
-    
-    // Raw 700-707
-    DeclareHistogram1D(D_RAW1, energyBins, "Pspmt1 Raw");
-    DeclareHistogram1D(D_RAW2, energyBins, "Pspmt2 Raw");
-    DeclareHistogram1D(D_RAW3, energyBins, "Pspmt3 Raw");
-    DeclareHistogram1D(D_RAW4, energyBins, "Pspmt4 Raw");
-    DeclareHistogram1D(D_RAWD, energyBins, "Pspmt Dynode");
-    DeclareHistogram1D(D_SUM,  energyBins, "Pspmt Sum");
-    DeclareHistogram2D(DD_POS1_RAW, Bins, Bins, "Pspmt Pos1 Raw");
-    DeclareHistogram2D(DD_POS2_RAW, Bins, Bins, "Pspmt Pos2 Raw");
-    DeclareHistogram2D(DD_POS1, posBins, posBins, "Pspmt Pos1");
-    DeclareHistogram2D(DD_POS2, posBins, posBins, "Pspmt Pos2");
-    
-    // From QDC and traces 
-    // 710-
-    DeclareHistogram1D(D_ENERGY_TRACE1, energyBins, "Energy1 from trace");
-    DeclareHistogram1D(D_ENERGY_TRACE2, energyBins, "Energy2 from trace");
-    DeclareHistogram1D(D_ENERGY_TRACE3, energyBins, "Energy3 from trace");
-    DeclareHistogram1D(D_ENERGY_TRACE4, energyBins, "Energy4 from trace");
-    DeclareHistogram1D(D_ENERGY_TRACED, energyBins, "EnergyD from trace");
-    DeclareHistogram1D(D_ENERGY_TRACESUM,  energyBins, "Pspmt Sum");
-    DeclareHistogram2D(DD_POS1_RAW_TRACE, posBins, posBins, "Pspmt pos Raw by Trace1");
-    DeclareHistogram2D(DD_POS2_RAW_TRACE, posBins, posBins, "Pspmt pos Raw by Trace2");
-    DeclareHistogram2D(DD_POS1_TRACE, posBins, posBins, "Pspmt pos by Trace1");
-    DeclareHistogram2D(DD_POS2_TRACE, posBins, posBins, "Pspmt pos by Trace2");
-    
-    
-    // 720- QDC
-    DeclareHistogram1D(D_QDC_TRACE1, energyBins, "Energy1 from QDC");
-    DeclareHistogram1D(D_QDC_TRACE2, energyBins, "Energy2 from QDC");
-    DeclareHistogram1D(D_QDC_TRACE3, energyBins, "Energy3 from QDC");
-    DeclareHistogram1D(D_QDC_TRACE4, energyBins, "Energy4 from QDC");
-    DeclareHistogram1D(D_QDC_TRACED, energyBins, "EnergyD from QDC");
-    
-    // Simple Correlations
-    // DeclareHistogram2D(DD_ESLEW_X, energyBins, posBins,"X Map with slew");
-    //DeclareHistogram2D(DD_ESLEW_Y, energyBins, posBins,"Y Map with slew");
-    
-    // Trace
-    DeclareHistogram2D(DD_DOUBLE_TRACE, traceBins, traceBins2,"Double traces");
-    DeclareHistogram2D(DD_SINGLE_TRACE, traceBins, traceBins2,"Single trace");
-    
-    // For R&D
-    // DeclareHistogram2D(DD_TEMP0, Bins, Bins, "Sum gated position1");
-    DeclareHistogram1D(D_TEMP1, energyBins, "Pspmt1 Pgate");
-    DeclareHistogram1D(D_TEMP2, energyBins, "Pspmt2 Pgate");
-    DeclareHistogram1D(D_TEMP3, energyBins, "Pspmt3 Pgate");
-    DeclareHistogram1D(D_TEMP4, energyBins, "Pspmt4 Pgate");
-    DeclareHistogram1D(D_TEMP5, energyBins, "Dynode Pgate");
-}
-
-
-bool PspmtProcessor::PreProcess(RawEvent &event){
+bool PspmtProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
-    
-    static const vector<ChanEvent*> &pspmtEvents = sumMap["pspmt"]->GetList();
-    
-    data_.Clear();
-    
-    double q1=0,q2=0,q3=0,q4=0,qd=0;
-    double qdc1=0,qdc2=0,qdc3=0,qdc4=0,qdcd=0;
-    double tre1=0,tre2=0,tre3=0,tre4=0,tred=0;
-    
-    double qright=0,qleft=0,qtop=0,qbottom=0,qsum=0;
-    double xright=0,xleft=0,ytop=0,ybottom=0;
-    
-    double qtre_r=0,qtre_l=0,qtre_t=0,qtre_b=0,qtre_s=0;
-    double xtre_r=0,xtre_l=0,ytre_t=0,ytre_b=0;
-    
-    double qqdc_r=0,qqdc_l=0,qqdc_t=0,qqdc_b=0,qqdc_s=0;
-    //double xqdc_r=0,xqdc_l=0,yqdc_t=0,yqdc_b=0;
-    
-    double pxright=0,pxleft=0,pytop=0,pybottom=0;
-    double pxtre_r=0,pxtre_l=0,pytre_t=0,pytre_b=0;
-    
-    // tentatively local params //
-    double threshold=260;
-    double slope=0.0606;
-    double intercept=10.13;
-    //////////////////////////////
-    static int traceNum;
-    
-    double f=0.1;
-    
-    for (vector<ChanEvent*>::const_iterator it = pspmtEvents.begin();
-         it != pspmtEvents.end(); it++) {
-        
-        ChanEvent *chan   = *it;
-        string subtype    = chan->GetChanID().GetSubtype();
-        int    ch         = chan->GetChanID().GetLocation();
-        double calEnergy  = chan->GetCalibratedEnergy();
-        //double pspmtTime  = chan->GetTime();
-        Trace trace       = chan->GetTrace();
-        
-        double trace_energy;
-        //double trace_time;
-        //double baseline;
-        double qdc;
-        //int    num        = trace.GetValue("numPulses");
-        
-        if(!trace.GetFilteredEnergies().empty()){
-            traceNum++;   	  
-            //trace_time      = trace.GetValue("filterTime");
-            trace_energy  = trace.GetFilteredEnergies().front();
-            //baseline         = trace.GetValue("baseline");
-            qdc                 = trace.GetQdc();
-            
-            if(ch==0){
-                qdc1 = qdc;
-                tre1 = trace_energy;
-                plot(D_QDC_TRACE1,qdc1);
-                plot(D_ENERGY_TRACE1,tre1);
-            }else if(ch==1){
-                qdc2 = qdc;
-                tre2 = trace_energy; 
-                plot(D_QDC_TRACE2,qdc2);
-                plot(D_ENERGY_TRACE2,tre2);
-            }else if(ch==2){
-                qdc3 = qdc;
-                tre3 = trace_energy; 
-                plot(D_QDC_TRACE3,qdc3);
-                plot(D_ENERGY_TRACE3,tre3);
-            }else if(ch==3){
-                qdc4 = qdc;
-                tre4 = trace_energy; 	  
-                plot(D_QDC_TRACE4,qdc4);
-                plot(D_ENERGY_TRACE4,tre4);
-            }else if(ch==4){
-                qdcd = qdc;
-                tred = trace_energy; 
-                plot(D_QDC_TRACED,qdcd);
-                plot(D_ENERGY_TRACED,tred);
-            }
+
+    static const vector<ChanEvent *> &dynodeEvents =
+            event.GetSummary("pspmt:dynode")->GetList();
+    static const vector<ChanEvent *> &anodeEvents =
+            event.GetSummary("pspmt:anode")->GetList();
+
+    //If we do not have more than 4 anode events then something went awry. 
+    if (anodeEvents.size() > 4) {
+        EndProcess();
+        return false;
+    }
+
+    for(vector<ChanEvent *>::const_iterator it = dynodeEvents.begin();
+            it != dynodeEvents.end(); it++) {
+        plot(DD_QDC, (*it)->GetTrace().GetQdc(), 0);
+    }
+
+    //Define some maps that we will use to hold the information necessary to
+    // calculate the positions.
+    map<string, double> m_qdc, m_energy, m_trace;
+
+    //Define some values that we will use inside the loop repeatedly.
+    double qdc = 0, energy = 0, traceFilter = 0;
+
+    //Loop over all of the anode events to gather up all the values we need
+    // to calculate the position
+    for (vector<ChanEvent *>::const_iterator it = anodeEvents.begin();
+         it != anodeEvents.end(); it++) {
+
+        //Obtain the energy calculated by the Pixie-16 on-board trapezoidal
+        // filter.
+        energy = (*it)->GetCalibratedEnergy();
+
+        //We will skip this event if the energy is below threshold
+        if(energy < threshold_)
+            continue;
+
+        qdc = (*it)->GetTrace().GetQdc();
+        traceFilter = (*it)->GetTrace().GetQdc();
+
+        if ((*it)->GetChanID().HasTag("xa")) {
+            InsertMapValue(m_energy, "xa", energy);
+            InsertMapValue(m_qdc, "xa", qdc);
+            InsertMapValue(m_trace, "xa", traceFilter);
+            plot(DD_QDC, qdc, 1);
         }
 
-        if(ch==0){
-            q1= calEnergy;
-            plot(D_RAW1,q1);
-        }else if(ch==1){
-            q2= calEnergy;
-            plot(D_RAW2,q2);
-        }else if(ch==2){
-            q3= calEnergy;
-            plot(D_RAW3,q3);
-        }else if(ch==3){
-            q4= calEnergy;
-            plot(D_RAW4,q4);
-        }else if(ch==4){
-            qd= calEnergy;
-            plot(D_RAWD,qd);
+        if ((*it)->GetChanID().HasTag("xb")) {
+            InsertMapValue(m_energy, "xb", energy);
+            InsertMapValue(m_qdc, "xb", qdc);
+            InsertMapValue(m_trace, "xb", traceFilter);
+            plot(DD_QDC, qdc, 2);
         }
-        
-        if(q1>0 && q2>0 && q3>0 && q4>0){
-            qtop    = (q1+q2)/2;
-            qleft   = (q2+q3)/2;
-            qbottom = (q3+q4)/2;
-            qright  = (q4+q1)/2;
-            
-            qsum    = (q1+q2+q3+q4)/2;
-            xright  = (qright/qsum)*512+100;
-            xleft   = (qleft/qsum)*512+100;
-            ytop    = (qtop/qsum)*512+100;
-            ybottom = (qbottom/qsum)*512+100;
-            plot(D_SUM,qsum);
+
+        if ((*it)->GetChanID().HasTag("ya")) {
+            InsertMapValue(m_energy, "ya", energy);
+            InsertMapValue(m_qdc, "ya", qdc);
+            InsertMapValue(m_trace, "ya", traceFilter);
+            plot(DD_QDC, qdc, 3);
         }
-        
-        if(tre1>0 && tre2>0 && tre3>0 && tre4>0 ){
-            qtre_t=(tre1+tre2)/2;
-            qtre_l=(tre2+tre3)/2;
-            qtre_b=(tre3+tre4)/2;
-            qtre_r=(tre4+tre1)/2;
-            qtre_s=(tre1+tre2+tre3+tre4)/2;
-            
-            xtre_r=(qtre_r/qtre_s)*512+100;
-            xtre_l=(qtre_l/qtre_s)*512+100;
-            ytre_t=(qtre_t/qtre_s)*512+100;
-            ytre_b=(qtre_b/qtre_s)*512+100;
-            
-            pxtre_r = trunc(slope*xtre_l-intercept);
-            pxtre_l = trunc(slope*xtre_r-intercept);
-            pytre_t = trunc(slope*ytre_t-intercept);
-            pytre_b = trunc(slope*ytre_b-intercept);
-                        
-            plot(D_ENERGY_TRACESUM,qtre_s);
-            
-            if(tre1>threshold && tre2>threshold && tre3>threshold && tre4>threshold ){
-                plot(DD_POS1_RAW_TRACE,xtre_r,ytre_t);
-                plot(DD_POS2_RAW_TRACE,xtre_l,ytre_b);
-                plot(DD_POS1_TRACE,pxtre_r,pytre_t);
-                plot(DD_POS2_TRACE,pxtre_l,pytre_b);
-            }    
+
+        if ((*it)->GetChanID().HasTag("yb")) {
+            InsertMapValue(m_energy, "yb", energy);
+            InsertMapValue(m_qdc, "yb", qdc);
+            InsertMapValue(m_trace, "yb", traceFilter);
+            plot(DD_QDC, qdc, 4);
         }
-        
-        if(qdc1>0 && qdc2>0 && qdc3>0 && qdc4>0 ){
-            qqdc_t=(qdc1+qdc2)/2;
-            qqdc_l=(qdc2+qdc3)/2;
-            qqdc_b=(qdc3+qdc4)/2;
-            qqdc_r=(qdc4+qdc1)/2;
-            qqdc_s=(qqdc_t+qqdc_l+qqdc_b+qqdc_r)/2;
-            
-//            xqdc_r=(qqdc_r/qqdc_s)*512+100;
-//            xqdc_l=(qqdc_l/qqdc_s)*512+100;
-//            yqdc_t=(qqdc_t/qqdc_s)*512+100;
-//            yqdc_b=(qqdc_b/qqdc_s)*512+100;
-            
-            plot(D_ENERGY_TRACESUM,qqdc_s);
-        }
-        
-        if(q1>threshold && q2>threshold && q3>threshold && q4>threshold ){
-            pxleft   = trunc(slope*xleft-intercept);
-            pxright  = trunc(slope*xright-intercept);
-            pytop    = trunc(slope*ytop-intercept);
-            pybottom = trunc(slope*ybottom-intercept);
-            
-            plot(DD_POS1_RAW,xright,ytop);
-            plot(DD_POS2_RAW,xleft,ybottom);
-            plot(DD_POS1,pxright,pytop);
-            plot(DD_POS2,pxleft,pybottom);
-                        
-            if(xright>341 && xright < 356 && ytop>200 && ytop<211){
-                plot(D_TEMP0,f*q1);
-                plot(D_TEMP1,f*q2);
-                plot(D_TEMP2,f*q3);
-                plot(D_TEMP3,f*q4);
-                plot(D_TEMP4,f*qd);
-            }
-            
-            for(vector<unsigned int>::iterator ittr = trace.begin();
-                ittr != trace.end();ittr++)
-                plot(DD_SINGLE_TRACE,ittr-trace.begin(),traceNum,*ittr);
-        }
-    } // end of channel event
-    
+    }//for(vector<ChanEvent*>::const_iterator it = anodeEvents.begin();
+
+    if(m_energy.size() == 4)
+        posEnergy_ = CalculatePosition(m_energy, vdtype_);
+    if(m_qdc.size() == 4)
+        posQdc_ = CalculatePosition(m_qdc, vdtype_);
+    if(m_trace.size() == 4)
+        posTrace_ = CalculatePosition(m_trace, vdtype_);
+
+    plot(DD_POSITION_ENERGY, posEnergy_.first*histogramScale_+histogramOffset_,
+         posEnergy_.second*histogramScale_+histogramOffset_);
+    plot(DD_POSITION_QDC, posQdc_.first*histogramScale_+histogramOffset_,
+         posQdc_.second*histogramScale_+histogramOffset_);
+    plot(DD_POSITION_TRACE, posTrace_.first*histogramScale_+histogramOffset_,
+         posTrace_.second*histogramScale_+histogramOffset_);
+
     EndProcess();
-    return(true);
+    return true;
 }
 
-bool PspmtProcessor::Process(RawEvent &event){
-    if (!EventProcessor::Process(event))
-        return false;
+pair<double, double> PspmtProcessor::CalculatePosition(
+        const std::map<std::string, double> &map, const VDTYPES &vdtype) {
+    double x_val = 0, y_val = 0;
+    double xa = map.find("xa")->second;
+    double xb = map.find("xb")->second;
+    double ya = map.find("ya")->second;
+    double yb = map.find("yb")->second;
 
-    EndProcess();
-    return(true);
+    switch (vdtype) {
+        case SIB064_1018:
+            x_val = (0.5 * (yb + xa)) / (xa + xb + ya + yb);
+            y_val = (0.5 * (xa + xb)) / (xa + xb + ya + yb);
+            break;
+        case SIB064_0926:
+            x_val = (xa - xb) / (xa + xb);
+            y_val = (ya - yb) / (ya + yb);
+            break;
+        case UNKNOWN:
+        default:
+            cerr << "We received a VD_TYPE we didn't recognize"
+                 << vdtype << endl;
+            x_val = y_val = 0.0;
+    }
+    return make_pair(x_val, y_val);
+}
+
+pair<unsigned int,unsigned int> PspmtProcessor::CalculatePixel(
+        const std::pair<double, double> &pos) {
+    return make_pair(0,0);
+}
+
+pair<map<string, double>::iterator, bool> PspmtProcessor::InsertMapValue(
+        std::map<string, double> &map, const std::string &key, const double
+&value) {
+    return map.insert(make_pair(key, value));
 }

@@ -131,7 +131,11 @@ vector<EventProcessor*> DetectorDriverXmlParser::ParseProcessors(
         } else if (name == "DoubleBetaProcessor") {
             vecProcess.push_back(new DoubleBetaProcessor());
         } else if (name == "PspmtProcessor") {
-            vecProcess.push_back(new PspmtProcessor());
+            vecProcess.push_back(new PspmtProcessor(
+                    processor.attribute("vd").as_string(),
+                    processor.attribute("scale").as_double(512.0),
+                    processor.attribute("offset").as_double(512.0),
+                    processor.attribute("threshold").as_double(50.0)));
         } else if (name == "TemplateProcessor") {
             vecProcess.push_back(new TemplateProcessor());
         } else if (name == "TemplateExpProcessor") {
