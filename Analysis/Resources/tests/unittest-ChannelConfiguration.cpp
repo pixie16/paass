@@ -71,17 +71,26 @@ TEST_FIXTURE (ChannelConfiguration, Test_GetAndSetCfdPars) {
     SetCfdParameters(pars);
     CHECK (GetCfdParameters() == pars);
 }
+
 ///Testing the set/get for the Baseline Threshold
 TEST_FIXTURE (ChannelConfiguration, Test_GetAndSetBaselineThreshold) {
     double threshold = 12.;
     SetBaselineThreshold(threshold);
     CHECK (GetBaselineThreshold() == threshold);
 }
+
 ///Testing the set/get for the Waveform Range
 TEST_FIXTURE (ChannelConfiguration, Test_GetAndSetWaveformRange) {
     pair<unsigned int, unsigned int> range(12, 122);
     SetWaveformBoundsInSamples(range);
     CHECK (GetWaveformBoundsInSamples().first == range.first && GetWaveformBoundsInSamples().second == range.second);
+}
+
+///Testing the set/get for the Discrimination start value
+TEST_FIXTURE (ChannelConfiguration, Test_GetAndSetDiscriminationStart) {
+    double discrim = 12.;
+    SetDiscriminationStartInSamples(discrim);
+    CHECK (GetDiscriminationStartInSamples() == discrim);
 }
 
 ///Testing the set/get for tags

@@ -314,29 +314,22 @@ private:
     void InitializeMemberVariables(void);
 
     double adcClockInSeconds_; //!< adc clock in second
-    std::map<std::string, std::pair<double, double>> cfdPars_; //!< Map containing all of the parameters to be used in the cfd analyzer for a type:subtype
     double clockInSeconds_;//!< the ACQ clock in seconds
     std::string configFile_; //!< The configuration file
     unsigned int discriminationStart_;//!< starting sample for the n-gamma discrimination
     double eventLengthInSeconds_;//!< event width in seconds
     unsigned int eventLengthInTicks_; //!< the size of the events
     double filterClockInSeconds_;//!< filter clock in seconds
-    std::map<std::string, std::pair<double, double>> fitPars_; //!< Map containing all of the parameters to be used in the fitting analyzer for a type:subtype
     bool hasRawHistogramsDefined_; //!< True if we are plotting Raw Histograms
     std::string outputFilename_; //!<Output Filename
     std::string outputPath_; //!< The path to additional configuration files
     double qdcCompression_;//!< QDC compression factor for VANDLE related plots
     std::string revision_; //!< the pixie revision
-    double sigmaBaselineThresh_;//!< threshold on fitting for Std dev. of the baseline
-    double siPmSigmaBaselineThresh_;//!< threshold on fitting for Std dev. of the baseline for SiPMTs
     double sysClockFreqInHz_; //!< frequency of the system clock
     std::vector<std::pair<unsigned int, unsigned int>> reject_; ///< Rejection regions
-    unsigned int traceDelay_;//!< the trace delay in ns
-    std::map<std::string, std::pair<TrapFilterParameters, TrapFilterParameters>> trapFiltPars_; //!<Map containing all of the trapezoidal filter parameters for a given type:subtype
     double vandleBigSpeedOfLight_;//!< speed of light in big VANDLE bars in cm/ns
     double vandleMediumSpeedOfLight_;//!< speed of light in medium VANDLE bars in cm/ns
     double vandleSmallSpeedOfLight_;//!< speed of light in small VANDLE bars in cm/ns
-    std::map<std::string, std::pair<unsigned int, unsigned int>> waveformRanges_; //!< Map containing ranges for the waveforms
 };
 
 #endif // #ifdef _PAASS_GLOBALS_HPP_
