@@ -44,6 +44,9 @@ public:
     ///@return the tuple containing the CFD Parameters.
     std::tuple<double, double, double> GetCfdParameters() const { return cfdParameters_; }
 
+    ///@return The value of the starting position for particle discrimination in trace samples
+    unsigned int GetDiscriminationStartInSamples() const { return discriminationStartInSamples_; }
+
     ///@return the energy filter parameters
     TrapFilterParameters GetEnergyFilterParameters() const { return energyFilterParameters_; }
 
@@ -98,6 +101,9 @@ public:
     /// parameter for most of the algorithms.
     ///@param[in] a : the parameters that we want to set.
     void SetCfdParameters(std::tuple<double, double, double> &a) { cfdParameters_ = a; }
+
+    ///Sets the start position for the tail sums for doing particle discrimination
+    void SetDiscriminationStartInSamples(const unsigned int &a) { discriminationStartInSamples_ = a; }
 
     ///Sets the energy filter parameters
     ///@param [in] a : the parameters that we want to set
@@ -179,6 +185,7 @@ public:
 private:
     double baselineThreshold_; ///< The threshold for the baseline to handle noisy traces.
     std::tuple<double, double, double> cfdParameters_; ///< The parameters to be used with the CFD routines
+    unsigned int discriminationStartInSamples_; ///< The position from the max that we'll do particle discrimination
     TrapFilterParameters energyFilterParameters_; ///< Parameters to use for energy filter calculations
     std::pair<double, double> fittingParameters_; ///< The parameters to use for the fitting routines
     unsigned int location_; ///< Specifies the real world location of the channel.
