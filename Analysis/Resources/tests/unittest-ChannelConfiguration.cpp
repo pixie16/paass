@@ -33,6 +33,57 @@ TEST_FIXTURE (ChannelConfiguration, Test_GetAndSetSubtype) {
     CHECK (GetSubtype() == type);
 }
 
+///Testing the set/get for the Trace Delay
+TEST_FIXTURE (ChannelConfiguration, Test_GetAndSetTraceDelay) {
+    unsigned int delay = 123;
+    SetTraceDelayInSamples(delay);
+    CHECK (GetTraceDelayInSamples() == delay);
+}
+
+///Testing the set/get for the Fitting Parameters
+TEST_FIXTURE (ChannelConfiguration, Test_GetAndSetFittingPars) {
+    pair<double, double> pars(123., 124.);
+    SetFittingParameters(pars);
+    CHECK (GetFittingParameters() == pars);
+}
+
+///Testing the set/get for the Energy Filter Parameters
+TEST_FIXTURE (ChannelConfiguration, Test_GetAndSetEnergyFilterPars) {
+    TrapFilterParameters pars(111., 222., 333.);
+    SetEnergyFilterParameters(pars);
+    CHECK (GetEnergyFilterParameters().GetFlattop() == pars.GetFlattop() &&
+           GetEnergyFilterParameters().GetRisetime() == pars.GetRisetime() &&
+           GetEnergyFilterParameters().GetT() == pars.GetT() );
+}
+
+///Testing the set/get for the Trigger Filter Parameters
+TEST_FIXTURE (ChannelConfiguration, Test_GetAndSetTriggerFilterPars) {
+    TrapFilterParameters pars(111., 222., 333.);
+    SetTriggerFilterParameters(pars);
+    CHECK (GetTriggerFilterParameters().GetFlattop() == pars.GetFlattop() &&
+           GetTriggerFilterParameters().GetRisetime() == pars.GetRisetime() &&
+           GetTriggerFilterParameters().GetT() == pars.GetT() );
+}
+
+///Testing the set/get for the CFD parameters
+TEST_FIXTURE (ChannelConfiguration, Test_GetAndSetCfdPars) {
+    tuple<double, double, double> pars(123., 124., 222.);
+    SetCfdParameters(pars);
+    CHECK (GetCfdParameters() == pars);
+}
+///Testing the set/get for the Baseline Threshold
+TEST_FIXTURE (ChannelConfiguration, Test_GetAndSetBaselineThreshold) {
+    double threshold = 12.;
+    SetBaselineThreshold(threshold);
+    CHECK (GetBaselineThreshold() == threshold);
+}
+///Testing the set/get for the Waveform Range
+TEST_FIXTURE (ChannelConfiguration, Test_GetAndSetWaveformRange) {
+    pair<unsigned int, unsigned int> range(12, 122);
+    SetWaveformBoundsInSamples(range);
+    CHECK (GetWaveformBoundsInSamples().first == range.first && GetWaveformBoundsInSamples().second == range.second);
+}
+
 ///Testing the set/get for tags
 TEST_FIXTURE (ChannelConfiguration, Test_GetAndSetTag) {
     string tag = "unittest";
