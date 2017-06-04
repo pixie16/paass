@@ -1,7 +1,7 @@
 /** \file poll2_core.h
-  * 
+  *
   * \brief Controls the poll2 command interpreter and data acquisition system
-  * 
+  *
   * The Poll class is used to control the command interpreter
   * and data acqusition systems. Command input and the command
   * line interface of poll2 are handled by the external library
@@ -9,9 +9,11 @@
   * with the PixieInterface library.
   *
   * \author Cory R. Thornsberry
-  * 
+  *
   * \date Oct. 6th, 2015
-  * */
+  *
+  * \version 1.3.10
+*/
 
 #ifndef POLL2_CORE_H
 #define POLL2_CORE_H
@@ -20,8 +22,10 @@
 
 #include "PixieInterface.h"
 #include "hribf_buffers.h"
-
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
+
+#define POLL2_CORE_VERSION "1.4.14"
+#define POLL2_CORE_DATE "Aug. 17th, 2016"
 
 // Maximum length of UDP data packet (in bytes)
 #define MAX_ORPH_DATA 1464
@@ -31,7 +35,7 @@ typedef word_t eventdata_t[maxEventSize];
 
 class MCA;
 
-class MCA_args {
+class MCA_args{
 private:
     bool running;
     bool useRoot;
@@ -47,21 +51,21 @@ public:
 
     ~MCA_args();
 
-    bool IsRunning() { return running; }
+    bool IsRunning(){ return running; }
 
-    bool UseRoot() { return useRoot; }
+    bool UseRoot(){ return useRoot; }
 
-    int GetTotalTime() { return totalTime; }
+    int GetTotalTime(){ return totalTime; }
 
-    std::string GetBasename() { return basename; }
+    std::string GetBasename(){ return basename; }
 
-    MCA *GetMCA() { return mca; }
+    MCA *GetMCA(){ return mca; }
 
-    void SetUseRoot(bool state_ = true) { useRoot = state_; }
+    void SetUseRoot(bool state_=true){ useRoot = state_; }
 
-    void SetTotalTime(int totalTime_) { totalTime = totalTime_; }
+    void SetTotalTime(int totalTime_){ totalTime = totalTime_; }
 
-    void SetBasename(std::string basename_) { basename = basename_; }
+    void SetBasename(std::string basename_){ basename = basename_; }
 
     bool Initialize(PixieInterface *pif_);
 
@@ -80,26 +84,23 @@ struct UDP_Packet {
     unsigned char Data[MAX_ORPH_DATA]; /// The data to be transmitted
 };
 
-struct data_pack {
+struct data_pack{
     int Sequence; /// Sequence number for reliable transport
     int DataSize; /// Number of useable bytes in Data
     int TotalEvents; /// Total number of events
     unsigned short Events; /// Number of events in this packet
     unsigned short Cont; /// Continuation flag for large events
-    unsigned char Data[4 * (4050 + 4)]; /// The data to be transmitted
+    unsigned char Data[4*(4050 + 4)]; /// The data to be transmitted
     int BufLen; /// Length of original Pixie buffer
 };
 
 // Forward class declarations
 class StatsHandler;
-
 class Client;
-
 class Server;
-
 class Terminal;
 
-class Poll {
+class Poll{
 private:
     Terminal *poll_term_;
     ///A vector to store the partial events
@@ -186,8 +187,11 @@ private:
     /// Print help dialogue for reading/writing pixie module parameters.
     void pmod_help();
 
+    /// Print help dialogue for writing pixie DSP parameters.
+    void save_help();
+
     /// Start a data recording run.
-    bool start_run(const bool &record_ = true, const double &time_ = -1.0);
+    bool start_run(const bool &record_=true, const double &time_=-1.0);
 
     /// Stop an active data recording run.
     bool stop_run();
@@ -199,7 +203,7 @@ private:
     void show_thresh();
 
     /// Acquire raw traces from a pixie module.
-    void get_traces(int mod_, int chan_, int thresh_ = 0);
+    void get_traces(int mod_, int chan_, int thresh_=0);
 
     /// Method responsible for handling tab complete.
     std::vector<std::string> TabComplete(const std::string &value_, const std::vector<std::string> &valid_);
@@ -252,53 +256,53 @@ public:
     bool Initialize();
 
     // Set methods.
-    void SetBootFast(bool input_ = true) { boot_fast = input_; }
+    void SetBootFast(bool input_=true){ boot_fast = input_; }
 
-    void SetWallClock(bool input_ = true) { insert_wall_clock = input_; }
+    void SetWallClock(bool input_=true){ insert_wall_clock = input_; }
 
-    void SetQuietMode(bool input_ = true) { is_quiet = input_; }
+    void SetQuietMode(bool input_=true){ is_quiet = input_; }
 
-    void SetSendAlarm(bool input_ = true) { send_alarm = input_; }
+    void SetSendAlarm(bool input_=true){ send_alarm = input_; }
 
-    void SetShowRates(bool input_ = true) { show_module_rates = input_; }
+    void SetShowRates(bool input_=true){ show_module_rates = input_; }
 
-    void SetZeroClocks(bool input_ = true) { zero_clocks = input_; }
+    void SetZeroClocks(bool input_=true){ zero_clocks = input_; }
 
-    void SetDebugMode(bool input_ = true) { debug_mode = input_; }
+    void SetDebugMode(bool input_=true){ debug_mode = input_; }
 
-    void SetShmMode(bool input_ = true) { shm_mode = input_; }
+    void SetShmMode(bool input_=true){ shm_mode = input_; }
 
-    void SetPacmanMode(bool input_ = true) { pac_mode = input_; }
+    void SetPacmanMode(bool input_=true){ pac_mode = input_; }
 
-    void SetNcards(const size_t &n_cards_) { n_cards = n_cards_; }
+    void SetNcards(const size_t &n_cards_){ n_cards = n_cards_; }
 
-    void SetThreshWords(const size_t &thresh_) { threshWords = thresh_; }
+    void SetThreshWords(const size_t &thresh_){ threshWords = thresh_; }
 
     ///Set the terminal pointer.
-    void SetTerminal(Terminal *term) { poll_term_ = term; };
+    void SetTerminal(Terminal *term){ poll_term_ = term; };
 
     // Get methods.
-    bool GetBootFast() { return boot_fast; }
+    bool GetBootFast(){ return boot_fast; }
 
-    bool GetWallClock() { return insert_wall_clock; }
+    bool GetWallClock(){ return insert_wall_clock; }
 
-    bool GetQuietMode() { return is_quiet; }
+    bool GetQuietMode(){ return is_quiet; }
 
-    bool GetSendAlarm() { return send_alarm; }
+    bool GetSendAlarm(){ return send_alarm; }
 
-    bool GetShowRates() { return show_module_rates; }
+    bool GetShowRates(){ return show_module_rates; }
 
-    bool GetZeroClocks() { return zero_clocks; }
+    bool GetZeroClocks(){ return zero_clocks; }
 
-    bool GetDebugMode() { return debug_mode; }
+    bool GetDebugMode(){ return debug_mode; }
 
-    bool GetShmMode() { return shm_mode; }
+    bool GetShmMode(){ return shm_mode; }
 
-    bool GetPacmanMode() { return pac_mode; }
+    bool GetPacmanMode(){ return pac_mode; }
 
-    size_t GetNcards() { return n_cards; }
+    size_t GetNcards(){ return n_cards; }
 
-    size_t GetThreshWords() { return threshWords; }
+    size_t GetThreshWords(){ return threshWords; }
 
     ///\brief Prints the information about each module.
     void PrintModuleInfo();
@@ -319,8 +323,7 @@ public:
   *  \param[in]  msg_ Error message to print if the value is not numeric.
   *  \return true if the string is strictly numeric and false otherwise.
   */
-bool IsNumeric(const std::string &input_, const std::string &prefix_ = "",
-               const std::string &msg_ = "");
+bool IsNumeric(const std::string &input_, const std::string &prefix_="", const std::string &msg_="");
 
 /// Convert a rate number to more useful form.
 std::string humanReadable(double size);
