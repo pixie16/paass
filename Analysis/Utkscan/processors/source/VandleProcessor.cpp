@@ -44,19 +44,18 @@ namespace dammIds {
 using namespace std;
 using namespace dammIds::vandle;
 
-VandleProcessor::VandleProcessor() :
-        EventProcessor(OFFSET, RANGE, "VandleProcessor") {
+VandleProcessor::VandleProcessor() : EventProcessor(OFFSET, RANGE, "VandleProcessor") {
     associatedTypes.insert("vandle");
 }
 
 VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList, const double &res, const double &offset,
-                                 const unsigned int &numStarts) : EventProcessor(OFFSET, RANGE, "VandleProcessor") {
+                                 const unsigned int &numStarts, const double &compression/*=1.0*/) :
+        EventProcessor(OFFSET,RANGE,"VandleProcessor") {
     associatedTypes.insert("vandle");
     plotMult_ = res;
     plotOffset_ = offset;
-    qdcComp_ = Globals::get()->GetQdcCompression();
-
     numStarts_ = numStarts;
+    qdcComp_ = compression;
 
     if(typeList.empty())
         requestedTypes_.insert("small");

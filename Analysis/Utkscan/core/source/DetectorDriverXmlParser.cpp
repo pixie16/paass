@@ -63,9 +63,8 @@ void DetectorDriverXmlParser::ParseNode(DetectorDriver *driver) {
                     child("Configuration").child("DetectorDriver");
 
     if (!node)
-        throw invalid_argument(
-                "DetectorDriverXmlParser::ParseNode : The detector driver node "
-                        "could not be read! This is fatal.");
+        throw invalid_argument("DetectorDriverXmlParser::ParseNode : The detector driver node "
+                                       "could not be read! This is fatal.");
 
     messenger_.start("Loading Analyzers");
     driver->SetTraceAnalyzers(ParseAnalyzers(node.child("Analyzer")));
@@ -125,7 +124,7 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new VandleProcessor(
                     StringManipulation::TokenizeString(processor.attribute("types").as_string(), ","),
                     processor.attribute("res").as_double(2.0), processor.attribute("offset").as_double(1000.0),
-                    processor.attribute("NumStarts").as_uint(1)));
+                    processor.attribute("NumStarts").as_uint(1), processor.attribute("compression").as_double(1.0)));
         } else if (name == "TeenyVandleProcessor") {
             vecProcess.push_back(new TeenyVandleProcessor());
         } else if (name == "DoubleBetaProcessor") {
