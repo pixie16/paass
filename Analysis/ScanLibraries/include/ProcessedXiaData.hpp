@@ -23,6 +23,7 @@ public:
     ProcessedXiaData(XiaData &evt) : XiaData(evt) {
         trace_ = evt.GetTrace();
         trace_.SetIsSaturated(evt.IsSaturated());
+        walkCorrectedTime_ = 0;
     };
 
     /// Default Destructor.

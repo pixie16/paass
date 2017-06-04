@@ -39,7 +39,7 @@ DetectorSummary::DetectorSummary(const std::string &str, const std::vector<ChanE
     }
 
     for (vector<ChanEvent *>::const_iterator it = fullList.begin(); it != fullList.end(); it++) {
-        const Identifier &id = (*it)->GetChanID();
+        const ChannelConfiguration &id = (*it)->GetChanID();
         if ( id.GetType() != type_ )
             continue;
         if ( subtype_ != "" && id.GetSubtype() != subtype_ )

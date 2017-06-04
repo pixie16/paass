@@ -3,6 +3,8 @@
  * \author K. A. Miernik
  * \date January 22, 2013
  */
+#include <sstream>
+
 #include <cmath>
 
 #include "WalkCorrector.hpp"
@@ -10,10 +12,8 @@
 
 using namespace std;
 
-void WalkCorrector::AddChannel(const Identifier &chanID,
-                               const std::string &model,
-                               const double &min, const double &max,
-                               const std::vector<double> &par) {
+void WalkCorrector::AddChannel(const ChannelConfiguration &chanID, const std::string &model, const double &min,
+                               const double &max, const std::vector<double> &par) {
     CorrectionParams cf;
 
     unsigned required_parameters = 0;
@@ -107,8 +107,8 @@ void WalkCorrector::AddChannel(const Identifier &chanID,
     }
 }
 
-double WalkCorrector::GetCorrection(Identifier &chanID, double raw) const {
-    map < Identifier, vector < CorrectionParams > > ::const_iterator
+double WalkCorrector::GetCorrection(ChannelConfiguration &chanID, double raw) const {
+    map < ChannelConfiguration, vector < CorrectionParams > > ::const_iterator
     itch =
             channels_.find(chanID);
     if (itch != channels_.end()) {

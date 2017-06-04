@@ -27,9 +27,7 @@ public:
     * \param [in] aType : the type being analyze
     * \param [in] aSubtype : the subtype begin analyzed 
     * \param [in] tagMap : the map of tags for the channel */
-    virtual void Analyze(Trace &trace, const std::string &aType,
-                         const std::string &aSubtype,
-                         const std::map<std::string, int> &tagMap);
+    virtual void Analyze(Trace &trace, const ChannelConfiguration &cfg);
 
 private:
     std::string type; //!< the detector type

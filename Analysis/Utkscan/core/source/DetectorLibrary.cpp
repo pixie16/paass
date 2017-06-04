@@ -1,5 +1,5 @@
 ///@file DetectorLibrary.cpp
-///@brief Some useful function for managing the list of channel identifiers
+///@brief Some useful function for managing the list of channel channelConfigurations
 ///@author David Miller
 
 #include <algorithm>
@@ -9,6 +9,7 @@
 #include <map>
 #include <string>
 
+#include "Constants.hpp"
 #include "DetectorLibrary.hpp"
 #include "MapNodeXmlParser.hpp"
 #include "Messenger.hpp"
@@ -25,7 +26,7 @@ DetectorLibrary *DetectorLibrary::get() {
     return (instance);
 }
 
-DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations(), numModules(0) {
+DetectorLibrary::DetectorLibrary() : vector<ChannelConfiguration>(), locations(), numModules(0) {
     try {
         MapNodeXmlParser parser;
         parser.ParseNode(this);
@@ -35,29 +36,28 @@ DetectorLibrary::DetectorLibrary() : vector<Identifier>(), locations(), numModul
 }
 
 DetectorLibrary::const_reference DetectorLibrary::at(DetectorLibrary::size_type idx) const {
-    return vector<Identifier>::at(idx);
+    return vector<ChannelConfiguration>::at(idx);
 }
 
 DetectorLibrary::const_reference DetectorLibrary::at(DetectorLibrary::size_type mod, DetectorLibrary::size_type ch) const {
-    return vector<Identifier>::at(GetIndex(mod, ch));
+    return vector<ChannelConfiguration>::at(GetIndex(mod, ch));
 }
 
 DetectorLibrary::reference DetectorLibrary::at(DetectorLibrary::size_type idx) {
-    return vector<Identifier>::at(idx);
+    return vector<ChannelConfiguration>::at(idx);
 }
 
 DetectorLibrary::reference DetectorLibrary::at(DetectorLibrary::size_type mod, DetectorLibrary::size_type ch) {
-    return vector<Identifier>::at(GetIndex(mod, ch));
+    return vector<ChannelConfiguration>::at(GetIndex(mod, ch));
 }
 
-void DetectorLibrary::push_back(const Identifier &x) {
+void DetectorLibrary::push_back(const ChannelConfiguration &x) {
     mapkey_t key = MakeKey(x.GetType(), x.GetSubtype());
-
     locations[key].insert(x.GetLocation());
-    vector<Identifier>::push_back(x);
+    vector<ChannelConfiguration>::push_back(x);
 }
 
-const set<int> &DetectorLibrary::GetLocations(const Identifier &id) const {
+const set<int> &DetectorLibrary::GetLocations(const ChannelConfiguration &id) const {
     return GetLocations(id.GetType(), id.GetSubtype());
 }
 
@@ -70,11 +70,11 @@ const set<int> &DetectorLibrary::GetLocations(const std::string &type, const std
         return emptyLocations;
 }
 
-int DetectorLibrary::GetNextLocation(const Identifier &id) const {
+unsigned int DetectorLibrary::GetNextLocation(const ChannelConfiguration &id) const {
     return GetNextLocation(id.GetType(), id.GetSubtype());
 }
 
-int DetectorLibrary::GetNextLocation(const std::string &type, const std::string &subtype) const {
+unsigned int DetectorLibrary::GetNextLocation(const std::string &type, const std::string &subtype) const {
     mapkey_t key = MakeKey(type, subtype);
 
     if (locations.count(key) > 0) {
@@ -84,7 +84,7 @@ int DetectorLibrary::GetNextLocation(const std::string &type, const std::string 
     }
 }
 
-DetectorLibrary::size_type DetectorLibrary::GetIndex(int mod, int chan) const {
+unsigned int DetectorLibrary::GetIndex(int mod, int chan) const {
     return mod * Pixie16::maximumNumberOfChannels + chan;
 }
 
@@ -96,7 +96,7 @@ bool DetectorLibrary::HasValue(int index) const {
     return ((signed) size() > index && at(index).GetType() != "");
 }
 
-void DetectorLibrary::Set(int index, const Identifier &value) {
+void DetectorLibrary::Set(int index, const ChannelConfiguration &value) {
     if (knownDetectors.find(value.GetType()) == knownDetectors.end())
         knownDetectors.insert(value.GetType());
 
@@ -118,38 +118,29 @@ void DetectorLibrary::Set(int index, const Identifier &value) {
     at(index) = value;
 }
 
-void DetectorLibrary::Set(int mod, int ch, const Identifier &value) {
+void DetectorLibrary::Set(int mod, int ch, const ChannelConfiguration &value) {
     Set(GetIndex(mod, ch), value);
 }
 
-void DetectorLibrary::PrintMap(void) const {
-    cout << setw(4) << "MOD" << setw(4) << "CH";
-    Identifier::PrintHeaders();
-
-    for (size_t i = 0; i < size(); i++) {
-        cout << setw(4) << ModuleFromIndex(i) << setw(4) << ChannelFromIndex(i);
-        at(i).Print();
-    }
-}
-
-void DetectorLibrary::PrintUsedDetectors(RawEvent &rawev) const {
-    Messenger m;
-    stringstream ss;
-    ss << usedTypes.size() << " detector types are used in this analysis " << "and are named:";
-    m.detail(ss.str());
-    ss.str("");
-    copy(usedTypes.begin(), usedTypes.end(), ostream_iterator<string>(ss, " "));
-    m.detail(ss.str(), 1);
-    ss.str("");
-
-    ss << usedSubtypes.size() << " detector subtypes are used in this " << "analysis and are named:";
-    m.detail(ss.str());
-    ss.str("");
-    copy(usedSubtypes.begin(), usedSubtypes.end(), ostream_iterator<string>(ss, " "));
-    m.detail(ss.str(), 1);
-
-    rawev.Init(usedTypes);
-}
+///@TODO this needs moved to UtkUnpacker
+//void DetectorLibrary::PrintUsedDetectors(RawEvent &rawev) const {
+//    Messenger m;
+//    stringstream ss;
+//    ss << usedTypes.size() << " detector types are used in this analysis " << "and are named:";
+//    m.detail(ss.str());
+//    ss.str("");
+//    copy(usedTypes.begin(), usedTypes.end(), ostream_iterator<string>(ss, " "));
+//    m.detail(ss.str(), 1);
+//    ss.str("");
+//
+//    ss << usedSubtypes.size() << " detector subtypes are used in this " << "analysis and are named:";
+//    m.detail(ss.str());
+//    ss.str("");
+//    copy(usedSubtypes.begin(), usedSubtypes.end(), ostream_iterator<string>(ss, " "));
+//    m.detail(ss.str(), 1);
+//
+//    rawev.Init(usedTypes);
+//}
 
 const set <string> &DetectorLibrary::GetUsedDetectors(void) const {
     return usedTypes;

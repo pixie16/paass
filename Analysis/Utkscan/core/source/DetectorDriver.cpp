@@ -154,7 +154,7 @@ void DetectorDriver::DeclarePlots() {
 
                 stringstream idstr;
 
-                const Identifier &id = modChan->at(i);
+                const ChannelConfiguration &id = modChan->at(i);
 
                 idstr << "M" << modChan->ModuleFromIndex(i)
                       << " C" << modChan->ChannelFromIndex(i)
@@ -183,12 +183,12 @@ void DetectorDriver::DeclarePlots() {
 }
 
 int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
-    Identifier chanId = chan->GetChanID();
+    ChannelConfiguration chanCfg = chan->GetChanID();
     int id = chan->GetID();
-    string type = chanId.GetType();
-    string subtype = chanId.GetSubtype();
-    set<string> tags = chanId.GetTags();
-    bool hasStartTag = chanId.HasTag("start");
+    string type = chanCfg.GetType();
+    string subtype = chanCfg.GetSubtype();
+    set<string> tags = chanCfg.GetTags();
+    bool hasStartTag = chanCfg.HasTag("start");
     Trace &trace = chan->GetTrace();
 
     RandomInterface *randoms = RandomInterface::get();
@@ -202,7 +202,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
         plot(D_HAS_TRACE, id);
 
         for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin(); it != vecAnalyzer.end(); it++)
-            (*it)->Analyze(trace, type, subtype, tags);
+            (*it)->Analyze(trace, chanCfg);
 
         //We are going to handle the filtered energies here.
         vector<double> filteredEnergies = trace.GetFilteredEnergies();
@@ -227,13 +227,13 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
     double time, walk_correction;
     if (chan->GetHighResTimeInNs() == 0.0) {
         time = chan->GetTime(); //time is in clock ticks
-        walk_correction = walk_->GetCorrection(chanId, energy);
+        walk_correction = walk_->GetCorrection(chanCfg, energy);
     } else {
         time = chan->GetHighResTimeInNs(); //time here is in ns
-        walk_correction = walk_->GetCorrection(chanId, trace.GetQdc());
+        walk_correction = walk_->GetCorrection(chanCfg, trace.GetQdc());
     }
 
-    chan->SetCalibratedEnergy(cali_->GetCalEnergy(chanId, energy));
+    chan->SetCalibratedEnergy(cali_->GetCalEnergy(chanCfg, energy));
     chan->SetWalkCorrectedTime(time - walk_correction);
 
     rawev.GetSummary(type)->AddEvent(chan);

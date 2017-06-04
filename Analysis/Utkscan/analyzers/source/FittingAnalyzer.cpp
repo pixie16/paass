@@ -49,9 +49,8 @@ FittingAnalyzer::~FittingAnalyzer() {
     delete driver_;
 }
 
-void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType, const std::string &detSubtype,
-                              const std::set<std::string> &tagMap) {
-    TraceAnalyzer::Analyze(trace, detType, detSubtype, tagMap);
+void FittingAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
+    TraceAnalyzer::Analyze(trace, cfg);
 
     if (trace.IsSaturated() || trace.empty() || !trace.HasValidAnalysis()) {
         trace.SetPhase(0.0);
@@ -59,38 +58,12 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType, const st
         return;
     }
 
-    Globals *globals = Globals::get();
-
-    //We need to check and make sure that we don't need to use the timing
-    // functions for the SiPM fast signals
-    bool isFastSiPm = detType == "beta" && detSubtype == "double"
-                      && tagMap.find("timing") != tagMap.end();
-
-    if (!isFastSiPm) {
-        if (trace.GetBaselineInfo().second >
-            globals->GetSigmaBaselineThresh()) {
-            EndAnalyze();
-            return;
-        }
-    } else {
-        if (trace.GetBaselineInfo().second >
-            globals->GetSiPmSigmaBaselineThresh()) {
-            EndAnalyze();
-            return;
-        }
-    }
-
-    pair<double, double> pars = globals->GetFitPars(detType + ":" + detSubtype);
-    if (isFastSiPm)
-        pars = globals->GetFitPars(detType + ":" + detSubtype + ":timing");
-
     driver_->SetQdc(trace.GetQdc());
-    if (isFastSiPm)
-        driver_->SetIsFastSiPm(isFastSiPm);
-    double phase = driver_->CalculatePhase(trace.GetWaveform(), pars,
-                                           trace.GetMaxInfo(),
-                                           trace.GetBaselineInfo());
-    trace.SetPhase(phase + trace.GetMaxInfo().first);
 
+    if (cfg.GetType() == "beta" && cfg.GetSubtype() == "double" && cfg.HasTag("timing"))
+        driver_->SetIsFastSiPm(true);
+
+    trace.SetPhase(driver_->CalculatePhase(trace.GetWaveform(), cfg.GetFittingParameters(), trace.GetMaxInfo(),
+                                           trace.GetBaselineInfo()) + trace.GetMaxInfo().first);
     EndAnalyze();
 }

@@ -15,40 +15,28 @@ void BarBuilder::BuildBars(void) {
     ClearMaps();
     FillMaps();
 
-    for (map<unsigned int, unsigned int>::const_iterator it = lefts_.begin();
-         it != lefts_.end(); it++) {
-        map<unsigned int, unsigned int>::const_iterator mate = rights_.find(
-                it->first);
+    for (map<unsigned int, unsigned int>::const_iterator it = lefts_.begin(); it != lefts_.end(); it++) {
+        map<unsigned int, unsigned int>::const_iterator mate = rights_.find(it->first);
         if (mate == rights_.end())
             continue;
 
-        if (list_.at(it->second)->GetTrace().size() != 0 &&
-            list_.at(mate->second)->GetTrace().size() != 0) {
+        if (list_.at(it->second)->GetTrace().size() != 0 && list_.at(mate->second)->GetTrace().size() != 0) {
             TimingDefs::TimingIdentifier key =
-                    make_pair(it->first,
-                              list_.at(it->second)->GetChanID().GetSubtype());
-            hrtBars_.insert(make_pair(key,
-                                      BarDetector(HighResTimingData(
-                                              *(list_.at(it->second))),
-                                                  HighResTimingData(*(list_.at(
-                                                          mate->second))),
-                                                  key)));
+                    make_pair(it->first, list_.at(it->second)->GetChanID().GetSubtype());
+            hrtBars_.insert(make_pair(key, BarDetector(HighResTimingData(*(list_.at(it->second))),
+                                                       HighResTimingData(*(list_.at(mate->second))), key)));
         } else {
             lrtBars_.insert(make_pair(it->first,
-                                      make_pair(0.5 * (list_.at(
-                                              it->second)->GetWalkCorrectedTime() +
-                                                       list_.at(
-                                                               mate->second)->GetWalkCorrectedTime()),
-                                                sqrt(list_.at(
-                                                        it->second)->GetCalibratedEnergy() *
-                                                     list_.at(
-                                                             mate->second)->GetCalibratedEnergy()))));
+                                      make_pair(0.5 * (list_.at(it->second)->GetWalkCorrectedTime() +
+                                                        list_.at(mate->second)->GetWalkCorrectedTime()),
+                                                sqrt(list_.at(it->second)->GetCalibratedEnergy() *
+                                                             list_.at(mate->second)->GetCalibratedEnergy()))));
         }
     }
 }
 
 unsigned int BarBuilder::CalcBarNumber(const unsigned int &loc) {
-    return (loc / 2);
+    return loc / 2;
 }
 
 void BarBuilder::ClearMaps(void) {
@@ -59,9 +47,8 @@ void BarBuilder::ClearMaps(void) {
 }
 
 void BarBuilder::FillMaps(void) {
-    for (vector<ChanEvent *>::const_iterator it = list_.begin();
-         it != list_.end(); it++) {
-        Identifier id = (*it)->GetChanID();
+    for (vector<ChanEvent *>::const_iterator it = list_.begin(); it != list_.end(); it++) {
+        ChannelConfiguration id = (*it)->GetChanID();
         unsigned int barNum = CalcBarNumber(id.GetLocation());
         unsigned int idx = (unsigned int) (it - list_.begin());
         if (id.HasTag("left") || id.HasTag("up") || id.HasTag("top"))

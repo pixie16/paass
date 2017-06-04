@@ -39,21 +39,17 @@ void TraceFilterAnalyzer::DeclarePlots(void) {
     DeclareHistogram2D(DD_PILEUP, traceBins, S7, "Rejected Traces");
 }
 
-void TraceFilterAnalyzer::Analyze(Trace &trace, const std::string &type, const std::string &subtype,
-                                  const std::set<std::string> &tags) {
-    TraceAnalyzer::Analyze(trace, type, subtype, tags);
+void TraceFilterAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
+    TraceAnalyzer::Analyze(trace, cfg);
     Globals *globs = Globals::get();
     static int numTrigFilters = 0;
     static int numRejected = 0;
     static int numPileup = 0;
     static unsigned short numTraces = S7;
 
-    pair<TrapFilterParameters, TrapFilterParameters> pars =
-            globs->GetFilterPars(type + ":" + subtype);
-
     //Want to put filter clock units of ns/Sample
-    TraceFilter filter(globs->GetFilterClockInSeconds() * 1e9,
-                       pars.first, pars.second, analyzePileup_);
+    TraceFilter filter(globs->GetFilterClockInSeconds() * 1e9, cfg.GetTriggerFilterParameters(),
+                       cfg.GetEnergyFilterParameters(), analyzePileup_);
     unsigned int retval = filter.CalcFilters(&trace);
 
     //if retval != 0 there was a problem and we should look at the trace
@@ -76,8 +72,7 @@ void TraceFilterAnalyzer::Analyze(Trace &trace, const std::string &type, const s
     //500 is an arbitrary offset since DAMM cannot display negative numbers.
     vector<double> tfilt = filter.GetTriggerFilter();
     for (vector<double>::iterator it = tfilt.begin(); it != tfilt.end(); it++)
-        plot(DD_TRIGGER_FILTER, (int) (it - tfilt.begin()),
-             numTrigFilters, (*it) + 500);
+        plot(DD_TRIGGER_FILTER, (int) (it - tfilt.begin()), numTrigFilters, (*it) + 500);
     numTrigFilters++;
 
     EndAnalyze(trace);

@@ -8,7 +8,6 @@
 #include <set>
 #include <string>
 
-#include "Globals.hpp"
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 
@@ -29,7 +28,7 @@ public:
     * \param [in] type : the detector type
     * \param [in] subtype : detector subtype 
     * \param [in] tags : the map of the tags for the channel */
-    void Analyze(Trace &trace, const std::string &type, const std::string &subtype, const std::set<std::string> &tags);
+    void Analyze(Trace &trace, const ChannelConfiguration &cfg);
 
 private:
     std::set<std::string> ignoredTypes_;

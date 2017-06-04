@@ -10,7 +10,7 @@
 #include <map>
 #include <string>
 
-#include "Identifier.hpp"
+#include "ChannelConfiguration.hpp"
 
 /** A list of known walk correction models (functions). */
 enum WalkModel {
@@ -46,20 +46,20 @@ public:
      * \param[in] min : The lower bound of the correction range
      * \param[in] max : The upper bound of the correction range
      * \param[in] par : The vector of parameters to use for the calibration */
-    void AddChannel(const Identifier &chanID, const std::string &model,
+    void AddChannel(const ChannelConfiguration &chanID, const std::string &model,
                     const double &min, const double &max,
                     const std::vector<double> &par);
 
     /** Returns time correction that should be subtracted from
-     * the raw time. The channel is identified by Identifier class,
+     * the raw time. The channel is identified by ChannelConfiguration class,
      * the correction is return accordingly to the selected model
      * and parameters for the particular channel.
      * If channel has not been added to the list,
      * it returns 0 as a default value.
-     * \param [in] chanID : The channel identifier to get
+     * \param [in] chanID : The channel channelConfiguration to get
      * \param [in] raw : The raw value to perform the correction on
      * \return The walk corrected value of raw */
-    double GetCorrection(Identifier &chanID, double raw) const;
+    double GetCorrection(ChannelConfiguration &chanID, double raw) const;
 
 protected:
     /** \return always 0.
@@ -138,10 +138,10 @@ protected:
     double Model_VD(const std::vector<double> &par, double raw) const;
 
 private:
-    /** Map where key is a channel Identifier
+    /** Map where key is a channel ChannelConfiguration
      * and value is a vector holding struct with calibration range
      * and walk correction model and parameters. */
-    std::map<Identifier, std::vector<CorrectionParams>> channels_;
+    std::map<ChannelConfiguration, std::vector<CorrectionParams>> channels_;
 };
 
 #endif

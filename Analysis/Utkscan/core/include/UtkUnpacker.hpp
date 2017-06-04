@@ -10,6 +10,7 @@
 
 #include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
+#include "RawEvent.hpp"
 #include "Unpacker.hpp"
 
 ///A class that is derived from Unpacker that defines what we are going to do
@@ -34,17 +35,14 @@ private:
     ///@param[in] driver A pointer to the DetectorDriver that we're using.
     ///@param[in] detlib A pointer to the DetectorLibrary that we're using.
     ///@param[in] start The time that we called this method.
-    void InitializeDriver(DetectorDriver *driver, DetectorLibrary *detlib,
-                          clock_t &start);
+    void InitializeDriver(DetectorDriver *driver, DetectorLibrary *detlib, RawEvent &rawev, clock_t &start);
 
     ///@brief Prints information about time spent processing to the screen
     ///@param[in] start The time that we started processing data (buffer 0)
     ///@param[in] now What time it is now
     ///@param[in] eventTime The time of the current event
     ///@param[in] eventCounter What event we are currently processing.
-    void PrintProcessingTimeInformation(const clock_t &start,
-                                        const clock_t &now,
-                                        const double &eventTime,
+    void PrintProcessingTimeInformation(const clock_t &start, const clock_t &now, const double &eventTime,
                                         const unsigned int &eventCounter);
 
     ///@brief Add an event to generic statistics output.

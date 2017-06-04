@@ -9,6 +9,7 @@
 #include <string>
 #include <sys/times.h>
 
+#include "ChannelConfiguration.hpp"
 #include "Plots.hpp"
 #include "Trace.hpp"
 
@@ -34,18 +35,10 @@ public:
     /** Declare Plots (empty for now) */
     virtual void DeclarePlots(void) {};
 
-    /** Function to analyze a trace online.
-     * \param [in] trace: the trace
-     * \param [in] type : the type of detector
-     * \param [in] subtype : the subtype of the detector */
-    virtual void Analyze(Trace &trace, const std::string &type, const std::string &subtype);
-
-    /** Function to analyze a trace online.
-     * \param [in] trace: the trace
-     * \param [in] type : the type of detector
-     * \param [in] subtype : the subtype of the detector
-     * \param [in] tagMap : takes a map of all the tags that the channel has */
-    virtual void Analyze(Trace &trace, const std::string &type, const std::string &subtype, const std::set<std::string> &tagMap);
+    ///Function to analyze a trace online.
+    ///@param [in] trace: the trace
+    ///@param [in] cfg : Configuration for the channel to analyze.
+    virtual void Analyze(Trace &trace, const ChannelConfiguration &cfg);
 
     /** End the analysis and record the analyzer level in the trace
      * \param [in] trace : the trace */
@@ -87,8 +80,7 @@ protected:
     * \param [in] ySize : The range of the y-axis
     * \param [in] title : The title of the histogram
     */
-    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize,
-                                    const char *title) {
+    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize, const char *title) {
         histo.DeclareHistogram2D(dammId, xSize, ySize, title);
     }
 
@@ -102,8 +94,7 @@ protected:
     * \param [in] val3 : The z value to plot (if 2D histogram)
     * \param [in] name : The name of the histogram
     */
-    virtual void plot(int dammId, double val1, double val2 = -1,
-                      double val3 = -1, const char *name = "h") {
+    virtual void plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char *name = "h") {
         histo.Plot(dammId, val1, val2, val3, name);
     }
 
@@ -130,23 +121,20 @@ protected:
     * \param [in] id : histogram ID to plot into
     * \param [in] row : the row to plot the histogram into
     * \param [in] scale : the scaling for the trace */
-    void ScalePlot(const std::vector<unsigned int> &trc, int id, int row,
-                   double scale);
+    void ScalePlot(const std::vector<unsigned int> &trc, int id, int row, double scale);
 
     /** plot trace with a vertical offset in a 1D histogram
      * \param [in] trc : The trace that we want to plot
     * \param [in] id : histogram ID to plot into
     * \param [in] offset : the offset for the trace */
-    void OffsetPlot(const std::vector<unsigned int> &trc, int id, double
-    offset);
+    void OffsetPlot(const std::vector<unsigned int> &trc, int id, double offset);
 
     /** plot trace with a vertical offset in a 2D histogram
      * \param [in] trc : The trace that we want to plot
     * \param [in] id : histogram ID to plot into
     * \param [in] row : the row to plot the trace into
     * \param [in] offset : the offset for the trace*/
-    void OffsetPlot(const std::vector<unsigned int> &trc, int id, int row,
-                    double offset);
+    void OffsetPlot(const std::vector<unsigned int> &trc, int id, int row, double offset);
 
 private:
     tms tmsBegin;             ///< time at which the analyzer began

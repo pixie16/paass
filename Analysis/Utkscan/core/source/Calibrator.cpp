@@ -3,15 +3,17 @@
  * \author K. A. Miernik
  * \date 2012
  */
-#include <cmath>
 #include <iostream>
+#include <sstream>
+
+#include <cmath>
 
 #include "Calibrator.hpp"
 #include "Exceptions.hpp"
 
 using namespace std;
 
-void Calibrator::AddChannel(const Identifier &chanID, const std::string model,
+void Calibrator::AddChannel(const ChannelConfiguration &chanID, const std::string model,
                             double min, double max,
                             const std::vector<double> &par) {
     CalibrationParams cf;
@@ -76,8 +78,8 @@ void Calibrator::AddChannel(const Identifier &chanID, const std::string model,
     }
 }
 
-double Calibrator::GetCalEnergy(const Identifier &chanID, double raw) const {
-    map < Identifier, vector < CalibrationParams > > ::const_iterator
+double Calibrator::GetCalEnergy(const ChannelConfiguration &chanID, double raw) const {
+    map < ChannelConfiguration, vector < CalibrationParams > > ::const_iterator
     itch =
             channels_.find(chanID);
     if (itch != channels_.end()) {

@@ -23,28 +23,28 @@ public:
     * \param [in] aType : a type to plot the traces for
     * \param [in] aSubtype : a subtype to plot the traces for 
     * \param [in] aTag : the tag for what we want to plot */
-    TraceExtractor(const std::string &aType, const std::string &aSubtype, const std::string &aTag = "");
+    TraceExtractor(const std::string &type, const std::string &subtype, const std::string &tag = "");
 
     /** Default Destructor */
     ~TraceExtractor() {};
 
     /** Declare the plots for the analyzer */
-    virtual void DeclarePlots(void);
+    void DeclarePlots(void);
 
     /** The main analysis driver
     * \param [in] trace : the trace to analyze
     * \param [in] aType : the type being analyze
     * \param [in] aSubtype : the subtype begin analyzed 
     * \param [in] tags : the map of tags for the channel */
-    virtual void Analyze(Trace &trace, const std::string &aType, const std::string &aSubtype, const std::set<std::string> &tags);
+    void Analyze(Trace &trace, const ChannelConfiguration &cfg);
 
-protected:
-    static const unsigned int traceBins; //!< The number of bins for the trace length
-    static const unsigned int numTraces; //!< The number of traces to analyze
+private:
+    static const unsigned int traceBins_; //!< The number of bins for the trace length
+    static const unsigned int numTraces_; //!< The number of traces to analyze
 
-    std::string type; //!< the detector type
-    std::string subtype; //!< The detector subtype
-    std::string tag; //!< The tags for the detector
+    std::string type_; //!< the detector type
+    std::string subtype_; //!< The detector subtype
+    std::string tag_; //!< The tags for the detector
 };
 
 #endif // __TRACEEXTRACTOR_HPP_

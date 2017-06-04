@@ -20,13 +20,6 @@
 #include "Globals.hpp"
 #include "DetectorSummary.hpp"
 #include "ChanEvent.hpp"
-#include "Identifier.hpp"
-
-// see DetectorSummary.hpp
-class DetectorSummary;
-
-//see ChanEvent.hpp
-class ChanEvent;
 
 /** \brief The all important raw event
  *
@@ -85,8 +78,7 @@ public:
     const DetectorSummary *GetSummary(const std::string &a) const;
 
     /** \return the list of events */
-    const std::vector<ChanEvent *> &
-    GetEventList(void) const { return eventList; }
+    const std::vector<ChanEvent *> &GetEventList(void) const { return eventList; }
 
 private:
     std::map<std::string, DetectorSummary> sumMap; /**< An STL map containing DetectorSummary classes

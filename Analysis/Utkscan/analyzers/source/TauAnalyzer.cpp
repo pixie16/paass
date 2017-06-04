@@ -18,15 +18,12 @@ TauAnalyzer::TauAnalyzer() {
     type = subtype = "";
 }
 
-TauAnalyzer::TauAnalyzer(const std::string &aType, const std::string &aSubtype)
-        :
+TauAnalyzer::TauAnalyzer(const std::string &aType, const std::string &aSubtype) :
         TraceAnalyzer(), type(aType), subtype(aSubtype) {
     name = "tau";
 }
 
-void TauAnalyzer::Analyze(Trace &trace, const std::string &aType,
-                          const std::string &aSubtype,
-                          const std::map<std::string, int> &tagMap) {
+void TauAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     // don't do analysis for piled-up traces
     ///@TODO renable this, not a huge priority since Tau analyzer isn't used
     /// much.
@@ -34,18 +31,14 @@ void TauAnalyzer::Analyze(Trace &trace, const std::string &aType,
 //        return;
 //    }
     // only do analysis for the proper type and subtype
-    if (type != "" && subtype != "" &&
-        type != aType && subtype != aSubtype) {
+    if (type != cfg.GetType() && subtype != cfg.GetSubtype())
         return;
-    }
 
-    TraceAnalyzer::Analyze(trace, type, subtype);
+    TraceAnalyzer::Analyze(trace, cfg);
 
     Trace::const_iterator itMax = max_element(trace.begin(), trace.end());
-    Trace::const_iterator itMin = min_element(itMax,
-                                              (Trace::const_iterator) trace.end());
-    iterator_traits<Trace::const_iterator>::difference_type size = distance(
-            itMax, itMin);
+    Trace::const_iterator itMin = min_element(itMax, (Trace::const_iterator) trace.end());
+    iterator_traits<Trace::const_iterator>::difference_type size = distance(itMax, itMin);
 
     // skip over the area near the extrema since it may be non-exponential there
     advance(itMax, size / 10);

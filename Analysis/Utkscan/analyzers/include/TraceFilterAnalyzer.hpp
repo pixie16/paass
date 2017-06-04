@@ -35,7 +35,7 @@ public:
      * \param [in] type : the detector type
      * \param [in] subtype : the detector subtype 
      * \param [in] tagmap : map of the tags for the channel */
-    virtual void Analyze(Trace &trace, const std::string &type, const std::string &subtype, const std::set<std::string> &tagmap);
+    virtual void Analyze(Trace &trace, const ChannelConfiguration &cfg);
 
 private:
     bool analyzePileup_; //!< True if looking for pileups
@@ -43,7 +43,5 @@ private:
     TrapFilterParameters enPars_; //!< energy filter parametersf
     std::vector<double> fastFilter;   //!< fast filter of trace
     std::vector<double> energyFilter; //!< slow filter of trace
-
 };
-
 #endif // __TRACEFILTERER_HPP_

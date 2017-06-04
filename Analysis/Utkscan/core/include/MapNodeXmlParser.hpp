@@ -11,8 +11,8 @@
 #include "pugixml.hpp"
 
 #include "Calibrator.hpp"
+#include "ChannelConfiguration.hpp"
 #include "DetectorLibrary.hpp"
-#include "Identifier.hpp"
 #include "Messenger.hpp"
 #include "WalkCorrector.hpp"
 #include "XmlParser.hpp"
@@ -48,10 +48,36 @@ private:
 
     ///Method to parse the Calibration node from the XML file.
     ///@param[in] node : The calibration node that we want to parse
-    ///@param[in] id : The Identifier of the channel that has the calibrations.
+    ///@param[in] config : The channel configuration that we will use to hold all this info.
     ///@param[in] isVerbose : True if we want verbose messaging
-    void ParseCalibrations(const pugi::xml_node &node, const Identifier &id,
-                           const bool &isVerbose);
+    void ParseCalibrations(const pugi::xml_node &node, const ChannelConfiguration &config, const bool &isVerbose);
+
+    ///Parses the Cfd node from the xml configuration file.
+    ///@param[in] node : The node that we are going to parse
+    ///@param[in] globals : A pointer to the globals class so we can set the
+    /// values that we need.
+    ///@throw invalid_argument if the Parameters node cannot be found.
+    void ParseCfdNode(const pugi::xml_node &node, ChannelConfiguration &config, const bool &isVerbose);
+
+    ///Parses the Fitting node from the xml configuration file.
+    ///@param[in] node : The node that we are going to parse
+    ///@param[in] globals : A pointer to the globals class so we can set the
+    /// values that we need.
+    ///@throw invalid_argument if the Parameters node cannot be found.
+    void ParseFittingNode(const pugi::xml_node &node, ChannelConfiguration &config, const bool &isVerbose);
+
+    ///Parses the Trace node from the xml configuration file.
+    ///@param[in] node : The node that we are going to parse
+    ///@param[in] globals : A pointer to the globals class so we can set the
+    /// values that we need.
+    ///@throw invalid_argument If the WaveformRange is missing
+    void ParseTraceNode(const pugi::xml_node &node, ChannelConfiguration &config, const bool &isVerbose);
+
+    ///Parses the Trace node from the xml configuration file.
+    ///@param[in] node : The node that we are going to parse
+    ///@param[in] globals : A pointer to the globals class so we can set the values that we need.
+    ///@throw invalid_argument If the WaveformRange is missing
+    void ParseFilterNode(const pugi::xml_node &node, ChannelConfiguration &config, const bool &isVerbose);
 };
 
 #endif //PAASS_MAPNODEXMLPARSER_HPP
