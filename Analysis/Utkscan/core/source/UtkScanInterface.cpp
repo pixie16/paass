@@ -32,35 +32,6 @@ UtkScanInterface::~UtkScanInterface() {
 #endif
 }
 
-/** ExtraCommands is used to send command strings to classes derived
- * from ScanInterface. If ScanInterface receives an unrecognized
- * command from the user, it will pass it on to the derived class.
- * \param[in]  cmd_ The command to interpret.
- * \param[out] arg_ Vector or arguments to the user command.
- * \return True if the command was recognized and false otherwise. */
-bool UtkScanInterface::ExtraCommands(const string &cmd_,
-                                     vector <string> &args_) {
-    if (cmd_ == "mycmd") {
-        if (args_.size() >= 1) {
-            // Handle the command.
-        } else {
-            cout << msgHeader
-                 << "Invalid number of parameters to 'mycmd'\n";
-            cout << msgHeader << " -SYNTAX- mycmd <param>\n";
-        }
-    } else
-        return (false); // Unrecognized command.
-
-    return (true);
-}
-
-/** SyntaxStr is used to print a linux style usage message to the screen.
- * \param[in]  name_ The name of the program.
- * \return Nothing. */
-void UtkScanInterface::SyntaxStr(char *name_) {
-    cout << " usage: " << string(name_) << " [input] [options]\n";
-}
-
 /** Initialize the map file, the config file, the processor handler, 
  * and add all of the required processors.
  * \param[in]  prefix_ String to append to the beginning of system output.
@@ -92,8 +63,7 @@ bool UtkScanInterface::Initialize(string prefix_) {
     //@TODO find a better way to handle HRIBF...This should be cleaned up!!
 #ifndef USE_HRIBF
     try {
-        output_his = new OutputHisFile(
-                (GetOutputPath() + GetOutputFilename()).c_str());
+        output_his = new OutputHisFile((GetOutputPath() + GetOutputFilename()).c_str());
         output_his->SetDebugMode(false);
 
         /** The DetectorDriver constructor will load processors
@@ -117,27 +87,4 @@ bool UtkScanInterface::Initialize(string prefix_) {
     }
 #endif
     return (init_ = true);
-}
-
-/** Peform any last minute initialization before processing data. 
- * /return Nothing. */
-void UtkScanInterface::FinalInitialization() {
-    // Do some last minute initialization before the run starts.
-}
-
-/** Receive various status notifications from the scan.
- * \param[in] code_ The notification code passed from ScanInterface methods.
- * \return Nothing. */
-void UtkScanInterface::Notify(const string &code_/*=""*/) {
-    if (code_ == "START_SCAN") {
-    } else if (code_ == "STOP_SCAN") {
-    } else if (code_ == "SCAN_COMPLETE") {
-        cout << msgHeader << "Scan complete.\n";
-    } else if (code_ == "LOAD_FILE") {
-        cout << msgHeader << "File loaded.\n";
-    } else if (code_ == "REWIND_FILE") {
-    } else {
-        cout << msgHeader << "Unknown notification code '" << code_
-             << "'!\n";
-    }
 }

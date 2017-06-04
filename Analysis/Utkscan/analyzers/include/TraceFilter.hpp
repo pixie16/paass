@@ -43,11 +43,8 @@ public:
      * \param [in] eFilt : Paramters for the energy filter
      * \param [in] analyzePileup : True if we want additional analysis for pileups. 
      * \param [in] verbose : true if we want verbose output from the filter */
-    TraceFilter(const unsigned int &nsPerSample,
-                const TrapFilterParameters &tFilt,
-                const TrapFilterParameters &eFilt,
-                const bool &analyzePileup = false,
-                const bool &verbose = false);
+    TraceFilter(const unsigned int &nsPerSample, const TrapFilterParameters &tFilt, const TrapFilterParameters &eFilt,
+                const bool &analyzePileup = false, const bool &verbose = false);
 
     /** Default Destructor */
     ~TraceFilter() {}
@@ -152,8 +149,7 @@ private:
 
     void CalcBaseline(void); //!< calculates the baseline
     void CalcEnergyFilterCoeffs(void); //!< calculates energy filter coeffs
-    void CalcEnergyFilterLimits(
-            const unsigned int &tpos); //!< calc energy filter limits
+    void CalcEnergyFilterLimits(const unsigned int &tpos); //!< calc energy filter limits
     void CalcEnergyFilter(void); //!< calculate the energy filter
     void CalcTriggerFilter(void); //!< calculate trigger filter
     void ConvertToClockticks(void); //!< convert from ns to clockticks

@@ -422,7 +422,7 @@ bool CloverProcessor::PreProcess(RawEvent &event) {
     }
 
     // now we sort the germanium events according to their corrected time
-    sort(geEvents_.begin(), geEvents_.end(), CompareCorrectedTime);
+    sort(geEvents_.begin(), geEvents_.end());
 
     /** Here the addback spectra is constructed.
      *  addbackEvents_ is a vector for each clover

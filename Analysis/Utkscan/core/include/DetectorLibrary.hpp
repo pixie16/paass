@@ -1,5 +1,5 @@
 /** \file DetectorLibrary.hpp
- * \brief This is an extension of the vector of the identifiers that was previously
+ * \brief This is an extension of the vector of the channelConfigurations that was previously
  *   used.
  */
 #ifndef __DETECTORLIBRARY_HPP_
@@ -11,15 +11,11 @@
 #include <vector>
 
 #include "Calibrator.hpp"
-#include "Identifier.hpp"
-#include "RawEvent.hpp"
+#include "ChannelConfiguration.hpp"
 #include "WalkCorrector.hpp"
 
-///Predefine the RawEvnent class
-class RawEvent;
-
 //! A class to define a library of detectors known to the analysis
-class DetectorLibrary : public std::vector<Identifier> {
+class DetectorLibrary : public std::vector<ChannelConfiguration> {
 public:
     /** \return the only instance of the class */
     static DetectorLibrary *get();
@@ -28,8 +24,7 @@ public:
      * \param [in] mod : the module
      * \param [in] ch : the channel
      * \return a reference to the DetectorLibrary */
-    virtual const_reference at(DetectorLibrary::size_type mod,
-                               DetectorLibrary::size_type ch) const;
+    virtual const_reference at(DetectorLibrary::size_type mod, DetectorLibrary::size_type ch) const;
 
     /** defines the at operator for using an id (const)
      * \param [in] idx : the id to look for
@@ -40,50 +35,47 @@ public:
      * \param [in] mod : the module
      * \param [in] ch : the channel
      * \return a reference to the DetectorLibrary */
-    virtual reference at(DetectorLibrary::size_type mod,
-                         DetectorLibrary::size_type ch);
+    virtual reference at(DetectorLibrary::size_type mod, DetectorLibrary::size_type ch);
 
     /** defines the at operator for using an id (const)
      * \param [in] idx : the id to look for
      * \return a reference to the DetectorLibrary */
     virtual reference at(DetectorLibrary::size_type idx);
 
-    /** Add an additional Identifier to the library
-     * \param [in] x : the Identifier to push back */
-    virtual void push_back(const Identifier &x);
+    /** Add an additional ChannelConfiguration to the library
+     * \param [in] x : the ChannelConfiguration to push back */
+    virtual void push_back(const ChannelConfiguration &x);
 
     /** Default destructor */
     virtual ~DetectorLibrary();
 
-    /** Get the set of locations for the provided Identifier
-     * \param [in] id : The identifier to get the locations for
+    /** Get the set of locations for the provided ChannelConfiguration
+     * \param [in] id : The channelConfiguration to get the locations for
      * \return the set of locations for a given type, subtype */
-    const std::set<int> &GetLocations(const Identifier &id) const;
+    const std::set<int> &GetLocations(const ChannelConfiguration &id) const;
 
     /** Get the set of locations for the given type and subtype
      * \param [in] type : the type to look for
      * \param [in] subtype : the subtype to look for
      * \return the set of locations for a given type, subtype */
-    const std::set<int> &GetLocations(const std::string &type,
-                                      const std::string &subtype) const;
+    const std::set<int> &GetLocations(const std::string &type, const std::string &subtype) const;
 
-    /** Get the next undefined location of a given Identifier
-     * \param [in] id : The Identifier you want the the next location for
+    /** Get the next undefined location of a given ChannelConfiguration
+     * \param [in] id : The ChannelConfiguration you want the the next location for
      * \return the id for the locaton */
-    int GetNextLocation(const Identifier &id) const;
+    unsigned int GetNextLocation(const ChannelConfiguration &id) const;
 
     /** Get the next undefined location of a given type and subtype
      * \param [in] type : the detector type
      * \param [in] subtype : the detector subtype
      * \return the id for the locaton */
-    int GetNextLocation(const std::string &type,
-                        const std::string &subtype) const;
+    unsigned int GetNextLocation(const std::string &type, const std::string &subtype) const;
 
     /** Get the index for a given module and channel
      * \param [in] mod : the module number
      * \param [in] chan : the channel number
      * \return the index for a given module, channel */
-    size_type GetIndex(int mod, int chan) const;
+    unsigned int GetIndex(int mod, int chan) const;
 
     /** Calculate the module number from the index
      * \param [in] index : the index to convert to module number
@@ -115,20 +107,18 @@ public:
     /** Check that the detector is in the list and kill if it's not
      * \param [in] index : the index to look for
      * \param [in] value : the value to check for */
-    void Set(int index, const Identifier &value);
+    void Set(int index, const ChannelConfiguration &value);
 
     /** Check that the detector is in the list and kill if it's not
      * \param [in] mod : the module number to check
      * \param [in] ch : the channel number to check
      * \param [in] value : the value to check for */
-    void Set(int mod, int ch, const Identifier &value);
-
-    /** Print out the map */
-    void PrintMap(void) const;
+    void Set(int mod, int ch, const ChannelConfiguration &value);
 
     /** Print out the used detectors
      * \param [in] rawev : the raw event to print from */
-    void PrintUsedDetectors(RawEvent &rawev) const;
+    ///@TODO this needs moved to UtkUnpacker
+    ///void PrintUsedDetectors(RawEvent &rawev) const;
 
     /**   Retrieves a vector containing all detector types for which an analysis
      * routine has been defined making it possible to declare this detector type
@@ -147,9 +137,7 @@ public:
 
     ///@return a pointer to the WalkCorrector object containing walk
     /// corrections.
-    const WalkCorrector *GetWalkCorrections() const {
-        return &walkCorrections_;
-    }
+    const WalkCorrector *GetWalkCorrections() const { return &walkCorrections_; }
 
     ///Sets the pointer to the Calibration object
     ///param[in] a : The pointer that we intend to set
@@ -161,10 +149,8 @@ public:
 
 private:
     DetectorLibrary();//!< Default Constructor
-    DetectorLibrary(
-            const DetectorLibrary &); //!< Define the constructor with itself
-    DetectorLibrary &
-    operator=(DetectorLibrary const &); //!< Define copy constructor
+    DetectorLibrary(const DetectorLibrary &); //!< Define the constructor with itself
+    DetectorLibrary &operator=(DetectorLibrary const &); //!< Define copy constructor
     static DetectorLibrary *instance; //!< the static instance of the class
 
     /** Make a unique map key for the given type,subtype

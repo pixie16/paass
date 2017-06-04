@@ -18,7 +18,7 @@
 /// trace delays, detector type, subtypes, tag lists, etc. This class replaces the Identifier class.
 class ChannelConfiguration {
 public:
-    ChannelConfiguration() {}
+    ChannelConfiguration() : location_(9999), subtype_(""), type_("") {}
 
     ~ChannelConfiguration() {}
 
@@ -100,7 +100,7 @@ public:
     ///Sets the tuple containing the CFD parameters. Parameters are held in order of <F, D, L>. L is an optional
     /// parameter for most of the algorithms.
     ///@param[in] a : the parameters that we want to set.
-    void SetCfdParameters(std::tuple<double, double, double> &a) { cfdParameters_ = a; }
+    void SetCfdParameters(const std::tuple<double, double, double> &a) { cfdParameters_ = a; }
 
     ///Sets the start position for the tail sums for doing particle discrimination
     void SetDiscriminationStartInSamples(const unsigned int &a) { discriminationStartInSamples_ = a; }

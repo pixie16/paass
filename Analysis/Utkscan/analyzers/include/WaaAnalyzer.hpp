@@ -26,11 +26,9 @@ public:
      * \param [in] detType : the detector type we have
      * \param [in] detSubtype : the subtype of the detector
      * \param [in] tagMap : Map of tags associated with trace*/
-    virtual void Analyze(Trace &trace, const std::string &detType, const std::string &detSubtype,
-                         const std::set<std::string> &tagMap);
+    virtual void Analyze(Trace &trace, const ChannelConfiguration &cfg);
 
 private:
 };
-
 #endif // __WAAANALYZER_HPP_
 // David is awesome.

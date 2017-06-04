@@ -10,7 +10,7 @@
 #include <map>
 #include <string>
 
-#include "Identifier.hpp"
+#include "ChannelConfiguration.hpp"
 
 /** A list of known walk correction models (functions). Add here a new name
  * if you need a different model. Then add a new function to the Calibrator
@@ -57,20 +57,19 @@ public:
      * \param [in] min : the minimum value for the range of the calibration
      * \param [in] max : the maximum value for the range of the calibration
      * \param [in] par : the vector of coefficients for the model */
-    void AddChannel(const Identifier &chanID, const std::string model,
-                    double min, double max,
+    void AddChannel(const ChannelConfiguration &chanID, const std::string model, double min, double max,
                     const std::vector<double> &par);
 
     /** \return calibrated energy for the channel indetified by chanID.
      * \param [in] chanID : the channel ID to get the energy for
      * \param [in] raw : the raw value to use for the calibration */
-    double GetCalEnergy(const Identifier &chanID, double raw) const;
+    double GetCalEnergy(const ChannelConfiguration &chanID, double raw) const;
 
 private:
-    /** Map where key is a channel Identifier
+    /** Map where key is a channel ChannelConfiguration
      * and value is a vector holding struct with calibration range
      * and calibration model and parameters.*/
-    std::map<Identifier, std::vector<CalibrationParams>> channels_;
+    std::map<ChannelConfiguration, std::vector<CalibrationParams>> channels_;
 
     /** Use if you want to switch off the calibration.
      * \param [in] raw : the raw value to calibrate

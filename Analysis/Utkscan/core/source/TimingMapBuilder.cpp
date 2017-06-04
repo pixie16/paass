@@ -18,7 +18,7 @@ void TimingMapBuilder::FillMaps(const std::vector<ChanEvent *> &evts) {
     map_.clear();
     for (vector<ChanEvent *>::const_iterator it = evts.begin();
          it != evts.end(); it++) {
-        Identifier id = (*it)->GetChanID();
+        ChannelConfiguration id = (*it)->GetChanID();
         TimingDefs::TimingIdentifier key(id.GetLocation(), id.GetSubtype());
 
         HighResTimingData data(*(*it));

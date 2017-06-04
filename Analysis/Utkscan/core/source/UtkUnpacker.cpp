@@ -18,10 +18,6 @@
 using namespace std;
 using namespace dammIds::raw;
 
-/// Contains event information, the information is filled in ScanList() and is
-/// referenced in DetectorDriver.cpp, particularly in ProcessEvent().
-RawEvent rawev;
-
 ///The only thing that we do here is call the destructor of the
 /// DetectorDriver. This will ensure that the memory is freed for all of the
 /// initialized detector and experiment processors and that information about
@@ -40,8 +36,9 @@ UtkUnpacker::~UtkUnpacker() {
 /// methods to plot useful spectra and output processing information to the
 /// screen.
 void UtkUnpacker::ProcessRawEvent() {
+    static RawEvent rawev;
     DetectorDriver *driver = DetectorDriver::get();
-    DetectorLibrary *modChan = DetectorLibrary::get();
+    DetectorLibrary *detectorLibrary = DetectorLibrary::get();
     set<string> usedDetectors;
     Messenger m;
     stringstream ss;
@@ -52,7 +49,7 @@ void UtkUnpacker::ProcessRawEvent() {
     static unsigned int eventCounter = 0;
 
     if (eventCounter == 0)
-        InitializeDriver(driver, modChan, systemStartTime);
+        InitializeDriver(driver, detectorLibrary, rawev, systemStartTime);
     else if (eventCounter % 5000 == 0 || eventCounter == 1)
         PrintProcessingTimeInformation(systemStartTime, times(&systemTimes), GetEventStartTime(), eventCounter);
 
@@ -86,18 +83,17 @@ void UtkUnpacker::ProcessRawEvent() {
             continue;
         }
 
-        //Do not input the channel into the list of detectors used in the event
-        if ((*modChan)[(*it)->GetId()].GetType() == "ignore")
+        ///@TODO this will fail if the user does not define enough modules in the map. Related to pixie16/paass:#103
+        if (detectorLibrary->at((*it)->GetId()).GetType() == "ignore")
             continue;
 
-        // Convert an XiaData to a ChanEvent
         ///@TODO we need to ensure that all of the memory is getting freed
         /// appropriately at the end of processing an event. I'm not sure
         /// that it is right now.
         ChanEvent *event = new ChanEvent(*(*it));
 
-        //Add the ChanEvent pointer to the rawev and used detectors.
-        usedDetectors.insert((*modChan)[(*it)->GetId()].GetType());
+        ///@TODO This will also fail if the user doesn't define enough modules in the map. Related to pixie16/paass:#103
+        usedDetectors.insert((*detectorLibrary)[(*it)->GetId()].GetType());
         rawev.AddChan(event);
 
         ///@TODO Add back in the processing for the dtime.
@@ -108,7 +104,7 @@ void UtkUnpacker::ProcessRawEvent() {
         rawev.Zero(usedDetectors);
         usedDetectors.clear();
 
-        // If a place has a resetable type then reset it.
+        ///@TODO I think that this is done twice, it needs to be investigated.
         for (map<string, Place *>::iterator it = TreeCorrelator::get()->places_.begin();
              it != TreeCorrelator::get()->places_.end(); ++it)
             if ((*it).second->resetable())
@@ -133,8 +129,7 @@ void UtkUnpacker::RawStats(XiaData *event_, DetectorDriver *driver) {
     static double runTimeMsecs = 0, remainNumMsecs = 0;
     static int rowNumSecs = 0, rowNumMsecs = 0;
 
-    runTimeSecs = (event_->GetTime() - GetFirstTime()) *
-                  Globals::get()->GetClockInSeconds();
+    runTimeSecs = (event_->GetTime() - GetFirstTime()) * Globals::get()->GetClockInSeconds();
     rowNumSecs = int(runTimeSecs / specNoBins);
     remainNumSecs = runTimeSecs - rowNumSecs * specNoBins;
 
@@ -157,8 +152,7 @@ void UtkUnpacker::RawStats(XiaData *event_, DetectorDriver *driver) {
 /// a General Exception here. This can be extremely useless sometimes...
 /// @TODO Expand the types of exceptions handled so that we can make the
 /// diagnostic information more useful for the user.
-void UtkUnpacker::InitializeDriver(DetectorDriver *driver,
-                                   DetectorLibrary *detlib, clock_t &start) {
+void UtkUnpacker::InitializeDriver(DetectorDriver *driver, DetectorLibrary *detlib, RawEvent &rawev, clock_t &start) {
     struct tms systemTimes;
     Messenger m;
     stringstream ss;
@@ -169,7 +163,7 @@ void UtkUnpacker::InitializeDriver(DetectorDriver *driver,
     m.detail(ss.str());
     ss.str("");
 
-    detlib->PrintUsedDetectors(rawev);
+    //detlib->PrintUsedDetectors(rawev);
     driver->Init(rawev);
 
     try {
@@ -196,9 +190,7 @@ void UtkUnpacker::InitializeDriver(DetectorDriver *driver,
 /// to this point. One should note that this does not contain all of the
 /// information that was present in PixieStd.cpp::hissub_. Some of that
 /// information is not available or just not that relevant to us.
-void UtkUnpacker::PrintProcessingTimeInformation(const clock_t &start,
-                                                 const clock_t &now,
-                                                 const double &eventTime,
+void UtkUnpacker::PrintProcessingTimeInformation(const clock_t &start, const clock_t &now, const double &eventTime,
                                                  const unsigned int &eventCounter) {
     Messenger m;
     stringstream ss;

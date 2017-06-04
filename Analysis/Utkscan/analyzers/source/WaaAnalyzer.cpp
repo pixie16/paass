@@ -30,9 +30,7 @@ WaaAnalyzer::WaaAnalyzer() {
     name = "WaaAnalyzer";
 }
 
-void WaaAnalyzer::Analyze(Trace &trace, const string &detType, const string &detSubtype, const std::set<std::string> &tagMap) {
-    TraceAnalyzer::Analyze(trace, detType, detSubtype, tagMap);
-
+void WaaAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     if (trace.IsSaturated() || trace.empty()) {
         EndAnalyze();
         return;

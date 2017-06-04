@@ -1,6 +1,5 @@
 ///@file GlobalsXmlParser.cpp
-///@brief Class to parse nodes needed for the Global's class from utkscan's
-/// configuration file
+///@brief Class to parse nodes needed for the Global's class from utkscan's configuration file
 ///@author S. V. Paulauskas
 ///@date February 09, 2017
 #include <iostream>
@@ -48,24 +47,6 @@ void GlobalsXmlParser::ParseNode(Globals *globals) {
             ParseVandleNode(root.child("Vandle"), globals);
             m.done();
         }
-
-        if (root.child("Trace")) {
-            m.start("Loading Trace Node");
-            ParseTraceNode(root.child("Trace"), globals);
-            m.done();
-        }
-
-        if (root.child("Cfd")) {
-            m.start("Loading Cfd Node");
-            ParseCfdNode(root.child("Cfd"), globals);
-            m.done();
-        }
-
-        if (root.child("Fitting")) {
-            m.start("Loading Fitting Node");
-            ParseFittingNode(root.child("Fitting"), globals);
-            m.done();
-        }
     } catch (exception &e) {
         m.detail("Globals::Globals : Exception caught while parsing configuration file.");
         throw;
@@ -73,71 +54,11 @@ void GlobalsXmlParser::ParseNode(Globals *globals) {
     m.done();
 }
 
-///We parse the Cfd node here. This node contains the information necessary
-/// to the proper function of the various Cfd timing codes. The only
-/// currently recognized node here is the Parameters node. If the Cfd node
-/// exists then the Paramter node must also exist.
-void
-GlobalsXmlParser::ParseCfdNode(const pugi::xml_node &node, Globals *globals) {
-    if (!node.child("Parameters").empty()) {
-        map<string, pair<double, double>> pars;
-        for (pugi::xml_node_iterator it = node.begin(); it != node.end(); ++it)
-            if (string(it->name()).compare("Parameters") == 0)
-                for (pugi::xml_node_iterator parit = it->begin(); parit != it->end(); ++parit)
-                    pars.insert(make_pair(parit->attribute("name").as_string(),
-                                               make_pair(parit->child("Fraction").attribute("value").as_double(0.),
-                                                         parit->child("Delay").attribute("value").as_double(0.))));
-        globals->SetCfdParameters(pars);
-    } else
-        throw invalid_argument(CriticalNodeMessage(node.child("Parameters").name()));
-    set <string> knownNodes = {"Parameters"};
-    WarnOfUnknownChildren(node, knownNodes);
-}
-
 ///This method parses the Description node. The description node contains
 /// information related to the experiment. This node can contain any text
 /// that the user thinks could be useful to know when the program starts up.
 string GlobalsXmlParser::ParseDescriptionNode(const pugi::xml_node &node) {
     return node.text().get();
-}
-
-///This method parses the fitting node. There are only two free parameters at
-/// the moment. The main part of this node is the fitting parameters. These
-/// parameters are critical to the function of the software. I the fitting node
-/// is present then the Parameters node must also be.
-void GlobalsXmlParser::ParseFittingNode(const pugi::xml_node &node, Globals *globals) {
-    if (!node.child("SigmaBaselineThresh").empty())
-        globals->SetSigmaBaselineThreshold(node.child("SigmaBaselineThresh").attribute("value").as_double());
-    else
-        globals->SetSigmaBaselineThreshold(3.0);
-
-    sstream_ << "Sigma Baseline Threshold : " << globals->GetSigmaBaselineThresh();
-    messenger_.detail(sstream_.str());
-    sstream_.str("");
-
-    if (!node.child("SiPmSigmaBaselineThresh").empty())
-        globals->SetSiPmBaselineThreshold(node.child("SiPmSigmaBaselineThresh").attribute("value").as_double());
-    else
-        globals->SetSiPmBaselineThreshold(25.0);
-
-    sstream_ << "SiPM Sigma Baseline Threshold : " << globals->GetSiPmSigmaBaselineThresh();
-    messenger_.detail(sstream_.str());
-    sstream_.str("");
-
-    if (!node.child("Parameters").empty()) {
-        map<string, pair<double, double>> pars;
-        for (pugi::xml_node_iterator parit = node.child("Parameters").begin();
-             parit != node.child("Parameters").end(); ++parit)
-            pars.insert(make_pair(parit->attribute("name").as_string(),
-                                  make_pair(parit->child("Beta").attribute("value").as_double(0.),
-                                            parit->child("Gamma").attribute("value").as_double(0.))));
-        globals->SetFittingParameters(pars);
-    } else
-        throw invalid_argument(
-                CriticalNodeMessage(node.child("Parameters").name()));
-
-    set <string> knownNodes = {"Parameters", "SiPmSigmaBaselineThresh", "SigmaBaselineThresh"};
-    WarnOfUnknownChildren(node, knownNodes);
 }
 
 ///This method parses the Global node. This node contains some of the basic
@@ -216,7 +137,7 @@ vector<pair<unsigned int, unsigned int>> GlobalsXmlParser::ParseRejectNode(const
 /// of the critial nodes.
 void GlobalsXmlParser::ParseRootNode(const pugi::xml_node &node) {
     set <string> knownChildren = {"Author", "Description", "Global", "DetectorDriver", "Map", "Vandle",
-                                  "TreeCorrelator", "TimeCalibration", "Trace", "Fitting", "Cfd", "Reject", "Notebook"};
+                                  "TreeCorrelator", "TimeCalibration", "Reject", "Notebook"};
     if (node.child("Map").empty())
         throw invalid_argument(CriticalNodeMessage("Map"));
     if (node.child("Global").empty())
@@ -224,30 +145,9 @@ void GlobalsXmlParser::ParseRootNode(const pugi::xml_node &node) {
     WarnOfUnknownChildren(node, knownChildren);
 }
 
-///This node parses the Trace node. This node contains all of the information
-/// necessary for the users to do trace analysis. The only critical node here
-/// is the WaveformRange node. If the Trace node exists then this node must
-/// also exist.
-void
-GlobalsXmlParser::ParseTraceNode(const pugi::xml_node &node, Globals *globals) {
-    if (!node.child("DiscriminationStart").empty())
-        globals->SetDiscriminationStart(node.child("DiscriminationStart").attribute("value").as_uint());
-    else
-        globals->SetDiscriminationStart(3);
-
-    sstream_ << "Discrimination Start : " << globals->GetDiscriminationStart();
-    messenger_.detail(sstream_.str());
-    sstream_.str("");
-
-    if (!node.child("TraceDelay").empty()) {
-        globals->SetTraceDelay(node.child("TraceDelay").attribute("value").as_uint());
-    } else
-        throw invalid_argument(CriticalNodeMessage("TraceDelay"));
-
-    sstream_ << "Trace Delay : " << globals->GetTraceDelayInNs() << " ns";
-    messenger_.detail(sstream_.str());
-    sstream_.str("");
-
+///Parses the Vandle node. This node contains some information that is
+/// specific to the analysis and function of VANDLE detectors.
+void GlobalsXmlParser::ParseVandleNode(const pugi::xml_node &node, Globals *globals) {
     if (!node.child("QdcCompression").empty())
         globals->SetQdcCompression(node.child("QdcCompression").attribute("value").as_double());
     else
@@ -260,40 +160,7 @@ GlobalsXmlParser::ParseTraceNode(const pugi::xml_node &node, Globals *globals) {
         messenger_.detail(sstream_.str());
         sstream_.str("");
     }
-    if (!node.child("WaveformRange").empty()) {
-        map<string, pair<unsigned int, unsigned int>> waveRngs;
-        for (pugi::xml_node_iterator waveit = node.child("WaveformRange").begin();
-             waveit != node.child("WaveformRange").end(); ++waveit) {
-            waveRngs.insert(make_pair(waveit->attribute("name").as_string(),
-                                      make_pair(waveit->child("Low").attribute("value").as_int(5),
-                                                waveit->child("High").attribute("value").as_int(10))));
-        }
-        globals->SetWaveformRanges(waveRngs);
-    } else
-        throw invalid_argument(CriticalNodeMessage("WaveformRange"));
 
-    if (!node.child("TrapFilters").empty()) {
-        map<string, pair<TrapFilterParameters, TrapFilterParameters>> tmp;
-        for (pugi::xml_node_iterator trapit = node.child("TrapFilters").begin();
-             trapit != node.child("TrapFilters").end(); ++trapit) {
-            pugi::xml_node trig = trapit->child("Trigger");
-            TrapFilterParameters tfilt(trig.attribute("l").as_double(125), trig.attribute("g").as_double(125),
-                    trig.attribute("t").as_double(10));
-            pugi::xml_node en = trapit->child("Energy");
-            TrapFilterParameters efilt(en.attribute("l").as_double(300), en.attribute("g").as_double(300),
-                                       en.attribute("t").as_double(50));
-            tmp.insert(make_pair(trapit->attribute("name").as_string(), make_pair(tfilt, efilt)));
-        }
-        globals->SetTrapFilterParameters(tmp);
-    }
-
-    set <string> knownNodes = {"DiscriminationStart", "TraceDelay", "QdcCompression", "WaveformRange", "TrapFilters"};
-    WarnOfUnknownChildren(node, knownNodes);
-}
-
-///Parses the Vandle node. This node contains some information that is
-/// specific to the analysis and function of VANDLE detectors.
-void GlobalsXmlParser::ParseVandleNode(const pugi::xml_node &node, Globals *globals) {
     if (!node.child("SpeedOfLightBig").empty())
         globals->SetVandleBigSpeedOfLight(node.child("SpeedOfLightBig").attribute("value").as_double());
     else

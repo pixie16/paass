@@ -1,14 +1,12 @@
 set(CORE_SOURCES
         BarBuilder.cpp
         Calibrator.cpp
-        ChanEvent.cpp
         DetectorDriver.cpp
         DetectorDriverXmlParser.cpp
         DetectorLibrary.cpp
         DetectorSummary.cpp
         Globals.cpp
         GlobalsXmlParser.cpp
-        Identifier.cpp
         MapNodeXmlParser.cpp
         RawEvent.cpp
         TimingCalibrator.cpp
