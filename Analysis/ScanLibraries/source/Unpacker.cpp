@@ -13,12 +13,14 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <sstream>
 
 #include <cstring>
 
 #include "Unpacker.hpp"
 #include "XiaData.hpp"
 #include "XiaListModeDataDecoder.hpp"
+#include "XmlInterface.hpp"
 
 using namespace std;
 
@@ -191,8 +193,22 @@ void Unpacker::ProcessRawEvent() {
 /// channel, trace, etc. of the timestamped event. This method will construct the event list for later processing.
 ///@param[in] buf : Pointer to an array of unsigned ints containing raw buffer data.
 ///@return The number of XiaDatas read from the buffer.
-int Unpacker::ReadBuffer(unsigned int *buf) {
+int Unpacker::ReadBuffer(unsigned int *buf, const unsigned int &vsn) {
     static XiaListModeDataDecoder decoder;
+
+    if(maskMap_.size() != 0 && maskMap_.find(vsn) != maskMap_.end()) {
+        auto found = maskMap_.find(vsn);
+        if(found != maskMap_.end()) {
+            mask_.SetFirmware((*found).second.first);
+            mask_.SetFrequency((*found).second.second);
+        } else {
+            stringstream ss;
+            ss << "Unpacker::ReadBuffer - Unable to locate VSN = " << vsn << " in the maskMap. Ensure that it's "
+                    "defined in your configuration file!";
+            throw invalid_argument(ss.str());
+        }
+    }
+
     std::vector<XiaData *> decodedList = decoder.DecodeBuffer(buf, mask_);
     for (vector<XiaData *>::iterator it = decodedList.begin(); it != decodedList.end(); it++)
         AddEvent(*it);
@@ -215,6 +231,31 @@ Unpacker::Unpacker() :
 Unpacker::~Unpacker() {
     ClearRawEvent();
     ClearEventList();
+}
+
+void Unpacker::InitializeDataMask(const std::string &firmware, const unsigned int &frequency) {
+    if(frequency == 0) {
+        unsigned int modCounter = 0;
+        pugi::xml_node node = XmlInterface::get(firmware)->GetDocument()->child("Configuration").child("Map");
+        for (pugi::xml_node_iterator it = node.begin(); it != node.end(); ++it, modCounter++) {
+            if (it->attribute("number").empty())
+                throw invalid_argument("Unpacker::InitializeDataMask - Unable to read the \"number\" attribute from "
+                                               "the module in position #" + to_string(modCounter) + "(0 counting)");
+            if (it->attribute("firmware").empty())
+                throw invalid_argument("Unpacker::InitializeDataMask - Unable to read the \"firmware\" attribute from"
+                                               " the /Configuration/Map/Module/" + to_string(modCounter));
+            if (it->attribute("frequency").empty())
+                throw invalid_argument("Unpacker::InitializeDataMask - Unable to read the \"frequency\" attribute from"
+                                               " the /Configuration/Map/Module/" + to_string(modCounter));
+
+            maskMap_.insert(make_pair(it->attribute("number").as_uint(),
+                                      make_pair(it->attribute("firmware").as_string(),
+                                                it->attribute("frequency").as_uint())));
+        }
+    } else {
+        mask_.SetFrequency(frequency);
+        mask_.SetFirmware(firmware);
+    }
 }
 
 /** ReadSpill is responsible for constructing a list of pixie16 events from
@@ -247,8 +288,7 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
     // While the current location in the buffer has not gone beyond the end
     // of the buffer (ignoring the last three delimiters, continue reading
     while (nWords_read <= nWords) {
-        while (data[nWords_read] ==
-               0xFFFFFFFF) // Search for the next non-delimiter.
+        while (data[nWords_read] == 0xFFFFFFFF) // Search for the next non-delimiter.
             nWords_read++;
 
         // Retrieve the record length and the vsn number
@@ -285,7 +325,7 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
 
             // Read the buffer.	After read, the vector eventList will
             //contain pointers to all channels that fired in this buffer
-            retval = ReadBuffer(&data[nWords_read]);
+            retval = ReadBuffer(&data[nWords_read], vsn);
 
             // If the return value is less than the error code,
             //reading the buffer failed for some reason.

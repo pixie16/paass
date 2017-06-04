@@ -14,8 +14,9 @@
 #define UNPACKER_HPP
 
 #include <deque>
-#include <vector>
+#include <map>
 #include <string>
+#include <vector>
 
 #include "XiaListModeDataMask.hpp"
 
@@ -71,10 +72,7 @@ public:
     /// Set the width of events in pixie16 clock ticks.
     void SetEventWidth(double width) { eventWidth_ = width; }
 
-    void InitializeDataMask(const std::string &firmware, const unsigned int &frequency = 0) {
-        mask_.SetFrequency(frequency);
-        mask_.SetFirmware(firmware);
-    }
+    void InitializeDataMask(const std::string &firmware, const unsigned int &frequency = 0);
 
     /** ReadSpill is responsible for constructing a list of pixie16 events from
       * a raw data spill. This method performs sanity checks on the spill and
@@ -106,6 +104,7 @@ protected:
     std::vector<std::deque<XiaData *>> eventList; ///< The list of all events in a spill.
     double eventWidth_; ///< The width of the raw event in pixie clock ticks
     XiaListModeDataMask mask_; ///< Object providing the masks necessary to decode the data.
+    std::map<unsigned int, std::pair<std::string, unsigned int> > maskMap_;///< Maps firmware/frequency to module number
     std::deque<XiaData *> rawEvent; ///< The list of all events in the event window.
     bool running; ///< True if the scan is running.
 
@@ -130,7 +129,7 @@ protected:
       * \param[out] bufLen The number of words in the buffer.
       * \return The number of XiaDatas read from the buffer.
       */
-    int ReadBuffer(unsigned int *buf);
+    int ReadBuffer(unsigned int *buf, const unsigned int &vsn);
 
 private:
     unsigned int TOTALREAD; /// Maximum number of data words to read.

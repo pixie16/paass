@@ -995,9 +995,12 @@ bool ScanInterface::Setup(int argc, char *argv[],
             throw invalid_argument("ScanInterface::Setup - The frequency has not been set.");
         if (firmware == "")
             throw invalid_argument("ScanInterface::Setup - The firmware has not been set.");
-    } else if (setup_filename != "")
-        unpacker_->InitializeDataMask(setup_filename);
-    else
+    } else if (setup_filename != "") {
+        if(samplingFrequency != 0 && firmware != "")
+            unpacker_->InitializeDataMask(firmware, samplingFrequency);
+        else
+            unpacker_->InitializeDataMask(setup_filename);
+    } else
         unpacker_->InitializeDataMask(firmware, samplingFrequency);
 
     if (debug_mode)
