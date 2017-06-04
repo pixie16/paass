@@ -148,19 +148,6 @@ void GlobalsXmlParser::ParseRootNode(const pugi::xml_node &node) {
 ///Parses the Vandle node. This node contains some information that is
 /// specific to the analysis and function of VANDLE detectors.
 void GlobalsXmlParser::ParseVandleNode(const pugi::xml_node &node, Globals *globals) {
-    if (!node.child("QdcCompression").empty())
-        globals->SetQdcCompression(node.child("QdcCompression").attribute("value").as_double());
-    else
-        globals->SetQdcCompression(1.0);
-
-    if( globals->GetQdcCompression() == 0.0 )
-        throw invalid_argument(CriticalAttributeMessage("QDC compression CANNOT be zero"));
-    else {
-        sstream_ << "QDC Compression : " << globals->GetQdcCompression();
-        messenger_.detail(sstream_.str());
-        sstream_.str("");
-    }
-
     if (!node.child("SpeedOfLightBig").empty())
         globals->SetVandleBigSpeedOfLight(node.child("SpeedOfLightBig").attribute("value").as_double());
     else

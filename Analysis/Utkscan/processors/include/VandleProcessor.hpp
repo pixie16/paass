@@ -40,7 +40,7 @@ public:
     ///@param [in] offset : The offset of the DAMM histograms 
     ///@param [in] numStarts : number of starts we have to process */
     VandleProcessor(const std::vector<std::string> &typeList, const double &res, const double &offset,
-                    const unsigned int &numStarts);
+                    const unsigned int &numStarts, const double &compression = 1.0);
 
     ///Preprocess the VANDLE data
     ///@param [in] event : the event to preprocess
@@ -57,7 +57,9 @@ public:
     ///@param [in] corRadius : the corrected radius for the flight path
     ///@param [in] z0 : perpendicular distance from the source to bar
     ///@return True if the retrieval was successful. */
-    virtual double CorrectTOF(const double &TOF, const double &corRadius, const double &z0) { return ((z0 / corRadius) * TOF); }
+    virtual double CorrectTOF(const double &TOF, const double &corRadius, const double &z0) {
+        return ((z0 / corRadius) * TOF);
+    }
 
     ///@return the map of the build VANDLE bars */
     BarMap GetBars(void) { return bars_; }
@@ -81,8 +83,8 @@ private:
     ///Fill up the basic histograms
     void FillVandleOnlyHists();
 
-    void PlotTofHistograms(const double &tof, const double &cortof, const double &qdc, const unsigned int &barPlusStartLoc,
-                           const unsigned int &offset);
+    void PlotTofHistograms(const double &tof, const double &cortof, const double &qdc,
+                           const unsigned int &barPlusStartLoc, const unsigned int &offset);
 
     ///@return Returns the appropriate offset based off the VANDLE bar type
     ///@param [in] type : The type of bar that we are dealing with

@@ -72,9 +72,6 @@ public:
     ///@return the revision for the data
     std::string GetPixieRevision() const { return revision_; }
 
-    ///@return the compression factor for the QDCs from the trace
-    double GetQdcCompression() const { return qdcCompression_; }
-
     ///@return rejection regions to exclude from scan.
     std::vector<std::pair<unsigned int, unsigned int> > GetRejectionRegions() const { return reject_; }
 
@@ -137,10 +134,6 @@ public:
     ///@param[in] a : The parameter that we are going to set
     void SetOutputPath(const std::string &a) { outputPath_ = a; }
 
-    ///Sets the Qdc Compression factor for plotting QDCs into DAMM.
-    ///@param[in] a : The parameter that we are going to set
-    void SetQdcCompression(const double &a) { qdcCompression_ = a; }
-
     ///Sets the rejection regions parsed from the config file
     ///@param[in] a : The rejection regions.
     void SetRejectionRegions(const std::vector<std::pair<unsigned int, unsigned int>> &a) { reject_ = a; }
@@ -190,7 +183,6 @@ private:
     bool hasRawHistogramsDefined_; //!< True if we are plotting Raw Histograms
     std::string outputFilename_; //!<Output Filename
     std::string outputPath_; //!< The path to additional configuration files
-    double qdcCompression_;//!< QDC compression factor for VANDLE related plots
     std::string revision_; //!< the pixie revision
     double sysClockFreqInHz_; //!< frequency of the system clock
     std::vector<std::pair<unsigned int, unsigned int>> reject_; ///< Rejection regions
