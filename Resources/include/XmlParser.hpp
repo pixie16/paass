@@ -37,9 +37,7 @@ protected:
     ///Warn that we have an unknown parameter in the node.
     ///@param [in] node : an iterator pointing to the location of the unknown
     ///@param [in] knownChildren: A list of the nodes that are known.
-    virtual void WarnOfUnknownChildren(
-            const pugi::xml_node &node,
-            const std::set<std::string> &knownChildren);
+    virtual void WarnOfUnknownChildren(const pugi::xml_node &node, const std::set<std::string> &knownChildren);
 };
 
 #endif //#ifdef _PAASS_XMLPARSER_HPP
