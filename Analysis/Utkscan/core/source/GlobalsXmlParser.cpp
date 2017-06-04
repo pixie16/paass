@@ -142,6 +142,19 @@ void GlobalsXmlParser::ParseRootNode(const pugi::xml_node &node) {
         throw invalid_argument(CriticalNodeMessage("Map"));
     if (node.child("Global").empty())
         throw invalid_argument(CriticalNodeMessage("Global"));
+
+    if(!node.child("Trace").empty())
+        throw invalid_argument("GlobalsXmlParser::ParseRootNode - The Trace node is now channel specific.");
+    if(!node.child("Fitting").empty())
+        throw invalid_argument("GlobalsXmlParser::ParseRootNode - The Fitting node is now channel specific and called"
+                                       " \"Fit.\"");
+    if(!node.child("Timing").empty())
+        throw invalid_argument("GlobalsXmlParser::ParseRootNode - The Trace node is deprecated.");
+    if(!node.child("Physical").empty())
+        throw invalid_argument("GlobalsXmlParser::ParseRootNode - The Physical node is deprecated");
+    if(!node.child("Cfd").empty())
+        throw invalid_argument("GlobalsXmlParser::ParseRootNode - The Cfd node is now channel specific.");
+
     WarnOfUnknownChildren(node, knownChildren);
 }
 
