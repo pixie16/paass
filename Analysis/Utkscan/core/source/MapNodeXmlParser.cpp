@@ -29,8 +29,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
 
     messenger_.start("Loading channels map");
 
-    //These attributes have reserved meaning, all other
-    //attributes of [Channel] are treated as tags
+    //These attributes have reserved meaning, all other attributes of [Channel] are treated as tags
     set<string> reserved = {"number", "type", "subtype", "location", "tags", "firmware", "frequency"};
 
     for (pugi::xml_node module = map.child("Module"); module; module = module.next_sibling("Module")) {

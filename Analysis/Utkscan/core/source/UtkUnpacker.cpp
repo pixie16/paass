@@ -163,6 +163,10 @@ void UtkUnpacker::InitializeDriver(DetectorDriver *driver, DetectorLibrary *detl
     m.detail(ss.str());
     ss.str("");
 
+    if(GetMaxModuleInFile() != detlib->GetModules() - 1)
+        throw invalid_argument("UtkUnpacker::InitializeDriver - You did not define the last module (" +
+                                       to_string(GetMaxModuleInFile()) + ") in the configuration file. This is fatal.");
+
     //detlib->PrintUsedDetectors(rawev);
     driver->Init(rawev);
 
