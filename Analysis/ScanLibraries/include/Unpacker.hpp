@@ -27,6 +27,7 @@
 #endif
 
 class XiaData;
+
 class ScanMain;
 
 class Unpacker {
@@ -70,8 +71,7 @@ public:
     /// Set the width of events in pixie16 clock ticks.
     void SetEventWidth(double width) { eventWidth_ = width; }
 
-    void InitializeDataMask(const std::string &firmware,
-                            const unsigned int &frequency) {
+    void InitializeDataMask(const std::string &firmware, const unsigned int &frequency = 0) {
         mask_.SetFrequency(frequency);
         mask_.SetFirmware(firmware);
     }
@@ -84,8 +84,7 @@ public:
       * \param[in]  is_verbose Toggle the verbosity flag on/off.
       * \return True if the spill was read successfully and false otherwise.
       */
-    bool ReadSpill(unsigned int *data, unsigned int nWords,
-                   bool is_verbose = true);
+    bool ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbose = true);
 
     /** Write all recorded channel counts to a file.
       * \return Nothing.
@@ -103,16 +102,12 @@ public:
     void Run() { running = true; }
 
 protected:
-    XiaListModeDataMask mask_; //Object providing the masks necessary to
-    // decode the data.
-
-    double eventWidth_; /// The width of the raw event in pixie clock ticks
-
-    bool debug_mode; /// True if debug mode is set.
-    bool running; /// True if the scan is running.
-
-    std::vector<std::deque<XiaData *>> eventList; /// The list of all events in a spill.
-    std::deque<XiaData *> rawEvent; /// The list of all events in the event window.
+    bool debug_mode; ///< True if debug mode is set.
+    std::vector<std::deque<XiaData *>> eventList; ///< The list of all events in a spill.
+    double eventWidth_; ///< The width of the raw event in pixie clock ticks
+    XiaListModeDataMask mask_; ///< Object providing the masks necessary to decode the data.
+    std::deque<XiaData *> rawEvent; ///< The list of all events in the event window.
+    bool running; ///< True if the scan is running.
 
     /** Process all events in the event list.
       * \param[in]  addr_ Pointer to a ScanInterface object. Unused by default.
@@ -138,20 +133,14 @@ protected:
     int ReadBuffer(unsigned int *buf);
 
 private:
-    ///Vector containing the list of channels decoded from
-    std::vector<XiaData *> decodedList_;
-
     unsigned int TOTALREAD; /// Maximum number of data words to read.
     unsigned int maxWords; /// Maximum number of data words for revision D.
     unsigned int numRawEvt; /// The total count of raw events read from file.
 
-    unsigned int channel_counts[
-            MAX_PIXIE_MOD + 1][
-            MAX_PIXIE_CHAN + 1]; /// Counters for each channel in each module.
+    unsigned int channel_counts[MAX_PIXIE_MOD + 1][MAX_PIXIE_CHAN + 1]; /// Counters for each channel in each module.
 
     double firstTime; /// The first recorded event time.
     double eventStartTime; /// The start time of the current raw event.
-
     double realStartTime; /// The time of the first xia event in the raw event.
     double realStopTime; /// The time of the last xia event in the raw event.
 

@@ -77,8 +77,7 @@ option optionExt::getOption() {
 // class fileInformation
 /////////////////////////////////////////////////////////////////////
 
-bool fileInformation::at(const size_t &index_, string &name,
-                         string &value) {
+bool fileInformation::at(const size_t &index_, string &name, string &value) {
     if (index_ >= parnames.size()) { return false; }
     name = parnames.at(index_);
     value = parvalues.at(index_);
@@ -86,8 +85,7 @@ bool fileInformation::at(const size_t &index_, string &name,
 }
 
 template<typename T>
-bool fileInformation::push_back(const string &name_, const T &value_,
-                                const string &units_/*=""*/) {
+bool fileInformation::push_back(const string &name_, const T &value_, const string &units_/*=""*/) {
     if (!is_in(name_)) {
         stringstream stream;
         stream << value_;
@@ -102,11 +100,9 @@ bool fileInformation::push_back(const string &name_, const T &value_,
 }
 
 bool fileInformation::is_in(const string &name_) {
-    for (vector<string>::iterator iter = parnames.begin(); iter != parnames.end(); iter++) {
-        if (name_ == (*iter)) {
+    for (vector<string>::iterator iter = parnames.begin(); iter != parnames.end(); iter++)
+        if (name_ == (*iter))
             return true;
-        }
-    }
     return false;
 }
 
@@ -138,9 +134,8 @@ void ScanInterface::start_scan() {
         unpacker_->Run();
         is_running = true;
         total_stopped = false;
-        if (!batch_mode) {
+        if (!batch_mode)
             term->SetStatus("\033[0;33m[IDLE]\033[0m Waiting for Unpacker...");
-        }
 
         // Notify that the user has started the scan.
         Notify("START_SCAN");
@@ -156,11 +151,10 @@ void ScanInterface::stop_scan() {
     else {
         unpacker_->Stop();
         is_running = false;
-        if (!batch_mode) {
+        if (!batch_mode)
             term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped.");
-        } else {
+        else
             cout << "\033[0;31m[STOP]\033[0m Acquisition stopped.\n";
-        }
     }
 
     // Notify that the user has stopped the scan.
@@ -174,14 +168,14 @@ void ScanInterface::stop_scan() {
 void ScanInterface::OutputCommandLineHelp(char *name_) {
     SyntaxStr(name_);
     cout << "  Available options:\n";
-    for (vector<optionExt>::iterator iter = baseOpts.begin();
-         iter != baseOpts.end(); iter++) {
-        if (!iter->name) continue;
+    for (vector<optionExt>::iterator iter = baseOpts.begin(); iter != baseOpts.end(); iter++) {
+        if (!iter->name)
+            continue;
         iter->print(40, "   ");
     }
-    for (vector<optionExt>::iterator iter = userOpts.begin();
-         iter != userOpts.end(); iter++) {
-        if (!iter->name) continue;
+    for (vector<optionExt>::iterator iter = userOpts.begin(); iter != userOpts.end(); iter++) {
+        if (!iter->name)
+            continue;
         iter->print(40, "   ");
     }
 }
@@ -191,7 +185,8 @@ void ScanInterface::OutputCommandLineHelp(char *name_) {
   * \return True upon success and false otherwise.
   */
 bool ScanInterface::rewind(const unsigned long &offset_/*=0*/) {
-    if (!scan_init) { return false; }
+    if (!scan_init)
+        return false;
 
     // Ensure that the scan is not running.
     if (!(file_open || shm_mode)) {
@@ -219,8 +214,7 @@ bool ScanInterface::rewind(const unsigned long &offset_/*=0*/) {
   */
 bool ScanInterface::open_input_file(const string &fname_) {
     if (is_running) {
-        cout
-                << " ERROR! Unable to open input file while scan is running.\n";
+        cout << " ERROR! Unable to open input file while scan is running.\n";
         return false;
     } else if (shm_mode) {
         cout << " ERROR! Unable to open input file in shm mode.\n";
@@ -256,8 +250,7 @@ bool ScanInterface::open_input_file(const string &fname_) {
     // Load the input file.
     input_file.open(fname_.c_str(), ios::binary);
     if (!input_file.is_open() || !input_file.good()) {
-        cout << " ERROR! Failed to open input file '" << fname_
-                  << "'! Check that the path is correct.\n";
+        cout << " ERROR! Failed to open input file '" << fname_ << "'! Check that the path is correct.\n";
         input_file.close();
         file_open = false;
         return false;
@@ -997,13 +990,14 @@ bool ScanInterface::Setup(int argc, char *argv[],
     //Initialize the data mask for decoding the data
     ///@TODO We need to be able to handle mixed systems, which is not
     /// implemented yet.
-    if (samplingFrequency == 0 || firmware == "") {
+    if ((samplingFrequency == 0 || firmware == "") && setup_filename == "") {
         if (samplingFrequency == 0)
-            throw invalid_argument(
-                    "ScanInterface::Setup - The frequency has not been set.");
+            throw invalid_argument("ScanInterface::Setup - The frequency has not been set.");
         if (firmware == "")
             throw invalid_argument("ScanInterface::Setup - The firmware has not been set.");
-    } else
+    } else if (setup_filename != "")
+        unpacker_->InitializeDataMask(setup_filename);
+    else
         unpacker_->InitializeDataMask(firmware, samplingFrequency);
 
     if (debug_mode)
