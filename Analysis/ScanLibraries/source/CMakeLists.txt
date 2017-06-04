@@ -1,6 +1,5 @@
 #Set the scan sources that we will make a lib out of
-set(PaassScanSources ScanInterface.cpp Unpacker.cpp
-        XiaData.cpp XiaListModeDataMask.cpp XiaListModeDataDecoder.cpp
+set(PaassScanSources ScanInterface.cpp Unpacker.cpp XiaData.cpp XiaListModeDataMask.cpp XiaListModeDataDecoder.cpp
         XiaListModeDataEncoder.cpp)
 
 #Add the sources to the library
@@ -18,7 +17,7 @@ endif (PAASS_BUILD_SHARED_LIBS)
 
 #Create PixieScan static library and add ncurses if we have it
 add_library(PaassScanStatic STATIC $<TARGET_OBJECTS:PaassScanObjects>)
-target_link_libraries(PaassScanStatic PaassCoreStatic ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(PaassScanStatic PaassCoreStatic PaassResourceStatic ${CMAKE_THREAD_LIBS_INIT})
 if (${CURSES_FOUND})
     target_link_libraries(PaassScanStatic ${CURSES_LIBRARIES})
 endif (${CURSES_FOUND})

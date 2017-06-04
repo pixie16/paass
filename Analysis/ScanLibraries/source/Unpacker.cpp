@@ -279,6 +279,9 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
     unsigned int lastVsn = 0xFFFFFFFF; // the last vsn read from the data
     time_t theTime = 0;
 
+    if(counter == 0)
+        maxModuleNumberInFile_ = 0;
+
     counter++;
 
     unsigned int lenRec = 0xFFFFFFFF;
@@ -294,6 +297,9 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
         // Retrieve the record length and the vsn number
         lenRec = data[nWords_read]; // Number of words in this record
         vsn = data[nWords_read + 1]; // Module number
+
+        if(vsn > maxModuleNumberInFile_ && vsn != 9999 && vsn != 1000)
+            maxModuleNumberInFile_ = vsn;
 
         // Check sanity of record length and vsn
         if (lenRec > maxWords || (vsn > maxVsn && vsn != 9999 && vsn != 1000)) {

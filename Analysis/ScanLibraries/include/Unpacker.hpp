@@ -39,8 +39,8 @@ public:
     /// Destructor.
     virtual ~Unpacker();
 
-    /// Return the maximum module read from the input file.
-    size_t GetMaxModule() { return eventList.size(); }
+    ///@return the maximum module read from the input file. The calculation on this cannot be right.
+    unsigned int GetMaxModuleInFile() { return maxModuleNumberInFile_; }
 
     /// Return the number of raw events read from the file.
     unsigned int GetNumRawEvents() { return numRawEvt; }
@@ -105,6 +105,7 @@ protected:
     double eventWidth_; ///< The width of the raw event in pixie clock ticks
     XiaListModeDataMask mask_; ///< Object providing the masks necessary to decode the data.
     std::map<unsigned int, std::pair<std::string, unsigned int> > maskMap_;///< Maps firmware/frequency to module number
+    unsigned int maxModuleNumberInFile_; ///< The maximum module number that we've encountered in the data file.
     std::deque<XiaData *> rawEvent; ///< The list of all events in the event window.
     bool running; ///< True if the scan is running.
 
