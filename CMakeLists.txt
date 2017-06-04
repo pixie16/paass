@@ -118,9 +118,6 @@ if (PAASS_BUILD_ACQ)
 
         #Create pixie.cfg and copy slot_def.set as well as default.set to current.set
         XIA_CONFIG()
-        #Use the cmake script created by XIA_CONFIG to install the files it
-        #created when make install is typed
-        add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)
     endif ()
     set(PAASS_BUILD_ACQ_ATTEMPTED ON CACHE INTERNAL "Build Suite Attempted")
 endif (PAASS_BUILD_ACQ)

@@ -42,12 +42,6 @@ function(XIA_CONFIG)
 
     get_filename_component(XIA_ROOT_DIR "${XIA_LIBRARY_DIR}/.." REALPATH)
 
-    #create an installer that can be invoked by
-    #add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake
-            "file(INSTALL pixie.cfg DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n"
-            )
-
     #Write some useful info.
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg
             "#Pixie Configuration\n"
@@ -108,22 +102,17 @@ function(XIA_CONFIG)
         if (${KEY} MATCHES "SlotFile")
             if (NUM_MATCHES EQUAL 1)
                 configure_file(${XIA_ROOT_DIR}/${FILE_MATCHES} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-                file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake
-                        "file(INSTALL slot_def.set DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n")
+                install(FILES ${CMAKE_CURRENT_BINARY_DIR}/slot_def.set DESTINATION
+                        ${CMAKE_INSTALL_PREFIX}/share/config)
                 set(FILE_MATCHES "./slot_def.set")
             endif ()
         elseif (${KEY} MATCHES "DspSetFile")
             if (NUM_MATCHES EQUAL 1)
-                configure_file(${XIA_ROOT_DIR}/${FILE_MATCHES} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-                file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake
-                        "file(INSTALL default.set
-						PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
-						DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n")
+                install(FILES ${XIA_ROOT_DIR}/${FILE_MATCHES} PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+                        DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)
                 #Rename set file to current.set to maintain default.set for backup
-                file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie_cfg.cmake
-                        "file(INSTALL default.set
-						RENAME current.set
-						DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)\n")
+                install(FILES ${XIA_ROOT_DIR}/${FILE_MATCHES} RENAME current.set DESTINATION
+                        ${CMAKE_INSTALL_PREFIX}/share/config)
                 set(FILE_MATCHES ./current.set)
             endif ()
         endif ()
@@ -242,6 +231,7 @@ function(XIA_CONFIG)
         endforeach (CONFIG_STEP RANGE 0 3)
     endforeach (FIRMWARE_DIR ${XIA_FIRMWARE_DIRS})
 
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)
 endfunction()
 
 macro(SUBDIRLIST result curdir)
