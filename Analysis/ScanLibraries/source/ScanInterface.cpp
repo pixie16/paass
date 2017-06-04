@@ -26,10 +26,6 @@
 
 #include "ScanInterface.hpp"
 
-#ifndef PROG_NAME
-#define PROG_NAME "ScanInterface"
-#endif
-
 using namespace std;
 
 void start_run_control(ScanInterface *main_) {
@@ -438,7 +434,7 @@ ScanInterface::ScanInterface() {
 
     optstr = "bc:f:hi:o:qsv";
 
-    progName = string(PROG_NAME);
+    progName = "ScanInterface";
     msgHeader = progName + ": ";
 }
 
@@ -788,7 +784,7 @@ void ScanInterface::CmdControl() {
             while (!run_ctrl_exit) { sleep(1); }
             break;
         } else if (cmd == "version" || cmd == "v") {
-            cout << "  " << PROG_NAME << "	  v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
+            cout << "  " << progName << "	  v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
             cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " (" << POLL2_SOCKET_DATE << ")\n";
             cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION << " (" << HRIBF_BUFFERS_DATE << ")\n";
             cout << "  CTerminal	 v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
@@ -963,7 +959,7 @@ bool ScanInterface::Setup(int argc, char *argv[],
                     shm_mode = true;
                     break;
                 case 'v' :
-                    cout << "  " << PROG_NAME << "	  v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
+                    cout << "  " << progName << "	  v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
                     cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " (" << POLL2_SOCKET_DATE << ")\n";
                     cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION << " (" << HRIBF_BUFFERS_DATE << ")\n";
                     cout << "  CTerminal	 v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
@@ -1040,7 +1036,7 @@ bool ScanInterface::Setup(int argc, char *argv[],
         term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped.");
     }
 
-    cout << "\n " << PROG_NAME << " v" << SCAN_VERSION << "\n";
+    cout << "\n " << progName << " v" << SCAN_VERSION << "\n";
     cout << " ==  ==  ==  ==  == \n\n";
 
     if (debug_mode) { cout << msgHeader << "Using debug mode.\n\n"; }
@@ -1123,12 +1119,11 @@ bool ScanInterface::Close() {
     if (shm_mode) { poll_server->Close(); }
 
     //Reprint the leader as the carriage was returned
-    cout << "Running " << PROG_NAME << " v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
+    cout << "Running " << progName << " v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
     cout << msgHeader << "Retrieved " << num_spills_recvd << " spills!\n";
 
-    if (input_file.good()) {
+    if (input_file.good())
         input_file.close();
-    }
 
     // Clean up detector driver
     cout << "\n" << msgHeader << "Cleaning up...\n";

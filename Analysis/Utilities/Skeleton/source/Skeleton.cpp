@@ -18,11 +18,6 @@
 #include "ScanorInterface.hpp"
 #endif
 
-// Define the name of the program.
-#ifndef PROG_NAME
-#define PROG_NAME "Spooky"
-#endif
-
 #ifndef USE_HRIBF
 
 using namespace std;
@@ -34,7 +29,7 @@ int main(int argc, char *argv[]) {
 
     try {
         // Set the output message prefix.
-        scanner.SetProgramName(std::string(PROG_NAME));
+        scanner.SetProgramName("Spooky");
 
         // Initialize the scanner.
         scanner.Setup(argc, argv, &unpacker);

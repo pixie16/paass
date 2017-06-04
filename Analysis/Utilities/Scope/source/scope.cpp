@@ -9,11 +9,6 @@
 #include "ScopeUnpacker.hpp"
 #include "ScopeScanner.hpp"
 
-// Define the name of the program.
-#ifndef PROG_NAME
-#define PROG_NAME "Scope"
-#endif
-
 #ifndef USE_HRIBF
 int main(int argc, char *argv[]) {
     // Define a new unpacker object.
@@ -21,7 +16,7 @@ int main(int argc, char *argv[]) {
     ScopeScanner scanner(&unpacker);
 
     // Set the output message prefix.
-    scanner.SetProgramName(std::string(PROG_NAME));
+    scanner.SetProgramName("Scope");
 
     // Initialize the scanner.
     if (!scanner.Setup(argc, argv, &unpacker))
