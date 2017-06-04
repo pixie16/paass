@@ -218,8 +218,7 @@ int main(int argc, char *argv[]) {
     poll_term.Close();
 
     //Reprint the leader as the carriage was returned
-    Display::LeaderPrint(
-            std::string("Running poll2 v").append(POLL2_CORE_VERSION));
+    Display::LeaderPrint(std::string("Running poll2 v <To Be fixed later>"));
     std::cout << Display::OkayStr("[Done]") << std::endl;
 
     return 0;
