@@ -65,74 +65,38 @@
   *  \param[in]  msg_ Error message to print if the value is not numeric.
   *  \return true if the string is strictly numeric and false otherwise.
   */
-bool IsNumeric(const std::string &input_, const std::string &prefix_/*=""*/,
-               const std::string &msg_/*=""*/) {
+bool IsNumeric(const std::string &input_, const std::string &prefix_/*=""*/, const std::string &msg_/*=""*/) {
     for (size_t i = 0; i < input_.size(); i++) {
-        if ((input_[i] < 0x30 || input_[i] > 0x39) && input_[i] != 0x2D &&
-            input_[i] != 0x2E) {
-            if (!msg_.empty()) std::cout << msg_ << " (" << input_ << ").\n";
+        if ((input_[i] < 0x30 || input_[i] > 0x39) && input_[i] != 0x2D && input_[i] != 0x2E) {
+            if (!msg_.empty())
+                std::cout << msg_ << " (" << input_ << ").\n";
             return false;
         }
     }
     return true;
 }
 
-std::vector<std::string> chan_params = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP",
-                                        "TRIGGER_THRESHOLD", "ENERGY_RISETIME",
-                                        "ENERGY_FLATTOP", "TAU", "TRACE_LENGTH",
-                                        "TRACE_DELAY", "VOFFSET", "XDT",
-                                        "BASELINE_PERCENT", "EMIN", "BINFACTOR",
-                                        "CHANNEL_CSRA", "CHANNEL_CSRB", "BLCUT",
-                                        "ExternDelayLen", "ExtTrigStretch",
-                                        "ChanTrigStretch", "FtrigoutDelay",
+std::vector<std::string> chan_params = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP", "TRIGGER_THRESHOLD", "ENERGY_RISETIME",
+                                        "ENERGY_FLATTOP", "TAU", "TRACE_LENGTH", "TRACE_DELAY", "VOFFSET", "XDT",
+                                        "BASELINE_PERCENT", "EMIN", "BINFACTOR", "CHANNEL_CSRA", "CHANNEL_CSRB",
+                                        "BLCUT", "ExternDelayLen", "ExtTrigStretch", "ChanTrigStretch", "FtrigoutDelay",
                                         "FASTTRIGBACKLEN"};
 
-std::vector<std::string> mod_params = {"MODULE_CSRA", "MODULE_CSRB",
-                                       "MODULE_FORMAT", "MAX_EVENTS",
-                                       "SYNCH_WAIT", "IN_SYNCH",
-                                       "SLOW_FILTER_RANGE",
-                                       "FAST_FILTER_RANGE", "MODULE_NUMBER",
-                                       "TrigConfig0", "TrigConfig1",
-                                       "TrigConfig2", "TrigConfig3"};
+std::vector<std::string> mod_params = {"MODULE_CSRA", "MODULE_CSRB", "MODULE_FORMAT", "MAX_EVENTS", "SYNCH_WAIT",
+                                       "IN_SYNCH", "SLOW_FILTER_RANGE", "FAST_FILTER_RANGE", "MODULE_NUMBER",
+                                       "TrigConfig0", "TrigConfig1", "TrigConfig2", "TrigConfig3"};
 
-const std::vector<std::string> Poll::runControlCommands_({"run", "stop",
-                                                          "startacq",
-                                                          "startvme", "stopacq",
-                                                          "stopvme", "timedrun",
-                                                          "acq", "shm", "spill",
-                                                          "hup", "prefix",
-                                                          "fdir", "title",
-                                                          "runnum", "oform",
-                                                          "close", "reboot",
-                                                          "stats",
+const std::vector<std::string> Poll::runControlCommands_({"run", "stop", "startacq", "startvme", "stopacq", "stopvme",
+                                                          "timedrun", "acq", "shm", "spill", "hup", "prefix", "fdir",
+                                                          "title", "runnum", "oform", "close", "reboot", "stats",
                                                           "mca"});
-const std::vector<std::string> Poll::runControlCommands_ ({"run", "stop", 
-	"startacq", "startvme", "stopacq", "stopvme", "timedrun", "acq", "shm", "spill",
-	"hup", "prefix", "fdir", "title", "runnum", "oform", "close", "reboot", "stats", 
-	"mca"});
 	
-const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread", 
-	"pmread", "pwrite", "pmwrite", "adjust_offsets", "find_tau", "toggle", 
-	"toggle_bit", "csr_test", "bit_test", "get_traces", "save"});
+const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread", "pmread", "pwrite", "pmwrite",
+                                                             "adjust_offsets", "find_tau", "toggle", "toggle_bit",
+                                                             "csr_test", "bit_test", "get_traces", "save"});
 	
-const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "thresh", 
-	"debug", "quiet", "quit", "help", "version"});
-
-const std::vector<std::string> Poll::paramControlCommands_({"dump", "pread",
-                                                            "pmread", "pwrite",
-                                                            "pmwrite",
-                                                            "adjust_offsets",
-                                                            "find_tau",
-                                                            "toggle",
-                                                            "toggle_bit",
-                                                            "csr_test",
-                                                            "bit_test",
-                                                            "get_traces"});
-
-const std::vector<std::string> Poll::pollStatusCommands_({"status", "thresh",
-                                                          "debug", "quiet",
-                                                          "quit", "help",
-                                                          "version"});
+const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "thresh", "debug", "quiet", "quit", "help",
+                                                           "version"});
 
 MCA_args::MCA_args() {
     mca = NULL;
