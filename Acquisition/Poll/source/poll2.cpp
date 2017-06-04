@@ -26,22 +26,15 @@
 /* Print help dialogue for command line options. */
 void help(const char *progName_) {
     std::cout << "\n SYNTAX: " << progName_ << " [options]\n";
-    std::cout
-            << "  --alarm (-a) [e-mail] | Call the alarm script with a given e-mail (or no argument)\n";
+    std::cout << "  --alarm (-a) [e-mail] | Call the alarm script with a given e-mail (or no argument)\n";
     std::cout << "  --fast (-f)           | Fast boot (false by default)\n";
     std::cout << "  --verbose (-v)        | Run quietly (false by default)\n";
-    std::cout
-            << "  --no-wall-clock       | Do not insert the wall clock in the data stream\n";
-    std::cout
-            << "  --rates               | Display module rates in quiet mode (false by defualt)\n";
-    std::cout
-            << "  --thresh (-t) <num>   | Sets FIFO read threshold to num% full (50% by default)\n";
-    std::cout
-            << "  --zero                | Zero clocks on each START_ACQ (false by default)\n";
-    std::cout
-            << "  --debug (-d)          | Set debug mode to true (false by default)\n";
-    std::cout
-            << "  --pacman (-p)         | Use classic poll operation for use with Pacman.\n";
+    std::cout << "  --no-wall-clock       | Do not insert the wall clock in the data stream\n";
+    std::cout << "  --rates               | Display module rates in quiet mode (false by defualt)\n";
+    std::cout << "  --thresh (-t) <num>   | Sets FIFO read threshold to num% full (50% by default)\n";
+    std::cout << "  --zero                | Zero clocks on each START_ACQ (false by default)\n";
+    std::cout << "  --debug (-d)          | Set debug mode to true (false by default)\n";
+    std::cout << "  --pacman (-p)         | Use classic poll operation for use with Pacman.\n";
     std::cout << "  --help (-h)           | Display this help dialogue.\n\n";
 }
 
@@ -100,8 +93,7 @@ int main(int argc, char *argv[]) {
             case 't' :
                 threshPercent = atoi(optarg);
                 if (threshPercent <= 0) {
-                    std::cout << Display::ErrorStr()
-                              << " Failed to set threshold level to ("
+                    std::cout << Display::ErrorStr() << " Failed to set threshold level to ("
                               << threshPercent << ")!\n";
                     return 1;
                 }
@@ -164,7 +156,7 @@ int main(int argc, char *argv[]) {
     std::cout << " ##           ##   ##    ##    ##  ##    ##  ##\n";
     std::cout << "####           #####    ######### ######### ###########\n";
 
-    std::cout << "\n POLL2 v" << POLL2_CORE_VERSION << "\n";
+    std::cout << "\n POLL2 v" << " <Version to Be fixed later> " << "\n";
     std::cout << " ==  ==  ==  ==  == \n\n";
 
     poll_term.SetCommandHistory(poll2Dir + "poll2.cmd");
