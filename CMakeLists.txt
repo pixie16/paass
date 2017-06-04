@@ -33,8 +33,7 @@ message(STATUS "Installing to ${CMAKE_INSTALL_PREFIX}")
 #Define the default build type to be Release
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING
-            "Build type, options are: None Debug Release RelWithDebInfo MinSizeRel."
-            FORCE)
+            "Build type, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
     message(STATUS "Build type not defined, using default: ${CMAKE_BUILD_TYPE}")
 endif (NOT CMAKE_BUILD_TYPE)
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
@@ -120,8 +119,8 @@ if (PAASS_BUILD_ACQ)
         #Create pixie.cfg and copy slot_def.set as well as default.set to current.set
         XIA_CONFIG()
         #Use the cmake script created by XIA_CONFIG to install the files it
-        #created when make cfg is typed
-        add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)
+        #created when make install is typed
+        add_custom_target(install ${CMAKE_COMMAND} -P pixie_cfg.cmake)
     endif ()
     set(PAASS_BUILD_ACQ_ATTEMPTED ON CACHE INTERNAL "Build Suite Attempted")
 endif (PAASS_BUILD_ACQ)
@@ -129,8 +128,7 @@ endif (PAASS_BUILD_ACQ)
 #Find ROOT if USE_ROOT was set.
 if (PAASS_USE_ROOT)
     find_package(ROOT REQUIRED)
-    mark_as_advanced(FORCE GENREFLEX_EXECUTABLE ROOTCINT_EXECUTABLE
-            ROOT_CONFIG_EXECUTABLE)
+    mark_as_advanced(FORCE GENREFLEX_EXECUTABLE ROOTCINT_EXECUTABLE ROOT_CONFIG_EXECUTABLE)
     include_directories(${ROOT_INCLUDE_DIR})
     link_directories(${ROOT_LIBRARY_DIR})
     add_definitions("-D USE_ROOT")
