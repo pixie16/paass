@@ -41,8 +41,7 @@ bool UtkScanInterface::Initialize(string prefix_) {
         return false;
 
     if (GetOutputFilename() == "")
-        throw invalid_argument("UtkScaninterface::Initialize : The output file "
-                                       "name was not provided.");
+        throw invalid_argument("UtkScaninterface::Initialize : The output file name was not provided.");
 
     try {
         cout << "UtkScanInterface::Initialize : Now attempting to load and "
