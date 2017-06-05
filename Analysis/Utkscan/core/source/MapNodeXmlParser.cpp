@@ -101,7 +101,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
                 messenger_.detail("Using default CFD settings for this channel.", 2);
 
             if (channel.child("Filter"))
-                ParseFilterNode(channel.child("Fit"), chanCfg, isVerbose);
+                ParseFilterNode(channel.child("Filter"), chanCfg, isVerbose);
             else if (isVerbose)
                 messenger_.detail("Using default filter settings for this channel.", 2);
 
