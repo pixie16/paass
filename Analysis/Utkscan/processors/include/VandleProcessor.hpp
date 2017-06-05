@@ -102,6 +102,6 @@ private:
 
     /** \return Returns the appropriate offset based off the VANDLE bar type
      * \param [in] type : The type of bar that we are dealing with */
-    unsigned int ReturnOffset(const std::string &type);
+    std::pair<unsigned int ,unsigned int >ReturnOffset(const std::string &type);
 };
 #endif
