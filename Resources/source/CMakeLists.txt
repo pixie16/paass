@@ -11,6 +11,7 @@ endif (PAASS_USE_ROOT)
 #Add the sources to the library
 add_library(PaassResourceObjects OBJECT ${PaassResourceSources})
 add_library(PaassResourceStatic STATIC $<TARGET_OBJECTS:PaassResourceObjects>)
+target_link_libraries(PaassResourceStatic PugixmlStatic)
 
 if (BUILD_SHARED_LIBS)
     message(STATUS "Building Utility Shared Objects")
