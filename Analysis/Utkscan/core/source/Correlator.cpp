@@ -56,7 +56,6 @@ EventInfo::EventInfo() {
     type = UNKNOWN_EVENT;
     logicBits[0] = 'X';
     logicBits[1] = '\0';
-    logicBits[10] = '\0';
     generation = 0;
 }
 
@@ -176,7 +175,7 @@ void Correlator::DeclarePlots() {
 
 void Correlator::Correlate(EventInfo &event, unsigned int fch,
                            unsigned int bch) {
-    if (fch < 0 || fch >= arraySize || bch < 0 || bch >= arraySize) {
+    if (fch >= arraySize || bch >= arraySize) {
         plot(D_CONDITION, INVALID_LOCATION);
         return;
     }
