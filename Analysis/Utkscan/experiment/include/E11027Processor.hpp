@@ -2,8 +2,8 @@
 ///@brief Class that handles outputting MONA-LISA-SWEEPER timestamps from the E11027 experiment conducted at NSCL.
 ///@author S. V. Paulauskas
 ///@date May 26, 2017
-#ifndef __E11027PROCESSOR_HPP_
-#define __E11027PPROCESSOR_HPP_
+#ifndef __E11027PROCESSOR_HPP__
+#define __E11027PROCESSOR_HPP__
 #include <fstream>
 
 #include "EventProcessor.hpp"
