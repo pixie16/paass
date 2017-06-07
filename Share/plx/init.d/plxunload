@@ -1,2 +1,4 @@
+# @author R. Grzywacz and K. Smith
+
 #!/bin/bash
 ${PLX_SDK_DIR}/Bin/Plx_unload 9054

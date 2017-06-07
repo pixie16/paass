@@ -1,6 +1,7 @@
 #We will build a separate library for each one of the third party
 #libraries/codes that we are going to use. However, we'll dump them all into
 #the same folder for simplicity's sake.
+# @author S.V. Paulauskas
 
 #Build pugixml. This software is used to parse XML files.
 set(PugixmlSources pugixml.cpp)

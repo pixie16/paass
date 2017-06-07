@@ -1,7 +1,8 @@
-///@file RootInterface.hpp
-///@brief Provides an interface to ROOT for scan programs
-///@author K. Smith and S. V. Paulauskas
-///@date May 21, 2017
+/**@file RootInterface.hpp
+ * @brief Provides an interface to ROOT for scan programs
+ * @authors K. Smith and S. V. Paulauskas
+ * @date May 21, 2017
+ */
 #include <iostream>
 #include <limits>
 

@@ -1,7 +1,8 @@
-///@file XmlParser.hpp
-///@brief Class to help parse nodes XML based files.
-///@author S. V. Paulauskas
-///@date February 09, 2017
+/**@file XmlParser.hpp
+ * @brief Class to help parse nodes XML based files.
+ * @authors S. V. Paulauskas and T.T. King
+ * @date February 09, 2017
+ */
 #ifndef _PAASS_XMLPARSER_HPP
 #define _PAASS_XMLPARSER_HPP
 

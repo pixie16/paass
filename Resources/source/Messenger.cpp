@@ -1,6 +1,6 @@
 /** \file Messenger.cpp
  * \brief A class to handle messages and output them prettily
- * \author K. A. Miernik
+ * \authors K.A. Miernik and S.V. Paulauskas
  * \date December 14, 2014
  */
 #include "Messenger.hpp"

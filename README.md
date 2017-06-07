@@ -1,3 +1,5 @@
+<!-- Author: S. Paulauskas -->
+
 # Pixie Acquisition and Analysis Software Suite (PAASS)
 
 This project combines the PixieSuite(2) and pixie_scan projects developed

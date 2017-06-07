@@ -1,8 +1,9 @@
-///@file XmlParser.cpp
-///@brief An abstracted class that provides basic functionality of parsing an
-/// XML node.
-///@author S. V. Paulauskas
-///@date February 09, 2017
+/**@file XmlParser.cpp
+ * @brief An abstracted class that provides basic functionality of parsing an
+ * XML node.
+ * @authors S. V. Paulauskas and T.T. King
+ * @date February 09, 2017
+ */
 #include <iostream>
 #include <stdexcept>
 
