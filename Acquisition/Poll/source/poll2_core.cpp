@@ -302,6 +302,7 @@ bool Poll::Initialize(){
 	if (!pac_mode) {
 		commands_.insert(commands_.begin(), runControlCommands_.begin(), runControlCommands_.end());
 	}
+	else commands_.push_back("mca");
 
 	return init = true;
 }
@@ -645,8 +646,8 @@ void Poll::help(){
 		std::cout << "   oform [0|1|2]       - Set the format of the output file (default=0)\n";
 		std::cout << "   reboot              - Reboot PIXIE crate\n";
 		std::cout << "   stats [time]        - Set the time delay between statistics dumps (default=-1)\n";
-		std::cout << "   mca [root|damm] [time] [filename]     - Use MCA to record data for debugging purposes\n";
 	}
+	std::cout << "   mca [root|damm] [time] [filename]     - Use MCA to record data for debugging purposes\n";
 	std::cout << "   dump [filename]                       - Dump pixie settings to file (default='Fallback.set')\n";
 	std::cout << "   pread <mod> <chan> <param>            - Read parameters from individual PIXIE channels\n";
 	std::cout << "   pmread <mod> <param>                  - Read parameters from PIXIE modules\n";
