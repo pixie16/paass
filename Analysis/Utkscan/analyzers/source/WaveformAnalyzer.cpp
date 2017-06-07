@@ -29,6 +29,7 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
     TraceAnalyzer::Analyze(trace, type, subtype, tags);
 
     if (trace.IsSaturated() || trace.empty()) {
+        trace.SetHasValidAnalysis(false);
         EndAnalyze();
         return;
     }
@@ -42,18 +43,51 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
         tags.find("timing") != tags.end())
         range = globals->GetWaveformRange(type + ":" + subtype + ":timing");
 
+    //First we calculate the position of the maximum.
+    pair<unsigned int, double> max;
     try {
-        //First we calculate the position of the maximum.
-        pair<unsigned int, double> max =
-                TraceFunctions::FindMaximum(trace, globals->GetTraceDelayInNs() /
-                                                   (globals->GetAdcClockInSeconds() *
-                                                    1.e9));
+        max = TraceFunctions::FindMaximum(
+                trace, globals->GetTraceDelayInNs() /
+                        (globals->GetAdcClockInSeconds() * 1.e9));
+    } catch(range_error &ex) {
+        trace.SetHasValidAnalysis(false);
+        cout << "WaveformAnalyzer::Analyze - " << ex.what() << endl;
+        EndAnalyze();
+        return;
+    }
 
+    //If the position of the maximum doesn't give us enough bins on the
+    // baseline to calculate the average baseline then we're going to set
+    // some of the variables to be used later to zero and end the analysis of
+    // the waveform now.
+    if(max.first - range.first < TraceFunctions::minimum_baseline_length) {
+#ifdef VERBOSE
+        cout << "WaveformAnalyzer::Analyze - The low bound for the trace "
+                "overlaps with the minimum bins for the baseline." << endl;
+#endif
+        trace.SetHasValidAnalysis(false);
+        EndAnalyze();
+        return;
+    }
+
+    try{
         //Next we calculate the baseline and its standard deviation
         pair<double, double> baseline =
-                TraceFunctions::CalculateBaseline(trace,
-                                                  make_pair(0, max.first -
-                                                               range.first));
+                TraceFunctions::CalculateBaseline(
+                        trace, make_pair(0, max.first - range.first));
+
+        //For well behaved traces the standard deviation of the baseline
+        // shouldn't ever be more than 1-3 ADC units. However, for traces
+        // that are not captured properly, we can get really crazy values
+        // here the SiPM often saw values as high as 20. We will put in a
+        // hard limit of 50 as a cutoff since anything with a standard
+        // deviation of this high will never be something we want to analyze.
+        static const double extremeBaselineVariation = 50;
+        if(baseline.second >= extremeBaselineVariation) {
+            trace.SetHasValidAnalysis(false);
+            EndAnalyze();
+            return;
+        }
 
         //Subtract the baseline from the maximum value.
         max.second -= baseline.first;
@@ -79,8 +113,11 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
                                   baseline.first));
         trace.SetTraceSansBaseline(traceNoBaseline);
         trace.SetWaveformRange(waveformRange);
+        trace.SetHasValidAnalysis(true);
     } catch (range_error &ex) {
-        cerr << "WaveformAnalyzer::Analyze - " << ex.what() << endl;
+        trace.SetHasValidAnalysis(false);
+        cout << "WaveformAnalyzer::Analyze - " << ex.what() << endl;
         EndAnalyze();
+        return;
     }
 }
