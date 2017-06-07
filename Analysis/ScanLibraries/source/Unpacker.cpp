@@ -6,14 +6,13 @@
  * preserved as much as possible while allowing for more standardized unpacking
  * of pixie16 data.
  *
- * \author C. R. Thornsberry
+ * \author C. R. Thornsberry and S. V. Paulauskas
  * \date February 12, 2016
  */
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <limits>
-#include <sstream>
 
 #include <cstring>
 
@@ -196,17 +195,13 @@ void Unpacker::ProcessRawEvent() {
 int Unpacker::ReadBuffer(unsigned int *buf, const unsigned int &vsn) {
     static XiaListModeDataDecoder decoder;
 
-    if(maskMap_.size() != 0 && maskMap_.find(vsn) != maskMap_.end()) {
+    if (maskMap_.size() != 0) {
         auto found = maskMap_.find(vsn);
-        if(found != maskMap_.end()) {
-            mask_.SetFirmware((*found).second.first);
-            mask_.SetFrequency((*found).second.second);
-        } else {
-            stringstream ss;
-            ss << "Unpacker::ReadBuffer - Unable to locate VSN = " << vsn << " in the maskMap. Ensure that it's "
-                    "defined in your configuration file!";
-            throw invalid_argument(ss.str());
-        }
+        if(found == maskMap_.end())
+            throw invalid_argument("Unpacker::ReadBuffer - Unable to locate VSN = " + to_string(vsn)
+                                   + " in the maskMap. Ensure that it's defined in your configuration file!");
+        mask_.SetFirmware((*found).second.first);
+        mask_.SetFrequency((*found).second.second);
     }
 
     std::vector<XiaData *> decodedList = decoder.DecodeBuffer(buf, mask_);
@@ -215,26 +210,24 @@ int Unpacker::ReadBuffer(unsigned int *buf, const unsigned int &vsn) {
     return (int) decodedList.size();
 }
 
-Unpacker::Unpacker() :
-        debug_mode(false), eventWidth_(62), running(true),
-        TOTALREAD(1000000), // Maximum number of data words to read.
-        maxWords(131072), // Maximum number of data words for revision D.
-        numRawEvt(0), // Count of raw events read from file.
-        firstTime(0), eventStartTime(0), realStartTime(0), realStopTime(0) {
+Unpacker::Unpacker() : debug_mode(false), eventWidth_(62), running(true),
+                       TOTALREAD(1000000), // Maximum number of data words to read.
+                       maxWords(131072), // Maximum number of data words for revision D.
+                       numRawEvt(0), // Count of raw events read from file.
+                       firstTime(0), eventStartTime(0), realStartTime(0), realStopTime(0) {
 
     for (unsigned int i = 0; i <= MAX_PIXIE_MOD; i++)
         for (unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++)
             channel_counts[i][j] = 0;
 }
 
-/// Destructor.
 Unpacker::~Unpacker() {
     ClearRawEvent();
     ClearEventList();
 }
 
 void Unpacker::InitializeDataMask(const std::string &firmware, const unsigned int &frequency) {
-    if(frequency == 0) {
+    if (frequency == 0) {
         unsigned int modCounter = 0;
         pugi::xml_node node = XmlInterface::get(firmware)->GetDocument()->child("Configuration").child("Map");
         for (pugi::xml_node_iterator it = node.begin(); it != node.end(); ++it, modCounter++) {
@@ -279,7 +272,7 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
     unsigned int lastVsn = 0xFFFFFFFF; // the last vsn read from the data
     time_t theTime = 0;
 
-    if(counter == 0)
+    if (counter == 0)
         maxModuleNumberInFile_ = 0;
 
     counter++;
@@ -298,7 +291,7 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
         lenRec = data[nWords_read]; // Number of words in this record
         vsn = data[nWords_read + 1]; // Module number
 
-        if(vsn > maxModuleNumberInFile_ && vsn != 9999 && vsn != 1000)
+        if (vsn > maxModuleNumberInFile_ && vsn != 9999 && vsn != 1000)
             maxModuleNumberInFile_ = vsn;
 
         // Check sanity of record length and vsn

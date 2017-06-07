@@ -11,14 +11,12 @@ using namespace std;
 using namespace StringManipulation;
 
 void TreeCorrelatorXmlParser::ParseNode(TreeCorrelator *tree) {
-    pugi::xml_node node = XmlInterface::get()->GetDocument()->
-            child("Configuration").child("TreeCorrelator");
+    pugi::xml_node node = XmlInterface::get()->GetDocument()->child("Configuration").child("TreeCorrelator");
     bool verbose = node.attribute("verbose").as_bool(false);
     TraverseNode(node, string(node.attribute("name").value()), verbose);
 }
 
-void TreeCorrelatorXmlParser::ParsePlace(
-        pugi::xml_node node, std::string parent, bool verbose) {
+void TreeCorrelatorXmlParser::ParsePlace(pugi::xml_node node, std::string parent, bool verbose) {
     map <string, string> params;
     params["parent"] = parent;
     params["type"] = "";
@@ -36,10 +34,8 @@ void TreeCorrelatorXmlParser::ParsePlace(
 }
 
 void
-TreeCorrelatorXmlParser::TraverseNode(pugi::xml_node node, std::string parent,
-                                      bool verbose) {
-    for (pugi::xml_node child = node.child("Place"); child;
-         child = child.next_sibling("Place")) {
+TreeCorrelatorXmlParser::TraverseNode(pugi::xml_node node, std::string parent, bool verbose) {
+    for (pugi::xml_node child = node.child("Place"); child; child = child.next_sibling("Place")) {
         ParsePlace(child, parent, verbose);
         TraverseNode(child, string(child.attribute("name").value()), verbose);
     }

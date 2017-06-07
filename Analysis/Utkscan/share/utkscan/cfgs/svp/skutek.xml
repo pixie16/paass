@@ -2,8 +2,8 @@
 <Configuration>
     <Author>
         <Name>S. V. Paulauskas</Name>
-        <Email>stanpaulauskas@gmail.com</Email>
-        <Date>October 19, 2014</Date>
+        <Email>stanpaulauskas AT gmail DOT com</Email>
+        <Date>June 6, 2017</Date>
     </Author>
 
     <Description>
@@ -13,76 +13,25 @@
     <Global>
         <Revision version="F"/>
         <EventWidth unit="s" value="1e-6"/>
-        <EnergyContraction value="1.0"/>
-        <Path>config/</Path>
-        <NumOfTraces value="50"/>
-        <HasRaw value="false"/>
+        <HasRaw value="true"/>
     </Global>
 
     <DetectorDriver>
-        <Analyzer name="TraceExtractor" type="pulser" subtype="start"/>
         <Analyzer name="WaveformAnalyzer"/>
         <Analyzer name="FittingAnalyzer" type="gsl"/>
-        <Processor name="PulserProcessor"/>
+        <Processor name="TwoChanTimingProcessor"/>
     </DetectorDriver>
 
-    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+    <Map>
         <Module number="0">
-            <Channel number="0" type="pulser" subtype="start"></Channel>
-            <Channel number="1" type="pulser" subtype="stop"></Channel>
-        </Module>
-        <Module number="5">
-            <Channel number="15" type="ignore" subtype="ignore"></Channel>
+            <Channel number="0" type="pulser" subtype="start">
+                <Trace delay="75" baselineThreshold="3.0" RangeLow="15" RangeHigh="50"/>
+                <Fit beta="0.0043" gamma="0.145"/>
+            </Channel>
+            <Channel number="1" type="pulser" subtype="stop">
+                <Trace delay="75" baselineThreshold="3.0" RangeLow="15" RangeHigh="50"/>
+                <Fit beta="0.0043" gamma="0.145"/>
+            </Channel>
         </Module>
     </Map>
-
-    <TimeCalibration verbose_timing="False">
-    </TimeCalibration>
-
-    <Physical>
-        <NeutronMass unit="MeV/c/c" value="939.565560"/>
-        <SpeedOfLight unit="cm/ns" value="29.9792458"/>
-        <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
-        <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
-        <SmallLength unit="cm" value="60.0"/>
-        <MediumLength unit="cm" value="120.0"/>
-        <BigLength unit="cm" value="200.0"/>
-    </Physical>
-
-    <Trace>
-        <WaveformRange>
-            <Range name="pulser:start">
-                <Low value="15"/>
-                <High value="50"/>
-            </Range>
-            <Range name="pulser:stop">
-                <Low value="15"/>
-                <High value="50"/>
-            </Range>
-        </WaveformRange>
-        <DiscriminationStart unit="sample" value="3"/>
-        <TrapezoidalWalk unit="ns" value="120"/>
-        <TraceDelay unit="ns" value="300"/>
-        <TraceLength unit="ns" value="1496"/>
-        <QdcCompression value="1.0"/>
-    </Trace>
-
-    <Fitting>
-        <SigmaBaselineThresh value="3.0"/>
-        <Parameters>
-            <Pars name="pulser:start">
-                <Beta value="0.0043"/>
-                <Gamma value="0.145"/>
-            </Pars>
-            <Pars name="pulser:stop">
-                <Beta value="0.0043"/>
-                <Gamma value="0.145"/>
-            </Pars>
-        </Parameters>
-    </Fitting>
-
-    <TreeCorrelator name="root" verbose="False">
-    </TreeCorrelator>
-
-    <NoteBook file='notes.txt' mode='a'/>
 </Configuration>
