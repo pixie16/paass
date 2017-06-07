@@ -78,6 +78,9 @@ class PLD_header : public BufferType{
 	char end_date[25]; // Wed Feb 13 16:06:10 2013 (24 bytes)
 	char *run_title; // Unlimited length
 
+	time_t runStartTime;
+	time_t runStopTime; 
+
   public:
 	PLD_header();
 	~PLD_header();
@@ -405,7 +408,7 @@ class PollOutputFile{
 
 	std::string GetNextFileName(unsigned int &run_num_, std::string prefix, std::string output_dir, bool continueRun = false);
 	
-	unsigned int GetRunNumber() {return dirBuff.GetRunNumber();}
+	unsigned int GetRunNumber();
 
 	/// Write the footer and close the file
 	void CloseFile(float total_run_time_=0.0);

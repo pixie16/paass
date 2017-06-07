@@ -96,12 +96,11 @@ bool BufferType::ReadHeader(std::ifstream *file_){
 
 /// Default constructor.
 PLD_header::PLD_header() : BufferType(HEAD, 0){ // 0x44414548 "HEAD"
-	PLD_header::Reset();
+	this->Reset();
 }
 
 /// Destructor.
 PLD_header::~PLD_header(){
-	if(run_title){ delete[] run_title; }
 }
 
 /// Get the length of the header buffer.
@@ -114,19 +113,20 @@ unsigned int PLD_header::GetBufferLength(){
 
 /// Set the date and tiem of when the file is opened.
 void PLD_header::SetStartDateTime(){
-	time_t rawtime;
-	time (&rawtime);
+	time (&runStartTime);
 	
-	char *date_holder = ctime(&rawtime);
+	char *date_holder = ctime(&runStartTime);
 	set_char_array(std::string(date_holder), start_date, 24); // Strip the trailing newline character
 }
 
 /// Set the date and time of when the file is closed.
 void PLD_header::SetEndDateTime(){
-	time_t rawtime;
-	time (&rawtime);
+	time (&runStopTime);
+
+	// Calculate the time difference between stop and start.
+	run_time = (float)difftime(runStopTime, runStartTime);
 	
-	char *date_holder = ctime(&rawtime);
+	char *date_holder = ctime(&runStopTime);
 	set_char_array(std::string(date_holder), end_date, 24); // Strip the trailing newline character
 }
 
@@ -255,6 +255,7 @@ void PLD_header::PrintDelimited(const char &delimiter_/*='\t'*/){
 
 /// Default constructor.
 PLD_data::PLD_data() : BufferType(DATA, 0){ // 0x41544144 "DATA"
+	this->Reset();
 }
 
 /// Write a pld style data buffer to file.
@@ -319,6 +320,7 @@ bool PLD_data::Read(std::ifstream *file_, char *data_, unsigned int &nBytes, uns
 
 /// Default constructor.
 DIR_buffer::DIR_buffer() : BufferType(DIR, NO_HEADER_SIZE){ // 0x20524944 "DIR "
+	this->Reset();
 }
 	
 /** DIR buffer (1 word buffer type, 1 word buffer size, 1 word for total buffer length,
@@ -392,6 +394,7 @@ void DIR_buffer::PrintDelimited(const char &delimiter_/*='\t'*/){
 
 /// Default constructor.
 HEAD_buffer::HEAD_buffer() : BufferType(HEAD, 64){ // 0x44414548 "HEAD"
+	this->Reset();
 }
 
 /// Set the date and time of the ldf file.
@@ -590,6 +593,7 @@ DATA_buffer::DATA_buffer() : BufferType(DATA, NO_HEADER_SIZE){ // 0x41544144 "DA
 	good_chunks = 0;
 	missing_chunks = 0;
 	buff_pos = 0;
+	this->Reset();
 }
 
 /// Close a ldf data buffer by padding with 0xFFFFFFFF.
@@ -700,9 +704,10 @@ bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
 	if(buff_pos > LDF_DATA_LENGTH)
 		std::cout << "WARNING: Final ldf buffer overfilled by " << buff_pos - LDF_DATA_LENGTH << " words!\n";
 
-	// Write the spill footer.
-	if(buff_pos + 6 > LDF_DATA_LENGTH){
+	// Check if we can fit the spill footer into the current buffer.
+	if(buff_pos + 6 > LDF_DATA_LENGTH){ // Close the current buffer and open a new one.
 		buffs_written++;
+		Close(file_);
 		open_(file_);
 	}
 	
@@ -1029,7 +1034,7 @@ bool PollOutputFile::overwrite_dir(int total_buffers_/*=-1*/){
 
 /// Initialize the output file with initial parameters
 void PollOutputFile::initialize(){
-	max_spill_size = -9999;
+	max_spill_size = 0;
 	current_file_num = 0; 
 	output_format = 0;
 	number_spills = 0;
@@ -1264,6 +1269,13 @@ std::string PollOutputFile::GetNextFileName(unsigned int &run_num_, std::string 
 	return filename.str();
 }
 
+unsigned int PollOutputFile::GetRunNumber() {
+	if(output_format == 0) return dirBuff.GetRunNumber();
+	else if(output_format == 1) return pldHead.GetRunNumber();
+	else if(debug_mode) std::cout << "debug: invalid output format for PollOutputFile::GetRunNumber!\n";
+	return 0;
+}
+
 /// Write the footer and close the file.
 void PollOutputFile::CloseFile(float total_run_time_/*=0.0*/){
 	if(!output_file.is_open() || !output_file.good()){ return; }
@@ -1286,7 +1298,6 @@ void PollOutputFile::CloseFile(float total_run_time_/*=0.0*/){
 		// Overwrite the blank pld header at the beginning of the file and close it
 		output_file.seekp(0);
 		pldHead.SetEndDateTime();
-		pldHead.SetRunTime(total_run_time_);
 		pldHead.SetMaxSpillSize(max_spill_size);
 		pldHead.Write(&output_file);
 		output_file.close();

@@ -16,6 +16,7 @@ int main(int argc, char *argv[]){
 	Terminal term;
 	term.Initialize();
 	std::cout << "This is test terminal.\n" ;
+	std::cout << "$TERM: " << std::getenv("TERM") << "\n";
 
 	term.SetCommandHistory("CTerminalTest.cmd");
 	term.SetPrompt("Test> ");
