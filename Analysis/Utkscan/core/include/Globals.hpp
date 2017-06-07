@@ -125,8 +125,15 @@ public:
     ///@return the frequency of the system clock in Hz
     double GetSystemClockFreqInHz() const { return sysClockFreqInHz_; }
 
-    ///@return the trace delay of the traces in ns 
-    double GetTraceDelayInNs() const { return traceDelay_; }
+    ///@param[in] str : A string of the form "type:subtype" used to find
+    /// parameters
+    ///@return the trace delay of the traces in ns
+    unsigned int GetTraceDelayInNs(const std::string &str = "global")
+    const {
+        if (traceDelay_.find(str) != traceDelay_.end())
+            return (traceDelay_.find(str)->second);
+        return (traceDelay_.find("global")->second);
+    }
 
     ///@return the length of the big VANDLE bars in ns
     double GetVandleBigLengthInNs() const {
@@ -261,7 +268,8 @@ public:
 
     ///Sets the trace delay that will be used to find the waveform.
     ///@param[in] a : Sets the trace delay in units of ns.
-    void SetTraceDelay(const unsigned int &a) { traceDelay_ = a; }
+    void SetTraceDelay(const std::map<std::string , unsigned int > &a) {
+        traceDelay_ = a; }
 
     ///Sets the map containing all of the filter parameters that we are going
     /// to need.
@@ -329,7 +337,8 @@ private:
     double siPmSigmaBaselineThresh_;//!< threshold on fitting for Std dev. of the baseline for SiPMTs
     double sysClockFreqInHz_; //!< frequency of the system clock
     std::vector<std::pair<unsigned int, unsigned int> > reject_; ///< Rejection regions
-    unsigned int traceDelay_;//!< the trace delay in ns
+    std::map<std::string, unsigned int> traceDelay_;//!< the trace delay in
+//!< ns for a given type:subtype (or global delay)
     std::map<std::string, std::pair<TrapFilterParameters, TrapFilterParameters> > trapFiltPars_; //!<Map containing all of the trapezoidal filter parameters for a given type:subtype
     double vandleBigSpeedOfLight_;//!< speed of light in big VANDLE bars in cm/ns
     double vandleMediumSpeedOfLight_;//!< speed of light in medium VANDLE bars in cm/ns

@@ -92,11 +92,14 @@ void GlobalsXmlParser::ParseCfdNode(const pugi::xml_node &node, Globals *globals
                      parit != it->end(); ++parit)
                     pars.insert(std::make_pair(
                             parit->attribute("name").as_string(),
-                            std::make_pair(parit->child("Fraction").attribute("value").as_double(0.),
-                                           parit->child("Delay").attribute("value").as_double(0.))));
+                            std::make_pair(parit->child("Fraction").attribute(
+                                    "value").as_double(0.),
+                                           parit->child("Delay").attribute(
+                                                   "value").as_double(0.))));
         globals->SetCfdParameters(pars);
     } else
-        throw invalid_argument(CriticalNodeMessage(node.child("Parameters").name()));
+        throw invalid_argument(
+                CriticalNodeMessage(node.child("Parameters").name()));
     set<string> knownNodes = {"Parameters"};
     WarnOfUnknownChildren(node, knownNodes);
 }
@@ -113,7 +116,7 @@ string GlobalsXmlParser::ParseDescriptionNode(const pugi::xml_node &node) {
 /// parameters are critical to the function of the software. I the fitting node
 /// is present then the Parameters node must also be.
 void GlobalsXmlParser::ParseFittingNode(const pugi::xml_node &node,
-                                 Globals *globals) {
+                                        Globals *globals) {
     if (!node.child("SigmaBaselineThresh").empty())
         globals->SetSigmaBaselineThreshold(
                 node.child("SigmaBaselineThresh").attribute("value").as_double());
@@ -267,16 +270,42 @@ void GlobalsXmlParser::ParseTraceNode(const pugi::xml_node &node, Globals *globa
     messenger_.detail(sstream_.str());
     sstream_.str("");
 
-    if(!node.child("TraceDelay").empty()) {
-        globals->SetTraceDelay(
-                node.child("TraceDelay").attribute("value").as_uint());
-    } else
-        throw invalid_argument(CriticalNodeMessage("TraceDelay"));
+    if (!node.child("TraceDelay").empty()) {
+        std::map<std::string, unsigned int> delays;
+        if (!node.child("TraceDelay").attribute("value").empty()) {
+            delays.insert(make_pair("global", node.child("TraceDelay").attribute("value").as_uint()));
+            globals->SetTraceDelay(delays);
 
-    sstream_ << "Trace Delay : " << globals->GetTraceDelayInNs() << " ns";
-    messenger_.detail(sstream_.str());
-    sstream_.str("");
+            sstream_ << "Trace Delay : " << globals->GetTraceDelayInNs();
+            messenger_.detail(sstream_.str());
+            sstream_.str("");
 
+        } else {
+            if (node.child("TraceDelay").child("global").empty()) {
+                throw invalid_argument(CriticalAttributeMessage("Global Trace Delay must be defined"));
+            } else {
+                for (pugi::xml_node_iterator tdit = node.child("TraceDelay").begin();
+                     tdit != node.child("TraceDelay").end(); ++tdit) {
+                    std::string name = tdit->name();
+                    unsigned int tdelay = tdit->attribute("value").as_uint();
+                    delays.insert(make_pair(name, tdelay));
+                }
+                globals->SetTraceDelay(delays);
+
+                sstream_ << "Trace Delays:";
+                messenger_.detail(sstream_.str());
+                for (std::map<std::string, unsigned int>::const_iterator tdloop =
+                        delays.begin(); tdloop != delays.end(); tdloop++) {
+                    sstream_.str("");
+                    sstream_ << tdloop->first << " = " << tdloop->second << " ns";
+                    messenger_.detail(sstream_.str(), 1);
+                }
+            }
+        }
+    }else {
+        throw invalid_argument(CriticalNodeMessage("TraceDelay"));}
+
+        sstream_.str("");
     if (!node.child("QdcCompression").empty())
         globals->SetQdcCompression(
                 node.child("QdcCompression").attribute("value").as_double());

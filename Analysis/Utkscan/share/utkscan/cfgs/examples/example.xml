@@ -292,6 +292,16 @@
 	                     come later in the trace. Default = 266
 	 * TraceDelay - The value of the trace delay from the set file used to 
 	                take the data. No Default value
+	                There is now 2 formats for the Trace Delay node, both are supported.
+	                The Old format
+	                    <TraceDelay unit="..." value="..."/>
+	                and the New format
+	                    <TraceDelay unit="...">
+	                        <global value="..."/>
+	                        <type:subtype value="..."/>
+	                    </TraceDelay>
+	                For the New format the global subnode is the only one required.
+
 	 * TraceLength - How long the traces are. Taken from the set file. No 
 	                 Default value
 	 * QdcCompression - Compression value for the trace QDC used when 
@@ -310,6 +320,12 @@
     -->
     <Trace>
         <TraceDelay unit="ns" value="344"/>
+        <!--
+        <TraceDelay unit="ns">
+            <global value="344"/>
+            <pulser:start value="296"/>
+        </TraceDelay>
+        -->
         <TraceLength unit="ns" value="496"/>
         <WaveformRange>
             <Range name="pulser:start">
@@ -347,7 +363,7 @@
       -->
     <Fitting>
         <SigmaBaselineThresh value="3.0"/>
-        <SiPmtSigmaBaselineThresh value="25.0"/>
+        <SiPmSigmaBaselineThresh value="25.0"/>
         <Parameters>
             <Pars name="vandle:small">
                 <Beta value="0.32969"/>
