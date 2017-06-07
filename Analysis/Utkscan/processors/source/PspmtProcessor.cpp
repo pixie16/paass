@@ -1,6 +1,6 @@
 ///@file PspmtProcessor.cpp
 ///@brief Processes information from a Position Sensitive PMT.
-///@authors S. Go and S. V. Paulauskas
+///@authors S. Go, S. V. Paulauskas, and A. Keeler
 ///@date August 24, 2016
 #include <algorithm>
 #include <iostream>
