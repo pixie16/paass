@@ -865,8 +865,7 @@ void ScanInterface::OutputUnkownCommandMessage(const std::string &arg) {
   * \param[in]  argv Array of strings passed as arguments from the command line.
   * \return True upon success and false otherwise.
   */
-bool ScanInterface::Setup(int argc, char *argv[],
-                          Unpacker *unpacker/*=NULL*/) {
+bool ScanInterface::Setup(int argc, char *argv[], Unpacker *unpacker/*=NULL*/) {
     if (scan_init)
         return false;
 
@@ -978,26 +977,22 @@ bool ScanInterface::Setup(int argc, char *argv[],
         }
     }//while
 
-    //We check that the unpacker object has been set.
-    unpacker_ = unpacker;
-    if (!unpacker_)
+    if (!unpacker)
         throw invalid_argument("ScanInterface::Setup - The Unpacker object has not been set properly.");
+    else
+        unpacker_ = unpacker;
 
-    //Initialize the data mask for decoding the data
-    ///@TODO We need to be able to handle mixed systems, which is not
-    /// implemented yet.
-    if ((samplingFrequency == 0 || firmware == "") && setup_filename == "") {
+    if (samplingFrequency != 0 || firmware != "") {
         if (samplingFrequency == 0)
             throw invalid_argument("ScanInterface::Setup - The frequency has not been set.");
         if (firmware == "")
             throw invalid_argument("ScanInterface::Setup - The firmware has not been set.");
-    } else if (setup_filename != "") {
-        if(samplingFrequency != 0 && firmware != "")
-            unpacker_->InitializeDataMask(firmware, samplingFrequency);
-        else
-            unpacker_->InitializeDataMask(setup_filename);
-    } else
         unpacker_->InitializeDataMask(firmware, samplingFrequency);
+    } else if(setup_filename != "")
+        unpacker_->InitializeDataMask(setup_filename);
+    else
+        throw invalid_argument("ScanInterface::Setup - Firmware/Frequency Flags or Config file are not set properly. "
+                                       "Cannot Initialize Data Mask.");
 
     if (debug_mode)
         unpacker_->SetDebugMode();

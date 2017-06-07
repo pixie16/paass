@@ -27,11 +27,8 @@ public:
     ///@param [in] atype : the type to set
     ///@param [in] subType : the subType to set
     ///@param [in] loc : the location to set
-    ChannelConfiguration(const std::string &atype, const std::string &subType, const unsigned int &loc) {
-        type_ = atype;
-        subtype_ = subType;
-        location_ = loc;
-    }
+    ChannelConfiguration(const std::string &atype, const std::string &subType, const unsigned int &loc) :
+            location_(loc), subtype_(subType), type_(atype) {}
 
     ///Insert a tag to the ChannelConfiguration
     ///@param [in] s : the name of the tag to insert

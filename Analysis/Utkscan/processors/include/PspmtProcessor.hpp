@@ -20,17 +20,17 @@ public:
     ~PspmtProcessor() {};
 
     /** Declare the plots used in the analysis */
-    virtual void DeclarePlots(void);
+    void DeclarePlots(void);
 
     /** Preprocess the VANDLE data
      * \param [in] event : the event to preprocess
      * \return true if successful */
-    virtual bool PreProcess(RawEvent &event);
+    bool PreProcess(RawEvent &event);
 
     /** Process the event for VANDLE stuff
      * \param [in] event : the event to process
      * \return Returns true if the processing was successful */
-    virtual bool Process(RawEvent &event);
+    bool Process(RawEvent &event);
 
 private:
     ///Structure defining what data we're storing
