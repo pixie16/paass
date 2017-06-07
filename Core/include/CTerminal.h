@@ -186,6 +186,10 @@ class Terminal{
 
 	/// Split a string into multiple commands separated by a ';'.
 	void split_commands(const std::string &input_, std::deque<std::string> &cmds);
+
+	/// Print the command prompt to the screen.
+	void PrintPrompt();
+	
 			
   public:
 	Terminal();
