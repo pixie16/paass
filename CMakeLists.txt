@@ -1,3 +1,5 @@
+# @authors S.V. Paulauskas, K. Smith, and C. Thronsberry
+
 cmake_minimum_required(VERSION 3.1)
 
 project(PAASS C CXX Fortran)

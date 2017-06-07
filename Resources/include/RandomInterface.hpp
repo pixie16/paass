@@ -1,7 +1,8 @@
-///@file RandomInterface.hpp
-///@brief Provides a singleton interface for random numbers
-///@author David Miller
-///@date 18 August 2010
+/**@file RandomInterface.hpp
+ * @brief Provides a singleton interface for random numbers
+ * @authors David Miller and S.V. Paulauskas
+ * @date May 2017
+ */
 #ifndef __RANDOMINTERFACE_HPP_
 #define __RANDOMINTERFACE_HPP_
 

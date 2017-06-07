@@ -1,7 +1,8 @@
-///@file RandomInterface.cpp
-///@brief Provides a singleton interface for random numbers
-///@author David Miller
-///@date August 2010
+/**@file RandomInterface.cpp
+ * @brief Provides a singleton interface for random numbers
+ * @author D. Miller and S.V. Paulauskas
+ * @date May 2017
+ */
 #include <chrono>
 
 #include "RandomInterface.hpp"

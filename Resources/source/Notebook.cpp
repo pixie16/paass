@@ -1,3 +1,8 @@
+/**
+ *
+ * @authors K.A. Miernik and S.V. Paulauskas
+ */
+
 #include <sstream>
 #include <string>
 

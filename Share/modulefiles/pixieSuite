@@ -1,9 +1,9 @@
 #%Module1.0
 ##
-## modules pixieSuite
-##
 ## modulefiles/pixieSuite
 ##
+## @author K. Smith
+
 proc ModulesHelp {} {
 	global version modroot
 
