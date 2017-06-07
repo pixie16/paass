@@ -27,7 +27,6 @@ CfdAnalyzer::CfdAnalyzer(const std::string &s) : TraceAnalyzer() {
         driver_ = new TraditionalCfd();
     else
         driver_ = NULL;
-
 }
 
 void CfdAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {

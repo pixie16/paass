@@ -7,16 +7,13 @@
     </Author>
 
     <Description>
-        Master configuration file for e14060 at NSCL. This configuration should
+        Master configuration file for E14060 at NSCL. This configuration should
         NOT be changed in any way.
     </Description>
 
     <Global>
         <Revision version="F"/>
-        <BitResolution value="12"/>
         <EventWidth unit="s" value="1e-6"/>
-        <OutputPath>./</OutputPath>
-        <NumOfTraces value="50"/>
         <HasRaw value="true"/>
     </Global>
 
@@ -24,14 +21,12 @@
         <Analyzer name="TraceExtractor" type="beta_scint" subtype="beta"/>
         <Analyzer name="WaveformAnalyzer"/>
         <Analyzer name="FittingAnalyzer" type="gsl"/>
-        <Processor name="VandleProcessor"
-                   types="medium" res="2" offset="1000" NumStarts="1"/>
+        <Processor name="VandleProcessor" types="medium" res="2" offset="1000" NumStarts="1"/>
     </DetectorDriver>
 
     <Map>
         <Module number="0">
-            <Channel number="0" type="beta_scint" subtype="beta"
-                     tags="start"></Channel>
+            <Channel number="0" type="beta_scint" subtype="beta" tags="start"> </Channel>
         </Module>
         <Module number="1">
             <Channel number="0" type="vandle" subtype="medium"
