@@ -13,22 +13,24 @@
 
 //! Class to handle the Valid signal from MoNA DAQ
 class ValidProcessor : public EventProcessor {
- public:
+public:
     /** Default Constructor */
     ValidProcessor();
 
     /** Default Destructor */
-    ~ValidProcessor(){};
+    ~ValidProcessor() {};
 
     /** Process events with a Valid in them
     * \param [in] event : the event to process
     * \return True if processing was successful */
     virtual bool Process(RawEvent &event);
- private:
+
+private:
     /** Output the data to a text file
     * \param [in] event : the event to output */
     virtual void OutputData(RawEvent &event);
 
     static std::stringstream fileName; //!< Stream to create the file name for output
 };
+
 #endif

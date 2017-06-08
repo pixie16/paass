@@ -23,9 +23,9 @@ static double tEnergy;
 
 namespace dammIds {
     namespace experiment {
-        const int D_TSIZE  = 0; //!< Size of the event
-        const int D_GEENERGY  = 1; //!< Gamma energy 
-        const int DD_TENVSGEN  = 2; //!< Energy vs Gamma Energy 
+        const int D_TSIZE = 0; //!< Size of the event
+        const int D_GEENERGY = 1; //!< Gamma energy
+        const int DD_TENVSGEN = 2; //!< Energy vs Gamma Energy
     }
 }//namespace dammIds
 
@@ -39,7 +39,7 @@ void TemplateExpProcessor::DeclarePlots(void) {
 }
 
 TemplateExpProcessor::TemplateExpProcessor() :
-    EventProcessor(OFFSET, RANGE, "TemplateExpProcessor") {
+        EventProcessor(OFFSET, RANGE, "TemplateExpProcessor") {
     gCutoff_ = 0.; ///Set the gamma cuttoff energy to a default of 0.
     SetAssociatedTypes();
     SetupAsciiOutput();
@@ -49,7 +49,7 @@ TemplateExpProcessor::TemplateExpProcessor() :
 }
 
 TemplateExpProcessor::TemplateExpProcessor(const double &gcut) :
-    EventProcessor(OFFSET, RANGE, "TemplateExpProcessor") {
+        EventProcessor(OFFSET, RANGE, "TemplateExpProcessor") {
     gCutoff_ = gcut;
     SetAssociatedTypes();
     SetupAsciiOutput();
@@ -61,7 +61,7 @@ TemplateExpProcessor::TemplateExpProcessor(const double &gcut) :
 ///Destructor to close output files and clean up pointers
 TemplateExpProcessor::~TemplateExpProcessor() {
     poutstream_->close();
-    delete(poutstream_);
+    delete (poutstream_);
 #ifdef useroot
     prootfile_->Write();
     prootfile_->Close();
@@ -99,34 +99,34 @@ void TemplateExpProcessor::SetupRootOutput(void) {
 #endif
 
 ///We do nothing here since we're completely dependent on the resutls of others
-bool TemplateExpProcessor::PreProcess(RawEvent &event){
+bool TemplateExpProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
-        return(false);
-    return(true);
+        return (false);
+    return (true);
 }
 
 ///Main processing of data of interest
 bool TemplateExpProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
-        return(false);
+        return (false);
 
     ///Vectors to hold the information we will get from the various processors
-    vector<ChanEvent*> geEvts, tEvts;
-    vector<vector<AddBackEvent> > geAddback;
+    vector < ChanEvent * > geEvts, tEvts;
+    vector <vector<AddBackEvent>> geAddback;
 
     ///Obtain the list of template events that were created
     ///in TemplateProcessor::PreProecess
-    if(event.GetSummary("template")->GetList().size() != 0)
-        tEvts = ((TemplateProcessor*)DetectorDriver::get()->
-            GetProcessor("TemplateProcessor"))->GetTemplateEvents();
+    if (event.GetSummary("template")->GetList().size() != 0)
+        tEvts = ((TemplateProcessor *) DetectorDriver::get()->
+                GetProcessor("TemplateProcessor"))->GetTemplateEvents();
 
     ///Obtain the list of Ge events and addback events that were created
     ///in GeProcessor::PreProecess
-    if(event.GetSummary("ge")->GetList().size() != 0) {
-        geEvts = ((GeProcessor*)DetectorDriver::get()->
-            GetProcessor("GeProcessor"))->GetGeEvents();
-        geAddback = ((GeProcessor*)DetectorDriver::get()->
-            GetProcessor("GeProcessor"))->GetAddbackEvents();
+    if (event.GetSummary("ge")->GetList().size() != 0) {
+        geEvts = ((GeProcessor *) DetectorDriver::get()->
+                GetProcessor("GeProcessor"))->GetGeEvents();
+        geAddback = ((GeProcessor *) DetectorDriver::get()->
+                GetProcessor("GeProcessor"))->GetAddbackEvents();
     }
 
     ///Plot the size of the template events vector in two ways
@@ -141,38 +141,38 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
     double clockInSeconds = Globals::get()->GetClockInSeconds();
 
     ///Begin loop over template events
-    for(vector<ChanEvent*>::iterator tit = tEvts.begin();
-        tit != tEvts.end(); ++tit) {
+    for (vector<ChanEvent *>::iterator tit = tEvts.begin();
+         tit != tEvts.end(); ++tit) {
         ///Begin loop over ge events
-        for (vector<ChanEvent*>::iterator it1 = geEvts.begin();
-            it1 != geEvts.end(); ++it1) {
+        for (vector<ChanEvent *>::iterator it1 = geEvts.begin();
+             it1 != geEvts.end(); ++it1) {
             ChanEvent *chan = *it1;
 
             double gEnergy = chan->GetCalibratedEnergy();
-            double gTime   = chan->GetWalkCorrectedTime();
+            double gTime = chan->GetWalkCorrectedTime();
 
             ///Plot the Template Energy vs. Ge Energy if tape isn't moving
-            if(!isTapeMoving)
+            if (!isTapeMoving)
                 plot(DD_TENVSGEN, gEnergy, (*tit)->GetEnergy());
 
             ///Output template and ge energy to text file if we had a beta
             /// along with the runtime in seconds.
-            if(hasBeta)
+            if (hasBeta)
                 *poutstream_ << (*tit)->GetEnergy() << " " << gEnergy << " "
                              << clockInSeconds << endl;
             ///Fill ROOT histograms and tree with the information
-            #ifdef useroot
-                ptvsge_->Fill((*tit)->GetEnergy(), gEnergy);
-                tEnergy = (*tit)->GetEnergy();
-                tof_ = (*tit)->GetTime() - gTime;
-                proottree_->Fill();
-                tEnergy = tof_ = -9999;
-            #endif
+#ifdef useroot
+            ptvsge_->Fill((*tit)->GetEnergy(), gEnergy);
+            tEnergy = (*tit)->GetEnergy();
+            tof_ = (*tit)->GetTime() - gTime;
+            proottree_->Fill();
+            tEnergy = tof_ = -9999;
+#endif
             ///Plot the Ge energy with a cut
-            if(gEnergy > gCutoff_)
+            if (gEnergy > gCutoff_)
                 plot(D_GEENERGY, gEnergy);
         }
     }
     EndProcess();
-    return(true);
+    return (true);
 }

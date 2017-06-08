@@ -11,8 +11,10 @@ class McpProcessor : public EventProcessor {
 public:
     /** Default Constructor */
     McpProcessor();
+
     /** Declare the plots for the analysis */
     virtual void DeclarePlots(void);
+
     /** Process the event
      * \param [in] rEvent : the event to process
      * \return true if the process was successful */

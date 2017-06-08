@@ -72,7 +72,7 @@ public:
 
     ///@returns the Signal to noise ratio of the trace
     double GetSignalToNoiseRatio() const {
-            return 20*std::log10(max_.second / baseline_.second);
+        return 20 * std::log10(max_.second / baseline_.second);
     }
 
     ///@return The value of the tail-ratio for the waveform.
@@ -109,8 +109,9 @@ public:
 
     ///@return Returns the waveform with the baseline
     std::vector<unsigned int> GetWaveformWithBaseline() {
-        return std::vector<unsigned int>(begin() + waveformRange_.first,
-                                         begin() + waveformRange_.second);
+        return std::vector < unsigned
+        int > (begin() + waveformRange_.first,
+                begin() + waveformRange_.second);
     }
 
     ///@return True if we were able to successfully analyze the trace.

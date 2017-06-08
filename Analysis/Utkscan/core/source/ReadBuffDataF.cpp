@@ -72,7 +72,7 @@ extern StatsData stats;
   \param [in] eventList : the event list to add the extracted buffer to
   \return An unused integer */
 int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
-                  vector<ChanEvent*> &eventList) {
+                  vector<ChanEvent *> &eventList) {
     // multiplier for high bits of 48-bit time
     static const double HIGH_MULT = pow(2., 32.);
     word_t modNum;
@@ -83,8 +83,8 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
     /* Read the module number */
     modNum = *buf++;
     ChanEvent *lastVirtualChannel = NULL;
-    if(*bufLen > 0) {   // check if the buffer has data
-        if(*bufLen == 2) {
+    if (*bufLen > 0) {   // check if the buffer has data
+        if (*bufLen == 2) {
             // this is an empty channel
             return 0;
         }
@@ -93,16 +93,16 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
             // decoding event data... see pixie16app.c
             // buf points to the start of channel data
 
-	    //Decode the first header word
-            word_t chanNum        = (buf[0] & 0x0000000F);
-            word_t slotNum        = (buf[0] & 0x000000F0) >> 4;
-            word_t crateNum       = (buf[0] & 0x00000F00) >> 8;
-            word_t headerLength   = (buf[0] & 0x0001F000) >> 12;
-            word_t eventLength    = (buf[0] & 0x7FFE0000) >> 17;
+            //Decode the first header word
+            word_t chanNum = (buf[0] & 0x0000000F);
+            word_t slotNum = (buf[0] & 0x000000F0) >> 4;
+            word_t crateNum = (buf[0] & 0x00000F00) >> 8;
+            word_t headerLength = (buf[0] & 0x0001F000) >> 12;
+            word_t eventLength = (buf[0] & 0x7FFE0000) >> 17;
             currentEvt->pileupBit = (buf[0] & 0x80000000) != 0;
 
-	    // Sanity check
-            if(headerLength == stats.headerLength) {
+            // Sanity check
+            if (headerLength == stats.headerLength) {
                 // this is a manual statistics block inserted poll
                 stats.DoStatisticsBlock(&buf[1], modNum);
                 buf += eventLength;
@@ -110,49 +110,52 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
                 continue;
             }
 
-	    //Decode the second header word
-            word_t lowTime     = buf[1];
+            //Decode the second header word
+            word_t lowTime = buf[1];
 
-	    //Decode the third header word
-        word_t highTime            = buf[2] & 0x0000FFFF;
-        word_t cfdTime             = (buf[2] & 0x3FFF0000) >> 16;
-	    currentEvt->cfdTrigSource  = ((buf[2] & 0x40000000) != 0);
-	    currentEvt->cfdForceTrig   = ((buf[2] & 0x80000000) != 0);
+            //Decode the third header word
+            word_t highTime = buf[2] & 0x0000FFFF;
+            word_t cfdTime = (buf[2] & 0x3FFF0000) >> 16;
+            currentEvt->cfdTrigSource = ((buf[2] & 0x40000000) != 0);
+            currentEvt->cfdForceTrig = ((buf[2] & 0x80000000) != 0);
 
-	    //Decode the foruth header word
-        word_t energy            = buf[3] & 0x0000FFFF;
-        word_t traceLength       = (buf[3] & 0x7FFF0000) >> 16;
-	    currentEvt->saturatedBit = ((buf[3] & 0x80000000) != 0);
+            //Decode the foruth header word
+            word_t energy = buf[3] & 0x0000FFFF;
+            word_t traceLength = (buf[3] & 0x7FFF0000) >> 16;
+            currentEvt->saturatedBit = ((buf[3] & 0x80000000) != 0);
 
-	    int offset = headerLength - 8;
-	    switch(headerLength) {
-	    case 4:
-	    case 6:
-	    case 8:
-	    case 10:
-		break;
-	    case 12:
-	    case 14:
-	    case 16:
-	    case 18:
-                for(int i=0; i < currentEvt->numQdcs; i++)
+            int offset = headerLength - 8;
+            switch (headerLength) {
+                case 4:
+                case 6:
+                case 8:
+                case 10:
+                    break;
+                case 12:
+                case 14:
+                case 16:
+                case 18:
+                    for (int i = 0; i < currentEvt->numQdcs; i++)
                         currentEvt->qdcValue[i] = buf[offset + i];
-		break;
-	    default:
-		cerr << "  Unexpected header length: " << headerLength << endl;
-                cerr << "    Buffer " << modNum << " of length " << *bufLen << endl;
-                cerr << "    CHAN:SLOT:CRATE "
-                     << chanNum << ":" << slotNum << ":" << crateNum << endl;
-                return readbuff::ERROR;
-		break;
-	    }
+                    break;
+                default:
+                    cerr << "  Unexpected header length: " << headerLength
+                         << endl;
+                    cerr << "    Buffer " << modNum << " of length " << *bufLen
+                         << endl;
+                    cerr << "    CHAN:SLOT:CRATE "
+                         << chanNum << ":" << slotNum << ":" << crateNum
+                         << endl;
+                    return readbuff::ERROR;
+                    break;
+            }
 
             // one last sanity check
-            if(traceLength / 2 + headerLength != eventLength) {
+            if (traceLength / 2 + headerLength != eventLength) {
                 cerr << "  Bad event length (" << eventLength
-		     << ") does not correspond with length of header ("
-		     << headerLength << ") and length of trace ("
-		     << traceLength << ")" << endl;
+                     << ") does not correspond with length of header ("
+                     << headerLength << ") and length of trace ("
+                     << traceLength << ")" << endl;
                 buf += eventLength;
                 continue;
             }
@@ -161,37 +164,38 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
             modNum += 100 * crateNum;
             currentEvt->chanNum = chanNum;
             currentEvt->modNum = modNum;
-            if(currentEvt->virtualChannel) {
-                DetectorLibrary* modChan = DetectorLibrary::get();
+            if (currentEvt->virtualChannel) {
+                DetectorLibrary *modChan = DetectorLibrary::get();
                 currentEvt->modNum += modChan->GetPhysicalModules();
-                if(modChan->at(modNum, chanNum).HasTag("construct_trace")) {
-                        lastVirtualChannel = currentEvt;
+                if (modChan->at(modNum, chanNum).HasTag("construct_trace")) {
+                    lastVirtualChannel = currentEvt;
                 }
             }
             currentEvt->energy = energy;
-            if(currentEvt->saturatedBit)
+            if (currentEvt->saturatedBit)
                 currentEvt->energy = 16383;
             currentEvt->trigTime = lowTime;
-            currentEvt->cfdTime  = cfdTime;
+            currentEvt->cfdTime = cfdTime;
             currentEvt->eventTimeHi = highTime;
             currentEvt->eventTimeLo = lowTime;
             currentEvt->time = highTime * HIGH_MULT + lowTime;
             buf += headerLength;
 
             /* Check if trace data follows the channel header */
-            if(traceLength > 0) {
+            if (traceLength > 0) {
                 // sbuf points to the beginning of trace data
-                halfword_t *sbuf = (halfword_t *)buf;
+                halfword_t *sbuf = (halfword_t *) buf;
                 currentEvt->trace.reserve(traceLength);
-                if(currentEvt->saturatedBit)
+                if (currentEvt->saturatedBit)
                     currentEvt->trace.SetValue("saturation", 1);
-                if(lastVirtualChannel != NULL && lastVirtualChannel->trace.empty()) {
+                if (lastVirtualChannel != NULL &&
+                    lastVirtualChannel->trace.empty()) {
                     lastVirtualChannel->trace.assign(traceLength, 0);
                 }
                 // Read the trace data (2-bytes per sample, i.e. 2 samples per word)
-                for(unsigned int k = 0; k < traceLength; k ++) {
+                for (unsigned int k = 0; k < traceLength; k++) {
                     currentEvt->trace.push_back(sbuf[k]);
-                    if(lastVirtualChannel != NULL) {
+                    if (lastVirtualChannel != NULL) {
                         lastVirtualChannel->trace[k] += sbuf[k];
                     }
                 }
@@ -199,7 +203,7 @@ int ReadBuffDataF(word_t *buf, unsigned long *bufLen,
             }
             eventList.push_back(currentEvt);
             numEvents++;
-        } while(buf < bufStart + *bufLen);
+        } while (buf < bufStart + *bufLen);
     } else {  // if buffer has data
         cout << "ERROR BufNData " << *bufLen << endl;
         cout << "ERROR IN ReadBuffData" << endl;

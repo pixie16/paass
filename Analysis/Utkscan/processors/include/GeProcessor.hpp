@@ -151,25 +151,25 @@ class LineGate {
 /** \brief Simple structure-like class to store info on addback reconstructed
  * event.*/
 class AddBackEvent {
-    public:
-        /** Default constructor setting things to zero */
-        AddBackEvent() {
-            energy = time = multiplicity = 0;
-        }
+public:
+    /** Default constructor setting things to zero */
+    AddBackEvent() {
+        energy = time = multiplicity = 0;
+    }
 
-        /** Default constructor setting default values
-         * \param [in] ienergy : the initial energy
-         * \param [in] itime : the initial time
-         * \param [in] imultiplicity : multiplicity of the event */
-        AddBackEvent(double ienergy, double itime, unsigned imultiplicity) {
-            energy = ienergy;
-            time = itime;
-            multiplicity = imultiplicity;
-        }
+    /** Default constructor setting default values
+     * \param [in] ienergy : the initial energy
+     * \param [in] itime : the initial time
+     * \param [in] imultiplicity : multiplicity of the event */
+    AddBackEvent(double ienergy, double itime, unsigned imultiplicity) {
+        energy = ienergy;
+        time = itime;
+        multiplicity = imultiplicity;
+    }
 
-        double energy;//!< Energy of the addback event
-        double time;//!< time of the addback event
-        unsigned multiplicity;//!< multiplicity of the event
+    double energy;//!< Energy of the addback event
+    double time;//!< time of the addback event
+    unsigned multiplicity;//!< multiplicity of the event
 };
 
 //! Processor to handle Ge (read as clover) events
@@ -191,23 +191,30 @@ public:
                 double gammaBetaLimit, double gammaGammaLimit,
                 double cycle_gate1_min, double cycle_gate1_max,
                 double cycle_gate2_min, double cycle_gate2_max);
+
     /** Preprocess the event
      * \param [in] event : the event to preprocess
      * \return true if successful */
-     virtual bool PreProcess(RawEvent &event);
+    virtual bool PreProcess(RawEvent &event);
+
     /** Process the event
      * \param [in] event : the event to process
      * \return true if successful */
-     virtual bool Process(RawEvent &event);
+    virtual bool Process(RawEvent &event);
+
     /** Declare the plots for the processor */
     virtual void DeclarePlots(void);
 
     /** Returns the events that were added to the geEvents_ vector */
-    std::vector<ChanEvent*> GetGeEvents(void) {return(geEvents_);}
+    std::vector<ChanEvent *> GetGeEvents(void) { return (geEvents_); }
+
     /** Returns the events that were added to the addbackEvents_ */
-    std::vector< std::vector<AddBackEvent> > GetAddbackEvents(void) {return(addbackEvents_);}
+    std::vector <std::vector<AddBackEvent>>
+    GetAddbackEvents(void) { return (addbackEvents_); }
+
     /** Returns the events that were added to the tas_ */
-    std::vector<AddBackEvent> GetTasEvents(void) {return(tas_);}
+    std::vector <AddBackEvent> GetTasEvents(void) { return (tas_); }
+
 protected:
     static const unsigned int chansPerClover = 4; /*!< number of channels per clover */
 
@@ -228,7 +235,7 @@ protected:
     bool GoodGammaBeta(double gTime);
 
     /** Preprocessed good ge events, filled in PreProcess.*/
-    std::vector<ChanEvent*> geEvents_;
+    std::vector<ChanEvent *> geEvents_;
 
     /** Declares a histogram with a range of granularities
      * \param [in] dammId : the dammID to plot
@@ -239,8 +246,10 @@ protected:
      * \param [in] granularity : the list of granularities to plot
      * \param [in] units : the units for the plot */
     void DeclareHistogramGranY(int dammId, int xsize, int ysize,
-			       const char *title, int halfWordsPerChan,
-			       const std::vector<float> &granularity, const char *units );
+                               const char *title, int halfWordsPerChan,
+                               const std::vector<float> &granularity,
+                               const char *units);
+
     /** Plotting function to plot in a specific granularity
      * \param [in] dammId : the damm id to plot into
      * \param [in] x : the x value to plot
@@ -248,6 +257,7 @@ protected:
      * \param [in] granularity : the list of granularities to plot into */
     void granploty(int dammId, double x, double y,
                    const std::vector<float> &granularity);
+
     /** Symmetric gamma-gamma plots. It will plot (bin1,bin2) and (bin2,bin1).
      * \param [in] dammID : the ID for the plot
      * \param [in] bin1 : the first bin to plot into
@@ -256,11 +266,11 @@ protected:
 
     /** addbackEvents vector of vectors, where first vector
      * enumerates cloves, second events */
-    std::vector< std::vector<AddBackEvent> > addbackEvents_;
-    
+    std::vector <std::vector<AddBackEvent>> addbackEvents_;
+
     /** tas vector for total energy absorbed, similar structure as addback
      * but there is only one "super-clover" (sum of all detectors)*/
-    std::vector<AddBackEvent> tas_;
+    std::vector <AddBackEvent> tas_;
 #ifdef GGATES
     std::vector< std::vector<LineGate> > gGates; //!< List of Gamma gates to use
 #endif
@@ -288,4 +298,5 @@ protected:
     double cycle_gate2_min_;//!< low value for second cycle gate
     double cycle_gate2_max_;//!< high value for second cycle gate
 };
+
 #endif // __GEPROCESSOR_HPP_

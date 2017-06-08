@@ -80,16 +80,16 @@ bool VandleOrnl2012Processor::Process(RawEvent &event) {
     BarMap vbars, betas;
     ///@TODO Update the BetaProcessor so that it actually generates this map.
     TimingMap starts;
-    vector<ChanEvent *> geEvts;
-    vector<vector<AddBackEvent> > geAddback;
+    vector < ChanEvent * > geEvts;
+    vector <vector<AddBackEvent>> geAddback;
 
     if (event.GetSummary("vandle")->GetList().size() != 0)
         vbars = ((VandleProcessor *) DetectorDriver::get()->
                 GetProcessor("VandleProcessor"))->GetBars();
-    if(event.GetSummary("ge")->GetList().size() != 0) {
-        geEvts = ((GeProcessor*)DetectorDriver::get()->
+    if (event.GetSummary("ge")->GetList().size() != 0) {
+        geEvts = ((GeProcessor *) DetectorDriver::get()->
                 GetProcessor("GeProcessor"))->GetGeEvents();
-        geAddback = ((GeProcessor*)DetectorDriver::get()->
+        geAddback = ((GeProcessor *) DetectorDriver::get()->
                 GetProcessor("GeProcessor"))->GetAddbackEvents();
     }
 
@@ -123,7 +123,7 @@ bool VandleOrnl2012Processor::Process(RawEvent &event) {
             double tof = bar.GetCorTimeAve() -
                          start.GetWalkCorrectedTime() + tofOffset;
             double corTof =
-                    ((VandleProcessor*)DetectorDriver::get()->
+                    ((VandleProcessor *) DetectorDriver::get()->
                             GetProcessor("VandleProcessor"))->
                             CorrectTOF(tof, bar.GetFlightPath(), cal.GetZ0());
 

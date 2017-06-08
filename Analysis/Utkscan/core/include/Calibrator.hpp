@@ -45,6 +45,7 @@ class Calibrator {
 public:
     /*! Default constructor */
     Calibrator() {};
+
     /*! Default Destructor */
     ~Calibrator() {};
 
@@ -56,20 +57,20 @@ public:
      * \param [in] min : the minimum value for the range of the calibration
      * \param [in] max : the maximum value for the range of the calibration
      * \param [in] par : the vector of coefficients for the model */
-    void AddChannel(const Identifier& chanID, const std::string model,
+    void AddChannel(const Identifier &chanID, const std::string model,
                     double min, double max,
-                    const std::vector<double>& par);
+                    const std::vector<double> &par);
 
     /** \return calibrated energy for the channel indetified by chanID.
      * \param [in] chanID : the channel ID to get the energy for
      * \param [in] raw : the raw value to use for the calibration */
-    double GetCalEnergy(const Identifier& chanID, double raw) const;
+    double GetCalEnergy(const Identifier &chanID, double raw) const;
 
 private:
     /** Map where key is a channel Identifier
      * and value is a vector holding struct with calibration range
      * and calibration model and parameters.*/
-    std::map<Identifier, std::vector<CalibrationParams> > channels_;
+    std::map <Identifier, std::vector<CalibrationParams>> channels_;
 
     /** Use if you want to switch off the calibration.
      * \param [in] raw : the raw value to calibrate
@@ -86,7 +87,7 @@ private:
      * \param [in] par : the vector of calibration coeffs
      * \param [in] raw : the raw value to calibrate
      * \return Calibrated energy */
-    double ModelLinear(const std::vector<double>& par, double raw) const;
+    double ModelLinear(const std::vector<double> &par, double raw) const;
 
     /** Quadratic calibration, parameters are assumed to be sorted
      * in order par0, par1, par2
@@ -94,7 +95,7 @@ private:
      * \param [in] par : the vector of calibration coeffs
      * \param [in] raw : the raw value to calibrate
      * \return Calibrated energy */
-    double ModelQuadratic(const std::vector<double>& par, double raw) const;
+    double ModelQuadratic(const std::vector<double> &par, double raw) const;
 
     /** Cubic calibration, parameters are assumed to be sorted
      * in order par0, par1, par2, par3
@@ -102,7 +103,7 @@ private:
      * \param [in] par : the vector of calibration coeffs
      * \param [in] raw : the raw value to calibrate
      * \return Calibrated energy */
-    double ModelCubic(const std::vector<double>& par, double raw) const;
+    double ModelCubic(const std::vector<double> &par, double raw) const;
 
     /** Polynomial calibration, where parameters are assumed to be sorted
      * from the lowest order to the highest
@@ -114,7 +115,7 @@ private:
      * \param [in] par : the vector of calibration coeffs
      * \param [in] raw : the raw value to calibrate
      * \return Calibrated energy */
-    double ModelPolynomial(const std::vector<double>& par, double raw) const;
+    double ModelPolynomial(const std::vector<double> &par, double raw) const;
 
     /** Linear plus hyperbolic calibration,
      * parameters are assumed to be sorted
@@ -123,13 +124,14 @@ private:
      * \param [in] par : the vector of calibration coeffs
      * \param [in] raw : the raw value to calibrate
      * \return Calibrated energy */
-         double ModelHypLin(const std::vector<double>& par, double raw) const;
+    double ModelHypLin(const std::vector<double> &par, double raw) const;
 
     /** Exponential (for logarithmic preamp)
      * f(x) = par0 * exp(x / par[1]) + par2
      * \param [in] par : the vector of calibration coeffs
      * \param [in] raw : the raw value to calibrate
      * \return Calibrated energy */
-    double ModelExp(const std::vector<double>& par, double raw) const;
+    double ModelExp(const std::vector<double> &par, double raw) const;
 };
+
 #endif

@@ -22,16 +22,16 @@
 class TreeCorrelator {
 public:
     /** \return Instance of TreeCorrelator class.*/
-    static TreeCorrelator* get();
+    static TreeCorrelator *get();
 
     /** \return pointer to place or throw exception if it doesn't exist.
     * \param [in] name : the name of the place */
-    Place* place(std::string name);
+    Place *place(std::string name);
 
     /** Create place, alter or add existing place to the tree.
     * \param [in] params : the map of the parameters
     * \param [in] verbose : verbosity */
-    void createPlace(std::map<std::string, std::string>& params,
+    void createPlace(std::map <std::string, std::string> &params,
                      bool verbose);
 
     /** Add child to place parent with coincidence coin.
@@ -52,15 +52,16 @@ public:
     ~TreeCorrelator();
 
     /** This map holds all Places. */
-    std::map<std::string, Place*> places_;
+    std::map<std::string, Place *> places_;
 private:
     /** Make constructor, copy-constructor and operator =
      * private to complete singleton implementation.*/
     TreeCorrelator() {};
+
     /* Do not implement*/
-    TreeCorrelator(TreeCorrelator const&);//!< Overload of the constructor
-    void operator=(TreeCorrelator const&); //!< the copy constructor
-    static TreeCorrelator* instance; //!< A static instance of the tree correlator
+    TreeCorrelator(TreeCorrelator const &);//!< Overload of the constructor
+    void operator=(TreeCorrelator const &); //!< the copy constructor
+    static TreeCorrelator *instance; //!< A static instance of the tree correlator
 
     static PlaceBuilder builder; //!< Instance of the PlaceBuilder
 
@@ -72,7 +73,7 @@ private:
     * returned as a only element of the vector
     * \param [in] name : the name string to split
     * \return a vector of the split names */
-    std::vector<std::string> split_names(std::string name);
+    std::vector <std::string> split_names(std::string name);
 };
 
 #endif

@@ -1,9 +1,9 @@
-if(PAASS_USE_HRIBF)
+if (PAASS_USE_HRIBF)
     add_executable(scope scope.cpp $<TARGET_OBJECTS:ScanorObjects>)
     target_link_libraries(scope ${HRIBF_LIBRARIES})
-else()
+else ()
     add_executable(scope scope.cpp)
-endif(PAASS_USE_HRIBF)
+endif (PAASS_USE_HRIBF)
 
 target_link_libraries(scope ResourceStatic PaassScanStatic ${ROOT_LIBRARIES})
 install(TARGETS scope DESTINATION bin)

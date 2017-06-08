@@ -11,7 +11,7 @@
 #include "RawEvent.hpp"
 #include "SheCorrelator.hpp"
 
-namespace dammIds { 
+namespace dammIds {
     namespace dssd4she {
         const int D_ENERGY_X = 0; //!< Energy on X strip
         const int D_ENERGY_Y = 1; //!< Energy on Y strip
@@ -62,24 +62,27 @@ namespace dammIds {
 class Dssd4SHEProcessor : public EventProcessor {
 public:
     /** Constructor taking arguments */
-    Dssd4SHEProcessor(double frontBackTimeWindow, 
+    Dssd4SHEProcessor(double frontBackTimeWindow,
                       double deltaEnergy,
-                      double highEnergyCut, 
-                      double lowEnergyCut, 
-                      double fisisonEnergyCut, 
-                      int numFrontStrips, 
+                      double highEnergyCut,
+                      double lowEnergyCut,
+                      double fisisonEnergyCut,
+                      int numFrontStrips,
                       int numBackStrips);
+
     /** Declare plots */
     virtual void DeclarePlots();
+
     /** Perform preprocess */
     virtual bool PreProcess(RawEvent &event);
+
     /** Perform Process */
     virtual bool Process(RawEvent &event);
 
 protected:
     /** Picks what event type we had 
      * \return true if the event type was found(?) */
-    bool pickEventType(SheEvent& event); 
+    bool pickEventType(SheEvent &event);
 
     ///Structure defining an event on a strip of the DSSD
     struct StripEvent {
@@ -90,9 +93,9 @@ protected:
             sat = false;
             pileup = false;
         }
-	
-	///Constructor for StripEvent structure
-	StripEvent(double energy, double time, int position,
+
+        ///Constructor for StripEvent structure
+        StripEvent(double energy, double time, int position,
                    bool saturated) {
             E = energy;
             t = time;
@@ -111,10 +114,10 @@ protected:
     SheCorrelator correlator_; //!< instance of the Correlator 
 
     /** Events matched based on energy (MaxEvent) **/
-    std::vector<std::pair<StripEvent, StripEvent> > xyEventsEMatch_; 
+    std::vector <std::pair<StripEvent, StripEvent>> xyEventsEMatch_;
 
     /** Events matched based on timing correlation  **/
-    std::vector<std::pair<StripEvent, StripEvent> > xyEventsTMatch_; 
+    std::vector <std::pair<StripEvent, StripEvent>> xyEventsTMatch_;
 
     /**Limit in seconds for the time difference between front and
      * back to be correlated. Also to find Si Side detectors correlated

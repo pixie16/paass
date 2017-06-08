@@ -21,4 +21,5 @@ public:
                           const std::pair<unsigned int, double> &max,
                           const std::pair<double, double> baseline);
 };
+
 #endif //PIXIESUITE_TRADITIONALCFD_HPP

@@ -30,7 +30,7 @@
             <Channel number="1" type="pulser" subtype="stop"></Channel>
         </Module>
         <Module number="5">
-                <Channel number="15" type="ignore" subtype="ignore"></Channel>
+            <Channel number="15" type="ignore" subtype="ignore"></Channel>
         </Module>
     </Map>
 

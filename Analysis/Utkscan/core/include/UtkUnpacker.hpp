@@ -21,20 +21,21 @@ class UtkUnpacker : public Unpacker {
 public:
     /// Default constructor that does nothing in particular
     UtkUnpacker() : Unpacker() {}
+
     /// Default destructor that deconstructs the DetectorDriver singleton
     ~UtkUnpacker();
-    
+
 private:
     ///@brief Process all events in the event list.
     ///@param[in]  addr_ Pointer to a ScanInterface object.
-    void ProcessRawEvent(ScanInterface *addr_=NULL);
+    void ProcessRawEvent(ScanInterface *addr_ = NULL);
 
     ///@brief Initializes the DetectorLibrary and DetectorDriver
     ///@param[in] driver A pointer to the DetectorDriver that we're using.
     ///@param[in] detlib A pointer to the DetectorLibrary that we're using.
     ///@param[in] start The time that we called this method.
     void InitializeDriver(DetectorDriver *driver, DetectorLibrary *detlib,
-        clock_t &start);
+                          clock_t &start);
 
     ///@brief Prints information about time spent processing to the screen
     ///@param[in] start The time that we started processing data (buffer 0)
@@ -45,12 +46,13 @@ private:
                                         const clock_t &now,
                                         const double &eventTime,
                                         const unsigned int &eventCounter);
-    
+
     ///@brief Add an event to generic statistics output.
     ///@param[in] event_ Pointer to the current XIA event.
     ///@param[in] driver Pointer to the DetectorDriver class that we're using.
     ///@param[in] addr_  Pointer to a ScanInterface object.
     virtual void RawStats(XiaData *event_, DetectorDriver *driver,
-                          ScanInterface *addr_=NULL);
+                          ScanInterface *addr_ = NULL);
 };
+
 #endif //__UTKUNPACKER_HPP__

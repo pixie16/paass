@@ -16,19 +16,19 @@
 class GeneralException : public std::exception {
 public:
     /** Default Constructor */
-    GeneralException(){};
+    GeneralException() {};
 
     /** Constructor for the general exception that accepts a message to print
     * \param [in] msg : the message to print before killing the execution */
-    explicit GeneralException(const std::string& msg)
-        : exception(), message_(msg) {}
+    explicit GeneralException(const std::string &msg)
+            : exception(), message_(msg) {}
 
     /** Destructor that throws the exception for us */
     virtual ~GeneralException() throw() {}
 
     /** Overloading of the what() method that outputs what the error was
      * \return the error */
-    virtual const char* what() const throw() {
+    virtual const char *what() const throw() {
         return message_.c_str();
     }
 
@@ -44,19 +44,19 @@ protected:
 class GeneralWarning : public std::exception {
 public:
     /** Default Constructor */
-    GeneralWarning(){};
+    GeneralWarning() {};
 
     /** Constructor for the general exception that accepts a message to print
     * \param [in] msg : the message to print before killing the execution */
-    explicit GeneralWarning(const std::string& msg)
-        : exception(), message_(msg) {}
+    explicit GeneralWarning(const std::string &msg)
+            : exception(), message_(msg) {}
 
     /** Destructor that throws the exception for us */
     virtual ~GeneralWarning() throw() {}
 
     /** Overloading of the what() method that outputs what the error was
      * \return the error */
-    virtual const char* what() const throw() {
+    virtual const char *what() const throw() {
         return message_.c_str();
     }
 
@@ -69,8 +69,8 @@ class IOException : public GeneralException {
 public:
     /** Constructor taking the error message as the argument
     * \param [in] msg : the error message to output */
-    IOException(const std::string& msg) :
-        GeneralException(msg) {}
+    IOException(const std::string &msg) :
+            GeneralException(msg) {}
 };
 
 /** \brief Exception in the TreeCorrelator, both reading and parsing XML file,
@@ -79,8 +79,8 @@ class TreeCorrelatorException : public GeneralException {
 public:
     /** Constructor taking the error message as the argument
     * \param [in] msg : the error message to output */
-    TreeCorrelatorException(const std::string& msg) :
-        GeneralException(msg) {}
+    TreeCorrelatorException(const std::string &msg) :
+            GeneralException(msg) {}
 };
 
 /** \brief Error in conversion of string to numerical or boolean value. */
@@ -88,8 +88,8 @@ class ConversionException : public GeneralException {
 public:
     /** Constructor taking the error message as the argument
     * \param [in] msg : the error message to output */
-    ConversionException(const std::string& msg) :
-        GeneralException(msg) {}
+    ConversionException(const std::string &msg) :
+            GeneralException(msg) {}
 };
 
 /** \brief Error in creating or accesing histograms. */
@@ -97,8 +97,8 @@ class HistogramException : public GeneralException {
 public:
     /** Constructor taking the error message as the argument
     * \param [in] msg : the error message to output */
-    HistogramException(const std::string& msg) :
-        GeneralException(msg) {}
+    HistogramException(const std::string &msg) :
+            GeneralException(msg) {}
 };
 
 /** \brief Use this exception if feature is not implemented yet. */
@@ -106,8 +106,8 @@ class NotImplemented : public GeneralException {
 public:
     /** Constructor taking the error message as the argument
     * \param [in] msg : the error message to output */
-    NotImplemented(const std::string& msg) :
-        GeneralException(msg) {}
+    NotImplemented(const std::string &msg) :
+            GeneralException(msg) {}
 };
 
 #endif

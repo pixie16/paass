@@ -8,10 +8,10 @@
  * Histogram sizes consts
  */
 const int S1 = 2 /**< 2**1 */, S2 = 4/**< 2**2 */, S3 = 8/**< 2**3 */,
-    S4 = 16/**< 2**4 */, S5 = 32/**< 2**5 */, S6 = 64/**< 2**6 */,
-    S7 = 128/**< 2**7 */, S8 = 256/**< 2**8 */, S9 = 512/**< 2**9 */,
-    SA = 1024/**< 2**10 */, SB = 2048/**< 2**11 */, SC = 4096/**< 2**12 */,
-    SD = 8192/**< 2**13 */, SE = 16384/**< 2**14 */, SF = 32768/**< 2**15 */;
+        S4 = 16/**< 2**4 */, S5 = 32/**< 2**5 */, S6 = 64/**< 2**6 */,
+        S7 = 128/**< 2**7 */, S8 = 256/**< 2**8 */, S9 = 512/**< 2**9 */,
+        SA = 1024/**< 2**10 */, SB = 2048/**< 2**11 */, SC = 4096/**< 2**12 */,
+        SD = 8192/**< 2**13 */, SE = 16384/**< 2**14 */, SF = 32768/**< 2**15 */;
 
 ///Namespace containing all the histogram id definitions
 namespace dammIds {
@@ -49,7 +49,7 @@ namespace dammIds {
     /// in PspmtProcessor.cpp
     namespace pspmt {
         const int OFFSET = 1900; //!< Offset for PspmtProcessor
-        const int RANGE =  100; //!< Range for PspmtProcessor
+        const int RANGE = 100; //!< Range for PspmtProcessor
     }
 
     ///in TemplateProcessor.cpp
@@ -107,7 +107,7 @@ namespace dammIds {
     }
 
     ///in VandleProcessor.cpp
-    namespace vandle{
+    namespace vandle {
         const int OFFSET = 3200;//!< Offset for the VandleProcessor
         const int RANGE = 150;//!< Range for the VandleProcessor
     }
@@ -119,7 +119,7 @@ namespace dammIds {
     }
 
     ///in PulserProcessor.cpp
-    namespace pulser{
+    namespace pulser {
         const int OFFSET = 3400; //!< Offset for the PulserProcessor Hists
         const int RANGE = 20;//!< Range for the PulserProcessor Hists
     }
@@ -137,7 +137,7 @@ namespace dammIds {
     }
 
     ///in IonChamberProcessor.cpp
-    namespace ionChamber{
+    namespace ionChamber {
         const int OFFSET = 4700;//!< Offset for IonChamberProcessor
         const int RANGE = 100;//!< Range for IonChamberProcessor
     }
@@ -155,9 +155,9 @@ namespace dammIds {
     }
 
     /// For Experiment specific processors
-    namespace experiment{
-	const int OFFSET = 6050; //!< Offset for Experiment processors
-	const int RANGE = 250; //!< Range for Experiment Processors
+    namespace experiment {
+        const int OFFSET = 6050; //!< Offset for Experiment processors
+        const int RANGE = 250; //!< Range for Experiment Processors
     }
 
     /// in DssdProcessor.cpp
@@ -176,7 +176,7 @@ namespace dammIds {
     namespace analyzers {
         const int traceBins = SA; //!< Number of Bins for Traces
 
-        namespace tracefilter{
+        namespace tracefilter {
             const unsigned int OFFSET = 7500;
             const unsigned int RANGE = 10;
         }

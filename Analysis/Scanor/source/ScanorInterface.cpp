@@ -15,11 +15,11 @@
 #define U_DELIMITER 0xFFFFFFFF
 
 //Actually define the instance of the ScanorInterface
-ScanorInterface* ScanorInterface::instance_ = NULL;
+ScanorInterface *ScanorInterface::instance_ = NULL;
 
 ///The get method returns the only instance of ScanorInterface that will ever
 /// be created. This is the core feature that will make this a singleton.
-ScanorInterface* ScanorInterface::get() {
+ScanorInterface *ScanorInterface::get() {
     if (!instance_)
         instance_ = new ScanorInterface();
     return instance_;
@@ -32,7 +32,7 @@ ScanorInterface* ScanorInterface::get() {
  * \param [in] maxWords : the maximum words to get
  * \return true if successful */
 bool ScanorInterface::MakeModuleData(const uint32_t *data, unsigned long nWords,
-                                        unsigned int maxWords) {
+                                     unsigned int maxWords) {
     const unsigned int maxVsn = 14; // no more than 14 pixie modules per crate
 
     unsigned int inWords = 0, outWords = 0;
@@ -40,29 +40,30 @@ bool ScanorInterface::MakeModuleData(const uint32_t *data, unsigned long nWords,
     static uint32_t modData[TOTALREAD];
 
     do {
-	uint32_t lenRec = data[inWords];
-        uint32_t vsn    = data[inWords+1];
-	/* Check sanity of record length and vsn*/
-	if(lenRec > maxWords || (vsn > maxVsn && vsn != 9999 && vsn != 1000)) {
+        uint32_t lenRec = data[inWords];
+        uint32_t vsn = data[inWords + 1];
+        /* Check sanity of record length and vsn*/
+        if (lenRec > maxWords || (vsn > maxVsn && vsn != 9999 && vsn != 1000)) {
 #ifdef VERBOSE
-	    std::cout << "SANITY CHECK FAILED: lenRec = " << lenRec
-		 << ", vsn = " << vsn << ", inWords = " << inWords
-		 << " of " << nWords << ", outWords = " << outWords << std::endl;
+            std::cout << "SANITY CHECK FAILED: lenRec = " << lenRec
+             << ", vsn = " << vsn << ", inWords = " << inWords
+             << " of " << nWords << ", outWords = " << outWords << std::endl;
 #endif
-	    return false;
-	}
+            return false;
+        }
 
-	/*Extract the data from TotData and place into ModData*/
-	memcpy(&modData[outWords], &data[inWords], lenRec * sizeof(uint32_t));
-	inWords  += lenRec;
-	outWords += lenRec;
-        
+        /*Extract the data from TotData and place into ModData*/
+        memcpy(&modData[outWords], &data[inWords], lenRec * sizeof(uint32_t));
+        inWords += lenRec;
+        outWords += lenRec;
+
     } while (inWords < nWords);
 
-    if(nWords > TOTALREAD || inWords > TOTALREAD || outWords > TOTALREAD ) {
+    if (nWords > TOTALREAD || inWords > TOTALREAD || outWords > TOTALREAD) {
         std::stringstream ess;
-        ess << "Values of nn - " << nWords << " nk - "<< inWords
-            << " mm - " << outWords << " TOTALREAD - " << TOTALREAD << std::endl;
+        ess << "Values of nn - " << nWords << " nk - " << inWords
+            << " mm - " << outWords << " TOTALREAD - " << TOTALREAD
+            << std::endl;
         ess << "One of the variables named nn, nk, or mm"
             << "have exceeded the value of TOTALREAD. The value of "
             << "TOTALREAD MUST NEVER exceed 1000000 for correct "
@@ -74,8 +75,8 @@ bool ScanorInterface::MakeModuleData(const uint32_t *data, unsigned long nWords,
         return false;
     }
 
-	// Process the data.
-	unpacker_->ReadSpill(modData, outWords);
+    // Process the data.
+    unpacker_->ReadSpill(modData, outWords);
 
     return true;
 }
@@ -114,13 +115,13 @@ void ScanorInterface::Hissub(unsigned short **sbuf, unsigned short *nhw) {
     static unsigned int dataWords = 0;
 
     /*Assign ibuf variable to local variable for use in function */
-    uint32_t *buf=(uint32_t*)sbuf;
+    uint32_t *buf = (uint32_t *) sbuf;
 
     /* Initialize variables */
-    unsigned long totWords=0;
-    uint32_t nWords=buf[0] / 4;
-    uint32_t totBuf=buf[1];
-    uint32_t bufNum=buf[2];
+    unsigned long totWords = 0;
+    uint32_t nWords = buf[0] / 4;
+    uint32_t totBuf = buf[1];
+    uint32_t bufNum = buf[2];
     static unsigned int lastBuf = U_DELIMITER;
     unsigned int maxWords = EXTERNAL_FIFO_LENGTH;
 
@@ -133,19 +134,19 @@ void ScanorInterface::Hissub(unsigned short **sbuf, unsigned short *nhw) {
     /* Find a starting point in a file immediately following the 5-word buffer
          which indicates the end of a spill
      */
-    if(bufNum != 0 && firstTime) {
+    if (bufNum != 0 && firstTime) {
         do {
             if (buf[totWords] == U_DELIMITER) {
                 std::cout << "  -1 DELIMITER, "
-                    << buf[totWords] << buf[totWords + 1] << std::endl;
+                          << buf[totWords] << buf[totWords + 1] << std::endl;
                 return;
             }
             nWords = buf[totWords] / 4;
-            totBuf = buf[totWords+1];
-            bufNum = buf[totWords+2];
-            totWords += nWords+1;
+            totBuf = buf[totWords + 1];
+            bufNum = buf[totWords + 2];
+            totWords += nWords + 1;
             std::cout << "SKIP " << bufNum << " of " << totBuf << std::endl;
-        } while(nWords != 5);
+        } while (nWords != 5);
     }
     firstTime = false;
 
@@ -158,84 +159,89 @@ void ScanorInterface::Hissub(unsigned short **sbuf, unsigned short *nhw) {
             if (buf[totWords] == U_DELIMITER) return;
 
             nWords = buf[totWords] / 4;
-            bufNum = buf[totWords+2];
+            bufNum = buf[totWords + 2];
             // read total number of buffers later after we check if the last spill was good
             if (lastBuf != U_DELIMITER && bufNum != lastBuf + 1) {
 #ifdef VERBOSE
-            std::cout << "Buffer skipped, Last: " << lastBuf << " of " << totBuf
-                << " buffers read -- Now: " << bufNum << std::endl;
+                std::cout << "Buffer skipped, Last: " << lastBuf << " of " << totBuf
+                    << " buffers read -- Now: " << bufNum << std::endl;
 #endif
-            // if we are only missing the vsn 9999 terminator, reconstruct it
-            if (lastBuf + 2 == totBuf && bufInSpill == totBuf - 1) {
+                // if we are only missing the vsn 9999 terminator, reconstruct it
+                if (lastBuf + 2 == totBuf && bufInSpill == totBuf - 1) {
 #ifdef VERBOSE
-                std::cout << "  Reconstructing final buffer "
-                     << lastBuf + 1 << "." << std::endl;
+                    std::cout << "  Reconstructing final buffer "
+                         << lastBuf + 1 << "." << std::endl;
 #endif
-                totData[dataWords++] = 2;
-                totData[dataWords++] = 9999;
+                    totData[dataWords++] = 2;
+                    totData[dataWords++] = 9999;
 
-                MakeModuleData(totData, dataWords, maxWords);
-                spillValidCount++;
-                bufInSpill = 0; dataWords = 0; lastBuf = -1;
-            } else if (bufNum == 0) {
+                    MakeModuleData(totData, dataWords, maxWords);
+                    spillValidCount++;
+                    bufInSpill = 0;
+                    dataWords = 0;
+                    lastBuf = -1;
+                } else if (bufNum == 0) {
 #ifdef VERBOSE
-                std::cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
-                << "  INCOMPLETE BUFFER " << spillInvalidCount
-                << "\n  " << spillValidCount << " valid spills so far."
-                << " Starting fresh spill." << std::endl;
+                    std::cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
+                    << "  INCOMPLETE BUFFER " << spillInvalidCount
+                    << "\n  " << spillValidCount << " valid spills so far."
+                    << " Starting fresh spill." << std::endl;
 #endif
-                spillInvalidCount++;
-                // throw away previous collected data and start fresh
-                bufInSpill = 0; dataWords = 0; lastBuf = -1;
-            }
+                    spillInvalidCount++;
+                    // throw away previous collected data and start fresh
+                    bufInSpill = 0;
+                    dataWords = 0;
+                    lastBuf = -1;
+                }
             } // check that the chunks are in order
             // update the total chunks only after the sanity checks above
-            totBuf = buf[totWords+1];
+            totBuf = buf[totWords + 1];
             if (totBuf > maxChunks) {
 #ifdef VERBOSE
-            std::cout << "EEEEE LOST DATA: Total buffers = " << totBuf
-                <<  ", word count = " << nWords << std::endl;
+                std::cout << "EEEEE LOST DATA: Total buffers = " << totBuf
+                    <<  ", word count = " << nWords << std::endl;
 #endif
-            return;
+                return;
             }
             if (bufNum > totBuf - 1) {
 #ifdef VERBOSE
-            std::cout << "EEEEEEE LOST DATA: Buffer number " << bufNum
-                << " of total buffers " << totBuf << std::endl;
+                std::cout << "EEEEEEE LOST DATA: Buffer number " << bufNum
+                    << " of total buffers " << totBuf << std::endl;
 #endif
-            return;
+                return;
             }
             lastBuf = bufNum;
 
             /* Increment the number of buffers in a spill*/
             bufInSpill++;
-            if(nWords == 0) {
+            if (nWords == 0) {
 #ifdef VERBOSE
-            std::cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE NWORDS 0" << std::endl;
+                std::cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE NWORDS 0" << std::endl;
 #endif
-            return;
+                return;
             }
 
             /* Extract this buffer information into the TotData array*/
-            memcpy(&totData[dataWords], &buf[totWords+3],
-                (nWords - 3) * sizeof(int));
+            memcpy(&totData[dataWords], &buf[totWords + 3],
+                   (nWords - 3) * sizeof(int));
             dataWords += nWords - 3;
 
             // Increment location in file
             // one extra word to pass over "-1" delimiter signalling end of buffer
-            totWords += nWords+1;
+            totWords += nWords + 1;
             if (bufNum == totBuf - 1 && nWords != 5) {
-            std::cout << "Strange final buffer " << bufNum << " of " << totBuf
-                << " with " << nWords << " words" << std::endl;
+                std::cout << "Strange final buffer " << bufNum << " of "
+                          << totBuf
+                          << " with " << nWords << " words" << std::endl;
             }
             if (nWords == 5 && bufNum != totBuf - 1) {
 #ifdef VERBOSE
-            std::cout << "Five word buffer " << bufNum << " of " << totBuf
-                << " WORDS: "
-                << std::hex << buf[3] << " " << buf[4] << std::dec << std::endl;
+                std::cout << "Five word buffer " << bufNum << " of " << totBuf
+                    << " WORDS: "
+                    << std::hex << buf[3] << " " << buf[4] << std::dec << std::endl;
 #endif
             }
-        } while(nWords != 5 || bufNum != totBuf - 1);
+        } while (nWords != 5 || bufNum != totBuf - 1);
         /* reached the end of a spill when nwords = 5 and last chunk in spill */
 
         /* make sure we retrieved all the chunks of the spill */
@@ -255,6 +261,8 @@ void ScanorInterface::Hissub(unsigned short **sbuf, unsigned short *nhw) {
             spillValidCount++;
             MakeModuleData(totData, dataWords, maxWords);
         } // else the number of buffers is complete
-        dataWords = 0; bufInSpill = 0; lastBuf = -1; // reset the number of buffers recorded
+        dataWords = 0;
+        bufInSpill = 0;
+        lastBuf = -1; // reset the number of buffers recorded
     } while (totWords < nhw[0] / 2);
 }

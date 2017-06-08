@@ -3,6 +3,7 @@
  */
 #ifndef __CHANEVENT_HPP
 #define __CHANEVENT_HPP
+
 #include <vector>
 
 #include "ProcessedXiaData.hpp"
@@ -24,7 +25,7 @@
 class ChanEvent : public ProcessedXiaData {
 public:
     /** Default constructor that zeroes all values */
-    ChanEvent(){}
+    ChanEvent() {}
 
     ///Constructor taking the base class as an argument so that we can set
     /// the trace information properly
@@ -32,10 +33,10 @@ public:
     ChanEvent(XiaData &evt) : ProcessedXiaData(evt) {};
 
     ///Default Destructor
-    ~ChanEvent(){}
+    ~ChanEvent() {}
 
     //! \return The identifier in the map for the channel event
-    const Identifier& GetChanID() const;
+    const Identifier &GetChanID() const;
 
 /** \return the channel id defined as pixie module # * 16 + channel number */
     int GetID() const;
@@ -46,9 +47,11 @@ public:
  * \param [in] b : the right hand side for comparison
  * \return True if LHS is less the RHS */
 bool CompareCorrectedTime(const ChanEvent *a, const ChanEvent *b);
+
 /** Sort by increasing raw time
  * \param [in] a : the left hand side for comparison
  * \param [in] b : the right hand side for comparison
  * \return True if LHS is less the RHS*/
 bool CompareTime(const ChanEvent *a, const ChanEvent *b);
+
 #endif

@@ -7,6 +7,7 @@
  */
 #ifndef __IS600PROCESSOR_HPP_
 #define __IS600PROCESSOR_HPP_
+
 #include <fstream>
 
 #include "EventProcessor.hpp"
@@ -23,8 +24,10 @@ class IS600Processor : public EventProcessor {
 public:
     /** Default Constructor */
     IS600Processor();
+
     /** Default Destructor */
     ~IS600Processor();
+
     /** Declare the plots used in the analysis */
     virtual void DeclarePlots(void);
 
@@ -36,6 +39,7 @@ public:
     * \param [in] event : the event to process
     * \return Returns true if the processing was successful */
     virtual bool Process(RawEvent &event);
+
 private:
 #ifdef useroot
     TFile *rootfile_; //!< the root file to be used for output
@@ -45,4 +49,5 @@ private:
 #endif
     std::ofstream *outstream; //!< filestream to output to text file
 };
+
 #endif

@@ -16,16 +16,20 @@ class ScintProcessor : public EventProcessor {
 public:
     /** Default Constructor */
     ScintProcessor();
+
     /** Performs the preprocessing, which cannot depend on other processors
     * \param [in] event : the event to process
     * \return true if preprocessing was successful */
     virtual bool PreProcess(RawEvent &event);
+
     /** Process an event
     * \param [in] event : the event to process
     * \return true if the processing was successful */
     virtual bool Process(RawEvent &event);
+
     /** Declare plots for processor */
     virtual void DeclarePlots(void);
+
 private:
     /** Analyze liquid scintillators in an event
     * \param [in] event : the event to process */
@@ -33,4 +37,5 @@ private:
 
     unsigned int counter; //!< a counter for the class
 };
+
 #endif

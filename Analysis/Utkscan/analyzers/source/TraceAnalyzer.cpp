@@ -44,47 +44,48 @@ TraceAnalyzer::~TraceAnalyzer() {
 
 void TraceAnalyzer::Plot(const vector<unsigned int> &trc,
                          const int &id) {
-    for (unsigned int i=0; i < trc.size(); i++) {
-        histo.Plot(id, i, 1, (int)trc.at(i));
+    for (unsigned int i = 0; i < trc.size(); i++) {
+        histo.Plot(id, i, 1, (int) trc.at(i));
     }
 }
 
 void TraceAnalyzer::Plot(const vector<unsigned int> &trc, int id, int row) {
-    for (unsigned int i=0; i < trc.size(); i++) {
-        histo.Plot(id, i, row, (int)trc.at(i));
+    for (unsigned int i = 0; i < trc.size(); i++) {
+        histo.Plot(id, i, row, (int) trc.at(i));
     }
 }
 
 void TraceAnalyzer::ScalePlot(const vector<unsigned int> &trc, int id, double
 scale) {
-    for (unsigned int i=0; i < trc.size(); i++) {
-        histo.Plot(id, i, 1, abs((int)trc.at(i)) / scale);
+    for (unsigned int i = 0; i < trc.size(); i++) {
+        histo.Plot(id, i, 1, abs((int) trc.at(i)) / scale);
     }
 }
 
 void TraceAnalyzer::ScalePlot(const vector<unsigned int> &trc, int id, int
 row, double scale) {
-    for (unsigned int i=0; i < trc.size(); i++) {
-        histo.Plot(id, i, row, abs((int)trc.at(i)) / scale);
+    for (unsigned int i = 0; i < trc.size(); i++) {
+        histo.Plot(id, i, row, abs((int) trc.at(i)) / scale);
     }
 }
 
 void TraceAnalyzer::OffsetPlot(const vector<unsigned int> &trc, int id,
                                double offset) {
-    for (unsigned int i=0; i < trc.size(); i++) {
-        histo.Plot(id, i, 1, max(0., (int)trc.at(i) - offset));
+    for (unsigned int i = 0; i < trc.size(); i++) {
+        histo.Plot(id, i, 1, max(0., (int) trc.at(i) - offset));
     }
 }
 
 void TraceAnalyzer::OffsetPlot(const vector<unsigned int> &trc, int id, int
 row, double offset) {
-    for (unsigned int i=0; i < trc.size(); i++) {
-        histo.Plot(id, i, row, max(0., (int)trc.at(i) - offset));
+    for (unsigned int i = 0; i < trc.size(); i++) {
+        histo.Plot(id, i, row, max(0., (int) trc.at(i) - offset));
     }
 }
 
 void TraceAnalyzer::Analyze(Trace &trace,
-			    const std::string &detType, const std::string &detSubtype) {
+                            const std::string &detType,
+                            const std::string &detSubtype) {
     times(&tmsBegin);
     numTracesAnalyzed++;
     EndAnalyze(trace);
@@ -93,8 +94,9 @@ void TraceAnalyzer::Analyze(Trace &trace,
 
 
 void TraceAnalyzer::Analyze(Trace &trace,
-			    const std::string &detType, const std::string &detSubtype,
-                            const std::map<std::string, int> & tagMap) {
+                            const std::string &detType,
+                            const std::string &detSubtype,
+                            const std::map<std::string, int> &tagMap) {
     times(&tmsBegin);
     numTracesAnalyzed++;
     EndAnalyze(trace);

@@ -14,9 +14,9 @@
 class RandomPool {
 private:
     RandomPool(); //!<Default constructor
-    RandomPool (const RandomPool&);  //!< Overload of the constructor
-    RandomPool& operator= (RandomPool const&);//!< the copy constructor
-    static RandomPool* instance;//!< static instance of the class
+    RandomPool(const RandomPool &);  //!< Overload of the constructor
+    RandomPool &operator=(RandomPool const &);//!< the copy constructor
+    static RandomPool *instance;//!< static instance of the class
 
     static const size_t size = 1000000; ///< default size of the pool
 
@@ -25,7 +25,7 @@ private:
     double numbers[size]; ///< the pool of random numbers
 public:
     /** \return The only instance to the random pool */
-    static RandomPool* get();
+    static RandomPool *get();
 
     void Generate(void); //!< Generates a random number
 

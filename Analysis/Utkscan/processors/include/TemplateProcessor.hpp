@@ -13,26 +13,34 @@ class TemplateProcessor : public EventProcessor {
 public:
     /** Default Constructor */
     TemplateProcessor();
+
     /** Constructor Accepting an argument */
-    TemplateProcessor(const double & a);
+    TemplateProcessor(const double &a);
+
     /** Default Destructor */
-    ~TemplateProcessor(){};
+    ~TemplateProcessor() {};
+
     /** Declares the plots for the processor */
     virtual void DeclarePlots(void);
+
     /** Performs the preprocessing, which cannot depend on other processors
     * \param [in] event : the event to process
     * \return true if preprocessing was successful */
     virtual bool PreProcess(RawEvent &event);
+
     /** Performs the main processsing, which may depend on other processors
     * \param [in] event : the event to process
     * \return true if processing was successful */
     virtual bool Process(RawEvent &event);
+
     /** \return The processed Template events */
-    std::vector<ChanEvent*> GetTemplateEvents(void) const {
-        return(evts_);
+    std::vector<ChanEvent *> GetTemplateEvents(void) const {
+        return (evts_);
     }
+
 private:
     double a_; //!< a variable global to the class
-    std::vector<ChanEvent*> evts_; //!< vector of events for people to get
+    std::vector<ChanEvent *> evts_; //!< vector of events for people to get
 };
+
 #endif // __TEMPLATEPROCESSOR_HPP__

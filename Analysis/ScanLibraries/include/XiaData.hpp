@@ -104,7 +104,7 @@ public:
 
     ///@return The arrival time of the signal without any CFD information in
     /// the calculation
-    double GetTimeSansCfd() const {return timeSansCfd_;}
+    double GetTimeSansCfd() const { return timeSansCfd_; }
 
     ///@return The CFD fractional time in clockticks
     unsigned int GetCfdFractionalTime() const { return cfdTime_; }
@@ -226,7 +226,7 @@ public:
     ///@brief Sets the calculated arrival time of the signal sans the CFD
     /// fractional time components.
     ///@param[in] a : The value to set
-    void SetTimeSansCfd(const double &a) {timeSansCfd_ = a;}
+    void SetTimeSansCfd(const double &a) { timeSansCfd_ = a; }
 
     ///@brief Sets the trace recorded on board
     ///@param[in] a : The value to set

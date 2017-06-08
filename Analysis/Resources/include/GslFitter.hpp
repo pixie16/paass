@@ -47,4 +47,5 @@ private:
     double chi_;
     double dof_;
 };
+
 #endif //PIXIESUITE_GSLFITTER_HPP

@@ -22,7 +22,8 @@ namespace dammIds {
     }
 }
 
-BetaProcessor::BetaProcessor() : EventProcessor(OFFSET, RANGE, "BetaProcessor") {
+BetaProcessor::BetaProcessor() : EventProcessor(OFFSET, RANGE,
+                                                "BetaProcessor") {
     associatedTypes.insert("scint");
 }
 
@@ -31,16 +32,16 @@ void BetaProcessor::DeclarePlots(void) {
     DeclareHistogram1D(D_ENERGY_BETA, SE, "Beta energy");
 }
 
-bool BetaProcessor::PreProcess(RawEvent &event){
+bool BetaProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
 
-    static const vector<ChanEvent*> &scintBetaEvents =
-	event.GetSummary("scint:beta")->GetList();
+    static const vector<ChanEvent *> &scintBetaEvents =
+            event.GetSummary("scint:beta")->GetList();
 
     int multiplicity = 0;
-    for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin();
-	 it != scintBetaEvents.end(); it++) {
+    for (vector<ChanEvent *>::const_iterator it = scintBetaEvents.begin();
+         it != scintBetaEvents.end(); it++) {
         double energy = (*it)->GetEnergy();
         if (energy > detectors::betaThreshold)
             ++multiplicity;
@@ -50,8 +51,7 @@ bool BetaProcessor::PreProcess(RawEvent &event){
     return true;
 }
 
-bool BetaProcessor::Process(RawEvent &event)
-{
+bool BetaProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return false;
     EndProcess();

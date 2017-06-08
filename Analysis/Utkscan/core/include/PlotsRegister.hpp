@@ -14,7 +14,7 @@
 class PlotsRegister {
 public:
     /** \return pointer to only instance of PlotsRegister*/
-    static PlotsRegister* get();
+    static PlotsRegister *get();
 
     /** Check if the range provided is legit
     * \param [in] offset : the offset that needs checked
@@ -35,10 +35,12 @@ public:
 private:
     /** Default constructor */
     PlotsRegister() {};
-    PlotsRegister(const PlotsRegister&);//!< Overload of the constructor
-    PlotsRegister& operator= (PlotsRegister const&);//!< the copy constructor
-    static PlotsRegister* instance;//!< static instance of the class
 
-    std::vector< std::pair<int, int> > reg; //!< Vector of min, max of histogram numbers
+    PlotsRegister(const PlotsRegister &);//!< Overload of the constructor
+    PlotsRegister &operator=(PlotsRegister const &);//!< the copy constructor
+    static PlotsRegister *instance;//!< static instance of the class
+
+    std::vector <std::pair<int, int>> reg; //!< Vector of min, max of histogram numbers
 };
+
 #endif // __PLOTSREGISTER_HPP_

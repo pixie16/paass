@@ -19,7 +19,7 @@ namespace dammIds {
     }
 }
 
-TraceExtractor::TraceExtractor(const std::string& aType,
+TraceExtractor::TraceExtractor(const std::string &aType,
                                const std::string &aSubtype,
                                const std::string &aTag) :
         TraceAnalyzer(OFFSET, RANGE, "Trace Extractor"), type(aType),
@@ -33,13 +33,13 @@ void TraceExtractor::DeclarePlots(void) {
 
 void TraceExtractor::Analyze(
         Trace &trace, const std::string &aType, const std::string &aSubtype,
-        const std::map<std::string,int> &tags) {
+        const std::map<std::string, int> &tags) {
     static unsigned int numPlottedTraces = 0;
     static unsigned int numTraces = S8;
 
-    if (type ==  aType && subtype == aSubtype && 
-	(tag == "" || tags.find(tag) != tags.end()) &&
-	numPlottedTraces < numTraces){
+    if (type == aType && subtype == aSubtype &&
+        (tag == "" || tags.find(tag) != tags.end()) &&
+        numPlottedTraces < numTraces) {
         TraceAnalyzer::Analyze(trace, type, subtype, tags);
         OffsetPlot(trace, DD_TRACE, numPlottedTraces, 0.0);
         numPlottedTraces++;

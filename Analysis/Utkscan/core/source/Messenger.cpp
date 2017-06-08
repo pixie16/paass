@@ -9,16 +9,16 @@ bool Messenger::endline_ = true;
 
 void Messenger::detail(std::string msg, short level /*= 0*/,
                        std::string symbol /* = "*" */) {
-    std::vector<std::string> lines;
+    std::vector <std::string> lines;
     int width = 61 - 4 * level - symbol.length();
     std::stringstream indention;
     for (short i = 0; i < level; ++i)
         indention << "    ";
     indention << "   ";
 
-    while((int)msg.length() > 0) {
+    while ((int) msg.length() > 0) {
         std::string line;
-        if ((int)msg.length() > width) {
+        if ((int) msg.length() > width) {
             line = msg.substr(0, width);
             msg = msg.substr(width, msg.length());
         } else {

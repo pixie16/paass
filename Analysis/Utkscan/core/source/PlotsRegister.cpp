@@ -11,9 +11,9 @@
 
 using namespace std;
 
-PlotsRegister* PlotsRegister::instance = NULL;
+PlotsRegister *PlotsRegister::instance = NULL;
 
-PlotsRegister* PlotsRegister::get() {
+PlotsRegister *PlotsRegister::get() {
     if (!instance) {
         instance = new PlotsRegister();
     }
@@ -25,13 +25,13 @@ PlotsRegister::~PlotsRegister() {
     instance = NULL;
 }
 
-bool PlotsRegister::CheckRange (int min, int max) const {
+bool PlotsRegister::CheckRange(int min, int max) const {
     bool exists = false;
 
     unsigned sz = reg.size();
     for (unsigned id = 0; id < sz; ++id) {
-        if ( (min < reg[id].first && max < reg[id].first) ||
-             (min > reg[id].second && max > reg[id].second) )
+        if ((min < reg[id].first && max < reg[id].first) ||
+            (min > reg[id].second && max > reg[id].second))
             continue;
         else {
             exists = true;
@@ -41,7 +41,7 @@ bool PlotsRegister::CheckRange (int min, int max) const {
     return exists;
 }
 
-bool PlotsRegister::Add (int offset, int range, std::string name) {
+bool PlotsRegister::Add(int offset, int range, std::string name) {
     // Special case: empty Plots list
     if (offset == 0 && range == 0)
         return true;
@@ -73,7 +73,7 @@ bool PlotsRegister::Add (int offset, int range, std::string name) {
         throw HistogramException(ss.str());
     }
 
-    reg.push_back( std::pair<int, int>(min, max) );
+    reg.push_back(std::pair<int, int>(min, max));
 
     Messenger m;
     stringstream ss;

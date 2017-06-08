@@ -34,11 +34,11 @@ double PolynomialCfd::CalculatePhase(const std::vector<double> &data,
             result = Polynomial::CalculatePoly2(data, cfdIndex - 1).second;
 
             // Calculate the phase of the trace.
-            if(result[2] > 1)
+            if (result[2] > 1)
                 multiplier = -1.;
 
             phase = (-result[1] + multiplier *
-                     sqrt(result[1] * result[1] -
+                                  sqrt(result[1] * result[1] -
                                        4 * result[2] *
                                        (result[0] - threshold))) /
                     (2 * result[2]);

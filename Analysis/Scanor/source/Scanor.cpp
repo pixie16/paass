@@ -27,6 +27,6 @@
  * \param [in] ibuf : the array with the data
  * \param [in] nhw : the number of half words contained in the data buffer
 */
-extern "C" void hissub_(unsigned short *sbuf[],unsigned short *nhw) {
-    ScanorInterface::get()->Hissub(sbuf,nhw);
+extern "C" void hissub_(unsigned short *sbuf[], unsigned short *nhw) {
+    ScanorInterface::get()->Hissub(sbuf, nhw);
 }

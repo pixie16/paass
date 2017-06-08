@@ -37,16 +37,21 @@ private:
      * \param [in] info : the information to correlate
      * \param [in] location : the location for the correlations */
     void Correlate(Correlator &corr, EventInfo &info, int location);
+
 public:
     /** Default Constructor */
     ImplantSsdProcessor();
+
     /** Default Destructor */
-    ~ImplantSsdProcessor(){};
+    ~ImplantSsdProcessor() {};
+
     /** Declares the plots */
     virtual void DeclarePlots(void);
+
     /** Process an event
     * \param [in] event : the event to process
     * \return true if the processing was successful */
     virtual bool Process(RawEvent &event);
 };
+
 #endif // __IMPLANT_SSD_PROCESSOR_HPP_

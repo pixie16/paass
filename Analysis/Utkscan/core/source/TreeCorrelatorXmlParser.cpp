@@ -19,7 +19,7 @@ void TreeCorrelatorXmlParser::ParseNode(TreeCorrelator *tree) {
 
 void TreeCorrelatorXmlParser::ParsePlace(
         pugi::xml_node node, std::string parent, bool verbose) {
-    map<string, string> params;
+    map <string, string> params;
     params["parent"] = parent;
     params["type"] = "";
     params["reset"] = "true";
@@ -35,8 +35,9 @@ void TreeCorrelatorXmlParser::ParsePlace(
     TreeCorrelator::get()->createPlace(params, verbose);
 }
 
-void TreeCorrelatorXmlParser::TraverseNode(pugi::xml_node node, std::string parent,
-                                           bool verbose) {
+void
+TreeCorrelatorXmlParser::TraverseNode(pugi::xml_node node, std::string parent,
+                                      bool verbose) {
     for (pugi::xml_node child = node.child("Place"); child;
          child = child.next_sibling("Place")) {
         ParsePlace(child, parent, verbose);

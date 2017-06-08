@@ -27,8 +27,10 @@ class VandleProcessor : public EventProcessor {
 public:
     /** Default Constructor */
     VandleProcessor();
+
     /** Default Destructor */
     ~VandleProcessor() {};
+
     /** Declare the plots used in the analysis */
     virtual void DeclarePlots(void);
 
@@ -37,7 +39,7 @@ public:
      * \param [in] res : The resolution of the DAMM histograms
      * \param [in] offset : The offset of the DAMM histograms 
      * \param [in] numStarts : number of starts we have to process */
-    VandleProcessor(const std::vector<std::string> &typeList,
+    VandleProcessor(const std::vector <std::string> &typeList,
                     const double &res, const double &offset,
                     const unsigned int &numStarts);
 
@@ -58,17 +60,20 @@ public:
      * \return True if the retrieval was successful. */
     virtual double CorrectTOF(const double &TOF, const double &corRadius,
                               const double &z0) {
-        return((z0/corRadius)*TOF);
+        return ((z0 / corRadius) * TOF);
     }
-    
+
     /** \return the map of the build VANDLE bars */
-    BarMap GetBars(void) {return(bars_);}
+    BarMap GetBars(void) { return (bars_); }
+
     /** \return true if we requested small bars in the xml */
-    bool GetHasSmall(void) {return(hasSmall_);}
+    bool GetHasSmall(void) { return (hasSmall_); }
+
     /** \return true if we requested medium bars in the xml  */
-    bool GetHasMed(void) {return(hasMed_);}
+    bool GetHasMed(void) { return (hasMed_); }
+
     /** \return true if we requsted large bars in the xml */
-    bool GetHasBig(void) {return(hasBig_);}
+    bool GetHasBig(void) { return (hasBig_); }
 
 protected:
     BarMap bars_;//!< A map to hold all the bars
@@ -92,11 +97,14 @@ private:
     /** Analyze the data for scenarios with Bar Starts; e.g. Double Beta
      * detectors */
     void AnalyzeBarStarts(void);
+
     /** Analyze the data for scenarios with Single sided Starts; e.g. LeRIBSS
      * beta scintillators. */
     void AnalyzeStarts(void);
+
     /** Clear the maps in anticipation for the next event */
     void ClearMaps(void);
+
     /** Fill up the basic histograms */
     void FillVandleOnlyHists();
 
@@ -104,4 +112,5 @@ private:
      * \param [in] type : The type of bar that we are dealing with */
     unsigned int ReturnOffset(const std::string &type);
 };
+
 #endif

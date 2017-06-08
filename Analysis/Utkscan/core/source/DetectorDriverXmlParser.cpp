@@ -73,9 +73,9 @@ void DetectorDriverXmlParser::ParseNode(DetectorDriver *driver) {
     messenger_.done();
 }
 
-vector<EventProcessor*> DetectorDriverXmlParser::ParseProcessors(
+vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(
         const pugi::xml_node &node) {
-    std::vector<EventProcessor*> vecProcess;
+    std::vector < EventProcessor * > vecProcess;
 
     for (pugi::xml_node processor = node; processor;
          processor = processor.next_sibling(node.name())) {
@@ -122,7 +122,7 @@ vector<EventProcessor*> DetectorDriverXmlParser::ParseProcessors(
         } else if (name == "VandleProcessor") {
             vecProcess.push_back(new VandleProcessor(
                     StringManipulation::TokenizeString(
-                            processor.attribute("types").as_string(),","),
+                            processor.attribute("types").as_string(), ","),
                     processor.attribute("res").as_double(2.0),
                     processor.attribute("offset").as_double(1000.0),
                     processor.attribute("NumStarts").as_uint(1)));
@@ -138,17 +138,17 @@ vector<EventProcessor*> DetectorDriverXmlParser::ParseProcessors(
             vecProcess.push_back(new TemplateExpProcessor());
         }
 #ifdef useroot //Certain processors REQUIRE ROOT to actually work
-        else if (name == "Anl1471Processor") {
-            vecProcess.push_back(new Anl1471Processor());
-        } else if (name == "TwoChanTimingProcessor") {
-            vecProcess.push_back(new TwoChanTimingProcessor());
-        } else if (name == "IS600Processor") {
-            vecProcess.push_back(new IS600Processor());
-        } else if (name == "VandleOrnl2012Processor") {
-            vecProcess.push_back(new VandleOrnl2012Processor());
-        } else if (name == "RootProcessor") {
-            vecProcess.push_back(new RootProcessor("tree.root", "tree"));
-        }
+            else if (name == "Anl1471Processor") {
+                vecProcess.push_back(new Anl1471Processor());
+            } else if (name == "TwoChanTimingProcessor") {
+                vecProcess.push_back(new TwoChanTimingProcessor());
+            } else if (name == "IS600Processor") {
+                vecProcess.push_back(new IS600Processor());
+            } else if (name == "VandleOrnl2012Processor") {
+                vecProcess.push_back(new VandleOrnl2012Processor());
+            } else if (name == "RootProcessor") {
+                vecProcess.push_back(new RootProcessor("tree.root", "tree"));
+            }
 #endif
         else {
             stringstream ss;
@@ -161,19 +161,19 @@ vector<EventProcessor*> DetectorDriverXmlParser::ParseProcessors(
     return vecProcess;
 }
 
-vector<TraceAnalyzer*> DetectorDriverXmlParser::ParseAnalyzers(
+vector<TraceAnalyzer *> DetectorDriverXmlParser::ParseAnalyzers(
         const pugi::xml_node &node) {
-    std::vector<TraceAnalyzer*> vecAnalyzer;
+    std::vector < TraceAnalyzer * > vecAnalyzer;
 
     for (pugi::xml_node analyzer = node; analyzer;
          analyzer = analyzer.next_sibling(node.name())) {
         string name = analyzer.attribute("name").value();
         messenger_.detail("Loading " + name);
 
-        if(name == "TraceFilterAnalyzer") {
+        if (name == "TraceFilterAnalyzer") {
             vecAnalyzer.push_back(new TraceFilterAnalyzer(
                     analyzer.attribute("FindPileup").as_bool(false)));
-        } else if(name == "TauAnalyzer") {
+        } else if (name == "TauAnalyzer") {
             vecAnalyzer.push_back(new TauAnalyzer());
         } else if (name == "TraceExtractor") {
             vecAnalyzer.push_back(new TraceExtractor(

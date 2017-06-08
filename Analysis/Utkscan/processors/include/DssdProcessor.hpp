@@ -8,15 +8,18 @@
 #include "EventProcessor.hpp"
 
 class DetectorSummary;
+
 class RawEvent;
 
 ///Handles detectors of type dssd_front and dssd_back
 class DssdProcessor : public EventProcessor {
- public:
+public:
     DssdProcessor(); // no virtual c'tors
     virtual void DeclarePlots(void);
+
     virtual bool Process(RawEvent &event);
- private:
+
+private:
     DetectorSummary *frontSummary; ///< all detectors of type dssd_front
     DetectorSummary *backSummary;  ///< all detectors of type dssd_back
     static const double cutoffEnergy; ///< cutoff energy for implants versus decays

@@ -22,39 +22,49 @@
  */
 #ifndef __TRAPFILTERPARAMETERS_HPP__
 #define __TRAPFILTERPARAMETERS_HPP__
-//!Simple class that holds trapezoidal filter parameters. 
+
+//!Simple class that holds trapezoidal filter parameters.
 class TrapFilterParameters {
 public:
     //!Default Constructor
-    TrapFilterParameters(){};
+    TrapFilterParameters() {};
+
     //!Constructor accepting risetime, flattop, and tau/threshold parameters
     //!in units of nanoseconds.
-    TrapFilterParameters(const double &l, const double &g, const double &t){
+    TrapFilterParameters(const double &l, const double &g, const double &t) {
         l_ = l;
         g_ = g;
         t_ = t;
     };
+
     //!Default Destructor
-    ~TrapFilterParameters(){};
+    ~TrapFilterParameters() {};
 
     //! Returns the value of the flattop
-    double GetFlattop(void){return(g_);}
+    double GetFlattop(void) { return (g_); }
+
     //! Returns the value of the risetime
-    double GetRisetime(void){return(l_);}
+    double GetRisetime(void) { return (l_); }
+
     //! Returns the value of tau/threhsold
-    double GetT(void){return(t_);}
+    double GetT(void) { return (t_); }
+
     //! Returns the size of the filter
-    double GetSize(void) {return(2*l_+g_);}
+    double GetSize(void) { return (2 * l_ + g_); }
 
     //! Sets the value of the flattop
-    void SetFlattop(const double &a){g_ = a;}
+    void SetFlattop(const double &a) { g_ = a; }
+
     //! Sets the value of the risetime
-    void SetRisetime(const double &a){l_ = a;}
+    void SetRisetime(const double &a) { l_ = a; }
+
     //! Sets the value of tau/threhsold
-    void SetT(const double &a){t_ = a;}
+    void SetT(const double &a) { t_ = a; }
+
 private:
     double g_;  //!< the flattop of the filer
     double l_;   //!< the risetime for the filter
     double t_;  //!< the tau/threhsold for the filter
 };
+
 #endif //__TRAPFILTERPARAMETERS_HPP__
