@@ -120,7 +120,7 @@ if (PAASS_BUILD_ACQ)
         XIA_CONFIG()
         #Use the cmake script created by XIA_CONFIG to install the files it
         #created when make install is typed
-        add_custom_target(install ${CMAKE_COMMAND} -P pixie_cfg.cmake)
+        add_custom_target(config ${CMAKE_COMMAND} -P pixie_cfg.cmake)
     endif ()
     set(PAASS_BUILD_ACQ_ATTEMPTED ON CACHE INTERNAL "Build Suite Attempted")
 endif (PAASS_BUILD_ACQ)
