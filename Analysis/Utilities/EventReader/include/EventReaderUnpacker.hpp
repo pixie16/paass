@@ -12,7 +12,8 @@
 class EventReaderUnpacker : public Unpacker {
 public:
     /// Default constructor.
-    EventReaderUnpacker() : Unpacker() {}
+    EventReaderUnpacker() :
+            Unpacker(), numSkip_(0), eventsRead_(0), showFlags_(false), showTrace_(false) {}
 
     /// Destructor.
     ~EventReaderUnpacker() {}

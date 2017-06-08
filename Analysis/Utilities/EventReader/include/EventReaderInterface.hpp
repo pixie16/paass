@@ -14,7 +14,7 @@
 class EventReaderInterface : public ScanInterface {
 public:
     /// Default constructor.
-    EventReaderInterface(EventReaderUnpacker *unpacker) : ScanInterface(), init(false) { }
+    EventReaderInterface(EventReaderUnpacker *unpacker) : ScanInterface(), unpacker_(unpacker), init(false) { }
 
     /// Destructor.
     ~EventReaderInterface() { };
