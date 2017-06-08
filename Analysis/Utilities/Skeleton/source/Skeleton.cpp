@@ -48,15 +48,17 @@ int main(int argc, char *argv[]) {
 
 #else
 SkeletonInterface *scanner = NULL;
+SkeletonUnpacker *unpacker = NULL;
 
 extern "C" void startup_() {
     scanner = new SkeletonInterface();
+    unpacker = new SkeletonUnpacker();
 
     // Handle command line arguments.
-    scanner->Setup(GetNumberArguments(), GetArguments());
+    scanner->Setup(GetNumberArguments(), GetArguments(), unpacker);
 
     // Get a pointer to a class derived from Unpacker.
-    ScanorInterface::get()->SetUnpacker(scanner->GetCore());
+    ScanorInterface::get()->SetUnpacker(unpacker);
 }
 
 ///@brief Defines the main interface with the SCANOR library, the program

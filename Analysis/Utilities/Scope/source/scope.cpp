@@ -30,39 +30,41 @@ int main(int argc, char *argv[]) {
     return retval;
 }
 #else
+
 #include "GetArguments.hpp"
 #include "Scanor.hpp"
 #include "ScanorInterface.hpp"
+
 ScopeScanner *scanner = NULL;
+ScopeUnpacker *unpacker = NULL;
 
 // Do some startup stuff.
-extern "C" void startup_()
-{
-       scanner = new ScopeScanner();   
+extern "C" void startup_() {
+    unpacker = new ScopeUnpacker();
+    scanner = new ScopeScanner(unpacker);
 
-       // Handle command line arguments from SCANOR
-       scanner->Setup(GetNumberArguments(), GetArguments());
-       
-       // Get a pointer to a class derived from Unpacker.
-       ScanorInterface::get()->SetUnpacker(scanner->GetCore());
+    // Handle command line arguments from SCANOR
+    scanner->Setup(GetNumberArguments(), GetArguments(), unpacker);
+
+    // Get a pointer to a class derived from Unpacker.
+    ScanorInterface::get()->SetUnpacker(unpacker);
 }
 
 ///@brief Defines the main interface with the SCANOR library, the program
 /// essentially starts here.
 ///@param [in] iexist : unused paramter from SCANOR call
 extern "C" void drrsub_(uint32_t &iexist) {
-       drrmake_();
-       hd1d_(8000, 2, 256, 256, 0, 255, "Run DAMM you!", strlen("Run DAMM you!"));
-       endrr_();
+    drrmake_();
+    hd1d_(8000, 2, 256, 256, 0, 255, "Run DAMM you!", strlen("Run DAMM you!"));
+    endrr_();
 }
 
 // Catch the exit call from scanor and clean up c++ objects CRT
-extern "C" void cleanup_()
-{
-       // Do some cleanup.
-       std::cout << "\nCleaning up..\n";
-       scanner->Close();
-       delete scanner;
+extern "C" void cleanup_() {
+    // Do some cleanup.
+    std::cout << "\nCleaning up..\n";
+    scanner->Close();
+    delete scanner;
 }
 #endif
 

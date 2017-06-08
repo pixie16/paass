@@ -94,13 +94,13 @@ namespace dammIds {
         const int RANGE = 50;//!< Range for Hen3Processor
     }
 
-    ///in GeProcessor.hpp
+    ///in CloverProcessor.cpp
     namespace clover {
         const int OFFSET = 2500;//!< Offset for CloverProcessor
         const int RANGE = 499;//!< Range for CloverProcessor
     }
 
-    ///in CloverProcessor.cpp
+    ///in GeProcessor.hpp
     namespace ge {
         const int OFFSET = 2999;//!< Offset for CloverProcessor
         const int RANGE = 1;//!< Range for CloverProcessor

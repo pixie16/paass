@@ -124,7 +124,7 @@ endif (PAASS_BUILD_ACQ)
 
 #Find ROOT if USE_ROOT was set.
 if (PAASS_USE_ROOT)
-    find_package(ROOT REQUIRED)
+    find_package(ROOT REQUIRED COMPONENTS TreePlayer)
     mark_as_advanced(FORCE GENREFLEX_EXECUTABLE ROOTCINT_EXECUTABLE ROOT_CONFIG_EXECUTABLE)
     include_directories(${ROOT_INCLUDE_DIR})
     link_directories(${ROOT_LIBRARY_DIR})

@@ -6,6 +6,10 @@
 #include "SkeletonUnpacker.hpp"
 #include "XiaData.hpp"
 
+#ifdef USE_HRIBF
+#include "Scanor.hpp"
+#endif
+
 
 ///Process all events in the event list.
 void SkeletonUnpacker::ProcessRawEvent() {
