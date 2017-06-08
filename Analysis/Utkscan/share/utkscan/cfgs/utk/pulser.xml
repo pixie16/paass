@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>S. V. Paulauskas</Name>
+        <Email>stanpaulauskas@gmail.com</Email>
+        <Date>October 19, 2014</Date>
+    </Author>
+
+    <Description>
+        A timing setup to measure time difference between two pulser signals
+    </Description>
+
+    <Global>
+        <Revision version="F"/>
+        <EventWidth unit="s" value="1e-6"/>
+        <NumOfTraces value="50"/>
+    </Global>
+
+    <DetectorDriver>
+        <Analyzer name="TraceExtractor" type="pulser" subtype="start"/>
+
+        <Analyzer name="WaveformAnalyzer"/>
+        <!--
+            <Analyzer name="FittingAnalyzer"/>
+        -->
+        <Processor name="PulserProcessor"/>
+    </DetectorDriver>
+
+    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+        <Module number="0">
+            <Channel number="0" type="pulser" subtype="start"></Channel>
+            <Channel number="1" type="pulser" subtype="stop"></Channel>
+        </Module>
+    </Map>
+
+    <TimeCalibration verbose_timing="False">
+    </TimeCalibration>
+
+    <Physical>
+        <NeutronMass unit="MeV/c/c" value="939.565560"/>
+        <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+        <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+        <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+        <SmallLength unit="cm" value="60.0"/>
+        <MediumLength unit="cm" value="120.0"/>
+        <BigLength unit="cm" value="200.0"/>
+    </Physical>
+
+    <Trace>
+        <DiscriminationStart unit="sample" value="3"/>
+        <TrapezoidalWalk unit="ns" value="60"/>
+        <TraceDelay unit="ns" value="112"/>
+        <TraceLength unit="ns" value="176"/>
+        <QdcCompression value="1.0"/>
+    </Trace>
+
+    <Fitting>
+        <SigmaBaselineThresh value="3.0"/>
+        <Parameters>
+            <Pars name="pulser:start">
+                <Beta value="0.96831"/>
+                <Gamma value="0.22027"/>
+            </Pars>
+            <Pars name="pulser:stop">
+                <Beta value="0.96831"/>
+                <Gamma value="0.22027"/>
+            </Pars>
+        </Parameters>
+    </Fitting>
+
+    <TreeCorrelator name="root" verbose="False">
+    </TreeCorrelator>
+
+    <NoteBook file='notes.txt' mode='a'/>
+</Configuration>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>S. V. Paulauskas</Name>
+        <Email>stanpaulauskas AT gmail DOT com</Email>
+        <Date>September 22, 2016</Date>
+    </Author>
+
+    <Description>
+        A configuration file to test various features.
+    </Description>
+
+    <Global>
+        <Revision version="F"/>
+        <BitResolution value="12"/>
+        <EventWidth unit="s" value="1e-6"/>
+        <OutputPath value="/tmp"/>
+        <NumOfTraces value="50"/>
+        <HasRaw value="true"/>
+    </Global>
+
+    <DetectorDriver>
+        <Analyzer name="WaveformAnalyzer"/>
+        <Analyzer name="FittingAnalyzer" type="gsl"/>
+    </DetectorDriver>
+
+    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+        <Module number="0">
+            <Channel number="0" type="pulser" subtype="start"></Channel>
+            <Channel number="1" type="pulser" subtype="stop"></Channel>
+        </Module>
+        <Module number="5">
+            <Channel number="15" type="ignore" subtype="ignore"></Channel>
+        </Module>
+    </Map>
+
+    <TimeCalibration verbose_timing="False">
+    </TimeCalibration>
+
+    <Physical>
+        <NeutronMass unit="MeV/c/c" value="939.565560"/>
+        <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+        <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+        <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+        <SmallLength unit="cm" value="60.0"/>
+        <MediumLength unit="cm" value="120.0"/>
+        <BigLength unit="cm" value="200.0"/>
+    </Physical>
+
+    <Trace>
+        <WaveformRange>
+            <Range name="pulser:start">
+                <Low value="8"/>
+                <High value="20"/>
+            </Range>
+            <Range name="pulser:stop">
+                <Low value="8"/>
+                <High value="20"/>
+            </Range>
+        </WaveformRange>
+        <DiscriminationStart unit="sample" value="3"/>
+        <TraceDelay unit="ns" value="200"/>
+        <QdcCompression value="1.0"/>
+    </Trace>
+
+    <Fitting>
+        <SigmaBaselineThresh value="3.0"/>
+        <Parameters>
+            <Pars name="pulser:start">
+                <Beta value="0.4335"/>
+                <Gamma value="0.03985"/>
+            </Pars>
+            <Pars name="pulser:stop">
+                <Beta value="0.4335"/>
+                <Gamma value="0.03985"/>
+            </Pars>
+        </Parameters>
+    </Fitting>
+
+    <TreeCorrelator name="root" verbose="False">
+    </TreeCorrelator>
+
+    <NoteBook file='notes.txt' mode='a'/>
+</Configuration>

@@ -1,6 +1,5 @@
 #Build files
 *.o
-build/
 
 #Backup files 
 *~
@@ -16,6 +15,8 @@ latex/
 tmp/
 doc/classdiagramRawEvent.svg
 ValgrindOut.xml
+doc/
+doxywarning.txt
 
 #Compressed Files
 *.bz2
@@ -24,8 +25,9 @@ ValgrindOut.xml
 
 #Ignore the build and exec directory
 build/
+*build-*/
 install/
-doc/
+
 
 #Ignore IDE files
 *.cbp

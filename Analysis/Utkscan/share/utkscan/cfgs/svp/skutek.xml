@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>S. V. Paulauskas</Name>
+        <Email>stanpaulauskas AT gmail DOT com</Email>
+        <Date>June 6, 2017</Date>
+    </Author>
+
+    <Description>
+        A timing setup to measure time difference between two pulser signals
+    </Description>
+
+    <Global>
+        <Revision version="F"/>
+        <EventWidth unit="s" value="1e-6"/>
+        <HasRaw value="true"/>
+    </Global>
+
+    <DetectorDriver>
+        <Analyzer name="WaveformAnalyzer"/>
+        <Analyzer name="FittingAnalyzer" type="gsl"/>
+        <Processor name="TwoChanTimingProcessor"/>
+    </DetectorDriver>
+
+    <Map>
+        <Module number="0">
+            <Channel number="0" type="pulser" subtype="start">
+                <Trace delay="75" baselineThreshold="3.0" RangeLow="15" RangeHigh="50"/>
+                <Fit beta="0.0043" gamma="0.145"/>
+            </Channel>
+            <Channel number="1" type="pulser" subtype="stop">
+                <Trace delay="75" baselineThreshold="3.0" RangeLow="15" RangeHigh="50"/>
+                <Fit beta="0.0043" gamma="0.145"/>
+            </Channel>
+        </Module>
+    </Map>
+</Configuration>
