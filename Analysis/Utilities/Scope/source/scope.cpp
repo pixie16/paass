@@ -378,8 +378,7 @@ void scopeScanner::Notify(const string &code_/*=""*/) {
     } else if (code_ == "STOP_SCAN") { acqRun_ = false; }
     else if (code_ == "SCAN_COMPLETE") {
         cout << msgHeader << "Scan complete.\n";
-    }
-    else if (code_ == "LOAD_FILE") { cout << msgHeader << "File loaded.\n"; }
+    } else if (code_ == "LOAD_FILE") { cout << msgHeader << "File loaded.\n"; }
     else if (code_ == "REWIND_FILE") {}
     else {
         cout << msgHeader << "Unknown notification code '" << code_ << "'!\n";
@@ -391,7 +390,7 @@ void scopeScanner::Notify(const string &code_/*=""*/) {
   * \return Pointer to an Unpacker object.
   */
 Unpacker *scopeScanner::GetCore() {
-    if (!core) { core = (Unpacker * )(new scopeUnpacker()); }
+    if (!core) { core = (Unpacker *) (new scopeUnpacker()); }
     return core;
 }
 
@@ -545,7 +544,7 @@ void scopeScanner::ExtraArguments() {
   * \param[out] arg_ Vector or arguments to the user command.
   * \return True if the command was recognized and false otherwise.
   */
-bool scopeScanner::ExtraCommands(const string &cmd_, vector <string> &args_) {
+bool scopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
     if (cmd_ == "set") { // Toggle debug mode
         if (args_.size() == 2) {
             // Clear all events from the event deque.

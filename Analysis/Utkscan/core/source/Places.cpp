@@ -25,8 +25,8 @@ bool Place::checkParents(Place *child) {
 
 bool Place::checkChildren(Place *child) {
     bool isAllDifferent = true;
-    vector < pair < Place * , bool > > ::iterator
-    it;
+    vector<pair<Place *, bool> >::iterator
+            it;
     for (it = children_.begin(); it != children_.end(); ++it) {
         isAllDifferent = it->first != child;
         if (!isAllDifferent)

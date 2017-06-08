@@ -78,7 +78,7 @@ skeletonScanner::~skeletonScanner() {
   * \return True if the command was recognized and false otherwise.
   */
 bool skeletonScanner::ExtraCommands(const std::string &cmd_,
-                                    std::vector <std::string> &args_) {
+                                    std::vector<std::string> &args_) {
     if (cmd_ == "mycmd1") { // Handle the command.
     } else if (cmd_ == "mycmd2") {
         if (args_.size() >= 1) { // Do something with the argument.
@@ -187,11 +187,9 @@ void skeletonScanner::Notify(const std::string &code_/*=""*/) {
     else if (code_ == "STOP_SCAN") {}
     else if (code_ == "SCAN_COMPLETE") {
         std::cout << msgHeader << "Scan complete.\n";
-    }
-    else if (code_ == "LOAD_FILE") {
+    } else if (code_ == "LOAD_FILE") {
         std::cout << msgHeader << "File loaded.\n";
-    }
-    else if (code_ == "REWIND_FILE") {}
+    } else if (code_ == "REWIND_FILE") {}
     else {
         std::cout << msgHeader << "Unknown notification code '" << code_
                   << "'!\n";

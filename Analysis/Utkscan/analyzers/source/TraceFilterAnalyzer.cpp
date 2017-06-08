@@ -49,7 +49,7 @@ void TraceFilterAnalyzer::Analyze(Trace &trace, const std::string &type,
     static int numPileup = 0;
     static unsigned short numTraces = S7;
 
-    pair <TrapFilterParameters, TrapFilterParameters> pars =
+    pair<TrapFilterParameters, TrapFilterParameters> pars =
             globs->GetFilterPars(type + ":" + subtype);
 
     //Want to put filter clock units of ns/Sample

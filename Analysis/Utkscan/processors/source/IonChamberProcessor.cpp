@@ -11,8 +11,10 @@
 #include "IonChamberProcessor.hpp"
 
 #ifdef useroot
+
 #include <TBranch.h>
 #include <TTree.h>
+
 #endif
 
 using namespace std;
@@ -173,20 +175,19 @@ void IonChamberProcessor::Data::Clear(void) {
 }
 
 #ifdef useroot
-bool IonChamberProcessor::AddBranch(TTree *tree)
-{
-  if (tree) {
-    TBranch *branch = tree->Branch(name.c_str(), &data,
-                   "raw[6]/D:cal[6]:mult/I");
-    return (branch != NULL);
-  }
-  return false;
+
+bool IonChamberProcessor::AddBranch(TTree *tree) {
+    if (tree) {
+        TBranch *branch = tree->Branch(name.c_str(), &data,
+                                       "raw[6]/D:cal[6]:mult/I");
+        return (branch != NULL);
+    }
+    return false;
 }
 
-void IonChamberProcessor::FillBranch(void)
-{
-  if (!HasEvent())
-    data.Clear();
+void IonChamberProcessor::FillBranch(void) {
+    if (!HasEvent())
+        data.Clear();
 }
 
 #endif // USEROOT

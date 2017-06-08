@@ -81,7 +81,7 @@ void RootScanner::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
         TAxis *xAxis, *yAxis, *zAxis = NULL; //Pointers to the axes.
 
         //Check if the object is a histogram
-        if (TH1 * hist = dynamic_cast<TH1 *>(obj)) {
+        if (TH1 *hist = dynamic_cast<TH1 *>(obj)) {
             xAxis = hist->GetXaxis();
             yAxis = hist->GetYaxis();
 
@@ -97,7 +97,7 @@ void RootScanner::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
             }
         }
             //Check if the object is a graph
-        else if (TGraph * graph = dynamic_cast<TGraph *>(obj)) {
+        else if (TGraph *graph = dynamic_cast<TGraph *>(obj)) {
             xAxis = graph->GetXaxis();
             yAxis = graph->GetYaxis();
         }
@@ -149,7 +149,7 @@ void RootScanner::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
     for (TObject *obj = list->First(); obj; obj = list->After(obj)) {
         TAxis *xAxis, *yAxis; //Pointers to the axes.
         //Check if the object is a histogram
-        if (TH1 * hist = dynamic_cast<TH1 *>(obj)) {
+        if (TH1 *hist = dynamic_cast<TH1 *>(obj)) {
             xAxis = hist->GetXaxis();
             yAxis = hist->GetYaxis();
 
@@ -175,7 +175,7 @@ void RootScanner::UpdateZoom(TVirtualPad *pad /*= gPad*/) {
 
         }
             //Check if the object is a graph
-        else if (TGraph * graph = dynamic_cast<TGraph *>(obj)) {
+        else if (TGraph *graph = dynamic_cast<TGraph *>(obj)) {
             xAxis = graph->GetXaxis();
             yAxis = graph->GetYaxis();
         } else continue;

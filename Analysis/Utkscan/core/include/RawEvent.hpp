@@ -58,7 +58,7 @@ public:
     * map with the passed argument.
     * \param [in] usedTypes : the list of types used in the analysis
     */
-    void Init(const std::set <std::string> &usedTypes);
+    void Init(const std::set<std::string> &usedTypes);
 
     /** Add a channel event to the raw event
     * \param [in] event : the event to add to the raw event */
@@ -69,7 +69,7 @@ public:
     * For any detector type that was used in the event, zero the appropriate
     * detector summary in the map, and clear the event list
     * \param [in] usedev : the detector summary to zero */
-    void Zero(const std::set <std::string> &usedev);
+    void Zero(const std::set<std::string> &usedev);
 
     /** \brief Get a pointer to a specific detector summary
     *
@@ -89,9 +89,9 @@ public:
     GetEventList(void) const { return eventList; }
 
 private:
-    std::map <std::string, DetectorSummary> sumMap; /**< An STL map containing DetectorSummary classes
+    std::map<std::string, DetectorSummary> sumMap; /**< An STL map containing DetectorSummary classes
 					    associated with detector types */
-    mutable std::set <std::string> nullSummaries;   /**< Summaries which were requested but don't exist */
+    mutable std::set<std::string> nullSummaries;   /**< Summaries which were requested but don't exist */
     std::vector<ChanEvent *> eventList; /**< Pointers to all the channels that are close
                                             enough in time to be considered a single event */
 };

@@ -22,7 +22,7 @@
 
 using namespace std;
 
-void clearDeque(deque < XiaData * > &list) {
+void clearDeque(deque<XiaData *> &list) {
     while (!list.empty()) {
         delete list.front();
         list.pop_front();
@@ -32,10 +32,10 @@ void clearDeque(deque < XiaData * > &list) {
 ///Scan the event list and sort it by timestamp.
 /// @return Nothing.
 void Unpacker::TimeSort() {
-    for (vector < deque < XiaData * > > ::iterator iter = eventList.begin();
-            iter != eventList.end();
-    iter++)
-    sort(iter->begin(), iter->end(), &XiaData::CompareTime);
+    for (vector<deque<XiaData *> >::iterator iter = eventList.begin();
+         iter != eventList.end();
+         iter++)
+        sort(iter->begin(), iter->end(), &XiaData::CompareTime);
 }
 
 /** Scan the time sorted event list and package the events into a raw
@@ -70,9 +70,9 @@ bool Unpacker::BuildRawEvent() {
     XiaData *current_event = NULL;
 
     // Loop over all  time-sorted modules.
-    for (vector < deque < XiaData * > > ::iterator iter = eventList.begin();
-            iter != eventList.end();
-    iter++){
+    for (vector<deque<XiaData *> >::iterator iter = eventList.begin();
+         iter != eventList.end();
+         iter++) {
         if (iter->empty())
             continue;
 
@@ -157,9 +157,9 @@ bool Unpacker::AddEvent(XiaData *event_) {
   * \return Nothing.
   */
 void Unpacker::ClearEventList() {
-    for (std::vector < std::deque < XiaData * > >
+    for (std::vector<std::deque<XiaData *> >
          ::iterator iter = eventList.begin(); iter != eventList.end();
-    iter++){
+         iter++) {
         clearDeque((*iter));
     }
 }
@@ -181,9 +181,9 @@ bool Unpacker::GetFirstTime(double &time) {
         return false;
 
     time = std::numeric_limits<double>::max();
-    for (std::vector < std::deque < XiaData * > >
+    for (std::vector<std::deque<XiaData *> >
          ::iterator iter = eventList.begin(); iter != eventList.end();
-    iter++){
+         iter++) {
         if (iter->empty())
             continue;
         if (iter->front()->GetTime() < time)
@@ -197,9 +197,9 @@ bool Unpacker::GetFirstTime(double &time) {
   * \return True if the eventList is empty, and false otherwise.
   */
 bool Unpacker::IsEmpty() {
-    for (std::vector < std::deque < XiaData * > >
+    for (std::vector<std::deque<XiaData *> >
          ::iterator iter = eventList.begin(); iter != eventList.end();
-    iter++){
+         iter++) {
         if (!iter->empty())
             return false;
     }

@@ -118,7 +118,7 @@ protected:
     bool debug_mode; /// True if debug mode is set.
     bool running; /// True if the scan is running.
 
-    std::vector <std::deque<XiaData *>> eventList; /// The list of all events in a spill.
+    std::vector<std::deque<XiaData *>> eventList; /// The list of all events in a spill.
     std::deque<XiaData *> rawEvent; /// The list of all events in the event window.
 
     ScanInterface *interface; /// Pointer to an object derived from ScanInterface.

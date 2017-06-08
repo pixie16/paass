@@ -21,12 +21,15 @@ public:
     virtual bool Process(RawEvent &rEvent);
 
 #ifdef useroot
+
     /** Add the branch to the tree
     * \param [in] tree : the tree to add the branch to
     * \return true if you could do it */
     virtual bool AddBranch(TTree *tree);
+
     /** Fill the branch */
     virtual void FillBranch(void);
+
 #endif
 
 private:

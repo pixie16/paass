@@ -867,8 +867,7 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes,
                     if (current_chunk_num == prev_chunk_num + 2) {
                         std::cout << "debug: missing single spill chunk ("
                                   << prev_chunk_num + 1 << ")\n";
-                    }
-                    else {
+                    } else {
                         std::cout << "debug: missing multiple spill chunks ("
                                   << prev_chunk_num + 1 << " to "
                                   << current_chunk_num - 1 << ")\n";
@@ -908,8 +907,7 @@ bool DATA_buffer::Read(std::ifstream *file_, char *data_, unsigned int &nBytes,
                     if (full_spill) {
                         std::cout << "debug: finished scanning spill of "
                                   << nBytes << " bytes\n";
-                    }
-                    else {
+                    } else {
                         std::cout
                                 << "debug: finished scanning spill fragment of "
                                 << nBytes << " bytes\n";
@@ -1063,8 +1061,7 @@ std::string PollOutputFile::get_filename() {
     if (current_file_num == 0) { output = fname_prefix; }
     else if (current_file_num < 10) {
         output = fname_prefix + "_0" + run_num_str;
-    }
-    else { output = fname_prefix + "_" + run_num_str; }
+    } else { output = fname_prefix + "_" + run_num_str; }
 
     if (output_format == 0) { output += ".ldf"; }
     else if (output_format == 1) { output += ".pld"; }
@@ -1407,8 +1404,7 @@ PollOutputFile::GetNextFileName(unsigned int &run_num_, std::string prefix,
         if (continueRun) {
             filename << output_directory << prefix << "_" << std::setfill('0')
                      << std::setw(3) << run_num_ << "-" << ++suffix;
-        }
-        else {
+        } else {
             filename << output_directory << prefix << "_" << std::setfill('0')
                      << std::setw(3) << ++run_num_;
         }

@@ -13,7 +13,7 @@
 using namespace std;
 using namespace StringManipulation;
 
-Place *PlaceBuilder::create(std::map <std::string, std::string> &params,
+Place *PlaceBuilder::create(std::map<std::string, std::string> &params,
                             bool verbose) {
     string type = params["type"];
     if (verbose) {
@@ -43,7 +43,7 @@ Place *PlaceBuilder::create(std::map <std::string, std::string> &params,
 }
 
 Place *
-PlaceBuilder::createPlaceDetector(std::map <std::string, std::string> &params) {
+PlaceBuilder::createPlaceDetector(std::map<std::string, std::string> &params) {
     bool reset = StringToBool(params["reset"]);
     int fifo = stoi(params["fifo"]);
     Place *p = new PlaceDetector(reset, fifo);
@@ -51,7 +51,7 @@ PlaceBuilder::createPlaceDetector(std::map <std::string, std::string> &params) {
 }
 
 Place *PlaceBuilder::createPlaceThreshold(
-        std::map <std::string, std::string> &params) {
+        std::map<std::string, std::string> &params) {
     bool reset = StringToBool(params["reset"]);
     int fifo = stoi(params["fifo"]);
     double low_limit = stod(params["low_limit"]);
@@ -61,7 +61,7 @@ Place *PlaceBuilder::createPlaceThreshold(
 }
 
 Place *PlaceBuilder::createPlaceThresholdOR(
-        std::map <std::string, std::string> &params) {
+        std::map<std::string, std::string> &params) {
     bool reset = StringToBool(params["reset"]);
     int fifo = stoi(params["fifo"]);
     double low_limit = stod(params["low_limit"]);
@@ -71,7 +71,7 @@ Place *PlaceBuilder::createPlaceThresholdOR(
 }
 
 Place *
-PlaceBuilder::createPlaceCounter(std::map <std::string, std::string> &params) {
+PlaceBuilder::createPlaceCounter(std::map<std::string, std::string> &params) {
     bool reset = StringToBool(params["reset"]);
     int fifo = stoi(params["fifo"]);
     Place *p = new PlaceCounter(reset, fifo);
@@ -79,7 +79,7 @@ PlaceBuilder::createPlaceCounter(std::map <std::string, std::string> &params) {
 }
 
 Place *
-PlaceBuilder::createPlaceOR(std::map <std::string, std::string> &params) {
+PlaceBuilder::createPlaceOR(std::map<std::string, std::string> &params) {
     bool reset = StringToBool(params["reset"]);
     int fifo = stoi(params["fifo"]);
     Place *p = new PlaceOR(reset, fifo);
@@ -87,7 +87,7 @@ PlaceBuilder::createPlaceOR(std::map <std::string, std::string> &params) {
 }
 
 Place *
-PlaceBuilder::createPlaceAND(std::map <std::string, std::string> &params) {
+PlaceBuilder::createPlaceAND(std::map<std::string, std::string> &params) {
     bool reset = StringToBool(params["reset"]);
     int fifo = stoi(params["fifo"]);
     Place *p = new PlaceAND(reset, fifo);

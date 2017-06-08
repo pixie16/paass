@@ -159,8 +159,9 @@ void ScanInterface::stop_scan() {
         is_running = false;
         if (!batch_mode) {
             term->SetStatus("\033[0;31m[STOP]\033[0m Acquisition stopped.");
+        } else {
+            std::cout << "\033[0;31m[STOP]\033[0m Acquisition stopped.\n";
         }
-        else { std::cout << "\033[0;31m[STOP]\033[0m Acquisition stopped.\n"; }
     }
 
     // Notify that the user has stopped the scan.
@@ -526,8 +527,7 @@ void ScanInterface::RunControl() {
                     if (!batch_mode) {
                         term->SetStatus(
                                 "\033[0;33m[IDLE]\033[0m Waiting for a spill...");
-                    }
-                    else {
+                    } else {
                         std::cout
                                 << "\r\033[0;33m[IDLE]\033[0m Waiting for a spill...";
                     }
@@ -623,8 +623,7 @@ void ScanInterface::RunControl() {
                 if (!full_spill) {
                     std::cout << msgHeader
                               << "Not processing spill fragment!\n";
-                }
-                else { num_spills_recvd++; }
+                } else { num_spills_recvd++; }
             }
 
             delete[] shm_data;
@@ -727,8 +726,7 @@ void ScanInterface::RunControl() {
             if (!batch_mode) {
                 term->SetStatus(
                         "\033[0;33m[IDLE]\033[0m Finished scanning file.");
-            }
-            else { std::cout << std::endl << std::endl; }
+            } else { std::cout << std::endl << std::endl; }
         } else if (file_format == 1) {
             unsigned int *data = NULL;
             unsigned int nBytes;
@@ -784,8 +782,7 @@ void ScanInterface::RunControl() {
             if (!batch_mode) {
                 term->SetStatus(
                         "\033[0;33m[IDLE]\033[0m Finished scanning file.");
-            }
-            else { std::cout << std::endl << std::endl; }
+            } else { std::cout << std::endl << std::endl; }
         } else if (file_format == 2) {
         }
 
@@ -846,7 +843,7 @@ void ScanInterface::CmdControl() {
         if (!arg.empty() && arg.find('~') != std::string::npos)
             arg.replace(arg.find('~'), 1, homeDir);
 
-        std::vector <std::string> arguments;
+        std::vector<std::string> arguments;
         unsigned int p_args = split_str(arg, arguments);
 
         if (cmd == "quit" || cmd == "exit") {
@@ -915,8 +912,7 @@ void ScanInterface::CmdControl() {
         } else if (cmd == "rewind") { // Rewind the file to the start position
             if (p_args > 0) {
                 rewind(strtoul(arguments.at(0).c_str(), NULL, 0));
-            }
-            else { rewind(); }
+            } else { rewind(); }
         } else if (cmd == "sync") { // Wait until the current run is completed.
             if (is_running) {
                 std::cout << msgHeader

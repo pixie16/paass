@@ -173,7 +173,7 @@ public:
     /** Pythonic style private field. Use it if you must,
      * but perhaps you should not. Stores information on past
      * events in a given Place.*/
-    std::deque <EventData> info_;
+    std::deque<EventData> info_;
 
 protected:
     /** Pure virutal function. The check function should decide how
@@ -223,7 +223,7 @@ protected:
      * Place* is a pointer to the downstream place, bool describes relation
      * (true for coincidence-like, false for anti-coincidence).
      */
-    std::vector <std::pair<Place *, bool>> children_;
+    std::vector<std::pair<Place *, bool>> children_;
 
     /** Vector keeping a list of parents to whom the change of status
      * should be reported.

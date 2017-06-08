@@ -94,7 +94,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
             string ch_tags = channel.attribute("tags").as_string("None");
             if (ch_tags != "None") {
                 sstream_ << ", tags = " << ch_tags;
-                vector <string> tagList =
+                vector<string> tagList =
                         StringManipulation::TokenizeString(ch_tags, ",");
                 for (unsigned int i = 0; i < tagList.size(); i++)
                     id.AddTag(tagList[i], 1);
@@ -122,7 +122,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
             lib->Set(module_number, channelNumber, id);
 
             //Create basic place for TreeCorrelator
-            std::map <string, string> params;
+            std::map<string, string> params;
             params["name"] = id.GetPlaceName();
             params["parent"] = "root";
             params["type"] = "PlaceDetector";

@@ -70,7 +70,7 @@ private:
     /** Map where key is a channel Identifier
      * and value is a vector holding struct with calibration range
      * and calibration model and parameters.*/
-    std::map <Identifier, std::vector<CalibrationParams>> channels_;
+    std::map<Identifier, std::vector<CalibrationParams>> channels_;
 
     /** Use if you want to switch off the calibration.
      * \param [in] raw : the raw value to calibrate

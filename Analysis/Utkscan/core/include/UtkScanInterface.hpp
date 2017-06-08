@@ -23,7 +23,7 @@ public:
      * \param[out] arg_ Vector or arguments to the user command.
      * \return True if the command was recognized and false otherwise. */
     virtual bool ExtraCommands(const std::string &cmd_,
-                               std::vector <std::string> &args_);
+                               std::vector<std::string> &args_);
 
     /** ExtraArguments is used to send command line arguments to classes derived
      * from ScanInterface. It has its own instance of getopts to look for its known 

@@ -104,9 +104,10 @@ public:
         s.qdc = -9999.;
         s.id = 9999;
     }
+
 #endif
 };
 
 /** Defines a map to hold timing data for a channel. */
-typedef std::map <TimingDefs::TimingIdentifier, HighResTimingData> TimingMap;
+typedef std::map<TimingDefs::TimingIdentifier, HighResTimingData> TimingMap;
 #endif // __HIGHRESTIMINGDATA_HPP__

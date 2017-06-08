@@ -115,7 +115,7 @@ public:
       * \return True if the command was recognized and false otherwise.
       */
     virtual bool
-    ExtraCommands(const std::string &cmd_, std::vector <std::string> &args_);
+    ExtraCommands(const std::string &cmd_, std::vector<std::string> &args_);
 
     /** ExtraArguments is used to send command line arguments to classes derived
       * from ScanInterface. This method should loop over the optionExt elements

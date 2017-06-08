@@ -80,7 +80,7 @@ public:
     ///@param[in] str : A string of the form "type:subtype" used to find
     /// parameters
     ///@return the trapezoidal filter parameters for the requested detector type:subtype
-    std::pair <TrapFilterParameters, TrapFilterParameters> GetFilterPars(
+    std::pair<TrapFilterParameters, TrapFilterParameters> GetFilterPars(
             const std::string &str) const {
         if (trapFiltPars_.find(str) != trapFiltPars_.end())
             return trapFiltPars_.find(str)->second;
@@ -110,7 +110,7 @@ public:
     double GetQdcCompression() const { return qdcCompression_; }
 
     ///@return rejection regions to exclude from scan.
-    std::vector <std::pair<unsigned int, unsigned int>>
+    std::vector<std::pair<unsigned int, unsigned int>>
     GetRejectionRegions() const {
         return reject_;
     }
@@ -182,7 +182,7 @@ public:
     ///Sets the CFD parameters that we are gonig to need to analyze.
     ///@param[in] a : The parameter that we are going to set
     void SetCfdParameters(
-            const std::map <std::string, std::pair<double, double>> &a) {
+            const std::map<std::string, std::pair<double, double>> &a) {
         cfdPars_ = a;
     }
 
@@ -215,7 +215,7 @@ public:
     ///Sets the map containing all of the fitting paramters we need.
     ///@param[in] a : The parameter that we are going to set
     void SetFittingParameters(
-            const std::map <std::string, std::pair<double, double>> &a) {
+            const std::map<std::string, std::pair<double, double>> &a) {
         fitPars_ = a;
     }
 
@@ -239,7 +239,7 @@ public:
 
     ///Sets the rejection regions parsed from the config file
     ///@param[in] a : The rejection regions.
-    void SetRejectionRegions(const std::vector <std::pair<unsigned int,
+    void SetRejectionRegions(const std::vector<std::pair<unsigned int,
             unsigned int>> &a) { reject_ = a; }
 
     ///Sets the revision of the pixie modules that we had.
@@ -268,7 +268,7 @@ public:
     /// to need.
     ///@param[in] a : The map containing all of the parameters
     void SetTrapFilterParameters(
-            const std::map <std::string, std::pair<TrapFilterParameters,
+            const std::map<std::string, std::pair<TrapFilterParameters,
                     TrapFilterParameters>> &a) { trapFiltPars_ = a; }
 
     ///Sets the speed of light in a Big VANDLE module.
@@ -292,7 +292,7 @@ public:
     ///Sets the map containing the waveform ranges.
     ///@param[in] a : The parameter that we are going to set
     void SetWaveformRanges(
-            const std::map <std::string, std::pair<unsigned int, unsigned int>>
+            const std::map<std::string, std::pair<unsigned int, unsigned int>>
             &a) { waveformRanges_ = a; }
 
 private:
@@ -314,14 +314,14 @@ private:
     void InitializeMemberVariables(void);
 
     double adcClockInSeconds_; //!< adc clock in second
-    std::map <std::string, std::pair<double, double>> cfdPars_; //!< Map containing all of the parameters to be used in the cfd analyzer for a type:subtype
+    std::map<std::string, std::pair<double, double>> cfdPars_; //!< Map containing all of the parameters to be used in the cfd analyzer for a type:subtype
     double clockInSeconds_;//!< the ACQ clock in seconds
     std::string configFile_; //!< The configuration file
     unsigned int discriminationStart_;//!< starting sample for the n-gamma discrimination
     double eventLengthInSeconds_;//!< event width in seconds
     unsigned int eventLengthInTicks_; //!< the size of the events
     double filterClockInSeconds_;//!< filter clock in seconds
-    std::map <std::string, std::pair<double, double>> fitPars_; //!< Map containing all of the parameters to be used in the fitting analyzer for a type:subtype
+    std::map<std::string, std::pair<double, double>> fitPars_; //!< Map containing all of the parameters to be used in the fitting analyzer for a type:subtype
     bool hasRawHistogramsDefined_; //!< True if we are plotting Raw Histograms
     std::string outputFilename_; //!<Output Filename
     std::string outputPath_; //!< The path to additional configuration files
@@ -330,13 +330,13 @@ private:
     double sigmaBaselineThresh_;//!< threshold on fitting for Std dev. of the baseline
     double siPmSigmaBaselineThresh_;//!< threshold on fitting for Std dev. of the baseline for SiPMTs
     double sysClockFreqInHz_; //!< frequency of the system clock
-    std::vector <std::pair<unsigned int, unsigned int>> reject_; ///< Rejection regions
+    std::vector<std::pair<unsigned int, unsigned int>> reject_; ///< Rejection regions
     unsigned int traceDelay_;//!< the trace delay in ns
-    std::map <std::string, std::pair<TrapFilterParameters, TrapFilterParameters>> trapFiltPars_; //!<Map containing all of the trapezoidal filter parameters for a given type:subtype
+    std::map<std::string, std::pair<TrapFilterParameters, TrapFilterParameters>> trapFiltPars_; //!<Map containing all of the trapezoidal filter parameters for a given type:subtype
     double vandleBigSpeedOfLight_;//!< speed of light in big VANDLE bars in cm/ns
     double vandleMediumSpeedOfLight_;//!< speed of light in medium VANDLE bars in cm/ns
     double vandleSmallSpeedOfLight_;//!< speed of light in small VANDLE bars in cm/ns
-    std::map <std::string, std::pair<unsigned int, unsigned int>> waveformRanges_; //!< Map containing ranges for the waveforms
+    std::map<std::string, std::pair<unsigned int, unsigned int>> waveformRanges_; //!< Map containing ranges for the waveforms
 };
 
 #endif // #ifdef _PAASS_GLOBALS_HPP_

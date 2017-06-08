@@ -51,7 +51,7 @@ void WalkVandleBetaProcessor::DeclarePlots(void) {
 }
 
 WalkVandleBetaProcessor::WalkVandleBetaProcessor(
-        const std::vector <std::string> &typeList,
+        const std::vector<std::string> &typeList,
         const double &res, const double &offset, const double &numStarts) :
         VandleProcessor(typeList, res, offset, numStarts) {
     associatedTypes.insert("vandle");

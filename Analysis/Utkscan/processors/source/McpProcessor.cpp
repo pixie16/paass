@@ -9,7 +9,9 @@
  * <STRONG>Modified : </strong> D. Miller 09-09
  */
 #ifdef useroot
+
 #include <TTree.h>
+
 #endif
 
 #include "DammPlotIds.hpp"
@@ -114,19 +116,21 @@ bool McpProcessor::Process(RawEvent &event) {
 }
 
 #ifdef useroot
+
 bool McpProcessor::AddBranch(TTree *tree) {
-  if (tree) {
-    TBranch *mcpBranch =
-      tree->Branch(name.c_str(), &data, "raw[4]/D:xpos:ypos:mult/I");
+    if (tree) {
+        TBranch *mcpBranch =
+                tree->Branch(name.c_str(), &data, "raw[4]/D:xpos:ypos:mult/I");
 
-    return (mcpBranch != NULL);
-  }
+        return (mcpBranch != NULL);
+    }
 
-  return false;
+    return false;
 }
 
 void McpProcessor::FillBranch(void) {
-  if (!HasEvent())
-    data.Clear();
+    if (!HasEvent())
+        data.Clear();
 }
+
 #endif //useroot

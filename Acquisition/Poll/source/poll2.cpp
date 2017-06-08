@@ -24,195 +24,211 @@
 #include "CTerminal.h"
 
 /* Print help dialogue for command line options. */
-void help(const char *progName_){
-	std::cout << "\n SYNTAX: " << progName_ << " [options]\n";
-	std::cout << "  --alarm (-a) [e-mail] | Call the alarm script with a given e-mail (or no argument)\n"; 
-	std::cout << "  --fast (-f)           | Fast boot (false by default)\n";
-	std::cout << "  --verbose (-v)        | Run quietly (false by default)\n";
-	std::cout << "  --no-wall-clock       | Do not insert the wall clock in the data stream\n";
-	std::cout << "  --rates               | Display module rates in quiet mode (false by defualt)\n";
-	std::cout << "  --thresh (-t) <num>   | Sets FIFO read threshold to num% full (50% by default)\n";
-	std::cout << "  --zero                | Zero clocks on each START_ACQ (false by default)\n";
-	std::cout << "  --debug (-d)          | Set debug mode to true (false by default)\n";
-	std::cout << "  --pacman (-p)         | Use classic poll operation for use with Pacman.\n";
-	std::cout << "  --help (-h)           | Display this help dialogue.\n\n";
+void help(const char *progName_) {
+    std::cout << "\n SYNTAX: " << progName_ << " [options]\n";
+    std::cout
+            << "  --alarm (-a) [e-mail] | Call the alarm script with a given e-mail (or no argument)\n";
+    std::cout << "  --fast (-f)           | Fast boot (false by default)\n";
+    std::cout << "  --verbose (-v)        | Run quietly (false by default)\n";
+    std::cout
+            << "  --no-wall-clock       | Do not insert the wall clock in the data stream\n";
+    std::cout
+            << "  --rates               | Display module rates in quiet mode (false by defualt)\n";
+    std::cout
+            << "  --thresh (-t) <num>   | Sets FIFO read threshold to num% full (50% by default)\n";
+    std::cout
+            << "  --zero                | Zero clocks on each START_ACQ (false by default)\n";
+    std::cout
+            << "  --debug (-d)          | Set debug mode to true (false by default)\n";
+    std::cout
+            << "  --pacman (-p)         | Use classic poll operation for use with Pacman.\n";
+    std::cout << "  --help (-h)           | Display this help dialogue.\n\n";
 }
-	
-void start_run_control(Poll *poll_){
-	poll_->RunControl();
+
+void start_run_control(Poll *poll_) {
+    poll_->RunControl();
 }
 
-void start_cmd_control(Poll *poll_){
-	poll_->CommandControl();
+void start_cmd_control(Poll *poll_) {
+    poll_->CommandControl();
 }
 
-int main(int argc, char *argv[]){
-	// Read the FIFO when it is this full
-	unsigned int threshPercent = 50;
-	std::string alarmArgument = "";
+int main(int argc, char *argv[]) {
+    // Read the FIFO when it is this full
+    unsigned int threshPercent = 50;
+    std::string alarmArgument = "";
 
-	struct option longOpts[] = {
-		{ "alarm", optional_argument, NULL, 'a' },
-		{ "fast", no_argument, NULL, 'f' },
-		{ "verbose", no_argument, NULL, 'v' },
-		{ "no-wall-clock", no_argument, NULL, 0 },
-		{ "rates", no_argument, NULL, 0 },
-		{ "thresh", required_argument, NULL, 't' },
-		{ "zero", no_argument, NULL, 0 },
-		{ "debug", no_argument, NULL, 'd' },
-		{ "pacman", no_argument, NULL, 'p' },
-		{ "help", no_argument, NULL, 'h' },
-		{ "prefix", no_argument, NULL, 0 },
-		{ "?", no_argument, NULL, 0 },
-		{ NULL, no_argument, NULL, 0 }
-	};
+    struct option longOpts[] = {
+            {"alarm",         optional_argument, NULL, 'a'},
+            {"fast",          no_argument,       NULL, 'f'},
+            {"verbose",       no_argument,       NULL, 'v'},
+            {"no-wall-clock", no_argument,       NULL, 0},
+            {"rates",         no_argument,       NULL, 0},
+            {"thresh",        required_argument, NULL, 't'},
+            {"zero",          no_argument,       NULL, 0},
+            {"debug",         no_argument,       NULL, 'd'},
+            {"pacman",        no_argument,       NULL, 'p'},
+            {"help",          no_argument,       NULL, 'h'},
+            {"prefix",        no_argument,       NULL, 0},
+            {"?",             no_argument,       NULL, 0},
+            {NULL,            no_argument,       NULL, 0}
+    };
 
-	// Main object
-	Poll poll;
-	poll.SetQuietMode();
+    // Main object
+    Poll poll;
+    poll.SetQuietMode();
 
-	int idx = 0;
-	int retval = 0;
+    int idx = 0;
+    int retval = 0;
 
-	//getopt_long is not POSIX compliant. It is provided by GNU. This may mean
-	//that we are not compatable with some systems. If we have enough
-	//complaints we can either change it to getopt, or implement our own class. 
-	while ( (retval = getopt_long(argc, argv, "afvt:dph", longOpts, &idx)) != -1) {
-		switch(retval) {
-			case 'a':
-				alarmArgument = optarg;
-				poll.SetSendAlarm();
-				break;
-			case 'f':
-				poll.SetBootFast();
-				break;
-			case 'v':
-				poll.SetQuietMode(false);
-				break;
-			case 't' :
-				threshPercent = atoi(optarg); 
-				if(threshPercent <= 0){ 
-					std::cout << Display::ErrorStr() << " Failed to set threshold level to (" << threshPercent << ")!\n";
-					return 1;
-				}
-				break;
-			case 'd':
-				poll.SetDebugMode();
-				break;								
-			case 'p':
-				poll.SetPacmanMode();
-				break;
-			case 'h' :
-				help(argv[0]);
-				return 0;
-			case 0 :
-				if(strcmp("prefix", longOpts[idx].name) == 0 ) { // --prefix
-					std::cout << INSTALL_PREFIX <<"\n";
-					return 0; 
-				}
-				else if(strcmp("no-wall-clock", longOpts[idx].name) == 0 ) { // --no-wall-clock
-					poll.SetWallClock();
-				}
-				else if(strcmp("rates", longOpts[idx].name) == 0 ) { // --rates
-					poll.SetShowRates();
-				}
-				else if(strcmp("zero", longOpts[idx].name) == 0 ) { // --zero
-					poll.SetZeroClocks();
-				}
-				break;
-			case '?' :
-				help(argv[0]);
-				return 1;
-			default :
-				break;
-		}//switch(retval)
-	}//while
+    //getopt_long is not POSIX compliant. It is provided by GNU. This may mean
+    //that we are not compatable with some systems. If we have enough
+    //complaints we can either change it to getopt, or implement our own class.
+    while ((retval = getopt_long(argc, argv, "afvt:dph", longOpts, &idx)) !=
+           -1) {
+        switch (retval) {
+            case 'a':
+                alarmArgument = optarg;
+                poll.SetSendAlarm();
+                break;
+            case 'f':
+                poll.SetBootFast();
+                break;
+            case 'v':
+                poll.SetQuietMode(false);
+                break;
+            case 't' :
+                threshPercent = atoi(optarg);
+                if (threshPercent <= 0) {
+                    std::cout << Display::ErrorStr()
+                              << " Failed to set threshold level to ("
+                              << threshPercent << ")!\n";
+                    return 1;
+                }
+                break;
+            case 'd':
+                poll.SetDebugMode();
+                break;
+            case 'p':
+                poll.SetPacmanMode();
+                break;
+            case 'h' :
+                help(argv[0]);
+                return 0;
+            case 0 :
+                if (strcmp("prefix", longOpts[idx].name) == 0) { // --prefix
+                    std::cout << INSTALL_PREFIX << "\n";
+                    return 0;
+                } else if (strcmp("no-wall-clock", longOpts[idx].name) ==
+                           0) { // --no-wall-clock
+                    poll.SetWallClock();
+                } else if (strcmp("rates", longOpts[idx].name) ==
+                           0) { // --rates
+                    poll.SetShowRates();
+                } else if (strcmp("zero", longOpts[idx].name) == 0) { // --zero
+                    poll.SetZeroClocks();
+                }
+                break;
+            case '?' :
+                help(argv[0]);
+                return 1;
+            default :
+                break;
+        }//switch(retval)
+    }//while
 
-	if(!poll.Initialize()){ return 1; }
+    if (!poll.Initialize()) { return 1; }
 
-	// Main interactive terminal.
-	Terminal poll_term;
+    // Main interactive terminal.
+    Terminal poll_term;
 
-	std::string poll2Dir = getenv("HOME");
-	if (!mkdir(poll2Dir.append("/.poll2/").c_str(), S_IRWXU)) {
-		if (errno == EEXIST) 
-			std::cout << Display::ErrorStr() << "Unable to create poll2 settings directory '" << poll2Dir << "'!\n";
-	}
+    std::string poll2Dir = getenv("HOME");
+    if (!mkdir(poll2Dir.append("/.poll2/").c_str(), S_IRWXU)) {
+        if (errno == EEXIST)
+            std::cout << Display::ErrorStr()
+                      << "Unable to create poll2 settings directory '"
+                      << poll2Dir << "'!\n";
+    }
 
-	// Initialize the terminal before doing anything else;
-	poll_term.Initialize();
+    // Initialize the terminal before doing anything else;
+    poll_term.Initialize();
 
-	std::cout << "\n#########      #####    ####      ####       ########\n"; 
-	std::cout << " ##     ##    ##   ##    ##        ##       ##      ##\n";
-	std::cout << " ##      ##  ##     ##   ##        ##                ##\n";
-	std::cout << " ##     ##  ##       ##  ##        ##               ##\n";
-	std::cout << " #######    ##       ##  ##        ##              ##\n";
-	std::cout << " ##         ##       ##  ##        ##            ##\n";
-	std::cout << " ##         ##       ##  ##        ##           ##\n";
-	std::cout << " ##          ##     ##   ##        ##         ##\n";
-	std::cout << " ##           ##   ##    ##    ##  ##    ##  ##\n";
-	std::cout << "####           #####    ######### ######### ###########\n";
+    std::cout << "\n#########      #####    ####      ####       ########\n";
+    std::cout << " ##     ##    ##   ##    ##        ##       ##      ##\n";
+    std::cout << " ##      ##  ##     ##   ##        ##                ##\n";
+    std::cout << " ##     ##  ##       ##  ##        ##               ##\n";
+    std::cout << " #######    ##       ##  ##        ##              ##\n";
+    std::cout << " ##         ##       ##  ##        ##            ##\n";
+    std::cout << " ##         ##       ##  ##        ##           ##\n";
+    std::cout << " ##          ##     ##   ##        ##         ##\n";
+    std::cout << " ##           ##   ##    ##    ##  ##    ##  ##\n";
+    std::cout << "####           #####    ######### ######### ###########\n";
 
-	std::cout << "\n POLL2 v" << POLL2_CORE_VERSION << "\n"; 
-	std::cout << " ==  ==  ==  ==  == \n\n"; 
-	
-	poll_term.SetCommandHistory(poll2Dir + "poll2.cmd");
-	poll_term.SetPrompt(Display::InfoStr("POLL2 $ ").c_str());
-	poll_term.AddStatusWindow();
-	poll_term.EnableTabComplete();
-	poll_term.SetLogFile(poll2Dir + "poll2.log");
-	if (poll.GetPacmanMode()) poll_term.EnableTimeout();
+    std::cout << "\n POLL2 v" << POLL2_CORE_VERSION << "\n";
+    std::cout << " ==  ==  ==  ==  == \n\n";
 
-	poll.PrintModuleInfo();
+    poll_term.SetCommandHistory(poll2Dir + "poll2.cmd");
+    poll_term.SetPrompt(Display::InfoStr("POLL2 $ ").c_str());
+    poll_term.AddStatusWindow();
+    poll_term.EnableTabComplete();
+    poll_term.SetLogFile(poll2Dir + "poll2.log");
+    if (poll.GetPacmanMode()) poll_term.EnableTimeout();
 
-	poll.SetThreshWords(EXTERNAL_FIFO_LENGTH * threshPercent / 100.0);
-	std::cout << "Using FIFO threshold of " << threshPercent << "% (" << poll.GetThreshWords() << "/" << EXTERNAL_FIFO_LENGTH << " words).\n";
-	
+    poll.PrintModuleInfo();
+
+    poll.SetThreshWords(EXTERNAL_FIFO_LENGTH * threshPercent / 100.0);
+    std::cout << "Using FIFO threshold of " << threshPercent << "% ("
+              << poll.GetThreshWords() << "/" << EXTERNAL_FIFO_LENGTH
+              << " words).\n";
+
 #ifdef PIF_REVA
-	std::cout << "Using Pixie16 revision A\n";
+    std::cout << "Using Pixie16 revision A\n";
 #elif (defined PIF_REVD)
-	std::cout << "Using Pixie16 revision D\n";
+    std::cout << "Using Pixie16 revision D\n";
 #elif (defined PIF_REVF)
-	std::cout << "Using Pixie16 revision F\n";
+    std::cout << "Using Pixie16 revision F\n";
 #else
-	std::cout << "Using unknown Pixie16 revision!!!\n";
+    std::cout << "Using unknown Pixie16 revision!!!\n";
 #endif
 
-	if(poll.GetPacmanMode()){ std::cout << "Using pacman mode!\n"; }
-	std::cout << std::endl;
+    if (poll.GetPacmanMode()) { std::cout << "Using pacman mode!\n"; }
+    std::cout << std::endl;
 
-	poll.SetTerminal(&poll_term);
-  	
-	if(poll.GetSendAlarm()){
-		Display::LeaderPrint("Sending alarms to");
-		if(alarmArgument.empty()){ std::cout << Display::InfoStr("DEFAULT") << std::endl; }
-		else { std::cout << Display::WarningStr(alarmArgument) << std::endl; }
-	}
+    poll.SetTerminal(&poll_term);
 
-	// Start the run control thread
-	std::cout << pad_string("Starting run control thread", 49);
-	std::thread runctrl(start_run_control, &poll);
-	std::cout << Display::OkayStr() << std::endl;
+    if (poll.GetSendAlarm()) {
+        Display::LeaderPrint("Sending alarms to");
+        if (alarmArgument.empty()) {
+            std::cout << Display::InfoStr("DEFAULT") << std::endl;
+        }
+        else { std::cout << Display::WarningStr(alarmArgument) << std::endl; }
+    }
 
-	// Start the command control thread. This needs to be the last thing we do to
-	// initialize, so the user cannot enter commands before setup is complete
-	std::cout << pad_string("Starting command thread", 49);
-	std::thread comctrl(start_cmd_control, &poll);
-	std::cout << Display::OkayStr() << std::endl << std::endl;
-	
-	// Synchronize the threads and wait for completion
-	comctrl.join();
-	runctrl.join();
+    // Start the run control thread
+    std::cout << pad_string("Starting run control thread", 49);
+    std::thread runctrl(start_run_control, &poll);
+    std::cout << Display::OkayStr() << std::endl;
 
-	// Close the output file, if one is open
-	poll.Close();
+    // Start the command control thread. This needs to be the last thing we do to
+    // initialize, so the user cannot enter commands before setup is complete
+    std::cout << pad_string("Starting command thread", 49);
+    std::thread comctrl(start_cmd_control, &poll);
+    std::cout << Display::OkayStr() << std::endl << std::endl;
 
-	// Close the terminal.
-	poll_term.Close();
+    // Synchronize the threads and wait for completion
+    comctrl.join();
+    runctrl.join();
 
-	//Reprint the leader as the carriage was returned
-	Display::LeaderPrint(std::string("Running poll2 v").append(POLL2_CORE_VERSION));
-	std::cout << Display::OkayStr("[Done]") << std::endl;
+    // Close the output file, if one is open
+    poll.Close();
 
-	return 0;
+    // Close the terminal.
+    poll_term.Close();
+
+    //Reprint the leader as the carriage was returned
+    Display::LeaderPrint(
+            std::string("Running poll2 v").append(POLL2_CORE_VERSION));
+    std::cout << Display::OkayStr("[Done]") << std::endl;
+
+    return 0;
 }

@@ -149,16 +149,16 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
     xyEventsTMatch_.clear();
     xyEventsEMatch_.clear();
 
-    vector < ChanEvent * > xEvents =
+    vector<ChanEvent *> xEvents =
             event.GetSummary("dssd_back:dssd_back", true)->GetList();
-    vector < ChanEvent * > yEvents =
+    vector<ChanEvent *> yEvents =
             event.GetSummary("dssd_front:dssd_front", true)->GetList();
 
     /**
      * Matching the front-back by the time correlations
      */
-    vector <pair<StripEvent, bool>> xEventsTMatch;
-    vector <pair<StripEvent, bool>> yEventsTMatch;
+    vector<pair<StripEvent, bool>> xEventsTMatch;
+    vector<pair<StripEvent, bool>> yEventsTMatch;
 
     for (vector<ChanEvent *>::iterator itx = xEvents.begin();
          itx != xEvents.end();
@@ -265,19 +265,18 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
         }
     }
 
-    for (vector < pair < StripEvent, bool > >
-                                     ::iterator itx = xEventsTMatch.begin();
-            itx != xEventsTMatch.end();
-    ++itx) {
+    for (vector<pair<StripEvent, bool> >
+         ::iterator itx = xEventsTMatch.begin();
+         itx != xEventsTMatch.end();
+         ++itx) {
         double bestDtime = numeric_limits<double>::max();
-        vector < pair < StripEvent, bool > > ::iterator
-        bestMatch =
+        vector<pair<StripEvent, bool> >::iterator
+                bestMatch =
                 yEventsTMatch.end();
-        for (vector < pair < StripEvent, bool > > ::iterator ity =
-                                                                     yEventsTMatch.begin();
-                ity != yEventsTMatch.end();
-        ++ity)
-        {
+        for (vector<pair<StripEvent, bool> >::iterator ity =
+                yEventsTMatch.begin();
+             ity != yEventsTMatch.end();
+             ++ity) {
             // If already matched, skip
             if ((*ity).second)
                 continue;
@@ -325,10 +324,10 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
         }
     }
 
-    for (vector < pair < StripEvent, bool > >
-                                     ::iterator itx = xEventsTMatch.begin();
-            itx != xEventsTMatch.end();
-    ++itx) {
+    for (vector<pair<StripEvent, bool> >
+         ::iterator itx = xEventsTMatch.begin();
+         itx != xEventsTMatch.end();
+         ++itx) {
         if ((*itx).second)
             continue;
         int position = (*itx).first.pos;
@@ -336,10 +335,10 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
         plot(DD_ENERGY__POSX_T_MISSING, energy, position);
     }
 
-    for (vector < pair < StripEvent, bool > >
-                                     ::iterator ity = yEventsTMatch.begin();
-            ity != yEventsTMatch.end();
-    ++ity) {
+    for (vector<pair<StripEvent, bool> >
+         ::iterator ity = yEventsTMatch.begin();
+         ity != yEventsTMatch.end();
+         ++ity) {
         if ((*ity).second)
             continue;
         int position = (*ity).first.pos;
@@ -377,11 +376,11 @@ bool Dssd4SHEProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return false;
 
-    vector < ChanEvent * > vetoEvents =
+    vector<ChanEvent *> vetoEvents =
             event.GetSummary("si:veto", true)->GetList();
-    vector < ChanEvent * > sideEvents =
+    vector<ChanEvent *> sideEvents =
             event.GetSummary("si:si", true)->GetList();
-    vector < ChanEvent * > mwpcEvents =
+    vector<ChanEvent *> mwpcEvents =
             event.GetSummary("si:si", true)->GetList();
     int mwpc = event.GetSummary("mcp", true)->GetMult();
 
@@ -389,11 +388,10 @@ bool Dssd4SHEProcessor::Process(RawEvent &event) {
 
     plot(D_MWPC_MULTI, mwpc);
 
-    for (vector < pair < StripEvent, StripEvent > > ::iterator it =
-                                                                       xyEventsTMatch_.begin();
-            it != xyEventsTMatch_.end();
-    ++it)
-    {
+    for (vector<pair<StripEvent, StripEvent> >::iterator it =
+            xyEventsTMatch_.begin();
+         it != xyEventsTMatch_.end();
+         ++it) {
         double xEnergy = (*it).first.E;
         double yEnergy = (*it).second.E;
 
@@ -520,10 +518,10 @@ bool Dssd4SHEProcessor::Process(RawEvent &event) {
     }
 
     /** Old style max event for comparison */
-    for (vector < pair < StripEvent, StripEvent > > ::iterator it =
-                                                                       xyEventsEMatch_.begin();
-            it != xyEventsEMatch_.end();
-    ++it) {
+    for (vector<pair<StripEvent, StripEvent> >::iterator it =
+            xyEventsEMatch_.begin();
+         it != xyEventsEMatch_.end();
+         ++it) {
         double xEnergy = (*it).first.E;
         double yEnergy = (*it).second.E;
 

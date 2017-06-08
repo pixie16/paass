@@ -46,10 +46,12 @@
 #include "VandleOrnl2012Processor.hpp"
 
 #ifdef useroot //Some processors REQUIRE ROOT to function
+
 #include "Anl1471Processor.hpp"
 #include "IS600Processor.hpp"
 #include "RootProcessor.hpp"
 #include "TwoChanTimingProcessor.hpp"
+
 #endif
 
 using namespace std;
@@ -75,7 +77,7 @@ void DetectorDriverXmlParser::ParseNode(DetectorDriver *driver) {
 
 vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(
         const pugi::xml_node &node) {
-    std::vector < EventProcessor * > vecProcess;
+    std::vector<EventProcessor *> vecProcess;
 
     for (pugi::xml_node processor = node; processor;
          processor = processor.next_sibling(node.name())) {
@@ -138,17 +140,17 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(
             vecProcess.push_back(new TemplateExpProcessor());
         }
 #ifdef useroot //Certain processors REQUIRE ROOT to actually work
-            else if (name == "Anl1471Processor") {
-                vecProcess.push_back(new Anl1471Processor());
-            } else if (name == "TwoChanTimingProcessor") {
-                vecProcess.push_back(new TwoChanTimingProcessor());
-            } else if (name == "IS600Processor") {
-                vecProcess.push_back(new IS600Processor());
-            } else if (name == "VandleOrnl2012Processor") {
-                vecProcess.push_back(new VandleOrnl2012Processor());
-            } else if (name == "RootProcessor") {
-                vecProcess.push_back(new RootProcessor("tree.root", "tree"));
-            }
+        else if (name == "Anl1471Processor") {
+            vecProcess.push_back(new Anl1471Processor());
+        } else if (name == "TwoChanTimingProcessor") {
+            vecProcess.push_back(new TwoChanTimingProcessor());
+        } else if (name == "IS600Processor") {
+            vecProcess.push_back(new IS600Processor());
+        } else if (name == "VandleOrnl2012Processor") {
+            vecProcess.push_back(new VandleOrnl2012Processor());
+        } else if (name == "RootProcessor") {
+            vecProcess.push_back(new RootProcessor("tree.root", "tree"));
+        }
 #endif
         else {
             stringstream ss;
@@ -163,7 +165,7 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(
 
 vector<TraceAnalyzer *> DetectorDriverXmlParser::ParseAnalyzers(
         const pugi::xml_node &node) {
-    std::vector < TraceAnalyzer * > vecAnalyzer;
+    std::vector<TraceAnalyzer *> vecAnalyzer;
 
     for (pugi::xml_node analyzer = node; analyzer;
          analyzer = analyzer.next_sibling(node.name())) {

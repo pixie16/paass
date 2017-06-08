@@ -18,4 +18,4 @@ add_subdirectory(Poll)
 #Build the setup tools
 if (PAASS_BUILD_SETUP)
     add_subdirectory(Setup)
-endif(PAASS_BUILD_SETUP)
+endif (PAASS_BUILD_SETUP)

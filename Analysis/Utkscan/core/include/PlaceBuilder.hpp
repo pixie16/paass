@@ -51,32 +51,32 @@ public:
     /** \return the created place
     * \param [in] params : the parameters used to create the place
     * \param [in] verbose : set the verbosity of the builder */
-    Place *create(std::map <std::string, std::string> &params, bool verbose);
+    Place *create(std::map<std::string, std::string> &params, bool verbose);
 
 private:
     /** \return the created PlaceDetector
     * \param [in] params : the parameters used to create the place */
-    Place *createPlaceDetector(std::map <std::string, std::string> &params);
+    Place *createPlaceDetector(std::map<std::string, std::string> &params);
 
     /** \return the created PlaceThreshold
     * \param [in] params : the parameters used to create the place */
-    Place *createPlaceThreshold(std::map <std::string, std::string> &params);
+    Place *createPlaceThreshold(std::map<std::string, std::string> &params);
 
     /** \return the created PlaceThresholdOR
     * \param [in] params : the parameters used to create the place */
-    Place *createPlaceThresholdOR(std::map <std::string, std::string> &params);
+    Place *createPlaceThresholdOR(std::map<std::string, std::string> &params);
 
     /** \return The created place counter
     * \param [in] params : the parameters used to create the place */
-    Place *createPlaceCounter(std::map <std::string, std::string> &params);
+    Place *createPlaceCounter(std::map<std::string, std::string> &params);
 
     /** \return the created PlaceOR
     * \param [in] params : the parameters used to create the place */
-    Place *createPlaceOR(std::map <std::string, std::string> &params);
+    Place *createPlaceOR(std::map<std::string, std::string> &params);
 
     /** \return the created PlaceAND
     * \param [in] params : the parameters used to create the place */
-    Place *createPlaceAND(std::map <std::string, std::string> &params);
+    Place *createPlaceAND(std::map<std::string, std::string> &params);
 };
 
 #endif

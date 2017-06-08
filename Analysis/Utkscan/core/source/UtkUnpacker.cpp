@@ -45,7 +45,7 @@ void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
 
     DetectorDriver *driver = DetectorDriver::get();
     DetectorLibrary *modChan = DetectorLibrary::get();
-    set <string> usedDetectors;
+    set<string> usedDetectors;
     Messenger m;
     stringstream ss;
 
@@ -90,7 +90,7 @@ void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
 
         RawStats((*it), driver);
 
-        if ((*it)->GetId() == std::numeric_limits < unsigned int > ::max()) {
+        if ((*it)->GetId() == std::numeric_limits<unsigned int>::max()) {
             ss << "pattern 0 ignore";
             m.warning(ss.str());
             ss.str("");

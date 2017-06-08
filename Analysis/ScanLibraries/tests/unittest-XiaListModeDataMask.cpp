@@ -209,7 +209,7 @@ GetCfdTriggerSourceMask()
 
 .second);
 
-vector <FIRMWARE> firm = {R30474, R30980, R30981, R34688};
+vector<FIRMWARE> firm = {R30474, R30980, R30981, R34688};
 for (
 vector<FIRMWARE>::iterator it = firm.begin();
 it != firm.
@@ -304,7 +304,7 @@ GetCfdTriggerSourceMask()
 
 .second);
 
-vector <FIRMWARE> firm = {R30474, R30980, R30981, R34688};
+vector<FIRMWARE> firm = {R30474, R30980, R30981, R34688};
 for (
 vector<FIRMWARE>::iterator it = firm.begin();
 it != firm.
@@ -359,7 +359,7 @@ TEST_FIXTURE(XiaListModeDataMask, Test_500MSps_Word2
 ) {
 SetFrequency(500);
 
-vector <FIRMWARE> firm = {R29432, R30474, R30980, R30981, R34688};
+vector<FIRMWARE> firm = {R29432, R30474, R30980, R30981, R34688};
 
 for (
 vector<FIRMWARE>::iterator it = firm.begin();
@@ -414,7 +414,7 @@ TEST_FIXTURE(XiaListModeDataMask, Test_R29432_To_R30981_Word3
 ) {
 vector<unsigned int> freq = {100, 250, 500};
 
-vector <FIRMWARE> firm = {R29432, R30474, R30980, R30981};
+vector<FIRMWARE> firm = {R29432, R30474, R30980, R30981};
 
 for (
 vector<FIRMWARE>::iterator it = firm.begin();
@@ -548,7 +548,7 @@ GetCfdSize()
 
 //All of the 500 MS/s modules have the same sized CFD.
 SetFrequency(500);
-vector <FIRMWARE> firm = {R29432, R30474, R30980, R30981, R34688};
+vector<FIRMWARE> firm = {R29432, R30474, R30980, R30981, R34688};
 for (
 vector<FIRMWARE>::iterator it = firm.begin();
 it != firm.

@@ -22,6 +22,7 @@
 
 #include "PixieInterface.h"
 #include "hribf_buffers.h"
+
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
 #define POLL2_CORE_VERSION "1.4.14"
@@ -35,296 +36,298 @@ typedef word_t eventdata_t[maxEventSize];
 
 class MCA;
 
-class MCA_args{
-  private:
-	bool running;
-	bool useRoot;
-	int totalTime;
-	std::string basename;
-	
-	MCA *mca;
+class MCA_args {
+private:
+    bool running;
+    bool useRoot;
+    int totalTime;
+    std::string basename;
 
-  public:	
-	MCA_args();
-	
-	MCA_args(bool useRoot_, int totalTime_, std::string basename_);
-	
-	~MCA_args();
-	
-	bool IsRunning(){ return running; }
-	
-	bool UseRoot(){ return useRoot; }
-	
-	int GetTotalTime(){ return totalTime; }
-	
-	std::string GetBasename(){ return basename; }
-	
-	MCA *GetMCA(){ return mca; }
-	
-	void SetUseRoot(bool state_=true){ useRoot = state_; }
-	
-	void SetTotalTime(int totalTime_){ totalTime = totalTime_; }
-	
-	void SetBasename(std::string basename_){ basename = basename_; }
+    MCA *mca;
 
-	bool Initialize(PixieInterface *pif_);
-	
-	bool Step();
-	
-	bool CheckTime();
-	
-	void Zero();
-	
-	void Close(PixieInterface *pif_);
+public:
+    MCA_args();
+
+    MCA_args(bool useRoot_, int totalTime_, std::string basename_);
+
+    ~MCA_args();
+
+    bool IsRunning() { return running; }
+
+    bool UseRoot() { return useRoot; }
+
+    int GetTotalTime() { return totalTime; }
+
+    std::string GetBasename() { return basename; }
+
+    MCA *GetMCA() { return mca; }
+
+    void SetUseRoot(bool state_ = true) { useRoot = state_; }
+
+    void SetTotalTime(int totalTime_) { totalTime = totalTime_; }
+
+    void SetBasename(std::string basename_) { basename = basename_; }
+
+    bool Initialize(PixieInterface *pif_);
+
+    bool Step();
+
+    bool CheckTime();
+
+    void Zero();
+
+    void Close(PixieInterface *pif_);
 };
 
 struct UDP_Packet {
-	int Sequence; /// Sequence number for reliable transport
-	int DataSize; /// Number of useable bytes in Data
-	unsigned char Data[MAX_ORPH_DATA]; /// The data to be transmitted
+    int Sequence; /// Sequence number for reliable transport
+    int DataSize; /// Number of useable bytes in Data
+    unsigned char Data[MAX_ORPH_DATA]; /// The data to be transmitted
 };
 
-struct data_pack{
-	int Sequence; /// Sequence number for reliable transport
-	int DataSize; /// Number of useable bytes in Data
-	int TotalEvents; /// Total number of events
-	unsigned short Events; /// Number of events in this packet
-	unsigned short Cont; /// Continuation flag for large events
-	unsigned char Data[4*(4050 + 4)]; /// The data to be transmitted
-	int BufLen; /// Length of original Pixie buffer
+struct data_pack {
+    int Sequence; /// Sequence number for reliable transport
+    int DataSize; /// Number of useable bytes in Data
+    int TotalEvents; /// Total number of events
+    unsigned short Events; /// Number of events in this packet
+    unsigned short Cont; /// Continuation flag for large events
+    unsigned char Data[4 * (4050 + 4)]; /// The data to be transmitted
+    int BufLen; /// Length of original Pixie buffer
 };
 
 // Forward class declarations
 class StatsHandler;
+
 class Client;
+
 class Server;
+
 class Terminal;
 
-class Poll{
-  private:
-	Terminal *poll_term_;
-	///A vector to store the partial events
-	std::vector<word_t> *partialEvents;
-	
-	double startTime; ///Time when the acquistion was started.
-	double lastSpillTime; ///Time when the last spill finished.
+class Poll {
+private:
+    Terminal *poll_term_;
+    ///A vector to store the partial events
+    std::vector<word_t> *partialEvents;
 
-  	struct tm *time_info;
+    double startTime; ///Time when the acquistion was started.
+    double lastSpillTime; ///Time when the last spill finished.
 
-	Client *client; /// UDP client for network access
-	Server *server; /// UDP server to listen for pacman commands
+    struct tm *time_info;
 
-	PixieInterface *pif; /// The main pixie interface pointer 
-  
-	// System flags and variables
-	std::string sys_message_head; /// Command line message header
-	bool kill_all; /// Set to true when the program is exiting
-	bool do_start_acq; /// Set to true when the command is given to start a run
-	bool do_stop_acq; /// Set to true when the command is given to stop a run
-	bool record_data; /// Set to true if data is to be recorded to disk
-	bool do_reboot; /// Set to true when the user tells POLL to reboot PIXIE
-	bool force_spill; /// Force poll2 to dump the current data spill
-	bool acq_running; /// Set to true when run_command is recieving data from PIXIE
-	bool run_ctrl_exit; /// Set to true when run_command exits
-	bool had_error;
-	bool file_open;
-	time_t raw_time;
+    Client *client; /// UDP client for network access
+    Server *server; /// UDP server to listen for pacman commands
 
-	// System MCA flags
-	bool do_MCA_run; /// Set to true when the "mca" command is received
-	MCA_args mca_args; /// Structure to hold arguments for MCA program
+    PixieInterface *pif; /// The main pixie interface pointer
 
-	// Run control variables
-	bool boot_fast; //
-	bool insert_wall_clock; //
-	bool is_quiet; //
-	bool send_alarm; //
-	bool show_module_rates; //
-	bool zero_clocks; //
-	bool debug_mode; //
-	bool shm_mode; /// New style shared-memory mode.
-	bool pac_mode; /// Pacman shared-memory mode.
-	bool init; //
-	double runTime; /// Time to run the acquisition, in seconds.
+    // System flags and variables
+    std::string sys_message_head; /// Command line message header
+    bool kill_all; /// Set to true when the program is exiting
+    bool do_start_acq; /// Set to true when the command is given to start a run
+    bool do_stop_acq; /// Set to true when the command is given to stop a run
+    bool record_data; /// Set to true if data is to be recorded to disk
+    bool do_reboot; /// Set to true when the user tells POLL to reboot PIXIE
+    bool force_spill; /// Force poll2 to dump the current data spill
+    bool acq_running; /// Set to true when run_command is recieving data from PIXIE
+    bool run_ctrl_exit; /// Set to true when run_command exits
+    bool had_error;
+    bool file_open;
+    time_t raw_time;
 
-	// Options relating to output data file
-	std::string output_directory; /// Set with 'fdir' command
-	std::string filename_prefix; /// Set with 'ouf' command
-	std::string output_title; /// Set with 'htit' command
-	unsigned int next_run_num; /// Set with 'hnum' command
-	unsigned int output_format; /// Set with 'oform' command
+    // System MCA flags
+    bool do_MCA_run; /// Set to true when the "mca" command is received
+    MCA_args mca_args; /// Structure to hold arguments for MCA program
 
-	// The main output data file and related variables
-	int current_file_num;
-	PollOutputFile output_file;
+    // Run control variables
+    bool boot_fast; //
+    bool insert_wall_clock; //
+    bool is_quiet; //
+    bool send_alarm; //
+    bool show_module_rates; //
+    bool zero_clocks; //
+    bool debug_mode; //
+    bool shm_mode; /// New style shared-memory mode.
+    bool pac_mode; /// Pacman shared-memory mode.
+    bool init; //
+    double runTime; /// Time to run the acquisition, in seconds.
 
-	///Pacman related variables
-	unsigned int udp_sequence; ///< The number of UDP packets transmitted.
-	unsigned int total_spill_chunks; ///< Total number of poll data spill chunks sent over the network
+    // Options relating to output data file
+    std::string output_directory; /// Set with 'fdir' command
+    std::string filename_prefix; /// Set with 'ouf' command
+    std::string output_title; /// Set with 'htit' command
+    unsigned int next_run_num; /// Set with 'hnum' command
+    unsigned int output_format; /// Set with 'oform' command
 
-	size_t n_cards;
-	size_t threshWords;
+    // The main output data file and related variables
+    int current_file_num;
+    PollOutputFile output_file;
 
-	typedef std::pair<unsigned int, unsigned int> chanid_t;
-	std::map<chanid_t, PixieInterface::Histogram> histoMap;
+    ///Pacman related variables
+    unsigned int udp_sequence; ///< The number of UDP packets transmitted.
+    unsigned int total_spill_chunks; ///< Total number of poll data spill chunks sent over the network
 
-	StatsHandler *statsHandler;
-	static const int statsInterval_ = 3; ///<The amount time between scaler reads in seconds.
+    size_t n_cards;
+    size_t threshWords;
 
-	const static std::vector<std::string> runControlCommands_;
-	const static std::vector<std::string> paramControlCommands_;
-	const static std::vector<std::string> pollStatusCommands_; 
-	std::vector<std::string> commands_;
-	
-	data_pack AcqBuf; /// Data packet for class shared-memory broadcast
-	
-	/// Print help dialogue for POLL options.
-	void help();
+    typedef std::pair<unsigned int, unsigned int> chanid_t;
+    std::map<chanid_t, PixieInterface::Histogram> histoMap;
 
-	/// Print help dialogue for reading/writing pixie channel parameters.
-	void pchan_help();
+    StatsHandler *statsHandler;
+    static const int statsInterval_ = 3; ///<The amount time between scaler reads in seconds.
 
-	/// Print help dialogue for reading/writing pixie module parameters.
-	void pmod_help();
+    const static std::vector<std::string> runControlCommands_;
+    const static std::vector<std::string> paramControlCommands_;
+    const static std::vector<std::string> pollStatusCommands_;
+    std::vector<std::string> commands_;
 
-	/// Print help dialogue for writing pixie DSP parameters.
-	void save_help();
+    data_pack AcqBuf; /// Data packet for class shared-memory broadcast
 
-	/// Start a data recording run.
-	bool start_run(const bool &record_=true, const double &time_=-1.0);
-	
-	/// Stop an active data recording run.
-	bool stop_run();
-	
-	/// Display run status information.
-	void show_status();
-	
-	/// Display polling threshold.
-	void show_thresh();
+    /// Print help dialogue for POLL options.
+    void help();
 
-	/// Acquire raw traces from a pixie module.
-	void get_traces(int mod_, int chan_, int thresh_=0);
+    /// Print help dialogue for reading/writing pixie channel parameters.
+    void pchan_help();
 
-	/// Method responsible for handling tab complete.
-	std::vector<std::string> TabComplete(const std::string &value_, const std::vector<std::string> &valid_);
+    /// Print help dialogue for reading/writing pixie module parameters.
+    void pmod_help();
 
-	///Routine to read Pixie FIFOs
-	bool ReadFIFO();
-	
-	///Routine to read Pixie scalers.
-	void ReadScalers();
+    /// Start a data recording run.
+    bool start_run(const bool &record_ = true, const double &time_ = -1.0);
 
-	///Routine to update the status message.
-	void UpdateStatus();
+    /// Stop an active data recording run.
+    bool stop_run();
 
-	/// Set IN_SYNCH and SYNCH_WAIT parameters on all modules.
-	bool synch_mods();
+    /// Display run status information.
+    void show_status();
 
-	/// Return the current output filename.
-	std::string get_filename();
-	
-	/// Close the current output file, if one is open.
-	bool CloseOutputFile(const bool continueRun = false);
-	
-	/// Opens a new file if no file is currently open.
-	bool OpenOutputFile(bool continueRun = false);
-	
-	/// Write a data spill to disk.
-	int write_data(word_t *data, unsigned int nWords);
+    /// Display polling threshold.
+    void show_thresh();
 
-	/// Broadcast a data spill onto the network.
-	void broadcast_data(word_t *data, unsigned int nWords);
+    /// Acquire raw traces from a pixie module.
+    void get_traces(int mod_, int chan_, int thresh_ = 0);
 
-	/// Broadcast a data spill onto the network in the classic pacman format.
-	void broadcast_pac_data();
+    /// Method responsible for handling tab complete.
+    std::vector<std::string> TabComplete(const std::string &value_,
+                                         const std::vector<std::string> &valid_);
 
-	/// @brief Splits the arguments to pread and pwrite on a colon delimeter.
-	/// @param[in] arg The argument to be split.
-	/// @param[out] start The first value in the string indicating the first mod / ch.
-	/// @param[out] start The second value in the string indicating the last mod / ch.
-	/// @return Whether the attempt was succesful.
-	bool SplitParameterArgs(const std::string &arg, int &start, int &stop);
+    ///Routine to read Pixie FIFOs
+    bool ReadFIFO();
 
-  public:
-  	/// Default constructor.
-	Poll();
-	
-	/// Destructor.
-	~Poll();
-	
-	/// Initialize the poll object.
-	bool Initialize();
-	
-	// Set methods.
-	void SetBootFast(bool input_=true){ boot_fast = input_; }
-	
-	void SetWallClock(bool input_=true){ insert_wall_clock = input_; }
-	
-	void SetQuietMode(bool input_=true){ is_quiet = input_; }
-	
-	void SetSendAlarm(bool input_=true){ send_alarm = input_; }
-	
-	void SetShowRates(bool input_=true){ show_module_rates = input_; }
-	
-	void SetZeroClocks(bool input_=true){ zero_clocks = input_; }
-	
-	void SetDebugMode(bool input_=true){ debug_mode = input_; }
-	
-	void SetShmMode(bool input_=true){ shm_mode = input_; }
-	
-	void SetPacmanMode(bool input_=true){ pac_mode = input_; }
-	
-	void SetNcards(const size_t &n_cards_){ n_cards = n_cards_; }
-	
-	void SetThreshWords(const size_t &thresh_){ threshWords = thresh_; }
+    ///Routine to read Pixie scalers.
+    void ReadScalers();
 
-	///Set the terminal pointer.
-	void SetTerminal(Terminal *term){ poll_term_ = term; };
+    ///Routine to update the status message.
+    void UpdateStatus();
 
-	// Get methods.
-	bool GetBootFast(){ return boot_fast; }
-	
-	bool GetWallClock(){ return insert_wall_clock; }
-	
-	bool GetQuietMode(){ return is_quiet; }
-	
-	bool GetSendAlarm(){ return send_alarm; }
-	
-	bool GetShowRates(){ return show_module_rates; }
-	
-	bool GetZeroClocks(){ return zero_clocks; }
-	
-	bool GetDebugMode(){ return debug_mode; }
-	
-	bool GetShmMode(){ return shm_mode; }
-	
-	bool GetPacmanMode(){ return pac_mode; }
-	
-	size_t GetNcards(){ return n_cards; }
-	
-	size_t GetThreshWords(){ return threshWords; }
+    /// Set IN_SYNCH and SYNCH_WAIT parameters on all modules.
+    bool synch_mods();
 
-	///\brief Prints the information about each module.
-	void PrintModuleInfo();
-	
-	/// Main control loop for handling user input.
-	void CommandControl();
-		
-	/// Main acquisition control loop for handling data acq.
-	void RunControl();
-	
-	/// Close the sockets, any open files, and clean up.
-	bool Close();
+    /// Return the current output filename.
+    std::string get_filename();
+
+    /// Close the current output file, if one is open.
+    bool CloseOutputFile(const bool continueRun = false);
+
+    /// Opens a new file if no file is currently open.
+    bool OpenOutputFile(bool continueRun = false);
+
+    /// Write a data spill to disk.
+    int write_data(word_t *data, unsigned int nWords);
+
+    /// Broadcast a data spill onto the network.
+    void broadcast_data(word_t *data, unsigned int nWords);
+
+    /// Broadcast a data spill onto the network in the classic pacman format.
+    void broadcast_pac_data();
+
+    /// @brief Splits the arguments to pread and pwrite on a colon delimeter.
+    /// @param[in] arg The argument to be split.
+    /// @param[out] start The first value in the string indicating the first mod / ch.
+    /// @param[out] start The second value in the string indicating the last mod / ch.
+    /// @return Whether the attempt was succesful.
+    bool SplitParameterArgs(const std::string &arg, int &start, int &stop);
+
+public:
+    /// Default constructor.
+    Poll();
+
+    /// Destructor.
+    ~Poll();
+
+    /// Initialize the poll object.
+    bool Initialize();
+
+    // Set methods.
+    void SetBootFast(bool input_ = true) { boot_fast = input_; }
+
+    void SetWallClock(bool input_ = true) { insert_wall_clock = input_; }
+
+    void SetQuietMode(bool input_ = true) { is_quiet = input_; }
+
+    void SetSendAlarm(bool input_ = true) { send_alarm = input_; }
+
+    void SetShowRates(bool input_ = true) { show_module_rates = input_; }
+
+    void SetZeroClocks(bool input_ = true) { zero_clocks = input_; }
+
+    void SetDebugMode(bool input_ = true) { debug_mode = input_; }
+
+    void SetShmMode(bool input_ = true) { shm_mode = input_; }
+
+    void SetPacmanMode(bool input_ = true) { pac_mode = input_; }
+
+    void SetNcards(const size_t &n_cards_) { n_cards = n_cards_; }
+
+    void SetThreshWords(const size_t &thresh_) { threshWords = thresh_; }
+
+    ///Set the terminal pointer.
+    void SetTerminal(Terminal *term) { poll_term_ = term; };
+
+    // Get methods.
+    bool GetBootFast() { return boot_fast; }
+
+    bool GetWallClock() { return insert_wall_clock; }
+
+    bool GetQuietMode() { return is_quiet; }
+
+    bool GetSendAlarm() { return send_alarm; }
+
+    bool GetShowRates() { return show_module_rates; }
+
+    bool GetZeroClocks() { return zero_clocks; }
+
+    bool GetDebugMode() { return debug_mode; }
+
+    bool GetShmMode() { return shm_mode; }
+
+    bool GetPacmanMode() { return pac_mode; }
+
+    size_t GetNcards() { return n_cards; }
+
+    size_t GetThreshWords() { return threshWords; }
+
+    ///\brief Prints the information about each module.
+    void PrintModuleInfo();
+
+    /// Main control loop for handling user input.
+    void CommandControl();
+
+    /// Main acquisition control loop for handling data acq.
+    void RunControl();
+
+    /// Close the sockets, any open files, and clean up.
+    bool Close();
 };
-	
+
 /** IsNumeric: Check if an input string is strictly numeric.
   *  \param[in]  input_ String to check.
   *  \param[in]  prefix_ String to print before the error message is printed.
   *  \param[in]  msg_ Error message to print if the value is not numeric.
   *  \return true if the string is strictly numeric and false otherwise.
   */
-bool IsNumeric(const std::string &input_, const std::string &prefix_="", const std::string &msg_="");
-	
+bool IsNumeric(const std::string &input_, const std::string &prefix_ = "",
+               const std::string &msg_ = "");
+
 /// Convert a rate number to more useful form.
 std::string humanReadable(double size);
 

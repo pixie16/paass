@@ -259,7 +259,7 @@ bool PositionProcessor::Process(RawEvent &event) {
     static const vector<ChanEvent *> &bottomEvents =
             event.GetSummary("ssd:bottom", true)->GetList();
 
-    vector < ChanEvent * > allEvents;
+    vector<ChanEvent *> allEvents;
     // just add in the digisum events for now
     allEvents.insert(allEvents.begin(), digisumEvents.begin(),
                      digisumEvents.end());
@@ -332,16 +332,16 @@ bool PositionProcessor::Process(RawEvent &event) {
 
         topQdc[0] = top->GetQdc().at(0);
         bottomQdc[0] = bottom->GetQdc().at(0);
-        if (bottomQdc[0] == std::numeric_limits < unsigned
-            int > ::max() ||
-            topQdc[0] == std::numeric_limits < unsigned
-        int > ::max()) {
+        if (bottomQdc[0] == std::numeric_limits<unsigned
+        int>::max() ||
+            topQdc[0] == std::numeric_limits<unsigned
+            int>::max()) {
             // This happens naturally for traces which have double triggers
             //   Onboard DSP does not write QDCs in this case
 #ifdef VERBOSE
             cout << "SSD strip edges are missing QDC information for location " << location << endl;
 #endif
-            if (topQdc[0] == std::numeric_limits < unsigned int > ::max()) {
+            if (topQdc[0] == std::numeric_limits<unsigned int>::max()) {
                 // [2] -> Missing top QDC
                 plot(D_INFO_LOCX + location, INFO_MISSING_TOP_QDC);
                 plot(D_INFO_LOCX + LOC_SUM, INFO_MISSING_TOP_QDC);
@@ -354,7 +354,7 @@ bool PositionProcessor::Process(RawEvent &event) {
                     topQdc[0] = 0;
                 }
             }
-            if (bottomQdc[0] == std::numeric_limits < unsigned int > ::max()) {
+            if (bottomQdc[0] == std::numeric_limits<unsigned int>::max()) {
                 // [1] -> Missing bottom QDC
                 plot(D_INFO_LOCX + location, INFO_MISSING_BOTTOM_QDC);
                 plot(D_INFO_LOCX + LOC_SUM, INFO_MISSING_BOTTOM_QDC);
@@ -377,8 +377,8 @@ bool PositionProcessor::Process(RawEvent &event) {
 
 
         for (int i = 1; i < numQdcs; ++i) {
-            if (top->GetQdc().at(i) == std::numeric_limits < unsigned
-                int > ::max()) {
+            if (top->GetQdc().at(i) == std::numeric_limits<unsigned
+            int>::max()) {
                 // Recreate qdc from trace
                 topQdc[i] = accumulate(top->GetTrace().begin() + qdcPos[i - 1],
                                        top->GetTrace().begin() + qdcPos[i], 0);
@@ -390,8 +390,8 @@ bool PositionProcessor::Process(RawEvent &event) {
             topQdcTot += topQdc[i];
             topQdc[i] /= qdcLen[i];
 
-            if (bottom->GetQdc().at(i) == std::numeric_limits < unsigned
-                int > ::max()) {
+            if (bottom->GetQdc().at(i) == std::numeric_limits<unsigned
+            int>::max()) {
                 // Recreate qdc from trace
                 bottomQdc[i] = accumulate(
                         bottom->GetTrace().begin() + qdcPos[i - 1],

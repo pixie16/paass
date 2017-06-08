@@ -36,7 +36,7 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(
         return vector<XiaData *>();
 
     stringstream msg;
-    vector < XiaData * > events;
+    vector<XiaData *> events;
     static unsigned int numSkippedBuffers = 0;
 
     while (buf < bufStart + bufLen) {

@@ -86,7 +86,7 @@ void GlobalsXmlParser::ParseNode(Globals *globals) {
 void
 GlobalsXmlParser::ParseCfdNode(const pugi::xml_node &node, Globals *globals) {
     if (!node.child("Parameters").empty()) {
-        std::map <std::string, std::pair<double, double>> pars;
+        std::map<std::string, std::pair<double, double>> pars;
         for (pugi::xml_node_iterator it = node.begin(); it != node.end(); ++it)
             if (std::string(it->name()).compare("Parameters") == 0)
                 for (pugi::xml_node_iterator parit = it->begin();
@@ -143,7 +143,7 @@ void GlobalsXmlParser::ParseFittingNode(const pugi::xml_node &node,
     sstream_.str("");
 
     if (!node.child("Parameters").empty()) {
-        std::map <std::string, std::pair<double, double>> pars;
+        std::map<std::string, std::pair<double, double>> pars;
         for (pugi::xml_node_iterator parit = node.child("Parameters").begin();
              parit != node.child("Parameters").end(); ++parit)
             pars.insert(std::make_pair(parit->attribute("name").as_string(),
@@ -224,9 +224,9 @@ void GlobalsXmlParser::ParseGlobalNode(const pugi::xml_node &node,
 ///This method parses the Reject node. The rejection regions are regions of
 /// the data files that the user would like to ignore. These rejection
 /// regions must be entered with units of seconds.
-vector <pair<unsigned int, unsigned int>> GlobalsXmlParser::ParseRejectNode(
+vector<pair<unsigned int, unsigned int>> GlobalsXmlParser::ParseRejectNode(
         const pugi::xml_node &node) {
-    vector <pair<unsigned int, unsigned int>> regions;
+    vector<pair<unsigned int, unsigned int>> regions;
     for (pugi::xml_node time = node.child("Time"); time;
          time = time.next_sibling("Time")) {
         int start = time.attribute("start").as_int(0);
@@ -306,7 +306,7 @@ GlobalsXmlParser::ParseTraceNode(const pugi::xml_node &node, Globals *globals) {
         sstream_.str("");
     }
     if (!node.child("WaveformRange").empty()) {
-        std::map <std::string, std::pair<unsigned int, unsigned int>> waveRngs;
+        std::map<std::string, std::pair<unsigned int, unsigned int>> waveRngs;
         for (pugi::xml_node_iterator waveit = node.child(
                 "WaveformRange").begin();
              waveit != node.child("WaveformRange").end(); ++waveit) {
@@ -324,7 +324,7 @@ GlobalsXmlParser::ParseTraceNode(const pugi::xml_node &node, Globals *globals) {
         throw invalid_argument(CriticalNodeMessage("WaveformRange"));
 
     if (!node.child("TrapFilters")) {
-        std::map <std::string, std::pair<TrapFilterParameters,
+        std::map<std::string, std::pair<TrapFilterParameters,
                 TrapFilterParameters>> tmp;
         for (pugi::xml_node_iterator trapit = node.child("TrapFilters").begin();
              trapit != node.child("TrapFilters").end(); ++trapit) {

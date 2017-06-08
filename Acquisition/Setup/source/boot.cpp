@@ -6,17 +6,15 @@
 
 #include "PixieInterface.h"
 
-int main(int argc, char *argv[])
-{
-  PixieInterface pif("pixie.cfg");
+int main(int argc, char *argv[]) {
+    PixieInterface pif("pixie.cfg");
 
-  pif.GetSlots();
-  pif.Init();
-  if (!pif.Boot(PixieInterface::BootAll, true))
-  {
-    sleep(1);
-    pif.Boot(PixieInterface::BootAll, true);
-  }
+    pif.GetSlots();
+    pif.Init();
+    if (!pif.Boot(PixieInterface::BootAll, true)) {
+        sleep(1);
+        pif.Boot(PixieInterface::BootAll, true);
+    }
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

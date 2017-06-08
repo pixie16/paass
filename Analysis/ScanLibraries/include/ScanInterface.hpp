@@ -76,9 +76,9 @@ public:
     void clear();
 
 private:
-    std::vector <std::string> parnames;
+    std::vector<std::string> parnames;
 
-    std::vector <std::string> parvalues;
+    std::vector<std::string> parvalues;
 };
 
 class ScanInterface {
@@ -178,9 +178,9 @@ protected:
     std::string msgHeader; /// The string to print before program output.
     std::string progName; /// The name of the program.
 
-    std::vector <option> longOpts; /// Vector of all command line options.
-    std::vector <optionExt> baseOpts; /// Base level command line options for the scan.
-    std::vector <optionExt> userOpts; /// User added command line options.
+    std::vector<option> longOpts; /// Vector of all command line options.
+    std::vector<optionExt> baseOpts; /// Base level command line options for the scan.
+    std::vector<optionExt> userOpts; /// User added command line options.
     std::string optstr;
 
     Unpacker *core; /// Pointer to class derived from Unpacker class.
@@ -200,7 +200,7 @@ protected:
       * \return True if the command was recognized and false otherwise. Returns false by default.
       */
     virtual bool ExtraCommands(const std::string &cmd_,
-                               std::vector <std::string> &args_) { return false; }
+                               std::vector<std::string> &args_) { return false; }
 
     /** ExtraArguments is used to send command line arguments to classes derived
       * from ScanInterface. This method should loop over the optionExt elements

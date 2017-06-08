@@ -39,7 +39,7 @@ public:
      * \param [in] res : The resolution of the DAMM histograms
      * \param [in] offset : The offset of the DAMM histograms 
      * \param [in] numStarts : number of starts we have to process */
-    VandleProcessor(const std::vector <std::string> &typeList,
+    VandleProcessor(const std::vector<std::string> &typeList,
                     const double &res, const double &offset,
                     const unsigned int &numStarts);
 

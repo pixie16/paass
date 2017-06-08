@@ -138,9 +138,9 @@ public:
     /** \return The wall time
      * \param [in] d : the pixie time to convert to wall time */
     time_t GetWallTime(double d) const {
-        return (time_t)((d - pixieToWallClock.first) *
-                        Globals::get()->GetClockInSeconds() +
-                        pixieToWallClock.second);
+        return (time_t) ((d - pixieToWallClock.first) *
+                         Globals::get()->GetClockInSeconds() +
+                         pixieToWallClock.second);
     }
 
     /** \return the list of the Event Processors in the analysis */
@@ -153,7 +153,7 @@ public:
     EventProcessor *GetProcessor(const std::string &name) const;
 
     /** \return the set of detectors used in the analysis */
-    const std::set <std::string> &GetUsedDetectors(void) const;
+    const std::set<std::string> &GetUsedDetectors(void) const;
 
     ///Sets the processor list
     ///@param[in] a : The vector containing the pointer to the event processors
@@ -182,7 +182,7 @@ private:
 
     std::vector<TraceAnalyzer *> vecAnalyzer; /**< object which analyzes traces of channels to extract
                    energy and time information */
-    std::set <std::string> knownDetectors; /**< list of valid detectors that can
+    std::set<std::string> knownDetectors; /**< list of valid detectors that can
                    be used as detector types */
     std::string cfg_; //!< The configuration file to read
     std::pair<double, time_t> pixieToWallClock; /**< rough estimate of pixie to wall clock */

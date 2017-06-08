@@ -141,7 +141,7 @@ private:
     /** Map where key is a channel Identifier
      * and value is a vector holding struct with calibration range
      * and walk correction model and parameters. */
-    std::map <Identifier, std::vector<CorrectionParams>> channels_;
+    std::map<Identifier, std::vector<CorrectionParams>> channels_;
 };
 
 #endif

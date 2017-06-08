@@ -72,7 +72,7 @@ bool LiquidProcessor::Process(RawEvent &event) {
     static const vector<ChanEvent *> &liquidStartEvents =
             event.GetSummary("scint:liquid:start")->GetList();
 
-    vector < ChanEvent * > startEvents;
+    vector<ChanEvent *> startEvents;
     startEvents.insert(startEvents.end(), betaStartEvents.begin(),
                        betaStartEvents.end());
     startEvents.insert(startEvents.end(), liquidStartEvents.begin(),

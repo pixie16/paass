@@ -414,11 +414,11 @@ drr_entry *HisFile::read_entry() {
 
 /// Delete all drr drr_entries and clear the drr_entries vector
 void HisFile::clear_drr_entries() {
-    for (std::map < unsigned int, drr_entry * >
-                                  ::iterator iter = drrMap_.begin();
-    iter != drrMap_.end();
-    iter++)
-    delete ((*iter).second);
+    for (std::map<unsigned int, drr_entry *>
+         ::iterator iter = drrMap_.begin();
+         iter != drrMap_.end();
+         iter++)
+        delete ((*iter).second);
     drrMap_.clear();
     current_entry = NULL;
 }
@@ -456,51 +456,39 @@ int HisFile::GetError(bool verbose_/*=true*/) {
         else if (err_flag == 1) {
             std::cout
                     << "  1: Failed to open the .drr file. Check that the path is correct.\n";
-        }
-        else if (err_flag == 2) {
+        } else if (err_flag == 2) {
             std::cout
                     << "  2: The .drr file had an incorrect format and could not be read.\n";
-        }
-        else if (err_flag == 3) {
+        } else if (err_flag == 3) {
             std::cout
                     << "  3: Failed to open the .his file. Check that the path is correct.\n";
-        }
-        else if (err_flag == 4) {
+        } else if (err_flag == 4) {
             std::cout
                     << "  4: Either the .drr file and/or the .his file are not opened or are not of the correct format.\n";
-        }
-        else if (err_flag == 5) {
+        } else if (err_flag == 5) {
             std::cout
                     << "  5: Cannot call GetNextHistogram because the last entry in the .drr file is already loaded.\n";
-        }
-        else if (err_flag == -1) {
+        } else if (err_flag == -1) {
             std::cout
                     << "  -1: current_entry is uninitialized. Use GetHistogram, GetNextHistogram, or GetHistogramByID.\n";
-        }
-        else if (err_flag == -2) {
+        } else if (err_flag == -2) {
             std::cout
                     << "  -2: Specified .his cell size is larger than that of an integer (4 bytes).\n";
-        }
-        else if (err_flag == -3) {
+        } else if (err_flag == -3) {
             std::cout
                     << "  -3: GetHistogram returned 0. i.e. the specified histogram does not exist.\n";
-        }
-        else if (err_flag == -4) {
+        } else if (err_flag == -4) {
             std::cout
                     << "  -4: The current histogram has the incorrect dimension for the called function.\n";
-        }
-        else if (err_flag == -5) {
+        } else if (err_flag == -5) {
             std::cout
                     << "  -5: .his cell size is 2 bytes but size of histogram data array is not evenly divisible by 2.\n";
-        }
-        else if (err_flag == -6) {
+        } else if (err_flag == -6) {
             std::cout
                     << "  -6: .his cell size is 4 bytes but size of histogram data array is not evenly divisible by 4.\n";
-        }
-        else if (err_flag == -7) {
+        } else if (err_flag == -7) {
             std::cout << "  -7: Encountered an invalid .his cell size.\n";
-        }
-        else {
+        } else {
             std::cout << "  " << err_flag << ": An unknown error occurred!\n";
         }
     }
@@ -681,10 +669,10 @@ HisFile::GetHistogramByID(unsigned int hist_id, bool no_copy_/*=false*/) {
     }
 
     int his_count = 0;
-    for (std::map < unsigned int, drr_entry * >
-                                  ::iterator iter = drrMap_.begin();
-    iter != drrMap_.end();
-    iter++){
+    for (std::map<unsigned int, drr_entry *>
+         ::iterator iter = drrMap_.begin();
+         iter != drrMap_.end();
+         iter++) {
         if ((*iter).first == hist_id)
             return (GetHistogram(his_count, no_copy_));
         his_count++;
@@ -825,9 +813,9 @@ void HisFile::PrintEntry() {
 ///////////////////////////////////////////////////////////////////////////////
 
 drr_entry *OutputHisFile::find_drr_in_list(unsigned int hisId) {
-    std::map < unsigned
-    int, drr_entry * > ::iterator
-    it = drrMap_.find(hisId);
+    std::map<unsigned
+    int, drr_entry *>::iterator
+            it = drrMap_.find(hisId);
     if (it != drrMap_.end())
         return ((*it).second);
     failed_fills.insert(hisId);
@@ -1011,10 +999,10 @@ bool OutputHisFile::Finalize(bool make_list_file_/*=false*/,
         drr_file.write(description, 40);
 
         // Write the drr entries
-        for (std::map < unsigned int, drr_entry * >
-                                      ::iterator iter = drrMap_.begin();
-        iter != drrMap_.end();
-        iter++){
+        for (std::map<unsigned int, drr_entry *>
+             ::iterator iter = drrMap_.begin();
+             iter != drrMap_.end();
+             iter++) {
             if (debug_mode)
                 std::cout << "debug: Writing .drr entry for his id = "
                           << (*iter).first << std::endl;
@@ -1022,10 +1010,10 @@ bool OutputHisFile::Finalize(bool make_list_file_/*=false*/,
         }
 
         // Write the histogram IDs
-        for (std::map < unsigned int, drr_entry * >
-                                      ::iterator iter = drrMap_.begin();
-        iter != drrMap_.end();
-        iter++){
+        for (std::map<unsigned int, drr_entry *>
+             ::iterator iter = drrMap_.begin();
+             iter != drrMap_.end();
+             iter++) {
             his_id = (*iter).first;
             drr_file.write((char *) &his_id, 4);
         }
@@ -1043,10 +1031,10 @@ bool OutputHisFile::Finalize(bool make_list_file_/*=false*/,
         list_file << std::setw(7) << drrMap_.size() << " HISTOGRAMS,"
                   << std::setw(13) << total_his_size / 2
                   << " HALF-WORDS\n ID-LIST:\n";
-        for (std::map < unsigned int, drr_entry * >
-                                      ::iterator iter = drrMap_.begin();
-        iter != drrMap_.end();
-        iter++){
+        for (std::map<unsigned int, drr_entry *>
+             ::iterator iter = drrMap_.begin();
+             iter != drrMap_.end();
+             iter++) {
             if (temp_count % 8 == 0 && temp_count != 0)
                 list_file << std::endl;
             list_file << std::setw(8) << (*iter).first;
@@ -1054,10 +1042,10 @@ bool OutputHisFile::Finalize(bool make_list_file_/*=false*/,
         }
         list_file
                 << "\n  HID  DIM HWPC  LEN(CH)   COMPR  MIN   MAX   OFFSET    TITLE\n";
-        for (std::map < unsigned int, drr_entry * >
-                                      ::iterator iter = drrMap_.begin();
-        iter != drrMap_.end();
-        iter++){
+        for (std::map<unsigned int, drr_entry *>
+             ::iterator iter = drrMap_.begin();
+             iter != drrMap_.end();
+             iter++) {
             (*iter).second->print_list(&list_file);
         }
     } else {
@@ -1140,10 +1128,10 @@ bool OutputHisFile::Zero() {
     if (!writable)
         return false;
 
-    for (std::map < unsigned int, drr_entry * >
-                                  ::iterator iter = drrMap_.begin();
-    iter != drrMap_.end();
-    iter++){
+    for (std::map<unsigned int, drr_entry *>
+         ::iterator iter = drrMap_.begin();
+         iter != drrMap_.end();
+         iter++) {
         ofile.seekp((*iter).second->offset * 2, std::ios::beg);
         char *block = new char[(*iter).second->total_size];
         memset(block, 0x0, (*iter).second->total_size);
@@ -1180,10 +1168,10 @@ void OutputHisFile::Close() {
     std::ofstream log_file((fname + ".log").c_str());
     if (log_file.good()) {
         log_file << "  HID      TOTAL      GOOD\n\n";
-        for (std::map < unsigned int, drr_entry * >
-                                      ::iterator iter = drrMap_.begin();
-        iter != drrMap_.end();
-        iter++){
+        for (std::map<unsigned int, drr_entry *>
+             ::iterator iter = drrMap_.begin();
+             iter != drrMap_.end();
+             iter++) {
             log_file << std::setw(5) << (*iter).first << std::setw(10)
                      << (*iter).second->total_counts << std::setw(10)
                      << (*iter).second->good_counts << std::endl;
