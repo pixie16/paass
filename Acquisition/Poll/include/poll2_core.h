@@ -23,9 +23,6 @@
 
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
-#define POLL2_CORE_VERSION "1.4.14"
-#define POLL2_CORE_DATE "Aug. 17th, 2016"
-
 // Maximum length of UDP data packet (in bytes)
 #define MAX_ORPH_DATA 1464
 
@@ -205,8 +202,7 @@ private:
     void get_traces(int mod_, int chan_, int thresh_ = 0);
 
     /// Method responsible for handling tab complete.
-    std::vector<std::string> TabComplete(const std::string &value_,
-                                         const std::vector<std::string> &valid_);
+    std::vector<std::string> TabComplete(const std::string &value_, const std::vector<std::string> &valid_);
 
     ///Routine to read Pixie FIFOs
     bool ReadFIFO();

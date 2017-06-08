@@ -90,11 +90,11 @@ const std::vector<std::string> Poll::runControlCommands_({"run", "stop", "starta
                                                           "timedrun", "acq", "shm", "spill", "hup", "prefix", "fdir",
                                                           "title", "runnum", "oform", "close", "reboot", "stats",
                                                           "mca"});
-	
+
 const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread", "pmread", "pwrite", "pmwrite",
                                                              "adjust_offsets", "find_tau", "toggle", "toggle_bit",
                                                              "csr_test", "bit_test", "get_traces", "save"});
-	
+
 const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "thresh", "debug", "quiet", "quit", "help",
                                                            "version"});
 
@@ -713,8 +713,8 @@ void Poll::help(){
 }
 
 void Poll::save_help() {
-	std::cout << "  Saves the DSP parameters to disk. Optionally, a file can be"
-		"provided, otherwise the file set file from pixie.cfg is used.\n";
+    std::cout << "  Saves the DSP parameters to disk. Optionally, a file can be"
+            "provided, otherwise the file set file from pixie.cfg is used.\n";
 }
 
 /* Print help dialogue for reading/writing pixie channel parameters. */
@@ -741,8 +741,7 @@ void Poll::pmod_help() {
  * \param[in] time_ The approximate number of seconds to run the acquisition.
  * \return Returns true if successfully starts a run.
  */
-bool
-Poll::start_run(const bool &record_/*=true*/, const double &time_/*=-1.0*/) {
+bool Poll::start_run(const bool &record_/*=true*/, const double &time_/*=-1.0*/) {
     if (do_MCA_run) {
         std::cout << sys_message_head
                   << "Warning! Cannot run acquisition while MCA program is running\n";
@@ -1118,37 +1117,37 @@ void Poll::CommandControl() {
                 }
             }
 
-					double value;
-					try { value = std::stod(valueStr); }
-					catch (const std::invalid_argument &ia) {
-						std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
-						continue;
-					}
-				
-					ParameterChannelWriter writer;
-					bool error = false;
-					for (int mod = modStart; mod <= modStop; mod++) {
-						for (int ch = chStart; ch <= chStop; ch++) {
-							if( ! forChannel(pif, mod, ch, writer, make_pair(arguments.at(2), value))){
-								error = true;
-							}
-						}
-					}
-					if (!error) pif->SaveDSPParameters();
-				}
-				else{
-					std::cout << sys_message_head << "Invalid number of parameters to pwrite\n";
-					std::cout << sys_message_head << " -SYNTAX- pwrite <module> <channel> <parameter> <value>\n";
-				}
-			}
-			else if(cmd == "pmwrite"){ // Syntax "pmwrite <module> <parameter name> <value>"
-				if(p_args > 0 && arguments.at(0) == "help"){ pmod_help(); }
-				else if(p_args >= 3){
-					int modStart, modStop;
-					if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
-						std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
-						continue;
-					}
+            double value;
+            try { value = std::stod(valueStr); }
+            catch (const std::invalid_argument &ia) {
+                std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
+                continue;
+            }
+
+            ParameterChannelWriter writer;
+            bool error = false;
+            for (int mod = modStart; mod <= modStop; mod++) {
+                for (int ch = chStart; ch <= chStop; ch++) {
+                    if( ! forChannel(pif, mod, ch, writer, make_pair(arguments.at(2), value))){
+                        error = true;
+                    }
+                }
+            }
+            if (!error) pif->SaveDSPParameters();
+        }
+        else{
+            std::cout << sys_message_head << "Invalid number of parameters to pwrite\n";
+            std::cout << sys_message_head << " -SYNTAX- pwrite <module> <channel> <parameter> <value>\n";
+        }
+    }
+    else if(cmd == "pmwrite"){ // Syntax "pmwrite <module> <parameter name> <value>"
+        if(p_args > 0 && arguments.at(0) == "help"){ pmod_help(); }
+        else if(p_args >= 3){
+            int modStart, modStop;
+            if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
+                std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
+                continue;
+            }
 
             // Channel dependent settings
             for (unsigned int param = 0; param < chan_params.size(); param++) {
@@ -1161,258 +1160,258 @@ void Poll::CommandControl() {
                 forModule(pif, -1, modReader, mod_params[param]);
             }
 
-					ParameterModuleWriter writer;
-					bool error = false;
-					for (int mod = modStart; mod <= modStop; mod++) {
-						if(!forModule(pif, mod, writer, make_pair(arguments.at(1), value))){
-							error = true;
-						}
-					}
-					if (!error) pif->SaveDSPParameters();
-				}
-				else{
-					std::cout << sys_message_head << "Invalid number of parameters to pmwrite\n";
-					std::cout << sys_message_head << " -SYNTAX- pmwrite <module> <parameter> <value>\n";
-				}
-			}
-		}
-		else if (cmd == "save") {
-			if(acq_running || do_MCA_run){
-				std::cout << sys_message_head << "Warning! Cannot view pixie parameters while acquisition is running\n\n";
-				continue;
-			}
-			if(p_args > 0 && arguments.at(0) == "help"){
-				save_help();
-				continue;
-			}
-			if(p_args == 0) {
-				pif->SaveDSPParameters();
-			}
-			else if (p_args == 1) {
-				pif->SaveDSPParameters(arguments.at(0).c_str());
-			}
-			else {
-				std::cout << sys_message_head << "Invalid number of parameters to save\n";
-				std::cout << sys_message_head << " -SYNTAX- save [setFilename]\n";
-				continue;
-			}
-		}
-		else if(cmd == "pread" || cmd == "pmread"){ // Read pixie parameters
-			if(acq_running || do_MCA_run){ 
-				std::cout << sys_message_head << "Warning! Cannot view pixie parameters while acquisition is running\n\n"; 
-				continue;
-			}
-
-            if (cmd ==
-                "pwrite") { // Syntax "pwrite <module> <channel> <parameter name> <value>"
-                if (p_args > 0 && arguments.at(0) == "help") { pchan_help(); }
-                else if (p_args >= 4) {
-                    int modStart, modStop;
-                    if (!SplitParameterArgs(arguments.at(0), modStart,
-                                            modStop)) {
-                        std::cout << "ERROR: Invalid module argument: '"
-                                  << arguments.at(0) << "'\n";
-                        continue;
-                    }
-                    int chStart, chStop;
-                    if (!SplitParameterArgs(arguments.at(1), chStart, chStop)) {
-                        std::cout << "ERROR: Invalid channel argument: '"
-                                  << arguments.at(1) << "'\n";
-                        continue;
-                    }
-
-                    //Check that there are no characters in the string unless it is hex.
-                    std::string &valueStr = arguments.at(3);
-                    if (valueStr.find_last_not_of("+-eE0123456789.") !=
-                        std::string::npos &&
-                        !((valueStr.find("0x") == 0 ||
-                           valueStr.find("0X") == 0) &&
-                          valueStr.find_first_not_of("0123456789abcdefABCDEF",
-                                                     2) == std::string::npos)) {
-                        std::cout << "ERROR: Invalid parameter value: '"
-                                  << valueStr << "'\n";
-                        continue;
-                    }
-
-                    double value;
-                    try { value = std::stod(valueStr); }
-                    catch (const std::invalid_argument &ia) {
-                        std::cout << "ERROR: Invalid parameter value: '"
-                                  << valueStr << "'\n";
-                        continue;
-                    }
-
-                    ParameterChannelWriter writer;
-                    bool error = false;
-                    for (int mod = modStart; mod <= modStop; mod++) {
-                        for (int ch = chStart; ch <= chStop; ch++) {
-                            if (forChannel(pif, mod, ch, writer,
-                                           make_pair(arguments.at(2), value))) {
-                                error = true;
-                            }
-                        }
-                    }
-                    if (!error) pif->SaveDSPParameters();
-                } else {
-                    std::cout << sys_message_head
-                              << "Invalid number of parameters to pwrite\n";
-                    std::cout << sys_message_head
-                              << " -SYNTAX- pwrite <module> <channel> <parameter> <value>\n";
-                }
-            } else if (cmd ==
-                       "pmwrite") { // Syntax "pmwrite <module> <parameter name> <value>"
-                if (p_args > 0 && arguments.at(0) == "help") { pmod_help(); }
-                else if (p_args >= 3) {
-                    int modStart, modStop;
-                    if (!SplitParameterArgs(arguments.at(0), modStart,
-                                            modStop)) {
-                        std::cout << "ERROR: Invalid module argument: '"
-                                  << arguments.at(0) << "'\n";
-                        continue;
-                    }
-
-                    //Check that there are no characters in the string unless it is hex.
-                    std::string &valueStr = arguments.at(2);
-                    if (valueStr.find_last_not_of("0123456789") !=
-                        std::string::npos &&
-                        !((valueStr.find("0x") == 0 ||
-                           valueStr.find("0X") == 0) &&
-                          valueStr.find_first_not_of("0123456789abcdefABCDEF",
-                                                     2) == std::string::npos)) {
-                        std::cout << "ERROR: Invalid parameter value: '"
-                                  << valueStr << "'\n";
-                        continue;
-                    }
-
-                    unsigned int value;
-                    //Use stod to add hex capability. The decimal and negative values are
-                    // caught above and rejected.
-                    try { value = (unsigned int) std::stod(valueStr); }
-                    catch (const std::invalid_argument &ia) {
-                        std::cout << "ERROR: Invalid parameter value: '"
-                                  << valueStr << "'\n";
-                        continue;
-                    }
-
-                    ParameterModuleWriter writer;
-                    bool error = false;
-                    for (int mod = modStart; mod <= modStop; mod++) {
-                        if (!forModule(pif, mod, writer,
-                                       make_pair(arguments.at(1), value))) {
-                            error = true;
-                        }
-                    }
-                    if (!error) pif->SaveDSPParameters();
-                } else {
-                    std::cout << sys_message_head
-                              << "Invalid number of parameters to pmwrite\n";
-                    std::cout << sys_message_head
-                              << " -SYNTAX- pmwrite <module> <parameter> <value>\n";
+            ParameterModuleWriter writer;
+            bool error = false;
+            for (int mod = modStart; mod <= modStop; mod++) {
+                if(!forModule(pif, mod, writer, make_pair(arguments.at(1), value))){
+                    error = true;
                 }
             }
-        } else if (cmd == "pread" || cmd == "pmread") { // Read pixie parameters
-            if (acq_running || do_MCA_run) {
-                std::cout << sys_message_head
-                          << "Warning! Cannot view pixie parameters while acquisition is running\n\n";
-                continue;
-            }
+            if (!error) pif->SaveDSPParameters();
+        }
+        else{
+            std::cout << sys_message_head << "Invalid number of parameters to pmwrite\n";
+            std::cout << sys_message_head << " -SYNTAX- pmwrite <module> <parameter> <value>\n";
+        }
+    }
+}
+else if (cmd == "save") {
+if(acq_running || do_MCA_run){
+std::cout << sys_message_head << "Warning! Cannot view pixie parameters while acquisition is running\n\n";
+continue;
+}
+if(p_args > 0 && arguments.at(0) == "help"){
+save_help();
+continue;
+}
+if(p_args == 0) {
+pif->SaveDSPParameters();
+}
+else if (p_args == 1) {
+pif->SaveDSPParameters(arguments.at(0).c_str());
+}
+else {
+std::cout << sys_message_head << "Invalid number of parameters to save\n";
+std::cout << sys_message_head << " -SYNTAX- save [setFilename]\n";
+continue;
+}
+}
+else if(cmd == "pread" || cmd == "pmread"){ // Read pixie parameters
+if(acq_running || do_MCA_run){
+std::cout << sys_message_head << "Warning! Cannot view pixie parameters while acquisition is running\n\n";
+continue;
+}
 
-            if (cmd ==
-                "pread") { // Syntax "pread <module> <channel> <parameter name>"
-                if (p_args > 0 && arguments.at(0) == "help") { pchan_help(); }
-                else if (p_args >= 3) {
-                    int modStart, modStop;
-                    if (!SplitParameterArgs(arguments.at(0), modStart,
-                                            modStop)) {
-                        std::cout << "ERROR: Invalid module argument: '"
-                                  << arguments.at(0) << "'\n";
-                        continue;
-                    }
-                    int chStart, chStop;
-                    if (!SplitParameterArgs(arguments.at(1), chStart, chStop)) {
-                        std::cout << "ERROR: Invalid channel argument: '"
-                                  << arguments.at(1) << "'\n";
-                        continue;
-                    }
+if (cmd ==
+"pwrite") { // Syntax "pwrite <module> <channel> <parameter name> <value>"
+if (p_args > 0 && arguments.at(0) == "help") { pchan_help(); }
+else if (p_args >= 4) {
+int modStart, modStop;
+if (!SplitParameterArgs(arguments.at(0), modStart,
+modStop)) {
+std::cout << "ERROR: Invalid module argument: '"
+<< arguments.at(0) << "'\n";
+continue;
+}
+int chStart, chStop;
+if (!SplitParameterArgs(arguments.at(1), chStart, chStop)) {
+std::cout << "ERROR: Invalid channel argument: '"
+<< arguments.at(1) << "'\n";
+continue;
+}
 
-                    ParameterChannelReader reader;
-                    for (int mod = modStart; mod <= modStop; mod++) {
-                        for (int ch = chStart; ch <= chStop; ch++) {
-                            forChannel(pif, mod, ch, reader, arguments.at(2));
-                        }
-                    }
-                } else {
-                    std::cout << sys_message_head
-                              << "Invalid number of parameters to pread\n";
-                    std::cout << sys_message_head
-                              << " -SYNTAX- pread <module> <channel> <parameter>\n";
-                }
-            } else if (cmd ==
-                       "pmread") { // Syntax "pmread <module> <parameter name>"
-                if (p_args > 0 && arguments.at(0) == "help") { pmod_help(); }
-                else if (p_args >= 2) {
-                    int modStart, modStop;
-                    if (!SplitParameterArgs(arguments.at(0), modStart,
-                                            modStop)) {
-                        std::cout << "ERROR: Invalid module argument: '"
-                                  << arguments.at(0) << "'\n";
-                        continue;
-                    }
+//Check that there are no characters in the string unless it is hex.
+std::string &valueStr = arguments.at(3);
+if (valueStr.find_last_not_of("+-eE0123456789.") !=
+std::string::npos &&
+!((valueStr.find("0x") == 0 ||
+valueStr.find("0X") == 0) &&
+valueStr.find_first_not_of("0123456789abcdefABCDEF",
+2) == std::string::npos)) {
+std::cout << "ERROR: Invalid parameter value: '"
+<< valueStr << "'\n";
+continue;
+}
 
-                    ParameterModuleReader reader;
-                    for (int mod = modStart; mod <= modStop; mod++) {
-                        forModule(pif, mod, reader, arguments.at(1));
-                    }
-                } else {
-                    std::cout << sys_message_head
-                              << "Invalid number of parameters to pmread\n";
-                    std::cout << sys_message_head
-                              << " -SYNTAX- pread <module> <parameter>\n";
-                }
-            }
-        } else if (cmd == "adjust_offsets") { // Run adjust_offsets
-            if (acq_running || do_MCA_run) {
-                std::cout << sys_message_head
-                          << "Warning! Cannot edit pixie parameters while acquisition is running\n\n";
-                continue;
-            }
+double value;
+try { value = std::stod(valueStr); }
+catch (const std::invalid_argument &ia) {
+std::cout << "ERROR: Invalid parameter value: '"
+<< valueStr << "'\n";
+continue;
+}
 
-            if (p_args >= 1) {
-                int modStart, modStop;
-                if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
-                    std::cout << "ERROR: Invalid module argument: '"
-                              << arguments.at(0) << "'\n";
-                    continue;
-                }
+ParameterChannelWriter writer;
+bool error = false;
+for (int mod = modStart; mod <= modStop; mod++) {
+for (int ch = chStart; ch <= chStop; ch++) {
+if (forChannel(pif, mod, ch, writer,
+        make_pair(arguments.at(2), value))) {
+error = true;
+}
+}
+}
+if (!error) pif->SaveDSPParameters();
+} else {
+std::cout << sys_message_head
+<< "Invalid number of parameters to pwrite\n";
+std::cout << sys_message_head
+<< " -SYNTAX- pwrite <module> <channel> <parameter> <value>\n";
+}
+} else if (cmd ==
+"pmwrite") { // Syntax "pmwrite <module> <parameter name> <value>"
+if (p_args > 0 && arguments.at(0) == "help") { pmod_help(); }
+else if (p_args >= 3) {
+int modStart, modStop;
+if (!SplitParameterArgs(arguments.at(0), modStart,
+modStop)) {
+std::cout << "ERROR: Invalid module argument: '"
+<< arguments.at(0) << "'\n";
+continue;
+}
 
-                OffsetAdjuster adjuster;
-                bool error = false;
-                for (int mod = modStart; mod <= modStop; mod++) {
-                    if (!forModule(pif, mod, adjuster, 0)) { error = true; }
-                }
-                if (!error) pif->SaveDSPParameters();
-            } else {
-                std::cout << sys_message_head
-                          << "Invalid number of parameters to adjust_offsets\n";
-                std::cout << sys_message_head
-                          << " -SYNTAX- adjust_offsets <module>\n";
-            }
-        } else if (cmd == "find_tau") { // Run find_tau
-            if (acq_running || do_MCA_run) {
-                std::cout << sys_message_head
-                          << "Warning! Cannot edit pixie parameters while acquisition is running\n\n";
-                continue;
-            }
+//Check that there are no characters in the string unless it is hex.
+std::string &valueStr = arguments.at(2);
+if (valueStr.find_last_not_of("0123456789") !=
+std::string::npos &&
+!((valueStr.find("0x") == 0 ||
+valueStr.find("0X") == 0) &&
+valueStr.find_first_not_of("0123456789abcdefABCDEF",
+2) == std::string::npos)) {
+std::cout << "ERROR: Invalid parameter value: '"
+<< valueStr << "'\n";
+continue;
+}
 
-            if (p_args >= 2) {
-                if (!IsNumeric(arguments.at(0), sys_message_head,
-                               "Invalid module specification"))
-                    continue;
-                else if (!IsNumeric(arguments.at(1), sys_message_head,
-                                    "Invalid channel specification"))
-                    continue;
-                int mod = atoi(arguments.at(0).c_str());
-                int ch = atoi(arguments.at(1).c_str());
+unsigned int value;
+//Use stod to add hex capability. The decimal and negative values are
+// caught above and rejected.
+try { value = (unsigned int) std::stod(valueStr); }
+catch (const std::invalid_argument &ia) {
+std::cout << "ERROR: Invalid parameter value: '"
+<< valueStr << "'\n";
+continue;
+}
+
+ParameterModuleWriter writer;
+bool error = false;
+for (int mod = modStart; mod <= modStop; mod++) {
+if (!forModule(pif, mod, writer,
+        make_pair(arguments.at(1), value))) {
+error = true;
+}
+}
+if (!error) pif->SaveDSPParameters();
+} else {
+std::cout << sys_message_head
+<< "Invalid number of parameters to pmwrite\n";
+std::cout << sys_message_head
+<< " -SYNTAX- pmwrite <module> <parameter> <value>\n";
+}
+}
+} else if (cmd == "pread" || cmd == "pmread") { // Read pixie parameters
+if (acq_running || do_MCA_run) {
+std::cout << sys_message_head
+<< "Warning! Cannot view pixie parameters while acquisition is running\n\n";
+continue;
+}
+
+if (cmd ==
+"pread") { // Syntax "pread <module> <channel> <parameter name>"
+if (p_args > 0 && arguments.at(0) == "help") { pchan_help(); }
+else if (p_args >= 3) {
+int modStart, modStop;
+if (!SplitParameterArgs(arguments.at(0), modStart,
+modStop)) {
+std::cout << "ERROR: Invalid module argument: '"
+<< arguments.at(0) << "'\n";
+continue;
+}
+int chStart, chStop;
+if (!SplitParameterArgs(arguments.at(1), chStart, chStop)) {
+std::cout << "ERROR: Invalid channel argument: '"
+<< arguments.at(1) << "'\n";
+continue;
+}
+
+ParameterChannelReader reader;
+for (int mod = modStart; mod <= modStop; mod++) {
+for (int ch = chStart; ch <= chStop; ch++) {
+forChannel(pif, mod, ch, reader, arguments.at(2));
+}
+}
+} else {
+std::cout << sys_message_head
+<< "Invalid number of parameters to pread\n";
+std::cout << sys_message_head
+<< " -SYNTAX- pread <module> <channel> <parameter>\n";
+}
+} else if (cmd ==
+"pmread") { // Syntax "pmread <module> <parameter name>"
+if (p_args > 0 && arguments.at(0) == "help") { pmod_help(); }
+else if (p_args >= 2) {
+int modStart, modStop;
+if (!SplitParameterArgs(arguments.at(0), modStart,
+modStop)) {
+std::cout << "ERROR: Invalid module argument: '"
+<< arguments.at(0) << "'\n";
+continue;
+}
+
+ParameterModuleReader reader;
+for (int mod = modStart; mod <= modStop; mod++) {
+forModule(pif, mod, reader, arguments.at(1));
+}
+} else {
+std::cout << sys_message_head
+<< "Invalid number of parameters to pmread\n";
+std::cout << sys_message_head
+<< " -SYNTAX- pread <module> <parameter>\n";
+}
+}
+} else if (cmd == "adjust_offsets") { // Run adjust_offsets
+if (acq_running || do_MCA_run) {
+std::cout << sys_message_head
+<< "Warning! Cannot edit pixie parameters while acquisition is running\n\n";
+continue;
+}
+
+if (p_args >= 1) {
+int modStart, modStop;
+if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
+std::cout << "ERROR: Invalid module argument: '"
+<< arguments.at(0) << "'\n";
+continue;
+}
+
+OffsetAdjuster adjuster;
+bool error = false;
+for (int mod = modStart; mod <= modStop; mod++) {
+if (!forModule(pif, mod, adjuster, 0)) { error = true; }
+}
+if (!error) pif->SaveDSPParameters();
+} else {
+std::cout << sys_message_head
+<< "Invalid number of parameters to adjust_offsets\n";
+std::cout << sys_message_head
+<< " -SYNTAX- adjust_offsets <module>\n";
+}
+} else if (cmd == "find_tau") { // Run find_tau
+if (acq_running || do_MCA_run) {
+std::cout << sys_message_head
+<< "Warning! Cannot edit pixie parameters while acquisition is running\n\n";
+continue;
+}
+
+if (p_args >= 2) {
+if (!IsNumeric(arguments.at(0), sys_message_head,
+"Invalid module specification"))
+continue;
+else if (!IsNumeric(arguments.at(1), sys_message_head,
+"Invalid channel specification"))
+continue;
+int mod = atoi(arguments.at(0).c_str());
+int ch = atoi(arguments.at(1).c_str());
 
 				int trace_threshold = 0;
 				if(p_args >= 3){
@@ -1545,47 +1544,47 @@ void Poll::CommandControl() {
 
             BitFlipper flipper;
 
-            if (p_args >= 3) {
-                int modStart, modStop;
-                if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
-                    std::cout << "ERROR: Invalid module argument: '"
-                              << arguments.at(0) << "'\n";
-                    continue;
-                }
-                int chStart, chStop;
-                if (!SplitParameterArgs(arguments.at(1), chStart, chStop)) {
-                    std::cout << "ERROR: Invalid channel argument: '"
-                              << arguments.at(1) << "'\n";
-                    continue;
-                }
-                flipper.SetCSRAbit(arguments.at(2));
+if (p_args >= 3) {
+int modStart, modStop;
+if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
+std::cout << "ERROR: Invalid module argument: '"
+<< arguments.at(0) << "'\n";
+continue;
+}
+int chStart, chStop;
+if (!SplitParameterArgs(arguments.at(1), chStart, chStop)) {
+std::cout << "ERROR: Invalid channel argument: '"
+<< arguments.at(1) << "'\n";
+continue;
+}
+flipper.SetCSRAbit(arguments.at(2));
 
-                std::string dum_str = "CHANNEL_CSRA";
-                bool error = false;
-                for (int mod = modStart; mod <= modStop; mod++) {
-                    for (int ch = chStart; ch <= chStop; ch++) {
-                        if (!forChannel(pif, mod, ch, flipper, dum_str)) {
-                            error = true;
-                        }
-                    }
-                }
-                if (!error) pif->SaveDSPParameters();
-            } else {
-                std::cout << sys_message_head
-                          << "Invalid number of parameters to toggle\n";
-                std::cout << sys_message_head
-                          << " -SYNTAX- toggle <module> <channel> <CSRA bit>\n";
-                flipper.Help();
-            }
-        } else if (cmd ==
-                   "toggle_bit") { // Toggle any bit of any parameter under 32 bits long
-            if (acq_running || do_MCA_run) {
-                std::cout << sys_message_head
-                          << "Warning! Cannot edit pixie parameters while acquisition is running\n\n";
-                continue;
-            }
+std::string dum_str = "CHANNEL_CSRA";
+bool error = false;
+for (int mod = modStart; mod <= modStop; mod++) {
+for (int ch = chStart; ch <= chStop; ch++) {
+if (!forChannel(pif, mod, ch, flipper, dum_str)) {
+error = true;
+}
+}
+}
+if (!error) pif->SaveDSPParameters();
+} else {
+std::cout << sys_message_head
+<< "Invalid number of parameters to toggle\n";
+std::cout << sys_message_head
+<< " -SYNTAX- toggle <module> <channel> <CSRA bit>\n";
+flipper.Help();
+}
+} else if (cmd ==
+"toggle_bit") { // Toggle any bit of any parameter under 32 bits long
+if (acq_running || do_MCA_run) {
+std::cout << sys_message_head
+<< "Warning! Cannot edit pixie parameters while acquisition is running\n\n";
+continue;
+}
 
-            BitFlipper flipper;
+BitFlipper flipper;
 
 					std::cout << sys_message_head << "Set output filename prefix to '" << filename_prefix << "'.\n";
 					std::cout << sys_message_head << "Next file will be '" << output_file.GetNextFileName(next_run_num,filename_prefix, output_directory) << "'.\n";
@@ -1653,6 +1652,12 @@ void Poll::CommandControl() {
 		}
 		else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
 	}
+}
+} else {
+std::cout << sys_message_head << "Unknown command '" << cmd
+<< "'\n";
+}
+}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2201,4 +2206,3 @@ std::string yesno(bool value_) {
     if (value_) { return "Yes"; }
     return "No";
 }
-
