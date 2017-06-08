@@ -246,64 +246,65 @@ void Poll::PrintModuleInfo() {
 }
 
 bool Poll::Initialize(){
-    if(init){ return false; }
+	if(init){ return false; }
 
-    // Set debug mode
-    if(debug_mode){
-        std::cout << sys_message_head << "Setting debug mode\n";
-        output_file.SetDebugMode();
-    }
+	// Set debug mode
+	if(debug_mode){ 
+		std::cout << sys_message_head << "Setting debug mode\n";
+		output_file.SetDebugMode(); 
+	}
 
-    // Initialize the pixie interface and boot
-    pif->GetSlots();
-    if(!pif->Init()){ return false; }
+	// Initialize the pixie interface and boot
+	pif->GetSlots();
+	if(!pif->Init()){ return false; }
 
-    PrintModuleInfo();
+	PrintModuleInfo();
 
-    //Boot the modules.
-    if(boot_fast){
-        if(!pif->Boot(PixieInterface::DownloadParameters | PixieInterface::SetDAC | PixieInterface::ProgramFPGA)){ return false; }
-    }
-    else{
-        if(!pif->Boot(PixieInterface::BootAll)){ return false; }
-    }
+	//Boot the modules.
+	if(boot_fast){
+		if(!pif->Boot(PixieInterface::DownloadParameters | PixieInterface::SetDAC | PixieInterface::ProgramFPGA)){ return false; } 
+	}
+	else{
+		if(!pif->Boot(PixieInterface::BootAll)){ return false; }
+	}
+	
+	//Set module syncronization parameters
+	if(!synch_mods()){ return false; }
 
-    //Set module syncronization parameters
-    if(!synch_mods()){ return false; }
+	// Allocate memory buffers for FIFO
+	n_cards = pif->GetNumberCards();
+	
+	if(pac_mode){ 
+		//Initialize pacman data port
+		client->Init("127.0.0.1", 45080);
+		
+		//Initialize pacman command port
+		server = new Server();
+		server->Init(45086, 1); // Set the timeout to 1 second. 
+	}
+	else{ 
+		//Initialize Cory's shm port
+		// This port number is used to avoid tying up udptoipc's port
+		client->Init("127.0.0.1", 5555);
+	}
 
-    // Allocate memory buffers for FIFO
-    n_cards = pif->GetNumberCards();
+	//Allocate an array of vectors to store partial events from the FIFO.
+	partialEvents = new std::vector<word_t>[n_cards];
 
-    if(pac_mode){
-        //Initialize pacman data port
-        client->Init("127.0.0.1", 45080);
+	//Create a stats handler and set the interval.
+	statsHandler = new StatsHandler(n_cards);
+	statsHandler->SetDumpInterval(statsInterval_);
+	
+	//Build the list of commands
+	commands_.insert(commands_.begin(), pollStatusCommands_.begin(), pollStatusCommands_.end());
+	commands_.insert(commands_.begin(), paramControlCommands_.begin(), paramControlCommands_.end());
+	//Omit the run control commands.
+	if (!pac_mode) {
+		commands_.insert(commands_.begin(), runControlCommands_.begin(), runControlCommands_.end());
+	}
+	else commands_.push_back("mca");
 
-        //Initialize pacman command port
-        server = new Server();
-        server->Init(45086, 1); // Set the timeout to 1 second.
-    }
-    else{
-        //Initialize Cory's shm port
-        // This port number is used to avoid tying up udptoipc's port
-        client->Init("127.0.0.1", 5555);
-    }
-
-    //Allocate an array of vectors to store partial events from the FIFO.
-    partialEvents = new std::vector<word_t>[n_cards];
-
-    //Create a stats handler and set the interval.
-    statsHandler = new StatsHandler(n_cards);
-    statsHandler->SetDumpInterval(statsInterval_);
-
-    //Build the list of commands
-    commands_.insert(commands_.begin(), pollStatusCommands_.begin(), pollStatusCommands_.end());
-    commands_.insert(commands_.begin(), paramControlCommands_.begin(), paramControlCommands_.end());
-    //Omit the run control commands.
-    if (!pac_mode) {
-        commands_.insert(commands_.begin(), runControlCommands_.begin(), runControlCommands_.end());
-    }
-
-    return init = true;
+	return init = true;
 }
 
 /**Clean up things that are created during Poll::Initialize().
@@ -629,44 +630,44 @@ void Poll::broadcast_pac_data(){
 
 /* Print help dialogue for POLL options. */
 void Poll::help(){
-    std::cout << "  Help:\n";
-    if(!pac_mode){
-        std::cout << "   run                 - Start data acquisition and start recording data to disk\n";
-        std::cout << "   stop                - Stop data acqusition and stop recording data to disk\n";
-        std::cout << "   startacq (startvme) - Start data acquisition\n";
-        std::cout << "   stopacq (stopvme)   - Stop data acquisition\n";
-        std::cout << "   timedrun <seconds>  - Run for the specified number of seconds\n";
-        std::cout << "   acq (shm)           - Run in \"shared-memory\" mode\n";
-        std::cout << "   spill (hup)         - Force dump of current spill\n";
-        std::cout << "   prefix [name]       - Set the output filename prefix (default='run_#.ldf')\n";
-        std::cout << "   fdir [path]         - Set the output file directory (default='./')\n";
-        std::cout << "   title [runTitle]    - Set the title of the current run (default='PIXIE Data File)\n";
-        std::cout << "   runnum [number]     - Set the number of the current run (default=0)\n";
-        std::cout << "   oform [0|1|2]       - Set the format of the output file (default=0)\n";
-        std::cout << "   reboot              - Reboot PIXIE crate\n";
-        std::cout << "   stats [time]        - Set the time delay between statistics dumps (default=-1)\n";
-        std::cout << "   mca [root|damm] [time] [filename]     - Use MCA to record data for debugging purposes\n";
-    }
-    std::cout << "   dump [filename]                       - Dump pixie settings to file (default='Fallback.set')\n";
-    std::cout << "   pread <mod> <chan> <param>            - Read parameters from individual PIXIE channels\n";
-    std::cout << "   pmread <mod> <param>                  - Read parameters from PIXIE modules\n";
-    std::cout << "   pwrite <mod> <chan> <param> <val>     - Write parameters to individual PIXIE channels\n";
-    std::cout << "   pmwrite <mod> <param> <val>           - Write parameters to PIXIE modules\n";
-    std::cout << "   adjust_offsets <module>               - Adjusts the baselines of a pixie module\n";
-    std::cout << "   find_tau <module> <channel>           - Finds the decay constant for an active pixie channel\n";
-    std::cout << "   toggle <module> <channel> <bit>       - Toggle any of the 19 CHANNEL_CSRA bits for a pixie channel\n";
-    std::cout << "   toggle_bit <mod> <chan> <param> <bit> - Toggle any bit of any parameter of 32 bits or less\n";
-    std::cout << "   csr_test <number>                     - Output the CSRA parameters for a given integer\n";
-    std::cout << "   bit_test <num_bits> <number>          - Display active bits in a given integer up to 32 bits long\n";
-    std::cout << "   save [setFilename]                    - Writes the DSP Parameters to [setFileName] (default='active .set from pixie_cfg')\n";
-    std::cout << "   get_traces <mod> <chan> [threshold]   - Get traces for all channels in a specified module\n";
-    std::cout << "   status              - Display system status information\n";
-    std::cout << "   thresh [threshold]  - Modify or display the current polling threshold.\n";
-    std::cout << "   debug               - Toggle debug mode flag (default=false)\n";
-    std::cout << "   quiet               - Toggle quiet mode flag (default=false)\n";
-    std::cout << "   quit                - Close the program\n";
-    std::cout << "   help (h)            - Display this dialogue\n";
-    std::cout << "   version (v)         - Display Poll2 version information\n";
+	std::cout << "  Help:\n";
+	if(!pac_mode){
+		std::cout << "   run                 - Start data acquisition and start recording data to disk\n";
+		std::cout << "   stop                - Stop data acqusition and stop recording data to disk\n";	
+		std::cout << "   startacq (startvme) - Start data acquisition\n";
+		std::cout << "   stopacq (stopvme)   - Stop data acquisition\n";
+		std::cout << "   timedrun <seconds>  - Run for the specified number of seconds\n";
+		std::cout << "   acq (shm)           - Run in \"shared-memory\" mode\n";
+		std::cout << "   spill (hup)         - Force dump of current spill\n";
+		std::cout << "   prefix [name]       - Set the output filename prefix (default='run_#.ldf')\n";
+		std::cout << "   fdir [path]         - Set the output file directory (default='./')\n";
+		std::cout << "   title [runTitle]    - Set the title of the current run (default='PIXIE Data File)\n";
+		std::cout << "   runnum [number]     - Set the number of the current run (default=0)\n";
+		std::cout << "   oform [0|1|2]       - Set the format of the output file (default=0)\n";
+		std::cout << "   reboot              - Reboot PIXIE crate\n";
+		std::cout << "   stats [time]        - Set the time delay between statistics dumps (default=-1)\n";
+	}
+	std::cout << "   mca [root|damm] [time] [filename]     - Use MCA to record data for debugging purposes\n";
+	std::cout << "   dump [filename]                       - Dump pixie settings to file (default='Fallback.set')\n";
+	std::cout << "   pread <mod> <chan> <param>            - Read parameters from individual PIXIE channels\n";
+	std::cout << "   pmread <mod> <param>                  - Read parameters from PIXIE modules\n";
+	std::cout << "   pwrite <mod> <chan> <param> <val>     - Write parameters to individual PIXIE channels\n";
+	std::cout << "   pmwrite <mod> <param> <val>           - Write parameters to PIXIE modules\n";
+	std::cout << "   adjust_offsets <module>               - Adjusts the baselines of a pixie module\n";
+	std::cout << "   find_tau <module> <channel>           - Finds the decay constant for an active pixie channel\n";
+	std::cout << "   toggle <module> <channel> <bit>       - Toggle any of the 19 CHANNEL_CSRA bits for a pixie channel\n";
+	std::cout << "   toggle_bit <mod> <chan> <param> <bit> - Toggle any bit of any parameter of 32 bits or less\n";
+	std::cout << "   csr_test <number>                     - Output the CSRA parameters for a given integer\n";
+	std::cout << "   bit_test <num_bits> <number>          - Display active bits in a given integer up to 32 bits long\n";
+	std::cout << "   save [setFilename]                    - Writes the DSP Parameters to [setFileName] (default='active .set from pixie_cfg')\n";
+	std::cout << "   get_traces <mod> <chan> [threshold]   - Get traces for all channels in a specified module\n";
+	std::cout << "   status              - Display system status information\n";
+	std::cout << "   thresh [threshold]  - Modify or display the current polling threshold.\n";
+	std::cout << "   debug               - Toggle debug mode flag (default=false)\n";
+	std::cout << "   quiet               - Toggle quiet mode flag (default=false)\n";
+	std::cout << "   quit                - Close the program\n";
+	std::cout << "   help (h)            - Display this dialogue\n";
+	std::cout << "   version (v)         - Display Poll2 version information\n";
 }
 
 void Poll::save_help() {
@@ -869,761 +870,761 @@ bool Poll::SplitParameterArgs(const std::string &arg, int &start, int &stop) {
 
 /* Function to control the POLL command line interface */
 void Poll::CommandControl(){
-    std::string cmd = "", arg;
+	std::string cmd = "", arg;
 
-    while(true){
-        if(kill_all){ // Check if poll has been killed externally (pacman)
-            while(!run_ctrl_exit){ sleep(1); }
-            break;
-        }
-        if(pac_mode){ // Check for commands from pacman, if enabled
-            int select_dummy;
-            if(server->Select(select_dummy)){
-                UDP_Packet pacman_command;
+	while(true){
+		if(kill_all){ // Check if poll has been killed externally (pacman)
+			while(!run_ctrl_exit){ sleep(1); }
+			break;
+		}
+		if(pac_mode){ // Check for commands from pacman, if enabled
+			int select_dummy;
+			if(server->Select(select_dummy)){
+				UDP_Packet pacman_command;
 
-                // We have a pacman command. Retrieve the command
-                server->RecvMessage((char *)&pacman_command, sizeof(UDP_Packet));
+				// We have a pacman command. Retrieve the command
+				server->RecvMessage((char *)&pacman_command, sizeof(UDP_Packet));
 
-                /* Valid poll commands
-                    0x11 - INIT_ACQ
-                    0x22 - START_ACQ
-                    0x33 - STOP_ACQ
-                    0x44 - STATUS_ACQ
-                    0x55 - PAC_FILE
-                    0x66 - HOST
-                    0x77 - ZERO_CLK
-                   Return codes:
-                    0x00 - ACQ_OK
-                    0x01 - ACQ_RUN
-                    0x02 - ACQ_STOP
-                    0xFB - ACQ_STP_HALT
-                    0xFC - ACQ_STR_RUN*/
+				/* Valid poll commands
+				    0x11 - INIT_ACQ
+				    0x22 - START_ACQ
+				    0x33 - STOP_ACQ
+				    0x44 - STATUS_ACQ
+				    0x55 - PAC_FILE
+				    0x66 - HOST
+				    0x77 - ZERO_CLK
+				   Return codes:
+				    0x00 - ACQ_OK
+				    0x01 - ACQ_RUN
+				    0x02 - ACQ_STOP
+				    0xFB - ACQ_STP_HALT
+				    0xFC - ACQ_STR_RUN*/
 
-                if(pacman_command.Data[0] == 0x11){ // INIT_ACQ
-                    std::cout << "RECV PACMAN COMMAND 0x11 (INIT_ACQ)\n";
-                    pacman_command.Data[0] = 0x00;
-                }
-                else if(pacman_command.Data[0] == 0x22){ // START_ACQ
-                    std::cout << "RECV PACMAN COMMAND 0x22 (START_ACQ)\n";
-                    if(acq_running){ pacman_command.Data[0] = 0xFC; }
-                    else{ pacman_command.Data[0] = 0x00; }
-                    do_start_acq = true;
-                }
-                else if(pacman_command.Data[0] == 0x33){ // STOP_ACQ
-                    std::cout << "RECV PACMAN COMMAND 0x33 (STOP_ACQ)\n";
-                    if(!acq_running){ pacman_command.Data[0] = 0xFB; }
-                    else{ pacman_command.Data[0] = 0x00; }
-                    do_stop_acq = true;
-                }
-                else if(pacman_command.Data[0] == 0x44){ // STATUS_ACQ
-                    std::cout << "RECV PACMAN COMMAND 0x44 (STATUS_ACQ)\n";
-                    pacman_command.Data[0] = 0x00;
-                    pacman_command.Data[1] = acq_running ? 0x01 : 0x02;
-                }
-                else if(pacman_command.Data[0] == 0x55){ // PAC_FILE
-                    std::cout << "RECV PACMAN COMMAND 0x55 (PAC_FILE)\n";
-                    pacman_command.Data[0] = 0x00;
-                }
-                else if(pacman_command.Data[0] == 0x66){ // HOST
-                    std::cout << "RECV PACMAN COMMAND 0x66 (HOST)\n";
-                    pacman_command.Data[0] = 0x00;
-                }
-                else if(pacman_command.Data[0] == 0x77){ // ZERO_CLK
-                    std::cout << "RECV PACMAN COMMAND 0x77 (ZERO_CLK)\n";
-                    pacman_command.Data[0] = 0x00;
-                }
-                else{
-                    std::cout << "RECV PACMAN COMMAND 0x" << std::hex << (int)pacman_command.Data[0] << std::dec << " (?)\n";
-                    pacman_command.Data[0] = 0x00;
-                }
+				if(pacman_command.Data[0] == 0x11){ // INIT_ACQ
+					std::cout << "RECV PACMAN COMMAND 0x11 (INIT_ACQ)\n";
+					pacman_command.Data[0] = 0x00;
+				}
+				else if(pacman_command.Data[0] == 0x22){ // START_ACQ
+					std::cout << "RECV PACMAN COMMAND 0x22 (START_ACQ)\n";
+					if(acq_running){ pacman_command.Data[0] = 0xFC; }
+					else{ pacman_command.Data[0] = 0x00; }
+					do_start_acq = true;
+				}
+				else if(pacman_command.Data[0] == 0x33){ // STOP_ACQ
+					std::cout << "RECV PACMAN COMMAND 0x33 (STOP_ACQ)\n";
+					if(!acq_running){ pacman_command.Data[0] = 0xFB; } 
+					else{ pacman_command.Data[0] = 0x00; }
+					do_stop_acq = true;
+				}
+				else if(pacman_command.Data[0] == 0x44){ // STATUS_ACQ
+					std::cout << "RECV PACMAN COMMAND 0x44 (STATUS_ACQ)\n";
+					pacman_command.Data[0] = 0x00;
+					pacman_command.Data[1] = acq_running ? 0x01 : 0x02;
+				}
+				else if(pacman_command.Data[0] == 0x55){ // PAC_FILE
+					std::cout << "RECV PACMAN COMMAND 0x55 (PAC_FILE)\n";
+					pacman_command.Data[0] = 0x00;
+				}
+				else if(pacman_command.Data[0] == 0x66){ // HOST
+					std::cout << "RECV PACMAN COMMAND 0x66 (HOST)\n";
+					pacman_command.Data[0] = 0x00;
+				}
+				else if(pacman_command.Data[0] == 0x77){ // ZERO_CLK
+					std::cout << "RECV PACMAN COMMAND 0x77 (ZERO_CLK)\n";
+					pacman_command.Data[0] = 0x00;
+				}
+				else{ 
+					std::cout << "RECV PACMAN COMMAND 0x" << std::hex << (int)pacman_command.Data[0] << std::dec << " (?)\n";
+					pacman_command.Data[0] = 0x00; 
+				}
+				
+				// Send the reply to pacman
+				server->SendMessage((char *)&pacman_command, sizeof(UDP_Packet));
+			}
+		}
+	
+		cmd = poll_term_->GetCommand(arg);
+		if(cmd == "_SIGSEGV_"){
+			std::cout << Display::ErrorStr("SEGMENTATION FAULT") << std::endl;
+			Close();
+			exit(EXIT_FAILURE);
+		}
+		else if(cmd == "CTRL_D"){ 
+			std::cout << sys_message_head << "Received EOF (ctrl-d) signal. Exiting...\n";
+			cmd = "quit"; 
+		}
+		else if(cmd == "CTRL_C"){ 
+			std::cout << sys_message_head << "Received SIGINT (ctrl-c) signal.";
+			if (do_MCA_run) { 
+				std::cout << " Stopping MCA...\n";
+				cmd = "stop";
+			}
+			else {
+				std::cout << " Ignoring signal.\n";
+				continue;
+			}
+		}
+		else if(cmd == "CTRL_Z"){ 
+			std::cout << sys_message_head << "Warning! Received SIGTSTP (ctrl-z) signal.\n";
+			continue; 
+		}	
 
-                // Send the reply to pacman
-                server->SendMessage((char *)&pacman_command, sizeof(UDP_Packet));
-            }
-        }
+		if (cmd.find("\t") != std::string::npos) { // Completing a command.
+			poll_term_->TabComplete(cmd, commands_);
+			continue;
+		}
+		else if (arg.find("\t") != std::string::npos) { // Completing the argument.
+			if(cmd == "pread" || cmd == "pwrite")
+				poll_term_->TabComplete(arg, chan_params);
+			else if(cmd == "pmread" || cmd == "pmwrite")
+				poll_term_->TabComplete(arg, mod_params);
+			else if(cmd == "toggle")
+				poll_term_->TabComplete(arg, BitFlipper::toggle_names);
+			continue;
+		}
+		poll_term_->flush();
 
-        cmd = poll_term_->GetCommand(arg);
-        if(cmd == "_SIGSEGV_"){
-            std::cout << Display::ErrorStr("SEGMENTATION FAULT") << std::endl;
-            Close();
-            exit(EXIT_FAILURE);
-        }
-        else if(cmd == "CTRL_D"){
-            std::cout << sys_message_head << "Received EOF (ctrl-d) signal. Exiting...\n";
-            cmd = "quit";
-        }
-        else if(cmd == "CTRL_C"){
-            std::cout << sys_message_head << "Received SIGINT (ctrl-c) signal.";
-            if (do_MCA_run) {
-                std::cout << " Stopping MCA...\n";
-                cmd = "stop";
-            }
-            else {
-                std::cout << " Ignoring signal.\n";
-                continue;
-            }
-        }
-        else if(cmd == "CTRL_Z"){
-            std::cout << sys_message_head << "Warning! Received SIGTSTP (ctrl-z) signal.\n";
-            continue;
-        }
+		if(cmd == ""){ continue; }
+		
+		std::vector<std::string> arguments;
+		unsigned int p_args = split_str(arg, arguments);
+		
+		//We clear the error flag when a command is entered.
+		had_error = false;
+		// check for defined commands
+		if(cmd == "quit" || cmd == "exit"){
+			if(do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot quit while MCA program is running\n"; }
+			else if(acq_running){ std::cout << sys_message_head << "Warning! Cannot quit while acquisition running\n"; }
+			else{
+				kill_all = true;
+				while(!run_ctrl_exit){ sleep(1); }
+				break;
+			}
+		}
+		else if(cmd == "kill"){
+			if(acq_running || do_MCA_run){ 
+				std::cout << sys_message_head << "Sending KILL signal\n";
+				do_stop_acq = true; 
+			}
+			kill_all = true;
+			while(!run_ctrl_exit){ sleep(1); }
+			break;
+		}
+		else if(cmd == "help" || cmd == "h"){ help(); }
+		else if(cmd == "version" || cmd == "v"){ 
+			std::cout << "  Poll2 Core    v" << POLL2_CORE_VERSION << " (" << POLL2_CORE_DATE << ")\n"; 
+			std::cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " (" << POLL2_SOCKET_DATE << ")\n"; 
+			std::cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION << " (" << HRIBF_BUFFERS_DATE << ")\n"; 
+			std::cout << "  CTerminal     v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
+		}
+		else if(cmd == "status"){
+			show_status();
+		}
+		else if(cmd == "thresh"){
+			if(p_args==1){
+				if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid FIFO threshold specification")) continue;
+				SetThreshWords(EXTERNAL_FIFO_LENGTH * atof(arguments.at(0).c_str()) / 100.0);
+			}
+			show_thresh();
+		}
+		else if(cmd == "dump"){ // Dump pixie parameters to file
+			std::ofstream ofile;
+			
+			if(p_args >= 1){
+				ofile.open(arg.c_str());
+				if(!ofile.good()){
+					std::cout << sys_message_head << "Failed to open output file '" << arg << "'\n";
+					std::cout << sys_message_head << "Check that the path is correct\n";
+					continue;
+				}
+			}
+			else{
+				ofile.open("./Fallback.set");
+				if(!ofile.good()){
+					std::cout << sys_message_head << "Failed to open output file './Fallback.set'\n";
+					continue;
+				}
+			}
 
-        if (cmd.find("\t") != std::string::npos) { // Completing a command.
-            poll_term_->TabComplete(cmd, commands_);
-            continue;
-        }
-        else if (arg.find("\t") != std::string::npos) { // Completing the argument.
-            if(cmd == "pread" || cmd == "pwrite")
-                poll_term_->TabComplete(arg, chan_params);
-            else if(cmd == "pmread" || cmd == "pmwrite")
-                poll_term_->TabComplete(arg, mod_params);
-            else if(cmd == "toggle")
-                poll_term_->TabComplete(arg, BitFlipper::toggle_names);
-            continue;
-        }
-        poll_term_->flush();
+			ParameterChannelDumper chanReader(&ofile);
+			ParameterModuleDumper modReader(&ofile);
 
-        if(cmd == ""){ continue; }
+			// Channel dependent settings
+			for(unsigned int param = 0; param < chan_params.size(); param++){
+				forChannel<std::string>(pif, -1, -1, chanReader, chan_params[param]);
+			}
 
-        std::vector<std::string> arguments;
-        unsigned int p_args = split_str(arg, arguments);
+			// Channel independent settings
+			for(unsigned int param = 0; param < mod_params.size(); param++){
+				forModule(pif, -1, modReader, mod_params[param]);
+			}
 
-        //We clear the error flag when a command is entered.
-        had_error = false;
-        // check for defined commands
-        if(cmd == "quit" || cmd == "exit"){
-            if(do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot quit while MCA program is running\n"; }
-            else if(acq_running){ std::cout << sys_message_head << "Warning! Cannot quit while acquisition running\n"; }
-            else{
-                kill_all = true;
-                while(!run_ctrl_exit){ sleep(1); }
-                break;
-            }
-        }
-        else if(cmd == "kill"){
-            if(acq_running || do_MCA_run){
-                std::cout << sys_message_head << "Sending KILL signal\n";
-                do_stop_acq = true;
-            }
-            kill_all = true;
-            while(!run_ctrl_exit){ sleep(1); }
-            break;
-        }
-        else if(cmd == "help" || cmd == "h"){ help(); }
-        else if(cmd == "version" || cmd == "v"){
-            std::cout << "  Poll2 Core    v" << POLL2_CORE_VERSION << " (" << POLL2_CORE_DATE << ")\n";
-            std::cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " (" << POLL2_SOCKET_DATE << ")\n";
-            std::cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION << " (" << HRIBF_BUFFERS_DATE << ")\n";
-            std::cout << "  CTerminal     v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
-        }
-        else if(cmd == "status"){
-            show_status();
-        }
-        else if(cmd == "thresh"){
-            if(p_args==1){
-                if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid FIFO threshold specification")) continue;
-                SetThreshWords(EXTERNAL_FIFO_LENGTH * atof(arguments.at(0).c_str()) / 100.0);
-            }
-            show_thresh();
-        }
-        else if(cmd == "dump"){ // Dump pixie parameters to file
-            std::ofstream ofile;
+			if(p_args >= 1){ std::cout << sys_message_head << "Successfully wrote output parameter file '" << arg << "'\n"; }
+			else{ std::cout << sys_message_head << "Successfully wrote output parameter file './Fallback.set'\n"; }
+			ofile.close();
+		}
+		else if(cmd == "pwrite" || cmd == "pmwrite"){ // Write pixie parameters
+			if(acq_running || do_MCA_run){ 
+				std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n"; 
+				continue;
+			}
+		
+			if(cmd == "pwrite"){ // Syntax "pwrite <module> <channel> <parameter name> <value>"
+				if(p_args > 0 && arguments.at(0) == "help"){ pchan_help(); }
+				else if(p_args >= 4){
+					int modStart, modStop;
+					if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
+						std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
+						continue;
+					}
+					int chStart, chStop;
+					if (!SplitParameterArgs(arguments.at(1), chStart, chStop)) {
+						std::cout << "ERROR: Invalid channel argument: '" << arguments.at(1) << "'\n";
+						continue;
+					}
 
-            if(p_args >= 1){
-                ofile.open(arg.c_str());
-                if(!ofile.good()){
-                    std::cout << sys_message_head << "Failed to open output file '" << arg << "'\n";
-                    std::cout << sys_message_head << "Check that the path is correct\n";
-                    continue;
-                }
-            }
-            else{
-                ofile.open("./Fallback.set");
-                if(!ofile.good()){
-                    std::cout << sys_message_head << "Failed to open output file './Fallback.set'\n";
-                    continue;
-                }
-            }
+					//Check that there are no characters in the string unless it is hex.
+					std::string &valueStr = arguments.at(3);
+					if (valueStr.find_last_not_of("+-eE0123456789.") != std::string::npos &&
+						!((valueStr.find("0x") == 0 || valueStr.find("0X") == 0) && 
+							valueStr.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos) ) {
+						std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
+						continue;
+					}
 
-            ParameterChannelDumper chanReader(&ofile);
-            ParameterModuleDumper modReader(&ofile);
+					double value;
+					try { value = std::stod(valueStr); }
+					catch (const std::invalid_argument &ia) {
+						std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
+						continue;
+					}
+				
+					ParameterChannelWriter writer;
+					bool error = false;
+					for (int mod = modStart; mod <= modStop; mod++) {
+						for (int ch = chStart; ch <= chStop; ch++) {
+							if( ! forChannel(pif, mod, ch, writer, make_pair(arguments.at(2), value))){
+								error = true;
+							}
+						}
+					}
+					if (!error) pif->SaveDSPParameters();
+				}
+				else{
+					std::cout << sys_message_head << "Invalid number of parameters to pwrite\n";
+					std::cout << sys_message_head << " -SYNTAX- pwrite <module> <channel> <parameter> <value>\n";
+				}
+			}
+			else if(cmd == "pmwrite"){ // Syntax "pmwrite <module> <parameter name> <value>"
+				if(p_args > 0 && arguments.at(0) == "help"){ pmod_help(); }
+				else if(p_args >= 3){
+					int modStart, modStop;
+					if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
+						std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
+						continue;
+					}
 
-            // Channel dependent settings
-            for(unsigned int param = 0; param < chan_params.size(); param++){
-                forChannel<std::string>(pif, -1, -1, chanReader, chan_params[param]);
-            }
+					//Check that there are no characters in the string unless it is hex.
+					std::string &valueStr = arguments.at(2);
+					if (valueStr.find_last_not_of("0123456789") != std::string::npos &&
+						!((valueStr.find("0x") == 0 || valueStr.find("0X") == 0) &&
+							valueStr.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos) ) {
+						std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
+						continue;
+					}
 
-            // Channel independent settings
-            for(unsigned int param = 0; param < mod_params.size(); param++){
-                forModule(pif, -1, modReader, mod_params[param]);
-            }
+					unsigned int value;
+					//Use stod to add hex capability. The decimal and negative values are
+					// caught above and rejected.
+					try { value = (unsigned int) std::stod(valueStr); }
+					catch (const std::invalid_argument &ia) {
+						std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
+						continue;
+					}
 
-            if(p_args >= 1){ std::cout << sys_message_head << "Successfully wrote output parameter file '" << arg << "'\n"; }
-            else{ std::cout << sys_message_head << "Successfully wrote output parameter file './Fallback.set'\n"; }
-            ofile.close();
-        }
-        else if(cmd == "pwrite" || cmd == "pmwrite"){ // Write pixie parameters
-            if(acq_running || do_MCA_run){
-                std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n";
-                continue;
-            }
+					ParameterModuleWriter writer;
+					bool error = false;
+					for (int mod = modStart; mod <= modStop; mod++) {
+						if(!forModule(pif, mod, writer, make_pair(arguments.at(1), value))){
+							error = true;
+						}
+					}
+					if (!error) pif->SaveDSPParameters();
+				}
+				else{
+					std::cout << sys_message_head << "Invalid number of parameters to pmwrite\n";
+					std::cout << sys_message_head << " -SYNTAX- pmwrite <module> <parameter> <value>\n";
+				}
+			}
+		}
+		else if (cmd == "save") {
+			if(acq_running || do_MCA_run){
+				std::cout << sys_message_head << "Warning! Cannot view pixie parameters while acquisition is running\n\n";
+				continue;
+			}
+			if(p_args > 0 && arguments.at(0) == "help"){
+				save_help();
+				continue;
+			}
+			if(p_args == 0) {
+				pif->SaveDSPParameters();
+			}
+			else if (p_args == 1) {
+				pif->SaveDSPParameters(arguments.at(0).c_str());
+			}
+			else {
+				std::cout << sys_message_head << "Invalid number of parameters to save\n";
+				std::cout << sys_message_head << " -SYNTAX- save [setFilename]\n";
+				continue;
+			}
+		}
+		else if(cmd == "pread" || cmd == "pmread"){ // Read pixie parameters
+			if(acq_running || do_MCA_run){ 
+				std::cout << sys_message_head << "Warning! Cannot view pixie parameters while acquisition is running\n\n"; 
+				continue;
+			}
 
-            if(cmd == "pwrite"){ // Syntax "pwrite <module> <channel> <parameter name> <value>"
-                if(p_args > 0 && arguments.at(0) == "help"){ pchan_help(); }
-                else if(p_args >= 4){
-                    int modStart, modStop;
-                    if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
-                        std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
-                        continue;
-                    }
-                    int chStart, chStop;
-                    if (!SplitParameterArgs(arguments.at(1), chStart, chStop)) {
-                        std::cout << "ERROR: Invalid channel argument: '" << arguments.at(1) << "'\n";
-                        continue;
-                    }
+			if(cmd == "pread"){ // Syntax "pread <module> <channel> <parameter name>"
+				if(p_args > 0 && arguments.at(0) == "help"){ pchan_help(); }
+				else if(p_args >= 3){
+					int modStart, modStop;
+					if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
+						std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
+						continue;
+					}
+					int chStart, chStop;
+					if (!SplitParameterArgs(arguments.at(1), chStart, chStop)) {
+						std::cout << "ERROR: Invalid channel argument: '" << arguments.at(1) << "'\n";
+						continue;
+					}
 
-                    //Check that there are no characters in the string unless it is hex.
-                    std::string &valueStr = arguments.at(3);
-                    if (valueStr.find_last_not_of("+-eE0123456789.") != std::string::npos &&
-                        !((valueStr.find("0x") == 0 || valueStr.find("0X") == 0) &&
-                          valueStr.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos) ) {
-                        std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
-                        continue;
-                    }
+					ParameterChannelReader reader;
+					for (int mod = modStart; mod <= modStop; mod++) { 
+						for (int ch = chStart; ch <= chStop; ch++) { 
+							forChannel(pif, mod, ch, reader, arguments.at(2));
+						}
+					}
+				}
+				else{
+					std::cout << sys_message_head << "Invalid number of parameters to pread\n";
+					std::cout << sys_message_head << " -SYNTAX- pread <module> <channel> <parameter>\n";
+				}
+			}
+			else if(cmd == "pmread"){ // Syntax "pmread <module> <parameter name>"
+				if(p_args > 0 && arguments.at(0) == "help"){ pmod_help(); }
+				else if(p_args >= 2){
+					int modStart, modStop;
+					if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
+						std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
+						continue;
+					}
+				
+					ParameterModuleReader reader;
+					for (int mod = modStart; mod <= modStop; mod++) {
+						forModule(pif, mod, reader, arguments.at(1));
+					}
+				}
+				else{
+					std::cout << sys_message_head << "Invalid number of parameters to pmread\n";
+					std::cout << sys_message_head << " -SYNTAX- pread <module> <parameter>\n";
+				}
+			}
+		}
+		else if(cmd == "adjust_offsets"){ // Run adjust_offsets
+			if(acq_running || do_MCA_run){ 
+				std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n"; 
+				continue;
+			}
 
-                    double value;
-                    try { value = std::stod(valueStr); }
-                    catch (const std::invalid_argument &ia) {
-                        std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
-                        continue;
-                    }
+			if(p_args >= 1){
+				int modStart, modStop;
+				if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
+					std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
+					continue;
+				}
 
-                    ParameterChannelWriter writer;
-                    bool error = false;
-                    for (int mod = modStart; mod <= modStop; mod++) {
-                        for (int ch = chStart; ch <= chStop; ch++) {
-                            if( ! forChannel(pif, mod, ch, writer, make_pair(arguments.at(2), value))){
-                                error = true;
-                            }
-                        }
-                    }
-                    if (!error) pif->SaveDSPParameters();
-                }
-                else{
-                    std::cout << sys_message_head << "Invalid number of parameters to pwrite\n";
-                    std::cout << sys_message_head << " -SYNTAX- pwrite <module> <channel> <parameter> <value>\n";
-                }
-            }
-            else if(cmd == "pmwrite"){ // Syntax "pmwrite <module> <parameter name> <value>"
-                if(p_args > 0 && arguments.at(0) == "help"){ pmod_help(); }
-                else if(p_args >= 3){
-                    int modStart, modStop;
-                    if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
-                        std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
-                        continue;
-                    }
+				OffsetAdjuster adjuster;
+				bool error = false;
+				for (int mod = modStart; mod <= modStop; mod++) {
+					if(!forModule(pif, mod, adjuster, 0)){ error = true; }
+				}
+				if (!error) pif->SaveDSPParameters();
+			}
+			else{
+				std::cout << sys_message_head << "Invalid number of parameters to adjust_offsets\n";
+				std::cout << sys_message_head << " -SYNTAX- adjust_offsets <module>\n";
+			}
+		}
+		else if(cmd == "find_tau"){ // Run find_tau
+			if(acq_running || do_MCA_run){ 
+				std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n"; 
+				continue;
+			}
 
-                    //Check that there are no characters in the string unless it is hex.
-                    std::string &valueStr = arguments.at(2);
-                    if (valueStr.find_last_not_of("0123456789") != std::string::npos &&
-                        !((valueStr.find("0x") == 0 || valueStr.find("0X") == 0) &&
-                          valueStr.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos) ) {
-                        std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
-                        continue;
-                    }
+			if(p_args >= 2){
+				if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
+				else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
+				int mod = atoi(arguments.at(0).c_str());
+				int ch = atoi(arguments.at(1).c_str());
 
-                    unsigned int value;
-                    //Use stod to add hex capability. The decimal and negative values are
-                    // caught above and rejected.
-                    try { value = (unsigned int) std::stod(valueStr); }
-                    catch (const std::invalid_argument &ia) {
-                        std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
-                        continue;
-                    }
+				TauFinder finder;
+				forChannel(pif, mod, ch, finder, 0);
+			}
+			else{
+				std::cout << sys_message_head << "Invalid number of parameters to find_tau\n";
+				std::cout << sys_message_head << " -SYNTAX- find_tau <module> <channel>\n";
+			}
+		}
+		else if(cmd == "toggle"){ // Toggle a CHANNEL_CSRA bit
+			if(acq_running || do_MCA_run){ 
+				std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n"; 
+				continue;
+			}
 
-                    ParameterModuleWriter writer;
-                    bool error = false;
-                    for (int mod = modStart; mod <= modStop; mod++) {
-                        if(!forModule(pif, mod, writer, make_pair(arguments.at(1), value))){
-                            error = true;
-                        }
-                    }
-                    if (!error) pif->SaveDSPParameters();
-                }
-                else{
-                    std::cout << sys_message_head << "Invalid number of parameters to pmwrite\n";
-                    std::cout << sys_message_head << " -SYNTAX- pmwrite <module> <parameter> <value>\n";
-                }
-            }
-        }
-        else if (cmd == "save") {
-            if(acq_running || do_MCA_run){
-                std::cout << sys_message_head << "Warning! Cannot view pixie parameters while acquisition is running\n\n";
-                continue;
-            }
-            if(p_args > 0 && arguments.at(0) == "help"){
-                save_help();
-                continue;
-            }
-            if(p_args == 0) {
-                pif->SaveDSPParameters();
-            }
-            else if (p_args == 1) {
-                pif->SaveDSPParameters(arguments.at(0).c_str());
-            }
-            else {
-                std::cout << sys_message_head << "Invalid number of parameters to save\n";
-                std::cout << sys_message_head << " -SYNTAX- save [setFilename]\n";
-                continue;
-            }
-        }
-        else if(cmd == "pread" || cmd == "pmread"){ // Read pixie parameters
-            if(acq_running || do_MCA_run){
-                std::cout << sys_message_head << "Warning! Cannot view pixie parameters while acquisition is running\n\n";
-                continue;
-            }
+			BitFlipper flipper;
 
-            if(cmd == "pread"){ // Syntax "pread <module> <channel> <parameter name>"
-                if(p_args > 0 && arguments.at(0) == "help"){ pchan_help(); }
-                else if(p_args >= 3){
-                    int modStart, modStop;
-                    if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
-                        std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
-                        continue;
-                    }
-                    int chStart, chStop;
-                    if (!SplitParameterArgs(arguments.at(1), chStart, chStop)) {
-                        std::cout << "ERROR: Invalid channel argument: '" << arguments.at(1) << "'\n";
-                        continue;
-                    }
+			if(p_args >= 3){ 
+				int modStart, modStop;
+				if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
+					std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
+					continue;
+				}
+				int chStart, chStop;
+				if (!SplitParameterArgs(arguments.at(1), chStart, chStop)) {
+					std::cout << "ERROR: Invalid channel argument: '" << arguments.at(1) << "'\n";
+					continue;
+				}
+				flipper.SetCSRAbit(arguments.at(2));
+				
+				std::string dum_str = "CHANNEL_CSRA";
+				bool error = false;
+				for (int mod = modStart; mod <= modStop; mod++) {
+					for (int ch = chStart; ch <= chStop; ch++) {
+						if(!forChannel(pif, mod, ch, flipper, dum_str)){
+							error = true;
+						}
+					}
+				}
+				if (!error) pif->SaveDSPParameters();
+			}
+			else{
+				std::cout << sys_message_head << "Invalid number of parameters to toggle\n";
+				std::cout << sys_message_head << " -SYNTAX- toggle <module> <channel> <CSRA bit>\n";
+				flipper.Help();				
+			}
+		}
+		else if(cmd == "toggle_bit"){ // Toggle any bit of any parameter under 32 bits long
+			if(acq_running || do_MCA_run){ 
+				std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n"; 
+				continue;
+			}
 
-                    ParameterChannelReader reader;
-                    for (int mod = modStart; mod <= modStop; mod++) {
-                        for (int ch = chStart; ch <= chStop; ch++) {
-                            forChannel(pif, mod, ch, reader, arguments.at(2));
-                        }
-                    }
-                }
-                else{
-                    std::cout << sys_message_head << "Invalid number of parameters to pread\n";
-                    std::cout << sys_message_head << " -SYNTAX- pread <module> <channel> <parameter>\n";
-                }
-            }
-            else if(cmd == "pmread"){ // Syntax "pmread <module> <parameter name>"
-                if(p_args > 0 && arguments.at(0) == "help"){ pmod_help(); }
-                else if(p_args >= 2){
-                    int modStart, modStop;
-                    if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
-                        std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
-                        continue;
-                    }
+			BitFlipper flipper;
 
-                    ParameterModuleReader reader;
-                    for (int mod = modStart; mod <= modStop; mod++) {
-                        forModule(pif, mod, reader, arguments.at(1));
-                    }
-                }
-                else{
-                    std::cout << sys_message_head << "Invalid number of parameters to pmread\n";
-                    std::cout << sys_message_head << " -SYNTAX- pread <module> <parameter>\n";
-                }
-            }
-        }
-        else if(cmd == "adjust_offsets"){ // Run adjust_offsets
-            if(acq_running || do_MCA_run){
-                std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n";
-                continue;
-            }
+			if(p_args >= 4){ 
+				if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
+				else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
+				else if(!IsNumeric(arguments.at(3), sys_message_head, "Invalid bit number specification")) continue;
+				flipper.SetBit(arguments.at(3));
 
-            if(p_args >= 1){
-                int modStart, modStop;
-                if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
-                    std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
-                    continue;
-                }
+				if(forChannel(pif, atoi(arguments.at(0).c_str()), atoi(arguments.at(1).c_str()), flipper, arguments.at(2))){
+					pif->SaveDSPParameters();
+				}
+			}
+			else{
+				std::cout << sys_message_head << "Invalid number of parameters to toggle_any\n";
+				std::cout << sys_message_head << " -SYNTAX- toggle_any <module> <channel> <parameter> <bit>\n";
+			}
+		}
+		else if(cmd == "csr_test"){ // Run CSRAtest method
+			BitFlipper flipper;
+			if(p_args >= 1){ 
+				//Check that there are no characters in the string unless it is hex.
+				std::string &valueStr = arguments.at(0);
+				if (valueStr.find_last_not_of("0123456789") != std::string::npos &&
+						!((valueStr.find("0x") == 0 || valueStr.find("0X") == 0) &&
+							valueStr.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos) ) {
+					std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
+					continue;
+				}
+				unsigned int value;
+				//Use stod to add hex capability. The decimal and negative values are
+				// caught above and rejected.
+				try { value = (unsigned int) std::stod(valueStr); }
+				catch (const std::invalid_argument &ia) {
+					std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
+					continue;
+				}
 
-                OffsetAdjuster adjuster;
-                bool error = false;
-                for (int mod = modStart; mod <= modStop; mod++) {
-                    if(!forModule(pif, mod, adjuster, 0)){ error = true; }
-                }
-                if (!error) pif->SaveDSPParameters();
-            }
-            else{
-                std::cout << sys_message_head << "Invalid number of parameters to adjust_offsets\n";
-                std::cout << sys_message_head << " -SYNTAX- adjust_offsets <module>\n";
-            }
-        }
-        else if(cmd == "find_tau"){ // Run find_tau
-            if(acq_running || do_MCA_run){
-                std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n";
-                continue;
-            }
+				flipper.CSRAtest(value);
+			}
+			else{
+				std::cout << sys_message_head << "Invalid number of parameters to csr_test\n";
+				std::cout << sys_message_head << " -SYNTAX- csr_test <number>\n";
+			}
+		}
+		else if(cmd == "bit_test"){ // Run Test method
+			BitFlipper flipper;
+			if(p_args >= 2){ 
+				if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid number of bits specified")) continue;
+				else if(!IsNumeric(arguments.at(2), sys_message_head, "Invalid parameter value specification")) continue;
+				std::vector<std::string> empty_vector;
+				flipper.Test((unsigned int)atoi(arguments.at(0).c_str()), std::strtoul(arguments.at(1).c_str(), NULL, 0), empty_vector); 
+			}
+			else{
+				std::cout << sys_message_head << "Invalid number of parameters to bit_test\n";
+				std::cout << sys_message_head << " -SYNTAX- bit_test <num_bits> <number>\n";
+			}
+		}
+		else if(cmd == "get_traces"){ // Run GetTraces method
+			if(acq_running || do_MCA_run){ 
+				std::cout << sys_message_head << "Warning! Cannot view live traces while acquisition is running\n\n"; 
+				continue;
+			}
 
-            if(p_args >= 2){
-                if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
-                else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
-                int mod = atoi(arguments.at(0).c_str());
-                int ch = atoi(arguments.at(1).c_str());
+			if(p_args >= 2){
+				if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
+				else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
+				int mod = atoi(arguments.at(0).c_str());
+				int chan = atoi(arguments.at(1).c_str());
+				
+				if(mod < 0 || chan < 0){
+					std::cout << sys_message_head << "Error! Must select one module and one channel to trigger on!\n";
+					continue;
+				}
+				else if(mod > (int)n_cards){
+					std::cout << sys_message_head << "Error! Invalid module specification (" << mod << ")!\n";
+					continue;
+				}
+				else if(chan > NUMBER_OF_CHANNELS){
+					std::cout << sys_message_head << "Error! Invalid channel specification (" << chan << ")!\n";
+					continue;
+				}
 
-                TauFinder finder;
-                forChannel(pif, mod, ch, finder, 0);
-            }
-            else{
-                std::cout << sys_message_head << "Invalid number of parameters to find_tau\n";
-                std::cout << sys_message_head << " -SYNTAX- find_tau <module> <channel>\n";
-            }
-        }
-        else if(cmd == "toggle"){ // Toggle a CHANNEL_CSRA bit
-            if(acq_running || do_MCA_run){
-                std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n";
-                continue;
-            }
+				int trace_threshold = 0;
+				if(p_args >= 3){
+					if(!IsNumeric(arguments.at(2), sys_message_head, "Invalid threshold specified")) continue;
+					else{
+						trace_threshold = atoi(arguments.at(2).c_str());
+						if(trace_threshold < 0){
+							std::cout << sys_message_head << "Cannot set negative threshold!\n";
+							trace_threshold = 0;
+						}
+					}
+				}
+				
+				get_traces(mod, chan, trace_threshold);
+			}
+			else{
+				std::cout << sys_message_head << "Invalid number of parameters to get_traces\n";
+				std::cout << sys_message_head << " -SYNTAX- get_traces <mod> <chan> [threshold]\n";
+			}
+		}
+		else if(cmd == "quiet"){ // Toggle quiet mode
+			if(is_quiet){
+				std::cout << sys_message_head << "Toggling quiet mode OFF\n";
+				is_quiet = false;
+			}
+			else{
+				std::cout << sys_message_head << "Toggling quiet mode ON\n";
+				is_quiet = true;
+			}
+		}
+		else if(cmd == "debug"){ // Toggle debug mode
+			if(debug_mode){
+				std::cout << sys_message_head << "Toggling debug mode OFF\n";
+				output_file.SetDebugMode(false);
+				debug_mode = false;
+			}
+			else{
+				std::cout << sys_message_head << "Toggling debug mode ON\n";
+				output_file.SetDebugMode();
+				debug_mode = true;
+			}
+		}
+		else if(cmd == "mca" || cmd == "MCA"){ // Run MCA program using either root or damm
+				if(do_MCA_run){
+					std::cout << sys_message_head << "MCA program is already running\n\n";
+					continue;
+				}
+				else if(acq_running){ 
+					std::cout << sys_message_head << "Warning! Cannot run MCA program while acquisition is running\n\n";
+					continue;
+				}
 
-            BitFlipper flipper;
+				if (p_args >= 1) {
+					std::string type = arguments.at(0);
+					
+					if(type == "root"){ mca_args.SetUseRoot(); }
+					else if(type != "damm"){ mca_args.SetTotalTime(atoi(type.c_str())); }
+					
+					if(p_args >= 2){
+						if(mca_args.GetTotalTime() == 0){ mca_args.SetTotalTime(atoi(arguments.at(1).c_str())); }
+						else{ mca_args.SetBasename(arguments.at(1)); }
+						if(p_args >= 3){ mca_args.SetBasename(arguments.at(2)); }
+					}
+				}
+				
+				if(mca_args.GetTotalTime() == 0){ 
+					mca_args.SetTotalTime(10);
+					std::cout << sys_message_head << "Using default MCA time of 10 seconds\n";
+				}
+		
+				do_MCA_run = true;
+		}
+		else if(!pac_mode){ // These command are only available when not running in pacman mode!
+			if(cmd == "run"){ // Tell POLL to start acq and start recording data to disk.
+				start_run();
+			} 
+			else if(cmd == "timedrun"){
+				if(!arg.empty()){
+					double runSeconds = strtod(arg.c_str(), NULL);
+					if(IsNumeric(arg) && runSeconds > 0.0)
+						start_run(true, runSeconds); 
+					else
+						std::cout << sys_message_head << Display::ErrorStr() << " User attempted to run for an invalid length of time (" << arg << ")!\n";
+				}
+				else{
+					std::cout << sys_message_head << "Invalid number of parameters to timedrun\n";
+					std::cout << sys_message_head << " -SYNTAX- timedrun <seconds>\n";
+				}
+			}
+			else if(cmd == "startacq" || cmd == "startvme"){ // Tell POLL to start data acquisition without recording to disk.
+				start_run(false);
+			}
+			else if(cmd == "stop" || cmd == "stopacq" || cmd == "stopvme"){ // Tell POLL to stop recording data to disk and stop acq.
+				stop_run();
+			} 
+			else if(cmd == "shm"){ // Toggle "shared-memory" mode
+				if(shm_mode){
+					std::cout << sys_message_head << "Toggling shared-memory mode OFF\n";
+					shm_mode = false;
+				}
+				else{
+					std::cout << sys_message_head << "Toggling shared-memory mode ON\n";
+					shm_mode = true;
+				}
+			}
+			else if(cmd == "reboot"){ // Tell POLL to attempt a PIXIE crate reboot
+				if(do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot reboot while MCA is running\n"; }
+				else if(acq_running || do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot reboot while acquisition running\n"; }
+				else{ 
+					do_reboot = true; 
+					poll_term_->pause(do_reboot);
+				}
+			}
+			else if(cmd == "hup" || cmd == "spill"){ // Force spill
+				if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
+				else if(!acq_running){ std::cout << sys_message_head << "Acquisition is not running\n"; }
+				else{ force_spill = true; }
+			}
+			else if(cmd == "fdir"){ // Change the output file directory
+				if (arg == "") { std::cout << sys_message_head << "Using output directory '" << output_directory << "'\n"; }
+				else if (file_open) {
+					std::cout << sys_message_head << Display::WarningStr("Warning:") << " Directory cannot be changed while a file is open!\n";
+				}
+				else {
+					output_directory = arg; 
+					current_file_num = 0;
+			
+					// Append a '/' if the user did not include one
+					if(*(output_directory.end()-1) != '/'){ output_directory += '/'; }
 
-            if(p_args >= 3){
-                int modStart, modStop;
-                if (!SplitParameterArgs(arguments.at(0), modStart, modStop)) {
-                    std::cout << "ERROR: Invalid module argument: '" << arguments.at(0) << "'\n";
-                    continue;
-                }
-                int chStart, chStop;
-                if (!SplitParameterArgs(arguments.at(1), chStart, chStop)) {
-                    std::cout << "ERROR: Invalid channel argument: '" << arguments.at(1) << "'\n";
-                    continue;
-                }
-                flipper.SetCSRAbit(arguments.at(2));
+					std::cout << sys_message_head << "Set output directory to '" << output_directory << "'.\n";
 
-                std::string dum_str = "CHANNEL_CSRA";
-                bool error = false;
-                for (int mod = modStart; mod <= modStop; mod++) {
-                    for (int ch = chStart; ch <= chStop; ch++) {
-                        if(!forChannel(pif, mod, ch, flipper, dum_str)){
-                            error = true;
-                        }
-                    }
-                }
-                if (!error) pif->SaveDSPParameters();
-            }
-            else{
-                std::cout << sys_message_head << "Invalid number of parameters to toggle\n";
-                std::cout << sys_message_head << " -SYNTAX- toggle <module> <channel> <CSRA bit>\n";
-                flipper.Help();
-            }
-        }
-        else if(cmd == "toggle_bit"){ // Toggle any bit of any parameter under 32 bits long
-            if(acq_running || do_MCA_run){
-                std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n";
-                continue;
-            }
+					//Check what run files already exist.
+					unsigned int temp_run_num = next_run_num;
+					std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
+					if (temp_run_num != next_run_num) {
+						std::cout << sys_message_head << Display::WarningStr("Warning") << ": Run file existed for run " << temp_run_num << "! Next run number will be " << next_run_num << ".\n";
+					}
 
-            BitFlipper flipper;
+					std::cout << sys_message_head << "Next file will be '" << filename << "'.\n";
+				}
+			} 
+			else if (cmd == "prefix") {
+				if (arg == "") {
+					std::cout << sys_message_head << "Using output filename prefix '" << filename_prefix << "'.\n";
+				}
+				else if (file_open) {
+					std::cout << sys_message_head << Display::WarningStr("Warning:") << " Prefix cannot be changed while a file is open!\n";
+				}
+				else {
+					filename_prefix = arg;
+					next_run_num = 1;
 
-            if(p_args >= 4){
-                if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
-                else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
-                else if(!IsNumeric(arguments.at(3), sys_message_head, "Invalid bit number specification")) continue;
-                flipper.SetBit(arguments.at(3));
+					//Check what run files already exist.
+					std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
+					if (next_run_num != 1) {
+						std::cout << sys_message_head << Display::WarningStr("Warning") << ": Some run files existed! Next run number will be " << next_run_num << ".\n";
+					}
 
-                if(forChannel(pif, atoi(arguments.at(0).c_str()), atoi(arguments.at(1).c_str()), flipper, arguments.at(2))){
-                    pif->SaveDSPParameters();
-                }
-            }
-            else{
-                std::cout << sys_message_head << "Invalid number of parameters to toggle_any\n";
-                std::cout << sys_message_head << " -SYNTAX- toggle_any <module> <channel> <parameter> <bit>\n";
-            }
-        }
-        else if(cmd == "csr_test"){ // Run CSRAtest method
-            BitFlipper flipper;
-            if(p_args >= 1){
-                //Check that there are no characters in the string unless it is hex.
-                std::string &valueStr = arguments.at(0);
-                if (valueStr.find_last_not_of("0123456789") != std::string::npos &&
-                    !((valueStr.find("0x") == 0 || valueStr.find("0X") == 0) &&
-                      valueStr.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos) ) {
-                    std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
-                    continue;
-                }
-                unsigned int value;
-                //Use stod to add hex capability. The decimal and negative values are
-                // caught above and rejected.
-                try { value = (unsigned int) std::stod(valueStr); }
-                catch (const std::invalid_argument &ia) {
-                    std::cout << "ERROR: Invalid parameter value: '" << valueStr << "'\n";
-                    continue;
-                }
-
-                flipper.CSRAtest(value);
-            }
-            else{
-                std::cout << sys_message_head << "Invalid number of parameters to csr_test\n";
-                std::cout << sys_message_head << " -SYNTAX- csr_test <number>\n";
-            }
-        }
-        else if(cmd == "bit_test"){ // Run Test method
-            BitFlipper flipper;
-            if(p_args >= 2){
-                if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid number of bits specified")) continue;
-                else if(!IsNumeric(arguments.at(2), sys_message_head, "Invalid parameter value specification")) continue;
-                std::vector<std::string> empty_vector;
-                flipper.Test((unsigned int)atoi(arguments.at(0).c_str()), std::strtoul(arguments.at(1).c_str(), NULL, 0), empty_vector);
-            }
-            else{
-                std::cout << sys_message_head << "Invalid number of parameters to bit_test\n";
-                std::cout << sys_message_head << " -SYNTAX- bit_test <num_bits> <number>\n";
-            }
-        }
-        else if(cmd == "get_traces"){ // Run GetTraces method
-            if(acq_running || do_MCA_run){
-                std::cout << sys_message_head << "Warning! Cannot view live traces while acquisition is running\n\n";
-                continue;
-            }
-
-            if(p_args >= 2){
-                if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
-                else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
-                int mod = atoi(arguments.at(0).c_str());
-                int chan = atoi(arguments.at(1).c_str());
-
-                if(mod < 0 || chan < 0){
-                    std::cout << sys_message_head << "Error! Must select one module and one channel to trigger on!\n";
-                    continue;
-                }
-                else if(mod > (int)n_cards){
-                    std::cout << sys_message_head << "Error! Invalid module specification (" << mod << ")!\n";
-                    continue;
-                }
-                else if(chan > NUMBER_OF_CHANNELS){
-                    std::cout << sys_message_head << "Error! Invalid channel specification (" << chan << ")!\n";
-                    continue;
-                }
-
-                int trace_threshold = 0;
-                if(p_args >= 3){
-                    if(!IsNumeric(arguments.at(2), sys_message_head, "Invalid threshold specified")) continue;
-                    else{
-                        trace_threshold = atoi(arguments.at(2).c_str());
-                        if(trace_threshold < 0){
-                            std::cout << sys_message_head << "Cannot set negative threshold!\n";
-                            trace_threshold = 0;
-                        }
-                    }
-                }
-
-                get_traces(mod, chan, trace_threshold);
-            }
-            else{
-                std::cout << sys_message_head << "Invalid number of parameters to get_traces\n";
-                std::cout << sys_message_head << " -SYNTAX- get_traces <mod> <chan> [threshold]\n";
-            }
-        }
-        else if(cmd == "quiet"){ // Toggle quiet mode
-            if(is_quiet){
-                std::cout << sys_message_head << "Toggling quiet mode OFF\n";
-                is_quiet = false;
-            }
-            else{
-                std::cout << sys_message_head << "Toggling quiet mode ON\n";
-                is_quiet = true;
-            }
-        }
-        else if(cmd == "debug"){ // Toggle debug mode
-            if(debug_mode){
-                std::cout << sys_message_head << "Toggling debug mode OFF\n";
-                output_file.SetDebugMode(false);
-                debug_mode = false;
-            }
-            else{
-                std::cout << sys_message_head << "Toggling debug mode ON\n";
-                output_file.SetDebugMode();
-                debug_mode = true;
-            }
-        }
-        else if(!pac_mode){ // These command are only available when not running in pacman mode!
-            if(cmd == "run"){ // Tell POLL to start acq and start recording data to disk.
-                start_run();
-            }
-            else if(cmd == "timedrun"){
-                if(!arg.empty()){
-                    double runSeconds = strtod(arg.c_str(), NULL);
-                    if(IsNumeric(arg) && runSeconds > 0.0)
-                        start_run(true, runSeconds);
-                    else
-                        std::cout << sys_message_head << Display::ErrorStr() << " User attempted to run for an invalid length of time (" << arg << ")!\n";
-                }
-                else{
-                    std::cout << sys_message_head << "Invalid number of parameters to timedrun\n";
-                    std::cout << sys_message_head << " -SYNTAX- timedrun <seconds>\n";
-                }
-            }
-            else if(cmd == "startacq" || cmd == "startvme"){ // Tell POLL to start data acquisition without recording to disk.
-                start_run(false);
-            }
-            else if(cmd == "stop" || cmd == "stopacq" || cmd == "stopvme"){ // Tell POLL to stop recording data to disk and stop acq.
-                stop_run();
-            }
-            else if(cmd == "shm"){ // Toggle "shared-memory" mode
-                if(shm_mode){
-                    std::cout << sys_message_head << "Toggling shared-memory mode OFF\n";
-                    shm_mode = false;
-                }
-                else{
-                    std::cout << sys_message_head << "Toggling shared-memory mode ON\n";
-                    shm_mode = true;
-                }
-            }
-            else if(cmd == "reboot"){ // Tell POLL to attempt a PIXIE crate reboot
-                if(do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot reboot while MCA is running\n"; }
-                else if(acq_running || do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot reboot while acquisition running\n"; }
-                else{
-                    do_reboot = true;
-                    poll_term_->pause(do_reboot);
-                }
-            }
-            else if(cmd == "hup" || cmd == "spill"){ // Force spill
-                if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
-                else if(!acq_running){ std::cout << sys_message_head << "Acquisition is not running\n"; }
-                else{ force_spill = true; }
-            }
-            else if(cmd == "fdir"){ // Change the output file directory
-                if (arg == "") { std::cout << sys_message_head << "Using output directory '" << output_directory << "'\n"; }
-                else if (file_open) {
-                    std::cout << sys_message_head << Display::WarningStr("Warning:") << " Directory cannot be changed while a file is open!\n";
-                }
-                else {
-                    output_directory = arg;
-                    current_file_num = 0;
-
-                    // Append a '/' if the user did not include one
-                    if(*(output_directory.end()-1) != '/'){ output_directory += '/'; }
-
-                    std::cout << sys_message_head << "Set output directory to '" << output_directory << "'.\n";
-
-                    //Check what run files already exist.
-                    unsigned int temp_run_num = next_run_num;
-                    std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
-                    if (temp_run_num != next_run_num) {
-                        std::cout << sys_message_head << Display::WarningStr("Warning") << ": Run file existed for run " << temp_run_num << "! Next run number will be " << next_run_num << ".\n";
-                    }
-
-                    std::cout << sys_message_head << "Next file will be '" << filename << "'.\n";
-                }
-            }
-            else if (cmd == "prefix") {
-                if (arg == "") {
-                    std::cout << sys_message_head << "Using output filename prefix '" << filename_prefix << "'.\n";
-                }
-                else if (file_open) {
-                    std::cout << sys_message_head << Display::WarningStr("Warning:") << " Prefix cannot be changed while a file is open!\n";
-                }
-                else {
-                    filename_prefix = arg;
-                    next_run_num = 1;
-
-                    //Check what run files already exist.
-                    std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
-                    if (next_run_num != 1) {
-                        std::cout << sys_message_head << Display::WarningStr("Warning") << ": Some run files existed! Next run number will be " << next_run_num << ".\n";
-                    }
-
-                    std::cout << sys_message_head << "Set output filename prefix to '" << filename_prefix << "'.\n";
-                    std::cout << sys_message_head << "Next file will be '" << output_file.GetNextFileName(next_run_num,filename_prefix, output_directory) << "'.\n";
-                }
-            }
-            else if(cmd == "title"){ // Change the title of the output file
-                if (arg == "") { std::cout << sys_message_head << "Using output file title '" << output_title << "'.\n"; }
-                else if (file_open) {
-                    std::cout << sys_message_head << Display::WarningStr("Warning:") << " Run title cannot be changed while a file is open!\n";
-                }
-                else {
-                    //Check if argument is within double quotes and strip them. Otherwise take the whole argument.
-                    if (arg.find_first_of('"') == 0 && arg.find_last_of('"') == arg.length() - 1)
-                        output_title = arg.substr(1,arg.length() - 2);
-                    else output_title = arg;
-                    if(output_format == 0 && output_title.size() > 80){
-                        std::cout << sys_message_head << Display::WarningStr("Warning:") << " Title length " << output_title.size() - 80 << " characters too long for ldf format!\n";
-                        output_title = output_title.substr(0, 80);
-                    }
-                    std::cout << sys_message_head << "Set run title to '" << output_title << "'.\n";
-                }
-            }
-            else if(cmd == "runnum"){ // Change the run number to the specified value
-                if (arg == "") {
-                    if (output_file.IsOpen())
-                        std::cout << sys_message_head << "Current output file run number '" << output_file.GetRunNumber() << "'.\n";
-                    if (!output_file.IsOpen() || next_run_num != output_file.GetRunNumber())
-                        std::cout << sys_message_head << "Next output file run number '" << next_run_num << "' for prefix '" << filename_prefix << "'.\n";
-                }
-                else if (file_open) {
-                    std::cout << sys_message_head << Display::WarningStr("Warning:") << " Run number cannot be changed while a file is open!\n";
-                }
-                else {
-                    next_run_num = atoi(arg.c_str());
-                    std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
-                    if (next_run_num != (unsigned int)atoi(arg.c_str())) {
-                        std::cout << sys_message_head << Display::WarningStr("Wanring") << ": Run file existed for run " << atoi(arg.c_str()) << ".\n";
-                    }
-                    std::cout << sys_message_head << "Set run number to '" << next_run_num << "'.\n";
-                    std::cout << sys_message_head << "Next file will be '" << filename << "'.\n";
-                }
-            }
-            else if(cmd == "oform"){ // Change the output file format
-                if(arg != ""){
-                    int format = atoi(arg.c_str());
-                    if(format == 0 || format == 1 || format == 2){
-                        output_format = atoi(arg.c_str());
-                        std::cout << sys_message_head << "Set output file format to '" << output_format << "'\n";
-                        if(output_format == 1){ std::cout << "  Warning! This output format is experimental and is not recommended for data taking\n"; }
-                        else if(output_format == 2){ std::cout << "  Warning! This output format is experimental and is not recommended for data taking\n"; }
-                        output_file.SetFileFormat(output_format);
-                    }
-                    else{
-                        std::cout << sys_message_head << "Unknown output file format ID '" << format << "'\n";
-                        std::cout << "  Available file formats include:\n";
-                        std::cout << "   0 - .ldf (HRIBF) file format (default)\n";
-                        std::cout << "   1 - .pld (PIXIE) file format (experimental)\n";
-                        std::cout << "   2 - .root file format (slow, not recommended)\n";
-                    }
-                }
-                else{ std::cout << sys_message_head << "Using output file format '" << output_format << "'\n"; }
-                if(output_file.IsOpen()){ std::cout << sys_message_head << "New output format used for new files only! Current file is unchanged.\n"; }
-            }
-            else if(cmd == "mca" || cmd == "MCA"){ // Run MCA program using either root or damm
-                if(do_MCA_run){
-                    std::cout << sys_message_head << "MCA program is already running\n\n";
-                    continue;
-                }
-                else if(acq_running){
-                    std::cout << sys_message_head << "Warning! Cannot run MCA program while acquisition is running\n\n";
-                    continue;
-                }
-
-                if (p_args >= 1) {
-                    std::string type = arguments.at(0);
-
-                    if(type == "root"){ mca_args.SetUseRoot(); }
-                    else if(type != "damm"){ mca_args.SetTotalTime(atoi(type.c_str())); }
-
-                    if(p_args >= 2){
-                        if(mca_args.GetTotalTime() == 0){ mca_args.SetTotalTime(atoi(arguments.at(1).c_str())); }
-                        else{ mca_args.SetBasename(arguments.at(1)); }
-                        if(p_args >= 3){ mca_args.SetBasename(arguments.at(2)); }
-                    }
-                }
-
-                if(mca_args.GetTotalTime() == 0){
-                    mca_args.SetTotalTime(10);
-                    std::cout << sys_message_head << "Using default MCA time of 10 seconds\n";
-                }
-
-                do_MCA_run = true;
-            }
-            else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
-        }
-        else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
-    }
+					std::cout << sys_message_head << "Set output filename prefix to '" << filename_prefix << "'.\n";
+					std::cout << sys_message_head << "Next file will be '" << output_file.GetNextFileName(next_run_num,filename_prefix, output_directory) << "'.\n";
+				}
+			}
+			else if(cmd == "title"){ // Change the title of the output file
+				if (arg == "") { std::cout << sys_message_head << "Using output file title '" << output_title << "'.\n"; }
+				else if (file_open) {
+					std::cout << sys_message_head << Display::WarningStr("Warning:") << " Run title cannot be changed while a file is open!\n";
+				}
+				else {
+					//Check if argument is within double quotes and strip them. Otherwise take the whole argument.
+					if (arg.find_first_of('"') == 0 && arg.find_last_of('"') == arg.length() - 1) 
+						output_title = arg.substr(1,arg.length() - 2);
+					else output_title = arg; 
+					if(output_format == 0 && output_title.size() > 80){
+						std::cout << sys_message_head << Display::WarningStr("Warning:") << " Title length " << output_title.size() - 80 << " characters too long for ldf format!\n";
+						output_title = output_title.substr(0, 80);
+					}
+					std::cout << sys_message_head << "Set run title to '" << output_title << "'.\n";
+				}
+			} 
+			else if(cmd == "runnum"){ // Change the run number to the specified value
+				if (arg == "") { 
+					if (output_file.IsOpen()) 
+						std::cout << sys_message_head << "Current output file run number '" << output_file.GetRunNumber() << "'.\n"; 
+					if (!output_file.IsOpen() || next_run_num != output_file.GetRunNumber()) 
+						std::cout << sys_message_head << "Next output file run number '" << next_run_num << "' for prefix '" << filename_prefix << "'.\n"; 
+				}
+				else if (file_open) {
+					std::cout << sys_message_head << Display::WarningStr("Warning:") << " Run number cannot be changed while a file is open!\n";
+				}
+				else {
+					next_run_num = atoi(arg.c_str()); 
+					std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
+					if (next_run_num != (unsigned int)atoi(arg.c_str())) {
+						std::cout << sys_message_head << Display::WarningStr("Wanring") << ": Run file existed for run " << atoi(arg.c_str()) << ".\n";
+					}
+					std::cout << sys_message_head << "Set run number to '" << next_run_num << "'.\n";
+					std::cout << sys_message_head << "Next file will be '" << filename << "'.\n";
+				}
+			} 
+			else if(cmd == "oform"){ // Change the output file format
+				if(arg != ""){
+					int format = atoi(arg.c_str());
+					if(format == 0 || format == 1 || format == 2){
+						output_format = atoi(arg.c_str());
+						std::cout << sys_message_head << "Set output file format to '" << output_format << "'\n";
+						if(output_format == 1){ std::cout << "  Warning! This output format is experimental and is not recommended for data taking\n"; }
+						else if(output_format == 2){ std::cout << "  Warning! This output format is experimental and is not recommended for data taking\n"; }
+						output_file.SetFileFormat(output_format);
+					}
+					else{ 
+						std::cout << sys_message_head << "Unknown output file format ID '" << format << "'\n";
+						std::cout << "  Available file formats include:\n";
+						std::cout << "   0 - .ldf (HRIBF) file format (default)\n";
+						std::cout << "   1 - .pld (PIXIE) file format (experimental)\n";
+						std::cout << "   2 - .root file format (slow, not recommended)\n";
+					}
+				}
+				else{ std::cout << sys_message_head << "Using output file format '" << output_format << "'\n"; }
+				if(output_file.IsOpen()){ std::cout << sys_message_head << "New output format used for new files only! Current file is unchanged.\n"; }
+			}
+			else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
+		}
+		else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
