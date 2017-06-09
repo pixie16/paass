@@ -1,6 +1,6 @@
 ///@file DetectorLibrary.cpp
 ///@brief Some useful function for managing the list of channel channelConfigurations
-///@author David Miller
+///@author David Miller, K. Miernik, S. V. Paulauskas
 
 #include <algorithm>
 #include <iomanip>

@@ -1,3 +1,4 @@
+/// @authors K. Miernik, K. Smith, C. R. Thornsberry
 #include "MCA.h"
 
 #include <iostream>

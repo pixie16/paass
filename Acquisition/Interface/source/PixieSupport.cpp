@@ -1,3 +1,4 @@
+///@authors C. R. Thornsberry
 #include <iostream>
 #include <iomanip>
 #include <stdlib.h>

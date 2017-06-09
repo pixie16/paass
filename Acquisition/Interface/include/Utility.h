@@ -1,3 +1,4 @@
+///@authors D. Miller, K. Smith
 // a few miscellaneous functions
 
 #ifndef __UTILITY_H_

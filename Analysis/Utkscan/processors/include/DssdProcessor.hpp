@@ -1,5 +1,6 @@
 /** \file DssdProcessor.hpp
  * \brief Header file for DSSD analysis
+ * @authors D. Miller, K. Miernik
  */
 
 #ifndef __DSSDPROCESSOR_HPP_

@@ -1,4 +1,5 @@
 #!/usr/bin/gnuplot
+# @author K. Miernik
 # This script is called by 'tra' script
 # CH should be provided by external call
 unset key

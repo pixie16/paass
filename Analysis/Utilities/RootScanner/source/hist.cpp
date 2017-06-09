@@ -1,3 +1,5 @@
+/// @authors K. Smith, S. V. Paulauskas
+
 #include "HistScanner.hpp"
 #include "HistUnpacker.hpp"
 

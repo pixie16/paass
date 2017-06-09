@@ -1,3 +1,5 @@
+/// @authors K. Smith, S. V. Paulauskas
+
 #ifndef HISTSCANNER_H
 #define HISTSCANNER_H
 

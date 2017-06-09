@@ -1,4 +1,5 @@
 #!/usr/bin/gnuplot
+# @authors K. Miernik, K. Smith
 # KM 01.2012
 # KS 11.2015
 # This gnuplot script reads traces from pixie modules

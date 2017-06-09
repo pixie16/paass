@@ -5,6 +5,7 @@
 # XIA_LIBRARY_DIR
 # XIA_FOUND - true if XIA was found.
 #
+# @authors K. Smith, C. R. Thornsberry, S. V. Paulauskas
 
 #Unset any cached value to ensure a fresh search is performed. 
 #This permits the user to change the XIA_ROOT_DIR and have subsequent paths updated.

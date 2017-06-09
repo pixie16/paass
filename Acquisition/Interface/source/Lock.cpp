@@ -1,5 +1,7 @@
-// Implementation of Lock class which creates a file in a directory
-//   with a given name which prevents the process from continuing
+/// @brief Implementation of Lock class which creates a file in a directory with a given name which prevents the
+/// process from continuing
+///@authors D. Miller, C. R. Thornsberry, K. Smith
+
 #include <algorithm>
 #include <iostream>
 

@@ -1,6 +1,6 @@
 /** \file  TraceFilterAnalyzer.cpp
  *  \brief Implements the analysis of traces using trapezoidal filters
- * \author S. V. Paulauskas, original D. Miller
+ * \author D. Miller, S. V. Paulauskas
  * \date January 2011
  */
 #include <sstream>

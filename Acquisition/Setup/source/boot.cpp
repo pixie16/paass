@@ -1,3 +1,4 @@
+///@authors D. Miller
 // Simple program to boot pixie cards loading the working set file
 
 #include <cstdlib>

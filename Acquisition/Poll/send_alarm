@@ -1,4 +1,5 @@
 #!/bin/bash
+#@authors D. Miller
 
 if [ -z $1 ]; then
     EMAIL="dmille50@utk.edu"

@@ -1,6 +1,6 @@
 ///@file MapNodeXmlParser.cpp
 ///@brief Class to parse the Map node in the utkscan configuration file
-///@author S. V. Paulauskas
+///@author S. V. Paulauskas, D. Miller, K. Miernik
 ///@date February 09, 2017
 #include <iostream>
 

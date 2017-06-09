@@ -1,6 +1,6 @@
 /** \file Calibrator.cpp
  * \brief Class to handle energy calibrations for the channels
- * \author K. A. Miernik
+ * \author D. Miller, K. A. Miernik
  * \date 2012
  */
 #include <iostream>

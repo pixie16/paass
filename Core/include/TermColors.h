@@ -1,3 +1,4 @@
+///@authors D. Miller
 #ifndef __TERM_COLORS_H_
 #define __TERM_COLORS_H_
 

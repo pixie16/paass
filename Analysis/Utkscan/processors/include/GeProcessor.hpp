@@ -1,5 +1,6 @@
 ///\file GeProcessor.hpp
 ///@brief Processor for germanium detectors
+///@author S. V. Paulauskas
 #ifndef __GEPROCESSOR_HPP_
 #define __GEPROCESSOR_HPP_
 

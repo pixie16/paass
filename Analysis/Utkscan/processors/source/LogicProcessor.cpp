@@ -1,5 +1,6 @@
 /** \file LogicProcessor.cpp
  * \brief handling of logic events, derived from MtcProcessor.cpp
+ * @authors D. Miller, K. Miernik, S. V. Paulauskas
  *
  * Start subtype corresponds to leading edge
  * Stop subtype corresponds to trailing edge

@@ -1,3 +1,4 @@
+///@authors D. Miller
 // toggle_catcher.cpp
 // Switch whether proton capture mode is on or off
 // August 2010, DTM

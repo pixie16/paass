@@ -1,6 +1,6 @@
 /** \file TraceFilterAnalyzer.hpp
  * \brief Declaration of analysis class which does the filtering of traces.
- * \author S. V. Paulauskas; originally D. Miller
+ * \authors D. Miller, S. V. Paulauskas
  * \date January 2011
  */
 

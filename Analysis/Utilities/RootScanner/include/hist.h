@@ -1,3 +1,4 @@
+/// @authors K. Smith, S. V. Paulauskas
 #ifndef HISTUNPACKER_H
 #define HISTUNPACKER_H
 
@@ -14,8 +15,6 @@ public:
     /// \return Nothing.
     ///
     virtual void ProcessRawEvent(ScanInterface *addr_ = NULL);
-
-
 };
 
 

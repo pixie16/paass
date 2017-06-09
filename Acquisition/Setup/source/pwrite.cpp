@@ -1,3 +1,4 @@
+///@authors D. Miller, C. R. Thornsberry
 /********************************************************************/
 /*	pmwrite.cpp                                                       */
 /*		last updated: April 19th, 2015 CRT                          */

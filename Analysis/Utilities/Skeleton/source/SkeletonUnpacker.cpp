@@ -1,6 +1,6 @@
 ///@file SkeletonUnpacker.cpp
 ///@brief
-///@author S. V. Paulauskas
+///@author C. R. Thornsberry, S. V. Paulauskas
 ///@date May 14, 2017
 
 #include "SkeletonUnpacker.hpp"

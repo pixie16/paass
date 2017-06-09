@@ -1,5 +1,6 @@
 /** \file StatsData.cpp
  *  \brief Stores statistics data from the data stream in its original format
+ *  @author D. Miller, K. Miernik
  */
 
 #include <iostream>

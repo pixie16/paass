@@ -1,5 +1,6 @@
 /** \file EventProcessor.hpp
  * \brief Generic event processor
+ * @authors S. Liddick, D. Miller, K. Miernik, S. V. Paulauskas
  */
 #ifndef __EVENTPROCESSOR_HPP_
 #define __EVENTPROCESSOR_HPP_

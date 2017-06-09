@@ -1,5 +1,6 @@
 /** \file McpProcessor.hpp
  * \brief Class for handling position-sensitive mcp signals
+ * @authors D. Miller
  */
 #ifndef __MCPPROCESSOR_HPP_
 #define __MCPPROCESSOR_HPP_

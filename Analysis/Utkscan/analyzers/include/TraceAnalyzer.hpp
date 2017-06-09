@@ -1,6 +1,6 @@
 /** \file TraceAnalyzer.hpp
  * \brief Header file for the TraceAnalyzer class
- * \author S. Liddick
+ * \author S. Liddick, D. Miller, S. V. Paulauskas
  * \date 02 July 2007
  */
 #ifndef __TRACEANALYZER_HPP_

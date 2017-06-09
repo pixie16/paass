@@ -1,3 +1,4 @@
+///@author S. V. Paulauskas
 #ifndef __UTKSCANINTERFACE_HPP__
 #define __UTKSCANINTERFACE_HPP__
 

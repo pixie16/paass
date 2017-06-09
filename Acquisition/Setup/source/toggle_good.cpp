@@ -1,3 +1,4 @@
+///@authors D. Miller
 // toggle_good.cpp
 // flips the good bit for a Pixie-16 channel
 // August 2010, DTM

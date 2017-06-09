@@ -1,3 +1,4 @@
+///@authors D. Miller, C. R. Thornsberry, K. Smith
 #include <fstream>
 #include <iomanip>
 #include <iostream>

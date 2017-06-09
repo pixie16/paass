@@ -1,4 +1,5 @@
 #!/bin/bash
+# @authors D. Miller
 RATESFILE="/tmp/rates.txt"
 TMPFILE="/tmp/.rates.current.tmp"
 LASTTIME=""

@@ -1,3 +1,4 @@
+#@authors K. Smith
 set(PaassCoreSources Display.cpp hribf_buffers.cpp poll2_socket.cpp)
 
 if (${CURSES_FOUND})

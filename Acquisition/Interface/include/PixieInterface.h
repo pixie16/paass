@@ -1,7 +1,5 @@
-// C++ wrapper to pixie functions including error handling
-//   and configuration parameters
-
-// David Miller, Jan 2010
+///@brief C++ wrapper to pixie functions including error handling and configuration parameters
+///@author David Miller, Jan 2010
 
 #ifndef __PIXIEINTERFACE_H_
 #define __PIXIEINTERFACE_H_

@@ -1,6 +1,6 @@
 /** \file Calibrator.hpp
  * \brief Class to handle energy calibrations for the channels
- * \author K. A. Miernik
+ * \author K. A. Miernik, S. V. Paulauskas
  * \date 2012
  */
 #ifndef __CALIBRATOR_HPP__

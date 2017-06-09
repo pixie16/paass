@@ -1,6 +1,7 @@
 /** \file Plots.hpp
  * \brief A container to request a block of plots and plot respective
  * spectra through the plots register
+ * @authors D. Miller, K. Miernik, S. V. Paulauskas
  */
 #ifndef __PLOTS_HPP_
 #define __PLOTS_HPP_

@@ -1,5 +1,5 @@
 /** \file Hen3Processor.hpp
- *
+ * @authors K. Miernik
  * Processor for 3Hen detectors
  */
 #ifndef __HEN3PROCESSOR_HPP_

@@ -1,7 +1,7 @@
 /** \file TraceExtractor.hpp
  *  \brief Header file for the TraceExtractor class
  *
- *  \author David Miller
+ *  \author David Miller, S. V. Paulauskas
  *  \date January 2011
  */
 #ifndef __TRACEEXTRACTOR_HPP_

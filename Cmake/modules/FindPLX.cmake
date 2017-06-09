@@ -1,5 +1,5 @@
 # Find the PLX Library
-#
+# @authors K. Smith, C. R. Thornsberry, S. V. Paulauskas
 # Sets the usual variables expected for find_package scripts:
 #
 # PLX_LIBRARY_DIR - location of PLX library.

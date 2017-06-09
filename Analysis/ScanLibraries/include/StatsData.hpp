@@ -1,5 +1,6 @@
 /** \file StatsData.hpp
  *  \brief Stores statistics data from the data stream in its original format
+ *  @author D. T. Miller
  */
 #ifndef __STATS_DATA_HPP__
 #define __STATS_DATA_HPP__

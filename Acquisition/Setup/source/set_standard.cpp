@@ -1,3 +1,4 @@
+///@authors D. Miller
 // set_standard.cpp
 // Set proton catcher mode to standard acquisition
 //   All traces recorded, pileup energies set to zero

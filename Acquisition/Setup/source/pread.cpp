@@ -1,3 +1,4 @@
+///@authors D. Miller, C. R. Thornsberry
 /********************************************************************/
 /*	pread.cpp                                                       */
 /*		last updated: April 19th, 2015 CRT                          */

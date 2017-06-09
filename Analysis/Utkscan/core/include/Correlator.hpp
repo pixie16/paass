@@ -1,6 +1,6 @@
 /** \file Correlator.hpp
  * \brief Header file for correlation
- *
+ * @authors S. Liddick, D. Miller, K. Miernik, M. Madurga, R. Grzywacz, S. V. Paulauskas
  * Class which handles implant/decay correlations
  */
 

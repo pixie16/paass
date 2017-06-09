@@ -4,7 +4,7 @@
  * Implements a quick online trapezoidal filtering mechanism
  * for the identification of double pulses
  *
- * \author S. Liddick
+ * \author S. Liddick, D. Miller, S. V. Paulauskas
  * \date 7-2-07
  * <strong>Modified : </strong> SNL - 2-4-08 - Add plotting spectra
  */

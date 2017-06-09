@@ -1,5 +1,6 @@
 /*! \file TauAnalyzer.cpp
  * \brief Implements the determination of the decay constants for a trace
+ * @author D. Miller
  */
 #include <algorithm>
 #include <iostream>

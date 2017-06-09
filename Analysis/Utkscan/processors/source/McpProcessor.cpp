@@ -4,7 +4,7 @@
  * Mcp class takes the signals from the mcp detector
  *   and calculates a 2D position based on the readout
  *
- * \author S. Liddick
+ * \author S. Liddick, D. Miller
  * \date 02 Feb 2008
  * <STRONG>Modified : </strong> D. Miller 09-09
  */

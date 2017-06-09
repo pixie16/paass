@@ -1,5 +1,5 @@
 /** \file SheCorrelator.hpp
- *
+ * @authors K. Miernik
  */
 
 #ifndef __SHECORRELATOR_HPP_

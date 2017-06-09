@@ -1,4 +1,5 @@
 /*! \file SheCorrelator.cpp
+ * @authors K. Miernik
  *
  * The SheCorrelator is designed to recontruct dssd events in a SHE experiment
  * and to correlate chains of alphas in dssd pixels

@@ -7,7 +7,7 @@
  * of pixie16 data.
  * CRT
  *
- * \author C. R. Thornsberry
+ * \author C. R. Thornsberry, S. V. Paulauskas
  * \date Feb. 12th, 2016
  */
 #ifndef UNPACKER_HPP

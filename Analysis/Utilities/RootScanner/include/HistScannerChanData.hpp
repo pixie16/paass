@@ -1,3 +1,5 @@
+/// @authors K. Smith, S. V. Paulauskas
+
 #ifndef HISTSCANNERCHANDATA_H
 #define HISTSCANNERCHANDATA_H
 

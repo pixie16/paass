@@ -2,6 +2,7 @@
 # It defines:
 #    UNITTEST++_INCLUDE_DIR - The Directory containing the headers
 #    UNITTEST++_LIBRARY_DIR - The directory containing the libraries.
+# @authors S. V. Paulauskas
 #Last updated by S. V. Paulauskas (spaulaus AT utk DOT edu) on November 22, 2016
 
 #Locate the Include directory

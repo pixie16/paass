@@ -1,3 +1,4 @@
+///@authors D. Miller
 // toggle_gain.cpp
 // flips the gain setting for a Pixie-16 channel
 // August 2010, DTM

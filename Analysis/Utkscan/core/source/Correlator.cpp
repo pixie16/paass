@@ -9,7 +9,7 @@
  *
  *  This file is derived from previous "correlator.cpp"
  *
- *  \author David Miller
+ *  \author David Miller, K. Miernik
  *  \date April 2010
  */
 

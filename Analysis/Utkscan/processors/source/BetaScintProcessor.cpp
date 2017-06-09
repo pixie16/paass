@@ -1,7 +1,7 @@
 /** \file BetaScintProcessor.cpp
  *
  * implementation for beta scintillator processor
- * \author K. A. Miernik
+ * \author K. A. Miernik, S. V. Paulauskas
  * \date 2012
  */
 

@@ -1,3 +1,4 @@
+///@author K. Miernik, K. Smith
 #ifndef MCA_DAMM_H
 #define MCA_DAMM_H
 

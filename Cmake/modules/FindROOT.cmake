@@ -7,6 +7,7 @@
 # ROOT_GUI_LIBRARIES  Most common gui libraries
 # ROOT_LIBRARY_DIR    PATH to the library directory 
 #
+# @authors K. Smith, S. V. Paulauskas
 #Last updated by S. V. Paulauskas (stanpaulauskas AT gmail DOT com) on May 27, 2017
 
 #Find the root-config executable

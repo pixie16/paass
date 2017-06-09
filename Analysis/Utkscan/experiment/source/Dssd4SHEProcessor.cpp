@@ -1,4 +1,5 @@
 /*! \file DssdProcessor.cpp
+ * @authors K. Miernik
  *
  * The DSSD processor handles detectors of type dssd_front and dssd_back and
  *   determines whether the events are implants or decays and informs the

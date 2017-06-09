@@ -1,3 +1,4 @@
+#@authors K. Smith
 #install the traces scripts to share.
 install(DIRECTORY share/traces DESTINATION share)
 

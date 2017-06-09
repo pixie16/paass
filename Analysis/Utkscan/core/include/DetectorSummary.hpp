@@ -1,7 +1,7 @@
 ///@file DetectorSummary.hpp
 ///@brief A class that generates summaries of detector types/subtypes/tags that are requested by the user. I'm not sure who
 /// wrote the original version of this file.
-///@author S. V. Paulauskas and Unknown
+///@author D. Miller, K. Miernik, S. V. Paulauskas
 ///@date May 28, 2017
 #ifndef __DETECTOR_SUMMARY_HPP__
 #define __DETECTOR_SUMMARY_HPP__

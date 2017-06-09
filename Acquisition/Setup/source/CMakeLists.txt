@@ -1,3 +1,4 @@
+#authors K. Smith, C. R. Thornsberry
 #Build and install setup utilities, and configuration file
 set(SETUP_UTILS adjust_offsets find_tau copy_params pread pwrite pmread pmwrite
         rate boot trace get_traces csr_test toggle set_standard set_pileups_only

@@ -1,3 +1,4 @@
+/// @author C. R. Thornsberry
 #include <iostream>
 #include <fstream>
 #include <string.h>

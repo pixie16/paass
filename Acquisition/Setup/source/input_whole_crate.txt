@@ -1,3 +1,4 @@
+#@authors K. Miernik, K. Smith
 #ID	WORDS	CH X	CH Y	TITLE
 100	1	16384	0	Mod 1 Ch 0
 101	1	16384	0	Mod 1 Ch 1

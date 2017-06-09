@@ -1,5 +1,6 @@
 /** \file DammPlotIds.hpp
  * \brief Lists Offsets and Ranges for various Processors
+ * @authors D. Miller, K. Miernik, S. V. Paulauskas
  */
 #ifndef __DAMM_PLOTIDS_HPP_
 #define __DAMM_PLOTIDS_HPP_

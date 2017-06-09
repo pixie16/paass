@@ -1,3 +1,4 @@
+# @authors K. Smith
 #Determine the sources based on use flags
 set(MCA_LIB_SOURCES MCA.cpp)
 

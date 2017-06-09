@@ -1,7 +1,7 @@
-//
-// Created by vincent on 12/6/16.
-//
-
+///@file TraditionalCfd.hpp
+///@brief Same CFD algorithm implemented by Xia LLC but offline.
+///@author S. V. Paulauskas
+///@date July 22, 2011
 #ifndef PIXIESUITE_XIACFD_HPP
 #define PIXIESUITE_XIACFD_HPP
 

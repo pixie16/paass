@@ -1,5 +1,6 @@
 /** \file IonChamberProcessor.hpp
  * \brief Processor for ion chamber
+ * @authors D. Miller
  */
 #ifndef __IONCHAMBERPROCESSOR_HPP_
 #define __IONCHAMBERPROCESSOR_HPP_

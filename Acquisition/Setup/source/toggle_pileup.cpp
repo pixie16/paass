@@ -1,3 +1,4 @@
+///@authors D. Miller
 // toggle_pileup.cpp
 // Switch whether pileup bit is on or off
 // August 2010, DTM

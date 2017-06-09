@@ -1,5 +1,6 @@
 ///@file CloverCalibProcessor.cpp
 ///implementation for germanium processor for calibration and diagnostic
+/// @authors K. Miernik
 
 #include <algorithm>
 #include <fstream>

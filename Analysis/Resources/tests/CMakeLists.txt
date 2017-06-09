@@ -1,3 +1,4 @@
+#author S. V. Paulauskas
 add_executable(unittest-ChannelConfiguration unittest-ChannelConfiguration.cpp)
 target_link_libraries(unittest-ChannelConfiguration UnitTest++ ${LIBS})
 install(TARGETS unittest-ChannelConfiguration DESTINATION bin/unittests)

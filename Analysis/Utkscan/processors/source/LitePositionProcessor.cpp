@@ -1,5 +1,6 @@
 /** \file LitePositionProcessor.cpp
  * \brief Handle some QDC action to determine positions in a strip detector
+ * @authors D. Miller, K. Miernik
  */
 #include <algorithm>
 #include <fstream>

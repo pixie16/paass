@@ -1,3 +1,4 @@
+///@authors K. Smith, C. R. Thornsberry
 #include "MCA_ROOT.h"
 
 #include <TFile.h>

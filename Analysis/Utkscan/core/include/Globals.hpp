@@ -1,6 +1,6 @@
 ///@file Globals.hpp
 ///@brief constant parameters used in pixie16 analysis
-///@author D. T. Miller, K. A. Miernik and S. V. Paulauskas
+///@author D. T. Miller, K. A. Miernik, S. V. Paulauskas
 ///@date Sometime before June 9, 2012
 #ifndef _PAASS_GLOBALS_HPP_
 #define _PAASS_GLOBALS_HPP_

@@ -1,3 +1,4 @@
+# @authors C. R. Thornsberry, K. Smith
 if (PAASS_USE_NCURSES)
     set(POLL2_SOURCES poll2.cpp poll2_core.cpp poll2_stats.cpp)
     add_executable(poll2 ${POLL2_SOURCES})

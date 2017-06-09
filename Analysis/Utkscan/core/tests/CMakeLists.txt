@@ -1,3 +1,4 @@
+#@author S. V. Paulauskas
 #add_executable(unittest-DetectorSummary unittest-DetectorSummary.cpp ../source/DetectorSummary.cpp
 #        ../source/DetectorLibrary.cpp ../source/MapNodeXmlParser.cpp ../source/TreeCorrelator.cpp
 #        ../source/TreeCorrelatorXmlParser.cpp ../source/WalkCorrector.cpp ../source/Calibrator.cpp

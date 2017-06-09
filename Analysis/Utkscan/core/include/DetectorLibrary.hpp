@@ -1,6 +1,7 @@
 /** \file DetectorLibrary.hpp
  * \brief This is an extension of the vector of the channelConfigurations that was previously
  *   used.
+ *   @authors D. Miller, K. Miernik, S. V. Paulauskas
  */
 #ifndef __DETECTORLIBRARY_HPP_
 #define __DETECTORLIBRARY_HPP_

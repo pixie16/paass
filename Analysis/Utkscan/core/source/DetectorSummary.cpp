@@ -1,6 +1,6 @@
 ///@file DetectorSummary.hpp
 ///@brief A class that generates summaries of detector types/subtypes/tags that are requested by the user.
-///@author S. V. Paulauskas
+///@author D. Miller, K. Miernik, S. V. Paulauskas
 ///@date May 28, 2017
 #include <stdexcept>
 

@@ -1,5 +1,6 @@
 /** \file IonChamberProcessor.cpp
  * \brief implementation for ion chambers
+ * @author D. Miller
  */
 #include <vector>
 
