@@ -1,3 +1,4 @@
+# @author S. V. Paulauskas, K. Smith
 set(UTKSCAN_ANALYZER_SOURCES
         CfdAnalyzer.cpp
         FittingAnalyzer.cpp

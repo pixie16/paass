@@ -1,3 +1,4 @@
+# @author S. V. Paulauskas
 set(CORE_SOURCES
         BarBuilder.cpp
         Calibrator.cpp

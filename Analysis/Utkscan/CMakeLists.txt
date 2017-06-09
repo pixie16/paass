@@ -1,3 +1,4 @@
+# @author S. V. Paulauskas
 if (NOT PAASS_USE_GSL)
     message(FATAL_ERROR "GSL is required to build Utkscan!")
 endif (NOT PAASS_USE_GSL)

@@ -1,4 +1,5 @@
 /** \file Ge4Hen3Processor.cpp
+ * @authors K. Miernik
  *
  * implementation for germanium processor for 3Hen experiment
  */

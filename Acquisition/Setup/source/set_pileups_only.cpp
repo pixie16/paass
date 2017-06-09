@@ -1,3 +1,4 @@
+///@authors D. Miller
 // set_pileups_only.cpp
 // Set proton catcher mode to proton catcher acquisition
 //   Only piled up events and traces recorded

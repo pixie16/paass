@@ -1,6 +1,6 @@
 ///@file SkeletonUnpacker.hpp
 ///@brief
-///@author S. V. Paulauskas
+///@author C. R. Thornsberry, S. V. Paulauskas
 ///@date May 14, 2017
 
 #ifndef PAASS_SKELETONUNPACKER_HPP

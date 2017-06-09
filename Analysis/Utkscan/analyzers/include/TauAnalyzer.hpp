@@ -1,5 +1,6 @@
 /*! \file TauAnalyzer.hpp
  * \brief A trace analyzer which determines the decay time constant of traces
+ * @authors D. Miller
  */
 #ifndef __TAUANALYZER_HPP_
 #define __TAUANALYZER_HPP_

@@ -1,6 +1,7 @@
 /** \file Beta4Hen3Processor.hpp
  *
  * Processor for beta scintillator detectors for 3Hen hybrid experiment
+ * @authors K. Miernik
  */
 
 #ifndef __BETA4HEN3PROCESSOR_HPP_

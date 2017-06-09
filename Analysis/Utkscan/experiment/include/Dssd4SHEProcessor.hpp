@@ -1,5 +1,5 @@
 /** \file Dssd4SHEProcessor.hpp
- *
+ * @authors K. Miernik
  */
 
 #ifndef __DSSD4SHE_PROCESSOR_HPP_

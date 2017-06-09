@@ -1,6 +1,7 @@
 /** \file LitePositionProcessor.hpp
  * \brief Handle QDCs for the position sensitive detector,
  *   a minimal number of spectra are created
+ *   @authors D. Miller, K. Miernik
  */
 #ifndef __LITEPOSITIONPROCESSOR_HPP_
 #define __LITEPOSITIONPROCESSOR_HPP_

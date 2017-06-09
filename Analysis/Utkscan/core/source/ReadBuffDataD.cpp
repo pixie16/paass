@@ -1,5 +1,6 @@
 /** \file ReadBuffDataD.cpp
  * \brief retrieve data from raw buffer array ibuf
+ * @authors H. Tan, D. Miller, S. V. Paulauskas, K. Miernik
  */
 /*----------------------------------------------------------------------
  * Copyright (c) 2005, XIA LLC

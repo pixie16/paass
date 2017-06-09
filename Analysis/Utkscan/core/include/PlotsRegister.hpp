@@ -1,6 +1,7 @@
 /** \file PlotsRegister.hpp
  *
  * Plot registration class
+ * @authors D. Miller, K. Miernik, S. V. Paulauskas
  */
 
 #ifndef __PLOTSREGISTER_HPP_

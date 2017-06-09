@@ -1,3 +1,4 @@
+# @author S. V. Paulauskas, K. Smith
 #Set the scan sources that we will make a lib out of
 set(PaassScanSources ScanInterface.cpp Unpacker.cpp XiaData.cpp XiaListModeDataMask.cpp XiaListModeDataDecoder.cpp
         XiaListModeDataEncoder.cpp)

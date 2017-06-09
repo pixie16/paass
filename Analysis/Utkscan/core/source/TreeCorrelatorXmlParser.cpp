@@ -1,6 +1,6 @@
 ///@file TreeCorrelatorXmlParser.cpp
 ///@brief Class that handles parsing the TreeCorrelator node
-///@author S. V. Paulauskas
+///@author S. V. Paulauskas, K. Miernik
 ///@date February 20, 2017
 
 #include "StringManipulationFunctions.hpp"

@@ -1,5 +1,6 @@
 /** \file Plots.cpp
  * \brief Implement a block declaration scheme for DAMM plots
+ * @authors D. Miller, K. Miernik, S. V. Paulauskas
  */
 
 #include <iostream>

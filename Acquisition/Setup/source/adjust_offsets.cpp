@@ -1,3 +1,4 @@
+///@authors D. Miller, C. R. Thornsberry
 /********************************************************************/
 /*	adjust_offsets.cpp                                              */
 /*		last updated: April 19th, 2015 CRT                          */

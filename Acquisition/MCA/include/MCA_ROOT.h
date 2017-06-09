@@ -1,3 +1,4 @@
+///@authors K. Smith, C. R. Thornsberry
 #ifndef MCA_ROOT_H
 #define MCA_ROOT_H
 

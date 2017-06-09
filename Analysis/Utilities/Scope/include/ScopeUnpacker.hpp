@@ -1,6 +1,6 @@
 ///@file ScopeUnpacker.hpp
 ///@brief
-///@author S. V. Paulauskas
+///@author C. R. Thornsberry, S. V. Paulauskas
 ///@date May 19, 2017
 #ifndef PIXIESUITE_SCOPEUNPACKER_HPP
 #define PIXIESUITE_SCOPEUNPACKER_HPP

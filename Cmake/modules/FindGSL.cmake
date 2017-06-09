@@ -3,8 +3,9 @@
 # http://www.gnu.org/software/gsl/  and 
 # http://gnuwin32.sourceforge.net/packages/gsl.htm
 #
-# Based on a script of Felix Woelk and Jan Woetzel
+# Based on a script of Felix Woelk and Jan Woetzel by S. V. Paulauskas
 # (www.mip.informatik.uni-kiel.de)
+#
 # 
 # It defines the following variables:
 #  GSL_FOUND - system has GSL lib

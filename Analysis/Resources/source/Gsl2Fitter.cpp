@@ -1,6 +1,6 @@
 /// \file Gsl2Fitter.cpp
 /// \brief Implementation of the GSL fitting routine for GSL v2+
-/// \author S. V. Paulauskas
+/// \author S. V. Paulauskas, K. Smith
 /// \date August 8, 2016
 #include "GslFitter.hpp"
 

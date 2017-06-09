@@ -1,5 +1,6 @@
 /** \file PositionProcessor.hpp
  * \brief Handle QDCs for the position sensitive detector
+ * @authors D. Miller, K. Miernik
  */
 
 #ifndef __POSITIONPROCESSOR_HPP__

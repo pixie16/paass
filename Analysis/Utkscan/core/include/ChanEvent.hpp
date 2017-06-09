@@ -1,5 +1,6 @@
 /** \file ChanEvent.hpp
  * \brief A Class to define what a channel event is
+ * @authors D. Miller, K. A. Miernik, S. V. Paulauskas
  */
 #ifndef __CHANEVENT_HPP__
 #define __CHANEVENT_HPP__

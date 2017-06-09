@@ -1,8 +1,7 @@
 ///@file VandleProcessor.hpp
 ///@brief A class to handle VANDLE bars 
 ///Processes information from the VANDLE Bars, allows for
-///beta-gamma-neutron correlations. The prototype for this
-///code was written by M. Madurga.
+///beta-gamma-neutron correlations.
 ///
 /// Currently, the code is set to recognize two types of starts: LeRIBSS style
 /// and the new Double Beta starts (SiPMT implementation). I have currently
@@ -11,7 +10,7 @@
 /// potential confusion when it comes to the histogramming. This problem will be
 /// resolved at a later date. -SVP 12/17/2014
 ///
-///@author S. V. Paulauskas
+///@author S. V. Paulauskas, M. Madurga
 ///@date 26 July 2010
 #ifndef __VANDLEPROCESSOR_HPP_
 #define __VANDLEPROCESSOR_HPP_

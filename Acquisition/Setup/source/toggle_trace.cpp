@@ -1,3 +1,4 @@
+///@authors D. Miller
 // toggle_trace.cpp
 // Switch whether traces are recorded for channels
 // August 2010, DTM

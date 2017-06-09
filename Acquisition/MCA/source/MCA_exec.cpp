@@ -1,3 +1,4 @@
+///@authors K. Smith, K. Miernik, C. R. Thornsberry
 #include <string>
 #include <stdio.h>
 

@@ -1,3 +1,4 @@
+#@author S. V. Paulauskas
 #Set the utility sources that we will make a lib out of
 set(ResourceSources PolynomialCfd.cpp TraditionalCfd.cpp)
 

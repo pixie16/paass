@@ -1,3 +1,5 @@
+/// @authors K. Smith, S. V. Paulauskas
+
 #include <chrono>
 #include <iostream>
 

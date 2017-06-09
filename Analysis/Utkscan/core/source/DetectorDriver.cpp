@@ -1,6 +1,6 @@
 /*! \file DetectorDriver.cpp
  *   \brief Main driver for event processing
- * \author S. N. Liddick
+ * \author S. N. Liddick, D. Miller, K. Miernik, S. V. Paulauskas
  * \date July 2, 2007
 */
 #include <algorithm>

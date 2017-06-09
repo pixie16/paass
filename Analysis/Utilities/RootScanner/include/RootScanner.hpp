@@ -1,3 +1,5 @@
+/// @authors K. Smith, S. V. Paulauskas
+
 #ifndef ROOTSCANNER_H
 #define ROOTSCANNER_H
 

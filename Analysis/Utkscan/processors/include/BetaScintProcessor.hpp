@@ -1,7 +1,7 @@
 /** \file BetaScintProcessor.hpp
  *
  * Processor for beta scintillator detectors
- * \author K. A. Miernik
+ * \author K. A. Miernik, S. V. Paulauskas
  * \date 2012
  */
 #ifndef __BETASCINTPROCESSOR_HPP_

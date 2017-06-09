@@ -1,6 +1,6 @@
 /** \file CloverProcessor.cpp
  * \brief Implementation for germanium processor
- * \author David Miller
+ * \author David Miller, K. Miernik, S. V. Paulauskas
  * \date August 2009
  * <STRONG> Modified: </STRONG> Krzysztof Miernik - May 2012
  */

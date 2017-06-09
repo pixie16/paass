@@ -7,7 +7,7 @@
  *  git clone https://github.com/cthornsb/his2root.git
  * CRT
  *
- * \author C. R. Thornsberry
+ * \author C. R. Thornsberry, S. V. Paulauskas
  * \date Feb. 12th, 2016
  */
 #ifndef HISFILE_H

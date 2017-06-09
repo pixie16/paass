@@ -1,6 +1,6 @@
 ///@file GlobalsXmlParser.cpp
 ///@brief Class to parse nodes needed for the Global's class from utkscan's configuration file
-///@author S. V. Paulauskas
+///@author S. V. Paulauskas, K. Miernik
 ///@date February 09, 2017
 #include <iostream>
 #include <stdexcept>

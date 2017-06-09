@@ -1,5 +1,5 @@
 /** \file ScintProcessor.cpp
- *
+ * @authors K. Miernik, S. V. Paulauskas
  * implementation for scintillator processor
  */
 #include <iostream>

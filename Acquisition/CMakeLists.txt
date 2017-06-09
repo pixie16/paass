@@ -1,3 +1,5 @@
+# @authors S. V. Paulauskas, K. Smith, and C. R. Thornsberry
+
 #Adds the install prefix for referencing in the source code
 add_definitions(-D INSTALL_PREFIX="\\"${CMAKE_INSTALL_PREFIX}\\"")
 

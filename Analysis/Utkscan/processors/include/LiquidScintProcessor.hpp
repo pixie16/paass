@@ -1,6 +1,7 @@
 /** \file LiquidScintProcessor.hpp
  *
  * Processor for liquid scintillator detectors
+ * @authors K. Miernik, S. V. Paulauskas
  */
 #ifndef __LIQUIDSCINTPROCESSOR_HPP_
 #define __LIQUIDSCINTPROCESSOR_HPP_

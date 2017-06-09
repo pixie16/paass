@@ -1,6 +1,6 @@
 ///@file DetectorDriverXmlParser.cpp
 ///@brief Class to parse the DetectorDriver node
-///@author S. V. Paulauskas
+///@author S. V. Paulauskas, S. Liddick, D. Miller, K. Miernik
 ///@date February 20, 2017
 #include <iostream>
 

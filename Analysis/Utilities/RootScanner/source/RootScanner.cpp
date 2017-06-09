@@ -1,3 +1,5 @@
+/// @authors K. Smith, S. V. Paulauskas
+
 #include "RootScanner.hpp"
 
 #include "TSystem.h"

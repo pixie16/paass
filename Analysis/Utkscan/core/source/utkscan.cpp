@@ -1,3 +1,4 @@
+///@author S. V. Paulauskas
 #include <exception>
 #include <iostream>
 #include <stdexcept>

@@ -1,10 +1,10 @@
-/*	A program that scans a specified parameter and determines the effect on the resolution of the most 
+/**	A program that scans a specified parameter and determines the effect on the resolution of the most
  *	energetic peak. This is useful for a Cs137 source.
  *	A ROOT file is output with canvases showing each fit an a final TGraph showing the resulting 
  *	resolution as a function of the parameter specified.
  *
- *	Author: Karl Smith
- *	Date 26 Jan 2015
+ *	@authors  Karl Smith
+ *	@date 26 Jan 2015
  *
  */
 

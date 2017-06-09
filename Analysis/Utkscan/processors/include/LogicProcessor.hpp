@@ -1,6 +1,7 @@
 /** \file LogicProcessor.hpp
  * \brief Class to handle logic signals
  * derived originally from MTC processor
+ * @authors D. Miller, K. Miernik, S. V. Paulauskas
  */
 #ifndef __LOGICPROCESSOR_HPP_
 #define __LOGICPROCESSOR_HPP_

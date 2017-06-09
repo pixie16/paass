@@ -1,3 +1,4 @@
+///@authors C. R. Thornsberry, K. Smith
 // Small class to handle the statistics information from pixies
 
 #ifndef POLL2_STATS_H

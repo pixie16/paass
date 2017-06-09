@@ -1,3 +1,4 @@
+///@authors D. Miller
 // set_hybrid.cpp
 // Set proton catcher mode to hybrid acquisition
 //   Traces recorded for piled-up events, no traces otherwise

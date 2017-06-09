@@ -1,3 +1,4 @@
+///@authors K. Smith, C. R. Thornsberry
 #include <iostream>
 #include <vector>
 #include <string.h>

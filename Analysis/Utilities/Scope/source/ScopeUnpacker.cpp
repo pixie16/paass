@@ -1,6 +1,6 @@
 ///@file ScopeUnpacker.cpp
 ///@brief Unpacker class for scope program
-///@author S. V. Paulauskas
+///@author C. R. Thornsberry, S. V. Paulauskas
 ///@date May 19, 2017
 #include <deque>
 #include <fstream>

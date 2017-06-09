@@ -2,6 +2,7 @@
  * \brief Processor to dump data from events into a root tree
  *
  * This loops over other event processor to fill appropriate branches
+ * @authors D. Miller
  */
 
 #ifndef useroot

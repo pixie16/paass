@@ -1,3 +1,5 @@
+/// @authors K. Smith, S. V. Paulauskas
+
 #ifndef HISTUNPACKER_H
 #define HISTUNPACKER_H
 #include <chrono>

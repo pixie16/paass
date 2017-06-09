@@ -1,5 +1,6 @@
 ///@file CloverProcessor.hpp
 ///@brief Processor for Clovers
+///@authors S. Liddick, D. Miller, K. Miernik, S. V. Paulauskas
 #ifndef __CloverProcessor_HPP_
 #define __CloverProcessor_HPP_
 

@@ -1,5 +1,6 @@
 /** \file ImplantSsdProcessor.hpp
  * \brief Header file for an SSD detector for implantation and correlation
+ * @authors D. Miller, K. Miernik
  */
 #ifndef __IMPLANT_SSD_PROCESSOR_HPP_
 #define __IMPLANT_SSD_PROCESSOR_HPP_

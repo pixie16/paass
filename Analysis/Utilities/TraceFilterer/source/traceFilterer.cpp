@@ -1,3 +1,4 @@
+/// @author C. R. Thornsberry
 #include <iostream>
 
 // PixieCore libraries

@@ -1,4 +1,6 @@
 // A few things to make the output more pleasing to look at
+///@authors D. Miller, C. Thornsberry, K. Smith
+
 
 #ifndef __DISPLAY_H_
 #define __DISPLAY_H_

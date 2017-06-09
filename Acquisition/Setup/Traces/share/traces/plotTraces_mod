@@ -1,4 +1,5 @@
 #!/usr/bin/gnuplot
+# @author K. Miernik
 # This is script is called by 'tra' script
 set multiplot
 set size 0.25,0.25

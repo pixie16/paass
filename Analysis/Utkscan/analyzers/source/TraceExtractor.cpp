@@ -1,5 +1,6 @@
 /** \file TraceExtractor.cpp
  *  \brief Extract traces for a specific type and subtype
+ *  @authors D. Miller, S. V. Paulauskas
  */
 #include <iostream>
 #include <sstream>

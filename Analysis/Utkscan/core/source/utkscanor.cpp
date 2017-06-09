@@ -1,3 +1,4 @@
+///@authors S. V. Paulauskas
 #include <iostream>
 
 #include <cstring>

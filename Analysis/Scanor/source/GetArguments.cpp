@@ -1,5 +1,5 @@
 ///@file GetArguments.cpp
-///@author S. V. Paulauskas
+///@author D. Miller, S. V. Paulauskas
 ///@date September 26, 2016
 
 #include <cstring>

@@ -1,3 +1,4 @@
+///@authors D. Miller
 // set_pileups_reject.cpp
 // Set proton catcher mode to pile-up rejection
 //   Traces and energies only recorded for non piled-up events

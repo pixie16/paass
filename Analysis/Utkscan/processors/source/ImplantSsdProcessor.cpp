@@ -1,6 +1,6 @@
 /*! \file ImplantSsdProcessor.cpp
  * \brief Handles ssd:implant detectors
- *
+ * @authors D. Miller, K. Miernik
  * The implantSSD processor handles detectors of type ssd:implant and
  *   determines whether the events are implants or decays and informs the
  *   correlator accordingly

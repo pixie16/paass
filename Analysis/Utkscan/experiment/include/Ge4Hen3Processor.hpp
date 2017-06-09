@@ -1,6 +1,7 @@
 /*! \file Ge4Hen3Processor.hpp
  *
  * Processor for germanium detectors for 3Hen experiment
+ * @authors K. Miernik
  */
 #ifndef __GE4HEN3PROCESSOR_HPP_
 #define __GE4HEN3PROCESSOR_HPP_

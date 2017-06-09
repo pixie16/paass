@@ -1,3 +1,4 @@
+///@authors D. Miller
 // toggle_polarity.cpp
 // flips the polarity setting for a Pixie-16 channel
 // August 2010, DTM

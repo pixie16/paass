@@ -1,3 +1,4 @@
+/// @authors C. R. Thornsberry
 #ifndef FILTERER_HPP
 #define FILTERER_HPP
 

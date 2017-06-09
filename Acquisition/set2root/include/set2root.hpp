@@ -5,7 +5,7 @@
   * file and outputs a .root file containing the names of the pixie16
   * parameters and their values.
   *
-  * \author C. R. Thornsberry
+  * \author C. R. Thornsberry, S. V. Paulauskas
   * \date May 18th, 2016
   */
 #ifndef SET2ROOT_HPP

@@ -1,5 +1,6 @@
 /** \file RawEvent.cpp
  *  \brief defines functions associated with a rawevent
+ *  @authors D. Miller, K. Miernik, S. V. Paulauskas
  */
 #include <sstream>
 

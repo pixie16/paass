@@ -1,3 +1,4 @@
+#@authors K. Smith
 set(SET2ROOT_SOURCES set2root.cpp)
 
 add_executable(set2ascii ${SET2ROOT_SOURCES})

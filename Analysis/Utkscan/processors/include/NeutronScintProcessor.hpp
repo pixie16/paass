@@ -1,6 +1,7 @@
 /** \file NeutronScintProcessor.hpp
  *
  * Processor for neutron scintillator detectors
+ * @authors K. Miernik, S. V. Paulauskas
  */
 
 #ifndef __NEUTRONSCINTPROCESSOR_HPP_

@@ -1,3 +1,4 @@
+///@authors K. Smith
 #include <vector>
 #include <map>
 #include <string>

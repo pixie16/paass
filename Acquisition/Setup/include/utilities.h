@@ -1,5 +1,6 @@
-// utilities.h
-// August 2010, DTM
+///@file utilities.h
+/// @author D. T. Miller
+/// @date  August 2010
 
 #ifndef __UTILITIES_H_
 #define __UTILITIES_H_ 1

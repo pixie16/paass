@@ -1,3 +1,4 @@
+#author S. V. Paulauskas
 add_subdirectory(source)
 
 if (PAASS_BUILD_TESTS)

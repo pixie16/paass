@@ -1,3 +1,5 @@
+///@authors C. R. Thornsberry
+
 #ifndef PIXIE_SUPPORT_H
 #define PIXIE_SUPPORT_H
 

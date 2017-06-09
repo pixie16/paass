@@ -1,5 +1,6 @@
 /** \file PlotsRegister.cpp
  * \brief Declaration of singleton register
+ * @authors K. Miernik, S. V. Paulauskas
  */
 
 #include <iostream>

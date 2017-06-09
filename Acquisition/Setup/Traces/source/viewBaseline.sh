@@ -1,5 +1,5 @@
 #!/bin/bash
-#Author: Karl Smith
+#Author: Karl Smith, K. Miernik
 #Date: Nov. 12, 2015
 #A helper function to launch gnuplot and plot the baseline from get_traces
 

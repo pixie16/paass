@@ -1,3 +1,4 @@
+///@authors K. Smith, C. R. Thornsberry
 #include "MCA_DAMM.h"
 
 #include <iostream>

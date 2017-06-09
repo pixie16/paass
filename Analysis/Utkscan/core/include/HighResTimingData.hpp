@@ -1,6 +1,6 @@
 /*! \file HighResTimingData.hpp
  *  \brief Class to hold all of the information for high resolution timing
- *  \author S. V. Paulauskas
+ *  \author S. V. Paulauskas, T. T. King
  *  \date November 9, 2014
  */
 #ifndef __HIGHRESTIMINGDATA_HPP__

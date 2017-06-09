@@ -1,3 +1,4 @@
+///@authors C. R. Thornsberry
 // toggl.cpp
 // Switch any CHANNEL_CSRA bit
 // April 14th, 2015, CRT

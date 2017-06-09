@@ -1,6 +1,7 @@
 /** \file Beta4Hen3Processor.cpp
  *
  * implementation for beta scintillator processor for 3Hen hybrid experiment
+ * @authors K. Miernik
  */
 #include <vector>
 #include <sstream>

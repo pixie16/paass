@@ -7,7 +7,7 @@
  * shared memory output without the need to use pacman.
  * CRT
  *
- * \author C. R. Thornsberry
+ * \author C. R. Thornsberry, S. V. Paulauskas
  * \date Feb. 12th, 2016
  */
 #include <iomanip>

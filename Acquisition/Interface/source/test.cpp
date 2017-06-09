@@ -1,4 +1,6 @@
-// short test program for PixieInterface
+/// @brief short test program for PixieInterface
+/// @author D. Miller.
+
 #include <cstdlib>
 
 #include "Display.h"

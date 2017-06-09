@@ -1,6 +1,6 @@
 /** \file WalkCorrector.hpp
  * \brief A Class to handle walk corrections for channels
- * \author K. A. Miernik
+ * \author K. A. Miernik, S. V. Paulauskas
  * \date January 22, 2013
  */
 #include <sstream>
