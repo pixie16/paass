@@ -6,7 +6,7 @@
  * preserved as much as possible while allowing for more standardized unpacking
  * of pixie16 data.
  *
- * \author C. R. Thornsberry and S. V. Paulauskas
+ * \author C. R. Thornsberry, S. V. Paulauskas, and K. Smith
  * \date February 12, 2016
  */
 #include <algorithm>

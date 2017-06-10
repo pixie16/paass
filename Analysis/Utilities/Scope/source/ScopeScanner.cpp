@@ -1,6 +1,6 @@
 ///@file ScopeScanner.cpp
 ///@brief
-///@author C. R. Thornsberry, S. V. Paulauskas
+///@author C. R. Thornsberry, S. V. Paulauskas, and K. Smith
 ///@date May 19, 2017
 #include <limits>
 

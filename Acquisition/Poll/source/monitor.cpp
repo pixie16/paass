@@ -2,7 +2,7 @@
   * 
   * \brief Receives and decodes rate packets from StatsHandler
   * 
-  * \author Cory R. Thornsberry
+  * \author Cory R. Thornsberry, K. Smith, and S. Burcher
   * 
   * \date June 4th, 2015
   * 
