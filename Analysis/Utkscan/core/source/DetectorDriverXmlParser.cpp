@@ -131,7 +131,12 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
         } else if (name == "PositionProcessor") {
             vecProcess.push_back(new PositionProcessor());
         } else if (name == "PspmtProcessor") {
-            vecProcess.push_back(new PspmtProcessor());
+            vecProcess.push_back(new PspmtProcessor(
+                    processor.attribute("vd").as_string("SIB062_0926"),
+                    processor.attribute("scale").as_double(500.0),
+                    processor.attribute("offset").as_double(500.0),
+                    processor.attribute("threshold").as_double(50.0)
+            ));
         } else if (name == "TeenyVandleProcessor") {
             vecProcess.push_back(new TeenyVandleProcessor());
         } else if (name == "TemplateProcessor") {
