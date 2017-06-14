@@ -19,6 +19,7 @@ namespace dammIds {
         const int DD_TDIFF = 2;//!< ID to plot the Time Difference between ends
         const int DD_PP = 3;//!< ID to plot the phase-phase for your favorite bar (0)
         const int DD_QDCTDIFF = 4;//!< QDC vs. TDiff for your favorite bar (0)
+        const int DD_BETAMAXXVAL = 5;//!< Max Value in your favorite beta PMT
     }
 }
 
@@ -33,8 +34,9 @@ DoubleBetaProcessor::DoubleBetaProcessor() :
 void DoubleBetaProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_QDC, SD, S3, "Location vs. Coincident QDC");
     DeclareHistogram2D(DD_TDIFF, SB, S3, "Location vs. Time Difference");
-    DeclareHistogram2D(DD_PP, SC, SC, "Phase vs. Phase - Bar 0 Only");
-    DeclareHistogram2D(DD_QDCTDIFF, SC, SE, "TimeDiff vs. Coincident QDC");
+    DeclareHistogram2D(DD_PP, SC, SC,"Phase vs. Phase - Bar 0 Only");
+    DeclareHistogram2D(DD_QDCTDIFF, SC, SE,"TimeDiff vs. Coincident QDC");
+    DeclareHistogram2D(DD_BETAMAXXVAL,SD,S3,"Max Value in the Trace");
 }
 
 bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
@@ -70,13 +72,16 @@ bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
         unsigned int barNum = (*it).first.first;
         plot(DD_QDC, (*it).second.GetLeftSide().GetTraceQdc(), barNum * 2);
         plot(DD_QDC, (*it).second.GetRightSide().GetTraceQdc(), barNum * 2 + 1);
-        plot(DD_TDIFF, (*it).second.GetTimeDifference() * resolution + offset,
-             barNum);
-        if (barNum == 0) {
-            plot(DD_PP, (*it).second.GetLeftSide().GetPhaseInNs() * resolution,
-                 (*it).second.GetRightSide().GetPhaseInNs() * resolution);
-            plot(DD_QDCTDIFF,
-                 (*it).second.GetTimeDifference() * resolution + offset,
+        plot(DD_TDIFF, (*it).second.GetTimeDifference()*resolution + offset, barNum);
+        plot(DD_BETAMAXXVAL,(*it).second.GetLeftSide().GetMaximumValue(),
+             barNum*2);
+        plot(DD_BETAMAXXVAL,(*it).second.GetRightSide().GetMaximumValue(),
+             barNum*2+1);
+
+        if(barNum == 0) {
+            plot(DD_PP, (*it).second.GetLeftSide().GetPhaseInNs()*resolution,
+                 (*it).second.GetRightSide().GetPhaseInNs()*resolution);
+            plot(DD_QDCTDIFF, (*it).second.GetTimeDifference()*resolution+offset,
                  (*it).second.GetQdc());
         }
     }
