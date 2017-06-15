@@ -82,12 +82,12 @@ private:
     ///Fill up the basic histograms
     void FillVandleOnlyHists();
 
-    void PlotTofHistograms(const double &tof, const double &cortof, const double &qdc,
-                           const unsigned int &barPlusStartLoc, const unsigned int &offset);
+    void PlotTofHistograms(const double &tof, const double &cortof,const double &NCtof, const double &qdc,
+                           const unsigned int &barPlusStartLoc, const std::pair<unsigned int, unsigned int> &offset);
 
-    ///@return Returns the appropriate offset based off the VANDLE bar type
+    ///@return Returns a pair of the appropriate offsets based off the VANDLE bar type <calibrated, NonCalibrated>
     ///@param [in] type : The type of bar that we are dealing with
-    unsigned int ReturnOffset(const std::string &type);
+    std::pair<unsigned int, unsigned int> ReturnOffset(const std::string &type);
 
     BarMap bars_;//!< A map to hold all the bars
     TimingMap starts_;//!< A map to to hold all the starts
