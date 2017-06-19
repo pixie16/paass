@@ -138,7 +138,7 @@ void CorrelationList::PrintDecayList() const {
         if ((*it).type != EventInfo::GAMMA_EVENT) {
             str << ", OT (" << (*it).logicBits << ")= " << setw(10) << offt << " [ms]" << " M" << (*it).mcpMult << "I"
                 << (*it).impMult << "B" << (*it).boxMult;
-            if (!isnan((*it).position))
+            if (!std::isnan((*it).position))
                 str << " POS = " << (*it).position;
         }
         str << endl;
@@ -197,7 +197,7 @@ void Correlator::Correlate(EventInfo &event, unsigned int fch,
                 double dt = event.time - lastImplant->time;
                 plot(D_TIME_BW_ALL_IMPLANTS, dt * clockInSeconds / 1e-6);
             }
-            if (!isnan(lastTime)) {
+            if (!std::isnan(lastTime)) {
                 condition = BACK_TO_BACK_IMPLANT;
                 event.dtime = event.time - lastTime;
                 plot(D_TIME_BW_IMPLANTS, event.dtime * clockInSeconds / 100e-3);
@@ -212,7 +212,7 @@ void Correlator::Correlate(EventInfo &event, unsigned int fch,
             if (theList.empty())
                 break;
 
-            if (isnan(theList.GetImplantTime())) {
+            if (std::isnan(theList.GetImplantTime())) {
                 cout << "No implant time for decay list" << endl;
                 break;
             }
@@ -264,7 +264,7 @@ void Correlator::Correlate(EventInfo &event, unsigned int fch,
 
             theList.push_back(event);
 
-            if (event.energy == 0 && isnan(event.time))
+            if (event.energy == 0 && std::isnan(event.time))
                 cout << " Adding zero decay event " << endl;
 
             if (event.flagged)
