@@ -46,10 +46,11 @@
 //These headers are for handling experiment specific processing.
 #include "E11027Processor.hpp"
 #include "TemplateExpProcessor.hpp"
-#include "VandleOrnl2012Processor.hpp"
+
 
 #ifdef useroot //Some processors REQUIRE ROOT to function
 #include "Anl1471Processor.hpp"
+#include "VandleOrnl2012Processor.hpp"
 #include "IS600Processor.hpp"
 #include "RootProcessor.hpp"
 #include "TwoChanTimingProcessor.hpp"

@@ -51,7 +51,10 @@ VandleProcessor::VandleProcessor() : EventProcessor(OFFSET, RANGE, "VandleProces
 VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList, const double &res, const double &offset,
                                  const unsigned int &numStarts, const double &compression/*=1.0*/) :
         EventProcessor(OFFSET,RANGE,"VandleProcessor") {
-    std::string treefilename = output_name + "_vandleTree.root";
+
+#ifdef useroot
+    std::string outputPath = Globals::get()->GetOutputPath();
+    std::string treefilename = outputPath + output_name + "_vandleTree.root";
     TFile_tree = new TFile(treefilename.c_str(),"recreate");
 
     data_summary_tree = new TTree("data_summary_tree","data_summary_tree");
@@ -99,6 +102,7 @@ VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList, const
     data_summary_tree->Branch("beta_Corrected_TDiff",&beta_Corrected_TDiff);
     data_summary_tree->Branch("beta_ltrace",&beta_ltrace);
     data_summary_tree->Branch("beta_rtrace",&beta_rtrace);
+#endif
 
     associatedTypes.insert("vandle");
     plotMult_ = res;
@@ -204,6 +208,7 @@ void VandleProcessor::AnalyzeBarStarts(const BarDetector &bar, unsigned int &bar
             double tof = bar.GetCorTimeAve() - start.GetCorTimeAve() + bar.GetCalibration().GetTofOffset(startLoc);
             double corTof = CorrectTOF(tof, bar.GetFlightPath(), bar.GetCalibration().GetZ0());
 
+#ifdef useroot
             vandle_subtype=bar.GetType();
             vandle_lSnR=bar.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
             vandle_rSnR=bar.GetRightSide().GetTrace().GetSignalToNoiseRatio();
@@ -247,7 +252,7 @@ void VandleProcessor::AnalyzeBarStarts(const BarDetector &bar, unsigned int &bar
             // printf("evtNumber:%d \n",evtNumber);
 
             data_summary_tree->Fill();
-
+#endif
             PlotTofHistograms(tof, corTof, bar.GetQdc(), barLoc * numStarts_ + startLoc, ReturnOffset(bar.GetType()));
         }
 }
