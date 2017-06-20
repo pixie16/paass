@@ -50,6 +50,7 @@ namespace dammIds {
         const int DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM = 156;//!< Tdiff vs. Gamma-Gamma Energy sum
 
         const int DD_ADD_ENERGY__TIMEX = 170;//!< Addback Energy vs. Time
+        const int D_NONCYCGATEDENERGY = 200; //!<Same as D_ENERGY but without the cycling requirement, Useful for Cf and other tests
 
         //! Namespace for the beta gated Ge histograms
         namespace betaGated {
@@ -86,6 +87,7 @@ namespace dammIds {
             const int DD_ADD_ENERGY = 160;//!< Beta Gated Gamma-Gamma Addback
             const int DD_ADD_ENERGY_PROMPT = 161;//!< Beta Gated Gamma-Gamma Prompt addback
             const int DD_ADD_ENERGY__TIMEX = 180;//!< Beta Gated Addback Energy vs. Time
+            const int D_NONCYCGATEDENERGY = 210; //!<Same as D_ENERGY but without the cycling requirement, Useful for Cf and other tests
         }
 
         //! namespace for the multi-gated spectra
