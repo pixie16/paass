@@ -17,6 +17,10 @@
 #include <set>
 #include <string>
 
+#include "TFile.h"
+#include "TTree.h"
+#include "TVector.h"
+
 #include "BarDetector.hpp"
 #include "EventProcessor.hpp"
 #include "HighResTimingData.hpp"
@@ -28,7 +32,10 @@ public:
     VandleProcessor();
 
     ///Default Destructor */
-    ~VandleProcessor() {};
+    ~VandleProcessor() {
+        TFile_tree->Write();
+        TFile_tree->Close();
+    };
 
     ///Declare the plots used in the analysis */
     virtual void DeclarePlots(void);
@@ -71,6 +78,56 @@ public:
 
     ///@return true if we requsted large bars in the xml */
     bool GetHasBig(void) { return requestedTypes_.find("big") != requestedTypes_.end(); }
+
+
+
+    /** \root TTree */
+    TFile* TFile_tree;
+    TTree* data_summary_tree;
+
+    unsigned int evtNumber=0;
+    std::string output_name = Globals::get()->GetOutputFileName();
+    std::string vandle_subtype = "";
+    double vandle_BarQDC=0;
+    double vandle_lQDC=0;
+    double vandle_rQDC=0;
+    double vandle_QDCPos=-500;
+    double vandle_TOF=0;
+    double vandle_lSnR=0;
+    double vandle_rSnR=0;
+    double vandle_lAmp=0;
+    double vandle_rAmp=0;
+    double vandle_lMaxAmpPos=0;
+    double vandle_rMaxAmpPos=0;
+    double vandle_lAveBaseline=0;
+    double vandle_rAveBaseline=0;
+    unsigned int vandle_barNum=0;
+    double vandle_TAvg=0;
+    double vandle_Corrected_TAvg=0;
+    double vandle_TDiff=0;
+    double vandle_Corrected_TDiff=0;
+    std::vector<unsigned int> vandle_ltrace;
+    std::vector<unsigned int> vandle_rtrace;
+
+    double beta_BarQDC=0;
+    double beta_lQDC=0;
+    double beta_rQDC=0;
+    double beta_lSnR=0;
+    double beta_rSnR=0;
+    double beta_lAmp=0;
+    double beta_rAmp=0;
+    double beta_lMaxAmpPos=0;
+    double beta_rMaxAmpPos=0;
+    double beta_lAveBaseline=0;
+    double beta_rAveBaseline=0;
+    unsigned int beta_barNum=0;
+    double beta_TAvg=0;
+    double beta_Corrected_TAvg=0;
+    double beta_TDiff=0;
+    double beta_Corrected_TDiff=0;
+    std::vector<unsigned int> beta_ltrace;
+    std::vector<unsigned int> beta_rtrace;
+
 
 private:
     ///Analyze the data for scenarios with Bar Starts; e.g. Double Beta detectors
