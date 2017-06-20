@@ -259,6 +259,11 @@ void CloverProcessor::DeclarePlots(void) {
     DeclareHistogram1D(multi::betaGated::D_ADD_ENERGY_TOTAL, energyBins1,
                        "Beta gated gamma total multi-gated");
 
+    DeclareHistogram1D(D_NONCYCGATEDENERGY,energyBins1,"Non Cycle Gated Gamma"
+            " Singles");
+    DeclareHistogram1D(betaGated::D_NONCYCGATEDENERGY,energyBins1,"Beta Gated"
+            " Non Cycle Gated Gamma Singles");
+
     // for each clover
     for (unsigned int i = 0; i < numClovers; i++) {
         stringstream ss;
@@ -509,6 +514,19 @@ bool CloverProcessor::Process(RawEvent &event) {
                                           "while trying to get Beta status.\n");
         throw;
     }
+    for (vector<ChanEvent*>::iterator it1 = geEvents_.begin();
+         it1 != geEvents_.end(); ++it1) {
+        ChanEvent *chan = *it1;
+
+        double gEnergy = chan->GetCalibratedEnergy();
+        if (gEnergy < gammaThreshold_)
+            continue;
+        if (hasBeta) {
+            plot(betaGated::D_NONCYCGATEDENERGY, gEnergy);
+        }
+        plot(D_NONCYCGATEDENERGY, gEnergy);
+    }
+
 
     /** Place Cycle is activated by BeamOn event and deactivated by TapeMove
      *  This condition will therefore skip events registered during
@@ -533,7 +551,7 @@ bool CloverProcessor::Process(RawEvent &event) {
 
     // Note that geEvents_ vector holds only good events (matched
     // low & high gain). See PreProcess
-    for (vector<ChanEvent *>::iterator it1 = geEvents_.begin();
+      for (vector<ChanEvent *>::iterator it1 = geEvents_.begin();
          it1 != geEvents_.end(); ++it1) {
         ChanEvent *chan = *it1;
 
