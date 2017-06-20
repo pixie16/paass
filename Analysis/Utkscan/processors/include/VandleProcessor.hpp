@@ -17,9 +17,12 @@
 #include <set>
 #include <string>
 
+#ifdef useroot
 #include "TFile.h"
 #include "TTree.h"
 #include "TVector.h"
+
+#endif
 
 #include "BarDetector.hpp"
 #include "EventProcessor.hpp"
@@ -33,8 +36,10 @@ public:
 
     ///Default Destructor */
     ~VandleProcessor() {
+#ifdef useroot
         TFile_tree->Write();
         TFile_tree->Close();
+#endif
     };
 
     ///Declare the plots used in the analysis */
@@ -80,7 +85,7 @@ public:
     bool GetHasBig(void) { return requestedTypes_.find("big") != requestedTypes_.end(); }
 
 
-
+#ifdef useroot
     /** \root TTree */
     TFile* TFile_tree;
     TTree* data_summary_tree;
@@ -127,7 +132,7 @@ public:
     double beta_Corrected_TDiff=0;
     std::vector<unsigned int> beta_ltrace;
     std::vector<unsigned int> beta_rtrace;
-
+#endif
 
 private:
     ///Analyze the data for scenarios with Bar Starts; e.g. Double Beta detectors
