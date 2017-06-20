@@ -51,6 +51,55 @@ VandleProcessor::VandleProcessor() : EventProcessor(OFFSET, RANGE, "VandleProces
 VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList, const double &res, const double &offset,
                                  const unsigned int &numStarts, const double &compression/*=1.0*/) :
         EventProcessor(OFFSET,RANGE,"VandleProcessor") {
+    std::string treefilename = output_name + "_vandleTree.root";
+    TFile_tree = new TFile(treefilename.c_str(),"recreate");
+
+    data_summary_tree = new TTree("data_summary_tree","data_summary_tree");
+
+    data_summary_tree->Branch("evtNumber",&evtNumber);
+    data_summary_tree->Branch("output_name",&output_name);
+
+    data_summary_tree->Branch("vandle_subtype",&vandle_subtype);
+    data_summary_tree->Branch("vandle_BarQDC",&vandle_BarQDC);
+    data_summary_tree->Branch("vandle_lQDC",&vandle_lQDC);
+    data_summary_tree->Branch("vandle_rQDC",&vandle_rQDC);
+    data_summary_tree->Branch("vandle_QDCPos",&vandle_QDCPos);
+    data_summary_tree->Branch("vandle_TOF",&vandle_TOF);
+    data_summary_tree->Branch("vandle_lSnR",&vandle_lSnR);
+    data_summary_tree->Branch("vandle_rSnR",&vandle_rSnR);
+    data_summary_tree->Branch("vandle_lAmp",&vandle_lAmp);
+    data_summary_tree->Branch("vandle_rAmp",&vandle_rAmp);
+    data_summary_tree->Branch("vandle_lMaxAmpPos",&vandle_lMaxAmpPos);
+    data_summary_tree->Branch("vandle_rMaxAmpPos",&vandle_rMaxAmpPos);
+    data_summary_tree->Branch("vandle_lAveBaseline",&vandle_lAveBaseline);
+    data_summary_tree->Branch("vandle_rAveBaseline",&vandle_rAveBaseline);
+    data_summary_tree->Branch("vandle_barNum",&vandle_barNum);
+    data_summary_tree->Branch("vandle_TAvg",&vandle_TAvg);
+    data_summary_tree->Branch("vandle_Corrected_TAvg",&vandle_Corrected_TAvg);
+    data_summary_tree->Branch("vandle_TDiff",&vandle_TDiff);
+    data_summary_tree->Branch("vandle_Corrected_TDiff",&vandle_Corrected_TDiff);
+    data_summary_tree->Branch("vandle_ltrace",&vandle_ltrace);
+    data_summary_tree->Branch("vandle_rtrace",&vandle_rtrace);
+
+    data_summary_tree->Branch("beta_BarQDC",&beta_BarQDC);
+    data_summary_tree->Branch("beta_lQDC",&beta_lQDC);
+    data_summary_tree->Branch("beta_rQDC",&beta_rQDC);
+    data_summary_tree->Branch("beta_lSnR",&beta_lSnR);
+    data_summary_tree->Branch("beta_rSnR",&beta_rSnR);
+    data_summary_tree->Branch("beta_lAmp",&beta_lAmp);
+    data_summary_tree->Branch("beta_rAmp",&beta_rAmp);
+    data_summary_tree->Branch("beta_lMaxAmpPos",&beta_lMaxAmpPos);
+    data_summary_tree->Branch("beta_rMaxAmpPos",&beta_rMaxAmpPos);
+    data_summary_tree->Branch("beta_lAveBaseline",&vandle_lAveBaseline);
+    data_summary_tree->Branch("beta_rAveBaseline",&vandle_rAveBaseline);
+    data_summary_tree->Branch("beta_barNum",&beta_barNum);
+    data_summary_tree->Branch("beta_TAvg",&beta_TAvg);
+    data_summary_tree->Branch("beta_Corrected_TAvg",&beta_Corrected_TAvg);
+    data_summary_tree->Branch("beta_TDiff",&beta_TDiff);
+    data_summary_tree->Branch("beta_Corrected_TDiff",&beta_Corrected_TDiff);
+    data_summary_tree->Branch("beta_ltrace",&beta_ltrace);
+    data_summary_tree->Branch("beta_rtrace",&beta_rtrace);
+
     associatedTypes.insert("vandle");
     plotMult_ = res;
     plotOffset_ = offset;
@@ -152,9 +201,52 @@ void VandleProcessor::AnalyzeBarStarts(const BarDetector &bar, unsigned int &bar
         for (BarMap::iterator itStart = barStarts_.begin(); itStart != barStarts_.end(); itStart++) {
             unsigned int startLoc = (*itStart).first.first;
             BarDetector start = (*itStart).second;
-
             double tof = bar.GetCorTimeAve() - start.GetCorTimeAve() + bar.GetCalibration().GetTofOffset(startLoc);
             double corTof = CorrectTOF(tof, bar.GetFlightPath(), bar.GetCalibration().GetZ0());
+
+            vandle_subtype=bar.GetType();
+            vandle_lSnR=bar.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
+            vandle_rSnR=bar.GetRightSide().GetTrace().GetSignalToNoiseRatio();
+            vandle_lAmp=bar.GetLeftSide().GetMaximumValue();
+            vandle_rAmp=bar.GetRightSide().GetMaximumValue();
+            vandle_lMaxAmpPos=bar.GetLeftSide().GetMaximumPosition();
+            vandle_rMaxAmpPos=bar.GetRightSide().GetMaximumPosition();
+            vandle_lAveBaseline=bar.GetLeftSide().GetAveBaseline();
+            vandle_rAveBaseline=bar.GetRightSide().GetAveBaseline();
+            vandle_BarQDC=bar.GetQdc();
+            vandle_QDCPos=bar.GetQdcPosition();
+            vandle_lQDC=bar.GetLeftSide().GetTraceQdc();
+            vandle_rQDC=bar.GetRightSide().GetTraceQdc();
+            vandle_TOF=tof;
+            vandle_barNum=barLoc;
+            vandle_TAvg=bar.GetTimeAverage();
+            vandle_Corrected_TAvg=bar.GetCorTimeAve();
+            vandle_TDiff=bar.GetTimeDifference();
+            vandle_Corrected_TDiff=bar.GetCorTimeDiff();
+            vandle_ltrace=bar.GetLeftSide().GetTrace();
+            vandle_rtrace=bar.GetRightSide().GetTrace();
+
+            beta_lSnR=start.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
+            beta_rSnR=start.GetRightSide().GetTrace().GetSignalToNoiseRatio();
+            beta_lAmp=start.GetLeftSide().GetMaximumValue();
+            beta_rAmp=start.GetRightSide().GetMaximumValue();
+            beta_lMaxAmpPos=start.GetLeftSide().GetMaximumPosition();
+            beta_rMaxAmpPos=start.GetRightSide().GetMaximumPosition();
+            beta_lAveBaseline=start.GetLeftSide().GetAveBaseline();
+            beta_rAveBaseline=start.GetRightSide().GetAveBaseline();
+            beta_BarQDC=start.GetQdc();
+            beta_lQDC=bar.GetLeftSide().GetTraceQdc();
+            beta_rQDC=bar.GetRightSide().GetTraceQdc();
+            beta_barNum=startLoc;
+            beta_TAvg=start.GetTimeAverage();
+            beta_Corrected_TAvg=start.GetCorTimeAve();
+            beta_TDiff=start.GetTimeDifference();
+            beta_Corrected_TDiff=start.GetCorTimeDiff();
+            beta_ltrace=start.GetLeftSide().GetTrace();
+            beta_rtrace=start.GetRightSide().GetTrace();
+            // printf("evtNumber:%d \n",evtNumber);
+
+            data_summary_tree->Fill();
 
             PlotTofHistograms(tof, corTof, bar.GetQdc(), barLoc * numStarts_ + startLoc, ReturnOffset(bar.GetType()));
         }
