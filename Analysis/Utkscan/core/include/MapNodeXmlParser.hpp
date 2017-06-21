@@ -71,7 +71,8 @@ private:
     ///@param[in] globals : A pointer to the globals class so we can set the
     /// values that we need.
     ///@throw invalid_argument If the WaveformRange is missing
-    void ParseTraceNode(const pugi::xml_node &node, ChannelConfiguration &config, const bool &isVerbose);
+    void ParseTraceNode(const pugi::xml_node &node, ChannelConfiguration &config, const int &mod_freq,const double &mod_TD
+            ,const bool &isVerbose);
 
     ///Parses the Trace node from the xml configuration file.
     ///@param[in] node : The node that we are going to parse
