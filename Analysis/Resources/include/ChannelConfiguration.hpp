@@ -72,7 +72,7 @@ public:
     unsigned int GetTraceDelayInSamples() const { return traceDelayInSamples_; }
 
     ///@return The waveform bounds in samples
-    std::pair<unsigned int, unsigned int> GetWaveformBoundsInSamples() const { return waveformBoundsInSeconds_; }
+    std::pair<unsigned int, unsigned int> GetWaveformBoundsInSamples() const { return waveformBoundsInSamples_; }
 
     ///Check if an identifier has a tag
     ///@param [in] s : the tag to search for
@@ -132,7 +132,7 @@ public:
 
     ///Sets the bounds for the waveform measured from the maximum value of the trace in trace samples.
     ///@param[in] a : A pair containing the low bound (first) and high bound (second) for the waveform.
-    void SetWaveformBoundsInSamples(const std::pair<unsigned int, unsigned int> &a) { waveformBoundsInSeconds_ = a; }
+    void SetWaveformBoundsInSamples(const std::pair<unsigned int, unsigned int> &a) { waveformBoundsInSamples_ = a; }
 
     ///Zeroes some of the variables in the class. The DAMM ID and detector location variable are reset to -1 and the
     /// detector type and sub type are both reset to "" when an identifier object is zeroed.
@@ -191,7 +191,7 @@ private:
     unsigned int traceDelayInSamples_; ///< The trace delay to help find the location of waveforms in traces
     TrapFilterParameters triggerFilterParameters_; ///< Parameters to use for trigger filter calculations
     std::string type_; ///< Specifies the detector type
-    std::pair<unsigned int, unsigned int> waveformBoundsInSeconds_; ///< The waveform range for the channel
+    std::pair<unsigned int, unsigned int> waveformBoundsInSamples_; ///< The waveform range for the channel
 };
 
 
