@@ -240,8 +240,8 @@ void VandleProcessor::AnalyzeBarStarts(const BarDetector &bar, unsigned int &bar
             beta_lAveBaseline=start.GetLeftSide().GetAveBaseline();
             beta_rAveBaseline=start.GetRightSide().GetAveBaseline();
             beta_BarQDC=start.GetQdc();
-            beta_lQDC=bar.GetLeftSide().GetTraceQdc();
-            beta_rQDC=bar.GetRightSide().GetTraceQdc();
+            beta_lQDC=start.GetLeftSide().GetTraceQdc();
+            beta_rQDC=start.GetRightSide().GetTraceQdc();
             beta_barNum=startLoc;
             beta_TAvg=start.GetTimeAverage();
             beta_Corrected_TAvg=start.GetCorTimeAve();
@@ -268,6 +268,43 @@ void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc
             double tof = bar.GetCorTimeAve() - start.GetWalkCorrectedTime() + bar.GetCalibration().GetTofOffset(startLoc);
             double corTof = CorrectTOF(tof, bar.GetFlightPath(), bar.GetCalibration().GetZ0());
 
+#ifdef useroot
+            vandle_subtype=bar.GetType();
+            vandle_lSnR=bar.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
+            vandle_rSnR=bar.GetRightSide().GetTrace().GetSignalToNoiseRatio();
+            vandle_lAmp=bar.GetLeftSide().GetMaximumValue();
+            vandle_rAmp=bar.GetRightSide().GetMaximumValue();
+            vandle_lMaxAmpPos=bar.GetLeftSide().GetMaximumPosition();
+            vandle_rMaxAmpPos=bar.GetRightSide().GetMaximumPosition();
+            vandle_lAveBaseline=bar.GetLeftSide().GetAveBaseline();
+            vandle_rAveBaseline=bar.GetRightSide().GetAveBaseline();
+            vandle_BarQDC=bar.GetQdc();
+            vandle_QDCPos=bar.GetQdcPosition();
+            vandle_lQDC=bar.GetLeftSide().GetTraceQdc();
+            vandle_rQDC=bar.GetRightSide().GetTraceQdc();
+            vandle_TOF=tof;
+            vandle_barNum=barLoc;
+            vandle_TAvg=bar.GetTimeAverage();
+            vandle_Corrected_TAvg=bar.GetCorTimeAve();
+            vandle_TDiff=bar.GetTimeDifference();
+            vandle_Corrected_TDiff=bar.GetCorTimeDiff();
+            vandle_ltrace=bar.GetLeftSide().GetTrace();
+            vandle_rtrace=bar.GetRightSide().GetTrace();
+
+            beta_lSnR=start.GetTrace().GetSignalToNoiseRatio();
+            beta_lAmp=start.GetMaximumValue();
+            beta_lMaxAmpPos=start.GetMaximumPosition();
+            beta_lAveBaseline=start.GetAveBaseline();
+            beta_lQDC=start.GetTraceQdc();
+            beta_TAvg=start.GetTime();
+            beta_Corrected_TAvg=start.GetWalkCorrectedTime();
+            beta_ltrace=start.GetTrace();
+
+            beta_barNum=startLoc;
+            // printf("evtNumber:%d \n",evtNumber);
+            data_summary_tree->Fill();
+
+#endif
             PlotTofHistograms(tof, corTof, bar.GetQdc(), barLoc * numStarts_ + startLoc, ReturnOffset(bar.GetType()));
         }
 }
