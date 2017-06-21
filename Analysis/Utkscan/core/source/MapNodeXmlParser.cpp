@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include <cstring>
+#include "cmath"
 
 #include "DefaultConfigurationValues.hpp"
 #include "HelperFunctions.hpp"
@@ -25,6 +26,12 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
     bool isVerboseTree =
             XmlInterface::get()->GetDocument()->child("Configuration").child("Tree").attribute("verbose").as_bool(
                     false);
+    double globalTraceDelay = map.attribute("TraceDelay").as_double(-999);
+    if (globalTraceDelay <= 0)
+        throw invalid_argument("TraceDelay must be set and greater than 0; This goes the map node head, near the verbose flag");
+
+    double globalModFreq = map.attribute("frequency").as_int(-1);
+
     TreeCorrelator *tree = TreeCorrelator::get();
 
     messenger_.start("Loading channels map");
@@ -35,11 +42,30 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
     for (pugi::xml_node module = map.child("Module"); module; module = module.next_sibling("Module")) {
 
         int module_number = module.attribute("number").as_int(-1);
+        int module_freq = module.attribute("frequency").as_int(globalModFreq);
+        double module_TdelayNs = module.attribute("TraceDelay").as_double(globalTraceDelay);
 
         if (module_number < 0) {
             sstream_ << "MapNodeXmlParser::ParseNode : User requested illegal module number (" << module_number
                      << ") in configuration file.";
             throw GeneralException(sstream_.str());
+        }
+
+        sstream_.str("");
+        if (isVerbose){
+            sstream_ << "Module " << module_number << " Trace Delay = " << module_TdelayNs;
+            messenger_.detail(sstream_.str(),1);
+            sstream_.str("");
+
+        }else if (isVerbose==false && module_TdelayNs != globalTraceDelay){
+            if (module_number ==0){
+                sstream_ <<"Modules not using the Global Trace Delay value:: ("<<globalTraceDelay<<" ns)";
+                messenger_.detail(sstream_.str(),1);
+                sstream_.str("");
+            }
+            sstream_ << "Module " << module_number << " Trace Delay= " << module_TdelayNs<<" ns";
+            messenger_.detail(sstream_.str(),2);
+            sstream_.str("");
         }
 
         if (isVerbose) {
@@ -90,6 +116,12 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
                 sstream_.str("");
             }
 
+            bool isVandle;
+            if (chanCfg.GetType()=="vandle")
+                isVandle = true;
+            else
+                isVandle = false;
+
             if (channel.child("Calibration").text())
                 ParseCalibrations(channel.child("Calibration"), chanCfg, isVerbose);
             else if (isVerbose)
@@ -105,13 +137,13 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
             else if (isVerbose)
                 messenger_.detail("Using default filter settings for this channel.", 2);
 
-            if (channel.child("Fit"))
+            if (channel.child("Fit") || isVandle)
                 ParseFittingNode(channel.child("Fit"), chanCfg, isVerbose);
             else if (isVerbose)
                 messenger_.detail("Using default fitter settings for this channel.", 2);
 
-            if (channel.child("Trace"))
-                ParseTraceNode(channel.child("Trace"), chanCfg, isVerbose);
+            if (channel.child("Trace") || isVandle )
+                ParseTraceNode(channel.child("Trace"), chanCfg,module_freq,module_TdelayNs,isVerbose);
             else if (isVerbose)
                 messenger_.detail("Using default trace settings for this channel.", 2);
 
@@ -197,16 +229,30 @@ void MapNodeXmlParser::ParseFittingNode(const pugi::xml_node &node, ChannelConfi
 ///This node parses the Trace node. This node contains all of the information necessary for the users to do trace
 /// analysis. The only critical node here is the WaveformRange node. If the Trace node exists then this node must
 /// also exist.
-void MapNodeXmlParser::ParseTraceNode(const pugi::xml_node &node, ChannelConfiguration &config, const bool &isVerbose) {
+void MapNodeXmlParser::ParseTraceNode(const pugi::xml_node &node, ChannelConfiguration &config, const int &mod_freq,
+                                      const double &mod_TD,const bool &isVerbose) {
 
     config.SetDiscriminationStartInSamples(node.attribute("DiscriminationStart").as_uint(DefaultConfig::discrimStart));
     config.SetBaselineThreshold(node.attribute("baselineThreshold").as_double(DefaultConfig::baselineThreshold));
     config.SetWaveformBoundsInSamples(make_pair(node.attribute("RangeLow").as_int(DefaultConfig::waveformLow),
                                                 node.attribute("RangeHigh").as_int(DefaultConfig::waveformHigh)));
-    if(!node.attribute("delay").empty())
-        config.SetTraceDelayInSamples(node.attribute("delay").as_uint());
-    else
-        throw invalid_argument("The Trace node must have the \"delay\" attribute!!");
+
+        ///since the frequency is input as a normal integer we must convert it to the correct value (250 -> 250 MHz),
+        ///before we can use it to convert to the # of samples
+    double TraceDelay = node.attribute("delay").as_double(mod_TD);
+    double TDsample= TraceDelay/((1.0/((double )mod_freq * pow(10.0, 6.0)))*pow(10.0,9.0));
+
+
+    config.SetTraceDelayInSamples((unsigned int) TDsample);
+
+    if(isVerbose) {
+        sstream_.str("");
+        sstream_ << "Trace Delay (ns)= " << mod_TD;
+        sstream_ << "   Trace Delay (sample)= " << TDsample;
+        messenger_.detail(sstream_.str(), 2);
+        sstream_.str("");
+    }
+
 }
 
 ///This node parses the Trace node. This node contains all of the information
