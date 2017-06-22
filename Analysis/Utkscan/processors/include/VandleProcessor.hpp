@@ -83,7 +83,8 @@ private:
     void FillVandleOnlyHists();
 
     void PlotTofHistograms(const double &tof, const double &cortof,const double &NCtof, const double &qdc,
-                           const unsigned int &barPlusStartLoc, const std::pair<unsigned int, unsigned int> &offset);
+                           const unsigned int &barPlusStartLoc, const std::pair<unsigned int, unsigned int> &offset,
+                           bool &calibrated );
 
     ///@return Returns a pair of the appropriate offsets based off the VANDLE bar type <calibrated, NonCalibrated>
     ///@param [in] type : The type of bar that we are dealing with
