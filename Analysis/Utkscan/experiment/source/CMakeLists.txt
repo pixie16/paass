@@ -9,6 +9,7 @@ if (PAASS_USE_ROOT)
     list(APPEND EXPERIMENT_SOURCES
             Anl1471Processor.cpp
             IS600Processor.cpp
+            Ornl2016Processor.cpp
             TwoChanTimingProcessor.cpp
             )
 endif (PAASS_USE_ROOT)
