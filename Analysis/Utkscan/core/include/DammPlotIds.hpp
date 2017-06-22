@@ -103,8 +103,8 @@ namespace dammIds {
 
     ///in GeProcessor.hpp
     namespace ge {
-        const int OFFSET = 2999;//!< Offset for CloverProcessor
-        const int RANGE = 1;//!< Range for CloverProcessor
+        const int OFFSET = 2999;//!< Offset for GeProcessor
+        const int RANGE = 1;//!< Range for GeProcessor
     }
 
     ///in LogicProcessor.cpp
