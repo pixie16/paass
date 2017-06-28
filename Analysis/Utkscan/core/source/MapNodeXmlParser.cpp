@@ -28,9 +28,9 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
                     false);
     double globalTraceDelay = map.attribute("TraceDelay").as_double(-999);
     if (globalTraceDelay <= 0)
-        throw invalid_argument("TraceDelay must be set and greater than 0; This goes the map node head, near the verbose flag");
+        throw GeneralException("MapNodeXmlParser::ParseNode : Global TraceDelay must be set and greater than 0");
 
-    double globalModFreq = map.attribute("frequency").as_int(-1);
+    int globalModFreq = map.attribute("frequency").as_int(-1);
 
     TreeCorrelator *tree = TreeCorrelator::get();
 
@@ -57,9 +57,9 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
             messenger_.detail(sstream_.str(),1);
             sstream_.str("");
 
-        }else if (isVerbose==false && module_TdelayNs != globalTraceDelay){
+        }else if (!isVerbose && module_TdelayNs != globalTraceDelay){
             if (module_number ==0){
-                sstream_ <<"Modules not using the Global Trace Delay value:: ("<<globalTraceDelay<<" ns)";
+                sstream_ <<"Modules not using the Global Trace Delay value: ("<<globalTraceDelay<<" ns)";
                 messenger_.detail(sstream_.str(),1);
                 sstream_.str("");
             }
@@ -116,11 +116,10 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
                 sstream_.str("");
             }
 
-            bool isVandle;
+            bool isVandle = false;
             if (chanCfg.GetType()=="vandle")
                 isVandle = true;
-            else
-                isVandle = false;
+
 
             if (channel.child("Calibration").text())
                 ParseCalibrations(channel.child("Calibration"), chanCfg, isVerbose);
@@ -234,8 +233,8 @@ void MapNodeXmlParser::ParseTraceNode(const pugi::xml_node &node, ChannelConfigu
 
     config.SetDiscriminationStartInSamples(node.attribute("DiscriminationStart").as_uint(DefaultConfig::discrimStart));
     config.SetBaselineThreshold(node.attribute("baselineThreshold").as_double(DefaultConfig::baselineThreshold));
-    config.SetWaveformBoundsInSamples(make_pair(node.attribute("RangeLow").as_int(DefaultConfig::waveformLow),
-                                                node.attribute("RangeHigh").as_int(DefaultConfig::waveformHigh)));
+    config.SetWaveformBoundsInSamples(make_pair(node.attribute("RangeLow").as_uint(DefaultConfig::waveformLow),
+                                                node.attribute("RangeHigh").as_uint(DefaultConfig::waveformHigh)));
 
         ///since the frequency is input as a normal integer we must convert it to the correct value (250 -> 250 MHz),
         ///before we can use it to convert to the # of samples
