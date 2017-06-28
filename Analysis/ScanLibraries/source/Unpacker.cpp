@@ -16,6 +16,7 @@
 
 #include <cstring>
 
+#include "Exceptions.hpp"
 #include "Unpacker.hpp"
 #include "XiaData.hpp"
 #include "XiaListModeDataDecoder.hpp"
@@ -235,14 +236,15 @@ void Unpacker::InitializeDataMask(const std::string &firmware, const unsigned in
 
         for (pugi::xml_node_iterator it = node.begin(); it != node.end(); ++it, modCounter++) {
             if (it->attribute("number").empty())
-                throw invalid_argument("Unpacker::InitializeDataMask - Unable to read the \"number\" attribute from "
+                throw IOException("Unpacker::InitializeDataMask - Unable to read the \"number\" attribute "
+                                                               "from "
                                                "the module in position #" + to_string(modCounter) + "(0 counting)");
             if (it->attribute("firmware").empty()&& globalFirm_.empty())
-                throw invalid_argument("Unpacker::InitializeDataMask - Unable to read the \"firmware\" attribute from"
+                throw IOException("Unpacker::InitializeDataMask - Unable to read the \"firmware\" attribute from"
                                                " the /Configuration/Map/Module/" + to_string(modCounter) +
                                        " and the Global default is not set");
             if (it->attribute("frequency").empty()&& globalFreq_==0)
-                throw invalid_argument("Unpacker::InitializeDataMask - Unable to read the \"frequency\" attribute from"
+                throw IOException("Unpacker::InitializeDataMask - Unable to read the \"frequency\" attribute from"
                                                " the /Configuration/Map/Module/" + to_string(modCounter)+
                                        " and the Global default is not set");
 
