@@ -83,7 +83,7 @@ public:
     std::vector<unsigned int> GetTriggerPositions() const { return triggerPositions_; }
 
     ///@return Returns the baseline subtracted waveform found inside the trace.
-    std::vector<double> GetWaveform() {
+    std::vector<double> GetWaveform() const {
         return std::vector<double>(traceSansBaseline_.begin() + waveformRange_.first,
                                    traceSansBaseline_.begin() + waveformRange_.second);
     }
@@ -92,8 +92,8 @@ public:
     std::pair<unsigned int, unsigned int> GetWaveformRange() const { return waveformRange_; }
 
     ///@return Returns the waveform with the baseline
-    std::vector<unsigned int> GetWaveformWithBaseline() {
-        return std::vector<unsigned int>(begin() + waveformRange_.first, begin() + waveformRange_.second);
+    std::vector<unsigned int> GetWaveformWithBaseline() const{
+        return (std::vector<unsigned int>(begin() + waveformRange_.first, begin() + waveformRange_.second));
     }
 
     ///@return True if we were able to successfully analyze the trace.

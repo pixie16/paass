@@ -63,7 +63,8 @@ private:
     void FillMaps(void);
 
     BarMap hrtBars_; //!< Map containing bars with high resolution timing..
-    std::map<unsigned int, std::pair<double, double> > lrtBars_; //!<Map with low res bars
+    std::map<unsigned int, std::pair<double, double> > lrtBars_; //!<Map with low res bars (<barNum,<event Time,Event
+//!< Energy>>
     std::map<unsigned int, unsigned int> lefts_; //!< Map containing the left sides of bars
     std::map<unsigned int, unsigned int> rights_; //!< Map containing the left sides of bars
     std::vector<ChanEvent *> list_; //!< Vector of events to build bars out of.

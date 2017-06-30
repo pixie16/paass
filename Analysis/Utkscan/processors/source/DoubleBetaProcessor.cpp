@@ -58,10 +58,8 @@ bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
     double resolution = 2;
     double offset = 1500;
 
-    for (map < unsigned int, pair < double, double > >
-                                            ::iterator it = lrtbars_.begin();
-    it != lrtbars_.end();
-    it++) {
+    for (map < unsigned int, pair < double, double > >::iterator it = lrtbars_.begin();
+         it != lrtbars_.end();it++) {
         stringstream place;
         place << "DoubleBeta" << (*it).first;
         EventData data((*it).second.first, (*it).second.second, (*it).first);
