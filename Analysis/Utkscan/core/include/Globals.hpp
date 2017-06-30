@@ -69,6 +69,11 @@ public:
     ///@return Path where additional files will be output.
     std::string GetOutputPath() { return outputPath_; }
 
+    ///@return Map of Arguments to the Ornl2016 Processor. the Value is pair<double,bool> since we cant have mixed
+    /// type maps. User must be intelligent about what to pick.
+
+    std::map<std::string,std::string> GetOrnl2016Arguments() const { return ornlArguments_; };
+
     ///@return the revision for the data
     std::string GetPixieRevision() const { return revision_; }
 
@@ -125,6 +130,10 @@ public:
     ///Sets a flag that controls if we output the raw histograms to DAMM
     ///@param[in] a : The parameter that we are going to set
     void SetHasRawHistogramsDefined(const bool &a) { hasRawHistogramsDefined_ = a; }
+
+    ///Sets ornlargument map
+    ///@param[in] a : Map of arguments for Ornl2016Processor
+    void SetOrnl2016Arguments(const std::map<std::string,std::string> &a) {ornlArguments_ = a; }
 
     ///Sets output Filename from scan interface
     ///@param[in] a : The parameter that we are going to set
@@ -184,6 +193,7 @@ private:
     std::string outputFilename_; //!<Output Filename
     std::string outputPath_; //!< The path to additional configuration files
     std::string revision_; //!< the pixie revision
+    std::map<std::string,std::string> ornlArguments_;
     double sysClockFreqInHz_; //!< frequency of the system clock
     std::vector<std::pair<unsigned int, unsigned int>> reject_; ///< Rejection regions
     double vandleBigSpeedOfLight_;//!< speed of light in big VANDLE bars in cm/ns

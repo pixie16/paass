@@ -149,7 +149,8 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new VandleProcessor(
                     StringManipulation::TokenizeString(processor.attribute("types").as_string("medium"), ","),
                     processor.attribute("res").as_double(2.0), processor.attribute("offset").as_double(1000.0),
-                    processor.attribute("NumStarts").as_uint(1), processor.attribute("compression").as_double(1.0)));
+                    processor.attribute("NumStarts").as_uint(1), processor.attribute("compression").as_double(1.0),
+                    processor.attribute("root").as_bool(false)));
         } else if (name == "TemplateExpProcessor") {
             vecProcess.push_back(new TemplateExpProcessor());
         } else if (name == "E11027Processor") {
@@ -169,28 +170,49 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
         } else if (name == "RootProcessor") { //Must be the last for silly reasons.
             vecProcess.push_back(new RootProcessor("tree.root", "tree"));
         }else if (name == "Ornl2016Processor") {
-            double gamma_threshold_G = gamma_threshold;
-            double sub_event_G = sub_event;
+            std::map<std::string,std::string> OrnlArguments;
 
-            double gamma_threshold_L =
-                    processor.attribute("gamma_threshold_L").as_double(gamma_threshold_G);
+            string OrnlDebugging = processor.attribute("debugging").as_string("false");
+
+            string OrnlVandle = processor.attribute("ProcessVandle").as_string("true");
+
+            string SuperBetaGate = processor.attribute("SuperBetaWindow").as_string("30");
+
+            string gamma_threshold_G = to_string(gamma_threshold);
+            string sub_event_G = to_string(sub_event);
+
+            string gamma_threshold_L =processor.attribute("gamma_threshold_L").as_string("gamma_threshold_G");
             if (gamma_threshold_L == gamma_threshold_G)
                 messenger_.warning("LaBr3 Threshold = Ge Threshold", 1);
-            double sub_event_L =
-                    processor.attribute("sub_event_L").as_double(sub_event_G);
+
+            string sub_event_L =processor.attribute("sub_event_L").as_string("sub_event_G");
             if (sub_event_L == sub_event_G)
                 messenger_.warning("LaBr3 sub_event = Ge sub_event", 1);
-            double gamma_threshold_N =
-                    processor.attribute("gamma_threshold_N").as_double(gamma_threshold_G);
+
+            string gamma_threshold_N =
+                    processor.attribute("gamma_threshold_N").as_string("gamma_threshold_G");
             if (gamma_threshold_N == gamma_threshold_G)
                 messenger_.warning("NaI Threshold = Ge Threshold", 1);
-            double sub_event_N =
-                    processor.attribute("sub_event_N").as_double(sub_event_G);
+
+            string sub_event_N =processor.attribute("sub_event_N").as_string("sub_event_G");
             if (sub_event_N == sub_event_G)
                 messenger_.warning("NaI sub_event = Ge sub_event", 1);
-            vecProcess.push_back(new Ornl2016Processor(gamma_threshold_L, sub_event_L,
-                                                       gamma_threshold_N, sub_event_N,
-                                                       gamma_threshold_G, sub_event_G));
+
+            OrnlArguments.insert(make_pair("gamma_threshold_G",gamma_threshold_G));
+            OrnlArguments.insert(make_pair("sub_event_G",sub_event_G));
+
+            OrnlArguments.insert(make_pair("gamma_threshold_L",gamma_threshold_L));
+            OrnlArguments.insert(make_pair("sub_event_L",sub_event_L));
+
+            OrnlArguments.insert(make_pair("gamma_threshold_N",gamma_threshold_N));
+            OrnlArguments.insert(make_pair("sub_event_N",sub_event_N));
+
+            OrnlArguments.insert(make_pair("Debugging",OrnlDebugging));
+            OrnlArguments.insert(make_pair("MkVandle",OrnlVandle));
+
+            OrnlArguments.insert(make_pair("SupBetaWin",SuperBetaGate));
+            Globals::get()->SetOrnl2016Arguments(OrnlArguments);
+            vecProcess.push_back(new Ornl2016Processor());
         }
 
 #endif
