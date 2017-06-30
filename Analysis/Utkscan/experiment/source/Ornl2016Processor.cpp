@@ -17,6 +17,7 @@
 #include <iomanip>
 #include <sstream>
 #include <cmath>
+#include <vector>
 
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
@@ -30,59 +31,33 @@ static unsigned int evtNum = 0;
 
 namespace dammIds {
     namespace experiment {
-        const unsigned int Ornl2016_OFFSET = 0;
-        const int D_VANDLEMULT = 0 + Ornl2016_OFFSET;
+        const int D_VANDLEMULT = 0;
+        const int DD_CTOFNOTAPE = 1;
+        const int DD_QDCTOFNOGATE = 2;
+        const int DD_CORTOFVSEGAM = 3;
+        const int DD_QDCVSCORTOFMULT1 = 4;
+        const int DD_MULT2SYM = 5;
+        const int DD_LIGLEN = 6;
+        const int DD_LIGLTOF = 7;
 
-        const int DD_CTOFNOTAPE = 1 + Ornl2016_OFFSET;
-        const int DD_QDCTOFNOGATE = 2 + Ornl2016_OFFSET;
-        const int DD_CORTOFVSEGAM = 3 + Ornl2016_OFFSET;
-        const int DD_QDCVSCORTOFMULT1 = 4 + Ornl2016_OFFSET;
-        const int DD_MULT2SYM = 5 + Ornl2016_OFFSET;
-        const int DD_LIGLEN = 6 + Ornl2016_OFFSET;
-        const int DD_LIGLTOF = 7 + Ornl2016_OFFSET;
+        const int D_LABR3SUM = 8;
+        const int D_LABR3BETA = 9;
+        const int D_HPGESUM = 10;
+        const int D_HPGESUMBETA = 11;
+        const int D_NAISUM = 12;
+        const int D_NAIBETA = 13;
 
-        const int D_LABR3SUM = 8 + Ornl2016_OFFSET;
-        const int D_LABR3BETA = 9 + Ornl2016_OFFSET;
+        const int DD_TOFVSNAI = 14;
+        const int DD_TOFVSHAGRID = 15;
+        const int DD_TOFVSGE = 16;
 
-        const int D_HPGESUM = 10 + Ornl2016_OFFSET;
-        const int D_HPGESUMBETA = 11 + Ornl2016_OFFSET;
+        const int D_BETASCALARRATE = 29; //6079 in his
+        const int D_BETAENERGY = 30;
+        const int DD_QDCVTOF = 31;
 
-        const int D_NAISUM = 12 + Ornl2016_OFFSET;
-        const int D_NAIBETA = 13 + Ornl2016_OFFSET;
-
-        const int DD_TOFVSNAI = 14 + Ornl2016_OFFSET;
-        const int DD_TOFVSHAGRID = 15 + Ornl2016_OFFSET;
-        const int DD_TOFVSGE = 16 + Ornl2016_OFFSET;
-
-        //seeds for Damm cycle his
-        const int D_BETASCALARRATE = 29 + Ornl2016_OFFSET; //6079 in his
-        const int D_BETAENERGY = 30 + Ornl2016_OFFSET;
-        const int D_IGEBETA = 31 + Ornl2016_OFFSET;
-        const int D_INAIBETA = 35 + Ornl2016_OFFSET;
-        const int D_IHAGBETA = 45 + Ornl2016_OFFSET;
-        const int DD_QDCVTOF = 48 + Ornl2016_OFFSET;
-        const int DD_TRACES = 49 + Ornl2016_OFFSET;
-        const int DD_FLASHTRACES = 50 + Ornl2016_OFFSET;
-        const int D_BADLOCATION = 51 + Ornl2016_OFFSET;
-        const int D_BADCYCLE = 52 + Ornl2016_OFFSET;
-
-
-        const int DD_QDCVSTOFNOF = 53 + Ornl2016_OFFSET;
-        const int DD_SIGNOIS = 54 + Ornl2016_OFFSET;
-        const int DD_GSIGNOIS = 55 + Ornl2016_OFFSET;
-        const int DD_ETRIGVSQDC =56 + Ornl2016_OFFSET;
-        const int DD_GETRIGVSQDC = 57+Ornl2016_OFFSET;
-
-        const int D_GCYCLE = 58 +Ornl2016_OFFSET;
-        const int D_STARTLOC = 59+Ornl2016_OFFSET;
-
-        const int DD_BADCYCLELOC = 60+Ornl2016_OFFSET;
-        const int DD_GOODCYCLELOC =61+Ornl2016_OFFSET;
-        const int DD_QDCVTOFNOMOD2 = 62 +Ornl2016_OFFSET;
-        const int D_MOD2CHECK = 63 + Ornl2016_OFFSET;
-
-
-
+        const int D_DBGge = 35 ;//super beta gated specta;
+        const int D_DBGnai = 36 ;//super beta gated specta;
+        const int D_DBGlabr = 37 ;//super beta gated specta;
     }
 }//namespace dammIds
 
@@ -113,22 +88,10 @@ void Ornl2016Processor::DeclarePlots(void) {
     DeclareHistogram1D(D_BETAENERGY, SD, "Beta Energy");
 
     DeclareHistogram2D(DD_QDCVTOF, SC, SD, "exp processor made qdc vs tof");
-    DeclareHistogram2D(DD_TRACES, S8, SE, "traces");
-    DeclareHistogram2D(DD_FLASHTRACES, S8, SE, "traces gated +/- 15 of 2nd flash center");
-    DeclareHistogram1D(D_BADLOCATION, S6, "'Bad' trace vs bar location");
-    DeclareHistogram1D(D_BADCYCLE, SC, "# of 'Bad' traces per cycle");
-    DeclareHistogram2D(DD_QDCVSTOFNOF, SC, SD, "QDC vs TOF after separation ");
-    DeclareHistogram2D(DD_SIGNOIS, SD, SC, "signal to noise vs QDC of bad traces");
-    DeclareHistogram2D(DD_GSIGNOIS, SD, SC, "signal to noise vs QDC of good traces");
-    DeclareHistogram2D(DD_ETRIGVSQDC, SD,SC,"energy of trigger vs qdc for BAD");
-    DeclareHistogram2D(DD_GETRIGVSQDC, SD,SC,"energy of trigger vs qdc for Good");
-    DeclareHistogram1D(D_GCYCLE,SC,"#of traces in gamma flash");
-    DeclareHistogram1D(D_STARTLOC,SB,"Detector Referenced as Start for vandle (First bunch is bad second is good)");
-    DeclareHistogram2D(DD_BADCYCLELOC,SC,S6," # of bad traces per cycle in each bar");
-    DeclareHistogram2D(DD_GOODCYCLELOC,SC,S6," # of good traces per cycle in each bar");
-    DeclareHistogram2D(DD_QDCVTOFNOMOD2,SC,SD,"QDC vs TOF without module 2 (second master)");
-    DeclareHistogram1D(D_MOD2CHECK,S6,"# of traces in bars (without mod2)");
 
+    DeclareHistogram1D(D_DBGge, SD, "Double Beta gated HPGe Energy");
+    DeclareHistogram1D(D_DBGnai, SD, "Double Beta gated NaI Energy");
+    DeclareHistogram1D(D_DBGlabr, SD, "Double Beta gated LaBr3 Energy");
 
 
     // //Declaring beta gated
@@ -156,7 +119,7 @@ void Ornl2016Processor::DeclarePlots(void) {
 }
 
 
-void Ornl2016Processor::rootGstrutInit(RAY &strutName) { //Zeros the entire aux  structure
+/*void Ornl2016Processor::rootGstrutInit(RAY &strutName) { //Zeros the entire aux  structure
 
     fill(strutName.LaBr, strutName.LaBr + 16, 0);
     fill(strutName.NaI, strutName.NaI + 10, 0);
@@ -170,7 +133,7 @@ void Ornl2016Processor::rootGstrutInit(RAY &strutName) { //Zeros the entire aux 
     strutName.bMulti = -9999;
 
 }
-
+*/
 void Ornl2016Processor::rootGstrutInit2(PROSS &strutName) { //Zeros the entire processed structure
     strutName.AbE = -999;
     strutName.AbEvtNum = -9999;
@@ -179,74 +142,29 @@ void Ornl2016Processor::rootGstrutInit2(PROSS &strutName) { //Zeros the entire p
     //strutName.SymY = -999;
 }
 
-void Ornl2016Processor::rootNstrutInit(NBAR &strutName) { //Zeros the entire VANDLE structure
-    fill(strutName.LaBr, strutName.LaBr + 16, 0);
-    fill(strutName.NaI, strutName.NaI + 10, 0);
-    fill(strutName.Ge, strutName.Ge + 4, 0);
-    strutName.tof = -999;
-    strutName.qdc = -999;
-    strutName.betaEn = -999;
-    strutName.snrl = -999;
-    strutName.snrr = -999;
-    strutName.Qpos = -999;
-    strutName.tDiff = -999;
-    strutName.barid = -999;
-}
 
-/*
-void Ornl2016Processor::rootBWaveInit(BWave &strutName) { //Zeros the WaveForm Structures
-    fill(strutName.Ltrace, strutName.Ltrace + 131, 0);
-    fill(strutName.Rtrace, strutName.Rtrace + 131, 0);
-    strutName.Lbaseline = -999;
-    strutName.Rbaseline = -999;
-    strutName.LmaxLoc = -999;
-    strutName.RmaxLoc = -999;
-    strutName.Lamp = -999;
-    strutName.Ramp = -999;
-    strutName.BarQdc = -999;
-    strutName.Rsnr = -999;
-    strutName.Lsnr = -999;
-    strutName.Lqdc =-999;
-    strutName.Rqdc = -999;
-    strutName.Tdiff = -99999;
-    strutName.Rphase = -999999;
-    strutName.Lphase = -999999;
-    }
-*/
-
-void Ornl2016Processor::rootVWaveInit(VWave &strutName) { //Zeros the WaveForm Structures
-    fill(strutName.Ltrace, strutName.Ltrace + 131, 0);
-    fill(strutName.Rtrace, strutName.Rtrace + 131, 0);
-    strutName.Lbaseline = -999;
-    strutName.Rbaseline = -999;
-    strutName.LmaxLoc = -999;
-    strutName.RmaxLoc = -999;
-    strutName.Lamp = -999;
-    strutName.Ramp = -999;
-    strutName.BarQdc = -999;
-    strutName.TOF = -999;
-    strutName.Lsnr = -999;
-    strutName.Rsnr = -999;
-    strutName.VbarNum = -1;
-}
-
-
-Ornl2016Processor::Ornl2016Processor(double gamma_threshold_L, double sub_event_L, double gamma_threshold_N,
-                                     double sub_event_N, double gamma_threshold_G, double sub_event_G) : EventProcessor(
+Ornl2016Processor::Ornl2016Processor() : EventProcessor(
         OFFSET, RANGE, "Ornl2016Processor") {
 
-    associatedTypes.insert("vandle");
+    debugging = to_bool(Globals::get()->GetOrnl2016Arguments().find("Debugging")->second);
+    Pvandle = to_bool(Globals::get()->GetOrnl2016Arguments().find("MkVandle")->second);
+
+    SupBetaWin=atof(Globals::get()->GetOrnl2016Arguments().find("SupBetaWin")->second.c_str());
+
     associatedTypes.insert("ge");
     associatedTypes.insert("nai");
     associatedTypes.insert("labr3");
     associatedTypes.insert("beta");
 
-    LgammaThreshold_ = gamma_threshold_L;
-    LsubEventWindow_ = sub_event_L;
-    NgammaThreshold_ = gamma_threshold_N;
-    NsubEventWindow_ = sub_event_N;
-    GgammaThreshold_ = gamma_threshold_G;
-    GsubEventWindow_ = sub_event_G;
+    if (Pvandle) {
+        associatedTypes.insert("vandle");}
+
+    LgammaThreshold_ = atof(Globals::get()->GetOrnl2016Arguments().find("gamma_threshold_L")->second.c_str());
+    LsubEventWindow_ = atof(Globals::get()->GetOrnl2016Arguments().find("sub_event_L")->second.c_str());
+    NgammaThreshold_ = atof(Globals::get()->GetOrnl2016Arguments().find("gamma_threshold_N")->second.c_str());
+    NsubEventWindow_ = atof(Globals::get()->GetOrnl2016Arguments().find("sub_event_N")->second.c_str());
+    GgammaThreshold_ = atof(Globals::get()->GetOrnl2016Arguments().find("gamma_threshold_G")->second.c_str());
+    GsubEventWindow_ = atof(Globals::get()->GetOrnl2016Arguments().find("sub_event_G")->second.c_str());
 
     // initalize addback vectors
     LaddBack_.push_back(ScintAddBack(0, 0, 0));
@@ -256,76 +174,185 @@ Ornl2016Processor::Ornl2016Processor(double gamma_threshold_L, double sub_event_
     // ROOT file Naming
     string hisPath = Globals::get()->GetOutputPath();
     string hisfilename = hisPath + Globals::get()->GetOutputFileName();
-    string rootname = hisfilename + ".root";
-    string rootname2 = hisfilename +"-hiso.root";
-    string rootname3 = hisfilename + "-Owave.root";
+    string rootname = hisfilename + "-gammaSing.root";
+    string rootname2 = hisfilename + "-gammaAddBk.root";
+    string rootname3 = hisfilename + "-histo.root";
+    string rootname4 = hisfilename + "-vandleDebug.root";
+    string rootname5 = hisfilename + "-vandle.root";
 
     // Start Primary Root File
     rootFName_ = new TFile(rootname.c_str(), "RECREATE");
     Taux = new TTree("Taux", "Tree for Gamma-ray stuff @ ORNL2016");
-    Tvan = new TTree("Tvan","Tree for Vandle Stuff (coincident gammas as well) @ ORNL2016");
 
     //Taux Stuff
-    singBranch = Taux->Branch("sing", &sing,
-                              "LaBr[16]/D:NaI[10]/D:Ge[4]/D:beta/D:eventNum/D:cycle/i:gMulti/i:nMulti/i:hMulti/i:bMulti/i");
+    //singBranch = Taux->Branch("sing", &sing,"LaBr[16]/D:NaI[10]/D:Ge[4]/D:beta/D:eventNum/D:cycle/i:gMulti/i:nMulti/i:hMulti/i:bMulti/i");
+    //rootGstrutInit(sing);
+
+    Taux->Branch("aux_LaBrEn",&aux_LaBrEn);
+    Taux->Branch("aux_LaBrNum",&aux_LaBrNum);
+    Taux->Branch("aux_LaBrTime",&aux_LaBrTime);
+    Taux->Branch("aux_NaIEn",&aux_NaIEn);
+    Taux->Branch("aux_NaINum",&aux_NaINum);
+    Taux->Branch("aux_NaITime",&aux_NaITime);
+    Taux->Branch("aux_GeEn",&aux_GeEn);
+    Taux->Branch("aux_GeNum",&aux_GeNum);
+    Taux->Branch("aux_GeTime",&aux_GeTime);
+    Taux->Branch("aux_betaEn",&aux_betaEn);
+    Taux->Branch("aux_betaNum",&aux_betaNum);
+    Taux->Branch("aux_betaTime",&aux_betaTime);
+    Taux->Branch("aux_cycle",&aux_cycle);
+    Taux->Branch("aux_eventNum",&aux_eventNum);
+    Taux->Branch("aux_gMulti",&aux_gMulti);
+    Taux->Branch("aux_nMulti",&aux_nMulti);
+    Taux->Branch("aux_lMulti",&aux_lMulti);
+    Taux->Branch("aux_bMulti",&aux_bMulti);
+
+
+    Taux->SetAutoFlush(3000);
+
+    rootFName2_ = new TFile(rootname2.c_str(), "RECREATE");
+    Tadd = new TTree("Tadd", "Tree for Addbacks @ ORNL2016");
+
     gProcBranch = Taux->Branch("Gpro", &Gpro, "AbE/D:AbEvtNum/D:Multi/D");
     lProcBranch = Taux->Branch("Lpro", &Lpro, "AbE/D:AbEvtNum/D:Multi/D");
     nProcBranch = Taux->Branch("Npro", &Npro, "AbE/D:AbEvtNum/D:Multi/D");
 
-    Taux->SetAutoFlush(3000);
-    rootGstrutInit(sing);
     rootGstrutInit2(Gpro);
     rootGstrutInit2(Lpro);
     rootGstrutInit2(Npro);
 
+    // End second Root File
+    if (Pvandle) {
+        // Start Third  RootFile
+        rootFName3_ = new TFile(rootname3.c_str(), "RECREATE");
+        qdcVtof_ = new TH2D("qdcVtof", "", 1000, -100, 900, 32000, -16000, 16000);
+        tofVGe_ = new TH2D("tofVGe", "", 1500, -100, 1400, 16000, 0, 16000);
+        tofVLabr_ = new TH2D("tofVLaBr", "", 1500, -100, 1400, 16000, 0, 16000);
+        tofVNai_ = new TH2D("tofVNaI", "", 1500, -100, 1400, 16000, 0, 16000);
+
+        // End (Histo) RootFile
+    }
+
+    // Start fourth debugging RootFille
+    if (debugging) {
+        rootFName4_ = new TFile(rootname4.c_str(), "RECREATE");
+        Wave = new TTree("Wave", "Tree for Waveform Analyzer Debugging");
+
+        Wave->Branch("evtNumber", &evtNumber);
+        Wave->Branch("output_name", &output_name);
+        Wave->Branch("vandle_subtype", &vandle_subtype);
+        Wave->Branch("vandle_BarQDC", &vandle_BarQDC);
+        Wave->Branch("vandle_lQDC", &vandle_lQDC);
+        Wave->Branch("vandle_rQDC", &vandle_rQDC);
+        Wave->Branch("vandle_QDCPos", &vandle_QDCPos);
+        Wave->Branch("vandle_TOF", &vandle_TOF);
+        Wave->Branch("vandle_lSnR", &vandle_lSnR);
+        Wave->Branch("vandle_rSnR", &vandle_rSnR);
+        Wave->Branch("vandle_lAmp", &vandle_lAmp);
+        Wave->Branch("vandle_rAmp", &vandle_rAmp);
+        Wave->Branch("vandle_lMaxAmpPos", &vandle_lMaxAmpPos);
+        Wave->Branch("vandle_rMaxAmpPos", &vandle_rMaxAmpPos);
+        Wave->Branch("vandle_lAveBaseline", &vandle_lAveBaseline);
+        Wave->Branch("vandle_rAveBaseline", &vandle_rAveBaseline);
+        Wave->Branch("vandle_barNum", &vandle_barNum);
+        Wave->Branch("vandle_TAvg", &vandle_TAvg);
+        Wave->Branch("vandle_Corrected_TAvg", &vandle_Corrected_TAvg);
+        Wave->Branch("vandle_TDiff", &vandle_TDiff);
+        Wave->Branch("vandle_Corrected_TDiff", &vandle_Corrected_TDiff);
+        Wave->Branch("vandle_ltrace", &vandle_ltrace);
+        Wave->Branch("vandle_rtrace", &vandle_rtrace);
+        Wave->Branch("beta_BarQDC", &beta_BarQDC);
+        Wave->Branch("beta_lQDC", &beta_lQDC);
+        Wave->Branch("beta_rQDC", &beta_rQDC);
+        Wave->Branch("beta_lSnR", &beta_lSnR);
+        Wave->Branch("beta_rSnR", &beta_rSnR);
+        Wave->Branch("beta_lAmp", &beta_lAmp);
+        Wave->Branch("beta_rAmp", &beta_rAmp);
+        Wave->Branch("beta_lMaxAmpPos", &beta_lMaxAmpPos);
+        Wave->Branch("beta_rMaxAmpPos", &beta_rMaxAmpPos);
+        Wave->Branch("beta_lAveBaseline", &vandle_lAveBaseline);
+        Wave->Branch("beta_rAveBaseline", &vandle_rAveBaseline);
+        Wave->Branch("beta_barNum", &beta_barNum);
+        Wave->Branch("beta_TAvg", &beta_TAvg);
+        Wave->Branch("beta_Corrected_TAvg", &beta_Corrected_TAvg);
+        Wave->Branch("beta_TDiff", &beta_TDiff);
+        Wave->Branch("beta_Corrected_TDiff", &beta_Corrected_TDiff);
+        Wave->Branch("beta_ltrace", &beta_ltrace);
+        Wave->Branch("beta_rtrace", &beta_rtrace);
+
+
+        Wave->SetAutoFlush(3000);
+        //End debugging RootFille
+    }
+
     // Tvan Stuff
-    mVanBranch = Tvan->Branch("mVan", &mVan,
-                              "LaBr[16]/D:NaI[10]/D:Ge[4]/D:tof/D:qdc/D:betaEn/D:snrl/D:snrr/D:Qpos/D:tDiff/D:barid/i");
-    Tvan->SetAutoFlush(3000);
-    rootNstrutInit(mVan);
+    if (Pvandle) {
+        rootFName5_ = new TFile(rootname5.c_str(), "RECREATE");
+        Tvan = new TTree("Tvan", "Tree for Vandle Stuff (coincident gammas as well) @ ORNL2016");
 
-    // End Primary Root File
+        Tvan->Branch("evtNumber", &evtNumber);
+        Tvan->Branch("output_name", &output_name);
 
-    // Start Secondary (Histo) RootFile
-    rootFName2_= new TFile(rootname2.c_str(),"RECREATE");
-    qdcVtof_ = new TH2D("qdcVtof","",1000,-100,900,32000,-16000,16000);
-    tofVGe_ = new  TH2D("tofVGe","",1500,-100,1400,16000,0,16000);
-    tofVLabr_ = new  TH2D("tofVLaBr","",1500,-100,1400,16000,0,16000);
-    tofVNai_ = new  TH2D("tofVNaI","",1500,-100,1400,16000,0,16000);
+        Tvan->Branch("vandle_BarQDC", &vandle_BarQDC);
+        Tvan->Branch("vandle_barNum", &vandle_barNum);
+        Tvan->Branch("vandle_TOF", &vandle_TOF);
+        Tvan->Branch("vandle_TAvg", &vandle_TAvg);
+        Tvan->Branch("vandle_Corrected_TAvg", &vandle_Corrected_TAvg);
+        Tvan->Branch("vandle_TDiff", &vandle_TDiff);
 
-    // End Secondary (Histo) RootFile
+        Tvan->Branch("vandle_QDCPos", &vandle_QDCPos);
+        Tvan->Branch("vandle_lSnR", &vandle_lSnR);
+        Tvan->Branch("vandle_rSnR", &vandle_rSnR);
+        Tvan->Branch("vandle_lAmp", &vandle_lAmp);
+        Tvan->Branch("vandle_rAmp", &vandle_rAmp);
+        Tvan->Branch("vandle_lMaxAmpPos", &vandle_lMaxAmpPos);
+        Tvan->Branch("vandle_rMaxAmpPos", &vandle_rMaxAmpPos);
+        Tvan->Branch("vandle_lAveBaseline", &vandle_lAveBaseline);
+        Tvan->Branch("vandle_rAveBaseline", &vandle_rAveBaseline);
+        Tvan->Branch("vandle_ltrace", &vandle_ltrace);
+        Tvan->Branch("vandle_rtrace", &vandle_rtrace);
 
+        Tvan->Branch("vandle_ge", &vandle_ge);
+        Tvan->Branch("vandle_labr3", &vandle_labr3);
+        Tvan->Branch("vandle_nai", &vandle_nai);
 
+        Tvan->SetAutoFlush(3000);
 
-    // Start Tertiary (Waveform) RootFille
-    rootFName3_ = new TFile(rootname3.c_str(),"RECREATE");
-    Wave = new TTree("Wave","Tree for Waveform Analyzer Debugging");
-    VwaveBranch = Wave->Branch("Vwave",&Vwave,"Ltrace[131]/D:Rtrace[131]:Lbaseline:Rbaseline:LmaxLoc:RmaxLoc:Lamp:Ramp:BarQdc:TOF:Lsnr:Rsnr:VbarNum/I");
-    BwaveBranch = Wave->Branch("Bwave",&Bwave,"Ltrace[131]/D:Rtrace[131]:Lbaseline:Rbaseline:LmaxLoc:RmaxLoc:Lamp:Ramp:BarQdc:Lsnr:Rsnr:Lqdc:Rqdc:Tdiff:Lphase:Rphase");
+    }
 
- //   rootBWaveInit(Bwave);
-    rootVWaveInit(Vwave);
-
-    Wave->SetAutoFlush(3000);
-    // Start Tertiary (Waveform) RootFille
 }
 
 
 Ornl2016Processor::~Ornl2016Processor() {
 
+    //sing
     rootFName_->Write();
     rootFName_->Close();
+    delete (rootFName_);
 
+    //addback
     rootFName2_->Write();
     rootFName2_->Close();
-
-//    rootFName3_->Write();
-//    rootFName3_->Close();
-
-    delete (rootFName_);
     delete (rootFName2_);
-   // delete (rootFName3_);
 
+    //Wave Debugging
+    if (debugging) {
+        rootFName4_->Write();
+        rootFName4_->Close();
+        delete (rootFName4_);
+    }
+
+    if (Pvandle) {
+        //histo
+        rootFName3_->Write();
+        rootFName3_->Close();
+        delete (rootFName3_);
+
+        //Vandle + coincidence
+        rootFName5_->Write();
+        rootFName5_->Close();
+        delete (rootFName5_);
+    }
 
 }
 
@@ -342,52 +369,44 @@ bool Ornl2016Processor::PreProcess(RawEvent &event) {
 bool Ornl2016Processor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return (false);
-    double plotOffset_ = 1000;
+    double plotOffset_ = 200;
     double plotMult_ = 2;
 
-    BarMap vbars, betas;
-    bool hasBeta = false;
     map<unsigned int, pair<double, double> > lrtBetas;
+    BarMap betas, vbars;
+
+    hasBeta = false;
     hasBeta = TreeCorrelator::get()->place(
             "Beta")->status(); //might need a static initialize to false + reset at the end
 
-    /*    if (event.GetSummary("vandle")->GetList().size() != 0) {
-        vbars = ((VandleProcessor *) DetectorDriver::get()->
-                GetProcessor("VandleProcessor"))->GetBars();
+    if ((Pvandle || debugging) && event.GetSummary("vandle")->GetList().size() != 0) {
+        vbars = ((VandleProcessor *) DetectorDriver::get()->GetProcessor("VandleProcessor"))->GetBars();
     }
-    */    
-    if (event.GetSummary("beta:double")->GetList().size() != 0) {
-        betas = ((DoubleBetaProcessor *) DetectorDriver::get()->
-                GetProcessor("DoubleBetaProcessor"))->GetBars();
 
-        if (event.GetSummary("beta:double")->GetList().size() != 0) {
-            lrtBetas = ((DoubleBetaProcessor *) DetectorDriver::get()->
-                    GetProcessor("DoubleBetaProcessor"))->GetLowResBars();
-        }
+    if (event.GetSummary("beta:double")->GetList().size() != 0) {
+        betas = ((DoubleBetaProcessor *) DetectorDriver::get()->GetProcessor("DoubleBetaProcessor"))->GetBars();
+        lrtBetas = ((DoubleBetaProcessor *) DetectorDriver::get()->GetProcessor(
+                "DoubleBetaProcessor"))->GetLowResBars();
     }
-    static const vector<ChanEvent *> &labr3Evts =
-            event.GetSummary("labr3")->GetList();
-    static const vector<ChanEvent *> &naiEvts =
-            event.GetSummary("nai")->GetList();
-    static const vector<ChanEvent *> &geEvts =
-            event.GetSummary("ge")->GetList();
+
+    static const vector<ChanEvent *> &labr3Evts = event.GetSummary("labr3")->GetList();
+    static const vector<ChanEvent *> &naiEvts = event.GetSummary("nai")->GetList();
+    static const vector<ChanEvent *> &geEvts = event.GetSummary("ge")->GetList();
 
 
     /// PLOT ANALYSIS HISTOGRAMS-------------------------------------------------------------------------------------------------------------------------------------
 
-    rootGstrutInit(sing); // initalize the root structures
+    // initalize the root structures
+    //rootGstrutInit(sing);
     rootGstrutInit2(Gpro);
     rootGstrutInit2(Lpro);
     rootGstrutInit2(Npro);
-    rootNstrutInit(mVan);
+
 
     //Setting vars for addback
     double LrefTime = -2.0 * LsubEventWindow_;
     double NrefTime = -2.0 * NsubEventWindow_;
     double GrefTime = -2.0 * GsubEventWindow_;
-
-
-
 
     //Cycle timing
     static double cycleLast = 2;
@@ -410,30 +429,41 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                  << "Starting on Cycle #" << cycleNum << endl;
         }
     }
-    sing.cycle = cycleNum;
+    aux_cycle = cycleNum;
 
     //set multiplicys for sing branch based on the size of the detector maps for the event. limitation: sub event is smaller than full event this will end up being too large
-    sing.gMulti = geEvts.size();
-    sing.nMulti = naiEvts.size();
-    sing.lMulti = labr3Evts.size();
-    sing.bMulti = lrtBetas.size();
+    aux_gMulti = geEvts.size();
+    aux_nMulti = naiEvts.size();
+    aux_lMulti = labr3Evts.size();
+    aux_bMulti = lrtBetas.size();
 
 
     for (map<unsigned int, pair<double, double> >::iterator bIt = lrtBetas.begin(); bIt != lrtBetas.end(); bIt++) {
 
-    plot(D_BETASCALARRATE, cycleNum);//PLOTTING BETA SCALAR SUM per CYCLE (LIKE 759 but per cycle vs per second
-    plot(D_BETAENERGY, bIt->second.second);
-    sing.beta = bIt->second.second;
+        aux_betaTime = betaSubTime = bIt->second.first;
+        plot(D_BETASCALARRATE, cycleNum);//PLOTTING BETA SCALAR SUM per CYCLE (LIKE 759 but per cycle vs per second
+        plot(D_BETAENERGY, bIt->second.second);
+        aux_betaEn = bIt->second.second;
+        aux_betaNum = bIt->first;
     }
 
 
-    //NaI ONLY----------------------------------------------------------------------------------------------------------------------------------------------
+    //NaI ONLY
+    // ----------------------------------------------------------------------------------------------------------
     for (vector<ChanEvent *>::const_iterator itNai = naiEvts.begin();
          itNai != naiEvts.end(); itNai++) {
         int naiNum = (*itNai)->GetChannelNumber();
-        sing.NaI[naiNum] = (*itNai)->GetCalibratedEnergy();
+        aux_NaINum = naiNum;
+        aux_NaIEn = (*itNai)->GetCalibratedEnergy();
+        aux_NaITime = naiEvtTime = (*itNai)->GetTime();
+        //sing.NaI[naiNum] = (*itNai)->GetCalibratedEnergy();
         plot(D_NAISUM, (*itNai)->GetCalibratedEnergy()); //plot totals
 
+
+        if (abs(naiEvtTime - betaSubTime) < SupBetaWin) {
+            plot(D_DBGnai,(*itNai)->GetCalibratedEnergy());
+        }
+//Beta Gate and addback
         if (hasBeta) {  //Beta Gate
             plot(D_NAIBETA, (*itNai)->GetCalibratedEnergy()); //plot beta-gated totals
 
@@ -467,7 +497,15 @@ bool Ornl2016Processor::Process(RawEvent &event) {
     for (vector<ChanEvent *>::const_iterator itGe = geEvts.begin();
          itGe != geEvts.end(); itGe++) {
         int geNum = (*itGe)->GetChanID().GetLocation();
-        sing.Ge[geNum] = (*itGe)->GetCalibratedEnergy();
+        aux_GeEn = (*itGe)->GetCalibratedEnergy();
+        aux_GeNum = geNum;
+        aux_GeTime = geEvtTime= (*itGe)->GetTime();
+
+        if (abs(betaSubTime-geEvtTime)<SupBetaWin){
+            plot(D_DBGge,(*itGe)->GetCalibratedEnergy());
+        }
+
+        //sing.Ge[geNum] = (*itGe)->GetCalibratedEnergy();
         plot(D_HPGESUM, (*itGe)->GetCalibratedEnergy()); //plot non-gated totals
 
         if (hasBeta) { //beta-gated Processing to cut LaBr contamination out
@@ -504,6 +542,16 @@ bool Ornl2016Processor::Process(RawEvent &event) {
          itLabr != labr3Evts.end(); itLabr++) {
         int labrNum = (*itLabr)->GetChanID().GetLocation();
         plot(D_LABR3SUM, (*itLabr)->GetCalibratedEnergy()); //plot non-gated totals
+        //sing.LaBr[labrNum] = (*itLabr)->GetCalibratedEnergy();
+
+        aux_LaBrNum = labrNum;
+        aux_LaBrEn = (*itLabr)->GetCalibratedEnergy();
+        aux_LaBrTime =labrEvtTime = (*itLabr)->GetTime();
+
+        if (abs(betaSubTime-labrEvtTime)<SupBetaWin){
+            plot(D_DBGlabr,(*itLabr)->GetCalibratedEnergy());
+        }
+
 
         if (hasBeta) {
 
@@ -556,7 +604,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
 
         }//end beta gate
 
-        sing.LaBr[labrNum] = (*itLabr)->GetCalibratedEnergy();
+
     } //Hagrid loop end
 
      //Begin VANDLE
@@ -578,64 +626,59 @@ bool Ornl2016Processor::Process(RawEvent &event) {
              if (!start.GetHasEvent())
                  continue;
 
+             double tof = bar.GetTimeAverage() - start.GetTimeAverage() + cal.GetTofOffset(startLoc);
 
-
-
-
-
-             double tof = bar.GetTimeAverage() -
-                          start.GetTimeAverage() + cal.GetTofOffset(startLoc);
-
-             double corTof = ((VandleProcessor *) DetectorDriver::get()->
-                     GetProcessor("VandleProcessor"))->
+             double corTof = ((VandleProcessor *) DetectorDriver::get()->GetProcessor("VandleProcessor"))->
                      CorrectTOF(tof, bar.GetFlightPath(), cal.GetZ0());
 
-             mVan.qdc = bar.GetQdc();
-             mVan.Qpos = bar.GetQdcPosition();
-             mVan.tDiff = bar.GetTimeDifference();
-             mVan.tof = tof;
-             mVan.cortof = corTof;
-             mVan.barid = barLoc;
-             mVan.snrl = bar.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
-             mVan.snrr = bar.GetRightSide().GetTrace().GetSignalToNoiseRatio();
-             mVan.betaEn = start.GetQdc();
              plot(DD_QDCVTOF, (tof * 2) + plotOffset_, bar.GetQdc());
 
              qdcVtof_->Fill(tof,bar.GetQdc());
 
-             Vwave.VbarNum=barLoc;
-             Vwave.TOF=tof;
-             Vwave.BarQdc=bar.GetQdc();
-             Vwave.Lbaseline=bar.GetLeftSide().GetAveBaseline();
-             Vwave.Rbaseline=bar.GetRightSide().GetAveBaseline();
-             Vwave.RmaxLoc=bar.GetRightSide().GetMaximumPosition();
-             Vwave.LmaxLoc=bar.GetLeftSide().GetMaximumPosition();
-             Vwave.Ramp=bar.GetRightSide().GetMaximumValue();
-             Vwave.Lamp=bar.GetLeftSide().GetMaximumValue();
-             Vwave.Lsnr=bar.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
-             Vwave.Rsnr=bar.GetRightSide().GetTrace().GetSignalToNoiseRatio();
-             //bar.GetLeftSide().()
+             vandle_subtype = bar.GetType();
+             vandle_lSnR = bar.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
+             vandle_rSnR = bar.GetRightSide().GetTrace().GetSignalToNoiseRatio();
+             vandle_lAmp = bar.GetLeftSide().GetMaximumValue();
+             vandle_rAmp = bar.GetRightSide().GetMaximumValue();
+             vandle_lMaxAmpPos = bar.GetLeftSide().GetMaximumPosition();
+             vandle_rMaxAmpPos = bar.GetRightSide().GetMaximumPosition();
+             vandle_lAveBaseline = bar.GetLeftSide().GetAveBaseline();
+             vandle_rAveBaseline = bar.GetRightSide().GetAveBaseline();
+             vandle_BarQDC = bar.GetQdc();
+             vandle_QDCPos = bar.GetQdcPosition();
+             vandle_lQDC = bar.GetLeftSide().GetTraceQdc();
+             vandle_rQDC = bar.GetRightSide().GetTraceQdc();
+             vandle_TOF = tof;
+             vandle_barNum = barLoc;
+             vandle_TAvg = bar.GetTimeAverage();
+             vandle_Corrected_TAvg = bar.GetCorTimeAve();
+             vandle_TDiff = bar.GetTimeDifference();
+             vandle_Corrected_TDiff = bar.GetCorTimeDiff();
+             vandle_ltrace = bar.GetLeftSide().GetTrace();
+             vandle_rtrace = bar.GetRightSide().GetTrace();
+
+             beta_lSnR = start.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
+             beta_rSnR = start.GetRightSide().GetTrace().GetSignalToNoiseRatio();
+             beta_lAmp = start.GetLeftSide().GetMaximumValue();
+             beta_rAmp = start.GetRightSide().GetMaximumValue();
+             beta_lMaxAmpPos = start.GetLeftSide().GetMaximumPosition();
+             beta_rMaxAmpPos = start.GetRightSide().GetMaximumPosition();
+             beta_lAveBaseline = start.GetLeftSide().GetAveBaseline();
+             beta_rAveBaseline = start.GetRightSide().GetAveBaseline();
+             beta_BarQDC = start.GetQdc();
+             beta_lQDC = start.GetLeftSide().GetTraceQdc();
+             beta_rQDC = start.GetRightSide().GetTraceQdc();
+             beta_barNum = startLoc;
+             beta_TAvg = start.GetTimeAverage();
+             beta_Corrected_TAvg = start.GetCorTimeAve();
+             beta_TDiff = start.GetTimeDifference();
+             beta_Corrected_TDiff = start.GetCorTimeDiff();
+             beta_ltrace = start.GetLeftSide().GetTrace();
+             beta_rtrace = start.GetRightSide().GetTrace();
 
 
- /*
-             Bwave.Lbaseline=start.GetLeftSide().GetAveBaseline();
-             Bwave.Rbaseline=start.GetRightSide().GetAveBaseline();
-             Bwave.BarQdc= start.GetQdc();
-             Bwave.LmaxLoc=start.GetLeftSide().GetMaximumPosition();
-             Bwave.RmaxLoc=start.GetRightSide().GetMaximumPosition();
-             Bwave.Lamp=start.GetLeftSide().GetMaximumValue();
-             Bwave.Ramp=start.GetRightSide().GetMaximumValue();
-             Bwave.Lsnr=start.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
-             Bwave.Rsnr=start.GetRightSide().GetTrace().GetSignalToNoiseRatio();
-             Bwave.Lqdc=start.GetLeftSide().GetTraceQdc();
-             Bwave.Rqdc=start.GetRightSide().GetTraceQdc();
-             Bwave.Lphase = start.GetLeftSide().GetP;
-             Bwave.Rphase = start.GetRightSide()
-
- */
-
-
-             int itTVl=0;
+             //TracePloting commented
+/*          int itTVl=0;
              for (vector<unsigned int>::const_iterator itTL = bar.GetLeftSide().GetTrace().begin();
                   itTL != bar.GetLeftSide().GetTrace().end(); itTL++) {
                  Vwave.Ltrace[itTVl]=(*itTL);
@@ -662,8 +705,8 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                  Bwave.Rtrace[itTr]=(*itTR);
                  itTr++;
              };
+*/
 
-             Wave->Fill();
 
              //this is ghost flash troubleshooting code
  /*
@@ -749,7 +792,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
 
                  tofVLabr_->Fill(labrEn,tof);
 
-                 mVan.LaBr[labrNum] = labrEn;
+                 vandle_labr3.push_back(make_pair((double)labrNum,labrEn));
              };
 
              //Nai loop for mVan
@@ -763,7 +806,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
 
                  tofVNai_->Fill(naiEn,tof);
 
-                 mVan.NaI[naiNum] = naiEn;
+                 vandle_nai.push_back(make_pair((double)naiNum,naiEn));
              };
 
              //ge loop for mVan
@@ -776,19 +819,17 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                  plot(DD_TOFVSGE, geEn, tof * plotMult_ + 200);
 
                  tofVGe_->Fill(geEn,tof);
-
-                 mVan.Ge[geNum] = geEn;
+                 vandle_ge.push_back(make_pair((double)geNum,geEn));
              };
          };
 
          Wave->Fill();
+         Tvan->Fill();
+
      };//End VANDLE
 
-    sing.eventNum = evtNum;
-
-    Taux->Fill();
-    Tvan->Fill();
-
+    evtNumber = evtNum;
+    aux_eventNum = evtNum;
 
     evtNum++;
     EndProcess();

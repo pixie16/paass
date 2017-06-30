@@ -51,8 +51,7 @@ public:
 class Ornl2016Processor : public EventProcessor {
 public:
     /** Default Constructor */
-    Ornl2016Processor(double gamma_threshold_L, double sub_event_L, double gamma_threshold_N, double sub_event_N,
-                      double gamma_threshold_G, double sub_event_G);
+    Ornl2016Processor();
 
     /** Default Destructor */
     ~Ornl2016Processor();
@@ -81,53 +80,106 @@ public:
 
 private:
 
+// Bools for controling output as set in the cfg
+    bool debugging;
+    bool Pvandle;
+    double SupBetaWin;
+
+    bool hasBeta;
+    bool hasHighBeta;
+    double betaSubTime;
+    double naiEvtTime;
+    double geEvtTime;
+    double labrEvtTime;
+
+    TFile *rootFName_;
+    TFile *rootFName2_;
+    TFile *rootFName3_;
+    TFile *rootFName4_;
+    TFile *rootFName5_;
+
     TTree *Taux;
     TTree *Tvan;
     TTree *Wave;
+    TTree *Tadd;
 
     TBranch *singBranch;
     TBranch *gProcBranch;
     TBranch *lProcBranch;
     TBranch *nProcBranch;
-    TBranch *mVanBranch;
-    TBranch *BwaveBranch;
-    TBranch *VwaveBranch;
 
-    struct BWave{
-        double Ltrace[131];
-        double Rtrace[131];
-        double Lbaseline;
-        double Rbaseline;
-        double LmaxLoc;
-        double RmaxLoc;
-        double Lamp;
-        double Ramp;
-        double BarQdc;
-        double Lsnr;
-        double Rsnr;
-        double Lqdc;
-        double Rqdc;
-        double Tdiff;
-        double Lphase;
-        double Rphase;
-    } Bwave;
+// Vandle Tree and Debugging tree stuff
+    unsigned int evtNumber=0;
+    std::string output_name = Globals::get()->GetOutputFileName();
+    std::string vandle_subtype = "";
 
-    struct VWave{
-        double Ltrace[131];
-        double Rtrace[131];
-        double Lbaseline;
-        double Rbaseline;
-        double LmaxLoc;
-        double RmaxLoc;
-        double Lamp;
-        double Ramp;
-        double BarQdc;
-        double TOF;
-        double Lsnr;
-        double Rsnr;
-        int VbarNum;
-    } Vwave;
+    double vandle_BarQDC=0;
+    double vandle_lQDC=0;
+    double vandle_rQDC=0;
+    double vandle_QDCPos=-500;
+    double vandle_TOF=0;
+    double vandle_lSnR=0;
+    double vandle_rSnR=0;
+    double vandle_lAmp=0;
+    double vandle_rAmp=0;
+    double vandle_lMaxAmpPos=0;
+    double vandle_rMaxAmpPos=0;
+    double vandle_lAveBaseline=0;
+    double vandle_rAveBaseline=0;
+    int vandle_barNum=0;
+    double vandle_TAvg=0;
+    double vandle_Corrected_TAvg=0;
+    double vandle_TDiff=0;
+    double vandle_Corrected_TDiff=0;
+    std::vector<unsigned int> vandle_ltrace;
+    std::vector<unsigned int> vandle_rtrace;
+    std::vector<std::pair<double,double>> vandle_ge;
+    std::vector<std::pair<double,double>> vandle_labr3;
+    std::vector<std::pair<double,double>> vandle_nai;
 
+
+    double beta_BarQDC=0;
+    double beta_lQDC=0;
+    double beta_rQDC=0;
+    double beta_lSnR=0;
+    double beta_rSnR=0;
+    double beta_lAmp=0;
+    double beta_rAmp=0;
+    double beta_lMaxAmpPos=0;
+    double beta_rMaxAmpPos=0;
+    double beta_lAveBaseline=0;
+    double beta_rAveBaseline=0;
+    unsigned int beta_barNum=0;
+    double beta_TAvg=0;
+    double beta_Corrected_TAvg=0;
+    double beta_TDiff=0;
+    double beta_Corrected_TDiff=0;
+    std::vector<unsigned int> beta_ltrace;
+    std::vector<unsigned int> beta_rtrace;
+
+//aux branches
+    double aux_LaBrEn=0;
+    double aux_LaBrNum=0;
+    double aux_LaBrTime=0;
+    double aux_NaIEn=0;
+    double aux_NaINum=0;
+    double aux_NaITime=0;
+    double aux_GeEn=0;
+    double aux_GeNum=0;
+    double aux_GeTime=0;
+    double aux_betaEn=0;
+    double aux_betaNum=0;
+    double aux_betaTime=0;
+    int aux_cycle=-1;
+    double aux_eventNum=-1;
+    double aux_gMulti=0;
+    double aux_nMulti=0;
+    double aux_lMulti=0;
+    double aux_bMulti=0;
+
+
+/*
+//Gamma singles tree structure
     struct RAY {
         double LaBr[16];
         double NaI[10];
@@ -140,7 +192,8 @@ private:
         int lMulti;
         int bMulti;
     } sing;
-
+*/
+    // gamma AddBack Structure
     struct PROSS {
         double AbE;
         double AbEvtNum;
@@ -150,44 +203,19 @@ private:
 
     } Gpro, Lpro, Npro;
 
-    struct NBAR {
-        double LaBr[16];
-        double NaI[10];
-        double Ge[4];
-        double tof;
-        double cortof;
-        double qdc ;
-        double betaEn;
-        double snrl;
-        double snrr;
-        double Qpos;
-        double tDiff;
-        int barid;
-
-    } mVan;
-
-    TFile *rootFName_;
-
-    TFile *rootFName2_;
     TH2D *qdcVtof_;
     TH2D *tofVGe_;
     TH2D *tofVNai_;
     TH2D *tofVLabr_;
 
-    TFile *rootFName3_;
 
     //functions for root preocessing
     void rootArrayreset(double arrayName[], int arraySize);
 
-    void rootGstrutInit(RAY &strutName);
+    //void rootGstrutInit(RAY &strutName);
 
     void rootGstrutInit2(PROSS &strutName);
 
-    void rootNstrutInit(NBAR &strutName);
-
-    //void rootBWaveInit(BWave &strutName);
-
-    void rootVWaveInit(VWave &strutName);
 
     //thresholds and windows for gamma addback for LaBr3 (L*) and NaI (N*)
     double LgammaThreshold_;
@@ -202,6 +230,14 @@ private:
     std::vector<ScintAddBack> NaddBack_;
     std::vector<ScintAddBack> GaddBack_;
 
+
+    bool to_bool(std::string str) {
+        std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+        std::istringstream is(str);
+        bool b;
+        is >> std::boolalpha >> b;
+        return b;
+    }
 
 };
 
