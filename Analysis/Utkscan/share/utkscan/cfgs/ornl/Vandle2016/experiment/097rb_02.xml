@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>S. V. Paulauskas</Name>
+        <Email>stanpaulauskas AT gmail DOT com</Email>
+        <Date>February 10, 2016</Date>
+        <Updated>October 10, 2016</Updated>
+    </Author>
+
+    <Description>
+        Configuration file for the 097rb_02*.ldf data. This configuration
+        file will only analyze VANDLE data and ignore everything else other
+        than the Ge.
+    </Description>
+
+    <Global>
+        <Revision version="F"/>
+        <BitResolution value="12"/>
+        <EventWidth unit="s" value="1e-6"/>
+        <OutputPath>./</OutputPath>
+        <NumOfTraces value="50"/>
+        <HasRaw value="true"/>
+    </Global>
+
+    <DetectorDriver>
+        <Analyzer name="WaveformAnalyzer"/>
+        <Analyzer name="FittingAnalyzer" type="gsl"/>
+        <Analyzer name="TraceExtractor" type="beta" subtype="double"/>
+
+        <Processor name="GeProcessor"/>
+        <Processor name="LogicProcessor"/>
+        <Processor name="DoubleBetaProcessor"/>
+        <Processor name="VandleProcessor"
+                   types="medium" res="2" offset="1000" NumStarts="1"/>
+        <Processor name="Ornl2016Processor"/>
+    </DetectorDriver>
+
+    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+        <Module number="0">
+            <Channel number="0" type="beta" subtype="double"
+                     tags="start,left"></Channel>
+            <Channel number="1" type="beta" subtype="double"
+                     tags="start,right"></Channel>
+        </Module>
+        <Module number="1">
+            <Channel number="0" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="1" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="2" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="3" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="4" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="5" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="6" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="7" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="8" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="9" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="10" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="11" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="12" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="13" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="14" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="15" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+        </Module>
+        <Module number="2">
+            <Channel number="0" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="1" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="2" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="3" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="4" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="5" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="6" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="7" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="8" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="9" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="10" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="11" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="12" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="13" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="14" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="15" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+        </Module>
+        <Module number="3">
+            <Channel number="0" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="1" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="2" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="3" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="4" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="5" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="6" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="7" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="8" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="9" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="10" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="11" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="12" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="13" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="14" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="15" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+        </Module>
+        <Module number="4">
+            <Channel number="0" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="1" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="2" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="3" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="4" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="5" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="6" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="7" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="8" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="9" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="10" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="11" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="12" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="13" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="14" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="15" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+        </Module>
+        <Module number="5">
+            <Channel number="0" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="1" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="2" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="3" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="4" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="5" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="6" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="7" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="8" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="9" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="10" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="11" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="12" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="13" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="14" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="15" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+        </Module>
+        <Module number="6">
+            <Channel number="0" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="1" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+            <Channel number="2" type="vandle" subtype="medium"
+                     tags="left"></Channel>
+            <Channel number="3" type="vandle" subtype="medium"
+                     tags="right"></Channel>
+        </Module>
+        <Module number="7">
+            <Channel number="0" type="ge" subtype="clover_high">
+
+            </Channel>
+            <Channel number="1" type="ge" subtype="clover_high">
+
+            </Channel>
+            <Channel number="2" type="ge" subtype="clover_high">
+
+            </Channel>
+            <Channel number="3" type="ge" subtype="clover_high">
+
+            </Channel>
+            <Channel number="8" type="logic" subtype="beam_start">
+                This signals the begin of the irridation time (beam start).
+                Provided by the LABJACK
+            </Channel>
+            <Channel number="9" type="logic" subtype="beam_stop">
+                This signals the end of the irridation time (beam stop).
+                Provided by the LABJACK
+            </Channel>
+            <Channel number="10" type="generic" subtype="measure_start">
+                This signals the beginning of the measurement period.
+                Provided by the LABJACK
+            </Channel>
+            <Channel number="11" type="generic" subtype="measure_stop">
+                This signals the end of the measurement period.
+                Provided by the LABJACK
+            </Channel>
+            <Channel number="12" type="logic" subtype="tape_start">
+                This signals the beginning of the tape move. Provided by the
+                LABJACK.
+            </Channel>
+            <Channel number="13" type="logic" subtype="tape_stop">
+                This signals the end of the tape move. Provided by the
+                LABJACK.
+            </Channel>
+            <Channel number="14" type="generic" subtype="tape_start">
+                Signals the beginning of the tape move. Provided by the MTC
+                control box.
+            </Channel>
+            <Channel number="15" type="generic" subtype="tape_stop">
+                Signals the end of the tape move. Provided by the MTC
+                control box.
+            </Channel>
+        </Module>
+        <Module number="9">
+            <Channel number="14" type="beta" subtype="double"
+                     tags="left">
+            </Channel>
+            <Channel number="15" type="beta" subtype="double"
+                     tags="right">
+            </Channel>
+        </Module>
+        <Module number="10">
+            <Channel number="15" type="ignore" subtype="ignore"></Channel>
+        </Module>
+    </Map>
+
+    <TreeCorrelator name="root" verbose="False">
+        <Place type="PlaceAND" name="DoubleBeta1" fifo="2">
+            <Place type="PlaceThreshold" name="beta_double_2,3"
+                   low_limit="50.0" high_limit="16382" fifo="5"
+                   replace="true"/>
+        </Place>
+
+        <Place type="PlaceOR" name="Beta" fifo="10">
+            <Place type="PlaceThreshold" name="beta_double_2,3"
+                   low_limit="50.0" high_limit="16382" fifo="5"
+                   replace="true"/>
+        </Place>
+
+        <Place type="PlaceOR" name="Gamma">
+            <Place type="PlaceOR" name="Clover0">
+                <Place type="PlaceThreshold" name="ge_clover_high_0-3"
+                       low_limit="20.0" high_limit="99999"
+                       replace="true"/>
+            </Place>
+        </Place>
+
+        <Place type="PlaceDetector" name="TapeMove" reset="false"/>
+        <Place type="PlaceDetector" name="Beam" reset="false"/>
+        <Place type="PlaceDetector" name="Cycle" reset="false"/>
+    </TreeCorrelator>
+
+    <TimeCalibration verbose_timing="False">
+        <Vandle>
+        </Vandle>
+    </TimeCalibration>
+
+    <Physical>
+        <NeutronMass unit="MeV/c/c" value="939.565560"/>
+        <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+        <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+        <SmallLength unit="cm" value="60.0"/>
+        <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+        <BigLength unit="cm" value="200.0"/>
+        <SpeedOfLightMedium unit="cm/ns" value="13.4414"/>
+        <MediumLength unit="cm" value="120.0"/>
+    </Physical>
+
+    <Trace>
+        <WaveformRange>
+            <Range name="vandle:medium">
+                <Low value="5"/>
+                <High value="10"/>
+            </Range>
+            <Range name="double:beta">
+                <Low value="20"/>
+                <High value="50"/>
+            </Range>
+        </WaveformRange>
+        <TraceDelay unit="ns" value="250"/>
+        <QdcCompression value="4.0"/>
+    </Trace>
+
+    <Fitting>
+        <SigmaBaselineThresh value="3.0"/>
+        <Parameters>
+            <Pars name="vandle:medium">
+                <Beta value="0.242750956720921"/>
+                <Gamma value="0.229018726511014"/>
+            </Pars>
+            <Pars name="double:beta">
+                <Beta value="0.00432622033367301"/>
+                <Gamma value="0.149001742167633"/>
+            </Pars>
+        </Parameters>
+    </Fitting>
+
+    <Notebook file="notes.txt" mode="r"/>
+</Configuration>
