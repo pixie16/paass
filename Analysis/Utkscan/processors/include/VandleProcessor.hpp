@@ -35,12 +35,7 @@ public:
     VandleProcessor();
 
     ///Default Destructor */
-    ~VandleProcessor() {
-#ifdef useroot
-        TFile_tree->Write();
-        TFile_tree->Close();
-#endif
-    };
+    ~VandleProcessor() ;
 
     ///Declare the plots used in the analysis */
     virtual void DeclarePlots(void);
@@ -51,7 +46,7 @@ public:
     ///@param [in] offset : The offset of the DAMM histograms 
     ///@param [in] numStarts : number of starts we have to process */
     VandleProcessor(const std::vector<std::string> &typeList, const double &res, const double &offset,
-                    const unsigned int &numStarts, const double &compression = 1.0);
+                    const unsigned int &numStarts, const double &compression = 1.0 ,const bool &root=false);
 
     ///Preprocess the VANDLE data
     ///@param [in] event : the event to preprocess
@@ -84,7 +79,7 @@ public:
     ///@return true if we requsted large bars in the xml */
     bool GetHasBig(void) { return requestedTypes_.find("big") != requestedTypes_.end(); }
 
-
+    bool SaveRoot;
 #ifdef useroot
     /** \root TTree */
     TFile* TFile_tree;
@@ -147,6 +142,16 @@ private:
     void PlotTofHistograms(const double &tof, const double &cortof,const double &NCtof, const double &qdc,
                            const unsigned int &barPlusStartLoc, const std::pair<unsigned int, unsigned int> &offset,
                            bool &calibrated );
+
+    ///Function to fill the root trees
+    ///@param [in] Vandle BarDector & the start detector. this can be either double (bar type) or single ended
+    /// detectors
+    void FillVandleRoot(const BarDetector &bar, const double &tof,const double &aCortof,const double &bCortof,
+                        const double &NCtof, unsigned int &barNum);
+
+    void FillBetaRoot(const BarDetector &start, unsigned int &startNum);
+    void FillBetaRoot(const HighResTimingData &start, unsigned int &startNum);
+
 
     ///@return Returns a pair of the appropriate offsets based off the VANDLE bar type <calibrated, NonCalibrated>
     ///@param [in] type : The type of bar that we are dealing with
