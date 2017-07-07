@@ -201,9 +201,10 @@ Ornl2016Processor::Ornl2016Processor() : EventProcessor(
     Taux->Branch("aux_betaNum",&aux_betaNum);
     Taux->Branch("aux_betaTime",&aux_betaTime);
     Taux->Branch("aux_cycle",&aux_cycle);
-    Taux->Branch("aux_geTdiff",&geTdiff);
-    Taux->Branch("aux_naiTdiff",&naiTdiff);
-    Taux->Branch("aux_labrTdiff",&labrTdiff);
+    Taux->Branch("aux_cycleSTime",&aux_cycleSTime);
+    Taux->Branch("aux_geTdiff",&aux_geTdiff);
+    Taux->Branch("aux_naiTdiff",&aux_naiTdiff);
+    Taux->Branch("aux_labrTdiff",&aux_labrTdiff);
     Taux->Branch("aux_eventNum",&aux_eventNum);
     Taux->Branch("aux_gMulti",&aux_gMulti);
     Taux->Branch("aux_nMulti",&aux_nMulti);
@@ -426,6 +427,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                         << endl << " #  This is a product of not starting the cycle After the LDF." << endl
                         << " #  This First TDIFF is most likely nonsense" << endl;
             }
+            aux_cycleSTime = cycleLast;
             cycleLast = cycleTime;
             cycleNum++;
             cout << "Cycle Change " << endl << "Tdiff (Cycle start and Now) (ms)= " << tdiff << endl
@@ -461,9 +463,11 @@ bool Ornl2016Processor::Process(RawEvent &event) {
         aux_NaITime = naiEvtTime = (*itNai)->GetTime();
         //sing.NaI[naiNum] = (*itNai)->GetCalibratedEnergy();
         plot(D_NAISUM, (*itNai)->GetCalibratedEnergy()); //plot totals
-        aux_naiTdiff = abs(naiEvtTime-betaSubTime);
 
-        if (aux_naiTdiff < SupBetaWin) {
+
+        aux_naiTdiff = betaSubTime-naiEvtTime;
+
+        if (aux_naiTdiff < SupBetaWin && aux_naiTdiff >0 ) {
             plot(D_DBGnai,(*itNai)->GetCalibratedEnergy());
         }
 //Beta Gate and addback
@@ -504,8 +508,9 @@ bool Ornl2016Processor::Process(RawEvent &event) {
         aux_GeNum = geNum;
         aux_GeTime = geEvtTime= (*itGe)->GetTime();
 
-        aux_geTdiff = abs(betaSubTime-geEvtTime);
-        if (aux_geTdiff < SupBetaWin){
+        aux_geTdiff = betaSubTime-geEvtTime;
+
+        if (aux_geTdiff < SupBetaWin && aux_geTdiff>0){
             plot(D_DBGge,(*itGe)->GetCalibratedEnergy());
         }
 
@@ -551,9 +556,11 @@ bool Ornl2016Processor::Process(RawEvent &event) {
         aux_LaBrNum = labrNum;
         aux_LaBrEn = (*itLabr)->GetCalibratedEnergy();
         aux_LaBrTime =labrEvtTime = (*itLabr)->GetTime();
-        aux_labrTdiff = abs(betaSubTime-labrEvtTime);
 
-        if (aux_labrTdiff < SupBetaWin){
+        aux_labrTdiff = betaSubTime-labrEvtTime;
+
+
+        if (aux_labrTdiff < SupBetaWin && aux_labrTdiff>0){
             plot(D_DBGlabr,(*itLabr)->GetCalibratedEnergy());
         }
 

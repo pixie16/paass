@@ -171,6 +171,7 @@ private:
     double aux_betaNum=0;
     double aux_betaTime=0;
     int aux_cycle=-1;
+    double aux_cycleSTime=0;
     double aux_geTdiff = 0;
     double aux_naiTdiff = 0;
     double aux_labrTdiff = 0;
