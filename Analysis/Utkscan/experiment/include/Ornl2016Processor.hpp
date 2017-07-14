@@ -83,14 +83,10 @@ private:
 // Bools for controling output as set in the cfg
     bool debugging;
     bool Pvandle;
-    double SupBetaWin;
+    std::pair<double, std::string> SupBetaWin;
 
-    bool hasBeta;
-    bool hasHighBeta;
+    bool hasLRbeta;
     double betaSubTime;
-    double naiEvtTime;
-    double geEvtTime;
-    double labrEvtTime;
 
     TFile *rootFName_;
     TFile *rootFName2_;
@@ -98,7 +94,10 @@ private:
     TFile *rootFName4_;
     TFile *rootFName5_;
 
-    TTree *Taux;
+    TTree *TauxL;
+    TTree *TauxN;
+    TTree *TauxG;
+
     TTree *Tvan;
     TTree *Wave;
     TTree *Tadd;
@@ -161,26 +160,35 @@ private:
     double aux_LaBrEn=0;
     double aux_LaBrNum=0;
     double aux_LaBrTime=0;
+    bool aux_LaBrHasLRBeta=false;
+    double aux_LaBrTdiff = 0;
+    double aux_LaBrMulti=0;
+
     double aux_NaIEn=0;
     double aux_NaINum=0;
     double aux_NaITime=0;
+    bool aux_NaIHasLRBeta=false;
+    double aux_NaITdiff = 0;
+    double aux_NaIMulti=0;
+
     double aux_GeEn=0;
     double aux_GeNum=0;
     double aux_GeTime=0;
-    double aux_betaEn=0;
-    double aux_betaNum=0;
-    double aux_betaTime=0;
+    bool aux_GeHasLRBeta=false;
+    double aux_GeTdiff = 0;
+    double aux_GeMulti=0;
+
+    double aux_BetaEn=0;
+    double aux_BetaTime=0;
+    double aux_BetaMulti=0;
+
     int aux_cycle=-1;
     double aux_cycleSTime=0;
-    double aux_geTdiff = 0;
-    double aux_naiTdiff = 0;
-    double aux_labrTdiff = 0;
     double aux_eventNum=-1;
-    double aux_gMulti=0;
-    double aux_nMulti=0;
-    double aux_lMulti=0;
-    double aux_bMulti=0;
 
+    // This is a vector of double pairs
+    // The data is stored as <<Time,Energy>,...>
+    std::vector<std::pair<double,double>> BetaList;
 
 /*
 //Gamma singles tree structure
@@ -220,6 +228,7 @@ private:
 
     void rootGstrutInit2(PROSS &strutName);
 
+    void rootAuxRoot(std::string &type);
 
     //thresholds and windows for gamma addback for LaBr3 (L*) and NaI (N*)
     double LgammaThreshold_;

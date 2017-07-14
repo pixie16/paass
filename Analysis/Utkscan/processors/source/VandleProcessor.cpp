@@ -151,7 +151,7 @@ void VandleProcessor::DeclarePlots(void) {
 
         DeclareHistogram2D(DD_TIMEDIFFBARS + offset.second, SB, S6, "UNCALIBRATED: Bars vs. Time Differences (0.5ns/bin)");
         DeclareHistogram2D(DD_TOFBARS + offset.second, SC, S8, "UNCALIBRATED: Bar vs. Time of Flight (0.5ns/bin)");
-        DeclareHistogram2D(DD_TQDCAVEVSTOF+ offset.second, SC, S8, "UNCALIBRATED: <E> vs. TOF (0.5ns/bin)");
+        DeclareHistogram2D(DD_TQDCAVEVSTOF+ offset.second, SC, SD, "UNCALIBRATED: <E> vs. TOF (0.5ns/bin)");
     }
 
     DeclareHistogram1D(D_DEBUGGING, S5, "1D Debugging");
@@ -274,7 +274,7 @@ void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc
         }
 }
 
-void VandleProcessor::PlotTofHistograms(const double &tof, const double &cortof,const double &NCtof, const double &qdc,
+void VandleProcessor::PlotTofHistograms(const double &tof, const double &cortof,const double &NGtof, const double &qdc,
                                         const unsigned int &barPlusStartLoc,
                                         const pair<unsigned int, unsigned int>&offset ,bool &calibrated) {
 
@@ -290,8 +290,8 @@ void VandleProcessor::PlotTofHistograms(const double &tof, const double &cortof,
     *The ones above would be the same as these when no time calibration is present in the Config.xml
      * This allows for easier timecals since we dont have to rerun the data before we can run timecal.bash
     */
-    plot(DD_TOFBARS + offset.second, NCtof* plotMult_ + plotOffset_, barPlusStartLoc);
-    plot(DD_TQDCAVEVSTOF + offset.second, NCtof* plotMult_ + plotOffset_, qdc / qdcComp_);
+    plot(DD_TOFBARS + offset.second, NGtof* plotMult_ + plotOffset_, barPlusStartLoc);
+    plot(DD_TQDCAVEVSTOF + offset.second, NGtof* plotMult_ + plotOffset_, qdc / qdcComp_);
 
 
 

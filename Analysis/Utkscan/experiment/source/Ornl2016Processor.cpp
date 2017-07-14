@@ -89,9 +89,13 @@ void Ornl2016Processor::DeclarePlots(void) {
 
     DeclareHistogram2D(DD_QDCVTOF, SC, SD, "exp processor made qdc vs tof");
 
-    DeclareHistogram1D(D_DBGge, SD, "Double Beta gated HPGe Energy");
-    DeclareHistogram1D(D_DBGnai, SD, "Double Beta gated NaI Energy");
-    DeclareHistogram1D(D_DBGlabr, SD, "Double Beta gated LaBr3 Energy");
+    std::string DBGeName = "Super-BGated HPGe Energy ( Window="+SupBetaWin.second+" ns)";
+    std::string DBNaiName = "Super-BGated NaI Energy (Window= "+SupBetaWin.second+" ns)";
+    std::string DBLaBrName = "Super-BGated LaBr Energy ( Window="+SupBetaWin.second+" ns)";
+
+    DeclareHistogram1D(D_DBGge, SD, DBGeName.c_str());
+    DeclareHistogram1D(D_DBGnai, SD, DBNaiName.c_str());
+    DeclareHistogram1D(D_DBGlabr, SD, DBLaBrName.c_str());
 
 
     // //Declaring beta gated
@@ -142,6 +146,43 @@ void Ornl2016Processor::rootGstrutInit2(PROSS &strutName) { //Zeros the entire p
     //strutName.SymY = -999;
 }
 
+void Ornl2016Processor::rootAuxRoot(string &type) { //Zeros the entire processed structure
+    if (type == "LaBr"){
+        aux_LaBrEn=0;
+        aux_LaBrNum=0;
+        aux_LaBrTime=0;
+        aux_LaBrHasLRBeta=false;
+        aux_LaBrTdiff = 0;
+        aux_LaBrMulti=0;
+        aux_BetaEn=0;
+        aux_BetaTime=0;
+        aux_BetaMulti=0;
+
+    } else if (type == "NaI"){
+        aux_NaIEn=0;
+        aux_NaINum=0;
+        aux_NaITime=0;
+        aux_NaIHasLRBeta=false;
+        aux_NaITdiff = 0;
+        aux_NaIMulti=0;
+        aux_BetaEn=0;
+        aux_BetaTime=0;
+        aux_BetaMulti=0;
+
+    } else if (type == "Ge"){
+        aux_GeEn=0;
+        aux_GeNum=0;
+        aux_GeTime=0;
+        aux_GeHasLRBeta=false;
+        aux_GeTdiff = 0;
+        aux_GeMulti=0;
+        aux_BetaEn=0;
+        aux_BetaTime=0;
+        aux_BetaMulti=0;
+
+    }
+
+}
 
 Ornl2016Processor::Ornl2016Processor() : EventProcessor(
         OFFSET, RANGE, "Ornl2016Processor") {
@@ -149,7 +190,8 @@ Ornl2016Processor::Ornl2016Processor() : EventProcessor(
     debugging = to_bool(Globals::get()->GetOrnl2016Arguments().find("Debugging")->second);
     Pvandle = to_bool(Globals::get()->GetOrnl2016Arguments().find("MkVandle")->second);
 
-    SupBetaWin=atof(Globals::get()->GetOrnl2016Arguments().find("SupBetaWin")->second.c_str());
+    SupBetaWin.second=Globals::get()->GetOrnl2016Arguments().find("SupBetaWin")->second.c_str();
+    SupBetaWin.first= atof(SupBetaWin.second.c_str());
 
     associatedTypes.insert("ge");
     associatedTypes.insert("nai");
@@ -157,7 +199,8 @@ Ornl2016Processor::Ornl2016Processor() : EventProcessor(
     associatedTypes.insert("beta");
 
     if (Pvandle) {
-        associatedTypes.insert("vandle");}
+        associatedTypes.insert("vandle");
+    }
 
     LgammaThreshold_ = atof(Globals::get()->GetOrnl2016Arguments().find("gamma_threshold_L")->second.c_str());
     LsubEventWindow_ = atof(Globals::get()->GetOrnl2016Arguments().find("sub_event_L")->second.c_str());
@@ -182,49 +225,70 @@ Ornl2016Processor::Ornl2016Processor() : EventProcessor(
 
     // Start Primary Root File
     rootFName_ = new TFile(rootname.c_str(), "RECREATE");
-    Taux = new TTree("Taux", "Tree for Gamma-ray stuff @ ORNL2016");
+    TauxL = new TTree("TauxL", "LaBr Tree for ORNL2016");
+    TauxN = new TTree("TauxN", "NaI Tree for ORNL2016");
+    TauxG = new TTree("TauxG", "HPGe Tree for ORNL2016");
 
     //Taux Stuff
     //singBranch = Taux->Branch("sing", &sing,"LaBr[16]/D:NaI[10]/D:Ge[4]/D:beta/D:eventNum/D:cycle/i:gMulti/i:nMulti/i:hMulti/i:bMulti/i");
     //rootGstrutInit(sing);
 
-    Taux->Branch("aux_LaBrEn",&aux_LaBrEn);
-    Taux->Branch("aux_LaBrNum",&aux_LaBrNum);
-    Taux->Branch("aux_LaBrTime",&aux_LaBrTime);
-    Taux->Branch("aux_NaIEn",&aux_NaIEn);
-    Taux->Branch("aux_NaINum",&aux_NaINum);
-    Taux->Branch("aux_NaITime",&aux_NaITime);
-    Taux->Branch("aux_GeEn",&aux_GeEn);
-    Taux->Branch("aux_GeNum",&aux_GeNum);
-    Taux->Branch("aux_GeTime",&aux_GeTime);
-    Taux->Branch("aux_betaEn",&aux_betaEn);
-    Taux->Branch("aux_betaNum",&aux_betaNum);
-    Taux->Branch("aux_betaTime",&aux_betaTime);
-    Taux->Branch("aux_cycle",&aux_cycle);
-    Taux->Branch("aux_cycleSTime",&aux_cycleSTime);
-    Taux->Branch("aux_geTdiff",&aux_geTdiff);
-    Taux->Branch("aux_naiTdiff",&aux_naiTdiff);
-    Taux->Branch("aux_labrTdiff",&aux_labrTdiff);
-    Taux->Branch("aux_eventNum",&aux_eventNum);
-    Taux->Branch("aux_gMulti",&aux_gMulti);
-    Taux->Branch("aux_nMulti",&aux_nMulti);
-    Taux->Branch("aux_lMulti",&aux_lMulti);
-    Taux->Branch("aux_bMulti",&aux_bMulti);
+    TauxL->Branch("aux_LaBrEn",&aux_LaBrEn);
+    TauxL->Branch("aux_LaBrNum",&aux_LaBrNum);
+    TauxL->Branch("aux_LaBrTime",&aux_LaBrTime);
+    TauxL->Branch("aux_LaBrTdiff",&aux_LaBrTdiff);
+    TauxL->Branch("aux_lMulti",&aux_LaBrMulti);
+    TauxL->Branch("aux_LaBrHasLRBeta",&aux_LaBrHasLRBeta);
+    TauxL->Branch("aux_BetaEn",&aux_BetaEn);
+    TauxL->Branch("aux_BetaTime",&aux_BetaTime);
+    TauxL->Branch("aux_BetaMulti",&aux_BetaMulti);
+    TauxL->Branch("aux_cycle",&aux_cycle);
+    TauxL->Branch("aux_cycleSTime",&aux_cycleSTime);
+    TauxL->Branch("aux_eventNum",&aux_eventNum);
 
 
-    Taux->SetAutoFlush(3000);
+    TauxN->Branch("aux_NaIEn",&aux_NaIEn);
+    TauxN->Branch("aux_NaINum",&aux_NaINum);
+    TauxN->Branch("aux_NaITime",&aux_NaITime);
+    TauxN->Branch("aux_NaITdiff",&aux_NaITdiff);
+    TauxN->Branch("aux_nMulti",&aux_NaIMulti);
+    TauxN->Branch("aux_NaIHasLRBeta",&aux_NaIHasLRBeta);
+    TauxN->Branch("aux_BetaEn",&aux_BetaEn);
+    TauxN->Branch("aux_BetaTime",&aux_BetaTime);
+    TauxN->Branch("aux_BetaMulti",&aux_BetaMulti);
+    TauxN->Branch("aux_cycle",&aux_cycle);
+    TauxN->Branch("aux_cycleSTime",&aux_cycleSTime);
+    TauxN->Branch("aux_eventNum",&aux_eventNum);
 
+    TauxG->Branch("aux_GeEn",&aux_GeEn);
+    TauxG->Branch("aux_GeNum",&aux_GeNum);
+    TauxG->Branch("aux_GeTime",&aux_GeTime);
+    TauxG->Branch("aux_GeTdiff",&aux_GeTdiff);
+    TauxG->Branch("aux_gMulti",&aux_GeMulti);
+    TauxG->Branch("aux_GeHasLRBeta",&aux_GeHasLRBeta);
+    TauxG->Branch("aux_BetaEn",&aux_BetaEn);
+    TauxG->Branch("aux_BetaTime",&aux_BetaTime);
+    TauxG->Branch("aux_BetaMulti",&aux_BetaMulti);
+    TauxG->Branch("aux_cycle",&aux_cycle);
+    TauxG->Branch("aux_cycleSTime",&aux_cycleSTime);
+    TauxG->Branch("aux_eventNum",&aux_eventNum);
+
+    TauxL->SetAutoFlush(3000);
+    TauxN->SetAutoFlush(3000);
+    TauxG->SetAutoFlush(3000);
+
+
+    //Start second Root File
     rootFName2_ = new TFile(rootname2.c_str(), "RECREATE");
     Tadd = new TTree("Tadd", "Tree for Addbacks @ ORNL2016");
-
-    gProcBranch = Taux->Branch("Gpro", &Gpro, "AbE/D:AbEvtNum/D:Multi/D");
-    lProcBranch = Taux->Branch("Lpro", &Lpro, "AbE/D:AbEvtNum/D:Multi/D");
-    nProcBranch = Taux->Branch("Npro", &Npro, "AbE/D:AbEvtNum/D:Multi/D");
+    gProcBranch = Tadd->Branch("Gpro", &Gpro, "AbE/D:AbEvtNum/D:Multi/D");
+    lProcBranch = Tadd->Branch("Lpro", &Lpro, "AbE/D:AbEvtNum/D:Multi/D");
+    nProcBranch = Tadd->Branch("Npro", &Npro, "AbE/D:AbEvtNum/D:Multi/D");
 
     rootGstrutInit2(Gpro);
     rootGstrutInit2(Lpro);
     rootGstrutInit2(Npro);
-
+    Tadd->SetAutoFlush(3000);
     // End second Root File
     if (Pvandle) {
         // Start Third  RootFile
@@ -379,9 +443,9 @@ bool Ornl2016Processor::Process(RawEvent &event) {
     map<unsigned int, pair<double, double> > lrtBetas;
     BarMap betas, vbars;
 
-    hasBeta = false;
-    hasBeta = TreeCorrelator::get()->place(
-            "Beta")->status(); //might need a static initialize to false + reset at the end
+    hasLRbeta = false;
+    hasLRbeta = TreeCorrelator::get()->place("Beta")->status(); 
+    //might need a static initialize to false + reset at the end
 
     if ((Pvandle || debugging) && event.GetSummary("vandle")->GetList().size() != 0) {
         vbars = ((VandleProcessor *) DetectorDriver::get()->GetProcessor("VandleProcessor"))->GetBars();
@@ -389,13 +453,13 @@ bool Ornl2016Processor::Process(RawEvent &event) {
 
     if (event.GetSummary("beta:double")->GetList().size() != 0) {
         betas = ((DoubleBetaProcessor *) DetectorDriver::get()->GetProcessor("DoubleBetaProcessor"))->GetBars();
-        lrtBetas = ((DoubleBetaProcessor *) DetectorDriver::get()->GetProcessor(
-                "DoubleBetaProcessor"))->GetLowResBars();
+        lrtBetas = ((DoubleBetaProcessor *) DetectorDriver::get()->GetProcessor("DoubleBetaProcessor"))->GetLowResBars();
     }
 
     static const vector<ChanEvent *> &labr3Evts = event.GetSummary("labr3")->GetList();
     static const vector<ChanEvent *> &naiEvts = event.GetSummary("nai")->GetList();
     static const vector<ChanEvent *> &geEvts = event.GetSummary("ge")->GetList();
+
 
 
     /// PLOT ANALYSIS HISTOGRAMS-------------------------------------------------------------------------------------------------------------------------------------
@@ -406,6 +470,14 @@ bool Ornl2016Processor::Process(RawEvent &event) {
     rootGstrutInit2(Lpro);
     rootGstrutInit2(Npro);
 
+    std::string beta = "beta";
+    rootAuxRoot(beta);
+    std::string Ge = "Ge";
+    rootAuxRoot(Ge);
+    std::string NaI = "NaI";
+    rootAuxRoot(NaI);
+    std::string LaBr = "LaBr";
+    rootAuxRoot(LaBr);
 
     //Setting vars for addback
     double LrefTime = -2.0 * LsubEventWindow_;
@@ -437,46 +509,70 @@ bool Ornl2016Processor::Process(RawEvent &event) {
     aux_cycle = cycleNum;
 
     //set multiplicys for sing branch based on the size of the detector maps for the event. limitation: sub event is smaller than full event this will end up being too large
-    aux_gMulti = geEvts.size();
-    aux_nMulti = naiEvts.size();
-    aux_lMulti = labr3Evts.size();
-    aux_bMulti = lrtBetas.size();
+    aux_GeMulti = geEvts.size();
+    aux_NaIMulti = naiEvts.size();
+    aux_LaBrMulti = labr3Evts.size();
+    aux_BetaMulti = lrtBetas.size();
+    aux_eventNum = evtNum;
 
+    BetaList.clear();
 
     for (map<unsigned int, pair<double, double> >::iterator bIt = lrtBetas.begin(); bIt != lrtBetas.end(); bIt++) {
-
-        aux_betaTime = betaSubTime = bIt->second.first;
+        aux_BetaTime = bIt->second.first;
         plot(D_BETASCALARRATE, cycleNum);//PLOTTING BETA SCALAR SUM per CYCLE (LIKE 759 but per cycle vs per second
         plot(D_BETAENERGY, bIt->second.second);
-        aux_betaEn = bIt->second.second;
-        aux_betaNum = bIt->first;
+        aux_BetaEn = bIt->second.second;
+        BetaList.push_back(make_pair(aux_BetaTime,aux_BetaEn));
     }
-
 
     //NaI ONLY
     // ----------------------------------------------------------------------------------------------------------
-    for (vector<ChanEvent *>::const_iterator itNai = naiEvts.begin();
-         itNai != naiEvts.end(); itNai++) {
+    for (vector<ChanEvent *>::const_iterator itNai = naiEvts.begin(); itNai != naiEvts.end(); itNai++) {
         int naiNum = (*itNai)->GetChannelNumber();
         aux_NaINum = naiNum;
         aux_NaIEn = (*itNai)->GetCalibratedEnergy();
-        aux_NaITime = naiEvtTime = (*itNai)->GetTime();
+        aux_NaITime = (*itNai)->GetTime();
         //sing.NaI[naiNum] = (*itNai)->GetCalibratedEnergy();
         plot(D_NAISUM, (*itNai)->GetCalibratedEnergy()); //plot totals
 
 
-        aux_naiTdiff = betaSubTime-naiEvtTime;
-
-        if (aux_naiTdiff < SupBetaWin && aux_naiTdiff >0 ) {
-            plot(D_DBGnai,(*itNai)->GetCalibratedEnergy());
-        }
 //Beta Gate and addback
-        if (hasBeta) {  //Beta Gate
+        aux_NaIHasLRBeta=hasLRbeta;
+        if (hasLRbeta) {  //Beta Gate
             plot(D_NAIBETA, (*itNai)->GetCalibratedEnergy()); //plot beta-gated totals
 
+            double TDiff;
+            for (vector<pair<double, double>>::const_iterator itBetaList = BetaList.begin();
+                 itBetaList !=BetaList.end(); itBetaList++) {
+
+                TDiff = aux_NaITime - (*itBetaList).first;
+
+                if (TDiff < 0) {
+                    continue;
+                } else if (TDiff >= 0) {
+                    aux_BetaEn = (*itBetaList).second;
+                    aux_BetaTime = (*itBetaList).first;
+                    aux_NaITdiff = TDiff;
+
+                    /*cout<<fixed<<"BetaList.size() = "<<BetaList.size()<<endl;
+                    cout <<fixed<< "NaI Time = "<<(*itNai)->GetTime() << endl;
+                    cout <<fixed<< "BetaList Time = "<<(*itBetaList).first<<endl;
+                    cout <<fixed<< "aux_BetaTime = "<<aux_BetaTime<<endl;
+                    cout <<fixed<< "aux_GeTDiff = "<<aux_NaITdiff<<endl;
+                    cout <<fixed<< "TDiff = "<<TDiff<<endl;
+                    cout <<fixed<< "Diff = "<<(*itNai)->GetTime() - (*itBetaList).first<<endl;
+                    cout<<fixed<<"BetaMulti = "<<aux_BetaMulti<<endl;
+                    cout<<fixed<<"Evt Number = "<<evtNum<<endl;
+*/
+                    if (TDiff<=SupBetaWin.first)
+                        plot(D_DBGnai,(*itNai)->GetCalibratedEnergy());
+
+                    break;
+                }
+            }
             //begin addback calulations for NaI
             double energy = (*itNai)->GetCalibratedEnergy();
-            double time = (*itNai)->GetTime();
+            double time = (*itNai)->GetTimeSansCfd();
 
             if (energy < NgammaThreshold_) {
                 continue;
@@ -489,7 +585,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                 Npro.AbEvtNum = evtNum;
                 Npro.AbE = NaddBack_.back().energy;
                 Npro.Multi = NaddBack_.back().multiplicity;
-                Taux->Fill();
+                Tadd->Fill();
                 NaddBack_.push_back(ScintAddBack());
             }//end subEvent IF
             NaddBack_.back().energy += energy; // if still inside sub window: incrament
@@ -498,6 +594,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
             NrefTime = time;
 
         }//end beta gate
+        TauxN->Fill();
     } //NaI loop End
 
     //HPGe ONLY---------------------------------------------------------------------------------------------------------------------------------------------
@@ -506,19 +603,45 @@ bool Ornl2016Processor::Process(RawEvent &event) {
         int geNum = (*itGe)->GetChanID().GetLocation();
         aux_GeEn = (*itGe)->GetCalibratedEnergy();
         aux_GeNum = geNum;
-        aux_GeTime = geEvtTime= (*itGe)->GetTime();
+        aux_GeTime = (*itGe)->GetTime();
 
-        aux_geTdiff = betaSubTime-geEvtTime;
-
-        if (aux_geTdiff < SupBetaWin && aux_geTdiff>0){
-            plot(D_DBGge,(*itGe)->GetCalibratedEnergy());
-        }
-
-        //sing.Ge[geNum] = (*itGe)->GetCalibratedEnergy();
         plot(D_HPGESUM, (*itGe)->GetCalibratedEnergy()); //plot non-gated totals
 
-        if (hasBeta) { //beta-gated Processing to cut LaBr contamination out
-            plot(D_HPGESUMBETA, (*itGe)->GetCalibratedEnergy()); //plot non-gated totals
+        aux_GeHasLRBeta=hasLRbeta;
+
+        if (hasLRbeta) { //beta-gated Processing to cut LaBr contamination out
+            plot(D_HPGESUMBETA,(*itGe)->GetCalibratedEnergy());
+
+            double TDiff;
+            for (vector<pair<double, double>>::const_iterator itBetaList = BetaList.begin();
+                 itBetaList !=BetaList.end(); itBetaList++) {
+
+                TDiff = aux_GeTime - (*itBetaList).first;
+
+                if (TDiff < 0) {
+                     continue;
+                } else if (TDiff >= 0) {
+                    aux_BetaEn = (*itBetaList).second;
+                    aux_BetaTime = (*itBetaList).first;
+                    aux_GeTdiff = TDiff;
+/*
+                    cout<<fixed<<"BetaList.size() = "<<BetaList.size()<<endl;
+                    cout <<fixed<< "HPGe Time = "<<(*itGe)->GetTime() << endl;
+                    cout <<fixed<< "BetaList Time = "<<(*itBetaList).first<<endl;
+                    cout <<fixed<< "aux_BetaTime = "<<aux_BetaTime<<endl;
+                    cout <<fixed<< "aux_GeTDiff = "<<aux_GeTdiff<<endl;
+                    cout <<fixed<< "TDiff = "<<TDiff<<endl;
+                    cout <<fixed<< "Diff = "<<(*itGe)->GetTime() - (*itBetaList).first<<endl;
+                    cout<<fixed<<"BetaMulti = "<<aux_BetaMulti<<endl;
+                    cout<<fixed<<"Evt Number = "<<evtNum<<endl;
+*/
+                    if (TDiff<=SupBetaWin.first)
+                        plot(D_DBGge,(*itGe)->GetCalibratedEnergy());
+
+                    break;
+                }
+            }
+
             //begin addback calulations for clover
             double energy = (*itGe)->GetCalibratedEnergy();
             double time = (*itGe)->GetTime();
@@ -533,7 +656,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                 Gpro.AbEvtNum = evtNum;
                 Gpro.Multi = GaddBack_.back().multiplicity;
                 Gpro.AbE = GaddBack_.back().energy;
-                Taux->Fill();
+                Tadd->Fill();
                 GaddBack_.push_back(ScintAddBack());
             } //end subEvent IF
 
@@ -544,6 +667,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
 
 
         } //end BetaGate
+        TauxG->Fill();
     } //GE loop end
 
     //HAGRiD ONLY-------------------------------------------------------------------------------------------------------------------------------------------
@@ -555,19 +679,47 @@ bool Ornl2016Processor::Process(RawEvent &event) {
 
         aux_LaBrNum = labrNum;
         aux_LaBrEn = (*itLabr)->GetCalibratedEnergy();
-        aux_LaBrTime =labrEvtTime = (*itLabr)->GetTime();
+        aux_LaBrTime = (*itLabr)->GetTimeSansCfd();
 
-        aux_labrTdiff = betaSubTime-labrEvtTime;
+        aux_LaBrHasLRBeta=hasLRbeta;
 
-
-        if (aux_labrTdiff < SupBetaWin && aux_labrTdiff>0){
-            plot(D_DBGlabr,(*itLabr)->GetCalibratedEnergy());
-        }
-
-
-        if (hasBeta) {
+        if (hasLRbeta) {
 
             plot(D_LABR3BETA, (*itLabr)->GetCalibratedEnergy()); //plot beta-gated totals
+
+            double TDiff;
+            for (vector<pair<double, double>>::const_iterator itBetaList = BetaList.begin();
+                 itBetaList !=BetaList.end(); itBetaList++) {
+
+                TDiff = aux_LaBrTime - (*itBetaList).first;
+
+                if (TDiff < 0) {
+                    continue;
+                } else if (TDiff >= 0) {
+                    aux_BetaEn = (*itBetaList).second;
+                    aux_BetaTime = (*itBetaList).first;
+                    aux_LaBrTdiff = TDiff;
+/*
+                                       cout<<fixed<<"BetaList.size() = "<<BetaList.size()<<endl;
+                                       cout <<fixed<< "LaBr Time = "<<(*itLabr)->GetTime() << endl;
+                                       cout <<fixed<< "BetaList Time = "<<(*itBetaList).first<<endl;
+                                       cout <<fixed<< "aux_BetaTime = "<<aux_BetaTime<<endl;
+                                       cout <<fixed<< "aux_LaBrTDiff = "<<aux_LaBrTdiff<<endl;
+                                       cout <<fixed<< "TDiff = "<<TDiff<<endl;
+                                       cout <<fixed<< "Diff = "<<(*itLabr)->GetTime() - (*itBetaList).first<<endl;
+                                       cout<<fixed<<"BetaMulti = "<<aux_BetaMulti<<endl;
+                                       cout<<fixed<<"Evt Number = "<<evtNum<<endl;
+*/
+                    if (TDiff<=SupBetaWin.first)
+                        plot(D_DBGlabr,(*itLabr)->GetCalibratedEnergy());
+
+                    break;
+                }
+            }
+
+           //Addback Calc
+
+
             //begin addback calculations for LaBr | Beta Gated to Remove La Contamination
 
             double energy = (*itLabr)->GetCalibratedEnergy();
@@ -586,7 +738,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                 Lpro.AbEvtNum = evtNum;
                 Lpro.AbE = LaddBack_.back().energy;
                 Lpro.Multi = LaddBack_.back().multiplicity;
-                Taux->Fill();
+                Tadd->Fill();
                 LaddBack_.push_back(ScintAddBack());
             }// end if for new entry in vector
 
@@ -613,7 +765,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
 //
 //
 //                } //end symplot inner loop
-
+        TauxL->Fill();
         }//end beta gate
 
 
@@ -640,9 +792,9 @@ bool Ornl2016Processor::Process(RawEvent &event) {
 
              double tof = bar.GetTimeAverage() - start.GetTimeAverage() + cal.GetTofOffset(startLoc);
 
-             double corTof = ((VandleProcessor *) DetectorDriver::get()->GetProcessor("VandleProcessor"))->
+             /*double corTof = ((VandleProcessor *) DetectorDriver::get()->GetProcessor("VandleProcessor"))->
                      CorrectTOF(tof, bar.GetFlightPath(), cal.GetZ0());
-
+*/
              plot(DD_QDCVTOF, (tof * 2) + plotOffset_, bar.GetQdc());
 
              qdcVtof_->Fill(tof,bar.GetQdc());
@@ -842,6 +994,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
 
     evtNumber = evtNum;
     aux_eventNum = evtNum;
+
 
     evtNum++;
     EndProcess();
