@@ -216,11 +216,11 @@ Ornl2016Processor::Ornl2016Processor() : EventProcessor(
 
     // ROOT file Naming
     string hisPath = Globals::get()->GetOutputPath();
-    string hisfilename = hisPath + Globals::get()->GetOutputFileName();
+    string hisfilename = hisPath + Globals::get()->GetOutputFileName()+"-ONRL2016";
     string rootname = hisfilename + "-gammaSing.root";
     string rootname2 = hisfilename + "-gammaAddBk.root";
     string rootname3 = hisfilename + "-histo.root";
-    string rootname4 = hisfilename + "-vandleDebug.root";
+    string rootname4 = hisfilename + "-LvandleDebug.root";
     string rootname5 = hisfilename + "-vandle.root";
 
     // Start Primary Root File
@@ -290,6 +290,7 @@ Ornl2016Processor::Ornl2016Processor() : EventProcessor(
     rootGstrutInit2(Npro);
     Tadd->SetAutoFlush(3000);
     // End second Root File
+
     if (Pvandle) {
         // Start Third  RootFile
         rootFName3_ = new TFile(rootname3.c_str(), "RECREATE");
@@ -447,10 +448,11 @@ bool Ornl2016Processor::Process(RawEvent &event) {
     hasLRbeta = TreeCorrelator::get()->place("Beta")->status(); 
     //might need a static initialize to false + reset at the end
 
-    if ((Pvandle || debugging) && event.GetSummary("vandle")->GetList().size() != 0) {
+    if (Pvandle || debugging){
+        if( event.GetSummary("vandle")->GetList().size() != 0) {
         vbars = ((VandleProcessor *) DetectorDriver::get()->GetProcessor("VandleProcessor"))->GetBars();
+        }
     }
-
     if (event.GetSummary("beta:double")->GetList().size() != 0) {
         betas = ((DoubleBetaProcessor *) DetectorDriver::get()->GetProcessor("DoubleBetaProcessor"))->GetBars();
         lrtBetas = ((DoubleBetaProcessor *) DetectorDriver::get()->GetProcessor("DoubleBetaProcessor"))->GetLowResBars();
@@ -797,7 +799,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
 */
              plot(DD_QDCVTOF, (tof * 2) + plotOffset_, bar.GetQdc());
 
-             qdcVtof_->Fill(tof,bar.GetQdc());
+//             qdcVtof_->Fill(tof,bar.GetQdc());
 
              vandle_subtype = bar.GetType();
              vandle_lSnR = bar.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
@@ -873,75 +875,75 @@ bool Ornl2016Processor::Process(RawEvent &event) {
 
 
              //this is ghost flash troubleshooting code
- /*
+             /*
 
-             if (barLoc <8 || barLoc > 15){
-                 plot(DD_QDCVTOFNOMOD2,(tof * 2) + plotOffset_, bar.GetQdc());
-                 plot(D_MOD2CHECK,barLoc);
-             };
-
-
-             static int trcCounter = 0;
-             static int ftrcCounter = 0;
-             double dammBin = (tof * 2) + 1000;
-             static int badTrcEvtCounter = 0;
-             if (dammBin >= 1048 && dammBin <= 1078) {
-                 for (vector<unsigned int>::const_iterator itTL = bar.GetLeftSide().GetTrace()->begin();
-                      itTL != bar.GetLeftSide().GetTrace()->end(); itTL++) {
-                     plot(DD_FLASHTRACES, itTL - bar.GetLeftSide().GetTrace()->begin(), ftrcCounter, (*itTL));
-                 }
-                 for (vector<unsigned int>::const_iterator itTR = bar.GetRightSide().GetTrace()->begin();
-                      itTR != bar.GetRightSide().GetTrace()->end(); itTR++) {
-                     plot(DD_FLASHTRACES, itTR - bar.GetRightSide().GetTrace()->begin(),
-                          ftrcCounter + 1, (*itTR));
-                 }
-                 ftrcCounter += 3;
-
-                 plot(D_BADLOCATION, barLoc);
-                 plot(D_STARTLOC,startLoc);
-                 if (TreeCorrelator::get()->place("Cycle")->status()) {
-                     double inCycleTime = bar.GetTimeAverage();
-                     double cycleTimeLast = TreeCorrelator::get()->place("Cycle")->last().time;
-                     cycleTimeLast *= (Globals::get()->clockInSeconds() * 1.e9);
-                     double currenttime = (inCycleTime) - (cycleTimeLast);
+                         if (barLoc <8 || barLoc > 15){
+                             plot(DD_QDCVTOFNOMOD2,(tof * 2) + plotOffset_, bar.GetQdc());
+                             plot(D_MOD2CHECK,barLoc);
+                         };
 
 
-                     //cout << endl << "timeavg=" << inCycleTime << endl << "currenttime=" << currenttime << endl
-                     //     << "last cycle start=" << cycleTimeLast << endl;
+                         static int trcCounter = 0;
+                         static int ftrcCounter = 0;
+                         double dammBin = (tof * 2) + 1000;
+                         static int badTrcEvtCounter = 0;
+                         if (dammBin >= 1048 && dammBin <= 1078) {
+                             for (vector<unsigned int>::const_iterator itTL = bar.GetLeftSide().GetTrace()->begin();
+                                  itTL != bar.GetLeftSide().GetTrace()->end(); itTL++) {
+                                 plot(DD_FLASHTRACES, itTL - bar.GetLeftSide().GetTrace()->begin(), ftrcCounter, (*itTL));
+                             }
+                             for (vector<unsigned int>::const_iterator itTR = bar.GetRightSide().GetTrace()->begin();
+                                  itTR != bar.GetRightSide().GetTrace()->end(); itTR++) {
+                                 plot(DD_FLASHTRACES, itTR - bar.GetRightSide().GetTrace()->begin(),
+                                      ftrcCounter + 1, (*itTR));
+                             }
+                             ftrcCounter += 3;
 
-                     plot(DD_SIGNOIS, bar.GetLeftSide().GetSignalToNoiseRatio(),bar.GetQdc() );
-                     plot(DD_ETRIGVSQDC,start.GetQdc(),bar.GetQdc());
-                     plot(D_BADCYCLE, cycleNum);
-                     plot(DD_BADCYCLELOC,cycleNum,barLoc);
-                 }
-             }
-             else if (dammBin >=995 && dammBin<=1015){
-                 plot(D_GCYCLE,cycleNum);
-             }
-             else {
-
-                 plot(D_STARTLOC,startLoc+1000);
-
-                 for (vector<unsigned int>::const_iterator itTL = bar.GetLeftSide().GetTrace()->begin();
-                      itTL != bar.GetLeftSide().GetTrace()->end(); itTL++) {
-                     plot(DD_TRACES, itTL - bar.GetLeftSide().GetTrace()->begin(),
-                          trcCounter, (*itTL));
-                 }
-
-                 for (vector<unsigned int>::const_iterator itTR = bar.GetRightSide().GetTrace()->begin();
-                      itTR != bar.GetRightSide().GetTrace()->end(); itTR++) {
-                     plot(DD_TRACES, itTR - bar.GetRightSide().GetTrace()->begin(),
-                          trcCounter + 1, (*itTR));
-                 }
-
-                 trcCounter += 3;
-                 plot(DD_QDCVSTOFNOF, (tof * 2) + 1000, bar.GetQdc());
-                 plot(DD_GSIGNOIS, bar.GetLeftSide().GetSignalToNoiseRatio(),bar.GetQdc() );
-                 plot(DD_GETRIGVSQDC,start.GetQdc(),bar.GetQdc());
-             }
+                             plot(D_BADLOCATION, barLoc);
+                             plot(D_STARTLOC,startLoc);
+                             if (TreeCorrelator::get()->place("Cycle")->status()) {
+                                 double inCycleTime = bar.GetTimeAverage();
+                                 double cycleTimeLast = TreeCorrelator::get()->place("Cycle")->last().time;
+                                 cycleTimeLast *= (Globals::get()->clockInSeconds() * 1.e9);
+                                 double currenttime = (inCycleTime) - (cycleTimeLast);
 
 
-             */
+                                 //cout << endl << "timeavg=" << inCycleTime << endl << "currenttime=" << currenttime << endl
+                                 //     << "last cycle start=" << cycleTimeLast << endl;
+
+                                 plot(DD_SIGNOIS, bar.GetLeftSide().GetSignalToNoiseRatio(),bar.GetQdc() );
+                                 plot(DD_ETRIGVSQDC,start.GetQdc(),bar.GetQdc());
+                                 plot(D_BADCYCLE, cycleNum);
+                                 plot(DD_BADCYCLELOC,cycleNum,barLoc);
+                             }
+                         }
+                         else if (dammBin >=995 && dammBin<=1015){
+                             plot(D_GCYCLE,cycleNum);
+                         }
+                         else {
+
+                             plot(D_STARTLOC,startLoc+1000);
+
+                             for (vector<unsigned int>::const_iterator itTL = bar.GetLeftSide().GetTrace()->begin();
+                                  itTL != bar.GetLeftSide().GetTrace()->end(); itTL++) {
+                                 plot(DD_TRACES, itTL - bar.GetLeftSide().GetTrace()->begin(),
+                                      trcCounter, (*itTL));
+                             }
+
+                             for (vector<unsigned int>::const_iterator itTR = bar.GetRightSide().GetTrace()->begin();
+                                  itTR != bar.GetRightSide().GetTrace()->end(); itTR++) {
+                                 plot(DD_TRACES, itTR - bar.GetRightSide().GetTrace()->begin(),
+                                      trcCounter + 1, (*itTR));
+                             }
+
+                             trcCounter += 3;
+                             plot(DD_QDCVSTOFNOF, (tof * 2) + 1000, bar.GetQdc());
+                             plot(DD_GSIGNOIS, bar.GetLeftSide().GetSignalToNoiseRatio(),bar.GetQdc() );
+                             plot(DD_GETRIGVSQDC,start.GetQdc(),bar.GetQdc());
+                         }
+
+
+                         */
 
              //tof vs gammas in damm for testing against root when its working right
              //Gamma Loops for VANDLE
@@ -982,13 +984,18 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                  geEn = (*itGe)->GetCalibratedEnergy();
                  plot(DD_TOFVSGE, geEn, tof * plotMult_ + 200);
 
-                 tofVGe_->Fill(geEn,tof);
-                 vandle_ge.push_back(make_pair((double)geNum,geEn));
+                  tofVGe_->Fill(geEn,tof);
+                  vandle_ge.push_back(make_pair((double)geNum,geEn));
              };
          };
 
-         Wave->Fill();
-         Tvan->Fill();
+         if (debugging) {
+             Wave->Fill();
+         }
+
+         if(Pvandle) {
+             Tvan->Fill();
+         }
 
      };//End VANDLE
 
