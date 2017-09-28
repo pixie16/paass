@@ -1,5 +1,5 @@
 ///@file VandleProcessor.hpp
-///@brief A class to handle VANDLE bars 
+///@brief A class to handle VANDLE bars
 ///Processes information from the VANDLE Bars, allows for
 ///beta-gamma-neutron correlations.
 ///
@@ -48,7 +48,7 @@ public:
     ///Constructor taking a list of detector types as an argument
     ///@param [in] typeList : the list of bar types that are in the analysis
     ///@param [in] res : The resolution of the DAMM histograms
-    ///@param [in] offset : The offset of the DAMM histograms 
+    ///@param [in] offset : The offset of the DAMM histograms
     ///@param [in] numStarts : number of starts we have to process */
     VandleProcessor(const std::vector<std::string> &typeList, const double &res, const double &offset,
                     const unsigned int &numStarts, const double &compression = 1.0);
@@ -93,45 +93,41 @@ public:
     unsigned int evtNumber=0;
     std::string output_name = Globals::get()->GetOutputFileName();
     std::string vandle_subtype = "";
-    double vandle_BarQDC=0;
-    double vandle_lQDC=0;
-    double vandle_rQDC=0;
-    double vandle_QDCPos=-500;
+
+    double vandle_Average_QDC=0;
+    double vandle_left_QDC=0;
+    double vandle_right_QDC=0;
+    double vandle_QDCPos=-5000;
     double vandle_TOF=0;
-    double vandle_lSnR=0;
-    double vandle_rSnR=0;
-    double vandle_lAmp=0;
-    double vandle_rAmp=0;
-    double vandle_lMaxAmpPos=0;
-    double vandle_rMaxAmpPos=0;
-    double vandle_lAveBaseline=0;
-    double vandle_rAveBaseline=0;
+    double vandle_left_SnR=0;
+    double vandle_right_SnR=0;
+    double vandle_left_Amp=0;
+    double vandle_right_Amp=0;
+    double vandle_left_MaxAmpPos=0;
+    double vandle_right_MaxAmpPos=0;
+    double vandle_left_AveBaseline=0;
+    double vandle_right_AveBaseline=0;
     unsigned int vandle_barNum=0;
     double vandle_TAvg=0;
     double vandle_Corrected_TAvg=0;
     double vandle_TDiff=0;
     double vandle_Corrected_TDiff=0;
-    std::vector<unsigned int> vandle_ltrace;
-    std::vector<unsigned int> vandle_rtrace;
+    double vandle_left_phase=0;
+    double vandle_right_phase=0;
+    std::vector<unsigned int> vandle_left_trace;
+    std::vector<unsigned int> vandle_right_trace;
 
-    double beta_BarQDC=0;
-    double beta_lQDC=0;
-    double beta_rQDC=0;
-    double beta_lSnR=0;
-    double beta_rSnR=0;
-    double beta_lAmp=0;
-    double beta_rAmp=0;
-    double beta_lMaxAmpPos=0;
-    double beta_rMaxAmpPos=0;
-    double beta_lAveBaseline=0;
-    double beta_rAveBaseline=0;
-    unsigned int beta_barNum=0;
+    double beta_SnR=0;
+    double beta_Amp=0;
+    double beta_MaxAmpPos=0;
+    double beta_AveBaseline=0;
+    double beta_QDC=0;
     double beta_TAvg=0;
     double beta_Corrected_TAvg=0;
-    double beta_TDiff=0;
-    double beta_Corrected_TDiff=0;
-    std::vector<unsigned int> beta_ltrace;
-    std::vector<unsigned int> beta_rtrace;
+    double beta_phase=0;
+    unsigned int beta_barNum=0;
+    std::vector<unsigned int> beta_trace;
+
 #endif
 
 private:
