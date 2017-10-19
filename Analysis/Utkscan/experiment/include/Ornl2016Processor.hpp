@@ -81,8 +81,11 @@ public:
 private:
 
 // Bools for controling output as set in the cfg
-    bool debugging;
-    bool Pvandle;
+    bool debugging = false;
+    bool Pvandle = false;
+    std::string Vout;
+    bool VoutRoot = false;
+    bool VoutDamm = false;
     std::pair<double, std::string> SupBetaWin;
 
     bool hasLRbeta;

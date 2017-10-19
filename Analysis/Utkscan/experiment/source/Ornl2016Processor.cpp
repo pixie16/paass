@@ -188,7 +188,20 @@ Ornl2016Processor::Ornl2016Processor() : EventProcessor(
         OFFSET, RANGE, "Ornl2016Processor") {
 
     debugging = to_bool(Globals::get()->GetOrnl2016Arguments().find("Debugging")->second);
-    Pvandle = to_bool(Globals::get()->GetOrnl2016Arguments().find("MkVandle")->second);
+    Vout = Globals::get()->GetOrnl2016Arguments().find("MkVandle")->second;
+    if (Vout == "damm"){
+        Pvandle = true;
+        VoutDamm = true;
+    }else if (Vout =="root") {
+        Pvandle = true;
+        VoutRoot = true;
+    }else if (Vout == "both"){
+        Pvandle = true;
+        VoutRoot = true;
+        VoutDamm = true;
+    }else{
+        Pvandle=VoutDamm=VoutRoot=false;
+    }
 
     SupBetaWin.second=Globals::get()->GetOrnl2016Arguments().find("SupBetaWin")->second.c_str();
     SupBetaWin.first= atof(SupBetaWin.second.c_str());
@@ -355,7 +368,7 @@ Ornl2016Processor::Ornl2016Processor() : EventProcessor(
     }
 
     // Tvan Stuff
-    if (Pvandle) {
+    if (Pvandle && VoutRoot) {
         rootFName5_ = new TFile(rootname5.c_str(), "RECREATE");
         Tvan = new TTree("Tvan", "Tree for Vandle Stuff (coincident gammas as well) @ ORNL2016");
 
@@ -417,10 +430,12 @@ Ornl2016Processor::~Ornl2016Processor() {
         rootFName3_->Close();
         delete (rootFName3_);
 
-        //Vandle + coincidence
-        rootFName5_->Write();
-        rootFName5_->Close();
-        delete (rootFName5_);
+        if (VoutRoot){
+            //Vandle + coincidence
+            rootFName5_->Write();
+            rootFName5_->Close();
+            delete (rootFName5_);
+        }
     }
 
 }
@@ -582,8 +597,8 @@ bool Ornl2016Processor::Process(RawEvent &event) {
             double t1 = Globals::get()->GetClockInSeconds();
             double dtime = abs(time - NrefTime) * t1;
 
-            if (dtime >
-                NsubEventWindow_) { //if event time is outside sub event window start new addback after filling tree
+            if (dtime >NsubEventWindow_) {
+                //if event time is outside sub event window start new addback after filling tree
                 Npro.AbEvtNum = evtNum;
                 Npro.AbE = NaddBack_.back().energy;
                 Npro.Multi = NaddBack_.back().multiplicity;
@@ -799,49 +814,49 @@ bool Ornl2016Processor::Process(RawEvent &event) {
 */
              plot(DD_QDCVTOF, (tof * 2) + plotOffset_, bar.GetQdc());
 
-//             qdcVtof_->Fill(tof,bar.GetQdc());
+             qdcVtof_->Fill(tof,bar.GetQdc());
+            if (VoutRoot || debugging) {
+                vandle_subtype = bar.GetType();
+                vandle_lSnR = bar.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
+                vandle_rSnR = bar.GetRightSide().GetTrace().GetSignalToNoiseRatio();
+                vandle_lAmp = bar.GetLeftSide().GetMaximumValue();
+                vandle_rAmp = bar.GetRightSide().GetMaximumValue();
+                vandle_lMaxAmpPos = bar.GetLeftSide().GetMaximumPosition();
+                vandle_rMaxAmpPos = bar.GetRightSide().GetMaximumPosition();
+                vandle_lAveBaseline = bar.GetLeftSide().GetAveBaseline();
+                vandle_rAveBaseline = bar.GetRightSide().GetAveBaseline();
+                vandle_BarQDC = bar.GetQdc();
+                vandle_QDCPos = bar.GetQdcPosition();
+                vandle_lQDC = bar.GetLeftSide().GetTraceQdc();
+                vandle_rQDC = bar.GetRightSide().GetTraceQdc();
+                vandle_TOF = tof;
+                vandle_barNum = barLoc;
+                vandle_TAvg = bar.GetTimeAverage();
+                vandle_Corrected_TAvg = bar.GetCorTimeAve();
+                vandle_TDiff = bar.GetTimeDifference();
+                vandle_Corrected_TDiff = bar.GetCorTimeDiff();
+                vandle_ltrace = bar.GetLeftSide().GetTrace();
+                vandle_rtrace = bar.GetRightSide().GetTrace();
 
-             vandle_subtype = bar.GetType();
-             vandle_lSnR = bar.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
-             vandle_rSnR = bar.GetRightSide().GetTrace().GetSignalToNoiseRatio();
-             vandle_lAmp = bar.GetLeftSide().GetMaximumValue();
-             vandle_rAmp = bar.GetRightSide().GetMaximumValue();
-             vandle_lMaxAmpPos = bar.GetLeftSide().GetMaximumPosition();
-             vandle_rMaxAmpPos = bar.GetRightSide().GetMaximumPosition();
-             vandle_lAveBaseline = bar.GetLeftSide().GetAveBaseline();
-             vandle_rAveBaseline = bar.GetRightSide().GetAveBaseline();
-             vandle_BarQDC = bar.GetQdc();
-             vandle_QDCPos = bar.GetQdcPosition();
-             vandle_lQDC = bar.GetLeftSide().GetTraceQdc();
-             vandle_rQDC = bar.GetRightSide().GetTraceQdc();
-             vandle_TOF = tof;
-             vandle_barNum = barLoc;
-             vandle_TAvg = bar.GetTimeAverage();
-             vandle_Corrected_TAvg = bar.GetCorTimeAve();
-             vandle_TDiff = bar.GetTimeDifference();
-             vandle_Corrected_TDiff = bar.GetCorTimeDiff();
-             vandle_ltrace = bar.GetLeftSide().GetTrace();
-             vandle_rtrace = bar.GetRightSide().GetTrace();
-
-             beta_lSnR = start.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
-             beta_rSnR = start.GetRightSide().GetTrace().GetSignalToNoiseRatio();
-             beta_lAmp = start.GetLeftSide().GetMaximumValue();
-             beta_rAmp = start.GetRightSide().GetMaximumValue();
-             beta_lMaxAmpPos = start.GetLeftSide().GetMaximumPosition();
-             beta_rMaxAmpPos = start.GetRightSide().GetMaximumPosition();
-             beta_lAveBaseline = start.GetLeftSide().GetAveBaseline();
-             beta_rAveBaseline = start.GetRightSide().GetAveBaseline();
-             beta_BarQDC = start.GetQdc();
-             beta_lQDC = start.GetLeftSide().GetTraceQdc();
-             beta_rQDC = start.GetRightSide().GetTraceQdc();
-             beta_barNum = startLoc;
-             beta_TAvg = start.GetTimeAverage();
-             beta_Corrected_TAvg = start.GetCorTimeAve();
-             beta_TDiff = start.GetTimeDifference();
-             beta_Corrected_TDiff = start.GetCorTimeDiff();
-             beta_ltrace = start.GetLeftSide().GetTrace();
-             beta_rtrace = start.GetRightSide().GetTrace();
-
+                beta_lSnR = start.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
+                beta_rSnR = start.GetRightSide().GetTrace().GetSignalToNoiseRatio();
+                beta_lAmp = start.GetLeftSide().GetMaximumValue();
+                beta_rAmp = start.GetRightSide().GetMaximumValue();
+                beta_lMaxAmpPos = start.GetLeftSide().GetMaximumPosition();
+                beta_rMaxAmpPos = start.GetRightSide().GetMaximumPosition();
+                beta_lAveBaseline = start.GetLeftSide().GetAveBaseline();
+                beta_rAveBaseline = start.GetRightSide().GetAveBaseline();
+                beta_BarQDC = start.GetQdc();
+                beta_lQDC = start.GetLeftSide().GetTraceQdc();
+                beta_rQDC = start.GetRightSide().GetTraceQdc();
+                beta_barNum = startLoc;
+                beta_TAvg = start.GetTimeAverage();
+                beta_Corrected_TAvg = start.GetCorTimeAve();
+                beta_TDiff = start.GetTimeDifference();
+                beta_Corrected_TDiff = start.GetCorTimeDiff();
+                beta_ltrace = start.GetLeftSide().GetTrace();
+                beta_rtrace = start.GetRightSide().GetTrace();
+            }
 
              //TracePloting commented
 /*          int itTVl=0;
@@ -958,6 +973,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
 
                  tofVLabr_->Fill(labrEn,tof);
 
+                 if(VoutRoot)
                  vandle_labr3.push_back(make_pair((double)labrNum,labrEn));
              };
 
@@ -972,6 +988,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
 
                  tofVNai_->Fill(naiEn,tof);
 
+                 if(VoutRoot)
                  vandle_nai.push_back(make_pair((double)naiNum,naiEn));
              };
 
@@ -985,7 +1002,9 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                  plot(DD_TOFVSGE, geEn, tof * plotMult_ + 200);
 
                   tofVGe_->Fill(geEn,tof);
-                  vandle_ge.push_back(make_pair((double)geNum,geEn));
+
+                  if(VoutRoot)
+                      vandle_ge.push_back(make_pair((double)geNum,geEn));
              };
          };
 
@@ -993,7 +1012,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
              Wave->Fill();
          }
 
-         if(Pvandle) {
+         if(Pvandle && VoutRoot) {
              Tvan->Fill();
          }
 

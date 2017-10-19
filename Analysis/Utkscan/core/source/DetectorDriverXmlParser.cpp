@@ -174,7 +174,7 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
 
             string OrnlDebugging = processor.attribute("debugging").as_string("false");
 
-            string OrnlVandle = processor.attribute("ProcessVandle").as_string("true");
+            string OrnlVandle = processor.attribute("VandleOutput").as_string("damm");
 
             string SuperBetaGate = processor.attribute("SuperBetaWindow").as_string("30");
 
