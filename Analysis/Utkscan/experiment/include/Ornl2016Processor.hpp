@@ -11,7 +11,6 @@
 
 #include <fstream>
 
-
 #include "EventProcessor.hpp"
 
 
@@ -87,6 +86,10 @@ private:
     bool VoutRoot = false;
     bool VoutDamm = false;
     std::pair<double, std::string> SupBetaWin;
+
+    std::set<std::string> hagIgnore; // Timeout corner for bad detectors
+    std::set<std::string> naiIgnore; // Timeout corner for bad detectors
+    std::set<std::string> geIgnore; // Timeout corner for bad detectors
 
     bool hasLRbeta;
     double betaSubTime;

@@ -21,6 +21,7 @@
 
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
+#include "StringManipulationFunctions.hpp"
 
 #include "DoubleBetaProcessor.hpp"
 #include "GeProcessor.hpp"
@@ -50,6 +51,10 @@ namespace dammIds {
         const int DD_TOFVSNAI = 14;
         const int DD_TOFVSHAGRID = 15;
         const int DD_TOFVSGE = 16;
+
+        const int DD_DETcheckNai= 17;
+        const int DD_DETcheckHag= 18;
+        const int DD_DETcheckGe= 19;
 
         const int D_BETASCALARRATE = 29; //6079 in his
         const int D_BETAENERGY = 30;
@@ -96,6 +101,11 @@ void Ornl2016Processor::DeclarePlots(void) {
     DeclareHistogram1D(D_DBGge, SD, DBGeName.c_str());
     DeclareHistogram1D(D_DBGnai, SD, DBNaiName.c_str());
     DeclareHistogram1D(D_DBGlabr, SD, DBLaBrName.c_str());
+
+
+    DeclareHistogram2D(DD_DETcheckGe, SD, S5, "Detector Ignore Check (Ge)");
+    DeclareHistogram2D(DD_DETcheckHag, SD, S5, "Detector Ignore Check (Hag)");
+    DeclareHistogram2D(DD_DETcheckNai, SD, S5, "Detector Ignore Check (Nai)");
 
 
     // //Declaring beta gated
@@ -202,6 +212,24 @@ Ornl2016Processor::Ornl2016Processor() : EventProcessor(
     }else{
         Pvandle=VoutDamm=VoutRoot=false;
     }
+
+    /*
+     *  } else if (name == "WaveformAnalyzer") {
+        std::vector <std::string> tokens =
+            StringManipulation::TokenizeString(analyzer.attribute("ignored").as_string(""), ",");
+        vecAnalyzer.push_back(new WaveformAnalyzer(std::set<std::string>(tokens.begin(), tokens.end())));
+    } else {
+    */
+
+    // parsing ignore list for miss behaving gamma ray dectors
+    std::vector <std::string> HagIgnored = StringManipulation::TokenizeString(Globals::get()->GetOrnl2016Arguments().find("HagIgnore")->second, ",");
+    std::vector <std::string> NaiIgnored = StringManipulation::TokenizeString(Globals::get()->GetOrnl2016Arguments().find("NaiIgnore")->second, ",");
+    std::vector <std::string> GeIgnored =  StringManipulation::TokenizeString(Globals::get()->GetOrnl2016Arguments().find("GeIgnore")->second, ",");
+
+    hagIgnore = std::set<std::string>(HagIgnored.begin(),HagIgnored.end());
+    naiIgnore = std::set<std::string>(NaiIgnored.begin(),NaiIgnored.end());
+    geIgnore = std::set<std::string>(GeIgnored.begin(),GeIgnored.end());
+
 
     SupBetaWin.second=Globals::get()->GetOrnl2016Arguments().find("SupBetaWin")->second.c_str();
     SupBetaWin.first= atof(SupBetaWin.second.c_str());
@@ -553,7 +581,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
         plot(D_NAISUM, (*itNai)->GetCalibratedEnergy()); //plot totals
 
 
-//Beta Gate and addback
+        //Beta Gate and addback
         aux_NaIHasLRBeta=hasLRbeta;
         if (hasLRbeta) {  //Beta Gate
             plot(D_NAIBETA, (*itNai)->GetCalibratedEnergy()); //plot beta-gated totals
@@ -969,12 +997,17 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                   itlabr3 != labr3Evts.end(); itlabr3++) {
                  labrNum = (*itlabr3)->GetChanID().GetLocation();
                  labrEn = (*itlabr3)->GetCalibratedEnergy();
-                 plot(DD_TOFVSHAGRID, labrEn, tof * plotMult_ + 200);
-
-                 tofVLabr_->Fill(labrEn,tof);
 
                  if(VoutRoot)
-                 vandle_labr3.push_back(make_pair((double)labrNum,labrEn));
+                     vandle_labr3.push_back(make_pair((double)labrNum,labrEn));
+
+                 if (hagIgnore.find(to_string(labrNum)) != hagIgnore.end())
+                      continue;
+
+                 plot(DD_TOFVSHAGRID, labrEn, tof * plotMult_ + 200);
+                 plot(DD_DETcheckHag,labrEn,labrNum);
+                 tofVLabr_->Fill(labrEn, tof);
+
              };
 
              //Nai loop for mVan
@@ -984,12 +1017,18 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                   itNai != naiEvts.end(); itNai++) {
                  naiNum = (*itNai)->GetChanID().GetLocation();
                  naiEn = (*itNai)->GetCalibratedEnergy();
-                 plot(DD_TOFVSNAI, naiEn, tof * plotMult_ + 200);
-
-                 tofVNai_->Fill(naiEn,tof);
 
                  if(VoutRoot)
-                 vandle_nai.push_back(make_pair((double)naiNum,naiEn));
+                     vandle_nai.push_back(make_pair((double)naiNum,naiEn));
+
+                 if (naiIgnore.find(to_string(naiNum)) != naiIgnore.end())
+                     continue;
+
+                 plot(DD_TOFVSNAI, naiEn, tof * plotMult_ + 200);
+                 plot(DD_DETcheckNai,naiEn,naiNum);
+                 tofVNai_->Fill(naiEn,tof);
+
+
              };
 
              //ge loop for mVan
@@ -999,12 +1038,18 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                   itGe != geEvts.end(); itGe++) {
                  geNum = (*itGe)->GetChanID().GetLocation();
                  geEn = (*itGe)->GetCalibratedEnergy();
-                 plot(DD_TOFVSGE, geEn, tof * plotMult_ + 200);
 
+                 if(VoutRoot)
+                     vandle_ge.push_back(make_pair((double)geNum,geEn));
+
+                 if (geIgnore.find(to_string(geNum)) != geIgnore.end())
+                     continue;
+
+                 plot(DD_TOFVSGE, geEn, tof * plotMult_ + 200);
+                 plot(DD_DETcheckGe,geEn,geNum);
                   tofVGe_->Fill(geEn,tof);
 
-                  if(VoutRoot)
-                      vandle_ge.push_back(make_pair((double)geNum,geEn));
+
              };
          };
 

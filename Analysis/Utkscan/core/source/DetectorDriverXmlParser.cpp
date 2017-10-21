@@ -172,6 +172,11 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
         }else if (name == "Ornl2016Processor") {
             std::map<std::string,std::string> OrnlArguments;
 
+            // parsing ignore list for miss behaving gamma ray dectors
+            std::string NaiIgnored =processor.attribute("nai_ignore").as_string("");
+            std::string HagIgnored =processor.attribute("hag_ignore").as_string("");
+            std::string GeIgnored =processor.attribute("ge_ignore").as_string("");
+
             string OrnlDebugging = processor.attribute("debugging").as_string("false");
 
             string OrnlVandle = processor.attribute("VandleOutput").as_string("damm");
@@ -211,6 +216,12 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             OrnlArguments.insert(make_pair("MkVandle",OrnlVandle));
 
             OrnlArguments.insert(make_pair("SupBetaWin",SuperBetaGate));
+
+            OrnlArguments.insert(make_pair("NaiIgnore",NaiIgnored));
+            OrnlArguments.insert(make_pair("HagIgnore",HagIgnored));
+            OrnlArguments.insert(make_pair("GeIgnore",GeIgnored));
+
+
             Globals::get()->SetOrnl2016Arguments(OrnlArguments);
             vecProcess.push_back(new Ornl2016Processor());
         }
