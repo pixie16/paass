@@ -998,11 +998,12 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                  labrNum = (*itlabr3)->GetChanID().GetLocation();
                  labrEn = (*itlabr3)->GetCalibratedEnergy();
 
-                 if(VoutRoot)
-                     vandle_labr3.push_back(make_pair((double)labrNum,labrEn));
-
                  if (hagIgnore.find(to_string(labrNum)) != hagIgnore.end())
-                      continue;
+                     continue;
+                 if(VoutRoot) {
+                     vandle_labr3.emplace_back(make_pair(labrNum,labrEn));
+                 }
+
 
                  plot(DD_TOFVSHAGRID, labrEn, tof * plotMult_ + 200);
                  plot(DD_DETcheckHag,labrEn,labrNum);
@@ -1017,12 +1018,13 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                   itNai != naiEvts.end(); itNai++) {
                  naiNum = (*itNai)->GetChanID().GetLocation();
                  naiEn = (*itNai)->GetCalibratedEnergy();
-
-                 if(VoutRoot)
-                     vandle_nai.push_back(make_pair((double)naiNum,naiEn));
-
                  if (naiIgnore.find(to_string(naiNum)) != naiIgnore.end())
                      continue;
+
+                 if(VoutRoot) {
+                     vandle_nai.emplace_back(make_pair(naiNum,naiEn));
+                 }
+
 
                  plot(DD_TOFVSNAI, naiEn, tof * plotMult_ + 200);
                  plot(DD_DETcheckNai,naiEn,naiNum);
@@ -1038,12 +1040,13 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                   itGe != geEvts.end(); itGe++) {
                  geNum = (*itGe)->GetChanID().GetLocation();
                  geEn = (*itGe)->GetCalibratedEnergy();
-
-                 if(VoutRoot)
-                     vandle_ge.push_back(make_pair((double)geNum,geEn));
-
                  if (geIgnore.find(to_string(geNum)) != geIgnore.end())
                      continue;
+
+                 if(VoutRoot) {
+                     vandle_ge.emplace_back(make_pair(geNum,geEn));
+                 }
+
 
                  plot(DD_TOFVSGE, geEn, tof * plotMult_ + 200);
                  plot(DD_DETcheckGe,geEn,geNum);
@@ -1059,6 +1062,9 @@ bool Ornl2016Processor::Process(RawEvent &event) {
 
          if(Pvandle && VoutRoot) {
              Tvan->Fill();
+             vandle_ge.clear();
+             vandle_labr3.clear();
+             vandle_nai.clear();
          }
 
      };//End VANDLE

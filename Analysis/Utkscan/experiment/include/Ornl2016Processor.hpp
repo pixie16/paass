@@ -138,9 +138,9 @@ private:
     double vandle_Corrected_TDiff=0;
     std::vector<unsigned int> vandle_ltrace;
     std::vector<unsigned int> vandle_rtrace;
-    std::vector<std::pair<double,double>> vandle_ge;
-    std::vector<std::pair<double,double>> vandle_labr3;
-    std::vector<std::pair<double,double>> vandle_nai;
+    std::vector<std::pair<int,double>> vandle_ge;
+    std::vector<std::pair<int,double>> vandle_labr3;
+    std::vector<std::pair<int,double>> vandle_nai;
 
 
     double beta_BarQDC=0;
