@@ -2,13 +2,12 @@
  * \brief A class to process data from the Ornl 2016 OLTF experiment using
  * VANDLE. Using Root and Damm for histogram analysis. 
  * Moved to PAASS Oct 2016
+ * Writen originally by S. V. Paulauskas on February 10, 2016
+ * Significant edits were made in the Summer of 2017
  *
- *
- *\author S. V. Paulauskas
+ *\author Thomas King
  *\date February 10, 2016
  *
- *\Edits by Thomas King 
- *\Starting June 2016
  *
  *
 */
@@ -217,7 +216,7 @@ Ornl2016Processor::Ornl2016Processor() : EventProcessor(
      *  } else if (name == "WaveformAnalyzer") {
         std::vector <std::string> tokens =
             StringManipulation::TokenizeString(analyzer.attribute("ignored").as_string(""), ",");
-        vecAnalyzer.push_back(new WaveformAnalyzer(std::set<std::string>(tokens.begin(), tokens.end())));
+        vecAnalyzer.emplace_back()(new WaveformAnalyzer(std::set<std::string>(tokens.begin(), tokens.end())));
     } else {
     */
 
@@ -251,9 +250,9 @@ Ornl2016Processor::Ornl2016Processor() : EventProcessor(
     GsubEventWindow_ = atof(Globals::get()->GetOrnl2016Arguments().find("sub_event_G")->second.c_str());
 
     // initalize addback vectors
-    LaddBack_.push_back(ScintAddBack(0, 0, 0));
-    NaddBack_.push_back(ScintAddBack(0, 0, 0));
-    GaddBack_.push_back(ScintAddBack(0, 0, 0));
+    LaddBack_.emplace_back(ScintAddBack(0, 0, 0));
+    NaddBack_.emplace_back(ScintAddBack(0, 0, 0));
+    GaddBack_.emplace_back(ScintAddBack(0, 0, 0));
 
     // ROOT file Naming
     string hisPath = Globals::get()->GetOutputPath();
@@ -261,7 +260,7 @@ Ornl2016Processor::Ornl2016Processor() : EventProcessor(
     string rootname = hisfilename + "-gammaSing.root";
     string rootname2 = hisfilename + "-gammaAddBk.root";
     string rootname3 = hisfilename + "-histo.root";
-    string rootname4 = hisfilename + "-LvandleDebug.root";
+    string rootname4 = hisfilename + "-vandleDebug.root";
     string rootname5 = hisfilename + "-vandle.root";
 
     // Start Primary Root File
@@ -567,7 +566,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
         plot(D_BETASCALARRATE, cycleNum);//PLOTTING BETA SCALAR SUM per CYCLE (LIKE 759 but per cycle vs per second
         plot(D_BETAENERGY, bIt->second.second);
         aux_BetaEn = bIt->second.second;
-        BetaList.push_back(make_pair(aux_BetaTime,aux_BetaEn));
+        BetaList.emplace_back(make_pair(aux_BetaTime,aux_BetaEn));
     }
 
     //NaI ONLY
@@ -631,7 +630,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                 Npro.AbE = NaddBack_.back().energy;
                 Npro.Multi = NaddBack_.back().multiplicity;
                 Tadd->Fill();
-                NaddBack_.push_back(ScintAddBack());
+                NaddBack_.emplace_back(ScintAddBack());
             }//end subEvent IF
             NaddBack_.back().energy += energy; // if still inside sub window: incrament
             NaddBack_.back().time = time;
@@ -702,7 +701,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                 Gpro.Multi = GaddBack_.back().multiplicity;
                 Gpro.AbE = GaddBack_.back().energy;
                 Tadd->Fill();
-                GaddBack_.push_back(ScintAddBack());
+                GaddBack_.emplace_back(ScintAddBack());
             } //end subEvent IF
 
             GaddBack_.back().energy += energy;
@@ -784,7 +783,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                 Lpro.AbE = LaddBack_.back().energy;
                 Lpro.Multi = LaddBack_.back().multiplicity;
                 Tadd->Fill();
-                LaddBack_.push_back(ScintAddBack());
+                LaddBack_.emplace_back(ScintAddBack());
             }// end if for new entry in vector
 
             LaddBack_.back().energy += energy;
