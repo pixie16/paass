@@ -230,8 +230,8 @@ Ornl2016Processor::Ornl2016Processor() : EventProcessor(
     geIgnore = std::set<std::string>(GeIgnored.begin(),GeIgnored.end());
 
 
-    SupBetaWin.second=Globals::get()->GetOrnl2016Arguments().find("SupBetaWin")->second.c_str();
-    SupBetaWin.first= atof(SupBetaWin.second.c_str());
+    SupBetaWin.second=Globals::get()->GetOrnl2016Arguments().find("SupBetaWin")->second;
+    SupBetaWin.first= strtod(SupBetaWin.second.c_str(), nullptr);
 
     associatedTypes.insert("ge");
     associatedTypes.insert("nai");
@@ -242,12 +242,12 @@ Ornl2016Processor::Ornl2016Processor() : EventProcessor(
         associatedTypes.insert("vandle");
     }
 
-    LgammaThreshold_ = atof(Globals::get()->GetOrnl2016Arguments().find("gamma_threshold_L")->second.c_str());
-    LsubEventWindow_ = atof(Globals::get()->GetOrnl2016Arguments().find("sub_event_L")->second.c_str());
-    NgammaThreshold_ = atof(Globals::get()->GetOrnl2016Arguments().find("gamma_threshold_N")->second.c_str());
-    NsubEventWindow_ = atof(Globals::get()->GetOrnl2016Arguments().find("sub_event_N")->second.c_str());
-    GgammaThreshold_ = atof(Globals::get()->GetOrnl2016Arguments().find("gamma_threshold_G")->second.c_str());
-    GsubEventWindow_ = atof(Globals::get()->GetOrnl2016Arguments().find("sub_event_G")->second.c_str());
+    LgammaThreshold_ = strtod(Globals::get()->GetOrnl2016Arguments().find("gamma_threshold_L")->second.c_str(), nullptr);
+    LsubEventWindow_ = strtod(Globals::get()->GetOrnl2016Arguments().find("sub_event_L")->second.c_str(), nullptr);
+    NgammaThreshold_ = strtod(Globals::get()->GetOrnl2016Arguments().find("gamma_threshold_N")->second.c_str(), nullptr);
+    NsubEventWindow_ = strtod(Globals::get()->GetOrnl2016Arguments().find("sub_event_N")->second.c_str(), nullptr);
+    GgammaThreshold_ = strtod(Globals::get()->GetOrnl2016Arguments().find("gamma_threshold_G")->second.c_str(), nullptr);
+    GsubEventWindow_ = strtod(Globals::get()->GetOrnl2016Arguments().find("sub_event_G")->second.c_str(), nullptr);
 
     // initalize addback vectors
     LaddBack_.emplace_back(ScintAddBack(0, 0, 0));
@@ -491,11 +491,11 @@ bool Ornl2016Processor::Process(RawEvent &event) {
     //might need a static initialize to false + reset at the end
 
     if (Pvandle || debugging){
-        if( event.GetSummary("vandle")->GetList().size() != 0) {
+        if( ! event.GetSummary("vandle")->GetList().empty() ) {
         vbars = ((VandleProcessor *) DetectorDriver::get()->GetProcessor("VandleProcessor"))->GetBars();
         }
     }
-    if (event.GetSummary("beta:double")->GetList().size() != 0) {
+    if (! event.GetSummary("beta:double")->GetList().empty()) {
         betas = ((DoubleBetaProcessor *) DetectorDriver::get()->GetProcessor("DoubleBetaProcessor"))->GetBars();
         lrtBetas = ((DoubleBetaProcessor *) DetectorDriver::get()->GetProcessor("DoubleBetaProcessor"))->GetLowResBars();
     }
