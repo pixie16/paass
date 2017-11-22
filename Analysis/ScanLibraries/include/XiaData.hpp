@@ -110,11 +110,16 @@ public:
 
     ///@return The upper 16 bits of the external time stamp provided to the
     /// module via the front panel
-    unsigned int GetExternalTimeHigh() const { return externalTimeHigh_; }
+    double GetExternalTimeHigh() const { return externalTimeHigh_; }
 
     ///@return The lower 32 bits of the external time stamp provided to the
     /// module via the front panel
     unsigned int GetExternalTimeLow() const { return externalTimeLow_; }
+
+    ///@return The external time stamp for the channel including all of the CFD information
+    /// when available.
+    double GetExternalTimeStamp() const { return externalTimeStamp_; }
+
 
     ///@return The unique ID of the channel.
     ///We can have a maximum of 208 channels in a crate, the first module (#0) is always in the second slot of the crate, and
@@ -185,6 +190,11 @@ public:
     ///@param[in] a : The value to set
     void SetExternalTimeLow(const unsigned int &a) { externalTimeLow_ = a; }
 
+    ///@brief Sets the external time stamp
+    ///@param[in] a : The value to set
+    void SetExternalTimeStamp(const double &a) { externalTimeStamp_ = a; }
+
+
     ///@brief Sets if we had a pileup found on-board
     ///@param[in] a : The value to set
     void SetPileup(const bool &a) { isPileup_ = a; }
@@ -231,6 +241,7 @@ private:
     double energy_; /// Raw pixie energy.
     double baseline_;///Baseline that was recorded with the energy sums
     double time_; ///< The time of arrival using all parts of the time
+    double externalTimeStamp_; ///< The time of arrival using all parts of the time
     double timeSansCfd_; ///< The time of arrival of the signal sans CFD time.
 
     unsigned int cfdTime_; /// CFD trigger time

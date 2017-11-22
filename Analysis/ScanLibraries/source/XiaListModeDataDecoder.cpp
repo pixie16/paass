@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <bitset>
 
 #include <cmath>
 
@@ -18,6 +19,8 @@ using namespace DataProcessing;
 vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const XiaListModeDataMask &mask) {
 
     unsigned int *bufStart = buf;
+
+
     ///@NOTE : These two pieces here are the Pixie Module Data Header. They
     /// tell us the number of words read from the module (bufLen) and the VSN
     /// of the module (module number).
@@ -37,11 +40,14 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
     vector<XiaData *> events;
     static unsigned int numSkippedBuffers = 0;
 
+
+
     while (buf < bufStart + bufLen) {
         XiaData *data = new XiaData();
         bool hasExternalTimestamp = false;
         bool hasQdc = false;
         bool hasEnergySums = false;
+
 
         pair<unsigned int, unsigned int> lengths =
                 DecodeWordZero(buf[0], *data, mask);
@@ -52,7 +58,7 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
         DecodeWordTwo(buf[2], *data, mask);
         unsigned int traceLength = DecodeWordThree(buf[3], *data, mask);
 
-        //We check the header length here to set the appropriate flags for
+        // We check the header length here to set the appropriate flags for
         // processing the rest of the header words. If we encounter a header
         // length that we do not know we will throw an error as this
         // generally indicates an issue with the data file or processing at a
@@ -105,13 +111,32 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
         }
 
         if (hasExternalTimestamp) {
-            //Do nothing for now
+          /// set least significant 32 bits of 48 bit external time stamp
+          data->SetExternalTimeLow(headerLength-1);
+          /// set most significant 16 bits of 48 bit external time stamp
+          data->SetExternalTimeHigh(DecodeExternalTimeHigh(headerLength, *data, mask));
+          /// stores 48 bit external time stamp as an XiaData member -> double externalTimeStamp_
+          data->SetExternalTimeStamp(CalculateExternalTimeStamp(*data));
+
+          //// **** for troubleshooting **** ////
+          // cout<<"hasEnergySums "<< hasEnergySums<<'\t';
+          // if(buf[4]>20)continue;
+          cout<<" hasExternalTimestamp="<< hasExternalTimestamp<<'\t';
+          // cout<<"hasQdc "<< hasQdc<<'\t';
+          for (unsigned int i = 0; i < headerLength; i++) {
+            cout<<"buf["<<i<<"]="<<hex<<buf[i]<<'\t';
+          }cout<<endl;
+          // cout<<"data->GetExternalTimeHigh()="<<data->GetExternalTimeHigh()<<'\t';
+          // cout<<"data->GetExternalTimeLow()="<<data->GetExternalTimeLow()<<'\t';
+          // cout<<"data->GetExternalTimeStamp()="<<data->GetExternalTimeStamp()<<endl;
+
         }
 
         if (hasEnergySums) {
             // Skip the onboard partial sums for now
             // trailing, leading, gap, baseline
         }
+
 
         if (hasQdc) {
             static const unsigned int numQdcs = 8;
@@ -185,8 +210,13 @@ std::pair<unsigned int, unsigned int> XiaListModeDataDecoder::DecodeWordZero(con
                      (word & mask.GetEventLengthMask().first) >> mask.GetEventLengthMask().second);
 }
 
+unsigned int XiaListModeDataDecoder::DecodeExternalTimeHigh(const unsigned int &word, XiaData &data,
+                                                               const XiaListModeDataMask &mask) {
+    return (word & mask.GetExternalTimeHighMask().first);
+}
+
 void XiaListModeDataDecoder::DecodeWordTwo(const unsigned int &word, XiaData &data, const XiaListModeDataMask &mask) {
-    data.SetEventTimeHigh(word & mask.GetEventTimeHighMask().first);
+        data.SetEventTimeHigh(word & mask.GetEventTimeHighMask().first);
     data.SetCfdFractionalTime((word & mask.GetCfdFractionalTimeMask().first) >> mask.GetCfdFractionalTimeMask().second);
     data.SetCfdForcedTriggerBit(
             (bool) ((word & mask.GetCfdForcedTriggerBitMask().first) >> mask.GetCfdForcedTriggerBitMask().second));
@@ -254,4 +284,9 @@ pair<double, double> XiaListModeDataDecoder::CalculateTimeInSamples(const XiaLis
 double XiaListModeDataDecoder::CalculateTimeInNs(const XiaListModeDataMask &mask, const XiaData &data) {
     double conversionToNs = 1. / (mask.GetFrequency() * 1.e6);
     return CalculateTimeInSamples(mask, data).second * conversionToNs;
+}
+
+double XiaListModeDataDecoder::CalculateExternalTimeStamp(const XiaData &data) {
+    double externalTimeStamp = data.GetExternalTimeLow() + data.GetExternalTimeHigh() * pow(2., 32);
+    return externalTimeStamp;
 }
