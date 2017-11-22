@@ -46,7 +46,15 @@ public:
     static double CalculateTimeInNs(
             const XiaListModeDataMask &mask, const XiaData &data);
 
-private:
+    ///Method to calculate the external time stamp as a double
+    ///@param[in] mask : The data mask containing the necessary information
+    /// to calculate the external time stamp.
+    ///@param[in] data : The data that we will use to calculate the external
+    /// that is provided (eg from BIGRIPS at RIKEN)
+    ///@return The calculated time in nanoseconds
+    static double CalculateExternalTimeStamp(const XiaData &data);
+
+    private:
     ///Method to decode word zero from the header.
     ///@param[in] word : The word that we need to decode
     ///@param[in] data : The XiaData object that we are going to fill.
@@ -56,12 +64,20 @@ private:
             const unsigned int &word, XiaData &data,
             const XiaListModeDataMask &mask);
 
-    ///Method to decode word two from the header.
+    ///Method to decode exxternal time stamp high (high = most signicant
+    ///16 bits of 48 bit time stamp) from data buffer.
     ///@param[in] word : The word that we need to decode
     ///@param[in] data : The XiaData object that we are going to fill.
     ///@param[in] mask : The data mask to decode the data
-    void DecodeWordTwo(const unsigned int &word, XiaData &data,
-                       const XiaListModeDataMask &mask);
+    unsigned int DecodeExternalTimeHigh(const unsigned int &word,
+      XiaData &data,const XiaListModeDataMask &mask);
+
+   ///Method to decode word two from the header.
+   ///@param[in] word : The word that we need to decode
+   ///@param[in] data : The XiaData object that we are going to fill.
+   ///@param[in] mask : The data mask to decode the data
+   void DecodeWordTwo(const unsigned int &word, XiaData &data,
+                      const XiaListModeDataMask &mask);
 
     ///Method to decode word three from the header.
     ///@param[in] word : The word that we need to decode

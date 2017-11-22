@@ -88,6 +88,12 @@ public:
         return std::make_pair(0x0000FFFF, 0);
     }
 
+    ///Getter for the Mask and Shift of the External Time High.
+    ///@return The pair of the mask and bit shift to use to decode the data.
+    std::pair<unsigned int, unsigned int> GetExternalTimeHighMask() const {
+        return std::make_pair(0x0000FFFF, 0);
+    }
+
     ///Getter for the Mask and Shift of the Event Time High.
     ///@return The pair of the mask and bit shift to use to decode the data.
     std::pair<unsigned int, unsigned int> GetCfdFractionalTimeMask() const;
