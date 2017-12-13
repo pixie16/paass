@@ -34,10 +34,26 @@ void TimingCalibrator::ReadTimingCalXml() {
     Messenger m;
     m.start("Loading Time Calibrations");
 
+    pugi::xml_document TimeCalFile; //!< A seperate Time cal file (for Jeremy)
+
     pugi::xml_node timeCals = XmlInterface::get()->GetDocument()->child("Configuration").child("TimeCalibration");
 
+    std::string TcalFilePath_ = timeCals.attribute("path").as_string();
     isVerbose_ = timeCals.attribute("verbose").as_bool();
 
+    if(TcalFilePath_ !=""){
+        pugi::xml_parse_result result = TimeCalFile.load_file(TcalFilePath_.c_str());
+        if (!result) {
+            std::stringstream ss;
+            ss << "XmlInterface::XmlInterface : We were unable to open the Time Calibration file named \"" << TcalFilePath_ << "\"."
+               << " Received the following from pugixml : "<< result.description();
+            throw std::invalid_argument(ss.str());
+        }
+
+        std::cout << "XmlInterface - Successfully loaded \"" << TimeCalFile << "\" into memory." << std::endl;
+        timeCals = TimeCalFile.child("TimeCalibration");
+    }
+    
     for (pugi::xml_node_iterator detType = timeCals.begin(); detType != timeCals.end(); ++detType) {
         string detName = detType->name();
 
