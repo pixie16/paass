@@ -50,25 +50,32 @@ void TimingCalibrator::ReadTimingCalXml() {
             throw std::invalid_argument(ss.str());
         }
 
-        std::cout << "XmlInterface - Successfully loaded \"" << TimeCalFile << "\" into memory." << std::endl;
+        std::cout << "XmlInterface - Successfully loaded TcalFilePath \"" << TcalFilePath_ << "\" into memory." << std::endl;
         timeCals = TimeCalFile.child("TimeCalibration");
     }
-    
+
     for (pugi::xml_node_iterator detType = timeCals.begin(); detType != timeCals.end(); ++detType) {
         string detName = detType->name();
+        std::cout<<" detName:"<<detName<<std::endl;
 
         for (pugi::xml_node_iterator detSubtype = detType->begin(); detSubtype != detType->end(); detSubtype++) {
             string barType = detSubtype->name();
+            std::cout<<" barType: "<<barType<<std::endl;
 
             for (pugi::xml_node_iterator bar = detSubtype->begin(); bar != detSubtype->end(); bar++) {
                 int barNumber = bar->attribute("number").as_int(-1);
+                std::cout<<" barNumber: "<<barNumber<<std::endl;
                 TimingDefs::TimingIdentifier id = make_pair(barNumber, barType);
 
                 TimingCalibration temp;
                 temp.SetLeftRightTimeOffset(bar->attribute("lroffset").as_double(0.0));
+                std::cout<<'\t'<<"lroffset "<< bar->attribute("lroffset").as_double(0.0) << std::endl;
                 temp.SetXOffset(bar->attribute("xoffset").as_double(0.0));
+                std::cout<<'\t'<<"xoffset "<< bar->attribute("xoffset").as_double(0.0) << std::endl;
                 temp.SetZ0(bar->attribute("z0").as_double(0.0));
+                std::cout<<'\t'<<"z0 "<< bar->attribute("z0").as_double(0.0) << std::endl;
                 temp.SetZOffset(bar->attribute("zoffset").as_double(0.0));
+                std::cout<<'\t'<<"zoffset "<< bar->attribute("zoffset").as_double(0.0) << std::endl;
 
                 for (pugi::xml_node::iterator tofoffset = bar->begin(); tofoffset != bar->end(); tofoffset++)
                     temp.SetTofOffset(tofoffset->attribute("location").as_int(-1),
