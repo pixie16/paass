@@ -2,6 +2,8 @@
 
 #Build files
 *.o
+*.so
+*.pcm
 
 #Backup files 
 *~
@@ -42,6 +44,7 @@ install/
 *.his
 *.list
 *.log
+*.root
 
 # Data directories
 HIS

@@ -11,9 +11,9 @@
 namespace dammIds {
     namespace vandle {
         namespace crosstalk {
-            const int DD_TOFBARBVSBARA = 0;//!< ToF Bar A vs. ToF Bar B
-            const int DD_GATEDTQDCAVEVSTOF = 1;//!< Gated QDC vs. ToF
-            const int D_CROSSTALK = 2;//!< Cross talk histogram
+            const int DD_TOFBARBVSBARA      = 0;//!< ToF Bar A vs. ToF Bar B
+            const int DD_GATEDTQDCAVEVSTOF  = 1;//!< Gated QDC vs. ToF
+            const int D_CROSSTALK           = 2;//!< Cross talk histogram
         }
     }
 }//namespace dammIds
@@ -21,19 +21,16 @@ namespace dammIds {
 using namespace std;
 using namespace dammIds::template;
 
-CrosstalkProcessor::CrosstalkProcessor() :
-        EventProcessor(dammIds::template
-
-::OFFSET,
-dammIds::template::RANGE,
-"template") {
-associatedTypes.insert("template");
+CrosstalkProcessor::CrosstalkProcessor():
+    EventProcessor(dammIds::template::OFFSET, dammIds::template::RANGE,
+                   "template") {
+    associatedTypes.insert("template");
 }
 
 void CrosstalkProcessor::DeclarePlots(void) {
     DeclareHistogram1D(D_CROSSTALK, SC, "CrossTalk Between Two Bars");
     DeclareHistogram2D(DD_GATEDTQDCAVEVSTOF, SC, SD,
-                       "<E> vs. TOF0 (0.5ns/bin) - Gated");
+    "<E> vs. TOF0 (0.5ns/bin) - Gated");
     DeclareHistogram2D(DD_TOFBARBVSBARA, SC, SC, "TOF Bar1 vs. Bar2");
     //DeclareHistogram2D(, S8, S8, "tdiffA vs. tdiffB");
     //DeclareHistogram1D(, SD, "Muons");
@@ -42,51 +39,51 @@ void CrosstalkProcessor::DeclarePlots(void) {
 
 bool CrosstalkProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
-        return (false);
+        return(false);
 
-    static const vector<ChanEvent *> &templateEvents =
-            event.GetSummary("template")->GetList();
+    static const vector<ChanEvent*> & templateEvents =
+        event.GetSummary("template")->GetList();
 
-    for (vector<ChanEvent *>::const_iterator it = templateEvents.begin();
-         it != templateEvents.end(); it++) {
+    for(vector<ChanEvent*>::const_iterator it = templateEvents.begin();
+        it != templateEvents.end(); it++) {
         unsigned int location = (*it)->GetChanID().GetLocation();
-        if (location == 0)
+        if(location == 0)
             plot(D_ENERGY, (*it)->GetEnergy());
     }
-    return (true);
+    return(true);
 }
 
 bool CrosstalkProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
-        return (false);
+        return(false);
 
     VandleProcessor::Process(event);
 
-    //This whole routine is stupidly written, it needs cleaned up something fierce.
-    if (barMap.size() < 2)
+        //This whole routine is stupidly written, it needs cleaned up something fierce.
+    if(barMap.size() < 2)
         return;
 
-    for (BarMap::iterator itBarA = barMap.begin();
-         itBarA != barMap.end(); itBarA++) {
-        BarMap::iterator itTemp = itBarA;
-        itTemp++;
+    for(BarMap::iterator itBarA = barMap.begin();
+    itBarA != barMap.end(); itBarA++) {
+            BarMap::iterator itTemp = itBarA;
+            itTemp++;
 
-        const double &timeAveA = (*itBarA).second.timeAve;
-        const unsigned int &locA = (*itBarA).first.first;
+            const double &timeAveA = (*itBarA).second.timeAve;
+            const unsigned int &locA = (*itBarA).first.first;
 
-        for (BarMap::iterator itBarB = itTemp; itBarB != barMap.end();
-             itBarB++) {
-            if ((*itBarA).first.second != (*itBarB).first.second)
-                continue;
-            if ((*itBarA).first == (*itBarB).first)
-                continue;
+            for(BarMap::iterator itBarB = itTemp; itBarB != barMap.end();
+            itBarB++) {
+                    if((*itBarA).first.second != (*itBarB).first.second)
+                        continue;
+                    if((*itBarA).first == (*itBarB).first)
+                        continue;
 
-            const double &timeAveB = (*itBarB).second.timeAve;
-            const unsigned int &locB = (*itBarB).first.first;
+                    const double &timeAveB = (*itBarB).second.timeAve;
+                    const unsigned int &locB = (*itBarB).first.first;
 
-            CrossTalkKey bars(locA, locB);
-            crossTalk.insert(make_pair(bars, timeAveB - timeAveA));
-        }
+                    CrossTalkKey bars(locA, locB);
+                    crossTalk.insert(make_pair(bars, timeAveB - timeAveA));
+            }
     }
 
     string barType = "small";
@@ -96,18 +93,18 @@ bool CrosstalkProcessor::Process(RawEvent &event) {
     CrossTalkKey barsOfInterest(barA.first, barB.first);
 
     CrossTalkMap::iterator itBars =
-            crossTalk.find(barsOfInterest);
+        crossTalk.find(barsOfInterest);
 
     const int resMult = 2; //!<set resolution of histograms
     const int resOffset = 200; //!< set offset of histograms
 
-    if (itBars != crossTalk.end())
+    if(itBars != crossTalk.end())
         plot(D_CROSSTALK, (*itBars).second * resMult + resOffset);
 
     BarMap::iterator itBarA = barMap.find(barA);
     BarMap::iterator itBarB = barMap.find(barB);
 
-    if (itBarA == barMap.end() || itBarB == barMap.end())
+    if(itBarA == barMap.end() || itBarB == barMap.end())
         return;
 
 //    TimeOfFlightMap::iterator itTofA =
@@ -130,13 +127,13 @@ bool CrosstalkProcessor::Process(RawEvent &event) {
     bool muon = (qdcA > 7500 && qdcB > 7500);
 
     double muonTOF =
-            (*itBarA).second.timeAve - (*itBarB).second.timeAve;
+        (*itBarA).second.timeAve - (*itBarB).second.timeAve;
 
-    plot(3950, tdiffA * resMult + 100, tdiffB * resMult + 100);
+    plot(3950, tdiffA*resMult+100, tdiffB*resMult+100);
 
-    if (muon) {
-        plot(3951, tdiffA * resMult + 100, tdiffB * resMult + 100);
-        plot(3952, muonTOF * resMult * 10 + resOffset);
+    if(muon) {
+            plot(3951, tdiffA*resMult+100, tdiffB*resMult+100);
+            plot(3952, muonTOF*resMult*10 + resOffset);
     }
 
 //     plot(DD_TOFBARBVSBARA, tofA*resMult+resOffset,
@@ -150,5 +147,5 @@ bool CrosstalkProcessor::Process(RawEvent &event) {
 
 
 
-    return (true)
+    return(true)
 }

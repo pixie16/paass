@@ -10,7 +10,6 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
-#include <string>
 #include <vector>
 
 #include <cmath>
@@ -23,7 +22,7 @@ namespace Polynomial {
             const vector<T> &data, const unsigned int &startBin) {
         if (data.size() < 3)
             throw range_error("Polynomial::CalculatePoly2 - The data vector "
-                                      "had the wrong size : " + std::to_string(data.size()));
+                                      "had the wrong size : " + data.size());
 
         double x1[3], x2[3];
         for (size_t i = 0; i < 3; i++) {
@@ -58,7 +57,7 @@ namespace Polynomial {
             const vector<T> &data, const unsigned int &startBin) {
         if (data.size() < 4)
             throw range_error("Polynomial::CalculatePoly3 - The data vector "
-                                      "had the wrong size : " + std::to_string(data.size()));
+                                      "had the wrong size : " + data.size());
 
         double x1[4], x2[4], x3[4];
         for (size_t i = 0; i < 4; i++) {
@@ -387,7 +386,7 @@ namespace TraceFunctions {
             throw range_error(msg.str());
         }
 
-        if (range.first > range.second) {
+        if(range.first > range.second) {
             msg << "TraceFunctions::CalculateQdc - The specified "
                 << "range was inverted.";
             throw range_error(msg.str());
@@ -448,48 +447,15 @@ namespace IeeeStandards {
     inline double IeeeFloatingToDecimal(
             const unsigned int &IeeeFloatingNumber) {
         double result;
-        short signbit = (short) (IeeeFloatingNumber >> 31);
-        short exponent =
-                (short) ((IeeeFloatingNumber & 0x7F800000) >> 23) - 127;
+        short signbit = (short)(IeeeFloatingNumber >> 31);
+        short exponent = (short)((IeeeFloatingNumber & 0x7F800000) >> 23) - 127;
         double mantissa =
-                1.0 + (double) (IeeeFloatingNumber & 0x7FFFFF) / pow(2.0, 23.0);
-        if (signbit == 0)
-            result = mantissa * pow(2.0, (double) exponent);
+                1.0 + (double)(IeeeFloatingNumber & 0x7FFFFF) / pow(2.0, 23.0);
+        if(signbit == 0)
+            result = mantissa * pow(2.0, (double)exponent);
         else
-            result = -mantissa * pow(2.0, (double) exponent);
+            result = - mantissa * pow(2.0, (double)exponent);
         return result;
-    }
-}
-
-namespace Conversions {
-    /// Function that will calculate seconds from a value that has time units
-    /// other than seconds
-    /// @param[in] value : The value that we want to covnert that has units
-    /// other than seconds
-    /// @param[in] units : The units that the value has
-    /// @return The value with units of seconds.
-    inline double ConvertSecondsWithPrefix(const double &value,
-                                           const std::string &units) {
-        double val = value;
-        if (units == "s")
-            return val;
-        else if (units == "ms")
-            val *= 1e-3;
-        else if (units == "us")
-            val *= 1e-6;
-        else if (units == "ns")
-            val *= 1e-9;
-        else if (units == "As")
-            val *= 1e-10;
-        else if (units == "ps")
-            val *= 1e-12;
-        else if (units == "fs")
-            val *= 1e-15;
-        else
-            throw std::invalid_argument
-                    ("HelperFunctions::ConvertSecondsWithPrefix : Unknown "
-                             "units " + units);
-        return val;
     }
 }
 

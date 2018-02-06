@@ -10,27 +10,24 @@ class ScanorInterface {
 public:
     static ScanorInterface *get();
 
-    ~ScanorInterface() {};
+    ~ScanorInterface(){};
 
-    void Hissub(unsigned short *sbuf[], unsigned short *nhw);
+    void Hissub(unsigned short *sbuf[],unsigned short *nhw);
 
     ///@param [in] a : A pointer to an Unpacker object.
-    void SetUnpacker(Unpacker *a) { unpacker_ = a; }
+    void SetUnpacker(Unpacker *a) {unpacker_ = a;}
 
 private:
     ///Default Constructor
-    ScanorInterface() {};
-
-    ScanorInterface(const ScanorInterface &) {}; //!< Overloaded constructor
-    ScanorInterface &
-    operator=(ScanorInterface const &);//!< Equality constructor
+    ScanorInterface(){};
+    ScanorInterface(const ScanorInterface &){}; //!< Overloaded constructor
+    ScanorInterface &operator=(ScanorInterface const &);//!< Equality constructor
 
     bool MakeModuleData(const uint32_t *data, unsigned long nWords, unsigned
-    int maxWords);
-
+                            int maxWords);
     static ScanorInterface *instance_;//!< The only instance of ScanorInterface
     Unpacker *unpacker_;//!< The unpacker object that we are going to use to
-    //!< decode the data.
+                       //!< decode the data.
 };
 
 #endif //#ifndef SCANOR_INTERFACE_HPP

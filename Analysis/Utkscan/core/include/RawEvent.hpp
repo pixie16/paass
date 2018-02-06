@@ -2,7 +2,7 @@
  * \brief Header file for the rawevent
  *
  * The variables and structures contained in a raw event
- * \author S. Liddick, D. Miller, K. Miernik, S. V. Paulauskas
+ * \author S. Liddick
  * \date 02 July 2007
  * Modified:
  *    KM = 27 - 11 - 2012
@@ -20,6 +20,12 @@
 #include "Globals.hpp"
 #include "DetectorSummary.hpp"
 #include "ChanEvent.hpp"
+#include "Identifier.hpp"
+
+// see DetectorSummary.hpp
+class DetectorSummary;
+//see ChanEvent.hpp
+class ChanEvent;
 
 /** \brief The all important raw event
  *
@@ -36,16 +42,16 @@
 class RawEvent {
 public:
     /** Default Constructor */
-    RawEvent() {};
+    RawEvent(){};
 
     /** Default Destructor */
-    ~RawEvent() {};
+    ~RawEvent(){};
 
     /** Clear the list of individual channel events (Memory is managed elsewhere) */
-    void Clear(void) { eventList.clear(); };
+    void Clear(void) {eventList.clear();};
 
     /** \return the number of channels in the current event */
-    size_t Size(void) const { return (eventList.size()); };
+    size_t Size(void) const {return(eventList.size());};
 
     /** \brief Raw event initialization and set the rawevent detector summary
     * map with the passed argument.
@@ -55,7 +61,7 @@ public:
 
     /** Add a channel event to the raw event
     * \param [in] event : the event to add to the raw event */
-    void AddChan(ChanEvent *event) { eventList.push_back(event); };
+    void AddChan(ChanEvent* event) {eventList.push_back(event);};
 
     /** \brief Raw event zeroing
     *
@@ -71,21 +77,19 @@ public:
     * \param [in] a : the summary that you would like
     * \param [in] construct : flag indicating if we need to construct the summary
     * \return a pointer to the summary */
-    DetectorSummary *GetSummary(const std::string &a, bool construct = true);
+    DetectorSummary *GetSummary(const std::string& a, bool construct = true);
 
     /** \return a pointer to the requested summary
     * \param [in] a : the name of the summary that you would like */
     const DetectorSummary *GetSummary(const std::string &a) const;
 
     /** \return the list of events */
-    const std::vector<ChanEvent *> &GetEventList(void) const { return eventList; }
-
+    const std::vector<ChanEvent *> &GetEventList(void) const {return eventList;}
 private:
     std::map<std::string, DetectorSummary> sumMap; /**< An STL map containing DetectorSummary classes
 					    associated with detector types */
     mutable std::set<std::string> nullSummaries;   /**< Summaries which were requested but don't exist */
-    std::vector<ChanEvent *> eventList; /**< Pointers to all the channels that are close
+    std::vector<ChanEvent*> eventList; /**< Pointers to all the channels that are close
                                             enough in time to be considered a single event */
 };
-
 #endif // __RAWEVENT_HPP_

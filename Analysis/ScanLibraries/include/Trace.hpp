@@ -41,13 +41,17 @@ public:
     /// position of the maximum value in the trace and the amplitude of the
     /// maximum that's been extrapolated and baseline subtracted as the .first
     /// and .second respectively.
-    std::pair<unsigned int, double> GetExtrapolatedMaxInfo() const { return extrapolatedMax_; }
+    std::pair<unsigned int, double> GetExtrapolatedMaxInfo() const {
+        return extrapolatedMax_;
+    }
 
     ///@return The baseline that goes with the filtered energies
     double GetFilteredBaseline() const { return filteredBaseline_; }
 
     ///@return The energies found by filtering the trace.
-    std::vector<double> GetFilteredEnergies() const { return filteredEnergies_; }
+    std::vector<double> GetFilteredEnergies() const {
+        return filteredEnergies_;
+    }
 
     ///@return Returns a std::pair<unsigned int, double> containing the
     /// position of the maximum value in the trace and the amplitude of the
@@ -56,7 +60,9 @@ public:
     std::pair<unsigned int, double> GetMaxInfo() const { return max_; }
 
     ///@return The number of triggers that were found in the trace
-    unsigned int GetNumberOfTriggers() const { return triggerPositions_.size(); }
+    unsigned int GetNumberOfTriggers() const {
+        return triggerPositions_.size();
+    }
 
     ///@return The phase of the trace.
     double GetPhase() const { return phase_; }
@@ -65,7 +71,9 @@ public:
     double GetQdc() const { return qdc_; }
 
     ///@returns the Signal to noise ratio of the trace
-    double GetSignalToNoiseRatio() const { return 20 * std::log10(max_.second / baseline_.second); }
+    double GetSignalToNoiseRatio() const {
+            return 20*std::log10(max_.second / baseline_.second);
+    }
 
     ///@return The value of the tail-ratio for the waveform.
     double GetTailRatio() const { return tailRatio_; }
@@ -74,33 +82,43 @@ public:
     double GetTau() const { return tau_; }
 
     ///@return Returns the waveform sans baseline
-    std::vector<double> GetTraceSansBaseline() const { return traceSansBaseline_; }
+    std::vector<double> GetTraceSansBaseline() const {
+        return traceSansBaseline_;
+    }
 
     ///@return Returns the Trigger Filter that was set.
     std::vector<double> GetTriggerFilter() const { return trigFilter_; }
 
     ///@return Returns a vector containing all of the found triggers
-    std::vector<unsigned int> GetTriggerPositions() const { return triggerPositions_; }
+    std::vector<unsigned int> GetTriggerPositions() const {
+        return triggerPositions_;
+    }
 
     ///@return Returns the baseline subtracted waveform found inside the trace.
     std::vector<double> GetWaveform() {
-        return std::vector<double>(traceSansBaseline_.begin() + waveformRange_.first,
-                                   traceSansBaseline_.begin() + waveformRange_.second);
+        return std::vector<double>(traceSansBaseline_.begin() +
+                                   waveformRange_.first,
+                                   traceSansBaseline_.begin() +
+                                   waveformRange_.second);
     }
 
     ///@return The bounds of the waveform in the trace
-    std::pair<unsigned int, unsigned int> GetWaveformRange() const { return waveformRange_; }
+    std::pair<unsigned int, unsigned int> GetWaveformRange() const {
+        return waveformRange_;
+    }
 
     ///@return Returns the waveform with the baseline
     std::vector<unsigned int> GetWaveformWithBaseline() {
-        return std::vector<unsigned int>(begin() + waveformRange_.first, begin() + waveformRange_.second);
+        return std::vector<unsigned int>(begin() + waveformRange_.first,
+                                         begin() + waveformRange_.second);
     }
-
-    ///@return True if we were able to successfully analyze the trace.
-    bool HasValidAnalysis() const { return hasValidAnalysis_; }
 
     ///@return True if the trace was saturated
     bool IsSaturated() { return isSaturated_; }
+
+    ///@return Returns the reduced Chi-squared value from Fitting Analyzer
+    double GetChiSquareDof() {return chiSq_dof_;}
+
 
     ///Sets the baseline information for the trace (average and standard
     /// deviation)
@@ -116,7 +134,9 @@ public:
     /// subtracted extraploated value)
     ///@param[in] a : The pair<unsigned int ,double> containing the position and
     /// baseline subtracted extrapolated value.
-    void SetExtrapolatedMax(const std::pair<unsigned int, double> &a) { extrapolatedMax_ = a; }
+    void SetExtrapolatedMax(const std::pair<unsigned int, double> &a) {
+        extrapolatedMax_ = a;
+    }
 
     ///Sets the baseline value found via a filter of the trace. This value is
     /// in the "filtered" units.
@@ -125,12 +145,9 @@ public:
     ///Sets the vector containing the energys found by performing a
     /// trapezoidal filter on the trace.
     ///@param[in] a : The vector containing the energies.
-    void SetFilteredEnergies(const std::vector<double> &a) { filteredEnergies_ = a; }
-
-    ///Sets the value of hasValidAnalysis_
-    ///@param[in] a : True if we were able to successfully analyze this trace
-    /// for information about the maximum, baseline, phase, etc.
-    void SetHasValidAnalysis(const bool &a) { hasValidAnalysis_ = a; }
+    void SetFilteredEnergies(const std::vector<double> &a) {
+        filteredEnergies_ = a;
+    }
 
     ///Sets the isSaturated_ private variable.
     ///@param[in] a : Sets to true if the trace was flagged as saturated by
@@ -143,7 +160,7 @@ public:
     /// baseline subtracted value.
     void SetMax(const std::pair<unsigned int, double> &a) { max_ = a; }
 
-    ///Sets the sub-sampling phase of the trace in units of samples.
+    ///Sets the sub-sampling phase of the trace.
     ///@param[in] a : The value of the phase that we want to set. This
     /// comes from a fit or CFD analysis of the trace.
     void SetPhase(const double &a) { phase_ = a; }
@@ -154,7 +171,9 @@ public:
 
     ///Sets the baseline subtracted trace.
     ///@param[in] a : The vector that we are going to assign.
-    void SetTraceSansBaseline(const std::vector<double> &a) { traceSansBaseline_ = a; }
+    void SetTraceSansBaseline(const std::vector<double> &a) {
+        traceSansBaseline_ = a;
+    }
 
     ///Sets the value of the tail-ratio method used for doing discrimination
     /// on signals that have a varying decay constant. This is generally
@@ -174,15 +193,25 @@ public:
     ///Sets the trigger positions that were located by a trapezoidal filter
     /// of the trace.
     ///@param[in] a : The vector containing the trigger positions.
-    void SetTriggerPositions(const std::vector<unsigned int> &a) { triggerPositions_ = a; }
+    void SetTriggerPositions(const std::vector<unsigned int> &a) {
+        triggerPositions_ = a;
+    }
 
     ///Sets the bounds for the waveform
     ///@param[in] a : the range we want to set
-    void SetWaveformRange(const std::pair<unsigned int, unsigned int> &a) { waveformRange_ = a; }
+    void SetWaveformRange(const std::pair<unsigned int, unsigned int> &a) {
+        waveformRange_ = a;
+    }
+
+    ///Sets the reduced Chi-squared value from Fitting Analyzer
+    ///@param[in] a : 
+    void SetChiSquareDof(double a) {
+        chiSq_dof_ = a;
+    }
+
 
 private:
     bool isSaturated_; ///< True if the trace was flagged as saturated.
-    bool hasValidAnalysis_;///< True if the analysis of the trace was successful
 
     double phase_; ///< The sub-sampling phase of the trace.
     double qdc_; ///< The qdc that was calculated from the waveform.
@@ -190,6 +219,7 @@ private:
     double tau_; ///< The tau as calculated from the waveform
     double filteredBaseline_; ///< Baseline calculated from filtering the trc.
 
+    double chiSq_dof_; ///< Reduced Chi-squared from Fitting Analyizer.
     unsigned int numTriggers_; ///< The number of triggers in the trace.
 
     std::pair<double, double> baseline_; ///< Baseline Average and Std. Dev.

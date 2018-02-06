@@ -1,13 +1,12 @@
 /*! \file HighResTimingData.hpp
  *  \brief Class to hold all of the information for high resolution timing
- *  \author S. V. Paulauskas, T. T. King
+ *  \author S. V. Paulauskas
  *  \date November 9, 2014
  */
 #ifndef __HIGHRESTIMINGDATA_HPP__
 #define __HIGHRESTIMINGDATA_HPP__
 
 #include "ChanEvent.hpp"
-#include "Constants.hpp"
 #include "Globals.hpp"
 
 //! Class for holding information for high resolution timing. All times more
@@ -16,7 +15,6 @@ class HighResTimingData : public ChanEvent {
 public:
     /** Default constructor */
     HighResTimingData() {};
-
     /** Default destructor */
     virtual ~HighResTimingData() {};
 
@@ -29,36 +27,33 @@ public:
     * \param [in] z0 : The perpendicular distance between the bar and the source in cm
     * \return The particle energy in MeV*/
     double CalcEnergy(const double &tof, const double &z0) {
-        return ((0.5 * Physical::neutronMassInMeVcc *
-                 pow((z0 / tof) / Physical::speedOfLightInCmPerNs, 2)));
+        return((0.5*Globals::get()->neutronMass()*
+                pow((z0/tof)/Globals::get()->speedOfLight(), 2)));
     }
 
-    ///@return True if the trace was successfully analyzed and we managed to
-    /// find a phase.
+    /** \return True if maxval,tqdc and sigmaBaseline were not NAN */
     bool GetIsValid() const {
-        if (GetTrace().HasValidAnalysis() && GetTrace().GetPhase() != 0.0)
-            return (true);
-        return (false);
+        if(!std::isnan(GetTrace().GetMaxInfo().second) &&
+           !std::isnan(GetTrace().GetQdc()) &&
+           !std::isnan(GetTrace().GetBaselineInfo().first) ) {
+            return(true);
+        }
+        return(false);
     }
 
-    /**This baseline value is calculated from the trace by averaging the
-     * points preceding the waveform
-        \return The current value of aveBaseline_ .*/
+    /** \return The current value of aveBaseline_ */
     double GetAveBaseline() const { return GetTrace().GetBaselineInfo().first; }
-
     /** \return The current value of discrimination_ */
     double GetDiscrimination() const { return GetTrace().GetTailRatio(); }
-
     /** \return The current value of maxpos_ */
     double GetMaximumPosition() const { return GetTrace().GetMaxInfo().first; }
-
     /** \return The current value of maxval_ */
     double GetMaximumValue() const { return GetTrace().GetMaxInfo().second; }
 
     /** \return The current value of phase_ in nanoseconds*/
     double GetPhaseInNs() const {
         return GetTrace().GetPhase() *
-               Globals::get()->GetAdcClockInSeconds() * 1e9;
+                Globals::get()->adcClockInSeconds() * 1e9;
     }
 
     /** \return The current value of stdDevBaseline_  */
@@ -68,7 +63,7 @@ public:
 
     /** \return The current value of tqdc_ */
     double GetTraceQdc() const {
-        return GetTrace().GetQdc();
+        return GetTrace().GetQdc() ;
     }
 
 #ifdef useroot
@@ -104,7 +99,6 @@ public:
         s.qdc = -9999.;
         s.id = 9999;
     }
-
 #endif
 };
 

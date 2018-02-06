@@ -1,6 +1,5 @@
 /** \file DammPlotIds.hpp
  * \brief Lists Offsets and Ranges for various Processors
- * @authors D. Miller, K. Miernik, S. V. Paulauskas
  */
 #ifndef __DAMM_PLOTIDS_HPP_
 #define __DAMM_PLOTIDS_HPP_
@@ -9,10 +8,10 @@
  * Histogram sizes consts
  */
 const int S1 = 2 /**< 2**1 */, S2 = 4/**< 2**2 */, S3 = 8/**< 2**3 */,
-        S4 = 16/**< 2**4 */, S5 = 32/**< 2**5 */, S6 = 64/**< 2**6 */,
-        S7 = 128/**< 2**7 */, S8 = 256/**< 2**8 */, S9 = 512/**< 2**9 */,
-        SA = 1024/**< 2**10 */, SB = 2048/**< 2**11 */, SC = 4096/**< 2**12 */,
-        SD = 8192/**< 2**13 */, SE = 16384/**< 2**14 */, SF = 32768/**< 2**15 */;
+    S4 = 16/**< 2**4 */, S5 = 32/**< 2**5 */, S6 = 64/**< 2**6 */,
+    S7 = 128/**< 2**7 */, S8 = 256/**< 2**8 */, S9 = 512/**< 2**9 */,
+    SA = 1024/**< 2**10 */, SB = 2048/**< 2**11 */, SC = 4096/**< 2**12 */,
+    SD = 8192/**< 2**13 */, SE = 16384/**< 2**14 */, SF = 32768/**< 2**15 */;
 
 ///Namespace containing all the histogram id definitions
 namespace dammIds {
@@ -50,7 +49,7 @@ namespace dammIds {
     /// in PspmtProcessor.cpp
     namespace pspmt {
         const int OFFSET = 1900; //!< Offset for PspmtProcessor
-        const int RANGE = 100; //!< Range for PspmtProcessor
+        const int RANGE =  100; //!< Range for PspmtProcessor
     }
 
     ///in TemplateProcessor.cpp
@@ -58,6 +57,17 @@ namespace dammIds {
         const int OFFSET = 2000;//!< Offset for TemplateProcessor
         const int RANGE = 10;//!< Range for TemplateProcessor
     }
+     ///in TACProcessor.cpp
+    namespace detTAC {
+        const int OFFSET = 5000;//!< Offset for TemplateProcessor
+        const int RANGE = 10;//!< Range for TemplateProcessor
+    }
+     ///in ArrayJProcessor.cpp
+    namespace detArrayJ {
+        const int OFFSET = 5010;//!< Offset for TemplateProcessor
+        const int RANGE = 10;//!< Range for TemplateProcessor
+    }
+
 
     ///in McpProcessor.cpp
     namespace mcp {
@@ -95,16 +105,10 @@ namespace dammIds {
         const int RANGE = 50;//!< Range for Hen3Processor
     }
 
-    ///in CloverProcessor.cpp
-    namespace clover {
-        const int OFFSET = 2500;//!< Offset for CloverProcessor
-        const int RANGE = 499;//!< Range for CloverProcessor
-    }
-
-    ///in GeProcessor.hpp
+    ///in GeProcessor.cpp
     namespace ge {
-        const int OFFSET = 2999;//!< Offset for GeProcessor
-        const int RANGE = 1;//!< Range for GeProcessor
+        const int OFFSET = 2500;//!< Offset for GeProcessor
+        const int RANGE = 500;//!< Range for GeProcessor
     }
 
     ///in LogicProcessor.cpp
@@ -114,7 +118,7 @@ namespace dammIds {
     }
 
     ///in VandleProcessor.cpp
-    namespace vandle {
+    namespace vandle{
         const int OFFSET = 3200;//!< Offset for the VandleProcessor
         const int RANGE = 150;//!< Range for the VandleProcessor
     }
@@ -126,7 +130,7 @@ namespace dammIds {
     }
 
     ///in PulserProcessor.cpp
-    namespace pulser {
+    namespace pulser{
         const int OFFSET = 3400; //!< Offset for the PulserProcessor Hists
         const int RANGE = 20;//!< Range for the PulserProcessor Hists
     }
@@ -144,7 +148,7 @@ namespace dammIds {
     }
 
     ///in IonChamberProcessor.cpp
-    namespace ionChamber {
+    namespace ionChamber{
         const int OFFSET = 4700;//!< Offset for IonChamberProcessor
         const int RANGE = 100;//!< Range for IonChamberProcessor
     }
@@ -162,9 +166,9 @@ namespace dammIds {
     }
 
     /// For Experiment specific processors
-    namespace experiment {
-        const int OFFSET = 6050; //!< Offset for Experiment processors
-        const int RANGE = 250; //!< Range for Experiment Processors
+    namespace experiment{
+	const int OFFSET = 6050; //!< Offset for Experiment processors
+	const int RANGE = 250; //!< Range for Experiment Processors
     }
 
     /// in DssdProcessor.cpp
@@ -178,24 +182,25 @@ namespace dammIds {
         const int OFFSET = 7100;//!< Offset for Dssd4SheProcessor
         const int RANGE = 100;//!< Range for Dssd4SheProcessor
     }
+  
+    ///in TtuTimingProcessor.cpp
+    namespace ttutiming {
+        const int OFFSET = 3100;//!< Offset for the TtuTimingProcessor
+        const int RANGE = 100;//!< Range for the TtuTimingProcessor
+    }
+
 
     /// Definitions for all of the traces
-    namespace analyzers {
+    namespace trace {
+        const int OFFSET = 7500; //!< Offset for the traces
+        const int RANGE = 150; //!< Range for the traces
         const int traceBins = SA; //!< Number of Bins for Traces
 
-        namespace tracefilter {
-            const unsigned int OFFSET = 7500;
-            const unsigned int RANGE = 10;
-        }
-
-        namespace extractor {
-            const unsigned int OFFSET = 7550;
-            const unsigned int RANGE = 1;
-        }
-
-        namespace waa {
-            const unsigned int OFFSET = 7510;
-            const unsigned int RANGE = 1;
+        namespace tracefilteranalyzer {
+	    const int D_RETVALS = 0; //!< Return values for TraceFilter class
+            const int DD_TRIGGER_FILTER = 1;//!< Trigger Filter
+            const int DD_REJECTED_TRACE = 2;//!< Traces with some kind of error
+	    const int DD_PILEUP = 3; //!< Piled up traces
         }
 
         namespace doubletraceanalyzer {
@@ -207,6 +212,20 @@ namespace dammIds {
             const int DD_TRIPLE_TRACE_FILTER1 = 31;//!< results of trace filter 1
             const int DD_TRIPLE_TRACE_FILTER2 = 32;//!< results of trace filter 2
             const int DD_TRIPLE_TRACE_FILTER3 = 33; //!< results of trace filter 3
+        }
+
+        namespace waveformanalyzer {
+            const int DD_TRACES     = 40;//!< Plotted traces
+            const int D_CHISQPERDOF = 41;//!< distributions of chi^2/dof
+            const int D_PHASE       = 42;//!< distribution of phases
+            const int DD_AMP        = 43;//!< Distributions of fitted amplitudes
+            const int D_SIGMA       = 44; //!< Distributions of Std. Dev. Baseline
+        }
+
+        /// 1D-traces from the extractor
+        namespace extractor {
+            const int maxSingleTraces = 99; ///< Number of traces to plot
+            const int D_TRACE = 50; ///< His number for traces
         }
     }
 }

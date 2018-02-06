@@ -1,6 +1,5 @@
 /*! \file TauAnalyzer.hpp
  * \brief A trace analyzer which determines the decay time constant of traces
- * @authors D. Miller
  */
 #ifndef __TAUANALYZER_HPP_
 #define __TAUANALYZER_HPP_
@@ -21,15 +20,16 @@ public:
     TauAnalyzer(const std::string &aType, const std::string &aSubtype);
 
     /** Default Destructor */
-    ~TauAnalyzer() {};
+    ~TauAnalyzer(){};
 
     /** The main analysis driver
     * \param [in] trace : the trace to analyze
     * \param [in] aType : the type being analyze
     * \param [in] aSubtype : the subtype begin analyzed 
     * \param [in] tagMap : the map of tags for the channel */
-    virtual void Analyze(Trace &trace, const ChannelConfiguration &cfg);
-
+    virtual void Analyze(Trace &trace, const std::string &aType,
+                         const std::string &aSubtype,
+                         const std::map<std::string, int> & tagMap);
 private:
     std::string type; //!< the detector type
     std::string subtype;//!< the detector subtype

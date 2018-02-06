@@ -15,13 +15,11 @@ class CrosstalkProcessor : public VandleProcessor {
 public:
     /** Default Constructor */
     CrosstalkProcessor();
-
     /** Default Destructor */
-    ~CrosstalkProcessor() {};
-
+    ~CrosstalkProcessor(){};
     /** Declares the plots for the processor */
     void DeclarePlots(void);
-
+    
     /** Preprocess the data for Crosstalk
      * \param [in] event : the event to preprocess
      * \return true if successful */
@@ -31,12 +29,10 @@ public:
     * \param [in] event : the event to process
     * \return true if processing was successful */
     bool Process(RawEvent &event);
-
 private:
     typedef std::pair<unsigned int, unsigned int> CrossTalkKey; //!< Typedef for crosstalk
     typedef std::map<CrossTalkKey, double> CrossTalkMap;//!< typedef for map for crosstalk handling
     std::map<CrossTalkKey, double> crossTalk;//!< map to put in cross talk info
 
 };
-
 #endif // __CROSSTALKPROCESSOR_HPP__

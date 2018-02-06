@@ -15,7 +15,8 @@
 using namespace std;
 using namespace DataProcessing;
 
-vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const XiaListModeDataMask &mask) {
+vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(
+        unsigned int *buf, const XiaListModeDataMask &mask) {
 
     unsigned int *bufStart = buf;
     ///@NOTE : These two pieces here are the Pixie Module Data Header. They
@@ -26,7 +27,8 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
 
     //A buffer length of zero is an issue, we'll throw a length error.
     if (bufLen == 0)
-        throw length_error("Unpacker::ReadBuffer - The buffer length was sized 0. This is a huge issue.");
+        throw length_error("Unpacker::ReadBuffer - The buffer length was "
+                                   "sized 0. This is a huge issue.");
 
     //For empty buffers we just return an empty vector.
     static const unsigned int emptyBufferLength = 2;
@@ -60,9 +62,9 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
         switch (headerLength) {
             case STATS_BLOCK : // Manual statistics block inserted by poll
                 // this is a manual statistics block inserted by the poll program
-                //stats.DoStatisticsBlock(&buf[1], modNum);
+                /*stats.DoStatisticsBlock(&buf[1], modNum);
                 buf += eventLength;
-                //numEvents = -10;
+                numEvents = -10;*/
                 continue;
             case HEADER :
                 break;
@@ -160,12 +162,15 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
     return events;
 }
 
-std::pair<unsigned int, unsigned int> XiaListModeDataDecoder::DecodeWordZero(const unsigned int &word, XiaData &data,
-                                                                             const XiaListModeDataMask &mask) {
+std::pair<unsigned int, unsigned int> XiaListModeDataDecoder::DecodeWordZero(
+        const unsigned int &word, XiaData &data,
+        const XiaListModeDataMask &mask) {
 
     data.SetChannelNumber(word & mask.GetChannelNumberMask().first);
-    data.SetSlotNumber((word & mask.GetSlotIdMask().first) >> mask.GetSlotIdMask().second);
-    data.SetCrateNumber((word & mask.GetCrateIdMask().first) >> mask.GetCrateIdMask().second);
+    data.SetSlotNumber((word & mask.GetSlotIdMask().first)
+                               >> mask.GetSlotIdMask().second);
+    data.SetCrateNumber((word & mask.GetCrateIdMask().first)
+                                >> mask.GetCrateIdMask().second);
     data.SetPileup((word & mask.GetFinishCodeMask().first) != 0);
 
     //We have to check if we have one of these three firmwares since they
@@ -174,28 +179,38 @@ std::pair<unsigned int, unsigned int> XiaListModeDataDecoder::DecodeWordZero(con
         case R17562:
         case R20466:
         case R27361:
-            data.SetSaturation((bool) ((word & mask.GetTraceOutOfRangeFlagMask().first)
-                    >> mask.GetTraceOutOfRangeFlagMask().second));
+            data.SetSaturation((bool)
+                                       ((word &
+                                         mask.GetTraceOutOfRangeFlagMask().first)
+                                               >> mask.GetTraceOutOfRangeFlagMask().second));
             break;
         default:
             break;
     }
 
-    return make_pair((word & mask.GetHeaderLengthMask().first) >> mask.GetHeaderLengthMask().second,
-                     (word & mask.GetEventLengthMask().first) >> mask.GetEventLengthMask().second);
+    return make_pair((word & mask.GetHeaderLengthMask().first)
+                             >> mask.GetHeaderLengthMask().second,
+                     (word & mask.GetEventLengthMask().first)
+                             >> mask.GetEventLengthMask().second);
 }
 
-void XiaListModeDataDecoder::DecodeWordTwo(const unsigned int &word, XiaData &data, const XiaListModeDataMask &mask) {
+void XiaListModeDataDecoder::DecodeWordTwo(
+        const unsigned int &word, XiaData &data,
+        const XiaListModeDataMask &mask) {
     data.SetEventTimeHigh(word & mask.GetEventTimeHighMask().first);
-    data.SetCfdFractionalTime((word & mask.GetCfdFractionalTimeMask().first) >> mask.GetCfdFractionalTimeMask().second);
+    data.SetCfdFractionalTime((word & mask.GetCfdFractionalTimeMask().first)
+                                      >> mask.GetCfdFractionalTimeMask().second);
     data.SetCfdForcedTriggerBit(
-            (bool) ((word & mask.GetCfdForcedTriggerBitMask().first) >> mask.GetCfdForcedTriggerBitMask().second));
+            (bool) ((word & mask.GetCfdForcedTriggerBitMask().first)
+                    >> mask.GetCfdForcedTriggerBitMask().second));
     data.SetCfdTriggerSourceBit(
-            (bool) (word & mask.GetCfdTriggerSourceMask().first) >> mask.GetCfdTriggerSourceMask().second);
+            (bool) (word & mask.GetCfdTriggerSourceMask().first)
+                    >> mask.GetCfdTriggerSourceMask().second);
 }
 
-unsigned int XiaListModeDataDecoder::DecodeWordThree(const unsigned int &word, XiaData &data,
-                                                     const XiaListModeDataMask &mask) {
+unsigned int XiaListModeDataDecoder::DecodeWordThree(
+        const unsigned int &word, XiaData &data,
+        const XiaListModeDataMask &mask) {
     data.SetEnergy(word & mask.GetEventEnergyMask().first);
 
     //Reverse the logic that we used in DecodeWordZero, since if we do not
@@ -207,15 +222,19 @@ unsigned int XiaListModeDataDecoder::DecodeWordThree(const unsigned int &word, X
         case R27361:
             break;
         default:
-            data.SetSaturation((bool) ((word & mask.GetTraceOutOfRangeFlagMask().first)
-                    >> mask.GetTraceOutOfRangeFlagMask().second));
+            data.SetSaturation((bool)
+                                       ((word &
+                                         mask.GetTraceOutOfRangeFlagMask().first)
+                                               >> mask.GetTraceOutOfRangeFlagMask().second));
             break;
     }
 
-    return ((word & mask.GetTraceLengthMask().first) >> mask.GetTraceLengthMask().second);
+    return ((word & mask.GetTraceLengthMask().first)
+            >> mask.GetTraceLengthMask().second);
 }
 
-void XiaListModeDataDecoder::DecodeTrace(unsigned int *buf, XiaData &data, const unsigned int &traceLength) {
+void XiaListModeDataDecoder::DecodeTrace(unsigned int *buf, XiaData &data,
+                                         const unsigned int &traceLength) {
     vector<unsigned int> tmp;
     // sbuf points to the beginning of trace data
     unsigned short *sbuf = (unsigned short *) buf;
@@ -227,9 +246,10 @@ void XiaListModeDataDecoder::DecodeTrace(unsigned int *buf, XiaData &data, const
     data.SetTrace(tmp);
 }
 
-pair<double, double> XiaListModeDataDecoder::CalculateTimeInSamples(const XiaListModeDataMask &mask,
-                                                                    const XiaData &data) {
-    double filterTime = data.GetEventTimeLow() + data.GetEventTimeHigh() * pow(2., 32);
+pair<double, double> XiaListModeDataDecoder::CalculateTimeInSamples(
+        const XiaListModeDataMask &mask, const XiaData &data) {
+    double filterTime =
+            data.GetEventTimeLow() + data.GetEventTimeHigh() * pow(2., 32);
 
     if (data.GetCfdFractionalTime() == 0 || data.GetCfdForcedTriggerBit())
         return make_pair(filterTime, filterTime);
@@ -240,18 +260,21 @@ pair<double, double> XiaListModeDataDecoder::CalculateTimeInSamples(const XiaLis
 
     if (mask.GetFrequency() == 250) {
         multiplier = 2;
-        cfdTime = data.GetCfdFractionalTime() / mask.GetCfdSize() - data.GetCfdTriggerSourceBit();
+        cfdTime = data.GetCfdFractionalTime() / mask.GetCfdSize() -
+                  data.GetCfdTriggerSourceBit();
     }
 
     if (mask.GetFrequency() == 500) {
         multiplier = 10;
-        cfdTime = data.GetCfdFractionalTime() / mask.GetCfdSize() + data.GetCfdTriggerSourceBit() - 1;
+        cfdTime = data.GetCfdFractionalTime() / mask.GetCfdSize() +
+                  data.GetCfdTriggerSourceBit() - 1;
     }
 
     return make_pair(filterTime, filterTime * multiplier + cfdTime);
 }
 
-double XiaListModeDataDecoder::CalculateTimeInNs(const XiaListModeDataMask &mask, const XiaData &data) {
+double XiaListModeDataDecoder::CalculateTimeInNs(
+        const XiaListModeDataMask &mask, const XiaData &data) {
     double conversionToNs = 1. / (mask.GetFrequency() * 1.e6);
     return CalculateTimeInSamples(mask, data).second * conversionToNs;
 }

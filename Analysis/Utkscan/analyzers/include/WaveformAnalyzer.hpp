@@ -5,9 +5,8 @@
 #ifndef __WAVEFORMANALYZER_HPP_
 #define __WAVEFORMANALYZER_HPP_
 
-#include <set>
-#include <string>
-
+#include "Globals.hpp"
+#include "Messenger.hpp"
 #include "Trace.hpp"
 #include "TraceAnalyzer.hpp"
 
@@ -15,10 +14,10 @@
 class WaveformAnalyzer : public TraceAnalyzer {
 public:
     /** Default Constructor */
-    WaveformAnalyzer(const std::set<std::string> &ignoredTypes);
+    WaveformAnalyzer();
 
     /** Default destructor */
-    ~WaveformAnalyzer() {}
+    ~WaveformAnalyzer() { delete messenger_; }
 
     /** Declare the plots */
     void DeclarePlots(void) const {}
@@ -28,10 +27,12 @@ public:
     * \param [in] type : the detector type
     * \param [in] subtype : detector subtype 
     * \param [in] tags : the map of the tags for the channel */
-    void Analyze(Trace &trace, const ChannelConfiguration &cfg);
+    void Analyze(Trace &trace, const std::string &type,
+                 const std::string &subtype,
+                 const std::map<std::string, int> &tags);
 
 private:
-    std::set<std::string> ignoredTypes_;
+    Messenger *messenger_;//!< A pointer for the messenger class
 };
 
 #endif // __WAVEFORMANALYZER_HPP_

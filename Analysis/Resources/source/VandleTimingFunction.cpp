@@ -6,16 +6,18 @@
 
 #include "VandleTimingFunction.hpp"
 
-///This defines the stock VANDLE timing function. Here is a breakdown of the parameters:
-/// * p[0] = phase
-/// * p[1] = amplitude
-/// * p[2] = beta
-/// * p[3] = gamma
-/// * p[4] = baseline
 double VandleTimingFunction::operator()(double *x, double *p) {
-    if (x[0] < p[0])
-        return p[4];
+    double phase = p[0];
+    double amplitude = p[1];
+    double beta = p[2];
+    double gamma = p[3];
+    double baseline = p[4];
 
-    return p[1] * std::exp(-p[2] * (x[0] - p[0])) *
-           (1 - std::exp(-std::pow(p[3] * (x[0] - p[0]), 4.))) + p[4];
+    double diff = x[0] - phase;
+
+    if (x[0] < phase)
+        return baseline;
+
+    return amplitude * std::exp(-beta * diff) *
+           (1 - std::exp(-std::pow(gamma * diff, 4.))) + baseline;
 }

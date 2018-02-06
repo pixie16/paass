@@ -7,7 +7,7 @@
 #include "BarBuilder.hpp"
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
-#include "CloverProcessor.hpp"
+#include "GeProcessor.hpp"
 #include "VandleProcessor.hpp"
 #include "VandleOrnl2012Processor.hpp"
 
@@ -63,8 +63,7 @@ VandleOrnl2012Processor::VandleOrnl2012Processor() :
     associatedTypes.insert("vandle");
 
     stringstream name;
-    name << Globals::get()->GetOutputPath()
-         << Globals::get()->GetOutputFileName();
+    name << Globals::get()->outputPath(Globals::get()->outputFile());
     fileName_ = name.str();
     fileNames_.push_back(fileName_ + "-tof.dat");
     fileNames_.push_back(fileName_ + "-tof-02Plus.dat");
@@ -80,17 +79,17 @@ bool VandleOrnl2012Processor::Process(RawEvent &event) {
     BarMap vbars, betas;
     ///@TODO Update the BetaProcessor so that it actually generates this map.
     TimingMap starts;
-    vector < ChanEvent * > geEvts;
-    vector <vector<AddBackEvent>> geAddback;
+    vector<ChanEvent *> geEvts;
+    vector<vector<AddBackEvent> > geAddback;
 
     if (event.GetSummary("vandle")->GetList().size() != 0)
         vbars = ((VandleProcessor *) DetectorDriver::get()->
                 GetProcessor("VandleProcessor"))->GetBars();
-    if (event.GetSummary("ge")->GetList().size() != 0) {
-        geEvts = ((CloverProcessor *) DetectorDriver::get()->
-                GetProcessor("CloverProcessor"))->GetGeEvents();
-        geAddback = ((CloverProcessor *) DetectorDriver::get()->
-                GetProcessor("CloverProcessor"))->GetAddbackEvents();
+    if(event.GetSummary("ge")->GetList().size() != 0) {
+        geEvts = ((GeProcessor*)DetectorDriver::get()->
+                GetProcessor("GeProcessor"))->GetGeEvents();
+        geAddback = ((GeProcessor*)DetectorDriver::get()->
+                GetProcessor("GeProcessor"))->GetAddbackEvents();
     }
 
     for (BarMap::iterator it = vbars.begin(); it != vbars.end(); it++) {
@@ -123,7 +122,7 @@ bool VandleOrnl2012Processor::Process(RawEvent &event) {
             double tof = bar.GetCorTimeAve() -
                          start.GetWalkCorrectedTime() + tofOffset;
             double corTof =
-                    ((VandleProcessor *) DetectorDriver::get()->
+                    ((VandleProcessor*)DetectorDriver::get()->
                             GetProcessor("VandleProcessor"))->
                             CorrectTOF(tof, bar.GetFlightPath(), cal.GetZ0());
 
@@ -181,7 +180,7 @@ bool VandleOrnl2012Processor::Process(RawEvent &event) {
 
             double cycleTime = TreeCorrelator::get()->place(
                     "Cycle")->last().time;
-            cycleTime *= (Globals::get()->GetClockInSeconds() * 1.e9);
+            cycleTime *= (Globals::get()->clockInSeconds() * 1.e9);
 
             double decayTime = (bar.GetTimeAverage() - cycleTime) / 0.01;
 

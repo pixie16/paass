@@ -1,0 +1,95 @@
+/** \file TACProcessor.cpp
+ * \brief A Simple Processor for TAC signals in Pixie.
+ * \author D. Perez-Loureiro
+ * \date June 2, 2017
+ */
+
+#include <iostream>
+
+#include "DammPlotIds.hpp"
+#include "Globals.hpp"
+#include "RawEvent.hpp"
+#include "TACProcessor.hpp"
+
+#include <TFile.h>
+#include <TH1F.h>
+
+TFile *rootFile;
+TH1F *hTAC;
+
+namespace dammIds {
+    namespace detTAC {
+        const int D_ENERGY  = 0; //!< ID for the energy of the TAC detector
+        const int DD_TAC_VS_PULSER = 1; //!< Energy TAC vs. Energy Pulser
+    }
+}//namespace dammIds
+
+using namespace std;
+using namespace dammIds::detTAC;
+
+TACProcessor::TACProcessor():
+    EventProcessor(OFFSET, RANGE, "TACProcessor") {
+    associatedTypes.insert("TAC");
+rootFile = new TFile("TACProcessorOut.root","RECREATE");
+hTAC = new TH1F("hTAC","TAC Maxima Spectrum ",2000,0,500);
+}
+
+TACProcessor::TACProcessor(const double &a):
+    EventProcessor(OFFSET, RANGE, "TACProcessor") {
+    associatedTypes.insert("TAC");
+    a_ = a;
+}
+
+TACProcessor::~TACProcessor(){
+hTAC->Write();
+rootFile->Write();
+rootFile->Close();
+//delete rootFile;
+}
+void TACProcessor::DeclarePlots(void) {
+    DeclareHistogram1D(D_ENERGY, SA, "TAC Energy");
+    DeclareHistogram2D(DD_TAC_VS_PULSER, SA, SA,
+                       "TAC Energy vs. Pulser Energy");
+}
+
+bool TACProcessor::PreProcess(RawEvent &event) {
+    if (!EventProcessor::PreProcess(event))
+        return(false);
+
+    evts_ = event.GetSummary("TAC")->GetList();
+
+    std::cout<<"TACProcessor::PreProcess()->TAC Size is "<<evts_.size()<<std::endl;
+
+    for(vector<ChanEvent*>::const_iterator it = evts_.begin();
+        it != evts_.end(); it++) {
+        unsigned int location = (*it)->GetChanID().GetLocation();
+	//std::cout<<"Location is "<<location<<std::endl;
+        //if(location == 0)
+        Float_t Max=(*it)->GetTrace().GetMaxInfo().second;
+        hTAC->Fill(Max);
+}
+    return(true);
+}
+
+bool TACProcessor::Process(RawEvent &event) {
+    if (!EventProcessor::Process(event))
+        return(false);
+
+    static const vector<ChanEvent*> & pulserEvents =
+        event.GetSummary("pulser")->GetList();
+
+    //std::cout<<" TACProcessor::Process() "<<pulserEvents.size()<<std::endl;
+    std::cout<<"TACProcessor::Process()->TAC Size is "<<evts_.size()<<std::endl;
+
+    for(vector<ChanEvent*>::const_iterator it = evts_.begin();
+        it != evts_.end(); it++) {
+        unsigned int loc = (*it)->GetChanID().GetLocation();
+        for(vector<ChanEvent*>::const_iterator itA = pulserEvents.begin();
+            itA != pulserEvents.end(); itA++) {
+            if(loc == 0)
+                plot(DD_TAC_VS_PULSER, (*it)->GetEnergy(),
+                     (*itA)->GetEnergy());
+        }
+    }
+    return(true);
+}

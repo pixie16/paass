@@ -11,11 +11,13 @@
 using namespace std;
 
 /// Perform CFD analysis on the waveform.
-double PolynomialCfd::CalculatePhase(const std::vector<double> &data, const std::pair<double, double> &pars,
+double PolynomialCfd::CalculatePhase(const std::vector<double> &data,
+                                     const std::pair<double, double> &pars,
                                      const std::pair<unsigned int, double> &max,
                                      const std::pair<double, double> baseline) {
     if (data.size() == 0)
-        throw range_error("PolynomialCfd::CalculatePhase - The data vector was empty!");
+        throw range_error("PolynomialCfd::CalculatePhase - The data vector "
+                                  "was empty!");
     if (data.size() < max.first)
         throw range_error("PolynomialCfd::CalculatePhase - The maximum "
                                   "position is larger than the size of the "
@@ -32,11 +34,14 @@ double PolynomialCfd::CalculatePhase(const std::vector<double> &data, const std:
             result = Polynomial::CalculatePoly2(data, cfdIndex - 1).second;
 
             // Calculate the phase of the trace.
-            if (result[2] > 1)
+            if(result[2] > 1)
                 multiplier = -1.;
 
-            phase = (-result[1] + multiplier * sqrt(result[1] * result[1] - 4 * result[2] * (result[0] - threshold)))
-                    / (2 * result[2]);
+            phase = (-result[1] + multiplier *
+                     sqrt(result[1] * result[1] -
+                                       4 * result[2] *
+                                       (result[0] - threshold))) /
+                    (2 * result[2]);
 
             break;
         }

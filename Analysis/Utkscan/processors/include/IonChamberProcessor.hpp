@@ -1,6 +1,5 @@
 /** \file IonChamberProcessor.hpp
  * \brief Processor for ion chamber
- * @authors D. Miller
  */
 #ifndef __IONCHAMBERPROCESSOR_HPP_
 #define __IONCHAMBERPROCESSOR_HPP_
@@ -30,29 +29,21 @@ private:
 public:
     /** Default Constructor */
     IonChamberProcessor();
-
     /** Default Destructor */
     ~IonChamberProcessor() {};
-
     /** Process an event
     * \param [in] event : the event to process
     * \return true if the processing was successful */
     virtual bool Process(RawEvent &event);
-
     /** Declare plots for processor */
     virtual void DeclarePlots(void);
-
 #ifdef useroot
-
     /** Add the branch to the tree
     * \param [in] tree : the tree to add the branch to
     * \return true if you could do it */
     bool AddBranch(TTree *tree);
-
     /** Fill the branch */
     void FillBranch(void);
-
 #endif
 };
-
 #endif // __IONCHAMBERPROCSSEOR_HPP_

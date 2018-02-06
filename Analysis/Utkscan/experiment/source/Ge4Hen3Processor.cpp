@@ -1,5 +1,4 @@
 /** \file Ge4Hen3Processor.cpp
- * @authors K. Miernik
  *
  * implementation for germanium processor for 3Hen experiment
  */
@@ -59,7 +58,7 @@ namespace dammIds {
                 const int D_ADD_ENERGY_TOTAL = 265; //!< beta gated total energy 
                 const int DD_ADD_ENERGY = 262; //!< beta gated addback gamma gamma
                 const int DD_ADD_ENERGY__TIMEX = 281; //!< beta gated addback grow/decay
-            }
+            } 
         }
 
         namespace multiNeutron {
@@ -77,42 +76,41 @@ namespace dammIds {
                 const int D_ADD_ENERGY = 360; //!< n-b gated add back 
                 const int D_ADD_ENERGY_TOTAL = 365; //!< n-b gated total addback energy 
                 const int DD_ADD_ENERGY__TIMEX = 381; //!<  n-b gated addback grow/decay
-            }
+            } 
         }
     }
 }
 
 Ge4Hen3Processor::Ge4Hen3Processor(double gammaThreshold, double lowRatio,
-                                   double highRatio, double subEventWindow,
-                                   double gammaBetaLimit,
-                                   double gammaGammaLimit,
-                                   double cycle_gate1_min,
-                                   double cycle_gate1_max,
-                                   double cycle_gate2_min,
-                                   double cycle_gate2_max) :
+                         double highRatio, double subEventWindow,
+                         double gammaBetaLimit, double gammaGammaLimit,
+                         double cycle_gate1_min, double cycle_gate1_max,
+                         double cycle_gate2_min, double cycle_gate2_max) :
 
-        GeProcessor(gammaThreshold, lowRatio, highRatio,
-                    subEventWindow, gammaBetaLimit,
-                    gammaGammaLimit,
-                    cycle_gate1_min, cycle_gate1_max,
-                    cycle_gate2_min, cycle_gate2_max) {
+                         GeProcessor(gammaThreshold, lowRatio, highRatio,
+                                     subEventWindow, gammaBetaLimit, 
+                                     gammaGammaLimit,
+                                     cycle_gate1_min, cycle_gate1_max,
+                                     cycle_gate2_min, cycle_gate2_max)
+{
 }
 
 /** Declare plots including many for decay/implant/neutron gated analysis  */
-void Ge4Hen3Processor::DeclarePlots(void) {
+void Ge4Hen3Processor::DeclarePlots(void) 
+{
     GeProcessor::DeclarePlots();
     using namespace dammIds::ge;
 
-    const int energyBins1 = SD;
-    const int energyBins2 = SC;
+    const int energyBins1  = SD;
+    const int energyBins2  = SC;
     const int granTimeBins = SA;
 
     DeclareHistogram1D(neutron::D_ENERGY, energyBins1,
-                       "Gamma singles neutron gated");
+                      "Gamma singles neutron gated");
     DeclareHistogram1D(neutron::D_ENERGY_MOVE, energyBins1,
                        "Gamma singles neutron gated, tape move period");
     DeclareHistogram1D(neutron::D_MULT, S7,
-                       "Gamma multiplicity neutron gated");
+                       "Gamma multiplicity neutron gated");                  
     DeclareHistogram1D(neutron::D_ADD_ENERGY, energyBins1,
                        "Gamma addback neutron gated");
     DeclareHistogram1D(neutron::D_ADD_ENERGY_TOTAL, energyBins1,
@@ -204,9 +202,9 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
 
     /* Number of neutrons as selected by gates on 3hen spectrum.
      * See DetectorDriver::InitCorrelator for gates. */
-    int neutron_count =
-            dynamic_cast<PlaceCounter *>(
-                    TreeCorrelator::get()->place("Neutrons"))->getCounter();
+    int neutron_count = 
+        dynamic_cast<PlaceCounter*>(
+                TreeCorrelator::get()->place("Neutrons"))->getCounter();
 
     /** All non-neutron related spectra are processed in the base class 
      * Here we are interested in neutron spectra only so there is no need
@@ -219,11 +217,11 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
      *  tape movement period and before the end of move and the beam start
      */
     if (!TreeCorrelator::get()->place("Cycle")->status()) {
-        for (vector<ChanEvent *>::iterator it = geEvents_.begin();
-             it != geEvents_.end(); ++it) {
-            ChanEvent *chan = *it;
-            double gEnergy = chan->GetCalEnergy();
-            if (gEnergy < gammaThreshold_)
+        for (vector<ChanEvent*>::iterator it = geEvents_.begin(); 
+        it != geEvents_.end(); ++it) {
+            ChanEvent* chan = *it;
+            double gEnergy = chan->GetCalEnergy();	
+            if (gEnergy < gammaThreshold_) 
                 continue;
             plot(neutron::D_ENERGY_MOVE, gEnergy);
         }
@@ -234,39 +232,38 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
 
     /** Cycle time is measured from the begining of the last BeamON event */
     double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
-
+    
     // beamOn is true for beam on and false for beam off
-    bool beamOn = TreeCorrelator::get()->place("Beam")->status();
+    bool beamOn =  TreeCorrelator::get()->place("Beam")->status();
 
     plot(neutron::D_MULT, geEvents_.size());
 
     /* Beta places are activated with threshold in ScintProcessor. */
     bool hasBeta = TreeCorrelator::get()->place("Beta")->status();
 
-    for (vector<ChanEvent *>::iterator it1 = geEvents_.begin();
-         it1 != geEvents_.end(); ++it1) {
+    for (vector<ChanEvent*>::iterator it1 = geEvents_.begin(); 
+	 it1 != geEvents_.end(); ++it1) {
         ChanEvent *chan = *it1;
-
-        double gEnergy = chan->GetCalEnergy();
-        double gTime = chan->GetCorrectedTime();
+        
+        double gEnergy = chan->GetCalEnergy();	
+        double gTime   = chan->GetCorrectedTime();
         double decayTime = (gTime - cycleTime) * clockInSeconds;
         if (gEnergy < gammaThreshold_)
             continue;
 
         plot(neutron::D_ENERGY, gEnergy);
         granploty(neutron::DD_ENERGY__TIMEX,
-                  gEnergy, decayTime, timeResolution);
+                    gEnergy, decayTime, timeResolution);
 
         if (beamOn) {
-            granploty(neutron::DD_ENERGY__TIMEX_GROW,
-                      gEnergy, decayTime, timeResolution);
+            granploty(neutron::DD_ENERGY__TIMEX_GROW, 
+                    gEnergy, decayTime, timeResolution);
         } else {
-            double decayTimeOff = (gTime -
-                                   TreeCorrelator::get()->place(
-                                           "Beam")->last().time) *
-                                  clockInSeconds;
-            granploty(neutron::DD_ENERGY__TIMEX_DECAY,
-                      gEnergy, decayTimeOff, timeResolution);
+            double decayTimeOff = (gTime - 
+                    TreeCorrelator::get()->place("Beam")->last().time) *
+                    clockInSeconds;
+            granploty(neutron::DD_ENERGY__TIMEX_DECAY, 
+                    gEnergy, decayTimeOff, timeResolution);
         }
 
         double gb_dtime = numeric_limits<double>::max();
@@ -274,12 +271,12 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             EventData bestBeta = BestBetaForGamma(gTime);
             gb_dtime = (gTime - bestBeta.time) * clockInSeconds;
             plot(neutron::betaGated::D_ENERGY, gEnergy);
-            if (GoodGammaBeta(gb_dtime)) {
+			if (GoodGammaBeta(gb_dtime)) {
                 plot(neutron::betaGated::D_ENERGY_PROMPT, gEnergy);
                 granploty(neutron::betaGated::DD_ENERGY__TIMEX,
-                          gEnergy, decayTime, timeResolution);
+                            gEnergy, decayTime, timeResolution);
             }
-        }
+		}
 
         for (unsigned l = 0; l < 48; ++l) {
             stringstream neutron;
@@ -298,18 +295,18 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
                 if (GoodGammaBeta(gb_dtime)) {
                     plot(multiNeutron::betaGated::D_ENERGY_PROMPT, gEnergy);
                     granploty(multiNeutron::betaGated::DD_ENERGY__TIMEX,
-                              gEnergy, decayTime, timeResolution);
+                            gEnergy, decayTime, timeResolution);
                 }
             }
         }
-
-        for (vector<ChanEvent *>::const_iterator it2 = it1 + 1;
-             it2 != geEvents_.end(); ++it2) {
+        
+        for (vector<ChanEvent*>::const_iterator it2 = it1 + 1;
+                it2 != geEvents_.end(); ++it2) {
 
             ChanEvent *chan2 = *it2;
 
-            double gEnergy2 = chan2->GetCalEnergy();
-            if (gEnergy2 < gammaThreshold_)
+            double gEnergy2 = chan2->GetCalEnergy();            
+            if (gEnergy2 < gammaThreshold_) 
                 continue;
 
             double gTime2 = chan2->GetCorrectedTime();
@@ -317,13 +314,13 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
             if (abs(gg_dtime) > gammaGammaLimit_)
                 continue;
 
-            symplot(neutron::DD_ENERGY, gEnergy, gEnergy2);
+            symplot(neutron::DD_ENERGY, gEnergy, gEnergy2);            
             if (hasBeta && GoodGammaBeta(gb_dtime)) {
                 symplot(neutron::betaGated::DD_ENERGY,
-                        gEnergy, gEnergy2);
+                        gEnergy, gEnergy2);            
             }
         }
-    }
+    } 
 
     unsigned nEvents = tas_.size();
 
@@ -405,6 +402,6 @@ bool Ge4Hen3Processor::Process(RawEvent &event) {
         } // iteration over clovers
     } // iteration over events
 
-    EndProcess();
+    EndProcess(); 
     return true;
 }

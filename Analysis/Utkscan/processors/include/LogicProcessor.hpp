@@ -1,7 +1,6 @@
 /** \file LogicProcessor.hpp
  * \brief Class to handle logic signals
  * derived originally from MTC processor
- * @authors D. Miller, K. Miernik, S. V. Paulauskas
  */
 #ifndef __LOGICPROCESSOR_HPP_
 #define __LOGICPROCESSOR_HPP_
@@ -22,7 +21,7 @@ public:
     * \param [in] doubleStop : if we have doubled the stops in the map
     * \param [in] doubleStart : if we have doubled the starts in the map */
     LogicProcessor(int offset, int range, bool doubleStop = false,
-                   bool doubleStart = false);
+		   bool doubleStart = false);
 
     /** Declare plots used in the analysis */
     virtual void DeclarePlots(void);
@@ -42,14 +41,13 @@ public:
     virtual bool LogicStatus(size_t loc) const { return logicStatus.at(loc); };
 
     /** \param [in] a : true if we have cloned the starts in the map */
-    void SetDoubleStart(const bool &a) { doubleStart_ = a; };
-
+    void SetDoubleStart(const bool &a) {doubleStart_ = a;};
     /** \param [in] a : true if we have cloned the stops in the map */
-    void SetDoubleStop(const bool &a) { doubleStop_ = a; };
+    void SetDoubleStop(const bool &a) {doubleStop_ = a;};
 
     /** \return The stop count for a given location
      * \param [in] loc : the location to get the count from */
-    unsigned long StopCount(size_t loc) const { return stopCount.at(loc); };
+    unsigned long StopCount(size_t loc) const { return stopCount.at(loc);};
 
     /** \return The start count for a given location
      * \param [in] loc : the location to get the status from */
@@ -59,20 +57,20 @@ public:
      * \param [in] loc : the location to get the status from
      * \param [in] t : the current time to compare with the last one */
     double TimeOff(size_t loc, double t) const {
-        return (!LogicStatus(loc) ? (t - lastStopTime.at(loc)) : 0.);
+        return (!LogicStatus(loc) ? (t-lastStopTime.at(loc)) : 0.);
     }
 
     /** \return The time since the last on
      * \param [in] loc : the location to get the status from
      * \param [in] t : the current time to compare with the last one */
     double TimeOn(size_t loc, double t) const {
-        return (LogicStatus(loc) ? (t - lastStartTime.at(loc)) : 0.);
+        return (LogicStatus(loc) ? (t-lastStartTime.at(loc)) : 0.);
     }
 
 protected:
     std::vector<double> lastStartTime; //!< time of last leading edge
     std::vector<double> lastStopTime;  //!< time of last trailing edge
-    std::vector<bool> logicStatus;   //!< current level of the logic signal
+    std::vector<bool>   logicStatus;   //!< current level of the logic signal
 
     std::vector<unsigned long> stopCount;  //!< number of stops received
     std::vector<unsigned long> startCount; //!< number of starts received

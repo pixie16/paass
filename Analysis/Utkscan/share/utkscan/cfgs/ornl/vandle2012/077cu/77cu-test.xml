@@ -25,23 +25,23 @@
         <Analyzer name="WaveformAnalyzer"/>
         <Analyzer name="FittingAnalyzer"/>
         <Processor name="GeProcessor"
-                   gamma_threshold="20.0"
-                   low_ratio="1.5"
-                   high_ratio="3.0"
-                   sub_event="100e-9"
-                   gamma_beta_limit="100e-9"
-                   gamma_gamma_limit="200e-9"
-                   cycle_gate1_min="1.0"
-                   cycle_gate1_max="1.5"
-                   cycle_gate2_min="1.5"
-                   cycle_gate2_max="2.0"
+            gamma_threshold="20.0"
+            low_ratio="1.5"
+            high_ratio="3.0"
+            sub_event="100e-9"
+            gamma_beta_limit="100e-9"
+            gamma_gamma_limit="200e-9"
+            cycle_gate1_min="1.0"
+            cycle_gate1_max="1.5"
+            cycle_gate2_min="1.5"
+            cycle_gate2_max="2.0"
         />
         <Processor name="DoubleBetaProcessor"/>
         <Processor name="VandleProcessor"
-                   types="small,medium"/>
+            types="small,medium"/>
         <Processor name="MtcProcessor"
-                   double_stop="True"
-                   double_start="True"/>
+            double_stop="True"
+            double_start="True"/>
         <Processor name="BetaScintProcessor"
                    gamma_beta_limit="200e-9"
                    energy_contraction="1.0"/>
@@ -50,16 +50,16 @@
     <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
         <Module number="0">
             <Channel number="0" type="beta" subtype="double" tags="start,left">
-                <Calibration model="raw"></Calibration>
+                <Calibration model="raw"> </Calibration>
             </Channel>
             <Channel number="1" type="beta" subtype="double" tags="start,right">
-                <Calibration model="raw"></Calibration>
+                <Calibration model="raw"> </Calibration>
             </Channel>
             <Channel number="2" type="beta_scint" subtype="beta">
-                <Calibration model="raw"></Calibration>
+                <Calibration model="raw"> </Calibration>
             </Channel>
             <Channel number="3" type="beta_scint" subtype="beta">
-                <Calibration model="raw"></Calibration>
+                <Calibration model="raw"> </Calibration>
             </Channel>
         </Module>
         <Module number="1">
@@ -215,7 +215,7 @@
         <Module number="7">
             <Channel number="0" type="ge" subtype="clover_high">
                 <Calibration model="cubic" max="8000">
-                    -0.496204 1.25466 -3.29426e-06 8.46747e-10
+                    -0.496204   1.25466 -3.29426e-06  8.46747e-10
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     14.415 20.195 1542.630 305.285
@@ -224,9 +224,9 @@
                     8.765 12.501 1316.259
                 </WalkCorrection>
             </Channel>
-            <Channel number="1" type="ge" subtype="clover_high">
+            <Channel number="1" type="ge" subtype="clover_high" >
                 <Calibration model="cubic" max="8000">
-                    0.0904204 1.27027 1.58618e-06 -3.8809e-10
+                    0.0904204  1.27027  1.58618e-06 -3.8809e-10
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     12.783 21.736 1526.242 323.768
@@ -235,9 +235,9 @@
                     7.615 11.741 1516.617
                 </WalkCorrection>
             </Channel>
-            <Channel number="2" type="ge" subtype="clover_high">
+            <Channel number="2" type="ge" subtype="clover_high" >
                 <Calibration model="cubic" max="8000">
-                    -0.410798 1.27002 -1.07288e-06 4.192e-10
+                    -0.410798   1.27002 -1.07288e-06  4.192e-10
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     -10.000 28.051 2205.365 3225.258
@@ -246,9 +246,9 @@
                     5.806 10.760 2216.587
                 </WalkCorrection>
             </Channel>
-            <Channel number="3" type="ge" subtype="clover_high">
+            <Channel number="3" type="ge" subtype="clover_high" >
                 <Calibration model="cubic" max="8000">
-                    -1.42093 1.27886 -6.72158e-06 2.06998e-09
+                    -1.42093    1.27886 -6.72158e-06  2.06998e-09
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     13.654 20.513 1536.986 322.804
@@ -257,9 +257,9 @@
                     7.975 11.585 1758.705
                 </WalkCorrection>
             </Channel>
-            <Channel number="4" type="ge" subtype="clover_high">
+            <Channel number="4" type="ge" subtype="clover_high" >
                 <Calibration model="cubic" max="8000">
-                    -2.32729 1.29242 -6.59335e-06 2.02718e-09
+                    -2.32729    1.29242 -6.59335e-06  2.02718e-09
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     14.509 13.615 1986.171 379.228
@@ -268,9 +268,9 @@
                     8.597 13.192 1579.832
                 </WalkCorrection>
             </Channel>
-            <Channel number="5" type="ge" subtype="clover_high">
+            <Channel number="5" type="ge" subtype="clover_high" >
                 <Calibration model="cubic" max="8000">
-                    -1.13622 1.316 -5.29773e-06 1.92747e-09
+                    -1.13622    1.316   -5.29773e-06  1.92747e-09
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     13.071 15.834 1906.134 313.287
@@ -279,9 +279,9 @@
                     5.134 11.882 2630.379
                 </WalkCorrection>
             </Channel>
-            <Channel number="6" type="ge" subtype="clover_high">
+            <Channel number="6" type="ge" subtype="clover_high" >
                 <Calibration model="cubic" max="8000">
-                    0.417907 1.23513 2.12738e-06 -3.63504e-10
+                    0.417907   1.23513  2.12738e-06 -3.63504e-10
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     14.437 17.463 1760.453 341.821
@@ -290,9 +290,9 @@
                     7.080 13.158 2266.774
                 </WalkCorrection>
             </Channel>
-            <Channel number="7" type="ge" subtype="clover_high">
+            <Channel number="7" type="ge" subtype="clover_high" >
                 <Calibration model="cubic" max="8000">
-                    0.518583 1.27374 3.68909e-06 -9.74137e-10
+                    0.518583   1.27374  3.68909e-06 -9.74137e-10
                 </Calibration>
                 <WalkCorrection model="B1" max="1000">
                     13.446 13.760 1956.073 499.302
@@ -304,13 +304,13 @@
             <Channel number="8" type="mtc" subtype="beam_stop">
                 <Calibration model="raw"></Calibration>
             </Channel>
-            <Channel number="9" type="mtc" subtype="beam_start">
+            <Channel number="9" type="mtc" subtype="beam_start" >
                 <Calibration model="raw"></Calibration>
             </Channel>
-            <Channel number="10" type="mtc" subtype="start">
+            <Channel number="10" type="mtc" subtype="start" >
                 <Calibration model="raw"></Calibration>
             </Channel>
-            <Channel number="11" type="mtc" subtype="stop">
+            <Channel number="11" type="mtc" subtype="stop" >
                 <Calibration model="raw"></Calibration>
             </Channel>
         </Module>
@@ -319,20 +319,20 @@
     <TreeCorrelator name="root" verbose="False">
         <Place type="PlaceOR" name="Beta" fifo="10">
             <Place type="PlaceThreshold" name="beta_scint_beta_0-1"
-                   low_limit="50.0" high_limit="16382" fifo="5"
-                   replace="true"/>
+                low_limit="50.0" high_limit="16382" fifo="5"
+                replace="true"/>
         </Place>
 
         <Place type="PlaceOR" name="Gamma">
             <Place type="PlaceOR" name="Clover0">
                 <Place type="PlaceThreshold" name="ge_clover_high_0-3"
-                       low_limit="20.0" high_limit="99999"
-                       replace="true"/>
+                    low_limit="20.0" high_limit="99999"
+                    replace="true"/>
             </Place>
             <Place type="PlaceOR" name="Clover1">
                 <Place type="PlaceThreshold" name="ge_clover_high_4-7"
-                       low_limit="20.0" high_limit="99999"
-                       replace="true"/>
+                    low_limit="20.0" high_limit="99999"
+                    replace="true"/>
             </Place>
         </Place>
 
@@ -345,7 +345,7 @@
         <Vandle>
             <small>
                 <Bar number="0" z0="50.5" xoffset="1.0" zoffset="0.00"
-                     lroffset="-5.70784">
+                    lroffset="-5.70784">
                     <start loc="0" offset="2.90192"/>
                     <start loc="1" offset="-6.52371"/>
                     <start loc="2" offset="1.23556"/>
@@ -353,84 +353,61 @@
                 </Bar>
 
                 <Bar number="1" z0="50.5" xoffset="-.9" zoffset="0.00"
-                     lroffset="-5.12791" tofoffset0="0.014031"
-                     tofoffset1="-9.422"/>
+                    lroffset="-5.12791" tofoffset0="0.014031" tofoffset1="-9.422" />
                 <Bar number="2" z0="50.5" xoffset=".6" zoffset="0.00"
-                     lroffset="-5.16868" tofoffset0="3.13393"
-                     tofoffset1="-6.35167"/>
+                   lroffset="-5.16868" tofoffset0="3.13393" tofoffset1="-6.35167" />
                 <Bar number="3" z0="50.5" xoffset="-.6" zoffset="0.00"
-                     lroffset="-0.0186353" tofoffset0="-1.8315"
-                     tofoffset1="-11.3023"/>
+                   lroffset="-0.0186353" tofoffset0="-1.8315" tofoffset1="-11.3023" />
                 <Bar number="4" z0="50.5" xoffset="-1.8" zoffset="0.00"
-                     lroffset="-4.17515" tofoffset0="3.92954"
-                     tofoffset1="-5.59387"/>
+                   lroffset="-4.17515" tofoffset0="3.92954" tofoffset1="-5.59387" />
                 <Bar number="5" z0="50.5" xoffset="-.8" zoffset="0.00"
-                     lroffset="2.57617" tofoffset0="-0.417032"
-                     tofoffset1="-9.89243"/>
+                   lroffset="2.57617" tofoffset0="-0.417032" tofoffset1="-9.89243" />
                 <Bar number="6" z0="50.5" xoffset="-.1" zoffset="0.00"
-                     lroffset="-5.40469" tofoffset0="-1.34606"
-                     tofoffset1="-10.8293"/>
+                   lroffset="-5.40469" tofoffset0="-1.34606" tofoffset1="-10.8293" />
                 <Bar number="7" z0="50.5" xoffset="1.4" zoffset="0.00"
-                     lroffset="3.58706" tofoffset0="0.422556"
-                     tofoffset1="-9.00766"/>
+                   lroffset="3.58706" tofoffset0="0.422556" tofoffset1="-9.00766" />
             </small>
             <big>
                 <Bar number="0" z0="50.5" xoffset="-1.6" zoffset="0.00"
-                     lroffset="-4.65095" tofoffset0="5.43841"
-                     tofoffset1="-4.00984"/>
+                   lroffset="-4.65095" tofoffset0="5.43841" tofoffset1="-4.00984" />
                 <Bar number="1" z0="50.5" xoffset=".1" zoffset="0.00"
-                     lroffset="2.9703" tofoffset0="1.08506"
-                     tofoffset1="-8.34501"/>
+                   lroffset="2.9703" tofoffset0="1.08506" tofoffset1="-8.34501" />
                 <Bar number="2" z0="50.5" xoffset="-.8" zoffset="0.00"
-                     lroffset="-3.92475" tofoffset0="4.8066"
-                     tofoffset1="-4.61644"/>
+                   lroffset="-3.92475" tofoffset0="4.8066" tofoffset1="-4.61644" />
                 <Bar number="3" z0="50.5" xoffset=".2" zoffset="0.00"
-                     lroffset="0.47967" tofoffset0="-0.781951"
-                     tofoffset1="-10.2616"/>
+                   lroffset="0.47967" tofoffset0="-0.781951" tofoffset1="-10.2616" />
                 <Bar number="4" z0="50.5" xoffset=".3" zoffset="0.00"
-                     lroffset="-11.8116" tofoffset0="1.65206"
-                     tofoffset1="-7.81972"/>
+                   lroffset="-11.8116" tofoffset0="1.65206" tofoffset1="-7.81972" />
                 <Bar number="5" z0="50.5" xoffset="-1.2" zoffset="0.00"
-                     lroffset="-0.0837712" tofoffset0="-0.563962"
-                     tofoffset1="-10.0443"/>
+                   lroffset="-0.0837712" tofoffset0="-0.563962" tofoffset1="-10.0443" />
                 <Bar number="6" z0="50.5" xoffset="-.3" zoffset="0.00"
-                     lroffset="-9.45753" tofoffset0="-0.558329"
-                     tofoffset1="-10.0093"/>
+                   lroffset="-9.45753" tofoffset0="-0.558329" tofoffset1="-10.0093" />
                 <Bar number="7" z0="50.5" xoffset="-.5" zoffset="0.00"
-                     lroffset="-4.84811" tofoffset0="-1.69518"
-                     tofoffset1="-11.196"/>
+                   lroffset="-4.84811" tofoffset0="-1.69518" tofoffset1="-11.196" />
             </big>
             <medium>
                 <Bar number="0" z0="50.5" xoffset=".4" zoffset="0.00"
-                     lroffset="-8.93399" tofoffset0="-0.343341"
-                     tofoffset1="-9.84598"/>
+                   lroffset="-8.93399" tofoffset0="-0.343341" tofoffset1="-9.84598" />
                 <Bar number="1" z0="50.5" xoffset="-.7" zoffset="0.00"
-                     lroffset="-4.70493" tofoffset0="-0.654156"
-                     tofoffset1="-10.1195"/>
+                   lroffset="-4.70493" tofoffset0="-0.654156" tofoffset1="-10.1195" />
                 <Bar number="2" z0="50.5" xoffset="-.6" zoffset="0.00"
-                     lroffset="-13.7492" tofoffset0="2.96386"
-                     tofoffset1="-6.45554"/>
+                   lroffset="-13.7492" tofoffset0="2.96386" tofoffset1="-6.45554" />
                 <Bar number="3" z0="50.5" xoffset=".3" zoffset="0.00"
-                     lroffset="-4.97814" tofoffset0="1.24441"
-                     tofoffset1="-8.28912"/>
+                   lroffset="-4.97814" tofoffset0="1.24441" tofoffset1="-8.28912" />
                 <Bar number="4" z0="50.5" xoffset="-.7" zoffset="0.00"
-                     lroffset="-5.27509" tofoffset0="-1.64502"
-                     tofoffset1="-11.0812"/>
+                   lroffset="-5.27509" tofoffset0="-1.64502" tofoffset1="-11.0812" />
                 <Bar number="5" z0="50.5" xoffset="1.3" zoffset="0.00"
-                     lroffset="-3.91433" tofoffset0="3.15572"
-                     tofoffset1="-6.2269"/>
+                   lroffset="-3.91433" tofoffset0="3.15572" tofoffset1="-6.2269" />
                 <Bar number="6" z0="50.5" xoffset="-.2" zoffset="0.00"
-                     lroffset="-0.411587" tofoffset0="1.22065"
-                     tofoffset1="-8.21576"/>
+                   lroffset="-0.411587" tofoffset0="1.22065" tofoffset1="-8.21576" />
                 <Bar number="7" z0="50.5" xoffset="-.4" zoffset="0.00"
-                     lroffset="-9.05267" tofoffset0="0.488614"
-                     tofoffset1="-8.94454"/>
+                   lroffset="-9.05267" tofoffset0="0.488614" tofoffset1="-8.94454" />
             </medium>
         </Vandle>
         <Beta>
             <double>
                 <Bar number="0" z0="0.0" xoffset="0.0" zoffset="0.00"
-                     lroffset="0.0" tofoffset0="0.0" tofoffset1="0.0"/>
+                    lroffset="0.0" tofoffset0="0.0" tofoffset1="0.0" />
             </double>
 
         </Beta>

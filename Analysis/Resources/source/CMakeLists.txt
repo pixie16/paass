@@ -1,4 +1,3 @@
-#@author S. V. Paulauskas
 #Set the utility sources that we will make a lib out of
 set(ResourceSources PolynomialCfd.cpp TraditionalCfd.cpp)
 
@@ -11,8 +10,7 @@ if (PAASS_USE_GSL)
 endif (PAASS_USE_GSL)
 
 if (PAASS_USE_ROOT)
-    list(APPEND ResourceSources CrystalBallFunction.cpp CsiFunction.cpp EmCalTimingFunction.cpp
-            SiPmtFastTimingFunction.cpp RootFitter.cpp VandleTimingFunction.cpp)
+    list(APPEND ResourceSources RootFitter.cpp VandleTimingFunction.cpp SiPMTimingFunction.cpp)
 endif (PAASS_USE_ROOT)
 
 #Add the sources to the library

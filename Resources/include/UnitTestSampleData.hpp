@@ -34,7 +34,7 @@ namespace unittest_decoded_data {
     static const std::vector<unsigned int> energy_sums = {12, 13, 14};
 
     static const std::vector<unsigned int> qdc = {123, 456, 789, 987, 654,
-                                                  321, 135, 791};
+                                                      321, 135, 791};
 
     //Need to figure out where to put these as they are Firmware / Frequency
     // specific values. They are for R30747, 250 MS/s.
@@ -192,9 +192,6 @@ namespace unittest_trace_variables {
             trace_sans_baseline.begin() + waveform_range.first,
             trace_sans_baseline.begin() + waveform_range.second);
 
-    //This is the qdc for the waveform
-    static const double waveform_qdc = 21329.9;
-
     //An empty data vector to test error checking.
     static const std::vector<unsigned int> empty_vector_uint;
     static const std::vector<double> empty_vector_double;
@@ -209,8 +206,8 @@ namespace unittest_trace_variables {
     static const unsigned int max_position = 76;
 
     /// This is the pair made from the expected maximum information
-    static const std::pair<unsigned int, double> max_pair(max_position,
-                                                          maximum_value);
+    static const std::pair<unsigned int, double> max_pair(
+            max_position, maximum_value);
 
     //These two values were obtained using the first 70 values of the above trace.
     //The expected baseline value was obtained using the AVERAGE function in

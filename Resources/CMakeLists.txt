@@ -1,6 +1,3 @@
-# @authors S.V. Paulauskas and K. Smith
-
-add_subdirectory(source)
-if (PAASS_BUILD_TESTS)
+if(PAASS_BUILD_TESTS OR PAASS_BUILD_UNITTESTS)
     add_subdirectory(tests)
-endif (PAASS_BUILD_TESTS)
+endif(PAASS_BUILD_TESTS OR PAASS_BUILD_UNITTESTS)

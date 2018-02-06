@@ -13,26 +13,23 @@
 class BarBuilder {
 public:
     /** Default constructor */
-    BarBuilder() {};
-
+    BarBuilder(){};
     /** Constructor taking the map of channels to build bars with
      * \param [in] vec : Reference to the vector to build channels with */
-    BarBuilder(const std::vector<ChanEvent *> vec) { list_ = vec; };
-
+    BarBuilder(const std::vector<ChanEvent*> vec){list_ = vec;};
     /** Default destructor */
-    virtual ~BarBuilder() {};
+    virtual ~BarBuilder(){};
 
     /** Gets the built bar map. If you have used the default constructor
      * you must call the BuildBars method <strong> first </strong>.
      * \return A BarMap of the bars having traces. */
-    BarMap GetBarMap(void) { return (hrtBars_); };
-
+    BarMap GetBarMap(void) {return(hrtBars_);};
+    
     /** Gets the built bar map. If you have used the default constructor
      * you must call the BuildBars method <strong> first </strong>.
      * \return A BarMap of the bars having no traces */
-    std::map<unsigned int, std::pair<double, double> >
-    GetLrtBarMap(void) { return (lrtBars_); };
-
+    std::map<unsigned int, std::pair<double,double> > GetLrtBarMap(void) {return(lrtBars_);};
+    
     /** Builds BarDetectors from the individual channel maps. We make assumptions
 	that the bars are not going to be vastly out of order, such that the 
 	location / 2 = bar number. This is a safe assumption for current 
@@ -42,7 +39,7 @@ public:
     /** Sets the channel list to build bars out of. This list <strong>
      * must </strong> contain both ends of the detector.
      * \param [in] a : The channel list to build bars out of. */
-    void SetChannelList(const std::vector<ChanEvent *> a) { list_ = a; };
+    void SetChannelList(const std::vector<ChanEvent*> a){list_ = a;};
 private:
     /** The bar number calculated from the location. We assume here
      * that the bars are located in adjacent slots so that they are always
@@ -63,10 +60,9 @@ private:
     void FillMaps(void);
 
     BarMap hrtBars_; //!< Map containing bars with high resolution timing..
-    std::map<unsigned int, std::pair<double, double> > lrtBars_; //!<Map with low res bars
+    std::map<unsigned int, std::pair<double,double> > lrtBars_; //!<Map with low res bars
     std::map<unsigned int, unsigned int> lefts_; //!< Map containing the left sides of bars
     std::map<unsigned int, unsigned int> rights_; //!< Map containing the left sides of bars
-    std::vector<ChanEvent *> list_; //!< Vector of events to build bars out of.
+    std::vector<ChanEvent*> list_; //!< Vector of events to build bars out of.
 };
-
 #endif // __BARBUILDER_HPP_

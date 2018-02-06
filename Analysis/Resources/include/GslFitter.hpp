@@ -18,10 +18,19 @@
 class GslFitter : public TimingDriver {
 public:
     ///Default Constructor
-    GslFitter() : TimingDriver() { isFastSiPm_ = false; }
+    GslFitter() : TimingDriver() { isFastSiPm_ = false;isSlowSiPm_ = false; }
 
     ///Default Destructor
     ~GslFitter() {}
+
+    /// @return the amplitude from the GSL fit
+    double GetAmplitude(void) { return amp_; }
+
+    /// @return the chi^2 from the GSL fit
+    double GetChiSq(void) { return chi_ * chi_; }
+
+    /// @return the chi^2dof from the GSL fit
+    double GetChiSqPerDof(void) { return GetChiSq() / dof_; }
 
     ///The ever important phase calculation
     /// @param[in] data The baseline subtracted data for the fitting
@@ -33,6 +42,11 @@ public:
                           const std::pair<unsigned int, double> &max,
                           const std::pair<double, double> baseline);
 
+    ///Sets the isFastSiPm_ flag
+    ///@param[in] a : The value that we are going to set
+    void SetIsFastSiPm(const bool &a) { isFastSiPm_ = a; }
+    void SetIsSlowSiPm(const bool &a) { isSlowSiPm_ = a; }
+
     /// @brief Structure necessary for the GSL fitting routines
     struct FitData {
         size_t n;//!< size of the fitting parameters
@@ -43,9 +57,13 @@ public:
         double qdc;//!< the QDC for the fit
     };
 private:
+    bool isFastSiPm_;
+    bool isSlowSiPm_;
+
     double amp_;
     double chi_;
     double dof_;
 };
+
 
 #endif //PIXIESUITE_GSLFITTER_HPP

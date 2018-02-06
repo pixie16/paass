@@ -11,20 +11,16 @@
 #include <cstdio>
 
 class Lock {
-public:
+  public:
     Lock(std::string name);
-
     ~Lock(void);
-
     void Remove(void);
-
     static void Remove(std::string &name);
-
     static std::list<std::string> lockList;
-private:
+  private:
     static const std::string lockDirectory;
     FILE *lockFile;
-    std::string fileName;
+    std::string fileName; 
 };
 
 void RemoveLocks(void);

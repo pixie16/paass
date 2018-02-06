@@ -1,21 +1,19 @@
 /** \file Calibrator.cpp
  * \brief Class to handle energy calibrations for the channels
- * \author D. Miller, K. A. Miernik
+ * \author K. A. Miernik
  * \date 2012
  */
-#include <iostream>
-#include <sstream>
-
 #include <cmath>
+#include <iostream>
 
 #include "Calibrator.hpp"
 #include "Exceptions.hpp"
 
 using namespace std;
 
-void Calibrator::AddChannel(const ChannelConfiguration &chanID, const std::string model,
+void Calibrator::AddChannel(const Identifier& chanID, const std::string model,
                             double min, double max,
-                            const std::vector<double> &par) {
+                            const std::vector<double>& par) {
     CalibrationParams cf;
     unsigned required_parameters = 0;
     if (model == "raw") {
@@ -57,7 +55,7 @@ void Calibrator::AddChannel(const ChannelConfiguration &chanID, const std::strin
     cf.max = max;
 
     for (vector<double>::const_iterator it = par.begin(); it != par.end();
-         ++it) {
+        ++it) {
         cf.parameters.push_back(*it);
     }
 
@@ -72,16 +70,15 @@ void Calibrator::AddChannel(const ChannelConfiguration &chanID, const std::strin
     if (channels_.find(chanID) != channels_.end()) {
         channels_[chanID].push_back(cf);
     } else {
-        vector <CalibrationParams> vcf;
+        vector<CalibrationParams> vcf;
         vcf.push_back(cf);
         channels_[chanID] = vcf;
     }
 }
 
-double Calibrator::GetCalEnergy(const ChannelConfiguration &chanID, double raw) const {
-    map < ChannelConfiguration, vector < CalibrationParams > > ::const_iterator
-    itch =
-            channels_.find(chanID);
+double Calibrator::GetCalEnergy(const Identifier& chanID, double raw) const {
+    map<Identifier, vector<CalibrationParams> >::const_iterator itch =
+        channels_.find(chanID);
     if (itch != channels_.end()) {
         vector<CalibrationParams>::const_iterator itf;
         for (itf = itch->second.begin(); itf != itch->second.end(); ++itf) {
@@ -93,7 +90,7 @@ double Calibrator::GetCalEnergy(const ChannelConfiguration &chanID, double raw) 
         if (itf == itch->second.end()) {
             return 0;
         }
-        switch (itf->model) {
+        switch(itf->model) {
             case cal_raw:
                 return ModelRaw(raw);
                 break;
@@ -133,35 +130,34 @@ double Calibrator::ModelOff() const {
     return 0;
 }
 
-double Calibrator::ModelLinear(const std::vector<double> &par,
-                               double raw) const {
+double Calibrator::ModelLinear(const std::vector<double>& par,
+                                    double raw) const {
     return par[0] + par[1] * raw;
 }
 
-double Calibrator::ModelQuadratic(const std::vector<double> &par,
-                                  double raw) const {
+double Calibrator::ModelQuadratic(const std::vector<double>& par,
+                                    double raw) const {
     return par[0] + par[1] * raw + par[2] * raw * raw;
 }
 
-double Calibrator::ModelCubic(const std::vector<double> &par,
+double Calibrator::ModelCubic(const std::vector<double>& par,
                               double raw) const {
-    return (par[0] + par[1] * raw + par[2] * raw * raw +
-            par[3] * raw * raw * raw);
+    return(par[0] + par[1]*raw + par[2]*raw*raw + par[3]*raw*raw*raw);
 }
 
-double Calibrator::ModelPolynomial(const std::vector<double> &par,
-                                   double raw) const {
+double Calibrator::ModelPolynomial(const std::vector<double>& par,
+                                    double raw) const {
     int p = 0;
     double r = 0;
     for (vector<double>::const_iterator it = par.begin(); it != par.end();
-         ++it) {
+        ++it) {
         r += (*it) * pow(raw, p);
         ++p;
     }
     return r;
 }
 
-double Calibrator::ModelHypLin(const std::vector<double> &par,
+double Calibrator::ModelHypLin(const std::vector<double>& par,
                                double raw) const {
     if (raw > 0)
         return par[0] / raw + par[1] + par[2] * raw;
@@ -169,8 +165,8 @@ double Calibrator::ModelHypLin(const std::vector<double> &par,
         return 0;
 }
 
-double Calibrator::ModelExp(const std::vector<double> &par,
-                            double raw) const {
+double Calibrator::ModelExp(const std::vector<double>& par,
+                               double raw) const {
     if (raw > 0)
         return par[0] * exp(raw / par[1]) + par[2];
     else

@@ -27,10 +27,13 @@ CfdAnalyzer::CfdAnalyzer(const std::string &s) : TraceAnalyzer() {
         driver_ = new TraditionalCfd();
     else
         driver_ = NULL;
+
 }
 
-void CfdAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
-    TraceAnalyzer::Analyze(trace, cfg);
+void CfdAnalyzer::Analyze(Trace &trace, const std::string &detType,
+                          const std::string &detSubtype,
+                          const std::map<std::string, int> &tagMap) {
+    TraceAnalyzer::Analyze(trace, detType, detSubtype, tagMap);
 
     if (!driver_) {
         EndAnalyze();
@@ -43,12 +46,12 @@ void CfdAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
         return;
     }
 
+    const pair<double, double> pars =
+            Globals::get()->cfdPars(detType + ":" + detSubtype);
 
-    const tuple<double, double, double> pars = cfg.GetCfdParameters();
-
-    ///@TODO We do not currently have any CFDs that require L, so we are not going to pass that variable. In
-    /// addition, we do not have an overloaded version of CalculatePhase that takes a tuple<double, double, double>
-    trace.SetPhase(driver_->CalculatePhase(trace.GetTraceSansBaseline(), make_pair(get<1>(pars), get<2>(pars)),
-                                           trace.GetExtrapolatedMaxInfo(), trace.GetBaselineInfo()));
+    trace.SetPhase(driver_->CalculatePhase(trace.GetTraceSansBaseline(),
+                                           pars,
+                                           trace.GetExtrapolatedMaxInfo(),
+                                           trace.GetBaselineInfo()));
     EndAnalyze();
 }

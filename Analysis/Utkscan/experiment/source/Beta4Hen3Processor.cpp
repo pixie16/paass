@@ -1,7 +1,6 @@
 /** \file Beta4Hen3Processor.cpp
  *
  * implementation for beta scintillator processor for 3Hen hybrid experiment
- * @authors K. Miernik
  */
 #include <vector>
 #include <sstream>
@@ -17,7 +16,7 @@ using namespace dammIds::beta_scint;
 
 namespace dammIds {
     namespace beta_scint {
-        namespace neutron {
+        namespace neutron{
             const int D_ENERGY_BETA_GAMMA_GATED = 7; //!< Beta energy gamma gated
             const int DD_ENERGY_BETA__GAMMA = 8; //!< Beta vs. Gamma energy
             const int DD_ENERGY_BETA__TIME_TOTAL = 15; //!< Energy vs. Time
@@ -37,11 +36,11 @@ namespace dammIds {
             const int DD_ENERGY_BETA__TIME_TM_G = 37; //!< Energy vs time gamma
         }
     }
-}
+} 
 
 Beta4Hen3Processor::Beta4Hen3Processor(double gammaBetaLimit,
                                        double energyContraction) :
-        BetaScintProcessor(gammaBetaLimit, energyContraction) {
+    BetaScintProcessor(gammaBetaLimit, energyContraction) {
 }
 
 void Beta4Hen3Processor::DeclarePlots(void) {
@@ -62,74 +61,75 @@ void Beta4Hen3Processor::DeclarePlots(void) {
                        title.str().c_str());
 
     title.str("");
-    title << "Beta energy/" << energyContraction_
+    title << "Beta energy/" << energyContraction_ 
           << " vs gamma energy neutron gated ";
-    DeclareHistogram2D(neutron::DD_ENERGY_BETA__GAMMA, energyBins, SC,
-                       title.str().c_str());
+    DeclareHistogram2D(neutron::DD_ENERGY_BETA__GAMMA, energyBins, SC, 
+                        title.str().c_str()); 
 
     title << "Neutron-gated Beta " << title_end.str();
     DeclareHistogram2D(neutron::DD_ENERGY_BETA__TIME_TOTAL, energyBins,
-                       timeBins, title.str().c_str());
+                       timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Neutron-gated No-gamma-gated Beta " << title_end.str();
     DeclareHistogram2D(neutron::DD_ENERGY_BETA__TIME_NOG, energyBins,
-                       timeBins, title.str().c_str());
+                       timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Neutron-gated Gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(neutron::DD_ENERGY_BETA__TIME_G, energyBins,
-                       timeBins, title.str().c_str());
+    DeclareHistogram2D(neutron::DD_ENERGY_BETA__TIME_G, energyBins, 
+                       timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Neutron-gated Tape move Beta " << title_end.str();
     DeclareHistogram2D(neutron::DD_ENERGY_BETA__TIME_TM_TOTAL, energyBins,
-                       timeBins, title.str().c_str());
+                       timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Neutron-gated Tape move No-gamma-gated Beta " << title_end.str();
     DeclareHistogram2D(neutron::DD_ENERGY_BETA__TIME_TM_NOG, energyBins,
-                       timeBins, title.str().c_str());
+                       timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Neutron-gated Tape move Gamma-gated Beta " << title_end.str();
     DeclareHistogram2D(neutron::DD_ENERGY_BETA__TIME_TM_G, energyBins,
-                       timeBins, title.str().c_str());
+                       timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Multi-Neutron-gated Beta " << title_end.str();
     DeclareHistogram2D(multiNeutron::DD_ENERGY_BETA__TIME_TOTAL, energyBins,
-                       timeBins, title.str().c_str());
+                       timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Multi-Neutron-gated No-gamma-gated Beta " << title_end.str();
     DeclareHistogram2D(multiNeutron::DD_ENERGY_BETA__TIME_NOG, energyBins,
-                       timeBins, title.str().c_str());
+                       timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Multi-Neutron-gated Gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(multiNeutron::DD_ENERGY_BETA__TIME_G, energyBins,
-                       timeBins, title.str().c_str());
+    DeclareHistogram2D(multiNeutron::DD_ENERGY_BETA__TIME_G, energyBins, 
+                       timeBins, title.str().c_str()); 
 
     title.str("");
     title << "Multi-Neutron-gated Tape move Beta " << title_end.str();
     DeclareHistogram2D(multiNeutron::DD_ENERGY_BETA__TIME_TM_TOTAL, energyBins,
-                       timeBins, title.str().c_str());
+                       timeBins, title.str().c_str()); 
 
     title.str("");
-    title << "Multi-Neutron-gated Tape move No-gamma-gated Beta "
+    title << "Multi-Neutron-gated Tape move No-gamma-gated Beta " 
           << title_end.str();
     DeclareHistogram2D(multiNeutron::DD_ENERGY_BETA__TIME_TM_NOG,
-                       energyBins, timeBins, title.str().c_str());
+            energyBins, timeBins, title.str().c_str()); 
 
     title.str("");
-    title << "Multi-Neutron-gated Tape move Gamma-gated Beta "
+    title << "Multi-Neutron-gated Tape move Gamma-gated Beta " 
           << title_end.str();
     DeclareHistogram2D(multiNeutron::DD_ENERGY_BETA__TIME_TM_G,
-                       energyBins, timeBins, title.str().c_str());
+            energyBins, timeBins, title.str().c_str()); 
 }
 
-bool Beta4Hen3Processor::Process(RawEvent &event) {
+bool Beta4Hen3Processor::Process(RawEvent &event)
+{
     if (!EventProcessor::Process(event))
         return false;
 
@@ -138,9 +138,9 @@ bool Beta4Hen3Processor::Process(RawEvent &event) {
 
     /* Number of neutrons as selected by gates on 3hen spectrum.
      * See DetectorDriver::InitCorrelator for gates. */
-    int neutron_count =
-            dynamic_cast<PlaceCounter *>(
-                    TreeCorrelator::get()->place("Neutrons"))->getCounter();
+    int neutron_count = 
+        dynamic_cast<PlaceCounter*>(
+                TreeCorrelator::get()->place("Neutrons"))->getCounter();
 
     /** All non-neutron related spectra are processed in the base class 
      * Here we are interested in neutron spectra only so there is no need
@@ -148,8 +148,8 @@ bool Beta4Hen3Processor::Process(RawEvent &event) {
     if (neutron_count < 1)
         return true;
 
-    static const vector<ChanEvent *> &scintBetaEvents =
-            event.GetSummary("beta_scint:beta", true)->GetList();
+    static const vector<ChanEvent*> &scintBetaEvents = 
+	event.GetSummary("beta_scint:beta", true)->GetList();
 
     double clockInSeconds = Globals::get()->clockInSeconds();
 
@@ -159,8 +159,8 @@ bool Beta4Hen3Processor::Process(RawEvent &event) {
     /** Cycle time is measured from the begining of the last BeamON event */
     double cycleTime = TreeCorrelator::get()->place("Cycle")->last().time;
 
-    for (vector<ChanEvent *>::const_iterator it = scintBetaEvents.begin();
-         it != scintBetaEvents.end(); it++) {
+    for (vector<ChanEvent*>::const_iterator it = scintBetaEvents.begin(); 
+	 it != scintBetaEvents.end(); it++) {
         double energy = (*it)->GetCalEnergy();
         int energyBin = int(energy / energyContraction_);
         double time = (*it)->GetTime();
@@ -181,42 +181,42 @@ bool Beta4Hen3Processor::Process(RawEvent &event) {
         }
 
         if (tapeMove) {
-            plot(neutron::DD_ENERGY_BETA__TIME_TM_TOTAL,
-                 energyBin, decayTimeBin);
+            plot(neutron::DD_ENERGY_BETA__TIME_TM_TOTAL, 
+                energyBin, decayTimeBin);
             if (GoodGammaBeta(gb_dtime))
-                plot(neutron::DD_ENERGY_BETA__TIME_TM_G,
-                     energyBin, decayTimeBin);
+                plot(neutron::DD_ENERGY_BETA__TIME_TM_G, 
+                    energyBin, decayTimeBin);
             else
-                plot(neutron::DD_ENERGY_BETA__TIME_TM_NOG,
-                     energyBin, decayTimeBin);
+                plot(neutron::DD_ENERGY_BETA__TIME_TM_NOG, 
+                    energyBin, decayTimeBin);
             if (neutron_count > 1) {
-                plot(multiNeutron::DD_ENERGY_BETA__TIME_TM_TOTAL,
-                     energyBin, decayTimeBin);
+                plot(multiNeutron::DD_ENERGY_BETA__TIME_TM_TOTAL, 
+                    energyBin, decayTimeBin);
                 if (GoodGammaBeta(gb_dtime))
-                    plot(multiNeutron::DD_ENERGY_BETA__TIME_TM_G,
-                         energyBin, decayTimeBin);
+                    plot(multiNeutron::DD_ENERGY_BETA__TIME_TM_G, 
+                        energyBin, decayTimeBin);
                 else
-                    plot(multiNeutron::DD_ENERGY_BETA__TIME_TM_NOG,
-                         energyBin, decayTimeBin);
+                    plot(multiNeutron::DD_ENERGY_BETA__TIME_TM_NOG, 
+                        energyBin, decayTimeBin);
             }
         } else {
             plot(neutron::DD_ENERGY_BETA__TIME_TOTAL,
-                 energyBin, decayTimeBin);
+                    energyBin, decayTimeBin);
             if (GoodGammaBeta(gb_dtime))
                 plot(neutron::DD_ENERGY_BETA__TIME_G,
-                     energyBin, decayTimeBin);
+                    energyBin, decayTimeBin);
             else
                 plot(neutron::DD_ENERGY_BETA__TIME_NOG,
-                     energyBin, decayTimeBin);
+                    energyBin, decayTimeBin);
             if (neutron_count > 1) {
                 plot(multiNeutron::DD_ENERGY_BETA__TIME_TOTAL,
-                     energyBin, decayTimeBin);
+                        energyBin, decayTimeBin);
                 if (GoodGammaBeta(gb_dtime))
                     plot(multiNeutron::DD_ENERGY_BETA__TIME_G,
-                         energyBin, decayTimeBin);
+                        energyBin, decayTimeBin);
                 else
                     plot(multiNeutron::DD_ENERGY_BETA__TIME_NOG,
-                         energyBin, decayTimeBin);
+                        energyBin, decayTimeBin);
             }
         }
     } // ChanEvent loop

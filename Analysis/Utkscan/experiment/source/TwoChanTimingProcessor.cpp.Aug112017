@@ -1,0 +1,192 @@
+/** \file TwoChanTimingProcessor.cpp
+ * \brief Analyzes data from a simple Two channel Timing setup
+ * \author D. P. Loureiro
+ * \date June 1, 2017
+ */
+#include <fstream>
+
+#include "DammPlotIds.hpp"
+#include "Globals.hpp"
+#include "HighResTimingData.hpp"
+#include "TwoChanTimingProcessor.hpp"
+
+#include <TFile.h>
+#include <TTree.h>
+#include <TH1I.h>
+#include <TH2I.h>
+
+static HighResTimingData::HrtRoot rstart;
+static HighResTimingData::HrtRoot rstop;
+
+std::ofstream trcfile;
+TFile *rootfile;
+TTree *tree;
+TH1I *codes;
+TH2I *traces;
+TH2I *traces_stop;
+TH2I *superpulse_start;
+TH2I *superpulse_stop;
+enum CODES {
+    PROCESS_CALLED,
+    WRONG_NUM
+};
+
+namespace dammIds {
+    namespace experiment {
+    }
+}
+
+using namespace std;
+using namespace dammIds::experiment;
+
+TwoChanTimingProcessor::TwoChanTimingProcessor() :
+        EventProcessor(OFFSET, RANGE, "TwoChanTimingProcessor") {
+    associatedTypes.insert("pulser");
+    associatedTypes.insert("beta");
+
+    trcfile.open(Globals::get()->outputPath("trace.dat").c_str());
+
+    stringstream rootname;
+
+    rootname << Globals::get()->outputPath(Globals::get()->outputFile())
+             << ".root";
+    rootfile = new TFile(rootname.str().c_str(),"RECREATE");
+
+
+    tree = new TTree("timing", "");
+    tree->Branch("start", &rstart,
+                 "qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
+    tree->Branch("stop", &rstop, "qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
+    tree->Branch("StartTimeStamp",&StartTimeStamp,"Timestamp/D");
+    tree->Branch("StopTimeStamp",&StopTimeStamp,"Timestamp/D");
+    tree->Branch("StartMaxValue",&StartMaxValue,"StartMax/I");
+    tree->Branch("StopMaxValue",&StopMaxValue,"StopMax/I");
+    codes = new TH1I("codes", "", 40, 0, 40);
+    traces = new TH2I("traces","",1000,0,1000,20000,0,20000);
+    traces_stop = new TH2I("traces_stop","",1000,0,1000,20000,0,20000);
+    superpulse_start =  new TH2I("super_start","",1000,0,1000,4096,0,4095);
+    superpulse_stop =  new TH2I("super_stop","",1000,0,1000,4096,0,4095);
+    StartTimeStamp=-9999;
+    StopTimeStamp=-9999;
+;
+}
+
+TwoChanTimingProcessor::~TwoChanTimingProcessor() {
+    codes->Write();
+    rootfile->Write();
+    rootfile->Close();
+    trcfile.close();
+}
+
+bool TwoChanTimingProcessor::Process(RawEvent &event) {
+    if (!EventProcessor::Process(event))
+        return false;
+
+    //Define a map to hold the information
+    TimingMap pulserMap;
+
+    //plot the number of times we called the function
+    codes->Fill(PROCESS_CALLED);
+
+    static const vector<ChanEvent *> &pulserEvents =
+            event.GetSummary("pulser")->GetList();
+            //event.GetSummary("beta")->GetList();
+
+    //if(pulserEvents.size())
+    //std::cout<<"TwoChanTimingProcessor::Process()"<<pulserEvents.size()<<std::endl;
+
+    for (vector<ChanEvent *>::const_iterator itPulser = pulserEvents.begin();
+         itPulser != pulserEvents.end(); itPulser++) {
+        int location = (*itPulser)->GetChanID().GetLocation();
+        string subType = (*itPulser)->GetChanID().GetSubtype();
+
+
+
+        TimingDefs::TimingIdentifier key(location, subType);
+        pulserMap.insert(make_pair(key, HighResTimingData(*(*itPulser))));
+    }
+
+    //if (pulserMap.empty()) {
+    if (pulserMap.empty() || pulserMap.size() % 2 != 0) {
+        //If the map is empty or size isn't even we return and increment
+        // error code
+        codes->Fill(WRONG_NUM);
+        EndProcess();
+        return false;
+    }
+
+HighResTimingData start =   (*pulserMap.find(make_pair(0, "start"))).second;
+HighResTimingData stop =    (*pulserMap.find(make_pair(0, "stop"))).second;
+
+    //StopTimeStamp = stop.GetTimeSansCfd()*Globals::get()->filterClockInSeconds()*1e9;
+    //std::cout<<"Start Time Stamp is "<<start.GetTimeSansCfd()*Globals::get()->filterClockInSeconds()*1e9<<" ns"<<std::endl;
+    //std::cout<<"Stop Time Stamp is "<<stop.GetTimeSansCfd()*Globals::get()->filterClockInSeconds()*1e9<<" ns"<<std::endl;
+
+
+
+    //std::cout<<"Start Phase is "<<start.GetTrace().GetPhase()*Globals::get()->adcClockInSeconds()*1e9<<" ns"<<std::endl;
+    //std::cout<<"Stop Phase is "<<stop.GetTrace().GetPhase()*Globals::get()->adcClockInSeconds()*1e9<<" ns"<<std::endl;
+    //std::cout<<"Start Maximum is "<<start.GetTrace().GetMaxInfo().second<<" at bin "<<start.GetTrace().GetMaxInfo().first<<std::endl;
+    //std::cout<<"Stop Maximum is "<<stop.GetTrace().GetMaxInfo().second<<" at bin "<<stop.GetTrace().GetMaxInfo().first<<std::endl;
+    //std::cout<<"Range is "<<Globals::get()->waveformRange("pulser:stop").first<<" and "<< Globals::get()->waveformRange("pulser:stop").second<<std::endl;
+
+    Double_t Start_time = (start.GetTimeSansCfd()*Globals::get()->filterClockInSeconds()+
+			   start.GetTrace().GetPhase()*Globals::get()->adcClockInSeconds())*1.e9;
+    Double_t Stop_time = (stop.GetTimeSansCfd()*Globals::get()->filterClockInSeconds()+
+			   stop.GetTrace().GetPhase()*Globals::get()->adcClockInSeconds())*1.e9;
+
+
+    StartMaxValue = start.GetMaximumValue();
+    StopMaxValue = stop.GetMaximumValue();
+
+    //std::cout<<"Start Max is "<< StartMaxValue<<std::endl;
+    //std::cout<<"Stop Max is "<< StopMaxValue<<std::endl;
+
+    static int trcCounter = 0;
+    int bin;
+    for(vector<unsigned int>::const_iterator it = start.GetTrace().begin();
+            it != start.GetTrace().end(); it++) {
+        bin = (int)(it-start.GetTrace().begin());
+        traces->Fill(bin, trcCounter, *it);
+	superpulse_start->Fill(bin,*it);
+        //Only output the 500th trace to make sure that we are not at the
+        // beginning of the file and we're a ways into the data.
+        if(trcCounter == 500)
+            trcfile << bin << " " << *it << " " << sqrt(*it) << endl;
+    }
+    for(vector<unsigned int>::const_iterator it = stop.GetTrace().begin();
+            it != stop.GetTrace().end(); it++) {
+        bin = (int)(it-stop.GetTrace().begin());
+        traces_stop->Fill(bin, trcCounter, *it);
+	superpulse_stop->Fill(bin,*it);
+
+
+
+    }
+    trcCounter++;
+    //tree->Fill();
+
+    //We only plot and analyze the data if the data is validated
+    if (start.GetIsValid() && stop.GetIsValid()) { //DPL: Should be &&!!
+        start.FillRootStructure(rstart);
+        stop.FillRootStructure(rstop);
+        tree->Fill();
+        stop.ZeroRootStructure(rstop);
+        start.ZeroRootStructure(rstart);
+  
+
+	//std::cout<<"rStart Time is "<<start.GetTrace().GetQdc()<<std::endl;
+	//std::cout<<"rStop Time is "<<stop.GetHighResTimeInNs() <<std::endl;
+
+        //tree->Fill();
+        //start.ZeroRootStructure(rstart);
+        //stop.ZeroRootStructure(rstop);
+        StartTimeStamp=-9999;
+        StopTimeStamp=-9999;
+        StartMaxValue = -9999;
+        StopMaxValue = -9999;
+
+	}
+    EndProcess();
+    return true;
+}

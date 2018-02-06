@@ -21,10 +21,8 @@ class GenError {
 public:
     /** Error message is passed in the ctor.*/
     GenError(const std::string msg = "") : message(msg) {}
-
     /** Shows error message. */
-    std::string show() { return message; }
-
+    std::string show() { return message;}
 private:
     /** Error message. */
     const std::string message;
@@ -52,7 +50,7 @@ public:
 * General function for requiriment check.
 */
 inline void require(bool requirement,
-                    const std::string &msg = "Requirement failed") {
+                const std::string& msg = "Requirement failed"){
     if (!requirement) {
         throw GenError(msg);
     }

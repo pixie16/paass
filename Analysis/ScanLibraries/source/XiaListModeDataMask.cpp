@@ -107,11 +107,11 @@ XiaListModeDataMask::GetCfdFractionalTimeMask() const {
 
 std::pair<unsigned int, unsigned int> XiaListModeDataMask::GetEventLengthMask()
 const {
-    if (firmware_ == UNKNOWN)
+    if(firmware_ == UNKNOWN)
         throw invalid_argument(BadMaskErrorMessage("GetEventLengthMask"));
     unsigned int mask = 0;
     unsigned int bit = 0;
-    switch (firmware_) {
+    switch(firmware_) {
         case R17562:
         case R20466:
         case R27361:

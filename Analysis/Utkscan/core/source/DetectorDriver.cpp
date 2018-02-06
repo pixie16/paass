@@ -1,6 +1,6 @@
 /*! \file DetectorDriver.cpp
  *   \brief Main driver for event processing
- * \author S. N. Liddick, D. Miller, K. Miernik, S. V. Paulauskas
+ * \author S. N. Liddick
  * \date July 2, 2007
 */
 #include <algorithm>
@@ -9,41 +9,89 @@
 #include <iostream>
 #include <iterator>
 #include <limits>
-#include <map>
 #include <sstream>
 
+//This header is for decoding the XML
+///@TODO The XML decoding should be moved out of this file and into a
+/// dedicated class.
+#include "pugixml.hpp"
+
+//These headers are core headers and are needed for basic functionality
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
-#include "DetectorDriverXmlParser.hpp"
 #include "DetectorLibrary.hpp"
 #include "Display.h"
-#include "EventProcessor.hpp"
 #include "Exceptions.hpp"
 #include "HighResTimingData.hpp"
-#include "RandomInterface.hpp"
+#include "RandomPool.hpp"
 #include "RawEvent.hpp"
-#include "TraceAnalyzer.hpp"
 #include "TreeCorrelator.hpp"
+
+//These headers handle trace analysis
+#include "CfdAnalyzer.hpp"
+#include "FittingAnalyzer.hpp"
+#include "TauAnalyzer.hpp"
+#include "TraceAnalyzer.hpp"
+#include "TraceExtractor.hpp"
+#include "TraceFilterAnalyzer.hpp"
+#include "WaaAnalyzer.hpp"
+#include "WaveformAnalyzer.hpp"
+
+//These headers handle processing of specific detector types
+#include "BetaScintProcessor.hpp"
+#include "DoubleBetaProcessor.hpp"
+#include "Hen3Processor.hpp"
+#include "GeProcessor.hpp"
+#include "GeCalibProcessor.hpp"
+#include "IonChamberProcessor.hpp"
+#include "LiquidScintProcessor.hpp"
+#include "LogicProcessor.hpp"
+#include "McpProcessor.hpp"
+#include "NeutronScintProcessor.hpp"
+#include "PositionProcessor.hpp"
+#include "PspmtProcessor.hpp"
+#include "SsdProcessor.hpp"
+#include "TeenyVandleProcessor.hpp"
+#include "TemplateProcessor.hpp"
+#include "VandleProcessor.hpp"
+#include "ValidProcessor.hpp"
+
+//These headers are for handling experiment specific processing.
+#include "TemplateExpProcessor.hpp"
+#include "VandleOrnl2012Processor.hpp"
+#include "TtuTimingProcessor.hpp"
+#include "TACProcessor.hpp"
+#include "ArrayJProcessor.hpp"
+
+#ifdef useroot //Some processors REQURE ROOT to function
+#include "Anl1471Processor.hpp"
+#include "IS600Processor.hpp"
+#include "RootProcessor.hpp"
+#include "TwoChanTimingProcessor.hpp"
+#endif
 
 using namespace std;
 using namespace dammIds::raw;
 
-DetectorDriver *DetectorDriver::instance = NULL;
+DetectorDriver* DetectorDriver::instance = NULL;
 
-DetectorDriver *DetectorDriver::get() {
+DetectorDriver* DetectorDriver::get() {
     if (!instance)
         instance = new DetectorDriver();
     return instance;
 }
 
 DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
+    cfg_ = Globals::get()->configfile();
+    Messenger m;
     try {
-        DetectorDriverXmlParser parser;
-        parser.ParseNode(this);
+        m.start("Loading Processors");
+        LoadProcessors(m);
     } catch (GeneralException &e) {
         /// Any exception in registering plots in Processors
         /// and possible other exceptions in creating Processors
         /// will be intercepted here
+        m.fail();
         cout << "Exception caught at DetectorDriver::DetectorDriver" << endl;
         cout << "\t" << e.what() << endl;
         throw;
@@ -51,36 +99,255 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
         cout << "Warning found at DetectorDriver::DetectorDriver" << endl;
         cout << "\t" << w.what() << endl;
     }
+    m.done();
 }
 
 DetectorDriver::~DetectorDriver() {
-    for (vector<EventProcessor *>::iterator it = vecProcess.begin(); it != vecProcess.end(); it++)
-        delete (*it);
+    for (vector<EventProcessor *>::iterator it = vecProcess.begin();
+	 it != vecProcess.end(); it++)
+        delete(*it);
     vecProcess.clear();
 
-    for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin(); it != vecAnalyzer.end(); it++)
-        delete (*it);
+    for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
+	 it != vecAnalyzer.end(); it++)
+        delete(*it);
     vecAnalyzer.clear();
     instance = NULL;
 }
 
-void DetectorDriver::Init(RawEvent &rawev) {
-    for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin(); it != vecAnalyzer.end(); it++) {
+void DetectorDriver::LoadProcessors(Messenger& m) {
+    pugi::xml_document doc;
+    pugi::xml_parse_result result = doc.load_file(cfg_.c_str());
+    if (!result) {
+        stringstream ss;
+        ss << "DetectorDriver: error parsing file " << cfg_;
+        ss << " : " << result.description();
+        throw IOException(ss.str());
+    }
+
+    DetectorLibrary::get();
+
+    pugi::xml_node driver = doc.child("Configuration").child("DetectorDriver");
+    for (pugi::xml_node processor = driver.child("Processor"); processor;
+        processor = processor.next_sibling("Processor")) {
+        string name = processor.attribute("name").value();
+
+        m.detail("Loading " + name);
+        if (name == "BetaScintProcessor") {
+            double gamma_beta_limit =
+                processor.attribute("gamma_beta_limit").as_double(200.e-9);
+            if (gamma_beta_limit == 200.e-9)
+                m.warning("Using default gamme_beta_limit = 200e-9", 1);
+            double energy_contraction =
+                processor.attribute("energy_contraction").as_double(1.0);
+            if (energy_contraction == 1)
+                m.warning("Using default energy contraction = 1", 1);
+            vecProcess.push_back(new BetaScintProcessor(gamma_beta_limit,
+                                                        energy_contraction));
+        } else if (name == "GeProcessor") {
+            double gamma_threshold =
+                processor.attribute("gamma_threshold").as_double(1.0);
+            if (gamma_threshold == 1.0)
+                m.warning("Using default gamma_threshold = 1.0", 1);
+            double low_ratio =
+                processor.attribute("low_ratio").as_double(1.0);
+            if (low_ratio == 1.0)
+                m.warning("Using default low_ratio = 1.0", 1);
+            double high_ratio =
+                processor.attribute("high_ratio").as_double(3.0);
+            if (high_ratio == 3.0)
+                m.warning("Using default high_ratio = 3.0", 1);
+            double sub_event =
+                processor.attribute("sub_event").as_double(100.e-9);
+            if (sub_event == 100.e-9)
+                m.warning("Using default sub_event = 100e-9", 1);
+            double gamma_beta_limit =
+                processor.attribute("gamma_beta_limit").as_double(200.e-9);
+            if (gamma_beta_limit == 200.e-9)
+                m.warning("Using default gamme_beta_limit = 200e-9", 1);
+            double gamma_gamma_limit =
+                processor.attribute("gamma_gamma_limit").as_double(200.e-9);
+            if (gamma_gamma_limit == 200.e-9)
+                m.warning("Using default gamma_gamma_limit = 200e-9", 1);
+            double cycle_gate1_min =
+                processor.attribute("cycle_gate1_min").as_double(0.0);
+            if (cycle_gate1_min == 0.0)
+                m.warning("Using default cycle_gate1_min = 0.0", 1);
+            double cycle_gate1_max =
+                processor.attribute("cycle_gate1_max").as_double(0.0);
+            if (cycle_gate1_max == 0.0)
+                m.warning("Using default cycle_gate1_max = 0.0", 1);
+            double cycle_gate2_min =
+                processor.attribute("cycle_gate2_min").as_double(0.0);
+            if (cycle_gate2_min == 0.0)
+                m.warning("Using default cycle_gate2_min = 0.0", 1);
+            double cycle_gate2_max =
+                processor.attribute("cycle_gate2_max").as_double(0.0);
+            if (cycle_gate2_max == 0.0)
+                m.warning("Using default cycle_gate2_max = 0.0", 1);
+            vecProcess.push_back(new GeProcessor(gamma_threshold, low_ratio,
+                high_ratio, sub_event, gamma_beta_limit, gamma_gamma_limit,
+                cycle_gate1_min, cycle_gate1_max, cycle_gate2_min,
+                cycle_gate2_max));
+        } else if (name == "GeCalibProcessor") {
+            double gamma_threshold =
+                processor.attribute("gamma_threshold").as_double(1);
+            double low_ratio =
+                processor.attribute("low_ratio").as_double(1);
+            double high_ratio =
+                processor.attribute("high_ratio").as_double(3);
+            vecProcess.push_back(new GeCalibProcessor(gamma_threshold,
+                low_ratio, high_ratio));
+        } else if (name == "Hen3Processor") {
+            vecProcess.push_back(new Hen3Processor());
+        } else if (name == "IonChamberProcessor") {
+            vecProcess.push_back(new IonChamberProcessor());
+        } else if (name == "LiquidScintProcessor") {
+            vecProcess.push_back(new LiquidScintProcessor());
+        } else if (name == "LogicProcessor") {
+            vecProcess.push_back(new LogicProcessor());
+        } else if (name == "NeutronScintProcessor") {
+            vecProcess.push_back(new NeutronScintProcessor());
+        } else if (name == "PositionProcessor") {
+            vecProcess.push_back(new PositionProcessor());
+        } else if (name == "SsdProcessor") {
+            vecProcess.push_back(new SsdProcessor());
+        } else if (name == "VandleProcessor") {
+            double res = processor.attribute("res").as_double(2.0);
+            double offset = processor.attribute("offset").as_double(200.0);
+            unsigned int numStarts = processor.attribute("NumStarts").as_int(2);
+            vector<string> types =
+                strings::tokenize(processor.attribute("types").as_string(),",");
+            vecProcess.push_back(new VandleProcessor(types, res,
+                offset, numStarts));
+        } else if (name == "TeenyVandleProcessor") {
+                vecProcess.push_back(new TeenyVandleProcessor());
+        } else if (name == "DoubleBetaProcessor") {
+            vecProcess.push_back(new DoubleBetaProcessor());
+        } else if (name == "PspmtProcessor") {
+                vecProcess.push_back(new PspmtProcessor());
+        } else if (name == "TemplateProcessor") {
+            vecProcess.push_back(new TemplateProcessor());
+        } else if (name == "TemplateExpProcessor") {
+            vecProcess.push_back(new TemplateExpProcessor());
+	    //}// else if (name == "TACProcessor") {    	
+           // vecProcess.push_back(new TACProcessor());
+	} else if (name == "TtuTimingProcessor") {    	
+            vecProcess.push_back(new TtuTimingProcessor());
+	}
+
+#ifdef useroot //Certain process REQURE root to actually work
+        else if (name == "Anl1471Processor") {
+            vecProcess.push_back(new Anl1471Processor());
+        } else if (name == "TwoChanTimingProcessor") {
+            vecProcess.push_back(new TwoChanTimingProcessor());
+        } else if (name == "IS600Processor") {
+            vecProcess.push_back(new IS600Processor());
+        } else if (name == "TACProcessor") {
+            vecProcess.push_back(new TACProcessor());
+	}else if (name == "ArrayJProcessor") {
+	  vecProcess.push_back(new ArrayJProcessor());
+        }else if (name == "VandleOrnl2012Processor") {
+            vecProcess.push_back(new VandleOrnl2012Processor());
+        } else if (name == "RootProcessor") {
+            vecProcess.push_back(new RootProcessor("tree.root", "tree"));
+        }
+#endif
+        else {
+            stringstream ss;
+            ss << "DetectorDriver: unknown processor type : " << name;
+            throw GeneralException(ss.str());
+        }
+        stringstream ss;
+        for (pugi::xml_attribute_iterator ait = processor.attributes_begin();
+            ait != processor.attributes_end(); ++ait) {
+            ss.str("");
+            ss << ait->name();
+            if (ss.str().compare("name") != 0) {
+                ss << " = " << ait->value();
+                m.detail(ss.str(), 1);
+            }
+        }
+    }
+
+    for (pugi::xml_node analyzer = driver.child("Analyzer"); analyzer;
+        analyzer = analyzer.next_sibling("Analyzer")) {
+        string name = analyzer.attribute("name").value();
+        m.detail("Loading " + name);
+
+	if(name == "TraceFilterAnalyzer") {
+	    bool findPileups = analyzer.attribute("FindPileup").as_bool(false);
+	    vecAnalyzer.push_back(new TraceFilterAnalyzer(findPileups));
+	} else if(name == "TauAnalyzer") {
+            vecAnalyzer.push_back(new TauAnalyzer());
+        } else if (name == "TraceExtractor") {
+            string type = analyzer.attribute("type").as_string();
+            string subtype = analyzer.attribute("subtype").as_string();
+            string tag = analyzer.attribute("tag").as_string();
+            vecAnalyzer.push_back(new TraceExtractor(type, subtype,tag));
+        } else if (name == "WaveformAnalyzer") {
+            vecAnalyzer.push_back(new WaveformAnalyzer());
+        } else if (name == "CfdAnalyzer") {
+            string type = analyzer.attribute("type").as_string();
+            vecAnalyzer.push_back(new CfdAnalyzer(type));
+        } else if (name == "WaaAnalyzer") {
+            vecAnalyzer.push_back(new WaaAnalyzer());
+        } else if (name == "FittingAnalyzer") {
+            string type = analyzer.attribute("type").as_string();
+            vecAnalyzer.push_back(new FittingAnalyzer(type));
+        } else {
+            stringstream ss;
+            ss << "DetectorDriver: unknown analyzer type" << name;
+            throw GeneralException(ss.str());
+        }
+
+        for (pugi::xml_attribute_iterator ait = analyzer.attributes_begin();
+             ait != analyzer.attributes_end(); ++ait) {
+            stringstream ss;
+            ss << ait->name();
+            if (ss.str().compare("name") != 0) {
+                ss << " = " << ait->value();
+                m.detail(ss.str(), 1);
+            }
+        }
+    }
+}
+
+void DetectorDriver::Init(RawEvent& rawev) {
+    for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
+	 it != vecAnalyzer.end(); it++) {
         (*it)->Init();
         (*it)->SetLevel(20);
     }
 
-    for (vector<EventProcessor *>::iterator it = vecProcess.begin(); it != vecProcess.end(); it++)
+    for (vector<EventProcessor *>::iterator it = vecProcess.begin();
+         it != vecProcess.end(); it++) {
         (*it)->Init(rawev);
+    }
 
-    walk_ = DetectorLibrary::get()->GetWalkCorrections();
-    cali_ = DetectorLibrary::get()->GetCalibrations();
+    try {
+        ReadCalXml();
+        ReadWalkXml();
+    } catch (GeneralException &e) {
+        //! Any exception in reading calibration and walk correction
+        //! will be intercepted here
+        cout << endl;
+        cout << "Exception caught at DetectorDriver::Init" << endl;
+        cout << "\t" << e.what() << endl;
+        Messenger m;
+        m.fail();
+        exit(EXIT_FAILURE);
+    } catch (GeneralWarning &w) {
+        cout << "Warning caught at DetectorDriver::Init" << endl;
+        cout << "\t" << w.what() << endl;
+    }
 }
 
-void DetectorDriver::ProcessEvent(RawEvent &rawev) {
+void DetectorDriver::ProcessEvent(RawEvent& rawev) {
     plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
     try {
-        for (vector<ChanEvent *>::const_iterator it = rawev.GetEventList().begin(); it != rawev.GetEventList().end(); ++it) {
+        for (vector<ChanEvent*>::const_iterator it = rawev.GetEventList().begin();
+             it != rawev.GetEventList().end(); ++it) {
             PlotRaw((*it));
             ThreshAndCal((*it), rawev);
             PlotCal((*it));
@@ -89,7 +356,7 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
             if (place == "__9999")
                 continue;
 
-            if ((*it)->IsSaturated() || (*it)->IsPileup())
+            if ( (*it)->IsSaturated() || (*it)->IsPileup() )
                 continue;
 
             double time = (*it)->GetTime();
@@ -102,26 +369,33 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
 
         //!First round is preprocessing, where process result must be guaranteed
         //!to not to be dependent on results of other Processors.
-        for (vector<EventProcessor *>::iterator iProc = vecProcess.begin(); iProc != vecProcess.end(); iProc++)
-            if ((*iProc)->HasEvent())
+        for (vector<EventProcessor*>::iterator iProc = vecProcess.begin();
+        iProc != vecProcess.end(); iProc++)
+            if ( (*iProc)->HasEvent() )
                 (*iProc)->PreProcess(rawev);
         ///In the second round the Process is called, which may depend on other
         ///Processors.
-        for (vector<EventProcessor *>::iterator iProc = vecProcess.begin(); iProc != vecProcess.end(); iProc++)
-            if ((*iProc)->HasEvent())
+        for (vector<EventProcessor *>::iterator iProc = vecProcess.begin();
+        iProc != vecProcess.end(); iProc++)
+            if ( (*iProc)->HasEvent() )
                 (*iProc)->Process(rawev);
         // Clear all places in correlator (if of resetable type)
-        for (map<string, Place *>::iterator it = TreeCorrelator::get()->places_.begin();
-             it != TreeCorrelator::get()->places_.end(); ++it)
-            if ((*it).second->resetable())
+	for (map<string, Place*>::iterator it = 
+		 TreeCorrelator::get()->places_.begin(); 
+	     it != TreeCorrelator::get()->places_.end(); ++it)
+	    if ((*it).second->resetable())
                 (*it).second->reset();
     } catch (GeneralException &e) {
         /// Any exception in activation of basic places, PreProcess and Process
         /// will be intercepted here
-        cout << endl << Display::ErrorStr("Exception caught at DetectorDriver::ProcessEvent") << endl;
+        cout << endl
+             << Display::ErrorStr("Exception caught at DetectorDriver::ProcessEvent")
+             << endl;
         throw;
     } catch (GeneralWarning &w) {
-        cout << Display::WarningStr("Warning caught at DetectorDriver::ProcessEvent") << endl;
+        cout << Display::WarningStr("Warning caught at "
+                                            "DetectorDriver::ProcessEvent")
+             << endl;
         cout << "\t" << Display::WarningStr(w.what()) << endl;
     }
 }
@@ -137,103 +411,120 @@ void DetectorDriver::DeclarePlots() {
         DeclareHistogram2D(DD_RUNTIME_SEC, SE, S6, "run time - s");
         DeclareHistogram2D(DD_RUNTIME_MSEC, SE, S7, "run time - ms");
 
-        if (Globals::get()->HasRawHistogramsDefined()) {
-            DetectorLibrary *modChan = DetectorLibrary::get();
+        if(Globals::get()->hasRaw()) {
+            DetectorLibrary* modChan = DetectorLibrary::get();
             DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
             DeclareHistogram1D(D_HAS_TRACE, S8, "channels with traces");
-            DeclareHistogram1D(D_SUBEVENT_GAP, SE, "Time Between Channels in 10 ns / bin");
-            DeclareHistogram1D(D_EVENT_LENGTH, SE, "Event Length in ns");
+            DeclareHistogram1D(D_SUBEVENT_GAP, SE,
+                               "Time Between Channels in 10 ns / bin");
+            DeclareHistogram1D(D_EVENT_LENGTH, SE,
+                               "Event Length in ns");
             DeclareHistogram1D(D_EVENT_GAP, SE, "Time Between Events in ns");
-            DeclareHistogram1D(D_EVENT_MULTIPLICITY, S7, "Number of Channels Event");
+            DeclareHistogram1D(D_EVENT_MULTIPLICITY, S7,
+                               "Number of Channels Event");
             DeclareHistogram1D(D_BUFFER_END_TIME, SE, "Buffer Length in ns");
             DetectorLibrary::size_type maxChan = modChan->size();
 
             for (DetectorLibrary::size_type i = 0; i < maxChan; i++) {
-                if (!modChan->HasValue(i))
+                if (!modChan->HasValue(i)) {
                     continue;
-
+                }
                 stringstream idstr;
 
-                const ChannelConfiguration &id = modChan->at(i);
+                const Identifier &id = modChan->at(i);
 
                 idstr << "M" << modChan->ModuleFromIndex(i)
-                      << " C" << modChan->ChannelFromIndex(i)
-                      << " - " << id.GetType()
-                      << ":" << id.GetSubtype()
-                      << " L" << id.GetLocation();
-                DeclareHistogram1D(D_RAW_ENERGY + i, SE, ("RawE " + idstr.str()).c_str());
-                DeclareHistogram1D(D_FILTER_ENERGY + i, SE, ("FilterE " + idstr.str()).c_str());
-                DeclareHistogram1D(D_SCALAR + i, SE, ("Scalar " + idstr.str()).c_str());
-                if (Globals::get()->GetPixieRevision() == "A")
-                    DeclareHistogram1D(D_TIME + i, SE, ("Time " + idstr.str()).c_str());
-                DeclareHistogram1D(D_CAL_ENERGY + i, SE, ("CalE " + idstr.str()).c_str());
+                    << " C" << modChan->ChannelFromIndex(i)
+                    << " - " << id.GetType()
+                    << ":" << id.GetSubtype()
+                    << " L" << id.GetLocation();
+                DeclareHistogram1D(D_RAW_ENERGY + i, SE,
+                                  ("RawE " + idstr.str()).c_str() );
+                DeclareHistogram1D(D_FILTER_ENERGY + i, SE,
+                                  ("FilterE " + idstr.str()).c_str() );
+                DeclareHistogram1D(D_SCALAR + i, SE,
+                                  ("Scalar " + idstr.str()).c_str() );
+                if (Globals::get()->revision() == "A")
+                    DeclareHistogram1D(D_TIME + i, SE,
+                                       ("Time " + idstr.str()).c_str() );
+                DeclareHistogram1D(D_CAL_ENERGY + i, SE,
+                                  ("CalE " + idstr.str()).c_str() );
             }
         }
 
-        for (vector<TraceAnalyzer *>::const_iterator it = vecAnalyzer.begin(); it != vecAnalyzer.end(); it++)
+        for (vector<TraceAnalyzer *>::const_iterator it = vecAnalyzer.begin();
+             it != vecAnalyzer.end(); it++) {
             (*it)->DeclarePlots();
+        }
 
-        for (vector<EventProcessor *>::const_iterator it = vecProcess.begin(); it != vecProcess.end(); it++)
+        for (vector<EventProcessor *>::const_iterator it = vecProcess.begin();
+             it != vecProcess.end(); it++) {
             (*it)->DeclarePlots();
-
+        }
     } catch (exception &e) {
-        cout << Display::ErrorStr("Exception caught at DetectorDriver::DeclarePlots") << endl;
+        cout << Display::ErrorStr("Exception caught at "
+                                          "DetectorDriver::DeclarePlots")
+             << endl;
         throw;
     }
 }
 
-int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
-    ChannelConfiguration chanCfg = chan->GetChanID();
-    int id = chan->GetID();
-    string type = chanCfg.GetType();
-    string subtype = chanCfg.GetSubtype();
-    set<string> tags = chanCfg.GetTags();
-    bool hasStartTag = chanCfg.HasTag("start");
-    Trace &trace = chan->GetTrace();
+int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent& rawev) {
+    Identifier chanId = chan->GetChanID();
+    int id            = chan->GetID();
+    string type       = chanId.GetType();
+    string subtype    = chanId.GetSubtype();
+    map<string, int> tags = chanId.GetTagMap();
+    bool hasStartTag  = chanId.HasTag("start");
+    Trace &trace      = chan->GetTrace();
 
-    RandomInterface *randoms = RandomInterface::get();
+    RandomPool* randoms = RandomPool::get();
 
     double energy = 0.0;
-
+    
     if (type == "ignore" || type == "")
-        return (0);
+        return(0);
 
-    if (!trace.empty()) {
+    if ( !trace.empty() ) {
         plot(D_HAS_TRACE, id);
 
-        for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin(); it != vecAnalyzer.end(); it++)
-            (*it)->Analyze(trace, chanCfg);
+        for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin();
+            it != vecAnalyzer.end(); it++) {
+            (*it)->Analyze(trace, type, subtype, tags);
+        }
 
         //We are going to handle the filtered energies here.
         vector<double> filteredEnergies = trace.GetFilteredEnergies();
         if (filteredEnergies.empty()) {
-            energy = chan->GetEnergy() + randoms->Generate();
+            energy = chan->GetEnergy() + randoms->Get();
         } else {
             energy = filteredEnergies.front();
             plot(D_FILTER_ENERGY + id, energy);
         }
 
         //Saves the time in nanoseconds
-        chan->SetHighResTime((trace.GetPhase() * Globals::get()->GetAdcClockInSeconds() +
-                chan->GetTimeSansCfd() * Globals::get()->GetFilterClockInSeconds()) * 1e9);
+        chan->SetHighResTime(
+                (trace.GetPhase() * Globals::get()->adcClockInSeconds() +
+                chan->GetTimeSansCfd() * Globals::get()->filterClockInSeconds())
+                * 1e9);
     } else {
         /// otherwise, use the Pixie on-board calculated energy and high res
         /// time is zero.
-        energy = chan->GetEnergy() + randoms->Generate();
-        chan->SetHighResTime(0.0);
+        energy = chan->GetEnergy() + randoms->Get();
+	    chan->SetHighResTime(0.0);
     }
 
     /** Calibrate energy and apply the walk correction. */
     double time, walk_correction;
-    if (chan->GetHighResTimeInNs() == 0.0) {
-        time = chan->GetTime(); //time is in clock ticks
-        walk_correction = walk_->GetCorrection(chanCfg, energy);
+    if(chan->GetHighResTimeInNs() == 0.0) {
+	time = chan->GetTime(); //time is in clock ticks
+	    walk_correction = walk.GetCorrection(chanId, energy);
     } else {
-        time = chan->GetHighResTimeInNs(); //time here is in ns
-        walk_correction = walk_->GetCorrection(chanCfg, trace.GetQdc());
+	time = chan->GetHighResTimeInNs(); //time here is in ns
+	    walk_correction = walk.GetCorrection(chanId, trace.GetQdc());
     }
 
-    chan->SetCalibratedEnergy(cali_->GetCalEnergy(chanCfg, energy));
+    chan->SetCalibratedEnergy(cali.GetCalEnergy(chanId, energy));
     chan->SetWalkCorrectedTime(time - walk_correction);
 
     rawev.GetSummary(type)->AddEvent(chan);
@@ -243,27 +534,171 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
     if (summary != NULL)
         summary->AddEvent(chan);
 
-    if (hasStartTag && type != "logic") {
-        summary = rawev.GetSummary(type + ':' + subtype + ':' + "start", false);
+    if(hasStartTag && type != "logic") {
+        summary =
+            rawev.GetSummary(type + ':' + subtype + ':' + "start", false);
         if (summary != NULL)
             summary->AddEvent(chan);
     }
-    return (1);
+    return(1);
 }
 
 int DetectorDriver::PlotRaw(const ChanEvent *chan) {
     plot(D_RAW_ENERGY + chan->GetID(), chan->GetEnergy());
-    return (0);
+    return(0);
 }
 
 int DetectorDriver::PlotCal(const ChanEvent *chan) {
     plot(D_CAL_ENERGY + chan->GetID(), chan->GetCalibratedEnergy());
-    return (0);
+    return(0);
 }
 
-EventProcessor *DetectorDriver::GetProcessor(const std::string &name) const {
-    for (vector<EventProcessor *>::const_iterator it = vecProcess.begin(); it != vecProcess.end(); it++)
-        if ((*it)->GetName() == name)
-            return (*it);
-    return (NULL);
+EventProcessor* DetectorDriver::GetProcessor(const std::string& name) const {
+    for (vector<EventProcessor *>::const_iterator it = vecProcess.begin();
+	 it != vecProcess.end(); it++) {
+	if ( (*it)->GetName() == name )
+	    return(*it);
+    }
+    return(NULL);
+}
+
+void DetectorDriver::ReadCalXml() {
+    pugi::xml_document doc;
+    pugi::xml_parse_result result = doc.load_file(cfg_.c_str());
+    if (!result) {
+        stringstream ss;
+        ss << "DetectorDriver: error parsing file" << cfg_;
+        ss << " : " << result.description();
+        throw GeneralException(ss.str());
+    }
+
+    Messenger m;
+    m.start("Loading Calibration");
+
+    pugi::xml_node map = doc.child("Configuration").child("Map");
+
+    /** Note that before this reading in of the xml file, it was already
+     * processed for the purpose of creating the channels map.
+     * Some sanity checks (module and channel number) were done there
+     * so they are not repeated here/
+     */
+    bool verbose = map.attribute("verbose_calibration").as_bool();
+    for (pugi::xml_node module = map.child("Module"); module;
+         module = module.next_sibling("Module")) {
+        int module_number = module.attribute("number").as_int(-1);
+        for (pugi::xml_node channel = module.child("Channel"); channel;
+             channel = channel.next_sibling("Channel")) {
+            int ch_number = channel.attribute("number").as_int(-1);
+            Identifier chanID = DetectorLibrary::get()->at(module_number,
+                                                           ch_number);
+            bool calibrated = false;
+            for (pugi::xml_node cal = channel.child("Calibration");
+                cal; cal = cal.next_sibling("Calibration")) {
+                string model = cal.attribute("model").as_string("None");
+                double min = cal.attribute("min").as_double(0);
+                double max =
+                  cal.attribute("max").as_double(numeric_limits<double>::max());
+
+                stringstream pars(cal.text().as_string());
+                vector<double> parameters;
+                while (true) {
+                    double p;
+                    pars >> p;
+                    if (pars)
+                        parameters.push_back(p);
+                    else
+                        break;
+                }
+                if (verbose) {
+                    stringstream ss;
+                    ss << "Module " << module_number << ", channel "
+                       << ch_number << ": ";
+                    ss << " model-" << model;
+                    for (vector<double>::iterator it = parameters.begin();
+                         it != parameters.end(); ++it)
+                        ss << " " << (*it);
+                    m.detail(ss.str(), 1);
+                }
+                cali.AddChannel(chanID, model, min, max, parameters);
+                calibrated = true;
+            }
+            if (!calibrated && verbose) {
+                stringstream ss;
+                ss << "Module " << module_number << ", channel "
+                   << ch_number << ": ";
+                ss << " non-calibrated";
+                m.detail(ss.str(), 1);
+            }
+        }
+    }
+    m.done();
+}
+
+void DetectorDriver::ReadWalkXml() {
+    pugi::xml_document doc;
+
+    pugi::xml_parse_result result = doc.load_file(cfg_.c_str());
+    if (!result) {
+        stringstream ss;
+        ss << "DetectorDriver: error parsing file " << cfg_;
+        ss << " : " << result.description();
+        throw GeneralException(ss.str());
+    }
+
+    Messenger m;
+    m.start("Loading Walk Corrections");
+
+    pugi::xml_node map = doc.child("Configuration").child("Map");
+    /** See comment in the similiar place at ReadCalXml() */
+    bool verbose = map.attribute("verbose_walk").as_bool();
+    for (pugi::xml_node module = map.child("Module"); module;
+         module = module.next_sibling("Module")) {
+        int module_number = module.attribute("number").as_int(-1);
+        for (pugi::xml_node channel = module.child("Channel"); channel;
+             channel = channel.next_sibling("Channel")) {
+            int ch_number = channel.attribute("number").as_int(-1);
+            Identifier chanID = DetectorLibrary::get()->at(module_number,
+                                                           ch_number);
+            bool corrected = false;
+            for (pugi::xml_node walkcorr = channel.child("WalkCorrection");
+                walkcorr; walkcorr = walkcorr.next_sibling("WalkCorrection")) {
+                string model = walkcorr.attribute("model").as_string("None");
+                double min = walkcorr.attribute("min").as_double(0);
+                double max =
+                  walkcorr.attribute("max").as_double(
+                                              numeric_limits<double>::max());
+
+                stringstream pars(walkcorr.text().as_string());
+                vector<double> parameters;
+                while (true) {
+                    double p;
+                    pars >> p;
+                    if (pars)
+                        parameters.push_back(p);
+                    else
+                        break;
+                }
+                if (verbose) {
+                    stringstream ss;
+                    ss << "Module " << module_number
+                       << ", channel " << ch_number << ": ";
+                    ss << " model: " << model;
+                    for (vector<double>::iterator it = parameters.begin();
+                         it != parameters.end(); ++it)
+                        ss << " " << (*it);
+                    m.detail(ss.str(), 1);
+                }
+                walk.AddChannel(chanID, model, min, max, parameters);
+                corrected = true;
+            }
+            if (!corrected && verbose) {
+                stringstream ss;
+                ss << "Module " << module_number << ", channel "
+                << ch_number << ": ";
+                ss << " not corrected for walk";
+                m.detail(ss.str(), 1);
+            }
+        }
+    }
+    m.done();
 }

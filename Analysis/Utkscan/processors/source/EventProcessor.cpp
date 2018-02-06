@@ -23,49 +23,48 @@
 using namespace std;
 
 EventProcessor::EventProcessor() :
-        name("generic"), initDone(false), didProcess(false),
-        histo(0, 0, "generic"),
-        userTime(0.), systemTime(0.) {
+  name("generic"), initDone(false), didProcess(false), histo(0, 0, "generic"),
+  userTime(0.), systemTime(0.) {
     clocksPerSecond = sysconf(_SC_CLK_TCK);
 }
 
 EventProcessor::EventProcessor(int offset, int range, std::string proc_name) :
-        name(proc_name), initDone(false), didProcess(false),
-        histo(offset, range, proc_name), userTime(0.), systemTime(0.) {
+  name(proc_name), initDone(false), didProcess(false),
+  histo(offset, range, proc_name), userTime(0.), systemTime(0.) {
     clocksPerSecond = sysconf(_SC_CLK_TCK);
 }
 
 EventProcessor::~EventProcessor() {
     if (initDone)
         cout << name << " : "
-             << userTime << " user time, "
-             << systemTime << " system time" << endl;
+	     << userTime << " user time, "
+	     << systemTime << " system time" << endl;
 }
 
 bool EventProcessor::HasEvent(void) const {
-    for (map<string, const DetectorSummary *>::const_iterator it = sumMap.begin();
-         it != sumMap.end(); it++) {
+    for (map<string, const DetectorSummary*>::const_iterator it = sumMap.begin();
+	 it != sumMap.end(); it++) {
         if (it->second->GetMult() > 0) {
-            return (true);
+            return(true);
         }
     }
-    return (false);
+    return(false);
 }
 
-bool EventProcessor::Init(RawEvent &rawev) {
+bool EventProcessor::Init(RawEvent& rawev) {
     vector<string> intersect;
-    const set <string> &usedDets = DetectorLibrary::get()->GetUsedDetectors();
+    const set<string> &usedDets = DetectorLibrary::get()->GetUsedDetectors();
 
     set_intersection(associatedTypes.begin(), associatedTypes.end(),
                      usedDets.begin(), usedDets.end(),
-                     back_inserter(intersect));
+                     back_inserter(intersect) );
 
     if (intersect.empty())
-        return (false);
+        return(false);
 
     for (vector<string>::const_iterator it = intersect.begin();
-         it != intersect.end(); it++) {
-        sumMap.insert(make_pair(*it, rawev.GetSummary(*it)));
+	 it != intersect.end(); it++) {
+        sumMap.insert( make_pair(*it, rawev.GetSummary(*it)) );
     }
 
     initDone = true;
@@ -75,7 +74,7 @@ bool EventProcessor::Init(RawEvent &rawev) {
        << intersect.size() << " detector type(s).";
     m.detail(ss.str());
 
-    return (true);
+    return(true);
 }
 
 bool EventProcessor::PreProcess(RawEvent &event) {

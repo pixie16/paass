@@ -7,8 +7,8 @@
 
 /// Perform CFD analysis on the waveform
 double XiaCfd::CalculatePhase(const double &F_/*=0.5*/,
-                              const size_t &D_/*=1*/,
-                              const size_t &L_/*=1*/) {
+                                  const size_t &D_/*=1*/,
+                                  const size_t &L_/*=1*/) {
     if (size == 0 || baseline < 0) { return -9999; }
     if (!cfdvals)
         cfdvals = new double[size];

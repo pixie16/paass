@@ -70,7 +70,7 @@ struct DrrHisRecordExtended : DrrHisRecord {
 
     /** Copies DrrHisRecord to DrrHisRecordExtended,
      * hisID is left uninitialized.*/
-    DrrHisRecordExtended &operator=(const DrrHisRecord &right) {
+    DrrHisRecordExtended& operator=(const DrrHisRecord& right) {
         hisDim = right.hisDim;
         halfWords = right.halfWords;
         for (int i = 0; i < 4; ++i)
@@ -93,10 +93,10 @@ struct DrrHisRecordExtended : DrrHisRecord {
         for (int i = 0; i < 40; ++i)
             title[i] = right.title[i];
         return *this;
-    }
+  }
 
-    /**Operator = */
-    DrrHisRecordExtended &operator=(const DrrHisRecordExtended &right) {
+  /**Operator = */
+  DrrHisRecordExtended& operator=(const DrrHisRecordExtended& right) {
         hisID = right.hisID;
         hisDim = right.hisDim;
         halfWords = right.halfWords;
@@ -120,7 +120,7 @@ struct DrrHisRecordExtended : DrrHisRecord {
         for (int i = 0; i < 40; ++i)
             title[i] = right.title[i];
         return *this;
-    }
+  }
 
 };
 
@@ -135,7 +135,7 @@ union drrBlock {
     //! drr file header 128 bytes long but in reality only 84 bytes contain information
     DrrHeader header;
     //! drr histogram record 128 bytes long
-    DrrHisRecord record;
+    DrrHisRecord record; 
 };
 
 #endif

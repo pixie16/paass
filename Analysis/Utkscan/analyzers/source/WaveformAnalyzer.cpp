@@ -18,64 +18,45 @@
 
 using namespace std;
 
-WaveformAnalyzer::WaveformAnalyzer(const std::set<std::string> &ignoredTypes)
-        : TraceAnalyzer() {
+WaveformAnalyzer::WaveformAnalyzer() : TraceAnalyzer() {
     name = "WaveformAnalyzer";
-    ignoredTypes_ = ignoredTypes;
+    messenger_ = new Messenger();
 }
 
-void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
-    TraceAnalyzer::Analyze(trace, cfg);
+void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
+                               const std::string &subtype,
+                               const std::map<std::string, int> &tags) {
+    TraceAnalyzer::Analyze(trace, type, subtype, tags);
 
-    if (trace.IsSaturated() || trace.empty() || ignoredTypes_.find(cfg.GetType()) != ignoredTypes_.end()) {
-        trace.SetHasValidAnalysis(false);
+    //if (trace.IsSaturated() || trace.empty()) {
+    if (trace.empty()) {
         EndAnalyze();
         return;
     }
 
-    pair<unsigned int, unsigned int> range = cfg.GetWaveformBoundsInSamples();
+    Globals *globals = Globals::get();
 
-    //First we calculate the position of the maximum.
-    pair<unsigned int, double> max;
-    try {
-        max = TraceFunctions::FindMaximum(trace, cfg.GetTraceDelayInSamples());
-    } catch (range_error &ex) {
-        trace.SetHasValidAnalysis(false);
-        cout << "WaveformAnalyzer::Analyze - " << ex.what() << endl;
-        EndAnalyze();
-        return;
-    }
+    pair<unsigned int, unsigned int> range =
+            globals->waveformRange(type + ":" + subtype);
 
-    //If the position of the maximum doesn't give us enough bins on the
-    // baseline to calculate the average baseline then we're going to set
-    // some of the variables to be used later to zero and end the analysis of
-    // the waveform now.
-    if (max.first - range.first < TraceFunctions::minimum_baseline_length) {
-#ifdef VERBOSE
-        cout << "WaveformAnalyzer::Analyze - The low bound for the trace overlaps with the minimum bins for the"
-        "baseline." << endl;
-#endif
-        trace.SetHasValidAnalysis(false);
-        EndAnalyze();
-        return;
-    }
+    if (type == "beta" && subtype == "double" &&
+        tags.find("timing") != tags.end())
+        range = globals->waveformRange(type + ":" + subtype + ":timing");
 
     try {
-        //Next we calculate the baseline and its standard deviation
-        pair<double, double> baseline = TraceFunctions::CalculateBaseline(trace, make_pair(0, max.first - range.first));
-
-        //For well behaved traces the standard deviation of the baseline
-        // shouldn't ever be more than 1-3 ADC units. However, for traces
-        // that are not captured properly, we can get really crazy values
-        // here the SiPM often saw values as high as 20. We will put in a
-        // hard limit of 50 as a cutoff since anything with a standard
-        // deviation of this high will never be something we want to analyze.
-        static const double extremeBaselineVariation = 50;
-        if (baseline.second >= extremeBaselineVariation) {
-            trace.SetHasValidAnalysis(false);
-            EndAnalyze();
-            return;
-        }
+        //First we calculate the position of the maximum.
+        pair<unsigned int, double> max =
+                TraceFunctions::FindMaximum(trace, globals->traceDelay() /
+                                                   (globals->adcClockInSeconds() *
+                                                    1.e9));
+    if(max.first-range.first<10)
+      std::cout<<"In WaveformAnalyzer::Analyze() "<<range.first<<" "<<max.first-range.first<<" "<<max.first<<std::endl;
+        
+       //Next we calculate the baseline and its standard deviation
+        pair<double, double> baseline =
+                TraceFunctions::CalculateBaseline(trace,
+                                                  make_pair(0, max.first -
+                                                               range.first));
 
         //Subtract the baseline from the maximum value.
         max.second -= baseline.first;
@@ -86,22 +67,23 @@ void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
 
         //Finally, we calculate the QDC in the waveform range and subtract
         // the baseline from it.
-        pair<unsigned int, unsigned int> waveformRange(max.first - range.first, max.first + range.second);
-        double qdc = TraceFunctions::CalculateQdc(traceNoBaseline, waveformRange);
+        pair<unsigned int, unsigned int> waveformRange(max.first - range.first,
+                                                       max.first + range.second);
+        double qdc =
+                TraceFunctions::CalculateQdc(traceNoBaseline, waveformRange);
 
         //Now we are going to set all the different values into the trace.
         trace.SetQdc(qdc);
         trace.SetBaseline(baseline);
         trace.SetMax(max);
-        trace.SetExtrapolatedMax(make_pair(max.first,
-                                           TraceFunctions::ExtrapolateMaximum(trace, max).first - baseline.first));
+        trace.SetExtrapolatedMax(
+                make_pair(max.first,
+                          TraceFunctions::ExtrapolateMaximum(trace, max).first -
+                                  baseline.first));
         trace.SetTraceSansBaseline(traceNoBaseline);
         trace.SetWaveformRange(waveformRange);
-        trace.SetHasValidAnalysis(true);
     } catch (range_error &ex) {
-        trace.SetHasValidAnalysis(false);
-        cout << "WaveformAnalyzer::Analyze - " << ex.what() << endl;
+        cerr << "WaveformAnalyzer::Analyze - " << ex.what() << endl;
         EndAnalyze();
-        return;
     }
 }

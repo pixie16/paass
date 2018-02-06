@@ -1,10 +1,8 @@
 /** \file WalkCorrector.hpp
  * \brief A Class to handle walk corrections for channels
- * \author K. A. Miernik, S. V. Paulauskas
+ * \author K. A. Miernik
  * \date January 22, 2013
  */
-#include <sstream>
-
 #include <cmath>
 
 #include "WalkCorrector.hpp"
@@ -12,8 +10,10 @@
 
 using namespace std;
 
-void WalkCorrector::AddChannel(const ChannelConfiguration &chanID, const std::string &model, const double &min,
-                               const double &max, const std::vector<double> &par) {
+void WalkCorrector::AddChannel(const Identifier &chanID,
+                               const std::string &model,
+                               const double &min, const double &max,
+                               const std::vector<double> &par) {
     CorrectionParams cf;
 
     unsigned required_parameters = 0;
@@ -29,15 +29,15 @@ void WalkCorrector::AddChannel(const ChannelConfiguration &chanID, const std::st
         cf.model = B2;
         required_parameters = 3;
     } else if (model == "VS") {
-        cf.model = VS;
+	cf.model = VS;
     } else if (model == "VM") {
-        cf.model = VM;
-    } else if (model == "VL") {
-        cf.model = VL;
-    } else if (model == "VB") {
-        cf.model = VB;
+	cf.model = VM;
+    } else if (model == "VL" ){
+	cf.model = VL;
+    } else if (model == "VB") { 
+	cf.model = VB;
     } else if (model == "VD") {
-        cf.model = VD;
+	cf.model = VD;
     } else {
         stringstream ss;
         ss << "WalkCorrector: unknown walk model " << model;
@@ -55,7 +55,7 @@ void WalkCorrector::AddChannel(const ChannelConfiguration &chanID, const std::st
     cf.max = max;
 
     for (vector<double>::const_iterator it = par.begin(); it != par.end();
-         ++it) {
+        ++it) {
         cf.parameters.push_back(*it);
     }
 
@@ -67,7 +67,7 @@ void WalkCorrector::AddChannel(const ChannelConfiguration &chanID, const std::st
         throw GeneralException(ss.str());
     }
 
-    switch (cf.model) {
+    switch(cf.model) {
         case none:
             break;
         case A:
@@ -101,24 +101,25 @@ void WalkCorrector::AddChannel(const ChannelConfiguration &chanID, const std::st
     if (channels_.find(chanID) != channels_.end()) {
         channels_[chanID].push_back(cf);
     } else {
-        vector <CorrectionParams> vcf;
+        vector<CorrectionParams> vcf;
         vcf.push_back(cf);
         channels_[chanID] = vcf;
     }
 }
 
-double WalkCorrector::GetCorrection(ChannelConfiguration &chanID, double raw) const {
-    map < ChannelConfiguration, vector < CorrectionParams > > ::const_iterator itch = channels_.find(chanID);
+double WalkCorrector::GetCorrection(Identifier& chanID, double raw) const {
+    map<Identifier, vector<CorrectionParams> >::const_iterator itch =
+        channels_.find(chanID);
     if (itch != channels_.end()) {
         vector<CorrectionParams>::const_iterator itf;
         for (itf = itch->second.begin(); itf != itch->second.end(); ++itf) {
             if (itf->min <= raw && raw <= itf->max)
                 break;
         }
-        if (itf == itch->second.end())
+        if (itf == itch->second.end()) {
             return 0;
-
-        switch (itf->model) {
+        }
+        switch(itf->model) {
             case none:
                 return Model_None();
                 break;
@@ -134,7 +135,7 @@ double WalkCorrector::GetCorrection(ChannelConfiguration &chanID, double raw) co
             case VS:
                 return Model_VS(itf->parameters, raw);
                 break;
-            case VM:
+	    case VM:
                 return Model_VM(itf->parameters, raw);
                 break;
             case VL:
@@ -154,49 +155,57 @@ double WalkCorrector::GetCorrection(ChannelConfiguration &chanID, double raw) co
 }
 
 double WalkCorrector::Model_None() const {
-    return (0.0);
+    return(0.0);
 }
 
-double WalkCorrector::Model_A(const std::vector<double> &par, const double &raw) const {
-    return (par[0] +
-            par[1] / (par[2] + raw) +
-            par[3] * exp(-raw / par[4]));
+double WalkCorrector::Model_A(const std::vector<double> &par,
+                              const double &raw) const {
+    return(par[0] + 
+	   par[1] / (par[2] + raw) + 
+	   par[3] * exp(-raw / par[4]));
 }
 
-double WalkCorrector::Model_B1(const std::vector<double> &par, double raw) const {
-    return (par[0] +
-            (par[1] + par[2] / (raw + 1.0)) *
-            exp(-raw / par[3]));
+double WalkCorrector::Model_B1(const std::vector<double>& par,
+                               double raw) const {
+    return(par[0] + 
+	   (par[1] + par[2] / (raw + 1.0)) *
+           exp(-raw / par[3]));
 }
 
-double WalkCorrector::Model_B2(const std::vector<double> &par, double raw) const {
-    return (par[0] +
-            par[1] * exp(-raw / par[2]));
+double WalkCorrector::Model_B2(const std::vector<double>& par,
+                               double raw) const {
+    return(par[0] + 
+	   par[1] * exp(-raw / par[2]));
 }
 
-double WalkCorrector::Model_VS(const std::vector<double> &par, double raw) const {
-    if (raw < 175)
-        return (1.09099 * log(raw) - 7.76641);
-    if (raw > 3700)
-        return (0.0);
-    return -(9.13743e-12) * pow(raw, 3.) + (1.9485e-7) * pow(raw, 2.)
-           - 0.000163286 * raw - 2.13918;
+double WalkCorrector::Model_VS(const std::vector<double> &par, 
+			       double raw) const {
+    if(raw < 175)
+	    return(1.09099*log(raw)-7.76641);
+    if(raw > 3700)
+	    return(0.0);
+    return -(9.13743e-12)*pow(raw,3.) + (1.9485e-7)*pow(raw,2.)
+	   -0.000163286*raw-2.13918;
 }
 
-double WalkCorrector::Model_VB(const std::vector<double> &par, double raw) const {
-    return (-(1.07908 * log10(raw) - 8.27739));
+double WalkCorrector::Model_VB(const std::vector<double> &par,
+			       double raw) const {
+    return(-(1.07908*log10(raw)-8.27739));
 }
 
-double WalkCorrector::Model_VD(const std::vector<double> &par, double raw) const {
-    return 92.7907602830327 * exp(-raw / 186091.225414275) +
-           0.59140785215161 * exp(raw / 2068.14618331387) -
-           95.5388835298589;
+double WalkCorrector::Model_VD(const std::vector<double> &par,
+			       double raw) const {
+    return 92.7907602830327 * exp(-raw/186091.225414275) +
+	   0.59140785215161 * exp(raw/2068.14618331387) -
+	   95.5388835298589;
 }
 
-double WalkCorrector::Model_VM(const std::vector<double> &par, double raw) const {
-    return (0.0);
+double WalkCorrector::Model_VM(const std::vector<double> &par,
+			       double raw) const {
+    return(0.0);
 }
 
-double WalkCorrector::Model_VL(const std::vector<double> &par, double raw) const {
-    return (0.0);
+double WalkCorrector::Model_VL(const std::vector<double> &par,
+			       double raw) const {
+    return(0.0);
 }

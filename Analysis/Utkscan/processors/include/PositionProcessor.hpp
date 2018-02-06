@@ -1,6 +1,5 @@
 /** \file PositionProcessor.hpp
  * \brief Handle QDCs for the position sensitive detector
- * @authors D. Miller, K. Miernik
  */
 
 #ifndef __POSITIONPROCESSOR_HPP__
@@ -35,19 +34,17 @@ private:
     * \param [in] begin : an iterator to the beginning of the event
     * \param [in] end : an iterator to the end of the event
     * \return a pointer to the matching ChanEvent */
-    ChanEvent *FindMatchingEdge(ChanEvent *match,
-                                std::vector<ChanEvent *>::const_iterator begin,
-                                std::vector<ChanEvent *>::const_iterator end) const;
-
+    ChanEvent* FindMatchingEdge(ChanEvent *match,
+				std::vector<ChanEvent*>::const_iterator begin,
+				std::vector<ChanEvent*>::const_iterator end) const;
     /** Find the matching edge of the SSD
     * \param [in] match : the matching edge
     * \param [in] begin : an iterator to the beginning of the event
     * \param [in] end : an iterator to the end of the event
     * \return a pointer to the matching ChanEvent */
-    ChanEvent *FindMatchingEdge(ChanEvent *match,
-                                std::vector<ChanEvent *>::const_reverse_iterator begin,
-                                std::vector<ChanEvent *>::const_reverse_iterator end) const;
-
+    ChanEvent* FindMatchingEdge(ChanEvent *match,
+				std::vector<ChanEvent*>::const_reverse_iterator begin,
+				std::vector<ChanEvent*>::const_reverse_iterator end) const;
 public:
     PositionProcessor(); // no virtual c'tors
     /*! \brief Reads in QDC parameters from an input file
@@ -62,8 +59,7 @@ public:
     *     baseline removal for the other QDCs
     * \param [in] rawev : the raw event to get the data from
     * \return true if everything was successful */
-    virtual bool Init(RawEvent &rawev);
-
+    virtual bool Init(RawEvent& rawev);
     /** \brief Process the QDC data involved in top/bottom side for a strip
     *
     *  Note: QDC lengths are HARD-CODED at the moment for the plots and to
@@ -72,7 +68,6 @@ public:
     * \return true if the processing was successful
     */
     virtual bool Process(RawEvent &event);
-
     /** Declares the plots for the processor */
     virtual void DeclarePlots(void);
 };

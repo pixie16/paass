@@ -8,8 +8,8 @@
 
     <Description>
         This file is the base file for the VANDLE @ ISOLDE experiment. The
-        ISOLDE Experiment numbers 599 and 600 can be analyzed using this
-        configuration file.
+	ISOLDE Experiment numbers 599 and 600 can be analyzed using this
+	configuration file.
 
         I have also used some of the configuration settings from the VANDLE @
         LeRIBSS configuration to do preliminary setup of the clovers and
@@ -25,11 +25,11 @@
     </Global>
 
     <DetectorDriver>
-
+ 
     </DetectorDriver>
 
     <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
-        <Module number="0">
+ <Module number="0">
             <Channel number="0" type="generic" subtype="generic"></Channel>
             <Channel number="1" type="generic" subtype="generic"></Channel>
             <Channel number="2" type="generic" subtype="generic"></Channel>
@@ -47,7 +47,25 @@
             <Channel number="14" type="generic" subtype="generic"></Channel>
             <Channel number="15" type="generic" subtype="generic"></Channel>
         </Module>
-        <Module number="1">
+	<Module number="1">
+	  <Channel number="0" type="generic" subtype="generic"></Channel>
+          <Channel number="1" type="generic" subtype="generic"></Channel>
+          <Channel number="2" type="generic" subtype="generic"></Channel>
+          <Channel number="3" type="generic" subtype="generic"></Channel>
+          <Channel number="4" type="generic" subtype="generic"></Channel>
+          <Channel number="5" type="generic" subtype="generic"></Channel>
+          <Channel number="6" type="generic" subtype="generic"></Channel>
+          <Channel number="7" type="generic" subtype="generic"></Channel>
+          <Channel number="8" type="generic" subtype="generic"></Channel>
+          <Channel number="9" type="generic" subtype="generic"></Channel>
+          <Channel number="10" type="generic" subtype="generic"></Channel>
+          <Channel number="11" type="generic" subtype="generic"></Channel>
+          <Channel number="12" type="generic" subtype="generic"></Channel>
+          <Channel number="13" type="generic" subtype="generic"></Channel>
+          <Channel number="14" type="generic" subtype="generic"></Channel>
+          <Channel number="15" type="generic" subtype="generic"></Channel>
+	</Module>
+	<Module number="2">
             <Channel number="0" type="generic" subtype="generic"></Channel>
             <Channel number="1" type="generic" subtype="generic"></Channel>
             <Channel number="2" type="generic" subtype="generic"></Channel>
@@ -64,8 +82,8 @@
             <Channel number="13" type="generic" subtype="generic"></Channel>
             <Channel number="14" type="generic" subtype="generic"></Channel>
             <Channel number="15" type="generic" subtype="generic"></Channel>
-        </Module>
-        <Module number="2">
+	</Module>
+	<Module number="3">
             <Channel number="0" type="generic" subtype="generic"></Channel>
             <Channel number="1" type="generic" subtype="generic"></Channel>
             <Channel number="2" type="generic" subtype="generic"></Channel>
@@ -82,8 +100,8 @@
             <Channel number="13" type="generic" subtype="generic"></Channel>
             <Channel number="14" type="generic" subtype="generic"></Channel>
             <Channel number="15" type="generic" subtype="generic"></Channel>
-        </Module>
-        <Module number="3">
+	  </Module>
+	<Module number="4">
             <Channel number="0" type="generic" subtype="generic"></Channel>
             <Channel number="1" type="generic" subtype="generic"></Channel>
             <Channel number="2" type="generic" subtype="generic"></Channel>
@@ -100,8 +118,8 @@
             <Channel number="13" type="generic" subtype="generic"></Channel>
             <Channel number="14" type="generic" subtype="generic"></Channel>
             <Channel number="15" type="generic" subtype="generic"></Channel>
-        </Module>
-        <Module number="4">
+	</Module>
+	<Module number="5">
             <Channel number="0" type="generic" subtype="generic"></Channel>
             <Channel number="1" type="generic" subtype="generic"></Channel>
             <Channel number="2" type="generic" subtype="generic"></Channel>
@@ -118,8 +136,8 @@
             <Channel number="13" type="generic" subtype="generic"></Channel>
             <Channel number="14" type="generic" subtype="generic"></Channel>
             <Channel number="15" type="generic" subtype="generic"></Channel>
-        </Module>
-        <Module number="5">
+	</Module>
+	<Module number="6">
             <Channel number="0" type="generic" subtype="generic"></Channel>
             <Channel number="1" type="generic" subtype="generic"></Channel>
             <Channel number="2" type="generic" subtype="generic"></Channel>
@@ -136,25 +154,7 @@
             <Channel number="13" type="generic" subtype="generic"></Channel>
             <Channel number="14" type="generic" subtype="generic"></Channel>
             <Channel number="15" type="generic" subtype="generic"></Channel>
-        </Module>
-        <Module number="6">
-            <Channel number="0" type="generic" subtype="generic"></Channel>
-            <Channel number="1" type="generic" subtype="generic"></Channel>
-            <Channel number="2" type="generic" subtype="generic"></Channel>
-            <Channel number="3" type="generic" subtype="generic"></Channel>
-            <Channel number="4" type="generic" subtype="generic"></Channel>
-            <Channel number="5" type="generic" subtype="generic"></Channel>
-            <Channel number="6" type="generic" subtype="generic"></Channel>
-            <Channel number="7" type="generic" subtype="generic"></Channel>
-            <Channel number="8" type="generic" subtype="generic"></Channel>
-            <Channel number="9" type="generic" subtype="generic"></Channel>
-            <Channel number="10" type="generic" subtype="generic"></Channel>
-            <Channel number="11" type="generic" subtype="generic"></Channel>
-            <Channel number="12" type="generic" subtype="generic"></Channel>
-            <Channel number="13" type="generic" subtype="generic"></Channel>
-            <Channel number="14" type="generic" subtype="generic"></Channel>
-            <Channel number="15" type="generic" subtype="generic"></Channel>
-        </Module>
+	</Module>
     </Map>
 
     <TreeCorrelator name="root" verbose="False">
@@ -162,7 +162,7 @@
 
     <TimeCalibration verbose_timing="False">
         <Vandle>
-        </Vandle>
+	</Vandle>
     </TimeCalibration>
 
     <Timing>
@@ -194,7 +194,7 @@
 
         <Fitting>
             <SigmaBaselineThresh value="3.0"/>
-            <SiPmtSigmaBaselineThresh value="25.0"/>
+            <SiPmtSigmaBaselineThresh value = "25.0"/>
             <Vandle>
                 <Small>
                     <Beta value="0.32969"/>
@@ -218,7 +218,7 @@
                 <Gamma value="0.274512"/>
             </SingleBeta>
             <DoubleBeta>
-                <Beta value="0.491724"/>
+	        <Beta value="0.491724"/>
                 <Gamma value="0.335260"/>
             </DoubleBeta>
             <Pulser>

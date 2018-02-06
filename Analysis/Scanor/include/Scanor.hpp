@@ -1,5 +1,5 @@
 ///@file Scanor.hpp
-///@author S. V. Paulauskas, C. R. Thornsberry
+///@author S. V. Paulauskas
 ///@date September 23, 2016
 #ifndef SCANOR_HPP
 #define SCANOR_HPP

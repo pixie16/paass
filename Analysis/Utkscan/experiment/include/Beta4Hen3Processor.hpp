@@ -1,7 +1,6 @@
 /** \file Beta4Hen3Processor.hpp
  *
  * Processor for beta scintillator detectors for 3Hen hybrid experiment
- * @authors K. Miernik
  */
 
 #ifndef __BETA4HEN3PROCESSOR_HPP_
@@ -14,10 +13,8 @@ class Beta4Hen3Processor : public BetaScintProcessor {
 public:
     /** Constructor taking two arguments */
     Beta4Hen3Processor(double gammaBetaLimit, double energyContracion);
-
     /** Process the events */
     virtual bool Process(RawEvent &event);
-
     /** Declare the plots */
     virtual void DeclarePlots(void);
 };

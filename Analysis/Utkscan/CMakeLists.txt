@@ -1,4 +1,3 @@
-# @author S. V. Paulauskas
 if (NOT PAASS_USE_GSL)
     message(FATAL_ERROR "GSL is required to build Utkscan!")
 endif (NOT PAASS_USE_GSL)
@@ -14,36 +13,44 @@ option(PAASS_UTKSCAN_VERBOSE "Make Scan More Verbose" OFF)
 add_definitions(-D newreadout)
 
 #utkscan will have Gamma-Gamma gating in the GeProcessor
-if (PAASS_UTKSCAN_GAMMA_GATES)
+if(PAASS_UTKSCAN_GAMMA_GATES)
     add_definitions(-D GGATES)
-endif (PAASS_UTKSCAN_GAMMA_GATES)
+endif(PAASS_UTKSCAN_GAMMA_GATES)
 
 #utkscan will be streamlined for online processing
-if (PAASS_UTKSCAN_ONLINE)
+if(PAASS_UTKSCAN_ONLINE)
     add_definitions(-D ONLINE)
-endif (PAASS_UTKSCAN_ONLINE)
+endif(PAASS_UTKSCAN_ONLINE)
 
 #utkscan will have debugging for the TreeCorrelator
-if (PAASS_UTKSCAN_TREE_DEBUG)
+if(PAASS_UTKSCAN_TREE_DEBUG)
     add_definitions(-D TREE_DEBUG)
-endif (PAASS_UTKSCAN_TREE_DEBUG)
+endif(PAASS_UTKSCAN_TREE_DEBUG)
 
 #utkscan will be more verbose in its output
-if (PAASS_UTKSCAN_VERBOSE)
+if(PAASS_UTKSCAN_VERBOSE)
     add_definitions(-D VERBOSE)
-endif (PAASS_UTKSCAN_VERBOSE)
+endif(PAASS_UTKSCAN_VERBOSE)
 
 #------------------------------------------------------------------------------
 
-include_directories(analyzers/include core/include experiment/include processors/include)
+#Add the local include directories to the build tree
+include_directories(analyzers/include core/include experiment/include
+        processors/include)
+
+#Add the Analyzers to the build
 add_subdirectory(analyzers)
+#Add the core classes to the build
 add_subdirectory(core)
+#Add the experiment specific processors to the build
 add_subdirectory(experiment)
+#Add the processors to the build
 add_subdirectory(processors)
 
 #------------------------------------------------------------------------------
 
-if (NOT PAASS_USE_HRIBF)
+#Create utkscan program
+if(NOT PAASS_USE_HRIBF)
     set(SCAN_NAME utkscan)
     add_executable(${SCAN_NAME}
             $<TARGET_OBJECTS:UtkscanMainObjects>
@@ -51,7 +58,7 @@ if (NOT PAASS_USE_HRIBF)
             $<TARGET_OBJECTS:UtkscanAnalyzerObjects>
             $<TARGET_OBJECTS:UtkscanProcessorObjects>
             $<TARGET_OBJECTS:UtkscanExperimentObjects>)
-else (PAASS_USE_HRIBF)
+else(PAASS_USE_HRIBF)
     set(SCAN_NAME utkscanor)
     add_executable(${SCAN_NAME}
             $<TARGET_OBJECTS:UtkscanMainObjects>
@@ -61,19 +68,25 @@ else (PAASS_USE_HRIBF)
             $<TARGET_OBJECTS:UtkscanExperimentObjects>
             $<TARGET_OBJECTS:ScanorObjects>)
     target_link_libraries(utkscanor ${HRIBF_LIBRARIES})
-endif (NOT PAASS_USE_HRIBF)
+endif(NOT PAASS_USE_HRIBF)
 
-target_link_libraries(${SCAN_NAME} ${LIBS} PaassScanStatic ResourceStatic PaassCoreStatic PugixmlStatic PaassResourceStatic)
+#Add libraries to be linked with utkscan
+target_link_libraries(${SCAN_NAME} ${LIBS} PaassScanStatic ResourceStatic
+        PaassCoreStatic PugixmlStatic)
 
-if (PAASS_USE_GSL)
+#If we have GSL installed link
+if(PAASS_USE_GSL)
     target_link_libraries(${SCAN_NAME} ${GSL_LIBRARIES})
-endif (PAASS_USE_GSL)
+endif(PAASS_USE_GSL)
 
-if (PAASS_USE_ROOT)
+#If ROOT is installed we'll link
+if(PAASS_USE_ROOT)
     target_link_libraries(${SCAN_NAME} ${ROOT_LIBRARIES})
-endif (PAASS_USE_ROOT)
+endif(PAASS_USE_ROOT)
 
 #------------------------------------------------------------------------------
 
+#Install utkscan to the bin directory
 install(TARGETS ${SCAN_NAME} DESTINATION bin)
+#Install configuration files to the share directory
 install(DIRECTORY share/utkscan DESTINATION share)

@@ -32,7 +32,6 @@ public:
         max_size_ = max_size;
         status_ = false;
     }
-
     /** Default Destructor */
     virtual ~Place() {};
 
@@ -42,33 +41,32 @@ public:
      * not affect status of children.
      * \param [in] child : defines a place as the child of another
      * \param [in] coin : sets if child is coincident or not */
-    virtual void addChild(Place *child, bool coin = true);
+    virtual void addChild(Place* child, bool coin = true);
 
     /** Checks is child is already listed among children.
      * In case it is, False value is returned.
      * \param [in] child : the child to be checked
      * \return true if not listed */
-    virtual bool checkChildren(Place *child);
+    virtual bool checkChildren(Place* child);
 
     /** Checks is child is its own parent or his parent parent (
      * uptree) etc. In such a case False is returned.
      * \param [in] child : the child to check
      * \return true if child is not its own parent */
-    virtual bool checkParents(Place *child);
+    virtual bool checkParents(Place* child);
 
     /** Activates Place and reports to the parent if place was not active,
      * always saves event data to the fifo.
      * \param [in] info : the info to use for the activation */
-    virtual void activate(EventData &info) {
-        if (!status_) {
+    virtual void activate(EventData& info) {
+        if(!status_) {
             status_ = true;
             add_info_(info);
             report_(info);
         } else {
-            add_info_(info);
+                add_info_(info);
         }
     }
-
     /** Simplified activation for counter-like detectors, without
      * need of creating EventData object outside.
      * \param [in] time : the time for the activation */
@@ -81,17 +79,17 @@ public:
      * recorded in fifo.
      * \param [in] time : the time at which to set the place */
     virtual void deactivate(double time) {
-        if (status_) {
-            status_ = false;
-            EventData info(time, status_);
-            add_info_(info);
-            report_(info);
-        } else {
-            EventData info(time, status_);
-            add_info_(info);
-        }
+        if(status_) {
+                status_ = false;
+                EventData info(time, status_);
+                add_info_(info);
+                report_(info);
+            }
+        else {
+                EventData info(time, status_);
+                add_info_(info);
+            }
     }
-
     /** Changes status to false without storing correlation
      * data or reporting to parents. Use only when ending current
      * event. For deactivation occuring due to physical conditions of
@@ -100,13 +98,13 @@ public:
 
     /** \return Logical AND operator for two Places.
     * \param [in] right : the place to use for comparison */
-    virtual bool operator&&(const Place &right) const {
+    virtual bool operator&& (const Place& right) const {
         return (*this)() && right();
     }
 
     /** \return Logical OR operator for two Places.
     * \param [in] right : the place to use for comparison */
-    virtual bool operator||(const Place &right) const {
+    virtual bool operator|| (const Place& right) const {
         return (*this)() || right();
     }
 
@@ -124,7 +122,7 @@ public:
      * (raises exception).
      * \param [in] index : the index of the data to get from the fifo
      * \return event data in fifo */
-    virtual EventData &operator[](unsigned index) {
+    virtual EventData& operator [](unsigned index) {
         return info_.at(index);
     }
 
@@ -132,7 +130,7 @@ public:
      * (raises exception).
      * \param [in] index : the index to get from the fifo
      * \return data in fifo */
-    virtual EventData operator[](unsigned index) const {
+    virtual EventData operator [](unsigned index) const {
         return info_.at(index);
     }
 
@@ -140,25 +138,26 @@ public:
      * is empty time=-1 event is returned
      * \return The last EventData entry in the fifo */
     virtual EventData last() {
-        if (info_.size() > 0)
+        if(info_.size() > 0)
             return info_.back();
         else {
-            EventData empty(-1);
-            return empty;
-        }
+                EventData empty(-1);
+                return empty;
+            }
     }
 
     /** Easy access to the second to last element of fifo. If fifo
      * has only one event, time=-1 event is returned.
      * \return Second to last event data */
     virtual EventData secondlast() {
-        if (info_.size() > 1) {
-            unsigned sz = info_.size();
-            return info_.at(sz - 2);
-        } else {
-            EventData empty(-1);
-            return empty;
-        }
+        if(info_.size() > 1) {
+                unsigned sz = info_.size();
+                return info_.at(sz - 2);
+            }
+        else {
+                EventData empty(-1);
+                return empty;
+            }
     }
 
     /** Returns true if place should automatically deactivate
@@ -169,7 +168,6 @@ public:
     virtual bool resetable() const {
         return resetable_;
     }
-
     /** Pythonic style private field. Use it if you must,
      * but perhaps you should not. Stores information on past
      * events in a given Place.*/
@@ -180,8 +178,7 @@ protected:
      * to change status depending on the status of children. Should be
      * implemented in a derived class.
      * \param [in] info : data to use for the check */
-    virtual void check_(EventData &info) = 0;
-
+    virtual void check_(EventData& info) = 0;
     /** Fifo (info_) depth */
     unsigned max_size_;
 
@@ -189,7 +186,7 @@ protected:
      * function only. The addParent function should be called by addChild.
      * \param [in] parent : the parent to add
      */
-    virtual void addParent_(Place *parent) {
+    virtual void addParent_(Place* parent) {
         parents_.push_back(parent);
     }
 
@@ -197,17 +194,17 @@ protected:
      * Calls check() function for all the parents.
      * \param [in] info : the information to report
      */
-    virtual void report_(EventData &info) {
-        std::vector<Place *>::iterator it;
-        for (it = parents_.begin(); it != parents_.end(); ++it)
+    virtual void report_(EventData& info) {
+        std::vector<Place*>::iterator it;
+        for(it = parents_.begin(); it != parents_.end(); ++it)
             (*it)->check_(info);
     }
 
     /** Add information to the place
     * \param [in] info : the information to add */
-    virtual void add_info_(const EventData &info) {
+    virtual void add_info_(const EventData& info) {
         info_.push_back(info);
-        while (info_.size() > max_size_)
+        while(info_.size() > max_size_)
             info_.pop_front();
     }
 
@@ -223,12 +220,12 @@ protected:
      * Place* is a pointer to the downstream place, bool describes relation
      * (true for coincidence-like, false for anti-coincidence).
      */
-    std::vector<std::pair<Place *, bool>> children_;
+    std::vector< std::pair<Place*, bool> > children_;
 
     /** Vector keeping a list of parents to whom the change of status
      * should be reported.
      */
-    std::vector<Place *> parents_;
+    std::vector<Place*> parents_;
 };
 
 /** \brief "Lazy" Place does not store multiple activation or deactivation events.
@@ -239,29 +236,28 @@ public:
     * \param [in] resetable : sets the place resetable or not
     * \param [in] max_size : the maximum size of the place */
     PlaceLazy(bool resetable = true, unsigned max_size = 2) :
-            Place(resetable, max_size) {}
+        Place(resetable, max_size) {}
 
     /** Activates Place and saves event data to deque only if place
      * was not active before.
      * \param [in] info : the information to use to activate the place */
-    virtual void activate(EventData &info) {
-        if (!status_) {
-            status_ = true;
-            add_info_(info);
-            report_(info);
-        }
+    virtual void activate(EventData& info) {
+        if(!status_) {
+                status_ = true;
+                add_info_(info);
+                report_(info);
+            }
     }
-
     /** Changes status to false, time and status change is
      * recorded in fifo only if Place was active before.
      * \param [in] time : the time to deactivate the place */
     virtual void deactivate(double time) {
-        if (status_) {
-            status_ = false;
-            EventData info(time, status_);
-            add_info_(info);
-            report_(info);
-        }
+        if(status_) {
+                status_ = false;
+                EventData info(time, status_);
+                add_info_(info);
+                report_(info);
+            }
     }
 };
 
@@ -273,12 +269,11 @@ public:
     * \param [in] resetable : sets the place to be resetable or not
     * \param [in] max_size : sets the maximum size of the place */
     PlaceDetector(bool resetable = true, unsigned max_size = 2) :
-            Place(resetable, max_size) {}
-
+        Place(resetable, max_size) {}
 protected:
     /** This function is empty here - this place does not depend on children status
      * \param [in] info : is not used for anything */
-    virtual void check_(EventData &info) {};
+    virtual void check_(EventData& info){};
 };
 
 /** \brief Each activation must be within the set thresholds. */
@@ -299,15 +294,15 @@ public:
 
     /** Activate place only if energy is within set limits or both limits are 0 (no threshold).
      * \param [in] info : the event information to use to activate */
-    void activate(EventData &info) {
-        if (low_limit_ == 0 && high_limit_ == 0)
+    void activate(EventData& info) {
+        if(low_limit_ == 0 && high_limit_ == 0)
             Place::activate(info);
-        else if (info.energy > low_limit_ && info.energy < high_limit_)
+        else if(info.energy > low_limit_ && info.energy < high_limit_)
             Place::activate(info);
     }
 
     /** \return the low limit for the threshold */
-    double getLowLimit() { return low_limit_; };
+    double getLowLimit() {return low_limit_; };
 
     /** \return the high limit for the threshold */
     double getHighLimit() { return high_limit_; };
@@ -316,7 +311,7 @@ protected:
     /** \brief Does not depend on children.
     * If you need some behaviour derive a new class from this one.
     * \param [in] info : the information to use for the threshold check */
-    virtual void check_(EventData &info) {};
+    virtual void check_(EventData& info){};
 
     double low_limit_;//!< low limit for the threshold
     double high_limit_;//!< high limit for the threshold
@@ -334,13 +329,13 @@ public:
     * \param [in] max_size : the  maximum size of the place */
     PlaceThresholdOR(double low_limit, double high_limit, bool resetable = true,
                      unsigned max_size = 2)
-            : PlaceThreshold(low_limit, high_limit, resetable, max_size) {
+        : PlaceThreshold(low_limit, high_limit, resetable, max_size) {
     };
 
 protected:
     /** \brief Checks if the OR should be activated or not
     * \param [in] info : the information to use for the threshold check */
-    virtual void check_(EventData &info);
+    virtual void check_(EventData& info);
 };
 
 //!Counts number of activations coming from directly or from children.
@@ -350,13 +345,13 @@ public:
     * \param [in] resetable : sets the place resetable or not
     * \param [in] max_size : sets the maximum size of the place */
     PlaceCounter(bool resetable = true, unsigned max_size = 2)
-            : Place(resetable, max_size) {
+        : Place(resetable, max_size) {
         counter_ = 0;
     }
 
     /** Activate the place
     * \param [in] info : data to activate the place with */
-    void activate(EventData &info) {
+    void activate(EventData& info) {
         ++counter_;
         Place::activate(info);
     }
@@ -384,7 +379,7 @@ protected:
 
     /** \brief Checks to see if a place is active
     * \param [in] info : the information to use for the threshold check */
-    virtual void check_(EventData &info);
+    virtual void check_(EventData& info);
 };
 
 /** \brief An abstract place using OR logic to set the activation of places
@@ -401,8 +396,7 @@ public:
     * \param [in] resetable : whether or not the place is resetable
     * \param [in] max_size : the maximum size of the place */
     PlaceOR(bool resetable = true, unsigned max_size = 2) :
-            Place(resetable, max_size) {}
-
+        Place(resetable, max_size) {}
 protected:
     /** Check to see if we should activate anybody
     *
@@ -413,7 +407,7 @@ protected:
     * Thus we check (children_[i].first->status() == children_[i].second)
     * where first is pointer to child Place, second is bool (relation)
     * \param [in] info : the event data to check for an activation*/
-    virtual void check_(EventData &info);
+    virtual void check_(EventData& info);
 };
 
 /** \brief Similar to PlaceOR but uses AND relation.
@@ -429,15 +423,13 @@ public:
     * \param [in] resetable : whether or not the place is resetable
     * \param [in] max_size : the maximum size of the place */
     PlaceAND(bool resetable = true, unsigned max_size = 2) :
-            Place(resetable, max_size) {}
-
+        Place(resetable, max_size) {}
 protected:
     /** Check the event for the AND
     *
     * Take first child to get initial state. Browse through other children
     * if result is false break (AND will be false anyway)
     * \param [in] info : the event data to search through */
-    virtual void check_(EventData &info);
+    virtual void check_(EventData& info);
 };
-
 #endif

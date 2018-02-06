@@ -10,20 +10,20 @@
 
 using namespace std;
 
-TimingMapBuilder::TimingMapBuilder(const std::vector<ChanEvent *> &evts) {
+TimingMapBuilder::TimingMapBuilder(const std::vector<ChanEvent*> &evts) {
     FillMaps(evts);
 }
 
-void TimingMapBuilder::FillMaps(const std::vector<ChanEvent *> &evts) {
+void TimingMapBuilder::FillMaps(const std::vector<ChanEvent*> &evts) {
     map_.clear();
-    for (vector<ChanEvent *>::const_iterator it = evts.begin();
-         it != evts.end(); it++) {
-        ChannelConfiguration id = (*it)->GetChanID();
+    for(vector<ChanEvent*>::const_iterator it = evts.begin();
+    it != evts.end(); it++) {
+        Identifier id = (*it)->GetChanID();
         TimingDefs::TimingIdentifier key(id.GetLocation(), id.GetSubtype());
 
         HighResTimingData data(*(*it));
-        if (!data.GetIsValid())
+        if(!data.GetIsValid())
             continue;
-        map_.insert(make_pair(key, data));
+        map_.insert(make_pair(key,data));
     }
 }

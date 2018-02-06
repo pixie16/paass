@@ -1,6 +1,5 @@
 /** \file EventData.hpp
  * \brief Structure holding event data
- * @authors K. Miernik, S. V. Paulauskas
  */
 #ifndef EVENT_DATA_H
 #define EVENT_DATA_H
@@ -50,5 +49,4 @@ public:
     int location;//!< the location of the detector
     std::string type;//!< the detector type
 };
-
 #endif

@@ -1,8 +1,3 @@
-#author S. V. Paulauskas
-add_executable(unittest-ChannelConfiguration unittest-ChannelConfiguration.cpp)
-target_link_libraries(unittest-ChannelConfiguration UnitTest++ ${LIBS})
-install(TARGETS unittest-ChannelConfiguration DESTINATION bin/unittests)
-
 if (PAASS_USE_GSL)
     if (${GSL_VERSION} GREATER 1.9)
         set(GSL_FITTER_SOURCES ../source/Gsl2Fitter.cpp)
@@ -30,6 +25,7 @@ install(TARGETS unittest-TraditionalCfd DESTINATION bin/unittests)
 if (PAASS_USE_ROOT)
     add_executable(unittest-RootFitter unittest-RootFitter.cpp
             ../source/RootFitter.cpp ../source/VandleTimingFunction.cpp)
-    target_link_libraries(unittest-RootFitter ${ROOT_LIBRARIES} UnitTest++)
+    target_link_libraries(unittest-RootFitter
+            ${ROOT_LIBRARIES})
     install(TARGETS unittest-RootFitter DESTINATION bin/unittests)
 endif (PAASS_USE_ROOT)

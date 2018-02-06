@@ -4,7 +4,6 @@
 ///@date December 2, 2016
 #ifndef PIXIESUITE_PROCESSEDXIADATA_HPP
 #define PIXIESUITE_PROCESSEDXIADATA_HPP
-
 #include "Trace.hpp"
 #include "XiaData.hpp"
 
@@ -15,7 +14,7 @@
 class ProcessedXiaData : public XiaData {
 public:
     /// Default constructor.
-    ProcessedXiaData() {}
+    ProcessedXiaData() { }
 
     ///Constructor taking the base class as an argument so that we can set
     /// the trace information properly
@@ -23,11 +22,10 @@ public:
     ProcessedXiaData(XiaData &evt) : XiaData(evt) {
         trace_ = evt.GetTrace();
         trace_.SetIsSaturated(evt.IsSaturated());
-        walkCorrectedTime_ = 0;
     };
 
     /// Default Destructor.
-    ~ProcessedXiaData() {}
+    ~ProcessedXiaData() { }
 
     ///@return The calibrated energy for the channel
     double GetCalibratedEnergy() const { return calibratedEnergy_; }

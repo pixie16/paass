@@ -1,5 +1,3 @@
-# @author S.V. Paulauskas
-
 [Unit]
 Description=Service file for PLX Driver 9054 for communication with XIA Pixie16 Modules
 

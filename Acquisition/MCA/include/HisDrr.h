@@ -11,7 +11,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include "DrrBlock.h"
+#include "DrrBlock.h" 
 
 /**
  * This structure is used for creating new his and drr files.
@@ -44,7 +44,7 @@ public:
      * and passing fstreams creating them on heap (new).
      * Ones is passed the HisDrr takes the ownership to pointers.
      * Dtor will close files and delete pointers.*/
-    HisDrr(fstream *drr, fstream *his);
+    HisDrr(fstream* drr, fstream* his);
 
     /** Constructor taking names and opening fstreams. */
     HisDrr(const string &drr, const string &his);
@@ -54,11 +54,11 @@ public:
 
     /** Dtor, closing files and deleting memory. */
     virtual ~HisDrr() {
-        drrFile->close();
-        hisFile->close();
-        delete drrFile;
-        delete hisFile;
-    }
+                drrFile->close();
+                hisFile->close();
+                delete drrFile;
+                delete hisFile;
+            }
 
     /** Returns specified histogram data. */
     virtual void getHistogram(vector<unsigned int> &rtn, int id);
@@ -89,10 +89,10 @@ private:
     vector<DrrHisRecordExtended> hisList;
 
     /** Pointer to drr file containing information about his structure. */
-    fstream *drrFile;
+    fstream* drrFile;
 
     /** Pointer to his file containg data. */
-    fstream *hisFile;
+    fstream* hisFile;
 
     /** Reads block of data from drr file. */
     void readBlock(drrBlock *block);

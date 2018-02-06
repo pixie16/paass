@@ -1,59 +1,75 @@
-///@file DetectorSummary.hpp
-///@brief A class that generates summaries of detector types/subtypes/tags that are requested by the user.
-///@author D. Miller, K. Miernik, S. V. Paulauskas
-///@date May 28, 2017
-#include <stdexcept>
-
+/*! \file DetectorSummary.cpp
+ *  \brief The class that generates the summary of the detectors in the analysis
+ *  \author Unknown
+ *  \date Unknown
+ */
 #include "DetectorSummary.hpp"
-#include "StringManipulationFunctions.hpp"
 
 using namespace std;
 
 void DetectorSummary::Zero() {
-    eventList_.clear();
-    maxEvent_ = NULL;
+    eventList.clear();
+    maxEvent = NULL;
 }
 
 DetectorSummary::DetectorSummary() {
-    maxEvent_ = NULL;
+    maxEvent = NULL;
 }
 
-DetectorSummary::DetectorSummary(const std::string &str, const std::vector<ChanEvent *> &fullList) : name_(str) {
-    if (str == "")
-        throw invalid_argument("DetectorSummary::DetectorSummary : Received a request using an empty summary name.");
+DetectorSummary::DetectorSummary(const std::string &str,
+				 const std::vector<ChanEvent *> &fullList) : name(str) {
+    maxEvent = NULL;
 
-    maxEvent_ = NULL;
+    // go find all channel events with appropriate type and subtype
+    size_t colonPos = str.find_first_of(":");
+    size_t colonPos1 = str.find_last_of(":");
 
-    vector<string> tokens = StringManipulation::TokenizeString(str, ":");
+    type = str.substr(0, colonPos);
 
-    switch (tokens.size()) {
-        case 3:
-            tag_ = tokens.at(2);
-        case 2:
-            subtype_ = tokens.at(1);
-        case 1:
-            type_ = tokens.at(0);
-            break;
-        default:
-            throw invalid_argument("DetectorSummary::DetectorSummary - Too many tokens in the string: " + str);
+    if (colonPos == string::npos) {
+	subtype = ""; // no associated subtype
+    } else {
+	if(colonPos != colonPos1) {
+	    subtype = str.substr(colonPos+1, colonPos1-colonPos-1);
+	    tag = str.substr(colonPos1+1);
+	} else {
+	    subtype = str.substr(colonPos+1);
+	    tag = "";
+	}
     }
 
-    for (vector<ChanEvent *>::const_iterator it = fullList.begin(); it != fullList.end(); it++) {
-        const ChannelConfiguration &id = (*it)->GetChanID();
-        if ( id.GetType() != type_ )
+    for (vector<ChanEvent *>::const_iterator it = fullList.begin();
+	 it != fullList.end(); it++) {
+        const Identifier& id = (*it)->GetChanID();
+
+        if ( id.GetType() != type )
             continue;
-        if ( subtype_ != "" && id.GetSubtype() != subtype_ )
+        if ( subtype != "" && id.GetSubtype() != subtype )
             continue;
-        if (tag_ != "" && !id.HasTag(tag_))
+        if (tag != "" && !id.HasTag(tag))
             continue;
         AddEvent(*it);
     }
 }
 
 void DetectorSummary::AddEvent(ChanEvent *ev) {
-    eventList_.push_back(ev);
+    eventList.push_back(ev);
 
-    if (maxEvent_ == NULL || ev->GetCalibratedEnergy() > maxEvent_->GetCalibratedEnergy())
-        maxEvent_ = ev;
+    if (maxEvent == NULL || ev->GetCalibratedEnergy() > maxEvent->GetCalibratedEnergy()) {
+        maxEvent = ev;
+    }
+}
+
+/** \brief Override the < operator
+ *
+ * To use the detector summary in the STL map it is necessary to define the
+ * behavior of the "<" operator.  The "<" operator between a and b is defined
+ * as whether the name for a is less than the name for b.
+ * \param [in] a : the Summary on the LHS
+ * \param [in] b : the summary on the RHS
+ * \return true if LHS is less than RHS
+ */
+bool operator<(const DetectorSummary &a, const DetectorSummary &b) {
+    return a.GetName() < b.GetName();
 }
 

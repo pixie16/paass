@@ -1,6 +1,5 @@
 /** \file NeutronScintProcessor.cpp
  *
- * @authors D. Miller, K. Miernik, S. V. Paulauskas
  * implementation for scintillator processor
  */
 #include <vector>
@@ -30,46 +29,40 @@ namespace dammIds {
 }
 
 NeutronScintProcessor::NeutronScintProcessor() :
-        EventProcessor(OFFSET, RANGE, "NeutronScintProcessor") {
+    EventProcessor(OFFSET, RANGE, "NeutronScintProcessor") {
     associatedTypes.insert("neutron_scint");
 }
 
 void NeutronScintProcessor::DeclarePlots(void) {
-    DeclareHistogram1D(betaGated::D_ENERGY_DETX + 0, SE,
-                       "beta gated scint1 sig1");
-    DeclareHistogram1D(betaGated::D_ENERGY_DETX + 1, SE,
-                       "beta gated scint1 sig2");
-    DeclareHistogram1D(betaGated::D_ENERGY_DETX + 2, SE, "beta gated 3Hen");
+	DeclareHistogram1D(betaGated::D_ENERGY_DETX + 0, SE, "beta gated scint1 sig1");
+	DeclareHistogram1D(betaGated::D_ENERGY_DETX + 1, SE, "beta gated scint1 sig2");
+	DeclareHistogram1D(betaGated::D_ENERGY_DETX + 2, SE, "beta gated 3Hen");
 
-    DeclareHistogram1D(gammaGated::D_ENERGY_DETX + 0, SE,
-                       "gamma gated scint1 sig1");
-    DeclareHistogram1D(gammaGated::D_ENERGY_DETX + 1, SE,
-                       "gamma gated scint1 sig2");
-    DeclareHistogram1D(gammaGated::D_ENERGY_DETX + 2, SE, "gamma gated 3Hen");
+	DeclareHistogram1D(gammaGated::D_ENERGY_DETX + 0, SE, "gamma gated scint1 sig1");
+	DeclareHistogram1D(gammaGated::D_ENERGY_DETX + 1, SE, "gamma gated scint1 sig2");
+	DeclareHistogram1D(gammaGated::D_ENERGY_DETX + 2, SE, "gamma gated 3Hen");
 
-    DeclareHistogram1D(betaGammaGated::D_ENERGY_DETX + 0, SE,
-                       "beta-gamma gated scint1 sig1");
-    DeclareHistogram1D(betaGammaGated::D_ENERGY_DETX + 1, SE,
-                       "beta-gamma gated scint1 sig2");
-    DeclareHistogram1D(betaGammaGated::D_ENERGY_DETX + 2, SE,
-                       "beta-gamma gated 3Hen");
+	DeclareHistogram1D(betaGammaGated::D_ENERGY_DETX + 0, SE, "beta-gamma gated scint1 sig1");
+	DeclareHistogram1D(betaGammaGated::D_ENERGY_DETX + 1, SE, "beta-gamma gated scint1 sig2");
+	DeclareHistogram1D(betaGammaGated::D_ENERGY_DETX + 2, SE, "beta-gamma gated 3Hen");
 }
 
-bool NeutronScintProcessor::PreProcess(RawEvent &event) {
+bool NeutronScintProcessor::PreProcess(RawEvent &event){
     if (!EventProcessor::PreProcess(event))
         return false;
     return true;
 }
 
-bool NeutronScintProcessor::Process(RawEvent &event) {
+bool NeutronScintProcessor::Process(RawEvent &event)
+{
     if (!EventProcessor::Process(event))
         return false;
 
-    static const vector<ChanEvent *> &scintNeutrEvents =
-            event.GetSummary("neutron_scint:neutr")->GetList();
+    static const vector<ChanEvent*> &scintNeutrEvents =
+	event.GetSummary("neutron_scint:neutr")->GetList();
 
-    for (vector<ChanEvent *>::const_iterator it = scintNeutrEvents.begin();
-         it != scintNeutrEvents.end(); it++) {
+    for (vector<ChanEvent*>::const_iterator it = scintNeutrEvents.begin();
+	 it != scintNeutrEvents.end(); it++) {
 
         ChanEvent *chan = *it;
         int loc = chan->GetChanID().GetLocation();

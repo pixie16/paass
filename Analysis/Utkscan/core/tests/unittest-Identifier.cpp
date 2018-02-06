@@ -13,52 +13,64 @@
 using namespace std;
 
 ///Testing the set/get for the dammid
-TEST_FIXTURE (Identifier, Test_GetAndSetDammID) {
+TEST_FIXTURE(Identifier, Test_GetAndSetDammID) {
     unsigned int dammid = 12;
     SetDammID(dammid);
-    CHECK (GetDammID() == dammid);
+    CHECK(GetDammID() == dammid);
 }
 
 ///Testing the set/get for the location
-TEST_FIXTURE (Identifier, Test_GetAndSetLocation) {
+TEST_FIXTURE(Identifier, Test_GetAndSetLocation) {
     unsigned int loc = 111;
     SetLocation(loc);
-    CHECK (GetLocation() == loc);
+    CHECK(GetLocation() == loc);
 }
 
 ///Testing the set/get for the type
-TEST_FIXTURE (Identifier, Test_GetAndSetType) {
+TEST_FIXTURE(Identifier, Test_GetAndSetType) {
     string type = "unittest";
     SetType(type);
-    CHECK (GetType() == type);
+    CHECK(GetType() == type);
 }
 
 ///Testing the set/get for the subtype
-TEST_FIXTURE (Identifier, Test_GetAndSetSubtype) {
+TEST_FIXTURE(Identifier, Test_GetAndSetSubtype) {
     string type = "unittest";
     SetSubtype(type);
-    CHECK (GetSubtype() == type);
+    CHECK(GetSubtype() == type);
 }
 
 ///Testing the set/get for tags
-TEST_FIXTURE (Identifier, Test_GetAndSetTag) {
+TEST_FIXTURE(Identifier, Test_GetAndSetTag) {
     string tag = "unittest";
-    AddTag(tag);
-    CHECK(HasTag(tag));
+    AddTag(tag, 1234);
+    CHECK(GetTag(tag) == 1234);
+}
 
-    set<string> testset;
-    testset.insert(tag);
-    CHECK (GetTags() == testset);
+///Testing the get for the map of tags
+TEST_FIXTURE(Identifier, Test_GetTagMap) {
+    string tag = "unittest";
+    AddTag(tag, 1234);
+    map<string, int> testmap;
+    testmap.insert(make_pair(tag, 1234));
+    CHECK(GetTagMap() == testmap);
+}
+
+///Testing for when we have a tag.
+TEST_FIXTURE(Identifier, Test_HasTag) {
+    string tag = "unittest";
+    AddTag(tag, 12345);
+    CHECK(HasTag(tag));
 }
 
 ///Testing the case that we have a missing tag
-TEST_FIXTURE (Identifier, Test_HasMissingTag) {
+TEST_FIXTURE(Identifier, Test_HasMissingTag) {
     string tag = "unittest";
-    CHECK(!HasTag(tag));
+    CHECK(! HasTag(tag));
 }
 
 //Check the comparison operators
-TEST_FIXTURE (Identifier, Test_Comparison) {
+TEST_FIXTURE(Identifier, Test_Comparison) {
     string type = "unit";
     string subtype = "test";
     unsigned int loc = 112;
@@ -78,18 +90,18 @@ TEST_FIXTURE (Identifier, Test_Comparison) {
 }
 
 ///Testing that the place name is returning the proper value
-TEST_FIXTURE (Identifier, Test_PlaceName) {
+TEST_FIXTURE(Identifier, Test_PlaceName) {
     string type = "unit";
     string subtype = "test";
     unsigned int loc = 112;
     SetSubtype(subtype);
     SetType(type);
     SetLocation(loc);
-    CHECK (GetPlaceName() == "unit_test_112");
+    CHECK(GetPlaceName() == "unit_test_112");
 }
 
 ///Test that the zero function is performing it's job properly
-TEST_FIXTURE (Identifier, Test_Zero) {
+TEST_FIXTURE(Identifier, Test_Zero){
     Identifier id("unit", "test", 123);
     id.Zero();
     CHECK(*this == id);

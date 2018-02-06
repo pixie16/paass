@@ -1,15 +1,17 @@
-# @author S. V. Paulauskas
 set(CORE_SOURCES
         BarBuilder.cpp
         Calibrator.cpp
+        ChanEvent.cpp
         DetectorDriver.cpp
-        DetectorDriverXmlParser.cpp
         DetectorLibrary.cpp
         DetectorSummary.cpp
         Globals.cpp
-        GlobalsXmlParser.cpp
-        MapNodeXmlParser.cpp
+        Identifier.cpp
+        Messenger.cpp
+        Notebook.cpp
+        RandomPool.cpp
         RawEvent.cpp
+        #  StatsData.cpp
         TimingCalibrator.cpp
         TimingMapBuilder.cpp
         UtkScanInterface.cpp
@@ -17,11 +19,9 @@ set(CORE_SOURCES
         WalkCorrector.cpp)
 
 set(CORRELATION_SOURCES
-        Correlator.cpp
         PlaceBuilder.cpp
         Places.cpp
-        TreeCorrelator.cpp
-        TreeCorrelatorXmlParser.cpp)
+        TreeCorrelator.cpp)
 
 set(PLOTTING_SOURCES
         Plots.cpp
@@ -35,4 +35,6 @@ endif (NOT PAASS_USE_HRIBF)
 
 add_library(UtkscanMainObjects OBJECT ${MAIN_SOURCES})
 
-add_library(UtkscanCoreObjects OBJECT ${CORE_SOURCES} ${CORRELATION_SOURCES} ${PLOTTING_SOURCES})
+add_library(UtkscanCoreObjects OBJECT ${CORE_SOURCES} ${CORRELATION_SOURCES}
+    ${PLOTTING_SOURCES}
+)

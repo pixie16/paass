@@ -1,7 +1,6 @@
 /*! \file Ge4Hen3Processor.hpp
  *
  * Processor for germanium detectors for 3Hen experiment
- * @authors K. Miernik
  */
 #ifndef __GE4HEN3PROCESSOR_HPP_
 #define __GE4HEN3PROCESSOR_HPP_
@@ -18,14 +17,12 @@ class Ge4Hen3Processor : public GeProcessor {
 public:
     /** Constructor taking same arguments as GeProcessor */
     Ge4Hen3Processor(double gammaThreshold, double lowRatio,
-                     double highRatio, double subEventWindow,
-                     double gammaBetaLimit, double gammaGammaLimit,
-                     double cycle_gate1_min, double cycle_gate1_max,
-                     double cycle_gate2_min, double cycle_gate2_max);
-
+                double highRatio, double subEventWindow,
+                double gammaBetaLimit, double gammaGammaLimit,
+                double cycle_gate1_min, double cycle_gate1_max,
+                double cycle_gate2_min, double cycle_gate2_max);
     /** Process the event */
     virtual bool Process(RawEvent &event);
-
     /** Declare the plots */
     virtual void DeclarePlots(void);
 };

@@ -18,6 +18,10 @@
 using namespace std;
 using namespace dammIds::raw;
 
+/// Contains event information, the information is filled in ScanList() and is
+/// referenced in DetectorDriver.cpp, particularly in ProcessEvent().
+RawEvent rawev;
+
 ///The only thing that we do here is call the destructor of the
 /// DetectorDriver. This will ensure that the memory is freed for all of the
 /// initialized detector and experiment processors and that information about
@@ -35,10 +39,14 @@ UtkUnpacker::~UtkUnpacker() {
 /// ignore chunks of data. We also make some calls to various other private
 /// methods to plot useful spectra and output processing information to the
 /// screen.
-void UtkUnpacker::ProcessRawEvent() {
-    static RawEvent rawev;
+/// @TODO Remove the conversion from XiaData to ChanEvent, these two classes
+/// are effectively identical. This is referenced in issue #
+void UtkUnpacker::ProcessRawEvent(ScanInterface *addr_/*=NULL*/) {
+    if (!addr_)
+        return;
+
     DetectorDriver *driver = DetectorDriver::get();
-    DetectorLibrary *detectorLibrary = DetectorLibrary::get();
+    DetectorLibrary *modChan = DetectorLibrary::get();
     set<string> usedDetectors;
     Messenger m;
     stringstream ss;
@@ -49,51 +57,59 @@ void UtkUnpacker::ProcessRawEvent() {
     static unsigned int eventCounter = 0;
 
     if (eventCounter == 0)
-        InitializeDriver(driver, detectorLibrary, rawev, systemStartTime);
-    else if (eventCounter % 5000 == 0 || eventCounter == 1)
-        PrintProcessingTimeInformation(systemStartTime, times(&systemTimes), GetEventStartTime(), eventCounter);
+        InitializeDriver(driver, modChan, systemStartTime);
+    else if(eventCounter % 5000 == 0 || eventCounter == 1)
+        PrintProcessingTimeInformation(systemStartTime, times(&systemTimes),
+            GetEventStartTime(), eventCounter);
 
-    if (Globals::get()->HasRejectionRegion()) {
-        double eventTime = (GetEventStartTime() - GetFirstTime()) * Globals::get()->GetClockInSeconds();
-        vector <pair<unsigned int, unsigned int>> rejectRegions = Globals::get()->GetRejectionRegions();
+    if (Globals::get()->hasReject()) {
+        double eventTime = (GetEventStartTime() - GetFirstTime()) *
+                                Globals::get()->clockInSeconds();
 
-        for (vector<pair<unsigned int, unsigned int> >::iterator region = rejectRegions.begin();
+        vector< pair<int, int> > rejectRegions = Globals::get()->rejectRegions();
+
+        for (vector<pair<int, int> >::iterator region = rejectRegions.begin();
              region != rejectRegions.end(); ++region)
             if (eventTime > region->first && eventTime < region->second)
                 return;
     }
 
-    driver->plot(D_EVENT_GAP, (GetRealStopTime() - lastTimeOfPreviousEvent) * Globals::get()->GetClockInSeconds() * 1e9);
-    driver->plot(D_BUFFER_END_TIME, GetRealStopTime() * Globals::get()->GetClockInSeconds() * 1e9);
-    driver->plot(D_EVENT_LENGTH, (GetRealStopTime() - GetRealStartTime()) * Globals::get()->GetClockInSeconds() * 1e9);
+    driver->plot(D_EVENT_GAP, (GetRealStopTime() - lastTimeOfPreviousEvent) *
+            Globals::get()->clockInSeconds()*1e9);
+    driver->plot(D_BUFFER_END_TIME, GetRealStopTime() *
+            Globals::get()->clockInSeconds()*1e9);
+    driver->plot(D_EVENT_LENGTH, (GetRealStopTime() - GetRealStartTime()) *
+            Globals::get()->clockInSeconds()*1e9);
     driver->plot(D_EVENT_MULTIPLICITY, rawEvent.size());
 
     //loop over the list of channels that fired in this event
-    for (deque<XiaData *>::iterator it = rawEvent.begin(); it != rawEvent.end(); it++) {
+    for (deque<XiaData *>::iterator it = rawEvent.begin();
+         it != rawEvent.end(); it++) {
 
         if (!(*it))
             continue;
 
         RawStats((*it), driver);
 
-        if ((*it)->GetId() == std::numeric_limits<unsigned int>::max()) {
+        if ((*it)->GetId() == pixie::U_DELIMITER) {
             ss << "pattern 0 ignore";
             m.warning(ss.str());
             ss.str("");
             continue;
         }
 
-        ///@TODO this will fail if the user does not define enough modules in the map. Related to pixie16/paass:#103
-        if (detectorLibrary->at((*it)->GetId()).GetType() == "ignore")
+        //Do not input the channel into the list of detectors used in the event
+        if ((*modChan)[(*it)->GetId()].GetType() == "ignore")
             continue;
 
+        // Convert an XiaData to a ChanEvent
         ///@TODO we need to ensure that all of the memory is getting freed
         /// appropriately at the end of processing an event. I'm not sure
         /// that it is right now.
         ChanEvent *event = new ChanEvent(*(*it));
 
-        ///@TODO This will also fail if the user doesn't define enough modules in the map. Related to pixie16/paass:#103
-        usedDetectors.insert((*detectorLibrary)[(*it)->GetId()].GetType());
+        //Add the ChanEvent pointer to the rawev and used detectors.
+        usedDetectors.insert((*modChan)[(*it)->GetId()].GetType());
         rawev.AddChan(event);
 
         ///@TODO Add back in the processing for the dtime.
@@ -104,8 +120,9 @@ void UtkUnpacker::ProcessRawEvent() {
         rawev.Zero(usedDetectors);
         usedDetectors.clear();
 
-        ///@TODO I think that this is done twice, it needs to be investigated.
-        for (map<string, Place *>::iterator it = TreeCorrelator::get()->places_.begin();
+        // If a place has a resetable type then reset it.
+        for (map<string, Place *>::iterator it =
+                TreeCorrelator::get()->places_.begin();
              it != TreeCorrelator::get()->places_.end(); ++it)
             if ((*it).second->resetable())
                 (*it).second->reset();
@@ -115,6 +132,7 @@ void UtkUnpacker::ProcessRawEvent() {
 
     eventCounter++;
     lastTimeOfPreviousEvent = GetRealStopTime();
+
 }
 
 /// This method plots information about the running time of the program, the
@@ -122,18 +140,20 @@ void UtkUnpacker::ProcessRawEvent() {
 /// spectra are critical when we are trying to debug potential data losses in
 /// the system. These spectra print the total number of counts in a given
 /// (milli)second of time.
-void UtkUnpacker::RawStats(XiaData *event_, DetectorDriver *driver) {
+void UtkUnpacker::RawStats(XiaData *event_, DetectorDriver *driver,
+                           ScanInterface *addr_) {
     int id = event_->GetId();
     static const int specNoBins = SE;
     static double runTimeSecs = 0, remainNumSecs = 0;
     static double runTimeMsecs = 0, remainNumMsecs = 0;
     static int rowNumSecs = 0, rowNumMsecs = 0;
 
-    runTimeSecs = (event_->GetTime() - GetFirstTime()) * Globals::get()->GetClockInSeconds();
+    runTimeSecs = (event_->GetTime() - GetFirstTime()) *
+                  Globals::get()->clockInSeconds();
     rowNumSecs = int(runTimeSecs / specNoBins);
     remainNumSecs = runTimeSecs - rowNumSecs * specNoBins;
 
-    runTimeMsecs = runTimeSecs * 1000;
+    runTimeMsecs = runTimeSecs*1000;
     rowNumMsecs = int(runTimeMsecs / specNoBins);
     remainNumMsecs = runTimeMsecs - rowNumMsecs * specNoBins;
 
@@ -152,7 +172,8 @@ void UtkUnpacker::RawStats(XiaData *event_, DetectorDriver *driver) {
 /// a General Exception here. This can be extremely useless sometimes...
 /// @TODO Expand the types of exceptions handled so that we can make the
 /// diagnostic information more useful for the user.
-void UtkUnpacker::InitializeDriver(DetectorDriver *driver, DetectorLibrary *detlib, RawEvent &rawev, clock_t &start) {
+void UtkUnpacker::InitializeDriver(DetectorDriver *driver,
+                                   DetectorLibrary *detlib, clock_t &start) {
     struct tms systemTimes;
     Messenger m;
     stringstream ss;
@@ -163,11 +184,7 @@ void UtkUnpacker::InitializeDriver(DetectorDriver *driver, DetectorLibrary *detl
     m.detail(ss.str());
     ss.str("");
 
-    if(GetMaxModuleInFile() != detlib->GetModules() - 1)
-        throw invalid_argument("UtkUnpacker::InitializeDriver - You did not define the last module (" +
-                                       to_string(GetMaxModuleInFile()) + ") in the configuration file. This is fatal.");
-
-    //detlib->PrintUsedDetectors(rawev);
+    detlib->PrintUsedDetectors(rawev);
     driver->Init(rawev);
 
     try {
@@ -194,8 +211,9 @@ void UtkUnpacker::InitializeDriver(DetectorDriver *driver, DetectorLibrary *detl
 /// to this point. One should note that this does not contain all of the
 /// information that was present in PixieStd.cpp::hissub_. Some of that
 /// information is not available or just not that relevant to us.
-void UtkUnpacker::PrintProcessingTimeInformation(const clock_t &start, const clock_t &now, const double &eventTime,
-                                                 const unsigned int &eventCounter) {
+void UtkUnpacker::PrintProcessingTimeInformation(const clock_t &start,
+        const clock_t &now, const double &eventTime,
+        const unsigned int &eventCounter) {
     Messenger m;
     stringstream ss;
     static float hz = sysconf(_SC_CLK_TCK);

@@ -65,7 +65,7 @@
         </Trace>
         <Fitting>
             <SigmaBaselineThresh value="3.0"/>
-            <SiPmtSigmaBaselineThresh value="25.0"/>
+            <SiPmtSigmaBaselineThresh value = "25.0"/>
             <Vandle>
                 <Beta value="0.32969"/>
                 <Gamma value="0.212945"/>

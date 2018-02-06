@@ -1,6 +1,5 @@
 /** \file McpProcessor.hpp
  * \brief Class for handling position-sensitive mcp signals
- * @authors D. Miller
  */
 #ifndef __MCPPROCESSOR_HPP_
 #define __MCPPROCESSOR_HPP_
@@ -12,14 +11,22 @@ class McpProcessor : public EventProcessor {
 public:
     /** Default Constructor */
     McpProcessor();
-
     /** Declare the plots for the analysis */
-    void DeclarePlots(void);
-
+    virtual void DeclarePlots(void);
     /** Process the event
      * \param [in] rEvent : the event to process
      * \return true if the process was successful */
-    bool PreProcess(RawEvent &rEvent);
+    virtual bool Process(RawEvent &rEvent);
+
+#ifdef useroot
+    /** Add the branch to the tree
+    * \param [in] tree : the tree to add the branch to
+    * \return true if you could do it */
+    virtual bool AddBranch(TTree *tree);
+    /** Fill the branch */
+    virtual void FillBranch(void);
+#endif
+
 private:
     static const size_t nPos = 4; //!< number of positions
 

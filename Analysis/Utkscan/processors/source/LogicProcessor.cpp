@@ -1,6 +1,5 @@
 /** \file LogicProcessor.cpp
  * \brief handling of logic events, derived from MtcProcessor.cpp
- * @authors D. Miller, K. Miernik, S. V. Paulauskas
  *
  * Start subtype corresponds to leading edge
  * Stop subtype corresponds to trailing edge
@@ -23,26 +22,26 @@ static const double doubleTimeLimit_ = 10e-6;
 
 namespace dammIds {
     namespace logic {
-        static const unsigned int MAX_LOGIC = 10; //!<Maximum Number of Logic Signals
+	static const unsigned int MAX_LOGIC = 10; //!<Maximum Number of Logic Signals
 
-        ///Original Logic Processor
-        const int D_COUNTER_START = 0;//!< Counter for the starts
-        const int D_COUNTER_STOP = 1;//!< Counter for the stops
-        const int DD_TDIFF_START = 2;//!< Tdiff between starts
-        const int DD_TDIFF_STOP = 3;//!< Tdiff between stops
-        const int DD_TDIFF_SUM = 4;//!< Sum of tdiffs
-        const int DD_TDIFF_LENGTH = 5;//!< Length between tdiff
+	///Original Logic Processor
+        const int D_COUNTER_START  = 0;//!< Counter for the starts
+        const int D_COUNTER_STOP   = 1;//!< Counter for the stops
+        const int DD_TDIFF_START   = 2;//!< Tdiff between starts
+        const int DD_TDIFF_STOP    = 3;//!< Tdiff between stops
+        const int DD_TDIFF_SUM     = 4;//!< Sum of tdiffs
+        const int DD_TDIFF_LENGTH  = 5;//!< Length between tdiff
 
-        ///MTC Processor
-        const int D_TDIFF_BEAM_START = 6;//!< Tdiff between beam starts
-        const int D_TDIFF_BEAM_STOP = 7;//!< Tdiff between beam stops
+	///MTC Processor
+	const int D_TDIFF_BEAM_START = 6;//!< Tdiff between beam starts
+        const int D_TDIFF_BEAM_STOP  = 7;//!< Tdiff between beam stops
         const int D_TDIFF_MOVE_START = 8;//!< Tdiff between start move signals
-        const int D_TDIFF_MOVE_STOP = 9;//!< Tdiff between stop move signals
-        const int D_MOVETIME = 10;//!< Amount of time of the move
-        const int D_BEAMTIME = 11;//!< Amount of time the beam was on
-        const int D_COUNTER = 12;//!< A counter for cycles
-        const int D_TDIFF_SUPERCYCLE = 13;//!< Tdiff between supercycles
-        const int D_TDIFF_T1 = 14;//!< Tdiff between T1 signals
+        const int D_TDIFF_MOVE_STOP  = 9;//!< Tdiff between stop move signals
+        const int D_MOVETIME         = 10;//!< Amount of time of the move
+        const int D_BEAMTIME         = 11;//!< Amount of time the beam was on
+        const int D_COUNTER          = 12;//!< A counter for cycles
+	const int D_TDIFF_SUPERCYCLE = 13;//!< Tdiff between supercycles
+        const int D_TDIFF_T1         = 14;//!< Tdiff between T1 signals
         const int DD_TIME_DET_MTCEVENTS = 15;//!< Time vs. MTC Events
 
         const int MOVE_START_BIN = 16;//!< Start move bin
@@ -50,26 +49,29 @@ namespace dammIds {
         const int BEAM_START_BIN = 18;//!< Beam Start bin
         const int BEAM_STOP_BIN = 19;//!< Beam Stop bin
 
-        ///From Beam Logic Processor
-        const int D_COUNTER_BEAM = 21; //!< Beam cycle counter
+	///From Beam Logic Processor
+	const int D_COUNTER_BEAM = 21; //!< Beam cycle counter
         const int D_TIME_STOP_LENGTH = 22;//!< Time between stop events
 
-        ///Trigger Logic Processor
-        const int DD_RUNTIME_LOGIC = 23;//!< Plot of run time logic
+	///Trigger Logic Processor
+	const int DD_RUNTIME_LOGIC = 23;//!< Plot of run time logic
     }
 } // logic namespace
 
-LogicProcessor::LogicProcessor(void) : EventProcessor(dammIds::logic::OFFSET, dammIds::logic::RANGE, "LogicProcessor"),
-        lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN), logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC),
-                                       startCount(MAX_LOGIC) {
+LogicProcessor::LogicProcessor(void) :
+    EventProcessor(dammIds::logic::OFFSET, dammIds::logic::RANGE, "LogicProcessor"),
+    lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
+    logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC) {
     associatedTypes.insert("logic");
     associatedTypes.insert("timeclass"); // old detector type
     associatedTypes.insert("mtc");
 }
 
-LogicProcessor::LogicProcessor(int offset, int range, bool doubleStop/*=false*/, bool doubleStart/*=false*/) :
-        EventProcessor(offset, range, "LogicProcessor"), lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
-        logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC) {
+LogicProcessor::LogicProcessor(int offset, int range, bool doubleStop/*=false*/,
+			       bool doubleStart/*=false*/) :
+    EventProcessor(offset, range, "LogicProcessor"),
+    lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
+    logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC) {
     associatedTypes.insert("logic");
     associatedTypes.insert("timeclass"); // old detector type
     associatedTypes.insert("mtc");
@@ -85,10 +87,10 @@ void LogicProcessor::DeclarePlots(void) {
     ///From Original Logic Processor
     DeclareHistogram1D(D_COUNTER_START, counterBins, "logic start counter");
     DeclareHistogram1D(D_COUNTER_STOP, counterBins, "logic stop counter");
-    DeclareHistogram2D(DD_TDIFF_START, S4, timeBins, "TDiff btwn starts, 10 us/bin");
-    DeclareHistogram2D(DD_TDIFF_STOP, S4, timeBins, "TDiff btwn starts, 10 us/bin");
-    DeclareHistogram2D(DD_TDIFF_SUM, S4, timeBins, "TDiff btwn starts, 10 us/bin");
-    DeclareHistogram2D(DD_TDIFF_LENGTH, S4, timeBins, "TDiff btwn starts, 10 us/bin");
+    DeclareHistogram2D(DD_TDIFF_START, S4,timeBins, "TDiff btwn starts, 10 us/bin");
+    DeclareHistogram2D(DD_TDIFF_STOP, S4,timeBins, "TDiff btwn starts, 10 us/bin");
+    DeclareHistogram2D(DD_TDIFF_SUM, S4,timeBins, "TDiff btwn starts, 10 us/bin");
+    DeclareHistogram2D(DD_TDIFF_LENGTH, S4,timeBins, "TDiff btwn starts, 10 us/bin");
 
     ///From MTC Processor
     DeclareHistogram1D(D_TDIFF_BEAM_START, timeBins, "Time diff btwn beam starts, 10 ms/bin");
@@ -116,49 +118,51 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
 
-    static double clockInSeconds = Globals::get()->GetClockInSeconds(); //!< clock in seconds
-    const double logicPlotResolution = 10e-6 / Globals::get()->GetClockInSeconds(); //!<Resolution for Logic Plots
+    static double clockInSeconds = Globals::get()->clockInSeconds(); //!< clock in seconds
+    const double logicPlotResolution =
+        10e-6 / Globals::get()->clockInSeconds(); //!<Resolution for Logic Plots
     const double mtcPlotResolution = 10e-3 / clockInSeconds; //!<Res. for MTC Plots
 
-    static const vector<ChanEvent *> &events = sumMap["logic"]->GetList();
+    static const vector<ChanEvent*> &events = sumMap["logic"]->GetList();
 
-    for (vector<ChanEvent *>::const_iterator it = events.begin(); it != events.end(); it++) {
-        ChanEvent *chan = *it;
+    for (vector<ChanEvent*>::const_iterator it = events.begin();
+	 it != events.end(); it++) {
+	ChanEvent *chan = *it;
 
-        string place = (*it)->GetChanID().GetPlaceName();
-        string subtype = chan->GetChanID().GetSubtype();
-        unsigned int loc = chan->GetChanID().GetLocation();
-        double time = chan->GetTime();
+	string place = (*it)->GetChanID().GetPlaceName();
+	string subtype   = chan->GetChanID().GetSubtype();
+	unsigned int loc = chan->GetChanID().GetLocation();
+	double time = chan->GetTime();
 
-        static double t0 = time;
+	static double t0 = time;
 
-        // for 2d plot of events 100ms / bin
-        const double eventsResolution = 100e-3 / clockInSeconds;
-        const unsigned MTC_START = 0;
-        const unsigned MTC_STOP = 1;
-        const unsigned BEAM_START = 2;
-        const unsigned BEAM_STOP = 3;
+	// for 2d plot of events 100ms / bin
+	const double eventsResolution = 100e-3 / clockInSeconds;
+	const unsigned MTC_START = 0;
+	const unsigned MTC_STOP = 1;
+	const unsigned BEAM_START = 2;
+	const unsigned BEAM_STOP = 3;
         // for 2d plot of events 1s / bin
         // Bins in plot
         const unsigned BEAM_TOGGLE = 0;
         const unsigned BEAM_ANALOG = 1;
         const unsigned BEAM_NONE = 2;
-        double time_x = int((time - t0) / eventsResolution);
+	double time_x = int((time - t0) / eventsResolution);
 
-        if (subtype == "start") {
-            if (!std::isnan(lastStartTime.at(loc))) {
-                double timediff = time - lastStartTime.at(loc);
-                plot(DD_TDIFF_START, timediff / logicPlotResolution, loc);
-                plot(DD_TDIFF_SUM, timediff / logicPlotResolution, loc);
-            }
+	if(subtype == "start") {
+	    if (!std::isnan(lastStartTime.at(loc))) {
+		double timediff = time - lastStartTime.at(loc);
+		plot(DD_TDIFF_START, timediff / logicPlotResolution, loc);
+		plot(DD_TDIFF_SUM, timediff / logicPlotResolution, loc);
+	    }
 
-            lastStartTime.at(loc) = time;
-            logicStatus.at(loc) = true;
+	    lastStartTime.at(loc) = time;
+	    logicStatus.at(loc) = true;
 
-            startCount.at(loc)++;
-            plot(D_COUNTER_START, loc);
-        } else if (subtype == "stop") {
-            if (!std::isnan(lastStopTime.at(loc))) {
+	    startCount.at(loc)++;
+	    plot(D_COUNTER_START, loc);
+	} else if (subtype == "stop") {
+	    if (!std::isnan(lastStopTime.at(loc))) {
                 double timediff = time - lastStopTime.at(loc);
                 plot(DD_TDIFF_STOP, timediff / logicPlotResolution, loc);
                 plot(DD_TDIFF_SUM, timediff / logicPlotResolution, loc);
@@ -173,102 +177,120 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 
             stopCount.at(loc)++;
             plot(D_COUNTER_STOP, loc);
-        } else if (place == "logic_mtc_start_0") {
-            double dt_start = time - TreeCorrelator::get()->place(place)->secondlast().time;
-            TreeCorrelator::get()->place("TapeMove")->activate(time);
-            TreeCorrelator::get()->place("Cycle")->deactivate(time);
+        } else if(place == "logic_mtc_start_0") {
+	    double dt_start = time -
+		TreeCorrelator::get()->place(place)->secondlast().time;
+	    TreeCorrelator::get()->place("TapeMove")->activate(time);
+	    TreeCorrelator::get()->place("Cycle")->deactivate(time);
 
-            plot(D_TDIFF_MOVE_START, dt_start / mtcPlotResolution);
-            plot(D_COUNTER, MOVE_START_BIN);
-            plot(DD_TIME_DET_MTCEVENTS, time_x, MTC_START);
-        } else if (place == "logic_mtc_stop_0") {
-            double dt_stop = time - TreeCorrelator::get()->place(place)->secondlast().time;
-            double dt_move = time - TreeCorrelator::get()->place("logic_mtc_start_0")->last().time;
-            TreeCorrelator::get()->place("TapeMove")->deactivate(time);
+	    plot(D_TDIFF_MOVE_START, dt_start / mtcPlotResolution);
+	    plot(D_COUNTER, MOVE_START_BIN);
+	    plot(DD_TIME_DET_MTCEVENTS, time_x, MTC_START);
+	} else if (place == "logic_mtc_stop_0") {
+	    double dt_stop = time -
+		TreeCorrelator::get()->place(place)->secondlast().time;
+	    double dt_move = time -
+		TreeCorrelator::get()->place("logic_mtc_start_0")->last().time;
+	    TreeCorrelator::get()->place("TapeMove")->deactivate(time);
 
-            plot(D_TDIFF_MOVE_STOP, dt_stop / mtcPlotResolution);
-            plot(D_MOVETIME, dt_move / mtcPlotResolution);
-            plot(D_COUNTER, MOVE_STOP_BIN);
-            plot(DD_TIME_DET_MTCEVENTS, time_x, MTC_STOP);
-        } else if (place == "logic_beam_start_0") {
-            double dt_start = time - TreeCorrelator::get()->place(place)->secondlast().time;
-            //Remove double starts
-            if (doubleStart_) {
-                double dt_stop = abs(time - TreeCorrelator::get()->place("logic_beam_stop_0")->last().time);
-                if (abs(dt_start * clockInSeconds) < doubleTimeLimit_ ||
-                        abs(dt_stop * clockInSeconds) < doubleTimeLimit_)
-                    continue;
-            }
-            TreeCorrelator::get()->place("Beam")->activate(time);
-            TreeCorrelator::get()->place("Cycle")->activate(time);
+	    plot(D_TDIFF_MOVE_STOP, dt_stop / mtcPlotResolution);
+	    plot(D_MOVETIME, dt_move / mtcPlotResolution);
+	    plot(D_COUNTER, MOVE_STOP_BIN);
+	    plot(DD_TIME_DET_MTCEVENTS, time_x, MTC_STOP);
+	} else if (place == "logic_beam_start_0") {
+	    double dt_start = time -
+		TreeCorrelator::get()->place(place)->secondlast().time;
+	    //Remove double starts
+	    if (doubleStart_) {
+		double dt_stop =
+		    abs(time -
+			TreeCorrelator::get()->place("logic_beam_stop_0")->last().time);
+		if (abs(dt_start * clockInSeconds) < doubleTimeLimit_ ||
+		    abs(dt_stop * clockInSeconds) < doubleTimeLimit_)
+		    continue;
+	    }
+	    TreeCorrelator::get()->place("Beam")->activate(time);
+	    TreeCorrelator::get()->place("Cycle")->activate(time);
 
-            plot(D_TDIFF_BEAM_START, dt_start / mtcPlotResolution);
-            plot(D_COUNTER, BEAM_START_BIN);
-            plot(DD_TIME_DET_MTCEVENTS, time_x, BEAM_START);
-        } else if (place == "logic_beam_stop_0") {
-            double dt_stop = time - TreeCorrelator::get()->place(place)->secondlast().time;
-            double dt_beam = time - TreeCorrelator::get()->place("logic_beam_start_0")->last().time;
-            //Remove double stops
-            if (doubleStop_) {
-                if (abs(dt_stop * clockInSeconds) < doubleTimeLimit_ ||
-                        abs(dt_beam * clockInSeconds) < doubleTimeLimit_)
-                    continue;
-            }
-            TreeCorrelator::get()->place("Beam")->deactivate(time);
+	    plot(D_TDIFF_BEAM_START, dt_start / mtcPlotResolution);
+	    plot(D_COUNTER, BEAM_START_BIN);
+	    plot(DD_TIME_DET_MTCEVENTS, time_x, BEAM_START);
+	} else if (place == "logic_beam_stop_0") {
+	    double dt_stop = time -
+		TreeCorrelator::get()->place(place)->secondlast().time;
+	    double dt_beam = time -
+		TreeCorrelator::get()->place("logic_beam_start_0")->last().time;
+	    //Remove double stops
+	    if (doubleStop_) {
+		if (abs(dt_stop * clockInSeconds) < doubleTimeLimit_ ||
+		    abs(dt_beam * clockInSeconds) < doubleTimeLimit_)
+		    continue;
+	    }
+	    TreeCorrelator::get()->place("Beam")->deactivate(time);
 
-            plot(D_TDIFF_BEAM_STOP, dt_stop / mtcPlotResolution);
-            plot(D_BEAMTIME, dt_beam / mtcPlotResolution);
-            plot(D_COUNTER, BEAM_STOP_BIN);
-            plot(DD_TIME_DET_MTCEVENTS, time_x, BEAM_STOP);
-        } else if (place == "logic_t1_0") {
-            //TreeCorrelator::get()->place("Protons")->activate(time);
-            double dt_t1 = time - TreeCorrelator::get()->place("logic_t1_0")->last().time;
-            plot(D_TDIFF_T1, dt_t1 / mtcPlotResolution);
-        } else if (place == "logic_supercycle_0") {
-            TreeCorrelator::get()->place("Supercycle")->activate(time);
-            double dt_supercycle = time - TreeCorrelator::get()->place("logic_supercycle_0")->last().time;
-            plot(D_TDIFF_SUPERCYCLE, dt_supercycle / mtcPlotResolution);
-        } else if (place == "logic_beam_0") {
+	    plot(D_TDIFF_BEAM_STOP, dt_stop / mtcPlotResolution);
+	    plot(D_BEAMTIME, dt_beam / mtcPlotResolution);
+	    plot(D_COUNTER, BEAM_STOP_BIN);
+	    plot(DD_TIME_DET_MTCEVENTS, time_x, BEAM_STOP);
+	} else if (place == "logic_t1_0") {
+	    //TreeCorrelator::get()->place("Protons")->activate(time);
+	    double dt_t1 = time -
+		TreeCorrelator::get()->place("logic_t1_0")->last().time;
+	    plot(D_TDIFF_T1, dt_t1 / mtcPlotResolution);
+	} else if (place == "logic_supercycle_0") {
+	    TreeCorrelator::get()->place("Supercycle")->activate(time);
+	    double dt_supercycle = time -
+		TreeCorrelator::get()->place("logic_supercycle_0")->last().time;
+	    plot(D_TDIFF_SUPERCYCLE, dt_supercycle / mtcPlotResolution);
+	}else if (place == "logic_beam_0") {
             double last_time =
-                    TreeCorrelator::get()->place(place)->secondlast().time;
+                TreeCorrelator::get()->place(place)->secondlast().time;
             double dt_beam_stop = abs(time - last_time);
 
             Messenger m;
+            stringstream ss;
             // Check for double recorded same event (1 us limit)
             if (dt_beam_stop < doubleTimeLimit_) {
-                m.warning("Ignore fast beam stop");
+                ss << "Ignore fast beam stop" << endl;
+                m.warning(ss.str());
                 continue;
             }
 
             // If beam was stopped, activate place and plot stop length
             if (!TreeCorrelator::get()->place("Beam")->status()) {
-                double clockInSeconds = Globals::get()->GetClockInSeconds();
+                double clockInSeconds = Globals::get()->clockInSeconds();
                 double resolution = 1.0 / clockInSeconds;
 
                 plot(D_TIME_STOP_LENGTH, dt_beam_stop / resolution);
 
                 TreeCorrelator::get()->place("Beam")->activate(time);
-                m.run_message("Beam started after: " + to_string(dt_beam_stop / resolution) + " s ");
-            } else {
+                ss << "Beam started after: " << dt_beam_stop / resolution
+                   << " s ";
+                m.run_message(ss.str());
+            }
+            else {
                 TreeCorrelator::get()->place("Beam")->deactivate(time);
-                m.run_message("Beam stopped");
+                ss << "Beam stopped";
+                m.run_message(ss.str());
             }
             plot(D_COUNTER_BEAM, BEAM_TOGGLE);
 
-        } else if (place == "logic_analog_0") {
+        }
+        else if (place == "logic_analog_0") {
             plot(D_COUNTER_BEAM, BEAM_ANALOG);
-        } else if (place == "logic_none_0") {
+        }
+        else if (place == "logic_none_0") {
             plot(D_COUNTER_BEAM, BEAM_NONE);
         }
     }//events loop
-    return (true);
+    return(true);
 }
 
 bool LogicProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
-        return (false);
+        return(false);
     EndProcess();
-    return (true);
+    return(true);
 }
 
 /* // Came from TriggerLogicProcessor.cpp

@@ -1,4 +1,3 @@
-# @author S. V. Paulauskas
 ################################################################################
 add_executable(unittest-XiaListModeDataDecoder
         unittest-XiaListModeDataDecoder.cpp

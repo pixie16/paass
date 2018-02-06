@@ -1,6 +1,5 @@
 /** \file ReadBuffDataD.cpp
  * \brief retrieve data from raw buffer array ibuf
- * @authors H. Tan, D. Miller, S. V. Paulauskas, K. Miernik
  */
 /*----------------------------------------------------------------------
  * Copyright (c) 2005, XIA LLC
@@ -72,7 +71,7 @@ extern StatsData stats;
   \return An unused integer
 */
 int ReadBuffDataD(word_t *buf, unsigned long *bufLen,
-                  vector<ChanEvent *> &eventList) {
+                   vector<ChanEvent*> &eventList) {
     // multiplier for high bits of 48-bit time
     static const double HIGH_MULT = pow(2., 32.);
     word_t modNum;
@@ -83,8 +82,8 @@ int ReadBuffDataD(word_t *buf, unsigned long *bufLen,
     /* Read the module number */
     modNum = *buf++;
     ChanEvent *lastVirtualChannel = NULL;
-    if (*bufLen > 0) {   // check if the buffer has data
-        if (*bufLen == 2) {
+    if(*bufLen > 0) {   // check if the buffer has data
+        if(*bufLen == 2) {
             // this is an empty channel
             return 0;
         }
@@ -92,29 +91,28 @@ int ReadBuffDataD(word_t *buf, unsigned long *bufLen,
             ChanEvent *currentEvt = new ChanEvent;
             // decoding event data... see pixie16app.c
             // buf points to the start of channel data
-            word_t chanNum = (buf[0] & 0x0000000F);
-            word_t slotNum = (buf[0] & 0x000000F0) >> 4;
-            word_t crateNum = (buf[0] & 0x00000F00) >> 8;
+            word_t chanNum      = (buf[0] & 0x0000000F);
+            word_t slotNum      = (buf[0] & 0x000000F0) >> 4;
+            word_t crateNum     = (buf[0] & 0x00000F00) >> 8;
             word_t headerLength = (buf[0] & 0x0001F000) >> 12;
-            word_t eventLength = (buf[0] & 0x1FFE0000) >> 17;
+            word_t eventLength  = (buf[0] & 0x1FFE0000) >> 17;
             currentEvt->virtualChannel = ((buf[0] & 0x20000000) != 0);
-            currentEvt->saturatedBit = ((buf[0] & 0x40000000) != 0);
-            currentEvt->pileupBit = ((buf[0] & 0x80000000) != 0);
+            currentEvt->saturatedBit   = ((buf[0] & 0x40000000) != 0);
+            currentEvt->pileupBit      = ((buf[0] & 0x80000000) != 0);
             // Rev. D header lengths not clearly defined in pixie16app_defs
             //! magic numbers here for now
             // make some sanity checks
-            if (headerLength == stats.headerLength) {
+            if(headerLength == stats.headerLength) {
                 // this is a manual statistics block inserted by the poll program
                 stats.DoStatisticsBlock(&buf[1], modNum);
                 buf += eventLength;
                 numEvents = readbuff::STATS;
                 continue;
             }
-            if (headerLength != 4 && headerLength != 8 &&
+            if(headerLength != 4  && headerLength != 8 &&
                 headerLength != 12 && headerLength != 16) {
                 cout << "  Unexpected header length: " << headerLength << endl;
-                cout << "    Buffer " << modNum << " of length " << *bufLen
-                     << endl;
+                cout << "    Buffer " << modNum << " of length " << *bufLen << endl;
                 cout << "    CHAN:SLOT:CRATE "
                      << chanNum << ":" << slotNum << ":" << crateNum << endl;
                 // advance to next event and continue
@@ -124,27 +122,26 @@ int ReadBuffDataD(word_t *buf, unsigned long *bufLen,
                 return readbuff::ERROR;
                 //return numEvents;
             }
-            word_t lowTime = buf[1];
-            word_t highTime = buf[2] & 0x0000FFFF;
-            word_t cfdTime = (buf[2] & 0xFFFF0000) >> 16;
-            word_t energy = buf[3] & 0x0000FFFF;
+            word_t lowTime     = buf[1];
+            word_t highTime    = buf[2] & 0x0000FFFF;
+            word_t cfdTime     = (buf[2] & 0xFFFF0000) >> 16;
+            word_t energy      = buf[3] & 0x0000FFFF;
             word_t traceLength = (buf[3] & 0xFFFF0000) >> 16;
-            if (headerLength == 8 || headerLength == 16) {
+            if(headerLength == 8 || headerLength == 16) {
                 // skip the onboard partial sums for now
                 //   trailing, leading, gap, baseline
             }
-            if (headerLength >= 12) {
+            if(headerLength >= 12) {
                 int offset = headerLength - 8;
-                for (int i = 0; i < currentEvt->numQdcs; i++) {
-                    currentEvt->qdcValue[i] = buf[offset + i];
+                for(int i=0; i < currentEvt->numQdcs; i++) {
+                        currentEvt->qdcValue[i] = buf[offset + i];
                 }
             }
             // one last sanity check
-            if (traceLength / 2 + headerLength != eventLength) {
+            if(traceLength / 2 + headerLength != eventLength) {
                 cout << "  Bad event length (" << eventLength
-                     << ") does not correspond with length of header ("
-                     << headerLength
-                     << ") and length of trace (" << traceLength << ")" << endl;
+                    << ") does not correspond with length of header (" << headerLength
+                    << ") and length of trace (" << traceLength << ")" << endl;
                 buf += eventLength;
                 continue;
             }
@@ -152,38 +149,37 @@ int ReadBuffDataD(word_t *buf, unsigned long *bufLen,
             modNum += 100 * crateNum;
             currentEvt->chanNum = chanNum;
             currentEvt->modNum = modNum;
-            if (currentEvt->virtualChannel) {
-                DetectorLibrary *modChan = DetectorLibrary::get();
+            if(currentEvt->virtualChannel) {
+                DetectorLibrary* modChan = DetectorLibrary::get();
                 currentEvt->modNum += modChan->GetPhysicalModules();
-                if (modChan->at(modNum, chanNum).HasTag("construct_trace")) {
-                    lastVirtualChannel = currentEvt;
+                if(modChan->at(modNum, chanNum).HasTag("construct_trace")) {
+                        lastVirtualChannel = currentEvt;
                 }
             }
             currentEvt->energy = energy;
             //KM 2012-10-24 reinstating removal of saturated
-            if (currentEvt->saturatedBit)
+            if(currentEvt->saturatedBit)
                 currentEvt->energy = 16383;
             currentEvt->trigTime = lowTime;
-            currentEvt->cfdTime = cfdTime;
+            currentEvt->cfdTime  = cfdTime;
             currentEvt->eventTimeHi = highTime;
             currentEvt->eventTimeLo = lowTime;
             currentEvt->time = highTime * HIGH_MULT + lowTime;
             buf += headerLength;
             /* Check if trace data follows the channel header */
-            if (traceLength > 0) {
+            if(traceLength > 0) {
                 // sbuf points to the beginning of trace data
-                halfword_t *sbuf = (halfword_t *) buf;
+                halfword_t *sbuf = (halfword_t *)buf;
                 currentEvt->trace.reserve(traceLength);
-                if (currentEvt->saturatedBit)
+                if(currentEvt->saturatedBit)
                     currentEvt->trace.SetValue("saturation", 1);
-                if (lastVirtualChannel != NULL &&
-                    lastVirtualChannel->trace.empty()) {
+                if(lastVirtualChannel != NULL && lastVirtualChannel->trace.empty()) {
                     lastVirtualChannel->trace.assign(traceLength, 0);
                 }
                 // Read the trace data (2-bytes per sample, i.e. 2 samples per word)
-                for (unsigned int k = 0; k < traceLength; k++) {
+                for(unsigned int k = 0; k < traceLength; k ++) {
                     currentEvt->trace.push_back(sbuf[k]);
-                    if (lastVirtualChannel != NULL) {
+                    if(lastVirtualChannel != NULL) {
                         lastVirtualChannel->trace[k] += sbuf[k];
                     }
                 }
@@ -191,7 +187,7 @@ int ReadBuffDataD(word_t *buf, unsigned long *bufLen,
             }
             eventList.push_back(currentEvt);
             numEvents++;
-        } while (buf < bufStart + *bufLen);
+        } while(buf < bufStart + *bufLen);
     } else {  // if buffer has data
         cout << "ERROR BufNData " << *bufLen << endl;
         cout << "ERROR IN ReadBuffData" << endl;

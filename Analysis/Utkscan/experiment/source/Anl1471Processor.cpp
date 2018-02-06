@@ -13,7 +13,7 @@
 #include "DammPlotIds.hpp"
 #include "DoubleBetaProcessor.hpp"
 #include "DetectorDriver.hpp"
-#include "CloverProcessor.hpp"
+#include "GeProcessor.hpp"
 #include "Anl1471Processor.hpp"
 #include "VandleProcessor.hpp"
 
@@ -113,8 +113,8 @@ Anl1471Processor::Anl1471Processor() : EventProcessor(OFFSET, RANGE,
     associatedTypes.insert("ge");
 
     stringstream name;
-    name << Globals::get()->GetOutputPath()
-         << Globals::get()->GetOutputFileName() << ".root";
+    name << Globals::get()->outputPath(Globals::get()->outputFile())
+         << ".root";
     rootfile_ = new TFile(name.str().c_str(), "RECREATE");
 
     roottree1_ = new TTree("V", "");
@@ -166,10 +166,10 @@ bool Anl1471Processor::Process(RawEvent &event) {
     betaStarts_ = startBars.GetBarMap();
 
     if (event.GetSummary("ge")->GetList().size() != 0) {
-        geEvts = ((CloverProcessor *) DetectorDriver::get()->
-                GetProcessor("CloverProcessor"))->GetGeEvents();
-        geAddback = ((CloverProcessor *) DetectorDriver::get()->
-                GetProcessor("CloverProcessor"))->GetAddbackEvents();
+        geEvts = ((GeProcessor *) DetectorDriver::get()->
+                GetProcessor("GeProcessor"))->GetGeEvents();
+        geAddback = ((GeProcessor *) DetectorDriver::get()->
+                GetProcessor("GeProcessor"))->GetAddbackEvents();
     }
 
     Vsize->Fill(vbars.size());
@@ -307,11 +307,11 @@ bool Anl1471Processor::Process(RawEvent &event) {
             ge_energy = (*itGe)->GetCalibratedEnergy();
             ge_id = (*itGe)->GetChanID().GetLocation();
             ge_time = (*itGe)->GetWalkCorrectedTime();
-            ge_time *= (Globals::get()->GetClockInSeconds() * 1.e9);//in ns now
+            ge_time *= (Globals::get()->clockInSeconds() * 1.e9);//in ns now
 
             if (TreeCorrelator::get()->place("Cycle")->status()) {
                 gcyc_time = TreeCorrelator::get()->place("Cycle")->last().time;
-                gcyc_time *= (Globals::get()->GetClockInSeconds() *
+                gcyc_time *= (Globals::get()->clockInSeconds() *
                               1.e9);//in ns now
                 grow_decay_time =
                         (ge_time - gcyc_time) * 1e-9 * 1e2;//in seconds, then ms
@@ -330,7 +330,7 @@ bool Anl1471Processor::Process(RawEvent &event) {
                     gb_time_R = gb_start.GetRightSide().GetHighResTimeInNs();
                     //GetTimeAverage()??
                     gb_time = (gb_time_L + gb_time_R) / 2;
-                    gb_time *= (Globals::get()->GetClockInSeconds() *
+                    gb_time *= (Globals::get()->clockInSeconds() *
                                 1.e9);//in ns now
                 }
             } else {

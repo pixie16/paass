@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>D. Perez-Loureiro</Name>
+        <Email>dperezlo@utk.edu</Email>
+        <Date>February 9, 2017</Date>
+    </Author>
+
+    <Description>
+        A timing setup to measure time difference between two SiPM signals
+    </Description>
+
+    <Global>
+        <Revision version="F"/>
+        <BitResolution value="16"/>
+        <EventWidth unit="ns" value="250"/>
+        <!--EnergyContraction value="1.0"/-->
+        <!--Path>config/</Path-->
+        <NumOfTraces value="50"/>
+	<HasRaw value="true"/>
+        <OutputPath value="./"/>
+    </Global>
+
+    <DetectorDriver>
+      <!--Analyzer name="TraceExtractor" type="pulser" subtype="start"/-->
+      <Analyzer name="WaveformAnalyzer"/>
+      <!--Analyzer name="WaaAnalyzer"/-->
+      <Analyzer name="FittingAnalyzer" type="gsl"/>
+      <!--Analyzer name="CfdAnalyzer" type="poly"/-->
+      <Processor name="TwoChanTimingProcessor"/>
+      <!--Processor name="TtuTimingProcessor"/-->
+      <!--<Processor name="RootProcessor"/>-->
+      <!--Processor name="TACProcessor"-->
+    </DetectorDriver>
+
+    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+	<Module number="1"> 
+            <Channel number="0" type="pulser" subtype="start1" 
+		tags="start,left,slow"></Channel>
+            <Channel number="1" type="pulser" subtype="start2" 
+          	tags="stop,left,slow"></Channel> 
+            <Channel number="2" type="pulser" subtype="stop1" 
+          	tags="stop,right,array"></Channel> 
+            <Channel number="3" type="pulser" subtype="stop2" 
+                tags="stop,right,slow"></Channel>
+             <Channel number="15" type="ignore" subtype="ignore"></Channel>
+        </Module>
+	<!--Module number="0">
+            <Channel number="0" type="ignore" subtype="ignore"
+	             tags="start,left,slow">
+            </Channel>
+            <Channel number="1" type="ignore" subtype="ignore"
+	             tags="stop,right,slow">
+            </Channel>
+            <Channel number="15" type="ignore" subtype="ignore"></Channel>
+        </Module-->
+    </Map>
+
+    <TimeCalibration verbose_timing="False">
+    </TimeCalibration>
+      <Physical>
+        <NeutronMass unit="MeV/c/c" value="939.565560"/>
+        <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+        <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+        <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+        <SmallLength unit="cm" value="60.0"/>
+        <MediumLength unit="cm" value="120.0"/>
+        <BigLength unit="cm" value="200.0"/>
+      </Physical>
+
+      <Trace>
+        <TraceDelay unit="ns" value="400."/>
+        <!--TraceLength unit="ns" value="800."/-->
+        <!--TraceLength unit="ns" value="2500."/-->
+        <WaveformRange>
+            <Range name="pulser:start1">
+               <Low value="15"/>
+                <High value="15"/>
+            </Range>
+            <Range name="pulser:start2">
+                <Low value="15"/>
+                <High value="15"/>
+	    </Range>
+	 <Range name="pulser:stop1">
+               <Low value="30"/>
+                <High value="15"/>
+            </Range>
+            <Range name="pulser:stop2">
+                <Low value="20"/>
+                <High value="15"/>
+            </Range>
+ 	</WaveformRange>
+        <DiscriminationStart unit="sample" value="3."/>
+        <!--<TrapezoidalWalk unit="ns" value="40."/>-->
+        <QdcCompression value="1.0"/>
+
+      <!--<TrapFilters>
+            <Pars name="beta:start">
+                <Trigger l="125" g="125" t="10" unit="ns"/>
+                <Energy l="300" g="300" t="50" unit="ns"/>
+            </Pars>
+            <Pars name="beta:stop">
+                <Trigger l="125" g="125" t="10" unit="ns"/>
+                <Energy l="300" g="300" t="50" unit="ns"/>
+            </Pars>
+        </TrapFilters>-->
+    </Trace>
+
+        <Fitting>
+            <SigmaBaselineThresh value="100."/>
+            <SiPmtSigmaBaselineThresh value = "100.0"/>
+	    <Parameters>
+	    <Pars name="pulser:start1:timing">
+                <Beta value="0.14"/>
+                <Gamma value="0.25"/>
+            </Pars>
+	    <Pars name="pulser:start2:timing">
+                <Beta value="0.12"/>
+                <Gamma value="0.245"/>
+            </Pars>
+           <Pars name="pulser:stop1:timing">
+                <Beta value="0.0085"/>
+                <Gamma value="0.08"/>
+            </Pars>
+            <Pars name="pulser:stop2:timing">
+                <Beta value="0.095"/>
+                <Gamma value="0.13"/>
+            </Pars>
+ 
+	    </Parameters>
+            <!--<SiPMT>
+                <Sigma value="1.4196495999"/>
+            </SiPMT>
+            <SingleBeta>
+                <Beta value="0.574531"/>
+                <Gamma value="0.274512"/>
+            </SingleBeta>-->
+        </Fitting>
+    <!--<TreeCorrelator name="root" verbose="False">
+    
+    </TreeCorrelator>-->
+
+    <NoteBook file='notes.txt' mode='a'/>
+</Configuration>

@@ -12,10 +12,8 @@ class VandleOrnl2012Processor : public EventProcessor {
 public:
     /** Default Constructor */
     VandleOrnl2012Processor();
-
     /** Default Destructor */
     ~VandleOrnl2012Processor() {};
-
     /** Declare the plots used in the analysis */
     void DeclarePlots(void);
 
@@ -23,10 +21,8 @@ public:
     * \param [in] event : the event to process
     * \return Returns true if the processing was successful */
     bool Process(RawEvent &event);
-
 private:
     std::string fileName_; //!< the name of the his file
-    std::vector <std::string> fileNames_; //!< the vector of output file names
+    std::vector<std::string> fileNames_; //!< the vector of output file names
 };
-
 #endif
