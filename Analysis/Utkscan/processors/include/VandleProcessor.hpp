@@ -1,5 +1,5 @@
 ///@file VandleProcessor.hpp
-///@brief A class to handle VANDLE bars 
+///@brief A class to handle VANDLE bars
 ///Processes information from the VANDLE Bars, allows for
 ///beta-gamma-neutron correlations.
 ///
@@ -43,7 +43,7 @@ public:
     ///Constructor taking a list of detector types as an argument
     ///@param [in] typeList : the list of bar types that are in the analysis
     ///@param [in] res : The resolution of the DAMM histograms
-    ///@param [in] offset : The offset of the DAMM histograms 
+    ///@param [in] offset : The offset of the DAMM histograms
     ///@param [in] numStarts : number of starts we have to process */
     VandleProcessor(const std::vector<std::string> &typeList, const double &res, const double &offset,
                     const unsigned int &numStarts, const double &compression = 1.0 ,const bool &root=false);
@@ -86,9 +86,9 @@ public:
     TTree* data_summary_tree;
 
     unsigned int evtNumber=0;
-    std::string output_name = Globals::get()->GetOutputFileName();
+    std::string dataRun = Globals::get()->GetOutputFileName();
     std::string vandle_subtype = "";
-    double vandle_BarQDC=0;
+    double vandle_QDC=0;
     double vandle_lQDC=0;
     double vandle_rQDC=0;
     double vandle_QDCPos=-500;

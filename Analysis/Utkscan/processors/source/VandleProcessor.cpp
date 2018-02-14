@@ -60,17 +60,17 @@ VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList, const
 #ifdef useroot
 
     std::string outputPath = Globals::get()->GetOutputPath();
-    std::string treefilename = outputPath + output_name + "_vandleTree.root";
+    std::string treefilename = outputPath + dataRun + "_vandleTree.root";
     if (SaveRoot) {
         TFile_tree = new TFile(treefilename.c_str(), "recreate");
 
         data_summary_tree = new TTree("data_summary_tree", "data_summary_tree");
 
         data_summary_tree->Branch("evtNumber", &evtNumber);
-        data_summary_tree->Branch("output_name", &output_name);
+        data_summary_tree->Branch("dataRun", &dataRun);
 
         data_summary_tree->Branch("vandle_subtype", &vandle_subtype);
-        data_summary_tree->Branch("vandle_BarQDC", &vandle_BarQDC);
+        data_summary_tree->Branch("vandle_QDC", &vandle_QDC);
         data_summary_tree->Branch("vandle_lQDC", &vandle_lQDC);
         data_summary_tree->Branch("vandle_rQDC", &vandle_rQDC);
         data_summary_tree->Branch("vandle_QDCPos", &vandle_QDCPos);
@@ -83,7 +83,7 @@ VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList, const
         data_summary_tree->Branch("vandle_rMaxAmpPos", &vandle_rMaxAmpPos);
         data_summary_tree->Branch("vandle_lAveBaseline", &vandle_lAveBaseline);
         data_summary_tree->Branch("vandle_rAveBaseline", &vandle_rAveBaseline);
-        data_summary_tree->Branch("vandle_barNum", &vandle_barNum);
+        data_summary_tree->Branch("vandle_bar", &vandle_bar);
         data_summary_tree->Branch("vandle_TAvg", &vandle_TAvg);
         data_summary_tree->Branch("vandle_Corrected_TAvg", &vandle_Corrected_TAvg);
         data_summary_tree->Branch("vandle_TDiff", &vandle_TDiff);
@@ -313,7 +313,7 @@ void VandleProcessor::FillVandleOnlyHists(void) {
         unsigned int OFFSET = ReturnOffset(barId.second).first;
         unsigned int NOCALOFFSET = ReturnOffset(barId.second).second;
         double NoCalTDiff = (*it).second.GetLeftSide().GetHighResTimeInNs()-(*it).second.GetRightSide().GetHighResTimeInNs();
-        
+
         plot(DD_MAXIMUMBARS + OFFSET,(*it).second.GetLeftSide().GetMaximumValue(), barId.first*2);
         plot(DD_MAXIMUMBARS + OFFSET,(*it).second.GetRightSide().GetMaximumValue(), barId.first*2+1);
 
@@ -349,12 +349,12 @@ void VandleProcessor::FillVandleRoot(const BarDetector &bar, const double &tof,c
     vandle_rMaxAmpPos = bar.GetRightSide().GetMaximumPosition();
     vandle_lAveBaseline = bar.GetLeftSide().GetAveBaseline();
     vandle_rAveBaseline = bar.GetRightSide().GetAveBaseline();
-    vandle_BarQDC = bar.GetQdc();
+    vandle_QDC = bar.GetQdc();
     vandle_QDCPos = bar.GetQdcPosition();
     vandle_lQDC = bar.GetLeftSide().GetTraceQdc();
     vandle_rQDC = bar.GetRightSide().GetTraceQdc();
     vandle_TOF = tof;
-    vandle_barNum = barNum;
+    vandle_bar = barNum;
     vandle_TAvg = bar.GetTimeAverage();
     vandle_Corrected_TAvg = bar.GetCorTimeAve();
     vandle_TDiff = bar.GetTimeDifference();
