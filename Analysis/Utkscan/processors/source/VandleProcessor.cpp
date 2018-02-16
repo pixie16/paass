@@ -88,8 +88,8 @@ VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList, const
         data_summary_tree->Branch("vandle_Corrected_TAvg", &vandle_Corrected_TAvg);
         data_summary_tree->Branch("vandle_TDiff", &vandle_TDiff);
         data_summary_tree->Branch("vandle_Corrected_TDiff", &vandle_Corrected_TDiff);
-        data_summary_tree->Branch("vandle_ltrace", &vandle_ltrace);
-        data_summary_tree->Branch("vandle_rtrace", &vandle_rtrace);
+        // data_summary_tree->Branch("vandle_ltrace", &vandle_ltrace);
+        // data_summary_tree->Branch("vandle_rtrace", &vandle_rtrace);
 
         data_summary_tree->Branch("beta_BarQDC", &beta_BarQDC);
         data_summary_tree->Branch("beta_lQDC", &beta_lQDC);
@@ -107,8 +107,8 @@ VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList, const
         data_summary_tree->Branch("beta_Corrected_TAvg", &beta_Corrected_TAvg);
         data_summary_tree->Branch("beta_TDiff", &beta_TDiff);
         data_summary_tree->Branch("beta_Corrected_TDiff", &beta_Corrected_TDiff);
-        data_summary_tree->Branch("beta_ltrace", &beta_ltrace);
-        data_summary_tree->Branch("beta_rtrace", &beta_rtrace);
+        // data_summary_tree->Branch("beta_ltrace", &beta_ltrace);
+        // data_summary_tree->Branch("beta_rtrace", &beta_rtrace);
 
 #endif
     }
@@ -129,7 +129,7 @@ VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList, const
 VandleProcessor::~VandleProcessor() {
 #ifdef useroot
     if(SaveRoot) {
-        TFile_tree->Write();
+        TFile_tree->Write("",TObject::kOverwrite);
         TFile_tree->Close();
     };
     delete (TFile_tree);
@@ -159,119 +159,114 @@ void VandleProcessor::DeclarePlots(void) {
 }
 
 bool VandleProcessor::PreProcess(RawEvent &event) {
-    if (!EventProcessor::PreProcess(event))
-        return false;
+  if (!EventProcessor::PreProcess(event)) return false;
 
-    bars_.clear();
-    starts_.clear();
+  bars_.clear();
+  starts_.clear();
 
-    static const vector<ChanEvent *> &events = event.GetSummary("vandle")->GetList();
+  static const vector<ChanEvent *> &events = event.GetSummary("vandle")->GetList();
 
-    if (events.empty() || events.size() < 2) {
-        if (events.empty())
-            plot(D_DEBUGGING, 27);
-        if (events.size() < 2)
-            plot(D_DEBUGGING, 2);
-        return false;
-    }
+  if (events.empty() || events.size() < 2) {
+    if (events.empty())
+      plot(D_DEBUGGING, 27);
+    if (events.size() < 2)
+      plot(D_DEBUGGING, 2);
+    return false;
+  }
 
-    BarBuilder billy(events);
-    billy.BuildBars();
-    bars_ = billy.GetBarMap();
+  BarBuilder billy(events);
+  billy.BuildBars();
+  bars_ = billy.GetBarMap();
 
-    if (bars_.empty()) {
-        plot(D_DEBUGGING, 25);
-        return false;
-    }
+  if (bars_.empty()) {
+      plot(D_DEBUGGING, 25);
+      return false;
+  }
 
-    FillVandleOnlyHists();
-    return true;
+  FillVandleOnlyHists();
+  return true;
 }
 
 bool VandleProcessor::Process(RawEvent &event) {
-    if (!EventProcessor::Process(event))
-        return false;
+  if (!EventProcessor::Process(event)) return false;
 
-    plot(D_DEBUGGING, 30);
+  plot(D_DEBUGGING, 30);
 
-    geSummary_ = event.GetSummary("clover");
+  geSummary_ = event.GetSummary("clover");
 
-    static const vector<ChanEvent *> &betaStarts = event.GetSummary("beta_scint:beta")->GetList();
-    static const vector<ChanEvent *> &liquidStarts = event.GetSummary("liquid:scint:start")->GetList();
+  static const vector<ChanEvent *> &betaStarts = event.GetSummary("beta_scint:beta")->GetList();
+  static const vector<ChanEvent *> &liquidStarts = event.GetSummary("liquid:scint:start")->GetList();
 
-    vector<ChanEvent *> startEvents;
-    startEvents.insert(startEvents.end(), betaStarts.begin(), betaStarts.end());
-    startEvents.insert(startEvents.end(), liquidStarts.begin(), liquidStarts.end());
+  vector<ChanEvent *> startEvents;
+  startEvents.insert(startEvents.end(), betaStarts.begin(), betaStarts.end());
+  startEvents.insert(startEvents.end(), liquidStarts.begin(), liquidStarts.end());
 
-    TimingMapBuilder bldStarts(startEvents);
-    starts_ = bldStarts.GetMap();
+  TimingMapBuilder bldStarts(startEvents);
+  starts_ = bldStarts.GetMap();
 
-    static const vector<ChanEvent *> &doubleBetaStarts = event.GetSummary("beta:double:start")->GetList();
-    BarBuilder startBars(doubleBetaStarts);
-    startBars.BuildBars();
-    barStarts_ = startBars.GetBarMap();
+  static const vector<ChanEvent *> &doubleBetaStarts = event.GetSummary("beta:double:start")->GetList();
+  BarBuilder startBars(doubleBetaStarts);
+  startBars.BuildBars();
+  barStarts_ = startBars.GetBarMap();
 
-    for (BarMap::iterator it = bars_.begin(); it != bars_.end(); it++) {
-        TimingDefs::TimingIdentifier barId = (*it).first;
-        BarDetector bar = (*it).second;
+  for (BarMap::iterator it = bars_.begin(); it != bars_.end(); it++) {
+    TimingDefs::TimingIdentifier barId = (*it).first;
+    BarDetector bar = (*it).second;
 
-        if (!bar.GetHasEvent())
-            continue;
+    if (!bar.GetHasEvent()) continue;
 
-        if (!doubleBetaStarts.empty())
-            AnalyzeBarStarts(bar, barId.first);
-        else
-            AnalyzeStarts(bar, barId.first);
-    }
+    if (!doubleBetaStarts.empty()) AnalyzeBarStarts(bar, barId.first);
+    else AnalyzeStarts(bar, barId.first);
+  }
 
-    EndProcess();
-    return true;
+  EndProcess();
+  return true;
 }
 
 void VandleProcessor::AnalyzeBarStarts(const BarDetector &bar, unsigned int &barLoc) {
-        for (BarMap::iterator itStart = barStarts_.begin(); itStart != barStarts_.end(); itStart++) {
-            unsigned int startLoc = (*itStart).first.first;
-            BarDetector start = (*itStart).second;
+  for (BarMap::iterator itStart = barStarts_.begin(); itStart != barStarts_.end(); itStart++) {
+    unsigned int startLoc = (*itStart).first.first;
+    BarDetector start = (*itStart).second;
 
-            bool caled = ( bar.GetCalibration().GetZ0() != 0 );
-            double tof = bar.GetCorTimeAve() - start.GetCorTimeAve() + bar.GetCalibration().GetTofOffset(startLoc);
-            double barcorTof = CorrectTOF(tof, bar.GetFlightPath(), bar.GetCalibration().GetZ0());
-            double AvgcorTof = CorrectTOF(tof, bar.GetFlightPath(), 100);
-            double NCtof = bar.GetCorTimeAve() - start.GetCorTimeAve() ;
+    bool caled = ( bar.GetCalibration().GetZ0() != 0 );
+    double tof = bar.GetCorTimeAve() - start.GetCorTimeAve() + bar.GetCalibration().GetTofOffset(startLoc);
+    double barcorTof = CorrectTOF(tof, bar.GetFlightPath(), bar.GetCalibration().GetZ0());
+    double AvgcorTof = CorrectTOF(tof, bar.GetFlightPath(), 100);
+    double NCtof = bar.GetCorTimeAve() - start.GetCorTimeAve() ;
 
-            PlotTofHistograms(tof, AvgcorTof,NCtof, bar.GetQdc(), barLoc * numStarts_ + startLoc,
-                              ReturnOffset(bar.GetType()),caled);
-            if(SaveRoot) {
-                FillVandleRoot(bar, tof, AvgcorTof, barcorTof, NCtof, barLoc);
-                FillBetaRoot(start, startLoc);
-                data_summary_tree->Fill();
-            }
-        }
+    PlotTofHistograms(tof, AvgcorTof,NCtof, bar.GetQdc(), barLoc * numStarts_ + startLoc,
+                      ReturnOffset(bar.GetType()),caled);
+    if(SaveRoot) {
+        FillVandleRoot(bar, tof, AvgcorTof, barcorTof, NCtof, barLoc);
+        FillBetaRoot(start, startLoc);
+        data_summary_tree->Fill();
+    }
+  }
 }
 
 void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc) {
-        for (TimingMap::iterator itStart = starts_.begin(); itStart != starts_.end(); itStart++) {
-            if (!(*itStart).second.GetIsValid())
-                continue;
+  for (TimingMap::iterator itStart = starts_.begin(); itStart != starts_.end(); itStart++) {
+    if (!(*itStart).second.GetIsValid())
+        continue;
 
-            unsigned int startLoc = (*itStart).first.first;
-            HighResTimingData start = (*itStart).second;
+    unsigned int startLoc = (*itStart).first.first;
+    HighResTimingData start = (*itStart).second;
 
-            bool caled = ( bar.GetCalibration().GetZ0() != 0 );
-            double tof = bar.GetCorTimeAve() - start.GetWalkCorrectedTime() + bar.GetCalibration().GetTofOffset(startLoc);
-            double barcorTof = CorrectTOF(tof, bar.GetFlightPath(), bar.GetCalibration().GetZ0());
-            double AvgcorTof = CorrectTOF(tof, bar.GetFlightPath(), 100);
-            double NCtof =bar.GetCorTimeAve() - start.GetWalkCorrectedTime() ;
+    bool caled = ( bar.GetCalibration().GetZ0() != 0 );
+    double tof = bar.GetCorTimeAve() - start.GetWalkCorrectedTime() + bar.GetCalibration().GetTofOffset(startLoc);
+    double barcorTof = CorrectTOF(tof, bar.GetFlightPath(), bar.GetCalibration().GetZ0());
+    double AvgcorTof = CorrectTOF(tof, bar.GetFlightPath(), 100);
+    double NCtof =bar.GetCorTimeAve() - start.GetWalkCorrectedTime() ;
 
-            PlotTofHistograms(tof, AvgcorTof,NCtof, bar.GetQdc(), barLoc * numStarts_ + startLoc,
-                              ReturnOffset(bar.GetType()),caled);
+    PlotTofHistograms(tof, AvgcorTof,NCtof, bar.GetQdc(), barLoc * numStarts_ + startLoc,
+                      ReturnOffset(bar.GetType()),caled);
 
-            if(SaveRoot) {
-                FillVandleRoot(bar, tof, AvgcorTof, barcorTof, NCtof, barLoc);
-                FillBetaRoot(start, startLoc);
-                data_summary_tree->Fill();
-            }
-        }
+    if(SaveRoot) {
+        FillVandleRoot(bar, tof, AvgcorTof, barcorTof, NCtof, barLoc);
+        FillBetaRoot(start, startLoc);
+        data_summary_tree->Fill();
+    }
+  }
 }
 
 void VandleProcessor::PlotTofHistograms(const double &tof, const double &cortof,const double &NGtof, const double &qdc,
@@ -292,8 +287,6 @@ void VandleProcessor::PlotTofHistograms(const double &tof, const double &cortof,
     */
     plot(DD_TOFBARS + offset.second, NGtof* plotMult_ + plotOffset_, barPlusStartLoc);
     plot(DD_TQDCAVEVSTOF + offset.second, NGtof* plotMult_ + plotOffset_, qdc / qdcComp_);
-
-
 
     if (geSummary_) {
         if (geSummary_->GetMult() > 0) {
@@ -338,8 +331,6 @@ std::pair<unsigned int, unsigned int> VandleProcessor::ReturnOffset(const std::s
 void VandleProcessor::FillVandleRoot(const BarDetector &bar, const double &tof,const double &aCortof,
                                      const double &bCortof, const double &NCtof, unsigned int &barNum) {
 
-#ifdef useroot
-
     vandle_subtype = bar.GetType();
     vandle_lSnR = bar.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
     vandle_rSnR = bar.GetRightSide().GetTrace().GetSignalToNoiseRatio();
@@ -359,12 +350,12 @@ void VandleProcessor::FillVandleRoot(const BarDetector &bar, const double &tof,c
     vandle_Corrected_TAvg = bar.GetCorTimeAve();
     vandle_TDiff = bar.GetTimeDifference();
     vandle_Corrected_TDiff = bar.GetCorTimeDiff();
-    vandle_ltrace = bar.GetLeftSide().GetTrace();
-    vandle_rtrace = bar.GetRightSide().GetTrace();
-#endif
+    // vandle_ltrace = bar.GetLeftSide().GetTrace();
+    // vandle_rtrace = bar.GetRightSide().GetTrace();
 }
+
 void VandleProcessor::FillBetaRoot(const HighResTimingData &start, unsigned int &startNum) {
-#ifdef useroot
+
     beta_lSnR = start.GetTrace().GetSignalToNoiseRatio();
     beta_lAmp = start.GetMaximumValue();
     beta_lMaxAmpPos = start.GetMaximumPosition();
@@ -372,34 +363,31 @@ void VandleProcessor::FillBetaRoot(const HighResTimingData &start, unsigned int 
     beta_lQDC = start.GetTraceQdc();
     beta_TAvg = start.GetTime();
     beta_Corrected_TAvg = start.GetWalkCorrectedTime();
-    beta_ltrace = start.GetTrace();
-
+    // beta_ltrace = start.GetTrace();
     beta_barNum = startNum;
     // printf("evtNumber:%d \n",evtNumber);
 
-#endif
 }
 void VandleProcessor::FillBetaRoot(const BarDetector &start, unsigned int &startNum) {
-#ifdef useroot
-        beta_lSnR = start.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
-        beta_rSnR = start.GetRightSide().GetTrace().GetSignalToNoiseRatio();
-        beta_lAmp = start.GetLeftSide().GetMaximumValue();
-        beta_rAmp = start.GetRightSide().GetMaximumValue();
-        beta_lMaxAmpPos = start.GetLeftSide().GetMaximumPosition();
-        beta_rMaxAmpPos = start.GetRightSide().GetMaximumPosition();
-        beta_lAveBaseline = start.GetLeftSide().GetAveBaseline();
-        beta_rAveBaseline = start.GetRightSide().GetAveBaseline();
-        beta_BarQDC = start.GetQdc();
-        beta_lQDC = start.GetLeftSide().GetTraceQdc();
-        beta_rQDC = start.GetRightSide().GetTraceQdc();
-        beta_barNum = startNum;
-        beta_TAvg = start.GetTimeAverage();
-        beta_Corrected_TAvg = start.GetCorTimeAve();
-        beta_TDiff = start.GetTimeDifference();
-        beta_Corrected_TDiff = start.GetCorTimeDiff();
-        beta_ltrace = start.GetLeftSide().GetTrace();
-        beta_rtrace = start.GetRightSide().GetTrace();
-// printf("evtNumber:%d \n",evtNumber);
 
-#endif
+  beta_lSnR = start.GetLeftSide().GetTrace().GetSignalToNoiseRatio();
+  beta_rSnR = start.GetRightSide().GetTrace().GetSignalToNoiseRatio();
+  beta_lAmp = start.GetLeftSide().GetMaximumValue();
+  beta_rAmp = start.GetRightSide().GetMaximumValue();
+  beta_lMaxAmpPos = start.GetLeftSide().GetMaximumPosition();
+  beta_rMaxAmpPos = start.GetRightSide().GetMaximumPosition();
+  beta_lAveBaseline = start.GetLeftSide().GetAveBaseline();
+  beta_rAveBaseline = start.GetRightSide().GetAveBaseline();
+  beta_BarQDC = start.GetQdc();
+  beta_lQDC = start.GetLeftSide().GetTraceQdc();
+  beta_rQDC = start.GetRightSide().GetTraceQdc();
+  beta_barNum = startNum;
+  beta_TAvg = start.GetTimeAverage();
+  beta_Corrected_TAvg = start.GetCorTimeAve();
+  beta_TDiff = start.GetTimeDifference();
+  beta_Corrected_TDiff = start.GetCorTimeDiff();
+  // beta_ltrace = start.GetLeftSide().GetTrace();
+  // beta_rtrace = start.GetRightSide().GetTrace();
+  // printf("evtNumber:%d \n",evtNumber);
+
 }

@@ -80,7 +80,7 @@ public:
     bool GetHasBig(void) { return requestedTypes_.find("big") != requestedTypes_.end(); }
 
     bool SaveRoot;
-#ifdef useroot
+
     /** \root TTree */
     TFile* TFile_tree;
     TTree* data_summary_tree;
@@ -101,13 +101,13 @@ public:
     double vandle_rMaxAmpPos=0;
     double vandle_lAveBaseline=0;
     double vandle_rAveBaseline=0;
-    unsigned int vandle_barNum=0;
+    unsigned int vandle_bar=0;
     double vandle_TAvg=0;
     double vandle_Corrected_TAvg=0;
     double vandle_TDiff=0;
     double vandle_Corrected_TDiff=0;
-    std::vector<unsigned int> vandle_ltrace;
-    std::vector<unsigned int> vandle_rtrace;
+    // std::vector<unsigned int> vandle_ltrace;
+    // std::vector<unsigned int> vandle_rtrace;
 
     double beta_BarQDC=0;
     double beta_lQDC=0;
@@ -125,9 +125,8 @@ public:
     double beta_Corrected_TAvg=0;
     double beta_TDiff=0;
     double beta_Corrected_TDiff=0;
-    std::vector<unsigned int> beta_ltrace;
-    std::vector<unsigned int> beta_rtrace;
-#endif
+    // std::vector<unsigned int> beta_ltrace;
+    // std::vector<unsigned int> beta_rtrace;
 
 private:
     ///Analyze the data for scenarios with Bar Starts; e.g. Double Beta detectors
