@@ -1,6 +1,6 @@
 /** \file Ornl2016Processor.cpp
  * \brief A class to process data from the Ornl 2016 OLTF experiment using
- * VANDLE. Using Root and Damm for histogram analysis. 
+ * VANDLE. Using Root and Damm for histogram analysis.
  * Moved to PAASS Oct 2016
  * Writen originally by S. V. Paulauskas on February 10, 2016
  * Significant edits were made in the Summer of 2017
@@ -435,31 +435,31 @@ Ornl2016Processor::Ornl2016Processor() : EventProcessor(
 Ornl2016Processor::~Ornl2016Processor() {
 
     //sing
-    rootFName_->Write();
+    rootFName_->Write("",TObject::kOverwrite);
     rootFName_->Close();
     delete (rootFName_);
 
     //addback
-    rootFName2_->Write();
+    rootFName2_->Write("",TObject::kOverwrite);
     rootFName2_->Close();
     delete (rootFName2_);
 
     //Wave Debugging
     if (debugging) {
-        rootFName4_->Write();
+        rootFName4_->Write("",TObject::kOverwrite);
         rootFName4_->Close();
         delete (rootFName4_);
     }
 
     if (Pvandle) {
         //histo
-        rootFName3_->Write();
+        rootFName3_->Write("",TObject::kOverwrite);
         rootFName3_->Close();
         delete (rootFName3_);
 
         if (VoutRoot){
             //Vandle + coincidence
-            rootFName5_->Write();
+            rootFName5_->Write("",TObject::kOverwrite);
             rootFName5_->Close();
             delete (rootFName5_);
         }
@@ -487,7 +487,7 @@ bool Ornl2016Processor::Process(RawEvent &event) {
     BarMap betas, vbars;
 
     hasLRbeta = false;
-    hasLRbeta = TreeCorrelator::get()->place("Beta")->status(); 
+    hasLRbeta = TreeCorrelator::get()->place("Beta")->status();
     //might need a static initialize to false + reset at the end
 
     if (Pvandle || debugging){
