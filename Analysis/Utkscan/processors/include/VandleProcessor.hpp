@@ -83,7 +83,7 @@ public:
 
     /** \root TTree */
     TFile* TFile_tree;
-    TTree* data_summary_tree;
+    TTree* vandle_tree;
 
     unsigned int evtNumber=0;
     std::string dataRun = Globals::get()->GetOutputFileName();

@@ -64,51 +64,51 @@ VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList, const
     if (SaveRoot) {
         TFile_tree = new TFile(treefilename.c_str(), "recreate");
 
-        data_summary_tree = new TTree("data_summary_tree", "data_summary_tree");
+        vandle_tree = new TTree("vandle_tree", "vandle_tree");
 
-        data_summary_tree->Branch("evtNumber", &evtNumber);
-        data_summary_tree->Branch("dataRun", &dataRun);
+        vandle_tree->Branch("evtNumber", &evtNumber);
+        vandle_tree->Branch("dataRun", &dataRun);
 
-        data_summary_tree->Branch("vandle_subtype", &vandle_subtype);
-        data_summary_tree->Branch("vandle_QDC", &vandle_QDC);
-        data_summary_tree->Branch("vandle_lQDC", &vandle_lQDC);
-        data_summary_tree->Branch("vandle_rQDC", &vandle_rQDC);
-        data_summary_tree->Branch("vandle_QDCPos", &vandle_QDCPos);
-        data_summary_tree->Branch("vandle_TOF", &vandle_TOF);
-        data_summary_tree->Branch("vandle_lSnR", &vandle_lSnR);
-        data_summary_tree->Branch("vandle_rSnR", &vandle_rSnR);
-        data_summary_tree->Branch("vandle_lAmp", &vandle_lAmp);
-        data_summary_tree->Branch("vandle_rAmp", &vandle_rAmp);
-        data_summary_tree->Branch("vandle_lMaxAmpPos", &vandle_lMaxAmpPos);
-        data_summary_tree->Branch("vandle_rMaxAmpPos", &vandle_rMaxAmpPos);
-        data_summary_tree->Branch("vandle_lAveBaseline", &vandle_lAveBaseline);
-        data_summary_tree->Branch("vandle_rAveBaseline", &vandle_rAveBaseline);
-        data_summary_tree->Branch("vandle_bar", &vandle_bar);
-        data_summary_tree->Branch("vandle_TAvg", &vandle_TAvg);
-        data_summary_tree->Branch("vandle_Corrected_TAvg", &vandle_Corrected_TAvg);
-        data_summary_tree->Branch("vandle_TDiff", &vandle_TDiff);
-        data_summary_tree->Branch("vandle_Corrected_TDiff", &vandle_Corrected_TDiff);
-        // data_summary_tree->Branch("vandle_ltrace", &vandle_ltrace);
-        // data_summary_tree->Branch("vandle_rtrace", &vandle_rtrace);
+        vandle_tree->Branch("vandle_subtype", &vandle_subtype);
+        vandle_tree->Branch("vandle_QDC", &vandle_QDC);
+        vandle_tree->Branch("vandle_lQDC", &vandle_lQDC);
+        vandle_tree->Branch("vandle_rQDC", &vandle_rQDC);
+        vandle_tree->Branch("vandle_QDCPos", &vandle_QDCPos);
+        vandle_tree->Branch("vandle_TOF", &vandle_TOF);
+        vandle_tree->Branch("vandle_lSnR", &vandle_lSnR);
+        vandle_tree->Branch("vandle_rSnR", &vandle_rSnR);
+        vandle_tree->Branch("vandle_lAmp", &vandle_lAmp);
+        vandle_tree->Branch("vandle_rAmp", &vandle_rAmp);
+        vandle_tree->Branch("vandle_lMaxAmpPos", &vandle_lMaxAmpPos);
+        vandle_tree->Branch("vandle_rMaxAmpPos", &vandle_rMaxAmpPos);
+        vandle_tree->Branch("vandle_lAveBaseline", &vandle_lAveBaseline);
+        vandle_tree->Branch("vandle_rAveBaseline", &vandle_rAveBaseline);
+        vandle_tree->Branch("vandle_bar", &vandle_bar);
+        vandle_tree->Branch("vandle_TAvg", &vandle_TAvg);
+        vandle_tree->Branch("vandle_Corrected_TAvg", &vandle_Corrected_TAvg);
+        vandle_tree->Branch("vandle_TDiff", &vandle_TDiff);
+        vandle_tree->Branch("vandle_Corrected_TDiff", &vandle_Corrected_TDiff);
+        // vandle_tree->Branch("vandle_ltrace", &vandle_ltrace);
+        // vandle_tree->Branch("vandle_rtrace", &vandle_rtrace);
 
-        data_summary_tree->Branch("beta_BarQDC", &beta_BarQDC);
-        data_summary_tree->Branch("beta_lQDC", &beta_lQDC);
-        data_summary_tree->Branch("beta_rQDC", &beta_rQDC);
-        data_summary_tree->Branch("beta_lSnR", &beta_lSnR);
-        data_summary_tree->Branch("beta_rSnR", &beta_rSnR);
-        data_summary_tree->Branch("beta_lAmp", &beta_lAmp);
-        data_summary_tree->Branch("beta_rAmp", &beta_rAmp);
-        data_summary_tree->Branch("beta_lMaxAmpPos", &beta_lMaxAmpPos);
-        data_summary_tree->Branch("beta_rMaxAmpPos", &beta_rMaxAmpPos);
-        data_summary_tree->Branch("beta_lAveBaseline", &vandle_lAveBaseline);
-        data_summary_tree->Branch("beta_rAveBaseline", &vandle_rAveBaseline);
-        data_summary_tree->Branch("beta_barNum", &beta_barNum);
-        data_summary_tree->Branch("beta_TAvg", &beta_TAvg);
-        data_summary_tree->Branch("beta_Corrected_TAvg", &beta_Corrected_TAvg);
-        data_summary_tree->Branch("beta_TDiff", &beta_TDiff);
-        data_summary_tree->Branch("beta_Corrected_TDiff", &beta_Corrected_TDiff);
-        // data_summary_tree->Branch("beta_ltrace", &beta_ltrace);
-        // data_summary_tree->Branch("beta_rtrace", &beta_rtrace);
+        vandle_tree->Branch("beta_BarQDC", &beta_BarQDC);
+        vandle_tree->Branch("beta_lQDC", &beta_lQDC);
+        vandle_tree->Branch("beta_rQDC", &beta_rQDC);
+        vandle_tree->Branch("beta_lSnR", &beta_lSnR);
+        vandle_tree->Branch("beta_rSnR", &beta_rSnR);
+        vandle_tree->Branch("beta_lAmp", &beta_lAmp);
+        vandle_tree->Branch("beta_rAmp", &beta_rAmp);
+        vandle_tree->Branch("beta_lMaxAmpPos", &beta_lMaxAmpPos);
+        vandle_tree->Branch("beta_rMaxAmpPos", &beta_rMaxAmpPos);
+        vandle_tree->Branch("beta_lAveBaseline", &vandle_lAveBaseline);
+        vandle_tree->Branch("beta_rAveBaseline", &vandle_rAveBaseline);
+        vandle_tree->Branch("beta_barNum", &beta_barNum);
+        vandle_tree->Branch("beta_TAvg", &beta_TAvg);
+        vandle_tree->Branch("beta_Corrected_TAvg", &beta_Corrected_TAvg);
+        vandle_tree->Branch("beta_TDiff", &beta_TDiff);
+        vandle_tree->Branch("beta_Corrected_TDiff", &beta_Corrected_TDiff);
+        // vandle_tree->Branch("beta_ltrace", &beta_ltrace);
+        // vandle_tree->Branch("beta_rtrace", &beta_rtrace);
 
 #endif
     }
@@ -239,7 +239,7 @@ void VandleProcessor::AnalyzeBarStarts(const BarDetector &bar, unsigned int &bar
     if(SaveRoot) {
         FillVandleRoot(bar, tof, AvgcorTof, barcorTof, NCtof, barLoc);
         FillBetaRoot(start, startLoc);
-        data_summary_tree->Fill();
+        vandle_tree->Fill();
     }
   }
 }
@@ -264,7 +264,7 @@ void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc
     if(SaveRoot) {
         FillVandleRoot(bar, tof, AvgcorTof, barcorTof, NCtof, barLoc);
         FillBetaRoot(start, startLoc);
-        data_summary_tree->Fill();
+        vandle_tree->Fill();
     }
   }
 }

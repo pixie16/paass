@@ -71,11 +71,8 @@ public:
 
     /** Returns the events that were added to the vaious  addback_ vectors */
     std::vector<ScintAddBack> GetLaddBackEvent(void) { return (LaddBack_); }
-
     std::vector<ScintAddBack> GetNaddBackEvent(void) { return (NaddBack_); }
-
     std::vector<ScintAddBack> GetGaddBackEvent(void) { return (GaddBack_); }
-
 
 private:
 
@@ -100,67 +97,16 @@ private:
     TFile *rootFName4_;
     TFile *rootFName5_;
 
-    TTree *TauxL;
-    TTree *TauxN;
-    TTree *TauxG;
-
-    TTree *Tvan;
-    TTree *Wave;
-    TTree *Tadd;
+    TTree *LaBr_tree;
+    TTree *NaI_tree;
+    TTree *HPGe_tree;
+    TTree *addBack_tree;
 
     TBranch *singBranch;
     TBranch *gProcBranch;
     TBranch *lProcBranch;
     TBranch *nProcBranch;
 
-// Vandle Tree and Debugging tree stuff
-    unsigned int evtNumber=0;
-    std::string output_name = Globals::get()->GetOutputFileName();
-    std::string vandle_subtype = "";
-
-    double vandle_BarQDC=0;
-    double vandle_lQDC=0;
-    double vandle_rQDC=0;
-    double vandle_QDCPos=-500;
-    double vandle_TOF=0;
-    double vandle_lSnR=0;
-    double vandle_rSnR=0;
-    double vandle_lAmp=0;
-    double vandle_rAmp=0;
-    double vandle_lMaxAmpPos=0;
-    double vandle_rMaxAmpPos=0;
-    double vandle_lAveBaseline=0;
-    double vandle_rAveBaseline=0;
-    int vandle_barNum=0;
-    double vandle_TAvg=0;
-    double vandle_Corrected_TAvg=0;
-    double vandle_TDiff=0;
-    double vandle_Corrected_TDiff=0;
-    std::vector<unsigned int> vandle_ltrace;
-    std::vector<unsigned int> vandle_rtrace;
-    std::vector<std::pair<double,double>> vandle_ge;
-    std::vector<std::pair<double,double>> vandle_labr3;
-    std::vector<std::pair<double,double>> vandle_nai;
-
-
-    double beta_BarQDC=0;
-    double beta_lQDC=0;
-    double beta_rQDC=0;
-    double beta_lSnR=0;
-    double beta_rSnR=0;
-    double beta_lAmp=0;
-    double beta_rAmp=0;
-    double beta_lMaxAmpPos=0;
-    double beta_rMaxAmpPos=0;
-    double beta_lAveBaseline=0;
-    double beta_rAveBaseline=0;
-    unsigned int beta_barNum=0;
-    double beta_TAvg=0;
-    double beta_Corrected_TAvg=0;
-    double beta_TDiff=0;
-    double beta_Corrected_TDiff=0;
-    std::vector<unsigned int> beta_ltrace;
-    std::vector<unsigned int> beta_rtrace;
 
 //aux branches
     double aux_LaBrEn=0;
@@ -196,21 +142,6 @@ private:
     // The data is stored as <<Time,Energy>,...>
     std::vector<std::pair<double,double>> BetaList;
 
-/*
-//Gamma singles tree structure
-    struct RAY {
-        double LaBr[16];
-        double NaI[10];
-        double Ge[4];
-        double beta;
-        double eventNum;
-        int cycle;
-        int gMulti;
-        int nMulti;
-        int lMulti;
-        int bMulti;
-    } sing;
-*/
     // gamma AddBack Structure
     struct PROSS {
         double AbE;
@@ -229,11 +160,7 @@ private:
 
     //functions for root preocessing
     void rootArrayreset(double arrayName[], int arraySize);
-
-    //void rootGstrutInit(RAY &strutName);
-
     void rootGstrutInit2(PROSS &strutName);
-
     void rootAuxRoot(std::string &type);
 
     //thresholds and windows for gamma addback for LaBr3 (L*) and NaI (N*)
@@ -243,7 +170,6 @@ private:
     double NsubEventWindow_;
     double GgammaThreshold_;
     double GsubEventWindow_;
-
 
     std::vector<ScintAddBack> LaddBack_;
     std::vector<ScintAddBack> NaddBack_;
@@ -261,5 +187,3 @@ private:
 };
 
 #endif
-
-
