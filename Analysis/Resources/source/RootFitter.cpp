@@ -38,8 +38,8 @@ double RootFitter::CalculatePhase(const std::vector<double> &data,
     TF1 func("func", sipmTimingFunction, 0., 1.e6, 5);
     func.SetParameters(0, qdc_ * 0.5, 0.5, 0.5, baseline.first);
     //DPL Fixing beta and gamma
-    //func.FixParameter(2,pars.first);
-    //func.FixParameter(3,pars.second);
+    func.FixParameter(2,pars.first);
+    func.FixParameter(3,pars.second);
     func.FixParameter(4,baseline.first);
     ///@TODO We need to get this working, it's suffering from some strange
     /// issues with ROOT and linked libraries.

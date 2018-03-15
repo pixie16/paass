@@ -33,10 +33,10 @@ class TwoChanTimingProcessor : public EventProcessor {
     bool Process(RawEvent &event);
 
 private: 
-  double StartTimeStamp;
-  double StopTimeStamp;
-  int StartMaxValue;
-  int StopMaxValue;
+  double StartTimeStamp[2];
+  double StopTimeStamp[2];
+  int StartMaxBin[2];
+  int StopMaxBin[2];
   double StartChiSq;
   double StopChiSq;
 

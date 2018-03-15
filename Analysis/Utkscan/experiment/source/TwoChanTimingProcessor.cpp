@@ -19,6 +19,12 @@ static HighResTimingData::HrtRoot rstart1;
 static HighResTimingData::HrtRoot rstop1;
 static HighResTimingData::HrtRoot rstart2;
 static HighResTimingData::HrtRoot rstop2;
+static std::vector <UInt_t> trace_start1;
+static std::vector <UInt_t> trace_start2;
+static std::vector <UInt_t> trace_stop1;
+static std::vector <UInt_t> trace_stop2;
+
+
 
 std::ofstream trcfile;
 TFile *rootfile;
@@ -63,18 +69,25 @@ TwoChanTimingProcessor::TwoChanTimingProcessor() :
     tree->Branch("stop1", &rstop1, "qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
     tree->Branch("start2", &rstart2,"qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
     tree->Branch("stop2", &rstop2, "qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
-    //tree->Branch("StartTimeStamp",&StartTimeStamp,"Timestamp/D");
-    //tree->Branch("StopTimeStamp",&StopTimeStamp,"Timestamp/D");
+    tree->Branch("trace_start1",&trace_start1);
+    tree->Branch("trace_start2",&trace_start2);
+    tree->Branch("trace_stop1",&trace_stop1);
+    tree->Branch("trace_stop2",&trace_stop2);
+    tree->Branch("StartTimeStamp[2]",&StartTimeStamp,"StartTimestamp[2]/D");
+    tree->Branch("StopTimeStamp[2]",&StopTimeStamp,"StopTimestamp[2]/D");
+    tree->Branch("StartMaximum[2]",&StartMaxBin,"StartMax[2]/I");
+    tree->Branch("StopTimeMaximum[2]",&StopMaxBin,"StopMax[2]/I");
     tree->Branch("StartChiSq",&StartChiSq,"StartChi/D");
     tree->Branch("StopChiSq",&StopChiSq,"StopChi/D");
     codes = new TH1I("codes", "", 40, 0, 40);
-    traces = new TH2I("traces","",1000,0,1000,20000,0,20000);
-    traces_stop = new TH2I("traces_stop","",1000,0,1000,20000,0,20000);
-    superpulse_start =  new TH2I("super_start","",1000,0,1000,4096,0,4095);
-    superpulse_stop =  new TH2I("super_stop","",1000,0,1000,4096,0,4095);
-    StartTimeStamp=-9999;
-    StopTimeStamp=-9999;
-;
+    StartTimeStamp[0]=-9999;
+    StartTimeStamp[1]=-9999;
+    StopTimeStamp[0]=-9999;
+    StopTimeStamp[1]=-9999;
+    StartMaxBin[0]=-999;
+    StartMaxBin[1]=-999;
+    StopMaxBin[0]=-999;
+    StopMaxBin[1]=-999;
 }
 
 TwoChanTimingProcessor::~TwoChanTimingProcessor() {
@@ -102,21 +115,21 @@ bool TwoChanTimingProcessor::Process(RawEvent &event) {
             //event.GetSummary("beta")->GetList();
 
     //if(pulserEvents.size()==4)
-      //std::cout<<"TwoChanTimingProcessor::Process()"<<pulserEvents.size()<<std::endl;
+    //std::cout<<"TwoChanTimingProcessor::Process()"<<pulserEvents.size()<<std::endl;
 
     for (vector<ChanEvent *>::const_iterator itPulser = pulserEvents.begin();
          itPulser != pulserEvents.end(); itPulser++) {
         int location = (*itPulser)->GetChanID().GetLocation();
         string subType = (*itPulser)->GetChanID().GetSubtype();
-		//std::cout<<"TwoChanTimingProcessor::Process()"<<location<<" "<<subType<<std::endl;
+	//std::cout<<"TwoChanTimingProcessor::Process()"<<location<<" "<<subType<<std::endl;
 
 		TimingDefs::TimingIdentifier key(location, subType);
 		pulserMap.insert(make_pair(key, HighResTimingData(*(*itPulser))));
 	    }
 
     //if (pulserMap.empty()) {
-    if (pulserMap.empty() || pulserMap.size() % 2 != 0) {
-    //if (pulserMap.empty() || pulserMap.size() != 3) {
+    if (pulserMap.empty() || pulserMap.size() % 2 != 0) {    /// 2 Fold Coincidences
+//    if (pulserMap.empty() || pulserMap.size() != 4) {         ///  4 Fold Coincidences
         //If the map is empty or size isn't even we return and increment
         // error code
         codes->Fill(WRONG_NUM);
@@ -129,92 +142,103 @@ HighResTimingData stop1 =    (*pulserMap.find(make_pair(0, "stop1"))).second;
 HighResTimingData start2 =   (*pulserMap.find(make_pair(0, "start2"))).second;
 HighResTimingData stop2 =    (*pulserMap.find(make_pair(0, "stop2"))).second;
 
-//cout<<start1.GetIsValid()<<endl;
-    //std::cout<<"Start Phase is "<<start1.GetTrace().GetPhase()*Globals::get()->adcClockInSeconds()*1e9<<" ns"<<std::endl;
-    //std::cout<<"Stop Phase is "<<stop1.GetTrace().GetPhase()*Globals::get()->adcClockInSeconds()*1e9<<" ns"<<std::endl;
-    //std::cout<<"Start Maximum is "<<start1.GetTrace().GetMaxInfo().second<<" at bin "<<start1.GetTrace().GetMaxInfo().first<<std::endl;
-    //std::cout<<"Stop Maximum is "<<stop1.GetTrace().GetMaxInfo().second<<" at bin "<<stop1.GetTrace().GetMaxInfo().first<<std::endl;
-    //std::cout<<"Range is "<<Globals::get()->waveformRange("pulser:stop").first<<" and "<< Globals::get()->waveformRange("pulser:stop").second<<std::endl;
+ bool bstart1 = false;
+ bool bstart2 = false;
+ bool bstop1 = false;
+ bool bstop2 = false;
 
-if(start1.GetIsValid()){
-    Double_t Start_time = (start1.GetTimeSansCfd()*Globals::get()->filterClockInSeconds()+
-			   start1.GetTrace().GetPhase()*Globals::get()->adcClockInSeconds())*1.e9;
-   StartMaxValue = start1.GetMaximumValue();
-   StartChiSq = start1.GetTrace().GetChiSquareDof();
-}
-if(stop1.GetIsValid()){   
- Double_t Stop_time = (stop1.GetTimeSansCfd()*Globals::get()->filterClockInSeconds()+
-			   stop1.GetTrace().GetPhase()*Globals::get()->adcClockInSeconds())*1.e9;
+if(pulserMap.count(make_pair(0, "start1"))>0)
+  bstart1=true;
+if(pulserMap.count(make_pair(0, "start2"))>0)
+  bstart2=true;
+if(pulserMap.count(make_pair(0, "stop1"))>0)
+  bstop1=true;
+if(pulserMap.count(make_pair(0, "stop2"))>0)
+  bstop2=true;
 
-    StopMaxValue = stop1.GetMaximumValue();
-    StopChiSq = stop1.GetTrace().GetChiSquareDof();    
- 
-}
     //std::cout<<"Start Max is "<< StartMaxValue<<std::endl;
     //std::cout<<"Stop Max is "<< StopMaxValue<<std::endl;
-
-    static int trcCounter = 0;
-    int bin;
-if (start1.GetIsValid() && stop1.GetIsValid()) {
-    for(vector<unsigned int>::const_iterator it = start1.GetTrace().begin();
-            it != start1.GetTrace().end(); it++) {
-        bin = (int)(it-start1.GetTrace().begin());
-        traces->Fill(bin, trcCounter, *it);
-    	superpulse_start->Fill(bin,*it);
-        //Only output the 500th trace to make sure that we are not at the
-        // beginning of the file and we're a ways into the data.
-        if(trcCounter == 500)
-            trcfile << bin << " " << *it << " " << sqrt(*it) << endl;
-    }
-    for(vector<unsigned int>::const_iterator it = stop1.GetTrace().begin();
-            it != stop1.GetTrace().end(); it++) {
-        bin = (int)(it-stop1.GetTrace().begin());
-        traces_stop->Fill(bin, trcCounter, *it);
-    //	superpulse_stop->Fill(bin,*it);
-
-
-
-    }
-    trcCounter++;
-    //tree->Fill();
-}
-
-    //We only plot and analyze the data if the data is validated
-    if (start1.GetIsValid() && stop1.GetIsValid()) { //DPL: Should be &&!!
-        start1.FillRootStructure(rstart1);
-      	stop1.FillRootStructure(rstop1);
-    }
-
-
-//    if (start2.GetIsValid() && stop2.GetIsValid()) { //DPL: Should be &&!!
-//        start2.FillRootStructure(rstart2);
-//      	stop2.FillRootStructure(rstop2);
-//    }
-
- //if (start1.GetIsValid() && stop1.GetIsValid()&&start2.GetIsValid() && stop2.GetIsValid()) 
- if (start1.GetIsValid() && stop1.GetIsValid()) 
-   tree->Fill();
-
-
-    if (start1.GetIsValid() && stop1.GetIsValid()) {
-      stop1.ZeroRootStructure(rstop1);
-      start1.ZeroRootStructure(rstart1);
-    }
-
-    //if (start2.GetIsValid() && stop2.GetIsValid()) {
-    //  stop2.ZeroRootStructure(rstop2);
-    //  start2.ZeroRootStructure(rstart2);
-    //}
-
-	//start2.FillRootStructure(rstart2);
-        //stop2.FillRootStructure(rstop2);
-        //stop2.ZeroRootStructure(rstop2);
-        //start2.ZeroRootStructure(rstart2);
+    
+ if(bstart1)
+   trace_start1=start1.GetTrace();
+ if(bstart2)
+   trace_start2=start2.GetTrace();
+ if(bstop1)
+   trace_stop1=stop1.GetTrace();
+ if(bstop2)
+   trace_stop2=stop2.GetTrace();
  
-        StartTimeStamp=-9999;
-        StopTimeStamp=-9999;
-        StartMaxValue = -9999;
-        StopMaxValue = -9999;
+ //We only plot and analyze the data if the data is validated
+//if (start1.GetIsValid() && stop1.GetIsValid()&&start2.GetIsValid() && stop2.GetIsValid() ) { //DPL: Should be &&!!
+// if (start1.GetIsValid() && stop1.GetIsValid()&&start2.GetIsValid() ) { //DPL: Should be &&!!
+   if(bstart1){
+     if(start1.GetIsValid()){
+       start1.FillRootStructure(rstart1);
+       StartTimeStamp[0]=start1.GetTimeSansCfd()*Globals::get()->filterClockInSeconds()*1e9;
+       StartMaxBin[0]= start1.GetTrace().GetMaxInfo().first;
+     }
+     else
+       bstart1=false;
+   }
+   if(bstart2){
+     if(start2.GetIsValid()){
+       start2.FillRootStructure(rstart2);
+       StartTimeStamp[1]=start2.GetTimeSansCfd()*Globals::get()->filterClockInSeconds()*1e9;
+       StartMaxBin[1]=start2.GetTrace().GetMaxInfo().first;;
+ 
+     }
+     else
+       bstart2=false;
+   }
+   if(bstop1){
+     if(stop1.GetIsValid()){	
+       stop1.FillRootStructure(rstop1);
+       StopTimeStamp[0]=stop1.GetTimeSansCfd()*Globals::get()->filterClockInSeconds()*1e9;
+       StopMaxBin[0]=stop1.GetTrace().GetMaxInfo().first;;
+     }
+
+      else
+       bstop1=false;
+  }
+   if(bstop2){
+     if(stop2.GetIsValid()){
+       stop2.FillRootStructure(rstop2);
+       StopTimeStamp[1]=stop2.GetTimeSansCfd()*Globals::get()->filterClockInSeconds()*1e9;
+       StopMaxBin[1]=stop2.GetTrace().GetMaxInfo().first;;
+    }
+     else
+       bstop2=false;
+
+   }
+   
+
+
+   if (bstart1||bstart2||bstop1||bstop2) { //DPL: Should be &&!!
+     tree->Fill();
+     if(bstart1){
+       start1.ZeroRootStructure(rstart1);
+       trace_start1.clear();
+     }
+     if(bstart2){
+       start2.ZeroRootStructure(rstart2);
+       trace_start2.clear();
+     }
+     if(bstop1){
+       stop1.ZeroRootStructure(rstop1);
+       trace_stop1.clear();
+     }
+     if(bstop2){
+       stop2.ZeroRootStructure(rstop2);
+       trace_stop2.clear();
+     }
+   } // if (bstart1||bstart2||bstop1||bstop2) 
+
+   for(Int_t k=0;k<2;k++){
+     StartTimeStamp[k]=-9999;
+     StopTimeStamp[k]=-9999;
+     StartMaxBin[k]=-999;
+     StopMaxBin[k]=-999;
+  }
         StartChiSq = -9999;    
         StopChiSq = -9999;    
 

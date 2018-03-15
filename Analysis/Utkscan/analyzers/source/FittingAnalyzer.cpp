@@ -70,6 +70,9 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
     bool isSlowSiPm = detType == "pulser"
                       && tagMap.find("slow") != tagMap.end();
 
+    bool isArraySiPm = detType == "pulser"
+                      && tagMap.find("array") != tagMap.end();
+
     //std::cout<<"isFastSiPm "<<isFastSiPm <<std::endl;
 
 
@@ -101,6 +104,13 @@ void FittingAnalyzer::Analyze(Trace &trace, const std::string &detType,
         //std::cout<<pars.first<<" "<<pars.second<<std::endl;
         theFitter->SetIsSlowSiPm(true);  
     }
+    else if(isArraySiPm){
+     pars = globals->fitPars(detType + ":" + detSubtype + ":timing");
+        //DPL: we tell the driver to use the corresponding fitting function
+        //std::cout<<pars.first<<" "<<pars.second<<std::endl;
+        theFitter->SetIsArraySiPm(true);  
+    }
+
     }
 else if(type_=="ROOT"|| type_=="root"){
   RootFitter *theFitter=static_cast<RootFitter*>(driver_);

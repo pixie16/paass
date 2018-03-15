@@ -19,5 +19,5 @@ double SiPMTimingFunction::operator()(double *x, double *p) {
         return baseline;
 
     return amplitude * std::exp(-beta * diff) *
-           (1 - std::exp(-std::pow(gamma * diff, 3.5))) + baseline;
+           (1 - std::exp(-std::pow(gamma * diff, 2.5))) + baseline;
 }

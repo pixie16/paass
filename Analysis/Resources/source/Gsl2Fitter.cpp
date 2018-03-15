@@ -48,6 +48,24 @@ int SiPmSlowFunction(const gsl_vector *x, void *FitData, gsl_vector *f);
  * \return an integer that GSL does something magical with */
 int CalcSiPmSlowJacobian(const gsl_vector *x, void *FitData, gsl_matrix *J);
 
+
+/** Defines the GSL fitting function for the normal (slow) output of  Array of SiPMs
+ * \param [in] x : the vector of gsl starting parameters
+ * \param [in] FitData : The data to use for the fit
+ * \param [in] f : pointer to the function
+ * \return an integer that GSL does something magical with */
+int SiPmArrayFunction(const gsl_vector *x, void *FitData, gsl_vector *f);
+
+/** Defines the GSL fitting function for the normal (slow) output of an Array of SiPMs
+ * \param [in] x : the vector of gsl starting parameters
+ * \param [in] FitData : The data to use for the fit
+ * \param [in] J : pointer to the Jacobian of the function
+ * \return an integer that GSL does something magical with */
+int CalcSiPmArrayJacobian(const gsl_vector *x, void *FitData, gsl_matrix *J);
+
+
+
+
 using namespace std;
 
 double GslFitter::CalculatePhase(const std::vector<double> &data,
@@ -77,6 +95,16 @@ double GslFitter::CalculatePhase(const std::vector<double> &data,
 
         f.f = &SiPmtFunction;
         f.df = &CalcSiPmtJacobian;
+    }else if (isArraySiPm_){
+        p=2;
+        xInit[0] =  0;
+        xInit[1] = 2.5;
+        //DPL changed the initial value for 16-bit fit
+	//xInit[1] = 250.;
+
+        f.f = &SiPmArrayFunction;
+        f.df = &CalcSiPmArrayJacobian;
+
     }
     else{
         //DPL
@@ -134,6 +162,10 @@ double GslFitter::CalculatePhase(const std::vector<double> &data,
         phase = gsl_vector_get(s->x, 0);
         amp_ = gsl_vector_get(s->x, 1);
         //std::cout<<"Here I am SlowSipm "<<phase <<" "<<amp_<<std::endl;
+    } else if (isArraySiPm_) {
+        phase = gsl_vector_get(s->x, 0);
+        amp_ = gsl_vector_get(s->x, 1);
+        //std::cout<<"Here I am ArraySipm "<<phase <<" "<<amp_<<std::endl;
     }
     else{
         phase = gsl_vector_get(s->x, 0);
@@ -341,7 +373,7 @@ int CalcSiPmSlowJacobian(const gsl_vector *x, void *FitData, gsl_matrix *J){
 
     double dphi, dalpha;
 
-    double exponent= 3.5;
+    double exponent= 2.5;
 
     for (size_t i = 0; i < n; i++) {
         double t = i;
@@ -363,4 +395,63 @@ int CalcSiPmSlowJacobian(const gsl_vector *x, void *FitData, gsl_matrix *J){
  
 }
 
+int SiPmArrayFunction(const gsl_vector *x, void *FitData, gsl_vector *f){
+    size_t n = ((struct GslFitter::FitData *) FitData)->n;
+    double *y = ((struct GslFitter::FitData *) FitData)->y;
+    double beta = ((struct GslFitter::FitData *) FitData)->beta;
+    double gamma = ((struct GslFitter::FitData *) FitData)->gamma;
+    double qdc = ((struct GslFitter::FitData *) FitData)->qdc;
 
+    double phi = gsl_vector_get(x, 0);
+    double alpha = gsl_vector_get(x, 1);
+
+double exponent = 1.5; 
+
+    for (size_t i = 0; i < n; i++) {
+        double t = i;
+        double diff = t - phi;
+        double Yi = 0;
+
+        if (t < phi)
+            Yi = 0;
+        else
+            Yi = qdc * alpha * exp(-beta * diff) *
+                 (1 - exp(-pow(gamma * diff, exponent)));
+
+        gsl_vector_set(f, i, Yi - y[i]);
+    }
+    return (GSL_SUCCESS);
+ }
+
+int CalcSiPmArrayJacobian(const gsl_vector *x, void *FitData, gsl_matrix *J){
+    size_t n = ((struct GslFitter::FitData *) FitData)->n;
+    double beta = ((struct GslFitter::FitData *) FitData)->beta;
+    double gamma = ((struct GslFitter::FitData *) FitData)->gamma;
+    double qdc = ((struct GslFitter::FitData *) FitData)->qdc;
+
+    double phi = gsl_vector_get(x, 0);
+    double alpha = gsl_vector_get(x, 1);
+
+    double dphi, dalpha;
+
+    double exponent= 1.5;
+
+    for (size_t i = 0; i < n; i++) {
+        double t = i;
+        double diff = t - phi;
+        double gaussSq = exp(-pow(gamma * diff, exponent));
+        if (t < phi) {
+            dphi = 0;
+            dalpha = 0;
+        } else {
+            dphi = alpha * beta * qdc * exp(-beta * diff) * (1 - gaussSq) -
+                   exponent * alpha * qdc * pow(diff, exponent- 1) * exp(-beta * diff) *
+                   pow(gamma, exponent) * gaussSq;
+            dalpha = qdc * exp(-beta * diff) * (1 - gaussSq);
+        }
+        gsl_matrix_set(J, i, 0, dphi);
+        gsl_matrix_set(J, i, 1, dalpha);
+    }
+    return (GSL_SUCCESS);
+ 
+}

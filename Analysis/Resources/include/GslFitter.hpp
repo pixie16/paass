@@ -46,6 +46,7 @@ public:
     ///@param[in] a : The value that we are going to set
     void SetIsFastSiPm(const bool &a) { isFastSiPm_ = a; }
     void SetIsSlowSiPm(const bool &a) { isSlowSiPm_ = a; }
+    void SetIsArraySiPm(const bool &a) { isArraySiPm_ = a; }
 
     /// @brief Structure necessary for the GSL fitting routines
     struct FitData {
@@ -59,6 +60,7 @@ public:
 private:
     bool isFastSiPm_;
     bool isSlowSiPm_;
+    bool isArraySiPm_;
 
     double amp_;
     double chi_;

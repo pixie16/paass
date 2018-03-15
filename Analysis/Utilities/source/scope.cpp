@@ -198,7 +198,8 @@ scopeScanner::~scopeScanner(){
 }
 
 TF1 *scopeScanner::SetupFunc() {
-	paulauskasFunc = new TF1("paulauskas",LoureiroFitFunc,0,1,6);
+//	paulauskasFunc = new TF1("paulauskas",LoureiroFitFunc,0,1,6);
+	paulauskasFunc = new TF1("paulauskas",PaulauskasFitFunc,0,1,5);
 	paulauskasFunc->SetParNames("voffset","amplitude","phase","beta","gamma","delta");
 	
 	return paulauskasFunc;
@@ -313,9 +314,9 @@ void scopeScanner::Plot(){
 			//DPL: Fixing Beta and gamma
 			//paulauskasFunc->FixParameter(
                         //                1,0.052 * chanEvents_.front()->GetTrace().GetQdc());
-			//paulauskasFunc->FixParameter(3,0.11);
-			//paulauskasFunc->FixParameter(4,0.2);
-			paulauskasFunc->FixParameter(5,3.5);
+			//paulauskasFunc->FixParameter(3,0.13);
+			//paulauskasFunc->FixParameter(4,0.25);
+//			paulauskasFunc->FixParameter(5,3.5);
 			graph->Fit(paulauskasFunc,"QMER");
 		}
 	}
@@ -360,11 +361,11 @@ void scopeScanner::Plot(){
 					lowVal, 0.5, 0.2,2);
 			paulauskasFunc->FixParameter(
 					0, chanEvents_.front()->GetTrace().GetBaselineInfo().first);
-			//DPL Fit with Delta
-			//paulauskasFunc->FixParameter(3,0.11);
-			//paulauskasFunc->FixParameter(4,0.2);
+			//DPL: Fit with Delta
+			//paulauskasFunc->FixParameter(3,0.013);
+			//paulauskasFunc->FixParameter(4,0.11);
 			                        
-                        paulauskasFunc->FixParameter(5,3.5);
+                        paulauskasFunc->SetParameter(5,3.5);
 
                         prof->Fit(paulauskasFunc,"QMER");
 		}

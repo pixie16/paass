@@ -28,8 +28,8 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
                                const std::map<std::string, int> &tags) {
     TraceAnalyzer::Analyze(trace, type, subtype, tags);
 
-    //if (trace.IsSaturated() || trace.empty()) {
-    if (trace.empty()) {
+    if (trace.IsSaturated() || trace.empty()) {
+    //if (trace.empty()) {
         EndAnalyze();
         return;
     }
@@ -49,8 +49,8 @@ void WaveformAnalyzer::Analyze(Trace &trace, const std::string &type,
                 TraceFunctions::FindMaximum(trace, globals->traceDelay() /
                                                    (globals->adcClockInSeconds() *
                                                     1.e9));
-    if(max.first-range.first<10)
-      std::cout<<"In WaveformAnalyzer::Analyze() "<<range.first<<" "<<max.first-range.first<<" "<<max.first<<std::endl;
+    //if(max.first-range.first<10)
+    //  std::cout<<"In WaveformAnalyzer::Analyze() "<<range.first<<" "<<max.first-range.first<<" "<<max.first<<std::endl;
         
        //Next we calculate the baseline and its standard deviation
         pair<double, double> baseline =
