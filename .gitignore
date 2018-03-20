@@ -27,6 +27,11 @@ doxywarning.txt
 *.tgz
 *.tar.gz
 
+#poll2 Files
+*.set
+run/pixie.cfg
+
+
 #Ignore the build and exec directory
 build/
 *build-*/
@@ -44,6 +49,8 @@ install/
 *.his
 *.list
 *.log
+
+#ROOT files
 *.root
 
 # Data directories
