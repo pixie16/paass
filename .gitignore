@@ -27,10 +27,10 @@ doxywarning.txt
 *.tgz
 *.tar.gz
 
-#poll2 Files
+#Pixie16 Files
 *.set
 run/pixie.cfg
-
+run/Pixie16msg.txt
 
 #Ignore the build and exec directory
 build/
