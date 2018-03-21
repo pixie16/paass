@@ -37,14 +37,15 @@ void traceClass::Loop(Long64_t nentries, const Char_t *filename)
    else
      outputFile=new TFile(filename,"RECREATE");
 
-   if(nentries==-1)
-   Long64_t nentries = fChain->GetEntriesFast();
+   if (nentries<0) nentries = fChain->GetEntries();
+   
+  std::cout << "Looping " << nentries << " entries" << std::endl;
 
   char hname[200];
   const int ulimit = 65000;
   const int llimit = 5000;
   const int nTH = (ulimit-llimit)/5000;
-  std::cout << "Making " << nTH << " Histotrams" << std::endl;
+//  std::cout << "Making " << nTH << " Histotrams" << std::endl;
   TH2F *hPulse[nTH];
   for (int iH=0; iH<nTH; iH++){
     sprintf(hname,"hP%d",iH*5000+5000);
