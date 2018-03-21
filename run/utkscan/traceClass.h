@@ -11,10 +11,11 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <iostream>
 
 // Header file for the classes stored in the TTree if any.
 #include "vector"
-
+using namespace std;
 class traceClass {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
@@ -88,7 +89,8 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop();
+   virtual void Loop(Long64_t nentries =-1,const Char_t *filename=NULL);
+//   virtual void     Loop();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
