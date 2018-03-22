@@ -124,7 +124,7 @@ double GslFitter::CalculatePhase(const std::vector<double> &data,
     gsl_multifit_fdfsolver *s = gsl_multifit_fdfsolver_alloc(T, n, p);
     gsl_matrix *jac = gsl_matrix_alloc(n, p);
     gsl_matrix *covar = gsl_matrix_alloc(p, p);
-    double *y = new double[n];
+   double *y = new double[n];
     double *weights = new double[n];
     struct FitData fitData = {n, y, weights, pars.first,
                               pars.second, qdc_};
@@ -141,7 +141,7 @@ double GslFitter::CalculatePhase(const std::vector<double> &data,
     f.params = &fitData;
 
     for (unsigned int i = 0; i < n; i++) {
-        weights[i] = baseline.second;
+        weights[i] = baseline.second*1.0;
         y[i] = data[i];
     }
 
@@ -373,7 +373,8 @@ int CalcSiPmSlowJacobian(const gsl_vector *x, void *FitData, gsl_matrix *J){
 
     double dphi, dalpha;
 
-    double exponent= 2.5;
+    double exponent = 4; //JNH (for PMT fitting)
+//    double exponent = 3.5;
 
     for (size_t i = 0; i < n; i++) {
         double t = i;

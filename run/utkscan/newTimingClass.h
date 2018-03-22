@@ -19,6 +19,7 @@
 #include <TGraph.h>
 #include <TCanvas.h>
 #include <TGraph.h>
+#include <TGraphErrors.h>
 #include <iostream>
 
 
@@ -93,7 +94,7 @@ public :
    Double_t ROOT_chisq[4];
    Double_t ROOT_qdc[4];
    Double_t ROOT_max[4];
-
+   Double_t ROOT_delta[4];
    Double_t Xbeta[4];
    Double_t Xgamma[4];
    
@@ -108,7 +109,8 @@ public :
 //   vector<unsigned int> *normtrace1;
 //   vector<unsigned int> *normtrace2;
      
-   TGraph *fTraces[4];
+//   TGraph *fTraces[4];
+   TGraphErrors *fTraces[4];
    TGraph *XTraces[2];
    TF1 *fFits[4];
    TF1 *XFits[2];
@@ -147,7 +149,7 @@ public :
 
    //My methods
    virtual void     Plot(Long64_t entry = -1,Bool_t draw=kFALSE);
-   virtual void     Fit(Long64_t entry = -1, Bool_t fix=kFALSE);
+   virtual void     Fit(Long64_t entry = -1, Bool_t fix=kFALSE, Bool_t kDraw=kFALSE);
    virtual void     Residuals(Long64_t entry = -1, Bool_t fix=kFALSE);
    virtual void     Trap_filter(Long64_t entry = -1,UInt_t length=4,UInt_t gap=0);
 //   virtual void     FillHist(TH2F* hPs, std::vector<unsigned int> *trace);
@@ -183,7 +185,8 @@ newTimingClass::newTimingClass(TTree *tree) : fChain(0)
    beta[j]=0.08;
    gamma[j]=0.26;
    sprintf(fname,"f_%d",j);
-   fTraces[j]=new TGraph();
+//   fTraces[j]=new TGraph();
+   fTraces[j]=new TGraphErrors();
    fResiduals[j]=new TGraph();
    fFits[j]=new TF1(fname,sipmfunc,0,1,6);
    if(j<2){
@@ -338,12 +341,12 @@ void newTimingClass::Plot(Long64_t entry,Bool_t draw){
   const UInt_t size2=trace_stop1->size();
   const UInt_t size3=trace_stop2->size();
 
-  Int_t phase[2]={0,0};
+  Int_t phase[2]={-9999,-9999};
 
-  if(size0>0&&size1>0)
-    phase[0]=CrossCorrelation(trace_start1,trace_start2,fXCorrelation[0]);
-  if(size2>0&&size3>0)
-    phase[1]=CrossCorrelation(trace_stop1,trace_stop2,fXCorrelation[1]);
+//  if(size0>0&&size1>0)
+//    phase[0]=CrossCorrelation(trace_start1,trace_start2,fXCorrelation[0]);
+//  if(size2>0&&size3>0)
+//    phase[1]=CrossCorrelation(trace_stop1,trace_stop2,fXCorrelation[1]);
 //  cout << "Phase: " << phase[0] << " " << phase[1] << endl;
   /* cout<<"Size "<<size0<<endl;  */
   /* cout<<"Size "<<size1<<endl;  */
@@ -358,23 +361,27 @@ void newTimingClass::Plot(Long64_t entry,Bool_t draw){
   if(size0!=0){
     for(UInt_t j=0;j<size0;j++){
       fTraces[0]->SetPoint(j,factor*j,trace_start1->at(j));
+      fTraces[0]->SetPointError(j,0,start1_sbase);
     }
   }
   if(size1!=0){
     for(UInt_t j=0;j<size1;j++){
      if(phase[0]!=-9999) fTraces[1]->SetPoint(j,factor*(Int_t)(j+phase[0]),trace_start2->at(j));
      else fTraces[1]->SetPoint(j,factor*(Int_t)(j),trace_start2->at(j));
+      fTraces[1]->SetPointError(j,0,start2_sbase);
     }
   }
   if(size2!=0){
     for(UInt_t j=0;j<size2;j++){
       fTraces[2]->SetPoint(j,factor*j,trace_stop1->at(j));
+      fTraces[2]->SetPointError(j,0,stop1_sbase);
     }
   }
   if(size3!=0){
     for(UInt_t j=0;j<size3;j++){
      if(phase[1]!=-9999) fTraces[3]->SetPoint(j,factor*(Int_t)(j+phase[1]),trace_stop2->at(j));
      else fTraces[3]->SetPoint(j,factor*(Int_t)(j),trace_stop2->at(j));
+      fTraces[3]->SetPointError(j,0,stop2_sbase);
 //     cout << "j: " << j << " X: " << (Int_t)(j+phase[1]) << " Y: " << trace_stop2->at(j) << endl;
     }
   }
@@ -394,6 +401,7 @@ void newTimingClass::Plot(Long64_t entry,Bool_t draw){
    }
 
   if(size0==0&&size1==0&&size0==0&&size3==0)
+
     return ;
   else{
     if(draw){
@@ -412,35 +420,36 @@ void newTimingClass::Plot(Long64_t entry,Bool_t draw){
 	c->cd(i+1);   
 	if(fTraces[i]){
 	  fTraces[i]->Draw("AL*");
+          fTraces[i]->GetXaxis()->SetRangeUser(40,60);
 	}
 	else
 	  continue;
       }
 
-    TCanvas *c2;
-      if(!gPad){
-	c2=new TCanvas();
-	c2->Divide(2,2); 
-      }
-      else{
-	//  c=(TCanvas*)gPad;
-	c2=gPad->GetCanvas();
-	c2->Clear();
-	c2->Divide(2,2);     
-      }
-     for(Int_t i=0; i<2; i++){
-     c2->cd(i+1);
-      if(XTraces[i]){
-       XTraces[i]->Draw("AL*");
-//       XTraces[i]->GetXaxis()->SetRangeUser(40,80);
-       }
-      }
-    c2->cd(3);
-    fXCorrelation[0]->Draw("*AL");
-    c2->cd(4);
-    fXCorrelation[1]->SetLineColor(kBlue);
-    fXCorrelation[1]->SetMarkerColor(kBlue);
-    fXCorrelation[1]->Draw("*AL");
+//    TCanvas *c2;
+//      if(!gPad){
+//	c2=new TCanvas();
+//	c2->Divide(2,2); 
+//      }
+//      else{
+//	//  c=(TCanvas*)gPad;
+//	c2=gPad->GetCanvas();
+//	c2->Clear();
+//	c2->Divide(2,2);     
+//      }
+//     for(Int_t i=0; i<2; i++){
+//     c2->cd(i+1);
+//      if(XTraces[i]){
+//       XTraces[i]->Draw("AL*");
+////       XTraces[i]->GetXaxis()->SetRangeUser(40,80);
+//       }
+//      }
+//    c2->cd(3);
+//    fXCorrelation[0]->Draw("*AL");
+//    c2->cd(4);
+//    fXCorrelation[1]->SetLineColor(kBlue);
+//    fXCorrelation[1]->SetMarkerColor(kBlue);
+//    fXCorrelation[1]->Draw("*AL");
     }
     
     return;
@@ -448,9 +457,10 @@ void newTimingClass::Plot(Long64_t entry,Bool_t draw){
   
 }
 
-void  newTimingClass::Fit(Long64_t entry, Bool_t fix){
-  
-  Plot(entry,false);
+void  newTimingClass::Fit(Long64_t entry, Bool_t fix, Bool_t kDraw){
+
+//  bool kDraw = false;
+  Plot(entry,kDraw);
 //  TF1 *fit[4];
 
 
@@ -461,13 +471,13 @@ void  newTimingClass::Fit(Long64_t entry, Bool_t fix){
   Double_t baseline[4]={start1_abase,start2_abase,stop1_abase,stop2_abase};
   Double_t timestamp[4]={StartTimeStamp[0],StartTimeStamp[1],StopTimeStamp[0],StopTimeStamp[1]};
   Int_t maximum[4]={StartMaximum[0],StartMaximum[1],StopTimeMaximum[0],StopTimeMaximum[1]};
-  Double_t delta[4]={3.5,3.5,3.5,3.5};
+  Double_t delta[4]={4,4,4,4};
 
+  ////// Variable Gamma params for new boards ///////// This was for AD8014 pulse shaping
   Double_t gamma_V0[2][3] = {{0.171,0.198,0.146},{0.164,0.194,0.206}};
   Double_t gamma_V1[2][3] = {{9.13E-7,1.228E-7,4.162E-7},{1.058E-6,1.271E-7,1.508E-7}};
   Double_t gamma_V2[2][3] = {{-6.012E-12,-1.183E-13,-5.268E-13},{-7.733E-12,-1.183E-13,-2.400E-13}};
   
-  ////// Variable Gamma params for new boards /////////
 
 
   //Old Boards
@@ -481,20 +491,25 @@ void  newTimingClass::Fit(Long64_t entry, Bool_t fix){
 //  Double_t fit_beta[4]={0.12,0.12,0.12,0.12};
 //  Double_t fit_gamma[4]={0.245,0.245,0.245,0.245};
 
-  Double_t fit_beta[4]={0.1317,0.1102,0.1266,.01250};
-  Double_t fit_gamma[4]={0.2494,0.2554,0.245,0.245};
+  Double_t fit_beta[4]={0.1285,0.1102,0.798,0.8791};  // HiGain PMT
+  Double_t fit_gamma[4]={0.248,0.2537,0.299,0.287};  // HiGain PMT
+
+
+//  Double_t fit_beta[4]={0.1317,0.1102,0.1266,.01250}; //SiPM
+//  Double_t fit_gamma[4]={0.2494,0.2554,0.245,0.245};  //SiPM
 
 
   vector<pair<Int_t,Int_t>>fit_limits;
-  fit_limits.push_back(make_pair(10,10));
-  fit_limits.push_back(make_pair(10,10));
-  fit_limits.push_back(make_pair(10,10));
-  fit_limits.push_back(make_pair(10,10));
+  fit_limits.push_back(make_pair(7,3));
+  fit_limits.push_back(make_pair(7,3));
+  fit_limits.push_back(make_pair(7,3));
+  fit_limits.push_back(make_pair(7,3));
   //Double_t delta[4]={4,4,4,4};
   Char_t fname[256];
   for(Int_t m=0;m<4;m++){
     ROOT_phase[m]=-100;
     ROOT_beta[m]=-100;
+    ROOT_delta[m]=-100;
     ROOT_gamma[m]=-100;
     beta[m]=fit_beta[m];
     gamma[m]= fit_gamma[m];
@@ -541,15 +556,17 @@ void  newTimingClass::Fit(Long64_t entry, Bool_t fix){
       fFits[m]->FixParameter(4,baseline[m]);
       if(fix){
 	fFits[m]->FixParameter(2,beta[m]);
-	if (m <2) fFits[m]->FixParameter(3,gamma[m]);
-	else {
-        if (qdc[m]<=50000) fFits[m]->FixParameter(3, gamma_V0[m-2][0]+gamma_V1[m-2][0]*qdc[m]+(gamma_V2[m-2][0]*qdc[m])*qdc[m]);
-        if (qdc[m]>50000 && qdc[m]<400000) fFits[m]->FixParameter(3, gamma_V0[m-2][1]+gamma_V1[m-2][1]*qdc[m]+(gamma_V2[m-2][1]*qdc[m])*qdc[m]);
-        if (qdc[m]>=400000) fFits[m]->FixParameter(3, gamma_V0[m-2][2]+gamma_V1[m-2][2]*qdc[m]+(gamma_V2[m-2][2]*qdc[m])*qdc[m]);
-       }
+        fFits[m]->FixParameter(3,gamma[m]);
+//	else {
+//        if (qdc[m]<=50000) fFits[m]->FixParameter(3, gamma_V0[m-2][0]+gamma_V1[m-2][0]*qdc[m]+(gamma_V2[m-2][0]*qdc[m])*qdc[m]);
+//        if (qdc[m]>50000 && qdc[m]<400000) fFits[m]->FixParameter(3, gamma_V0[m-2][1]+gamma_V1[m-2][1]*qdc[m]+(gamma_V2[m-2][1]*qdc[m])*qdc[m]);
+//        if (qdc[m]>=400000) fFits[m]->FixParameter(3, gamma_V0[m-2][2]+gamma_V1[m-2][2]*qdc[m]+(gamma_V2[m-2][2]*qdc[m])*qdc[m]);
+//       }
       }      
       fFits[m]->FixParameter(5,delta[m]);
-      TFitResultPtr status=fTraces[m]->Fit(fFits[m],"RNQSW");
+      TFitResultPtr status;
+      if(kDraw) status=fTraces[m]->Fit(fFits[m],"RS");
+      else status=fTraces[m]->Fit(fFits[m],"RNQS");
       fStatus[m] =status->Status(); 
        if(status->IsValid()){
  //	status->Print();

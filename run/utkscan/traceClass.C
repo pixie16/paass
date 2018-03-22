@@ -48,7 +48,7 @@ void traceClass::Loop(Long64_t nentries, const Char_t *filename)
 //  std::cout << "Making " << nTH << " Histotrams" << std::endl;
   TH2F *hPulse[nTH];
   for (int iH=0; iH<nTH; iH++){
-    sprintf(hname,"hP%d",iH*5000+5000);
+    sprintf(hname,"hP%dK",iH*5+5);
    // std::cout << hname << endl;
     hPulse[iH] = new TH2F(hname,hname,200,0,800,5000,0,ulimit+5000);
    }
@@ -67,12 +67,12 @@ void traceClass::Loop(Long64_t nentries, const Char_t *filename)
   UInt_t size = trace->size();
   if(size!=0){
    UInt_t maxval = *std::max_element(trace->begin(),trace->end());
-   
+   UInt_t minval = *std::min_element(trace->begin(),trace->end()); 
    int nY = maxval/5000;
    nY -= 1;
    if (nY>=nTH || nY<0) continue;
    for (UInt_t iB=0; iB<size; iB++){
-    hPulse[nY]->Fill((Int_t)iB*4,trace->at(iB));
+    hPulse[nY]->Fill((Int_t)iB*4,trace->at(iB)-minval);
     }
    }
   }

@@ -5,6 +5,7 @@
 *.so
 *.pcm
 *.d
+
 #Backup files 
 *~
 *.swp
@@ -28,9 +29,13 @@ doxywarning.txt
 *.tar.gz
 
 #Pixie16 Files
-*.set
-run/pixie.cfg
-run/Pixie16msg.txt
+*.set*
+run/pixie.cfg*
+run/Pixie16msg.txt*
+
+#utkscan & macro Files
+run/utkscan/Config*.xml
+*.dat
 
 #Ignore the build and exec directory
 build/
