@@ -2,6 +2,8 @@
 #include <TProfile.h>
 #include <TCanvas.h>
 #include <stdio.h>
+#include <TH2F.h>
+#include <TProfile.h>
 
 using namespace std;
 
@@ -28,8 +30,8 @@ TH2F *hP;
   sprintf(hName,"hP%dK",iH*5+5);
 
   sprintf(pfxName,"hP%dK_pfx",iH*5+5);
-
-  hP = (TH2F*)f->Get(hname);
+  cout<<"Profiling " << hName << " to " << pfxName << endl;
+  hP = (TH2F*)f->Get(hName);
   h_pfx[iF] = hP->ProfileX(pfxName);
   h_pfx[iF]->SetDirectory(0);
   h_pfx[iF]->SetMarkerColor(iH+1);
@@ -43,15 +45,9 @@ TH2F *hP;
 
 
  TCanvas *c1 = new TCanvas();
- h2_px[nFiles-1]->DrawNormalized();
-  for (int iP = 1; iP < nFiles; iP++){
-  h2_px[nFiles-1-iP]->DrawNormalized("same");
+ h_pfx[nH-1]->DrawNormalized();
+  for (int iP = 1; iP < nH; iP++){
+  h_pfx[nH-1-iP]->DrawNormalized("same");
   }
 
- TCanvas *c2 = new TCanvas();
- h3_px[nFiles-1]->DrawNormalized();
-  for (int iP = 1; iP < nFiles; iP++){
-  h3_px[nFiles-1-iP]->DrawNormalized("same");
-  }
- std::cout << "Done Normalizing" << endl;
 }
