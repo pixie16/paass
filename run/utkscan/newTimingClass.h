@@ -96,6 +96,7 @@ public :
    Double_t gamma[4];
    
    Double_t ROOT_phase[4];
+   Double_t ROOT_CFDphase[4];
    Double_t ROOT_time[4];
    Double_t ROOT_beta[4];
    Double_t ROOT_gamma[4];
@@ -170,6 +171,7 @@ public :
    virtual void     Trap_filter(Long64_t entry = -1,UInt_t length=4,UInt_t gap=0);
    virtual Int_t    TraceDerivative(Long64_t entry = -1, Bool_t kDraw=kFALSE); 
    virtual void     ExtractSlopes(Long64_t entry = -1, Bool_t kDraw=kFALSE);
+   virtual void     DigitalCFD(Long64_t entry = -1,Double_t fraction=0.4, Int_t delay=2, Bool_t kDraw=kFALSE);
    TGraphErrors**    GetTraces(Long64_t entry = -1);
 
    void SetBeta(Int_t n,Double_t val){beta[n]=val;}
@@ -875,6 +877,91 @@ cout<<"Slope5 is: "<<fun2.GetParameter(1)<<endl;
 }
 }
 return;
+}
+
+void newTimingClass::DigitalCFD(Long64_t entry,Double_t fraction, Int_t delay, Bool_t kDraw){
+
+
+    GetEntry(entry);
+    
+    TGraph *g[4];
+    TGraph *gCFD[4];
+
+    Double_t baseline[4]={start1_abase,start2_abase,stop1_abase,stop2_abase};
+
+    UInt_t size[4];
+    size[0]=trace_start1->size();
+    size[1]=trace_start2->size();
+    size[2]=trace_stop1->size();
+    size[3]=trace_stop2->size();
+                                 
+    std::vector<double> *cfd=new std::vector<double>();
+    std::vector <unsigned int>*trace;
+    int diff=0;
+    //cout << size[0] << " " << size[1] << " " << size[2] << " " << size[3]<< endl;
+    for (int iT=0; iT<4; iT++){
+    if (size[iT]==0){cout<< "No Trace for " << iT << endl; continue;}
+    else {
+      g[iT]=new TGraph();
+      gCFD[iT]=new TGraph();
+      switch(iT){
+      case 0:
+	trace = trace_start1;
+	break;
+      case 1:
+	trace = trace_start2;
+	break;
+      case 2:
+	trace = trace_stop1;
+	break;
+      case 3:
+	trace = trace_stop2;
+	break;
+      default:
+	break;
+      }
+      Double_t minimum=9999;
+      Double_t maximum=-9999;
+      Int_t minimumX=0;
+      Int_t maximumX=0;
+      //cout<<"iT is "<<iT<<endl;
+      for (unsigned int i = 0; i < trace->size() - delay; i++){
+        cfd->push_back(fraction * (double)trace->at(i) - (double)trace->at(i + delay));
+	if(cfd->at(i)>maximum){
+	  maximum=cfd->at(i);
+	  maximumX=i;
+	}
+	if(cfd->at(i)<minimum){
+	  minimum=cfd->at(i);
+	  minimumX=i;
+	}
+	gCFD[iT]->SetPoint(i,i,cfd->at(i));
+	g[iT]->SetPoint(i,i,trace->at(i));
+      }
+      TF1 fun("fun","pol1", minimumX+1,maximumX-1);
+      TF1 fun2("fun2","pol0",0,minimumX-10);
+      gCFD[iT]->Fit(&fun,"RQ");    
+      gCFD[iT]->Fit(&fun2,"RQ+");
+      Double_t phase= (fun2.GetParameter(0)-fun.GetParameter(0))/fun.GetParameter(1);
+      cout<<iT<<" phase "<< phase<<endl;
+      cfd->clear();
+    }
+    }//end for loop
+    if(kDraw){
+      TCanvas *c=new TCanvas();
+      c->Divide(2,2);
+      for(Int_t j=2;j<4;j++){
+	c->cd(j+1);
+	if(g[j])
+	  g[j]->Draw("AL*");
+	if(gCFD[j]){
+	  gCFD[j]->SetLineColor(4);
+	  gCFD[j]->SetMarkerColor(4);
+	  gCFD[j]->Draw("AL*");
+	}
+	//gPad->WaitPrimitive();
+      }
+    }
 }
 
 Int_t newTimingClass::CrossCorrelation(vector<unsigned int> *trace1,vector<unsigned int> *trace2, TGraph *fGraph){
