@@ -38,7 +38,7 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
      outputFile=new TFile(filename,"RECREATE");
    TTree *outTree = new TTree("T","Output Tree");
    outTree->Branch("phase[4]",&phase,"phase[4]/D");
-   outTree->Branch("max[4]",&max,"max[4]/I");
+   outTree->Branch("max[4]",&max,"max[4]/D");
    outTree->Branch("time[4]",&time,"time[4]/D");
    outTree->Branch("qdc[4]",&qdc,"qdc[4]/D");
    outTree->Branch("sbase[4]",&sbase,"sbase[4]/D");
@@ -52,13 +52,14 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
-      if (jentry%1000==0) cout << "On entry: " << jentry << endl;
+      if (jentry%1000==0) cout << "\rOn entry: "<< jentry << flush;
       //nb = fChain->GetEntry(jentry);   nbytes += nb;
       // if (Cut(ientry) < 0) continue;
       //DigitalCFD(jentry);
       PolyCFD(jentry,0.5);
     outTree->Fill();
    }
+   cout<<endl;
    outTree->Write();
    outputFile->Close();
 }
