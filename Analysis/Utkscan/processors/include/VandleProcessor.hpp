@@ -79,14 +79,13 @@ public:
     ///@return true if we requsted large bars in the xml */
     bool GetHasBig(void) { return requestedTypes_.find("big") != requestedTypes_.end(); }
 
-    bool SaveRoot;
-
     /** \root TTree */
     TFile* TFile_tree;
     TTree* vandle_tree;
 
     unsigned int evtNumber=0;
-    std::string dataRun = Globals::get()->GetOutputFileName();
+    std::string ldf_name = Globals::get()->GetOutputFileName();
+    int runNumber = stoi(ldf_name);
     std::string vandle_subtype = "";
     double vandle_QDC=0;
     double vandle_lQDC=0;

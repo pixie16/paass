@@ -92,10 +92,6 @@ private:
     double betaSubTime;
 
     TFile *rootFName_;
-    TFile *rootFName2_;
-    TFile *rootFName3_;
-    TFile *rootFName4_;
-    TFile *rootFName5_;
 
     TTree *LaBr_tree;
     TTree *NaI_tree;

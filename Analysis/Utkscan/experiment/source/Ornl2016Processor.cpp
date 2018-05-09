@@ -410,15 +410,6 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                     aux_BetaTime = (*itBetaList).first;
                     aux_NaITdiff = TDiff;
 
-                    // cout<<fixed<<"BetaList.size() = "<<BetaList.size()<<endl;
-                    // cout <<fixed<< "NaI Time = "<<(*itNai)->GetTime() << endl;
-                    // cout <<fixed<< "BetaList Time = "<<(*itBetaList).first<<endl;
-                    // cout <<fixed<< "aux_BetaTime = "<<aux_BetaTime<<endl;
-                    // cout <<fixed<< "aux_GeTDiff = "<<aux_NaITdiff<<endl;
-                    // cout <<fixed<< "TDiff = "<<TDiff<<endl;
-                    // cout <<fixed<< "Diff = "<<(*itNai)->GetTime() - (*itBetaList).first<<endl;
-                    // cout<<fixed<<"BetaMulti = "<<aux_BetaMulti<<endl;
-                    // cout<<fixed<<"Evt Number = "<<evtNum<<endl;
 
                     if (TDiff<=SupBetaWin.first)
                         plot(D_DBGnai,(*itNai)->GetCalibratedEnergy());
@@ -480,16 +471,6 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                     aux_BetaEn = (*itBetaList).second;
                     aux_BetaTime = (*itBetaList).first;
                     aux_GeTdiff = TDiff;
-
-                    // cout<<fixed<<"BetaList.size() = "<<BetaList.size()<<endl;
-                    // cout <<fixed<< "HPGe Time = "<<(*itGe)->GetTime() << endl;
-                    // cout <<fixed<< "BetaList Time = "<<(*itBetaList).first<<endl;
-                    // cout <<fixed<< "aux_BetaTime = "<<aux_BetaTime<<endl;
-                    // cout <<fixed<< "aux_GeTDiff = "<<aux_GeTdiff<<endl;
-                    // cout <<fixed<< "TDiff = "<<TDiff<<endl;
-                    // cout <<fixed<< "Diff = "<<(*itGe)->GetTime() - (*itBetaList).first<<endl;
-                    // cout<<fixed<<"BetaMulti = "<<aux_BetaMulti<<endl;
-                    // cout<<fixed<<"Evt Number = "<<evtNum<<endl;
 
                     if (TDiff<=SupBetaWin.first)
                         plot(D_DBGge,(*itGe)->GetCalibratedEnergy());
@@ -556,15 +537,6 @@ bool Ornl2016Processor::Process(RawEvent &event) {
                     aux_BetaTime = (*itBetaList).first;
                     aux_LaBrTdiff = TDiff;
 
-                   // cout<<fixed<<"BetaList.size() = "<<BetaList.size()<<endl;
-                   // cout <<fixed<< "LaBr Time = "<<(*itLabr)->GetTime() << endl;
-                   // cout <<fixed<< "BetaList Time = "<<(*itBetaList).first<<endl;
-                   // cout <<fixed<< "aux_BetaTime = "<<aux_BetaTime<<endl;
-                   // cout <<fixed<< "aux_LaBrTDiff = "<<aux_LaBrTdiff<<endl;
-                   // cout <<fixed<< "TDiff = "<<TDiff<<endl;
-                   // cout <<fixed<< "Diff = "<<(*itLabr)->GetTime() - (*itBetaList).first<<endl;
-                   // cout<<fixed<<"BetaMulti = "<<aux_BetaMulti<<endl;
-                   // cout<<fixed<<"Evt Number = "<<evtNum<<endl;
 
                     if (TDiff<=SupBetaWin.first)
                         plot(D_DBGlabr,(*itLabr)->GetCalibratedEnergy());
