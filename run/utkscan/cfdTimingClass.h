@@ -109,6 +109,11 @@ public :
    Double_t sbase[4];
    Double_t abase[4];
 
+   TGraphErrors *fTraces[4];
+   TF1 *fpol3[4];
+   TF1 *fpol2[4];
+
+
    cfdTimingClass(TTree *tree=0);
    virtual ~cfdTimingClass();
    virtual Int_t    Cut(Long64_t entry);
@@ -118,8 +123,9 @@ public :
    virtual void     Loop(Long64_t nentries =-1,const Char_t *filename=NULL);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
+   virtual void     Plot(Long64_t entry = -1, Bool_t kDraw = kFALSE);
    virtual void     DigitalCFD(Long64_t entry = -1, Double_t fraction=0.4, Int_t delay=2, Bool_t kDraw = kFALSE);
-   virtual void     PolyCFD(Long64_t entry = -1; Int_t Thresh = 0.5);
+   virtual void     PolyCFD(Long64_t entry = -1, Double_t frac = 0.5);
 };
 
 #endif
@@ -139,7 +145,15 @@ cfdTimingClass::cfdTimingClass(TTree *tree) : fChain(0)
    }
    Init(tree);
 
-    
+
+   char fName[200];
+   for (int iI=0;iI<4;iI++){
+    sprintf(fName,"f3%d",iI);
+    fTraces[iI] = new TGraphErrors();
+    fpol3[iI] = new TF1(fName,"pol3",0,1);
+    sprintf(fName,"f2%d",iI);
+    fpol2[iI] = new TF1(fName,"pol2",0,1);
+    } 
 
 }
 
@@ -147,6 +161,12 @@ cfdTimingClass::~cfdTimingClass()
 {
    if (!fChain) return;
    delete fChain->GetCurrentFile();
+
+   for (int iD=0;iD<4;iD++){
+   delete fTraces[iD];
+   delete fpol3[iD];
+   delete fpol2[iD];
+   }
 }
 
 Int_t cfdTimingClass::GetEntry(Long64_t entry)
@@ -231,6 +251,77 @@ Int_t cfdTimingClass::Cut(Long64_t entry)
 // returns -1 otherwise.
    return 1;
 }
+
+void cfdTimingClass::Plot(Long64_t entry,Bool_t kDraw){
+
+  GetEntry(entry);
+
+  const UInt_t size0=trace_start1->size();
+  const UInt_t size1=trace_start2->size();
+  const UInt_t size2=trace_stop1->size();
+  const UInt_t size3=trace_stop2->size();
+
+  /* cout<<"Size "<<size0<<endl;  */
+  /* cout<<"Size "<<size1<<endl;  */
+  /* cout<<"Size "<<size2<<endl;  */
+  /* cout<<"Size "<<size3<<endl;  */
+  
+  for(Int_t j=0;j<4;j++){
+    fTraces[j]->Set(0); 
+  }
+
+  if(size0!=0){
+    for(UInt_t j=0;j<size0;j++){
+      fTraces[0]->SetPoint(j,j,trace_start1->at(j));
+      fTraces[0]->SetPointError(j,0,start1_sbase);
+    }
+  }
+  if(size1!=0){
+    for(UInt_t j=0;j<size1;j++){
+     fTraces[1]->SetPoint(j,j,trace_start2->at(j));
+      fTraces[1]->SetPointError(j,0,start2_sbase);
+    }
+  }
+  if(size2!=0){
+    for(UInt_t j=0;j<size2;j++){
+      fTraces[2]->SetPoint(j,j,trace_stop1->at(j));
+      fTraces[2]->SetPointError(j,0,stop1_sbase);
+    }
+  }
+  if(size3!=0){
+    for(UInt_t j=0;j<size3;j++){
+     fTraces[3]->SetPoint(j,j,trace_stop2->at(j));
+      fTraces[3]->SetPointError(j,0,stop2_sbase);
+    }
+  }
+
+
+  if(size0==0&&size1==0&&size0==0&&size3==0) return ;
+  else if(kDraw){
+          TCanvas *c;
+      if(!gPad){
+	c=new TCanvas();
+	c->Divide(2,2); 
+      }
+      else{
+	//  c=(TCanvas*)gPad;
+	c=gPad->GetCanvas();
+	c->Clear();
+	c->Divide(2,2);     
+      }
+      for(Int_t i=0;i<4;i++){
+	c->cd(i+1);   
+	if(fTraces[i]){
+	  fTraces[i]->Draw("AL*");
+//          fTraces[i]->GetXaxis()->SetRangeUser(40,60);
+	}
+	else
+	  continue;
+      }
+    }
+  return;
+ }
+
 void cfdTimingClass::DigitalCFD(Long64_t entry,Double_t fraction, Int_t delay, Bool_t kDraw){
 
 
@@ -333,8 +424,10 @@ void cfdTimingClass::DigitalCFD(Long64_t entry,Double_t fraction, Int_t delay, B
     }
 }
 
-void cfdTimingClass::PolyCFD(Long64_t entry; Int_t Thresh){
- GetEntry(entry);
+void cfdTimingClass::PolyCFD(Long64_t entry, Double_t frac){
+
+// GetEntry(entry);
+   Plot(entry, kFALSE);
 
    Double_t T_max[4] = {start1_amp,start2_amp,stop1_amp,stop2_amp};
    Double_t T_qdc[4] = {start1_qdc,start2_qdc,stop1_qdc,stop2_qdc};
@@ -349,7 +442,8 @@ void cfdTimingClass::PolyCFD(Long64_t entry; Int_t Thresh){
     size[3]=trace_stop2->size();
 
  for (int m=0;m<4;m++){
-
+  
+  vector <UInt_t> *trace;
   vector <UInt_t>::iterator it;
   UInt_t max_position=0;
   switch(m){
@@ -357,31 +451,64 @@ void cfdTimingClass::PolyCFD(Long64_t entry; Int_t Thresh){
     if(trace_start1->size()!=0){
       it=max_element(trace_start1->begin(),trace_start1->end());
       max_position=distance(trace_start1->begin(),it);
+      trace = trace_start1;
     }
     break;
   case 1:
     if(trace_start2->size()!=0){
       it=max_element(trace_start2->begin(),trace_start2->end());
       max_position=distance(trace_start2->begin(),it);
+      trace = trace_start2;
     }
     break;
   case 2:
     if(trace_stop1->size()!=0){
       it=max_element(trace_stop1->begin(),trace_stop1->end());
       max_position=distance(trace_stop1->begin(),it);
+      trace = trace_stop1;
     }
     break;
   case 3:
     if(trace_stop2->size()!=0){
       it=max_element(trace_stop2->begin(),trace_stop2->end());
       max_position=distance(trace_stop2->begin(),it);
+      trace = trace_stop2;
     }
     break;
   default:
     break;
   }
      
+ if(fTraces[m]->GetN()>0){
+   // find maximum of trace with 3rd order polynomial
+   std::pair <Double_t,Double_t> range((max_position-2),(max_position+1));
+   fpol3[m]->SetRange(range.first,range.second);
+   fTraces[m]->Fit(fpol3[m],"RQNSW"); 
+   double amp = fpol3[m]->GetMaximum(range.first,range.second); 
+//   cout<< "Found max: " << amp << " for trace " << m << " in range [xmin,xmax]: " << range.first << ", " <<range.second <<  endl;
 
+   double thresh = amp*frac+T_abase[m]*(1-frac);
 
+   // find two points around threshold
+   std::pair <UInt_t,UInt_t> points;
+   for (UInt_t ip = max_position; ip>1; ip--){
+    if ((trace->at(ip)>thresh)&&(trace->at(ip-1)<thresh)){points.first = ip-1; points.second =ip+1;}
+    }
+//   cout << "Points surrounding threshold: " << points.first << ", " << points.second << endl;
+   fpol2[m]->SetRange(points.first,points.second);
+   fTraces[m]->Fit(fpol2[m],"RQNSW");
+   phase[m] = fpol2[m]->GetX(thresh,points.first,points.second); 
+   time[m] = T_time[m]+4.0*phase[m];
+   }else{
+    phase[m]=-9999;
+    time[m]=-9999;
+    }
+    max[m] = T_max[m];
+    qdc[m] = T_qdc[m];
+    abase[m] = T_abase[m];
+    sbase[m] = T_sbase[m];
+
+ }
+ return;
 }
 #endif // #ifdef cfdTimingClass_cxx

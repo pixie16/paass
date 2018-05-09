@@ -55,7 +55,8 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
       if (jentry%1000==0) cout << "On entry: " << jentry << endl;
       //nb = fChain->GetEntry(jentry);   nbytes += nb;
       // if (Cut(ientry) < 0) continue;
-      DigitalCFD(jentry);
+      //DigitalCFD(jentry);
+      PolyCFD(jentry,0.5);
     outTree->Fill();
    }
    outTree->Write();
