@@ -63,3 +63,48 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
    outTree->Write();
    outputFile->Close();
 }
+
+void cfdTimingClass::PolyScan(Long64_t nentries, Int_t chan1, Int_t chan2){
+
+  double hstep = 0.01;
+  const int nsteps = 9/hstep;
+  TH2F *h2[nsteps];
+  TH1F *h1[nsteps];
+  if (fChain == 0) return;
+  
+  if(nentries == -1){nentries = fChain->GetEntriesFast(); cout<<nentries<< " entries are being calculated" << endl;}
+
+  TFile *oF = new TFile("PolyCFDScan.root","RECREATE");
+
+  double frc;
+  char hname[200];
+  TF1 *f1 = new TF1("f1","gaus",0,1);
+  double fMean, fRes;
+  for (int iFrc=1; iFrc<900; iFrc++){   //cfd fraction scan
+   frc = (double)iFrc*hstep;
+   sprintf(hname,"h2_frac%d",iFrc);
+   h2[iFrc-1] = new TH2F(hname,hname,1000,15000,300000,1000,-30,30);
+   sprintf(hname,"h1_frac%d",iFrc);
+   h1[iFrc-1] = new TH1F(hname,hname,1000,-30,30);
+   for (int jentry=0; jentry<nentries; jentry++){
+    PolyCFD(jentry,frc);   //extract timing for given cfd fraction
+    if (phase[chan1]>0 && phase[chan2]>0){
+    h1[iFrc-1]->Fill(time[chan1]-time[chan2]);
+    h2[iFrc-1]->Fill(qdc[chan1],time[chan1]-time[chan2]);
+     }
+//    cout << "Chan1 time phase: " << time[chan1] << " " << phase[chan1] << "\nChan2 time phase: " << time[chan2] << " " << phase[chan2] << endl;
+    }
+
+    double mean = h1[iFrc-1]->GetMean(1);
+    f1->SetRange(mean-1.5,mean+1.5);
+    h1[iFrc-1]->Fit(f1,"RQNSW");
+    fMean = f1->GetParameter(1);
+    fRes = (f1->GetParameter(2))*2.35;
+   
+    cout << iFrc << " " << frc <<  " " << fMean << " " << fRes << endl;
+    h1[iFrc-1]->Write();
+    h2[iFrc-1]->Write();
+   }
+
+  oF->Close();
+}

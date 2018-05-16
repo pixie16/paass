@@ -21,7 +21,7 @@
 #include <TGraph.h>
 #include <TGraphErrors.h>
 #include <iostream>
-
+#include <TLine.h>
 
 // Header file for the classes stored in the TTree if any.
 #include "vector"
@@ -101,6 +101,17 @@ public :
    TBranch        *b_StartChi;   //!
    TBranch        *b_StopChi;   //!
 
+   //Parameters
+   Double_t fFraction;
+   Double_t fSamplingRate;
+
+   Double_t GetFraction(){return fFraction;}
+   Double_t GetSamplingRate(){return fSamplingRate;}
+
+   void SetFraction(Double_t aFraction){fFraction=aFraction;}
+   void SetSamplingRate(Double_t aSamplingRate){fSamplingRate = aSamplingRate;}
+
+
    // Variable to Save
    Double_t phase[4];
    Double_t max[4];
@@ -126,6 +137,7 @@ public :
    virtual void     Plot(Long64_t entry = -1, Bool_t kDraw = kFALSE);
    virtual void     DigitalCFD(Long64_t entry = -1, Double_t fraction=0.4, Int_t delay=2, Bool_t kDraw = kFALSE);
    virtual void     PolyCFD(Long64_t entry = -1, Double_t frac = 0.5);
+   virtual void     PolyScan(Long64_t nentries=1000, Int_t chan1=2, Int_t chan2=3);
 };
 
 #endif
@@ -223,6 +235,7 @@ void cfdTimingClass::Init(TTree *tree)
    fChain->SetBranchAddress("StopTimeMaximum[2]", StopTimeMaximum, &b_StopMax);
    fChain->SetBranchAddress("StartChiSq", &StartChiSq, &b_StartChi);
    fChain->SetBranchAddress("StopChiSq", &StopChiSq, &b_StopChi);
+   SetSamplingRate(4.0);
    Notify();
 }
 
@@ -404,7 +417,7 @@ void cfdTimingClass::DigitalCFD(Long64_t entry,Double_t fraction, Int_t delay, B
     qdc[iT] = T_qdc[iT];
     abase[iT] = T_abase[iT];
     sbase[iT] = T_sbase[iT];
-    time[iT] = T_time[iT]+phase[iT]*4.0;
+    time[iT] = T_time[iT]+phase[iT]*fSamplingRate;
 
     }//end for loop
     if(kDraw){
@@ -440,6 +453,10 @@ void cfdTimingClass::PolyCFD(Long64_t entry, Double_t frac){
     size[1]=trace_start2->size();
     size[2]=trace_stop1->size();
     size[3]=trace_stop2->size();
+
+//  TCanvas *c1 = new TCanvas();   
+//  c1->Divide(2,2);
+//  TLine *l1 = new TLine();
 
  for (int m=0;m<4;m++){
   
@@ -478,27 +495,32 @@ void cfdTimingClass::PolyCFD(Long64_t entry, Double_t frac){
   default:
     break;
   }
-     
  if(fTraces[m]->GetN()>0){
+//   c1->cd(m+1);
    // find maximum of trace with 3rd order polynomial
-   std::pair <Double_t,Double_t> range((max_position-2),(max_position+1));
+//   fTraces[m]->Draw("ALP");
+   std::pair <Double_t,Double_t> range((max_position-2),(max_position+2));
    fpol3[m]->SetRange(range.first,range.second);
-   fTraces[m]->Fit(fpol3[m],"RQNSW"); 
+   fTraces[m]->Fit(fpol3[m],"RQSNW"); 
    double amp = fpol3[m]->GetMaximum(range.first,range.second); 
 //   cout<< "Found max: " << amp << " for trace " << m << " in range [xmin,xmax]: " << range.first << ", " <<range.second <<  endl;
 
-   double thresh = amp*frac+T_abase[m]*(1-frac);
+   double thresh = (amp-T_abase[m])*frac+T_abase[m];
 
    // find two points around threshold
    std::pair <UInt_t,UInt_t> points;
    for (UInt_t ip = max_position; ip>1; ip--){
-    if ((trace->at(ip)>thresh)&&(trace->at(ip-1)<thresh)){points.first = ip-1; points.second =ip+1;}
+    if ((trace->at(ip)>thresh)&&(trace->at(ip-1)<thresh)){points.first = ip-2; points.second =ip+1;}
     }
 //   cout << "Points surrounding threshold: " << points.first << ", " << points.second << endl;
    fpol2[m]->SetRange(points.first,points.second);
-   fTraces[m]->Fit(fpol2[m],"RQNSW");
+   fTraces[m]->Fit(fpol2[m],"RNQSW");
    phase[m] = fpol2[m]->GetX(thresh,points.first,points.second); 
-   time[m] = T_time[m]+4.0*phase[m];
+//   l1->DrawLine(phase[m],T_abase[m],phase[m],T_max[m]); 
+//   l1->SetLineColor(kRed);
+//   l2->DrawLine(phase[m]-10,thresh,phase[m]+10,thresh);
+//   l2->SetLineColor(kBlue);
+   time[m] = T_time[m]+fSamplingRate*phase[m];
    }else{
     phase[m]=-9999;
     time[m]=-9999;
@@ -509,6 +531,11 @@ void cfdTimingClass::PolyCFD(Long64_t entry, Double_t frac){
     sbase[m] = T_sbase[m];
 
  }
+ //   cout << "Chan1 time phase: " << time[2] << " " << phase[2] << "\nChan2 time phase: " << time[3] << " " << phase[3] << endl;
+
+
  return;
 }
+
+
 #endif // #ifdef cfdTimingClass_cxx
