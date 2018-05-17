@@ -69,6 +69,7 @@ public:
 #ifdef useroot
     struct HrtRoot {
         double qdc;
+//        double amp;   ///JNH
         double time;
         double snr;
         double wtime;
@@ -86,6 +87,7 @@ public:
         s.phase = GetPhaseInNs();
         s.snr = GetTrace().GetSignalToNoiseRatio();
         s.qdc = GetTrace().GetQdc();
+//        s.amp = GetTrace().GetMaxInfo().second;  ///JNH
         s.id = GetChanID().GetLocation();
     }
 
@@ -97,6 +99,7 @@ public:
         s.phase = -9999.;
         s.snr = -9999.;
         s.qdc = -9999.;
+//        s.amp = -9999.;    ///JNH
         s.id = 9999;
     }
 #endif

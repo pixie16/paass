@@ -65,6 +65,10 @@ TwoChanTimingProcessor::TwoChanTimingProcessor() :
 
 
     tree = new TTree("timing", "");
+//    tree->Branch("start1", &rstart1,"qdc/D:amp/D:time:snr:wtime:phase:abase:sbase:id/b");
+//    tree->Branch("stop1", &rstop1, "qdc/D:amp/D:time:snr:wtime:phase:abase:sbase:id/b");
+//    tree->Branch("start2", &rstart2,"qdc/D:amp/D:time:snr:wtime:phase:abase:sbase:id/b");
+//    tree->Branch("stop2", &rstop2, "qdc/D:amp/D:time:snr:wtime:phase:abase:sbase:id/b");
     tree->Branch("start1", &rstart1,"qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
     tree->Branch("stop1", &rstop1, "qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
     tree->Branch("start2", &rstart2,"qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
@@ -211,7 +215,6 @@ if(pulserMap.count(make_pair(0, "stop2"))>0)
 
    }
    
-
 
    if (bstart1||bstart2||bstop1||bstop2) { //DPL: Should be &&!!
      tree->Fill();
