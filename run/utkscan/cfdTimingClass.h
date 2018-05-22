@@ -112,18 +112,25 @@ public :
    void SetSamplingRate(Double_t aSamplingRate){fSamplingRate = aSamplingRate;}
 
 
-   // Variable to Save
+   ///////////// Variable to Save
    Double_t phase[4];
    Double_t max[4];
    Double_t qdc[4];
    Double_t time[4];
    Double_t sbase[4];
    Double_t abase[4];
+   Double_t thresh[4];
+   Double_t uPoint[4];
+   Double_t lPoint[4];
+   Double_t lThresh[4];
+   Double_t uThresh[4];
+
+   ////////////////////////////////
 
    TGraphErrors *fTraces[4];
    TF1 *fpol3[4];
    TF1 *fpol2[4];
-
+   TF1 *fpol1[4];
 
    cfdTimingClass(TTree *tree=0);
    virtual ~cfdTimingClass();
@@ -138,6 +145,9 @@ public :
    virtual void     DigitalCFD(Long64_t entry = -1, Double_t fraction=0.4, Int_t delay=2, Bool_t kDraw = kFALSE);
    virtual void     PolyCFD(Long64_t entry = -1, Double_t frac = 0.5);
    virtual void     PolyScan(Long64_t nentries=1000, Int_t chan1=2, Int_t chan2=3);
+   virtual Double_t   CalcQDC(vector <UInt_t> *dTrace, UInt_t maxpos, Double_t baseline);
+   virtual Double_t   CalcBaseline(vector <UInt_t> *dTrace, UInt_t initialpos,UInt_t finalpos);
+
 };
 
 #endif
@@ -165,6 +175,8 @@ cfdTimingClass::cfdTimingClass(TTree *tree) : fChain(0)
     fpol3[iI] = new TF1(fName,"pol3",0,1);
     sprintf(fName,"f2%d",iI);
     fpol2[iI] = new TF1(fName,"pol2",0,1);
+    sprintf(fName,"f1%d",iI);
+    fpol1[iI] = new TF1(fName,"pol1",0,1);
     } 
 
 }
@@ -178,6 +190,7 @@ cfdTimingClass::~cfdTimingClass()
    delete fTraces[iD];
    delete fpol3[iD];
    delete fpol2[iD];
+   delete fpol1[iD];
    }
 }
 
@@ -457,6 +470,7 @@ void cfdTimingClass::PolyCFD(Long64_t entry, Double_t frac){
 //  TCanvas *c1 = new TCanvas();   
 //  c1->Divide(2,2);
 //  TLine *l1 = new TLine();
+   std::pair <UInt_t,UInt_t> points;
 
  for (int m=0;m<4;m++){
   
@@ -495,30 +509,38 @@ void cfdTimingClass::PolyCFD(Long64_t entry, Double_t frac){
   default:
     break;
   }
+
  if(fTraces[m]->GetN()>0){
 //   c1->cd(m+1);
    // find maximum of trace with 3rd order polynomial
 //   fTraces[m]->Draw("ALP");
+   
+
    std::pair <Double_t,Double_t> range((max_position-2),(max_position+2));
    fpol3[m]->SetRange(range.first,range.second);
    fTraces[m]->Fit(fpol3[m],"RQSNW"); 
    double amp = fpol3[m]->GetMaximum(range.first,range.second); 
 //   cout<< "Found max: " << amp << " for trace " << m << " in range [xmin,xmax]: " << range.first << ", " <<range.second <<  endl;
 
-   double thresh = (amp-T_abase[m])*frac+T_abase[m];
+   thresh[m] = (amp-T_abase[m])*frac+T_abase[m];
 
-   // find two points around threshold
-   std::pair <UInt_t,UInt_t> points;
+   // find two points around thresh[m]old
    for (UInt_t ip = max_position; ip>1; ip--){
-    if ((trace->at(ip)>thresh)&&(trace->at(ip-1)<thresh)){points.first = ip-2; points.second =ip+1;}
+    if ((trace->at(ip)>thresh[m])&&(trace->at(ip-1)<thresh[m])){
+     points.first = ip-1; points.second =ip;}
+     lThresh[m] = trace->at(ip-1);
+     uThresh[m] = trace->at(ip);
     }
-//   cout << "Points surrounding threshold: " << points.first << ", " << points.second << endl;
-   fpol2[m]->SetRange(points.first,points.second);
-   fTraces[m]->Fit(fpol2[m],"RNQSW");
-   phase[m] = fpol2[m]->GetX(thresh,points.first,points.second); 
+//   cout << "Points surrounding thresh[m]old: " << points.first << ", " << points.second << endl;
+//   fpol2[m]->SetRange(points.first,points.second);
+//   fTraces[m]->Fit(fpol2[m],"RNQSW");
+//   phase[m] = fpol2[m]->GetX(thresh[m],points.first,points.second); 
+   fpol1[m]->SetRange(points.first,points.second);
+   fTraces[m]->Fit(fpol1[m],"RNQSW");
+   phase[m] = fpol1[m]->GetX(thresh[m],points.first,points.second); 
 //   l1->DrawLine(phase[m],T_abase[m],phase[m],T_max[m]); 
 //   l1->SetLineColor(kRed);
-//   l2->DrawLine(phase[m]-10,thresh,phase[m]+10,thresh);
+//   l2->DrawLine(phase[m]-10,thresh[m],phase[m]+10,thresh[m]);
 //   l2->SetLineColor(kBlue);
    time[m] = T_time[m]+fSamplingRate*phase[m];
    }else{
@@ -526,10 +548,20 @@ void cfdTimingClass::PolyCFD(Long64_t entry, Double_t frac){
     time[m]=-9999;
     }
     max[m] = T_max[m];
-    qdc[m] = T_qdc[m];
+//    qdc[m] = T_qdc[m];
+    if (max_position > 5 && max_position < 110){ 
+      Double_t base= CalcBaseline(trace,0,max_position-10);
+      qdc[m] = CalcQDC(trace,max_position,base);
+      abase[m] = base;
+
+}
+    else qdc[m] = -9999;
     abase[m] = T_abase[m];
     sbase[m] = T_sbase[m];
-
+    lPoint[m] = points.first;
+    uPoint[m] = points.second;
+//    lThresh[m] = trace->at(points.first);
+//    uThresh[m] = trace->at(points.second);
  }
  //   cout << "Chan1 time phase: " << time[2] << " " << phase[2] << "\nChan2 time phase: " << time[3] << " " << phase[3] << endl;
 
@@ -537,5 +569,27 @@ void cfdTimingClass::PolyCFD(Long64_t entry, Double_t frac){
  return;
 }
 
+Double_t cfdTimingClass::CalcQDC(vector <UInt_t> *dTrace, UInt_t maxpos, Double_t baseline){
 
+  Double_t QDC = 0;  
+  for (int i = (int)maxpos-5; i < (int)maxpos+9; i++) QDC += ((double)(dTrace->at(i))-baseline);  //Range of QDC calculation has a huge effect on phase:qdc plot (noticeable dependence on range to the left of the max)
+  
+  return QDC;
+   }
+
+
+Double_t cfdTimingClass:: CalcBaseline(vector <UInt_t> *dTrace, UInt_t initialpos,UInt_t finalpos)
+{
+
+  Double_t Baseline=0;
+  Int_t count=0;
+  for (int i =  initialpos; i < (int)finalpos; i++){
+    Baseline+=dTrace->at(i);
+    count++;
+  } 
+
+  Baseline/=count;
+
+  return Baseline;
+}
 #endif // #ifdef cfdTimingClass_cxx

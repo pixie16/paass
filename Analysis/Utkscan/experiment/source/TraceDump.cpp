@@ -128,7 +128,7 @@ bool TraceDump::Process(RawEvent &event) {
 	//std::cout<<"TraceDump::Process()"<<location<<" "<<subType<<std::endl;
 
 		TimingDefs::TimingIdentifier key(location, subType);
-		pulserMap.insert(make_pair(key, HighResTimingData(*(*itPulser))));
+		pulserMap.insert(make_pair(key, TraceDumpData(*(*itPulser))));
 	    }
 
     //if (pulserMap.empty()) {
@@ -141,10 +141,10 @@ bool TraceDump::Process(RawEvent &event) {
         return false;
     }
 
-HighResTimingData start1 =   (*pulserMap.find(make_pair(0, "start1"))).second;
-HighResTimingData stop1 =    (*pulserMap.find(make_pair(0, "stop1"))).second;
-HighResTimingData start2 =   (*pulserMap.find(make_pair(0, "start2"))).second;
-HighResTimingData stop2 =    (*pulserMap.find(make_pair(0, "stop2"))).second;
+TraceDumpData start1 =   (*pulserMap.find(make_pair(0, "start1"))).second;
+TraceDumpData stop1 =    (*pulserMap.find(make_pair(0, "stop1"))).second;
+TraceDumpData start2 =   (*pulserMap.find(make_pair(0, "start2"))).second;
+TraceDumpData stop2 =    (*pulserMap.find(make_pair(0, "stop2"))).second;
 
  bool bstart1 = false;
  bool bstart2 = false;

@@ -67,7 +67,8 @@
 #include "Anl1471Processor.hpp"
 #include "IS600Processor.hpp"
 #include "RootProcessor.hpp"
-#include "TwoChanTimingProcessor.hpp"
+//#include "TwoChanTimingProcessor.hpp"
+#include "TraceDump.hpp"
 #endif
 
 using namespace std;
@@ -239,8 +240,10 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
 #ifdef useroot //Certain process REQURE root to actually work
         else if (name == "Anl1471Processor") {
             vecProcess.push_back(new Anl1471Processor());
-        } else if (name == "TwoChanTimingProcessor") {
-            vecProcess.push_back(new TwoChanTimingProcessor());
+//        } else if (name == "TwoChanTimingProcessor") {
+//            vecProcess.push_back(new TwoChanTimingProcessor());    ///JNH
+        } else if (name == "TraceDump") {
+            vecProcess.push_back(new TraceDump());
         } else if (name == "IS600Processor") {
             vecProcess.push_back(new IS600Processor());
         } else if (name == "TACProcessor") {

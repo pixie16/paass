@@ -43,7 +43,12 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
    outTree->Branch("qdc[4]",&qdc,"qdc[4]/D");
    outTree->Branch("sbase[4]",&sbase,"sbase[4]/D");
    outTree->Branch("abase[4]",&abase,"abase[4]/D");
-
+   outTree->Branch("thresh[4]",&thresh,"thresh[4]/D");
+   outTree->Branch("uPoint[4]",&uPoint,"uPoint[4]/D");
+   outTree->Branch("lPoint[4]",&lPoint,"lPoint[4]/D");
+   outTree->Branch("uThresh[4]",&uThresh,"uThresh[4]/D");
+   outTree->Branch("lThresh[4]",&lThresh,"lThresh[4]/D");
+//   outTree->Branch("points",&points);
 
    if(nentries == -1){nentries = fChain->GetEntriesFast(); cout<<nentries<< " entries are being calculated" << endl;}
 

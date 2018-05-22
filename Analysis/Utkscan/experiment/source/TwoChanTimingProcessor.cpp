@@ -132,7 +132,8 @@ bool TwoChanTimingProcessor::Process(RawEvent &event) {
 	    }
 
     //if (pulserMap.empty()) {
-    if (pulserMap.empty() || pulserMap.size() % 2 != 0) {    /// 2 Fold Coincidences
+    if (pulserMap.size() < 2) {    /// 2 Fold Coincidences
+//    if (pulserMap.empty() || pulserMap.size() % 2 != 0) {    /// 2 Fold Coincidences
 //    if (pulserMap.empty() || pulserMap.size() != 4) {         ///  4 Fold Coincidences
         //If the map is empty or size isn't even we return and increment
         // error code

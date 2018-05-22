@@ -8,7 +8,8 @@ if (PAASS_USE_ROOT)
     list(APPEND EXPERIMENT_SOURCES
             Anl1471Processor.cpp
             IS600Processor.cpp
-            TwoChanTimingProcessor.cpp
+            #TwoChanTimingProcessor.cpp
+            TraceDump.cpp
             TACProcessor.cpp
             ArrayJProcessor.cpp)
 endif (PAASS_USE_ROOT)
