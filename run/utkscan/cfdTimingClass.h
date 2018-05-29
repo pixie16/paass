@@ -126,6 +126,8 @@ public :
    Double_t lThresh[4];
    Double_t uThresh[4];
    Double_t slope[4];
+   Double_t tailqdc[4];
+   Double_t ratio[4];
 
    ////////////////////////////////
 
@@ -149,6 +151,7 @@ public :
    virtual void     PolyScan(Long64_t nentries=1000, Int_t chan1=2, Int_t chan2=3);
    virtual Double_t   CalcQDC(vector <UInt_t> *dTrace, UInt_t maxpos, Double_t baseline);
    virtual Double_t   CalcBaseline(vector <UInt_t> *dTrace, UInt_t initialpos,UInt_t finalpos);
+   virtual Double_t   CalcTailQDC(vector <UInt_t> *dTrace, UInt_t maxpos, Double_t baseline);
 
 };
 
@@ -554,6 +557,8 @@ void cfdTimingClass::PolyCFD(Long64_t entry, Double_t frac){
 //      Double_t base= CalcBaseline(trace,0,max_position-10);
       abase[m] = base;
       qdc[m] = CalcQDC(trace,max_position,base);
+      tailqdc[m] = CalcTailQDC(trace,max_position,base);
+      ratio[m] =  tailqdc[m]/qdc[m];
     }else{qdc[m] = -9999; abase[m] = -9999;}
    }else{
     phase[m]=-9999;
@@ -566,6 +571,7 @@ void cfdTimingClass::PolyCFD(Long64_t entry, Double_t frac){
     Pmax[m] = -9999;
     Fmax[m] = -9999;
     qdc[m] = -9999;
+    tailqdc[m] = -9999;
     }
 //    abase[m] = T_abase[m];
 //    abase[m] = base;
@@ -590,6 +596,13 @@ Double_t cfdTimingClass::CalcQDC(vector <UInt_t> *dTrace, UInt_t maxpos, Double_
   return QDC;
    }
 
+Double_t cfdTimingClass::CalcTailQDC(vector <UInt_t> *dTrace, UInt_t maxpos, Double_t baseline){
+
+  Double_t TailQDC = 0;
+  for (int i = (int)maxpos; i < (int)maxpos+9; i++) TailQDC += ((double)(dTrace->at(i))-baseline);
+
+  return TailQDC;
+}
 
 Double_t cfdTimingClass:: CalcBaseline(vector <UInt_t> *dTrace, UInt_t initialpos,UInt_t finalpos)
 {

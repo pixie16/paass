@@ -49,6 +49,8 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
    outTree->Branch("lPoint[4]",&lPoint,"lPoint[4]/D");
    outTree->Branch("uThresh[4]",&uThresh,"uThresh[4]/D");
    outTree->Branch("lThresh[4]",&lThresh,"lThresh[4]/D");
+   outTree->Branch("tailqdc[4]",&tailqdc,"tailqdc[4]/D");
+   outTree->Branch("ratio[4]",&ratio,"ratio[4]/D");
    outTree->Branch("slope[4]",&slope,"slope[4]/D");
 //   outTree->Branch("points",&points);
 
