@@ -38,7 +38,8 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
      outputFile=new TFile(filename,"RECREATE");
    TTree *outTree = new TTree("T","Output Tree");
    outTree->Branch("phase[4]",&phase,"phase[4]/D");
-   outTree->Branch("max[4]",&max,"max[4]/D");
+   outTree->Branch("Pmax[4]",&Pmax,"Pmax[4]/D");
+   outTree->Branch("Fmax[4]",&Fmax,"Fmax[4]/D");
    outTree->Branch("time[4]",&time,"time[4]/D");
    outTree->Branch("qdc[4]",&qdc,"qdc[4]/D");
    outTree->Branch("sbase[4]",&sbase,"sbase[4]/D");
@@ -48,6 +49,7 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
    outTree->Branch("lPoint[4]",&lPoint,"lPoint[4]/D");
    outTree->Branch("uThresh[4]",&uThresh,"uThresh[4]/D");
    outTree->Branch("lThresh[4]",&lThresh,"lThresh[4]/D");
+   outTree->Branch("slope[4]",&slope,"slope[4]/D");
 //   outTree->Branch("points",&points);
 
    if(nentries == -1){nentries = fChain->GetEntriesFast(); cout<<nentries<< " entries are being calculated" << endl;}

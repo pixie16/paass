@@ -114,7 +114,8 @@ public :
 
    ///////////// Variable to Save
    Double_t phase[4];
-   Double_t max[4];
+   Double_t Pmax[4];
+   Double_t Fmax[4];
    Double_t qdc[4];
    Double_t time[4];
    Double_t sbase[4];
@@ -124,6 +125,7 @@ public :
    Double_t lPoint[4];
    Double_t lThresh[4];
    Double_t uThresh[4];
+   Double_t slope[4];
 
    ////////////////////////////////
 
@@ -426,7 +428,7 @@ void cfdTimingClass::DigitalCFD(Long64_t entry,Double_t fraction, Int_t delay, B
     }
      //cout << endl;
 
-    max[iT] = T_max[iT];
+    Pmax[iT] = T_max[iT];
     qdc[iT] = T_qdc[iT];
     abase[iT] = T_abase[iT];
     sbase[iT] = T_sbase[iT];
@@ -469,9 +471,10 @@ void cfdTimingClass::PolyCFD(Long64_t entry, Double_t frac){
 
 //  TCanvas *c1 = new TCanvas();   
 //  c1->Divide(2,2);
-//  TLine *l1 = new TLine();
+  TLine *l1[4];// = new TLine();
+  TLine *l2[4];// = new TLine();
    std::pair <UInt_t,UInt_t> points;
-
+  Double_t base;
  for (int m=0;m<4;m++){
   
   vector <UInt_t> *trace;
@@ -511,55 +514,65 @@ void cfdTimingClass::PolyCFD(Long64_t entry, Double_t frac){
   }
 
  if(fTraces[m]->GetN()>0){
-//   c1->cd(m+1);
-   // find maximum of trace with 3rd order polynomial
-//   fTraces[m]->Draw("ALP");
-   
-
+   l1[m] = new TLine();
+   l2[m] = new TLine();
    std::pair <Double_t,Double_t> range((max_position-2),(max_position+2));
    fpol3[m]->SetRange(range.first,range.second);
-   fTraces[m]->Fit(fpol3[m],"RQSNW"); 
-   double amp = fpol3[m]->GetMaximum(range.first,range.second); 
-//   cout<< "Found max: " << amp << " for trace " << m << " in range [xmin,xmax]: " << range.first << ", " <<range.second <<  endl;
-
-   thresh[m] = (amp-T_abase[m])*frac+T_abase[m];
-
+   fTraces[m]->Fit(fpol3[m],"RNQSW"); 
+   Fmax[m] = fpol3[m]->GetMaximum(range.first,range.second); 
+   if (max_position>15) base= CalcBaseline(trace,0,max_position-10);
+   else base = T_abase[m];
+   thresh[m] = (Fmax[m]-base)*frac+base;
+   Pmax[m] = T_max[m];
    // find two points around thresh[m]old
    for (UInt_t ip = max_position; ip>1; ip--){
-    if ((trace->at(ip)>thresh[m])&&(trace->at(ip-1)<thresh[m])){
+    if ((trace->at(ip)>=thresh[m])&&(trace->at(ip-1)<thresh[m])){
      points.first = ip-1; points.second =ip;}
      lThresh[m] = trace->at(ip-1);
      uThresh[m] = trace->at(ip);
     }
-//   cout << "Points surrounding thresh[m]old: " << points.first << ", " << points.second << endl;
 //   fpol2[m]->SetRange(points.first,points.second);
 //   fTraces[m]->Fit(fpol2[m],"RNQSW");
 //   phase[m] = fpol2[m]->GetX(thresh[m],points.first,points.second); 
    fpol1[m]->SetRange(points.first,points.second);
    fTraces[m]->Fit(fpol1[m],"RNQSW");
    phase[m] = fpol1[m]->GetX(thresh[m],points.first,points.second); 
-//   l1->DrawLine(phase[m],T_abase[m],phase[m],T_max[m]); 
-//   l1->SetLineColor(kRed);
-//   l2->DrawLine(phase[m]-10,thresh[m],phase[m]+10,thresh[m]);
-//   l2->SetLineColor(kBlue);
+   if (m==4){
+   l1[m]->SetLineColor(kRed);
+   l1[m]->DrawLine(phase[m],T_abase[m],phase[m],T_max[m]); 
+   l2[m]->SetLineColor(kBlue);
+   l2[m]->DrawLine(phase[m]-10,thresh[m],phase[m]+10,thresh[m]);
+   }
    time[m] = T_time[m]+fSamplingRate*phase[m];
+
+   sbase[m] = T_sbase[m];
+   lPoint[m] = points.first;
+   uPoint[m] = points.second;
+   slope[m] = fpol1[m]->GetParameter(1)/4.0;
+
+   if (max_position > 5 && max_position < 110){ 
+//      Double_t base= CalcBaseline(trace,0,max_position-10);
+      abase[m] = base;
+      qdc[m] = CalcQDC(trace,max_position,base);
+    }else{qdc[m] = -9999; abase[m] = -9999;}
    }else{
     phase[m]=-9999;
     time[m]=-9999;
+    abase[m] = -9999;
+    sbase[m] = -9999;
+    lPoint[m] = -9999;
+    uPoint[m] = -9999;
+    slope[m] = -9999;
+    Pmax[m] = -9999;
+    Fmax[m] = -9999;
+    qdc[m] = -9999;
     }
-    max[m] = T_max[m];
-//    qdc[m] = T_qdc[m];
-    if (max_position > 5 && max_position < 110){ 
-      Double_t base= CalcBaseline(trace,0,max_position-10);
-      qdc[m] = CalcQDC(trace,max_position,base);
-      abase[m] = base;
-
-}
-    else qdc[m] = -9999;
-    abase[m] = T_abase[m];
-    sbase[m] = T_sbase[m];
-    lPoint[m] = points.first;
-    uPoint[m] = points.second;
+//    abase[m] = T_abase[m];
+//    abase[m] = base;
+//    sbase[m] = T_sbase[m];
+//    lPoint[m] = points.first;
+//    uPoint[m] = points.second;
+//    slope[m] = fpol1[m]->GetParameter(1)/4.0;
 //    lThresh[m] = trace->at(points.first);
 //    uThresh[m] = trace->at(points.second);
  }
