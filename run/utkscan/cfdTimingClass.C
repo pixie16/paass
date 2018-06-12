@@ -41,6 +41,7 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
    outTree->Branch("Pmax[4]",&Pmax,"Pmax[4]/D");
    outTree->Branch("Fmax[4]",&Fmax,"Fmax[4]/D");
    outTree->Branch("time[4]",&time,"time[4]/D");
+   outTree->Branch("ToF",&ToF,"ToF/D");
    outTree->Branch("qdc[4]",&qdc,"qdc[4]/D");
    outTree->Branch("sbase[4]",&sbase,"sbase[4]/D");
    outTree->Branch("abase[4]",&abase,"abase[4]/D");
@@ -52,6 +53,8 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
    outTree->Branch("tailqdc[4]",&tailqdc,"tailqdc[4]/D");
    outTree->Branch("ratio[4]",&ratio,"ratio[4]/D");
    outTree->Branch("slope[4]",&slope,"slope[4]/D");
+   outTree->Branch("dpoint[4]",&dpoint,"dpoint[4]/D");
+
 //   outTree->Branch("points",&points);
 
    if(nentries == -1){nentries = fChain->GetEntriesFast(); cout<<nentries<< " entries are being calculated" << endl;}
@@ -65,7 +68,11 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
       //nb = fChain->GetEntry(jentry);   nbytes += nb;
       // if (Cut(ientry) < 0) continue;
       //DigitalCFD(jentry);
-      PolyCFD(jentry,0.5);
+      PolyCFD(jentry,0.45);    //Find CFD timing for jth entry with given fraction
+
+      if (phase[0]>0&&phase[1]>0&&phase[2]>0&&phase[3]>0) ToF = (time[2]+time[3])/2.0-(time[0]+time[1])/2.0;  //Calculate ToF if 4 signals exist
+      else ToF = -9999;
+
     outTree->Fill();
    }
    cout<<endl;
@@ -89,17 +96,20 @@ void cfdTimingClass::PolyScan(Long64_t nentries, Int_t chan1, Int_t chan2){
   char hname[200];
   TF1 *f1 = new TF1("f1","gaus",0,1);
   double fMean, fRes;
-  for (int iFrc=1; iFrc<900; iFrc++){   //cfd fraction scan
+
+  std::cout << "Running Scan" << endl;
+  for (int iFrc=1; iFrc<90; iFrc++){   //cfd fraction scan
    frc = (double)iFrc*hstep;
    sprintf(hname,"h2_frac%d",iFrc);
    h2[iFrc-1] = new TH2F(hname,hname,1000,15000,300000,1000,-30,30);
    sprintf(hname,"h1_frac%d",iFrc);
    h1[iFrc-1] = new TH1F(hname,hname,1000,-30,30);
    for (int jentry=0; jentry<nentries; jentry++){
+    
     PolyCFD(jentry,frc);   //extract timing for given cfd fraction
     if (phase[chan1]>0 && phase[chan2]>0){
     h1[iFrc-1]->Fill(time[chan1]-time[chan2]);
-    h2[iFrc-1]->Fill(qdc[chan1],time[chan1]-time[chan2]);
+    h2[iFrc-1]->Fill(qdc[chan1],time[chan1]-time[chan2]);    //The QDC channel needs to be whichever channel is fixed to keep consistent QDC calculation w/o dependence on CFD phase
      }
 //    cout << "Chan1 time phase: " << time[chan1] << " " << phase[chan1] << "\nChan2 time phase: " << time[chan2] << " " << phase[chan2] << endl;
     }

@@ -1,1 +1,1 @@
-utkscan -c Config_EJ299Short_TI656.xml --frequency 250 --firmware R34688 -i ../data/EJ299_Co60_LRtimingTest_middle_Col_001.ldf -o EJ299_Co60_LRtimingTest_middle_Col_002
+utkscan -c [Config File] --frequency 250 --firmware R34688 -i [Input File] -o [Output Filename]

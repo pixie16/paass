@@ -6,6 +6,11 @@
 *.pcm
 *.d
 
+#Image Files
+*.jpg
+*.png
+*.pdf
+
 #Backup files 
 *~
 *.swp
@@ -36,7 +41,7 @@ run/Pixie16msg.txt*
 #utkscan & macro Files
 run/utkscan/Config*.xml
 *.dat
-
+run/utkscan/*.cmd
 #Ignore the build and exec directory
 build/
 *build-*/
