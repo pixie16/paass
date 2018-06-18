@@ -19,7 +19,8 @@ set(PROCESSOR_SOURCES
         PspmtProcessor.cpp
         TeenyVandleProcessor.cpp
         TemplateProcessor.cpp
-        VandleProcessor.cpp)
+        VandleProcessor.cpp
+        ExtTSSenderProcessor.cpp)
 
 if (PAASS_USE_ROOT)
     list(APPEND PROCESSOR_SOURCES RootProcessor.cpp)

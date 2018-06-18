@@ -42,6 +42,7 @@
 #include "TeenyVandleProcessor.hpp"
 #include "TemplateProcessor.hpp"
 #include "VandleProcessor.hpp"
+#include "ExtTSSenderProcessor.hpp"
 
 //These headers are for handling experiment specific processing.
 #include "E11027Processor.hpp"
@@ -152,6 +153,13 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new E11027Processor());
         } else if (name == "TemplateExpProcessor") {
             vecProcess.push_back(new TemplateExpProcessor());
+        } else if (name == "ExtTSSenderProcessor") {
+            vecProcess.push_back(new ExtTSSenderProcessor(
+                    processor.attribute("type").as_string("pspmpt:dynode"),
+                    processor.attribute("host").as_string("localhost"),
+                    processor.attribute("tag").as_string("beta"),
+                    processor.attribute("port").as_int(12345),
+                    processor.attribute("buffSize").as_uint(64)));
         }
 #ifdef useroot //Certain processors REQUIRE ROOT to actually work
         else if (name == "Anl1471Processor") {
