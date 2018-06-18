@@ -29,6 +29,8 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
 // METHOD2: replace line
 //    fChain->GetEntry(jentry);       //read all branches
 //by  b_branchname->GetEntry(ientry); //read only this branch
+
+
    if (fChain == 0) return;
 
    TFile *outputFile;
@@ -37,6 +39,7 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
    else
      outputFile=new TFile(filename,"RECREATE");
    TTree *outTree = new TTree("T","Output Tree");
+   outTree->Branch("event",&event,"event/l");
    outTree->Branch("phase[4]",&phase,"phase[4]/D");
    outTree->Branch("Pmax[4]",&Pmax,"Pmax[4]/D");
    outTree->Branch("Fmax[4]",&Fmax,"Fmax[4]/D");
@@ -56,15 +59,16 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
    outTree->Branch("dpoint[4]",&dpoint,"dpoint[4]/D");
 
 //   outTree->Branch("points",&points);
-
+   
    if(nentries == -1){nentries = fChain->GetEntriesFast(); cout<<nentries<< " entries are being calculated" << endl;}
 
    Long64_t nbytes = 0, nb = 0;
 
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
+      event = jentry;
       if (ientry < 0) break;
-      if (jentry%1000==0) cout << "\rOn entry: "<< jentry << flush;
+      if (jentry%10000==0) cout << "\rOn entry: "<< jentry << flush;
       //nb = fChain->GetEntry(jentry);   nbytes += nb;
       // if (Cut(ientry) < 0) continue;
       //DigitalCFD(jentry);
