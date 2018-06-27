@@ -155,6 +155,7 @@ public :
    virtual void     PolyCFD(Long64_t entry = -1, Double_t frac = 0.45);
    virtual void     PolyCFDDraw(Long64_t entry = -1, Double_t frac = 0.45, Int_t Chan = 0);
    virtual void     PolyScan(Long64_t nentries=1000, Int_t chan1=2, Int_t chan2=3);
+   virtual void   QDCcalc(vector <UInt_t> *dTrace, int chan, Double_t cfdpos, Double_t baseline);
    virtual Double_t   CalcQDC(vector <UInt_t> *dTrace, Double_t cfdpos, Double_t baseline);
    virtual Double_t   CalcTRAPQDC(vector <UInt_t> *dTrace, Double_t cfdpos, Double_t baseline);
    virtual Double_t   CalcBaseline(vector <UInt_t> *dTrace, UInt_t initialpos,UInt_t finalpos);
@@ -527,6 +528,8 @@ void cfdTimingClass::PolyCFDDraw(Long64_t entry, Double_t frac, Int_t Chan){
   }
 
  if(fTraces[m]->GetN()>0){
+   fTraces[m]->SetMarkerStyle(20);
+   fTraces[m]->SetMarkerSize(0.7);
    fTraces[m]->Draw("AP");
    l1 = new TLine();
    l2 = new TLine();
@@ -559,11 +562,11 @@ void cfdTimingClass::PolyCFDDraw(Long64_t entry, Double_t frac, Int_t Chan){
    fpol1[m]->SetLineColor(kMagenta);
    fTraces[m]->Fit(fpol1[m],"RQSW+");  // fit 1st order poly
    phase[m] = fpol1[m]->GetX(thresh[m],points.first,points.second);  // Get high resolution phase from 1st order poly
-  
+   fTraces[m]->GetXaxis()->SetRangeUser(30,100);
    l1->SetLineColor(kRed);
    l1->DrawLine(phase[m],base,phase[m],Fmax[m]); 
    l2->SetLineColor(kBlue);
-   l2->DrawLine(phase[m]-3,thresh[m],phase[m]+3,thresh[m]);
+   l2->DrawLine(phase[m]+fDelay,base,phase[m]+fDelay,Fmax[m]);
    }
    else cout << "No Trace to Plot. Try different entry or channel." << endl;
   
@@ -676,13 +679,14 @@ void cfdTimingClass::PolyCFD(Long64_t entry, Double_t frac){
    uPoint[m] = points.second;
   // slope[m] = fpol1[m]->GetParameter(1)/4.0;  //find slope of the 1st order poly fit
 
-   if (max_position > 5 && max_position < 110 && phase[m] > 40){ 
+   if (max_position > 20 && max_position < 110 && phase[m] > 40){ 
 //      Double_t base= CalcBaseline(trace,0,max_position-10);
       dpoint[m] = trace->at(max_position+11);
       abase[m] = base;
-      qdc[m] = CalcQDC(trace,phase[m],base);
-      tailqdc[m] = CalcTailQDC(trace,phase[m],base);
-      leadqdc[m] = CalcLeadQDC(trace,phase[m],base,max_position);
+      QDCcalc(trace,m,max_position,base);
+//     qdc[m] = CalcQDC(trace,phase[m],base);
+//      tailqdc[m] = CalcTailQDC(trace,phase[m],base);
+//      leadqdc[m] = CalcLeadQDC(trace,phase[m],base,max_position);
       ratio[m] =  tailqdc[m]/qdc[m];
 //        ratio[m] = leadqdc[m]/qdc[m]; 
 //      ratio[m] =  tailqdc[m]/CalcLeadQDC(trace,max_position,base);
@@ -723,6 +727,25 @@ void cfdTimingClass::PolyCFD(Long64_t entry, Double_t frac){
 
  return;
 }
+
+void cfdTimingClass::QDCcalc(vector <UInt_t> *dTrace, int chan, Double_t cfdpos, Double_t baseline){
+ qdc[chan]=0;
+ tailqdc[chan]=0;
+ int cfdposL = floor(cfdpos);
+ int cfdposR = ceil(cfdpos);
+ double tL = cfdpos-(double)cfdposL;
+ double tR = cfdpos-(double)cfdposR;
+ double partialT = ((double)dTrace->at(cfdposR)*tR+(double)dTrace->at(cfdposR-1))*tR;
+ tailqdc[chan] += (partialT+(double)dTrace->at(cfdposR))*tR/2;
+ for (int i = cfdposR-10; i < cfdposR+60; i++){
+  if((double)dTrace->at(i)>baseline){
+   qdc[chan] += ((double)(dTrace->at(i))-baseline); 
+   if (i>cfdposR+fDelay) tailqdc[chan] += ((double)(dTrace->at(i))-baseline);
+   }
+  else continue;
+ }
+}
+
 
 
 Double_t cfdTimingClass::CalcQDC(vector <UInt_t> *dTrace, Double_t cfdpos, Double_t baseline){
