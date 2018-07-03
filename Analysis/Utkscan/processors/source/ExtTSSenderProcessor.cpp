@@ -2,8 +2,8 @@
 #include "ExtTSSenderProcessor.hpp"
 
 ExtTSSenderProcessor::ExtTSSenderProcessor() : EventProcessor(7998, 1, "ExtTSSenderProcessor"),
-type_("pspmt:dynode"),
-tag_("beta"),
+slotNum_(0),
+chanNum_(0),
 port_(12345),
 hostName_("localhost"),
 buffSize_(64),
@@ -13,13 +13,15 @@ curPos_(0)
 }
 
 ExtTSSenderProcessor::ExtTSSenderProcessor(const std::string &type, const std::string &hostName,
-                                           const std::string &tag, const int &port, const int &buffSize) :
+                                           const int &slot, const int &channel, const int &port, const int &buffSize) :
 EventProcessor(7998, 1, "ExtTSSenderProcessor")
 {
     type_ = type;
-    tag_ = tag;
+    slotNum_ = slot;
+    chanNum_ = channel;
     buffSize_ = buffSize;
     Init(hostName, port); 
+    associatedTypes.insert(type_);
 }
 
 ExtTSSenderProcessor::~ExtTSSenderProcessor()
@@ -35,10 +37,10 @@ bool ExtTSSenderProcessor::Process(RawEvent &event)
     if (!EventProcessor::Process(event))
         return false;
 
-    static const std::vector<ChanEvent *> &chEvents = event.GetSummary(type_)->GetList();
+    static const std::vector<ChanEvent *> &chEvents = event.GetEventList();
  
     for( auto chEvent : chEvents ) {
-        if( chEvent->GetChanID().HasTag(tag_) || !tag_.length() ){
+        if( chEvent->GetChannelNumber() == chanNum_ && chEvent->GetModuleNumber() == slotNum_ ){
             unsigned long long int ts_ = (unsigned long long int)chEvent->GetExternalTimeStamp();
             SetTS(ts_);
         }
@@ -62,8 +64,6 @@ void ExtTSSenderProcessor::SetBuffSize(const unsigned int &buffSize)
 
 bool ExtTSSenderProcessor::Init(const std::string &hostName, const int &port)
 {
-    associatedTypes.insert(type_);
-
     hostName_ = hostName;
     port_ = port;
 
