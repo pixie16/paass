@@ -155,9 +155,10 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new TemplateExpProcessor());
         } else if (name == "ExtTSSenderProcessor") {
             vecProcess.push_back(new ExtTSSenderProcessor(
-                    processor.attribute("type").as_string("pspmpt:dynode"),
+                    processor.attribute("type").as_string(""),
                     processor.attribute("host").as_string("localhost"),
-                    processor.attribute("tag").as_string("beta"),
+                    processor.attribute("slot").as_int(0),
+                    processor.attribute("channel").as_int(0),
                     processor.attribute("port").as_int(12345),
                     processor.attribute("buffSize").as_uint(64)));
         }
