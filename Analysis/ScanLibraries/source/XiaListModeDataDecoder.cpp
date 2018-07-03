@@ -112,9 +112,9 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
 
         if (hasExternalTimestamp) {
           /// set least significant 32 bits of 48 bit external time stamp
-          data->SetExternalTimeLow(headerLength-1);
+          data->SetExternalTimeLow(buf[4]);
           /// set most significant 16 bits of 48 bit external time stamp
-          data->SetExternalTimeHigh(DecodeExternalTimeHigh(headerLength, *data, mask));
+          data->SetExternalTimeHigh(DecodeExternalTimeHigh(buf[5], *data, mask));
           /// stores 48 bit external time stamp as an XiaData member -> double externalTimeStamp_
           data->SetExternalTimeStamp(CalculateExternalTimeStamp(*data));
 
@@ -128,7 +128,8 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
           }cout<<endl;
           // cout<<"data->GetExternalTimeHigh()="<<data->GetExternalTimeHigh()<<'\t';
           // cout<<"data->GetExternalTimeLow()="<<data->GetExternalTimeLow()<<'\t';
-          // cout<<"data->GetExternalTimeStamp()="<<data->GetExternalTimeStamp()<<endl;
+          cout.precision(20);
+	  cout<<"data->GetExternalTimeStamp()="<<data->GetExternalTimeStamp()<<endl;
 
         }
 
