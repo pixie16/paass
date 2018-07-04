@@ -121,15 +121,15 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
           //// **** for troubleshooting **** ////
           // cout<<"hasEnergySums "<< hasEnergySums<<'\t';
           // if(buf[4]>20)continue;
-          cout<<" hasExternalTimestamp="<< hasExternalTimestamp<<'\t';
+          //cout<<" hasExternalTimestamp="<< hasExternalTimestamp<<'\t';
           // cout<<"hasQdc "<< hasQdc<<'\t';
-          for (unsigned int i = 0; i < headerLength; i++) {
-            cout<<"buf["<<i<<"]="<<hex<<buf[i]<<'\t';
-          }cout<<endl;
+          //for (unsigned int i = 0; i < headerLength; i++) {
+          //  cout<<"buf["<<i<<"]="<<hex<<buf[i]<<'\t';
+          //}cout<<endl;
           // cout<<"data->GetExternalTimeHigh()="<<data->GetExternalTimeHigh()<<'\t';
           // cout<<"data->GetExternalTimeLow()="<<data->GetExternalTimeLow()<<'\t';
-          cout.precision(20);
-	  cout<<"data->GetExternalTimeStamp()="<<data->GetExternalTimeStamp()<<endl;
+          //cout.precision(20);
+	  //cout<<"data->GetExternalTimeStamp()="<<data->GetExternalTimeStamp()<<endl;
 
         }
 
