@@ -27,7 +27,7 @@
 #include <TBranch.h>
 #include <TH1.h>
 #include <TH2.h>
-#include "ProcessorStruc.hpp"
+#include "ProcessorRootStruc.hpp"
 #include "GSaddback.hpp"
 
 #endif

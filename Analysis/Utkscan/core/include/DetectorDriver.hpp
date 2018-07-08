@@ -60,7 +60,7 @@
 #include "CloverProcessor.hpp"
 #include "GammaScintProcessor.hpp"
 #include "VandleProcessor.hpp"
-#include "ProcessorStruc.hpp"
+#include "ProcessorRootStruc.hpp"
 
 #endif
 
