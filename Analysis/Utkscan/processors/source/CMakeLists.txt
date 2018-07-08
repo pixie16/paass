@@ -6,6 +6,7 @@ set(PROCESSOR_SOURCES
         CloverProcessor.cpp
         DssdProcessor.cpp
         EventProcessor.cpp
+        GammaScintProcessor.cpp
         GeProcessor.cpp
         Hen3Processor.cpp
         ImplantSsdProcessor.cpp
@@ -20,7 +21,8 @@ set(PROCESSOR_SOURCES
         TeenyVandleProcessor.cpp
         TemplateProcessor.cpp
         VandleProcessor.cpp
-        ExtTSSenderProcessor.cpp)
+        ExtTSSenderProcessor.cpp
+        )
 
 if (PAASS_USE_ROOT)
     list(APPEND PROCESSOR_SOURCES RootProcessor.cpp)

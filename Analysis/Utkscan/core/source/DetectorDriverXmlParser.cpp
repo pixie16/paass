@@ -28,6 +28,7 @@
 #include "CloverProcessor.hpp"
 #include "DoubleBetaProcessor.hpp"
 #include "DssdProcessor.hpp"
+#include "GammaScintProcessor.hpp"
 #include "GeProcessor.hpp"
 #include "Hen3Processor.hpp"
 #include "ImplantSsdProcessor.hpp"
@@ -59,14 +60,28 @@
 using namespace std;
 
 void DetectorDriverXmlParser::ParseNode(DetectorDriver *driver) {
-    pugi::xml_node node =
-            XmlInterface::get()->GetDocument()->
-                    child("Configuration").child("DetectorDriver");
+    pugi::xml_node node = XmlInterface::get()->GetDocument()->child("Configuration").child("DetectorDriver");
 
     if (!node)
         throw invalid_argument("DetectorDriverXmlParser::ParseNode : The detector driver node "
                                        "could not be read! This is fatal.");
 
+    SysRootOut.first = node.attribute("SysRoot").as_bool(false);
+    SysRootOut.second ="false";
+
+    rFileSize = node.attribute("rFileSize").as_double(20); //Defaults to 20GB (which is ~20-25 LDFs worth of 94rb_14 data) 
+
+    if (SysRootOut.first) {
+        SysRootOut.second = "True";
+    }
+    std::stringstream ss;
+    ss<<"DetectorDriver::System Root Output = "<<SysRootOut.second;
+    messenger_.detail(ss.str(),1);
+    if (SysRootOut.first) {
+        ss.str("");
+        ss << "DetectorDriver Output Root File Size = " << rFileSize << " GB";
+        messenger_.detail(ss.str(), 2);
+    }
     messenger_.start("Loading Analyzers");
     driver->SetTraceAnalyzers(ParseAnalyzers(node.child("Analyzer")));
     messenger_.done();
@@ -78,9 +93,7 @@ void DetectorDriverXmlParser::ParseNode(DetectorDriver *driver) {
 
 vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xml_node &node) {
     std::vector < EventProcessor * > vecProcess;
-
-    for (pugi::xml_node processor = node; processor;
-         processor = processor.next_sibling(node.name())) {
+    for (pugi::xml_node processor = node; processor; processor = processor.next_sibling(node.name())) {
         string name = processor.attribute("name").as_string();
 
         messenger_.detail("Loading " + name);
@@ -97,10 +110,10 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             ///@TODO This needs to be cleaned. No method should have this
             /// many variables as arguments.
             vecProcess.push_back(new CloverProcessor(
-                    processor.attribute("gamma_threshold").as_double(1.0),
-                    processor.attribute("low_ratio").as_double(1.0),
+                    processor.attribute("gamma_threshold").as_double(10.0),
+                    processor.attribute("low_ratio").as_double(1.5),
                     processor.attribute("high_ratio").as_double(3.0),
-                    processor.attribute("sub_event").as_double(100.e-9),
+                    processor.attribute("sub_event").as_double(1.e-6),
                     processor.attribute("gamma_beta_limit").as_double(200.e-9),
                     processor.attribute("gamma_gamma_limit").as_double(200.e-9),
                     processor.attribute("cycle_gate1_min").as_double(0.0),
@@ -111,6 +124,39 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new DoubleBetaProcessor());
         } else if (name == "DssdProcessor") {
             vecProcess.push_back(new DssdProcessor());
+        }else if (name == "GammaScintProcessor") {
+            std::map<std::string,std::string> GScintArgs;
+            std::string defaultSubEvtWin = "0.50e-6";
+            std::string defaultThreshold = "10.";
+            std::string defaultBunch = "30.";
+
+            GScintArgs.insert(make_pair("DDroot",SysRootOut.second ));
+            GScintArgs.insert(make_pair("BunchingTime", processor.attribute("BunchingTime").as_string(defaultBunch.c_str())));
+            GScintArgs.insert(make_pair("EnergyVsTime",processor.attribute("EvsT").as_string("true")));
+            GScintArgs.insert(make_pair("MRBWin",processor.attribute("MRBWin").as_string(defaultSubEvtWin.c_str())));
+            std::string FacilityType = processor.attribute("FacilityType").as_string("frag");
+            GScintArgs.insert(make_pair("FacilityType",FacilityType));
+
+            GScintArgs.insert(make_pair("NaI_Thresh",
+                                        processor.attribute("NaIThresh").as_string(defaultThreshold.c_str())));
+            GScintArgs.insert(make_pair("NaI_SubWin",
+                                        processor.attribute("NaISubEvtWin").as_string(defaultSubEvtWin.c_str())));
+
+            GScintArgs.insert(make_pair("LH_Thresh",
+                                        processor.attribute("SmallHagThresh").as_string(defaultThreshold.c_str())));
+            GScintArgs.insert(make_pair("LH_SubWin",
+                                        processor.attribute("SmallHagSubEvtWin").as_string(defaultSubEvtWin.c_str())));
+
+            GScintArgs.insert(make_pair("BH_Thresh",
+                                        processor.attribute("BigHagThresh").as_string(defaultThreshold.c_str())));
+            GScintArgs.insert(make_pair("BH_SubWin",
+                                        processor.attribute("BigHagSubEvtWin").as_string(defaultSubEvtWin.c_str())));
+
+            std::vector< std::string > timeScales = StringManipulation::TokenizeString(
+                    processor.attribute("timeScales").as_string(),",");
+            std::vector< std::string > DetTypes = StringManipulation::TokenizeString(
+                    processor.attribute("types").as_string("smallhag"), ",");
+            vecProcess.push_back(new GammaScintProcessor(GScintArgs, DetTypes, timeScales));
         } else if (name == "GeProcessor") {
             vecProcess.push_back(new GeProcessor());
         } else if (name == "Hen3Processor") {

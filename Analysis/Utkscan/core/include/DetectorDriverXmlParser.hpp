@@ -29,6 +29,12 @@ public:
     ///@throw invalid_argument if the node cannot be found.
     void ParseNode(DetectorDriver *driver);
 
+    ///Returns the config option to have Detector Driver root output
+    std::pair<bool,std::string> GetRootOutOpt(){ return SysRootOut;}
+
+    ///Returns the Max Root Tree File size (In GB)
+    double GetRFileSize(){return rFileSize; }
+
 private:
     ///An instance of the messenger class so that we can output pretty info
     Messenger messenger_;
@@ -49,6 +55,11 @@ private:
     ///Prints all of the attributes for a node to the screen.
     ///@param[in] node : The node that we'd like to print the attirbutes for.
     void PrintAttributeMessage(pugi::xml_node &node);
+
+    ///Controls whether or not to have system-wide root output from the Detector Driver.
+    std::pair<bool,std::string> SysRootOut;
+
+    double rFileSize;//!<Root File's roll over size.
 };
 
 #endif //PAASS_DETECTORDRIVERXMLPARSER_HPP

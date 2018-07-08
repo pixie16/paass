@@ -68,7 +68,7 @@ CloverProcessor::CloverProcessor(double gammaThreshold, double lowRatio,
                          double cycle_gate2_min, double cycle_gate2_max) :
         EventProcessor(OFFSET, RANGE, "CloverProcessor"),
         leafToClover() {
-    associatedTypes.insert("ge"); // associate with germanium detectors
+    associatedTypes.insert("clover"); // associate with germanium detectors
 
     gammaThreshold_ = gammaThreshold;
     lowRatio_ = lowRatio;
@@ -166,7 +166,7 @@ void CloverProcessor::DeclarePlots(void) {
     DetectorLibrary *modChan = DetectorLibrary::get();
 
     const set<int> &cloverLocations =
-            modChan->GetLocations("ge", "clover_high");
+            modChan->GetLocations("clover", "clover_high");
     // could set it now but we'll iterate through the locations to set this
     unsigned int cloverChans = 0;
 
@@ -394,14 +394,13 @@ bool CloverProcessor::PreProcess(RawEvent &event) {
         return false;
 
     geEvents_.clear();
+    Csing.clear();
     for (unsigned i = 0; i < numClovers; ++i)
         addbackEvents_[i].clear();
     tas_.clear();
 
-    static const vector<ChanEvent *> &highEvents =
-            event.GetSummary("ge:clover_high", true)->GetList();
-    static const vector<ChanEvent *> &lowEvents =
-            event.GetSummary("ge:clover_low", true)->GetList();
+    static const vector<ChanEvent *> &highEvents = event.GetSummary("clover:clover_high", true)->GetList();
+    static const vector<ChanEvent *> &lowEvents = event.GetSummary("clover:clover_low", true)->GetList();
 
     /** Only the high gain events are going to be used. The events where
      * low/high gain mismatches, saturation or pileup is marked are rejected
@@ -437,8 +436,10 @@ bool CloverProcessor::PreProcess(RawEvent &event) {
 
     /** guarantee the first event will be greater than
      * the subevent window delayed from reference
+     * We need the ref time to be in TICKS and subEvent to be in seconds
+     * (look at the dtime calculation)
      */
-    double refTime = -2.0 * subEventWindow_;
+    double refTime = -2.0 * (subEventWindow_/Globals::get()->GetClockInSeconds());
 
     for (vector<ChanEvent *>::iterator it = geEvents_.begin();
          it != geEvents_.end(); it++) {
@@ -462,13 +463,14 @@ bool CloverProcessor::PreProcess(RawEvent &event) {
         if (dtime > subEventWindow_) {
             for (unsigned i = 0; i < numClovers; ++i) {
                 addbackEvents_[i].push_back(AddBackEvent());
+                addbackEvents_[clover].back().ftime = time* Globals::get()->GetClockInSeconds()*1.e9;
             }
             tas_.push_back(AddBackEvent());
         }
         // Total addback energy
         addbackEvents_[clover].back().energy += energy;
         // We store latest time only
-        addbackEvents_[clover].back().time = time;
+        addbackEvents_[clover].back().time = time * Globals::get()->GetClockInSeconds()*1.e9;
         addbackEvents_[clover].back().multiplicity += 1;
         tas_.back().energy += energy;
         tas_.back().time = time;
@@ -516,15 +518,27 @@ bool CloverProcessor::Process(RawEvent &event) {
     }
     for (vector<ChanEvent*>::iterator it1 = geEvents_.begin();
          it1 != geEvents_.end(); ++it1) {
-        ChanEvent *chan = *it1;
+        ChanEvent *itC = *it1;
 
-        double gEnergy = chan->GetCalibratedEnergy();
+        double gEnergy = itC->GetCalibratedEnergy();
         if (gEnergy < gammaThreshold_)
             continue;
         if (hasBeta) {
             plot(betaGated::D_NONCYCGATEDENERGY, gEnergy);
         }
         plot(D_NONCYCGATEDENERGY, gEnergy);
+        Cstruct.RawEnergy = itC->GetEnergy();
+        Cstruct.Energy = itC->GetCalibratedEnergy();
+        Cstruct.Time = itC->GetTimeSansCfd();
+        Cstruct.LastCycleTime = cycleTime;
+        Cstruct.HasLowResBeta = hasBeta;
+        Cstruct.DetNum = itC->GetChanID().GetLocation();
+        Cstruct.CloverNum = leafToClover[itC->GetChanID().GetLocation()];
+        Csing.emplace_back(Cstruct);
+        Cstruct=DefaultStruct; //reset to initalized values (see ProcessorRootStruc.hpp
+
+        //Dont fill because we want 1 pixie event per tree entry, so we add the current structure in the last spot
+        //on a vector<> and then reset the structure. and we will at the end or Process()
     }
 
 
