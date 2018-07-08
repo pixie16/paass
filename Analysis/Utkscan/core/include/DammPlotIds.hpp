@@ -94,7 +94,11 @@ namespace dammIds {
         const int OFFSET = 2200;//!< Offset for Hen3Processor
         const int RANGE = 50;//!< Range for Hen3Processor
     }
-
+    ///in GammaScintProcessor.cpp
+    namespace gscint {
+        const int OFFSET = 2300;//!< Offset for GammaScintProcessor
+        const int RANGE = 200;//!< Range for GammaScintProcessor
+    }
     ///in CloverProcessor.cpp
     namespace clover {
         const int OFFSET = 2500;//!< Offset for CloverProcessor

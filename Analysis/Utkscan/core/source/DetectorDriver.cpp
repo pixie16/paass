@@ -37,9 +37,14 @@ DetectorDriver *DetectorDriver::get() {
 }
 
 DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
+    eventNumber_ = 0;
+    sysrootbool_ =false;
+
     try {
         DetectorDriverXmlParser parser;
         parser.ParseNode(this);
+        sysrootbool_ = parser.GetRootOutOpt().first;
+        rFileSizeGB_ = parser.GetRFileSize();
     } catch (GeneralException &e) {
         /// Any exception in registering plots in Processors
         /// and possible other exceptions in creating Processors
@@ -50,6 +55,70 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
     } catch (GeneralWarning &w) {
         cout << "Warning found at DetectorDriver::DetectorDriver" << endl;
         cout << "\t" << w.what() << endl;
+    }
+
+    //adding root stuff
+
+    if (sysrootbool_) {
+        for (auto it = vecProcess.begin(); it != vecProcess.end(); it++){
+            setProcess.emplace((*it)->GetName());
+        }
+        if (setProcess.empty()){
+            GeneralException("Exception:DetectorDriver:: setProcess is empty and root requested. this will cause segfaults on root fill()");
+        }
+
+        Long64_t rFileSizeB_ = rFileSizeGB_ * pow(1000,3);
+        std::string name = Globals::get()->GetOutputPath() + Globals::get()->GetOutputFileName() + "_DD.root";
+        PixieFile = new TFile(name.c_str(), "RECREATE");
+        PTree = new TTree("PixTree", "Pixie Event Tree");
+        PTree->SetMaxTreeSize(rFileSizeB_);
+
+        // ROOTFILE system wide header
+        //get the current systemTime and make it a string
+        time_t now = time(nullptr);
+        std::string date = ctime(&now);
+
+        TNamed cfgTNamed("config", Globals::get()->GetConfigFileName());
+        TNamed outfTNamed("outputFile", Globals::get()->GetOutputFileName());
+        TNamed createTnamed("createTime", date);
+        TNamed RootversionTnamed("RootVersion", gROOT->GetRootSys().Data());
+        TNamed outRootTNamed("outputRootFile", name);
+
+        cfgTNamed.Write();
+        outfTNamed.Write();
+        createTnamed.Write();
+        RootversionTnamed.Write();
+        outRootTNamed.Write();
+
+        for (auto itp = setProcess.begin(); itp !=setProcess.end();itp++) {
+
+            if ((*itp) == "GammaScintProcessor") {
+                PTree->Branch("GSsing", &GSsing);
+
+                //GammaScint Processor Header
+                auto GSheader = ((GammaScintProcessor *) GetProcessor("GammaScintProcessor"))->GetTHeader();
+                TNamed faciTnamed("facilityType", GSheader.find("FacilityType")->second);
+                TNamed bunchTnamed("bunchingTime(sec)", GSheader.find("BunchingTime")->second);
+                //including a reminder for which str gscint subtypes map to which num subtype
+                //general order is decreasing mass/weight (-1 is the default/Unknown match)
+                std::stringstream type2NumType;
+                type2NumType << "nai=0 " << " bighag=1 " << " smallhag=2 ";
+                TNamed typesTNamed("GS_type->NumType", type2NumType.str().c_str());
+                faciTnamed.Write();
+                bunchTnamed.Write();
+                typesTNamed.Write();
+
+            } else if ((*itp) == "VandleProcessor") {
+                PTree->Branch("Vandles", &Vandles);
+            } else if ((*itp) == "CloverProcessor") {
+                PTree->Branch("Clover",&Csing);
+            } else{
+                continue;
+            }
+        }
+
+        PTree->SetAutoFlush(3000);
+        //ending root stuff
     }
 }
 
@@ -62,6 +131,13 @@ DetectorDriver::~DetectorDriver() {
         delete (*it);
     vecAnalyzer.clear();
     instance = NULL;
+
+    if (sysrootbool_) {
+        PixieFile = PTree->GetCurrentFile();
+        PixieFile->Write();
+        PixieFile->Close();
+        delete (PixieFile);
+    }
 }
 
 void DetectorDriver::Init(RawEvent &rawev) {
@@ -78,8 +154,23 @@ void DetectorDriver::Init(RawEvent &rawev) {
 }
 
 void DetectorDriver::ProcessEvent(RawEvent &rawev) {
+
+    if (sysrootbool_) {
+        for (auto itp = setProcess.begin(); itp !=setProcess.end();itp++) {
+            if ((*itp) == "GammaScintProcessor") {
+                GSsing.clear();
+            } else if ((*itp)  == "VandleProcessor") {
+                Vandles.clear();
+            } else if ((*itp) == "CloverProcessor") {
+                Csing.clear();
+            } else{
+                continue;
+            }
+        }
+    }
     plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
     try {
+        int innerEvtCounter=0;
         for (vector<ChanEvent *>::const_iterator it = rawev.GetEventList().begin(); it != rawev.GetEventList().end(); ++it) {
             PlotRaw((*it));
             ThreshAndCal((*it), rawev);
@@ -98,8 +189,14 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
 
             EventData data(time, energy, location);
             TreeCorrelator::get()->place(place)->activate(data);
+            if (innerEvtCounter == 0){
+                eventFirstTime_= (*it)->GetTimeSansCfd(); //sets the time of the first det event in the pixie event
+            }
+            innerEvtCounter++;
         }
-
+        if ( eventNumber_ == 0){
+            firstEventTime_ = rawev.GetEventList().front()->GetTimeSansCfd();
+        }
         //!First round is preprocessing, where process result must be guaranteed
         //!to not to be dependent on results of other Processors.
         for (vector<EventProcessor *>::iterator iProc = vecProcess.begin(); iProc != vecProcess.end(); iProc++)
@@ -124,8 +221,23 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
         cout << Display::WarningStr("Warning caught at DetectorDriver::ProcessEvent") << endl;
         cout << "\t" << Display::WarningStr(w.what()) << endl;
     }
-}
+    eventNumber_++;
+    if (sysrootbool_) {
+        for (auto itp = setProcess.begin(); itp !=setProcess.end();itp++) {
+            if ((*itp) == "GammaScintProcessor") {
+                GSsing = ((GammaScintProcessor *) get()->GetProcessor("GammaScintProcessor"))->GetGSVector();
+            } else if ((*itp) == "VandleProcessor") {
+                Vandles = ((VandleProcessor *) get()->GetProcessor("VandleProcessor"))->GetVanVector();
+            } else if ((*itp) == "CloverProcessor"){
+                Csing = ((CloverProcessor * ) get()->GetProcessor("CloverProcessor"))->GetCloverVec();
+            } else{
+                continue;
+            }
 
+        }
+        PTree->Fill();
+    }
+}
 /// Declare some of the raw and basic plots that are going to be used in the
 /// analysis of the data. These include raw and calibrated energy spectra,
 /// information about the run time, and count rates on the detectors. This
@@ -266,4 +378,10 @@ EventProcessor *DetectorDriver::GetProcessor(const std::string &name) const {
         if ((*it)->GetName() == name)
             return (*it);
     return (NULL);
+}
+
+std::set<std::string> DetectorDriver::GetProcessorList() {
+   // std::set<std::string> Plist;
+
+    return (setProcess);
 }

@@ -21,6 +21,8 @@
 #include "EventProcessor.hpp"
 #include "HighResTimingData.hpp"
 
+#include "ProcessorRootStruc.hpp"
+
 /// Class to process VANDLE related events
 class VandleProcessor : public EventProcessor {
 public:
@@ -72,6 +74,12 @@ public:
     ///@return true if we requsted large bars in the xml */
     bool GetHasBig(void) { return requestedTypes_.find("big") != requestedTypes_.end(); }
 
+    /**Returns the vector of vandle events. used for coincidence plotting in root
+   *
+   * @return vector of vandle events
+   */
+    std::vector<VANDLES> GetVanVector(){ return VanVec;}
+
 private:
     ///Analyze the data for scenarios with Bar Starts; e.g. Double Beta detectors
     void AnalyzeBarStarts(const BarDetector &bar, unsigned int &barLoc);
@@ -109,6 +117,9 @@ private:
     unsigned int numStarts_; //!< The number of starts set in the Config File
 
     std::set<std::string> requestedTypes_;//!< The list of bar types to expect
+
+    std::vector<VANDLES> VanVec; //!<Vector of vandle events for root
+    VANDLES vandles,DefaultStruct; //!<Working structure and a default one for reseting the values to known 
 };
 
 #endif
