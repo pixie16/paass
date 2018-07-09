@@ -240,6 +240,7 @@ void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc
     bool caled = ( bar.GetCalibration().GetZ0() != 0 );
     double tof_walkCor = bar.GetCorTimeAve() - start.GetWalkCorrectedTime() + bar.GetCalibration().GetTofOffset(startLoc);
     double tof = CorrectTOF(tof, bar.GetFlightPath(), bar.GetCalibration().GetZ0());
+    double barcorTof = CorrectTOF(tof, bar.GetFlightPath(), bar.GetCalibration().GetZ0());
     double AvgcorTof = CorrectTOF(tof, bar.GetFlightPath(), 100);
     double NCtof =bar.GetCorTimeAve() - start.GetWalkCorrectedTime() ;
 
