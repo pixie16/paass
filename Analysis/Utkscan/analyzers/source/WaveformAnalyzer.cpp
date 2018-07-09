@@ -26,8 +26,8 @@ WaveformAnalyzer::WaveformAnalyzer(const std::set<std::string> &ignoredTypes)
 
 void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     TraceAnalyzer::Analyze(trace, cfg);
+    if (trace.IsSaturated() || trace.empty() || ignoredTypes_.find(cfg.GetType()) != ignoredTypes_.end() || ignoredTypes_.find(cfg.GetType()+":"+cfg.GetSubtype()) != ignoredTypes_.end()) {
 
-    if (trace.IsSaturated() || trace.empty() || ignoredTypes_.find(cfg.GetType()) != ignoredTypes_.end()) {
         trace.SetHasValidAnalysis(false);
         EndAnalyze();
         return;
