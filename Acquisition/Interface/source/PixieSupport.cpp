@@ -64,15 +64,15 @@ const std::vector<std::string> BitFlipper::csr_txt({"Respond to group triggers o
 #else
 const std::vector<std::string> BitFlipper::toggle_names(
         {"", "", "good", "", "", "polarity", "", "", "trace", "QDC", "CFD",
-         "global", "raw", "trigger", "gain", "pileup", "catcher", "", "SHE"});
+         "global", "raw", "trigger", "gain", "pileup", "catcher", "", "SHE","","","ExtTime"});
 const std::vector<std::string> BitFlipper::csr_txt(
         {"", "", "Good Channel", "", "", "Trigger positive", "", "",
          "Enable trace capture", "Enable QDC sums capture",
          "Enable CFD trigger mode", "Enable global trigger validation",
          "Enable raw energy sums capture",
-         "Enable channel trigger validation", "HI/LO gain",
+         "Enable channel trigger validation", "LO/HI gain",
          "Pileup rejection control", "Hybrid bit", "",
-         "SHE single trace capture"});
+         "SHE single trace capture","","","External Timing"});
 #endif
 
 void BitFlipper::Help() {
@@ -80,15 +80,13 @@ void BitFlipper::Help() {
     for (unsigned int i = 0; i < num_toggle_bits; i++) {
         if (toggle_names[i] != "") {
             if (i < 10) {
-                std::cout << "  0" << i << " - " << toggle_names[i]
-                          << std::endl;
+                std::cout << "  0" << i << " - " << toggle_names[i] << std::endl;
             } else {
                 std::cout << "  " << i << " - " << toggle_names[i] << std::endl;
             }
         } else {
             if (i < 10) {
-                std::cout << "  0" << i << " - " << toggle_names[i]
-                          << std::endl;
+                std::cout << "  0" << i << " - " << toggle_names[i] << std::endl;
             } else {
                 std::cout << "  " << i << " - " << toggle_names[i] << std::endl;
             }
@@ -112,7 +110,7 @@ void BitFlipper::SetBit(std::string bit_) {
 }
 
 void BitFlipper::CSRAtest(unsigned int input_) {
-    Test(19, input_, csr_txt);
+    Test(22, input_, csr_txt);
 }
 
 bool BitFlipper::Test(unsigned int num_bits_, unsigned int input_,

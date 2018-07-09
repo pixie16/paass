@@ -599,7 +599,7 @@ void PixieInterface::PrintSglChanPar(const char *name, int mod, int chan) {
     if (ReadSglChanPar(tmpName, val, mod, chan)) {
         cout.unsetf(ios_base::floatfield);
         cout << "  MOD " << setw(2) << mod << "  CHAN " << setw(2) << chan
-             << "  " << setw(15) << name << "  " << setprecision(6) << val
+             << "  " << setw(15) << name << "  " << setprecision(10) << val
              << endl;
     }
 }
@@ -612,7 +612,7 @@ void PixieInterface::PrintSglChanPar(const char *name, int mod, int chan,
     if (ReadSglChanPar(tmpName, val, mod, chan)) {
         cout.unsetf(ios_base::floatfield);
         cout << "  MOD " << setw(2) << mod << "  CHAN " << setw(2) << chan
-             << "  " << setw(15) << name << "  " << setprecision(6) << prev
+             << "  " << setw(15) << name << "  " << setprecision(10) << prev
              << " -> " << val << endl;
     }
 }

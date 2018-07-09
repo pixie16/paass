@@ -655,7 +655,7 @@ void Poll::help(){
     std::cout << "   pmwrite <mod> <param> <val>           - Write parameters to PIXIE modules\n";
     std::cout << "   adjust_offsets <module>               - Adjusts the baselines of a pixie module\n";
     std::cout << "   find_tau <module> <channel>           - Finds the decay constant for an active pixie channel\n";
-    std::cout << "   toggle <module> <channel> <bit>       - Toggle any of the 19 CHANNEL_CSRA bits for a pixie channel\n";
+    std::cout << "   toggle <module> <channel> <bit>       - Toggle any of the 22 CHANNEL_CSRA bits for a pixie channel\n";
     std::cout << "   toggle_bit <mod> <chan> <param> <bit> - Toggle any bit of any parameter of 32 bits or less\n";
     std::cout << "   csr_test <number>                     - Output the CSRA parameters for a given integer\n";
     std::cout << "   bit_test <num_bits> <number>          - Display active bits in a given integer up to 32 bits long\n";
