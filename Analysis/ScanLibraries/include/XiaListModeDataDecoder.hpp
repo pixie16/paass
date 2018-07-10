@@ -52,7 +52,7 @@ public:
     ///@param[in] data : The data that we will use to calculate the external
     /// that is provided (eg from BIGRIPS at RIKEN)
     ///@return The calculated time in nanoseconds
-    static double CalculateExternalTimeStamp(const XiaData &data);
+    unsigned long long CalculateExternalTimeStamp(const XiaData &data);
 
     private:
     ///Method to decode word zero from the header.

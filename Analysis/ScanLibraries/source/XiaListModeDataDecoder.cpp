@@ -110,34 +110,6 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
                 return vector<XiaData *>();
         }
 
-        if (hasExternalTimestamp) {
-          /// set least significant 32 bits of 48 bit external time stamp
-          data->SetExternalTimeLow(buf[4]);
-          /// set most significant 16 bits of 48 bit external time stamp
-          data->SetExternalTimeHigh(DecodeExternalTimeHigh(buf[5], *data, mask));
-          /// stores 48 bit external time stamp as an XiaData member -> double externalTimeStamp_
-          data->SetExternalTimeStamp(CalculateExternalTimeStamp(*data));
-
-          //// **** for troubleshooting **** ////
-          // cout<<"hasEnergySums "<< hasEnergySums<<'\t';
-          // if(buf[4]>20)continue;
-          //cout<<" hasExternalTimestamp="<< hasExternalTimestamp<<'\t';
-          // cout<<"hasQdc "<< hasQdc<<'\t';
-          //for (unsigned int i = 0; i < headerLength; i++) {
-          //  cout<<"buf["<<i<<"]="<<hex<<buf[i]<<'\t';
-          //}cout<<endl;
-          // cout<<"data->GetExternalTimeHigh()="<<data->GetExternalTimeHigh()<<'\t';
-          // cout<<"data->GetExternalTimeLow()="<<data->GetExternalTimeLow()<<'\t';
-          //cout.precision(20);
-	  //cout<<"data->GetExternalTimeStamp()="<<data->GetExternalTimeStamp()<<endl;
-
-        }
-
-        if (hasEnergySums) {
-            // Skip the onboard partial sums for now
-            // trailing, leading, gap, baseline
-        }
-
 
         if (hasQdc) {
             static const unsigned int numQdcs = 8;
@@ -148,6 +120,50 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
             }
             data->SetQdc(tmp);
         }
+
+
+        // printf("bufLen %u \n", bufLen);
+        // printf("headerLength %u \n", headerLength);
+
+        if (hasExternalTimestamp) {
+          /// set least significant 32 bits of 48 bit external time stamp
+
+          // data->SetExternalTimeLow(buf[4]);
+          data->SetExternalTimeLow(buf[headerLength-2]);
+          /// set most significant 16 bits of 48 bit external time stamp
+          // if (buf[headerLength-2]!=buf[4])
+          // {
+          //   printf("\n");
+          //   printf("headerLength-2  = %u \n", headerLength-2);
+          //   printf("SetExternalTimeLow %u \n", buf[headerLength-2]);
+          //   printf("SetExternalTimeLow %u \n", buf[4]);
+          // }
+
+          // data->SetExternalTimeHigh(DecodeExternalTimeHigh(buf[5], *data, mask));
+          data->SetExternalTimeHigh(DecodeExternalTimeHigh(buf[headerLength-1], *data, mask));
+          /// stores 48 bit external time stamp as an XiaData member -> double externalTimeStamp_
+          // if (buf[headerLength-1]!=buf[5])
+          // {
+          //   printf("\n");
+          //   printf("headerLength-1  = %u \n", headerLength-1);
+          //   printf("SetExternalTimeHigh %u \n", buf[headerLength-1]);
+          //   printf("SetExternalTimeHigh %u \n", buf[5]);
+          // }
+
+          data->SetExternalTimeStamp(CalculateExternalTimeStamp(*data));
+          if(headerLength);
+          // printf("headerLength %u, ", headerLength);
+          // printf("ExternalTimeHigh %u,", data->GetExternalTimeHigh());
+          // printf("ExternalTimeLow %u,", data->GetExternalTimeLow());
+          // printf("ExternalTimeStamp %llu \n", data->GetExternalTimeStamp());
+
+        }
+
+        if (hasEnergySums) {
+            // Skip the onboard partial sums for now
+            // trailing, leading, gap, baseline
+        }
+
 
         ///@TODO Figure out where to put this...
         //channel_counts[modNum][chanNum]++;
@@ -287,7 +303,14 @@ double XiaListModeDataDecoder::CalculateTimeInNs(const XiaListModeDataMask &mask
     return CalculateTimeInSamples(mask, data).second * conversionToNs;
 }
 
-double XiaListModeDataDecoder::CalculateExternalTimeStamp(const XiaData &data) {
-    double externalTimeStamp = data.GetExternalTimeLow() + data.GetExternalTimeHigh() * pow(2., 32);
+// double XiaListModeDataDecoder::CalculateExternalTimeStamp(const XiaData &data) {
+//     double externalTimeStamp = data.GetExternalTimeLow() + data.GetExternalTimeHigh() * pow(2., 32);
+//     return externalTimeStamp;
+// }
+
+unsigned long long XiaListModeDataDecoder::CalculateExternalTimeStamp(const XiaData &data) {
+    unsigned long long tmp_ExternalTimeLow=data.GetExternalTimeLow();
+    unsigned long long tmp_ExternalTimeHigh=data.GetExternalTimeHigh();
+    unsigned long long externalTimeStamp = tmp_ExternalTimeHigh << 32 | tmp_ExternalTimeLow;
     return externalTimeStamp;
 }

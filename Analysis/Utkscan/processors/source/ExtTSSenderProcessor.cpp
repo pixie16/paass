@@ -9,7 +9,7 @@ hostName_("localhost"),
 buffSize_(64),
 curPos_(0)
 {
-    Init(hostName_, port_); 
+    Init(hostName_, port_);
 }
 
 ExtTSSenderProcessor::ExtTSSenderProcessor(const std::string &type, const std::string &hostName,
@@ -20,7 +20,7 @@ EventProcessor(7998, 1, "ExtTSSenderProcessor")
     slotNum_ = slot;
     chanNum_ = channel;
     buffSize_ = buffSize;
-    Init(hostName, port); 
+    Init(hostName, port);
     associatedTypes.insert(type_);
 }
 
@@ -31,21 +31,21 @@ ExtTSSenderProcessor::~ExtTSSenderProcessor()
     if(udpClient_) delete udpClient_;
     if(buffer_) delete buffer_;
 }
-  
+
 bool ExtTSSenderProcessor::Process(RawEvent &event)
 {
     if (!EventProcessor::Process(event))
         return false;
 
     static const std::vector<ChanEvent *> &chEvents = event.GetEventList();
- 
     for( auto chEvent : chEvents ) {
         if( chEvent->GetChannelNumber() == chanNum_ && chEvent->GetModuleNumber() == slotNum_ ){
-            unsigned long long int ts_ = (unsigned long long int)chEvent->GetExternalTimeStamp();
-            SetTS(ts_);
+            unsigned long long ts = chEvent->GetExternalTimeStamp();
+            // printf("ts %llu \n", ts);
+            SetTS(ts);
         }
     }
-    
+
     EndProcess();
     return true;
 }
@@ -97,4 +97,3 @@ void ExtTSSenderProcessor::ClearBuff()
     }
     curPos_ = 0;
 }
-  
