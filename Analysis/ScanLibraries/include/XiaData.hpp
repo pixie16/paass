@@ -110,7 +110,7 @@ public:
 
     ///@return The upper 16 bits of the external time stamp provided to the
     /// module via the front panel
-    double GetExternalTimeHigh() const { return externalTimeHigh_; }
+    unsigned int GetExternalTimeHigh() const { return externalTimeHigh_; }
 
     ///@return The lower 32 bits of the external time stamp provided to the
     /// module via the front panel
@@ -118,7 +118,7 @@ public:
 
     ///@return The external time stamp for the channel including all of the CFD information
     /// when available.
-    double GetExternalTimeStamp() const { return externalTimeStamp_; }
+    unsigned long long GetExternalTimeStamp() const { return externalTimeStamp_; }
 
 
     ///@return The unique ID of the channel.
@@ -192,7 +192,7 @@ public:
 
     ///@brief Sets the external time stamp
     ///@param[in] a : The value to set
-    void SetExternalTimeStamp(const double &a) { externalTimeStamp_ = a; }
+    void SetExternalTimeStamp(const unsigned long long &a) { externalTimeStamp_ = a; }
 
 
     ///@brief Sets if we had a pileup found on-board
@@ -241,7 +241,7 @@ private:
     double energy_; /// Raw pixie energy.
     double baseline_;///Baseline that was recorded with the energy sums
     double time_; ///< The time of arrival using all parts of the time
-    double externalTimeStamp_; ///< The time of arrival using all parts of the time
+    unsigned long long externalTimeStamp_; ///< The time of arrival using all parts of the time
     double timeSansCfd_; ///< The time of arrival of the signal sans CFD time.
 
     unsigned int cfdTime_; /// CFD trigger time

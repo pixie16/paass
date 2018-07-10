@@ -140,6 +140,15 @@ bool VandleProcessor::Process(RawEvent &event) {
     TimingMapBuilder bldStarts(startEvents);
     starts_ = bldStarts.GetMap();
 
+
+    static const std::vector<ChanEvent *> &chEvents = event.GetEventList();
+    for( auto chEvent : chEvents ) {
+        if( chEvent->GetChannelNumber() == 0 && chEvent->GetModuleNumber() == 0 ){
+            vandles.ExtTimeStamp = chEvent->GetExternalTimeStamp();
+            // printf("vandles.ExtTimeStamp %llu \n", vandles.ExtTimeStamp);
+        }
+    }
+
     static const vector<ChanEvent *> &doubleBetaStarts = event.GetSummary("beta:double:start")->GetList();
     BarBuilder startBars(doubleBetaStarts);
     startBars.BuildBars();
@@ -257,7 +266,7 @@ void VandleProcessor::FillVandleOnlyHists(void) {
         unsigned int OFFSET = ReturnOffset(barId.second).first;
         unsigned int NOCALOFFSET = ReturnOffset(barId.second).second;
         double NoCalTDiff = (*it).second.GetLeftSide().GetHighResTimeInNs()-(*it).second.GetRightSide().GetHighResTimeInNs();
-        
+
         plot(DD_MAXIMUMBARS + OFFSET,(*it).second.GetLeftSide().GetMaximumValue(), barId.first*2);
         plot(DD_MAXIMUMBARS + OFFSET,(*it).second.GetRightSide().GetMaximumValue(), barId.first*2+1);
 

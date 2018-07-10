@@ -4,16 +4,16 @@
 #define PAASS_PROCESSORSTRUC_HPP
 
 struct VANDLES {
-    double tof;
-    double corTof;
-    double qdcPos;
-    double qdc;
-    int barNum;
-    std::string barType;
-    double tdiff;
-    double sTime;
-    unsigned long vMulti;
-
+    double tof=0;
+    double corTof=0;
+    double qdcPos=0;
+    double qdc=0;
+    int barNum=0;
+    std::string barType="";
+    double tdiff=0;
+    double sTime=0;
+    unsigned long vMulti=0;
+    unsigned long long ExtTimeStamp=0;
 } ;
 
 struct GAMMASCINT{
