@@ -15,6 +15,9 @@
 #pragma link C++ struct CLOVERS+;
 #pragma link C++ class std::vector<CLOVERS>+;
 
+#pragma link C++ struct PSPMT+;
+#pragma link C++ class std::vector<PSPMT>+;
+
 #endif
 
 #endif //PAASS_LINKDEF_HPP

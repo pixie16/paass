@@ -49,5 +49,29 @@ struct CLOVERS{
 
 };
 
+struct PSPMT { 
+  ///Contains both low and high gain PSPMT information
+  double xa_l = -999; 
+  double xb_l = -999; 
+  double ya_l = -999; 
+  double yb_l = -999; 
+  double xa_h = -999; 
+  double xb_h = -999; 
+  double ya_h = -999; 
+  double yb_h = -999; 
+  double dy_l = -999;
+  double dy_h = -999;
+  double dyL_time = -999;
+  double dyH_time = -999;
+  double xposL =-999;
+  double yposL =-999;
+  double xposH =-999;
+  double yposH =-999;
+  int anodeLmulti = -999;
+  int anodeHmulti = -999;
+  int dyLmulti = -999;
+  int dyHmulti = -999;
+};
+
 
 #endif //PAASS_PROCESSORSTRUC_HPP

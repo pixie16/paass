@@ -11,6 +11,7 @@
 #include <limits>
 #include <map>
 #include <sstream>
+#include <PspmtProcessor.hpp>
 
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
@@ -116,6 +117,13 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
                 PTree->Branch("Vandles", &Vandles);
             } else if ((*itp) == "CloverProcessor") {
                 PTree->Branch("Clover",&Csing);
+            } else if ((*itp) == "PspmtProcessor"){
+                PTree->Branch("PSPMT",&PSPMTvec);
+                auto PSPMTheader = ((PspmtProcessor *) GetProcessor("PspmtProcessor"))->GetPSPMTHeader();
+                TNamed VDType("VDType",PSPMTheader.first);
+                VDType.Write();
+                TNamed Thresh("SoftThresh",PSPMTheader.second);
+                Thresh.Write();
             } else{
                 continue;
             }
@@ -167,6 +175,8 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
                 Vandles.clear();
             } else if ((*itp) == "CloverProcessor") {
                 Csing.clear();
+            } else if ((*itp) == "PspmtProcessor"){
+              PSPMTvec.clear();
             } else{
                 continue;
             }
@@ -237,6 +247,8 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
                 Vandles = ((VandleProcessor *) get()->GetProcessor("VandleProcessor"))->GetVanVector();
             } else if ((*itp) == "CloverProcessor"){
                 Csing = ((CloverProcessor * ) get()->GetProcessor("CloverProcessor"))->GetCloverVec();
+            } else if ((*itp) == "PspmtProcessor"){
+                PSPMTvec = ((PspmtProcessor *) get()->GetProcessor("PspmtProcessor"))->GetPSPMTvector();
             } else{
                 continue;
             }
