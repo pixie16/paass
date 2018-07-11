@@ -140,7 +140,7 @@ bool VandleProcessor::Process(RawEvent &event) {
     TimingMapBuilder bldStarts(startEvents);
     starts_ = bldStarts.GetMap();
 
-
+/*
     static const std::vector<ChanEvent *> &chEvents = event.GetEventList();
     for( auto chEvent : chEvents ) {
         if( chEvent->GetChannelNumber() == 0 && chEvent->GetModuleNumber() == 0 ){
@@ -148,7 +148,7 @@ bool VandleProcessor::Process(RawEvent &event) {
             // printf("vandles.ExtTimeStamp %llu \n", vandles.ExtTimeStamp);
         }
     }
-
+*/
     static const vector<ChanEvent *> &doubleBetaStarts = event.GetSummary("beta:double:start")->GetList();
     BarBuilder startBars(doubleBetaStarts);
     startBars.BuildBars();

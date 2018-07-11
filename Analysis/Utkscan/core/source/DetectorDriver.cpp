@@ -64,7 +64,8 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
             setProcess.emplace((*it)->GetName());
         }
         if (setProcess.empty()){
-            GeneralException("Exception:DetectorDriver:: setProcess is empty and root requested. this will cause segfaults on root fill()");
+            throw GeneralException("Exception:DetectorDriver:: setProcess is empty and root requested. this will cause segfaults on root fill()");
+
         }
 
         Long64_t rFileSizeB_ = rFileSizeGB_ * pow(1000,3);
@@ -89,6 +90,9 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
         createTnamed.Write();
         RootversionTnamed.Write();
         outRootTNamed.Write();
+
+        //write the external TS to
+        PTree->Branch("ExternalTS",&externalTS);
 
         for (auto itp = setProcess.begin(); itp !=setProcess.end();itp++) {
 
@@ -192,6 +196,9 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
             if (innerEvtCounter == 0){
                 eventFirstTime_= (*it)->GetTimeSansCfd(); //sets the time of the first det event in the pixie event
             }
+            if ((*it)->GetChanID().HasTag("ets"))
+                externalTS = (*it)->GetExternalTimeStamp();
+
             innerEvtCounter++;
         }
         if ( eventNumber_ == 0){
