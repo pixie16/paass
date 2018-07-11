@@ -12,8 +12,7 @@ struct VANDLES {
     std::string barType="";
     double tdiff=0;
     double sTime=0;
-    unsigned long vMulti=0;
-    unsigned long long ExtTimeStamp=0;
+    int vMulti=0;
 } ;
 
 struct GAMMASCINT{

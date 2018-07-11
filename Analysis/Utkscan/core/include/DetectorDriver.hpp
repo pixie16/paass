@@ -253,6 +253,7 @@ private:
     std::vector<CLOVERS> Csing;
     std::vector<GAMMASCINT> GSsing;
     std::vector<VANDLES> Vandles;
+    unsigned long long externalTS = 0; //!< External TimeStamp, it is filled to the root tree as the LAST one in the pixie event. because we cant guarantee that we will get a new TimeStamp for every pixie event, we do not reset it, ever.
 
     bool sysrootbool_;
     double rFileSizeGB_;
