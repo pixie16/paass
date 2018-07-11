@@ -458,12 +458,11 @@ bool CloverProcessor::PreProcess(RawEvent &event) {
         // entries in map are sorted by time
         // if event time is outside of subEventWindow, we start new
         //   events for all clovers and "tas"
-        double dtime =
-                abs(time - refTime) * Globals::get()->GetClockInSeconds();
+        double dtime =  abs(time - refTime) * Globals::get()->GetClockInSeconds();
         if (dtime > subEventWindow_) {
             for (unsigned i = 0; i < numClovers; ++i) {
                 addbackEvents_[i].push_back(AddBackEvent());
-                addbackEvents_[clover].back().ftime = time* Globals::get()->GetClockInSeconds()*1.e9;
+                addbackEvents_[i].back().time = time* Globals::get()->GetClockInSeconds()*1.e9;
             }
             tas_.push_back(AddBackEvent());
         }
@@ -482,7 +481,7 @@ bool CloverProcessor::PreProcess(RawEvent &event) {
 }
 
 bool CloverProcessor::Process(RawEvent &event) {
-    using namespace dammIds::ge;
+    using namespace dammIds::clover;
 
     if (!EventProcessor::Process(event))
         return false;
