@@ -61,6 +61,7 @@
 #include "GammaScintProcessor.hpp"
 #include "VandleProcessor.hpp"
 #include "ProcessorRootStruc.hpp"
+#include "PspmtProcessor.hpp"
 
 #endif
 
@@ -253,6 +254,7 @@ private:
     std::vector<CLOVERS> Csing;
     std::vector<GAMMASCINT> GSsing;
     std::vector<VANDLES> Vandles;
+    std::vector<PSPMT> PSPMTvec;
     unsigned long long externalTS = 0; //!< External TimeStamp, it is filled to the root tree as the LAST one in the pixie event. because we cant guarantee that we will get a new TimeStamp for every pixie event, we do not reset it, ever.
 
     bool sysrootbool_;

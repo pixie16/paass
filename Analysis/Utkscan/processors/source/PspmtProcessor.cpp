@@ -1,7 +1,8 @@
 ///@file PspmtProcessor.cpp
-///@brief Processes information from a Position Sensitive PMT.
-///@authors S. Go, S. V. Paulauskas, and A. Keeler
-///@date August 24, 2016
+///@Processes information from a Position Sensitive PMT.  No Pixel work yet.
+///@author A. Keeler
+///@date July 8, 2018
+
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
@@ -21,182 +22,159 @@ using namespace dammIds::pspmt;
 
 namespace dammIds {
     namespace pspmt {
-        const int DD_QDC = 0;
-        const int DD_POSITION_ENERGY = 1;
-        const int DD_POSITION_QDC = 2;
-        const int DD_POSITION_TRACE = 3;
-        const int DD_PIXEL_MAP = 4;
-        const int DD_PIXEL = 11;
+        const int DD_DYNODE_QDC = 0;
+        const int DD_POS_LOW = 1;
+        const int DD_POS_HIGH = 2;
     }
-} // namespace dammIds
-
-
-
-void PspmtProcessor::DeclarePlots(void) {
-    DeclareHistogram2D(DD_QDC, SD, S3, "QDC - Dynode 0 - Anodes 1-4");
-    DeclareHistogram2D(DD_POSITION_ENERGY, SB, SB, "Pos from Raw Energy");
-    DeclareHistogram2D(DD_POSITION_QDC, SB, SB, "Pos from QDC");
-    DeclareHistogram2D(DD_POSITION_TRACE, SB, SB, "Pos from TraceFilter");
-    DeclareHistogram2D(DD_PIXEL_MAP, S5, S5, "Position by pixel");
-    DeclareHistogram2D(DD_PIXEL, SB, SB, "Plot of select pixels");
 }
 
-PspmtProcessor::PspmtProcessor(const std::string &vd, const double &scale,
-                               const unsigned int &offset,
-                               const double &threshold) :
-        EventProcessor(OFFSET, RANGE, "PspmtProcessor") {
-    if(vd == "SIB064_1018")
-        vdtype_ = SIB064_1018;
+void PspmtProcessor::DeclarePlots(void) {
+    DeclareHistogram2D(DD_DYNODE_QDC, SD, S2, "Dynode QDC- Low gain 0, High gain 1");
+    DeclareHistogram2D(DD_POS_LOW, SB, SB, "Low-gain Positions");
+    DeclareHistogram2D(DD_POS_HIGH, SB, SB, "High-gain Positions");
+}
+
+PspmtProcessor::PspmtProcessor(const std::string &vd, const double &scale, const unsigned int &offset,
+                               const double &threshold) :EventProcessor(OFFSET, RANGE, "PspmtProcessor"){
+
+
+    if(vd == "SIB064_1018" || vd == "SIB064_1730")
+        vdtype_ = corners;
     else if(vd == "SIB064_0926")
-        vdtype_ = SIB064_0926;
+        vdtype_ = sides;
     else
         vdtype_ = UNKNOWN;
-    histogramScale_ = scale;
-    histogramOffset_ = offset;
-    threshold_ = threshold;
 
-    ///Associates this processor with the pspmt detector type
+    VDtypeStr = vd;
+    positionScale_ = scale;
+    positionOffset_ = offset;
+    threshold_ = threshold;
+    ThreshStr = threshold;
     associatedTypes.insert("pspmt");
 }
 
-bool PspmtProcessor::PreProcess(RawEvent &event) {
+bool PspmtProcessor::PreProcess(RawEvent &event){
+
     if (!EventProcessor::PreProcess(event))
         return false;
 
-    static const vector<ChanEvent *> &dynodeEvents =
-            event.GetSummary("pspmt:dynode")->GetList();
-    static const vector<ChanEvent *> &anodeEvents =
-            event.GetSummary("pspmt:anode")->GetList();
+    //read in anode & dynode signals
+    static const vector<ChanEvent *> &hiDynode = event.GetSummary("pspmt:dynode_high")->GetList();
+    static const vector<ChanEvent *> &lowDynode = event.GetSummary("pspmt:dynode_low")->GetList();
+    static const vector<ChanEvent *> &hiAnode = event.GetSummary("pspmt:anode_high")->GetList();
+    static const vector<ChanEvent *> &lowAnode =  event.GetSummary("pspmt:anode_low")->GetList();
 
-    //If we do not have more than 4 anode events then something went awry. 
-    if (anodeEvents.size() > 4) {
-        EndProcess();
-        return false;
+
+    //Plot Dynode QDCs
+    for(vector<ChanEvent *>::const_iterator it = lowDynode.begin(); it != lowDynode.end(); it++){
+        plot(DD_DYNODE_QDC, (*it)->GetTrace().GetQdc(), 0);
+    }
+    for(vector<ChanEvent *>::const_iterator it = hiDynode.begin(); it != hiDynode.end(); it++){
+        plot(DD_DYNODE_QDC, (*it)->GetTrace().GetQdc(), 1);
     }
 
-    for(vector<ChanEvent *>::const_iterator it = dynodeEvents.begin();
-            it != dynodeEvents.end(); it++) {
-        plot(DD_QDC, (*it)->GetTrace().GetQdc(), 0);
-    }
+    //set up position calculation for low and high gain signals
+    position_low.first = 0, position_low.second = 0;
+    position_high.first = 0, position_high.second = 0;
+    double energy = 0;
+    double xa_l = 0, ya_l = 0, xb_l = 0, yb_l = 0;
+    double xa_h = 0, ya_h = 0, xb_h = 0, yb_h = 0;
 
-    //Define some maps that we will use to hold the information necessary to
-    // calculate the positions.
-    map<string, double> m_qdc, m_energy, m_trace;
-
-    //Define some values that we will use inside the loop repeatedly.
-    double qdc = 0, energy = 0, traceFilter = 0;
-
-    //Loop over all of the anode events to gather up all the values we need
-    // to calculate the position
-    for (vector<ChanEvent *>::const_iterator it = anodeEvents.begin();
-         it != anodeEvents.end(); it++) {
-
-        //Obtain the energy calculated by the Pixie-16 on-board trapezoidal
-        // filter.
+    for(vector<ChanEvent *>::const_iterator it = lowAnode.begin(); it != lowAnode.end(); it++){
+        //check signals energy vs threshold
         energy = (*it)->GetCalibratedEnergy();
-
-        //We will skip this event if the energy is below threshold
-        if(energy < threshold_)
+        if (energy < threshold_)
             continue;
-
-        qdc = (*it)->GetTrace().GetQdc();
-        traceFilter = (*it)->GetTrace().GetQdc();
-
-        if ((*it)->GetChanID().HasTag("xa")) {
-            InsertMapValue(m_energy, "xa", energy);
-            InsertMapValue(m_qdc, "xa", qdc);
-            InsertMapValue(m_trace, "xa", traceFilter);
-            plot(DD_QDC, qdc, 1);
-        }
-
-        if ((*it)->GetChanID().HasTag("xb")) {
-            InsertMapValue(m_energy, "xb", energy);
-            InsertMapValue(m_qdc, "xb", qdc);
-            InsertMapValue(m_trace, "xb", traceFilter);
-            plot(DD_QDC, qdc, 2);
-        }
-
-        if ((*it)->GetChanID().HasTag("ya")) {
-            InsertMapValue(m_energy, "ya", energy);
-            InsertMapValue(m_qdc, "ya", qdc);
-            InsertMapValue(m_trace, "ya", traceFilter);
-            plot(DD_QDC, qdc, 3);
-        }
-
-        if ((*it)->GetChanID().HasTag("yb")) {
-            InsertMapValue(m_energy, "yb", energy);
-            InsertMapValue(m_qdc, "yb", qdc);
-            InsertMapValue(m_trace, "yb", traceFilter);
-            plot(DD_QDC, qdc, 4);
-        }
-    }//for(vector<ChanEvent*>::const_iterator it = anodeEvents.begin();
-
-    if(m_energy.size() == 4) {
-        posEnergy_ = CalculatePosition(m_energy, vdtype_);
-	pixel_ = CalculatePixel(posEnergy_);
+        //parcel out position signals by tag
+        if ((*it)->GetChanID().HasTag("xa") && xa_l == 0 )
+            xa_l = energy;
+        if ((*it)->GetChanID().HasTag("xb") && xb_l == 0 )
+            xb_l = energy;
+        if ((*it)->GetChanID().HasTag("ya") && ya_l == 0 )
+            ya_l = energy;
+        if ((*it)->GetChanID().HasTag("yb") && yb_l == 0 )
+            yb_l = energy;
     }
-    if(m_qdc.size() == 4)
-        posQdc_ = CalculatePosition(m_qdc, vdtype_);
-    if(m_trace.size() == 4)
-        posTrace_ = CalculatePosition(m_trace, vdtype_);
 
-    plot(DD_POSITION_ENERGY, posEnergy_.first*histogramScale_+histogramOffset_,
-         posEnergy_.second*histogramScale_+histogramOffset_);
-    plot(DD_POSITION_QDC, posQdc_.first*histogramScale_+histogramOffset_,
-         posQdc_.second*histogramScale_+histogramOffset_);
-    plot(DD_POSITION_TRACE, posTrace_.first*histogramScale_+histogramOffset_,
-         posTrace_.second*histogramScale_+histogramOffset_);
-    plot(DD_PIXEL_MAP, pixel_.first, pixel_.second);
+    for(vector<ChanEvent *>::const_iterator it = hiAnode.begin();
+        it != hiAnode.end(); it++){
+        //check signals energy vs threshold
+        energy = (*it)->GetCalibratedEnergy();
+        if (energy < threshold_ || energy > 63000)
+            continue;
+        //parcel out position signals by tag
+        if ((*it)->GetChanID().HasTag("xa") && xa_h == 0)
+            xa_h = energy;
+        if ((*it)->GetChanID().HasTag("xb") && xb_h == 0)
+            xb_h = energy;
+        if ((*it)->GetChanID().HasTag("ya") && ya_h == 0)
+            ya_h = energy;
+        if ((*it)->GetChanID().HasTag("yb") && yb_h == 0)
+            yb_h = energy;
+    }
 
-    if (pixel_.first == 12)
-        plot(DD_PIXEL, posEnergy_.first*histogramScale_+histogramOffset_,
-	     posEnergy_.second*histogramScale_+histogramOffset_);
+    if (xa_l > 0 && xb_l > 0 && ya_l > 0 && yb_l > 0){
+        position_low.first = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_).first;
+        position_low.second  = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_).second;
+        plot(DD_POS_LOW, position_low.first * positionScale_ + positionOffset_,
+             position_low.second * positionScale_ + positionOffset_);
+    }
+
+    if (xa_h > 0 && xb_h > 0 && ya_h > 0 && yb_h > 0){
+        position_high.first = CalculatePosition(xa_h, xb_h, ya_h, yb_h, vdtype_).first;
+        position_high.second = CalculatePosition(xa_h, xb_h, ya_h, yb_h, vdtype_).second;
+        plot(DD_POS_HIGH, position_high.first * positionScale_ + positionOffset_,
+             position_high.second * positionScale_ + positionOffset_);
+    }
+
+    PSstruct.xa_l = xa_l ;
+    PSstruct.xb_l = xb_l ;
+    PSstruct.ya_l = ya_l ;
+    PSstruct.yb_l = yb_l ;
+    PSstruct.xa_h = xa_h ;
+    PSstruct.xb_h = xb_h ;
+    PSstruct.ya_h = ya_h ;
+    PSstruct.yb_h = yb_h ;
+    if (!lowDynode.empty()){
+    PSstruct.dy_l = lowDynode.front()->GetCalibratedEnergy();
+    PSstruct.dyL_time = lowDynode.front()->GetTimeSansCfd();
+    }
+    if (!hiDynode.empty()){
+    PSstruct.dy_h = hiDynode.front()->GetCalibratedEnergy();
+    PSstruct.dyH_time = hiDynode.front()->GetTimeSansCfd();
+    }
+    PSstruct.anodeLmulti = lowAnode.size();
+    PSstruct.anodeHmulti = hiAnode.size();
+    PSstruct.dyLmulti = lowDynode.size();
+    PSstruct.dyHmulti = hiDynode.size();
+    PSstruct.xposL = position_low.first;
+    PSstruct.yposL = position_low.second;
+    PSstruct.xposH = position_high.first;
+    PSstruct.yposH = position_high.second;
 
 
     EndProcess();
-    return true;
+    return (true);
+
 }
 
-pair<double, double> PspmtProcessor::CalculatePosition(
-        const std::map<std::string, double> &map, const VDTYPES &vdtype) {
-    double x_val = 0, y_val = 0;
-    double xa = map.find("xa")->second;
-    double xb = map.find("xb")->second;
-    double ya = map.find("ya")->second;
-    double yb = map.find("yb")->second;
+pair<double, double> PspmtProcessor::CalculatePosition(double &xa, double &xb, double &ya, double &yb, const VDTYPES &vdtype){
 
-    switch (vdtype) {
-        case SIB064_1018:
-            x_val = (0.5 * (yb + xa)) / (xa + xb + ya + yb);
-            y_val = (0.5 * (xa + xb)) / (xa + xb + ya + yb);
+    double x = 0, y = 0;
+
+    switch(vdtype){
+        case corners:
+            x = (0.5 * (yb + xa)) / (xa + xb + ya + yb);
+            y = (0.5 * (xa + xb)) / (xa + xb + ya + yb);
             break;
-        case SIB064_0926:
-            x_val = (xa - xb) / (xa + xb);
-            y_val = (ya - yb) / (ya + yb);
+        case sides:
+            x = (xa - xb) / (xa + xb);
+            y = (ya - yb) / (ya + yb);
             break;
         case UNKNOWN:
         default:
-            cerr << "We received a VD_TYPE we didn't recognize"
-                 << vdtype << endl;
-            x_val = y_val = 0.0;
+            cerr<<"We recieved a VD_TYPE we didn't recognize " << vdtype << endl;
+
     }
-    return make_pair(x_val, y_val);
-}
-
-pair<unsigned int,unsigned int> PspmtProcessor::CalculatePixel(
-        const std::pair<double, double> &pos) {
-    double pixels = 12;
-    
-    double x_pixel = pixels * (5 * pos.first + 1);
-    double y_pixel = pixels * (5 * pos.second + 1);
-    int p_x = x_pixel;
-    int p_y = y_pixel;
-
-    return make_pair(p_x, p_y);
-}
-
-pair<map<string, double>::iterator, bool> PspmtProcessor::InsertMapValue(
-        std::map<string, double> &map, const std::string &key, const double
-&value) {
-    return map.insert(make_pair(key, value));
+    return make_pair(x, y);
 }
