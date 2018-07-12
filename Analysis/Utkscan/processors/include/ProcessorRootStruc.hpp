@@ -11,7 +11,8 @@ struct VANDLES {
     int barNum=0;
     std::string barType="";
     double tdiff=0;
-    double sTime=0;
+    double sTime=0; //start detector time
+    unsigned int sNum =0; //start detector number
     int vMulti=0;
 } ;
 
