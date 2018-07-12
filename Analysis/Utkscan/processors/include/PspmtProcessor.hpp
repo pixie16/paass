@@ -1,6 +1,6 @@
 ///@file PspmtProcessor.cpp
 ///@brief Processes information from a Position Sensitive PMT.
-///@author A. Keeler
+///@author A. Keeler, S. Go, S. V. Paulauskas
 ///@date July 8, 2018
 #ifndef __PSPMTPROCESSOR_HPP__
 #define __PSPMTPROCESSOR_HPP__

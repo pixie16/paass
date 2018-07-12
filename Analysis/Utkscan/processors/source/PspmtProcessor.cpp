@@ -1,6 +1,6 @@
 ///@file PspmtProcessor.cpp
-///@Processes information from a Position Sensitive PMT.  No Pixel work yet.
-///@author A. Keeler
+///@Processes information from a Position Sensitive PMT.  No Pixel work yet. 
+///@author A. Keeler, S. Go, S. V. Paulauskas 
 ///@date July 8, 2018
 
 #include <algorithm>
