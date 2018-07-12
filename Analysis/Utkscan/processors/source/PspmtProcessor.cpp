@@ -13,6 +13,7 @@
 #include <limits.h>
 
 #include "DammPlotIds.hpp"
+#include "DetectorDriver.hpp"
 #include "PspmtProcessor.hpp"
 #include "Globals.hpp"
 #include "Messenger.hpp"
@@ -57,6 +58,11 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
 
     if (!EventProcessor::PreProcess(event))
         return false;
+
+    if (DetectorDriver::get()->GetSysRootOutput()) {
+        PSvec.clear();
+        PSstruct = DefaultStruc;
+    }
 
     //read in anode & dynode signals
     static const vector<ChanEvent *> &hiDynode = event.GetSummary("pspmt:dynode_high")->GetList();
@@ -127,32 +133,36 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
              position_high.second * positionScale_ + positionOffset_);
     }
 
-    PSstruct.xa_l = xa_l ;
-    PSstruct.xb_l = xb_l ;
-    PSstruct.ya_l = ya_l ;
-    PSstruct.yb_l = yb_l ;
-    PSstruct.xa_h = xa_h ;
-    PSstruct.xb_h = xb_h ;
-    PSstruct.ya_h = ya_h ;
-    PSstruct.yb_h = yb_h ;
-    if (!lowDynode.empty()){
-    PSstruct.dy_l = lowDynode.front()->GetCalibratedEnergy();
-    PSstruct.dyL_time = lowDynode.front()->GetTimeSansCfd();
-    }
-    if (!hiDynode.empty()){
-    PSstruct.dy_h = hiDynode.front()->GetCalibratedEnergy();
-    PSstruct.dyH_time = hiDynode.front()->GetTimeSansCfd();
-    }
-    PSstruct.anodeLmulti = lowAnode.size();
-    PSstruct.anodeHmulti = hiAnode.size();
-    PSstruct.dyLmulti = lowDynode.size();
-    PSstruct.dyHmulti = hiDynode.size();
-    PSstruct.xposL = position_low.first;
-    PSstruct.yposL = position_low.second;
-    PSstruct.xposH = position_high.first;
-    PSstruct.yposH = position_high.second;
+    if (DetectorDriver::get()->GetSysRootOutput()) {
 
+        PSstruct.xa_l = xa_l;
+        PSstruct.xb_l = xb_l;
+        PSstruct.ya_l = ya_l;
+        PSstruct.yb_l = yb_l;
+        PSstruct.xa_h = xa_h;
+        PSstruct.xb_h = xb_h;
+        PSstruct.ya_h = ya_h;
+        PSstruct.yb_h = yb_h;
+        if (!lowDynode.empty()) {
+            PSstruct.dy_l = lowDynode.front()->GetCalibratedEnergy();
+            PSstruct.dyL_time = lowDynode.front()->GetTimeSansCfd();
+        }
+        if (!hiDynode.empty()) {
+            PSstruct.dy_h = hiDynode.front()->GetCalibratedEnergy();
+            PSstruct.dyH_time = hiDynode.front()->GetTimeSansCfd();
+        }
+        PSstruct.anodeLmulti = lowAnode.size();
+        PSstruct.anodeHmulti = hiAnode.size();
+        PSstruct.dyLmulti = lowDynode.size();
+        PSstruct.dyHmulti = hiDynode.size();
+        PSstruct.xposL = position_low.first;
+        PSstruct.yposL = position_low.second;
+        PSstruct.xposH = position_high.first;
+        PSstruct.yposH = position_high.second;
 
+        PSvec.emplace_back(PSstruct);
+        PSstruct=DefaultStruc;
+    }
     EndProcess();
     return (true);
 

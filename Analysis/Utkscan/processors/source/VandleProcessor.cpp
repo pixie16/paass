@@ -122,8 +122,9 @@ bool VandleProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return false;
 
-    VanVec.clear();
-
+    if (DetectorDriver::get()->GetSysRootOutput()) {
+        VanVec.clear();
+    }
     plot(D_DEBUGGING, 30);
 
     geSummary_ = event.GetSummary("clover");
@@ -154,6 +155,11 @@ bool VandleProcessor::Process(RawEvent &event) {
     startBars.BuildBars();
     barStarts_ = startBars.GetBarMap();
 
+    if (DetectorDriver::get()->GetSysRootOutput()){
+        VanVec.clear();
+        vandles.vMulti = bars_.size();
+    }
+
     for (BarMap::iterator it = bars_.begin(); it != bars_.end(); it++) {
         TimingDefs::TimingIdentifier barId = (*it).first;
         BarDetector bar = (*it).second;
@@ -166,9 +172,6 @@ bool VandleProcessor::Process(RawEvent &event) {
         else
             AnalyzeStarts(bar, barId.first);
 
-        vandles.vMulti = bars_.size();
-        VanVec.emplace_back(vandles);
-        vandles = DefaultStruct;
     }
 
     EndProcess();
@@ -188,15 +191,20 @@ void VandleProcessor::AnalyzeBarStarts(const BarDetector &bar, unsigned int &bar
             PlotTofHistograms(tof, corTof,NCtof, bar.GetQdc(), barLoc * numStarts_ + startLoc,
                               ReturnOffset(bar.GetType()),caled);
 
-            //Fill Root struct
-            vandles.sTime = start.GetTimeAverage();
-            vandles.qdc=bar.GetQdc();
-            vandles.barNum = barLoc;
-            vandles.barType = bar.GetType();
-            vandles.tdiff = bar.GetTimeDifference();
-            vandles.tof = tof;
-            vandles.corTof = corTof;
-            vandles.qdcPos = bar.GetQdcPosition();
+            if (DetectorDriver::get()->GetSysRootOutput()){
+                //Fill Root struct
+                vandles.sNum = startLoc;
+                vandles.sTime = start.GetTimeAverage();
+                vandles.qdc = bar.GetQdc();
+                vandles.barNum = barLoc;
+                vandles.barType = bar.GetType();
+                vandles.tdiff = bar.GetTimeDifference();
+                vandles.tof = tof;
+                vandles.corTof = corTof;
+                vandles.qdcPos = bar.GetQdcPosition();
+                VanVec.emplace_back(vandles);
+                vandles=DefaultStruct;
+            }
         }
 }
 
@@ -215,15 +223,20 @@ void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc
 
             PlotTofHistograms(tof, corTof, NCtof,bar.GetQdc(), barLoc * numStarts_ + startLoc,
                               ReturnOffset(bar.GetType()),caled);
-            //Fill Root struct
-            vandles.sTime = start.GetTimeSansCfd();
-            vandles.qdc=bar.GetQdc();
-            vandles.barNum = barLoc;
-            vandles.barType = bar.GetType();
-            vandles.tdiff = bar.GetTimeDifference();
-            vandles.tof = tof;
-            vandles.corTof = corTof;
-            vandles.qdcPos = bar.GetQdcPosition();
+            if (DetectorDriver::get()->GetSysRootOutput()){
+                //Fill Root struct
+                vandles.sNum=startLoc;
+                vandles.sTime = start.GetTimeSansCfd();
+                vandles.qdc = bar.GetQdc();
+                vandles.barNum = barLoc;
+                vandles.barType = bar.GetType();
+                vandles.tdiff = bar.GetTimeDifference();
+                vandles.tof = tof;
+                vandles.corTof = corTof;
+                vandles.qdcPos = bar.GetQdcPosition();
+                VanVec.emplace_back(vandles);
+                vandles=DefaultStruct;
+            }
         }
 }
 
