@@ -21,6 +21,7 @@ struct GAMMASCINT{
     bool HasTrigBeta =false;
     double Energy = -999;
     double RawEnergy = -999;
+    bool IsDynodeOut = false;
     int DetNum = -999;
     double Time = -999;
     double BetaGammaTDiff = -999;
