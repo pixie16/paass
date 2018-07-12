@@ -4,9 +4,6 @@
  *Processes information from scintillation type gamma-ray detectors. This code should function similarly to the clover
  * processor.
  *
- * The PROOF compatible root output requires that you load the pixieSuite environment module ($installDir/share/modulefiles/)
- * or you will get errors at runtime from root. Suggestions on a fix are welcome. If you do not set the Root4AB option in
- * the CFG you can ignore this.
  *
  *\author T. T. King
  *\date 21 Dec 2017
@@ -34,7 +31,8 @@ namespace dammIds {
 
         const int D_ENERGY = 0; //!< Energy "Totals" (all det of a single kind in 1 plot)
         const int D_BGENERGY = 1; //!< Event Beta-Gated "Totals"
-        const int D_MBGENERGY = 2; //!< Medium Resolution Beta-Gated "Totals"
+        const int D_DYENERGY =2 ; //!< Energy from the "dynode" output. This will be used at RIKEN2018 to enable dual gain on HAGRID
+        const int D_MBGENERGY = 3; //!< Medium Resolution Beta-Gated "Totals"
         const int D_CYCLEENERGY = 4; //!< Totals anti-gated on TapeMove
         const int DD_MULTI = 5; //!< Multiplicy (normal, betaGated)
         const int DD_LONGTIME_ENERGY = 6 ; //!< Energy vs Time (Bunched) (Used for Tracking Drift over Long Times)
@@ -63,12 +61,15 @@ void GammaScintProcessor::DeclarePlots() {
         DeclareHistogram1D(D_ENERGY + offset, SD, ss.str().c_str());
 
         ss.str("");
-        ss<< typeName << "Addback Energy";
-        DeclareHistogram1D(D_ENERGY + offset + ADDBACKOFFSET, SD, ss.str().c_str());
-
-        ss.str("");
         ss << typeName << " Beta-Gated Energy";
         DeclareHistogram1D(D_BGENERGY + offset, SE, ss.str().c_str());
+
+        ss << typeName << "Energy from Dynode (totals)";
+        DeclareHistogram1D(D_ENERGY + offset, SD, ss.str().c_str());
+
+        ss.str("");
+        ss<< typeName << "Addback Energy";
+        DeclareHistogram1D(D_ENERGY + offset + ADDBACKOFFSET, SD, ss.str().c_str());
 
         ss.str("");
         ss<< typeName << "BG Addback Energy";
@@ -331,19 +332,27 @@ bool GammaScintProcessor::Process(RawEvent &event) {
             }// end BetaList Loop
         }//end if medium resolution beta gating loop.
 
-        //DAMM PLOTS
-        plot(D_ENERGY + subTypeOffset, Genergy);
-        plot(DD_LONGTIME_ENERGY + subTypeOffset, Genergy, bunchNum_);
-        plot(DD_TIME_ENERGY + subTypeOffset, Genergy, decayTime / timeScales_.front());
-        if (hasLowResBeta_) {
-            plot(D_BGENERGY + subTypeOffset, Genergy);
-            timePloty(DD_BGTIME_ENERGY + subTypeOffset, Genergy, decayTime, timeScales_);
-            if (hasMedResBeta_)
-                plot(D_MBGENERGY + subTypeOffset, Genergy);
+        //DAMM PLOTS: Only plot things like drift BG etc if not a dynode signal.
+        if (!((*it)->GetChanID().HasTag("dy"))) {
+            plot(D_ENERGY + subTypeOffset, Genergy);
+            plot(DD_LONGTIME_ENERGY + subTypeOffset, Genergy, bunchNum_);
+            plot(DD_TIME_ENERGY + subTypeOffset, Genergy, decayTime / timeScales_.front());
+            if (hasLowResBeta_) {
+                plot(D_BGENERGY + subTypeOffset, Genergy);
+                timePloty(DD_BGTIME_ENERGY + subTypeOffset, Genergy, decayTime, timeScales_);
+                if (hasMedResBeta_)
+                    plot(D_MBGENERGY + subTypeOffset, Genergy);
+            }
+        } else {
+            plot(D_DYENERGY + subTypeOffset, Genergy);
         }
 
-
-        if (SysRoot_){
+        if (SysRoot_) {
+            if (((*it)->GetChanID().HasTag("dy"))) {
+                Gsing.IsDynodeOut = true;
+            } else{
+                Gsing.IsDynodeOut = false;
+            }
             std::string Group;
             if (!(*it)->GetChanID().GetTags().empty()) {
                 //Group and NumGroup NEED protection from empty sets/strings, but this should be taken care of by the above IF()
@@ -387,7 +396,7 @@ bool GammaScintProcessor::Process(RawEvent &event) {
        //Starting Rough (TypeWide) Addback
     // (TYPEWIDE ADDBACK MUST BE THE LAST THING IN THE FOR LOOP due to the energy check below)
 
-    if (Genergy < (GetAddbackPara(subType, "thresh"))) { ;
+    if (Genergy < (GetAddbackPara(subType, "thresh")) || ((*it)->GetChanID().HasTag("dy")) ) { ;
         continue;
     }
     //double abTdiff = abs(Gtime - (GetAddbackPara(subType, "refTime")));
