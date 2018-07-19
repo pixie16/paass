@@ -57,6 +57,7 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
    outTree->Branch("ratio[4]",&ratio,"ratio[4]/D");
    outTree->Branch("slope[4]",&slope,"slope[4]/D");
    outTree->Branch("dpoint[4]",&dpoint,"dpoint[4]/D");
+   outTree->Branch("Zcross[4]",&Zcross,"Zcross[4]/D");
 
 //   outTree->Branch("points",&points);
    
@@ -72,6 +73,9 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
       //nb = fChain->GetEntry(jentry);   nbytes += nb;
       // if (Cut(ientry) < 0) continue;
       //DigitalCFD(jentry);
+      InitEntry(jentry);
+      ZcrossFilter();   //Apply ZeroCross filter with time constants (RC1,RC2)
+      Plot(jentry, kFALSE);  //Fill graphs for polyCFD analysis
       PolyCFD(jentry,0.45);    //Find CFD timing for jth entry with given fraction
 
       if (phase[0]>0&&phase[1]>0&&phase[2]>0&&phase[3]>0) ToF = (time[2]+time[3])/2.0-(time[0]+time[1])/2.0;  //Calculate ToF if 4 signals exist
