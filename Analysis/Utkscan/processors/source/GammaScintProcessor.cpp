@@ -64,8 +64,9 @@ void GammaScintProcessor::DeclarePlots() {
         ss << typeName << " Beta-Gated Energy";
         DeclareHistogram1D(D_BGENERGY + offset, SE, ss.str().c_str());
 
+        ss.str("");
         ss << typeName << "Energy from Dynode (totals)";
-        DeclareHistogram1D(D_ENERGY + offset, SD, ss.str().c_str());
+        DeclareHistogram1D(D_DYENERGY + offset, SD, ss.str().c_str());
 
         ss.str("");
         ss<< typeName << "Addback Energy";
