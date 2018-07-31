@@ -32,6 +32,12 @@ enum CODES {
     WRONG_NUM
 };
 
+namespace dammIds{
+  namespace experiment{
+    const int DD_PHASEPHASE = 0;
+  }
+}
+
 using namespace std;
 using namespace dammIds::experiment;
 
@@ -39,28 +45,26 @@ TwoChanTimingProcessor::TwoChanTimingProcessor() :
         EventProcessor(OFFSET, RANGE, "TwoChanTimingProcessor") {
     associatedTypes.insert("pulser");
 
-    rootfile =
-            new TFile(Globals::get()->AppendOutputPath(
-                    Globals::get()->GetOutputFileName() + ".root").c_str(),
-                      "RECREATE");
+    rootfile = new TFile(Globals::get()->AppendOutputPath(Globals::get()->GetOutputFileName() + ".root").c_str(), "RECREATE");
 
     tree = new TTree("timing", "");
-    tree->Branch("start", &rstart,
-                 "qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
+    tree->Branch("start", &rstart, "qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
     tree->Branch("stop", &rstop, "qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
     codes = new TH1I("codes", "", 20, 0, 20);
     startTraces = new TH2I("startTraces", "", 250, 0, 250, 2000, 0, 2000);
     stopTraces = new TH2I("stopTraces", "", 250, 0, 250, 2000, 0, 2000);
-    startAmpDistribution =
-            new TH2I("startAmpDistribution", "", 250, 0, 250, 16384, 0, 16384);
-    stopAmpDistribution =
-            new TH2I("stopAmpDistribution", "", 250, 0, 250, 16384, 0, 16384);
+    startAmpDistribution = new TH2I("startAmpDistribution", "", 250, 0, 250, 16384, 0, 16384);
+    stopAmpDistribution = new TH2I("stopAmpDistribution", "", 250, 0, 250, 16384, 0, 16384);
 }
 
 TwoChanTimingProcessor::~TwoChanTimingProcessor() {
     codes->Write();
     rootfile->Write();
     rootfile->Close();
+}
+
+void TwoChanTimingProcessor::DeclarePlots(void){
+  DeclareHistogram2D(DD_PHASEPHASE,SD,SD,"Start Phase vs Stop Phase");
 }
 
 bool TwoChanTimingProcessor::Process(RawEvent &event) {
@@ -123,6 +127,9 @@ bool TwoChanTimingProcessor::Process(RawEvent &event) {
         tree->Fill();
         start.ZeroRootStructure(rstart);
         stop.ZeroRootStructure(rstop);
+
+	//damm plots here
+	plot(DD_PHASEPHASE,start.GetPhaseInNs(),stop.GetPhaseInNs());
     }
     EndProcess();
     return true;

@@ -18,6 +18,8 @@ public:
     /** Default Destructor */
     ~TwoChanTimingProcessor();
 
+ /** Declare the plots used in the analysis */
+    virtual void DeclarePlots(void);  
 
     /** Performs the main processsing, which may depend on other processors
     * \param [in] event : the event to process
