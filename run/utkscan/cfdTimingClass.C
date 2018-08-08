@@ -45,6 +45,8 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
    outTree->Branch("Fmax[4]",&Fmax,"Fmax[4]/D");
    outTree->Branch("time[4]",&time,"time[4]/D");
    outTree->Branch("ToF",&ToF,"ToF/D");
+   outTree->Branch("Xpos",&x_pos,"Xpos/D");
+   outTree->Branch("Ypos",&y_pos,"Ypos/D");
    outTree->Branch("qdc[4]",&qdc,"qdc[4]/D");
    outTree->Branch("sbase[4]",&sbase,"sbase[4]/D");
    outTree->Branch("abase[4]",&abase,"abase[4]/D");

@@ -141,6 +141,8 @@ public :
    Double_t leadqdc[4];
    Double_t dpoint[4];
    Double_t Zcross[4];
+   Double_t x_pos;
+   Double_t y_pos;
    ////////////////////////////////
 
 
@@ -174,6 +176,7 @@ public :
    virtual Double_t   psdZeroCrossing(vector <Double_t> *dTrace, Int_t maxpos, int chan);
    virtual void    ZcrossFilter();
    virtual void    InitEntry(Long64_t Ientry=1);
+   virtual std::pair FindXY();
 };
 
 #endif
@@ -599,14 +602,6 @@ void cfdTimingClass::PolyCFD(Long64_t entry, Double_t frac){
    Double_t T_sbase[4] = {start1_sbase,start2_sbase,stop1_sbase,stop2_sbase};
    Double_t T_abase[4] = {start1_abase,start2_abase,stop1_abase,stop2_abase};
 
-   // UInt_t size[4];
-//    size[0]=trace_start1->size();
-//    size[1]=trace_start2->size();
-//    size[2]=trace_stop1->size();
-//    size[3]=trace_stop2->size();
-
-//  TCanvas *c1 = new TCanvas();   
-//  c1->Divide(2,2);
   std::pair <Int_t,Int_t> points;
   Double_t base;
  for (int m=0;m<4;m++){
@@ -734,17 +729,10 @@ void cfdTimingClass::PolyCFD(Long64_t entry, Double_t frac){
     leadqdc[m] = -9999;
     dpoint[m] = -9999;
     }
-//    abase[m] = T_abase[m];
-//    abase[m] = base;
-//    sbase[m] = T_sbase[m];
-//    lPoint[m] = points.first;
-//    uPoint[m] = points.second;
-//    slope[m] = fpol1[m]->GetParameter(1)/4.0;
-//    lThresh[m] = trace->at(points.first);
-//    uThresh[m] = trace->at(points.second);
  }
- //   cout << "Chan1 time phase: " << time[2] << " " << phase[2] << "\nChan2 time phase: " << time[3] << " " << phase[3] << endl;
-
+  std::pair position = FindXY();
+  x_pos = position.first();
+  y_pos = position.second();
 
  return;
 }
@@ -766,6 +754,19 @@ void cfdTimingClass::QDCcalc(vector <UInt_t> *dTrace, int chan, Double_t cfdpos,
   else continue;
  }
 }
+
+std::pair cfdTimingClass::FindXY(){
+ std::pair<double,double> XY 
+  int * pos = std::find(size,size+4,0);
+  if (pos != size+4) {XY = std::make_pair(-9999,-9999)};
+  else{
+   double x = (qdc[3]+qdc[2]-qdc[1]-qdc[0])/(qdc[3]+qdc[2]+qdc[1]+qdc[0]);
+   double y = (qdc[3]+qdc[0]-qdc[1]-qdc[2])/(qdc[3]+qdc[2]+qdc[1]+qdc[0]);
+   XY = std::make_pair(x,y);
+  }
+  return XY;
+}
+
 
 Double_t cfdTimingClass::psdZeroCrossing(vector <Double_t> *dTrace, Int_t maxpos, int chan){
   std::pair <Int_t, Int_t> Zpoints;
