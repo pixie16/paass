@@ -44,8 +44,10 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
    outTree->Branch("Pmax[4]",&Pmax,"Pmax[4]/D");
    outTree->Branch("Fmax[4]",&Fmax,"Fmax[4]/D");
    outTree->Branch("time[4]",&time,"time[4]/D");
+   outTree->Branch("Pixietime[4]",&Pixietime,"Pixietime[4]/D");
    outTree->Branch("ToF",&ToF,"ToF/D");
    outTree->Branch("qdc[4]",&qdc,"qdc[4]/D");
+   outTree->Branch("leadqdc[4]",&leadqdc,"leadqdc[4]/D");
    outTree->Branch("sbase[4]",&sbase,"sbase[4]/D");
    outTree->Branch("abase[4]",&abase,"abase[4]/D");
    outTree->Branch("thresh[4]",&thresh,"thresh[4]/D");
@@ -57,6 +59,7 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
    outTree->Branch("ratio[4]",&ratio,"ratio[4]/D");
    outTree->Branch("slope[4]",&slope,"slope[4]/D");
    outTree->Branch("dpoint[4]",&dpoint,"dpoint[4]/D");
+   outTree->Branch("k4fold",&k4fold,"k4fold/O");
 
 //   outTree->Branch("points",&points);
    
@@ -72,7 +75,7 @@ void cfdTimingClass::Loop(Long64_t nentries, const Char_t *filename)
       //nb = fChain->GetEntry(jentry);   nbytes += nb;
       // if (Cut(ientry) < 0) continue;
       //DigitalCFD(jentry);
-      PolyCFD(jentry,0.45);    //Find CFD timing for jth entry with given fraction
+      PolyCFD(jentry);    //Find CFD timing for jth entry with given fraction
 
       if (phase[0]>0&&phase[1]>0&&phase[2]>0&&phase[3]>0) ToF = (time[2]+time[3])/2.0-(time[0]+time[1])/2.0;  //Calculate ToF if 4 signals exist
       else ToF = -9999;
@@ -96,6 +99,8 @@ void cfdTimingClass::PolyScan(Long64_t nentries, Int_t chan1, Int_t chan2){
 
   TFile *oF = new TFile("PolyCFDScan.root","RECREATE");
 
+  FILE *fOut;
+  fOut = fopen("PolyCFDResScan.txt","w");
   double frc;
   char hname[200];
   TF1 *f1 = new TF1("f1","gaus",0,1);
@@ -105,15 +110,16 @@ void cfdTimingClass::PolyScan(Long64_t nentries, Int_t chan1, Int_t chan2){
   for (int iFrc=1; iFrc<90; iFrc++){   //cfd fraction scan
    frc = (double)iFrc*hstep;
    sprintf(hname,"h2_frac%d",iFrc);
-   h2[iFrc-1] = new TH2F(hname,hname,1000,15000,300000,1000,-30,30);
+   h2[iFrc-1] = new TH2F(hname,hname,1000,20000,500000,1000,-40,40);
    sprintf(hname,"h1_frac%d",iFrc);
    h1[iFrc-1] = new TH1F(hname,hname,1000,-30,30);
    for (int jentry=0; jentry<nentries; jentry++){
-    
-    PolyCFD(jentry,frc);   //extract timing for given cfd fraction
-    if (phase[chan1]>0 && phase[chan2]>0){
+   SetFraction(frc); 
+    PolyCFD(jentry);   //extract timing for given cfd fraction
+    // if (phase[chan1]>20 && phase[chan2]>20 && (qdc[2]+qdc[3])/2>50000){
+    if (phase[chan1]>20 && phase[chan2]>20 && (qdc[chan1]+qdc[chan2])/2>50000){
     h1[iFrc-1]->Fill(time[chan1]-time[chan2]);
-    h2[iFrc-1]->Fill(qdc[chan1],time[chan1]-time[chan2]);    //The QDC channel needs to be whichever channel is fixed to keep consistent QDC calculation w/o dependence on CFD phase
+    h2[iFrc-1]->Fill((qdc[chan1]+qdc[chan2])/2.0,time[chan1]-time[chan2]);    //The QDC channel needs to be whichever channel is fixed to keep consistent QDC calculation w/o dependence on CFD phase
      }
 //    cout << "Chan1 time phase: " << time[chan1] << " " << phase[chan1] << "\nChan2 time phase: " << time[chan2] << " " << phase[chan2] << endl;
     }
@@ -125,9 +131,10 @@ void cfdTimingClass::PolyScan(Long64_t nentries, Int_t chan1, Int_t chan2){
     fRes = (f1->GetParameter(2))*2.35;
    
     cout << iFrc << " " << frc <<  " " << fMean << " " << fRes << endl;
+    fprintf(fOut,"%d %f %f %f \n",iFrc,frc,fMean,fRes);
     h1[iFrc-1]->Write();
     h2[iFrc-1]->Write();
    }
-
+  fclose(fOut);
   oF->Close();
 }
