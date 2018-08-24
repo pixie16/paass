@@ -69,6 +69,7 @@
 #include "RootProcessor.hpp"
 //#include "TwoChanTimingProcessor.hpp"
 #include "TraceDump.hpp"
+#include "TraceDump_PSPMT.hpp"
 #endif
 
 using namespace std;
@@ -244,6 +245,8 @@ void DetectorDriver::LoadProcessors(Messenger& m) {
 //            vecProcess.push_back(new TwoChanTimingProcessor());    ///JNH
         } else if (name == "TraceDump") {
             vecProcess.push_back(new TraceDump());
+        } else if (name == "TraceDump_PSPMT") {
+            vecProcess.push_back(new TraceDump_PSPMT());
         } else if (name == "IS600Processor") {
             vecProcess.push_back(new IS600Processor());
         } else if (name == "TACProcessor") {

@@ -10,6 +10,7 @@ if (PAASS_USE_ROOT)
             IS600Processor.cpp
             #TwoChanTimingProcessor.cpp
             TraceDump.cpp
+            TraceDump_PSPMT.cpp
             TACProcessor.cpp
             ArrayJProcessor.cpp)
 endif (PAASS_USE_ROOT)

@@ -206,7 +206,7 @@ namespace Statistics {
 
 namespace TraceFunctions {
     ///The minimum length that is necessary for a good baseline calculation.
-    static const unsigned int minimum_baseline_length = 10;
+    static const unsigned int minimum_baseline_length = 5;
 
     ///@brief Compute the trace baseline and its standard deviation. This
     /// function takes a data range in the event that someone wants to
@@ -236,9 +236,8 @@ namespace TraceFunctions {
                                       "size is smaller than requested range.");
 
         if (range.second - range.first < minimum_baseline_length)
-            throw range_error("TraceFunctions::ComputeBaseline - The range "
-                                      "specified is smaller than the minimum"
-                                      " necessary range.");
+            throw range_error("TraceFunctions::ComputeBaseline - The range specified is smaller than the minimum necessary range.");
+
         double baseline =
                 Statistics::CalculateAverage(
                         vector<T>(data.begin(), data.begin() +

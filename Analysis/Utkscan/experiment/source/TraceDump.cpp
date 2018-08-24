@@ -131,8 +131,8 @@ bool TraceDump::Process(RawEvent &event) {
 		pulserMap.insert(make_pair(key, TraceDumpData(*(*itPulser))));
 	    }
 
-    //if (pulserMap.empty()) {
-    if (pulserMap.empty() || pulserMap.size() % 2 != 0) {    /// 2 Fold Coincidences
+    if (pulserMap.empty()) {
+//    if (pulserMap.empty() || pulserMap.size() % 2 != 0) {    /// 2 Fold Coincidences
 //    if (pulserMap.empty() || pulserMap.size() != 4) {         ///  4 Fold Coincidences
         //If the map is empty or size isn't even we return and increment
         // error code
