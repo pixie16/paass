@@ -60,8 +60,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
         return false;
 
     if (DetectorDriver::get()->GetSysRootOutput()) {
-        PSvec.clear();
-        PSstruct = DefaultStruc;
+        PSstruct = processor_struct::PSPMT_DEFAULT_STRUCT;
     }
 
     //read in anode & dynode signals
@@ -160,8 +159,8 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
         PSstruct.xposH = position_high.first;
         PSstruct.yposH = position_high.second;
 
-        PSvec.emplace_back(PSstruct);
-        PSstruct=DefaultStruc;
+        pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
+        PSstruct = processor_struct::PSPMT_DEFAULT_STRUCT;
     }
     EndProcess();
     return (true);

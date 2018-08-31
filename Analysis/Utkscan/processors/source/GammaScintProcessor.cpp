@@ -229,9 +229,6 @@ bool GammaScintProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return (false);
 
-    if (SysRoot_) {
-        PEsing.clear(); // Clearing root output vector
-    }
     hasLowResBeta_ = false;
     hasMedResBeta_ = false;
 
@@ -388,8 +385,8 @@ bool GammaScintProcessor::Process(RawEvent &event) {
             Gsing.BunchNum = bunchNum_;
             Gsing.LastBunchTime = bunchLast_;
             Gsing.DetNum = (*it)->GetChanID().GetLocation();
-            PEsing.emplace_back(Gsing);
-            Gsing=DefaultStruct; //reset structure
+            pixie_tree_event_->gamma_scint_vec_.emplace_back(Gsing);
+            Gsing = processor_struct::GAMMASCINT_DEFAULT_STRUCT; //reset structure
             //Dont fill because we want 1 pixie event per tree entry, so we add the current structure in the last spot
             //on a vector<> and then reset the structure. and we will at the end or Process()
         } //end sysroot_

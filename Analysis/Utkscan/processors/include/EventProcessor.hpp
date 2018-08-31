@@ -13,6 +13,7 @@
 
 #include "Plots.hpp"
 #include "TreeCorrelator.hpp"
+#include "ProcessorRootStruc.hpp"
 
 // forward declarations
 class DetectorSummary;
@@ -106,6 +107,11 @@ public:
     virtual void FillBranch(void) {};
 #endif
 
+    /** returns PixTreeEvent for ROOT tree output **/
+    PixTreeEvent* GetPixTreeEvent() const { return pixie_tree_event_; }
+
+    void SetPixTreeEventPtr(PixTreeEvent* pix_tree_event) { pixie_tree_event_ = pix_tree_event; }
+
 protected:
     std::string name; //!< Name of the Processor
     std::set<std::string> associatedTypes; //!< Set of associated types for Processor
@@ -116,6 +122,9 @@ protected:
     /** Plots class for given Processor, takes care of declaration
     * and plotting within boundaries allowed by PlotsRegistry */
     Plots histo;
+
+    /** tree event data container for ROOT output **/
+    PixTreeEvent *pixie_tree_event_;
 
     /*! \brief Implementation of the plot command to interface with the DAMM
     * routines

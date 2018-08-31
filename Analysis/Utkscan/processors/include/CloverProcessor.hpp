@@ -219,8 +219,6 @@ public:
     /** Returns the events that were added to the tas_ */
     std::vector<AddBackEvent> GetTasEvents(void) { return (tas_); }
 
-    std::vector<CLOVERS> GetCloverVec() { return Csing; }
-
 protected:
     static const unsigned int chansPerClover = 4; /*!< number of channels per clover */
 
@@ -305,8 +303,7 @@ protected:
     double cycle_gate2_min_;//!< low value for second cycle gate
     double cycle_gate2_max_;//!< high value for second cycle gate
 
-    CLOVERS Cstruct , DefaultStruct; //!<Structure for the current chanEvt data
-    std::vector<CLOVERS> Csing; //!<vector containing the PixieEvent's list of data
+    processor_struct::CLOVERS Cstruct;
 };
 
 #endif // __CloverProcessor_HPP_

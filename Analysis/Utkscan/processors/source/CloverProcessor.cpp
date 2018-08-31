@@ -394,7 +394,6 @@ bool CloverProcessor::PreProcess(RawEvent &event) {
         return false;
 
     geEvents_.clear();
-    Csing.clear();
     for (unsigned i = 0; i < numClovers; ++i)
         addbackEvents_[i].clear();
     tas_.clear();
@@ -533,8 +532,8 @@ bool CloverProcessor::Process(RawEvent &event) {
         Cstruct.HasLowResBeta = hasBeta;
         Cstruct.DetNum = itC->GetChanID().GetLocation();
         Cstruct.CloverNum = leafToClover[itC->GetChanID().GetLocation()];
-        Csing.emplace_back(Cstruct);
-        Cstruct=DefaultStruct; //reset to initalized values (see ProcessorRootStruc.hpp
+        pixie_tree_event_->clover_vec_.emplace_back(Cstruct);
+        Cstruct = processor_struct::CLOVERS_DEFAULT_STRUCT; //reset to initalized values (see ProcessorRootStruc.hpp
 
         //Dont fill because we want 1 pixie event per tree entry, so we add the current structure in the last spot
         //on a vector<> and then reset the structure. and we will at the end or Process()
