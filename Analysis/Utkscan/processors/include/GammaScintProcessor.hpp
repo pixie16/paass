@@ -62,12 +62,6 @@ public:
     virtual bool Process(RawEvent &event);
 
 
-    /**Returns the vector of GScint singles events. used for coincidence plotting in root
-     *
-     * @return vector of GS singles
-     */
-    std::vector<GAMMASCINT> GetGSVector(){ return PEsing;}
-
     std::map<std::string,std::string> GetTHeader(){return Theader;}
 
 protected:
@@ -182,8 +176,7 @@ private:
     std::vector<float> timeScales_; //!< list of time scales to plot (10 ms always present depending on EvsT)
     std::string BunchingTimestr_;//<!String containing the bunching time as parsed. (For rootfiles TNamed's)
 
-    GAMMASCINT Gsing,DefaultStruct; //!< structure of det event info for PEsing, as well as a default version for resetting
-    std::vector<GAMMASCINT> PEsing; //!< vector of detector events per pixie event
+    processor_struct::GAMMASCINT Gsing; //!< structure of det event info for PEsing
 
     std::map<std::string,std::string> Theader; // map of header info for the root file from this processor
 };

@@ -92,13 +92,13 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
         RootversionTnamed.Write();
         outRootTNamed.Write();
 
-        //write the external TS to
-        PTree->Branch("ExternalTS",&externalTS);
+        // new Branch for PixTreeEvent
+        PTree->Branch("PixTreeEvent",&pixie_tree_event_);
 
         for (auto itp = setProcess.begin(); itp !=setProcess.end();itp++) {
+            GetProcessor((*itp))->SetPixTreeEventPtr(&pixie_tree_event_);
 
             if ((*itp) == "GammaScintProcessor") {
-                PTree->Branch("GSsing", &GSsing);
 
                 //GammaScint Processor Header
                 auto GSheader = ((GammaScintProcessor *) GetProcessor("GammaScintProcessor"))->GetTHeader();
@@ -113,12 +113,7 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
                 bunchTnamed.Write();
                 typesTNamed.Write();
 
-            } else if ((*itp) == "VandleProcessor") {
-                PTree->Branch("Vandles", &Vandles);
-            } else if ((*itp) == "CloverProcessor") {
-                PTree->Branch("Clover",&Csing);
             } else if ((*itp) == "PspmtProcessor"){
-                PTree->Branch("PSPMT",&PSPMTvec);
                 auto PSPMTheader = ((PspmtProcessor *) GetProcessor("PspmtProcessor"))->GetPSPMTHeader();
                 TNamed VDType("VDType",PSPMTheader.first);
                 VDType.Write();
@@ -168,19 +163,7 @@ void DetectorDriver::Init(RawEvent &rawev) {
 void DetectorDriver::ProcessEvent(RawEvent &rawev) {
 
     if (sysrootbool_) {
-        for (auto itp = setProcess.begin(); itp !=setProcess.end();itp++) {
-            if ((*itp) == "GammaScintProcessor") {
-                GSsing.clear();
-            } else if ((*itp)  == "VandleProcessor") {
-                Vandles.clear();
-            } else if ((*itp) == "CloverProcessor") {
-                Csing.clear();
-            } else if ((*itp) == "PspmtProcessor"){
-              PSPMTvec.clear();
-            } else{
-                continue;
-            }
-        }
+	pixie_tree_event_.Clear();
     }
     plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
     try {
@@ -207,7 +190,7 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
                 eventFirstTime_= (*it)->GetTimeSansCfd(); //sets the time of the first det event in the pixie event
             }
             if ((*it)->GetChanID().HasTag("ets"))
-                externalTS = (*it)->GetExternalTimeStamp();
+                pixie_tree_event_.externalTS = (*it)->GetExternalTimeStamp();
 
             innerEvtCounter++;
         }
@@ -240,20 +223,6 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
     }
     eventNumber_++;
     if (sysrootbool_) {
-        for (auto itp = setProcess.begin(); itp !=setProcess.end();itp++) {
-            if ((*itp) == "GammaScintProcessor") {
-                GSsing = ((GammaScintProcessor *) get()->GetProcessor("GammaScintProcessor"))->GetGSVector();
-            } else if ((*itp) == "VandleProcessor") {
-                Vandles = ((VandleProcessor *) get()->GetProcessor("VandleProcessor"))->GetVanVector();
-            } else if ((*itp) == "CloverProcessor"){
-                Csing = ((CloverProcessor * ) get()->GetProcessor("CloverProcessor"))->GetCloverVec();
-            } else if ((*itp) == "PspmtProcessor"){
-                PSPMTvec = ((PspmtProcessor *) get()->GetProcessor("PspmtProcessor"))->GetPSPMTvector();
-            } else{
-                continue;
-            }
-
-        }
         PTree->Fill();
     }
 }

@@ -60,12 +60,6 @@ public:
         return (make_pair(VDtypeStr,ThreshStr));
     }
 
-    ///@return The vector of the pspmt events for Root output (should only have 1 entry)
-    std::vector<PSPMT> GetPSPMTvector(){
-        return PSvec;
-    }
-
-
 private:
 
     std::pair<double, double> position_low;
@@ -89,8 +83,7 @@ private:
     ///< the Pixie-16 trapezoidal filter needs to reach
     ///< before we can analyze the signals.
 
-    PSPMT PSstruct,DefaultStruc; //!< PSPMT root Struct and Default for reseting
-    std::vector<PSPMT> PSvec; //!<PSPMT vector for root
+    processor_struct::PSPMT PSstruct; //!< PSPMT root Struct
 
     std::string VDtypeStr; //!< VD Type as a string
     std::string ThreshStr; //!< Threshold as a string

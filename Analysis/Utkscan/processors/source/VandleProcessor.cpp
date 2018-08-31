@@ -122,9 +122,6 @@ bool VandleProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return false;
 
-    if (DetectorDriver::get()->GetSysRootOutput()) {
-        VanVec.clear();
-    }
     plot(D_DEBUGGING, 30);
 
     geSummary_ = event.GetSummary("clover");
@@ -156,7 +153,6 @@ bool VandleProcessor::Process(RawEvent &event) {
     barStarts_ = startBars.GetBarMap();
 
     if (DetectorDriver::get()->GetSysRootOutput()){
-        VanVec.clear();
         vandles.vMulti = bars_.size();
     }
 
@@ -202,8 +198,8 @@ void VandleProcessor::AnalyzeBarStarts(const BarDetector &bar, unsigned int &bar
                 vandles.tof = tof;
                 vandles.corTof = corTof;
                 vandles.qdcPos = bar.GetQdcPosition();
-                VanVec.emplace_back(vandles);
-                vandles=DefaultStruct;
+                pixie_tree_event_->vandle_vec_.emplace_back(vandles);
+                vandles = processor_struct::VANDLES_DEFAULT_STRUCT;
             }
         }
 }
@@ -234,8 +230,8 @@ void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc
                 vandles.tof = tof;
                 vandles.corTof = corTof;
                 vandles.qdcPos = bar.GetQdcPosition();
-                VanVec.emplace_back(vandles);
-                vandles=DefaultStruct;
+                pixie_tree_event_->vandle_vec_.emplace_back(vandles);
+                vandles = processor_struct::VANDLES_DEFAULT_STRUCT;
             }
         }
 }
