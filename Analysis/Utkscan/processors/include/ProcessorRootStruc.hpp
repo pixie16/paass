@@ -89,6 +89,17 @@ class PixTreeEvent : public TObject
 public:
 
     PixTreeEvent(){}
+
+    /* copy constructor */
+    PixTreeEvent( const PixTreeEvent &obj ):TObject(obj)
+    {
+        externalTS = obj.externalTS;
+        clover_vec_ = obj.clover_vec_;
+        gamma_scint_vec_ = obj.gamma_scint_vec_;
+        vandle_vec_ = obj.vandle_vec_;
+        pspmt_vec_ = obj.pspmt_vec_;
+    }
+
     virtual ~PixTreeEvent(){}
 
     /* clear vectors and init all the values */
