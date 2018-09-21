@@ -34,7 +34,11 @@ class TraceDump_PSPMT : public EventProcessor {
 
 private: 
 
-
+      UInt_t left_qdc[4];
+      UInt_t right_qdc[4];
+      UInt_t left_max[4];
+      UInt_t right_max[4];
+      int nLeft,nRight;
       Double_t leftTimeStamp;
       Double_t rightTimeStamp;
 
