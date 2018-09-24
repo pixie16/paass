@@ -198,8 +198,9 @@ namespace Statistics {
                                       "vector was too small to integrate. We "
                                       "need at least a size of 2.");
         double integral = 0.0;
-        for (unsigned int i = 1; i < data.size(); i++)
-            integral += 0.5 * (double(data[i - 1] + data[i]));
+        for (unsigned int i = 1; i < data.size(); i++){
+	  if (double(data[i]+data[i-1])>0) integral += 0.5 * (double(data[i - 1] + data[i]));
+	}
         return integral;
     }
 }
