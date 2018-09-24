@@ -5,8 +5,8 @@
 // found on file: EJ299_TeflonWrappedMylar_shortbar_1100V_Sr90_16b_001_CFD.root
 //////////////////////////////////////////////////////////
 
-#ifndef cfdTimingClass_h
-#define cfdTimingClass_h
+#ifndef pspmtClass_h
+#define pspmtClass_h
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -30,7 +30,7 @@
 #include <utility>
 #include <iterator> 
 
-class cfdTimingClass {
+class pspmtClass {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
@@ -38,70 +38,45 @@ public :
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
    // Declaration of leaf types
-   Double_t        start1_qdc;
-   Double_t        start1_amp;
-   Double_t        start1_time;
-   Double_t        start1_snr;
-   Double_t        start1_wtime;
-   Double_t        start1_phase;
-   Double_t        start1_abase;
-   Double_t        start1_sbase;
-   UChar_t         start1_id;
-   Double_t        stop1_qdc;
-   Double_t        stop1_amp;
-   Double_t        stop1_time;
-   Double_t        stop1_snr;
-   Double_t        stop1_wtime;
-   Double_t        stop1_phase;
-   Double_t        stop1_abase;
-   Double_t        stop1_sbase;
-   UChar_t         stop1_id;
-   Double_t        start2_qdc;
-   Double_t        start2_amp;
-   Double_t        start2_time;
-   Double_t        start2_snr;
-   Double_t        start2_wtime;
-   Double_t        start2_phase;
-   Double_t        start2_abase;
-   Double_t        start2_sbase;
-   UChar_t         start2_id;
-   Double_t        stop2_qdc;
-   Double_t        stop2_amp;
-   Double_t        stop2_time;
-   Double_t        stop2_snr;
-   Double_t        stop2_wtime;
-   Double_t        stop2_phase;
-   Double_t        stop2_abase;
-   Double_t        stop2_sbase;
-   UChar_t         stop2_id;
-   vector<unsigned int> *trace_start1;
-   vector<unsigned int> *trace_start2;
-   vector<unsigned int> *trace_stop1;
-   vector<unsigned int> *trace_stop2;
-   Double_t        StartTimeStamp[2];
-   Double_t        StopTimeStamp[2];
-   Int_t           StartMaximum[2];
-   Int_t           StopTimeMaximum[2];
-   Double_t        StartChiSq;
-   Double_t        StopChiSq;
+   Double_t        left_time_qdc;
+   Double_t        left_time_amp;
+   Double_t        left_time_snr;
+   Double_t        left_time_abase;
+   Double_t        left_time_sbase;
+   UChar_t         left_time_id;
+   Double_t        right_time_qdc;
+   Double_t        right_time_amp;
+   Double_t        right_time_snr;
+   Double_t        right_time_abase;
+   Double_t        right_time_sbase;
+   UChar_t         right_time_id;
+   Int_t           left_qdc[4];
+   Int_t           right_qdc[4];
+   Int_t           left_max[4];
+   Int_t           right_max[4];
+   UInt_t          nLeft;
+   UInt_t          nRight;
+   Double_t        leftTimeStamp;
+   Double_t        rightTimeStamp;
+   vector<unsigned int> *trace_left_dynode;
+   vector<unsigned int> *trace_right_dynode;
 
    // List of branches
-   TBranch        *b_start1;   //!
-   TBranch        *b_stop1;   //!
-   TBranch        *b_start2;   //!
-   TBranch        *b_stop2;   //!
-   TBranch        *b_trace_start1;   //!
-   TBranch        *b_trace_start2;   //!
-   TBranch        *b_trace_stop1;   //!
-   TBranch        *b_trace_stop2;   //!
-   TBranch        *b_StartTimestamp;   //!
-   TBranch        *b_StopTimestamp;   //!
-   TBranch        *b_StartMax;   //!
-   TBranch        *b_StopMax;   //!
-   TBranch        *b_StartChi;   //!
-   TBranch        *b_StopChi;   //!
+   TBranch        *b_left_time;   //!
+   TBranch        *b_right_time;   //!
+   TBranch        *b_left_qdc;   //!
+   TBranch        *b_right_qdc;   //!
+   TBranch        *b_left_max;   //!
+   TBranch        *b_right_max;   //!
+   TBranch        *b_nLeft;   //!
+   TBranch        *b_nRight;   //!
+   TBranch        *b_left_timeS;   //!
+   TBranch        *b_right_timeS;   //!
+   TBranch        *b_trace_left_dynode;   //!
+   TBranch        *b_trace_right_dynode;   //!
 
    //Parameters
+   Bool_t k4fold;
    Double_t fFraction;
    Double_t fSamplingRate;
    Int_t fDelay;
@@ -119,36 +94,38 @@ public :
 
    ///////////// Variable to Save
    ULong64_t event;
-   Double_t phase[4];
-   Double_t Pmax[4];
-   Double_t Fmax[4];
-   Double_t qdc[4];
-   Double_t time[4];
-   Double_t Pixietime[4];
+   Double_t phase[2];
+   Double_t Pmax[2];
+   Double_t Fmax[2];
+   Double_t qdc[2];
+   Double_t time[2];
+   Double_t Pixietime[2];
    Double_t ToF;
-   Double_t sbase[4];
-   Double_t abase[4];
-   Double_t thresh[4];
-   Double_t uPoint[4];
-   Double_t lPoint[4];
-   Double_t lThresh[4];
-   Double_t uThresh[4];
-   Double_t slope[4];
-   Double_t tailqdc[4];
-   Double_t ratio[4];
-   Double_t leadqdc[4];
-   Double_t dpoint[4];
-   UInt_t size[4];
-   Bool_t     k4fold;
+   Double_t sbase[2];
+   Double_t abase[2];
+   Double_t thresh[2];
+   Double_t uPoint[2];
+   Double_t lPoint[2];
+   Double_t lThresh[2];
+   Double_t uThresh[2];
+   Double_t slope[2];
+   Double_t tailqdc[2];
+   Double_t ratio[2];
+   Double_t leadqdc[2];
+   Double_t dpoint[2];
+   UInt_t   size[2];
+   Bool_t   k2fold;
+   Double_t ypos[2];
+   Double_t xpos[2];
    ////////////////////////////////
 
-   TGraphErrors *fTraces[4];
-   TF1 *fpol3[4];
-   TF1 *fpol2[4];
-   TF1 *fpol1[4];
+   TGraphErrors *fTraces[2];
+   TF1 *fpol3[2];
+   TF1 *fpol2[2];
+   TF1 *fpol1[2];
 
-   cfdTimingClass(TTree *tree=0);
-   virtual ~cfdTimingClass();
+   pspmtClass(TTree *tree=0);
+   virtual ~pspmtClass();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
@@ -158,19 +135,19 @@ public :
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
    virtual void     Plot(Long64_t entry = -1, Bool_t kDraw = kFALSE);
-   virtual void     DigitalCFD(Long64_t entry = -1, Double_t fraction=0.4, Int_t delay=2, Bool_t kDraw = kFALSE);
    virtual void     PolyCFD(Long64_t entry = -1);
    virtual void     PolyCFDDraw(Long64_t entry = -1, Double_t frac = 0.45, Int_t Chan = 0);
-   virtual void     PolyScan(Long64_t nentries=1000, Int_t chan1=2, Int_t chan2=3);
+   virtual void     PolyScan(Long64_t nentries=1000, Int_t chan1=0, Int_t chan2=1);
    virtual void   QDCcalc(vector <UInt_t> *dTrace, int chan, Double_t cfdpos, Double_t baseline);
    virtual Double_t   CalcBaseline(vector <UInt_t> *dTrace, UInt_t initialpos,UInt_t finalpos);
+   virtual void     CalcPosition(int chan=0);
 
 };
 
 #endif
 
-#ifdef cfdTimingClass_cxx
-cfdTimingClass::cfdTimingClass(TTree *tree) : fChain(0) 
+#ifdef pspmtClass_cxx
+pspmtClass::pspmtClass(TTree *tree) : fChain(0) 
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -186,7 +163,7 @@ cfdTimingClass::cfdTimingClass(TTree *tree) : fChain(0)
 
 
    char fName[200];
-   for (int iI=0;iI<4;iI++){
+   for (int iI=0;iI<2;iI++){
     sprintf(fName,"f3%d",iI);
     fTraces[iI] = new TGraphErrors();
     fpol3[iI] = new TF1(fName,"pol3",0,1);
@@ -198,12 +175,12 @@ cfdTimingClass::cfdTimingClass(TTree *tree) : fChain(0)
 
 }
 
-cfdTimingClass::~cfdTimingClass()
+pspmtClass::~pspmtClass()
 {
    if (!fChain) return;
    delete fChain->GetCurrentFile();
 
-   for (int iD=0;iD<4;iD++){
+   for (int iD=0;iD<2;iD++){
    delete fTraces[iD];
    delete fpol3[iD];
    delete fpol2[iD];
@@ -211,18 +188,18 @@ cfdTimingClass::~cfdTimingClass()
    }
 }
 
-Int_t cfdTimingClass::GetEntry(Long64_t entry)
+Int_t pspmtClass::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
    if (!fChain) return 0;
    fChain->GetEntry(entry);
-    size[0]=trace_start1->size();
-    size[1]=trace_start2->size();
-    size[2]=trace_stop1->size();
-    size[3]=trace_stop2->size();
+    size[0]=trace_left_dynode->size();
+    size[1]=trace_right_dynode->size();
+//    size[2]=trace_stop1->size();
+//    size[3]=trace_stop2->size();
    return 1; 
 }
-Long64_t cfdTimingClass::LoadTree(Long64_t entry)
+Long64_t pspmtClass::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
    if (!fChain) return -5;
@@ -235,7 +212,7 @@ Long64_t cfdTimingClass::LoadTree(Long64_t entry)
    return centry;
 }
 
-void cfdTimingClass::Init(TTree *tree)
+void pspmtClass::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -246,30 +223,26 @@ void cfdTimingClass::Init(TTree *tree)
    // (once per file to be processed).
 
    // Set object pointer
-   trace_start1 = 0;
-   trace_start2 = 0;
-   trace_stop1 = 0;
-   trace_stop2 = 0;
+   trace_left_dynode = 0;
+   trace_right_dynode = 0;
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
    fCurrent = -1;
    fChain->SetMakeClass(1);
 
-   fChain->SetBranchAddress("start1", &start1_qdc, &b_start1);
-   fChain->SetBranchAddress("stop1", &stop1_qdc, &b_stop1);
-   fChain->SetBranchAddress("start2", &start2_qdc, &b_start2);
-   fChain->SetBranchAddress("stop2", &stop2_qdc, &b_stop2);
-   fChain->SetBranchAddress("trace_start1", &trace_start1, &b_trace_start1);
-   fChain->SetBranchAddress("trace_start2", &trace_start2, &b_trace_start2);
-   fChain->SetBranchAddress("trace_stop1", &trace_stop1, &b_trace_stop1);
-   fChain->SetBranchAddress("trace_stop2", &trace_stop2, &b_trace_stop2);
-   fChain->SetBranchAddress("StartTimeStamp[2]", StartTimeStamp, &b_StartTimestamp);
-   fChain->SetBranchAddress("StopTimeStamp[2]", StopTimeStamp, &b_StopTimestamp);
-   fChain->SetBranchAddress("StartMaximum[2]", StartMaximum, &b_StartMax);
-   fChain->SetBranchAddress("StopTimeMaximum[2]", StopTimeMaximum, &b_StopMax);
-   fChain->SetBranchAddress("StartChiSq", &StartChiSq, &b_StartChi);
-   fChain->SetBranchAddress("StopChiSq", &StopChiSq, &b_StopChi);
+   fChain->SetBranchAddress("left_time", &left_time_qdc, &b_left_time);
+   fChain->SetBranchAddress("right_time", &right_time_qdc, &b_right_time);
+   fChain->SetBranchAddress("left_qdc[4]", left_qdc, &b_left_qdc);
+   fChain->SetBranchAddress("right_qdc[4]", right_qdc, &b_right_qdc);
+   fChain->SetBranchAddress("left_max[4]", left_max, &b_left_max);
+   fChain->SetBranchAddress("right_max[4]", right_max, &b_right_max);
+   fChain->SetBranchAddress("nLeft", &nLeft, &b_nLeft);
+   fChain->SetBranchAddress("nRight", &nRight, &b_nRight);
+   fChain->SetBranchAddress("leftTimeStamp", &leftTimeStamp, &b_left_timeS);
+   fChain->SetBranchAddress("rightTimeStamp", &rightTimeStamp, &b_right_timeS);
+   fChain->SetBranchAddress("trace_left_dynode", &trace_left_dynode, &b_trace_left_dynode);
+   fChain->SetBranchAddress("trace_right_dynode", &trace_right_dynode, &b_trace_right_dynode);
    SetSamplingRate(4.0);
    SetFraction(0.45);
    SetCCDelay(10);
@@ -277,7 +250,7 @@ void cfdTimingClass::Init(TTree *tree)
    Notify();
 }
 
-Bool_t cfdTimingClass::Notify()
+Bool_t pspmtClass::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -288,14 +261,14 @@ Bool_t cfdTimingClass::Notify()
    return kTRUE;
 }
 
-void cfdTimingClass::Show(Long64_t entry)
+void pspmtClass::Show(Long64_t entry)
 {
 // Print contents of entry.
 // If entry is not specified, print current entry
    if (!fChain) return;
    fChain->Show(entry);
 }
-Int_t cfdTimingClass::Cut(Long64_t entry)
+Int_t pspmtClass::Cut(Long64_t entry)
 {
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
@@ -303,64 +276,54 @@ Int_t cfdTimingClass::Cut(Long64_t entry)
    return 1;
 }
 
-void cfdTimingClass::Plot(Long64_t entry,Bool_t kDraw){
+void pspmtClass::Plot(Long64_t entry,Bool_t kDraw){
 
   GetEntry(entry);
 
-  const UInt_t size0=trace_start1->size();
-  const UInt_t size1=trace_start2->size();
-  const UInt_t size2=trace_stop1->size();
-  const UInt_t size3=trace_stop2->size();
-
-  /* cout<<"Size "<<size0<<endl;  */
-  /* cout<<"Size "<<size1<<endl;  */
-  /* cout<<"Size "<<size2<<endl;  */
-  /* cout<<"Size "<<size3<<endl;  */
-  
-  for(Int_t j=0;j<4;j++){
+  for(Int_t j=0;j<2;j++){
     fTraces[j]->Set(0); 
   }
 
-  if(size0!=0){
-    for(UInt_t j=0;j<size0;j++){
-      fTraces[0]->SetPoint(j,j,trace_start1->at(j));
-      fTraces[0]->SetPointError(j,0,start1_sbase);
+  if(size[0]!=0){
+    for(UInt_t j=0;j<size[0];j++){
+      fTraces[0]->SetPoint(j,j,trace_left_dynode->at(j));
+      fTraces[0]->SetPointError(j,0,left_time_sbase);
     }
   }
-  if(size1!=0){
-    for(UInt_t j=0;j<size1;j++){
-     fTraces[1]->SetPoint(j,j,trace_start2->at(j));
-      fTraces[1]->SetPointError(j,0,start2_sbase);
+  if(size[1]!=0){
+    for(UInt_t j=0;j<size[1];j++){
+     fTraces[1]->SetPoint(j,j,trace_right_dynode->at(j));
+      fTraces[1]->SetPointError(j,0,right_time_sbase);
     }
   }
-  if(size2!=0){
-    for(UInt_t j=0;j<size2;j++){
-      fTraces[2]->SetPoint(j,j,trace_stop1->at(j));
-      fTraces[2]->SetPointError(j,0,stop1_sbase);
-    }
-  }
-  if(size3!=0){
-    for(UInt_t j=0;j<size3;j++){
-     fTraces[3]->SetPoint(j,j,trace_stop2->at(j));
-      fTraces[3]->SetPointError(j,0,stop2_sbase);
-    }
-  }
+//  if(size2!=0){
+//    for(UInt_t j=0;j<size2;j++){
+//      fTraces[2]->SetPoint(j,j,trace_stop1->at(j));
+//      fTraces[2]->SetPointError(j,0,stop1_sbase);
+//    }
+//  }
+//  if(size3!=0){
+//    for(UInt_t j=0;j<size3;j++){
+//     fTraces[3]->SetPoint(j,j,trace_stop2->at(j));
+//      fTraces[3]->SetPointError(j,0,stop2_sbase);
+//    }
+//  }
+//
 
-
-  if(size0==0&&size1==0&&size0==0&&size3==0) return ;
+  if(size[0]==0&&size[1]==0) return ;
   else if(kDraw){
           TCanvas *c;
       if(!gPad){
 	c=new TCanvas();
-	c->Divide(2,2); 
+	c->Divide(1,2); 
       }
       else{
 	//  c=(TCanvas*)gPad;
 	c=gPad->GetCanvas();
 	c->Clear();
-	c->Divide(2,2);     
+	c->Divide(1,2);     
       }
-      for(Int_t i=0;i<4;i++){
+      for(Int_t i=0;i<2;i++){
 	c->cd(i+1);   
 	if(fTraces[i]){
 	  fTraces[i]->Draw("AL*");
@@ -373,124 +336,18 @@ void cfdTimingClass::Plot(Long64_t entry,Bool_t kDraw){
   return;
  }
 
-void cfdTimingClass::DigitalCFD(Long64_t entry,Double_t fraction, Int_t delay, Bool_t kDraw){
 
-
-    GetEntry(entry);
-    
-    TGraph *g[4];
-    TGraph *gCFD[4];
-
-//    Double_t baseline[4]={start1_abase,start2_abase,stop1_abase,stop2_abase};
-   Double_t T_max[4] = {start1_amp,start2_amp,stop1_amp,stop2_amp};
-   Double_t T_qdc[4] = {start1_qdc,start2_qdc,stop1_qdc,stop2_qdc};
-   Double_t T_time[4] = {StartTimeStamp[0],StartTimeStamp[1],StopTimeStamp[0],StopTimeStamp[1]};
-   Double_t T_sbase[4] = {start1_sbase,start2_sbase,stop1_sbase,stop2_sbase};
-   Double_t T_abase[4] = {start1_abase,start2_abase,stop1_abase,stop2_abase};
-
-    UInt_t size[4];
-    size[0]=trace_start1->size();
-    size[1]=trace_start2->size();
-    size[2]=trace_stop1->size();
-    size[3]=trace_stop2->size();
-                                 
-    std::vector<double> *cfd=new std::vector<double>();
-    std::vector <unsigned int>*trace;
-    int diff=0;
-    
-    //cout << size[0] << " " << size[1] << " " << size[2] << " " << size[3]<< endl;
-    for (int iT=0; iT<4; iT++){
-    if (size[iT]==0){
-//          cout<< "No Trace for " << iT << endl; 
-          phase[iT]=-9999;
-          continue;}
-    else {
-      g[iT]=new TGraph();
-      gCFD[iT]=new TGraph();
-      switch(iT){
-      case 0:
-	trace = trace_start1;
-	break;
-      case 1:
-	trace = trace_start2;
-	break;
-      case 2:
-	trace = trace_stop1;
-	break;
-      case 3:
-	trace = trace_stop2;
-	break;
-      default:
-	break;
-      }
-      Double_t minimum=9999;
-      Double_t maximum=-9999;
-      Int_t minimumX=0;
-      Int_t maximumX=0;
-      //cout<<"iT is "<<iT<<endl;
-      for (unsigned int i = 0; i < trace->size() - delay; i++){
-        cfd->push_back(fraction * (double)trace->at(i) - (double)trace->at(i + delay));
-	if(cfd->at(i)>maximum){
-	  maximum=cfd->at(i);
-	  maximumX=i;
-	}
-	if(cfd->at(i)<minimum){
-	  minimum=cfd->at(i);
-	  minimumX=i;
-	}
-	gCFD[iT]->SetPoint(i,i,cfd->at(i));
-	g[iT]->SetPoint(i,i,trace->at(i));
-      }
-      TF1 fun("fun","pol1", minimumX+1,maximumX-1);
-      TF1 fun2("fun2","pol0",0,minimumX-10);
-      gCFD[iT]->Fit(&fun,"RQ");    
-      gCFD[iT]->Fit(&fun2,"RQ+");
-      phase[iT]= (fun2.GetParameter(0)-fun.GetParameter(0))/fun.GetParameter(1);
-     // cout<<iT<<" phase: "<< phase[iT]<< "\t";
-      cfd->clear();
-    }
-     //cout << endl;
-
-    Pmax[iT] = T_max[iT];
-    qdc[iT] = T_qdc[iT];
-    abase[iT] = T_abase[iT];
-    sbase[iT] = T_sbase[iT];
-    time[iT] = T_time[iT]+phase[iT]*fSamplingRate;
-
-    }//end for loop
-    if(kDraw){
-      TCanvas *c=new TCanvas();
-      c->Divide(2,2);
-      for(Int_t j=2;j<4;j++){
-	c->cd(j+1);
-	if(g[j])
-	  g[j]->Draw("AL*");
-	if(gCFD[j]){
-	  gCFD[j]->SetLineColor(4);
-	  gCFD[j]->SetMarkerColor(4);
-	  gCFD[j]->Draw("AL*");
-	}
-	//gPad->WaitPrimitive();
-      }
-    }
-}
-
-void cfdTimingClass::PolyCFDDraw(Long64_t entry, Double_t frac, Int_t Chan){
+void pspmtClass::PolyCFDDraw(Long64_t entry, Double_t frac, Int_t Chan){
 
 // GetEntry(entry);
    Plot(entry, kFALSE);
 
-   Double_t T_max[4] = {start1_amp,start2_amp,stop1_amp,stop2_amp};
-   Double_t T_qdc[4] = {start1_qdc,start2_qdc,stop1_qdc,stop2_qdc};
-   Double_t T_time[4] = {StartTimeStamp[0],StartTimeStamp[1],StopTimeStamp[0],StopTimeStamp[1]};
-   Double_t T_sbase[4] = {start1_sbase,start2_sbase,stop1_sbase,stop2_sbase};
-   Double_t T_abase[4] = {start1_abase,start2_abase,stop1_abase,stop2_abase};
+   Double_t T_max[2] =   {left_time_amp,right_time_amp};
+   Double_t T_qdc[2] =   {left_time_qdc,right_time_qdc};
+   Double_t T_time[2] =  {leftTimeStamp,rightTimeStamp};
+   Double_t T_sbase[2] = {left_time_sbase,right_time_sbase};
+   Double_t T_abase[2] = {left_time_abase,right_time_abase};
 
-//    UInt_t size[4];
-//    size[0]=trace_start1->size();
-//    size[1]=trace_start2->size();
-//    size[2]=trace_stop1->size();
-//    size[3]=trace_stop2->size();
 
 //  TCanvas *c1 = new TCanvas();   
 //  c1->Divide(2,2);
@@ -505,33 +362,33 @@ void cfdTimingClass::PolyCFDDraw(Long64_t entry, Double_t frac, Int_t Chan){
   UInt_t max_position=0;
   switch(m){
   case 0:
-    if(trace_start1->size()!=0){
-      it=max_element(trace_start1->begin(),trace_start1->end());
-      max_position=distance(trace_start1->begin(),it);
-      trace = trace_start1;
+    if(trace_left_dynode->size()!=0){
+      it=max_element(trace_left_dynode->begin(),trace_left_dynode->end());
+      max_position=distance(trace_left_dynode->begin(),it);
+      trace = trace_left_dynode;
     }
     break;
   case 1:
-    if(trace_start2->size()!=0){
-      it=max_element(trace_start2->begin(),trace_start2->end());
-      max_position=distance(trace_start2->begin(),it);
-      trace = trace_start2;
+    if(trace_right_dynode->size()!=0){
+      it=max_element(trace_right_dynode->begin(),trace_right_dynode->end());
+      max_position=distance(trace_right_dynode->begin(),it);
+      trace = trace_right_dynode;
     }
     break;
-  case 2:
-    if(trace_stop1->size()!=0){
-      it=max_element(trace_stop1->begin(),trace_stop1->end());
-      max_position=distance(trace_stop1->begin(),it);
-      trace = trace_stop1;
-    }
-    break;
-  case 3:
-    if(trace_stop2->size()!=0){
-      it=max_element(trace_stop2->begin(),trace_stop2->end());
-      max_position=distance(trace_stop2->begin(),it);
-      trace = trace_stop2;
-    }
-    break;
+//  case 2:
+//    if(trace_stop1->size()!=0){
+//      it=max_element(trace_stop1->begin(),trace_stop1->end());
+//      max_position=distance(trace_stop1->begin(),it);
+//      trace = trace_stop1;
+//    }
+//    break;
+//  case 3:
+//    if(trace_stop2->size()!=0){
+//      it=max_element(trace_stop2->begin(),trace_stop2->end());
+//      max_position=distance(trace_stop2->begin(),it);
+//      trace = trace_stop2;
+//    }
+//    break;
   default:
     break;
   }
@@ -564,6 +421,7 @@ void cfdTimingClass::PolyCFDDraw(Long64_t entry, Double_t frac, Int_t Chan){
      points.first = ip-1; points.second =ip;}   //set pixie points around thresh
      lThresh[m] = trace->at(ip-1);
      uThresh[m] = trace->at(ip);
+
     }
 //   fpol2[m]->SetRange(points.first,points.second+1);
 //   fTraces[m]->Fit(fpol2[m],"RNQSW");
@@ -572,6 +430,7 @@ void cfdTimingClass::PolyCFDDraw(Long64_t entry, Double_t frac, Int_t Chan){
    fpol1[m]->SetLineColor(kMagenta);
    fTraces[m]->Fit(fpol1[m],"RQSW+");  // fit 1st order poly
    phase[m] = fpol1[m]->GetX(thresh[m],points.first,points.second);  // Get high resolution phase from 1st order poly
+   QDCcalc(trace,m,phase[m],base);
    fTraces[m]->GetXaxis()->SetRangeUser(30,100);
    l1->SetLineColor(kRed);
    l1->DrawLine(phase[m],base,phase[m],Fmax[m]); 
@@ -585,56 +444,54 @@ void cfdTimingClass::PolyCFDDraw(Long64_t entry, Double_t frac, Int_t Chan){
 
 }
 
-void cfdTimingClass::PolyCFD(Long64_t entry){
+void pspmtClass::PolyCFD(Long64_t entry){
    k4fold = false;
 // GetEntry(entry);
    Plot(entry, kFALSE);
 
-   Double_t T_max[4] = {start1_amp,start2_amp,stop1_amp,stop2_amp};
-   Double_t T_qdc[4] = {start1_qdc,start2_qdc,stop1_qdc,stop2_qdc};
-   Double_t T_time[4] = {StartTimeStamp[0],StartTimeStamp[1],StopTimeStamp[0],StopTimeStamp[1]};
-   Double_t T_sbase[4] = {start1_sbase,start2_sbase,stop1_sbase,stop2_sbase};
-   Double_t T_abase[4] = {start1_abase,start2_abase,stop1_abase,stop2_abase};
+   Double_t T_max[2] =   {left_time_amp,right_time_amp};
+   Double_t T_qdc[2] =   {left_time_qdc,right_time_qdc};
+   Double_t T_time[2] =  {leftTimeStamp,rightTimeStamp};
+   Double_t T_sbase[2] = {left_time_sbase,right_time_sbase};
+   Double_t T_abase[2] = {left_time_abase,right_time_abase};
 
-//    UInt_t size[4];
-
-    int nTraces = 0;
+   int nTraces = 0;
    std::pair <UInt_t,UInt_t> points;
   Double_t base;
- for (int m=0;m<4;m++){
+ for (int m=0;m<2;m++){
   
   vector <UInt_t> *trace;
   vector <UInt_t>::iterator it;
   UInt_t max_position=0;
   switch(m){
   case 0:
-    if(trace_start1->size()!=0){
-      it=max_element(trace_start1->begin(),trace_start1->end());
-      max_position=distance(trace_start1->begin(),it);
-      trace = trace_start1;
+    if(trace_left_dynode->size()!=0){
+      it=max_element(trace_left_dynode->begin(),trace_left_dynode->end());
+      max_position=distance(trace_left_dynode->begin(),it);
+      trace = trace_left_dynode;
     }
     break;
   case 1:
-    if(trace_start2->size()!=0){
-      it=max_element(trace_start2->begin(),trace_start2->end());
-      max_position=distance(trace_start2->begin(),it);
-      trace = trace_start2;
+    if(trace_right_dynode->size()!=0){
+      it=max_element(trace_right_dynode->begin(),trace_right_dynode->end());
+      max_position=distance(trace_right_dynode->begin(),it);
+      trace = trace_right_dynode;
     }
     break;
-  case 2:
-    if(trace_stop1->size()!=0){
-      it=max_element(trace_stop1->begin(),trace_stop1->end());
-      max_position=distance(trace_stop1->begin(),it);
-      trace = trace_stop1;
-    }
-    break;
-  case 3:
-    if(trace_stop2->size()!=0){
-      it=max_element(trace_stop2->begin(),trace_stop2->end());
-      max_position=distance(trace_stop2->begin(),it);
-      trace = trace_stop2;
-    }
-    break;
+//  case 2:
+//    if(trace_stop1->size()!=0){
+//      it=max_element(trace_stop1->begin(),trace_stop1->end());
+//      max_position=distance(trace_stop1->begin(),it);
+//      trace = trace_stop1;
+//    }
+//    break;
+//  case 3:
+//    if(trace_stop2->size()!=0){
+//      it=max_element(trace_stop2->begin(),trace_stop2->end());
+//      max_position=distance(trace_stop2->begin(),it);
+//      trace = trace_stop2;
+//    }
+//    break;
   default:
     break;
   }
@@ -642,7 +499,7 @@ void cfdTimingClass::PolyCFD(Long64_t entry){
  if(fTraces[m]->GetN()>0){
 //   if (m==1) {SetCCDelay(50);SetQDCwin(250);}
 //   else {SetCCDelay(10);SetQDCwin(50);}
-   
+ 
    nTraces++;
    std::pair <Double_t,Double_t> range((max_position-2),(max_position+2));   /// Set range for finding the absolute maximum around the peak
    fpol3[m]->SetRange(range.first,range.second);
@@ -678,7 +535,7 @@ void cfdTimingClass::PolyCFD(Long64_t entry){
    lPoint[m] = points.first;
    uPoint[m] = points.second;
   // slope[m] = fpol1[m]->GetParameter(1)/4.0;  //find slope of the 1st order poly fit
-
+   CalcPosition(m);
    if (max_position > 20 && max_position < size[m]/2 && phase[m] > 20 && phase[m]<size[m]/2){ 
       dpoint[m] = trace->at(max_position+11);
       abase[m] = base;
@@ -714,7 +571,7 @@ void cfdTimingClass::PolyCFD(Long64_t entry){
  return;
 }
 
-void cfdTimingClass::QDCcalc(vector <UInt_t> *dTrace, int chan, Double_t cfdpos, Double_t baseline){
+void pspmtClass::QDCcalc(vector <UInt_t> *dTrace, int chan, Double_t cfdpos, Double_t baseline){
  qdc[chan]=0;
  tailqdc[chan]=0;
  leadqdc[chan]=0;
@@ -736,7 +593,7 @@ void cfdTimingClass::QDCcalc(vector <UInt_t> *dTrace, int chan, Double_t cfdpos,
 // }
 }
 
-Double_t cfdTimingClass:: CalcBaseline(vector <UInt_t> *dTrace, UInt_t initialpos,UInt_t finalpos){
+Double_t pspmtClass::CalcBaseline(vector <UInt_t> *dTrace, UInt_t initialpos,UInt_t finalpos){
   Double_t Baseline=0;
   Int_t count=0;
   for (int i =  initialpos; i < (int)finalpos; i++){
@@ -748,4 +605,21 @@ Double_t cfdTimingClass:: CalcBaseline(vector <UInt_t> *dTrace, UInt_t initialpo
   return Baseline;
 }
 
-#endif // #ifdef cfdTimingClass_cxx
+void pspmtClass::CalcPosition(int chan){
+  
+  switch(chan){
+  case(0):
+  ypos[chan] = (Double_t)(left_qdc[1]+left_qdc[2]-left_qdc[0]-left_qdc[3])/(left_qdc[1]+left_qdc[2]+left_qdc[0]+left_qdc[3]);
+  xpos[chan] = (Double_t)(left_qdc[3]+left_qdc[2]-left_qdc[0]-left_qdc[1])/(left_qdc[1]+left_qdc[2]+left_qdc[0]+left_qdc[3]);
+  break;
+  case(1):
+  ypos[chan] = (Double_t)(right_qdc[1]+right_qdc[2]-right_qdc[0]-right_qdc[3])/(right_qdc[1]+right_qdc[2]+right_qdc[0]+right_qdc[3]);
+  xpos[chan] = (Double_t)(right_qdc[3]+right_qdc[2]-right_qdc[0]-right_qdc[1])/(right_qdc[1]+right_qdc[2]+right_qdc[0]+right_qdc[3]);
+  break; 
+  default:
+  break;
+   }
+}
+
+
+#endif // #ifdef pspmtClass_cxx

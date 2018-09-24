@@ -37,16 +37,7 @@ using namespace dammIds::experiment;
 
 //Array of vectors to store the traces of the PSMPMT: [0] dynodes [1-4] anodes
 static vector <UInt_t> trace_left_dynode;
-static vector <UInt_t> trace_left_anode_1;
-static vector <UInt_t> trace_left_anode_2;
-static vector <UInt_t> trace_left_anode_3;
-static vector <UInt_t> trace_left_anode_4;
 static vector <UInt_t> trace_right_dynode;
-static vector <UInt_t> trace_right_anode_1;
-static vector <UInt_t> trace_right_anode_2;
-static vector <UInt_t> trace_right_anode_3;
-static vector <UInt_t> trace_right_anode_4;
-
 
 TraceDump_PSPMT::TraceDump_PSPMT() :
         EventProcessor(OFFSET, RANGE, "TraceDump_PSPMT") {
@@ -66,18 +57,16 @@ TraceDump_PSPMT::TraceDump_PSPMT() :
     proottree_ = new TTree("PSPMT", "");
     proottree_->Branch("left_time", &ldynode,"qdc/D:amp/D:snr:abase:sbase:id/b");
     proottree_->Branch("right_time", &rdynode,"qdc/D:amp/D:snr:abase:sbase:id/b");
+    proottree_->Branch("left_qdc[4]", &left_qdc,"left_qdc[4]/I");
+    proottree_->Branch("right_qdc[4]", &right_qdc,"right_qdc[4]/I");
+    proottree_->Branch("left_max[4]", &left_max,"left_max[4]/I");
+    proottree_->Branch("right_max[4]", &right_max,"right_max[4]/I");
+    proottree_->Branch("nLeft",&nLeft,"nLeft/i");
+    proottree_->Branch("nRight",&nRight,"nRight/i");
     proottree_->Branch("leftTimeStamp",&leftTimeStamp,"left_timeS/D");
     proottree_->Branch("rightTimeStamp",&rightTimeStamp,"right_timeS/D");
     proottree_->Branch("trace_left_dynode",&trace_left_dynode);
-    proottree_->Branch("trace_left_anode_1",&trace_left_anode_1);
-    proottree_->Branch("trace_left_anode_2",&trace_left_anode_2);
-    proottree_->Branch("trace_left_anode_3",&trace_left_anode_2);
-    proottree_->Branch("trace_left_anode_4",&trace_left_anode_4);
     proottree_->Branch("trace_right_dynode",&trace_right_dynode);
-    proottree_->Branch("trace_right_anode_1",&trace_right_anode_1);
-    proottree_->Branch("trace_right_anode_2",&trace_right_anode_2);
-    proottree_->Branch("trace_right_anode_3",&trace_right_anode_3);
-    proottree_->Branch("trace_right_anode_4",&trace_right_anode_4);
    codes = new TH1I("codes", "", 40, 0, 40);
 
     std::cout<<"TraceDump_PSPMT::TraceDump_PSPMT()->done"<<std::endl;
@@ -110,16 +99,16 @@ bool TraceDump_PSPMT::Process(RawEvent &event) {
     static const vector<ChanEvent *> &right_anode =event.GetSummary("pspmt:anode_right")->GetList();
 
 
-    std::cout<<"TraceDump_PSPMT::Process()"<<std::endl;
-    std::cout<<"left_dynode-> "<<left_dynode.size()<<std::endl;
-    std::cout<<"right_dynode-> "<<right_dynode.size()<<std::endl;
-    std::cout<<"left_anode-> "<<left_anode.size()<<std::endl;
-    std::cout<<"right_anode-> "<<right_anode.size()<<std::endl;
-
-
+//    std::cout<<"TraceDump_PSPMT::Process()"<<std::endl;
+//    std::cout<<"left_dynode-> "<<left_dynode.size()<<std::endl;
+//    std::cout<<"right_dynode-> "<<right_dynode.size()<<std::endl;
+//    std::cout<<"left_anode-> "<<left_anode.size()<<std::endl;
+//    std::cout<<"right_anode-> "<<right_anode.size()<<std::endl;
+   nLeft = left_anode.size();
+   nRight = right_anode.size();
  
     //Get the dynodes
-   if(left_dynode.size()>0)
+  if(left_dynode.size()>0)
      trace_left_dynode=left_dynode.front()->GetTrace();
   if(right_dynode.size()>0)
      trace_right_dynode=right_dynode.front()->GetTrace();
@@ -127,37 +116,43 @@ bool TraceDump_PSPMT::Process(RawEvent &event) {
     //Loop on left anodes
     for (vector<ChanEvent *>::const_iterator itLeft_anode = left_anode.begin();
          itLeft_anode != left_anode.end(); itLeft_anode++) {
-      if((*itLeft_anode)->GetChanID().HasTag("v1") && trace_left_anode_1.size()==0){
-	 trace_left_anode_1=(*itLeft_anode)->GetTrace();
+      if((*itLeft_anode)->GetChanID().HasTag("v1") ){
+	 left_qdc[0] = (*itLeft_anode)->GetTrace().GetQdc();
+         left_max[0] = (*itLeft_anode)->GetTrace().GetMaxInfo().second;
       }
-      if((*itLeft_anode)->GetChanID().HasTag("v2") && trace_left_anode_2.size()==0){
-	 trace_left_anode_2=(*itLeft_anode)->GetTrace();
+      if((*itLeft_anode)->GetChanID().HasTag("v2") ){
+	 left_qdc[1] = (*itLeft_anode)->GetTrace().GetQdc();
+         left_max[1] = (*itLeft_anode)->GetTrace().GetMaxInfo().second;
       }
-      if((*itLeft_anode)->GetChanID().HasTag("v3") && trace_left_anode_3.size()==0){
-	 trace_left_anode_3=(*itLeft_anode)->GetTrace();
+      if((*itLeft_anode)->GetChanID().HasTag("v3") ){
+	 left_qdc[2] = (*itLeft_anode)->GetTrace().GetQdc();
+         left_max[2] = (*itLeft_anode)->GetTrace().GetMaxInfo().second;
       }
-      if((*itLeft_anode)->GetChanID().HasTag("v4") && trace_left_anode_4.size()==0){
-	 trace_left_anode_4=(*itLeft_anode)->GetTrace();
+      if((*itLeft_anode)->GetChanID().HasTag("v4") ){
+	 left_qdc[3] = (*itLeft_anode)->GetTrace().GetQdc();
+         left_max[3] = (*itLeft_anode)->GetTrace().GetMaxInfo().second;
       }
-
     }
     
     //Loop on right anodes
      for (vector<ChanEvent *>::const_iterator itRight_anode = right_anode.begin();
          itRight_anode != right_anode.end(); itRight_anode++) {
-      if((*itRight_anode)->GetChanID().HasTag("v1") && trace_right_anode_1.size()==0){
-	 trace_right_anode_1=(*itRight_anode)->GetTrace();
+      if((*itRight_anode)->GetChanID().HasTag("v1") ){
+	 right_qdc[0] = (*itRight_anode)->GetTrace().GetQdc();
+         right_max[0] = (*itRight_anode)->GetTrace().GetMaxInfo().second;
       }
-      if((*itRight_anode)->GetChanID().HasTag("v2") && trace_right_anode_2.size()==0){
-	 trace_right_anode_2=(*itRight_anode)->GetTrace();
+      if((*itRight_anode)->GetChanID().HasTag("v2") ){
+	 right_qdc[1] = (*itRight_anode)->GetTrace().GetQdc();
+         right_max[1] = (*itRight_anode)->GetTrace().GetMaxInfo().second;
       }
-      if((*itRight_anode)->GetChanID().HasTag("v3") && trace_right_anode_3.size()==0){
-	 trace_right_anode_3=(*itRight_anode)->GetTrace();
+      if((*itRight_anode)->GetChanID().HasTag("v3") ){
+	 right_qdc[2] = (*itRight_anode)->GetTrace().GetQdc();
+         right_max[2] = (*itRight_anode)->GetTrace().GetMaxInfo().second;
       }
-      if((*itRight_anode)->GetChanID().HasTag("v4") && trace_right_anode_4.size()==0){
-	 trace_right_anode_4=(*itRight_anode)->GetTrace();
+      if((*itRight_anode)->GetChanID().HasTag("v4") ){
+	 right_qdc[3] = (*itRight_anode)->GetTrace().GetQdc();
+         right_max[3] = (*itRight_anode)->GetTrace().GetMaxInfo().second;
       }
-
    }
 
 
@@ -189,30 +184,26 @@ bool TraceDump_PSPMT::Process(RawEvent &event) {
     else
       bright=false;
     
-   if (bleft ||bright) { //DPL: Should be &&!!
+   if (bleft || bright) { //DPL: Should be &&!!
 
      proottree_->Fill();
 
      if(bleft){
       left->ZeroRootStructure(ldynode);
-      leftTimeStamp=-999;
+      leftTimeStamp=-9999;
+      nLeft = 0;
+      for (int i=0; i<4; i++){left_qdc[i]=0; left_max[i]=0;}
      }
      if(bright){
        right->ZeroRootStructure(rdynode);
-       rightTimeStamp=-999;
+       rightTimeStamp=-9999;
+      nRight = 0;
+      for (int i=0; i<4; i++){right_qdc[i]=0; right_max[i]=0;}
      }
-   } // if (bstart1||bstart2||bstop1||bstop2) 
+   } 
 
      trace_left_dynode.clear();
-     trace_left_anode_1.clear();
-     trace_left_anode_2.clear();
-     trace_left_anode_3.clear();
-     trace_left_anode_4.clear();
      trace_right_dynode.clear();
-     trace_right_anode_1.clear();
-     trace_right_anode_2.clear();
-     trace_right_anode_3.clear();
-     trace_right_anode_4.clear();
     
    EndProcess();
    //std::cout<<"********************************"<<std::endl;
