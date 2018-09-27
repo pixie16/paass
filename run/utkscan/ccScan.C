@@ -1,20 +1,20 @@
 void ccScan(){
   const int nFiles = 14;
   const char *filenames[nFiles] = {
-"Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_16ns.root",
-"Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_24ns.root",
-"Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_32ns.root",
-"Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_40ns.root",
-"Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_48ns.root",
-"Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_56ns.root",
-"Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_64ns.root",
-"Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_72ns.root",
-"Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_80ns.root",
-"Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_88ns.root",
-"Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_96ns.root",
-"Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_104ns.root",
-"Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_112ns.root",
-"Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_120ns.root",
+"root_files/Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_16ns.root",
+"root_files/Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_24ns.root",
+"root_files/Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_32ns.root",
+"root_files/Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_40ns.root",
+"root_files/Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_48ns.root",
+"root_files/Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_56ns.root",
+"root_files/Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_64ns.root",
+"root_files/Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_72ns.root",
+"root_files/Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_80ns.root",
+"root_files/Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_88ns.root",
+"root_files/Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_96ns.root",
+"root_files/Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_104ns.root",
+"root_files/Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_112ns.root",
+"root_files/Output_Pterphenyl-2squares_Cf252_gammablock_PMT_CCM_120ns.root",
  };
 
 

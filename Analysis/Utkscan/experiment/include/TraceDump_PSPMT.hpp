@@ -39,8 +39,10 @@ private:
       UInt_t left_max[4];
       UInt_t right_max[4];
       int nLeft,nRight;
-      Double_t leftTimeStamp;
-      Double_t rightTimeStamp;
+      Double_t leftStartTimeStamp;
+      Double_t rightStartTimeStamp;
+      Double_t leftStopTimeStamp;
+      Double_t rightStopTimeStamp;
 
 #ifdef useroot
     /** Method to setup the ROOT output, tree and histograms */

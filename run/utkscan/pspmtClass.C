@@ -31,7 +31,6 @@ void pspmtClass::Loop(Long64_t nentries, const Char_t *filename)
 //    fChain->GetEntry(jentry);       //read all branches
 //by  b_branchname->GetEntry(ientry); //read only this branch
    if (fChain == 0) return;
-
    TFile *outputFile;
    if(!filename)
      outputFile=new TFile("Output.root","RECREATE");
@@ -39,29 +38,31 @@ void pspmtClass::Loop(Long64_t nentries, const Char_t *filename)
      outputFile=new TFile(filename,"RECREATE");
    TTree *outTree = new TTree("T","Output Tree");
    outTree->Branch("event",&event,"event/l");
-   outTree->Branch("phase[2]",&phase,"phase[2]/D");
-   outTree->Branch("Pmax[2]",&Pmax,"Pmax[2]/D");
-   outTree->Branch("Fmax[2]",&Fmax,"Fmax[2]/D");
-   outTree->Branch("time[2]",&time,"time[2]/D");
-   outTree->Branch("Pixietime[2]",&Pixietime,"Pixietime[2]/D");
+   outTree->Branch("phase[4]",&phase,"phase[4]/D");
+   outTree->Branch("Pmax[4]",&Pmax,"Pmax[4]/D");
+   outTree->Branch("Fmax[4]",&Fmax,"Fmax[4]/D");
+   outTree->Branch("time[4]",&time,"time[4]/D");
+   outTree->Branch("Pixietime[4]",&Pixietime,"Pixietime[4]/D");
    outTree->Branch("ToF",&ToF,"ToF/D");
-   outTree->Branch("qdc[2]",&qdc,"qdc[2]/D");
-   outTree->Branch("leadqdc[2]",&leadqdc,"leadqdc[2]/D");
-   outTree->Branch("sbase[2]",&sbase,"sbase[2]/D");
-   outTree->Branch("abase[2]",&abase,"abase[2]/D");
-   outTree->Branch("thresh[2]",&thresh,"thresh[2]/D");
-   outTree->Branch("uPoint[2]",&uPoint,"uPoint[2]/D");
-   outTree->Branch("lPoint[2]",&lPoint,"lPoint[2]/D");
-   outTree->Branch("uThresh[2]",&uThresh,"uThresh[2]/D");
-   outTree->Branch("lThresh[2]",&lThresh,"lThresh[2]/D");
-   outTree->Branch("tailqdc[2]",&tailqdc,"tailqdc[2]/D");
-   outTree->Branch("ratio[2]",&ratio,"ratio[2]/D");
-   outTree->Branch("slope[2]",&slope,"slope[2]/D");
-   outTree->Branch("dpoint[2]",&dpoint,"dpoint[2]/D");
+   outTree->Branch("qdc[4]",&qdc,"qdc[4]/D");
+   outTree->Branch("leadqdc[4]",&leadqdc,"leadqdc[4]/D");
+   outTree->Branch("sbase[4]",&sbase,"sbase[4]/D");
+   outTree->Branch("abase[4]",&abase,"abase[4]/D");
+   outTree->Branch("thresh[4]",&thresh,"thresh[4]/D");
+   outTree->Branch("uPoint[4]",&uPoint,"uPoint[4]/D");
+   outTree->Branch("lPoint[4]",&lPoint,"lPoint[4]/D");
+   outTree->Branch("uThresh[4]",&uThresh,"uThresh[4]/D");
+   outTree->Branch("lThresh[4]",&lThresh,"lThresh[4]/D");
+   outTree->Branch("tailqdc[4]",&tailqdc,"tailqdc[4]/D");
+   outTree->Branch("ratio[4]",&ratio,"ratio[4]/D");
+   outTree->Branch("slope[4]",&slope,"slope[4]/D");
+   outTree->Branch("dpoint[4]",&dpoint,"dpoint[4]/D");
    outTree->Branch("ypos[2]",&ypos,"ypos[2]/D");
    outTree->Branch("xpos[2]",&xpos,"xpos[2]/D");
    outTree->Branch("nLeft",&nLeft,"nLeft/I");
    outTree->Branch("nRight",&nRight,"nRight/I");
+   outTree->Branch("left_qdc[4]",&left_qdc,"left_qdc[4]/I");
+   outTree->Branch("right_qdc[4]",&right_qdc,"right_qdc[4]/I");
    outTree->Branch("k4fold",&k4fold,"k4fold/O");
 
 //   outTree->Branch("points",&points);
@@ -76,6 +77,7 @@ void pspmtClass::Loop(Long64_t nentries, const Char_t *filename)
 //      nb = fChain->GetEntry(jentry);   nbytes += nb;
       // if (Cut(ientry) < 0) continue;
       PolyCFD(jentry);
+      event=jentry;
     outTree->Fill();
    }
    cout<<endl;
@@ -154,7 +156,7 @@ for (int i=0; i<totN; i++){
  if (i<nN){
   entry = nlist->GetEntry(i);
   GetEntry(entry);
-  for (int k=0; k<size[chan]; k++){
+  for (int k=0; k<(int)size[chan]; k++){
    double val = (trace_right_dynode->at(k)-6600.)/65355.0;
    fprintf(f1,"%e, %f, ",(double)k*4e-9,val);
    }
@@ -163,7 +165,7 @@ for (int i=0; i<totN; i++){
   else if(i>=nN&&i<totN){
   entry = glist->GetEntry(i-nN);
   GetEntry(entry);
-  for (int k=0; k<size[chan]; k++){
+  for (int k=0; k<(int)size[chan]; k++){
    double val = (trace_right_dynode->at(k)-6600.)/65355.0;
    fprintf(f2,"%e, %f, ",(double)k*4e-9,val);
    }

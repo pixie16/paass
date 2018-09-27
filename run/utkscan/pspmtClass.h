@@ -38,45 +38,66 @@ public :
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
    // Declaration of leaf types
-   Double_t        left_time_qdc;
-   Double_t        left_time_amp;
-   Double_t        left_time_snr;
-   Double_t        left_time_abase;
-   Double_t        left_time_sbase;
-   UChar_t         left_time_id;
-   Double_t        right_time_qdc;
-   Double_t        right_time_amp;
-   Double_t        right_time_snr;
-   Double_t        right_time_abase;
-   Double_t        right_time_sbase;
-   UChar_t         right_time_id;
+   Double_t        left_start_time_qdc;
+   Double_t        left_start_time_amp;
+   Double_t        left_start_time_snr;
+   Double_t        left_start_time_abase;
+   Double_t        left_start_time_sbase;
+   UChar_t         left_start_time_id;
+   Double_t        right_start_time_qdc;
+   Double_t        right_start_time_amp;
+   Double_t        right_start_time_snr;
+   Double_t        right_start_time_abase;
+   Double_t        right_start_time_sbase;
+   UChar_t         right_start_time_id;
+   Double_t        left_stop_time_qdc;
+   Double_t        left_stop_time_amp;
+   Double_t        left_stop_time_snr;
+   Double_t        left_stop_time_abase;
+   Double_t        left_stop_time_sbase;
+   UChar_t         left_stop_time_id;
+   Double_t        right_stop_time_qdc;
+   Double_t        right_stop_time_amp;
+   Double_t        right_stop_time_snr;
+   Double_t        right_stop_time_abase;
+   Double_t        right_stop_time_sbase;
+   UChar_t         right_stop_time_id;
    Int_t           left_qdc[4];
    Int_t           right_qdc[4];
    Int_t           left_max[4];
    Int_t           right_max[4];
    UInt_t          nLeft;
    UInt_t          nRight;
-   Double_t        leftTimeStamp;
-   Double_t        rightTimeStamp;
+   Double_t        leftStartTimeStamp;
+   Double_t        rightStartTimeStamp;
+   Double_t        leftStopTimeStamp;
+   Double_t        rightStopTimeStamp;
    vector<unsigned int> *trace_left_dynode;
    vector<unsigned int> *trace_right_dynode;
+   vector<unsigned int> *trace_left_beta;
+   vector<unsigned int> *trace_right_beta;
 
    // List of branches
-   TBranch        *b_left_time;   //!
-   TBranch        *b_right_time;   //!
+   TBranch        *b_left_start_time;   //!
+   TBranch        *b_right_start_time;   //!
+   TBranch        *b_left_stop_time;   //!
+   TBranch        *b_right_stop_time;   //!
    TBranch        *b_left_qdc;   //!
    TBranch        *b_right_qdc;   //!
    TBranch        *b_left_max;   //!
    TBranch        *b_right_max;   //!
    TBranch        *b_nLeft;   //!
    TBranch        *b_nRight;   //!
-   TBranch        *b_left_timeS;   //!
-   TBranch        *b_right_timeS;   //!
+   TBranch        *b_left_starttimeS;   //!
+   TBranch        *b_right_starttimeS;   //!
+   TBranch        *b_left_stoptimeS;   //!
+   TBranch        *b_right_stoptimeS;   //!
    TBranch        *b_trace_left_dynode;   //!
    TBranch        *b_trace_right_dynode;   //!
+   TBranch        *b_trace_left_beta;   //!
+   TBranch        *b_trace_right_beta;   //!
 
    //Parameters
-   Bool_t k4fold;
    Double_t fFraction;
    Double_t fSamplingRate;
    Int_t fDelay;
@@ -93,36 +114,36 @@ public :
    void SetQDCwin(Int_t QDCwin){fQDCwin = QDCwin;}
 
    ///////////// Variable to Save
-   ULong64_t event;
-   Double_t phase[2];
-   Double_t Pmax[2];
-   Double_t Fmax[2];
-   Double_t qdc[2];
-   Double_t time[2];
-   Double_t Pixietime[2];
+   Long64_t event;
+   Double_t phase[4];
+   Double_t Pmax[4];
+   Double_t Fmax[4];
+   Double_t qdc[4];
+   Double_t time[4];
+   Double_t Pixietime[4];
    Double_t ToF;
-   Double_t sbase[2];
-   Double_t abase[2];
-   Double_t thresh[2];
-   Double_t uPoint[2];
-   Double_t lPoint[2];
-   Double_t lThresh[2];
-   Double_t uThresh[2];
-   Double_t slope[2];
-   Double_t tailqdc[2];
-   Double_t ratio[2];
-   Double_t leadqdc[2];
-   Double_t dpoint[2];
-   UInt_t   size[2];
-   Bool_t   k2fold;
+   Double_t sbase[4];
+   Double_t abase[4];
+   Double_t thresh[4];
+   Double_t uPoint[4];
+   Double_t lPoint[4];
+   Double_t lThresh[4];
+   Double_t uThresh[4];
+   Double_t slope[4];
+   Double_t tailqdc[4];
+   Double_t ratio[4];
+   Double_t leadqdc[4];
+   Double_t dpoint[4];
+   UInt_t   size[4];
+   Bool_t   k4fold;
    Double_t ypos[2];
    Double_t xpos[2];
    ////////////////////////////////
 
-   TGraphErrors *fTraces[2];
-   TF1 *fpol3[2];
-   TF1 *fpol2[2];
-   TF1 *fpol1[2];
+   TGraphErrors *fTraces[4];
+   TF1 *fpol3[4];
+   TF1 *fpol2[4];
+   TF1 *fpol1[4];
 
    pspmtClass(TTree *tree=0);
    virtual ~pspmtClass();
@@ -163,7 +184,7 @@ pspmtClass::pspmtClass(TTree *tree) : fChain(0)
 
 
    char fName[200];
-   for (int iI=0;iI<2;iI++){
+   for (int iI=0;iI<4;iI++){
     sprintf(fName,"f3%d",iI);
     fTraces[iI] = new TGraphErrors();
     fpol3[iI] = new TF1(fName,"pol3",0,1);
@@ -180,7 +201,7 @@ pspmtClass::~pspmtClass()
    if (!fChain) return;
    delete fChain->GetCurrentFile();
 
-   for (int iD=0;iD<2;iD++){
+   for (int iD=0;iD<4;iD++){
    delete fTraces[iD];
    delete fpol3[iD];
    delete fpol2[iD];
@@ -193,10 +214,10 @@ Int_t pspmtClass::GetEntry(Long64_t entry)
 // Read contents of entry.
    if (!fChain) return 0;
    fChain->GetEntry(entry);
-    size[0]=trace_left_dynode->size();
-    size[1]=trace_right_dynode->size();
-//    size[2]=trace_stop1->size();
-//    size[3]=trace_stop2->size();
+    size[2]=trace_left_dynode->size();
+    size[3]=trace_right_dynode->size();
+    size[0]=trace_left_beta->size();
+    size[1]=trace_right_beta->size();
    return 1; 
 }
 Long64_t pspmtClass::LoadTree(Long64_t entry)
@@ -223,6 +244,8 @@ void pspmtClass::Init(TTree *tree)
    // (once per file to be processed).
 
    // Set object pointer
+   trace_left_beta = 0;
+   trace_right_beta = 0;
    trace_left_dynode = 0;
    trace_right_dynode = 0;
    // Set branch addresses and branch pointers
@@ -231,21 +254,27 @@ void pspmtClass::Init(TTree *tree)
    fCurrent = -1;
    fChain->SetMakeClass(1);
 
-   fChain->SetBranchAddress("left_time", &left_time_qdc, &b_left_time);
-   fChain->SetBranchAddress("right_time", &right_time_qdc, &b_right_time);
+   fChain->SetBranchAddress("left_start_time", &left_start_time_qdc, &b_left_start_time);
+   fChain->SetBranchAddress("right_start_time", &right_start_time_qdc, &b_right_start_time);
+   fChain->SetBranchAddress("left_stop_time", &left_stop_time_qdc, &b_left_stop_time);
+   fChain->SetBranchAddress("right_stop_time", &right_stop_time_qdc, &b_right_stop_time);
    fChain->SetBranchAddress("left_qdc[4]", left_qdc, &b_left_qdc);
    fChain->SetBranchAddress("right_qdc[4]", right_qdc, &b_right_qdc);
    fChain->SetBranchAddress("left_max[4]", left_max, &b_left_max);
    fChain->SetBranchAddress("right_max[4]", right_max, &b_right_max);
    fChain->SetBranchAddress("nLeft", &nLeft, &b_nLeft);
    fChain->SetBranchAddress("nRight", &nRight, &b_nRight);
-   fChain->SetBranchAddress("leftTimeStamp", &leftTimeStamp, &b_left_timeS);
-   fChain->SetBranchAddress("rightTimeStamp", &rightTimeStamp, &b_right_timeS);
+   fChain->SetBranchAddress("leftStartTimeStamp", &leftStartTimeStamp, &b_left_starttimeS);
+   fChain->SetBranchAddress("rightStartTimeStamp", &rightStartTimeStamp, &b_right_starttimeS);
+   fChain->SetBranchAddress("leftStopTimeStamp", &leftStopTimeStamp, &b_left_stoptimeS);
+   fChain->SetBranchAddress("rightStopTimeStamp", &rightStopTimeStamp, &b_right_stoptimeS);
    fChain->SetBranchAddress("trace_left_dynode", &trace_left_dynode, &b_trace_left_dynode);
    fChain->SetBranchAddress("trace_right_dynode", &trace_right_dynode, &b_trace_right_dynode);
+   fChain->SetBranchAddress("trace_left_beta", &trace_left_beta, &b_trace_left_beta);
+   fChain->SetBranchAddress("trace_right_beta", &trace_right_beta, &b_trace_right_beta);
    SetSamplingRate(4.0);
    SetFraction(0.45);
-   SetCCDelay(10);
+   SetCCDelay(7);
    SetQDCwin(50);
    Notify();
 }
@@ -280,50 +309,49 @@ void pspmtClass::Plot(Long64_t entry,Bool_t kDraw){
 
   GetEntry(entry);
 
-  for(Int_t j=0;j<2;j++){
+  for(Int_t j=0;j<4;j++){
     fTraces[j]->Set(0); 
   }
 
   if(size[0]!=0){
     for(UInt_t j=0;j<size[0];j++){
-      fTraces[0]->SetPoint(j,j,trace_left_dynode->at(j));
-      fTraces[0]->SetPointError(j,0,left_time_sbase);
+      fTraces[0]->SetPoint(j,j,trace_left_beta->at(j));
+      fTraces[0]->SetPointError(j,0,left_start_time_sbase);
     }
   }
   if(size[1]!=0){
     for(UInt_t j=0;j<size[1];j++){
-     fTraces[1]->SetPoint(j,j,trace_right_dynode->at(j));
-      fTraces[1]->SetPointError(j,0,right_time_sbase);
+     fTraces[1]->SetPoint(j,j,trace_right_beta->at(j));
+      fTraces[1]->SetPointError(j,0,right_start_time_sbase);
     }
   }
-//  if(size2!=0){
-//    for(UInt_t j=0;j<size2;j++){
-//      fTraces[2]->SetPoint(j,j,trace_stop1->at(j));
-//      fTraces[2]->SetPointError(j,0,stop1_sbase);
-//    }
-//  }
-//  if(size3!=0){
-//    for(UInt_t j=0;j<size3;j++){
-//     fTraces[3]->SetPoint(j,j,trace_stop2->at(j));
-//      fTraces[3]->SetPointError(j,0,stop2_sbase);
-//    }
-//  }
-//
+  if(size[2]!=0){
+    for(UInt_t j=0;j<size[2];j++){
+      fTraces[2]->SetPoint(j,j,trace_left_dynode->at(j));
+      fTraces[2]->SetPointError(j,0,left_stop_time_sbase);
+    }
+  }
+  if(size[3]!=0){
+    for(UInt_t j=0;j<size[3];j++){
+     fTraces[3]->SetPoint(j,j,trace_right_dynode->at(j));
+      fTraces[3]->SetPointError(j,0,right_stop_time_sbase);
+    }
+  }
 
-  if(size[0]==0&&size[1]==0) return ;
+  if(size[0]==0&&size[1]==0&&size[2]==0&&size[3]==0) return ;
   else if(kDraw){
           TCanvas *c;
       if(!gPad){
 	c=new TCanvas();
-	c->Divide(1,2); 
+	c->Divide(2,2); 
       }
       else{
 	//  c=(TCanvas*)gPad;
 	c=gPad->GetCanvas();
 	c->Clear();
-	c->Divide(1,2);     
+	c->Divide(2,2);     
       }
-      for(Int_t i=0;i<2;i++){
+      for(Int_t i=0;i<4;i++){
 	c->cd(i+1);   
 	if(fTraces[i]){
 	  fTraces[i]->Draw("AL*");
@@ -342,11 +370,11 @@ void pspmtClass::PolyCFDDraw(Long64_t entry, Double_t frac, Int_t Chan){
 // GetEntry(entry);
    Plot(entry, kFALSE);
 
-   Double_t T_max[2] =   {left_time_amp,right_time_amp};
-   Double_t T_qdc[2] =   {left_time_qdc,right_time_qdc};
-   Double_t T_time[2] =  {leftTimeStamp,rightTimeStamp};
-   Double_t T_sbase[2] = {left_time_sbase,right_time_sbase};
-   Double_t T_abase[2] = {left_time_abase,right_time_abase};
+   Double_t T_max[4] =   {left_start_time_amp,right_start_time_amp,left_stop_time_amp,right_stop_time_amp};
+   Double_t T_qdc[4] =   {left_start_time_qdc,right_start_time_qdc,left_stop_time_qdc,right_stop_time_qdc};
+   Double_t T_sbase[4] = {left_start_time_sbase,right_start_time_sbase,left_stop_time_sbase,right_stop_time_sbase};
+   Double_t T_abase[4] = {left_start_time_abase,right_start_time_abase,left_stop_time_abase,right_stop_time_abase};
+   Double_t T_time[4] =  {leftStartTimeStamp,rightStartTimeStamp,leftStopTimeStamp,rightStopTimeStamp};
 
 
 //  TCanvas *c1 = new TCanvas();   
@@ -362,33 +390,33 @@ void pspmtClass::PolyCFDDraw(Long64_t entry, Double_t frac, Int_t Chan){
   UInt_t max_position=0;
   switch(m){
   case 0:
+    if(trace_left_beta->size()!=0){
+      it=max_element(trace_left_beta->begin(),trace_left_beta->end());
+      max_position=distance(trace_left_beta->begin(),it);
+      trace = trace_left_beta;
+    }
+    break;
+  case 1:
+    if(trace_right_beta->size()!=0){
+      it=max_element(trace_right_beta->begin(),trace_right_beta->end());
+      max_position=distance(trace_right_beta->begin(),it);
+      trace = trace_right_beta;
+    }
+    break;
+  case 2:
     if(trace_left_dynode->size()!=0){
       it=max_element(trace_left_dynode->begin(),trace_left_dynode->end());
       max_position=distance(trace_left_dynode->begin(),it);
       trace = trace_left_dynode;
     }
     break;
-  case 1:
+  case 3:
     if(trace_right_dynode->size()!=0){
       it=max_element(trace_right_dynode->begin(),trace_right_dynode->end());
       max_position=distance(trace_right_dynode->begin(),it);
       trace = trace_right_dynode;
     }
     break;
-//  case 2:
-//    if(trace_stop1->size()!=0){
-//      it=max_element(trace_stop1->begin(),trace_stop1->end());
-//      max_position=distance(trace_stop1->begin(),it);
-//      trace = trace_stop1;
-//    }
-//    break;
-//  case 3:
-//    if(trace_stop2->size()!=0){
-//      it=max_element(trace_stop2->begin(),trace_stop2->end());
-//      max_position=distance(trace_stop2->begin(),it);
-//      trace = trace_stop2;
-//    }
-//    break;
   default:
     break;
   }
@@ -400,7 +428,7 @@ void pspmtClass::PolyCFDDraw(Long64_t entry, Double_t frac, Int_t Chan){
    fTraces[m]->GetListOfFunctions()->Clear();
    l1 = new TLine();
    l2 = new TLine();
-   std::pair <Double_t,Double_t> range((max_position-2),(max_position+2));   /// Set range for finding the absolute maximum around the peak
+   std::pair <Double_t,Double_t> range((max_position-1),(max_position+2));   /// Set range for finding the absolute maximum around the peak
    fpol3[m]->SetRange(range.first,range.second);
    fpol3[m]->SetLineColor(kGreen);
    fTraces[m]->Fit(fpol3[m],"RQSW+");    // Fit 3rd order poly
@@ -449,49 +477,49 @@ void pspmtClass::PolyCFD(Long64_t entry){
 // GetEntry(entry);
    Plot(entry, kFALSE);
 
-   Double_t T_max[2] =   {left_time_amp,right_time_amp};
-   Double_t T_qdc[2] =   {left_time_qdc,right_time_qdc};
-   Double_t T_time[2] =  {leftTimeStamp,rightTimeStamp};
-   Double_t T_sbase[2] = {left_time_sbase,right_time_sbase};
-   Double_t T_abase[2] = {left_time_abase,right_time_abase};
+   Double_t T_max[4] =   {left_start_time_amp,right_start_time_amp,left_stop_time_amp,right_stop_time_amp};
+   Double_t T_qdc[4] =   {left_start_time_qdc,right_start_time_qdc,left_stop_time_qdc,right_stop_time_qdc};
+   Double_t T_sbase[4] = {left_start_time_sbase,right_start_time_sbase,left_stop_time_sbase,right_stop_time_sbase};
+   Double_t T_abase[4] = {left_start_time_abase,right_start_time_abase,left_stop_time_abase,right_stop_time_abase};
+   Double_t T_time[4] =  {leftStartTimeStamp,rightStartTimeStamp,leftStopTimeStamp,rightStopTimeStamp};
 
    int nTraces = 0;
    std::pair <UInt_t,UInt_t> points;
   Double_t base;
- for (int m=0;m<2;m++){
+ for (int m=0;m<4;m++){
   
   vector <UInt_t> *trace;
   vector <UInt_t>::iterator it;
   UInt_t max_position=0;
   switch(m){
   case 0:
+    if(trace_left_beta->size()!=0){
+      it=max_element(trace_left_beta->begin(),trace_left_beta->end());
+      max_position=distance(trace_left_beta->begin(),it);
+      trace = trace_left_beta;
+    }
+    break;
+  case 1:
+    if(trace_right_beta->size()!=0){
+      it=max_element(trace_right_beta->begin(),trace_right_beta->end());
+      max_position=distance(trace_right_beta->begin(),it);
+      trace = trace_right_beta;
+    }
+    break;
+  case 2:
     if(trace_left_dynode->size()!=0){
       it=max_element(trace_left_dynode->begin(),trace_left_dynode->end());
       max_position=distance(trace_left_dynode->begin(),it);
       trace = trace_left_dynode;
     }
     break;
-  case 1:
+  case 3:
     if(trace_right_dynode->size()!=0){
       it=max_element(trace_right_dynode->begin(),trace_right_dynode->end());
       max_position=distance(trace_right_dynode->begin(),it);
       trace = trace_right_dynode;
     }
     break;
-//  case 2:
-//    if(trace_stop1->size()!=0){
-//      it=max_element(trace_stop1->begin(),trace_stop1->end());
-//      max_position=distance(trace_stop1->begin(),it);
-//      trace = trace_stop1;
-//    }
-//    break;
-//  case 3:
-//    if(trace_stop2->size()!=0){
-//      it=max_element(trace_stop2->begin(),trace_stop2->end());
-//      max_position=distance(trace_stop2->begin(),it);
-//      trace = trace_stop2;
-//    }
-//    break;
   default:
     break;
   }
@@ -501,7 +529,7 @@ void pspmtClass::PolyCFD(Long64_t entry){
 //   else {SetCCDelay(10);SetQDCwin(50);}
  
    nTraces++;
-   std::pair <Double_t,Double_t> range((max_position-2),(max_position+2));   /// Set range for finding the absolute maximum around the peak
+   std::pair <Double_t,Double_t> range((max_position-1),(max_position+2));   /// Set range for finding the absolute maximum around the peak
    fpol3[m]->SetRange(range.first,range.second);
    fTraces[m]->Fit(fpol3[m],"RNQSW");    // Fit 3rd order poly
    Fmax[m] = fpol3[m]->GetMaximum(range.first,range.second); //extract fit maximum
@@ -566,7 +594,7 @@ void pspmtClass::PolyCFD(Long64_t entry){
     }
  }
  UInt_t *p; p = std::find (size, size+4, 0);
- if (p == size+4) k4fold = true;
+ if (p == size+4){ k4fold = true; ToF = (time[2]+time[3])/2.0-(time[1]+time[0])/2.0;}
 
  return;
 }
@@ -608,13 +636,13 @@ Double_t pspmtClass::CalcBaseline(vector <UInt_t> *dTrace, UInt_t initialpos,UIn
 void pspmtClass::CalcPosition(int chan){
   
   switch(chan){
-  case(0):
-  ypos[chan] = (Double_t)(left_qdc[1]+left_qdc[2]-left_qdc[0]-left_qdc[3])/(left_qdc[1]+left_qdc[2]+left_qdc[0]+left_qdc[3]);
-  xpos[chan] = (Double_t)(left_qdc[3]+left_qdc[2]-left_qdc[0]-left_qdc[1])/(left_qdc[1]+left_qdc[2]+left_qdc[0]+left_qdc[3]);
+  case(2):
+  ypos[chan-2] = (Double_t)(left_qdc[1]+left_qdc[2]-left_qdc[0]-left_qdc[3])/(left_qdc[1]+left_qdc[2]+left_qdc[0]+left_qdc[3]);
+  xpos[chan-2] = (Double_t)(left_qdc[3]+left_qdc[2]-left_qdc[0]-left_qdc[1])/(left_qdc[1]+left_qdc[2]+left_qdc[0]+left_qdc[3]);
   break;
-  case(1):
-  ypos[chan] = (Double_t)(right_qdc[1]+right_qdc[2]-right_qdc[0]-right_qdc[3])/(right_qdc[1]+right_qdc[2]+right_qdc[0]+right_qdc[3]);
-  xpos[chan] = (Double_t)(right_qdc[3]+right_qdc[2]-right_qdc[0]-right_qdc[1])/(right_qdc[1]+right_qdc[2]+right_qdc[0]+right_qdc[3]);
+  case(3):
+  ypos[chan-2] = (Double_t)(right_qdc[1]+right_qdc[2]-right_qdc[0]-right_qdc[3])/(right_qdc[1]+right_qdc[2]+right_qdc[0]+right_qdc[3]);
+  xpos[chan-2] = (Double_t)(right_qdc[0]+right_qdc[1]-right_qdc[2]-right_qdc[3])/(right_qdc[1]+right_qdc[2]+right_qdc[0]+right_qdc[3]);
   break; 
   default:
   break;
