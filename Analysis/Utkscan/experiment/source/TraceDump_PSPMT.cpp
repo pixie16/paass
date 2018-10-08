@@ -129,7 +129,10 @@ bool TraceDump_PSPMT::Process(RawEvent &event) {
   if(right_dynode.size()>0)
      trace_right_dynode=right_dynode.front()->GetTrace();
 
-   if (left_beta.size()>0 && right_beta.size()>0 && left_dynode.size()>0 && right_dynode.size()>0 && nLeft==4 && nRight==4){
+   if (left_dynode.size()>0 && right_dynode.size()>0){      											// 2 Dynode signals
+//   if (left_dynode.size()>0 && right_dynode.size()>0 && nLeft==4 && nRight==4){								// 2 Dynodes and 4 position signals
+//   if ((left_beta.size()>0 || right_beta.size()>0) && left_dynode.size()>0 && right_dynode.size()>0 && nLeft==4 && nRight==4){		// Triples (1 start && 2 stop) and 4 position signals
+//   if (left_beta.size()>0 && right_beta.size()>0 && left_dynode.size()>0 && right_dynode.size()>0){						// Quadruples (2 start && 2 stop)
     //Loop on left anodes
     for (vector<ChanEvent *>::const_iterator itLeft_anode = left_anode.begin();
          itLeft_anode != left_anode.end(); itLeft_anode++) {
@@ -223,7 +226,8 @@ bool TraceDump_PSPMT::Process(RawEvent &event) {
     else
       bright=false;
     
-   if (aleft && aright && bleft && bright) { //DPL: Should be &&!!
+   if (bleft && bright) { //DPL: Should be &&!!
+//   if (aleft && aright && bleft && bright) { //DPL: Should be &&!!
 
      proottree_->Fill();
 
