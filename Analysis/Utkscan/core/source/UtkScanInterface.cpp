@@ -40,9 +40,10 @@ bool UtkScanInterface::Initialize(string prefix_) {
     if (init_)
         return false;
 
+#ifndef USE_HRIBF
     if (GetOutputFilename() == "")
         throw invalid_argument("UtkScaninterface::Initialize : The output file name was not provided.");
-
+#endif
     try {
         cout << "UtkScanInterface::Initialize : Now attempting to load and "
                 "parse " << GetSetupFilename() << endl;

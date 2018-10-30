@@ -33,6 +33,7 @@ extern "C" void startup_() {
     // Initialize the scanner and handle command line arguments from SCANOR
     cout << "utkscan.cpp : Performing the setup routine" << endl;
     scanner->Setup(GetNumberArguments(), GetArguments(), unpacker);
+    Globals::get()->SetOutputFilename(GetArgument(1));
 
 
 }
