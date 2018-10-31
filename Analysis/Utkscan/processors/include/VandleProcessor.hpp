@@ -97,8 +97,8 @@ private:
     BarMap barStarts_;//!< A map that holds all of the bar starts
     DetectorSummary *geSummary_;//!< The Detector Summary for Ge Events
 
-    bool hasDecay_; //!< True if there was a correlated beta decay
-    double decayTime_; //!< the time of the decay
+    bool RDecay_; //!< True if there is a rough decay match (no rear veto and no plastic dE)
+
 
     double plotMult_;//!< The resolution multiplier for DAMM histograms
     double plotOffset_;//!< The offset multiplier for DAMM histograms
