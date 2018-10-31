@@ -26,6 +26,7 @@
 #include "BetaScintProcessor.hpp"
 #include "CloverCalibProcessor.hpp"
 #include "CloverProcessor.hpp"
+#include "CloverFragProcessor.hpp"
 #include "DoubleBetaProcessor.hpp"
 #include "DssdProcessor.hpp"
 #include "GammaScintProcessor.hpp"
@@ -120,7 +121,13 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
                     processor.attribute("cycle_gate1_max").as_double(0.0),
                     processor.attribute("cycle_gate2_min").as_double(0.0),
                     processor.attribute("cycle_gate2_max").as_double(0.0)));
-        } else if (name == "DoubleBetaProcessor") {
+        } else if (name == "CloverFragProcessor") {
+            vecProcess.push_back(new CloverFragProcessor(
+                    processor.attribute("gammaThresh").as_double(0.0),
+                    processor.attribute("vetoThresh").as_double(0.0),
+                    processor.attribute("ionTrigThresh").as_double(0.0),
+                    processor.attribute("betaThresh").as_double(0.0)));
+        }else if (name == "DoubleBetaProcessor") {
             vecProcess.push_back(new DoubleBetaProcessor());
         } else if (name == "DssdProcessor") {
             vecProcess.push_back(new DssdProcessor());

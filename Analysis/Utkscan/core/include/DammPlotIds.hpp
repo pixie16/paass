@@ -105,6 +105,12 @@ namespace dammIds {
         const int RANGE = 499;//!< Range for CloverProcessor
     }
 
+    ///in CloverFragProcessor.cpp
+    namespace cloverFrag {
+        const int OFFSET = 2500;//!< Offset for CloverFragProcessor
+        const int RANGE = 499;//!< Range for CloverFragProcessor
+    }
+
     ///in GeProcessor.hpp
     namespace ge {
         const int OFFSET = 2999;//!< Offset for GeProcessor

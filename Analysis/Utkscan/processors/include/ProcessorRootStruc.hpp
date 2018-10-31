@@ -14,10 +14,12 @@ namespace processor_struct {
         double qdc=0;
         int barNum=0;
         std::string barType="";
-        double tdiff=0;
-        double sTime=0; //start detector time
+        double tdiff=-999;
         unsigned int sNum =0; //start detector number
         int vMulti=0;
+        double sTime = -999;
+        double sQdc = -999;
+
     } ;
     static const VANDLES  VANDLES_DEFAULT_STRUCT;
     
@@ -31,18 +33,14 @@ namespace processor_struct {
         double Time = -999;
         double BetaGammaTDiff = -999;
         double BetaEnergy = -999;
-        double BetaMulti = -999;
         double BetaTime = -999;
         double EvtNum = -999;
         double BunchNum = -999;
         double LastBunchTime = -999;
-    
-        int NumGroup = -1; // group numbers (0-3) for small hag, 0-2 for nai.
+        int NumGroup = -1; // space groups for addback
         // REQUIRES a Type condition to separate the types
-        std::string Type = "";
-    
         int NumType = -1; //order in decreasing mass, 0 = nai, 1 = big hag, 2= small hag
-        std::string Group = "";
+
     } ;
     static const GAMMASCINT GAMMASCINT_DEFAULT_STRUCT;
     
@@ -51,35 +49,46 @@ namespace processor_struct {
         double LastCycleTime = -999;
         double Energy = -999;
         double RawEnergy =-999;
+        double BetaCloverTDiff = -999;
+        double BetaEnergy = -999;
+        double BetaTime = -999;
         int DetNum = -999;
         int CloverNum = -999;
         bool HasLowResBeta = false;
+        bool HasVeto = false;
+        bool HasIonTrig = false;
     
     };
     static const CLOVERS CLOVERS_DEFAULT_STRUCT;
     
     struct PSPMT { 
-      ///Contains both low and high gain PSPMT information
-      double xa_l = -999; 
-      double xb_l = -999; 
-      double ya_l = -999; 
-      double yb_l = -999; 
-      double xa_h = -999; 
-      double xb_h = -999; 
-      double ya_h = -999; 
-      double yb_h = -999; 
-      double dy_l = -999;
-      double dy_h = -999;
-      double dyL_time = -999;
-      double dyH_time = -999;
-      double xposL =-999;
-      double yposL =-999;
-      double xposH =-999;
-      double yposH =-999;
-      int anodeLmulti = -999;
-      int anodeHmulti = -999;
-      int dyLmulti = -999;
-      int dyHmulti = -999;
+        ///Contains both low and high gain PSPMT information
+        double xa_l = -999;
+        double xb_l = -999;
+        double ya_l = -999;
+        double yb_l = -999;
+        double xa_h = -999;
+        double xb_h = -999;
+        double ya_h = -999;
+        double yb_h = -999;
+        double dy_l = -999;
+        double dy_h = -999;
+        double dyL_time = -999;
+        double dyH_time = -999;
+        double xposL =-999;
+        double yposL =-999;
+        double xposH =-999;
+        double yposH =-999;
+        int anodeLmulti = -999;
+        int anodeHmulti = -999;
+        int dyLmulti = -999;
+        int dyHmulti = -999;
+        double vetoEn0 = -999;
+        double vetoEn1 = -999;
+        double ionTrigEn0 = -999;
+        double ionTrigEn1 = -999;
+        double ionTrigEn2 = -999;
+        double ionTrigEn3 = -999;
     };
     static const PSPMT  PSPMT_DEFAULT_STRUCT;
 }    
