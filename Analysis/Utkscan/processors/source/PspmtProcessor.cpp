@@ -26,6 +26,7 @@ namespace dammIds {
         const int DD_DYNODE_QDC = 0;
         const int DD_POS_LOW = 1;
         const int DD_POS_HIGH = 2;
+        const int DD_VETO_ENERGY = 3;
     }
 }
 
@@ -33,6 +34,7 @@ void PspmtProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_DYNODE_QDC, SD, S2, "Dynode QDC- Low gain 0, High gain 1");
     DeclareHistogram2D(DD_POS_LOW, SB, SB, "Low-gain Positions");
     DeclareHistogram2D(DD_POS_HIGH, SB, SB, "High-gain Positions");
+    DeclareHistogram2D(DD_VETO_ENERGY,SD,S3, "Plastic Energy, 0,1 = VETO, 3-6 = Ion Trigger");
 }
 
 PspmtProcessor::PspmtProcessor(const std::string &vd, const double &scale, const unsigned int &offset,
@@ -69,6 +71,8 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
     static const vector<ChanEvent *> &hiAnode = event.GetSummary("pspmt:anode_high")->GetList();
     static const vector<ChanEvent *> &lowAnode =  event.GetSummary("pspmt:anode_low")->GetList();
 
+    static const vector<ChanEvent *> &veto =  event.GetSummary("pspmt:veto")->GetList();
+    static const vector<ChanEvent *> &ionTrig=  event.GetSummary("pspmt:ion")->GetList();
 
     //Plot Dynode QDCs
     for(vector<ChanEvent *>::const_iterator it = lowDynode.begin(); it != lowDynode.end(); it++){
@@ -78,6 +82,30 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
         plot(DD_DYNODE_QDC, (*it)->GetTrace().GetQdc(), 1);
     }
 
+    int numOfVetoChans = (int)(DetectorLibrary::get()->GetLocations("pspmt","veto")).size();
+    std::map<int,double> vetoEnergys,IonTrigEnergies;
+    for (auto it = veto.begin(); it != veto.end(); it++ ){
+        int loc =  (*it)->GetChanID().GetLocation();
+
+        plot(DD_VETO_ENERGY,(*it)->GetEnergy(),loc);
+
+        if (vetoEnergys.find(loc) != vetoEnergys.end()) {
+            vetoEnergys.find(loc)->second = (*it)->GetEnergy();
+        }else {
+            vetoEnergys.emplace(loc,(*it)->GetEnergy());
+        }
+
+    }
+    for (auto it = ionTrig.begin(); it != ionTrig.end(); it++) {
+        int loc =  (*it)->GetChanID().GetLocation();
+        plot(DD_VETO_ENERGY, (*it)->GetEnergy(), loc + numOfVetoChans + 1); //max veto chan +1 for readablility
+
+        if (IonTrigEnergies.find(loc) != IonTrigEnergies.end()) {
+            IonTrigEnergies.find(loc)->second = (*it)->GetEnergy();
+        }else {
+            IonTrigEnergies.emplace(loc,(*it)->GetEnergy());
+        }
+    }
     //set up position calculation for low and high gain signals
     position_low.first = 0, position_low.second = 0;
     position_high.first = 0, position_high.second = 0;
@@ -150,14 +178,22 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
             PSstruct.dy_h = hiDynode.front()->GetCalibratedEnergy();
             PSstruct.dyH_time = hiDynode.front()->GetTimeSansCfd();
         }
-        PSstruct.anodeLmulti = lowAnode.size();
-        PSstruct.anodeHmulti = hiAnode.size();
-        PSstruct.dyLmulti = lowDynode.size();
-        PSstruct.dyHmulti = hiDynode.size();
+        PSstruct.anodeLmulti = (int) lowAnode.size();
+        PSstruct.anodeHmulti = (int) hiAnode.size();
+        PSstruct.dyLmulti = (int) lowDynode.size();
+        PSstruct.dyHmulti = (int) hiDynode.size();
         PSstruct.xposL = position_low.first;
         PSstruct.yposL = position_low.second;
         PSstruct.xposH = position_high.first;
         PSstruct.yposH = position_high.second;
+
+        PSstruct.vetoEn0 = vetoEnergys.find(0)->second;
+        PSstruct.vetoEn1 = vetoEnergys.find(1)->second;
+
+        PSstruct.ionTrigEn0 = IonTrigEnergies.find(0)->second;
+        PSstruct.ionTrigEn1 = IonTrigEnergies.find(1)->second;
+        PSstruct.ionTrigEn2 = IonTrigEnergies.find(2)->second;
+        PSstruct.ionTrigEn3 = IonTrigEnergies.find(3)->second;
 
         pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
         PSstruct = processor_struct::PSPMT_DEFAULT_STRUCT;
