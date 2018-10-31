@@ -39,6 +39,9 @@ namespace dammIds {
         const int DD_GAMMAENERGYVSTOF = 7;//!< Gamma Energy vs. ToF
         const int DD_TQDCAVEVSTOF_VETO = 8;//!< QDC vs. ToF - Vetoed
         const int DD_TOFBARS_VETO = 9;//!< ToF - Vetoed
+        const int DD_QDCTOF_DECAY = 10;//!< QDC vs. ToF rough decay gated
+        const int DD_TDIFF_DECAY = 11;//!< TDIFF rough decay gated
+        const int DD_TOFBARS_DECAY = 12;//!< Tof per bar rough decay gated
 
         const int D_DEBUGGING = 0 + DEBUGGING_OFFSET;//!< Debugging countable problems
         const int DD_DEBUGGING = 1 + DEBUGGING_OFFSET;//!< 2D Hist to count problems
@@ -73,8 +76,8 @@ void VandleProcessor::DeclarePlots(void) {
         DeclareHistogram2D(DD_TQDCBARS + offset.first, SD, S8, "Det Loc vs Trace QDC - Right Even - Left Odd");
         DeclareHistogram2D(DD_MAXIMUMBARS + offset.first, SD, S8,"Det Loc vs Maximum - Right Even - Left Odd");
         DeclareHistogram2D(DD_TIMEDIFFBARS + offset.first, SB, S6, "Bars vs. Time Differences");
-        DeclareHistogram2D(DD_TOFBARS + offset.first, SC, S8, "Bar vs. Time of Flight");
-        DeclareHistogram2D(DD_CORTOFBARS + offset.first, SC, S8, "Bar vs  Cor Time of Flight");
+        DeclareHistogram2D(DD_TOFBARS + offset.first, SC, S6, "Bar vs. Time of Flight");
+        DeclareHistogram2D(DD_CORTOFBARS + offset.first, SC, S6, "Bar vs  Cor Time of Flight");
         DeclareHistogram2D(DD_TQDCAVEVSTOF + offset.first, SC, SD, "<E> vs. TOF(0.5ns/bin)");
         DeclareHistogram2D(DD_TQDCAVEVSCORTOF + offset.first, SC, SD, "<E> vs. CorTOF(0.5ns/bin)");
         DeclareHistogram2D(DD_GAMMAENERGYVSTOF + offset.first, SC, S9, "C-ToF vs. E_gamma");
@@ -82,6 +85,10 @@ void VandleProcessor::DeclarePlots(void) {
         DeclareHistogram2D(DD_TIMEDIFFBARS + offset.second, SB, S6, "UNCALIBRATED: Bars vs. Time Differences (0.5ns/bin)");
         DeclareHistogram2D(DD_TOFBARS + offset.second, SC, S8, "UNCALIBRATED: Bar vs. Time of Flight (0.5ns/bin)");
         DeclareHistogram2D(DD_TQDCAVEVSTOF+ offset.second, SC, S8, "UNCALIBRATED: <E> vs. TOF (0.5ns/bin)");
+
+        DeclareHistogram2D(DD_QDCTOF_DECAY+offset.first,SC,SD, "<E> vs. TOF (0.5ns/bin) Rough Decay Gated ");
+        DeclareHistogram2D(DD_TOFBARS_DECAY+offset.first,SC,S6, "Bar vs. TOF (0.5ns/bin) Rough Decay Gated ");
+        DeclareHistogram2D(DD_TDIFF_DECAY+offset.first,SC,S6, "Bar vs. TDiff(0.5ns/bin) Rough Decay Gated ");
     }
 
     DeclareHistogram1D(D_DEBUGGING, S5, "1D Debugging");
@@ -130,6 +137,9 @@ bool VandleProcessor::Process(RawEvent &event) {
     static const vector<ChanEvent *> &liquidStarts = event.GetSummary("liquid:scint:start")->GetList();
     static const vector<ChanEvent *> &pspmtStarts = event.GetSummary("pspmt:dynode_high")->GetList();
 
+    static const vector<ChanEvent *> &LIonVeto =  event.GetSummary("pspmt:veto")->GetList();
+    static const vector<ChanEvent *> &IondE=  event.GetSummary("pspmt:ion")->GetList();
+
     vector<ChanEvent *> startEvents;
     startEvents.insert(startEvents.end(), betaStarts.begin(), betaStarts.end());
     startEvents.insert(startEvents.end(), liquidStarts.begin(), liquidStarts.end());
@@ -153,7 +163,12 @@ bool VandleProcessor::Process(RawEvent &event) {
     barStarts_ = startBars.GetBarMap();
 
     if (DetectorDriver::get()->GetSysRootOutput()){
-        vandles.vMulti = bars_.size();
+        vandles.vMulti = (int)bars_.size();
+    }
+
+    RDecay_=false;
+    if (LIonVeto.empty() && IondE.empty()){
+    RDecay_=true;
     }
 
     for (BarMap::iterator it = bars_.begin(); it != bars_.end(); it++) {
@@ -191,6 +206,8 @@ void VandleProcessor::AnalyzeBarStarts(const BarDetector &bar, unsigned int &bar
                 //Fill Root struct
                 vandles.sNum = startLoc;
                 vandles.sTime = start.GetTimeAverage();
+                vandles.sQdc = start.GetQdc();
+
                 vandles.qdc = bar.GetQdc();
                 vandles.barNum = barLoc;
                 vandles.barType = bar.GetType();
@@ -198,6 +215,7 @@ void VandleProcessor::AnalyzeBarStarts(const BarDetector &bar, unsigned int &bar
                 vandles.tof = tof;
                 vandles.corTof = corTof;
                 vandles.qdcPos = bar.GetQdcPosition();
+
                 pixie_tree_event_->vandle_vec_.emplace_back(vandles);
                 vandles = processor_struct::VANDLES_DEFAULT_STRUCT;
             }
@@ -221,8 +239,10 @@ void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc
                               ReturnOffset(bar.GetType()),caled);
             if (DetectorDriver::get()->GetSysRootOutput()){
                 //Fill Root struct
-                vandles.sNum=startLoc;
+                vandles.sNum = startLoc;
                 vandles.sTime = start.GetTimeSansCfd();
+                vandles.sQdc = start.GetTraceQdc();
+
                 vandles.qdc = bar.GetQdc();
                 vandles.barNum = barLoc;
                 vandles.barType = bar.GetType();
@@ -230,6 +250,7 @@ void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc
                 vandles.tof = tof;
                 vandles.corTof = corTof;
                 vandles.qdcPos = bar.GetQdcPosition();
+
                 pixie_tree_event_->vandle_vec_.emplace_back(vandles);
                 vandles = processor_struct::VANDLES_DEFAULT_STRUCT;
             }
@@ -240,14 +261,16 @@ void VandleProcessor::PlotTofHistograms(const double &tof, const double &cortof,
                                         const unsigned int &barPlusStartLoc,
                                         const pair<unsigned int, unsigned int>&offset ,bool &calibrated) {
 
+    //Plotting Normal Histograms
     plot(DD_TOFBARS + offset.first, tof * plotMult_ + plotOffset_, barPlusStartLoc);
     plot(DD_CORTOFBARS + offset.first, cortof * plotMult_ + plotOffset_, barPlusStartLoc);
-
     //making these histograms only plot if t cal exists. since no tcal causes strange looking behavior.
     if (calibrated) {
         plot(DD_TQDCAVEVSTOF + offset.first, tof * plotMult_ + plotOffset_, qdc / qdcComp_);
         plot(DD_TQDCAVEVSCORTOF + offset.first, cortof * plotMult_ + plotOffset_, qdc / qdcComp_);
     }
+
+
     /*Plotting the Non Time Calibrated Histograms;
     *The ones above would be the same as these when no time calibration is present in the Config.xml
      * This allows for easier timecals since we dont have to rerun the data before we can run timecal.bash
@@ -255,8 +278,15 @@ void VandleProcessor::PlotTofHistograms(const double &tof, const double &cortof,
     plot(DD_TOFBARS + offset.second, NCtof* plotMult_ + plotOffset_, barPlusStartLoc);
     plot(DD_TQDCAVEVSTOF + offset.second, NCtof* plotMult_ + plotOffset_, qdc / qdcComp_);
 
+    //Plotting Rough Decay Histograms
+    if( RDecay_){
+        plot(DD_TOFBARS_DECAY + offset.first, tof * plotMult_ + plotOffset_, barPlusStartLoc);
+        if (calibrated) //same as before, causes strange behavior when non TCal'd
+            plot(DD_QDCTOF_DECAY + offset.first, tof * plotMult_ + plotOffset_, qdc / qdcComp_);
+    }
 
 
+//Plotting OTHER historgrams
     if (geSummary_) {
         if (geSummary_->GetMult() > 0) {
             const vector<ChanEvent *> &geList = geSummary_->GetList();
@@ -284,6 +314,9 @@ void VandleProcessor::FillVandleOnlyHists(void) {
 
         plot(DD_TIMEDIFFBARS + OFFSET, (*it).second.GetTimeDifference() * plotMult_ + plotOffset_, barId.first);
         plot(DD_TIMEDIFFBARS + NOCALOFFSET, NoCalTDiff* plotMult_ + plotOffset_, barId.first);
+
+        if (RDecay_)
+            plot(DD_TDIFF_DECAY+ OFFSET, (*it).second.GetTimeDifference() * plotMult_ + plotOffset_, barId.first);
     }
 }
 
