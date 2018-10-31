@@ -523,6 +523,11 @@ bool CloverProcessor::Process(RawEvent &event) {
             continue;
         if (hasBeta) {
             plot(betaGated::D_NONCYCGATEDENERGY, gEnergy);
+            double gTime = itC->GetTimeSansCfd();
+            EventData bestBeta = BestBetaForGamma(gTime);
+            Cstruct.BetaCloverTDiff = (gTime - bestBeta.time) * clockInSeconds *1.e9;
+            Cstruct.BetaEnergy = bestBeta.energy;
+            Cstruct.BetaTime = bestBeta.time;
         }
         plot(D_NONCYCGATEDENERGY, gEnergy);
         Cstruct.RawEnergy = itC->GetEnergy();
@@ -536,7 +541,7 @@ bool CloverProcessor::Process(RawEvent &event) {
         Cstruct = processor_struct::CLOVERS_DEFAULT_STRUCT; //reset to initalized values (see ProcessorRootStruc.hpp
 
         //Dont fill because we want 1 pixie event per tree entry, so we add the current structure in the last spot
-        //on a vector<> and then reset the structure. and we will at the end or Process()
+        //on a vector<> and then reset the structure. and we will at the end of Process()
     }
 
 
