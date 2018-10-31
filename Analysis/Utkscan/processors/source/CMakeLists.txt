@@ -3,9 +3,11 @@ set(PROCESSOR_SOURCES
         BetaScintProcessor.cpp
         DoubleBetaProcessor.cpp
         CloverCalibProcessor.cpp
+        CloverFragProcessor.cpp
         CloverProcessor.cpp
         DssdProcessor.cpp
         EventProcessor.cpp
+        ExtTSSenderProcessor.cpp
         GammaScintProcessor.cpp
         GeProcessor.cpp
         Hen3Processor.cpp
@@ -21,7 +23,6 @@ set(PROCESSOR_SOURCES
         TeenyVandleProcessor.cpp
         TemplateProcessor.cpp
         VandleProcessor.cpp
-        ExtTSSenderProcessor.cpp
         )
 
 if (PAASS_USE_ROOT)
