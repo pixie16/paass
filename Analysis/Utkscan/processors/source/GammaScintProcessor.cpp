@@ -357,7 +357,6 @@ bool GammaScintProcessor::Process(RawEvent &event) {
                 Group = (*it)->GetChanID().GetTags().begin()->c_str();; //only adds the first Tag as the grouping. @TODO to be fixed for any order or # of tags
                 Gsing.NumGroup = Group.back(); //gets last character of the group string for the number
             }else {
-               Group = "N/A";
                 Gsing.NumGroup = -1; //store -1 for the group num if it isnt set
            }
             //root has issues with the strings in the PEsing Vector -> NumGroup (above )and NumType (here)
@@ -373,14 +372,11 @@ bool GammaScintProcessor::Process(RawEvent &event) {
                 Gsing.NumType = -1;
 
             Gsing.HasTrigBeta = hasTrigBeta_;
-            Gsing.Group = Group;
             Gsing.LastBunchTime = bunchLast_;
             Gsing.Energy = Genergy;
             Gsing.RawEnergy = (*it)->GetEnergy();
-            Gsing.Type = subType;
             Gsing.Time = Gtime;
             Gsing.HasLowResBeta = hasLowResBeta_;
-            Gsing.BetaMulti = BetaList.size();
             Gsing.EvtNum = evtNum_;
             Gsing.BunchNum = bunchNum_;
             Gsing.LastBunchTime = bunchLast_;

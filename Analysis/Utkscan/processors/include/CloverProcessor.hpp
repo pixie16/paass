@@ -14,7 +14,7 @@
 #include "RawEvent.hpp"
 
 namespace dammIds {
-    //! Namespace containing histogram definitions for the GE
+    //! Namespace containing histogram definitions for the Clover
     namespace clover {
         /**
         * Naming conventions:
@@ -105,7 +105,7 @@ namespace dammIds {
                 const int DD_ADD_ENERGY_PROMPT = 163;//!< beta/multi gated addback energy
             }
         }
-    } // end namespace ge
+    } // end namespace clover
 }
 
 #ifdef GGATES
