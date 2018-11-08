@@ -14,8 +14,8 @@ unset(XIA_LIBRARY_DIR CACHE)
 #Find the library path by looking for the library.
 find_path(XIA_LIBRARY_DIR
         NAMES libPixie16App.a libPixie16Sys.a
-        HINTS ${XIA_ROOT_DIR}
-        PATHS /opt/xia/current /opt/xia/software
+        HINTS ${XIA_FIRMWARE_DIR}
+        PATHS /opt/xia/current /opt/xia/software /xia_api
         PATH_SUFFIXES software
         DOC "Path to pixie library.")
 
@@ -33,6 +33,7 @@ set(XIA_FIRMWARE_DIR ${XIA_FIRMWARE_DIR} CACHE PATH "Path to folder containing X
 include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(XIA DEFAULT_MSG XIA_LIBRARY_DIR)
 
+message(STATUS "XIA_LIBRARY_DIR=${XIA_LIBRARY_DIR}")
 if (XIA_FOUND)
     set(XIA_INCLUDE_DIR ${XIA_LIBRARY_DIR}/inc ${XIA_LIBRARY_DIR}/sys ${XIA_LIBRARY_DIR}/app)
     set(XIA_LIBRARIES -lPixie16App -lPixie16Sys)
