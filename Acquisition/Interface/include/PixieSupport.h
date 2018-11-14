@@ -112,10 +112,10 @@ public:
 
     BitFlipper() {
         bit = 0;
-        num_toggle_bits = 19;
+        num_toggle_bits = 22;
     }
 
-    BitFlipper(unsigned int bit_, unsigned int num_toggle_bits_ = 19) {
+    BitFlipper(unsigned int bit_, unsigned int num_toggle_bits_ = 22) {
         bit = bit_;
         num_toggle_bits = num_toggle_bits_;
     }
