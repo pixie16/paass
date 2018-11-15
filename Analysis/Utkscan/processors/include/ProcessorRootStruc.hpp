@@ -24,43 +24,59 @@ namespace processor_struct {
     static const VANDLES  VANDLES_DEFAULT_STRUCT;
     
     struct GAMMASCINT{
-        bool HasLowResBeta = false;
-        bool HasTrigBeta =false;
-        double Energy = -999;
-        double RawEnergy = -999;
-        bool IsDynodeOut = false;
-        int DetNum = -999;
-        double Time = -999;
-        double BetaGammaTDiff = -999;
-        double BetaEnergy = -999;
-        double BetaTime = -999;
-        double EvtNum = -999;
-        double BunchNum = -999;
-        double LastBunchTime = -999;
-        int NumGroup = -1; // space groups for addback
-        // REQUIRES a Type condition to separate the types
-        int NumType = -1; //order in decreasing mass, 0 = nai, 1 = big hag, 2= small hag
+        double energy = -999;
+        double rawEnergy = -999;
+        bool isDynodeOut = false;
+        int detNum = -999;
+        double time = -999;
+        int NumGroup = -1; // spacial groups for addback
+        int NumType = -1; // REQUIRES a Type condition to separate the types; order in decreasing mass, 0 = nai, 1 = big hag, 2= small hag
 
     } ;
     static const GAMMASCINT GAMMASCINT_DEFAULT_STRUCT;
-    
-    struct CLOVERS{
-        double Time = -999;
-        double LastCycleTime = -999;
-        double Energy = -999;
-        double RawEnergy =-999;
-        double BetaCloverTDiff = -999;
-        double BetaEnergy = -999;
-        double BetaTime = -999;
-        int DetNum = -999;
-        int CloverNum = -999;
-        bool HasLowResBeta = false;
-        bool HasVeto = false;
-        bool HasIonTrig = false;
-    
+
+    struct DOUBLEBETA{
+        int detNum = -999;
+        double energy = -999;
+        double rawEnergy = -999;
+        double timeAvg = -999;
+        double timeDiff = -999;
+        double timeL = -999;
+        double timeR = -999;
+        double barQdc = -999;
+        double tMaxValL = -999;
+        double tMaxValR = -999;
+        bool isLowResBeta = false;
+        bool isHighResBeta = false;
     };
+    static const DOUBLEBETA DOUBLEBETA_DEFAULT_STRUCT;
+
+    struct CLOVERS{
+        double energy = -999;
+        double rawEnergy =-999;
+        double time = -999;
+        int detNum = -999;
+        int cloverNum = -999;
+    };
+
     static const CLOVERS CLOVERS_DEFAULT_STRUCT;
-    
+
+    struct LOGIC{
+        bool tapeCycleStatus = false;
+        bool beamStatus= false;
+        bool tapeMoving = false;
+
+        double lastTapeCycleStartTime = -999;
+        double lastBeamOnTime = -999;
+        double lastBeamOffTime = -999;
+        double lastTapeMoveStartTime = -999;
+        double lastProtonPulseTime = -999;
+        double lastSuperCycleTime = -999;
+
+        double cycleNum = -999;
+    };
+    static const LOGIC LOGIC_DEFAULT_STRUCT;
+
     struct PSPMT { 
         ///Contains both low and high gain PSPMT information
         double xa_l = -999;
@@ -89,6 +105,8 @@ namespace processor_struct {
         double ionTrigEn1 = -999;
         double ionTrigEn2 = -999;
         double ionTrigEn3 = -999;
+        bool hasVeto = false;
+        bool hasIonTrig = false;
     };
     static const PSPMT  PSPMT_DEFAULT_STRUCT;
 }    
@@ -105,9 +123,11 @@ public:
         externalTS1 = obj.externalTS1;
         externalTS2 = obj.externalTS2;
         clover_vec_ = obj.clover_vec_;
+        doublebeta_vec_ = obj.doublebeta_vec_;
         gamma_scint_vec_ = obj.gamma_scint_vec_;
-        vandle_vec_ = obj.vandle_vec_;
+        logic_vec_ = obj.logic_vec_;
         pspmt_vec_ = obj.pspmt_vec_;
+        vandle_vec_ = obj.vandle_vec_;
     }
 
     virtual ~PixTreeEvent(){}
@@ -118,18 +138,23 @@ public:
         externalTS1 = 0;
         externalTS2 = 0;
         clover_vec_.clear();
+        doublebeta_vec_.clear();
         gamma_scint_vec_.clear();
-        vandle_vec_.clear();
+        logic_vec_.clear();
         pspmt_vec_.clear();
+        vandle_vec_.clear();
+
     }
 
     /* data structures to be filled in the ROOT TTree */
     ULong64_t externalTS1 = 0;
     ULong64_t externalTS2 = 0;
     std::vector<processor_struct::CLOVERS> clover_vec_;
+    std::vector<processor_struct::DOUBLEBETA> doublebeta_vec_;
     std::vector<processor_struct::GAMMASCINT> gamma_scint_vec_;
-    std::vector<processor_struct::VANDLES> vandle_vec_;
+    std::vector<processor_struct::LOGIC> logic_vec_;
     std::vector<processor_struct::PSPMT> pspmt_vec_;
+    std::vector<processor_struct::VANDLES> vandle_vec_;
 
     ClassDef(PixTreeEvent,1)
 };

@@ -58,14 +58,17 @@ bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
     double resolution = 2;
     double offset = 1500;
 
-    for (map < unsigned int, pair < double, double > >
-                                            ::iterator it = lrtbars_.begin();
-    it != lrtbars_.end();
-    it++) {
+    for (auto it = lrtbars_.begin(); it != lrtbars_.end(); it++) {
         stringstream place;
         place << "DoubleBeta" << (*it).first;
         EventData data((*it).second.first, (*it).second.second, (*it).first);
         TreeCorrelator::get()->place(place.str())->activate(data);
+        DBstruc.isLowResBeta = true;
+        DBstruc.detNum = (*it).first;
+        DBstruc.energy = (*it).second.second;
+        DBstruc.timeAvg = (*it).second.first * Globals::get()->GetClockInSeconds() *1.0e9; //record time in ns
+        pixie_tree_event_->doublebeta_vec_.emplace_back(DBstruc);
+        DBstruc = processor_struct::DOUBLEBETA_DEFAULT_STRUCT;
     }
 
     for (BarMap::const_iterator it = bars_.begin(); it != bars_.end(); it++) {
@@ -73,16 +76,25 @@ bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
         plot(DD_QDC, (*it).second.GetLeftSide().GetTraceQdc(), barNum * 2);
         plot(DD_QDC, (*it).second.GetRightSide().GetTraceQdc(), barNum * 2 + 1);
         plot(DD_TDIFF, (*it).second.GetTimeDifference()*resolution + offset, barNum);
-        plot(DD_BETAMAXXVAL,(*it).second.GetLeftSide().GetMaximumValue(),
-             barNum*2);
-        plot(DD_BETAMAXXVAL,(*it).second.GetRightSide().GetMaximumValue(),
-             barNum*2+1);
+        plot(DD_BETAMAXXVAL,(*it).second.GetLeftSide().GetMaximumValue(),barNum*2);
+        plot(DD_BETAMAXXVAL,(*it).second.GetRightSide().GetMaximumValue(),barNum*2+1);
+
+        DBstruc.isHighResBeta = true;
+        DBstruc.detNum = barNum;
+        DBstruc.timeAvg = (*it).second.GetTimeAverage();
+        DBstruc.timeDiff = (*it).second.GetTimeDifference();
+        DBstruc.timeL = (*it).second.GetLeftSide().GetTimeSansCfd();
+        DBstruc.timeR = (*it).second.GetRightSide().GetTimeSansCfd();
+        DBstruc.barQdc = (*it).second.GetQdc();
+        DBstruc.tMaxValR = (*it).second.GetRightSide().GetMaximumValue();
+        DBstruc.tMaxValL = (*it).second.GetLeftSide().GetMaximumValue();
+        pixie_tree_event_->doublebeta_vec_.emplace_back(DBstruc);
+        DBstruc = processor_struct::DOUBLEBETA_DEFAULT_STRUCT;
+
 
         if(barNum == 0) {
-            plot(DD_PP, (*it).second.GetLeftSide().GetPhaseInNs()*resolution,
-                 (*it).second.GetRightSide().GetPhaseInNs()*resolution);
-            plot(DD_QDCTDIFF, (*it).second.GetTimeDifference()*resolution+offset,
-                 (*it).second.GetQdc());
+            plot(DD_PP, (*it).second.GetLeftSide().GetPhaseInNs()*resolution,(*it).second.GetRightSide().GetPhaseInNs()*resolution);
+            plot(DD_QDCTDIFF, (*it).second.GetTimeDifference()*resolution+offset,(*it).second.GetQdc());
         }
     }
     return (true);

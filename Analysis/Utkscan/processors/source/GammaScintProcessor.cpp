@@ -45,7 +45,7 @@ namespace dammIds {
 using namespace std;
 using namespace dammIds::gscint;
 
-GammaScintProcessor::~GammaScintProcessor(){}
+GammaScintProcessor::~GammaScintProcessor()=default;
 
 void GammaScintProcessor::DeclarePlots() {
     for(auto it= typeList_.begin(); it != typeList_.end(); it++) {
@@ -313,18 +313,14 @@ bool GammaScintProcessor::Process(RawEvent &event) {
             //loop the the "beta" events to find the current gamma event's closest beta event
             //For the ORNL2016 data the beta multiplicy is mostly 1 so this is here for completeness and
             //the possiblity of a future need.
-            for (auto it = BetaList.begin(); it != BetaList.end(); it++) {
-                double BetaTime =(*it).first * Globals::get()->GetClockInSeconds() * 1.e9;
-                double MRBtDiff =  BetaTime - Gtime;
+
+            for (auto itB = BetaList.begin(); itB != BetaList.end(); itB++) {
+                double BetaTime =(*itB).first * Globals::get()->GetClockInSeconds() * 1.e9;
+                double MRBtDiff = Gtime - BetaTime ;
                 if (MRBtDiff < 0)
                     continue;
                 else if (MRBtDiff >= 0)   {
                     hasMedResBeta_ = true;
-                    if (SysRoot_) {
-                        Gsing.BetaEnergy = (*it).second;
-                        Gsing.BetaGammaTDiff = MRBtDiff;
-                        Gsing.BetaTime = BetaTime;
-                    }
                     break;
                 }
             }// end BetaList Loop
@@ -346,11 +342,11 @@ bool GammaScintProcessor::Process(RawEvent &event) {
         }
 
         if (SysRoot_) {
-            if (((*it)->GetChanID().HasTag("dy"))) {
-                Gsing.IsDynodeOut = true;
-            } else{
-                Gsing.IsDynodeOut = false;
-            }
+
+
+            if ((*it)->GetChanID().HasTag("dy"))
+                Gsing.isDynodeOut = true;
+
             std::string Group;
             if (!(*it)->GetChanID().GetTags().empty()) {
                 //Group and NumGroup NEED protection from empty sets/strings, but this should be taken care of by the above IF()
@@ -371,16 +367,11 @@ bool GammaScintProcessor::Process(RawEvent &event) {
             else
                 Gsing.NumType = -1;
 
-            Gsing.HasTrigBeta = hasTrigBeta_;
-            Gsing.LastBunchTime = bunchLast_;
-            Gsing.Energy = Genergy;
-            Gsing.RawEnergy = (*it)->GetEnergy();
-            Gsing.Time = Gtime;
-            Gsing.HasLowResBeta = hasLowResBeta_;
-            Gsing.EvtNum = evtNum_;
-            Gsing.BunchNum = bunchNum_;
-            Gsing.LastBunchTime = bunchLast_;
-            Gsing.DetNum = (*it)->GetChanID().GetLocation();
+
+            Gsing.energy = Genergy;
+            Gsing.rawEnergy = (*it)->GetEnergy();
+            Gsing.time = Gtime;
+            Gsing.detNum = (*it)->GetChanID().GetLocation();
             pixie_tree_event_->gamma_scint_vec_.emplace_back(Gsing);
             Gsing = processor_struct::GAMMASCINT_DEFAULT_STRUCT; //reset structure
             //Dont fill because we want 1 pixie event per tree entry, so we add the current structure in the last spot
