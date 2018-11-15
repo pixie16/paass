@@ -99,6 +99,8 @@ private:
     /** Prototype for a nifty graph, currently unimplemented 
      * \param [in] event : the raw event for plotting the nifty graph */
     bool NiftyGraph(RawEvent &event);
+
+    processor_struct::LOGIC LogStruc; //root struc
 };
 
 #endif // __LOGICPROCESSOR_HPP_

@@ -43,6 +43,8 @@ public:
 private:
     BarMap bars_; //!< Map holding all the bars we found 
     std::map<unsigned int, std::pair<double, double> > lrtbars_; //!< map holding low res bars
+    processor_struct::DOUBLEBETA DBstruc; //!<Root Struct
+
 };
 
 #endif // __DOUBLEBETAPROCESSOR_HPP__
