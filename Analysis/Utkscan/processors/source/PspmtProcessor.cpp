@@ -26,7 +26,7 @@ namespace dammIds {
         const int DD_DYNODE_QDC = 0;
         const int DD_POS_LOW = 1;
         const int DD_POS_HIGH = 2;
-        const int DD_VETO_ENERGY = 3;
+        const int DD_PLASTIC_EN = 3;
     }
 }
 
@@ -34,7 +34,7 @@ void PspmtProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_DYNODE_QDC, SD, S2, "Dynode QDC- Low gain 0, High gain 1");
     DeclareHistogram2D(DD_POS_LOW, SB, SB, "Low-gain Positions");
     DeclareHistogram2D(DD_POS_HIGH, SB, SB, "High-gain Positions");
-    DeclareHistogram2D(DD_VETO_ENERGY,SD,S3, "Plastic Energy, 0,1 = VETO, 3-6 = Ion Trigger");
+    DeclareHistogram2D(DD_PLASTIC_EN,SD,S4, "Plastic Energy, 0-3 = VETO, 5-8 = Ion Trigger");
 }
 
 PspmtProcessor::PspmtProcessor(const std::string &vd, const double &scale, const unsigned int &offset,
@@ -87,23 +87,23 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
     for (auto it = veto.begin(); it != veto.end(); it++ ){
         int loc =  (*it)->GetChanID().GetLocation();
 
-        plot(DD_VETO_ENERGY,(*it)->GetEnergy(),loc);
+        plot(DD_PLASTIC_EN,(*it)->GetCalibratedEnergy(),loc);
 
         if (vetoEnergys.find(loc) != vetoEnergys.end()) {
-            vetoEnergys.find(loc)->second = (*it)->GetEnergy();
+            vetoEnergys.find(loc)->second = (*it)->GetCalibratedEnergy();
         }else {
-            vetoEnergys.emplace(loc,(*it)->GetEnergy());
+            vetoEnergys.emplace(loc,(*it)->GetCalibratedEnergy());
         }
 
     }
     for (auto it = ionTrig.begin(); it != ionTrig.end(); it++) {
         int loc =  (*it)->GetChanID().GetLocation();
-        plot(DD_VETO_ENERGY, (*it)->GetEnergy(), loc + numOfVetoChans + 1); //max veto chan +1 for readablility
+        plot(DD_PLASTIC_EN, (*it)->GetCalibratedEnergy(), loc + numOfVetoChans + 1); //max veto chan +1 for readablility
 
         if (IonTrigEnergies.find(loc) != IonTrigEnergies.end()) {
-            IonTrigEnergies.find(loc)->second = (*it)->GetEnergy();
+            IonTrigEnergies.find(loc)->second = (*it)->GetCalibratedEnergy();
         }else {
-            IonTrigEnergies.emplace(loc,(*it)->GetEnergy());
+            IonTrigEnergies.emplace(loc,(*it)->GetCalibratedEnergy());
         }
     }
     //set up position calculation for low and high gain signals
