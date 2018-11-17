@@ -51,6 +51,8 @@ public:
             return position_low;
         else if (type == "high")
             return position_high;
+        else if (type == "ion_scint")
+            return position_ion;
         else
             return std::pair<double, double>(0., 0.);
     }
@@ -64,6 +66,7 @@ private:
 
     std::pair<double, double> position_low;
     std::pair<double, double> position_high;
+    std::pair<double, double> position_ion;
 
     ///@brief A method to calculate the x position of the interaction with
     /// the scintillator
