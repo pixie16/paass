@@ -27,6 +27,9 @@ namespace dammIds {
         const int DD_POS_LOW = 1;
         const int DD_POS_HIGH = 2;
         const int DD_PLASTIC_EN = 3;
+        const int D_TRANS_EFF_YSO = 10;
+        const int DD_SEPAR_GATED_LOW = 11;
+
     }
 }
 
@@ -35,6 +38,9 @@ void PspmtProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_POS_LOW, SB, SB, "Low-gain Positions");
     DeclareHistogram2D(DD_POS_HIGH, SB, SB, "High-gain Positions");
     DeclareHistogram2D(DD_PLASTIC_EN,SD,S4, "Plastic Energy, 0-3 = VETO, 5-8 = Ion Trigger");
+    DeclareHistogram2D(DD_SEPAR_GATED_LOW, SB, SB, "Separator-gated low-gain Positions");
+    DeclareHistogram1D(D_TRANS_EFF_YSO, S2, "F11 events (0) in ion scint (1), YSO (2), and veto (3)");
+    DeclareHistogram2D(DD_SEPAR_GATED_LOW, SB, SB, "Separator-gated high-gain Positions");
 }
 
 PspmtProcessor::PspmtProcessor(const std::string &vd, const double &scale, const unsigned int &offset,
@@ -72,7 +78,9 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
     static const vector<ChanEvent *> &lowAnode =  event.GetSummary("pspmt:anode_low")->GetList();
 
     static const vector<ChanEvent *> &veto =  event.GetSummary("pspmt:veto")->GetList();
-    static const vector<ChanEvent *> &ionTrig=  event.GetSummary("pspmt:ion")->GetList();
+    static const vector<ChanEvent *> &ionTrig =  event.GetSummary("pspmt:ion")->GetList();
+    static const vector<ChanEvent *> &desi = event.GetSummary("generic:de_si")->GetList();
+    static const vector<ChanEvent *> &separatorScint = event.GetSummary("generic:f11")->GetList();
 
     //Plot Dynode QDCs
     for(vector<ChanEvent *>::const_iterator it = lowDynode.begin(); it != lowDynode.end(); it++){
@@ -106,12 +114,15 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
             IonTrigEnergies.emplace(loc,(*it)->GetCalibratedEnergy());
         }
     }
-    //set up position calculation for low and high gain signals
+    //set up position calculation for low / high gain yso signals and ion scint
     position_low.first = 0, position_low.second = 0;
     position_high.first = 0, position_high.second = 0;
     double energy = 0;
     double xa_l = 0, ya_l = 0, xb_l = 0, yb_l = 0;
     double xa_h = 0, ya_h = 0, xb_h = 0, yb_h = 0;
+    double top_l = 0, top_r = 0, bottom_l = 0, bottom_r = 0;
+    bool hasPosition_low = false, hasPosition_high = false;
+    bool hasPosition_ion = false;
 
     for(vector<ChanEvent *>::const_iterator it = lowAnode.begin(); it != lowAnode.end(); it++){
         //check signals energy vs threshold
@@ -146,7 +157,9 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
             yb_h = energy;
     }
 
+    //compute position only if all 4 signals are present
     if (xa_l > 0 && xb_l > 0 && ya_l > 0 && yb_l > 0){
+        hasPosition_low = true;
         position_low.first = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_).first;
         position_low.second  = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_).second;
         plot(DD_POS_LOW, position_low.first * positionScale_ + positionOffset_,
@@ -154,11 +167,83 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
     }
 
     if (xa_h > 0 && xb_h > 0 && ya_h > 0 && yb_h > 0){
+        hasPosition_high = true;
         position_high.first = CalculatePosition(xa_h, xb_h, ya_h, yb_h, vdtype_).first;
         position_high.second = CalculatePosition(xa_h, xb_h, ya_h, yb_h, vdtype_).second;
         plot(DD_POS_HIGH, position_high.first * positionScale_ + positionOffset_,
              position_high.second * positionScale_ + positionOffset_);
     }
+
+    //------------Positions from ion scintillator---------------------------------
+        //using top - bottom and left - right computation scheme
+
+    for(vector<ChanEvent *>::const_iterator it = ionTrig.begin(); it != ionTrig.end(); it++){
+        //check signals energy vs threshold
+        energy = (*it)->GetCalibratedEnergy();
+        if (energy < 10)
+            continue;
+        //parcel out position signals by tag
+        if ((*it)->GetChanID().HasTag("black") && top_l == 0 )
+            top_l = energy;
+        if ((*it)->GetChanID().HasTag("blue") && top_r == 0 )
+            top_r = energy;
+        if ((*it)->GetChanID().HasTag("white") && bottom_l == 0 )
+            bottom_l = energy;
+        if ((*it)->GetChanID().HasTag("green") && bottom_r == 0 )
+            bottom_r = energy;
+    }
+
+    if (top_l > 0 && top_r > 0 && bottom_l > 0 && bottom_r > 0){
+        hasPosition_ion = true;
+        position_ion.first = (top_l + bottom_l - top_r - bottom_r) / (top_l + top_r + bottom_l + bottom_r);
+        position_ion.second  = (top_l + top_r - bottom_l - bottom_r) / (top_l + top_r + bottom_l + bottom_r);
+       // plot(DD_POS_ION, position_ion.first * positionScale_ + positionOffset_,
+       //      position_ion.second * positionScale_ + positionOffset_);
+    }
+
+
+
+
+    //----------------------------------------------------------------------------
+    //------------Check Transmission efficiencies---------------------------------
+
+        //check for valid upstream events, ion scint events, and vetos for gating
+    bool hasUpstream = false, hasVeto = false;
+    for(auto it = separatorScint.begin(); it != separatorScint.end(); it++){
+        if ((*it)->GetEnergy() > 10 && (*it)->GetEnergy() < 1000){
+            hasUpstream = true;
+            break;
+        }
+    }
+    for(auto it = veto.begin(); it != veto.end(); it++){
+        if ((*it)->GetEnergy() > 10 && (*it)->GetEnergy() < 1000){
+            hasVeto = true;
+            break;
+        }
+    }
+
+
+        //plot valid YSO positions gated on upstream events
+        //plot transmission efficiency from upstream to YSO and veto
+
+    if(hasUpstream && hasPosition_low) {
+        plot(DD_SEPAR_GATED_LOW, position_low.first, position_low.second);
+
+    }
+    if(hasUpstream)
+        plot(D_TRANS_EFF_YSO, 0);
+    if(hasUpstream && hasPosition_ion)
+        plot(D_TRANS_EFF_YSO, 1);
+    if(hasUpstream && hasPosition_low)
+        plot(D_TRANS_EFF_YSO, 2);
+    if (hasUpstream && hasVeto)
+        plot(D_TRANS_EFF_YSO, 3);
+
+
+
+
+    //----------------------------------------------------------------------------
+
 
     if (DetectorDriver::get()->GetSysRootOutput()) {
 
