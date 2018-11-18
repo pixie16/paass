@@ -135,7 +135,7 @@ bool VandleProcessor::Process(RawEvent &event) {
 
     static const vector<ChanEvent *> &betaStarts = event.GetSummary("beta_scint:beta")->GetList();
     static const vector<ChanEvent *> &liquidStarts = event.GetSummary("liquid:scint:start")->GetList();
-    static const vector<ChanEvent *> &pspmtStarts = event.GetSummary("pspmt:dynode_high")->GetList();
+    static const vector<ChanEvent *> &pspmtStarts = event.GetSummary("pspmt:dynode_high:start")->GetList();
 
     static const vector<ChanEvent *> &LIonVeto =  event.GetSummary("pspmt:veto")->GetList();
     static const vector<ChanEvent *> &IondE=  event.GetSummary("pspmt:ion")->GetList();
