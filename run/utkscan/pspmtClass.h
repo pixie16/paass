@@ -22,6 +22,8 @@
 #include <TGraphErrors.h>
 #include <iostream>
 #include <TLine.h>
+#include <TMath.h>
+#include <TSpectrum.h>
 
 // Header file for the classes stored in the TTree if any.
 #include "vector"
@@ -119,9 +121,12 @@ public :
    Double_t Pmax[4];
    Double_t Fmax[4];
    Double_t qdc[4];
+   Double_t stopqdc;
+   Double_t startqdc;
    Double_t time[4];
    Double_t Pixietime[4];
    Double_t ToF;
+   Double_t ToF_E;
    Double_t sbase[4];
    Double_t abase[4];
    Double_t thresh[4];
@@ -138,6 +143,10 @@ public :
    Bool_t   k4fold;
    Double_t ypos[2];
    Double_t xpos[2];
+   Double_t Xpos,Ypos;
+   Double_t xmins[7],ymins[3];
+
+   TH2F *xypos = new TH2F("xypos","xypos",400,-1,1,400,-1,1);   
    ////////////////////////////////
 
    TGraphErrors *fTraces[4];
@@ -162,6 +171,7 @@ public :
    virtual void   QDCcalc(vector <UInt_t> *dTrace, int chan, Double_t cfdpos, Double_t baseline);
    virtual Double_t   CalcBaseline(vector <UInt_t> *dTrace, UInt_t initialpos,UInt_t finalpos);
    virtual void     CalcPosition(int chan=0);
+   virtual void     Grid();
 
 };
 
@@ -592,9 +602,17 @@ void pspmtClass::PolyCFD(Long64_t entry){
     leadqdc[m] = -9999;
     dpoint[m] = -9999;
     }
- }
+ 
+}
+
  UInt_t *p; p = std::find (size, size+4, 0);
  if (p == size+4){ k4fold = true; ToF = (time[2]+time[3])/2.0-(time[1]+time[0])/2.0;}
+ else if (size[0]!=0&&size[2]!=0&&size[3]!=0&&size[1]==0) ToF = (time[2]+time[3])/2.0-time[0]+2.83+1.2; 
+ else if (size[1]!=0&&size[2]!=0&&size[3]!=0&&size[0]==0) ToF = (time[2]+time[3])/2.0-time[1]+2.83+1.2; 
+ else ToF = -9999;
+ 
+ if( ToF>0) ToF_E = 0.5*(939)*TMath::Power((0.386/(ToF*1e-9)/3E8),2);
+ else ToF_E = -9999;
 
  return;
 }

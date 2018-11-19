@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Author>
+        <Name>D. Perez-Loureiro</Name>
+        <Email>dperezlo@utk.edu</Email>
+        <Date>November 8, 2017</Date>
+    </Author>
+
+    <Description>
+        A timing setup to measure time difference between two SiPM signals
+    </Description>
+
+    <Global>
+        <Revision version="F"/>
+        <BitResolution value="16"/>
+        <EventWidth unit="ns" value="500"/>
+        <!--EnergyContraction value="1.0"/-->
+        <!--Path>config/</Path-->
+        <NumOfTraces value="50"/>
+	<HasRaw value="true"/>
+        <OutputPath value="./"/>
+    </Global>
+
+    <DetectorDriver>
+      <!--Analyzer name="TraceExtractor" type="pulser" subtype="start"/-->
+      <Analyzer name="WaveformAnalyzer"/>
+      <!--Analyzer name="WaaAnalyzer"/-->
+      <!--Analyzer name="FittingAnalyzer" type="gsl"/-->
+      <!--Analyzer name="CfdAnalyzer" type="poly"/-->
+      <Processor name="TraceDump_PSPMT"/>
+      <!--Processor name="TwoChanTimingProcessor"/-->
+      <!--Processor name="TtuTimingProcessor"/-->
+      <!--<Processor name="RootProcessor"/>-->
+      <!--Processor name="TACProcessor"-->
+    </DetectorDriver>
+
+    <Map verbose_calibration="False" verbose_map="False" verbose_walk="False">
+	<Module number="0">
+            <Channel number="2"  type="beta"  subtype="left"></Channel>
+            <Channel number="3"  type="beta"  subtype="right"></Channel>
+            <Channel number="6"  type="pspmt" subtype="dynode_left"  tags="left"></Channel>
+            <Channel number="7"  type="pspmt" subtype="dynode_right" tags="right"></Channel>
+        </Module>
+	<Module number="4">
+            <Channel number="2"  type="pspmt" subtype="anode_left"   tags="v1"></Channel>
+            <Channel number="3"  type="pspmt" subtype="anode_right"  tags="v4"></Channel>
+            <Channel number="6"  type="pspmt" subtype="anode_left"   tags="v2"></Channel>
+            <Channel number="7"  type="pspmt" subtype="anode_right"  tags="v3"></Channel>
+            <Channel number="10" type="pspmt" subtype="anode_left"   tags="v3"></Channel>
+            <Channel number="11" type="pspmt" subtype="anode_right"  tags="v2"></Channel>
+            <Channel number="14" type="pspmt" subtype="anode_left"   tags="v4"></Channel>
+            <Channel number="15" type="pspmt" subtype="anode_right"  tags="v1"></Channel>
+        </Module>
+    </Map>
+
+    <TimeCalibration verbose_timing="False">
+    </TimeCalibration>
+      <Physical>
+        <NeutronMass unit="MeV/c/c" value="939.565560"/>
+        <SpeedOfLight unit="cm/ns" value="29.9792458"/>
+        <SpeedOfLightSmall unit="cm/ns" value="12.65822"/>
+        <SpeedOfLightBig unit="cm/ns" value="15.22998"/>
+        <SmallLength unit="cm" value="60.0"/>
+        <MediumLength unit="cm" value="120.0"/>
+        <BigLength unit="cm" value="200.0"/>
+      </Physical>
+
+      <Trace>
+        <TraceDelay unit="ns" value="248."/>
+        <!--TraceLength unit="ns" value="800."/-->
+        <!--TraceLength unit="ns" value="2500."/-->
+        <WaveformRange>
+            <Range name="beta:left">
+               <Low value="10"/>
+                <High value="10"/>
+            </Range>
+            <Range name="beta:right">
+               <Low value="10"/>
+                <High value="10"/>
+            </Range>
+            <Range name="pspmt:dynode_left">
+               <Low value="10"/>
+                <High value="10"/>
+            </Range>
+            <Range name="pspmt:dynode_right">
+                <Low value="10"/>
+                <High value="10"/>
+	    </Range>
+	 <Range name="pspmt:anode_left">
+               <Low value="10"/>
+                <High value="50"/>
+            </Range>
+            <Range name="pspmt:anode_right">
+                <Low value="10"/>
+                <High value="50"/>
+            </Range>
+   
+ 	</WaveformRange>
+        <DiscriminationStart unit="sample" value="3."/>
+        <!--<TrapezoidalWalk unit="ns" value="40."/>-->
+        <QdcCompression value="1.0"/>
+
+      <!--<TrapFilters>
+            <Pars name="beta:start">
+                <Trigger l="125" g="125" t="10" unit="ns"/>
+                <Energy l="300" g="300" t="50" unit="ns"/>
+            </Pars>
+            <Pars name="beta:stop">
+                <Trigger l="125" g="125" t="10" unit="ns"/>
+                <Energy l="300" g="300" t="50" unit="ns"/>
+            </Pars>
+        </TrapFilters>-->
+    </Trace>
+
+    <!--<TreeCorrelator name="root" verbose="False">
+    
+    </TreeCorrelator>-->
+
+    <NoteBook file='notes.txt' mode='a'/>
+</Configuration>

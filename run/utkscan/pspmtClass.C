@@ -4,6 +4,52 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <TEntryList.h>
+#include <TMath.h>
+
+//void printArray(int arr[], int size);
+//void quicksort(int arr[], int l, int r);
+//quicksort code taken from github @ https://gist.github.com/Erniuu/f5d38f1e6b892c70dbac
+// Function to swap two pointers
+void swap(Double_t *a, Double_t *b){
+    Double_t temp = *a;
+    *a = *b;
+    *b = temp;
+}
+// Function to print an array of integers
+void printArray(Double_t arr[], Int_t size)
+{
+    for (int i = 0; i < size; i++) printf("%f ", arr[i]);
+    printf("\n");
+}
+// Function to run quicksort on an array of integers
+// l is the leftmost starting index, which begins at 0
+// r is the rightmost starting index, which begins at array length - 1
+void quicksort(Double_t arr[], Int_t l, Int_t r)
+{
+    // Base case: No need to sort arrays of length <= 1
+    if (l >= r) return;
+    // Choose pivot to be the last element in the subarray
+    Double_t pivot = arr[r];
+    // Index indicating the "split" between elements smaller than pivot and 
+    // elements greater than pivot
+    int cnt = l;
+    // Traverse through array from l to r
+    for (int i = l; i <= r; i++){
+        // If an element less than or equal to the pivot is found...
+        if (arr[i] <= pivot){
+            // Then swap arr[cnt] and arr[i] so that the smaller element arr[i] 
+            // is to the left of all elements greater than pivot
+            swap(&arr[cnt], &arr[i]);
+            // Make sure to increment cnt so we can keep track of what to swap
+            // arr[i] with
+            cnt++;
+        }
+    }
+    // NOTE: cnt is currently at one plus the pivot's index 
+    // (Hence, the cnt-2 when recursively sorting the left side of pivot)
+    quicksort(arr, l, cnt-2); // Recursively sort the left side of pivot
+    quicksort(arr, cnt, r);   // Recursively sort the right side of pivot
+}
 
 void pspmtClass::Loop(Long64_t nentries, const Char_t *filename)
 {
@@ -44,7 +90,10 @@ void pspmtClass::Loop(Long64_t nentries, const Char_t *filename)
    outTree->Branch("time[4]",&time,"time[4]/D");
    outTree->Branch("Pixietime[4]",&Pixietime,"Pixietime[4]/D");
    outTree->Branch("ToF",&ToF,"ToF/D");
+   outTree->Branch("ToF_E",&ToF_E,"ToF_E/D");
    outTree->Branch("qdc[4]",&qdc,"qdc[4]/D");
+   outTree->Branch("startqdc",&startqdc,"startqdc/D");
+   outTree->Branch("stopqdc",&stopqdc,"stopqdc/D");
    outTree->Branch("leadqdc[4]",&leadqdc,"leadqdc[4]/D");
    outTree->Branch("sbase[4]",&sbase,"sbase[4]/D");
    outTree->Branch("abase[4]",&abase,"abase[4]/D");
@@ -65,8 +114,8 @@ void pspmtClass::Loop(Long64_t nentries, const Char_t *filename)
    outTree->Branch("right_qdc[4]",&right_qdc,"right_qdc[4]/I");
    outTree->Branch("k4fold",&k4fold,"k4fold/O");
 
-//   outTree->Branch("points",&points);
-   
+   xypos->Reset();
+
    if(nentries == -1){nentries = fChain->GetEntriesFast(); cout<<nentries<< " entries are being calculated" << endl;}
 
    Long64_t nbytes = 0, nb = 0;
@@ -78,12 +127,78 @@ void pspmtClass::Loop(Long64_t nentries, const Char_t *filename)
       // if (Cut(ientry) < 0) continue;
       PolyCFD(jentry);
       event=jentry;
+      if (qdc[0]>0&&qdc[1]>0) startqdc = (qdc[0]+qdc[1])/2.0;
+      else startqdc = -9999;
+      if (qdc[2]>0&&qdc[3]>0) stopqdc = (qdc[2]+qdc[3])/2.0;
+      else stopqdc = -9999;
     outTree->Fill();
+
+    if (nLeft==4 && nRight==4) {
+    Xpos = (xpos[1]+xpos[0])/2.0;
+    Ypos = (ypos[1]+ypos[0])/2.0;
+    xypos->Fill(Xpos,Ypos);
+    }
+
    }
    cout<<endl;
    outTree->Write();
-   outputFile->Close();
+
+   xypos->Write();
+   xypos->ProjectionY()->Write();
+   xypos->ProjectionX()->Write();
+
+   //outputFile->Close();
+
 }
+
+
+void pspmtClass::Grid(){
+  if (xypos->GetEntries()<10000){ 
+   std::cout << "Position histogram only has " << xypos->GetEntries() << " entries" << endl; 
+   return;
+   }
+  TSpectrum *X = new TSpectrum(8);
+  TSpectrum *Y = new TSpectrum(4);
+  TCanvas *c1 = new TCanvas();
+  c1->Divide(1,2);
+  c1->cd(1);
+  Int_t nX = X->Search(xypos->ProjectionX(),0.1,"nobackground",0.2);
+  c1->cd(2);
+  Int_t nY = Y->Search(xypos->ProjectionY(),0.2,"nobackground",0.2);
+  if (nX!=8 or nY!=4) {std::cout << "Too Few peaks found. X: " << nX << ", Y: "<< nY << endl; return;}
+  Double_t *xpeaks, *ypeaks;
+  xpeaks = X->GetPositionX();
+  ypeaks = Y->GetPositionX();
+
+//  std::cout << ypeaks[0] << " " << ypeaks[1] << " " << ypeaks[2] << " " << ypeaks[3] << endl;
+
+// Run a test case of quicksort
+// Test case taken from http://geeksquiz.com/quick-sort/
+//    int arr[] = {10, 7, 8, 9, 1, 5};
+//    int n = sizeof(arr) / sizeof(arr[0]);
+    quicksort(xpeaks, 0, nX-1);
+    quicksort(ypeaks, 0, nY-1);
+    printf("Sorted arrays: \n");
+    printArray(xpeaks, nX);
+    printArray(ypeaks, nY); 
+ 
+  FILE *fout; fout = fopen("Grid.txt","w");
+  for (int i=0;i<nX-1;i++){
+//   fprintf(fout,"%f ",xpeaks[i]);
+   fprintf(fout,"%f ",(xpeaks[i]+xpeaks[i+1])/2.0);
+//   if (i<7) xmins[i] = (xpeaks[i]+xpeaks[i+1])/2.0;
+   }
+  fprintf(fout,"\n");
+  for (int i=0;i<nY-1;i++){
+//   fprintf(fout,"%f ",ypeaks[i]);
+   fprintf(fout,"%f ",(ypeaks[i]+ypeaks[i+1])/2.0);
+///   if (i<3) ymins[i] = (ymins[i]+ymins[i+1])/2.0;
+   }
+  fprintf(fout,"\n");
+  fclose(fout);
+  return;
+}
+
 void pspmtClass::PolyScan(Long64_t nentries, Int_t chan1, Int_t chan2){
 
   double hstep = 0.01;
@@ -176,4 +291,5 @@ for (int i=0; i<totN; i++){
  fclose(f2);
  listfile->Close();
 }
+
 
