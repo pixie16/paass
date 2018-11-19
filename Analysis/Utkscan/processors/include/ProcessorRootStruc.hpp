@@ -102,7 +102,8 @@ public:
     /* copy constructor */
     PixTreeEvent( const PixTreeEvent &obj ):TObject(obj)
     {
-        externalTS = obj.externalTS;
+        externalTS1 = obj.externalTS1;
+        externalTS2 = obj.externalTS2;
         clover_vec_ = obj.clover_vec_;
         gamma_scint_vec_ = obj.gamma_scint_vec_;
         vandle_vec_ = obj.vandle_vec_;
@@ -114,7 +115,8 @@ public:
     /* clear vectors and init all the values */
     virtual void Clear()
     {
-        externalTS = 0;
+        externalTS1 = 0;
+        externalTS2 = 0;
         clover_vec_.clear();
         gamma_scint_vec_.clear();
         vandle_vec_.clear();
@@ -122,7 +124,8 @@ public:
     }
 
     /* data structures to be filled in the ROOT TTree */
-    ULong64_t externalTS = 0;
+    ULong64_t externalTS1 = 0;
+    ULong64_t externalTS2 = 0;
     std::vector<processor_struct::CLOVERS> clover_vec_;
     std::vector<processor_struct::GAMMASCINT> gamma_scint_vec_;
     std::vector<processor_struct::VANDLES> vandle_vec_;

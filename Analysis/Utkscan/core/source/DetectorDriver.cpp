@@ -25,6 +25,7 @@
 #include "RawEvent.hpp"
 #include "TraceAnalyzer.hpp"
 #include "TreeCorrelator.hpp"
+#include "../../../../install/include/ProcessorRootStruc.hpp"
 
 using namespace std;
 using namespace dammIds::raw;
@@ -186,12 +187,20 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
 
             EventData data(time, energy, location);
             TreeCorrelator::get()->place(place)->activate(data);
-            if (innerEvtCounter == 0){
-                eventFirstTime_= (*it)->GetTimeSansCfd(); //sets the time of the first det event in the pixie event
+            if (innerEvtCounter == 0) {
+                eventFirstTime_ = (*it)->GetTimeSansCfd(); //sets the time of the first det event in the pixie event
             }
-            if ((*it)->GetChanID().HasTag("ets"))
-                pixie_tree_event_.externalTS = (*it)->GetExternalTimeStamp();
-
+            if ((*it)->GetChanID().HasTag("ets1")) {
+                pixie_tree_event_.externalTS1 = (*it)->GetExternalTimeStamp();
+            }
+            if ((*it)->GetChanID().HasTag("ets2")){
+                pixie_tree_event_.externalTS2 = (*it)->GetExternalTimeStamp();
+            }
+            if(pixie_tree_event_.externalTS2 != 0 && pixie_tree_event_.externalTS1 !=0 ) {
+                plot(D_INTERNAL_TS_CHECK, ((pixie_tree_event_.externalTS1 - pixie_tree_event_.externalTS2) + 1000));
+            }else {
+                plot(D_INTERNAL_TS_CHECK,100);
+            }
             innerEvtCounter++;
         }
         if ( eventNumber_ == 0){
@@ -236,6 +245,7 @@ void DetectorDriver::DeclarePlots() {
         DeclareHistogram1D(D_HIT_SPECTRUM, S7, "channel hit spectrum");
         DeclareHistogram2D(DD_RUNTIME_SEC, SE, S6, "run time - s");
         DeclareHistogram2D(DD_RUNTIME_MSEC, SE, S7, "run time - ms");
+        DeclareHistogram1D(D_INTERNAL_TS_CHECK, SB,"Time Diff between ETS1 and ES2 +1000. 100=BAD");
 
         if (Globals::get()->HasRawHistogramsDefined()) {
             DetectorLibrary *modChan = DetectorLibrary::get();
