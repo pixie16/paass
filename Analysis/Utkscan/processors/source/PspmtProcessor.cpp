@@ -292,9 +292,9 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
         }
     }
 
-    if(hasPosition_low){
-        for(auto de_it = desi.begin(); de_it != desi.end(); de_it++) {
-            plot(D_DESI_YSO_GATED,(*de_it)->GetCalibratedEnergy());
+    if(hasPosition_low) {
+        for (auto de_it = desi.begin(); de_it != desi.end(); de_it++) {
+            plot(D_DESI_YSO_GATED, (*de_it)->GetCalibratedEnergy());
         }
         for (auto it_sep = separatorScint.begin(); it_sep != separatorScint.end(); it_sep++) {
             if ((*it_sep)->GetChanID().HasTag("left")) {
@@ -302,6 +302,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
             } else if ((*it_sep)->GetChanID().HasTag("right")) {
                 plot(DD_SEPAR_YSO_GATED, (*it_sep)->GetCalibratedEnergy(), 1);
             }
+        }
     }
 
     if(hasUpstream)
