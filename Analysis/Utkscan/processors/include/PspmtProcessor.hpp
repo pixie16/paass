@@ -21,8 +21,10 @@ public:
     ///@brief Constructor that sets the scale and offset for histograms
     ///@param[in] scale : The multiplicative scaling factor
     ///@param[in] offset : The additave offset for the histogram
-    PspmtProcessor(const std::string &vd, const double &scale,
-                   const unsigned int &offset, const double &threshold);
+    PspmtProcessor(const std::string &vd, const double &yso_scale,
+                   const unsigned int &yso_offset, const double &yso_threshold,
+                   const double &front_scale,
+                   const unsigned int &front_offset, const double &front_threshold);
 
     ///Default Destructor
     ~PspmtProcessor() {};
@@ -80,9 +82,12 @@ private:
     VDTYPES vdtype_; ///< Local variable to store the type of voltage divider
     ///< we're using.
     double positionScale_; ///< The scale that we need for the DAMM output
+    double front_positionScale_; ///< The scale that we need for the DAMM output
     unsigned int positionOffset_; ///< The offset that we need for the the
+    unsigned int front_positionOffset_; ///< The offset that we need for the the
     ///< DAMM output
     double threshold_; ///< The threshold that the energy calculated by
+    double front_threshold_; ///< The threshold that the energy calculated by
     ///< the Pixie-16 trapezoidal filter needs to reach
     ///< before we can analyze the signals.
 

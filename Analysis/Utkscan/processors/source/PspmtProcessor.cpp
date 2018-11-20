@@ -61,8 +61,10 @@ void PspmtProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_DESI_GATED_ION, SB, SB, "Ion-scint positions - silicon dE-gated");
 }
 
-PspmtProcessor::PspmtProcessor(const std::string &vd, const double &scale, const unsigned int &offset,
-                               const double &threshold) :EventProcessor(OFFSET, RANGE, "PspmtProcessor"){
+PspmtProcessor::PspmtProcessor(const std::string &vd, const double &yso_scale, const unsigned int &yso_offset,
+			       const double &yso_threshold, const double &front_scale,
+			       const unsigned int &front_offset, const double &front_threshold)
+				:EventProcessor(OFFSET, RANGE, "PspmtProcessor"){
 
 
     if(vd == "SIB064_1018" || vd == "SIB064_1730")
@@ -73,10 +75,13 @@ PspmtProcessor::PspmtProcessor(const std::string &vd, const double &scale, const
         vdtype_ = UNKNOWN;
 
     VDtypeStr = vd;
-    positionScale_ = scale;
-    positionOffset_ = offset;
-    threshold_ = threshold;
-    ThreshStr = threshold;
+    positionScale_ = yso_scale;
+    positionOffset_ = yso_offset;
+    threshold_ = yso_threshold;
+    front_positionScale_ = front_scale;
+    front_positionOffset_ = front_offset;
+    front_threshold_ = front_threshold;
+    ThreshStr = yso_threshold;
     associatedTypes.insert("pspmt");
 }
 
@@ -221,8 +226,8 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
         hasPosition_ion = true;
         position_ion.first = (top_l + bottom_l - top_r - bottom_r) / (top_l + top_r + bottom_l + bottom_r);
         position_ion.second  = (top_l + top_r - bottom_l - bottom_r) / (top_l + top_r + bottom_l + bottom_r);
-        plot(DD_POS_ION, position_ion.first * positionScale_ + positionOffset_,
-             position_ion.second * positionScale_ + positionOffset_);
+        plot(DD_POS_ION, position_ion.first * front_positionScale_ + front_positionOffset_,
+             position_ion.second * front_positionScale_ + front_positionOffset_);
     }
 
 
