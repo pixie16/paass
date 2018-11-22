@@ -192,7 +192,8 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
                     processor.attribute("yso_threshold").as_double(50.0),
                     processor.attribute("front_scale").as_double(500.0),
                     processor.attribute("front_offset").as_double(500.0),
-                    processor.attribute("front_threshold").as_double(50.0)
+                    processor.attribute("front_threshold").as_double(50.0),
+                    processor.attribute("rotation").as_double(0.0)
             ));
         } else if (name == "TeenyVandleProcessor") {
             vecProcess.push_back(new TeenyVandleProcessor());

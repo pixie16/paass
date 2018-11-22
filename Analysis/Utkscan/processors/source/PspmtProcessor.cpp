@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <signal.h>
 #include <limits.h>
+#include <cmath>
 
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
@@ -63,7 +64,7 @@ void PspmtProcessor::DeclarePlots(void) {
 
 PspmtProcessor::PspmtProcessor(const std::string &vd, const double &yso_scale, const unsigned int &yso_offset,
 			       const double &yso_threshold, const double &front_scale,
-			       const unsigned int &front_offset, const double &front_threshold)
+			       const unsigned int &front_offset, const double &front_threshold, const double &rotation)
 				:EventProcessor(OFFSET, RANGE, "PspmtProcessor"){
 
 
@@ -82,7 +83,9 @@ PspmtProcessor::PspmtProcessor(const std::string &vd, const double &yso_scale, c
     front_positionOffset_ = front_offset;
     front_threshold_ = front_threshold;
     ThreshStr = yso_threshold;
+    rotation_ = rotation * 3.1415926 / 180;     // convert from degrees to radians
     associatedTypes.insert("pspmt");
+    associatedTypes.insert("generic");
 }
 
 bool PspmtProcessor::PreProcess(RawEvent &event){
@@ -189,18 +192,18 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
     //compute position only if all 4 signals are present
     if (xa_l > 0 && xb_l > 0 && ya_l > 0 && yb_l > 0){
         hasPosition_low = true;
-        position_low.first = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_).first;
-        position_low.second  = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_).second;
+        position_low.first = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_, rotation_).first;
+        position_low.second  = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_, rotation_).second;
         plot(DD_POS_LOW, position_low.first * positionScale_ + positionOffset_,
              position_low.second * positionScale_ + positionOffset_);
     }
 
     if (xa_h > 0 && xb_h > 0 && ya_h > 0 && yb_h > 0){
         hasPosition_high = true;
-        position_high.first = CalculatePosition(xa_h, xb_h, ya_h, yb_h, vdtype_).first;
-        position_high.second = CalculatePosition(xa_h, xb_h, ya_h, yb_h, vdtype_).second;
+        position_high.first = CalculatePosition(xa_h, xb_h, ya_h, yb_h, vdtype_, rotation_).first;
+        position_high.second = CalculatePosition(xa_h, xb_h, ya_h, yb_h, vdtype_, rotation_).second;
         plot(DD_POS_HIGH, position_high.first * positionScale_ + positionOffset_,
-             position_high.second * positionScale_ + positionOffset_);
+             position_high.second * positionScale_ + positionOffset_ );
     }
 
     //------------Positions from ion scintillator---------------------------------
@@ -368,23 +371,27 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
 
 }
 
-pair<double, double> PspmtProcessor::CalculatePosition(double &xa, double &xb, double &ya, double &yb, const VDTYPES &vdtype){
+pair<double, double> PspmtProcessor::CalculatePosition(double &xa, double &xb, double &ya, double &yb, const VDTYPES &vdtype, double &rot){
 
-    double x = 0, y = 0;
+    double x = 0, y = 0, x_tmp = 0, y_tmp = 0, center = 0;
 
     switch(vdtype){
         case corners:
-            x = (0.5 * (yb + xa)) / (xa + xb + ya + yb);
-            y = (0.5 * (xa + xb)) / (xa + xb + ya + yb);
+            x_tmp = (0.5 * (yb + xa)) / (xa + xb + ya + yb);
+            y_tmp = (0.5 * (xa + xb)) / (xa + xb + ya + yb);
+            center = 0.2;
             break;
         case sides:
-            x = (xa - xb) / (xa + xb);
-            y = (ya - yb) / (ya + yb);
+            x_tmp = (xa - xb) / (xa + xb);
+            y_tmp = (ya - yb) / (ya + yb);
+            center = 0;
             break;
         case UNKNOWN:
         default:
             cerr<<"We recieved a VD_TYPE we didn't recognize " << vdtype << endl;
 
     }
+    x = (x_tmp - center) * cos(rot) - (y_tmp - center) * sin(rot) + center;  //rotate positions about center of image by angle rot    
+    y = (x_tmp - center) * sin(rot) + (y_tmp - center) * cos(rot) + center;
     return make_pair(x, y);
 }
