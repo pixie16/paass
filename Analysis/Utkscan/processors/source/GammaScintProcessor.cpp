@@ -25,7 +25,7 @@ namespace dammIds {
     namespace gscint{
         const int LITTLEHAG_OFFSET = 0; //!< offset for 2" hagrid
         const int BIGHAG_OFFSET = 20; //!< offset for 3" hagrid
-        const int NaIOFFSET = 30; //!< offset for the Nai:beasts
+        const int NaIOFFSET = 40; //!< offset for the Nai:beasts
         const int ADDBACKOFFSET = 100; //!< offset for addback Spectra
         const int GAMMAGAMMAOFFSET = 150;//!< offset for the beta-gamma->gamma plots
 
