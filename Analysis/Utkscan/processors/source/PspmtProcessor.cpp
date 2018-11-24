@@ -29,6 +29,9 @@ namespace dammIds {
         const int DD_POS_HIGH = 2;
         const int DD_PLASTIC_EN = 3;
         const int DD_MULTI = 4;
+        const int DD_DY_SUM_LG =5;
+        const int DD_DY_SUM_HG =6;
+
         const int D_TRANS_EFF_YSO = 10;
         const int DD_SEPAR_GATED_LOW = 11;
         const int DD_DESI_GATED_LOW = 12;
@@ -49,6 +52,8 @@ void PspmtProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_POS_HIGH, SB, SB, "High-gain Positions");
     DeclareHistogram2D(DD_PLASTIC_EN,SD,S4, "Plastic Energy, 0-3 = VETO, 5-8 = Ion Trigger");
     DeclareHistogram2D(DD_MULTI,S3,S3, "Dynode:Anode(+2) Multi Low gain 0, High gain 1");
+    DeclareHistogram2D(DD_DY_SUM_LG,SA,SA,"Low Gain Dynode vs Anode Sum");
+    DeclareHistogram2D(DD_DY_SUM_HG,SA,SA,"High Gain Dynode vs Anode Sum");
     DeclareHistogram1D(D_TRANS_EFF_YSO, S3, "Separator events (0) in ion scint (1), YSO (2), and veto (3)");
     DeclareHistogram2D(DD_SEPAR_GATED_LOW, SB, SB, "Separator-gated low-gain positions");
     DeclareHistogram2D(DD_DESI_GATED_LOW, SB, SB, "Silicon dE-gated low-gain positions");
@@ -88,7 +93,7 @@ PspmtProcessor::PspmtProcessor(const std::string &vd, const double &yso_scale, c
     associatedTypes.insert("generic");
 }
 
-bool PspmtProcessor::PreProcess(RawEvent &event){
+bool PspmtProcessor::PreProcess(RawEvent &event) {
 
     if (!EventProcessor::PreProcess(event))
         return false;
@@ -101,43 +106,43 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
     static const vector<ChanEvent *> &hiDynode = event.GetSummary("pspmt:dynode_high")->GetList();
     static const vector<ChanEvent *> &lowDynode = event.GetSummary("pspmt:dynode_low")->GetList();
     static const vector<ChanEvent *> &hiAnode = event.GetSummary("pspmt:anode_high")->GetList();
-    static const vector<ChanEvent *> &lowAnode =  event.GetSummary("pspmt:anode_low")->GetList();
+    static const vector<ChanEvent *> &lowAnode = event.GetSummary("pspmt:anode_low")->GetList();
 
-    static const vector<ChanEvent *> &veto =  event.GetSummary("pspmt:veto")->GetList();
-    static const vector<ChanEvent *> &ionTrig =  event.GetSummary("pspmt:ion")->GetList();
+    static const vector<ChanEvent *> &veto = event.GetSummary("pspmt:veto")->GetList();
+    static const vector<ChanEvent *> &ionTrig = event.GetSummary("pspmt:ion")->GetList();
     static const vector<ChanEvent *> &desi = event.GetSummary("generic:desi")->GetList();
     static const vector<ChanEvent *> &separatorScint = event.GetSummary("generic:f11")->GetList();
 
     //Plot Dynode QDCs
-    for(vector<ChanEvent *>::const_iterator it = lowDynode.begin(); it != lowDynode.end(); it++){
+    for (vector<ChanEvent *>::const_iterator it = lowDynode.begin(); it != lowDynode.end(); it++) {
         plot(DD_DYNODE_QDC, (*it)->GetTrace().GetQdc(), 0);
     }
-    for(vector<ChanEvent *>::const_iterator it = hiDynode.begin(); it != hiDynode.end(); it++){
+    for (vector<ChanEvent *>::const_iterator it = hiDynode.begin(); it != hiDynode.end(); it++) {
         plot(DD_DYNODE_QDC, (*it)->GetTrace().GetQdc(), 1);
     }
 
-    int numOfVetoChans = (int)(DetectorLibrary::get()->GetLocations("pspmt","veto")).size();
-    std::map<int,double> vetoEnergys,IonTrigEnergies;
-    for (auto it = veto.begin(); it != veto.end(); it++ ){
-        int loc =  (*it)->GetChanID().GetLocation();
+    int numOfVetoChans = (int) (DetectorLibrary::get()->GetLocations("pspmt", "veto")).size();
+    std::map<int, double> vetoEnergys, IonTrigEnergies;
+    for (auto it = veto.begin(); it != veto.end(); it++) {
+        int loc = (*it)->GetChanID().GetLocation();
 
-        plot(DD_PLASTIC_EN,(*it)->GetCalibratedEnergy(),loc);
+        plot(DD_PLASTIC_EN, (*it)->GetCalibratedEnergy(), loc);
 
         if (vetoEnergys.find(loc) != vetoEnergys.end()) {
             vetoEnergys.find(loc)->second = (*it)->GetCalibratedEnergy();
-        }else {
-            vetoEnergys.emplace(loc,(*it)->GetCalibratedEnergy());
+        } else {
+            vetoEnergys.emplace(loc, (*it)->GetCalibratedEnergy());
         }
 
     }
     for (auto it = ionTrig.begin(); it != ionTrig.end(); it++) {
-        int loc =  (*it)->GetChanID().GetLocation();
+        int loc = (*it)->GetChanID().GetLocation();
         plot(DD_PLASTIC_EN, (*it)->GetCalibratedEnergy(), loc + numOfVetoChans + 1); //max veto chan +1 for readablility
 
         if (IonTrigEnergies.find(loc) != IonTrigEnergies.end()) {
             IonTrigEnergies.find(loc)->second = (*it)->GetCalibratedEnergy();
-        }else {
-            IonTrigEnergies.emplace(loc,(*it)->GetCalibratedEnergy());
+        } else {
+            IonTrigEnergies.emplace(loc, (*it)->GetCalibratedEnergy());
         }
     }
     //set up position calculation for low / high gain yso signals and ion scint
@@ -150,45 +155,64 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
     bool hasPosition_low = false, hasPosition_high = false;
     bool hasPosition_ion = false;
 
-    plot(DD_MULTI,lowDynode.size(),0);
-    plot(DD_MULTI,hiDynode.size(),1);
-    
-    plot(DD_MULTI,lowAnode.size(),2);
-    plot(DD_MULTI,hiAnode.size(),3);
+    plot(DD_MULTI, lowDynode.size(), 0);
+    plot(DD_MULTI, hiDynode.size(), 1);
 
-    for(vector<ChanEvent *>::const_iterator it = lowAnode.begin(); it != lowAnode.end(); it++){
+    plot(DD_MULTI, lowAnode.size(), 2);
+    plot(DD_MULTI, hiAnode.size(), 3);
+
+
+    double lowAnodeSum = 0;
+    for (vector<ChanEvent *>::const_iterator it = lowAnode.begin(); it != lowAnode.end(); it++) {
         //check signals energy vs threshold
         energy = (*it)->GetCalibratedEnergy();
         if (energy < threshold_)
             continue;
         //parcel out position signals by tag
-        if ((*it)->GetChanID().HasTag("xa") && xa_l == 0 )
+        if ((*it)->GetChanID().HasTag("xa") && xa_l == 0) {
             xa_l = energy;
-        if ((*it)->GetChanID().HasTag("xb") && xb_l == 0 )
+            lowAnodeSum += energy;
+        }
+        if ((*it)->GetChanID().HasTag("xb") && xb_l == 0) {
             xb_l = energy;
-        if ((*it)->GetChanID().HasTag("ya") && ya_l == 0 )
+            lowAnodeSum += energy;
+        }
+        if ((*it)->GetChanID().HasTag("ya") && ya_l == 0) {
             ya_l = energy;
-        if ((*it)->GetChanID().HasTag("yb") && yb_l == 0 )
+            lowAnodeSum += energy;
+        }
+        if ((*it)->GetChanID().HasTag("yb") && yb_l == 0) {
             yb_l = energy;
+            lowAnodeSum += energy;
+        }
     }
 
-    for(vector<ChanEvent *>::const_iterator it = hiAnode.begin();
-        it != hiAnode.end(); it++){
+
+    double highAnodeSum = 0;
+    for (vector<ChanEvent *>::const_iterator it = hiAnode.begin();
+         it != hiAnode.end(); it++) {
         //check signals energy vs threshold
         energy = (*it)->GetCalibratedEnergy();
         if (energy < threshold_ || energy > 63000)
             continue;
         //parcel out position signals by tag
-        if ((*it)->GetChanID().HasTag("xa") && xa_h == 0)
+        if ((*it)->GetChanID().HasTag("xa") && xa_h == 0){
             xa_h = energy;
-        if ((*it)->GetChanID().HasTag("xb") && xb_h == 0)
+            highAnodeSum += energy;
+        }
+        if ((*it)->GetChanID().HasTag("xb") && xb_h == 0){
             xb_h = energy;
-        if ((*it)->GetChanID().HasTag("ya") && ya_h == 0)
+            highAnodeSum += energy;
+        }
+        if ((*it)->GetChanID().HasTag("ya") && ya_h == 0){
             ya_h = energy;
-        if ((*it)->GetChanID().HasTag("yb") && yb_h == 0)
+            highAnodeSum += energy;
+        }
+        if ((*it)->GetChanID().HasTag("yb") && yb_h == 0){
             yb_h = energy;
+            highAnodeSum += energy;
+        }
     }
-
     //compute position only if all 4 signals are present
     if (xa_l > 0 && xb_l > 0 && ya_l > 0 && yb_l > 0){
         hasPosition_low = true;
@@ -366,6 +390,13 @@ bool PspmtProcessor::PreProcess(RawEvent &event){
         pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
         PSstruct = processor_struct::PSPMT_DEFAULT_STRUCT;
     }
+
+    if (!lowDynode.empty())
+        plot(DD_DY_SUM_LG,lowDynode.front()->GetCalibratedEnergy(),lowAnodeSum);
+
+    if (!hiDynode.empty())
+        plot(DD_DY_SUM_HG,hiDynode.front()->GetCalibratedEnergy(),highAnodeSum);
+
     EndProcess();
     return (true);
 
