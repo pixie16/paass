@@ -251,6 +251,7 @@ void DetectorDriver::DeclarePlots() {
             DetectorLibrary *modChan = DetectorLibrary::get();
             DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
             DeclareHistogram1D(D_HAS_TRACE, S8, "channels with traces");
+            DeclareHistogram2D(DD_TRACE_MAX,S8, SD, "Max Value in Trace vs Chan Num");
             DeclareHistogram1D(D_SUBEVENT_GAP, SE, "Time Between Channels in 10 ns / bin");
             DeclareHistogram1D(D_EVENT_LENGTH, SE, "Event Length in ns");
             DeclareHistogram1D(D_EVENT_GAP, SE, "Time Between Events in ns");
@@ -326,6 +327,9 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
         //Saves the time in nanoseconds
         chan->SetHighResTime((trace.GetPhase() * Globals::get()->GetAdcClockInSeconds() +
                 chan->GetTimeSansCfd() * Globals::get()->GetFilterClockInSeconds()) * 1e9);
+
+        //Plot max Value in trace post trace analysis
+        plot(DD_TRACE_MAX,trace.GetMaxInfo().second,id);
     } else {
         /// otherwise, use the Pixie on-board calculated energy and high res
         /// time is zero.
