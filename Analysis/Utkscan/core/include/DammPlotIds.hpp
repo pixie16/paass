@@ -46,6 +46,7 @@ namespace dammIds {
         const int D_NUMBER_OF_EVENTS = 1811;//!< Number of processed events
         const int D_HAS_TRACE = 1812;//!< Plot for Channels w/ Traces
         const int D_INTERNAL_TS_CHECK = 1813;//!< Plot of time difference between the 2 external time stamps
+        const int DD_TRACE_MAX = 1814;//!< Plot for Max Value in Trace
     }
 
     /// in PspmtProcessor.cpp
