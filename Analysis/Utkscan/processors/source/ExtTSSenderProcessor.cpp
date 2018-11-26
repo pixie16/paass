@@ -6,6 +6,7 @@ slotNum_(0),
 chanNum_(0),
 port_(12345),
 hostName_("localhost"),
+buffer_(nullptr),
 buffSize_(64),
 curPos_(0)
 {
@@ -14,7 +15,14 @@ curPos_(0)
 
 ExtTSSenderProcessor::ExtTSSenderProcessor(const std::string &type, const std::string &hostName,
                                            const int &slot, const int &channel, const int &port, const int &buffSize) :
-EventProcessor(7998, 1, "ExtTSSenderProcessor")
+EventProcessor(7998, 1, "ExtTSSenderProcessor"),
+slotNum_(0),
+chanNum_(0),
+port_(12345),
+hostName_("localhost"),
+buffer_(nullptr),
+buffSize_(64),
+curPos_(0)
 {
     type_ = type;
     slotNum_ = slot;
