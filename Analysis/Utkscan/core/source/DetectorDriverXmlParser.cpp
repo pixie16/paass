@@ -137,7 +137,7 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             std::string defaultThreshold = "10.";
             std::string defaultBunch = "30.";
 
-            GScintArgs.insert(make_pair("DDroot",SysRootOut.second ));
+            GScintArgs.insert(make_pair("DDroot",processor.attribute("groot").as_string(SysRootOut.second.c_str())));
             GScintArgs.insert(make_pair("BunchingTime", processor.attribute("BunchingTime").as_string(defaultBunch.c_str())));
             GScintArgs.insert(make_pair("EnergyVsTime",processor.attribute("EvsT").as_string("true")));
             GScintArgs.insert(make_pair("MRBWin",processor.attribute("MRBWin").as_string(defaultSubEvtWin.c_str())));
