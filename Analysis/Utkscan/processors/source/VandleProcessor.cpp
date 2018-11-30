@@ -56,13 +56,16 @@ VandleProcessor::VandleProcessor() : EventProcessor(OFFSET, RANGE, "VandleProces
 }
 
 VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList, const double &res, const double &offset,
-                                 const unsigned int &numStarts, const double &compression/*=1.0*/) :
+                                 const unsigned int &numStarts, const double &compression/*=1.0*/,const double &qdcmin,
+                                 const double &tofcut) :
         EventProcessor(OFFSET,RANGE,"VandleProcessor") {
     associatedTypes.insert("vandle");
     plotMult_ = res;
     plotOffset_ = offset;
     numStarts_ = numStarts;
     qdcComp_ = compression;
+    qdcmin_ = qdcmin;
+    tofcut_ = tofcut;
 
     if(typeList.empty())
         requestedTypes_.insert("small");
@@ -238,21 +241,24 @@ void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc
             PlotTofHistograms(tof, corTof, NCtof,bar.GetQdc(), barLoc * numStarts_ + startLoc,
                               ReturnOffset(bar.GetType()),caled);
             if (DetectorDriver::get()->GetSysRootOutput()){
-                //Fill Root struct
-                vandles.sNum = startLoc;
-                vandles.sTime = start.GetTimeSansCfd();
-                vandles.sQdc = start.GetTraceQdc();
 
-                vandles.qdc = bar.GetQdc();
-                vandles.barNum = barLoc;
-                vandles.barType = bar.GetType();
-                vandles.tdiff = bar.GetTimeDifference();
-                vandles.tof = tof;
-                vandles.corTof = corTof;
-                vandles.qdcPos = bar.GetQdcPosition();
+                if (tof>= tofcut_ && bar.GetQdc()>qdcmin_) {
+                    //Fill Root struct
+                    vandles.sNum = startLoc;
+                    vandles.sTime = start.GetTimeSansCfd();
+                    vandles.sQdc = start.GetTraceQdc();
 
-                pixie_tree_event_->vandle_vec_.emplace_back(vandles);
-                vandles = processor_struct::VANDLES_DEFAULT_STRUCT;
+                    vandles.qdc = bar.GetQdc();
+                    vandles.barNum = barLoc;
+                    vandles.barType = bar.GetType();
+                    vandles.tdiff = bar.GetTimeDifference();
+                    vandles.tof = tof;
+                    vandles.corTof = corTof;
+                    vandles.qdcPos = bar.GetQdcPosition();
+
+                    pixie_tree_event_->vandle_vec_.emplace_back(vandles);
+                    vandles = processor_struct::VANDLES_DEFAULT_STRUCT;
+                }
             }
         }
 }
