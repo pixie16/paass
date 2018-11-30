@@ -41,7 +41,8 @@ public:
     ///@param [in] offset : The offset of the DAMM histograms 
     ///@param [in] numStarts : number of starts we have to process */
     VandleProcessor(const std::vector<std::string> &typeList, const double &res, const double &offset,
-                    const unsigned int &numStarts, const double &compression = 1.0);
+                    const unsigned int &numStarts, const double &compression , const double &qdcmin,
+                    const double &tofcut);
 
     ///Preprocess the VANDLE data
     ///@param [in] event : the event to preprocess
@@ -103,6 +104,10 @@ private:
     double plotMult_;//!< The resolution multiplier for DAMM histograms
     double plotOffset_;//!< The offset multiplier for DAMM histograms
     double qdcComp_; //!<QDC compression value as read from the config file
+
+    double qdcmin_;//!<min qdc to add to root tree, used to help speed up nearline mergers etc
+    double tofcut_;//!< min tof to add to root tree for speeding up near line merger
+
 
     bool hasSmall_; //!< True if small bars were requested in the Config
     bool hasBig_; //!< True if big bars were requested in the Config

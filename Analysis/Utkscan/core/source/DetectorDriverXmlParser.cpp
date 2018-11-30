@@ -188,10 +188,10 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new PspmtProcessor(
                     processor.attribute("vd").as_string("SIB062_0926"),
                     processor.attribute("yso_scale").as_double(500.0),
-                    processor.attribute("yso_offset").as_double(500.0),
+                    processor.attribute("yso_offset").as_uint(500.0),
                     processor.attribute("yso_threshold").as_double(50.0),
                     processor.attribute("front_scale").as_double(500.0),
-                    processor.attribute("front_offset").as_double(500.0),
+                    processor.attribute("front_offset").as_uint(500.0),
                     processor.attribute("front_threshold").as_double(50.0),
                     processor.attribute("rotation").as_double(0.0)
             ));
@@ -203,7 +203,8 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new VandleProcessor(
                     StringManipulation::TokenizeString(processor.attribute("types").as_string("medium"), ","),
                     processor.attribute("res").as_double(2.0), processor.attribute("offset").as_double(1000.0),
-                    processor.attribute("NumStarts").as_uint(1), processor.attribute("compression").as_double(1.0)));
+                    processor.attribute("NumStarts").as_uint(1), processor.attribute("compression").as_double(1.0),
+                    processor.attribute("qdcmin").as_double(0.0),processor.attribute("tofcut").as_double(-1000.0)));
         } else if (name == "TemplateExpProcessor") {
             vecProcess.push_back(new TemplateExpProcessor());
         } else if (name == "E11027Processor") {
