@@ -101,6 +101,7 @@ private:
     bool NiftyGraph(RawEvent &event);
 
     processor_struct::LOGIC LogStruc; //root struc
+    double cycleNum ;
 };
 
 #endif // __LOGICPROCESSOR_HPP_
