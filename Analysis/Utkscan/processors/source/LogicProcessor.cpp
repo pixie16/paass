@@ -65,6 +65,7 @@ LogicProcessor::LogicProcessor(void) : EventProcessor(dammIds::logic::OFFSET, da
     associatedTypes.insert("logic");
     associatedTypes.insert("timeclass"); // old detector type
     associatedTypes.insert("mtc");
+    cycleNum =0 ;
 }
 
 LogicProcessor::LogicProcessor(int offset, int range, bool doubleStop/*=false*/, bool doubleStart/*=false*/) :
@@ -205,10 +206,11 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
             }
             TreeCorrelator::get()->place("Beam")->activate(time);
             TreeCorrelator::get()->place("Cycle")->activate(time);
+            cycleNum++;
 
             LogStruc.beamStatus = true;
             LogStruc.tapeCycleStatus = true;
-            LogStruc.cycleNum = LogStruc.cycleNum++;
+            LogStruc.cycleNum = cycleNum;
             cout<<"Logic CycleNum = "<<LogStruc.cycleNum<<endl;
             LogStruc.lastTapeCycleStartTime= time * Globals::get()->GetClockInSeconds() * 1.0e9;
             LogStruc.lastBeamOnTime= time * Globals::get()->GetClockInSeconds() * 1.0e9;
