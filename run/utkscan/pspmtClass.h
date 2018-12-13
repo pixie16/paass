@@ -102,14 +102,17 @@ public :
    //Parameters
    Double_t fFraction;
    Double_t fSamplingRate;
+   Double_t fLength;
    Int_t fDelay;
    Int_t fQDCwin;
 
    Double_t GetFraction(){return fFraction;}
    Double_t GetSamplingRate(){return fSamplingRate;}
+   Double_t GetPathLength(return fLength;)
    Int_t    GetCCDelay(){return fDelay;}
    Int_t    GetQDCwin(){return fQDCwin;}
 
+   void SetPathLength(Double_t aLength){fLength = aLength;}
    void SetFraction(Double_t aFraction){fFraction=aFraction;}
    void SetSamplingRate(Double_t aSamplingRate){fSamplingRate = aSamplingRate;}
    void SetCCDelay(Int_t CCdelay){fDelay = CCdelay;}   
@@ -284,6 +287,7 @@ void pspmtClass::Init(TTree *tree)
    fChain->SetBranchAddress("trace_right_beta", &trace_right_beta, &b_trace_right_beta);
    SetSamplingRate(4.0);
    SetFraction(0.45);
+   SetPathLength(460.2)
    SetCCDelay(7);
    SetQDCwin(50);
    Notify();
@@ -605,13 +609,15 @@ void pspmtClass::PolyCFD(Long64_t entry){
  
 }
 
+ 
+
  UInt_t *p; p = std::find (size, size+4, 0);
  if (p == size+4){ k4fold = true; ToF = (time[2]+time[3])/2.0-(time[1]+time[0])/2.0;}
- else if (size[0]!=0&&size[2]!=0&&size[3]!=0&&size[1]==0) ToF = (time[2]+time[3])/2.0-time[0]+2.83+1.2; 
- else if (size[1]!=0&&size[2]!=0&&size[3]!=0&&size[0]==0) ToF = (time[2]+time[3])/2.0-time[1]+2.83+1.2; 
+ else if (size[0]!=0&&size[2]!=0&&size[3]!=0&&size[1]==0) ToF = (time[2]+time[3])/2.0-time[0]; 
+ else if (size[1]!=0&&size[2]!=0&&size[3]!=0&&size[0]==0) ToF = (time[2]+time[3])/2.0-time[1]; 
  else ToF = -9999;
  
- if( ToF>0) ToF_E = 0.5*(939)*TMath::Power((0.386/(ToF*1e-9)/3E8),2);
+ if( ToF>0) ToF_E = 0.5*(939)*TMath::Power((fLength/1000/(ToF*1e-9)/3E8),2);
  else ToF_E = -9999;
 
  return;

@@ -95,6 +95,9 @@ public :
    Int_t Xseg, Yseg;
    Double_t En;
 
+   Double_t c0,c1,c2;
+   void SetWCorrection(Double_t Cc0, Double_t Cc1, Double_t Cc2){c0=Cc0; c1=Cc1; c2=Cc2;}
+   
    energyClass(TTree *tree=0);
    virtual ~energyClass();
    virtual Int_t    Cut(Long64_t entry);
@@ -200,6 +203,8 @@ void energyClass::Init(TTree *tree)
    fChain->SetBranchAddress("right_qdc[4]", right_qdc, &b_right_qdc);
    fChain->SetBranchAddress("k4fold", &k4fold, &b_k4fold);
    Notify();
+   SetLength(362);
+   SetWCorrection(-9.914,-1.578e-06,3.881e-11);
 }
 
 Bool_t energyClass::Notify()
@@ -259,6 +264,8 @@ void energyClass::CalculateEnergy(Long64_t entry){
   else if(Ypos > ycuts[0] && Ypos < ycuts[1]) Yseg = 1;
   else if(Ypos > ycuts[1] && Ypos < ycuts[2]) Yseg = 2;
   else if(Ypos > ycuts[2])                    Yseg = 3;   
+
+ ToF = ToF-c2*stopqdc*stopqdc-c1*stopqdc-c0+seg_L[Yseg][Xseg]/3.0E8;
 
  if( ToF>0) En = 0.5*(939)*pow((seg_L[Yseg][Xseg]/(ToF*1e-6)/3E8),2);
  else En = -9999;

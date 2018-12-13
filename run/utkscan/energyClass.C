@@ -59,7 +59,7 @@ void energyClass::Loop(Long64_t nentries, const Char_t *filename)
    if (nentries<0) nentries = fChain->GetEntriesFast();
 
    LoadCuts();
-   SetLength(362.0);
+//   SetLength(362.0);
 
    Long64_t nbytes = 0, nb = 0;
    cout << "Analyzing " << nentries << " events." << endl;
