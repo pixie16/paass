@@ -195,12 +195,11 @@ GammaScintProcessor::GammaScintProcessor(const std::map<std::string,std::string>
     paraData.clear();
 
     // initalize addback event structs
-    LHaddBack_ = new GSAddback(0.,0.,0.,0,0);
-    NaddBack_ = new GSAddback(0.,0.,0.,0,0);
-    BHaddBack_ = new GSAddback(0.,0.,0.,0,0);
+    LHaddBack_ = new GSAddback(0.,0.,0.,0);
+    NaddBack_ = new GSAddback(0.,0.,0.,0);
+    BHaddBack_ = new GSAddback(0.,0.,0.,0);
     FAILEDaddback_ = new GSAddback(numeric_limits<double>::max(),numeric_limits<double>::max(),
-                                   numeric_limits<double>::max(),numeric_limits<unsigned>::max(),
-                                   numeric_limits<unsigned long>::max());
+                                   numeric_limits<double>::max(),numeric_limits<unsigned>::max());
 
 
 }
@@ -347,26 +346,8 @@ bool GammaScintProcessor::Process(RawEvent &event) {
             if ((*it)->GetChanID().HasTag("dy"))
                 Gsing.isDynodeOut = true;
 
-            std::string Group;
-            if (!(*it)->GetChanID().GetTags().empty()) {
-                //Group and NumGroup NEED protection from empty sets/strings, but this should be taken care of by the above IF()
-                Group = (*it)->GetChanID().GetTags().begin()->c_str();; //only adds the first Tag as the grouping. @TODO to be fixed for any order or # of tags
-                Gsing.NumGroup = Group.back(); //gets last character of the group string for the number
-            }else {
-                Gsing.NumGroup = -1; //store -1 for the group num if it isnt set
-           }
-            //root has issues with the strings in the PEsing Vector -> NumGroup (above )and NumType (here)
-            //NumGroup WILL repeat Numbers for the types (i.e. both nai and smallhag will have NumGroup =1 for some dets)
-            //so a root cut on the NumType will be REQUIRED
-            if (subType == "nai")
-                Gsing.NumType = 0;
-            else if (subType == "bighag")
-                Gsing.NumType = 1;
-            else if (subType == "smallhag")
-                Gsing.NumType = 2;
-            else
-                Gsing.NumType = -1;
-
+            Gsing.group = (*it)->GetChanID().GetGroup();
+            Gsing.subtype = (*it)->GetChanID().GetSubtype() ;
 
             Gsing.energy = Genergy;
             Gsing.rawEnergy = (*it)->GetEnergy();
@@ -387,8 +368,8 @@ bool GammaScintProcessor::Process(RawEvent &event) {
     //double abTdiff = abs(Gtime - (GetAddbackPara(subType, "refTime")));
     double abTdiff = abs((*it)->GetTimeSansCfd()-GetAddbackPara(subType,"refTime"));
 
-    if (abTdiff > (GetAddbackPara(subType, "subEvtWin")) || evtNum_ != GetAddbackStruct(subType)->abevtnum) {
-        //if we are outside of the sub event window for a given subtype OR we have crossed a pixie evt boundary
+    if (abTdiff > (GetAddbackPara(subType, "subEvtWin"))) {
+        //if we are outside of the sub event window for a given subtype
         // then fill the tree then zero the correct struc.
 
         plot(D_ENERGY + subTypeOffset + ADDBACKOFFSET, GetAddbackStruct(subType)->energy);
@@ -396,7 +377,7 @@ bool GammaScintProcessor::Process(RawEvent &event) {
             plot(D_BGENERGY + subTypeOffset + ADDBACKOFFSET, GetAddbackStruct(subType)->energy);
         }
         //reset the correct addback struct to 0s
-        (*GetAddbackStruct(subType)) = GSAddback(0.,0.,0.,0,0);
+        (*GetAddbackStruct(subType)) = GSAddback(0.,0.,0.,0);
 
 
     }
@@ -409,7 +390,6 @@ bool GammaScintProcessor::Process(RawEvent &event) {
         GetAddbackStruct(subType)->energy += (*it)->GetCalibratedEnergy();
         GetAddbackStruct(subType)->time = (*it)->GetTimeSansCfd();
         GetAddbackStruct(subType)->multiplicity += 1;
-        GetAddbackStruct(subType)->abevtnum = evtNum_;
 
         SetAddbackRefTime(subType, (*it)->GetTimeSansCfd());
     } //End GSEvents for loop

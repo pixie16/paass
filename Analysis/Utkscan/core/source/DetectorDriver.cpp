@@ -105,14 +105,8 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
                 auto GSheader = ((GammaScintProcessor *) GetProcessor("GammaScintProcessor"))->GetTHeader();
                 TNamed faciTnamed("facilityType", GSheader.find("FacilityType")->second);
                 TNamed bunchTnamed("bunchingTime(sec)", GSheader.find("BunchingTime")->second);
-                //including a reminder for which str gscint subtypes map to which num subtype
-                //general order is decreasing mass/weight (-1 is the default/Unknown match)
-                std::stringstream type2NumType;
-                type2NumType << "nai=0 " << " bighag=1 " << " smallhag=2 ";
-                TNamed typesTNamed("GS_type->NumType", type2NumType.str().c_str());
                 faciTnamed.Write();
                 bunchTnamed.Write();
-                typesTNamed.Write();
 
             } else if ((*itp) == "PspmtProcessor"){
                 auto PSPMTheader = ((PspmtProcessor *) GetProcessor("PspmtProcessor"))->GetPSPMTHeader();
