@@ -95,6 +95,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
 
             chanCfg.SetType(channel.attribute("type").as_string("ignore"));
             chanCfg.SetSubtype(channel.attribute("subtype").as_string("ignore"));
+            chanCfg.SetGroup(channel.attribute("group").as_string("ignore"));
 
             if (channel.attribute("location").as_int(-1) == -1)
                 chanCfg.SetLocation(lib->GetNextLocation(chanCfg.GetType(), chanCfg.GetSubtype()));

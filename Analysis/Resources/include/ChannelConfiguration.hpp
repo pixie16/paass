@@ -59,6 +59,9 @@ public:
     ///@return the value of the private variable subtype
     std::string GetSubtype() const { return subtype_; }
 
+    ///@return the value of the private variable group
+    std::string GetGroup() const { return group_; }
+
     ///@return Get the tag list
     std::set<std::string> GetTags() const { return tags_; }
 
@@ -109,6 +112,10 @@ public:
     /// Sets the pair of parameters that are needed for fitting analysis
     ///@param[in] a : The pair of parameters to set
     void SetFittingParameters(const std::pair<double, double> &a) { fittingParameters_ = a; }
+
+    /// Sets the Group string. Mainly used for the "addback" in the PostPaassProcessor ROOT code
+    ///@param[in] a : The Group string to set
+    void SetGroup(const std::string &a) { group_ = a; }
 
     ///Sets the location
     ///@param [in] a : sets the location for the channel
@@ -187,6 +194,7 @@ private:
     std::pair<double, double> fittingParameters_; ///< The parameters to use for the fitting routines
     unsigned int location_; ///< Specifies the real world location of the channel.
     std::string subtype_; ///< Specifies the detector sub type
+    std::string group_; ///<Specifies the detector group
     std::set<std::string> tags_; ///< A list of associated tags
     unsigned int traceDelayInSamples_; ///< The trace delay to help find the location of waveforms in traces
     TrapFilterParameters triggerFilterParameters_; ///< Parameters to use for trigger filter calculations
