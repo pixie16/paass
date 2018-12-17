@@ -122,6 +122,8 @@ public:
     {
         externalTS1 = obj.externalTS1;
         externalTS2 = obj.externalTS2;
+        eventNum = obj.eventNum;
+        fileName = obj.fileName;
         clover_vec_ = obj.clover_vec_;
         doublebeta_vec_ = obj.doublebeta_vec_;
         gamma_scint_vec_ = obj.gamma_scint_vec_;
@@ -137,6 +139,8 @@ public:
     {
         externalTS1 = 0;
         externalTS2 = 0;
+        eventNum = 0;
+        fileName = "";
         clover_vec_.clear();
         doublebeta_vec_.clear();
         gamma_scint_vec_.clear();
@@ -149,6 +153,8 @@ public:
     /* data structures to be filled in the ROOT TTree */
     ULong64_t externalTS1 = 0;
     ULong64_t externalTS2 = 0;
+    Double_t eventNum = 0;
+    std::string fileName = "";
     std::vector<processor_struct::CLOVERS> clover_vec_;
     std::vector<processor_struct::DOUBLEBETA> doublebeta_vec_;
     std::vector<processor_struct::GAMMASCINT> gamma_scint_vec_;

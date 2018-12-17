@@ -224,10 +224,13 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
         cout << Display::WarningStr("Warning caught at DetectorDriver::ProcessEvent") << endl;
         cout << "\t" << Display::WarningStr(w.what()) << endl;
     }
-    eventNumber_++;
     if (sysrootbool_) {
+        pixie_tree_event_.eventNum = eventNumber_;
+        pixie_tree_event_.fileName = Globals::get()->GetOutputFileName());
         PTree->Fill();
     }
+    eventNumber_++;
+
 }
 /// Declare some of the raw and basic plots that are going to be used in the
 /// analysis of the data. These include raw and calibrated energy spectra,
