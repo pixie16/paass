@@ -88,9 +88,9 @@ PspmtProcessor::PspmtProcessor(const std::string &vd, const double &yso_scale, c
     front_positionOffset_ = front_offset;
     front_threshold_ = front_threshold;
     ThreshStr = yso_threshold;
-    rotation_ = rotation * 3.1415926 / 180;     // convert from degrees to radians
+    rotation_ = rotation * 3.1415926 / 180.;     // convert from degrees to radians
     associatedTypes.insert("pspmt");
-    associatedTypes.insert("generic");
+
 }
 
 bool PspmtProcessor::PreProcess(RawEvent &event) {
@@ -110,50 +110,43 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
 
     static const vector<ChanEvent *> &veto = event.GetSummary("pspmt:veto")->GetList();
     static const vector<ChanEvent *> &ionTrig = event.GetSummary("pspmt:ion")->GetList();
-    static const vector<ChanEvent *> &desi = event.GetSummary("generic:desi")->GetList();
-    static const vector<ChanEvent *> &separatorScint = event.GetSummary("generic:f11")->GetList();
+    static const vector<ChanEvent *> &desi = event.GetSummary("pspmt:desi")->GetList();
+    static const vector<ChanEvent *> &separatorScint = event.GetSummary("pspmt:f11")->GetList();
 
     //Plot Dynode QDCs
-    for (vector<ChanEvent *>::const_iterator it = lowDynode.begin(); it != lowDynode.end(); it++) {
+    for (auto it = lowDynode.begin(); it != lowDynode.end(); it++) {
+        if (DetectorDriver::get()->GetSysRootOutput()) {
+            PSstruct.energy = (*it)->GetCalibratedEnergy();
+            PSstruct.time = (*it)->GetTimeSansCfd();
+            PSstruct.subtype = (*it)->GetChanID().GetSubtype();
+            PSstruct.tag = (*it)->GetChanID().GetGroup();
+            pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
+            PSstruct = processor_struct::PSPMT_DEFAULT_STRUCT;
+        }
         plot(DD_DYNODE_QDC, (*it)->GetTrace().GetQdc(), 0);
     }
-    for (vector<ChanEvent *>::const_iterator it = hiDynode.begin(); it != hiDynode.end(); it++) {
+    for (auto it = hiDynode.begin(); it != hiDynode.end(); it++) {
+        if (DetectorDriver::get()->GetSysRootOutput()) {
+            PSstruct.energy = (*it)->GetCalibratedEnergy();
+            PSstruct.time = (*it)->GetTimeSansCfd();
+            PSstruct.subtype = (*it)->GetChanID().GetSubtype();
+            PSstruct.tag = (*it)->GetChanID().GetGroup();
+            pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
+            PSstruct = processor_struct::PSPMT_DEFAULT_STRUCT;
+        }
         plot(DD_DYNODE_QDC, (*it)->GetTrace().GetQdc(), 1);
     }
 
-    int numOfVetoChans = (int) (DetectorLibrary::get()->GetLocations("pspmt", "veto")).size();
-    std::map<int, double> vetoEnergys, IonTrigEnergies;
-    for (auto it = veto.begin(); it != veto.end(); it++) {
-        int loc = (*it)->GetChanID().GetLocation();
-
-        plot(DD_PLASTIC_EN, (*it)->GetCalibratedEnergy(), loc);
-
-        if (vetoEnergys.find(loc) != vetoEnergys.end()) {
-            vetoEnergys.find(loc)->second = (*it)->GetCalibratedEnergy();
-        } else {
-            vetoEnergys.emplace(loc, (*it)->GetCalibratedEnergy());
-        }
-
-    }
-    for (auto it = ionTrig.begin(); it != ionTrig.end(); it++) {
-        int loc = (*it)->GetChanID().GetLocation();
-        plot(DD_PLASTIC_EN, (*it)->GetCalibratedEnergy(), loc + numOfVetoChans + 1); //max veto chan +1 for readablility
-
-        if (IonTrigEnergies.find(loc) != IonTrigEnergies.end()) {
-            IonTrigEnergies.find(loc)->second = (*it)->GetCalibratedEnergy();
-        } else {
-            IonTrigEnergies.emplace(loc, (*it)->GetCalibratedEnergy());
-        }
-    }
     //set up position calculation for low / high gain yso signals and ion scint
     position_low.first = 0, position_low.second = 0;
     position_high.first = 0, position_high.second = 0;
+//initalized all the things
     double energy = 0;
     double xa_l = 0, ya_l = 0, xb_l = 0, yb_l = 0;
     double xa_h = 0, ya_h = 0, xb_h = 0, yb_h = 0;
     double top_l = 0, top_r = 0, bottom_l = 0, bottom_r = 0;
-    bool hasPosition_low = false, hasPosition_high = false;
-    bool hasPosition_ion = false;
+    bool hasPosition_low = false, hasPosition_high = false, hasPosition_ion = false, hasUpstream = false,
+    hasDeSi = false, hasVeto = false;
 
     plot(DD_MULTI, lowDynode.size(), 0);
     plot(DD_MULTI, hiDynode.size(), 1);
@@ -163,25 +156,35 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
 
 
     double lowAnodeSum = 0;
-    for (vector<ChanEvent *>::const_iterator it = lowAnode.begin(); it != lowAnode.end(); it++) {
+    for (auto it = lowAnode.begin(); it != lowAnode.end(); it++) {
         //check signals energy vs threshold
         energy = (*it)->GetCalibratedEnergy();
+
+        if (DetectorDriver::get()->GetSysRootOutput()) {
+            PSstruct.energy = (*it)->GetCalibratedEnergy();
+            PSstruct.time = (*it)->GetTimeSansCfd();
+            PSstruct.subtype = (*it)->GetChanID().GetSubtype();
+            PSstruct.tag = (*it)->GetChanID().GetGroup();
+            pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
+            PSstruct = processor_struct::PSPMT_DEFAULT_STRUCT;
+        }
+
         if (energy < threshold_)
             continue;
         //parcel out position signals by tag
-        if ((*it)->GetChanID().HasTag("xa") && xa_l == 0) {
+        if ((*it)->GetChanID().GetGroup() == "xa" && xa_l == 0) {
             xa_l = energy;
             lowAnodeSum += energy;
         }
-        if ((*it)->GetChanID().HasTag("xb") && xb_l == 0) {
+        if ((*it)->GetChanID().GetGroup() == "xb" && xb_l == 0) {
             xb_l = energy;
             lowAnodeSum += energy;
         }
-        if ((*it)->GetChanID().HasTag("ya") && ya_l == 0) {
+        if ((*it)->GetChanID().GetGroup() == "ya" && ya_l == 0) {
             ya_l = energy;
             lowAnodeSum += energy;
         }
-        if ((*it)->GetChanID().HasTag("yb") && yb_l == 0) {
+        if ((*it)->GetChanID().GetGroup() == "yb" && yb_l == 0) {
             yb_l = energy;
             lowAnodeSum += energy;
         }
@@ -189,26 +192,35 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
 
 
     double highAnodeSum = 0;
-    for (vector<ChanEvent *>::const_iterator it = hiAnode.begin();
-         it != hiAnode.end(); it++) {
+    for (auto it = hiAnode.begin(); it != hiAnode.end(); it++) {
+
+        if (DetectorDriver::get()->GetSysRootOutput()) {
+            PSstruct.energy = (*it)->GetCalibratedEnergy();
+            PSstruct.time = (*it)->GetTimeSansCfd();
+            PSstruct.subtype = (*it)->GetChanID().GetSubtype();
+            PSstruct.tag = (*it)->GetChanID().GetGroup();
+            pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
+            PSstruct = processor_struct::PSPMT_DEFAULT_STRUCT;
+        }
+
         //check signals energy vs threshold
         energy = (*it)->GetCalibratedEnergy();
         if (energy < threshold_ || energy > 63000)
             continue;
         //parcel out position signals by tag
-        if ((*it)->GetChanID().HasTag("xa") && xa_h == 0){
+        if ((*it)->GetChanID().GetGroup() == "xa" && xa_h == 0){
             xa_h = energy;
             highAnodeSum += energy;
         }
-        if ((*it)->GetChanID().HasTag("xb") && xb_h == 0){
+        if ((*it)->GetChanID().GetGroup() == "xb" && xb_h == 0){
             xb_h = energy;
             highAnodeSum += energy;
         }
-        if ((*it)->GetChanID().HasTag("ya") && ya_h == 0){
+        if ((*it)->GetChanID().GetGroup() == "ya" && ya_h == 0){
             ya_h = energy;
             highAnodeSum += energy;
         }
-        if ((*it)->GetChanID().HasTag("yb") && yb_h == 0){
+        if ((*it)->GetChanID().GetGroup() == "yb" && yb_h == 0){
             yb_h = energy;
             highAnodeSum += energy;
         }
@@ -230,23 +242,59 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
              position_high.second * positionScale_ + positionOffset_ );
     }
 
+    //---------------VETO LOOP------------------------------------------------
+    int numOfVetoChans = (int) (DetectorLibrary::get()->GetLocations("pspmt", "veto")).size();
+
+    for(auto it = veto.begin(); it != veto.end(); it++){
+        int loc = (*it)->GetChanID().GetLocation();
+        plot(DD_PLASTIC_EN, (*it)->GetCalibratedEnergy(), loc);
+        if ((*it)->GetCalibratedEnergy() > 1 && (*it)->GetCalibratedEnergy() < 10000){
+            hasVeto = true;
+        }
+
+        if (DetectorDriver::get()->GetSysRootOutput()) {
+            PSstruct.energy = (*it)->GetCalibratedEnergy();
+            PSstruct.time = (*it)->GetTimeSansCfd();
+            PSstruct.subtype = (*it)->GetChanID().GetSubtype();
+            PSstruct.tag = (*it)->GetChanID().GetGroup();
+            pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
+            PSstruct = processor_struct::PSPMT_DEFAULT_STRUCT;
+        }
+    }
+
     //------------Positions from ion scintillator---------------------------------
         //using top - bottom and left - right computation scheme
 
-    for(vector<ChanEvent *>::const_iterator it = ionTrig.begin(); it != ionTrig.end(); it++){
+    for(auto it = ionTrig.begin(); it != ionTrig.end(); it++){
         //check signals energy vs threshold
+
+        if (DetectorDriver::get()->GetSysRootOutput()) {
+            PSstruct.energy = (*it)->GetCalibratedEnergy();
+            PSstruct.time = (*it)->GetTimeSansCfd();
+            PSstruct.subtype = (*it)->GetChanID().GetSubtype();
+            PSstruct.tag = (*it)->GetChanID().GetGroup();
+            pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
+            PSstruct = processor_struct::PSPMT_DEFAULT_STRUCT;
+        }
         energy = (*it)->GetCalibratedEnergy();
         if (energy < 10)
             continue;
+
+        // damm plotting of energies
+        int loc = (*it)->GetChanID().GetLocation();
+        plot(DD_PLASTIC_EN, (*it)->GetCalibratedEnergy(), loc + numOfVetoChans + 1); //max veto chan +1 for readablility
+
         //parcel out position signals by tag
-        if ((*it)->GetChanID().HasTag("black") && top_l == 0 )
+        if ((*it)->GetChanID().GetGroup() == "black" && top_l == 0 )
             top_l = energy;
-        if ((*it)->GetChanID().HasTag("blue") && top_r == 0 )
+        if ((*it)->GetChanID().GetGroup() == "blue" && top_r == 0 )
             top_r = energy;
-        if ((*it)->GetChanID().HasTag("white") && bottom_l == 0 )
+        if ((*it)->GetChanID().GetGroup() == "white" && bottom_l == 0 )
             bottom_l = energy;
-        if ((*it)->GetChanID().HasTag("green") && bottom_r == 0 )
+        if ((*it)->GetChanID().GetGroup() == "green" && bottom_r == 0 )
             bottom_r = energy;
+
+
     }
 
     if (top_l > 0 && top_r > 0 && bottom_l > 0 && bottom_r > 0){
@@ -257,34 +305,40 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
              position_ion.second * front_positionScale_ + front_positionOffset_);
     }
 
-
-
-
     //----------------------------------------------------------------------------
     //------------Check Transmission efficiencies---------------------------------
 
         //check for valid upstream events, dE silicon events, and vetos for gating
-    bool hasUpstream = false, hasDeSi = false, hasVeto = false;
+
     for(auto it = separatorScint.begin(); it != separatorScint.end(); it++){
+        if (DetectorDriver::get()->GetSysRootOutput()) {
+            PSstruct.energy = (*it)->GetCalibratedEnergy();
+            PSstruct.time = (*it)->GetTimeSansCfd();
+            PSstruct.subtype = (*it)->GetChanID().GetSubtype();
+            PSstruct.tag = (*it)->GetChanID().GetGroup();
+            pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
+            PSstruct = processor_struct::PSPMT_DEFAULT_STRUCT;
+        }
         if ((*it)->GetCalibratedEnergy() > 1 && (*it)->GetCalibratedEnergy() < 10000){
             hasUpstream = true;
-            break;
         }
     }
 
     for (auto it = desi.begin(); it != desi.end(); it++){
+        if (DetectorDriver::get()->GetSysRootOutput()) {
+            PSstruct.energy = (*it)->GetCalibratedEnergy();
+            PSstruct.time = (*it)->GetTimeSansCfd();
+            PSstruct.subtype = (*it)->GetChanID().GetSubtype();
+            PSstruct.tag = (*it)->GetChanID().GetGroup();
+            pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
+            PSstruct = processor_struct::PSPMT_DEFAULT_STRUCT;
+        }
         if((*it)->GetCalibratedEnergy() > 1 && (*it)->GetCalibratedEnergy() < 10000){
             hasDeSi = true;
-            break;
         }
     }
 
-    for(auto it = veto.begin(); it != veto.end(); it++){
-        if ((*it)->GetCalibratedEnergy() > 1 && (*it)->GetCalibratedEnergy() < 10000){
-            hasVeto = true;
-            break;
-        }
-    }
+
 
 
         //plot valid YSO positions and dE silicon events gated on upstream events
@@ -307,9 +361,9 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
 
     if(hasDeSi) {
         for (auto it_sep = separatorScint.begin(); it_sep != separatorScint.end(); it_sep++) {
-            if ((*it_sep)->GetChanID().HasTag("left")) {
+            if ((*it_sep)->GetChanID().GetGroup() =="left") {
                 plot(DD_SEPAR_ENERGY, (*it_sep)->GetCalibratedEnergy(), 0);
-            } else if ((*it_sep)->GetChanID().HasTag("right")) {
+            } else if ((*it_sep)->GetChanID().GetGroup() == "right") {
                 plot(DD_SEPAR_ENERGY, (*it_sep)->GetCalibratedEnergy(), 1);
             }
         }
@@ -329,9 +383,9 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
             plot(D_DESI_YSO_GATED, (*de_it)->GetCalibratedEnergy());
         }
         for (auto it_sep = separatorScint.begin(); it_sep != separatorScint.end(); it_sep++) {
-            if ((*it_sep)->GetChanID().HasTag("left")) {
+            if ((*it_sep)->GetChanID().GetGroup() =="left") {
                 plot(DD_SEPAR_YSO_GATED, (*it_sep)->GetCalibratedEnergy(), 0);
-            } else if ((*it_sep)->GetChanID().HasTag("right")) {
+            } else if ((*it_sep)->GetChanID().GetGroup() =="right") {
                 plot(DD_SEPAR_YSO_GATED, (*it_sep)->GetCalibratedEnergy(), 1);
             }
         }
@@ -347,49 +401,6 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
         plot(D_TRANS_EFF_YSO, 3);
 
 
-
-
-    //----------------------------------------------------------------------------
-
-
-    if (DetectorDriver::get()->GetSysRootOutput()) {
-
-        PSstruct.xa_l = xa_l;
-        PSstruct.xb_l = xb_l;
-        PSstruct.ya_l = ya_l;
-        PSstruct.yb_l = yb_l;
-        PSstruct.xa_h = xa_h;
-        PSstruct.xb_h = xb_h;
-        PSstruct.ya_h = ya_h;
-        PSstruct.yb_h = yb_h;
-        if (!lowDynode.empty()) {
-            PSstruct.dy_l = lowDynode.front()->GetCalibratedEnergy();
-            PSstruct.dyL_time = lowDynode.front()->GetTimeSansCfd();
-        }
-        if (!hiDynode.empty()) {
-            PSstruct.dy_h = hiDynode.front()->GetCalibratedEnergy();
-            PSstruct.dyH_time = hiDynode.front()->GetTimeSansCfd();
-        }
-        PSstruct.anodeLmulti = (int) lowAnode.size();
-        PSstruct.anodeHmulti = (int) hiAnode.size();
-        PSstruct.dyLmulti = (int) lowDynode.size();
-        PSstruct.dyHmulti = (int) hiDynode.size();
-        PSstruct.xposL = position_low.first;
-        PSstruct.yposL = position_low.second;
-        PSstruct.xposH = position_high.first;
-        PSstruct.yposH = position_high.second;
-
-        PSstruct.vetoEn0 = vetoEnergys.find(0)->second;
-        PSstruct.vetoEn1 = vetoEnergys.find(1)->second;
-
-        PSstruct.ionTrigEn0 = IonTrigEnergies.find(0)->second;
-        PSstruct.ionTrigEn1 = IonTrigEnergies.find(1)->second;
-        PSstruct.ionTrigEn2 = IonTrigEnergies.find(2)->second;
-        PSstruct.ionTrigEn3 = IonTrigEnergies.find(3)->second;
-
-        pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
-        PSstruct = processor_struct::PSPMT_DEFAULT_STRUCT;
-    }
 
     if (!lowDynode.empty())
         plot(DD_DY_SUM_LG,lowDynode.front()->GetCalibratedEnergy(),lowAnodeSum);
