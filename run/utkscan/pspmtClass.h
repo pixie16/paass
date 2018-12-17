@@ -108,7 +108,7 @@ public :
 
    Double_t GetFraction(){return fFraction;}
    Double_t GetSamplingRate(){return fSamplingRate;}
-   Double_t GetPathLength(return fLength;)
+   Double_t GetPathLength(){return fLength;}
    Int_t    GetCCDelay(){return fDelay;}
    Int_t    GetQDCwin(){return fQDCwin;}
 
@@ -287,7 +287,7 @@ void pspmtClass::Init(TTree *tree)
    fChain->SetBranchAddress("trace_right_beta", &trace_right_beta, &b_trace_right_beta);
    SetSamplingRate(4.0);
    SetFraction(0.45);
-   SetPathLength(460.2)
+   SetPathLength(460.2);
    SetCCDelay(7);
    SetQDCwin(50);
    Notify();
