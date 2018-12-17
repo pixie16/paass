@@ -157,14 +157,11 @@ bool CloverFragProcessor::Process(RawEvent &event) {
 
         if (DetectorDriver::get()->GetSysRootOutput()) {
             //Fill root struct and push back on to vector
-            Cstruct.RawEnergy = (*itClover)->GetEnergy();
-            Cstruct.Energy = gEnergy;
-            Cstruct.Time = (*itClover)->GetTimeSansCfd();
-            Cstruct.HasLowResBeta = isDecay;
-            Cstruct.HasIonTrig = hasIonTrig;
-            Cstruct.HasVeto = hasVeto;
-            Cstruct.DetNum = (*itClover)->GetChanID().GetLocation();
-            Cstruct.CloverNum = cloverNum;
+            Cstruct.rawEnergy = (*itClover)->GetEnergy();
+            Cstruct.energy = gEnergy;
+            Cstruct.time = (*itClover)->GetTimeSansCfd();
+            Cstruct.detNum = (*itClover)->GetChanID().GetLocation();
+            Cstruct.cloverNum = cloverNum;
             pixie_tree_event_->clover_vec_.emplace_back(Cstruct);
             Cstruct = processor_struct::CLOVERS_DEFAULT_STRUCT; //reset to initalized values (see ProcessorRootStruc.hpp
         }
