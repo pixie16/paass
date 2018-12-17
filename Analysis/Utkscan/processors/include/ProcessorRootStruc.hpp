@@ -5,6 +5,7 @@
 #define PAASS_PROCESSORSTRUC_HPP
 
 #include <TObject.h>
+#include <TString.h>
 
 namespace processor_struct {
     struct VANDLES {
@@ -29,9 +30,8 @@ namespace processor_struct {
         bool isDynodeOut = false;
         int detNum = -999;
         double time = -999;
-        int NumGroup = -1; // spacial groups for addback
-        int NumType = -1; // REQUIRES a Type condition to separate the types; order in decreasing mass, 0 = nai, 1 = big hag, 2= small hag
-
+        TString group = "";
+        TString subtype = "";
     } ;
     static const GAMMASCINT GAMMASCINT_DEFAULT_STRUCT;
 
