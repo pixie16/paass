@@ -78,39 +78,14 @@ namespace processor_struct {
     static const LOGIC LOGIC_DEFAULT_STRUCT;
 
     struct PSPMT { 
-        ///Contains both low and high gain PSPMT information
-        double xa_l = -999;
-        double xb_l = -999;
-        double ya_l = -999;
-        double yb_l = -999;
-        double xa_h = -999;
-        double xb_h = -999;
-        double ya_h = -999;
-        double yb_h = -999;
-        double dy_l = -999;
-        double dy_h = -999;
-        double dyL_time = -999;
-        double dyH_time = -999;
-        double xposL =-999;
-        double yposL =-999;
-        double xposH =-999;
-        double yposH =-999;
-        int anodeLmulti = -999;
-        int anodeHmulti = -999;
-        int dyLmulti = -999;
-        int dyHmulti = -999;
-        double vetoEn0 = -999;
-        double vetoEn1 = -999;
-        double ionTrigEn0 = -999;
-        double ionTrigEn1 = -999;
-        double ionTrigEn2 = -999;
-        double ionTrigEn3 = -999;
-        bool hasVeto = false;
-        bool hasIonTrig = false;
+        double energy = -999;
+        double time = -999;
+        TString subtype = "";
+        TString tag = "";
     };
     static const PSPMT  PSPMT_DEFAULT_STRUCT;
 }    
- 
+
 class PixTreeEvent : public TObject
 {
 public:
