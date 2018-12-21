@@ -185,6 +185,8 @@ public:
      * */
     std::set<std::string> GetProcessorList();
 
+    /**\return System ROOT Output Status. True if ROOT output is requested */
+    bool GetSysRootOutput(){ return sysrootbool_; }
 
     /** \return the set of detectors used in the analysis */
     const std::set<std::string> &GetUsedDetectors(void) const;
@@ -204,7 +206,6 @@ public:
     /** Default Destructor */
     virtual ~DetectorDriver();
 
-    bool GetSysRootOutput(){ return sysrootbool_; }
 
 private:
     /** Constructor that initializes the various processors and analyzers. */
@@ -242,7 +243,10 @@ private:
                                     const char *title) {
         histo.DeclareHistogram2D(dammId, xSize, ySize, title);
     }
-
+    /*! \brief Fills the Logic structure for ROOT output.
+     * Because the logic spans pixie events if we fill in the processor it does not get filled into each ROOT entry.
+     * So we will fill here in the DetectorDriver utilizing the work that was put into the TreeCorrelator  */
+    void FillLogicStruc();
 
     std::set<std::string> setProcess; /**< list of processors used in the analysis.
     * This should be identical to vecProcess, but in string form */
@@ -253,8 +257,12 @@ private:
 
     PixTreeEvent pixie_tree_event_; /** tree event container class **/
 
-    bool sysrootbool_;
-    double rFileSizeGB_;
+    bool sysrootbool_; ///Bool for ROOT ouput
+    bool fillLogic_; /// Should we fill the logic struct
+    processor_struct::LOGIC LogStruc; //Logic root struc
+    int tapeCycleNum_; //counts the number of tape cycles
+    double lastCycleTime_; // last cycle start time (for cycle num incrementing)
+    double rFileSizeGB_;/// Max size in GB for the ROOT file before starting a new one
 };
 
 #endif // __DETECTORDRIVER_HPP_

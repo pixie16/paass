@@ -40,7 +40,9 @@ DetectorDriver *DetectorDriver::get() {
 
 DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
     eventNumber_ = 0;
-    sysrootbool_ =false;
+    sysrootbool_ = false;
+    fillLogic_  = false;
+    tapeCycleNum_ = 0;
 
     try {
         DetectorDriverXmlParser parser;
@@ -114,6 +116,8 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
                 VDType.Write();
                 TNamed Thresh("SoftThresh",PSPMTheader.second);
                 Thresh.Write();
+            } else if ((*itp) == "LogicProcessor") {
+                fillLogic_ = true;
             } else{
                 continue;
             }
@@ -225,6 +229,7 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
         cout << "\t" << Display::WarningStr(w.what()) << endl;
     }
     if (sysrootbool_) {
+        FillLogicStruc();
         pixie_tree_event_.eventNum = eventNumber_;
         pixie_tree_event_.fileName = Globals::get()->GetOutputFileName();
         PTree->Fill();
@@ -383,4 +388,52 @@ std::set<std::string> DetectorDriver::GetProcessorList() {
    // std::set<std::string> Plist;
 
     return (setProcess);
+}
+
+void DetectorDriver::FillLogicStruc() { //This should be called away from the event loops. (near where it fills the filenames)
+    double convertTimeNS = Globals::get()->GetClockInSeconds() * 1.0e9; // converstion factor from TICKs to NS
+    LogStruc.tapeCycleStatus = TreeCorrelator::get()->place("Cycle")->status();
+    LogStruc.tapeMoving =  TreeCorrelator::get()->place("TapeMove")->status();
+    LogStruc.beamStatus = TreeCorrelator::get()->place("Beam")->status();
+
+
+    if (TreeCorrelator::get()->place("Beam")->status()){
+        LogStruc.lastBeamOnTime = TreeCorrelator::get()->place("Beam")->last().time* convertTimeNS;
+        LogStruc.lastBeamOffTime = TreeCorrelator::get()->place("Beam")->secondlast().time * convertTimeNS;
+    } else {
+        LogStruc.lastBeamOnTime = TreeCorrelator::get()->place("Beam")->secondlast().time* convertTimeNS;
+        LogStruc.lastBeamOffTime = TreeCorrelator::get()->place("Beam")->last().time * convertTimeNS;
+    }
+
+    if (TreeCorrelator::get()->place("TapeMove")->status()){
+        LogStruc.lastTapeMoveStartTime = TreeCorrelator::get()->place("TapeMove")->last().time* convertTimeNS;
+    } else {
+        LogStruc.lastTapeMoveStartTime = TreeCorrelator::get()->place("TapeMove")->secondlast().time* convertTimeNS;
+    }
+
+    if (TreeCorrelator::get()->place("Cycle")->status()){
+        double currentTime_ = TreeCorrelator::get()->place("Cycle")->last().time* convertTimeNS;
+        if (currentTime_ != lastCycleTime_){
+            tapeCycleNum_++;
+        }
+        LogStruc.lastTapeCycleStartTime = currentTime_;
+        LogStruc.cycleNum = tapeCycleNum_;
+    } else {
+        LogStruc.lastTapeCycleStartTime = TreeCorrelator::get()->place("Cycle")->secondlast().time* convertTimeNS;
+    }
+
+    if (TreeCorrelator::get()->place("logic_t1_0")->status()){
+        LogStruc.lastProtonPulseTime = TreeCorrelator::get()->place("logic_t1_0")->last().time* convertTimeNS;
+    } else {
+        LogStruc.lastProtonPulseTime = TreeCorrelator::get()->place("logic_t1_0")->secondlast().time* convertTimeNS;
+    }
+
+    if (TreeCorrelator::get()->place("Supercycle")->status()){
+        LogStruc.lastSuperCycleTime = TreeCorrelator::get()->place("Supercycle")->last().time* convertTimeNS;
+    } else {
+        LogStruc.lastSuperCycleTime = TreeCorrelator::get()->place("Supercycle")->secondlast().time* convertTimeNS;
+    }
+
+    //fill the vector
+    pixie_tree_event_.logic_vec_.emplace_back(LogStruc);
 }

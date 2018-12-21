@@ -100,8 +100,6 @@ private:
      * \param [in] event : the raw event for plotting the nifty graph */
     bool NiftyGraph(RawEvent &event);
 
-    processor_struct::LOGIC LogStruc; //root struc
-    double cycleNum ;
 };
 
 #endif // __LOGICPROCESSOR_HPP_
