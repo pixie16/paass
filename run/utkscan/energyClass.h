@@ -11,14 +11,18 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <TProfile.h>
+#include <TRandom3.h>
 
 // Header file for the classes stored in the TTree if any.
 #include <iostream>
 #include <math.h>
 class energyClass {
 public :
+//   TFile          *f;
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
+   TProfile       *Wcorr;
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -87,17 +91,20 @@ public :
    TBranch        *b_k4fold;   //!
 
    ////Public Data Members
+   TRandom3 *ran = new TRandom3(100);
+   
+   Double_t VandE;
+   Double_t pCorr, distance;
    Double_t xcuts[7], ycuts[3];
    Double_t x_del = 6; // mm
    Double_t y_del = 12.7; // mm
    Double_t seg_L[4][8];
    Double_t Xpos, Ypos;
    Int_t Xseg, Yseg;
+   Double_t nPathLength;
    Double_t En;
-
-   Double_t c0,c1,c2;
-   void SetWCorrection(Double_t Cc0, Double_t Cc1, Double_t Cc2){c0=Cc0; c1=Cc1; c2=Cc2;}
-   
+//   TF1 *fCorr = new TF1("fCorr","(x<[0])*([1]+[2]*x)+(x>[0])*([5]*stopqdc*stopqdc-[4]*stopqdc-[3])",0,800000);
+      
    energyClass(TTree *tree=0);
    virtual ~energyClass();
    virtual Int_t    Cut(Long64_t entry);
@@ -109,8 +116,9 @@ public :
    virtual void     Show(Long64_t entry = -1);
    virtual void     LoadCuts();
    virtual void     SetLength(Double_t pLength=362);
+   virtual Double_t GetToFCorr();
    virtual void     CalculateEnergy(Long64_t entry = -1);
-
+   virtual void     CalcDistance();
 };
 
 #endif
@@ -126,7 +134,6 @@ energyClass::energyClass(TTree *tree) : fChain(0)
          f = new TFile("Output_Gridtest.root");
       }
       f->GetObject("T",tree);
-
    }
    Init(tree);
 }
@@ -203,8 +210,14 @@ void energyClass::Init(TTree *tree)
    fChain->SetBranchAddress("right_qdc[4]", right_qdc, &b_right_qdc);
    fChain->SetBranchAddress("k4fold", &k4fold, &b_k4fold);
    Notify();
+
    SetLength(362);
-   SetWCorrection(-9.914,-1.578e-06,3.881e-11);
+
+   fChain->GetCurrentFile()->GetObject("Corr",Wcorr);
+//   if (Wcorr) std::cout  << "Found Corr" << endl;
+
+//   SetCorrFunction(0,0,-22.30,4.1528E-7,2.9468E-11);
+//   SetWCorrection(-9.914,-1.578e-06,3.881e-11);
 }
 
 Bool_t energyClass::Notify()
@@ -233,18 +246,36 @@ Int_t energyClass::Cut(Long64_t entry)
    return 1;
 }
 
-void energyClass::SetLength(Double_t pLength){
+Double_t energyClass::GetToFCorr(){
+  Double_t fix;
+  if (stopqdc<=0 || !Wcorr) fix=0.0; 
+  else if(Wcorr){
+  Int_t bin = Wcorr->FindBin(stopqdc);
+//    std::cout << bin << endl;
+  fix = Wcorr->GetBinContent(bin);
+  }
+  return fix;
+}
 
+void energyClass::SetLength(Double_t pLength){
+ nPathLength = pLength+24.0;
  for(int k=0;k<4;k++){
   for(int j=0;j<8;j++){
-   seg_L[k][j]= sqrt( pow((pLength+x_del*(double)(7.5-j)),2)+pow((y_del*(double)(k-1.5)),2));
+   seg_L[k][j]= sqrt(pow((pLength+x_del*(double)(7.5-j)),2)+pow((y_del*(double)(k-1.5)),2));
    std::cout << seg_L[k][j] << " " ;
    }
   std::cout << endl;
   }
-
 }
 
+void energyClass::CalcDistance(){
+ double dX = ran->Gaus(0,2.5);
+ double dY = ran->Gaus(0,5.4);
+ double Lx = nPathLength-24.0+x_del*(7.5-Xseg);
+ double Ly = y_del*(Yseg-1.5);
+
+ distance = sqrt(pow(seg_L[Yseg][Xseg],2)+dX*dX+dY*dY+2*(Lx*dX+Ly*dY)+pCorr*pCorr);
+}
 void energyClass::CalculateEnergy(Long64_t entry){
   GetEntry(entry);
 //  SetLength(362);
@@ -265,12 +296,20 @@ void energyClass::CalculateEnergy(Long64_t entry){
   else if(Ypos > ycuts[1] && Ypos < ycuts[2]) Yseg = 2;
   else if(Ypos > ycuts[2])                    Yseg = 3;   
 
- ToF = ToF-c2*stopqdc*stopqdc-c1*stopqdc-c0+seg_L[Yseg][Xseg]/3.0E8;
+ //ToF = ToF-c2*stopqdc*stopqdc-c1*stopqdc-c0+seg_L[Yseg][Xseg]*1E-3/3.0E8;
+ double ToFCorr = GetToFCorr();
+ ToF = ToF - ToFCorr + seg_L[Yseg][Xseg]*1E-3/3.0E8;
+ pCorr = abs(time[2]-phase[2]-time[3]+phase[2]+7.984)*189.9;
+ if (pCorr > 127.0) pCorr = 127.0;
+ //distance = sqrt(pow(seg_L[Yseg][Xseg],2)+pCorr*pCorr);
+ CalcDistance();
 
- if( ToF>0) En = 0.5*(939)*pow((seg_L[Yseg][Xseg]/(ToF*1e-6)/3E8),2);
- else En = -9999;
- 
+// if( ToF>0) { En = 0.5*(939)*pow((seg_L[Yseg][Xseg]/(ToF*1e-6)/3E8),2); VandE = 0.5*(939)*pow((nPathLength/(ToF*1e-6)/3E8),2);}
+ if( ToF>0) { En = 0.5*(939)*pow((distance/(ToF*1e-6)/3E8),2); VandE = 0.5*(939)*pow((nPathLength/(ToF*1e-6)/3E8),2);}
+ else {En = -9999; VandE=-9999;}
+
  if (En > 1000) En = -9999;
+ if (VandE > 1000) VandE = -9999;
 // std::cout << "Neutron Energy: " << En << " MeV" << endl;
  return;
 }
