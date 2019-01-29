@@ -43,6 +43,10 @@ run/Pixie16msg.txt*
 run/utkscan/Config*.xml
 *.dat
 run/utkscan/*.cmd
+run/utkscan/Grid*.txt
+run/utkscan/Scripts
+run/utkscan/bin
+
 #Ignore the build and exec directory
 build/
 *build-*/
