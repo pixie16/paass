@@ -13,6 +13,9 @@
 #pragma link C++ struct processor_struct::DOUBLEBETA+;
 #pragma link C++ class std::vector<processor_struct::DOUBLEBETA>+;
 
+#pragma link C++ struct processor_struct::DSSD+;
+#pragma link C++ class std::vector<processor_struct::DSSD>+;
+
 #pragma link C++ struct processor_struct::GAMMASCINT+;
 #pragma link C++ class std::vector<processor_struct::GAMMASCINT>+;
 

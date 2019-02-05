@@ -63,6 +63,7 @@
 #include "PspmtProcessor.hpp"
 #include "SingleBetaProcessor.hpp"
 #include "VandleProcessor.hpp"
+#include "NsheProcessor.hpp"
 
 #endif
 
