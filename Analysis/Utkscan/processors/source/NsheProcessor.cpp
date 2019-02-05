@@ -117,7 +117,7 @@ void NsheProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_DENERGY__DPOS_Y_CORRELATED,        energyBins, yBins, "DSSD dE dY correlated events");
 
     DeclareHistogram2D(DD_TOF_ENERGY, S6 , energyBins, "DSSD dE dY correlated events");
-    DeclareHistogram2D(DD_VETO_ENERGY, SB , energyBins, "DSSD dE dY correlated events");
+    DeclareHistogram2D(DD_VETO_ENERGY, SB , SB, "DSSD dE dY correlated events");
 
 }
 
@@ -435,7 +435,7 @@ bool NsheProcessor::Process(RawEvent &event) {
 	}
     if (bestDtime_veto < vetoWindow_)
 	{
-		plot(DD_VETO_ENERGY, (*bestMatch)->GetCalibratedEnergy(),yEnergy);
+		plot(DD_VETO_ENERGY, (*bestMatch_veto)->GetCalibratedEnergy()/5,yEnergy/5);
 	}
 
 	plot(D_DTIMETOF, tof);
