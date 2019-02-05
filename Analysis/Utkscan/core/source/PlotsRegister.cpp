@@ -58,11 +58,11 @@ bool PlotsRegister::Add(int offset, int range, std::string name) {
         throw HistogramException(ss.str());
     }
 
-    if (min < 1 || max > 7999) {
+    if (min < 1 || max > 8999) {
         stringstream ss;
         ss << "PlotsRegister: Attempt to register histogram ids: "
            << min << " to " << max << " by " << name << endl;
-        ss << "Valid range is 1 to 7999";
+        ss << "Valid range is 1 to 8999";
         throw HistogramException(ss.str());
     }
 

@@ -84,7 +84,14 @@ namespace processor_struct {
         TString tag = "";
     };
     static const PSPMT  PSPMT_DEFAULT_STRUCT;
-}    
+
+    struct MTAS {
+	double rawEnergy = -999;
+	double calEnergy = -999;
+	double time = -999;
+    };
+    static const MTAS MTAS_DEFAULT_STRUCT;
+}
 
 class PixTreeEvent : public TObject
 {
@@ -105,6 +112,7 @@ public:
         logic_vec_ = obj.logic_vec_;
         pspmt_vec_ = obj.pspmt_vec_;
         vandle_vec_ = obj.vandle_vec_;
+	mtas_vec_ = obj.mtas_vec_;
     }
 
     virtual ~PixTreeEvent(){}
@@ -122,6 +130,7 @@ public:
         logic_vec_.clear();
         pspmt_vec_.clear();
         vandle_vec_.clear();
+	mtas_vec_.clear();
 
     }
 
@@ -136,6 +145,7 @@ public:
     std::vector<processor_struct::LOGIC> logic_vec_;
     std::vector<processor_struct::PSPMT> pspmt_vec_;
     std::vector<processor_struct::VANDLES> vandle_vec_;
+    std::vector<processor_struct::MTAS> mtas_vec_;
 
     ClassDef(PixTreeEvent,1)
 };
