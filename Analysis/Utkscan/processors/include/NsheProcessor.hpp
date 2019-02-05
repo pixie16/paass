@@ -61,6 +61,7 @@ namespace dammIds {
         const int DD_DENERGY__DPOS_Y_CORRELATED = 43; //!< ??
 
 	const int DD_TOF_ENERGY = 50 ; // TOF ENERGY SPECTRUM	
+	const int DD_VETO_ENERGY = 51 ; // VETO ENERGY SPECTRUM	
 
 
     }
@@ -76,6 +77,7 @@ public:
 
     NsheProcessor(double timeWindow,
 		      double tofWindow,
+              double vetoWindow,
                       double deltaEnergy,
                       double highEnergyCut,
                       double lowEnergyCut,
@@ -147,6 +149,9 @@ protected:
    /** Limit in seconds for the difference in time between tofs/veto signals and DSSD**/
 
     double tofWindow_;
+
+    /** Limit in the veto correlation with the DSSD **/
+    double vetoWindow_;
 
     /**Limit in keV of difference between front and back events to
      * be considered a good event */

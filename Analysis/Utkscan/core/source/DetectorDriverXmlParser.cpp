@@ -216,6 +216,7 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new NsheProcessor(
                     processor.attribute("timeWindow").as_double(1e-6),
                     processor.attribute("tofWindow").as_double(1e-7),
+                    processor.attribute("vetoWindow").as_double(1e-7),
                     processor.attribute("deltaEnergy").as_double(3000),
                     processor.attribute("highEnergyCut").as_double(15000),
                     processor.attribute("lowEnergyCut").as_double(8000),

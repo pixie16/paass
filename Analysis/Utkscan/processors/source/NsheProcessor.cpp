@@ -31,15 +31,15 @@ NsheProcessor::NsheProcessor():EventProcessor(OFFSET, RANGE, "NsheProcessor"){ /
     cout<<endl<<endl<<endl<<timeWindow_<<endl<<endl<<endl;
 }*/
 
-NsheProcessor::NsheProcessor(double timeWindow, double tofWindow,  double deltaEnergy, double highEnergyCut, double lowEnergyCut, double zero_suppress, double fissionEnergyCut, int numBackStrips, int numFrontStrips):EventProcessor(OFFSET, RANGE, "NsheProcessor"){ //, correlator_(numBackStrips, numFrontStrips) {
+NsheProcessor::NsheProcessor(double timeWindow, double tofWindow, double vetoWindow,  double deltaEnergy, double highEnergyCut, double lowEnergyCut, double zero_suppress, double fissionEnergyCut, int numBackStrips, int numFrontStrips):EventProcessor(OFFSET, RANGE, "NsheProcessor"){ //, correlator_(numBackStrips, numFrontStrips) {
 	timeWindow_ = timeWindow;
     tofWindow_ = tofWindow;
+    vetoWindow_ = vetoWindow;
     deltaEnergy_ = deltaEnergy;
     highEnergyCut_ = highEnergyCut;
     lowEnergyCut_ = lowEnergyCut;
     zero_suppress_ = zero_suppress;
     fissionEnergyCut_ = fissionEnergyCut;
-    name = "DssDProcessorSHE";
     associatedTypes.insert("SHE");
     
 /*
@@ -108,7 +108,7 @@ void NsheProcessor::DeclarePlots(void) {
     DeclareHistogram1D(D_ENERGY_WITH_VETO_MWPC, energyBins,        "Energy dssd/10 coin. veto and mwpc");
     DeclareHistogram1D(D_ENERGY_NO_VETO_MWPC, energyBins,        "Energy dssd/10 coin. no veto and mwpc");
 
-    DeclareHistogram2D(DD_FRONTE__BACKE, energyBins, energyBins3,        "Front vs Back energy");
+    DeclareHistogram2D(DD_FRONTE__BACKE, SB, SD,        "Front vs Back energy");
     DeclareHistogram2D(DD_ENERGY__POSX_T_MISSING,        energyBins, xBins,        "DSSD T missing X strips E vs. position");
     DeclareHistogram2D(DD_ENERGY__POSY_T_MISSING,        energyBins, yBins,        "DSSD T missing Y strips E vs. position");
     DeclareHistogram2D(DD_MAXEVENT_FRONTE__BACKE, energyBins, energyBins3,        "Front vs Back energy max event");
@@ -117,6 +117,7 @@ void NsheProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_DENERGY__DPOS_Y_CORRELATED,        energyBins, yBins, "DSSD dE dY correlated events");
 
     DeclareHistogram2D(DD_TOF_ENERGY, S6 , energyBins, "DSSD dE dY correlated events");
+    DeclareHistogram2D(DD_VETO_ENERGY, SB , energyBins, "DSSD dE dY correlated events");
 
 }
 
@@ -130,10 +131,7 @@ bool NsheProcessor::PreProcess(RawEvent &event) {
     }
     xyEventsTMatch_.clear(); // part of the NsheProcessor class
     xyEventsEMatch_.clear();
-
-    vector<ChanEvent *> mcp1Event = event.GetSummary("SHE:mcp1", true)->GetList();
-    vector<ChanEvent *> mcp2Event = event.GetSummary("SHE:mcp2", true)->GetList();
-    vector<ChanEvent *> vetoEvent = event.GetSummary("SHE:veto", true)->GetList();
+    
 
     vector<ChanEvent *> xEvents =
             event.GetSummary("SHE:dssd_front", true)->GetList();
@@ -388,7 +386,9 @@ bool NsheProcessor::Process(RawEvent &event) {
 	auto bestMatch = mcp1Event.end();	
 	double bestDtime1 = numeric_limits<double>::max();
 	auto bestMatch1 = mcp2Event.end();	
-	
+	double bestDtime_veto = numeric_limits<double>::max();
+	auto bestMatch_veto = vetoEvent.end();
+
 	double tof = 0;
 
 //	if (mcp1Event.size() != 0 || mcp2Event.size() != 0 || vetoEvent.size() != 0 )
@@ -410,8 +410,18 @@ bool NsheProcessor::Process(RawEvent &event) {
 	    //if (bestDtime < timeWindow_) cout<<bestDtime<<endl;
             }
 	}
+    for (vector<ChanEvent *>::iterator itv = vetoEvent.begin(); itv != vetoEvent.end(); itv++)
+	{
+	    double dTime = abs(time - (*itv)->GetTime()) * Globals::get()->GetClockInSeconds();
+//            cout<<(*itm)->GetCfdFractionalTime() * Globals::get()->GetClockInSeconds()<<endl;  
+	  if (dTime < bestDtime) { bestDtime = dTime; bestMatch_veto = itv;
+	    //if (bestDtime < timeWindow_) cout<<bestDtime<<endl;
+            }
+	}
+
+
 	//cout<<bestDtime<<endl;
-       if (bestDtime < tofWindow_ &&  bestDtime1 < tofWindow_)
+    if (bestDtime < tofWindow_ &&  bestDtime1 < tofWindow_)
 	{
 		tof = ((*bestMatch1)->GetTime() - (*bestMatch)->GetTime());// * globals::get()->getclockinseconds();
 	}	 	
@@ -423,6 +433,11 @@ bool NsheProcessor::Process(RawEvent &event) {
 	{
 		tof = bestDtime1;
 	}
+    if (bestDtime_veto < vetoWindow_)
+	{
+		plot(DD_VETO_ENERGY, (*bestMatch)->GetCalibratedEnergy(),yEnergy);
+	}
+
 	plot(D_DTIMETOF, tof);
  
 	plot(DD_TOF_ENERGY, tof,yEnergy);
