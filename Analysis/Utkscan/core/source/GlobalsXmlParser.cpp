@@ -74,6 +74,7 @@ void GlobalsXmlParser::ParseGlobalNode(const pugi::xml_node &node, Globals *glob
             globals->SetClockInSeconds(10e-9);
             globals->SetFilterClockInSeconds(10e-9);
         } else if (revision == "F") {
+            // Not all RevFs are 250MHz and this should not be a single value since we can boot Mixed Crates (T.T. King Feb 7, 2019)
             globals->SetAdcClockInSeconds(4e-9);
             globals->SetClockInSeconds(8e-9);
             globals->SetFilterClockInSeconds(8e-9);

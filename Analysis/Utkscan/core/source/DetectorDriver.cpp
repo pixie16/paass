@@ -68,7 +68,7 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
             setProcess.emplace((*it)->GetName());
         }
         if (setProcess.empty()){
-            throw GeneralException("Exception:DetectorDriver:: setProcess is empty and root requested. this will cause segfaults on root fill()");
+            throw GeneralException("Exception:DetectorDriver:: setProcess is empty and root requested. This will cause segfaults on root Fill()");
 
         }
 

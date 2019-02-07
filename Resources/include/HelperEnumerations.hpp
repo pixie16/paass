@@ -25,7 +25,7 @@ namespace DataProcessing {
     /// * R27361 is valid from 06/11/2013 to 02/15/2014
     /// * R29432 is valid from 02/15/2014 to 07/28/2014
     /// * R30474, R30980, R30981 is valid from 07/28/2014 to 03/08/2016
-    /// * R29432 is valid from 03/08/2016
+    /// * R34688 is valid from 03/08/2016
     /// * UNKNOWN is used for unspecified firmware revisions.
     ///These dates do not imply that the particular data set being analyzed was
     /// taken with the expected firmware. These dates are meant only to help
