@@ -38,11 +38,19 @@ namespace dammIds {
 } // correlator namespace
 
 // all in seconds
-const double Correlator::minImpTime = 5e-3;
-const double Correlator::corrTime = 60; // used to be 3300
-const double Correlator::fastTime = 40e-6;
+// const double Correlator::minImpTime_ = 5e-3;
+// const double Correlator::corrTime = 60; // used to be 3300
+// const double Correlator::fastTime = 40e-6;
 
 Correlator::Correlator() : histo(OFFSET, RANGE, "correlator"), lastImplant(NULL), lastDecay(NULL), condition(UNKNOWN_CONDITION) {
+}
+
+Correlator::Correlator(double minImpTime_, double corrTime_, double fastTime_) : histo(OFFSET, RANGE, "correlator"), 
+lastImplant(NULL), lastDecay(NULL), condition(UNKNOWN_CONDITION) {
+    minImpTime = minImpTime_;
+    corrTime = corrTime_;
+    fastTime = fastTime_;
+
 }
 
 EventInfo::EventInfo() {
@@ -71,12 +79,37 @@ double CorrelationList::GetDecayTime() const {
 
 }
 
+double CorrelationList::GetDecayGenTime() const {
+    if (empty() || back().type == EventInfo::IMPLANT_EVENT)
+        return NAN;
+    else
+        return back().dtimegen;
+
+}
+
 double CorrelationList::GetImplantTime() const {
     if (empty() || front().type != EventInfo::IMPLANT_EVENT)
         return NAN;
     else
         return front().time;
 }
+
+double CorrelationList::GetImplantEnergy() const {
+    if (empty() || front().type != EventInfo::IMPLANT_EVENT)
+        return NAN;
+    else
+        return front().energy;
+}
+
+// double CorrelationList::GetPreviousDecayEnergy() const {
+//     if (empty() || back().type == EventInfo::IMPLANT_EVENT)
+//         return NAN;
+//     else{
+//         auto it theList.(rbegin+1);
+//         return (*it).energy;
+//     }
+
+// }
 
 void CorrelationList::Flag() {
     if (!empty())
@@ -93,76 +126,76 @@ void CorrelationList::clear() {
     vector<EventInfo>::clear();
 }
 
-void CorrelationList::PrintDecayList() const {
-    ofstream fullLog("HIS/full_decays.txt", ios::app);
-    stringstream str;
-    DetectorDriver *driver = DetectorDriver::get();
-    const double printTimeResolution = 1e-3;
-    if (empty()) {
-        cout << "    EMPTY" << endl;
-        return;
-    }
-    double firstTime = front().time;
-    double lastTime = firstTime;
-    time_t theTime = driver->GetWallTime(firstTime);
-    str << " " << ctime(&theTime)
-        << "    TAC: " << setw(8) << front().tof
-        << ",    ts: " << fixed << setprecision(8)
-        << (firstTime * Globals::get()->GetFilterClockInSeconds())
-        << ",    cc: " << scientific << setprecision(3)
-        << front().clockCount << endl;
-    cout << str.str();
-#ifndef ONLINE
-    fullLog << str.str();
-#endif
-    str.str("");
-    for (const_iterator it = begin(); it != end(); it++) {
-        double dt = ((*it).time - firstTime) *
-                    Globals::get()->GetFilterClockInSeconds() / printTimeResolution;
-        double dt2 = ((*it).time - lastTime) *
-                     Globals::get()->GetFilterClockInSeconds() / printTimeResolution;
-        double offt = (*it).offTime *
-                      Globals::get()->GetFilterClockInSeconds() / printTimeResolution;
-        if ((*it).flagged) {
-            str << " * " << setw(2) << (*it).generation << " E";
-        } else {
-            if ((*it).type == EventInfo::GAMMA_EVENT) {
-                str << " G ";
-            } else {
-                str << "   ";
-            }
-            str << setw(2) << (*it).generation << " E";
-        }
-        str << setw(10) << fixed << setprecision(4) << (*it).energy << " [ch] at T " << setw(10) << dt << ", DT= "
-            << setw(10) << dt2;
-        if ((*it).type != EventInfo::GAMMA_EVENT) {
-            str << ", OT (" << (*it).logicBits << ")= " << setw(10) << offt << " [ms]" << " M" << (*it).mcpMult << "I"
-                << (*it).impMult << "B" << (*it).boxMult;
-            if (!std::isnan((*it).position))
-                str << " POS = " << (*it).position;
-        }
-        str << endl;
+// void CorrelationList::PrintDecayList() const {
+//     ofstream fullLog("HIS/full_decays.txt", ios::app);
+//     stringstream str;
+//     DetectorDriver *driver = DetectorDriver::get();
+//     const double printTimeResolution = 1e-3;
+//     if (empty()) {
+//         cout << "    EMPTY" << endl;
+//         return;
+//     }
+//     double firstTime = front().time;
+//     double lastTime = firstTime;
+//     time_t theTime = driver->GetWallTime(firstTime);
+//     str << " " << ctime(&theTime)
+//         << "    TAC: " << setw(8) << front().tof
+//         << ",    ts: " << fixed << setprecision(8)
+//         << (firstTime * Globals::get()->GetFilterClockInSeconds())
+//         << ",    cc: " << scientific << setprecision(3)
+//         << front().clockCount << endl;
+//     cout << str.str();
+// #ifndef ONLINE
+//     fullLog << str.str();
+// #endif
+//     str.str("");
+//     for (const_iterator it = begin(); it != end(); it++) {
+//         double dt = ((*it).time - firstTime) *
+//                     Globals::get()->GetFilterClockInSeconds() / printTimeResolution;
+//         double dt2 = ((*it).time - lastTime) *
+//                      Globals::get()->GetFilterClockInSeconds() / printTimeResolution;
+//         double offt = (*it).offTime *
+//                       Globals::get()->GetFilterClockInSeconds() / printTimeResolution;
+//         if ((*it).flagged) {
+//             str << " * " << setw(2) << (*it).generation << " E";
+//         } else {
+//             if ((*it).type == EventInfo::GAMMA_EVENT) {
+//                 str << " G ";
+//             } else {
+//                 str << "   ";
+//             }
+//             str << setw(2) << (*it).generation << " E";
+//         }
+//         str << setw(10) << fixed << setprecision(4) << (*it).energy << " [ch] at T " << setw(10) << dt << ", DT= "
+//             << setw(10) << dt2;
+//         if ((*it).type != EventInfo::GAMMA_EVENT) {
+//             str << ", OT (" << (*it).logicBits << ")= " << setw(10) << offt << " [ms]" << " M" << (*it).mcpMult << "I"
+//                 << (*it).impMult << "B" << (*it).boxMult;
+//             if (!std::isnan((*it).position))
+//                 str << " POS = " << (*it).position;
+//         }
+//         str << endl;
 
-        if ((*it).boxMult > 0)
-            str << "      Box: E " << (*it).energyBox << " for location " << (*it).boxMax << endl;
-        lastTime = (*it).time;
-    }
-    str << endl;
-    cout << str.str();
-#ifndef ONLINE
-    fullLog << str.str();
-#endif
-    cout.unsetf(ios::floatfield);
-}
+//         if ((*it).boxMult > 0)
+//             str << "      Box: E " << (*it).energyBox << " for location " << (*it).boxMax << endl;
+//         lastTime = (*it).time;
+//     }
+//     str << endl;
+//     cout << str.str();
+// #ifndef ONLINE
+//     fullLog << str.str();
+// #endif
+//     cout.unsetf(ios::floatfield);
+// }
 
 Correlator::~Correlator() {
     // dump any flagged decay lists which have not been output
-    for (unsigned int i = 0; i < arraySize; i++) {
-        for (unsigned int j = 0; j < arraySize; j++) {
-            if (IsFlagged(i, j))
-                PrintDecayList(i, j);
-        }
-    }
+    // for (unsigned int i = 0; i < arraySize; i++) {
+    //     for (unsigned int j = 0; j < arraySize; j++) {
+    //         // if (IsFlagged(i, j))
+    //         //     PrintDecayList(i, j);
+    //     }
+    // }
 }
 
 void Correlator::DeclarePlots() {
@@ -187,8 +220,8 @@ void Correlator::Correlate(EventInfo &event, unsigned int fch,
 
     switch (event.type) {
         case EventInfo::IMPLANT_EVENT:
-            if (theList.IsFlagged())
-                PrintDecayList(fch, bch);
+            // if (theList.IsFlagged())
+            //     PrintDecayList(fch, bch);
 
             lastTime = GetImplantTime(fch, bch);
             theList.clear();
@@ -222,9 +255,11 @@ void Correlator::Correlate(EventInfo &event, unsigned int fch,
             else
                 condition = VALID_DECAY;
 
-            condition = VALID_DECAY; // tmp -- DTM
+            // condition = VALID_DECAY; // tmp -- DTM
             lastTime = theList.back().time;
-            double dt = event.time - theList.GetImplantTime();
+
+            double dt = event.time - theList.back().time;
+            // cout<<dt<<endl;
             if (dt < 0) {
                 if (dt < -5e11 && event.time < 1e9) {
                     cout << "Decay following pixie clock reset, clearing decay lists!" << endl;
@@ -234,8 +269,8 @@ void Correlator::Correlate(EventInfo &event, unsigned int fch,
                     //   no chance of doing correlations
                     for (unsigned int i = 0; i < arraySize; i++) {
                         for (unsigned int j = 0; j < arraySize; j++) {
-                            if (IsFlagged(i, j))
-                                PrintDecayList(i, j);
+                            // if (IsFlagged(i, j))
+                            //     PrintDecayList(i, j);
                             decaylist[i][j].clear();
                         }
                     }
@@ -248,11 +283,13 @@ void Correlator::Correlate(EventInfo &event, unsigned int fch,
                 event.dtime = NAN;
                 break;
             } // negative correlation itme
-            if (theList.front().dtime * clockInSeconds >= minImpTime) {
-                if (dt * clockInSeconds < corrTime) {
+            if (theList.front().dtime * clockInSeconds >= minImpTime) { //check if there was no back to back implant too fast
+                if (dt * clockInSeconds < corrTime) { // corr Time between to generation (implant/decay or decay/decay)
                     event.dtime = event.time - theList.front().time; // FOR LERIBSS
+                    event.dtimegen = event.time - lastTime;
                 } else {
                     event.dtime = event.time - theList.front().time; // FOR LERIBSS
+                    event.dtimegen = event.time - lastTime;
                     condition = DECAY_TOO_LATE;
                 }
             } else
@@ -308,8 +345,38 @@ double Correlator::GetDecayTime(void) const {
         return lastDecay->dtime;
 }
 
+// double Correlator::GetPreviousDecayEnergy(void) const {
+//     if (lastDecay == NULL)
+//         return NAN;
+//     else{
+//         auto it = theList.(rbegin + 1);
+//         return (*it).energy;
+//     }
+// }
+
+double Correlator::GetDecayGenTime(void) const {
+    if (lastDecay == NULL)
+        return NAN;
+    else
+        return lastDecay->dtimegen;
+}
+
 double Correlator::GetDecayTime(int fch, int bch) const {
     return decaylist[fch][bch].GetDecayTime();
+}
+
+double Correlator::GetPreviousDecayEnergy(int fch, int bch) const {
+    if (decaylist[fch][bch].back().generation < 2)
+        return NAN;
+    else{
+        auto it = decaylist[fch][bch].rbegin() + 1;
+        return (*it).energy;
+    }
+    // return decaylist[fch][bch].GetDecayPreviousEnergy();
+}
+
+double Correlator::GetDecayGenTime(int fch, int bch) const {
+    return decaylist[fch][bch].GetDecayGenTime();
 }
 
 double Correlator::GetImplantTime(void) const {
@@ -319,8 +386,19 @@ double Correlator::GetImplantTime(void) const {
         return lastImplant->time;
 }
 
+double Correlator::GetImplantEnergy(void) const {
+    if (lastImplant == NULL)
+        return NAN;
+    else
+        return lastImplant->energy;
+}
+
 double Correlator::GetImplantTime(int fch, int bch) const {
     return decaylist[fch][bch].GetImplantTime();
+}
+
+double Correlator::GetImplantEnergy(int fch, int bch) const {
+    return decaylist[fch][bch].GetImplantEnergy();
 }
 
 void Correlator::Flag(int fch, int bch) {
@@ -332,7 +410,12 @@ bool Correlator::IsFlagged(int fch, int bch) {
     return decaylist[fch][bch].IsFlagged();
 }
 
-void Correlator::PrintDecayList(unsigned int fch, unsigned int bch) const {
-    cout << "Current decay list for " << fch << " , " << bch << " : " << endl;
-    decaylist[fch][bch].PrintDecayList();
+int Correlator::GetGen(int fch, int bch) const {
+    if (!decaylist[fch][bch].empty())
+        return decaylist[fch][bch].back().generation;
 }
+
+// void Correlator::PrintDecayList(unsigned int fch, unsigned int bch) const {
+//     cout << "Current decay list for " << fch << " , " << bch << " : " << endl;
+//     decaylist[fch][bch].PrintDecayList();
+// }

@@ -60,10 +60,10 @@ namespace dammIds {
         const int DD_DENERGY__DPOS_X_CORRELATED = 42; //!< ??
         const int DD_DENERGY__DPOS_Y_CORRELATED = 43; //!< ??
 
-	const int DD_TOF_ENERGY = 50 ; // TOF ENERGY SPECTRUM	
-	const int DD_VETO_ENERGY = 51 ; // VETO ENERGY SPECTRUM	
-
-
+	    const int DD_TOF_ENERGY = 50 ; // TOF ENERGY SPECTRUM	
+	    const int DD_VETO_ENERGY = 51 ; // VETO ENERGY SPECTRUM	
+	    const int DD_KH_PLOT = 52 ; // VETO ENERGY SPECTRUM	
+        const int DD_ALPHA_ALPHA = 53 ; // DECAY VS DECAY SPECTRUM
     }
 }
 
@@ -71,20 +71,22 @@ namespace dammIds {
 class NsheProcessor : public EventProcessor {
 public:
     /** Constructor taking arguments */
- //   NsheProcessor();
+    NsheProcessor();
 
     ~NsheProcessor() {};
 
     NsheProcessor(double timeWindow,
-		      double tofWindow,
-              double vetoWindow,
-                      double deltaEnergy,
-                      double highEnergyCut,
-                      double lowEnergyCut,
-		      double zero_suppress, 
-		      double fisisonEnergyCut,
-                      int numFrontStrips,
-                      int numBackStrips);
+		        double tofWindow,
+                double vetoWindow,
+                double deltaEnergy,
+                double highEnergyCut,
+                double lowEnergyCut,
+		        double zero_suppress, 
+		        double fisisonEnergyCut,
+                double minImpTime,
+                double coorTime,
+                double fastTime
+            );
 
     /** Declare plots */
     virtual void DeclarePlots();
@@ -169,6 +171,15 @@ protected:
 
     /** Zero suppress cut (in keV) **/
     double zero_suppress_;
+
+    /** Delta time minimum between two implantation (for corre) **/
+    double minImpTime_;
+
+        /** Low Energy cut for interesting alphas (in keV) **/
+    double corrTime_;
+
+        /** Low Energy cut for interesting alphas (in keV) **/
+    double fastTime_;
 
 };
 

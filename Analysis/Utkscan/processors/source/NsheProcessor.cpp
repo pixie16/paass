@@ -24,14 +24,14 @@
 
 using namespace dammIds::dssd4she;
 using namespace std;
-/*
-NsheProcessor::NsheProcessor():EventProcessor(OFFSET, RANGE, "NsheProcessor"){ //, correlator_(numBackStrips, numFrontStrips) {
-    associatedTypes.insert("dssd_front");
-    associatedTypes.insert("dssd_back");
-    cout<<endl<<endl<<endl<<timeWindow_<<endl<<endl<<endl;
-}*/
 
-NsheProcessor::NsheProcessor(double timeWindow, double tofWindow, double vetoWindow,  double deltaEnergy, double highEnergyCut, double lowEnergyCut, double zero_suppress, double fissionEnergyCut, int numBackStrips, int numFrontStrips):EventProcessor(OFFSET, RANGE, "NsheProcessor"){ //, correlator_(numBackStrips, numFrontStrips) {
+NsheProcessor::NsheProcessor():EventProcessor(OFFSET, RANGE, "NsheProcessor"){ //, correlator_(numBackStrips, numFrontStrips) {
+    associatedTypes.insert("SHE");
+}
+
+NsheProcessor::NsheProcessor(double timeWindow, double tofWindow, double vetoWindow,  double deltaEnergy, double highEnergyCut,
+ double lowEnergyCut, double zero_suppress, double fissionEnergyCut, double minImpTime,
+  double corrTime, double fastTime):EventProcessor(OFFSET, RANGE, "NsheProcessor"){ //, correlator_(numBackStrips, numFrontStrips) {
 	timeWindow_ = timeWindow;
     tofWindow_ = tofWindow;
     vetoWindow_ = vetoWindow;
@@ -40,6 +40,9 @@ NsheProcessor::NsheProcessor(double timeWindow, double tofWindow, double vetoWin
     lowEnergyCut_ = lowEnergyCut;
     zero_suppress_ = zero_suppress;
     fissionEnergyCut_ = fissionEnergyCut;
+    minImpTime_ = minImpTime;
+    corrTime_ =  corrTime;
+    fastTime_ = fastTime;
     associatedTypes.insert("SHE");
     
 /*
@@ -73,7 +76,7 @@ void NsheProcessor::DeclarePlots(void) {
     DeclareHistogram1D(D_DTIME, S8, "Pairs time diff in 10 ns (+ 1 bin)");
     DeclareHistogram1D(D_DTIMEE, S8, "Pairs time diff in 10 ns (+ 1 bin) for max");
 
-    DeclareHistogram1D(D_DTIMETOF, S8, "Pairs time diff in 10 ns (+ 1 bin) for toff");
+    DeclareHistogram1D(D_DTIMETOF, SA, "Pairs time diff in 10 ns (+ 1 bin) for toff");
 
     DeclareHistogram1D(D_MWPC_MULTI, S5, "MWPC multiplicity");
     DeclareHistogram1D(D_ENERGY_CORRELATED_SIDE, energyBins,        "Energy Side corr. with DSSD");
@@ -116,8 +119,12 @@ void NsheProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_DENERGY__DPOS_X_CORRELATED,        energyBins, xBins, "DSSD dE dX correlated events");
     DeclareHistogram2D(DD_DENERGY__DPOS_Y_CORRELATED,        energyBins, yBins, "DSSD dE dY correlated events");
 
-    DeclareHistogram2D(DD_TOF_ENERGY, S6 , energyBins, "DSSD dE dY correlated events");
+    DeclareHistogram2D(DD_TOF_ENERGY, SA , energyBins, "DSSD dE dY correlated events");
     DeclareHistogram2D(DD_VETO_ENERGY, SB , SB, "DSSD dE dY correlated events");
+
+    DeclareHistogram2D(DD_KH_PLOT, energyBins , S9, "DSSD E vs log2(Decay Time) (/100)");
+    DeclareHistogram2D(DD_ALPHA_ALPHA, SB , SB, "Decay vs Decay Energy");
+
 
 }
 
@@ -147,13 +154,14 @@ bool NsheProcessor::PreProcess(RawEvent &event) {
     for (vector<ChanEvent *>::iterator itx = xEvents.begin();
          itx != xEvents.end();
          ++itx) {
-	if((*itx)->GetCalibratedEnergy() < zero_suppress_) continue;	
-
-	StripEvent ev((*itx)->GetCalibratedEnergy()/0.3, (*itx)->GetTime(), (*itx)->GetChanID().GetLocation(), (*itx)->IsSaturated(), (*itx)->GetTrace(), (*itx)->IsPileup());
+	    if((*itx)->GetCalibratedEnergy() < zero_suppress_) continue;	
+        // if(xEvents.size()>1 && itx > xEvents.begin()) cout<<xEvents.at(1)->GetTime() - xEvents.at(0)->GetTime()<<endl;
+	    StripEvent ev((*itx)->GetCalibratedEnergy()/0.3, (*itx)->GetTime(), (*itx)->GetChanID().GetLocation(),
+        (*itx)->IsSaturated(), (*itx)->GetTrace(), (*itx)->IsPileup());
         pair<StripEvent, bool> match(ev, false);
         xEventsTMatch.push_back(match);
-	//if (mcp1Event.size() != 0 || mcp2Event.size() != 0 )
-	// cout<<mcp1Event.size()<<" "<<mcp2Event.size()<<" "<<vetoEvent.size()<<endl;
+	    //if (mcp1Event.size() != 0 || mcp2Event.size() != 0 )
+	    // cout<<mcp1Event.size()<<" "<<mcp2Event.size()<<" "<<vetoEvent.size()<<endl;
         plot(DD_MAXEVENT_ENERGY__X_POSITION, (*itx)->GetCalibratedEnergy()/0.3, (*itx)->GetChanID().GetLocation());
 
 //        /** Handle additional pulses (no. 2, 3, ...) */
@@ -199,8 +207,9 @@ bool NsheProcessor::PreProcess(RawEvent &event) {
 
     for (vector<ChanEvent *>::iterator ity = yEvents.begin(); ity != yEvents.end(); ++ity) {
         
-	if((*ity)->GetCalibratedEnergy() < zero_suppress_) continue;
-	StripEvent ev((*ity)->GetCalibratedEnergy(), (*ity)->GetTime(), (*ity)->GetChanID().GetLocation(), (*ity)->IsSaturated(),(*ity)->GetTrace(), (*ity)->IsPileup());
+	    if((*ity)->GetCalibratedEnergy() < zero_suppress_) continue;
+	    StripEvent ev((*ity)->GetCalibratedEnergy(), (*ity)->GetTime(), (*ity)->GetChanID().GetLocation(), 
+        (*ity)->IsSaturated(),(*ity)->GetTrace(), (*ity)->IsPileup());
         pair<StripEvent, bool> match(ev, false);
         yEventsTMatch.push_back(match);
 
@@ -328,8 +337,10 @@ bool NsheProcessor::PreProcess(RawEvent &event) {
     if (xEvents.size() > 0 && yEvents.size() > 0) {
         ChanEvent *maxFront = event.GetSummary("SHE:dssd_front")->GetMaxEvent(true);
         ChanEvent *maxBack = event.GetSummary("SHE:dssd_back")->GetMaxEvent(true);
-        StripEvent evf(maxFront->GetCalibratedEnergy()/0.3, maxFront->GetTime(), maxFront->GetChanID().GetLocation(), maxFront->IsSaturated(), maxFront->GetTrace(), maxFront->IsPileup());
-        StripEvent evb(maxBack->GetCalibratedEnergy(), maxBack->GetTime(), maxBack->GetChanID().GetLocation(), maxBack->IsSaturated(),maxBack->GetTrace(), maxBack->IsPileup());
+        StripEvent evf(maxFront->GetCalibratedEnergy()/0.3, maxFront->GetTime(), maxFront->GetChanID().GetLocation(),
+        maxFront->IsSaturated(), maxFront->GetTrace(), maxFront->IsPileup());
+        StripEvent evb(maxBack->GetCalibratedEnergy(), maxBack->GetTime(), maxBack->GetChanID().GetLocation(),
+        maxBack->IsSaturated(),maxBack->GetTrace(), maxBack->IsPileup());
         xyEventsEMatch_.push_back(pair<StripEvent, StripEvent>(evf, evb));
 	plot(D_DTIMEE, int((abs(maxFront->GetTime() - maxBack->GetTime()) * Globals::get()->GetClockInSeconds() / 1.0e-8) + 1));
     }
@@ -356,11 +367,14 @@ bool NsheProcessor::Process(RawEvent &event) {
 //
 //    plot(D_MWPC_MULTI, mwpc);
 
+    static Correlator corr(minImpTime_,corrTime_,fastTime_);
 
     vector<ChanEvent *> mcp1Event = event.GetSummary("SHE:mcp1", true)->GetList();
     vector<ChanEvent *> mcp2Event = event.GetSummary("SHE:mcp2", true)->GetList();
 	vector<ChanEvent *> vetoEvent = event.GetSummary("SHE:veto", true)->GetList();
   
+    EventInfo corEvent;
+
 //	cout<<mcp1Event.size()<<endl;
     for (vector<pair<StripEvent, StripEvent> >::iterator it =
             xyEventsTMatch_.begin();
@@ -371,7 +385,6 @@ bool NsheProcessor::Process(RawEvent &event) {
         double yEnergy = (*it).second.E;
 
 	if ((*it).first.sat && !(*it).second.sat) xEnergy = yEnergy;
-	else if ((*it).first.sat) yEnergy = 10000.0;
 	
         /** If saturated set to 200 MeV **/
         if ((*it).first.sat && (*it).second.sat) {
@@ -379,9 +392,11 @@ bool NsheProcessor::Process(RawEvent &event) {
             yEnergy = 10000.0;
         }
 
-        int xPosition = (*it).first.pos;
-        int yPosition = (*it).second.pos;
+
+    int xPosition = (*it).first.pos;
+    int yPosition = (*it).second.pos;
 	double time = min((*it).first.t, (*it).second.t);
+
 	double bestDtime = numeric_limits<double>::max();
 	auto bestMatch = mcp1Event.end();	
 	double bestDtime1 = numeric_limits<double>::max();
@@ -391,9 +406,7 @@ bool NsheProcessor::Process(RawEvent &event) {
 
 	double tof = 0;
 
-//	if (mcp1Event.size() != 0 || mcp2Event.size() != 0 || vetoEvent.size() != 0 )
-//	cout<<mcp1Event.size()<<" "<<mcp2Event.size()<<" "<<vetoEvent.size()<<endl;
-
+    /** Correlation with MCP1, MPC2 and Veto detector **/
 	for (vector<ChanEvent *>::iterator itm = mcp1Event.begin(); itm != mcp1Event.end(); itm++)
 	{
 	    double dTime = abs(time - (*itm)->GetTime()) * Globals::get()->GetClockInSeconds();
@@ -414,7 +427,7 @@ bool NsheProcessor::Process(RawEvent &event) {
 	{
 	    double dTime = abs(time - (*itv)->GetTime()) * Globals::get()->GetClockInSeconds();
 //            cout<<(*itm)->GetCfdFractionalTime() * Globals::get()->GetClockInSeconds()<<endl;  
-	  if (dTime < bestDtime) { bestDtime = dTime; bestMatch_veto = itv;
+	  if (dTime < bestDtime_veto) { bestDtime_veto = dTime; bestMatch_veto = itv;
 	    //if (bestDtime < timeWindow_) cout<<bestDtime<<endl;
             }
 	}
@@ -423,24 +436,45 @@ bool NsheProcessor::Process(RawEvent &event) {
 	//cout<<bestDtime<<endl;
     if (bestDtime < tofWindow_ &&  bestDtime1 < tofWindow_)
 	{
-		tof = ((*bestMatch1)->GetTime() - (*bestMatch)->GetTime());// * globals::get()->getclockinseconds();
+		tof = (((*bestMatch1)->GetTime() - (*bestMatch)->GetTime()) * Globals::get()->GetClockInSeconds())/(1e-9);
+        corEvent.type = EventInfo::IMPLANT_EVENT;
+        corEvent.energy = yEnergy;
 	}	 	
 	else if(bestDtime < tofWindow_)
 	{
 		tof = bestDtime;
+        corEvent.type = EventInfo::IMPLANT_EVENT;
+        corEvent.energy = yEnergy;
 	} 
        	else if(bestDtime1 < tofWindow_)
 	{
 		tof = bestDtime1;
+        corEvent.type = EventInfo::IMPLANT_EVENT;
+        corEvent.energy = yEnergy;
 	}
+    else 
+    {
+        tof = 0;
+        corEvent.type = EventInfo::DECAY_EVENT;
+        corEvent.energy = xEnergy;
+    }
     if (bestDtime_veto < vetoWindow_)
 	{
-		plot(DD_VETO_ENERGY, (*bestMatch_veto)->GetCalibratedEnergy()/5,yEnergy/5);
+		plot(DD_VETO_ENERGY, (*bestMatch_veto)->GetCalibratedEnergy(),yEnergy/3);
 	}
 
+    corEvent.time = time;
+
+    corr.Correlate(corEvent, xPosition, yPosition);
+    if (corr.GetCondition() == Correlator::VALID_DECAY) {
+        double Tlog = log2((corr.GetDecayGenTime(xPosition, yPosition) * Globals::get()->GetClockInSeconds())/(1e-9))*10;
+    	plot(DD_KH_PLOT, xEnergy, Tlog);
+        if(corr.GetGen(xPosition, yPosition) > 1 ) 
+        plot(DD_ALPHA_ALPHA, xEnergy/5, corr.GetPreviousDecayEnergy(xPosition, yPosition)/5);
+    }
 	plot(D_DTIMETOF, tof);
- 
 	plot(DD_TOF_ENERGY, tof,yEnergy);
+
 		if (DetectorDriver::get()->GetSysRootOutput()){
 			//Fill Root struct
 			dssdstruc.x = xPosition;
@@ -480,7 +514,9 @@ bool NsheProcessor::Process(RawEvent &event) {
         }
 
         if (vetoEvents.size() > 0) {
-            for (vector<ChanEvent *>::iterator itv = vetoEvents.begin(); itv != vetoEvents.end(); ++itv) { double vetoEnergy = (*itv)->GetCalibratedEnergy(); plot(DD_DE_E__DSSD_VETO, (vetoEnergy + xEnergy) / 100.0, xEnergy / 100.0);
+            for (vector<ChanEvent *>::iterator itv = vetoEvents.begin(); itv != vetoEvents.end(); ++itv) {
+                double vetoEnergy = (*itv)->GetCalibratedEnergy(); plot(DD_DE_E__DSSD_VETO,
+                (vetoEnergy + xEnergy) / 100.0, xEnergy / 100.0);
             }
         }
 
@@ -501,8 +537,8 @@ bool NsheProcessor::Process(RawEvent &event) {
             if (siTime > S8) siTime = S8 - 1;
             else if (siTime < 0) siTime = 0;
             plot(D_DTIME_SIDE, siTime);
-
-            if (bestSiTime < timeWindow_) { plot(D_ENERGY_CORRELATED_SIDE, correlatedSide->GetCalibratedEnergy()); hasEscape = true; escapeEnergy = correlatedSide->GetCalibratedEnergy();
+            if (bestSiTime < timeWindow_) { plot(D_ENERGY_CORRELATED_SIDE, correlatedSide->GetCalibratedEnergy());
+            hasEscape = true; escapeEnergy = correlatedSide->GetCalibratedEnergy();
             }
         }
 

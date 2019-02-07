@@ -30,6 +30,7 @@ struct EventInfo {
     EEventTypes type; ///< event type
     double time;     ///< timestamp of event
     double dtime;    ///< time since implant [pixie units]
+    double dtimegen;    ///< time since the last correlation (implant or decay)
     double energy;   ///< energy of event
     double energyBox; ///< energy depositied into the box
     double offTime;  ///< length of time beam has been off
@@ -68,11 +69,20 @@ public:
     /** Default Constructor */
     CorrelationList();
 
-    /** \return the decay time */
+    /** \return the decay time **/
     double GetDecayTime(void) const;
+
+    /** \return the decay time of the generation **/
+    double GetDecayGenTime(void) const;
 
     /** \return the implant time */
     double GetImplantTime(void) const;
+
+    /** return the implant energy */
+    double GetImplantEnergy(void) const;
+
+    /** return the previous decay energy for alpha alpah correlation **/
+    // double GetPreviousDecayEnergy(void) const;
 
     /** flag an event */
     void Flag(void);
@@ -84,7 +94,7 @@ public:
     void clear(void);
 
     /** Print the decay list */
-    void PrintDecayList(void) const;
+    // void PrintDecayList(void) const;
 };
 
 /*!
@@ -114,6 +124,9 @@ public:
 
     /** Default Constructor */
     Correlator();
+
+    /** Extended Constructor */
+    Correlator(double minImpTime_, double corrTime_, double fastTime_);
 
     /** Default Destructor */
     virtual ~Correlator();
@@ -152,23 +165,45 @@ public:
     /** Print the decay list
      * \param [in] fch : the first location to print
      * \param [in] bch : the second location to print  */
-    void PrintDecayList(unsigned int fch, unsigned int bch) const;
+    // void PrintDecayList(unsigned int fch, unsigned int bch) const;
 
     /** \return the decay time */
     double GetDecayTime(void) const;
+
+    /** \return the decay time of the generation */
+    double GetDecayGenTime(void) const;
+
+    /** \return the previous decay energy */
+    // double GetPreviousDecayEnergy(void) const;
 
     /** \return the decay time for a given pair of channels
      * \param [in] fch : the first channel to look for
      * \param [in] bch : the second channel to look for */
     double GetDecayTime(int fch, int bch) const;
 
+    /** \return the previous decay energy */
+    double GetPreviousDecayEnergy(int fch, int bch) const;
+
+    /** \return the decay time of the generation for a given pair of channels
+     * \param [in] fch : the first channel to look for
+     * \param [in] bch : the second channel to look for */
+    double GetDecayGenTime(int fch, int bch) const;
+
     /** \return get the implant time */
     double GetImplantTime(void) const;
+
+    /** \return get the implant energy */
+    double GetImplantEnergy(void) const;
 
     /** \return the implant time for a given pair of channels
      * \param [in] fch : the first channel to look for
      * \param [in] bch : the second channel to look for  */
     double GetImplantTime(int fch, int bch) const;
+
+    /** \return the implant time for a given pair of channels
+     * \param [in] fch : the first channel to look for
+     * \param [in] bch : the second channel to look for  */
+    double GetImplantEnergy(int fch, int bch) const;
 
     /** Set the flag for the two locations
      * \param [in] fch : first channel that we'll set
@@ -180,6 +215,9 @@ public:
      * \param [in] bch : the second channel to check
      * \return true if it is flagged */
     bool IsFlagged(int fch, int bch);
+
+    /** Return the current generation of correlation*/
+    int GetGen(int fch, int bch) const;
 
     /** \return The conditions for correlation */
     EConditions GetCondition(void) const {
@@ -220,13 +258,21 @@ private:
 
     static const size_t arraySize = 40; /**< Size of the 2D array to hold the decay lists */
 
-    static const double minImpTime; /**< The minimum amount of time that must
+    // static const double minImpTime; /**< The minimum amount of time that must
+	// 			       pass before an implant will be considered
+	// 			       for correlation in clock ticks */
+    // static const double corrTime;   /**< The maximum amount of time allowed
+	// 			       between a decay and its previous implant
+	// 			       for a correlation between the two to occur in clock ticks*/
+    // static const double fastTime;   /**< Times shorter than this are output as
+    //                                      a fast decay */
+    double minImpTime; /**< The minimum amount of time that must
 				       pass before an implant will be considered
 				       for correlation in clock ticks */
-    static const double corrTime;   /**< The maximum amount of time allowed
+    double corrTime;   /**< The maximum amount of time allowed
 				       between a decay and its previous implant
 				       for a correlation between the two to occur in clock ticks*/
-    static const double fastTime;   /**< Times shorter than this are output as
+    double fastTime;   /**< Times shorter than this are output as
                                          a fast decay */
 
     EventInfo *lastImplant;  ///< last implant processed by correlator

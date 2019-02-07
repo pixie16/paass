@@ -222,8 +222,11 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
                     processor.attribute("lowEnergyCut").as_double(8000),
                     processor.attribute("zero_suppress").as_double(8000),
                     processor.attribute("fissionEnergyCut").as_double(100000),
-                    processor.attribute("numBackStrips").as_int(64),
-                    processor.attribute("numFrontStrips").as_int(64)));
+                    // processor.attribute("numBackStrips").as_int(64),
+                    // processor.attribute("numFrontStrips").as_int(64)));
+                    processor.attribute("minImpTime").as_double(5e-3),
+                    processor.attribute("corrTime").as_double(60),
+                    processor.attribute("fastTime").as_double(40e-6)));
         } else if (name == "PositionProcessor") {
             vecProcess.push_back(new PositionProcessor());
         } else if (name == "PspmtProcessor") {
