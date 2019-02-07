@@ -233,12 +233,10 @@ unsigned int XiaListModeDataDecoder::DecodeExternalTimeHigh(const unsigned int &
 }
 
 void XiaListModeDataDecoder::DecodeWordTwo(const unsigned int &word, XiaData &data, const XiaListModeDataMask &mask) {
-        data.SetEventTimeHigh(word & mask.GetEventTimeHighMask().first);
+      data.SetEventTimeHigh(word & mask.GetEventTimeHighMask().first);
     data.SetCfdFractionalTime((word & mask.GetCfdFractionalTimeMask().first) >> mask.GetCfdFractionalTimeMask().second);
-    data.SetCfdForcedTriggerBit(
-            (bool) ((word & mask.GetCfdForcedTriggerBitMask().first) >> mask.GetCfdForcedTriggerBitMask().second));
-    data.SetCfdTriggerSourceBit(
-            (bool) (word & mask.GetCfdTriggerSourceMask().first) >> mask.GetCfdTriggerSourceMask().second);
+    data.SetCfdForcedTriggerBit((bool) ((word & mask.GetCfdForcedTriggerBitMask().first) >> mask.GetCfdForcedTriggerBitMask().second));
+    data.SetCfdTriggerSourceBit((bool) ((word & mask.GetCfdTriggerSourceMask().first) >> mask.GetCfdTriggerSourceMask().second));
 }
 
 unsigned int XiaListModeDataDecoder::DecodeWordThree(const unsigned int &word, XiaData &data,
@@ -278,9 +276,6 @@ pair<double, double> XiaListModeDataDecoder::CalculateTimeInSamples(const XiaLis
                                                                     const XiaData &data) {
     double filterTime = data.GetEventTimeLow() + data.GetEventTimeHigh() * pow(2., 32);
 
-    if (data.GetCfdFractionalTime() == 0 || data.GetCfdForcedTriggerBit())
-        return make_pair(filterTime, filterTime);
-
     double cfdTime = 0, multiplier = 1;
     if (mask.GetFrequency() == 100)
         cfdTime = data.GetCfdFractionalTime() / mask.GetCfdSize();
@@ -288,13 +283,20 @@ pair<double, double> XiaListModeDataDecoder::CalculateTimeInSamples(const XiaLis
     if (mask.GetFrequency() == 250) {
         multiplier = 2;
         cfdTime = data.GetCfdFractionalTime() / mask.GetCfdSize() - data.GetCfdTriggerSourceBit();
-    }
+        }
 
     if (mask.GetFrequency() == 500) {
-        multiplier = 10;
-        cfdTime = data.GetCfdFractionalTime() / mask.GetCfdSize() + data.GetCfdTriggerSourceBit() - 1;
+        multiplier = 10; // This appears to be wrong based on the documentation in V3.07 of the Pixie Manual (T.T. King Feb,7 2019)
+        cfdTime = data.GetCfdFractionalTime() / mask.GetCfdSize() + data.GetCfdTriggerSourceBit() - 1; 
+        //From the Pixie Manual v 3.07 it seems that the 500Mhz has 4 interlaced ADCs so its list mode has a 2bit CfdTriggerSource.
+        //These methods will need to be updated to account for this, and soon. (T.T. King Feb,7 2019)
     }
-
+    
+    //Moved here so we can use the multiplier to adjust the clock tick units. So GetTime() returns the ADC ticks and GetTimeSansCfd() returns Filter Ticks
+    //(For 250MHZ) This way GetTime() always returns 4ns clock ticks, and GetTimeSansCfd() returns the normal 8ns ticks  
+    if (data.GetCfdFractionalTime() == 0 || data.GetCfdForcedTriggerBit())
+        return make_pair(filterTime, filterTime * multiplier);
+    
     return make_pair(filterTime, filterTime * multiplier + cfdTime);
 }
 

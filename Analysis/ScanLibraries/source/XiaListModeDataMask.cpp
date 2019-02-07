@@ -37,8 +37,7 @@ FIRMWARE XiaListModeDataMask::ConvertStringToFirmware(const std::string &type) {
         firmware = R30980;
     else if (firmwareNumber >= 30981 && firmwareNumber < 34688)
         firmware = R30981;
-    else if (firmwareNumber ==
-             34688) //compare exactly here since nothing higher
+    else if (firmwareNumber == 34688) //compare exactly here since nothing higher
         firmware = R34688;
     else {
         msg << "XiaListModeDataMask::CovnertStringToFirmware : "
@@ -83,6 +82,8 @@ XiaListModeDataMask::GetCfdFractionalTimeMask() const {
             case R30474:
             case R30980:
             case R30981:
+                mask = 0x3FFF0000;
+                break;
             case R34688:
                 mask = 0x3FFF0000;
                 break;
@@ -156,6 +157,8 @@ XiaListModeDataMask::GetCfdForcedTriggerBitMask() const {
             case R30474:
             case R30980:
             case R30981:
+                mask = 0x80000000;
+                bit = 31;
             case R34688:
                 mask = 0x80000000;
                 bit = 31;
@@ -184,6 +187,8 @@ XiaListModeDataMask::GetCfdTriggerSourceMask() const {
             case R30474:
             case R30980:
             case R30981:
+                mask = 0x40000000;
+                bit = 30;
             case R34688:
                 mask = 0x40000000;
                 bit = 30;
@@ -337,6 +342,7 @@ double XiaListModeDataMask::GetCfdSize() const {
                 break;
             case R30980:
             case R30981:
+                val = 16384;
             case R34688:
             case R30474:
                 val = 16384;
