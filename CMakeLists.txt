@@ -62,6 +62,18 @@ option(PAASS_USE_NCURSES "Use ncurses for terminal" ON)
 mark_as_advanced(PAASS_USE_NCURSES)
 option(PAASS_USE_ROOT "Use ROOT" ON)
 
+option(PAASS_EXPORT_COMPILE_COMMANDS "CMAKE_EXPORT_COMPILE_COMMANDS WRAPPER" ON)
+mark_as_advanced(PAASS_EXPORT_COMPILE_COMMANDS)
+
+#Generate the compile_commands.json file which is used by VSCode (among others) to generate the clang autocomplete
+#Needs the PAASS_EXPORT_COMPILE_COMMANDS wrapper because of the "FORCE" which is required to even set the var from CMakeList.txt,
+#while maintaining the ability to toggle it on/off without wiping the build dir
+if(PAASS_EXPORT_COMPILE_COMMANDS)
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "Generates compile_commands.json, needed for some IDEs among other things" FORCE)
+else ()
+    set(CMAKE_EXPORT_COMPILE_COMMANDS OFF CACHE BOOL "Generates compile_commands.json, needed for some IDEs among other things" FORCE)   
+endif (PAASS_EXPORT_COMPILE_COMMANDS)
+
 #------------------------------------------------------------------------------
 
 #Definitions with compiler options
