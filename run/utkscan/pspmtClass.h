@@ -144,6 +144,9 @@ public :
    Double_t dpoint[4];
    UInt_t   size[4];
    Bool_t   k4fold;
+   Bool_t   k4Right;
+   Bool_t   k4Left;
+   Bool_t   kBothXY;
    Double_t ypos[2];
    Double_t xpos[2];
    Double_t Xpos,Ypos;
@@ -487,8 +490,11 @@ void pspmtClass::PolyCFDDraw(Long64_t entry, Double_t frac, Int_t Chan){
 }
 
 void pspmtClass::PolyCFD(Long64_t entry){
-   k4fold = false;
+   k4fold  = false;
+   k4Right = false; k4Left = false;
+   kBothXY = false;
 // GetEntry(entry);
+  
    Plot(entry, kFALSE);
 
    Double_t T_max[4] =   {left_start_time_amp,right_start_time_amp,left_stop_time_amp,right_stop_time_amp};
@@ -613,8 +619,8 @@ void pspmtClass::PolyCFD(Long64_t entry){
 
  UInt_t *p; p = std::find (size, size+4, 0);
  if (p == size+4){ k4fold = true; ToF = (time[2]+time[3])/2.0-(time[1]+time[0])/2.0;}
- else if (size[0]!=0&&size[2]!=0&&size[3]!=0&&size[1]==0) ToF = (time[2]+time[3])/2.0-time[0]; 
- else if (size[1]!=0&&size[2]!=0&&size[3]!=0&&size[0]==0) ToF = (time[2]+time[3])/2.0-time[1]; 
+ else if (size[0]!=0&&size[2]!=0&&size[3]!=0&&size[1]==0) ToF = (time[2]+time[3])/2.0-phase[0]-time[0]+phase[0]; 
+ else if (size[1]!=0&&size[2]!=0&&size[3]!=0&&size[0]==0) ToF = (time[2]+time[3])/2.0-phase[1]-time[1]+phase[1]; 
  else ToF = -9999;
  
  if( ToF>0) ToF_E = 0.5*(939)*TMath::Power((fLength/1000/(ToF*1e-9)/3E8),2);
@@ -658,7 +664,10 @@ Double_t pspmtClass::CalcBaseline(vector <UInt_t> *dTrace, UInt_t initialpos,UIn
 }
 
 void pspmtClass::CalcPosition(int chan){
-  
+  if (right_qdc[0]>1000&&right_qdc[1]>1000&&right_qdc[2]>1000&&right_qdc[3]>1000) k4Right = true;
+  if (left_qdc[0]>1000&&left_qdc[1]>1000&&left_qdc[2]>1000&&left_qdc[3]>1000) k4Left = true;
+  if (nLeft==4 && nRight==4) kBothXY = true;
+
   switch(chan){
   case(2):
   ypos[chan-2] = (Double_t)(left_qdc[1]+left_qdc[2]-left_qdc[0]-left_qdc[3])/(left_qdc[1]+left_qdc[2]+left_qdc[0]+left_qdc[3]);
