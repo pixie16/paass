@@ -45,12 +45,11 @@ namespace dammIds {
 Correlator::Correlator() : histo(OFFSET, RANGE, "correlator"), lastImplant(NULL), lastDecay(NULL), condition(UNKNOWN_CONDITION) {
 }
 
-Correlator::Correlator(double minImpTime_, double corrTime_, double fastTime_) : histo(OFFSET, RANGE, "correlator"), 
-lastImplant(NULL), lastDecay(NULL), condition(UNKNOWN_CONDITION) {
+Correlator::Correlator(double minImpTime_ = 5e-3, double corrTime_ = 60, double fastTime_ = 40e-6) 
+: histo(OFFSET, RANGE, "correlator"), lastImplant(NULL), lastDecay(NULL), condition(UNKNOWN_CONDITION) {
     minImpTime = minImpTime_;
     corrTime = corrTime_;
     fastTime = fastTime_;
-
 }
 
 EventInfo::EventInfo() {
@@ -76,7 +75,6 @@ double CorrelationList::GetDecayTime() const {
         return NAN;
     else
         return back().dtime;
-
 }
 
 double CorrelationList::GetDecayGenTime() const {
@@ -84,7 +82,6 @@ double CorrelationList::GetDecayGenTime() const {
         return NAN;
     else
         return back().dtimegen;
-
 }
 
 double CorrelationList::GetImplantTime() const {
@@ -100,16 +97,6 @@ double CorrelationList::GetImplantEnergy() const {
     else
         return front().energy;
 }
-
-// double CorrelationList::GetPreviousDecayEnergy() const {
-//     if (empty() || back().type == EventInfo::IMPLANT_EVENT)
-//         return NAN;
-//     else{
-//         auto it theList.(rbegin+1);
-//         return (*it).energy;
-//     }
-
-// }
 
 void CorrelationList::Flag() {
     if (!empty())
@@ -206,8 +193,7 @@ void Correlator::DeclarePlots() {
     DeclareHistogram1D(D_TIME_BW_ALL_IMPLANTS, SA, "time between all implants, 1 us/bin");
 }
 
-void Correlator::Correlate(EventInfo &event, unsigned int fch,
-                           unsigned int bch) {
+void Correlator::Correlate(EventInfo &event, unsigned int fch, unsigned int bch) {
     if (fch >= arraySize || bch >= arraySize) {
         plot(D_CONDITION, INVALID_LOCATION);
         return;
@@ -249,17 +235,14 @@ void Correlator::Correlate(EventInfo &event, unsigned int fch,
                 cout << "No implant time for decay list" << endl;
                 break;
             }
-
             if (event.type == EventInfo::UNKNOWN_EVENT)
                 condition = UNKNOWN_CONDITION;
             else
                 condition = VALID_DECAY;
 
-            // condition = VALID_DECAY; // tmp -- DTM
             lastTime = theList.back().time;
 
             double dt = event.time - theList.back().time;
-            // cout<<dt<<endl;
             if (dt < 0) {
                 if (dt < -5e11 && event.time < 1e9) {
                     cout << "Decay following pixie clock reset, clearing decay lists!" << endl;
@@ -295,7 +278,6 @@ void Correlator::Correlate(EventInfo &event, unsigned int fch,
             } else
                 condition = IMPLANT_TOO_SOON;
 
-
             if (condition == VALID_DECAY)
                 event.generation = theList.back().generation + 1;
 
@@ -303,10 +285,8 @@ void Correlator::Correlate(EventInfo &event, unsigned int fch,
 
             if (event.energy == 0 && std::isnan(event.time))
                 cout << " Adding zero decay event " << endl;
-
             if (event.flagged)
                 theList.Flag();
-
             if (condition == VALID_DECAY)
                 lastDecay = &theList.back();
             else if (condition == DECAY_TOO_LATE)
@@ -345,15 +325,6 @@ double Correlator::GetDecayTime(void) const {
         return lastDecay->dtime;
 }
 
-// double Correlator::GetPreviousDecayEnergy(void) const {
-//     if (lastDecay == NULL)
-//         return NAN;
-//     else{
-//         auto it = theList.(rbegin + 1);
-//         return (*it).energy;
-//     }
-// }
-
 double Correlator::GetDecayGenTime(void) const {
     if (lastDecay == NULL)
         return NAN;
@@ -372,7 +343,6 @@ double Correlator::GetPreviousDecayEnergy(int fch, int bch) const {
         auto it = decaylist[fch][bch].rbegin() + 1;
         return (*it).energy;
     }
-    // return decaylist[fch][bch].GetDecayPreviousEnergy();
 }
 
 double Correlator::GetDecayGenTime(int fch, int bch) const {
@@ -413,6 +383,8 @@ bool Correlator::IsFlagged(int fch, int bch) {
 int Correlator::GetGen(int fch, int bch) const {
     if (!decaylist[fch][bch].empty())
         return decaylist[fch][bch].back().generation;
+
+    return 0;
 }
 
 // void Correlator::PrintDecayList(unsigned int fch, unsigned int bch) const {

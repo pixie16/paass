@@ -62,8 +62,13 @@ namespace dammIds {
 
 	    const int DD_TOF_ENERGY = 50 ; // TOF ENERGY SPECTRUM	
 	    const int DD_VETO_ENERGY = 51 ; // VETO ENERGY SPECTRUM	
-	    const int DD_KH_PLOT = 52 ; // VETO ENERGY SPECTRUM	
+	    const int DD_KHS = 52 ; // VETO ENERGY SPECTRUM	
         const int DD_ALPHA_ALPHA = 53 ; // DECAY VS DECAY SPECTRUM
+        const int DD_ALPHA_IMPLANT = 54; // Decay energy Vs Implant energy only for the first gen (same afterward)
+        const int DD_KHS_GATE = 55 ; // VETO ENERGY SPECTRUM	
+        const int DD_ALPHA_ALPHA_GATE = 56 ; // DECAY VS DECAY SPECTRUM
+        const int D_GEN = 57 ; // DECAY VS DECAY SPECTRUM
+
     }
 }
 
@@ -148,8 +153,7 @@ protected:
      * events (escapes)*/
     double timeWindow_;
 
-   /** Limit in seconds for the difference in time between tofs/veto signals and DSSD**/
-
+    /** Limit in seconds for the difference in time between tofs/veto signals and DSSD**/
     double tofWindow_;
 
     /** Limit in the veto correlation with the DSSD **/
@@ -175,10 +179,10 @@ protected:
     /** Delta time minimum between two implantation (for corre) **/
     double minImpTime_;
 
-        /** Low Energy cut for interesting alphas (in keV) **/
+    /** Low Energy cut for interesting alphas (in keV) **/
     double corrTime_;
 
-        /** Low Energy cut for interesting alphas (in keV) **/
+    /** Low Energy cut for interesting alphas (in keV) **/
     double fastTime_;
 
 };
