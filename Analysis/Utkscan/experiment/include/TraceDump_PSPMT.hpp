@@ -39,6 +39,7 @@ private:
       UInt_t left_max[4];
       UInt_t right_max[4];
       int nLeft,nRight;
+      Bool_t kTraces;
       Double_t leftStartTimeStamp;
       Double_t rightStartTimeStamp;
       Double_t leftStopTimeStamp;
