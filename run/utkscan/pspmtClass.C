@@ -116,6 +116,7 @@ void pspmtClass::Loop(Long64_t nentries, const Char_t *filename)
    outTree->Branch("k4Right",&k4Right,"k4Right/O");
    outTree->Branch("k4Left",&k4Left,"k4Left/O");
    outTree->Branch("kBothXY",&kBothXY,"k4BothXY/O");
+   outTree->Branch("kTraces",&kTraces,"kTraces/O");
 
    xypos->Reset();
 

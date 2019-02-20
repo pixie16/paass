@@ -70,6 +70,7 @@ public :
    Int_t           right_max[4];
    UInt_t          nLeft;
    UInt_t          nRight;
+   Bool_t          kTraces;
    Double_t        leftStartTimeStamp;
    Double_t        rightStartTimeStamp;
    Double_t        leftStopTimeStamp;
@@ -90,6 +91,7 @@ public :
    TBranch        *b_right_max;   //!
    TBranch        *b_nLeft;   //!
    TBranch        *b_nRight;   //!
+   TBranch        *b_kTraces;   //!
    TBranch        *b_left_starttimeS;   //!
    TBranch        *b_right_starttimeS;   //!
    TBranch        *b_left_stoptimeS;   //!
@@ -288,6 +290,7 @@ void pspmtClass::Init(TTree *tree)
    fChain->SetBranchAddress("trace_right_dynode", &trace_right_dynode, &b_trace_right_dynode);
    fChain->SetBranchAddress("trace_left_beta", &trace_left_beta, &b_trace_left_beta);
    fChain->SetBranchAddress("trace_right_beta", &trace_right_beta, &b_trace_right_beta);
+   fChain->SetBranchAddress("kTraces", &kTraces, &b_kTraces);
    SetSamplingRate(4.0);
    SetFraction(0.45);
    SetPathLength(460.2);
