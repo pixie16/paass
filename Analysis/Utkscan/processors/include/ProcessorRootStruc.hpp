@@ -86,11 +86,20 @@ namespace processor_struct {
     static const PSPMT  PSPMT_DEFAULT_STRUCT;
 
     struct MTAS {
-	double rawEnergy = -999;
-	double calEnergy = -999;
-	double time = -999;
+	    double rawEnergy = -999;
+	    double calEnergy = -999;
+	    double time = -999;
+	    TString subtype = "";
     };
     static const MTAS MTAS_DEFAULT_STRUCT;
+
+    struct MTASPSPMT {
+        double energy = -999;
+        double time  = -999;
+        TString subtype = "";
+        TString tag = "";
+    };
+    static const MTASPSPMT MTASPSPMT_DEFAULT_STRUCT;
 }
 
 class PixTreeEvent : public TObject

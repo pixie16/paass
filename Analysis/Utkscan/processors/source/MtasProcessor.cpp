@@ -14,9 +14,10 @@
 #include <vector> // added for std::vector
 
 
-#include "../../core/include/DammPlotIds.hpp"
-#include "../../core/include/DetectorDriver.hpp"
-#include "../include/MtasProcessor.hpp"
+#include "DammPlotIds.hpp"
+#include "DetectorDriver.hpp"
+#include "MtasProcessor.hpp"
+
 //------------------------------------------------------------------------------------------//
 
 
@@ -113,7 +114,7 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
     static const vector<ChanEvent *> &mtasList = event.GetSummary("mtas") -> GetList();
 
     double rawEnergy= 0., signalEnergy=0., time=0.;
-    for(vector<ChanEvent*>::const_iterator it = mtasList.begin(); it != mtasList.end(); it++){
+    for(auto it = mtasList.begin(); it != mtasList.end(); it++){
         rawEnergy = (*it)->GetEnergy();
         signalEnergy = (*it)->GetCalibratedEnergy();
         time = (*it)->GetTime();
@@ -121,6 +122,7 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
             MTASstruct.rawEnergy = rawEnergy;
             MTASstruct.calEnergy = signalEnergy;
             MTASstruct.time = time;
+            MTASstruct.subtype = (*it)->GetChanID().GetSubtype();
 
             pixie_tree_event_->mtas_vec_.emplace_back(MTASstruct);
             MTASstruct = processor_struct::MTAS_DEFAULT_STRUCT;
@@ -200,7 +202,7 @@ bool MtasProcessor::Process(RawEvent &event){
 
     //-------------------------SPECTRA-VARIABLES-------------------------//
     int nrOfCentralPMT = 0;
-    double theSmallestCEnergy = 60000; // hardcoded? not sure why - dvm
+    //double theSmallestCEnergy = 60000; // hardcoded? not sure why - dvm
     //-------------------------------------------------------------------//
 
 

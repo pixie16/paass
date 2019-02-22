@@ -15,8 +15,9 @@
 #include <vector>
 #include <map>
 
-#include "../../core/include/RawEvent.hpp"
-#include "../include/EventProcessor.hpp"
+#include "RawEvent.hpp"
+#include "EventProcessor.hpp"
+#include "ProcessorRootStruc.hpp"
 
 
 using std::vector;
