@@ -108,6 +108,8 @@ void pspmtClass::Loop(Long64_t nentries, const Char_t *filename)
    outTree->Branch("dpoint[4]",&dpoint,"dpoint[4]/D");
    outTree->Branch("ypos[2]",&ypos,"ypos[2]/D");
    outTree->Branch("xpos[2]",&xpos,"xpos[2]/D");
+   outTree->Branch("Pypos[2]",&Pypos,"Pypos[2]/D");
+   outTree->Branch("Pxpos[2]",&Pxpos,"Pxpos[2]/D");
    outTree->Branch("nLeft",&nLeft,"nLeft/I");
    outTree->Branch("nRight",&nRight,"nRight/I");
    outTree->Branch("left_qdc[4]",&left_qdc,"left_qdc[4]/I");

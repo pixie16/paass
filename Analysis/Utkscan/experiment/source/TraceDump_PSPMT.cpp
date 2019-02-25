@@ -65,6 +65,8 @@ TraceDump_PSPMT::TraceDump_PSPMT() :
     proottree_->Branch("right_stop_time", &rdynode,"qdc/D:amp/D:snr:abase:sbase:id/b");
     proottree_->Branch("left_qdc[4]", &left_qdc,"left_qdc[4]/I");
     proottree_->Branch("right_qdc[4]", &right_qdc,"right_qdc[4]/I");
+    proottree_->Branch("right_pixie[4]", &right_pixie,"right_pixie[4]/I");
+    proottree_->Branch("left_pixie[4]", &left_pixie,"left_pixie[4]/I");
     proottree_->Branch("left_max[4]", &left_max,"left_max[4]/I");
     proottree_->Branch("right_max[4]", &right_max,"right_max[4]/I");
     proottree_->Branch("nLeft",&nLeft,"nLeft/i");
@@ -143,34 +145,38 @@ bool TraceDump_PSPMT::Process(RawEvent &event) {
       if((*itLeft_anode)->GetChanID().HasTag("v1") ){
          left_qdc[0] = (*itLeft_anode)->GetTrace().GetQdc();
          left_max[0] = (*itLeft_anode)->GetTrace().GetMaxInfo().second;
+	 left_pixie[0] = (*itLeft_anode)->GetEnergy();
       }
       if((*itLeft_anode)->GetChanID().HasTag("v2") ){
 	 left_qdc[1] = (*itLeft_anode)->GetTrace().GetQdc();
          left_max[1] = (*itLeft_anode)->GetTrace().GetMaxInfo().second;
+	 left_pixie[1] = (*itLeft_anode)->GetEnergy();
       }
       if((*itLeft_anode)->GetChanID().HasTag("v3") ){
 	 left_qdc[2] = (*itLeft_anode)->GetTrace().GetQdc();
          left_max[2] = (*itLeft_anode)->GetTrace().GetMaxInfo().second;
+	 left_pixie[2] = (*itLeft_anode)->GetEnergy();
       }
       if((*itLeft_anode)->GetChanID().HasTag("v4") ){
 	 left_qdc[3] = (*itLeft_anode)->GetTrace().GetQdc();
          left_max[3] = (*itLeft_anode)->GetTrace().GetMaxInfo().second;
+	 left_pixie[3] = (*itLeft_anode)->GetEnergy();
       }
      }else{
       if((*itLeft_anode)->GetChanID().HasTag("v1") ){
-	 left_qdc[0] = (*itLeft_anode)->GetEnergy();
+	 left_pixie[0] = (*itLeft_anode)->GetEnergy();
          left_max[0] = 0;
       }
       if((*itLeft_anode)->GetChanID().HasTag("v2") ){
-	 left_qdc[1] = (*itLeft_anode)->GetEnergy();
+	 left_pixie[1] = (*itLeft_anode)->GetEnergy();
          left_max[1] = 0;
       }
       if((*itLeft_anode)->GetChanID().HasTag("v3") ){
-	 left_qdc[2] = (*itLeft_anode)->GetEnergy();
+	 left_pixie[2] = (*itLeft_anode)->GetEnergy();
          left_max[2] = 0;
       }
       if((*itLeft_anode)->GetChanID().HasTag("v4") ){
-	 left_qdc[3] = (*itLeft_anode)->GetEnergy();
+	 left_pixie[3] = (*itLeft_anode)->GetEnergy();
          left_max[3] = 0;
       }
      }
@@ -184,34 +190,38 @@ bool TraceDump_PSPMT::Process(RawEvent &event) {
       if((*itRight_anode)->GetChanID().HasTag("v1") ){
 	 right_qdc[0] = (*itRight_anode)->GetTrace().GetQdc();
          right_max[0] = (*itRight_anode)->GetTrace().GetMaxInfo().second;
+	 right_pixie[0] = (*itRight_anode)->GetEnergy();
       }
       if((*itRight_anode)->GetChanID().HasTag("v2") ){
 	 right_qdc[1] = (*itRight_anode)->GetTrace().GetQdc();
          right_max[1] = (*itRight_anode)->GetTrace().GetMaxInfo().second;
+	 right_pixie[1] = (*itRight_anode)->GetEnergy();
       }
       if((*itRight_anode)->GetChanID().HasTag("v3") ){
 	 right_qdc[2] = (*itRight_anode)->GetTrace().GetQdc();
          right_max[2] = (*itRight_anode)->GetTrace().GetMaxInfo().second;
+	 right_pixie[2] = (*itRight_anode)->GetEnergy();
       }
       if((*itRight_anode)->GetChanID().HasTag("v4") ){
 	 right_qdc[3] = (*itRight_anode)->GetTrace().GetQdc();
          right_max[3] = (*itRight_anode)->GetTrace().GetMaxInfo().second;
+	 right_pixie[3] = (*itRight_anode)->GetEnergy();
       }
      }else{
       if((*itRight_anode)->GetChanID().HasTag("v1") ){
-	 right_qdc[0] = (*itRight_anode)->GetEnergy();
+	 right_pixie[0] = (*itRight_anode)->GetEnergy();
          right_max[0] = 0; 
       }
       if((*itRight_anode)->GetChanID().HasTag("v2") ){
-	 right_qdc[1] = (*itRight_anode)->GetEnergy();
+	 right_pixie[1] = (*itRight_anode)->GetEnergy();
          right_max[1] = 0; 
       }
       if((*itRight_anode)->GetChanID().HasTag("v3") ){
-	 right_qdc[2] = (*itRight_anode)->GetEnergy();
+	 right_pixie[2] = (*itRight_anode)->GetEnergy();
          right_max[2] = 0;
       }
       if((*itRight_anode)->GetChanID().HasTag("v4") ){
-	 right_qdc[3] = (*itRight_anode)->GetEnergy();
+	 right_pixie[3] = (*itRight_anode)->GetEnergy();
          right_max[3] = 0; 
       }
      } 
@@ -291,8 +301,8 @@ bool TraceDump_PSPMT::Process(RawEvent &event) {
      }
    } 
     }
-      for (int i=0; i<4; i++){right_qdc[i]=0; right_max[i]=0;}
-      for (int i=0; i<4; i++){left_qdc[i]=0; left_max[i]=0;}
+   for (int i=0; i<4; i++){right_qdc[i]=0;right_pixie[i]=0; right_max[i]=0;}
+   for (int i=0; i<4; i++){left_qdc[i]=0;left_pixie[i]=0; left_max[i]=0;}
       nLeft = 0;
       nRight = 0;
      trace_left_beta.clear();

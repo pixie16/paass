@@ -36,6 +36,8 @@ private:
 
       UInt_t left_qdc[4];
       UInt_t right_qdc[4];
+      UInt_t left_pixie[4];
+      UInt_t right_pixie[4];
       UInt_t left_max[4];
       UInt_t right_max[4];
       int nLeft,nRight;

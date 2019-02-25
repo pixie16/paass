@@ -66,6 +66,8 @@ public :
    UChar_t         right_stop_time_id;
    Int_t           left_qdc[4];
    Int_t           right_qdc[4];
+   Int_t           left_pixie[4];
+   Int_t           right_pixie[4];
    Int_t           left_max[4];
    Int_t           right_max[4];
    UInt_t          nLeft;
@@ -85,6 +87,8 @@ public :
    TBranch        *b_right_start_time;   //!
    TBranch        *b_left_stop_time;   //!
    TBranch        *b_right_stop_time;   //!
+   TBranch        *b_left_pixie;   //!
+   TBranch        *b_right_pixie;   //!
    TBranch        *b_left_qdc;   //!
    TBranch        *b_right_qdc;   //!
    TBranch        *b_left_max;   //!
@@ -151,7 +155,10 @@ public :
    Bool_t   kBothXY;
    Double_t ypos[2];
    Double_t xpos[2];
+   Double_t Pypos[2];
+   Double_t Pxpos[2];
    Double_t Xpos,Ypos;
+   Double_t PXpos,PYpos;
    Double_t xmins[7],ymins[3];
 
    TH2F *xypos = new TH2F("xypos","xypos",400,-1,1,400,-1,1);   
@@ -278,6 +285,8 @@ void pspmtClass::Init(TTree *tree)
    fChain->SetBranchAddress("right_stop_time", &right_stop_time_qdc, &b_right_stop_time);
    fChain->SetBranchAddress("left_qdc[4]", left_qdc, &b_left_qdc);
    fChain->SetBranchAddress("right_qdc[4]", right_qdc, &b_right_qdc);
+   fChain->SetBranchAddress("right_pixie[4]", right_pixie, &b_right_pixie);
+   fChain->SetBranchAddress("left_pixie[4]", left_pixie, &b_left_pixie);
    fChain->SetBranchAddress("left_max[4]", left_max, &b_left_max);
    fChain->SetBranchAddress("right_max[4]", right_max, &b_right_max);
    fChain->SetBranchAddress("nLeft", &nLeft, &b_nLeft);
@@ -675,10 +684,14 @@ void pspmtClass::CalcPosition(int chan){
   case(2):
   ypos[chan-2] = (Double_t)(left_qdc[1]+left_qdc[2]-left_qdc[0]-left_qdc[3])/(left_qdc[1]+left_qdc[2]+left_qdc[0]+left_qdc[3]);
   xpos[chan-2] = (Double_t)(left_qdc[3]+left_qdc[2]-left_qdc[0]-left_qdc[1])/(left_qdc[1]+left_qdc[2]+left_qdc[0]+left_qdc[3]);
+  Pypos[chan-2] = (Double_t)(left_pixie[1]+left_pixie[2]-left_pixie[0]-left_pixie[3])/(left_pixie[1]+left_pixie[2]+left_pixie[0]+left_pixie[3]);
+  Pxpos[chan-2] = (Double_t)(left_pixie[3]+left_pixie[2]-left_pixie[0]-left_pixie[1])/(left_pixie[1]+left_pixie[2]+left_pixie[0]+left_pixie[3]);
   break;
   case(3):
   ypos[chan-2] = (Double_t)(right_qdc[1]+right_qdc[2]-right_qdc[0]-right_qdc[3])/(right_qdc[1]+right_qdc[2]+right_qdc[0]+right_qdc[3]);
   xpos[chan-2] = (Double_t)(right_qdc[0]+right_qdc[1]-right_qdc[2]-right_qdc[3])/(right_qdc[1]+right_qdc[2]+right_qdc[0]+right_qdc[3]);
+  Pypos[chan-2] = (Double_t)(right_pixie[1]+right_pixie[2]-right_pixie[0]-right_pixie[3])/(right_pixie[1]+right_pixie[2]+right_pixie[0]+right_pixie[3]);
+  Pxpos[chan-2] = (Double_t)(right_pixie[0]+right_pixie[1]-right_pixie[2]-right_pixie[3])/(right_pixie[1]+right_pixie[2]+right_pixie[0]+right_pixie[3]);
   break; 
   default:
   break;
