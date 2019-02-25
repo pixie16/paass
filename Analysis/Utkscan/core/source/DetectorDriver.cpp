@@ -422,9 +422,11 @@ void DetectorDriver::FillLogicStruc() { //This should be called away from the ev
         LogStruc.cycleNum = tapeCycleNum_;
     } else {
         LogStruc.lastTapeCycleStartTime = TreeCorrelator::get()->place("Cycle")->secondlast().time* convertTimeNS;
+         LogStruc.cycleNum = tapeCycleNum_;
     }
 
-    if (TreeCorrelator::get()->place("logic_t1_0")->status()){
+    LogStruc.lastProtonPulseTime = TreeCorrelator::get()->place("Protons")->last().time*convertTimeNS;
+  /*   if (TreeCorrelator::get()->place("logic_t1_0")->status()){
         LogStruc.lastProtonPulseTime = TreeCorrelator::get()->place("logic_t1_0")->last().time* convertTimeNS;
     } else {
         LogStruc.lastProtonPulseTime = TreeCorrelator::get()->place("logic_t1_0")->secondlast().time* convertTimeNS;
