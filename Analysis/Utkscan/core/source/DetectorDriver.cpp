@@ -431,7 +431,7 @@ void DetectorDriver::FillLogicStruc() { //This should be called away from the ev
     } else {
         LogStruc.lastProtonPulseTime = TreeCorrelator::get()->place("logic_t1_0")->secondlast().time* convertTimeNS;
     }
-
+ */
     if (TreeCorrelator::get()->place("Supercycle")->status()){
         LogStruc.lastSuperCycleTime = TreeCorrelator::get()->place("Supercycle")->last().time* convertTimeNS;
     } else {
