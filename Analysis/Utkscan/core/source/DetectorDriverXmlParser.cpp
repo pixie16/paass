@@ -177,7 +177,7 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
         } else if (name == "LitePositionProcessor") {
             vecProcess.push_back(new LitePositionProcessor());
         } else if (name == "LogicProcessor") {
-            vecProcess.push_back(new LogicProcessor());
+            vecProcess.push_back(new LogicProcessor(processor.attribute("double_stop").as_bool(false),processor.attribute("double_start").as_bool(false)));
         } else if (name == "McpProcessor") {
             vecProcess.push_back(new McpProcessor());
         } else if (name == "NeutronScintProcessor") {
