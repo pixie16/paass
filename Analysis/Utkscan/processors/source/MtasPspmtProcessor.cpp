@@ -24,7 +24,7 @@ using namespace dammIds::mtaspspmt;
 
 namespace dammIds {
     namespace mtaspspmt {
-        const int DD_MULTI = 4;
+        //const int DD_MULTI = 4;
         const int DD_POS_DIAG = 1;
         const int DD_POS_IMPL = 2;
 
@@ -34,18 +34,19 @@ namespace dammIds {
 void MtasPspmtProcessor::DeclarePlots() {  //(void) {
     DeclareHistogram2D(DD_POS_DIAG, SB, SB, "Diagnostic Detector Positions");
     DeclareHistogram2D(DD_POS_IMPL, SB, SB, "Implant Detector Positions");
-    DeclareHistogram2D(DD_MULTI,S3,S3, "Multiplicity");
+    //DeclareHistogram2D(DD_MULTI,S3,S3, "Multiplicity");
 }
 
 MtasPspmtProcessor::MtasPspmtProcessor(const std::string &dt, const double &scale,
                                        const unsigned int &offset, const double &threshold)
                     :EventProcessor(OFFSET, RANGE, "MtasPspmtProcessor"){
-    if(dt == "implant")
+    if(dt == "implant") {
         dttype_ = implant;
-    else if(dt == "diagnostic")
+    } else if(dt == "diagnostic") {
         dttype_ = diagnostic;
-    else
+    } else {
         dttype_ = UNKNOWN;
+    }
 
     DTtypeStr = dt;
     positionScale_ = scale;
@@ -67,20 +68,21 @@ bool MtasPspmtProcessor::PreProcess(RawEvent &event) {
     static const vector<ChanEvent *> &diag = event.GetSummary("mtaspspmt:diagnostic")->GetList();
 
 
-
     // set up position calculation for signals
     position_mtas.first = 0, position_mtas.second = 0;
+
     //initialize
     double energy = 0.;
     double xa = 0, xb = 0, ya = 0, yb = 0;
 
-    if (dttype_ == implant){
-        plot(DD_MULTI, impl.size(),3);
-    } else if (dttype_ == diagnostic){
-        plot(DD_MULTI, diag.size(),3);
-    }
+    // plot multiplicity
+    //if (dttype_ == implant){
+    //    plot(DD_MULTI, impl.size(),3);
+    //} else if (dttype_ == diagnostic){
+    //    plot(DD_MULTI, diag.size(),3);
+    //}
 
-    // Calculate info if IMPLANT DETECTOR
+    // IMPLANT DETECTOR Calculations
     double sumImpl = 0;
     for (auto it = impl.begin(); it !=impl.end(); it++) {
         energy = (*it)->GetCalibratedEnergy();
@@ -106,7 +108,7 @@ bool MtasPspmtProcessor::PreProcess(RawEvent &event) {
         }
     }
 
-    // Calculate info if DIAGNOSTIC DETECTOR
+    // DIAGNOSTIC DETECTOR Calculations
     double sumDiag = 0;
     for (auto it = diag.begin(); it !=diag.end(); it++) {
         energy = (*it)->GetCalibratedEnergy();
@@ -155,8 +157,8 @@ pair<double, double> MtasPspmtProcessor::CalculatePosition(
             y = 0.5;
             break;
         case diagnostic:
-            x = ((ya + yb)-(xa + xb))/(xa+xb+ya+yb);
-            y = ((xa + ya)-(xb + yb))/(xa+xb+ya+yb);
+            x = ((xa + ya)-(xb + yb))/(xa+xb+ya+yb);
+            y = ((xa + xb)-(ya + yb))/(xa+xb+ya+yb);
             break;
         case UNKNOWN:
         default:
