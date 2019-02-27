@@ -28,6 +28,10 @@ public:
     * \param [in] name : the name of the place */
     Place *place(std::string name);
 
+    /** \return bool if place defined. This is ONLY for checking the existance not accessing the place. As such it is very similar to the "place" method
+     * \param [in] name : the name of the place */
+    bool checkPlace(std::string name);
+
     /** Create place, alter or add existing place to the tree.
     * \param [in] params : the map of the parameters
     * \param [in] verbose : verbosity */
