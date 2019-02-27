@@ -393,51 +393,54 @@ std::set<std::string> DetectorDriver::GetProcessorList() {
 }
 
 void DetectorDriver::FillLogicStruc() { //This should be called away from the event loops. (near where it fills the filenames)
-    double convertTimeNS = Globals::get()->GetClockInSeconds() * 1.0e9; // converstion factor from TICKs to NS
-    LogStruc.tapeCycleStatus = TreeCorrelator::get()->place("Cycle")->status();
-    LogStruc.tapeMoving =  TreeCorrelator::get()->place("TapeMove")->status();
-    LogStruc.beamStatus = TreeCorrelator::get()->place("Beam")->status();
-
-
-    if (TreeCorrelator::get()->place("Beam")->status()){
-        LogStruc.lastBeamOnTime = TreeCorrelator::get()->place("Beam")->last().time* convertTimeNS;
-        LogStruc.lastBeamOffTime = TreeCorrelator::get()->place("Beam")->secondlast().time * convertTimeNS;
-    } else {
-        LogStruc.lastBeamOnTime = TreeCorrelator::get()->place("Beam")->secondlast().time* convertTimeNS;
-        LogStruc.lastBeamOffTime = TreeCorrelator::get()->place("Beam")->last().time * convertTimeNS;
-    }
-
-    if (TreeCorrelator::get()->place("TapeMove")->status()){
-        LogStruc.lastTapeMoveStartTime = TreeCorrelator::get()->place("TapeMove")->last().time* convertTimeNS;
-    } else {
-        LogStruc.lastTapeMoveStartTime = TreeCorrelator::get()->place("TapeMove")->secondlast().time* convertTimeNS;
-    }
-
-    if (TreeCorrelator::get()->place("Cycle")->status()){
-        double currentTime_ = TreeCorrelator::get()->place("Cycle")->last().time* convertTimeNS;
-        if (currentTime_ != lastCycleTime_){
-            tapeCycleNum_++;
+    double convertTimeNS = Globals::get()->GetClockInSeconds() * 1.0e9; // converstion factor from DSP TICKs to NS
+   
+    if(TreeCorrelator::get()->checkPlace("Beam")){
+        LogStruc.beamStatus = TreeCorrelator::get()->place("Beam")->status();
+        if (TreeCorrelator::get()->place("Beam")->status()){
+            LogStruc.lastBeamOnTime = TreeCorrelator::get()->place("Beam")->last().time* convertTimeNS;
+            LogStruc.lastBeamOffTime = TreeCorrelator::get()->place("Beam")->secondlast().time * convertTimeNS;
+        } else {
+            LogStruc.lastBeamOnTime = TreeCorrelator::get()->place("Beam")->secondlast().time* convertTimeNS;
+            LogStruc.lastBeamOffTime = TreeCorrelator::get()->place("Beam")->last().time * convertTimeNS;
         }
-        LogStruc.lastTapeCycleStartTime = currentTime_;
-        LogStruc.cycleNum = tapeCycleNum_;
-    } else {
-        LogStruc.lastTapeCycleStartTime = TreeCorrelator::get()->place("Cycle")->secondlast().time* convertTimeNS;
-         LogStruc.cycleNum = tapeCycleNum_;
     }
 
-    LogStruc.lastProtonPulseTime = TreeCorrelator::get()->place("Protons")->last().time*convertTimeNS;
-  /*   if (TreeCorrelator::get()->place("logic_t1_0")->status()){
-        LogStruc.lastProtonPulseTime = TreeCorrelator::get()->place("logic_t1_0")->last().time* convertTimeNS;
-    } else {
-        LogStruc.lastProtonPulseTime = TreeCorrelator::get()->place("logic_t1_0")->secondlast().time* convertTimeNS;
-    }
- */
-    if (TreeCorrelator::get()->place("Supercycle")->status()){
-        LogStruc.lastSuperCycleTime = TreeCorrelator::get()->place("Supercycle")->last().time* convertTimeNS;
-    } else {
-        LogStruc.lastSuperCycleTime = TreeCorrelator::get()->place("Supercycle")->secondlast().time* convertTimeNS;
+    if(TreeCorrelator::get()->checkPlace("TapeMove")){
+        LogStruc.tapeMoving =  TreeCorrelator::get()->place("TapeMove")->status();
+        if (TreeCorrelator::get()->place("TapeMove")->status()){
+            LogStruc.lastTapeMoveStartTime = TreeCorrelator::get()->place("TapeMove")->last().time* convertTimeNS;
+        } else {
+            LogStruc.lastTapeMoveStartTime = TreeCorrelator::get()->place("TapeMove")->secondlast().time* convertTimeNS;
+        }
     }
 
+    if(TreeCorrelator::get()->checkPlace("Cycle")){
+        LogStruc.tapeCycleStatus = TreeCorrelator::get()->place("Cycle")->status();
+        if (TreeCorrelator::get()->place("Cycle")->status()){
+            double currentTime_ = TreeCorrelator::get()->place("Cycle")->last().time* convertTimeNS;
+            if (currentTime_ != lastCycleTime_){
+                tapeCycleNum_++;
+            }
+            LogStruc.lastTapeCycleStartTime = currentTime_;
+            LogStruc.cycleNum = tapeCycleNum_;
+        } else {
+            LogStruc.lastTapeCycleStartTime = TreeCorrelator::get()->place("Cycle")->secondlast().time* convertTimeNS;
+            LogStruc.cycleNum = tapeCycleNum_;
+        }
+    }
+    
+    if(TreeCorrelator::get()->checkPlace("Protons") && TreeCorrelator::get()->place("Protons")->status()){
+        LogStruc.lastProtonPulseTime = TreeCorrelator::get()->place("Protons")->last().time*convertTimeNS;
+    }
+    
+    if (TreeCorrelator::get()->checkPlace("Supercycle") ){
+        if (TreeCorrelator::get()->place("Supercycle")->status()){
+            LogStruc.lastSuperCycleTime = TreeCorrelator::get()->place("Supercycle")->last().time* convertTimeNS;
+        } else {
+            LogStruc.lastSuperCycleTime = TreeCorrelator::get()->place("Supercycle")->secondlast().time* convertTimeNS;
+        }
+    }
     //fill the vector
     pixie_tree_event_.logic_vec_.emplace_back(LogStruc);
 }
