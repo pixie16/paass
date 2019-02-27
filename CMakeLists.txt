@@ -59,8 +59,11 @@ option(PAASS_BUILD_TESTS "Builds programs designed to test the package. Includin
 option(PAASS_BUILD_UTKSCAN "Build utkscan" OFF)
 option(PAASS_USE_DAMM "Use DAMM for MCA" ON)
 option(PAASS_USE_NCURSES "Use ncurses for terminal" ON)
-mark_as_advanced(PAASS_USE_NCURSES)
 option(PAASS_USE_ROOT "Use ROOT" ON)
+
+mark_as_advanced(PAASS_USE_NCURSES)
+mark_as_advanced(PAASS_USE_DAMM)
+mark_as_advanced(PAASS_USE_ROOT)
 
 option(PAASS_EXPORT_COMPILE_COMMANDS "CMAKE_EXPORT_COMPILE_COMMANDS WRAPPER" ON)
 mark_as_advanced(PAASS_EXPORT_COMPILE_COMMANDS)
