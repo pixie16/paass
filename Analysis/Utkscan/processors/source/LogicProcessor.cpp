@@ -67,8 +67,8 @@ LogicProcessor::LogicProcessor(void) : EventProcessor(dammIds::logic::OFFSET, da
     associatedTypes.insert("mtc");
 }
 
-LogicProcessor::LogicProcessor(int offset, int range, bool doubleStop/*=false*/, bool doubleStart/*=false*/) :
-        EventProcessor(offset, range, "LogicProcessor"), lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
+LogicProcessor::LogicProcessor(bool doubleStop/*=false*/, bool doubleStart/*=false*/) :
+        EventProcessor(dammIds::logic::OFFSET, dammIds::logic::RANGE, "LogicProcessor"), lastStartTime(MAX_LOGIC, NAN), lastStopTime(MAX_LOGIC, NAN),
         logicStatus(MAX_LOGIC), stopCount(MAX_LOGIC), startCount(MAX_LOGIC) {
     associatedTypes.insert("logic");
     associatedTypes.insert("timeclass"); // old detector type
