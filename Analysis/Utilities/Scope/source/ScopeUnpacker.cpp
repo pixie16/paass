@@ -93,7 +93,7 @@ void ScopeUnpacker::ResetGraph(const unsigned int &size) {
     graph->SetMarkerStyle(kFullDotSmall);
 
     if (size != x_vals.size()) {
-        cout << "ScopeUnpacker::ResetGraph : " << "Changing trace length from " << x_vals.size() << " to " << size << " ns.\n";
+        cout << "ScopeUnpacker::ResetGraph : " << "Changing trace length from " << x_vals.size() << " to " << size << " adc ticks.\n";
         x_vals.resize(size);
         for (size_t index = 0; index < x_vals.size(); index++)
             x_vals[index] = index;
