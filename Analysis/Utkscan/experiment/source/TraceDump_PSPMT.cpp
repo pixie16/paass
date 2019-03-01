@@ -133,49 +133,49 @@ bool TraceDump_PSPMT::Process(RawEvent &event) {
   if(right_dynode.size()>0)
      trace_right_dynode=right_dynode.front()->GetTrace();
 
-   if (left_dynode.size()>0 && right_dynode.size()>0){      											// 2 Dynode signals
+//   if (left_dynode.size()>0 && right_dynode.size()>0){      											// 2 Dynode signals
 //   if (left_dynode.size()>0 && right_dynode.size()>0 && nLeft==4 && nRight==4){}								// 2 Dynodes and 4 position signals
-//   if ((left_beta.size()>0 || right_beta.size()>0) && left_dynode.size()>0 && right_dynode.size()>0 && (nLeft==4 || nRight==4) ){}		// Triples (1 start && 2 stop) and 4 position signals
-//   if (left_beta.size()>0 && right_beta.size()>0 && left_dynode.size()>0 && right_dynode.size()>0){}						// Quadruples (2 start && 2 stop)
+   if ((left_beta.size()>0 || right_beta.size()>0) && left_dynode.size()>0 && right_dynode.size()>0 && (nLeft==4 || nRight==4) ){		// Triples (1 start && 2 stop) and 4 position signals
+//   if (left_beta.size()>0 && left_dynode.size()>0 && right_dynode.size()>0){						// Quadruples (2 start && 2 stop)
     //Loop on left anodes
     for (vector<ChanEvent *>::const_iterator itLeft_anode = left_anode.begin();
          itLeft_anode != left_anode.end(); itLeft_anode++) {
      if( (*itLeft_anode)->GetTrace().size()>0){
       kTraces=true;
-      if((*itLeft_anode)->GetChanID().HasTag("v1") ){
+      if((*itLeft_anode)->GetChanID().HasTag("FT") ){
          left_qdc[0] = (*itLeft_anode)->GetTrace().GetQdc();
          left_max[0] = (*itLeft_anode)->GetTrace().GetMaxInfo().second;
 	 left_pixie[0] = (*itLeft_anode)->GetEnergy();
       }
-      if((*itLeft_anode)->GetChanID().HasTag("v2") ){
+      if((*itLeft_anode)->GetChanID().HasTag("FB") ){
 	 left_qdc[1] = (*itLeft_anode)->GetTrace().GetQdc();
          left_max[1] = (*itLeft_anode)->GetTrace().GetMaxInfo().second;
 	 left_pixie[1] = (*itLeft_anode)->GetEnergy();
       }
-      if((*itLeft_anode)->GetChanID().HasTag("v3") ){
+      if((*itLeft_anode)->GetChanID().HasTag("BT") ){
 	 left_qdc[2] = (*itLeft_anode)->GetTrace().GetQdc();
          left_max[2] = (*itLeft_anode)->GetTrace().GetMaxInfo().second;
 	 left_pixie[2] = (*itLeft_anode)->GetEnergy();
       }
-      if((*itLeft_anode)->GetChanID().HasTag("v4") ){
+      if((*itLeft_anode)->GetChanID().HasTag("BB") ){
 	 left_qdc[3] = (*itLeft_anode)->GetTrace().GetQdc();
          left_max[3] = (*itLeft_anode)->GetTrace().GetMaxInfo().second;
 	 left_pixie[3] = (*itLeft_anode)->GetEnergy();
       }
      }else{
-      if((*itLeft_anode)->GetChanID().HasTag("v1") ){
+      if((*itLeft_anode)->GetChanID().HasTag("FT") ){
 	 left_pixie[0] = (*itLeft_anode)->GetEnergy();
          left_max[0] = 0;
       }
-      if((*itLeft_anode)->GetChanID().HasTag("v2") ){
+      if((*itLeft_anode)->GetChanID().HasTag("FB") ){
 	 left_pixie[1] = (*itLeft_anode)->GetEnergy();
          left_max[1] = 0;
       }
-      if((*itLeft_anode)->GetChanID().HasTag("v3") ){
+      if((*itLeft_anode)->GetChanID().HasTag("BT") ){
 	 left_pixie[2] = (*itLeft_anode)->GetEnergy();
          left_max[2] = 0;
       }
-      if((*itLeft_anode)->GetChanID().HasTag("v4") ){
+      if((*itLeft_anode)->GetChanID().HasTag("BB") ){
 	 left_pixie[3] = (*itLeft_anode)->GetEnergy();
          left_max[3] = 0;
       }
@@ -187,48 +187,45 @@ bool TraceDump_PSPMT::Process(RawEvent &event) {
          itRight_anode != right_anode.end(); itRight_anode++) {
      if( (*itRight_anode)->GetTrace().size()>0){
       kTraces=true;
-      if((*itRight_anode)->GetChanID().HasTag("v1") ){
+      if((*itRight_anode)->GetChanID().HasTag("FT") ){
 	 right_qdc[0] = (*itRight_anode)->GetTrace().GetQdc();
          right_max[0] = (*itRight_anode)->GetTrace().GetMaxInfo().second;
 	 right_pixie[0] = (*itRight_anode)->GetEnergy();
       }
-      if((*itRight_anode)->GetChanID().HasTag("v2") ){
+      if((*itRight_anode)->GetChanID().HasTag("FB") ){
 	 right_qdc[1] = (*itRight_anode)->GetTrace().GetQdc();
          right_max[1] = (*itRight_anode)->GetTrace().GetMaxInfo().second;
 	 right_pixie[1] = (*itRight_anode)->GetEnergy();
       }
-      if((*itRight_anode)->GetChanID().HasTag("v3") ){
+      if((*itRight_anode)->GetChanID().HasTag("BT") ){
 	 right_qdc[2] = (*itRight_anode)->GetTrace().GetQdc();
          right_max[2] = (*itRight_anode)->GetTrace().GetMaxInfo().second;
 	 right_pixie[2] = (*itRight_anode)->GetEnergy();
       }
-      if((*itRight_anode)->GetChanID().HasTag("v4") ){
+      if((*itRight_anode)->GetChanID().HasTag("BB") ){
 	 right_qdc[3] = (*itRight_anode)->GetTrace().GetQdc();
          right_max[3] = (*itRight_anode)->GetTrace().GetMaxInfo().second;
 	 right_pixie[3] = (*itRight_anode)->GetEnergy();
       }
      }else{
-      if((*itRight_anode)->GetChanID().HasTag("v1") ){
+      if((*itRight_anode)->GetChanID().HasTag("FT") ){
 	 right_pixie[0] = (*itRight_anode)->GetEnergy();
          right_max[0] = 0; 
       }
-      if((*itRight_anode)->GetChanID().HasTag("v2") ){
+      if((*itRight_anode)->GetChanID().HasTag("FB") ){
 	 right_pixie[1] = (*itRight_anode)->GetEnergy();
          right_max[1] = 0; 
       }
-      if((*itRight_anode)->GetChanID().HasTag("v3") ){
+      if((*itRight_anode)->GetChanID().HasTag("BT") ){
 	 right_pixie[2] = (*itRight_anode)->GetEnergy();
          right_max[2] = 0;
       }
-      if((*itRight_anode)->GetChanID().HasTag("v4") ){
+      if((*itRight_anode)->GetChanID().HasTag("BB") ){
 	 right_pixie[3] = (*itRight_anode)->GetEnergy();
          right_max[3] = 0; 
       }
      } 
    }
-
-
-
 
     TraceDumpData *startleft=0;
     TraceDumpData *startright=0;

@@ -682,16 +682,16 @@ void pspmtClass::CalcPosition(int chan){
 
   switch(chan){
   case(2):
-  ypos[chan-2] = (Double_t)(left_qdc[1]+left_qdc[2]-left_qdc[0]-left_qdc[3])/(left_qdc[1]+left_qdc[2]+left_qdc[0]+left_qdc[3]);
-  xpos[chan-2] = (Double_t)(left_qdc[3]+left_qdc[2]-left_qdc[0]-left_qdc[1])/(left_qdc[1]+left_qdc[2]+left_qdc[0]+left_qdc[3]);
-  Pypos[chan-2] = (Double_t)(left_pixie[1]+left_pixie[2]-left_pixie[0]-left_pixie[3])/(left_pixie[1]+left_pixie[2]+left_pixie[0]+left_pixie[3]);
-  Pxpos[chan-2] = (Double_t)(left_pixie[3]+left_pixie[2]-left_pixie[0]-left_pixie[1])/(left_pixie[1]+left_pixie[2]+left_pixie[0]+left_pixie[3]);
+  xpos[chan-2] = (Double_t)(left_qdc[0]+left_qdc[1]-left_qdc[2]-left_qdc[3])/(left_qdc[0]+left_qdc[1]+left_qdc[2]+left_qdc[3]);
+  ypos[chan-2] = (Double_t)(left_qdc[0]+left_qdc[2]-left_qdc[1]-left_qdc[3])/(left_qdc[0]+left_qdc[1]+left_qdc[2]+left_qdc[3]);
+  Pxpos[chan-2] = (Double_t)(left_pixie[0]+left_pixie[1]-left_pixie[2]-left_pixie[3])/(left_pixie[0]+left_pixie[1]+left_pixie[2]+left_pixie[3]);
+  Pypos[chan-2] = (Double_t)(left_pixie[0]+left_pixie[2]-left_pixie[1]-left_pixie[3])/(left_pixie[0]+left_pixie[1]+left_pixie[2]+left_pixie[3]);
   break;
   case(3):
-  ypos[chan-2] = (Double_t)(right_qdc[1]+right_qdc[2]-right_qdc[0]-right_qdc[3])/(right_qdc[1]+right_qdc[2]+right_qdc[0]+right_qdc[3]);
-  xpos[chan-2] = (Double_t)(right_qdc[0]+right_qdc[1]-right_qdc[2]-right_qdc[3])/(right_qdc[1]+right_qdc[2]+right_qdc[0]+right_qdc[3]);
-  Pypos[chan-2] = (Double_t)(right_pixie[1]+right_pixie[2]-right_pixie[0]-right_pixie[3])/(right_pixie[1]+right_pixie[2]+right_pixie[0]+right_pixie[3]);
-  Pxpos[chan-2] = (Double_t)(right_pixie[0]+right_pixie[1]-right_pixie[2]-right_pixie[3])/(right_pixie[1]+right_pixie[2]+right_pixie[0]+right_pixie[3]);
+  xpos[chan-2] = (Double_t)(right_qdc[0]+right_qdc[1]-right_qdc[2]-right_qdc[3])/(right_qdc[0]+right_qdc[1]+right_qdc[2]+right_qdc[3]);
+  ypos[chan-2] = (Double_t)(right_qdc[0]+right_qdc[2]-right_qdc[1]-right_qdc[3])/(right_qdc[0]+right_qdc[1]+right_qdc[2]+right_qdc[3]);
+  Pxpos[chan-2] = (Double_t)(right_pixie[0]+right_pixie[1]-right_pixie[2]-right_pixie[3])/(right_pixie[0]+right_pixie[1]+right_pixie[2]+right_pixie[3]);
+  Pypos[chan-2] = (Double_t)(right_pixie[0]+right_pixie[2]-right_pixie[1]-right_pixie[3])/(right_pixie[0]+right_pixie[1]+right_pixie[2]+right_pixie[3]);
   break; 
   default:
   break;

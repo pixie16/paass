@@ -114,6 +114,8 @@ void pspmtClass::Loop(Long64_t nentries, const Char_t *filename)
    outTree->Branch("nRight",&nRight,"nRight/I");
    outTree->Branch("left_qdc[4]",&left_qdc,"left_qdc[4]/I");
    outTree->Branch("right_qdc[4]",&right_qdc,"right_qdc[4]/I");
+   outTree->Branch("left_pixie[4]",&left_pixie,"left_pixie[4]/I");
+   outTree->Branch("right_pixie[4]",&right_pixie,"right_pixie[4]/I");
    outTree->Branch("k4fold",&k4fold,"k4fold/O");
    outTree->Branch("k4Right",&k4Right,"k4Right/O");
    outTree->Branch("k4Left",&k4Left,"k4Left/O");
@@ -128,7 +130,7 @@ void pspmtClass::Loop(Long64_t nentries, const Char_t *filename)
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
-      if (jentry%100==0) cout << "\rOn entry: "<< jentry << flush;
+      if (jentry%500==0) cout << "\rOn entry: "<< jentry << flush;
 //      nb = fChain->GetEntry(jentry);   nbytes += nb;
       // if (Cut(ientry) < 0) continue;
       PolyCFD(jentry);
