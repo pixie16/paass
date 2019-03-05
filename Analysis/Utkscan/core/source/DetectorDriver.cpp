@@ -43,6 +43,7 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
     sysrootbool_ = false;
     fillLogic_  = false;
     tapeCycleNum_ = 0;
+    lastCycleTime_ = 0;
 
     try {
         DetectorDriverXmlParser parser;
@@ -420,6 +421,7 @@ void DetectorDriver::FillLogicStruc() { //This should be called away from the ev
         if (TreeCorrelator::get()->place("Cycle")->status()){
             double currentTime_ = TreeCorrelator::get()->place("Cycle")->last().time* convertTimeNS;
             if (currentTime_ != lastCycleTime_){
+                lastCycleTime_ = currentTime_;
                 tapeCycleNum_++;
             }
             LogStruc.lastTapeCycleStartTime = currentTime_;
