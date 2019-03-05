@@ -128,7 +128,7 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
         string place = (*it)->GetChanID().GetPlaceName();
         string subtype = chan->GetChanID().GetSubtype();
         unsigned int loc = chan->GetChanID().GetLocation();
-        double time = chan->GetTime();
+        double time = chan->GetTimeSansCfd();
 
         static double t0 = time;
 
