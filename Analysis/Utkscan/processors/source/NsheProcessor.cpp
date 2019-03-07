@@ -62,6 +62,8 @@ void NsheProcessor::DeclarePlots(void) {
 
     /** 2D graph for FB correlation **/
     DeclareHistogram2D(DD_EVENT_POSITION, xBins, yBins, "DSSD all events positions");
+    DeclareHistogram2D(DD_MAXEVENT_ENERGY__X_POSITION, energyBins, xBins, "DSSD X strips E vs. position RAW");
+    DeclareHistogram2D(DD_MAXEVENT_ENERGY__Y_POSITION, energyBins, yBins, "DSSD Y strips E vs. position RAW");
     DeclareHistogram2D(DD_EVENT_ENERGY__X_POSITION, energyBins, xBins, "DSSD X strips E vs. position");
     DeclareHistogram2D(DD_EVENT_ENERGY__Y_POSITION, energyBins, yBins, "DSSD Y strips E vs. position");
     DeclareHistogram2D(DD_FRONTE__BACKE, SB, SD, "Front vs Back energy");
@@ -113,8 +115,8 @@ bool NsheProcessor::PreProcess(RawEvent &event) {
     }
 
     for (vector<ChanEvent *>::iterator ity = yEvents.begin(); ity != yEvents.end(); ++ity) {
-	    if((*ity)->GetCalibratedEnergy() < zero_suppress_ && !(*ity)->IsPileup()) 
-            continue;
+	    // if((*ity)->GetCalibratedEnergy() < zero_suppress_ && !(*ity)->IsPileup()) 
+        //     continue;
 
 	    StripEvent ev((*ity)->GetCalibratedEnergy(), (*ity)->GetTime(), (*ity)->GetChanID().GetLocation(), 
         (*ity)->IsSaturated(),(*ity)->GetTrace(), (*ity)->IsPileup());
@@ -129,7 +131,9 @@ bool NsheProcessor::PreProcess(RawEvent &event) {
         ity != yEventsTMatch.end(); ++ity) {
 
         double bestDtime = numeric_limits<double>::max();
+        double bestDtime_sat = numeric_limits<double>::max();
         vector<pair<StripEvent, bool> >::iterator bestMatch = xEventsTMatch.end();
+        vector<pair<StripEvent, bool> >::iterator bestMatch_sat = xEventsTMatch.end();
 
         for (vector<pair<StripEvent, bool> >::iterator itx = xEventsTMatch.begin();
             itx != xEventsTMatch.end(); ++itx) {
@@ -143,14 +147,24 @@ bool NsheProcessor::PreProcess(RawEvent &event) {
              *  if not, skip this event
              **/
 
-            if ((abs(energyX - energyY) > deltaEnergy_ && !(*itx).first.pileup 
-            && !(*ity).first.pileup && !(*itx).first.sat)) 
+            if ((abs(energyX - energyY) > deltaEnergy_ && !(*itx).first.sat)) 
 	    	    continue;
             double dTime = abs((*itx).first.t - (*ity).first.t) * Globals::get()->GetAdcClockInSeconds();
-            if (dTime < bestDtime)
-                bestDtime = dTime; bestMatch = itx;
+            if (dTime < bestDtime && (*itx).first.pileup == (*ity).first.pileup && !(*itx).first.sat) {
+                bestDtime = dTime; 
+                bestMatch = itx;
+            }
+            else if(dTime < bestDtime_sat && (*ity).first.pileup && (*itx).first.sat){
+                bestDtime_sat = dTime; 
+                bestMatch_sat = itx;
+            }
         }
-        if (bestDtime < timeWindow_ && (*bestMatch).first.pileup == (*ity).first.pileup) {
+        if (bestDtime_sat < timeWindow_) {
+            xyEventsTMatch_.push_back(pair<StripEvent, StripEvent>((*bestMatch_sat).first, (*ity).first));
+            (*ity).second = true;
+            (*bestMatch_sat).second = true;
+    	    plot(D_DTIME, int(bestDtime_sat / 1.0e-8) + 1);
+        } else if (bestDtime < timeWindow_) {
             xyEventsTMatch_.push_back(pair<StripEvent, StripEvent>((*bestMatch).first, (*ity).first));
             (*ity).second = true;
             (*bestMatch).second = true;
@@ -281,7 +295,7 @@ bool NsheProcessor::Process(RawEvent &event) {
                 plot(DD_ALPHA_ALPHA, xEnergy/5, corr.GetPreviousDecayEnergy(xPosition, yPosition)/5);
             if(corr.GetGen(xPosition, yPosition) == 1)
                 plot(DD_ALPHA_IMPLANT, xEnergy/5, corr.GetImplantEnergy(xPosition, yPosition)/5);
-            if(!corr.IsFlagged(xPosition,yPosition) ){
+            if(!corr.IsFlagged(xPosition,yPosition)){
             	plot(DD_KHS_GATE, xEnergy, Tlog);
                 if(corr.GetGen(xPosition, yPosition) > 1)
                     plot(DD_ALPHA_ALPHA_GATE, xEnergy/5, corr.GetPreviousDecayEnergy(xPosition, yPosition)/5);
