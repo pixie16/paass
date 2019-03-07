@@ -1,6 +1,7 @@
-//
-// Created by darren on 2/21/19.
-//
+///@file MtasPspmtProcessor.cpp
+///@brief Processes information from a series of SiPMs to determine position. Based on PspmtProcessor.cpp
+///@author D.McKinnon, A. Keeler, S. Go, S. V. Paulauskas
+///@date February 21, 2019
 
 
 #include <algorithm>
@@ -9,8 +10,8 @@
 #include <limits>
 #include <sstream>
 #include <stdexcept>
-#include <csignal> //<signal.h>
-#include <climits> //<limits.h>
+#include <csignal>
+#include <climits>
 #include <cmath>
 
 #include "DammPlotIds.hpp"
@@ -24,37 +25,28 @@ using namespace dammIds::mtaspspmt;
 
 namespace dammIds {
     namespace mtaspspmt {
-        //const int DD_MULTI = 4;
         const int DD_POS_DIAG = 1;
         const int DD_POS_IMPL = 2;
-
     }
 }
 
-void MtasPspmtProcessor::DeclarePlots() {  //(void) {
+void MtasPspmtProcessor::DeclarePlots() {
     DeclareHistogram2D(DD_POS_DIAG, SB, SB, "Diagnostic Detector Positions");
     DeclareHistogram2D(DD_POS_IMPL, SB, SB, "Implant Detector Positions");
-    //DeclareHistogram2D(DD_MULTI,S3,S3, "Multiplicity");
 }
 
-MtasPspmtProcessor::MtasPspmtProcessor(const std::string &dt, const double &scale,
-                                       const unsigned int &offset, const double &threshold)
+MtasPspmtProcessor::MtasPspmtProcessor(const double &impl_scale, const unsigned int &impl_offset,
+                                       const double &impl_threshold, const double &diag_scale,
+                                       const unsigned int &diag_offset, const double &diag_threshold)
                     :EventProcessor(OFFSET, RANGE, "MtasPspmtProcessor"){
-    if(dt == "implant") {
-        dttype_ = implant;
-    } else if(dt == "diagnostic") {
-        dttype_ = diagnostic;
-    } else {
-        dttype_ = UNKNOWN;
-    }
 
-    DTtypeStr = dt;
-    positionScale_ = scale;
-    positionOffset_ = offset;
-    threshold_ = threshold;
-    ThreshStr = threshold;
+    implPosScale_ = impl_scale;
+    implPosOffset_ = impl_offset;
+    implThreshold_ = impl_threshold;
+    diagPosScale_ = diag_scale;
+    diagPosOffset_ = diag_offset;
+    diagThreshold_ = diag_threshold;
     associatedTypes.insert("mtaspspmt");
-
 }
 
 bool MtasPspmtProcessor::PreProcess(RawEvent &event) {
@@ -63,30 +55,19 @@ bool MtasPspmtProcessor::PreProcess(RawEvent &event) {
         return false;
     }
 
-    // read in signals
+    // read in signals, getting summary for "type:subtype"
     static const vector<ChanEvent *> &impl = event.GetSummary("mtaspspmt:implant")->GetList();
     static const vector<ChanEvent *> &diag = event.GetSummary("mtaspspmt:diagnostic")->GetList();
 
-
-    // set up position calculation for signals
-    position_mtas.first = 0, position_mtas.second = 0;
-
     //initialize
-    double energy = 0.;
+    double energy = 0;
     double xa = 0, xb = 0, ya = 0, yb = 0;
-
-    // plot multiplicity
-    //if (dttype_ == implant){
-    //    plot(DD_MULTI, impl.size(),3);
-    //} else if (dttype_ == diagnostic){
-    //    plot(DD_MULTI, diag.size(),3);
-    //}
 
     // IMPLANT DETECTOR Calculations
     double sumImpl = 0;
     for (auto it = impl.begin(); it !=impl.end(); it++) {
         energy = (*it)->GetCalibratedEnergy();
-        if (energy < threshold_){
+        if (energy < implThreshold_){
             continue;
         }
         std::string group = (*it)->GetChanID().GetGroup();
@@ -99,12 +80,11 @@ bool MtasPspmtProcessor::PreProcess(RawEvent &event) {
             sumImpl += energy;
         }
 
-        //compute position if both signals are present
         if (xa > 0 && xb > 0){
-            position_mtas.first = CalculatePosition(xa, xb, ya, yb, dttype_).first;
-            position_mtas.second = CalculatePosition(xa, xb, ya, yb, dttype_).second;
-            plot(DD_POS_IMPL, position_mtas.first * positionScale_ + positionOffset_,
-                 position_mtas.second * positionScale_ + positionOffset_);
+            double x = 0. ,y = 0.;
+            x = (xa - xb ) / (xa+xb);
+            y = 0.5; // shift it up off the axis
+            plot(DD_POS_IMPL, x * implPosScale_ + implPosOffset_, y * implPosScale_ + implPosOffset_);
         }
     }
 
@@ -112,7 +92,7 @@ bool MtasPspmtProcessor::PreProcess(RawEvent &event) {
     double sumDiag = 0;
     for (auto it = diag.begin(); it !=diag.end(); it++) {
         energy = (*it)->GetCalibratedEnergy();
-        if (energy < threshold_){
+        if (energy < diagThreshold_){
             continue;
         }
         std::string group = (*it)->GetChanID().GetGroup();
@@ -133,36 +113,14 @@ bool MtasPspmtProcessor::PreProcess(RawEvent &event) {
             sumDiag += energy;
         }
 
-        //compute position if all signals are present
-        if (xa > 0 && xb > 0 && ya > 0 && yb > 0){
-            position_mtas.first = CalculatePosition(xa, xb, ya, yb, dttype_).first;
-            position_mtas.second = CalculatePosition(xa, xb, ya, yb, dttype_).second;
-            plot(DD_POS_DIAG, position_mtas.first * positionScale_ + positionOffset_,
-                 position_mtas.second * positionScale_ + positionOffset_);
+        if (xa > 0. && xb > 0. && ya > 0. && yb > 0.){
+            double x = 0., y = 0.;
+            x = ((xa + ya)-(xb + yb))/(xa+xb+ya+yb);
+            y = ((xa + xb)-(ya + yb))/(xa+xb+ya+yb);
+            plot(DD_POS_DIAG, x * diagPosScale_ + diagPosOffset_, y * diagPosScale_ + diagPosOffset_);
         }
     }
 
-
     EndProcess();
     return (true);
-}
-
-pair<double, double> MtasPspmtProcessor::CalculatePosition(
-        double &xa, double &xb, double &ya, double &yb,
-        const MtasPspmtProcessor::DTTYPES &dttype) {
-    double x = 0, y = 0;
-    switch(dttype){
-        case implant:
-            x = (xa - xb ) / (xa+xb);
-            y = 0.5;
-            break;
-        case diagnostic:
-            x = ((xa + ya)-(xb + yb))/(xa+xb+ya+yb);
-            y = ((xa + xb)-(ya + yb))/(xa+xb+ya+yb);
-            break;
-        case UNKNOWN:
-        default:
-            cerr<< "We received a Detector Type we didn't recognize: " << dttype << endl;
-    }
-    return make_pair(x, y);
 }

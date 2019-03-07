@@ -121,58 +121,50 @@ namespace dammIds {
 
     ///in LogicProcessor.cpp
     namespace logic {
-        const int OFFSET = 8000;//3000;//!< Offset for LogicProcessor
+        const int OFFSET = 3000;//!< Offset for LogicProcessor
         const int RANGE = 150;//!< Range for the Logic Processor
-        // Adjusted by MTAS ONLINE for historical numbering
     }
 
     ///in VandleProcessor.cpp
     namespace vandle {
-        const int OFFSET = 9000;//3200;//!< Offset for the VandleProcessor
+        const int OFFSET = 3200;//!< Offset for the VandleProcessor
         const int RANGE = 150;//!< Range for the VandleProcessor
-        // Stolen by MTAS ONLINE for historical numbering
     }
 
     ///in TeenyVandleProcessor.cpp
     namespace teenyvandle {
-        const int OFFSET = 9200;//3350;//!<Offset for TeenyVandleProcessor
+        const int OFFSET = 3350;//!<Offset for TeenyVandleProcessor
         const int RANGE = 20;//!<Range for TeenyVandleProcessor
-        // Stolen by MTAS ONLINE for historical numbering
     }
 
     ///in PulserProcessor.cpp
     namespace pulser {
-        const int OFFSET = 9250;//3400; //!< Offset for the PulserProcessor Hists
+        const int OFFSET = 3400; //!< Offset for the PulserProcessor Hists
         const int RANGE = 20;//!< Range for the PulserProcessor Hists
-        // Stolen by MTAS ONLINE for historical numbering
     }
 
     /// in SsdProcessor.cpp
     namespace ssd {
-        const int OFFSET = 9300;//4100;//!< Offset for SsdProcessor
+        const int OFFSET = 4100;//!< Offset for SsdProcessor
         const int RANGE = 100;//!< Range for SsdProcessor
-        // Stolen by MTAS ONLINE for historical numbering
     }
 
     /// in ImplantSsdProcessor.cpp
     namespace implantSsd {
-        const int OFFSET = 9450;//4200;//!< Offset for ImplantSsdProcessor
+        const int OFFSET = 4200;//!< Offset for ImplantSsdProcessor
         const int RANGE = 300;//!< Range for ImplantSsdProcessor
-        // Stolen by MTAS ONLINE for historical numbering
     }
 
     ///in IonChamberProcessor.cpp
     namespace ionChamber {
-        const int OFFSET = 9800;//4700;//!< Offset for IonChamberProcessor
+        const int OFFSET = 4700;//!< Offset for IonChamberProcessor
         const int RANGE = 100;//!< Range for IonChamberProcessor
-        // Stolen by MTAS ONLINE for historical numbering
     }
 
     ///in PositionProcessor.cpp
     namespace position {
-        const int OFFSET = 10000;//5000;//!< Offset for PositionProcessor
+        const int OFFSET = 5000;//!< Offset for PositionProcessor
         const int RANGE = 600;//!< Range for PositionProcessor
-        // Stolen by MTAS ONLINE for historical numbering
     }
 
     /// in Correlator.cpp
@@ -201,9 +193,8 @@ namespace dammIds {
 
     /// in MtasProcessor.cpp
     namespace mtas {
-        const int OFFSET = 3000; //8000; //!< Offset for MtasProcessor
-        const int RANGE = 2999; //600; //!< Range for MtasProcessor
-        // Adjusted by MTAS ONLINE for historical numbering
+        const int OFFSET = 8000; //!< Offset for MtasProcessor
+        const int RANGE = 600; //!< Range for MtasProcessor
     }
 
     /// in MtasPspmtProcessor.cpp

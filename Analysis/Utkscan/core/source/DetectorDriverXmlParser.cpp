@@ -186,10 +186,12 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new MtasProcessor());
         } else if (name == "MtasPspmtProcessor"){
             vecProcess.push_back(new MtasPspmtProcessor(
-                    processor.attribute("dt").as_string("diagnostic"),
-                    processor.attribute("scale").as_double(1000.0),
-                    processor.attribute("offset").as_uint(1000),
-                    processor.attribute("threshold").as_double(0.0)
+                    processor.attribute("impl_scale").as_double(100.0),
+                    processor.attribute("impl_offset").as_uint(100),
+                    processor.attribute("impl_threshold").as_double(0.0),
+                    processor.attribute("diag_scale").as_double(1000.0),
+                    processor.attribute("diag_offset").as_uint(1000),
+                    processor.attribute("diag_threshold").as_double(0.0)
             ));
         } else if (name == "NeutronScintProcessor") {
             vecProcess.push_back(new NeutronScintProcessor());
@@ -197,7 +199,7 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new PositionProcessor());
         } else if (name == "PspmtProcessor") {
             vecProcess.push_back(new PspmtProcessor(
-                    processor.attribute("vd").as_string("mtas_implant"),//SIB062_0926"),
+                    processor.attribute("vd").as_string("SIB062_0926"),
                     processor.attribute("yso_scale").as_double(500.0),
                     processor.attribute("yso_offset").as_uint(500.0),
                     processor.attribute("yso_threshold").as_double(0.0),//50.0),
