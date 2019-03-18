@@ -80,7 +80,8 @@ public:
 
     ~NsheProcessor() {};
 
-    NsheProcessor(double timeWindow,
+    NsheProcessor(int caib,
+                double timeWindow,
 		        double tofWindow,
                 double vetoWindow,
                 double deltaEnergy,
@@ -115,7 +116,7 @@ protected:
             pos = -1;
             sat = false;
             pileup = false;
-	    trace.clear();
+	        trace.clear();
         }
 
         ///Constructor for StripEvent structure
@@ -126,8 +127,8 @@ protected:
             pos = position;
             sat = saturated;
             pileup = pile_up;
-	    trace.swap(tracein);
-	    //else trace.clear();
+	        trace.swap(tracein);
+	        //else trace.clear();
         }
 
         double t; //!< the time
@@ -135,7 +136,7 @@ protected:
         int pos; //!< position
         bool sat; //!< if we had a saturation 
         bool pileup; //!< if we had a pileup
-	std::vector<unsigned int> trace;
+	    std::vector<unsigned int> trace;
     };
 
     processor_struct::DSSD dssdstruc; //!<Working structure  
@@ -148,6 +149,25 @@ protected:
     /** Events matched based on timing correlation  **/
     std::vector<std::pair<StripEvent, StripEvent>> xyEventsTMatch_;
 
+    /** mcp1**/
+    std::vector<std::pair<StripEvent, bool>> xEventsTMatch;
+
+    /** mcp1**/
+    std::vector<std::pair<StripEvent, bool>> yEventsTMatch;
+
+    /** mcp1**/
+    std::vector<std::pair<StripEvent, bool>> mcp1EventsTMatch;
+
+    /** mcp2**/
+    std::vector<std::pair<StripEvent, bool>> mcp2EventsTMatch;
+
+    /** veto**/
+    std::vector<std::pair<StripEvent, bool>> vetoEventsTMatch;
+
+
+
+    /** F/B correlation (0) or just calib (1) = raw data in the root file**/
+    int calib_;
     /**Limit in seconds for the time difference between front and
      * back to be correlated. Also to find Si Side detectors correlated
      * events (escapes)*/
