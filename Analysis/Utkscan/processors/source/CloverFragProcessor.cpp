@@ -159,7 +159,7 @@ bool CloverFragProcessor::Process(RawEvent &event) {
             //Fill root struct and push back on to vector
             Cstruct.rawEnergy = (*itClover)->GetEnergy();
             Cstruct.energy = gEnergy;
-            Cstruct.time = (*itClover)->GetTimeSansCfd();
+            Cstruct.time = (*itClover)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9; //store ns
             Cstruct.detNum = (*itClover)->GetChanID().GetLocation();
             Cstruct.cloverNum = cloverNum;
             pixie_tree_event_->clover_vec_.emplace_back(Cstruct);

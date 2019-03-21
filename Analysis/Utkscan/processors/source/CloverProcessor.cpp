@@ -17,6 +17,7 @@
 #include "pugixml.hpp"
 
 #include "DammPlotIds.hpp"
+#include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
 #include "Display.h"
 #include "Exceptions.hpp"
@@ -529,16 +530,15 @@ bool CloverProcessor::Process(RawEvent &event) {
 
         plot(D_NONCYCGATEDENERGY, gEnergy);
 
-        Cstruct.rawEnergy = itC->GetEnergy();
-        Cstruct.energy = itC->GetCalibratedEnergy();
-        Cstruct.time = itC->GetTimeSansCfd();
-        Cstruct.detNum = itC->GetChanID().GetLocation();
-        Cstruct.cloverNum = leafToClover[itC->GetChanID().GetLocation()];
-        pixie_tree_event_->clover_vec_.emplace_back(Cstruct);
-        Cstruct = processor_struct::CLOVERS_DEFAULT_STRUCT; //reset to initalized values (see ProcessorRootStruc.hpp
-
-        //Dont fill because we want 1 pixie event per tree entry, so we add the current structure in the last spot
-        //on a vector<> and then reset the structure. and we will at the end of Process()
+        if (DetectorDriver::get()->GetSysRootOutput()){
+            Cstruct.rawEnergy = itC->GetEnergy();
+            Cstruct.energy = itC->GetCalibratedEnergy();
+            Cstruct.time = itC->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9; //store ns
+            Cstruct.detNum = itC->GetChanID().GetLocation();
+            Cstruct.cloverNum = leafToClover[itC->GetChanID().GetLocation()];
+            pixie_tree_event_->clover_vec_.emplace_back(Cstruct);
+            Cstruct = processor_struct::CLOVERS_DEFAULT_STRUCT; //reset to initalized values (see ProcessorRootStruc.hpp
+        }
     }
 
 
