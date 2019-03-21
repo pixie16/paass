@@ -341,11 +341,8 @@ bool GammaScintProcessor::Process(RawEvent &event) {
         }
 
         if (SysRoot_) {
-
-
             if ((*it)->GetChanID().HasTag("dy"))
                 Gsing.isDynodeOut = true;
-
             Gsing.group = (*it)->GetChanID().GetGroup();
             Gsing.subtype = (*it)->GetChanID().GetSubtype() ;
 

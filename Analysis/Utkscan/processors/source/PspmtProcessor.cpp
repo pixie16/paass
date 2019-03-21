@@ -117,7 +117,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
     for (auto it = lowDynode.begin(); it != lowDynode.end(); it++) {
         if (DetectorDriver::get()->GetSysRootOutput()) {
             PSstruct.energy = (*it)->GetCalibratedEnergy();
-            PSstruct.time = (*it)->GetTimeSansCfd();
+            PSstruct.time = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9; //store ns
             PSstruct.subtype = (*it)->GetChanID().GetSubtype();
             PSstruct.tag = (*it)->GetChanID().GetGroup();
             pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
@@ -128,7 +128,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
     for (auto it = hiDynode.begin(); it != hiDynode.end(); it++) {
         if (DetectorDriver::get()->GetSysRootOutput()) {
             PSstruct.energy = (*it)->GetCalibratedEnergy();
-            PSstruct.time = (*it)->GetTimeSansCfd();
+            PSstruct.time = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9; //store ns
             PSstruct.subtype = (*it)->GetChanID().GetSubtype();
             PSstruct.tag = (*it)->GetChanID().GetGroup();
             pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
@@ -162,7 +162,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
 
         if (DetectorDriver::get()->GetSysRootOutput()) {
             PSstruct.energy = (*it)->GetCalibratedEnergy();
-            PSstruct.time = (*it)->GetTimeSansCfd();
+            PSstruct.time = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9; //store ns
             PSstruct.subtype = (*it)->GetChanID().GetSubtype();
             PSstruct.tag = (*it)->GetChanID().GetGroup();
             pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
@@ -196,7 +196,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
 
         if (DetectorDriver::get()->GetSysRootOutput()) {
             PSstruct.energy = (*it)->GetCalibratedEnergy();
-            PSstruct.time = (*it)->GetTimeSansCfd();
+            PSstruct.time = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9; //store ns
             PSstruct.subtype = (*it)->GetChanID().GetSubtype();
             PSstruct.tag = (*it)->GetChanID().GetGroup();
             pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
@@ -254,7 +254,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
 
         if (DetectorDriver::get()->GetSysRootOutput()) {
             PSstruct.energy = (*it)->GetCalibratedEnergy();
-            PSstruct.time = (*it)->GetTimeSansCfd();
+            PSstruct.time = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9; //store ns
             PSstruct.subtype = (*it)->GetChanID().GetSubtype();
             PSstruct.tag = (*it)->GetChanID().GetGroup();
             pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
@@ -270,7 +270,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
 
         if (DetectorDriver::get()->GetSysRootOutput()) {
             PSstruct.energy = (*it)->GetCalibratedEnergy();
-            PSstruct.time = (*it)->GetTimeSansCfd();
+            PSstruct.time = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9; //store ns
             PSstruct.subtype = (*it)->GetChanID().GetSubtype();
             PSstruct.tag = (*it)->GetChanID().GetGroup();
             pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
@@ -313,7 +313,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
     for(auto it = separatorScint.begin(); it != separatorScint.end(); it++){
         if (DetectorDriver::get()->GetSysRootOutput()) {
             PSstruct.energy = (*it)->GetCalibratedEnergy();
-            PSstruct.time = (*it)->GetTimeSansCfd();
+            PSstruct.time = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9; //store ns
             PSstruct.subtype = (*it)->GetChanID().GetSubtype();
             PSstruct.tag = (*it)->GetChanID().GetGroup();
             pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
@@ -327,7 +327,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
     for (auto it = desi.begin(); it != desi.end(); it++){
         if (DetectorDriver::get()->GetSysRootOutput()) {
             PSstruct.energy = (*it)->GetCalibratedEnergy();
-            PSstruct.time = (*it)->GetTimeSansCfd();
+            PSstruct.time = (*it)->GetTimeSansCfd()* Globals::get()->GetClockInSeconds() * 1e9; //store ns
             PSstruct.subtype = (*it)->GetChanID().GetSubtype();
             PSstruct.tag = (*it)->GetChanID().GetGroup();
             pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
