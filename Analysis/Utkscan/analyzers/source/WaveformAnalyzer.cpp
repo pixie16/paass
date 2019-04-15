@@ -19,15 +19,14 @@
 using namespace std;
 
 WaveformAnalyzer::WaveformAnalyzer(const std::set<std::string> &ignoredTypes)
-        : TraceAnalyzer() {
+    : TraceAnalyzer() {
     name = "WaveformAnalyzer";
     ignoredTypes_ = ignoredTypes;
 }
 
 void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     TraceAnalyzer::Analyze(trace, cfg);
-    if (trace.IsSaturated() || trace.empty() || ignoredTypes_.find(cfg.GetType()) != ignoredTypes_.end() || ignoredTypes_.find(cfg.GetType()+":"+cfg.GetSubtype()) != ignoredTypes_.end()) {
-
+    if (trace.IsSaturated() || trace.empty() || ignoredTypes_.find(cfg.GetType()) != ignoredTypes_.end() || ignoredTypes_.find(cfg.GetType() + ":" + cfg.GetSubtype()) != ignoredTypes_.end() || ignoredTypes_.find(cfg.GetType() + ":" + cfg.GetSubtype() + ":" + cfg.GetGroup()) != ignoredTypes_.end()) {
         trace.SetHasValidAnalysis(false);
         EndAnalyze();
         return;
@@ -50,7 +49,7 @@ void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     // baseline to calculate the average baseline then we're going to set
     // some of the variables to be used later to zero and end the analysis of
     // the waveform now.
-    if (max.first - range.first < TraceFunctions::minimum_baseline_length) {
+    if ((int)(max.first - range.first) < TraceFunctions::minimum_baseline_length) {
 #ifdef VERBOSE
         cout << "WaveformAnalyzer::Analyze - The low bound for the trace overlaps with the minimum bins for the"
         "baseline." << endl;
