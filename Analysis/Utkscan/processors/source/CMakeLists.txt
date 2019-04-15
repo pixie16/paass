@@ -20,6 +20,7 @@ set(PROCESSOR_SOURCES
         NeutronScintProcessor.cpp
         PositionProcessor.cpp
         PspmtProcessor.cpp
+        RootDevProcessor.cpp
         TeenyVandleProcessor.cpp
         TemplateProcessor.cpp
         VandleProcessor.cpp
