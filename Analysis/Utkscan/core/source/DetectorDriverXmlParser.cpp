@@ -29,6 +29,7 @@
 #include "CloverFragProcessor.hpp"
 #include "DoubleBetaProcessor.hpp"
 #include "DssdProcessor.hpp"
+#include "ExtTSSenderProcessor.hpp"
 #include "GammaScintProcessor.hpp"
 #include "GeProcessor.hpp"
 #include "Hen3Processor.hpp"
@@ -44,7 +45,6 @@
 #include "TeenyVandleProcessor.hpp"
 #include "TemplateProcessor.hpp"
 #include "VandleProcessor.hpp"
-#include "ExtTSSenderProcessor.hpp"
 
 //These headers are for handling experiment specific processing.
 #include "E11027Processor.hpp"
@@ -131,6 +131,16 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new DoubleBetaProcessor());
         } else if (name == "DssdProcessor") {
             vecProcess.push_back(new DssdProcessor());
+              } else if (name == "E11027Processor") {
+            vecProcess.push_back(new E11027Processor());
+        }else if (name == "ExtTSSenderProcessor") {
+            vecProcess.push_back(new ExtTSSenderProcessor(
+                    processor.attribute("type").as_string(""),
+                    processor.attribute("host").as_string("localhost"),
+                    processor.attribute("slot").as_int(0),
+                    processor.attribute("channel").as_int(0),
+                    processor.attribute("port").as_int(12345),
+                    processor.attribute("buffSize").as_uint(64)));
         }else if (name == "GammaScintProcessor") {
             std::map<std::string,std::string> GScintArgs;
             std::string defaultSubEvtWin = "0.50e-6";
@@ -205,21 +215,7 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
                     processor.attribute("res").as_double(2.0), processor.attribute("offset").as_double(1000.0),
                     processor.attribute("NumStarts").as_uint(1), processor.attribute("compression").as_double(1.0),
                     processor.attribute("qdcmin").as_double(0.0),processor.attribute("tofcut").as_double(-1000.0)));
-        } else if (name == "TemplateExpProcessor") {
-            vecProcess.push_back(new TemplateExpProcessor());
-        } else if (name == "E11027Processor") {
-            vecProcess.push_back(new E11027Processor());
-        } else if (name == "TemplateExpProcessor") {
-            vecProcess.push_back(new TemplateExpProcessor());
-        } else if (name == "ExtTSSenderProcessor") {
-            vecProcess.push_back(new ExtTSSenderProcessor(
-                    processor.attribute("type").as_string(""),
-                    processor.attribute("host").as_string("localhost"),
-                    processor.attribute("slot").as_int(0),
-                    processor.attribute("channel").as_int(0),
-                    processor.attribute("port").as_int(12345),
-                    processor.attribute("buffSize").as_uint(64)));
-        }
+        } 
 #ifdef useroot //Certain processors REQUIRE ROOT to actually work
         else if (name == "Anl1471Processor") {
             vecProcess.push_back(new Anl1471Processor());

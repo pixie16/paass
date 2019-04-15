@@ -47,7 +47,7 @@ bool ExtTSSenderProcessor::Process(RawEvent &event)
 
     static const std::vector<ChanEvent *> &chEvents = event.GetEventList();
     for( auto chEvent : chEvents ) {
-        if( chEvent->GetChannelNumber() == chanNum_ && chEvent->GetModuleNumber() == slotNum_ ){
+        if( (int)chEvent->GetChannelNumber() == chanNum_ && (int)chEvent->GetModuleNumber() == slotNum_ ){
             unsigned long long ts = chEvent->GetExternalTimeStamp();
             // printf("ts %llu \n", ts);
             SetTS(ts);
