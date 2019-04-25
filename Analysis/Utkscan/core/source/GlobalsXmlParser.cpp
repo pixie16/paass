@@ -46,6 +46,11 @@ void GlobalsXmlParser::ParseNode(Globals *globals) {
             m.start("Loading Vandle Node");
             ParseVandleNode(root.child("Vandle"), globals);
             m.done();
+        }else{
+            //always set the normal constants. The current setup will always set the values while allowing single type overrides 
+            globals->SetVandleBigSpeedOfLight(15.22998);
+            globals->SetVandleMediumSpeedOfLight(15.5);
+            globals->SetVandleSmallSpeedOfLight(12.65822);
         }
     } catch (exception &e) {
         m.detail("Globals::Globals : Exception caught while parsing configuration file.");
