@@ -68,6 +68,10 @@ private:
 
     //A stringstream that we can use repeatedly without having to redefine.
     std::stringstream sstream_;
+
+    // list of possible Rev:F frequencies. Inner Struct is <freq,<adc factor,filter factor >>
+    // We will add the "e-9" on the set end for readability here
+    std::vector<std::pair<int, std::pair<double, double>>> revFfreq = {{100, {10, 10}}, {250, {4, 8}}, {500, {2, 10}}};
 };
 
 #endif //PAASS_XMLPARSER_HPP

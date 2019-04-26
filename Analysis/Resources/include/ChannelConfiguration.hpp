@@ -50,6 +50,9 @@ public:
     ///@return the pair of fitting parameters to use in fits.
     std::pair<double, double> GetFittingParameters() const { return fittingParameters_; }
 
+    ///return the frequency for this channel
+    int GetModFreq() const { return modFreq_ ; }
+
     ///@return The value of the private variable location
     unsigned int GetLocation() const { return location_; }
 
@@ -112,6 +115,10 @@ public:
     /// Sets the pair of parameters that are needed for fitting analysis
     ///@param[in] a : The pair of parameters to set
     void SetFittingParameters(const std::pair<double, double> &a) { fittingParameters_ = a; }
+
+    /// Sets the frequency of the module for this channel
+    ///@param[in] a : The frequency to set 
+    void SetModFreq(const int &a) { modFreq_ = a; }
 
     /// Sets the Group string. Mainly used for the "addback" in the PostPaassProcessor ROOT code
     ///@param[in] a : The Group string to set
@@ -192,6 +199,7 @@ private:
     unsigned int discriminationStartInSamples_; ///< The position from the max that we'll do particle discrimination
     TrapFilterParameters energyFilterParameters_; ///< Parameters to use for energy filter calculations
     std::pair<double, double> fittingParameters_; ///< The parameters to use for the fitting routines
+    int modFreq_; ///<Frequency of the module for this channel 
     unsigned int location_; ///< Specifies the real world location of the channel.
     std::string subtype_; ///< Specifies the detector sub type
     std::string group_; ///<Specifies the detector group

@@ -41,8 +41,8 @@ bool RootDevProcessor::Process(RawEvent &event) {
     for (auto it = Events.begin(); it != Events.end(); it++) {
         RDstruct.energy = (*it)->GetCalibratedEnergy();
         RDstruct.rawEnergy = (*it)->GetEnergy();
-        RDstruct.timeSansCfd = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds();
-        RDstruct.time = (*it)->GetTime() * Globals::get()->GetAdcClockInSeconds();
+        RDstruct.timeSansCfd = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds((*it)->GetChanID().GetModFreq());
+        RDstruct.time = (*it)->GetTime() * Globals::get()->GetAdcClockInSeconds((*it)->GetChanID().GetModFreq());
         RDstruct.detNum = (*it)->GetChanID().GetLocation();
         RDstruct.modNum = (*it)->GetModuleNumber();
         RDstruct.chanNum = (*it)->GetChannelNumber();
