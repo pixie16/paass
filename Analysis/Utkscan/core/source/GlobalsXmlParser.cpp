@@ -79,10 +79,21 @@ void GlobalsXmlParser::ParseGlobalNode(const pugi::xml_node &node, Globals *glob
             globals->SetClockInSeconds(10e-9);
             globals->SetFilterClockInSeconds(10e-9);
         } else if (revision == "F") {
-            // Not all RevFs are 250MHz and this should not be a single value since we can boot Mixed Crates (T.T. King Feb 7, 2019)
+            // Users of mixed crates are expected to pass the correct freq to the Get...Clock() functions
+            // For legacy/ compatibility reasons we will default Rev F to 250 MHz
             globals->SetAdcClockInSeconds(4e-9);
             globals->SetClockInSeconds(8e-9);
             globals->SetFilterClockInSeconds(8e-9);
+
+            for (int it=0;it<(int)revFfreq.size();it++){
+                int curFreq = revFfreq.at(it).first;
+                double adcFactor = revFfreq.at(it).second.first * pow(10,-9);
+                double filterFactor = revFfreq.at(it).second.second * pow(10,-9);
+                globals->SetAdcClockInSeconds(curFreq,adcFactor);
+                globals->SetClockInSeconds(curFreq,filterFactor);
+                globals->SetFilterClockInSeconds(curFreq,filterFactor);
+            }
+
         } else {
             throw invalid_argument("GlobalsXmlParser::ParseGlobal - The revision \"" + revision +
                                            "\", is not known to us. Known revisions are A, D, F");
