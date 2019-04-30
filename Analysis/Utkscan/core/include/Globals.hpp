@@ -48,17 +48,29 @@ public:
     ///@return the adc clock in seconds
     double GetAdcClockInSeconds() const { return adcClockInSeconds_; }
 
+    ///@param[in] freq : The frequency of the module
     ///@return the correct adc clock conversion factor for the given freq
-    double GetAdcClockInSeconds(const int &freq) const { 
-        return (adcClockTickToSeconds_.find(freq)->second);
+    double GetAdcClockInSeconds(const int &freq) const {
+        if (adcClockTickToSeconds_.find(freq) != adcClockTickToSeconds_.end()) {
+            return (adcClockTickToSeconds_.find(freq)->second);
+        } else {
+            std::cout << "ERROR:: Globals::GetAdcClockInSeconds(): Unknown Frequency, using Revision Default" << std::endl;
+            return adcClockInSeconds_;
+        }
     }
 
     ///@return the pixie clock in seconds
     double GetClockInSeconds() const { return clockInSeconds_; }
 
+    ///@param[in] freq : The frequency of the module
     ///@return the correct clock conversion factor for the given freq
-    double GetClockInSeconds(const int &freq) const { 
-        return (clockTickToSeconds_.find(freq)->second);
+    double GetClockInSeconds(const int &freq) const {
+        if (clockTickToSeconds_.find(freq) != clockTickToSeconds_.end()) {
+            return (clockTickToSeconds_.find(freq)->second);
+        } else {
+            std::cout << "ERROR:: Globals::GetClockInSeconds(): Unknown Frequency, using Revision Default" << std::endl;
+            return clockInSeconds_;
+        }
     }
 
     ///@return the configuration file
@@ -73,9 +85,15 @@ public:
     ///@return the filter clock in seconds
     double GetFilterClockInSeconds() const { return filterClockInSeconds_; }
 
+    ///@param[in] freq : The frequency of the module
     ///@return the correct filter clock conversion factor for the given freq
-    double GetFilterClockInSeconds(const int &freq) const { 
-        return (filterClockTickToSeconds_.find(freq)->second);
+    double GetFilterClockInSeconds(const int &freq) const {
+        if (filterClockTickToSeconds_.find(freq) != filterClockTickToSeconds_.end()) {
+            return (filterClockTickToSeconds_.find(freq)->second);
+        } else {
+            std::cout << "ERROR:: Globals::GetFilterClockInSeconds(): Unknown Frequency, using Revision Default" << std::endl;
+            return filterClockInSeconds_;
+        }
     }
 
     ///@return returns name of specified output file
