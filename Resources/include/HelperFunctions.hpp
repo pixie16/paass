@@ -207,7 +207,7 @@ namespace Statistics {
 
 namespace TraceFunctions {
     ///The minimum length that is necessary for a good baseline calculation.
-    static const unsigned int minimum_baseline_length = 10;
+    static const int minimum_baseline_length = 10;
 
     ///@brief Compute the trace baseline and its standard deviation. This
     /// function takes a data range in the event that someone wants to
