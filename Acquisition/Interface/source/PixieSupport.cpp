@@ -64,15 +64,15 @@ const std::vector<std::string> BitFlipper::csr_txt({"Respond to group triggers o
 #else
 const std::vector<std::string> BitFlipper::toggle_names(
         {"", "", "good", "", "", "polarity", "", "", "trace", "QDC", "CFD",
-         "global", "raw", "trigger", "gain", "pileup", "catcher", "", "SHE","","","ExtTime"});
+         "globtrig", "raw", "chantrig", "gain", "pileup", "catcher", "", "SHE","","","ExtTime","ExtFastTrig","PeakSamp"});
 const std::vector<std::string> BitFlipper::csr_txt(
         {"", "", "Good Channel", "", "", "Trigger positive", "", "",
          "Enable trace capture", "Enable QDC sums capture",
          "Enable CFD trigger mode", "Enable global trigger validation",
          "Enable raw energy sums capture",
          "Enable channel trigger validation", "LO/HI gain",
-         "Pileup rejection control", "Hybrid bit", "",
-         "SHE single trace capture","","","External Timing"});
+         "Pileup Rejection", "Inverse Pileup ", "",
+         "SHE single trace capture (grouptrigsel)","","","Enable External Timestamping","Enable External Fast Trigger","Enable Override Peak Sample Point"});
 #endif
 
 void BitFlipper::Help() {
@@ -110,7 +110,7 @@ void BitFlipper::SetBit(std::string bit_) {
 }
 
 void BitFlipper::CSRAtest(unsigned int input_) {
-    Test(22, input_, csr_txt);
+    Test(24, input_, csr_txt);
 }
 
 bool BitFlipper::Test(unsigned int num_bits_, unsigned int input_,
@@ -141,7 +141,7 @@ bool BitFlipper::Test(unsigned int num_bits_, unsigned int input_,
     std::cout << " Input: 0x" << std::hex << input_ << " (" << std::dec
               << input_ << ")\n";
     if (!text_.empty()) {
-        std::cout << "  Bit   On?	Value	   Total	Bit Function\n";
+        std::cout << "  Bit  On?  Value       Total	  Bit Function\n";
     } else { std::cout << "  Bit   On?	Value	   Total\n"; }
 
     std::string bit_function;
@@ -152,39 +152,39 @@ bool BitFlipper::Test(unsigned int num_bits_, unsigned int input_,
         if (active_bits[i]) {
             if (Display::hasColorTerm) {
                 if (i < 10) {
-                    std::cout << TermColors::DkGreen << "   0" << i << "	1  "
+                    std::cout << TermColors::DkGreen << "  0" << i << "	1   "
                               << PadStr(bit_values[i], 12);
-                    std::cout << PadStr(running_total[i], 12) << bit_function
+                    std::cout << PadStr(running_total[i], 10) << bit_function
                               << TermColors::Reset << std::endl;
                 } else {
-                    std::cout << TermColors::DkGreen << "   " << i << "	1  "
+                    std::cout << TermColors::DkGreen << "  " << i << "	1   "
                               << PadStr(bit_values[i], 12);
-                    std::cout << PadStr(running_total[i], 12) << bit_function
+                    std::cout << PadStr(running_total[i], 10) << bit_function
                               << TermColors::Reset << std::endl;
                 }
             } else {
                 if (i < 10) {
-                    std::cout << "   " << i << "	1  "
+                    std::cout << "  0" << i << "	1   "
                               << PadStr(bit_values[i], 12)
-                              << PadStr(running_total[i], 12) << bit_function
+                              << PadStr(running_total[i], 10) << bit_function
                               << std::endl;
                 } else {
-                    std::cout << "   " << i << "	1  "
+                    std::cout << "  " << i << "	1   "
                               << PadStr(bit_values[i], 12)
-                              << PadStr(running_total[i], 12) << bit_function
+                              << PadStr(running_total[i], 10) << bit_function
                               << std::endl;
                 }
             }
         } else {
             if (i < 10) {
-                std::cout << "   0" << i << "	0  "
+                std::cout << "  0" << i << "	0   "
                           << PadStr(bit_values[i], 12);
-                std::cout << PadStr(running_total[i], 12) << bit_function
+                std::cout << PadStr(running_total[i], 10) << bit_function
                           << std::endl;
             } else {
-                std::cout << "   " << i << "	0  "
+                std::cout << "  " << i << "	0   "
                           << PadStr(bit_values[i], 12);
-                std::cout << PadStr(running_total[i], 12) << bit_function
+                std::cout << PadStr(running_total[i], 10) << bit_function
                           << std::endl;
             }
         }
