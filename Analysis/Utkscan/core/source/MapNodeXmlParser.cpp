@@ -250,7 +250,7 @@ void MapNodeXmlParser::ParseTraceNode(const pugi::xml_node &node, ChannelConfigu
 
     if(isVerbose) {
         sstream_.str("");
-        sstream_ << "Trace Delay (ns)= " << mod_TD;
+        sstream_ << "Trace Delay (ns)= " << TraceDelay;
         sstream_ << "   Trace Delay (sample)= " << TDsample;
         messenger_.detail(sstream_.str(), 2);
         sstream_.str("");
