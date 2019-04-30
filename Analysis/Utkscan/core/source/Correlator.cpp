@@ -266,8 +266,18 @@ void Correlator::Correlate(EventInfo &event, unsigned int fch, unsigned int bch)
                 event.dtime = NAN;
                 break;
             } // negative correlation itme
-            if (theList.front().dtime * clockInSeconds >= minImpTime) { //check if there was no back to back implant too fast
-                if (dt * clockInSeconds < corrTime) { // corr Time between to generation (implant/decay or decay/decay)
+            // if (theList.front().dtime * clockInSeconds >= minImpTime) { //check if there was no back to back implant too fast
+            //     if (dt * clockInSeconds < corrTime) { // corr Time between to generation (implant/decay or decay/decay)
+            //         event.dtime = event.time - theList.front().time; // FOR LERIBSS
+            //         event.dtimegen = event.time - lastTime;
+            //     } else {
+            //         event.dtime = event.time - theList.front().time; // FOR LERIBSS
+            //         event.dtimegen = event.time - lastTime;
+            //         condition = DECAY_TOO_LATE;
+            //     }
+            // } 
+            if (theList.front().dtime >= minImpTime) { //check if there was no back to back implant too fast
+                if (dt  < corrTime) { // corr Time between to generation (implant/decay or decay/decay)
                     event.dtime = event.time - theList.front().time; // FOR LERIBSS
                     event.dtimegen = event.time - lastTime;
                 } else {
@@ -275,7 +285,7 @@ void Correlator::Correlate(EventInfo &event, unsigned int fch, unsigned int bch)
                     event.dtimegen = event.time - lastTime;
                     condition = DECAY_TOO_LATE;
                 }
-            } else
+            }else
                 condition = IMPLANT_TOO_SOON;
 
             if (condition == VALID_DECAY)

@@ -196,7 +196,7 @@ namespace dammIds {
     /// in DssdProcessor.cpp
     namespace dssd4she {
         const int OFFSET = 7100;//!< Offset for Dssd4SheProcessor
-        const int RANGE = 100;//!< Range for Dssd4SheProcessor
+        const int RANGE = 200;//!< Range for Dssd4SheProcessor
     }
 
     /// Definitions for all of the traces

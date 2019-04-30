@@ -25,7 +25,7 @@ namespace dammIds {
         const int D_DTIME_SIDE = 5; //!< Time Diff on the side
         const int D_DTIMETOF = 8; // DT DSSD TOF1
         const int DD_ENERGY_DT__DSSD_MWPC = 6; //!< Energy vs MWPC
-        const int DD_DE_E__DSSD_VETO = 7; //!< Energy vs. Veto
+        const int D_DTIMEVETO = 7; //!< Energy vs. Veto
 
         const int DD_EVENT_POSITION = 10; //!< Event Position 
         const int DD_EVENT_POSITION_FROM_E = 11; //!< Event Pos from Energy
@@ -68,6 +68,15 @@ namespace dammIds {
         const int DD_KHS_GATE = 55 ; // VETO ENERGY SPECTRUM	
         const int DD_ALPHA_ALPHA_GATE = 56 ; // DECAY VS DECAY SPECTRUM
         const int D_GEN = 57 ; // DECAY VS DECAY SPECTRUM
+
+        /** TOF diag **/
+        const int DD_QDC1_DSSD = 60;
+        const int DD_QDC2_DSSD = 61;
+        const int DD_QDC1_TOF = 62;
+        const int DD_QDC2_TOF = 63;
+        const int DD_TOF1_DSSD = 64;
+        const int DD_TOF2_DSSD = 65;
+        const int DD_MULTI = 66;
 
     }
 }
@@ -116,10 +125,23 @@ protected:
             pos = -1;
             sat = false;
             pileup = false;
-	        trace.clear();
+	        trace = {};
+            Qdc = {};
         }
 
         ///Constructor for StripEvent structure
+        StripEvent(double energy, double time, int position,
+                   bool saturated,std::vector<unsigned int> tracein, bool pile_up, std::vector<unsigned int> QDC) {
+            E = energy;
+            t = time;
+            pos = position;
+            sat = saturated;
+            pileup = pile_up;
+	        trace = tracein;
+	        //else trace.clear();
+            Qdc = QDC;
+        }
+
         StripEvent(double energy, double time, int position,
                    bool saturated,std::vector<unsigned int> tracein, bool pile_up) {
             E = energy;
@@ -127,8 +149,9 @@ protected:
             pos = position;
             sat = saturated;
             pileup = pile_up;
-	        trace.swap(tracein);
+	        trace = tracein;
 	        //else trace.clear();
+            Qdc = {};
         }
 
         double t; //!< the time
@@ -137,6 +160,7 @@ protected:
         bool sat; //!< if we had a saturation 
         bool pileup; //!< if we had a pileup
 	    std::vector<unsigned int> trace;
+        std::vector<unsigned int> Qdc;
     };
 
     processor_struct::DSSD dssdstruc; //!<Working structure  
