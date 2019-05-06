@@ -87,7 +87,7 @@ void VandleProcessor::DeclarePlots(void) {
 
         DeclareHistogram2D(DD_TIMEDIFFBARS + offset.second, SB, S6, "UNCALIBRATED: Bars vs. Time Differences (0.5ns/bin)");
         DeclareHistogram2D(DD_TOFBARS + offset.second, SC, S8, "UNCALIBRATED: Bar vs. Time of Flight (0.5ns/bin)");
-        DeclareHistogram2D(DD_TQDCAVEVSTOF+ offset.second, SC, S8, "UNCALIBRATED: <E> vs. TOF (0.5ns/bin)");
+        DeclareHistogram2D(DD_TQDCAVEVSTOF+ offset.second, SC, SD, "UNCALIBRATED: <E> vs. TOF (0.5ns/bin)");
 
         DeclareHistogram2D(DD_QDCTOF_DECAY+offset.first,SC,SD, "<E> vs. TOF (0.5ns/bin) Rough Decay Gated ");
         DeclareHistogram2D(DD_TOFBARS_DECAY+offset.first,SC,S6, "Bar vs. TOF (0.5ns/bin) Rough Decay Gated ");
