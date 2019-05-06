@@ -67,7 +67,8 @@ namespace dammIds {
         const int DD_ALPHA_IMPLANT = 54; // Decay energy Vs Implant energy only for the first gen (same afterward)
         const int DD_KHS_GATE = 55 ; // VETO ENERGY SPECTRUM	
         const int DD_ALPHA_ALPHA_GATE = 56 ; // DECAY VS DECAY SPECTRUM
-        const int D_GEN = 57 ; // DECAY VS DECAY SPECTRUM
+        const int DD_DSSD_TUNNEL = 57 ; // DECAY VS DECAY SPECTRUM
+        const int D_GEN = 58 ; // DECAY VS DECAY SPECTRUM
 
         /** TOF diag **/
         const int DD_QDC1_DSSD = 60;
@@ -77,6 +78,7 @@ namespace dammIds {
         const int DD_TOF1_DSSD = 64;
         const int DD_TOF2_DSSD = 65;
         const int DD_MULTI = 66;
+        const int D_TOF_RAW = 67;
 
     }
 }
@@ -188,6 +190,8 @@ protected:
     /** veto**/
     std::vector<std::pair<StripEvent, bool>> vetoEventsTMatch;
 
+    /** Side detectors **/
+    std::vector<std::pair<StripEvent, bool>> sideEventsTMatch;
 
 
     /** F/B correlation (0) or just calib (1) = raw data in the root file**/
