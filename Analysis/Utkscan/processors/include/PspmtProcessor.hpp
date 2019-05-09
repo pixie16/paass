@@ -78,6 +78,8 @@ private:
     std::pair<double, double> CalculatePosition(double &xa, double &xb, double &ya,
                                                 double &yb, const VDTYPES &vdtype, double &rot);
 
+    ///@brief A method to fill PSStruc members. Trace analysis is also implementd here.
+    void FillPSPMTStruc(const ChanEvent &chan_event);
 
     VDTYPES vdtype_; ///< Local variable to store the type of voltage divider
     ///< we're using.
