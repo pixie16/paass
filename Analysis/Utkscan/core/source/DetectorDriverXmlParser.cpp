@@ -188,7 +188,10 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
         } else if (name == "LitePositionProcessor") {
             vecProcess.push_back(new LitePositionProcessor());
         } else if (name == "LogicProcessor") {
-            vecProcess.push_back(new LogicProcessor(processor.attribute("double_stop").as_bool(false),processor.attribute("double_start").as_bool(false)));
+            vecProcess.push_back(new LogicProcessor(
+                processor.attribute("double_stop").as_bool(false),
+                processor.attribute("double_start").as_bool(false)
+                ));
         } else if (name == "McpProcessor") {
             vecProcess.push_back(new McpProcessor());
         } else if (name == "NeutronScintProcessor") {
@@ -219,7 +222,7 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
                     StringManipulation::TokenizeString(processor.attribute("types").as_string("medium"), ","),
                     processor.attribute("res").as_double(2.0), processor.attribute("offset").as_double(1000.0),
                     processor.attribute("NumStarts").as_uint(1), processor.attribute("compression").as_double(1.0),
-                    processor.attribute("qdcmin").as_double(0.0),processor.attribute("tofcut").as_double(-1000.0)));
+                    processor.attribute("qdcmin").as_double(0.0),processor.attribute("tofcut").as_double(-1000.0),processor.attribute("idealfp").as_double(100)));
         } 
 #ifdef useroot //Certain processors REQUIRE ROOT to actually work
         else if (name == "Anl1471Processor") {
