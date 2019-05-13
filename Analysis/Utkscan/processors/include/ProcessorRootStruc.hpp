@@ -67,6 +67,11 @@ struct PSPMT {
     double time = -999;
     TString subtype = "";
     TString tag = "";
+    double traceMaxVal = -999;
+    int traceMaxPos = -999;
+    double preBaseAvg = -999;
+    double postBaseAvg = -999;
+    bool invalidTrace = false;
 };
 static const PSPMT PSPMT_DEFAULT_STRUCT;
 
@@ -75,11 +80,11 @@ struct ROOTDEV {
     double rawEnergy = -999;
     double timeSansCfd = -999;
     double time = -999;
-    int detNum = -999;                       //the instance number of RD in the xml Map
-     int modNum = -999;                       // the physical module number
-    int chanNum = -999;                      // the physical channel number
-    TString subtype = "";                    
-    TString group = "";                      
+    int detNum = -999;   //the instance number of RD in the xml Map
+    int modNum = -999;   // the physical module number
+    int chanNum = -999;  // the physical channel number
+    TString subtype = "";
+    TString group = "";
     bool pileup = false;                     //Did pixie detect pileup in the event
     bool saturation = false;                 //Did the trace go out of the ADC range
     std::vector<unsigned int> trace = {};    //The trace if present

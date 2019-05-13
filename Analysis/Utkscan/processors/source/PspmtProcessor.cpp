@@ -1,59 +1,60 @@
 ///@file PspmtProcessor.cpp
-///@Processes information from a Position Sensitive PMT.  No Pixel work yet. 
-///@author A. Keeler, S. Go, S. V. Paulauskas 
+///@Processes information from a Position Sensitive PMT.  No Pixel work yet.
+///@author A. Keeler, S. Go, S. V. Paulauskas
 ///@date July 8, 2018
 
+#include <limits.h>
+#include <signal.h>
 #include <algorithm>
-#include <iostream>
+#include <cmath>
 #include <iomanip>
+#include <iostream>
 #include <limits>
 #include <sstream>
 #include <stdexcept>
-#include <signal.h>
-#include <limits.h>
-#include <cmath>
 
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
-#include "PspmtProcessor.hpp"
 #include "Globals.hpp"
+#include "HelperFunctions.hpp"
 #include "Messenger.hpp"
+#include "PspmtProcessor.hpp"
 
 using namespace std;
 using namespace dammIds::pspmt;
 
 namespace dammIds {
-    namespace pspmt {
-        const int DD_DYNODE_QDC = 0;
-        const int DD_POS_LOW = 1;
-        const int DD_POS_HIGH = 2;
-        const int DD_PLASTIC_EN = 3;
-        const int DD_MULTI = 4;
-        const int DD_DY_SUM_LG =5;
-        const int DD_DY_SUM_HG =6;
+namespace pspmt {
+const int DD_DYNODE_QDC = 0;
+const int DD_POS_LOW = 1;
+const int DD_POS_HIGH = 2;
+const int DD_PLASTIC_EN = 3;
+const int DD_MULTI = 4;
+const int DD_DY_SUM_LG = 5;
+const int DD_DY_SUM_HG = 6;
 
-        const int D_TRANS_EFF_YSO = 10;
-        const int DD_SEPAR_GATED_LOW = 11;
-        const int DD_DESI_GATED_LOW = 12;
-        const int D_DESI_ENERGY = 15;
-        const int D_DESI_YSO_GATED = 16;
-        const int DD_SEPAR_ENERGY = 17;
-        const int DD_SEPAR_YSO_GATED = 18;
+const int D_TRANS_EFF_YSO = 10;
+const int DD_SEPAR_GATED_LOW = 11;
+const int DD_DESI_GATED_LOW = 12;
+const int D_DESI_ENERGY = 15;
+const int D_DESI_YSO_GATED = 16;
+const int DD_SEPAR_ENERGY = 17;
+const int DD_SEPAR_YSO_GATED = 18;
 
-        const int DD_POS_ION = 20;
-        const int DD_SEPAR_GATED_ION = 21;
-        const int DD_DESI_GATED_ION = 22;
-    }
-}
+const int DD_POS_ION = 20;
+const int DD_SEPAR_GATED_ION = 21;
+const int DD_DESI_GATED_ION = 22;
+}  // namespace pspmt
+}  // namespace dammIds
 
 void PspmtProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_DYNODE_QDC, SD, S2, "Dynode QDC- Low gain 0, High gain 1");
     DeclareHistogram2D(DD_POS_LOW, SB, SB, "Low-gain Positions");
     DeclareHistogram2D(DD_POS_HIGH, SB, SB, "High-gain Positions");
-    DeclareHistogram2D(DD_PLASTIC_EN,SD,S4, "Plastic Energy, 0-3 = VETO, 5-8 = Ion Trigger");
-    DeclareHistogram2D(DD_MULTI,S3,S3, "Dynode:Anode(+2) Multi Low gain 0, High gain 1");
-    DeclareHistogram2D(DD_DY_SUM_LG,SA,SA,"Low Gain Dynode vs Anode Sum");
-    DeclareHistogram2D(DD_DY_SUM_HG,SA,SA,"High Gain Dynode vs Anode Sum");
+    DeclareHistogram2D(DD_PLASTIC_EN, SD, S4, "Plastic Energy, 0-3 = VETO, 5-8 = Ion Trigger");
+    DeclareHistogram2D(DD_MULTI, S3, S3, "Dynode:Anode(+2) Multi Low gain 0, High gain 1");
+    DeclareHistogram2D(DD_DY_SUM_LG, SA, SA, "Low Gain Dynode vs Anode Sum");
+    DeclareHistogram2D(DD_DY_SUM_HG, SA, SA, "High Gain Dynode vs Anode Sum");
     DeclareHistogram1D(D_TRANS_EFF_YSO, S3, "Separator events (0) in ion scint (1), YSO (2), and veto (3)");
     DeclareHistogram2D(DD_SEPAR_GATED_LOW, SB, SB, "Separator-gated low-gain positions");
     DeclareHistogram2D(DD_DESI_GATED_LOW, SB, SB, "Silicon dE-gated low-gain positions");
@@ -68,14 +69,12 @@ void PspmtProcessor::DeclarePlots(void) {
 }
 
 PspmtProcessor::PspmtProcessor(const std::string &vd, const double &yso_scale, const unsigned int &yso_offset,
-			       const double &yso_threshold, const double &front_scale,
-			       const unsigned int &front_offset, const double &front_threshold, const double &rotation)
-				:EventProcessor(OFFSET, RANGE, "PspmtProcessor"){
-
-
-    if(vd == "SIB064_1018" || vd == "SIB064_1730")
+                               const double &yso_threshold, const double &front_scale,
+                               const unsigned int &front_offset, const double &front_threshold, const double &rotation)
+    : EventProcessor(OFFSET, RANGE, "PspmtProcessor") {
+    if (vd == "SIB064_1018" || vd == "SIB064_1730")
         vdtype_ = corners;
-    else if(vd == "SIB064_0926")
+    else if (vd == "SIB064_0926")
         vdtype_ = sides;
     else
         vdtype_ = UNKNOWN;
@@ -88,13 +87,11 @@ PspmtProcessor::PspmtProcessor(const std::string &vd, const double &yso_scale, c
     front_positionOffset_ = front_offset;
     front_threshold_ = front_threshold;
     ThreshStr = yso_threshold;
-    rotation_ = rotation * 3.1415926 / 180.;     // convert from degrees to radians
+    rotation_ = rotation * 3.1415926 / 180.;  // convert from degrees to radians
     associatedTypes.insert("pspmt");
-
 }
 
 bool PspmtProcessor::PreProcess(RawEvent &event) {
-
     if (!EventProcessor::PreProcess(event))
         return false;
 
@@ -130,20 +127,19 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
     //set up position calculation for low / high gain yso signals and ion scint
     position_low.first = 0, position_low.second = 0;
     position_high.first = 0, position_high.second = 0;
-//initalized all the things
+    //initalized all the things
     double energy = 0;
     double xa_l = 0, ya_l = 0, xb_l = 0, yb_l = 0;
     double xa_h = 0, ya_h = 0, xb_h = 0, yb_h = 0;
     double top_l = 0, top_r = 0, bottom_l = 0, bottom_r = 0;
     bool hasPosition_low = false, hasPosition_high = false, hasPosition_ion = false, hasUpstream = false,
-    hasDeSi = false, hasVeto = false;
+         hasDeSi = false, hasVeto = false;
 
     plot(DD_MULTI, lowDynode.size(), 0);
     plot(DD_MULTI, hiDynode.size(), 1);
 
     plot(DD_MULTI, lowAnode.size(), 2);
     plot(DD_MULTI, hiAnode.size(), 3);
-
 
     double lowAnodeSum = 0;
     for (auto it = lowAnode.begin(); it != lowAnode.end(); it++) {
@@ -175,10 +171,8 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
         }
     }
 
-
     double highAnodeSum = 0;
     for (auto it = hiAnode.begin(); it != hiAnode.end(); it++) {
-
         if (DetectorDriver::get()->GetSysRootOutput()) {
             FillPSPMTStruc(*(*it));
         }
@@ -188,47 +182,47 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
         if (energy < threshold_ || energy > 63000)
             continue;
         //parcel out position signals by tag
-        if ((*it)->GetChanID().GetGroup() == "xa" && xa_h == 0){
+        if ((*it)->GetChanID().GetGroup() == "xa" && xa_h == 0) {
             xa_h = energy;
             highAnodeSum += energy;
         }
-        if ((*it)->GetChanID().GetGroup() == "xb" && xb_h == 0){
+        if ((*it)->GetChanID().GetGroup() == "xb" && xb_h == 0) {
             xb_h = energy;
             highAnodeSum += energy;
         }
-        if ((*it)->GetChanID().GetGroup() == "ya" && ya_h == 0){
+        if ((*it)->GetChanID().GetGroup() == "ya" && ya_h == 0) {
             ya_h = energy;
             highAnodeSum += energy;
         }
-        if ((*it)->GetChanID().GetGroup() == "yb" && yb_h == 0){
+        if ((*it)->GetChanID().GetGroup() == "yb" && yb_h == 0) {
             yb_h = energy;
             highAnodeSum += energy;
         }
     }
     //compute position only if all 4 signals are present
-    if (xa_l > 0 && xb_l > 0 && ya_l > 0 && yb_l > 0){
+    if (xa_l > 0 && xb_l > 0 && ya_l > 0 && yb_l > 0) {
         hasPosition_low = true;
         position_low.first = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_, rotation_).first;
-        position_low.second  = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_, rotation_).second;
+        position_low.second = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_, rotation_).second;
         plot(DD_POS_LOW, position_low.first * positionScale_ + positionOffset_,
              position_low.second * positionScale_ + positionOffset_);
     }
 
-    if (xa_h > 0 && xb_h > 0 && ya_h > 0 && yb_h > 0){
+    if (xa_h > 0 && xb_h > 0 && ya_h > 0 && yb_h > 0) {
         hasPosition_high = true;
         position_high.first = CalculatePosition(xa_h, xb_h, ya_h, yb_h, vdtype_, rotation_).first;
         position_high.second = CalculatePosition(xa_h, xb_h, ya_h, yb_h, vdtype_, rotation_).second;
         plot(DD_POS_HIGH, position_high.first * positionScale_ + positionOffset_,
-             position_high.second * positionScale_ + positionOffset_ );
+             position_high.second * positionScale_ + positionOffset_);
     }
 
     //---------------VETO LOOP------------------------------------------------
-    int numOfVetoChans = (int) (DetectorLibrary::get()->GetLocations("pspmt", "veto")).size();
+    int numOfVetoChans = (int)(DetectorLibrary::get()->GetLocations("pspmt", "veto")).size();
 
-    for(auto it = veto.begin(); it != veto.end(); it++){
+    for (auto it = veto.begin(); it != veto.end(); it++) {
         int loc = (*it)->GetChanID().GetLocation();
         plot(DD_PLASTIC_EN, (*it)->GetCalibratedEnergy(), loc);
-        if ((*it)->GetCalibratedEnergy() > 1 && (*it)->GetCalibratedEnergy() < 10000){
+        if ((*it)->GetCalibratedEnergy() > 1 && (*it)->GetCalibratedEnergy() < 10000) {
             hasVeto = true;
         }
 
@@ -238,9 +232,9 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
     }
 
     //------------Positions from ion scintillator---------------------------------
-        //using top - bottom and left - right computation scheme
+    //using top - bottom and left - right computation scheme
 
-    for(auto it = ionTrig.begin(); it != ionTrig.end(); it++){
+    for (auto it = ionTrig.begin(); it != ionTrig.end(); it++) {
         //check signals energy vs threshold
 
         if (DetectorDriver::get()->GetSysRootOutput()) {
@@ -252,25 +246,23 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
 
         // damm plotting of energies
         int loc = (*it)->GetChanID().GetLocation();
-        plot(DD_PLASTIC_EN, (*it)->GetCalibratedEnergy(), loc + numOfVetoChans + 1); //max veto chan +1 for readablility
+        plot(DD_PLASTIC_EN, (*it)->GetCalibratedEnergy(), loc + numOfVetoChans + 1);  //max veto chan +1 for readablility
 
         //parcel out position signals by tag
-        if ((*it)->GetChanID().GetGroup() == "black" && top_l == 0 )
+        if ((*it)->GetChanID().GetGroup() == "black" && top_l == 0)
             top_l = energy;
-        if ((*it)->GetChanID().GetGroup() == "blue" && top_r == 0 )
+        if ((*it)->GetChanID().GetGroup() == "blue" && top_r == 0)
             top_r = energy;
-        if ((*it)->GetChanID().GetGroup() == "white" && bottom_l == 0 )
+        if ((*it)->GetChanID().GetGroup() == "white" && bottom_l == 0)
             bottom_l = energy;
-        if ((*it)->GetChanID().GetGroup() == "green" && bottom_r == 0 )
+        if ((*it)->GetChanID().GetGroup() == "green" && bottom_r == 0)
             bottom_r = energy;
-
-
     }
 
-    if (top_l > 0 && top_r > 0 && bottom_l > 0 && bottom_r > 0){
+    if (top_l > 0 && top_r > 0 && bottom_l > 0 && bottom_r > 0) {
         hasPosition_ion = true;
         position_ion.first = (top_l + bottom_l - top_r - bottom_r) / (top_l + top_r + bottom_l + bottom_r);
-        position_ion.second  = (top_l + top_r - bottom_l - bottom_r) / (top_l + top_r + bottom_l + bottom_r);
+        position_ion.second = (top_l + top_r - bottom_l - bottom_r) / (top_l + top_r + bottom_l + bottom_r);
         plot(DD_POS_ION, position_ion.first * front_positionScale_ + front_positionOffset_,
              position_ion.second * front_positionScale_ + front_positionOffset_);
     }
@@ -278,50 +270,47 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
     //----------------------------------------------------------------------------
     //------------Check Transmission efficiencies---------------------------------
 
-        //check for valid upstream events, dE silicon events, and vetos for gating
+    //check for valid upstream events, dE silicon events, and vetos for gating
 
-    for(auto it = separatorScint.begin(); it != separatorScint.end(); it++){
+    for (auto it = separatorScint.begin(); it != separatorScint.end(); it++) {
         if (DetectorDriver::get()->GetSysRootOutput()) {
             FillPSPMTStruc(*(*it));
         }
-        if ((*it)->GetCalibratedEnergy() > 1 && (*it)->GetCalibratedEnergy() < 10000){
+        if ((*it)->GetCalibratedEnergy() > 1 && (*it)->GetCalibratedEnergy() < 10000) {
             hasUpstream = true;
         }
     }
 
-    for (auto it = desi.begin(); it != desi.end(); it++){
+    for (auto it = desi.begin(); it != desi.end(); it++) {
         if (DetectorDriver::get()->GetSysRootOutput()) {
             FillPSPMTStruc(*(*it));
         }
-        if((*it)->GetCalibratedEnergy() > 1 && (*it)->GetCalibratedEnergy() < 10000){
+        if ((*it)->GetCalibratedEnergy() > 1 && (*it)->GetCalibratedEnergy() < 10000) {
             hasDeSi = true;
         }
     }
 
+    //plot valid YSO positions and dE silicon events gated on upstream events
+    //plot upstream events gated on dE silicon
+    //plot transmission efficiency from upstream to YSO and veto
 
-
-
-        //plot valid YSO positions and dE silicon events gated on upstream events
-        //plot upstream events gated on dE silicon
-        //plot transmission efficiency from upstream to YSO and veto
-
-    if(hasUpstream) {
-        for(auto de_it = desi.begin(); de_it != desi.end(); de_it++) {
-            plot(D_DESI_ENERGY,(*de_it)->GetCalibratedEnergy());
+    if (hasUpstream) {
+        for (auto de_it = desi.begin(); de_it != desi.end(); de_it++) {
+            plot(D_DESI_ENERGY, (*de_it)->GetCalibratedEnergy());
         }
-        if(hasPosition_low){
+        if (hasPosition_low) {
             plot(DD_SEPAR_GATED_LOW, position_low.first * positionScale_ + positionOffset_,
-                    position_low.second * positionScale_ + positionOffset_);
+                 position_low.second * positionScale_ + positionOffset_);
         }
-        if(hasPosition_ion){
+        if (hasPosition_ion) {
             plot(DD_SEPAR_GATED_ION, position_ion.first * positionScale_ + positionOffset_,
-                    position_ion.second * positionScale_ + positionOffset_);
+                 position_ion.second * positionScale_ + positionOffset_);
         }
     }
 
-    if(hasDeSi) {
+    if (hasDeSi) {
         for (auto it_sep = separatorScint.begin(); it_sep != separatorScint.end(); it_sep++) {
-            if ((*it_sep)->GetChanID().GetGroup() =="left") {
+            if ((*it_sep)->GetChanID().GetGroup() == "left") {
                 plot(DD_SEPAR_ENERGY, (*it_sep)->GetCalibratedEnergy(), 0);
             } else if ((*it_sep)->GetChanID().GetGroup() == "right") {
                 plot(DD_SEPAR_ENERGY, (*it_sep)->GetCalibratedEnergy(), 1);
@@ -338,46 +327,42 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
         }
     }
 
-    if(hasPosition_low) {
+    if (hasPosition_low) {
         for (auto de_it = desi.begin(); de_it != desi.end(); de_it++) {
             plot(D_DESI_YSO_GATED, (*de_it)->GetCalibratedEnergy());
         }
         for (auto it_sep = separatorScint.begin(); it_sep != separatorScint.end(); it_sep++) {
-            if ((*it_sep)->GetChanID().GetGroup() =="left") {
+            if ((*it_sep)->GetChanID().GetGroup() == "left") {
                 plot(DD_SEPAR_YSO_GATED, (*it_sep)->GetCalibratedEnergy(), 0);
-            } else if ((*it_sep)->GetChanID().GetGroup() =="right") {
+            } else if ((*it_sep)->GetChanID().GetGroup() == "right") {
                 plot(DD_SEPAR_YSO_GATED, (*it_sep)->GetCalibratedEnergy(), 1);
             }
         }
     }
 
-    if(hasUpstream)
+    if (hasUpstream)
         plot(D_TRANS_EFF_YSO, 0);
-    if(hasUpstream && hasPosition_ion)
+    if (hasUpstream && hasPosition_ion)
         plot(D_TRANS_EFF_YSO, 1);
-    if(hasUpstream && hasPosition_low)
+    if (hasUpstream && hasPosition_low)
         plot(D_TRANS_EFF_YSO, 2);
     if (hasUpstream && hasVeto)
         plot(D_TRANS_EFF_YSO, 3);
 
-
-
     if (!lowDynode.empty())
-        plot(DD_DY_SUM_LG,lowDynode.front()->GetCalibratedEnergy(),lowAnodeSum);
+        plot(DD_DY_SUM_LG, lowDynode.front()->GetCalibratedEnergy(), lowAnodeSum);
 
     if (!hiDynode.empty())
-        plot(DD_DY_SUM_HG,hiDynode.front()->GetCalibratedEnergy(),highAnodeSum);
+        plot(DD_DY_SUM_HG, hiDynode.front()->GetCalibratedEnergy(), highAnodeSum);
 
     EndProcess();
     return (true);
-
 }
 
-pair<double, double> PspmtProcessor::CalculatePosition(double &xa, double &xb, double &ya, double &yb, const VDTYPES &vdtype, double &rot){
-
+pair<double, double> PspmtProcessor::CalculatePosition(double &xa, double &xb, double &ya, double &yb, const VDTYPES &vdtype, double &rot) {
     double x = 0, y = 0, x_tmp = 0, y_tmp = 0, center = 0;
 
-    switch(vdtype){
+    switch (vdtype) {
         case corners:
             x_tmp = (0.5 * (yb + xa)) / (xa + xb + ya + yb);
             y_tmp = (0.5 * (xa + xb)) / (xa + xb + ya + yb);
@@ -390,59 +375,49 @@ pair<double, double> PspmtProcessor::CalculatePosition(double &xa, double &xb, d
             break;
         case UNKNOWN:
         default:
-            cerr<<"We recieved a VD_TYPE we didn't recognize " << vdtype << endl;
-
+            cerr << "We recieved a VD_TYPE we didn't recognize " << vdtype << endl;
     }
-    x = (x_tmp - center) * cos(rot) - (y_tmp - center) * sin(rot) + center;  //rotate positions about center of image by angle rot    
+    x = (x_tmp - center) * cos(rot) - (y_tmp - center) * sin(rot) + center;  //rotate positions about center of image by angle rot
     y = (x_tmp - center) * sin(rot) + (y_tmp - center) * cos(rot) + center;
     return make_pair(x, y);
 }
 
-void PspmtProcessor::FillPSPMTStruc(const ChanEvent &chan_event){
-
+void PspmtProcessor::FillPSPMTStruc(const ChanEvent &chan_event) {
     /** implementation of trace analysis **/
-    Double_t energy = 0;
-    if(chan_event.GetTrace().size()){
-        const std::vector<unsigned int> tr = chan_event.GetTrace();
-        if(tr.size()>129){
-            /* subtract baseline */
-            const Int_t kNBins = 40;
-            Double_t baseline = 0;
-            for(int i=0; i<kNBins; ++i){
-                baseline += tr.at(i);
-            }
-            baseline = baseline/(double)kNBins;
-            /* baseline at later time */
-            Double_t baseline_later = 0;
-            for(int i=110; i<130; ++i){
-                baseline_later += tr.at(i);
-            }
-            baseline_later = baseline_later/20.;
+    bool InvalidTrace = false;
+    if (!chan_event.GetTrace().empty()) {
+        vector<unsigned> trace = chan_event.GetTrace();
+        unsigned postAvgLen = 20;                                          // number of bins to average at the end of the trace
+        double extremeVariation = 40;                                      // max difference between the min and max values in the baselines
+        vector<unsigned> EndTrace(trace.end() - postAvgLen, trace.end());  //trim out the last postAvgLen bins of the trace
 
-            auto itr = std::max_element(tr.begin(),tr.end());
-            energy = (*itr);
-            /* bad trace rejection */
-            for(int i=0; i<kNBins; ++i){
-                if(abs(tr.at(i)-baseline > 40)){
-                    energy = 0;
-                    break;
-                }
-            }
-            const int distance = std::distance(tr.begin(),itr);
-            if(distance>70||distance<40)
-                energy = 0;
-            if(abs(baseline - baseline_later)>400 &&
-                chan_event.GetChanID().GetSubtype()=="dynode_high")
-                energy = 0;
+        // get an iterator from the begining of the trace to the low end of the fit range
+        auto preAvgEnd = trace.begin() + chan_event.GetTrace().GetMaxInfo().first - chan_event.GetChanID().GetWaveformBoundsInSamples().first;
+        // get the min and max values of the 2 subsections of the trace
+        double preBaseMax = (*max_element(trace.begin(), preAvgEnd));
+        double preBaseMin = (*min_element(trace.begin(), preAvgEnd));
+
+        double postBaseMax = (*max_element(trace.end() - postAvgLen, trace.end()));
+        double postBaseMin = (*min_element(trace.end() - postAvgLen, trace.end()));
+
+        //If the difference between the early baseline min and max values is more than the extreme limit set energy to 0
+        if (abs(preBaseMax - preBaseMin) >= extremeVariation) {
+            InvalidTrace = true;
         }
-    }
-    else{
-        energy = chan_event.GetCalibratedEnergy();
+
+        //The WaveformAnalyzer does what we want for the average baseline before the waveform
+        PSstruct.preBaseAvg = chan_event.GetTrace().GetBaselineInfo().first;
+        // We have to do the avg for the end of the trace explicitly
+        PSstruct.postBaseAvg = Statistics::CalculateAverage(EndTrace);
+        //Get the Trace Max position (index of the trace vector) and the value
+        PSstruct.traceMaxPos = chan_event.GetTrace().GetMaxInfo().first;
+        PSstruct.traceMaxVal = chan_event.GetTrace().GetMaxInfo().second;
     }
 
     /* fills PSstruct members */
-    PSstruct.energy = energy;
-    PSstruct.time = chan_event.GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9; //store ns
+    PSstruct.invalidTrace = InvalidTrace;
+    PSstruct.energy = chan_event.GetCalibratedEnergy();
+    PSstruct.time = chan_event.GetTimeSansCfd() * Globals::get()->GetClockInSeconds(chan_event.GetChanID().GetModFreq()) * 1e9;  //store ns
     PSstruct.subtype = chan_event.GetChanID().GetSubtype();
     PSstruct.tag = chan_event.GetChanID().GetGroup();
     pixie_tree_event_->pspmt_vec_.emplace_back(PSstruct);
