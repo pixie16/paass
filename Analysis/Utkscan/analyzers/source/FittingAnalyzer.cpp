@@ -29,7 +29,7 @@
 
 using namespace std;
 
-FittingAnalyzer::FittingAnalyzer(const std::string &s) {
+FittingAnalyzer::FittingAnalyzer(const std::string &s ,const std::set<std::string> &ignored) {
     name = "FittingAnalyzer";
     if (s == "GSL" || s == "gsl")
         driver_ = new GslFitter();
@@ -43,6 +43,7 @@ FittingAnalyzer::FittingAnalyzer(const std::string &s) {
            << "\" was unknown. Please choose a valid driver.";
         throw GeneralException(ss.str());
     }
+    ignoredTypes_ = ignored; 
 }
 
 FittingAnalyzer::~FittingAnalyzer() {
@@ -53,6 +54,13 @@ void FittingAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     TraceAnalyzer::Analyze(trace, cfg);
 
     if (trace.IsSaturated() || trace.empty() || !trace.HasValidAnalysis()) {
+        trace.SetPhase(0.0);
+        EndAnalyze();
+        return;
+    }
+    if (ignoredTypes_.find(cfg.GetType()) != ignoredTypes_.end() || 
+    ignoredTypes_.find(cfg.GetType() + ":" + cfg.GetSubtype()) != ignoredTypes_.end() ||
+    ignoredTypes_.find(cfg.GetType() + ":" + cfg.GetSubtype() + ":" + cfg.GetGroup()) != ignoredTypes_.end()){
         trace.SetPhase(0.0);
         EndAnalyze();
         return;

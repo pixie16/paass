@@ -10,6 +10,7 @@
 #ifndef __FITTINGANALYZER_HPP_
 #define __FITTINGANALYZER_HPP_
 
+#include "set"
 #include <string>
 
 #include "TimingDriver.hpp"
@@ -20,7 +21,7 @@
 class FittingAnalyzer : public TraceAnalyzer {
 public:
     ///Default Constructor
-    FittingAnalyzer(const std::string &s);
+    FittingAnalyzer(const std::string &s, const std::set<std::string> &tokens);
 
     /** Default Destructor */
     ~FittingAnalyzer();
@@ -34,6 +35,7 @@ public:
 
 private:
     TimingDriver *driver_;
+    std::set<std::string> ignoredTypes_;
 };
 
 #endif // __FITTINGANALYZER_HPP_
