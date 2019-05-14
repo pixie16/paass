@@ -385,10 +385,10 @@ pair<double, double> PspmtProcessor::CalculatePosition(double &xa, double &xb, d
 void PspmtProcessor::FillPSPMTStruc(const ChanEvent &chan_event) {
     /** implementation of trace analysis **/
     bool InvalidTrace = false;
-    if (!chan_event.GetTrace().empty()) {
+    if (!chan_event.GetTrace().empty() && chan_event.GetTrace().GetMaxInfo() != make_pair((unsigned)0,(double)0.0)) {
         vector<unsigned> trace = chan_event.GetTrace();
-        unsigned postAvgLen = 20;                                          // number of bins to average at the end of the trace
-        double extremeVariation = 40;                                      // max difference between the min and max values in the baselines
+        unsigned postAvgLen = 20; // number of bins to average at the end of the trace
+        double extremeVariation = 40; // max difference between the min and max values in the baselines
         vector<unsigned> EndTrace(trace.end() - postAvgLen, trace.end());  //trim out the last postAvgLen bins of the trace
 
         // get an iterator from the begining of the trace to the low end of the fit range
