@@ -146,7 +146,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
                 messenger_.detail("Using default fitter settings for this channel.", 2);
 
             if (channel.child("Trace") || isVandle )
-                ParseTraceNode(channel.child("Trace"), chanCfg,module_freq,module_TdelayNs,isVerbose);
+                ParseTraceNode(channel.child("Trace"), chanCfg, module_freq, module_TdelayNs, isVerbose);
             else if (isVerbose)
                 messenger_.detail("Using default trace settings for this channel.", 2);
 

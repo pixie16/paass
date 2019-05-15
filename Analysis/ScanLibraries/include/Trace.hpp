@@ -95,9 +95,15 @@ public:
     std::vector<unsigned int> GetWaveformWithBaseline() {
         return std::vector<unsigned int>(begin() + waveformRange_.first, begin() + waveformRange_.second);
     }
+    
+    ///@return True if the Waveform Analysis was completed sucessfully, this is a legacy carryover. Please use HasValidWaveformAnalysis().  
+    bool HasValidAnalysis() const {return hasValidWaveformAnalysis_; }
+
+    ///@return True if the fit of the trace was completed.
+    bool HasValidFitAnalysis() const { return hasValidFitAnalysis_; }
 
     ///@return True if we were able to successfully analyze the trace.
-    bool HasValidAnalysis() const { return hasValidAnalysis_; }
+    bool HasValidWaveformAnalysis() const { return hasValidWaveformAnalysis_; }
 
     ///@return True if the trace was saturated
     bool IsSaturated() { return isSaturated_; }
@@ -127,10 +133,15 @@ public:
     ///@param[in] a : The vector containing the energies.
     void SetFilteredEnergies(const std::vector<double> &a) { filteredEnergies_ = a; }
 
-    ///Sets the value of hasValidAnalysis_
-    ///@param[in] a : True if we were able to successfully analyze this trace
+    ///Sets the value of hasValidWaveformAnalysis_
+    ///@param[in] a : True if we were able to successfully fit this trace
     /// for information about the maximum, baseline, phase, etc.
-    void SetHasValidAnalysis(const bool &a) { hasValidAnalysis_ = a; }
+    void SetHasValidFitAnalysis(const bool &a) { hasValidFitAnalysis_ = a; }
+
+    ///Sets the value of hasValidWaveformAnalysis_
+    ///@param[in] a : True if we were able to successfully analyze this waveform
+    /// for information about the maximum, baseline, phase, etc.
+    void SetHasValidWaveformAnalysis(const bool &a) { hasValidWaveformAnalysis_ = a; }
 
     ///Sets the isSaturated_ private variable.
     ///@param[in] a : Sets to true if the trace was flagged as saturated by
@@ -182,7 +193,8 @@ public:
 
 private:
     bool isSaturated_; ///< True if the trace was flagged as saturated.
-    bool hasValidAnalysis_;///< True if the analysis of the trace was successful
+    bool hasValidWaveformAnalysis_;///< True if the analysis of the waveform was successful (no fitting)
+    bool hasValidFitAnalysis_;///< True if the fit of the trace was completed
 
     double phase_; ///< The sub-sampling phase of the trace.
     double qdc_; ///< The qdc that was calculated from the waveform.

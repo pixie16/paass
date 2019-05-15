@@ -385,7 +385,7 @@ pair<double, double> PspmtProcessor::CalculatePosition(double &xa, double &xb, d
 void PspmtProcessor::FillPSPMTStruc(const ChanEvent &chan_event) {
     /** implementation of trace analysis **/
     bool InvalidTrace = false;
-    if (!chan_event.GetTrace().empty() && chan_event.GetTrace().GetMaxInfo() != make_pair((unsigned)0,(double)0.0)) {
+    if (!chan_event.GetTrace().empty() && chan_event.GetTrace().HasValidWaveformAnalysis()) {
         vector<unsigned> trace = chan_event.GetTrace();
         unsigned postAvgLen = 20; // number of bins to average at the end of the trace
         double extremeVariation = 80; // max difference between the min and max values in the baselines
