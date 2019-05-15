@@ -27,7 +27,7 @@ WaveformAnalyzer::WaveformAnalyzer(const std::set<std::string> &ignoredTypes)
 void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     TraceAnalyzer::Analyze(trace, cfg);
     if (trace.IsSaturated() || trace.empty() || ignoredTypes_.find(cfg.GetType()) != ignoredTypes_.end() || ignoredTypes_.find(cfg.GetType() + ":" + cfg.GetSubtype()) != ignoredTypes_.end() || ignoredTypes_.find(cfg.GetType() + ":" + cfg.GetSubtype() + ":" + cfg.GetGroup()) != ignoredTypes_.end()) {
-        trace.SetHasValidAnalysis(false);
+        trace.SetHasValidWaveformAnalysis(false);
         EndAnalyze();
         return;
     }
@@ -39,7 +39,7 @@ void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     try {
         max = TraceFunctions::FindMaximum(trace, cfg.GetTraceDelayInSamples());
     } catch (range_error &ex) {
-        trace.SetHasValidAnalysis(false);
+        trace.SetHasValidWaveformAnalysis(false);
         cout << "WaveformAnalyzer::Analyze - " << ex.what() << endl;
         EndAnalyze();
         return;
@@ -54,7 +54,7 @@ void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
         cout << "WaveformAnalyzer::Analyze - The low bound for the trace overlaps with the minimum bins for the"
         "baseline." << endl;
 #endif
-        trace.SetHasValidAnalysis(false);
+        trace.SetHasValidWaveformAnalysis(false);
         EndAnalyze();
         return;
     }
@@ -71,7 +71,7 @@ void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
         // deviation of this high will never be something we want to analyze.
         static const double extremeBaselineVariation = 50;
         if (baseline.second >= extremeBaselineVariation) {
-            trace.SetHasValidAnalysis(false);
+            trace.SetHasValidWaveformAnalysis(false);
             EndAnalyze();
             return;
         }
@@ -96,9 +96,9 @@ void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
                                            TraceFunctions::ExtrapolateMaximum(trace, max).first - baseline.first));
         trace.SetTraceSansBaseline(traceNoBaseline);
         trace.SetWaveformRange(waveformRange);
-        trace.SetHasValidAnalysis(true);
+        trace.SetHasValidWaveformAnalysis(true);
     } catch (range_error &ex) {
-        trace.SetHasValidAnalysis(false);
+        trace.SetHasValidWaveformAnalysis(false);
         cout << "WaveformAnalyzer::Analyze - " << ex.what() << endl;
         EndAnalyze();
         return;

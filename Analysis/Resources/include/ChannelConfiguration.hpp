@@ -50,7 +50,7 @@ public:
     ///@return the pair of fitting parameters to use in fits.
     std::pair<double, double> GetFittingParameters() const { return fittingParameters_; }
 
-    ///return the frequency for this channel
+    ///@return the frequency for this channel
     int GetModFreq() const { return modFreq_ ; }
 
     ///@return The value of the private variable location
