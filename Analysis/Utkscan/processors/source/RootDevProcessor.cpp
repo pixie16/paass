@@ -22,6 +22,7 @@ using namespace std;
 
 RootDevProcessor::RootDevProcessor() : EventProcessor() {
     associatedTypes.insert("RD");
+    Rev = Globals::get()->GetPixieRevision();
 }
 
 bool RootDevProcessor::PreProcess(RawEvent &event) {
@@ -35,14 +36,18 @@ bool RootDevProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return false;
 
-    //vector <ChanEvent*>
     static const auto &Events = event.GetSummary("RD", true)->GetList();
 
     for (auto it = Events.begin(); it != Events.end(); it++) {
         RDstruct.energy = (*it)->GetCalibratedEnergy();
         RDstruct.rawEnergy = (*it)->GetEnergy();
-        RDstruct.timeSansCfd = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds((*it)->GetChanID().GetModFreq());
-        RDstruct.time = (*it)->GetTime() * Globals::get()->GetAdcClockInSeconds((*it)->GetChanID().GetModFreq());
+        if (Rev != "D") {
+            RDstruct.timeSansCfd = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
+            RDstruct.time = (*it)->GetTime() * Globals::get()->GetAdcClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
+        } else {
+            RDstruct.timeSansCfd = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9;
+            RDstruct.time = (*it)->GetTime() * Globals::get()->GetAdcClockInSeconds() * 1e9;
+        }
         RDstruct.detNum = (*it)->GetChanID().GetLocation();
         RDstruct.modNum = (*it)->GetModuleNumber();
         RDstruct.chanNum = (*it)->GetChannelNumber();

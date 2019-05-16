@@ -32,6 +32,7 @@ class RootDevProcessor : public EventProcessor {
 
    private:
     processor_struct::ROOTDEV RDstruct;  //!<Root Struct
+    std::string Rev;
 };
 
 #endif  //PAASS_RootDevProcessor_H
