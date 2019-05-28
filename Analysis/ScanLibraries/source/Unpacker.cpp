@@ -87,12 +87,12 @@ bool Unpacker::BuildRawEvent() {
                 continue;
             }
 
-            double currtime = current_event->GetTime();
+            double currtime = current_event->GetTimeSansCfd();
 
             // Check for backwards time-skip. This is un-handled currently and needs fixed CRT!!!
             if (currtime < eventStartTime)
                 cout << "BuildRawEvent: Detected backwards time-skip from start=" << eventStartTime << " to "
-                     << current_event->GetTime() << "???\n";
+                     << current_event->GetTimeSansCfd() << "???\n";
 
             // If the time difference between the current and previous event is
             // larger than the event width, finalize the current event, otherwise
@@ -168,8 +168,8 @@ bool Unpacker::GetFirstTime(double &time) {
     for (std::vector<std::deque<XiaData *> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++) {
         if (iter->empty())
             continue;
-        if (iter->front()->GetTime() < time)
-            time = iter->front()->GetTime();
+        if (iter->front()->GetTimeSansCfd() < time)
+            time = iter->front()->GetTimeSansCfd();
     }
 
     return true;
