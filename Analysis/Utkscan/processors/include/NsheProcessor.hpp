@@ -91,7 +91,7 @@ public:
 
     ~NsheProcessor() {};
 
-    NsheProcessor(int caib,
+    NsheProcessor(int calib,
                 double timeWindow,
 		        double tofWindow,
                 double vetoWindow,
@@ -102,9 +102,9 @@ public:
 		        double fisisonEnergyCut,
                 double minImpTime,
                 double coorTime,
-                double fastTime
+                double fastTime,
+                double khs_limit_cor
             );
-
     /** Declare plots */
     virtual void DeclarePlots();
 
@@ -232,6 +232,8 @@ protected:
 
     /** Low Energy cut for interesting alphas (in keV) **/
     double fastTime_;
+
+    double khs_limit_cor_;
 
 };
 

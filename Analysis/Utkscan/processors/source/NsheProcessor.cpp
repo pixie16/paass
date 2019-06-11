@@ -31,7 +31,7 @@ NsheProcessor::NsheProcessor():EventProcessor(OFFSET, RANGE, "NsheProcessor"){ /
 
 NsheProcessor::NsheProcessor(int calib, double timeWindow, double tofWindow, double vetoWindow,  double deltaEnergy, double highEnergyCut,
  double lowEnergyCut, double zero_suppress, double fissionEnergyCut, double minImpTime,
-  double corrTime, double fastTime):EventProcessor(OFFSET, RANGE, "NsheProcessor"){ //, correlator_(numBackStrips, numFrontStrips) {
+  double corrTime, double fastTime, double khs_limit_cor):EventProcessor(OFFSET, RANGE, "NsheProcessor"){ //, correlator_(numBackStrips, numFrontStrips) {
     calib_ = calib;
 	timeWindow_ = timeWindow;
     tofWindow_ = tofWindow;
@@ -44,6 +44,7 @@ NsheProcessor::NsheProcessor(int calib, double timeWindow, double tofWindow, dou
     minImpTime_ = minImpTime;
     corrTime_ =  corrTime;
     fastTime_ = fastTime;
+    khs_limit_cor_ = khs_limit_cor;
     associatedTypes.insert("SHE");
 }
 
@@ -337,9 +338,9 @@ bool NsheProcessor::Process(RawEvent &event) {
                     bestDtime_side = dTime; bestMatch_side = its;
             }
 
-            if (abs(bestDtime_mcp1) < tofWindow_ &&  abs(bestDtime_mcp2) < tofWindow_ && (bestDtime_mcp1) > 0 && (bestDtime_mcp2) > 0){
+            if (abs(bestDtime_mcp1) < tofWindow_ &&  abs(bestDtime_mcp2) < tofWindow_){
                 // tof = ((*bestMatch_mcp2).first.t - (*bestMatch_mcp1).first.t)/(1e-9) + 400;
-                tof = (bestDtime_mcp1-bestDtime_mcp2)/(1e-9) + 400;
+                tof = (bestDtime_mcp1-bestDtime_mcp2)/(1e-9);
                 corEvent.type = EventInfo::IMPLANT_EVENT;
                 corEvent.energy = yEnergy;
                 max_gen = corr.GetGen(xPosition, yPosition);
@@ -347,10 +348,10 @@ bool NsheProcessor::Process(RawEvent &event) {
                 (*bestMatch_mcp1).second = true;
                 (*bestMatch_mcp2).second = true;
                 if(!bestQDC_mcp1.empty()){
-                    // plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(1));
-                    // plot(DD_QDC1_TOF,tof,bestQDC_mcp1.at(1) );
-                    plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(6) - 13*bestQDC_mcp1.at(7)/16);
-                    plot(DD_QDC1_TOF,tof,bestQDC_mcp1.at(6) - 13*bestQDC_mcp1.at(7)/16);
+                    plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(1));
+                    plot(DD_QDC1_TOF,tof,bestQDC_mcp1.at(1) );
+                    // plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(1) - bestQDC_mcp1.at(0)/2);
+                    // plot(DD_QDC1_TOF,tof,bestQDC_mcp1.at(1) - bestQDC_mcp1.at(0)/2);
                 }
                 if(!bestQDC_mcp2.empty()){
                     // plot(DD_QDC2_DSSD,xEnergy/10,bestQDC_mcp2.at(1) );
@@ -363,33 +364,59 @@ bool NsheProcessor::Process(RawEvent &event) {
             }	 	
             else{
                 if(abs(bestDtime_mcp1) < tofWindow_ && (bestDtime_mcp1) > 0) {
+=======
+                    // plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(1));
+                    // plot(DD_QDC1_TOF,tof,bestQDC_mcp1.at(1) );
+                    plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(6) - 13*bestQDC_mcp1.at(7)/16);
+                    plot(DD_QDC1_TOF,tof + 600,bestQDC_mcp1.at(6) - 13*bestQDC_mcp1.at(7)/16);
+                }
+                if(!bestQDC_mcp2.empty()){
+                    // plot(DD_QDC2_DSSD,xEnergy/10,bestQDC_mcp2.at(1) );
+                    // plot(DD_QDC2_TOF,tof,bestQDC_mcp2.at(1) );
+                    plot(DD_QDC2_DSSD,xEnergy/10,bestQDC_mcp2.at(6) - 13*bestQDC_mcp2.at(7)/16);
+                    plot(DD_QDC2_TOF,tof + 600,bestQDC_mcp2.at(6) - 13*bestQDC_mcp2.at(7)/16);
+                }
+                plot(DD_TOF_ENERGY, tof + 600,yEnergy/10);
+                plot(D_DTIMETOF, tof + 600);
+            }	 	
+            else{
+                if(abs(bestDtime_mcp1) < tofWindow_) {
+>>>>>>> Stashed changes
                     tof = bestDtime_mcp1/(1e-9) + 400;
                     corEvent.type = EventInfo::IMPLANT_EVENT;
                     corEvent.energy = yEnergy;
                     max_gen = corr.GetGen(xPosition, yPosition);
                     (*bestMatch_mcp1).second = true;
                     if(!bestQDC_mcp1.empty()){
+                        plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(1));
+                        plot(DD_QDC1_TOF,tof,bestQDC_mcp1.at(1) );
+                        // plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(1) - bestQDC_mcp1.at(0)/2);
+                        // plot(DD_QDC1_TOF,tof,bestQDC_mcp1.at(1) - bestQDC_mcp1.at(0)/2);
                         // plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(1));
                         // plot(DD_QDC1_TOF,tof,bestQDC_mcp1.at(1) );
                         plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(6) - 13*bestQDC_mcp1.at(7)/16);
-                        plot(DD_QDC1_TOF,tof,bestQDC_mcp1.at(6) - 13*bestQDC_mcp1.at(7)/16);
+                        plot(DD_QDC1_TOF,tof  + 600,bestQDC_mcp1.at(6) - 13*bestQDC_mcp1.at(7)/16);
                     }
-                    plot(DD_TOF1_DSSD, tof,yEnergy/10);
+                    plot(DD_TOF1_DSSD, tof  + 600,yEnergy/10);
                 } 
-                if(abs(bestDtime_mcp2) < tofWindow_ && (bestDtime_mcp2) > 0) {
-                    tof = bestDtime_mcp2/(1e-9) + 400;
+                if(abs(bestDtime_mcp2) < tofWindow_){
+                    tof = bestDtime_mcp2/(1e-9) + 800;
                     corEvent.type = EventInfo::IMPLANT_EVENT;
                     corEvent.energy = yEnergy;
                     max_gen = corr.GetGen(xPosition, yPosition);
                     plot(D_GEN,max_gen);
                     (*bestMatch_mcp2).second = true;
                     if(!bestQDC_mcp2.empty()){
+                        plot(DD_QDC2_DSSD,xEnergy/10,bestQDC_mcp2.at(1));
+                        plot(DD_QDC2_TOF,tof,bestQDC_mcp2.at(1) );
+                        // plot(DD_QDC2_DSSD,xEnergy/10,bestQDC_mcp2.at(1) - bestQDC_mcp2.at(0)/2);
+                        // plot(DD_QDC2_TOF,tof,bestQDC_mcp2.at(1) - bestQDC_mcp2.at(0)/2);
                         // plot(DD_QDC2_DSSD,xEnergy/10,bestQDC_mcp2.at(1));
                         // plot(DD_QDC2_TOF,tof,bestQDC_mcp2.at(1) );
                         plot(DD_QDC2_DSSD,xEnergy/10,bestQDC_mcp2.at(6) - 13*bestQDC_mcp2.at(7)/16);
-                        plot(DD_QDC2_TOF,tof,bestQDC_mcp2.at(6) - 13*bestQDC_mcp2.at(7)/16);
+                        plot(DD_QDC2_TOF,tof  + 600,bestQDC_mcp2.at(6) - 13*bestQDC_mcp2.at(7)/16);
                     }
-                    plot(DD_TOF2_DSSD, tof,yEnergy/10);
+                    plot(DD_TOF2_DSSD, tof  + 600,yEnergy/10);
                 }
                 else {
                     tof = 0;
