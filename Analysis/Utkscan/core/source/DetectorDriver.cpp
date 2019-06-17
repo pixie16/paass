@@ -355,6 +355,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
     chan->SetCalibratedEnergy(cali_->GetCalEnergy(chanCfg, energy));
     chan->SetWalkCorrectedTime(time - walk_correction);
 
+    //TODO Add group support for GetSummary() 
     rawev.GetSummary(type)->AddEvent(chan);
     DetectorSummary *summary;
 
