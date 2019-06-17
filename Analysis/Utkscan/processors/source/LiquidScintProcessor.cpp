@@ -77,8 +77,9 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
 
     static const vector<ChanEvent *> &liquidEvents =
             event.GetSummary("liquid_scint:liquid")->GetList();
-    static const vector<ChanEvent *> &betaStartEvents =
+    static const vector<ChanEvent *> &betaStartEvents = 
             event.GetSummary("liquid_scint:beta:start")->GetList();
+    static const vector<ChanEvent *> &singleBetaStarts = event.GetSummary("beta:single:start")->GetList();
     static const vector<ChanEvent *> &liquidStartEvents =
             event.GetSummary("liquid_scint:liquid:start")->GetList();
 
@@ -87,6 +88,8 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
                        betaStartEvents.end());
     startEvents.insert(startEvents.end(), liquidStartEvents.begin(),
                        liquidStartEvents.end());
+
+    startEvents.insert(startEvents.end(),singleBetaStarts.begin(),singleBetaStarts.end());
 
     for (vector<ChanEvent *>::const_iterator itLiquid = liquidEvents.begin();
          itLiquid != liquidEvents.end(); itLiquid++) {
@@ -132,9 +135,14 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
                 const int resOffset = 2000;
 
                 if (start.GetIsValid()) {
-                    double tofOffset = cal.GetTofOffset(startLoc);
-                    double TOF = liquid.GetHighResTimeInNs() -
-                                 start.GetHighResTimeInNs() - tofOffset;
+                    double startTime;
+                    //! Set the start time in ns. needed because WalkCorTime without fitting is in GetTime() Ticks
+                    if ((*itStart)->GetChanID().HasTag("ocfd")){
+                        startTime = start.GetWalkCorrectedTime() * Globals::get()->GetAdcClockInSeconds((*itStart)->GetChanID().GetModFreq());
+                    } else {
+                        startTime = start.GetWalkCorrectedTime(); //! with Fitting the HRTimeInNs() is used so no need to convert
+                    }
+                    double TOF = liquid.GetHighResTimeInNs() - startTime - cal.GetTofOffset(startLoc);;
 
                     plot(DD_TOFLIQUID, TOF * resMult + resOffset, histLoc);
                     plot(DD_TOFVSDISCRIM + histLoc,
