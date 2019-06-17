@@ -42,6 +42,7 @@
 #include "NeutronScintProcessor.hpp"
 #include "PositionProcessor.hpp"
 #include "PspmtProcessor.hpp"
+#include "SingleBetaProcessor.hpp"
 #include "RootDevProcessor.hpp"
 #include "TeenyVandleProcessor.hpp"
 #include "TemplateProcessor.hpp"
@@ -209,7 +210,9 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
                     processor.attribute("front_threshold").as_double(50.0),
                     processor.attribute("rotation").as_double(0.0)
             ));
-        } else if (name =="RootDevProcessor"){
+        } else if (name =="SingleBetaProcessor"){
+            vecProcess.push_back(new SingleBetaProcessor());
+        }else if (name =="RootDevProcessor"){
             vecProcess.push_back(new RootDevProcessor());
         }else if (name == "TeenyVandleProcessor") {
             vecProcess.push_back(new TeenyVandleProcessor());
