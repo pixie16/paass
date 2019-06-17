@@ -73,6 +73,12 @@ namespace dammIds {
         const int RANGE = 50;//!< Range for BetaScintProcessor
     }
 
+       ///in SingleBetaProcessor.hpp
+    namespace singlebeta {
+        const int OFFSET = 2050;//!< Offset for SingleBetaProcessor
+        const int RANGE = 50;//!< Range for SingleBetaProcessor
+    }
+
     ///in NeutronScintProcessor.cpp
     namespace neutron_scint {
         const int OFFSET = 2100;//!< Offset for NeutronScintProcessor

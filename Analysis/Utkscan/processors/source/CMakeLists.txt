@@ -21,6 +21,7 @@ set(PROCESSOR_SOURCES
         PositionProcessor.cpp
         PspmtProcessor.cpp
         RootDevProcessor.cpp
+        SingleBetaProcessor.cpp
         TeenyVandleProcessor.cpp
         TemplateProcessor.cpp
         VandleProcessor.cpp
