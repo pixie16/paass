@@ -140,6 +140,7 @@ bool VandleProcessor::Process(RawEvent &event) {
     static const vector<ChanEvent *> &betaStarts = event.GetSummary("beta_scint:beta")->GetList();
     static const vector<ChanEvent *> &liquidStarts = event.GetSummary("liquid:scint:start")->GetList();
     static const vector<ChanEvent *> &pspmtStarts = event.GetSummary("pspmt:dynode_high:start")->GetList();
+    static const vector<ChanEvent *> &singleBetaStarts = event.GetSummary("beta:single:start")->GetList();
 
     static const vector<ChanEvent *> &LIonVeto =  event.GetSummary("pspmt:veto")->GetList();
     static const vector<ChanEvent *> &IondE=  event.GetSummary("pspmt:ion")->GetList();
@@ -148,6 +149,7 @@ bool VandleProcessor::Process(RawEvent &event) {
     startEvents.insert(startEvents.end(), betaStarts.begin(), betaStarts.end());
     startEvents.insert(startEvents.end(), liquidStarts.begin(), liquidStarts.end());
     startEvents.insert(startEvents.end(),pspmtStarts.begin(),pspmtStarts.end());
+    startEvents.insert(startEvents.end(),singleBetaStarts.begin(),singleBetaStarts.end());
 
     TimingMapBuilder bldStarts(startEvents);
     starts_ = bldStarts.GetMap();
@@ -219,16 +221,24 @@ void VandleProcessor::AnalyzeBarStarts(const BarDetector &bar, unsigned int &bar
 
 void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc) {
         for (TimingMap::iterator itStart = starts_.begin(); itStart != starts_.end(); itStart++) {
-            if (!(*itStart).second.GetIsValid())
+            if (!(*itStart).second.GetIsValid() || !(*itStart).second.GetChanID().HasTag("ocfd"))
                 continue;
 
             unsigned int startLoc = (*itStart).first.first;
             HighResTimingData start = (*itStart).second;
+            
+            double startTime;
+            //! Set the start time in ns. needed because WalkCorTime without fitting is in GetTime() Ticks
+            if ((*itStart).second.GetChanID().HasTag("ocfd")){
+                startTime = start.GetWalkCorrectedTime() * Globals::get()->GetAdcClockInSeconds(((*itStart).second.GetChanID().GetModFreq()));
+            } else {
+                startTime = start.GetWalkCorrectedTime(); //! with Fitting the HRTimeInNs() is used so no need to convert
+            }
 
             bool caled = ( bar.GetCalibration().GetZ0() != 0 );
-            double tof = bar.GetCorTimeAve() - start.GetWalkCorrectedTime() + bar.GetCalibration().GetTofOffset(startLoc);
+            double tof = bar.GetCorTimeAve() - startTime + bar.GetCalibration().GetTofOffset(startLoc);
             double corTof = CorrectTOF(tof, bar.GetFlightPath(), idealFP_);
-            double NCtof =bar.GetCorTimeAve() - start.GetWalkCorrectedTime() ;
+            double NCtof =bar.GetCorTimeAve() - startTime ;
 
             PlotTofHistograms(tof, corTof, NCtof,bar.GetQdc(), barLoc * numStarts_ + startLoc,
                               ReturnOffset(bar.GetType()),caled);
@@ -237,9 +247,10 @@ void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc
                 if (tof>= tofcut_ && bar.GetQdc()>qdcmin_) {
                     //Fill Root struct
                     vandles.sNum = startLoc;
-                    vandles.sTime = start.GetTimeSansCfd();
-                    vandles.sQdc = start.GetTraceQdc();
-
+                    vandles.sTime = start.GetTimeSansCfd() * Globals::get()->GetClockInSeconds((*itStart).second.GetChanID().GetModFreq()); //!dump the low res start time in ns
+                    if ((*itStart).second.GetTrace().HasValidWaveformAnalysis()){
+                        vandles.sQdc = start.GetTraceQdc();
+                    }
                     vandles.qdc = bar.GetQdc();
                     vandles.barNum = barLoc;
                     vandles.barType = bar.GetType();
