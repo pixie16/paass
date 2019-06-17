@@ -96,6 +96,19 @@ struct ROOTDEV {
 };
 static const ROOTDEV ROOTDEV_DEFAULT_STRUCT;
 
+struct SINGLEBETA {
+    int detNum = -999;
+    double energy = -999;
+    double rawEnergy = -999;
+    double time = - 999;
+    double qdc = -999;
+    double tMaxVal = -999;
+    bool isLowResBeta = false;
+    bool isHighResBeta = false;
+    bool hasTraceFit = false;
+}; 
+static const SINGLEBETA SINGLEBETA_DEFAULT_STRUCT;
+
 struct VANDLES {
     double tof = 0;
     double corTof = 0;
@@ -128,6 +141,7 @@ class PixTreeEvent : public TObject {
         logic_vec_ = obj.logic_vec_;
         pspmt_vec_ = obj.pspmt_vec_;
         root_dev_vec_ = obj.root_dev_vec_;
+        singlebeta_vec_ = obj.singlebeta_vec_;
         vandle_vec_ = obj.vandle_vec_;
     }
 
@@ -145,6 +159,7 @@ class PixTreeEvent : public TObject {
         logic_vec_.clear();
         pspmt_vec_.clear();
         root_dev_vec_.clear();
+        singlebeta_vec_.clear();
         vandle_vec_.clear();
     }
 
@@ -159,6 +174,7 @@ class PixTreeEvent : public TObject {
     std::vector<processor_struct::LOGIC> logic_vec_;
     std::vector<processor_struct::PSPMT> pspmt_vec_;
     std::vector<processor_struct::ROOTDEV> root_dev_vec_;
+    std::vector<processor_struct::SINGLEBETA> singlebeta_vec_;
     std::vector<processor_struct::VANDLES> vandle_vec_;
 
     ClassDef(PixTreeEvent, 1)
