@@ -7,6 +7,8 @@
 #define __LIQUIDSCINTPROCESSOR_HPP_
 
 #include "EventProcessor.hpp"
+#include "ProcessorRootStruc.hpp"
+#include "DetectorDriver.hpp"
 #include "Trace.hpp"
 
 //! Class to handle liquid scintillator
@@ -33,6 +35,7 @@ public:
 
 private:
     unsigned int counter;//!< A counter for counting...
+    processor_struct::VANDLES LSstruc;
 };
 
 #endif // __LIQUIDSCINTPROCSSEOR_HPP_
