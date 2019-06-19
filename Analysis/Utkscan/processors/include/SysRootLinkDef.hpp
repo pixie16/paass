@@ -25,6 +25,9 @@
 #pragma link C++ struct processor_struct::ROOTDEV+;
 #pragma link C++ class std::vector<processor_struct::ROOTDEV>+;
 
+#pragma link C++ struct processor_struct::SINGLEBETA+;
+#pragma link C++ class std::vector<processor_struct::SINGLEBETA>+;
+
 #pragma link C++ struct processor_struct::VANDLES+;
 #pragma link C++ class std::vector<processor_struct::VANDLES>+;
 
