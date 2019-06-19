@@ -221,7 +221,7 @@ void VandleProcessor::AnalyzeBarStarts(const BarDetector &bar, unsigned int &bar
 
 void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc) {
         for (TimingMap::iterator itStart = starts_.begin(); itStart != starts_.end(); itStart++) {
-            if (!(*itStart).second.GetIsValid() || !(*itStart).second.GetChanID().HasTag("ocfd"))
+            if (!(*itStart).second.GetIsValid() && !(*itStart).second.GetChanID().HasTag("ocfd"))
                 continue;
 
             unsigned int startLoc = (*itStart).first.first;
