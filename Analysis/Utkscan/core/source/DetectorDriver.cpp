@@ -87,36 +87,38 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
         TNamed cfgTNamed("config", Globals::get()->GetConfigFileName());
         TNamed outfTNamed("outputFile", Globals::get()->GetOutputFileName());
         TNamed createTnamed("createTime", date);
-        TNamed RootversionTnamed("RootVersion", gROOT->GetRootSys().Data());
+        TNamed rootVersionTnamed("RootVersion", gROOT->GetVersion());
+        TNamed rootSysTnamed("RootSys", gROOT->GetRootSys().Data());
         TNamed outRootTNamed("outputRootFile", name);
 
         cfgTNamed.Write();
         outfTNamed.Write();
         createTnamed.Write();
-        RootversionTnamed.Write();
+        rootVersionTnamed.Write();
+        rootSysTnamed.Write();
         outRootTNamed.Write();
 
         // new Branch for PixTreeEvent
         PTree->Branch("PixTreeEvent",&pixie_tree_event_);
 
+        // Loop over processor list and do root things, like setting headers
+        // NO data is processed here. 
         for (auto itp = setProcess.begin(); itp !=setProcess.end();itp++) {
             GetProcessor((*itp))->SetPixTreeEventPtr(&pixie_tree_event_);
 
             if ((*itp) == "GammaScintProcessor") {
-
                 //GammaScint Processor Header
                 auto GSheader = ((GammaScintProcessor *) GetProcessor("GammaScintProcessor"))->GetTHeader();
                 TNamed faciTnamed("facilityType", GSheader.find("FacilityType")->second);
                 TNamed bunchTnamed("bunchingTime(sec)", GSheader.find("BunchingTime")->second);
                 faciTnamed.Write();
                 bunchTnamed.Write();
-
             } else if ((*itp) == "PspmtProcessor"){
                 auto PSPMTheader = ((PspmtProcessor *) GetProcessor("PspmtProcessor"))->GetPSPMTHeader();
-                TNamed VDType("VDType",PSPMTheader.first);
-                VDType.Write();
-                TNamed Thresh("SoftThresh",PSPMTheader.second);
-                Thresh.Write();
+                TNamed vdType_("vdType",PSPMTheader.first);
+                vdType_.Write();
+                TNamed Thresh("softThresh",PSPMTheader.second);
+                softThresh.Write();
             } else if ((*itp) == "LogicProcessor") {
                 fillLogic_ = true;
             } else{
@@ -395,6 +397,7 @@ std::set<std::string> DetectorDriver::GetProcessorList() {
 }
 
 void DetectorDriver::FillLogicStruc() { //This should be called away from the event loops. (near where it fills the filenames)
+//TODO We need to make this sensative to running on something other than a 250MHz, also in the logic processor plotting its self
     double convertTimeNS = Globals::get()->GetClockInSeconds() * 1.0e9; // converstion factor from DSP TICKs to NS
    
     if(TreeCorrelator::get()->checkPlace("Beam")){
