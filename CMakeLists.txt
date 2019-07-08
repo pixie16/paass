@@ -59,7 +59,7 @@ option(PAASS_BUILD_TESTS "Builds programs designed to test the package. Includin
 option(PAASS_BUILD_UTKSCAN "Build utkscan" OFF)
 option(PAASS_USE_DAMM "Use DAMM for MCA" ON)
 option(PAASS_USE_NCURSES "Use ncurses for terminal" ON)
-option(PAASS_USE_ROOT "Use ROOT" ON)
+option(PAASS_USE_ROOT "Use ROOT (Currently REQUIRED!!)" ON)
 
 mark_as_advanced(PAASS_USE_NCURSES)
 mark_as_advanced(PAASS_USE_DAMM)
@@ -142,6 +142,9 @@ endif (PAASS_BUILD_ACQ)
 #Find ROOT if USE_ROOT was set.
 if (PAASS_USE_ROOT)
     find_package(ROOT REQUIRED COMPONENTS TreePlayer)
+    if (${ROOT_VERSION} VERSION_LESS "6.10")
+            message(FATAL_ERROR "Minimum ROOT version is 6.10.00.")
+    endif (${ROOT_VERSION} VERSION_LESS "6.10")
     mark_as_advanced(FORCE GENREFLEX_EXECUTABLE ROOTCINT_EXECUTABLE ROOT_CONFIG_EXECUTABLE)
     include_directories(${ROOT_INCLUDE_DIR})
     link_directories(${ROOT_LIBRARY_DIR})
