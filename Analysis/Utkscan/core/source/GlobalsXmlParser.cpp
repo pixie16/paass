@@ -120,7 +120,16 @@ void GlobalsXmlParser::ParseGlobalNode(const pugi::xml_node &node, Globals *glob
     else
         globals->SetHasRawHistogramsDefined(true);
 
-    set <string> knownNodes = {"Revision", "EventWidth", "HasRaw"};
+    if (!node.child("DammPlots").empty()) {
+        globals->SetDammPlots(node.child("DammPlots").attribute("value").as_bool(true));
+    } else {
+        globals->SetDammPlots(true);
+    }
+    sstream_ << "DammPlots: " << globals->GetDammPlots() ;
+    messenger_.detail(sstream_.str());
+    sstream_.str("");
+
+    set <string> knownNodes = {"Revision", "EventWidth", "HasRaw", "DammPlots"};
     WarnOfUnknownChildren(node, knownNodes);
 }
 

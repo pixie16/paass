@@ -76,6 +76,9 @@ public:
     ///@return the configuration file
     std::string GetConfigFileName() const { return configFile_; }
 
+    ///@return the dammPlots_ bool. True if we are filling DAMM plots on disk
+    bool GetDammPlots() const { return dammPlots_; }
+
     ///@return the event size in seconds
     double GetEventLengthInSeconds() const { return eventLengthInSeconds_; }
 
@@ -157,6 +160,10 @@ public:
         clockTickToSeconds_.emplace(freq, conversionFactor);
     }
 
+    ///Sets whether or not to actually fill ANY of the various DAMM histos on disk. 
+    ///@param[in] a : The parameter that we are going to set
+    void SetDammPlots(const double &a) { dammPlots_ = a; }
+
     ///Sets the event length in seconds that we will use to create events.
     ///@param[in] a : The parameter that we are going to set
     void SetEventLengthInSeconds(const double &a) { eventLengthInSeconds_ = a; }
@@ -234,6 +241,7 @@ private:
     double adcClockInSeconds_;                                   //!< adc clock in second
     double clockInSeconds_;                                      //!< the ACQ clock in seconds
     std::string configFile_;                                     //!< The configuration file
+    bool dammPlots_;                                             //!< True if we are filling DAMM plots
     double eventLengthInSeconds_;                                //!< event width in seconds
     unsigned int eventLengthInTicks_;                            //!< the size of the events
     double filterClockInSeconds_;                                //!< filter clock in seconds
