@@ -12,6 +12,7 @@
 #include <sys/times.h>
 
 #include "Plots.hpp"
+#include "Globals.hpp"
 #include "TreeCorrelator.hpp"
 #include "ProcessorRootStruc.hpp"
 
@@ -138,7 +139,9 @@ protected:
     */
     virtual void plot(int dammId, double val1, double val2 = -1,
                       double val3 = -1, const char *name = "h") {
-        histo.Plot(dammId, val1, val2, val3, name);
+        if (Globals::get()->GetDammPlots()) {
+            histo.Plot(dammId, val1, val2, val3, name);
+        }
     }
 
     /*! \brief Declares a 1D histogram calls the C++ wrapper for DAMM
