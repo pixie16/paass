@@ -6,8 +6,14 @@
 #ifndef __SINGLEBETAPROCESSOR_HPP__
 #define __SINGLEBETAPROCESSOR_HPP__
 
+#include "DammPlotIds.hpp"
+#include "DetectorDriver.hpp"
 #include "EventProcessor.hpp"
+#include "Globals.hpp"
 #include "HighResTimingData.hpp"
+#include "ProcessorRootStruc.hpp"
+#include "RawEvent.hpp"
+#include "TreeCorrelator.hpp"
 
 class SingleBetaProcessor : public EventProcessor {
 public:

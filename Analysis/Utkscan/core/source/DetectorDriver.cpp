@@ -11,7 +11,6 @@
 #include <limits>
 #include <map>
 #include <sstream>
-#include <PspmtProcessor.hpp>
 
 #include "DammPlotIds.hpp"
 #include "DetectorDriver.hpp"
@@ -125,7 +124,7 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
                 auto PSPMTheader = ((PspmtProcessor *) GetProcessor("PspmtProcessor"))->GetPSPMTHeader();
                 TNamed vdType_("vdType",PSPMTheader.first);
                 vdType_.Write();
-                TNamed Thresh("softThresh",PSPMTheader.second);
+                TNamed softThresh("softThresh",PSPMTheader.second);
                 softThresh.Write();
             } else if ((*itp) == "LogicProcessor") {
                 fillLogic_ = true;
