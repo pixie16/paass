@@ -172,7 +172,7 @@ void DetectorDriver::Init(RawEvent &rawev) {
 void DetectorDriver::ProcessEvent(RawEvent &rawev) {
 
     if (sysrootbool_) {
-	pixie_tree_event_.Clear();
+	pixie_tree_event_.Reset();
     }
     plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
     try {

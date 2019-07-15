@@ -148,7 +148,7 @@ class PixTreeEvent : public TObject {
     virtual ~PixTreeEvent() {}
 
     /* clear vectors and init all the values */
-    virtual void Clear() {
+    virtual void Reset() {
         externalTS1 = 0;
         externalTS2 = 0;
         eventNum = 0;
