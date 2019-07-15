@@ -68,7 +68,10 @@ bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
             DBstruc.isLowResBeta = true;
             DBstruc.detNum = (*it).first;
             DBstruc.energy = (*it).second.second;
-            DBstruc.timeAvg = (*it).second.first * Globals::get()->GetAdcClockInSeconds() *1.0e9; //record time in ns, LRTBarMap uses the Walkcorrected Time which uses GetTime()
+            //record time in ns, LRTBarMap uses the Walkcorrected Time which uses GetTime()
+            // Note we lose the ChanID() structure when we build the lowres bars. So we assume they are on the rev default which may or not be right. This probably requires a change to the low res bar building.
+            //TODO fix the low res bars to add GetChanID() compatibility / make lrtbars_ more straight forward to access
+            DBstruc.timeAvg = (*it).second.first * Globals::get()->GetAdcClockInSeconds() *1.0e9; 
             pixie_tree_event_->doublebeta_vec_.emplace_back(DBstruc);
             DBstruc = processor_struct::DOUBLEBETA_DEFAULT_STRUCT;
         }
@@ -76,6 +79,7 @@ bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
 
     for (BarMap::const_iterator it = bars_.begin(); it != bars_.end(); it++) {
         unsigned int barNum = (*it).first.first;
+        int modulefreq = (*it).second.GetLeftSide().GetChanID().GetModFreq(); // We are assuming that the left and  right sides are on the same module (or at least the same speed of module)
         plot(DD_QDC, (*it).second.GetLeftSide().GetTraceQdc(), barNum * 2);
         plot(DD_QDC, (*it).second.GetRightSide().GetTraceQdc(), barNum * 2 + 1);
         plot(DD_TDIFF, (*it).second.GetTimeDifference()*resolution + offset, barNum);
@@ -87,8 +91,8 @@ bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
             DBstruc.detNum = barNum;
             DBstruc.timeAvg = (*it).second.GetTimeAverage();
             DBstruc.timeDiff = (*it).second.GetTimeDifference();
-            DBstruc.timeL = (*it).second.GetLeftSide().GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9; //store ns;
-            DBstruc.timeR = (*it).second.GetRightSide().GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9; //store ns;
+            DBstruc.timeL = (*it).second.GetLeftSide().GetTimeSansCfd() * Globals::get()->GetClockInSeconds(modulefreq) * 1e9; //store ns;
+            DBstruc.timeR = (*it).second.GetRightSide().GetTimeSansCfd() * Globals::get()->GetClockInSeconds(modulefreq) * 1e9; //store ns;
             DBstruc.barQdc = (*it).second.GetQdc();
             DBstruc.tMaxValR = (*it).second.GetRightSide().GetMaximumValue();
             DBstruc.tMaxValL = (*it).second.GetLeftSide().GetMaximumValue();
