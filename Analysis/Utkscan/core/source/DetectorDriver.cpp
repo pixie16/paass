@@ -45,6 +45,14 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
     tapeCycleNum_ = 0;
     lastCycleTime_ = 0;
 
+    #ifdef USE_HRIBF
+    // needed for scanor.f sanity checking
+    //if dammPlots are off then add this to pass the check
+    if(!Globals::get()->GetDammPlots()){
+        histo.DeclareHistogram1D(1800,2,"PlaceHolder"); 
+    }
+    #endif
+
     try {
         DetectorDriverXmlParser parser;
         parser.ParseNode(this);
