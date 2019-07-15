@@ -1741,6 +1741,9 @@ void Poll::RunControl(){
 
             //Handle a stop signal
             if(do_stop_acq){
+                // If we are calling stop from an ERROR state and we request send_alarm then CallAlarm
+                if(had_error && GetSendAlarm()){ CallAlarm();}
+
                 // Read data from the modules.
                 if (!had_error) ReadFIFO();
 
@@ -2115,4 +2118,15 @@ std::string pad_string(const std::string &input_, unsigned int length_){
 std::string yesno(bool value_){
     if(value_){ return "Yes"; }
     return "No";
+}
+
+void Poll::CallAlarm() {
+    std::string emailList_ = GetAlarmEmailList();
+    std::cout << "Sending Alarm Email to " << emailList_ << std::endl;
+    if (emailList_.empty()) {
+        system("send_alarm");
+    } else {
+        std::string alarmCMD = "send_alarm " + emailList_;
+        system(alarmCMD.c_str());
+    }
 }

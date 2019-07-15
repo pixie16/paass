@@ -1,10 +1,10 @@
 #!/bin/bash
-#@authors D. Miller
+#@authors T. T. King (2019), D. Miller
 
 if [ -z $1 ]; then
-    EMAIL="dmille50@utk.edu"
+    EMAIL="tking36@vols.utk.edu"
 else
     EMAIL=$1
 fi
 
-echo ALARM | mail -s 'ACQ ALARM' $EMAIL
+echo "poll2 on ${HOSTNAME} has entered into an ERROR state. This requires human attention. " | mail -s "${HOSTNAME}:poll2 alert" ${EMAIL}

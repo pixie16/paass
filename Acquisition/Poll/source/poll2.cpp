@@ -77,11 +77,13 @@ int main(int argc, char *argv[]) {
     //getopt_long is not POSIX compliant. It is provided by GNU. This may mean
     //that we are not compatable with some systems. If we have enough
     //complaints we can either change it to getopt, or implement our own class.
-    while ((retval = getopt_long(argc, argv, "afvt:dph", longOpts, &idx)) !=
+    while ((retval = getopt_long(argc, argv, "a::fvt:dph", longOpts, &idx)) !=
            -1) {
         switch (retval) {
             case 'a':
-                alarmArgument = optarg;
+                if (optarg != 0) {
+                    alarmArgument = optarg;
+                }
                 poll.SetSendAlarm();
                 break;
             case 'f':
@@ -192,8 +194,10 @@ int main(int argc, char *argv[]) {
         Display::LeaderPrint("Sending alarms to");
         if (alarmArgument.empty()) {
             std::cout << Display::InfoStr("DEFAULT") << std::endl;
+        } else {
+            std::cout << Display::WarningStr(alarmArgument) << std::endl;
         }
-        else { std::cout << Display::WarningStr(alarmArgument) << std::endl; }
+        poll.SetAlarmEmailList(alarmArgument);
     }
 
     // Start the run control thread
