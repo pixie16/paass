@@ -5,12 +5,6 @@
  */
 
 #include "SingleBetaProcessor.hpp"
-#include "DammPlotIds.hpp"
-#include "DetectorDriver.hpp"
-#include "Globals.hpp"
-#include "RawEvent.hpp"
-#include "TimingMapBuilder.hpp"
-#include "TreeCorrelator.hpp"
 
 namespace dammIds {
 namespace singlebeta {
