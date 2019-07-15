@@ -150,9 +150,10 @@ protected:
     * \param [in] title : The title for the histogram
     */
     virtual void DeclareHistogram1D(int dammId, int xSize, const char *title) {
-        histo.DeclareHistogram1D(dammId, xSize, title);
+        if(Globals::get()->GetDammPlots()){
+            histo.DeclareHistogram1D(dammId, xSize, title);
+        }
     }
-
     /*! \brief Declares a 2D histogram calls the C++ wrapper for DAMM
     * \param [in] dammId : The histogram number to define
     * \param [in] xSize : The range of the x-axis
@@ -161,9 +162,10 @@ protected:
     */
     virtual void DeclareHistogram2D(int dammId, int xSize, int ySize,
                                     const char *title) {
-        histo.DeclareHistogram2D(dammId, xSize, ySize, title);
+        if(Globals::get()->GetDammPlots()){
+            histo.DeclareHistogram2D(dammId, xSize, ySize, title);
+        }
     }
-
 private:
     tms tmsBegin; //!< The beginning processor time
     double userTime;//!< The user time spent in the processor

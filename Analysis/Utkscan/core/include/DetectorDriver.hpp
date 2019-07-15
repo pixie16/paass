@@ -96,7 +96,7 @@ public:
     * \param [in] name : the name of the histogram */
     virtual void plot(int dammId, double val1, double val2 = -1, 
     double val3 = -1, const char *name = "h") {
-        //if we want to skip the DAMM filling (NOTE ONLY WORKS FOR UTKSCAN NOT UTKSCANOR)
+        //if we want to skip the DAMM filling 
         if (Globals::get()->GetDammPlots()) {
             histo.Plot(dammId, val1, val2, val3, name);
         }
@@ -234,9 +234,10 @@ private:
     * \param [in] xSize : The range of the x-axis
     * \param [in] title : The title for the histogram */
     virtual void DeclareHistogram1D(int dammId, int xSize, const char *title) {
-        histo.DeclareHistogram1D(dammId, xSize, title);
+        if(Globals::get()->GetDammPlots()){
+            histo.DeclareHistogram1D(dammId, xSize, title);
+        }
     }
-
     /*! \brief Declares a 2D histogram calls the C++ wrapper for DAMM
     * \param [in] dammId : The histogram number to define
     * \param [in] xSize : The range of the x-axis
@@ -244,7 +245,9 @@ private:
     * \param [in] title : The title of the histogram */
     virtual void DeclareHistogram2D(int dammId, int xSize, int ySize,
                                     const char *title) {
-        histo.DeclareHistogram2D(dammId, xSize, ySize, title);
+        if(Globals::get()->GetDammPlots()){
+            histo.DeclareHistogram2D(dammId, xSize, ySize, title);
+        }
     }
     /*! \brief Fills the Logic structure for ROOT output.
      * Because the logic spans pixie events if we fill in the processor it does not get filled into each ROOT entry.
