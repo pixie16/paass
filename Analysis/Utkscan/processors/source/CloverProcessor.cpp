@@ -366,29 +366,30 @@ void CloverProcessor::DeclarePlots(void) {
                        "g_g_beta gated angle vs gate");
 #endif
 
-    DeclareHistogramGranY(DD_ENERGY__TIMEX,
-                          energyBins2, granTimeBins,
-                          "E - Time", 2, timeResolution, "s");
-    DeclareHistogramGranY(DD_ADD_ENERGY__TIMEX,
-                          energyBins2, granTimeBins,
-                          "Addback E - Time", 2, timeResolution, "s");
-    DeclareHistogramGranY(betaGated::DD_ENERGY__TIMEX_GROW,
-                          energyBins2, granTimeBins,
-                          "Beta-gated E - Time, beam on only prompt",
-                          2, timeResolution, "s");
-    DeclareHistogramGranY(betaGated::DD_ENERGY__TIMEX_DECAY,
-                          energyBins2, granTimeBins,
-                          "Beta-gated E - Time, beam off only prompt",
-                          2, timeResolution, "s");
-    DeclareHistogramGranY(betaGated::DD_ENERGY__TIMEX,
-                          energyBins2, granTimeBins,
-                          "Beta-gated E - Time prompt", 2, timeResolution, "s");
-    DeclareHistogramGranY(betaGated::DD_ADD_ENERGY__TIMEX,
-                          energyBins2, granTimeBins,
-                          "Beta-gated addback E - Time",
-                          2, timeResolution, "s");
+    if (Globals::get()->GetDammPlots()) {
+        DeclareHistogramGranY(DD_ENERGY__TIMEX,
+                              energyBins2, granTimeBins,
+                              "E - Time", 2, timeResolution, "s");
+        DeclareHistogramGranY(DD_ADD_ENERGY__TIMEX,
+                              energyBins2, granTimeBins,
+                              "Addback E - Time", 2, timeResolution, "s");
+        DeclareHistogramGranY(betaGated::DD_ENERGY__TIMEX_GROW,
+                              energyBins2, granTimeBins,
+                              "Beta-gated E - Time, beam on only prompt",
+                              2, timeResolution, "s");
+        DeclareHistogramGranY(betaGated::DD_ENERGY__TIMEX_DECAY,
+                              energyBins2, granTimeBins,
+                              "Beta-gated E - Time, beam off only prompt",
+                              2, timeResolution, "s");
+        DeclareHistogramGranY(betaGated::DD_ENERGY__TIMEX,
+                              energyBins2, granTimeBins,
+                              "Beta-gated E - Time prompt", 2, timeResolution, "s");
+        DeclareHistogramGranY(betaGated::DD_ADD_ENERGY__TIMEX,
+                              energyBins2, granTimeBins,
+                              "Beta-gated addback E - Time",
+                              2, timeResolution, "s");
+    }
 }
-
 
 bool CloverProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
