@@ -96,7 +96,7 @@ void GammaScintProcessor::DeclarePlots() {
         DeclareHistogram2D(DD_LONGTIME_ENERGY + offset,SE,SB,ss.str().c_str());
         // SB: this gives 2048 cycles for ISOL and a bit more than 16 hours (with 30 sec bunches) for fragmentation
 
-        if (EvsT_) {
+        if (EvsT_ && Globals::get()->GetDammPlots()) {
             //this bool is here because these are LARGE (with binDepth = 2) his, they add ~1GB to the .his file size, for the SINGLE DEFAULT
             //time scale. default parse is True
             ss.str("");
