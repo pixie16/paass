@@ -143,6 +143,12 @@ namespace dammIds {
         const int RANGE = 20;//!< Range for the PulserProcessor Hists
     }
 
+    ///in NEXTProcessor.cpp
+    namespace next {
+        const int OFFSET = 3500;
+        const int RANGE = 400;
+    }
+
     /// in SsdProcessor.cpp
     namespace ssd {
         const int OFFSET = 4100;//!< Offset for SsdProcessor

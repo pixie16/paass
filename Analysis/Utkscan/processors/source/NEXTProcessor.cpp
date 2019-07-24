@@ -23,12 +23,9 @@
 
 namespace dammIds {
     namespace next {
-        const unsigned int BIG_OFFSET = 20; //!< Offset for big bars
-        const unsigned int MED_OFFSET = 40;//!< Offset for medium bars
         const unsigned int DEBUGGING_OFFSET = 60;//!< Offset for debugging hists
-        const unsigned int SMALLNOCAL_OFFSET = 100;//!< Offset for Unclaibrated hists
-        const unsigned int MEDNOCALTYPE_OFFSET = 110;//!< Offset for Unclaibrated hists MEDIUM BARS
-        const unsigned int BIGNOCALTYPE_OFFSET = 120;//!< Offset for Unclaibrated hists LARGE BARS
+        const unsigned int NOCAL_OFFSET = 100;//!< Offset for Uncalibrated hists
+        const unsigned int IMAGE_OFFSET = 50;//!< Offest for producing PSPMT images
 
         const int DD_TQDCBARS = 0;//!< QDC for the bars
         const int DD_MAXIMUMBARS  = 1;//!< Maximum values for the bars
@@ -69,10 +66,10 @@ NEXTProcessor::NEXTProcessor(const std::vector<std::string> &typeList, const dou
     tofcut_ = tofcut;
     idealFP_ = idealFP;
 
-    if(typeList.empty())
+   /* if(typeList.empty())
         requestedTypes_.insert("small");
     else
-        requestedTypes_ = set<string>(typeList.begin(), typeList.end());
+        requestedTypes_ = set<string>(typeList.begin(), typeList.end()); */
 }
 
 void NEXTProcessor::DeclarePlots(void) {
@@ -174,17 +171,17 @@ bool NEXTProcessor::Process(RawEvent &event) {
     RDecay_=true;
     }
 
-    for (BarMap::iterator it = mods_.begin(); it != mods_.end(); it++) {
-        TimingDefs::TimingIdentifier barId = (*it).first;
-        BarDetector bar = (*it).second;
+    for (NEXTMap::iterator it = mods_.begin(); it != mods_.end(); it++) {
+        TimingDefs::TimingIdentifier nextId = (*it).first;
+        NEXTDetector mod = (*it).second;
 
-        if (!bar.GetHasEvent())
+        if (!mod.GetHasEvent())
             continue;
 
         if (!doubleBetaStarts.empty())
-            AnalyzeBarStarts(bar, barId.first);
+            AnalyzeModStarts(mod, modId.first);
         else
-            AnalyzeStarts(bar, barId.first);
+            AnalyzeStarts(mod, modId.first);
 
     }
 
@@ -192,18 +189,18 @@ bool NEXTProcessor::Process(RawEvent &event) {
     return true;
 }
 
-void NEXTProcessor::AnalyzeBarStarts(const BarDetector &bar, unsigned int &barLoc) {
+void NEXTProcessor::AnalyzeBarStarts(const NEXTDetector &mod, unsigned int &modLoc) {
         for (BarMap::iterator itStart = barStarts_.begin(); itStart != barStarts_.end(); itStart++) {
             unsigned int startLoc = (*itStart).first.first;
             BarDetector start = (*itStart).second;
 
-            bool caled = ( bar.GetCalibration().GetZ0() != 0 );
-            double tof = bar.GetCorTimeAve() - start.GetCorTimeAve() + bar.GetCalibration().GetTofOffset(startLoc);
-            double corTof = CorrectTOF(tof, bar.GetFlightPath(), idealFP_);
-            double NCtof = bar.GetCorTimeAve() - start.GetCorTimeAve() ;
+            bool caled = ( mod.GetCalibration().GetZ0() != 0 );
+            double tof = mod.GetCorTimeAve() - start.GetCorTimeAve() + mod.GetCalibration().GetTofOffset(startLoc);
+            double corTof = CorrectTOF(tof, mod.GetFlightPath(), idealFP_);
+            double NCtof = mod.GetCorTimeAve() - start.GetCorTimeAve() ;
 
-            PlotTofHistograms(tof, corTof,NCtof, bar.GetQdc(), barLoc * numStarts_ + startLoc,
-                              ReturnOffset(bar.GetType()),caled);
+            PlotTofHistograms(tof, corTof,NCtof, mod.GetQdc(), modLoc * numStarts_ + startLoc,
+                              ReturnOffset(mod.GetType()),caled);
 
             if (DetectorDriver::get()->GetSysRootOutput()){
                 //Fill Root struct
@@ -211,13 +208,15 @@ void NEXTProcessor::AnalyzeBarStarts(const BarDetector &bar, unsigned int &barLo
                 nexts.sTime = start.GetTimeAverage();
                 nexts.sQdc = start.GetQdc();
 
-                nexts.qdc = bar.GetQdc();
-                nexts.barNum = barLoc;
-                nexts.barType = bar.GetType();
-                nexts.tdiff = bar.GetTimeDifference();
+                nexts.Zpos = mod.GetAverageZPos();
+                nexts.Ypos = mod.GetAverageYPos();
+                nexts.qdc = mod.GetQdc();
+                nexts.modNum = modLoc;
+
+                nexts.tdiff = mod.GetTimeDifference();
                 nexts.tof = tof;
                 nexts.corTof = corTof;
-                nexts.qdcPos = bar.GetQdcPosition();
+                nexts.qdcPos = mod.GetQdcPosition();
 
                 pixie_tree_event_->next_vec_.emplace_back(nexts);
                 nexts = processor_struct::NEXTS_DEFAULT_STRUCT;
@@ -225,7 +224,7 @@ void NEXTProcessor::AnalyzeBarStarts(const BarDetector &bar, unsigned int &barLo
         }
 }
 
-void NEXTProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc) {
+void NEXTProcessor::AnalyzeStarts(const NEXTDetector &mod, unsigned int &modLoc) {
         for (TimingMap::iterator itStart = starts_.begin(); itStart != starts_.end(); itStart++) {
             if (!(*itStart).second.GetIsValid())
                 continue;
@@ -233,28 +232,28 @@ void NEXTProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc) 
             unsigned int startLoc = (*itStart).first.first;
             HighResTimingData start = (*itStart).second;
 
-            bool caled = ( bar.GetCalibration().GetZ0() != 0 );
-            double tof = bar.GetCorTimeAve() - start.GetWalkCorrectedTime() + bar.GetCalibration().GetTofOffset(startLoc);
-            double corTof = CorrectTOF(tof, bar.GetFlightPath(), idealFP_);
-            double NCtof =bar.GetCorTimeAve() - start.GetWalkCorrectedTime() ;
+            bool caled = ( mod.GetCalibration().GetZ0() != 0 );
+            double tof = mod.GetCorTimeAve() - start.GetWalkCorrectedTime() + mod.GetCalibration().GetTofOffset(startLoc);
+            double corTof = CorrectTOF(tof, mod.GetFlightPath(), idealFP_);
+            double NCtof =mod.GetCorTimeAve() - start.GetWalkCorrectedTime() ;
 
-            PlotTofHistograms(tof, corTof, NCtof,bar.GetQdc(), barLoc * numStarts_ + startLoc,
-                              ReturnOffset(bar.GetType()),caled);
+            PlotTofHistograms(tof, corTof, NCtof,mod.GetQdc(), modLoc * numStarts_ + startLoc,
+                              ReturnOffset(mod.GetType()),caled);
             if (DetectorDriver::get()->GetSysRootOutput()){
 
-                if (tof>= tofcut_ && bar.GetQdc()>qdcmin_) {
+                if (tof>= tofcut_ && mod.GetQdc()>qdcmin_) {
                     //Fill Root struct
                     nexts.sNum = startLoc;
                     nexts.sTime = start.GetTimeSansCfd();
                     nexts.sQdc = start.GetTraceQdc();
 
-                    nexts.qdc = bar.GetQdc();
-                    nexts.barNum = barLoc;
-                    nexts.barType = bar.GetType();
-                    nexts.tdiff = bar.GetTimeDifference();
+                    nexts.qdc = mod.GetQdc();
+                    nexts.barNum = modLoc;
+                    nexts.barType = mod.GetType();
+                    nexts.tdiff = mod.GetTimeDifference();
                     nexts.tof = tof;
                     nexts.corTof = corTof;
-                    nexts.qdcPos = bar.GetQdcPosition();
+                    nexts.qdcPos = mod.GetQdcPosition();
 
                     pixie_tree_event_->next_vec_.emplace_back(nexts);
                     nexts = processor_struct::NEXTS_DEFAULT_STRUCT;
@@ -292,7 +291,7 @@ void NEXTProcessor::PlotTofHistograms(const double &tof, const double &cortof,co
     }
 
 
-//Plotting OTHER historgrams
+//Plotting OTHER histograms
     if (geSummary_) {
         if (geSummary_->GetMult() > 0) {
             const vector<ChanEvent *> &geList = geSummary_->GetList();
@@ -326,12 +325,7 @@ void NEXTProcessor::FillNEXTOnlyHists(void) {
     }
 }
 
-std::pair<unsigned int, unsigned int> NEXTProcessor::ReturnOffset(const std::string &type) {
-    if (type == "small")
-        return (make_pair((unsigned int )0,SMALLNOCAL_OFFSET));
-    if (type == "big")
-        return (make_pair(BIG_OFFSET,BIGNOCALTYPE_OFFSET));
-    if (type == "medium")
-        return (make_pair(MED_OFFSET,MEDNOCALTYPE_OFFSET));
-    return make_pair(numeric_limits<unsigned int>::max(),numeric_limits<unsigned int>::max());
+std::pair<unsigned int, unsigned int> NEXTProcessor::ReturnOffset() {
+        return (make_pair(OFFSET,NOCALTYPE_OFFSET));
+//    return make_pair(numeric_limits<unsigned int>::max(),numeric_limits<unsigned int>::max());
 }

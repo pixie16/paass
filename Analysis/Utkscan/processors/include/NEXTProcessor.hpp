@@ -1,6 +1,6 @@
-///@file VandleProcessor.hpp
-///@brief A class to handle VANDLE bars 
-///Processes information from the VANDLE Bars, allows for
+///@file NEXTProcessor.hpp
+///@brief A class to handle NEXT bars
+///Processes information from the NEXT Bars, allows for
 ///beta-gamma-neutron correlations.
 ///
 /// Currently, the code is set to recognize two types of starts: LeRIBSS style
@@ -12,25 +12,27 @@
 ///
 ///@author S. V. Paulauskas, M. Madurga
 ///@date 26 July 2010
-#ifndef __VANDLEPROCESSOR_HPP_
-#define __VANDLEPROCESSOR_HPP_
+#ifndef __NEXTPROCESSOR_HPP_
+#define __NEXTPROCESSOR_HPP_
 #include <set>
 #include <string>
 
 #include "BarDetector.hpp"
+#include "NEXTDetector.hpp"
 #include "EventProcessor.hpp"
 #include "HighResTimingData.hpp"
+#include "HighResPositionData.hpp"
 
 #include "ProcessorRootStruc.hpp"
 
-/// Class to process VANDLE related events
-class VandleProcessor : public EventProcessor {
+/// Class to process NEXT related events
+class NEXTProcessor : public EventProcessor {
 public:
     ///Default Constructor */
-    VandleProcessor();
+    NEXTProcessor();
 
     ///Default Destructor */
-    ~VandleProcessor() {};
+    ~NEXTProcessor() {};
 
     ///Declare the plots used in the analysis */
     virtual void DeclarePlots(void);
@@ -40,16 +42,16 @@ public:
     ///@param [in] res : The resolution of the DAMM histograms
     ///@param [in] offset : The offset of the DAMM histograms 
     ///@param [in] numStarts : number of starts we have to process */
-    VandleProcessor(const std::vector<std::string> &typeList, const double &res, const double &offset,
+    NEXTProcessor(const std::vector<std::string> &typeList, const double &res, const double &offset,
                     const unsigned int &numStarts, const double &compression , const double &qdcmin,
                     const double &tofcut, const double &idealFP);
 
-    ///Preprocess the VANDLE data
+    ///Preprocess the NEXT data
     ///@param [in] event : the event to preprocess
     ///@return true if successful */
     virtual bool PreProcess(RawEvent &event);
 
-    ///Process the event for VANDLE stuff
+    ///Process the event for NEXT stuff
    ///@param [in] event : the event to process
    ///@return Returns true if the processing was successful */
     virtual bool Process(RawEvent &event);
@@ -63,35 +65,35 @@ public:
         return ((z0 / corRadius) * TOF);
     }
 
-    ///@return the map of the build VANDLE bars */
+    ///@return the map of the build NEXT bars */
     NEXTMap GetBars(void) { return mods_; }
 
     ///@return true if we requested small bars in the xml */
-    bool GetHasSmall(void) { return requestedTypes_.find("small") != requestedTypes_.end(); }
+//    bool GetHasSmall(void) { return requestedTypes_.find("small") != requestedTypes_.end(); }
 
     ///@return true if we requested medium bars in the xml  */
-    bool GetHasMed(void) { return requestedTypes_.find("medium") != requestedTypes_.end(); }
+//    bool GetHasMed(void) { return requestedTypes_.find("medium") != requestedTypes_.end(); }
 
     ///@return true if we requsted large bars in the xml */
-    bool GetHasBig(void) { return requestedTypes_.find("big") != requestedTypes_.end(); }
+//    bool GetHasBig(void) { return requestedTypes_.find("big") != requestedTypes_.end(); }
 
 private:
     ///Analyze the data for scenarios with Bar Starts; e.g. Double Beta detectors
-    void AnalyzeBarStarts(const BarDetector &bar, unsigned int &barLoc);
+    void AnalyzeBarStarts(const NEXTDetector &bar, unsigned int &modLoc);
 
     ///Analyze the data for scenarios with Single sided Starts; e.g. LeRIBSS beta scintillators.
-    void AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc);
+    void AnalyzeStarts(const NEXTDetector &bar, unsigned int &modLoc);
 
     ///Fill up the basic histograms
-    void FillVandleOnlyHists();
+    void FillNextOnlyHists();
 
     void PlotTofHistograms(const double &tof, const double &cortof,const double &NCtof, const double &qdc,
                            const unsigned int &barPlusStartLoc, const std::pair<unsigned int, unsigned int> &offset,
                            bool &calibrated );
 
-    ///@return Returns a pair of the appropriate offsets based off the VANDLE bar type <calibrated, NonCalibrated>
+    ///@return Returns a pair of the appropriate offsets based off the NEXT bar type <calibrated, NonCalibrated>
     ///@param [in] type : The type of bar that we are dealing with
-    std::pair<unsigned int, unsigned int> ReturnOffset(const std::string &type);
+    std::pair<unsigned int, unsigned int> ReturnOffset();
 
     NEXTMap mods_;//!< A map to hold all the bars
     TimingMap starts_;//!< A map to to hold all the starts
@@ -110,15 +112,15 @@ private:
     double tofcut_;//!< min tof to add to root tree for speeding up near line merger
 
 
-    bool hasSmall_; //!< True if small bars were requested in the Config
+/*    bool hasSmall_; //!< True if small bars were requested in the Config
     bool hasBig_; //!< True if big bars were requested in the Config
     bool hasMed_; //!< True if medium bars were requested in the Config
-
+*/
     unsigned int numStarts_; //!< The number of starts set in the Config File
 
     std::set<std::string> requestedTypes_;//!< The list of bar types to expect
 
-    processor_struct::VANDLES nexts; //!<Working structure
+    processor_struct::NEXTS nexts; //!<Working structure
 };
 
 #endif

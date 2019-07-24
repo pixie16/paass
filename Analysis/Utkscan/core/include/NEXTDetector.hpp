@@ -62,22 +62,14 @@ public:
 
     /** \return the flight path of the particle to the detector */
     double GetFlightPath(void) const {
-        if (GetType() == "small")
-            return (sqrt(GetCalibration().GetZ0() * GetCalibration().GetZ0() +
-                         pow(Globals::get()->GetVandleSmallSpeedOfLightInCmPerNs() *
+//        if (GetType() == "small")
+            return (sqrt( ( GetCalibration().GetZ0() + GetAverageZPos() + 24.0 ) *
+                          ( GetCalibration().GetZ0() + GetAverageZPos() + 24.0 ) +
+                         pow(Globals::get()->GetNEXTSpeedOfLightInCmPerNs() *
                              0.5 * GetTimeDifference() +
-                             GetCalibration().GetXOffset(), 2)));
-        else if (GetType() == "big")
-            return (sqrt(GetCalibration().GetZ0() * GetCalibration().GetZ0() +
-                         pow(Globals::get()->GetVandleBigSpeedOfLightInCmPerNs() *
-                             0.5 * GetTimeDifference() +
-                             GetCalibration().GetXOffset(), 2)));
-        else if (GetType() == "medium")
-            return (sqrt(GetCalibration().GetZ0() * GetCalibration().GetZ0() +
-                         pow(Globals::get()->GetVandleMediumSpeedOfLightInCmPerNs() *
-                             0.5 * GetTimeDifference() +
-                             GetCalibration().GetXOffset(), 2)));
-        return (std::numeric_limits<double>::quiet_NaN());
+                             GetCalibration().GetXOffset(), 2) +
+                         (GetAverageYPos() * GetAverageYPos() ) ));
+//        return (std::numeric_limits<double>::quiet_NaN());
     }
 
     /** \return the position independent qdc for the bar */
@@ -122,8 +114,8 @@ public:
     }
 
     /** \return the average high resolution X position */
-    double GetAverageXPos() const {
-        return ( aleft_.GetHighResXPos() + aright_.GetHighResXPos() ) / 2.0;
+    double GetAverageZPos() const {
+        return ( aleft_.GetHighResZPos() + aright_.GetHighResZPos() ) / 2.0;
     }
 
     /**  \return the average high resolution Y position */
