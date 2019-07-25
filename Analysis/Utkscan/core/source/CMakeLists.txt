@@ -9,6 +9,7 @@ set(CORE_SOURCES
         Globals.cpp
         GlobalsXmlParser.cpp
         MapNodeXmlParser.cpp
+        NEXTBuilder.cpp
         RawEvent.cpp
         TimingCalibrator.cpp
         TimingMapBuilder.cpp
