@@ -286,7 +286,7 @@ pair<double, double> XiaListModeDataDecoder::CalculateTimeInSamples(const XiaLis
         }
 
     if (mask.GetFrequency() == 500) {
-        multiplier = 10; // This appears to be wrong based on the documentation in V3.07 of the Pixie Manual (T.T. King Feb,7 2019)
+        multiplier = 5; 
         cfdTime = data.GetCfdFractionalTime() / mask.GetCfdSize() + data.GetCfdTriggerSourceBit() - 1; 
         //From the Pixie Manual v 3.07 it seems that the 500Mhz has 4 interlaced ADCs so its list mode has a 2bit CfdTriggerSource.
         //These methods will need to be updated to account for this, and soon. (T.T. King Feb,7 2019)
