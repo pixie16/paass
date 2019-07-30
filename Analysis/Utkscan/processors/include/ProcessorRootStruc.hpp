@@ -126,7 +126,7 @@ struct NEXTS {
         double sTime = -999;
         double sQdc = -999;
     };
-    static const NEXTS NEXTS_DEFAULT_STRUCT;
+static const NEXTS NEXTS_DEFAULT_STRUCT;
 }  // namespace processor_struct
 
 class PixTreeEvent : public TObject {

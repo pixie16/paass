@@ -121,7 +121,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
             }
 
             bool isVandle = false;
-            if (chanCfg.GetType()=="vandle")
+            if (chanCfg.GetType()=="vandle" || chanCfg.GetType()=="next")
                 isVandle = true;
 
 

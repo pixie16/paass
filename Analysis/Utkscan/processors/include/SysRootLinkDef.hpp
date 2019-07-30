@@ -28,6 +28,9 @@
 #pragma link C++ struct processor_struct::VANDLES+;
 #pragma link C++ class std::vector<processor_struct::VANDLES>+;
 
+#pragma link C++ struct processor_struct::NEXTS+;
+#pragma link C++ class std::vector<processor_struct::NEXTS>+;
+
 #pragma link C++ class PixTreeEvent+;
 #pragma link C++ class std::vector<PixTreeEvent>+;
 #endif

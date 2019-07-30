@@ -40,6 +40,7 @@ void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
         max = TraceFunctions::FindMaximum(trace, cfg.GetTraceDelayInSamples());
     } catch (range_error &ex) {
         trace.SetHasValidAnalysis(false);
+	cout << "Error in Channel: " << cfg.GetType() << ":" << cfg.GetSubtype() << endl;
         cout << "WaveformAnalyzer::Analyze - " << ex.what() << endl;
         EndAnalyze();
         return;

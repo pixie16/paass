@@ -40,6 +40,7 @@
 #include "LogicProcessor.hpp"
 #include "McpProcessor.hpp"
 #include "NeutronScintProcessor.hpp"
+#include "NEXTProcessor.hpp"
 #include "PositionProcessor.hpp"
 #include "PspmtProcessor.hpp"
 #include "RootDevProcessor.hpp"
@@ -196,6 +197,12 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new McpProcessor());
         } else if (name == "NeutronScintProcessor") {
             vecProcess.push_back(new NeutronScintProcessor());
+        } else if (name == "NEXTProcessor") {
+            vecProcess.push_back(new NEXTProcessor(
+                    StringManipulation::TokenizeString(processor.attribute("types").as_string("next"), ","),
+                    processor.attribute("res").as_double(2.0), processor.attribute("offset").as_double(1000.0),
+                    processor.attribute("NumStarts").as_uint(1), processor.attribute("compression").as_double(1.0),
+                    processor.attribute("qdcmin").as_double(0.0),processor.attribute("tofcut").as_double(-1000.0),processor.attribute("idealfp").as_double(100)));
         } else if (name == "PositionProcessor") {
             vecProcess.push_back(new PositionProcessor());
         } else if (name == "PspmtProcessor") {

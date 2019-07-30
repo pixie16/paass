@@ -62,6 +62,7 @@
 #include "VandleProcessor.hpp"
 #include "ProcessorRootStruc.hpp"
 #include "PspmtProcessor.hpp"
+#include "NEXTProcessor.hpp"
 
 #endif
 
