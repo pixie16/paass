@@ -39,7 +39,7 @@ public:
 	that the bars are not going to be vastly out of order, such that the 
 	location / 2 = bar number. This is a safe assumption for current 
 	(as of 04/22/2016) VANDLE firmware. */
-    void BuildNEXTs(void);
+    void BuildModules(void);
 
     /** Sets the channel list to build bars out of. This list <strong>
      * must </strong> contain both ends of the detector.

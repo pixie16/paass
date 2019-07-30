@@ -121,7 +121,7 @@ bool NEXTProcessor::PreProcess(RawEvent &event) {
     }
 
     NEXTBuilder sMod(dEvents,aEvents);
-    sMod.BuildModule();
+    sMod.BuildModules();
     mods_ = sMod.GetNEXTMap();
 
 
@@ -172,7 +172,7 @@ bool NEXTProcessor::Process(RawEvent &event) {
     }
 
     for (NEXTMap::iterator it = mods_.begin(); it != mods_.end(); it++) {
-        TimingDefs::TimingIdentifier nextId = (*it).first;
+        TimingDefs::TimingIdentifier modId = (*it).first;
         NEXTDetector mod = (*it).second;
 
         if (!mod.GetHasEvent())
@@ -189,7 +189,7 @@ bool NEXTProcessor::Process(RawEvent &event) {
     return true;
 }
 
-void NEXTProcessor::AnalyzeBarStarts(const NEXTDetector &mod, unsigned int &modLoc) {
+void NEXTProcessor::AnalyzeModStarts(const NEXTDetector &mod, unsigned int &modLoc) {
         for (BarMap::iterator itStart = barStarts_.begin(); itStart != barStarts_.end(); itStart++) {
             unsigned int startLoc = (*itStart).first.first;
             BarDetector start = (*itStart).second;
@@ -248,8 +248,7 @@ void NEXTProcessor::AnalyzeStarts(const NEXTDetector &mod, unsigned int &modLoc)
                     nexts.sQdc = start.GetTraceQdc();
 
                     nexts.qdc = mod.GetQdc();
-                    nexts.barNum = modLoc;
-                    nexts.barType = mod.GetType();
+                    nexts.modNum = modLoc;
                     nexts.tdiff = mod.GetTimeDifference();
                     nexts.tof = tof;
                     nexts.corTof = corTof;
@@ -263,12 +262,12 @@ void NEXTProcessor::AnalyzeStarts(const NEXTDetector &mod, unsigned int &modLoc)
 }
 
 void NEXTProcessor::PlotTofHistograms(const double &tof, const double &cortof,const double &NCtof, const double &qdc,
-                                        const unsigned int &barPlusStartLoc,
+                                        const unsigned int &modPlusStartLoc,
                                         const pair<unsigned int, unsigned int>&offset ,bool &calibrated) {
 
     //Plotting Normal Histograms
-    plot(DD_TOFBARS + offset.first, tof * plotMult_ + plotOffset_, barPlusStartLoc);
-    plot(DD_CORTOFBARS + offset.first, cortof * plotMult_ + plotOffset_, barPlusStartLoc);
+    plot(DD_TOFBARS + offset.first, tof * plotMult_ + plotOffset_, modPlusStartLoc);
+    plot(DD_CORTOFBARS + offset.first, cortof * plotMult_ + plotOffset_, modPlusStartLoc);
     //making these histograms only plot if t cal exists. since no tcal causes strange looking behavior.
     if (calibrated) {
         plot(DD_TQDCAVEVSTOF + offset.first, tof * plotMult_ + plotOffset_, qdc / qdcComp_);
@@ -280,12 +279,12 @@ void NEXTProcessor::PlotTofHistograms(const double &tof, const double &cortof,co
     *The ones above would be the same as these when no time calibration is present in the Config.xml
      * This allows for easier timecals since we dont have to rerun the data before we can run timecal.bash
     */
-    plot(DD_TOFBARS + offset.second, NCtof* plotMult_ + plotOffset_, barPlusStartLoc);
+    plot(DD_TOFBARS + offset.second, NCtof* plotMult_ + plotOffset_, modPlusStartLoc);
     plot(DD_TQDCAVEVSTOF + offset.second, NCtof* plotMult_ + plotOffset_, qdc / qdcComp_);
 
     //Plotting Rough Decay Histograms
     if( RDecay_){
-        plot(DD_TOFBARS_DECAY + offset.first, tof * plotMult_ + plotOffset_, barPlusStartLoc);
+        plot(DD_TOFBARS_DECAY + offset.first, tof * plotMult_ + plotOffset_, modPlusStartLoc);
         if (calibrated) //same as before, causes strange behavior when non TCal'd
             plot(DD_QDCTOF_DECAY + offset.first, tof * plotMult_ + plotOffset_, qdc / qdcComp_);
     }
@@ -299,33 +298,33 @@ void NEXTProcessor::PlotTofHistograms(const double &tof, const double &cortof,co
                 plot(DD_GAMMAENERGYVSTOF + offset.first, (*itGe)->GetCalibratedEnergy(), tof);
         } else {
             plot(DD_TQDCAVEVSTOF_VETO + offset.first, tof, qdc / qdcComp_);
-            plot(DD_TOFBARS_VETO + offset.first, tof, barPlusStartLoc);
+            plot(DD_TOFBARS_VETO + offset.first, tof, modPlusStartLoc);
         }
     }
 }
 
 void NEXTProcessor::FillNEXTOnlyHists(void) {
-    for (BarMap::const_iterator it = mods_.begin(); it != mods_.end(); it++) {
-        TimingDefs::TimingIdentifier barId = (*it).first;
-        unsigned int OFFSET = ReturnOffset(barId.second).first;
-        unsigned int NOCALOFFSET = ReturnOffset(barId.second).second;
+    for (NEXTMap::const_iterator it = mods_.begin(); it != mods_.end(); it++) {
+        TimingDefs::TimingIdentifier modId = (*it).first;
+        unsigned int OFFSET = ReturnOffset(modId.second).first;
+        unsigned int NOCALOFFSET = ReturnOffset(modId.second).second;
         double NoCalTDiff = (*it).second.GetLeftSide().GetHighResTimeInNs()-(*it).second.GetRightSide().GetHighResTimeInNs();
 
-        plot(DD_MAXIMUMBARS + OFFSET,(*it).second.GetLeftSide().GetMaximumValue(), barId.first*2);
-        plot(DD_MAXIMUMBARS + OFFSET,(*it).second.GetRightSide().GetMaximumValue(), barId.first*2+1);
+        plot(DD_MAXIMUMBARS + OFFSET,(*it).second.GetLeftSide().GetMaximumValue(), modId.first*2);
+        plot(DD_MAXIMUMBARS + OFFSET,(*it).second.GetRightSide().GetMaximumValue(), modId.first*2+1);
 
-        plot(DD_TQDCBARS + OFFSET, (*it).second.GetLeftSide().GetTraceQdc() / qdcComp_, barId.first * 2);
-        plot(DD_TQDCBARS + OFFSET, (*it).second.GetRightSide().GetTraceQdc() / qdcComp_, barId.first * 2 + 1);
+        plot(DD_TQDCBARS + OFFSET, (*it).second.GetLeftSide().GetTraceQdc() / qdcComp_, modId.first * 2);
+        plot(DD_TQDCBARS + OFFSET, (*it).second.GetRightSide().GetTraceQdc() / qdcComp_, modId.first * 2 + 1);
 
-        plot(DD_TIMEDIFFBARS + OFFSET, (*it).second.GetTimeDifference() * plotMult_ + plotOffset_, barId.first);
-        plot(DD_TIMEDIFFBARS + NOCALOFFSET, NoCalTDiff* plotMult_ + plotOffset_, barId.first);
+        plot(DD_TIMEDIFFBARS + OFFSET, (*it).second.GetTimeDifference() * plotMult_ + plotOffset_, modId.first);
+        plot(DD_TIMEDIFFBARS + NOCALOFFSET, NoCalTDiff* plotMult_ + plotOffset_, modId.first);
 
         if (RDecay_)
-            plot(DD_TDIFF_DECAY+ OFFSET, (*it).second.GetTimeDifference() * plotMult_ + plotOffset_, barId.first);
+            plot(DD_TDIFF_DECAY+ OFFSET, (*it).second.GetTimeDifference() * plotMult_ + plotOffset_, modId.first);
     }
 }
 
-std::pair<unsigned int, unsigned int> NEXTProcessor::ReturnOffset() {
-        return (make_pair(OFFSET,NOCALTYPE_OFFSET));
+std::pair<unsigned int, unsigned int> NEXTProcessor::ReturnOffset(const std::string &type) {
+        return (make_pair(OFFSET,NOCAL_OFFSET));
 //    return make_pair(numeric_limits<unsigned int>::max(),numeric_limits<unsigned int>::max());
 }

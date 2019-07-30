@@ -60,6 +60,10 @@ public:
         return (GetLeftPos().GetIsValid() && GetRightPos().GetIsValid());
     }
 
+    bool GetHasEvent(void) const{
+	return (GetHasEventPosition() && GetHasEventTiming() ) ;
+    }
+
     /** \return the flight path of the particle to the detector */
     double GetFlightPath(void) const {
 //        if (GetType() == "small")
@@ -144,7 +148,7 @@ public:
 private:
     HighResTimingData right_; //!< The Right side of the detector
     HighResTimingData left_; //!< The Left side of the detector
-    HighResPositoinData aleft_;
+    HighResPositionData aleft_;
     HighResPositionData aright_;
     TimingDefs::TimingIdentifier key_; //!< The key for the detector 
 };

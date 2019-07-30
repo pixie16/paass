@@ -24,13 +24,13 @@ void NEXTBuilder::BuildModules(void) {
             ChannelConfiguration ia = (*pt)->GetChanID();
             std::string modID = ia.GetGroup();
             if (std::to_string(it->first) ==  modID ) {
-                if (ia.HasTag("left"))  pos_lefts_.emplace((*pt));
-                if (ia.HasTag("right")) pos_rights_.emplace((*it));
+                if (ia.HasTag("left"))  pos_lefts_.push_back(*pt);
+                if (ia.HasTag("right")) pos_rights_.push_back(*pt);
             }
         }
 
         if (list_.at(it->second)->GetTrace().size() != 0 && list_.at(mate->second)->GetTrace().size() != 0
-             && pos_lefts_.size() >= 4 && pos_right_.size() >=4 ) {
+             && pos_lefts_.size() >= 4 && pos_rights_.size() >=4 ) {
             TimingDefs::TimingIdentifier key =
                     make_pair(it->first, list_.at(it->second)->GetChanID().GetSubtype());
             hrMods_.insert(make_pair(key, NEXTDetector(HighResTimingData(*(list_.at(it->second))), HighResPositionData(pos_lefts_),

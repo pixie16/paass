@@ -79,13 +79,13 @@ public:
 
 private:
     ///Analyze the data for scenarios with Bar Starts; e.g. Double Beta detectors
-    void AnalyzeBarStarts(const NEXTDetector &bar, unsigned int &modLoc);
+    void AnalyzeModStarts(const NEXTDetector &bar, unsigned int &modLoc);
 
     ///Analyze the data for scenarios with Single sided Starts; e.g. LeRIBSS beta scintillators.
     void AnalyzeStarts(const NEXTDetector &bar, unsigned int &modLoc);
 
     ///Fill up the basic histograms
-    void FillNextOnlyHists();
+    void FillNEXTOnlyHists();
 
     void PlotTofHistograms(const double &tof, const double &cortof,const double &NCtof, const double &qdc,
                            const unsigned int &barPlusStartLoc, const std::pair<unsigned int, unsigned int> &offset,
@@ -93,7 +93,7 @@ private:
 
     ///@return Returns a pair of the appropriate offsets based off the NEXT bar type <calibrated, NonCalibrated>
     ///@param [in] type : The type of bar that we are dealing with
-    std::pair<unsigned int, unsigned int> ReturnOffset();
+    std::pair<unsigned int, unsigned int> ReturnOffset( const std::string &type );
 
     NEXTMap mods_;//!< A map to hold all the bars
     TimingMap starts_;//!< A map to to hold all the starts

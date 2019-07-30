@@ -24,29 +24,29 @@ public:
     * \param [in] chan : the channel event for grabbing values from */
     HighResPositionData(std::vector< ChanEvent *> &evt) {
         for (std::vector <ChanEvent *>::iterator it = evt.begin(); it != evt.end(); it++){
-          if( (*it)->GetChanID().HasTag("FT") && _ft <= 0 ) _ft = (*it)->GetTrace().GetQDC();
-          if( (*it)->GetChanID().HasTag("FB") && _fb <= 0 ) _fb = (*it)->GetTrace().GetQDC();
-          if( (*it)->GetChanID().HasTag("BT") && _bt <= 0 ) _bt = (*it)->GetTrace().GetQDC();
-          if( (*it)->GetChanID().HasTag("BB") && _bb <= 0 ) _bb = (*it)->GetTrace().GetQDC();
+          if( (*it)->GetChanID().HasTag("FT") && _ft <= 0 ) _ft = (*it)->GetTrace().GetQdc();
+          if( (*it)->GetChanID().HasTag("FB") && _fb <= 0 ) _fb = (*it)->GetTrace().GetQdc();
+          if( (*it)->GetChanID().HasTag("BT") && _bt <= 0 ) _bt = (*it)->GetTrace().GetQdc();
+          if( (*it)->GetChanID().HasTag("BB") && _bb <= 0 ) _bb = (*it)->GetTrace().GetQdc();
         }
         _sum = _ft + _fb + _bt + _bb;
     }
 
-    double GetTotIntegral(void) {return _sum;}
+    double GetTotIntegral() const {return _sum;}
 
     ///@return high resolution position parallel to r^hat
-    double GetHighResZPos(void){
+    double GetHighResZPos() const {
       return (_ft + _fb - _bt - _bb) / _sum * 48.0;
     }
 
     ///@return high resolution position perpendicular to r^(hat) (parallel to phi^hat)
-    double GetHighResYPos(void){
+    double GetHighResYPos() const {
       return (_ft + _bt - _fb - _bb) / _sum * 50.8 ;
     }
 
     ///@return True if the trace was successfully analyzed
     bool GetIsValid() const {
-        if ( _ft > 0 && _fb > 0 && _bt > 0 && _bb > 0 )return (true);
+        if ( _ft > 0 && _fb > 0 && _bt > 0 && _bb > 0 ) return (true);
         else return (false);
     }
 
