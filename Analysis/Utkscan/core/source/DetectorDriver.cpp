@@ -265,6 +265,8 @@ void DetectorDriver::DeclarePlots() {
             DetectorLibrary *modChan = DetectorLibrary::get();
             DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
             DeclareHistogram1D(D_HAS_TRACE, S8, "channels with traces");
+            DeclareHistogram1D(D_HAS_TRACE_2, S8, "channels w/ traces: post WaveForm Analysis");
+            DeclareHistogram1D(D_HAS_TRACE_3, S8, "channels w/ traces: post Fit Analysis");
             DeclareHistogram2D(DD_TRACE_MAX,SD, S8, "Max Value in Trace vs Chan Num");
             DeclareHistogram1D(D_SUBEVENT_GAP, SE, "Time Between Channels in 10 ns / bin");
             DeclareHistogram1D(D_EVENT_LENGTH, SE, "Event Length in ns");
@@ -329,6 +331,13 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
         for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin(); it != vecAnalyzer.end(); it++)
             (*it)->Analyze(trace, chanCfg);
 
+            
+        if(chan->GetTrace().HasValidWaveformAnalysis()){
+        plot(D_HAS_TRACE_2,id);
+        }
+        if(chan->GetTrace().HasValidFitAnalysis()){
+        plot(D_HAS_TRACE_3,id);
+        }
         //We are going to handle the filtered energies here.
         vector<double> filteredEnergies = trace.GetFilteredEnergies();
         if (filteredEnergies.empty()) {

@@ -47,6 +47,8 @@ namespace dammIds {
         const int D_HAS_TRACE = 1812;//!< Plot for Channels w/ Traces
         const int D_INTERNAL_TS_CHECK = 1813;//!< Plot of time difference between the 2 external time stamps
         const int DD_TRACE_MAX = 1814;//!< Plot for Max Value in Trace
+        const int D_HAS_TRACE_2 = 1815;//!< Plot for Channels w/ valid waveform analysis 
+        const int D_HAS_TRACE_3 = 1816;//!< Plot for Channels w/ valid fit analysis 
     }
 
     /// in PspmtProcessor.cpp
