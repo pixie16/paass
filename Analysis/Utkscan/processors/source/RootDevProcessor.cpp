@@ -41,7 +41,7 @@ bool RootDevProcessor::Process(RawEvent &event) {
     for (auto it = Events.begin(); it != Events.end(); it++) {
         RDstruct.energy = (*it)->GetCalibratedEnergy();
         RDstruct.rawEnergy = (*it)->GetEnergy();
-        if (Rev != "D") {
+        if (Rev == "F") {
             RDstruct.timeSansCfd = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
             RDstruct.time = (*it)->GetTime() * Globals::get()->GetAdcClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
         } else {
@@ -57,6 +57,8 @@ bool RootDevProcessor::Process(RawEvent &event) {
         RDstruct.saturation = (*it)->IsSaturated();
 
         if ((*it)->GetTrace().size() > 0) {
+            RDstruct.hasValidFitAnalysis = (*it)->GetTrace().HasValidFitAnalysis();
+            RDstruct.hasValidWaveformAnalysis = (*it)->GetTrace().HasValidWaveformAnalysis();
             RDstruct.trace = (*it)->GetTrace();
             RDstruct.maxPos = (*it)->GetTrace().GetMaxInfo().first;
             RDstruct.maxVal = (*it)->GetTrace().GetMaxInfo().second;
