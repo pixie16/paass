@@ -93,6 +93,9 @@ struct ROOTDEV {
     double maxVal = -999;                    //Max value in the trace (requires the Waveform Analyzer)
     double highResTime = -999;               //High Resolution Time derived from the trace fitting (requires the Waveform and Fitting Analyzer)
     std::vector<unsigned int> qdcSums = {};  //output the onboard qdc sums if present
+    bool hasValidFitAnalysis = false;
+    bool hasValidWaveformAnalysis = false;
+
 };
 static const ROOTDEV ROOTDEV_DEFAULT_STRUCT;
 
