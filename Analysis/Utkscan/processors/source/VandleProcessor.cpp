@@ -247,7 +247,7 @@ void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc
                 if (tof>= tofcut_ && bar.GetQdc()>qdcmin_) {
                     //Fill Root struct
                     vandles.sNum = startLoc;
-                    vandles.sTime = start.GetTimeSansCfd() * Globals::get()->GetClockInSeconds((*itStart).second.GetChanID().GetModFreq()); //!dump the low res start time in ns
+                    vandles.sTime = startTime;
                     if ((*itStart).second.GetTrace().HasValidWaveformAnalysis()){
                         vandles.sQdc = start.GetTraceQdc();
                     }
