@@ -59,6 +59,8 @@ bool RootDevProcessor::Process(RawEvent &event) {
         if ((*it)->GetTrace().size() > 0) {
             RDstruct.hasValidFitAnalysis = (*it)->GetTrace().HasValidFitAnalysis();
             RDstruct.hasValidWaveformAnalysis = (*it)->GetTrace().HasValidWaveformAnalysis();
+            RDstruct.baseline = (*it)->GetTrace().GetBaselineInfo().first;
+            RDstruct.stdBaseline = (*it)->GetTrace().GetBaselineInfo().second;
             RDstruct.trace = (*it)->GetTrace();
             RDstruct.maxPos = (*it)->GetTrace().GetMaxInfo().first;
             RDstruct.maxVal = (*it)->GetTrace().GetMaxInfo().second;

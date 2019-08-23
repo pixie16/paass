@@ -95,6 +95,8 @@ struct ROOTDEV {
     std::vector<unsigned int> qdcSums = {};  //output the onboard qdc sums if present
     bool hasValidFitAnalysis = false;
     bool hasValidWaveformAnalysis = false;
+    double baseline = -999;
+    double stdBaseline = -999;
 
 };
 static const ROOTDEV ROOTDEV_DEFAULT_STRUCT;
