@@ -97,6 +97,7 @@ struct ROOTDEV {
     bool hasValidWaveformAnalysis = false;
     double baseline = -999;
     double stdBaseline = -999;
+    double phase = -999;
 
 };
 static const ROOTDEV ROOTDEV_DEFAULT_STRUCT;
