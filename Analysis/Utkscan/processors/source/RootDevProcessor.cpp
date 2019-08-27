@@ -66,6 +66,11 @@ bool RootDevProcessor::Process(RawEvent &event) {
             RDstruct.maxVal = (*it)->GetTrace().GetMaxInfo().second;
             RDstruct.tqdc = (*it)->GetTrace().GetQdc();
             RDstruct.highResTime = (*it)->GetHighResTimeInNs();
+            if (Rev == "F") {
+                 RDstruct.phase = (*it)->GetTrace().GetPhase() * Globals::get()->GetAdcClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
+        } else {
+                 RDstruct.phase = (*it)->GetTrace().GetPhase() * Globals::get()->GetAdcClockInSeconds() * 1e9;
+        }
         }
         if (!(*it)->GetQdc().empty()) {
             RDstruct.qdcSums = (*it)->GetQdc();
