@@ -64,6 +64,7 @@ bool RootDevProcessor::Process(RawEvent &event) {
             RDstruct.trace = (*it)->GetTrace();
             RDstruct.maxPos = (*it)->GetTrace().GetMaxInfo().first;
             RDstruct.maxVal = (*it)->GetTrace().GetMaxInfo().second;
+            RDstruct.extMaxVal = (*it)->GetTrace().GetExtrapolatedMaxInfo().second;
             RDstruct.tqdc = (*it)->GetTrace().GetQdc();
             RDstruct.highResTime = (*it)->GetHighResTimeInNs();
             if (Rev == "F") {
