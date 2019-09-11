@@ -13,6 +13,7 @@ module-whatis "Pixie Suite provides utilities for XIA Pixie 16 Data Acquisition"
 
 set topdir 	@CMAKE_INSTALL_PREFIX@
 
+setenv PAASSSYS @CMAKE_INSTALL_PREFIX@
 prepend-path PATH	$topdir/bin
 prepend-path LD_LIBRARY_PATH	$topdir/lib
 prepend-path CPLUS_INCLUDE_PATH	$topdir/include
