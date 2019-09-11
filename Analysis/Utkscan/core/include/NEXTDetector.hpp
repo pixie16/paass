@@ -67,18 +67,25 @@ public:
     /** \return the flight path of the particle to the detector */
     double GetFlightPath(void) const {
 //        if (GetType() == "small")
-            return (sqrt( ( GetCalibration().GetZ0() + GetAverageZPos() + 24.0 ) *
-                          ( GetCalibration().GetZ0() + GetAverageZPos() + 24.0 ) +
+            return (sqrt( ( GetCalibration().GetZ0() + GetAverageZPos() * 24.0 ) *
+                          ( GetCalibration().GetZ0() + GetAverageZPos() * 24.0 ) +
                          pow(Globals::get()->GetNEXTSpeedOfLightInCmPerNs() *
                              0.5 * GetTimeDifference() +
-                             GetCalibration().GetXOffset(), 2) +
-                         (GetAverageYPos() * GetAverageYPos() ) ));
+                             GetCalibration().GetXOffset(), 2) 
+                             ));
 //        return (std::numeric_limits<double>::quiet_NaN());
     }
 
     /** \return the position independent qdc for the bar */
     double GetQdc() const {
         return (sqrt(right_.GetTraceQdc() * left_.GetTraceQdc()));
+    }
+
+    double GetAnodeQdc() const {
+        if ( GetHasEventPosition() )
+            return (aleft_.GetTotIntegral() + aright_.GetTotIntegral() );
+        else
+            return -9999;
     }
 
     /** \return the Position derived from the QDC */
@@ -119,12 +126,25 @@ public:
 
     /** \return the average high resolution X position */
     double GetAverageZPos() const {
-        return ( aleft_.GetHighResZPos() + aright_.GetHighResZPos() ) / 2.0;
+        return ( aright_.GetHighResZPos() + aleft_.GetHighResZPos() ) / 2.0;
     }
 
     /**  \return the average high resolution Y position */
     double GetAverageYPos() const {
-        return ( aleft_.GetHighResYPos() + aright_.GetHighResYPos() ) / 2.0;
+        return ( aright_.GetHighResYPos() + aleft_.GetHighResYPos() ) / 2.0;
+    }
+
+    double GetFT() const {
+        return ( GetLeftPos().GetFTQdc() + GetRightPos().GetFTQdc() );
+    }
+    double GetFB() const {
+        return ( GetLeftPos().GetFBQdc() + GetRightPos().GetFBQdc() );
+    }
+    double GetBT() const {
+        return ( GetLeftPos().GetBTQdc() + GetRightPos().GetBTQdc() );
+    }
+    double GetBB() const {
+        return ( GetLeftPos().GetBBQdc() + GetRightPos().GetBBQdc() );
     }
 
     /** \return the left_ var */

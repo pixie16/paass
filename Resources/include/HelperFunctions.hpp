@@ -18,6 +18,25 @@
 using namespace std;
 
 namespace Polynomial {
+
+    template<class T>
+    static const pair<double, vector<double> > CalculatePoly1(
+            const vector<T> &data, const unsigned int &startBin){
+        if (data.size() < 2 )
+            throw range_error("Polynomial::CalculatePoly1 - The data vector "
+                                      "had the wrong size : " + std::to_string(data.size()));
+
+        double x[2] = {(double)startBin, (double)startBin + 1};
+
+        double p1 = (data[x[1]]-data[x[0]]) / (x[1]-x[0]);
+
+        double p0 = data[x[1]]-p1*x[1];
+
+        vector<double> coeffs = {p0, p1};
+
+        return make_pair( p1 , coeffs);
+    }
+
     template<class T>
     static const pair<double, vector<double> > CalculatePoly2(
             const vector<T> &data, const unsigned int &startBin) {

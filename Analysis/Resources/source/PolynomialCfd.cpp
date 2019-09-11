@@ -21,7 +21,9 @@ double PolynomialCfd::CalculatePhase(const std::vector<double> &data, const std:
                                   "position is larger than the size of the "
                                   "data vector.");
 
-    double threshold = pars.first * max.second;
+    //double threshold = pars.first * max.second;  
+    // For now the threshold fraction will remain hardcoded. The default parameter reader is not working correctly.
+    double threshold = 0.45 * max.second;
     double phase = -9999;
     float multiplier = 1.;
 
@@ -29,14 +31,17 @@ double PolynomialCfd::CalculatePhase(const std::vector<double> &data, const std:
     for (unsigned int cfdIndex = max.first; cfdIndex > 0; cfdIndex--) {
         if (data[cfdIndex - 1] < threshold && data[cfdIndex] >= threshold) {
             // Fit the rise of the trace to a 2nd order polynomial.
-            result = Polynomial::CalculatePoly2(data, cfdIndex - 1).second;
+            result = Polynomial::CalculatePoly1(data, cfdIndex - 1).second;
 
+            /* //Second Order Phase calculation currenly commented out
             // Calculate the phase of the trace.
             if (result[2] > 1)
                 multiplier = -1.;
 
             phase = (-result[1] + multiplier * sqrt(result[1] * result[1] - 4 * result[2] * (result[0] - threshold)))
                     / (2 * result[2]);
+            */
+            phase = ( threshold - result[0] ) / result[1];
 
             break;
         }

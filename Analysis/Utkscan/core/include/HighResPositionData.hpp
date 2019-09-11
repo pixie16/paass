@@ -1,5 +1,5 @@
 /*! \file HighResPositionData.hpp
- *  \brief Class to hold all of the information for high resolution timing
+ *  \brief Class to hold all of the information for high resolution position
  *  \author S. V. Paulauskas, T. T. King
  *  \date November 9, 2014
  */
@@ -10,8 +10,7 @@
 #include "Constants.hpp"
 #include "Globals.hpp"
 
-//! Class for holding information for high resolution timing. All times more
-//! precise than the filter time will be in nanoseconds (phase, highResTime).
+//! Class for holding information for high resolution position.
 class HighResPositionData {
 public:
     /** Default constructor */
@@ -22,13 +21,12 @@ public:
 
     /** Constructor using the channel event
     * \param [in] chan : the channel event for grabbing values from */
-    HighResPositionData(std::vector< ChanEvent *> &evt) {
-        for (std::vector <ChanEvent *>::iterator it = evt.begin(); it != evt.end(); it++){
-          if( (*it)->GetChanID().HasTag("FT") && _ft <= 0 ) _ft = (*it)->GetTrace().GetQdc();
-          if( (*it)->GetChanID().HasTag("FB") && _fb <= 0 ) _fb = (*it)->GetTrace().GetQdc();
-          if( (*it)->GetChanID().HasTag("BT") && _bt <= 0 ) _bt = (*it)->GetTrace().GetQdc();
-          if( (*it)->GetChanID().HasTag("BB") && _bb <= 0 ) _bb = (*it)->GetTrace().GetQdc();
-        }
+    HighResPositionData(double ft, double fb, double bt, double bb) {
+        _ft = ft;
+        _fb = fb;
+        _bt = bt;
+        _bb = bb;
+        
         _sum = _ft + _fb + _bt + _bb;
     }
 
@@ -36,12 +34,28 @@ public:
 
     ///@return high resolution position parallel to r^hat
     double GetHighResZPos() const {
-      return (_ft + _fb - _bt - _bb) / _sum * 48.0;
+      return -1.0*(_ft + _fb - _bt - _bb) / _sum ;
     }
 
     ///@return high resolution position perpendicular to r^(hat) (parallel to phi^hat)
     double GetHighResYPos() const {
-      return (_ft + _bt - _fb - _bb) / _sum * 50.8 ;
+      return (_ft + _bt - _fb - _bb) / _sum ;      
+    }
+
+    double GetFTQdc() const {
+     return _ft;
+    }
+
+    double GetBTQdc() const {
+      return _bt;
+    }
+
+    double GetFBQdc() const {
+      return _fb;
+    }
+
+    double GetBBQdc() const {
+      return _bb;
     }
 
     ///@return True if the trace was successfully analyzed

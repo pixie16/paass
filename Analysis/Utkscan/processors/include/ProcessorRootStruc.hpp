@@ -117,14 +117,20 @@ struct NEXTS {
         double qdcPos = 0;
         double Zpos = 0;
         double Ypos = 0;
-        double qdc = 0;
+        double qdc = -9999;
+        double aqdc = -9999;
         int modNum = 0;
 
-        double tdiff = -999;
+        double ftqdc = -9999;
+        double fbqdc = -9999;
+        double btqdc = -9999;
+        double bbqdc = -9999;
+
+        double tdiff = -9999;
         unsigned int sNum = 0;  //start detector number
         int vMulti = 0;
-        double sTime = -999;
-        double sQdc = -999;
+        double sTime = -9999;
+        double sQdc = -9999;
     };
 static const NEXTS NEXTS_DEFAULT_STRUCT;
 }  // namespace processor_struct

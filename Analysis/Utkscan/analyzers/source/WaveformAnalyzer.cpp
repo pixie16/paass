@@ -70,7 +70,12 @@ void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
         // here the SiPM often saw values as high as 20. We will put in a
         // hard limit of 50 as a cutoff since anything with a standard
         // deviation of this high will never be something we want to analyze.
-        static const double extremeBaselineVariation = 50;
+        double extremeBaselineVariation;
+        if ( baseline.first > 1500 )
+            extremeBaselineVariation = 500;
+        else 
+            extremeBaselineVariation = 50;
+
         if (baseline.second >= extremeBaselineVariation) {
             trace.SetHasValidAnalysis(false);
             EndAnalyze();
@@ -87,7 +92,8 @@ void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
         //Finally, we calculate the QDC in the waveform range and subtract
         // the baseline from it.
         pair<unsigned int, unsigned int> waveformRange(max.first - range.first, max.first + range.second);
-        double qdc = TraceFunctions::CalculateQdc(traceNoBaseline, waveformRange);
+        pair<unsigned int, unsigned int> qdcRange(max.first - range.first, max.first + 50);
+        double qdc = TraceFunctions::CalculateQdc(traceNoBaseline, qdcRange);
 
         //Now we are going to set all the different values into the trace.
         trace.SetQdc(qdc);

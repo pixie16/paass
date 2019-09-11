@@ -18,8 +18,10 @@ public:
 
     /** Constructor taking the map of channels to build bars with
      * \param [in] vec : Reference to the vector to build channels with */
-    NEXTBuilder(const std::vector<ChanEvent *> dvec, const std::vector<ChanEvent *> avec) {
-        list_ = dvec; pos_ = avec;};
+    NEXTBuilder(const std::vector<ChanEvent *> dvec, 
+                const std::vector<ChanEvent *> avec) {
+        list_ = dvec; pos_ = avec;
+        };
 
     /** Default destructor */
     virtual ~NEXTBuilder() {};
@@ -68,8 +70,6 @@ private:
     std::map<unsigned int, std::pair<double, double> > lrMods_; //!<Map with low res bars
     std::map<unsigned int, unsigned int> lefts_; //!< Map containing the left sides of bars
     std::map<unsigned int, unsigned int> rights_; //!< Map containing the left sides of bars
-    std::vector<ChanEvent *> pos_lefts_;
-    std::vector<ChanEvent *> pos_rights_;
     std::vector<ChanEvent *> list_; //!< Vector of dynode events to calculate timing out of.
     std::vector<ChanEvent *> pos_; //!< Vector of anode events to calculate position out of.
 };

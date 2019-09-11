@@ -124,7 +124,6 @@ bool NEXTProcessor::PreProcess(RawEvent &event) {
     sMod.BuildModules();
     mods_ = sMod.GetNEXTMap();
 
-
     if (mods_.empty()) {
      //   plot(D_DEBUGGING, 25);
         return false;
@@ -148,6 +147,7 @@ bool NEXTProcessor::Process(RawEvent &event) {
 
     static const vector<ChanEvent *> &LIonVeto =  event.GetSummary("pspmt:veto")->GetList();
     static const vector<ChanEvent *> &IondE=  event.GetSummary("pspmt:ion")->GetList();
+
 
     vector<ChanEvent *> startEvents;
     startEvents.insert(startEvents.end(), betaStarts.begin(), betaStarts.end());
@@ -208,8 +208,11 @@ void NEXTProcessor::AnalyzeModStarts(const NEXTDetector &mod, unsigned int &modL
                 nexts.sTime = start.GetTimeAverage();
                 nexts.sQdc = start.GetQdc();
 
+                //nexts.Zpos = -1.0;
+                //nexts.Ypos = 1.0;
                 nexts.Zpos = mod.GetAverageZPos();
                 nexts.Ypos = mod.GetAverageYPos();
+                //nexts.goodPos = mod.GetHasEventPosition();
                 nexts.qdc = mod.GetQdc();
                 nexts.modNum = modLoc;
 
@@ -241,22 +244,32 @@ void NEXTProcessor::AnalyzeStarts(const NEXTDetector &mod, unsigned int &modLoc)
                               ReturnOffset(mod.GetType()),caled);
             if (DetectorDriver::get()->GetSysRootOutput()){
 
-                if (tof>= tofcut_ && mod.GetQdc()>qdcmin_) {
+                //if (tof>= tofcut_ && mod.GetQdc()>qdcmin_) {
                     //Fill Root struct
                     nexts.sNum = startLoc;
                     nexts.sTime = start.GetTimeSansCfd();
                     nexts.sQdc = start.GetTraceQdc();
-
+                    
                     nexts.qdc = mod.GetQdc();
+                    nexts.aqdc = mod.GetAnodeQdc();
                     nexts.modNum = modLoc;
                     nexts.tdiff = mod.GetTimeDifference();
+                    nexts.ftqdc = mod.GetFT();
+                    nexts.fbqdc = mod.GetFB();
+                    nexts.btqdc = mod.GetBT();
+                    nexts.bbqdc = mod.GetBB();
+                    //nexts.Zpos = -1.0;
+                    //nexts.Ypos = 1.0;
+                    nexts.Zpos = mod.GetAverageZPos();
+                    nexts.Ypos = mod.GetAverageYPos();
+                    //nexts.goodPos = mod.GetHasEventPosition();
                     nexts.tof = tof;
                     nexts.corTof = corTof;
                     nexts.qdcPos = mod.GetQdcPosition();
 
                     pixie_tree_event_->next_vec_.emplace_back(nexts);
                     nexts = processor_struct::NEXTS_DEFAULT_STRUCT;
-                }
+                //}
             }
         }
 }

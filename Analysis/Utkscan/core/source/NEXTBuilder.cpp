@@ -14,27 +14,55 @@ using namespace std;
 void NEXTBuilder::BuildModules(void) {
     ClearMaps();
     FillMaps();
-
+    double intg;
+    double l_ft, l_fb, l_bt, l_bb;
+    double r_ft, r_fb, r_bt, r_bb;
+    bool kLeft, kRight;
+    
     for (map<unsigned int, unsigned int>::const_iterator it = lefts_.begin(); it != lefts_.end(); it++) {
         map<unsigned int, unsigned int>::const_iterator mate = rights_.find(it->first);
         if (mate == rights_.end())
             continue;
 
+        intg = 0.0;
+        l_ft = 0; l_fb = 0; l_bt = 0; l_bb = 0;
+        r_ft = 0; r_fb = 0; r_bt = 0; r_bb = 0;
+
         for (vector<ChanEvent *>::const_iterator pt = pos_.begin(); pt != pos_.end(); pt++){
             ChannelConfiguration ia = (*pt)->GetChanID();
             std::string modID = ia.GetGroup();
             if (std::to_string(it->first) ==  modID ) {
-                if (ia.HasTag("left"))  pos_lefts_.push_back(*pt);
-                if (ia.HasTag("right")) pos_rights_.push_back(*pt);
+            intg = (*pt)->GetTrace().GetQdc();           
+           
+                if ((*pt)->GetChanID().HasTag("left")) {
+
+                    if((*pt)->GetChanID().HasTag("FT") && l_ft == 0) l_ft = intg;
+                    if((*pt)->GetChanID().HasTag("FB") && l_fb == 0) l_fb = intg;
+                    if((*pt)->GetChanID().HasTag("BB") && l_bb == 0) l_bb = intg;
+                    if((*pt)->GetChanID().HasTag("BT") && l_bt == 0) l_bt = intg;
+                }
+                if ((*pt)->GetChanID().HasTag("right")) {
+
+                    if((*pt)->GetChanID().HasTag("FT") && r_ft == 0) r_ft = intg;
+                    if((*pt)->GetChanID().HasTag("FB") && r_fb == 0) r_fb = intg;
+                    if((*pt)->GetChanID().HasTag("BB") && r_bb == 0) r_bb = intg;
+                    if((*pt)->GetChanID().HasTag("BT") && r_bt == 0) r_bt = intg;
+                }
+                intg = 0.0;
             }
         }
+        
+        if (l_ft>0 && l_fb>0 && l_bb>0 && l_bt>0) kLeft = true;
+        else kLeft = false;
+        if (r_ft>0 && r_fb>0 && r_bb>0 && r_bt>0) kRight = true;
+        else kRight = false;
 
         if (list_.at(it->second)->GetTrace().size() != 0 && list_.at(mate->second)->GetTrace().size() != 0
-             && pos_lefts_.size() >= 4 && pos_rights_.size() >=4 ) {
+             && kLeft && kRight ) {
             TimingDefs::TimingIdentifier key =
                     make_pair(it->first, list_.at(it->second)->GetChanID().GetSubtype());
-            hrMods_.insert(make_pair(key, NEXTDetector(HighResTimingData(*(list_.at(it->second))), HighResPositionData(pos_lefts_),
-                                                       HighResTimingData(*(list_.at(mate->second))), HighResPositionData(pos_rights_),
+            hrMods_.insert(make_pair(key, NEXTDetector(HighResTimingData(*(list_.at(it->second))), HighResPositionData(l_ft, l_fb, l_bt, l_bb),
+                                                       HighResTimingData(*(list_.at(mate->second))), HighResPositionData(r_ft, r_fb, r_bt, r_bb),
                                                        key)));
         } else {
             lrMods_.insert(make_pair(it->first,
@@ -43,8 +71,6 @@ void NEXTBuilder::BuildModules(void) {
                                                 sqrt(list_.at(it->second)->GetCalibratedEnergy() *
                                                              list_.at(mate->second)->GetCalibratedEnergy()))));
         }
-        pos_lefts_.clear();
-        pos_rights_.clear();
     }
 }
 
@@ -57,8 +83,6 @@ void NEXTBuilder::ClearMaps(void) {
     hrMods_.clear();
     lefts_.clear();
     rights_.clear();
-    pos_lefts_.clear();
-    pos_rights_.clear();
 }
 
 void NEXTBuilder::FillMaps(void) {
