@@ -1,7 +1,18 @@
 # @authors S.V. Paulauskas, T.T. King, K. Smith, and K. Miernik
 
+#Config Files
+*.xml
+
 #Build files
 *.o
+
+#Scan Areas
+Scan/
+scan/
+SCAN/
+Run/
+run/
+RUN/
 
 #Backup files 
 *~
