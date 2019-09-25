@@ -259,6 +259,15 @@ void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc
                     vandles.corTof = corTof;
                     vandles.qdcPos = bar.GetQdcPosition();
 
+                    vandles.wcTavg = bar.GetCorTimeAve();
+                    vandles.wcTdiff = bar.GetCorTimeDiff();
+                    vandles.wcTimeL = bar.GetLeftSide().GetWalkCorrectedTime();
+                    vandles.wcTimeR = bar.GetRightSide().GetWalkCorrectedTime();
+                    vandles.timeL = bar.GetLeftSide().GetHighResTimeInNs();;
+                    vandles.timeR = bar.GetRightSide().GetHighResTimeInNs();;
+                    vandles.qdcL = bar.GetLeftSide().GetTrace().GetQdc();
+                    vandles.qdcR = bar.GetRightSide().GetTrace().GetQdc();
+
                     pixie_tree_event_->vandle_vec_.emplace_back(vandles);
                     vandles = processor_struct::VANDLES_DEFAULT_STRUCT;
                 }

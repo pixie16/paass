@@ -127,6 +127,15 @@ struct VANDLES {
     int vMulti = 0;
     double sTime = -999;
     double sQdc = -999;
+
+    double wcTavg = -999;
+    double wcTdiff = -999;
+    double wcTimeL = -999;
+    double wcTimeR = -999;
+    double timeL = -999;
+    double timeR = -999;
+    double qdcL = -999;
+    double qdcR = -999;
 };
 static const VANDLES VANDLES_DEFAULT_STRUCT;
 }  // namespace processor_struct
