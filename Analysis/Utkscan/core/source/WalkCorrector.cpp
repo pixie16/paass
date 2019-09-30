@@ -16,6 +16,7 @@ void WalkCorrector::AddChannel(const ChannelConfiguration &chanID, const std::st
                                const double &max, const std::vector<double> &par) {
     CorrectionParams cf;
 
+
     unsigned required_parameters = 0;
     if (model == "None") {
         cf.model = none;
@@ -194,7 +195,10 @@ double WalkCorrector::Model_VD(const std::vector<double> &par, double raw) const
 }
 
 double WalkCorrector::Model_VM(const std::vector<double> &par, double raw) const {
-    return (0.0);
+    if (raw < 3700)
+        return 6.79e-8 * pow(raw - 3700, 2);
+    else
+        return 1.15696e-8 * pow(raw - 3700, 2);
 }
 
 double WalkCorrector::Model_VL(const std::vector<double> &par, double raw) const {

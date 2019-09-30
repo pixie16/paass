@@ -150,7 +150,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
             else if (isVerbose)
                 messenger_.detail("Using default trace settings for this channel.", 2);
 
-            if (channel.child("Walk").text())
+            if (channel.child("Walk"))
                 ParseCalibrations(channel.child("Walk"), chanCfg, isVerbose);
             else if (isVerbose)
                 messenger_.detail("This channel is not walk corrected.", 2);
