@@ -116,14 +116,17 @@ struct SINGLEBETA {
 static const SINGLEBETA SINGLEBETA_DEFAULT_STRUCT;
 
 struct VANDLES {
-    double tof = 0;
-    double corTof = 0;
-    double qdcPos = 0;
-    double qdc = 0;
-    int barNum = 0;
     std::string barType = "";
-    double tdiff = -999;
-    unsigned int sNum = 0;  //start detector number
+    double tof = -999;
+    double corTof = -999;
+    double qdcPos = -999;
+    double qdc = -999;
+    int barNum = -999;
+    double tAvg = -999;
+    double tDiff = -999;
+    double wcTavg = -999;
+    double wcTdiff = -999;    
+    int sNum = -999;  //start detector number
     int vMulti = 0;
     double sTime = -999;
     double sQdc = -999;
