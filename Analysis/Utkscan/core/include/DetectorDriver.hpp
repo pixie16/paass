@@ -178,6 +178,9 @@ public:
     /** \return Detector Driver's First Event Time (units= ticks)*/
     double GetFirstEventTime(){return firstEventTime_;}
 
+    /** \return Detector Driver's First Event Time (units= ns)*/
+    double GetFirstEventTimeinNs(){return firstEventTimeinNs_;}
+
     /** \return the first detector event in the current pixie event (units= ticks)*/
     double GetEventFirstTime(){return eventFirstTime_;}
 
@@ -229,6 +232,7 @@ private:
     std::pair<double, time_t> pixieToWallClock; /**< rough estimate of pixie to wall clock */
     unsigned long eventNumber_; //!< "Global" Event Number.
     double firstEventTime_; //!< The time of the first event that passes through the DetectorDriver
+    double firstEventTimeinNs_; //!< The time of the first event that passes through the DetectorDriver in ns
     double eventFirstTime_; //!<The Time of the first detector event in the current pixie event
     /*! Declares a 1D histogram calls the C++ wrapper for DAMM
     * \param [in] dammId : The histogram number to define

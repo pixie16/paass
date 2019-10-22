@@ -213,6 +213,7 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
         }
         if ( eventNumber_ == 0){
             firstEventTime_ = rawev.GetEventList().front()->GetTimeSansCfd();
+            firstEventTimeinNs_ = firstEventTime_ * Globals::get()->GetClockInSeconds(rawev.GetEventList().front()->GetChanID().GetModFreq()) * 1.e9;
         }
         //!First round is preprocessing, where process result must be guaranteed
         //!to not to be dependent on results of other Processors.

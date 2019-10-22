@@ -176,7 +176,7 @@ private:
     std::vector<float> timeScales_; //!< list of time scales to plot (10 ms always present depending on EvsT)
     std::string BunchingTimestr_;//<!String containing the bunching time as parsed. (For rootfiles TNamed's)
 
-    processor_struct::GAMMASCINT Gsing; //!< structure of det event info for PEsing
+    processor_struct::GAMMASCINT GSstruct; //!< structure of det event info for PEsing
 
     std::map<std::string,std::string> Theader; // map of header info for the root file from this processor
 };

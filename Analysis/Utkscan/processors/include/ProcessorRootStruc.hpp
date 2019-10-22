@@ -38,6 +38,7 @@ static const DOUBLEBETA DOUBLEBETA_DEFAULT_STRUCT;
 struct GAMMASCINT {
     double energy = -999;
     double rawEnergy = -999;
+    double qdc = -999;
     bool isDynodeOut = false;
     int detNum = -999;
     double time = -999;
