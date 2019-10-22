@@ -1,8 +1,7 @@
 /** \file GammaScintProcessor.cpp
  *\brief Processes information for Scintillation Type Gamma Detectors
  *
- *Processes information from scintillation type gamma-ray detectors. This code should function similarly to the clover
- * processor.
+ *Processes information from scintillation type gamma-ray detectors. This code should function similarly to the clover processor.
  *
  *
  *\author T. T. King
@@ -213,7 +212,7 @@ bool GammaScintProcessor::PreProcess(RawEvent &event) {
      */
     firstGSEvent_ = false;
     if (evtNum_ == 0){
-        firstEventTime_ = DetectorDriver::get()->GetFirstEventTime() * Globals::get()->GetClockInSeconds()*1.e9;
+        firstEventTime_ = DetectorDriver::get()->GetFirstEventTimeinNs();
         bunchLast_ = firstEventTime_;
         firstGSEvent_= true;
     }
@@ -342,16 +341,20 @@ bool GammaScintProcessor::Process(RawEvent &event) {
 
         if (SysRoot_) {
             if ((*it)->GetChanID().HasTag("dy"))
-                Gsing.isDynodeOut = true;
-            Gsing.group = (*it)->GetChanID().GetGroup();
-            Gsing.subtype = (*it)->GetChanID().GetSubtype() ;
+                GSstruct.isDynodeOut = true;
+            GSstruct.group = (*it)->GetChanID().GetGroup();
+            GSstruct.subtype = (*it)->GetChanID().GetSubtype() ;
 
-            Gsing.energy = Genergy;
-            Gsing.rawEnergy = (*it)->GetEnergy();
-            Gsing.time = Gtime;
-            Gsing.detNum = (*it)->GetChanID().GetLocation();
-            pixie_tree_event_->gamma_scint_vec_.emplace_back(Gsing);
-            Gsing = processor_struct::GAMMASCINT_DEFAULT_STRUCT; //reset structure
+            GSstruct.energy = Genergy;
+            GSstruct.rawEnergy = (*it)->GetEnergy();
+            GSstruct.time = Gtime;
+            GSstruct.detNum = (*it)->GetChanID().GetLocation();
+
+            if (!(*it)->GetTrace().empty() && (*it)->GetTrace().HasValidWaveformAnalysis()) {
+                GSstruct.qdc = (*it)->GetTrace().GetQdc();
+            }
+            pixie_tree_event_->gamma_scint_vec_.emplace_back(GSstruct);
+            GSstruct = processor_struct::GAMMASCINT_DEFAULT_STRUCT; //reset structure
             //Dont fill because we want 1 pixie event per tree entry, so we add the current structure in the last spot
             //on a vector<> and then reset the structure. and we will at the end or Process()
         } //end sysroot_
