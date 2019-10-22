@@ -142,7 +142,7 @@ GammaScintProcessor::GammaScintProcessor(const std::map<std::string,std::string>
         bunchingTime_ = strtod(BunchingTimestr_.c_str(), nullptr);
     }
 
-    SysRoot_ =  StringManipulation::StringToBool(GSArgs.find("DDroot")->second);
+    SysRoot_ =  StringManipulation::StringToBool(GSArgs.find("GSroot")->second);
 
     if (!TimeScales.empty()) {
         if (TimeScales.size() > MAXTIMEPLOTS)

@@ -9,6 +9,7 @@ set(PROCESSOR_SOURCES
         EventProcessor.cpp
         ExtTSSenderProcessor.cpp
         GammaScintProcessor.cpp
+        GammaScintFragProcessor.cpp
         GeProcessor.cpp
         Hen3Processor.cpp
         ImplantSsdProcessor.cpp
