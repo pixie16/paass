@@ -10,7 +10,7 @@
 #include <cmath>
 
 #include "EventProcessor.hpp"
-#include "ProcessorRootStruc.hpp"
+#include "PaassRootStruct.hpp"
 #include "RawEvent.hpp"
 
 namespace dammIds {

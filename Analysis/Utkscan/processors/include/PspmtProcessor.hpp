@@ -10,7 +10,7 @@
 
 #include "EventProcessor.hpp"
 #include "RawEvent.hpp"
-#include "ProcessorRootStruc.hpp"
+#include "PaassRootStruct.hpp"
 
 ///Class to handle processing of position sensitive pmts
 class PspmtProcessor : public EventProcessor {

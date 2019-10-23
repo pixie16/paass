@@ -11,7 +11,7 @@
 #include "EventProcessor.hpp"
 #include "Globals.hpp"
 #include "HighResTimingData.hpp"
-#include "ProcessorRootStruc.hpp"
+#include "PaassRootStruct.hpp"
 #include "RawEvent.hpp"
 #include "TreeCorrelator.hpp"
 

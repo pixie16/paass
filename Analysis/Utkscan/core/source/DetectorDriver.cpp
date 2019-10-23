@@ -24,7 +24,6 @@
 #include "RawEvent.hpp"
 #include "TraceAnalyzer.hpp"
 #include "TreeCorrelator.hpp"
-#include "ProcessorRootStruc.hpp"
 
 using namespace std;
 using namespace dammIds::raw;

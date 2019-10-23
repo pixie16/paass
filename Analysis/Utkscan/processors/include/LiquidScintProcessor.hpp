@@ -7,7 +7,7 @@
 #define __LIQUIDSCINTPROCESSOR_HPP_
 
 #include "EventProcessor.hpp"
-#include "ProcessorRootStruc.hpp"
+#include "PaassRootStruct.hpp"
 #include "DetectorDriver.hpp"
 #include "Trace.hpp"
 

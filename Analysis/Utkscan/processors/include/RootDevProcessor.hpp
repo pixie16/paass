@@ -7,7 +7,7 @@
 #define PAASS_RootDevProcessor_H
 
 #include "EventProcessor.hpp"
-#include "ProcessorRootStruc.hpp"
+#include "PaassRootStruct.hpp"
 #include "RawEvent.hpp"
 
 class RootDevProcessor : public EventProcessor {
