@@ -14,7 +14,7 @@
 #include "Plots.hpp"
 #include "Globals.hpp"
 #include "TreeCorrelator.hpp"
-#include "ProcessorRootStruc.hpp"
+#include "PaassRootStruct.hpp"
 
 // forward declarations
 class DetectorSummary;

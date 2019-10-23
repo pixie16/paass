@@ -25,7 +25,7 @@
 #include <TH2.h>
 #include <TTree.h>
 #include "GSaddback.hpp"
-#include "ProcessorRootStruc.hpp"
+#include "PaassRootStruct.hpp"
 #include "TROOT.h"
 #include "TSystem.h"
 

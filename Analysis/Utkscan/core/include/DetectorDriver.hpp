@@ -59,7 +59,7 @@
 #include <TH2.h>
 #include "CloverProcessor.hpp"
 #include "GammaScintProcessor.hpp"
-#include "ProcessorRootStruc.hpp"
+#include "PaassRootStruct.hpp"
 #include "PspmtProcessor.hpp"
 #include "SingleBetaProcessor.hpp"
 #include "VandleProcessor.hpp"

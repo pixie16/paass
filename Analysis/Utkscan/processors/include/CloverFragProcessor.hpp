@@ -11,7 +11,7 @@
 #include <cmath>
 
 #include "EventProcessor.hpp"
-#include "ProcessorRootStruc.hpp"
+#include "PaassRootStruct.hpp"
 #include "RawEvent.hpp"
 
 #include "DammPlotIds.hpp"

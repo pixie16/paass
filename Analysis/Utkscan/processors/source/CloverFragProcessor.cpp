@@ -163,7 +163,7 @@ bool CloverFragProcessor::Process(RawEvent &event) {
             Cstruct.detNum = (*itClover)->GetChanID().GetLocation();
             Cstruct.cloverNum = cloverNum;
             pixie_tree_event_->clover_vec_.emplace_back(Cstruct);
-            Cstruct = processor_struct::CLOVERS_DEFAULT_STRUCT; //reset to initalized values (see ProcessorRootStruc.hpp
+            Cstruct = processor_struct::CLOVERS_DEFAULT_STRUCT; //reset to initalized values (see PaassRootStruct.hpp
         }
     }
     EndProcess();

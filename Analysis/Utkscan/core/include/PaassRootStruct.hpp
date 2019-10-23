@@ -1,8 +1,8 @@
 /**Created by T.T. King 06/22/2018
  * */
 /** PixTreeEvent class added by R. Yokoyama 08/31/2018 **/
-#ifndef PAASS_PROCESSORSTRUC_HPP
-#define PAASS_PROCESSORSTRUC_HPP
+#ifndef PAASS_PAASSSTRUC_HPP
+#define PAASS_PAASSSTRUC_HPP
 
 #include <TObject.h>
 #include <TString.h>

@@ -21,7 +21,7 @@
 #include "EventProcessor.hpp"
 #include "HighResTimingData.hpp"
 
-#include "ProcessorRootStruc.hpp"
+#include "PaassRootStruct.hpp"
 
 /// Class to process VANDLE related events
 class VandleProcessor : public EventProcessor {
