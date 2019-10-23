@@ -259,20 +259,21 @@ void DetectorDriver::DeclarePlots() {
         DeclareHistogram1D(D_HIT_SPECTRUM, S7, "channel hit spectrum");
         DeclareHistogram2D(DD_RUNTIME_SEC, SE, S6, "run time - s");
         DeclareHistogram2D(DD_RUNTIME_MSEC, SE, S7, "run time - ms");
-        DeclareHistogram1D(D_INTERNAL_TS_CHECK, SB,"Time Diff between ETS1 and ES2 +1000. 100=BAD");
+        DeclareHistogram1D(D_INTERNAL_TS_CHECK, SB, "Time Diff between ETS1 and ES2 +1000. 100=BAD");
+        DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
+        DeclareHistogram1D(D_HAS_TRACE, S8, "channels with traces");
+        DeclareHistogram1D(D_HAS_TRACE_2, S8, "channels w/ traces: post WaveForm Analysis");
+        DeclareHistogram1D(D_HAS_TRACE_3, S8, "channels w/ traces: post Fit Analysis");
+        DeclareHistogram2D(DD_TRACE_MAX, SD, S8, "Max Value in Trace vs Chan Num");
+        DeclareHistogram1D(D_SUBEVENT_GAP, SE, "Time Between Channels in 10 ns / bin");
+        DeclareHistogram1D(D_EVENT_LENGTH, SE, "Event Length in ns");
+        DeclareHistogram1D(D_EVENT_GAP, SE, "Time Between Events in ns");
+        DeclareHistogram1D(D_EVENT_MULTIPLICITY, S7, "Number of Channels Event");
+        DeclareHistogram1D(D_BUFFER_END_TIME, SE, "Buffer Length in ns");
 
         if (Globals::get()->HasRawHistogramsDefined()) {
             DetectorLibrary *modChan = DetectorLibrary::get();
-            DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
-            DeclareHistogram1D(D_HAS_TRACE, S8, "channels with traces");
-            DeclareHistogram1D(D_HAS_TRACE_2, S8, "channels w/ traces: post WaveForm Analysis");
-            DeclareHistogram1D(D_HAS_TRACE_3, S8, "channels w/ traces: post Fit Analysis");
-            DeclareHistogram2D(DD_TRACE_MAX,SD, S8, "Max Value in Trace vs Chan Num");
-            DeclareHistogram1D(D_SUBEVENT_GAP, SE, "Time Between Channels in 10 ns / bin");
-            DeclareHistogram1D(D_EVENT_LENGTH, SE, "Event Length in ns");
-            DeclareHistogram1D(D_EVENT_GAP, SE, "Time Between Events in ns");
-            DeclareHistogram1D(D_EVENT_MULTIPLICITY, S7, "Number of Channels Event");
-            DeclareHistogram1D(D_BUFFER_END_TIME, SE, "Buffer Length in ns");
+            
             DetectorLibrary::size_type maxChan = modChan->size();
 
             for (DetectorLibrary::size_type i = 0; i < maxChan; i++) {
