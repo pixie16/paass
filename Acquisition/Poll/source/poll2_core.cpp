@@ -1295,18 +1295,30 @@ void Poll::CommandControl(){
                     std::cout << "ERROR: Invalid channel argument: '" << arguments.at(1) << "'\n";
                     continue;
                 }
-                flipper.SetCSRAbit(arguments.at(2));
 
-                std::string dum_str = "CHANNEL_CSRA";
-                bool error = false;
-                for (int mod = modStart; mod <= modStop; mod++) {
-                    for (int ch = chStart; ch <= chStop; ch++) {
-                        if(!forChannel(pif, mod, ch, flipper, dum_str)){
-                            error = true;
-                        }
+                bool IsValidNumber = (arguments.at(2).find_first_not_of("0123456789") == std::string::npos);
+                if (IsValidNumber && atoi(arguments.at(2).c_str()) >= 24) {
+                    std::cout << "ERROR: Invalid CCSRA bit number: '" << arguments.at(2) << "'\n";
+                    continue;
+                } else if (!IsValidNumber) {
+                    if (std::find(BitFlipper::toggle_names.begin(), BitFlipper::toggle_names.end(), arguments.at(2)) == BitFlipper::toggle_names.end()) {
+                        std::cout << "ERROR: Invalid toggle name: '" << arguments.at(2) << "'\n";
+                        continue;
                     }
                 }
-                if (!error) pif->SaveDSPParameters();
+
+                    flipper.SetCSRAbit(arguments.at(2));
+
+                    std::string dum_str = "CHANNEL_CSRA";
+                    bool error = false;
+                    for (int mod = modStart; mod <= modStop; mod++) {
+                        for (int ch = chStart; ch <= chStop; ch++) {
+                            if (!forChannel(pif, mod, ch, flipper, dum_str)) {
+                                error = true;
+                            }
+                        }
+                    }
+                    if (!error) pif->SaveDSPParameters();
             }
             else{
                 std::cout << sys_message_head << "Invalid number of parameters to toggle\n";
