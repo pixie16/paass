@@ -32,6 +32,7 @@ public:
 
 private:
     std::set<std::string> ignoredTypes_;
+    int extremeBaselineRejectCounter_;
 };
 
 #endif // __WAVEFORMANALYZER_HPP_
