@@ -22,6 +22,7 @@ WaveformAnalyzer::WaveformAnalyzer(const std::set<std::string> &ignoredTypes)
     : TraceAnalyzer() {
     name = "WaveformAnalyzer";
     ignoredTypes_ = ignoredTypes;
+    extremeBaselineRejectCounter_ = 0;
 }
 
 void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
@@ -64,14 +65,26 @@ void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
         pair<double, double> baseline = TraceFunctions::CalculateBaseline(trace, make_pair(0, max.first - range.first));
 
         //For well behaved traces the standard deviation of the baseline
-        // shouldn't ever be more than 1-3 ADC units. However, for traces
+        // shouldn't ever be more than 1-3 ADC units for 12b. However, for traces
         // that are not captured properly, we can get really crazy values
         // here the SiPM often saw values as high as 20. We will put in a
         // hard limit of 50 as a cutoff since anything with a standard
         // deviation of this high will never be something we want to analyze.
-        static const double extremeBaselineVariation = 50;
-        if (baseline.second >= extremeBaselineVariation) {
+        //We are switching to a percentage of the baseline value, because higher 
+        // bit resolution Pixies are able to capture more variation in the baseline.
+        //Also if the avg baseline is lower than 10 ADC units (for any bit resolution),
+        // this is also a sign of a bad trace capture.
+        
+        static const double extremeBaselineVariation = 0.15 * baseline.first; //Checking for an std of 15% of the avg baseline (this way we are sensitive to the different bit resolutions)
+        if (baseline.second >= extremeBaselineVariation || baseline.first <= 10) {
+            extremeBaselineRejectCounter_++;
             trace.SetHasValidWaveformAnalysis(false);
+            trace.SetBaseline(baseline);
+            trace.SetMax(max);
+            if (extremeBaselineRejectCounter_ % 10000 == 0){
+                cout << "WaveformAnalyzer::Analyze - Rejected " << extremeBaselineRejectCounter_ << " traces for an Extreme Baseline" << endl;
+            }
+
             EndAnalyze();
             return;
         }
