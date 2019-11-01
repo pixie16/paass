@@ -231,7 +231,7 @@ void Unpacker::InitializeDataMask(const std::string &firmware, const unsigned in
     if (frequency == 0) {
         unsigned int modCounter = 0;
         pugi::xml_node node = XmlInterface::get(firmware)->GetDocument()->child("Configuration").child("Map");
-        unsigned int globalFreq_ = node.attribute("frequency").as_uint();
+        unsigned int globalFreq_ = node.attribute("frequency").as_uint(0);
         string globalFirm_ = node.attribute("firmware").as_string();
 
         for (pugi::xml_node_iterator it = node.begin(); it != node.end(); ++it, modCounter++) {
