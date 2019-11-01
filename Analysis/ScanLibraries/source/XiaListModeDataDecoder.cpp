@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <bitset>
 
+#include <stdlib.h>
 #include <cmath>
 
 #include "HelperEnumerations.hpp"
@@ -150,6 +151,25 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
           //   printf("SetExternalTimeHigh %u \n", buf[5]);
           // }
 
+        //   printf("\n");
+        //   printf("header length (1 counting) = %u \n", headerLength);
+        //   printf("ETS Word1 (Last Buf Word - 1;ETS_low) = %u \n", buf[headerLength - 2]);
+        //   cout << "ETS Word1 Binary= " << std::bitset<32>(buf[headerLength - 2]) << endl
+        //        << endl;
+
+        //   if (data->GetExternalTimeLow() > 4000000000) {
+        //       cout << "Approching UInt max" << endl
+        //            << endl;
+        //   }
+
+        //   printf("ETS Word2 (Last Buf Word; CCI_ETS_HIGH)=                    %u \n", buf[headerLength - 1]);
+        //   cout << "ETS Word2 Binary= " << std::bitset<32>(buf[headerLength - 1]) << endl<<endl;
+
+        //   printf("Header Word4 (Trace ORF, Trace Len, EVT En)= %u \n", buf[headerLength - 3]);
+        //   cout << "Header Word4 Binary= " << std::bitset<32>(buf[headerLength - 3]) << endl;
+
+        //   printf("\n");
+
           data->SetExternalTimeStamp(CalculateExternalTimeStamp(*data));
           if(headerLength);
           // printf("headerLength %u, ", headerLength);
@@ -169,10 +189,10 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
         //channel_counts[modNum][chanNum]++;
 
         ///@TODO This needs to be revised to take into account the bit
-        /// resolution of the modules. I've currently set it to the maximum
+        /// resolution of the modules. I've currently set it to 10 more than maximum
         /// bit resolution of any module (16-bit).
         if (data->IsSaturated())
-            data->SetEnergy(65536);
+            data->SetEnergy(65546);
 
         //We set the time according to the revision and firmware.
         pair<double, double> times = CalculateTimeInSamples(mask, *data);

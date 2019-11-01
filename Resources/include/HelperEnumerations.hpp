@@ -26,13 +26,15 @@ namespace DataProcessing {
     /// * R29432 is valid from 02/15/2014 to 07/28/2014
     /// * R30474, R30980, R30981 is valid from 07/28/2014 to 03/08/2016
     /// * R34688 is valid from 03/08/2016
+    /// * R35207 is for the 14bit 500MHz valid from 01/01/2019
+    /// * R42159 is valid from 04/30/2019 and is primarly for 12b 250MHz (testing as R34688 decode)
     /// * UNKNOWN is used for unspecified firmware revisions.
     ///These dates do not imply that the particular data set being analyzed was
     /// taken with the expected firmware. These dates are meant only to help
     /// guide the user if they do not know the particular firmware that was used
     /// to obtain their data set.
     enum FIRMWARE {
-        R17562, R20466, R27361, R29432, R30474, R30980, R30981, R34688, UNKNOWN
+      R17562, R20466, R27361, R29432, R30474, R30980, R30981, R34688, R35207, UNKNOWN
     };
 
     ///An enumeration that tells how long headers from the XIA List mode data
