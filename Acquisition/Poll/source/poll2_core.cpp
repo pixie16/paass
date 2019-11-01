@@ -961,7 +961,8 @@ void Poll::CommandControl(){
                 cmd = "stop";
             }
             else {
-                std::cout << " Ignoring signal.\n";
+                std::cout << " Clearing Cmd Line\n";
+                poll_term_->ClearCmd();
                 continue;
             }
         }

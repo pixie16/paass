@@ -247,6 +247,9 @@ public:
 
     /// Close the window and restore control to the terminal
     void Close();
+
+    /// Clear's the current cmd line in the poll2 prompt. (This is a wrapper of the internal clear_() command, we probably should reimplement it rather than just wrapping a private member function. )
+    void ClearCmd();
 };
 
 /// Split a string about some delimiter.
