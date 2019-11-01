@@ -307,6 +307,8 @@ void Terminal::clear_() {
     refresh_();
 }
 
+void Terminal::ClearCmd() {Terminal::clear_();}
+
 /**Creates a status window and the refreshes the output. Takes an optional number of lines, defaulted to 1.
  *
  * \param[in] numLines Vertical size of status window.
