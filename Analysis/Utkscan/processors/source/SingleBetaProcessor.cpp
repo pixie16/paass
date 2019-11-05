@@ -49,7 +49,7 @@ bool SingleBetaProcessor::PreProcess(RawEvent &event) {
 
         double evtTick2Ns = Globals::get()->GetClockInSeconds((*itE)->GetChanID().GetModFreq()) * 1e9;
 
-        if ((*itE)->GetChanID().HasTag("start") && (*itE)->GetTrace().HasValidFitAnalysis()) {
+        if ((*itE)->GetChanID().HasTag("start") && (*itE)->GetTrace().HasValidTimingAnalysis()) {
             plot(DD_QDC, (*itE)->GetTrace().GetQdc(), (*itE)->GetChanID().GetLocation());
             plot(DD_BETAMAXXVAL, (*itE)->GetTrace().GetMaxInfo().second, (*itE)->GetChanID().GetLocation());
 
@@ -60,7 +60,7 @@ bool SingleBetaProcessor::PreProcess(RawEvent &event) {
                 SBstruc.tMaxVal = (*itE)->GetTrace().GetMaxInfo().second;
                 SBstruc.hasTraceFit = true;
             }
-        } else if ((*itE)->GetChanID().HasTag("start") && !(*itE)->GetTrace().HasValidFitAnalysis()) {  //! Start Beta, without a valid fit for the trace (I.e no trace, ignored or Onboard CFD)
+        } else if ((*itE)->GetChanID().HasTag("start") && !(*itE)->GetTrace().HasValidTimingAnalysis()) {  //! Start Beta, without a valid fit for the trace (I.e no trace, ignored or Onboard CFD)
             plot(DD_HIGHEN, (*itE)->GetCalibratedEnergy(), (*itE)->GetChanID().GetLocation());
 
             if (DetectorDriver::get()->GetSysRootOutput()) {

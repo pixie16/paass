@@ -96,11 +96,11 @@ public:
         return std::vector<unsigned int>(begin() + waveformRange_.first, begin() + waveformRange_.second);
     }
     
-    ///@return True if the Waveform Analysis was completed sucessfully, this is a legacy carryover. Please use HasValidWaveformAnalysis().  
+    ///@return True if the Waveform Analysis was completed successfully, this is a legacy carryover. Please use HasValidWaveformAnalysis().  
     bool HasValidAnalysis() const {return hasValidWaveformAnalysis_; }
 
     ///@return True if the fit of the trace was completed.
-    bool HasValidFitAnalysis() const { return hasValidFitAnalysis_; }
+    bool HasValidTimingAnalysis() const { return hasValidTimingAnalysis_; }
 
     ///@return True if we were able to successfully analyze the trace.
     bool HasValidWaveformAnalysis() const { return hasValidWaveformAnalysis_; }
@@ -136,7 +136,7 @@ public:
     ///Sets the value of hasValidWaveformAnalysis_
     ///@param[in] a : True if we were able to successfully fit this trace
     /// for information about the maximum, baseline, phase, etc.
-    void SetHasValidFitAnalysis(const bool &a) { hasValidFitAnalysis_ = a; }
+    void SetHasValidTimingAnalysis(const bool &a) { hasValidTimingAnalysis_ = a; }
 
     ///Sets the value of hasValidWaveformAnalysis_
     ///@param[in] a : True if we were able to successfully analyze this waveform
@@ -194,7 +194,7 @@ public:
 private:
     bool isSaturated_; ///< True if the trace was flagged as saturated.
     bool hasValidWaveformAnalysis_;///< True if the analysis of the waveform was successful (no fitting)
-    bool hasValidFitAnalysis_;///< True if the fit of the trace was completed
+    bool hasValidTimingAnalysis_;///< True if the fit/cfd of the trace was completed
 
     double phase_; ///< The sub-sampling phase of the trace.
     double qdc_; ///< The qdc that was calculated from the waveform.

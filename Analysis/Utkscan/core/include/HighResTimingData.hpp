@@ -36,7 +36,7 @@ public:
     ///@return True if the trace was successfully analyzed and we managed to
     /// find a phase.
     bool GetIsValid() const {
-        if (GetTrace().HasValidWaveformAnalysis() && GetTrace().HasValidFitAnalysis() && GetTrace().GetPhase() != 0.0)
+        if (GetTrace().HasValidWaveformAnalysis() && GetTrace().HasValidTimingAnalysis() && GetTrace().GetPhase() != 0.0)
             return (true);
         return (false);
     }
