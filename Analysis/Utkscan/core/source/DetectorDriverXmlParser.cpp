@@ -287,8 +287,7 @@ vector<TraceAnalyzer *> DetectorDriverXmlParser::ParseAnalyzers(const pugi::xml_
         } else if (name == "WaaAnalyzer") {
             vecAnalyzer.push_back(new WaaAnalyzer());
         } else if (name == "WaveformAnalyzer") {
-            std::vector<std::string> tokens =
-                StringManipulation::TokenizeString(analyzer.attribute("ignored").as_string(""), ",");
+            std::vector<std::string> tokens = StringManipulation::TokenizeString(analyzer.attribute("ignored").as_string(""), ",");
             vecAnalyzer.push_back(new WaveformAnalyzer(std::set<std::string>(tokens.begin(), tokens.end())));
         } else {
             stringstream ss;

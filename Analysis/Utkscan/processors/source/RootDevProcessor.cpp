@@ -57,7 +57,7 @@ bool RootDevProcessor::Process(RawEvent &event) {
         RDstruct.saturation = (*it)->IsSaturated();
 
         if ((*it)->GetTrace().size() > 0) {
-            RDstruct.hasValidFitAnalysis = (*it)->GetTrace().HasValidFitAnalysis();
+            RDstruct.hasValidTimingAnalysis = (*it)->GetTrace().HasValidTimingAnalysis();
             RDstruct.hasValidWaveformAnalysis = (*it)->GetTrace().HasValidWaveformAnalysis();
             RDstruct.baseline = (*it)->GetTrace().GetBaselineInfo().first;
             RDstruct.stdBaseline = (*it)->GetTrace().GetBaselineInfo().second;

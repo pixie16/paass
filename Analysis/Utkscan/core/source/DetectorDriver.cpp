@@ -334,10 +334,10 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
 
             
         if(chan->GetTrace().HasValidWaveformAnalysis()){
-        plot(D_HAS_TRACE_2,id);
+            plot(D_HAS_TRACE_2,id);
         }
-        if(chan->GetTrace().HasValidFitAnalysis()){
-        plot(D_HAS_TRACE_3,id);
+        if(chan->GetTrace().HasValidTimingAnalysis()){
+            plot(D_HAS_TRACE_3,id);
         }
         //We are going to handle the filtered energies here.
         vector<double> filteredEnergies = trace.GetFilteredEnergies();

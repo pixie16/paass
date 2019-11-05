@@ -63,7 +63,7 @@ void FittingAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     ignoredTypes_.find(cfg.GetType() + ":" + cfg.GetSubtype()) != ignoredTypes_.end() ||
     ignoredTypes_.find(cfg.GetType() + ":" + cfg.GetSubtype() + ":" + cfg.GetGroup()) != ignoredTypes_.end()) {
         trace.SetPhase(0.0);
-        trace.SetHasValidFitAnalysis(false);
+        trace.SetHasValidTimingAnalysis(false);
         EndAnalyze();
         return;
     }
@@ -74,6 +74,6 @@ void FittingAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
         driver_->SetIsFastSiPm(true);
 
     trace.SetPhase(driver_->CalculatePhase(trace.GetWaveform(), cfg.GetFittingParameters(), trace.GetMaxInfo(),trace.GetBaselineInfo()) + trace.GetMaxInfo().first);
-    trace.SetHasValidFitAnalysis(true);
+    trace.SetHasValidTimingAnalysis(true);
     EndAnalyze();
 }
