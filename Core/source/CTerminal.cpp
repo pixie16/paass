@@ -995,9 +995,13 @@ Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/*=0*/) {
                 wdelch(input_window);
                 //Remove character from cmd string
                 cmd.erase(cursX - offset, 1);
-            } else if (keypress ==
-                       KEY_IC) { insertMode_ = true; } // Insert key (331)
-            else if (keypress == KEY_HOME) { cursX = offset; }
+            } else if (keypress == KEY_IC) { // Insert key (331)
+                if (insertMode_){
+                    insertMode_ = false;
+                } else {
+                    insertMode_ = true; 
+                }
+            }else if (keypress == KEY_HOME) { cursX = offset; }
             else if (keypress == KEY_END) { cursX = cmd.length() + offset; }
             else if (keypress == KEY_MOUSE) { //Handle mouse events
                 MEVENT mouseEvent;
