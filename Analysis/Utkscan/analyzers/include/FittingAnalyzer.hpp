@@ -32,7 +32,9 @@ public:
      * \param [in] detSubtype : the subtype of the detector 
      * \param [in] tagMap : the map of tags for the channel */
     void Analyze(Trace &trace, const ChannelConfiguration &cfg);
-
+    
+    //precheck of the individual analyzer's ignore list
+    bool IsIgnoredDetector(const ChannelConfiguration &id);
 private:
     TimingDriver *driver_;
     std::set<std::string> ignoredTypes_;

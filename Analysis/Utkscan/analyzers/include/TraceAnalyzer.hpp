@@ -25,8 +25,13 @@ public:
     /** Constructor taking histogram information
     * \param [in] offset : the offset for the histograms
     * \param [in] range : the range of the histograms
-    * \param [in] name : the name of the processor */
+    * \param [in] name : the name of the analyzer */
     TraceAnalyzer(const unsigned int &offset, const unsigned int &range, const std::string &name);
+
+    /** Constructor taking just the Analyzer Name
+    * \param [in] name : the name of the analyzer */
+    TraceAnalyzer(const std::string &name);
+
 
     /** Initializes the Analyzer
     * \return True if the init was successful */
@@ -47,12 +52,37 @@ public:
     /** Finish analysis updating the analyzer timing information */
     void EndAnalyze(void);
 
+    /** \return the level of the trace analysis */
+    int GetLevel() { return level; }
+
+    /** Get the name of the analyzer
+    * \return Name of the analyzer */
+    std::string GetName(void) const { return (name); }
+
+    /// @return true if current detector is in the list
+    bool IsIgnored(const std::set<std::string> &list, const ChannelConfiguration &id) {
+        bool retVal;
+        if (list.find(id.GetType()) != list.end()) {
+            retVal = true;
+        } else if (list.find(id.GetType() + ":" + id.GetSubtype()) != list.end()) {
+            retVal = true;
+        } else if (list.find(id.GetType() + ":" + id.GetSubtype() + ":" + id.GetGroup()) != list.end()) {
+            retVal = true;
+        } else {
+            retVal = false;
+        }
+        return retVal;
+    };
+
+    /// @return true if we should use this analyzer with the current channel
+    /// \param [in] id : current channel configuration
+    /// This is should be used for any analyzers that do parallel work, i.e 
+    /// the FittingAnalyzer and the CfdAnalyzer, so that we dont zero the work thats already been done. 
+    virtual bool IsIgnoredDetector(const ChannelConfiguration &id){return false;};
+
     /** Set the level of the trace analysis
      * \param [in] i : the level of the analysis to be done */
     void SetLevel(int i) { level = i; }
-
-    /** \return the level of the trace analysis */
-    int GetLevel() { return level; }
 
 protected:
     int level;                ///< the level of analysis to proceed with
