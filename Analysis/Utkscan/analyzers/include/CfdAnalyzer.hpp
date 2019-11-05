@@ -12,12 +12,12 @@
 
 //! Class to analyze traces using a digital CFD
 class CfdAnalyzer : public TraceAnalyzer {
-public:
+   public:
     /** Default constructor taking an argument*/
-    CfdAnalyzer(const std::string &s);
+    CfdAnalyzer(const std::string &s, const std::set<std::string> &ignoredTypes);
 
     /** Default Destructor */
-    ~CfdAnalyzer() {};
+    ~CfdAnalyzer(){};
 
     /** Declare the plots */
     void DeclarePlots(void) const {};
@@ -29,7 +29,8 @@ public:
     * \param [in] tagMap : the map of tags for the channel */
     void Analyze(Trace &trace, const ChannelConfiguration &cfg);
 
-private:
+   private:
+    std::set<std::string> ignoredTypes_;
     TimingDriver *driver_;
 };
 
