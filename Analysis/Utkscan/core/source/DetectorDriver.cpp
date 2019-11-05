@@ -329,15 +329,19 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
     if (!trace.empty()) {
         plot(D_HAS_TRACE, id);
 
-        for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin(); it != vecAnalyzer.end(); it++)
-            (*it)->Analyze(trace, chanCfg);
+        for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin(); it != vecAnalyzer.end(); it++){
+            if (!(*it)->IsIgnoredDetector(chanCfg)){
+                (*it)->Analyze(trace, chanCfg);
+            }
+        }
 
-            
         if(chan->GetTrace().HasValidWaveformAnalysis()){
             plot(D_HAS_TRACE_2,id);
         }
         if(chan->GetTrace().HasValidTimingAnalysis()){
             plot(D_HAS_TRACE_3,id);
+        } else {
+            trace.SetPhase(0.0); // if the timing analysis fails for any reason then set the phase to 0
         }
         //We are going to handle the filtered energies here.
         vector<double> filteredEnergies = trace.GetFilteredEnergies();

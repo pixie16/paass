@@ -25,9 +25,17 @@ WaveformAnalyzer::WaveformAnalyzer(const std::set<std::string> &ignoredTypes)
     extremeBaselineRejectCounter_ = 0;
 }
 
+bool WaveformAnalyzer::IsIgnoredDetector(const ChannelConfiguration &id) {
+    if (IsIgnored(ignoredTypes_, id)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     TraceAnalyzer::Analyze(trace, cfg);
-    if (trace.IsSaturated() || trace.empty() || ignoredTypes_.find(cfg.GetType()) != ignoredTypes_.end() || ignoredTypes_.find(cfg.GetType() + ":" + cfg.GetSubtype()) != ignoredTypes_.end() || ignoredTypes_.find(cfg.GetType() + ":" + cfg.GetSubtype() + ":" + cfg.GetGroup()) != ignoredTypes_.end()) {
+    if (trace.IsSaturated() || trace.empty() || IsIgnored(ignoredTypes_,cfg)) {
         trace.SetHasValidWaveformAnalysis(false);
         EndAnalyze();
         return;

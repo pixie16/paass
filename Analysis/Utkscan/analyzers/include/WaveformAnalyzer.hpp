@@ -30,6 +30,9 @@ public:
     * \param [in] tags : the map of the tags for the channel */
     void Analyze(Trace &trace, const ChannelConfiguration &cfg);
 
+     //precheck of the individual analyzer's ignore list
+    bool IsIgnoredDetector(const ChannelConfiguration &id);
+
 private:
     std::set<std::string> ignoredTypes_;
     int extremeBaselineRejectCounter_;

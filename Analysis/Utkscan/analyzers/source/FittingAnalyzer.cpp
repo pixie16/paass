@@ -29,7 +29,7 @@
 
 using namespace std;
 
-FittingAnalyzer::FittingAnalyzer(const std::string &s ,const std::set<std::string> &ignored) {
+FittingAnalyzer::FittingAnalyzer(const std::string &s ,const std::set<std::string> &ignoredTypes) {
     name = "FittingAnalyzer";
     if (s == "GSL" || s == "gsl")
         driver_ = new GslFitter();
@@ -43,26 +43,25 @@ FittingAnalyzer::FittingAnalyzer(const std::string &s ,const std::set<std::strin
            << "\" was unknown. Please choose a valid driver.";
         throw GeneralException(ss.str());
     }
-    ignoredTypes_ = ignored; 
+    ignoredTypes_ = ignoredTypes; 
 }
 
 FittingAnalyzer::~FittingAnalyzer() {
     delete driver_;
 }
 
+bool FittingAnalyzer::IsIgnoredDetector(const ChannelConfiguration &id) {
+    if (IsIgnored(ignoredTypes_, id)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void FittingAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     TraceAnalyzer::Analyze(trace, cfg);
 
-    if (trace.IsSaturated() || trace.empty() || !trace.HasValidWaveformAnalysis()) {
-        trace.SetPhase(0.0);
-        trace.SetHasValidFitAnalysis(false);
-        EndAnalyze();
-        return;
-    }
-    if (ignoredTypes_.find(cfg.GetType()) != ignoredTypes_.end() || 
-    ignoredTypes_.find(cfg.GetType() + ":" + cfg.GetSubtype()) != ignoredTypes_.end() ||
-    ignoredTypes_.find(cfg.GetType() + ":" + cfg.GetSubtype() + ":" + cfg.GetGroup()) != ignoredTypes_.end()) {
-        trace.SetPhase(0.0);
+    if (trace.IsSaturated() || trace.empty() || !trace.HasValidWaveformAnalysis() || IsIgnored(ignoredTypes_,cfg)) {
         trace.SetHasValidTimingAnalysis(false);
         EndAnalyze();
         return;
