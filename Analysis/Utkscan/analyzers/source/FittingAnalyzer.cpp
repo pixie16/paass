@@ -61,6 +61,11 @@ bool FittingAnalyzer::IsIgnoredDetector(const ChannelConfiguration &id) {
 void FittingAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     TraceAnalyzer::Analyze(trace, cfg);
 
+    //non destructive return if we have already done timing analysis on this channel
+    if (trace.HasValidTimingAnalysis()){
+        return;
+    }
+
     if (trace.IsSaturated() || trace.empty() || !trace.HasValidWaveformAnalysis() || IsIgnored(ignoredTypes_,cfg)) {
         trace.SetHasValidTimingAnalysis(false);
         EndAnalyze();
