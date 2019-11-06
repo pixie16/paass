@@ -215,9 +215,9 @@ void MapNodeXmlParser::ParseCalibrations(const pugi::xml_node &node, const Chann
 /// Parameter node must also exist.
 void MapNodeXmlParser::ParseCfdNode(const pugi::xml_node &node, ChannelConfiguration &config, const bool &isVerbose) {
         config.SetCfdParameters(make_tuple(
-                node.child("Cfd").attribute("f").as_double(DefaultConfig::cfdF),
-                node.child("Cfd").attribute("d").as_double(DefaultConfig::cfdD),
-                node.child("Cfd").attribute("l").as_double(DefaultConfig::cfdL)));
+                node.attribute("f").as_double(DefaultConfig::cfdF),
+                node.attribute("d").as_double(DefaultConfig::cfdD),
+                node.attribute("l").as_double(DefaultConfig::cfdL)));
 }
 
 ///This method parses the fitting node. There are only two free parameters at the moment. The main part of this node
